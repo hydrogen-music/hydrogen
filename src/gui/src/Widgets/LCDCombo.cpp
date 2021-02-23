@@ -26,13 +26,14 @@
 #include "LCD.h"
 #include "Button.h"
 
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 
 const char* LCDCombo::__class_name = "LCDCombo";
 
-LCDCombo::LCDCombo( QWidget *pParent, int digits )
+LCDCombo::LCDCombo( QWidget *pParent, int digits, bool bAllowMenuOverflow )
 	: QWidget(pParent)
 	, Object( __class_name )
+	, m_bAllowMenuOverflow( bAllowMenuOverflow )
 {
 	INFOLOG( "INIT" );
 
@@ -44,6 +45,7 @@ LCDCombo::LCDCombo( QWidget *pParent, int digits )
 	                     QSize(13, 13)
 	                   );
 	pop = new QMenu( this );
+
 	size = digits;
 	active = -1;
 
@@ -71,7 +73,7 @@ void LCDCombo::onClick( Button* )
 bool LCDCombo::addItem( const QString &text )
 {
 	//INFOLOG( "add item" );
-	if ( text.size() <= size ) {
+	if ( text.size() <= size || m_bAllowMenuOverflow ) {
 		actions.append( pop->addAction( text ) );
 		return true;
 	} else {
@@ -95,7 +97,7 @@ void LCDCombo::wheelEvent( QWheelEvent * ev )
 {
 	ev->ignore();
 	const int n = actions.size();
-	const int d = ( ev->delta() > 0 ) ? -1: 1;
+	const int d = ( ev->angleDelta().y() > 0 ) ? -1: 1;
 	int next = ( n + active + d ) % n;
 	if ( actions.at( next )->isSeparator() ) {
 		next = ( n + next + d ) % n;

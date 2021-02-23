@@ -29,22 +29,22 @@
 #include "HydrogenApp.h"
 #include "Mixer/Mixer.h"
 
-#include <hydrogen/basics/note.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/timeline.h>
-#include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/sampler/Sampler.h>
-#include <hydrogen/event_queue.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/Timeline.h>
+#include <core/IO/AudioOutput.h>
+#include <core/AudioEngine.h>
+#include <core/Sampler/Sampler.h>
+#include <core/EventQueue.h>
 
 #include <memory>
 
@@ -57,6 +57,31 @@ using namespace H2Core;
 const char* ExportSongDialog::__class_name = "ExportSongDialog";
 
 enum ExportModes { EXPORT_TO_SINGLE_TRACK, EXPORT_TO_SEPARATE_TRACKS, EXPORT_TO_BOTH };
+
+static int interpolateModeToComboBoxIndex(Interpolation::InterpolateMode interpolateMode)
+{
+	int Index = 0;
+	
+	switch ( interpolateMode ) {
+		case Interpolation::InterpolateMode::Linear:
+			Index = 0;
+			break;
+		case Interpolation::InterpolateMode::Cosine:
+			Index = 1;
+			break;
+		case Interpolation::InterpolateMode::Third:
+			Index = 2;
+			break;
+		case Interpolation::InterpolateMode::Cubic:
+			Index = 3;
+			break;
+		case Interpolation::InterpolateMode::Hermite:
+			Index = 4;
+			break;
+	}
+	
+	return Index;
+}
 
 // Here we are going to store export filename 
 QString ExportSongDialog::sLastFilename = "";
@@ -97,18 +122,13 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	}
 
 	// use of timeline
-	if( m_pEngine->getTimeline()->m_timelinevector.size() > 0 ){
-		toggleTimeLineBPMCheckBox->setChecked(m_pPreferences->getUseTimelineBpm());
-		m_bOldTimeLineBPMMode = m_pPreferences->getUseTimelineBpm();
-		connect(toggleTimeLineBPMCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleTimeLineBPMMode( bool )));
-	} else {
-		m_bOldTimeLineBPMMode = m_pPreferences->getUseTimelineBpm();
-		toggleTimeLineBPMCheckBox->setEnabled( false );
-	}
+	toggleTimeLineBPMCheckBox->setChecked(m_pPreferences->getUseTimelineBpm());
+	m_bOldTimeLineBPMMode = m_pPreferences->getUseTimelineBpm();
+	connect(toggleTimeLineBPMCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleTimeLineBPMMode( bool )));
 
 	// use of interpolation mode
-	m_nOldInterpolation = AudioEngine::get_instance()->get_sampler()->getInterpolateMode();
-	resampleComboBox->setCurrentIndex( m_nOldInterpolation );
+	m_OldInterpolationMode = AudioEngine::get_instance()->get_sampler()->getInterpolateMode();
+	resampleComboBox->setCurrentIndex( interpolateModeToComboBoxIndex( m_OldInterpolationMode ) );
 	connect(resampleComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(resampleComboBoIndexChanged(int)));
 
 	// if rubberbandBatch calculate time needed by lib rubberband to resample samples
@@ -130,11 +150,11 @@ ExportSongDialog::~ExportSongDialog()
 
 QString ExportSongDialog::createDefaultFilename()
 {
-	QString sDefaultFilename = m_pEngine->getSong()->get_filename();
+	QString sDefaultFilename = m_pEngine->getSong()->getFilename();
 
 	// If song is not saved then use song name otherwise use the song filename
 	if( sDefaultFilename.isEmpty() ){
-		sDefaultFilename = m_pEngine->getSong()->__name;
+		sDefaultFilename = m_pEngine->getSong()->getName();
 	} else {
 		// extracting filename from full path
 		QFileInfo qDefaultFile( sDefaultFilename ); 
@@ -191,14 +211,18 @@ void ExportSongDialog::restoreSettingsFromPreferences()
 	exportTypeCombo->setCurrentIndex( m_pPreferences->getExportModeIdx() );
 	
 	int nExportSampleRateIdx = m_pPreferences->getExportSampleRateIdx();
-	if( nExportSampleRateIdx >= 0 ) {
+	if( nExportSampleRateIdx > 0 ) {
 		sampleRateCombo->setCurrentIndex( nExportSampleRateIdx );
+	} else {
+		sampleRateCombo->setCurrentIndex( 0 );
 	}
 	
 	
 	int nExportBithDepthIdx = m_pPreferences->getExportSampleDepthIdx();
-	if( nExportBithDepthIdx >= 0 ) {
+	if( nExportBithDepthIdx > 0 ) {
 		sampleDepthCombo->setCurrentIndex( nExportBithDepthIdx );
+	} else {
+		sampleDepthCombo->setCurrentIndex( 0 );
 	}
 }
 
@@ -278,7 +302,7 @@ void ExportSongDialog::on_okBtn_clicked()
 	saveSettingsToPreferences();
 	
 	Song *pSong = m_pEngine->getSong();
-	InstrumentList *pInstrumentList = pSong->get_instrument_list();
+	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 
 	m_bOverwriteFiles = false;
 
@@ -312,7 +336,7 @@ void ExportSongDialog::on_okBtn_clicked()
 		for (auto i = 0; i < pInstrumentList->size(); i++) {
 			pInstrumentList->get(i)->set_currently_exported( true );
 		}
-		
+
 		m_pEngine->startExportSession( sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt());
 		m_pEngine->startExportSong( filename );
 
@@ -331,18 +355,18 @@ void ExportSongDialog::on_okBtn_clicked()
 bool ExportSongDialog::currentInstrumentHasNotes()
 {
 	Song *pSong = m_pEngine->getSong();
-	unsigned nPatterns = pSong->get_pattern_list()->size();
+	unsigned nPatterns = pSong->getPatternList()->size();
 	
 	bool bInstrumentHasNotes = false;
 	
 	for ( unsigned i = 0; i < nPatterns; i++ ) {
-		Pattern *pPattern = pSong->get_pattern_list()->get( i );
+		Pattern *pPattern = pSong->getPatternList()->get( i );
 		const Pattern::notes_t* notes = pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
 			assert( pNote );
 
-			if( pNote->get_instrument()->get_id() == pSong->get_instrument_list()->get(m_nInstrument)->get_id() ){
+			if( pNote->get_instrument()->get_id() == pSong->getInstrumentList()->get(m_nInstrument)->get_id() ){
 				bInstrumentHasNotes = true;
 				break;
 			}
@@ -358,8 +382,8 @@ QString ExportSongDialog::findUniqueExportFilenameForInstrument(Instrument* pIns
 	QString uniqueInstrumentName;
 	
 	int instrumentOccurence = 0;
-	for(int i=0; i  < pSong->get_instrument_list()->size(); i++ ){
-		if( pSong->get_instrument_list()->get(m_nInstrument)->get_name() == pInstrument->get_name()){
+	for(int i=0; i  < pSong->getInstrumentList()->size(); i++ ){
+		if( pSong->getInstrumentList()->get(m_nInstrument)->get_name() == pInstrument->get_name()){
 			instrumentOccurence++;
 		}
 	}
@@ -376,7 +400,7 @@ QString ExportSongDialog::findUniqueExportFilenameForInstrument(Instrument* pIns
 void ExportSongDialog::exportTracks()
 {
 	Song *pSong = m_pEngine->getSong();
-	InstrumentList *pInstrumentList = pSong->get_instrument_list();
+	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 	
 	if( m_nInstrument < pInstrumentList->size() ){
 		
@@ -420,7 +444,7 @@ void ExportSongDialog::exportTracks()
 			pInstrumentList->get(i)->set_currently_exported( false );
 		}
 		
-		pSong->get_instrument_list()->get(m_nInstrument)->set_currently_exported( true );
+		pSong->getInstrumentList()->get(m_nInstrument)->set_currently_exported( true );
 		
 		m_pEngine->startExportSong( filename );
 
@@ -433,7 +457,6 @@ void ExportSongDialog::exportTracks()
 
 void ExportSongDialog::on_closeBtn_clicked()
 {
-	
 	m_pEngine->stopExportSong();
 	m_pEngine->stopExportSession();
 	
@@ -444,9 +467,9 @@ void ExportSongDialog::on_closeBtn_clicked()
 	}
 	m_pPreferences->setRubberBandBatchMode( m_bOldRubberbandBatchMode );
 	m_pPreferences->setUseTimelineBpm( m_bOldTimeLineBPMMode );
-	setResamplerMode(m_nOldInterpolation);
+	
+	AudioEngine::get_instance()->get_sampler()->setInterpolateMode( m_OldInterpolationMode );
 	accept();
-
 }
 
 
@@ -615,7 +638,7 @@ void ExportSongDialog::progressEvent( int nValue )
 
 		m_bExporting = false;
 
-		if( m_nInstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->size()){
+		if( m_nInstrument == Hydrogen::get_instance()->getSong()->getInstrumentList()->size()){
 			m_nInstrument = 0;
 			m_bExportTrackouts = false;
 		}
@@ -658,23 +681,22 @@ void ExportSongDialog::setResamplerMode(int index)
 {
 	switch ( index ){
 	case 0:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::LINEAR );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
 		break;
 	case 1:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::COSINE );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
 		break;
 	case 2:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::THIRD );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
 		break;
 	case 3:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::CUBIC );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
 		break;
 	case 4:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::HERMITE );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
 		break;
 	}
 }
-
 
 void ExportSongDialog::calculateRubberbandTime()
 {
@@ -684,14 +706,15 @@ void ExportSongDialog::calculateRubberbandTime()
 	okBtn->setEnabled(false);
 	
 	Timeline* pTimeline = m_pEngine->getTimeline();
+	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 
-	float oldBPM = m_pEngine->getSong()->__bpm;
+	float oldBPM = m_pEngine->getSong()->getBpm();
 	float lowBPM = oldBPM;
 
-	if( pTimeline->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
-			if(pTimeline->m_timelinevector[t].m_htimelinebpm < lowBPM){
-				lowBPM =  pTimeline->m_timelinevector[t].m_htimelinebpm;
+	if ( tempoMarkerVector.size() >= 1 ){
+		for ( int t = 0; t < tempoMarkerVector.size(); t++){
+			if(tempoMarkerVector[t]->fBpm < lowBPM){
+				lowBPM =  tempoMarkerVector[t]->fBpm;
 			}
 
 		}
@@ -704,7 +727,7 @@ void ExportSongDialog::calculateRubberbandTime()
 	assert(pSong);
 	
 	if(pSong){
-		InstrumentList *songInstrList = pSong->get_instrument_list();
+		InstrumentList *songInstrList = pSong->getInstrumentList();
 		assert(songInstrList);
 		for ( unsigned nInstr = 0; nInstr < songInstrList->size(); ++nInstr ) {
 			Instrument *pInstr = songInstrList->get( nInstr );
@@ -715,17 +738,17 @@ void ExportSongDialog::calculateRubberbandTime()
 					for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer ) {
-							Sample *pSample = pLayer->get_sample();
-							if ( pSample ) {
+							auto pSample = pLayer->get_sample();
+							if ( pSample != nullptr ) {
 								if( pSample->get_rubberband().use ) {
-									Sample *pNewSample = Sample::load(
+									auto pNewSample = Sample::load(
 												pSample->get_filepath(),
 												pSample->get_loops(),
 												pSample->get_rubberband(),
 												*pSample->get_velocity_envelope(),
 												*pSample->get_pan_envelope()
 												);
-									if( !pNewSample ){
+									if( pNewSample == nullptr ){
 										continue;
 									}
 	
@@ -759,7 +782,7 @@ bool ExportSongDialog::checkUseOfRubberband()
 	assert(pSong);
 	
 	if(pSong){
-		InstrumentList *pSongInstrList = pSong->get_instrument_list();
+		InstrumentList *pSongInstrList = pSong->getInstrumentList();
 		assert(pSongInstrList);
 		for ( unsigned nInstr = 0; nInstr < pSongInstrList->size(); ++nInstr ) {
 			Instrument *pInstr = pSongInstrList->get( nInstr );
@@ -770,8 +793,8 @@ bool ExportSongDialog::checkUseOfRubberband()
 					for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer ) {
-							Sample *pSample = pLayer->get_sample();
-							if ( pSample ) {
+							auto pSample = pLayer->get_sample();
+							if ( pSample != nullptr ) {
 								if( pSample->get_rubberband().use ) {
 									return true;
 								}

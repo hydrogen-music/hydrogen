@@ -24,14 +24,11 @@
 #ifndef MIXER_H
 #define MIXER_H
 
-
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
-#include <hydrogen/object.h>
-#include <hydrogen/globals.h>
+#include <core/Object.h>
+#include <core/Globals.h>
 #include "../EventListener.h"
 
 class Button;
@@ -48,12 +45,12 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		Mixer(QWidget* parent);
+		explicit Mixer(QWidget* parent);
 		~Mixer();
 
-		void showEvent ( QShowEvent *ev );
-		void hideEvent ( QHideEvent *ev );
-		void resizeEvent ( QResizeEvent *ev );
+		void showEvent ( QShowEvent *ev ) override;
+		void hideEvent ( QHideEvent *ev ) override;
+		void resizeEvent ( QResizeEvent *ev ) override;
 		void soloClicked(uint nLine);
 		bool isSoloClicked(uint nLine);
 
@@ -64,8 +61,6 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 		void noteOffClicked(MixerLine* ref);
 		void muteClicked(MixerLine* ref);
 		void muteClicked(ComponentMixerLine* ref);
-		void unmuteAll( bool findSelectedInstr);
-		void unmuteAll( int selectedInstr);
 		void soloClicked(MixerLine* ref);
 		void soloClicked(ComponentMixerLine* ref);
 		void volumeChanged(MixerLine* ref);
@@ -78,10 +73,11 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 		void updateMixer();
 		void showFXPanelClicked(Button* ref);
 		void showPeaksBtnClicked(Button* ref);
+		void openMixerSettingsDialog( Button* ref );
 		void ladspaActiveBtnClicked( LadspaFXMixerLine* ref );
 		void ladspaEditBtnClicked( LadspaFXMixerLine *ref );
 		void ladspaVolumeChanged( LadspaFXMixerLine* ref);
-		void closeEvent(QCloseEvent *event);
+		void closeEvent(QCloseEvent *event) override;
 
 	private:
 		QHBoxLayout *			m_pFaderHBox;
@@ -90,6 +86,7 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 		QScrollArea*			m_pFaderScrollArea;
 		ToggleButton *			m_pShowFXPanelBtn;
 		ToggleButton *			m_pShowPeaksBtn;
+		Button *				m_pOpenMixerSettingsBtn;
 		MasterMixerLine *		m_pMasterLine;
 
 		QWidget *				m_pFaderPanel;
@@ -100,13 +97,13 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 
 		QTimer *				m_pUpdateTimer;
 
-		uint findMixerLineByRef(MixerLine* ref);
-		uint findCompoMixerLineByRef(ComponentMixerLine* ref);
-		MixerLine* createMixerLine( int );
-		ComponentMixerLine* createComponentMixerLine( int );
+		uint					findMixerLineByRef(MixerLine* ref);
+		uint					findCompoMixerLineByRef(ComponentMixerLine* ref);
+		MixerLine*				createMixerLine( int );
+		ComponentMixerLine*		createComponentMixerLine( int );
 
 		// Implements EventListener interface
-		virtual void noteOnEvent( int nInstrument );
+		virtual void noteOnEvent( int nInstrument ) override;
 		//~ Implements EventListener interface
 
 };

@@ -23,19 +23,17 @@
 #ifndef MIDI_TABLE_H
 #define MIDI_TABLE_H
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 class MidiTable : public QTableWidget, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
 	public:
-		MidiTable( QWidget* pParent );
+		explicit MidiTable( QWidget* pParent );
 		~MidiTable();
 
 		void setupMidiTable();

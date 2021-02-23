@@ -27,7 +27,10 @@
 
 #include "ui_ExportSongDialog_UI.h"
 #include "EventListener.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
+#include <core/Sampler/Sampler.h>
+
+using InterpolateMode = H2Core::Interpolation::InterpolateMode;
 
 namespace H2Core {
 	class Instrument;
@@ -44,10 +47,10 @@ class ExportSongDialog : public QDialog, public Ui_ExportSongDialog_UI, public E
 	Q_OBJECT
 
 	public:
-		ExportSongDialog(QWidget* parent);
+		explicit ExportSongDialog(QWidget* parent);
 		~ExportSongDialog();
 
-		virtual void progressEvent( int nValue );
+		virtual void progressEvent( int nValue ) override;
 
 
 private slots:
@@ -83,7 +86,7 @@ private:
 	QString					m_sExtension;
 	bool					m_bOldRubberbandBatchMode;
 	bool					m_bOldTimeLineBPMMode;
-	int						m_nOldInterpolation;
+	InterpolateMode			m_OldInterpolationMode;
 	bool					m_bQfileDialog;
 	H2Core::Hydrogen *		m_pEngine;
 	H2Core::Preferences*	m_pPreferences;

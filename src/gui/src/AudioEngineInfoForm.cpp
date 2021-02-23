@@ -23,20 +23,19 @@
 #include "AudioEngineInfoForm.h"
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
+
 
 #include "HydrogenApp.h"
 
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/IO/MidiInput.h>
-#include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/sampler/Sampler.h>
-#include <hydrogen/audio_engine.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Preferences.h>
+#include <core/Hydrogen.h>
+#include <core/IO/MidiInput.h>
+#include <core/IO/AudioOutput.h>
+#include <core/Sampler/Sampler.h>
+#include <core/AudioEngine.h>
 using namespace H2Core;
 
 #include "Skin.h"
@@ -56,8 +55,8 @@ AudioEngineInfoForm::AudioEngineInfoForm(QWidget* parent)
 
 	updateInfo();
 
-	timer = new QTimer(this);
-	connect(timer, SIGNAL(timeout()), this, SLOT(updateInfo()));
+	m_pTimer = new QTimer(this);
+	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateInfo()));
 
 	HydrogenApp::get_instance()->addEventListener( this );
 	updateAudioEngineState();
@@ -79,7 +78,7 @@ AudioEngineInfoForm::~AudioEngineInfoForm()
 void AudioEngineInfoForm::showEvent ( QShowEvent* )
 {
 	updateInfo();
-	timer->start(200);
+	m_pTimer->start(200);
 }
 
 
@@ -88,7 +87,7 @@ void AudioEngineInfoForm::showEvent ( QShowEvent* )
  */
 void AudioEngineInfoForm::hideEvent ( QHideEvent* )
 {
-	timer->stop();
+	m_pTimer->stop();
 }
 
 
@@ -121,7 +120,7 @@ void AudioEngineInfoForm::updateInfo()
 		songStateLbl->setText( "NULL song" );
 	}
 	else {
-		if (pSong->get_is_modified()) {
+		if (pSong->getIsModified()) {
 			songStateLbl->setText( "Modified" );
 		}
 		else {
@@ -200,7 +199,7 @@ void AudioEngineInfoForm::updateInfo()
 
 	// SAMPLER
 	Sampler *pSampler = AudioEngine::get_instance()->get_sampler();
-	sampler_playingNotesLbl->setText(QString( "%1 / %2" ).arg(pSampler->get_playing_notes_number()).arg(Preferences::get_instance()->m_nMaxNotes));
+	sampler_playingNotesLbl->setText(QString( "%1 / %2" ).arg(pSampler->getPlayingNotesNumber()).arg(Preferences::get_instance()->m_nMaxNotes));
 
 	// Synth
 	Synth *pSynth = AudioEngine::get_instance()->get_synth();

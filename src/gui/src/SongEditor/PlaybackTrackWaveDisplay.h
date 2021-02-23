@@ -24,10 +24,9 @@
 #define PLAYBACKTRACKWAVE_DISPLAY
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
-#include <hydrogen/object.h>
+#include <QtWidgets>
+
+#include <core/Object.h>
 #include "../InstrumentEditor/WaveDisplay.h"
 
 namespace H2Core
@@ -41,7 +40,7 @@ class PlaybackTrackWaveDisplay : public WaveDisplay
 	Q_OBJECT
 
 	public:
-		PlaybackTrackWaveDisplay(QWidget* pParent);
+		explicit PlaybackTrackWaveDisplay(QWidget* pParent);
 		~PlaybackTrackWaveDisplay() = default;
 
 		void	updateDisplay( H2Core::InstrumentLayer *pLayer ) override;

@@ -22,7 +22,7 @@
 #ifndef EVENT_LISTENER
 #define EVENT_LISTENER
 
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 class EventListener
 {
 	public:
@@ -46,6 +46,14 @@ class EventListener
 		virtual void tempoChangedEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void updateSongEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void quitEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void timelineActivationEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void timelineUpdateEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void jackTransportActivationEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void jackTimebaseActivationEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void songModeActivationEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void loopModeActivationEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void updatePreferencesEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void actionModeChangeEvent( int nValue ){ UNUSED( nValue ); }
 
 		virtual ~EventListener() {}
 };

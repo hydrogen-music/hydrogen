@@ -25,14 +25,12 @@
 #define PATTERN_EDITOR_INSTRUMENT_LIST_H
 
 
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 #include "../Widgets/PixmapWidget.h"
 
 namespace H2Core
@@ -42,6 +40,7 @@ namespace H2Core
 
 class PatternEditorPanel;
 class ToggleButton;
+class Button;
 
 class InstrumentLine : public PixmapWidget
 {
@@ -49,13 +48,14 @@ class InstrumentLine : public PixmapWidget
 	Q_OBJECT
 
 	public:
-		InstrumentLine(QWidget* pParent);
+		explicit InstrumentLine(QWidget* pParent);
 
 		void setName(const QString& sName);
 		void setSelected(bool isSelected);
 		void setNumber(int nIndex);
 		void setMuted(bool isMuted);
 		void setSoloed( bool soloed );
+		void setSamplesMissing( bool bSamplesMissing );
 
 	private slots:
 		void functionClearNotes();
@@ -80,6 +80,9 @@ class InstrumentLine : public PixmapWidget
 		void functionRenameInstrument();
 		void muteClicked();
 		void soloClicked();
+		void sampleWarningClicked();
+
+		void selectInstrumentNotes();
 
 
 	private:
@@ -92,6 +95,7 @@ class InstrumentLine : public PixmapWidget
 		int m_nInstrumentNumber;	///< The related instrument number
 		ToggleButton *m_pMuteBtn;
 		ToggleButton *m_pSoloBtn;
+		Button *m_pSampleWarning;
 
 		virtual void mousePressEvent(QMouseEvent *ev);
 		H2Core::Pattern* getCurrentPattern();

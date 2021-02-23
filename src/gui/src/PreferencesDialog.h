@@ -26,7 +26,7 @@
 
 #include "ui_PreferencesDialog_UI.h"
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 ///
 /// Preferences Dialog
@@ -36,9 +36,10 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		PreferencesDialog( QWidget* parent );
+		explicit PreferencesDialog( QWidget* parent );
 		~PreferencesDialog();
-
+		static QString m_sColorRed;
+							  
 	private slots:
 		void on_okBtn_clicked();
 		void on_cancelBtn_clicked();
@@ -61,6 +62,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 
 	private:
 		bool m_bNeedDriverRestart;
+		QString m_sInitialLanguage;
 
 		void updateDriverInfo();
 

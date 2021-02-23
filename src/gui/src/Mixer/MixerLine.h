@@ -22,14 +22,11 @@
 #ifndef MIXERLINE_H
 #define MIXERLINE_H
 
-
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
-#include <hydrogen/object.h>
-#include <hydrogen/globals.h>
+#include <core/Object.h>
+#include <core/Globals.h>
 
 class Fader;
 class MasterFader;
@@ -50,21 +47,21 @@ class InstrumentNameWidget : public PixmapWidget
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		InstrumentNameWidget(QWidget* parent);
+		explicit InstrumentNameWidget(QWidget* parent);
 		~InstrumentNameWidget();
 
 		void	setText(QString text);
 		QString text();
 
-		void	mousePressEvent( QMouseEvent * e );
-		void	mouseDoubleClickEvent( QMouseEvent * e );
+		void	mousePressEvent( QMouseEvent * e ) override;
+		void	mouseDoubleClickEvent( QMouseEvent * e ) override;
 
 	signals:
 		void	clicked();
 		void	doubleClicked();
 
 	protected:
-		virtual void paintEvent(QPaintEvent *ev);
+		virtual void paintEvent(QPaintEvent *ev) override;
 
 	private:
 		int			m_nWidgetWidth;
@@ -190,7 +187,7 @@ class ComponentMixerLine: public PixmapWidget
 		void	setName(QString name) {     m_pNameWidget->setText( name );        }
 		QString getName() {      return m_pNameWidget->text();        }
 
-		int		getCompoID(){ return __compoID; }
+		int		getComponentID(){ return m_nComponentID; }
 
 	signals:
 		void	muteBtnClicked(ComponentMixerLine *ref);
@@ -203,7 +200,7 @@ class ComponentMixerLine: public PixmapWidget
 
 
 	private:
-		int		__compoID;
+		int		m_nComponentID;
 		uint	m_nWidth;
 		uint	m_nHeight;
 		bool	m_bIsSelected;
@@ -230,7 +227,7 @@ class MasterMixerLine: public PixmapWidget
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		MasterMixerLine(QWidget* parent);
+		explicit MasterMixerLine(QWidget* parent);
 		~MasterMixerLine();
 
 		void	updateMixerLine();
@@ -285,7 +282,7 @@ class FxMixerLine: public PixmapWidget
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		FxMixerLine(QWidget* parent);
+		explicit FxMixerLine(QWidget* parent);
 		~FxMixerLine();
 
 		float	getVolume();
@@ -331,7 +328,7 @@ class LadspaFXMixerLine : public PixmapWidget
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		LadspaFXMixerLine(QWidget* parent);
+		explicit LadspaFXMixerLine(QWidget* parent);
 		~LadspaFXMixerLine();
 
 		bool	isFxActive();

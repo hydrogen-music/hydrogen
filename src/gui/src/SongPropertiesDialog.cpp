@@ -22,8 +22,8 @@
 
 #include "SongPropertiesDialog.h"
 #include "Skin.h"
-#include <hydrogen/basics/song.h>
-#include <hydrogen/hydrogen.h>
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
 
 #include <QPixmap>
 
@@ -40,11 +40,11 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 	setWindowTitle( tr( "Song properties" ) );
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	songNameTxt->setText( pSong->__name );
+	songNameTxt->setText( pSong->getName() );
 
-	authorTxt->setText( pSong->__author );
-	notesTxt->append( pSong->get_notes() );
-	licenseTxt->setText( pSong->get_license() );
+	authorTxt->setText( pSong->getAuthor() );
+	notesTxt->append( pSong->getNotes() );
+	licenseTxt->setText( pSong->getLicense() );
 }
 
 
@@ -63,10 +63,10 @@ void SongPropertiesDialog::on_okBtn_clicked()
 {
 	Song *pSong = Hydrogen::get_instance()->getSong();
 
-	pSong->__name = songNameTxt->text();
-	pSong->__author = authorTxt->text();
-	pSong->set_notes( notesTxt->toPlainText() );
-	pSong->set_license( licenseTxt->text() );
+	pSong->setName( songNameTxt->text() );
+	pSong->setAuthor( authorTxt->text() );
+	pSong->setNotes( notesTxt->toPlainText() );
+	pSong->setLicense( licenseTxt->text() );
 
 	accept();
 }

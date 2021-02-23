@@ -23,9 +23,7 @@
 #include "SoundLibraryPanel.h"
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include "SoundLibraryDatastructures.h"
 #include "SoundLibraryTree.h"
@@ -46,19 +44,19 @@
 #include "../InstrumentRack.h"
 #include "../InstrumentEditor/InstrumentEditorPanel.h"
 
-#include <hydrogen/LocalFileMng.h>
-#include <hydrogen/basics/adsr.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/LocalFileMng.h>
+#include <core/Basics/Adsr.h>
+#include <core/AudioEngine.h>
+#include <core/H2Exception.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Preferences.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
+#include <core/Helpers/Filesystem.h>
 
 using namespace H2Core;
 
@@ -500,7 +498,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 		return;
 	}
 
-	InstrumentList *pSongInstrList = Hydrogen::get_instance()->getSong()->get_instrument_list();
+	InstrumentList *pSongInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	InstrumentList *pDrumkitInstrList = pDrumkitInfo->get_instruments();
 
 	int oldCount = pSongInstrList->size();
@@ -567,7 +565,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 	Hydrogen::get_instance()->loadDrumkit( pDrumkitInfo, conditionalLoad );
-	Hydrogen::get_instance()->getSong()->set_is_modified( true );
+	Hydrogen::get_instance()->getSong()->setIsModified( true );
 	HydrogenApp::get_instance()->onDrumkitLoad( pDrumkitInfo->get_name() );
 	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
 	HydrogenApp::get_instance()->getPatternEditorPanel()->updatePianorollEditor();
@@ -734,30 +732,7 @@ void SoundLibraryPanel::on_songLoadAction()
 {
 	QString sFilename = Filesystem::song_path( __sound_library_tree->currentItem()->text( 0 ) );
 
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
-		pHydrogen->sequencer_stop();
-	}
-
-	Song *pSong = Song::load( sFilename );
-	if ( pSong == nullptr ) {
-		QMessageBox::information( this, "Hydrogen", tr("Error loading song.") );
-		return;
-	}
-
-	// add the new loaded song in the "last used song" vector
-	Preferences *pPref = Preferences::get_instance();
-
-	std::vector<QString> recentFiles = pPref->getRecentFiles();
-	recentFiles.insert( recentFiles.begin(), sFilename );
-	pPref->setRecentFiles( recentFiles );
-
-	HydrogenApp* pH2App = HydrogenApp::get_instance();
-
-	pH2App->setSong( pSong );
-
-	//updateRecentUsedSongList();
-	pHydrogen->setSelectedPatternNumber( 0 );
+	HydrogenApp::get_instance()->openSong( sFilename );
 }
 
 
@@ -768,19 +743,19 @@ void SoundLibraryPanel::on_patternLoadAction()
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
-	PatternList *pPatternList = pSong->get_pattern_list();
+	PatternList *pPatternList = pSong->getPatternList();
 	QString patternName = __sound_library_tree->currentItem()->text( 0 );
 	QString drumkitName = __sound_library_tree->currentItem()->toolTip ( 0 );
 	
 	// FIXME : file path should come from the selected item
-	Pattern* pErr = Pattern::load_file( Filesystem::pattern_path( drumkitName, patternName ), pSong->get_instrument_list() );
+	Pattern* pErr = Pattern::load_file( Filesystem::pattern_path( drumkitName, patternName ), pSong->getInstrumentList() );
 
 	if ( pErr == nullptr ) {
 		ERRORLOG( "Error loading the pattern" );
 		return;
 	}
 	pPatternList->add ( pErr );
-	pSong->set_is_modified( true );
+	pSong->setIsModified( true );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 }
 

@@ -23,20 +23,17 @@
 #ifndef SOUND_LIBRARY_TREE_H
 #define SOUND_LIBRARY_TREE_H
 
-
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 class SoundLibraryTree : public QTreeWidget, private H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
 	public:
-		SoundLibraryTree( QWidget *pParent );
+		explicit SoundLibraryTree( QWidget *pParent );
 
 	signals:
 		void leftClicked( QPoint pos );

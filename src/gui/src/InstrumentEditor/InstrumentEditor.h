@@ -23,14 +23,11 @@
 #ifndef INSTRUMENT_EDITOR_DIALOG_H
 #define INSTRUMENT_EDITOR_DIALOG_H
 
-
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/object.h>
+#include <core/Basics/Instrument.h>
+#include <core/Object.h>
 
 #include "../EventListener.h"
 #include "../Widgets/PixmapWidget.h"
@@ -55,7 +52,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 	Q_OBJECT
 
 	public:
-		InstrumentEditor( QWidget* parent );
+		explicit InstrumentEditor( QWidget* parent );
 		~InstrumentEditor();
 
 		void selectLayer( int nLayer );
@@ -64,8 +61,8 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void selectComponent( int nComponent );
 
 		// implements EventListener interface
-		virtual void selectedInstrumentChangedEvent();
-		virtual void rubberbandbpmchangeEvent();
+		virtual void selectedInstrumentChangedEvent() override;
+		virtual void rubberbandbpmchangeEvent() override;
 		//~ implements EventListener interface
 		void update();
 
@@ -113,8 +110,11 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		Rotary *m_pSustainRotary;
 		Rotary *m_pReleaseRotary;
 
-		// Random pitch
+		// Instrument pitch
+		Rotary *m_pPitchCoarseRotary;
+		Rotary *m_pPitchFineRotary;
 		Rotary *m_pRandomPitchRotary;
+		LCDDisplay *m_pPitchLCD;
 
 		// Low pass filter
 		ToggleButton *m_pFilterBypassBtn;

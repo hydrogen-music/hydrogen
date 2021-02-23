@@ -24,7 +24,7 @@
 #define SOUND_LIBRARY_SAVE_DIALOG_H
 
 #include "ui_SoundLibrarySaveDialog_UI.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 ///
 ///
@@ -34,7 +34,7 @@ class SoundLibrarySaveDialog : public QDialog, public Ui_SoundLibrarySaveDialog_
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		SoundLibrarySaveDialog( QWidget* pParent );
+		explicit SoundLibrarySaveDialog( QWidget* pParent );
 		~SoundLibrarySaveDialog();
 
 	private slots:

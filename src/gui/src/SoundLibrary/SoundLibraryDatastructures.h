@@ -1,7 +1,7 @@
 #ifndef SOUNDLIBRARYDATASTRUCTURES_H
 #define SOUNDLIBRARYDATASTRUCTURES_H
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 #include <vector>
 
 class SoundLibraryInfo;
@@ -66,7 +66,7 @@ class SoundLibraryInfo :  public H2Core::Object
 	H2_OBJECT
 	public:
 		SoundLibraryInfo();
-		SoundLibraryInfo( const QString& path);
+		explicit SoundLibraryInfo( const QString& path);
 		~SoundLibraryInfo();
 
 		QString getName() const {

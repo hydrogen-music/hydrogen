@@ -24,9 +24,7 @@
 #define SOUND_LIBRARY_OPEN_DIALOG_H
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-	#include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include "SoundLibraryDatastructures.h"
 
@@ -37,7 +35,7 @@ class SoundLibraryOpenDialog : public QDialog, public H2Core::Object
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		SoundLibraryOpenDialog( QWidget* pParent );
+		explicit SoundLibraryOpenDialog( QWidget* pParent );
 		~SoundLibraryOpenDialog();
 
 	private slots:

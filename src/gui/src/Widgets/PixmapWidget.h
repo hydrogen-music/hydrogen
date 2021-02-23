@@ -24,11 +24,9 @@
 #define PIXMAP_WIDGET_H
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 class PixmapWidget : public H2Core::Object, public QWidget
 {

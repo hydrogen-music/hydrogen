@@ -23,8 +23,10 @@ p, li { white-space: pre-wrap; }
    <name>Crash</name>
    <volume>1</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>0.5</pan_L>
    <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -71,8 +73,10 @@ p, li { white-space: pre-wrap; }
    <name>Hi-Hat</name>
    <volume>1</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>0.5</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -112,8 +116,10 @@ p, li { white-space: pre-wrap; }
    <name>Snare</name>
    <volume>1</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -153,8 +159,10 @@ p, li { white-space: pre-wrap; }
    <name>Kick</name>
    <volume>1</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>

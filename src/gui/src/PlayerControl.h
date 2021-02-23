@@ -24,12 +24,10 @@
 #define PLAYER_CONTROL_H
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include "EventListener.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 namespace H2Core
 {
@@ -52,11 +50,11 @@ class MetronomeWidget : public QWidget,public EventListener, public H2Core::Obje
     H2_OBJECT
 	Q_OBJECT
 	public:
-		MetronomeWidget(QWidget *pParent);
+		explicit MetronomeWidget(QWidget *pParent);
 		~MetronomeWidget();
 
-		virtual void metronomeEvent( int nValue );
-		virtual void paintEvent( QPaintEvent*);
+		virtual void metronomeEvent( int nValue ) override;
+		virtual void paintEvent( QPaintEvent*) override;
 
 
 	public slots:
@@ -88,18 +86,28 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
     H2_OBJECT
 	Q_OBJECT
 	public:
-		PlayerControl(QWidget *parent);
+		explicit PlayerControl(QWidget *parent);
 		~PlayerControl();
 
 		void showMessage( const QString& msg, int msec );
 		void showScrollMessage( const QString& msg, int msec, bool test );
 		void resetStatusLabel();
-		
-		virtual void tempoChangedEvent( int nValue );
+
+		virtual void tempoChangedEvent( int nValue ) override;
+		virtual void jackTransportActivationEvent( int nValue ) override;
+		virtual void jackTimebaseActivationEvent( int nValue ) override;
+		/**
+		 * Shared GUI update when activating Song or Pattern mode via
+		 * button click or via OSC command.
+		 *
+		 * @param nValue If 0, Pattern mode will be activate. Else,
+		 * Song mode will be activated instead.
+		 */
+		void songModeActivationEvent( int nValue ) override;
+													
 
 	private slots:
 		void recBtnClicked(Button* ref);
-		void recBtnRightClicked(Button* ref);
 		void playBtnClicked(Button* ref);
 		void stopBtnClicked(Button* ref);
 		void updatePlayerControl();
@@ -131,12 +139,18 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		void rubberbandButtonToggle(Button* ref);
 
 	private:
+		/**
+		 * Shared GUI update when activating loop mode via button
+		 * click or via OSC command.
+		 *
+		 * @param nValue If 0, loop mode will be deactivate.
+		 */
+		void loopModeActivationEvent( int nValue ) override;
 		H2Core::Hydrogen *m_pEngine;
 		QPixmap m_background;
 
 		Button *m_pRwdBtn;
 		ToggleButton *m_pRecBtn;
-		ToggleButton *m_pRecDelBtn;
 		ToggleButton *m_pPlayBtn;
 		Button *m_pStopBtn;
 		Button *m_pFfwdBtn;
@@ -147,6 +161,9 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		ToggleButton *m_pLiveModeBtn;
 
 		//beatcounter
+		/** Store the tool tip of the beat counter since it gets
+			overwritten during deactivation.*/
+		QString m_sBConoffBtnToolTip;
 		ToggleButton *m_pBConoffBtn;
 		ToggleButton *m_pBCSpaceBtn;
 		ToggleButton *m_pBCSetPlayBtn;
@@ -162,6 +179,7 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		ToggleButton *m_pJackTransportBtn;
 		//jack time master
 		ToggleButton *m_pJackMasterBtn;
+		QString m_sJackMasterModeToolTip;
 		//~ jack time master
 		Button *m_pBPMUpBtn;
 		Button *m_pBPMDownBtn;

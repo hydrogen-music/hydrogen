@@ -65,8 +65,10 @@
 			<xsd:element name="name"				type="xsd:string"/>
 			<xsd:element name="volume"				type="xsd:decimal"				default="1.0"/>
 			<xsd:element name="isMuted"				type="h2:bool"					default="false"/>
+			<xsd:element name="isSoloed"			type="h2:bool"					default="false"/>
 			<xsd:element name="pan_L"				type="h2:psfloat"				default="1.0"/>
 			<xsd:element name="pan_R"				type="h2:psfloat"				default="1.0"/>
+			<xsd:element name="pitchOffset"	type="h2:psfloat"				default="0.0"/>
 			<xsd:element name="randomPitchFactor"	type="h2:psfloat"				default="0.0"/>
 			<xsd:element name="gain"				type="xsd:float"				default="1.0"/>
 			<xsd:element name="applyVelocity"		type="h2:bool"					default="false"/>

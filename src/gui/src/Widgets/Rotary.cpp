@@ -23,7 +23,7 @@
 #include "LCD.h"
 #include "../Skin.h"
 
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 
 RotaryTooltip::RotaryTooltip( QPoint pos )
 //  : QWidget( 0, "RotaryTooltip", Qt::WStyle_Customize| Qt::WStyle_NoBorder | Qt::WStyle_StaysOnTop| Qt::WX11BypassWM )
@@ -36,7 +36,7 @@ RotaryTooltip::RotaryTooltip( QPoint pos )
 	resize( m_pDisplay->size() );
 
 	QPalette defaultPalette;
-	defaultPalette.setColor( QPalette::Background, QColor( 49, 53, 61 ) );
+	defaultPalette.setColor( QPalette::Window, QColor( 49, 53, 61 ) );
 	this->setPalette( defaultPalette );
 
 }
@@ -65,19 +65,19 @@ QPixmap* Rotary::m_background_center = nullptr;
 
 const char* Rotary::__class_name = "Rotary";
 
-Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseIntSteps, bool bUseValueTip )
+Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseIntSteps, bool bUseValueTip, float fMin, float fMax )
  : QWidget( parent )
  , Object( __class_name )
  , m_bUseIntSteps( bUseIntSteps )
  , m_type( type )
- , m_fMin( 0.0 )
- , m_fMax( 1.0 )
+ , m_fMin( fMin )
+ , m_fMax( fMax )
  , m_fMousePressValue( 0.0 )
  , m_fMousePressY( 0.0 )
  , m_bShowValueToolTip( bUseValueTip )
  , m_bIgnoreMouseMove( false )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 	setToolTip( sToolTip );
 
 	m_pValueToolTip = new RotaryTooltip( mapToGlobal( QPoint( 0, 0 ) ) );
@@ -86,10 +86,10 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseInt
 	m_nWidgetHeight = 26;
 
 	if (bUseIntSteps) {
-		m_fDefaultValue = (int) ( type == TYPE_CENTER ? ( ( m_fMax - m_fMin ) / 2.0 ) : m_fMin );
+		m_fDefaultValue = (int) ( type == TYPE_CENTER ? ( m_fMin + ( m_fMax - m_fMin ) / 2.0 ) : m_fMin );
 	}
 	else {
-		m_fDefaultValue = ( type == TYPE_CENTER ? ( ( m_fMax - m_fMin ) / 2.0 ) : m_fMin );
+		m_fDefaultValue = ( type == TYPE_CENTER ? ( m_fMin + ( m_fMax - m_fMin ) / 2.0 ) : m_fMin );
 	}
 
 	m_fValue = m_fDefaultValue;
@@ -235,7 +235,7 @@ void Rotary::wheelEvent ( QWheelEvent *ev )
 		float fRange = fabs( m_fMax ) + fabs( m_fMin );
 		delta = fRange / 100.0;
 	}
-	if ( ev->delta() < 0 ) {
+	if ( ev->angleDelta().y() < 0 ) {
 		delta = delta * -1.0;
 	}
 	setValue( getValue() + (delta * stepfactor) );

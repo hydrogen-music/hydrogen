@@ -26,7 +26,7 @@
 
 
 #include "ui_ExportMidiDialog_UI.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 namespace H2Core {
     class Preferences;
@@ -42,7 +42,7 @@ class ExportMidiDialog : public QDialog, public Ui_ExportMidiDialog_UI, public H
 	Q_OBJECT
 
 	public:
-		ExportMidiDialog( QWidget* parent );
+		explicit ExportMidiDialog( QWidget* parent );
 		~ExportMidiDialog();
 
 	private slots:

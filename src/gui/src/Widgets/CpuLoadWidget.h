@@ -27,12 +27,10 @@
 #include <iostream>
 
 #include "../EventListener.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 ///
 /// Shows CPU load
@@ -43,7 +41,7 @@ class CpuLoadWidget : public QWidget, public EventListener, public H2Core::Objec
 	Q_OBJECT
 
 	public:
-		CpuLoadWidget(QWidget *pParent );
+		explicit CpuLoadWidget(QWidget *pParent );
 		~CpuLoadWidget();
 
 		void setValue( float newValue );

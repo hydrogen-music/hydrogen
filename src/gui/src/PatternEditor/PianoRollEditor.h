@@ -23,52 +23,76 @@
 #ifndef PIANO_ROLL_EDITOR_H
 #define PIANO_ROLL_EDITOR_H
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
+#include <core/Basics/Note.h>
 #include "../EventListener.h"
+#include "../Selection.h"
+#include "PatternEditor.h"
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
-namespace H2Core
-{
-	class Pattern;
-	class Note;
-}
-
-class PatternEditorPanel;
-
-class PianoRollEditor: public QWidget, public EventListener, public H2Core::Object
+class PianoRollEditor: public PatternEditor
 {
     H2_OBJECT
     Q_OBJECT
 	public:
-		PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel );
+		PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
+						 QScrollArea *pScrollView );
 		~PianoRollEditor();
 
 
 		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent();
-		virtual void selectedInstrumentChangedEvent();
-		virtual void patternModifiedEvent();
+		virtual void selectedPatternChangedEvent() override;
+		virtual void selectedInstrumentChangedEvent() override;
+		virtual void patternModifiedEvent() override;
 		//~ Implements EventListener interface
-		void setResolution(uint res, bool bUseTriplets);
 
-		void zoom_in();
-		void zoom_out();
-		void addOrDeleteNoteAction(  int nColumn,
-					     int pressedLine,
-					     int selectedPatternNumber,
-					     int selectedinstrument,
-					     int oldLength,
-					     float oldVelocity,
-					     float oldPan_L,
-					     float oldPan_R,
-					     float oldLeadLag,
-					     int oldNoteKeyVal,
-                                             int oldOctaveKeyVal,
-                                             bool noteOff);
+		// Pitch / line conversions
+		int lineToPitch( int nLine ) {
+			return 12 * (OCTAVE_MIN+m_nOctaves) - 1 - nLine;
+		}
+		int pitchToLine( int nPitch ) {
+			return 12 * (OCTAVE_MIN+m_nOctaves) - 1 - nPitch;
+		}
+
+		H2Core::Note::Octave pitchToOctave( int nPitch ) {
+			if ( nPitch >= 0 ) {
+				return (H2Core::Note::Octave)(nPitch / 12);
+			} else {
+				return (H2Core::Note::Octave)((nPitch-11) / 12);
+			}
+		}
+		H2Core::Note::Key pitchToKey( int nPitch ) {
+			return (H2Core::Note::Key)(nPitch - 12 * pitchToOctave( nPitch ));
+		}
+		int octaveKeyToPitch( H2Core::Note::Octave octave, H2Core::Note::Key key ) {
+			return 12 * (int)octave + (int)key;
+		}
+
+		void addOrDeleteNoteAction( int nColumn,
+									int pressedLine,
+									int selectedPatternNumber,
+									int selectedinstrument,
+									int oldLength,
+									float oldVelocity,
+									float oldPan_L,
+									float oldPan_R,
+									float oldLeadLag,
+									int oldNoteKeyVal,
+									int oldOctaveKeyVal,
+									float fProbability,
+									bool noteOff,
+									bool isDelete );
+
+		void moveNoteAction( int nColumn,
+							 H2Core::Note::Octave octave,
+							 H2Core::Note::Key key,
+							 int nPattern,
+							 int nNewColumn,
+							 H2Core::Note::Octave newOctave,
+							 H2Core::Note::Key newKey,
+							 H2Core::Note *pNote);
 
 		void editNotePropertiesAction(   int nColumn,
 						int nRealColumn,
@@ -79,45 +103,59 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 						float pan_R,
 						float leadLag,
 						int pressedLine );
-                void editNoteLengthAction( int nColumn,  int nRealColumn, int length, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedLine );
+		void editNoteLengthAction( int nColumn,  int nRealColumn, int length, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedLine );
+
+
+		// Selection manager interface
+		//! Selections are indexed by Note pointers.
+
+		virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) override;
+		virtual void mouseClickEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
+		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
+		virtual QRect getKeyboardCursorRect() override;
+
 
 	public slots:
-		void updateEditor();
+		virtual void updateEditor( bool bPatternOnly = false ) override;
+		virtual void selectAll() override;
+		virtual void deleteSelection() override;
+		virtual void paste() override;
 
 	private:
 
-		unsigned m_nRowHeight;
+		bool m_bNeedsUpdate;
+		bool m_bNeedsBackgroundUpdate;
+
+		void finishUpdateEditor();
+
 		unsigned m_nOctaves;
 
-		uint m_nResolution;
-		bool m_bRightBtnPressed;
-		bool m_bUseTriplets;
-
-		H2Core::Pattern *m_pPattern;
-
-		float m_nGridWidth;
-		uint m_nEditorWidth;
-		uint m_nEditorHeight;
 		QPixmap *m_pBackground;
 		QPixmap *m_pTemp;
 		int m_pOldPoint;
 
-		PatternEditorPanel *m_pPatternEditorPanel;
-		H2Core::Note *m_pDraggedNote;
+		// Note pitch position of cursor
+		int m_nCursorPitch;
+		QPoint cursorPosition();
+
+		QScrollArea *m_pScrollView;
 
 		void createBackground();
 		void drawPattern();
-		void draw_grid(QPainter& p );
 		void drawNote( H2Core::Note *pNote, QPainter *pPainter );
 
-		virtual void paintEvent(QPaintEvent *ev);
-		virtual void mousePressEvent(QMouseEvent *ev);
-		virtual void mouseMoveEvent(QMouseEvent *ev);
-		virtual void mouseReleaseEvent(QMouseEvent *ev);
-//		virtual void keyPressEvent ( QKeyEvent * ev );
-		int getColumn(QMouseEvent *ev);
+		void addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
+							  int nNotekey, int nOctave,
+							  bool bDoAdd = true, bool bDoDelete = true );
+
+		virtual void paintEvent(QPaintEvent *ev) override;
+		virtual void keyPressEvent ( QKeyEvent * ev ) override;
+		virtual void focusInEvent ( QFocusEvent * ev ) override;
+
 		int __selectedInstrumentnumber;
-		int __selectedPatternNumber;
 		int __nRealColumn;
 		int __nColumn;
 		int __pressedLine;

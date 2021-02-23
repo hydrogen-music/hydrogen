@@ -28,14 +28,14 @@
 #include "SongEditor/SongEditorPanel.h"
 #include "Widgets/PixmapWidget.h"
 
-#include <hydrogen/helpers/files.h>
-#include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/timeline.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/basics/playlist.h>
+#include <core/Helpers/Files.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/H2Exception.h>
+#include <core/Preferences.h>
+#include <core/Hydrogen.h>
+#include <core/Timeline.h>
+#include <core/EventQueue.h>
+#include <core/Basics/Playlist.h>
 
 #include "../Widgets/Button.h"
 
@@ -51,7 +51,6 @@
 #include <memory>
 
 using namespace H2Core;
-using namespace std;
 
 const char* PlaylistDialog::__class_name = "PlaylistDialog";
 
@@ -296,7 +295,7 @@ void PlaylistDialog::addSong()
 void PlaylistDialog::addCurrentSong()
 {
 	Song *	pSong = Hydrogen::get_instance()->getSong();
-	QString filename = 	pSong->get_filename();
+	QString filename = 	pSong->getFilename();
 
 	if (filename == "") {
 		// just in case!
@@ -503,12 +502,8 @@ void PlaylistDialog::newScript()
 	}
 
 	QString  openfile = pPref->getDefaultEditor() + " " + filename + "&";
+	std::system(openfile.toLatin1());
 
-	char *ofile;
-	ofile = new char[openfile.length() + 1];
-	strcpy(ofile, openfile.toLatin1());
-	std::system( ofile );
-	delete [] ofile;
 	return;
 }
 
@@ -649,13 +644,9 @@ void PlaylistDialog::editScript()
 		return;
 	}
 
-	char *file;
-	file = new char[ filename.length() + 1 ];
-	strcpy( file , filename.toLatin1() );
-	std::system( file );
-	delete [] file;
+	std::system( filename.toLatin1() );
+	
 	return;
-
 }
 
 void PlaylistDialog::o_upBClicked()
@@ -752,22 +743,11 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 			m_pPlayBtn->setPressed(false);
 			return;
 		}
-		QString selected = "";
-		selected = m_pPlaylistItem->text ( 0 );
+		QString sFilename = "";
+		sFilename = m_pPlaylistItem->text ( 0 );
 
-		if( selected == pEngine->getSong()->get_filename()){
+		if( sFilename == pEngine->getSong()->getFilename()){
 			pEngine->sequencer_play();
-			return;
-		}
-
-		if ( pEngine->getState() == STATE_PLAYING ){
-			pEngine->sequencer_stop();
-		}
-
-		Song *pSong = Song::load ( selected );
-		if ( pSong == nullptr ){
-			QMessageBox::information ( this, "Hydrogen", tr ( "Error loading song." ) );
-			m_pPlayBtn->setPressed(false);
 			return;
 		}
 
@@ -775,8 +755,9 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 		int index = m_pPlaylist->indexOfTopLevelItem ( m_pPlaylistItem );
 		Playlist::get_instance()->setActiveSongNumber( index );
 
-		pH2App->setSong ( pSong );
-		pEngine->setSelectedPatternNumber ( 0 );
+		if ( ! pH2App->openSong( sFilename ) ) {
+			m_pPlayBtn->setPressed(false);
+		}
 
 		pEngine->sequencer_play();
 	}else
@@ -791,21 +772,21 @@ void PlaylistDialog::nodeStopBTN( Button* ref )
 	UNUSED( ref );
 	m_pPlayBtn->setPressed(false);
 	Hydrogen::get_instance()->sequencer_stop();
-	Hydrogen::get_instance()->setPatternPos ( 0 );
+	Hydrogen::get_instance()->getCoreActionController()->relocate( 0 );
 }
 
 void PlaylistDialog::ffWDBtnClicked( Button* ref)
 {
 	UNUSED( ref );
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->setPatternPos( pEngine->getPatternPos() + 1 );
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() + 1 );
 }
 
 void PlaylistDialog::rewindBtnClicked( Button* ref )
 {
 	UNUSED( ref );
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->setPatternPos( pEngine->getPatternPos() - 1 );
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() - 1 );
 }
 
 void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
@@ -816,40 +797,20 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 		return;
 	}
 	
-	QString selected;
-	selected = pPlaylistItem->text ( 0 );
+	QString sFilename;
+	sFilename = pPlaylistItem->text( 0 );
 
 	int index = m_pPlaylistTree->indexOfTopLevelItem ( pPlaylistItem );
 	Playlist::get_instance()->setSelectedSongNr( index );
 	Playlist::get_instance()->setActiveSongNumber( index );
 
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
-	Hydrogen *pEngine = Hydrogen::get_instance();
-
-	if ( pEngine->getState() == STATE_PLAYING ){
-		pEngine->sequencer_stop();
-	}
 
 	m_pPlayBtn->setPressed(false);
 
-	Timeline* pTimeline = pEngine->getTimeline();
-	pTimeline->m_timelinetagvector.clear();
+	pH2App->openSong( sFilename );
 
-	Song *pSong = Song::load ( selected );
-	if ( pSong == nullptr ){
-		QMessageBox::information ( this, "Hydrogen", tr ( "Error loading song." ) );
-		return;
-	}
-
-	pH2App->setSong ( pSong );
-	pEngine->setSelectedPatternNumber ( 0 );
-
-	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
 	pH2App->setStatusBarMessage( tr( "Playlist: set song no. %1" ).arg( index +1 ), 5000 );
-
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
-
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 
 ///exec script
 ///this is very very simple and only an experiment
@@ -858,7 +819,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 	return;
 #else
 	QString execscript;
-	selected = pPlaylistItem->text ( 1 );
+	sFilename = pPlaylistItem->text ( 1 );
 	bool execcheckbox = pPlaylistItem->checkState ( 2 );
 
 	if( execcheckbox == false){
@@ -871,11 +832,8 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 		return;
 	}
 
-	char *file;
-	file = new char[ selected.length() + 1 ];
-	strcpy( file , selected.toLatin1() );
-	std::system( file );
-	delete [] file;
+	std::system( sFilename.toLatin1() );
+	
 	return;
 #endif
 

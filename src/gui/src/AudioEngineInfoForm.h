@@ -24,15 +24,13 @@
 #ifndef AUDIO_ENGINE_INFO_FORM_H
 #define AUDIO_ENGINE_INFO_FORM_H
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 #include "EventListener.h"
 #include "ui_AudioEngineInfoForm_UI.h"
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 /**
  * Audio Engine information form
@@ -42,24 +40,25 @@ class AudioEngineInfoForm : public QWidget, public Ui_AudioEngineInfoForm_UI, pu
     H2_OBJECT
 	Q_OBJECT
 	private:
-		QTimer *timer;
-
-		virtual void updateAudioEngineState();
+		QTimer* m_pTimer;
 
 		// EventListener implementation
-		virtual void stateChangedEvent(int nState);
-		virtual void patternChangedEvent();
+		virtual void stateChangedEvent(int nState) override;
+		virtual void patternChangedEvent() override;
 		//~ EventListener implementation
 
 	public:
-		AudioEngineInfoForm(QWidget* parent);
+		explicit AudioEngineInfoForm(QWidget* parent);
 		~AudioEngineInfoForm();
 
-		void showEvent ( QShowEvent *ev );
-		void hideEvent ( QHideEvent *ev );
+		void showEvent ( QShowEvent *ev ) override;
+		void hideEvent ( QHideEvent *ev ) override;
 
 	public slots:
 		void updateInfo();
+
+	private:
+		void updateAudioEngineState();
 };
 
 #endif

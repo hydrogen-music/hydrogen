@@ -20,9 +20,9 @@
  *
  */
 
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/basics/instrument.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Instrument.h>
 using namespace H2Core;
 
 #include "DetailWaveDisplay.h"
@@ -34,8 +34,10 @@ DetailWaveDisplay::DetailWaveDisplay(QWidget* pParent )
  : QWidget( pParent )
  , Object( __class_name )
  , m_sSampleName( "" )
+ , m_pPeakDatal( nullptr )
+ , m_pPeakDatar( nullptr )  
 {
-//	setAttribute(Qt::WA_NoBackground);
+//	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//INFOLOG( "INIT" );
 	int w = 180;
@@ -75,7 +77,7 @@ void DetailWaveDisplay::setDetailSamplePosition( unsigned posi, float zoomfactor
 void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
-	painter.setRenderHint( QPainter::HighQualityAntialiasing );
+	painter.setRenderHint( QPainter::Antialiasing );
 	painter.drawPixmap( ev->rect(), m_background, ev->rect() );
 
 	painter.setPen( QColor( 230, 230, 230 ) );
@@ -124,9 +126,9 @@ void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 void DetailWaveDisplay::updateDisplay( QString filename )
 {
 
-	Sample *pNewSample = Sample::load( filename );
+	auto pNewSample = Sample::load( filename );
 
-	if ( pNewSample ) {
+	if ( pNewSample != nullptr ) {
 
 		int mSampleLength = pNewSample->get_frames();
 
@@ -140,8 +142,8 @@ void DetailWaveDisplay::updateDisplay( QString filename )
 
 		float fGain = height() / 4.0 * 1.0;
 
-		float *pSampleDatal = pNewSample->get_data_l();
-		float *pSampleDatar = pNewSample->get_data_r();
+		auto pSampleDatal = pNewSample->get_data_l();
+		auto pSampleDatar = pNewSample->get_data_r();
 
 		for ( int i = 0; i < mSampleLength; i++ ){
 			m_pPeakDatal[ i ] = static_cast<int>( pSampleDatal[ i ] * fGain );
@@ -150,7 +152,6 @@ void DetailWaveDisplay::updateDisplay( QString filename )
 
 
 	}
-	delete pNewSample;
 }
 
 

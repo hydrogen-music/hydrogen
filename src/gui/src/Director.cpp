@@ -56,13 +56,12 @@
 #include "HydrogenApp.h"
 #include "Widgets/PixmapWidget.h"
 
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/timeline.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/Preferences.h>
+#include <core/Hydrogen.h>
+#include <core/Timeline.h>
+#include <core/Helpers/Filesystem.h>
 
 using namespace H2Core;
-using namespace std;
 
 Director::Director ( QWidget* pParent )
 		: QDialog ( pParent )
@@ -79,7 +78,7 @@ Director::Director ( QWidget* pParent )
 	m_nBar = 1;	// default bar
 	m_nFlashingArea = width() * 5/100;
 
-	m_fBpm = Hydrogen::get_instance()->getSong()->__bpm;
+	m_fBpm = Hydrogen::get_instance()->getSong()->getBpm();
 	m_pTimeline = Hydrogen::get_instance()->getTimeline();
 	m_pTimer = new QTimer( this );
 	connect( m_pTimer, SIGNAL( timeout() ), this, SLOT( updateMetronomBackground() ) );
@@ -110,7 +109,7 @@ void Director::metronomeEvent( int nValue )
 	if( nValue == 3 ){
 
 		//update songname
-		QStringList list = Hydrogen::get_instance()->getSong()->get_filename().split("/");
+		QStringList list = Hydrogen::get_instance()->getSong()->getFilename().split("/");
 
 		if ( !list.isEmpty() ){
 			m_sSongName = list.last().replace( Filesystem::songs_ext, "" );
@@ -126,7 +125,7 @@ void Director::metronomeEvent( int nValue )
 	}
 
 	//bpm
-	m_fBpm = Hydrogen::get_instance()->getSong()->__bpm;
+	m_fBpm = Hydrogen::get_instance()->getSong()->getBpm();
 	//bar
 	m_nBar = Hydrogen::get_instance()->getPatternPos() + 1;
 
@@ -153,27 +152,16 @@ void Director::metronomeEvent( int nValue )
 	}
 	else {	//foregroundcolor "rect" for all other blinks
 		m_nCounter++;
-		if( m_nCounter %2 == 0 )
+		if( m_nCounter %2 == 0 ) {
 			m_nFlashingArea = width() * 52.5/100;
+		}
 
 		m_Color = QColor( 24, 250, 31, 255 );
 	}
 
 	// get tags
-	m_sTAG="";
-	m_sTAG2="";
-	for ( size_t t = 0; t < m_pTimeline->m_timelinetagvector.size(); t++){
-		if(t+1<m_pTimeline->m_timelinetagvector.size() &&
-				m_pTimeline->m_timelinetagvector[t+1].m_htimelinetagbeat == m_nBar ){
-			m_sTAG2 =  m_pTimeline->m_timelinetagvector[t+1].m_htimelinetag ;
-		}
-		if ( m_pTimeline->m_timelinetagvector[t].m_htimelinetagbeat <= m_nBar-1){
-			m_sTAG =  m_pTimeline->m_timelinetagvector[t].m_htimelinetag ;
-		}
-		if( m_pTimeline->m_timelinetagvector[t].m_htimelinetagbeat > m_nBar-1){
-			break;
-		}
-	}
+	m_sTAG = m_pTimeline->getTagAtBar( m_nBar, false );
+	m_sTAG2 = m_pTimeline->getTagAtBar( m_nBar - 1, true );
 	update();
 }
 

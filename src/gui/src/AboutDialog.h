@@ -25,9 +25,8 @@
 
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
+#include <QTextBrowser>
 
 #include "ui_about_dialog.h"
 
@@ -35,7 +34,7 @@ class AboutDialog : public QDialog, public Ui_AboutDialog_UI
 {
 Q_OBJECT
 public:
-	AboutDialog(QWidget* parent);
+	explicit AboutDialog(QWidget* parent);
 	~AboutDialog();
 
 private slots:

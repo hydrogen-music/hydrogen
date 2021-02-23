@@ -20,7 +20,7 @@
  *
  */
 
-#include <hydrogen/version.h>
+#include <core/Version.h>
 #include "SplashScreen.h"
 
 #include <QPainter>
@@ -32,7 +32,7 @@
 const char* SplashScreen::__class_name = "SplashScreen";
 
 SplashScreen::SplashScreen()
- : QSplashScreen( nullptr )
+ : QSplashScreen()
  , Object( __class_name )
 {
 	//INFOLOG( "SplashScreen" );

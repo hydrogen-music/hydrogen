@@ -27,8 +27,8 @@
 #include "InstrumentEditor/InstrumentEditor.h"
 
 #include <QDialog>
-#include <hydrogen/object.h>
-#include <hydrogen/Preferences.h>
+#include <core/Object.h>
+#include <core/Preferences.h>
 
 
 class Button;
@@ -80,7 +80,7 @@ class AudioFileBrowser : public QDialog, public Ui_AudioFileBrowser_UI, public H
 		QStringList			m_pSelectedFile;
 
 		bool				m_SingleClick;
-		QDirModel *			m_pDirModel;
+		QFileSystemModel *	m_pDirModel;
 		QTreeView *			m_pTree;
 
 		QModelIndex			m_ModelIndex;

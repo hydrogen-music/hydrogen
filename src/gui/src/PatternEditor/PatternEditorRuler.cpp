@@ -20,11 +20,11 @@
  *
  */
 
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
+#include <core/Preferences.h>
+#include <core/Hydrogen.h>
+#include <core/AudioEngine.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
 
 
 using namespace H2Core;
@@ -45,7 +45,7 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
  : QWidget( parent )
  , Object( __class_name )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//infoLog( "INIT" );
 
@@ -125,7 +125,7 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 		return;
 	}
 	
-	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
+	PatternList *pPatternList = pEngine->getSong()->getPatternList();
 	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() )  ) {
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );

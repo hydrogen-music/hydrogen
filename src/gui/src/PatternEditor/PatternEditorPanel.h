@@ -24,11 +24,12 @@
 #ifndef PATTERN_EDITOR_PANEL_H
 #define PATTERN_EDITOR_PANEL_H
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 #include "PianoRollEditor.h"
 #include "../EventListener.h"
 #include "../Widgets/LCDCombo.h"
+#include "../Widgets/LCD.h"
 
 class Button;
 class ToggleButton;
@@ -57,7 +58,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 	Q_OBJECT
 
 	public:
-		PatternEditorPanel(QWidget *parent);
+		explicit PatternEditorPanel(QWidget *parent);
 		~PatternEditorPanel();
 
 		DrumPatternEditor* getDrumPatternEditor() {	return m_pDrumPatternEditor;	}
@@ -71,18 +72,31 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		int getPropertiesComboValue(){ return __pPropertiesCombo->selected(); }
 
 		void updateSLnameLabel();
-		void displayorHidePrePostCB();
 		void updatePianorollEditor();
 
 		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent();
-		virtual void selectedInstrumentChangedEvent();
+		virtual void selectedPatternChangedEvent() override;
+		virtual void selectedInstrumentChangedEvent() override;
 		//~ Implements EventListener interface
+
+		void ensureCursorVisible();
+		int getCursorPosition();
+		void setCursorPosition(int nCursorPosition);
+		int moveCursorLeft();
+		int moveCursorRight();
+
+		void selectInstrumentNotes( int nInstrument );
+
+		void updateEditors( bool bPatternOnly = false );
 
 	private slots:
 		void gridResolutionChanged( int nSelected );
 		void propertiesComboChanged( int nSelected );
-		void patternSizeChanged( int nSelected );
+		void patternLengthChanged();
+		void updatePatternSizeLCD();
+		void patternSizeLCDClicked();
+		void denominatorWarningClicked();
+
 
 		void hearNotesBtnClick(Button *ref);
 		void quantizeEventsBtnClick(Button *ref);
@@ -101,23 +115,17 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		void moveDownBtnClicked(Button *);
 		void moveUpBtnClicked(Button *);
 
-		void recPreDeleteSelect( int index );
-		void recPostDeleteSelect( int index );
-
 	private:
 		H2Core::Pattern *	m_pPattern;
 		QPixmap				m_backgroundPixmap;
 		QLabel *			pSLlabel;
 
 		// Editor top
-		LCDCombo *			__pattern_size_combo;
+		LCDDisplay *			__pattern_size_LCD;
+		Button *			m_pDenominatorWarning;
 		LCDCombo *			__resolution_combo;
 		ToggleButton *		__show_drum_btn;
 		ToggleButton *		__show_piano_btn;
-		QComboBox *			__recpredelete;
-		QComboBox *			__recpostdelete;
-
-
 		// ~Editor top
 
 		//note properties combo
@@ -128,7 +136,6 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		DrumPatternEditor *	m_pDrumPatternEditor;
 
 		// piano roll editor
-		QScrollArea*		m_pPianoRollInternScrollView;
 		QScrollArea*		m_pPianoRollScrollView;
 		PianoRollEditor *	m_pPianoRollEditor;
 
@@ -171,12 +178,20 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		Button *			sizeDropdownBtn;
 		Button *			resDropdownBtn;
 
-		virtual void dragEnterEvent(QDragEnterEvent *event);
-		virtual void dropEvent(QDropEvent *event);
+		bool				m_bEnablePatternResize;
 
-		virtual void resizeEvent(QResizeEvent *ev);
-		virtual void showEvent(QShowEvent *ev);
+		// Cursor positioning
+		int					m_nCursorPosition;
+		int					m_nCursorIncrement;
+		//~ Cursor
+
+		virtual void dragEnterEvent(QDragEnterEvent *event) override;
+		virtual void dropEvent(QDropEvent *event) override;
+
+		virtual void resizeEvent(QResizeEvent *ev) override;
+		virtual void showEvent(QShowEvent *ev) override;
 };
+
 
 
 

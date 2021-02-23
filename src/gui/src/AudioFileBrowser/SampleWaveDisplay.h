@@ -23,11 +23,9 @@
 #ifndef SAMPLE_WAVE_DISPLAY
 #define SAMPLE_WAVE_DISPLAY
 
-#include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
-#include <hydrogen/object.h>
+#include <QtWidgets>
+
+#include <core/Object.h>
 
 
 
@@ -37,7 +35,7 @@ class SampleWaveDisplay : public QWidget, public H2Core::Object
 	Q_OBJECT
 
 	public:
-		SampleWaveDisplay( QWidget* pParent );
+		explicit SampleWaveDisplay( QWidget* pParent );
 		~SampleWaveDisplay();
 
 		void updateDisplay( QString filename );

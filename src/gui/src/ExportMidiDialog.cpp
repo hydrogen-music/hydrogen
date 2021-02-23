@@ -27,10 +27,10 @@
 #include "Skin.h"
 #include "HydrogenApp.h"
 
-#include <hydrogen/basics/song.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/smf/SMF.h>
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/Smf/SMF.h>
 
 using namespace H2Core;
 
@@ -86,10 +86,10 @@ void ExportMidiDialog::saveSettingsToPreferences()
 
 QString ExportMidiDialog::createDefaultFilename()
 {
-	QString sDefaultFilename = m_pEngine->getSong()->get_filename();
+	QString sDefaultFilename = m_pEngine->getSong()->getFilename();
 
 	if( sDefaultFilename.isEmpty() ){
-		sDefaultFilename = m_pEngine->getSong()->__name;
+		sDefaultFilename = m_pEngine->getSong()->getName();
 	} else {
 		// extracting filename from full path
 		QFileInfo qDefaultFile( sDefaultFilename ); 

@@ -26,33 +26,31 @@
 
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include "../EventListener.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 class MidiActivityWidget : public QWidget, public EventListener, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
 	public:
-		MidiActivityWidget(QWidget * parent);
+		explicit MidiActivityWidget(QWidget * parent);
 		~MidiActivityWidget();
 
-		void mousePressEvent(QMouseEvent *ev);
-		void paintEvent(QPaintEvent *ev);
+		void mousePressEvent(QMouseEvent *ev) override;
+		void paintEvent(QPaintEvent *ev) override;
 
 	public slots:
 		void restoreMidiActivityWidget();
 
 	private:
-		bool m_bValue;
-		QTimer *m_qTimer;
-		QPixmap m_back;
-		QPixmap m_leds;
-		virtual void midiActivityEvent();
+		bool		m_bValue;
+		QTimer *	m_qTimer;
+		QPixmap		m_back;
+		QPixmap		m_leds;
+		virtual void midiActivityEvent() override;
 };
 
 #endif

@@ -27,12 +27,11 @@
 
 #include <iostream>
 #include <string>
-#include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
 
-#include <hydrogen/object.h>
+#include <QtGui>
+#include <QtWidgets>
+
+#include <core/Object.h>
 
 class SimpleHTMLBrowser : public QDialog, public H2Core::Object
 {

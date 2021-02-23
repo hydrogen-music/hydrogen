@@ -54,6 +54,7 @@
 			<xsd:element name="info"		type="xsd:string"/>
 			<xsd:element name="category"	type="xsd:string"		default="unknown"/>
 			<xsd:element name="size"		type="xsd:nonNegativeInteger"/>
+			<xsd:element name="denominator"	type="xsd:nonNegativeInteger"/>
 			<xsd:element name="noteList">
 				<xsd:complexType>
 					<xsd:sequence>

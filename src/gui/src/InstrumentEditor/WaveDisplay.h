@@ -24,10 +24,9 @@
 #define WAVE_DISPLAY
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
-#include <hydrogen/object.h>
+#include <QtWidgets>
+
+#include <core/Object.h>
 
 namespace H2Core
 {
@@ -40,7 +39,7 @@ class WaveDisplay : public QWidget, public H2Core::Object
 	Q_OBJECT
 
 	public:
-		WaveDisplay(QWidget* pParent);
+		explicit WaveDisplay(QWidget* pParent);
 		~WaveDisplay();
 
 		virtual void	updateDisplay( H2Core::InstrumentLayer *pLayer );

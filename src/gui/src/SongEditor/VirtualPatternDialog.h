@@ -25,12 +25,11 @@
 
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
+
 #include "ui_VirtualPatternDialog_UI.h"
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 namespace H2Core
 {
@@ -47,7 +46,7 @@ class VirtualPatternDialog : public QDialog, public Ui_VirtualPatternDialog_UI, 
     H2_OBJECT
 	Q_OBJECT
 	public:
-		VirtualPatternDialog( QWidget* parent );
+		explicit VirtualPatternDialog( QWidget* parent );
 		~VirtualPatternDialog();
 
 	private slots:

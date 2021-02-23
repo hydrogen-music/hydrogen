@@ -24,10 +24,9 @@
 #define INSTRUMENT_EDITOR_PANEL_H
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
-#include <hydrogen/object.h>
+#include <QtWidgets>
+
+#include <core/Object.h>
 #include "InstrumentEditor.h"
 #include "../EventListener.h"
 
@@ -41,8 +40,11 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object, public Eve
 	public:
 		static InstrumentEditorPanel* get_instance();
 		~InstrumentEditorPanel();
+	
+		explicit InstrumentEditorPanel(const InstrumentEditorPanel&) = delete;
+		InstrumentEditorPanel& operator=( const InstrumentEditorPanel& rhs ) = delete;
 
-		virtual void parametersInstrumentChangedEvent();
+		virtual void parametersInstrumentChangedEvent() override;
 
 		void selectLayer( int nLayer );
 		
@@ -58,7 +60,7 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object, public Eve
 		InstrumentEditor*				m_pInstrumentEditor;
 		int								m_nLayer;
 
-		InstrumentEditorPanel( QWidget *pParent );
+		explicit InstrumentEditorPanel( QWidget *pParent );
 
 };
 

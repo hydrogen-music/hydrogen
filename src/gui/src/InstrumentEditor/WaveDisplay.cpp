@@ -20,10 +20,10 @@
  *
  */
 
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_layer.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentLayer.h>
 using namespace H2Core;
 
 #include "WaveDisplay.h"
@@ -39,7 +39,7 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
  , m_pLayer( nullptr )
  , m_SampleNameAlignment( Qt::AlignCenter )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//INFOLOG( "INIT" );
 
@@ -114,7 +114,8 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 	if(!pLayer || currentWidth <= 0){
 		m_pLayer = nullptr;
 		m_sSampleName = "-";
-		
+
+		update();
 		return;
 	}
 	
@@ -136,7 +137,7 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 
 		float fGain = height() / 2.0 * pLayer->get_gain();
 
-		float *pSampleData = pLayer->get_sample()->get_data_l();
+		auto pSampleData = pLayer->get_sample()->get_data_l();
 
 		int nSamplePos =0;
 		int nVal;
@@ -155,6 +156,7 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 		}
 	}
 	else {
+		m_pLayer = nullptr;
 		m_sSampleName = "-";
 		for ( int i =0; i < m_nCurrentWidth; ++i ){
 			m_pPeakData[ i ] = 0;

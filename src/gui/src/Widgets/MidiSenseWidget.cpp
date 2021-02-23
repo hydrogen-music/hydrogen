@@ -20,16 +20,16 @@
  *
  */
 
-#include "hydrogen/midi_map.h"
+#include "core/MidiMap.h"
 #include "MidiSenseWidget.h"
-#include <hydrogen/hydrogen.h>
+#include <core/Hydrogen.h>
 
 const char* MidiSenseWidget::__class_name = "MidiSenseWidget";
 
-MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, Action* midiAction): QDialog( pParent ) , Object(__class_name)
+MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, Action* pAction): QDialog( pParent ) , Object(__class_name)
 {
 	m_DirectWrite = directWr;
-	m_pAction = midiAction;
+	m_pAction = pAction;
 
 	setWindowTitle( "Waiting.." );
 	setFixedSize( 280, 100 );

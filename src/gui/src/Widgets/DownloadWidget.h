@@ -25,12 +25,12 @@
 
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
-#include <QtNetwork>
+#include <QtWidgets>
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
+
+class QNetworkAccessManager;
+class QNetworkReply;
 
 class Download : public QDialog, public H2Core::Object
 {
@@ -43,7 +43,7 @@ public:
 
 	int get_percent_done() {	return (int)__download_percent;	}
 	const QString& get_xml_content() {	return __feed_xml_string;	}
-	bool get_error() { return __error; }
+	const QString& get_error() { return __error; }
 
 private slots:
 	void	finished();
@@ -67,7 +67,7 @@ protected:
 	QString					__local_file;
 	QString					__feed_xml_string;
 
-	bool					__error;
+	QString					__error;
 };
 
 

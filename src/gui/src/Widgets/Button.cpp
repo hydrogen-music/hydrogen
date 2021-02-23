@@ -28,11 +28,7 @@
 
 #include <qglobal.h>	// for QT_VERSION
 
-#if QT_VERSION == 0x040100	// SVG renderer was introduced in QT4.1
-	#include <QSvgRenderer>
-#endif
-
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 
 const char* Button::__class_name = "Button";
 
@@ -48,7 +44,7 @@ Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffI
  , __enable_press_hold(enable_press_hold)
 {
 	// draw the background: slower but useful with transparent images!
-	//setAttribute(Qt::WA_NoBackground);
+	//setAttribute(Qt::WA_OpaquePaintEvent);
 
 	setMinimumSize( size );
 	setMaximumSize( size );
@@ -83,7 +79,6 @@ Button::~Button()
 
 bool Button::loadImage( const QString& sFilename, QPixmap& pixmap )
 {
-#if QT_VERSION == 0x040100	// SVG renderer was introduced in QT4.1
   /*
 	if ( sFilename.endsWith( ".svg" ) ) {
 		ERRORLOG( "************* LOAD SVG!!" );
@@ -105,7 +100,7 @@ bool Button::loadImage( const QString& sFilename, QPixmap& pixmap )
 		return true;
 	}
   */
-#endif
+	
 	// load an image
 	if ( pixmap.load( Skin::getImagePath() + sFilename ) == false ) {
 		if ( !sFilename.isEmpty() ) {

@@ -21,19 +21,17 @@
  */
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/sampler/Sampler.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/Note.h>
+#include <core/AudioEngine.h>
+#include <core/Sampler/Sampler.h>
 using namespace H2Core;
 
 #include "../Skin.h"
@@ -51,7 +49,7 @@ LayerPreview::LayerPreview( QWidget* pParent )
  , m_nSelectedLayer( 0 )
  , m_bMouseGrab( false )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//INFOLOG( "INIT" );
 
@@ -114,7 +112,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 				InstrumentLayer *pLayer = pComponent->get_layer( i );
 				
 				if ( pLayer && nLayers > 0 ) {
-					Sample* pSample = pLayer->get_sample();
+					auto pSample = pLayer->get_sample();
 					if( pSample != nullptr) {
 						label = pSample->get_filename();
 					}
@@ -172,7 +170,7 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if (pSong != nullptr) {
-		InstrumentList *pInstrList = pSong->get_instrument_list();
+		InstrumentList *pInstrList = pSong->getInstrumentList();
 		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		if ( nInstr >= (int)pInstrList->size() ) {
 			nInstr = -1;
@@ -232,6 +230,10 @@ void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 	m_bMouseGrab = false;
 	setCursor( QCursor( Qt::ArrowCursor ) );
 
+	if ( m_pInstrument == nullptr ) {
+		return;
+	}
+
 	/*
 	 * We want the tooltip to still show if mouse pointer
 	 * is over an active layer's boundary
@@ -239,7 +241,7 @@ void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 	InstrumentComponent *pCompo = m_pInstrument->get_component( m_nSelectedComponent );
 	if ( pCompo ) {
 		InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
-		
+
 		if ( pLayer ) {
 			int x1 = (int)( pLayer->get_start_velocity() * width() );
 			int x2 = (int)( pLayer->get_end_velocity() * width() );
@@ -272,7 +274,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 
 		Note * pNote = new Note( m_pInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
 		pNote->set_specific_compo_id( m_nSelectedComponent );
-		AudioEngine::get_instance()->get_sampler()->note_on(pNote);
+		AudioEngine::get_instance()->get_sampler()->noteOn(pNote);
 		
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 			InstrumentComponent *pCompo = m_pInstrument->get_component(m_nSelectedComponent);
@@ -303,7 +305,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 			if ( pLayer ) {
 				Note *note = new Note( m_pInstrument , nPosition, m_pInstrument->get_component(m_nSelectedComponent)->get_layer( m_nSelectedLayer )->get_end_velocity() - 0.01, fPan_L, fPan_R, nLength, fPitch );
 				note->set_specific_compo_id( m_nSelectedComponent );
-				AudioEngine::get_instance()->get_sampler()->note_on(note);
+				AudioEngine::get_instance()->get_sampler()->noteOn(note);
 				
 				int x1 = (int)( pLayer->get_start_velocity() * width() );
 				int x2 = (int)( pLayer->get_end_velocity() * width() );

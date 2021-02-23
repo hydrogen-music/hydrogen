@@ -23,14 +23,15 @@ install_mxe(){
 	PATH=/opt/mxe/usr/bin:$PATH;
 	#Modify the MXE Makefiles to allow for the cross compilation.
 	sed -i 's/i686-w64-mingw32.static/i686-w64-mingw32.shared x86_64-w64-mingw32.shared/g' $MXE/Makefile
-	#Make gcc and winpthreads. gcc will need to be rebuilt once winpthreads is built.
-	#Note: This needs to happen because winpthreads needs gcc to be built, but we need gcc built with winpthreads support to build hydrogen.
-	#	this creates a cyclical dependency problem that there seems to be no way around.
-	make gcc $1
-	make winpthreads $1
-	sed -i 's/binutils gcc-gmp gcc-isl gcc-mpc gcc-mpfr mingw-w64/binutils gcc-gmp gcc-isl gcc-mpc gcc-mpfr winpthreads/g' $MXE/src/gcc.mk
-	sed -i 's/--enable-threads=win32/--enable-threads=posix/g' $MXE/src/gcc.mk
-	make gcc $1
+	make cc $1
+
+	# Disable WDM-KS in PortAudio since it causes crashes
+	sed -i 's/--with-winapi=\(.*\),wdmks/--with-winapi=\1/' $MXE/src/portaudio.mk
+	if grep wmdks $MXE/src/portaudio.mk; then
+		echo "*** $MXE/src/portaudio.mk still references wdmks."
+		exit 1
+	fi
+
 	#Build the dependencies for hydrogen
 	make libarchive libsndfile portaudio portmidi fftw rubberband jack liblo qt5 -j4 JOBS=4 $1
 	sed -i 's/:= gcc/:= gcc jack/g' $MXE/src/portaudio.mk
@@ -50,7 +51,7 @@ while :
 	echo "Note: this script was made using the requirement information found at http://mxe.cc/#requirements"
 	echo "You can visit the above site for manual instructions on what packages are required. For instructions on how to build MXE you can visit this link: http://mxe.cc/#tutorial"
 	echo "Select an option:"
-	echo " 1: Debian and derrivatives"
+	echo " 1: Debian and derivatives"
 	echo " 2: Fedora"
 	echo " 3: FreeBSD (NOTE: No longer fully supported by MXE. See above requirements link.)"
 	echo " 4: Frugalware"

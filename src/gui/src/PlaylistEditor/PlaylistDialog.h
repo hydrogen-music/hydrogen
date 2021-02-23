@@ -26,10 +26,10 @@
 
 #include <QDialog>
 #include "ui_PlaylistDialog_UI.h"
-#include <hydrogen/object.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/playlist.h>
+#include <core/Object.h>
+#include <core/Preferences.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Playlist.h>
 
 
 class Button;
@@ -46,7 +46,7 @@ class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public H2Cor
 	Q_OBJECT
 	public:
 
-		PlaylistDialog( QWidget* pParent );
+		explicit PlaylistDialog( QWidget* pParent );
 		~PlaylistDialog();
 
 		bool loadListByFileName( QString filename);

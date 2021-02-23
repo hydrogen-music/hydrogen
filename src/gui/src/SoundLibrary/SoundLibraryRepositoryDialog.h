@@ -24,7 +24,7 @@
 #define SOUND_LIBRARY_REPOSITORY_DIALOG_H
 
 #include "ui_SoundLibraryRepositoryDialog_UI.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 ///
 ///
@@ -34,12 +34,13 @@ class SoundLibraryRepositoryDialog : public QDialog, public Ui_SoundLibraryRepos
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		SoundLibraryRepositoryDialog( QWidget* pParent );
+		explicit SoundLibraryRepositoryDialog( QWidget* pParent );
 		~SoundLibraryRepositoryDialog();
 
 	private slots:
 		void on_AddBtn_clicked();
 		void on_DeleteBtn_clicked();
+		void on_CloseBtn_clicked();		
 
 	private:
 		void updateDialog();

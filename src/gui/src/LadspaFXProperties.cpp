@@ -20,12 +20,12 @@
  *
  */
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/fx/Effects.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/IO/AudioOutput.h>
+#include <core/Hydrogen.h>
+#include <core/AudioEngine.h>
+#include <core/Basics/Song.h>
+#include <core/FX/Effects.h>
+#include <core/Preferences.h>
+#include <core/IO/AudioOutput.h>
 
 
 #include "LadspaFXProperties.h"
@@ -38,7 +38,6 @@
 #include "Mixer/Mixer.h"
 #include "Mixer/MixerLine.h"
 
-using namespace std;
 using namespace H2Core;
 
 const char* LadspaFXProperties::__class_name = "LadspaFXProperties";
@@ -163,7 +162,7 @@ void LadspaFXProperties::faderChanged( Fader * ref )
 			m_pInputControlLabel[ i ]->setText( sValue );
 		}
 	}
-	pSong->set_is_modified( true );
+	pSong->setIsModified( true );
 #endif
 }
 
@@ -262,7 +261,7 @@ void LadspaFXProperties::updateControls()
 			pLCD->setText( sValue );
 			pLCD->show();
 			QPalette lcdPalette;
-			lcdPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
+			lcdPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 			pLCD->setPalette( lcdPalette );
 
 			m_pInputControlLabel.push_back( pLCD );
@@ -354,7 +353,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 		if ( !sSelectedFX.isEmpty() ) {
 			LadspaFX *pFX = nullptr;
 
-			vector<H2Core::LadspaFXInfo*> pluginList = Effects::get_instance()->getPluginList();
+			std::vector<H2Core::LadspaFXInfo*> pluginList = Effects::get_instance()->getPluginList();
 			for (uint i = 0; i < pluginList.size(); i++) {
 				H2Core::LadspaFXInfo *pFXInfo = pluginList[i];
 				if (pFXInfo->m_sName == sSelectedFX ) {
@@ -365,7 +364,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 				}
 			}
 			Song *pSong = (Hydrogen::get_instance() )->getSong();
-			pSong->set_is_modified(true);
+			pSong->setIsModified(true);
 
 			Effects::get_instance()->setLadspaFX( pFX, m_nLadspaFX );
 
@@ -385,7 +384,7 @@ void LadspaFXProperties::removeFXBtnClicked()
 {
 #ifdef H2CORE_HAVE_LADSPA
 	Song *pSong = (Hydrogen::get_instance() )->getSong();
-	pSong->set_is_modified( true );
+	pSong->setIsModified( true );
 	Effects::get_instance()->setLadspaFX( nullptr, m_nLadspaFX );
 	Hydrogen::get_instance()->restartLadspaFX();
 	updateControls();	
@@ -413,7 +412,7 @@ void LadspaFXProperties::updateOutputControls()
 		for (uint i = 0; i < pFX->outputControlPorts.size(); i++) {
 			LadspaControlPort *pControl = pFX->outputControlPorts[i];
 
-			vector<Fader*>::iterator it = m_pOutputControlFaders.begin() + i;
+			std::vector<Fader*>::iterator it = m_pOutputControlFaders.begin() + i;
 			if (it != m_pOutputControlFaders.end() ) {
 				Fader *pFader = *it;
 				if (pFader == nullptr) {
@@ -421,9 +420,8 @@ void LadspaFXProperties::updateOutputControls()
 					continue;
 				}
 
-				float fValue = pControl->fControlValue;
 				float fInterval = pControl->fUpperBound - pControl->fLowerBound;
-				fValue = pControl->fControlValue / fInterval;
+				float fValue = pControl->fControlValue / fInterval;
 
 				if (fValue < 0) fValue = -fValue;
 

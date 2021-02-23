@@ -24,17 +24,14 @@
 #define CLICKABLE_LABEL_H
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
-
+#include <QtWidgets>
 
 class ClickableLabel : public QLabel
 {
 	Q_OBJECT
 
 	public:
-		ClickableLabel( QWidget *pParent );
+		explicit ClickableLabel( QWidget *pParent );
 		void mousePressEvent( QMouseEvent * e );
 
 	signals:

@@ -29,10 +29,10 @@
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
 
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/drumkit.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/H2Exception.h>
+#include <core/Preferences.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Helpers/Filesystem.h>
 
 
 #include <QTreeWidget>
@@ -333,16 +333,24 @@ void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
 	QString downloadUrl = repositoryCombo->currentText();
 	QString sDrumkitXML;
 
-	for (int i=0; i < max_redirects; i++) {
+	for (int ii=1; ii <= max_redirects; ii++) {
 		DownloadWidget drumkitList( this, tr( "Updating SoundLibrary list..." ), downloadUrl);
 		drumkitList.exec();
 
 		if (!drumkitList.get_redirect_url().isEmpty()) {
 			downloadUrl = drumkitList.get_redirect_url().toEncoded();
-		} else if (!drumkitList.get_error()) {
+		} else if (drumkitList.get_error().isEmpty()) {
 			sDrumkitXML = drumkitList.get_xml_content();
 			break;
 		}
+
+		// Only show a popup with the error messages once after
+		// attempting all redirects. We assume in here that the error
+		// does stay the same for all redirects.
+		if ( ii == max_redirects ) {
+			QMessageBox::warning( this, "Hydrogen", drumkitList.get_error() );
+		}
+			
 	}
 
 	/*
@@ -622,16 +630,15 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 				DownloadWidget dl( this, tr( "Downloading SoundLibrary..." ), sURL, sLocalFile );
 				dl.exec();
 
-
 				QUrl redirect_url = dl.get_redirect_url();
 				if (redirect_url.isEmpty() ) {
 					// ok, we have all data
-					Error = dl.get_error();
+					Error = !dl.get_error().isEmpty();
 					break;
 				}
 				else {
 					sURL = redirect_url.toEncoded();
-					Error = dl.get_error();
+					Error = !dl.get_error().isEmpty();
 				}
 			}
 

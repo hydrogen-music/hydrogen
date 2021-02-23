@@ -16,11 +16,12 @@ ENDIF()
 #
 PROJECT(hydrogen)
 SET(VERSION_MAJOR "1")
-SET(VERSION_MINOR "0")
+SET(VERSION_MINOR "1")
 SET(VERSION_PATCH "0")
-#SET(VERSION_SUFFIX "beta2")
+#SET(VERSION_SUFFIX "rc1")
 
 SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
+
 
 IF(VERSION_SUFFIX)
 	SET(DISPLAY_VERSION "${VERSION}-${VERSION_SUFFIX}")
@@ -29,7 +30,6 @@ ELSE()
 	SET(DISPLAY_VERSION "${VERSION}-${GIT_REVISION}")
 ENDIF(VERSION_SUFFIX)
 
-include(GNUInstallDirs)
 
 SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 
@@ -51,9 +51,7 @@ OPTION(WANT_LADSPA          "Enable use of LADSPA plugins" ON)
 
 IF(APPLE)
 	OPTION(WANT_OSC  "Enable OSC support" OFF)
-	OPTION(WANT_JACKSESSION "Enable use of Jack-Session-Handler" OFF)
 ELSE()
-	OPTION(WANT_JACKSESSION "Enable use of Jack-Session-Handler" ON)
 	OPTION(WANT_OSC  "Enable OSC support" ON)
 ENDIF()
 
@@ -82,6 +80,7 @@ IF(APPLE)
 ENDIF()
 
 OPTION(WANT_CPPUNIT         "Include CppUnit test suite" ON)
+OPTION(FIXME_DISABLE_OPTIMIZATIONS "Fix broken builds by turning off optimizations" OFF)
 
 include(Sanitizers)
 
@@ -129,11 +128,13 @@ SET(CMAKE_CXX_FLAGS_RELEASE "")
 
 SET(CMAKE_CXX_FLAGS_DEBUG "-g ")#-Winline")
 
-
-IF(APPLE)
-	#Compile for 32bit and 64bit intel macs
-	SET (CMAKE_OSX_ARCHITECTURES "x86_64;")
+IF(FIXME_DISABLE_OPTIMIZATIONS)
+    string(REGEX REPLACE "-O[0123s]" "-O0" CMAKE_CXX_FLAGS                "${CMAKE_CXX_FLAGS}")
+    string(REGEX REPLACE "-O[0123s]" "-O0" CMAKE_CXX_FLAGS_RELEASE        "${CMAKE_CXX_FLAGS_RELEASE}")
+    string(REGEX REPLACE "-O[0123s]" "-O0" CMAKE_CXX_FLAGS_DEBUG          "${CMAKE_CXX_FLAGS_DEBUG}")
+    string(REGEX REPLACE "-O[0123s]" "-O0" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 ENDIF()
+
 #
 # MANDATORY PKGS AND DEFAULT OPTIONS
 #
@@ -162,9 +163,18 @@ ENDIF(APPLE)
 
 
 #Installation paths
-# TODO remove data from path
-SET(H2_SYS_PATH "${CMAKE_INSTALL_FULL_DATAROOTDIR}/hydrogen")
-# TODO remove data from path, could be .config/hydrogen
+INCLUDE(GNUInstallDirs)
+IF(WIN32)
+    SET(H2_BIN_PATH ".")
+    SET(H2_LIB_PATH ".")
+    SET(H2_DATA_PATH ".")
+    SET(H2_SYS_PATH "hydrogen")
+ELSE()
+    SET(H2_BIN_PATH ${CMAKE_INSTALL_BINDIR})
+    SET(H2_LIB_PATH ${CMAKE_INSTALL_LIBDIR})
+    SET(H2_DATA_PATH "${CMAKE_INSTALL_DATADIR}/hydrogen")
+    SET(H2_SYS_PATH "${CMAKE_INSTALL_FULL_DATAROOTDIR}/hydrogen")
+ENDIF()
 SET(H2_USR_PATH ".hydrogen")
 
 SET(MAX_INSTRUMENTS 1000 CACHE STRING "Maximum number of instruments")
@@ -219,7 +229,6 @@ ENDIF()
 
 FIND_HELPER(JACK jack jack/jack.h jack)
 CHECK_LIBRARY_EXISTS(jack jack_port_rename "" HAVE_JACK_PORT_RENAME)
-FIND_HELPER(JACKSESSION jack jack/session.h jack)
 IF(APPLE)
     FIND_LIBRARY(AUDIOUNIT_LIBRARY AudioUnit)
     FIND_LIBRARY(CORESERVICES_LIBRARY CoreServices)
@@ -258,7 +267,7 @@ endif(DOXYGEN_FOUND)
 #
 # COMPUTE H2CORE_HAVE_xxx xxx_STATUS_REPORT
 #
-SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION OSC COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND CPPUNIT )
+SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK OSC COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND CPPUNIT )
 FOREACH( _pkg ${STATUS_LIST})
     COMPUTE_PKGS_FLAGS(${_pkg})
 ENDFOREACH()
@@ -268,7 +277,7 @@ STRING( COMPARE GREATER "${LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_PREV}" LIB
 IF(LIBSNDFILE_VERSION_OK)
     SET(LIBSNDFILE_MSG "libsndfile supports FLAC and OGG sound file formats")
 ELSE()
-    SET(LIBSNDFILE_MSG "libsndfile version must be greater than ${LIBSNDFILE_VERSION_PREV} to support FLAC and OGG sound file formats")
+	SET(LIBSNDFILE_MSG "libsndfile version must be greater than ${LIBSNDFILE_VERSION_PREV} to support FLAC and OGG sound file formats. Found version: ${LIBSNDFILE_VERSION}")
 ENDIF()
 
 # RUBBERBAND information
@@ -291,6 +300,9 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * Install Directory            : ${CMAKE_INSTALL_PREFIX}
 * User path                    : ${H2_USR_PATH}
 * System path                  : ${H2_SYS_PATH}
+* Bin path                     : ${H2_BIN_PATH}
+* Lib path                     : ${H2_LIB_PATH}
+* Data path                    : ${H2_DATA_PATH}
 * core library build as        : ${H2CORE_LIBRARY_TYPE}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
 * macosx bundle                : ${H2CORE_HAVE_BUNDLE}
@@ -311,7 +323,6 @@ COLOR_MESSAGE("${cyan}Supported audio interfaces${reset}
 * ${purple}ALSA${reset}                         : ${ALSA_STATUS}
 * ${purple}OSS${reset}                          : ${OSS_STATUS}
 * ${purple}JACK${reset}                         : ${JACK_STATUS}
-* ${purple}JACKSESSION${reset}                  : ${JACKSESSION_STATUS}
 * ${purple}OSC${reset}                          : ${OSC_STATUS}
 * ${purple}CoreAudio${reset}                    : ${COREAUDIO_STATUS}
 * ${purple}CoreMidi${reset}                     : ${COREMIDI_STATUS}
@@ -344,7 +355,7 @@ ${red}IMPORTANT:${reset}
 -----------------------------------------------------------------\n"
 )
 
-find_path( HYDROGEN_INSTALLED NAMES hydrogen/config.h )
+find_path( HYDROGEN_INSTALLED NAMES core/config.h )
 IF( HYDROGEN_INSTALLED )
     COLOR_MESSAGE("-----------------------------------------------------------------
 ${red}IMPORTANT${reset}:
@@ -378,11 +389,7 @@ ADD_SUBDIRECTORY(src/gui)
 IF(EXISTS ${CMAKE_SOURCE_DIR}/data/doc/CMakeLists.txt)
 	ADD_SUBDIRECTORY(data/doc)
 ENDIF()
-IF (MINGW)
-	INSTALL(DIRECTORY data DESTINATION . PATTERN ".git" EXCLUDE PATTERN "i18n" EXCLUDE PATTERN doc EXCLUDE)
-ELSE()
-	INSTALL(DIRECTORY data DESTINATION ${H2_SYS_PATH} PATTERN ".git" EXCLUDE PATTERN "i18n" EXCLUDE PATTERN doc EXCLUDE)
-ENDIF()
+INSTALL(DIRECTORY data DESTINATION ${H2_DATA_PATH} PATTERN ".git" EXCLUDE PATTERN "i18n" EXCLUDE PATTERN doc EXCLUDE)
 IF(NOT MINGW AND NOT APPLE)
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/org.hydrogenmusic.Hydrogen.appdata.xml DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/appdata")
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/org.hydrogenmusic.Hydrogen.desktop DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
@@ -410,10 +417,13 @@ SET(CPACK_PACKAGE_INSTALL_DIRECTORY "Hydrogen")
 IF(MINGW)
     #Set the other files that will be used in CPack
     SET(WIN64 "OFF" CACHE BOOL "Windows 64 Bit")
-	SET(CPACK_STRIP_FILES "${WINDOWS_DIR}/src/cli/h2cli.exe" "${WINDOWS_DIR}/src/gui/hydrogen.exe" "${WINDOWS_DIR}/src/player/h2player.exe")
+    if (CMAKE_BUILD_TYPE MATCHES Release)
+         SET(CPACK_STRIP_FILES TRUE)
+    else()
+         SET(CPACK_STRIP_FILES FALSE)
+    endif()
     #Program Files for Hydrogen
     SET(WINDOWS_DIR "windows")
-    INSTALL(FILES "${WINDOWS_DIR}/src/cli/h2cli.exe" "${WINDOWS_DIR}/src/core/libhydrogen-core-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dll" "${WINDOWS_DIR}/src/gui/hydrogen.exe" "${WINDOWS_DIR}/src/player/h2player.exe" DESTINATION ./)
     #Install files from the extralibs dir
     INSTALL(DIRECTORY ${WINDOWS_DIR}/extralibs/ DESTINATION ./)
 

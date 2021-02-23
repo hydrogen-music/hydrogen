@@ -24,10 +24,9 @@
 #define MAIN_SAMPLE_WAVE_DISPLAY
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
-#include <hydrogen/object.h>
+#include <QtWidgets>
+
+#include <core/Object.h>
 #include "SampleEditor.h"
 class SampleEditor;
 
@@ -37,7 +36,7 @@ class MainSampleWaveDisplay : public QWidget, public H2Core::Object
 	Q_OBJECT
 
 	public:
-		MainSampleWaveDisplay(QWidget* pParent);
+		explicit MainSampleWaveDisplay(QWidget* pParent);
 		~MainSampleWaveDisplay();
 
 		void updateDisplay( const QString& filename );
@@ -45,27 +44,32 @@ class MainSampleWaveDisplay : public QWidget, public H2Core::Object
 
 		void paintLocatorEvent( int pos, bool last_event);
 		void paintEvent(QPaintEvent *ev);
-		int m_pStartFramePosition;
-		int m_pLoopFramePosition;
-		int m_pEndFramePosition;
-		bool m_pmove;
+		
 		void testPositionFromSampleeditor();
-		bool __startsliderismoved;
-		bool __loopsliderismoved;
-		bool __endsliderismoved;
+		
+		int		m_nStartFramePosition;
+		int		m_nLoopFramePosition;
+		int		m_nEndFramePosition;
+		bool	m_bMove;
+		bool	m_bStartSliderIsMoved;
+		bool	m_bLoopSliderIsMoved;
+		bool	m_bEndSliderIsmoved;
 
 
 	private:
-		QPixmap m_background;
-		int *m_pPeakDatal;
-		int *m_pPeakDatar;
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		void testPosition( QMouseEvent *ev );
-		int m_pSampleLength;
-		int m_plocator;
-		bool m_pupdateposi;
+		
+		QPixmap m_background;
+		int*	m_pPeakDatal;
+		int*	m_pPeakDatar;
+		
+		int		m_nSampleLength;
+		int		m_nLocator;
+		bool	m_bUpdatePosition;
+
 
 };
 

@@ -26,13 +26,12 @@
 
 #include "ui_LadspaFXSelector_UI.h"
 
-#include <hydrogen/config.h>
-#include <hydrogen/object.h>
+#include <core/config.h>
+#include <core/Object.h>
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
+
 #include <string>
 #include <vector>
 
@@ -47,7 +46,7 @@ class LadspaFXSelector : public QDialog, public Ui_LadspaFXSelector_UI, public H
 	Q_OBJECT
 
 	public:
-		LadspaFXSelector(int nLadspaFX);
+		explicit LadspaFXSelector(int nLadspaFX);
 		~LadspaFXSelector();
 
 		QString getSelectedFX();

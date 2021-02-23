@@ -36,7 +36,7 @@ class SongPropertiesDialog : public QDialog, private Ui_SongPropertiesDialog_UI
 	Q_OBJECT
 
 	public:
-		SongPropertiesDialog(QWidget* parent);
+		explicit SongPropertiesDialog(QWidget* parent);
 		~SongPropertiesDialog();
 
 	private slots:

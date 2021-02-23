@@ -21,17 +21,15 @@
  */
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include "UndoActions.h"
 #include "../HydrogenApp.h"
 #include "SongEditorPanelBpmWidget.h"
 #include "SongEditorPanel.h"
 #include "SongEditor.h"
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/timeline.h>
+#include <core/Hydrogen.h>
+#include <core/Timeline.h>
 
 namespace H2Core
 {
@@ -51,27 +49,26 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 	lineEditBeat->setText(QString("%1").arg( m_stimelineposition + 1) );
 	deleteBtn->setEnabled ( false );
 
-	Hydrogen* engine = Hydrogen::get_instance();
-	Timeline* pTimeline = engine->getTimeline();
-	std::vector<Timeline::HTimelineVector> timelineVector = pTimeline->m_timelinevector;
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Timeline* pTimeline = pHydrogen->getTimeline();
+	auto tempoMarkers = pTimeline->getAllTempoMarkers();
 
 	//restore the bpm value
-	if( timelineVector.size() > 0 ){
-		for ( int t = 0; t < timelineVector.size(); t++ ){
-//			ERRORLOG(QString("%1 %2").arg(Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat).arg(m_stimelineposition));
-			if ( timelineVector[t].m_htimelinebeat == m_stimelineposition ) {
-				lineEditBpm->setText( QString("%1").arg( timelineVector[t].m_htimelinebpm ) );
+	if( tempoMarkers.size() > 0 ){
+		for ( int t = 0; t < tempoMarkers.size(); t++ ){
+			if ( tempoMarkers[t]->nBar == m_stimelineposition ) {
+				lineEditBpm->setText( QString("%1").arg( tempoMarkers[t]->fBpm ) );
 				deleteBtn->setEnabled ( true );
 				return;
 			}
 			else
 			{
-				lineEditBpm->setText( QString("%1").arg( engine->getNewBpmJTM()) );
+				lineEditBpm->setText( QString("%1").arg( pHydrogen->getNewBpmJTM()) );
 			}
 		}
 	}else
 	{
-		lineEditBpm->setText( QString("%1").arg( engine->getNewBpmJTM() ) );
+		lineEditBpm->setText( QString("%1").arg( pHydrogen->getNewBpmJTM() ) );
 	}
 }
 
@@ -94,21 +91,36 @@ void SongEditorPanelBpmWidget::on_CancelBtn_clicked()
 
 void SongEditorPanelBpmWidget::on_okBtn_clicked()
 {
-	Hydrogen* engine = Hydrogen::get_instance();
-	Timeline* pTimeline = engine->getTimeline();
+	float fNewBpm = lineEditBpm->text().toFloat( nullptr );
 
-	float oldBpm = -1.0;	
+	// In case the input text can not be parsed by Qt `fNewBpm' is 0
+	// and also covered by the warning below.
+	if ( fNewBpm > MAX_BPM || fNewBpm < MIN_BPM ){
+		QMessageBox::warning( this, "Hydrogen",
+							  QString( tr( "Please enter a number within the range of " )
+									   .append( QString( "[%1,%2]" )
+												.arg( MIN_BPM )
+												.arg( MAX_BPM ) ) ),
+							  tr("&Cancel") );
+		return;
+	}
+	
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Timeline* pTimeline = pHydrogen->getTimeline();
+	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
+
+	float fOldBpm = -1.0;
 	//search for an old entry
-	if( pTimeline->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
-			if ( pTimeline->m_timelinevector[t].m_htimelinebeat == ( QString( lineEditBeat->text() ).toInt() ) -1 ) {
-				oldBpm = pTimeline->m_timelinevector[t].m_htimelinebpm;
+	if( tempoMarkerVector.size() >= 1 ){
+		for ( int t = 0; t < tempoMarkerVector.size(); t++){
+			if ( tempoMarkerVector[t]->nBar == ( QString( lineEditBeat->text() ).toInt() ) -1 ) {
+				fOldBpm = tempoMarkerVector[t]->fBpm;
 			}
 		}
 	}
 
 
-	SE_editTimeLineAction *action = new SE_editTimeLineAction( lineEditBeat->text().toInt(), oldBpm, QString( lineEditBpm->text() ).toFloat() );
+	SE_editTimeLineAction *action = new SE_editTimeLineAction( lineEditBeat->text().toInt(), fOldBpm, QString( lineEditBpm->text() ).toFloat() );
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	accept();
 }
@@ -116,20 +128,21 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 
 void SongEditorPanelBpmWidget::on_deleteBtn_clicked()
 {
-	Hydrogen* engine = Hydrogen::get_instance();
-	Timeline* pTimeline = engine->getTimeline();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Timeline* pTimeline = pHydrogen->getTimeline();
+	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 
-	float oldBpm = -1.0;	
+	float fOldBpm = -1.0;
 	//search for an old entry
-	if( pTimeline->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
-			if ( pTimeline->m_timelinevector[t].m_htimelinebeat == ( QString( lineEditBeat->text() ).toInt() ) -1 ) {
-				oldBpm = pTimeline->m_timelinevector[t].m_htimelinebpm;
+	if( tempoMarkerVector.size() >= 1 ){
+		for ( int t = 0; t < tempoMarkerVector.size(); t++){
+			if ( tempoMarkerVector[t]->nBar == ( QString( lineEditBeat->text() ).toInt() ) -1 ) {
+				fOldBpm = tempoMarkerVector[t]->fBpm;
 			}
 		}
 	}
 
-	SE_deleteTimeLineAction *action = new SE_deleteTimeLineAction( lineEditBeat->text().toInt(), oldBpm );
+	SE_deleteTimeLineAction *action = new SE_deleteTimeLineAction( lineEditBeat->text().toInt(), fOldBpm );
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	accept();
 }

@@ -24,12 +24,10 @@
 #ifndef INSTRUMENT_RACK_H
 #define INSTRUMENT_RACK_H
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 class ToggleButton;
 class SoundLibraryPanel;
@@ -39,7 +37,7 @@ class InstrumentRack : public QWidget, private H2Core::Object
     H2_OBJECT
 	Q_OBJECT
 	public:
-		InstrumentRack( QWidget *pParent );
+		explicit InstrumentRack( QWidget *pParent );
 		~InstrumentRack();
 
 		SoundLibraryPanel* getSoundLibraryPanel() {	return m_pSoundLibraryPanel;	}

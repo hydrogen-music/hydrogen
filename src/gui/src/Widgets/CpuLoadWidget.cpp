@@ -22,7 +22,7 @@
 
 
 #include "CpuLoadWidget.h"
-#include <hydrogen/hydrogen.h>
+#include <core/Hydrogen.h>
 
 #include "../Skin.h"
 #include "../HydrogenApp.h"
@@ -39,7 +39,7 @@ CpuLoadWidget::CpuLoadWidget( QWidget *pParent )
  , Object( __class_name )
  , m_fValue( 0 )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	static const uint WIDTH = 92;
 	static const uint HEIGHT = 8;

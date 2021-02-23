@@ -379,7 +379,7 @@
         <translation type="unfinished">Εξαγωγή αρχείου ΜΙΝΤΙ</translation>
     </message>
     <message>
-        <source>Directory %1 does not exists</source>
+        <source>Directory %1 does not exist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -451,7 +451,7 @@ Overwrite the existing file?</source>
         <translation>Εξαγωγή σε ξεχωριστά κανάλια</translation>
     </message>
     <message>
-        <source>Directory %1 does not exists</source>
+        <source>Directory %1 does not exist</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

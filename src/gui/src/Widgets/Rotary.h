@@ -27,18 +27,16 @@
 #include "MidiSenseWidget.h"
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 class LCDDisplay;
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 class RotaryTooltip : public QWidget
 {
 	public:
-		RotaryTooltip( QPoint pos );
+		explicit RotaryTooltip( QPoint pos );
 		~RotaryTooltip();
 		void showTip( QPoint pos, QString sText );
 
@@ -58,7 +56,10 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 			TYPE_CENTER
 		};
 
-		Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseIntSteps, bool bUseValueTip );
+		Rotary(const Rotary&) = delete;
+		Rotary& operator=( const Rotary& rhs ) = delete;
+	
+		Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseIntSteps, bool bUseValueTip, float fMin = 0.0, float fMax = 1.0 );
 		~Rotary();
 
 		void setMin( float fMin );

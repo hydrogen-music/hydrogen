@@ -20,10 +20,10 @@
  *
  */
 
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_layer.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentLayer.h>
 
 #include <memory>
 
@@ -47,7 +47,7 @@ TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
  , Object( __class_name )
  , m_sSampleName( "" )
 {
-//	setAttribute(Qt::WA_NoBackground);
+//	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//INFOLOG( "INIT" );
 	int w = UI_WIDTH;
@@ -86,7 +86,7 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
 
-	painter.setRenderHint( QPainter::HighQualityAntialiasing );
+	painter.setRenderHint( QPainter::Antialiasing );
 	painter.drawPixmap( ev->rect(), m_Background, ev->rect() );
 	painter.setPen( QColor( 252, 142, 73 ));
 
@@ -200,8 +200,8 @@ void TargetWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 
 		float fGain = (height() - 8) / 2.0 * pLayer->get_gain();
 
-		float *pSampleDatal = pLayer->get_sample()->get_data_l();
-		float *pSampleDatar = pLayer->get_sample()->get_data_r();
+		auto pSampleDatal = pLayer->get_sample()->get_data_l();
+		auto pSampleDatar = pLayer->get_sample()->get_data_r();
 		int nSamplePos = 0;
 		int nVall;
 		int nValr;

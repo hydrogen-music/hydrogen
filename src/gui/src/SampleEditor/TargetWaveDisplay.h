@@ -24,11 +24,10 @@
 #define TARGET_WAVE_DISPLAY
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
-#include <hydrogen/object.h>
-#include <hydrogen/basics/sample.h>
+#include <QtWidgets>
+
+#include <core/Object.h>
+#include <core/Basics/Sample.h>
 #include <memory>
 
 class SampleEditor;
@@ -45,7 +44,7 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 	Q_OBJECT
 
 	public:
-		TargetWaveDisplay(QWidget* pParent);
+		explicit TargetWaveDisplay(QWidget* pParent);
 		~TargetWaveDisplay();
 
 		void updateDisplay( H2Core::InstrumentLayer *pLayer );

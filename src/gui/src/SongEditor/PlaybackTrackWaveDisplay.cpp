@@ -20,14 +20,14 @@
  *
  */
 
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/basics/pattern.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Pattern.h>
 using namespace H2Core;
 
 
@@ -110,7 +110,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 		m_pLayer = pLayer;
 		m_sSampleName = m_pLayer->get_sample()->get_filename();
 		
-		float *	pSampleData = pLayer->get_sample()->get_data_l();
+		auto	pSampleData = pLayer->get_sample()->get_data_l();
 		int		nSampleLength = m_pLayer->get_sample()->get_frames();
 		float	fLengthOfPlaybackTrackInSecs = ( float )( nSampleLength / (float) m_pLayer->get_sample()->get_sample_rate() );
 		float	fRemainingLengthOfPlaybackTrack = fLengthOfPlaybackTrackInSecs;		
@@ -118,7 +118,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 		int		nSamplePos = 0;
 		int		nMaxBars = pPref->getMaxBars();
 		
-		std::vector<PatternList*> *pPatternColumns = pSong->get_pattern_group_vector();
+		std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
 		int nColumns = pPatternColumns->size();
 
 		int nSongEditorGridWith;
@@ -151,7 +151,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 			if(maxPatternSize == 0) maxPatternSize = 192;
 			
 			//length (in seconds) of one pattern is: (nPatternSize/24) / ((pEngine->getSong()->__bpm * 2) / 60)
-			float fLengthOfCurrentPatternInSecs = (maxPatternSize/24) / ((pSong->__bpm * 2) / 60);
+			float fLengthOfCurrentPatternInSecs = (maxPatternSize/24) / ((pSong->getBpm() * 2) / 60);
 			
 			if( fRemainingLengthOfPlaybackTrack >= fLengthOfCurrentPatternInSecs ) {
 				//only a part of the PlaybackTrack will fit into this Pattern

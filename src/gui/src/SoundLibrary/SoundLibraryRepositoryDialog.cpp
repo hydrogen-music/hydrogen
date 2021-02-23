@@ -22,7 +22,7 @@
 
 #include "SoundLibraryRepositoryDialog.h"
 
-#include <hydrogen/Preferences.h>
+#include <core/Preferences.h>
 
 #include <QList>
 #include <QInputDialog>
@@ -103,6 +103,11 @@ void SoundLibraryRepositoryDialog::on_DeleteBtn_clicked()
 
 	}
 	updateDialog();
+}
+
+void SoundLibraryRepositoryDialog::on_CloseBtn_clicked()
+{
+	accept();
 }
 
 SoundLibraryRepositoryDialog::~SoundLibraryRepositoryDialog()

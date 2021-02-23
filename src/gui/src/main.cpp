@@ -21,12 +21,11 @@
  */
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 #include <QLibraryInfo>
-#include <hydrogen/config.h>
-#include <hydrogen/version.h>
+
+#include <core/config.h>
+#include <core/Version.h>
 #include <getopt.h>
 
 #include "SplashScreen.h"
@@ -36,21 +35,26 @@
 #include "Skin.h"
 
 #ifdef H2CORE_HAVE_LASH
-#include <hydrogen/LashClient.h>
+#include <core/Lash/LashClient.h>
 #endif
 #ifdef H2CORE_HAVE_JACKSESSION
 #include <jack/session.h>
 #endif
 
-#include <hydrogen/midi_map.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/globals.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/basics/playlist.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/MidiMap.h>
+#include <core/AudioEngine.h>
+#include <core/Hydrogen.h>
+#include <core/Globals.h>
+#include <core/EventQueue.h>
+#include <core/Preferences.h>
+#include <core/H2Exception.h>
+#include <core/Basics/Playlist.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Translations.h>
+
+#ifdef H2CORE_HAVE_OSC
+#include <core/NsmClient.h>
+#endif
 
 #include <signal.h>
 #include <iostream>
@@ -64,10 +68,10 @@ void setPalette( QApplication *pQApp )
 	QPalette defaultPalette;
 
 	// A general background color.
-	defaultPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
+	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 
 	// A general foreground color.
-	defaultPalette.setColor( QPalette::Foreground, QColor( 255, 255, 255 ) );
+	defaultPalette.setColor( QPalette::WindowText, QColor( 255, 255, 255 ) );
 
 	// Used as the background color for text entry widgets; usually white or another light color.
 	defaultPalette.setColor( QPalette::Base, QColor( 88, 94, 112 ) );
@@ -125,9 +129,9 @@ static int setup_unix_signal_handlers()
 	if (sigaction(SIGUSR1, &usr1, nullptr) > 0) {
 		return 1;
 	}
-
-	return 0;
 #endif
+	
+	return 0;
 }
 
 static void setApplicationIcon(QApplication *app)
@@ -141,15 +145,59 @@ static void setApplicationIcon(QApplication *app)
 	app->setWindowIcon(icon);
 }
 
+
+// QApplication class.
+class H2QApplication : public QApplication {
+
+	QString m_sInitialFileOpen;
+	QWidget *m_pMainForm;
+
+public:
+	H2QApplication( int &argc, char **argv )
+		: QApplication(argc, argv) {
+		m_pMainForm = nullptr;
+	}
+
+	bool event( QEvent *e ) override
+	{
+		if ( e->type() == QEvent::FileOpen ) {
+			QFileOpenEvent *fe = dynamic_cast<QFileOpenEvent*>( e );
+			assert( fe != nullptr );
+
+			if ( m_pMainForm ) {
+				// Forward to MainForm if it's initialised and ready to handle a FileOpenEvent.
+				QApplication::sendEvent( m_pMainForm, e );
+			} else  {
+				// Keep requested file until ready
+				m_sInitialFileOpen = fe->file();
+			}
+			return true;
+		}
+		return QApplication::event( e );
+	}
+
+	// Set the MainForm pointer and forward any requested open event.
+	void setMainForm( QWidget *pMainForm )
+	{
+		m_pMainForm = pMainForm;
+		if ( !m_sInitialFileOpen.isEmpty() ) {
+			QFileOpenEvent ev( m_sInitialFileOpen );
+			QApplication::sendEvent( m_pMainForm, &ev );
+
+		}
+	}
+};
+
+
 int main(int argc, char *argv[])
 {
 	try {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
 		QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
-		QApplication* pQApp = new QApplication( argc, argv );
-		pQApp->setApplicationName( "Hydrogen" );
-		pQApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
+
+		// Create bootstrap QApplication to get H2 Core set up with correct Filesystem paths before starting GUI application.
+		QCoreApplication *pBootStrApp = new QCoreApplication( argc, argv );
 		
 		QCommandLineParser parser;
 		
@@ -178,7 +226,7 @@ int main(int argc, char *argv[])
 		parser.addOption( songFileOption );
 		parser.addOption( kitOption );
 		parser.addOption( verboseOption );
-		
+		parser.addPositionalArgument( "file", "Song, playlist or Drumkit file" );
 		
 		//Conditional options
 		#ifdef H2CORE_HAVE_JACKSESSION
@@ -187,7 +235,7 @@ int main(int argc, char *argv[])
 		#endif
 			
 		// Evaluate the options
-		parser.process(*pQApp);
+		parser.process( *pBootStrApp );
 		QString sSelectedDriver = parser.value( audioDriverOption );
 		QString sDrumkitName = parser.value( installDrumkitOption );
 		bool	bNoSplash = parser.isSet( noSplashScreenOption );
@@ -204,6 +252,23 @@ int main(int argc, char *argv[])
 				logLevelOpt =  H2Core::Logger::parse_log_level( sVerbosityString.toLocal8Bit() );
 			} else {
 				logLevelOpt = H2Core::Logger::Error|H2Core::Logger::Warning;
+			}
+		}
+
+		// Operating system GUIs typically pass documents to open as
+		// simple positional arguments to the process command
+		// line. Handling this here enables "Open with" as well as
+		// default document bindings to work.
+		QString sArg;
+		foreach ( sArg, parser.positionalArguments() ) {
+			if ( sArg.endsWith( H2Core::Filesystem::songs_ext ) ) {
+				sSongFilename = sArg;
+			}
+			if ( sArg.endsWith( H2Core::Filesystem::drumkit_ext ) ) {
+				sDrumkitName = sArg;
+			}
+			if ( sArg.endsWith( H2Core::Filesystem::playlist_ext ) ) {
+				sPlaylistFilename = sArg;
 			}
 		}
 		
@@ -236,6 +301,24 @@ int main(int argc, char *argv[])
 		H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 		pPref->setH2ProcessName( QString(argv[0]) );
 
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0)
+		/* Apply user-specified rounding policy. This is mostly to handle non-integral factors on Windows. */
+		Qt::HighDpiScaleFactorRoundingPolicy policy;
+
+		switch ( pPref->getUIScalingPolicy() ) {
+		case H2Core::Preferences::UI_SCALING_SMALLER:
+			policy = Qt::HighDpiScaleFactorRoundingPolicy::RoundPreferFloor;
+			break;
+		case H2Core::Preferences::UI_SCALING_SYSTEM:
+			policy = Qt::HighDpiScaleFactorRoundingPolicy::PassThrough;
+			break;
+		case H2Core::Preferences::UI_SCALING_LARGER:
+			policy = Qt::HighDpiScaleFactorRoundingPolicy::Ceil;
+			break;
+		}
+		QGuiApplication::setHighDpiScaleFactorRoundingPolicy( policy );
+#endif
+
 #ifdef H2CORE_HAVE_LASH
 
 		LashClient::create_instance("hydrogen", "Hydrogen", &argc, &argv);
@@ -251,14 +334,20 @@ int main(int argc, char *argv[])
 			pPref->m_sAudioDriver = "Auto";
 		}
 		else if (sSelectedDriver == "jack") {
-			pPref->m_sAudioDriver = "Jack";
+			pPref->m_sAudioDriver = "JACK";
 		}
 		else if ( sSelectedDriver == "oss" ) {
-			pPref->m_sAudioDriver = "Oss";
+			pPref->m_sAudioDriver = "OSS";
 		}
 		else if ( sSelectedDriver == "alsa" ) {
-			pPref->m_sAudioDriver = "Alsa";
+			pPref->m_sAudioDriver = "ALSA";
 		}
+
+		// Bootstrap is complete, start GUI
+		delete pBootStrApp;
+		H2QApplication* pQApp = new H2QApplication( argc, argv );
+		pQApp->setApplicationName( "Hydrogen" );
+		pQApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
 
 		QString family = pPref->getApplicationFontFamily();
 		pQApp->setFont( QFont( family, pPref->getApplicationFontPointSize() ) );
@@ -267,7 +356,14 @@ int main(int argc, char *argv[])
 		QTranslator tor( nullptr );
 		QLocale locale = QLocale::system();
 		if ( locale != QLocale::c() ) {
-			if (qttor.load( locale, QString( "qt" ), QString( "_" ), QLibraryInfo::location(QLibraryInfo::TranslationsPath))) {
+			QStringList languages;
+			QString sPreferredLanguage = pPref->getPreferredLanguage();
+			if ( !sPreferredLanguage.isNull() ) {
+				languages << sPreferredLanguage;
+			}
+			languages << locale.uiLanguages();
+			if ( H2Core::Translations::loadTranslation( languages, qttor, QString( "qt" ),
+														QLibraryInfo::location(QLibraryInfo::TranslationsPath) ) ) {
 				pQApp->installTranslator( &qttor );
 			} else {
 				___INFOLOG( QString("Warning: No Qt translation for locale %1 found.").arg(locale.name()));
@@ -275,7 +371,7 @@ int main(int argc, char *argv[])
 			
 			QString sTranslationPath = H2Core::Filesystem::i18n_dir();
 			QString sTranslationFile( "hydrogen" );
-			bool bTransOk = tor.load( locale, sTranslationFile, QString( "_" ), sTranslationPath );
+			bool bTransOk = H2Core::Translations::loadTranslation( languages, tor, sTranslationFile, sTranslationPath );
 			if (bTransOk) {
 				___INFOLOG( "Using locale: " + sTranslationPath );
 			} else {
@@ -297,12 +393,19 @@ int main(int argc, char *argv[])
 
 		SplashScreen *pSplash = new SplashScreen();
 
-		if (bNoSplash) {
+#ifdef H2CORE_HAVE_OSC
+		// Check for being under session management without the
+		// NsmClient class available yet.
+		if ( bNoSplash ||  getenv( "NSM_URL" ) ) {
 			pSplash->hide();
 		}
 		else {
 			pSplash->show();
 		}
+#endif
+#ifndef H2CORE_HAVE_OSC
+		pSplash->show();
+#endif
 
 #ifdef H2CORE_HAVE_LASH
 		if ( H2Core::Preferences::get_instance()->useLash() ){
@@ -341,7 +444,7 @@ int main(int argc, char *argv[])
 			 * here we make it save that hydrogen start in a jacksession case
 			 * every time with jack as audio driver
 			 */
-			pPref->m_sAudioDriver = "Jack";
+			pPref->m_sAudioDriver = "JACK";
 
 		}
 
@@ -360,21 +463,37 @@ int main(int argc, char *argv[])
 		H2Core::Hydrogen::create_instance();
 		
 		// Tell Hydrogen it was started via the QT5 GUI.
-		H2Core::Hydrogen::get_instance()->setActiveGUI( true );
+		H2Core::Hydrogen::get_instance()->setGUIState( H2Core::Hydrogen::GUIState::notReady );
+		
+		// Whether or not to load a default song or supplied one when
+		// constructing the MainForm object.
+		bool bLoadSong = true;
 
-#ifdef H2CORE_HAVE_OSC
 		H2Core::Hydrogen::get_instance()->startNsmClient();
-
-		QString NsmSongFilename = pPref->getNsmSongName();
-
-		if(!NsmSongFilename.isEmpty())
-		{
-			sSongFilename = NsmSongFilename;
+		
+		if ( H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ){
+			
+			// When using the Non Session Management system, the new
+			// Song will be loaded by the NSM client singleton itself
+			// and not by the MainForm. The latter will just access
+			// the already loaded Song.
+			bLoadSong = false;
+			
 		}
-#endif
 
-		MainForm *pMainForm = new MainForm( pQApp, sSongFilename );
+		// If the NSM_URL variable is present, Hydrogen will not
+		// initialize the audio driver and leaves this to the callback
+		// function nsm_open_cb of the NSM client (which will be
+		// called by now). However, the presence of the environmental
+		// variable does not guarantee for a session management and if
+		// no audio driver is initialized yet, we will do it here. 
+		if ( H2Core::Hydrogen::get_instance()->getAudioOutput() == nullptr ) {
+			H2Core::Hydrogen::get_instance()->restartDrivers();
+		}
+
+		MainForm *pMainForm = new MainForm( pQApp, sSongFilename, bLoadSong );
 		pMainForm->show();
+		
 		pSplash->finish( pMainForm );
 
 		if( ! sPlaylistFilename.isEmpty() ){
@@ -394,7 +513,18 @@ int main(int argc, char *argv[])
 			} else {
 				___ERRORLOG ( "Error loading the drumkit" );
 			}
+			delete pDrumkitInfo;
 		}
+
+		pQApp->setMainForm( pMainForm );
+
+		// Tell the core that the GUI is now fully loaded and ready.
+		H2Core::Hydrogen::get_instance()->setGUIState( H2Core::Hydrogen::GUIState::ready );
+#ifdef H2CORE_HAVE_OSC
+		if ( NsmClient::get_instance() != nullptr ) {
+			NsmClient::get_instance()->sendDirtyState( false );
+		}
+#endif
 
 		pQApp->exec();
 
@@ -409,7 +539,7 @@ int main(int argc, char *argv[])
 		delete MidiActionManager::get_instance();
 
 		___INFOLOG( "Quitting..." );
-		std::cout << "\nBye..." << endl;
+		std::cout << "\nBye..." << std::endl;
 		delete H2Core::Logger::get_instance();
 
 		if (H2Core::Object::count_active()) {

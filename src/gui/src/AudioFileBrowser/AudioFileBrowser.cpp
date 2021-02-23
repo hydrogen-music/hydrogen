@@ -27,16 +27,16 @@
 #include "../Widgets/Button.h"
 #include "../Skin.h"
 
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/audio_engine.h>
+#include <core/Preferences.h>
+#include <core/Basics/Sample.h>
+#include <core/AudioEngine.h>
 
+#include <QFileSystemModel>
 #include <QModelIndex>
 #include <QTreeWidget>
 #include <QMessageBox>
 
 using namespace H2Core;
-using namespace std;
 
 const char* AudioFileBrowser::__class_name = "AudioFileBrowser";
 
@@ -52,11 +52,13 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect, b
 	m_bAllowMultiSelect = bAllowMultiSelect;
 	m_bShowInstrumentManipulationControls = bShowInstrumentManipulationControls;
 
-	m_pDirModel = new QDirModel();
+	m_pDirModel = new QFileSystemModel();
+	m_pDirModel->setRootPath(""); //see https://forum.qt.io/topic/99513/qfilesystemmodel-qtreeview-doesn-t-sort/2
 	m_pDirModel->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot );
 	m_pDirModel->setNameFilters( QStringList() << "*.ogg" << "*.OGG" << "*.wav" << "*.WAV" << "*.flac"<< "*.FLAC" << "*.aiff" << "*.AIFF"<< "*.au" << "*.AU" );
-	m_pDirModel->setSorting( QDir::DirsFirst |QDir::Name );
-	m_ModelIndex = m_pDirModel->index( QDir::currentPath() );
+	m_pDirModel->setNameFilterDisables(false);
+
+	 m_ModelIndex = m_pDirModel->index( QDir::currentPath() );
 	
 	m_pPlayBtn->setEnabled( false );
 	m_pStopBtn->setEnabled( false );
@@ -76,14 +78,14 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect, b
 	m_sEmptySampleFilename = Filesystem::empty_sample_path();
 
 	m_pPathUptoolButton->setIcon( QIcon( Skin::getImagePath() + "/audiFileBrowser/go-up.png"));
-	m_pPathUptoolButton->setToolTip( QString("Parent Folder"));
+	m_pPathUptoolButton->setToolTip( QString( tr( "Parent Folder" )));
 	m_pPathHometoolButton->setIcon( QIcon( Skin::getImagePath() + "/audiFileBrowser/go-home.png"));
-	m_pPathHometoolButton->setToolTip( QString("Home"));
+	m_pPathHometoolButton->setToolTip( QString( tr( "Home" )));
 
 	m_pPlayBtn->setIcon( QIcon( Skin::getImagePath() + "/audiFileBrowser/player_play.png"));
-	m_pPlayBtn->setToolTip( QString("Play selected"));
+	m_pPlayBtn->setToolTip( QString( tr( "Play selected" ) ));
 	m_pStopBtn->setIcon( QIcon( Skin::getImagePath() + "/audiFileBrowser/player_stop.png"));
-	m_pStopBtn->setToolTip( QString("Stop"));
+	m_pStopBtn->setToolTip( QString( tr( "Stop" )));
 
 	m_pSampleWaveDisplay = new SampleWaveDisplay( waveformview );
 	m_pSampleWaveDisplay->updateDisplay( m_sEmptySampleFilename );
@@ -108,7 +110,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect, b
 
 AudioFileBrowser::~AudioFileBrowser()
 {
-	Sample *pNewSample = Sample::load( m_sEmptySampleFilename );
+	auto pNewSample = Sample::load( m_sEmptySampleFilename );
 	AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, 100 );
 	INFOLOG ( "DESTROY" );
 }
@@ -244,7 +246,7 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 		
 	name = name.left( '.' );
 
-	QString message = "Name: " + name;
+	QString message = QString( tr( "Name: " ) ).append( name );
 	pathLineEdit->setText( onlyPath );
 
 	QStringList path2List = path2.split("/");
@@ -256,9 +258,9 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 	{
 
 		filelineedit->setText( fleTxt );
-		Sample *pNewSample = Sample::load( path2 );
+		auto pNewSample = Sample::load( path2 );
 
-		if ( pNewSample ) {
+		if ( pNewSample != nullptr ) {
 			m_pNBytesLable->setText( tr( "Size: %1 bytes" ).arg( pNewSample->get_size() / 2 ) );
 			m_pSamplerateLable->setText( tr( "Samplerate: %1" ).arg( pNewSample->get_sample_rate() ) );
 			float sec = ( float )( pNewSample->get_frames() / (float)pNewSample->get_sample_rate() );
@@ -266,7 +268,6 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 			qsec = QString::asprintf( "%2.2f", sec );
 			m_pLengthLable->setText( tr( "Sample length: " ) + qsec + tr( " s" ) );
 
-			delete pNewSample;
 			m_pSampleFilename = path2;
 
 			m_pSampleWaveDisplay->updateDisplay( path2 );
@@ -314,7 +315,7 @@ void AudioFileBrowser::on_m_pPlayBtn_clicked()
 	
 	m_pStopBtn->setEnabled( true );
 	
-	Sample *pNewSample = Sample::load( m_pSampleFilename );
+	auto pNewSample = Sample::load( m_pSampleFilename );
 	if ( pNewSample ) {
 		assert(pNewSample->get_sample_rate() != 0);
 		
@@ -327,7 +328,7 @@ void AudioFileBrowser::on_m_pPlayBtn_clicked()
 
 void AudioFileBrowser::on_m_pStopBtn_clicked()
 {
-	Sample *pNewSample = Sample::load( m_sEmptySampleFilename );
+	auto pNewSample = Sample::load( m_sEmptySampleFilename );
 	AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, 100 );
 	m_pStopBtn->setEnabled( false );
 }
