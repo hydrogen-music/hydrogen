@@ -817,7 +817,7 @@ void PreferencesDialog::updateDriverInfo()
 		m_pAudioDeviceTxt->setText( "" );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
-		trackOutsCheckBox->hide();
+		trackOutputComboBox->hide();
 		trackOutputLbl->hide();
 		connectDefaultsCheckBox->hide();
 		enableTimebaseCheckBox->hide();
