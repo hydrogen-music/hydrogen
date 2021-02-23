@@ -157,7 +157,8 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	archive_write_set_format_pax_restricted(a);
 	int ret = archive_write_open_filename(a, outname.toUtf8().constData());
 	if ( ret != ARCHIVE_OK ) {
-		QMessageBox::critical( this, "Hydrogen", QString("Couldn't create archive '%0'").arg( outname ) );
+		QMessageBox::critical( this, "Hydrogen", tr( "Couldn't create archive" )
+							   .append( QString( " [%0]" ).arg( outname ) ) );
 		return;
 	}
 	for (int i = 0; i < filesList.size(); i++) {
