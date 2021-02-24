@@ -455,8 +455,16 @@ void ExportSongDialog::exportTracks()
     
 }
 
+void ExportSongDialog::closeEvent( QCloseEvent *event ) {
+	UNUSED( event );
+	closeExport();
+}
 void ExportSongDialog::on_closeBtn_clicked()
 {
+	closeExport();
+}
+void ExportSongDialog::closeExport() {
+	
 	m_pEngine->stopExportSong();
 	m_pEngine->stopExportSession();
 	
