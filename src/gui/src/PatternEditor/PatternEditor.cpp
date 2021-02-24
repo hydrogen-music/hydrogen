@@ -151,7 +151,11 @@ int PatternEditor::getColumn( int x, bool bUseFineGrained ) const
 	int nWidth = m_nGridWidth * nGranularity;
 	int nColumn = ( x - m_nMargin + (nWidth / 2) ) / nWidth;
 	nColumn = nColumn * nGranularity;
-	return nColumn;
+	if ( nColumn < 0 ) {
+		return 0;
+	} else {
+		return nColumn;
+	}
 }
 
 void PatternEditor::selectNone()
