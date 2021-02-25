@@ -163,7 +163,6 @@ class OscServer : public H2Core::Object
 		 * - MASTER_VOLUME_RELATIVE_Handler()
 		 * - STRIP_VOLUME_RELATIVE_Handler()
 		 * - SELECT_NEXT_PATTERN_Handler()
-		 * - SELECT_NEXT_PATTERN_PROMPTLY_Handler()
 		 * - SELECT_AND_PLAY_PATTERN_Handler() 
 		 * - PLAYLIST_SONG_Handler()
 		 * - SELECT_INSTRUMENT_Handler()
@@ -454,19 +453,6 @@ class OscServer : public H2Core::Object
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
 		static void SELECT_NEXT_PATTERN_Handler(lo_arg **argv, int i);
-		/**
-		 * Creates an Action of type @b SELECT_NEXT_PATTERN_PROMPTLY
-		 * and passes its references to
-		 * MidiActionManager::handleAction().
-		 *
-		 * The first argument in @a argv will be used to set
-		 * Action::parameter1.
-		 *
-		 * \param argv Pointer to a vector of arguments passed
-		 * by the OSC message.
-		 * \param i Unused number of arguments passed by the OSC
-		 * message.*/
-		static void SELECT_NEXT_PATTERN_PROMPTLY_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an Action of type @b SELECT_AND_PLAY_PATTERN and
 		 * passes its references to MidiActionManager::handleAction().

@@ -470,15 +470,6 @@ void OscServer::SELECT_NEXT_PATTERN_Handler(lo_arg **argv,int i)
 	pActionManager->handleAction( &currentAction );
 }
 
-void OscServer::SELECT_NEXT_PATTERN_PROMPTLY_Handler(lo_arg **argv,int i)
-{
-	Action currentAction("SELECT_NEXT_PATTERN_PROMPTLY");
-	currentAction.setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
-
-	pActionManager->handleAction( &currentAction );
-}
-
 void OscServer::SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv,int i)
 {
 	Action currentAction("SELECT_AND_PLAY_PATTERN");
@@ -924,7 +915,6 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/STRIP_VOLUME_RELATIVE", "f", STRIP_VOLUME_RELATIVE_Handler);
 
 	m_pServerThread->add_method("/Hydrogen/SELECT_NEXT_PATTERN", "f", SELECT_NEXT_PATTERN_Handler);
-	m_pServerThread->add_method("/Hydrogen/SELECT_NEXT_PATTERN_PROMPTLY", "f", SELECT_NEXT_PATTERN_PROMPTLY_Handler);
 	m_pServerThread->add_method("/Hydrogen/SELECT_AND_PLAY_PATTERN", "f", SELECT_AND_PLAY_PATTERN_Handler);
 	
 	m_pServerThread->add_method("/Hydrogen/BEATCOUNTER", "", BEATCOUNTER_Handler);

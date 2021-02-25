@@ -3517,24 +3517,6 @@ int Hydrogen::getSelectedPatternNumber()
 }
 
 
-void Hydrogen::setSelectedPatternNumberWithoutGuiEvent( int nPat )
-{
-	Song* pSong = getSong();
-
-	if ( nPat == m_nSelectedPatternNumber
-		 || ( nPat + 1 > pSong->getPatternList()->size() )
-		 ) return;
-
-	if ( Preferences::get_instance()->patternModePlaysSelected() ) {
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
-
-		m_nSelectedPatternNumber = nPat;
-		AudioEngine::get_instance()->unlock();
-	} else {
-		m_nSelectedPatternNumber = nPat;
-	}
-}
-
 void Hydrogen::setSelectedPatternNumber( int nPat )
 {
 	if ( nPat == m_nSelectedPatternNumber )	return;

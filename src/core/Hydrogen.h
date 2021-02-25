@@ -446,10 +446,6 @@ void			previewSample( Sample *pSample );
 	void			setBPM( float fBPM );
 
 	void			restartLadspaFX();
-	/** 
-	 * Same as getSelectedPatternNumber() without pushing an event.
-	 * \param nPat Sets #m_nSelectedPatternNumber*/
-	void			setSelectedPatternNumberWithoutGuiEvent( int nPat );
 	/** \return #m_nSelectedPatternNumber*/
 	int				getSelectedPatternNumber();
 	/**

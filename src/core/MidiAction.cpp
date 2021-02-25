@@ -161,7 +161,6 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 	actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN", std::make_pair(&MidiActionManager::select_next_pattern, empty)));
 	actionMap.insert(std::make_pair("SELECT_ONLY_NEXT_PATTERN", std::make_pair(&MidiActionManager::select_only_next_pattern, empty)));
 	actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN_CC_ABSOLUTE", std::make_pair(&MidiActionManager::select_next_pattern_cc_absolute, empty)));
-	actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN_PROMPTLY", std::make_pair(&MidiActionManager::select_next_pattern_promptly, empty)));
 	actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN_RELATIVE", std::make_pair(&MidiActionManager::select_next_pattern_relative, empty)));
 	actionMap.insert(std::make_pair("SELECT_AND_PLAY_PATTERN", std::make_pair(&MidiActionManager::select_and_play_pattern, empty)));
 	actionMap.insert(std::make_pair("PAN_RELATIVE", std::make_pair(&MidiActionManager::pan_relative, empty)));
@@ -392,15 +391,6 @@ bool MidiActionManager::select_next_pattern_cc_absolute(Action * pAction, Hydrog
 	else {
 		return true;// only usefully in normal pattern mode
 	}
-	
-	return true;
-}
-
-// obsolete, use SELECT_NEXT_PATTERN_CC_ABSOLUT instead
-bool MidiActionManager::select_next_pattern_promptly(Action * pAction, Hydrogen* pEngine, targeted_element ) {
-	bool ok;
-	int row = pAction->getParameter2().toInt(&ok,10);
-	pEngine->setSelectedPatternNumberWithoutGuiEvent( row );
 	
 	return true;
 }
