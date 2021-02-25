@@ -33,6 +33,7 @@
 #include <lo/lo.h>
 #include <lo/lo_cpp.h>
 
+#include "core/Basics/InstrumentList.h"
 #include "core/OscServer.h"
 #include "core/CoreActionController.h"
 #include "core/EventQueue.h"
@@ -153,14 +154,20 @@ int OscServer::generic_handler(const char *	path,
 							   void *		data,
 							   void *		user_data)
 {
+	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
+	H2Core::CoreActionController* pController = pHydrogen->getCoreActionController();
+	int nNumberOfStrips = pHydrogen->getSong()->getInstrumentList()->size();
+	
 	//First we're trying to map TouchOSC messages from multi-fader widgets
 	QString oscPath( path );
 	QRegExp rxStripVol( "/Hydrogen/STRIP_VOLUME_ABSOLUTE/(\\d+)" );
 	int pos = rxStripVol.indexIn( oscPath );
 	if ( pos > -1 ) {
 		if( argc == 1 ){
-			int value = rxStripVol.cap(1).toInt() -1;
-			STRIP_VOLUME_ABSOLUTE_Handler( value , argv[0]->f );
+			int nStrip = rxStripVol.cap(1).toInt() -1;
+			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
+				STRIP_VOLUME_ABSOLUTE_Handler( nStrip , argv[0]->f );
+			}
 		}
 	}
 	
@@ -168,12 +175,10 @@ int OscServer::generic_handler(const char *	path,
 	pos = rxStripPanAbs.indexIn( oscPath );
 	if ( pos > -1 ) {
 		if( argc == 1 ){
-			int value = rxStripPanAbs.cap(1).toInt() - 1;
-			
-			H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
-			H2Core::CoreActionController* pController = pEngine->getCoreActionController();
-		
-			pController->setStripPan( value, argv[0]->f, false );
+			int nStrip = rxStripPanAbs.cap(1).toInt() - 1;
+			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
+				pController->setStripPan( nStrip, argv[0]->f, false );
+			}
 		}
 	}
 	
@@ -181,8 +186,10 @@ int OscServer::generic_handler(const char *	path,
 	pos = rxStripPanRel.indexIn( oscPath );
 	if ( pos > -1 ) {
 		if( argc == 1 ){
-			int value = rxStripPanRel.cap(1).toInt() - 1;
-			PAN_RELATIVE_Handler( QString::number( value ) , QString::number( argv[0]->f, 'f', 0 ) );
+			int nStrip = rxStripPanRel.cap(1).toInt() - 1;
+			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
+				PAN_RELATIVE_Handler( QString::number( nStrip ) , QString::number( argv[0]->f, 'f', 0 ) );
+			}
 		}
 	}
 	
@@ -190,8 +197,10 @@ int OscServer::generic_handler(const char *	path,
 	pos = rxStripFilterCutoffAbs.indexIn( oscPath );
 	if ( pos > -1 ) {
 		if( argc == 1 ){
-			int value = rxStripFilterCutoffAbs.cap(1).toInt() - 1;
-			FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( QString::number( value ) , QString::number( argv[0]->f, 'f', 0 ) );
+			int nStrip = rxStripFilterCutoffAbs.cap(1).toInt() - 1;
+			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
+				FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( QString::number( nStrip ) , QString::number( argv[0]->f, 'f', 0 ) );
+			}
 		}
 	}
 	
@@ -199,12 +208,10 @@ int OscServer::generic_handler(const char *	path,
 	pos = rxStripMute.indexIn( oscPath );
 	if ( pos > -1 ) {
 		if( argc == 1 ){
-			int value = rxStripMute.cap(1).toInt() - 1;
-			
-			H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
-			H2Core::CoreActionController* pController = pEngine->getCoreActionController();
-		
-			pController->toggleStripIsMuted( value );
+			int nStrip = rxStripMute.cap(1).toInt() - 1;
+			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
+				pController->toggleStripIsMuted( nStrip );
+			}
 		}
 	}
 	
@@ -212,20 +219,17 @@ int OscServer::generic_handler(const char *	path,
 	pos = rxStripSolo.indexIn( oscPath );
 	if ( pos > -1 ) {
 		if( argc == 1 ){
-			int value = rxStripSolo.cap(1).toInt() - 1;
-			
-			H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
-			H2Core::CoreActionController* pController = pEngine->getCoreActionController();
-		
-			pController->toggleStripIsSoloed( value );
+			int nStrip = rxStripSolo.cap(1).toInt() - 1;
+			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
+				pController->toggleStripIsSoloed( nStrip );
+			}
 		}
 	}
 
 	INFOLOG( QString( "Incoming OSC Message for path %1" ).arg( path ) );
-	int i;
-	for (i = 0; i < argc; i++) {
-		QString formattedArgument = qPrettyPrint( (lo_type)types[i], argv[i] );
-		INFOLOG(QString("Argument %1: %2 %3").arg(i).arg(types[i]).arg(formattedArgument));
+	for ( int ii = 0; ii < argc; ii++) {
+		QString formattedArgument = qPrettyPrint( (lo_type)types[ii], argv[ii] );
+		INFOLOG(QString("Argument %1: %2 %3").arg(ii).arg(types[ii]).arg(formattedArgument));
 	}
 	
 	// Returning 1 means that the message has not been fully handled
