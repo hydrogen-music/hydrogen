@@ -710,6 +710,9 @@ void MainForm::action_file_save()
 		pSong->clearMissingSamples();
 	}
 
+	// Clear the pattern editor selection to resolve any duplicates
+	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->clearSelection();
+
 	bool saved = false;
 	saved = pSong->save( filename );
 

@@ -76,6 +76,11 @@ public:
 	void zoomIn();
 	void zoomOut();
 
+	//! Clear the pattern editor selection
+	void clearSelection() {
+		m_selection.clearSelection();
+	}
+
 	//! Calculate colour to use for note representation based on note velocity. 
 	static QColor computeNoteColor( float velocity );
 
@@ -116,6 +121,7 @@ public:
 	//! They match if all user-editable properties are the same.
 	bool notesMatchExactly( H2Core::Note *pNoteA, H2Core::Note *pNoteB ) const;
 
+	//! Deselect some notes, and "overwrite" some others.
 	void deselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected, std::vector< H2Core::Note *> &overwritten );
 
 	void undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected, std::vector< H2Core::Note *> &overwritten );
