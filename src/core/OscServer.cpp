@@ -170,6 +170,17 @@ int OscServer::generic_handler(const char *	path,
 			}
 		}
 	}
+
+	QRegExp rxStripVolRel( "/Hydrogen/STRIP_VOLUME_RELATIVE/(\\d+)" );
+	pos = rxStripVolRel.indexIn( oscPath );
+	if ( pos > -1 ) {
+		if( argc == 1 ){
+			int nStrip = rxStripVolRel.cap(1).toInt() - 1;
+			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
+				STRIP_VOLUME_RELATIVE_Handler( QString::number( nStrip ) , QString::number( argv[0]->f, 'f', 0 ) );
+			}
+		}
+	}
 	
 	QRegExp rxStripPanAbs( "/Hydrogen/PAN_ABSOLUTE/(\\d+)" );
 	pos = rxStripPanAbs.indexIn( oscPath );
@@ -456,10 +467,11 @@ void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
 	pController->setStripVolume( param1, param2, false );
 }
 
-void OscServer::STRIP_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
+void OscServer::STRIP_VOLUME_RELATIVE_Handler(QString param1, QString param2)
 {
 	Action currentAction("STRIP_VOLUME_RELATIVE");
-	currentAction.setParameter2( QString::number( argv[0]->f, 'f', 0 ));
+	currentAction.setParameter1( param1 );
+	currentAction.setParameter2( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	pActionManager->handleAction( &currentAction );
@@ -916,8 +928,6 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/MASTER_VOLUME_ABSOLUTE", "f", MASTER_VOLUME_ABSOLUTE_Handler);
 	m_pServerThread->add_method("/Hydrogen/MASTER_VOLUME_RELATIVE", "f", MASTER_VOLUME_RELATIVE_Handler);
 	
-	m_pServerThread->add_method("/Hydrogen/STRIP_VOLUME_RELATIVE", "f", STRIP_VOLUME_RELATIVE_Handler);
-
 	m_pServerThread->add_method("/Hydrogen/SELECT_NEXT_PATTERN", "f", SELECT_NEXT_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/SELECT_AND_PLAY_PATTERN", "f", SELECT_AND_PLAY_PATTERN_Handler);
 	
