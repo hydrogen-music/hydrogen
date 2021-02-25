@@ -367,6 +367,24 @@ public:
 		}
 	}
 
+	//! Cancel any selection gesture (lasso, move, with keyboard or mouse) in progress.
+	void cancelGesture() {
+		if ( m_mouseState == Dragging ) {
+			mouseDragEnd();
+		}
+		m_mouseState = Up;
+		if ( m_pClickEvent ) {
+			delete m_pClickEvent;
+			m_pClickEvent = nullptr;
+		}
+		if ( m_selectionState == MouseMoving || m_selectionState == MouseLasso ) {
+			m_pWidget->endMouseGesture();
+			m_pWidget->selectionMoveCancelEvent();
+		}
+		m_selectionState = Idle;
+		updateWidgetGroup();
+	}
+
 	// -------------------------------------------------------------------------------------------------------
 	//! @name Raw mouse events
 	//!
@@ -561,7 +579,7 @@ public:
 				m_pSelectionGroup->m_selectedElements = m_checkpointSelectedElements;
 			} else {
 				// Clear and rebuild selection
-				m_pSelectionGroup->m_selectedElements.clear();
+				clearSelection();
 			}
 			auto selected = m_pWidget->elementsIntersecting( m_lasso );
 			for ( auto s : selected ) {
@@ -582,7 +600,7 @@ public:
 		}
 	}
 
-	void mouseDragEnd( QMouseEvent *ev ) {
+	void mouseDragEnd( QMouseEvent *ev = nullptr ) {
 
 		m_pDragScroller->endDrag();
 

@@ -316,6 +316,7 @@ bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements
 		bool bOk = true;
 
 		if ( pPreferences->getShowNoteOverwriteWarning() ) {
+			m_selection.cancelGesture();
 			QString sMsg ( tr( "Placing these notes here will overwrite %1 duplicate notes." ) );
 			QMessageBox messageBox ( QMessageBox::Warning, "Hydrogen", sMsg.arg( duplicates.size() ),
 									 QMessageBox::Cancel | QMessageBox::Ok, this );
