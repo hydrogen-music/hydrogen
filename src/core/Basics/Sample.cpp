@@ -738,10 +738,10 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Sample]\n" ).arg( sPrefix )
-			.append( QString( "%1%2filepath: %3\n" ).arg( sPrefix ).arg( __filepath ) )
-			.append( QString( "%1%2frames: %3\n" ).arg( sPrefix ).arg( __frames ) )
-			.append( QString( "%1%2sample_rate: %3\n" ).arg( sPrefix ).arg( __sample_rate ) )
-			.append( QString( "%1%2is_modified: %3\n" ).arg( sPrefix ).arg( __is_modified ) )
+			.append( QString( "%1%2filepath: %3\n" ).arg( sPrefix ).arg( s ).arg( __filepath ) )
+			.append( QString( "%1%2frames: %3\n" ).arg( sPrefix ).arg( s ).arg( __frames ) )
+			.append( QString( "%1%2sample_rate: %3\n" ).arg( sPrefix ).arg( s ).arg( __sample_rate ) )
+			.append( QString( "%1%2is_modified: %3\n" ).arg( sPrefix ).arg( s ).arg( __is_modified ) )
 			.append( QString( "%1" ).arg( __loops.toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1" ).arg( __rubberband.toQString( sPrefix + s, bShort ) ) );
 	} else {
