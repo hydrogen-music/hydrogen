@@ -395,11 +395,10 @@ bool MidiActionManager::select_next_pattern_cc_absolute(Action * pAction, Hydrog
 	return true;
 }
 
-bool MidiActionManager::select_and_play_pattern(Action * pAction, Hydrogen* pEngine, targeted_element ) {
-	bool ok;
-	int row = pAction->getParameter1().toInt(&ok,10);
-	pEngine->setSelectedPatternNumber( row );
-	pEngine->sequencer_setNextPattern( row );
+bool MidiActionManager::select_and_play_pattern(Action * pAction, Hydrogen* pEngine, targeted_element t ) {
+	if ( ! select_next_pattern( pAction, pEngine, t ) ) {
+		return false;
+	}
 
 	int nState = pEngine->getState();
 	if ( nState == STATE_READY ) {
