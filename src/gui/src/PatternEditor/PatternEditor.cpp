@@ -554,6 +554,7 @@ void PatternEditor::validateSelection()
 {
 	// Rebuild selection from valid notes.
 	std::set<Note *> valid;
+	std::vector< Note *> invalidated;
 	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {
 		if ( m_selection.isSelected( it->second ) ) {
 			valid.insert( it->second );
@@ -561,7 +562,12 @@ void PatternEditor::validateSelection()
 	}
 	for (auto i : m_selection ) {
 		if ( valid.find(i) == valid.end()) {
-			m_selection.removeFromSelection( i, /* bCheck=*/false );
+			// Keep the note to invalidate, but don't remove from the selection while walking the selection
+			// set.
+			invalidated.push_back( i );
 		}
+	}
+	for ( auto i : invalidated ) {
+		m_selection.removeFromSelection( i, /* bCheck=*/false );
 	}
 }

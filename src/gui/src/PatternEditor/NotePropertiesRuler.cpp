@@ -54,6 +54,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 
 	m_fLastSetValue = 0.0;
 	m_bValueHasBeenSet = false;
+	m_bNeedsUpdate = true;
 
 	if (m_Mode == VELOCITY ) {
 		m_nEditorHeight = 100;
