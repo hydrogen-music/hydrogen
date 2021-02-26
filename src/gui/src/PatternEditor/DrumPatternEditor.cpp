@@ -48,6 +48,7 @@
 #include <math.h>
 #include <cassert>
 #include <algorithm>
+#include <stack>
 
 using namespace H2Core;
 
@@ -1040,15 +1041,65 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 	updatePatternInfo();
 
 	if( m_pPattern ) {
-		const Pattern::notes_t* pNotes = m_pPattern->get_notes();
-		if( pNotes->size() == 0) return;
+		const Pattern::notes_t *pNotes = m_pPattern->get_notes();
+		if ( pNotes->size() == 0 ) {
+			return;
+		}
 
 		validateSelection();
 
-		FOREACH_NOTE_CST_IT_BEGIN_END(pNotes,it) {
-			Note *note = it->second;
-			assert( note );
-			__draw_note( note, painter );
+		std::vector< int > noteCount; // instrument_id -> count
+		std::stack< Instrument *> instruments;
+
+		// Process notes in batches by note position, counting the notes at each instrument so we can display
+		// markers for instruments which have more than one note in the same position (a chord or genuine
+		// duplicates)
+		for ( auto posIt = pNotes->begin(); posIt != pNotes->end(); ) {
+			int nPosition = posIt->second->get_position();
+
+			// Process all notes at this position
+			auto noteIt = posIt;
+			while ( noteIt->second->get_position() == nPosition ) {
+				Note *pNote = noteIt->second;
+
+				int nInstrumentID = pNote->get_instrument_id();
+				if ( nInstrumentID >= noteCount.size() ) {
+					noteCount.resize( nInstrumentID+1, 0 );
+				}
+
+				if ( ++noteCount[ nInstrumentID ] == 1) {
+					instruments.push( pNote->get_instrument() );
+				}
+
+				__draw_note( pNote, painter );
+				++noteIt;
+			}
+
+			// Go through used instruments list, drawing markers for superimposed notes and zero'ing the
+			// counts.
+			while ( ! instruments.empty() ) {
+				Instrument *pInstrument = instruments.top();
+				int nInstrumentID = pInstrument->get_id();
+				if ( noteCount[ nInstrumentID ] >  1 ) {
+					// Draw "2x" text to the left of the note
+					int nInstrument = pInstrList->index( pInstrument );
+					int x = m_nMargin + (nPosition * m_nGridWidth);
+					int y = ( nInstrument * m_nGridHeight);
+					const int boxWidth = 128;
+					QFont font;
+					font.setPointSize( 9 );
+					painter.setFont( font );
+					painter.setPen( QColor( 0, 0, 0 ) );
+
+					painter.drawText( QRect( x-boxWidth-6, y, boxWidth, m_nGridHeight),
+									  Qt::AlignRight | Qt::AlignVCenter,
+									  QString( "%1x" ).arg( noteCount[ nInstrumentID ] ) );
+				}
+				noteCount[ nInstrumentID ] = 0;
+				instruments.pop();
+			}
+
+			posIt = noteIt;
 		}
 	}
 }
