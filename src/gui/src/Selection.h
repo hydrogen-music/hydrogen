@@ -265,6 +265,7 @@ public:
 	Selection( SelectionWidget<Elem> *w ) {
 
 		m_pWidget = w;
+		m_mouseButton = Qt::NoButton;
 		m_mouseState = Up;
 		m_pClickEvent = nullptr;
 		m_selectionState = Idle;

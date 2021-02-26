@@ -1059,7 +1059,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 
 			// Process all notes at this position
 			auto noteIt = posIt;
-			while ( noteIt->second->get_position() == nPosition ) {
+			while ( noteIt != pNotes->end() && noteIt->second->get_position() == nPosition ) {
 				Note *pNote = noteIt->second;
 
 				int nInstrumentID = pNote->get_instrument_id();
