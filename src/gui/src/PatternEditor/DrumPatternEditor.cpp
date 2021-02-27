@@ -1104,11 +1104,31 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 							   delta.y() * m_nGridHeight );
 	}
 
-	if ( note->get_length() == -1 && note->get_note_off() == false ) {	// trigger note
+
+	
+	if ( note->get_note_off() == false ) {	// trigger note
+		int width = w;
 
 		if ( bSelected ) {
 			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
 		}
+
+		// Draw tail
+		if ( note->get_length() != -1 ) {
+			float fNotePitch = note->get_octave() * 12 + note->get_key();
+			float fStep = pow( 1.0594630943593, ( double )fNotePitch );
+			width = m_nGridWidth * note->get_length() / fStep;
+			width = width - 1;	// lascio un piccolo spazio tra una nota ed un altra
+
+			if ( bSelected ) {
+				p.drawRoundedRect( x_pos-2, y_pos, width+4, 3+4, 4, 4 );
+			}
+			p.setPen(noteColor);
+			p.setBrush( color );
+			p.fillRect( x_pos, y_pos +2, width, 3, color );	/// \todo: definire questo colore nelle preferenze
+			p.drawRect( x_pos, y_pos +2, width, 3 );
+		}
+		
 		p.setPen(noteColor);
 		p.setBrush( color );
 		p.drawEllipse( x_pos -4 , y_pos, w, h );
@@ -1117,6 +1137,12 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 			p.setPen( movingPen );
 			p.setBrush( Qt::NoBrush );
 			p.drawEllipse( movingOffset.x() + x_pos -4 -2, movingOffset.y() + y_pos -2 , w + 4, h + 4 );
+			if ( note->get_length() != -1 ) {
+				p.setPen( movingPen );
+				p.setBrush( Qt::NoBrush );
+				p.drawRoundedRect( movingOffset.x() + x_pos-2, movingOffset.y() + y_pos, width+4, 3+4, 4, 4 );
+			}
+
 		}
 
 	}
@@ -1134,31 +1160,6 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 			p.setBrush( Qt::NoBrush );
 			p.drawEllipse( movingOffset.x() + x_pos -4 -2, movingOffset.y() + y_pos -2, w + 4, h + 4 );
 		}
-
-	}
-	else {
-		float fNotePitch = note->get_octave() * 12 + note->get_key();
-		float fStep = pow( 1.0594630943593, ( double )fNotePitch );
-
-		uint x = m_nMargin + (pos * m_nGridWidth);
-		int w = m_nGridWidth * note->get_length() / fStep;
-		w = w - 1;	// lascio un piccolo spazio tra una nota ed un altra
-
-		int y = (int) ( ( nInstrument ) * m_nGridHeight  + (m_nGridHeight / 100.0 * 30.0) );
-		int h = (int) (m_nGridHeight - ((m_nGridHeight / 100.0 * 30.0) * 2.0) );
-		if ( bSelected ) {
-			p.drawRoundedRect( x-2, y+1-2, w+4, h+1+4, 4, 4 );
-		}
-		p.setPen(noteColor);
-		p.setBrush( color );
-		p.fillRect( x, y + 1, w, h + 1, color );	/// \todo: definire questo colore nelle preferenze
-		p.drawRect( x, y + 1, w, h + 1 );
-		if ( bMoving ) {
-			p.setPen( movingPen );
-			p.setBrush( Qt::NoBrush );
-			p.drawRoundedRect( movingOffset.x() + x-2, movingOffset.y() + y+1-2, w+4, h+1+4, 4, 4 );
-		}
-
 	}
 }
 
