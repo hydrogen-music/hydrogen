@@ -369,6 +369,7 @@ void SongEditor::cut() {
 
 void SongEditor::keyPressEvent( QKeyEvent * ev )
 {
+	const int nBlockSize = 5, nWordSize = 5;
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	
 	bool bIsSelectionKey = false;
@@ -404,6 +405,10 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 			m_nCursorColumn += 1;
 		}
 
+	} else if ( ev->matches( QKeySequence::MoveToNextWord ) || ( bSelectionKey = ev->matches( QKeySequence::SelectNextWord ) ) ) {
+		// -->
+		m_nCursorColumn = std::min( (int)m_nMaxPatternSequence, m_nCursorColumn + nWordSize );
+
 	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ( bSelectionKey = ev->matches( QKeySequence::SelectEndOfLine ) ) ) {
 		// ->|
 		m_nCursorColumn = m_nMaxPatternSequence -1;
@@ -414,6 +419,10 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 			m_nCursorColumn -= 1;
 		}
 
+	} else if ( ev->matches( QKeySequence::MoveToPreviousWord ) || ( bSelectionKey = ev->matches( QKeySequence::SelectPreviousWord ) ) ) {
+		// <--
+		m_nCursorColumn = std::max( 0, m_nCursorColumn - nWordSize );
+
 	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) || ( bSelectionKey = ev->matches( QKeySequence::SelectStartOfLine ) ) ) {
 		// |<-
 		m_nCursorColumn = 0;
@@ -422,6 +431,9 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 		if ( m_nCursorRow < pPatternList->size()-1 ) {
 			m_nCursorRow += 1;
 		}
+
+	} else if ( ev->matches( QKeySequence::MoveToEndOfBlock ) || ( bSelectionKey = ev->matches( QKeySequence::SelectEndOfBlock ) ) ) {
+		m_nCursorRow = std::min( pPatternList->size()-1, m_nCursorRow + nBlockSize );
 
 	} else if ( ev->matches( QKeySequence::MoveToNextPage ) || ( bSelectionKey = ev->matches( QKeySequence::SelectNextPage ) ) ) {
 		// Page down, scroll by the number of patterns that fit into the viewport
@@ -440,6 +452,10 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 		if ( m_nCursorRow > 0 ) {
 			m_nCursorRow -= 1;
 		}
+
+	} else if ( ev->matches( QKeySequence::MoveToStartOfBlock ) || ( bSelectionKey = ev->matches( QKeySequence::SelectStartOfBlock ) ) ) {
+		m_nCursorRow = std::max( 0, m_nCursorRow - nBlockSize );
+
 
 	} else if ( ev->matches( QKeySequence::MoveToPreviousPage ) || ( bSelectionKey = ev->matches( QKeySequence::SelectPreviousPage ) ) ) {
 		QWidget *pParent = dynamic_cast< QWidget *>( parent() );

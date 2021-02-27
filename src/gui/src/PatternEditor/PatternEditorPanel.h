@@ -82,8 +82,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		void ensureCursorVisible();
 		int getCursorPosition();
 		void setCursorPosition(int nCursorPosition);
-		int moveCursorLeft();
-		int moveCursorRight();
+		int moveCursorLeft( int n = 1 );
+		int moveCursorRight( int n = 1 );
 
 		void selectInstrumentNotes( int nInstrument );
 

@@ -640,6 +640,7 @@ void DrumPatternEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 ///
 void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 {
+	const int nBlockSize = 5, nWordSize = 5;
 	Hydrogen *pH2 = Hydrogen::get_instance();
 	int nSelectedInstrument = pH2->getSelectedInstrumentNumber();
 	int nMaxInstrument = pH2->getSong()->getInstrumentList()->size();
@@ -654,6 +655,10 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		// ->
 		m_pPatternEditorPanel->moveCursorRight();
 
+	} else if ( ev->matches( QKeySequence::MoveToNextWord ) || ev->matches( QKeySequence::SelectNextWord ) ) {
+		// ->
+		m_pPatternEditorPanel->moveCursorRight( nWordSize );
+
 	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ev->matches( QKeySequence::SelectEndOfLine ) ) {
 		// -->|
 		m_pPatternEditorPanel->setCursorPosition( m_pPattern->get_length() );
@@ -661,6 +666,10 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) || ev->matches( QKeySequence::SelectPreviousChar ) ) {
 		// <-
 		m_pPatternEditorPanel->moveCursorLeft();
+
+	} else if ( ev->matches( QKeySequence::MoveToPreviousWord ) || ev->matches( QKeySequence::SelectPreviousWord ) ) {
+		// <-
+		m_pPatternEditorPanel->moveCursorLeft( nWordSize );
 
 	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) || ev->matches( QKeySequence::SelectStartOfLine ) ) {
 		// |<--
@@ -670,6 +679,10 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		if ( nSelectedInstrument + 1 < nMaxInstrument ) {
 			pH2->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
 		}
+	} else if ( ev->matches( QKeySequence::MoveToEndOfBlock ) || ev->matches( QKeySequence::SelectEndOfBlock ) ) {
+		pH2->setSelectedInstrumentNumber( std::min( nSelectedInstrument + nBlockSize,
+													nMaxInstrument-1 ) );
+
 	} else if ( ev->matches( QKeySequence::MoveToNextPage ) || ev->matches( QKeySequence::SelectNextPage ) ) {
 		// Page down, scroll by the number of instruments that fit into the viewport
 		QWidget *pParent = dynamic_cast< QWidget *>( parent() );
@@ -688,6 +701,9 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		if ( nSelectedInstrument > 0 ) {
 			pH2->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
 		}
+	} else if ( ev->matches( QKeySequence::MoveToStartOfBlock ) || ev->matches( QKeySequence::SelectStartOfBlock ) ) {
+		pH2->setSelectedInstrumentNumber( std::max( nSelectedInstrument - nBlockSize, 0 ) );
+
 	} else if ( ev->matches( QKeySequence::MoveToPreviousPage ) || ev->matches( QKeySequence::SelectPreviousPage ) ) {
 		QWidget *pParent = dynamic_cast< QWidget *>( parent() );
 		assert( pParent );

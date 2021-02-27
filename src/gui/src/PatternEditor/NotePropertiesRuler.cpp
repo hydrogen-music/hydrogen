@@ -547,6 +547,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 
 void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 {
+	const int nWordSize = 5;
 	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
 	bool bUnhideCursor = true;
 
@@ -556,6 +557,10 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		// ->
 		m_pPatternEditorPanel->moveCursorRight();
 
+	} else if ( ev->matches( QKeySequence::MoveToNextWord ) || ev->matches( QKeySequence::SelectNextWord ) ) {
+		// ->
+		m_pPatternEditorPanel->moveCursorRight( nWordSize );
+
 	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ev->matches( QKeySequence::SelectEndOfLine ) ) {
 		// -->|
 		m_pPatternEditorPanel->setCursorPosition( m_pPattern->get_length() );
@@ -563,6 +568,10 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) || ev->matches( QKeySequence::SelectPreviousChar ) ) {
 		// <-
 		m_pPatternEditorPanel->moveCursorLeft();
+
+	} else if ( ev->matches( QKeySequence::MoveToPreviousWord ) || ev->matches( QKeySequence::SelectPreviousWord ) ) {
+		// <-
+		m_pPatternEditorPanel->moveCursorLeft( nWordSize );
 
 	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) || ev->matches( QKeySequence::SelectStartOfLine ) ) {
 		// |<--
