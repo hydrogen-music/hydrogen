@@ -1109,7 +1109,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 
 					painter.drawText( QRect( x-boxWidth-6, y, boxWidth, m_nGridHeight),
 									  Qt::AlignRight | Qt::AlignVCenter,
-									  QString( "%1x" ).arg( noteCount[ nInstrumentID ] ) );
+									  ( QString( "%1" ) + QChar( 0x00d7 )).arg( noteCount[ nInstrumentID ] ) );
 				}
 				noteCount[ nInstrumentID ] = 0;
 				instruments.pop();
