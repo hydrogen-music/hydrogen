@@ -73,6 +73,8 @@ class InstrumentLine : public PixmapWidget
 		void functionCopyAllInstrumentPatterns();
 		void functionPasteAllInstrumentPatterns();
 		void functionPasteInstrumentPatternExec(int patternID);
+		void functionDeleteNotesAllPatterns();
+		void functionCutNotesAllPatterns();
 
 		void functionRandomizeVelocity();
 		void functionDeleteInstrument();

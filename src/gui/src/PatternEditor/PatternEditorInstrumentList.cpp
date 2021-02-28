@@ -105,7 +105,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 
 	// Popup menu
 	m_pFunctionPopup = new QMenu( this );
-	m_pFunctionPopup->addAction( tr( "Clear notes" ), this, SLOT( functionClearNotes() ) );
+	m_pFunctionPopup->addAction( tr( "Delete notes" ), this, SLOT( functionClearNotes() ) );
 
 	m_pFunctionPopupSub = new QMenu( tr( "Fill notes ..." ), m_pFunctionPopup );
 	m_pFunctionPopupSub->addAction( tr( "Fill all notes" ), this, SLOT( functionFillAllNotes() ) );
@@ -119,13 +119,15 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopup->addMenu( m_pFunctionPopupSub );
 
 	m_pFunctionPopup->addAction( tr( "Randomize velocity" ), this, SLOT( functionRandomizeVelocity() ) );
-	m_pFunctionPopup->addSeparator();
-
 	m_pFunctionPopup->addAction( tr( "Select notes" ), this, &InstrumentLine::selectInstrumentNotes );
-	m_pFunctionPopup->addAction( tr( "Copy notes (all patterns)"), this, SLOT( functionCopyAllInstrumentPatterns() ) );
-	m_pFunctionPopup->addAction( tr( "Paste notes (all patterns)" ), this, SLOT( functionPasteAllInstrumentPatterns() ) );
 
-	m_pFunctionPopup->addSeparator();
+	m_pFunctionPopup->addSection( tr( "Edit all patterns" ) );
+	m_pFunctionPopup->addAction( tr( "Cut notes"), this, SLOT( functionCutNotesAllPatterns() ) );
+	m_pFunctionPopup->addAction( tr( "Copy notes"), this, SLOT( functionCopyAllInstrumentPatterns() ) );
+	m_pFunctionPopup->addAction( tr( "Paste notes" ), this, SLOT( functionPasteAllInstrumentPatterns() ) );
+	m_pFunctionPopup->addAction( tr( "Delete notes" ), this, SLOT( functionDeleteNotesAllPatterns() ) );
+
+	m_pFunctionPopup->addSection( tr( "Instrument" ) );
 	m_pFunctionPopup->addAction( tr( "Rename instrument" ), this, SLOT( functionRenameInstrument() ) );
 	m_pFunctionPopup->addAction( tr( "Delete instrument" ), this, SLOT( functionDeleteInstrument() ) );
 
@@ -330,6 +332,36 @@ void InstrumentLine::functionPasteInstrumentPatternExec(int patternID)
 	// Create action
 	SE_pasteNotesPatternEditorAction *action = new SE_pasteNotesPatternEditorAction(patternList);
 	HydrogenApp::get_instance()->m_pUndoStack->push(action);
+}
+
+void InstrumentLine::functionDeleteNotesAllPatterns()
+{
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	PatternList *pPatternList = pSong->getPatternList();
+	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( m_nInstrumentNumber );
+	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+
+	pUndo->beginMacro( tr( "Delete all notes on %1" ).arg( pSelectedInstrument->get_name()  ) );
+	for ( int nPattern = 0; nPattern < pPatternList->size(); nPattern++ ) {
+		std::list< Note* > noteList;
+		Pattern *pPattern = pPatternList->get( nPattern );
+		const Pattern::notes_t* notes = pPattern->get_notes();
+		FOREACH_NOTE_CST_IT_BEGIN_END( notes, it) {
+			if ( it->second->get_instrument() == pSelectedInstrument ) {
+				noteList.push_back( it->second );
+			}
+		}
+		if ( noteList.size() > 0 ) {
+			pUndo->push( new SE_clearNotesPatternEditorAction( noteList, m_nInstrumentNumber, nPattern ) );
+		}
+	}
+	pUndo->endMacro();
+}
+
+void InstrumentLine::functionCutNotesAllPatterns()
+{
+	functionCopyAllInstrumentPatterns();
+	functionDeleteNotesAllPatterns();
 }
 
 
