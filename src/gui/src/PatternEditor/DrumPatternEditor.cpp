@@ -1127,6 +1127,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 			p.setBrush( color );
 			p.fillRect( x_pos, y_pos +2, width, 3, color );	/// \todo: definire questo colore nelle preferenze
 			p.drawRect( x_pos, y_pos +2, width, 3 );
+			p.drawLine( x_pos+width, y_pos, x_pos+width, y_pos + h);
 		}
 		
 		p.setPen(noteColor);
@@ -1137,6 +1138,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 			p.setPen( movingPen );
 			p.setBrush( Qt::NoBrush );
 			p.drawEllipse( movingOffset.x() + x_pos -4 -2, movingOffset.y() + y_pos -2 , w + 4, h + 4 );
+			// Moving tail
 			if ( note->get_length() != -1 ) {
 				p.setPen( movingPen );
 				p.setBrush( Qt::NoBrush );
