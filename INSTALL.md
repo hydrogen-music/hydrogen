@@ -22,7 +22,7 @@ Hydrogen is supported on the following operating systems:
 
   * Linux/Unix/BSD
   * Mac OS X
-  * Windows 
+  * Windows 10 (maybe 7)
 
 ## Download
 
