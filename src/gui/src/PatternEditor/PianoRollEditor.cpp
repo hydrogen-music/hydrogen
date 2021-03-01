@@ -325,102 +325,12 @@ void PianoRollEditor::drawPattern()
 
 void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 {
-	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	static const QColor noteColor( pStyle->m_patternEditor_noteColor.getRed(), pStyle->m_patternEditor_noteColor.getGreen(), pStyle->m_patternEditor_noteColor.getBlue() );
-	static const QColor noteoffColor( pStyle->m_patternEditor_noteoffColor.getRed(), pStyle->m_patternEditor_noteoffColor.getGreen(), pStyle->m_patternEditor_noteoffColor.getBlue() );
-
-	int nInstrument = -1;
-	InstrumentList * pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
-	for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
-		Instrument *pInstr = pInstrList->get( nInstr );
-		if ( pInstr == pNote->get_instrument() ) {
-			nInstrument = nInstr;
-			break;
-		}
-	}
-	if ( nInstrument == -1 ) {
-		//ERRORLOG( "Instrument not found..skipping note" );
-		return;
-	}
-
-	if ( nInstrument != Hydrogen::get_instance()->getSelectedInstrumentNumber() ) {
-		return;
-	}
-
-	uint start_x = m_nMargin + pNote->get_position() * m_nGridWidth;
-	uint start_y = m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1;
-	uint w = 8;
-	uint h = m_nGridHeight - 2;
-
-	QColor color = computeNoteColor( pNote->get_velocity() );
-
-	bool bSelected = m_selection.isSelected( pNote );
-	if ( bSelected ) {
-		QPen selectedPen( selectedNoteColor( pStyle ) );
-		selectedPen.setWidth( 2 );
-		pPainter->setPen( selectedPen );
-		pPainter->setBrush( Qt::NoBrush );
-	}
-
-	bool bMoving = bSelected && m_selection.isMoving();
-	QPen movingPen( noteColor );
-	QPoint movingOffset;
-
-	if ( bMoving ) {
-		movingPen.setStyle( Qt::DotLine );
-		movingPen.setWidth( 2 );
-		QPoint delta = movingGridOffset();
-		movingOffset = QPoint( delta.x() * m_nGridWidth,
-							   delta.y() * m_nGridHeight );
-	}
-
-	pPainter->setRenderHint( QPainter::Antialiasing );
-
-	if ( pNote->get_length() == -1 && pNote->get_note_off() == false ) {
-		if ( bSelected ) {
-			pPainter->drawEllipse( start_x -4 -2 , start_y -2, w+4, h+4 );
-		}
-		pPainter->setPen( noteColor );
-		pPainter->setBrush( color );
-		pPainter->drawEllipse( start_x -4 , start_y, w, h );
-		if ( bMoving ) {
-			pPainter->setPen( movingPen );
-			pPainter->setBrush( Qt::NoBrush );
-			pPainter->drawEllipse( start_x -4 -2 + movingOffset.x(), start_y -2 + movingOffset.y(), w+4, h+4 );
-		}
-	}
-	else if ( pNote->get_length() == 1 && pNote->get_note_off() == true ){
-		if ( bSelected ) {
-			pPainter->drawEllipse( start_x -4 -2 , start_y -2, w+4, h+4 );
-		}
-		pPainter->setPen( noteoffColor );
-		pPainter->setBrush( noteoffColor );
-		pPainter->drawEllipse( start_x -4 , start_y, w, h );
-		if ( bMoving ) {
-			pPainter->setPen( movingPen );
-			pPainter->setBrush( Qt::NoBrush );
-			pPainter->drawEllipse( start_x -4 -2 + movingOffset.x(), start_y -2 + movingOffset.y(), w+4, h+4 );
-		}
-	}
-	else {
-		float fNotePitch = pNote->get_notekey_pitch();
-		float fStep = pow( 1.0594630943593, ( double )fNotePitch );
-
-		int nend = m_nGridWidth * pNote->get_length() / fStep;
-		nend = nend - 1;	// lascio un piccolo spazio tra una nota ed un altra
-		if ( bSelected ) {
-			pPainter->drawRoundedRect( start_x-2, start_y-2, nend+4, h+4, 4, 4 );
-		}
-		pPainter->setPen( noteColor );
-		pPainter->setBrush( color );
-		pPainter->fillRect( start_x, start_y, nend, h, color );
-		pPainter->drawRect( start_x, start_y, nend, h );
-		if ( bMoving ) {
-			pPainter->setPen( movingPen );
-			pPainter->setBrush( Qt::NoBrush );
-			pPainter->drawRoundedRect( start_x-2 + movingOffset.x(), start_y -2 + movingOffset.y(), nend+4, h+4, 4, 4 );
-		}
-
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	InstrumentList * pInstrList = pHydrogen->getSong()->getInstrumentList();
+	if ( pInstrList->index( pNote->get_instrument() ) == pHydrogen->getSelectedInstrumentNumber() ) {
+		QPoint pos ( m_nMargin + pNote->get_position() * m_nGridWidth,
+					 m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1);
+		drawNoteSymbol( *pPainter, pos, pNote );
 	}
 }
 

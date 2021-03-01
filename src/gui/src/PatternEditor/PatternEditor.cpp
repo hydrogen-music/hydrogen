@@ -154,8 +154,7 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 
 	QColor color = computeNoteColor( pNote->get_velocity() );
 
-	uint w = 8;
-	uint h =  m_nGridHeight / 3;
+	uint w = 8, h =  8;
 	uint x_pos = pos.x(), y_pos = pos.y();
 
 	bool bSelected = m_selection.isSelected( pNote );
