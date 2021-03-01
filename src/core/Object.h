@@ -124,14 +124,14 @@ class Object {
 std::ostream& operator<<( std::ostream& os, const Object& object );
 std::ostream& operator<<( std::ostream& os, const Object* object );
 
-template <class X>
-QDebug operator<<( QDebug d, X *x ) {
-	d << ( x ? x->toQString( "", true ) : "(nullptr)" );
+
+inline QDebug operator<<( QDebug d, Object *o ) {
+	d << ( o ? o->toQString( "", true ) : "(nullptr)" );
 	return d;
 }
-template <class X>
-QDebug operator<<( QDebug d, std::shared_ptr<X> x ) {
-	d << ( x ? x->toQString( "", true ) : "(nullptr)" );
+
+inline QDebug operator<<( QDebug d, std::shared_ptr<Object> o ) {
+	d << ( o ? o->toQString( "", true ) : "(nullptr)" );
 	return d;
 }
 
