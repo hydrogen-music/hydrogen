@@ -1054,8 +1054,8 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 ///
 void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 {
-	InstrumentList * pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
-	int nInstrument = pInstrList->index( note->get_instrument() );;
+	InstrumentList *pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	int nInstrument = pInstrList->index( note->get_instrument() );
 	if ( nInstrument == -1 ) {
 		ERRORLOG( "Instrument not found..skipping note" );
 		return;
