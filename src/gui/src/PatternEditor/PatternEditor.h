@@ -173,7 +173,10 @@ protected:
 	void drawGridLines( QPainter &p, Qt::PenStyle style = Qt::SolidLine ) const;
 
 	//! Colour to use for outlining selected notes
-	QColor selectedNoteColor( const H2Core::UIStyle *pStyle );
+	QColor selectedNoteColor( const H2Core::UIStyle *pStyle ) const;
+
+	//! Draw a note
+	void drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote ) const;
 
 	//! Update current pattern information
 	void updatePatternInfo();

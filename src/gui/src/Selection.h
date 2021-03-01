@@ -316,7 +316,7 @@ public:
 	}
 
 	//! Is an element in the set of currently selected elements? 
-	bool isSelected( Elem e ) {
+	bool isSelected( Elem e ) const {
 		return m_pSelectionGroup->m_selectedElements.find( e ) != m_pSelectionGroup->m_selectedElements.end();
 	}
 
