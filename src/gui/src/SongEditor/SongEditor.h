@@ -173,6 +173,7 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
 		virtual void mouseMoveEvent(QMouseEvent *ev) override;
 		virtual void keyPressEvent (QKeyEvent *ev) override;
+		virtual void keyReleaseEvent (QKeyEvent *ev) override;
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void focusInEvent( QFocusEvent *ev ) override;
 		//! @}
@@ -276,6 +277,8 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		QMenu *				m_pPatternPopup;
 		QLineEdit *			m_pLineEdit;
 		H2Core::Pattern *	m_pPatternBeingEdited;
+
+		DragScroller *		m_pDragScroller;
 		
 		void inlineEditPatternName( int row );
 

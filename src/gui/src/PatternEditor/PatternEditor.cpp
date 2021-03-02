@@ -41,6 +41,7 @@
 #include "../HydrogenApp.h"
 #include "../EventListener.h"
 #include "PatternEditorPanel.h"
+#include "UndoActions.h"
 
 
 using namespace std;
@@ -263,6 +264,17 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 	// Key: Ctrl + drag: copy notes rather than moving
 	m_bCopyNotMove = ev->modifiers() & Qt::ControlModifier;
 
+	if ( QKeyEvent *pEv = dynamic_cast<QKeyEvent*>( ev ) ) {
+		// Keyboard events for press and release of modifier keys don't have those keys in the modifiers set,
+		// so explicitly update these.
+		bool bPressed = ev->type() == QEvent::KeyPress;
+		if ( pEv->key() == Qt::Key_Control ) {
+			m_bCopyNotMove = bPressed;
+		} else if ( pEv->key() == Qt::Key_Alt ) {
+			m_bFineGrained = bPressed;
+		}
+	}
+
 	if ( m_selection.isMoving() ) {
 		// If a selection is currently being moved, change the cursor
 		// appropriately. Selection will change it back after the move
@@ -273,6 +285,124 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 			setCursor( QCursor( Qt::DragMoveCursor ) );
 		}
 	}
+}
+
+bool PatternEditor::notesMatchExactly( Note *pNoteA, Note *pNoteB ) const {
+	return ( pNoteA->match( pNoteB->get_instrument(), pNoteB->get_key(), pNoteB->get_octave() )
+			 && pNoteA->get_position() == pNoteB->get_position()
+			 && pNoteA->get_velocity() == pNoteB->get_velocity()
+			 && pNoteA->get_pan_r() == pNoteB->get_pan_r()
+			 && pNoteA->get_pan_l() == pNoteB->get_pan_l()
+			 && pNoteA->get_lead_lag() == pNoteB->get_lead_lag()
+			 && pNoteA->get_probability() == pNoteB->get_probability() );
+}
+
+bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements )
+{
+	//	Hydrogen *pH = Hydrogen::get_instance();
+	std::set< Note *> duplicates;
+	for ( Note *pNote : elements ) {
+		if ( duplicates.find( pNote ) != duplicates.end() ) {
+			// Already marked pNote as a duplicate of some other pNote. Skip it.
+			continue;
+		}
+		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, pNote->get_position() ) {
+			// Duplicate note of a selected note is anything occupying the same position. Multiple notes
+			// sharing the same location might be selected; we count these as duplicates too. They will appear
+			// in both the duplicates and selection lists.
+			if ( it->second != pNote && pNote->match( it->second ) ) {
+				duplicates.insert( it->second );
+			}
+		}
+	}
+	if ( !duplicates.empty() ) {
+		Preferences *pPreferences = Preferences::get_instance();
+		bool bOk = true;
+
+		if ( pPreferences->getShowNoteOverwriteWarning() ) {
+			m_selection.cancelGesture();
+			QString sMsg ( tr( "Placing these notes here will overwrite %1 duplicate notes." ) );
+			QMessageBox messageBox ( QMessageBox::Warning, "Hydrogen", sMsg.arg( duplicates.size() ),
+									 QMessageBox::Cancel | QMessageBox::Ok, this );
+			messageBox.setCheckBox( new QCheckBox( tr( "Don't show this message again" ) ) );
+			messageBox.checkBox()->setChecked( false );
+			bOk = messageBox.exec() == QMessageBox::Ok;
+			if ( messageBox.checkBox()->isChecked() ) {
+				pPreferences->setShowNoteOverwriteWarning( false );
+			}
+		}
+
+		if ( bOk ) {
+			Hydrogen *pHydrogen = Hydrogen::get_instance();
+			InstrumentList *pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+			QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+
+			std::vector< Note *>overwritten;
+			for ( Note *pNote : duplicates ) {
+				overwritten.push_back( pNote );
+			}
+			pUndo->push( new SE_deselectAndOverwriteNotesAction( elements, overwritten ) );
+
+		} else {
+			return false;
+		}
+	}
+	return true;
+}
+
+
+void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected,
+											   std::vector< H2Core::Note *> &overwritten )
+{
+	// Iterate over all the notes in 'selected' and 'overwrite' by erasing any *other* notes occupying the
+	// same position.
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Pattern::notes_t *pNotes = const_cast< Pattern::notes_t *>( m_pPattern->get_notes() );
+	for ( auto pSelectedNote : selected ) {
+		m_selection.removeFromSelection( pSelectedNote, /* bCheck=*/false );
+		bool bFoundExact = false;
+		int nPosition = pSelectedNote->get_position();
+		for ( auto it = pNotes->lower_bound( nPosition ); it != pNotes->end() && it->first == nPosition; ) {
+			Note *pNote = it->second;
+			if ( !bFoundExact && notesMatchExactly( pNote, pSelectedNote ) ) {
+				// Found an exact match. We keep this.
+				bFoundExact = true;
+				++it;
+			} else if ( pSelectedNote->match( pNote ) && pNote->get_position() == pSelectedNote->get_position() ) {
+				// Something else occupying the same position (which may or may not be an exact duplicate)
+				it = pNotes->erase( it );
+			} else {
+				// Any other note
+				++it;
+			}
+		}
+	}
+	AudioEngine::get_instance()->unlock();
+
+}
+
+
+void PatternEditor::undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected,
+												   std::vector< H2Core::Note *> &overwritten )
+{
+	// Restore previously-overwritten notes, and select notes that were selected before.
+	m_selection.clearSelection( /* bCheck=*/false );
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	for ( auto pNote : overwritten ) {
+		Note *pNewNote = new Note( pNote );
+		m_pPattern->insert_note( pNewNote );
+	}
+	// Select the previously-selected notes
+	for ( auto pNote : selected ) {
+		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, pNote->get_position() ) {
+			if ( notesMatchExactly( it->second, pNote ) ) {
+				m_selection.addToSelection( it->second );
+				break;
+			}
+		}
+	}
+	AudioEngine::get_instance()->unlock();
+	m_pPatternEditorPanel->updateEditors();
 }
 
 
@@ -424,13 +554,20 @@ void PatternEditor::validateSelection()
 {
 	// Rebuild selection from valid notes.
 	std::set<Note *> valid;
+	std::vector< Note *> invalidated;
 	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {
 		if ( m_selection.isSelected( it->second ) ) {
 			valid.insert( it->second );
 		}
 	}
-	m_selection.clearSelection();
-	for (auto i : valid ) {
-		m_selection.addToSelection( i );
+	for (auto i : m_selection ) {
+		if ( valid.find(i) == valid.end()) {
+			// Keep the note to invalidate, but don't remove from the selection while walking the selection
+			// set.
+			invalidated.push_back( i );
+		}
+	}
+	for ( auto i : invalidated ) {
+		m_selection.removeFromSelection( i, /* bCheck=*/false );
 	}
 }

@@ -48,6 +48,7 @@
 #include <math.h>
 #include <cassert>
 #include <algorithm>
+#include <stack>
 
 using namespace H2Core;
 
@@ -426,7 +427,7 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 		Note *pNewNote = new Note( pFoundNote, pToInstrument );
 
 		if ( m_selection.isSelected( pFoundNote) ) {
-			m_selection.removeFromSelection( pFoundNote );
+			m_selection.removeFromSelection( pFoundNote, /* bCheck=*/false  );
 			m_selection.addToSelection( pNewNote );
 		}
 		pNewNote->set_position( nNewColumn );
@@ -435,6 +436,7 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 		delete pFoundNote;
 	}
 
+	pSong->setIsModified( true );
 	AudioEngine::get_instance()->unlock();
 
 	m_pPatternEditorPanel->updateEditors();
@@ -638,6 +640,7 @@ void DrumPatternEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 ///
 void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 {
+	const int nBlockSize = 5, nWordSize = 5;
 	Hydrogen *pH2 = Hydrogen::get_instance();
 	int nSelectedInstrument = pH2->getSelectedInstrumentNumber();
 	int nMaxInstrument = pH2->getSong()->getInstrumentList()->size();
@@ -652,6 +655,10 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		// ->
 		m_pPatternEditorPanel->moveCursorRight();
 
+	} else if ( ev->matches( QKeySequence::MoveToNextWord ) || ev->matches( QKeySequence::SelectNextWord ) ) {
+		// ->
+		m_pPatternEditorPanel->moveCursorRight( nWordSize );
+
 	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ev->matches( QKeySequence::SelectEndOfLine ) ) {
 		// -->|
 		m_pPatternEditorPanel->setCursorPosition( m_pPattern->get_length() );
@@ -659,6 +666,10 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) || ev->matches( QKeySequence::SelectPreviousChar ) ) {
 		// <-
 		m_pPatternEditorPanel->moveCursorLeft();
+
+	} else if ( ev->matches( QKeySequence::MoveToPreviousWord ) || ev->matches( QKeySequence::SelectPreviousWord ) ) {
+		// <-
+		m_pPatternEditorPanel->moveCursorLeft( nWordSize );
 
 	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) || ev->matches( QKeySequence::SelectStartOfLine ) ) {
 		// |<--
@@ -668,6 +679,10 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		if ( nSelectedInstrument + 1 < nMaxInstrument ) {
 			pH2->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
 		}
+	} else if ( ev->matches( QKeySequence::MoveToEndOfBlock ) || ev->matches( QKeySequence::SelectEndOfBlock ) ) {
+		pH2->setSelectedInstrumentNumber( std::min( nSelectedInstrument + nBlockSize,
+													nMaxInstrument-1 ) );
+
 	} else if ( ev->matches( QKeySequence::MoveToNextPage ) || ev->matches( QKeySequence::SelectNextPage ) ) {
 		// Page down, scroll by the number of instruments that fit into the viewport
 		QWidget *pParent = dynamic_cast< QWidget *>( parent() );
@@ -686,6 +701,9 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		if ( nSelectedInstrument > 0 ) {
 			pH2->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
 		}
+	} else if ( ev->matches( QKeySequence::MoveToStartOfBlock ) || ev->matches( QKeySequence::SelectStartOfBlock ) ) {
+		pH2->setSelectedInstrumentNumber( std::max( nSelectedInstrument - nBlockSize, 0 ) );
+
 	} else if ( ev->matches( QKeySequence::MoveToPreviousPage ) || ev->matches( QKeySequence::SelectPreviousPage ) ) {
 		QWidget *pParent = dynamic_cast< QWidget *>( parent() );
 		assert( pParent );
@@ -749,6 +767,11 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	ev->accept();
 
 }
+
+void DrumPatternEditor::keyReleaseEvent( QKeyEvent *ev ) {
+	updateModifiers( ev );
+}
+
 
 
 ///
@@ -1034,15 +1057,65 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 	updatePatternInfo();
 
 	if( m_pPattern ) {
-		const Pattern::notes_t* pNotes = m_pPattern->get_notes();
-		if( pNotes->size() == 0) return;
+		const Pattern::notes_t *pNotes = m_pPattern->get_notes();
+		if ( pNotes->size() == 0 ) {
+			return;
+		}
 
 		validateSelection();
 
-		FOREACH_NOTE_CST_IT_BEGIN_END(pNotes,it) {
-			Note *note = it->second;
-			assert( note );
-			__draw_note( note, painter );
+		std::vector< int > noteCount; // instrument_id -> count
+		std::stack< Instrument *> instruments;
+
+		// Process notes in batches by note position, counting the notes at each instrument so we can display
+		// markers for instruments which have more than one note in the same position (a chord or genuine
+		// duplicates)
+		for ( auto posIt = pNotes->begin(); posIt != pNotes->end(); ) {
+			int nPosition = posIt->second->get_position();
+
+			// Process all notes at this position
+			auto noteIt = posIt;
+			while ( noteIt != pNotes->end() && noteIt->second->get_position() == nPosition ) {
+				Note *pNote = noteIt->second;
+
+				int nInstrumentID = pNote->get_instrument_id();
+				if ( nInstrumentID >= noteCount.size() ) {
+					noteCount.resize( nInstrumentID+1, 0 );
+				}
+
+				if ( ++noteCount[ nInstrumentID ] == 1) {
+					instruments.push( pNote->get_instrument() );
+				}
+
+				__draw_note( pNote, painter );
+				++noteIt;
+			}
+
+			// Go through used instruments list, drawing markers for superimposed notes and zero'ing the
+			// counts.
+			while ( ! instruments.empty() ) {
+				Instrument *pInstrument = instruments.top();
+				int nInstrumentID = pInstrument->get_id();
+				if ( noteCount[ nInstrumentID ] >  1 ) {
+					// Draw "2x" text to the left of the note
+					int nInstrument = pInstrList->index( pInstrument );
+					int x = m_nMargin + (nPosition * m_nGridWidth);
+					int y = ( nInstrument * m_nGridHeight);
+					const int boxWidth = 128;
+					QFont font;
+					font.setPointSize( 9 );
+					painter.setFont( font );
+					painter.setPen( QColor( 0, 0, 0 ) );
+
+					painter.drawText( QRect( x-boxWidth-6, y, boxWidth, m_nGridHeight),
+									  Qt::AlignRight | Qt::AlignVCenter,
+									  ( QString( "%1" ) + QChar( 0x00d7 )).arg( noteCount[ nInstrumentID ] ) );
+				}
+				noteCount[ nInstrumentID ] = 0;
+				instruments.pop();
+			}
+
+			posIt = noteIt;
 		}
 	}
 }
