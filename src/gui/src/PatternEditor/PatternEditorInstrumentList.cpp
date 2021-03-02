@@ -523,7 +523,7 @@ void InstrumentLine::functionDeleteInstrument()
 	std::list< Note* > noteList;
 
 	QString sInstrumentName =  pSelectedInstrument->get_name();
-	QString sDrumkitName = pHydrogen->getCurrentDrumkitname();
+	QString sDrumkitName = pHydrogen->getCurrentDrumkitName();
 
 	for ( int i = 0; i < pSong->getPatternList()->size(); i++ ) {
 		H2Core::Pattern *pPattern = pSong->getPatternList()->get(i);
@@ -655,29 +655,37 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 
 }
 
-
-
-
 void PatternEditorInstrumentList::dragEnterEvent(QDragEnterEvent *event)
 {
-	INFOLOG( "[dragEnterEvent]" );
-	if ( event->mimeData()->hasFormat("text/plain") ) {
-		Song *song = (Hydrogen::get_instance())->getSong();
-		int nInstruments = song->getInstrumentList()->size();
-		if ( nInstruments < MAX_INSTRUMENTS ) {
-			event->acceptProposedAction();
-		}
-	}
+	event->acceptProposedAction();
 }
-
 
 void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 {
 	//WARNINGLOG("Drop!");
+	if ( ! event->mimeData()->hasFormat("text/plain") ) {
+		event->ignore();
+		return;
+	}
+	
+	Song* pSong = Hydrogen::get_instance()->getSong();
+	int nInstruments = pSong->getInstrumentList()->size();
+	if ( nInstruments >= MAX_INSTRUMENTS ) {
+		event->ignore();
+		QMessageBox::critical( this, "Hydrogen", tr( "Unable to insert further instruments. Maximum possible number" ) +
+							   QString( ": %1" ).arg( MAX_INSTRUMENTS ) );
+		return;
+	}
+	
 	QString sText = event->mimeData()->text();
+	
 
-
-	if(sText.startsWith("Songs:") || sText.startsWith("Patterns:") || sText.startsWith("move pattern:") || sText.startsWith("drag pattern:")) return;
+	if ( sText.startsWith("Songs:") ||
+		 sText.startsWith("Patterns:") ||
+		 sText.startsWith("move pattern:") ||
+		 sText.startsWith("drag pattern:") ) {
+		return;
+	}
 
 	if (sText.startsWith("move instrument:")) {
 
@@ -699,7 +707,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 			event->acceptProposedAction();
 			return;
 		}
-
+		
 		SE_moveInstrumentAction *action = new SE_moveInstrumentAction( nSourceInstrument, nTargetInstrument );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
@@ -711,8 +719,9 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		sText = sText.remove(0,QString("importInstrument:").length());
 
 		QStringList tokens = sText.split( "::" );
-		QString sDrumkitName = tokens.at( 0 );
-		QString sInstrumentName = tokens.at( 1 );
+		QString sDrumkitScope = tokens.at( 0 );
+		QString sDrumkitName = tokens.at( 1 );
+		QString sInstrumentName = tokens.at( 2 );
 
 		int nTargetInstrument = event->pos().y() / m_nGridHeight;
 
@@ -720,14 +729,25 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 				"X > 181": border between the instrument names on the left and the grid
 				Because the right part of the grid starts above the name column, we have to subtract the difference
 		*/
-		if (  event->pos().x() > 181 ) nTargetInstrument = ( event->pos().y() - 90 )  / m_nGridHeight ;
+		if (  event->pos().x() > 181 ) {
+			nTargetInstrument = ( event->pos().y() - 90 )  / m_nGridHeight ;
+		}
 
 		Hydrogen *engine = Hydrogen::get_instance();
 		if( nTargetInstrument > engine->getSong()->getInstrumentList()->size() ){
 			nTargetInstrument = engine->getSong()->getInstrumentList()->size();
 		}
 
-		SE_dragInstrumentAction *action = new SE_dragInstrumentAction( sDrumkitName, sInstrumentName, nTargetInstrument);
+		// Check whether the drumkit was chosen amongst the system's
+		// or user's set.
+		H2Core::Filesystem::Lookup lookup;
+	  	if ( sDrumkitScope == "system" ) {
+			lookup = H2Core::Filesystem::Lookup::system;
+		} else {
+			lookup = H2Core::Filesystem::Lookup::user;
+		}
+
+		SE_dragInstrumentAction *action = new SE_dragInstrumentAction( sDrumkitName, sInstrumentName, nTargetInstrument, lookup );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
 		event->acceptProposedAction();

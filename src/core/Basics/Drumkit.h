@@ -24,6 +24,7 @@
 #define H2C_DRUMKIT_H
 
 #include <core/Object.h>
+#include <core/Helpers/Filesystem.h>
 
 namespace H2Core
 {
@@ -72,10 +73,12 @@ class Drumkit : public H2Core::Object
 		 * \param dk_name Name of the Drumkit.
 		 * \param load_samples Automatically load sample data
 		 * if set to true.
+		 * \param lookup Where to search (system/user folder or both)
+		 * for the drumkit.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load_by_name( const QString& dk_name, const bool load_samples = false );
+		static Drumkit* load_by_name( const QString& dk_name, const bool load_samples = false, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
 		/**
 		 * Load a Drumkit from a file.
 		 *
@@ -157,20 +160,20 @@ class Drumkit : public H2Core::Object
 		bool save_image( const QString& dk_dir, bool overwrite=false );
 		/**
 		 * save a drumkit using given parameters and an instrument list
-		 * \param name the name of the drumkit
-		 * \param author the author of the drumkit
-		 * \param info the info of the drumkit
-		 * \param license the license of the drumkit
-		 * \param image the image filename (with full path) of
+		 * \param sName the name of the drumkit
+		 * \param sAuthor the author of the drumkit
+		 * \param sInfo the info of the drumkit
+		 * \param sLicense the license of the drumkit
+		 * \param sImage the image filename (with full path) of
 		   the drumkit
-		 * \param imageLicense license of the supplied image
-		 * \param instruments the instruments to be saved
+		 * \param sImageLicense license of the supplied image
+		 * \param pInstruments the instruments to be saved
 		   within the drumkit
-		 * \param components
-		 * \param overwrite allows to write over existing drumkit files
+		 * \param pComponents
+		 * \param bOverwrite allows to write over existing drumkit files
 		 * \return true on success
 		 */
-		static bool save( const QString& name, const QString& author, const QString& info, const QString& license, const QString& image, const QString& imageLicense, InstrumentList* instruments, std::vector<DrumkitComponent*>* components, bool overwrite=false );
+		static bool save( const QString& sName, const QString& sAuthor, const QString& sInfo, const QString& sLicense, const QString& sImage, const QString& sImageLicense, InstrumentList* pInstruments, std::vector<DrumkitComponent*>* pComponents, bool bOverwrite=false );
 		/**
 		 * install a drumkit from a filename
 		 * \param path the path to the new drumkit archive
@@ -180,9 +183,11 @@ class Drumkit : public H2Core::Object
 		/**
 		 * remove a drumkit from the disk
 		 * \param dk_name the drumkit name
+		 * \param lookup Where to search (system/user folder or both)
+		 * for the drumkit.
 		 * \return true on success
 		 */
-		static bool remove( const QString& dk_name );
+		static bool remove( const QString& dk_name, Filesystem::Lookup lookup );
 
 		/** set __instruments, delete existing one */
 		void set_instruments( InstrumentList* instruments );
@@ -221,6 +226,12 @@ class Drumkit : public H2Core::Object
 		const bool samples_loaded() const;
 
 		void dump();
+
+		/**
+		 * \return Whether the associated files are located in the
+		 * user or the systems drumkit folder.
+		 */
+		bool isUserDrumkit() const;
 
 		std::vector<DrumkitComponent*>* get_components();
 		void set_components( std::vector<DrumkitComponent*>* components );

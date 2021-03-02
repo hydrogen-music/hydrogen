@@ -10,9 +10,6 @@
     <height>281</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Dialog</string>
-  </property>
   <widget class="QGroupBox" name="drumkitGroubox">
    <property name="geometry">
     <rect>
