@@ -171,9 +171,11 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	}
 	int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
 	int nRealColumn = 0;
+
 	if( ev->x() > m_nMargin ) {
-		nRealColumn = ev->x() / static_cast<float>(m_nGridWidth) - m_nMargin;
+		nRealColumn = ( ev->x() - m_nMargin) / static_cast<float>(m_nGridWidth);
 	}
+
 	if ( nColumn >= (int)m_pPattern->get_length() ) {
 		update( 0, 0, width(), height() );
 		return;
@@ -241,6 +243,10 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 		// Right button drag: adjust note length
 		int nRealColumn = 0;
 		Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( row );
+
+		if( ev->x() > m_nMargin ) {
+			nRealColumn = ( ev->x() - m_nMargin) / static_cast<float>(m_nGridWidth);
+		}
 
 		m_pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
 		// needed for undo note length
