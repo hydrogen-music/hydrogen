@@ -755,6 +755,7 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 	pPattern->insert_note( pFoundNote );
 	pFoundNote->set_key_octave( newKey, newOctave );
 
+	pSong->setIsModified( true );
 	AudioEngine::get_instance()->unlock();
 
 	m_pPatternEditorPanel->updateEditors( true );
@@ -1274,6 +1275,8 @@ void PianoRollEditor::editNoteLengthAction( int nColumn,  int nRealColumn,  int 
 	if ( pDraggedNote ){
 		pDraggedNote->set_length( length );
 	}
+
+	pSong->setIsModified( true );
 	AudioEngine::get_instance()->unlock();
 	m_pPatternEditorPanel->updateEditors( true );
 }
@@ -1309,6 +1312,7 @@ void PianoRollEditor::editNotePropertiesAction( int nColumn,
 		pDraggedNote->set_pan_r( pan_R );
 		pDraggedNote->set_lead_lag( leadLag );
 	}
+	pSong->setIsModified( true );
 	AudioEngine::get_instance()->unlock();
 	m_pPatternEditorPanel->updateEditors( true );
 }

@@ -588,6 +588,7 @@ void DrumPatternEditor::editNoteLengthAction( int nColumn, int nRealColumn, int 
 			pDraggedNote->set_length( length );
 		}
 
+		pSong->setIsModified( true );
 		AudioEngine::get_instance()->unlock();
 
 		m_pPatternEditorPanel->updateEditors();
@@ -1677,6 +1678,7 @@ void DrumPatternEditor::functionRandomVelocityAction( QStringList noteVeloValue,
 			}
 		}
 	}
+	H->getSong()->setIsModified( true );
 	AudioEngine::get_instance()->unlock();	// unlock the audio engine
 
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
@@ -1819,6 +1821,7 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName,
 		pEngine->renameJackPorts( pEngine->getSong() );
 		#endif
 
+		pEngine->getSong()->setIsModified( true );
 		AudioEngine::get_instance()->unlock();
 		//move instrument to the position where it was dropped
 		functionMoveInstrumentAction(pEngine->getSong()->getInstrumentList()->size() - 1 , nTargetInstrument );
@@ -1907,6 +1910,7 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 	pHydrogen->renameJackPorts( pHydrogen->getSong() );
 	#endif
 
+	pHydrogen->getSong()->setIsModified( true );
 	AudioEngine::get_instance()->unlock();	// unlock the audio engine
 
 	//move instrument to the position where it was dropped
@@ -1947,6 +1951,7 @@ void DrumPatternEditor::functionAddEmptyInstrumentUndo()
 #ifdef H2CORE_HAVE_JACK
 	pEngine->renameJackPorts( pEngine->getSong() );
 #endif
+	pEngine->getSong()->setIsModified( true );
 	AudioEngine::get_instance()->unlock();
 	updateEditor();
 }
@@ -1975,6 +1980,7 @@ void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 	Hydrogen::get_instance()->renameJackPorts( pSong );
 	#endif
 
+	pSong->setIsModified( true );
 	AudioEngine::get_instance()->unlock();
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( pList->size() - 1 );

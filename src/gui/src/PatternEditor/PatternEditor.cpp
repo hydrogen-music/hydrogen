@@ -377,8 +377,8 @@ void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &sel
 			}
 		}
 	}
+	Hydrogen::get_instance()->getSong()->setIsModified( true );
 	AudioEngine::get_instance()->unlock();
-
 }
 
 
@@ -401,6 +401,7 @@ void PatternEditor::undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> 
 			}
 		}
 	}
+	Hydrogen::get_instance()->getSong()->setIsModified( true );
 	AudioEngine::get_instance()->unlock();
 	m_pPatternEditorPanel->updateEditors();
 }

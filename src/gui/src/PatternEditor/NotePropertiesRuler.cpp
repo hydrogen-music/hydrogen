@@ -543,6 +543,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 		m_bValueHasBeenSet = true;
 		break;
 	}
+	Hydrogen::get_instance()->getSong()->setIsModified( true );
 }
 
 void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
