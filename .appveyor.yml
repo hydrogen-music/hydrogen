@@ -52,6 +52,7 @@ for:
       brew install --build-from-source ./macos/HomebrewFormulae/libsndfile.rb
       brew install --build-from-source ./macos/HomebrewFormulae/berkeley-db.rb
       brew install --build-from-source ./macos/HomebrewFormulae/libogg.rb
+      brew install --build-from-source ./macos/HomebrewFormulae/libvorbis.rb
 
       brew install qt5; export CMAKE_PREFIX_PATH="$(brew --prefix qt5)";
       brew install libarchive; export PKG_CONFIG_PATH="$(brew --prefix libarchive)/lib/pkgconfig";
