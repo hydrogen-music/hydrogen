@@ -62,7 +62,15 @@ for:
       git submodule init && git submodule update
       mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
       PATH="$(brew --prefix qt5)/bin:$PATH"
+
+      echo "Library dependencies for hydrogen:"
+      otool -L src/gui/hydrogen.app/Contents/MacOS/hydrogen
+
       ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
+
+      echo "Library dependencies after macdeployqt:"
+      otool -L src/gui/hydrogen.app/Contents/MacOS/hydrogen
+
       appveyor PushArtifact Hydrogen*.dmg
       scp -oStrictHostKeyChecking=no -i $HOME/.ssh/id_rsa Hydrogen*.dmg h2buildbot@frs.sourceforge.net:/home/frs/project/hydrogen/Hydrogen/CI
       TMPDIR=/tmp src/tests/tests || true
