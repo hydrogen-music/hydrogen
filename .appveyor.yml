@@ -51,6 +51,7 @@ for:
       # Build libsndfile and bdb from source to enable building for 10.12
       brew install --build-from-source ./macos/HomebrewFormulae/libsndfile.rb
       brew install --build-from-source ./macos/HomebrewFormulae/berkeley-db.rb
+      brew install --build-from-source ./macos/HomebrewFormulae/libogg.rb
 
       brew install qt5; export CMAKE_PREFIX_PATH="$(brew --prefix qt5)";
       brew install libarchive; export PKG_CONFIG_PATH="$(brew --prefix libarchive)/lib/pkgconfig";
@@ -61,6 +62,7 @@ for:
       mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
       PATH="$(brew --prefix qt5)/bin:$PATH"
       ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
+      appveyor PushArtifact Hydrogen*.dmg
       scp -oStrictHostKeyChecking=no -i $HOME/.ssh/id_rsa Hydrogen*.dmg h2buildbot@frs.sourceforge.net:/home/frs/project/hydrogen/Hydrogen/CI
       TMPDIR=/tmp src/tests/tests || true
 
