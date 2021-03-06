@@ -127,7 +127,7 @@ verbose "Copying application bundle"
 cp -r "$SRC_APP" "$DMG_ROOT/Hydrogen.app" || error "Can't copy $SRC_APP"
 
 verbose "Deploying Qt libraries"
-macdeployqt -verbose=3 "$DMG_ROOT/Hydrogen.app" || error "macdeployqt failed"
+macdeployqt  "$DMG_ROOT/Hydrogen.app" -verbose=3 || error "macdeployqt failed"
 
 verbose "Deploying translations"
 I18N_DEST="$DMG_ROOT/Hydrogen.app/Contents/Resources/data/i18n"
