@@ -115,7 +115,7 @@ void PatternEditor::zoomOut()
 	}
 }
 
-QColor PatternEditor::computeNoteColor( float velocity ){
+QColor PatternEditor::computeNoteColor( float velocity ) {
 	int red;
 	int green;
 	int blue;
@@ -142,6 +142,102 @@ QColor PatternEditor::computeNoteColor( float velocity ){
 	//qDebug() << "R " << red << "G " << green << "blue " << blue;
 	return QColor( red, green, blue );
 }
+
+
+void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote ) const
+{
+	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
+	static const QColor noteColor( pStyle->m_patternEditor_noteColor.getRed(), pStyle->m_patternEditor_noteColor.getGreen(), pStyle->m_patternEditor_noteColor.getBlue() );
+	static const QColor noteoffColor( pStyle->m_patternEditor_noteoffColor.getRed(), pStyle->m_patternEditor_noteoffColor.getGreen(), pStyle->m_patternEditor_noteoffColor.getBlue() );
+
+	p.setRenderHint( QPainter::Antialiasing );
+
+
+	QColor color = computeNoteColor( pNote->get_velocity() );
+
+	uint w = 8, h =  8;
+	uint x_pos = pos.x(), y_pos = pos.y();
+
+	bool bSelected = m_selection.isSelected( pNote );
+
+	if ( bSelected ) {
+		QPen selectedPen( selectedNoteColor( pStyle ) );
+		selectedPen.setWidth( 2 );
+		p.setPen( selectedPen );
+		p.setBrush( Qt::NoBrush );
+	}
+
+	bool bMoving = bSelected && m_selection.isMoving();
+	QPen movingPen( noteColor );
+	QPoint movingOffset;
+
+	if ( bMoving ) {
+		movingPen.setStyle( Qt::DotLine );
+		movingPen.setWidth( 2 );
+		QPoint delta = movingGridOffset();
+		movingOffset = QPoint( delta.x() * m_nGridWidth,
+							   delta.y() * m_nGridHeight );
+	}
+
+	if ( pNote->get_note_off() == false ) {	// trigger note
+		int width = w;
+
+		if ( bSelected ) {
+			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
+		}
+
+		// Draw tail
+		if ( pNote->get_length() != -1 ) {
+			float fNotePitch = pNote->get_octave() * 12 + pNote->get_key();
+			float fStep = pow( 1.0594630943593, ( double )fNotePitch );
+			width = m_nGridWidth * pNote->get_length() / fStep;
+			width = width - 1;	// lascio un piccolo spazio tra una nota ed un altra
+
+			if ( bSelected ) {
+				p.drawRoundedRect( x_pos-2, y_pos, width+4, 3+4, 4, 4 );
+			}
+			p.setPen( noteColor );
+			p.setBrush( color );
+			p.fillRect( x_pos, y_pos +2, width, 3, color );	/// \todo: definire questo colore nelle preferenze
+			p.drawRect( x_pos, y_pos +2, width, 3 );
+			p.drawLine( x_pos+width, y_pos, x_pos+width, y_pos + h );
+		}
+
+		p.setPen( noteColor );
+		p.setBrush( color );
+		p.drawEllipse( x_pos -4 , y_pos, w, h );
+
+		if ( bMoving ) {
+			p.setPen( movingPen );
+			p.setBrush( Qt::NoBrush );
+			p.drawEllipse( movingOffset.x() + x_pos -4 -2, movingOffset.y() + y_pos -2 , w + 4, h + 4 );
+			// Moving tail
+			if ( pNote->get_length() != -1 ) {
+				p.setPen( movingPen );
+				p.setBrush( Qt::NoBrush );
+				p.drawRoundedRect( movingOffset.x() + x_pos-2, movingOffset.y() + y_pos, width+4, 3+4, 4, 4 );
+			}
+
+		}
+
+	}
+	else if ( pNote->get_length() == 1 && pNote->get_note_off() == true ) {
+
+		if ( bSelected ) {
+			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
+		}
+ 		p.setPen( noteoffColor );
+		p.setBrush( QColor( noteoffColor ) );
+		p.drawEllipse( x_pos -4 , y_pos, w, h );
+
+		if ( bMoving ) {
+			p.setPen( movingPen );
+			p.setBrush( Qt::NoBrush );
+			p.drawEllipse( movingOffset.x() + x_pos -4 -2, movingOffset.y() + y_pos -2, w + 4, h + 4 );
+		}
+	}
+}
+
 
 int PatternEditor::getColumn( int x, bool bUseFineGrained ) const
 {
@@ -533,7 +629,7 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 }
 
 
-QColor PatternEditor::selectedNoteColor( const UIStyle *pStyle ) {
+QColor PatternEditor::selectedNoteColor( const UIStyle *pStyle ) const {
 	if ( hasFocus() ) {
 		static const QColor selectHilightColor( pStyle->m_selectionHighlightColor.getRed(),
 												pStyle->m_selectionHighlightColor.getGreen(),

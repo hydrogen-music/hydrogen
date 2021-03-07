@@ -1134,112 +1134,17 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 ///
 void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 {
-	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	static const QColor noteColor( pStyle->m_patternEditor_noteColor.getRed(), pStyle->m_patternEditor_noteColor.getGreen(), pStyle->m_patternEditor_noteColor.getBlue() );
-	static const QColor noteoffColor( pStyle->m_patternEditor_noteoffColor.getRed(), pStyle->m_patternEditor_noteoffColor.getGreen(), pStyle->m_patternEditor_noteoffColor.getBlue() );
-
-	p.setRenderHint( QPainter::Antialiasing );
-
-	int nInstrument = -1;
-	InstrumentList * pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
-	for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
-		Instrument *pInstr = pInstrList->get( nInstr );
-		if ( pInstr == note->get_instrument() ) {
- 			nInstrument = nInstr;
-			break;
-		}
-	}
+	InstrumentList *pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	int nInstrument = pInstrList->index( note->get_instrument() );
 	if ( nInstrument == -1 ) {
 		ERRORLOG( "Instrument not found..skipping note" );
 		return;
 	}
 
-	uint pos = note->get_position();
+	QPoint pos ( m_nMargin + note->get_position() * m_nGridWidth,
+				 ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3 );
 
-	QColor color = computeNoteColor( note->get_velocity() );
-
-	uint w = 8;
-	uint h =  m_nGridHeight / 3;
-	uint x_pos = m_nMargin + (pos * m_nGridWidth);
-	uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
-
-	bool bSelected = m_selection.isSelected( note );
-
-	if ( bSelected ) {
-		QPen selectedPen( selectedNoteColor( pStyle ) );
-		selectedPen.setWidth( 2 );
-		p.setPen( selectedPen );
-		p.setBrush( Qt::NoBrush );
-	}
-
-	bool bMoving = bSelected && m_selection.isMoving();
-	QPen movingPen( noteColor );
-	QPoint movingOffset;
-
-	if ( bMoving ) {
-		movingPen.setStyle( Qt::DotLine );
-		movingPen.setWidth( 2 );
-		QPoint delta = movingGridOffset();
-		movingOffset = QPoint( delta.x() * m_nGridWidth,
-							   delta.y() * m_nGridHeight );
-	}
-
-	if ( note->get_length() == -1 && note->get_note_off() == false ) {	// trigger note
-
-		if ( bSelected ) {
-			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
-		}
-		p.setPen(noteColor);
-		p.setBrush( color );
-		p.drawEllipse( x_pos -4 , y_pos, w, h );
-
-		if ( bMoving ) {
-			p.setPen( movingPen );
-			p.setBrush( Qt::NoBrush );
-			p.drawEllipse( movingOffset.x() + x_pos -4 -2, movingOffset.y() + y_pos -2 , w + 4, h + 4 );
-		}
-
-	}
-	else if ( note->get_length() == 1 && note->get_note_off() == true ){
-
-		if ( bSelected ) {
-			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
-		}
-		p.setPen( noteoffColor );
-		p.setBrush(QColor( noteoffColor));
-		p.drawEllipse( x_pos -4 , y_pos, w, h );
-
-		if ( bMoving ) {
-			p.setPen( movingPen );
-			p.setBrush( Qt::NoBrush );
-			p.drawEllipse( movingOffset.x() + x_pos -4 -2, movingOffset.y() + y_pos -2, w + 4, h + 4 );
-		}
-
-	}
-	else {
-		float fNotePitch = note->get_octave() * 12 + note->get_key();
-		float fStep = pow( 1.0594630943593, ( double )fNotePitch );
-
-		uint x = m_nMargin + (pos * m_nGridWidth);
-		int w = m_nGridWidth * note->get_length() / fStep;
-		w = w - 1;	// lascio un piccolo spazio tra una nota ed un altra
-
-		int y = (int) ( ( nInstrument ) * m_nGridHeight  + (m_nGridHeight / 100.0 * 30.0) );
-		int h = (int) (m_nGridHeight - ((m_nGridHeight / 100.0 * 30.0) * 2.0) );
-		if ( bSelected ) {
-			p.drawRoundedRect( x-2, y+1-2, w+4, h+1+4, 4, 4 );
-		}
-		p.setPen(noteColor);
-		p.setBrush( color );
-		p.fillRect( x, y + 1, w, h + 1, color );	/// \todo: definire questo colore nelle preferenze
-		p.drawRect( x, y + 1, w, h + 1 );
-		if ( bMoving ) {
-			p.setPen( movingPen );
-			p.setBrush( Qt::NoBrush );
-			p.drawRoundedRect( movingOffset.x() + x-2, movingOffset.y() + y+1-2, w+4, h+1+4, 4, 4 );
-		}
-
-	}
+	drawNoteSymbol( p, pos, note );
 }
 
 
