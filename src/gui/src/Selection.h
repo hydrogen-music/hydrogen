@@ -580,6 +580,7 @@ public:
 				m_pSelectionGroup->m_selectedElements = m_checkpointSelectedElements;
 			} else {
 				// Clear and rebuild selection
+				m_checkpointSelectedElements.clear();
 				clearSelection();
 			}
 			auto selected = m_pWidget->elementsIntersecting( m_lasso );
