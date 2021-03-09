@@ -9,39 +9,39 @@
     </message>
     <message>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Site ouèbe</translation>
     </message>
     <message>
         <source>Project page</source>
-        <translation type="unfinished"></translation>
+        <translation>Page de projet</translation>
     </message>
     <message>
         <source>Forum</source>
-        <translation type="unfinished"></translation>
+        <translation>Forum</translation>
     </message>
     <message>
         <source>Development mailing list</source>
-        <translation type="unfinished"></translation>
+        <translation>Liste de développement</translation>
     </message>
     <message>
         <source>Main coders and maintainers</source>
-        <translation type="unfinished"></translation>
+        <translation>Programmeurs principaux et mainteneurs</translation>
     </message>
     <message>
         <source>Active translators</source>
-        <translation type="unfinished"></translation>
+        <translation>Traducteurs actifs</translation>
     </message>
     <message>
         <source>Recent contributors</source>
-        <translation type="unfinished"></translation>
+        <translation>Contributeurs récents</translation>
     </message>
     <message>
         <source>A full list of all contributors can be found on</source>
-        <translation type="unfinished"></translation>
+        <translation>Une liste complète de tous les contributeurs peut être trouvée sur</translation>
     </message>
     <message>
         <source>Former main coders and maintainers</source>
-        <translation type="unfinished"></translation>
+        <translation>Anciens principaux programmeurs et mainteneurs</translation>
     </message>
 </context>
 <context>
@@ -358,7 +358,7 @@
     </message>
     <message>
         <source>Unable to load instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossible de charger l'instrument</translation>
     </message>
 </context>
 <context>
@@ -974,31 +974,31 @@ Utilisez &apos;Sauvegarder sous&apos; pour activer la sauvegarde automatique.</t
     </message>
     <message>
         <source>Delete notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Effacer les notes</translation>
     </message>
     <message>
         <source>Edit all patterns</source>
-        <translation type="unfinished"></translation>
+        <translation>Éditer tous les motifs</translation>
     </message>
     <message>
         <source>Cut notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Couper les notes</translation>
     </message>
     <message>
         <source>Copy notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Copier les notes</translation>
     </message>
     <message>
         <source>Paste notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Coller les notes</translation>
     </message>
     <message>
         <source>Instrument</source>
-        <translation type="unfinished">Instrument</translation>
+        <translation>Instrument</translation>
     </message>
     <message>
         <source>Delete all notes on %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Effacer toutes les notes sur %1</translation>
     </message>
 </context>
 <context>
@@ -1535,187 +1535,187 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Replace With &amp;New Song</source>
-        <translation type="unfinished"></translation>
+        <translation>Remplacer avec un &amp;nouveau morceau</translation>
     </message>
     <message>
         <source>Imp&amp;ort Into Session</source>
-        <translation type="unfinished"></translation>
+        <translation>Imp&amp;orter dans la session</translation>
     </message>
     <message>
         <source>Import &amp;Recent Into Session</source>
-        <translation type="unfinished"></translation>
+        <translation>Importer un &amp;récent depuis la session</translation>
     </message>
     <message>
         <source>Export From Session &amp;As...</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporter depuis l&amp;a session sous</translation>
     </message>
     <message>
         <source>Open &amp;Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>Ouvrir un fichier &amp;récent</translation>
     </message>
     <message>
         <source>Save &amp;As...</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder &amp;sous...</translation>
     </message>
     <message>
         <source>Show &amp;Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher les informations</translation>
     </message>
     <message>
         <source>E&amp;xport Pattern As...</source>
-        <translation type="unfinished"></translation>
+        <translation>E&amp;xporter le motif sous...</translation>
     </message>
     <message>
         <source>Export &amp;MIDI File</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporter en fichier &amp;MIDI</translation>
     </message>
     <message>
         <source>&amp;Export Song</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Exporter le morceau</translation>
     </message>
     <message>
         <source>Export &amp;LilyPond File</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporter en fichier &amp;LilyPond</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Rétablir</translation>
     </message>
     <message>
         <source>Undo &amp;History</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Historique d'annulation</translation>
     </message>
     <message>
         <source>&amp;Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Propriétés</translation>
     </message>
     <message>
         <source>Save &amp;As</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder &amp;sous</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Exporter</translation>
+        <translation>&amp;Exporter</translation>
     </message>
     <message>
         <source>&amp;Import</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Importer</translation>
     </message>
     <message>
         <source>On&amp;line Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Importation en &amp;ligne</translation>
     </message>
     <message>
         <source>In&amp;struments</source>
-        <translation type="unfinished"></translation>
+        <translation>In&amp;struments</translation>
     </message>
     <message>
         <source>Add &amp;Instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter un &amp;instrument</translation>
     </message>
     <message>
         <source>Clea&amp;r All</source>
-        <translation type="unfinished"></translation>
+        <translation>Nettoye&amp;r tout</translation>
     </message>
     <message>
         <source>Add &amp;Component</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter un &amp;composant</translation>
     </message>
     <message>
         <source>Play&amp;list Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Éditeur de &amp;liste de lecture</translation>
     </message>
     <message>
         <source>&amp;Director</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Directeur</translation>
     </message>
     <message>
         <source>&amp;Automation Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Chemin d'&amp;automation</translation>
     </message>
     <message>
         <source>&amp;Playback Track</source>
-        <translation type="unfinished"></translation>
+        <translation>Piste de playback</translation>
     </message>
     <message>
         <source>&amp;Full screen</source>
-        <translation type="unfinished"></translation>
+        <translation>P&amp;lein écran</translation>
     </message>
     <message>
         <source>Input &amp;Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode d'e&amp;ntrée</translation>
     </message>
     <message>
         <source>&amp;Instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Instrument</translation>
     </message>
     <message>
         <source>&amp;Drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Kit de batterie</translation>
     </message>
     <message>
         <source>Show &amp;Audio Engine Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher les informations du moteur &amp;audio</translation>
     </message>
     <message>
         <source>Show &amp;Filesystem Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher les informations du système de &amp;fichier</translation>
     </message>
     <message>
         <source>&amp;Log Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Niveau de journa&amp;lisation</translation>
     </message>
     <message>
         <source>&amp;None</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Aucun</translation>
     </message>
     <message>
         <source>&amp;Error</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Erreur</translation>
     </message>
     <message>
         <source>&amp;Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>A&amp;ttention</translation>
     </message>
     <message>
         <source>&amp;Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Débogage</translation>
     </message>
     <message>
         <source>&amp;Open Log File</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ouvrir un fichier de journalisation</translation>
     </message>
     <message>
         <source>&amp;Print Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Im&amp;primer les objets</translation>
     </message>
     <message>
         <source>I&amp;nfo</source>
-        <translation type="unfinished"></translation>
+        <translation>I&amp;nformations</translation>
     </message>
     <message>
         <source>User &amp;Manual</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Manuel utilisateur</translation>
     </message>
     <message>
         <source>&amp;Report Bug</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Rapporter un bogue</translation>
     </message>
     <message>
         <source>&amp;Donate</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Donner</translation>
     </message>
     <message>
         <source>Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say &apos;thank you&apos; to the involved persons.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hydrogen est un projet libre qui est développé par plusieurs personnes pendant leur temps libre. En faisant un don, vous pouvez dire &apos;merci&apos; aux personnes concernées.</translation>
     </message>
     <message>
         <source>&amp;Donate!</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Donner !</translation>
     </message>
     <message>
         <source>Playing.</source>
-        <translation type="unfinished">Lecture en cours.</translation>
+        <translation>>Lecture en cours.</translation>
     </message>
 </context>
 <context>
@@ -1815,7 +1815,7 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Mixer Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Paramètres du mixeur</translation>
     </message>
 </context>
 <context>
@@ -1842,85 +1842,85 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Instrument name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom de l'instrument</translation>
     </message>
 </context>
 <context>
     <name>MixerSettingsDialog</name>
     <message>
         <source>Mixer Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Paramètres du miexeur</translation>
     </message>
     <message>
         <source>------ Linear pan parameter ------</source>
-        <translation type="unfinished"></translation>
+        <translation>------ Paramètre de panoramique linéaire ------</translation>
     </message>
     <message>
         <source>Balance Law (0dB)</source>
-        <translation type="unfinished"></translation>
+        <translation>Loi d'équilibre (0dB)</translation>
     </message>
     <message>
         <source>Constant Power (-3dB)</source>
-        <translation type="unfinished"></translation>
+        <translation>Puissance constante (-3dB)</translation>
     </message>
     <message>
         <source>Constant Sum (-6dB)</source>
-        <translation type="unfinished"></translation>
+        <translation>Somme constante (-6dB)</translation>
     </message>
     <message>
         <source>Constant k-Norm (Custom dB compensation)</source>
-        <translation type="unfinished"></translation>
+        <translation>k-norme constante (compensation dB personnalisée)</translation>
     </message>
     <message>
         <source>------ Polar pan parameter ------</source>
-        <translation type="unfinished"></translation>
+        <translation>------ Paramètre de panoramique polaire ------</translation>
     </message>
     <message>
         <source>------ Ratio pan parameter ------</source>
-        <translation type="unfinished"></translation>
+        <translation>------ Paramètre de panoramique ratio ------</translation>
     </message>
     <message>
         <source>------ Quadratic pan parameter ------</source>
-        <translation type="unfinished"></translation>
+        <translation>------ Paramètre de panoramique quadratique ------</translation>
     </message>
     <message>
         <source>Relationship between the sound&apos;s apparent image position and the pan knob control</source>
-        <translation type="unfinished"></translation>
+        <translation>Relation entre la position apparente de l'image &apos;sonore et le contrôle du bouton de panoramique</translation>
     </message>
     <message>
         <source>dB Center Compensation rejected</source>
-        <translation type="unfinished"></translation>
+        <translation>Compensation centrale dB rejetée</translation>
     </message>
     <message>
         <source>dB Center Compensation must be less than -0.01</source>
-        <translation type="unfinished"></translation>
+        <translation>La compensation centrale dB doit être moins de -0,01</translation>
     </message>
 </context>
 <context>
     <name>MixerSettingsDialog_UI</name>
     <message>
         <source>Select Pan Law:</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionner la loi le panoramique</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Annuler</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+C</translation>
+        <translation>Alt+C</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished">Alt+O</translation>
+        <translation>Alt+O</translation>
     </message>
     <message>
         <source>dB SPL Center Compensation</source>
-        <translation type="unfinished"></translation>
+        <translation>Compensation centrale SPL dB</translation>
     </message>
 </context>
 <context>
@@ -1987,7 +1987,7 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Set note velocity [%1]</source>
-        <translation type="unfinished"></translation>
+        <translation>Paramétrer la vélocity de note [%1]</translation>
     </message>
 </context>
 <context>
@@ -2018,18 +2018,18 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Placing these notes here will overwrite %1 duplicate notes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Le fait de placer ces notes ici écrasera les notes en double de %1.</translation>
     </message>
     <message>
         <source>Don&apos;t show this message again</source>
-        <translation type="unfinished"></translation>
+        <translation>Ne plus afficher ce message</translation>
     </message>
 </context>
 <context>
     <name>PatternEditorInstrumentList</name>
     <message>
         <source>Unable to insert further instruments. Maximum possible number</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossible d'insérer d'autres instruments. Nombre possible maximum</translation>
     </message>
 </context>
 <context>
@@ -2040,11 +2040,11 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Hear new notes = On</source>
-        <translation>Entendre les notes ajoutées = Actif</translation>
+        <translation>Entendre les notes ajoutées = actif</translation>
     </message>
     <message>
         <source>Hear new notes = Off</source>
-        <translation>Entendre les notes ajoutées = Inactif</translation>
+        <translation>Entendre les notes ajoutées = inactif</translation>
     </message>
     <message>
         <source>Pattern editor - %1</source>
@@ -2471,7 +2471,7 @@ Maximum = 16/4</translation>
     </message>
     <message>
         <source>JACK timebase support is disabled in the Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>La prise en charge de JACK timebase est désactivée dans les préférences</translation>
     </message>
 </context>
 <context>
@@ -3167,194 +3167,194 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Reopen last used &amp;song</source>
-        <translation type="unfinished"></translation>
+        <translation>Réouvrir le dernier morceau utili&amp;sé</translation>
     </message>
     <message>
         <source>Reopen last used &amp;playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Réouvrir la dernière liste de lecture utili&amp;sée</translation>
     </message>
     <message>
         <source>Use &amp;relative paths for playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Utilise des chemins &amp;relatifs pour la liste de lecture</translation>
     </message>
     <message>
         <source>&amp;Hide keyboard input cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Cac&amp;her le curseur d'entrée du clavier</translation>
     </message>
     <message>
         <source>Use &amp;LASH</source>
-        <translation type="unfinished"></translation>
+        <translation>Utiliser &amp;LASH</translation>
     </message>
     <message>
         <source>Audio System</source>
-        <translation type="unfinished"></translation>
+        <translation>Système audio</translation>
     </message>
     <message>
         <source>Connect to &amp;default JACK output ports</source>
-        <translation type="unfinished"></translation>
+        <translation>Connecter aux ports de sorties JACK par &amp;défaut</translation>
     </message>
     <message>
         <source>Create &amp;per-instrument JACK output ports</source>
-        <translation type="unfinished"></translation>
+        <translation>Créer des ports de sortie JACK &amp;par-instrument</translation>
     </message>
     <message>
         <source>Enable JACK &amp;timebase master support</source>
-        <translation type="unfinished"></translation>
+        <translation>Activer le support maître de JACK &amp;timebase</translation>
     </message>
     <message>
         <source>Apply and restart output</source>
-        <translation type="unfinished"></translation>
+        <translation>Appliquer et redémarrer la sortie</translation>
     </message>
     <message>
         <source>&amp;Ignore note-off</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ignorer les note-off</translation>
     </message>
     <message>
         <source>&amp;Enable MIDI feedback</source>
-        <translation type="unfinished"></translation>
+        <translation>Activ&amp;er le retour MIDI</translation>
     </message>
     <message>
         <source>&amp;Discard MIDI messages after action has been triggered</source>
-        <translation type="unfinished"></translation>
+        <translation>Rejeter les messages MIDI après le &amp;déclenchement d'une action</translation>
     </message>
     <message>
         <source>&amp;Use output note as input note</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Utiliser la note de sortie comme une note d'entrée</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>Add Pattern ( %1, %2 )</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter un motif ( %1, %2 )</translation>
     </message>
     <message>
         <source>Delete Pattern ( %1, %2 )</source>
-        <translation type="unfinished"></translation>
+        <translation>Effacer un motif ( %1, %2 )</translation>
     </message>
     <message>
         <source>Move pattern list item ( %1, %2 )</source>
-        <translation type="unfinished"></translation>
+        <translation>Déplacer un élémentde la liste de motif ( %1, %2 )</translation>
     </message>
     <message>
         <source>Delete complete pattern-sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Effacer tout le motif-séquence</translation>
     </message>
     <message>
         <source>Delete pattern from list</source>
-        <translation type="unfinished"></translation>
+        <translation>Effacer le motif de la liste</translation>
     </message>
     <message>
         <source>Modify pattern properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifier les propriétés du motif</translation>
     </message>
     <message>
         <source>Duplicate pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Dupliquer le motif</translation>
     </message>
     <message>
         <source>Add pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter un motif</translation>
     </message>
     <message>
         <source>Load/drag pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Charger/traîner un motif</translation>
     </message>
     <message>
         <source>Fill/remove range of pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Remplir/retirer une série de motif</translation>
     </message>
     <message>
         <source>Edit timeline tempo</source>
-        <translation type="unfinished"></translation>
+        <translation>Éditer le tempo de la ligne temporelle</translation>
     </message>
     <message>
         <source>Delete timeline tempo</source>
-        <translation type="unfinished"></translation>
+        <translation>Effacer le tempo de la ligne temporelle</translation>
     </message>
     <message>
         <source>Edit timeline tag</source>
-        <translation type="unfinished"></translation>
+        <translation>Éditer l'étiquette de la ligne temporelle</translation>
     </message>
     <message>
         <source>Delete note ( %1, %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Effacer une note ( %1, %2)</translation>
     </message>
     <message>
         <source>Add note ( %1, %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter une note ( %1, %2)</translation>
     </message>
     <message>
         <source>Overwrite %1 notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Écraser les notes %1</translation>
     </message>
     <message>
         <source>Add NOTE_OFF note ( %1, %2 )</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter une note NOTE_OFF ( %1, %2 )</translation>
     </message>
     <message>
         <source>Change note length</source>
-        <translation type="unfinished"></translation>
+        <translation>Changer la longueur de la note</translation>
     </message>
     <message>
         <source>Clear notes</source>
-        <translation type="unfinished">Effacer les notes</translation>
+        <translation>Effacer les notes</translation>
     </message>
     <message>
         <source>Paste instrument notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Coller les notes de l'instrument</translation>
     </message>
     <message>
         <source>Fill notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Remplir de notes</translation>
     </message>
     <message>
         <source>Random velocity</source>
-        <translation type="unfinished"></translation>
+        <translation>Vélocité aléatoire</translation>
     </message>
     <message>
         <source>Move instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Déplacer l'instrument</translation>
     </message>
     <message>
         <source>Drop instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Déposer l'instrument</translation>
     </message>
     <message>
         <source>Delete instrument </source>
-        <translation type="unfinished"></translation>
+        <translation>Effacer l'instrument </translation>
     </message>
     <message>
         <source>Add piano roll note ( %1, %2 )</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter une note de piano roll ( %1, %2 )</translation>
     </message>
     <message>
         <source>Add  piano roll NOTE_OFF note ( %1, %2 )</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter une note NOTE_OFF de piano roll( %1, %2 )</translation>
     </message>
     <message>
         <source>Change piano roll note length </source>
-        <translation type="unfinished"></translation>
+        <translation>Modifier la longueur d'une note de piano roll</translation>
     </message>
     <message>
         <source>Change note properties piano roll</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifier les propriétés de note de piano roll</translation>
     </message>
     <message>
         <source>Edit note property %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Éditer la propriété %1 de note</translation>
     </message>
     <message>
         <source>Add point</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter un point</translation>
     </message>
     <message>
         <source>Remove point</source>
-        <translation type="unfinished"></translation>
+        <translation>Retirer un point</translation>
     </message>
     <message>
         <source>Move point</source>
-        <translation type="unfinished"></translation>
+        <translation>Déplacer un point</translation>
     </message>
 </context>
 <context>
@@ -4036,7 +4036,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Duplicate</source>
-        <translation type="unfinished"></translation>
+        <translation>Dupliquer</translation>
     </message>
 </context>
 <context>
@@ -4105,7 +4105,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Couldn&apos;t create archive</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossible de créer une archive</translation>
     </message>
 </context>
 <context>
@@ -4381,15 +4381,17 @@ Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
         <source>Drumkit registered in the current song can not be found on disk.
 Please load an existing drumkit first.
 Current kit:</source>
-        <translation type="unfinished"></translation>
+        <translation>Le kit de batterie inscrit dans le morceau actuel ne se trouve pas sur le disque.
+Veuillez d'abord charger un kit de batterie existant.
+Kit actuel :</translation>
     </message>
     <message>
         <source>is a system drumkit and can&apos;t be deleted.</source>
-        <translation type="unfinished"></translation>
+        <translation>est un kit de batterie système et ne peut pas être supprimé.</translation>
     </message>
     <message>
         <source>Not implemented yet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pas encore mis en œuvre.</translation>
     </message>
 </context>
 <context>
