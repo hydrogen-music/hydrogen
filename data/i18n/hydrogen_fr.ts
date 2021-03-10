@@ -1849,7 +1849,7 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <name>MixerSettingsDialog</name>
     <message>
         <source>Mixer Settings</source>
-        <translation>Paramètres du miexeur</translation>
+        <translation>Paramètres du mixeur</translation>
     </message>
     <message>
         <source>------ Linear pan parameter ------</source>
