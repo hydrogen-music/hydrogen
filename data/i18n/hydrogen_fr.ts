@@ -1683,7 +1683,7 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>&amp;Open Log File</source>
-        <translation>&amp;Ouvrir un fichier de journalisation</translation>
+        <translation>&amp;Ouvrir le fichier de journalisation</translation>
     </message>
     <message>
         <source>&amp;Print Objects</source>
