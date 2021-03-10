@@ -358,7 +358,7 @@
     </message>
     <message>
         <source>Unable to load instrument</source>
-        <translation>Impossible de charger l'instrument</translation>
+        <translation>Impossible de charger l&apos;instrument</translation>
     </message>
 </context>
 <context>
@@ -843,7 +843,7 @@ Utilisez &apos;Sauvegarder sous&apos; pour activer la sauvegarde automatique.</t
     </message>
     <message>
         <source>New instrument name</source>
-        <translation>Nom du nouvel instrument</translation>
+        <translation>Nouveau nom de l&apos;instrument</translation>
     </message>
     <message>
         <source>General</source>
@@ -1583,7 +1583,7 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Undo &amp;History</source>
-        <translation>&amp;Historique d'annulation</translation>
+        <translation>&amp;Historique d&apos;annulation</translation>
     </message>
     <message>
         <source>&amp;Properties</source>
@@ -1631,7 +1631,7 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>&amp;Automation Path</source>
-        <translation>Chemin d'&amp;automation</translation>
+        <translation>Chemin d&apos;&amp;automation</translation>
     </message>
     <message>
         <source>&amp;Playback Track</source>
@@ -1643,7 +1643,7 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Input &amp;Mode</source>
-        <translation>Mode d'e&amp;ntrée</translation>
+        <translation>Mode d&apos;e&amp;ntrée</translation>
     </message>
     <message>
         <source>&amp;Instrument</source>
@@ -1842,7 +1842,7 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Instrument name</source>
-        <translation>Nom de l'instrument</translation>
+        <translation>Nom de l&apos;instrument</translation>
     </message>
 </context>
 <context>
@@ -1857,7 +1857,7 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Balance Law (0dB)</source>
-        <translation>Loi d'équilibre (0dB)</translation>
+        <translation>Loi d&apos;équilibre (0dB)</translation>
     </message>
     <message>
         <source>Constant Power (-3dB)</source>
@@ -1885,7 +1885,7 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Relationship between the sound&apos;s apparent image position and the pan knob control</source>
-        <translation>Relation entre la position apparente de l'image &apos;sonore et le contrôle du bouton de panoramique</translation>
+        <translation>Relation entre la position apparente de l&apos;image &apos;sonore et le contrôle du bouton de panoramique</translation>
     </message>
     <message>
         <source>dB Center Compensation rejected</source>
@@ -2029,7 +2029,7 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     <name>PatternEditorInstrumentList</name>
     <message>
         <source>Unable to insert further instruments. Maximum possible number</source>
-        <translation>Impossible d'insérer d'autres instruments. Nombre possible maximum</translation>
+        <translation>Impossible d&apos;insérer d&apos;autres instruments. Nombre possible maximum</translation>
     </message>
 </context>
 <context>
@@ -3179,7 +3179,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>&amp;Hide keyboard input cursor</source>
-        <translation>Cac&amp;her le curseur d'entrée du clavier</translation>
+        <translation>Cac&amp;her le curseur d&apos;entrée du clavier</translation>
     </message>
     <message>
         <source>Use &amp;LASH</source>
@@ -3215,11 +3215,11 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>&amp;Discard MIDI messages after action has been triggered</source>
-        <translation>Rejeter les messages MIDI après le &amp;déclenchement d'une action</translation>
+        <translation>Rejeter les messages MIDI après le &amp;déclenchement d&apos;une action</translation>
     </message>
     <message>
         <source>&amp;Use output note as input note</source>
-        <translation>&amp;Utiliser la note de sortie comme une note d'entrée</translation>
+        <translation>&amp;Utiliser la note de sortie comme une note d&apos;entrée</translation>
     </message>
 </context>
 <context>
@@ -3274,7 +3274,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Edit timeline tag</source>
-        <translation>Éditer l'étiquette de la ligne temporelle</translation>
+        <translation>Éditer l&apos;étiquette de la ligne temporelle</translation>
     </message>
     <message>
         <source>Delete note ( %1, %2)</source>
@@ -3302,7 +3302,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Paste instrument notes</source>
-        <translation>Coller les notes de l'instrument</translation>
+        <translation>Coller les notes de l&apos;instrument</translation>
     </message>
     <message>
         <source>Fill notes</source>
@@ -3314,15 +3314,15 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Move instrument</source>
-        <translation>Déplacer l'instrument</translation>
+        <translation>Déplacer l&apos;instrument</translation>
     </message>
     <message>
         <source>Drop instrument</source>
-        <translation>Déposer l'instrument</translation>
+        <translation>Déposer l&apos;instrument</translation>
     </message>
     <message>
         <source>Delete instrument </source>
-        <translation>Effacer l'instrument </translation>
+        <translation>Effacer l&apos;instrument </translation>
     </message>
     <message>
         <source>Add piano roll note ( %1, %2 )</source>
@@ -3334,7 +3334,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Change piano roll note length </source>
-        <translation>Modifier la longueur d'une note de piano roll</translation>
+        <translation>Modifier la longueur d&apos;une note de piano roll</translation>
     </message>
     <message>
         <source>Change note properties piano roll</source>
@@ -4382,7 +4382,7 @@ Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
 Please load an existing drumkit first.
 Current kit:</source>
         <translation>Le kit de batterie inscrit dans le morceau actuel ne se trouve pas sur le disque.
-Veuillez d'abord charger un kit de batterie existant.
+Veuillez d&apos;abord charger un kit de batterie existant.
 Kit actuel :</translation>
     </message>
     <message>
