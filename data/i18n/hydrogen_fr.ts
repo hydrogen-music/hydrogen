@@ -3035,7 +3035,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Maximum number of bars</source>
-        <translation>Nombre de barres maximum</translation>
+        <translation>Nombre maximum de mesures</translation>
     </message>
     <message>
         <source>Interpolate resampling</source>
@@ -3139,7 +3139,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>matching bars</source>
-        <translation>barres de correspondance</translation>
+        <translation>mesures de correspondance</translation>
     </message>
     <message>
         <source>High-resolution display scaling</source>
@@ -3921,7 +3921,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Bar</source>
-        <translation>Barre</translation>
+        <translation>Mesure</translation>
     </message>
     <message>
         <source>BPM</source>
