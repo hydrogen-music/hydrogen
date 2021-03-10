@@ -9,19 +9,19 @@
     </message>
     <message>
         <source>Website</source>
-        <translation>Site ouèbe</translation>
+        <translation>Site ouèbe (en anglais)</translation>
     </message>
     <message>
         <source>Project page</source>
-        <translation>Page de projet</translation>
+        <translation>Page de projet (en anglais)</translation>
     </message>
     <message>
         <source>Forum</source>
-        <translation>Forum</translation>
+        <translation>Forum (en anglais)</translation>
     </message>
     <message>
         <source>Development mailing list</source>
-        <translation>Liste de développement</translation>
+        <translation>Liste de développement (en anglais)</translation>
     </message>
     <message>
         <source>Main coders and maintainers</source>
