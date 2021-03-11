@@ -3136,6 +3136,7 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	
 	//needed for the new delete function
 	int instrumentDiff =  pSongInstrList->size() - pDrumkitInstrList->size();
+	int nMaxID = -1;
 	
 	for ( unsigned nInstr = 0; nInstr < pDrumkitInstrList->size(); ++nInstr ) {
 		Instrument *pInstr = nullptr;
@@ -3159,8 +3160,17 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 				 .arg( pDrumkitInstrList->size() )
 				 .arg( pNewInstr->get_name() ) );
 
+		// Preserve instrument IDs. Where the new drumkit has more instruments than the song does, new
+		// instruments need new ids.
+		int nID = pInstr->get_id();
+		if ( nID == EMPTY_INSTR_ID ) {
+			nID = nMaxID + 1;
+		}
+		nMaxID = std::max( nID, nMaxID );
+
 		// Moved code from here right into the Instrument class - Jakob Lund.
 		pInstr->load_from( pDrumkitInfo, pNewInstr );
+		pInstr->set_id( nID );
 	}
 
 	//wolke: new delete function
