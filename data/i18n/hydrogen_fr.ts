@@ -3636,7 +3636,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Sample length to beat:</source>
-        <translation type="unfinished"></translation>
+        <translation>Longueur de l&apos;échantillon par rapport au temps :</translation>
     </message>
     <message>
         <source>Pitch the sample in semitones, cents</source>
