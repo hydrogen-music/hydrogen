@@ -546,12 +546,18 @@ void PreferencesDialog::on_okBtn_clicked()
 	}
 
 	QString sNewMidiPortName = midiPortComboBox->currentText();
+	if ( midiPortComboBox->currentIndex() == 0 ) {
+		sNewMidiPortName = "None";
+	}
 	if ( pPref->m_sMidiPortName != sNewMidiPortName ) {
 		pPref->m_sMidiPortName = sNewMidiPortName;
 		m_bNeedDriverRestart = true;
 	}
 	
 	QString sNewMidiOutputPortName = midiOutportComboBox->currentText();
+	if ( midiOutportComboBox->currentIndex() == 0 ) {
+		sNewMidiOutputPortName = "None";
+	}
 	if ( pPref->m_sMidiOutputPortName != sNewMidiOutputPortName ) {
 		pPref->m_sMidiOutputPortName = sNewMidiOutputPortName;
 		m_bNeedDriverRestart = true;
