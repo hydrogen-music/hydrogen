@@ -1715,7 +1715,7 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Playing.</source>
-        <translation>>Lecture en cours.</translation>
+        <translation>Lecture en cours.</translation>
     </message>
 </context>
 <context>
