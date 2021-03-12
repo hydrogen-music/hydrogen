@@ -531,18 +531,18 @@ void PreferencesDialog::on_okBtn_clicked()
 	pPref->m_bEnableMidiFeedback = m_pEnableMidiFeedbackCheckBox->isChecked();
 			
 	// Mixer falloff
-	QString falloffStr = mixerFalloffComboBox->currentText();
-	if ( falloffStr== tr("Slow") ) {
+	switch ( mixerFalloffComboBox->currentIndex() ) {
+	case 0:
 		pPref->setMixerFalloffSpeed(FALLOFF_SLOW);
-	}
-	else if ( falloffStr == tr("Normal") ) {
+		break;
+	case 1:
 		pPref->setMixerFalloffSpeed(FALLOFF_NORMAL);
-	}
-	else if ( falloffStr == tr("Fast") ) {
+		break;
+	case 2:
 		pPref->setMixerFalloffSpeed(FALLOFF_FAST);
-	}
-	else {
-		ERRORLOG( "[okBtnClicked] Unknown mixerFallOffSpeed: " + falloffStr );
+		break;
+	default:
+		ERRORLOG( "[okBtnClicked] Unknown mixerFallOffSpeed: " + mixerFalloffComboBox->currentText() );
 	}
 
 	QString sNewMidiPortName = midiPortComboBox->currentText();
