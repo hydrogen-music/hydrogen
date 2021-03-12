@@ -57,32 +57,17 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 		imageLicenseText->setText( QString ( pDrumkitInfo->get_image_license() ) );
 		// Licence with attribution is often too long...
 		imageLicenseText->setToolTip( QString( pDrumkitInfo->get_image_license() ) );
-
-		QPixmap *pPixmap = new QPixmap (pDrumkitInfo->get_path() + "/" + pDrumkitInfo->get_image());
-		// scale the image down to fit if required
-		int x = (int) drumkitImageLabel->size().width();
-		int y = drumkitImageLabel->size().height();
-		float labelAspect = (float) x / y;
-		float imageAspect = (float) pPixmap->width() / pPixmap->height();
-
-		if ( ( x < pPixmap->width() ) || ( y < pPixmap->height() ) )
-		{
-			if ( labelAspect >= imageAspect )
-			{
-				// image is taller or the same as label frame
-				*pPixmap = pPixmap->scaledToHeight( y );
-			}
-			else
-			{
-				// image is wider than label frame
-				*pPixmap = pPixmap->scaledToWidth( x );
-			}
-		}
-		drumkitImageLabel->setPixmap(*pPixmap);
-		drumkitImageLabel->show();
-
 	}
 
+}
+
+/// On showing the dialog (after layout sizes have been applied), load the drumkit image if any.
+void SoundLibraryPropertiesDialog::showEvent( QShowEvent *e )
+{
+	if ( m_pDrumkitInfo != nullptr ) {
+		QString sImage = m_pDrumkitInfo->get_path() + "/" + m_pDrumkitInfo->get_image();
+		updateImage( sImage );
+	}
 }
 
 

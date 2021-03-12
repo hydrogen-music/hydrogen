@@ -40,6 +40,7 @@ class SoundLibraryPropertiesDialog : public QDialog, public Ui_SoundLibraryPrope
 	public:
 		SoundLibraryPropertiesDialog(QWidget* pParent , Drumkit *pDrumkitInfo, Drumkit *pPreDrumKit );
 		~SoundLibraryPropertiesDialog();
+		void showEvent( QShowEvent *e ) override;
 
 	private slots:
 		void on_saveBtn_clicked();
