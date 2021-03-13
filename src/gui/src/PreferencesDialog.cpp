@@ -531,27 +531,33 @@ void PreferencesDialog::on_okBtn_clicked()
 	pPref->m_bEnableMidiFeedback = m_pEnableMidiFeedbackCheckBox->isChecked();
 			
 	// Mixer falloff
-	QString falloffStr = mixerFalloffComboBox->currentText();
-	if ( falloffStr== tr("Slow") ) {
+	switch ( mixerFalloffComboBox->currentIndex() ) {
+	case 0:
 		pPref->setMixerFalloffSpeed(FALLOFF_SLOW);
-	}
-	else if ( falloffStr == tr("Normal") ) {
+		break;
+	case 1:
 		pPref->setMixerFalloffSpeed(FALLOFF_NORMAL);
-	}
-	else if ( falloffStr == tr("Fast") ) {
+		break;
+	case 2:
 		pPref->setMixerFalloffSpeed(FALLOFF_FAST);
-	}
-	else {
-		ERRORLOG( "[okBtnClicked] Unknown mixerFallOffSpeed: " + falloffStr );
+		break;
+	default:
+		ERRORLOG( "[okBtnClicked] Unknown mixerFallOffSpeed: " + mixerFalloffComboBox->currentText() );
 	}
 
 	QString sNewMidiPortName = midiPortComboBox->currentText();
+	if ( midiPortComboBox->currentIndex() == 0 ) {
+		sNewMidiPortName = "None";
+	}
 	if ( pPref->m_sMidiPortName != sNewMidiPortName ) {
 		pPref->m_sMidiPortName = sNewMidiPortName;
 		m_bNeedDriverRestart = true;
 	}
 	
 	QString sNewMidiOutputPortName = midiOutportComboBox->currentText();
+	if ( midiOutportComboBox->currentIndex() == 0 ) {
+		sNewMidiOutputPortName = "None";
+	}
 	if ( pPref->m_sMidiOutputPortName != sNewMidiOutputPortName ) {
 		pPref->m_sMidiOutputPortName = sNewMidiOutputPortName;
 		m_bNeedDriverRestart = true;
