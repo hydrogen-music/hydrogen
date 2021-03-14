@@ -98,7 +98,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	sAuthors += "<li><p>Michael Wolkstein (aka Wolke) [2008-2014]</li></ul></br>";
 
 	authorsText->setText( sAuthors );
-	// authorsText->setOpenExternalLinks( true );
+	authorsText->setOpenExternalLinks( true );
 
 	logoLabel->setPixmap( QPixmap( Skin::getImagePath() +"/about/aboutLogo.png" ) );
 }
