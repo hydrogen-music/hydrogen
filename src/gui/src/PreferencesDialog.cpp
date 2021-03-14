@@ -336,7 +336,10 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	connect(enableOscCheckbox, SIGNAL(toggled(bool)), this, SLOT(toggleOscCheckBox( bool )));
 	
 	incomingOscPortSpinBox->setValue( pPref->getOscServerPort() );
-	oscWidget->setEnabled( pPref->getOscServerEnabled() );
+	if ( ! pPref->getOscServerEnabled() ) {
+		enableOscFeedbackCheckbox->setEnabled( false );
+		incomingOscPortSpinBox->setEnabled( false );
+	}
 
 	if ( pPref->m_nOscTemporaryPort != -1 ) {
 		oscTemporaryPortLabel->show();
@@ -1063,5 +1066,11 @@ void PreferencesDialog::toggleTrackOutsCheckBox(bool toggled)
 
 void PreferencesDialog::toggleOscCheckBox(bool toggled)
 {
-	oscWidget->setEnabled( toggled );
+	if ( toggled ) {
+		enableOscFeedbackCheckbox->setEnabled( true );
+		incomingOscPortSpinBox->setEnabled( true );
+	} else {
+		enableOscFeedbackCheckbox->setEnabled( false );
+		incomingOscPortSpinBox->setEnabled( false );
+	}
 }
