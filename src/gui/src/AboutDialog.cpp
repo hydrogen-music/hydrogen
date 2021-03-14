@@ -58,7 +58,8 @@ AboutDialog::AboutDialog(QWidget* parent)
 
 	std::vector<Author> translatorList;
 	translatorList.push_back( Author( "Olivier Humbert", "trebmuh@tuxfamily.org", "French translation" ) );
-
+	translatorList.push_back( Author( "Daryl Hanlon", "darylo1@hotmail.com", "Spanish translation" ) );
+	translatorList.push_back( Author( "Guocheng Zhu", "aaronbcn@outlook.es", "Chinese (Mainland China) translation" ) );
 	QString sAuthors;
 	sAuthors += "<b>" + tr( "Main coders and maintainers" ) + ":</b>";
 	sAuthors += "<ul><li><p>Sebastian Moors (aka Mauser) [2008-now]</li>";
