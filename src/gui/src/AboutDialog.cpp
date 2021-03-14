@@ -63,8 +63,8 @@ AboutDialog::AboutDialog(QWidget* parent)
 	QString sAuthors;
 	sAuthors += "<b>" + tr( "Main coders and maintainers" ) + ":</b>";
 	sAuthors += "<ul><li><p>Sebastian Moors (aka Mauser) [2008-now]</li>";
-	sAuthors += "<li><p>Colin McEwan (aka cme)</p></li>";
-	sAuthors += "<li><p>Philipp Müller (aka theGreatWhiteShark)</p></li></ul></br>";
+	sAuthors += "<li><p>Colin McEwan (aka cme) [2020-now]</p></li>";
+	sAuthors += "<li><p>Philipp Müller (aka theGreatWhiteShark) [2020-now]</p></li></ul></br>";
 
 	sAuthors += "<b>" + tr( "Active translators" ) + ":</b>";
 	sAuthors += "<ul>";
