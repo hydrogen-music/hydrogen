@@ -991,7 +991,15 @@ bool OscServer::start() {
 	}
 
 	m_pServerThread->start();
-	INFOLOG(QString("Osc server started. Listening on port %1").arg( m_pPreferences->getOscServerPort() ));
+
+	int nOscPortUsed;
+	if ( m_pPreferences->m_nOscTemporaryPort != -1 ) {
+		nOscPortUsed = m_pPreferences->m_nOscTemporaryPort;
+	} else {
+		nOscPortUsed = m_pPreferences->getOscServerPort();
+	}
+	
+	INFOLOG(QString("Osc server started. Listening on port %1").arg( nOscPortUsed ));
 
 	return true;
 }
