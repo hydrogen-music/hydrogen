@@ -58,6 +58,8 @@
 
 #include <signal.h>
 #include <iostream>
+#include <map>
+#include <set>
 
 //
 // Set the palette used in the application
@@ -189,6 +191,61 @@ public:
 };
 
 
+class ScreenShot : public QObject {
+private:
+	QApplication *m_pQApp;
+	QObject *m_pTopLevel;
+	std::map< QString, int > m_counts;
+	std::set< QString > m_names;
+public slots:
+	void doScreenShots(void) {
+		takeScreenShot( m_pTopLevel );
+		// , m_sName.toLocal8Bit().data() 
+		m_pQApp->processEvents();
+		QTimer::singleShot( 1, m_pQApp, &QApplication::closeAllWindows );
+	}
+public:
+	ScreenShot( QApplication *pQApp, QObject *pTopLevel, QString sName ) {
+		m_pQApp = pQApp;
+		m_pTopLevel = pTopLevel;
+		m_pQApp->processEvents();
+
+		for ( QString s : sName.split(" ") ) {
+			m_names.insert(s);
+		}
+
+		// Go ahead and do the screenshots.
+		doScreenShots();
+	}
+	void takeScreenShot( QObject *pObject )
+	{
+		QWidget *pWidget = dynamic_cast< QWidget * >( pObject );
+		if ( pWidget ) {
+			QString sWidgetName = pWidget->objectName();
+			for ( QString sName : m_names ) {
+				if ( pWidget->inherits( sName.toLocal8Bit().data() )
+					 || sWidgetName != "" && sWidgetName == sName ) {
+					int nCount;
+					QString sFileName;
+					if ( m_counts.find( sName ) != m_counts.end() ) {
+						nCount = m_counts[ sName ];
+						sFileName = QString( "%1-%2.png" ).arg( sName ).arg( nCount );
+					} else {
+						nCount = 1;
+						sFileName = QString( "%1.png" ).arg( sName );
+					}
+					pWidget->grab().save( sFileName );
+					m_counts[ sName ] = nCount + 1;
+				}
+			}
+		}
+		for ( QObject *pC : pObject->children() ) {
+			takeScreenShot( pC );
+		}
+	}
+};
+
+
 int main(int argc, char *argv[])
 {
 	try {
@@ -215,6 +272,7 @@ int main(int argc, char *argv[])
 		QCommandLineOption songFileOption( QStringList() << "s" << "song", "Load a song (*.h2song) at startup", "File" );
 		QCommandLineOption kitOption( QStringList() << "k" << "kit", "Load a drumkit at startup", "DrumkitName" );
 		QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH","Level");
+		QCommandLineOption screenShot( QStringList() << "t" << "screenshot", "Screenshot widget", "WidgetName" );
 		
 		parser.addHelpOption();
 		parser.addVersionOption();
@@ -226,6 +284,7 @@ int main(int argc, char *argv[])
 		parser.addOption( songFileOption );
 		parser.addOption( kitOption );
 		parser.addOption( verboseOption );
+		parser.addOption( screenShot );
 		parser.addPositionalArgument( "file", "Song, playlist or Drumkit file" );
 		
 		//Conditional options
@@ -244,6 +303,7 @@ int main(int argc, char *argv[])
 		QString sSongFilename = parser.value ( songFileOption );
 		QString sDrumkitToLoad = parser.value( kitOption );
 		QString sVerbosityString = parser.value( verboseOption );
+		QString sScreenShot = parser.value( screenShot );
 		
 		unsigned logLevelOpt = H2Core::Logger::Error;
 		if( parser.isSet(verboseOption) ){
@@ -525,6 +585,10 @@ int main(int argc, char *argv[])
 			NsmClient::get_instance()->sendDirtyState( false );
 		}
 #endif
+
+		if ( sScreenShot != QString() ) {
+			new ScreenShot( pQApp, pMainForm,  sScreenShot );
+		}
 
 		pQApp->exec();
 
