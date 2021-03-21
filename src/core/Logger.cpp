@@ -27,6 +27,10 @@
 #include <QtCore/QDir>
 #include <QtCore/QString>
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 namespace H2Core {
 
 unsigned Logger::__bit_msk = 0;
