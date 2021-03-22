@@ -141,11 +141,11 @@ inline QDebug operator<<( QDebug d, std::shared_ptr<Object> o ) {
 	private: static const char* __class_name;                           \
 
 // LOG MACROS
-#define __LOG_METHOD(   lvl, msg )  if( __logger->should_log( (lvl) ) )                 { __logger->log( (lvl), class_name(), __FUNCTION__, msg ); }
-#define __LOG_CLASS(    lvl, msg )  if( logger()->should_log( (lvl) ) )                 { logger()->log( (lvl), class_name(), __FUNCTION__, msg ); }
-#define __LOG_OBJ(      lvl, msg )  if( __object->logger()->should_log( (lvl) ) )       { __object->logger()->log( (lvl), 0, __PRETTY_FUNCTION__, msg ); }
-#define __LOG_STATIC(   lvl, msg )  if( H2Core::Logger::get_instance()->should_log( (lvl) ) )   { H2Core::Logger::get_instance()->log( (lvl), 0, __PRETTY_FUNCTION__, msg ); }
-#define __LOG( logger,  lvl, msg )  if( (logger)->should_log( (lvl) ) )                 { (logger)->log( (lvl), 0, 0, msg ); }
+#define __LOG_METHOD(   lvl, msg )  if( __logger->should_log( (lvl) ) )                 { __logger->log( (lvl), class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
+#define __LOG_CLASS(    lvl, msg )  if( logger()->should_log( (lvl) ) )                 { logger()->log( (lvl), class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
+#define __LOG_OBJ(      lvl, msg )  if( __object->logger()->should_log( (lvl) ) )       { __object->logger()->log( (lvl), 0, __PRETTY_FUNCTION__, QString( "%1" ).arg( msg ) ); }
+#define __LOG_STATIC(   lvl, msg )  if( H2Core::Logger::get_instance()->should_log( (lvl) ) )   { H2Core::Logger::get_instance()->log( (lvl), 0, __PRETTY_FUNCTION__, QString( "%1" ).arg( msg ) ); }
+#define __LOG( logger,  lvl, msg )  if( (logger)->should_log( (lvl) ) )                 { (logger)->log( (lvl), 0, 0, QString( "%1" ).arg( msg ) ); }
 
 // Object instance method logging macros
 #define DEBUGLOG(x)     __LOG_METHOD( H2Core::Logger::Debug,   (x) );
