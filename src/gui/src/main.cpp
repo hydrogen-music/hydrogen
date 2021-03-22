@@ -191,58 +191,108 @@ public:
 };
 
 
-class ScreenShot : public QObject {
-private:
-	QApplication *m_pQApp;
-	QObject *m_pTopLevel;
-	std::map< QString, int > m_counts;
-	std::set< QString > m_names;
-public slots:
-	void doScreenShots(void) {
-		takeScreenShot( m_pTopLevel );
-		// , m_sName.toLocal8Bit().data() 
-		m_pQApp->processEvents();
-		QTimer::singleShot( 1, m_pQApp, &QApplication::closeAllWindows );
-	}
-public:
-	ScreenShot( QApplication *pQApp, QObject *pTopLevel, QString sName ) {
-		m_pQApp = pQApp;
-		m_pTopLevel = pTopLevel;
-		m_pQApp->processEvents();
+/// Shot List
+///
+/// Utility for grabbing screenshots of widgets. Not a script, just a shot list.
+///
+/// Entries are a space-separated list of the form:
+///
+///  WidgetName      -- grab widget named "WidgetName"
+///  WidgetClass     -- grab widget of any class inheriting from "WidgetClass"
+///  WidgetName.slot -- invoke a slot method on widget
+///  "fin"           -- quit Hydrogen
+///  "dump"          -- dump object tree
+///
+class ShotList : public QObject {
 
-		for ( QString s : sName.split(" ") ) {
-			m_names.insert(s);
+	QWidget *findWidgetInheriting( QObject *pObject, QString &sName ) {
+		if ( pObject->inherits( sName.toLocal8Bit().data() ) ) {
+			return dynamic_cast< QWidget *>( pObject );
 		}
-
-		// Go ahead and do the screenshots.
-		doScreenShots();
+		for ( QObject *pC : pObject->children() ) {
+			QWidget *pW = findWidgetInheriting( pC, sName );
+			if ( pW ) {
+				return pW;
+			}
+		}
+		return nullptr;
 	}
-	void takeScreenShot( QObject *pObject )
-	{
-		QWidget *pWidget = dynamic_cast< QWidget * >( pObject );
-		if ( pWidget ) {
-			QString sWidgetName = pWidget->objectName();
-			for ( QString sName : m_names ) {
-				if ( pWidget->inherits( sName.toLocal8Bit().data() )
-					 || sWidgetName != "" && sWidgetName == sName ) {
-					int nCount;
-					QString sFileName;
-					if ( m_counts.find( sName ) != m_counts.end() ) {
-						nCount = m_counts[ sName ];
-						sFileName = QString( "%1-%2.png" ).arg( sName ).arg( nCount );
-					} else {
-						nCount = 1;
-						sFileName = QString( "%1.png" ).arg( sName );
-					}
+
+	QWidget *findWidget( QObject *pTop, QString &sName ) {
+		QWidget *pWidget = pTop->findChild< QWidget *>( sName );
+		if ( !pWidget && pTop->objectName() == sName ) {
+			pWidget = dynamic_cast< QWidget *>( pTop );
+		}
+		if ( !pWidget ) {
+			pWidget = findWidgetInheriting( pTop, sName );
+		}
+		return pWidget;
+	}
+private:
+	QStringList m_shots;
+	QObject *m_pTop;
+	int m_nNextShot;
+
+	void shoot( QObject *pTop, QString s ) {
+		if ( s.compare( "fin", Qt::CaseInsensitive) == 0 ) {
+			// Finish the shot list and quit Hydrogen
+			QTimer::singleShot( 1, QApplication::instance(), &QApplication::closeAllWindows );
+	    } else if ( s.compare( "dump", Qt::CaseInsensitive) == 0 ) {
+			// Dump object tree for debugging
+			pTop->dumpObjectTree();
+		} else if ( s != "" ) {
+			QStringList strings = s.split( "." );
+			if ( strings.size() == 1 ) {
+				// Grab a widget
+				QWidget *pWidget = findWidget( pTop, strings[0] );
+				if ( pWidget ) {
+					QString sFileName = QString( "%1.png" ).arg( strings[0] );
 					pWidget->grab().save( sFileName );
-					m_counts[ sName ] = nCount + 1;
+					___INFOLOG( QString( "Saved grabbed widget %1" ).arg( sFileName ) );
+				} else {
+					___ERRORLOG( QString( "Couldn't find widget named '%1' to grab" ).arg( strings[0] ) );
+				}
+			} else if ( strings.size() == 2 ) {
+				QWidget *pWidget = findWidget( pTop, strings[0] );
+				if ( pWidget ) {
+					___INFOLOG( QString( "Invoking '%1' on '%2'" )
+								.arg( strings[1], strings[0] ) );
+					bool bSuccess = QMetaObject::invokeMethod( pWidget, strings[1].toLocal8Bit().data() );
+					if ( !bSuccess ) {
+						___ERRORLOG( QString( "Couldn't invoke '%1' on '%2'" )
+									 .arg( strings[1], strings[0] ) );
+					}
+				} else {
+					___ERRORLOG( QString( "Couldn't find widget named '%1' to invoke '%2' on" )
+								 .arg( strings[0], strings[1] ) );
 				}
 			}
 		}
-		for ( QObject *pC : pObject->children() ) {
-			takeScreenShot( pC );
-		}
 	}
+  
+public:
+	ShotList( QStringList shots ) {
+		m_shots = shots;
+	}
+	ShotList( QString sShotList ) {
+		m_shots = sShotList.split( QRegExp("[\\s\\t\\n;]") );
+	}
+
+	void shoot( QObject *pTop ) {
+		m_pTop = pTop;
+		m_nNextShot = 0;
+		QTimer::singleShot( 1, this, &ShotList::nextShot );
+	}
+
+public slots:
+	void nextShot( void ) {
+		if ( ( m_nNextShot + 1) < m_shots.size() ) {
+			// Cue up next shot
+			QTimer::singleShot( 1, this, &ShotList::nextShot );
+		}
+		shoot( m_pTop, m_shots[ m_nNextShot++ ] );
+	}
+
 };
 
 
@@ -272,7 +322,7 @@ int main(int argc, char *argv[])
 		QCommandLineOption songFileOption( QStringList() << "s" << "song", "Load a song (*.h2song) at startup", "File" );
 		QCommandLineOption kitOption( QStringList() << "k" << "kit", "Load a drumkit at startup", "DrumkitName" );
 		QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH","Level");
-		QCommandLineOption screenShot( QStringList() << "t" << "screenshot", "Screenshot widget", "WidgetName" );
+		QCommandLineOption shotList( QStringList() << "t" << "shotlist", "Shot list of widgets to grab", "ShotList" );
 		
 		parser.addHelpOption();
 		parser.addVersionOption();
@@ -284,7 +334,7 @@ int main(int argc, char *argv[])
 		parser.addOption( songFileOption );
 		parser.addOption( kitOption );
 		parser.addOption( verboseOption );
-		parser.addOption( screenShot );
+		parser.addOption( shotList );
 		parser.addPositionalArgument( "file", "Song, playlist or Drumkit file" );
 		
 		//Conditional options
@@ -303,7 +353,7 @@ int main(int argc, char *argv[])
 		QString sSongFilename = parser.value ( songFileOption );
 		QString sDrumkitToLoad = parser.value( kitOption );
 		QString sVerbosityString = parser.value( verboseOption );
-		QString sScreenShot = parser.value( screenShot );
+		QString sShotList = parser.value( shotList );
 		
 		unsigned logLevelOpt = H2Core::Logger::Error;
 		if( parser.isSet(verboseOption) ){
@@ -586,8 +636,9 @@ int main(int argc, char *argv[])
 		}
 #endif
 
-		if ( sScreenShot != QString() ) {
-			new ScreenShot( pQApp, pMainForm,  sScreenShot );
+		if ( sShotList != QString() ) {
+			ShotList *sl = new ShotList( sShotList );
+			sl->shoot( pMainForm );
 		}
 
 		pQApp->exec();
