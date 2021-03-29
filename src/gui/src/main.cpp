@@ -281,6 +281,7 @@ private:
 				pTop->dumpObjectTree();
 			}
 		} else if ( sCmd.compare( "grab", Qt::CaseInsensitive ) == 0 ) {
+			// TODO: add option to grab a sub-region of the widget (X geometry format?)
 
 			if ( words.size() == 2 || words.size() == 3 ) {
 				QString sWidgetName = words[ 1 ];
