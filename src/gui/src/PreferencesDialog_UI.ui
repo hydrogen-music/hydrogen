@@ -12,7 +12,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
-    <widget class="QTabWidget" name="TabWidget2">
+    <widget class="QTabWidget" name="PreferencesTabs">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
@@ -31,7 +31,7 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tab_1">
+     <widget class="QWidget" name="GeneralTab">
       <attribute name="title">
        <string>&amp;General</string>
       </attribute>
@@ -236,7 +236,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_2">
+     <widget class="QWidget" name="AudioSystemTab">
       <attribute name="title">
        <string>Audio &amp;System</string>
       </attribute>
@@ -613,7 +613,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_3">
+     <widget class="QWidget" name="MIDISystemTab">
       <attribute name="title">
        <string>&amp;MIDI System</string>
       </attribute>
@@ -829,7 +829,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_5">
+     <widget class="QWidget" name="OSCTab">
       <attribute name="title">
        <string>&amp;OSC</string>
       </attribute>
@@ -977,7 +977,7 @@
        </layout>
       </widget>
      </widget>
-     <widget class="QWidget" name="tab_4">
+     <widget class="QWidget" name="AppearanceTab">
       <attribute name="title">
        <string>&amp;Appearance</string>
       </attribute>

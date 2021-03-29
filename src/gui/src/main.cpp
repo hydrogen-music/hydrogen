@@ -197,15 +197,15 @@ public:
 ///
 /// Entries are a space-separated list of the form:
 ///
-///  WidgetName      -- grab widget named "WidgetName"
-///  WidgetClass     -- grab widget of any class inheriting from "WidgetClass"
-///  WidgetName.slot -- invoke a slot method on widget
-///  "fin"           -- quit Hydrogen
-///  "dump"          -- dump object tree
+///  grab <WidgetName|WidgetClass>   -- grab widget named "WidgetName" or of any class inheriting from "WidgetClass"
+///  slot <widget> <slot> [<arg>...] -- invoke a slot method on widget
+///  fin                             -- quit Hydrogen
+///  dump                            -- dump object tree(s)
+///  # text                          -- commentary
 ///
 class ShotList : public QObject {
 
-	QWidget *findWidgetInheriting( QObject *pObject, QString &sName ) {
+	static QWidget *findWidgetInheriting( QObject *pObject, QString &sName ) {
 		if ( pObject->inherits( sName.toLocal8Bit().data() ) ) {
 			return dynamic_cast< QWidget *>( pObject );
 		}
@@ -218,55 +218,133 @@ class ShotList : public QObject {
 		return nullptr;
 	}
 
-	QWidget *findWidget( QObject *pTop, QString &sName ) {
-		QWidget *pWidget = pTop->findChild< QWidget *>( sName );
-		if ( !pWidget && pTop->objectName() == sName ) {
-			pWidget = dynamic_cast< QWidget *>( pTop );
+	static QWidget *findWidget( QString &sName ) {
+		for ( QWidget * pTop : QApplication::topLevelWidgets() ) {
+			QWidget *pWidget = pTop->findChild< QWidget *>( sName );
+			if ( !pWidget && pTop->objectName() == sName ) {
+				pWidget = dynamic_cast< QWidget *>( pTop );
+			}
+			if ( !pWidget ) {
+				pWidget = findWidgetInheriting( pTop, sName );
+			}
+			if ( pWidget ) {
+				return pWidget;
+			}
 		}
-		if ( !pWidget ) {
-			pWidget = findWidgetInheriting( pTop, sName );
-		}
-		return pWidget;
+		return nullptr;
 	}
+
+	/// Buffer for construction of Q_ARGs
+	class Arg {
+		QString m_sArg;
+		union {
+			int m_n;
+			QWidget *m_pWidget;
+		};
+	public:
+		Arg( QString &sArg ) : m_sArg( sArg ) {}
+
+		operator QGenericArgument() {
+			bool bIsInt = false;
+			m_n = m_sArg.toInt( &bIsInt );
+			if ( bIsInt ) {
+				return Q_ARG( int, m_n );
+			} else if (( m_pWidget = findWidget( m_sArg ) )) {
+				return Q_ARG( QWidget *, m_pWidget );
+			} else {
+				return Q_ARG( QString, m_sArg );
+			}
+		}
+	};
+
+
 private:
 	QStringList m_shots;
-	QObject *m_pTop;
 	int m_nNextShot;
 
-	void shoot( QObject *pTop, QString s ) {
-		if ( s.compare( "fin", Qt::CaseInsensitive) == 0 ) {
+	void shoot( QString s ) {
+		___INFOLOG( QString( "Taking shot: %1" ).arg( s ) );
+		QStringList words = s.trimmed().split( QRegExp( "\\s+" ) );
+		if ( s.size() == 0 ) {
+			return;
+		}
+		QString sCmd = words[ 0 ];
+
+		if ( sCmd == "#" || sCmd == "" ) {
+			// Empty line or "#" to start a comment
+		} else if ( sCmd.compare( "fin", Qt::CaseInsensitive) == 0 ) {
 			// Finish the shot list and quit Hydrogen
 			QTimer::singleShot( 1, QApplication::instance(), &QApplication::closeAllWindows );
-	    } else if ( s.compare( "dump", Qt::CaseInsensitive) == 0 ) {
+	    } else if ( sCmd.compare( "dump", Qt::CaseInsensitive) == 0 ) {
 			// Dump object tree for debugging
-			pTop->dumpObjectTree();
-		} else if ( s != "" ) {
-			QStringList strings = s.split( "." );
-			if ( strings.size() == 1 ) {
-				// Grab a widget
-				QWidget *pWidget = findWidget( pTop, strings[0] );
+			for ( QWidget *pTop : QApplication::topLevelWidgets() ) {
+				pTop->dumpObjectTree();
+			}
+		} else if ( sCmd.compare( "grab", Qt::CaseInsensitive ) == 0 ) {
+
+			if ( words.size() == 2 || words.size() == 3 ) {
+				QString sWidgetName = words[ 1 ];
+				QString sFileName = QString( "%1.png" ).arg( sWidgetName );
+				if ( words.size() == 3 ) {
+					sFileName = words[ 2 ];
+				}
+
+				QWidget *pWidget = findWidget( sWidgetName );
 				if ( pWidget ) {
-					QString sFileName = QString( "%1.png" ).arg( strings[0] );
 					pWidget->grab().save( sFileName );
 					___INFOLOG( QString( "Saved grabbed widget %1" ).arg( sFileName ) );
 				} else {
-					___ERRORLOG( QString( "Couldn't find widget named '%1' to grab" ).arg( strings[0] ) );
+					___ERRORLOG( QString( "Couldn't find widget named '%1' to grab" ).arg( sWidgetName ) );
 				}
-			} else if ( strings.size() == 2 ) {
-				QWidget *pWidget = findWidget( pTop, strings[0] );
+
+			} else {
+				___ERRORLOG( QString( "Syntax: grab <widget> [<filename>]" ) );
+			}
+		} else if ( sCmd.compare( "slot", Qt::CaseInsensitive ) == 0 ) {
+
+			if ( words.size() >= 3 ) {
+				QString sWidgetName = words[ 1 ];
+				QString sMethodName = words[ 2 ];
+				QWidget *pWidget = findWidget( sWidgetName );
+
 				if ( pWidget ) {
-					___INFOLOG( QString( "Invoking '%1' on '%2'" )
-								.arg( strings[1], strings[0] ) );
-					bool bSuccess = QMetaObject::invokeMethod( pWidget, strings[1].toLocal8Bit().data() );
+					___INFOLOG( QString( "Invoking '%1' on '%2'" ).arg( sMethodName, sWidgetName ) );
+					bool bSuccess = false;
+					switch ( words.size() ) {
+					case 3:
+						bSuccess = QMetaObject::invokeMethod( pWidget, sMethodName.toLocal8Bit().data(), Qt::DirectConnection );
+						break;
+					case 4:
+						bSuccess = QMetaObject::invokeMethod( pWidget, sMethodName.toLocal8Bit().data(), Qt::DirectConnection,
+															  Arg( words[3] ) );
+						break;
+					case 5:
+						bSuccess = QMetaObject::invokeMethod( pWidget, sMethodName.toLocal8Bit().data(), Qt::DirectConnection,
+															  Arg( words[3] ), Arg( words[4] ) );
+						break;
+					case 6:
+						bSuccess = QMetaObject::invokeMethod( pWidget, sMethodName.toLocal8Bit().data(), Qt::DirectConnection,
+															  Arg( words[3] ), Arg( words[4] ), Arg( words[5] ) );
+						break;
+					default:
+						___ERRORLOG( "Unsupported number of arguments in %0" );
+					}
+
 					if ( !bSuccess ) {
 						___ERRORLOG( QString( "Couldn't invoke '%1' on '%2'" )
-									 .arg( strings[1], strings[0] ) );
+									 .arg( sMethodName, sWidgetName ) );
+					} else {
+						___INFOLOG( "OK" );
 					}
 				} else {
 					___ERRORLOG( QString( "Couldn't find widget named '%1' to invoke '%2' on" )
-								 .arg( strings[0], strings[1] ) );
+								 .arg( sWidgetName, sMethodName ) );
 				}
+			} else {
+				___ERRORLOG( QString( "Syntax: slot <widget> <method> [args]" ) );
 			}
+		} else {
+			___ERRORLOG( QString("Unknown command '%1'").arg( sCmd ) );
 		}
 	}
   
@@ -274,23 +352,31 @@ public:
 	ShotList( QStringList shots ) {
 		m_shots = shots;
 	}
-	ShotList( QString sShotList ) {
-		m_shots = sShotList.split( QRegExp("[\\s\\t\\n;]") );
+	ShotList( QString sShotsFilename ) {
+		QFile shots( sShotsFilename );
+		if ( ! shots.open( QIODevice::ReadOnly ) ) {
+			___ERRORLOG( QString( "Cannot open shot list file '%1' " ).arg( shots.fileName() ) );
+			return;
+		}
+		while (! shots.atEnd() ) {
+			m_shots << shots.readLine();
+		}
 	}
 
-	void shoot( QObject *pTop ) {
-		m_pTop = pTop;
+	void shoot() {
 		m_nNextShot = 0;
-		QTimer::singleShot( 1, this, &ShotList::nextShot );
+		if ( m_shots.size() != 0 ) {
+			nextShot();
+		}
 	}
 
 public slots:
 	void nextShot( void ) {
 		if ( ( m_nNextShot + 1) < m_shots.size() ) {
 			// Cue up next shot
-			QTimer::singleShot( 1, this, &ShotList::nextShot );
+			QMetaObject::invokeMethod( this, &ShotList::nextShot, Qt::QueuedConnection );
 		}
-		shoot( m_pTop, m_shots[ m_nNextShot++ ] );
+		shoot( m_shots[ m_nNextShot++ ] );
 	}
 
 };
@@ -638,7 +724,7 @@ int main(int argc, char *argv[])
 
 		if ( sShotList != QString() ) {
 			ShotList *sl = new ShotList( sShotList );
-			sl->shoot( pMainForm );
+			sl->shoot();
 		}
 
 		pQApp->exec();
