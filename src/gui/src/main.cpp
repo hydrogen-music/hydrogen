@@ -281,18 +281,25 @@ private:
 				pTop->dumpObjectTree();
 			}
 		} else if ( sCmd.compare( "grab", Qt::CaseInsensitive ) == 0 ) {
-			// TODO: add option to grab a sub-region of the widget (X geometry format?)
 
-			if ( words.size() == 2 || words.size() == 3 ) {
+			if ( words.size() == 2 || words.size() == 3 || words.size() == 7 ) {
 				QString sWidgetName = words[ 1 ];
 				QString sFileName = QString( "%1.png" ).arg( sWidgetName );
-				if ( words.size() == 3 ) {
+				if ( words.size() >= 3 ) {
 					sFileName = words[ 2 ];
 				}
 
 				QWidget *pWidget = findWidget( sWidgetName );
 				if ( pWidget ) {
-					pWidget->grab().save( sFileName );
+					if ( words.size() == 7 ) {
+						int x = words[ 3 ].toInt();
+						int y = words[ 4 ].toInt();
+						int w = words[ 5 ].toInt();
+						int h = words[ 6 ].toInt();
+						pWidget->grab( QRect( x, y, w, h) ).save( sFileName );
+					} else {
+						pWidget->grab().save( sFileName );
+					}
 					___INFOLOG( QString( "Saved grabbed widget %1" ).arg( sFileName ) );
 				} else {
 					___ERRORLOG( QString( "Couldn't find widget named '%1' to grab" ).arg( sWidgetName ) );
