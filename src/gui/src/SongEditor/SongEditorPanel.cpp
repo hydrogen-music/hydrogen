@@ -68,6 +68,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// background
 	PixmapWidget *pBackPanel = new PixmapWidget( nullptr );
+	pBackPanel->setObjectName( "SongEditorBackPanel" );
 	pBackPanel->setFixedSize( 196, 49 );
 	pBackPanel->setPixmap( "/songEditor/bg_topPanel.png" );
 

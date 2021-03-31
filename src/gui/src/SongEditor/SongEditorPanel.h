@@ -57,7 +57,6 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 
 		void updateAll();
 		void updatePositionRuler();
-		void setModeActionBtn( bool mode );
 		void toggleAutomationAreaVisibility();
 		
 		void showTimeline();
@@ -85,6 +84,9 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		 * \param nValue 0 - select mode and 1 - draw mode.
 		 */
 		void actionModeChangeEvent( int nValue ) override;
+
+	public slots:
+		void setModeActionBtn( bool mode );
 
 	private slots:
 		void vScrollTo( int value );

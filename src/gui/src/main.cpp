@@ -245,6 +245,11 @@ class ShotList : public QObject {
 		Arg( QString &sArg ) : m_sArg( sArg ) {}
 
 		operator QGenericArgument() {
+			if (( m_sArg == "true" )) {
+				return Q_ARG( bool, true );
+			} else if (( m_sArg == "false" )) {
+				return Q_ARG( bool, false );
+			}
 			bool bIsInt = false;
 			m_n = m_sArg.toInt( &bIsInt );
 			if ( bIsInt ) {
@@ -252,6 +257,7 @@ class ShotList : public QObject {
 			} else if (( m_pWidget = findWidget( m_sArg ) )) {
 				return Q_ARG( QWidget *, m_pWidget );
 			} else {
+				// Last resort, treat as a QString
 				return Q_ARG( QString, m_sArg );
 			}
 		}
@@ -263,7 +269,7 @@ private:
 	int m_nNextShot;
 
 	void shoot( QString s ) {
-		___INFOLOG( QString( "Taking shot: %1" ).arg( s ) );
+		___INFOLOG( QString( "Taking shot: %1" ).arg( s.trimmed() ) );
 		QStringList words = s.trimmed().split( QRegExp( "\\s+" ) );
 		if ( s.size() == 0 ) {
 			return;
@@ -282,32 +288,71 @@ private:
 			}
 		} else if ( sCmd.compare( "grab", Qt::CaseInsensitive ) == 0 ) {
 
-			if ( words.size() == 2 || words.size() == 3 || words.size() == 7 ) {
-				QString sWidgetName = words[ 1 ];
+			if ( words.size() < 2 ) {
+				___ERRORLOG( QString( "Syntax: grab <widget> [as <filename>] [size w d] [offset x y ]." ) );
+			} else {
+				words.pop_front();
+				QString sWidgetName = words[0];
+				words.pop_front();
+				QRect rect( 0, 0, -1, -1 );
 				QString sFileName = QString( "%1.png" ).arg( sWidgetName );
-				if ( words.size() >= 3 ) {
-					sFileName = words[ 2 ];
+				while ( !words.empty() ) {
+					if ( words[0] == "as" ) {
+						words.pop_front();
+						if ( words.size() < 1 ) {
+							___ERRORLOG( QString( "Syntax: grab ... as <filename>" ) );
+						} else {
+							sFileName = words[0];
+							words.pop_front();
+						}
+					} else if ( words[0] == "size" ) {
+						words.pop_front();
+						if ( words.size() < 2 ) {
+							___ERRORLOG( QString( "Syntax: grab ... size <width> <height>" ) );
+						} else {
+							rect.setWidth( words[0].toInt() );
+							rect.setHeight( words[1].toInt() );
+							words.pop_front();
+							words.pop_front();
+						}
+					} else if ( words[0] == "offset" ) {
+						words.pop_front();
+						if ( words.size() < 2 ) {
+							___ERRORLOG( QString( "Syntax: grab ... offset <width> <height>" ) );
+						} else {
+							rect.setX( words[0].toInt() );
+							rect.setY( words[1].toInt() );
+							words.pop_front();
+							words.pop_front();
+						}
+					} else {
+						___ERRORLOG( QString( "Syntax: grab <widget> [as <filename>] [size w d] [offset x y ]."
+											  " Unexpected '%1'" ).arg( words[0] ) );
+						break;
+					}
 				}
 
 				QWidget *pWidget = findWidget( sWidgetName );
 				if ( pWidget ) {
-					if ( words.size() == 7 ) {
-						int x = words[ 3 ].toInt();
-						int y = words[ 4 ].toInt();
-						int w = words[ 5 ].toInt();
-						int h = words[ 6 ].toInt();
-						pWidget->grab( QRect( x, y, w, h) ).save( sFileName );
-					} else {
-						pWidget->grab().save( sFileName );
+					QPixmap p = pWidget->grab();
+					QRect oldRect = rect;
+					// Scale 'rect' up to match device pixels of pixmap
+					rect = QRect( rect.topLeft() * p.devicePixelRatio(),
+								  rect.size() * p.devicePixelRatio() );
+					if ( rect.width() <= 0 ) {
+						rect.setWidth( p.rect().width() );
 					}
+					if ( rect.height() <= 0 ) {
+						rect.setHeight( p.rect().height() );
+					}
+					QRect grabRect = rect.intersected( p.rect() );
+					p.copy( grabRect ).save( sFileName );
 					___INFOLOG( QString( "Saved grabbed widget %1" ).arg( sFileName ) );
 				} else {
 					___ERRORLOG( QString( "Couldn't find widget named '%1' to grab" ).arg( sWidgetName ) );
 				}
-
-			} else {
-				___ERRORLOG( QString( "Syntax: grab <widget> [<filename>]" ) );
 			}
+
 		} else if ( sCmd.compare( "slot", Qt::CaseInsensitive ) == 0 ) {
 
 			if ( words.size() >= 3 ) {
