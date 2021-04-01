@@ -109,6 +109,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 	m_pPopupMenu->addAction( tr( "&Delete" ), this, &SongEditor::deleteSelection );
 	m_pPopupMenu->addAction( tr( "Select &all" ), this, &SongEditor::selectAll );
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, &SongEditor::selectNone );
+	m_pPopupMenu->setObjectName( "SongEditorPopup" );
 
 
 	update();
@@ -1201,6 +1202,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pPatternPopup->addAction( tr("Save Pattern"),  this, SLOT( patternPopup_save() ) );
 	m_pPatternPopup->addAction( tr("Export Pattern"),  this, SLOT( patternPopup_export() ) );
 	m_pPatternPopup->addAction( tr("Virtual Pattern"), this, SLOT( patternPopup_virtualPattern() ) );
+	m_pPatternPopup->setObjectName( "PatternListPopup" );
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
