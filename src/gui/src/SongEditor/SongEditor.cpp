@@ -1248,7 +1248,10 @@ void SongEditorPatternList::patternChangedEvent() {
 
 		float fTimelineBpm = pTimeline->getTempoAtBar( pHydrogen->getPatternPos(), false );
 
-		if ( pHydrogen->getNewBpmJTM() != fTimelineBpm ){
+		if ( fTimelineBpm != 0 && pHydrogen->getNewBpmJTM() != fTimelineBpm ) {
+			/* TODO: For now the function returns 0 if the bar is
+			 * positioned _before_ the first tempo marker. This will be
+			 * taken care of with #854. */
 			pHydrogen->setBPM( fTimelineBpm );
 		}
 	}
