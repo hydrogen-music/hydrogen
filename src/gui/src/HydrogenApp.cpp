@@ -192,6 +192,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pSplitter->setOpaqueResize( true );
 
 	m_pTab = new QTabWidget( nullptr );
+        m_pTab->setObjectName( "TabbedInterface" );
 
 	// SONG EDITOR
 	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE) {
@@ -209,6 +210,7 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// this HBox will contain the InstrumentRack and the Pattern editor
 	QWidget *pSouthPanel = new QWidget( m_pSplitter );
+        pSouthPanel->setObjectName( "SouthPanel" );
 	QHBoxLayout *pEditorHBox = new QHBoxLayout();
 	pEditorHBox->setSpacing( 5 );
 	pEditorHBox->setMargin( 0 );
