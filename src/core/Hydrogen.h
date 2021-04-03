@@ -38,32 +38,7 @@
 
 #include <stdint.h> // for uint32_t et al
 #include <cassert>
-// Engine states  (It's ok to use ==, <, and > when testing)
-/**
- * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Not even the
- * constructors have been called.
- */
-#define STATE_UNINITIALIZED	1
-/**
- * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Not ready,
- * but most pointers are now valid or NULL.
- */
-#define STATE_INITIALIZED	2
-/**
- * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Drivers are
- * set up, but not ready to process audio.
- */
-#define STATE_PREPARED		3
-/**
- * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Ready to
- * process audio.
- */
-#define STATE_READY		4
-/**
- * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Currently
- * playing a sequence.
- */
-#define STATE_PLAYING		5
+
 inline int randomValue( int max );
 
 namespace H2Core
