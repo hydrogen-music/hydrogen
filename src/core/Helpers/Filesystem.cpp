@@ -611,7 +611,7 @@ QString Filesystem::drumkit_usr_path( const QString& dk_name )
 {
 	return usr_drumkits_dir() + dk_name;
 }
-QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup )
+QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup, bool bSilent )
 {
 
 #ifdef H2CORE_HAVE_OSC
@@ -642,7 +642,7 @@ QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup )
 			QDomDocument drumkitXML = H2Core::LocalFileMng::openXmlDocument( sDrumkitXMLPath );
 			QDomNodeList nodeList = drumkitXML.elementsByTagName( "drumkit_info" );
 	
-			if( nodeList.isEmpty() ) {
+			if( nodeList.isEmpty() && ! bSilent ) {
 				NsmClient::printError( "Local drumkit does not seem valid" );
 			} else {
 				QDomNode drumkitInfoNode = nodeList.at( 0 );
@@ -653,9 +653,11 @@ QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup )
 					return sDrumkitPath;
 					
 				} else {
-					NsmClient::printError( QString( "Local drumkit [%1] and the one referenced in the .h2song file [%2] do not match!" )
-										   .arg( sDrumkitNameXML )
-										   .arg( dk_name ) );
+					if ( ! bSilent ) {
+						NsmClient::printError( QString( "Local drumkit [%1] and the one referenced in the .h2song file [%2] do not match!" )
+											   .arg( sDrumkitNameXML )
+											   .arg( dk_name ) );
+					}
 				}
 			}
 		}
@@ -675,10 +677,13 @@ QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup )
 			return sys_drumkits_dir() + dk_name;
 		}
 	}
+
+	if ( ! bSilent ) {
+		ERRORLOG( QString( "drumkit %1 not found using lookup type [%2]" )
+				  .arg( dk_name )
+				  .arg( static_cast<int>(lookup)));
+	}
 	
-	ERRORLOG( QString( "drumkit %1 not found using lookup type [%2]" )
-			  .arg( dk_name )
-			  .arg( static_cast<int>(lookup)));
 	return QString("");
 }
 QString Filesystem::drumkit_dir_search( const QString& dk_name, Lookup lookup )
