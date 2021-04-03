@@ -31,7 +31,8 @@
 #include <QtGui>
 #include <QtWidgets>
 
-class Button;
+#include "Widgets/Button.h"
+
 class SongEditor;
 class SongEditorPatternList;
 class SongEditorPositionRuler;
@@ -87,6 +88,10 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 
 	public slots:
 		void setModeActionBtn( bool mode );
+		void showHideTimeLine( bool bPressed ) {
+			m_pTimeLineToggleBtn->setPressed( bPressed );
+			timeLineBtnPressed( m_pTimeLineToggleBtn );
+		}
 
 	private slots:
 		void vScrollTo( int value );

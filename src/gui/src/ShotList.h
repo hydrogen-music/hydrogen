@@ -50,15 +50,18 @@ class ShotList : public QObject {
 		union {
 			int m_n;
 			QWidget *m_pWidget;
+			bool m_b;
 		};
 	public:
 		Arg( QString &sArg ) : m_sArg( sArg ) {}
 
 		operator QGenericArgument() {
 			if (( m_sArg == "true" )) {
-				return Q_ARG( bool, true );
+				m_b = true;
+				return Q_ARG( bool, m_b );
 			} else if (( m_sArg == "false" )) {
-				return Q_ARG( bool, false );
+				m_b = false;
+				return Q_ARG( bool, m_b );
 			}
 			bool bIsInt = false;
 			m_n = m_sArg.toInt( &bIsInt );
