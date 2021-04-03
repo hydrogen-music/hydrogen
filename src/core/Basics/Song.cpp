@@ -928,10 +928,10 @@ Song* SongReader::readSong( const QString& sFileName )
 				// and no information whether it is found at user- or
 				// system-level.
 
-				if ( ! Filesystem::drumkit_path_search( sDrumkit, Filesystem::Lookup::user ).isEmpty() ) {
+				if ( ! Filesystem::drumkit_path_search( sDrumkit, Filesystem::Lookup::user, true ).isEmpty() ) {
 					iLookup = 1;
 					WARNINGLOG( "Missing drumkitLookup: user-level determined" );
-				} else if ( ! Filesystem::drumkit_path_search( sDrumkit, Filesystem::Lookup::system ).isEmpty() ) {
+				} else if ( ! Filesystem::drumkit_path_search( sDrumkit, Filesystem::Lookup::system, true ).isEmpty() ) {
 					iLookup = 2;
 					WARNINGLOG( "Missing drumkitLookup: system-level determined" );
 				} else {
