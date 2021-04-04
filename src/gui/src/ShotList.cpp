@@ -64,7 +64,7 @@ void ShotList::shoot( QString s ) {
 	}
 	QString sCmd = words[ 0 ];
 
-	if ( sCmd == "#" || sCmd == "" ) {
+	if ( sCmd.startsWith( "#" ) || sCmd == "" ) {
 		// Empty line or "#" to start a comment
 	} else if ( sCmd.compare( "fin", Qt::CaseInsensitive) == 0 ) {
 		// Finish the shot list and quit Hydrogen

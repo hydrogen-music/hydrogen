@@ -239,7 +239,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	// Ruler ScrollView
 	m_pRulerScrollView = new WidgetScrollArea( nullptr );
-	m_pRulerScrollView->setObjectName( "RulerScrollView" );
 	m_pRulerScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pRulerScrollView->setFrameShape( QFrame::NoFrame );
 	m_pRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -466,6 +465,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 // NOTE_PROPERTIES BUTTONS
 	PixmapWidget *pPropertiesPanel = new PixmapWidget( nullptr );
+	pPropertiesPanel->setObjectName( "PropertiesPanel" );
 	pPropertiesPanel->setColor( QColor( 58, 62, 72 ) );
 
 	pPropertiesPanel->setFixedSize( 181, 100 );
@@ -485,6 +485,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	/* __pPropertiesCombo->addItem( tr("Cutoff") ); */
 	/* __pPropertiesCombo->addItem( tr("Resonance") ); */
 	// is triggered here below
+	__pPropertiesCombo->setObjectName( "PropertiesCombo" );
 	connect( __pPropertiesCombo, SIGNAL( valueChanged( int ) ), this, SLOT( propertiesComboChanged( int ) ) );
 
 	pPropertiesVBox->addWidget( __pPropertiesCombo );
