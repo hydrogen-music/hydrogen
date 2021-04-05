@@ -353,7 +353,9 @@ void Drumkit::save_to( XMLNode* node, int component_id )
 			pComponent->save_to( &components_node );
 		}
 	}
-	__instruments->save_to( node, component_id );
+	if ( __instruments != nullptr ) {
+		__instruments->save_to( node, component_id );
+	}
 }
 
 bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
