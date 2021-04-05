@@ -184,9 +184,10 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 
 void XmlTest::testPattern()
 {
-	QString pat_path = H2Core::Filesystem::tmp_dir()+"/pat";
+	QString pat_path = H2Core::Filesystem::tmp_dir()+"pat";
 
 	H2Core::Pattern* pat0 = nullptr;
+	H2Core::Pattern* pat1 = nullptr;
 	H2Core::Drumkit* dk0 = nullptr;
 	H2Core::InstrumentList* instruments = nullptr;
 
@@ -198,10 +199,25 @@ void XmlTest::testPattern()
 	pat0 = H2Core::Pattern::load_file( H2TEST_FILE( "/pattern/pat.h2pattern" ), instruments );
 	CPPUNIT_ASSERT( pat0 );
 
-	pat0->save_file( "dk_name", "author", "license", pat_path );
+	CPPUNIT_ASSERT( pat0->save_file( "dk_name", "author", "license", pat_path, true ) );
 
+	H2Core::XMLDoc doc;
+	CPPUNIT_ASSERT( doc.read( pat_path, H2Core::Filesystem::pattern_xsd_path() ) );
+
+	pat1 = H2Core::Pattern::load_file( pat_path, instruments );
+
+	CPPUNIT_ASSERT( pat1 != nullptr );
+
+	delete pat1;
 	delete pat0;
 	delete dk0;
+}
+
+void XmlTest::checkTestPatterns()
+{
+	H2Core::XMLDoc doc;
+	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/pattern/pat.h2pattern" ),
+							  H2Core::Filesystem::pattern_xsd_path() ) );
 }
 
 void XmlTest::tearDown() {
