@@ -9,6 +9,7 @@
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/Sample.h>
+#include <core/Basics/Playlist.h>
 
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
@@ -242,6 +243,23 @@ void XmlTest::checkTestPatterns()
 	H2Core::XMLDoc doc;
 	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/pattern/pat.h2pattern" ),
 							  H2Core::Filesystem::pattern_xsd_path() ) );
+}
+
+void XmlTest::testPlaylist()
+{
+	QString sPath = H2Core::Filesystem::tmp_dir()+"playlist.h2playlist";
+
+	H2Core::Playlist* pPlaylistCurrent = H2Core::Playlist::get_instance();
+	H2Core::Playlist* pPlaylistLoaded = nullptr;
+	H2Core::XMLDoc doc;
+
+	CPPUNIT_ASSERT( pPlaylistCurrent->save_file( sPath, "ladida", true, false ) );
+	CPPUNIT_ASSERT( doc.read( sPath, H2Core::Filesystem::playlist_xsd_path() ) );
+	pPlaylistLoaded = H2Core::Playlist::load_file( sPath, false );
+	CPPUNIT_ASSERT( pPlaylistLoaded != nullptr );
+
+	delete pPlaylistLoaded;
+	delete pPlaylistCurrent;
 }
 
 void XmlTest::tearDown() {
