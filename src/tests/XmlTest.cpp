@@ -52,7 +52,7 @@ static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
 
 void XmlTest::testDrumkit()
 {
-	QString dk_path = H2Core::Filesystem::tmp_dir()+"/dk0";
+	QString dk_path = H2Core::Filesystem::tmp_dir()+"dk0";
 
 	H2Core::Drumkit* dk0 = nullptr;
 	H2Core::Drumkit* dk1 = nullptr;
@@ -88,7 +88,6 @@ void XmlTest::testDrumkit()
 	CPPUNIT_ASSERT( check_samples_data( dk0, false ) );
 	//dk0->dump();
 	
-	/*
 	// save drumkit elsewhere
 	dk0->set_name( "dk0" );
 	CPPUNIT_ASSERT( dk0->save( dk_path, false ) );
@@ -97,21 +96,30 @@ void XmlTest::testDrumkit()
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( dk_path+"/hh.wav" ) );
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( dk_path+"/kick.wav" ) );
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( dk_path+"/snare.wav" ) );
+
+	// Check whether the generated drumkit is valid.
+	H2Core::XMLDoc doc;
+	CPPUNIT_ASSERT( doc.read( dk_path + "/drumkit.xml",
+							  H2Core::Filesystem::drumkit_xsd_path() ) );
+	
 	// load file
 	dk1 = H2Core::Drumkit::load_file( dk_path+"/drumkit.xml" );
 	CPPUNIT_ASSERT( dk1!=nullptr );
 	//dk1->dump();
+	
 	// copy constructor
 	dk2 = new H2Core::Drumkit( dk1 );
-	dk2->set_name( "COPY" );
 	CPPUNIT_ASSERT( dk2!=nullptr );
 	// save file
+	dk2->set_name( "COPY" );
 	CPPUNIT_ASSERT( dk2->save_file( dk_path+"/drumkit.xml", true ) );
-	*/
 	
 	delete dk0;
-	//delete dk1;
-	//delete dk2;
+	delete dk1;
+	delete dk2;
+
+	// Cleanup
+	H2Core::Filesystem::rm( dk_path, true );
 }
 
 void XmlTest::testShippedDrumkits()
