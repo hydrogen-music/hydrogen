@@ -91,7 +91,7 @@ class NsmClient : public H2Core::Object
 		 * modified or not.
 		 *
 		 * This function is triggered within
-		 * H2Core::Song::set_is_modified().
+		 * H2Core::Song::setIsModified().
 		 *
 		 * \param isDirty true, if the current H2Core::Song was
 		 * modified, and false if it wasn't
@@ -142,8 +142,11 @@ class NsmClient : public H2Core::Object
 	 * the local drumkits present in the user's home.
 	 *
 	 * \param name Absolute path to the session folder.
+	 * \param bCheckLinkage Whether or not the linked drumkit should
+	 * be verified to correspond to @a name. If set to none, the
+	 * drumkit will always be relinked.
 	 */
-	static void linkDrumkit( const char* name );
+	static void linkDrumkit( const char* name, bool bCheckLinkage );
 	/** Custom function to print a colored error message.
 	 *
 	 * Since the OpenCallback() and SaveCallback() functions will be

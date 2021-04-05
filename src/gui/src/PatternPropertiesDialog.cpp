@@ -96,6 +96,10 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	QString pattCategory = categoryComboBox->currentText();
 	QString pattInfo = patternDescTxt->toPlainText();
 
+	// Ensure the pattern name is unique
+	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
+	pattName = pPatternList->find_unused_pattern_name(pattName, pattern);
+
 	Preferences *pPref = H2Core::Preferences::get_instance();
 	std::list<QString>::const_iterator cur_testpatternCategories;
 
@@ -115,8 +119,7 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 		pattern->set_name( pattName );
 		pattern->set_info( pattInfo );
 		pattern->set_category( pattCategory );
-	}else
-	{
+	} else if ( pattern->get_name() != pattName || pattern->get_info() != pattInfo || pattern->get_category() != pattCategory) {
 		SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  pattern->get_name() , pattern->get_info(), pattern->get_category(),
 												  pattName, pattInfo, pattCategory, __nselectedPattern );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
@@ -126,50 +129,10 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 
 void PatternPropertiesDialog::defaultNameCheck( QString pattName, bool savepattern)
 {
-	if ( savepattern && !nameCheck(pattName) )
-	{
-		defaultNameCheck( tr( "%1#2").arg(pattName), savepattern );
+	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
+	if ( savepattern && !pPatternList->check_name(pattName, pattern) ) {
+		pattName = pPatternList->find_unused_pattern_name(pattName, pattern);
 	}
-	else
-	{
-		patternNameTxt->setText( tr( "%1").arg(pattName) );
-	}
-}
 
-
-bool PatternPropertiesDialog::nameCheck( QString pattName )
-{
-	if (pattName == "") {
-		return false;
-	}
-	PatternList *patternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
-	
-	for (uint i = 0; i < patternList->size(); i++) {
-		if ( patternList->get(i)->get_name() == pattName) {
-			return false;
-		}
-	}
-	return true;
-}
-
-
-void PatternPropertiesDialog::on_categoryComboBox_editTextChanged()
-{
-	if ( categoryComboBox->currentText() == pattern->get_category() ) {
-		okBtn->setEnabled( false );
-	}
-	else {
-		okBtn->setEnabled(true);
-	}
-}
-
-
-void PatternPropertiesDialog::on_patternNameTxt_textChanged()
-{
-	if ( nameCheck( patternNameTxt->text() ) ) {
-		okBtn->setEnabled( true );
-	}
-	else {
-		okBtn->setEnabled( false );
-	}
+	patternNameTxt->setText(pattName);
 }

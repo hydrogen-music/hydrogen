@@ -195,21 +195,21 @@ void PatternList::virtual_pattern_del( Pattern* pattern )
 	for( int i=0; i<__patterns.size(); i++ ) __patterns[i]->virtual_patterns_del( pattern );
 }
 
-bool PatternList::check_name( QString patternName )
+bool PatternList::check_name( QString patternName, Pattern* ignore )
 {
 	if (patternName == "") {
 		return false;
 	}
 
 	for (uint i = 0; i < __patterns.size(); i++) {
-		if ( __patterns[i]->get_name() == patternName) {
+		if ( __patterns[i] != ignore && __patterns[i]->get_name() == patternName ) {
 			return false;
 		}
 	}
 	return true;
 }
 
-QString PatternList::find_unused_pattern_name( QString sourceName )
+QString PatternList::find_unused_pattern_name( QString sourceName, Pattern* ignore )
 {
 	QString unusedPatternNameCandidate;
 
@@ -221,7 +221,19 @@ QString PatternList::find_unused_pattern_name( QString sourceName )
 	QString suffix = "";
 	unusedPatternNameCandidate = sourceName;
 
-	while( !check_name( unusedPatternNameCandidate + suffix ) ) {
+	// Check if the sourceName already has a number suffix, and if so, start
+	// searching for an unused name from that number.
+	QRegularExpression numberSuffixRe("(.+) #(\\d+)$");
+	QRegularExpressionMatch match = numberSuffixRe.match(sourceName);
+	if (match.hasMatch()) {
+		QString numberSuffix = match.captured(2);
+
+		i = numberSuffix.toInt();
+		suffix = " #" + QString::number(i);
+		unusedPatternNameCandidate = match.captured(1);
+	}
+
+	while( !check_name( unusedPatternNameCandidate + suffix, ignore ) ) {
 		suffix = " #" + QString::number(i);
 		i++;
 	}
@@ -239,6 +251,29 @@ int PatternList::longest_pattern_length() {
 	return nMax;
 }
 
+QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Object::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[PatternList]\n" ).arg( sPrefix );
+		for ( auto pp : __patterns ) {
+			if ( pp != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s, bShort ) ) );
+			}
+		}
+	} else {
+		sOutput = QString( "[PatternList] " );
+		for ( auto pp : __patterns ) {
+			if ( pp != nullptr ) {
+				sOutput.append( QString( "[%1] " ).arg( pp->toQString( sPrefix + s, bShort ) ) );
+			}
+		}
+		sOutput.append( "]" );
+	}
+	
+	return sOutput;
+}
+ 
 }
 
 

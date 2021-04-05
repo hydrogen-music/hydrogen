@@ -20,28 +20,30 @@
  *
  */
 
-#ifndef DONATION__DIALOG_H
-#define DONATION__DIALOG_H
+#ifndef MIXER_SETTINGS_DIALOG_H
+#define MIXER_SETTINGS_DIALOG_H
 
 
-#include <QtGui>
-#include <QtWidgets>
+#include "ui_MixerSettingsDialog_UI.h"
 
-#include "ui_DonationDialog.h"
+#include <core/Object.h>
 
-class DonationDialog : public QDialog, public Ui_DonationDialog_UI
+///
+/// Mixer Settings Dialog
+///
+class MixerSettingsDialog : public QDialog, private Ui_MixerSettingsDialog_UI, public H2Core::Object
 {
-Q_OBJECT
-public:
-	explicit DonationDialog(QWidget* parent);
-	~DonationDialog();
+	H2_OBJECT
+	Q_OBJECT
+	public:
+		explicit MixerSettingsDialog( QWidget* parent );
+		~MixerSettingsDialog();
 
-private slots:
-	void on_randomizeBtn_clicked();
-	void on_donateBtn_clicked();
-
-private:
-
+	private slots:
+		void on_okBtn_clicked();
+		void on_cancelBtn_clicked();
+		void panLawChanged();
 };
 
 #endif
+

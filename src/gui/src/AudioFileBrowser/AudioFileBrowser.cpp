@@ -78,14 +78,14 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect, b
 	m_sEmptySampleFilename = Filesystem::empty_sample_path();
 
 	m_pPathUptoolButton->setIcon( QIcon( Skin::getImagePath() + "/audiFileBrowser/go-up.png"));
-	m_pPathUptoolButton->setToolTip( QString("Parent Folder"));
+	m_pPathUptoolButton->setToolTip( QString( tr( "Parent Folder" )));
 	m_pPathHometoolButton->setIcon( QIcon( Skin::getImagePath() + "/audiFileBrowser/go-home.png"));
-	m_pPathHometoolButton->setToolTip( QString("Home"));
+	m_pPathHometoolButton->setToolTip( QString( tr( "Home" )));
 
 	m_pPlayBtn->setIcon( QIcon( Skin::getImagePath() + "/audiFileBrowser/player_play.png"));
-	m_pPlayBtn->setToolTip( QString("Play selected"));
+	m_pPlayBtn->setToolTip( QString( tr( "Play selected" ) ));
 	m_pStopBtn->setIcon( QIcon( Skin::getImagePath() + "/audiFileBrowser/player_stop.png"));
-	m_pStopBtn->setToolTip( QString("Stop"));
+	m_pStopBtn->setToolTip( QString( tr( "Stop" )));
 
 	m_pSampleWaveDisplay = new SampleWaveDisplay( waveformview );
 	m_pSampleWaveDisplay->updateDisplay( m_sEmptySampleFilename );
@@ -246,7 +246,7 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 		
 	name = name.left( '.' );
 
-	QString message = "Name: " + name;
+	QString message = QString( tr( "Name: " ) ).append( name );
 	pathLineEdit->setText( onlyPath );
 
 	QStringList path2List = path2.split("/");

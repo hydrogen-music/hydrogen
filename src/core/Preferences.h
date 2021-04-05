@@ -157,7 +157,6 @@ public:
 	       * #NO_JACK_TIME_MASTER.
 	       */
 	      USE_JACK_TIME_MASTER = 0,
-	      POST_FADER = 0,
 	      SET_PLAY_ON = 0,
 	      BC_ON = 0,/** 
 	       * Specifies whether or not to use JACK transport
@@ -173,7 +172,6 @@ public:
 	       * #USE_JACK_TIME_MASTER.
 	       */
 	      NO_JACK_TIME_MASTER = 1,
-	      PRE_FADER = 1,
 	      SET_PLAY_OFF = 1,
 	      BC_OFF = 1
 	};
@@ -195,9 +193,6 @@ public:
 	bool				__playsamplesonclicking; // audio file browser
 
 	bool				__playselectedinstrument; // midi keys and keys play instrument or drumset
-
-	int					m_nRecPreDelete; //index of record note pre delete function 0 = off
-	int					m_nRecPostDelete;
 
 	bool				m_bFollowPlayhead;
 
@@ -316,6 +311,14 @@ public:
 	 */
 	bool				m_bOscFeedbackEnabled;
 	/**
+	 * In case #m_nOscServerPort is already occupied by another
+	 * client, the alternative - random - port number provided by the
+	 * OSC server will be stored in this variable. If the connection
+	 * using the default port succeeded, the variable will be set to
+	 * -1.
+	 */
+	int					m_nOscTemporaryPort;
+	/**
 	 * Port number the OscServer will be started at.
 	 
 	 * Set by setOscServerPort() and queried by
@@ -335,6 +338,8 @@ public:
 	 * #USE_JACK_TRANSPORT and #NO_JACK_TRANSPORT.
 	 */
 	int					m_bJackTransportMode;
+	/** Toggles auto-connecting of the main stereo output ports to the
+		system's default ports when starting the JACK server.*/
 	bool				m_bJackConnectDefaults;
 	/** 
 	 * If set to _true_, JackAudioDriver::makeTrackOutputs() will
@@ -343,13 +348,34 @@ public:
 	 * output will be created.
 	 */
 	bool				m_bJackTrackOuts;
-	int					m_nJackTrackOutputMode;
+
+	/** Specifies which audio settings will be applied to the sample
+		supplied in the JACK per track output ports.*/
+	enum class JackTrackOutputMode {
+		/** Applies layer, component, and instrument gain, note and
+		instrument pan, note velocity, and main component and
+		instrument volume to the samples. */
+		postFader = 0,
+		/** Only layer gain and note velocity will be applied to the samples.*/
+		preFader = 1 };
+
+	/** Specifies which audio settings will be applied to the sample
+		supplied in the JACK per track output ports.*/
+	JackTrackOutputMode		m_JackTrackOutputMode;
 	//jack time master
 
 	/**
+	 * External applications with a faulty JACK timebase master
+	 * implementation can mess up the transport within Hydrogen. To
+	 * guarantee the basic functionality, the user can disable
+	 * timebase support and make Hydrogen only listen to the frame
+	 * number broadcast by the JACK server.
+	 */
+	bool				m_bJackTimebaseEnabled;
+	/**
 	 * Specifies the variable, which has to remain constant in order
 	 * to guarantee a working synchronization and relocation with
-	 * Hydrogen as Jack timebase client.
+	 * Hydrogen as JACK timebase client.
 	 */
 	enum class JackBBTSyncMethod {
 		/** The measure - could be any - does not change during the
@@ -358,19 +384,19 @@ public:
 		/** The length of each pattern must match the measure of the
 			corresponding bar in the timebase master. This way both
 			the pattern position of Hydrogen and the bar information
-			provided by Jack can be assumed to be identical.*/
+			provided by JACK can be assumed to be identical.*/
 		identicalBars = 1 };
 	/**
 	 * Since Hydrogen uses both fixed pattern lengths and recalculates
 	 * the tick size each time it encounters an alternative tempo, its
 	 * transport is incompatible to the BBT information provided by 
-	 * the Jack server. Only if the length of each pattern corresponds
+	 * the JACK server. Only if the length of each pattern corresponds
 	 * to the measure of the respective bar in the timebase master
-	 * application, the bar information provided by Jack can be used
+	 * application, the bar information provided by JACK can be used
 	 * directly to determine chosen pattern. If this, however, is not
 	 * the case - which can quite easily happen - a complete history 
 	 * of all measure and tempo changes would be required to correctly
-	 * identify the pattern. Since this is not provided by Jack, one
+	 * identify the pattern. Since this is not provided by JACK, one
 	 * has to either assume the measure or tempo to be constant or 
 	 * that the user took care of adjusting the lengths properly.
 	 */
@@ -435,6 +461,9 @@ public:
 	void			setShowDevelWarning( bool value );
 	bool			getShowDevelWarning();
 
+	bool			getShowNoteOverwriteWarning();
+	void			setShowNoteOverwriteWarning( bool bValue );
+
 	bool			isRestoreLastSongEnabled();
 	bool			isRestoreLastPlaylistEnabled();
 	bool			isPlaylistUsingRelativeFilenames();
@@ -450,9 +479,6 @@ public:
 
 	void			setRecordEvents( bool value );
 	bool			getRecordEvents();
-
-	void			setDestructiveRecord ( bool value );
-	bool			getDestructiveRecord();
 
 	void			setPunchInPos ( unsigned pos );
 	int				getPunchInPos();
@@ -511,6 +537,12 @@ public:
 	unsigned		getPatternEditorGridWidth();
 	void			setPatternEditorGridWidth( unsigned value );
 
+	unsigned		getSongEditorGridHeight();
+	void			setSongEditorGridHeight( unsigned value );
+
+	unsigned		getSongEditorGridWidth();
+	void			setSongEditorGridWidth( unsigned value );
+
 	void			setColoringMethodAuxValue( int value );
 	int				getColoringMethodAuxValue() const;
 
@@ -528,6 +560,9 @@ public:
 
 	WindowProperties	getSongEditorProperties();
 	void				setSongEditorProperties( const WindowProperties& prop );
+
+	WindowProperties	getInstrumentRackProperties();
+	void				setInstrumentRackProperties( const WindowProperties& prop );
 
 	WindowProperties	getAudioEngineInfoProperties();
 	void				setAudioEngineInfoProperties( const WindowProperties& prop );
@@ -669,13 +704,13 @@ private:
 	bool				m_bUseLash;
 	///< Show development version warning?
 	bool				m_bShowDevelWarning;
+	bool				m_bShowNoteOverwriteWarning;
 	///< Last song used
 	QString				m_lastSongFilename;
 	QString				m_lastPlaylistFilename;
 
 	bool				quantizeEvents;
 	bool				recordEvents;
-	bool				destructiveRecord;
 	bool				readPrefFileforotherplaces;
 	int					punchInPos;
 	int					punchOutPos;
@@ -744,11 +779,13 @@ private:
 	bool					m_bUseRelativeFilenamesForPlaylists;
 	unsigned				m_nPatternEditorGridHeight;
 	unsigned				m_nPatternEditorGridWidth;
+	unsigned				m_nSongEditorGridHeight;
+	unsigned				m_nSongEditorGridWidth;
 	WindowProperties		mainFormProperties;
 	WindowProperties		mixerProperties;
 	WindowProperties		patternEditorProperties;
 	WindowProperties		songEditorProperties;
-	WindowProperties		drumkitManagerProperties;
+	WindowProperties		instrumentRackProperties;
 	WindowProperties		audioEngineInfoProperties;
 	WindowProperties		m_ladspaProperties[MAX_FX];
 
@@ -922,6 +959,14 @@ inline bool Preferences::getShowDevelWarning() {
 	return m_bShowDevelWarning;
 }
 
+inline bool Preferences::getShowNoteOverwriteWarning() {
+	return m_bShowNoteOverwriteWarning;
+}
+
+inline void Preferences::setShowNoteOverwriteWarning( bool bValue ) {
+	m_bShowNoteOverwriteWarning = bValue;
+}
+
 inline void Preferences::setHideKeyboardCursor( bool value ) {
 	m_bHideKeyboardCursor = value;
 }
@@ -968,13 +1013,6 @@ inline void Preferences::setRecordEvents( bool value ) {
 }
 inline bool Preferences::getRecordEvents() {
 	return recordEvents;
-}
-
-inline void Preferences::setDestructiveRecord ( bool value ) {
-	destructiveRecord = value;
-}
-inline bool Preferences::getDestructiveRecord() {
-	return destructiveRecord;
 }
 
 inline void Preferences::setPunchInPos ( unsigned pos ) {
@@ -1099,13 +1137,25 @@ inline void Preferences::setShowAutomationArea( bool value ) {
 }
 
 
+inline unsigned Preferences::getSongEditorGridHeight() {
+	return m_nSongEditorGridHeight;
+}
+inline void Preferences::setSongEditorGridHeight( unsigned value ) {
+	m_nSongEditorGridHeight = value;
+}
+inline unsigned Preferences::getSongEditorGridWidth() {
+	return m_nSongEditorGridWidth;
+}
+inline void Preferences::setSongEditorGridWidth( unsigned value ) {
+	m_nSongEditorGridWidth = value;
+}
+
 inline unsigned Preferences::getPatternEditorGridHeight() {
 	return m_nPatternEditorGridHeight;
 }
 inline void Preferences::setPatternEditorGridHeight( unsigned value ) {
 	m_nPatternEditorGridHeight = value;
 }
-
 inline unsigned Preferences::getPatternEditorGridWidth() {
 	return m_nPatternEditorGridWidth;
 }
@@ -1158,6 +1208,13 @@ inline void Preferences::setSongEditorProperties( const WindowProperties& prop )
 }
 
 
+inline WindowProperties Preferences::getInstrumentRackProperties() {
+	return instrumentRackProperties;
+}
+inline void Preferences::setInstrumentRackProperties( const WindowProperties& prop ) {
+	instrumentRackProperties = prop;
+}
+ 
 inline WindowProperties Preferences::getAudioEngineInfoProperties() {
 	return audioEngineInfoProperties;
 }

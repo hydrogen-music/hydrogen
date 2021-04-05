@@ -73,6 +73,7 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 		void updateMixer();
 		void showFXPanelClicked(Button* ref);
 		void showPeaksBtnClicked(Button* ref);
+		void openMixerSettingsDialog( Button* ref );
 		void ladspaActiveBtnClicked( LadspaFXMixerLine* ref );
 		void ladspaEditBtnClicked( LadspaFXMixerLine *ref );
 		void ladspaVolumeChanged( LadspaFXMixerLine* ref);
@@ -85,6 +86,7 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 		QScrollArea*			m_pFaderScrollArea;
 		ToggleButton *			m_pShowFXPanelBtn;
 		ToggleButton *			m_pShowPeaksBtn;
+		Button *				m_pOpenMixerSettingsBtn;
 		MasterMixerLine *		m_pMasterLine;
 
 		QWidget *				m_pFaderPanel;

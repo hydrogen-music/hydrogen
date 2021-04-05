@@ -41,13 +41,6 @@ class AutomationPathView;
 class LCDCombo;
 class PlaybackTrackWaveDisplay;
 
-enum SongEditorActionMode
-{
-	SELECT_ACTION,
-	DRAW_ACTION
-};
-
-
 class SongEditorPanel : public QWidget, public EventListener, public H2Core::Object
 {
 	H2_OBJECT
@@ -65,7 +58,6 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void updateAll();
 		void updatePositionRuler();
 		void setModeActionBtn( bool mode );
-		SongEditorActionMode getActionMode() {	return m_actionMode;	}
 		void toggleAutomationAreaVisibility();
 		
 		void showTimeline();
@@ -87,6 +79,12 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		 */
 		void updateTimelineUsage();
 		virtual void timelineActivationEvent( int nValue ) override;
+		/** Updates the associated buttons if the action mode was
+		 * changed within the core.
+		 *
+		 * \param nValue 0 - select mode and 1 - draw mode.
+		 */
+		void actionModeChangeEvent( int nValue ) override;
 
 	private slots:
 		void vScrollTo( int value );
@@ -120,8 +118,6 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void automationPathPointMoved(float ox, float oy, float tx, float ty);
 
 	private:
-		SongEditorActionMode	m_actionMode;
-
 		uint					m_nInitialWidth;
 		uint					m_nInitialHeight;
 
@@ -154,6 +150,10 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		ToggleButton *			m_pTagbarToggleBtn;
 		
 		Fader*					m_pPlaybackTrackFader;
+
+		/** Store the tool tip of the Timeline since it gets
+			overwritten during deactivation.*/
+		QString					m_sTimelineToolTip;
 		ToggleButton *			m_pTimeLineToggleBtn;
 		ToggleButton *			m_pPlaybackToggleBtn;
 		ToggleButton *			m_pViewTimeLineToggleBtn;

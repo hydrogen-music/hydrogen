@@ -38,9 +38,10 @@ namespace H2Core
 
 const char* Pattern::__class_name = "Pattern";
 
-Pattern::Pattern( const QString& name, const QString& info, const QString& category, int length )
+Pattern::Pattern( const QString& name, const QString& info, const QString& category, int length, int denominator )
 	: Object( __class_name )
 	, __length( length )
+	, __denominator( denominator)
 	, __name( name )
 	, __info( info )
 	, __category( category )
@@ -50,6 +51,7 @@ Pattern::Pattern( const QString& name, const QString& info, const QString& categ
 Pattern::Pattern( Pattern* other )
 	: Object( __class_name )
 	, __length( other->get_length() )
+	, __denominator( other->get_denominator() )
 	, __name( other->get_name() )
 	, __info( other->get_info() )
 	, __category( other->get_category() )
@@ -93,7 +95,8 @@ Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
 	    node->read_string( "name", nullptr, false, false ),
 	    node->read_string( "info", "", false, false ),
 	    node->read_string( "category", "unknown", false, false ),
-	    node->read_int( "size", -1, false, false )
+	    node->read_int( "size", -1, false, false ),
+	    node->read_int( "denominator", 4, false, false )
 	);
 	// FIXME support legacy xml element pattern_name, should once be removed
 	if ( pattern->get_name().isEmpty() ) {
@@ -136,6 +139,7 @@ void Pattern::save_to( XMLNode* node, const Instrument* instrumentOnly ) const
 	pattern_node.write_string( "info", __info );
 	pattern_node.write_string( "category", __category );
 	pattern_node.write_int( "size", __length );
+	pattern_node.write_int( "denominator", __denominator );
 	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
 	int id = ( instrumentOnly == nullptr ? -1 : instrumentOnly->get_id() );
 	for( auto it=__notes.cbegin(); it!=__notes.cend(); ++it ) {
@@ -279,6 +283,74 @@ void Pattern::extand_with_flattened_virtual_patterns( PatternList* patterns )
 	for( virtual_patterns_cst_it_t it=__flattened_virtual_patterns.begin(); it!=__flattened_virtual_patterns.end(); ++it ) {
 		patterns->add( *it );
 	}
+}
+
+QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Object::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[Pattern]\n" ).arg( sPrefix )
+			.append( QString( "%1%2length: %3\n" ).arg( sPrefix ).arg( s ).arg( __length ) )
+			.append( QString( "%1%2denominator: %3\n" ).arg( sPrefix ).arg( s ).arg( __denominator ) )
+			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( __name ) )
+			.append( QString( "%1%2category: %3\n" ).arg( sPrefix ).arg( s ).arg( __category ) )
+			.append( QString( "%1%2info: %3\n" ).arg( sPrefix ).arg( s ).arg( __info ) )
+			.append( QString( "%1%2Notes:\n" ).arg( sPrefix ).arg( s ) );
+				 
+		for ( auto it = __notes.begin(); it != __notes.end(); it++ ) {
+			if ( it->second != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( it->second->toQString( sPrefix + s + s, bShort ) ) );
+			}
+		}
+
+		sOutput.append( QString( "%1%2Virtual_patterns:\n" ).arg( sPrefix ).arg( s ) );
+		for ( auto ii : __virtual_patterns ) {
+			if ( ii != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
+			}
+		}
+
+		sOutput.append( QString( "%1%2Flattened_virtual_patterns:\n" ).arg( sPrefix ).arg( s ) );
+		for ( auto ii : __flattened_virtual_patterns ) {
+			if ( ii != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
+			}
+		}
+	} else {
+		
+		sOutput = QString( "[Pattern]" )
+			.append( QString( " length: %1" ).arg( __length ) )
+			.append( QString( ", denominator: %1" ).arg( __denominator ) )
+			.append( QString( ", name: %1" ).arg( __name ) )
+			.append( QString( ", category: %1" ).arg( __category ) )
+			.append( QString( ", info: %1" ).arg( __info ) )
+			.append( QString( ", [Notes: " ) );
+		for ( auto it = __notes.begin(); it != __notes.end(); it++ ) {
+			if ( it->second != nullptr ) {
+				sOutput.append( QString( "[%2, %3] " )
+								.arg( it->second->get_instrument()->get_name() )
+								.arg( it->second->get_position() ) );
+			}
+		}
+		sOutput.append( "]" );
+		if ( __virtual_patterns.size() != 0 ) {
+			sOutput.append( QString( ", Virtual_patterns:" ) );
+		}
+		for ( auto ii : __virtual_patterns ) {
+			if ( ii != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
+			}
+		}
+		if ( __flattened_virtual_patterns.size() != 0 ) {
+			sOutput.append( QString( ", Flattened_virtual_patterns:" ) );
+		}
+		for ( auto ii : __flattened_virtual_patterns ) {
+			if ( ii != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
+			}
+		}
+	}	
+	return sOutput;
 }
 
 };

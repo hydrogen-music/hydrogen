@@ -334,13 +334,13 @@ int main(int argc, char *argv[])
 			pPref->m_sAudioDriver = "Auto";
 		}
 		else if (sSelectedDriver == "jack") {
-			pPref->m_sAudioDriver = "Jack";
+			pPref->m_sAudioDriver = "JACK";
 		}
 		else if ( sSelectedDriver == "oss" ) {
-			pPref->m_sAudioDriver = "Oss";
+			pPref->m_sAudioDriver = "OSS";
 		}
 		else if ( sSelectedDriver == "alsa" ) {
-			pPref->m_sAudioDriver = "Alsa";
+			pPref->m_sAudioDriver = "ALSA";
 		}
 
 		// Bootstrap is complete, start GUI
@@ -444,7 +444,7 @@ int main(int argc, char *argv[])
 			 * here we make it save that hydrogen start in a jacksession case
 			 * every time with jack as audio driver
 			 */
-			pPref->m_sAudioDriver = "Jack";
+			pPref->m_sAudioDriver = "JACK";
 
 		}
 

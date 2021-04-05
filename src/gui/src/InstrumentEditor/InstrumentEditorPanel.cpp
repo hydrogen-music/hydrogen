@@ -82,7 +82,7 @@ void InstrumentEditorPanel::parametersInstrumentChangedEvent()
 
 void InstrumentEditorPanel::notifyOfDrumkitChange()
 {
-	std::vector<H2Core::DrumkitComponent*>* pComponentList = H2Core::Hydrogen::get_instance()->getSong()->get_components();
+	std::vector<H2Core::DrumkitComponent*>* pComponentList = H2Core::Hydrogen::get_instance()->getSong()->getComponents();
 
 	m_pInstrumentEditor->selectComponent(pComponentList->front()->get_id());
 	m_pInstrumentEditor->selectedInstrumentChangedEvent();

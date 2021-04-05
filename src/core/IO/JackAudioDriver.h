@@ -930,10 +930,6 @@ private:
 	Timebase m_timebaseState;
 
 };
-	
-inline JackAudioDriver::Timebase JackAudioDriver::getTimebaseState() const {
-	return m_timebaseState;
-}
 
 
 

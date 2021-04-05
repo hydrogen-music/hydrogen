@@ -24,9 +24,9 @@
 #define H2C_INSTRUMENT_H
 
 #include <cassert>
-
 #include <core/Object.h>
 #include <core/Basics/Adsr.h>
+#include <core/Helpers/Filesystem.h>
 
 #define EMPTY_INSTR_ID          -1
 /** Created Instrument will be used as metronome. */
@@ -73,17 +73,21 @@ class Instrument : public H2Core::Object
 		 * creates a new Instrument, loads samples from a given instrument within a given drumkit
 		 * \param drumkit_name the drumkit to search the instrument in
 		 * \param instrument_name the instrument within the drumkit to load samples from
+		 * \param lookup Where to search (system/user folder or both)
+		 * for the drumkit.
 		 * \return a new Instrument instance
 		 */
-		static Instrument* load_instrument( const QString& drumkit_name, const QString& instrument_name );
+		static Instrument* load_instrument( const QString& drumkit_name, const QString& instrument_name, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
 
 		/**
 		 * loads instrument from a given instrument within a given drumkit into a `live` Instrument object.
 		 * \param drumkit_name the drumkit to search the instrument in
 		 * \param instrument_name the instrument within the drumkit to load samples from
 		 * \param is_live is it performed while playing
+		 * \param lookup Where to search (system/user folder or both)
+		 * for the drumkit.
 		 */
-		void load_from( const QString& drumkit_name, const QString& instrument_name, bool is_live = true );
+		void load_from( const QString& drumkit_name, const QString& instrument_name, bool is_live = true, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
 
 		/**
 		 * loads instrument from a given instrument into a `live` Instrument object.
@@ -211,6 +215,11 @@ class Instrument : public H2Core::Object
 		void set_random_pitch_factor( float val );
 		/** get the random pitch factor of the instrument */
 		float get_random_pitch_factor() const;
+		
+		/** set the pitch offset of the instrument */
+		void set_pitch_offset( float val );
+		/** get the pitch offset of the instrument */
+		float get_pitch_offset() const;
 
 		/** set the active status of the instrument */
 		void set_active( bool active );
@@ -270,6 +279,15 @@ class Instrument : public H2Core::Object
 
 		bool has_missing_samples() const { return m_bHasMissingSamples; }
 		void set_missing_samples( bool bHasMissingSamples ) { m_bHasMissingSamples = bHasMissingSamples; }
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \param bShort Instead of the whole content of all classes
+		 * stored as members just a single unique identifier will be
+		 * displayed without line breaks.
+		 *
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
 	        /** Identifier of an instrument, which should be
@@ -291,6 +309,7 @@ class Instrument : public H2Core::Object
 		float					__filter_cutoff;		///< filter cutoff (0..1)
 		float					__filter_resonance;		///< filter resonant frequency (0..1)
 		float					__random_pitch_factor;	///< random pitch factor
+		float					__pitch_offset;	///< instrument main pitch offset
 		int						__midi_out_note;		///< midi out note
 		int						__midi_out_channel;		///< midi out channel
 		bool					__stop_notes;			///< will the note automatically generate a note off after being on
@@ -311,6 +330,7 @@ class Instrument : public H2Core::Object
 		bool					__current_instr_for_export;		///< is the instrument currently being exported?
 		bool 					m_bHasMissingSamples;	///< does the instrument have missing sample files?
 };
+
 // DEFINITIONS
 /** Sets the name of the Instrument #__name.
  * \param name New name. */
@@ -500,9 +520,19 @@ inline void Instrument::set_random_pitch_factor( float val )
 	__random_pitch_factor = val;
 }
 
+inline void Instrument::set_pitch_offset( float val )
+{
+	__pitch_offset = val;
+}
+
 inline float Instrument::get_random_pitch_factor() const
 {
 	return __random_pitch_factor;
+}
+
+inline float Instrument::get_pitch_offset() const
+{
+	return __pitch_offset;
 }
 
 inline void Instrument::set_active( bool active )

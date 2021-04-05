@@ -125,7 +125,7 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 		return;
 	}
 	
-	PatternList *pPatternList = pHydrogen->getSong()->get_pattern_list();
+	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
 	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() )  ) {
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );

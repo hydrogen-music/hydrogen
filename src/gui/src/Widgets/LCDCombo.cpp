@@ -30,9 +30,10 @@
 
 const char* LCDCombo::__class_name = "LCDCombo";
 
-LCDCombo::LCDCombo( QWidget *pParent, int digits )
+LCDCombo::LCDCombo( QWidget *pParent, int digits, bool bAllowMenuOverflow )
 	: QWidget(pParent)
 	, Object( __class_name )
+	, m_bAllowMenuOverflow( bAllowMenuOverflow )
 {
 	INFOLOG( "INIT" );
 
@@ -44,6 +45,7 @@ LCDCombo::LCDCombo( QWidget *pParent, int digits )
 	                     QSize(13, 13)
 	                   );
 	pop = new QMenu( this );
+
 	size = digits;
 	active = -1;
 
@@ -71,7 +73,7 @@ void LCDCombo::onClick( Button* )
 bool LCDCombo::addItem( const QString &text )
 {
 	//INFOLOG( "add item" );
-	if ( text.size() <= size ) {
+	if ( text.size() <= size || m_bAllowMenuOverflow ) {
 		actions.append( pop->addAction( text ) );
 		return true;
 	} else {

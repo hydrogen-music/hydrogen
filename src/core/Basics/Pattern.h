@@ -24,7 +24,6 @@
 #define H2C_PATTERN_H
 
 #include <set>
-
 #include <core/Object.h>
 #include <core/Basics/Note.h>
 
@@ -59,10 +58,11 @@ class Pattern : public H2Core::Object
 		 * constructor
 		 * \param name the name of the pattern
 		 * \param info Initialized with an empty string.
-		 * \param category the name of the pattern
+		 * \param category the category of the pattern
 		 * \param length the length of the pattern
+		 * \param denominator the denominator for meter representation (eg 4/4)
 		 */
-		Pattern( const QString& name="Pattern", const QString& info="", const QString& category="not_categorized", int length=MAX_NOTES );
+		Pattern( const QString& name="Pattern", const QString& info="", const QString& category="not_categorized", int length=MAX_NOTES, int denominator=4 );
 		/** copy constructor */
 		Pattern( Pattern* other );
 		/** destructor */
@@ -101,6 +101,10 @@ class Pattern : public H2Core::Object
 		void set_length( int length );
 		///< get the length of the pattern
 		int get_length() const;
+		///< set the denominator of the pattern
+		void set_denominator( int denominator );
+		///< get the denominator of the pattern
+		int get_denominator() const;
 		///< get the note multimap
 		const notes_t* get_notes() const;
 		///< get the virtual pattern set
@@ -188,9 +192,19 @@ class Pattern : public H2Core::Object
 		 * \param instrumentOnly export only the notes of that instrument if given
 		 */
 		void save_to( XMLNode* node, const Instrument* instrumentOnly = nullptr ) const;
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \param bShort Instead of the whole content of all classes
+		 * stored as members just a single unique identifier will be
+		 * displayed without line breaks.
+		 *
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
 		int __length;                                           ///< the length of the pattern
+		int __denominator;                                           ///< the meter denominator of the pattern used in meter (eg 4/4)
 		QString __name;                                         ///< the name of thepattern
 		QString __category;                                     ///< the category of the pattern
 		QString __info;											///< a description of the pattern
@@ -207,16 +221,16 @@ class Pattern : public H2Core::Object
 };
 
 #define FOREACH_NOTE_CST_IT_BEGIN_END(_notes,_it) \
-	for( Pattern::notes_cst_it_t (_it)=(_notes)->begin(); (_it)!=(_notes)->end(); (_it)++ )
+	for( Pattern::notes_cst_it_t _it=(_notes)->begin(); (_it)!=(_notes)->end(); (_it)++ )
 
 #define FOREACH_NOTE_CST_IT_BOUND(_notes,_it,_bound) \
-	for( Pattern::notes_cst_it_t (_it)=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->upper_bound((_bound)); (_it)++ )
+	for( Pattern::notes_cst_it_t _it=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->end() && (_it)->first == (_bound); (_it)++ )
 
 #define FOREACH_NOTE_IT_BEGIN_END(_notes,_it) \
-	for( Pattern::notes_it_t (_it)=(_notes)->begin(); (_it)!=(_notes)->end(); (_it)++ )
+	for( Pattern::notes_it_t _it=(_notes)->begin(); (_it)!=(_notes)->end(); (_it)++ )
 
 #define FOREACH_NOTE_IT_BOUND(_notes,_it,_bound) \
-	for( Pattern::notes_it_t (_it)=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->upper_bound((_bound)); (_it)++ )
+	for( Pattern::notes_it_t _it=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->end() && (_it)->first == (_bound); (_it)++ )
 
 // DEFINITIONS
 
@@ -258,6 +272,16 @@ inline void Pattern::set_length( int length )
 inline int Pattern::get_length() const
 {
 	return __length;
+}
+
+inline void Pattern::set_denominator( int denominator )
+{
+	__denominator = denominator;
+}
+
+inline int Pattern::get_denominator() const
+{
+	return __denominator;
 }
 
 inline const Pattern::notes_t* Pattern::get_notes() const

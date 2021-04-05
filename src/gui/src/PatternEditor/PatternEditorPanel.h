@@ -29,6 +29,7 @@
 #include "PianoRollEditor.h"
 #include "../EventListener.h"
 #include "../Widgets/LCDCombo.h"
+#include "../Widgets/LCD.h"
 
 class Button;
 class ToggleButton;
@@ -71,7 +72,6 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		int getPropertiesComboValue(){ return __pPropertiesCombo->selected(); }
 
 		void updateSLnameLabel();
-		void displayorHidePrePostCB();
 		void updatePianorollEditor();
 
 		// Implements EventListener interface
@@ -82,17 +82,21 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		void ensureCursorVisible();
 		int getCursorPosition();
 		void setCursorPosition(int nCursorPosition);
-		int moveCursorLeft();
-		int moveCursorRight();
-		bool cursorHidden()	{ return m_bCursorHidden; }
-		void setCursorHidden(bool hidden);
+		int moveCursorLeft( int n = 1 );
+		int moveCursorRight( int n = 1 );
 
 		void selectInstrumentNotes( int nInstrument );
+
+		void updateEditors( bool bPatternOnly = false );
 
 	private slots:
 		void gridResolutionChanged( int nSelected );
 		void propertiesComboChanged( int nSelected );
-		void patternSizeChanged( int nSelected );
+		void patternLengthChanged();
+		void updatePatternSizeLCD();
+		void patternSizeLCDClicked();
+		void denominatorWarningClicked();
+
 
 		void hearNotesBtnClick(Button *ref);
 		void quantizeEventsBtnClick(Button *ref);
@@ -111,23 +115,17 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		void moveDownBtnClicked(Button *);
 		void moveUpBtnClicked(Button *);
 
-		void recPreDeleteSelect( int index );
-		void recPostDeleteSelect( int index );
-
 	private:
 		H2Core::Pattern *	m_pPattern;
 		QPixmap				m_backgroundPixmap;
 		QLabel *			pSLlabel;
 
 		// Editor top
-		LCDCombo *			__pattern_size_combo;
+		LCDDisplay *			__pattern_size_LCD;
+		Button *			m_pDenominatorWarning;
 		LCDCombo *			__resolution_combo;
 		ToggleButton *		__show_drum_btn;
 		ToggleButton *		__show_piano_btn;
-		QComboBox *			__recpredelete;
-		QComboBox *			__recpostdelete;
-
-
 		// ~Editor top
 
 		//note properties combo
@@ -185,7 +183,6 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		// Cursor positioning
 		int					m_nCursorPosition;
 		int					m_nCursorIncrement;
-		bool				m_bCursorHidden;
 		//~ Cursor
 
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;

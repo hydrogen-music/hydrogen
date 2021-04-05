@@ -23,6 +23,7 @@
 
 
 #include <core/Preferences.h>
+#include <core/AudioEngine.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/Timeline.h>
@@ -57,7 +58,7 @@ void* diskWriterDriver_thread( void* param )
 
 	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 0 );
 	
-	pDriver->setBpm( Hydrogen::get_instance()->getSong()->__bpm );
+	pDriver->setBpm( Hydrogen::get_instance()->getSong()->getBpm() );
 	pDriver->audioEngine_process_checkBPMChanged();
 	
 	__INFOLOG( "DiskWriterDriver thread start" );
@@ -153,12 +154,13 @@ void* diskWriterDriver_thread( void* param )
 
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 
-	std::vector<PatternList*> *pPatternColumns = Hydrogen::get_instance()->getSong()->get_pattern_group_vector();
+	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
 	int nColumns = pPatternColumns->size();
 	
 	int nPatternSize;
-	int validBpm = pHydrogen->getSong()->__bpm;
+	int validBpm = pHydrogen->getSong()->getBpm();
 	float oldBPM = 0;
 	float fTicksize = 0;
 	
@@ -176,11 +178,16 @@ void* diskWriterDriver_thread( void* param )
 
 			float fTimelineBpm = pTimeline->getTempoAtBar( patternPosition, true );
 			if ( fTimelineBpm != 0 ) {
+				/* TODO: For now the function returns 0 if the bar is
+				 * positioned _before_ the first tempo marker. This will be
+				 * taken care of with #854. */
 				validBpm = fTimelineBpm;
 			}
 			
 			pDriver->setBpm(validBpm);
-			fTicksize = pDriver->m_nSampleRate * 60.0 / validBpm / Hydrogen::get_instance()->getSong()->__resolution;
+			fTicksize = AudioEngine::computeTickSize(   pDriver->m_nSampleRate,
+														validBpm,
+														pSong->getResolution() );
 			pDriver->audioEngine_process_checkBPMChanged();
 			pHydrogen->setPatternPos(patternPosition);
 			
@@ -195,7 +202,9 @@ void* diskWriterDriver_thread( void* param )
 		}
 		else
 		{
-			fTicksize = pDriver->m_nSampleRate * 60.0 /  Hydrogen::get_instance()->getSong()->__bpm / Hydrogen::get_instance()->getSong()->__resolution;
+			fTicksize = AudioEngine::computeTickSize(   pDriver->m_nSampleRate,
+														pSong->getBpm(),
+														pSong->getResolution() );
 			//pDriver->m_transport.m_fTickSize = ticksize;
 		}
 		
@@ -381,29 +390,29 @@ void DiskWriterDriver::setBpm( float fBPM )
 
 void DiskWriterDriver::audioEngine_process_checkBPMChanged()
 {
-		float fNewTickSize =
-						getSampleRate() * 60.0
-						/ Hydrogen::get_instance()->getSong()->__bpm
-						/ Hydrogen::get_instance()->getSong()->__resolution;
+	auto pSong = Hydrogen::get_instance()->getSong();
+	float fNewTickSize = AudioEngine::computeTickSize( getSampleRate(),
+														 pSong->getBpm(),
+														 pSong->getResolution() );
 
-		if ( fNewTickSize != m_transport.m_fTickSize ) {
-				// cerco di convertire ...
-				float fTickNumber =
-								( float )m_transport.m_nFrames
-								/ ( float )m_transport.m_fTickSize;
+	if ( fNewTickSize != m_transport.m_fTickSize ) {
+		// cerco di convertire ...
+		float fTickNumber =
+			( float )m_transport.m_nFrames
+			/ ( float )m_transport.m_fTickSize;
 
-				m_transport.m_fTickSize = fNewTickSize;
+		m_transport.m_fTickSize = fNewTickSize;
 
-				if ( m_transport.m_fTickSize == 0 ) {
-						return;
-				}
-
-				// update frame position
-				m_transport.m_nFrames = ( long long )( fTickNumber * fNewTickSize );
-
-				// currently unuseble here
-				//EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
+		if ( m_transport.m_fTickSize == 0 ) {
+			return;
 		}
+
+		// update frame position
+		m_transport.m_nFrames = ( long long )( fTickNumber * fNewTickSize );
+
+		// currently unuseble here
+		//EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
+	}
 }
 
 };

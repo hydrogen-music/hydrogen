@@ -189,7 +189,7 @@ public:
 	 * Mutex locking of the AudioEngine.
 	 *
 	 * This function is equivalent to lock() but returns false
-	 * immediaely if the lock canot be obtained immediately.
+	 * immediaely if the lock cannot be obtained immediately.
 	 *
 	 * \param file File the locking occurs in.
 	 * \param line Line of the file the locking occurs in.
@@ -384,7 +384,7 @@ public:
 	inline void			processTransport();
 	
 	inline unsigned		renderNote( Note* pNote, const unsigned& nBufferSize );
-	// TODO: Add documentation of doErase, inPunchArea, and
+	// TODO: Add documentation of inPunchArea, and
 	// m_addMidiNoteVector
 	/**
 	 * Takes all notes from the current patterns, from the MIDI queue
@@ -590,10 +590,10 @@ public:
 	 * Which audio driver to use is specified in
 	 * Preferences::m_sAudioDriver. If "Auto" is selected, it will try to
 	 * initialize drivers using createDriver() in the following order: 
-	 * - Windows:  "PortAudio", "Alsa", "CoreAudio", "Jack", "Oss",
+	 * - Windows:  "PortAudio", "ALSA", "CoreAudio", "JACK", "OSS",
 	 *   and "PulseAudio" 
-	 * - all other systems: "Jack", "Alsa", "CoreAudio", "PortAudio",
-	 *   "Oss", and "PulseAudio".
+	 * - all other systems: "Jack", "ALSA", "CoreAudio", "PortAudio",
+	 *   "OSS", and "PulseAudio".
 	 * If all of them return NULL, #m_pAudioDriver will be initialized
 	 * with the NullDriver instead. If a specific choice is contained in
 	 * Preferences::m_sAudioDriver and createDriver() returns NULL, the

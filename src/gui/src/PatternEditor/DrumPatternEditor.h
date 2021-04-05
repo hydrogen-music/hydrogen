@@ -26,26 +26,20 @@
 
 #include "../EventListener.h"
 #include "../Selection.h"
+#include "PatternEditor.h"
 
 #include <core/Object.h>
+#include <core/Helpers/Filesystem.h>
 
 #include <QtGui>
 #include <QtWidgets>
 
-namespace H2Core
-{
-	class Note;
-	class Pattern;
-	class Instrument;
-	class AudioEngine;
-}
-
 class PatternEditorInstrumentList;
-class PatternEditorPanel;
+
 ///
 /// Drum pattern editor
 ///
-class DrumPatternEditor : public QWidget, public EventListener, public H2Core::Object
+class DrumPatternEditor : public PatternEditor
 {
     H2_OBJECT
 	Q_OBJECT
@@ -53,15 +47,6 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 	public:
 		DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel);
 		~DrumPatternEditor();
-
-		void setResolution(uint res, bool bUseTriplets);
-		uint getResolution() {	return m_nResolution;	}
-		bool isUsingTriplets() { return m_bUseTriplets;	}
-
-		void zoom_in();
-		void zoom_out();
-
-		static QColor computeNoteColor( float );
 
 		// Implements EventListener interface
 		virtual void patternModifiedEvent() override;
@@ -79,6 +64,7 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 										float oldLeadLag,
 										int oldNoteKeyVal,
 										int oldOctaveKeyVal,
+										float probability,
 										bool listen,
 										bool isMidi,
 										bool isInstrumentMode,
@@ -91,7 +77,7 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 							 int nNewRow,
 							 H2Core::Note *note);
 
-		void addOrRemoveNote( int nColumn, int nRealColumn, int row );
+		void addOrRemoveNote( int nColumn, int nRealColumn, int row, bool bDoAdd = true, bool bDoDelete = true );
 		void editNoteLengthAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber );
 		void undoRedoAction(    int column,
 								QString mode,
@@ -111,7 +97,11 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		void functionRandomVelocityAction( QStringList noteVeloValue, int nSelectedInstrument, int selectedPatternNumber );
 		void functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument );
 		void functionDropInstrumentUndoAction( int nTargetInstrument, std::vector<int>* AddedComponents );
-		void functionDropInstrumentRedoAction(QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, std::vector<int>* AddedComponents );
+		/**
+		 * \param lookup Where to search (system/user folder or both)
+		 * for the drumkit.
+		 */
+		void functionDropInstrumentRedoAction(QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, std::vector<int>* AddedComponents, H2Core::Filesystem::Lookup lookup );
 		void functionDeleteInstrumentUndoAction(  std::list< H2Core::Note* > noteList, int nSelectedInstrument, QString instrumentName, QString drumkitName );
 		void functionAddEmptyInstrumentUndo();
 		void functionAddEmptyInstrumentRedo();
@@ -119,85 +109,48 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		void functionPasteNotesUndoAction(std::list<H2Core::Pattern*> & appliedList);
 
 		// Synthetic UI events from selection manager
-		void mouseClickEvent( QMouseEvent *ev );
-		void mouseDragStartEvent( QMouseEvent *ev );
-		void mouseDragUpdateEvent( QMouseEvent *ev );
-		void mouseDragEndEvent( QMouseEvent *ev );
-		void selectionMoveEndEvent( QInputEvent *ev );
+		virtual void mouseClickEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
+		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
 
 		// Selected notes are indexed by their address to ensure that a
 		// note is definitely uniquely identified. This carries the risk
 		// that state pointers to deleted notes may find their way into
 		// the selection.
-		typedef H2Core::Note* SelectionIndex;
-		std::vector<SelectionIndex> elementsIntersecting( QRect r );
-		void validateSelection();
+		virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) override;
 
-		QRect getKeyboardCursorRect();
+		virtual QRect getKeyboardCursorRect() override;
 
 
 	public slots:
-		void updateEditor();
-		void selectAll();
-		void selectNone();
-		void selectInstrumentNotes( int nInstrument );
-		void deleteSelection();
-		void copy();
-		void paste();
-		void cut();
+		virtual void updateEditor( bool bPatternOnly = false ) override;
+		virtual void selectAll() override;
+		virtual void deleteSelection() override;
+		virtual void paste() override;
 
 	private:
-		float m_nGridWidth;
-		uint m_nGridHeight;
-		int m_nEditorHeight;
-		uint m_nResolution;
-		bool m_bUseTriplets;
-
-		H2Core::AudioEngine* m_pAudioEngine;
-
-		bool m_bSelectNewNotes;
-
-		H2Core::Note *m_pDraggedNote;
-		//~
-
-
-		H2Core::Pattern *m_pPattern;
-
-		PatternEditorPanel *m_pPatternEditorPanel;
-
 		void __draw_note( H2Core::Note* note, QPainter& painter );
 		void __draw_pattern( QPainter& painter );
 		void __draw_grid( QPainter& painter );
 		void __create_background( QPainter& pointer );
 
-		virtual void mousePressEvent(QMouseEvent *ev) override;
-		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
-		virtual void mouseMoveEvent(QMouseEvent *ev) override;
 		virtual void keyPressEvent (QKeyEvent *ev) override;
+		virtual void keyReleaseEvent (QKeyEvent *ev) override;
 		virtual void showEvent ( QShowEvent *ev ) override;
 		virtual void hideEvent ( QHideEvent *ev ) override;
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void focusInEvent( QFocusEvent *ev ) override;
 
-		Selection<DrumPatternEditor, SelectionIndex > m_selection;
-		QMenu *m_pPopupMenu;
-
-		int getColumn(QMouseEvent *ev);
-		QPoint movingGridOffset();
-		void updateModifiers( QInputEvent *ev );
-
 		int findFreeCompoID( int startingPoint = 0 );
 		int findExistingCompo( QString SourceName );
 		QString renameCompo( QString OriginalName );
-
-		bool m_bFineGrained;
-		bool m_bCopyNotMove;
 
 		int __nRealColumn;
 		int __nColumn;
 		int __row;
 		int __oldLength;
-		int __selectedPatternNumber;
 };
 
 

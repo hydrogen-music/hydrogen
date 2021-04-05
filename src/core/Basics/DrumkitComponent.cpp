@@ -142,4 +142,30 @@ void DrumkitComponent::save_to( XMLNode* node )
 	ComponentNode.write_float( "volume", __volume );
 }
 
+QString DrumkitComponent::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Object::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[DrumkitComponent]\n" ).arg( sPrefix )
+			.append( QString( "%1%2id: %3\n" ).arg( sPrefix ).arg( s ).arg( __id ) )
+			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( __name ) )
+			.append( QString( "%1%2volume: %3\n" ).arg( sPrefix ).arg( s ).arg( __volume ) )
+			.append( QString( "%1%2muted: %3\n" ).arg( sPrefix ).arg( s ).arg( __muted ) )
+			.append( QString( "%1%2soloed: %3\n" ).arg( sPrefix ).arg( s ).arg( __soloed ) )
+			.append( QString( "%1%2peak_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __peak_l ) )
+			.append( QString( "%1%2peak_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __peak_r ) );
+	} else {
+
+		sOutput = QString( "[DrumkitComponent]" )
+			.append( QString( " id: %1" ).arg( __id ) )
+			.append( QString( ", name: %1" ).arg( __name ) )
+			.append( QString( ", volume: %1" ).arg( __volume ) )
+			.append( QString( ", muted: %1" ).arg( __muted ) )
+			.append( QString( ", soloed: %1" ).arg( __soloed ) )
+			.append( QString( ", peak_l: %1" ).arg( __peak_l ) )
+			.append( QString( ", peak_r: %1" ).arg( __peak_r ) );
+	}
+	return sOutput;
+}
+
 };

@@ -24,7 +24,6 @@
 #define H2C_INSTRUMENT_LAYER_H
 
 #include <memory>
-
 #include <core/Object.h>
 
 namespace H2Core
@@ -105,6 +104,15 @@ namespace H2Core
 		 * \return a new InstrumentLayer instance
 		 */
 		static InstrumentLayer* load_from( XMLNode* node, const QString& dk_path );
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \param bShort Instead of the whole content of all classes
+		 * stored as members just a single unique identifier will be
+		 * displayed without line breaks.
+		 *
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
 		float __gain;               ///< ratio between the input sample and the output signal, 1.0 by default

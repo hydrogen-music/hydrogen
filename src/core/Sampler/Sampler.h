@@ -32,6 +32,8 @@
 #include <vector>
 #include <memory>
 
+
+
 namespace H2Core
 {
 
@@ -51,6 +53,106 @@ class Sampler : public H2Core::Object
 {
 	H2_OBJECT
 public:
+
+   /** PAN LAWS
+	* The following pan law functions return pan_L (==L, which is the gain for Left channel).
+	* They assume a fPan argument domain in [-1;1], and this always happens
+	* thanks to the previously called getRatioPan().
+	*----------------------------
+	* For the right channel use: R(p) == pan_R(p) = pan_L(-p) == L(-p)
+	* thanks to the Left-Right symmetry.
+	*--------------------------------------
+	* The prefix of the function name tells the interpretation of the fPan argument:
+	*
+	* "ratio" parameter:
+	* 	 fPan = R/L - 1	if panned to the left,
+	* 	 fPan = 1 - L/R	if panned to the right.
+	*
+	* "linear" parameter (arithmetic mean with linear weights):
+	*	 fPan = ( R - L ) / ( R + L ).
+	*
+	* "polar" parameter (polar coordinate in LR plane):
+	*    fPan = 4 / pi * arctan( R/L ) - 1	if L != 0,
+	*    fPan = 1	if L == 0.
+	*
+	* "quadratic" parameter (arithmetic mean with squared weights):
+	*	 fPan = ( R^2 - L^2 ) / ( R^2 + L^2 ).
+	*
+	* Note: using a different fPan interpretation makes the output signal more central or more lateral.
+	* From more central to more lateral:
+	* "quadratic" ---> "ratio" ---> "polar" ---> "linear"
+	*---------------------------------------------
+	* After the prefix, the name describes the Image of the pan law in the LR plane.
+	* (remember that each pan law is a parametrized curve in LR plane.
+	* E.g.:
+	*	"ConstantSum":
+	*		it's properly used in an anechoic room, where there are no reflections.
+	*		Ensures uniform volumes in MONO export,
+	*		has -6.02 dB center compensation.
+	*	"ConstantPower":
+	*		probably makes uniform volumes in a common room,
+	*		has -3.01 dB center compensation.
+	*	"ConstantKNorm":
+	*		L^k + R^k = const
+	*		generalises constant sum (k = 1) and constant power (k = 2)
+	* 	"StraightPolygonal":
+	*		one gain is constant while the other varies.
+	*		It's ideal as BALANCE law of DUAL-channel track,
+	*		has 0 dB center compensation.
+	*/
+	enum PAN_LAW_TYPES {
+		RATIO_STRAIGHT_POLYGONAL = 0,
+		RATIO_CONST_POWER,
+		RATIO_CONST_SUM,
+		LINEAR_STRAIGHT_POLYGONAL,
+		LINEAR_CONST_POWER,
+		LINEAR_CONST_SUM,
+		POLAR_STRAIGHT_POLYGONAL,
+		POLAR_CONST_POWER,
+		POLAR_CONST_SUM,
+		QUADRATIC_STRAIGHT_POLYGONAL,
+		QUADRATIC_CONST_POWER,
+		QUADRATIC_CONST_SUM,
+		LINEAR_CONST_K_NORM,
+		RATIO_CONST_K_NORM,
+		POLAR_CONST_K_NORM,
+		QUADRATIC_CONST_K_NORM
+	};
+	
+	/** default k for pan law with such that L^k + R^k = const
+	 * must be initialised in Sampler.cpp
+	 */
+	static const float K_NORM_DEFAULT;
+	
+
+	// pan law functions
+	static float ratioStraightPolygonalPanLaw( float fPan );
+	static float ratioConstPowerPanLaw( float fPan );
+	static float ratioConstSumPanLaw( float fPan );
+	static float linearStraightPolygonalPanLaw( float fPan );
+	static float linearConstPowerPanLaw( float fPan );
+	static float linearConstSumPanLaw( float fPan );
+	static float polarStraightPolygonalPanLaw( float fPan );
+	static float polarConstPowerPanLaw( float fPan );
+	static float polarConstSumPanLaw( float fPan );
+	static float quadraticStraightPolygonalPanLaw( float fPan );
+	static float quadraticConstPowerPanLaw( float fPan );
+	static float quadraticConstSumPanLaw( float fPan );
+	// customly compensated	
+	static float linearConstKNormPanLaw( float fPan, float k );
+	static float polarConstKNormPanLaw( float fPan, float k );
+	static float ratioConstKNormPanLaw( float fPan, float k );
+	static float quadraticConstKNormPanLaw( float fPan, float k );
+	
+
+	/** This necessary function
+	 * returns the single pan parameter in [-1,1] from the L,R gains
+	 * as it was input from the GUI (up to scale and translation, which is arbitrary)
+	 */
+	static float getRatioPan( float fPan_L, float fPan_R );
+
+	
+
 	float* m_pMainOut_L;	///< sampler main out (left channel)
 	float* m_pMainOut_R;	///< sampler main out (right channel)
 
@@ -108,8 +210,7 @@ public:
 	 * layer will be loaded with a nullptr instead.
 	 */
 	void reinitializePlaybackTrack();
-
-
+	
 private:
 	std::vector<Note*> m_playingNotesQueue;
 	std::vector<Note*> m_queuedNoteOffs;
@@ -129,6 +230,11 @@ private:
 	
 	int m_nPlayBackSamplePosition;
 	
+	/** function to direct the computation to the selected pan law function
+	 */
+	float panLaw( float fPan, Song* pSong );
+
+
 
 	bool processPlaybackTrack(int nBufferSize);
 	
@@ -169,6 +275,7 @@ private:
 		Song* pSong
 	);
 };
+
 
 } // namespace
 

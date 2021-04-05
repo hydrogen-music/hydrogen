@@ -253,7 +253,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		static const float fPan_R = 0.5f;
 
 		int nInstrument = nNote - 36;
-		InstrumentList *pInstrList = pHydrogen->getSong()->get_instrument_list();
+		InstrumentList *pInstrList = pHydrogen->getSong()->getInstrumentList();
 		Instrument *pInstr = nullptr;
 		
 		if ( Preferences::get_instance()->__playselectedinstrument ){
@@ -332,7 +332,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	}
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	InstrumentList* pInstrList = pHydrogen->getSong()->get_instrument_list();
+	InstrumentList* pInstrList = pHydrogen->getSong()->getInstrumentList();
 
 	__noteOffTick = pHydrogen->getTickPosition();
 	unsigned long notelength = computeDeltaNoteOnOfftime();

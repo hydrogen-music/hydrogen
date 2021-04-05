@@ -155,7 +155,7 @@ public slots:
 		void action_window_show_DirectorWidget();
 		void action_window_showSongEditor();
 		void action_window_showPatternEditor();
-		void action_window_showDrumkitManagerPanel();
+		void action_window_showInstrumentRack();
 		void action_window_showAutomationArea();
 		void action_window_showTimeline();
 		void action_window_showPlaybackTrack();
@@ -164,6 +164,7 @@ public slots:
 		void update_mixer_checkbox();
 		void update_instrument_checkbox( bool show );
 		void update_automation_checkbox();
+		void update_playback_track_group();
 		void update_director_checkbox();
 		void update_playlist_checkbox();
 
@@ -197,8 +198,9 @@ public slots:
 		void openUndoStack();
 		void action_undo();
 		void action_redo();
-
-		void action_toggle_input_mode();
+		
+		void action_inputMode_instrument();
+		void action_inputMode_drumkit();
 
 		void handleSigUsr1();
 		/** Wrapper around savePreferences() and quit() method of
@@ -239,6 +241,7 @@ public slots:
 		QAction *	m_pViewAutomationPathAction;
 		QAction *	m_pViewTimelineAction;
 		QAction *	m_pViewPlaybackTrackAction;
+		QActionGroup *	m_pViewPlaybackTrackActionGroup;
 		QAction *	m_pInstrumentAction;
 		QAction *	m_pDrumkitAction;
 
@@ -273,6 +276,19 @@ public slots:
 
 		bool handleSelectNextPrevSongOnPlaylist(int step);
 
+		/**
+		 * Relocates to current position of the cursor and starts
+		 * playback if the transport isn't rolling yet.
+		 *
+		 * If triggered while focusing the song editor, the song will
+		 * be set to H2Core::Song::SONE_MODE. Similarly,
+		 * H2Core::Song::PATTERN_MODE will be activated if triggered
+		 * in the pattern editor of note properties ruler.
+		 *
+		 * \param pObject Used to determine the focused part of the
+		 * application.
+		 */
+		void startPlaybackAtCursor( QObject* pObject );
 };
 
 #endif

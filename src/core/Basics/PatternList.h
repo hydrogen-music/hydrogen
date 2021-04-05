@@ -24,7 +24,6 @@
 #define H2C_PATTERN_LIST_H
 
 #include <vector>
-
 #include <core/Object.h>
 #include <core/AudioEngine.h>
 
@@ -144,19 +143,30 @@ class AudioEngineLocking;
 		/**
 		 * check if a pattern with name patternName already exists in this list
 		 * \param patternName name of a pattern to check
+		 * \param ignore optional pattern in the list to ignore
 		 */
-		bool check_name( QString patternName );
+		bool check_name( QString patternName, Pattern* ignore = NULL );
 		/**
 		 * find unused patternName
 		 * \param sourceName base name to start with
+		 * \param ignore optional pattern in the list to ignore
 		 */
-		QString find_unused_pattern_name( QString sourceName );
+		QString find_unused_pattern_name( QString sourceName, Pattern* ignore = NULL );
 
 		/**
 		 * Get the length of the longest pattern in the list
 		 * \return pattern length in ticks, -1 if list is empty
 		 */
 		int longest_pattern_length();
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \param bShort Instead of the whole content of all classes
+		 * stored as members just a single unique identifier will be
+		 * displayed without line breaks.
+		 *
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
 		std::vector<Pattern*> __patterns;            ///< the list of patterns
