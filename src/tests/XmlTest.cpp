@@ -89,7 +89,7 @@ void XmlTest::testDrumkit()
 	
 	// save drumkit elsewhere
 	pDrumkitLoaded->set_name( "pDrumkitLoaded" );
-	CPPUNIT_ASSERT( pDrumkitLoaded->save( sDrumkitPath, false ) );
+	CPPUNIT_ASSERT( pDrumkitLoaded->save( sDrumkitPath, true ) );
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/drumkit.xml" ) );
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/crash.wav" ) );
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/hh.wav" ) );
@@ -110,7 +110,6 @@ void XmlTest::testDrumkit()
 	// save file
 	pDrumkitCopied->set_name( "COPY" );
 	CPPUNIT_ASSERT( pDrumkitCopied->save_file( sDrumkitPath+"/drumkit.xml", true ) );
-		CPPUNIT_ASSERT( pDrumkitCopied->save_file( sDrumkitPath+"/drumkit.xml", true ) );
 
 	delete pDrumkitReloaded;
 
