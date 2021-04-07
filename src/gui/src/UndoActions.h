@@ -6,9 +6,12 @@
 #include <QDebug>
 #include <QUndoCommand>
 #include <QPoint>
+#include <vector>
+
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/AutomationPath.h>
+#include <core/Helpers/Filesystem.h>
 
 #include "HydrogenApp.h"
 #include "SongEditor/SongEditor.h"
@@ -585,6 +588,44 @@ private:
 	bool __isNoteOff;
 };
 
+// Deselect some notes and overwrite them
+class SE_deselectAndOverwriteNotesAction : public QUndoCommand
+{
+public:
+	SE_deselectAndOverwriteNotesAction( std::vector< H2Core::Note *> &selected, std::vector< H2Core::Note *> &overwritten ) {
+		setText( QObject::tr( "Overwrite %1 notes" ).arg( overwritten.size() ) );
+		for ( auto pNote : selected ) {
+			m_selected.push_back( new H2Core::Note ( pNote ) );
+		}
+		for ( auto pNote : overwritten ) {
+			m_overwritten.push_back( new H2Core::Note ( pNote ) );
+		}
+	}
+
+	~SE_deselectAndOverwriteNotesAction() {
+		for ( auto pNote : m_selected ) {
+			delete pNote;
+		}
+		for ( auto pNote : m_overwritten ) {
+			delete pNote;
+		}
+	}
+
+	virtual void undo() {
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()
+			->undoDeselectAndOverwriteNotes( m_selected, m_overwritten );
+	}
+
+	virtual void redo() {
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()
+			->deselectAndOverwriteNotes( m_selected, m_overwritten );
+	}
+
+private:
+	std::vector< H2Core::Note *> m_selected;
+	std::vector< H2Core::Note *> m_overwritten;
+};
+
 
 class SE_addNoteOffAction : public QUndoCommand
 {
@@ -873,12 +914,13 @@ private:
 class SE_dragInstrumentAction : public QUndoCommand
 {
 public:
-	SE_dragInstrumentAction(  QString sDrumkitName, QString sInstrumentName, int nTargetInstrument){
+	SE_dragInstrumentAction(  QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, H2Core::Filesystem::Lookup lookup ){
 		setText( QObject::tr( "Drop instrument" ) );
 		__sDrumkitName = sDrumkitName;
 		__sInstrumentName = sInstrumentName;
 		__nTargetInstrument = nTargetInstrument;
 		__addedComponents = new std::vector<int>();
+		m_lookup = lookup;
 	}
 
 	~SE_dragInstrumentAction()
@@ -897,7 +939,7 @@ public:
 	{
 		//qDebug() << "drop Instrument Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentRedoAction( __sDrumkitName, __sInstrumentName, __nTargetInstrument, __addedComponents );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentRedoAction( __sDrumkitName, __sInstrumentName, __nTargetInstrument, __addedComponents, m_lookup );
 	}
 
 private:
@@ -905,6 +947,7 @@ private:
 	QString __sInstrumentName;
 	int __nTargetInstrument;
 	std::vector<int>* __addedComponents;
+	H2Core::Filesystem::Lookup m_lookup;
 };
 
 

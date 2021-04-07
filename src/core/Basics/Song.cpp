@@ -920,7 +920,9 @@ Song* SongReader::readSong( const QString& sFileName )
 
 			int id = LocalFileMng::readXmlInt( instrumentNode, "id", -1 );			// instrument id
 			QString sDrumkit = LocalFileMng::readXmlString( instrumentNode, "drumkit", "" );	// drumkit
-			Hydrogen::get_instance()->setCurrentDrumkitname( sDrumkit );
+			Hydrogen::get_instance()->setCurrentDrumkitName( sDrumkit );
+			int iLookup = LocalFileMng::readXmlInt( instrumentNode, "drumkitLookup", 1 );	// drumkit
+			Hydrogen::get_instance()->setCurrentDrumkitLookup( static_cast<Filesystem::Lookup>( iLookup ) );
 			QString sName = LocalFileMng::readXmlString( instrumentNode, "name", "" );		// name
 			float fVolume = LocalFileMng::readXmlFloat( instrumentNode, "volume", 1.0 );	// volume
 			bool bIsMuted = LocalFileMng::readXmlBool( instrumentNode, "isMuted", false );	// is muted

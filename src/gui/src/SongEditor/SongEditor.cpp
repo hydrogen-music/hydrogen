@@ -369,6 +369,7 @@ void SongEditor::cut() {
 
 void SongEditor::keyPressEvent( QKeyEvent * ev )
 {
+	const int nBlockSize = 5, nWordSize = 5;
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	
 	bool bIsSelectionKey = false;
@@ -383,6 +384,8 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
 	const QPoint centre = QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
 	bool bSelectionKey = false;
+
+	updateModifiers( ev );
 
 	if ( bIsSelectionKey ) {
 		// Key was claimed by selection
@@ -402,6 +405,10 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 			m_nCursorColumn += 1;
 		}
 
+	} else if ( ev->matches( QKeySequence::MoveToNextWord ) || ( bSelectionKey = ev->matches( QKeySequence::SelectNextWord ) ) ) {
+		// -->
+		m_nCursorColumn = std::min( (int)m_nMaxPatternSequence, m_nCursorColumn + nWordSize );
+
 	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ( bSelectionKey = ev->matches( QKeySequence::SelectEndOfLine ) ) ) {
 		// ->|
 		m_nCursorColumn = m_nMaxPatternSequence -1;
@@ -412,6 +419,10 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 			m_nCursorColumn -= 1;
 		}
 
+	} else if ( ev->matches( QKeySequence::MoveToPreviousWord ) || ( bSelectionKey = ev->matches( QKeySequence::SelectPreviousWord ) ) ) {
+		// <--
+		m_nCursorColumn = std::max( 0, m_nCursorColumn - nWordSize );
+
 	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) || ( bSelectionKey = ev->matches( QKeySequence::SelectStartOfLine ) ) ) {
 		// |<-
 		m_nCursorColumn = 0;
@@ -420,6 +431,9 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 		if ( m_nCursorRow < pPatternList->size()-1 ) {
 			m_nCursorRow += 1;
 		}
+
+	} else if ( ev->matches( QKeySequence::MoveToEndOfBlock ) || ( bSelectionKey = ev->matches( QKeySequence::SelectEndOfBlock ) ) ) {
+		m_nCursorRow = std::min( pPatternList->size()-1, m_nCursorRow + nBlockSize );
 
 	} else if ( ev->matches( QKeySequence::MoveToNextPage ) || ( bSelectionKey = ev->matches( QKeySequence::SelectNextPage ) ) ) {
 		// Page down, scroll by the number of patterns that fit into the viewport
@@ -438,6 +452,10 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 		if ( m_nCursorRow > 0 ) {
 			m_nCursorRow -= 1;
 		}
+
+	} else if ( ev->matches( QKeySequence::MoveToStartOfBlock ) || ( bSelectionKey = ev->matches( QKeySequence::SelectStartOfBlock ) ) ) {
+		m_nCursorRow = std::max( 0, m_nCursorRow - nBlockSize );
+
 
 	} else if ( ev->matches( QKeySequence::MoveToPreviousPage ) || ( bSelectionKey = ev->matches( QKeySequence::SelectPreviousPage ) ) ) {
 		QWidget *pParent = dynamic_cast< QWidget *>( parent() );
@@ -516,6 +534,10 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	ev->accept();
 }
 
+void SongEditor::keyReleaseEvent( QKeyEvent * ev ) {
+	updateModifiers( ev );
+}
+
 // Make cursor visible on focus
 void SongEditor::focusInEvent( QFocusEvent *ev )
 {
@@ -575,6 +597,14 @@ void SongEditor::updateModifiers( QInputEvent *ev )
 		m_bCopyNotMove = true;
 	} else {
 		m_bCopyNotMove = false;
+	}
+
+	if ( QKeyEvent *pEv = dynamic_cast<QKeyEvent*>( ev ) ) {
+		// Keyboard events for press and release of modifier keys don't have those keys in the modifiers set,
+		// so explicitly update these.
+		if ( pEv->key() == Qt::Key_Control ) {
+			m_bCopyNotMove = ( ev->type() == QEvent::KeyPress );
+		}
 	}
 
 	if ( m_selection.isMoving() ) {
@@ -1174,6 +1204,10 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
+	QScrollArea *pScrollArea = dynamic_cast< QScrollArea * >( parentWidget()->parentWidget() );
+	assert( pScrollArea );
+	m_pDragScroller = new DragScroller( pScrollArea );
+
 	createBackground();
 	update();
 }
@@ -1521,7 +1555,7 @@ void SongEditorPatternList::patternPopup_load()
 	}
 	QString patternPath = fd.selectedFiles().first();
 
-	QString prevPatternPath = Files::savePatternTmp( pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
+	QString prevPatternPath = Files::savePatternTmp( pattern->get_name(), pattern, song, engine->getCurrentDrumkitName() );
 	if ( prevPatternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 		return;
@@ -1575,12 +1609,12 @@ void SongEditorPatternList::patternPopup_save()
 	Song *song = engine->getSong();
 	Pattern *pattern = song->getPatternList()->get( engine->getSelectedPatternNumber() );
 
-	QString path = Files::savePatternNew( pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
+	QString path = Files::savePatternNew( pattern->get_name(), pattern, song, engine->getCurrentDrumkitName() );
 	if ( path.isEmpty() ) {
 		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 ) != 0 ) {
 			return;
 		}
-		path = Files::savePatternOver( pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
+		path = Files::savePatternOver( pattern->get_name(), pattern, song, engine->getCurrentDrumkitName() );
 	}
 
 	if ( path.isEmpty() ) {
@@ -1660,7 +1694,7 @@ void SongEditorPatternList::patternPopup_delete()
 	int patternPosition = pHydrogen->getSelectedPatternNumber();
 	Pattern *pattern = pSong->getPatternList()->get( patternPosition );
 
-	QString patternPath = Files::savePatternTmp( pattern->get_name(), pattern, pSong, pHydrogen->getCurrentDrumkitname() );
+	QString patternPath = Files::savePatternTmp( pattern->get_name(), pattern, pSong, pHydrogen->getCurrentDrumkitName() );
 	if ( patternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 		return;
@@ -1784,7 +1818,7 @@ void SongEditorPatternList::patternPopup_duplicate()
 	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, pNewPattern, nSelectedPattern, true );
 
 	if ( dialog->exec() == QDialog::Accepted ) {
-		QString filePath = Files::savePatternTmp( pNewPattern->get_name(), pNewPattern, pSong, pHydrogen->getCurrentDrumkitname() );
+		QString filePath = Files::savePatternTmp( pNewPattern->get_name(), pNewPattern, pSong, pHydrogen->getCurrentDrumkitName() );
 		if ( filePath.isEmpty() ) {
 			QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 			return;
@@ -2059,10 +2093,13 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 	pDrag->setMimeData( pMimeData);
 	//drag->setPixmap(iconPixmap);
 
+	m_pDragScroller->startDrag();
 	pDrag->exec( Qt::CopyAction | Qt::MoveAction );
+	m_pDragScroller->endDrag();
 
 	QWidget::mouseMoveEvent(event);
 }
+
 
 void SongEditorPatternList::timelineUpdateEvent( int nEvent ){
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();

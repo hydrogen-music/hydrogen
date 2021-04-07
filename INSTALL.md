@@ -22,20 +22,7 @@ Hydrogen is supported on the following operating systems:
 
   * Linux/Unix/BSD
   * Mac OS X
-
-Hydrogen is *not* supported on Windows because there are currently no
-Windows developers on the project... and so the Windows components
-have fallen into disrepair.
-
-Hydrogen is known to work well on fairly old systems like this (as of
-2009):
-
-- Pentium III 500 MHz
-- 198 MB RAM
-- Consumer-Grade (cheap) audio card
-- Keyboard and Mouse
-- 1x1 USB MIDI Interface (optional)
-
+  * Windows 10 (maybe 7)
 
 ## Download
 
@@ -76,8 +63,7 @@ For **Mac OS X** the [Hydrogen home page](http://hydrogen-music.org/)
 has a binary package available.  Extract the ZIP archive and it will
 create a hydrogen.app folder.
 
-To get the latest version with the latest features and enable [Jack](http://jackaudio.org/) support, 
-install with **Mac Ports**.
+To get the latest version with the latest features, install it with **Mac Ports**.
 
 - [Installing on Mac OS X with MacPorts](https://github.com/hydrogen-music/hydrogen/wiki/Building-Hydrogen-from-source-(MAC-OSX)#method-1-building-everything-with-macports
 )
@@ -110,17 +96,17 @@ libraries and development header files installed on your system:
 
 #### Optional Support
 
-- OSC (Open Sound Control)
+- liblo for OSC (Open Sound Control)
 - LASH (Linux Audio Session Handler)
 - NSM (Non Session Manager)
 - liblrdf for LADSPA plugins
 - librubberband2 (Rubberband support is experimental)
 
-Currently it is recommended that you disable this config option to
-ensure backwards compatibility with songs created under 0.9.5 which
-use rubberband. Install the `rubberband-cli` package beside
-`librubberband2`. Rubberband works properly even if this option is
-disabled. If available, Hydrogen locates the installed
+Currently it is recommended that you disable the rubberband config
+option (done by default) to ensure backwards compatibility with songs
+created under 0.9.5 which use rubberband. Install the `rubberband-cli`
+package beside `librubberband2`. Rubberband works properly even if
+this option is disabled. If available, Hydrogen locates the installed
 `rubberband-cli` binary.
 
 #### Packages Required on Debian-based Systems
@@ -159,16 +145,11 @@ version.
 
 ## Build and Install from Source
 
-This instructions are thought for building Hydrogen on **Linux**. On a
-single, 500MHz processor Hydrogen takes about 1.5 hours to build.
+If you intend to build Hydrogen from source on Windows or with
+Homebrew or Fink on Mac OS X, please read the relevant wiki pages for
+more information:
 
-We're providing a set of `qmake` project files for Windows and
-Mac OS X builds.
-
-Please read the relevant wiki pages for more information:
-
-- [Building Hydrogen from source on Linux](https://github.com/hydrogen-music/hydrogen/wiki/Building-Hydrogen-from-source-(LINUX))
-- [Building Hydrogen from source on Mac OS X](https://github.com/hydrogen-music/hydrogen/wiki/Building-Hydrogen-from-source-(MAC-OSX))
+- [Building Hydrogen from source on Mac OS X](https://github.com/hydrogen-music/hydrogen/wiki/Building-Hydrogen-from-Source-(macOS))
 - [Packaging Hydrogen for Windows](https://github.com/hydrogen-music/hydrogen/wiki/Packaging-for-Windows)
 
 ### Building and Installing Hydrogen
@@ -186,27 +167,35 @@ $ make && sudo make install
 
 ### Running Hydrogen
 
-After installation, Hydrogen's binaries can be found in CMAKE_INSTALL_PREFIX/bin.
-If this path is not in your PATH environment variable, consider adding it to it
+After installation, Hydrogen's binaries can be found in `CMAKE_INSTALL_PREFIX/bin`.
+If this path is not in your `PATH` environment variable, consider adding it to it.
 
 If Hydrogen doesn't start, and you have the above message :
-```… error while loading shared libraries: libhydrogen-core-1.1.0.so …```
-it's because hydrogen's shared library is not found.
-You can verify this with the below command :
-```ldd CMAKE_INSTALL_PREFIX/bin/hydrogen | grep 'not found'```
 
-To fix it, you can use LD_PRELOAD or LD_LIBRARY_PATH environment variables,
-or configure ldconfig (see man ldconfig, man ld.so).
+```
+… error while loading shared libraries: libhydrogen-core-1.1.0.so …
+```
 
-Another option is to set -DCMAKE_INSTALL_PREFIX=/usr, recompile and reinstall Hydrogen.
+it's because Hydrogen's shared library is not found.
+You can verify this with the following command
+
+```bash
+ldd CMAKE_INSTALL_PREFIX/bin/hydrogen | grep 'not found'
+```
+
+To fix it, you can use `LD_PRELOAD` or `LD_LIBRARY_PATH` environment variables,
+or configure `ldconfig` (see man ldconfig, man ld.so).
+
+Another option is to set the `cmake` option
+`-DCMAKE_INSTALL_PREFIX=/usr`, recompile, and reinstall Hydrogen.
 But be aware that you will certainly overwrite Hydrogen files that you might have
 installed with your distribution's package manager.
 
 see [issue#677](https://github.com/hydrogen-music/hydrogen/issues/677)
 
-### cmake Helpers
+### Build Script
 
-Alternatively you could use the cmake helper
+Alternatively you could use our custom build script
 [./build.sh](https://github.com/hydrogen-music/hydrogen/blob/master/build.sh). This
 is the recommended way in case you are actively developing new
 features or bug fixes for Hydrogen (all characters in squared brackets
@@ -222,7 +211,7 @@ are optional and do not have to be included into the command).
 | `g[raph]`  | Draw the dependency graphs of the Hydrogen code using `graphviz`. |
 | `h[elp]`   | Show all supported build options.                                 |
 | `[e]x[ec]` | Execute the Hydrogen binary.                                      |
-| `t[est]`   | Execute the test functions.                                       |
+| `t[est]`   | Run the unit tests.                                               |
 | `p[kg]`    | Build a source package.                                           |
 | `z`        | Build Hydrogen using `ccache` and execute the resulting binary.   |
 
@@ -314,16 +303,22 @@ name with the version your build created):
 
 ``` bash
 $ cd ..
-$ sudo dpkg -i hydrogen_0.9.6_amd64.deb
+$ sudo dpkg -i hydrogen_X.Y.Z_amd64.deb
 ```
 
 ## Generate the Documentation
 
 Apart from the [official manuals and
 tutorial](http://hydrogen-music.org/doc/), Hydrogen does also feature
-an extended documentation of its code base. 
+an extended documentation of its code base.
 
-To generate it using `Doxygen`, run the following command
+After installing the requite `Doxygen` package
+
+```bash
+$ sudo apt-get install doxygen
+```
+
+run the following command
 
 ``` bash
 $ ./build.sh d

@@ -180,6 +180,7 @@ Preferences::Preferences()
 	m_brestoreLastPlaylist = false;
 	m_bUseLash = false;
 	m_bShowDevelWarning = false;
+	m_bShowNoteOverwriteWarning = true;
 	// NONE: lastSongFilename;
 	hearNewNotes = true;
 	// NONE: m_recentFiles;
@@ -312,6 +313,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_sPreferredLanguage = LocalFileMng::readXmlString( rootNode, "preferredLanguage", QString() );
 			__playselectedinstrument = LocalFileMng::readXmlBool( rootNode, "instrumentInputMode", __playselectedinstrument );
 			m_bShowDevelWarning = LocalFileMng::readXmlBool( rootNode, "showDevelWarning", m_bShowDevelWarning );
+			m_bShowNoteOverwriteWarning = LocalFileMng::readXmlBool( rootNode, "showNoteOverwriteWarning", m_bShowNoteOverwriteWarning );
 			m_brestoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", m_brestoreLastSong );
 			m_brestoreLastPlaylist = LocalFileMng::readXmlBool( rootNode, "restoreLastPlaylist", m_brestoreLastPlaylist );
 			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", true );
@@ -780,6 +782,9 @@ void Preferences::savePreferences()
 	
 	//show development version warning
 	LocalFileMng::writeXmlString( rootNode, "showDevelWarning", m_bShowDevelWarning ? "true": "false" );
+
+	// Warn about overwriting notes
+	LocalFileMng::writeXmlString( rootNode, "showNoteOverwriteWarning", m_bShowNoteOverwriteWarning ? "true" : "false" );
 
 	// hear new notes in the pattern editor
 	LocalFileMng::writeXmlString( rootNode, "hearNewNotes", hearNewNotes ? "true": "false" );

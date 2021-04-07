@@ -837,9 +837,9 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>10</y>
-         <width>541</width>
-         <height>141</height>
+         <y>17</y>
+         <width>531</width>
+         <height>471</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -856,9 +856,6 @@
             <property name="text">
              <string>&amp;Enable OSC support</string>
             </property>
-            <property name="shortcut">
-             <string>Alt+R</string>
-            </property>
            </widget>
           </item>
           <item>
@@ -872,9 +869,6 @@
             <property name="text">
              <string>Enable OSC &amp;feedback</string>
             </property>
-            <property name="shortcut">
-             <string>Alt+R</string>
-            </property>
            </widget>
           </item>
           <item>
@@ -883,7 +877,7 @@
              <number>0</number>
             </property>
             <item row="0" column="0">
-             <widget class="QLabel" name="label_4">
+             <widget class="QLabel" name="incomingOscPortLabel">
               <property name="text">
                <string>Incoming port</string>
               </property>
@@ -917,43 +911,68 @@
             </item>
            </layout>
           </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_10">
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_9">
             <property name="spacing">
              <number>6</number>
             </property>
             <item>
-             <widget class="QLabel" name="oscTemporaryPortLabel">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="wordWrap">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="oscTemporaryPort">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>68</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
+             <layout class="QVBoxLayout" name="verticalLayout_9">
+              <item>
+               <layout class="QGridLayout" name="gridLayout_3">
+                <item row="2" column="0">
+                 <widget class="QLabel" name="oscTemporaryPortLabel">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="wordWrap">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QLineEdit" name="oscTemporaryPort">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>68</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
             </item>
            </layout>
           </item>
          </layout>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
