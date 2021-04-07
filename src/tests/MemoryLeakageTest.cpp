@@ -111,6 +111,7 @@ void MemoryLeakageTest::testLoading() {
 	H2Core::XMLDoc doc;
 	H2Core::XMLNode node;
 
+	auto mapSnapshot = H2Core::Object::getObjectMap();
 	int nAliveReference = H2Core::Object::getAliveObjectCount();
 
 	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/drumkitComponent.xml" ) ) );
@@ -199,6 +200,7 @@ void MemoryLeakageTest::testLoading() {
 	CPPUNIT_ASSERT( pNote != nullptr );
 	delete pNote;
 	delete pInstrumentListV2;
+	H2Core::Object::printObjectMapDiff( mapSnapshot );
 	CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
 
 
