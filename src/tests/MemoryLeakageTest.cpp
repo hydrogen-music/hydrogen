@@ -17,6 +17,8 @@
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 
+#include <core/Sampler/Sampler.h>
+#include <core/Sampler/Sampler.cpp>
 #include <core/Helpers/Xml.h>
 
 #include "TestHelper.h"
@@ -105,6 +107,10 @@ void MemoryLeakageTest::testConstructors() {
 	auto Song = new H2Core::Song( "ladida", "ladida", 120, 1 );
 	delete Song;
 	CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
+	
+	auto pSampler = new H2Core::Sampler();
+	delete pSampler;
+	CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
 }
 
 void MemoryLeakageTest::testLoading() {
@@ -190,18 +196,18 @@ void MemoryLeakageTest::testLoading() {
 	delete pInstrumentList;
 	CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
 
-	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/instrumentListV2.xml" ) ) );
-	node = doc.firstChildElement( "instrumentList" );
-	auto pInstrumentListV2 = H2Core::InstrumentList::load_from( &node, H2TEST_FILE( "/drumkits/baseKit" ), "H2 test DK" );
-	CPPUNIT_ASSERT( pInstrumentListV2 != nullptr );
-	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/note.xml" ) ) );
-	node = doc.firstChildElement( "note" );
-	pNote = H2Core::Note::load_from( &node, pInstrumentListV2 );
-	CPPUNIT_ASSERT( pNote != nullptr );
-	delete pNote;
-	delete pInstrumentListV2;
-	H2Core::Object::printObjectMapDiff( mapSnapshot );
-	CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
+	// CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/instrumentListV2.xml" ) ) );
+	// node = doc.firstChildElement( "instrumentList" );
+	// auto pInstrumentListV2 = H2Core::InstrumentList::load_from( &node, H2TEST_FILE( "/drumkits/baseKit" ), "H2 test DK" );
+	// CPPUNIT_ASSERT( pInstrumentListV2 != nullptr );
+	// CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/note.xml" ) ) );
+	// node = doc.firstChildElement( "note" );
+	// pNote = H2Core::Note::load_from( &node, pInstrumentListV2 );
+	// CPPUNIT_ASSERT( pNote != nullptr );
+	// delete pNote;
+	// delete pInstrumentListV2;
+	// H2Core::Object::printObjectMapDiff( mapSnapshot );
+	// CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
 
 
 	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/instrumentList.xml" ) ) );
@@ -242,6 +248,21 @@ CPPUNIT_ASSERT( pPlaylist != nullptr );
 	// delete pReader;
 	// CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
 
+	auto pSampler = new H2Core::Sampler();
+	pSampler->reinitializePlaybackTrack();
+	delete pSampler;
+	CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
+
+	H2Core::Hydrogen::get_instance()->getSong()->setPlaybackTrackFilename( H2TEST_FILE( "drumkits/baseKit/kick.wav" ) );
+	pSampler = new H2Core::Sampler();
+	pSampler->reinitializePlaybackTrack();
+	delete pSampler;
+	CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
+
+	pInstrument = H2Core::createInstrument( 0, H2TEST_FILE( "drumkits/baseKit/kick.wav" ), 0.7 );
+	delete pInstrument;
+	CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
+	
 	// pDrumkit = H2Core::Legacy::load_drumkit( );
 	// CPPUNIT_ASSERT( pDrumkit != nullptr );
 	// delete pDrumkit;
@@ -257,6 +278,17 @@ CPPUNIT_ASSERT( pPlaylist != nullptr );
 	// delete pPlaylist;
 	// CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
 
+	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "drumkits/baseKit" ), true );
+	auto pDrumkit2 = H2Core::Drumkit::load_by_name( "GMRockKit", true, H2Core::Filesystem::Lookup::system );
+	
+	H2Core::Hydrogen::get_instance()->loadDrumkit( pDrumkit );
+	int nLoaded = H2Core::Object::getAliveObjectCount();
+	H2Core::Hydrogen::get_instance()->loadDrumkit( pDrumkit );
+	CPPUNIT_ASSERT( nLoaded == H2Core::Object::getAliveObjectCount() );
+	H2Core::Hydrogen::get_instance()->loadDrumkit( pDrumkit2 );
+	H2Core::Hydrogen::get_instance()->loadDrumkit( pDrumkit );
+	CPPUNIT_ASSERT( nLoaded == H2Core::Object::getAliveObjectCount() );
+	
 }
 
 void MemoryLeakageTest::tearDown() {
