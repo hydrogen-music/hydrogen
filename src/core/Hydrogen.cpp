@@ -1291,6 +1291,8 @@ void Hydrogen::setSelectedPatternNumber( int nPat )
 
 	if ( Preferences::get_instance()->patternModePlaysSelected() ) {
 		pAudioEngine->lock( RIGHT_HERE );
+		
+		pAudioEngine->setSelectedPatternNumber( nPat );
 
 		pAudioEngine->unlock();
 	} else {
