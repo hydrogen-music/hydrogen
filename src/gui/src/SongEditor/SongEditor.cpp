@@ -2042,8 +2042,8 @@ void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPat
 
 
 
-		// move instruments...
-		H2Core::Pattern *pSourcePattern = pPatternList->get( nSourcePattern );//Instrument *pSourceInstr = pPatternList->get(nSourcePattern);
+		// move patterns...
+		H2Core::Pattern *pSourcePattern = pPatternList->get( nSourcePattern );
 		if ( nSourcePattern < nTargetPattern) {
 			for (int nPatr = nSourcePattern; nPatr < nTargetPattern; nPatr++) {
 				H2Core::Pattern *pPattern = pPatternList->get(nPatr + 1);
@@ -2052,7 +2052,7 @@ void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPat
 			pPatternList->replace( nTargetPattern, pSourcePattern );
 		}
 		else {
-			for (int nPatr = nSourcePattern; nPatr >= nTargetPattern; nPatr--) {
+			for (int nPatr = nSourcePattern; nPatr > nTargetPattern; nPatr--) {
 				H2Core::Pattern *pPattern = pPatternList->get(nPatr - 1);
 				pPatternList->replace( nPatr, pPattern );
 			}
