@@ -140,6 +140,97 @@ void MemoryLeakageTest::testConstructors() {
 		delete pSampler;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
 	}
+
+	// Test copy constructors using real-live instead of new objects.
+	auto pDrumkitProper = H2Core::Drumkit::load_by_name( "GMRockKit", true, H2Core::Filesystem::Lookup::system );
+	CPPUNIT_ASSERT( pDrumkitProper != nullptr );
+	auto pSongProper = H2Core::Song::load( H2Core::Filesystem::demos_dir() + "GM_kit_Diddley.h2song" );
+	CPPUNIT_ASSERT( pSongProper != nullptr );
+
+	int nNewCount = H2Core::Object::getAliveObjectCount();
+
+	{
+		auto pDrumkit = new H2Core::Drumkit( pDrumkitProper );
+		CPPUNIT_ASSERT( pDrumkit != nullptr );
+		delete pDrumkit;
+		CPPUNIT_ASSERT( nNewCount == H2Core::Object::getAliveObjectCount() );
+	}
+
+	{
+		auto pInstrumentList = new H2Core::InstrumentList( pSongProper->getInstrumentList() );
+		CPPUNIT_ASSERT( pInstrumentList != nullptr );
+		delete pInstrumentList;
+		CPPUNIT_ASSERT( nNewCount == H2Core::Object::getAliveObjectCount() );
+	}
+
+	{
+		auto pPatternList = new H2Core::PatternList( pSongProper->getPatternList() );
+		CPPUNIT_ASSERT( pPatternList != nullptr );
+		delete pPatternList;
+		CPPUNIT_ASSERT( nNewCount == H2Core::Object::getAliveObjectCount() );
+	}
+	
+	{
+		auto pPattern = new H2Core::Pattern( pSongProper->getPatternList()->get( 0 ) );
+		CPPUNIT_ASSERT( pPattern != nullptr );
+		delete pPattern;
+		CPPUNIT_ASSERT( nNewCount == H2Core::Object::getAliveObjectCount() );
+	}
+
+	{
+		auto notes = pSongProper->getPatternList()->get( 0 )->get_notes();
+		auto pNote = new H2Core::Note( notes->begin()->second );
+		CPPUNIT_ASSERT( pNote != nullptr );
+		delete pNote;
+		CPPUNIT_ASSERT( nNewCount == H2Core::Object::getAliveObjectCount() );
+	}
+
+	{
+		auto pDrumkitComponents = pSongProper->getComponents();
+		auto pDrumkitComponent = new H2Core::DrumkitComponent( (*pDrumkitComponents)[0] );
+		CPPUNIT_ASSERT( pDrumkitComponent != nullptr );
+		delete pDrumkitComponent;
+		CPPUNIT_ASSERT( nNewCount == H2Core::Object::getAliveObjectCount() );
+	}
+
+	{
+		auto pInstrument = new H2Core::Instrument( pDrumkitProper->get_instruments()->get( 0 ) );
+		CPPUNIT_ASSERT( pInstrument != nullptr );
+		delete pInstrument;
+		CPPUNIT_ASSERT( nNewCount == H2Core::Object::getAliveObjectCount() );
+	}
+
+	{
+		auto pADSR = new H2Core::ADSR( pDrumkitProper->get_instruments()->get( 0 )->get_adsr() );
+		CPPUNIT_ASSERT( pADSR != nullptr );
+		delete pADSR;
+		CPPUNIT_ASSERT( nNewCount == H2Core::Object::getAliveObjectCount() );
+	}
+
+	{
+		auto pInstrumentComponent = new H2Core::InstrumentComponent( pDrumkitProper->get_instruments()->get( 0 )->get_component( 0 ) );
+		CPPUNIT_ASSERT( pInstrumentComponent != nullptr );
+		delete pInstrumentComponent;
+		CPPUNIT_ASSERT( nNewCount == H2Core::Object::getAliveObjectCount() );
+	}
+
+	{
+		auto pInstrumentLayer = new H2Core::InstrumentLayer( pDrumkitProper->get_instruments()->get( 0 )->get_component( 0 )->get_layer( 0 ) );
+		CPPUNIT_ASSERT( pInstrumentLayer != nullptr );
+		delete pInstrumentLayer;
+		CPPUNIT_ASSERT( nNewCount == H2Core::Object::getAliveObjectCount() );
+	}
+
+	{
+		auto pSample = new H2Core::Sample( pDrumkitProper->get_instruments()->get( 0 )->get_component( 0 )->get_layer( 0 )->get_sample() );
+		CPPUNIT_ASSERT( pSample != nullptr );
+		delete pSample;
+		CPPUNIT_ASSERT( nNewCount == H2Core::Object::getAliveObjectCount() );
+	}
+	
+	delete pDrumkitProper;
+	delete pSongProper;
+	CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
 }
 
 void MemoryLeakageTest::testLoading() {
