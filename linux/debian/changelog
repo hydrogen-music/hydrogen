@@ -1,4 +1,8 @@
 hydrogen (1.0.1) unstable; urgency=low
+    * Release 1.0.2
+    * User-selectable translation language
+    * Bug fixes including critical startup bug on macOS Big Sur
+
     * Release 1.0
     * QT5 support
     * Midi feedback
