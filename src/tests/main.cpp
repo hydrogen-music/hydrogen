@@ -20,7 +20,7 @@ void setupEnvironment(unsigned log_level)
 	TestHelper::createInstance();
 	TestHelper* test_helper = TestHelper::get_instance();
 	/* Object */
-	H2Core::Object::bootstrap( logger, logger->should_log( H2Core::Logger::Debug ) );
+	H2Core::Object::bootstrap( logger, true );
 	/* Filesystem */
 	H2Core::Filesystem::bootstrap( logger, test_helper->getDataDir() );
 	H2Core::Filesystem::info();
