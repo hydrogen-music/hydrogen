@@ -39,11 +39,11 @@ void MemoryLeakageTest::testConstructors() {
 	delete AutomationPath;
 	CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
 
-	// auto Drumkit = new H2Core::Drumkit();
-	// auto Drumkit2 = new H2Core::Drumkit( Drumkit );
-	// delete Drumkit;
-	// delete Drumkit2;
-	// CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
+	auto Drumkit = new H2Core::Drumkit();
+	auto Drumkit2 = new H2Core::Drumkit( Drumkit );
+	delete Drumkit;
+	delete Drumkit2;
+	CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
 
 	auto DrumkitComponent = new H2Core::DrumkitComponent( 0, "ladida" );
 	auto DrumkitComponent2 = new H2Core::DrumkitComponent( DrumkitComponent );

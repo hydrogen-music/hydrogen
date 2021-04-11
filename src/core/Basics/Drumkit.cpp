@@ -52,6 +52,7 @@ const char* Drumkit::__class_name = "Drumkit";
 Drumkit::Drumkit() : Object( __class_name ), __samples_loaded( false ), __instruments( nullptr ), __components( nullptr )
 {
 	__components = new std::vector<DrumkitComponent*> ();
+	__instruments = new InstrumentList();
 }
 
 Drumkit::Drumkit( Drumkit* other ) :
@@ -190,7 +191,6 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 	XMLNode instruments_node = node->firstChildElement( "instrumentList" );
 	if ( instruments_node.isNull() ) {
 		WARNINGLOG( "instrumentList node not found" );
-		pDrumkit->set_instruments( new InstrumentList() );
 	} else {
 		pDrumkit->set_instruments( InstrumentList::load_from( &instruments_node, dk_path, drumkit_name ) );
 	}

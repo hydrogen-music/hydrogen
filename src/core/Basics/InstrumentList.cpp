@@ -38,6 +38,7 @@ InstrumentList::InstrumentList() : Object( __class_name )
 
 InstrumentList::InstrumentList( InstrumentList* other ) : Object( __class_name )
 {
+	assert( other );
 	assert( __instruments.size() == 0 );
 	for ( int i=0; i<other->size(); i++ ) {
 		( *this ) << ( new Instrument( ( *other )[i] ) );
