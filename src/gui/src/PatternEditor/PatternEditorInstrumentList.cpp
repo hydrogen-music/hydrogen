@@ -192,12 +192,13 @@ void InstrumentLine::setSamplesMissing( bool bSamplesMissing )
 
 void InstrumentLine::muteClicked()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	Instrument *pInstr = pInstrList->get( m_nInstrumentNumber );
+	pHydrogen->setSelectedInstrumentNumber( m_nInstrumentNumber );
 
-	CoreActionController* pCoreActionController = pEngine->getCoreActionController();
+	CoreActionController* pCoreActionController = pHydrogen->getCoreActionController();
 	pCoreActionController->setStripIsMuted( m_nInstrumentNumber, !pInstr->is_muted() );
 }
 
