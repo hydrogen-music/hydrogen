@@ -827,11 +827,11 @@ void MasterMixerLine::rotaryChanged( Rotary *pRef )
 
 	if ( pRef == m_pHumanizeTimeRotary ) {
 		pEngine->getSong()->setHumanizeTimeValue( fVal );
-		sMsg = tr( "Set hum. time parameter [%1]").arg( fVal, 0, 'f', 2 ); //not too long for display
+		sMsg = tr( "Set humanize time param [%1]" ).arg( fVal, 0, 'f', 2 ); //not too long for display
 	}
 	else if ( pRef == m_pHumanizeVelocityRotary ) {
 		pEngine->getSong()->setHumanizeVelocityValue( fVal );
-		sMsg = tr( "Set hum. vel. parameter [%1]").arg( fVal, 0, 'f', 2 );//not too long for display
+		sMsg = tr( "Set humanize vel. param [%1]" ).arg( fVal, 0, 'f', 2 ); //not too long for display
 	}
 	else if ( pRef == m_pSwingRotary ) {
 		pEngine->getSong()->setSwingFactor( fVal );

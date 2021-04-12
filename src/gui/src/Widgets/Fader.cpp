@@ -93,13 +93,16 @@ void Fader::mouseMoveEvent( QMouseEvent *ev )
 	}
 
 	float fVal = (float)( height() - ev->y() ) / (float)height();
-	
-	fVal = fVal * ( m_fMaxValue - m_fMinValue );
-
-	fVal = fVal + m_fMinValue;
+	if ( fVal > 1. ) { // for QToolTip text validity
+		fVal = 1.;
+	} else if ( fVal < 0. ) {
+		fVal = 0.;
+	}	
+	fVal = fVal * ( m_fMaxValue - m_fMinValue ) + m_fMinValue;
 
 	setValue( fVal );
 	emit valueChanged(this);
+	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( fVal, 0, 'f', 2 ) , this );
 }
 
 
@@ -132,27 +135,28 @@ void Fader::mouseReleaseEvent(QMouseEvent *ev)
 void Fader::wheelEvent ( QWheelEvent *ev )
 {
 	ev->accept();
-
-	if ( m_bUseIntSteps ) {
-		if ( ev->angleDelta().y() > 0 ) {
-			setValue( m_fValue + 1 );
+	float step;
+	if ( m_bUseIntSteps ) { // TODO where is this used?
+		step = 1.;
+	} else {
+		step = ( m_fMaxValue - m_fMinValue ) / 50.0;
+	}
+	
+	float fVal;
+	if ( ev->angleDelta().y() > 0 ) {
+		fVal = m_fValue + step;
+		if ( fVal > m_fMaxValue ) { // for QToolTip text validity
+			fVal = m_fMaxValue;
 		}
-		else {
-			setValue( m_fValue - 1 );
+	} else {
+		fVal = m_fValue - step;
+		if ( fVal < m_fMinValue ) { // for QToolTip text validity
+			fVal = m_fMinValue;
 		}
 	}
-	else {
-		float step = ( m_fMaxValue - m_fMinValue ) / 50.0;
-
-		if ( ev->angleDelta().y() > 0 ) {
-			setValue( m_fValue + step );
-		}
-		else {
-			setValue( m_fValue - step );
-		}
-	}
-
+	setValue( fVal );
 	emit valueChanged(this);
+	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( fVal, 0, 'f', 2 ) , this );
 }
 
 
@@ -398,6 +402,7 @@ void VerticalFader::mouseMoveEvent( QMouseEvent *ev )
 
 	setValue( fVal );
 	emit valueChanged(this);
+	
 }
 
 void VerticalFader::paintEvent( QPaintEvent *ev)
@@ -498,14 +503,21 @@ void MasterFader::wheelEvent ( QWheelEvent *ev )
 	ev->accept();
 
 	float step = ( m_fMax - m_fMin ) / 50.0;
-
+	float fVal;
 	if ( ev->angleDelta().y() > 0 ) {
-		setValue( m_fValue + step );
+		fVal = m_fValue + step;
+		if ( fVal > m_fMax ) { // for QToolTip text validity
+			fVal = m_fMax;
+		}
+	} else {
+		fVal = m_fValue - step;
+		if ( fVal < m_fMin ) { // for QToolTip text validity
+			fVal = m_fMin;
+		}
 	}
-	else {
-		setValue( m_fValue - step );
-	}
+	setValue( fVal );
 	emit valueChanged(this);
+	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( fVal, 0, 'f', 2 ) , this );
 }
 
 
@@ -517,10 +529,16 @@ void MasterFader::mouseMoveEvent( QMouseEvent *ev )
 	}
 
 	float fVal = (float)( height() - ev->y() ) / (float)height();
-	fVal = fVal * ( m_fMax - m_fMin );
+	if ( fVal > 1. ) { // for QToolTip text validity
+		fVal = 1.;
+	} else if ( fVal < 0. ) {
+		fVal = 0.;
+	}
+	fVal = fVal * ( m_fMax - m_fMin ) + m_fMin;
 
 	setValue( fVal );
 	emit valueChanged(this);
+	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( fVal, 0, 'f', 2 ) , this );
 }
 
 
