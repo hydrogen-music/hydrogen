@@ -778,7 +778,7 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 	}
 
 	if ( pPreDrumkitInfo == nullptr ){
-		QMessageBox::warning( this, "Hydrogen", m_sMessageFailedPreDrumkitLoad.append( QString( " [%1]").arg( sPreDrumkitName ) ) );
+		QMessageBox::warning( this, "Hydrogen", QString( "%1 [%2]").arg( m_sMessageFailedPreDrumkitLoad ).arg(sPreDrumkitName) );
 		return;
 	}
 	assert( pPreDrumkitInfo );

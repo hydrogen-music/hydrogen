@@ -9,39 +9,39 @@
     </message>
     <message>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Website</translation>
     </message>
     <message>
         <source>Project page</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt Homepage</translation>
     </message>
     <message>
         <source>Forum</source>
-        <translation type="unfinished"></translation>
+        <translation>Forum</translation>
     </message>
     <message>
         <source>Development mailing list</source>
-        <translation type="unfinished"></translation>
+        <translation>Entwicklermailingliste</translation>
     </message>
     <message>
         <source>Main coders and maintainers</source>
-        <translation type="unfinished"></translation>
+        <translation>Hauptentwickler und Maintainer</translation>
     </message>
     <message>
         <source>Active translators</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktive Übersetzer</translation>
     </message>
     <message>
         <source>Recent contributors</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aktuelle Mitwirkende</translation>
     </message>
     <message>
         <source>A full list of all contributors can be found on</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine vollständige Liste der am Projekt beteiligten Personen kann gefunden werden auf</translation>
     </message>
     <message>
         <source>Former main coders and maintainers</source>
-        <translation type="unfinished"></translation>
+        <translation>Ehemalige Hauptentwickler und Maintainer</translation>
     </message>
 </context>
 <context>
@@ -233,7 +233,7 @@
     </message>
     <message>
         <source>Name: </source>
-        <translation type="unfinished"></translation>
+        <translation>Name: </translation>
     </message>
 </context>
 <context>
@@ -358,7 +358,7 @@
     </message>
     <message>
         <source>Unable to load instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte Instrument nicht laden</translation>
     </message>
 </context>
 <context>
@@ -768,15 +768,15 @@ Bist Du sicher?
     </message>
     <message>
         <source>Error loading song.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Laden des Songs.</translation>
     </message>
     <message>
         <source>Preferences saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen gespeichert.</translation>
     </message>
     <message>
         <source>Preferences loaded.</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen geladen.</translation>
     </message>
     <message>
         <source>Song is read-only.
@@ -907,7 +907,7 @@ Use &apos;Save as&apos; to enable autosave.</source>
     </message>
     <message>
         <source>Fill notes ...</source>
-        <translation>Noten einfügen ...</translation>
+        <translation>Mit Noten füllen ...</translation>
     </message>
     <message>
         <source>Fill all notes</source>
@@ -967,31 +967,31 @@ Use &apos;Save as&apos; to enable autosave.</source>
     </message>
     <message>
         <source>Delete notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Noten löschen</translation>
     </message>
     <message>
         <source>Select notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Noten selektieren</translation>
     </message>
     <message>
         <source>Edit all patterns</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Pattern editieren</translation>
     </message>
     <message>
         <source>Cut notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Noten ausschneiden</translation>
     </message>
     <message>
         <source>Copy notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Noten kopieren</translation>
     </message>
     <message>
         <source>Paste notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Noten einfügen</translation>
     </message>
     <message>
         <source>Instrument</source>
-        <translation type="unfinished">Instrument</translation>
+        <translation>Instrument</translation>
     </message>
     <message>
         <source>Delete all notes on %1</source>
@@ -1510,11 +1510,11 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Open &amp;Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>Zuletzt verwendet</translation>
     </message>
     <message>
         <source>Save &amp;As...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Speichern &amp;unter</translation>
     </message>
     <message>
         <source>Show &amp;Info</source>
@@ -1522,19 +1522,19 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>E&amp;xport Pattern As...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">E&amp;xportiere Pattern unter ...</translation>
     </message>
     <message>
         <source>Export &amp;MIDI File</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportiere &amp;MIDI Datei</translation>
     </message>
     <message>
         <source>&amp;Export Song</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Exportiere Song</translation>
     </message>
     <message>
         <source>Export &amp;LilyPond File</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportiere &amp;LiliPond Datei</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
@@ -1546,39 +1546,39 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>&amp;Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Eigenschaften</translation>
     </message>
     <message>
         <source>Save &amp;As</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern &amp;unter</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Exportieren</translation>
+        <translation>&amp;Exportieren</translation>
     </message>
     <message>
         <source>&amp;Import</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Importieren</translation>
     </message>
     <message>
         <source>On&amp;line Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Aus dem Internet &amp;herunterladen</translation>
     </message>
     <message>
         <source>In&amp;struments</source>
-        <translation type="unfinished"></translation>
+        <translation>In&amp;strumente</translation>
     </message>
     <message>
         <source>Add &amp;Instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Instrument hinzufügen</translation>
     </message>
     <message>
         <source>Clea&amp;r All</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Alle Instrument löschen</translation>
     </message>
     <message>
         <source>Add &amp;Component</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Komponente hinzufügen</translation>
     </message>
     <message>
         <source>Play&amp;list Editor</source>
@@ -1586,11 +1586,11 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>&amp;Director</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Dirigent</translation>
     </message>
     <message>
         <source>&amp;Automation Path</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Automatisierungspfad</translation>
     </message>
     <message>
         <source>&amp;Playback Track</source>
@@ -1598,7 +1598,7 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>&amp;Full screen</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Vollbild</translation>
     </message>
     <message>
         <source>Input &amp;Mode</source>
@@ -1650,27 +1650,27 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>I&amp;nfo</source>
-        <translation type="unfinished"></translation>
+        <translation>I&amp;nfo</translation>
     </message>
     <message>
         <source>User &amp;Manual</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Benutzerhandbuch</translation>
     </message>
     <message>
         <source>&amp;Report Bug</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Fehler melden</translation>
     </message>
     <message>
         <source>&amp;Donate</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Spenden</translation>
     </message>
     <message>
         <source>Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say &apos;thank you&apos; to the involved persons.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hydrogen ist ein Open Source Projekt welches von verschiedenen Menschen in deren Freizeit entwickelt wird. Mit einer Spende kannst Du den beteiligen Personen deinen Dank ausdrücken.</translation>
     </message>
     <message>
         <source>&amp;Donate!</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Spende!</translation>
     </message>
     <message>
         <source>Export song from Session</source>
@@ -1678,7 +1678,7 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Song exported as: </source>
-        <translation type="unfinished"></translation>
+        <translation>Song exportiert als:</translation>
     </message>
     <message>
         <source>Song saved as: </source>
@@ -1697,11 +1697,11 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>OSC Server: Cannot connect to given port, using port %1 instead</source>
-        <translation type="unfinished"></translation>
+        <translation>OSC Server: Konnte nicht zu dem ausgewählten Port verbinden, verwende Port %1 stattdessen</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Playing.</source>
@@ -1806,7 +1806,7 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Mixer Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Mixer Einstellungen</translation>
     </message>
 </context>
 <context>
@@ -1833,14 +1833,14 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Instrument name</source>
-        <translation type="unfinished"></translation>
+        <translation>Name des Instruments</translation>
     </message>
 </context>
 <context>
     <name>MixerSettingsDialog</name>
     <message>
         <source>Mixer Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Mixer Einstellungen</translation>
     </message>
     <message>
         <source>------ Linear pan parameter ------</source>

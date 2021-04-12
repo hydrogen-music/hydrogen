@@ -1250,7 +1250,10 @@ void SongEditorPatternList::patternChangedEvent() {
 
 		float fTimelineBpm = pTimeline->getTempoAtBar( pHydrogen->getPatternPos(), false );
 
-		if ( pHydrogen->getNewBpmJTM() != fTimelineBpm ){
+		if ( fTimelineBpm != 0 && pHydrogen->getNewBpmJTM() != fTimelineBpm ) {
+			/* TODO: For now the function returns 0 if the bar is
+			 * positioned _before_ the first tempo marker. This will be
+			 * taken care of with #854. */
 			pHydrogen->setBPM( fTimelineBpm );
 		}
 	}
@@ -2054,8 +2057,8 @@ void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPat
 
 
 
-		// move instruments...
-		H2Core::Pattern *pSourcePattern = pPatternList->get( nSourcePattern );//Instrument *pSourceInstr = pPatternList->get(nSourcePattern);
+		// move patterns...
+		H2Core::Pattern *pSourcePattern = pPatternList->get( nSourcePattern );
 		if ( nSourcePattern < nTargetPattern) {
 			for (int nPatr = nSourcePattern; nPatr < nTargetPattern; nPatr++) {
 				H2Core::Pattern *pPattern = pPatternList->get(nPatr + 1);
@@ -2064,7 +2067,7 @@ void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPat
 			pPatternList->replace( nTargetPattern, pSourcePattern );
 		}
 		else {
-			for (int nPatr = nSourcePattern; nPatr >= nTargetPattern; nPatr--) {
+			for (int nPatr = nSourcePattern; nPatr > nTargetPattern; nPatr--) {
 				H2Core::Pattern *pPattern = pPatternList->get(nPatr - 1);
 				pPatternList->replace( nPatr, pPattern );
 			}

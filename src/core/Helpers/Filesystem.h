@@ -189,11 +189,14 @@ namespace H2Core
 		 *   #DRUMKIT_XML file.
 		 * \param lookup Where to search (system/user folder or both)
 		 * for the drumkit.
+		 * \param bSilent whether the function should trigger log
+		 *   messages. If set to true, the calling function is
+		 *   expected to handle the log messages instead.
 		 *
 		 * \returns Full path to the folder containing the samples of
 		 *   the H2Core::Drumkit corresponding to \a dk_name.
 		 */
-		static QString drumkit_path_search( const QString& dk_name, Lookup lookup = Lookup::stacked );
+		static QString drumkit_path_search( const QString& dk_name, Lookup lookup = Lookup::stacked, bool bSilent = false );
 		/**
 		 * returns the directory holding the named drumkit searching within user then system drumkits
 		 * \param dk_name the drumkit name
