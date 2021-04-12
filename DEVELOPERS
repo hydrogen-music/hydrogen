@@ -81,9 +81,13 @@ order to make a release has several, easy-to-forget steps.  They are:
   2. Remove the 'developer warning': in data/hydrogen.default.conf
      change hydrogen_preferences/showDevelWarning to "false".
 
-  3. Commit your changes.
+  3. Run `src/gui/src/about_dialog_contributor_list_update.sh
+     GIT_TAG_OF_LAST_RELEASE HEAD` to update the list of recent
+     contributors.
 
-  4. Make a tarball of the release (gzipped).  Use gzip instead of
+  4. Commit your changes.
+
+  5. Make a tarball of the release (gzipped).  Use gzip instead of
      bzip2 for the folks on Windows.  Tarballs should be named:
                    
                    +--- Release version
@@ -94,14 +98,14 @@ order to make a release has several, easy-to-forget steps.  They are:
 	
      Example: 'tar -pczf hydrogen-0.9.5.tar.gz hydrogen-0.9.5' 
 
-  5. If this is an RC release, the following steps are optional.
+  6. If this is an RC release, the following steps are optional.
 
-  6. In a clean directory, test build the tarball in as many ways as
+  7. In a clean directory, test build the tarball in as many ways as
      you can.  Call your friends.  Have a party.  Be sure to build
      packages on as many systems as possible.  Be sure to install
      and uninstall them, too.
 
-  7. Go ahead and build binary packages.  Follow the naming convention
+  8. Go ahead and build binary packages.  Follow the naming convention
      for the platform that you're building for.
 
        Linux:    hydrogen_0.9.4rc2_distro_arch.pkg
@@ -112,17 +116,17 @@ order to make a release has several, easy-to-forget steps.  They are:
                  (arch is optional if the binary will work on both.)
        Windows:  hydrogen_0.9.4rc2.exe
 
-  8. If the release passes these "internal" tests, tag the
+  9. If the release passes these "internal" tests, tag the
      release.  Remember, after tagging the release you may not
      commit changes to the tag.
 
      git tag -a 0.9.4 -m "Tagging 0.9.4"
 
-  9. If this is a major release (e.g. 0.9.4), then make a branch for
+  10. If this is a major release (e.g. 0.9.4), then make a branch for
      maintenance patches for your release.  If this is a maintenance
      release (e.g. 0.9.4.1) then skip this step.
 
      git branch 0.9.4
      git push origin 0.9.4
 
-  10. Make announcements.
+  11. Make announcements.

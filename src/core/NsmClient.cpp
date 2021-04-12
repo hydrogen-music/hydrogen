@@ -275,7 +275,7 @@ void NsmClient::linkDrumkit( const char* name, bool bCheckLinkage ) {
 	
 	bool bRelinkDrumkit = true;
 	
-	const QString sDrumkitName = pHydrogen->getCurrentDrumkitname();
+	const QString sDrumkitName = pHydrogen->getCurrentDrumkitName();
 	
 	const QString sLinkedDrumkitPath = QString( "%1/%2" )
 		.arg( name ).arg( "drumkit" );

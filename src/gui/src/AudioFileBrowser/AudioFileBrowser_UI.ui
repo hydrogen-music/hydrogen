@@ -10,242 +10,209 @@
     <height>564</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>821</width>
+    <height>564</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QFrame" name="waveformview">
-   <property name="geometry">
-    <rect>
-     <x>360</x>
-     <y>390</y>
-     <width>451</width>
-     <height>91</height>
-    </rect>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::StyledPanel</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
-   </property>
-  </widget>
-  <widget class="QFrame" name="infoframe">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>390</y>
-     <width>341</width>
-     <height>131</height>
-    </rect>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::StyledPanel</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
-   </property>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>321</width>
-      <height>111</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout_3">
+  <property name="sizeGripEnabled">
+   <bool>false</bool>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QLabel" name="m_pNameLabel">
-       <property name="text">
-        <string>Name:</string>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLineEdit" name="pathLineEdit"/>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="hiddenCB">
+         <property name="toolTip">
+          <string>View hidden folders</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="m_pPathUptoolButton">
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="text">
+          <string>&amp;Up</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="m_pPathHometoolButton">
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="text">
+          <string>&amp;Home</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
-      <widget class="QLabel" name="m_pSamplerateLable">
-       <property name="text">
-        <string>Samplerate:</string>
-       </property>
-      </widget>
+      <widget class="QTreeView" name="treeView"/>
      </item>
      <item>
-      <widget class="QLabel" name="m_pNBytesLable">
-       <property name="text">
-        <string>Size:</string>
-       </property>
-      </widget>
+      <widget class="QLineEdit" name="filelineedit"/>
      </item>
      <item>
-      <widget class="QLabel" name="m_pLengthLable">
-       <property name="text">
-        <string>Length:</string>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="QFrame" name="infoframe">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_2">
+              <item row="0" column="0">
+               <layout class="QVBoxLayout" name="verticalLayout_3">
+                <item>
+                 <widget class="QLabel" name="m_pNameLabel">
+                  <property name="text">
+                   <string>Name:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="m_pSamplerateLable">
+                  <property name="text">
+                   <string>Samplerate:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="m_pNBytesLable">
+                  <property name="text">
+                   <string>Size:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="m_pLengthLable">
+                  <property name="text">
+                   <string>Length:</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="playSamplescheckBox">
+             <property name="text">
+              <string>Pla&amp;y samples by clicking</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <widget class="QFrame" name="waveformview">
+             <property name="minimumSize">
+              <size>
+               <width>451</width>
+               <height>91</height>
+              </size>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <widget class="QToolButton" name="m_pPlayBtn">
+               <property name="text">
+                <string>&amp;Play Sample</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="m_pStopBtn">
+               <property name="text">
+                <string>&amp;Stop</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="useNameCheckBox">
+               <property name="text">
+                <string>&amp;Filename to instrument name</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QCheckBox" name="autoVelCheckBox">
+               <property name="toolTip">
+                <string>Be careful, this change all Layer velocity settings </string>
+               </property>
+               <property name="text">
+                <string>Set automatic velocity</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="openBTN">
+               <property name="text">
+                <string>Open</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="cancelBTN">
+               <property name="text">
+                <string>Cancel</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </item>
     </layout>
-   </widget>
-  </widget>
-  <widget class="QCheckBox" name="playSamplescheckBox">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>530</y>
-     <width>341</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Pla&amp;y samples by clicking</string>
-   </property>
-  </widget>
-  <widget class="QWidget" name="layoutWidget2">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>801</width>
-     <height>35</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout">
-    <item>
-     <widget class="QLineEdit" name="pathLineEdit"/>
-    </item>
-    <item>
-     <widget class="QRadioButton" name="hiddenCB">
-      <property name="toolTip">
-       <string>View hidden folders</string>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QToolButton" name="m_pPathUptoolButton">
-      <property name="toolTip">
-       <string/>
-      </property>
-      <property name="text">
-       <string>&amp;Up</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QToolButton" name="m_pPathHometoolButton">
-      <property name="toolTip">
-       <string/>
-      </property>
-      <property name="text">
-       <string>&amp;Home</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QToolButton" name="m_pPlayBtn">
-   <property name="geometry">
-    <rect>
-     <x>360</x>
-     <y>490</y>
-     <width>71</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>&amp;Play Sample</string>
-   </property>
-  </widget>
-  <widget class="QWidget" name="layoutWidget3">
-   <property name="geometry">
-    <rect>
-     <x>11</x>
-     <y>41</y>
-     <width>801</width>
-     <height>341</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QTreeView" name="treeView"/>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
-       <widget class="QLineEdit" name="filelineedit"/>
-      </item>
-     </layout>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QToolButton" name="m_pStopBtn">
-   <property name="geometry">
-    <rect>
-     <x>440</x>
-     <y>490</y>
-     <width>51</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>&amp;Stop</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="autoVelCheckBox">
-   <property name="geometry">
-    <rect>
-     <x>360</x>
-     <y>530</y>
-     <width>251</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="toolTip">
-    <string>Be careful, this change all Layer velocity settings </string>
-   </property>
-   <property name="text">
-    <string>Set automatic velocity</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="cancelBTN">
-   <property name="geometry">
-    <rect>
-     <x>718</x>
-     <y>520</y>
-     <width>91</width>
-     <height>33</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Cancel</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="openBTN">
-   <property name="geometry">
-    <rect>
-     <x>620</x>
-     <y>520</y>
-     <width>91</width>
-     <height>33</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Open</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="useNameCheckBox">
-   <property name="geometry">
-    <rect>
-     <x>520</x>
-     <y>490</y>
-     <width>291</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>&amp;Filename to instrument name</string>
-   </property>
-  </widget>
+   </item>
+  </layout>
  </widget>
  <tabstops>
   <tabstop>pathLineEdit</tabstop>
@@ -253,7 +220,6 @@
   <tabstop>m_pPathUptoolButton</tabstop>
   <tabstop>m_pPathHometoolButton</tabstop>
   <tabstop>treeView</tabstop>
-  <tabstop>filelineedit</tabstop>
   <tabstop>m_pPlayBtn</tabstop>
   <tabstop>m_pStopBtn</tabstop>
   <tabstop>playSamplescheckBox</tabstop>

@@ -79,6 +79,9 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		void setGridWidth( uint width);
 		int getGridHeight () { return m_nGridHeight; }
 
+		int getCursorRow() const;
+		int getCursorColumn() const;
+
 		//! Add or delete pattern in the sequence grid.
 		void addPattern( int nColumn, int nRow);
 		void deletePattern( int nColumn, int nRow );
@@ -170,6 +173,7 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
 		virtual void mouseMoveEvent(QMouseEvent *ev) override;
 		virtual void keyPressEvent (QKeyEvent *ev) override;
+		virtual void keyReleaseEvent (QKeyEvent *ev) override;
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void focusInEvent( QFocusEvent *ev ) override;
 		//! @}
@@ -205,7 +209,13 @@ public:
 
 };
 
+inline int SongEditor::getCursorRow() const {
+	return m_nCursorRow;
+}
 
+inline int SongEditor::getCursorColumn() const {
+	return m_nCursorColumn;
+}
 
 
 ///
@@ -267,6 +277,8 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		QMenu *				m_pPatternPopup;
 		QLineEdit *			m_pLineEdit;
 		H2Core::Pattern *	m_pPatternBeingEdited;
+
+		DragScroller *		m_pDragScroller;
 		
 		void inlineEditPatternName( int row );
 

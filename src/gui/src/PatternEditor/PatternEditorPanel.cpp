@@ -58,7 +58,7 @@ void PatternEditorPanel::updateSLnameLabel( )
 	QFont font;
 	font.setBold( true );
 	pSLlabel->setFont( font );
-	pSLlabel->setText( Hydrogen::get_instance()->m_currentDrumkit  );
+	pSLlabel->setText( Hydrogen::get_instance()->getCurrentDrumkitName() );
 }
 
 const char* PatternEditorPanel::__class_name = "PatternEditorPanel";
@@ -98,7 +98,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	//soundlibrary name
 	pSLlabel = new QLabel( nullptr );
-	pSLlabel->setText( Hydrogen::get_instance()->m_currentDrumkit );
+	pSLlabel->setText( Hydrogen::get_instance()->getCurrentDrumkitName() );
 	pSLlabel->setFixedSize( 170, 20 );
 	pSLlabel->move( 10, 3 );
 	pSLlabel->setToolTip( tr( "Loaded Soundlibrary" ) );
@@ -1160,22 +1160,20 @@ void PatternEditorPanel::setCursorPosition(int nCursorPosition)
 	}
 }
 
-int PatternEditorPanel::moveCursorLeft()
+int PatternEditorPanel::moveCursorLeft( int n )
 {
-	if ( m_nCursorPosition >= m_nCursorIncrement ) {
-		m_nCursorPosition -= m_nCursorIncrement;
-	}
+	m_nCursorPosition = std::max( m_nCursorPosition - m_nCursorIncrement * n,
+								  0 );
 
 	ensureCursorVisible();
 
 	return m_nCursorPosition;
 }
 
-int PatternEditorPanel::moveCursorRight()
+int PatternEditorPanel::moveCursorRight( int n )
 {
-	if ( m_nCursorPosition + m_nCursorIncrement < m_pPattern->get_length() ) {
-		m_nCursorPosition += m_nCursorIncrement;
-	}
+	m_nCursorPosition = std::min( m_nCursorPosition + m_nCursorIncrement * n,
+								  m_pPattern->get_length() - m_nCursorIncrement );
 
 	ensureCursorVisible();
 

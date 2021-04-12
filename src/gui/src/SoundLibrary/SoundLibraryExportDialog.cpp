@@ -51,15 +51,17 @@ using namespace H2Core;
 
 const char* SoundLibraryExportDialog::__class_name = "SoundLibraryExportDialog";
 
-SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,  const QString& selectedKit )
+SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,  const QString& sSelectedKit, H2Core::Filesystem::Lookup lookup )
 	: QDialog( pParent )
 	, Object( __class_name )
+	, m_sPreselectedKit( sSelectedKit )
+	, m_preselectedKitLookup( lookup )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );
 	setWindowTitle( tr( "Export Sound Library" ) );
+	m_sSysDrumkitSuffix = " (system)";
 	setFixedSize( width(), height() );
-	preselectedKit = selectedKit;
 	updateDrumkitList();
 	drumkitPathTxt->setText( QDir::homePath() );
 }
@@ -71,11 +73,11 @@ SoundLibraryExportDialog::~SoundLibraryExportDialog()
 {
 	INFOLOG( "DESTROY" );
 
-	for (uint i = 0; i < drumkitInfoList.size(); i++ ) {
-		Drumkit* info = drumkitInfoList[i];
+	for (uint i = 0; i < m_pDrumkitInfoList.size(); i++ ) {
+		Drumkit* info = m_pDrumkitInfoList[i];
 		delete info;
 	}
-	drumkitInfoList.clear();
+	m_pDrumkitInfoList.clear();
 }
 
 
@@ -84,8 +86,18 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
+	Filesystem::Lookup lookup;
+	bool bIsUserDrumkit;
 	QString		drumkitName = drumkitList->currentText();
-	QString		drumkitDir = Filesystem::drumkit_dir_search( drumkitName );
+	if ( drumkitName.contains( m_sSysDrumkitSuffix ) ) {
+		lookup = Filesystem::Lookup::system;
+		bIsUserDrumkit = false;
+		drumkitName.replace( m_sSysDrumkitSuffix, "" );
+	} else {
+		lookup = Filesystem::Lookup::user;
+		bIsUserDrumkit = true;
+	}
+	QString		drumkitDir = Filesystem::drumkit_dir_search( drumkitName, lookup );
 	QString		saveDir = drumkitPathTxt->text();
 	Drumkit*	pDrumkit = nullptr;
 	int nVersionListIndex = versionList->currentIndex();
@@ -96,16 +108,15 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	int componentID = -1;
 	
 	if( nVersionListIndex == 1 ) {
-		for (uint i = 0; i < drumkitInfoList.size(); i++ ) {
-			pDrumkit = drumkitInfoList[i];
-			if( pDrumkit->get_name().compare( drumkitName ) == 0 ) {
+		for ( auto pDrumkit : m_pDrumkitInfoList ) {
+			if( pDrumkit->get_name().compare( drumkitName ) == 0 &&
+				pDrumkit->isUserDrumkit() == bIsUserDrumkit ) {
 				QString temporaryDrumkitXML = qdTempFolder.filePath( "drumkit.xml" );
 				INFOLOG( "[ExportSoundLibrary]" );
 				INFOLOG( "Saving temporary file into: " + temporaryDrumkitXML );
 				TmpFileCreated = true; //NOLINT
 
-				for (std::vector<DrumkitComponent*>::iterator it = pDrumkit->get_components()->begin() ; it != pDrumkit->get_components()->end(); ++it) {
-					DrumkitComponent* pComponent = *it;
+				for ( auto pComponent : *( pDrumkit->get_components() ) ) {
 					if( pComponent->get_name().compare( componentList->currentText() ) == 0) {
 						componentID = pComponent->get_id();
 						break;
@@ -146,7 +157,8 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	archive_write_set_format_pax_restricted(a);
 	int ret = archive_write_open_filename(a, outname.toUtf8().constData());
 	if ( ret != ARCHIVE_OK ) {
-		QMessageBox::critical( this, "Hydrogen", QString("Couldn't create archive '%0'").arg( outname ) );
+		QMessageBox::critical( this, "Hydrogen", tr( "Couldn't create archive" )
+							   .append( QString( " [%0]" ).arg( outname ) ) );
 		return;
 	}
 	for (int i = 0; i < filesList.size(); i++) {
@@ -162,11 +174,10 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 				for( int j = 0; j < pDrumkit->get_instruments()->size() ; j++){
 					InstrumentList instrList = pDrumkit->get_instruments();
 					Instrument* instr = instrList[j];
-					for (std::vector<InstrumentComponent*>::iterator it = instr->get_components()->begin() ; it != instr->get_components()->end(); ++it) {
-						InstrumentComponent* component = *it;
-						if( component->get_drumkit_componentID() == componentID ){
+					for ( auto pComponent : *( instr->get_components() ) ) {
+						if( pComponent->get_drumkit_componentID() == componentID ){
 							for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
-								InstrumentLayer* layer = component->get_layer( n );
+								InstrumentLayer* layer = pComponent->get_layer( n );
 								if( layer ) {
 									 if( layer->get_sample()->get_filename().compare(filesList.at(i)) == 0 ) {
 										 bFoundFileInRightComponent = true;
@@ -292,7 +303,7 @@ void SoundLibraryExportDialog::on_drumkitList_currentIndexChanged( QString str )
 {
 	componentList->clear();
 
-	QStringList p_compoList = kit_components[str];
+	QStringList p_compoList = m_kit_components[str];
 
 	for (QStringList::iterator it = p_compoList.begin() ; it != p_compoList.end(); ++it) {
 		QString p_compoName = *it;
@@ -316,41 +327,42 @@ void SoundLibraryExportDialog::updateDrumkitList()
 
 	drumkitList->clear();
 
-	for (uint i = 0; i < drumkitInfoList.size(); i++ ) {
-		Drumkit* info = drumkitInfoList[i];
-		delete info;
+	for ( auto pDrumkitInfo : m_pDrumkitInfoList ) {
+		delete pDrumkitInfo;
 	}
-	drumkitInfoList.clear();
+	m_pDrumkitInfoList.clear();
 
 	QStringList sysDrumkits = Filesystem::sys_drumkit_list();
+	QString sDrumkitName;
 	for (int i = 0; i < sysDrumkits.size(); ++i) {
 		QString absPath = Filesystem::sys_drumkits_dir() + sysDrumkits.at(i);
 		Drumkit *info = Drumkit::load( absPath, false );
 		if (info) {
-			drumkitInfoList.push_back( info );
-			drumkitList->addItem( info->get_name() );
+			m_pDrumkitInfoList.push_back( info );
+			sDrumkitName = info->get_name() + m_sSysDrumkitSuffix;
+			drumkitList->addItem( sDrumkitName );
 			QStringList p_components;
-			for (std::vector<DrumkitComponent*>::iterator it = info->get_components()->begin() ; it != info->get_components()->end(); ++it) {
-				DrumkitComponent* p_compo = *it;
-				p_components.append(p_compo->get_name());
+			for ( auto pComponent : *(info->get_components() ) ) {
+				p_components.append( pComponent->get_name() );
 			}
-			kit_components[info->get_name()] = p_components;
+			m_kit_components[ sDrumkitName ] = p_components;
 		}
 	}
+
+	drumkitList->insertSeparator( drumkitList->count() );
 
 	QStringList userDrumkits = Filesystem::usr_drumkit_list();
 	for (int i = 0; i < userDrumkits.size(); ++i) {
 		QString absPath = Filesystem::usr_drumkits_dir() + userDrumkits.at(i);
 		Drumkit *info = Drumkit::load( absPath, false );
 		if (info) {
-			drumkitInfoList.push_back( info );
+			m_pDrumkitInfoList.push_back( info );
 			drumkitList->addItem( info->get_name() );
 			QStringList p_components;
-			for (std::vector<DrumkitComponent*>::iterator it = info->get_components()->begin() ; it != info->get_components()->end(); ++it) {
-				DrumkitComponent* p_compo = *it;
-				p_components.append(p_compo->get_name());
+			for ( auto pComponent : *(info->get_components() ) ) {
+				p_components.append(pComponent->get_name());
 			}
-			kit_components[info->get_name()] = p_components;
+			m_kit_components[info->get_name()] = p_components;
 		}
 	}
 
@@ -358,8 +370,11 @@ void SoundLibraryExportDialog::updateDrumkitList()
 	 * If the export dialog was called from the soundlibrary panel via right click on
 	 * a soundlibrary, the variable preselectedKit holds the name of the selected drumkit
 	 */
+	if ( m_preselectedKitLookup == Filesystem::Lookup::system ) {
+		m_sPreselectedKit.append( m_sSysDrumkitSuffix );
+	}
 
-	int index = drumkitList->findText( preselectedKit );
+	int index = drumkitList->findText( m_sPreselectedKit );
 	if ( index >= 0) {
 		drumkitList->setCurrentIndex( index );
 	}

@@ -163,7 +163,6 @@ class OscServer : public H2Core::Object
 		 * - MASTER_VOLUME_RELATIVE_Handler()
 		 * - STRIP_VOLUME_RELATIVE_Handler()
 		 * - SELECT_NEXT_PATTERN_Handler()
-		 * - SELECT_NEXT_PATTERN_PROMPTLY_Handler()
 		 * - SELECT_AND_PLAY_PATTERN_Handler() 
 		 * - PLAYLIST_SONG_Handler()
 		 * - SELECT_INSTRUMENT_Handler()
@@ -235,6 +234,7 @@ class OscServer : public H2Core::Object
 		 * - \e /Hydrogen/TOGGLE_METRONOME
 		 * - \e /Hydrogen/MUTE_TOGGLE
 		 * - \e /Hydrogen/STRIP_VOLUME_ABSOLUTE/[x]
+		 * - \e /Hydrogen/STRIP_VOLUME_RELATIVE/[x]
 		 * - \e /Hydrogen/PAN_ABSOLUTE/[x]
 		 * - \e /Hydrogen/STRIP_MUTE_TOGGLE/[x]
 		 * - \e /Hydrogen/STRIP_SOLO_TOGGLE/[x]
@@ -425,14 +425,11 @@ class OscServer : public H2Core::Object
 		 * Creates an Action of type @b STRIP_VOLUME_RELATIVE and
 		 * passes its references to MidiActionManager::handleAction().
 		 *
-		 * The first argument in @a argv will be used to set
-		 * Action::parameter2.
-		 *
-		 * \param argv Pointer to a vector of arguments passed
-		 * by the OSC message.
-		 * \param i Unused number of arguments passed by the OSC
-		 * message.*/
-		static void STRIP_VOLUME_RELATIVE_Handler(lo_arg **argv, int i);
+		 * \param param1 Sets Action::parameter1 of the newly created
+		 * Action.
+		 * \param param2 Sets Action::parameter2 of the newly created
+		 * Action.*/
+		static void STRIP_VOLUME_RELATIVE_Handler(QString param1, QString param2);
 		/**
 		 * Calls H2Core::CoreActionController::setStripVolume() with
 		 * both @a param1 and @a param2.
@@ -454,19 +451,6 @@ class OscServer : public H2Core::Object
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
 		static void SELECT_NEXT_PATTERN_Handler(lo_arg **argv, int i);
-		/**
-		 * Creates an Action of type @b SELECT_NEXT_PATTERN_PROMPTLY
-		 * and passes its references to
-		 * MidiActionManager::handleAction().
-		 *
-		 * The first argument in @a argv will be used to set
-		 * Action::parameter1.
-		 *
-		 * \param argv Pointer to a vector of arguments passed
-		 * by the OSC message.
-		 * \param i Unused number of arguments passed by the OSC
-		 * message.*/
-		static void SELECT_NEXT_PATTERN_PROMPTLY_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an Action of type @b SELECT_AND_PLAY_PATTERN and
 		 * passes its references to MidiActionManager::handleAction().

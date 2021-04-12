@@ -21,6 +21,7 @@
  */
 
 #include <core/Version.h>
+#include "AboutDialogContributorList.h"
 #include "AboutDialog.h"
 #include "Skin.h"
 
@@ -43,99 +44,61 @@ AboutDialog::AboutDialog(QWidget* parent)
 
 	QString about;
 	about += QString("<center><b>Hydrogen Drum Machine %1 [%2] </b><br>").arg( H2Core::get_version().c_str() ).arg( __DATE__ );
-	about += tr( "<br><b>Website</b><br>" );
+	about += "<br><b>" + tr( "Website" ) + "</b><br>";
 	about += "<a href='http://www.hydrogen-music.org' style='color: #EEE;'>http://www.hydrogen-music.org</a><br>";
-	about += tr( "<br><b>Project page</b><br>");
+	about += "<br><b>" + tr( "Project page") + "</b><br>";
 	about += "<a href='https://github.com/hydrogen-music/hydrogen' style='color: #EEE;'>https://github.com/hydrogen-music/hydrogen</a><br>";
-	about += tr( "<br><b>Forum</b><br>");
+	about += "<br><b>" + tr( "Forum" ) + "</b><br>";
 	about += "<a href='https://github.com/hydrogen-music/hydrogen/discussions' style='color: #EEE;'>https://github.com/hydrogen-music/hydrogen/discussions</a><br>";
-	about += tr( "<br><b>Development mailing list</b><br>");
+	about += "<br><b>" + tr( "Development mailing list") + "</b><br>";
 	about += "<a href='https://lists.sourceforge.net/lists/listinfo/hydrogen-devel' style='color: #EEE;'>https://lists.sourceforge.net/lists/listinfo/hydrogen-devel</a>";
 
 	aboutTxt->setText( about );
 	aboutTxt->setOpenExternalLinks( true );
 
-
-
-	std::vector<Author> authorList;
-	authorList.push_back( Author( "Antonio Piraino (aka Journeyman)", "http://www.storiepvtride.it", "Italian manual" ) );
-	authorList.push_back( Author( "Artemiy Pavlov (aka Artemio)", "www.artemiolabs.com", "drum kits, demo patterns, web site" ) );
-	authorList.push_back( Author( "Alexandre Prokoudine", "", "Russian translation" ) );
-	authorList.push_back( Author( "Aur&#233;lien Leblond", "", "coding, bug fixes" ) );
-	authorList.push_back( Author( "Ben Powers", "", "docs" ) );
-	authorList.push_back( Author( "Benjamin Flaming", "", "JACK patches, bug fix" ) );
-	authorList.push_back( Author( "Carlo Impagliazzo (aka Truijllo)", "", "testing, ideas.." ) );
-	authorList.push_back( Author( "Chris Mennie", "http://chrismennie.ca/", "MIDI coding" ) );
-	authorList.push_back( Author( "Chris Wareham", "", "NetBSD patch" ) );
-	authorList.push_back( Author( "Christian Vorhof", "", "interface design concept" ) );
-	authorList.push_back( Author( "Daniil Kolpakov", "", "" ) );
-	authorList.push_back( Author( "Daniel Tonda Castillo", "", "Spanish manual" ) );
-	authorList.push_back( Author( "Daryl Hanlon","darylohara@gmail.com","Spanish translation" ) );
-	authorList.push_back( Author( "Dave Allan", "", "manual review" ) );
-	authorList.push_back( Author( "Dave Fancella", "", "" ) );
-	authorList.push_back( Author( "Dave Phillips", "", "bug reports, ideas" ) );
-	authorList.push_back( Author( "Derrick Karpo", "", "patches, testing" ) );
-	authorList.push_back( Author( "Dmitry Ivanov", "", "" ) );
-	authorList.push_back( Author( "Ede Wolf", "", "FAQ, testing" ) );
-	authorList.push_back( Author( "Elizeu Santos-Neto", "", "Portuguese(Brazil) translation" ) );
-	authorList.push_back( Author( "Emiliano Grilli (aka Emillo)", "www.emillo.net", "drum kits, demo patterns" ) );
-	authorList.push_back( Author( "Esben Stien", "", "" ) );
-	authorList.push_back( Author( "Francesco Cabras", "", "patches, testing" ) );
-	authorList.push_back( Author( "Gabriel M. Beddingfield", "gabriel@teuton.org", "patches, ideas" ) );
-	authorList.push_back( Author( "Gene", "", "patches, testing" ) );
-	authorList.push_back( Author( "Greg Bonik","gregory@bonik.org","pulseaudio coding" ) );
-	authorList.push_back( Author( "Jakob Lund", "jlund05@imada.sdu.dk", "coding" ) );
-	authorList.push_back( Author( "Jason Schaefer", "schaefer.jason@gmail.com", "patches, lead/lag feature" ) );
-	authorList.push_back( Author( "James Stone", "", "Bugfixes" ) );
-	authorList.push_back( Author( "Jay Alexander Fleming", "", "Serbian translation" ) );
-	authorList.push_back( Author( "Jesse Chappel", "", "JACK patches" ) );
-	authorList.push_back( Author( "J&#233;r&#233;my Zurcher", "", "coding") );
-	authorList.push_back( Author( "Jonas Melzer", "", "German manual" ) );
-	authorList.push_back( Author( "Jonathan Dempsey", "jonathandempsey@fastmail.fm", "Mac OSX port" ) );
-	authorList.push_back( Author( "Kevin Dahan (aka Unet)", "", "French translation" ) );
-	authorList.push_back( Author( "Lee Revell", "", "patches" ) );
-	authorList.push_back( Author( "Matt Walker", "", "" ) );
-	authorList.push_back( Author( "Michael Wolkstein", "m.wolkstein@gmx.de", "coding" ) );
-	authorList.push_back( Author( "Miguel Anxo Bouzada","mbouzada@gmail.com","Galician translation" ) );
-	authorList.push_back( Author( "Nikos Papadopoylos", "", "Greek translation" ) );
-	authorList.push_back( Author( "Noel Darlow", "", "manual review" ) );
-	authorList.push_back( Author( "Olivier Humbert", "trebmuh@tuxfamily.org", "French translation" ) );
-	authorList.push_back( Author( "Paul Dorman", "", "" ) );
-	authorList.push_back( Author( "Pawel Piatek (aka Xj)","xj@wp.pl","coding, bugfixing" ) );
-	authorList.push_back( Author( "Pieter Van Isacker (aka aikie)", "", "Dutch manual and translation" ) );
-	authorList.push_back( Author( "Philipp Müller (aka theGreatWhiteShark)", "thetruephil@googlemail.com", "coding" ) );
-	authorList.push_back( Author( "Przemysław Sitek", "el.pescado@gazeta.pl", "coding" ) );
-	authorList.push_back( Author( "Samuel Mimram", "", "packages" ) );
-	authorList.push_back( Author( "Sebastian Moors (aka mauser)", "mauser@smoors.de", "coding" ) );
-	authorList.push_back( Author( "Sergio Gil Perez de la Manga", "", "Spanish translation" ) );
-	authorList.push_back( Author( "Simon Donike", "", "German translation" ) );
-	authorList.push_back( Author( "Steve Boyer", "", "Windows cross compilation scripts" ) );
-	authorList.push_back( Author( "Thijs Van Severen", "http://audio-and-linux.blogspot.be/", "manual, website, coding" ) );
-	authorList.push_back( Author( "Torben Hohn", "", "bugfixing, test" ) );
-	authorList.push_back( Author( "Yamasaki Yutaka", "yamasaki@good-day.co.jp", "Japanese translation" ) );
-	authorList.push_back( Author( "Willie Sippel", "willie@zeitgeistmedia.net", "GUI graphics, coding" ) );
-	
-
+	std::vector<Author> translatorList;
+	translatorList.push_back( Author( "Olivier Humbert", "trebmuh@tuxfamily.org", "French translation" ) );
+	translatorList.push_back( Author( "Daryl Hanlon", "darylo1@hotmail.com", "Spanish translation" ) );
+	translatorList.push_back( Author( "Guocheng Zhu", "aaronbcn@outlook.es", "Chinese (Mainland China) translation" ) );
 	QString sAuthors;
-	sAuthors += tr( "<b>Main coder and maintainer:</b><br>" );
-	sAuthors += "<ul><li><p>Alessandro Cominu (aka Comix) [2001-2008]</li>";
-	sAuthors += "<li><p>Michael Wolkstein (aka Wolke) [2008-2014]</li>";
-	sAuthors += "<li><p>Sebastian Moors (aka Mauser) [2008-now]</li></ul>";
+	sAuthors += "<b>" + tr( "Main coders and maintainers" ) + ":</b>";
+	sAuthors += "<ul><li><p>Sebastian Moors (aka Mauser) [2008-now]</li>";
+	sAuthors += "<li><p>Colin McEwan (aka cme) [2020-now]</p></li>";
+	sAuthors += "<li><p>Philipp Müller (aka theGreatWhiteShark) [2020-now]</p></li></ul></br>";
 
-	sAuthors += tr( "<b>Thanks to:</b>" );
-
+	sAuthors += "<b>" + tr( "Active translators" ) + ":</b>";
 	sAuthors += "<ul>";
 
-	for ( uint i = 0; i < authorList.size(); ++i ) {
-		Author a = authorList.at( i );
+	for ( auto tt : translatorList ) {
 		sAuthors += "<li><p>";
-		sAuthors += "<i>" + a.m_sName + " - " + a.m_sInfo + "</i>";
+		sAuthors += tt.m_sName + " (<i>" + tt.m_sEmail + "</i>): " + tt.m_sInfo;
 		sAuthors += "</p></li>";
 	}
-	sAuthors += "</ul>";
+	sAuthors += "</ul></br>";
 
+	AboutDialogContributorList contributors;
+	auto pContributorList = contributors.getContributorList();
+
+	sAuthors += "<b>" + tr( "Recent contributors" ) + ":</b>";
+	sAuthors += "<ul>";
+
+	for ( const auto& tt : *pContributorList ) {
+		sAuthors += "<li><p>";
+		sAuthors += tt;
+		sAuthors += "</p></li>";
+	}
+	sAuthors += "</ul></br>";
+
+	sAuthors += "<p><a href='https://github.com/hydrogen-music/hydrogen/graphs/contributors' style='color: #EEE;'>" + tr( "A full list of all contributors can be found on" ) +
+		" Github</a></p>";
+	
+	
+	sAuthors += "<b>" + tr( "Former main coders and maintainers" ) + ":</b>";
+	sAuthors += "<ul><li><p>Alessandro Cominu (aka Comix) [2001-2008]</li>";
+	sAuthors += "<li><p>Michael Wolkstein (aka Wolke) [2008-2014]</li></ul></br>";
 
 	authorsText->setText( sAuthors );
+	authorsText->setOpenExternalLinks( true );
 
 	logoLabel->setPixmap( QPixmap( Skin::getImagePath() +"/about/aboutLogo.png" ) );
 }

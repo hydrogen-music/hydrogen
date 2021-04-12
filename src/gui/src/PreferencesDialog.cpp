@@ -334,9 +334,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	enableOscCheckbox->setChecked( pPref->getOscServerEnabled() );
 	enableOscFeedbackCheckbox->setChecked( pPref->getOscFeedbackEnabled() );
 	connect(enableOscCheckbox, SIGNAL(toggled(bool)), this, SLOT(toggleOscCheckBox( bool )));
-	
 	incomingOscPortSpinBox->setValue( pPref->getOscServerPort() );
-	oscWidget->setEnabled( pPref->getOscServerEnabled() );
 
 	if ( pPref->m_nOscTemporaryPort != -1 ) {
 		oscTemporaryPortLabel->show();
@@ -349,6 +347,14 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		oscTemporaryPort->setEnabled( false );
 		oscTemporaryPort->setText( QString::number( pPref->m_nOscTemporaryPort ) );
 	} else {
+		oscTemporaryPortLabel->hide();
+		oscTemporaryPort->hide();
+	}
+	
+	if ( ! pPref->getOscServerEnabled() ) {
+		enableOscFeedbackCheckbox->hide();
+		incomingOscPortSpinBox->hide();
+		incomingOscPortLabel->hide();
 		oscTemporaryPortLabel->hide();
 		oscTemporaryPort->hide();
 	}
@@ -416,17 +422,8 @@ void PreferencesDialog::on_cancelBtn_clicked()
 	reject();
 }
 
-
-void PreferencesDialog::on_okBtn_clicked()
-{
-	//	m_bNeedDriverRestart = true;
-
+void PreferencesDialog::updateDriverPreferences() {
 	Preferences *pPref = Preferences::get_instance();
-
-	MidiMap *mM = MidiMap::get_instance();
-	mM->reset_instance();
-
-	midiTable->saveMidiTable();
 
 	// Selected audio driver
 	if (driverComboBox->currentText() == "Auto" ) {
@@ -496,6 +493,21 @@ void PreferencesDialog::on_okBtn_clicked()
 	else if ( sampleRateComboBox->currentText() == "96000" ) {
 		pPref->m_nSampleRate = 96000;
 	}
+}
+
+
+void PreferencesDialog::on_okBtn_clicked()
+{
+	//	m_bNeedDriverRestart = true;
+
+	Preferences *pPref = Preferences::get_instance();
+
+	MidiMap *mM = MidiMap::get_instance();
+	mM->reset_instance();
+
+	midiTable->saveMidiTable();
+
+	updateDriverPreferences();
 
 
 	// metronome
@@ -525,27 +537,33 @@ void PreferencesDialog::on_okBtn_clicked()
 	pPref->m_bEnableMidiFeedback = m_pEnableMidiFeedbackCheckBox->isChecked();
 			
 	// Mixer falloff
-	QString falloffStr = mixerFalloffComboBox->currentText();
-	if ( falloffStr== tr("Slow") ) {
+	switch ( mixerFalloffComboBox->currentIndex() ) {
+	case 0:
 		pPref->setMixerFalloffSpeed(FALLOFF_SLOW);
-	}
-	else if ( falloffStr == tr("Normal") ) {
+		break;
+	case 1:
 		pPref->setMixerFalloffSpeed(FALLOFF_NORMAL);
-	}
-	else if ( falloffStr == tr("Fast") ) {
+		break;
+	case 2:
 		pPref->setMixerFalloffSpeed(FALLOFF_FAST);
-	}
-	else {
-		ERRORLOG( "[okBtnClicked] Unknown mixerFallOffSpeed: " + falloffStr );
+		break;
+	default:
+		ERRORLOG( "[okBtnClicked] Unknown mixerFallOffSpeed: " + mixerFalloffComboBox->currentText() );
 	}
 
 	QString sNewMidiPortName = midiPortComboBox->currentText();
+	if ( midiPortComboBox->currentIndex() == 0 ) {
+		sNewMidiPortName = "None";
+	}
 	if ( pPref->m_sMidiPortName != sNewMidiPortName ) {
 		pPref->m_sMidiPortName = sNewMidiPortName;
 		m_bNeedDriverRestart = true;
 	}
 	
 	QString sNewMidiOutputPortName = midiOutportComboBox->currentText();
+	if ( midiOutportComboBox->currentIndex() == 0 ) {
+		sNewMidiOutputPortName = "None";
+	}
 	if ( pPref->m_sMidiOutputPortName != sNewMidiOutputPortName ) {
 		pPref->m_sMidiOutputPortName = sNewMidiOutputPortName;
 		m_bNeedDriverRestart = true;
@@ -817,7 +835,7 @@ void PreferencesDialog::updateDriverInfo()
 		m_pAudioDeviceTxt->setText( "" );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
-		trackOutsCheckBox->hide();
+		trackOutputComboBox->hide();
 		trackOutputLbl->hide();
 		connectDefaultsCheckBox->hide();
 		enableTimebaseCheckBox->hide();
@@ -927,6 +945,9 @@ void PreferencesDialog::on_sampleRateComboBox_editTextChanged( const QString&  )
 
 void PreferencesDialog::on_restartDriverBtn_clicked()
 {
+	updateDriverPreferences();
+	Preferences *pPref = Preferences::get_instance();
+	pPref->savePreferences();
 	Hydrogen::get_instance()->restartDrivers();
 	m_bNeedDriverRestart = false;
 }
@@ -1048,5 +1069,19 @@ void PreferencesDialog::toggleTrackOutsCheckBox(bool toggled)
 
 void PreferencesDialog::toggleOscCheckBox(bool toggled)
 {
-	oscWidget->setEnabled( toggled );
+	if ( toggled ) {
+		enableOscFeedbackCheckbox->show();
+		incomingOscPortSpinBox->show();
+		incomingOscPortLabel->show();
+		if ( Preferences::get_instance()->m_nOscTemporaryPort != -1 ) {
+			oscTemporaryPortLabel->show();
+			oscTemporaryPort->show();
+		}
+	} else {
+		enableOscFeedbackCheckbox->hide();
+		incomingOscPortSpinBox->hide();
+		incomingOscPortLabel->hide();
+		oscTemporaryPortLabel->hide();
+		oscTemporaryPort->hide();
+	}
 }

@@ -1,3 +1,5 @@
+// This file was automatically created by the update_contributors.sh
+// script. Please don't modify it by hand. 
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
@@ -19,29 +21,25 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
+#include "AboutDialogContributorList.h"
 
-#ifndef DONATION__DIALOG_H
-#define DONATION__DIALOG_H
+const char* AboutDialogContributorList::__class_name = "AboutDialogContributorList";
 
+AboutDialogContributorList::AboutDialogContributorList() : H2Core::Object( __class_name ) {
 
-#include <QtGui>
-#include <QtWidgets>
-
-#include "ui_DonationDialog.h"
-
-class DonationDialog : public QDialog, public Ui_DonationDialog_UI
-{
-Q_OBJECT
-public:
-	explicit DonationDialog(QWidget* parent);
-	~DonationDialog();
-
-private slots:
-	void on_randomizeBtn_clicked();
-	void on_donateBtn_clicked();
-
-private:
-
+	std::vector<QString> v{
+"theGreatWhiteShark"
+,"Sebastian Moors"
+,"Colin McEwan"
+,"oddtime"
+,"Olivier Humbert"
+,"Clara Hobbs"
+,"Przemysław Sitek"
+,"Jérémy Zurcher"
+,"freddii"
+,"David Runge"
 };
+	m_pContributorList = std::make_shared<std::vector<QString>>(v);
+}
 
-#endif
+AboutDialogContributorList::~AboutDialogContributorList() {}

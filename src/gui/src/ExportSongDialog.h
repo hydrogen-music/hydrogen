@@ -51,6 +51,7 @@ class ExportSongDialog : public QDialog, public Ui_ExportSongDialog_UI, public E
 		~ExportSongDialog();
 
 		virtual void progressEvent( int nValue ) override;
+		void closeEvent( QCloseEvent* event ) override;
 
 
 private slots:
@@ -78,6 +79,8 @@ private:
 	void		exportTracks();
 	bool 		validateUserInput();
 	QString		createDefaultFilename();
+
+	void		closeExport();
 	
 	bool					m_bExporting;
 	bool					m_bExportTrackouts;

@@ -634,6 +634,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 {
 	m_nWidth = MASTERMIXERLINE_WIDTH;
 	m_nHeight = MASTERMIXERLINE_HEIGHT;
+	m_fMaxPeak = 0.0f;
 	m_nPeakTimer = 0;
 
 	setMinimumSize( m_nWidth, m_nHeight );

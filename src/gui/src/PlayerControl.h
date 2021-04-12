@@ -96,6 +96,14 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		virtual void tempoChangedEvent( int nValue ) override;
 		virtual void jackTransportActivationEvent( int nValue ) override;
 		virtual void jackTimebaseActivationEvent( int nValue ) override;
+		/**
+		 * Shared GUI update when activating Song or Pattern mode via
+		 * button click or via OSC command.
+		 *
+		 * @param nValue If 0, Pattern mode will be activate. Else,
+		 * Song mode will be activated instead.
+		 */
+		void songModeActivationEvent( int nValue ) override;
 													
 
 	private slots:
@@ -131,14 +139,6 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		void rubberbandButtonToggle(Button* ref);
 
 	private:
-		/**
-		 * Shared GUI update when activating Song or Pattern mode via
-		 * button click or via OSC command.
-		 *
-		 * @param nValue If 0, Pattern mode will be activate. Else,
-		 * Song mode will be activated instead.
-		 */
-		void songModeActivationEvent( int nValue ) override;
 		/**
 		 * Shared GUI update when activating loop mode via button
 		 * click or via OSC command.
