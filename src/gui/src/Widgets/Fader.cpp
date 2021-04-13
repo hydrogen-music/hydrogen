@@ -710,44 +710,7 @@ void MasterFader::setMax( float fMax )
 
 
 
-QPixmap* Knob::m_background = nullptr;
-
-const char* Knob::__class_name = "Knob";
-
-///
-/// Constructor
-///
-
-Knob::Knob( QWidget* pParent, QString sToolTip, bool bUseValueTip )
- : QWidget( pParent )
- , m_bShowValueToolTip( bUseValueTip )
- , Object( __class_name )
-{
-	setAttribute(Qt::WA_OpaquePaintEvent);
-	setToolTip( sToolTip );
-	
-	m_pValueToolTip = new RotaryTooltip( mapToGlobal( QPoint( 0, 0 ) ) );
-
-	m_nWidgetWidth = 18;
-	m_nWidgetHeight = 18;
-	m_fValue = 0.0;
-	m_fDefaultValue = 0.0;
-	m_fMousePressValue = 0.0;
-	m_fMousePressY = 0.0;
-	m_bIgnoreMouseMove = false;
-
-	if ( m_background == nullptr ) {
-		QString sBackground_path = Skin::getImagePath() + "/mixerPanel/knob_images.png";
-		m_background = new QPixmap();
-		if ( m_background->load( sBackground_path ) == false ){
-			ERRORLOG( "Error loading pixmap" );
-		}
-	}
-
-	resize( m_nWidgetWidth, m_nWidgetHeight );
-}
-
-
+/*
 
 ///
 /// Destructor
@@ -888,4 +851,4 @@ void Knob::wheelEvent ( QWheelEvent *ev )
 		setValue( m_fValue - 0.025 );
 	}
 	emit valueChanged(this);
-}
+}*/

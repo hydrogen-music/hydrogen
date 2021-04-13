@@ -141,7 +141,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 			m_pKnob[i]->move( 30, 63 + (20 * y) );
 			y++;
 		}
-		connect( m_pKnob[i], SIGNAL( valueChanged(Knob*) ), this, SLOT( knobChanged(Knob*) ) );
+		connect( m_pKnob[i], SIGNAL( valueChanged(Rotary*) ), this, SLOT( knobChanged(Rotary*) ) );
 	}
 
 	Preferences *pPref = Preferences::get_instance();
@@ -364,7 +364,7 @@ void MixerLine::setPlayClicked( bool clicked ) {
 	m_pTriggerSampleLED->setPressed( clicked );
 }
 
-void MixerLine::knobChanged(Knob* pRef)
+void MixerLine::knobChanged(Rotary* pRef)
 {
 //	infoLog( "knobChanged" );
 	for (uint i = 0; i < MAX_FX; i++) {

@@ -85,7 +85,7 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 	signals:
 		void valueChanged(Rotary *ref);
 
-	private:
+	protected:
 		bool m_bUseIntSteps;
 		bool m_bIgnoreMouseMove;
 
@@ -112,6 +112,17 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 		virtual void mouseReleaseEvent( QMouseEvent *ev );
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void wheelEvent( QWheelEvent *ev );
+};
+
+
+class Knob : public Rotary
+{
+	public:
+		Knob( QWidget* parent, QString sToolTip, bool bUseValueTip );
+	private:
+		static QPixmap* m_background;
+		void paintEvent(QPaintEvent *ev) override;
+		/*void mouseMoveEvent( QMouseEvent *ev )override;*/
 };
 
 

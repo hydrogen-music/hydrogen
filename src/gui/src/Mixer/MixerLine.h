@@ -133,7 +133,7 @@ class MixerLine: public PixmapWidget
 		void	rightClick(Button *ref);
 		void	faderChanged(Fader *ref);
 		void	panChanged(Rotary *ref);
-		void	knobChanged(Knob *ref);
+		void	knobChanged(Rotary *ref);
 		void	nameClicked();
 		void	nameSelected();
 
