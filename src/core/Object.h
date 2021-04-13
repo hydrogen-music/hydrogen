@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <QtCore>
+#include <QDebug>
 
 namespace H2Core {
 
@@ -69,6 +70,26 @@ class Object {
 		static int bootstrap( Logger* logger, bool count=false );
 		static Logger* logger()                 { return __logger; }            ///< return the logger instance
 
+		/** String used to format the debugging string output of some
+			core classes.*/
+		static QString sPrintIndention;
+
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \param bShort Instead of the whole content of all classes
+		 * stored as members just a single unique identifier will be
+		 * displayed without line breaks.
+		 *
+		 * \return String presentation of current object.*/
+		virtual QString toQString( const QString& sPrefix, bool bShort = true ) const;
+		/** Prints content of toQString() via DEBUGLOG
+		 *
+		 * \param bShort Whether to display the content of the member
+		 * class variables and to use line breaks.
+		 */
+		void Print( bool bShort = true ) const;
+
 	private:
 		/**
 		 * search for the class name within __objects_map, decrease class and global counts
@@ -100,17 +121,31 @@ class Object {
 		static Logger* __logger;                ///< logger instance pointer
 };
 
+std::ostream& operator<<( std::ostream& os, const Object& object );
+std::ostream& operator<<( std::ostream& os, const Object* object );
+
+
+inline QDebug operator<<( QDebug d, Object *o ) {
+	d << ( o ? o->toQString( "", true ) : "(nullptr)" );
+	return d;
+}
+
+inline QDebug operator<<( QDebug d, std::shared_ptr<Object> o ) {
+	d << ( o ? o->toQString( "", true ) : "(nullptr)" );
+	return d;
+}
+
 // Object inherited class declaration macro
 #define H2_OBJECT                                                       \
 	public: static const char* class_name() { return __class_name; }    \
 	private: static const char* __class_name;                           \
 
 // LOG MACROS
-#define __LOG_METHOD(   lvl, msg )  if( __logger->should_log( (lvl) ) )                 { __logger->log( (lvl), class_name(), __FUNCTION__, msg ); }
-#define __LOG_CLASS(    lvl, msg )  if( logger()->should_log( (lvl) ) )                 { logger()->log( (lvl), class_name(), __FUNCTION__, msg ); }
-#define __LOG_OBJ(      lvl, msg )  if( __object->logger()->should_log( (lvl) ) )       { __object->logger()->log( (lvl), 0, __PRETTY_FUNCTION__, msg ); }
-#define __LOG_STATIC(   lvl, msg )  if( H2Core::Logger::get_instance()->should_log( (lvl) ) )   { H2Core::Logger::get_instance()->log( (lvl), 0, __PRETTY_FUNCTION__, msg ); }
-#define __LOG( logger,  lvl, msg )  if( (logger)->should_log( (lvl) ) )                 { (logger)->log( (lvl), 0, 0, msg ); }
+#define __LOG_METHOD(   lvl, msg )  if( __logger->should_log( (lvl) ) )                 { __logger->log( (lvl), class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
+#define __LOG_CLASS(    lvl, msg )  if( logger()->should_log( (lvl) ) )                 { logger()->log( (lvl), class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
+#define __LOG_OBJ(      lvl, msg )  if( __object->logger()->should_log( (lvl) ) )       { __object->logger()->log( (lvl), 0, __PRETTY_FUNCTION__, QString( "%1" ).arg( msg ) ); }
+#define __LOG_STATIC(   lvl, msg )  if( H2Core::Logger::get_instance()->should_log( (lvl) ) )   { H2Core::Logger::get_instance()->log( (lvl), 0, __PRETTY_FUNCTION__, QString( "%1" ).arg( msg ) ); }
+#define __LOG( logger,  lvl, msg )  if( (logger)->should_log( (lvl) ) )                 { (logger)->log( (lvl), 0, 0, QString( "%1" ).arg( msg ) ); }
 
 // Object instance method logging macros
 #define DEBUGLOG(x)     __LOG_METHOD( H2Core::Logger::Debug,   (x) );

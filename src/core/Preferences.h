@@ -461,6 +461,9 @@ public:
 	void			setShowDevelWarning( bool value );
 	bool			getShowDevelWarning();
 
+	bool			getShowNoteOverwriteWarning();
+	void			setShowNoteOverwriteWarning( bool bValue );
+
 	bool			isRestoreLastSongEnabled();
 	bool			isRestoreLastPlaylistEnabled();
 	bool			isPlaylistUsingRelativeFilenames();
@@ -701,6 +704,7 @@ private:
 	bool				m_bUseLash;
 	///< Show development version warning?
 	bool				m_bShowDevelWarning;
+	bool				m_bShowNoteOverwriteWarning;
 	///< Last song used
 	QString				m_lastSongFilename;
 	QString				m_lastPlaylistFilename;
@@ -953,6 +957,14 @@ inline void Preferences::setShowDevelWarning( bool value ) {
 
 inline bool Preferences::getShowDevelWarning() {
 	return m_bShowDevelWarning;
+}
+
+inline bool Preferences::getShowNoteOverwriteWarning() {
+	return m_bShowNoteOverwriteWarning;
+}
+
+inline void Preferences::setShowNoteOverwriteWarning( bool bValue ) {
+	m_bShowNoteOverwriteWarning = bValue;
 }
 
 inline void Preferences::setHideKeyboardCursor( bool value ) {

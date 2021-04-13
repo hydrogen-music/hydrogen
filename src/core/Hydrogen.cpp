@@ -1983,8 +1983,6 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick 
 		}
 	}
 
-	QString err = QString( "[findPatternInTick] tick = %1. No pattern list found" ).arg( QString::number(nTick) );
-	___ERRORLOG( err );
 	return -1;
 }
 
@@ -3084,7 +3082,12 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	}
 
 	INFOLOG( pDrumkitInfo->get_name() );
-	m_currentDrumkit = pDrumkitInfo->get_name();
+	m_sCurrentDrumkitName = pDrumkitInfo->get_name();
+	if ( pDrumkitInfo->isUserDrumkit() ) {
+		m_currentDrumkitLookup = Filesystem::Lookup::user;
+	} else {
+		m_currentDrumkitLookup = Filesystem::Lookup::system;
+	}
 
 	std::vector<DrumkitComponent*>* pSongCompoList= getSong()->getComponents();
 	std::vector<DrumkitComponent*>* pDrumkitCompoList = pDrumkitInfo->get_components();
@@ -3133,6 +3136,7 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	
 	//needed for the new delete function
 	int instrumentDiff =  pSongInstrList->size() - pDrumkitInstrList->size();
+	int nMaxID = -1;
 	
 	for ( unsigned nInstr = 0; nInstr < pDrumkitInstrList->size(); ++nInstr ) {
 		Instrument *pInstr = nullptr;
@@ -3156,8 +3160,17 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 				 .arg( pDrumkitInstrList->size() )
 				 .arg( pNewInstr->get_name() ) );
 
+		// Preserve instrument IDs. Where the new drumkit has more instruments than the song does, new
+		// instruments need new ids.
+		int nID = pInstr->get_id();
+		if ( nID == EMPTY_INSTR_ID ) {
+			nID = nMaxID + 1;
+		}
+		nMaxID = std::max( nID, nMaxID );
+
 		// Moved code from here right into the Instrument class - Jakob Lund.
 		pInstr->load_from( pDrumkitInfo, pNewInstr );
+		pInstr->set_id( nID );
 	}
 
 	//wolke: new delete function
@@ -3518,24 +3531,6 @@ int Hydrogen::getSelectedPatternNumber()
 	return m_nSelectedPatternNumber;
 }
 
-
-void Hydrogen::setSelectedPatternNumberWithoutGuiEvent( int nPat )
-{
-	Song* pSong = getSong();
-
-	if ( nPat == m_nSelectedPatternNumber
-		 || ( nPat + 1 > pSong->getPatternList()->size() )
-		 ) return;
-
-	if ( Preferences::get_instance()->patternModePlaysSelected() ) {
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
-
-		m_nSelectedPatternNumber = nPat;
-		AudioEngine::get_instance()->unlock();
-	} else {
-		m_nSelectedPatternNumber = nPat;
-	}
-}
 
 void Hydrogen::setSelectedPatternNumber( int nPat )
 {

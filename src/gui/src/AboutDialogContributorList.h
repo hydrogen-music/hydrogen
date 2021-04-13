@@ -20,35 +20,28 @@
  *
  */
 
-#ifndef ABOUT__DIALOG_H
-#define ABOUT__DIALOG_H
+#ifndef ABOUT__DIALOG_CONTRIBUTOR_LIST_H
+#define ABOUT__DIALOG_CONTRIBUTOR_LIST_H
 
+#include <vector>
+#include <memory>
+#include <QString>
+#include <core/Object.h>
 
-#include <QtGui>
-#include <QtWidgets>
-#include <QTextBrowser>
-
-#include "ui_about_dialog.h"
-
-class AboutDialog : public QDialog, public Ui_AboutDialog_UI
+class AboutDialogContributorList : public H2Core::Object
 {
-Q_OBJECT
+H2_OBJECT
 public:
-	explicit AboutDialog(QWidget* parent);
-	~AboutDialog();
+	AboutDialogContributorList();
+	~AboutDialogContributorList();
 
-private slots:
-	void on_okBtn_clicked();
+	std::shared_ptr<std::vector<QString>> getContributorList() const;
 
 private:
-	class Author {
-		public:
-			QString m_sName;
-			QString m_sEmail;
-			QString m_sInfo;
-
-			Author( QString sName, QString sEmail, QString sInfo ) : m_sName( sName ), m_sEmail( sEmail ), m_sInfo( sInfo ) {}
-	};
+	std::shared_ptr<std::vector<QString>> m_pContributorList;
 };
 
+inline std::shared_ptr<std::vector<QString>> AboutDialogContributorList::getContributorList() const {
+	return m_pContributorList;
+}
 #endif

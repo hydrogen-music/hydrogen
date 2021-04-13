@@ -52,6 +52,7 @@ public:
 	void updateDrumkitList();
 	void test_expandedItems();
 	void update_background_color();
+	const QString& getMessageFailedPreDrumkitLoad() const;
 
 public slots:
 	void on_drumkitLoadAction();
@@ -98,6 +99,16 @@ private:
 	void restore_background_color();
 	void change_background_color();
 
+	/** Whether the dialog was constructed via a click in the MainForm
+	 * or as part of the GUI.
+	 */
+	bool m_bInItsOwnDialog;
+
+	QString m_sMessageFailedPreDrumkitLoad;
 };
+
+inline const QString& SoundLibraryPanel::getMessageFailedPreDrumkitLoad() const {
+	return m_sMessageFailedPreDrumkitLoad;
+}
 
 #endif

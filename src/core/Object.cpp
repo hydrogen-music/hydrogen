@@ -48,6 +48,7 @@ bool Object::__count = false;
 unsigned Object::__objects_count = 0;
 pthread_mutex_t Object::__mutex;
 Object::object_map_t Object::__objects_map;
+QString Object::sPrintIndention = "  ";
 
 int Object::bootstrap( Logger* logger, bool count ) {
 	if( __logger==nullptr && logger!=nullptr ) {
@@ -155,6 +156,23 @@ void Object::write_objects_map_to( std::ostream& out ) {
 	out << "\033[35mObject::write_objects_map_to :: \033[31mnot compiled with H2CORE_HAVE_DEBUG flag set\033[0m" << std::endl;
 #endif
 #endif
+}
+
+QString Object::toQString( const QString& sPrefix, bool bShort ) const {
+	return QString( "[%1] instances alive: %2" )
+		.arg( class_name() ).arg( count_active() );
+}
+
+void Object::Print( bool bShort ) const {
+	DEBUGLOG( toQString( "", bShort ) );
+}
+
+std::ostream& operator<<( std::ostream& os, const Object& object ) {
+	return os << object.toQString( "", true ).toLocal8Bit().data() << std::endl;
+}
+
+std::ostream& operator<<( std::ostream& os, const Object* object ) {
+	return os << object->toQString( "", true ).toLocal8Bit().data() << std::endl;
 }
 
 };

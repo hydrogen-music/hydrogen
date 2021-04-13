@@ -81,6 +81,7 @@ class PianoRollEditor: public PatternEditor
 									float oldLeadLag,
 									int oldNoteKeyVal,
 									int oldOctaveKeyVal,
+									float fProbability,
 									bool noteOff,
 									bool isDelete );
 
@@ -102,7 +103,7 @@ class PianoRollEditor: public PatternEditor
 						float pan_R,
 						float leadLag,
 						int pressedLine );
-                void editNoteLengthAction( int nColumn,  int nRealColumn, int length, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedLine );
+		void editNoteLengthAction( int nColumn,  int nRealColumn, int length, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedLine );
 
 
 		// Selection manager interface
