@@ -135,21 +135,25 @@ void Fader::mouseReleaseEvent(QMouseEvent *ev)
 void Fader::wheelEvent ( QWheelEvent *ev )
 {
 	ev->accept();
-	float step;
-	if ( m_bUseIntSteps ) { // TODO where is this used?
-		step = 1.;
+	float fStep;
+	if ( m_bUseIntSteps ) {
+		fStep = 1.;
 	} else {
-		step = ( m_fMaxValue - m_fMinValue ) / 50.0;
+		if (ev->modifiers() == Qt::ControlModifier) { // fine adjustment
+			fStep = 0.01;  // assuming that ( m_fMaxValue - m_fMinValue ) / 50.0 > 0.01
+		} else { // Coarse adjustment
+			fStep = ( m_fMaxValue - m_fMinValue ) / 50.0;
+		}
 	}
 	
 	float fVal;
 	if ( ev->angleDelta().y() > 0 ) {
-		fVal = m_fValue + step;
+		fVal = m_fValue + fStep;
 		if ( fVal > m_fMaxValue ) { // for QToolTip text validity
 			fVal = m_fMaxValue;
 		}
 	} else {
-		fVal = m_fValue - step;
+		fVal = m_fValue - fStep;
 		if ( fVal < m_fMinValue ) { // for QToolTip text validity
 			fVal = m_fMinValue;
 		}
@@ -502,15 +506,19 @@ void MasterFader::wheelEvent ( QWheelEvent *ev )
 {
 	ev->accept();
 
-	float step = ( m_fMax - m_fMin ) / 50.0;
+	float fStep = ( m_fMax - m_fMin ) / 50.0;
+	if (ev->modifiers() == Qt::ControlModifier) {
+		fStep = 0.01;
+	}
+	
 	float fVal;
 	if ( ev->angleDelta().y() > 0 ) {
-		fVal = m_fValue + step;
+		fVal = m_fValue + fStep;
 		if ( fVal > m_fMax ) { // for QToolTip text validity
 			fVal = m_fMax;
 		}
 	} else {
-		fVal = m_fValue - step;
+		fVal = m_fValue - fStep;
 		if ( fVal < m_fMin ) { // for QToolTip text validity
 			fVal = m_fMin;
 		}

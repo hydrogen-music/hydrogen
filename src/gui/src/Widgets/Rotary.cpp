@@ -62,6 +62,7 @@ RotaryTooltip::~RotaryTooltip()
 
 QPixmap* Rotary::m_background_normal = nullptr;
 QPixmap* Rotary::m_background_center = nullptr;
+QPixmap* Rotary::m_background_small = nullptr;
 
 const char* Rotary::__class_name = "Rotary";
 
@@ -81,9 +82,14 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseInt
 	setToolTip( sToolTip );
 
 	m_pValueToolTip = new RotaryTooltip( mapToGlobal( QPoint( 0, 0 ) ) );
-
-	m_nWidgetWidth = 28;
-	m_nWidgetHeight = 26;
+	
+	if ( type == TYPE_SMALL ) {
+		m_nWidgetWidth = 18;
+		m_nWidgetHeight = 18;
+	} else {
+		m_nWidgetWidth = 28;
+		m_nWidgetHeight = 26;
+	}
 
 	if (bUseIntSteps) {
 		m_fDefaultValue = (int) ( type == TYPE_CENTER ? ( m_fMin + ( m_fMax - m_fMin ) / 2.0 ) : m_fMin );
@@ -104,8 +110,12 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseInt
 		if ( m_background_center->load( Skin::getImagePath() + "/mixerPanel/rotary_center_images.png" ) == false ){
 			ERRORLOG( "Error loading pixmap" );
 		}
+	} else if ( type == TYPE_SMALL && m_background_small == nullptr ) {
+		m_background_small = new QPixmap();
+		if ( m_background_small->load( Skin::getImagePath() + "/mixerPanel/knob_images.png" ) == false ){ //TODO rename png?
+			ERRORLOG( "Error loading pixmap" );
+		}
 	}
-
 	resize( m_nWidgetWidth, m_nWidgetHeight );
 //	m_temp.resize( m_nWidgetWidth, m_nWidgetHeight );
 }
@@ -156,12 +166,14 @@ void Rotary::paintEvent( QPaintEvent* ev )
 		/*if ( nFrame >= nTotFrames ) { // impossible since the boundary checks in setValue()
 			nFrame = nTotFrames - 1;
 		}*/
-		int xPos = m_nWidgetWidth * nFrame;
-		if ( m_type == TYPE_NORMAL ) {
-			painter.drawPixmap( rect(), *m_background_normal, QRect( xPos, 0, m_nWidgetWidth, m_nWidgetHeight ) );
-		} else if ( m_type == TYPE_CENTER ) {
-			painter.drawPixmap( rect(), *m_background_center, QRect( xPos, 0, m_nWidgetWidth, m_nWidgetHeight ) );
-		}
+	int xPos = m_nWidgetWidth * nFrame;
+	if ( m_type == TYPE_NORMAL ) {
+		painter.drawPixmap( rect(), *m_background_normal, QRect( xPos, 0, m_nWidgetWidth, m_nWidgetHeight ) );
+	} else if ( m_type == TYPE_CENTER ) {
+		painter.drawPixmap( rect(), *m_background_center, QRect( xPos, 0, m_nWidgetWidth, m_nWidgetHeight ) );
+	} else if ( m_type == TYPE_SMALL ) {
+		painter.drawPixmap( rect(), *m_background_small, QRect( xPos, 0, m_nWidgetWidth, m_nWidgetHeight ) );
+	}
 
 	//}
 }
@@ -234,7 +246,7 @@ void Rotary::wheelEvent ( QWheelEvent *ev )
 {
 	ev->accept();
 
-	float stepfactor = 5.0; // course adjustment
+	float stepfactor = 5.0; // coarse adjustment
 	float delta = 1.0;
 
 	// Control Modifier = fine adjustment
@@ -242,14 +254,25 @@ void Rotary::wheelEvent ( QWheelEvent *ev )
 		stepfactor = 1.0;
 	}
 	if ( !m_bUseIntSteps ) {
-		float fRange = fabs( m_fMax ) + fabs( m_fMin );
+		float fRange = m_fMax - m_fMin;
 		delta = fRange / 100.0;
 	}
 	if ( ev->angleDelta().y() < 0 ) {
-		delta = delta * -1.0;
+		delta *= -1.;
 	}
 	setValue( getValue() + (delta * stepfactor) );
 	emit valueChanged(this);
+	
+	if ( m_bShowValueToolTip ) {
+		char tmp[20];
+		sprintf( tmp, "%#.2f", m_fValue );
+		
+		// Problem: ValueToolTip remains visible after wheel event
+		//m_pValueToolTip->showTip( mapToGlobal( QPoint( -38, 1 ) ), QString( tmp ) );
+		
+		// useful but graphically incoeherent
+		QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
+	}
 }
 
 
@@ -260,7 +283,7 @@ void Rotary::mouseMoveEvent( QMouseEvent *ev )
 		return;
 	}
 
-	float fRange = fabs( m_fMax ) + fabs( m_fMin );
+	float fRange = m_fMax - m_fMin;
 
 	float deltaY = ev->y() - m_fMousePressY;
 	float fNewValue = ( m_fMousePressValue - ( deltaY / 100.0 * fRange ) );
@@ -334,7 +357,7 @@ void Rotary::resetValueToDefault()
 
 
 ////////////////////////////
-
+/*
 QPixmap* Knob::m_background = nullptr;
 
 //const char* Knob::__class_name = "Knob";
@@ -344,7 +367,7 @@ QPixmap* Knob::m_background = nullptr;
 ///
 
 Knob::Knob( QWidget* pParent, QString sToolTip, bool bUseValueTip )
- : Rotary::Rotary( pParent, /*RotaryType type*/ TYPE_NORMAL, sToolTip, /*bool bUseIntSteps*/ false, bUseValueTip )
+ : Rotary::Rotary( pParent, TYPE_NORMAL, sToolTip, false, bUseValueTip )
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
@@ -373,7 +396,7 @@ void Knob::paintEvent( QPaintEvent* ev )
 //	bitBlt(&m_temp, 0, 0, m_background, xPos, 0, m_nWidgetWidth, m_nWidgetHeight, CopyROP);
 	painter.drawPixmap( rect(), *m_background, QRect( xPos, 0, m_nWidgetWidth, m_nWidgetHeight ) );
 }
-/*
+
 void Knob::mouseMoveEvent( QMouseEvent *ev )
 {
 	if ( m_bIgnoreMouseMove ) {

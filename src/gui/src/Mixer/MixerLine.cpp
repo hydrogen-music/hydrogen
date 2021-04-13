@@ -130,18 +130,18 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	// FX send
 	uint y = 0;
 	for ( uint i = 0; i < MAX_FX; i++ ) {
-		m_pKnob[i] = new Knob( this, tr( "FX %1 send" ).arg( i + 1 ), true );
+		m_pFxRotary[i] = new Rotary( this, Rotary::TYPE_SMALL, tr( "FX %1 send" ).arg( i + 1 ), false, true );
 		pAction = new Action(QString( "EFFECT%1_LEVEL_ABSOLUTE" ).arg( QString::number( i + 1 ) ) );
 		pAction->setParameter1( QString::number( nInstr ) );
-		m_pKnob[i]->setAction( pAction );
+		m_pFxRotary[i]->setAction( pAction );
 		if ( (i % 2) == 0 ) {
-			m_pKnob[i]->move( 9, 63 + (20 * y) );
+			m_pFxRotary[i]->move( 9, 63 + (20 * y) );
 		}
 		else {
-			m_pKnob[i]->move( 30, 63 + (20 * y) );
+			m_pFxRotary[i]->move( 30, 63 + (20 * y) );
 			y++;
 		}
-		connect( m_pKnob[i], SIGNAL( valueChanged(Rotary*) ), this, SLOT( knobChanged(Rotary*) ) );
+		connect( m_pFxRotary[i], SIGNAL( valueChanged(Rotary*) ), this, SLOT( knobChanged(Rotary*) ) );
 	}
 
 	Preferences *pPref = Preferences::get_instance();
@@ -177,6 +177,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 4 );
 	m_pPeakLCD->move( 10, 106 );
 	m_pPeakLCD->setText( "0.00" );
+	m_pPeakLCD->setToolTip( tr( "Peak" ) );
 	QPalette lcdPalette;
 	lcdPalette.setColor( QPalette::Window, QColor( 49, 53, 61 ) );
 	m_pPeakLCD->setPalette( lcdPalette );
@@ -368,7 +369,7 @@ void MixerLine::knobChanged(Rotary* pRef)
 {
 //	infoLog( "knobChanged" );
 	for (uint i = 0; i < MAX_FX; i++) {
-		if (m_pKnob[i] == pRef) {
+		if (m_pFxRotary[i] == pRef) {
 			emit knobChanged( this, i );
 			break;
 		}
@@ -381,7 +382,7 @@ void MixerLine::setFXLevel( uint nFX, float fValue )
 		ERRORLOG( QString("[setFXLevel] nFX >= MAX_FX (nFX=%1)").arg(nFX) );
 		return;
 	}
-	m_pKnob[nFX]->setValue( fValue );
+	m_pFxRotary[nFX]->setValue( fValue );
 }
 
 float MixerLine::getFXLevel(uint nFX)
@@ -390,7 +391,7 @@ float MixerLine::getFXLevel(uint nFX)
 		ERRORLOG( QString("[setFXLevel] nFX >= MAX_FX (nFX=%1)").arg(nFX) );
 		return 0.0f;
 	}
-	return m_pKnob[nFX]->getValue();
+	return m_pFxRotary[nFX]->getValue();
 }
 
 void MixerLine::setSelected( bool bIsSelected )
@@ -487,6 +488,7 @@ ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
 	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 4 );
 	m_pPeakLCD->move( 10, 106 );
 	m_pPeakLCD->setText( "0.00" );
+	m_pPeakLCD->setToolTip( tr( "Peak" ) );
 	QPalette lcdPalette;
 	lcdPalette.setColor( QPalette::Window, QColor( 49, 53, 61 ) );
 	m_pPeakLCD->setPalette( lcdPalette );
@@ -665,6 +667,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 4 );
 	m_pPeakLCD->move( 23, 53 );
 	m_pPeakLCD->setText( "0.00" );
+	m_pPeakLCD->setToolTip( tr( "Peak" ) );
 	QPalette lcdPalette;
 	lcdPalette.setColor( QPalette::Window, QColor( 49, 53, 61 ) );
 	m_pPeakLCD->setPalette( lcdPalette );
