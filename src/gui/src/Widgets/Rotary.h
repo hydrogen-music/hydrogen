@@ -53,7 +53,8 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 	public:
 		enum RotaryType {
 			TYPE_NORMAL,
-			TYPE_CENTER
+			TYPE_CENTER,
+			TYPE_SMALL
 		};
 
 		Rotary(const Rotary&) = delete;

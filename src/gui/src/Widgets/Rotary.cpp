@@ -94,13 +94,12 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseInt
 
 	m_fValue = m_fDefaultValue;
 
-	if ( m_background_normal == nullptr ) {
+	if ( type == TYPE_NORMAL && m_background_normal == nullptr ) {
 		m_background_normal = new QPixmap();
 		if ( m_background_normal->load( Skin::getImagePath() + "/mixerPanel/rotary_images.png" ) == false ){
 			ERRORLOG( "Error loading pixmap" );
 		}
-	}
-	if ( m_background_center == nullptr ) {
+	} else if ( type == TYPE_CENTER && m_background_center == nullptr ) {
 		m_background_center = new QPixmap();
 		if ( m_background_center->load( Skin::getImagePath() + "/mixerPanel/rotary_center_images.png" ) == false ){
 			ERRORLOG( "Error loading pixmap" );
@@ -125,35 +124,46 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	UNUSED( ev );
 	QPainter painter(this);
 
-	float fRange = fabs( m_fMax ) + fabs( m_fMin );
-	float fValue = fabs( m_fMin ) + m_fValue;
+	float fRange = m_fMax - m_fMin;
 
-	int nFrame;
+	int nFrame, nTotFrames;
+	if ( m_type == TYPE_NORMAL || m_type == TYPE_CENTER ) {
+		nTotFrames = 63;
+	} else if ( m_type == TYPE_SMALL ) {
+		nTotFrames = 31;	
+	} else { // undefined RotaryType
+		ERRORLOG( "Error undefined RotaryType" );
+	}
+	
 	if ( m_bUseIntSteps ) {
-		nFrame = (int)( 63.0 * ( (int)fValue / fRange ) );
+		nFrame = (int)( nTotFrames * floor( m_fValue - m_fMin ) / fRange );
 	}
 	else {
-		nFrame = (int)( 63.0 * ( fValue / fRange ) );
+		nFrame = (int)( nTotFrames * ( m_fValue - m_fMin ) / fRange );
 	}
 
 //	INFOLOG( "\nrange: " + toString( fRange ) );
 //	INFOLOG( "norm value: " + toString( fValue ) );
 //	INFOLOG( "frame: " + toString( nFrame ) );
 
-	if ( m_type == TYPE_NORMAL ) {
-
+	/*if ( m_type == TYPE_NORMAL || 1) {
 		int xPos = m_nWidgetWidth * nFrame;
 		painter.drawPixmap( rect(), *m_background_normal, QRect( xPos, 0, m_nWidgetWidth, m_nWidgetHeight ) );
 	}
-	else {
+	else {*/
+	
 		// the image is broken...
-		if ( nFrame > 62 ) {
-			nFrame = 62;
-		}
+		/*if ( nFrame >= nTotFrames ) { // impossible since the boundary checks in setValue()
+			nFrame = nTotFrames - 1;
+		}*/
 		int xPos = m_nWidgetWidth * nFrame;
-		painter.drawPixmap( rect(), *m_background_center, QRect( xPos, 0, m_nWidgetWidth, m_nWidgetHeight ) );
+		if ( m_type == TYPE_NORMAL ) {
+			painter.drawPixmap( rect(), *m_background_normal, QRect( xPos, 0, m_nWidgetWidth, m_nWidgetHeight ) );
+		} else if ( m_type == TYPE_CENTER ) {
+			painter.drawPixmap( rect(), *m_background_center, QRect( xPos, 0, m_nWidgetWidth, m_nWidgetHeight ) );
+		}
 
-	}
+	//}
 }
 
 
