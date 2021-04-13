@@ -464,13 +464,7 @@ void Mixer::updateMixer()
 			pLine->setName( sName );
 
 			// pan
-			float fPanValue = 0.0;
-			if (fPan_R == 1.0) {
-				fPanValue = 1.0 - (fPan_L / 2.0);
-			}
-			else {
-				fPanValue = fPan_R / 2.0;
-			}
+			float fPanValue = 0.5 * ( 1. + Sampler::getRatioPan( fPan_L, fPan_R ) ); //output scaled from [-1;1] to [0;1]
 
 			pLine->setPan( fPanValue );
 

@@ -27,6 +27,7 @@
 #include <core/Preferences.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Instrument.h>
+#include <core/Sampler/Sampler.h>
 #include "core/OscServer.h"
 #include <core/MidiAction.h>
 #include "core/MidiMap.h"
@@ -223,17 +224,14 @@ void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 
 void CoreActionController::setStripPan( int nStrip, float fPanValue, bool bSelectStrip )
 {
-	float	fPan_L;
-	float	fPan_R;
-
-	if ( fPanValue >= 0.5 ) {
-		fPan_L = (1.0 - fPanValue) * 2;
-		fPan_R = 1.0;
-	}
-	else {
-		fPan_L = 1.0;
-		fPan_R = fPanValue * 2;
-	}
+	/**  pan parameter in [0;1] domain,
+	* store it via two L,R gain values using the ratio straight polygonal pan law (redundant),
+	* with PAN_MAX = 1.
+	* The sampler will reconvert (pan_L,pan_R) into a single scalar parameter.
+	*/
+	float fPan = 2. * fPanValue - 1.; //domain scaling & translating from [0;1] to [-1;1]
+	float fPan_L = /* 1. * */ Sampler::ratioStraightPolygonalPanLaw( fPan ); 
+	float fPan_R = /* 1. * */ Sampler::ratioStraightPolygonalPanLaw( - fPan ); // uses simmetry
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	if ( bSelectStrip ) {

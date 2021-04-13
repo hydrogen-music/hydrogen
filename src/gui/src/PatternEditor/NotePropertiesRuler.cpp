@@ -27,6 +27,8 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Note.h>
+#include <core/Sampler/Sampler.h>
+
 using namespace H2Core;
 
 #include <cassert>
@@ -376,37 +378,35 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 			HydrogenApp::get_instance()->setStatusBarMessage( tr("Set note velocity [%1]").arg( valueChar ), 2000 );
 		}
 		else if ( m_Mode == PAN && !pNote->get_note_off() ){
-			float pan_L, pan_R;
+			float fPanL, fPanR;
 			if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 				val = 0.5;
 			}
-			char valueChar[6];
-			QString valueString;
 
+			QString valueString;
 			/**  pan parameter in [0;1] domain,
-			* store it with the L,R gains using the ratio straight polygonal pan law (redundant), with PAN_MAX = 0.5
+			* store it via two L,R gain values using the ratio straight polygonal pan law (redundant),
+			* with PAN_MAX = 0.5 (= max gain).
+			* The sampler will reconvert (pan_L,pan_R) into a single scalar parameter.
 			*/
+
+			float fPan = 2. * val - 1.;	//domain scaling & translating from [0,1] to [-1,1]
+			fPanL = 0.5 * Sampler::ratioStraightPolygonalPanLaw( fPan ); 
+			fPanR = 0.5 * Sampler::ratioStraightPolygonalPanLaw( - fPan ); // uses simmetry
+			
 			if ( val > 0.5 ) {
-				pan_L = 1.0 - val;
-				pan_R = 0.5;
-				sprintf( valueChar, "%#.2f ",  -1. + 2. * val );
-				valueString = QString( valueChar ) + tr( "R" );
-			}
-			else {
-				pan_L = 0.5;
-				pan_R = val;
+				valueString = QString( "%1" ).arg( fPan, 0, 'f', 2 ) + tr( "R" );
+			} else {
 				if(val != 0.5) {
-					sprintf( valueChar, "%#.2f ",  1. - 2. * val );
-					valueString = QString( valueChar ) + tr( "L" );
-				}
-				else {
+					valueString = QString( "%1" ).arg( - fPan, 0, 'f', 2 ) + tr( "L" );
+				} else {
 					valueString = tr( "C" );
 				}
 			}
+			pNote->set_pan_l( fPanL );
+			pNote->set_pan_r( fPanR );
 			m_fLastSetValue = val;
 			m_bValueHasBeenSet = true;
-			pNote->set_pan_l( pan_L );
-			pNote->set_pan_r( pan_R );
 			( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set note pan " ) + valueString, 2000 );
 
 		}
@@ -501,46 +501,40 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 		if ( !pNote->get_note_off() ) {
 			float fPanL, fPanR;
 
-			// get pan parameter in [0,1] domain from L to R.
-			// this inverse pan law formula is dimensionally incorrect, BUT works because PAN_MAX = 0.5
-			float fValue = ( pOldNote->get_pan_r() - pOldNote->get_pan_l() + 0.5 ) + fDelta;
-			
-			// boundary control for the statusBarMessage, since the control is done in setPan() too
-			if ( fValue > 1 ) {
-				fValue = 1.;
-			} else if ( fValue < 0. ) {
-				fValue = 0.;
+			// get pan parameter in [0,1] domain from panL,panR and add delta
+			float fVal = 0.5 * ( 1. + Sampler::getRatioPan( pOldNote->get_pan_l(), pOldNote->get_pan_r() ) ) + fDelta;
+
+			// boundary control only for the statusBarMessage, since the control is done in setPan() too
+			if ( fVal > 1 ) {
+				fVal = 1.;
+			} else if ( fVal < 0. ) {
+				fVal = 0.;
 			}
 
-			char valueChar[6];
 			QString valueString;
-
-			// use ratio straight polygonal pan law to store the pan parameter (redundant)
-			if ( fValue > 0.5 ) { // pan to the right
-				fPanL = /* PAN_MAX * 2. * */ ( 1. - fValue ); // here PAN_MAX = 0.5. uncomment if PAN_MAX changes
-				fPanR = PAN_MAX;
-				if ( bMessage ) {
-					sprintf( valueChar, "%#.2f ",  -1. + 2. * fValue );
-					valueString = QString( valueChar ) + tr( "R" ); 
-				}
-			} else { // pan to the left or center
-				fPanL = PAN_MAX;
-				fPanR = /* PAN_MAX * 2. * */ fValue; // here PAN_MAX = 0.5. uncomment if PAN_MAX changes
-				if ( bMessage ) {
-					if( fValue != 0.5 ) { 
-						sprintf( valueChar, "%#.2f ",  1. - 2. * fValue );
-						valueString = QString( valueChar ) + tr( "L" );
-					}
-					else {
-						valueString = tr( "C" );
-					}
+			/**  pan parameter in [0;1] domain,
+			* store it via two L,R gain values using the ratio straight polygonal pan law (redundant),
+			* with PAN_MAX = 0.5 (= max gain).
+			* The sampler will reconvert (pan_L,pan_R) into a single scalar parameter.
+			*/
+			float fPan = 2. * fVal - 1.;	//domain scaling & translating from [0,1] to [-1,1]
+			fPanL = 0.5 * Sampler::ratioStraightPolygonalPanLaw( fPan ); 
+			fPanR = 0.5 * Sampler::ratioStraightPolygonalPanLaw( - fPan ); // uses simmetry
+			
+			if ( fVal > 0.5 ) {
+				valueString = QString( "%1" ).arg( fPan, 0, 'f', 2 ) + tr( "R" );
+			} else {
+				if( fVal != 0.5) {
+					valueString = QString( "%1" ).arg( - fPan, 0, 'f', 2 ) + tr( "L" );
+				} else {
+					valueString = tr( "C" );
 				}
 			}
-			( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set note pan " ) + valueString, 2000 );
 			pNote->set_pan_l( fPanL );
 			pNote->set_pan_r( fPanR );
-			m_fLastSetValue = fValue;
+			m_fLastSetValue = fVal;
 			m_bValueHasBeenSet = true;
+			( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set note pan " ) + valueString, 2000 );
 		}
 		break;
 	case LEADLAG:
