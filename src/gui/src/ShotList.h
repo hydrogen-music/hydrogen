@@ -30,21 +30,29 @@
 ///
 /// Utility for grabbing screenshots of widgets. Not a script, just a shot list.
 ///
-/// Entries are a space-separated list of the form:
+/// Commands are word-oriented
 ///
-///  grab <WidgetName|WidgetClass>   -- grab widget named "WidgetName" or of any class inheriting from "WidgetClass"
-///  slot <widget> <slot> [<arg>...] -- invoke a slot method on widget
-///  fin                             -- quit Hydrogen
-///  dump                            -- dump object tree(s)
-///  # text                          -- commentary
+///  - grab <WidgetName|WidgetClass>   -- grab widget named "WidgetName" or of any class inheriting from "WidgetClass"
+///     + [ size <w> <h> ]             -- size of area to grab. 0 or (-)ve mean widget's entire width or height
+///     + [ ofset <x> <y> ]            -- offset from the widget's origin for beginning of grab
+///     + [ as <filename> ]            -- filename to save as, including file type extension
+///  - slot <widget> <slot> [<arg>...] -- invoke a slot method on widget.
+///  - dump                            -- dump object tree(s)
+///  # <text>                          -- commentary (note that the space is needed!)
+///  - fin                             -- quit Hydrogen
+///
+/// By naming widgets appropriately and exposing their functionality as slots, it should be possible for the
+/// application to allow a lot of flexibility in how screenshots are set up in shot lists.
 ///
 class ShotList : public QObject {
 
+	/// Find a widget which inherits the named class
 	static QWidget *findWidgetInheriting( QObject *pObject, QString &sName );
 
+	/// Find a widget by name
 	static QWidget *findWidget( QString &sName );
 
-	/// Buffer for construction of Q_ARGs
+	/// Buffer for construction of Q_ARGs.
 	class Arg {
 		QString m_sArg;
 		union {

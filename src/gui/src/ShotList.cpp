@@ -26,7 +26,6 @@
 
 #include "ShotList.h"
 
-
 QWidget *ShotList::findWidgetInheriting( QObject *pObject, QString &sName ) {
 	if ( pObject->inherits( sName.toLocal8Bit().data() ) ) {
 		return dynamic_cast< QWidget *>( pObject );
