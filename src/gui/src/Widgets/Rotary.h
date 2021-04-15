@@ -115,17 +115,4 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void wheelEvent( QWheelEvent *ev );
 };
-
-/*
-class Knob : public Rotary
-{
-	public:
-		Knob( QWidget* parent, QString sToolTip, bool bUseValueTip );
-	private:
-		static QPixmap* m_background;
-		void paintEvent(QPaintEvent *ev) override;
-		//void mouseMoveEvent( QMouseEvent *ev )override;
-};
-*/
-
 #endif

@@ -156,16 +156,6 @@ void Rotary::paintEvent( QPaintEvent* ev )
 //	INFOLOG( "norm value: " + toString( fValue ) );
 //	INFOLOG( "frame: " + toString( nFrame ) );
 
-	/*if ( m_type == TYPE_NORMAL || 1) {
-		int xPos = m_nWidgetWidth * nFrame;
-		painter.drawPixmap( rect(), *m_background_normal, QRect( xPos, 0, m_nWidgetWidth, m_nWidgetHeight ) );
-	}
-	else {*/
-	
-		// the image is broken...
-		/*if ( nFrame >= nTotFrames ) { // impossible since the boundary checks in setValue()
-			nFrame = nTotFrames - 1;
-		}*/
 	int xPos = m_nWidgetWidth * nFrame;
 	if ( m_type == TYPE_NORMAL ) {
 		painter.drawPixmap( rect(), *m_background_normal, QRect( xPos, 0, m_nWidgetWidth, m_nWidgetHeight ) );
@@ -174,8 +164,6 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	} else if ( m_type == TYPE_SMALL ) {
 		painter.drawPixmap( rect(), *m_background_small, QRect( xPos, 0, m_nWidgetWidth, m_nWidgetHeight ) );
 	}
-
-	//}
 }
 
 
@@ -353,64 +341,3 @@ void Rotary::resetValueToDefault()
 {
 	setValue(m_fDefaultValue);
 }
-
-
-
-////////////////////////////
-/*
-QPixmap* Knob::m_background = nullptr;
-
-//const char* Knob::__class_name = "Knob";
-
-///
-/// Constructor
-///
-
-Knob::Knob( QWidget* pParent, QString sToolTip, bool bUseValueTip )
- : Rotary::Rotary( pParent, TYPE_NORMAL, sToolTip, false, bUseValueTip )
-{
-	setAttribute(Qt::WA_OpaquePaintEvent);
-
-	m_nWidgetWidth = 18;
-	m_nWidgetHeight = 18;
-
-	if ( m_background == nullptr ) {
-		QString sBackground_path = Skin::getImagePath() + "/mixerPanel/knob_images.png";
-		m_background = new QPixmap();
-		if ( m_background->load( sBackground_path ) == false ){
-			ERRORLOG( "Error loading pixmap" );
-		}
-	}
-
-	resize( m_nWidgetWidth, m_nWidgetHeight );
-}
-
-void Knob::paintEvent( QPaintEvent* ev )
-{
-	UNUSED( ev );
-
-	QPainter painter(this);
-
-	int nFrame = (int)(31.0 * m_fValue);
-	int xPos = m_nWidgetWidth * nFrame;
-//	bitBlt(&m_temp, 0, 0, m_background, xPos, 0, m_nWidgetWidth, m_nWidgetHeight, CopyROP);
-	painter.drawPixmap( rect(), *m_background, QRect( xPos, 0, m_nWidgetWidth, m_nWidgetHeight ) );
-}
-
-void Knob::mouseMoveEvent( QMouseEvent *ev )
-{
-	if ( m_bIgnoreMouseMove ) {
-		return;
-	}
-
-	float y = ev->y() - m_fMousePressY;
-	float fNewValue = m_fMousePressValue - ( y / 100.0 );
-	setValue( fNewValue );
-	emit valueChanged(this);
-	
-	if ( m_bShowValueToolTip ) {
-		char tmp[20];
-		sprintf( tmp, "%#.2f", m_fValue );
-		m_pValueToolTip->showTip( mapToGlobal( QPoint( -38, 1 ) ), QString( tmp ) );
-	}
-}*/
