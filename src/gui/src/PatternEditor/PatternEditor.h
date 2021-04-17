@@ -91,6 +91,11 @@ public:
 	void zoomIn();
 	void zoomOut();
 
+	//! Clear the pattern editor selection
+	void clearSelection() {
+		m_selection.clearSelection();
+	}
+
 	//! Calculate colour to use for note representation based on note velocity. 
 	static QColor computeNoteColor( float velocity );
 
@@ -111,6 +116,9 @@ public:
 		updateEditor( true );
 	}
 
+	//! Deselecting notes
+	virtual bool checkDeselectElements( std::vector<SelectionIndex> &elements ) override;
+
 	//! Change the mouse cursor during mouse gestures
 	virtual void startMouseLasso( QMouseEvent *ev ) override {
 		setCursor( Qt::CrossCursor );
@@ -123,6 +131,15 @@ public:
 	virtual void endMouseGesture() override {
 		unsetCursor();
 	}
+
+	//! Do two notes match exactly, from the pattern editor's point of view?
+	//! They match if all user-editable properties are the same.
+	bool notesMatchExactly( H2Core::Note *pNoteA, H2Core::Note *pNoteB ) const;
+
+	//! Deselect some notes, and "overwrite" some others.
+	void deselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected, std::vector< H2Core::Note *> &overwritten );
+
+	void undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected, std::vector< H2Core::Note *> &overwritten );
 
 	//! Raw Qt mouse events are passed to the Selection
 	virtual void mousePressEvent( QMouseEvent *ev ) override;
@@ -227,7 +244,10 @@ protected:
 	void drawGridLines( QPainter &p, Qt::PenStyle style = Qt::SolidLine ) const;
 
 	//! Colour to use for outlining selected notes
-	QColor selectedNoteColor( const H2Core::UIStyle *pStyle );
+	QColor selectedNoteColor( const H2Core::UIStyle *pStyle ) const;
+
+	//! Draw a note
+	void drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote ) const;
 
 	//! Update current pattern information
 	void updatePatternInfo();

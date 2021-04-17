@@ -178,6 +178,9 @@ void* diskWriterDriver_thread( void* param )
 
 			float fTimelineBpm = pTimeline->getTempoAtBar( patternPosition, true );
 			if ( fTimelineBpm != 0 ) {
+				/* TODO: For now the function returns 0 if the bar is
+				 * positioned _before_ the first tempo marker. This will be
+				 * taken care of with #854. */
 				validBpm = fTimelineBpm;
 			}
 			

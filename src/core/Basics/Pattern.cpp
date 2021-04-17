@@ -320,6 +320,74 @@ void Pattern::extand_with_flattened_virtual_patterns( PatternList* patterns )
 	}
 }
 
+QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Object::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[Pattern]\n" ).arg( sPrefix )
+			.append( QString( "%1%2length: %3\n" ).arg( sPrefix ).arg( s ).arg( __length ) )
+			.append( QString( "%1%2denominator: %3\n" ).arg( sPrefix ).arg( s ).arg( __denominator ) )
+			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( __name ) )
+			.append( QString( "%1%2category: %3\n" ).arg( sPrefix ).arg( s ).arg( __category ) )
+			.append( QString( "%1%2info: %3\n" ).arg( sPrefix ).arg( s ).arg( __info ) )
+			.append( QString( "%1%2Notes:\n" ).arg( sPrefix ).arg( s ) );
+				 
+		for ( auto it = __notes.begin(); it != __notes.end(); it++ ) {
+			if ( it->second != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( it->second->toQString( sPrefix + s + s, bShort ) ) );
+			}
+		}
+
+		sOutput.append( QString( "%1%2Virtual_patterns:\n" ).arg( sPrefix ).arg( s ) );
+		for ( auto ii : __virtual_patterns ) {
+			if ( ii != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
+			}
+		}
+
+		sOutput.append( QString( "%1%2Flattened_virtual_patterns:\n" ).arg( sPrefix ).arg( s ) );
+		for ( auto ii : __flattened_virtual_patterns ) {
+			if ( ii != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
+			}
+		}
+	} else {
+		
+		sOutput = QString( "[Pattern]" )
+			.append( QString( " length: %1" ).arg( __length ) )
+			.append( QString( ", denominator: %1" ).arg( __denominator ) )
+			.append( QString( ", name: %1" ).arg( __name ) )
+			.append( QString( ", category: %1" ).arg( __category ) )
+			.append( QString( ", info: %1" ).arg( __info ) )
+			.append( QString( ", [Notes: " ) );
+		for ( auto it = __notes.begin(); it != __notes.end(); it++ ) {
+			if ( it->second != nullptr ) {
+				sOutput.append( QString( "[%2, %3] " )
+								.arg( it->second->get_instrument()->get_name() )
+								.arg( it->second->get_position() ) );
+			}
+		}
+		sOutput.append( "]" );
+		if ( __virtual_patterns.size() != 0 ) {
+			sOutput.append( QString( ", Virtual_patterns:" ) );
+		}
+		for ( auto ii : __virtual_patterns ) {
+			if ( ii != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
+			}
+		}
+		if ( __flattened_virtual_patterns.size() != 0 ) {
+			sOutput.append( QString( ", Flattened_virtual_patterns:" ) );
+		}
+		for ( auto ii : __flattened_virtual_patterns ) {
+			if ( ii != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
+			}
+		}
+	}	
+	return sOutput;
+}
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

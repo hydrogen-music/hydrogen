@@ -463,6 +463,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 		LocalFileMng::writeXmlString( instrumentNode, "id", QString("%1").arg( pInstr->get_id() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "name", pInstr->get_name() );
 		LocalFileMng::writeXmlString( instrumentNode, "drumkit", pInstr->get_drumkit_name() );
+		LocalFileMng::writeXmlString( instrumentNode, "drumkitLookup", QString::number(static_cast<int>( Hydrogen::get_instance()->getCurrentDrumkitLookup() )) );
 		LocalFileMng::writeXmlString( instrumentNode, "volume", QString("%1").arg( pInstr->get_volume() ) );
 		LocalFileMng::writeXmlBool( instrumentNode, "isMuted", pInstr->is_muted() );
 		LocalFileMng::writeXmlBool( instrumentNode, "isSoloed", pInstr->is_soloed() );

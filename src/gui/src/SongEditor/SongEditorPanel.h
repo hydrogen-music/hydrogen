@@ -84,7 +84,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		 *
 		 * \param nValue 0 - select mode and 1 - draw mode.
 		 */
-		void actionModeChangeEvent( int nValue );
+		void actionModeChangeEvent( int nValue ) override;
 
 	private slots:
 		void vScrollTo( int value );

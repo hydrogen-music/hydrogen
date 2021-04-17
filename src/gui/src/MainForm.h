@@ -164,6 +164,7 @@ public slots:
 		void update_mixer_checkbox();
 		void update_instrument_checkbox( bool show );
 		void update_automation_checkbox();
+		void update_playback_track_group();
 		void update_director_checkbox();
 		void update_playlist_checkbox();
 
@@ -240,6 +241,7 @@ public slots:
 		QAction *	m_pViewAutomationPathAction;
 		QAction *	m_pViewTimelineAction;
 		QAction *	m_pViewPlaybackTrackAction;
+		QActionGroup *	m_pViewPlaybackTrackActionGroup;
 		QAction *	m_pInstrumentAction;
 		QAction *	m_pDrumkitAction;
 
@@ -274,6 +276,19 @@ public slots:
 
 		bool handleSelectNextPrevSongOnPlaylist(int step);
 
+		/**
+		 * Relocates to current position of the cursor and starts
+		 * playback if the transport isn't rolling yet.
+		 *
+		 * If triggered while focusing the song editor, the song will
+		 * be set to H2Core::Song::SONE_MODE. Similarly,
+		 * H2Core::Song::PATTERN_MODE will be activated if triggered
+		 * in the pattern editor of note properties ruler.
+		 *
+		 * \param pObject Used to determine the focused part of the
+		 * application.
+		 */
+		void startPlaybackAtCursor( QObject* pObject );
 };
 
 #endif

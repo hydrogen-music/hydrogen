@@ -290,6 +290,9 @@ class Note : public H2Core::Object
 		 */
 		bool match( Instrument* instrument, Key key, Octave octave ) const;
 
+		/** Return true if two notes match in instrument, key and octave. */
+		bool match( const Note *pNote ) const;
+
 		/**
 		 * compute left and right output based on filters
 		 * \param val_l the left channel value
@@ -303,6 +306,16 @@ class Note : public H2Core::Object
 		int getTimeOffsetNumerator() const;
 		void setTimeOffsetNumerator( int n );
 		float getFloatTimeOffsetInTicks() const;
+
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \param bShort Instead of the whole content of all classes
+		 * stored as members just a single unique identifier will be
+		 * displayed without line breaks.
+		 *
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
 		Instrument*		__instrument;   ///< the instrument to be played by this note
@@ -587,6 +600,11 @@ inline void Note::set_midi_info( Key key, Octave octave, int msg )
 inline bool Note::match( Instrument* instrument, Key key, Octave octave ) const
 {
 	return ( ( __instrument==instrument ) && ( __key==key ) && ( __octave==octave ) );
+}
+
+inline bool Note::match( const Note *pNote ) const
+{
+	return match( pNote->__instrument, pNote->__key, pNote->__octave );
 }
 
 inline void Note::compute_lr_values( float* val_l, float* val_r )

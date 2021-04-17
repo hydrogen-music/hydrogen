@@ -495,10 +495,6 @@ void HydrogenApp::onDrumkitLoad( QString name ){
 	m_pPatternEditorPanel->updateSLnameLabel( );
 }
 
-void HydrogenApp::enableDestructiveRecMode(){
-	m_pPatternEditorPanel->displayorHidePrePostCB();
-}
-
 void HydrogenApp::songModifiedEvent()
 {
 	updateWindowTitle();
@@ -659,6 +655,7 @@ void HydrogenApp::onEventQueueTimer()
 																			 4,
 																			 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
 																			 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
+																			 1.0f,
 																			 false,
 																			 false,
 																			 pQueue->m_addMidiNoteVector[0].b_isMidi,

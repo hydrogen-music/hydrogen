@@ -26,6 +26,7 @@
 #include <cassert>
 #include <list>
 #include <pthread.h>
+#include <memory>
 
 #include <core/config.h>
 

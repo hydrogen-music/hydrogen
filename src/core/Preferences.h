@@ -194,9 +194,6 @@ public:
 
 	bool				__playselectedinstrument; // midi keys and keys play instrument or drumset
 
-	int					m_nRecPreDelete; //index of record note pre delete function 0 = off
-	int					m_nRecPostDelete;
-
 	bool				m_bFollowPlayhead;
 
 	// switch to enable / disable lash, only on h2 startup
@@ -353,7 +350,7 @@ public:
 	bool				m_bJackTrackOuts;
 
 	/** Specifies which audio settings will be applied to the sample
-		supplied in the Jack per track output ports.*/
+		supplied in the JACK per track output ports.*/
 	enum class JackTrackOutputMode {
 		/** Applies layer, component, and instrument gain, note and
 		instrument pan, note velocity, and main component and
@@ -363,14 +360,22 @@ public:
 		preFader = 1 };
 
 	/** Specifies which audio settings will be applied to the sample
-		supplied in the Jack per track output ports.*/
+		supplied in the JACK per track output ports.*/
 	JackTrackOutputMode		m_JackTrackOutputMode;
 	//jack time master
 
 	/**
+	 * External applications with a faulty JACK timebase master
+	 * implementation can mess up the transport within Hydrogen. To
+	 * guarantee the basic functionality, the user can disable
+	 * timebase support and make Hydrogen only listen to the frame
+	 * number broadcast by the JACK server.
+	 */
+	bool				m_bJackTimebaseEnabled;
+	/**
 	 * Specifies the variable, which has to remain constant in order
 	 * to guarantee a working synchronization and relocation with
-	 * Hydrogen as Jack timebase client.
+	 * Hydrogen as JACK timebase client.
 	 */
 	enum class JackBBTSyncMethod {
 		/** The measure - could be any - does not change during the
@@ -379,19 +384,19 @@ public:
 		/** The length of each pattern must match the measure of the
 			corresponding bar in the timebase master. This way both
 			the pattern position of Hydrogen and the bar information
-			provided by Jack can be assumed to be identical.*/
+			provided by JACK can be assumed to be identical.*/
 		identicalBars = 1 };
 	/**
 	 * Since Hydrogen uses both fixed pattern lengths and recalculates
 	 * the tick size each time it encounters an alternative tempo, its
 	 * transport is incompatible to the BBT information provided by 
-	 * the Jack server. Only if the length of each pattern corresponds
+	 * the JACK server. Only if the length of each pattern corresponds
 	 * to the measure of the respective bar in the timebase master
-	 * application, the bar information provided by Jack can be used
+	 * application, the bar information provided by JACK can be used
 	 * directly to determine chosen pattern. If this, however, is not
 	 * the case - which can quite easily happen - a complete history 
 	 * of all measure and tempo changes would be required to correctly
-	 * identify the pattern. Since this is not provided by Jack, one
+	 * identify the pattern. Since this is not provided by JACK, one
 	 * has to either assume the measure or tempo to be constant or 
 	 * that the user took care of adjusting the lengths properly.
 	 */
@@ -456,6 +461,9 @@ public:
 	void			setShowDevelWarning( bool value );
 	bool			getShowDevelWarning();
 
+	bool			getShowNoteOverwriteWarning();
+	void			setShowNoteOverwriteWarning( bool bValue );
+
 	bool			isRestoreLastSongEnabled();
 	bool			isRestoreLastPlaylistEnabled();
 	bool			isPlaylistUsingRelativeFilenames();
@@ -471,9 +479,6 @@ public:
 
 	void			setRecordEvents( bool value );
 	bool			getRecordEvents();
-
-	void			setDestructiveRecord ( bool value );
-	bool			getDestructiveRecord();
 
 	void			setPunchInPos ( unsigned pos );
 	int				getPunchInPos();
@@ -704,13 +709,13 @@ private:
 	bool				m_bUseLash;
 	///< Show development version warning?
 	bool				m_bShowDevelWarning;
+	bool				m_bShowNoteOverwriteWarning;
 	///< Last song used
 	QString				m_lastSongFilename;
 	QString				m_lastPlaylistFilename;
 
 	bool				quantizeEvents;
 	bool				recordEvents;
-	bool				destructiveRecord;
 	bool				readPrefFileforotherplaces;
 	int					punchInPos;
 	int					punchOutPos;
@@ -960,6 +965,14 @@ inline bool Preferences::getShowDevelWarning() {
 	return m_bShowDevelWarning;
 }
 
+inline bool Preferences::getShowNoteOverwriteWarning() {
+	return m_bShowNoteOverwriteWarning;
+}
+
+inline void Preferences::setShowNoteOverwriteWarning( bool bValue ) {
+	m_bShowNoteOverwriteWarning = bValue;
+}
+
 inline void Preferences::setHideKeyboardCursor( bool value ) {
 	m_bHideKeyboardCursor = value;
 }
@@ -1006,13 +1019,6 @@ inline void Preferences::setRecordEvents( bool value ) {
 }
 inline bool Preferences::getRecordEvents() {
 	return recordEvents;
-}
-
-inline void Preferences::setDestructiveRecord ( bool value ) {
-	destructiveRecord = value;
-}
-inline bool Preferences::getDestructiveRecord() {
-	return destructiveRecord;
 }
 
 inline void Preferences::setPunchInPos ( unsigned pos ) {

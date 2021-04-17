@@ -28,6 +28,7 @@
 #include <core/Object.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Drumkit.h>
+#include <core/Helpers/Filesystem.h>
 
 #include <vector>
 
@@ -39,7 +40,7 @@ class SoundLibraryExportDialog : public QDialog, public Ui_SoundLibraryExportDia
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		SoundLibraryExportDialog( QWidget* pParent, const QString&);
+		SoundLibraryExportDialog( QWidget* pParent, const QString& sSelectedKit, H2Core::Filesystem::Lookup lookup );
 		~SoundLibraryExportDialog();
 
 private slots:
@@ -51,9 +52,11 @@ private slots:
 	void on_drumkitPathTxt_textChanged( QString str );
 	void updateDrumkitList();
 private:
-	std::vector<H2Core::Drumkit*> drumkitInfoList;
-	QString preselectedKit;
-	QHash<QString, QStringList> kit_components;
+	std::vector<H2Core::Drumkit*> m_pDrumkitInfoList;
+	QString m_sPreselectedKit;
+	H2Core::Filesystem::Lookup m_preselectedKitLookup;
+	QString m_sSysDrumkitSuffix;
+	QHash<QString, QStringList> m_kit_components;
 };
 
 

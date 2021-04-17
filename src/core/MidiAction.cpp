@@ -161,7 +161,6 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 	actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN", std::make_pair(&MidiActionManager::select_next_pattern, empty)));
 	actionMap.insert(std::make_pair("SELECT_ONLY_NEXT_PATTERN", std::make_pair(&MidiActionManager::select_only_next_pattern, empty)));
 	actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN_CC_ABSOLUTE", std::make_pair(&MidiActionManager::select_next_pattern_cc_absolute, empty)));
-	actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN_PROMPTLY", std::make_pair(&MidiActionManager::select_next_pattern_promptly, empty)));
 	actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN_RELATIVE", std::make_pair(&MidiActionManager::select_next_pattern_relative, empty)));
 	actionMap.insert(std::make_pair("SELECT_AND_PLAY_PATTERN", std::make_pair(&MidiActionManager::select_and_play_pattern, empty)));
 	actionMap.insert(std::make_pair("PAN_RELATIVE", std::make_pair(&MidiActionManager::pan_relative, empty)));
@@ -337,7 +336,8 @@ bool MidiActionManager::tap_tempo(Action * , Hydrogen* pEngine, targeted_element
 bool MidiActionManager::select_next_pattern(Action * pAction, Hydrogen* pEngine, targeted_element ) {
 	bool ok;
 	int row = pAction->getParameter1().toInt(&ok,10);
-	if( row > pEngine->getSong()->getPatternList()->size() -1 ) {
+	if( row > pEngine->getSong()->getPatternList()->size() - 1 ||
+		row < 0 ) {
 		return false;
 	}
 	if(Preferences::get_instance()->patternModePlaysSelected()) {
@@ -352,7 +352,8 @@ bool MidiActionManager::select_next_pattern(Action * pAction, Hydrogen* pEngine,
 bool MidiActionManager::select_only_next_pattern(Action * pAction, Hydrogen* pEngine, targeted_element ) {
 	bool ok;
 	int row = pAction->getParameter1().toInt(&ok,10);
-	if( row > pEngine->getSong()->getPatternList()->size() -1 ) {
+	if( row > pEngine->getSong()->getPatternList()->size() -1 ||
+		row < 0 ) {
 		return false;
 	}
 	if(Preferences::get_instance()->patternModePlaysSelected())
@@ -370,7 +371,8 @@ bool MidiActionManager::select_next_pattern_relative(Action * pAction, Hydrogen*
 		return true;
 	}
 	int row = pEngine->getSelectedPatternNumber() + pAction->getParameter1().toInt(&ok,10);
-	if( row > pEngine->getSong()->getPatternList()->size() -1 ) {
+	if( row > pEngine->getSong()->getPatternList()->size() - 1 ||
+		row < 0 ) {
 		return false;
 	}
 
@@ -382,7 +384,8 @@ bool MidiActionManager::select_next_pattern_cc_absolute(Action * pAction, Hydrog
 	bool ok;
 	int row = pAction->getParameter2().toInt(&ok,10);
 	
-	if( row > pEngine->getSong()->getPatternList()->size() -1 ) {
+	if( row > pEngine->getSong()->getPatternList()->size() - 1 ||
+		row < 0 ) {
 		return false;
 	}
 	
@@ -396,20 +399,10 @@ bool MidiActionManager::select_next_pattern_cc_absolute(Action * pAction, Hydrog
 	return true;
 }
 
-// obsolete, use SELECT_NEXT_PATTERN_CC_ABSOLUT instead
-bool MidiActionManager::select_next_pattern_promptly(Action * pAction, Hydrogen* pEngine, targeted_element ) {
-	bool ok;
-	int row = pAction->getParameter2().toInt(&ok,10);
-	pEngine->setSelectedPatternNumberWithoutGuiEvent( row );
-	
-	return true;
-}
-
-bool MidiActionManager::select_and_play_pattern(Action * pAction, Hydrogen* pEngine, targeted_element ) {
-	bool ok;
-	int row = pAction->getParameter1().toInt(&ok,10);
-	pEngine->setSelectedPatternNumber( row );
-	pEngine->sequencer_setNextPattern( row );
+bool MidiActionManager::select_and_play_pattern(Action * pAction, Hydrogen* pEngine, targeted_element t ) {
+	if ( ! select_next_pattern( pAction, pEngine, t ) ) {
+		return false;
+	}
 
 	int nState = pEngine->getState();
 	if ( nState == STATE_READY ) {
@@ -421,13 +414,15 @@ bool MidiActionManager::select_and_play_pattern(Action * pAction, Hydrogen* pEng
 
 bool MidiActionManager::select_instrument(Action * pAction, Hydrogen* pEngine, targeted_element ) {
 	bool ok;
-	int  instrument_number = pAction->getParameter2().toInt(&ok,10) ;
+	int  nInstrumentNumber = pAction->getParameter2().toInt(&ok,10) ;
 	
-	if ( pEngine->getSong()->getInstrumentList()->size() < instrument_number ) {
-		instrument_number = pEngine->getSong()->getInstrumentList()->size() -1;
+	if ( pEngine->getSong()->getInstrumentList()->size() < nInstrumentNumber ) {
+		nInstrumentNumber = pEngine->getSong()->getInstrumentList()->size() -1;
+	} else if ( nInstrumentNumber < 0 ) {
+		nInstrumentNumber = 0;
 	}
 	
-	pEngine->setSelectedInstrumentNumber( instrument_number );
+	pEngine->setSelectedInstrumentNumber( nInstrumentNumber );
 	return true;
 }
 

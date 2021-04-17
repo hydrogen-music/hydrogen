@@ -24,9 +24,9 @@
 #define H2C_INSTRUMENT_H
 
 #include <cassert>
-
 #include <core/Object.h>
 #include <core/Basics/Adsr.h>
+#include <core/Helpers/Filesystem.h>
 
 #define EMPTY_INSTR_ID          -1
 /** Created Instrument will be used as metronome. */
@@ -73,17 +73,21 @@ class Instrument : public H2Core::Object
 		 * creates a new Instrument, loads samples from a given instrument within a given drumkit
 		 * \param drumkit_name the drumkit to search the instrument in
 		 * \param instrument_name the instrument within the drumkit to load samples from
+		 * \param lookup Where to search (system/user folder or both)
+		 * for the drumkit.
 		 * \return a new Instrument instance
 		 */
-		static Instrument* load_instrument( const QString& drumkit_name, const QString& instrument_name );
+		static Instrument* load_instrument( const QString& drumkit_name, const QString& instrument_name, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
 
 		/**
 		 * loads instrument from a given instrument within a given drumkit into a `live` Instrument object.
 		 * \param drumkit_name the drumkit to search the instrument in
 		 * \param instrument_name the instrument within the drumkit to load samples from
 		 * \param is_live is it performed while playing
+		 * \param lookup Where to search (system/user folder or both)
+		 * for the drumkit.
 		 */
-		void load_from( const QString& drumkit_name, const QString& instrument_name, bool is_live = true );
+		void load_from( const QString& drumkit_name, const QString& instrument_name, bool is_live = true, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
 
 		/**
 		 * loads instrument from a given instrument into a `live` Instrument object.
@@ -275,6 +279,15 @@ class Instrument : public H2Core::Object
 
 		bool has_missing_samples() const { return m_bHasMissingSamples; }
 		void set_missing_samples( bool bHasMissingSamples ) { m_bHasMissingSamples = bHasMissingSamples; }
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \param bShort Instead of the whole content of all classes
+		 * stored as members just a single unique identifier will be
+		 * displayed without line breaks.
+		 *
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
 	        /** Identifier of an instrument, which should be
@@ -317,6 +330,7 @@ class Instrument : public H2Core::Object
 		bool					__current_instr_for_export;		///< is the instrument currently being exported?
 		bool 					m_bHasMissingSamples;	///< does the instrument have missing sample files?
 };
+
 // DEFINITIONS
 /** Sets the name of the Instrument #__name.
  * \param name New name. */
