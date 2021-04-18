@@ -945,9 +945,31 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 		// use this to support realtime events when not playing
 		framepos = pHydrogen->getRealtimeFrames();
 	}
+	
+	// Velocity Adjustment Automation
+	/////////// the following lines are inspired to findPatternInTick()
+	int nTotalTick = 0, nPreviousColumnsTotalTicks = 0;
+	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
+	int nColumns = pPatternColumns->size();
+
+	// Sum the lengths of all pattern columns and use the macro
+	// MAX_NOTES in case some of them are of size zero.
+	int nPatternSize;
+	for ( int i = 0; i < nColumns; ++i ) {
+		PatternList *pColumn = ( *pPatternColumns )[ i ];
+		if ( pColumn->size() != 0 ) {
+			nPatternSize = pColumn->longest_pattern_length();
+		} else {
+			nPatternSize = MAX_NOTES;
+		}
+		nTotalTick += nPatternSize;
+		if (i < m_nSongPos ) {
+			nPreviousColumnsTotalTicks = nTotalTick;
+		}
+	}
+	/////////////// end of inspired lines
 
 	AutomationPath *vp = pSong->getVelocityAutomationPath();
-	
 
 	// reading from m_songNoteQueue
 	while ( !m_songNoteQueue.empty() ) {
@@ -955,7 +977,12 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 
 		float velocity_adjustment = 1.0f;
 		if ( pSong->getMode() == Song::SONG_MODE ) {
-			float fPos = m_nSongPos + (pNote->get_position()%192) / 192.f;
+			//get position in columns units (refers to the pattern sequence)
+			float fPos = m_nSongPos // this is the integer part
+						+ ( pNote->get_position() // this note_position is monotonic with time (never reset in loop mode )
+							- nTotalTick * /*floor*/( pNote->get_position() / nTotalTick ) // use floor if ticks become float
+							- nPreviousColumnsTotalTicks
+						   ) / (float) pHydrogen->getCurrentPatternList()->longest_pattern_length(); // divide to get fractional part (<1)
 			velocity_adjustment = vp->get_value(fPos);
 		}
 
