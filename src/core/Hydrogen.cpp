@@ -958,7 +958,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 
 		float velocity_adjustment = 1.0f;
 		if ( pSong->getMode() == Song::SONG_MODE ) {
-			float fPos = m_nSongPos + (pNote->get_position()%192) / 192.f;
+			float fPos = m_nSongPos + ( ( (int) pNote->get_position() ) %192) / 192.f; //TODO what if pattern length > 192?
 			velocity_adjustment = vp->get_value(fPos);
 		}
 
@@ -984,7 +984,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			pNote->set_velocity( pNote->get_velocity() * velocity_adjustment );
 			
 			/* Check if the current note has probability != 1
-			 * If yes remove call random function to dequeue or not the note
+			 * If yes call random function to choose to dequeue or not the note
 			 */
 			float fNoteProbability = pNote->get_probability();
 			if ( fNoteProbability != 1. ) {
@@ -1857,13 +1857,16 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 				// iterator (notes won't be altered!). After some
 				// humanization was applied to onset of each note, it
 				// will be added to `m_songNoteQueue` for playback.
-				FOREACH_NOTE_CST_IT_BOUND(notes,it,m_nPatternTickPosition) {
+				//FOREACH_NOTE_CST_IT_BOUND(notes,it,m_nPatternTickPosition) {
+				for( Pattern::notes_cst_it_t it=notes->lower_bound( m_nPatternTickPosition );
+									it != notes->end() && it->first < m_nPatternTickPosition + 1;
+									it++ ) {
 					Note *pNote = it->second;
 					if ( pNote ) {
 						pNote->set_just_recorded( false );
 						
 						/** Time Offset in frames (relative to sample rate)
-						*	Sum of 4 components: tuplet compensation, swing, humanized timing, lead_lag
+						*	Sum of 3 components: swing, humanized timing, lead_lag
 						*/
 						int nOffset = 0;
 						
@@ -1873,7 +1876,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 						 * E.g.: if MAX_NOTES = 192 => MAX_NOTES % 5 != 0 => quintuplet notes exact start-time
 						 * in ticks is fractional (while note position is rounded)
 						 */
-						if( pNote->getTimeOffsetNumerator() != 0 ) {
+						/*if( pNote->getTimeOffsetNumerator() != 0 ) {
 							// note: fTickSize is in frames
 							nOffset += (int) round( fTickSize * pNote->getFloatTimeOffsetInTicks() );
 						}
@@ -1881,7 +1884,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 						printf("FloatTimeOffsetInTicks = %f\n", pNote->getFloatTimeOffsetInTicks() );
 						printf("TimeOffsetNumerator() = %d\n", pNote->getTimeOffsetNumerator() );
 						printf("getTupletNumerator() = %d\n", pNote->getTupletNumerator() );
-						printf("fTickSize in frames = %f\n\n", fTickSize );
+						printf("fTickSize in frames = %f\n\n", fTickSize );*/
 
 					   /** Swing 16ths //
 						* delay the upbeat 16th-notes by a constant (manual) offset
@@ -1929,9 +1932,10 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 						// it the new offset, and push it to the list
 						// of all notes, which are about to be played
 						// back.
-						// TODO: Why a copy?
+						// Why a copy? because it has the new offset (including swing and random timing) in its
+						// humanized delay, and tick position is expressed referring to start time (and not pattern).
 						Note *pCopiedNote = new Note( pNote );
-						pCopiedNote->set_position( tick );
+						pCopiedNote->set_position( tick + pNote->get_position() - floor( pNote->get_position() ) );
 						pCopiedNote->set_humanize_delay( nOffset );
 						pNote->get_instrument()->enqueue();
 						m_songNoteQueue.push( pCopiedNote );

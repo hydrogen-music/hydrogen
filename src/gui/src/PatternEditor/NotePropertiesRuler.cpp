@@ -859,17 +859,16 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pposNote = it->second;
 			assert( pposNote );
-			uint pos = pposNote->get_position();
+			float fPos = pposNote->get_position();
 			int xoffset = 0;
-			FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
+			FOREACH_NOTE_CST_IT_BOUND(notes,coit, fPos) {
 				Note *pNote = coit->second;
 				assert( pNote );
 				if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument )
 					 && !m_selection.isSelected( pNote ) ) {
 					continue;
 				}
-				float fPos = pos + pposNote->getFloatTimeOffsetInTicks();
-				uint x_pos = round( m_nMargin + ( fPos * m_fGridWidth ) );
+				uint x_pos = m_nMargin + round( fPos * m_fGridWidth );
 				uint line_end = height();
 
 
@@ -948,7 +947,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pposNote = it->second;
 			assert( pposNote );
-			uint pos = pposNote->get_position();
+			float pos = pposNote->get_position();
 			int xoffset = 0;
 			FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
 				Note *pNote = coit->second;
@@ -958,7 +957,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 											   && !m_selection.isSelected( pNote ) ) ) {
 					continue;
 				}
-				float fPos = pos + pposNote->getFloatTimeOffsetInTicks();
+				float fPos = pos;
 				uint x_pos = round( m_nMargin + ( fPos * m_fGridWidth ) );
 
 				QColor centerColor = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
@@ -1041,7 +1040,7 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pposNote = it->second;
 			assert( pposNote );
-			uint pos = pposNote->get_position();
+			float pos = pposNote->get_position();
 			int xoffset = 0;
 			FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
 				Note *pNote = coit->second;
@@ -1051,7 +1050,7 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 					continue;
 				}
 
-				float fPos = pos + pposNote->getFloatTimeOffsetInTicks();
+				float fPos = pos;
 				uint x_pos = round( m_nMargin + ( fPos * m_fGridWidth ) );
 
 				int red1 = (int) (pNote->get_velocity() * 255);
@@ -1222,7 +1221,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 			if ( !pNote->get_note_off() ) {
 				int d = 8;
 				int k = pNote->get_key();
-				uint x_pos = round ( ( pNote->get_position() + pNote->getFloatTimeOffsetInTicks() ) * m_fGridWidth );
+				uint x_pos = round ( ( pNote->get_position() ) * m_fGridWidth );
 				x_pos += 16;
 				uint y_pos = 200-(k*10)-4;
 

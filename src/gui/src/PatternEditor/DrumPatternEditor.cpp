@@ -102,7 +102,8 @@ void DrumPatternEditor::addOrRemoveNote( int nGridIndex, int nRealColumn, int ro
 										 bool bDoAdd, bool bDoDelete ) {
 
 	/* convert gridIndex into the nearest tick */
-	int nTickPosition = round( nGridIndex * granularity() ); // TODO make this an inline function?
+	float nTickPosition = nGridIndex * granularity(); // TODO make this a macro?
+	printf("float tick pos = %f\n", nTickPosition );
 	
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( row );
@@ -252,7 +253,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 		HydrogenApp *pApp = HydrogenApp::get_instance();
 		Note *pNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
 		if ( pNote != nullptr ) {
-			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nColumn,
+			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nColumn, //TODO
 																			 row,
 																			 m_nSelectedPatternNumber,
 																			 pNote->get_length(),
@@ -333,7 +334,7 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 	}
 }
 
-void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
+void DrumPatternEditor::addOrDeleteNoteAction(	float  nColumn,
 												int row,
 												int selectedPatternNumber,
 												int oldLength,
@@ -374,7 +375,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		// Find and delete an existing (matching) note.
 		Pattern::notes_t *notes = (Pattern::notes_t *) pPattern->get_notes();
 		bool bFound = false;
-		FOREACH_NOTE_IT_BOUND( notes, it, nColumn ) {
+		FOREACH_NOTE_IT_BOUND( notes, it,  nColumn ) { //TODO position tolerance
 			Note *pNote = it->second;
 			assert( pNote );
 			if ( ( isNoteOff && pNote->get_note_off() )
@@ -398,7 +399,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 
 	} else {
 		// create the new note
-		unsigned nPosition = nColumn;
+		float nPosition = nColumn; // why another variable?
 		float fVelocity = oldVelocity;
 		float fPan_L = oldPan_L ;
 		float fPan_R = oldPan_R;
@@ -1159,7 +1160,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 		// markers for instruments which have more than one note in the same position (a chord or genuine
 		// duplicates)
 		for ( auto posIt = pNotes->begin(); posIt != pNotes->end(); ) {
-			int nPosition = posIt->second->get_position();
+			float nPosition = posIt->second->get_position();
 
 			// Process all notes at this position
 			auto noteIt = posIt;
@@ -1187,7 +1188,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 				if ( noteCount[ nInstrumentID ] >  1 ) {
 					// Draw "2x" text to the left of the note
 					int nInstrument = pInstrList->index( pInstrument );
-					int x = m_nMargin + (nPosition * m_fGridWidth);
+					int x = m_nMargin + round( nPosition * m_fGridWidth );
 					int y = ( nInstrument * m_nGridHeight);
 					const int boxWidth = 128;
 					QFont font;
@@ -1221,7 +1222,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 		ERRORLOG( "Instrument not found..skipping note" );
 		return;
 	}
-	QPoint pos ( m_nMargin + round( ( note->get_position() + note->getFloatTimeOffsetInTicks() ) * m_fGridWidth ),
+	QPoint pos ( m_nMargin + round( note->get_position() * m_fGridWidth ),
 				 ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3 );
 
 	drawNoteSymbol( p, pos, note );
@@ -1256,7 +1257,6 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 			p.fillRect( 0, y, (m_nMargin + nNotes * m_fGridWidth), (int)( m_nGridHeight * 0.7 ), backgroundColor );
 		}
 	}
-
 }
 
 

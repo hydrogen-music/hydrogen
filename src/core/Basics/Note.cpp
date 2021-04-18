@@ -37,7 +37,7 @@ namespace H2Core
 const char* Note::__class_name = "Note";
 const char* Note::__key_str[] = { "C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Af", "A", "Bf", "B" };
 
-Note::Note( Instrument* instrument, int position, float velocity, float pan_l, float pan_r, int length, float pitch )
+Note::Note( Instrument* instrument, float position, float velocity, float pan_l, float pan_r, int length, float pitch )
 	: Object( __class_name ),
 	  __instrument( instrument ),
 	  __instrument_id( 0 ),
@@ -216,7 +216,7 @@ void Note::dump()
 
 void Note::save_to( XMLNode* node )
 {
-	node->write_int( "position", __position );
+	node->write_float( "position", __position );
 	node->write_float( "leadlag", __lead_lag );
 	node->write_float( "velocity", __velocity );
 	node->write_float( "pan_L", __pan_l );
@@ -233,7 +233,7 @@ Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
 {
 	Note* note = new Note(
 	    nullptr,
-	    node->read_int( "position", 0 ),
+	    node->read_float( "position", 0 ),
 	    node->read_float( "velocity", 0.8f ),
 	    node->read_float( "pan_L", 0.5f ),
 	    node->read_float( "pan_R", 0.5f ),

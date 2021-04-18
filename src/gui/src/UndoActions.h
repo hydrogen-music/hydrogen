@@ -487,7 +487,7 @@ private:
 class SE_addOrDeleteNoteAction : public QUndoCommand
 {
 public:
-	SE_addOrDeleteNoteAction(  int nColumn,
+	SE_addOrDeleteNoteAction(  float nColumn,
 							   int nRow,
 							   int selectedPatternNumber,
 							   int oldLength,
@@ -535,7 +535,7 @@ public:
 		//qDebug() << "Add note Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		__isMidi = false; // undo is never a midi event.
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction(  __nColumn,
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn,
 												__nRow,
 												__selectedPatternNumber,
 												__oldLength,
@@ -578,7 +578,7 @@ public:
 												__isDelete );
 	}
 private:
-	int __nColumn;
+	float __nColumn;
 	int __nRow;
 	int __selectedPatternNumber;
 	int __oldLength;

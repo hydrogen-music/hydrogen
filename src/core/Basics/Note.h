@@ -82,7 +82,7 @@ class Note : public H2Core::Object
 		 * \param length it's length
 		 * \param pitch it's pitch
 		 */
-		Note( Instrument* instrument, int position, float velocity, float pan_l, float pan_r, int length, float pitch );
+		Note( Instrument* instrument, float position, float velocity, float pan_l, float pan_r, int length, float pitch );
 
 		/**
 		 * copy constructor with an optional parameter
@@ -136,9 +136,9 @@ class Note : public H2Core::Object
 		 * #__position setter
 		 * \param value the new value
 		 */
-		void set_position( int value );
+		void set_position( float value );
 		/** #__position accessor */
-		int get_position() const;
+		float get_position() const;
 		/**
 		 * #__velocity setter
 		 * \param value the new value
@@ -321,14 +321,14 @@ class Note : public H2Core::Object
 		Instrument*		__instrument;   ///< the instrument to be played by this note
 		int				__instrument_id;        ///< the id of the instrument played by this note
 		int				__specific_compo_id;    ///< play a specific component, -1 if playing all
-		int				__position;             ///< note position inside the pattern
+		float			__position;             ///< note position inside the pattern, in ticks
 		float			__velocity;           ///< velocity (intensity) of the note [0;1]
 		float			__pan_l;              ///< pan of the note (left volume) [0;0.5]
 		float			__pan_r;              ///< pan of the note (right volume) [0;0.5]
 		int				__length;               ///< the length of the note
 		float			__pitch;              ///< the frequency of the note
 		Key				__key;                  ///< the key, [0;11]==[C;B]
-		Octave			 __octave;            ///< the octave [-3;3]
+		Octave			__octave;            ///< the octave [-3;3]
 		ADSR*			__adsr;               ///< attack decay sustain release
 		float			__lead_lag;           ///< lead or lag offset of the note
 		
@@ -411,12 +411,12 @@ inline int Note::get_specific_compo_id() const
 	return __specific_compo_id;
 }
 
-inline void Note::set_position( int value )
+inline void Note::set_position( float value )
 {
 	__position = value;
 }
 
-inline int Note::get_position() const
+inline float Note::get_position() const
 {
 	return __position;
 }

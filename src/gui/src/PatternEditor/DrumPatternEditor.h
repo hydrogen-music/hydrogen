@@ -55,7 +55,7 @@ class DrumPatternEditor : public PatternEditor
 		virtual void selectedPatternChangedEvent() override;
 		virtual void selectedInstrumentChangedEvent() override;
 		//~ Implements EventListener interface
-		void addOrDeleteNoteAction(		int nColumn,
+		void addOrDeleteNoteAction(		float nColumn,
 										int row,
 										int selectedPatternNumber,
 										int oldLength,
