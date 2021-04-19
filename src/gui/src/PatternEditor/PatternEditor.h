@@ -231,8 +231,8 @@ protected:
 	QMenu *m_pPopupMenu;
 
 	// Magnetic conversions (quantized by the grid granularity)
-	/* from the pixel position to the ROUNDED position of the nearest grid mark, in tick units */
-	int getColumn( int x, bool bUseFineGrained = false ) const;
+	/* from the pixel position to the position of the nearest grid mark, in tick units */
+	float getColumn( int x, bool bUseFineGrained = false ) const;
 	/* from the pixel position to the position of the nearest grid mark, in tick units (unrounded value!) */
 	float getFloatColumn( int x ) const;
 	/* from the pixel position to the index of the nearest grid mark */

@@ -651,8 +651,6 @@ void HydrogenApp::onEventQueueTimer()
 																			 pQueue->m_addMidiNoteVector[0].f_pan_L,
 																			 pQueue->m_addMidiNoteVector[0].f_pan_R,
 																			 0.0,
-																			 0,
-																			 4,
 																			 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
 																			 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
 																			 1.0f,

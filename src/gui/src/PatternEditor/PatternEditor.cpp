@@ -251,9 +251,9 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 }
 
 
-int PatternEditor::getColumn( int x, bool bUseFineGrained ) const
+float PatternEditor::getColumn( int x, bool bUseFineGrained ) const
 {	// without fineGrain, returns the position of the nearest grid mark, in tick units (rounded value!)
-	// with fineGrain, returns the position of nearest tick
+	// with fineGrain, returns the position of nearest tick with res = 192/whole note
 
 	if ( x <= m_nMargin ) {
 		return 0;
@@ -267,9 +267,7 @@ int PatternEditor::getColumn( int x, bool bUseFineGrained ) const
 		
 		float fWidth = m_fGridWidth * fGranularity; // distance between grid marks (or ticks), in pixel units
 		float fGridIndex = round( ( x - m_nMargin ) / fWidth ); // The index of the nearest grid mark (or tick)
-		int nColumn = round( fGridIndex * fGranularity ); // the rounded position of the nearest grid mark (or tick), in tick units
-		printf( "round column = %d\n", nColumn );
-		return nColumn;
+		return fGridIndex * fGranularity; // the position of the nearest grid mark (or tick), in tick units
 	}
 }
 
@@ -278,14 +276,12 @@ float PatternEditor::getFloatColumn( int x ) const {
 	float fWidth = m_fGridWidth * granularity(); // distance between grid marks, in pixel units
 	float fGridIndex = round( ( x - m_nMargin ) / fWidth ); // The index of the nearest grid mark
 	float fColumn = fGridIndex * granularity(); // the position of the nearest grid mark, in tick units
-	printf( "float column = %f\n", fColumn );
 	return fColumn;
 }
 
 int PatternEditor::getGridIndex( int x ) const {
 	float fWidth = m_fGridWidth * granularity(); // distance between grid marks, in pixel units
 	int nGridIndex = round( ( x - m_nMargin ) / fWidth ); // The index of the nearest grid mark
-	printf( "grid index = %d\n", nGridIndex );
 	return nGridIndex;
 }
 
@@ -643,14 +639,12 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 			nRes *= 2;
 			nStep /= 2;
 		}
-
+		
 	} else {
 
 		// Tuplets style markers, we only differentiate colours on the
 		// first of every tuplet.
-		// float fStep = granularity() * m_fGridWidth;
 		float fStep = granularity() * m_fGridWidth;
-		printf("%f\n", fStep);
 		p.setPen(  QPen( res[ 0 ], 0, style ) );
 		for ( float x = m_nMargin; x < nMaxX; x += fStep * m_nTupletNumerator ) {
 			p.drawLine( x, 1, x, m_nEditorHeight - 1);

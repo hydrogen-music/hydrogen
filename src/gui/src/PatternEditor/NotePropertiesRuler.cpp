@@ -126,8 +126,8 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		fDelta = fDelta * -1.0;
 	}
 
-	int nColumn = getColumn( ev->x() );
-	int nGridIndex = getGridIndex( ev->x() );
+	float m_fTickPosition = getColumn( ev->x() );
+	int nGridIndex = getGridIndex( ev->x() ); //unused
 
 	m_pPatternEditorPanel->setCursorIndexPosition( nGridIndex );
 	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
@@ -142,7 +142,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			notes.push_back( pNote );
 		}
 	} else {
-		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, nColumn ) {
+		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, m_fTickPosition ) {
 			notes.push_back( it->second );
 		}
 	}
@@ -268,9 +268,9 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 {
 	if ( ev->buttons() == Qt::NoButton ) {
-		int nColumn = getColumn( ev->x() );
+		float fTickPosition = getColumn( ev->x() );
 		bool bFound = false;
-		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, nColumn ) {
+		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, fTickPosition ) {
 			bFound = true;
 			break;
 		}
@@ -318,8 +318,8 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 
 	} else {
 		// No notes are selected. The target notes to adjust are all those at column given by 'x', so we preserve these.
-		int nColumn = getColumn( x );
-		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, nColumn ) {
+		float m_fTickPosition = getColumn( x );
+		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, m_fTickPosition ) {
 			Note *pNote = it->second;
 			if ( pNote->get_instrument() == pSelectedInstrument ) {
 				m_oldNotes[ pNote ] = new Note( pNote );
@@ -337,13 +337,13 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 		return;
 	}
 
-	int nColumn = getColumn( ev->x() );
-	int nGridIndex = getGridIndex( ev->x() );
+	float m_fTickPosition = getColumn( ev->x() );
+	int nGridIndex = getGridIndex( ev->x() ); // unused
 
 	m_pPatternEditorPanel->setCursorIndexPosition( nGridIndex );
 	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
-	if ( m_nDragPreviousColumn != nColumn ) {
+	if ( m_nDragPreviousColumn != m_fTickPosition ) {
 		// Complete current undo action, and start a new one.
 		addUndoAction();
 		prepareUndoAction( ev->x() );
@@ -363,7 +363,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	Song *pSong = pHydrogen->getSong();
 	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrument );
 
-	FOREACH_NOTE_CST_IT_BOUND(  m_pPattern->get_notes(), it, nColumn ) {
+	FOREACH_NOTE_CST_IT_BOUND(  m_pPattern->get_notes(), it, m_fTickPosition ) {
 		Note *pNote = it->second;
 
 		if ( pNote->get_instrument() != pSelectedInstrument && !m_selection.isSelected( pNote ) ) {
@@ -445,7 +445,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 		}
 	}
 
-	m_nDragPreviousColumn = nColumn;
+	m_nDragPreviousColumn = m_fTickPosition;
 
 	Hydrogen::get_instance()->getSong()->setIsModified( true );
 	updateEditor();
@@ -1193,7 +1193,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 				continue;
 			}
 			if ( !pNote->get_note_off() ) {
-				uint x_pos = round ( ( pNote->get_position() + pNote->getFloatTimeOffsetInTicks() ) * m_fGridWidth );
+				uint x_pos = round( pNote->get_position() * m_fGridWidth );
 				x_pos += 17;
 				uint y_pos = (4-pNote->get_octave())*10-3;
 				p.setBrush(QColor( 99, 160, 233 ));

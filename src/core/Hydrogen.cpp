@@ -1857,7 +1857,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 				// iterator (notes won't be altered!). After some
 				// humanization was applied to onset of each note, it
 				// will be added to `m_songNoteQueue` for playback.
-				//FOREACH_NOTE_CST_IT_BOUND(notes,it,m_nPatternTickPosition) {
+				//FOREACH_NOTE_CST_IT_BOUND(notes,it,m_nPatternTickPosition) { //TODO macro
 				for( Pattern::notes_cst_it_t it=notes->lower_bound( m_nPatternTickPosition );
 									it != notes->end() && it->first < m_nPatternTickPosition + 1;
 									it++ ) {
@@ -1869,22 +1869,6 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 						*	Sum of 3 components: swing, humanized timing, lead_lag
 						*/
 						int nOffset = 0;
-						
-						/** Tuplet time compensation //
-						 * It's non-null only if the note is inside a tuplet that does not divide
-						 * max resolution = MAX_NOTES.
-						 * E.g.: if MAX_NOTES = 192 => MAX_NOTES % 5 != 0 => quintuplet notes exact start-time
-						 * in ticks is fractional (while note position is rounded)
-						 */
-						/*if( pNote->getTimeOffsetNumerator() != 0 ) {
-							// note: fTickSize is in frames
-							nOffset += (int) round( fTickSize * pNote->getFloatTimeOffsetInTicks() );
-						}
-
-						printf("FloatTimeOffsetInTicks = %f\n", pNote->getFloatTimeOffsetInTicks() );
-						printf("TimeOffsetNumerator() = %d\n", pNote->getTimeOffsetNumerator() );
-						printf("getTupletNumerator() = %d\n", pNote->getTupletNumerator() );
-						printf("fTickSize in frames = %f\n\n", fTickSize );*/
 
 					   /** Swing 16ths //
 						* delay the upbeat 16th-notes by a constant (manual) offset

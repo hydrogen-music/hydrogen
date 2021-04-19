@@ -43,7 +43,7 @@ class Pattern : public H2Core::Object
 		H2_OBJECT
 	public:
 		///< multimap note type
-		typedef std::multimap <int, Note*> notes_t;
+		typedef std::multimap <float, Note*> notes_t;
 		///< multimap note iterator type
 		typedef notes_t::iterator notes_it_t;
 		///< multimap note const iterator type
@@ -125,9 +125,7 @@ class Pattern : public H2Core::Object
 		 * \param strict if set to false, will search for a note around the given idx
 		 * \return the note if found, 0 otherwise
 		 */
-		Note* find_note( int idx_a, int idx_b, Instrument* instrument, bool strict=true ) const;
-		/* like before but check if has same time offset */
-		Note* find_note( int idx_a, int idx_b, Instrument* instrument, float fTimeOffset, bool strict=true ) const;
+		Note* find_note( float idx_a, int idx_b, Instrument* instrument, bool strict=true ) const; // TODO second arg float
 		/**
 		 * search for a note at a given index within __notes which correspond to the given arguments
 		 * \param idx_a the first __notes index to search in
@@ -138,7 +136,7 @@ class Pattern : public H2Core::Object
 		 * \param strict if set to false, will search for a note around the given idx
 		 * \return the note if found, 0 otherwise
 		 */
-		Note* find_note( int idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict=true) const;
+		Note* find_note( float idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict=true) const; // TODO second arg float
 		/**
 		 * removes a given note from __notes, it's not deleted
 		 * \param note the note to be removed

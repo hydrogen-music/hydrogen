@@ -98,12 +98,10 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 }
 
 
-void DrumPatternEditor::addOrRemoveNote( int nGridIndex, int nRealColumn, int row,
-										 bool bDoAdd, bool bDoDelete ) {
+void DrumPatternEditor::addOrRemoveNote( int nGridIndex, int nRealColumn, int row, bool bDoAdd, bool bDoDelete ) {
 
 	/* convert gridIndex into the nearest tick */
-	float nTickPosition = nGridIndex * granularity(); // TODO make this a macro?
-	printf("float tick pos = %f\n", nTickPosition );
+	float fTickPosition = nGridIndex * granularity(); // TODO make this a macro? makeDOUBLE
 	
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( row );
@@ -115,70 +113,14 @@ void DrumPatternEditor::addOrRemoveNote( int nGridIndex, int nRealColumn, int ro
 	float oldPan_R = 0.5f;
 	float oldLeadLag = 0.0f;
 	float fProbability = 1.0f;
-	int oldTimeOffsetNumerator = 0; //eventually modified
-	int oldTupletNumerator = m_nTupletNumerator;
-	
-	/** check the note is in a real tuplet position! otherwise TimeOffsetNumerator = 0
-	*	Note: user may enter fake tuplets like 2:1... the only reason to do this is to increase the max
-	*	 resolution, and in that case the following scope is necessary!
-	*	TODO In case MAX_NOTES != 192 should next scope be always executed?? (changing the internal formula
-	*	TimeOffsetNumerator)
-	*/
-	if ( ( m_nTupletDenominator != m_nTupletNumerator ) && ( nGridIndex % m_nTupletNumerator != 0 ) ) {
-
-		/** calculate the oldTimeOffsetNumerator such that
-		* 		oldTimeOffsetNumerator / tupletNumerator = timeAdjustOffset in ticks
-		* 	Note: the next formula applying % operator on integer numbers is strategical and correct if
-		* 	MAX_NOTES % m_nResolution for any m_nResolution (192 is ok, unless one changes or bypass the GUI Res combobox).
-		*  	otherwise the same result is achieved by:
-		*		oldTimeOffsetNumerator = round( ( fColumn - nColumn ) * m_nTupletNumerator );
-		*	for any MAX_NOTES, where should calculate fColumn like nColumn but without round() in the last line
-		*	(but maybe more intricate, because it uses round() to get a mathematical exact integer value), 
-		*---------------------
-		*	TODO: think
-		* what if you move m_nResolution out of the division like this?
-		* 		oldTimeOffsetNumerator = ( nGridIndex * MAX_NOTES * m_nTupletDenominator ) % (m_nTupletNumerator *m_nResolution)
-		* then you should save m_nTupletNumerator * m_nResolution = timeOffsetDenominator as note member
-		* (deprecating tupletNumerator note member) so that
-		* 		oldTimeOffsetNumerator / timeOffsetDenominator = timeAdjustOffset
-		*	or save both TupletNumerator and Resolution as separate members in the note (redundant but clear) so that
-		* oldTimeOffsetNumerator / (Resolution * tupletNumerator) = timeAdjustOffset
-		* This avoids the use of fColumn and allows EXACT note playback start-times for ANY value of MAX_NOTES
-		*	in that case must control how the statement (2 * oldTimeOffsetNumerator >= m_nTupletNumerator ) changes !
-		*---------------------
-		*	TODO: think
-		* Another way could be to store -0.5 <= TimeOffset < 0.5 as a float, but keep storing the TupletNumerator for GUI issue
-		* (show the tuplet notes as tuplets). But could this resolve the grid magnetic selection of notes??
-		*	Maybe yes, with an epsilon tolerance
-		* -------------
-		*
-		*/
-		oldTimeOffsetNumerator = ( nGridIndex * MAX_NOTES * m_nTupletDenominator / m_nResolution) % m_nTupletNumerator;
-
-		/* since note position is rounded and not floored, time-offset adjustion must be < 0.5 and > -0.5 */
-		if ( 2 * oldTimeOffsetNumerator >= m_nTupletNumerator ) {
-			oldTimeOffsetNumerator -= m_nTupletNumerator;
-		}
-	}
-	printf( "oldTimeOffsetNumerator = %d \n", oldTimeOffsetNumerator );
-	printf( "m_nTupletNumerator = %d \n", m_nTupletNumerator );
-	printf( "m_nTupletDenominator = %d \n\n", m_nTupletDenominator );
 
 	Note::Key oldNoteKeyVal = Note::C;
 	Note::Octave oldOctaveKeyVal = Note::P8;
 	bool isNoteOff = false;
-	
-	/* Check if there is an old note matching the same fractional position
-	* (oldTimeOffsetNumerator and oldTupletNumerator are not uniquely defined).
-	* Can we trust that the (float) ratio between proportional integers is always equal e.g. (float) 6/4 == (float) 3/2 == ... ?
-	* If not we must reduce the fractions to lowest terms and compare (long but exact),
-	* or allow tolerance (simpler, how small fEpsilon?):
-	*     fabs( (float) oldTimeOffsetNumerator / oldTupletNumerator - pOldNote->getTimeOffsetInTicks() ) < fEpsilon 
-	*/
-	H2Core::Note *pOldNote = m_pPattern->find_note( nTickPosition, nRealColumn, pSelectedInstrument,
-																oldTimeOffsetNumerator / (float) m_nTupletNumerator );
+
+	H2Core::Note *pOldNote = m_pPattern->find_note( fTickPosition, nRealColumn, pSelectedInstrument );
 	if ( pOldNote ) {
-		// Found an old note matching the same fractional position
+		// Found an old note matching the same position
 		if ( !bDoDelete ) { // we don't want to delete, so just return.
 			return;
 		} else { // note will be deleted, so here "old" has sense
@@ -197,7 +139,7 @@ void DrumPatternEditor::addOrRemoveNote( int nGridIndex, int nRealColumn, int ro
 		return;
 	}
 
-	SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nTickPosition,
+	SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( fTickPosition,
 																	 row,
 																	 m_nSelectedPatternNumber,
 																	 oldLength,
@@ -205,8 +147,6 @@ void DrumPatternEditor::addOrRemoveNote( int nGridIndex, int nRealColumn, int ro
 																	 oldPan_L,
 																	 oldPan_R,
 																	 oldLeadLag,
-																	 oldTimeOffsetNumerator,
-																	 oldTupletNumerator,
 																	 oldNoteKeyVal,
 																	 oldOctaveKeyVal,
 																	 fProbability,
@@ -235,13 +175,13 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 		return;
 	}
 
-	int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true ); // position of nearest grid mark in ticks
+	float fTickPosition = getColumn( ev->x(), /* bUseFineGrained=*/ true ); // position of nearest grid mark in ticks
 	int nGridIndex = getGridIndex( ev->x() ); // index of nearest grid mark
 	int nRealColumn = 0; // TODO what is the use of this? does it affect tuplets? currently it is not rounded
 	if( ev->x() > m_nMargin ) {
 		nRealColumn = ( ev->x() - m_nMargin ) / m_fGridWidth;
 	}
-	if ( nColumn >= m_pPattern->get_length() ) { // here was a (int) cast
+	if ( fTickPosition >= m_pPattern->get_length() ) { // here was a (int) cast
 		update( 0, 0, width(), height() );
 		return;
 	}
@@ -251,9 +191,9 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	{
 		//shift + leftClick: add noteOff note
 		HydrogenApp *pApp = HydrogenApp::get_instance();
-		Note *pNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
+		Note *pNote = m_pPattern->find_note( fTickPosition, nRealColumn, pSelectedInstrument, false );
 		if ( pNote != nullptr ) {
-			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nColumn, //TODO
+			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( fTickPosition, //TODO
 																			 row,
 																			 m_nSelectedPatternNumber,
 																			 pNote->get_length(),
@@ -261,8 +201,6 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 																			 pNote->get_pan_l(),
 																			 pNote->get_pan_r(),
 																			 pNote->get_lead_lag(),
-																			 pNote->getTimeOffsetNumerator(),
-																			 pNote->getTupletNumerator(),
 																			 pNote->get_key(),
 																			 pNote->get_octave(),
 																			 pNote->get_probability(),
@@ -274,7 +212,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 			pApp->m_pUndoStack->push( action );
 		} else {
 			// Add stop-note
-			SE_addNoteOffAction *action = new SE_addNoteOffAction( nColumn, row, m_nSelectedPatternNumber,
+			SE_addNoteOffAction *action = new SE_addNoteOffAction( fTickPosition, row, m_nSelectedPatternNumber,
 																   pNote != nullptr );
 			pApp->m_pUndoStack->push( action );
 		}
@@ -305,7 +243,7 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 	int row = (int)( ev->y()  / (float)m_nGridHeight);
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
-	int nColumn = getColumn( ev->x() );
+	float fTickPosition = getColumn( ev->x() ); //TODO makedouble?
 	if ( ev->button() == Qt::RightButton ) {
 		// Right button drag: adjust note length
 		int nRealColumn = 0;
@@ -315,10 +253,10 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 			nRealColumn = ( ev->x() - m_nMargin) / m_fGridWidth;
 		}
 
-		m_pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
+		m_pDraggedNote = m_pPattern->find_note( fTickPosition, nRealColumn, pSelectedInstrument, false );
 		// needed for undo note length
 		__nRealColumn = nRealColumn;
-		__nColumn = nColumn;
+		m_fTickPosition = fTickPosition;
 		__row = row;
 		if( m_pDraggedNote ){
 			__oldLength = m_pDraggedNote->get_length();
@@ -334,7 +272,7 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 	}
 }
 
-void DrumPatternEditor::addOrDeleteNoteAction(	float  nColumn,
+void DrumPatternEditor::addOrDeleteNoteAction(	float fTickPosition, // TODO makedouble
 												int row,
 												int selectedPatternNumber,
 												int oldLength,
@@ -342,8 +280,6 @@ void DrumPatternEditor::addOrDeleteNoteAction(	float  nColumn,
 												float oldPan_L,
 												float oldPan_R,
 												float oldLeadLag,
-												int  oldTimeOffsetNumerator,
-												int oldTupletNumerator,
 												int oldNoteKeyVal,
 												int oldOctaveKeyVal,
 												float fProbability,
@@ -375,7 +311,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	float  nColumn,
 		// Find and delete an existing (matching) note.
 		Pattern::notes_t *notes = (Pattern::notes_t *) pPattern->get_notes();
 		bool bFound = false;
-		FOREACH_NOTE_IT_BOUND( notes, it,  nColumn ) { //TODO position tolerance
+		FOREACH_NOTE_IT_BOUND( notes, it,  fTickPosition ) { //TODO position tolerance
 			Note *pNote = it->second;
 			assert( pNote );
 			if ( ( isNoteOff && pNote->get_note_off() )
@@ -384,7 +320,6 @@ void DrumPatternEditor::addOrDeleteNoteAction(	float  nColumn,
 					  && pNote->get_octave() == oldOctaveKeyVal
 					  && pNote->get_velocity() == oldVelocity
 					  && pNote->get_probability() == fProbability
-					  && ((float) oldTimeOffsetNumerator / oldTupletNumerator ) == pNote->getFloatTimeOffsetInTicks()
 					 )
 				) {
 				delete pNote;
@@ -399,7 +334,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	float  nColumn,
 
 	} else {
 		// create the new note
-		float nPosition = nColumn; // why another variable?
+		float nPosition = fTickPosition; // why another variable?
 		float fVelocity = oldVelocity;
 		float fPan_L = oldPan_L ;
 		float fPan_R = oldPan_R;
@@ -418,8 +353,6 @@ void DrumPatternEditor::addOrDeleteNoteAction(	float  nColumn,
 		float fPitch = 0.f;
 		
 		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
-		pNote->setTimeOffsetNumerator( oldTimeOffsetNumerator );
-		pNote->setTupletNumerator( oldTupletNumerator );
 		pNote->set_note_off( isNoteOff );
 		if ( !isNoteOff ) {
 			pNote->set_lead_lag( oldLeadLag );
@@ -600,8 +533,6 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 														   pNote->get_pan_l(),
 														   pNote->get_pan_r(),
 														   pNote->get_lead_lag(),
-														   pNote->getTimeOffsetNumerator(), //TODO recalc
-														   pNote->getTupletNumerator(), //TODO recalc
 														   pNote->get_key(),
 														   pNote->get_octave(),
 														   pNote->get_probability(),
@@ -623,8 +554,6 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 														   pNote->get_pan_l(),
 														   pNote->get_pan_r(),
 														   pNote->get_lead_lag(),
-														   pNote->getTimeOffsetNumerator(), //TODO recalc
-														   pNote->getTupletNumerator(), //TODO recalc
 														   pNote->get_key(),
 														   pNote->get_octave(),
 														   pNote->get_probability(),
@@ -645,7 +574,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 }
 
 
-void DrumPatternEditor::editNoteLengthAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber ) //TODO quantized the endtime to tuplet grid
+void DrumPatternEditor::editNoteLengthAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber ) //TODO float arg
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->getPatternList();
@@ -946,8 +875,6 @@ void DrumPatternEditor::deleteSelection()
 																 pNote->get_pan_l(),
 																 pNote->get_pan_r(),
 																 pNote->get_lead_lag(),
-																 pNote->getTimeOffsetNumerator(),
-																 pNote->getTupletNumerator(),
 																 pNote->get_key(),
 																 pNote->get_octave(),
 																 pNote->get_probability(),
@@ -1062,8 +989,6 @@ void DrumPatternEditor::paste()
 														   pNote->get_pan_l(),
 														   pNote->get_pan_r(),
 														   pNote->get_lead_lag(),
-														   pNote->getTimeOffsetNumerator(),
-														   pNote->getTupletNumerator(),
 														   pNote->get_key(),
 														   pNote->get_octave(),
 														   pNote->get_probability(),
@@ -1583,9 +1508,7 @@ void DrumPatternEditor::functionPasteNotesRedoAction(std::list<H2Core::Pattern*>
 
 
 //void DrumPatternEditor::functionFillNotesUndoAction( QStringList noteList, int nSelectedInstrument, int patternNumber )
-void DrumPatternEditor::functionFillNotesUndoAction( std::vector<int> notePositions,
-													 std::vector<int> noteTimeOffsetNumerators,
-													 std::vector<int> noteTupletNumerators,
+void DrumPatternEditor::functionFillNotesUndoAction( std::vector<float> notePositions,
 													  int nSelectedInstrument, int patternNumber )
 {
 	Hydrogen * H = Hydrogen::get_instance();
@@ -1602,9 +1525,7 @@ void DrumPatternEditor::functionFillNotesUndoAction( std::vector<int> notePositi
 		FOREACH_NOTE_IT_BOUND( notes, it, notePositions[i] ) {
 			Note *pNote = it->second;
 			assert( pNote );
-			if ( pNote->get_instrument() == pSelectedInstrument
-					&& pNote->getTimeOffsetNumerator() == noteTimeOffsetNumerators[i]
-					&& pNote->getTupletNumerator() == noteTupletNumerators[i] ) {
+			if ( pNote->get_instrument() == pSelectedInstrument ) {
 				// the note exists...remove it!
 				notes->erase( it );
 				delete pNote;
@@ -1621,9 +1542,7 @@ void DrumPatternEditor::functionFillNotesUndoAction( std::vector<int> notePositi
 
 //void DrumPatternEditor::functionFillNotesRedoAction( QStringList noteList, int nSelectedInstrument, int patternNumber )
 
-void DrumPatternEditor::functionFillNotesRedoAction( std::vector<int> notePositions,
-													 std::vector<int> noteTimeOffsetNumerators,
-													 std::vector<int> noteTupletNumerators,
+void DrumPatternEditor::functionFillNotesRedoAction( std::vector<float> notePositions,
 													 int nSelectedInstrument, int patternNumber )
 {
 	Hydrogen * H = Hydrogen::get_instance();
@@ -1643,8 +1562,6 @@ void DrumPatternEditor::functionFillNotesRedoAction( std::vector<int> notePositi
 		// create the new note
 		//int position = noteList.value(i).toInt();
 		Note *pNote = new Note( pSelectedInstrument, notePositions[i], velocity, pan_L, pan_R, nLength, fPitch );
-		pNote->setTimeOffsetNumerator( noteTimeOffsetNumerators[i] );
-		pNote->setTupletNumerator( noteTupletNumerators[i] );
 		pPattern->insert_note( pNote );
 	}
 	AudioEngine::get_instance()->unlock();	// unlock the audio engine
@@ -1655,7 +1572,7 @@ void DrumPatternEditor::functionFillNotesRedoAction( std::vector<int> notePositi
 
 
 void DrumPatternEditor::functionRandomVelocityAction( QStringList noteVeloValue, int nSelectedInstrument, int selectedPatternNumber )
-{
+{ // TODO why QStringList and not std::vector<float> ? Does it save space?
 	Hydrogen * H = Hydrogen::get_instance();
 	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
 	Pattern *pPattern = pPatternList->get( selectedPatternNumber );
@@ -1664,18 +1581,19 @@ void DrumPatternEditor::functionRandomVelocityAction( QStringList noteVeloValue,
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
 
-	int nResolution = granularity();
+	float fResolution = granularity();
 	int positionCount = 0;
-	for (int i = 0; i < pPattern->get_length(); i += nResolution) {
+	for (int i = 0; i*fResolution < pPattern->get_length(); i++ ) { //TODO while() loop using variable float fPosition
 		const Pattern::notes_t* notes = pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+		FOREACH_NOTE_CST_IT_BOUND(notes,it,i*fResolution) {
 			Note *pNote = it->second;
 			if ( pNote->get_instrument() ==  pSelectedInstrument) {
-				float velocity = noteVeloValue.value( positionCount ).toFloat();
+				float velocity = noteVeloValue.value( positionCount ).toFloat(); // TODO why QStringList and not std::vector<float> ?
 				pNote->set_velocity(velocity);
 				positionCount++;
 			}
 		}
+		
 	}
 	H->getSong()->setIsModified( true );
 	AudioEngine::get_instance()->unlock();	// unlock the audio engine

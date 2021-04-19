@@ -495,8 +495,6 @@ public:
 							   float oldPan_L,
 							   float oldPan_R,
 							   float oldLeadLag,
-							   int oldTimeOffsetNumerator,
-							   int oldDivisionBase,
 							   int oldNoteKeyVal,
 							   int oldOctaveKeyVal,
 							   float probability,
@@ -519,8 +517,6 @@ public:
 		__oldPan_L = oldPan_L;
 		__oldPan_R = oldPan_R;
 		__oldLeadLag = oldLeadLag;
-		m_nOldTimeOffsetNumerator = oldTimeOffsetNumerator;
-		m_nOldDivisionBase = oldDivisionBase;
 		__oldNoteKeyVal = oldNoteKeyVal;
 		__oldOctaveKeyVal = oldOctaveKeyVal;
 		__probability = probability;
@@ -543,8 +539,6 @@ public:
 												__oldPan_L,
 												__oldPan_R,
 												__oldLeadLag,
-												m_nOldTimeOffsetNumerator,
-												m_nOldDivisionBase,
 												__oldNoteKeyVal,
 												__oldOctaveKeyVal,
 												__probability,
@@ -566,8 +560,6 @@ public:
 												__oldPan_L,
 												__oldPan_R,
 												__oldLeadLag,
-												m_nOldTimeOffsetNumerator,
-												m_nOldDivisionBase,
 												__oldNoteKeyVal,
 												__oldOctaveKeyVal,
 												__probability,
@@ -586,8 +578,6 @@ private:
 	float __oldPan_L;
 	float __oldPan_R;
 	float __oldLeadLag;
-	int m_nOldTimeOffsetNumerator;
-	int m_nOldDivisionBase;
 	int __oldNoteKeyVal;
 	int __oldOctaveKeyVal;
 	float __probability;
@@ -660,8 +650,6 @@ public:
 																						0.0,
 																						0, //TODO 0 4 ?! divbase...
 																						4,
-																						0,
-																						0,
 																						1.0f,
 																						false,
 																						false,
@@ -682,8 +670,6 @@ public:
 																						0.0,
 																						0, //TODO 0 4 ?! divbase...
 																						4,
-																						0,
-																						0,
 																						1.0f,
 																						false,
 																						false,
@@ -875,16 +861,11 @@ class SE_fillNotesRightClickAction : public QUndoCommand
 {
 public:
 	//SE_fillNotesRightClickAction( QStringList notePositions, int nSelectedInstrument, int selectedPatternNumber  ){
-	SE_fillNotesRightClickAction( 	std::vector<int> notePositions,
-									std::vector<int> noteTimeOffsetNumerators,
-									std::vector<int> noteTupletNumerators,
-									int nSelectedInstrument, int selectedPatternNumber  ){
+	SE_fillNotesRightClickAction( std::vector<float> notePositions, int nSelectedInstrument, int selectedPatternNumber ){
 
 		setText( QObject::tr( "Fill notes" ) );
 		//__notePositions = notePositions;
 		m_notePositions = notePositions;
-		m_noteTimeOffsetNumerators = noteTimeOffsetNumerators;
-		m_noteTupletNumerators = noteTupletNumerators;
 		__nSelectedInstrument= nSelectedInstrument;
 		__selectedPatternNumber = selectedPatternNumber;
 	}
@@ -893,8 +874,6 @@ public:
 		//qDebug() << "fill notes Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionFillNotesUndoAction( m_notePositions,
-																							m_noteTimeOffsetNumerators,
-																							m_noteTupletNumerators,
 																	__nSelectedInstrument, __selectedPatternNumber );
 	}
 	virtual void redo()
@@ -902,14 +881,10 @@ public:
 		//qDebug() << "fill notes Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionFillNotesRedoAction(  m_notePositions,
-																							m_noteTimeOffsetNumerators,
-																							m_noteTupletNumerators,
 																	 __nSelectedInstrument, __selectedPatternNumber );
 	}
 private:
-	std::vector<int> m_notePositions;
-	std::vector<int> m_noteTimeOffsetNumerators;
-	std::vector<int> m_noteTupletNumerators;
+	std::vector<float> m_notePositions;
 	//QStringList __notePositions;
 	int __nSelectedInstrument;
 	int __selectedPatternNumber;
@@ -1431,8 +1406,6 @@ public:
 											__oldPan_L,
 											__oldPan_R,
 											__oldLeadLag,
-											//m_nOldTimeOffsetNumerator,
-											//m_nOldDivisionBase,
 											__oldProbability,
 											__oldNoteKeyVal,
 											__oldOctaveKeyVal );
@@ -1449,8 +1422,6 @@ public:
 											__pan_L,
 											__pan_R,
 											__leadLag,
-											//m_nOldTimeOffsetNumerator,
-											//m_nOldDivisionBase,
 											__probability,
 											__noteKeyVal,
 											__octaveKeyVal );
@@ -1469,8 +1440,6 @@ private:
 	float __pan_R;
 	float __oldPan_R;
 	float __leadLag;
-	//int m_nOldTimeOffsetNumerator;
-	//int m_nOldDivisionBase;
 	float __oldLeadLag;
 	float __probability;
 	float __oldProbability;

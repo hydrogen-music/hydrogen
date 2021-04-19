@@ -55,7 +55,7 @@ class DrumPatternEditor : public PatternEditor
 		virtual void selectedPatternChangedEvent() override;
 		virtual void selectedInstrumentChangedEvent() override;
 		//~ Implements EventListener interface
-		void addOrDeleteNoteAction(		float nColumn,
+		void addOrDeleteNoteAction(		float fTickPosition,
 										int row,
 										int selectedPatternNumber,
 										int oldLength,
@@ -63,8 +63,6 @@ class DrumPatternEditor : public PatternEditor
 										float oldPan_L,
 										float oldPan_R,
 										float oldLeadLag,
-										int OldTimeOffsetNumerator,
-										int OldDivisionBase,
 										int oldNoteKeyVal,
 										int oldOctaveKeyVal,
 										float probability,
@@ -96,13 +94,9 @@ class DrumPatternEditor : public PatternEditor
 		void functionClearNotesRedoAction( int nSelectedInstrument, int selectedPatternNumber );
 		void functionClearNotesUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, int patternNumber );
 		//void functionFillNotesUndoAction( QStringList noteList, int nSelectedInstrument, int patternNumber );
-		void functionFillNotesUndoAction( std::vector<int> notePositions, std::vector<int> noteTimeOffsetNumerators,
-											std::vector<int> noteTupletNumerators, int nSelectedInstrument,
-											 int patternNumber );
+		void functionFillNotesUndoAction( std::vector<float> notePositions, int nSelectedInstrument, int patternNumber );
 		//void functionFillNotesRedoAction( QStringList noteList, int nSelectedInstrument, int patternNumber );
-		void functionFillNotesRedoAction( std::vector<int> notePositions, std::vector<int> noteTimeOffsetNumerators,
-											std::vector<int> noteTupletNumerators, int nSelectedInstrument,
-											int patternNumber );
+		void functionFillNotesRedoAction( std::vector<float> notePositions, int nSelectedInstrument, int patternNumber );
 		void functionRandomVelocityAction( QStringList noteVeloValue, int nSelectedInstrument, int selectedPatternNumber );
 		void functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument );
 		void functionDropInstrumentUndoAction( int nTargetInstrument, std::vector<int>* AddedComponents );
@@ -157,7 +151,7 @@ class DrumPatternEditor : public PatternEditor
 		QString renameCompo( QString OriginalName );
 
 		int __nRealColumn;
-		int __nColumn;
+		int m_fTickPosition;
 		int __row;
 		int __oldLength;
 };

@@ -299,13 +299,6 @@ class Note : public H2Core::Object
 		 * \param val_r the right channel value
 		 */
 		void compute_lr_values( float* val_l, float* val_r );
-		
-		/* see few lines below for explanation */
-		int getTupletNumerator() const;
-		void setTupletNumerator( int n );
-		int getTimeOffsetNumerator() const;
-		void setTimeOffsetNumerator( int n );
-		float getFloatTimeOffsetInTicks() const;
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -331,33 +324,6 @@ class Note : public H2Core::Object
 		Octave			__octave;            ///< the octave [-3;3]
 		ADSR*			__adsr;               ///< attack decay sustain release
 		float			__lead_lag;           ///< lead or lag offset of the note
-		
-		/** a tuplet-note start_time can differ from its position (in ticks) due to finite grid resolution
-		* (currently 48 ticks per quarter notes in hydrogen)
-		* so the start_time will be adjusted by this customly defined quantity:
-		* (float) m_nTimeOffsetNumerator / m_nTupletNumerator
-		* which is expressed as fraction of tick units.
-		* Note: while ONE only RATIONAL variable is perfect to represent the offset, splitting this information
-		* in two integers (numerator and denominator) simplifys the gui, letting know the tuplet type (quintuplets,
-		* septuplets...), and avoids finite-digits approximation.
-		*---------------------
-		*	TODO: think
-		* Another way could be to store TimeOffset as a float, but keeping the m_nTupletNumerator for GUI issue
-		* (draw the tuplet notes). But could this resolve the grid magnetic selection of notes??
-		* doesn't avoid finite-digits approximation => GUI should call round() and that's not elegant.
-		* -------------
-		* Note that a tuplet is explicitly specified by a rational number = a fraction.
-		* in fact this fraction is used to divide the note value returning its resultant length (in whole note units).
-		* examples: standard triplets 3:2 = 3/2,
-		*	 In fact a single eight note under triplet has length = 1/8 * 2/3 of whole note = 1/12 of whole note;
-		* standard quintuplets: 5:4 = 5/4;
-		* weird (wrong?) quintuplets: 5:2;
-		* std quartuplets: 4:3;
-		* a difficult tuplet: 5:3.
-		*/
-		int				m_nTimeOffsetNumerator;
-		int				m_nTupletNumerator;
-		
 		float			__cut_off;            ///< filter cutoff [0;1]
 		float			__resonance;          ///< filter resonant frequency [0;1]
 		int				__humanize_delay;       ///< used in "humanize" function
@@ -625,27 +591,6 @@ inline void Note::compute_lr_values( float* val_l, float* val_r )
 	*val_l = __lpfb_l;
 	*val_r = __lpfb_r;
 }
-
-inline int Note::getTupletNumerator() const {
-	return m_nTupletNumerator;
-}
-
-inline void Note::setTupletNumerator( int n ) {
-	m_nTupletNumerator = n;
-}
-
-inline int Note::getTimeOffsetNumerator() const {
-	return m_nTimeOffsetNumerator;
-}
-
-inline void Note::setTimeOffsetNumerator( int n ) {
-	m_nTimeOffsetNumerator = n;
-}
-
-inline float Note::getFloatTimeOffsetInTicks() const {
-	return (float) m_nTimeOffsetNumerator / m_nTupletNumerator;
-}
-
 
 };
 
