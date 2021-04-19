@@ -946,38 +946,60 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 		framepos = pHydrogen->getRealtimeFrames();
 	}
 	
-	// Velocity Adjustment Automation
-	/////////// the following lines are inspired to findPatternInTick()
-	int nTotalTick = 0, nPreviousColumnsTotalTicks = 0;
+	AutomationPath *vp = pSong->getVelocityAutomationPath();
+	
+
+	/////////// the following lines are inspired to findPatternInTick(), need for velocity automation
+	int nTotalTick = 0;
 	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
 	int nColumns = pPatternColumns->size();
-
-	// Sum the lengths of all pattern columns and use the macro
-	// MAX_NOTES in case some of them are of size zero.
-	int nPatternSize;
-	for ( int i = 0; i < nColumns; ++i ) {
-		PatternList *pColumn = ( *pPatternColumns )[ i ];
-		if ( pColumn->size() != 0 ) {
-			nPatternSize = pColumn->longest_pattern_length();
-		} else {
-			nPatternSize = MAX_NOTES;
+	if ( pSong->getMode() == Song::SONG_MODE ) {
+		// Sum the lengths of all pattern columns and use the macro
+		// MAX_NOTES in case some of them are of size zero.
+		int nPatternSize;
+		for ( int i = 0; i < nColumns; i++ ) {
+			PatternList *pColumn = ( *pPatternColumns )[ i ];
+			if ( pColumn->size() != 0 ) {
+				nPatternSize = pColumn->longest_pattern_length();
+			} else {
+				nPatternSize = MAX_NOTES;
+			}
+			nTotalTick += nPatternSize;
 		}
-		nTotalTick += nPatternSize;
-		if (i < m_nSongPos ) {
-			nPreviousColumnsTotalTicks = nTotalTick;
-		}
-	}
-	/////////////// end of inspired lines
-
-	AutomationPath *vp = pSong->getVelocityAutomationPath();
+    }
+    /////////////// end of inspired lines
 
 	// reading from m_songNoteQueue
 	while ( !m_songNoteQueue.empty() ) {
 		Note *pNote = m_songNoteQueue.top();
 
 		float velocity_adjustment = 1.0f;
+		
+		// Velocity Adjustment Automation
 		if ( pSong->getMode() == Song::SONG_MODE ) {
-			//get position in columns units (refers to the pattern sequence)
+			// calculate the total length (in ticks) of pattern columns BEFORE the playing column
+			
+			/////////// the following lines are inspired to findPatternInTick()
+			int nPreviousColumnsTotalTicks = 0;
+			std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
+			int nColumns = pPatternColumns->size();
+
+			// Sum the lengths of all pattern columns and use the macro
+			// MAX_NOTES in case some of them are of size zero.
+			int nPatternSize;
+			for ( int i = 0; i < m_nSongPos; i++ ) {
+				PatternList *pColumn = ( *pPatternColumns )[ i ];
+				if ( pColumn->size() != 0 ) {
+					nPatternSize = pColumn->longest_pattern_length();
+				} else {
+					nPatternSize = MAX_NOTES;
+				}
+
+				nPreviousColumnsTotalTicks += nPatternSize;
+			}
+			/////////////// end of inspired lines
+		
+			//get position in the pattern columns scale (refers to the pattern sequence which can be non-linear with time)
 			float fPos = m_nSongPos // this is the integer part
 						+ ( pNote->get_position() // this note_position is monotonic with time (never reset in loop mode )
 							- nTotalTick * /*floor*/( pNote->get_position() / nTotalTick ) // use floor if ticks become float
