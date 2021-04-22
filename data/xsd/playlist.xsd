@@ -31,7 +31,7 @@
 			<xsd:element name="songs">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element ref="h2:song" maxOccurs="1000"/>
+						<xsd:element ref="h2:song" minOccurs="0" maxOccurs="1000"/>
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
