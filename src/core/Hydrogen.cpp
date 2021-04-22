@@ -2721,6 +2721,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 			noteAction.b_noteExist = ( pNoteold ) ? true : false;
 
 			EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
+			printf("pushed note\n");
 
 			// hear note if its not in the future
 			if ( pPreferences->getHearNewNotes() && position <= getTickPosition() ) {

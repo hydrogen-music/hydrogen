@@ -638,11 +638,11 @@ void HydrogenApp::onEventQueueTimer()
 	// midi notes
 	while(!pQueue->m_addMidiNoteVector.empty()){
 
-		int rounds = 1;
+		/*int rounds = 1;
 		if(pQueue->m_addMidiNoteVector[0].b_noteExist) { // run twice, delete old note and add new note. this let the undo stack consistent 
 			rounds = 2;
 		}
-		for(int i = 0; i<rounds; i++){
+		for(int i = 0; i<rounds; i++){*/
 			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pQueue->m_addMidiNoteVector[0].m_column,
 																			 pQueue->m_addMidiNoteVector[0].m_row,
 																			 pQueue->m_addMidiNoteVector[0].m_pattern,
@@ -661,7 +661,7 @@ void HydrogenApp::onEventQueueTimer()
 																			 false );
 
 			HydrogenApp::get_instance()->m_pUndoStack->push( action );
-		}
+		//}
 		pQueue->m_addMidiNoteVector.erase(pQueue->m_addMidiNoteVector.begin());
 
 	}
