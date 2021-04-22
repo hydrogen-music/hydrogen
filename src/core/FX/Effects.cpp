@@ -25,7 +25,7 @@
 
 #include <core/Preferences.h>
 #include <core/FX/LadspaFX.h>
-#include <core/AudioEngine.h>
+#include <core/Hydrogen.h>
 #include <core/Helpers/Filesystem.h>
 
 #include <algorithm>
@@ -101,7 +101,7 @@ void  Effects::setLadspaFX( LadspaFX* pFX, int nFX )
 	assert( nFX < MAX_FX );
 	//INFOLOG( "[setLadspaFX] FX: " + pFX->getPluginLabel() + ", " + to_string( nFX ) );
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 
 	if ( m_FXList[ nFX ] ) {
@@ -117,7 +117,7 @@ void  Effects::setLadspaFX( LadspaFX* pFX, int nFX )
 	}
 
 
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 }
 
 

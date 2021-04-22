@@ -58,7 +58,7 @@ class ExportMidiDialog : public QDialog, public Ui_ExportMidiDialog_UI, public H
 		QString	 	createDefaultFilename();
 		bool	 	validateUserInput();
 		
-		H2Core::Hydrogen* 		m_pEngine;
+		H2Core::Hydrogen* 		m_pHydrogen;
 		H2Core::Preferences* 	m_pPreferences;
 		bool 					m_bFileSelected;
 		QString 				m_sExtension;

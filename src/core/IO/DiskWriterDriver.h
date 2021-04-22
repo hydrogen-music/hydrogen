@@ -33,8 +33,6 @@
 namespace H2Core
 {
 
-typedef int  ( *audioProcessCallback )( uint32_t, void * );
-
 ///
 /// Driver for export audio to disk
 ///

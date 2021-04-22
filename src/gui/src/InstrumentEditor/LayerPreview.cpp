@@ -167,7 +167,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 
 void LayerPreview::selectedInstrumentChangedEvent()
 {
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if (pSong != nullptr) {
 		InstrumentList *pInstrList = pSong->getInstrumentList();
@@ -186,7 +186,7 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	else {
 		m_pInstrument = nullptr;
 	}
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	
 	/*
 	if ( m_pInstrument ) {
@@ -274,7 +274,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 
 		Note * pNote = new Note( m_pInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
 		pNote->set_specific_compo_id( m_nSelectedComponent );
-		AudioEngine::get_instance()->get_sampler()->noteOn(pNote);
+		Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
 		
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 			InstrumentComponent *pCompo = m_pInstrument->get_component(m_nSelectedComponent);
@@ -305,7 +305,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 			if ( pLayer ) {
 				Note *note = new Note( m_pInstrument , nPosition, m_pInstrument->get_component(m_nSelectedComponent)->get_layer( m_nSelectedLayer )->get_end_velocity() - 0.01, fPan_L, fPan_R, nLength, fPitch );
 				note->set_specific_compo_id( m_nSelectedComponent );
-				AudioEngine::get_instance()->get_sampler()->noteOn(note);
+				Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(note);
 				
 				int x1 = (int)( pLayer->get_start_velocity() * width() );
 				int x2 = (int)( pLayer->get_end_velocity() * width() );

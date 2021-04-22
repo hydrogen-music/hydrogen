@@ -42,8 +42,6 @@ class PulseAudioDriver : public AudioOutput
 {
 	H2_OBJECT
 public:
-	typedef int (*audioProcessCallback)(uint32_t, void *);
-
 	PulseAudioDriver(audioProcessCallback processCallback);
 	~PulseAudioDriver();
 

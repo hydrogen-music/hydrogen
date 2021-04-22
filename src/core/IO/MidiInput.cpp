@@ -182,7 +182,7 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 {
 	//INFOLOG( QString( "[handleMidiMessage] CONTROL_CHANGE Parameter: %1, Value: %2" ).arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
-	Hydrogen *pEngine = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	MidiActionManager *pMidiActionManager = MidiActionManager::get_instance();
 	MidiMap *pMidiMap = MidiMap::get_instance();
 
@@ -195,13 +195,13 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 		__hihat_cc_openess = msg.m_nData2;
 	}
 
-	pEngine->lastMidiEvent = "CC";
-	pEngine->lastMidiEventParameter = msg.m_nData1;
+	pHydrogen->lastMidiEvent = "CC";
+	pHydrogen->lastMidiEventParameter = msg.m_nData1;
 }
 
 void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	MidiActionManager *pMidiActionManager = MidiActionManager::get_instance();
 	MidiMap *pMidiMap = MidiMap::get_instance();
 
@@ -210,8 +210,8 @@ void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 
 	pMidiActionManager->handleAction( pAction );
 
-	pEngine->lastMidiEvent = "PROGRAM_CHANGE";
-	pEngine->lastMidiEventParameter = 0;
+	pHydrogen->lastMidiEvent = "PROGRAM_CHANGE";
+	pHydrogen->lastMidiEventParameter = 0;
 }
 
 void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
@@ -228,10 +228,11 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 
 	MidiActionManager * pMidiActionManager = MidiActionManager::get_instance();
 	MidiMap * pMidiMap = MidiMap::get_instance();
-	Hydrogen *pEngine = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
-	pEngine->lastMidiEvent = "NOTE";
-	pEngine->lastMidiEventParameter = msg.m_nData1;
+	pHydrogen->lastMidiEvent = "NOTE";
+	pHydrogen->lastMidiEventParameter = msg.m_nData1;
 
 	bool bActionSuccess = pMidiActionManager->handleAction( pMidiMap->getNoteAction( msg.m_nData1 ) );
 
@@ -245,19 +246,19 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	if ( bPatternSelect ) {
 		int patternNumber = nNote - 36;
 		//INFOLOG( QString( "next pattern = %1" ).arg( patternNumber ) );
-		pEngine->sequencer_setNextPattern( patternNumber );
+		pHydrogen->sequencer_setNextPattern( patternNumber );
 
 	} else {
 		static const float fPan_L = 0.5f;
 		static const float fPan_R = 0.5f;
 
 		int nInstrument = nNote - 36;
-		InstrumentList *pInstrList = pEngine->getSong()->getInstrumentList();
+		InstrumentList *pInstrList = pHydrogen->getSong()->getInstrumentList();
 		Instrument *pInstr = nullptr;
 		
 		if ( Preferences::get_instance()->__playselectedinstrument ){
-			nInstrument = pEngine->getSelectedInstrumentNumber();
-			pInstr= pInstrList->get( pEngine->getSelectedInstrumentNumber());
+			nInstrument = pHydrogen->getSelectedInstrumentNumber();
+			pInstr= pInstrList->get( pHydrogen->getSelectedInstrumentNumber());
 		}
 		else if(Preferences::get_instance()->m_bMidiFixedMapping ){
 			pInstr = pInstrList->findMidiNote( nNote );
@@ -305,10 +306,10 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 			}
 		}
 
-		pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, false, true, nNote );
+		pHydrogen->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, false, true, nNote );
 	}
 
-	__noteOnTick = pEngine->__getMidiRealtimeNoteTickPosition();
+	__noteOnTick = pAudioEngine->getAddRealtimeNoteTickPosition();
 }
 
 /*
@@ -330,10 +331,10 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 		return;
 	}
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	InstrumentList* pInstrList = pEngine->getSong()->getInstrumentList();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	InstrumentList* pInstrList = pHydrogen->getSong()->getInstrumentList();
 
-	__noteOffTick = pEngine->getTickPosition();
+	__noteOffTick = pHydrogen->getTickPosition();
 	unsigned long notelength = computeDeltaNoteOnOfftime();
 
 	int nNote = msg.m_nData1;
@@ -342,8 +343,8 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	Instrument *pInstr = nullptr;
 
 	if ( Preferences::get_instance()->__playselectedinstrument ){
-		nInstrument = pEngine->getSelectedInstrumentNumber();
-		pInstr = pInstrList->get( pEngine->getSelectedInstrumentNumber());
+		nInstrument = pHydrogen->getSelectedInstrumentNumber();
+		pInstr = pInstrList->get( pHydrogen->getSelectedInstrumentNumber());
 	} else if( Preferences::get_instance()->m_bMidiFixedMapping ) {
 		pInstr = pInstrList->findMidiNote( nNote );
 
@@ -372,10 +373,10 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 		fStep = 1;
 	}
 
-	bool use_note_off = AudioEngine::get_instance()->get_sampler()->isInstrumentPlaying( pInstr );
+	bool use_note_off = Hydrogen::get_instance()->getAudioEngine()->getSampler()->isInstrumentPlaying( pInstr );
 	if(use_note_off){
 		if ( Preferences::get_instance()->__playselectedinstrument ){
-			AudioEngine::get_instance()->get_sampler()->midiKeyboardNoteOff( msg.m_nData1 );
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->midiKeyboardNoteOff( msg.m_nData1 );
 		}
 		else
 		{
@@ -391,12 +392,12 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 										-1,
 										0 );
 			pOffNote->set_note_off( true );
-			AudioEngine::get_instance()->get_sampler()->noteOn( pOffNote );
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn( pOffNote );
 			delete pOffNote;
 		}
 		
 		if(Preferences::get_instance()->getRecordEvents()) {
-			AudioEngine::get_instance()->get_sampler()->setPlayingNotelength( pInstr, notelength * fStep, __noteOnTick );
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->setPlayingNotelength( pInstr, notelength * fStep, __noteOnTick );
 		}
 	}
 }
@@ -437,9 +438,9 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 
 	MidiActionManager * pMidiActionManager = MidiActionManager::get_instance();
 	MidiMap * pMidiMap = MidiMap::get_instance();
-	Hydrogen *pEngine = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
-	pEngine->lastMidiEventParameter = msg.m_nData1;
+	pHydrogen->lastMidiEventParameter = msg.m_nData1;
 
 
 	if ( msg.m_sysexData.size() == 6 ) {
@@ -454,52 +455,52 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 
 			case 1:	// STOP
 			{
-				pEngine->lastMidiEvent = "MMC_STOP";
+				pHydrogen->lastMidiEvent = "MMC_STOP";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_STOP"));
 				break;
 			}
 
 			case 2:	// PLAY
 			{
-				pEngine->lastMidiEvent = "MMC_PLAY";
+				pHydrogen->lastMidiEvent = "MMC_PLAY";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_PLAY"));
 				break;
 			}
 
 			case 3:	//DEFERRED PLAY
 			{
-				pEngine->lastMidiEvent = "MMC_PLAY";
+				pHydrogen->lastMidiEvent = "MMC_PLAY";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_PLAY"));
 				break;
 			}
 
 			case 4:	// FAST FWD
-				pEngine->lastMidiEvent = "MMC_FAST_FORWARD";
+				pHydrogen->lastMidiEvent = "MMC_FAST_FORWARD";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_FAST_FORWARD"));
 				break;
 
 			case 5:	// REWIND
-				pEngine->lastMidiEvent = "MMC_REWIND";
+				pHydrogen->lastMidiEvent = "MMC_REWIND";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_REWIND"));
 				break;
 
 			case 6:	// RECORD STROBE (PUNCH IN)
-				pEngine->lastMidiEvent = "MMC_RECORD_STROBE";
+				pHydrogen->lastMidiEvent = "MMC_RECORD_STROBE";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_RECORD_STROBE"));
 				break;
 
 			case 7:	// RECORD EXIT (PUNCH OUT)
-				pEngine->lastMidiEvent = "MMC_RECORD_EXIT";
+				pHydrogen->lastMidiEvent = "MMC_RECORD_EXIT";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_RECORD_EXIT"));
 				break;
 
 			case 8:	// RECORD READY
-				pEngine->lastMidiEvent = "MMC_RECORD_READY";
+				pHydrogen->lastMidiEvent = "MMC_RECORD_READY";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_RECORD_READY"));
 				break;
 
 			case 9:	//PAUSE
-				pEngine->lastMidiEvent = "MMC_PAUSE";
+				pHydrogen->lastMidiEvent = "MMC_PAUSE";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_PAUSE"));
 				break;
 

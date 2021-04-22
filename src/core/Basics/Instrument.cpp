@@ -24,6 +24,7 @@
 
 #include <cassert>
 
+#include <core/Hydrogen.h>
 #include <core/AudioEngine.h>
 
 #include <core/Helpers/Xml.h>
@@ -159,8 +160,10 @@ Instrument* Instrument::load_instrument( const QString& drumkit_name, const QStr
 
 void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_live )
 {
+	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+
 	if ( is_live ) {
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		pAudioEngine->lock( RIGHT_HERE );
 	}
 	
 	for(auto& pComponent : *this->get_components()){
@@ -170,7 +173,7 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 	this->get_components()->clear();
 	
 	if ( is_live ) {
-		AudioEngine::get_instance()->unlock();
+		pAudioEngine->unlock();
 	}
 
 	set_missing_samples( false );
@@ -189,11 +192,11 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 
 			if( src_layer == nullptr ) {
 				if ( is_live ) {
-					AudioEngine::get_instance()->lock( RIGHT_HERE );
+					pAudioEngine->lock( RIGHT_HERE );
 				}
 				pMyComponent->set_layer( nullptr, i );
 				if ( is_live ) {
-					AudioEngine::get_instance()->unlock();
+					pAudioEngine->unlock();
 				}
 			} else {
 				QString sample_path =  pDrumkit->get_path() + "/" + src_layer->get_sample()->get_filename();
@@ -202,20 +205,20 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 					_ERRORLOG( QString( "Error loading sample %1. Creating a new empty layer." ).arg( sample_path ) );
 					set_missing_samples( true );
 					if ( is_live ) {
-						AudioEngine::get_instance()->lock( RIGHT_HERE );
+						pAudioEngine->lock( RIGHT_HERE );
 					}
 					pMyComponent->set_layer( nullptr, i );
 					
 					if ( is_live ) {
-						AudioEngine::get_instance()->unlock();
+						pAudioEngine->unlock();
 					}
 				} else {
 					if ( is_live ) {
-						AudioEngine::get_instance()->lock( RIGHT_HERE );
+						pAudioEngine->lock( RIGHT_HERE );
 					}
 					pMyComponent->set_layer( new InstrumentLayer( src_layer, pSample ), i );
 					if ( is_live ) {
-						AudioEngine::get_instance()->unlock();
+						pAudioEngine->unlock();
 					}
 				}
 			}
@@ -223,7 +226,7 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 		}
 	}
 	if ( is_live ) {
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		pAudioEngine->lock( RIGHT_HERE );
 	}
 
 	this->set_id( pInstrument->get_id() );
@@ -251,7 +254,7 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 	this->set_apply_velocity ( pInstrument->get_apply_velocity() );
 	
 	if ( is_live ) {
-		AudioEngine::get_instance()->unlock();
+		pAudioEngine->unlock();
 	}
 }
 

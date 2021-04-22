@@ -351,8 +351,8 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		AudioEngine* pAudioEngine = AudioEngine::get_instance();
-		Sampler* pSampler = pAudioEngine->get_sampler();
+		AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
+		Sampler* pSampler = pAudioEngine->getSampler();
 		switch ( interpolation ) {
 			case 1:
 					pSampler->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
@@ -445,7 +445,6 @@ int main(int argc, char *argv[])
 		delete pQueue;
 		delete pHydrogen;
 		delete preferences;
-		delete pAudioEngine;
 
 		delete MidiMap::get_instance();
 		delete MidiActionManager::get_instance();
