@@ -29,7 +29,6 @@
 #include <QtWidgets>
 
 #include <core/Object.h>
-#include "Rotary.h"
 #include "MidiLearnable.h"
 
 ///
