@@ -13,9 +13,6 @@ environment:
 
     - job_name: 'Windows64'
       job_group: 'Windows'
-      branches:
-        only:
-          - master-artifacts
       MSYS: 'C:\msys64\mingw64'
       MSYS_REPO: 'mingw64/mingw-w64-x86_64'
       BUILD_TYPE: "Release"
