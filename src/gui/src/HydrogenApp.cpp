@@ -52,6 +52,9 @@
 #include "Mixer/MixerLine.h"
 #include "UndoActions.h"
 
+#include <core/Basics/PatternList.h>
+#include <core/Basics/InstrumentList.h>
+
 #include "Widgets/InfoBar.h"
 
 #include <QtGui>
@@ -636,13 +639,24 @@ void HydrogenApp::onEventQueueTimer()
 	}
 
 	// midi notes
-	while(!pQueue->m_addMidiNoteVector.empty()){
-
-		/*int rounds = 1;
-		if(pQueue->m_addMidiNoteVector[0].b_noteExist) { // run twice, delete old note and add new note. this let the undo stack consistent 
-			rounds = 2;
-		}
-		for(int i = 0; i<rounds; i++){*/
+	while( !pQueue->m_addMidiNoteVector.empty() ){
+		Song *pSong = Hydrogen::get_instance()->getSong();
+		Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( pQueue->m_addMidiNoteVector[0].m_row );
+		// find if a (pitch matching) note is already present
+		Note *pOldNote = pSong->getPatternList()->get( Hydrogen::get_instance()->getSelectedPatternNumber() )
+										->find_note( pQueue->m_addMidiNoteVector[0].m_column,
+													 pQueue->m_addMidiNoteVector[0].m_column,
+													 pSelectedInstrument,
+													 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
+													 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal );
+		if( pOldNote ) { // replace note
+		// TODO make a new undo/redo action for this?
+			pOldNote->set_velocity( pQueue->m_addMidiNoteVector[0].f_velocity ); // TODO overwrite other parameters?
+			pSong->setIsModified( true );
+			m_pPatternEditorPanel->updateEditors(); // TODO update all editors or just the noteproperty ruler?
+			// TODO must lock/unlock engine?
+			
+		} else { // add the note
 			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pQueue->m_addMidiNoteVector[0].m_column,
 																			 pQueue->m_addMidiNoteVector[0].m_row,
 																			 pQueue->m_addMidiNoteVector[0].m_pattern,
@@ -654,16 +668,14 @@ void HydrogenApp::onEventQueueTimer()
 																			 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
 																			 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
 																			 1.0f,
-																			 false,
+																			 /*isDelete*/ false,
 																			 false,
 																			 pQueue->m_addMidiNoteVector[0].b_isMidi,
 																			 pQueue->m_addMidiNoteVector[0].b_isInstrumentMode,
 																			 false );
-
 			HydrogenApp::get_instance()->m_pUndoStack->push( action );
-		//}
+		}
 		pQueue->m_addMidiNoteVector.erase(pQueue->m_addMidiNoteVector.begin());
-
 	}
 }
 

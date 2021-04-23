@@ -279,11 +279,10 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 												float fProbability,
 												bool listen,
 												bool isMidi,
-												bool isInstrumentMode,
+												bool isInstrumentMode, // TODO not used arg
 												bool isNoteOff,
 												bool isDelete )
 {
-
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->getPatternList();
 	H2Core::Pattern *pPattern = nullptr;
