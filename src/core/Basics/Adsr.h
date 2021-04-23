@@ -25,6 +25,8 @@
 
 #include <core/Object.h>
 
+#include <memory>
+
 namespace H2Core
 {
 
@@ -46,7 +48,7 @@ class ADSR : public Object
 		ADSR ( unsigned int attack = 0, unsigned int decay = 0, float sustain = 1.0, unsigned int release = 1000 );
 
 		/** copy constructor */
-		ADSR( const ADSR* other );
+		ADSR( const std::shared_ptr<ADSR> other );
 
 		/** destructor */
 		~ADSR();

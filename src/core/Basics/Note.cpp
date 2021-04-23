@@ -128,8 +128,6 @@ Note::Note( Note* other, std::shared_ptr<Instrument> instrument )
 
 Note::~Note()
 {
-	delete __adsr;
-	__adsr = nullptr;
 }
 
 static inline float check_boundary( float v, float min, float max )

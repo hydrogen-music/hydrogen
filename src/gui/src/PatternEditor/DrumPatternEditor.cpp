@@ -1804,7 +1804,6 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 	++nID;
 
 	pNewInstrument->set_id( nID );
-//	pNewInstrument->set_adsr( new ADSR( 0, 0, 1.0, 1000 ) );
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 	pHydrogen->getSong()->getInstrumentList()->add( pNewInstrument );

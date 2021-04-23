@@ -14,11 +14,10 @@ class ADSRTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE_END();
 
 	private:
-	H2Core::ADSR* m_adsr;
+	std::shared_ptr<H2Core::ADSR> m_adsr;
 
 	public:
 	virtual void setUp();
-	virtual void tearDown();
 	
 	void testAttack();
 	void testRelease();

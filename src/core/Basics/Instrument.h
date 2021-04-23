@@ -65,7 +65,7 @@ class Instrument : public H2Core::Object
 		 * \param name the name of the instrument
 		 * \param adsr attack decay sustain release instance
 		 */
-		Instrument( const int id=EMPTY_INSTR_ID, const QString& name="Empty Instrument", ADSR* adsr=nullptr );
+		Instrument( const int id=EMPTY_INSTR_ID, const QString& name="Empty Instrument", std::shared_ptr<ADSR> adsr=nullptr );
 		/** copy constructor */
 		Instrument( std::shared_ptr<Instrument> other );
 		/** destructor */
@@ -139,11 +139,11 @@ class Instrument : public H2Core::Object
 		int get_id() const;
 
 		/** set the ADSR of the instrument */
-		void set_adsr( ADSR* adsr );
+		void set_adsr( std::shared_ptr<ADSR> adsr );
 		/** get the ADSR of the instrument */
-		ADSR* get_adsr() const;
+		std::shared_ptr<ADSR> get_adsr() const;
 		/** get a copy of the ADSR of the instrument */
-		ADSR* copy_adsr() const;
+		std::shared_ptr<ADSR> copy_adsr() const;
 
 		/** set the mute group of the instrument */
 		void set_mute_group( int group );
@@ -306,7 +306,7 @@ class Instrument : public H2Core::Object
 		float					__pan_r;				///< right pan of the instrument
 		float					__peak_l;				///< left current peak value
 		float					__peak_r;				///< right current peak value
-		ADSR*					__adsr;					///< attack delay sustain release instance
+		std::shared_ptr<ADSR>					__adsr;					///< attack delay sustain release instance
 		bool					__filter_active;		///< is filter active?
 		float					__filter_cutoff;		///< filter cutoff (0..1)
 		float					__filter_resonance;		///< filter resonant frequency (0..1)
@@ -359,14 +359,14 @@ inline int Instrument::get_id() const
 	return __id;
 }
 
-inline ADSR* Instrument::get_adsr() const
+inline std::shared_ptr<ADSR> Instrument::get_adsr() const
 {
 	return __adsr;
 }
 
-inline ADSR* Instrument::copy_adsr() const
+inline std::shared_ptr<ADSR> Instrument::copy_adsr() const
 {
-	return new ADSR( __adsr );
+	return std::make_shared<ADSR>( __adsr );
 }
 
 inline void Instrument::set_mute_group( int group )

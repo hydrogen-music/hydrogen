@@ -42,7 +42,7 @@ namespace H2Core
 
 const char* Instrument::__class_name = "Instrument";
 
-Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
+Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR> adsr )
 	: Object( __class_name )
 	, __id( id )
 	, __name( name )
@@ -78,7 +78,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, m_bHasMissingSamples( false )
 {
 	if ( __adsr == nullptr ) {
-		__adsr = new ADSR();
+		__adsr = std::make_shared<ADSR>();
 	}
 
     if( __midi_out_note < MIDI_OUT_NOTE_MIN ){
@@ -105,7 +105,7 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	, __pan_r( other->get_pan_r() )
 	, __peak_l( other->get_peak_l() )
 	, __peak_r( other->get_peak_r() )
-	, __adsr( new ADSR( *( other->get_adsr() ) ) )
+	, __adsr( std::make_shared<ADSR>( *( other->get_adsr() ) ) )
 	, __filter_active( other->is_filter_active() )
 	, __filter_cutoff( other->get_filter_cutoff() )
 	, __filter_resonance( other->get_filter_resonance() )
@@ -142,9 +142,6 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 Instrument::~Instrument()
 {
 	delete __components;
-
-	delete __adsr;
-	__adsr = nullptr;
 }
 
 std::shared_ptr<Instrument> Instrument::load_instrument( const QString& drumkit_name, const QString& instrument_name, Filesystem::Lookup lookup )
@@ -226,7 +223,7 @@ void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInst
 	this->set_volume( pInstrument->get_volume() );
 	this->set_pan_l( pInstrument->get_pan_l() );
 	this->set_pan_r( pInstrument->get_pan_r() );
-	this->set_adsr( new ADSR( *( pInstrument->get_adsr() ) ) );
+	this->set_adsr( std::make_shared<ADSR>( *( pInstrument->get_adsr() ) ) );
 	this->set_filter_active( pInstrument->is_filter_active() );
 	this->set_filter_cutoff( pInstrument->get_filter_cutoff() );
 	this->set_filter_resonance( pInstrument->get_filter_resonance() );
@@ -289,7 +286,7 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* node, const QString&
 	float decay = node->read_float( "Decay", 0.0f, true, false  );
 	float sustain = node->read_float( "Sustain", 1.0f, true, false );
 	float release = node->read_float( "Release", 1000.0f, true, false );
-	pInstrument->set_adsr( new ADSR( attack, decay, sustain, release ) );
+	pInstrument->set_adsr( std::make_shared<ADSR>( attack, decay, sustain, release ) );
 	pInstrument->set_gain( node->read_float( "gain", 1.0f, true, false ) );
 	pInstrument->set_mute_group( node->read_int( "muteGroup", -1, true, false ) );
 	pInstrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1, true, false ) );
@@ -399,11 +396,8 @@ void Instrument::save_to( XMLNode* node, int component_id )
 	}
 }
 
-void Instrument::set_adsr( ADSR* adsr )
+void Instrument::set_adsr( std::shared_ptr<ADSR> adsr )
 {
-	if( __adsr ) {
-		delete __adsr;
-	}
 	__adsr = adsr;
 }
 

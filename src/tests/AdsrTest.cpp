@@ -2,6 +2,7 @@
 
 #include <core/Basics/Adsr.h>
 #include <stdio.h>
+#include <memory>
 
 CPPUNIT_TEST_SUITE_REGISTRATION( ADSRTest );
 
@@ -11,12 +12,7 @@ const double delta = 0.00001;
 
 void ADSRTest::setUp()
 {
-	m_adsr = new ADSR( 1.0, 2.0, 0.8, 256.0 );
-}
-
-void ADSRTest::tearDown()
-{
-	delete m_adsr;
+	m_adsr = std::make_shared<ADSR>( 1.0, 2.0, 0.8, 256.0 );
 }
 
 void ADSRTest::testAttack()

@@ -1078,9 +1078,6 @@ bool Sampler::renderNoteNoResample(
 		retValue = false; // the note is not ended yet
 	}
 
-
-	//ADSR *pADSR = pNote->m_pADSR;
-
 	int nInitialBufferPos = nInitialSilence;
 	int nInitialSamplePos = ( int )pSelectedLayerInfo->SamplePosition;
 	int nSamplePos = nInitialSamplePos;
@@ -1237,8 +1234,6 @@ bool Sampler::renderNoteResample(
 		nAvail_bytes = nBufferSize - nInitialSilence;
 		retValue = false; // the note is not ended yet
 	}
-
-	//	ADSR *pADSR = pNote->m_pADSR;
 
 	int nInitialBufferPos = nInitialSilence;
 	//float fInitialSamplePos = pNote->get_sample_position( pCompo->get_drumkit_componentID() );

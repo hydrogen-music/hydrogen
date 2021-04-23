@@ -985,7 +985,7 @@ Song* SongReader::readSong( const QString& sFileName )
 			int iHigherCC = LocalFileMng::readXmlInt( instrumentNode, "higher_cc", 127, true );
 
 			// create a new instrument
-			auto pInstrument = std::make_shared<Instrument>( id, sName, new ADSR( fAttack, fDecay, fSustain, fRelease ) );
+			auto pInstrument = std::make_shared<Instrument>( id, sName, std::make_shared<ADSR>( fAttack, fDecay, fSustain, fRelease ) );
 			pInstrument->set_volume( fVolume );
 			pInstrument->set_muted( bIsMuted );
 			pInstrument->set_soloed( bIsSoloed );

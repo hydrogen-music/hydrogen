@@ -279,7 +279,7 @@ class Note : public H2Core::Object
 		void set_midi_info( Key key, Octave octave, int msg );
 
 		/** get the ADSR of the note */
-		ADSR* get_adsr() const;
+		std::shared_ptr<ADSR> get_adsr() const;
 		/** call release on adsr */
 		//float release_adsr() const              { return __adsr->release(); }
 		/** call get value on adsr */
@@ -323,7 +323,7 @@ class Note : public H2Core::Object
 		float			__pitch;              ///< the frequency of the note
 		Key				__key;                  ///< the key, [0;11]==[C;B]
 		Octave			 __octave;            ///< the octave [-3;3]
-		ADSR*			__adsr;               ///< attack decay sustain release
+		std::shared_ptr<ADSR>			__adsr;               ///< attack decay sustain release
 		float			__lead_lag;           ///< lead or lag offset of the note
 		float			__cut_off;            ///< filter cutoff [0;1]
 		float			__resonance;          ///< filter resonant frequency [0;1]
@@ -343,7 +343,7 @@ class Note : public H2Core::Object
 
 // DEFINITIONS
 
-inline ADSR* Note::get_adsr() const
+inline std::shared_ptr<ADSR> Note::get_adsr() const
 {
 	return __adsr;
 }

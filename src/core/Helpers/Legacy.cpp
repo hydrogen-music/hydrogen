@@ -84,7 +84,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 				float decay = instrument_node.read_float( "Decay", 0.0f, true, false  );
 				float sustain = instrument_node.read_float( "Sustain", 1.0f, true, false );
 				float release = instrument_node.read_float( "Release", 1000.0f, true, false );
-				pInstrument->set_adsr( new ADSR( attack, decay, sustain, release ) );
+				pInstrument->set_adsr( std::make_shared<ADSR>( attack, decay, sustain, release ) );
 				pInstrument->set_gain( instrument_node.read_float( "gain", 1.0f, true, false ) );
 				pInstrument->set_mute_group( instrument_node.read_int( "muteGroup", -1, true, false ) );
 				pInstrument->set_midi_out_channel( instrument_node.read_int( "midiOutChannel", -1, true, false ) );
