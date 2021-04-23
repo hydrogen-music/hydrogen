@@ -56,7 +56,7 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 	private:
 		static const int		m_nLayerHeight = 10;
 		QPixmap					m_speakerPixmap;
-		H2Core::Instrument *	m_pInstrument;
+		std::shared_ptr<H2Core::Instrument>	m_pInstrument;
 		int						m_nSelectedLayer;
 		int						m_nSelectedComponent;
 		bool					m_bMouseGrab;

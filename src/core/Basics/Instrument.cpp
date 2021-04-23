@@ -95,7 +95,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	__components = new std::vector<std::shared_ptr<InstrumentComponent>>();
 }
 
-Instrument::Instrument( Instrument* other )
+Instrument::Instrument( std::shared_ptr<Instrument> other )
 	: Object( __class_name )
 	, __id( other->get_id() )
 	, __name( other->get_name() )
@@ -147,14 +147,14 @@ Instrument::~Instrument()
 	__adsr = nullptr;
 }
 
-Instrument* Instrument::load_instrument( const QString& drumkit_name, const QString& instrument_name, Filesystem::Lookup lookup )
+std::shared_ptr<Instrument> Instrument::load_instrument( const QString& drumkit_name, const QString& instrument_name, Filesystem::Lookup lookup )
 {
-	Instrument* pInstrument = new Instrument();
+	auto pInstrument = std::make_shared<Instrument>();
 	pInstrument->load_from( drumkit_name, instrument_name, false, lookup );
 	return pInstrument;
 }
 
-void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_live )
+void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInstrument, bool is_live )
 {
 	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
@@ -257,7 +257,7 @@ void Instrument::load_from( const QString& dk_name, const QString& instrument_na
 
 	assert( pDrumkit );
 
-	Instrument* pInstrument = pDrumkit->get_instruments()->find( instrument_name );
+	auto pInstrument = pDrumkit->get_instruments()->find( instrument_name );
 	if ( pInstrument!=nullptr ) {
 		load_from( pDrumkit, pInstrument, is_live );
 	}
@@ -265,14 +265,14 @@ void Instrument::load_from( const QString& dk_name, const QString& instrument_na
 	delete pDrumkit;
 }
 
-Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const QString& dk_name )
+std::shared_ptr<Instrument> Instrument::load_from( XMLNode* node, const QString& dk_path, const QString& dk_name )
 {
 	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
 	if ( id == EMPTY_INSTR_ID ) {
 		return nullptr;
 	}
 
-	Instrument* pInstrument = new Instrument( id, node->read_string( "name", "" ), nullptr );
+	auto pInstrument = std::make_shared<Instrument>( id, node->read_string( "name", "" ), nullptr );
 	pInstrument->set_drumkit_name( dk_name );
 	pInstrument->set_volume( node->read_float( "volume", 1.0f ) );
 	pInstrument->set_muted( node->read_bool( "isMuted", false ) );

@@ -1337,7 +1337,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 
 		InstrumentList* pInstruments = pHydrogen->getSong()->getInstrumentList();
 		for ( int n = ( int )pInstruments->size() - 1; n >= 0; n-- ) {
-			Instrument* pInstrument = pInstruments->get( n );
+			auto pInstrument = pInstruments->get( n );
 			for( int o = 0 ; o < pInstrument->get_components()->size() ; o++ ) {
 				auto  pInstrumentComponent = pInstrument->get_components()->at( o );
 				if( pInstrumentComponent->get_drumkit_componentID() == pDrumkitComponent->get_id() ) {
@@ -1416,7 +1416,7 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 		InstrumentList *pSongInstrList = song->getInstrumentList();
 		assert(pSongInstrList);
 		for ( unsigned nInstr = 0; nInstr < pSongInstrList->size(); ++nInstr ) {
-			Instrument *pInstr = pSongInstrList->get( nInstr );
+			auto pInstr = pSongInstrList->get( nInstr );
 			assert( pInstr );
 			if ( pInstr ){
 				auto pInstrumentComponent = pInstr->get_component(m_nSelectedComponent);

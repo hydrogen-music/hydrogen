@@ -67,7 +67,7 @@ class Instrument : public H2Core::Object
 		 */
 		Instrument( const int id=EMPTY_INSTR_ID, const QString& name="Empty Instrument", ADSR* adsr=nullptr );
 		/** copy constructor */
-		Instrument( Instrument* other );
+		Instrument( std::shared_ptr<Instrument> other );
 		/** destructor */
 		~Instrument();
 
@@ -79,7 +79,7 @@ class Instrument : public H2Core::Object
 		 * for the drumkit.
 		 * \return a new Instrument instance
 		 */
-		static Instrument* load_instrument( const QString& drumkit_name, const QString& instrument_name, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
+		static std::shared_ptr<Instrument> load_instrument( const QString& drumkit_name, const QString& instrument_name, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
 
 		/**
 		 * loads instrument from a given instrument within a given drumkit into a `live` Instrument object.
@@ -97,7 +97,7 @@ class Instrument : public H2Core::Object
 		 * \param instrument to load samples and members from
 		 * \param is_live is it performed while playing
 		 */
-		void load_from( Drumkit* drumkit, Instrument* instrument, bool is_live = true );
+		void load_from( Drumkit* drumkit, std::shared_ptr<Instrument> instrument, bool is_live = true );
 
 		/**
 		 * Calls the InstrumentLayer::load_sample() member
@@ -126,7 +126,7 @@ class Instrument : public H2Core::Object
 		 * \param dk_name the name of the drumkit
 		 * \return a new Instrument instance
 		 */
-		static Instrument* load_from( XMLNode* node, const QString& dk_path, const QString& dk_name );
+		static std::shared_ptr<Instrument> load_from( XMLNode* node, const QString& dk_path, const QString& dk_name );
 
 		///< set the name of the instrument
 		void set_name( const QString& name );

@@ -308,7 +308,7 @@ void Mixer::noteOnClicked( MixerLine* ref )
 	int nLine = findMixerLineByRef( ref );
 	pHydrogen->setSelectedInstrumentNumber( nLine );
 
-	Instrument *pInstr = Hydrogen::get_instance()->getSong()->getInstrumentList()->get( nLine );
+	auto pInstr = Hydrogen::get_instance()->getSong()->getInstrumentList()->get( nLine );
 	
 	const float fPitch = pInstr->get_pitch_offset();
 	Note *pNote = new Note( pInstr, 0, 1.0, 0.5f, 0.5f, -1, fPitch );
@@ -326,7 +326,7 @@ void Mixer::noteOnClicked( MixerLine* ref )
 	int nLine = findMixerLineByRef( ref );
 	pHydrogen->setSelectedInstrumentNumber( nLine );
 
-	Instrument *pInstr = Hydrogen::get_instance()->getSong()->getInstrumentList()->get( nLine );
+	auto pInstr = Hydrogen::get_instance()->getSong()->getInstrumentList()->get( nLine );
 
 	const float fPitch = 0.0f;
 	Note *pNote = new Note( pInstr, 0, 1.0, 0.5, 0.5, -1, fPitch );
@@ -422,7 +422,7 @@ void Mixer::updateMixer()
 			}
 			MixerLine *pLine = m_pMixerLine[ nInstr ];
 
-			Instrument *pInstr = pInstrList->get( nInstr );
+			auto pInstr = pInstrList->get( nInstr );
 			assert( pInstr );
 
 			float fNewPeak_L = pInstr->get_peak_l();
@@ -707,7 +707,7 @@ void Mixer::knobChanged(MixerLine* ref, int nKnob) {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
-	Instrument *pInstr = pInstrList->get(nLine);
+	auto pInstr = pInstrList->get(nLine);
 	pInstr->set_fx_level( ref->getFXLevel(nKnob), nKnob );
 	QString sInfo = tr( "Set FX %1 level ").arg( nKnob + 1 );
 	( HydrogenApp::get_instance() )->setStatusBarMessage( sInfo+ QString( "[%1]" ).arg( ref->getFXLevel(nKnob), 0, 'f', 2 ), 2000 );

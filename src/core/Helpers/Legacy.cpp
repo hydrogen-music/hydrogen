@@ -65,10 +65,10 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 				ERRORLOG( QString( "instrument count >= %2, stop reading instruments" ).arg( MAX_INSTRUMENTS ) );
 				break;
 			}
-			Instrument* pInstrument = nullptr;
+			std::shared_ptr<Instrument> pInstrument = nullptr;
 			int id = instrument_node.read_int( "id", EMPTY_INSTR_ID, false, false );
 			if ( id!=EMPTY_INSTR_ID ) {
-				pInstrument = new Instrument( id, instrument_node.read_string( "name", "" ), nullptr );
+				pInstrument = std::make_shared<Instrument>( id, instrument_node.read_string( "name", "" ), nullptr );
 				pInstrument->set_drumkit_name( drumkit_name );
 				pInstrument->set_volume( instrument_node.read_float( "volume", 1.0f ) );
 				pInstrument->set_muted( instrument_node.read_bool( "isMuted", false ) );
@@ -231,7 +231,7 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 			QString nNoteOff = note_node.read_string( "note_off", "false", false, false );
 			int instrId = note_node.read_int( "instrument", 0, true );
 
-			Instrument *instrRef = instrList->find( instrId );
+			auto instrRef = instrList->find( instrId );
 			if ( !instrRef ) {
 				ERRORLOG( QString( "Instrument with ID: '%1' not found. Note skipped." ).arg( instrId ) );
 				note_node = note_node.nextSiblingElement( "note" );

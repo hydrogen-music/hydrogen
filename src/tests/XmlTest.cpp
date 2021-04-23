@@ -25,7 +25,7 @@ static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
 	H2Core::InstrumentList* instruments = dk->get_instruments();
 	for( int i=0; i<instruments->size(); i++ ) {
 		count++;
-		H2Core::Instrument* pInstr = ( *instruments )[i];
+		auto pInstr = ( *instruments )[i];
 		for ( const auto& pComponent : *pInstr->get_components() ) {
 			for ( int nLayer = 0; nLayer < H2Core::InstrumentComponent::getMaxLayers(); nLayer++ ) {
 				auto pLayer = pComponent->get_layer( nLayer );
@@ -158,7 +158,7 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	H2Core::InstrumentList* pInstruments = pDrumkit->get_instruments();
 	CPPUNIT_ASSERT( pInstruments != nullptr );
 	
-	H2Core::Instrument* pFirstInstrument = pInstruments->get(0);
+	auto pFirstInstrument = pInstruments->get(0);
 	CPPUNIT_ASSERT( pFirstInstrument != nullptr );
 	
 	auto pLayer = pFirstInstrument->get_components()->front()->get_layer(0);

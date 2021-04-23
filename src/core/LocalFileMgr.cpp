@@ -455,7 +455,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 
 	// INSTRUMENT NODE
 	for ( unsigned i = 0; i < nInstrument; i++ ) {
-		Instrument * pInstr = pSong->getInstrumentList()->get( i );
+		auto  pInstr = pSong->getInstrumentList()->get( i );
 		assert( pInstr );
 
 		QDomNode instrumentNode = doc.createElement( "instrument" );

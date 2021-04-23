@@ -886,7 +886,7 @@ void MainForm::action_file_openPattern()
 	PatternList *pPatternList = pSong->getPatternList();
 	int selectedPatternPosition = pHydrogen->getSelectedPatternNumber();
 
-	Instrument *pInstrument = pSong->getInstrumentList()->get ( 0 );
+	auto pInstrument = pSong->getInstrumentList()->get ( 0 );
 	assert ( pInstrument );
 
 	QFileDialog fd(this);
@@ -1152,7 +1152,7 @@ void MainForm::action_instruments_clearAll()
 void MainForm::functionDeleteInstrument(int instrument)
 {
 	Hydrogen * pHydrogen = Hydrogen::get_instance();
-	Instrument *pSelectedInstrument = pHydrogen->getSong()->getInstrumentList()->get( instrument );
+	auto pSelectedInstrument = pHydrogen->getSong()->getInstrumentList()->get( instrument );
 
 	std::list< Note* > noteList;
 	Song* pSong = pHydrogen->getSong();

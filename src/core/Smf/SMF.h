@@ -108,7 +108,7 @@ protected:
 	
 	virtual SMF* createSMF( Song* pSong )=0;
 	virtual void prepareEvents( Song* pSong, SMF* pSmf )=0;
-	virtual EventList* getEvents( Song* pSong, Instrument* pInstr ) = 0;
+	virtual EventList* getEvents( Song* pSong, std::shared_ptr<Instrument> pInstr ) = 0;
 	virtual void  packEvents( Song* pSong, SMF* pSmf ) = 0;
 	
 private:
@@ -138,7 +138,7 @@ public:
 protected:
 	virtual void prepareEvents( Song* pSong, SMF* pSmf );
 	virtual void  packEvents( Song* pSong, SMF* pSmf );
-	virtual EventList* getEvents( Song* pSong, Instrument* pInstr );
+	virtual EventList* getEvents( Song* pSong, std::shared_ptr<Instrument> pInstr );
 private:
 	EventList m_eventList;
 };
@@ -153,7 +153,7 @@ public:
 protected:
 	virtual void prepareEvents( Song* pSong, SMF* pSmf );
 	virtual void  packEvents( Song* pSong, SMF* pSmf );
-	virtual EventList* getEvents( Song* pSong, Instrument* pInstr );
+	virtual EventList* getEvents( Song* pSong, std::shared_ptr<Instrument> pInstr );
 private:
 	// contains events for each instrument in separate vector
 	std::vector<EventList*> m_eventLists;
@@ -172,7 +172,7 @@ protected:
 	virtual SMF* createSMF( Song* pSong );
 	virtual void prepareEvents( Song* pSong, SMF* pSmf );
 	virtual void  packEvents( Song* pSong, SMF* pSmf );
-	virtual EventList* getEvents( Song* pSong, Instrument* pInstr );
+	virtual EventList* getEvents( Song* pSong, std::shared_ptr<Instrument> pInstr );
 private:
 	SMFTrack* m_pTrack;
 	EventList m_eventList;

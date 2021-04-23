@@ -138,7 +138,7 @@ AudioEngine::AudioEngine()
 	// Create metronome instrument
 	// Get the path to the file of the metronome sound.
 	QString sMetronomeFilename = Filesystem::click_file_path();
-	m_pMetronomeInstrument = new Instrument( METRONOME_INSTR_ID, "metronome" );
+	m_pMetronomeInstrument = std::make_shared<Instrument>( METRONOME_INSTR_ID, "metronome" );
 	
 	auto pLayer =  std::make_shared<InstrumentLayer>( Sample::load( sMetronomeFilename ) );
 	auto pCompo = std::make_shared<InstrumentComponent>( 0 );
@@ -266,7 +266,6 @@ void AudioEngine::destroy()
 	delete m_pNextPatterns;
 	m_pNextPatterns = nullptr;
 
-	delete m_pMetronomeInstrument;
 	m_pMetronomeInstrument = nullptr;
 
 	this->unlock();
@@ -999,7 +998,7 @@ inline void AudioEngine::processPlayNotes( unsigned long nframes )
 			 * Check if the current instrument has the property "Stop-Note" set.
 			 * If yes, a NoteOff note is generated automatically after each note.
 			 */
-			Instrument * noteInstrument = pNote->get_instrument();
+			auto  noteInstrument = pNote->get_instrument();
 			if ( noteInstrument->is_stop_notes() ){
 				Note *pOffNote = new Note( noteInstrument,
 										   0.0,

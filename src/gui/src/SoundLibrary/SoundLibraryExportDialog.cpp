@@ -173,7 +173,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 				bool bFoundFileInRightComponent = false;
 				for( int j = 0; j < pDrumkit->get_instruments()->size() ; j++){
 					InstrumentList instrList = pDrumkit->get_instruments();
-					Instrument* instr = instrList[j];
+					auto instr = instrList[j];
 					for ( auto pComponent : *( instr->get_components() ) ) {
 						if( pComponent->get_drumkit_componentID() == componentID ){
 							for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {

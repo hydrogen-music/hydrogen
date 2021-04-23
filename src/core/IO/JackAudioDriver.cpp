@@ -679,12 +679,12 @@ float* JackAudioDriver::getTrackOut_R( unsigned nTrack )
 	return out;
 }
 
-float* JackAudioDriver::getTrackOut_L( Instrument* instr, std::shared_ptr<InstrumentComponent> pCompo)
+float* JackAudioDriver::getTrackOut_L( std::shared_ptr<Instrument> instr, std::shared_ptr<InstrumentComponent> pCompo)
 {
 	return getTrackOut_L(m_trackMap[instr->get_id()][pCompo->get_drumkit_componentID()]);
 }
 
-float* JackAudioDriver::getTrackOut_R( Instrument* instr, std::shared_ptr<InstrumentComponent> pCompo)
+float* JackAudioDriver::getTrackOut_R( std::shared_ptr<Instrument> instr, std::shared_ptr<InstrumentComponent> pCompo)
 {
 	return getTrackOut_R(m_trackMap[instr->get_id()][pCompo->get_drumkit_componentID()]);
 }
@@ -929,7 +929,7 @@ void JackAudioDriver::makeTrackOutputs( Song* pSong )
 	}
 
 	InstrumentList* pInstrumentList = pSong->getInstrumentList();
-	Instrument* pInstrument;
+	std::shared_ptr<Instrument> pInstrument;
 	int nInstruments = static_cast<int>(pInstrumentList->size());
 
 	WARNINGLOG( QString( "Creating / renaming %1 ports" ).arg( nInstruments ) );
@@ -968,7 +968,7 @@ void JackAudioDriver::makeTrackOutputs( Song* pSong )
 	m_nTrackPortCount = nTrackCount;
 }
 
-void JackAudioDriver::setTrackOutput( int n, Instrument* pInstrument, std::shared_ptr<InstrumentComponent> pInstrumentComponent, Song* pSong )
+void JackAudioDriver::setTrackOutput( int n, std::shared_ptr<Instrument> pInstrument, std::shared_ptr<InstrumentComponent> pInstrumentComponent, Song* pSong )
 {
 	QString sComponentName;
 

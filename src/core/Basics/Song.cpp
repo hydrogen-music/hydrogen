@@ -130,7 +130,7 @@ Song::~Song()
 	INFOLOG( QString( "DESTROY '%1'" ).arg( m_sName ) );
 }
 
-void Song::purgeInstrument( Instrument* pInstr )
+void Song::purgeInstrument( std::shared_ptr<Instrument> pInstr )
 {
 	for ( int nPattern = 0; nPattern < ( int )m_pPatternList->size(); ++nPattern ) {
 		m_pPatternList->get( nPattern )->purge_instrument( pInstr );
@@ -199,7 +199,7 @@ Song* Song::getDefaultSong()
 	pSong->setSwingFactor( 0.0 );
 
 	InstrumentList* pInstrList = new InstrumentList();
-	Instrument* pNewInstr = new Instrument( EMPTY_INSTR_ID, "New instrument" );
+	auto pNewInstr = std::make_shared<Instrument>( EMPTY_INSTR_ID, "New instrument" );
 	pInstrList->add( pNewInstr );
 	pSong->setInstrumentList( pInstrList );
 
@@ -430,7 +430,7 @@ bool Song::writeTempPatternList( const QString& sFilename )
 
 QString Song::copyInstrumentLineToString( int nSelectedPattern, int nSelectedInstrument )
 {
-	Instrument *pInstr = getInstrumentList()->get( nSelectedInstrument );
+	auto pInstr = getInstrumentList()->get( nSelectedInstrument );
 	assert( pInstr );
 
 	QDomDocument doc;
@@ -505,7 +505,7 @@ bool Song::pasteInstrumentLineFromString( const QString& sSerialized, int nSelec
 	}
 
 	// Get current instrument
-	Instrument *pInstr = getInstrumentList()->get( nSelectedInstrument );
+	auto pInstr = getInstrumentList()->get( nSelectedInstrument );
 	assert( pInstr );
 
 	// Get pattern list
@@ -985,7 +985,7 @@ Song* SongReader::readSong( const QString& sFileName )
 			int iHigherCC = LocalFileMng::readXmlInt( instrumentNode, "higher_cc", 127, true );
 
 			// create a new instrument
-			Instrument* pInstrument = new Instrument( id, sName, new ADSR( fAttack, fDecay, fSustain, fRelease ) );
+			auto pInstrument = std::make_shared<Instrument>( id, sName, new ADSR( fAttack, fDecay, fSustain, fRelease ) );
 			pInstrument->set_volume( fVolume );
 			pInstrument->set_muted( bIsMuted );
 			pInstrument->set_soloed( bIsSoloed );
@@ -1544,7 +1544,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* pInstrList )
 
 			int instrId = LocalFileMng::readXmlInt( noteNode, "instrument", -1 );
 
-			Instrument* pInstrumentRef = nullptr;
+			std::shared_ptr<Instrument> pInstrumentRef = nullptr;
 			// search instrument by ref
 			pInstrumentRef = pInstrList->find( instrId );
 			if ( !pInstrumentRef ) {
@@ -1592,7 +1592,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* pInstrList )
 
 				int instrId = LocalFileMng::readXmlInt( noteNode, "instrument", -1 );
 
-				Instrument* instrRef = pInstrList->find( instrId );
+				auto instrRef = pInstrList->find( instrId );
 				assert( instrRef );
 
 				pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch );

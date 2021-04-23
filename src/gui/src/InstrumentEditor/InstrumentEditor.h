@@ -25,6 +25,7 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include <memory>
 
 #include <core/Basics/Instrument.h>
 #include <core/Object.h>
@@ -92,7 +93,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void waveDisplayDoubleClicked( QWidget *pRef );
 
 	private:
-		H2Core::Instrument *m_pInstrument;
+		std::shared_ptr<H2Core::Instrument> m_pInstrument;
 		int m_nSelectedLayer;
 		int m_nSelectedComponent;
 

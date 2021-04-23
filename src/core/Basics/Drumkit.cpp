@@ -369,7 +369,7 @@ void Drumkit::save_to( XMLNode* node, int component_id )
 	} else {
 		WARNINGLOG( "Drumkit has no instruments. Storing an InstrumentList with a single empty Instrument as fallback." );
 		InstrumentList* pInstrumentList = new InstrumentList();
-		Instrument* pInstrument = new Instrument();
+		auto pInstrument = std::make_shared<Instrument>();
 		pInstrumentList->insert( 0, pInstrument );
 		pInstrumentList->save_to( node, component_id );
 		delete pInstrumentList;
@@ -385,7 +385,7 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 
 	InstrumentList* pInstrList = get_instruments();
 	for( int i = 0; i < pInstrList->size(); i++ ) {
-		Instrument* pInstrument = ( *pInstrList )[i];
+		auto pInstrument = ( *pInstrList )[i];
 		for ( const auto& pComponent : *pInstrument->get_components() ) {
 
 			for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
@@ -491,7 +491,7 @@ void Drumkit::dump()
 
 	DEBUGLOG( " |- Instrument list" );
 	for ( int i=0; i<__instruments->size(); i++ ) {
-		Instrument* instrument = ( *__instruments )[i];
+		auto instrument = ( *__instruments )[i];
 		DEBUGLOG( QString( "  |- (%1 of %2) Name = %3" )
 		          .arg( i )
 		          .arg( __instruments->size()-1 )

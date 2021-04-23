@@ -458,7 +458,7 @@ void SongEditorPanel::updatePlaybackFaderPeaks()
 {
 	Sampler*		pSampler = Hydrogen::get_instance()->getAudioEngine()->getSampler();
 	Preferences *	pPref = Preferences::get_instance();
-	Instrument*		pInstrument = pSampler->getPlaybackTrackInstrument();
+	auto		pInstrument = pSampler->getPlaybackTrackInstrument();
 
 	
 	bool bShowPeaks = pPref->showInstrumentPeaks();

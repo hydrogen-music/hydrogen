@@ -165,7 +165,7 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 
 void SampleEditor::getAllFrameInfos()
 {
-	H2Core::Instrument *pInstrument = nullptr;
+	std::shared_ptr<H2Core::Instrument> pInstrument = nullptr;
 	std::shared_ptr<Sample> pSample;
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	
@@ -374,7 +374,7 @@ void SampleEditor::createNewLayer()
 
 		Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
-		H2Core::Instrument *pInstrument = nullptr;
+		std::shared_ptr<H2Core::Instrument> pInstrument = nullptr;
 		Song *pSong = Hydrogen::get_instance()->getSong();
 		if (pSong != nullptr) {
 			InstrumentList *pInstrList = pSong->getInstrumentList();
@@ -527,7 +527,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 	if ( pSong == nullptr ) {
 		return;
 	}
-	Instrument *pInstr = pSong->getInstrumentList()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+	auto pInstr = pSong->getInstrumentList()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 	if ( pInstr == nullptr ) {
 		return;
 	}
@@ -569,13 +569,13 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 
 	const int selectedlayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	Instrument *pInstr = pSong->getInstrumentList()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+	auto pInstr = pSong->getInstrumentList()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 
 	/*
 	 *preview_instrument deletes the last used preview instrument, therefore we have to construct a temporary
 	 *instrument. Otherwise pInstr would be deleted if consumed by preview_instrument.
 	*/
-	Instrument *pTmpInstrument = Instrument::load_instrument( pInstr->get_drumkit_name(), pInstr->get_name() );
+	auto pTmpInstrument = Instrument::load_instrument( pInstr->get_drumkit_name(), pInstr->get_name() );
 	auto pNewSample = Sample::load( pInstr->get_component(0)->get_layer( selectedlayer )->get_sample()->get_filepath() );
 
 	if ( pNewSample != nullptr ){

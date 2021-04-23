@@ -56,9 +56,9 @@ namespace H2Core
 
 const char* Sampler::__class_name = "Sampler";
 
-static Instrument* createInstrument(int id, const QString& filepath, float volume )
+static std::shared_ptr<Instrument> createInstrument(int id, const QString& filepath, float volume )
 {
-	Instrument* pInstrument = new Instrument( id, filepath );
+	auto pInstrument = std::make_shared<Instrument>( id, filepath );
 	pInstrument->set_volume( volume );
 	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( filepath ) );
 	auto pComponent = std::make_shared<InstrumentComponent>( 0 );
@@ -101,10 +101,7 @@ Sampler::~Sampler()
 	delete[] m_pMainOut_L;
 	delete[] m_pMainOut_R;
 
-	delete m_pPreviewInstrument;
 	m_pPreviewInstrument = nullptr;
-
-	delete m_pPlaybackTrackInstrument;
 	m_pPlaybackTrackInstrument = nullptr;
 }
 
@@ -183,7 +180,7 @@ void Sampler::noteOn(Note *pNote )
 	assert( pNote );
 
 	pNote->get_adsr()->attack();
-	Instrument *pInstr = pNote->get_instrument();
+	auto pInstr = pNote->get_instrument();
 
 	// mute group
 	int nMuteGrp = pInstr->get_mute_group();
@@ -226,7 +223,7 @@ void Sampler::midiKeyboardNoteOff( int key )
 /// all other note_off stuff will handle in midi_keyboard_note_off() and note_on()
 void Sampler::noteOff(Note* pNote )
 {
-	Instrument *pInstr = pNote->get_instrument();
+	auto pInstr = pNote->get_instrument();
 	// find the notes using the same instrument, and release them
 	for ( const auto& pNote: m_playingNotesQueue ) {
 		if ( pNote->get_instrument() == pInstr ) {
@@ -429,7 +426,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 		nFramepos = pHydrogen->getRealtimeFrames();
 	}
 
-	Instrument *pInstr = pNote->get_instrument();
+	auto pInstr = pNote->get_instrument();
 	if ( !pInstr ) {
 		ERRORLOG( "NULL instrument" );
 		return 1;
@@ -1452,7 +1449,7 @@ bool Sampler::renderNoteResample(
 }
 
 
-void Sampler::stopPlayingNotes(Instrument* pInstr )
+void Sampler::stopPlayingNotes( std::shared_ptr<Instrument> pInstr )
 {
 	if ( pInstr ) { // stop all notes using this instrument
 		for ( unsigned i = 0; i < m_playingNotesQueue.size(); ) {
@@ -1500,9 +1497,9 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int length )
 
 
 
-void Sampler::preview_instrument(Instrument* pInstr )
+void Sampler::preview_instrument( std::shared_ptr<Instrument> pInstr )
 {
-	Instrument * pOldPreview;
+	std::shared_ptr<Instrument> pOldPreview;
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	stopPlayingNotes( m_pPreviewInstrument );
@@ -1515,12 +1512,11 @@ void Sampler::preview_instrument(Instrument* pInstr )
 
 	noteOn( pPreviewNote );	// exclusive note
 	Hydrogen::get_instance()->getAudioEngine()->unlock();
-	delete pOldPreview;
 }
 
 
 
-void Sampler::setPlayingNotelength(Instrument* pInstrument, unsigned long ticks, unsigned long noteOnTick )
+void Sampler::setPlayingNotelength( std::shared_ptr<Instrument> pInstrument, unsigned long ticks, unsigned long noteOnTick )
 {
 	if ( pInstrument ) { // stop all notes using this instrument
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
@@ -1598,7 +1594,7 @@ bool Sampler::isAnyInstrumentSoloed() const
 	bool			bAnyInstrumentIsSoloed = false;
 	
 	for(int i=0; i < pInstrList->size(); i++) {
-		Instrument* pInstr = pInstrList->get( i );
+		std::shared_ptr<Instrument> pInstr = pInstrList->get( i );
 		
 		if( pInstr->is_soloed() )	{
 			bAnyInstrumentIsSoloed = true;
@@ -1608,7 +1604,7 @@ bool Sampler::isAnyInstrumentSoloed() const
 	return bAnyInstrumentIsSoloed;
 }
 
-bool Sampler::isInstrumentPlaying( Instrument* instrument )
+bool Sampler::isInstrumentPlaying( std::shared_ptr<Instrument> instrument )
 {
 	if ( instrument ) { // stop all notes using this instrument
 		for ( unsigned j = 0; j < m_playingNotesQueue.size(); j++ ) {
