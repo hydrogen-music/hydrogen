@@ -27,6 +27,8 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Note.h>
+#include <core/Sampler/Sampler.h>
+
 using namespace H2Core;
 
 #include <cassert>
@@ -371,27 +373,40 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 			pNote->set_velocity( val );
 			m_fLastSetValue = val;
 			m_bValueHasBeenSet = true;
-			char valueChar[100];
-			sprintf( valueChar, "%#.2f",  val);
-			HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
+			HydrogenApp::get_instance()->setStatusBarMessage( tr("Set note velocity [%1]").arg( val, 0, 'f', 2 ), 2000 );
 		}
 		else if ( m_Mode == PAN && !pNote->get_note_off() ){
-			float pan_L, pan_R;
+			float fPanL, fPanR;
 			if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 				val = 0.5;
 			}
+
+			QString valueString;
+			/**  pan parameter in [0;1] domain,
+			* store it via two L,R gain values using the ratio straight polygonal pan law (redundant),
+			* with PAN_MAX = 0.5 (= max gain).
+			* The sampler will reconvert (pan_L,pan_R) into a single scalar parameter.
+			*/
+
+			float fPan = 2. * val - 1.;	//domain scaling & translating from [0,1] to [-1,1]
+			fPanL = 0.5 * Sampler::ratioStraightPolygonalPanLaw( fPan ); 
+			fPanR = 0.5 * Sampler::ratioStraightPolygonalPanLaw( - fPan ); // uses simmetry
+			
 			if ( val > 0.5 ) {
-				pan_L = 1.0 - val;
-				pan_R = 0.5;
+				valueString = QString( "%1" ).arg( fPan, 0, 'f', 2 ) + tr( "R" );
+			} else {
+				if(val != 0.5) {
+					valueString = QString( "%1" ).arg( - fPan, 0, 'f', 2 ) + tr( "L" );
+				} else {
+					valueString = tr( "C" );
+				}
 			}
-			else {
-				pan_L = 0.5;
-				pan_R = val;
-			}
+			pNote->set_pan_l( fPanL );
+			pNote->set_pan_r( fPanR );
 			m_fLastSetValue = val;
 			m_bValueHasBeenSet = true;
-			pNote->set_pan_l( pan_L );
-			pNote->set_pan_r( pan_R );
+			( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set note pan " ) + valueString, 2000 );
+
 		}
 		else if ( m_Mode == LEADLAG ){
 			if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
@@ -401,15 +416,17 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 				m_fLastSetValue = val * -2.0 + 1.0;
 				m_bValueHasBeenSet = true;
 				pNote->set_lead_lag((val * -2.0) + 1.0);
-				char valueChar[100];
+				
+				float fPrintVal = pNote->get_lead_lag() * 5; // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
 				if (pNote->get_lead_lag() < 0.0) {
-					sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
+					HydrogenApp::get_instance()->setStatusBarMessage(
+												tr("Leading beat by: %1 ticks").arg( - fPrintVal, 0, 'f', 2 ), 2000 );
+
 				} else if (pNote->get_lead_lag() > 0.0) {
-					sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
+					HydrogenApp::get_instance()->setStatusBarMessage(
+												tr("Lagging beat by: %1 ticks").arg( fPrintVal, 0, 'f', 2 ), 2000 );
 				} else {
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
+					HydrogenApp::get_instance()->setStatusBarMessage( tr("Note on beat"), 2000 );
 				}
 				
 			}
@@ -437,9 +454,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 			m_fLastSetValue = val;
 			m_bValueHasBeenSet = true;
 			pNote->set_probability( val );
-			char valueChar[100];
-			sprintf( valueChar, "%#.2f",  val);
-			HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note probability [%1]").arg( valueChar ), 2000 );
+			HydrogenApp::get_instance()->setStatusBarMessage( tr( "Set note probability [%1]" ).arg( val, 0, 'f', 2 ), 2000 );
 		}
 	}
 
@@ -473,29 +488,51 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 			m_fLastSetValue = fVelocity;
 			m_bValueHasBeenSet = true;
 			if ( bMessage ) {
-				char valueChar[100];
-				sprintf( valueChar, "%#.2f",  fVelocity );
-				( HydrogenApp::get_instance() )->setStatusBarMessage( QString( tr( "Set note velocity [%1]" ) )
-																	  .arg( valueChar ), 2000 );
+				( HydrogenApp::get_instance() )->setStatusBarMessage(
+											tr( "Set note velocity [%1]" ).arg( fVelocity , 0, 'f', 2 ), 2000 );
 			}
 		}
 		break;
 	case PAN:
 		if ( !pNote->get_note_off() ) {
 			float fPanL, fPanR;
-			float fValue = (pOldNote->get_pan_r() - pOldNote->get_pan_l() + 0.5) + fDelta;
 
-			if ( fValue > PAN_MAX ) {
-				fPanL = 2*PAN_MAX - fValue;
-				fPanR = PAN_MAX;
+			// get pan parameter in [0,1] domain from panL,panR and add delta
+			float fVal = 0.5 * ( 1. + Sampler::getRatioPan( pOldNote->get_pan_l(), pOldNote->get_pan_r() ) ) + fDelta;
+
+			// boundary control only for the statusBarMessage, since the control is done in setPan() too
+			if ( fVal > 1 ) {
+				fVal = 1.;
+			} else if ( fVal < 0. ) {
+				fVal = 0.;
+			}
+
+			QString valueString;
+			/**  pan parameter in [0;1] domain,
+			* store it via two L,R gain values using the ratio straight polygonal pan law (redundant),
+			* with PAN_MAX = 0.5 (= max gain).
+			* The sampler will reconvert (pan_L,pan_R) into a single scalar parameter.
+			*/
+			float fPan = 2. * fVal - 1.;	//domain scaling & translating from [0,1] to [-1,1]
+			fPanL = 0.5 * Sampler::ratioStraightPolygonalPanLaw( fPan ); 
+			fPanR = 0.5 * Sampler::ratioStraightPolygonalPanLaw( - fPan ); // uses simmetry
+			
+			if ( fVal > 0.5 ) {
+				valueString = QString( "%1" ).arg( fPan, 0, 'f', 2 ) + tr( "R" );
 			} else {
-				fPanL = PAN_MAX;
-				fPanR = fValue;
+				if( fVal != 0.5) {
+					valueString = QString( "%1" ).arg( - fPan, 0, 'f', 2 ) + tr( "L" );
+				} else {
+					valueString = tr( "C" );
+				}
 			}
 			pNote->set_pan_l( fPanL );
 			pNote->set_pan_r( fPanR );
-			m_fLastSetValue = fValue;
+			m_fLastSetValue = fVal;
 			m_bValueHasBeenSet = true;
+			if ( bMessage ) {
+				( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set note pan " ) + valueString, 2000 );
+			}
 		}
 		break;
 	case LEADLAG:
@@ -505,15 +542,15 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 			m_fLastSetValue = fLeadLag;
 			m_bValueHasBeenSet = true;
 			if ( bMessage ) {
-				char valueChar[100];
+				float fPrintVal = pNote->get_lead_lag() * 5; // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
 				if (pNote->get_lead_lag() < 0.0) {
-					sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
+					HydrogenApp::get_instance()->setStatusBarMessage(
+												tr("Leading beat by: %1 ticks").arg( - fPrintVal, 0, 'f', 2 ), 2000 );
 				} else if (pNote->get_lead_lag() > 0.0) {
-					sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
+					HydrogenApp::get_instance()->setStatusBarMessage(
+												tr("Lagging beat by: %1 ticks").arg( fPrintVal, 0, 'f', 2 ), 2000 );
 				} else {
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
+					HydrogenApp::get_instance()->setStatusBarMessage( tr("Note on beat"), 2000 );
 				}
 			}
 		}
@@ -524,6 +561,10 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 			pNote->set_probability( fProbability );
 			m_fLastSetValue = fProbability;
 			m_bValueHasBeenSet = true;
+			if ( bMessage ) {
+				HydrogenApp::get_instance()->setStatusBarMessage(
+											tr( "Set note probability [%1]" ).arg( fProbability, 0, 'f', 2 ), 2000 );
+			}
 		}
 		break;
 	case NOTEKEY:
@@ -1281,6 +1322,10 @@ void NotePropertiesRuler::finishUpdateEditor()
 	}
 	else if ( m_Mode == PAN ) {
 		createPanBackground( m_pBackground );
+		//rough "L", "R" on background
+		QPainter p( m_pBackground );
+		p.drawText( 5, 20, tr( "R" ) );
+		p.drawText( 5, m_nEditorHeight - 10, tr( "L" ) );
 	}
 	else if ( m_Mode == LEADLAG ) {
 		createLeadLagBackground( m_pBackground );
