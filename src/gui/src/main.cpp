@@ -369,6 +369,10 @@ int main(int argc, char *argv[])
 		pQApp->setApplicationName( "Hydrogen" );
 		pQApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
 
+		// Process any pending events before showing splash screen. This allows macOS to show previous-crash
+		// warning dialogs before they are covered by the splash screen.
+		pQApp->processEvents();
+
 		QString family = pPref->getApplicationFontFamily();
 		pQApp->setFont( QFont( family, pPref->getApplicationFontPointSize() ) );
 
