@@ -38,7 +38,7 @@
 ///     + [ as <filename> ]            -- filename to save as, including file type extension
 ///  - slot <widget> <slot> [<arg>...] -- invoke a slot method on widget.
 ///  - dump                            -- dump object tree(s)
-///  # <text>                          -- commentary (note that the space is needed!)
+///  - # <text>                        -- commentary (note that the space is needed!)
 ///  - fin                             -- quit Hydrogen
 ///
 /// By naming widgets appropriately and exposing their functionality as slots, it should be possible for the

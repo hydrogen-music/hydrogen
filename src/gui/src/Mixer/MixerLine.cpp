@@ -80,7 +80,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	);
 	m_pPlaySampleBtn->move( 8, 2 );
 	m_pPlaySampleBtn->setToolTip( tr( "Play sample" ) );
-        m_pPlaySampleBtn->setObjectName( "PlaySampleButton" );
+	m_pPlaySampleBtn->setObjectName( "PlaySampleButton" );
 	connect(m_pPlaySampleBtn, SIGNAL(clicked(Button*)), this, SLOT(click(Button*)));
 	connect(m_pPlaySampleBtn, SIGNAL(rightClicked(Button*)), this, SLOT(rightClick(Button*)));
 
@@ -93,7 +93,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 			QSize( 5, 13 )
 	);
 	m_pTriggerSampleLED->move( 26, 2 );
-        m_pTriggerSampleLED->setObjectName( "TriggerSampleLED" );
+	m_pTriggerSampleLED->setObjectName( "TriggerSampleLED" );
 	connect(m_pTriggerSampleLED, SIGNAL(clicked(Button*)), this, SLOT(click(Button*)));
 
 	// Mute button
@@ -106,7 +106,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	);
 	m_pMuteBtn->move( 8, 17 );
 	m_pMuteBtn->setToolTip( tr( "Mute" ) );
-        m_pMuteBtn->setObjectName( "MixerMuteButton" );
+	m_pMuteBtn->setObjectName( "MixerMuteButton" );
 	connect(m_pMuteBtn, SIGNAL(clicked(Button*)), this, SLOT(click(Button*)));
 
 	// Solo button
@@ -119,7 +119,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	);
 	m_pSoloBtn->move( 30, 17);
 	m_pSoloBtn->setToolTip( tr( "Solo" ) );
-        m_pSoloBtn->setObjectName( "MixerSoloButton" );
+	m_pSoloBtn->setObjectName( "MixerSoloButton" );
 	connect(m_pSoloBtn, SIGNAL(clicked(Button*)), this, SLOT(click(Button*)));
 
 	// pan rotary
