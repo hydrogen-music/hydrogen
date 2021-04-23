@@ -1667,7 +1667,7 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName,
 
 		m_pAudioEngine->lock( RIGHT_HERE );
 
-		std::vector<InstrumentComponent*>* pOldInstrumentComponents = new std::vector<InstrumentComponent*> ( pNewInstrument->get_components()->begin(), pNewInstrument->get_components()->end() );
+		auto pOldInstrumentComponents = new std::vector<std::shared_ptr<InstrumentComponent>>( pNewInstrument->get_components()->begin(), pNewInstrument->get_components()->end() );
 		pNewInstrument->get_components()->clear();
 
 		for ( auto pComponent : *(pNewDrumkit->get_components()) ) {
@@ -1696,7 +1696,7 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName,
 
 			for ( auto pOldInstrCompo : *pOldInstrumentComponents ) {
 				if( pOldInstrCompo->get_drumkit_componentID() == OldID ) {
-					InstrumentComponent* pNewInstrCompo = new InstrumentComponent( pOldInstrCompo );
+					auto pNewInstrCompo = std::make_shared<InstrumentComponent>( pOldInstrCompo );
 					pNewInstrCompo->set_drumkit_componentID( NewID );
 
 					pNewInstrument->get_components()->push_back( pNewInstrCompo );

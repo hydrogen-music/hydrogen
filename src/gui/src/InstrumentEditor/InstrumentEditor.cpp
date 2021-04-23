@@ -677,7 +677,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pCompoNameLbl->setText( pTmpComponent->get_name() );
 
 		if( m_nSelectedLayer >= 0 ){
-			InstrumentComponent* pComponent = m_pInstrument->get_component( m_nSelectedComponent );
+			auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
 			if( pComponent ) {
 
 				char tmp[20];
@@ -763,7 +763,7 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 			sprintf( tmp, "%#.2f", fVal );
 			m_pLayerGainLCD->setText( tmp );
 
-			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
 				auto pLayer = pCompo->get_layer( m_nSelectedLayer );
 				if ( pLayer ) {
@@ -778,13 +778,13 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 			sprintf( tmp, "%#.2f", fVal );
 			m_pCompoGainLCD->setText( tmp );
 
-			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			pCompo->set_gain( fVal );
 		}
 		else if ( ref == m_pLayerPitchCoarseRotary ) {
 			m_pLayerPitchCoarseLCD->setText( QString( "%1" ).arg( (int) round( fVal ) ) );
 
-			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
 				auto pLayer = pCompo->get_layer( m_nSelectedLayer );
 				if ( pLayer ) {
@@ -797,7 +797,7 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 		}
 		else if ( ref == m_pLayerPitchFineRotary ) {
 			m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fVal ) );
-			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
 				auto pLayer = pCompo->get_layer( m_nSelectedLayer );
 				if ( pLayer ) {
@@ -836,7 +836,7 @@ void InstrumentEditor::waveDisplayDoubleClicked( QWidget* pRef )
 		return;
 	}
 	
-	InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+	auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 	if( !pCompo ) {
 		return;
 	}
@@ -884,7 +884,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 		Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 		if ( m_pInstrument ) {
-			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
 				pCompo->set_layer( nullptr, m_nSelectedLayer );
 
@@ -907,7 +907,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 	}
 	else if ( pButton == m_pSampleEditorBtn ){
 		if ( m_pInstrument ) {
-			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
 				auto pLayer = pCompo->get_layer( m_nSelectedLayer );
 				if ( pLayer != nullptr ) {
@@ -982,9 +982,9 @@ void InstrumentEditor::loadLayer()
 				at m_nSelectedLayer and the next layer at m_nSelectedLayer+1
 			*/
 
-			InstrumentComponent *pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( !pCompo ) {
-				pCompo = new InstrumentComponent( m_nSelectedComponent );
+				pCompo = std::make_shared<InstrumentComponent>( m_nSelectedComponent );
 				m_pInstrument->get_components()->push_back( pCompo );
 			}
 
@@ -1025,7 +1025,7 @@ void InstrumentEditor::setAutoVelocity()
 	if ( m_pInstrument == nullptr ) {
 		return;
 	}
-	InstrumentComponent *pCompo = m_pInstrument->get_component( m_nSelectedComponent );
+	auto pCompo = m_pInstrument->get_component( m_nSelectedComponent );
 	if ( pCompo == nullptr ) {
 		return;
 	}
@@ -1129,7 +1129,7 @@ void InstrumentEditor::selectLayer( int nLayer )
 	}
 	m_nSelectedLayer = nLayer;
 
-	H2Core::InstrumentComponent *pComponent = m_pInstrument->get_component( m_nSelectedComponent );
+	auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
 	if(pComponent && nLayer >= 0 ){
 		auto pLayer = pComponent->get_layer( nLayer );
 		m_pWaveDisplay->updateDisplay( pLayer );
@@ -1305,7 +1305,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 				DrumkitComponent* pDrumkitComponent = new DrumkitComponent( findFreeDrumkitComponentId(), sNewName );
 				pHydrogen->getSong()->getComponents()->push_back( pDrumkitComponent );
 
-				//InstrumentComponent* instrument_component = new InstrumentComponent( dm_component->get_id() );
+				//auto instrument_component = std::make_shared<InstrumentComponent>( dm_component->get_id() );
 				//instrument_component->set_gain( 1.0f );
 				//m_pInstrument->get_components()->push_back( instrument_component );
 
@@ -1339,7 +1339,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		for ( int n = ( int )pInstruments->size() - 1; n >= 0; n-- ) {
 			Instrument* pInstrument = pInstruments->get( n );
 			for( int o = 0 ; o < pInstrument->get_components()->size() ; o++ ) {
-				InstrumentComponent* pInstrumentComponent = pInstrument->get_components()->at( o );
+				auto  pInstrumentComponent = pInstrument->get_components()->at( o );
 				if( pInstrumentComponent->get_drumkit_componentID() == pDrumkitComponent->get_id() ) {
 					pInstrument->get_components()->erase( pInstrument->get_components()->begin() + o );;
 					break;
@@ -1379,7 +1379,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		if( m_pInstrument && !m_pInstrument->get_component(m_nSelectedComponent)) {
 			INFOLOG("Component needs to be added");
 
-			InstrumentComponent* pInstrComponent = new InstrumentComponent( m_nSelectedComponent );
+			auto pInstrComponent = std::make_shared<InstrumentComponent>( m_nSelectedComponent );
 			pInstrComponent->set_gain( 1.0f );
 
 			m_pInstrument->get_components()->push_back( pInstrComponent );
@@ -1419,7 +1419,7 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 			Instrument *pInstr = pSongInstrList->get( nInstr );
 			assert( pInstr );
 			if ( pInstr ){
-				InstrumentComponent* pInstrumentComponent = pInstr->get_component(m_nSelectedComponent);
+				auto pInstrumentComponent = pInstr->get_component(m_nSelectedComponent);
 				if (!pInstrumentComponent) {
 					continue; // regular case when you have a new component empty
 				}

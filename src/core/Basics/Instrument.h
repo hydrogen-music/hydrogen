@@ -24,6 +24,8 @@
 #define H2C_INSTRUMENT_H
 
 #include <cassert>
+#include <memory>
+
 #include <core/Object.h>
 #include <core/Basics/Adsr.h>
 #include <core/Helpers/Filesystem.h>
@@ -268,8 +270,8 @@ class Instrument : public H2Core::Object
 		void set_is_metronome_instrument(bool isMetronome);
 		bool is_metronome_instrument() const;
 
-		std::vector<InstrumentComponent*>* get_components();
-		InstrumentComponent* get_component( int DrumkitComponentID );
+		std::vector<std::shared_ptr<InstrumentComponent>>* get_components();
+		std::shared_ptr<InstrumentComponent> get_component( int DrumkitComponentID );
 
 		void set_apply_velocity( bool apply_velocity );
 		bool get_apply_velocity() const;
@@ -325,7 +327,7 @@ class Instrument : public H2Core::Object
 		int						__higher_cc;			///< higher cc level
 		bool					__is_preview_instrument;		///< is the instrument an hydrogen preview instrument?
 		bool					__is_metronome_instrument;		///< is the instrument an metronome instrument?
-		std::vector<InstrumentComponent*>* __components;		///< InstrumentLayer array
+		std::vector<std::shared_ptr<InstrumentComponent>>* __components;		///< InstrumentLayer array
 		bool					__apply_velocity;				///< change the sample gain based on velocity
 		bool					__current_instr_for_export;		///< is the instrument currently being exported?
 		bool 					m_bHasMissingSamples;	///< does the instrument have missing sample files?
@@ -651,7 +653,7 @@ inline void Instrument::set_is_metronome_instrument(bool isMetronome)
 	__is_metronome_instrument = isMetronome;
 }
 
-inline std::vector<InstrumentComponent*>* Instrument::get_components()
+inline std::vector<std::shared_ptr<InstrumentComponent>>* Instrument::get_components()
 {
 	return __components;
 }

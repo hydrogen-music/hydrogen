@@ -26,8 +26,7 @@ static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
 	for( int i=0; i<instruments->size(); i++ ) {
 		count++;
 		H2Core::Instrument* pInstr = ( *instruments )[i];
-		for (std::vector<H2Core::InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
-			H2Core::InstrumentComponent* pComponent = *it;
+		for ( const auto& pComponent : *pInstr->get_components() ) {
 			for ( int nLayer = 0; nLayer < H2Core::InstrumentComponent::getMaxLayers(); nLayer++ ) {
 				auto pLayer = pComponent->get_layer( nLayer );
 				if( pLayer ) {

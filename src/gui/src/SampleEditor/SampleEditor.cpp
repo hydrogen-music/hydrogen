@@ -187,7 +187,7 @@ void SampleEditor::getAllFrameInfos()
 	
 	assert( pInstrument );
 
-	InstrumentComponent *pCompo = pInstrument->get_component(0);
+	auto pCompo = pInstrument->get_component(0);
 	assert( pCompo );
 
 	auto pLayer = pCompo->get_layer( m_nSelectedLayer );

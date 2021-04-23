@@ -701,7 +701,7 @@ bool MidiActionManager::gain_level_absolute(Action * pAction, Hydrogen* pHydroge
 			return false;
 		}
 	
-		InstrumentComponent* pComponent =  pInstr->get_component( nSample._id );
+		auto pComponent =  pInstr->get_component( nSample._id );
 		if( pComponent == nullptr) {
 			return false;
 		}
@@ -740,7 +740,7 @@ bool MidiActionManager::pitch_level_absolute(Action * pAction, Hydrogen* pHydrog
 			return false;
 		}
 	
-		InstrumentComponent* pComponent =  pInstr->get_component( nSample._id );
+		auto pComponent =  pInstr->get_component( nSample._id );
 		if( pComponent == nullptr) {
 			return false;
 		}

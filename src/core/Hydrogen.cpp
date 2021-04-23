@@ -1016,8 +1016,7 @@ void Hydrogen::removeInstrument( int instrumentNumber, bool conditional )
 		m_pAudioEngine->lock( RIGHT_HERE );
 		Instrument* pInstr = pList->get( 0 );
 		pInstr->set_name( (QString( "Instrument 1" )) );
-		for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
-			InstrumentComponent* pCompo = *it;
+		for ( auto& pCompo : *pInstr->get_components() ) {
 			// remove all layers
 			for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 				pCompo->set_layer( nullptr, nLayer );

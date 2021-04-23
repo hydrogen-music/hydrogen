@@ -92,7 +92,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	for ( int i=0; i<MAX_FX; i++ ) {
 		__fx_level[i] = 0.0;
 	}
-	__components = new std::vector<InstrumentComponent*> ();
+	__components = new std::vector<std::shared_ptr<InstrumentComponent>>();
 }
 
 Instrument::Instrument( Instrument* other )
@@ -133,18 +133,14 @@ Instrument::Instrument( Instrument* other )
 		__fx_level[i] = other->get_fx_level( i );
 	}
 
-	__components = new std::vector<InstrumentComponent*> ();
-	for (auto it = other->get_components()->begin(); it != other->get_components()->end(); ++it) {
-		__components->push_back(new InstrumentComponent(*it));
+	__components = new std::vector<std::shared_ptr<InstrumentComponent>>();
+	for ( auto& pComponent : *other->get_components() ) {
+		__components->push_back( std::make_shared<InstrumentComponent>( pComponent ) );
 	}
 }
 
 Instrument::~Instrument()
 {
-	for(auto& pComponent : *this->get_components()){
-		delete pComponent;
-	}	
-
 	delete __components;
 
 	delete __adsr;
@@ -166,10 +162,6 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 		pAudioEngine->lock( RIGHT_HERE );
 	}
 	
-	for(auto& pComponent : *this->get_components()){
-		delete pComponent;
-	}
-	
 	this->get_components()->clear();
 	
 	if ( is_live ) {
@@ -178,10 +170,8 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 
 	set_missing_samples( false );
 
-	for (std::vector<InstrumentComponent*>::iterator it = pInstrument->get_components()->begin() ; it != pInstrument->get_components()->end(); ++it) {
-		InstrumentComponent* pSrcComponent = *it;
-
-		InstrumentComponent* pMyComponent = new InstrumentComponent( pSrcComponent->get_drumkit_componentID() );
+	for ( const auto& pSrcComponent : *pInstrument->get_components() ) {
+		auto pMyComponent = std::make_shared<InstrumentComponent>( pSrcComponent->get_drumkit_componentID() );
 		pMyComponent->set_gain( pSrcComponent->get_gain() );
 
 		this->get_components()->push_back( pMyComponent );
@@ -335,8 +325,7 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 
 void Instrument::load_samples()
 {
-	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
-		InstrumentComponent* pComponent = *it;
+	for ( auto& pComponent : *get_components() ) {
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 			auto pLayer = pComponent->get_layer( i );
 			if( pLayer ) {
@@ -348,8 +337,7 @@ void Instrument::load_samples()
 
 void Instrument::unload_samples()
 {
-	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
-		InstrumentComponent* pComponent = *it;
+	for ( auto& pComponent : *get_components() ) {
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 			auto pLayer = pComponent->get_layer( i );
 			if( pLayer ){
@@ -404,8 +392,7 @@ void Instrument::save_to( XMLNode* node, int component_id )
 	for ( int i=0; i<MAX_FX; i++ ) {
 		InstrumentNode.write_float( QString( "FX%1Level" ).arg( i+1 ), __fx_level[i] );
 	}
-	for (std::vector<InstrumentComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-		InstrumentComponent* pComponent = *it;
+	for ( auto& pComponent : *__components ) {
 		if( component_id == -1 || pComponent->get_drumkit_componentID() == component_id ) {
 			pComponent->save_to( &InstrumentNode, component_id );
 		}
@@ -420,11 +407,11 @@ void Instrument::set_adsr( ADSR* adsr )
 	__adsr = adsr;
 }
 
-InstrumentComponent* Instrument::get_component( int DrumkitComponentID )
+std::shared_ptr<InstrumentComponent> Instrument::get_component( int DrumkitComponentID )
 {
-	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
-		if( (*it)->get_drumkit_componentID() == DrumkitComponentID ) {
-			return *it;
+	for ( const auto& pComponent : *get_components() ) {
+		if( pComponent->get_drumkit_componentID() == DrumkitComponentID ) {
+			return pComponent;
 		}
 	}
 

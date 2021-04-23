@@ -293,7 +293,7 @@ bool Drumkit::save( const QString&					sName,
 	pDrumkit->set_instruments( new InstrumentList( pInstruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
 	
 	std::vector<DrumkitComponent*>* pCopiedVector = new std::vector<DrumkitComponent*> ();
-	for ( auto pSrcComponent : *pComponents ) {
+	for ( auto& pSrcComponent : *pComponents ) {
 		pCopiedVector->push_back( new DrumkitComponent( pSrcComponent ) );
 	}
 	pDrumkit->set_components( pCopiedVector );
@@ -386,8 +386,7 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 	InstrumentList* pInstrList = get_instruments();
 	for( int i = 0; i < pInstrList->size(); i++ ) {
 		Instrument* pInstrument = ( *pInstrList )[i];
-		for (std::vector<InstrumentComponent*>::iterator it = pInstrument->get_components()->begin() ; it != pInstrument->get_components()->end(); ++it) {
-			InstrumentComponent* pComponent = *it;
+		for ( const auto& pComponent : *pInstrument->get_components() ) {
 
 			for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 				auto pLayer = pComponent->get_layer( n );
@@ -498,9 +497,7 @@ void Drumkit::dump()
 		          .arg( __instruments->size()-1 )
 		          .arg( instrument->get_name() )
 		        );
-		for (std::vector<InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
-			InstrumentComponent* pComponent = *it;
-
+		for ( const auto& pComponent : *instrument->get_components() ) {
 			for ( int j = 0; j < InstrumentComponent::getMaxLayers(); j++ ) {
 				auto pLayer = pComponent->get_layer( j );
 				if ( pLayer ) {

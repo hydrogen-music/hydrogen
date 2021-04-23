@@ -43,11 +43,11 @@ class InstrumentComponent : public H2Core::Object
 		H2_OBJECT
 	public:
 		InstrumentComponent( int related_drumkit_componentID );
-		InstrumentComponent( InstrumentComponent* other );
+		InstrumentComponent( std::shared_ptr<InstrumentComponent> other );
 		~InstrumentComponent();
 
 		void				save_to( XMLNode* node, int component_id );
-		static InstrumentComponent* 	load_from( XMLNode* node, const QString& dk_path );
+		static std::shared_ptr<InstrumentComponent> 	load_from( XMLNode* node, const QString& dk_path );
 
 		std::shared_ptr<InstrumentLayer>	operator[]( int ix );
 		std::shared_ptr<InstrumentLayer>	get_layer( int idx );

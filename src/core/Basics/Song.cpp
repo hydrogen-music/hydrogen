@@ -1049,7 +1049,7 @@ Song* SongReader::readSong( const QString& sFileName )
 					pInstrument->set_muted( true );
 					pInstrument->set_missing_samples( true );
 				}
-				InstrumentComponent* pCompo = new InstrumentComponent ( 0 );
+				auto pCompo = std::make_shared<InstrumentComponent>( 0 );
 				auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 				pCompo->set_layer( pLayer, 0 );
 				pInstrument->get_components()->push_back( pCompo );
@@ -1061,7 +1061,7 @@ Song* SongReader::readSong( const QString& sFileName )
 				while (  ! componentNode.isNull()  ) {
 					bFoundAtLeastOneComponent = true;
 					int id = LocalFileMng::readXmlInt( componentNode, "component_id", 0 );
-					InstrumentComponent* pCompo = new InstrumentComponent( id );
+					auto pCompo = std::make_shared<InstrumentComponent>( id );
 					float fGainCompo = LocalFileMng::readXmlFloat( componentNode, "gain", 1.0 );
 					pCompo->set_gain( fGainCompo );
 
@@ -1151,7 +1151,7 @@ Song* SongReader::readSong( const QString& sFileName )
 					componentNode = ( QDomNode ) componentNode.nextSiblingElement( "instrumentComponent" );
 				}
 				if(!bFoundAtLeastOneComponent) {
-					InstrumentComponent* pCompo = new InstrumentComponent( 0 );
+					auto pCompo = std::make_shared<InstrumentComponent>( 0 );
 					float fGainCompo = LocalFileMng::readXmlFloat( componentNode, "gain", 1.0 );
 					pCompo->set_gain( fGainCompo );
 

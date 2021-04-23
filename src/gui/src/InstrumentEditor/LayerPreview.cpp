@@ -91,7 +91,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	int nLayers = 0;
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 		if ( m_pInstrument ) {
-			InstrumentComponent* pComponent = m_pInstrument->get_component( m_nSelectedComponent );
+			auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
 			if(pComponent) {
 				auto pLayer = pComponent->get_layer( i );
 				if ( pLayer ) {
@@ -107,7 +107,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 		QString label = "< - >";
 		
 		if ( m_pInstrument ) {
-			InstrumentComponent* pComponent = m_pInstrument->get_component( m_nSelectedComponent );
+			auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
 			if( pComponent ) {
 				auto pLayer = pComponent->get_layer( i );
 				
@@ -190,7 +190,7 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	
 	/*
 	if ( m_pInstrument ) {
-		InstrumentComponent* p_tmpCompo = m_pInstrument->get_component( m_nSelectedComponent );
+		auto p_tmpCompo = m_pInstrument->get_component( m_nSelectedComponent );
 		if(!p_tmpCompo) {
 			for(int i = 0 ; i < InstrumentComponent::getMaxLayers() ; i++) {
 				p_tmpCompo = m_pInstrument->get_component( i );
@@ -206,7 +206,7 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	// select the last valid layer
 	if ( m_pInstrument ) {
 		for (int i = InstrumentComponent::getMaxLayers() - 1; i >= 0; i-- ) {
-			InstrumentComponent* p_compo = m_pInstrument->get_component( m_nSelectedComponent );
+			auto p_compo = m_pInstrument->get_component( m_nSelectedComponent );
 			if ( p_compo ) {
 				if ( p_compo->get_layer( i ) ) {
 					m_nSelectedLayer = i;
@@ -238,7 +238,7 @@ void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 	 * We want the tooltip to still show if mouse pointer
 	 * is over an active layer's boundary
 	 */
-	InstrumentComponent *pCompo = m_pInstrument->get_component( m_nSelectedComponent );
+	auto pCompo = m_pInstrument->get_component( m_nSelectedComponent );
 	if ( pCompo ) {
 		auto pLayer = pCompo->get_layer( m_nSelectedLayer );
 
@@ -277,7 +277,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
 		
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			InstrumentComponent *pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if(pCompo){
 				auto pLayer = pCompo->get_layer( i );
 				if ( pLayer ) {
@@ -299,7 +299,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		update();
 		InstrumentEditorPanel::get_instance()->selectLayer( m_nSelectedLayer );
 		
-		InstrumentComponent *pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+		auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 		if(pCompo) {
 			auto pLayer = pCompo->get_layer( m_nSelectedLayer );
 			if ( pLayer ) {
@@ -374,7 +374,7 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 	else {
 		m_nSelectedLayer = ( ev->y() - 20 ) / m_nLayerHeight;
 		if ( m_nSelectedLayer < InstrumentComponent::getMaxLayers() ) {
-			InstrumentComponent* pComponent = m_pInstrument->get_component(m_nSelectedComponent);
+			auto pComponent = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pComponent ){
 				auto pLayer = pComponent->get_layer( m_nSelectedLayer );
 				if ( pLayer ) {

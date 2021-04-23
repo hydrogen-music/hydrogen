@@ -130,7 +130,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 							pDrumkit->get_components()->push_back( pDrumkitCompo );
 						}
 						
-						InstrumentComponent* pComponent = new InstrumentComponent( 0 );
+						auto pComponent = std::make_shared<InstrumentComponent>( 0 );
 						auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 						pComponent->set_layer( pLayer, 0 );
 						pInstrument->get_components()->push_back( pComponent );
@@ -151,7 +151,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 						DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
 						pDrumkit->get_components()->push_back(pDrumkitComponent);
 					}
-					InstrumentComponent* pComponent = new InstrumentComponent( 0 );
+					auto pComponent = std::make_shared<InstrumentComponent>( 0 );
 
 					XMLNode layer_node = instrument_node.firstChildElement( "layer" );
 					while ( !layer_node.isNull() ) {

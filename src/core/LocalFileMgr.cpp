@@ -509,8 +509,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 		LocalFileMng::writeXmlString( instrumentNode, "lower_cc", QString("%1").arg( pInstr->get_lower_cc() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "higher_cc", QString("%1").arg( pInstr->get_higher_cc() ) );
 
-		for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
-			InstrumentComponent* pComponent = *it;
+		for ( const auto& pComponent : *pInstr->get_components() ) {
 
 			QDomNode componentNode = doc.createElement( "instrumentComponent" );
 

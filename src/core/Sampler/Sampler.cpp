@@ -61,7 +61,7 @@ static Instrument* createInstrument(int id, const QString& filepath, float volum
 	Instrument* pInstrument = new Instrument( id, filepath );
 	pInstrument->set_volume( volume );
 	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( filepath ) );
-	InstrumentComponent* pComponent = new InstrumentComponent( 0 );
+	auto pComponent = std::make_shared<InstrumentComponent>( 0 );
 	
 	pComponent->set_layer( pLayer, 0 );
 	pInstrument->get_components()->push_back( pComponent );
@@ -903,7 +903,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		return false;
 	}
 
-	InstrumentComponent *pCompo = m_pPlaybackTrackInstrument->get_components()->front();
+	auto pCompo = m_pPlaybackTrackInstrument->get_components()->front();
 	auto pSample = pCompo->get_layer(0)->get_sample();
 
 	assert(pSample);
@@ -1054,7 +1054,7 @@ bool Sampler::renderNoteNoResample(
 	std::shared_ptr<Sample> pSample,
 	Note *pNote,
 	SelectedLayerInfo *pSelectedLayerInfo,
-	InstrumentComponent *pCompo,
+	std::shared_ptr<InstrumentComponent> pCompo,
 	DrumkitComponent *pDrumCompo,
 	int nBufferSize,
 	int nInitialSilence,
@@ -1202,7 +1202,7 @@ bool Sampler::renderNoteResample(
 	std::shared_ptr<Sample> pSample,
 	Note *pNote,
 	SelectedLayerInfo *pSelectedLayerInfo,
-	InstrumentComponent *pCompo,
+	std::shared_ptr<InstrumentComponent> pCompo,
 	DrumkitComponent *pDrumCompo,
 	int nBufferSize,
 	int nInitialSilence,

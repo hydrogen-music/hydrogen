@@ -55,7 +55,7 @@ InstrumentComponent::InstrumentComponent( int related_drumkit_componentID )
 	}
 }
 
-InstrumentComponent::InstrumentComponent( InstrumentComponent* other )
+InstrumentComponent::InstrumentComponent( std::shared_ptr<InstrumentComponent> other )
 	: Object( __class_name )
 	, __related_drumkit_componentID( other->__related_drumkit_componentID )
 	, __gain( other->__gain )
@@ -94,14 +94,14 @@ int InstrumentComponent::getMaxLayers()
 	return m_nMaxLayers;
 }
 
-InstrumentComponent* InstrumentComponent::load_from( XMLNode* node, const QString& dk_path )
+std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from( XMLNode* node, const QString& dk_path )
 {
 	int id = node->read_int( "component_id", EMPTY_INSTR_ID, false, false );
 	if ( id==EMPTY_INSTR_ID ) {
 		return nullptr;
 	}
 
-	InstrumentComponent* pInstrumentComponent = new InstrumentComponent( id );
+	auto pInstrumentComponent = std::make_shared<InstrumentComponent>( id );
 	pInstrumentComponent->set_gain( node->read_float( "gain", 1.0f, true, false ) );
 	XMLNode layer_node = node->firstChildElement( "layer" );
 	int n = 0;

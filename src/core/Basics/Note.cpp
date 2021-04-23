@@ -69,8 +69,7 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
 		__adsr = __instrument->copy_adsr();
 		__instrument_id = __instrument->get_id();
 
-		for (std::vector<InstrumentComponent*>::iterator it = __instrument->get_components()->begin() ; it !=__instrument->get_components()->end(); ++it) {
-			InstrumentComponent *pCompo = *it;
+		for ( const auto& pCompo : *__instrument->get_components() ) {
 
 			SelectedLayerInfo *sampleInfo = new SelectedLayerInfo;
 			sampleInfo->SelectedLayer = -1;
@@ -117,9 +116,7 @@ Note::Note( Note* other, Instrument* instrument )
 		__adsr = __instrument->copy_adsr();
 		__instrument_id = __instrument->get_id();
 
-		for (std::vector<InstrumentComponent*>::iterator it = __instrument->get_components()->begin() ; it !=__instrument->get_components()->end(); ++it) {
-			InstrumentComponent *pCompo = *it;
-
+		for ( const auto& pCompo : *__instrument->get_components() ) {
 			SelectedLayerInfo *sampleInfo = new SelectedLayerInfo;
 			sampleInfo->SelectedLayer = -1;
 			sampleInfo->SamplePosition = 0;
