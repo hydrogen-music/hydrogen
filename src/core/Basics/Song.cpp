@@ -1050,7 +1050,7 @@ Song* SongReader::readSong( const QString& sFileName )
 					pInstrument->set_missing_samples( true );
 				}
 				InstrumentComponent* pCompo = new InstrumentComponent ( 0 );
-				InstrumentLayer* pLayer = new InstrumentLayer( pSample );
+				auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 				pCompo->set_layer( pLayer, 0 );
 				pInstrument->get_components()->push_back( pCompo );
 			}
@@ -1136,7 +1136,7 @@ Song* SongReader::readSong( const QString& sFileName )
 							pInstrument->set_muted( true );
 							pInstrument->set_missing_samples( true );
 						}
-						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
+						auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 						pLayer->set_start_velocity( fMin );
 						pLayer->set_end_velocity( fMax );
 						pLayer->set_gain( fGain );
@@ -1224,7 +1224,7 @@ Song* SongReader::readSong( const QString& sFileName )
 							pInstrument->set_muted( true );
 							pInstrument->set_missing_samples( true );
 						}
-						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
+						auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 						pLayer->set_start_velocity( fMin );
 						pLayer->set_end_velocity( fMax );
 						pLayer->set_gain( fGain );

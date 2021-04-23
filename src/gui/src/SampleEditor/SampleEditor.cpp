@@ -190,7 +190,7 @@ void SampleEditor::getAllFrameInfos()
 	InstrumentComponent *pCompo = pInstrument->get_component(0);
 	assert( pCompo );
 
-	InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
+	auto pLayer = pCompo->get_layer( m_nSelectedLayer );
 	if ( pLayer ) {
 		pSample = pLayer->get_sample();
 	}
@@ -391,7 +391,7 @@ void SampleEditor::createNewLayer()
 			}
 		}
 		
-		H2Core::InstrumentLayer *pLayer = nullptr;
+		std::shared_ptr<H2Core::InstrumentLayer> pLayer = nullptr;
 		if( pInstrument ) {
 			pLayer = pInstrument->get_component(0)->get_layer( m_nSelectedLayer );
 

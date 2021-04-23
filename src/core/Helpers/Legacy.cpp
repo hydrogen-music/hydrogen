@@ -131,7 +131,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 						}
 						
 						InstrumentComponent* pComponent = new InstrumentComponent( 0 );
-						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
+						auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 						pComponent->set_layer( pLayer, 0 );
 						pInstrument->get_components()->push_back( pComponent );
 						
@@ -160,7 +160,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 							break;
 						}
 						auto pSample = std::make_shared<Sample>( dk_path+"/"+layer_node.read_string( "filename", "" ) );
-						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
+						auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 						pLayer->set_start_velocity( layer_node.read_float( "min", 0.0 ) );
 						pLayer->set_end_velocity( layer_node.read_float( "max", 1.0 ) );
 						pLayer->set_gain( layer_node.read_float( "gain", 1.0, true, false ) );

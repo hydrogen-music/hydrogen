@@ -140,7 +140,7 @@ AudioEngine::AudioEngine()
 	QString sMetronomeFilename = Filesystem::click_file_path();
 	m_pMetronomeInstrument = new Instrument( METRONOME_INSTR_ID, "metronome" );
 	
-	InstrumentLayer* pLayer =  new InstrumentLayer( Sample::load( sMetronomeFilename ) );
+	auto pLayer =  std::make_shared<InstrumentLayer>( Sample::load( sMetronomeFilename ) );
 	InstrumentComponent* pCompo = new InstrumentComponent( 0 );
 	pCompo->set_layer(pLayer, 0);
 	m_pMetronomeInstrument->get_components()->push_back( pCompo );

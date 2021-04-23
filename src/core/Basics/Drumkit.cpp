@@ -390,7 +390,7 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 			InstrumentComponent* pComponent = *it;
 
 			for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
-				InstrumentLayer* pLayer = pComponent->get_layer( n );
+				auto pLayer = pComponent->get_layer( n );
 				if( pLayer ) {
 					QString src = pLayer->get_sample()->get_filepath();
 					QString dst = dk_dir + "/" + pLayer->get_sample()->get_filename();
@@ -502,7 +502,7 @@ void Drumkit::dump()
 			InstrumentComponent* pComponent = *it;
 
 			for ( int j = 0; j < InstrumentComponent::getMaxLayers(); j++ ) {
-				InstrumentLayer* pLayer = pComponent->get_layer( j );
+				auto pLayer = pComponent->get_layer( j );
 				if ( pLayer ) {
 					auto pSample = pLayer->get_sample();
 					if ( pSample != nullptr ) {

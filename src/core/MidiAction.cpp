@@ -706,7 +706,7 @@ bool MidiActionManager::gain_level_absolute(Action * pAction, Hydrogen* pHydroge
 			return false;
 		}
 	
-		InstrumentLayer* pLayer = pComponent->get_layer( nSample._subId );
+		auto pLayer = pComponent->get_layer( nSample._subId );
 		if( pLayer == nullptr ) {
 			return false;
 		}
@@ -745,7 +745,7 @@ bool MidiActionManager::pitch_level_absolute(Action * pAction, Hydrogen* pHydrog
 			return false;
 		}
 	
-		InstrumentLayer* pLayer = pComponent->get_layer( nSample._subId );
+		auto pLayer = pComponent->get_layer( nSample._subId );
 		if( pLayer == nullptr ) {
 			return false;
 		}

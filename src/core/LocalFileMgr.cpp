@@ -518,7 +518,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 			LocalFileMng::writeXmlString( componentNode, "gain", QString("%1").arg( pComponent->get_gain() ) );
 
 			for ( unsigned nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-				InstrumentLayer *pLayer = pComponent->get_layer( nLayer );
+				auto pLayer = pComponent->get_layer( nLayer );
 				if ( pLayer == nullptr ) {
 					continue;
 				}

@@ -60,7 +60,7 @@ static Instrument* createInstrument(int id, const QString& filepath, float volum
 {
 	Instrument* pInstrument = new Instrument( id, filepath );
 	pInstrument->set_volume( volume );
-	InstrumentLayer* pLayer = new InstrumentLayer( Sample::load( filepath ) );
+	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( filepath ) );
 	InstrumentComponent* pComponent = new InstrumentComponent( 0 );
 	
 	pComponent->set_layer( pLayer, 0 );
@@ -521,7 +521,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 		}
 
 		if( pSelectedLayer->SelectedLayer != -1 ) {
-			InstrumentLayer *pLayer = pCompo->get_layer( pSelectedLayer->SelectedLayer );
+			auto pLayer = pCompo->get_layer( pSelectedLayer->SelectedLayer );
 
 			if( pLayer )
 			{
@@ -535,7 +535,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 			switch ( pInstr->sample_selection_alg() ) {
 				case Instrument::VELOCITY:
 					for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ) {
-						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+						auto pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer == nullptr ) continue;
 
 						if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
@@ -559,7 +559,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 						float shortestDistance = 1.0f;
 						int nearestLayer = -1;
 						for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ){
-							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+							auto pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == nullptr ) continue;
 							
 							if ( std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
@@ -573,7 +573,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 
 						// Check whether the search was successful and assign the results.
 						if ( nearestLayer > -1 ){
-							InstrumentLayer *pLayer = pCompo->get_layer( nearestLayer );
+							auto pLayer = pCompo->get_layer( nearestLayer );
 							pSelectedLayer->SelectedLayer = nearestLayer;
 						
 							pSample = pLayer->get_sample();
@@ -585,7 +585,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 
 				case Instrument::RANDOM:
 					if( nAlreadySelectedLayer != -1 ) {
-						InstrumentLayer *pLayer = pCompo->get_layer( nAlreadySelectedLayer );
+						auto pLayer = pCompo->get_layer( nAlreadySelectedLayer );
 						if ( pLayer != nullptr ) {
 							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
 
@@ -598,7 +598,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 						int __possibleIndex[ m_nMaxLayers ];
 						int __foundSamples = 0;
 						for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ) {
-							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+							auto pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == nullptr ) continue;
 
 							if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
@@ -622,7 +622,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 							float shortestDistance = 1.0f;
 							int nearestLayer = -1;
 							for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ){
-								InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+								auto pLayer = pCompo->get_layer( nLayer );
 								if ( pLayer == nullptr ) continue;
 								
 								if ( std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
@@ -653,7 +653,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 							nAlreadySelectedLayer = __possibleIndex[rand() % __foundSamples];
 							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
 
-							InstrumentLayer *pLayer = pCompo->get_layer( nAlreadySelectedLayer );
+							auto pLayer = pCompo->get_layer( nAlreadySelectedLayer );
 
 							pSample = pLayer->get_sample();
 							fLayerGain = pLayer->get_gain();
@@ -664,7 +664,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 
 				case Instrument::ROUND_ROBIN:
 					if( nAlreadySelectedLayer != -1 ) {
-						InstrumentLayer *pLayer = pCompo->get_layer( nAlreadySelectedLayer );
+						auto pLayer = pCompo->get_layer( nAlreadySelectedLayer );
 						if ( pLayer != nullptr ) {
 							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
 
@@ -678,7 +678,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 						int __foundSamples = 0;
 						float __roundRobinID;
 						for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ) {
-							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+							auto pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == nullptr ) continue;
 
 							if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
@@ -701,7 +701,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 							float shortestDistance = 1.0f;
 							int nearestLayer = -1;
 							for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ){
-								InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+								auto pLayer = pCompo->get_layer( nLayer );
 								if ( pLayer == nullptr ) {
 									continue;
 								}
@@ -719,7 +719,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 							// successful and assign the
 							// results.
 							if ( nearestLayer > -1 ){
-								InstrumentLayer *pLayer = pCompo->get_layer( nearestLayer );
+								auto pLayer = pCompo->get_layer( nearestLayer );
 								pSelectedLayer->SelectedLayer = nearestLayer;
 
 								// No loop needed in here.
@@ -745,7 +745,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 
 							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
 
-							InstrumentLayer *pLayer = pCompo->get_layer( nAlreadySelectedLayer );
+							auto pLayer = pCompo->get_layer( nAlreadySelectedLayer );
 							pSample = pLayer->get_sample();
 							fLayerGain = pLayer->get_gain();
 							fLayerPitch = pLayer->get_pitch();
@@ -1484,7 +1484,7 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int length )
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	for (const auto& pComponent: *m_pPreviewInstrument->get_components()) {
-		InstrumentLayer *pLayer = pComponent->get_layer( 0 );
+		auto pLayer = pComponent->get_layer( 0 );
 
 		pLayer->set_sample( pSample );
 
@@ -1630,7 +1630,7 @@ void Sampler::reinitializePlaybackTrack()
 		pSample = Sample::load( pSong->getPlaybackTrackFilename() );
 	}
 	
-	InstrumentLayer* pPlaybackTrackLayer = new InstrumentLayer( pSample );
+	auto  pPlaybackTrackLayer = std::make_shared<InstrumentLayer>( pSample );
 
 	m_pPlaybackTrackInstrument->get_components()->front()->set_layer( pPlaybackTrackLayer, 0 );
 	m_nPlayBackSamplePosition = 0;

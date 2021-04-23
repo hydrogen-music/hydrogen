@@ -62,9 +62,9 @@ InstrumentComponent::InstrumentComponent( InstrumentComponent* other )
 {
 	__layers.resize( m_nMaxLayers );
 	for ( int i = 0; i < m_nMaxLayers; i++ ) {
-		InstrumentLayer* other_layer = other->get_layer( i );
+		std::shared_ptr<InstrumentLayer> other_layer = other->get_layer( i );
 		if ( other_layer ) {
-			__layers[i] = new InstrumentLayer( other_layer );
+			__layers[i] = std::make_shared<InstrumentLayer>( other_layer );
 		} else {
 			__layers[i] = nullptr;
 		}
@@ -74,17 +74,13 @@ InstrumentComponent::InstrumentComponent( InstrumentComponent* other )
 InstrumentComponent::~InstrumentComponent()
 {
 	for ( int i = 0; i < m_nMaxLayers; i++ ) {
-		delete __layers[i];
 		__layers[i] = nullptr;
 	}
 }
 
-void InstrumentComponent::set_layer( InstrumentLayer* layer, int idx )
+void InstrumentComponent::set_layer( std::shared_ptr<InstrumentLayer> layer, int idx )
 {
 	assert( idx >= 0 && idx < m_nMaxLayers );
-	if ( __layers[ idx ] ) {
-		delete __layers[ idx ];
-	}
 	__layers[ idx ] = layer;
 }
 
@@ -130,7 +126,7 @@ void InstrumentComponent::save_to( XMLNode* node, int component_id )
 		component_node.write_float( "gain", __gain );
 	}
 	for ( int n = 0; n < m_nMaxLayers; n++ ) {
-		InstrumentLayer* pLayer = get_layer( n );
+		auto pLayer = get_layer( n );
 		if( pLayer ) {
 			if( component_id == -1 ) {
 				pLayer->save_to( &component_node );

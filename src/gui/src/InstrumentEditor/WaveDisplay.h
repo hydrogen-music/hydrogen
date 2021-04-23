@@ -42,7 +42,7 @@ class WaveDisplay : public QWidget, public H2Core::Object
 		explicit WaveDisplay(QWidget* pParent);
 		~WaveDisplay();
 
-		virtual void	updateDisplay( H2Core::InstrumentLayer *pLayer );
+		virtual void	updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 
 		void			paintEvent( QPaintEvent *ev );
 		void			resizeEvent( QResizeEvent * event );
@@ -65,7 +65,7 @@ class WaveDisplay : public QWidget, public H2Core::Object
 		
 		int							m_nCurrentWidth;
 		
-		H2Core::InstrumentLayer *	m_pLayer;
+		std::shared_ptr<H2Core::InstrumentLayer>	m_pLayer;
 };
 
 inline void WaveDisplay::setSampleNameAlignment(Qt::AlignmentFlag flag)

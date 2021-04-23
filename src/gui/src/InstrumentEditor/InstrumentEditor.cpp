@@ -686,7 +686,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 
 				m_pCompoGainRotary->setValue( pComponent->get_gain() / 5.0 );
 
-				InstrumentLayer* pLayer = pComponent->get_layer( m_nSelectedLayer );
+				auto pLayer = pComponent->get_layer( m_nSelectedLayer );
 				if(pLayer) {
 					m_pWaveDisplay->updateDisplay( pLayer );
 				}
@@ -765,7 +765,7 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 
 			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
-				H2Core::InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
+				auto pLayer = pCompo->get_layer( m_nSelectedLayer );
 				if ( pLayer ) {
 					pLayer->set_gain( fVal );
 					m_pWaveDisplay->updateDisplay( pLayer );
@@ -786,7 +786,7 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 
 			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
-				H2Core::InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
+				auto pLayer = pCompo->get_layer( m_nSelectedLayer );
 				if ( pLayer ) {
 					float fCoarse = round( m_pLayerPitchCoarseRotary->getValue() );
 					float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
@@ -799,7 +799,7 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 			m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fVal ) );
 			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
-				H2Core::InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
+				auto pLayer = pCompo->get_layer( m_nSelectedLayer );
 				if ( pLayer ) {
 					float fCoarse = round( m_pLayerPitchCoarseRotary->getValue() );
 					float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
@@ -841,7 +841,7 @@ void InstrumentEditor::waveDisplayDoubleClicked( QWidget* pRef )
 		return;
 	}
 			
-	H2Core::InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
+	auto pLayer = pCompo->get_layer( m_nSelectedLayer );
 	if ( pLayer ) {
 		auto pSample = pLayer->get_sample();
 		
@@ -890,7 +890,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 
 				int nCount = 0;
 				for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
-					InstrumentLayer* pLayer = pCompo->get_layer( n );
+					auto pLayer = pCompo->get_layer( n );
 					if( pLayer ){
 						nCount++;
 					}
@@ -909,7 +909,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 		if ( m_pInstrument ) {
 			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
-				H2Core::InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
+				auto pLayer = pCompo->get_layer( m_nSelectedLayer );
 				if ( pLayer != nullptr ) {
 					auto pSample = pLayer->get_sample();
 					if ( pSample == nullptr ) {
@@ -988,14 +988,14 @@ void InstrumentEditor::loadLayer()
 				m_pInstrument->get_components()->push_back( pCompo );
 			}
 
-			H2Core::InstrumentLayer *pLayer = pCompo->get_layer( selectedLayer );
+			auto pLayer = pCompo->get_layer( selectedLayer );
 
 			if (pLayer != nullptr) {
 				// insert new sample from newInstrument, old sample gets deleted by set_sample
 				pLayer->set_sample( pNewSample );
 			}
 			else {
-				pLayer = new H2Core::InstrumentLayer(pNewSample);
+				pLayer = std::make_shared<H2Core::InstrumentLayer>( pNewSample );
 				m_pInstrument->get_component(m_nSelectedComponent)->set_layer( pLayer, selectedLayer );
 			}
 
@@ -1033,7 +1033,7 @@ void InstrumentEditor::setAutoVelocity()
 	int nLayers = 0;
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
 
-		InstrumentLayer *pLayer = pCompo->get_layer( i );
+		auto pLayer = pCompo->get_layer( i );
 		if ( pLayer ) {
 			nLayers++;
 			layerInUse[i] = i;
@@ -1049,7 +1049,7 @@ void InstrumentEditor::setAutoVelocity()
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
 		if ( layerInUse[i] == i ){
 			nLayers--;
-			InstrumentLayer *pLayer = pCompo->get_layer( i );
+			auto pLayer = pCompo->get_layer( i );
 			if ( pLayer ) {
 				pLayer->set_start_velocity( nLayers * velocityrange);
 				pLayer->set_end_velocity( nLayers * velocityrange + velocityrange );
@@ -1131,7 +1131,7 @@ void InstrumentEditor::selectLayer( int nLayer )
 
 	H2Core::InstrumentComponent *pComponent = m_pInstrument->get_component( m_nSelectedComponent );
 	if(pComponent && nLayer >= 0 ){
-		H2Core::InstrumentLayer *pLayer = pComponent->get_layer( nLayer );
+		auto pLayer = pComponent->get_layer( nLayer );
 		m_pWaveDisplay->updateDisplay( pLayer );
 		if (pLayer) {
 			char tmp[20];
@@ -1341,12 +1341,6 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 			for( int o = 0 ; o < pInstrument->get_components()->size() ; o++ ) {
 				InstrumentComponent* pInstrumentComponent = pInstrument->get_components()->at( o );
 				if( pInstrumentComponent->get_drumkit_componentID() == pDrumkitComponent->get_id() ) {
-					for( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-						InstrumentLayer* pLayer = pInstrumentComponent->get_layer( nLayer );
-						if( pLayer ) {
-							delete pLayer;
-						}
-					}
 					pInstrument->get_components()->erase( pInstrument->get_components()->begin() + o );;
 					break;
 				}
@@ -1431,7 +1425,7 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 				}
 				
 				for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-					InstrumentLayer *pLayer = pInstrumentComponent->get_layer( nLayer );
+					auto pLayer = pInstrumentComponent->get_layer( nLayer );
 					if ( pLayer ) {
 						auto pSample = pLayer->get_sample();
 						if ( pSample ) {

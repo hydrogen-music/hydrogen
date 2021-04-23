@@ -187,8 +187,8 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 		this->get_components()->push_back( pMyComponent );
 
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			InstrumentLayer* src_layer = pSrcComponent->get_layer( i );
-			InstrumentLayer* my_layer = pMyComponent->get_layer( i );
+			auto src_layer = pSrcComponent->get_layer( i );
+			auto my_layer = pMyComponent->get_layer( i );
 
 			if( src_layer == nullptr ) {
 				if ( is_live ) {
@@ -216,13 +216,13 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 					if ( is_live ) {
 						pAudioEngine->lock( RIGHT_HERE );
 					}
-					pMyComponent->set_layer( new InstrumentLayer( src_layer, pSample ), i );
+					pMyComponent->set_layer( std::make_shared<InstrumentLayer>( src_layer, pSample ), i );
 					if ( is_live ) {
 						pAudioEngine->unlock();
 					}
 				}
 			}
-			delete my_layer;
+			my_layer = nullptr;
 		}
 	}
 	if ( is_live ) {
@@ -338,7 +338,7 @@ void Instrument::load_samples()
 	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
 		InstrumentComponent* pComponent = *it;
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			InstrumentLayer* pLayer = pComponent->get_layer( i );
+			auto pLayer = pComponent->get_layer( i );
 			if( pLayer ) {
 				pLayer->load_sample();
 			}
@@ -351,7 +351,7 @@ void Instrument::unload_samples()
 	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
 		InstrumentComponent* pComponent = *it;
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			InstrumentLayer* pLayer = pComponent->get_layer( i );
+			auto pLayer = pComponent->get_layer( i );
 			if( pLayer ){
 				pLayer->unload_sample();
 			}

@@ -24,6 +24,7 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include <memory>
 
 #include <core/Object.h>
 #include <core/Basics/Instrument.h>
@@ -33,9 +34,6 @@ namespace H2Core
 {
 class InstrumentLayer;
 }
-
-using H2Core::InstrumentLayer;
-
 
 class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 {
@@ -79,7 +77,7 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 		 * @param pLayer    The layer
 		 * @param pEvent    The event carrying mouse position
 		 */
-		void showLayerStartVelocity( const InstrumentLayer* pLayer, const QMouseEvent* pEvent );
+		void showLayerStartVelocity( const std::shared_ptr<H2Core::InstrumentLayer> pLayer, const QMouseEvent* pEvent );
 
 		/**
 		 * display a layer's end velocity in a tooltip
@@ -87,7 +85,7 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 		 * @param pLayer    The layer
 		 * @param pEvent    The event carrying mouse position
 		 */
-		void showLayerEndVelocity( const InstrumentLayer* pLayer, const QMouseEvent* pEvent );
+		void showLayerEndVelocity( const std::shared_ptr<H2Core::InstrumentLayer> pLayer, const QMouseEvent* pEvent );
 
 		virtual void selectedInstrumentChangedEvent() override;
 };

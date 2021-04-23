@@ -744,7 +744,7 @@ void ExportSongDialog::calculateRubberbandTime()
 				for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
 					InstrumentComponent* pCompo = *it;
 					for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+						auto pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer ) {
 							auto pSample = pLayer->get_sample();
 							if ( pSample != nullptr ) {
@@ -799,7 +799,7 @@ bool ExportSongDialog::checkUseOfRubberband()
 				for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
 					InstrumentComponent* pCompo = *it;
 					for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+						auto pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer ) {
 							auto pSample = pLayer->get_sample();
 							if ( pSample != nullptr ) {
