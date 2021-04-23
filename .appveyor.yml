@@ -158,10 +158,10 @@ for:
           %PYTHON% -m pytest %APPVEYOR_BUILD_FOLDER%\windows\ci\test_installation.py --junitxml=test_installation.xml
 
 on_finish:
-  - cmd: %APPVEYOR_REPO_BRANCH==%ARTIFACT_BRANCH% PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeCache.txt
-  - cmd: %APPVEYOR_REPO_BRANCH==%ARTIFACT_BRANCH% appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeOutput.log
-  - cmd: %APPVEYOR_REPO_BRANCH==%ARTIFACT_BRANCH% appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeError.log
-  - cmd: %APPVEYOR_REPO_BRANCH==%ARTIFACT_BRANCH% FOR %%F IN (%APPVEYOR_BUILD_FOLDER%\build\Hydrogen-*.exe) DO appveyor PushArtifact %%F
+  - cmd: if %APPVEYOR_REPO_BRANCH==%ARTIFACT_BRANCH% PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeCache.txt
+  - cmd: if %APPVEYOR_REPO_BRANCH==%ARTIFACT_BRANCH% appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeOutput.log
+  - cmd: if %APPVEYOR_REPO_BRANCH==%ARTIFACT_BRANCH% appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeError.log
+  - cmd: if %APPVEYOR_REPO_BRANCH==%ARTIFACT_BRANCH% FOR %%F IN (%APPVEYOR_BUILD_FOLDER%\build\Hydrogen-*.exe) DO appveyor PushArtifact %%F
 
   - cmd: |
       if %APPVEYOR_REPO_BRANCH==%ARTIFACT_BRANCH% curl -F file=@%APPVEYOR_BUILD_FOLDER%\build\test_installation.xml https://ci.appveyor.com/api/testresults/junit/%APPVEYOR_JOB_ID%
