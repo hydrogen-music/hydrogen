@@ -386,7 +386,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 		LocalFileMng::writeXmlString( songNode, "mode", QString( "pattern" ) );
 	}
 
-	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
+	Sampler* pSampler = Hydrogen::get_instance()->getAudioEngine()->getSampler();
 	
 	QString sPanLawType; // prepare the pan law string to write
 	int nPanLawType = pSong->getPanLawType();

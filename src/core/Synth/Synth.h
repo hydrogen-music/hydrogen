@@ -49,7 +49,7 @@ public:
 	 * Constructor of the Synth.
 	 *
 	 * It is called by AudioEngine::AudioEngine() and stored in
-	 * AudioEngine::__synth.
+	 * AudioEngine::m_pSynth.
 	 */
 	Synth();
 	~Synth();

@@ -125,6 +125,7 @@ class PianoRollEditor: public PatternEditor
 		virtual void paste() override;
 
 	private:
+		H2Core::AudioEngine* m_pAudioEngine;
 
 		bool m_bNeedsUpdate;
 		bool m_bNeedsBackgroundUpdate;

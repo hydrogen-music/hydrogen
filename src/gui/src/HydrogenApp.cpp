@@ -148,11 +148,11 @@ HydrogenApp::~HydrogenApp()
 
 	delete SoundLibraryDatabase::get_instance();
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	if (pEngine) {
-		H2Core::Song * pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	if (pHydrogen) {
+		H2Core::Song * pSong = pHydrogen->getSong();
 		// Hydrogen calls removeSong on from its destructor, so here we just delete the objects:
-		delete pEngine;
+		delete pHydrogen;
 		delete pSong;
 	}
 

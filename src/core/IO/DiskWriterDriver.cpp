@@ -153,14 +153,14 @@ void* diskWriterDriver_thread( void* param )
 	float *pData_R = pDriver->m_pOut_R;
 
 
-	Hydrogen* pEngine = Hydrogen::get_instance();
-	auto pSong = pEngine->getSong();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 
 	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
 	int nColumns = pPatternColumns->size();
 	
 	int nPatternSize;
-	int validBpm = pEngine->getSong()->getBpm();
+	int validBpm = pHydrogen->getSong()->getBpm();
 	float oldBPM = 0;
 	float fTicksize = 0;
 	
@@ -173,7 +173,7 @@ void* diskWriterDriver_thread( void* param )
 		}
 		
 		// check pattern bpm if timeline bpm is in use
-		Timeline* pTimeline = pEngine->getTimeline();
+		Timeline* pTimeline = pHydrogen->getTimeline();
 		if(Preferences::get_instance()->getUseTimelineBpm() ){
 
 			float fTimelineBpm = pTimeline->getTempoAtBar( patternPosition, true );
@@ -185,11 +185,11 @@ void* diskWriterDriver_thread( void* param )
 			}
 			
 			pDriver->setBpm(validBpm);
-			fTicksize = AudioEngine::compute_tick_size( pDriver->m_nSampleRate,
+			fTicksize = AudioEngine::computeTickSize(   pDriver->m_nSampleRate,
 														validBpm,
 														pSong->getResolution() );
 			pDriver->audioEngine_process_checkBPMChanged();
-			pEngine->setPatternPos(patternPosition);
+			pHydrogen->setPatternPos(patternPosition);
 			
 			// delay needed time to calculate all rubberband samples
 			if( Preferences::get_instance()->getRubberBandBatchMode() && validBpm != oldBPM ){
@@ -202,7 +202,7 @@ void* diskWriterDriver_thread( void* param )
 		}
 		else
 		{
-			fTicksize = AudioEngine::compute_tick_size( pDriver->m_nSampleRate,
+			fTicksize = AudioEngine::computeTickSize(   pDriver->m_nSampleRate,
 														pSong->getBpm(),
 														pSong->getResolution() );
 			//pDriver->m_transport.m_fTickSize = ticksize;
@@ -391,7 +391,7 @@ void DiskWriterDriver::setBpm( float fBPM )
 void DiskWriterDriver::audioEngine_process_checkBPMChanged()
 {
 	auto pSong = Hydrogen::get_instance()->getSong();
-	float fNewTickSize = AudioEngine::compute_tick_size( getSampleRate(),
+	float fNewTickSize = AudioEngine::computeTickSize( getSampleRate(),
 														 pSong->getBpm(),
 														 pSong->getResolution() );
 

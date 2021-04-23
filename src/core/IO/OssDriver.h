@@ -57,8 +57,6 @@
 namespace H2Core
 {
 
-typedef int  ( *audioProcessCallback )( uint32_t, void * );
-
 ///
 /// OSS Audio Driver
 ///

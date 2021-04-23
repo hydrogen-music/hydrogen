@@ -7,6 +7,8 @@
 
 #include <QFileInfo>
 
+#include "TestHelper.h"
+
 #include <iostream>
 #include <stdexcept>
 
@@ -82,7 +84,7 @@ class MidiNoteTest : public CppUnit::TestCase {
 		 * preserving legacy behavior. */
 
 		SongReader reader;
-		auto song = reader.readSong( get_test_file("song/test_song_0.9.6.h2song") );
+		auto song = reader.readSong( H2TEST_FILE( "song/test_song_0.9.6.h2song" ) );
 		CPPUNIT_ASSERT( song != nullptr );
 
 		auto instruments = song->getInstrumentList();
@@ -103,7 +105,7 @@ class MidiNoteTest : public CppUnit::TestCase {
 		 * change that mapping */
 
 		SongReader reader;
-		auto song = reader.readSong( get_test_file("song/test_song_0.9.7.h2song") );
+		auto song = reader.readSong( H2TEST_FILE( "song/test_song_0.9.7.h2song" ) );
 		CPPUNIT_ASSERT( song != nullptr );
 
 		auto instruments = song->getInstrumentList();

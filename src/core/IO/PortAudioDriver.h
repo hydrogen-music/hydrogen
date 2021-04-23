@@ -36,8 +36,6 @@
 namespace H2Core
 {
 
-typedef int  ( *audioProcessCallback )( uint32_t, void * );
-
 class PortAudioDriver : public AudioOutput
 {
 	H2_OBJECT

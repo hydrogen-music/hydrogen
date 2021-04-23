@@ -30,6 +30,8 @@
 namespace H2Core
 {
 
+typedef int  ( *audioProcessCallback )( uint32_t, void * );
+
 ///
 /// Base abstract class for audio output classes.
 ///
