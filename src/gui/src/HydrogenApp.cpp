@@ -649,6 +649,8 @@ void HydrogenApp::onEventQueueTimer()
 													 pSelectedInstrument,
 													 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
 													 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal );
+		auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
+		pUndoStack->beginMacro( QString("Input Midi Note") );
 		if( pOldNote ) {
 			// remove the note
 			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pOldNote->get_position(),
@@ -667,7 +669,7 @@ void HydrogenApp::onEventQueueTimer()
 																	 /*isMidi*/ false,
 																	 /*isInstrumentMode*/ false,
 																	 /*isNoteOff*/ false );
-			HydrogenApp::get_instance()->m_pUndoStack->push( action );
+			pUndoStack->push( action );
 		}
 		// add the new note
 		SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pQueue->m_addMidiNoteVector[0].m_column,
@@ -686,8 +688,8 @@ void HydrogenApp::onEventQueueTimer()
 																	 pQueue->m_addMidiNoteVector[0].b_isMidi,
 																	 pQueue->m_addMidiNoteVector[0].b_isInstrumentMode,
 																	 false );
-			HydrogenApp::get_instance()->m_pUndoStack->push( action );
-		}
+		pUndoStack->push( action );
+		pUndoStack->endMacro();
 		pQueue->m_addMidiNoteVector.erase(pQueue->m_addMidiNoteVector.begin());
 	}
 }
