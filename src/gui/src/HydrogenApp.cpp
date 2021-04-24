@@ -644,15 +644,14 @@ void HydrogenApp::onEventQueueTimer()
 		Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( pQueue->m_addMidiNoteVector[0].m_row );
 		// find if a (pitch matching) note is already present
 		Note *pOldNote = pSong->getPatternList()->get( Hydrogen::get_instance()->getSelectedPatternNumber() )
-										->find_note( pQueue->m_addMidiNoteVector[0].m_column,
-													 pQueue->m_addMidiNoteVector[0].m_column,
-													 pSelectedInstrument,
-													 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
-													 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal );
+														->find_note( pQueue->m_addMidiNoteVector[0].m_column,
+																	 pQueue->m_addMidiNoteVector[0].m_column,
+																	 pSelectedInstrument,
+																	 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
+																	 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal );
 		auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
-		pUndoStack->beginMacro( QString("Input Midi Note") );
-		if( pOldNote ) {
-			// remove the note
+		pUndoStack->beginMacro( tr( "Input Midi Note" ) );
+		if( pOldNote ) { // note found => remove it
 			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pOldNote->get_position(),
 																	 pOldNote->get_instrument_id(),
 																	 pOldNote->get_pattern_idx(),
@@ -665,7 +664,7 @@ void HydrogenApp::onEventQueueTimer()
 																	 pOldNote->get_octave(),
 																	 pOldNote->get_probability(),
 																	 /*isDelete*/ true,
-																	 false,
+																	 /*hearNote*/ false,
 																	 /*isMidi*/ false,
 																	 /*isInstrumentMode*/ false,
 																	 /*isNoteOff*/ false );
@@ -690,7 +689,7 @@ void HydrogenApp::onEventQueueTimer()
 																	 false );
 		pUndoStack->push( action );
 		pUndoStack->endMacro();
-		pQueue->m_addMidiNoteVector.erase(pQueue->m_addMidiNoteVector.begin());
+		pQueue->m_addMidiNoteVector.erase( pQueue->m_addMidiNoteVector.begin() );
 	}
 }
 
