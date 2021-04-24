@@ -649,30 +649,43 @@ void HydrogenApp::onEventQueueTimer()
 													 pSelectedInstrument,
 													 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
 													 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal );
-		if( pOldNote ) { // replace note
-		// TODO make a new undo/redo action for this?
-			pOldNote->set_velocity( pQueue->m_addMidiNoteVector[0].f_velocity ); // TODO overwrite other parameters?
-			pSong->setIsModified( true );
-			m_pPatternEditorPanel->updateEditors(); // TODO update all editors or just the noteproperty ruler?
-			// TODO must lock/unlock engine?
-			
-		} else { // add the note
-			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pQueue->m_addMidiNoteVector[0].m_column,
-																			 pQueue->m_addMidiNoteVector[0].m_row,
-																			 pQueue->m_addMidiNoteVector[0].m_pattern,
-																			 pQueue->m_addMidiNoteVector[0].m_length,
-																			 pQueue->m_addMidiNoteVector[0].f_velocity,
-																			 pQueue->m_addMidiNoteVector[0].f_pan_L,
-																			 pQueue->m_addMidiNoteVector[0].f_pan_R,
-																			 0.0,
-																			 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
-																			 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
-																			 1.0f,
-																			 /*isDelete*/ false,
-																			 false,
-																			 pQueue->m_addMidiNoteVector[0].b_isMidi,
-																			 pQueue->m_addMidiNoteVector[0].b_isInstrumentMode,
-																			 false );
+		if( pOldNote ) {
+			// remove the note
+			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pOldNote->get_position(),
+																	 pOldNote->get_instrument_id(),
+																	 pOldNote->get_pattern_idx(),
+																	 pOldNote->get_length(),
+																	 pOldNote->get_velocity(),
+																	 pOldNote->get_pan_l(),
+																	 pOldNote->get_pan_r(),
+																	 pOldNote->get_lead_lag(),
+																	 pOldNote->get_key(),
+																	 pOldNote->get_octave(),
+																	 pOldNote->get_probability(),
+																	 /*isDelete*/ true,
+																	 false,
+																	 /*isMidi*/ false,
+																	 /*isInstrumentMode*/ false,
+																	 /*isNoteOff*/ false );
+			HydrogenApp::get_instance()->m_pUndoStack->push( action );
+		}
+		// add the new note
+		SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pQueue->m_addMidiNoteVector[0].m_column,
+																	 pQueue->m_addMidiNoteVector[0].m_row,
+																	 pQueue->m_addMidiNoteVector[0].m_pattern,
+																	 pQueue->m_addMidiNoteVector[0].m_length,
+																	 pQueue->m_addMidiNoteVector[0].f_velocity,
+																	 pQueue->m_addMidiNoteVector[0].f_pan_L,
+																	 pQueue->m_addMidiNoteVector[0].f_pan_R,
+																	 0.0,
+																	 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
+																	 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
+																	 1.0f,
+																	 /*isDelete*/ false,
+																	 false,
+																	 pQueue->m_addMidiNoteVector[0].b_isMidi,
+																	 pQueue->m_addMidiNoteVector[0].b_isInstrumentMode,
+																	 false );
 			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
 		pQueue->m_addMidiNoteVector.erase(pQueue->m_addMidiNoteVector.begin());
