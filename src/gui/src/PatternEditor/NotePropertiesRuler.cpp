@@ -318,7 +318,7 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 
 	} else {
 		// No notes are selected. The target notes to adjust are all those at column given by 'x', so we preserve these.
-		float m_fTickPosition = getColumn( x );
+		double m_fTickPosition = getColumn( x );
 		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, m_fTickPosition ) {
 			Note *pNote = it->second;
 			if ( pNote->get_instrument() == pSelectedInstrument ) {
@@ -337,7 +337,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 		return;
 	}
 
-	float m_fTickPosition = getColumn( ev->x() );
+	double m_fTickPosition = getColumn( ev->x() );
 	int nGridIndex = getGridIndex( ev->x() ); // unused
 
 	m_pPatternEditorPanel->setCursorIndexPosition( nGridIndex );
@@ -859,7 +859,7 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pposNote = it->second;
 			assert( pposNote );
-			float fPos = pposNote->get_position();
+			double fPos = pposNote->get_position();
 			int xoffset = 0;
 			FOREACH_NOTE_CST_IT_BOUND(notes,coit, fPos) {
 				Note *pNote = coit->second;
@@ -947,9 +947,9 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pposNote = it->second;
 			assert( pposNote );
-			float pos = pposNote->get_position();
+			double fPos = pposNote->get_position();
 			int xoffset = 0;
-			FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
+			FOREACH_NOTE_CST_IT_BOUND(notes,coit,fPos) {
 				Note *pNote = coit->second;
 				assert( pNote );
 				if ( pNote->get_note_off() || (pNote->get_instrument()
@@ -957,7 +957,6 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 											   && !m_selection.isSelected( pNote ) ) ) {
 					continue;
 				}
-				float fPos = pos;
 				uint x_pos = round( m_nMargin + ( fPos * m_fGridWidth ) );
 
 				QColor centerColor = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
@@ -1040,9 +1039,9 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pposNote = it->second;
 			assert( pposNote );
-			float pos = pposNote->get_position();
+			double fPos = pposNote->get_position();
 			int xoffset = 0;
-			FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
+			FOREACH_NOTE_CST_IT_BOUND(notes,coit,fPos) {
 				Note *pNote = coit->second;
 				assert( pNote );
 				if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument )
@@ -1050,7 +1049,6 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 					continue;
 				}
 
-				float fPos = pos;
 				uint x_pos = round( m_nMargin + ( fPos * m_fGridWidth ) );
 
 				int red1 = (int) (pNote->get_velocity() * 255);

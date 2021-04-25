@@ -101,7 +101,7 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 void DrumPatternEditor::addOrRemoveNote( int nGridIndex, int nRealColumn, int row, bool bDoAdd, bool bDoDelete ) {
 
 	/* convert gridIndex into the nearest tick */
-	float fTickPosition = nGridIndex * granularity(); // TODO make this a macro? makeDOUBLE
+	double fTickPosition = nGridIndex * granularity(); // TODO make this a macro?
 	
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( row );
@@ -175,7 +175,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 		return;
 	}
 
-	float fTickPosition = getColumn( ev->x(), /* bUseFineGrained=*/ true ); // position of nearest grid mark in ticks
+	double fTickPosition = getColumn( ev->x(), /* bUseFineGrained=*/ true ); // position of nearest grid mark in ticks
 	int nGridIndex = getGridIndex( ev->x() ); // index of nearest grid mark
 	int nRealColumn = 0; // TODO what is the use of this? does it affect tuplets? currently it is not rounded
 	if( ev->x() > m_nMargin ) {
@@ -193,7 +193,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 		HydrogenApp *pApp = HydrogenApp::get_instance();
 		Note *pNote = m_pPattern->find_note( fTickPosition, nRealColumn, pSelectedInstrument, false );
 		if ( pNote != nullptr ) {
-			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( fTickPosition, //TODO
+			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( fTickPosition,
 																			 row,
 																			 m_nSelectedPatternNumber,
 																			 pNote->get_length(),
@@ -272,7 +272,7 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 	}
 }
 
-void DrumPatternEditor::addOrDeleteNoteAction(	float fTickPosition, // TODO makedouble
+void DrumPatternEditor::addOrDeleteNoteAction(	double fTickPosition,
 												int row,
 												int selectedPatternNumber,
 												int oldLength,
@@ -311,7 +311,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	float fTickPosition, // TODO make
 		// Find and delete an existing (matching) note.
 		Pattern::notes_t *notes = (Pattern::notes_t *) pPattern->get_notes();
 		bool bFound = false;
-		FOREACH_NOTE_IT_BOUND( notes, it,  fTickPosition ) { //TODO position tolerance
+		FOREACH_NOTE_IT_BOUND( notes, it, fTickPosition ) { //TODO position tolerance
 			Note *pNote = it->second;
 			assert( pNote );
 			if ( ( isNoteOff && pNote->get_note_off() )
@@ -334,7 +334,6 @@ void DrumPatternEditor::addOrDeleteNoteAction(	float fTickPosition, // TODO make
 
 	} else {
 		// create the new note
-		float nPosition = fTickPosition; // why another variable?
 		float fVelocity = oldVelocity;
 		float fPan_L = oldPan_L ;
 		float fPan_R = oldPan_R;
@@ -352,7 +351,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	float fTickPosition, // TODO make
 
 		float fPitch = 0.f;
 		
-		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
+		Note *pNote = new Note( pSelectedInstrument, fTickPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
 		pNote->set_note_off( isNoteOff );
 		if ( !isNoteOff ) {
 			pNote->set_lead_lag( oldLeadLag );
@@ -1085,11 +1084,11 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 		// markers for instruments which have more than one note in the same position (a chord or genuine
 		// duplicates)
 		for ( auto posIt = pNotes->begin(); posIt != pNotes->end(); ) {
-			float nPosition = posIt->second->get_position();
+			double fPosition = posIt->second->get_position();
 
 			// Process all notes at this position
 			auto noteIt = posIt;
-			while ( noteIt != pNotes->end() && noteIt->second->get_position() == nPosition ) {
+			while ( noteIt != pNotes->end() && noteIt->second->get_position() == fPosition ) {
 				Note *pNote = noteIt->second;
 
 				int nInstrumentID = pNote->get_instrument_id();
@@ -1113,7 +1112,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 				if ( noteCount[ nInstrumentID ] >  1 ) {
 					// Draw "2x" text to the left of the note
 					int nInstrument = pInstrList->index( pInstrument );
-					int x = m_nMargin + round( nPosition * m_fGridWidth );
+					int x = m_nMargin + round( fPosition * m_fGridWidth );
 					int y = ( nInstrument * m_nGridHeight);
 					const int boxWidth = 128;
 					QFont font;

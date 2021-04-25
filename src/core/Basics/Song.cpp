@@ -1531,7 +1531,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* pInstrList )
 
 			Note* pNote = nullptr;
 
-			float nPosition = LocalFileMng::readXmlFloat( noteNode, "position", 0 );
+			double fPosition = LocalFileMng::readXmlFloat( noteNode, "position", 0 ); // TODO readXmlDouble
 			float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0, false, false );
 			float fVelocity = LocalFileMng::readXmlFloat( noteNode, "velocity", 0.8f );
 			float fPan_L = LocalFileMng::readXmlFloat( noteNode, "pan_L", 0.5 );
@@ -1558,7 +1558,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* pInstrList )
 				noteoff = true;
 			}
 
-			pNote = new Note( pInstrumentRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch );
+			pNote = new Note( pInstrumentRef, fPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch );
 			pNote->set_key_octave( sKey );
 			pNote->set_lead_lag( fLeadLag );
 			pNote->set_note_off( noteoff );
@@ -1582,7 +1582,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* pInstrList )
 
 				Note* pNote = nullptr;
 
-				unsigned nPosition = LocalFileMng::readXmlInt( noteNode, "position", 0 );
+				double fPosition = LocalFileMng::readXmlFloat( noteNode, "position", 0 ); // TODO readXmlDouble
 				float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0, false, false );
 				float fVelocity = LocalFileMng::readXmlFloat( noteNode, "velocity", 0.8f );
 				float fPan_L = LocalFileMng::readXmlFloat( noteNode, "pan_L", 0.5 );
@@ -1595,7 +1595,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* pInstrList )
 				Instrument* instrRef = pInstrList->find( instrId );
 				assert( instrRef );
 
-				pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch );
+				pNote = new Note( instrRef, fPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch );
 				pNote->set_lead_lag( fLeadLag );
 
 				//infoLog( "new note!! pos: " + toString( pNote->m_nPosition ) + "\t instr: " + instrId );
