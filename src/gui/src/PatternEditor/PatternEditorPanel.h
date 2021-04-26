@@ -82,9 +82,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		void ensureCursorVisible();
 		int getCursorIndexPosition();
 		int getCursorPosition(); // TODO use this in many lines rather than the explicit expression? make inline
-		float getCursorFloatPosition(); // TODO use this in many lines rather than the explicit expression? make inline
+		double getCursorFloatPosition(); // TODO use this in many lines rather than the explicit expression? make inline
 		void setCursorIndexPosition( int nGridIndex );
-		void setCursorPosition( int nColumn ); //TODO deprecate and use next
 		// used to update the cursor when changing resolution
 		void setCursorPosition( double fColumn ); //TODO rename setCursorFloatTickPosition. 
 		int moveCursorLeft( int n = 1 );

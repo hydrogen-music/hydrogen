@@ -644,8 +644,7 @@ void PatternEditorPanel::on_patternEditorHScroll( int nValue )
 
 
 void PatternEditorPanel::gridResolutionChanged( int nSelected ) {
-	float fOldCursorTickPosition = getCursorFloatPosition(); printf("fOldCursorTickPosition =%f\n", fOldCursorTickPosition);
-
+	double fOldCursorTickPosition = getCursorFloatPosition();
 	if ( nSelected == 11 ) {
 		m_nResolution = MAX_NOTES;
 		m_nTupletNumerator = 4;
@@ -1058,8 +1057,7 @@ void PatternEditorPanel::tupletLCDClicked()
 	Preferences *pPref = Preferences::get_instance();
 	bool bIsOkPressed;
 	// want to show ratio to see the input format, even if tuplet is currently off 
-	QString text = QString( "%1:%2" ).arg( pPref->getPatternEditorGridTupletNumerator() )
-									.arg( pPref->getPatternEditorGridTupletDenominator() );
+	QString text = QString( "%1:%2" ).arg( m_nTupletNumerator ).arg( m_nTupletDenominator );
 									
 	/*QString text = m_pTupletLCD->getText(); //TODO cancel
 	if ( text == "off" ) {
@@ -1074,6 +1072,7 @@ void PatternEditorPanel::tupletLCDClicked()
 	    if	( m_pTupletLCD->getText() == qtmp ) { // text unchanged
 	    	return;
 	    }
+	    double fOldCursorTickPosition = getCursorFloatPosition();
 	    
 		QStringList parts = qtmp.split( ':' );
 		if ( parts.size() == 1 || parts.size() == 2 ) { // must reject if parts.size > 2 or null
@@ -1099,8 +1098,6 @@ void PatternEditorPanel::tupletLCDClicked()
 					return;
 				}
 				else { // set tuplet numerator and denominator
-					float fOldCursorTickPosition = getCursorFloatPosition();
-						
 					setTupletRatioToAllEditors( m_nTupletNumerator, m_nTupletDenominator );
 						
 					// move cursor to the nearest grid mark.
@@ -1261,9 +1258,9 @@ int PatternEditorPanel::getCursorPosition()
 {
 	return round( m_nCursorIndexPosition * granularity() );
 }
-float PatternEditorPanel::getCursorFloatPosition()
+double PatternEditorPanel::getCursorFloatPosition()
 {
-	return (float) m_nCursorIndexPosition * granularity();
+	return m_nCursorIndexPosition * granularity();
 }
 
 void PatternEditorPanel::ensureCursorVisible()
@@ -1286,28 +1283,16 @@ void PatternEditorPanel::setCursorIndexPosition( int nGridIndex )
 	}
 }
 
-void PatternEditorPanel::setCursorPosition( int nColumn ) //TODO deprecate and use next function?
-{
-	if ( nColumn < 0 ) {
-		m_nCursorIndexPosition = 0; 
-	} else if ( m_pPattern != nullptr) { // avoid segm fault at start //TODO look down better statements
-		if ( nColumn >= m_pPattern->get_length() ) { // THIS CAUSES segmentation fault at start because there's no pPattern?)
-			m_nCursorIndexPosition = m_pPattern->get_length() / granularity(); // will be floored by (int) cast
-		}
-	 	else {
-		m_nCursorIndexPosition = round( (float) nColumn / granularity() ); //TODO round? since it is used in resolutionChanged, floor ensure to not exceed the pattern length
-		}
-	}
-}
 void PatternEditorPanel::setCursorPosition( double fColumn )
 {
 	if ( fColumn < 0. ) {
 		m_nCursorIndexPosition = 0;
 	} else {
-		m_nCursorIndexPosition = round( (float) fColumn / granularity() ); //TODO round()? since it is used in resolutionChanged, floor() ensures to not exceed the pattern length... should floor() cause problems?
+		m_nCursorIndexPosition = round( fColumn / granularity() ); //TODO round()? since it is used in resolutionChanged, floor() ensures to not exceed the pattern length... should floor() cause problems?
 		if ( m_pPattern != nullptr) { // avoid segm fault at start
 			if ( m_nCursorIndexPosition * granularity() >= m_pPattern->get_length() ) { // THIS CAUSES segmentation fault at start because there's no pPattern)
 				m_nCursorIndexPosition--;
+				std::cout << "here\n";
 			}
 		}
 	}
