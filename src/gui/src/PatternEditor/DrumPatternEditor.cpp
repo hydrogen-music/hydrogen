@@ -176,6 +176,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	}
 
 	double fTickPosition = getColumn( ev->x(), /* bUseFineGrained=*/ true ); // position of nearest grid mark in ticks
+	printf("tick pos = %f\n", fTickPosition );
 	int nGridIndex = getGridIndex( ev->x() ); // index of nearest grid mark
 	int nRealColumn = 0; // TODO what is the use of this? does it affect tuplets? currently it is not rounded
 	if( ev->x() > m_nMargin ) {
@@ -381,14 +382,16 @@ void DrumPatternEditor::addOrDeleteNoteAction(	double fTickPosition,
 }
 
 
-// Find a note that matches pNote, and move it from (nColumn, nRow) to (nNewColumn, nNewRow)
-void DrumPatternEditor::moveNoteAction( int nColumn,
+// Find a note that matches pNote, and move it from (fColumn, nRow) to (fNewColumn, nNewRow)
+void DrumPatternEditor::moveNoteAction( double fColumn,
 										int nRow,
 										int nPattern,
-										int nNewColumn,
+										double fNewColumn,
 										int nNewRow,
 										Note *pNote)
 {
+
+	printf("fColumn = %f, newColumn = %f\n", fColumn, fNewColumn );
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
 
@@ -407,7 +410,7 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 	Instrument *pFromInstrument = pInstrumentList->get( nRow ),
 		*pToInstrument = pInstrumentList->get( nNewRow );
 
-	FOREACH_NOTE_IT_BOUND((Pattern::notes_t *)pPattern->get_notes(), it, nColumn) {
+	FOREACH_NOTE_IT_BOUND((Pattern::notes_t *)pPattern->get_notes(), it, fColumn) {
 		Note *pCandidateNote = it->second;
 		if ( pCandidateNote->get_instrument() == pFromInstrument
 			 && pCandidateNote->get_key() == pNote->get_key()
@@ -431,9 +434,10 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 	}
 
 	pPattern->remove_note( pFoundNote );
+
 	if ( pFromInstrument == pToInstrument ) {
 		// Note can simply be moved.
-		pFoundNote->set_position( nNewColumn );
+		pFoundNote->set_position( fNewColumn );
 		pPattern->insert_note( pFoundNote );
 	} else {
 		pPattern->remove_note( pFoundNote );
@@ -443,7 +447,7 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 			m_selection.removeFromSelection( pFoundNote, /* bCheck=*/false  );
 			m_selection.addToSelection( pNewNote );
 		}
-		pNewNote->set_position( nNewColumn );
+		pNewNote->set_position( fNewColumn );
 		m_selection.addToSelection( pNewNote );
 		pPattern->insert_note( pNewNote );
 		delete pFoundNote;
@@ -484,7 +488,7 @@ void DrumPatternEditor::mouseDragEndEvent( QMouseEvent *ev )
 void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 {
 	updateModifiers( ev );
-	QPoint offset = movingGridOffset(); //TODO calculate x offset differently = FinalfPosInTick - startfPosInTicks
+	QPointF offset = movingGridOffset(); //TODO calculate x offset differently = FinalfPosInTick - startfPosInTicks
 	if ( offset.x() == 0 && offset.y() == 0 ) {
 		// Move with no effect.
 		return;
@@ -514,17 +518,17 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 
 	for ( auto pNote : selectedNotes ) {
 		int nInstrument = pInstrumentList->index( pNote->get_instrument() );
-		int nPosition = pNote->get_position();
+		double fPosition = pNote->get_position();
 		int nNewInstrument = nInstrument + offset.y();
-		int nNewPosition = nPosition + offset.x();  //TODO
+		double fNewPosition = fPosition + offset.x();
 		if ( nNewInstrument < 0 || nNewInstrument >= pInstrumentList->size()
-			 || nNewPosition < 0 || nNewPosition >= m_pPattern->get_length() ) {
+			 || fNewPosition < 0 || fNewPosition >= m_pPattern->get_length() ) {
 
 			if ( m_bCopyNotMove ) {
 				// Copying a note to an out-of-range location. Nothing to do.
 			} else {
 				// Note is moved out of range. Delete it.
-				pUndo->push( new SE_addOrDeleteNoteAction( nPosition,
+				pUndo->push( new SE_addOrDeleteNoteAction( fPosition,
 														   nInstrument,
 														   m_nSelectedPatternNumber,
 														   pNote->get_length(),
@@ -545,7 +549,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		} else {
 			if ( m_bCopyNotMove ) {
 				// Copy note to a new note.
-				pUndo->push( new SE_addOrDeleteNoteAction( nNewPosition,
+				pUndo->push( new SE_addOrDeleteNoteAction( fNewPosition,
 														   nNewInstrument,
 														   m_nSelectedPatternNumber,
 														   pNote->get_length(),
@@ -563,8 +567,8 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 														   false ) );
 			} else {
 				// Move note
-				pUndo->push( new SE_moveNoteAction( nPosition, nInstrument, m_nSelectedPatternNumber, //TODO
-													nNewPosition, nNewInstrument, pNote ) );
+				pUndo->push( new SE_moveNoteAction( fPosition, nInstrument, m_nSelectedPatternNumber,
+													fNewPosition, nNewInstrument, pNote ) );
 			}
 		}
 	}

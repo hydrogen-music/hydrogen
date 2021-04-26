@@ -1232,7 +1232,7 @@ void PianoRollEditor::editNotePropertiesAction( int nColumn,
 void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 	updateModifiers( ev );
 
-	QPoint offset = movingGridOffset();
+	QPointF offset = movingGridOffset();
 	if ( offset.x() == 0 && offset.y() == 0 ) {
 		// Move with no effect.
 		return;

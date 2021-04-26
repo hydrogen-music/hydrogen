@@ -656,7 +656,7 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected ) {
 		m_pTupletLCD->setText( QString( "%1:%2" ).arg( m_nTupletNumerator ).arg( m_nTupletDenominator ) );
 		Preferences::get_instance()->setPatternEditorGridTupletRatio( m_nTupletNumerator, m_nTupletDenominator );		
 	}
-	else if ( nSelected > 4 ) { // TODO deprecate or keep triplets here?
+	else if ( nSelected > 4 ) {
 		m_nTupletNumerator = 3;
 		m_nTupletDenominator = 2;
 		m_nResolution = 0x1 << ( nSelected - 4 );
@@ -1087,7 +1087,7 @@ void PatternEditorPanel::tupletLCDClicked()
 				}
 		    }
 		    else { // user entered numerator only. compute the standard denominator
-		    	m_nTupletDenominator = 1; //TODO binary operator
+		    	m_nTupletDenominator = 1;
 		    	while ( ( 2 * m_nTupletDenominator ) <= m_nTupletNumerator ) {
 		    		m_nTupletDenominator *= 2;
 		    	}

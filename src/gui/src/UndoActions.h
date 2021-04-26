@@ -687,13 +687,13 @@ private:
 class SE_moveNoteAction : public QUndoCommand
 {
 public:
-	SE_moveNoteAction( int nOldPosition, int nOldInstrument, int nPattern, int nNewPosition, int nNewInstrument,
-					   H2Core::Note *pNote )
+	SE_moveNoteAction( double fOldPosition, int nOldInstrument, int nPattern, double fNewPosition,
+			 int nNewInstrument, H2Core::Note *pNote )
 	{
-		m_nOldPosition = nOldPosition;
+		m_fOldPosition = fOldPosition;
 		m_nOldInstrument = nOldInstrument;
 		m_nPattern = nPattern;
-		m_nNewPosition = nNewPosition;
+		m_fNewPosition = fNewPosition;
 		m_nNewInstrument = nNewInstrument;
 		m_pNote = new H2Core::Note( pNote );
 	}
@@ -706,22 +706,22 @@ public:
 	virtual void undo()
 	{
 		HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()
-			->moveNoteAction( m_nNewPosition, m_nNewInstrument, m_nPattern,
-							  m_nOldPosition, m_nOldInstrument, m_pNote );
+			->moveNoteAction( m_fNewPosition, m_nNewInstrument, m_nPattern,
+							  m_fOldPosition, m_nOldInstrument, m_pNote );
 	}
 
 	virtual void redo()
 	{
 		HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()
-			->moveNoteAction( m_nOldPosition, m_nOldInstrument, m_nPattern,
-							  m_nNewPosition, m_nNewInstrument, m_pNote );
+			->moveNoteAction( m_fOldPosition, m_nOldInstrument, m_nPattern,
+							  m_fNewPosition, m_nNewInstrument, m_pNote );
 	}
 
 private:
-	int m_nOldPosition;
+	double m_fOldPosition;
 	int m_nOldInstrument;
 	int m_nPattern;
-	int m_nNewPosition;
+	double m_fNewPosition;
 	int m_nNewInstrument;
 	H2Core::Note *m_pNote;
 };

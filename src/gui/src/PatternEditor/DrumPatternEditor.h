@@ -71,10 +71,10 @@ class DrumPatternEditor : public PatternEditor
 										bool isInstrumentMode,
 										bool isNoteOff,
 										bool isDelete );
-		void moveNoteAction( int nColumn,
+		void moveNoteAction( double fColumn,
 							 int nRow,
 							 int nPattern,
-							 int nNewColumn,
+							 double fNewColumn,
 							 int nNewRow,
 							 H2Core::Note *note);
 

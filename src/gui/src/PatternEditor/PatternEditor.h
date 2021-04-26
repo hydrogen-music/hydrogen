@@ -165,8 +165,8 @@ public slots:
 protected:
 
 	//! Granularity of grid positioning ( = distance between grid marks), in tick units
-	float granularity() const { // float for tuplets
-		return (float) MAX_NOTES * m_nTupletDenominator / ( m_nTupletNumerator * m_nResolution );
+	double granularity() const { // float for tuplets
+		return (double) MAX_NOTES * m_nTupletDenominator / ( m_nTupletNumerator * m_nResolution );
 	}
 
 	uint m_nEditorHeight;
@@ -232,13 +232,13 @@ protected:
 
 	// Magnetic conversions (quantized by the grid granularity)
 	/* from the pixel position to the position of the nearest grid mark, in tick units */
-	float getColumn( int x, bool bUseFineGrained = false ) const;
+	double getColumn( int x, bool bUseFineGrained = false ) const;
 	/* from the pixel position to the position of the nearest grid mark, in tick units (unrounded value!) */
-	float getFloatColumn( int x ) const;
+	double getFloatColumn( int x ) const; // TODO deprecate and use the previous
 	/* from the pixel position to the index of the nearest grid mark */
 	int getGridIndex( int x ) const;
 
-	QPoint movingGridOffset() const;
+	QPointF movingGridOffset() const;
 
 	//! Draw lines for note grid.
 	void drawGridLines( QPainter &p, Qt::PenStyle style = Qt::SolidLine ) const;

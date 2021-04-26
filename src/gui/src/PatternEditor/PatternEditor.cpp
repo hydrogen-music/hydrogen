@@ -186,7 +186,7 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 	if ( bMoving ) {
 		movingPen.setStyle( Qt::DotLine );
 		movingPen.setWidth( 2 );
-		QPoint delta = movingGridOffset();
+		QPointF delta = movingGridOffset();
 		movingOffset = QPoint( delta.x() * m_fGridWidth,
 							   delta.y() * m_nGridHeight );
 	}
@@ -251,32 +251,31 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 }
 
 
-float PatternEditor::getColumn( int x, bool bUseFineGrained ) const
+double PatternEditor::getColumn( int x, bool bUseFineGrained ) const
 {	// without fineGrain, returns the position of the nearest grid mark, in tick units (rounded value!)
 	// with fineGrain, returns the position of nearest tick with res = 192/whole note
 
 	if ( x <= m_nMargin ) {
 		return 0;
 	} else {
-		float fGranularity;
+		double fGranularity;
 		if ( bUseFineGrained && m_bFineGrained ) {
 			fGranularity = 1.;
 		} else {
 			fGranularity = granularity();
 		}
 		
-		float fWidth = m_fGridWidth * fGranularity; // distance between grid marks (or ticks), in pixel units
-		float fGridIndex = round( ( x - m_nMargin ) / fWidth ); // The index of the nearest grid mark (or tick)
+		double fWidth = m_fGridWidth * fGranularity; // distance between grid marks (or ticks), in pixel units
+		double fGridIndex = round( ( x - m_nMargin ) / fWidth ); // The index of the nearest grid mark (or tick)
 		return fGridIndex * fGranularity; // the position of the nearest grid mark (or tick), in tick units
 	}
 }
 
-float PatternEditor::getFloatColumn( int x ) const {
+double PatternEditor::getFloatColumn( int x ) const {
 	// converts the position in ticks, unrounded for calculate tuplets position mismatch
-	float fWidth = m_fGridWidth * granularity(); // distance between grid marks, in pixel units
-	float fGridIndex = round( ( x - m_nMargin ) / fWidth ); // The index of the nearest grid mark
-	float fColumn = fGridIndex * granularity(); // the position of the nearest grid mark, in tick units
-	return fColumn;
+	double fWidth = m_fGridWidth * granularity(); // distance between grid marks, in pixel units
+	double fGridIndex = round( ( x - m_nMargin ) / fWidth ); // The index of the nearest grid mark
+	return fGridIndex * granularity(); // the position of the nearest grid mark, in tick units
 }
 
 int PatternEditor::getGridIndex( int x ) const {
@@ -550,25 +549,23 @@ void PatternEditor::updatePatternInfo() {
 }
 
 
-QPoint PatternEditor::movingGridOffset( ) const {
+QPointF PatternEditor::movingGridOffset( ) const {
 	QPoint rawOffset = m_selection.movingOffset();
-	// Quantize offset to multiples of m_nGrid{Width,Height}
-	int nQuantX = m_fGridWidth, nQuantY = m_nGridHeight;
-	float nFactor = 1;
+	// Quantize offset to multiples of m_fGrid{Width,Height}
+	double fQuantX = m_fGridWidth;
+	int nQuantY = m_nGridHeight;
+	double fFactor = 1;
 	if ( ! m_bFineGrained ) {
-		nFactor = granularity();
-		nQuantX = m_fGridWidth * nFactor;
+		fFactor = granularity();
+		fQuantX = m_fGridWidth * fFactor;
 	}
-	int x_bias = nQuantX / 2, y_bias = nQuantY / 2;
+	int y_bias = nQuantY / 2;
 	if ( rawOffset.y() < 0 ) {
 		y_bias = -y_bias;
 	}
-	if ( rawOffset.x() < 0 ) {
-		x_bias = -x_bias;
-	}
-	int x_off = (rawOffset.x() + x_bias) / nQuantX;
+	double x_off = round( rawOffset.x() / fQuantX );
 	int y_off = (rawOffset.y() + y_bias) / nQuantY;
-	return QPoint( nFactor * x_off, y_off);
+	return QPointF( fFactor * x_off, y_off);
 }
 
 
