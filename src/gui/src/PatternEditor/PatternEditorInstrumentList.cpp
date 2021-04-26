@@ -388,7 +388,7 @@ void InstrumentLine::functionFillNotes( int every )
 
 	Song *pSong = pEngine->getSong();
 
-	std::vector<float> notePositions;
+	std::vector<double> notePositions;
 
 	Pattern* pCurrentPattern = getCurrentPattern();
 	if ( pCurrentPattern != nullptr ) {
@@ -399,7 +399,7 @@ void InstrumentLine::functionFillNotes( int every )
 			Instrument *instrRef = (pSong->getInstrumentList())->get( nSelectedInstrument );
 
 			int i = 0;
-			float fColumn = 0;
+			double fColumn = 0;
 			while ( fColumn < nPatternSize) {
 				bool noteAlreadyPresent = false;
 				const Pattern::notes_t* notes = pCurrentPattern->get_notes();

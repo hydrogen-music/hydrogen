@@ -244,7 +244,7 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 	int row = (int)( ev->y()  / (float)m_nGridHeight);
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
-	float fTickPosition = getColumn( ev->x() ); //TODO makedouble?
+	double fTickPosition = getColumn( ev->x() );
 	if ( ev->button() == Qt::RightButton ) {
 		// Right button drag: adjust note length
 		int nRealColumn = 0;
@@ -312,7 +312,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	double fTickPosition,
 		// Find and delete an existing (matching) note.
 		Pattern::notes_t *notes = (Pattern::notes_t *) pPattern->get_notes();
 		bool bFound = false;
-		FOREACH_NOTE_IT_BOUND( notes, it, fTickPosition ) { //TODO position tolerance
+		FOREACH_NOTE_IT_BOUND( notes, it, fTickPosition ) {
 			Note *pNote = it->second;
 			assert( pNote );
 			if ( ( isNoteOff && pNote->get_note_off() )
@@ -488,7 +488,7 @@ void DrumPatternEditor::mouseDragEndEvent( QMouseEvent *ev )
 void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 {
 	updateModifiers( ev );
-	QPointF offset = movingGridOffset(); //TODO calculate x offset differently = FinalfPosInTick - startfPosInTicks
+	QPointF offset = movingGridOffset();
 	if ( offset.x() == 0 && offset.y() == 0 ) {
 		// Move with no effect.
 		return;
@@ -577,7 +577,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 }
 
 
-void DrumPatternEditor::editNoteLengthAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber ) //TODO float arg
+void DrumPatternEditor::editNoteLengthAction( double fColumn, int nRealColumn, int row, double length, int selectedPatternNumber )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->getPatternList();
@@ -594,7 +594,7 @@ void DrumPatternEditor::editNoteLengthAction( int nColumn, int nRealColumn, int 
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-		pDraggedNote = pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
+		pDraggedNote = pPattern->find_note( fColumn, nRealColumn, pSelectedInstrument, false );
 		if( pDraggedNote ){
 			pDraggedNote->set_length( length );
 		}
@@ -1052,8 +1052,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 
 	// Draw cursor
 	if ( hasFocus() && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		//uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;	
-		uint x = m_nMargin + m_pPatternEditorPanel->getCursorIndexPosition()* granularity() * m_fGridWidth; //TODO check
+		uint x = round( m_nMargin + m_pPatternEditorPanel->getCursorIndexPosition()* granularity() * m_fGridWidth );
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		uint y = nSelectedInstrument * m_nGridHeight;
 		QPen p( Qt::black );
@@ -1295,7 +1294,7 @@ void DrumPatternEditor::selectedPatternChangedEvent()
 
 
 ///NotePropertiesRuler undo redo action
-void DrumPatternEditor::undoRedoAction( int column,
+void DrumPatternEditor::undoRedoAction( double column,
 					QString mode,
 					int nSelectedPatternNumber,
 					int nSelectedInstrument,
@@ -1321,7 +1320,7 @@ void DrumPatternEditor::undoRedoAction( int column,
 		FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
 			Note *pNote = it->second;
 			assert( pNote );
-			assert( (int)pNote->get_position() == column );
+			//assert( (int)pNote->get_position() == column ); // TODO tolerance. is this redundant?
 			if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
 				continue;
 			}
@@ -1511,7 +1510,7 @@ void DrumPatternEditor::functionPasteNotesRedoAction(std::list<H2Core::Pattern*>
 
 
 //void DrumPatternEditor::functionFillNotesUndoAction( QStringList noteList, int nSelectedInstrument, int patternNumber )
-void DrumPatternEditor::functionFillNotesUndoAction( std::vector<float> notePositions,
+void DrumPatternEditor::functionFillNotesUndoAction( std::vector<double> notePositions,
 													  int nSelectedInstrument, int patternNumber )
 {
 	Hydrogen * H = Hydrogen::get_instance();
@@ -1521,9 +1520,7 @@ void DrumPatternEditor::functionFillNotesUndoAction( std::vector<float> notePosi
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
 
-	//for (int i = 0; i < noteList.size(); i++ ) {
-	for (int i = 0; i < notePositions.size(); i++ ) {
-		// int nColumn  = noteList.value(i).toInt();
+	for ( int i = 0; i < notePositions.size(); i++ ) {
 		Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->get_notes();
 		FOREACH_NOTE_IT_BOUND( notes, it, notePositions[i] ) {
 			Note *pNote = it->second;
@@ -1545,7 +1542,7 @@ void DrumPatternEditor::functionFillNotesUndoAction( std::vector<float> notePosi
 
 //void DrumPatternEditor::functionFillNotesRedoAction( QStringList noteList, int nSelectedInstrument, int patternNumber )
 
-void DrumPatternEditor::functionFillNotesRedoAction( std::vector<float> notePositions,
+void DrumPatternEditor::functionFillNotesRedoAction( std::vector<double> notePositions,
 													 int nSelectedInstrument, int patternNumber )
 {
 	Hydrogen * H = Hydrogen::get_instance();
@@ -1563,7 +1560,6 @@ void DrumPatternEditor::functionFillNotesRedoAction( std::vector<float> notePosi
 	for (int i = 0; i < notePositions.size(); i++ ) {
 
 		// create the new note
-		//int position = noteList.value(i).toInt();
 		Note *pNote = new Note( pSelectedInstrument, notePositions[i], velocity, pan_L, pan_R, nLength, fPitch );
 		pPattern->insert_note( pNote );
 	}
@@ -1584,7 +1580,7 @@ void DrumPatternEditor::functionRandomVelocityAction( QStringList noteVeloValue,
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
 
-	float fResolution = granularity();
+	double fResolution = granularity();
 	int positionCount = 0;
 	for (int i = 0; i*fResolution < pPattern->get_length(); i++ ) { //TODO while() loop using variable float fPosition
 		const Pattern::notes_t* notes = pPattern->get_notes();

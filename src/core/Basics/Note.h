@@ -171,9 +171,9 @@ class Note : public H2Core::Object
 		 * #__length setter
 		 * \param value the new value
 		 */
-		void set_length( int value );
+		void set_length( double value );
 		/** #__length accessor */
-		int get_length() const;
+		double get_length() const;
 		/**
 		 * #__pitch setter
 		 * \param value the new value
@@ -318,7 +318,7 @@ class Note : public H2Core::Object
 		float			__velocity;           ///< velocity (intensity) of the note [0;1]
 		float			__pan_l;              ///< pan of the note (left volume) [0;0.5]
 		float			__pan_r;              ///< pan of the note (right volume) [0;0.5]
-		int				__length;               ///< the length of the note
+		double			__length;               ///< the length of the note
 		float			__pitch;              ///< the frequency of the note
 		Key				__key;                  ///< the key, [0;11]==[C;B]
 		Octave			 __octave;            ///< the octave [-3;3]
@@ -407,12 +407,12 @@ inline float Note::get_lead_lag() const
 	return __lead_lag;
 }
 
-inline void Note::set_length( int value )
+inline void Note::set_length( double value )
 {
 	__length = value;
 }
 
-inline int Note::get_length() const
+inline double Note::get_length() const
 {
 	return __length;
 }

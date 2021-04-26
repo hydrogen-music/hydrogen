@@ -79,8 +79,8 @@ class DrumPatternEditor : public PatternEditor
 							 H2Core::Note *note);
 
 		void addOrRemoveNote( int nGridIndex, int nRealColumn, int row, bool bDoAdd = true, bool bDoDelete = true );
-		void editNoteLengthAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber );
-		void undoRedoAction(    int column,
+		void editNoteLengthAction( double fColumn, int nRealColumn, int row, double length, int selectedPatternNumber );
+		void undoRedoAction(    double column,
 								QString mode,
 								int nSelectedPatternNumber,
 								int nSelectedInstrument,
@@ -94,9 +94,9 @@ class DrumPatternEditor : public PatternEditor
 		void functionClearNotesRedoAction( int nSelectedInstrument, int selectedPatternNumber );
 		void functionClearNotesUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, int patternNumber );
 		//void functionFillNotesUndoAction( QStringList noteList, int nSelectedInstrument, int patternNumber );
-		void functionFillNotesUndoAction( std::vector<float> notePositions, int nSelectedInstrument, int patternNumber );
+		void functionFillNotesUndoAction( std::vector<double> notePositions, int nSelectedInstrument, int patternNumber );
 		//void functionFillNotesRedoAction( QStringList noteList, int nSelectedInstrument, int patternNumber );
-		void functionFillNotesRedoAction( std::vector<float> notePositions, int nSelectedInstrument, int patternNumber );
+		void functionFillNotesRedoAction( std::vector<double> notePositions, int nSelectedInstrument, int patternNumber );
 		void functionRandomVelocityAction( QStringList noteVeloValue, int nSelectedInstrument, int selectedPatternNumber );
 		void functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument );
 		void functionDropInstrumentUndoAction( int nTargetInstrument, std::vector<int>* AddedComponents );
@@ -151,9 +151,9 @@ class DrumPatternEditor : public PatternEditor
 		QString renameCompo( QString OriginalName );
 
 		int __nRealColumn;
-		int m_fTickPosition;
+		double m_fTickPosition;
 		int __row;
-		int __oldLength;
+		double __oldLength;
 };
 
 

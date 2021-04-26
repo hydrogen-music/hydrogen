@@ -126,7 +126,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		fDelta = fDelta * -1.0;
 	}
 
-	float m_fTickPosition = getColumn( ev->x() );
+	double m_fTickPosition = getColumn( ev->x() );
 	int nGridIndex = getGridIndex( ev->x() ); //unused
 
 	m_pPatternEditorPanel->setCursorIndexPosition( nGridIndex );
@@ -268,7 +268,7 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 {
 	if ( ev->buttons() == Qt::NoButton ) {
-		float fTickPosition = getColumn( ev->x() );
+		double fTickPosition = getColumn( ev->x() );
 		bool bFound = false;
 		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, fTickPosition ) {
 			bFound = true;
@@ -338,7 +338,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	}
 
 	double m_fTickPosition = getColumn( ev->x() );
-	int nGridIndex = getGridIndex( ev->x() ); // unused
+	int nGridIndex = getGridIndex( ev->x() );
 
 	m_pPatternEditorPanel->setCursorIndexPosition( nGridIndex );
 	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
@@ -628,7 +628,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		}
 
 		if ( fDelta != 0.0 || bRepeatLastValue ) {
-			int column = round( m_pPatternEditorPanel->getCursorIndexPosition() * granularity() );
+			double fColumn = m_pPatternEditorPanel->getCursorIndexPosition() * granularity();
 			int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 			Song *pSong = (Hydrogen::get_instance())->getSong();
 			int nNotes = 0;
@@ -641,10 +641,10 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 					notes.push_back( pNote );
 				}
 			} else {
-				FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, column ) {
+				FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, fColumn ) {
 					Note *pNote = it->second;
 					assert( pNote );
-					assert( pNote->get_position() == column );
+					//assert( pNote->get_position() == column );
 					nNotes++;
 					notes.push_back( pNote );
 				}
@@ -659,7 +659,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 				}
 			}
 
-			prepareUndoAction( m_nMargin + column * m_fGridWidth );
+			prepareUndoAction( m_nMargin + fColumn * m_fGridWidth );
 
 			for ( Note *pNote : notes ) {
 
