@@ -566,7 +566,7 @@ void Preferences::loadPreferences( bool bGlobal )
 											 "patternEditorGridTupletNumerator", m_nPatternEditorGridTupletNumerator );
 				m_nPatternEditorGridTupletDenominator = LocalFileMng::readXmlInt( guiNode,
 										  "patternEditorGridTupletDenominator", m_nPatternEditorGridTupletDenominator );
-
+										  
 				m_bShowInstrumentPeaks = LocalFileMng::readXmlBool( guiNode, "showInstrumentPeaks", m_bShowInstrumentPeaks );
 				m_bIsFXTabVisible = LocalFileMng::readXmlBool( guiNode, "isFXTabVisible", m_bIsFXTabVisible );
 				m_bShowAutomationArea = LocalFileMng::readXmlBool( guiNode, "showAutomationArea", m_bShowAutomationArea );

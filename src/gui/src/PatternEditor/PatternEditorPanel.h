@@ -84,9 +84,9 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		int getCursorPosition(); // TODO use this in many lines rather than the explicit expression? make inline
 		float getCursorFloatPosition(); // TODO use this in many lines rather than the explicit expression? make inline
 		void setCursorIndexPosition( int nGridIndex );
-		void setCursorPosition(int nColumn ); //TODO deprecate and use next
+		void setCursorPosition( int nColumn ); //TODO deprecate and use next
 		// used to update the cursor when changing resolution
-		void setCursorPosition(float fColumn ); //TODO rename setCursorFloatTickPosition. 
+		void setCursorPosition( double fColumn ); //TODO rename setCursorFloatTickPosition. 
 		int moveCursorLeft( int n = 1 );
 		int moveCursorRight( int n = 1 );
 
@@ -94,8 +94,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 
 		void updateEditors( bool bPatternOnly = false );
 		//! Granularity of grid positioning ( = distance between grid marks), in tick units
-		float granularity() const { // float for tuplets
-			return (float) MAX_NOTES * m_nTupletDenominator / ( m_nTupletNumerator * m_nResolution );
+		double granularity() const { // float for tuplets
+			return (double) MAX_NOTES * m_nTupletDenominator / ( m_nTupletNumerator * m_nResolution );
 		}
 		int getTupletNumerator(){ return m_nTupletNumerator; }
 		int getTupletDenominator(){ return m_nTupletDenominator; }
@@ -197,7 +197,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		bool				m_bEnablePatternResize;
 		
 		
-		//TODO should these 3 members be here or only in preferences?
+		//TODO should these 3 members be here or only in preferences? or viceversa? Or maybe pref members should be overwritten 
+		//only when saving preferences, rather than being updated each time the user changes the editor panel
 		uint m_nResolution;
 		int	m_nTupletNumerator;
 		int	m_nTupletDenominator;

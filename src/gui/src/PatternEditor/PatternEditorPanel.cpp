@@ -71,13 +71,19 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 {
 	setAcceptDrops(true);
 
-	Preferences *pPref = Preferences::get_instance();
-
 	m_nCursorIndexPosition = 0;
-	m_nResolution = 8;
-	
-	m_nTupletNumerator = 4;
-	m_nTupletDenominator = 4;
+
+
+	Preferences *pPref = Preferences::get_instance();
+	if ( pPref ) { // TODO need this statement?
+		m_nResolution = pPref->getPatternEditorGridResolution();
+		m_nTupletNumerator = pPref->getPatternEditorGridTupletNumerator();
+		m_nTupletDenominator = pPref->getPatternEditorGridTupletDenominator();
+	} else { // default values
+		m_nResolution = 8;
+		m_nTupletNumerator = 4;
+		m_nTupletDenominator = 4;
+	}
 
 // Editor TOP
 	PixmapWidget *editor_top = new PixmapWidget( nullptr );
@@ -529,13 +535,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	// restore grid resolution
 	int nIndex;
-	int nRes = pPref->getPatternEditorGridResolution();
-	int nTupletNumerator = pPref->getPatternEditorGridTupletNumerator();
-	int nTupletDenominator = pPref->getPatternEditorGridTupletDenominator();
-	if ( nRes == MAX_NOTES ) {
+
+	if ( m_nResolution == MAX_NOTES ) {
 		nIndex = 11;
-	} else if ( nTupletNumerator != 3 || nTupletDenominator != 2 ) {
-		switch ( nRes ) {
+	} else if ( m_nTupletNumerator != 3 || m_nTupletDenominator != 2 ) {
+		switch ( m_nResolution ) {
 			case  4: nIndex = 0; break;
 			case  8: nIndex = 1; break;
 			case 16: nIndex = 2; break;
@@ -543,26 +547,25 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			case 64: nIndex = 4; break;
 			default:
 				nIndex = 0;
-				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
+				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( m_nResolution ) );
 		}
 	} else {
-		switch ( nRes ) {
+		switch ( m_nResolution ) {
 			case  4: nIndex = 6; break;
 			case  8: nIndex = 7; break;
 			case 16: nIndex = 8; break;
 			case 32: nIndex = 9; break;
 			default:
 				nIndex = 6;
-				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
+				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( m_nResolution ) );
 		}
 	}
 	__resolution_combo->select( nIndex );
 	
-	printf(" preferences tuplet: %d : %d\n", nTupletNumerator, nTupletDenominator );
-	if ( nTupletNumerator == 4 && nTupletDenominator == 4 ) {
+	if ( m_nTupletNumerator == 4 && m_nTupletDenominator == 4 ) {
 		m_pTupletLCD->setText( tr( "off" ) );
 	} else {
-		m_pTupletLCD->setText( QString("%1:%2").arg( nTupletNumerator ).arg( nTupletDenominator ) );
+		m_pTupletLCD->setText( QString("%1:%2").arg( m_nTupletNumerator ).arg( m_nTupletDenominator ) );
 	}
 
 	// LAYOUT
@@ -1296,7 +1299,7 @@ void PatternEditorPanel::setCursorPosition( int nColumn ) //TODO deprecate and u
 		}
 	}
 }
-void PatternEditorPanel::setCursorPosition( float fColumn )
+void PatternEditorPanel::setCursorPosition( double fColumn )
 {
 	if ( fColumn < 0. ) {
 		m_nCursorIndexPosition = 0;
@@ -1323,7 +1326,7 @@ int PatternEditorPanel::moveCursorLeft( int n )
 int PatternEditorPanel::moveCursorRight( int n )
 {
 	m_nCursorIndexPosition = std::min( m_nCursorIndexPosition + n,
-									   (int) ceil( m_pPattern->get_length() / granularity() - 1)
+									   (int) ceil( m_pPattern->get_length() / granularity() - 1 ) //TODO check formula
 									 );
 	ensureCursorVisible();
 
