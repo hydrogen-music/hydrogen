@@ -40,6 +40,7 @@
 #include <algorithm>
 #include <thread>
 #include <chrono>
+#include <ctime>
 
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
@@ -1798,6 +1799,128 @@ void Hydrogen::setInitialSong( Song *pSong )
 	// Push current state of Hydrogen to attached control interfaces,
 	// like OSC clients.
 	m_pCoreActionController->initExternalControlInterfaces();
+}
+
+QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
+
+	QString s = Object::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[Hydrogen]\n" ).arg( sPrefix )
+			.append( QString( "%1%2__song: " ).arg( sPrefix ).arg( s ) );
+		if ( __song != nullptr ) {
+			sOutput.append( QString( "%1" ).arg( __song->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( QString( "nullptr\n" ) );
+		}
+		sOutput.append( QString( "%1%2m_ntaktoMeterCompute: %3\n" ).arg( sPrefix ).arg( s ).arg( m_ntaktoMeterCompute ) )
+			.append( QString( "%1%2m_nbeatsToCount: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nbeatsToCount ) )
+			.append( QString( "%1%2m_nEventCount: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nEventCount ) )
+			.append( QString( "%1%2m_nTempoChangeCounter: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nTempoChangeCounter ) )
+			.append( QString( "%1%2m_nBeatCount: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nBeatCount ) )
+			.append( QString( "%1%2m_nBeatDiffs: [" ).arg( sPrefix ).arg( s ) );
+		for ( auto dd : m_nBeatDiffs ) {
+			sOutput.append( QString( " %1" ).arg( dd ) );
+		}
+		sOutput.append( QString( "]\n%1%2m_CurrentTime: %3" ).arg( sPrefix ).arg( s ).arg( std::ctime( &m_CurrentTime.tv_sec ) ) )
+			.append( QString( "%1%2m_nCoutOffset: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nCoutOffset ) )
+			.append( QString( "%1%2m_nStartOffset: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nStartOffset ) )
+			.append( QString( "%1%2m_oldEngineMode: %3\n" ).arg( sPrefix ).arg( s ).arg( m_oldEngineMode ) )
+			.append( QString( "%1%2m_bOldLoopEnabled: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bOldLoopEnabled ) )
+			.append( QString( "%1%2m_bExportSessionIsActive: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bExportSessionIsActive ) )
+			.append( QString( "%1%2m_GUIState: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>( m_GUIState ) ) )
+			.append( QString( "%1%2m_pNextSong: " ).arg( sPrefix ).arg( s ) );
+		if ( m_pNextSong != nullptr ) {
+			sOutput.append( QString( "%1" ).arg( m_pNextSong->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( QString( "nullptr\n" ) );
+		}
+		sOutput.append( QString( "%1%2m_pTimeline:\n" ).arg( sPrefix ).arg( s ) );
+		if ( m_pTimeline != nullptr ) {
+			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( QString( "nullptr\n" ) );
+		}
+		sOutput.append( QString( "%1%2m_sCurrentDrumkitName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sCurrentDrumkitName ) )
+			.append( QString( "%1%2m_currentDrumkitLookup: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>(m_currentDrumkitLookup) ) )
+			.append( QString( "%1%2__instrument_death_row:\n" ).arg( sPrefix ).arg( s ) );
+		for ( auto const& ii : __instrument_death_row ) {
+			if ( ii != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
+			} else {
+				sOutput.append( QString( "nullptr\n" ) );
+			}
+		}
+		sOutput.append( QString( "%1%2m_fNewBpmJTM: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fNewBpmJTM ) )
+			.append( QString( "%1%2m_nSelectedInstrumentNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nSelectedInstrumentNumber ) )
+			.append( QString( "%1%2m_pAudioEngine: \n" ) )//.arg( sPrefix ).arg( s ).arg( m_pAudioEngine ) )
+			.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s ).arg( lastMidiEvent ) )
+			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s ).arg( lastMidiEventParameter ) )
+			.append( QString( "%1%2m_nInstrumentLookupTable: [" ).arg( sPrefix ).arg( s ) );
+		for ( auto ll : m_nInstrumentLookupTable ) {
+			sOutput.append( QString( " %1" ).arg( ll ) );
+		}
+		sOutput.append( QString( "]\n%1%2m_nMaxTimeHumanize: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nMaxTimeHumanize ) );
+	} else {
+		
+		sOutput = QString( "%1[Hydrogen]" ).arg( sPrefix )
+			.append( QString( ", __song: " ) );
+		if ( __song != nullptr ) {
+			sOutput.append( QString( "%1" ).arg( __song->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( QString( "nullptr" ) );
+		}
+		sOutput.append( QString( ", m_ntaktoMeterCompute: %1" ).arg( m_ntaktoMeterCompute ) )
+			.append( QString( ", m_nbeatsToCount: %1" ).arg( m_nbeatsToCount ) )
+			.append( QString( ", m_nEventCount: %1" ).arg( m_nEventCount ) )
+			.append( QString( ", m_nTempoChangeCounter: %1" ).arg( m_nTempoChangeCounter ) )
+			.append( QString( ", m_nBeatCount: %1" ).arg( m_nBeatCount ) )
+			.append( QString( ", m_nBeatDiffs: [" ) );
+		for ( auto dd : m_nBeatDiffs ) {
+			sOutput.append( QString( " %1" ).arg( dd ) );
+		}
+		sOutput.append( QString( "], m_CurrentTime: %1" ).arg( std::ctime( &m_CurrentTime.tv_sec ) ) )
+			.append( QString( ", m_nCoutOffset: %1" ).arg( m_nCoutOffset ) )
+			.append( QString( ", m_nStartOffset: %1" ).arg( m_nStartOffset ) )
+			.append( QString( ", m_oldEngineMode: %1" ).arg( m_oldEngineMode ) )
+			.append( QString( ", m_bOldLoopEnabled: %1" ).arg( m_bOldLoopEnabled ) )
+			.append( QString( ", m_bExportSessionIsActive: %1" ).arg( m_bExportSessionIsActive ) )
+			.append( QString( ", m_GUIState: %1" ).arg( static_cast<int>( m_GUIState ) ) )
+			.append( QString( ", m_pNextSong: " ) );
+		if ( m_pNextSong != nullptr ) {
+			sOutput.append( QString( "%1" ).arg( m_pNextSong->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( QString( "nullptr" ) );
+		}
+		sOutput.append( QString( ", m_pTimeline: " ) );
+		if ( m_pTimeline != nullptr ) {
+			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( QString( "nullptr" ) );
+		}						 
+		sOutput.append( QString( ", m_sCurrentDrumkitName: %1" ).arg( m_sCurrentDrumkitName ) )
+			.append( QString( ", m_currentDrumkitLookup: %1" ).arg( static_cast<int>(m_currentDrumkitLookup) ) )
+			.append( QString( ", __instrument_death_row: [" ) );
+		for ( auto const& ii : __instrument_death_row ) {
+			if ( ii != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
+			} else {
+				sOutput.append( QString( " nullptr" ) );
+			}
+		}
+		sOutput.append( QString( "] , m_fNewBpmJTM: %1" ).arg( m_fNewBpmJTM ) )
+			.append( QString( ", m_nSelectedInstrumentNumber: %1" ).arg( m_nSelectedInstrumentNumber ) )
+			.append( QString( ", m_pAudioEngine: " ) )// .arg( m_pAudioEngine ) )
+			.append( QString( ", lastMidiEvent: %1" ).arg( lastMidiEvent ) )
+			.append( QString( ", lastMidiEventParameter: %1" ).arg( lastMidiEventParameter ) )
+			.append( QString( ", m_nInstrumentLookupTable: [" ) );
+		for ( auto ll : m_nInstrumentLookupTable ) {
+			sOutput.append( QString( " %1" ).arg( ll ) );
+		}
+		sOutput.append( QString( "], m_nMaxTimeHumanize: %1\n" ).arg( m_nMaxTimeHumanize ) );
+	}
+		
+	return sOutput;
 }
 
 }; /* Namespace */
