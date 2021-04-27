@@ -1531,7 +1531,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* pInstrList )
 
 			Note* pNote = nullptr;
 
-			double fPosition = LocalFileMng::readXmlFloat( noteNode, "position", 0 ); // TODO readXmlDouble
+			double fPosition = LocalFileMng::readXmlDouble( noteNode, "position", 0 );
 			float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0, false, false );
 			float fVelocity = LocalFileMng::readXmlFloat( noteNode, "velocity", 0.8f );
 			float fPan_L = LocalFileMng::readXmlFloat( noteNode, "pan_L", 0.5 );
@@ -1582,7 +1582,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* pInstrList )
 
 				Note* pNote = nullptr;
 
-				double fPosition = LocalFileMng::readXmlFloat( noteNode, "position", 0 ); // TODO readXmlDouble
+				double fPosition = LocalFileMng::readXmlDouble( noteNode, "position", 0 );
 				float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0, false, false );
 				float fVelocity = LocalFileMng::readXmlFloat( noteNode, "velocity", 0.8f );
 				float fPan_L = LocalFileMng::readXmlFloat( noteNode, "pan_L", 0.5 );
