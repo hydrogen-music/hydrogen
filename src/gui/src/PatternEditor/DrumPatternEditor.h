@@ -78,7 +78,7 @@ class DrumPatternEditor : public PatternEditor
 							 int nNewRow,
 							 H2Core::Note *note);
 
-		void addOrRemoveNote( int nGridIndex, int nRealColumn, int row, bool bDoAdd = true, bool bDoDelete = true );
+		void addOrRemoveNote( int nGridIndex, int nRealColumn, int row, bool bDoAdd = true, bool bDoDelete = true ); //TODO first arg could be easily double fTickPosition
 		void editNoteLengthAction( double fColumn, int nRealColumn, int row, double length, int selectedPatternNumber );
 		void undoRedoAction(    double column,
 								QString mode,

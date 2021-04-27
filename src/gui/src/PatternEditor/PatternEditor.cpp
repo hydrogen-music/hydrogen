@@ -299,18 +299,19 @@ void PatternEditor::copy()
 	XMLNode positionNode = selection.createNode( "sourcePosition" );
 	bool bWroteNote = false;
 	// "Top left" of selection, in the three dimensional time*instrument*pitch space.
-	int nLowestPos, nLowestInstrument, nHighestPitch;
+	double fLowestPos;
+	int nLowestInstrument, nHighestPitch;
 
 	for ( Note *pNote : m_selection ) {
 		int nPitch = pNote->get_notekey_pitch() + 12*OCTAVE_OFFSET;
-		int nPos = pNote->get_position();
+		double fPos = pNote->get_position();
 		int nInstrument = pInstrumentList->index( pNote->get_instrument() );
 		if ( bWroteNote ) {
-			nLowestPos = std::min( nPos, nLowestPos );
+			fLowestPos = std::min( fPos, fLowestPos );
 			nLowestInstrument = std::min( nInstrument, nLowestInstrument );
 			nHighestPitch = std::max( nPitch, nHighestPitch );
 		} else {
-			nLowestPos = nPos;
+			fLowestPos = fPos;
 			nLowestInstrument = nInstrument;
 			nHighestPitch = nPitch;
 			bWroteNote = true;
@@ -320,7 +321,7 @@ void PatternEditor::copy()
 	}
 
 	if ( bWroteNote ) {
-		positionNode.write_int( "position", nLowestPos );
+		positionNode.write_double( "position", fLowestPos );
 		positionNode.write_int( "instrument", nLowestInstrument );
 		positionNode.write_int( "note", nHighestPitch );
 	} else {

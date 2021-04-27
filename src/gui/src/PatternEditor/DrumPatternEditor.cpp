@@ -99,6 +99,7 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 
 
 void DrumPatternEditor::addOrRemoveNote( int nGridIndex, int nRealColumn, int row, bool bDoAdd, bool bDoDelete ) {
+//TODO first arg could be easily double fTickPosition
 
 	/* convert gridIndex into the nearest tick */
 	double fTickPosition = nGridIndex * granularity(); // TODO make this a macro?
@@ -176,8 +177,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	}
 
 	double fTickPosition = getColumn( ev->x(), /* bUseFineGrained=*/ true ); // position of nearest grid mark in ticks
-	printf("tick pos = %f\n", fTickPosition );
-	int nGridIndex = getGridIndex( ev->x() ); // index of nearest grid mark
+	int nGridIndex = getGridIndex( ev->x() ); // index of nearest grid mark //TODO could be avoided
 	int nRealColumn = 0; // TODO what is the use of this? does it affect tuplets? currently it is not rounded
 	if( ev->x() > m_nMargin ) {
 		nRealColumn = ( ev->x() - m_nMargin ) / m_fGridWidth;
@@ -221,7 +221,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	else if ( ev->button() == Qt::LeftButton ) {
 
 		pHydrogen->setSelectedInstrumentNumber( row );
-		addOrRemoveNote( nGridIndex, nRealColumn, row );
+		addOrRemoveNote( nGridIndex, nRealColumn, row ); //TODO first arg could be easily double fTickPosition
 		m_selection.clearSelection();
 
 	} else if ( ev->button() == Qt::RightButton ) {
@@ -910,7 +910,8 @@ void DrumPatternEditor::paste()
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 	InstrumentList *pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	XMLNode noteList;
-	int nDeltaPos = 0, nDeltaInstrument = 0;
+	double fDeltaPos = 0.;
+	int nDeltaInstrument = 0;
 
 	XMLDoc doc;
 	if ( ! doc.setContent( clipboard->text() ) ) {
@@ -935,10 +936,10 @@ void DrumPatternEditor::paste()
 		// it to adjust the location relative to the current keyboard
 		// input cursor.
 		if ( !positionNode.isNull() ) {
-			int nCurrentPos = round( m_pPatternEditorPanel->getCursorIndexPosition() * granularity() );
+			double fCurrentPos = m_pPatternEditorPanel->getCursorIndexPosition() * granularity();
 			int nCurrentInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 
-			nDeltaPos = nCurrentPos - positionNode.read_int( "position", nCurrentPos );
+			fDeltaPos = fCurrentPos - positionNode.read_double( "position", fCurrentPos );
 			nDeltaInstrument = nCurrentInstrument - positionNode.read_int( "instrument", nCurrentInstrument );
 		}
 
@@ -979,12 +980,12 @@ void DrumPatternEditor::paste()
 		pUndo->beginMacro( "paste notes" );
 		for ( XMLNode n = noteList.firstChildElement( "note" ); ! n.isNull(); n = n.nextSiblingElement() ) {
 			Note *pNote = Note::load_from( &n, pInstrList );
-			int nPos = pNote->get_position() + nDeltaPos;
+			double fPos = pNote->get_position() + fDeltaPos;
 			int nInstrument = pInstrList->index( pNote->get_instrument() ) + nDeltaInstrument;
 
-			if ( nPos >= 0 && nPos < m_pPattern->get_length()
+			if ( fPos >= 0 && fPos < m_pPattern->get_length()
 				 && nInstrument >= 0 && nInstrument < pInstrList->size() ) {
-				pUndo->push( new SE_addOrDeleteNoteAction( nPos,
+				pUndo->push( new SE_addOrDeleteNoteAction( fPos,
 														   nInstrument,
 														   m_nSelectedPatternNumber,
 														   pNote->get_length(),

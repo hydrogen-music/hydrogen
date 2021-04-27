@@ -343,7 +343,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	m_pPatternEditorPanel->setCursorIndexPosition( nGridIndex );
 	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
-	if ( m_nDragPreviousColumn != m_fTickPosition ) {
+	if ( m_fDragPreviousColumn != m_fTickPosition ) {
 		// Complete current undo action, and start a new one.
 		addUndoAction();
 		prepareUndoAction( ev->x() );
@@ -445,7 +445,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 		}
 	}
 
-	m_nDragPreviousColumn = m_fTickPosition;
+	m_fDragPreviousColumn = m_fTickPosition;
 
 	Hydrogen::get_instance()->getSong()->setIsModified( true );
 	updateEditor();

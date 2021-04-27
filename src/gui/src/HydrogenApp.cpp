@@ -659,7 +659,6 @@ void HydrogenApp::onEventQueueTimer()
 																			 pQueue->m_addMidiNoteVector[0].b_isMidi,
 																			 pQueue->m_addMidiNoteVector[0].b_isInstrumentMode,
 																			 false ); //TODO 0 4 ?! divbase...
-
 			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
 		pQueue->m_addMidiNoteVector.erase(pQueue->m_addMidiNoteVector.begin());
