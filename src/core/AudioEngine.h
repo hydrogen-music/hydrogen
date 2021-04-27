@@ -704,8 +704,8 @@ public:
 	unsigned long	getRealtimeFrames() const;
 	void			setRealtimeFrames( unsigned long nFrames );
 
-	unsigned int	getAddRealtimeNoteTickPosition() const; 
-	void			setAddRealtimeNoteTickPosition( unsigned int tickPosition );
+	double	getAddRealtimeNoteTickPosition() const; 
+	void			setAddRealtimeNoteTickPosition( double fTickPosition );
 
 	
 	struct timeval& 	getCurrentTickTime(); 
@@ -952,7 +952,7 @@ private:
 	 * position TransportInfo::m_nFrames.
 	 */
 	unsigned long		m_nRealtimeFrames;
-	unsigned int		m_nAddRealtimeNoteTickPosition;
+	double		m_fAddRealtimeNoteTickPosition;
 
 	/**
 	 * Current state of the H2Core::AudioEngine. 
@@ -1145,12 +1145,12 @@ inline void AudioEngine::setRealtimeFrames( unsigned long nFrames ) {
 	m_nRealtimeFrames = nFrames;
 }
 
-inline unsigned int AudioEngine::getAddRealtimeNoteTickPosition() const {
-	return m_nAddRealtimeNoteTickPosition;
+inline double AudioEngine::getAddRealtimeNoteTickPosition() const {
+	return m_fAddRealtimeNoteTickPosition;
 }
 
-inline void AudioEngine::setAddRealtimeNoteTickPosition( unsigned int tickPosition) {
-	m_nAddRealtimeNoteTickPosition = tickPosition;
+inline void AudioEngine::setAddRealtimeNoteTickPosition( double fTickPosition) {
+	m_fAddRealtimeNoteTickPosition = fTickPosition;
 }
 
 };

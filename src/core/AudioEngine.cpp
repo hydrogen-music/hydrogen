@@ -117,7 +117,7 @@ AudioEngine::AudioEngine()
 		, m_nPatternTickPosition( 0 )
 		, m_nSongSizeInTicks( 0 )
 		, m_nRealtimeFrames( 0 )
-		, m_nAddRealtimeNoteTickPosition( 0 )
+		, m_fAddRealtimeNoteTickPosition( 0. )
 		, m_nSongPos( -1 )
 		, m_nSelectedPatternNumber( 0 )
 {

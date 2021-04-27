@@ -349,10 +349,6 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	Preferences *pPreferences = Preferences::get_instance();
 	unsigned int nRealColumn = 0;
-	unsigned res = pPreferences->getPatternEditorGridResolution();
-	int nBase = pPreferences->getPatternEditorGridTupletNumerator();
-	int nTupletDenominator = pPreferences->getPatternEditorGridTupletDenominator();
-	int scalar = ( 4 * MAX_NOTES ) / ( res * nBase ); // TODO float? TupletDenominator??
 	bool hearnote = forcePlay;
 	int currentPatternNumber;
 
@@ -367,7 +363,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		}
 	}
 
-	// Get current partern and column, compensating for "lookahead" if required
+	// Get current pattern and column, compensating for "lookahead" if required
 	const Pattern* currentPattern = nullptr;
 	unsigned int column = 0;
 	float fTickSize = pAudioEngine->getAudioDriver()->m_transport.m_fTickSize;
@@ -459,18 +455,31 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 
 	nRealColumn = getRealtimeTickPosition();
 
+	double fTickPosition;
 	if ( currentPattern && pPreferences->getQuantizeEvents() ) {
-		// quantize it to scale
-		unsigned qcolumn = ( unsigned )::round( column / ( double )scalar ) * scalar; //TODO TupletDenominator??
+		//double fScalar = ( 4 * MAX_NOTES ) / ( res * nBase );
+		int nResolution = pPreferences->getPatternEditorGridResolution();
+		int nTupletNumerator = pPreferences->getPatternEditorGridTupletNumerator();
+		int nTupletDenominator = pPreferences->getPatternEditorGridTupletDenominator();
+		
+		// calculate the granularity = grid quantum length in ticks
+		double fGridQuantumInTicks = (double) MAX_NOTES * nTupletDenominator / ( nTupletNumerator * nResolution );
+		
+		// get position of nearest grid mark
+		double fQuantizedColumn = round( column / fGridQuantumInTicks ) * fGridQuantumInTicks;
 
 		//we have to make sure that no beat is added on the last displayed note in a bar
 		//for example: if the pattern has 4 beats, the editor displays 5 beats, so we should avoid adding beats an note 5.
-		if ( qcolumn == currentPattern->get_length() ) qcolumn = 0;
-		column = qcolumn;
+		if ( fQuantizedColumn >= currentPattern->get_length() ) {
+			fTickPosition = 0.;
+		} else {
+			fTickPosition = fQuantizedColumn;
+		}
+	} else {
+		fTickPosition = column;
 	}
 
-	unsigned position = column;
-	pAudioEngine->setAddRealtimeNoteTickPosition( column );
+	pAudioEngine->setAddRealtimeNoteTickPosition( fTickPosition );
 
 	Instrument *instrRef = nullptr;
 	if ( pSong ) {
@@ -482,7 +491,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		assert( currentPattern );
 		if ( doRecord ) {
 			EventQueue::AddMidiNoteVector noteAction;
-			noteAction.m_column = column;
+			noteAction.m_column = fTickPosition;
 			noteAction.m_pattern = currentPatternNumber;
 			noteAction.f_velocity = velocity;
 			noteAction.f_pan_L = pan_L;
@@ -511,7 +520,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 			EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
 
 			// hear note if its not in the future
-			if ( pPreferences->getHearNewNotes() && position <= getTickPosition() ) {
+			if ( pPreferences->getHearNewNotes() && fTickPosition <= getTickPosition() ) {
 				hearnote = true;
 			}
 		}/* if doRecord */
