@@ -273,13 +273,6 @@ double PatternEditor::getColumn( int x, bool bUseFineGrained ) const
 	}
 }
 
-double PatternEditor::getFloatColumn( int x ) const {
-	// converts the position in ticks, unrounded for calculate tuplets position mismatch
-	double fWidth = m_fGridWidth * granularity(); // distance between grid marks, in pixel units
-	double fGridIndex = round( ( x - m_nMargin ) / fWidth ); // The index of the nearest grid mark
-	return fGridIndex * granularity(); // the position of the nearest grid mark, in tick units
-}
-
 int PatternEditor::getGridIndex( int x ) const {
 	float fWidth = m_fGridWidth * granularity(); // distance between grid marks, in pixel units
 	int nGridIndex = round( ( x - m_nMargin ) / fWidth ); // The index of the nearest grid mark

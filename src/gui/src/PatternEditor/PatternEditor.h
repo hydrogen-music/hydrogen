@@ -236,8 +236,6 @@ protected:
 	// Magnetic conversions (quantized by the grid granularity)
 	/* from the pixel position to the position of the nearest grid mark, in tick units */
 	double getColumn( int x, bool bUseFineGrained = false ) const;
-	/* from the pixel position to the position of the nearest grid mark, in tick units (unrounded value!) */
-	double getFloatColumn( int x ) const; // TODO deprecate and use the previous
 	/* from the pixel position to the index of the nearest grid mark */
 	int getGridIndex( int x ) const;
 
