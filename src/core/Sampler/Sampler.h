@@ -160,7 +160,7 @@ public:
 	 * Constructor of the Sampler.
 	 *
 	 * It is called by AudioEngine::AudioEngine() and stored in
-	 * AudioEngine::__sampler.
+	 * AudioEngine::m_pSampler.
 	 */
 	Sampler();
 	~Sampler();

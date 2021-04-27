@@ -566,9 +566,9 @@ void MainForm::action_file_new()
 {
 	const bool bUnderSessionManagement = H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
 	
-	Hydrogen * pEngine = Hydrogen::get_instance();
-	if ( (pEngine->getState() == STATE_PLAYING) ) {
-		pEngine->sequencer_stop();
+	Hydrogen * pHydrogen = Hydrogen::get_instance();
+	if ( (pHydrogen->getState() == STATE_PLAYING) ) {
+		pHydrogen->sequencer_stop();
 	}
 
 	bool proceed = handleUnsavedChanges();
@@ -577,8 +577,8 @@ void MainForm::action_file_new()
 	}
 	
 	h2app->m_pUndoStack->clear();
-	pEngine->getTimeline()->deleteAllTempoMarkers();
-	pEngine->getTimeline()->deleteAllTags();
+	pHydrogen->getTimeline()->deleteAllTempoMarkers();
+	pHydrogen->getTimeline()->deleteAllTags();
 	Song* pSong = Song::getEmptySong();
 
 	// When under session management the filename of the current Song
@@ -779,9 +779,9 @@ void MainForm::action_file_export_pattern_as()
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	Pattern *pPattern = pSong->getPatternList()->get( pEngine->getSelectedPatternNumber() );
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
+	Pattern *pPattern = pSong->getPatternList()->get( pHydrogen->getSelectedPatternNumber() );
 
 	QDir dir = Preferences::get_instance()->__lastspatternDirectory;
 
@@ -806,7 +806,7 @@ void MainForm::action_file_export_pattern_as()
 
 	QString originalName = pPattern->get_name();
 	pPattern->set_name( fileInfo.baseName() );
-	QString path = Files::savePatternPath( filePath, pPattern, pSong, pEngine->getCurrentDrumkitName() );
+	QString path = Files::savePatternPath( filePath, pPattern, pSong, pHydrogen->getCurrentDrumkitName() );
 	pPattern->set_name( originalName );
 
 	if ( path.isEmpty() ) {
@@ -881,10 +881,10 @@ void MainForm::action_file_open() {
 
 void MainForm::action_file_openPattern()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
-	int selectedPatternPosition = pEngine->getSelectedPatternNumber();
+	int selectedPatternPosition = pHydrogen->getSelectedPatternNumber();
 
 	Instrument *pInstrument = pSong->getInstrumentList()->get ( 0 );
 	assert ( pInstrument );
@@ -1093,10 +1093,10 @@ void MainForm::action_instruments_addComponent()
 	bool bIsOkPressed;
 	QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
 	if ( bIsOkPressed  ) {
-		Hydrogen *pEngine = Hydrogen::get_instance();
+		Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( InstrumentEditor::findFreeDrumkitComponentId(), sNewName );
-		pEngine->getSong()->getComponents()->push_back( pDrumkitComponent );
+		pHydrogen->getSong()->getComponents()->push_back( pDrumkitComponent );
 
 		selectedInstrumentChangedEvent();
 
@@ -1104,7 +1104,7 @@ void MainForm::action_instruments_addComponent()
 		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 
 #ifdef H2CORE_HAVE_JACK
-		pEngine->renameJackPorts(pEngine->getSong());
+		pHydrogen->renameJackPorts(pHydrogen->getSong());
 #endif
 	}
 	else {
@@ -1151,15 +1151,15 @@ void MainForm::action_instruments_clearAll()
 
 void MainForm::functionDeleteInstrument(int instrument)
 {
-	Hydrogen * pEngine = Hydrogen::get_instance();
-	Instrument *pSelectedInstrument = pEngine->getSong()->getInstrumentList()->get( instrument );
+	Hydrogen * pHydrogen = Hydrogen::get_instance();
+	Instrument *pSelectedInstrument = pHydrogen->getSong()->getInstrumentList()->get( instrument );
 
 	std::list< Note* > noteList;
-	Song* pSong = pEngine->getSong();
+	Song* pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 
 	QString instrumentName =  pSelectedInstrument->get_name();
-	QString drumkitName = pEngine->getCurrentDrumkitName();
+	QString drumkitName = pHydrogen->getCurrentDrumkitName();
 
 	for ( int i = 0; i < pPatternList->size(); i++ ) {
 		const H2Core::Pattern *pPattern = pSong->getPatternList()->get(i);
@@ -1459,24 +1459,24 @@ void MainForm::onRestartAccelEvent()
 
 void MainForm::onBPMPlusAccelEvent()
 {
-	Hydrogen* pEngine = Hydrogen::get_instance();
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-	Song* pSong = pEngine->getSong();
-	pEngine->setBPM( pSong->getBpm() + 0.1 );
-	AudioEngine::get_instance()->unlock();
+	Song* pSong = pHydrogen->getSong();
+	pHydrogen->setBPM( pSong->getBpm() + 0.1 );
+	pHydrogen->getAudioEngine()->unlock();
 }
 
 
 
 void MainForm::onBPMMinusAccelEvent()
 {
-	Hydrogen* pEngine = Hydrogen::get_instance();
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-	Song* pSong = pEngine->getSong();
-	pEngine->setBPM( pSong->getBpm() - 0.1 );
-	AudioEngine::get_instance()->unlock();
+	Song* pSong = pHydrogen->getSong();
+	pHydrogen->setBPM( pSong->getBpm() - 0.1 );
+	pHydrogen->getAudioEngine()->unlock();
 }
 
 
@@ -2322,7 +2322,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		if ( nCursorColumn > 0 ) {
 			nCursorColumn -= pHydrogen->calculateLookahead( fTickSize ) / fTickSize;
 		}
-		AudioEngine::get_instance()->locate( nCursorColumn * fTickSize );
+		pHydrogen->getAudioEngine()->locate( nCursorColumn * fTickSize );
 	} else {
 		ERRORLOG( QString( "Unknown object class" ) );
 	}

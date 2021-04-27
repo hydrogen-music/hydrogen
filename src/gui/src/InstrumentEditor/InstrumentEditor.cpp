@@ -536,14 +536,14 @@ InstrumentEditor::~InstrumentEditor()
 
 void InstrumentEditor::selectedInstrumentChangedEvent()
 {
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
 	
 	if ( pSong != nullptr ) {
 		InstrumentList *pInstrList = pSong->getInstrumentList();
-		int nInstr = pEngine->getSelectedInstrumentNumber();
+		int nInstr = pHydrogen->getSelectedInstrumentNumber();
 		if ( nInstr >= pInstrList->size() ) {
 			nInstr = -1;
 		}
@@ -559,7 +559,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	else {
 		m_pInstrument = nullptr;
 	}
-	AudioEngine::get_instance()->unlock();
+	pHydrogen->getAudioEngine()->unlock();
 
 	// update layer list
 	if ( m_pInstrument ) {
@@ -880,8 +880,8 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 		loadLayer();
 	}
 	else if ( pButton == m_pRemoveLayerBtn ) {
-		//Hydrogen *pEngine = Hydrogen::get_instance();
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		//Hydrogen *pHydrogen = Hydrogen::get_instance();
+		Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 		if ( m_pInstrument ) {
 			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
@@ -901,7 +901,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 				}
 			}
 		}
-		AudioEngine::get_instance()->unlock();
+		Hydrogen::get_instance()->getAudioEngine()->unlock();
 		selectedInstrumentChangedEvent();    // update all
 		m_pLayerPreview->updateAll();
 	}
@@ -931,7 +931,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 
 void InstrumentEditor::loadLayer()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	AudioFileBrowser *pFileBrowser = new AudioFileBrowser( nullptr, true, true);
 	QStringList filename;
@@ -954,10 +954,10 @@ void InstrumentEditor::loadLayer()
 	int firstSelection = selectedLayer;
 
 	// Ensure instrument pointer is current
-	Song *pSong = pEngine->getSong();
+	Song *pSong = pHydrogen->getSong();
 	if ( pSong ) {
 		InstrumentList *pInstrList = pSong->getInstrumentList();
-		m_pInstrument = pInstrList->get( pEngine->getSelectedInstrumentNumber() );
+		m_pInstrument = pInstrList->get( pHydrogen->getSelectedInstrumentNumber() );
 	} else {
 		m_pInstrument = nullptr;
 	}
@@ -975,7 +975,7 @@ void InstrumentEditor::loadLayer()
 
 			auto pNewSample = Sample::load( filename[i] );
 
-			AudioEngine::get_instance()->lock( RIGHT_HERE );
+			pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 			/*
 				if we're using multiple layers, we start inserting the first layer
@@ -1010,7 +1010,7 @@ void InstrumentEditor::loadLayer()
 				setAutoVelocity();
 			}
 
-			AudioEngine::get_instance()->unlock();
+			pHydrogen->getAudioEngine()->unlock();
 		}
 	}
 
@@ -1106,10 +1106,10 @@ void InstrumentEditor::labelClicked( ClickableLabel* pRef )
 			selectedInstrumentChangedEvent();
 
 #ifdef H2CORE_HAVE_JACK
-			AudioEngine::get_instance()->lock( RIGHT_HERE );
+			Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 			Hydrogen *engine = Hydrogen::get_instance();
 			engine->renameJackPorts(engine->getSong());
-			AudioEngine::get_instance()->unlock();
+			Hydrogen::get_instance()->getAudioEngine()->unlock();
 #endif
 
 			// this will force an update...
@@ -1295,7 +1295,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 {
 	QString sSelectedAction = pAction->text();
 
-	Hydrogen * pEngine = Hydrogen::get_instance();
+	Hydrogen * pHydrogen = Hydrogen::get_instance();
 
 	if( sSelectedAction.compare("add") == 0 ) {
 		if ( m_pInstrument ) {
@@ -1303,7 +1303,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 			QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
 			if ( bIsOkPressed  ) {
 				DrumkitComponent* pDrumkitComponent = new DrumkitComponent( findFreeDrumkitComponentId(), sNewName );
-				pEngine->getSong()->getComponents()->push_back( pDrumkitComponent );
+				pHydrogen->getSong()->getComponents()->push_back( pDrumkitComponent );
 
 				//InstrumentComponent* instrument_component = new InstrumentComponent( dm_component->get_id() );
 				//instrument_component->set_gain( 1.0f );
@@ -1318,7 +1318,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 				EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 
 #ifdef H2CORE_HAVE_JACK
-				pEngine->renameJackPorts(pEngine->getSong());
+				pHydrogen->renameJackPorts(pHydrogen->getSong());
 #endif
 			}
 			else {
@@ -1327,15 +1327,15 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		}
 	}
 	else if( sSelectedAction.compare("delete") == 0 ) {
-		std::vector<DrumkitComponent*>* pDrumkitComponents = pEngine->getSong()->getComponents();
+		std::vector<DrumkitComponent*>* pDrumkitComponents = pHydrogen->getSong()->getComponents();
 
 		if(pDrumkitComponents->size() == 1){
 			return;
 		}
 
-		DrumkitComponent* pDrumkitComponent = pEngine->getSong()->getComponent( m_nSelectedComponent );
+		DrumkitComponent* pDrumkitComponent = pHydrogen->getSong()->getComponent( m_nSelectedComponent );
 
-		InstrumentList* pInstruments = pEngine->getSong()->getInstrumentList();
+		InstrumentList* pInstruments = pHydrogen->getSong()->getInstrumentList();
 		for ( int n = ( int )pInstruments->size() - 1; n >= 0; n-- ) {
 			Instrument* pInstrument = pInstruments->get( n );
 			for( int o = 0 ; o < pInstrument->get_components()->size() ; o++ ) {
@@ -1372,7 +1372,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 	}
 	else {
 		m_nSelectedComponent = -1;
-		std::vector<DrumkitComponent*>* pDrumkitComponents = pEngine->getSong()->getComponents();
+		std::vector<DrumkitComponent*>* pDrumkitComponents = pHydrogen->getSong()->getComponents();
 		for (std::vector<DrumkitComponent*>::iterator it = pDrumkitComponents->begin() ; it != pDrumkitComponents->end(); ++it) {
 			DrumkitComponent* pDrumkitComponent = *it;
 			if( pDrumkitComponent->get_name().compare( sSelectedAction ) == 0) {
@@ -1393,7 +1393,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 
 
 #ifdef H2CORE_HAVE_JACK
-			pEngine->renameJackPorts(pEngine->getSong());
+			pHydrogen->renameJackPorts(pHydrogen->getSong());
 #endif
 		}
 
@@ -1415,8 +1415,8 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 		return;
 	}
 	//	INFOLOG( "Tempo change: Recomputing rubberband samples." );
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *song = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *song = pHydrogen->getSong();
 	assert(song);
 	if(song){
 		InstrumentList *pSongInstrList = song->getInstrumentList();
@@ -1449,9 +1449,9 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 								}
 								
 								// insert new sample from newInstrument
-								AudioEngine::get_instance()->lock( RIGHT_HERE );
+								Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 								pLayer->set_sample( pNewSample );
-								AudioEngine::get_instance()->unlock();
+								Hydrogen::get_instance()->getAudioEngine()->unlock();
 
 							}
 						}

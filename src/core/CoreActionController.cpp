@@ -627,13 +627,13 @@ bool CoreActionController::activateJackTransport( bool bActivate ) {
 		return false;
 	}
 	
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 	if ( bActivate ) {
 		Preferences::get_instance()->m_bJackTransportMode = Preferences::USE_JACK_TRANSPORT;
 	} else {
 		Preferences::get_instance()->m_bJackTransportMode = Preferences::NO_JACK_TRANSPORT;
 	}
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	
 	EventQueue::get_instance()->push_event( EVENT_JACK_TRANSPORT_ACTIVATION, static_cast<int>( bActivate ) );
 	
@@ -652,7 +652,7 @@ bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
 		return false;
 	}
 	
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 	if ( bActivate ) {
 		Preferences::get_instance()->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER;
 		Hydrogen::get_instance()->onJackMaster();
@@ -660,7 +660,7 @@ bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
 		Preferences::get_instance()->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
 		Hydrogen::get_instance()->offJackMaster();
 	}
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	
 	EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_ACTIVATION, static_cast<int>( bActivate ) );
 	

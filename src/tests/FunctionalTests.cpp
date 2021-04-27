@@ -39,6 +39,7 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
+#include <core/Basics/Playlist.h>
 #include <core/Smf/SMF.h>
 #include "TestHelper.h"
 #include "assertions/File.h"
@@ -151,6 +152,10 @@ class FunctionalTest : public CppUnit::TestCase {
 		auto pNote = pPattern->find_note( 0, -1, pInstrument, false );
 		auto pDrumkit = Drumkit::load( sDrumkitFile, true );
 		auto pDrumkitComponent = (*pDrumkit->get_components())[ 0 ];
+		auto pPlaylist = Playlist::get_instance();
+		auto entry = Playlist::Entry{ "/tmp", true, "/usr/", false };
+		pPlaylist->add( &entry );
+		pPlaylist->add( &entry );
 
 		std::cout << std::endl;
 		std::cout << pVelocityAutomationPath << std::endl;
@@ -166,6 +171,7 @@ class FunctionalTest : public CppUnit::TestCase {
 		std::cout << pDrumkitComponent << std::endl;
 		std::cout << pDrumkit << std::endl;
 		std::cout << pSong << std::endl;
+		std::cout << pPlaylist << std::endl;
 		std::cout << Hydrogen::get_instance() << std::endl;
  
 		qDebug() << pVelocityAutomationPath;
@@ -181,6 +187,7 @@ class FunctionalTest : public CppUnit::TestCase {
 		qDebug() << pDrumkitComponent;
 		qDebug() << pDrumkit;
 		qDebug() << pSong;
+		qDebug() << pPlaylist;
 		qDebug() << Hydrogen::get_instance();
  
 		// 	std::cout << std::endl;
@@ -197,6 +204,7 @@ class FunctionalTest : public CppUnit::TestCase {
 		// 	std::cout << pDrumkitComponent->toQString( "", false ).toLocal8Bit().data() << std::endl;
 		// 	std::cout << pDrumkit->toQString( "", false ).toLocal8Bit().data() << std::endl;
 		// 	std::cout << pSong->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// std::cout << pPlaylist->toQString( "", false ).toLocal8Bit().data();
 
 	}
 

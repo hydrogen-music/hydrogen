@@ -49,7 +49,14 @@ namespace H2Core
 
 const char* Drumkit::__class_name = "Drumkit";
 
-Drumkit::Drumkit() : Object( __class_name ), __samples_loaded( false ), __instruments( nullptr ), __components( nullptr )
+Drumkit::Drumkit() : Object( __class_name ),
+					 __samples_loaded( false ),
+					 __instruments( nullptr ),
+					 __name( "empty" ),
+					 __author( "undefined author" ),
+					 __info( "No information available." ),
+					 __license( "undefined license" ),
+					 __imageLicense( "undefined license" )
 {
 	__components = new std::vector<DrumkitComponent*> ();
 }
@@ -112,7 +119,6 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples )
 	
 	XMLDoc doc;
 	if( !doc.read( dk_path, Filesystem::drumkit_xsd_path() ) ) {
-		
 		//Something went wrong. Lets see how old this drumkit is..
 		
 		//Do we have any components? 
@@ -133,13 +139,12 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples )
 			bReadingSuccessful = false;
 		}
 	}
-	
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {
 		ERRORLOG( "drumkit_info node not found" );
 		return nullptr;
 	}
-	
+
 	Drumkit* pDrumkit = Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
 	if ( ! bReadingSuccessful ) {
 		upgrade_drumkit( pDrumkit, dk_path );
@@ -346,12 +351,29 @@ void Drumkit::save_to( XMLNode* node, int component_id )
 
 	if( component_id == -1 ) {
 		XMLNode components_node = node->createNode( "componentList" );
-		for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-			DrumkitComponent* pComponent = *it;
-			pComponent->save_to( &components_node );
-		}
+		if ( __components->size() > 0 ) {
+			for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
+				DrumkitComponent* pComponent = *it;
+				pComponent->save_to( &components_node );
+			}
+		} else {
+			WARNINGLOG( "Drumkit has no components. Storing an empty one as fallback." );
+			DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
+			pDrumkitComponent->save_to( &components_node );
+			delete pDrumkitComponent;
+		}	
 	}
-	__instruments->save_to( node, component_id );
+
+	if ( __instruments != nullptr && __instruments->size() > 0 ) {
+		__instruments->save_to( node, component_id );
+	} else {
+		WARNINGLOG( "Drumkit has no instruments. Storing an InstrumentList with a single empty Instrument as fallback." );
+		InstrumentList* pInstrumentList = new InstrumentList();
+		Instrument* pInstrument = new Instrument();
+		pInstrumentList->insert( 0, pInstrument );
+		pInstrumentList->save_to( node, component_id );
+		delete pInstrumentList;
+	}
 }
 
 bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )

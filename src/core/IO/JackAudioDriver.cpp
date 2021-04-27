@@ -410,7 +410,7 @@ void JackAudioDriver::relocateUsingBBT()
 		( m_JackTransportPos.beat - 1 ) * fTicksPerBeat +
 		m_JackTransportPos.tick * ( fTicksPerBeat / m_JackTransportPos.ticks_per_beat );
 
-	float fNewTickSize = AudioEngine::compute_tick_size( getSampleRate(), m_JackTransportPos.beats_per_minute, pSong->getResolution() );
+	float fNewTickSize = AudioEngine::computeTickSize( getSampleRate(), m_JackTransportPos.beats_per_minute, pSong->getResolution() );
 
 	if ( fNewTickSize == 0 ) {
 		ERRORLOG(QString("Improper tick size [%1] for tick [%2]" )

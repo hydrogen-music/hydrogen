@@ -146,7 +146,7 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		 * @param nValue If 0, loop mode will be deactivate.
 		 */
 		void loopModeActivationEvent( int nValue ) override;
-		H2Core::Hydrogen *m_pEngine;
+		H2Core::Hydrogen *m_pHydrogen;
 		QPixmap m_background;
 
 		Button *m_pRwdBtn;

@@ -891,12 +891,13 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 
 bool Sampler::processPlaybackTrack(int nBufferSize)
 {
-	Hydrogen* pEngine = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	AudioOutput* pAudioOutput = Hydrogen::get_instance()->getAudioOutput();
-	Song* pSong = pEngine->getSong();
+	Song* pSong = pHydrogen->getSong();
+
 
 	if(   !pSong->getPlaybackTrackEnabled()
-	   || pEngine->getState() != STATE_PLAYING
+	   || pHydrogen->getState() != STATE_PLAYING
 	   || pSong->getMode() != Song::SONG_MODE)
 	{
 		return false;
@@ -1217,7 +1218,7 @@ bool Sampler::renderNoteResample(
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
-		float resampledTickSize = AudioEngine::compute_tick_size( pSample->get_sample_rate(),
+		float resampledTickSize = AudioEngine::computeTickSize( pSample->get_sample_rate(),
 		                                                          pAudioOutput->m_transport.m_fBPM,
 		                                                          pSong->getResolution() );
 		
@@ -1480,7 +1481,7 @@ void Sampler::stopPlayingNotes(Instrument* pInstr )
 /// Preview, uses only the first layer
 void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int length )
 {
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	for (const auto& pComponent: *m_pPreviewInstrument->get_components()) {
 		InstrumentLayer *pLayer = pComponent->get_layer( 0 );
@@ -1494,7 +1495,7 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int length )
 
 	}
 
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 }
 
 
@@ -1502,7 +1503,7 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int length )
 void Sampler::preview_instrument(Instrument* pInstr )
 {
 	Instrument * pOldPreview;
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	stopPlayingNotes( m_pPreviewInstrument );
 
@@ -1513,7 +1514,7 @@ void Sampler::preview_instrument(Instrument* pInstr )
 	Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.5, 0.5, MAX_NOTES, 0 );
 
 	noteOn( pPreviewNote );	// exclusive note
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	delete pOldPreview;
 }
 
@@ -1522,14 +1523,14 @@ void Sampler::preview_instrument(Instrument* pInstr )
 void Sampler::setPlayingNotelength(Instrument* pInstrument, unsigned long ticks, unsigned long noteOnTick )
 {
 	if ( pInstrument ) { // stop all notes using this instrument
-		Hydrogen *pEngine = Hydrogen::get_instance();
-		Song* pSong = pEngine->getSong();
-		int nSelectedpattern = pEngine->getSelectedPatternNumber();
+		Hydrogen *pHydrogen = Hydrogen::get_instance();
+		Song* pSong = pHydrogen->getSong();
+		int nSelectedpattern = pHydrogen->getSelectedPatternNumber();
 		Pattern* pCurrentPattern = nullptr;
 
 
 		if ( pSong->getMode() == Song::PATTERN_MODE ||
-		( pEngine->getState() != STATE_PLAYING )){
+		( pHydrogen->getState() != STATE_PLAYING )){
 			PatternList *pPatternList = pSong->getPatternList();
 			if ( ( nSelectedpattern != -1 )
 			&& ( nSelectedpattern < ( int )pPatternList->size() ) ) {
@@ -1539,7 +1540,7 @@ void Sampler::setPlayingNotelength(Instrument* pInstrument, unsigned long ticks,
 		{
 			std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
 //			Pattern *pPattern = NULL;
-			int pos = pEngine->getPatternPos() +1;
+			int pos = pHydrogen->getPatternPos() +1;
 			for ( int i = 0; i < pos; ++i ) {
 				PatternList *pColumn = ( *pColumns )[i];
 				pCurrentPattern = pColumn->get( 0 );
@@ -1558,26 +1559,26 @@ void Sampler::setPlayingNotelength(Instrument* pInstrument, unsigned long ticks,
 							if( !Preferences::get_instance()->__playselectedinstrument ){
 								if ( pNote->get_instrument() == pInstrument
 								&& pNote->get_position() == noteOnTick ) {
-									AudioEngine::get_instance()->lock( RIGHT_HERE );
+									pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 									if ( ticks >  patternsize ) {
 										ticks = patternsize - noteOnTick;
 									}
 									pNote->set_length( ticks );
 									Hydrogen::get_instance()->getSong()->setIsModified( true );
-									AudioEngine::get_instance()->unlock(); // unlock the audio engine
+									pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 								}
 							}else
 							{
-								if ( pNote->get_instrument() == pEngine->getSong()->getInstrumentList()->get( pEngine->getSelectedInstrumentNumber())
+								if ( pNote->get_instrument() == pHydrogen->getSong()->getInstrumentList()->get( pHydrogen->getSelectedInstrumentNumber())
 								&& pNote->get_position() == noteOnTick ) {
-									AudioEngine::get_instance()->lock( RIGHT_HERE );
+									Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 									if ( ticks >  patternsize ) {
 										ticks = patternsize - noteOnTick;
 									}
 									pNote->set_length( ticks );
-									Hydrogen::get_instance()->getSong()->setIsModified( true );
-									AudioEngine::get_instance()->unlock(); // unlock the audio engine
+									pHydrogen->getSong()->setIsModified( true );
+									pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 								}
 							}
 						}
@@ -1591,8 +1592,8 @@ void Sampler::setPlayingNotelength(Instrument* pInstrument, unsigned long ticks,
 
 bool Sampler::isAnyInstrumentSoloed() const
 {
-	Hydrogen*		pEngine = Hydrogen::get_instance();
-	Song*			pSong = pEngine->getSong();
+	Hydrogen*		pHydrogen = Hydrogen::get_instance();
+	Song*			pSong = pHydrogen->getSong();
 	InstrumentList* pInstrList = pSong->getInstrumentList();
 	bool			bAnyInstrumentIsSoloed = false;
 	
@@ -1621,8 +1622,8 @@ bool Sampler::isInstrumentPlaying( Instrument* instrument )
 
 void Sampler::reinitializePlaybackTrack()
 {
-	Hydrogen*	pEngine = Hydrogen::get_instance();
-	Song*		pSong = pEngine->getSong();
+	Hydrogen*	pHydrogen = Hydrogen::get_instance();
+	Song*		pSong = pHydrogen->getSong();
 	std::shared_ptr<Sample>	pSample;
 
 	if(!pSong->getPlaybackTrackFilename().isEmpty()){

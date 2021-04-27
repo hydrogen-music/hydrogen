@@ -36,7 +36,7 @@ float TimeTest::locateAndLookupTime( int nPatternPos ){
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioDriver = pHydrogen->getAudioOutput();
 	auto pSong = pHydrogen->getSong();
-	auto pAudioEngine = AudioEngine::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 
 	pCoreActionController->relocate( nPatternPos );
