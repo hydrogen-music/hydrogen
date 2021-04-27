@@ -680,7 +680,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pHumanizeTimeRotary->move( 74, 125 );
 	connect( m_pHumanizeTimeRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
-	m_pSwingRotary = new Rotary( this,  Rotary::TYPE_NORMAL, tr( "Swing" ), false, true );
+	m_pSwingRotary = new Rotary( this,  Rotary::TYPE_NORMAL, tr( "16th-note Swing" ), false, true );
 	m_pSwingRotary->move( 74, 162 );
 	connect( m_pSwingRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 

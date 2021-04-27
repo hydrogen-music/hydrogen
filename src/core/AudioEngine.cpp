@@ -1717,27 +1717,35 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 					Note *pNote = it->second;
 					if ( pNote ) {
 						pNote->set_just_recorded( false );
+						
+						/** Time Offset in frames (relative to sample rate)
+						*	Sum of 3 components: swing, humanized timing, lead_lag
+						*/
 						int nOffset = 0;
 
-						// Swing //
-						// Add a constant and periodic offset at
-						// predefined positions to the note position.
-						// TODO: incorporate the factor of 6.0 either
-						// in Song::__swing_factor or make it a member
-						// variable.
-						float fSwingFactor = pSong->getSwingFactor();
-						if ( ( ( m_nPatternTickPosition % 12 ) == 0 )
-							 && ( ( m_nPatternTickPosition % 24 ) != 0 ) ) {
-							// da l'accento al tick 4, 12, 20, 36...
-							nOffset += (int)( 6.0 * fTickSize * fSwingFactor );
+					   /** Swing 16ths //
+						* delay the upbeat 16th-notes by a constant (manual) offset
+						*/
+						if ( ( ( m_nPatternTickPosition % ( MAX_NOTES / 16 ) ) == 0 )
+							 && ( ( m_nPatternTickPosition % ( MAX_NOTES / 8 ) ) != 0 ) ) {
+							/* TODO: incorporate the factor MAX_NOTES / 32. either in Song::m_fSwingFactor
+							* or make it a member variable.
+							* comment by oddtime:
+							* 32 depends on the fact that the swing is applied to the upbeat 16th-notes.
+							* (not to upbeat 8th-notes as in jazz swing!).
+							* however 32 could be changed but must be >16, otherwise the max delay is too long and
+							* the swing note could be played after the next downbeat!
+							*/
+							nOffset += (int) ( ( (float) MAX_NOTES / 32. ) * fTickSize * pSong->getSwingFactor() );
 						}
 
-						// Humanize - Time parameter //
-						// Add a random offset to each note. Due to
-						// the nature of the Gaussian distribution,
-						// the factor Song::__humanize_time_value will
-						// also scale the variance of the generated
-						// random variable.
+						/* Humanize - Time parameter //
+						* Add a random offset to each note. Due to
+						* the nature of the Gaussian distribution,
+						* the factor Song::__humanize_time_value will
+						* also scale the variance of the generated
+						* random variable.
+						*/
 						if ( pSong->getHumanizeTimeValue() != 0 ) {
 							nOffset += ( int )(
 										getGaussian( 0.3 )
@@ -1748,8 +1756,7 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 
 						// Lead or Lag - timing parameter //
 						// Add a constant offset to all notes.
-						nOffset += (int) ( pNote->get_lead_lag()
-										   * nLeadLagFactor );
+						nOffset += (int) ( pNote->get_lead_lag() * nLeadLagFactor );
 
 						// No note is allowed to start prior to the
 						// beginning of the song.
@@ -1761,7 +1768,8 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 						// it the new offset, and push it to the list
 						// of all notes, which are about to be played
 						// back.
-						// TODO: Why a copy?
+						// Why a copy? because it has the new offset (including swing and random timing) in its
+						// humanized delay, and tick position is expressed referring to start time (and not pattern).
 						Note *pCopiedNote = new Note( pNote );
 						pCopiedNote->set_position( tick );
 						pCopiedNote->set_humanize_delay( nOffset );
