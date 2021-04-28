@@ -151,7 +151,7 @@ void Pattern::save_to( XMLNode* node, const Instrument* instrumentOnly ) const
 	}
 }
 
-Note* Pattern::find_note( double idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict ) const // TODO tolerance epsilon
+Note* Pattern::find_note( double idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict ) const
 {
 	for( notes_cst_it_t it=__notes.lower_bound( idx_a - POS_EPSILON ) ; it!=__notes.upper_bound( idx_a + POS_EPSILON ); it++ ) {
 		Note* note = it->second;
@@ -179,7 +179,7 @@ Note* Pattern::find_note( double idx_a, int idx_b, Instrument* instrument, Note:
 Note* Pattern::find_note( double idx_a, int idx_b, Instrument* instrument, bool strict ) const
 {
 	notes_cst_it_t it;
-	for( it=__notes.lower_bound( idx_a - POS_EPSILON ); it!=__notes.upper_bound( idx_a + POS_EPSILON ); it++ ) { // TODO tolerance epsilon
+	for( it=__notes.lower_bound( idx_a - POS_EPSILON ); it!=__notes.upper_bound( idx_a + POS_EPSILON ); it++ ) {
 		Note* note = it->second;
 		assert( note );
 		if ( note->get_instrument() == instrument ) return note;
