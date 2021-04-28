@@ -391,7 +391,6 @@ void DrumPatternEditor::moveNoteAction( double fColumn,
 										Note *pNote)
 {
 
-	printf("fColumn = %f, newColumn = %f\n", fColumn, fNewColumn );
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
 

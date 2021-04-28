@@ -169,7 +169,7 @@ void XMLNode::write_float( const QString& node, const float value )
 }
 void XMLNode::write_double( const QString& node, const double value )
 {
-	write_child_node( node, QString::number( value ) );
+	write_child_node( node, QString( "%1" ).arg( value, 0, 'g', 10 ) );
 }
 void XMLNode::write_int( const QString& node, const int value )
 {

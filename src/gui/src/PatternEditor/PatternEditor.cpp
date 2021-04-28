@@ -483,14 +483,14 @@ void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &sel
 	for ( auto pSelectedNote : selected ) {
 		m_selection.removeFromSelection( pSelectedNote, /* bCheck=*/false );
 		bool bFoundExact = false;
-		int nPosition = pSelectedNote->get_position();
-		for ( auto it = pNotes->lower_bound( nPosition ); it != pNotes->end() && it->first == nPosition; ) {
+		double fPosition = pSelectedNote->get_position();
+		FOREACH_NOTE_IT_BOUND( pNotes, it, fPosition) {
 			Note *pNote = it->second;
 			if ( !bFoundExact && notesMatchExactly( pNote, pSelectedNote ) ) {
 				// Found an exact match. We keep this.
 				bFoundExact = true;
 				++it;
-			} else if ( pSelectedNote->match( pNote ) && pNote->get_position() == pSelectedNote->get_position() ) {
+			} else if ( pSelectedNote->match( pNote ) && pNote->get_position() == pSelectedNote->get_position() ) { //TODO tolerance
 				// Something else occupying the same position (which may or may not be an exact duplicate)
 				it = pNotes->erase( it );
 			} else {
