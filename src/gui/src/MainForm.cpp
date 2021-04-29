@@ -825,10 +825,13 @@ void MainForm::action_file_export_pattern_as()
 }
 
 void MainForm::action_file_open() {
-	const bool bUnderSessionManagement = H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
+
+	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
+	
+	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
 		
-	if ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) {
-		Hydrogen::get_instance()->sequencer_stop();
+	if ( pHydrogen->getState() == STATE_PLAYING ) {
+		pHydrogen->sequencer_stop();
 	}
 
 	bool bProceed = handleUnsavedChanges();
@@ -857,22 +860,15 @@ void MainForm::action_file_open() {
 
 	// When under session management the filename of the current Song
 	// has to be preserved.
-	QString sCurrentFilename;
 	if ( bUnderSessionManagement ) {
-		sCurrentFilename = H2Core::Hydrogen::get_instance()->getSong()->getFilename();
+		// The current path needs to be preserved. This will be done
+		// using an auxiliary variable since the GUI opens the song
+		// via the core, which in turn opens it asynchronously via the
+		// GUI.
+		pHydrogen->setNextSongPath( pHydrogen->getSong()->getFilename() );
 	}
 	if ( !sFilename.isEmpty() ) {
 		HydrogenApp::get_instance()->openSong( sFilename );
-	}
-
-	if ( bUnderSessionManagement ) {
-		
-		Song* pSong = H2Core::Hydrogen::get_instance()->getSong();
-		if ( pSong == nullptr ) {
-			ERRORLOG( QString( "No song present while under session management" ) );
-			return;
-		}
-		pSong->setFilename( sCurrentFilename );
 	}
 
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
@@ -1526,20 +1522,15 @@ void MainForm::updateRecentUsedSongList()
 
 void MainForm::action_file_open_recent(QAction *pAction)
 {
-	// When under session management the filename of the current Song
-	// has to be preserved.
-	const bool bUnderSessionManagement = H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
-	
-	QString currentFilename;
-	if ( bUnderSessionManagement ) {
-		currentFilename = H2Core::Hydrogen::get_instance()->getSong()->getFilename();
+	if ( H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
+		// The current path needs to be preserved. This will be done
+		// using an auxiliary variable since the GUI opens the song
+		// via the core, which in turn opens it asynchronously via the
+		// GUI.
+		H2Core::Hydrogen::get_instance()->setNextSongPath( H2Core::Hydrogen::get_instance()->getSong()->getFilename() );
 	}
 	
 	HydrogenApp::get_instance()->openSong( pAction->text() );
-	
-	if ( bUnderSessionManagement ) {
-		H2Core::Hydrogen::get_instance()->getSong()->setFilename( currentFilename );
-	}
 }
 
 void MainForm::checkMissingSamples()
