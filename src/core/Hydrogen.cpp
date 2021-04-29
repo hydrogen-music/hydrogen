@@ -963,15 +963,15 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 		// Velocity Adjustment Automation
 		if ( pSong->getMode() == Song::SONG_MODE ) {
 			// we need to calculate the total length (in ticks) of pattern columns BEFORE the playing column
-			int nPreviousColumnsLength;
-			 // findPatternInTick() writes the needed value into nPreviousColumnsLength
-			int tmp = findPatternInTick( m_nPatternStartTick, false, &nPreviousColumnsLength );
+			int nPreviousColumnsTotalLength;
+			// findPatternInTick() writes the needed value into nPreviousColumnsTotalLength
+			findPatternInTick( m_nPatternStartTick, false, &nPreviousColumnsTotalLength );
 		
 			//get position in the pattern columns scale (refers to the pattern sequence which can be non-linear with time)
 			float fPos = m_nSongPos // this is the integer part
 						+ ( pNote->get_position() // this note_position is monotonic with time (never reset in loop mode )
 							- nSongLength * /*floor*/( pNote->get_position() / nSongLength ) // use floor if ticks become float
-							- nPreviousColumnsLength
+							- nPreviousColumnsTotalLength
 						   ) / (float) pHydrogen->getCurrentPatternList()->longest_pattern_length(); // divide to get fractional part (<1)
 			velocity_adjustment = vp->get_value(fPos);
 		}
@@ -1945,7 +1945,7 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick 
 	Song* pSong = pHydrogen->getSong();
 	assert( pSong );
 
-	int nSongLength = 0;
+	int nTotalLength = 0;
 	m_nSongSizeInTicks = 0;
 
 	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
@@ -1965,11 +1965,11 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick 
 			nPatternSize = MAX_NOTES;
 		}
 
-		if ( ( nTick >= nSongLength ) && ( nTick < nSongLength + nPatternSize ) ) {
-			( *pPatternStartTick ) = nSongLength;
+		if ( ( nTick >= nTotalLength ) && ( nTick < nTotalLength + nPatternSize ) ) {
+			( *pPatternStartTick ) = nTotalLength;
 			return i;
 		}
-		nSongLength += nPatternSize;
+		nTotalLength += nPatternSize;
 	}
 
 	// If the song is played in loop mode, the tick numbers of the
@@ -1977,12 +1977,12 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick 
 	// song. Therefore, we will introduced periodic boundary
 	// conditions and start the search again.
 	if ( bLoopMode ) {
-		m_nSongSizeInTicks = nSongLength;
+		m_nSongSizeInTicks = nTotalLength;
 		int nLoopTick = 0;
 		if ( m_nSongSizeInTicks != 0 ) {
 			nLoopTick = nTick % m_nSongSizeInTicks;
 		}
-		nSongLength = 0;
+		nTotalLength = 0;
 		for ( int i = 0; i < nColumns; ++i ) {
 			PatternList *pColumn = ( *pPatternColumns )[ i ];
 			if ( pColumn->size() != 0 ) {
@@ -1991,12 +1991,12 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick 
 				nPatternSize = MAX_NOTES;
 			}
 
-			if ( ( nLoopTick >= nSongLength )
-				 && ( nLoopTick < nSongLength + nPatternSize ) ) {
-				( *pPatternStartTick ) = nSongLength;
+			if ( ( nLoopTick >= nTotalLength )
+				 && ( nLoopTick < nTotalLength + nPatternSize ) ) {
+				( *pPatternStartTick ) = nTotalLength;
 				return i;
 			}
-			nSongLength += nPatternSize;
+			nTotalLength += nPatternSize;
 		}
 	}
 
