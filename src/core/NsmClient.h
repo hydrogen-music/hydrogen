@@ -221,8 +221,7 @@ class NsmClient : public H2Core::Object
 	 * initialization and not at a later stage. Therefore, the
 	 * starting of the audio driver is prohibited whenever the
 	 * "NSM_URL" environmental variable is set,
-	 * H2Core::Hydrogen::setInitialSong() is used to store the loaded
-	 * H2Core::Song, and H2Core::Hydrogen::restartDrivers() to start
+	 *  and H2Core::Hydrogen::restartDrivers() to start
 	 * the audio driver and - if JACK is chosen - to create all per
 	 * track output ports right away. In addition, is also calls
 	 * H2Core::Hydrogen::restartLadspaFX() and
@@ -234,12 +233,6 @@ class NsmClient : public H2Core::Object
 	 * exists with the provided file path - triggering
 	 * MidiActionManager::open_song() or
 	 * MidiActionManager::new_song().
-	 *
-	 * If the GUI is present, it waits - up to 11 seconds - until the
-	 * H2Core::Song was asynchronously set by the GUI (as a response
-	 * to the action). This (regular) procedure is only done if a GUI
-	 * is present and fully loaded and thus
-	 * H2Core::Hydrogen::m_GUIState is set to H2Core::Hydrogen::GUIState::ready.
 	 *
 	 * All files and symbolic links will be stored in a folder created
 	 * by this function and named according to @a name.

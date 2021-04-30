@@ -145,80 +145,13 @@ int NsmClient::OpenCallback( const char *name,
 		pSong->setFilename( sSongPath );
 	}
 
-	// When starting Hydrogen with its Qt5 GUI activated, the chosen
-	// Song will be set via the GUI. But since it is constructed after
-	// the NSM client, using the corresponding OSC message to open a
-	// Song won't work in this scenario (since this would set the Song
-	// asynchronously using the EventQueue and it is require during
-	// the construction of MainForm).
-	//
-	// Two different scenarios are considered in here:
-	// 1. notReady && unavailable:
-	//    There is no GUI or there will be a GUI but it is not
-	//    initialized yet.
-	// 2. > ready:
-	//    There is a GUI present and it is fully loaded.
-	//
-	// Scenario 2. is active when switching between sessions.
-	//
-	// Loading the Song is a little bit tricky in the first
-	// scenario. The much more slim setInitialSong() function is used
-	// since setSong() requires the audio driver to be already present
-	// which would keep external tools from rewiring the per track
-	// outputs of the JACK client. In 2. the Song _must_ the loaded by
-	// the GUI or Hydrogen will get out of sync and freeze. The Song
-	// will be stored using setNextSong() and an event will be created
-	// to tell the GUI to load the Song itself.
-	if ( pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::notReady ||
-		 pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::unavailable ) {
-		
-		// No GUI. Just load the requested Song and restart the audio
-		// driver.
-		pHydrogen->setInitialSong( pSong );
-		pHydrogen->restartDrivers();
-		pHydrogen->restartLadspaFX();
-		pHydrogen->getAudioEngine()->getSampler()->reinitializePlaybackTrack();
-
-		// If there will be a GUI but it is not ready yet, wait until
-		// the Song was set (asynchronously by the GUI) and the GUI is
-		// fully loaded.
-		if ( pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::notReady ) {
-			const int nNumberOfChecks = 20;
-			int nCheck = 0;
-			while ( true ) {
-				if ( ( ( pSong == pHydrogen->getSong() ) &&
-					   ( pHydrogen->getGUIState() != H2Core::Hydrogen::GUIState::notReady ) ) ||
-					 ( nCheck > nNumberOfChecks ) ) {
-					break;
-				}
-				nCheck++;
-				sleep(1);
-			}
-		}
-		
-	} else {
-
-		// The opening of the Song will be done asynchronously.
-		pHydrogen->setNextSong( pSong );
-		
-		bool bSuccess;
-		if ( songFileInfo.exists() ) {
-			// Open the existing file.
-			bSuccess = pController->openSong( sSongPath );
-		} else {
-			// Create a new file and save it as using the provided path.
-			bSuccess = pController->newSong( sSongPath );
-		}
-
-		if ( !bSuccess ) {
+	// The opening of the Song will be done asynchronously.
+	if ( ! pController->openSong( pSong ) ) {
 			NsmClient::printError( "Unable to handle opening action!" );
 			return ERR_LAUNCH_FAILED;
-		}
 	}
 	
 	NsmClient::printMessage( "Song loaded!" );
-	
-	NsmClient::linkDrumkit( name, true );
 			
 	return ERR_OK;
 }

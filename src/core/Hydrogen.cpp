@@ -116,7 +116,6 @@ Hydrogen::Hydrogen()
 	INFOLOG( "[Hydrogen]" );
 
 	__song = nullptr;
-	m_pNextSong = nullptr;
 
 	m_bExportSessionIsActive = false;
 	m_pTimeline = new Timeline();
@@ -1763,44 +1762,6 @@ void Hydrogen::startNsmClient()
 #endif
 }
 
-void Hydrogen::setInitialSong( Song *pSong )
-{
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-
-	// Since the function is only intended to set a Song prior to the
-	// initial creation of the audio driver, it will cause the
-	// application to get out of sync if used elsewhere. The following
-	// checks ensure it is called in the right context.
-	if ( pSong == nullptr ) {
-		return;
-	}
-	if ( __song != nullptr ) {
-		return;
-	}
-	if ( pAudioEngine->getAudioDriver() != nullptr ) {
-		return;
-	}
-	
-	// Just to be sure.
-	pAudioEngine->lock( RIGHT_HERE );
-
-	// Find the first pattern and set as current.
-	if ( pSong->getPatternList()->size() > 0 ) {
-		m_pAudioEngine->getPlayingPatterns()->add( pSong->getPatternList()->get( 0 ) );
-	}
-
-	pAudioEngine->unlock();
-
-	// Move to the beginning.
-	setSelectedPatternNumber( 0 );
-
-	__song = pSong;
-
-	// Push current state of Hydrogen to attached control interfaces,
-	// like OSC clients.
-	m_pCoreActionController->initExternalControlInterfaces();
-}
-
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 
 	QString s = Object::sPrintIndention;
@@ -1829,13 +1790,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_bOldLoopEnabled: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bOldLoopEnabled ) )
 			.append( QString( "%1%2m_bExportSessionIsActive: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bExportSessionIsActive ) )
 			.append( QString( "%1%2m_GUIState: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>( m_GUIState ) ) )
-			.append( QString( "%1%2m_pNextSong: " ).arg( sPrefix ).arg( s ) );
-		if ( m_pNextSong != nullptr ) {
-			sOutput.append( QString( "%1" ).arg( m_pNextSong->toQString( sPrefix + s, bShort ) ) );
-		} else {
-			sOutput.append( QString( "nullptr\n" ) );
-		}
-		sOutput.append( QString( "%1%2m_pTimeline:\n" ).arg( sPrefix ).arg( s ) );
+			.append( QString( "%1%2m_pTimeline:\n" ).arg( sPrefix ).arg( s ) );
 		if ( m_pTimeline != nullptr ) {
 			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix + s, bShort ) ) );
 		} else {
@@ -1885,13 +1840,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_oldEngineMode: %1" ).arg( m_oldEngineMode ) )
 			.append( QString( ", m_bOldLoopEnabled: %1" ).arg( m_bOldLoopEnabled ) )
 			.append( QString( ", m_bExportSessionIsActive: %1" ).arg( m_bExportSessionIsActive ) )
-			.append( QString( ", m_GUIState: %1" ).arg( static_cast<int>( m_GUIState ) ) )
-			.append( QString( ", m_pNextSong: " ) );
-		if ( m_pNextSong != nullptr ) {
-			sOutput.append( QString( "%1" ).arg( m_pNextSong->toQString( sPrefix + s, bShort ) ) );
-		} else {
-			sOutput.append( QString( "nullptr" ) );
-		}
+			.append( QString( ", m_GUIState: %1" ).arg( static_cast<int>( m_GUIState ) ) );
 		sOutput.append( QString( ", m_pTimeline: " ) );
 		if ( m_pTimeline != nullptr ) {
 			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix + s, bShort ) ) );

@@ -87,7 +87,7 @@ int MainForm::sigusr1Fd[2];
 
 const char* MainForm::__class_name = "MainForm";
 
-MainForm::MainForm( QApplication * pQApplication, const QString& songFilename, const bool bLoadSong )
+MainForm::MainForm( QApplication * pQApplication )
 	: QMainWindow( nullptr )
 	, Object( __class_name )
 {
@@ -106,57 +106,8 @@ MainForm::MainForm( QApplication * pQApplication, const QString& songFilename, c
 
 	m_pQApp->processEvents();
 
-	Song *pSong = nullptr;
-	
-	if ( bLoadSong ) {
-		if ( !songFilename.isEmpty() ) {
-			pSong = Song::load( songFilename );
-
-			/*
-			 * If the song could not be loaded, create
-			 * a new one with the specified filename
-			 */
-			if ( pSong == nullptr ) {
-				pSong = Song::getEmptySong();
-				pSong->setFilename( songFilename );
-			}
-		}
-		else {
-			Preferences *pref = Preferences::get_instance();
-			bool restoreLastSong = pref->isRestoreLastSongEnabled();
-			QString filename = pref->getLastSongFilename();
-			if ( restoreLastSong && ( !filename.isEmpty() )) {
-				pSong = Song::load( filename );
-				if ( pSong == nullptr ) {
-					//QMessageBox::warning( this, "Hydrogen", tr("Error restoring last song.") );
-					pSong = Song::getEmptySong();
-					pSong->setFilename( "" );
-				}
-			}
-			else {
-				pSong = Song::getEmptySong();
-				pSong->setFilename( "" );
-			}
-		}
-	} else {
-		// When under Non Session Management the new Song will be
-		// prepared by the corresponding NSM client instance and in
-		// here we will just obtain and handed to the HydrogenApp but
-		// not load there.
-		pSong = Hydrogen::get_instance()->getSong();
-
-		// In case something went wrong when setting the Song to the
-		// loaded by the GUI via an OSC command, load the default Song
-		// instead.
-		if ( pSong == nullptr ) {
-			pSong = Song::getEmptySong();
-			pSong->setFilename( songFilename );
-		}
-		
-	}
-
 	showDevelWarning();
-	h2app = new HydrogenApp( this, pSong );
+	h2app = new HydrogenApp( this );
 	h2app->addEventListener( this );
 	createMenuBar();
 	checkMidiSetup();
