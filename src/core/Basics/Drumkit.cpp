@@ -42,7 +42,6 @@
 #include <core/Basics/InstrumentLayer.h>
 
 #include <core/Helpers/Xml.h>
-#include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Legacy.h>
 
 namespace H2Core
@@ -86,10 +85,10 @@ Drumkit::~Drumkit()
 		delete __instruments;
 	}
 }
-	
-Drumkit* Drumkit::load_by_name ( const QString& dk_name, const bool load_samples )
+
+Drumkit* Drumkit::load_by_name( const QString& dk_name, const bool load_samples, Filesystem::Lookup lookup )
 {
-	QString dir = Filesystem::drumkit_path_search( dk_name );
+	QString dir = Filesystem::drumkit_path_search( dk_name, lookup );
 	if ( dir.isEmpty() ) {
 		return nullptr;
 	}
@@ -260,45 +259,44 @@ void Drumkit::unload_samples()
 	}
 }
 
-bool Drumkit::save( const QString&					name,
-                    const QString&					author,
-                    const QString&					info,
-                    const QString&					license,
-                    const QString& 					image,
-                    const QString& 					imageLicense,
+bool Drumkit::save( const QString&					sName,
+                    const QString&					sAuthor,
+                    const QString&					sInfo,
+                    const QString&					sLicense,
+                    const QString& 					sImage,
+                    const QString& 					sImageLicense,
                     InstrumentList*					pInstruments,
                     std::vector<DrumkitComponent*>* pComponents,
-                    bool overwrite )
+                    bool 							bOverwrite )
 {
 	Drumkit* pDrumkit = new Drumkit();
-	pDrumkit->set_name( name );
-	pDrumkit->set_author( author );
-	pDrumkit->set_info( info );
-	pDrumkit->set_license( license );
+	pDrumkit->set_name( sName );
+	pDrumkit->set_author( sAuthor );
+	pDrumkit->set_info( sInfo );
+	pDrumkit->set_license( sLicense );
 
 	// Before storing the absolute path to the image of the drumkit it
 	// has to be checked whether an actual path was supplied. If not,
 	// the construction of QFileInfo will fail.
-	if ( !image.isEmpty() ) {
-		QFileInfo fi( image );
+	if ( !sImage.isEmpty() ) {
+		QFileInfo fi( sImage );
 		pDrumkit->set_path( fi.absolutePath() );
 		pDrumkit->set_image( fi.fileName() );
 	}
-	pDrumkit->set_image_license( imageLicense );
+	pDrumkit->set_image_license( sImageLicense );
 
 	pDrumkit->set_instruments( new InstrumentList( pInstruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
 	
 	std::vector<DrumkitComponent*>* pCopiedVector = new std::vector<DrumkitComponent*> ();
-	for (std::vector<DrumkitComponent*>::iterator it = pComponents->begin() ; it != pComponents->end(); ++it) {
-		DrumkitComponent* pSrcComponent = *it;
+	for ( auto pSrcComponent : *pComponents ) {
 		pCopiedVector->push_back( new DrumkitComponent( pSrcComponent ) );
 	}
 	pDrumkit->set_components( pCopiedVector );
 	
-	bool ret = pDrumkit->save( overwrite );
+	bool bRet = pDrumkit->save( bOverwrite );
 	delete pDrumkit;
 
-	return ret;
+	return bRet;
 }
 
 bool Drumkit::user_drumkit_exists( const QString& name)
@@ -445,16 +443,16 @@ void Drumkit::set_components( std::vector<DrumkitComponent*>* components )
 	__components = components;
 }
 
-bool Drumkit::remove( const QString& dk_name )
+bool Drumkit::remove( const QString& sDrumkitName, Filesystem::Lookup lookup )
 {
-	QString dk_dir = Filesystem::drumkit_path_search( dk_name );
-	if( !Filesystem::drumkit_valid( dk_dir ) ) {
-		ERRORLOG( QString( "%1 is not valid drumkit" ).arg( dk_dir ) );
+	QString sDrumkitDir = Filesystem::drumkit_path_search( sDrumkitName, lookup );
+	if( !Filesystem::drumkit_valid( sDrumkitDir ) ) {
+		ERRORLOG( QString( "%1 is not valid drumkit" ).arg( sDrumkitDir ) );
 		return false;
 	}
-	_INFOLOG( QString( "Removing drumkit: %1" ).arg( dk_dir ) );
-	if( !Filesystem::rm( dk_dir, true ) ) {
-		_ERRORLOG( QString( "Unable to remove drumkit: %1" ).arg( dk_dir ) );
+	_INFOLOG( QString( "Removing drumkit: %1" ).arg( sDrumkitDir ) );
+	if( !Filesystem::rm( sDrumkitDir, true ) ) {
+		_ERRORLOG( QString( "Unable to remove drumkit: %1" ).arg( sDrumkitDir ) );
 		return false;
 	}
 	return true;
@@ -496,6 +494,13 @@ void Drumkit::dump()
 	}
 }
 
+bool Drumkit::isUserDrumkit() const {
+	if ( __path.contains( Filesystem::sys_drumkits_dir() ) ) {
+		return false;
+	} 
+	return true;
+}
+	
 bool Drumkit::install( const QString& path )
 {
 	_INFOLOG( QString( "Install drumkit %1" ).arg( path ) );

@@ -54,6 +54,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 
 	m_fLastSetValue = 0.0;
 	m_bValueHasBeenSet = false;
+	m_bNeedsUpdate = true;
 
 	if (m_Mode == VELOCITY ) {
 		m_nEditorHeight = 100;
@@ -147,7 +148,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 
 	for ( Note *pNote : notes ) {
 		assert( pNote );
-		if ( pNote->get_instrument() != pSelectedInstrument ) {
+		if ( pNote->get_instrument() != pSelectedInstrument && !m_selection.isSelected( pNote ) ) {
 			continue;
 		}
 		adjustNotePropertyDelta( pNote, fDelta, /* bMessage=*/ true );
@@ -208,7 +209,7 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	}
 
 	for ( Note *pNote : m_selection ) {
-		if ( pNote->get_instrument() == pSelectedInstrument ) {
+		if ( pNote->get_instrument() == pSelectedInstrument || m_selection.isSelected( pNote ) ) {
 
 			// Record original note if not already recorded
 			if ( m_oldNotes.find( pNote ) == m_oldNotes.end() ) {
@@ -309,7 +310,7 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 	if ( m_selection.begin() != m_selection.end() ) {
 		// If there is a selection, preserve the initial state of all the selected notes.
 		for ( Note *pNote : m_selection ) {
-			if ( pNote->get_instrument() == pSelectedInstrument ) {
+			if ( pNote->get_instrument() == pSelectedInstrument || m_selection.isSelected( pNote ) ) {
 				m_oldNotes[ pNote ] = new Note( pNote );
 			}
 		}
@@ -363,7 +364,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	FOREACH_NOTE_CST_IT_BOUND(  m_pPattern->get_notes(), it, nColumn ) {
 		Note *pNote = it->second;
 
-		if ( pNote->get_instrument() != pSelectedInstrument ) {
+		if ( pNote->get_instrument() != pSelectedInstrument && !m_selection.isSelected( pNote ) ) {
 			continue;
 		}
 		if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
@@ -542,10 +543,12 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 		m_bValueHasBeenSet = true;
 		break;
 	}
+	Hydrogen::get_instance()->getSong()->setIsModified( true );
 }
 
 void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 {
+	const int nWordSize = 5;
 	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
 	bool bUnhideCursor = true;
 
@@ -555,6 +558,10 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		// ->
 		m_pPatternEditorPanel->moveCursorRight();
 
+	} else if ( ev->matches( QKeySequence::MoveToNextWord ) || ev->matches( QKeySequence::SelectNextWord ) ) {
+		// ->
+		m_pPatternEditorPanel->moveCursorRight( nWordSize );
+
 	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ev->matches( QKeySequence::SelectEndOfLine ) ) {
 		// -->|
 		m_pPatternEditorPanel->setCursorPosition( m_pPattern->get_length() );
@@ -562,6 +569,10 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) || ev->matches( QKeySequence::SelectPreviousChar ) ) {
 		// <-
 		m_pPatternEditorPanel->moveCursorLeft();
+
+	} else if ( ev->matches( QKeySequence::MoveToPreviousWord ) || ev->matches( QKeySequence::SelectPreviousWord ) ) {
+		// <-
+		m_pPatternEditorPanel->moveCursorLeft( nWordSize );
 
 	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) || ev->matches( QKeySequence::SelectStartOfLine ) ) {
 		// |<--
@@ -650,7 +661,8 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 			for ( Note *pNote : notes ) {
 
-				if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
+				if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument )
+					 && !m_selection.isSelected( pNote ) ) {
 					continue;
 				}
 
@@ -726,6 +738,7 @@ void NotePropertiesRuler::focusOutEvent( QFocusEvent * ev )
 
 void NotePropertiesRuler::addUndoAction()
 {
+	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	int nSize = m_oldNotes.size();
 	if ( nSize != 0 ) {
 		QUndoStack *pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
@@ -760,7 +773,7 @@ void NotePropertiesRuler::addUndoAction()
 			pUndoStack->push( new SE_editNotePropertiesVolumeAction( pNewNote->get_position(),
 																	 sMode,
 																	 m_nSelectedPatternNumber,
-																	 Hydrogen::get_instance()->getSelectedInstrumentNumber(),
+																	 pInstrumentList->index( pNewNote->get_instrument() ),
 																	 pNewNote->get_velocity(),
 																	 pOldNote->get_velocity(),
 																	 pNewNote->get_pan_l(),
@@ -849,7 +862,8 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 			FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
 				Note *pNote = coit->second;
 				assert( pNote );
-				if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
+				if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument )
+					 && !m_selection.isSelected( pNote ) ) {
 					continue;
 				}
 				uint x_pos = m_nMargin + pos * m_nGridWidth;
@@ -937,7 +951,8 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 				Note *pNote = coit->second;
 				assert( pNote );
 				if ( pNote->get_note_off() || (pNote->get_instrument()
-											   != pSong->getInstrumentList()->get( nSelectedInstrument ) ) ) {
+											   != pSong->getInstrumentList()->get( nSelectedInstrument )
+											   && !m_selection.isSelected( pNote ) ) ) {
 					continue;
 				}
 				uint x_pos = m_nMargin + pNote->get_position() * m_nGridWidth;
@@ -1026,7 +1041,8 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 			FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
 				Note *pNote = coit->second;
 				assert( pNote );
-				if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
+				if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument )
+					 && !m_selection.isSelected( pNote ) ) {
 					continue;
 				}
 
@@ -1167,7 +1183,8 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
 			assert( pNote );
-			if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
+			if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument )
+				 && !m_selection.isSelected( pNote ) ) {
 				continue;
 			}
 			if ( !pNote->get_note_off() ) {
@@ -1190,7 +1207,8 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
 			assert( pNote );
-			if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
+			if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument )
+				 && !m_selection.isSelected( pNote ) ) {
 				continue;
 			}
 
@@ -1319,7 +1337,8 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 	r += QMargins( 4, 4, 4, 4 );
 
 	FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
-		if ( it->second->get_instrument() !=  pInstrument ) {
+		if ( it->second->get_instrument() !=  pInstrument
+			 && !m_selection.isSelected( it->second ) ) {
 			continue;
 		}
 
@@ -1341,8 +1360,6 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 QRect NotePropertiesRuler::getKeyboardCursorRect()
 {
 	uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
-	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	uint y = nSelectedInstrument * m_nGridHeight;
 	return QRect( x-m_nGridWidth*3, 0+1, m_nGridWidth*6, height()-2 );
 }
 

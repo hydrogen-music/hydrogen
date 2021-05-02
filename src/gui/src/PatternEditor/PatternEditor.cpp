@@ -41,6 +41,7 @@
 #include "../HydrogenApp.h"
 #include "../EventListener.h"
 #include "PatternEditorPanel.h"
+#include "UndoActions.h"
 
 
 using namespace std;
@@ -114,7 +115,7 @@ void PatternEditor::zoomOut()
 	}
 }
 
-QColor PatternEditor::computeNoteColor( float velocity ){
+QColor PatternEditor::computeNoteColor( float velocity ) {
 	int red;
 	int green;
 	int blue;
@@ -141,6 +142,102 @@ QColor PatternEditor::computeNoteColor( float velocity ){
 	//qDebug() << "R " << red << "G " << green << "blue " << blue;
 	return QColor( red, green, blue );
 }
+
+
+void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote ) const
+{
+	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
+	static const QColor noteColor( pStyle->m_patternEditor_noteColor.getRed(), pStyle->m_patternEditor_noteColor.getGreen(), pStyle->m_patternEditor_noteColor.getBlue() );
+	static const QColor noteoffColor( pStyle->m_patternEditor_noteoffColor.getRed(), pStyle->m_patternEditor_noteoffColor.getGreen(), pStyle->m_patternEditor_noteoffColor.getBlue() );
+
+	p.setRenderHint( QPainter::Antialiasing );
+
+
+	QColor color = computeNoteColor( pNote->get_velocity() );
+
+	uint w = 8, h =  8;
+	uint x_pos = pos.x(), y_pos = pos.y();
+
+	bool bSelected = m_selection.isSelected( pNote );
+
+	if ( bSelected ) {
+		QPen selectedPen( selectedNoteColor( pStyle ) );
+		selectedPen.setWidth( 2 );
+		p.setPen( selectedPen );
+		p.setBrush( Qt::NoBrush );
+	}
+
+	bool bMoving = bSelected && m_selection.isMoving();
+	QPen movingPen( noteColor );
+	QPoint movingOffset;
+
+	if ( bMoving ) {
+		movingPen.setStyle( Qt::DotLine );
+		movingPen.setWidth( 2 );
+		QPoint delta = movingGridOffset();
+		movingOffset = QPoint( delta.x() * m_nGridWidth,
+							   delta.y() * m_nGridHeight );
+	}
+
+	if ( pNote->get_note_off() == false ) {	// trigger note
+		int width = w;
+
+		if ( bSelected ) {
+			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
+		}
+
+		// Draw tail
+		if ( pNote->get_length() != -1 ) {
+			float fNotePitch = pNote->get_octave() * 12 + pNote->get_key();
+			float fStep = pow( 1.0594630943593, ( double )fNotePitch );
+			width = m_nGridWidth * pNote->get_length() / fStep;
+			width = width - 1;	// lascio un piccolo spazio tra una nota ed un altra
+
+			if ( bSelected ) {
+				p.drawRoundedRect( x_pos-2, y_pos, width+4, 3+4, 4, 4 );
+			}
+			p.setPen( noteColor );
+			p.setBrush( color );
+			p.fillRect( x_pos, y_pos +2, width, 3, color );	/// \todo: definire questo colore nelle preferenze
+			p.drawRect( x_pos, y_pos +2, width, 3 );
+			p.drawLine( x_pos+width, y_pos, x_pos+width, y_pos + h );
+		}
+
+		p.setPen( noteColor );
+		p.setBrush( color );
+		p.drawEllipse( x_pos -4 , y_pos, w, h );
+
+		if ( bMoving ) {
+			p.setPen( movingPen );
+			p.setBrush( Qt::NoBrush );
+			p.drawEllipse( movingOffset.x() + x_pos -4 -2, movingOffset.y() + y_pos -2 , w + 4, h + 4 );
+			// Moving tail
+			if ( pNote->get_length() != -1 ) {
+				p.setPen( movingPen );
+				p.setBrush( Qt::NoBrush );
+				p.drawRoundedRect( movingOffset.x() + x_pos-2, movingOffset.y() + y_pos, width+4, 3+4, 4, 4 );
+			}
+
+		}
+
+	}
+	else if ( pNote->get_length() == 1 && pNote->get_note_off() == true ) {
+
+		if ( bSelected ) {
+			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
+		}
+ 		p.setPen( noteoffColor );
+		p.setBrush( QColor( noteoffColor ) );
+		p.drawEllipse( x_pos -4 , y_pos, w, h );
+
+		if ( bMoving ) {
+			p.setPen( movingPen );
+			p.setBrush( Qt::NoBrush );
+			p.drawEllipse( movingOffset.x() + x_pos -4 -2, movingOffset.y() + y_pos -2, w + 4, h + 4 );
+		}
+	}
+}
+
 
 int PatternEditor::getColumn( int x, bool bUseFineGrained ) const
 {
@@ -263,6 +360,17 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 	// Key: Ctrl + drag: copy notes rather than moving
 	m_bCopyNotMove = ev->modifiers() & Qt::ControlModifier;
 
+	if ( QKeyEvent *pEv = dynamic_cast<QKeyEvent*>( ev ) ) {
+		// Keyboard events for press and release of modifier keys don't have those keys in the modifiers set,
+		// so explicitly update these.
+		bool bPressed = ev->type() == QEvent::KeyPress;
+		if ( pEv->key() == Qt::Key_Control ) {
+			m_bCopyNotMove = bPressed;
+		} else if ( pEv->key() == Qt::Key_Alt ) {
+			m_bFineGrained = bPressed;
+		}
+	}
+
 	if ( m_selection.isMoving() ) {
 		// If a selection is currently being moved, change the cursor
 		// appropriately. Selection will change it back after the move
@@ -273,6 +381,125 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 			setCursor( QCursor( Qt::DragMoveCursor ) );
 		}
 	}
+}
+
+bool PatternEditor::notesMatchExactly( Note *pNoteA, Note *pNoteB ) const {
+	return ( pNoteA->match( pNoteB->get_instrument(), pNoteB->get_key(), pNoteB->get_octave() )
+			 && pNoteA->get_position() == pNoteB->get_position()
+			 && pNoteA->get_velocity() == pNoteB->get_velocity()
+			 && pNoteA->get_pan_r() == pNoteB->get_pan_r()
+			 && pNoteA->get_pan_l() == pNoteB->get_pan_l()
+			 && pNoteA->get_lead_lag() == pNoteB->get_lead_lag()
+			 && pNoteA->get_probability() == pNoteB->get_probability() );
+}
+
+bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements )
+{
+	//	Hydrogen *pH = Hydrogen::get_instance();
+	std::set< Note *> duplicates;
+	for ( Note *pNote : elements ) {
+		if ( duplicates.find( pNote ) != duplicates.end() ) {
+			// Already marked pNote as a duplicate of some other pNote. Skip it.
+			continue;
+		}
+		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, pNote->get_position() ) {
+			// Duplicate note of a selected note is anything occupying the same position. Multiple notes
+			// sharing the same location might be selected; we count these as duplicates too. They will appear
+			// in both the duplicates and selection lists.
+			if ( it->second != pNote && pNote->match( it->second ) ) {
+				duplicates.insert( it->second );
+			}
+		}
+	}
+	if ( !duplicates.empty() ) {
+		Preferences *pPreferences = Preferences::get_instance();
+		bool bOk = true;
+
+		if ( pPreferences->getShowNoteOverwriteWarning() ) {
+			m_selection.cancelGesture();
+			QString sMsg ( tr( "Placing these notes here will overwrite %1 duplicate notes." ) );
+			QMessageBox messageBox ( QMessageBox::Warning, "Hydrogen", sMsg.arg( duplicates.size() ),
+									 QMessageBox::Cancel | QMessageBox::Ok, this );
+			messageBox.setCheckBox( new QCheckBox( tr( "Don't show this message again" ) ) );
+			messageBox.checkBox()->setChecked( false );
+			bOk = messageBox.exec() == QMessageBox::Ok;
+			if ( messageBox.checkBox()->isChecked() ) {
+				pPreferences->setShowNoteOverwriteWarning( false );
+			}
+		}
+
+		if ( bOk ) {
+			Hydrogen *pHydrogen = Hydrogen::get_instance();
+			InstrumentList *pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+			QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+
+			std::vector< Note *>overwritten;
+			for ( Note *pNote : duplicates ) {
+				overwritten.push_back( pNote );
+			}
+			pUndo->push( new SE_deselectAndOverwriteNotesAction( elements, overwritten ) );
+
+		} else {
+			return false;
+		}
+	}
+	return true;
+}
+
+
+void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected,
+											   std::vector< H2Core::Note *> &overwritten )
+{
+	// Iterate over all the notes in 'selected' and 'overwrite' by erasing any *other* notes occupying the
+	// same position.
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Pattern::notes_t *pNotes = const_cast< Pattern::notes_t *>( m_pPattern->get_notes() );
+	for ( auto pSelectedNote : selected ) {
+		m_selection.removeFromSelection( pSelectedNote, /* bCheck=*/false );
+		bool bFoundExact = false;
+		int nPosition = pSelectedNote->get_position();
+		for ( auto it = pNotes->lower_bound( nPosition ); it != pNotes->end() && it->first == nPosition; ) {
+			Note *pNote = it->second;
+			if ( !bFoundExact && notesMatchExactly( pNote, pSelectedNote ) ) {
+				// Found an exact match. We keep this.
+				bFoundExact = true;
+				++it;
+			} else if ( pSelectedNote->match( pNote ) && pNote->get_position() == pSelectedNote->get_position() ) {
+				// Something else occupying the same position (which may or may not be an exact duplicate)
+				it = pNotes->erase( it );
+			} else {
+				// Any other note
+				++it;
+			}
+		}
+	}
+	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	AudioEngine::get_instance()->unlock();
+}
+
+
+void PatternEditor::undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected,
+												   std::vector< H2Core::Note *> &overwritten )
+{
+	// Restore previously-overwritten notes, and select notes that were selected before.
+	m_selection.clearSelection( /* bCheck=*/false );
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	for ( auto pNote : overwritten ) {
+		Note *pNewNote = new Note( pNote );
+		m_pPattern->insert_note( pNewNote );
+	}
+	// Select the previously-selected notes
+	for ( auto pNote : selected ) {
+		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, pNote->get_position() ) {
+			if ( notesMatchExactly( it->second, pNote ) ) {
+				m_selection.addToSelection( it->second );
+				break;
+			}
+		}
+	}
+	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	AudioEngine::get_instance()->unlock();
+	m_pPatternEditorPanel->updateEditors();
 }
 
 
@@ -402,7 +629,7 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 }
 
 
-QColor PatternEditor::selectedNoteColor( const UIStyle *pStyle ) {
+QColor PatternEditor::selectedNoteColor( const UIStyle *pStyle ) const {
 	if ( hasFocus() ) {
 		static const QColor selectHilightColor( pStyle->m_selectionHighlightColor.getRed(),
 												pStyle->m_selectionHighlightColor.getGreen(),
@@ -424,13 +651,20 @@ void PatternEditor::validateSelection()
 {
 	// Rebuild selection from valid notes.
 	std::set<Note *> valid;
+	std::vector< Note *> invalidated;
 	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {
 		if ( m_selection.isSelected( it->second ) ) {
 			valid.insert( it->second );
 		}
 	}
-	m_selection.clearSelection();
-	for (auto i : valid ) {
-		m_selection.addToSelection( i );
+	for (auto i : m_selection ) {
+		if ( valid.find(i) == valid.end()) {
+			// Keep the note to invalidate, but don't remove from the selection while walking the selection
+			// set.
+			invalidated.push_back( i );
+		}
+	}
+	for ( auto i : invalidated ) {
+		m_selection.removeFromSelection( i, /* bCheck=*/false );
 	}
 }

@@ -198,6 +198,8 @@ int main(int argc, char *argv[])
 
 		// Create bootstrap QApplication to get H2 Core set up with correct Filesystem paths before starting GUI application.
 		QCoreApplication *pBootStrApp = new QCoreApplication( argc, argv );
+		pBootStrApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
+
 		
 		QCommandLineParser parser;
 		
@@ -348,6 +350,10 @@ int main(int argc, char *argv[])
 		H2QApplication* pQApp = new H2QApplication( argc, argv );
 		pQApp->setApplicationName( "Hydrogen" );
 		pQApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
+
+		// Process any pending events before showing splash screen. This allows macOS to show previous-crash
+		// warning dialogs before they are covered by the splash screen.
+		pQApp->processEvents();
 
 		QString family = pPref->getApplicationFontFamily();
 		pQApp->setFont( QFont( family, pPref->getApplicationFontPointSize() ) );

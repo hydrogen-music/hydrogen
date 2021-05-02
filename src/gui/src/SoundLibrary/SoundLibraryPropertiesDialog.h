@@ -40,6 +40,7 @@ class SoundLibraryPropertiesDialog : public QDialog, public Ui_SoundLibraryPrope
 	public:
 		SoundLibraryPropertiesDialog(QWidget* pParent , Drumkit *pDrumkitInfo, Drumkit *pPreDrumKit );
 		~SoundLibraryPropertiesDialog();
+		void showEvent( QShowEvent *e ) override;
 
 	private slots:
 		void on_saveBtn_clicked();
@@ -47,6 +48,15 @@ class SoundLibraryPropertiesDialog : public QDialog, public Ui_SoundLibraryPrope
 
 	private:
 		void updateImage( QString& filename );
+		/** The one selected by the user */
+		Drumkit* m_pDrumkitInfo;
+		/** The one currently loaded in Hydrogen.
+		 *
+		 * Since changes to a drumkit can only the saved correctly
+		 * when first loading it, we need to keep a pointer to the
+		 * current one in order to restore it.
+		 */
+		Drumkit* m_pPreDrumkitInfo;
 };
 
 }

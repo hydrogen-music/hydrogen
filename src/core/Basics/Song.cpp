@@ -920,7 +920,26 @@ Song* SongReader::readSong( const QString& sFileName )
 
 			int id = LocalFileMng::readXmlInt( instrumentNode, "id", -1 );			// instrument id
 			QString sDrumkit = LocalFileMng::readXmlString( instrumentNode, "drumkit", "" );	// drumkit
-			Hydrogen::get_instance()->setCurrentDrumkitname( sDrumkit );
+			Hydrogen::get_instance()->setCurrentDrumkitName( sDrumkit );
+			int iLookup = LocalFileMng::readXmlInt( instrumentNode, "drumkitLookup", -1 );	// drumkit
+			if ( iLookup == -1 ) {
+				// Song was created with an older version of the
+				// Hydrogen and we just have the name of the drumkit
+				// and no information whether it is found at user- or
+				// system-level.
+
+				if ( ! Filesystem::drumkit_path_search( sDrumkit, Filesystem::Lookup::user, true ).isEmpty() ) {
+					iLookup = 1;
+					WARNINGLOG( "Missing drumkitLookup: user-level determined" );
+				} else if ( ! Filesystem::drumkit_path_search( sDrumkit, Filesystem::Lookup::system, true ).isEmpty() ) {
+					iLookup = 2;
+					WARNINGLOG( "Missing drumkitLookup: system-level determined" );
+				} else {
+					iLookup = 2;
+					ERRORLOG( "Missing drumkitLookup: drumkit could not be found. system-level will be set as a fallback" );
+				}
+			}	
+			Hydrogen::get_instance()->setCurrentDrumkitLookup( static_cast<Filesystem::Lookup>( iLookup ) );
 			QString sName = LocalFileMng::readXmlString( instrumentNode, "name", "" );		// name
 			float fVolume = LocalFileMng::readXmlFloat( instrumentNode, "volume", 1.0 );	// volume
 			bool bIsMuted = LocalFileMng::readXmlBool( instrumentNode, "isMuted", false );	// is muted
@@ -1005,7 +1024,6 @@ Song* SongReader::readSong( const QString& sFileName )
 			} else {
 				ERRORLOG( "Missing drumkit path" );
 			}
-
 
 			QDomNode sFilenameNode = instrumentNode.firstChildElement( "filename" );
 
