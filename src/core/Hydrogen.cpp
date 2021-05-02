@@ -946,8 +946,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 		framepos = pHydrogen->getRealtimeFrames();
 	}
 	
-	AutomationPath *vp = pSong->getVelocityAutomationPath();
-	
+	AutomationPath *pVelAutomationPath = pSong->getVelocityAutomationPath();
 
 	int nSongLength = 0;
 	if ( pSong->getMode() == Song::SONG_MODE ) {
@@ -957,24 +956,6 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 	// reading from m_songNoteQueue
 	while ( !m_songNoteQueue.empty() ) {
 		Note *pNote = m_songNoteQueue.top();
-
-		float velocity_adjustment = 1.0f;
-		
-		// Velocity Adjustment Automation
-		if ( pSong->getMode() == Song::SONG_MODE ) {
-			// we need to calculate the total length (in ticks) of pattern columns BEFORE the playing column
-			int nPreviousColumnsTotalLength;
-			// findPatternInTick() writes the needed value into nPreviousColumnsTotalLength
-			findPatternInTick( m_nPatternStartTick, false, &nPreviousColumnsTotalLength );
-		
-			//get position in the pattern columns scale (refers to the pattern sequence which can be non-linear with time)
-			float fPos = m_nSongPos // this is the integer part
-						+ ( pNote->get_position() // this note_position is monotonic with time (never reset in loop mode )
-							- nSongLength * /*floor*/( pNote->get_position() / nSongLength ) // use floor if ticks become float
-							- nPreviousColumnsTotalLength
-						   ) / (float) pHydrogen->getCurrentPatternList()->longest_pattern_length(); // divide to get fractional part (<1)
-			velocity_adjustment = vp->get_value(fPos);
-		}
 
 		// verifico se la nota rientra in questo ciclo
 		unsigned int noteStartInFrames =
@@ -994,11 +975,17 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 		bool isOldNote = noteStartInFrames < framepos;
 
 		if ( isNoteStart || isOldNote ) {
-			// Humanize - Velocity parameter
-			pNote->set_velocity( pNote->get_velocity() * velocity_adjustment );
+			// Velocity Automation Adjustment
+			if ( pSong->getMode() == Song::SONG_MODE ) {
+				// position in the pattern columns scale (refers to the pattern sequence which can be non-linear with time)
+				float fPos = static_cast<float>( m_nSongPos ) // this is the integer part
+							+ ( static_cast<float>( pNote->get_position() % nSongLength - m_nPatternStartTick )
+								/ static_cast<float>( pHydrogen->getCurrentPatternList()->longest_pattern_length() ) );
+				pNote->set_velocity( pNote->get_velocity() * pVelAutomationPath->get_value( fPos ) );
+			}
 			
-			/* Check if the current note has probability != 1
-			 * If yes remove call random function to dequeue or not the note
+			/* Check if the current note has probability != 1.
+			 * If yes call a random function to choose whether to dequeue the note or not
 			 */
 			float fNoteProbability = pNote->get_probability();
 			if ( fNoteProbability != 1. ) {
