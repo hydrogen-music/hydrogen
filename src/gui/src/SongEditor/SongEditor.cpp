@@ -607,7 +607,7 @@ void SongEditor::updateModifiers( QInputEvent *ev )
 		}
 	}
 
-	if ( m_selection.isMoving() ) {
+	if ( m_selection.isMouseGesture() && m_selection.isMoving() ) {
 		// If a selection is currently being moved, change the cursor
 		// appropriately. Selection will change it back after the move
 		// is complete (or abandoned)
