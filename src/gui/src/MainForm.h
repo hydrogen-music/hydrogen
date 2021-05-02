@@ -214,6 +214,11 @@ public slots:
 		void checkMidiSetup();
 		void checkMissingSamples();
 
+		// Interface for screen grabs
+		void setMainWindowSize( int w, int h ) {
+			setFixedSize( w, h );
+		}
+
 	private slots:
 		void onAutoSaveTimer();
 		void onPlaylistDisplayTimer();

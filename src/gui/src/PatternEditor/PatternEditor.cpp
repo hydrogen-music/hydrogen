@@ -333,6 +333,11 @@ void PatternEditor::selectInstrumentNotes( int nInstrument )
 	m_selection.updateWidgetGroup();
 }
 
+void PatternEditor::setCurrentInstrument( int nInstrument ) {
+	Hydrogen::get_instance()->setSelectedInstrumentNumber( nInstrument );
+	m_pPatternEditorPanel->updateEditors();
+}
+
 void PatternEditor::mousePressEvent( QMouseEvent *ev )
 {
 	updateModifiers( ev );

@@ -68,6 +68,12 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		static int findFreeDrumkitComponentId( int startingPoint = 0 );
 
+
+	public slots:
+		void showLayers();
+		void showInstrument();
+		void showSampleEditor();
+
 	private slots:
 		void rotaryChanged(Rotary *ref);
 		void filterActiveBtnClicked(Button *ref);
