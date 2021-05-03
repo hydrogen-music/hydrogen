@@ -411,7 +411,7 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 
 bool PatternEditor::notesMatchExactly( Note *pNoteA, Note *pNoteB ) const {
 	return ( pNoteA->match( pNoteB->get_instrument(), pNoteB->get_key(), pNoteB->get_octave() )
-			 && fabs( pNoteA->get_position() - pNoteB->get_position() ) < 2 * POS_EPSILON
+			 && fabs( pNoteA->get_position() - pNoteB->get_position() ) < POS_EPSILON
 			 && pNoteA->get_velocity() == pNoteB->get_velocity()
 			 && pNoteA->get_pan_r() == pNoteB->get_pan_r()
 			 && pNoteA->get_pan_l() == pNoteB->get_pan_l()
@@ -492,7 +492,7 @@ void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &sel
 				bFoundExact = true;
 				++it;
 			} else if ( pSelectedNote->match( pNote ) // match key, octave & instrument
-						&& fabs( pNote->get_position() - pSelectedNote->get_position() ) < 2 * POS_EPSILON ) {
+						&& fabs( pNote->get_position() - pSelectedNote->get_position() ) < POS_EPSILON ) {
 				// Something else occupying the same position (which may or may not be an exact duplicate)
 				it = pNotes->erase( it );
 			} else {
