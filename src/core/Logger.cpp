@@ -111,13 +111,13 @@ Logger::Logger() : __use_file( true ), __running( true ) {
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
 	pthread_mutex_init( &__mutex, nullptr );
-        pthread_cond_init( &__messages_available, nullptr );
+	pthread_cond_init( &__messages_available, nullptr );
 	pthread_create( &loggerThread, &attr, loggerThread_func, this );
 }
 
 Logger::~Logger() {
 	__running = false;
-        pthread_cond_broadcast ( &__messages_available );
+	pthread_cond_broadcast ( &__messages_available );
 	pthread_join( loggerThread, nullptr );
 }
 

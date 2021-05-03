@@ -115,6 +115,20 @@ void setPalette( QApplication *pQApp )
 	pQApp->setStyleSheet("QToolTip {padding: 1px; border: 1px solid rgb(199, 202, 204); background-color: rgb(227, 243, 252); color: rgb(64, 64, 66);}");
 }
 
+// Handle a fatal signal, allowing the logger to complete any outstanding messages before re-raising the
+// signal to allow normal termination.
+static void handleFatalSignal( int nSignal )
+{
+	// First disable signal handler to allow normal termination
+	signal( nSignal, SIG_DFL );
+
+	// Allow logger to complete
+	H2Core::Logger* pLogger = H2Core::Logger::get_instance();
+	if ( pLogger )
+		delete pLogger;
+
+	raise( nSignal );
+}
 
 static int setup_unix_signal_handlers()
 {
@@ -129,6 +143,11 @@ static int setup_unix_signal_handlers()
 	if (sigaction(SIGUSR1, &usr1, nullptr) > 0) {
 		return 1;
 	}
+
+	for ( int nSignal : { SIGSEGV, SIGILL, SIGFPE, SIGBUS } ) {
+		signal( nSignal, handleFatalSignal );
+	}
+
 #endif
 	
 	return 0;
