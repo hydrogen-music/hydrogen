@@ -781,11 +781,17 @@ void MainForm::showUserManual()
 
 	// Find manual in filesystem
 	for ( QString sLang : languages ) {
-		QString sManualPath = QString( "%1/manual_%2.html" ) .arg( sDocPath).arg( sLang );
-		if ( Filesystem::file_exists( sManualPath ) ) {
-			qDebug() << " Found " << sManualPath;
-			QDesktopServices::openUrl( QUrl::fromLocalFile( sManualPath ) );
-			return;
+		QStringList sCandidates ( sLang );
+		QStringList s = sLang.split('-');
+		if ( s.size() != 1 ) {
+			sCandidates << s[0];
+		}
+		for ( QString sCandidate : sCandidates ) {
+			QString sManualPath = QString( "%1/manual_%2.html" ) .arg( sDocPath ).arg( sCandidate );
+			if ( Filesystem::file_exists( sManualPath ) ) {
+				QDesktopServices::openUrl( QUrl::fromLocalFile( sManualPath ) );
+				return;
+			}
 		}
 	}
 
