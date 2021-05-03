@@ -55,6 +55,7 @@ PlayerControl::PlayerControl(QWidget *parent)
  : QLabel(parent)
  , Object( __class_name )
 {
+	setObjectName( "PlayerControl" );
 	HydrogenApp::get_instance()->addEventListener( this );
 	
 	auto pPreferences = Preferences::get_instance();
@@ -74,6 +75,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	PixmapWidget *pControlsPanel = new PixmapWidget( nullptr );
 	pControlsPanel->setFixedSize( 344, 43 );
 	pControlsPanel->setPixmap( "/playerControlPanel/background_Control.png" );
+	pControlsPanel->setObjectName( "ControlsPanel" );
 	hbox->addWidget( pControlsPanel );
 
 	m_pTimeDisplayH = new LCDDisplay( pControlsPanel, LCDDigit::LARGE_GRAY, 2 );
@@ -212,6 +214,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	PixmapWidget *pControlsBBTBConoffPanel = new PixmapWidget( nullptr );
 	pControlsBBTBConoffPanel->setFixedSize( 15, 43 );
 	pControlsBBTBConoffPanel->setPixmap( "/playerControlPanel/onoff.png" );
+	pControlsBBTBConoffPanel->setObjectName( "BeatCounterOnOff" );
 	hbox->addWidget( pControlsBBTBConoffPanel );
 
 	m_sBConoffBtnToolTip = tr("BeatCounter Panel on");
@@ -232,6 +235,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pControlsBCPanel = new PixmapWidget( nullptr );
 	m_pControlsBCPanel->setFixedSize( 86, 43 );
 	m_pControlsBCPanel->setPixmap( "/playerControlPanel/beatConter_BG.png" );
+	m_pControlsBCPanel->setObjectName( "BeatCounter" );
 	hbox->addWidget( m_pControlsBCPanel );
 
 
@@ -308,6 +312,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	PixmapWidget *pBPMPanel = new PixmapWidget( nullptr );
 	pBPMPanel->setFixedSize( 145, 43 );
 	pBPMPanel->setPixmap( "/playerControlPanel/background_BPM.png" );
+	pBPMPanel->setObjectName( "BPM" );
 	hbox->addWidget( pBPMPanel );
 
 	// LCD BPM SpinBox
@@ -383,6 +388,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	PixmapWidget *pJackPanel = new PixmapWidget( nullptr );
 	pJackPanel->setFixedSize( 113, 43 );
 	pJackPanel->setPixmap( "/playerControlPanel/background_Jack.png" );
+	pJackPanel->setObjectName( "JackPanel" );
 	hbox->addWidget( pJackPanel );
 
 	// Jack transport mode button
@@ -429,9 +435,11 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	// CPU load widget
 	m_pCpuLoadWidget = new CpuLoadWidget( pJackPanel );
+	m_pCpuLoadWidget->setObjectName( "CpuLoadWidget" );
 
 	// Midi Activity widget
 	m_pMidiActivityWidget = new MidiActivityWidget( pJackPanel );
+	m_pMidiActivityWidget->setObjectName( "MidiActivityWidget" );
 
 	m_pMidiActivityWidget->move( 10, 14 );
 	m_pCpuLoadWidget->move( 10, 4 );
@@ -441,6 +449,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	PixmapWidget *pLcdBackGround = new PixmapWidget( nullptr );
 	pLcdBackGround->setFixedSize( 256, 43 );
 	pLcdBackGround->setPixmap( "/playerControlPanel/lcd_background.png" );
+	pLcdBackGround->setObjectName( "LcdBackground" );
 	hbox->addWidget( pLcdBackGround );
 
 	m_pShowMixerBtn = new ToggleButton(

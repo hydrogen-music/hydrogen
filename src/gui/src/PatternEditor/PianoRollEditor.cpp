@@ -284,10 +284,6 @@ void PianoRollEditor::createBackground()
 
 void PianoRollEditor::drawPattern()
 {
-	if ( isVisible() == false ) {
-		return;
-	}
-
 	//INFOLOG( "draw pattern" );
 
 	validateSelection();

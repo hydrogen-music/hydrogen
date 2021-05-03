@@ -28,6 +28,7 @@
 #include <core/Version.h>
 #include <getopt.h>
 
+#include "ShotList.h"
 #include "SplashScreen.h"
 #include "HydrogenApp.h"
 #include "MainForm.h"
@@ -58,6 +59,8 @@
 
 #include <signal.h>
 #include <iostream>
+#include <map>
+#include <set>
 
 //
 // Set the palette used in the application
@@ -189,6 +192,8 @@ public:
 };
 
 
+
+
 int main(int argc, char *argv[])
 {
 	try {
@@ -198,6 +203,8 @@ int main(int argc, char *argv[])
 
 		// Create bootstrap QApplication to get H2 Core set up with correct Filesystem paths before starting GUI application.
 		QCoreApplication *pBootStrApp = new QCoreApplication( argc, argv );
+		pBootStrApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
+
 		
 		QCommandLineParser parser;
 		
@@ -215,6 +222,8 @@ int main(int argc, char *argv[])
 		QCommandLineOption songFileOption( QStringList() << "s" << "song", "Load a song (*.h2song) at startup", "File" );
 		QCommandLineOption kitOption( QStringList() << "k" << "kit", "Load a drumkit at startup", "DrumkitName" );
 		QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH","Level");
+		QCommandLineOption shotListOption( QStringList() << "t" << "shotlist", "Shot list of widgets to grab", "ShotList" );
+		QCommandLineOption uiLayoutOption( QStringList() << "layout", "UI layout ('tabbed' or 'single')", "Layout" );
 		
 		parser.addHelpOption();
 		parser.addVersionOption();
@@ -226,6 +235,8 @@ int main(int argc, char *argv[])
 		parser.addOption( songFileOption );
 		parser.addOption( kitOption );
 		parser.addOption( verboseOption );
+		parser.addOption( shotListOption );
+		parser.addOption( uiLayoutOption );
 		parser.addPositionalArgument( "file", "Song, playlist or Drumkit file" );
 		
 		//Conditional options
@@ -244,6 +255,8 @@ int main(int argc, char *argv[])
 		QString sSongFilename = parser.value ( songFileOption );
 		QString sDrumkitToLoad = parser.value( kitOption );
 		QString sVerbosityString = parser.value( verboseOption );
+		QString sShotList = parser.value( shotListOption );
+		QString sUiLayout = parser.value( uiLayoutOption );
 		
 		unsigned logLevelOpt = H2Core::Logger::Error;
 		if( parser.isSet(verboseOption) ){
@@ -318,6 +331,15 @@ int main(int argc, char *argv[])
 		}
 		QGuiApplication::setHighDpiScaleFactorRoundingPolicy( policy );
 #endif
+
+		// Force layout
+		if ( !sUiLayout.isEmpty() ) {
+			if ( sUiLayout == "tabbed" ) {
+				pPref->setDefaultUILayout( 1 );
+			} else {
+				pPref->setDefaultUILayout( 0 );
+			}
+		}
 
 #ifdef H2CORE_HAVE_LASH
 
@@ -529,6 +551,11 @@ int main(int argc, char *argv[])
 			NsmClient::get_instance()->sendDirtyState( false );
 		}
 #endif
+
+		if ( sShotList != QString() ) {
+			ShotList *sl = new ShotList( sShotList );
+			sl->shoot();
+		}
 
 		pQApp->exec();
 

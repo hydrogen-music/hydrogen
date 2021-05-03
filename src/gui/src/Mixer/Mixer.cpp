@@ -118,7 +118,7 @@ Mixer::Mixer( QWidget* pParent )
 	);
 	m_pOpenMixerSettingsBtn->move( 96, 6 );
 	m_pOpenMixerSettingsBtn->setToolTip( tr( "Mixer Settings" ) );
-	connect( m_pOpenMixerSettingsBtn, SIGNAL( clicked( Button* ) ), this, SLOT( openMixerSettingsDialog( Button* ) ) );
+	connect( m_pOpenMixerSettingsBtn, SIGNAL( clicked( Button* ) ), this, SLOT( openMixerSettingsDialog() ) );
 
 
 	m_pShowFXPanelBtn = new ToggleButton(
@@ -845,7 +845,7 @@ void Mixer::getPeaksInMixerLine( uint nMixerLine, float& fPeak_L, float& fPeak_R
 	}
 }
 
-void Mixer::openMixerSettingsDialog( Button* ref ) {
+void Mixer::openMixerSettingsDialog() {
 	MixerSettingsDialog mixerSettingsDialog( this ); // use this as *parent because button makes smaller fonts
 	mixerSettingsDialog.exec();
 }
