@@ -20,7 +20,6 @@
  *
  */
 
-
 #ifndef HELPBROWSER_H
 #define HELPBROWSER_H
 

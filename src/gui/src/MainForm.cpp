@@ -45,7 +45,6 @@
 #include "Skin.h"
 #include "MainForm.h"
 #include "PlayerControl.h"
-#include "HelpBrowser.h"
 #include "LadspaFXProperties.h"
 #include "SongPropertiesDialog.h"
 #include "UndoActions.h"
@@ -767,10 +766,34 @@ void MainForm::action_report_bug()
 	QDesktopServices::openUrl(QString("https://github.com/hydrogen-music/hydrogen/issues"));
 }
 
+// Find and open (a translation of) the manual appropriate for the user's preferences and locale
 void MainForm::showUserManual()
 {
-	h2app->getHelpBrowser()->hide();
-	h2app->getHelpBrowser()->show();
+	QString sDocPath = H2Core::Filesystem::doc_dir();
+	QString sPreferredLanguage = Preferences::get_instance()->getPreferredLanguage();
+	QStringList languages;
+
+	if ( !sPreferredLanguage.isNull() ) {
+		languages << sPreferredLanguage;
+	}
+	languages << QLocale::system().uiLanguages()
+			  << "en"; // English as fallback
+
+	// Find manual in filesystem
+	for ( QString sLang : languages ) {
+		QString sManualPath = QString( "%1/manual_%2.html" ) .arg( sDocPath).arg( sLang );
+		if ( Filesystem::file_exists( sManualPath ) ) {
+			qDebug() << " Found " << sManualPath;
+			QDesktopServices::openUrl( QUrl::fromLocalFile( sManualPath ) );
+			return;
+		}
+	}
+
+	// No manual found, not even the default English one. This must be a broken installation, so let's open
+	// the online manual as a sensible fallback option.
+
+	QDesktopServices::openUrl( QString( "http://hydrogen-music.org/documentation/manual/manual_en.html" ) );
+
 }
 
 void MainForm::action_file_export_pattern_as()
