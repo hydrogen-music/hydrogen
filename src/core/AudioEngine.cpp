@@ -117,7 +117,7 @@ AudioEngine::AudioEngine()
 		, m_nPatternTickPosition( 0 )
 		, m_nSongSizeInTicks( 0 )
 		, m_nRealtimeFrames( 0 )
-		, m_nAddRealtimeNoteTickPosition( 0 )
+		, m_fAddRealtimeNoteTickPosition( 0. )
 		, m_nSongPos( -1 )
 		, m_nSelectedPatternNumber( 0 )
 {
@@ -932,7 +932,7 @@ inline void AudioEngine::processPlayNotes( unsigned long nframes )
 
 		float velocity_adjustment = 1.0f;
 		if ( pSong->getMode() == Song::SONG_MODE ) {
-			float fPos = m_nSongPos + (pNote->get_position()%192) / 192.f;
+			float fPos = m_nSongPos + ( ( (int) pNote->get_position() ) %192) / 192.f; //TODO what if pattern length > 192?
 			velocity_adjustment = vp->get_value(fPos);
 		}
 
@@ -1713,10 +1713,14 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 				// iterator (notes won't be altered!). After some
 				// humanization was applied to onset of each note, it
 				// will be added to `m_songNoteQueue` for playback.
-				FOREACH_NOTE_CST_IT_BOUND(notes,it,m_nPatternTickPosition) {
+				//FOREACH_NOTE_CST_IT_BOUND(notes,it,m_nPatternTickPosition) { //TODO macro
+				for( Pattern::notes_cst_it_t it=notes->lower_bound( m_nPatternTickPosition );
+									it != notes->end() && it->first < m_nPatternTickPosition + 1;
+									it++ ) {
 					Note *pNote = it->second;
 					if ( pNote ) {
 						pNote->set_just_recorded( false );
+
 						int nOffset = 0;
 
 						// Swing //
@@ -1761,9 +1765,10 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 						// it the new offset, and push it to the list
 						// of all notes, which are about to be played
 						// back.
-						// TODO: Why a copy?
+						// Why a copy? because it has the new offset (including swing and random timing) in its
+						// humanized delay, and tick position is expressed referring to start time (and not pattern).
 						Note *pCopiedNote = new Note( pNote );
-						pCopiedNote->set_position( tick );
+						pCopiedNote->set_position( tick + pNote->get_position() - floor( pNote->get_position() ) );
 						pCopiedNote->set_humanize_delay( nOffset );
 						pNote->get_instrument()->enqueue();
 						m_songNoteQueue.push( pCopiedNote );

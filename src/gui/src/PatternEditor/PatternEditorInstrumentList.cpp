@@ -114,7 +114,9 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopupSub->addAction( tr( "Fill 1/2 notes" ), this, SLOT( functionFillEveryTwoNotes() ) );
 	m_pFunctionPopupSub->addAction( tr( "Fill 1/3 notes" ), this, SLOT( functionFillEveryThreeNotes() ) );
 	m_pFunctionPopupSub->addAction( tr( "Fill 1/4 notes" ), this, SLOT( functionFillEveryFourNotes() ) );
+	m_pFunctionPopupSub->addAction( tr( "Fill 1/5 notes" ), this, SLOT( functionFillEveryFiveNotes() ) );
 	m_pFunctionPopupSub->addAction( tr( "Fill 1/6 notes" ), this, SLOT( functionFillEverySixNotes() ) );
+	m_pFunctionPopupSub->addAction( tr( "Fill 1/7 notes" ), this, SLOT( functionFillEverySevenNotes() ) );
 	m_pFunctionPopupSub->addAction( tr( "Fill 1/8 notes" ), this, SLOT( functionFillEveryEightNotes() ) );
 	m_pFunctionPopupSub->addAction( tr( "Fill 1/12 notes" ), this, SLOT( functionFillEveryTwelveNotes() ) );
 	m_pFunctionPopupSub->addAction( tr( "Fill 1/16 notes" ), this, SLOT( functionFillEverySixteenNotes() ) );
@@ -373,7 +375,9 @@ void InstrumentLine::functionFillAllNotes(){ functionFillNotes(1); }
 void InstrumentLine::functionFillEveryTwoNotes(){ functionFillNotes(2); }
 void InstrumentLine::functionFillEveryThreeNotes(){ functionFillNotes(3); }
 void InstrumentLine::functionFillEveryFourNotes(){ functionFillNotes(4); }
+void InstrumentLine::functionFillEveryFiveNotes(){ functionFillNotes(5); }
 void InstrumentLine::functionFillEverySixNotes(){ functionFillNotes(6); }
+void InstrumentLine::functionFillEverySevenNotes(){ functionFillNotes(7); }
 void InstrumentLine::functionFillEveryEightNotes(){ functionFillNotes(8); }
 void InstrumentLine::functionFillEveryTwelveNotes(){ functionFillNotes(12); }
 void InstrumentLine::functionFillEverySixteenNotes(){ functionFillNotes(16); }
@@ -383,33 +387,26 @@ void InstrumentLine::functionFillNotes( int every )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
-	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
-	int nBase;
-	if ( pPatternEditor->isUsingTriplets() ) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-	int nResolution = 4 * MAX_NOTES * every / ( nBase * pPatternEditor->getResolution() );
-
+	//DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
 
 	Song *pSong = pHydrogen->getSong();
 
-	QStringList notePositions;
+	std::vector<double> notePositions;
 
 	Pattern* pCurrentPattern = getCurrentPattern();
-	if (pCurrentPattern != nullptr) {
+	if ( pCurrentPattern != nullptr ) {
 		int nPatternSize = pCurrentPattern->get_length();
 		int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 
-		if (nSelectedInstrument != -1) {
+		if ( nSelectedInstrument != -1 ) {
 			Instrument *instrRef = (pSong->getInstrumentList())->get( nSelectedInstrument );
 
-			for (int i = 0; i < nPatternSize; i += nResolution) {
+			int i = 0;
+			double fColumn = 0;
+			while ( fColumn < nPatternSize) {
 				bool noteAlreadyPresent = false;
 				const Pattern::notes_t* notes = pCurrentPattern->get_notes();
-				FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+				FOREACH_NOTE_CST_IT_BOUND( notes, it, fColumn ) {
 					Note *pNote = it->second;
 					if ( pNote->get_instrument() == instrRef ) {
 						// note already exists
@@ -419,10 +416,16 @@ void InstrumentLine::functionFillNotes( int every )
 				}
 
 				if ( noteAlreadyPresent == false ) {
-					notePositions << QString("%1").arg(i);
+					//notePositions << QString("%1").arg( nColumn );
+					notePositions.push_back( fColumn );		
 				}
-			}
-			SE_fillNotesRightClickAction *action = new SE_fillNotesRightClickAction( notePositions, nSelectedInstrument, pHydrogen->getSelectedPatternNumber() );
+				
+				i += every;
+				fColumn = i * pPatternEditorPanel->granularity();
+			} 
+			SE_fillNotesRightClickAction *action = new SE_fillNotesRightClickAction( notePositions,
+																					 nSelectedInstrument,
+																				pHydrogen->getSelectedPatternNumber() );
 			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
 	}
@@ -431,45 +434,37 @@ void InstrumentLine::functionFillNotes( int every )
 
 
 
-void InstrumentLine::functionRandomizeVelocity()
+void InstrumentLine::functionRandomizeVelocity() // TODO should it act only on the notes on the grid marks (magnetically)?
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
-	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
+	//DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
 
-
-	int nBase;
-	if ( pPatternEditor->isUsingTriplets() ) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-	int nResolution = 4 * MAX_NOTES / ( nBase * pPatternEditor->getResolution() );
+	float fResolution = pPatternEditorPanel-> granularity();
 
 	Song *pSong = pHydrogen->getSong();
 
-	QStringList noteVeloValue;
+	QStringList noteVeloValue; // TODO why a QSTringList instead of std::vector ? Does it save space?
 	QStringList oldNoteVeloValue;
 
 	Pattern* pCurrentPattern = getCurrentPattern();
-	if (pCurrentPattern != nullptr) {
+	if ( pCurrentPattern != nullptr ) {
 		int nPatternSize = pCurrentPattern->get_length();
 		int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 
-		if (nSelectedInstrument != -1) {
-			Instrument *instrRef = (pSong->getInstrumentList())->get( nSelectedInstrument );
+		if ( nSelectedInstrument != -1 ) {
+			Instrument *instrRef = ( pSong->getInstrumentList() )->get( nSelectedInstrument );
 
-			for (int i = 0; i < nPatternSize; i += nResolution) {
+			for ( int i = 0; i*fResolution < nPatternSize; i++ ) {  //TODO while() loop using variable float fTickPosition
 				const Pattern::notes_t* notes = pCurrentPattern->get_notes();
-				FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+				FOREACH_NOTE_CST_IT_BOUND( notes, it, i*fResolution ) {
 					Note *pNote = it->second;
 					if ( pNote->get_instrument() == instrRef ) {
-						float fVal = ( rand() % 100 ) / 100.0;
+						float fVal = ( rand() % 100 ) / 100.0; // uses quantized 0.01 steps
 						oldNoteVeloValue <<  QString("%1").arg( pNote->get_velocity() );
 						fVal = pNote->get_velocity() + ( ( fVal - 0.50 ) / 2 );
-						if ( fVal < 0  ) {
+						if ( fVal < 0 ) {
 							fVal = 0;
 						}
 						if ( fVal > 1 ) {

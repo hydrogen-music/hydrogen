@@ -52,6 +52,14 @@ class XMLNode : public H2Core::Object, public QDomNode
 		 * \param empty_ok if set to false output a DEBUG log line if the child node is empty
 		 */
 		float read_float( const QString& node, float default_value, bool inexistent_ok=true, bool empty_ok=true );
+		 /**
+		 * reads a double stored into a child node
+		 * \param node the name of the child node to read into
+		 * \param default_value the value returned if something goes wrong
+		 * \param inexistent_ok if set to false output a DEBUG log line if the node doesn't exists
+		 * \param empty_ok if set to false output a DEBUG log line if the child node is empty
+		 */
+		double read_double( const QString& node, double default_value, bool inexistent_ok=true, bool empty_ok=true );
 		/**
 		 * reads a string stored into a child node
 		 * \param node the name of the child node to read into
@@ -94,6 +102,12 @@ class XMLNode : public H2Core::Object, public QDomNode
 		 * \param value the value to write
 		 */
 		void write_float( const QString& node, const float value );
+		/**
+		 * write a double into a child node
+		 * \param node the name of the child node to create
+		 * \param value the value to write
+		 */
+		void write_double( const QString& node, const double value );
 		/**
 		 * write a string into a child node
 		 * \param node the name of the child node to create

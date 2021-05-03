@@ -238,7 +238,7 @@ public:/**
 	Event pop_event();
 
 	struct AddMidiNoteVector {
-		int m_column;       //position
+		double m_column;       //position
 		int m_row;          //instrument row
 		int m_pattern;      // pattern number
 		int m_length;

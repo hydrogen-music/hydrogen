@@ -37,7 +37,7 @@ namespace H2Core
 const char* Note::__class_name = "Note";
 const char* Note::__key_str[] = { "C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Af", "A", "Bf", "B" };
 
-Note::Note( Instrument* instrument, int position, float velocity, float pan_l, float pan_r, int length, float pitch )
+Note::Note( Instrument* instrument, double position, float velocity, float pan_l, float pan_r, int length, float pitch )
 	: Object( __class_name ),
 	  __instrument( instrument ),
 	  __instrument_id( 0 ),
@@ -212,14 +212,14 @@ void Note::dump()
 
 void Note::save_to( XMLNode* node )
 {
-	node->write_int( "position", __position );
+	node->write_double( "position", __position );
 	node->write_float( "leadlag", __lead_lag );
 	node->write_float( "velocity", __velocity );
 	node->write_float( "pan_L", __pan_l );
 	node->write_float( "pan_R", __pan_r );
 	node->write_float( "pitch", __pitch );
 	node->write_string( "key", key_to_string() );
-	node->write_int( "length", __length );
+	node->write_double( "length", __length );
 	node->write_int( "instrument", get_instrument()->get_id() );
 	node->write_bool( "note_off", __note_off );
 	node->write_float( "probability", __probability );
@@ -229,11 +229,11 @@ Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
 {
 	Note* note = new Note(
 	    nullptr,
-	    node->read_int( "position", 0 ),
+	    node->read_double( "position", 0 ),
 	    node->read_float( "velocity", 0.8f ),
 	    node->read_float( "pan_L", 0.5f ),
 	    node->read_float( "pan_R", 0.5f ),
-	    node->read_int( "length", -1 ),
+	    node->read_double( "length", -1 ),
 	    node->read_float( "pitch", 0.0f )
 	);
 	note->set_lead_lag( node->read_float( "leadlag", 0, false, false ) );
@@ -253,11 +253,11 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "%1[Note]\n" ).arg( sPrefix )
 			.append( QString( "%1%2instrument_id: %3\n" ).arg( sPrefix ).arg( s ).arg( __instrument_id ) )
 			.append( QString( "%1%2specific_compo_id: %3\n" ).arg( sPrefix ).arg( s ).arg( __specific_compo_id ) )
-			.append( QString( "%1%2position: %3\n" ).arg( sPrefix ).arg( s ).arg( __position ) )
+			.append( QString( "%1%2position: %3\n" ).arg( sPrefix ).arg( s ).arg( __position, 0, 'g', 10 ) ) //TODO what precision?
 			.append( QString( "%1%2velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __velocity ) )
 			.append( QString( "%1%2pan_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __pan_l ) )
 			.append( QString( "%1%2pan_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __pan_r ) )
-			.append( QString( "%1%2length: %3\n" ).arg( sPrefix ).arg( s ).arg( __length ) )
+			.append( QString( "%1%2length: %3\n" ).arg( sPrefix ).arg( s ).arg( __length, 0, 'g', 10 ) ) //TODO what precision?
 			.append( QString( "%1%2pitch: %3\n" ).arg( sPrefix ).arg( s ).arg( __pitch ) )
 			.append( QString( "%1%2key: %3\n" ).arg( sPrefix ).arg( s ).arg( __key ) )
 			.append( QString( "%1%2octave: %3\n" ).arg( sPrefix ).arg( s ).arg( __octave ) )
@@ -291,11 +291,11 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "[Note]" )
 			.append( QString( ", instrument_id: %1" ).arg( __instrument_id ) )
 			.append( QString( ", specific_compo_id: %1" ).arg( __specific_compo_id ) )
-			.append( QString( ", position: %1" ).arg( __position ) )
+			.append( QString( ", position: %1" ).arg( __position, 0, 'g', 10  ) )  //TODO what precision?
 			.append( QString( ", velocity: %1" ).arg( __velocity ) )
 			.append( QString( ", pan_l: %1" ).arg( __pan_l ) )
 			.append( QString( ", pan_r: %1" ).arg( __pan_r ) )
-			.append( QString( ", length: %1" ).arg( __length ) )
+			.append( QString( ", length: %1" ).arg( __length, 0, 'g', 10 ) )  //TODO what precision?
 			.append( QString( ", pitch: %1" ).arg( __pitch ) )
 			.append( QString( ", key: %1" ).arg( __key ) )
 			.append( QString( ", octave: %1" ).arg( __octave ) )

@@ -522,8 +522,13 @@ public:
 	int				getPatternEditorGridResolution();
 	void			setPatternEditorGridResolution( int value );
 
-	bool			isPatternEditorUsingTriplets();
-	void			setPatternEditorUsingTriplets( bool value );
+	int				getPatternEditorGridTupletNumerator() const;
+	//void			setPatternEditorGridTupletNumerator( int n );
+	int				getPatternEditorGridTupletDenominator() const;
+	//void			setPatternEditorGridTupletDenominator( int n );
+	
+	// setter for both Tuplet numerator and denominator together
+	void			setPatternEditorGridTupletRatio( int nTupletNumerator, int nTupletDenominator );
 
 	bool			isFXTabVisible();
 	void			setFXTabVisible( bool value );
@@ -772,7 +777,8 @@ private:
 	int						mixerFontPointSize;
 	float					mixerFalloffSpeed;
 	int						m_nPatternEditorGridResolution;
-	bool					m_bPatternEditorUsingTriplets;
+	int						m_nPatternEditorGridTupletNumerator;
+	int						m_nPatternEditorGridTupletDenominator;
 	bool					m_bShowInstrumentPeaks;
 	bool					m_bIsFXTabVisible;
 	bool					m_bShowAutomationArea;
@@ -1115,11 +1121,26 @@ inline void Preferences::setPatternEditorGridResolution( int value ) {
 	m_nPatternEditorGridResolution = value;
 }
 
-inline bool Preferences::isPatternEditorUsingTriplets() {
-	return m_bPatternEditorUsingTriplets;
+inline int Preferences::getPatternEditorGridTupletNumerator() const {
+	return m_nPatternEditorGridTupletNumerator;
 }
-inline void Preferences::setPatternEditorUsingTriplets( bool value ) {
-	m_bPatternEditorUsingTriplets = value;
+/*
+inline void Preferences::setPatternEditorGridTupletNumerator( int n ) {
+	m_nPatternEditorGridTupletNumerator = n;
+}*/
+
+
+inline int Preferences::getPatternEditorGridTupletDenominator() const {
+	return m_nPatternEditorGridTupletDenominator;
+}
+/*
+inline void Preferences::setPatternEditorGridTupletDenominator( int n ) {
+	m_nPatternEditorGridTupletDenominator = n;
+}*/
+
+inline void Preferences::setPatternEditorGridTupletRatio( int nTupletNumerator, int nTupletDenominator ) {
+	m_nPatternEditorGridTupletNumerator = nTupletNumerator;
+	m_nPatternEditorGridTupletDenominator = nTupletDenominator;
 }
 
 inline bool Preferences::isFXTabVisible() {

@@ -198,7 +198,8 @@ Preferences::Preferences()
 	mixerFontPointSize = 11;
 	mixerFalloffSpeed = 1.1;
 	m_nPatternEditorGridResolution = 8;
-	m_bPatternEditorUsingTriplets = false;
+	m_nPatternEditorGridTupletNumerator = 4;
+	m_nPatternEditorGridTupletDenominator = 4;
 	m_bShowInstrumentPeaks = true;
 	m_bIsFXTabVisible = true;
 	m_bShowAutomationArea = false;
@@ -557,9 +558,15 @@ void Preferences::loadPreferences( bool bGlobal )
 				mixerFalloffSpeed = LocalFileMng::readXmlFloat( guiNode, "mixer_falloff_speed", 1.1f );
 
 				// pattern editor grid resolution
-				m_nPatternEditorGridResolution = LocalFileMng::readXmlInt( guiNode, "patternEditorGridResolution", m_nPatternEditorGridResolution );
-				m_bPatternEditorUsingTriplets = LocalFileMng::readXmlBool( guiNode, "patternEditorUsingTriplets", m_bPatternEditorUsingTriplets );
-				
+				m_nPatternEditorGridResolution = LocalFileMng::readXmlInt( guiNode,
+											"patternEditorGridResolution", m_nPatternEditorGridResolution );
+
+				// pattern editor grid Tuplet ratio	
+				m_nPatternEditorGridTupletNumerator = LocalFileMng::readXmlInt( guiNode,
+											 "patternEditorGridTupletNumerator", m_nPatternEditorGridTupletNumerator );
+				m_nPatternEditorGridTupletDenominator = LocalFileMng::readXmlInt( guiNode,
+										  "patternEditorGridTupletDenominator", m_nPatternEditorGridTupletDenominator );
+										  
 				m_bShowInstrumentPeaks = LocalFileMng::readXmlBool( guiNode, "showInstrumentPeaks", m_bShowInstrumentPeaks );
 				m_bIsFXTabVisible = LocalFileMng::readXmlBool( guiNode, "isFXTabVisible", m_bIsFXTabVisible );
 				m_bShowAutomationArea = LocalFileMng::readXmlBool( guiNode, "showAutomationArea", m_bShowAutomationArea );
@@ -997,10 +1004,14 @@ void Preferences::savePreferences()
 		LocalFileMng::writeXmlString( guiNode, "mixer_font_family", mixerFontFamily );
 		LocalFileMng::writeXmlString( guiNode, "mixer_font_pointsize", QString("%1").arg( mixerFontPointSize ) );
 		LocalFileMng::writeXmlString( guiNode, "mixer_falloff_speed", QString("%1").arg( mixerFalloffSpeed ) );
-		LocalFileMng::writeXmlString( guiNode, "patternEditorGridResolution", QString("%1").arg( m_nPatternEditorGridResolution ) );
+		LocalFileMng::writeXmlString( guiNode, "patternEditorGridResolution",
+																QString("%1").arg( m_nPatternEditorGridResolution ) );
+		LocalFileMng::writeXmlString( guiNode, "patternEditorGridTupletNumerator",
+															QString("%1").arg( m_nPatternEditorGridTupletNumerator ) );
+		LocalFileMng::writeXmlString( guiNode, "patternEditorGridTupletDenominator",
+														 QString("%1").arg( m_nPatternEditorGridTupletDenominator ) );
 		LocalFileMng::writeXmlString( guiNode, "patternEditorGridHeight", QString("%1").arg( m_nPatternEditorGridHeight ) );
 		LocalFileMng::writeXmlString( guiNode, "patternEditorGridWidth", QString("%1").arg( m_nPatternEditorGridWidth ) );
-		LocalFileMng::writeXmlBool( guiNode, "patternEditorUsingTriplets", m_bPatternEditorUsingTriplets );
 		LocalFileMng::writeXmlString( guiNode, "songEditorGridHeight", QString("%1").arg( m_nSongEditorGridHeight ) );
 		LocalFileMng::writeXmlString( guiNode, "songEditorGridWidth", QString("%1").arg( m_nSongEditorGridWidth ) );
 		LocalFileMng::writeXmlBool( guiNode, "showInstrumentPeaks", m_bShowInstrumentPeaks );

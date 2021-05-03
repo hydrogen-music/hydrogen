@@ -80,14 +80,25 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		//~ Implements EventListener interface
 
 		void ensureCursorVisible();
-		int getCursorPosition();
-		void setCursorPosition(int nCursorPosition);
+		int getCursorIndexPosition();
+		int getCursorPosition(); // TODO use this in many lines rather than the explicit expression? make inline
+		double getCursorFloatPosition(); // TODO use this in many lines rather than the explicit expression? make inline
+		void setCursorIndexPosition( int nGridIndex );
+		// used to update the cursor when changing resolution
+		void setCursorPosition( double fColumn ); //TODO rename setCursorFloatTickPosition. 
 		int moveCursorLeft( int n = 1 );
 		int moveCursorRight( int n = 1 );
 
 		void selectInstrumentNotes( int nInstrument );
 
 		void updateEditors( bool bPatternOnly = false );
+		//! Granularity of grid positioning ( = distance between grid marks), in tick units
+		double granularity() const { // float for tuplets
+			return (double) MAX_NOTES * m_nTupletDenominator / ( m_nTupletNumerator * m_nResolution );
+		}
+		int getTupletNumerator(){ return m_nTupletNumerator; }
+		int getTupletDenominator(){ return m_nTupletDenominator; }
+		int getResolution(){ return m_nResolution; }
 
 	public slots:
 		void showDrumEditor();
@@ -100,6 +111,9 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		void updatePatternSizeLCD();
 		void patternSizeLCDClicked();
 		void denominatorWarningClicked();
+		void tupletLCDClicked();
+		void setResolutionToAllEditors( int nResolution );
+		void setTupletRatioToAllEditors( int nTupletNum, int nTupletDen );
 
 
 		void hearNotesBtnClick(Button *ref);
@@ -125,9 +139,10 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		QLabel *			pSLlabel;
 
 		// Editor top
-		LCDDisplay *			__pattern_size_LCD;
+		LCDDisplay *		__pattern_size_LCD;
 		Button *			m_pDenominatorWarning;
 		LCDCombo *			__resolution_combo;
+		LCDDisplay *		m_pTupletLCD;
 		ToggleButton *		__show_drum_btn;
 		ToggleButton *		__show_piano_btn;
 		// ~Editor top
@@ -183,10 +198,17 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		Button *			resDropdownBtn;
 
 		bool				m_bEnablePatternResize;
+		
+		
+		//TODO should these 3 members be here or only in preferences? or viceversa? Or maybe pref members should be overwritten 
+		//only when saving preferences, rather than being updated each time the user changes the editor panel
+		uint m_nResolution;
+		int	m_nTupletNumerator;
+		int	m_nTupletDenominator;
 
-		// Cursor positioning
-		int					m_nCursorPosition;
-		int					m_nCursorIncrement;
+		/* Cursor positioning
+		* it refers to the current grid granularity (which depends on resolution and tuplet ratio) */
+		int					m_nCursorIndexPosition;
 		//~ Cursor
 
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;

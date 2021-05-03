@@ -151,9 +151,9 @@ void Pattern::save_to( XMLNode* node, const Instrument* instrumentOnly ) const
 	}
 }
 
-Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict ) const
+Note* Pattern::find_note( double idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict ) const
 {
-	for( notes_cst_it_t it=__notes.lower_bound( idx_a ); it!=__notes.upper_bound( idx_a ); it++ ) {
+	for( notes_cst_it_t it=__notes.lower_bound( idx_a - POS_EPSILON ) ; it!=__notes.upper_bound( idx_a + POS_EPSILON ); it++ ) {
 		Note* note = it->second;
 		assert( note );
 		if ( note->match( instrument, key, octave ) ) return note;
@@ -176,10 +176,10 @@ Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, Note::Ke
 	return nullptr;
 }
 
-Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, bool strict ) const
+Note* Pattern::find_note( double idx_a, int idx_b, Instrument* instrument, bool strict ) const
 {
 	notes_cst_it_t it;
-	for( it=__notes.lower_bound( idx_a ); it!=__notes.upper_bound( idx_a ); it++ ) {
+	for( it=__notes.lower_bound( idx_a - POS_EPSILON ); it!=__notes.upper_bound( idx_a + POS_EPSILON ); it++ ) {
 		Note* note = it->second;
 		assert( note );
 		if ( note->get_instrument() == instrument ) return note;
@@ -205,8 +205,8 @@ Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, bool str
 
 void Pattern::remove_note( Note* note )
 {
-	int pos = note->get_position();
-	for( notes_it_t it=__notes.lower_bound( pos ); it!=__notes.end() && it->first == pos; ++it ) {
+	double fPos = note->get_position();
+	FOREACH_NOTE_IT_BOUND( &__notes, it, fPos ) {
 		if( it->second==note ) {
 			__notes.erase( it );
 			break;

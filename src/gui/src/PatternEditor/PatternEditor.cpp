@@ -54,8 +54,11 @@ const char* PatternEditor::__class_name = "PatternEditor";
 PatternEditor::PatternEditor( QWidget *pParent, const char *sClassName,
 							  PatternEditorPanel *panel )
 	: Object ( sClassName ), QWidget( pParent ), m_selection( this ) {
-	m_nResolution = 8;
-	m_bUseTriplets = false;
+	m_nTupletNumerator = Preferences::get_instance()->getPatternEditorGridTupletNumerator();
+	m_nTupletDenominator = Preferences::get_instance()->getPatternEditorGridTupletDenominator();
+	m_nResolution = 8; //TODO where is this update to match preferences?
+ 	//m_nTupletNumerator = 4;
+ 	//m_nTupletDenominator = 4;
 	m_pDraggedNote = nullptr;
 	m_pPatternEditorPanel = panel;
 	m_pPattern = nullptr;
@@ -63,8 +66,9 @@ PatternEditor::PatternEditor( QWidget *pParent, const char *sClassName,
 	m_bFineGrained = false;
 	m_bCopyNotMove = false;
 
-	m_nGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
-	m_nEditorWidth = m_nMargin + m_nGridWidth * ( MAX_NOTES * 4 );
+	m_fGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
+	/* default width is four 4/4 bars, in pixels units */
+	m_nEditorWidth = m_nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
 
 	setFocusPolicy(Qt::StrongFocus);
 
@@ -85,11 +89,19 @@ PatternEditor::PatternEditor( QWidget *pParent, const char *sClassName,
 }
 
 
-void PatternEditor::setResolution(uint res, bool bUseTriplets)
+void PatternEditor::setResolution( uint res )
 {
-	this->m_nResolution = res;
-	this->m_bUseTriplets = bUseTriplets;
+	m_nResolution = res;
 
+	// redraw all
+	update( 0, 0, width(), height() );
+	m_pPatternEditorPanel->updateEditors();
+}
+
+void PatternEditor::setTupletRatio( int nTupletNumerator, int nTupletDenominator ) {
+	m_nTupletNumerator = nTupletNumerator;
+	m_nTupletDenominator = nTupletDenominator;
+	
 	// redraw all
 	update( 0, 0, width(), height() );
 	m_pPatternEditorPanel->updateEditors();
@@ -97,21 +109,21 @@ void PatternEditor::setResolution(uint res, bool bUseTriplets)
 
 void PatternEditor::zoomIn()
 {
-	if (m_nGridWidth >= 3) {
-		m_nGridWidth *= 2;
+	if ( m_fGridWidth >= 3. ) {
+		m_fGridWidth *= 2.;
 	} else {
-		m_nGridWidth *= 1.5;
+		m_fGridWidth *= 1.5;
 	}
 	updateEditor();
 }
 
 void PatternEditor::zoomOut()
 {
-	if ( m_nGridWidth > 1.5 ) {
-		if (m_nGridWidth > 3) {
-			m_nGridWidth /= 2;
+	if ( m_fGridWidth > 1.5 ) {
+		if ( m_fGridWidth > 3. ) {
+			m_fGridWidth /= 2.;
 		} else {
-			m_nGridWidth /= 1.5;
+			m_fGridWidth /= 1.5;
 		}
 		updateEditor();
 	}
@@ -176,8 +188,8 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 	if ( bMoving ) {
 		movingPen.setStyle( Qt::DotLine );
 		movingPen.setWidth( 2 );
-		QPoint delta = movingGridOffset();
-		movingOffset = QPoint( delta.x() * m_nGridWidth,
+		QPointF delta = movingGridOffset();
+		movingOffset = QPoint( delta.x() * m_fGridWidth,
 							   delta.y() * m_nGridHeight );
 	}
 
@@ -192,7 +204,7 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 		if ( pNote->get_length() != -1 ) {
 			float fNotePitch = pNote->get_octave() * 12 + pNote->get_key();
 			float fStep = pow( 1.0594630943593, ( double )fNotePitch );
-			width = m_nGridWidth * pNote->get_length() / fStep;
+			width = m_fGridWidth * pNote->get_length() / fStep;
 			width = width - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
 			if ( bSelected ) {
@@ -241,21 +253,32 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 }
 
 
-int PatternEditor::getColumn( int x, bool bUseFineGrained ) const
-{
-	int nGranularity = 1;
-	if ( !( bUseFineGrained && m_bFineGrained ) ) {
-		nGranularity = granularity();
-	}
-	int nWidth = m_nGridWidth * nGranularity;
-	int nColumn = ( x - m_nMargin + (nWidth / 2) ) / nWidth;
-	nColumn = nColumn * nGranularity;
-	if ( nColumn < 0 ) {
+double PatternEditor::getColumn( int x, bool bUseFineGrained ) const
+{	// without fineGrain, returns the position of the nearest grid mark, in tick units (rounded value!)
+	// with fineGrain, returns the position of nearest tick with res = 192/whole note
+
+	if ( x <= m_nMargin ) {
 		return 0;
 	} else {
-		return nColumn;
+		double fGranularity;
+		if ( bUseFineGrained && m_bFineGrained ) {
+			fGranularity = 1.;
+		} else {
+			fGranularity = granularity();
+		}
+		
+		double fWidth = m_fGridWidth * fGranularity; // distance between grid marks (or ticks), in pixel units
+		double fGridIndex = round( ( x - m_nMargin ) / fWidth ); // The index of the nearest grid mark (or tick)
+		return fGridIndex * fGranularity; // the position of the nearest grid mark (or tick), in tick units
 	}
 }
+
+int PatternEditor::getGridIndex( int x ) const {
+	float fWidth = m_fGridWidth * granularity(); // distance between grid marks, in pixel units
+	int nGridIndex = round( ( x - m_nMargin ) / fWidth ); // The index of the nearest grid mark
+	return nGridIndex;
+}
+
 
 void PatternEditor::selectNone()
 {
@@ -276,18 +299,19 @@ void PatternEditor::copy()
 	XMLNode positionNode = selection.createNode( "sourcePosition" );
 	bool bWroteNote = false;
 	// "Top left" of selection, in the three dimensional time*instrument*pitch space.
-	int nLowestPos, nLowestInstrument, nHighestPitch;
+	double fLowestPos;
+	int nLowestInstrument, nHighestPitch;
 
 	for ( Note *pNote : m_selection ) {
 		int nPitch = pNote->get_notekey_pitch() + 12*OCTAVE_OFFSET;
-		int nPos = pNote->get_position();
+		double fPos = pNote->get_position();
 		int nInstrument = pInstrumentList->index( pNote->get_instrument() );
 		if ( bWroteNote ) {
-			nLowestPos = std::min( nPos, nLowestPos );
+			fLowestPos = std::min( fPos, fLowestPos );
 			nLowestInstrument = std::min( nInstrument, nLowestInstrument );
 			nHighestPitch = std::max( nPitch, nHighestPitch );
 		} else {
-			nLowestPos = nPos;
+			fLowestPos = fPos;
 			nLowestInstrument = nInstrument;
 			nHighestPitch = nPitch;
 			bWroteNote = true;
@@ -297,11 +321,11 @@ void PatternEditor::copy()
 	}
 
 	if ( bWroteNote ) {
-		positionNode.write_int( "position", nLowestPos );
+		positionNode.write_double( "position", fLowestPos );
 		positionNode.write_int( "instrument", nLowestInstrument );
 		positionNode.write_int( "note", nHighestPitch );
 	} else {
-		positionNode.write_int( "position", m_pPatternEditorPanel->getCursorPosition() );
+		positionNode.write_int( "index_position", m_pPatternEditorPanel->getCursorIndexPosition() );
 		positionNode.write_int( "instrument", pHydrogen->getSelectedInstrumentNumber() );
 	}
 
@@ -392,7 +416,7 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 
 bool PatternEditor::notesMatchExactly( Note *pNoteA, Note *pNoteB ) const {
 	return ( pNoteA->match( pNoteB->get_instrument(), pNoteB->get_key(), pNoteB->get_octave() )
-			 && pNoteA->get_position() == pNoteB->get_position()
+			 && fabs( pNoteA->get_position() - pNoteB->get_position() ) < POS_EPSILON
 			 && pNoteA->get_velocity() == pNoteB->get_velocity()
 			 && pNoteA->get_pan_r() == pNoteB->get_pan_r()
 			 && pNoteA->get_pan_l() == pNoteB->get_pan_l()
@@ -464,14 +488,16 @@ void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &sel
 	for ( auto pSelectedNote : selected ) {
 		m_selection.removeFromSelection( pSelectedNote, /* bCheck=*/false );
 		bool bFoundExact = false;
-		int nPosition = pSelectedNote->get_position();
-		for ( auto it = pNotes->lower_bound( nPosition ); it != pNotes->end() && it->first == nPosition; ) {
+		double fPosition = pSelectedNote->get_position();
+		for ( auto it = pNotes->lower_bound( fPosition - POS_EPSILON );
+				 it != pNotes->end() && it->first < fPosition + POS_EPSILON; ) { // NOTE: counter not incremented here!
 			Note *pNote = it->second;
 			if ( !bFoundExact && notesMatchExactly( pNote, pSelectedNote ) ) {
 				// Found an exact match. We keep this.
 				bFoundExact = true;
 				++it;
-			} else if ( pSelectedNote->match( pNote ) && pNote->get_position() == pSelectedNote->get_position() ) {
+			} else if ( pSelectedNote->match( pNote ) // match key, octave & instrument
+						&& fabs( pNote->get_position() - pSelectedNote->get_position() ) < POS_EPSILON ) {
 				// Something else occupying the same position (which may or may not be an exact duplicate)
 				it = pNotes->erase( it );
 			} else {
@@ -526,25 +552,23 @@ void PatternEditor::updatePatternInfo() {
 }
 
 
-QPoint PatternEditor::movingGridOffset( ) const {
+QPointF PatternEditor::movingGridOffset( ) const {
 	QPoint rawOffset = m_selection.movingOffset();
-	// Quantize offset to multiples of m_nGrid{Width,Height}
-	int nQuantX = m_nGridWidth, nQuantY = m_nGridHeight;
-	float nFactor = 1;
+	// Quantize offset to multiples of m_fGrid{Width,Height}
+	double fQuantX = m_fGridWidth;
+	int nQuantY = m_nGridHeight;
+	double fFactor = 1;
 	if ( ! m_bFineGrained ) {
-		nFactor = granularity();
-		nQuantX = m_nGridWidth * nFactor;
+		fFactor = granularity();
+		fQuantX = m_fGridWidth * fFactor;
 	}
-	int x_bias = nQuantX / 2, y_bias = nQuantY / 2;
+	int y_bias = nQuantY / 2;
 	if ( rawOffset.y() < 0 ) {
 		y_bias = -y_bias;
 	}
-	if ( rawOffset.x() < 0 ) {
-		x_bias = -x_bias;
-	}
-	int x_off = (rawOffset.x() + x_bias) / nQuantX;
+	double x_off = round( rawOffset.x() / fQuantX );
 	int y_off = (rawOffset.y() + y_bias) / nQuantY;
-	return QPoint( nFactor * x_off, y_off);
+	return QPointF( fFactor * x_off, y_off);
 }
 
 
@@ -570,14 +594,14 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 				pStyle->m_patternEditor_line5Color.getBlue() ),
 	};
 
-	int nGranularity = granularity() * m_nResolution;
+	int nGranularity = round( granularity() * m_nResolution );
 	int nNotes = MAX_NOTES;
 	if ( m_pPattern ) {
 		nNotes = m_pPattern->get_length();
 	}
-	int nMaxX = m_nGridWidth * nNotes + m_nMargin;
+	int nMaxX = m_fGridWidth * nNotes + m_nMargin;
 
-	if ( !m_bUseTriplets ) {
+	if ( m_nTupletNumerator == 4 && m_nTupletDenominator == 4 ) { // every other case is drawn in tuplet mode
 
 		// Draw vertical lines. To minimise pen colour changes (and
 		// avoid unnecessary division operations), we draw them in
@@ -591,7 +615,7 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		// | . : . | . : . | . : . | . : .   - third pass, odd 1/16th notes
 
 		uint nRes = 4;
-		uint nStep = nGranularity / nRes * m_nGridWidth;
+		uint nStep = nGranularity / nRes * m_fGridWidth;
 
 		// First, quarter note markers. All the quarter note markers must be drawn.
 		if ( m_nResolution >= nRes ) {
@@ -615,21 +639,27 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 			nRes *= 2;
 			nStep /= 2;
 		}
-
+		
 	} else {
 
-		// Triplet style markers, we only differentiate colours on the
-		// first of every triplet.
-		uint nStep = granularity() * m_nGridWidth;
+		// Tuplets style markers, we only differentiate colours on the
+		// first of every tuplet.
+		float fStep = granularity() * m_fGridWidth;
 		p.setPen(  QPen( res[ 0 ], 0, style ) );
-		for ( uint x = m_nMargin; x < nMaxX; x += nStep * 3 ) {
-			p.drawLine(x, 1, x, m_nEditorHeight - 1);
+		for ( float x = m_nMargin; x < nMaxX; x += fStep * m_nTupletNumerator ) {
+			p.drawLine( x, 1, x, m_nEditorHeight - 1);
 		}
-		// Second and third marks
+		// Second, third... n-th marks
 		p.setPen(  QPen( res[ 2 ], 0, style ) );
-		for ( uint x = m_nMargin + nStep; x < nMaxX; x += nStep * 3 ) {
-			p.drawLine(x, 1, x, m_nEditorHeight - 1);
-			p.drawLine(x + nStep, 1, x + nStep, m_nEditorHeight - 1);
+		for ( float x0 = m_nMargin; x0 < nMaxX; x0 += fStep * m_nTupletNumerator ) {
+			for ( uint i = 1; i < m_nTupletNumerator; i++ ) {
+				int x = round( x0 + i * fStep );
+				if ( x < nMaxX ) {
+					p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+				} else {
+					i = m_nTupletNumerator; // trick to break
+				}
+			}
 		}
 	}
 

@@ -71,10 +71,19 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 {
 	setAcceptDrops(true);
 
-	Preferences *pPref = Preferences::get_instance();
+	m_nCursorIndexPosition = 0;
 
-	m_nCursorPosition = 0;
-	m_nCursorIncrement = 0;
+
+	Preferences *pPref = Preferences::get_instance();
+	if ( pPref ) { // TODO need this statement?
+		m_nResolution = pPref->getPatternEditorGridResolution();
+		m_nTupletNumerator = pPref->getPatternEditorGridTupletNumerator();
+		m_nTupletDenominator = pPref->getPatternEditorGridTupletDenominator();
+	} else { // default values
+		m_nResolution = 8;
+		m_nTupletNumerator = 4;
+		m_nTupletDenominator = 4;
+	}
 
 // Editor TOP
 	PixmapWidget *editor_top = new PixmapWidget( nullptr );
@@ -106,7 +115,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 //wolke some background images back_size_res
 	PixmapWidget *pSizeResol = new PixmapWidget( nullptr );
-	pSizeResol->setFixedSize( 216, 20 );
+	pSizeResol->setFixedSize( 300, 20 );
 	pSizeResol->setPixmap( "/patternEditor/background_res-new.png" );
 	pSizeResol->move( 0, 3 );
 	editor_top_hbox_2->addWidget( pSizeResol );
@@ -156,7 +165,12 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__resolution_combo->move( 154, 2 );
 	// is triggered from inside PatternEditorPanel()
 	connect( __resolution_combo, SIGNAL( valueChanged( int ) ), this, SLOT( gridResolutionChanged( int ) ) );
-
+	
+	// TUPLET LCD
+	m_pTupletLCD = new LCDDisplay( pSizeResol, LCDDigit::SMALL_BLUE, 5 );
+	m_pTupletLCD->move( 252, 2 );
+	m_pTupletLCD->setToolTip( tr( "Select resolution Tuplet" ) );
+	connect( m_pTupletLCD, SIGNAL( displayClicked( LCDDisplay* ) ), this, SLOT( tupletLCDClicked() ) );
 
 	PixmapWidget *pRec = new PixmapWidget( nullptr );
 	pRec->setFixedSize( 300, 20 );
@@ -525,11 +539,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	// restore grid resolution
 	int nIndex;
-	int nRes = pPref->getPatternEditorGridResolution();
-	if ( nRes == MAX_NOTES ) {
+
+	if ( m_nResolution == MAX_NOTES ) {
 		nIndex = 11;
-	} else if ( pPref->isPatternEditorUsingTriplets() == false ) {
-		switch ( nRes ) {
+	} else if ( m_nTupletNumerator != 3 || m_nTupletDenominator != 2 ) {
+		switch ( m_nResolution ) {
 			case  4: nIndex = 0; break;
 			case  8: nIndex = 1; break;
 			case 16: nIndex = 2; break;
@@ -537,20 +551,26 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			case 64: nIndex = 4; break;
 			default:
 				nIndex = 0;
-				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
+				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( m_nResolution ) );
 		}
 	} else {
-		switch ( nRes ) {
-			case  8: nIndex = 6; break;
-			case 16: nIndex = 7; break;
-			case 32: nIndex = 8; break;
-			case 64: nIndex = 9; break;
+		switch ( m_nResolution ) {
+			case  4: nIndex = 6; break;
+			case  8: nIndex = 7; break;
+			case 16: nIndex = 8; break;
+			case 32: nIndex = 9; break;
 			default:
 				nIndex = 6;
-				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
+				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( m_nResolution ) );
 		}
 	}
 	__resolution_combo->select( nIndex );
+	
+	if ( m_nTupletNumerator == 4 && m_nTupletDenominator == 4 ) {
+		m_pTupletLCD->setText( tr( "off" ) );
+	} else {
+		m_pTupletLCD->setText( QString("%1:%2").arg( m_nTupletNumerator ).arg( m_nTupletDenominator ) );
+	}
 
 	// LAYOUT
 	QVBoxLayout *pVBox = new QVBoxLayout();
@@ -627,40 +647,65 @@ void PatternEditorPanel::on_patternEditorHScroll( int nValue )
 
 
 
-void PatternEditorPanel::gridResolutionChanged( int nSelected )
-{
-	int nResolution;
-	bool bUseTriplets = false;
-
+void PatternEditorPanel::gridResolutionChanged( int nSelected ) {
+	double fOldCursorTickPosition = getCursorFloatPosition();
 	if ( nSelected == 11 ) {
-		nResolution = MAX_NOTES;
+		m_nResolution = MAX_NOTES;
+		m_nTupletNumerator = 4;
+		m_nTupletDenominator = 4;
+
+		setTupletRatioToAllEditors( m_nTupletNumerator, m_nTupletDenominator );
+		// TODO why all the editors have the same grid members and there is no a unique variable for them to read?
+
+		m_pTupletLCD->setText( QString( "%1:%2" ).arg( m_nTupletNumerator ).arg( m_nTupletDenominator ) );
+		Preferences::get_instance()->setPatternEditorGridTupletRatio( m_nTupletNumerator, m_nTupletDenominator );		
 	}
 	else if ( nSelected > 4 ) {
-		bUseTriplets = true;
-		nResolution = 0x1 << ( nSelected - 3 );
+		m_nTupletNumerator = 3;
+		m_nTupletDenominator = 2;
+		m_nResolution = 0x1 << ( nSelected - 4 );
+		
+		setTupletRatioToAllEditors( m_nTupletNumerator, m_nTupletDenominator );
+		// TODO why all the editors have the same grid members and there is no a unique variable for them to read?
+
+		m_pTupletLCD->setText( QString( "%1:%2" ).arg( m_nTupletNumerator ).arg( m_nTupletDenominator ) );
+		Preferences::get_instance()->setPatternEditorGridTupletRatio( m_nTupletNumerator, m_nTupletDenominator );
 	}
-	else {
-		nResolution = 0x1 << ( nSelected + 2 );
+	else { // plain note value symbols
+		m_nResolution = 0x1 << ( nSelected + 2 );
 	}
 
 	// INFOLOG( QString("idx %1 -> %2 resolution").arg( nSelected ).arg( nResolution ) );
 
-	m_pDrumPatternEditor->setResolution( nResolution, bUseTriplets );
-	m_pPianoRollEditor->setResolution( nResolution, bUseTriplets );
-	m_pNoteVelocityEditor->setResolution( nResolution, bUseTriplets );
-	m_pNoteLeadLagEditor->setResolution( nResolution, bUseTriplets );
-	m_pNoteNoteKeyEditor->setResolution( nResolution, bUseTriplets );
-	m_pNoteProbabilityEditor->setResolution( nResolution, bUseTriplets );
-	m_pNotePanEditor->setResolution( nResolution, bUseTriplets );
-
-	m_nCursorIncrement = ( bUseTriplets ? 4 : 3 ) * MAX_NOTES / ( nResolution * 3 );
-	m_nCursorPosition = m_nCursorIncrement * ( m_nCursorPosition / m_nCursorIncrement );
-
-	Preferences::get_instance()->setPatternEditorGridResolution( nResolution );
-	Preferences::get_instance()->setPatternEditorUsingTriplets( bUseTriplets );
+	setResolutionToAllEditors( m_nResolution );
+	// TODO why all the editors have the same grid members and there is no a unique variable for them to read?
+	Preferences::get_instance()->setPatternEditorGridResolution( m_nResolution );
+	
+	// move cursor to the nearest grid mark (since granularity changed)
+	setCursorPosition( fOldCursorTickPosition );
 }
 
+void PatternEditorPanel::setResolutionToAllEditors( int nResolution ) {
+	// TODO should this be saved only in Preferences or Editor Panel or in all these classes?
+	m_pDrumPatternEditor->setResolution( nResolution );
+	m_pPianoRollEditor->setResolution( nResolution );
+	m_pNoteVelocityEditor->setResolution( nResolution );
+	m_pNoteLeadLagEditor->setResolution( nResolution );
+	m_pNoteNoteKeyEditor->setResolution( nResolution );
+	m_pNoteProbabilityEditor->setResolution( nResolution );
+	m_pNotePanEditor->setResolution( nResolution );
+}
 
+void PatternEditorPanel::setTupletRatioToAllEditors( int nTupletNum, int nTupletDen ) {
+	//TODO should these be saved only in Preferences or Editor Panel or in all these classes?
+	m_pDrumPatternEditor->setTupletRatio( nTupletNum, nTupletDen );
+	m_pPianoRollEditor->setTupletRatio( nTupletNum, nTupletDen );
+	m_pNoteVelocityEditor->setTupletRatio( nTupletNum, nTupletDen );
+	m_pNoteLeadLagEditor->setTupletRatio( nTupletNum, nTupletDen );
+	m_pNoteNoteKeyEditor->setTupletRatio( nTupletNum, nTupletDen );
+	m_pNoteProbabilityEditor->setTupletRatio( nTupletNum, nTupletDen );
+	m_pNotePanEditor->setTupletRatio( nTupletNum, nTupletDen );
+}
 
 void PatternEditorPanel::selectedPatternChangedEvent()
 {
@@ -1023,6 +1068,73 @@ void PatternEditorPanel::patternSizeLCDClicked()
 	}
 }
 
+void PatternEditorPanel::tupletLCDClicked()
+{
+	Preferences *pPref = Preferences::get_instance();
+	bool bIsOkPressed;
+	// want to show ratio to see the input format, even if tuplet is currently off 
+	QString text = QString( "%1:%2" ).arg( m_nTupletNumerator ).arg( m_nTupletDenominator );
+									
+	/*QString text = m_pTupletLCD->getText(); //TODO cancel
+	if ( text == "off" ) {
+		text = "4:4";
+	}*/
+	
+	QString qtmp = QInputDialog::getText( this, "Tuplet Resolution", tr( "Enter tuplet ratio (\"4\" to set off)" ),
+											QLineEdit::Normal, text, &bIsOkPressed );
+	qtmp.replace( "/", ":" ); // allow both '/' and ':' separators
+	
+	if ( bIsOkPressed ) {
+	    if	( m_pTupletLCD->getText() == qtmp ) { // text unchanged
+	    	return;
+	    }
+	    double fOldCursorTickPosition = getCursorFloatPosition();
+	    
+		QStringList parts = qtmp.split( ':' );
+		if ( parts.size() == 1 || parts.size() == 2 ) { // must reject if parts.size > 2 or null
+		    bool bOk;
+		    m_nTupletNumerator = parts[0].toInt( &bOk );
+		    if ( bOk && parts.size() == 2 ) { // user entered both numerator and denominator
+				m_nTupletDenominator = parts[1].toInt( &bOk );
+				if ( bOk && ( m_nTupletDenominator <= 0 || m_nTupletDenominator > MAX_NOTES ) ) { //TODO what limit?
+			   		QMessageBox::information( this, "Hydrogen", tr( "Denominator value rejected.\nLimits: (0, %1]"
+			   														 ).arg(MAX_NOTES) );
+			   		return;
+				}
+		    }
+		    else { // user entered numerator only. compute the standard denominator
+		    	m_nTupletDenominator = 1;
+		    	while ( ( 2 * m_nTupletDenominator ) <= m_nTupletNumerator ) {
+		    		m_nTupletDenominator *= 2;
+		    	}
+		    } 
+		    if ( bOk && m_nTupletNumerator > 0 ) {
+				if ( m_nTupletNumerator > 99 ) { //TODO what limit? 
+					QMessageBox::information( this, "Hydrogen", tr( "Tuplet numerator too big.\nMaximum = 99" ) );
+					return;
+				}
+				else { // set tuplet numerator and denominator
+					setTupletRatioToAllEditors( m_nTupletNumerator, m_nTupletDenominator );
+						
+					// move cursor to the nearest grid mark.
+					setCursorPosition( fOldCursorTickPosition );
+
+					m_pTupletLCD->setText( QString( "%1:%2" ).arg( m_nTupletNumerator ).arg( m_nTupletDenominator ) );
+					pPref->setPatternEditorGridTupletRatio( m_nTupletNumerator, m_nTupletDenominator );
+				}
+		    }
+		    else { // user entered invalid text
+		    	QMessageBox::information( this, "Hydrogen", tr( "Text rejected" ) );
+		    	return;
+		    }
+		}
+		else { // last case: user entered more than 2 ':'
+		    	QMessageBox::information( this, "Hydrogen", tr( "Text rejected" ) );
+		    	return;
+		}
+	}
+}
+
 
 void PatternEditorPanel::moveUpBtnClicked( Button * )
 {
@@ -1157,45 +1269,71 @@ void PatternEditorPanel::updatePianorollEditor()
 	m_pDrumPatternEditor->updateEditor(); // force an update
 }
 
+int PatternEditorPanel::getCursorIndexPosition()
+{
+	return m_nCursorIndexPosition;
+}
+
 int PatternEditorPanel::getCursorPosition()
 {
-	return m_nCursorPosition;
+	return round( m_nCursorIndexPosition * granularity() );
+}
+double PatternEditorPanel::getCursorFloatPosition()
+{
+	return m_nCursorIndexPosition * granularity();
 }
 
 void PatternEditorPanel::ensureCursorVisible()
 {
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	uint y = nSelectedInstrument * Preferences::get_instance()->getPatternEditorGridHeight();
-	m_pEditorScrollView->ensureVisible( m_nCursorPosition * m_pPatternEditorRuler->getGridWidth(), y );
+	m_pEditorScrollView->ensureVisible(
+							round( m_nCursorIndexPosition * granularity() * m_pPatternEditorRuler->getGridWidth() ),
+							 y );
 }
 
-void PatternEditorPanel::setCursorPosition(int nCursorPosition)
+void PatternEditorPanel::setCursorIndexPosition( int nGridIndex )
 {
-	if ( nCursorPosition < 0 ) {
-		m_nCursorPosition = 0;
-	} else if ( nCursorPosition >= m_pPattern->get_length() ) {
-		m_nCursorPosition = m_pPattern->get_length() - m_nCursorIncrement;
+	if ( nGridIndex < 0 ) {
+		m_nCursorIndexPosition = 0;
+	} else if ( round( nGridIndex * granularity() ) >= m_pPattern->get_length() ) { // TODO check boundary
+		m_nCursorIndexPosition = m_pPattern->get_length() / granularity(); // will be floored by (int) cast
 	} else {
-		m_nCursorPosition = nCursorPosition;
+		m_nCursorIndexPosition = nGridIndex;
+	}
+}
+
+void PatternEditorPanel::setCursorPosition( double fColumn )
+{
+	if ( fColumn < 0. ) {
+		m_nCursorIndexPosition = 0;
+	} else {
+		m_nCursorIndexPosition = round( fColumn / granularity() ); //TODO round()? since it is used in resolutionChanged, floor() ensures to not exceed the pattern length... should floor() cause problems?
+		if ( m_pPattern != nullptr) { // avoid segm fault at start
+			if ( m_nCursorIndexPosition * granularity() >= m_pPattern->get_length() ) { // THIS CAUSES segmentation fault at start because there's no pPattern)
+				m_nCursorIndexPosition--;
+				std::cout << "here\n";
+			}
+		}
 	}
 }
 
 int PatternEditorPanel::moveCursorLeft( int n )
 {
-	m_nCursorPosition = std::max( m_nCursorPosition - m_nCursorIncrement * n,
-								  0 );
+	m_nCursorIndexPosition = std::max( m_nCursorIndexPosition - n,
+							 		   0 );
 
 	ensureCursorVisible();
 
-	return m_nCursorPosition;
+	return m_nCursorIndexPosition;
 }
 
 int PatternEditorPanel::moveCursorRight( int n )
 {
-	m_nCursorPosition = std::min( m_nCursorPosition + m_nCursorIncrement * n,
-								  m_pPattern->get_length() - m_nCursorIncrement );
-
+	m_nCursorIndexPosition = std::min( m_nCursorIndexPosition + n,
+									   (int) ceil( m_pPattern->get_length() / granularity() - 1 ) //TODO check formula
+									 );
 	ensureCursorVisible();
 
-	return m_nCursorPosition;
+	return m_nCursorIndexPosition;
 }

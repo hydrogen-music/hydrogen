@@ -1002,7 +1002,7 @@ QPoint SongEditor::movingGridOffset( ) const {
 	if ( rawOffset.x() < 0 ) {
 		x_bias = -x_bias;
 	}
-	int x_off = (rawOffset.x() + x_bias) / (int)m_nGridWidth;
+	int x_off = (rawOffset.x() + x_bias) / (int)m_nGridWidth; // in ticks
 	int y_off = (rawOffset.y() + y_bias) / (int)m_nGridHeight;
 	return QPoint( x_off, y_off );
 }

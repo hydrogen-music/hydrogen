@@ -135,6 +135,17 @@ float LocalFileMng::readXmlFloat( QDomNode node , const QString& nodeName, float
 	}
 }
 
+double LocalFileMng::readXmlDouble( QDomNode node , const QString& nodeName, double defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
+{
+	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
+	if ( text == nullptr ) {
+		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ));
+		return defaultValue;
+	} else {
+		return QLocale::c().toDouble( text );
+	}
+}
+
 int LocalFileMng::readXmlInt( QDomNode node , const QString& nodeName, int defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
@@ -600,7 +611,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 			assert( pNote );
 
 			QDomNode noteNode = doc.createElement( "note" );
-			LocalFileMng::writeXmlString( noteNode, "position", QString("%1").arg( pNote->get_position() ) );
+			LocalFileMng::writeXmlString( noteNode, "position", QString("%1").arg( pNote->get_position(), 0, 'g', 10 ) ); //TODO what precision?
 			LocalFileMng::writeXmlString( noteNode, "leadlag", QString("%1").arg( pNote->get_lead_lag() ) );
 			LocalFileMng::writeXmlString( noteNode, "velocity", QString("%1").arg( pNote->get_velocity() ) );
 			LocalFileMng::writeXmlString( noteNode, "pan_L", QString("%1").arg( pNote->get_pan_l() ) );
@@ -610,7 +621,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 
 			LocalFileMng::writeXmlString( noteNode, "key", pNote->key_to_string() );
 
-			LocalFileMng::writeXmlString( noteNode, "length", QString("%1").arg( pNote->get_length() ) );
+			LocalFileMng::writeXmlString( noteNode, "length", QString("%1").arg( pNote->get_length(), 0, 'g', 10 ) ); //TODO what precision?
 			LocalFileMng::writeXmlString( noteNode, "instrument", QString("%1").arg( pNote->get_instrument()->get_id() ) );
 
 			QString noteoff = "false";

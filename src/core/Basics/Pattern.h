@@ -43,7 +43,7 @@ class Pattern : public H2Core::Object
 		H2_OBJECT
 	public:
 		///< multimap note type
-		typedef std::multimap <int, Note*> notes_t;
+		typedef std::multimap <float, Note*> notes_t;
 		///< multimap note iterator type
 		typedef notes_t::iterator notes_it_t;
 		///< multimap note const iterator type
@@ -125,7 +125,7 @@ class Pattern : public H2Core::Object
 		 * \param strict if set to false, will search for a note around the given idx
 		 * \return the note if found, 0 otherwise
 		 */
-		Note* find_note( int idx_a, int idx_b, Instrument* instrument, bool strict=true ) const;
+		Note* find_note( double idx_a, int idx_b, Instrument* instrument, bool strict=true ) const; // TODO second arg float
 		/**
 		 * search for a note at a given index within __notes which correspond to the given arguments
 		 * \param idx_a the first __notes index to search in
@@ -136,7 +136,7 @@ class Pattern : public H2Core::Object
 		 * \param strict if set to false, will search for a note around the given idx
 		 * \return the note if found, 0 otherwise
 		 */
-		Note* find_note( int idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict=true) const;
+		Note* find_note( double idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict=true) const; // TODO second arg float
 		/**
 		 * removes a given note from __notes, it's not deleted
 		 * \param note the note to be removed
@@ -222,15 +222,17 @@ class Pattern : public H2Core::Object
 
 #define FOREACH_NOTE_CST_IT_BEGIN_END(_notes,_it) \
 	for( Pattern::notes_cst_it_t _it=(_notes)->begin(); (_it)!=(_notes)->end(); (_it)++ )
+	
+#define POS_EPSILON 0.0001 // TODO choose value. use as argument of macro?
 
 #define FOREACH_NOTE_CST_IT_BOUND(_notes,_it,_bound) \
-	for( Pattern::notes_cst_it_t _it=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->end() && (_it)->first == (_bound); (_it)++ )
+	for( Pattern::notes_cst_it_t _it=(_notes)->lower_bound((_bound) - POS_EPSILON ); (_it)!=(_notes)->end() && (_it)->first < (_bound) + POS_EPSILON; (_it)++ )
 
 #define FOREACH_NOTE_IT_BEGIN_END(_notes,_it) \
 	for( Pattern::notes_it_t _it=(_notes)->begin(); (_it)!=(_notes)->end(); (_it)++ )
 
 #define FOREACH_NOTE_IT_BOUND(_notes,_it,_bound) \
-	for( Pattern::notes_it_t _it=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->end() && (_it)->first == (_bound); (_it)++ )
+	for( Pattern::notes_it_t _it=(_notes)->lower_bound((_bound) - POS_EPSILON ); (_it)!=(_notes)->end() && (_it)->first < (_bound) + POS_EPSILON; (_it)++ )
 
 // DEFINITIONS
 

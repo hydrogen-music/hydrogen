@@ -136,7 +136,7 @@ class NotePropertiesRuler : public PatternEditor
 
 		void adjustNotePropertyDelta( H2Core::Note *pNote, float fDelta, bool bMessage = false );
 
-		int m_nDragPreviousColumn;
+		double m_fDragPreviousColumn;
 };
 
 
