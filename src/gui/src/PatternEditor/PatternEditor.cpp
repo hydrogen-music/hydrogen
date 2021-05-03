@@ -359,6 +359,11 @@ void PatternEditor::selectInstrumentNotes( int nInstrument )
 	m_selection.updateWidgetGroup();
 }
 
+void PatternEditor::setCurrentInstrument( int nInstrument ) {
+	Hydrogen::get_instance()->setSelectedInstrumentNumber( nInstrument );
+	m_pPatternEditorPanel->updateEditors();
+}
+
 void PatternEditor::mousePressEvent( QMouseEvent *ev )
 {
 	updateModifiers( ev );
@@ -397,7 +402,7 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 		}
 	}
 
-	if ( m_selection.isMoving() ) {
+	if ( m_selection.isMouseGesture() && m_selection.isMoving() ) {
 		// If a selection is currently being moved, change the cursor
 		// appropriately. Selection will change it back after the move
 		// is complete (or abandoned)

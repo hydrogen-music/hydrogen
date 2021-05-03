@@ -114,6 +114,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 	m_pPopupMenu->addAction( tr( "&Delete" ), this, &SongEditor::deleteSelection );
 	m_pPopupMenu->addAction( tr( "Select &all" ), this, &SongEditor::selectAll );
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, &SongEditor::selectNone );
+	m_pPopupMenu->setObjectName( "SongEditorPopup" );
 
 
 	update();
@@ -609,7 +610,7 @@ void SongEditor::updateModifiers( QInputEvent *ev )
 		}
 	}
 
-	if ( m_selection.isMoving() ) {
+	if ( m_selection.isMouseGesture() && m_selection.isMoving() ) {
 		// If a selection is currently being moved, change the cursor
 		// appropriately. Selection will change it back after the move
 		// is complete (or abandoned)
@@ -1203,6 +1204,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pPatternPopup->addAction( tr("Save Pattern"),  this, SLOT( patternPopup_save() ) );
 	m_pPatternPopup->addAction( tr("Export Pattern"),  this, SLOT( patternPopup_export() ) );
 	m_pPatternPopup->addAction( tr("Virtual Pattern"), this, SLOT( patternPopup_virtualPattern() ) );
+	m_pPatternPopup->setObjectName( "PatternListPopup" );
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
@@ -2259,6 +2261,22 @@ void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 	}
 }
 
+void SongEditorPositionRuler::showTagWidget( int nColumn )
+{
+	SongEditorPanelTagWidget dialog( this , nColumn );
+	if (dialog.exec() == QDialog::Accepted) {
+		//createBackground();
+	}
+
+}
+
+void SongEditorPositionRuler::showBpmWidget( int nColumn )
+{
+	SongEditorPanelBpmWidget dialog( this , nColumn );
+	if (dialog.exec() == QDialog::Accepted) {
+		//createBackground();
+	}
+}
 
 
 void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
@@ -2285,11 +2303,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		}
 		
 	} else if (ev->button() == Qt::MiddleButton && ev->y() >= 26) {
-		int column = (ev->x() / m_nGridWidth);
-		SongEditorPanelTagWidget dialog( this , column );
-		if (dialog.exec() == QDialog::Accepted) {
-			//createBackground();
-		}
+		showTagWidget( ev->x() / m_nGridWidth );
 	} else if (ev->button() == Qt::RightButton && ev->y() >= 26) {
 		int column = (ev->x() / m_nGridWidth);
 		Preferences* pPref = Preferences::get_instance();
@@ -2306,11 +2320,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		pPref->setPunchOutPos(-1);
 		update();
 	} else if( ( ev->button() == Qt::LeftButton || ev->button() == Qt::RightButton ) && ev->y() <= 25 && Preferences::get_instance()->getUseTimelineBpm() ){
-		int column = (ev->x() / m_nGridWidth);
-		SongEditorPanelBpmWidget dialog( this , column );
-		if (dialog.exec() == QDialog::Accepted) {
-			//createBackground();
-		}
+		showBpmWidget( ev->x() / m_nGridWidth );
 	}
 
 }

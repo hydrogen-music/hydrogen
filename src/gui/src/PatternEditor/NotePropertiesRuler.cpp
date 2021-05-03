@@ -812,10 +812,6 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 
 void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 {
-	if ( !isVisible() ) {
-		return;
-	}
-
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 
 	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(),
@@ -904,10 +900,6 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 
 void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 {
-	if ( !isVisible() ) {
-		return;
-	}
-
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 
 	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(),
@@ -996,10 +988,6 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 
 void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 {
-	if ( !isVisible() ) {
-		return;
-	}
-
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	
 	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(),
@@ -1109,10 +1097,6 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 
 void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 {
-	if ( !isVisible() ) {
-		return;
-	}
-
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 
 	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(),

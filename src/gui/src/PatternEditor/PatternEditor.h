@@ -161,7 +161,7 @@ public slots:
 	virtual void paste() = 0;
 	virtual void cut();
 	virtual void selectInstrumentNotes( int nInstrument );
-
+	void setCurrentInstrument( int nInstrument );
 
 protected:
 

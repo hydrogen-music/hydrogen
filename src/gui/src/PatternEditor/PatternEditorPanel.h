@@ -100,6 +100,10 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		int getTupletDenominator(){ return m_nTupletDenominator; }
 		int getResolution(){ return m_nResolution; }
 
+	public slots:
+		void showDrumEditor();
+		void showPianoRollEditor();
+
 	private slots:
 		void gridResolutionChanged( int nSelected );
 		void propertiesComboChanged( int nSelected );

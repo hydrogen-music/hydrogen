@@ -42,7 +42,7 @@ class InstrumentRack : public QWidget, private H2Core::Object
 
 		SoundLibraryPanel* getSoundLibraryPanel() {	return m_pSoundLibraryPanel;	}
 
-	private slots:
+	public slots:
 		void on_showSoundLibraryBtnClicked();
 		void on_showInstrumentEditorBtnClicked();
 

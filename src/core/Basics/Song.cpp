@@ -669,7 +669,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_fVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fVolume ) )
 			.append( QString( "%1%2m_fMetronomeVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fMetronomeVolume ) )
 			.append( QString( "%1%2m_sNotes: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sNotes ) )
-			.append( QString( "%1" ).arg( m_pPatternList->toQString( sPrefix + s ) ) )
+			.append( QString( "%1" ).arg( m_pPatternList->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_pPatternGroupSequence:\n" ).arg( sPrefix ).arg( s ) );
 		for ( auto pp : *m_pPatternGroupSequence ) {
 			if ( pp != nullptr ) {

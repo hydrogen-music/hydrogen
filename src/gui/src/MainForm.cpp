@@ -91,6 +91,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& songFilename, c
 	: QMainWindow( nullptr )
 	, Object( __class_name )
 {
+	setObjectName( "MainForm" );
 	setMinimumSize( QSize( 1000, 500 ) );
 
 #ifndef WIN32
