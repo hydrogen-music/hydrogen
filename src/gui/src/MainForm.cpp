@@ -2053,11 +2053,13 @@ void MainForm::onAutoSaveTimer()
 	//INFOLOG( "[onAutoSaveTimer]" );
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	assert( pSong );
-	QString sOldFilename = pSong->getFilename();
+	if ( pSong->getIsModified() ) {
+		QString sOldFilename = pSong->getFilename();
+		pSong->save( getAutoSaveFilename() );
 
-	pSong->save( getAutoSaveFilename() );
-
-	pSong->setFilename(sOldFilename);
+		pSong->setFilename( sOldFilename );
+		pSong->setIsModified( true );
+	}
 }
 
 
