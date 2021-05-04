@@ -127,8 +127,9 @@ static void handleFatalSignal( int nSignal )
 
 	// Allow logger to complete
 	H2Core::Logger* pLogger = H2Core::Logger::get_instance();
-	if ( pLogger )
+	if ( pLogger ) {
 		delete pLogger;
+	}
 
 	raise( nSignal );
 }

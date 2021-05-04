@@ -861,13 +861,6 @@ inline PatternList * Hydrogen::getNextPatterns()
 {
 	return m_pAudioEngine->getNextPatterns();
 }
-
-inline QString Hydrogen::getNextSongPath() {
-	return m_sNextSongPath;
-}
-inline void Hydrogen::setNextSongPath( const QString sSongPath ) {
-	m_sNextSongPath = sSongPath;
-}
 };
 
 #endif
