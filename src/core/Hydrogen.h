@@ -783,22 +783,6 @@ private:
 	 * Only one Hydrogen object is allowed to exist. If the
 	 * #__instance object is present, the constructor will throw
 	 * an error.
-	 *
-	 * - Sets the current #__song to NULL
-	 * - Sets #m_bExportSessionIsActive to false
-	 * - Creates a new Timeline #m_pTimeline 
-	 * - Creates a new CoreActionController
-	 *   #m_pCoreActionController, 
-	 * - Calls initBeatcounter(), audioEngine_init(), and
-	 *   audioEngine_startAudioDrivers() 
-	 * - Sets InstrumentComponent::m_nMaxLayers to
-	 *   Preferences::m_nMaxLayers via
-	 *   InstrumentComponent::setMaxLayers() and
-	 *   Preferences::getMaxLayers() 
-	 * - Starts the OscServer using OscServer::start() if
-	 *   #H2CORE_HAVE_OSC was set during compilation.
-	 * - Fills #m_nInstrumentLookupTable with the corresponding
-	 *   index of each element.
 	 */
 	Hydrogen();
 

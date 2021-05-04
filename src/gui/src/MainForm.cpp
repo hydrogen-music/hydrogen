@@ -1460,10 +1460,6 @@ void MainForm::updateRecentUsedSongList()
 
 void MainForm::action_file_open_recent(QAction *pAction)
 {
-	// When under session management the filename of the current Song
-	// has to be preserved.
-	const bool bUnderSessionManagement = H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
-	
 	HydrogenApp::get_instance()->openSong( pAction->text() );
 }
 

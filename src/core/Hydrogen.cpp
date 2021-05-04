@@ -266,7 +266,6 @@ void Hydrogen::setSong( Song *pSong )
 		return;
 	}
 
-	QString sCurrentSongFilename;
 	if ( pCurrentSong != nullptr ) {
 		/* NOTE: 
 		 *       - this is actually some kind of cleanup 
@@ -274,6 +273,9 @@ void Hydrogen::setSong( Song *pSong )
 		 */
 		
 		if ( isUnderSessionManagement() ) {
+			// When under session management Hydrogen is only allowed
+			// to replace the content of the session song but not to
+			// write to a different location.
 			pSong->setFilename( pCurrentSong->getFilename() );
 		}
 		removeSong();
@@ -305,7 +307,7 @@ void Hydrogen::setSong( Song *pSong )
 
 	if ( isUnderSessionManagement() ) {
 #ifdef H2CORE_HAVE_OSC
-		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath.toLocal8Bit().data(), true );
+		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, true );
 #endif
 	} else {		
 		Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
@@ -949,7 +951,7 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	// management.
 	if ( isUnderSessionManagement() ) {
 #ifdef H2CORE_HAVE_OSC
-		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath.toLocal8Bit().data(), false );
+		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, false );
 #endif
 	}
 

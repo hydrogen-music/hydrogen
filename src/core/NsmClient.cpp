@@ -95,8 +95,6 @@ int NsmClient::OpenCallback( const char *name,
 		}
 	}
 
-	// At this point the GUI can be assumed to have to be fully
-	// initialized.
 	NsmClient::copyPreferences( name );
 
 	NsmClient::get_instance()->m_sSessionFolderPath = name;
@@ -109,7 +107,7 @@ int NsmClient::OpenCallback( const char *name,
 	
 	const QFileInfo songFileInfo = QFileInfo( sSongPath );
 
-	// When restarting the JACK client (later in this function) the
+	// When restarting the JACK client (during song loading) the
 	// clientID will be used as the name of the freshly created
 	// instance.
 	if ( pPref != nullptr ){
@@ -201,7 +199,7 @@ void NsmClient::copyPreferences( const char* name ) {
 	NsmClient::printMessage( "Preferences loaded!" );
 }
 
-void NsmClient::linkDrumkit( const char* name, bool bCheckLinkage ) {	
+void NsmClient::linkDrumkit( const QString& sName, bool bCheckLinkage ) {	
 	
 	const auto pHydrogen = H2Core::Hydrogen::get_instance();
 	
@@ -210,7 +208,7 @@ void NsmClient::linkDrumkit( const char* name, bool bCheckLinkage ) {
 	const QString sDrumkitName = pHydrogen->getCurrentDrumkitName();
 	
 	const QString sLinkedDrumkitPath = QString( "%1/%2" )
-		.arg( name ).arg( "drumkit" );
+		.arg( sName ).arg( "drumkit" );
 	const QFileInfo linkedDrumkitPathInfo( sLinkedDrumkitPath );
 
 	if ( bCheckLinkage ) {
@@ -271,7 +269,7 @@ void NsmClient::linkDrumkit( const char* name, bool bCheckLinkage ) {
 				// renamed to 'drumkit' manually again.
 				QDir oldDrumkitFolder( sLinkedDrumkitPath );
 				if ( ! oldDrumkitFolder.rename( sLinkedDrumkitPath,
-												QString( "%1/drumkit_old" ).arg( name ) ) ) {
+												QString( "%1/drumkit_old" ).arg( sName ) ) ) {
 					NsmClient::printError( QString( "Unable to rename drumkit folder [%1]." )
 										   .arg( sLinkedDrumkitPath ) );
 					return;
