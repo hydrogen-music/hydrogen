@@ -800,6 +800,14 @@ void SoundLibraryPanel::on_songLoadAction()
 {
 	QString sFilename = Filesystem::song_path( __sound_library_tree->currentItem()->text( 0 ) );
 
+	if ( H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
+		// The current path needs to be preserved. This will be done
+		// using an auxiliary variable since the GUI opens the song
+		// via the core, which in turn opens it asynchronously via the
+		// GUI.
+		H2Core::Hydrogen::get_instance()->setNextSongPath( H2Core::Hydrogen::get_instance()->getSong()->getFilename() );
+	}
+	
 	HydrogenApp::get_instance()->openSong( sFilename );
 }
 

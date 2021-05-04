@@ -600,6 +600,8 @@ void			previewSample( Sample *pSample );
 	/**\param pNextSong Sets #m_pNextSong. Song which is about to be
 	   loaded by the GUI.*/
 	void			setNextSong( Song* pNextSong );
+	void			setNextSongPath( const QString sSongPath );
+	QString			getNextSongPath();
 	/** Calculates the lookahead for a specific tick size.
 	 *
 	 * During the humanization the onset of a Note will be moved
@@ -758,6 +760,7 @@ private:
 	 * Set by setNextSong() and accessed via getNextSong().
 	 */
 	Song*			m_pNextSong;
+	QString			m_sNextSongPath;
 
 	/**
 	 * Local instance of the Timeline object.
@@ -917,6 +920,12 @@ inline PatternList * Hydrogen::getNextPatterns()
 	return m_pAudioEngine->getNextPatterns();
 }
 
+inline QString Hydrogen::getNextSongPath() {
+	return m_sNextSongPath;
+}
+inline void Hydrogen::setNextSongPath( const QString sSongPath ) {
+	m_sNextSongPath = sSongPath;
+}
 };
 
 #endif

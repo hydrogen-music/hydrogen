@@ -200,6 +200,7 @@ int NsmClient::OpenCallback( const char *name,
 
 		// The opening of the Song will be done asynchronously.
 		pHydrogen->setNextSong( pSong );
+		pHydrogen->setNextSongPath( sSongPath );
 		
 		bool bSuccess;
 		if ( songFileInfo.exists() ) {
