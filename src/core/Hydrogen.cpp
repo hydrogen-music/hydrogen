@@ -136,23 +136,7 @@ Hydrogen::Hydrogen()
 	// Prevent double creation caused by calls from MIDI thread
 	__instance = this;
 
-	// When under session management and using JACK as audio driver,
-	// it is crucial for Hydrogen to activate the JACK client _after_
-	// the initial Song was set. Else the per track outputs will not
-	// be registered in time and the session software won't be able to
-	// rewire them properly. Therefore, the audio driver is started in
-	// the callback function for opening a Song in nsm_open_cb().
-	//
-	// But the presence of the environmental variable NSM_URL does not
-	// guarantee for a session management to be present (and at this
-	// early point of initialization it's basically impossible to
-	// tell). As a fallback the main() function will check for the
-	// presence of the audio driver after creating both the Hydrogen
-	// and NsmClient instance and prior to the creation of the GUI. If
-	// absent, the starting of the audio driver will be triggered.
-	if ( ! getenv( "NSM_URL" ) ){
-		m_pAudioEngine->startAudioDrivers();
-	}
+	m_pAudioEngine->startAudioDrivers();
 	
 	for(int i = 0; i< MAX_INSTRUMENTS; i++){
 		m_nInstrumentLookupTable[i] = i;
@@ -282,11 +266,16 @@ void Hydrogen::setSong( Song *pSong )
 		return;
 	}
 
+	QString sCurrentSongFilename;
 	if ( pCurrentSong != nullptr ) {
 		/* NOTE: 
 		 *       - this is actually some kind of cleanup 
 		 *       - removeSong cares itself for acquiring a lock
 		 */
+		
+		if ( isUnderSessionManagement() ) {
+			pSong->setFilename( pCurrentSong->getFilename() );
+		}
 		removeSong();
 		delete pCurrentSong;
 	}

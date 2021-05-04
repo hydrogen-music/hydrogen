@@ -69,7 +69,7 @@ int NsmClient::OpenCallback( const char *name,
 							 const char *clientID,
 							 char **outMsg,
 							 void *userData ) {
-	
+
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pPref = H2Core::Preferences::get_instance();
 	auto pController = pHydrogen->getCoreActionController();
@@ -94,11 +94,11 @@ int NsmClient::OpenCallback( const char *name,
 			NsmClient::printError( "Folder could not created." );
 		}
 	}
-	
+
 	// At this point the GUI can be assumed to have to be fully
 	// initialized.
 	NsmClient::copyPreferences( name );
-	
+
 	NsmClient::get_instance()->m_sSessionFolderPath = name;
 	
 	const QFileInfo sessionPath( name );
@@ -145,14 +145,13 @@ int NsmClient::OpenCallback( const char *name,
 		pSong->setFilename( sSongPath );
 	}
 
-	// The opening of the Song will be done asynchronously.
 	if ( ! pController->openSong( pSong ) ) {
 			NsmClient::printError( "Unable to handle opening action!" );
 			return ERR_LAUNCH_FAILED;
 	}
 	
 	NsmClient::printMessage( "Song loaded!" );
-			
+
 	return ERR_OK;
 }
 
@@ -402,9 +401,9 @@ void NsmClient::createInitialClient()
 				// H2 is under session management, the variable will
 				// be set here.
 				m_bUnderSessionManagement = true;
-				
+
 				nsm_send_announce( pNsm, "Hydrogen", ":dirty:switch:", byteArray.data() );
-						
+
 				if ( pthread_create( &m_NsmThread, nullptr, NsmClient::ProcessEvent, pNsm ) ) {
 					___ERRORLOG("Error creating NSM thread\n	");
 					m_bUnderSessionManagement = false;
@@ -419,7 +418,7 @@ void NsmClient::createInitialClient()
 				int nCheck = 0;
 				
 				while ( true ) {
-					if ( pHydrogen->getAudioOutput() != nullptr ) {
+					if ( pHydrogen->getSong() != nullptr ) {
 						break;
 					}
 					// Don't wait indefinitely.
@@ -427,7 +426,7 @@ void NsmClient::createInitialClient()
 						break;
 				   }
 					nCheck++;
-					sleep(1);
+					sleep( 1 );
 				}			
 
 			} else {
