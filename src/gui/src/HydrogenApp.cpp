@@ -800,10 +800,6 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 
 		// Set a Song prepared by the core part.
 		Song* pNextSong = pHydrogen->getNextSong();
-
-		if ( ! pHydrogen->getNextSongPath().isEmpty() ) {
-			pNextSong->setFilename( pHydrogen->getNextSongPath() );
-		}
 		
 		pHydrogen->setSong( pNextSong );
 
