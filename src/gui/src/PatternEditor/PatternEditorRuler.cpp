@@ -75,6 +75,9 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateEditor()));
 
 	HydrogenApp::get_instance()->addEventListener( this );
+	
+	m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
+	m_nLastUsedFontPointSize = pPref->getApplicationFontPointSize();
 }
 
 
@@ -200,9 +203,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 	QColor lineColor( 170, 170, 170 );
 
 	Preferences *pref = Preferences::get_instance();
-	QString family = pref->getApplicationFontFamily();
-	int size = pref->getApplicationFontPointSize();
-	QFont font( family, size );
+	QFont font( m_sLastUsedFontFamily, m_nLastUsedFontPointSize );
 	painter.setFont(font);
 	painter.drawLine( 0, 0, m_nRulerWidth, 0 );
 	painter.drawLine( 0, m_nRulerHeight - 1, m_nRulerWidth - 1, m_nRulerHeight - 1);
@@ -276,4 +277,14 @@ void PatternEditorRuler::zoomOut()
 void PatternEditorRuler::selectedPatternChangedEvent()
 {
 	updateEditor( true );
+}
+void PatternEditorRuler::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		 m_nLastUsedFontPointSize != pPref->getApplicationFontPointSize() ){
+		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
+		m_nLastUsedFontPointSize = pPref->getApplicationFontPointSize();
+		update( 0, 0, width(), height() );
+	}
 }

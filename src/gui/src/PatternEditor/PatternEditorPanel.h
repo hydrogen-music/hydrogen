@@ -69,6 +69,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		NotePropertiesRuler* getProbabilityEditor() {	return m_pNoteProbabilityEditor;	}
 		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
 		PianoRollEditor* getPianoRollEditor() {		return m_pPianoRollEditor;	}
+		PatternEditorRuler* getPatternEditorRuler() {		return m_pPatternEditorRuler;  }
 		int getPropertiesComboValue(){ return __pPropertiesCombo->selected(); }
 
 		void updateSLnameLabel();

@@ -270,6 +270,7 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
 		virtual void timelineUpdateEvent( int nValue ) override;
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
 		H2Core::Hydrogen* 		m_pHydrogen;
@@ -303,6 +304,8 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		virtual void patternChangedEvent() override;
 		void mouseMoveEvent(QMouseEvent *event) override;
 		QPoint __drag_start_position;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
 
 };
 
@@ -334,6 +337,7 @@ class SongEditorPositionRuler : public QWidget, public H2Core::Object
 		void updatePosition();
 		void showTagWidget( int nColumn );
 		void showBpmWidget( int nColumn );
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
 		H2Core::Hydrogen* 		m_pHydrogen;
@@ -348,6 +352,10 @@ class SongEditorPositionRuler : public QWidget, public H2Core::Object
 		QPixmap *			m_pBackgroundPixmap;
 		QPixmap				m_tickPositionPixmap;
 		bool				m_bRightBtnPressed;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
+		/** Used to detect changed in the font*/
+		int m_nLastUsedFontPointSize;
 		
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent( QMouseEvent *ev );

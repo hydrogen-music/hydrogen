@@ -129,6 +129,7 @@ class DrumPatternEditor : public PatternEditor
 		virtual void selectAll() override;
 		virtual void deleteSelection() override;
 		virtual void paste() override;
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
 		void __draw_note( H2Core::Note* note, QPainter& painter );
@@ -151,6 +152,8 @@ class DrumPatternEditor : public PatternEditor
 		int __nColumn;
 		int __row;
 		int __oldLength;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
 };
 
 

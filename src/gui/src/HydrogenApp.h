@@ -131,6 +131,17 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 
 		void cleanupTemporaryFiles();
 
+signals:
+	/** Propagates a change in the Preferences through the GUI.
+	 *
+	 * Triggered by the PreferencesDialog upon a change of the
+	 * underlying options in the Preferences class.
+	 *
+	 * @param bAppearanceOnly Whether all options or only those
+	 * associated with the Appearance tab of the PreferencesDialog
+	 * should be updated.*/
+	void preferencesChanged( bool bAppearanceOnly );
+
 	public slots:
 		/**
 		 * Function called every #QUEUE_TIMER_PERIOD
@@ -188,6 +199,17 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		*/
 		void onEventQueueTimer();
 		void currentTabChanged(int);
+
+	/** Propagates a change in the Preferences through the GUI.
+	 *
+	 * Triggered by the PreferencesDialog upon a change of the
+	 * underlying options in the Preferences class.
+	 *
+	 * @param bAppearanceOnly Whether all options or only those
+	 * associated with the Appearance tab of the PreferencesDialog
+	 * should be updated.
+	 */
+	void changePreferences( bool bAppearanceOnly );
 
 	private:
 		static HydrogenApp *		m_pInstance;	///< HydrogenApp instance

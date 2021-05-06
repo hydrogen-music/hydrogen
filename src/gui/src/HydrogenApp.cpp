@@ -41,6 +41,10 @@
 #include "Director.h"
 
 #include "PatternEditor/PatternEditorPanel.h"
+#include "PatternEditor/PatternEditorRuler.h"
+#include "PatternEditor/NotePropertiesRuler.h"
+#include "PatternEditor/PianoRollEditor.h"
+#include "PatternEditor/DrumPatternEditor.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
@@ -125,6 +129,9 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	// Events as well, it should be registered as an Eventlistener
 	// itself.
 	addEventListener( this );
+
+	connect( this, &HydrogenApp::preferencesChanged,
+			 m_pMainForm, &MainForm::onPreferencesChanged );
 }
 
 
@@ -857,4 +864,8 @@ void HydrogenApp::quitEvent( int nValue ) {
 
 	m_pMainForm->closeAll();
 	
+}
+
+void HydrogenApp::changePreferences( bool bAppearanceOnly ) {
+	emit preferencesChanged( bAppearanceOnly );
 }

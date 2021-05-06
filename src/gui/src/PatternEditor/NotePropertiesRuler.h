@@ -93,6 +93,7 @@ class NotePropertiesRuler : public PatternEditor
 		virtual void copy() override {}
 		virtual void paste() override {}
 		virtual void cut() override {}
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
 
@@ -137,6 +138,8 @@ class NotePropertiesRuler : public PatternEditor
 		void adjustNotePropertyDelta( H2Core::Note *pNote, float fDelta, bool bMessage = false );
 
 		int m_nDragPreviousColumn;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
 };
 
 

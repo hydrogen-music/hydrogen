@@ -93,6 +93,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 
 	setMouseTracking( true );
 
+	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
 }
 
 
@@ -1134,8 +1135,9 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	// Annotate with note class names
 	static QString noteNames[] = { tr( "B" ), tr( "A#" ), tr( "A" ), tr( "G#" ), tr( "G" ), tr( "F#" ),
 								   tr( "F" ), tr( "E" ), tr( "D#" ), tr( "D" ), tr( "C#" ), tr( "C" ) };
-	QFont font;
-	font.setPointSize( 9 );
+	
+	QFont font( m_sLastUsedFontFamily, 9 );
+	
 	p.setFont( font );
 	p.setPen( QColor( 0, 0, 0 ) );
 	for ( int n = 0; n < 12; n++ ) {
@@ -1349,4 +1351,13 @@ QRect NotePropertiesRuler::getKeyboardCursorRect()
 
 void NotePropertiesRuler::selectAll() {
 	selectInstrumentNotes( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+}
+
+void NotePropertiesRuler::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ) {
+		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		createNoteKeyBackground( m_pBackground );
+	}
 }

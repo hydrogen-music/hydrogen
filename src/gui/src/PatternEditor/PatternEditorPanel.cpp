@@ -251,6 +251,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pRulerScrollView->setWidget( m_pPatternEditorRuler );
 	connect( m_pRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ), this,
 																			SLOT( on_patternEditorHScroll( int ) ) );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 m_pPatternEditorRuler, &PatternEditorRuler::onPreferencesChanged );
+
 
 //~ RULER
 
@@ -278,8 +281,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 																			SLOT( on_patternEditorVScroll( int ) ) );
 	connect( m_pEditorScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ), this, 
 																			SLOT( on_patternEditorHScroll( int ) ) );
-
-
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 m_pDrumPatternEditor, &DrumPatternEditor::onPreferencesChanged );
 
 //PianoRollEditor
 	m_pPianoRollScrollView = new WidgetScrollArea( nullptr );
@@ -291,6 +294,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport(), this, m_pPianoRollScrollView );
 	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
 	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 m_pPianoRollEditor, &PianoRollEditor::onPreferencesChanged );
 
 	m_pPianoRollScrollView->hide();
 	m_pPianoRollScrollView->setFocusProxy( m_pPianoRollEditor );
@@ -400,7 +405,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteNoteKeyScrollView->setFixedHeight( 210 );
 	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ), this,
 																			SLOT( on_patternEditorHScroll( int ) ) );
-
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 m_pNoteNoteKeyEditor, &NotePropertiesRuler::onPreferencesChanged );
+	
 	m_pNoteNoteKeyEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
 //~ NOTE_NOTEKEY EDITOR

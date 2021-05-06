@@ -123,6 +123,7 @@ class PianoRollEditor: public PatternEditor
 		virtual void selectAll() override;
 		virtual void deleteSelection() override;
 		virtual void paste() override;
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
 		H2Core::AudioEngine* m_pAudioEngine;
@@ -170,6 +171,8 @@ class PianoRollEditor: public PatternEditor
 		float __oldPan_R;
 		float __leadLag;
 		float __oldLeadLag;		
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
 };
 
 #endif

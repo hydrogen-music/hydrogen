@@ -1383,14 +1383,9 @@ void SongEditorPatternList::createBackground()
 	UIStyle *pStyle = pref->getDefaultUIStyle();
 	QColor textColor( pStyle->m_songEditor_textColor.getRed(), pStyle->m_songEditor_textColor.getGreen(), pStyle->m_songEditor_textColor.getBlue() );
 
-	QString family = pref->getApplicationFontFamily();
-	int size = pref->getApplicationFontPointSize();
-	QFont textFont( family, size );
-
-	QFont boldTextFont( textFont);
-	boldTextFont.setPointSize(10);
+	QFont boldTextFont( m_sLastUsedFontFamily, 10 );
 	boldTextFont.setBold( true );
-	
+
 	//Do not redraw anything if Export is active.
 	//https://github.com/hydrogen-music/hydrogen/issues/857	
 	if( m_pHydrogen->getIsExportSessionActive() ) {
@@ -2098,6 +2093,15 @@ void SongEditorPatternList::timelineUpdateEvent( int nEvent ){
 	Hydrogen::get_instance()->getSong()->setIsModified( true );
 }
 
+void SongEditorPatternList::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ) {
+		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		createBackground();
+	}
+}
+
 // ::::::::::::::::::::::::::
 
 const char* SongEditorPositionRuler::__class_name = "SongEditorPositionRuler";
@@ -2178,9 +2182,7 @@ void SongEditorPositionRuler::createBackground()
 
 	m_pBackgroundPixmap->fill( backgroundColor );
 
-	QString family = pPref->getApplicationFontFamily();
-	int size = pPref->getApplicationFontPointSize();
-	QFont font( family, size );
+	QFont font( m_sLastUsedFontFamily, m_nLastUsedFontPointSize );
 
 	QPainter p( m_pBackgroundPixmap );
 	p.setFont( font );
@@ -2439,3 +2441,16 @@ void SongEditorPositionRuler::deleteTagAction( QString text, int position )
 	
 	createBackground();
 }
+
+
+void SongEditorPositionRuler::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		 m_nLastUsedFontPointSize != pPref->getApplicationFontPointSize() ) {
+		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
+		m_nLastUsedFontPointSize = pPref->getApplicationFontPointSize();
+		createBackground();
+	}
+}
+

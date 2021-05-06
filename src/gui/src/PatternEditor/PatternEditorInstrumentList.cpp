@@ -545,6 +545,15 @@ void InstrumentLine::functionDeleteInstrument()
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
+void InstrumentLine::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+
+	if ( m_pNameLbl->font().family() != pPref->getApplicationFontFamily() ||
+		 m_pNameLbl->font().pointSize() != pPref->getApplicationFontPointSize() ) {
+		m_pNameLbl->setFont( QFont( pPref->getApplicationFontFamily(),
+									pPref->getApplicationFontPointSize() ) );
+	}
+}
 
 
 //////
@@ -602,6 +611,7 @@ PatternEditorInstrumentList::~PatternEditorInstrumentList()
 InstrumentLine* PatternEditorInstrumentList::createInstrumentLine()
 {
 	InstrumentLine *pLine = new InstrumentLine(this);
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, pLine, &InstrumentLine::onPreferencesChanged );
 	return pLine;
 }
 

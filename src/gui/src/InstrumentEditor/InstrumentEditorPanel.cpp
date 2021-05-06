@@ -54,6 +54,8 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent )
 
 	m_pInstance = this;
 	m_pInstrumentEditor = new InstrumentEditor( nullptr );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 m_pInstrumentEditor, &InstrumentEditor::onPreferencesChanged );
 
 	// LAYOUT
 	QGridLayout *vbox = new QGridLayout();

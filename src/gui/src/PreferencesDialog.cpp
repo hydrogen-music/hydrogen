@@ -209,12 +209,12 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	resampleComboBox->setCurrentIndex( (int) Hydrogen::get_instance()->getAudioEngine()->getSampler()->getInterpolateMode() );
 
 	// Appearance tab
-	QString applicationFamily = pPref->getApplicationFontFamily();
-	int applicationPointSize = pPref->getApplicationFontPointSize();
+	m_sPreviousApplicationFontFamily = pPref->getApplicationFontFamily();
+	m_nPreviousApplicationFontPointSize = pPref->getApplicationFontPointSize();
 
-	QFont applicationFont( applicationFamily, applicationPointSize );
+	QFont applicationFont( m_sPreviousApplicationFontFamily, m_nPreviousApplicationFontPointSize );
 	applicationFontLbl->setFont( applicationFont );
-	applicationFontLbl->setText( applicationFamily + QString("  %1").arg( applicationPointSize ) );
+	applicationFontLbl->setText( m_sPreviousApplicationFontFamily + QString("  %1").arg( m_nPreviousApplicationFontPointSize ) );
 
 	QString mixerFamily = pPref->getMixerFontFamily();
 	int mixerPointSize = pPref->getMixerFontPointSize();
@@ -896,32 +896,59 @@ void PreferencesDialog::updateDriverInfo()
 	driverInfoLbl->setText(info);
 }
 
+void PreferencesDialog::onCurrentApplicationFontChanged( const QFont& font ) {
 
+	DEBUGLOG("");
+	
+	auto pPref = Preferences::get_instance();
+	
+	pPref->setApplicationFontFamily( font.family() );
+	pPref->setApplicationFontPointSize( font.pointSize() );
+
+	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onApplicationFontSelected( const QFont& font ) {
+
+	DEBUGLOG("");
+	
+	onCurrentApplicationFontChanged( font );
+
+	applicationFontLbl->setFont( font );
+	applicationFontLbl->setText( font.family() + QString("  %1").arg( font.pointSize() ) );
+}
+
+void PreferencesDialog::onApplicationFontRejected() {
+
+	DEBUGLOG("");
+
+	auto pPref = Preferences::get_instance();
+	
+	pPref->setApplicationFontFamily( m_sPreviousApplicationFontFamily );
+	pPref->setApplicationFontPointSize( m_nPreviousApplicationFontPointSize );
+
+	HydrogenApp::get_instance()->changePreferences( true );
+}
 
 void PreferencesDialog::on_selectApplicationFontBtn_clicked()
 {
-	Preferences *preferencesMng = Preferences::get_instance();
+	auto pPref = Preferences::get_instance();
 
-	QString family = preferencesMng->getApplicationFontFamily();
-	int pointSize = preferencesMng->getApplicationFontPointSize();
+	m_sPreviousApplicationFontFamily = pPref->getApplicationFontFamily();
+	m_nPreviousApplicationFontPointSize = pPref->getApplicationFontPointSize();
 
-	bool ok;
-	QFont font = QFontDialog::getFont( &ok, QFont( family, pointSize ), this );
-	if ( ok ) {
-		// font is set to the font the user selected
-		family = font.family();
-		pointSize = font.pointSize();
-		QString familyStr = family;
-		preferencesMng->setApplicationFontFamily(familyStr);
-		preferencesMng->setApplicationFontPointSize(pointSize);
-	} else {
-		// the user cancelled the dialog; font is set to the initial
-		// value, in this case Times, 12.
-	}
+	QFontDialog* pFontDialog = new QFontDialog( QFont( m_sPreviousApplicationFontFamily,
+													   m_nPreviousApplicationFontPointSize ) );
 
-	QFont newFont(family, pointSize);
-	applicationFontLbl->setFont(newFont);
-	applicationFontLbl->setText(family + QString("  %1").arg(pointSize));
+	connect( pFontDialog, &QFontDialog::currentFontChanged,
+			 this, &PreferencesDialog::onCurrentApplicationFontChanged );
+	connect( pFontDialog, &QFontDialog::fontSelected,
+			 this, &PreferencesDialog::onApplicationFontSelected );
+	connect( pFontDialog, &QFontDialog::rejected,
+			 this, &PreferencesDialog::onApplicationFontRejected );
+
+	pFontDialog->setModal( true );
+	pFontDialog->open();
 }
 
 

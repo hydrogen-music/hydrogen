@@ -1428,6 +1428,16 @@ void MainForm::closeAll(){
 }
 
 
+void MainForm::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+
+	if ( m_pQApp->font().family() != pPref->getApplicationFontFamily() ||
+		 m_pQApp->font().pointSize() != pPref->getApplicationFontPointSize() ) {
+		m_pQApp->setFont( QFont( pPref->getApplicationFontFamily(),
+								 pPref->getApplicationFontPointSize() ) );
+	}
+}
+
 
 // keybindings..
 

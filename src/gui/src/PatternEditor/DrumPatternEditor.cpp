@@ -62,6 +62,8 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
 	resize( m_nEditorWidth, m_nEditorHeight );
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( 0 );
+
+	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
 }
 
 
@@ -1109,8 +1111,8 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 					int x = m_nMargin + (nPosition * m_nGridWidth);
 					int y = ( nInstrument * m_nGridHeight);
 					const int boxWidth = 128;
-					QFont font;
-					font.setPointSize( 9 );
+
+					QFont font( m_sLastUsedFontFamily, 9 );
 					painter.setFont( font );
 					painter.setPen( QColor( 0, 0, 0 ) );
 
@@ -1341,6 +1343,15 @@ void DrumPatternEditor::undoRedoAction( int column,
 		}
 
 		m_pPatternEditorPanel->updateEditors();
+	}
+}
+
+void DrumPatternEditor::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ) {
+		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		update( 0, 0, width(), height() );
 	}
 }
 

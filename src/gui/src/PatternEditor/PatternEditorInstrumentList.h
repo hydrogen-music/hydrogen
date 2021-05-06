@@ -58,6 +58,9 @@ class InstrumentLine : public PixmapWidget
 		void setSoloed( bool soloed );
 		void setSamplesMissing( bool bSamplesMissing );
 
+public slots:
+		void onPreferencesChanged( bool bAppearanceOnly );
+
 	private slots:
 		void functionClearNotes();
 

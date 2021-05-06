@@ -60,13 +60,30 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void coloringMethodCombo_currentIndexChanged (int index);
 
 
-	private:
-		bool m_bNeedDriverRestart;
-		QString m_sInitialLanguage;
+private:
 
-		void updateDriverInfo();
+	void updateDriverInfo();
+	void updateDriverPreferences();
 
-		void updateDriverPreferences();
+	/** Triggered every time a different option for the application
+		font was chosen in the corresponding QFontDialog*/
+	void onCurrentApplicationFontChanged(const QFont& font);
+	/** Triggered only after the final choice of the application
+		font in the corresponding QFontDialog*/
+	void onApplicationFontSelected(const QFont& font);
+	/** Triggered when the corresponding QFontDialog is cancelled.*/
+	void onApplicationFontRejected();
+
+	bool m_bNeedDriverRestart;
+	QString m_sInitialLanguage;
+
+	/** Caching the corresponding variable in Preferences in case the
+		QFontDialog will be cancelled.*/
+	QString m_sPreviousApplicationFontFamily;
+	/** Caching the corresponding variable in Preferences in case the
+		QFontDialog will be cancelled.*/
+	int m_nPreviousApplicationFontPointSize;
+
 };
 
 #endif

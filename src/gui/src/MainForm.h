@@ -218,6 +218,8 @@ public slots:
 		void setMainWindowSize( int w, int h ) {
 			setFixedSize( w, h );
 		}
+	void onPreferencesChanged( bool bAppearanceOnly );
+
 
 	private slots:
 		void onAutoSaveTimer();

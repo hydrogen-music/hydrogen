@@ -65,7 +65,6 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		virtual void rubberbandbpmchangeEvent() override;
 		//~ implements EventListener interface
 		void update();
-
 		static int findFreeDrumkitComponentId( int startingPoint = 0 );
 
 
@@ -73,6 +72,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void showLayers();
 		void showInstrument();
 		void showSampleEditor();
+	void onPreferencesChanged( bool bAppearanceOnly );
 
 	private slots:
 		void rotaryChanged(Rotary *ref);

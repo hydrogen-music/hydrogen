@@ -69,6 +69,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 
 	m_bNeedsUpdate = true;
 	m_bSelectNewNotes = false;
+	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
 }
 
 
@@ -237,8 +238,7 @@ void PianoRollEditor::createBackground()
 	}
 
 	//draw text
-	QFont font;
-	font.setPointSize ( 9 );
+	QFont font( m_sLastUsedFontFamily, 9 );
 	//	font.setWeight( 63 );
 	p.setFont( font );
 	p.setPen( QColor(10, 10, 10 ) );
@@ -1337,4 +1337,13 @@ QRect PianoRollEditor::getKeyboardCursorRect() {
 	QPoint pos = cursorPosition();
 	return QRect( pos.x() - m_nGridWidth*3, pos.y()-2,
 				  m_nGridWidth*6, m_nGridHeight+3 );
+}
+
+void PianoRollEditor::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ) {
+		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		createBackground();
+	}
 }
