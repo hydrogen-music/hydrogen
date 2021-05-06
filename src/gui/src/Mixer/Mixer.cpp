@@ -118,7 +118,7 @@ Mixer::Mixer( QWidget* pParent )
 	);
 	m_pOpenMixerSettingsBtn->move( 96, 6 );
 	m_pOpenMixerSettingsBtn->setToolTip( tr( "Mixer Settings" ) );
-	connect( m_pOpenMixerSettingsBtn, SIGNAL( clicked( Button* ) ), this, SLOT( openMixerSettingsDialog( Button* ) ) );
+	connect( m_pOpenMixerSettingsBtn, SIGNAL( clicked( Button* ) ), this, SLOT( openMixerSettingsDialog() ) );
 
 
 	m_pShowFXPanelBtn = new ToggleButton(
@@ -431,8 +431,6 @@ void Mixer::updateMixer()
 			float fNewPeak_R = pInstr->get_peak_r();
 			pInstr->set_peak_r( 0.0f );	// reset instrument peak
 
-			float fNewVolume = pInstr->get_volume();
-
 			QString sName = pInstr->get_name();
 			float fPan_L = pInstr->get_pan_l();
 			float fPan_R = pInstr->get_pan_r();
@@ -461,7 +459,11 @@ void Mixer::updateMixer()
 			}
 
 			// fader position
-			pLine->setVolume( fNewVolume );
+			float fNewVolume = pInstr->get_volume();
+			float fOldVolume = pLine->getVolume();
+			if ( fOldVolume != fNewVolume ) {
+				pLine->setVolume( fNewVolume );
+			}
 
 			// mute / solo
 			pLine->setMuteClicked( pInstr->is_muted() );
@@ -471,15 +473,17 @@ void Mixer::updateMixer()
 			pLine->setName( sName );
 
 			// pan
-			float fPanValue = 0.0;
+			float fPanValue;
+			//calculate the "pan" parameter with the inverse pan law
 			if (fPan_R == 1.0) {
 				fPanValue = 1.0 - (fPan_L / 2.0);
 			}
 			else {
 				fPanValue = fPan_R / 2.0;
 			}
-
-			pLine->setPan( fPanValue );
+			if ( fPanValue != pLine->getPan() ) {
+				pLine->setPan( fPanValue );
+			}
 
 			// activity
 			if ( pLine->getActivity() > 0 ) {
@@ -521,7 +525,6 @@ void Mixer::updateMixer()
 		float fNewPeak_R = pDrumkitComponent->get_peak_r();
 		pDrumkitComponent->set_peak_r( 0.0f );	// reset instrument peak
 
-		float fNewVolume = pDrumkitComponent->get_volume();
 		bool bMuted = pDrumkitComponent->is_muted();
 
 		QString sName = pDrumkitComponent->get_name();
@@ -548,7 +551,11 @@ void Mixer::updateMixer()
 		}
 
 		// fader position
-		pLine->setVolume( fNewVolume );
+		float fNewVolume = pDrumkitComponent->get_volume();
+		float fOldVolume = pLine->getVolume();
+		if (fOldVolume != fNewVolume) {
+			pLine->setVolume(fNewVolume);
+		}
 
 		// mute
 		pLine->setMuteClicked( bMuted );
@@ -838,7 +845,7 @@ void Mixer::getPeaksInMixerLine( uint nMixerLine, float& fPeak_L, float& fPeak_R
 	}
 }
 
-void Mixer::openMixerSettingsDialog( Button* ref ) {
+void Mixer::openMixerSettingsDialog() {
 	MixerSettingsDialog mixerSettingsDialog( this ); // use this as *parent because button makes smaller fonts
 	mixerSettingsDialog.exec();
 }

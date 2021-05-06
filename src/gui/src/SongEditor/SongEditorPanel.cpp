@@ -68,6 +68,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// background
 	PixmapWidget *pBackPanel = new PixmapWidget( nullptr );
+	pBackPanel->setObjectName( "SongEditorBackPanel" );
 	pBackPanel->setFixedSize( 196, 49 );
 	pBackPanel->setPixmap( "/songEditor/bg_topPanel.png" );
 
@@ -82,6 +83,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	);
 	m_pTimeLineToggleBtn->move( 133, 6 );
 	m_pTimeLineToggleBtn->setToolTip( m_sTimelineToolTip );
+	m_pTimeLineToggleBtn->setObjectName( "TimeLineToggleBtn" );
 	connect( m_pTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( timeLineBtnPressed(Button* ) ) );
 	
 	if ( pPref->getUseTimelineBpm() &&
@@ -224,6 +226,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			QSize( 19, 13 )
 	);
 	m_pViewPlaybackToggleBtn->setToolTip( tr( "View playback track") );
+	m_pViewPlaybackToggleBtn->setObjectName( "ViewPlaybackToggleBtn" );
 	connect( m_pViewPlaybackToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( viewPlaybackTrackBtnPressed(Button* ) ) );
 	m_pViewPlaybackToggleBtn->setPressed( false );
 	

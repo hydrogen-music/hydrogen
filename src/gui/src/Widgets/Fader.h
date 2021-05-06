@@ -160,46 +160,4 @@ class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable
 
 
 };
-
-
-
-class Knob : public QWidget, public H2Core::Object, public MidiLearnable
-{
-    H2_OBJECT
-	Q_OBJECT
-	public:
-		explicit Knob( QWidget* parent );
-		~Knob();
-
-		void setValue( float fValue );
-		float getValue() {	return m_fValue;	}
-
-		void setDefaultValue( float fDefaultValue );
-		float getDefaultValue() { return m_fDefaultValue; }
-		void resetValueToDefault();
-
-
-	signals:
-		void valueChanged( Knob *ref );
-
-	private:
-		static QPixmap *m_background;
-		bool m_bIgnoreMouseMove;
-
-		int m_nWidgetWidth;
-		int m_nWidgetHeight;
-
-		float m_fValue;
-		float m_fDefaultValue;
-		float m_fMousePressValue;
-		float m_fMousePressY;
-
-		virtual void paintEvent( QPaintEvent *ev );
-		virtual void mousePressEvent( QMouseEvent *ev );
-		virtual void mouseReleaseEvent( QMouseEvent *ev );
-		virtual void mouseMoveEvent( QMouseEvent *ev );
-		virtual void wheelEvent( QWheelEvent *ev );
-};
-
-
 #endif

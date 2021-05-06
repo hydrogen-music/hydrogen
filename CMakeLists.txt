@@ -83,6 +83,7 @@ OPTION(WANT_CPPUNIT         "Include CppUnit test suite" ON)
 OPTION(FIXME_DISABLE_OPTIMIZATIONS "Fix broken builds by turning off optimizations" OFF)
 
 include(Sanitizers)
+INCLUDE(StatusSupportOptions)
 
 IF(WANT_DEBUG)
     SET(CMAKE_BUILD_TYPE Debug)
@@ -92,15 +93,22 @@ ELSE()
     SET(H2CORE_HAVE_DEBUG FALSE)
 ENDIF()
 
-OPTION(WANT_CLANG_TIDY "Use clang-tidy to check the sourcecode" OFF)
-IF(WANT_CLANG_TIDY)
-	find_program(CLANG_TIDY_CMD NAMES clang-tidy)
-	IF(CLANG_TIDY_CMD)
-		#use config from .clang-tidy
-		SET(CMAKE_CXX_CLANG_TIDY clang-tidy)
-	ENDIF()
-ENDIF()
 
+OPTION(WANT_CLANG_TIDY "Use clang-tidy to check the sourcecode" OFF)
+find_program(CLANG_TIDY_CMD NAMES clang-tidy)
+IF(CLANG_TIDY_CMD)
+  #use config from .clang-tidy
+  SET(CMAKE_CXX_CLANG_TIDY clang-tidy)
+  SET(CLANG_TIDY_LIBRARIES ${CLANG_TIDY_CMD}) # Required for summary
+  SET(CLANG_TIDY_FOUND TRUE) # Required for summary
+ELSE()
+  SET(CLANG_TIDY_FOUND FALSE) # Required for summary
+ENDIF()
+IF(CLANG_TIDY_CMD AND WANT_CLANG_TIDY)
+  #use config from .clang-tidy
+  SET(CMAKE_CXX_CLANG_TIDY clang-tidy)
+ENDIF()
+COMPUTE_PKGS_FLAGS(CLANG_TIDY) # Required for summary
 
 IF(WANT_BUNDLE)
     SET(H2CORE_HAVE_BUNDLE TRUE)
@@ -138,7 +146,6 @@ ENDIF()
 #
 # MANDATORY PKGS AND DEFAULT OPTIONS
 #
-INCLUDE(StatusSupportOptions)
 MANDATORY_PKG(Threads)
 MANDATORY_PKG(LIBSNDFILE)
 
@@ -344,7 +351,8 @@ IF(WANT_DEBUG)
 -----------------------------------------
 * realtime clock               : ${HAVE_RTCLOCK}
 * working sscanf               : ${HAVE_SSCANF}
-* unit tests                   : ${CPPUNIT_STATUS}\n"
+* unit tests                   : ${CPPUNIT_STATUS}
+* clang tidy                   : ${CLANG_TIDY_STATUS}\n"
     )
 ENDIF()
 
