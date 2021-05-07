@@ -937,8 +937,7 @@ void PreferencesDialog::on_selectApplicationFontBtn_clicked()
 	m_sPreviousApplicationFontFamily = pPref->getApplicationFontFamily();
 	m_nPreviousApplicationFontPointSize = pPref->getApplicationFontPointSize();
 
-	QFontDialog* pFontDialog = new QFontDialog( QFont( m_sPreviousApplicationFontFamily,
-													   m_nPreviousApplicationFontPointSize ) );
+	QFontDialog* pFontDialog = new QFontDialog( this );
 
 	connect( pFontDialog, &QFontDialog::currentFontChanged,
 			 this, &PreferencesDialog::onCurrentApplicationFontChanged );
@@ -947,6 +946,8 @@ void PreferencesDialog::on_selectApplicationFontBtn_clicked()
 	connect( pFontDialog, &QFontDialog::rejected,
 			 this, &PreferencesDialog::onApplicationFontRejected );
 
+	pFontDialog->setCurrentFont( QFont( m_sPreviousApplicationFontFamily,
+										m_nPreviousApplicationFontPointSize ) );
 	pFontDialog->setModal( true );
 	pFontDialog->open();
 }

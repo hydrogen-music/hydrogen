@@ -71,6 +71,7 @@ private slots:
 	void on_songLoadAction();
 	void on_patternLoadAction();
 	void on_patternDeleteAction();
+	void onPreferencesChanged( bool bAppearanceOnly );
 
 signals:
 	void item_changed(bool bDrumkitSelected);

@@ -20,11 +20,14 @@
  *
  */
 
+#include <core/Preferences.h>
+
 #include "InstrumentRack.h"
 #include "Skin.h"
 #include "Widgets/Button.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
+#include "HydrogenApp.h"
 
 #include <QGridLayout>
 
@@ -97,7 +100,9 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	pGrid->addWidget( m_pSoundLibraryPanel, 2, 1 );
 
 	this->setLayout( pGrid );
-
+	
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &InstrumentRack::onPreferencesChanged );
+	
 	on_showInstrumentEditorBtnClicked();	// show the instrument editor as default
 }
 
@@ -130,3 +135,14 @@ void InstrumentRack::on_showInstrumentEditorBtnClicked()
 	m_pSoundLibraryPanel->hide();
 }
 
+
+void InstrumentRack::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_pShowInstrumentEditorBtn->font().family() != pPref->getApplicationFontFamily() ) {
+		
+		QFont fontButtons( pPref->getApplicationFontFamily(), 6 );
+		m_pShowInstrumentEditorBtn->setFont( fontButtons );
+		m_pShowSoundLibraryBtn->setFont( fontButtons );
+	}
+}

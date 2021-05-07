@@ -24,10 +24,12 @@
 #include <core/Basics/Song.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Preferences.h>
 using namespace H2Core;
 
 #include "WaveDisplay.h"
 #include "../Skin.h"
+#include "../HydrogenApp.h"
 
 const char* WaveDisplay::__class_name = "WaveDisplay";
 
@@ -50,6 +52,9 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
 
 	m_pPeakData = new int[ width() ];
 	memset( m_pPeakData, 0, width() * sizeof( m_pPeakData[0] ) );
+
+	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &WaveDisplay::onPreferencesChanged );
 }
 
 
@@ -84,7 +89,7 @@ void WaveDisplay::paintEvent( QPaintEvent *ev )
 		
 	}
 	
-	QFont font;
+	QFont font( m_sLastUsedFontFamily, 10 );
 	font.setWeight( 63 );
 	painter.setFont( font );
 	painter.setPen( QColor( 255 , 255, 255, 200 ) );
@@ -172,4 +177,13 @@ void WaveDisplay::mouseDoubleClickEvent(QMouseEvent *ev)
 	if (ev->button() == Qt::LeftButton) {
 	    emit doubleClicked(this);
 	}	
+}
+
+void WaveDisplay::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ) {
+		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		update();
+	}
 }

@@ -57,8 +57,8 @@ void PatternEditorPanel::updateSLnameLabel( )
 {
 	QFont font;
 	font.setBold( true );
-	pSLlabel->setFont( font );
-	pSLlabel->setText( Hydrogen::get_instance()->getCurrentDrumkitName() );
+	m_pSLlabel->setFont( font );
+	m_pSLlabel->setText( Hydrogen::get_instance()->getCurrentDrumkitName() );
 }
 
 const char* PatternEditorPanel::__class_name = "PatternEditorPanel";
@@ -72,6 +72,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	setAcceptDrops(true);
 
 	Preferences *pPref = Preferences::get_instance();
+
+	QFont boldFont;
+	boldFont.setBold( true );
 
 	m_nCursorPosition = 0;
 	m_nCursorIncrement = 0;
@@ -97,12 +100,13 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 	//soundlibrary name
-	pSLlabel = new QLabel( nullptr );
-	pSLlabel->setText( Hydrogen::get_instance()->getCurrentDrumkitName() );
-	pSLlabel->setFixedSize( 170, 20 );
-	pSLlabel->move( 10, 3 );
-	pSLlabel->setToolTip( tr( "Loaded Soundlibrary" ) );
-	editor_top_hbox->addWidget( pSLlabel );
+	m_pSLlabel = new QLabel( nullptr );
+	m_pSLlabel->setFont( boldFont );
+	m_pSLlabel->setText( Hydrogen::get_instance()->getCurrentDrumkitName() );
+	m_pSLlabel->setFixedSize( 170, 20 );
+	m_pSLlabel->move( 10, 3 );
+	m_pSLlabel->setToolTip( tr( "Loaded Soundlibrary" ) );
+	editor_top_hbox->addWidget( m_pSLlabel );
 
 //wolke some background images back_size_res
 	PixmapWidget *pSizeResol = new PixmapWidget( nullptr );
@@ -458,8 +462,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	QPalette label_palette;
 	label_palette.setColor( QPalette::WindowText, QColor( 230, 230, 230 ) );
 
-	QFont boldFont;
-	boldFont.setBold( true );
 	m_pPatternNameLbl = new QLabel( nullptr );
 	m_pPatternNameLbl->setFont( boldFont );
 	m_pPatternNameLbl->setText( "pattern name label" );
@@ -568,6 +570,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pVBox->addWidget( pMainPanel );
 
 	HydrogenApp::get_instance()->addEventListener( this );
+
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &PatternEditorPanel::onPreferencesChanged );
 
 	// update
 	__pPropertiesCombo->select( 0 );
@@ -1205,4 +1209,19 @@ int PatternEditorPanel::moveCursorRight( int n )
 	ensureCursorVisible();
 
 	return m_nCursorPosition;
+}
+
+
+void PatternEditorPanel::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+
+	if ( m_pSLlabel->font().family() != pPref->getApplicationFontFamily() ||
+		 m_pSLlabel->font().pointSize() != pPref->getApplicationFontPointSize() ) {
+		// It's sufficient to check the properties of just one label
+		// because they will always carry the same.
+		QFont boldFont( pPref->getApplicationFontFamily(), pPref->getApplicationFontPointSize() );
+		boldFont.setBold( true );
+		m_pSLlabel->setFont( boldFont );
+		m_pPatternNameLbl->setFont( boldFont );
+	}
 }

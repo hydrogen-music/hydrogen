@@ -55,6 +55,9 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 
 		void set_selected_component( int SelectedComponent );
 
+public slots:
+		void onPreferencesChanged( bool bAppearanceOnly );
+	
 	private:
 		static const int		m_nLayerHeight = 10;
 		QPixmap					m_speakerPixmap;
@@ -90,6 +93,8 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 		void showLayerEndVelocity( const InstrumentLayer* pLayer, const QMouseEvent* pEvent );
 
 		virtual void selectedInstrumentChangedEvent() override;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
 };
 
 

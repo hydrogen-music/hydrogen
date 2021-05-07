@@ -50,6 +50,9 @@ class WaveDisplay : public QWidget, public H2Core::Object
 		
 		void			setSampleNameAlignment(Qt::AlignmentFlag flag);
 
+public slots:
+		void onPreferencesChanged( bool bAppearanceOnly );
+	
 	signals:
 		void doubleClicked(QWidget *pWidget);
 
@@ -66,6 +69,8 @@ class WaveDisplay : public QWidget, public H2Core::Object
 		int							m_nCurrentWidth;
 		
 		H2Core::InstrumentLayer *	m_pLayer;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
 };
 
 inline void WaveDisplay::setSampleNameAlignment(Qt::AlignmentFlag flag)

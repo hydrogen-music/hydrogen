@@ -93,6 +93,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 	public slots:
 		void showDrumEditor();
 		void showPianoRollEditor();
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private slots:
 		void gridResolutionChanged( int nSelected );
@@ -123,7 +124,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 	private:
 		H2Core::Pattern *	m_pPattern;
 		QPixmap				m_backgroundPixmap;
-		QLabel *			pSLlabel;
+		QLabel *			m_pSLlabel;
 
 		// Editor top
 		LCDDisplay *			__pattern_size_LCD;

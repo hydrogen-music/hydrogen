@@ -1211,6 +1211,8 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	QScrollArea *pScrollArea = dynamic_cast< QScrollArea * >( parentWidget()->parentWidget() );
 	assert( pScrollArea );
 	m_pDragScroller = new DragScroller( pScrollArea );
+	
+	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
 
 	createBackground();
 	update();
@@ -2099,6 +2101,7 @@ void SongEditorPatternList::onPreferencesChanged( bool bAppearanceOnly ) {
 	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ) {
 		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
 		createBackground();
+		update();
 	}
 }
 
@@ -2143,6 +2146,8 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	m_pTimer = new QTimer(this);
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updatePosition()));
 	m_pTimer->start(200);
+	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+	m_nLastUsedFontPointSize = pPref->getApplicationFontPointSize();
 }
 
 

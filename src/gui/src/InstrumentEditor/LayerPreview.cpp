@@ -66,6 +66,9 @@ LayerPreview::LayerPreview( QWidget* pParent )
 	m_speakerPixmap.load( Skin::getImagePath() + "/instrumentEditor/speaker.png" );
 
 	HydrogenApp::get_instance()->addEventListener( this );
+	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &LayerPreview::onPreferencesChanged );
 
 	/**
 	 * We get a style similar to the one used for the 2 buttons on top of the instrument editor panel
@@ -86,6 +89,10 @@ void LayerPreview::set_selected_component( int SelectedComponent )
 void LayerPreview::paintEvent(QPaintEvent *ev)
 {
 	QPainter p( this );
+
+	QFont font( m_sLastUsedFontFamily, 7 );
+	p.setFont( font );
+	
 	p.fillRect( ev->rect(), QColor( 58, 62, 72 ) );
 
 	int nLayers = 0;
@@ -437,4 +444,13 @@ void LayerPreview::showLayerEndVelocity( const InstrumentLayer* pLayer, const QM
 				.arg( QString::number( fVelo, 'f', 2) )
 				.arg( getMidiVelocityFromRaw( fVelo ) +1 ),
 			this);
+}
+
+void LayerPreview::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ) {
+		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		update();
+	}
 }

@@ -45,7 +45,7 @@ class InstrumentRack : public QWidget, private H2Core::Object
 	public slots:
 		void on_showSoundLibraryBtnClicked();
 		void on_showInstrumentEditorBtnClicked();
-
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
 		/// button for showing the Sound Library

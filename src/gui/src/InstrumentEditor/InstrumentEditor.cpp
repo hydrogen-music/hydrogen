@@ -1296,11 +1296,15 @@ void InstrumentEditor::onPreferencesChanged( bool bAppearanceOnly ) {
 	if ( m_pNameLbl->font().family() != pPref->getApplicationFontFamily() ||
 		 m_pNameLbl->font().pointSize() != pPref->getApplicationFontPointSize() ) {
 		
-		QFont boldFont( QFont( pPref->getApplicationFontFamily(),
-							   pPref->getApplicationFontPointSize() ) );
+		QFont boldFont( pPref->getApplicationFontFamily(),
+						pPref->getApplicationFontPointSize() );
 		boldFont.setBold(true);
 		m_pNameLbl->setFont( boldFont );
 		m_pCompoNameLbl->setFont( boldFont );
+
+		QFont fontButtons( pPref->getApplicationFontFamily(), 6 );
+		m_pShowInstrumentBtn->setFont( fontButtons );
+		m_pShowLayersBtn->setFont( fontButtons );
 	}
 }
 
