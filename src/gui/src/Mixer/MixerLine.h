@@ -56,6 +56,9 @@ class InstrumentNameWidget : public PixmapWidget
 		void	mousePressEvent( QMouseEvent * e ) override;
 		void	mouseDoubleClickEvent( QMouseEvent * e ) override;
 
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
+	
 	signals:
 		void	clicked();
 		void	doubleClicked();
@@ -67,7 +70,8 @@ class InstrumentNameWidget : public PixmapWidget
 		int			m_nWidgetWidth;
 		int			m_nWidgetHeight;
 		QString		m_sInstrName;
-		QFont		m_mixerFont;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
 };
 
 

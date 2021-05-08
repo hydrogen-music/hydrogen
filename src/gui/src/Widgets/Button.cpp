@@ -24,11 +24,13 @@
 
 #include "PixmapWidget.h"
 #include "../Skin.h"
+#include "../HydrogenApp.h"
 #include "MidiSenseWidget.h"
 
 #include <qglobal.h>	// for QT_VERSION
 
 #include <core/Globals.h>
+#include <core/Preferences.h>
 
 const char* Button::__class_name = "Button";
 
@@ -62,11 +64,13 @@ Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffI
 		m_overPixmap.fill( QColor( 0, 180, 0 ) );
 	}
 
-	this->setStyleSheet("font-size: 9px; font-weight: bold;");
-
 	m_timerTimeout = 0;
 	m_timer = new QTimer(this);
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(buttonPressed_timer_timeout()));
+	
+	m_sLastUsedFontFamily = H2Core::Preferences::get_instance()->getApplicationFontFamily();
+
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Button::onPreferencesChanged );
 }
 
 
@@ -165,12 +169,6 @@ void Button::buttonPressed_timer_timeout()
 	m_timer->start(m_timerTimeout);
 }
 
-
-void Button::setFontSize(int size)
-{
-	m_textFont.setPointSize(size);
-}
-
 void Button::setPressed(bool pressed)
 {
 	if (pressed != m_bPressed) {
@@ -200,6 +198,10 @@ void Button::leaveEvent(QEvent *ev)
 void Button::paintEvent( QPaintEvent* ev)
 {
 	QPainter painter(this);
+
+	QFont boldFont( m_sLastUsedFontFamily, 8 );
+	boldFont.setBold( true );
+	painter.setFont( boldFont );
 
 	// background
 	if (m_bPressed) {
@@ -261,7 +263,6 @@ void Button::paintEvent( QPaintEvent* ev)
 
 
 	if ( !m_sText.isEmpty() ) {
-		painter.setFont( m_textFont );
 
 		QColor shadow(150, 150, 150, 100);
 		QColor text(10, 10, 10);
@@ -290,6 +291,14 @@ void Button::setText( const QString& sText )
 	update();
 }
 
+void Button::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ) {
+		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
+		update();
+	}
+}
 
 
 // :::::::::::::::::::::::::

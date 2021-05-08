@@ -167,6 +167,9 @@ Mixer::Mixer( QWidget* pParent )
 	connect( m_pUpdateTimer, SIGNAL( timeout() ), this, SLOT( updateMixer() ) );
 	m_pUpdateTimer->start(50);
 
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Mixer::onPreferencesChanged );
+
+
 	HydrogenApp::get_instance()->addEventListener( this );
 }
 
@@ -848,4 +851,13 @@ void Mixer::getPeaksInMixerLine( uint nMixerLine, float& fPeak_L, float& fPeak_R
 void Mixer::openMixerSettingsDialog() {
 	MixerSettingsDialog mixerSettingsDialog( this ); // use this as *parent because button makes smaller fonts
 	mixerSettingsDialog.exec();
+}
+
+
+void Mixer::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+
+	if ( font() != pPref->getApplicationFontFamily() ) {
+		setFont( QFont( Preferences::get_instance()->getApplicationFontFamily(), 10 ) );
+	}
 }

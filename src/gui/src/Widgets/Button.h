@@ -63,8 +63,10 @@ class Button : public QWidget, public H2Core::Object, public MidiLearnable
 		void setPressed(bool pressed);
 
 		void setText( const QString& sText );
-		void setFontSize( int size );
 
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
+	
 	signals:
 		void clicked(Button *pBtn);
 		void rightClicked(Button *pBtn);
@@ -76,7 +78,6 @@ class Button : public QWidget, public H2Core::Object, public MidiLearnable
 	protected:
 		bool m_bPressed;
 
-		QFont m_textFont;
 		QString m_sText;
 
 		QPixmap m_onPixmap;
@@ -96,6 +97,8 @@ class Button : public QWidget, public H2Core::Object, public MidiLearnable
 
 		QTimer *m_timer;
 		int m_timerTimeout;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
 
 		bool loadImage( const QString& sFilename, QPixmap& pixmap );
 };

@@ -200,7 +200,6 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 			QSize(18, 13)
 	);
 
-	pUpBtn->setFontSize(7);
 	pUpBtn->setToolTip( tr( "sort" ) );
 	connect(pUpBtn, SIGNAL(clicked(Button*)), this, SLOT(o_upBClicked()) );
 	pSideBarLayout->addWidget(pUpBtn);
@@ -214,7 +213,6 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 			QSize(18, 13)
 	);
 
-	pDownBtn->setFontSize(7);
 	pDownBtn->setToolTip( tr( "sort" ) );
 	connect(pDownBtn, SIGNAL(clicked(Button*)), this, SLOT(o_downBClicked()));
 	pSideBarLayout->addWidget(pDownBtn);
