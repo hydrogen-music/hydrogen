@@ -27,7 +27,6 @@
 #include <core/Globals.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
-#include <core/Preferences.h>
 #include <core/EventQueue.h>
 #include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Instrument.h>
@@ -64,6 +63,7 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( 0 );
 
 	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();	
 }
 
 
@@ -1112,7 +1112,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 					int y = ( nInstrument * m_nGridHeight);
 					const int boxWidth = 128;
 
-					QFont font( m_sLastUsedFontFamily, 9 );
+					QFont font( m_sLastUsedFontFamily, getPointSize() );
 					painter.setFont( font );
 					painter.setPen( QColor( 0, 0, 0 ) );
 
@@ -1346,10 +1346,31 @@ void DrumPatternEditor::undoRedoAction( int column,
 	}
 }
 
+
+int DrumPatternEditor::getPointSize() const {
+	int nPointSize;
+	
+	switch( m_lastUsedFontSize ) {
+	case H2Core::Preferences::FontSize::Small:
+		nPointSize = 7;
+		break;
+	case H2Core::Preferences::FontSize::Normal:
+		nPointSize = 9;
+		break;
+	case H2Core::Preferences::FontSize::Large:
+		nPointSize = 11;
+		break;
+	}
+
+	return nPointSize;
+}
+
 void DrumPatternEditor::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ) {
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
 		update( 0, 0, width(), height() );
 	}

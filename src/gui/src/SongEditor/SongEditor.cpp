@@ -26,7 +26,6 @@
 
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
-#include <core/Preferences.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/AudioEngine.h>
@@ -1172,6 +1171,9 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
 
+	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+	
 	m_nWidth = 200;
 	m_nGridHeight = Preferences::get_instance()->getSongEditorGridHeight();
 	setAttribute(Qt::WA_OpaquePaintEvent);
@@ -1211,8 +1213,6 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	QScrollArea *pScrollArea = dynamic_cast< QScrollArea * >( parentWidget()->parentWidget() );
 	assert( pScrollArea );
 	m_pDragScroller = new DragScroller( pScrollArea );
-	
-	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
 
 	createBackground();
 	update();
@@ -1385,7 +1385,7 @@ void SongEditorPatternList::createBackground()
 	UIStyle *pStyle = pref->getDefaultUIStyle();
 	QColor textColor( pStyle->m_songEditor_textColor.getRed(), pStyle->m_songEditor_textColor.getGreen(), pStyle->m_songEditor_textColor.getBlue() );
 
-	QFont boldTextFont( m_sLastUsedFontFamily, 10 );
+	QFont boldTextFont( m_sLastUsedFontFamily, getPointSize() );
 	boldTextFont.setBold( true );
 
 	//Do not redraw anything if Export is active.
@@ -2095,11 +2095,32 @@ void SongEditorPatternList::timelineUpdateEvent( int nEvent ){
 	Hydrogen::get_instance()->getSong()->setIsModified( true );
 }
 
+
+int SongEditorPatternList::getPointSize() const {
+	int nPointSize;
+	
+	switch( m_lastUsedFontSize ) {
+	case H2Core::Preferences::FontSize::Small:
+		nPointSize = 8;
+		break;
+	case H2Core::Preferences::FontSize::Normal:
+		nPointSize = 10;
+		break;
+	case H2Core::Preferences::FontSize::Large:
+		nPointSize = 12;
+		break;
+	}
+
+	return nPointSize;
+}
+
 void SongEditorPatternList::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ) {
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
 		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 		createBackground();
 		update();
 	}
@@ -2120,6 +2141,8 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	Preferences *pPref = Preferences::get_instance();
+	m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
+	m_lastUsedFontSize = pPref->getFontSize();
 
 	m_nGridWidth = pPref->getSongEditorGridWidth();
 	m_nMaxPatternSequence = pPref->getMaxBars();
@@ -2146,7 +2169,6 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	m_pTimer = new QTimer(this);
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updatePosition()));
 	m_pTimer->start(200);
-	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
 }
 
 
@@ -2186,7 +2208,7 @@ void SongEditorPositionRuler::createBackground()
 
 	m_pBackgroundPixmap->fill( backgroundColor );
 
-	QFont font( m_sLastUsedFontFamily, 10 );
+	QFont font( m_sLastUsedFontFamily, getPointSize() );
 
 	QPainter p( m_pBackgroundPixmap );
 	p.setFont( font );
@@ -2446,11 +2468,30 @@ void SongEditorPositionRuler::deleteTagAction( QString text, int position )
 	createBackground();
 }
 
+int SongEditorPositionRuler::getPointSize() const {
+	int nPointSize;
+	
+	switch( m_lastUsedFontSize ) {
+	case H2Core::Preferences::FontSize::Small:
+		nPointSize = 8;
+		break;
+	case H2Core::Preferences::FontSize::Normal:
+		nPointSize = 10;
+		break;
+	case H2Core::Preferences::FontSize::Large:
+		nPointSize = 12;
+		break;
+	}
+
+	return nPointSize;
+}
 
 void SongEditorPositionRuler::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ) {
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
 		createBackground();
 	}

@@ -20,7 +20,6 @@
  *
  */
 
-#include <core/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
@@ -55,7 +54,7 @@ using namespace H2Core;
 
 void PatternEditorPanel::updateSLnameLabel( )
 {
-	QFont font( Preferences::get_instance()->getApplicationFontFamily(), 10 );
+	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize() );
 	font.setBold( true );
 	m_pSLlabel->setFont( font );
 	m_pSLlabel->setText( Hydrogen::get_instance()->getCurrentDrumkitName() );
@@ -72,8 +71,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	setAcceptDrops(true);
 
 	Preferences *pPref = Preferences::get_instance();
-
-	QFont boldFont( pPref->getApplicationFontFamily(), 10 );
+	m_lastUsedFontSize = pPref->getFontSize();	
+	QFont boldFont( pPref->getApplicationFontFamily(), getPointSize() );
 	boldFont.setBold( true );
 
 	m_nCursorPosition = 0;
@@ -1211,14 +1210,33 @@ int PatternEditorPanel::moveCursorRight( int n )
 	return m_nCursorPosition;
 }
 
+int PatternEditorPanel::getPointSize() const {
+	int nPointSize;
+	
+	switch( m_lastUsedFontSize ) {
+	case H2Core::Preferences::FontSize::Small:
+		nPointSize = 8;
+		break;
+	case H2Core::Preferences::FontSize::Normal:
+		nPointSize = 10;
+		break;
+	case H2Core::Preferences::FontSize::Large:
+		nPointSize = 12;
+		break;
+	}
+
+	return nPointSize;
+}
 
 void PatternEditorPanel::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( m_pSLlabel->font().family() != pPref->getApplicationFontFamily() ) {
+	if ( m_pSLlabel->font().family() != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 		// It's sufficient to check the properties of just one label
 		// because they will always carry the same.
-		QFont boldFont( pPref->getApplicationFontFamily(), 10 );
+		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize() );
 		boldFont.setBold( true );
 		m_pSLlabel->setFont( boldFont );
 		m_pPatternNameLbl->setFont( boldFont );

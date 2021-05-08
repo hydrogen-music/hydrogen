@@ -26,6 +26,7 @@
 #include <QtWidgets>
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include <core/Basics/Instrument.h>
 #include "../EventListener.h"
 
@@ -95,6 +96,14 @@ public slots:
 		virtual void selectedInstrumentChangedEvent() override;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSizeText() const;
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSizeButton() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

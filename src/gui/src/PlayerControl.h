@@ -28,6 +28,7 @@
 
 #include "EventListener.h"
 #include <core/Object.h>
+#include <core/Preferences.h>
 
 namespace H2Core
 {
@@ -214,6 +215,11 @@ public slots:
 		QTimer *m_pStatusTimer;
 		QTimer *m_pScrollTimer;
 		QString m_pScrollMessage;
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSize() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

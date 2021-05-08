@@ -24,7 +24,6 @@
 #include <core/Basics/Song.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentLayer.h>
-#include <core/Preferences.h>
 using namespace H2Core;
 
 #include "WaveDisplay.h"
@@ -43,6 +42,9 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
+	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+
 	//INFOLOG( "INIT" );
 
 	bool ok = m_Background.load( Skin::getImagePath() + "/waveDisplay/bgsamplewavedisplay.png" );
@@ -52,8 +54,7 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
 
 	m_pPeakData = new int[ width() ];
 	memset( m_pPeakData, 0, width() * sizeof( m_pPeakData[0] ) );
-
-	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &WaveDisplay::onPreferencesChanged );
 }
 
@@ -89,7 +90,7 @@ void WaveDisplay::paintEvent( QPaintEvent *ev )
 		
 	}
 	
-	QFont font( m_sLastUsedFontFamily, 10 );
+	QFont font( m_sLastUsedFontFamily, getPointSize() );
 	font.setWeight( 63 );
 	painter.setFont( font );
 	painter.setPen( QColor( 255 , 255, 255, 200 ) );
@@ -179,10 +180,31 @@ void WaveDisplay::mouseDoubleClickEvent(QMouseEvent *ev)
 	}	
 }
 
+
+int WaveDisplay::getPointSize() const {
+	int nPointSize;
+	
+	switch( m_lastUsedFontSize ) {
+	case H2Core::Preferences::FontSize::Small:
+		nPointSize = 8;
+		break;
+	case H2Core::Preferences::FontSize::Normal:
+		nPointSize = 10;
+		break;
+	case H2Core::Preferences::FontSize::Large:
+		nPointSize = 12;
+		break;
+	}
+
+	return nPointSize;
+}
+
 void WaveDisplay::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ) {
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
 		update();
 	}

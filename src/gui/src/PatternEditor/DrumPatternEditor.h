@@ -29,6 +29,7 @@
 #include "PatternEditor.h"
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include <core/Helpers/Filesystem.h>
 
 #include <QtGui>
@@ -154,6 +155,11 @@ class DrumPatternEditor : public PatternEditor
 		int __oldLength;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSize() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

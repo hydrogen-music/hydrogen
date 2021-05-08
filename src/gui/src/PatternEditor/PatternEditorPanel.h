@@ -25,6 +25,7 @@
 #define PATTERN_EDITOR_PANEL_H
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 
 #include "PianoRollEditor.h"
 #include "../EventListener.h"
@@ -196,6 +197,11 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 
 		virtual void resizeEvent(QResizeEvent *ev) override;
 		virtual void showEvent(QShowEvent *ev) override;
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSize() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

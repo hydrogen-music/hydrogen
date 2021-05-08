@@ -28,6 +28,7 @@
 
 #include <core/Basics/Instrument.h>
 #include <core/Object.h>
+#include <core/Preferences.h>
 
 #include "../EventListener.h"
 #include "../Widgets/PixmapWidget.h"
@@ -203,6 +204,14 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		void loadLayer();
 		void setAutoVelocity();
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSize() const;
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSizeButton() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

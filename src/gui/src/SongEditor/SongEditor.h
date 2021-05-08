@@ -32,6 +32,7 @@
 #include <QList>
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include "../EventListener.h"
 #include "PatternFillDialog.h"
 #include "../Selection.h"
@@ -306,6 +307,11 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		QPoint __drag_start_position;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSize() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 };
 
@@ -359,6 +365,11 @@ class SongEditorPositionRuler : public QWidget, public H2Core::Object
 		virtual void mousePressEvent( QMouseEvent *ev );
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		virtual void paintEvent( QPaintEvent *ev );
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSize() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 };
 

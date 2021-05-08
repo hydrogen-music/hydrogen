@@ -31,6 +31,7 @@
 #include <QtWidgets>
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include "../Widgets/PixmapWidget.h"
 #include "../Selection.h"
 
@@ -101,6 +102,11 @@ public slots:
 
 		virtual void mousePressEvent(QMouseEvent *ev);
 		H2Core::Pattern* getCurrentPattern();
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSize() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

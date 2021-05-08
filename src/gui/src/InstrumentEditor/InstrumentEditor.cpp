@@ -64,7 +64,10 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	, m_nSelectedLayer( 0 )
 {
 	setFixedWidth( 290 );
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 
+	QFont fontButtons( Preferences::get_instance()->getApplicationFontFamily(), getPointSizeButton() );
+	
 	// Instrument properties top
 	m_pInstrumentPropTop = new PixmapWidget( this );
 	m_pInstrumentPropTop->setPixmap( "/instrumentEditor/instrumentTab_top.png" );
@@ -79,6 +82,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 							   );
 	m_pShowInstrumentBtn->setText(tr("General"));
 	m_pShowInstrumentBtn->setToolTip( tr( "Show instrument properties" ) );
+	m_pShowInstrumentBtn->setFont( fontButtons );
 	connect( m_pShowInstrumentBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
 	m_pShowInstrumentBtn->move( 40, 7 );
 	m_pShowInstrumentBtn->setPressed( true );
@@ -94,6 +98,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 						   );
 	m_pShowLayersBtn->setText( tr("Layers") );
 	m_pShowLayersBtn->setToolTip( tr( "Show layers properties" ) );
+	m_pShowLayersBtn->setFont( fontButtons );
 	connect( m_pShowLayersBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
 	m_pShowLayersBtn->move( 144, 7 );
 
@@ -171,7 +176,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	/////////////
 
-	QFont boldFont;
+	QFont boldFont( Preferences::get_instance()->getApplicationFontFamily(), getPointSize() );
 	boldFont.setBold(true);
 	m_pNameLbl->setFont( boldFont );
 	connect( m_pNameLbl, SIGNAL( labelClicked(ClickableLabel*) ), this, SLOT( labelClicked(ClickableLabel*) ) );
@@ -1290,17 +1295,56 @@ void InstrumentEditor::update()
 	}
 }
 
+int InstrumentEditor::getPointSize() const {
+	int nPointSize;
+	
+	switch( m_lastUsedFontSize ) {
+	case H2Core::Preferences::FontSize::Small:
+		nPointSize = 10;
+		break;
+	case H2Core::Preferences::FontSize::Normal:
+		nPointSize = 12;
+		break;
+	case H2Core::Preferences::FontSize::Large:
+		nPointSize = 14;
+		break;
+	}
+
+	return nPointSize;
+}
+
+
+int InstrumentEditor::getPointSizeButton() const {
+	int nPointSize;
+	
+	switch( m_lastUsedFontSize ) {
+	case H2Core::Preferences::FontSize::Small:
+		nPointSize = 5;
+		break;
+	case H2Core::Preferences::FontSize::Normal:
+		nPointSize = 6;
+		break;
+	case H2Core::Preferences::FontSize::Large:
+		nPointSize = 7;
+		break;
+	}
+
+	return nPointSize;
+}
+
 void InstrumentEditor::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_pNameLbl->font().family() != pPref->getApplicationFontFamily() ) {
+	if ( m_pNameLbl->font().family() != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 		
-		QFont boldFont( pPref->getApplicationFontFamily(), 10 );
+		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize() );
 		boldFont.setBold(true);
 		m_pNameLbl->setFont( boldFont );
 		m_pCompoNameLbl->setFont( boldFont );
 
-		QFont fontButtons( pPref->getApplicationFontFamily(), 6 );
+		QFont fontButtons( pPref->getApplicationFontFamily(), getPointSizeButton() );
 		m_pShowInstrumentBtn->setFont( fontButtons );
 		m_pShowLayersBtn->setFont( fontButtons );
 	}

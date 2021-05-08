@@ -30,7 +30,6 @@
 #include <qglobal.h>	// for QT_VERSION
 
 #include <core/Globals.h>
-#include <core/Preferences.h>
 
 const char* Button::__class_name = "Button";
 
@@ -47,6 +46,9 @@ Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffI
 {
 	// draw the background: slower but useful with transparent images!
 	//setAttribute(Qt::WA_OpaquePaintEvent);
+
+	m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
+	m_sLastUsedFontFamily = H2Core::Preferences::get_instance()->getApplicationFontFamily();
 
 	setMinimumSize( size );
 	setMaximumSize( size );
@@ -67,9 +69,6 @@ Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffI
 	m_timerTimeout = 0;
 	m_timer = new QTimer(this);
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(buttonPressed_timer_timeout()));
-	
-	m_sLastUsedFontFamily = H2Core::Preferences::get_instance()->getApplicationFontFamily();
-
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Button::onPreferencesChanged );
 }
 
@@ -199,7 +198,7 @@ void Button::paintEvent( QPaintEvent* ev)
 {
 	QPainter painter(this);
 
-	QFont boldFont( m_sLastUsedFontFamily, 8 );
+	QFont boldFont( m_sLastUsedFontFamily, getPointSize() );
 	boldFont.setBold( true );
 	painter.setFont( boldFont );
 
@@ -291,10 +290,31 @@ void Button::setText( const QString& sText )
 	update();
 }
 
+
+int Button::getPointSize() const {
+	int nPointSize;
+	
+	switch( m_lastUsedFontSize ) {
+	case H2Core::Preferences::FontSize::Small:
+		nPointSize = 6;
+		break;
+	case H2Core::Preferences::FontSize::Normal:
+		nPointSize = 8;
+		break;
+	case H2Core::Preferences::FontSize::Large:
+		nPointSize = 10;
+		break;
+	}
+
+	return nPointSize;
+}
+
 void Button::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ) {
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = pPref->getFontSize();
 		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
 		update();
 	}

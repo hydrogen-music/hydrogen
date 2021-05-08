@@ -30,6 +30,7 @@
 #include <vector>
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 
 namespace H2Core
 {
@@ -106,6 +107,11 @@ private:
 	bool m_bInItsOwnDialog;
 
 	QString m_sMessageFailedPreDrumkitLoad;
+	/** Converts #m_lastUsedFontSize into a point size used for
+		the widget's font.*/
+	int getPointSize() const;
+	/** Used to detect changed in the font*/
+	H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 inline const QString& SoundLibraryPanel::getMessageFailedPreDrumkitLoad() const {

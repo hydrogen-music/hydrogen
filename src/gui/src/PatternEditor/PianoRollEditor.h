@@ -24,6 +24,7 @@
 #define PIANO_ROLL_EDITOR_H
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include <core/Basics/Note.h>
 #include "../EventListener.h"
 #include "../Selection.h"
@@ -173,6 +174,11 @@ class PianoRollEditor: public PatternEditor
 		float __oldLeadLag;		
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSize() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 #endif

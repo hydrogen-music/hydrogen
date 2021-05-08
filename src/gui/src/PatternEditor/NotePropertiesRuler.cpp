@@ -20,7 +20,6 @@
  *
  */
 
-#include <core/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
@@ -47,6 +46,10 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	//infoLog("INIT");
 	//setAttribute(Qt::WA_OpaquePaintEvent);
 
+
+	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+	
 	m_Mode = mode;
 
 	m_nGridWidth = (Preferences::get_instance())->getPatternEditorGridWidth();
@@ -92,8 +95,6 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, &PatternEditor::selectNone );
 
 	setMouseTracking( true );
-
-	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
 }
 
 
@@ -1136,7 +1137,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	static QString noteNames[] = { tr( "B" ), tr( "A#" ), tr( "A" ), tr( "G#" ), tr( "G" ), tr( "F#" ),
 								   tr( "F" ), tr( "E" ), tr( "D#" ), tr( "D" ), tr( "C#" ), tr( "C" ) };
 	
-	QFont font( m_sLastUsedFontFamily, 9 );
+	QFont font( m_sLastUsedFontFamily, getPointSize() );
 	
 	p.setFont( font );
 	p.setPen( QColor( 0, 0, 0 ) );
@@ -1353,11 +1354,32 @@ void NotePropertiesRuler::selectAll() {
 	selectInstrumentNotes( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 }
 
+
+int NotePropertiesRuler::getPointSize() const {
+	int nPointSize;
+	
+	switch( m_lastUsedFontSize ) {
+	case H2Core::Preferences::FontSize::Small:
+		nPointSize = 7;
+		break;
+	case H2Core::Preferences::FontSize::Normal:
+		nPointSize = 9;
+		break;
+	case H2Core::Preferences::FontSize::Large:
+		nPointSize = 11;
+		break;
+	}
+
+	return nPointSize;
+}
+
 void NotePropertiesRuler::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ) {
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
 		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 		createNoteKeyBackground( m_pBackground );
 	}
 }

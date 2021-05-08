@@ -26,6 +26,7 @@
 
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include <core/MidiAction.h>
 
 #include "MidiLearnable.h"
@@ -99,6 +100,11 @@ public slots:
 		int m_timerTimeout;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSize() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 		bool loadImage( const QString& sFilename, QPixmap& pixmap );
 };

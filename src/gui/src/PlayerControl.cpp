@@ -40,7 +40,6 @@
 #include <core/Hydrogen.h>
 #include <core/AudioEngine.h>
 #include <core/IO/JackAudioDriver.h>
-#include <core/Preferences.h>
 #include <core/EventQueue.h>
 using namespace H2Core;
 
@@ -57,8 +56,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 {
 	setObjectName( "PlayerControl" );
 	HydrogenApp::get_instance()->addEventListener( this );
-	
 	auto pPreferences = Preferences::get_instance();
+	m_lastUsedFontSize = pPreferences->getFontSize();	
 	
 	// Background image
 	setPixmap( QPixmap( Skin::getImagePath() + "/playerControlPanel/background.png" ) );
@@ -69,7 +68,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	hbox->setMargin( 0 );
 	setLayout( hbox );
 
-	QFont fontButtons( pPreferences->getApplicationFontFamily(), 6 );
+	QFont fontButtons( pPreferences->getApplicationFontFamily(), getPointSize() );
 
 // CONTROLS
 	PixmapWidget *pControlsPanel = new PixmapWidget( nullptr );
@@ -1136,12 +1135,33 @@ void PlayerControl::jackTimebaseActivationEvent( int nValue ) {
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateTimelineUsage();
 }
 
+
+int PlayerControl::getPointSize() const {
+	int nPointSize;
+	
+	switch( m_lastUsedFontSize ) {
+	case H2Core::Preferences::FontSize::Small:
+		nPointSize = 5;
+		break;
+	case H2Core::Preferences::FontSize::Normal:
+		nPointSize = 6;
+		break;
+	case H2Core::Preferences::FontSize::Large:
+		nPointSize = 7;
+		break;
+	}
+
+	return nPointSize;
+}
+
 void PlayerControl::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_pShowMixerBtn->font().family() != pPref->getApplicationFontFamily() ) {
-		
-		QFont fontButtons( pPref->getApplicationFontFamily(), 6 );
+	if ( m_pShowMixerBtn->font().family() != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		QFont fontButtons( pPref->getApplicationFontFamily(), getPointSize() );
 		m_pShowMixerBtn->setFont( fontButtons );
 		m_pShowInstrumentRackBtn->setFont( fontButtons );
 	}

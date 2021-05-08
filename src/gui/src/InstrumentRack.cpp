@@ -20,8 +20,6 @@
  *
  */
 
-#include <core/Preferences.h>
-
 #include "InstrumentRack.h"
 #include "Skin.h"
 #include "Widgets/Button.h"
@@ -42,8 +40,9 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	resize( 290, 405 );
 	setMinimumSize( width(), height() );
 	setFixedWidth( width() );
-	
-	QFont fontButtons( H2Core::Preferences::get_instance()->getApplicationFontFamily(), 6 );
+
+	m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
+	QFont fontButtons( H2Core::Preferences::get_instance()->getApplicationFontFamily(), getPointSize() );
 
 // TAB buttons
 	QWidget *pTabButtonsPanel = new QWidget( nullptr );
@@ -139,12 +138,33 @@ void InstrumentRack::on_showInstrumentEditorBtnClicked()
 }
 
 
+
+int InstrumentRack::getPointSize() const {
+	int nPointSize;
+	
+	switch( m_lastUsedFontSize ) {
+	case H2Core::Preferences::FontSize::Small:
+		nPointSize = 5;
+		break;
+	case H2Core::Preferences::FontSize::Normal:
+		nPointSize = 6;
+		break;
+	case H2Core::Preferences::FontSize::Large:
+		nPointSize = 7;
+		break;
+	}
+
+	return nPointSize;
+}
+
 void InstrumentRack::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_pShowInstrumentEditorBtn->font().family() != pPref->getApplicationFontFamily() ) {
+	if ( m_pShowInstrumentEditorBtn->font().family() != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
 		
-		QFont fontButtons( pPref->getApplicationFontFamily(), 6 );
+		QFont fontButtons( pPref->getApplicationFontFamily(), getPointSize() );
 		m_pShowInstrumentEditorBtn->setFont( fontButtons );
 		m_pShowSoundLibraryBtn->setFont( fontButtons );
 	}

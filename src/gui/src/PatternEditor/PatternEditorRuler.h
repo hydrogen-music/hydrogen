@@ -28,6 +28,7 @@
 #include <QtWidgets>
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 
 class PatternEditorPanel;
 
@@ -78,8 +79,11 @@ class PatternEditorRuler : public QWidget, public H2Core::Object, public EventLi
 		H2Core::Pattern *m_pPattern;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSize() const;
 		/** Used to detect changed in the font*/
-		int m_nLastUsedFontPointSize;
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;

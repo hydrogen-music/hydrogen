@@ -30,7 +30,6 @@
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
-#include <core/Preferences.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/AudioEngine.h>
@@ -49,6 +48,9 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 {
 	INFOLOG( "INIT" );
 
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		
 	m_nGridHeight = 10;
 	m_nOctaves = 7;
 
@@ -69,7 +71,6 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 
 	m_bNeedsUpdate = true;
 	m_bSelectNewNotes = false;
-	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
 }
 
 
@@ -238,7 +239,7 @@ void PianoRollEditor::createBackground()
 	}
 
 	//draw text
-	QFont font( m_sLastUsedFontFamily, 9 );
+	QFont font( m_sLastUsedFontFamily, getPointSize() );
 	//	font.setWeight( 63 );
 	p.setFont( font );
 	p.setPen( QColor(10, 10, 10 ) );
@@ -1339,11 +1340,32 @@ QRect PianoRollEditor::getKeyboardCursorRect() {
 				  m_nGridWidth*6, m_nGridHeight+3 );
 }
 
+
+int PianoRollEditor::getPointSize() const {
+	int nPointSize;
+	
+	switch( m_lastUsedFontSize ) {
+	case H2Core::Preferences::FontSize::Small:
+		nPointSize = 7;
+		break;
+	case H2Core::Preferences::FontSize::Normal:
+		nPointSize = 9;
+		break;
+	case H2Core::Preferences::FontSize::Large:
+		nPointSize = 11;
+		break;
+	}
+
+	return nPointSize;
+}
+
 void PianoRollEditor::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ) {
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
 		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 		createBackground();
 	}
 }

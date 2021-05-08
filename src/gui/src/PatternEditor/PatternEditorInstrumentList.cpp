@@ -30,7 +30,6 @@
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/Preferences.h>
 #include <core/Basics/Song.h>
 #include <core/LocalFileMng.h>
 using namespace H2Core;
@@ -59,11 +58,13 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	int h = Preferences::get_instance()->getPatternEditorGridHeight();
 	setFixedSize(181, h);
 
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();	
+	QFont nameFont( Preferences::get_instance()->getApplicationFontFamily(), getPointSize() );
+	nameFont.setBold( true );
+
 	m_pNameLbl = new QLabel(this);
 	m_pNameLbl->resize( 145, h );
 	m_pNameLbl->move( 10, 1 );
-	QFont nameFont( Preferences::get_instance()->getApplicationFontFamily(), 10 );
-	nameFont.setBold( true );
 	m_pNameLbl->setFont(nameFont);
 
 	m_pMuteBtn = new ToggleButton(
@@ -544,11 +545,32 @@ void InstrumentLine::functionDeleteInstrument()
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
+
+int InstrumentLine::getPointSize() const {
+	int nPointSize;
+	
+	switch( m_lastUsedFontSize ) {
+	case H2Core::Preferences::FontSize::Small:
+		nPointSize = 8;
+		break;
+	case H2Core::Preferences::FontSize::Normal:
+		nPointSize = 10;
+		break;
+	case H2Core::Preferences::FontSize::Large:
+		nPointSize = 12;
+		break;
+	}
+
+	return nPointSize;
+}
+
 void InstrumentLine::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( m_pNameLbl->font().family() != pPref->getApplicationFontFamily() ) {
-		m_pNameLbl->setFont( QFont( pPref->getApplicationFontFamily() ) );
+	if ( m_pNameLbl->font().family() != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		m_pNameLbl->setFont( QFont( pPref->getApplicationFontFamily(), getPointSize() ) );
 	}
 }
 

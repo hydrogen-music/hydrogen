@@ -25,6 +25,7 @@
 #define INSTRUMENT_RACK_H
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 
 #include <QtGui>
 #include <QtWidgets>
@@ -55,6 +56,11 @@ class InstrumentRack : public QWidget, private H2Core::Object
 		ToggleButton *m_pShowInstrumentEditorBtn;
 
 		SoundLibraryPanel* m_pSoundLibraryPanel;
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSize() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 };
 

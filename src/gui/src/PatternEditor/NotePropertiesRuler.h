@@ -29,6 +29,7 @@
 #include <QtWidgets>
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include <map>
 
 #include "PatternEditor.h"
@@ -140,6 +141,11 @@ class NotePropertiesRuler : public PatternEditor
 		int m_nDragPreviousColumn;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSize() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 
