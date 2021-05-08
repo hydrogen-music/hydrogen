@@ -104,7 +104,9 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		 * Song mode will be activated instead.
 		 */
 		void songModeActivationEvent( int nValue ) override;
-													
+
+public slots:
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private slots:
 		void recBtnClicked(Button* ref);

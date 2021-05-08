@@ -42,7 +42,8 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	resize( 290, 405 );
 	setMinimumSize( width(), height() );
 	setFixedWidth( width() );
-
+	
+	QFont fontButtons( H2Core::Preferences::get_instance()->getApplicationFontFamily(), 6 );
 
 // TAB buttons
 	QWidget *pTabButtonsPanel = new QWidget( nullptr );
@@ -60,6 +61,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 
 	m_pShowInstrumentEditorBtn->setToolTip( tr( "Show Instrument editor" ) );
 	m_pShowInstrumentEditorBtn->setText( tr( "Instrument" ) );
+	m_pShowInstrumentEditorBtn->setFont( fontButtons );
 	connect( m_pShowInstrumentEditorBtn, SIGNAL( clicked( Button* ) ), this, SLOT( on_showInstrumentEditorBtnClicked() ) );
 
 	// show sound library button
@@ -73,6 +75,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 
 	m_pShowSoundLibraryBtn->setToolTip( tr( "Show sound library" ) );
 	m_pShowSoundLibraryBtn->setText( tr( "Sound library" ) );
+	m_pShowSoundLibraryBtn->setFont( fontButtons );
 	connect( m_pShowSoundLibraryBtn, SIGNAL( clicked( Button* ) ), this, SLOT( on_showSoundLibraryBtnClicked() ) );
 
 	QHBoxLayout *pTabHBox = new QHBoxLayout();
