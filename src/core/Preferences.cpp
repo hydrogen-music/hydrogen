@@ -192,10 +192,8 @@ Preferences::Preferences()
 
 	//___ GUI properties ___
 	m_sQTStyle = "Fusion";
-	applicationFontFamily = "Lucida Grande";
-	applicationFontPointSize = 10;
-	mixerFontFamily = "Lucida Grande";
-	mixerFontPointSize = 11;
+	m_sApplicationFontFamily = "Lucida Grande";
+	m_fontSize = FontSize::Normal;
 	mixerFalloffSpeed = 1.1;
 	m_nPatternEditorGridResolution = 8;
 	m_bPatternEditorUsingTriplets = false;
@@ -541,17 +539,9 @@ void Preferences::loadPreferences( bool bGlobal )
 					m_sQTStyle = "Fusion";
 				}
 
-				// Application font family
-				applicationFontFamily = LocalFileMng::readXmlString( guiNode, "application_font_family", applicationFontFamily );
-
-				// Application font pointSize
-				applicationFontPointSize = LocalFileMng::readXmlInt( guiNode, "application_font_pointsize", applicationFontPointSize );
-
-				// mixer font family
-				mixerFontFamily = LocalFileMng::readXmlString( guiNode, "mixer_font_family", mixerFontFamily );
-
-				// mixer font pointSize
-				mixerFontPointSize = LocalFileMng::readXmlInt( guiNode, "mixer_font_pointsize", mixerFontPointSize );
+				// Font fun
+				m_sApplicationFontFamily = LocalFileMng::readXmlString( guiNode, "application_font_family", m_sApplicationFontFamily );
+				m_fontSize = static_cast<FontSize>( LocalFileMng::readXmlInt( guiNode, "font_size", 0 ) );
 
 				// Mixer falloff speed
 				mixerFalloffSpeed = LocalFileMng::readXmlFloat( guiNode, "mixer_falloff_speed", 1.1f );
@@ -992,10 +982,8 @@ void Preferences::savePreferences()
 	QDomNode guiNode = doc.createElement( "gui" );
 	{
 		LocalFileMng::writeXmlString( guiNode, "QTStyle", m_sQTStyle );
-		LocalFileMng::writeXmlString( guiNode, "application_font_family", applicationFontFamily );
-		LocalFileMng::writeXmlString( guiNode, "application_font_pointsize", QString("%1").arg( applicationFontPointSize ) );
-		LocalFileMng::writeXmlString( guiNode, "mixer_font_family", mixerFontFamily );
-		LocalFileMng::writeXmlString( guiNode, "mixer_font_pointsize", QString("%1").arg( mixerFontPointSize ) );
+		LocalFileMng::writeXmlString( guiNode, "application_font_family", m_sApplicationFontFamily );
+		LocalFileMng::writeXmlString( guiNode, "font_size", QString::number( static_cast<int>(m_fontSize) ) );
 		LocalFileMng::writeXmlString( guiNode, "mixer_falloff_speed", QString("%1").arg( mixerFalloffSpeed ) );
 		LocalFileMng::writeXmlString( guiNode, "patternEditorGridResolution", QString("%1").arg( m_nPatternEditorGridResolution ) );
 		LocalFileMng::writeXmlString( guiNode, "patternEditorGridHeight", QString("%1").arg( m_nPatternEditorGridHeight ) );

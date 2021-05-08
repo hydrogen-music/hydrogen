@@ -62,8 +62,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pNameLbl = new QLabel(this);
 	m_pNameLbl->resize( 145, h );
 	m_pNameLbl->move( 10, 1 );
-	QFont nameFont;
-	nameFont.setPointSize( 10 );
+	QFont nameFont( Preferences::get_instance()->getApplicationFontFamily(), 10 );
 	nameFont.setBold( true );
 	m_pNameLbl->setFont(nameFont);
 
@@ -548,10 +547,8 @@ void InstrumentLine::functionDeleteInstrument()
 void InstrumentLine::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( m_pNameLbl->font().family() != pPref->getApplicationFontFamily() ||
-		 m_pNameLbl->font().pointSize() != pPref->getApplicationFontPointSize() ) {
-		m_pNameLbl->setFont( QFont( pPref->getApplicationFontFamily(),
-									pPref->getApplicationFontPointSize() ) );
+	if ( m_pNameLbl->font().family() != pPref->getApplicationFontFamily() ) {
+		m_pNameLbl->setFont( QFont( pPref->getApplicationFontFamily() ) );
 	}
 }
 

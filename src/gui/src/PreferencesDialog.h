@@ -27,6 +27,7 @@
 #include "ui_PreferencesDialog_UI.h"
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 
 ///
 /// Preferences Dialog
@@ -44,7 +45,6 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void on_okBtn_clicked();
 		void on_cancelBtn_clicked();
 		void on_selectApplicationFontBtn_clicked();
-		void on_selectMixerFontBtn_clicked();
 		void on_restartDriverBtn_clicked();
 		void on_driverComboBox_activated( int index );
 		void on_bufferSizeSpinBox_valueChanged( int i );
@@ -58,12 +58,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void toggleTrackOutsCheckBox(bool toggled);
 		void toggleOscCheckBox(bool toggled);
 		void coloringMethodCombo_currentIndexChanged (int index);
-
-
-private:
-
-	void updateDriverInfo();
-	void updateDriverPreferences();
+	void onRejected();
 
 	/** Triggered every time a different option for the application
 		font was chosen in the corresponding QFontDialog*/
@@ -73,6 +68,13 @@ private:
 	void onApplicationFontSelected(const QFont& font);
 	/** Triggered when the corresponding QFontDialog is cancelled.*/
 	void onApplicationFontRejected();
+	void onFontSizeChanged( int nIndex );
+
+private:
+
+	void updateDriverInfo();
+	void updateDriverPreferences();
+	
 
 	bool m_bNeedDriverRestart;
 	QString m_sInitialLanguage;
@@ -80,9 +82,7 @@ private:
 	/** Caching the corresponding variable in Preferences in case the
 		QFontDialog will be cancelled.*/
 	QString m_sPreviousApplicationFontFamily;
-	/** Caching the corresponding variable in Preferences in case the
-		QFontDialog will be cancelled.*/
-	int m_nPreviousApplicationFontPointSize;
+	H2Core::Preferences::FontSize m_previousFontSize;
 
 };
 

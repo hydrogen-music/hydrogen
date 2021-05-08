@@ -1293,11 +1293,9 @@ void InstrumentEditor::update()
 void InstrumentEditor::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_pNameLbl->font().family() != pPref->getApplicationFontFamily() ||
-		 m_pNameLbl->font().pointSize() != pPref->getApplicationFontPointSize() ) {
+	if ( m_pNameLbl->font().family() != pPref->getApplicationFontFamily() ) {
 		
-		QFont boldFont( pPref->getApplicationFontFamily(),
-						pPref->getApplicationFontPointSize() );
+		QFont boldFont( pPref->getApplicationFontFamily(), 10 );
 		boldFont.setBold(true);
 		m_pNameLbl->setFont( boldFont );
 		m_pCompoNameLbl->setFont( boldFont );

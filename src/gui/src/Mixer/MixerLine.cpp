@@ -33,7 +33,6 @@
 #include "../Widgets/LCD.h"
 
 #include <core/Hydrogen.h>
-#include <core/Preferences.h>
 #include <core/AudioEngine.h>
 #include <core/MidiAction.h>
 using namespace H2Core;
@@ -1016,6 +1015,7 @@ InstrumentNameWidget::InstrumentNameWidget(QWidget* parent)
 	m_nWidgetHeight = 116;
 
 	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &InstrumentNameWidget::onPreferencesChanged );
 
@@ -1037,7 +1037,20 @@ void InstrumentNameWidget::paintEvent( QPaintEvent* ev )
 
 	QPainter p( this );
 
-	QFont font( m_sLastUsedFontFamily, 11 );
+	int nPointSize;
+	switch( m_lastUsedFontSize ) {
+	case H2Core::Preferences::FontSize::Small:
+		nPointSize = 9;
+		break;
+	case H2Core::Preferences::FontSize::Normal:
+		nPointSize = 11;
+		break;
+	case H2Core::Preferences::FontSize::Large:
+		nPointSize = 13;
+		break;
+	}
+	
+	QFont font( m_sLastUsedFontFamily, nPointSize );
 
 	p.setPen( QColor(230, 230, 230) );
 	p.setFont( font );
@@ -1073,8 +1086,10 @@ void InstrumentNameWidget::mouseDoubleClickEvent( QMouseEvent * e )
 void InstrumentNameWidget::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ) {
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
 		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 		update();
 	}
 }

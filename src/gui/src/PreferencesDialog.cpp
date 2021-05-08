@@ -36,7 +36,6 @@
 
 #include <core/MidiMap.h>
 #include <core/Hydrogen.h>
-#include <core/Preferences.h>
 #include <core/IO/MidiInput.h>
 #include <core/Lash/LashClient.h>
 #include <core/AudioEngine.h>
@@ -61,6 +60,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	setWindowTitle( tr( "Preferences" ) );
 
 	setMinimumSize( width(), height() );
+
+	connect( this, &PreferencesDialog::rejected, this, &PreferencesDialog::onRejected );
 
 	Preferences *pPref = Preferences::get_instance();
 	pPref->loadPreferences( false );	// reload user's preferences
@@ -210,18 +211,25 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	// Appearance tab
 	m_sPreviousApplicationFontFamily = pPref->getApplicationFontFamily();
-	m_nPreviousApplicationFontPointSize = pPref->getApplicationFontPointSize();
+	selectApplicationFontBtn->setText( m_sPreviousApplicationFontFamily );
 
-	QFont applicationFont( m_sPreviousApplicationFontFamily, m_nPreviousApplicationFontPointSize );
-	applicationFontLbl->setFont( applicationFont );
-	applicationFontLbl->setText( m_sPreviousApplicationFontFamily + QString("  %1").arg( m_nPreviousApplicationFontPointSize ) );
-
-	QString mixerFamily = pPref->getMixerFontFamily();
-	int mixerPointSize = pPref->getMixerFontPointSize();
-	QFont mixerFont( mixerFamily, mixerPointSize );
-	mixerFontLbl->setFont( mixerFont );
-	mixerFontLbl->setText( mixerFamily + QString("  %1").arg( mixerPointSize ) );
-
+	m_previousFontSize = pPref->getFontSize();
+	switch( m_previousFontSize ) {
+	case Preferences::FontSize::Small:
+		fontSizeComboBox->setCurrentIndex( 0 );
+		break;
+	case Preferences::FontSize::Normal:
+		fontSizeComboBox->setCurrentIndex( 1 );
+		break;
+	case Preferences::FontSize::Large:
+		fontSizeComboBox->setCurrentIndex( 2 );
+		break;
+	default:
+		ERRORLOG( QString( "Unknown font size: %1" )
+				  .arg( static_cast<int>( m_previousFontSize ) ) );
+	}
+	connect( fontSizeComboBox, SIGNAL( currentIndexChanged(int) ),
+			 this, SLOT( onFontSizeChanged(int) ) );
 
 	float falloffSpeed = pPref->getMixerFalloffSpeed();
 	if (falloffSpeed == FALLOFF_SLOW) {
@@ -903,7 +911,6 @@ void PreferencesDialog::onCurrentApplicationFontChanged( const QFont& font ) {
 	auto pPref = Preferences::get_instance();
 	
 	pPref->setApplicationFontFamily( font.family() );
-	pPref->setApplicationFontPointSize( font.pointSize() );
 
 	HydrogenApp::get_instance()->changePreferences( true );
 }
@@ -914,19 +921,43 @@ void PreferencesDialog::onApplicationFontSelected( const QFont& font ) {
 	
 	onCurrentApplicationFontChanged( font );
 
-	applicationFontLbl->setFont( font );
-	applicationFontLbl->setText( font.family() + QString("  %1").arg( font.pointSize() ) );
+	selectApplicationFontBtn->setText( font.family() );
 }
 
 void PreferencesDialog::onApplicationFontRejected() {
-
-	DEBUGLOG("");
-
 	auto pPref = Preferences::get_instance();
 	
 	pPref->setApplicationFontFamily( m_sPreviousApplicationFontFamily );
-	pPref->setApplicationFontPointSize( m_nPreviousApplicationFontPointSize );
 
+	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onRejected() {
+	auto pPref = Preferences::get_instance();
+	
+	pPref->setApplicationFontFamily( m_sPreviousApplicationFontFamily );
+	pPref->setFontSize( m_previousFontSize );
+
+	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onFontSizeChanged( int nIndex ) {
+	auto pPref = Preferences::get_instance();
+
+	switch ( nIndex ) {
+	case 0:
+		pPref->setFontSize( Preferences::FontSize::Small );
+		break;
+	case 1:
+		pPref->setFontSize( Preferences::FontSize::Normal );
+		break;
+	case 2:
+		pPref->setFontSize( Preferences::FontSize::Large );
+		break;
+	default:
+		ERRORLOG( QString( "Unknown font size: %1" ).arg( nIndex ) );
+	}
+	
 	HydrogenApp::get_instance()->changePreferences( true );
 }
 
@@ -935,7 +966,6 @@ void PreferencesDialog::on_selectApplicationFontBtn_clicked()
 	auto pPref = Preferences::get_instance();
 
 	m_sPreviousApplicationFontFamily = pPref->getApplicationFontFamily();
-	m_nPreviousApplicationFontPointSize = pPref->getApplicationFontPointSize();
 
 	QFontDialog* pFontDialog = new QFontDialog( this );
 
@@ -946,8 +976,7 @@ void PreferencesDialog::on_selectApplicationFontBtn_clicked()
 	connect( pFontDialog, &QFontDialog::rejected,
 			 this, &PreferencesDialog::onApplicationFontRejected );
 
-	pFontDialog->setCurrentFont( QFont( m_sPreviousApplicationFontFamily,
-										m_nPreviousApplicationFontPointSize ) );
+	pFontDialog->setCurrentFont( QFont( m_sPreviousApplicationFontFamily, 10 ) );
 	pFontDialog->setModal( true );
 	pFontDialog->open();
 }
@@ -978,30 +1007,6 @@ void PreferencesDialog::on_restartDriverBtn_clicked()
 	pPref->savePreferences();
 	Hydrogen::get_instance()->restartDrivers();
 	m_bNeedDriverRestart = false;
-}
-
-
-
-void PreferencesDialog::on_selectMixerFontBtn_clicked()
-{
-	Preferences *preferencesMng = Preferences::get_instance();
-
-	QString family = preferencesMng->getMixerFontFamily();
-	int pointSize = preferencesMng->getMixerFontPointSize();
-
-	bool ok;
-	QFont font = QFontDialog::getFont( &ok, QFont( family, pointSize ), this );
-	if ( ok ) {
-		// font is set to the font the user selected
-		family = font.family();
-		pointSize = font.pointSize();
-		QString familyStr = family;
-		preferencesMng->setMixerFontFamily(familyStr);
-		preferencesMng->setMixerFontPointSize(pointSize);
-	}
-	QFont newFont(family, pointSize);
-	mixerFontLbl->setFont(newFont);
-	mixerFontLbl->setText(family + QString("  %1").arg(pointSize));
 }
 
 void PreferencesDialog::on_midiPortComboBox_activated( int index )

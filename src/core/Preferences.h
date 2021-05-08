@@ -176,6 +176,13 @@ public:
 	      BC_OFF = 1
 	};
 
+	/** Enables custom scaling of the font size in the GUI.*/
+	enum class FontSize {
+		Normal = 0,
+		Small = 1,
+		Large = 2
+	};
+
 
 	enum UI_LAYOUT_TYPES {
 			UI_LAYOUT_SINGLE_PANE,
@@ -504,16 +511,12 @@ public:
 	const QString&	getQTStyle();
 	void			setQTStyle( const QString& sStyle );
 
-	const QString&	getApplicationFontFamily();
+	const QString&	getApplicationFontFamily() const;
 	void			setApplicationFontFamily( const QString& family );
 
-	int				getApplicationFontPointSize();
-	void			setApplicationFontPointSize( int size );
+	FontSize		getFontSize() const;
+	void			setFontSize( FontSize fontSize );
 
-	QString			getMixerFontFamily();
-	void			setMixerFontFamily( const QString& family );
-	int				getMixerFontPointSize();
-	void			setMixerFontPointSize( int size );
 	float			getMixerFalloffSpeed();
 	void			setMixerFalloffSpeed( float value );
 	bool			showInstrumentPeaks();
@@ -766,10 +769,8 @@ private:
 	int						m_nUIScalingPolicy;
 	bool					m_bShowPlaybackTrack;
 
-	QString					applicationFontFamily;
-	int						applicationFontPointSize;
-	QString					mixerFontFamily;
-	int						mixerFontPointSize;
+	QString					m_sApplicationFontFamily;
+	FontSize				m_fontSize;
 	float					mixerFalloffSpeed;
 	int						m_nPatternEditorGridResolution;
 	bool					m_bPatternEditorUsingTriplets;
@@ -1069,32 +1070,20 @@ inline void Preferences::setQTStyle( const QString& sStyle ) {
 }
 
 
-inline const QString& Preferences::getApplicationFontFamily() {
-	return applicationFontFamily;
+inline const QString& Preferences::getApplicationFontFamily() const {
+	return m_sApplicationFontFamily;
 }
 inline void Preferences::setApplicationFontFamily( const QString& family ) {
-	applicationFontFamily = family;
+	m_sApplicationFontFamily = family;
 }
 
-inline int Preferences::getApplicationFontPointSize() {
-	return applicationFontPointSize;
+inline Preferences::FontSize Preferences::getFontSize() const {
+	return m_fontSize;
 }
-inline void Preferences::setApplicationFontPointSize( int size ) {
-	applicationFontPointSize = size;
+inline void Preferences::setFontSize( FontSize fontSize ) {
+	m_fontSize = fontSize;
 }
 
-inline QString Preferences::getMixerFontFamily() {
-	return mixerFontFamily;
-}
-inline void Preferences::setMixerFontFamily( const QString& family ) {
-	mixerFontFamily = family;
-}
-inline int Preferences::getMixerFontPointSize() {
-	return mixerFontPointSize;
-}
-inline void Preferences::setMixerFontPointSize( int size ) {
-	mixerFontPointSize = size;
-}
 inline float Preferences::getMixerFalloffSpeed() {
 	return mixerFalloffSpeed;
 }

@@ -375,8 +375,7 @@ int main(int argc, char *argv[])
 		// warning dialogs before they are covered by the splash screen.
 		pQApp->processEvents();
 
-		QString family = pPref->getApplicationFontFamily();
-		pQApp->setFont( QFont( family, pPref->getApplicationFontPointSize() ) );
+		pQApp->setFont( QFont( pPref->getApplicationFontFamily(), 10 ) );
 
 		QTranslator qttor( nullptr );
 		QTranslator tor( nullptr );

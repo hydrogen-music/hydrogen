@@ -2147,7 +2147,6 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updatePosition()));
 	m_pTimer->start(200);
 	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
-	m_nLastUsedFontPointSize = pPref->getApplicationFontPointSize();
 }
 
 
@@ -2187,7 +2186,7 @@ void SongEditorPositionRuler::createBackground()
 
 	m_pBackgroundPixmap->fill( backgroundColor );
 
-	QFont font( m_sLastUsedFontFamily, m_nLastUsedFontPointSize );
+	QFont font( m_sLastUsedFontFamily, 10 );
 
 	QPainter p( m_pBackgroundPixmap );
 	p.setFont( font );
@@ -2451,10 +2450,8 @@ void SongEditorPositionRuler::deleteTagAction( QString text, int position )
 void SongEditorPositionRuler::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
-		 m_nLastUsedFontPointSize != pPref->getApplicationFontPointSize() ) {
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ) {
 		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
-		m_nLastUsedFontPointSize = pPref->getApplicationFontPointSize();
 		createBackground();
 	}
 }

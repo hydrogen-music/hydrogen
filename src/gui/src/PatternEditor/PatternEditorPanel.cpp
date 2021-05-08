@@ -55,7 +55,7 @@ using namespace H2Core;
 
 void PatternEditorPanel::updateSLnameLabel( )
 {
-	QFont font;
+	QFont font( Preferences::get_instance()->getApplicationFontFamily(), 10 );
 	font.setBold( true );
 	m_pSLlabel->setFont( font );
 	m_pSLlabel->setText( Hydrogen::get_instance()->getCurrentDrumkitName() );
@@ -73,7 +73,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	Preferences *pPref = Preferences::get_instance();
 
-	QFont boldFont;
+	QFont boldFont( pPref->getApplicationFontFamily(), 10 );
 	boldFont.setBold( true );
 
 	m_nCursorPosition = 0;
@@ -1215,11 +1215,10 @@ int PatternEditorPanel::moveCursorRight( int n )
 void PatternEditorPanel::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( m_pSLlabel->font().family() != pPref->getApplicationFontFamily() ||
-		 m_pSLlabel->font().pointSize() != pPref->getApplicationFontPointSize() ) {
+	if ( m_pSLlabel->font().family() != pPref->getApplicationFontFamily() ) {
 		// It's sufficient to check the properties of just one label
 		// because they will always carry the same.
-		QFont boldFont( pPref->getApplicationFontFamily(), pPref->getApplicationFontPointSize() );
+		QFont boldFont( pPref->getApplicationFontFamily(), 10 );
 		boldFont.setBold( true );
 		m_pSLlabel->setFont( boldFont );
 		m_pPatternNameLbl->setFont( boldFont );

@@ -354,8 +354,6 @@ class SongEditorPositionRuler : public QWidget, public H2Core::Object
 		bool				m_bRightBtnPressed;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
-		/** Used to detect changed in the font*/
-		int m_nLastUsedFontPointSize;
 		
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent( QMouseEvent *ev );

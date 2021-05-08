@@ -27,6 +27,7 @@
 
 #include <core/Object.h>
 #include <core/Globals.h>
+#include <core/Preferences.h>
 
 class Fader;
 class MasterFader;
@@ -72,6 +73,8 @@ public slots:
 		QString		m_sInstrName;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

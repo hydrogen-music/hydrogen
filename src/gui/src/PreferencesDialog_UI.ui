@@ -29,7 +29,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="GeneralTab">
       <attribute name="title">
@@ -984,7 +984,7 @@
       <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
         <layout class="QGridLayout">
-         <item row="0" column="0">
+         <item row="0" column="0" alignment="Qt::AlignLeft">
           <widget class="QLabel" name="applicationFontLbl">
            <property name="minimumSize">
             <size>
@@ -993,7 +993,7 @@
             </size>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Box</enum>
+            <enum>QFrame::NoFrame</enum>
            </property>
            <property name="text">
             <string>Application font</string>
@@ -1030,19 +1030,6 @@
        </item>
        <item>
         <layout class="QGridLayout">
-         <item row="0" column="1">
-          <widget class="QPushButton" name="selectMixerFontBtn">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Select font</string>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="0">
           <widget class="QLabel" name="textLabel1">
            <property name="minimumSize">
@@ -1082,28 +1069,29 @@
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="QLabel" name="mixerFontLbl">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::Box</enum>
-           </property>
-           <property name="midLineWidth">
-            <number>0</number>
-           </property>
+          <widget class="QLabel" name="fontSizeLabel">
            <property name="text">
-            <string>Mixer font</string>
+            <string>Font size</string>
            </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="fontSizeComboBox">
+           <item>
+            <property name="text">
+             <string>Small</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Normal</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Large</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>
