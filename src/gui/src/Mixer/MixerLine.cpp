@@ -1040,13 +1040,13 @@ void InstrumentNameWidget::paintEvent( QPaintEvent* ev )
 	int nPointSize;
 	switch( m_lastUsedFontSize ) {
 	case H2Core::Preferences::FontSize::Small:
-		nPointSize = 9;
+		nPointSize = 8;
 		break;
 	case H2Core::Preferences::FontSize::Normal:
-		nPointSize = 11;
+		nPointSize = 10;
 		break;
 	case H2Core::Preferences::FontSize::Large:
-		nPointSize = 13;
+		nPointSize = 12;
 		break;
 	}
 	

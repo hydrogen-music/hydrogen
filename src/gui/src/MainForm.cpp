@@ -25,7 +25,6 @@
 #include <core/Hydrogen.h>
 #include <core/AudioEngine.h>
 #include <core/Smf/SMF.h>
-#include <core/Preferences.h>
 #include <core/Timeline.h>
 #include <core/Helpers/Files.h>
 #include <core/Basics/Pattern.h>
@@ -102,9 +101,14 @@ MainForm::MainForm( QApplication * pQApplication, const QString& songFilename, c
 	connect(snUsr1, SIGNAL(activated(int)), this, SLOT( handleSigUsr1() ));
 #endif
 
-	m_pQApp =  pQApplication;
+	m_pQApp = pQApplication;
 
 	m_pQApp->processEvents();
+
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();	
+	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize() );
+	setFont( font );
+	m_pQApp->setFont( font );
 
 	Song *pSong = nullptr;
 	
@@ -268,7 +272,7 @@ void MainForm::createMenuBar()
 	setMenuBar( pMenubar );
 
 	// FILE menu
-	QMenu *pFileMenu = pMenubar->addMenu( tr( "Pro&ject" ) );
+	m_pFileMenu = pMenubar->addMenu( tr( "Pro&ject" ) );
 
 	// Then under session management a couple of options will be named
 	// differently and some must be even omitted. 
@@ -288,39 +292,39 @@ void MainForm::createMenuBar()
 		textFileSaveAs = tr( "Save &As..." );
 	}
 	
-	pFileMenu->addAction( textFileNew, this, SLOT( action_file_new() ), QKeySequence( "Ctrl+N" ) );
+	m_pFileMenu->addAction( textFileNew, this, SLOT( action_file_new() ), QKeySequence( "Ctrl+N" ) );
 	
-	pFileMenu->addAction( tr( "Show &Info" ), this, SLOT( action_file_songProperties() ), QKeySequence( "" ) );
+	m_pFileMenu->addAction( tr( "Show &Info" ), this, SLOT( action_file_songProperties() ), QKeySequence( "" ) );
 	
-	pFileMenu->addSeparator();				// -----
+	m_pFileMenu->addSeparator();				// -----
 
-	pFileMenu->addAction( textFileOpen, this, SLOT( action_file_open() ), QKeySequence( "Ctrl+O" ) );
+	m_pFileMenu->addAction( textFileOpen, this, SLOT( action_file_open() ), QKeySequence( "Ctrl+O" ) );
 	if ( ! bUnderSessionManagement ) {
-		pFileMenu->addAction( tr( "Open &Demo" ), this, SLOT( action_file_openDemo() ), QKeySequence( "Ctrl+D" ) );
+		m_pFileMenu->addAction( tr( "Open &Demo" ), this, SLOT( action_file_openDemo() ), QKeySequence( "Ctrl+D" ) );
 	}
-	m_pRecentFilesMenu = pFileMenu->addMenu( textFileOpenRecent );
+	m_pRecentFilesMenu = m_pFileMenu->addMenu( textFileOpenRecent );
 
-	pFileMenu->addSeparator();				// -----
+	m_pFileMenu->addSeparator();				// -----
 
-	pFileMenu->addAction( tr( "&Save" ), this, SLOT( action_file_save() ), QKeySequence( "Ctrl+S" ) );
-	pFileMenu->addAction( textFileSaveAs, this, SLOT( action_file_save_as() ), QKeySequence( "Ctrl+Shift+S" ) );
+	m_pFileMenu->addAction( tr( "&Save" ), this, SLOT( action_file_save() ), QKeySequence( "Ctrl+S" ) );
+	m_pFileMenu->addAction( textFileSaveAs, this, SLOT( action_file_save_as() ), QKeySequence( "Ctrl+Shift+S" ) );
 	
-	pFileMenu->addSeparator();				// -----
+	m_pFileMenu->addSeparator();				// -----
 
-	pFileMenu->addAction ( tr ( "Open &Pattern" ), this, SLOT ( action_file_openPattern() ), QKeySequence ( "" ) );
-	pFileMenu->addAction( tr( "E&xport Pattern As..." ), this, SLOT( action_file_export_pattern_as() ), QKeySequence( "Ctrl+P" ) );
+	m_pFileMenu->addAction ( tr ( "Open &Pattern" ), this, SLOT ( action_file_openPattern() ), QKeySequence ( "" ) );
+	m_pFileMenu->addAction( tr( "E&xport Pattern As..." ), this, SLOT( action_file_export_pattern_as() ), QKeySequence( "Ctrl+P" ) );
 
-	pFileMenu->addSeparator();				// -----
+	m_pFileMenu->addSeparator();				// -----
 
-	pFileMenu->addAction( tr( "Export &MIDI File" ), this, SLOT( action_file_export_midi() ), QKeySequence( "Ctrl+M" ) );
-	pFileMenu->addAction( tr( "&Export Song" ), this, SLOT( action_file_export() ), QKeySequence( "Ctrl+E" ) );
-	pFileMenu->addAction( tr( "Export &LilyPond File" ), this, SLOT( action_file_export_lilypond() ), QKeySequence( "Ctrl+L" ) );
+	m_pFileMenu->addAction( tr( "Export &MIDI File" ), this, SLOT( action_file_export_midi() ), QKeySequence( "Ctrl+M" ) );
+	m_pFileMenu->addAction( tr( "&Export Song" ), this, SLOT( action_file_export() ), QKeySequence( "Ctrl+E" ) );
+	m_pFileMenu->addAction( tr( "Export &LilyPond File" ), this, SLOT( action_file_export_lilypond() ), QKeySequence( "Ctrl+L" ) );
 
 
 #ifndef Q_OS_MACX
-	pFileMenu->addSeparator();				// -----
+	m_pFileMenu->addSeparator();				// -----
 
-	pFileMenu->addAction( tr("&Quit"), this, SLOT( action_file_exit() ), QKeySequence( "Ctrl+Q" ) );
+	m_pFileMenu->addAction( tr("&Quit"), this, SLOT( action_file_exit() ), QKeySequence( "Ctrl+Q" ) );
 #endif
 
 	updateRecentUsedSongList();
@@ -328,64 +332,64 @@ void MainForm::createMenuBar()
 	//~ FILE menu
 
 	// Undo menu
-	QMenu *pUndoMenu = pMenubar->addMenu( tr( "&Undo" ) );
-	pUndoMenu->addAction( tr( "&Undo" ), this, SLOT( action_undo() ), QKeySequence( "Ctrl+Z" ) );
-	pUndoMenu->addAction( tr( "&Redo" ), this, SLOT( action_redo() ), QKeySequence( "Shift+Ctrl+Z" ) );
-	pUndoMenu->addAction( tr( "Undo &History" ), this, SLOT( openUndoStack() ), QKeySequence( "" ) );
+	m_pUndoMenu = pMenubar->addMenu( tr( "&Undo" ) );
+	m_pUndoMenu->addAction( tr( "&Undo" ), this, SLOT( action_undo() ), QKeySequence( "Ctrl+Z" ) );
+	m_pUndoMenu->addAction( tr( "&Redo" ), this, SLOT( action_redo() ), QKeySequence( "Shift+Ctrl+Z" ) );
+	m_pUndoMenu->addAction( tr( "Undo &History" ), this, SLOT( openUndoStack() ), QKeySequence( "" ) );
 
 	// DRUMKITS MENU
-	QMenu *pDrumkitsMenu = pMenubar->addMenu( tr( "Drum&kits" ) );
-	pDrumkitsMenu->addAction( tr( "&New" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
-	pDrumkitsMenu->addAction( tr( "&Open" ), this, SLOT( action_banks_open() ), QKeySequence( "" ) );
-	pDrumkitsMenu->addAction( tr( "&Properties" ), this, SLOT( action_banks_properties() ), QKeySequence( "" ) );
+	m_pDrumkitsMenu = pMenubar->addMenu( tr( "Drum&kits" ) );
+	m_pDrumkitsMenu->addAction( tr( "&New" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
+	m_pDrumkitsMenu->addAction( tr( "&Open" ), this, SLOT( action_banks_open() ), QKeySequence( "" ) );
+	m_pDrumkitsMenu->addAction( tr( "&Properties" ), this, SLOT( action_banks_properties() ), QKeySequence( "" ) );
 
-	pDrumkitsMenu->addSeparator();				// -----
+	m_pDrumkitsMenu->addSeparator();				// -----
 
-	pDrumkitsMenu->addAction( tr( "&Save" ), this, SLOT( action_instruments_saveLibrary() ), QKeySequence( "" ) );
-	pDrumkitsMenu->addAction( tr( "Save &As" ), this, SLOT( action_instruments_saveAsLibrary() ), QKeySequence( "" ) );
+	m_pDrumkitsMenu->addAction( tr( "&Save" ), this, SLOT( action_instruments_saveLibrary() ), QKeySequence( "" ) );
+	m_pDrumkitsMenu->addAction( tr( "Save &As" ), this, SLOT( action_instruments_saveAsLibrary() ), QKeySequence( "" ) );
 
-	pDrumkitsMenu->addSeparator();				// -----
+	m_pDrumkitsMenu->addSeparator();				// -----
 
-	pDrumkitsMenu->addAction( tr( "&Export" ), this, SLOT( action_instruments_exportLibrary() ), QKeySequence( "" ) );
-	pDrumkitsMenu->addAction( tr( "&Import" ), this, SLOT( action_instruments_importLibrary() ), QKeySequence( "" ) );
-	pDrumkitsMenu->addAction( tr( "On&line Import" ), this, SLOT( action_instruments_onlineImportLibrary() ), QKeySequence( "" ) );
+	m_pDrumkitsMenu->addAction( tr( "&Export" ), this, SLOT( action_instruments_exportLibrary() ), QKeySequence( "" ) );
+	m_pDrumkitsMenu->addAction( tr( "&Import" ), this, SLOT( action_instruments_importLibrary() ), QKeySequence( "" ) );
+	m_pDrumkitsMenu->addAction( tr( "On&line Import" ), this, SLOT( action_instruments_onlineImportLibrary() ), QKeySequence( "" ) );
 
 	// INSTRUMENTS MENU
-	QMenu *pInstrumentsMenu = pMenubar->addMenu( tr( "In&struments" ) );
-	pInstrumentsMenu->addAction( tr( "Add &Instrument" ), this, SLOT( action_instruments_addInstrument() ), QKeySequence( "" ) );
-	pInstrumentsMenu->addAction( tr( "Clea&r All" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
+	m_pInstrumentsMenu = pMenubar->addMenu( tr( "In&struments" ) );
+	m_pInstrumentsMenu->addAction( tr( "Add &Instrument" ), this, SLOT( action_instruments_addInstrument() ), QKeySequence( "" ) );
+	m_pInstrumentsMenu->addAction( tr( "Clea&r All" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
 
-	pInstrumentsMenu->addSeparator();				// -----
+	m_pInstrumentsMenu->addSeparator();				// -----
 
-	pInstrumentsMenu->addAction( tr( "Add &Component" ), this, SLOT( action_instruments_addComponent() ), QKeySequence( "" ) );
+	m_pInstrumentsMenu->addAction( tr( "Add &Component" ), this, SLOT( action_instruments_addComponent() ), QKeySequence( "" ) );
 
 	// VIEW MENU
-	QMenu *pViewMenu = pMenubar->addMenu( tr( "&View" ) );
+	m_pViewMenu = pMenubar->addMenu( tr( "&View" ) );
 
-	m_pViewPlaylistEditorAction = pViewMenu->addAction( tr("Play&list Editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
+	m_pViewPlaylistEditorAction = m_pViewMenu->addAction( tr("Play&list Editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
 	m_pViewPlaylistEditorAction->setCheckable( true );
-	m_pViewDirectorAction = pViewMenu->addAction( tr("&Director"), this, SLOT( action_window_show_DirectorWidget() ), QKeySequence( "Alt+D" ) );
+	m_pViewDirectorAction = m_pViewMenu->addAction( tr("&Director"), this, SLOT( action_window_show_DirectorWidget() ), QKeySequence( "Alt+D" ) );
 	m_pViewDirectorAction->setCheckable( true );
 
-	pFileMenu->addSeparator();
-	m_pViewMixerAction = pViewMenu->addAction( tr("&Mixer"), this, SLOT( action_window_showMixer() ), QKeySequence( "Alt+M" ) );
+	m_pFileMenu->addSeparator();
+	m_pViewMixerAction = m_pViewMenu->addAction( tr("&Mixer"), this, SLOT( action_window_showMixer() ), QKeySequence( "Alt+M" ) );
 	m_pViewMixerAction->setCheckable( true );
 	update_mixer_checkbox();						// if checkbox need to be checked.
 
-	m_pViewMixerInstrumentRackAction = pViewMenu->addAction( tr("&Instrument Rack"), this, SLOT( action_window_showInstrumentRack() ), QKeySequence( "Alt+I" ) );
+	m_pViewMixerInstrumentRackAction = m_pViewMenu->addAction( tr("&Instrument Rack"), this, SLOT( action_window_showInstrumentRack() ), QKeySequence( "Alt+I" ) );
 	m_pViewMixerInstrumentRackAction->setCheckable( true );
 	update_instrument_checkbox( Preferences::get_instance()->getInstrumentRackProperties().visible );
 
-	m_pViewAutomationPathAction = pViewMenu->addAction( tr("&Automation Path"), this, SLOT( action_window_showAutomationArea() ), QKeySequence( "Alt+A" ) );
+	m_pViewAutomationPathAction = m_pViewMenu->addAction( tr("&Automation Path"), this, SLOT( action_window_showAutomationArea() ), QKeySequence( "Alt+A" ) );
 	m_pViewAutomationPathAction->setCheckable( true );
 	update_automation_checkbox();
 
-	pViewMenu->addSeparator();				// -----
+	m_pViewMenu->addSeparator();				// -----
 
-	m_pViewTimelineAction = pViewMenu->addAction( tr("&Timeline"), this, SLOT( action_window_showTimeline() ), QKeySequence( "" ) );
+	m_pViewTimelineAction = m_pViewMenu->addAction( tr("&Timeline"), this, SLOT( action_window_showTimeline() ), QKeySequence( "" ) );
 	m_pViewTimelineAction->setCheckable( true );
 	
-	m_pViewPlaybackTrackAction = pViewMenu->addAction( tr("&Playback Track"), this, SLOT( action_window_showPlaybackTrack() ), QKeySequence( "" ) );
+	m_pViewPlaybackTrackAction = m_pViewMenu->addAction( tr("&Playback Track"), this, SLOT( action_window_showPlaybackTrack() ), QKeySequence( "" ) );
 	m_pViewPlaybackTrackAction->setCheckable( true );
 
 	m_pViewPlaybackTrackActionGroup = new QActionGroup( this );
@@ -393,15 +397,15 @@ void MainForm::createMenuBar()
 	m_pViewPlaybackTrackActionGroup->addAction( m_pViewPlaybackTrackAction );
 	update_playback_track_group();
 
-	pViewMenu->addSeparator();				// -----
+	m_pViewMenu->addSeparator();				// -----
 
-	pViewMenu->addAction( tr("&Full screen"), this, SLOT( action_window_toggleFullscreen() ), QKeySequence( "Alt+F" ) );
+	m_pViewMenu->addAction( tr("&Full screen"), this, SLOT( action_window_toggleFullscreen() ), QKeySequence( "Alt+F" ) );
 
 
 	// Options menu
-	QMenu *pOptionsMenu = pMenubar->addMenu( tr( "&Options" ));
+	m_pOptionsMenu = pMenubar->addMenu( tr( "&Options" ));
 
-	m_pInputModeMenu = pOptionsMenu->addMenu( tr( "Input &Mode" ) );
+	m_pInputModeMenu = m_pOptionsMenu->addMenu( tr( "Input &Mode" ) );
 	m_pInstrumentAction = m_pInputModeMenu->addAction( tr( "&Instrument" ), this, SLOT( action_inputMode_instrument() ), QKeySequence( "Ctrl+Alt+I" ) );
 	m_pInstrumentAction->setCheckable( true );
 
@@ -417,7 +421,7 @@ void MainForm::createMenuBar()
 		m_pDrumkitAction->setChecked (true );
 	}
 
-	pOptionsMenu->addAction( tr("&Preferences"), this, SLOT( showPreferencesDialog() ), QKeySequence( "Alt+P" ) );
+	m_pOptionsMenu->addAction( tr("&Preferences"), this, SLOT( showPreferencesDialog() ), QKeySequence( "Alt+P" ) );
 
 	//~ Tools menu
 
@@ -425,33 +429,33 @@ void MainForm::createMenuBar()
 	Logger *pLogger = Logger::get_instance();
 	if ( pLogger->bit_mask() >= 1 ) {
 		// DEBUG menu
-		QMenu *pDebugMenu = pMenubar->addMenu( tr("De&bug") );
-		pDebugMenu->addAction( tr( "Show &Audio Engine Info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );
-		pDebugMenu->addAction( tr( "Show &Filesystem Info" ), this, SLOT( action_debug_showFilesystemInfo() ) );
+		m_pDebugMenu = pMenubar->addMenu( tr("De&bug") );
+		m_pDebugMenu->addAction( tr( "Show &Audio Engine Info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );
+		m_pDebugMenu->addAction( tr( "Show &Filesystem Info" ), this, SLOT( action_debug_showFilesystemInfo() ) );
 		
-		m_pLogLevelMenu = pDebugMenu->addMenu( tr( "&Log Level" ) );		
+		m_pLogLevelMenu = m_pDebugMenu->addMenu( tr( "&Log Level" ) );		
 		m_pLogLevelMenu->addAction( tr( "&None" ), this, SLOT( action_debug_logLevel_none() ), QKeySequence( "" ) );
 		m_pLogLevelMenu->addAction( tr( "&Error" ), this, SLOT( action_debug_logLevel_info() ), QKeySequence( "" ) );
 		m_pLogLevelMenu->addAction( tr( "&Warning" ), this, SLOT( action_debug_logLevel_warn() ), QKeySequence( "" ) );
 		m_pLogLevelMenu->addAction( tr( "&Info" ), this, SLOT( action_debug_logLevel_info() ), QKeySequence( "" ) );
 		m_pLogLevelMenu->addAction( tr( "&Debug" ), this, SLOT( action_debug_logLevel_debug() ), QKeySequence( "" ) );
 		
-		pDebugMenu->addAction( tr( "&Open Log File" ), this, SLOT( action_debug_openLogfile()) );
+		m_pDebugMenu->addAction( tr( "&Open Log File" ), this, SLOT( action_debug_openLogfile()) );
 		
 		
 		if(pLogger->bit_mask() == 8) { // hydrogen -V8 list object map in console 
-			pDebugMenu->addAction( tr( "&Print Objects" ), this, SLOT( action_debug_printObjects() ) );
+			m_pDebugMenu->addAction( tr( "&Print Objects" ), this, SLOT( action_debug_printObjects() ) );
 		}
 		//~ DEBUG menu
 	}
 
 	// INFO menu
-	QMenu *pInfoMenu = pMenubar->addMenu( tr( "I&nfo" ) );
-	pInfoMenu->addAction( tr("User &Manual"), this, SLOT( showUserManual() ), QKeySequence( "Ctrl+?" ) );
-	pInfoMenu->addSeparator();
-	pInfoMenu->addAction( tr("&About"), this, SLOT( action_help_about() ), QKeySequence( tr("", "Info|About") ) );
-	pInfoMenu->addAction( tr("&Report Bug"), this, SLOT( action_report_bug() ));
-	pInfoMenu->addAction( tr("&Donate"), this, SLOT( action_donate() ));
+	m_pInfoMenu = pMenubar->addMenu( tr( "I&nfo" ) );
+	m_pInfoMenu->addAction( tr("User &Manual"), this, SLOT( showUserManual() ), QKeySequence( "Ctrl+?" ) );
+	m_pInfoMenu->addSeparator();
+	m_pInfoMenu->addAction( tr("&About"), this, SLOT( action_help_about() ), QKeySequence( tr("", "Info|About") ) );
+	m_pInfoMenu->addAction( tr("&Report Bug"), this, SLOT( action_report_bug() ));
+	m_pInfoMenu->addAction( tr("&Donate"), this, SLOT( action_donate() ));
 	//~ INFO menu
 }
 
@@ -1431,10 +1435,24 @@ void MainForm::closeAll(){
 void MainForm::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( m_pQApp->font().family() != pPref->getApplicationFontFamily() ) {
-		QFont font( pPref->getApplicationFontFamily(), 10 );
+	if ( m_pQApp->font().family() != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		QFont font( pPref->getApplicationFontFamily(), getPointSize() );
 		m_pQApp->setFont( font );
 		menuBar()->setFont( font );
+
+		m_pFileMenu->setFont( font );
+		m_pUndoMenu->setFont( font );
+		m_pDrumkitsMenu->setFont( font );
+		m_pInstrumentsMenu->setFont( font );
+		m_pViewMenu->setFont( font );
+		m_pOptionsMenu->setFont( font );
+		if ( m_pDebugMenu != nullptr ) {
+			m_pDebugMenu->setFont( font );
+		}
+		m_pInfoMenu->setFont( font );
+
 	}
 }
 
@@ -2343,4 +2361,22 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		pHydrogen->sequencer_play();
 		HydrogenApp::get_instance()->setStatusBarMessage(tr("Playing."), 5000);
 	}
+}
+
+int MainForm::getPointSize() const {
+	int nPointSize;
+	
+	switch( m_lastUsedFontSize ) {
+	case H2Core::Preferences::FontSize::Small:
+		nPointSize = 8;
+		break;
+	case H2Core::Preferences::FontSize::Normal:
+		nPointSize = 10;
+		break;
+	case H2Core::Preferences::FontSize::Large:
+		nPointSize = 12;
+		break;
+	}
+
+	return nPointSize;
 }

@@ -89,11 +89,18 @@ public slots:
 		Button *zoom_in_btn;
 		QTimer *timer;
 		QMenuBar *m_pMenubar;
+		QMenu *m_pPlaylistMenu;
+		QMenu *m_pScriptMenu;
 
 		Button *m_pRwdBtn;
 		ToggleButton *m_pPlayBtn;
 		Button *m_pStopBtn;
 		Button *m_pFfwdBtn;
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSize() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

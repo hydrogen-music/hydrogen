@@ -33,6 +33,7 @@
 
 #include <core/config.h>
 #include <core/Object.h>
+#include <core/Preferences.h>
 
 class HydrogenApp;
 class QUndoView;///debug only
@@ -296,6 +297,20 @@ public slots:
 		 * application.
 		 */
 		void startPlaybackAtCursor( QObject* pObject );
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSize() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
+
+		QMenu* m_pFileMenu;
+		QMenu* m_pUndoMenu;
+		QMenu* m_pDrumkitsMenu;
+		QMenu* m_pInstrumentsMenu;
+		QMenu* m_pViewMenu;
+		QMenu* m_pOptionsMenu;
+		QMenu* m_pDebugMenu;
+		QMenu* m_pInfoMenu;
 };
 
 #endif
