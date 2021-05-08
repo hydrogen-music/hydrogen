@@ -67,34 +67,34 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	installEventFilter( this );
 
 	// menubar
-	QMenuBar *m_pMenubar = new QMenuBar( this );
+	m_pMenubar = new QMenuBar( this );
 
 	// Playlist menu
-	QMenu *m_pPlaylistMenu = m_pMenubar->addMenu( tr( "&Playlist" ) );
+	QMenu *pPlaylistMenu = m_pMenubar->addMenu( tr( "&Playlist" ) );
 
-	m_pPlaylistMenu->addAction( tr( "Add song to Play&list" ), this, SLOT( addSong() ), QKeySequence( "Ctrl+A" ) );
-	m_pPlaylistMenu->addAction( tr( "Add &current song to Playlist" ), this, SLOT( addCurrentSong() ), QKeySequence( "Ctrl+Alt+A" ) );
-	m_pPlaylistMenu->addSeparator();				// -----
-	m_pPlaylistMenu->addAction( tr( "&Remove selected song from Playlist" ), this, SLOT( removeFromList() ), QKeySequence::Delete );
-	m_pPlaylistMenu->addAction( tr( "&New Playlist" ), this, SLOT( clearPlaylist() ), QKeySequence( "Ctrl+N" ) );
-	m_pPlaylistMenu->addSeparator();
-	m_pPlaylistMenu->addAction( tr( "&Open Playlist" ), this, SLOT( loadList() ), QKeySequence( "Ctrl+O" ) );
-	m_pPlaylistMenu->addSeparator();
-	m_pPlaylistMenu->addAction( tr( "&Save Playlist" ), this, SLOT( saveList() ), QKeySequence( "Ctrl+S" ) );
-	m_pPlaylistMenu->addAction( tr( "Save Playlist &as" ), this, SLOT( saveListAs() ), QKeySequence( "Ctrl+Shift+S" ) );
+	pPlaylistMenu->addAction( tr( "Add song to Play&list" ), this, SLOT( addSong() ), QKeySequence( "Ctrl+A" ) );
+	pPlaylistMenu->addAction( tr( "Add &current song to Playlist" ), this, SLOT( addCurrentSong() ), QKeySequence( "Ctrl+Alt+A" ) );
+	pPlaylistMenu->addSeparator();				// -----
+	pPlaylistMenu->addAction( tr( "&Remove selected song from Playlist" ), this, SLOT( removeFromList() ), QKeySequence::Delete );
+	pPlaylistMenu->addAction( tr( "&New Playlist" ), this, SLOT( clearPlaylist() ), QKeySequence( "Ctrl+N" ) );
+	pPlaylistMenu->addSeparator();
+	pPlaylistMenu->addAction( tr( "&Open Playlist" ), this, SLOT( loadList() ), QKeySequence( "Ctrl+O" ) );
+	pPlaylistMenu->addSeparator();
+	pPlaylistMenu->addAction( tr( "&Save Playlist" ), this, SLOT( saveList() ), QKeySequence( "Ctrl+S" ) );
+	pPlaylistMenu->addAction( tr( "Save Playlist &as" ), this, SLOT( saveListAs() ), QKeySequence( "Ctrl+Shift+S" ) );
 
 #ifdef WIN32
 	//no scripts under windows
 #else
 	// Script menu
-	QMenu *m_pScriptMenu = m_pMenubar->addMenu( tr( "&Scripts" ) );
+	QMenu *pScriptMenu = m_pMenubar->addMenu( tr( "&Scripts" ) );
 
-	m_pScriptMenu->addAction( tr( "&Add Script to selected song" ), this, SLOT( loadScript() ), QKeySequence( "" ) );
-	m_pScriptMenu->addAction( tr( "&Edit selected Script" ), this, SLOT( editScript() ), QKeySequence( "" ) );
-	m_pScriptMenu->addSeparator();
-	m_pScriptMenu->addAction( tr( "&Remove selected Script" ), this, SLOT( removeScript() ), QKeySequence( "" ) );
-	m_pScriptMenu->addSeparator();
-	m_pScriptMenu->addAction( tr( "&Create a new Script" ), this, SLOT( newScript() ), QKeySequence( "" ) );
+	pScriptMenu->addAction( tr( "&Add Script to selected song" ), this, SLOT( loadScript() ), QKeySequence( "" ) );
+	pScriptMenu->addAction( tr( "&Edit selected Script" ), this, SLOT( editScript() ), QKeySequence( "" ) );
+	pScriptMenu->addSeparator();
+	pScriptMenu->addAction( tr( "&Remove selected Script" ), this, SLOT( removeScript() ), QKeySequence( "" ) );
+	pScriptMenu->addSeparator();
+	pScriptMenu->addAction( tr( "&Create a new Script" ), this, SLOT( newScript() ), QKeySequence( "" ) );
 #endif
 
 	// CONTROLS
@@ -254,6 +254,8 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	timer = new QTimer( this );
 	connect(timer, SIGNAL(timeout() ), this, SLOT( updateActiveSongNumber() ) );
 	timer->start( 1000 );	// update player control at 1 fps
+	
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &PlaylistDialog::onPreferencesChanged );
 }
 
 PlaylistDialog::~PlaylistDialog()
@@ -954,4 +956,30 @@ bool PlaylistDialog::loadListByFileName( QString filename )
 	}
 
 	return true;
+}
+
+void PlaylistDialog::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+
+	if ( font() != pPref->getApplicationFontFamily() ) {
+		QFont font( Preferences::get_instance()->getApplicationFontFamily(), 10 );
+		setFont( font );
+		m_pMenubar->setFont( font );
+
+		int ii, jj;
+		
+		for ( ii = 0; ii < m_pPlaylistTree->headerItem()->columnCount(); ii++ ) {
+			m_pPlaylistTree->headerItem()->setFont( ii, font );
+		}
+
+		QTreeWidgetItem* pNode = m_pPlaylistTree->topLevelItem( 0 );
+
+		while ( pNode != nullptr ) {
+			for ( ii = 0; ii < pNode->columnCount(); ii++ ) {
+				pNode->setFont( ii, font );
+			}
+			pNode = m_pPlaylistTree->itemBelow( pNode );
+		}
+		
+	}
 }

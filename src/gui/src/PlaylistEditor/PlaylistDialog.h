@@ -24,6 +24,7 @@
 #define PLAYLIST_DIALOG_H
 
 
+#include <QMenuBar>
 #include <QDialog>
 #include "ui_PlaylistDialog_UI.h"
 #include <core/Object.h>
@@ -51,6 +52,8 @@ class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public H2Cor
 
 		bool loadListByFileName( QString filename);
 
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
 
 	private slots:
 		void keyPressEvent( QKeyEvent* ev );
@@ -85,6 +88,7 @@ class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public H2Cor
 		void setFirstItemCurrent();
 		Button *zoom_in_btn;
 		QTimer *timer;
+		QMenuBar *m_pMenubar;
 
 		Button *m_pRwdBtn;
 		ToggleButton *m_pPlayBtn;
