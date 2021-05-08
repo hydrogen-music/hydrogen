@@ -26,6 +26,9 @@ environment:
       BUILD_TYPE: "Release"
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=OFF"
       appveyor_build_worker_image: Visual Studio 2019
+      branches:
+        only:
+          - /-artifacts/
 
 
 build:
@@ -89,9 +92,6 @@ for:
     matrix:
       only:
         - job_group: 'Windows'
-    branches:
-      only:
-        - /-artifacts/
 
     before_build:
       cmd: |-
