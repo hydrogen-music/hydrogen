@@ -2120,60 +2120,33 @@ void audioEngine_startAudioDrivers()
 
 
 	QString sAudioDriver = preferencesMng->m_sAudioDriver;
-	if ( sAudioDriver == "Auto" ) {
-	#ifndef WIN32
-		if ( ( m_pAudioDriver = createDriver( "JACK" ) ) == nullptr ) {
-			if ( ( m_pAudioDriver = createDriver( "ALSA" ) ) == nullptr ) {
-				if ( ( m_pAudioDriver = createDriver( "CoreAudio" ) ) == nullptr ) {
-					if ( ( m_pAudioDriver = createDriver( "PortAudio" ) ) == nullptr ) {
-						if ( ( m_pAudioDriver = createDriver( "OSS" ) ) == nullptr ) {
-							if ( ( m_pAudioDriver = createDriver( "PulseAudio" ) ) == nullptr ) {
-								audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
-								___ERRORLOG( "Error starting audio driver" );
-								___ERRORLOG( "Using the NULL output audio driver" );
+	QStringList drivers = { "CoreAudio", "JACK", "ALSA", "OSS", "PulseAudio" };
 
-								// use the NULL output driver
-								m_pAudioDriver = new NullDriver( audioEngine_process );
-								m_pAudioDriver->init( 0 );
-							}
-						}
-					}
-				}
+#ifdef WIN32
+	drivers.removeAll( "PortAudio" );
+	drivers.push_front( "PortAudio" );
+#endif
+	if ( sAudioDriver != "Auto" ) {
+		drivers.removeAll( sAudioDriver );
+		drivers.push_front( sAudioDriver );
+	}
+	for ( QString sDriver : drivers ) {
+		if ( ( m_pAudioDriver = createDriver( sDriver ) ) != nullptr ) {
+			if ( sDriver != sAudioDriver && sAudioDriver != "Auto" ) {
+				___ERRORLOG( QString( "Couldn't start preferred driver %1, falling back to %2" )
+							 .arg( sAudioDriver ).arg( sDriver ) );
 			}
+			break;
 		}
-	#else
-		//On Windows systems, use PortAudio is the prioritized backend
-		if ( ( m_pAudioDriver = createDriver( "PortAudio" ) ) == nullptr ) {
-			if ( ( m_pAudioDriver = createDriver( "ALSA" ) ) == nullptr ) {
-				if ( ( m_pAudioDriver = createDriver( "CoreAudio" ) ) == nullptr ) {
-					if ( ( m_pAudioDriver = createDriver( "JACK" ) ) == nullptr ) {
-						if ( ( m_pAudioDriver = createDriver( "OSS" ) ) == nullptr ) {
-							if ( ( m_pAudioDriver = createDriver( "PulseAudio" ) ) == nullptr ) {
-								audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
-								___ERRORLOG( "Error starting audio driver" );
-								___ERRORLOG( "Using the NULL output audio driver" );
+	}
+	if ( m_pAudioDriver == nullptr ) {
+		audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
+		___ERRORLOG( "Error starting audio driver" );
+		___ERRORLOG( "Using the NULL output audio driver" );
 
-								// use the NULL output driver
-								m_pAudioDriver = new NullDriver( audioEngine_process );
-								m_pAudioDriver->init( 0 );
-							}
-						}
-					}
-				}
-			}
-		}
-	#endif
-	} else {
-		m_pAudioDriver = createDriver( sAudioDriver );
-		if ( m_pAudioDriver == nullptr ) {
-			audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
-			___ERRORLOG( "Error starting audio driver" );
-			___ERRORLOG( "Using the NULL output audio driver" );
-
-			// use the NULL output driver
-			m_pAudioDriver = new NullDriver( audioEngine_process );
-			m_pAudioDriver->init( 0 );
-		}
+		// use the NULL output driver
+		m_pAudioDriver = new NullDriver( audioEngine_process );
+		m_pAudioDriver->init( 0 );
 	}
 
 	if ( preferencesMng->m_sMidiDriver == "ALSA" ) {
