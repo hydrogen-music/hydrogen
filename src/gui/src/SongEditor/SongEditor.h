@@ -107,6 +107,7 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		void copy();
 		void paste();
 		void cut();
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
 
@@ -198,6 +199,10 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 
 		std::map< QPoint, GridCell > m_gridCells;
 		void updateGridCells();
+		std::vector<H2Core::H2RGBColor> m_lastUsedPatternColors;
+		int m_nLastUsedVisiblePatternColors;
+		int m_nMaxPatternColors;
+		int m_nLastUsedColoringMethod;
 public:
 
 		//! @name Selection interfaces

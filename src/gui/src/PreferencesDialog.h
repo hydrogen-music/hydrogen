@@ -23,9 +23,10 @@
 #ifndef PREFERENCES_DIALOG_H
 #define PREFERENCES_DIALOG_H
 
-#include <QStringList>
+#include <vector>
 
 #include "ui_PreferencesDialog_UI.h"
+#include "Widgets/ColorSelectionButton.h"
 
 #include <core/Object.h>
 #include <core/Preferences.h>
@@ -64,6 +65,9 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 	void onLevel3FontChanged( const QFont& font );
 	void onFontSizeChanged( int nIndex );
 	void onUILayoutChanged( int nIndex );
+	void onColorNumberChanged( int nIndex );
+	void onColorSelectionClicked();
+	void onColoringMethodChanged( int nIndex );
 
 private:
 
@@ -80,8 +84,11 @@ private:
 	QString m_sPreviousLevel2FontFamily;
 	QString m_sPreviousLevel3FontFamily;
 	H2Core::Preferences::FontSize m_previousFontSize;
+	int m_nPreviousVisiblePatternColors;
+	std::vector<H2Core::H2RGBColor> m_previousPatternColors;
 
 	QStringList m_fontFamilies;
+	std::vector<ColorSelectionButton*> m_colorSelectionButtons;
 
 };
 

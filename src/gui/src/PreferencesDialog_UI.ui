@@ -1195,6 +1195,16 @@
        </item>
        <item>
         <layout class="QGridLayout" name="gridLayout_2">
+         <item row="3" column="0" alignment="Qt::AlignTop">
+          <widget class="QLabel" name="colorSelectionLabel">
+           <property name="text">
+            <string>Selected colors</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+          </widget>
+         </item>
          <item row="2" column="0">
           <widget class="QLabel" name="coloringMethodAuxLabel">
            <property name="text">
@@ -1207,13 +1217,43 @@
          </item>
          <item row="0" column="0">
           <widget class="QLabel" name="label_2">
+           <property name="minimumSize">
+            <size>
+             <width>308</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="text">
             <string>Coloring method for Song Editor elements</string>
            </property>
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QSpinBox" name="coloringMethodAuxSpinBox"/>
+          <widget class="QSpinBox" name="coloringMethodAuxSpinBox">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>60</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <layout class="QGridLayout" name="colorSelectionGrid">
+           <item row="0" column="0">
+            <spacer name="horizontalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>30</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>

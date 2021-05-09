@@ -87,6 +87,11 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
 	
 	Preferences* pPref = Preferences::get_instance();
+	m_nMaxPatternColors = pPref->getMaxPatternColors(); // no need to
+														// update this one.
+	m_lastUsedPatternColors = pPref->getPatternColors();
+	m_nLastUsedVisiblePatternColors = pPref->getVisiblePatternColors();
+	m_nLastUsedColoringMethod = pPref->getColoringMethod();
 
 	setAttribute(Qt::WA_OpaquePaintEvent);
 	setFocusPolicy (Qt::StrongFocus);
@@ -1029,81 +1034,59 @@ void SongEditor::drawSequence()
 
 
 
-void SongEditor::drawPattern( int pos, int number, bool invertColour, double width )
+void SongEditor::drawPattern( int nPos, int nNumber, bool bInvertColour, double fWidth )
 {
-	Preferences *pref = Preferences::get_instance();
-	UIStyle *pStyle = pref->getDefaultUIStyle();
 	QPainter p( m_pSequencePixmap );
-	QColor patternColor( pStyle->m_songEditor_pattern1Color.getRed(), pStyle->m_songEditor_pattern1Color.getGreen(), pStyle->m_songEditor_pattern1Color.getBlue() );
+	/*
+	 * The default color of the cubes in rgb is 97,167,251.
+	 */
+	Song* pSong = Hydrogen::get_instance()->getSong();
+	PatternList *pPatternList = pSong->getPatternList();
 
+	QColor patternColor;
 	/*
 	 * The following color modes are available:
 	 *
-	 * Fixed: One color. Argument: specified color
-	 * Steps: User defined number of steps.
-	 * Automatic: Steps = Number of pattern in song
+	 * Automatic (0): Steps = Number of pattern in song and colors will be
+	 *            chosen internally.
+	 * Custom: Number of steps as well as the colors used are defined
+	 *            by the user.
 	 */
+	if ( m_nLastUsedColoringMethod == 0 ) {
+		//Automatic
+		int nSteps = pPatternList->size();
 
-	int coloringMethod = pref->getColoringMethod();
-	int coloringMethodAuxValue = pref->getColoringMethodAuxValue();
-	int steps = 1;
+		if( nSteps == 0 ) {
+			//beware of the division by zero..
+			nSteps = 1;
+		}
 
-	/*
-	 * This coloring of the song editor "squares" is done using the hsv color model,
-	 * see http://qt-project.org/doc/qt-4.8/qcolor.html#the-hsv-color-model for details.
-	 *
-	 * The default color of the cubes in rgb is 97,167,251.
-	 * The hsv equivalent is 213,156,249.
-	 */
-	int hue = 213;
-
-	Song* song = Hydrogen::get_instance()->getSong();
-	PatternList *patList = song->getPatternList();
-
-	switch(coloringMethod)
-	{
-		case 0:
-			//Automatic
-			steps = patList->size();
-
-			if(steps == 0)
-			{
-				//beware of the division by zero..
-				steps = 1;
-			}
-
-			hue = ((number % steps) * (300 / steps) + 213) % 300;
-			patternColor.setHsv( hue , 156 , 249);
-			break;
-		case 1:
-			//Steps
-			steps = coloringMethodAuxValue;
-			hue = ((number % steps) * (300 / steps) + 213) % 300;
-			patternColor.setHsv( hue , 156, 249);
-			break;
-		case 2:
-			//Fixed color
-			hue = coloringMethodAuxValue;
-			patternColor.setHsv( hue , 156, 249);
-			break;
+		int nHue = ( (nNumber % nSteps) * (300 / nSteps) + 213) % 300;
+		patternColor.setHsv( nHue , 156 , 249);
+	} else {
+		int nIndex = nNumber % m_nLastUsedVisiblePatternColors;
+		if ( nIndex > m_nMaxPatternColors ) {
+			nIndex = m_nMaxPatternColors;
+		}
+		H2RGBColor usedColor = m_lastUsedPatternColors[ nIndex ];
+		patternColor = QColor( usedColor.getRed(), usedColor.getGreen(),
+							   usedColor.getBlue() ).convertTo( QColor::Hsv );
 	}
 
-
-
-	if (true == invertColour) {
+	if ( true == bInvertColour ) {
 		patternColor = patternColor.darker(200);
-	}//if
+	}
 
-	bool bIsSelected = m_selection.isSelected( QPoint( pos, number ) );
+	bool bIsSelected = m_selection.isSelected( QPoint( nPos, nNumber ) );
 
 	if ( bIsSelected ) {
 		patternColor = patternColor.darker( 130 );
 	}
 
-	int x = m_nMargin + m_nGridWidth * pos;
-	int y = m_nGridHeight * number;
+	int x = m_nMargin + m_nGridWidth * nPos;
+	int y = m_nGridHeight * nNumber;
 
-	p.fillRect( x + 1, y + 3, width * (m_nGridWidth - 1), m_nGridHeight - 5, patternColor );
+	p.fillRect( x + 1, y + 3, fWidth * (m_nGridWidth - 1), m_nGridHeight - 5, patternColor );
 }
 
 std::vector<SongEditor::SelectionIndex> SongEditor::elementsIntersecting( QRect r )
@@ -1157,6 +1140,19 @@ void SongEditor::updateEditorandSetTrue()
 	update();
 }
 
+void SongEditor::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_lastUsedPatternColors != pPref->getPatternColors() ||
+		 m_nLastUsedVisiblePatternColors != pPref->getVisiblePatternColors() ||
+		 m_nLastUsedColoringMethod != pPref->getColoringMethod() ) {
+		m_lastUsedPatternColors = pPref->getPatternColors();
+		m_nLastUsedVisiblePatternColors = pPref->getVisiblePatternColors();
+		m_nLastUsedColoringMethod = pPref->getColoringMethod();
+		update();
+	}
+}
+
 // :::::::::::::::::::
 
 
@@ -1171,11 +1167,13 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
 
-	m_sLastUsedFontFamily = Preferences::get_instance()->getLevel2FontFamily();
-	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+	auto pPref = Preferences::get_instance();
+	
+	m_sLastUsedFontFamily = pPref->getLevel2FontFamily();
+	m_lastUsedFontSize = pPref->getFontSize();
 	
 	m_nWidth = 200;
-	m_nGridHeight = Preferences::get_instance()->getSongEditorGridHeight();
+	m_nGridHeight = pPref->getSongEditorGridHeight();
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	setAcceptDrops(true);
@@ -2119,8 +2117,8 @@ void SongEditorPatternList::onPreferencesChanged( bool bAppearanceOnly ) {
 	
 	if ( m_sLastUsedFontFamily != pPref->getLevel2FontFamily() ||
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_sLastUsedFontFamily = Preferences::get_instance()->getLevel2FontFamily();
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		m_sLastUsedFontFamily = pPref->getLevel2FontFamily();
+		m_lastUsedFontSize = pPref->getFontSize();
 		createBackground();
 		update();
 	}

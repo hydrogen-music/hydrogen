@@ -221,8 +221,12 @@ Preferences::Preferences()
 	m_nMaxLayers = 16;
 
 	m_nColoringMethod = 2;
-	m_nColoringMethodAuxValue = 213;
-
+	m_nMaxPatternColors = 50;
+	std::vector<H2RGBColor> m_patternColors( m_nMaxPatternColors );
+	for ( int ii = 0; ii < m_nMaxPatternColors; ii++ ) {
+		m_patternColors[ ii ] = H2RGBColor( 97, 167, 251 );
+	}
+	m_nVisiblePatternColors = 1;
 
 	UIStyle* uis = m_pDefaultUIStyle;
 	uis->m_songEditor_backgroundColor = H2RGBColor(95, 101, 117);
@@ -630,9 +634,23 @@ void Preferences::loadPreferences( bool bGlobal )
 				}
 
 				//SongEditor coloring
-				m_nColoringMethod = LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethod", 2 );
-				m_nColoringMethodAuxValue = LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethodAuxValue", 213 );
-
+				m_nColoringMethod = LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethod", 1 );
+				if ( m_nColoringMethod > 1 ) {
+					m_nColoringMethod = 1;
+				} else if ( m_nColoringMethod < 0 ) {
+					m_nColoringMethod = 0;
+				}
+				std::vector<H2RGBColor> colors( m_nMaxPatternColors );
+				for ( int ii = 0; ii < m_nMaxPatternColors; ii++ ) {
+					colors[ ii ] = H2RGBColor( LocalFileMng::readXmlString( guiNode, QString( "SongEditor_pattern_color_%1" ).arg( ii ), "97,167,251" ) );
+				}
+				m_patternColors = colors;
+				m_nVisiblePatternColors = LocalFileMng::readXmlInt( guiNode, "SongEditor_visible_pattern_colors", 1 );
+				if ( m_nVisiblePatternColors > 50 ) {
+					m_nVisiblePatternColors = 50;
+				} else if ( m_nVisiblePatternColors < 0 ) {
+					m_nVisiblePatternColors = 0;
+				}
 			}
 
 			/////////////// FILES //////////////
@@ -1062,8 +1080,10 @@ void Preferences::savePreferences()
 
 		//SongEditor coloring method
 		LocalFileMng::writeXmlString( guiNode, "SongEditor_ColoringMethod", QString::number( m_nColoringMethod ) );
-		LocalFileMng::writeXmlString( guiNode, "SongEditor_ColoringMethodAuxValue", QString::number( m_nColoringMethodAuxValue ) );
-
+		for ( int ii = 0; ii < m_nMaxPatternColors; ii++ ) {
+			LocalFileMng::writeXmlString( guiNode, QString( "SongEditor_pattern_color_%1" ).arg( ii ), m_patternColors[ ii ].toStringFmt() );
+		}
+		LocalFileMng::readXmlInt( guiNode, "SongEditor_visible_pattern_colors", m_nVisiblePatternColors );
 	}
 	rootNode.appendChild( guiNode );
 
@@ -1405,15 +1425,4 @@ H2RGBColor::H2RGBColor( const QString& sColor )
 	m_green %= 256;
 	m_blue %= 256;
 }
-
-
-
-QString H2RGBColor::toStringFmt()
-{
-	char tmp[255];
-	sprintf( tmp, "%d,%d,%d", m_red, m_green, m_blue );
-
-	return QString( tmp );
-}
-
 };

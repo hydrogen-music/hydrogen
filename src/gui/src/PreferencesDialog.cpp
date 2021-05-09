@@ -288,22 +288,52 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	//SongEditor coloring
 	int coloringMethod = pPref->getColoringMethod();
-	int coloringMethodAuxValue = pPref->getColoringMethodAuxValue();
+	m_nPreviousVisiblePatternColors = pPref->getVisiblePatternColors();
 
+	if ( coloringMethod == 0 ) {
+		coloringMethodAuxSpinBox->hide();
+		colorSelectionLabel->hide();
+	} else {
+		coloringMethodAuxSpinBox->show();
+		colorSelectionLabel->show();
+	}
 	coloringMethodCombo->clear();
 	coloringMethodCombo->addItem(tr("Automatic"));
-	coloringMethodCombo->addItem(tr("Steps"));
-	coloringMethodCombo->addItem(tr("Fixed"));
-
-	coloringMethodAuxSpinBox->setMaximum(300);
+	coloringMethodCombo->addItem(tr("Custom"));
 
 	coloringMethodCombo->setCurrentIndex( coloringMethod );
-	coloringMethodAuxSpinBox->setValue( coloringMethodAuxValue );
+	coloringMethodAuxSpinBox->setValue( m_nPreviousVisiblePatternColors );
+	QSize size( uiScalingPolicyComboBox->width(), coloringMethodAuxSpinBox->height() );
+	coloringMethodAuxSpinBox->setFixedSize( size );
+	coloringMethodAuxSpinBox->resize( size );
 
 	coloringMethodCombo_currentIndexChanged( coloringMethod );
 
-	connect(coloringMethodCombo, SIGNAL(currentIndexChanged(int)), this, SLOT( coloringMethodCombo_currentIndexChanged(int) ));
+	int nMaxPatternColors = pPref->getMaxPatternColors();
+	m_colorSelectionButtons = std::vector<ColorSelectionButton*>( nMaxPatternColors );
+	int nButtonSize = coloringMethodAuxSpinBox->height();
+	int nButtonsPerLine = std::floor( static_cast<float>(coloringMethodAuxSpinBox->width()) /
+									  static_cast<float>(nButtonSize + 4) );
+	colorSelectionGrid->setHorizontalSpacing( 4 );
+	for ( int ii = 0; ii < nMaxPatternColors; ii++ ) {
+		ColorSelectionButton* bbutton = new ColorSelectionButton( this, H2RGBColor( "97,167,251"), nButtonSize );
+		bbutton->hide();
+		connect( bbutton, &ColorSelectionButton::clicked, this, &PreferencesDialog::onColorSelectionClicked );
+		colorSelectionGrid->addWidget( bbutton,
+									   std::floor( static_cast<float>( ii ) /
+												   static_cast<float>( nButtonsPerLine ) ),
+									   (ii % nButtonsPerLine) + 1);
+		m_colorSelectionButtons[ ii ] = bbutton;
+	}
 
+	if ( coloringMethod != 0 ) {
+		for ( int ii = 0; ii < m_nPreviousVisiblePatternColors; ii++ ) {
+			m_colorSelectionButtons[ ii ]->show();
+		}
+	}
+	connect( coloringMethodCombo, SIGNAL(currentIndexChanged(int)), this, SLOT( coloringMethodCombo_currentIndexChanged(int) ));
+	connect( coloringMethodAuxSpinBox, SIGNAL( valueChanged(int)), this, SLOT( onColorNumberChanged( int ) ) );
+	connect( coloringMethodCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( onColoringMethodChanged(int) ) );
 
 	// midi tab
 	midiPortChannelComboBox->setEnabled( false );
@@ -421,8 +451,47 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	connect(m_pMidiDriverComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT( onMidiDriverComboBoxIndexChanged(int) ));
 }
 
+void PreferencesDialog::onColorNumberChanged( int nIndex ) {
+	Preferences::get_instance()->setVisiblePatternColors( nIndex );
+	for ( int ii = 0; ii < Preferences::get_instance()->getMaxPatternColors(); ii++ ) {
+		if ( ii < nIndex ) {
+			m_colorSelectionButtons[ ii ]->show();
+		} else {
+			m_colorSelectionButtons[ ii ]->hide();
+		}
+	}
+	HydrogenApp::get_instance()->changePreferences( true );
+}
 
+void PreferencesDialog::onColorSelectionClicked() {
+	int nMaxPatternColors = Preferences::get_instance()->getMaxPatternColors();
+	std::vector<H2RGBColor> colors( nMaxPatternColors );
+	for ( int ii = 0; ii < nMaxPatternColors; ii++ ) {
+		colors[ ii ] = m_colorSelectionButtons[ ii ]->getColor();
+	}
 
+	Preferences::get_instance()->setPatternColors( colors );
+	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
+	Preferences::get_instance()->setColoringMethod( nIndex );
+
+	if ( nIndex == 0 ) {
+		coloringMethodAuxSpinBox->hide();
+		colorSelectionLabel->hide();
+		for ( int ii = 0; ii < Preferences::get_instance()->getMaxPatternColors(); ii++ ) {
+			m_colorSelectionButtons[ ii ]->hide();
+		}
+	} else {
+		coloringMethodAuxSpinBox->show();
+		colorSelectionLabel->show();
+		for ( int ii = 0; ii < m_nPreviousVisiblePatternColors; ii++ ) {
+			m_colorSelectionButtons[ ii ]->show();
+		}
+	}
+	HydrogenApp::get_instance()->changePreferences( true );
+}
 
 PreferencesDialog::~PreferencesDialog()
 {
@@ -640,25 +709,6 @@ void PreferencesDialog::on_okBtn_clicked()
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
 	pPref->setUIScalingPolicy( uiScalingPolicyComboBox->currentIndex() );
 #endif
-
-
-	int coloringMethod = coloringMethodCombo->currentIndex();
-
-	pPref->setColoringMethod( coloringMethod );
-
-	switch( coloringMethod )
-	{
-		case 0:
-			//Automatic
-			pPref->setColoringMethodAuxValue(0);
-			break;
-		case 1:
-			pPref->setColoringMethodAuxValue( coloringMethodAuxSpinBox->value() );
-			break;
-		case 2:
-			pPref->setColoringMethodAuxValue( coloringMethodAuxSpinBox->value() );
-			break;
-	}
 
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
 	SongEditorPanel* pSongEditorPanel = pH2App->getSongEditorPanel();
@@ -953,6 +1003,8 @@ void PreferencesDialog::onRejected() {
 	pPref->setLevel2FontFamily( m_sPreviousLevel2FontFamily );
 	pPref->setLevel3FontFamily( m_sPreviousLevel3FontFamily );
 	pPref->setFontSize( m_previousFontSize );
+	pPref->setPatternColors( m_previousPatternColors );
+	pPref->setVisiblePatternColors( m_nPreviousVisiblePatternColors );
 
 	HydrogenApp::get_instance()->changePreferences( true );
 }

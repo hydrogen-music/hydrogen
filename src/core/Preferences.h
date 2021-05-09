@@ -78,7 +78,12 @@ public:
 	H2RGBColor( const QString& sColor );
 	~H2RGBColor();
 
-	QString toStringFmt();
+
+	bool operator==( const H2RGBColor& otherColor ) const {
+		return toStringFmt() == otherColor.toStringFmt();
+	}
+	
+	QString toStringFmt() const;
 
 	int getRed() const {
 		return m_red;
@@ -97,6 +102,12 @@ private:
 
 };
 
+inline QString H2RGBColor::toStringFmt() const {
+	char tmp[255];
+	sprintf( tmp, "%d,%d,%d", m_red, m_green, m_blue );
+
+	return QString( tmp );
+}
 
 /**
 \ingroup H2CORE
@@ -550,11 +561,15 @@ public:
 	unsigned		getSongEditorGridWidth();
 	void			setSongEditorGridWidth( unsigned value );
 
-	void			setColoringMethodAuxValue( int value );
-	int				getColoringMethodAuxValue() const;
-
-	void			setColoringMethod( int value );
+	void			setColoringMethod( int nValue );
 	int				getColoringMethod() const;
+
+	void			setPatternColors( std::vector<H2RGBColor> patternColors );
+	std::vector<H2RGBColor> getPatternColors() const;
+	void			setMaxPatternColors( int nValue );
+	int				getMaxPatternColors() const;
+	void			setVisiblePatternColors( int nValue );
+	int				getVisiblePatternColors() const;
 
 	WindowProperties	getMainFormProperties();
 	void				setMainFormProperties( const WindowProperties& prop );
@@ -801,7 +816,10 @@ private:
 
 	//Appearance: SongEditor coloring
 	int						m_nColoringMethod;
-	int						m_nColoringMethodAuxValue;
+	std::vector<H2RGBColor> m_patternColors;
+	int						m_nVisiblePatternColors;
+	/** Not read from/written to disk */
+	int						m_nMaxPatternColors;
 
 	//Export dialog
 	QString					m_sExportDirectory;
@@ -1172,12 +1190,23 @@ inline void Preferences::setPatternEditorGridWidth( unsigned value ) {
 	m_nPatternEditorGridWidth = value;
 }
 
-inline void Preferences::setColoringMethodAuxValue( int value ){
-	m_nColoringMethodAuxValue = value;
+inline void	Preferences::setPatternColors( std::vector<H2RGBColor> patternColors ) {
+	m_patternColors = patternColors;
 }
-
-inline int Preferences::getColoringMethodAuxValue() const{
-	return m_nColoringMethodAuxValue;
+inline std::vector<H2RGBColor> Preferences::getPatternColors() const {
+	return m_patternColors;
+}
+inline void	Preferences::setVisiblePatternColors( int nValue ) {
+	m_nVisiblePatternColors = nValue;
+}
+inline int Preferences::getVisiblePatternColors() const {
+	return m_nVisiblePatternColors;
+}
+inline void	Preferences::setMaxPatternColors( int nValue ) {
+	m_nMaxPatternColors = nValue;
+}
+inline int Preferences::getMaxPatternColors() const {
+	return m_nMaxPatternColors;
 }
 
 inline void Preferences::setColoringMethod( int value ){
