@@ -662,31 +662,24 @@ void SongEditorPanel::clearSequence( Button* btn)
 	if ( res == 1 ) {
 		return;
 	}
-	
-	QString filename = Filesystem::tmp_file_path( "SEQ.xml" );
-	SE_deletePatternSequenceAction *pAction = new SE_deletePatternSequenceAction( filename );
-	HydrogenApp *pH2App = HydrogenApp::get_instance();
 
-	pH2App->m_pUndoStack->push( pAction );
-}
-
-
-void SongEditorPanel::restoreGroupVector( QString filename )
-{
-	//clear the old sequese
-	std::vector<PatternList*> *pPatternGroupsVect = Hydrogen::get_instance()->getSong()->getPatternGroupVector();
-	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
-		PatternList *pPatternList = (*pPatternGroupsVect)[i];
-		pPatternList->clear();
-		delete pPatternList;
+	// Find and delete all pattern cells.
+	std::vector< QPoint > deleteCells, mergeCells, addCells;
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::vector< PatternList* > *pColumns = pSong->getPatternGroupVector();
+	PatternList *pPatternList = pSong->getPatternList();
+	for ( int nColumn = 0 ; nColumn < pColumns->size(); nColumn++ ) {
+		PatternList *pColumn = pColumns->at( nColumn );
+		for ( int n = 0; n < pColumn->size(); n++ ) {
+			deleteCells.push_back( QPoint( nColumn, pPatternList->index( pColumn->get( n ) ) ) );
+		}
 	}
-	pPatternGroupsVect->clear();
 
-	Hydrogen::get_instance()->getSong()->readTempPatternList( filename );
-	m_pSongEditor->updateEditorandSetTrue();
-	updateAll();
+	HydrogenApp *pH2App = HydrogenApp::get_instance();
+	pH2App->m_pUndoStack->push( new SE_modifyPatternCellsAction( addCells, deleteCells, mergeCells,
+																 tr( "Delete %1 pattern cells" )
+																 .arg( deleteCells.size() ) ) );
 }
-
 
 void SongEditorPanel::resyncExternalScrollBar()
 {

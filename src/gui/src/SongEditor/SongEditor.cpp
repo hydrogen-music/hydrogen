@@ -1126,31 +1126,6 @@ QRect SongEditor::getKeyboardCursorRect() {
 				  QSize( m_nGridWidth, m_nGridHeight -1 ) );
 }
 
-void SongEditor::clearThePatternSequenceVector( QString filename )
-{
-	Hydrogen *engine = Hydrogen::get_instance();
-
-	m_pAudioEngine->lock( RIGHT_HERE );
-
-	Song *song = engine->getSong();
-
-	//before deleting the sequence, write a temp sequence file to disk
-	song->writeTempPatternList( filename );
-
-	std::vector<PatternList*> *pPatternGroupsVect = song->getPatternGroupVector();
-	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
-		PatternList *pPatternList = (*pPatternGroupsVect)[i];
-		pPatternList->clear();
-		delete pPatternList;
-	}
-	pPatternGroupsVect->clear();
-
-	song->setIsModified( true );
-	m_pAudioEngine->unlock();
-	m_bSequenceChanged = true;
-	update();
-}
-
 void SongEditor::updateEditorandSetTrue()
 {
 	Hydrogen::get_instance()->getSong()->setIsModified( true );
@@ -1542,8 +1517,8 @@ void SongEditorPatternList::patternPopup_load()
 {
 	Hydrogen *engine = Hydrogen::get_instance();
 	int nSelectedPattern = engine->getSelectedPatternNumber();
-	Song *song = engine->getSong();
-	Pattern *pattern = song->getPatternList()->get( nSelectedPattern );
+	Song *pSong = engine->getSong();
+	Pattern *pPattern = pSong->getPatternList()->get( nSelectedPattern );
 
 	QFileDialog fd(this);
 	fd.setFileMode( QFileDialog::ExistingFile );
@@ -1556,19 +1531,22 @@ void SongEditorPatternList::patternPopup_load()
 	}
 	QString patternPath = fd.selectedFiles().first();
 
-	QString prevPatternPath = Files::savePatternTmp( pattern->get_name(), pattern, song, engine->getCurrentDrumkitName() );
+	QString prevPatternPath = Files::savePatternTmp( pPattern->get_name(), pPattern, pSong, engine->getCurrentDrumkitName() );
 	if ( prevPatternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 		return;
 	}
-	LocalFileMng fileMng;
-	QString sequencePath = Filesystem::tmp_file_path( "SEQ.xml" );
-	if ( !song->writeTempPatternList( sequencePath ) ) {
-		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
-		return;
+
+	std::vector< QPoint > deleteCells;
+	auto pColumns = pSong->getPatternGroupVector();
+	for ( int nColumn = 0; nColumn < pColumns->size(); nColumn++ ) {
+		PatternList *pColumn = ( *pColumns )[ nColumn ];
+		if ( pColumn->index( pPattern ) != -1 ) {
+			deleteCells.push_back( QPoint( nColumn, nSelectedPattern ) );
+		}
 	}
 
-	SE_loadPatternAction *action = new SE_loadPatternAction( patternPath, prevPatternPath, sequencePath, nSelectedPattern, false );
+	SE_loadPatternAction *action = new SE_loadPatternAction( patternPath, prevPatternPath, deleteCells, nSelectedPattern, false );
 	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
 	hydrogenApp->m_pUndoStack->push( action );
 }
@@ -1689,29 +1667,30 @@ void SongEditorPatternList::revertPatternPropertiesDialogSettings(QString oldPat
 void SongEditorPatternList::patternPopup_delete()
 {
 	Song *pSong = m_pHydrogen->getSong();
-	int patternPosition = m_pHydrogen->getSelectedPatternNumber();
-	Pattern *pattern = pSong->getPatternList()->get( patternPosition );
+	int nPatternPosition = m_pHydrogen->getSelectedPatternNumber();
+	Pattern *pPattern = pSong->getPatternList()->get( nPatternPosition );
 
-	QString patternPath = Files::savePatternTmp( pattern->get_name(), pattern, pSong, m_pHydrogen->getCurrentDrumkitName() );
-	if ( patternPath.isEmpty() ) {
+	QString sPatternPath = Files::savePatternTmp( pPattern->get_name(), pPattern, pSong, m_pHydrogen->getCurrentDrumkitName() );
+	if ( sPatternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 		return;
 	}
-	LocalFileMng fileMng;
-	QString sequencePath = Filesystem::tmp_file_path( "SEQ.xml" );
-	if ( !pSong->writeTempPatternList( sequencePath ) ) {
-		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
-		return;
-	}
 
-	SE_deletePatternFromListAction *action = new 	SE_deletePatternFromListAction( patternPath , sequencePath, patternPosition );
-	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
-	hydrogenApp->m_pUndoStack->push( action );
+	std::vector< QPoint > deleteCells;
+	auto pColumns = pSong->getPatternGroupVector();
+	for ( int nColumn = 0; nColumn < pColumns->size(); nColumn++ ) {
+		PatternList *pColumn = ( *pColumns )[ nColumn ];
+		if ( pColumn->index( pPattern ) != -1 ) {
+			deleteCells.push_back( QPoint( nColumn, nPatternPosition ) );
+		}
+	}
+	HydrogenApp::get_instance()->m_pUndoStack
+		->push( new SE_deletePatternFromListAction( sPatternPath, deleteCells, nPatternPosition ) );
 
 }
 
 
-void SongEditorPatternList::deletePatternFromList( QString patternFilename, QString sequenceFileName, int patternPosition )
+void SongEditorPatternList::deletePatternFromList( QString patternFilename, int patternPosition )
 {
 	if ( m_pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {
 		m_pHydrogen->sequencer_setNextPattern( -1 );
@@ -1781,7 +1760,7 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 
 }
 
-void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilename, QString sequenceFileName, int patternPosition )
+void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilename, int patternPosition )
 {
 	Hydrogen *engine = Hydrogen::get_instance();
 	Song *pSong = engine->getSong();
@@ -2027,7 +2006,19 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 		QString sequenceFilename = Filesystem::tmp_file_path( "SEQ.xml" );
 		bool drag = false;
 		if( QString( tokens.at(0) ).contains( "drag pattern" )) drag = true;
-		SE_loadPatternAction *pAction = new SE_loadPatternAction( sPatternName, oldPatternName, sequenceFilename, nTargetPattern, drag );
+
+		std::vector< QPoint > deleteCells;
+		if ( ! drag ) {
+			auto pColumns = pSong->getPatternGroupVector();
+			for ( int nColumn = 0; nColumn < pColumns->size(); nColumn++ ) {
+				PatternList *pColumn = ( *pColumns )[ nColumn ];
+				if ( pColumn->index( pPattern ) != -1 ) {
+					deleteCells.push_back( QPoint( nColumn, nTargetPattern ) );
+				}
+			}
+		}
+
+		SE_loadPatternAction *pAction = new SE_loadPatternAction( sPatternName, oldPatternName, deleteCells, nTargetPattern, drag );
 
 		pHydrogenApp->m_pUndoStack->push( pAction );
 	}
