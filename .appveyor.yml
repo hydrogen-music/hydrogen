@@ -1,7 +1,3 @@
-
-
-shallow_clone: true 
-
 environment:
   GENERATOR: "MinGW Makefiles"
   ARTIFACT_BRANCH: master-artifacts
