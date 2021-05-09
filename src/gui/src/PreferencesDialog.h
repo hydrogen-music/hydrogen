@@ -63,6 +63,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 	void onLevel2FontChanged( const QFont& font );
 	void onLevel3FontChanged( const QFont& font );
 	void onFontSizeChanged( int nIndex );
+	void onUILayoutChanged( int nIndex );
 
 private:
 

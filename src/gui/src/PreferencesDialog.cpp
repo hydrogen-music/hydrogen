@@ -254,8 +254,16 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	else {
 		ERRORLOG( QString("PreferencesDialog: wrong mixerFalloff value = %1").arg(falloffSpeed) );
 	}
-
+	
+	UIChangeWarningLabel->hide();
+	UIChangeWarningLabel->setText( QString( "<b><i><font color=" )
+								   .append( m_sColorRed )
+								   .append( ">" )
+								   .append( tr( "For changes of the interface layout to take effect Hydrogen must be restarted." ) )
+								   .append( "</font></i></b>" ) );
 	uiLayoutComboBox->setCurrentIndex(  pPref->getDefaultUILayout() );
+	connect( uiLayoutComboBox, SIGNAL( currentIndexChanged(int) ), this, SLOT( onUILayoutChanged(int) ) );
+	
 
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
 	uiScalingPolicyComboBox->setCurrentIndex( pPref->getUIScalingPolicy() );
@@ -967,6 +975,10 @@ void PreferencesDialog::onFontSizeChanged( int nIndex ) {
 	}
 	
 	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onUILayoutChanged( int nIndex ) {
+	UIChangeWarningLabel->show();
 }
 
 void PreferencesDialog::on_bufferSizeSpinBox_valueChanged( int i )
