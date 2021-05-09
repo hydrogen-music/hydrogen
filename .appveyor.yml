@@ -96,7 +96,7 @@ for:
 
     before_build:
       cmd: |-
-          if not %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% if %APPVEYOR_JOB_NAME%==Windows32 exit
+          if not %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% if %APPVEYOR_JOB_NAME%==Windows32 appveyor exit
           set QTDIR=%MSYS%
           set CMAKE_PREFIX_PATH=%QTDIR%
           set PATH=%MSYS%\bin;%PATH%
@@ -127,8 +127,6 @@ for:
 
     build_script:
       - cmd: |-
-          if not %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% if %APPVEYOR_JOB_NAME%==Windows32 exit
-
           REM *** Build ***
           cmake --build . -j %NUMBER_OF_PROCESSORS%
 
