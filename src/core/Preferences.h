@@ -513,6 +513,10 @@ public:
 
 	const QString&	getApplicationFontFamily() const;
 	void			setApplicationFontFamily( const QString& family );
+	const QString&	getLevel2FontFamily() const;
+	void			setLevel2FontFamily( const QString& family );
+	const QString&	getLevel3FontFamily() const;
+	void			setLevel3FontFamily( const QString& family );
 
 	FontSize		getFontSize() const;
 	void			setFontSize( FontSize fontSize );
@@ -770,6 +774,8 @@ private:
 	bool					m_bShowPlaybackTrack;
 
 	QString					m_sApplicationFontFamily;
+	QString					m_sLevel2FontFamily;
+	QString					m_sLevel3FontFamily;
 	FontSize				m_fontSize;
 	float					mixerFalloffSpeed;
 	int						m_nPatternEditorGridResolution;
@@ -1075,6 +1081,20 @@ inline const QString& Preferences::getApplicationFontFamily() const {
 }
 inline void Preferences::setApplicationFontFamily( const QString& family ) {
 	m_sApplicationFontFamily = family;
+}
+
+inline const QString& Preferences::getLevel2FontFamily() const {
+	return m_sLevel2FontFamily;
+}
+inline void Preferences::setLevel2FontFamily( const QString& family ) {
+	m_sLevel2FontFamily = family;
+}
+
+inline const QString& Preferences::getLevel3FontFamily() const {
+	return m_sLevel3FontFamily;
+}
+inline void Preferences::setLevel3FontFamily( const QString& family ) {
+	m_sLevel3FontFamily = family;
 }
 
 inline Preferences::FontSize Preferences::getFontSize() const {

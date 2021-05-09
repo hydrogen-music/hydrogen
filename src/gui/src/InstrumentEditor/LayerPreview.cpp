@@ -51,7 +51,7 @@ LayerPreview::LayerPreview( QWidget* pParent )
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);
 	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+	m_sLastUsedFontFamily = Preferences::get_instance()->getLevel2FontFamily();
 
 	//INFOLOG( "INIT" );
 
@@ -163,7 +163,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 			// layer view
 			p.fillRect( 0, y, width(), m_nLayerHeight, QColor( 59, 73, 96 ) );
 		}
-		p.setPen( QColor( 128, 134, 152 ) );
+		p.setPen( QColor( 255, 255, 255, 200 ) ); //128, 134, 152 ) );
 		p.drawRect( 0, y, width() - 1, m_nLayerHeight );
 		p.setFont( fontText );
 		p.drawText( 10, y, width() - 10, 20, Qt::AlignLeft, QString( "%1: %2" ).arg( i + 1 ).arg( label ) );
@@ -489,10 +489,10 @@ int LayerPreview::getPointSizeButton() const {
 void LayerPreview::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+	if ( m_sLastUsedFontFamily != pPref->getLevel2FontFamily() ||
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
 		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		m_sLastUsedFontFamily = Preferences::get_instance()->getLevel2FontFamily();
 		update();
 	}
 }

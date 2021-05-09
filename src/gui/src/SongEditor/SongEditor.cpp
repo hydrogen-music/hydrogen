@@ -1171,7 +1171,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
 
-	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+	m_sLastUsedFontFamily = Preferences::get_instance()->getLevel2FontFamily();
 	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 	
 	m_nWidth = 200;
@@ -2117,9 +2117,9 @@ int SongEditorPatternList::getPointSize() const {
 void SongEditorPatternList::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+	if ( m_sLastUsedFontFamily != pPref->getLevel2FontFamily() ||
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		m_sLastUsedFontFamily = Preferences::get_instance()->getLevel2FontFamily();
 		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 		createBackground();
 		update();

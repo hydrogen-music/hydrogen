@@ -164,6 +164,9 @@ void SoundLibraryPanel::updateDrumkitList()
 	QFont boldFont( Preferences::get_instance()->getApplicationFontFamily(), getPointSize() );
 	boldFont.setBold( true );
 
+	QFont childFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize() );
+	setFont( childFont );
+
 	__system_drumkits_item = new QTreeWidgetItem( __sound_library_tree );
 	__system_drumkits_item->setText( 0, tr( "System drumkits" ) );
 	__system_drumkits_item->setExpanded( true );
@@ -895,10 +898,12 @@ void SoundLibraryPanel::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( __system_drumkits_item->font( 0 ).family() != pPref->getApplicationFontFamily() ||
+		 ( __system_drumkits_item->child( 0 ) != nullptr &&
+		   __system_drumkits_item->child( 0 )->font( 0 ).family() != pPref->getLevel2FontFamily() ) ||
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
 		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 		
-		QFont font( pPref->getApplicationFontFamily(), getPointSize() );
+		QFont font( pPref->getLevel2FontFamily(), getPointSize() );
 		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize() );
 		boldFont.setBold( true );
 

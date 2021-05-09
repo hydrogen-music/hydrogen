@@ -59,7 +59,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	setFixedSize(181, h);
 
 	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();	
-	QFont nameFont( Preferences::get_instance()->getApplicationFontFamily(), getPointSize() );
+	QFont nameFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize() );
 	nameFont.setBold( true );
 
 	m_pNameLbl = new QLabel(this);
@@ -567,10 +567,10 @@ int InstrumentLine::getPointSize() const {
 void InstrumentLine::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( m_pNameLbl->font().family() != pPref->getApplicationFontFamily() ||
+	if ( m_pNameLbl->font().family() != pPref->getLevel2FontFamily() ||
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
 		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-		m_pNameLbl->setFont( QFont( pPref->getApplicationFontFamily(), getPointSize() ) );
+		m_pNameLbl->setFont( QFont( pPref->getLevel2FontFamily(), getPointSize() ) );
 	}
 }
 

@@ -984,6 +984,19 @@
       <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
         <layout class="QGridLayout">
+         <item row="0" column="1">
+          <widget class="QFontComboBox" name="applicationFontComboBox"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="fontSizeLabel">
+           <property name="text">
+            <string>Font size</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QFontComboBox" name="level2FontComboBox"/>
+         </item>
          <item row="0" column="0" alignment="Qt::AlignLeft">
           <widget class="QLabel" name="applicationFontLbl">
            <property name="minimumSize">
@@ -991,6 +1004,9 @@
              <width>0</width>
              <height>22</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string>Font used for most of the GUI including menus, headings, and the grids of the Song and Pattern Editor.</string>
            </property>
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
@@ -1003,26 +1019,55 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="textLabel1_4">
+         <item row="4" column="1">
+          <widget class="QComboBox" name="styleComboBox"/>
+         </item>
+         <item row="2" column="1">
+          <widget class="QFontComboBox" name="level3FontComboBox"/>
+         </item>
+         <item row="3" column="1">
+          <widget class="QComboBox" name="fontSizeComboBox">
+           <item>
+            <property name="text">
+             <string>Small</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Normal</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Large</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="level3FontLabel">
+           <property name="toolTip">
+            <string>Font used for larger buttons.</string>
+           </property>
            <property name="text">
-            <string>Style</string>
+            <string>Widget font</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
-          <widget class="QComboBox" name="styleComboBox"/>
-         </item>
-         <item row="0" column="1">
-          <widget class="QPushButton" name="selectApplicationFontBtn">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
+         <item row="1" column="0">
+          <widget class="QLabel" name="level2FontLabel">
+           <property name="toolTip">
+            <string>Font used within listings, like for the names of the available Pattern and Instruments.</string>
            </property>
            <property name="text">
-            <string>Select font</string>
+            <string>Item font</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="textLabel1_4">
+           <property name="text">
+            <string>Style</string>
            </property>
           </widget>
          </item>
@@ -1064,32 +1109,6 @@
            <item>
             <property name="text">
              <string>Fast</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="fontSizeLabel">
-           <property name="text">
-            <string>Font size</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="fontSizeComboBox">
-           <item>
-            <property name="text">
-             <string>Small</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Normal</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Large</string>
             </property>
            </item>
           </widget>

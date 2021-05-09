@@ -193,6 +193,8 @@ Preferences::Preferences()
 	//___ GUI properties ___
 	m_sQTStyle = "Fusion";
 	m_sApplicationFontFamily = "Lucida Grande";
+	m_sLevel2FontFamily = "Lucida Grande";
+	m_sLevel3FontFamily = "Lucida Grande";
 	m_fontSize = FontSize::Normal;
 	mixerFalloffSpeed = 1.1;
 	m_nPatternEditorGridResolution = 8;
@@ -541,6 +543,10 @@ void Preferences::loadPreferences( bool bGlobal )
 
 				// Font fun
 				m_sApplicationFontFamily = LocalFileMng::readXmlString( guiNode, "application_font_family", m_sApplicationFontFamily );
+				// The value defaults to m_sApplicationFontFamily on
+				// purpose to provide backward compatibility.
+				m_sLevel2FontFamily = LocalFileMng::readXmlString( guiNode, "level2_font_family", m_sApplicationFontFamily );
+				m_sLevel3FontFamily = LocalFileMng::readXmlString( guiNode, "level3_font_family", m_sApplicationFontFamily );
 				m_fontSize = static_cast<FontSize>( LocalFileMng::readXmlInt( guiNode, "font_size", 0 ) );
 
 				// Mixer falloff speed
@@ -983,6 +989,8 @@ void Preferences::savePreferences()
 	{
 		LocalFileMng::writeXmlString( guiNode, "QTStyle", m_sQTStyle );
 		LocalFileMng::writeXmlString( guiNode, "application_font_family", m_sApplicationFontFamily );
+		LocalFileMng::writeXmlString( guiNode, "level2_font_family", m_sLevel2FontFamily );
+		LocalFileMng::writeXmlString( guiNode, "level3_font_family", m_sLevel3FontFamily );
 		LocalFileMng::writeXmlString( guiNode, "font_size", QString::number( static_cast<int>(m_fontSize) ) );
 		LocalFileMng::writeXmlString( guiNode, "mixer_falloff_speed", QString("%1").arg( mixerFalloffSpeed ) );
 		LocalFileMng::writeXmlString( guiNode, "patternEditorGridResolution", QString("%1").arg( m_nPatternEditorGridResolution ) );

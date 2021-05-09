@@ -68,7 +68,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	hbox->setMargin( 0 );
 	setLayout( hbox );
 
-	QFont fontButtons( pPreferences->getApplicationFontFamily(), getPointSize() );
+	QFont fontButtons( pPreferences->getLevel3FontFamily(), getPointSize() );
 
 // CONTROLS
 	PixmapWidget *pControlsPanel = new PixmapWidget( nullptr );
@@ -1157,11 +1157,11 @@ int PlayerControl::getPointSize() const {
 void PlayerControl::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_pShowMixerBtn->font().family() != pPref->getApplicationFontFamily() ||
+	if ( m_pShowMixerBtn->font().family() != pPref->getLevel3FontFamily() ||
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
 
 		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-		QFont fontButtons( pPref->getApplicationFontFamily(), getPointSize() );
+		QFont fontButtons( pPref->getLevel3FontFamily(), getPointSize() );
 		m_pShowMixerBtn->setFont( fontButtons );
 		m_pShowInstrumentRackBtn->setFont( fontButtons );
 	}

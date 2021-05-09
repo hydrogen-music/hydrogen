@@ -23,6 +23,7 @@
 #ifndef PREFERENCES_DIALOG_H
 #define PREFERENCES_DIALOG_H
 
+#include <QStringList>
 
 #include "ui_PreferencesDialog_UI.h"
 
@@ -44,7 +45,6 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 	private slots:
 		void on_okBtn_clicked();
 		void on_cancelBtn_clicked();
-		void on_selectApplicationFontBtn_clicked();
 		void on_restartDriverBtn_clicked();
 		void on_driverComboBox_activated( int index );
 		void on_bufferSizeSpinBox_valueChanged( int i );
@@ -59,15 +59,9 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void toggleOscCheckBox(bool toggled);
 		void coloringMethodCombo_currentIndexChanged (int index);
 	void onRejected();
-
-	/** Triggered every time a different option for the application
-		font was chosen in the corresponding QFontDialog*/
-	void onCurrentApplicationFontChanged(const QFont& font);
-	/** Triggered only after the final choice of the application
-		font in the corresponding QFontDialog*/
-	void onApplicationFontSelected(const QFont& font);
-	/** Triggered when the corresponding QFontDialog is cancelled.*/
-	void onApplicationFontRejected();
+	void onApplicationFontChanged(const QFont& font);
+	void onLevel2FontChanged( const QFont& font );
+	void onLevel3FontChanged( const QFont& font );
 	void onFontSizeChanged( int nIndex );
 
 private:
@@ -82,7 +76,11 @@ private:
 	/** Caching the corresponding variable in Preferences in case the
 		QFontDialog will be cancelled.*/
 	QString m_sPreviousApplicationFontFamily;
+	QString m_sPreviousLevel2FontFamily;
+	QString m_sPreviousLevel3FontFamily;
 	H2Core::Preferences::FontSize m_previousFontSize;
+
+	QStringList m_fontFamilies;
 
 };
 

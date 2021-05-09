@@ -31,7 +31,7 @@
 #include "qstylefactory.h"
 
 #include <QPixmap>
-#include <QFontDialog>
+#include <QFontDatabase>
 #include "Widgets/MidiTable.h"
 
 #include <core/MidiMap.h>
@@ -209,9 +209,19 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	resampleComboBox->setCurrentIndex( (int) Hydrogen::get_instance()->getAudioEngine()->getSampler()->getInterpolateMode() );
 
+	QFontDatabase fontDB;
+	m_fontFamilies = fontDB.families();
+	
 	// Appearance tab
 	m_sPreviousApplicationFontFamily = pPref->getApplicationFontFamily();
-	selectApplicationFontBtn->setText( m_sPreviousApplicationFontFamily );
+	m_sPreviousLevel2FontFamily = pPref->getLevel2FontFamily();
+	m_sPreviousLevel3FontFamily = pPref->getLevel3FontFamily();
+	applicationFontComboBox->setCurrentFont( QFont( m_sPreviousApplicationFontFamily ) );
+	level2FontComboBox->setCurrentFont( QFont( m_sPreviousLevel2FontFamily ) );
+	level3FontComboBox->setCurrentFont( QFont( m_sPreviousLevel3FontFamily ) );
+	connect( applicationFontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onApplicationFontChanged );
+	connect( level2FontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onLevel2FontChanged );
+	connect( level3FontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onLevel3FontChanged );
 
 	m_previousFontSize = pPref->getFontSize();
 	switch( m_previousFontSize ) {
@@ -904,10 +914,7 @@ void PreferencesDialog::updateDriverInfo()
 	driverInfoLbl->setText(info);
 }
 
-void PreferencesDialog::onCurrentApplicationFontChanged( const QFont& font ) {
-
-	DEBUGLOG("");
-	
+void PreferencesDialog::onApplicationFontChanged( const QFont& font ) {
 	auto pPref = Preferences::get_instance();
 	
 	pPref->setApplicationFontFamily( font.family() );
@@ -915,19 +922,18 @@ void PreferencesDialog::onCurrentApplicationFontChanged( const QFont& font ) {
 	HydrogenApp::get_instance()->changePreferences( true );
 }
 
-void PreferencesDialog::onApplicationFontSelected( const QFont& font ) {
-
-	DEBUGLOG("");
-	
-	onCurrentApplicationFontChanged( font );
-
-	selectApplicationFontBtn->setText( font.family() );
-}
-
-void PreferencesDialog::onApplicationFontRejected() {
+void PreferencesDialog::onLevel2FontChanged( const QFont& font ) {
 	auto pPref = Preferences::get_instance();
 	
-	pPref->setApplicationFontFamily( m_sPreviousApplicationFontFamily );
+	pPref->setLevel2FontFamily( font.family() );
+
+	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onLevel3FontChanged( const QFont& font ) {
+	auto pPref = Preferences::get_instance();
+	
+	pPref->setLevel3FontFamily( font.family() );
 
 	HydrogenApp::get_instance()->changePreferences( true );
 }
@@ -936,6 +942,8 @@ void PreferencesDialog::onRejected() {
 	auto pPref = Preferences::get_instance();
 	
 	pPref->setApplicationFontFamily( m_sPreviousApplicationFontFamily );
+	pPref->setLevel2FontFamily( m_sPreviousLevel2FontFamily );
+	pPref->setLevel3FontFamily( m_sPreviousLevel3FontFamily );
 	pPref->setFontSize( m_previousFontSize );
 
 	HydrogenApp::get_instance()->changePreferences( true );
@@ -960,29 +968,6 @@ void PreferencesDialog::onFontSizeChanged( int nIndex ) {
 	
 	HydrogenApp::get_instance()->changePreferences( true );
 }
-
-void PreferencesDialog::on_selectApplicationFontBtn_clicked()
-{
-	auto pPref = Preferences::get_instance();
-
-	m_sPreviousApplicationFontFamily = pPref->getApplicationFontFamily();
-
-	QFontDialog* pFontDialog = new QFontDialog( this );
-
-	connect( pFontDialog, &QFontDialog::currentFontChanged,
-			 this, &PreferencesDialog::onCurrentApplicationFontChanged );
-	connect( pFontDialog, &QFontDialog::fontSelected,
-			 this, &PreferencesDialog::onApplicationFontSelected );
-	connect( pFontDialog, &QFontDialog::rejected,
-			 this, &PreferencesDialog::onApplicationFontRejected );
-
-	pFontDialog->setCurrentFont( QFont( m_sPreviousApplicationFontFamily, 10 ) );
-	pFontDialog->setModal( true );
-	pFontDialog->open();
-}
-
-
-
 
 void PreferencesDialog::on_bufferSizeSpinBox_valueChanged( int i )
 {

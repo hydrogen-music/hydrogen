@@ -48,7 +48,7 @@ Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffI
 	//setAttribute(Qt::WA_OpaquePaintEvent);
 
 	m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
-	m_sLastUsedFontFamily = H2Core::Preferences::get_instance()->getApplicationFontFamily();
+	m_sLastUsedFontFamily = H2Core::Preferences::get_instance()->getLevel3FontFamily();
 
 	setMinimumSize( size );
 	setMaximumSize( size );
@@ -312,10 +312,10 @@ int Button::getPointSize() const {
 void Button::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+	if ( m_sLastUsedFontFamily != pPref->getLevel3FontFamily() ||
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
 		m_lastUsedFontSize = pPref->getFontSize();
-		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
+		m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
 		update();
 	}
 }

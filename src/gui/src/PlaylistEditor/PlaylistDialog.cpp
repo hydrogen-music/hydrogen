@@ -993,11 +993,14 @@ void PlaylistDialog::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
 	if ( font() != pPref->getApplicationFontFamily() ||
+		 ( m_pPlaylistTree->topLevelItem( 0 ) != nullptr &&
+		   m_pPlaylistTree->topLevelItem( 0 )->font( 0 ) != pPref->getLevel2FontFamily() ) ||
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
 		
 		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 		
 		QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize() );
+		QFont childFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize() );
 		setFont( font );
 		m_pMenubar->setFont( font );
 		m_pPlaylistMenu->setFont( font );
@@ -1013,7 +1016,7 @@ void PlaylistDialog::onPreferencesChanged( bool bAppearanceOnly ) {
 
 		while ( pNode != nullptr ) {
 			for ( ii = 0; ii < pNode->columnCount(); ii++ ) {
-				pNode->setFont( ii, font );
+				pNode->setFont( ii, childFont );
 			}
 			pNode = m_pPlaylistTree->itemBelow( pNode );
 		}
