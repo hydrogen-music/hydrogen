@@ -54,6 +54,7 @@ TARGET_LINK_LIBRARIES(hydrogen-core-${VERSION}
 	Qt5::Core
 	Qt5::Xml
 	Qt5::XmlPatterns
+	Qt5::Gui # For QColor
 )
 
 #SET_TARGET_PROPERTIES(hydrogen-core-${VERSION} PROPERTIES PUBLIC_HEADER   "${hydrogen_INCLUDES}" )

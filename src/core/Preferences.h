@@ -33,6 +33,7 @@
 
 #include <QStringList>
 #include <QDomDocument>
+#include <QColor>
 
 namespace H2Core
 {
@@ -66,49 +67,6 @@ public:
 
 };
 
-
-/**
-\ingroup H2CORE
-*/
-class H2RGBColor : public H2Core::Object
-{
-	H2_OBJECT
-public:
-	H2RGBColor( int r = -1, int g = -1, int b = -1 );
-	H2RGBColor( const QString& sColor );
-	~H2RGBColor();
-
-
-	bool operator==( const H2RGBColor& otherColor ) const {
-		return toStringFmt() == otherColor.toStringFmt();
-	}
-	
-	QString toStringFmt() const;
-
-	int getRed() const {
-		return m_red;
-	}
-	int getGreen() const {
-		return m_green;
-	}
-	int getBlue() const {
-		return m_blue;
-	}
-
-private:
-	int m_red;
-	int m_green;
-	int m_blue;
-
-};
-
-inline QString H2RGBColor::toStringFmt() const {
-	char tmp[255];
-	sprintf( tmp, "%d,%d,%d", m_red, m_green, m_blue );
-
-	return QString( tmp );
-}
-
 /**
 \ingroup H2CORE
 \brief	Colors for hydrogen
@@ -118,28 +76,28 @@ class UIStyle : public H2Core::Object
 	H2_OBJECT
 public:
 	UIStyle();
-	H2RGBColor m_songEditor_backgroundColor;
-	H2RGBColor m_songEditor_alternateRowColor;
-	H2RGBColor m_songEditor_selectedRowColor;
-	H2RGBColor m_songEditor_lineColor;
-	H2RGBColor m_songEditor_textColor;
-	H2RGBColor m_songEditor_pattern1Color;
+	QColor m_songEditor_backgroundColor;
+	QColor m_songEditor_alternateRowColor;
+	QColor m_songEditor_selectedRowColor;
+	QColor m_songEditor_lineColor;
+	QColor m_songEditor_textColor;
+	QColor m_songEditor_pattern1Color;
 
-	H2RGBColor m_patternEditor_backgroundColor;
-	H2RGBColor m_patternEditor_alternateRowColor;
-	H2RGBColor m_patternEditor_selectedRowColor;
-	H2RGBColor m_patternEditor_textColor;
-	H2RGBColor m_patternEditor_noteColor;
-	H2RGBColor m_patternEditor_noteoffColor;
-	H2RGBColor m_patternEditor_lineColor;
-	H2RGBColor m_patternEditor_line1Color;
-	H2RGBColor m_patternEditor_line2Color;
-	H2RGBColor m_patternEditor_line3Color;
-	H2RGBColor m_patternEditor_line4Color;
-	H2RGBColor m_patternEditor_line5Color;
+	QColor m_patternEditor_backgroundColor;
+	QColor m_patternEditor_alternateRowColor;
+	QColor m_patternEditor_selectedRowColor;
+	QColor m_patternEditor_textColor;
+	QColor m_patternEditor_noteColor;
+	QColor m_patternEditor_noteoffColor;
+	QColor m_patternEditor_lineColor;
+	QColor m_patternEditor_line1Color;
+	QColor m_patternEditor_line2Color;
+	QColor m_patternEditor_line3Color;
+	QColor m_patternEditor_line4Color;
+	QColor m_patternEditor_line5Color;
 
-	H2RGBColor m_selectionHighlightColor;
-	H2RGBColor m_selectionInactiveColor;
+	QColor m_selectionHighlightColor;
+	QColor m_selectionInactiveColor;
 };
 
 
@@ -564,8 +522,8 @@ public:
 	void			setColoringMethod( int nValue );
 	int				getColoringMethod() const;
 
-	void			setPatternColors( std::vector<H2RGBColor> patternColors );
-	std::vector<H2RGBColor> getPatternColors() const;
+	void			setPatternColors( std::vector<QColor> patternColors );
+	std::vector<QColor> getPatternColors() const;
 	void			setMaxPatternColors( int nValue );
 	int				getMaxPatternColors() const;
 	void			setVisiblePatternColors( int nValue );
@@ -816,7 +774,7 @@ private:
 
 	//Appearance: SongEditor coloring
 	int						m_nColoringMethod;
-	std::vector<H2RGBColor> m_patternColors;
+	std::vector<QColor> m_patternColors;
 	int						m_nVisiblePatternColors;
 	/** Not read from/written to disk */
 	int						m_nMaxPatternColors;
@@ -1190,10 +1148,10 @@ inline void Preferences::setPatternEditorGridWidth( unsigned value ) {
 	m_nPatternEditorGridWidth = value;
 }
 
-inline void	Preferences::setPatternColors( std::vector<H2RGBColor> patternColors ) {
+inline void	Preferences::setPatternColors( std::vector<QColor> patternColors ) {
 	m_patternColors = patternColors;
 }
-inline std::vector<H2RGBColor> Preferences::getPatternColors() const {
+inline std::vector<QColor> Preferences::getPatternColors() const {
 	return m_patternColors;
 }
 inline void	Preferences::setVisiblePatternColors( int nValue ) {

@@ -199,7 +199,7 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 
 		std::map< QPoint, GridCell > m_gridCells;
 		void updateGridCells();
-		std::vector<H2Core::H2RGBColor> m_lastUsedPatternColors;
+		std::vector<QColor> m_lastUsedPatternColors;
 		int m_nLastUsedVisiblePatternColors;
 		int m_nMaxPatternColors;
 		int m_nLastUsedColoringMethod;

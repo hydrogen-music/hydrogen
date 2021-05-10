@@ -93,6 +93,8 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 	m_nLastUsedVisiblePatternColors = pPref->getVisiblePatternColors();
 	m_nLastUsedColoringMethod = pPref->getColoringMethod();
 
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &SongEditor::onPreferencesChanged );
+
 	setAttribute(Qt::WA_OpaquePaintEvent);
 	setFocusPolicy (Qt::StrongFocus);
 
@@ -884,9 +886,9 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 void SongEditor::createBackground()
 {
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_songEditor_backgroundColor.getRed(), pStyle->m_songEditor_backgroundColor.getGreen(), pStyle->m_songEditor_backgroundColor.getBlue() );
-	QColor alternateRowColor( pStyle->m_songEditor_alternateRowColor.getRed(), pStyle->m_songEditor_alternateRowColor.getGreen(), pStyle->m_songEditor_alternateRowColor.getBlue() );
-	QColor linesColor( pStyle->m_songEditor_lineColor.getRed(), pStyle->m_songEditor_lineColor.getGreen(), pStyle->m_songEditor_lineColor.getBlue() );
+	QColor backgroundColor( pStyle->m_songEditor_backgroundColor );
+	QColor alternateRowColor( pStyle->m_songEditor_alternateRowColor );
+	QColor linesColor( pStyle->m_songEditor_lineColor );
 
 	Song *pSong = m_pHydrogen->getSong();
 
@@ -1068,9 +1070,7 @@ void SongEditor::drawPattern( int nPos, int nNumber, bool bInvertColour, double 
 		if ( nIndex > m_nMaxPatternColors ) {
 			nIndex = m_nMaxPatternColors;
 		}
-		H2RGBColor usedColor = m_lastUsedPatternColors[ nIndex ];
-		patternColor = QColor( usedColor.getRed(), usedColor.getGreen(),
-							   usedColor.getBlue() ).convertTo( QColor::Hsv );
+		patternColor = m_lastUsedPatternColors[ nIndex ].toHsv();
 	}
 
 	if ( true == bInvertColour ) {
@@ -1142,13 +1142,14 @@ void SongEditor::updateEditorandSetTrue()
 
 void SongEditor::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
-	
+
 	if ( m_lastUsedPatternColors != pPref->getPatternColors() ||
 		 m_nLastUsedVisiblePatternColors != pPref->getVisiblePatternColors() ||
 		 m_nLastUsedColoringMethod != pPref->getColoringMethod() ) {
 		m_lastUsedPatternColors = pPref->getPatternColors();
 		m_nLastUsedVisiblePatternColors = pPref->getVisiblePatternColors();
 		m_nLastUsedColoringMethod = pPref->getColoringMethod();
+		m_bSequenceChanged = true;
 		update();
 	}
 }
@@ -1381,7 +1382,7 @@ void SongEditorPatternList::createBackground()
 {
 	Preferences *pref = Preferences::get_instance();
 	UIStyle *pStyle = pref->getDefaultUIStyle();
-	QColor textColor( pStyle->m_songEditor_textColor.getRed(), pStyle->m_songEditor_textColor.getGreen(), pStyle->m_songEditor_textColor.getBlue() );
+	QColor textColor( pStyle->m_songEditor_textColor );
 
 	QFont boldTextFont( m_sLastUsedFontFamily, getPointSize() );
 	boldTextFont.setBold( true );
@@ -2199,10 +2200,11 @@ void SongEditorPositionRuler::createBackground()
 	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 	
 	UIStyle *pStyle = pPref->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_songEditor_backgroundColor.getRed(), pStyle->m_songEditor_backgroundColor.getGreen(), pStyle->m_songEditor_backgroundColor.getBlue() );
-	QColor textColor( pStyle->m_songEditor_textColor.getRed(), pStyle->m_songEditor_textColor.getGreen(), pStyle->m_songEditor_textColor.getBlue() );
-	QColor textColorAlpha( pStyle->m_songEditor_textColor.getRed(), pStyle->m_songEditor_textColor.getGreen(), pStyle->m_songEditor_textColor.getBlue(), 45 );
-	QColor alternateRowColor( pStyle->m_songEditor_alternateRowColor.getRed(), pStyle->m_songEditor_alternateRowColor.getGreen(), pStyle->m_songEditor_alternateRowColor.getBlue() );
+	QColor backgroundColor( pStyle->m_songEditor_backgroundColor );
+	QColor textColor( pStyle->m_songEditor_textColor );
+	QColor textColorAlpha( textColor );
+	textColorAlpha.setAlpha( 45 );
+	QColor alternateRowColor( pStyle->m_songEditor_alternateRowColor );
 
 	m_pBackgroundPixmap->fill( backgroundColor );
 

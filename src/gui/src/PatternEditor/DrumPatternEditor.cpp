@@ -1010,7 +1010,7 @@ void DrumPatternEditor::paste()
 void DrumPatternEditor::__draw_pattern(QPainter& painter)
 {
 	const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor.getRed(), pStyle->m_patternEditor_selectedRowColor.getGreen(), pStyle->m_patternEditor_selectedRowColor.getBlue() );
+	const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor );
 
 	__create_background( painter );
 
@@ -1164,8 +1164,8 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 	}
 	
 	// fill the first half of the rect with a solid color
-	static const QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
-	static const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor.getRed(), pStyle->m_patternEditor_selectedRowColor.getGreen(), pStyle->m_patternEditor_selectedRowColor.getBlue() );
+	static const QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
+	static const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor );
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	int nInstruments = pSong->getInstrumentList()->size();
@@ -1185,9 +1185,9 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 void DrumPatternEditor::__create_background( QPainter& p)
 {
 	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	static const QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
-	static const QColor alternateRowColor( pStyle->m_patternEditor_alternateRowColor.getRed(), pStyle->m_patternEditor_alternateRowColor.getGreen(), pStyle->m_patternEditor_alternateRowColor.getBlue() );
-	static const QColor lineColor( pStyle->m_patternEditor_lineColor.getRed(), pStyle->m_patternEditor_lineColor.getGreen(), pStyle->m_patternEditor_lineColor.getBlue() );
+	static const QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
+	static const QColor alternateRowColor( pStyle->m_patternEditor_alternateRowColor );
+	static const QColor lineColor( pStyle->m_patternEditor_lineColor );
 
 	int nNotes = MAX_NOTES;
 	if ( m_pPattern ) {

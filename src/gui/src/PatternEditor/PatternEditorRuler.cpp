@@ -52,7 +52,7 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	m_lastUsedFontSize = pPref->getFontSize();
 
 	UIStyle *pStyle = pPref->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
 
 
 	m_pPattern = nullptr;
@@ -246,7 +246,7 @@ void PatternEditorRuler::zoomIn()
 	delete m_pBackground;
 	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
 	m_pBackground->fill( backgroundColor );
 	update();
 }
@@ -266,7 +266,7 @@ void PatternEditorRuler::zoomOut()
 	delete m_pBackground;
 	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
 	m_pBackground->fill( backgroundColor );
 	update();
 	}

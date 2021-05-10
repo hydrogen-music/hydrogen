@@ -30,6 +30,7 @@
 
 #include <core/Object.h>
 
+#include <QColor>
 #include <QDomDocument>
 
 
@@ -57,9 +58,11 @@ public:
 	QString getDrumkitNameForPattern( const QString& patternDir );
 
 	static void writeXmlString( QDomNode parent, const QString& name, const QString& text );
+	static void writeXmlColor( QDomNode parent, const QString& name, const QColor& color );
 	static void writeXmlBool( QDomNode parent, const QString& name, bool value );
 
 	static QString	readXmlString( QDomNode , const QString& nodeName, const QString& defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
+	static QColor	readXmlColor( QDomNode , const QString& nodeName, const QColor& defaultValue = QColor( 97, 167, 251 ), bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
 	static float	readXmlFloat( QDomNode , const QString& nodeName, float defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
 	static int		readXmlInt( QDomNode , const QString& nodeName, int defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
 	static bool		readXmlBool( QDomNode , const QString& nodeName, bool defaultValue, bool bShouldExists = true , bool tinyXmlCompatMode = false );

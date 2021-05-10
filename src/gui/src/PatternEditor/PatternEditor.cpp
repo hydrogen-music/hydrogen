@@ -149,8 +149,8 @@ QColor PatternEditor::computeNoteColor( float velocity ) {
 void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote ) const
 {
 	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	static const QColor noteColor( pStyle->m_patternEditor_noteColor.getRed(), pStyle->m_patternEditor_noteColor.getGreen(), pStyle->m_patternEditor_noteColor.getBlue() );
-	static const QColor noteoffColor( pStyle->m_patternEditor_noteoffColor.getRed(), pStyle->m_patternEditor_noteoffColor.getGreen(), pStyle->m_patternEditor_noteoffColor.getBlue() );
+	static const QColor noteColor( pStyle->m_patternEditor_noteColor );
+	static const QColor noteoffColor( pStyle->m_patternEditor_noteoffColor );
 
 	p.setRenderHint( QPainter::Antialiasing );
 
@@ -553,21 +553,11 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 {
 	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	static const QColor res[5] = {
-		QColor( pStyle->m_patternEditor_line1Color.getRed(),
-				pStyle->m_patternEditor_line1Color.getGreen(),
-				pStyle->m_patternEditor_line1Color.getBlue() ),
-		QColor( pStyle->m_patternEditor_line2Color.getRed(),
-				pStyle->m_patternEditor_line2Color.getGreen(),
-				pStyle->m_patternEditor_line2Color.getBlue() ),
-		QColor( pStyle->m_patternEditor_line3Color.getRed(),
-				pStyle->m_patternEditor_line3Color.getGreen(),
-				pStyle->m_patternEditor_line3Color.getBlue() ),
-		QColor( pStyle->m_patternEditor_line4Color.getRed(),
-				pStyle->m_patternEditor_line4Color.getGreen(),
-				pStyle->m_patternEditor_line4Color.getBlue() ),
-		QColor( pStyle->m_patternEditor_line5Color.getRed(),
-				pStyle->m_patternEditor_line5Color.getGreen(),
-				pStyle->m_patternEditor_line5Color.getBlue() ),
+		QColor( pStyle->m_patternEditor_line1Color ),
+		QColor( pStyle->m_patternEditor_line2Color ),
+		QColor( pStyle->m_patternEditor_line3Color ),
+		QColor( pStyle->m_patternEditor_line4Color ),
+		QColor( pStyle->m_patternEditor_line5Color ),
 	};
 
 	int nGranularity = granularity() * m_nResolution;
@@ -638,14 +628,10 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 
 QColor PatternEditor::selectedNoteColor( const UIStyle *pStyle ) const {
 	if ( hasFocus() ) {
-		static const QColor selectHilightColor( pStyle->m_selectionHighlightColor.getRed(),
-												pStyle->m_selectionHighlightColor.getGreen(),
-												pStyle->m_selectionHighlightColor.getBlue() );
+		static const QColor selectHilightColor( pStyle->m_selectionHighlightColor );
 		return selectHilightColor;
 	} else {
-		static const QColor selectInactiveColor( pStyle->m_selectionInactiveColor.getRed(),
-												 pStyle->m_selectionInactiveColor.getGreen(),
-												 pStyle->m_selectionInactiveColor.getBlue() );
+		static const QColor selectInactiveColor( pStyle->m_selectionInactiveColor );
 		return selectInactiveColor;
 	}
 }

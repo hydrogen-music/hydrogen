@@ -814,17 +814,13 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 {
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 
-	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(),
-				  pStyle->m_patternEditor_line1Color.getGreen(),
-				  pStyle->m_patternEditor_line1Color.getBlue() );
+	QColor res_1( pStyle->m_patternEditor_line1Color );
 
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(),
-							pStyle->m_patternEditor_backgroundColor.getGreen(),
-							pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
 
-	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.getRed() - 20,
-							pStyle->m_patternEditor_backgroundColor.getGreen() - 20,
-							pStyle->m_patternEditor_backgroundColor.getBlue() - 20 );
+	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.red() - 20,
+							pStyle->m_patternEditor_backgroundColor.green() - 20,
+							pStyle->m_patternEditor_backgroundColor.blue() - 20 );
 
 	unsigned nNotes = MAX_NOTES;
 	if ( m_pPattern ) {
@@ -902,17 +898,13 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 {
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(),
-							pStyle->m_patternEditor_backgroundColor.getGreen(),
-							pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
 
-	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.getRed() - 20,
-							pStyle->m_patternEditor_backgroundColor.getGreen() - 20,
-							pStyle->m_patternEditor_backgroundColor.getBlue() - 20 );
+	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.red() - 20,
+							pStyle->m_patternEditor_backgroundColor.green() - 20,
+							pStyle->m_patternEditor_backgroundColor.blue() - 20 );
 
-	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(),
-				  pStyle->m_patternEditor_line1Color.getGreen(),
-				  pStyle->m_patternEditor_line1Color.getBlue() );
+	QColor res_1( pStyle->m_patternEditor_line1Color );
 
 	QPainter p( pixmap );
 
@@ -989,17 +981,13 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 {
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(),
-							pStyle->m_patternEditor_backgroundColor.getGreen(),
-							pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
 
-	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.getRed() - 20,
-							pStyle->m_patternEditor_backgroundColor.getGreen() - 20,
-							pStyle->m_patternEditor_backgroundColor.getBlue() - 20 );
+	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.red() - 20,
+							pStyle->m_patternEditor_backgroundColor.green() - 20,
+							pStyle->m_patternEditor_backgroundColor.blue() - 20 );
 
-	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(),
-				  pStyle->m_patternEditor_line1Color.getGreen(),
-				  pStyle->m_patternEditor_line1Color.getBlue() );
+	QColor res_1( pStyle->m_patternEditor_line1Color );
 
 	QPainter p( pixmap );
 
@@ -1098,17 +1086,13 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 {
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 
-	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(),
-				  pStyle->m_patternEditor_line1Color.getGreen(),
-				  pStyle->m_patternEditor_line1Color.getBlue() );
+	QColor res_1( pStyle->m_patternEditor_line1Color );
 
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(),
-							pStyle->m_patternEditor_backgroundColor.getGreen(),
-							pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
 
-	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.getRed() - 100,
-							pStyle->m_patternEditor_backgroundColor.getGreen() - 100,
-							pStyle->m_patternEditor_backgroundColor.getBlue() - 100 );
+	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.red() - 100,
+							pStyle->m_patternEditor_backgroundColor.green() - 100,
+							pStyle->m_patternEditor_backgroundColor.blue() - 100 );
 
 	unsigned nNotes = MAX_NOTES;
 	if (m_pPattern) {

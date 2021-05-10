@@ -124,6 +124,27 @@ QString LocalFileMng::readXmlString( QDomNode node , const QString& nodeName, co
 	}
 }
 
+QColor LocalFileMng::readXmlColor( QDomNode node , const QString& nodeName, const QColor& defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
+{
+	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
+	if ( text == nullptr ) {
+		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue.name() ).arg( nodeName ) );
+		return defaultValue;
+	} else {
+		QStringList textList = text.split( QLatin1Char( ',' ) );
+		if ( textList.size() != 3 ) {
+			_WARNINGLOG( QString( "\tInvalid color format : '%1' for node '%2'" ).arg( defaultValue.name() ).arg( nodeName ) );
+			return defaultValue;
+		}
+		QColor color( textList[ 0 ].toInt(), textList[ 1 ].toInt(), textList[ 2 ].toInt() );
+		if ( ! color.isValid() ) {
+			_WARNINGLOG( QString( "\tInvalid color values : '%1' for node '%2'" ).arg( defaultValue.name() ).arg( nodeName ) );
+			return defaultValue;
+		}
+		return color;
+	}
+}
+
 float LocalFileMng::readXmlFloat( QDomNode node , const QString& nodeName, float defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
@@ -167,6 +188,16 @@ void LocalFileMng::writeXmlString( QDomNode parent, const QString& name, const Q
 	QDomDocument doc;
 	QDomElement elem = doc.createElement( name );
 	QDomText t = doc.createTextNode( text );
+	elem.appendChild( t );
+	parent.appendChild( elem );
+}
+
+void LocalFileMng::writeXmlColor( QDomNode parent, const QString& name, const QColor& color )
+{
+	QDomDocument doc;
+	QDomElement elem = doc.createElement( name );
+	QDomText t = doc.createTextNode( QString( "%1,%2,%3" ).arg( color.red() )
+									 .arg( color.green() ).arg( color.blue() ) );
 	elem.appendChild( t );
 	parent.appendChild( elem );
 }

@@ -309,6 +309,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	coloringMethodCombo_currentIndexChanged( coloringMethod );
 
+	m_previousPatternColors = pPref->getPatternColors();
+
 	int nMaxPatternColors = pPref->getMaxPatternColors();
 	m_colorSelectionButtons = std::vector<ColorSelectionButton*>( nMaxPatternColors );
 	int nButtonSize = coloringMethodAuxSpinBox->height();
@@ -316,7 +318,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 									  static_cast<float>(nButtonSize + 4) );
 	colorSelectionGrid->setHorizontalSpacing( 4 );
 	for ( int ii = 0; ii < nMaxPatternColors; ii++ ) {
-		ColorSelectionButton* bbutton = new ColorSelectionButton( this, H2RGBColor( "97,167,251"), nButtonSize );
+		ColorSelectionButton* bbutton = new ColorSelectionButton( this, m_previousPatternColors[ ii ], nButtonSize );
 		bbutton->hide();
 		connect( bbutton, &ColorSelectionButton::clicked, this, &PreferencesDialog::onColorSelectionClicked );
 		colorSelectionGrid->addWidget( bbutton,
@@ -449,48 +451,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	m_bNeedDriverRestart = false;
 	connect(m_pMidiDriverComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT( onMidiDriverComboBoxIndexChanged(int) ));
-}
-
-void PreferencesDialog::onColorNumberChanged( int nIndex ) {
-	Preferences::get_instance()->setVisiblePatternColors( nIndex );
-	for ( int ii = 0; ii < Preferences::get_instance()->getMaxPatternColors(); ii++ ) {
-		if ( ii < nIndex ) {
-			m_colorSelectionButtons[ ii ]->show();
-		} else {
-			m_colorSelectionButtons[ ii ]->hide();
-		}
-	}
-	HydrogenApp::get_instance()->changePreferences( true );
-}
-
-void PreferencesDialog::onColorSelectionClicked() {
-	int nMaxPatternColors = Preferences::get_instance()->getMaxPatternColors();
-	std::vector<H2RGBColor> colors( nMaxPatternColors );
-	for ( int ii = 0; ii < nMaxPatternColors; ii++ ) {
-		colors[ ii ] = m_colorSelectionButtons[ ii ]->getColor();
-	}
-
-	Preferences::get_instance()->setPatternColors( colors );
-	HydrogenApp::get_instance()->changePreferences( true );
-}
-
-void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
-	Preferences::get_instance()->setColoringMethod( nIndex );
-
-	if ( nIndex == 0 ) {
-		coloringMethodAuxSpinBox->hide();
-		colorSelectionLabel->hide();
-		for ( int ii = 0; ii < Preferences::get_instance()->getMaxPatternColors(); ii++ ) {
-			m_colorSelectionButtons[ ii ]->hide();
-		}
-	} else {
-		coloringMethodAuxSpinBox->show();
-		colorSelectionLabel->show();
-		for ( int ii = 0; ii < m_nPreviousVisiblePatternColors; ii++ ) {
-			m_colorSelectionButtons[ ii ]->show();
-		}
-	}
-	HydrogenApp::get_instance()->changePreferences( true );
 }
 
 PreferencesDialog::~PreferencesDialog()
@@ -1031,6 +991,48 @@ void PreferencesDialog::onFontSizeChanged( int nIndex ) {
 
 void PreferencesDialog::onUILayoutChanged( int nIndex ) {
 	UIChangeWarningLabel->show();
+}
+
+void PreferencesDialog::onColorNumberChanged( int nIndex ) {
+	Preferences::get_instance()->setVisiblePatternColors( nIndex );
+	for ( int ii = 0; ii < Preferences::get_instance()->getMaxPatternColors(); ii++ ) {
+		if ( ii < nIndex ) {
+			m_colorSelectionButtons[ ii ]->show();
+		} else {
+			m_colorSelectionButtons[ ii ]->hide();
+		}
+	}
+	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onColorSelectionClicked() {
+	int nMaxPatternColors = Preferences::get_instance()->getMaxPatternColors();
+	std::vector<QColor> colors( nMaxPatternColors );
+	for ( int ii = 0; ii < nMaxPatternColors; ii++ ) {
+		colors[ ii ] = m_colorSelectionButtons[ ii ]->getColor();
+	}
+
+	Preferences::get_instance()->setPatternColors( colors );
+	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
+	Preferences::get_instance()->setColoringMethod( nIndex );
+
+	if ( nIndex == 0 ) {
+		coloringMethodAuxSpinBox->hide();
+		colorSelectionLabel->hide();
+		for ( int ii = 0; ii < Preferences::get_instance()->getMaxPatternColors(); ii++ ) {
+			m_colorSelectionButtons[ ii ]->hide();
+		}
+	} else {
+		coloringMethodAuxSpinBox->show();
+		colorSelectionLabel->show();
+		for ( int ii = 0; ii < m_nPreviousVisiblePatternColors; ii++ ) {
+			m_colorSelectionButtons[ ii ]->show();
+		}
+	}
+	HydrogenApp::get_instance()->changePreferences( true );
 }
 
 void PreferencesDialog::on_bufferSizeSpinBox_valueChanged( int i )

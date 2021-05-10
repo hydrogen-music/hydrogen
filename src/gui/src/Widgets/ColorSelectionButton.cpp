@@ -27,7 +27,7 @@
 
 const char* ColorSelectionButton::__class_name = "ColorSelectionButton";
 
-ColorSelectionButton::ColorSelectionButton( QWidget* pParent, H2Core::H2RGBColor sInitialColor, int nSize )
+ColorSelectionButton::ColorSelectionButton( QWidget* pParent, QColor sInitialColor, int nSize )
  : QPushButton( pParent )
  , Object( __class_name )
  , m_sColor( sInitialColor )
@@ -44,14 +44,10 @@ ColorSelectionButton::~ColorSelectionButton() {
 
 void ColorSelectionButton::mousePressEvent(QMouseEvent*ev) {
 
-	QColor newColor = QColorDialog::getColor( QColor( m_sColor.toStringFmt() ), this, tr( "Pick a pattern color" ) );
+	QColor newColor = QColorDialog::getColor( m_sColor, this, tr( "Pick a pattern color" ) );
 
-	int r, g, b;
-	newColor.getRgb( &r, &g, &b );
-	H2Core::H2RGBColor sNewColor( r, g, b );
-
-	if ( m_sColor.toStringFmt() != sNewColor.toStringFmt() ) {
-		m_sColor = sNewColor;
+	if ( m_sColor != newColor ) {
+		m_sColor = newColor;
 		update();
 		emit clicked();
 	}
@@ -73,9 +69,9 @@ void ColorSelectionButton::leaveEvent(QEvent *ev) {
 
 void ColorSelectionButton::paintEvent( QPaintEvent* ev) {
 	QPainter painter(this);
-	QColor color( m_sColor.toStringFmt() );
+	QColor color( m_sColor );
 	if ( m_bMouseOver ) {
-		color.setAlpha( 0.2 );
+		color.setAlpha( 200 );
 	}
 	
 	painter.setPen( QColor( "#000" ) );

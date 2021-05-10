@@ -85,7 +85,7 @@ private:
 	QString m_sPreviousLevel3FontFamily;
 	H2Core::Preferences::FontSize m_previousFontSize;
 	int m_nPreviousVisiblePatternColors;
-	std::vector<H2Core::H2RGBColor> m_previousPatternColors;
+	std::vector<QColor> m_previousPatternColors;
 
 	QStringList m_fontFamilies;
 	std::vector<ColorSelectionButton*> m_colorSelectionButtons;

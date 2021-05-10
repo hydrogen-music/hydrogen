@@ -30,7 +30,7 @@
 
 #include <QtGui>
 #include <QPushButton>
-
+#include <QColor>
 
 class ColorSelectionButton : public QPushButton, public H2Core::Object
 {
@@ -38,10 +38,10 @@ class ColorSelectionButton : public QPushButton, public H2Core::Object
 	Q_OBJECT
 
 public:
-	ColorSelectionButton( QWidget *pParent, H2Core::H2RGBColor sInitialColor, int nSize );
+	ColorSelectionButton( QWidget *pParent, QColor sInitialColor, int nSize );
 	~ColorSelectionButton();
 
-	H2Core::H2RGBColor getColor() const;
+	QColor getColor() const;
 
 signals:
 	void colorChanged();
@@ -54,12 +54,11 @@ private:
 	void leaveEvent(QEvent *ev);
 	void paintEvent( QPaintEvent* ev);
 
-	/** String representation of the color produced by QColor::setNamedColor*/
-	H2Core::H2RGBColor m_sColor;
+	QColor m_sColor;
 
 };
 
-inline H2Core::H2RGBColor ColorSelectionButton::getColor() const {
+inline QColor ColorSelectionButton::getColor() const {
 	return m_sColor;
 }
 
