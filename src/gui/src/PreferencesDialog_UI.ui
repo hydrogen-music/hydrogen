@@ -1208,7 +1208,7 @@
          <item row="2" column="0">
           <widget class="QLabel" name="coloringMethodAuxLabel">
            <property name="text">
-            <string>TextLabel</string>
+            <string>Number of colors</string>
            </property>
           </widget>
          </item>
@@ -1234,7 +1234,7 @@
             <number>1</number>
            </property>
            <property name="maximum">
-            <number>60</number>
+            <number>50</number>
            </property>
           </widget>
          </item>

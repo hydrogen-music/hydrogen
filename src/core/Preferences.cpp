@@ -1083,7 +1083,7 @@ void Preferences::savePreferences()
 		for ( int ii = 0; ii < m_nMaxPatternColors; ii++ ) {
 			LocalFileMng::writeXmlColor( guiNode, QString( "SongEditor_pattern_color_%1" ).arg( ii ), m_patternColors[ ii ] );
 		}
-		LocalFileMng::readXmlInt( guiNode, "SongEditor_visible_pattern_colors", m_nVisiblePatternColors );
+		LocalFileMng::writeXmlString( guiNode, "SongEditor_visible_pattern_colors", QString::number( m_nVisiblePatternColors ) );
 	}
 	rootNode.appendChild( guiNode );
 

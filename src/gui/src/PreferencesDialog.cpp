@@ -307,8 +307,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	coloringMethodAuxSpinBox->setFixedSize( size );
 	coloringMethodAuxSpinBox->resize( size );
 
-	coloringMethodCombo_currentIndexChanged( coloringMethod );
-
 	m_previousPatternColors = pPref->getPatternColors();
 
 	int nMaxPatternColors = pPref->getMaxPatternColors();
@@ -324,7 +322,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		colorSelectionGrid->addWidget( bbutton,
 									   std::floor( static_cast<float>( ii ) /
 												   static_cast<float>( nButtonsPerLine ) ),
-									   (ii % nButtonsPerLine) + 1);
+									   (ii % nButtonsPerLine) + 1); //+1 to take the hspace into account.
 		m_colorSelectionButtons[ ii ] = bbutton;
 	}
 
@@ -333,7 +331,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 			m_colorSelectionButtons[ ii ]->show();
 		}
 	}
-	connect( coloringMethodCombo, SIGNAL(currentIndexChanged(int)), this, SLOT( coloringMethodCombo_currentIndexChanged(int) ));
 	connect( coloringMethodAuxSpinBox, SIGNAL( valueChanged(int)), this, SLOT( onColorNumberChanged( int ) ) );
 	connect( coloringMethodCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( onColoringMethodChanged(int) ) );
 
@@ -1021,12 +1018,14 @@ void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
 
 	if ( nIndex == 0 ) {
 		coloringMethodAuxSpinBox->hide();
+		coloringMethodAuxLabel->hide();
 		colorSelectionLabel->hide();
 		for ( int ii = 0; ii < Preferences::get_instance()->getMaxPatternColors(); ii++ ) {
 			m_colorSelectionButtons[ ii ]->hide();
 		}
 	} else {
 		coloringMethodAuxSpinBox->show();
+		coloringMethodAuxLabel->show();
 		colorSelectionLabel->show();
 		for ( int ii = 0; ii < m_nPreviousVisiblePatternColors; ii++ ) {
 			m_colorSelectionButtons[ ii ]->show();
@@ -1095,27 +1094,6 @@ void PreferencesDialog::on_useLashCheckbox_clicked()
 		Preferences::get_instance()->m_bsetLash = false ;
 	}
 	QMessageBox::information ( this, "Hydrogen", tr ( "Please restart hydrogen to enable/disable LASH support" ) );
-}
-
-void PreferencesDialog::coloringMethodCombo_currentIndexChanged (int index)
-{
-	switch(index)
-	{
-		case 0:
-			coloringMethodAuxLabel->setText( "" );
-			coloringMethodAuxSpinBox->hide();
-			break;
-		case 1:
-			coloringMethodAuxLabel->setText( tr("Number of steps") );
-			coloringMethodAuxSpinBox->setMinimum(1);
-			coloringMethodAuxSpinBox->show();
-			break;
-		case 2:
-			coloringMethodAuxLabel->setText( tr("Color (Hue value)") );
-			coloringMethodAuxSpinBox->setMinimum(0);
-			coloringMethodAuxSpinBox->show();
-			break;
-	}
 }
 
 void PreferencesDialog::on_resampleComboBox_currentIndexChanged ( int index )

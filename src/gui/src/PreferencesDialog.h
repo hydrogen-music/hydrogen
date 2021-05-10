@@ -58,7 +58,6 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void onMidiDriverComboBoxIndexChanged( int index );
 		void toggleTrackOutsCheckBox(bool toggled);
 		void toggleOscCheckBox(bool toggled);
-		void coloringMethodCombo_currentIndexChanged (int index);
 	void onRejected();
 	void onApplicationFontChanged(const QFont& font);
 	void onLevel2FontChanged( const QFont& font );

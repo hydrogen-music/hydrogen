@@ -70,12 +70,13 @@ void ColorSelectionButton::leaveEvent(QEvent *ev) {
 void ColorSelectionButton::paintEvent( QPaintEvent* ev) {
 	QPainter painter(this);
 	QColor color( m_sColor );
+	QColor backgroundColor( "#333" );
 	if ( m_bMouseOver ) {
-		color.setAlpha( 200 );
+		backgroundColor = QColor( "#BBB" );
 	}
 	
-	painter.setPen( QColor( "#000" ) );
-	painter.drawRect( 0, 0, width(), height() );
+	painter.setPen( backgroundColor );
+	painter.drawRect( 0, 0, width() - 1, height() -1 );
 	painter.setPen( color );
-	painter.fillRect( 4, 4, width() - 8, height() - 8, color );
+	painter.fillRect( 3, 3, width() - 6, height() - 6, color );
 }
