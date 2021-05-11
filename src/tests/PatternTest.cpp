@@ -10,7 +10,7 @@ using namespace H2Core;
 void PatternTest::testPurgeInstrument()
 {
 	Instrument *pInstrument = new Instrument();
-	Note *pNote = new Note( pInstrument, 1, 1.0, 1.0, 1.0, 1, 1.0 );
+	Note *pNote = new Note( pInstrument, 1, 1.0, 0.f, 1, 1.0 );
 
 	Pattern *pPattern = new Pattern();
 	pPattern->insert_note( pNote );

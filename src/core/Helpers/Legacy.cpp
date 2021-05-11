@@ -72,8 +72,11 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 				pInstrument->set_drumkit_name( drumkit_name );
 				pInstrument->set_volume( instrument_node.read_float( "volume", 1.0f ) );
 				pInstrument->set_muted( instrument_node.read_bool( "isMuted", false ) );
-				pInstrument->set_pan_l( instrument_node.read_float( "pan_L", 1.0f ) );
-				pInstrument->set_pan_r( instrument_node.read_float( "pan_R", 1.0f ) );
+				float fPanL = instrument_node.read_float( "pan_L", 0.5 );
+				float fPanR = instrument_node.read_float( "pan_R", 0.5 );
+				float fPan = Sampler::getRatioPan( fPanL, fPanR ); // convert to single pan parameter				
+				pInstrument->setPan( fPan );
+
 				// may not exist, but can't be empty
 				pInstrument->set_apply_velocity( instrument_node.read_bool( "applyVelocity", true, false ) );
 				pInstrument->set_filter_active( instrument_node.read_bool( "filterActive", true, false ) );
@@ -222,8 +225,10 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 			unsigned nPosition = note_node.read_int( "position", 0 );
 			float fLeadLag = note_node.read_float( "leadlag", 0.0 , false , false);
 			float fVelocity = note_node.read_float( "velocity", 0.8f );
-			float fPan_L = note_node.read_float( "pan_L", 0.5 );
-			float fPan_R = note_node.read_float( "pan_R", 0.5 );
+			float fPanL = note_node.read_float( "pan_L", 0.5 );
+			float fPanR = note_node.read_float( "pan_R", 0.5 );
+			float fPan = Sampler::getRatioPan( fPanL, fPanR ); // convert to single pan parameter
+
 			int nLength = note_node.read_int( "length", -1, true );
 			float nPitch = note_node.read_float( "pitch", 0.0, false, false );
 			float fProbability = note_node.read_float( "probability", 1.0 , false , false );
@@ -244,7 +249,7 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 				noteoff = true;
 			}
 
-			pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch);
+			pNote = new Note( instrRef, nPosition, fVelocity, fPan, nLength, nPitch);
 			pNote->set_key_octave( sKey );
 			pNote->set_lead_lag(fLeadLag);
 			pNote->set_note_off( noteoff );

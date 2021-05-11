@@ -249,8 +249,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		pHydrogen->sequencer_setNextPattern( patternNumber );
 
 	} else {
-		static const float fPan_L = 0.5f;
-		static const float fPan_R = 0.5f;
+		static const float fPan = 0.f;
 
 		int nInstrument = nNote - 36;
 		InstrumentList *pInstrList = pHydrogen->getSong()->getInstrumentList();
@@ -306,7 +305,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 			}
 		}
 
-		pHydrogen->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, false, true, nNote );
+		pHydrogen->addRealtimeNote( nInstrument, fVelocity, fPan, 0.0, false, true, nNote );
 	}
 
 	__noteOnTick = pAudioEngine->getAddRealtimeNoteTickPosition();
@@ -385,7 +384,6 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 			}
 			
 			Note *pOffNote = new Note( pInstr,
-										0.0,
 										0.0,
 										0.0,
 										0.0,

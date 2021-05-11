@@ -944,8 +944,15 @@ Song* SongReader::readSong( const QString& sFileName )
 			float fVolume = LocalFileMng::readXmlFloat( instrumentNode, "volume", 1.0 );	// volume
 			bool bIsMuted = LocalFileMng::readXmlBool( instrumentNode, "isMuted", false );	// is muted
 			bool bIsSoloed = LocalFileMng::readXmlBool( instrumentNode, "isSoloed", false );	// is soloed
-			float fPan_L = LocalFileMng::readXmlFloat( instrumentNode, "pan_L", 0.5 );	// pan L
-			float fPan_R = LocalFileMng::readXmlFloat( instrumentNode, "pan_R", 0.5 );	// pan R
+			float fPan = LocalFileMng::readXmlFloat( instrumentNode, "pan", 0.f );
+			QString sPanL = LocalFileMng::processNode( instrumentNode, "pan_L", true, false );
+			QString sPanR = LocalFileMng::processNode( instrumentNode, "pan_R", true, false );
+			if ( !sPanL.isNull() && !sPanL.isNull() ) { // found nodes pan_L and pan_R
+				QLocale c_locale = QLocale::c();
+				float fPanL = c_locale.toFloat( sPanL );
+				float fPanR = c_locale.toFloat( sPanR );
+				fPan = Sampler::getRatioPan( fPanL, fPanR ); // convert to single pan parameter
+			}
 			float fFX1Level = LocalFileMng::readXmlFloat( instrumentNode, "FX1Level", 0.0 );	// FX level
 			float fFX2Level = LocalFileMng::readXmlFloat( instrumentNode, "FX2Level", 0.0 );	// FX level
 			float fFX3Level = LocalFileMng::readXmlFloat( instrumentNode, "FX3Level", 0.0 );	// FX level
@@ -989,8 +996,7 @@ Song* SongReader::readSong( const QString& sFileName )
 			pInstrument->set_volume( fVolume );
 			pInstrument->set_muted( bIsMuted );
 			pInstrument->set_soloed( bIsSoloed );
-			pInstrument->set_pan_l( fPan_L );
-			pInstrument->set_pan_r( fPan_R );
+			pInstrument->setPan( fPan );
 			pInstrument->set_drumkit_name( sDrumkit );
 			pInstrument->set_apply_velocity( bApplyVelocity );
 			pInstrument->set_fx_level( fFX1Level, 0 );
@@ -1534,8 +1540,18 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* pInstrList )
 			unsigned nPosition = LocalFileMng::readXmlInt( noteNode, "position", 0 );
 			float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0, false, false );
 			float fVelocity = LocalFileMng::readXmlFloat( noteNode, "velocity", 0.8f );
-			float fPan_L = LocalFileMng::readXmlFloat( noteNode, "pan_L", 0.5 );
-			float fPan_R = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 );
+			float fPan = LocalFileMng::readXmlFloat( noteNode, "pan", 0.f );
+						
+			// check if pan is expressed in the old fashion (version <= 1.1 ) with the couple (pan_L, pan_R)
+			QString sPanL = LocalFileMng::processNode( noteNode, "pan_L", true, false );
+			QString sPanR = LocalFileMng::processNode( noteNode, "pan_R", true, false );
+			if ( !sPanL.isNull() && !sPanL.isNull() ) { // found nodes pan_L and pan_R
+				QLocale c_locale = QLocale::c();
+				float fPanL = c_locale.toFloat( sPanL );
+				float fPanR = c_locale.toFloat( sPanR );
+				fPan = Sampler::getRatioPan( fPanL, fPanR ); // convert to single pan parameter
+			}
+			
 			int nLength = LocalFileMng::readXmlInt( noteNode, "length", -1, true );
 			float nPitch = LocalFileMng::readXmlFloat( noteNode, "pitch", 0.0, false, false );
 			float fProbability = LocalFileMng::readXmlFloat( noteNode, "probability", 1.0, false, false );
@@ -1558,7 +1574,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* pInstrList )
 				noteoff = true;
 			}
 
-			pNote = new Note( pInstrumentRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch );
+			pNote = new Note( pInstrumentRef, nPosition, fVelocity, fPan, nLength, nPitch );
 			pNote->set_key_octave( sKey );
 			pNote->set_lead_lag( fLeadLag );
 			pNote->set_note_off( noteoff );
@@ -1579,14 +1595,14 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* pInstrList )
 			QDomNode noteListNode = sequenceNode.firstChildElement( "noteList" );
 			QDomNode noteNode = noteListNode.firstChildElement( "note" );
 			while (  !noteNode.isNull() ) {
-
 				Note* pNote = nullptr;
 
 				unsigned nPosition = LocalFileMng::readXmlInt( noteNode, "position", 0 );
 				float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0, false, false );
 				float fVelocity = LocalFileMng::readXmlFloat( noteNode, "velocity", 0.8f );
-				float fPan_L = LocalFileMng::readXmlFloat( noteNode, "pan_L", 0.5 );
-				float fPan_R = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 );
+				float fPanL = LocalFileMng::readXmlFloat( noteNode, "pan_L", 0.5 );
+				float fPanR = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 );
+				float fPan = Sampler::getRatioPan( fPanL, fPanR ); // convert to single pan parameter
 				int nLength = LocalFileMng::readXmlInt( noteNode, "length", -1, true );
 				float nPitch = LocalFileMng::readXmlFloat( noteNode, "pitch", 0.0, false, false );
 
@@ -1595,7 +1611,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* pInstrList )
 				Instrument* instrRef = pInstrList->find( instrId );
 				assert( instrRef );
 
-				pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch );
+				pNote = new Note( instrRef, nPosition, fVelocity, fPan, nLength, nPitch );
 				pNote->set_lead_lag( fLeadLag );
 
 				//infoLog( "new note!! pos: " + toString( pNote->m_nPosition ) + "\t instr: " + instrId );

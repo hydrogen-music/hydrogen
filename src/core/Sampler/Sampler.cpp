@@ -438,18 +438,6 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 	// new instrument and note pan interaction--------------------------
 	// notePan moves the RESULTANT pan in a smaller pan range centered at instrumentPan
 
-   /** reconvert (pan_L,pan_R) to a single pan parameter (as it was input from the GUI) in [-1,1].
-	* This redundance avoids to import old files as legacy.
-	* ALWAYS use getRatioPan(), since H2 always stores pan_L,pan_R with a ratioStraightPolygonalPanLaw,
-	* up to constant multiplication, even if user chooses another type of pan law.
-	*-----Historical Note-----
-	* Originally pan_L,pan_R were actually gains for each channel.
-	* "instrument" and "note" pans were multiplied as in a gain CHAIN in each separate channel,
-	* so the chain killed the signal if instrument and note pans were hard-sided to opposites sides!
-	*/
-	float fNotePan = getRatioPan( pNote->get_pan_l(), pNote->get_pan_r() );
-	float fInstrPan = getRatioPan( pInstr->get_pan_l(), pInstr->get_pan_r() );
-	
    /** Get the RESULTANT pan, following a "matryoshka" multi panning, like in this graphic:
     *
     *   L--------------instrPan---------C------------------------------>R			(instrumentPan = -0.4)
@@ -467,7 +455,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 	*	if instrPan is sided, notePan moves the signal in a progressively smaller pan range centered at instrPan;
 	*	if instrPan is HARD-sided, notePan doesn't have any effect.
 	*/
-	float fPan = fInstrPan + fNotePan * ( 1 - fabs( fInstrPan ) );
+	float fPan = pInstr->getPan() + pNote->getPan() * ( 1 - fabs( pInstr->getPan() ) );
 	
 	// Pass fPan to the Pan Law
 	float fPan_L = panLaw( fPan, pSong );
@@ -1488,7 +1476,7 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int length )
 
 		pLayer->set_sample( pSample );
 
-		Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.5, 0.5, length, 0 );
+		Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.f, length, 0 );
 
 		stopPlayingNotes( m_pPreviewInstrument );
 		noteOn( pPreviewNote );
@@ -1511,7 +1499,7 @@ void Sampler::preview_instrument(Instrument* pInstr )
 	m_pPreviewInstrument = pInstr;
 	pInstr->set_is_preview_instrument(true);
 
-	Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.5, 0.5, MAX_NOTES, 0 );
+	Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.f, MAX_NOTES, 0 );
 
 	noteOn( pPreviewNote );	// exclusive note
 	Hydrogen::get_instance()->getAudioEngine()->unlock();

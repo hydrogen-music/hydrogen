@@ -221,20 +221,8 @@ void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 
 
 
-void CoreActionController::setStripPan( int nStrip, float fPanValue, bool bSelectStrip )
+void CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectStrip )
 {
-	float	fPan_L;
-	float	fPan_R;
-
-	if ( fPanValue >= 0.5 ) {
-		fPan_L = (1.0 - fPanValue) * 2;
-		fPan_R = 1.0;
-	}
-	else {
-		fPan_L = 1.0;
-		fPan_R = fPanValue * 2;
-	}
-
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	if ( bSelectStrip ) {
 		pHydrogen->setSelectedInstrumentNumber( nStrip );
@@ -244,14 +232,13 @@ void CoreActionController::setStripPan( int nStrip, float fPanValue, bool bSelec
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	Instrument *pInstr = pInstrList->get( nStrip );
-	pInstr->set_pan_l( fPan_L );
-	pInstr->set_pan_r( fPan_R );
+	pInstr->setPanWithRangeFrom0To1( fValue );
 	
 #ifdef H2CORE_HAVE_OSC
 	Action FeedbackAction( "PAN_ABSOLUTE" );
 	
 	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
-	FeedbackAction.setParameter2( QString("%1").arg( fPanValue ) );
+	FeedbackAction.setParameter2( QString("%1").arg( fValue ) );
 	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 	
@@ -260,7 +247,7 @@ void CoreActionController::setStripPan( int nStrip, float fPanValue, bool bSelec
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
 	
 
-	handleOutgoingControlChange( ccParamValue, fPanValue * 127 );
+	handleOutgoingControlChange( ccParamValue, fValue * 127 );
 }
 
 void CoreActionController::handleOutgoingControlChange(int param, int value)
@@ -294,20 +281,10 @@ void CoreActionController::initExternalControlInterfaces()
 			//STRIP_VOLUME_ABSOLUTE
 			Instrument *pInstr = pInstrList->get( i );
 			setStripVolume( i, pInstr->get_volume(), false );
-			
-			float fPan_L = pInstr->get_pan_l();
-			float fPan_R = pInstr->get_pan_r();
 
 			//PAN_ABSOLUTE
-			float fPanValue = 0.0;
-			if (fPan_R == 1.0) {
-				fPanValue = 1.0 - (fPan_L / 2.0);
-			}
-			else {
-				fPanValue = fPan_R / 2.0;
-			}
-		
-			setStripPan( i, fPanValue, false );
+			float fValue = pInstr->getPanWithRangeFrom0To1();
+			setStripPan( i, fValue, false );
 			
 			//STRIP_MUTE_TOGGLE
 			setStripIsMuted( i, pInstr->is_muted() );

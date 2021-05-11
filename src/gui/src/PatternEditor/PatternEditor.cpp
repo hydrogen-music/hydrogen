@@ -394,8 +394,7 @@ bool PatternEditor::notesMatchExactly( Note *pNoteA, Note *pNoteB ) const {
 	return ( pNoteA->match( pNoteB->get_instrument(), pNoteB->get_key(), pNoteB->get_octave() )
 			 && pNoteA->get_position() == pNoteB->get_position()
 			 && pNoteA->get_velocity() == pNoteB->get_velocity()
-			 && pNoteA->get_pan_r() == pNoteB->get_pan_r()
-			 && pNoteA->get_pan_l() == pNoteB->get_pan_l()
+			 && pNoteA->getPan() == pNoteB->getPan()
 			 && pNoteA->get_lead_lag() == pNoteB->get_lead_lag()
 			 && pNoteA->get_probability() == pNoteB->get_probability() );
 }

@@ -50,7 +50,7 @@ class CoreActionController : public H2Core::Object {
 		 * \param bSelectedStrip Whether the corresponding instrument
 		 * should be selected.
 		 */
-		void setStripPan( int nStrip, float fPanValue, bool bSelectStrip );
+		void setStripPan( int nStrip, float fValue, bool bSelectStrip );
 		void setMetronomeIsActive( bool isActive );
 		void setMasterIsMuted( bool isMuted );
 		

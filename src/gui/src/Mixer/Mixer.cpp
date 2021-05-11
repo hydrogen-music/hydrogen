@@ -311,7 +311,7 @@ void Mixer::noteOnClicked( MixerLine* ref )
 	Instrument *pInstr = Hydrogen::get_instance()->getSong()->getInstrumentList()->get( nLine );
 	
 	const float fPitch = pInstr->get_pitch_offset();
-	Note *pNote = new Note( pInstr, 0, 1.0, 0.5f, 0.5f, -1, fPitch );
+	Note *pNote = new Note( pInstr, 0, 1.0, 0.f, -1, fPitch );
 	pHydrogen->getAudioEngine()->getSampler()->noteOn(pNote);
 }
 
@@ -329,7 +329,7 @@ void Mixer::noteOnClicked( MixerLine* ref )
 	Instrument *pInstr = Hydrogen::get_instance()->getSong()->getInstrumentList()->get( nLine );
 
 	const float fPitch = 0.0f;
-	Note *pNote = new Note( pInstr, 0, 1.0, 0.5, 0.5, -1, fPitch );
+	Note *pNote = new Note( pInstr, 0, 1.0, 0.f,-1, fPitch );
 	pHydrogen->getAudioEngine()->getSampler()->noteOff(pNote);
 }
 
@@ -432,9 +432,6 @@ void Mixer::updateMixer()
 			pInstr->set_peak_r( 0.0f );	// reset instrument peak
 
 			QString sName = pInstr->get_name();
-			float fPan_L = pInstr->get_pan_l();
-			float fPan_R = pInstr->get_pan_r();
-
 
 			// fader
 			float fOldPeak_L = pLine->getPeak_L();
@@ -473,16 +470,9 @@ void Mixer::updateMixer()
 			pLine->setName( sName );
 
 			// pan
-			float fPanValue;
-			//calculate the "pan" parameter with the inverse pan law
-			if (fPan_R == 1.0) {
-				fPanValue = 1.0 - (fPan_L / 2.0);
-			}
-			else {
-				fPanValue = fPan_R / 2.0;
-			}
-			if ( fPanValue != pLine->getPan() ) {
-				pLine->setPan( fPanValue );
+			float fPanFrom0To1 = pInstr->getPanWithRangeFrom0To1();
+			if ( fPanFrom0To1 != pLine->getPan() ) {
+				pLine->setPan( fPanFrom0To1 );
 			}
 
 			// activity
@@ -696,13 +686,13 @@ void Mixer::nameSelected(MixerLine* ref)
 
 
 void Mixer::panChanged(MixerLine* ref) {
-	float	panValue = ref->getPan();
+	float	fPan = ref->getPan();
 	int		nLine = findMixerLineByRef(ref);
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	CoreActionController* pController = pHydrogen->getCoreActionController();
 
-	pController->setStripPan( nLine, panValue, true );
+	pController->setStripPan( nLine, fPan, true );
 }
 
 

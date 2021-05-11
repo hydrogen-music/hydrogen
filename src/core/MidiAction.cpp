@@ -578,44 +578,14 @@ bool MidiActionManager::pan_absolute(Action * pAction, Hydrogen* pHydrogen, targ
 	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
-	if( pInstrList->is_valid_index( nLine ) )
-	{
-		float pan_L;
-		float pan_R;
-	
+	if( pInstrList->is_valid_index( nLine ) ) {
 		pHydrogen->setSelectedInstrumentNumber( nLine );
-	
 		Instrument *pInstr = pInstrList->get( nLine );
-	
 		if( pInstr == nullptr ) {
 			return false;
 		}
-	
-		pan_L = pInstr->get_pan_l();
-		pan_R = pInstr->get_pan_r();
-	
-		// pan
-		float fPanValue = 0.0;
-		if (pan_R == 1.0) {
-			fPanValue = 1.0 - (pan_L / 2.0);
-		}
-		else {
-			fPanValue = pan_R / 2.0;
-		}
-	
-		fPanValue = 1 * ( ((float) pan_param) / 127.0 );
-	
-		if (fPanValue >= 0.5) {
-			pan_L = (1.0 - fPanValue) * 2;
-			pan_R = 1.0;
-		}
-		else {
-			pan_L = 1.0;
-			pan_R = fPanValue * 2;
-		}
-	
-		pInstr->set_pan_l( pan_L );
-		pInstr->set_pan_r( pan_R );
+
+		pInstr->setPanWithRangeFrom0To1( (float) pan_param / 127.f );
 	
 		pHydrogen->setSelectedInstrumentNumber(nLine);
 	}
@@ -627,7 +597,6 @@ bool MidiActionManager::pan_absolute(Action * pAction, Hydrogen* pHydrogen, targ
 // this is useful if the panning is set by a rotary control knob
 bool MidiActionManager::pan_relative(Action * pAction, Hydrogen* pHydrogen, targeted_element ) {
 
-
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pan_param = pAction->getParameter2().toInt(&ok,10);
@@ -635,51 +604,22 @@ bool MidiActionManager::pan_relative(Action * pAction, Hydrogen* pHydrogen, targ
 	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
-	if( pInstrList->is_valid_index( nLine ) )
-	{
-		float pan_L;
-		float pan_R;
-	
+	if( pInstrList->is_valid_index( nLine ) ) {	
 		pHydrogen->setSelectedInstrumentNumber( nLine );
-	
+
 		Instrument *pInstr = pInstrList->get( nLine );
-	
 		if( pInstr == nullptr ) {
 			return false;
 		}
 	
-		pan_L = pInstr->get_pan_l();
-		pan_R = pInstr->get_pan_r();
-	
-		// pan
-		float fPanValue = 0.0;
-		if (pan_R == 1.0) {
-			fPanValue = 1.0 - (pan_L / 2.0);
+		float fPan = pInstr->getPan();
+
+		if( pan_param == 1 && fPan < 1.f ) {
+			pInstr->setPan( fPan + 0.1 );
+		} else if( pan_param != 1 && fPan > -1.f ) {
+			pInstr->setPan( fPan - 0.1 );
 		}
-		else {
-			fPanValue = pan_R / 2.0;
-		}
-	
-		if( pan_param == 1 && fPanValue < 1 ) {
-			fPanValue += 0.05;
-		}
-	
-		if( pan_param != 1 && fPanValue > 0 ) {
-			fPanValue -= 0.05;
-		}
-	
-		if (fPanValue >= 0.5) {
-			pan_L = (1.0 - fPanValue) * 2;
-			pan_R = 1.0;
-		}
-		else {
-			pan_L = 1.0;
-			pan_R = fPanValue * 2;
-		}
-	
-		pInstr->set_pan_l( pan_L );
-		pInstr->set_pan_r( pan_R );
-	
+
 		pHydrogen->setSelectedInstrumentNumber(nLine);
 	}
 

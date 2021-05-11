@@ -76,8 +76,7 @@ class PianoRollEditor: public PatternEditor
 									int selectedinstrument,
 									int oldLength,
 									float oldVelocity,
-									float oldPan_L,
-									float oldPan_R,
+									float fOldPan,
 									float oldLeadLag,
 									int oldNoteKeyVal,
 									int oldOctaveKeyVal,
@@ -99,8 +98,7 @@ class PianoRollEditor: public PatternEditor
 						int selectedPatternNumber,
 						int selectedInstrumentnumber,
 						float velocity,
-						float pan_L,
-						float pan_R,
+						float fPan,
 						float leadLag,
 						int pressedLine );
 		void editNoteLengthAction( int nColumn,  int nRealColumn, int length, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedLine );
@@ -164,10 +162,8 @@ class PianoRollEditor: public PatternEditor
 		
 		float __velocity;
 		float __oldVelocity;
-		float __pan_L;
-		float __oldPan_L;
-		float __pan_R;
-		float __oldPan_R;
+		float m_fPan;
+		float m_fOldPan;
 		float __leadLag;
 		float __oldLeadLag;		
 };

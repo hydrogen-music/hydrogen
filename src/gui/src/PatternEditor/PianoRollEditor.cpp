@@ -347,8 +347,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 
 	int nLength = -1;
 	float fVelocity = 0.8f;
-	float fPan_L = 0.5f;
-	float fPan_R = 0.5f;
+	float fPan = 0.0f;
 	float fLeadLag = 0.0f;
 	float fProbability = 1.0f;
 
@@ -363,8 +362,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	if ( pOldNote ) {
 		nLength = pOldNote->get_length();
 		fVelocity = pOldNote->get_velocity();
-		fPan_L = pOldNote->get_pan_l();
-		fPan_R = pOldNote->get_pan_r();
+		fPan = pOldNote->getPan();
 		fLeadLag = pOldNote->get_lead_lag();
 		notekey = pOldNote->get_key();
 		octave = pOldNote->get_octave();
@@ -376,7 +374,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 		Preferences *pref = Preferences::get_instance();
 		if ( pref->getHearNewNotes() ) {
 			const float fPitch = pSelectedInstrument->get_pitch_offset();
-			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch );
+			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan, nLength, fPitch );
 			pNote2->set_key_octave( notekey, octave );
 			m_pAudioEngine->getSampler()->noteOn( pNote2 );
 		}
@@ -388,8 +386,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 																					   nSelectedInstrumentnumber,
 																					   nLength,
 																					   fVelocity,
-																					   fPan_L,
-																					   fPan_R,
+																					   fPan,
 																					   fLeadLag,
 																					   notekey,
 																					   octave,
@@ -449,8 +446,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 																								   nSelectedInstrumentnumber,
 																								   pNote->get_length(),
 																								   pNote->get_velocity(),
-																								   pNote->get_pan_l(),
-																								   pNote->get_pan_r(),
+																								   pNote->getPan(),
 																								   pNote->get_lead_lag(),
 																								   pNote->get_key(),
 																								   pNote->get_octave(),
@@ -513,13 +509,12 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 			__oldLength = m_pDraggedNote->get_length();
 			//needed to undo note properties
 			__oldVelocity = m_pDraggedNote->get_velocity();
-			__oldPan_L = m_pDraggedNote->get_pan_l();
-			__oldPan_R = m_pDraggedNote->get_pan_r();
+			m_fOldPan = m_pDraggedNote->getPan();
+
 			__oldLeadLag = m_pDraggedNote->get_lead_lag();
 
 			__velocity = __oldVelocity;
-			__pan_L = __oldPan_L;
-			__pan_R = __oldPan_R;
+			m_fPan = m_fOldPan;
 			__leadLag = __oldLeadLag;
 		}else
 		{
@@ -536,8 +531,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 											 int selectedinstrument,
 											 int oldLength,
 											 float oldVelocity,
-											 float oldPan_L,
-											 float oldPan_R,
+											 float fOldPan,
 											 float oldLeadLag,
 											 int oldNoteKeyVal,
 											 int oldOctaveKeyVal,
@@ -575,21 +569,19 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 		// create the new note
 		unsigned nPosition = nColumn;
 		float fVelocity = oldVelocity;
-		float fPan_L = oldPan_L;
-		float fPan_R = oldPan_R;
+		float fPan = fOldPan;
 		int nLength = oldLength;
 
 		if ( noteOff ) {
 			fVelocity = 0.0f;
-			fPan_L = 0.5f;
-			fPan_R = 0.5f;
+			fPan = 0.f;
 			nLength = 1;
 		}
 		
 		const float fPitch = 0.f;
 
 		if( pPattern ) {
-			Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
+			Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan, nLength, fPitch );
 			pNote->set_note_off( noteOff );
 			if(! noteOff) pNote->set_lead_lag( oldLeadLag );
 			pNote->set_key_octave( pressednotekey, pressedoctave );
@@ -639,8 +631,7 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 			 && pCandidateNote->get_key() == key
 			 && pCandidateNote->get_velocity() == pNote->get_velocity()
 			 && pCandidateNote->get_lead_lag() == pNote->get_lead_lag()
-			 && pCandidateNote->get_pan_r() == pNote->get_pan_r()
-			 && pCandidateNote->get_pan_l() == pNote->get_pan_r()
+			 && pCandidateNote->getPan() == pNote->getPan()
 			 && pCandidateNote->get_note_off() == pNote->get_note_off() ) {
 			pFoundNote = pCandidateNote;
 			if ( m_selection.isSelected( pFoundNote ) ) {
@@ -745,29 +736,12 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		if ( m_pDraggedNote->get_note_off() ) return;
 
 		m_pAudioEngine->lock( RIGHT_HERE );	// lock the audio engine
-
-		float pan_L, pan_R;
 		
-		float val = (m_pDraggedNote->get_pan_r() - m_pDraggedNote->get_pan_l() + 0.5);
-
 		float ymove = m_pOldPoint - ev->y();
-		val = val  +  (ymove / 100);
+		float fVal = m_pDraggedNote->getPanWithRangeFrom0To1()  +  (ymove / 100);
 
-
-		if ( val > 0.5 ) {
-			pan_L = 1.0 - val;
-			pan_R = 0.5;
-		}
-		else {
-			pan_L = 0.5;
-			pan_R = val;
-		}
-
-		m_pDraggedNote->set_pan_l( pan_L );
-		m_pDraggedNote->set_pan_r( pan_R );
-
-		__pan_L = pan_L;
-		__pan_R = pan_R;
+		m_pDraggedNote->setPanWithRangeFrom0To1( fVal ); // checks the boundaries as well
+		m_fPan = m_pDraggedNote->getPan();
 
 		Hydrogen::get_instance()->getSong()->setIsModified( true );
 		m_pAudioEngine->unlock(); // unlock the audio engine
@@ -839,17 +813,15 @@ void PianoRollEditor::mouseDragEndEvent( QMouseEvent *ev )
 		}
 
 
-		if( __velocity == __oldVelocity &&  __oldLeadLag == __leadLag && __oldPan_L == __pan_L && __oldPan_R == __pan_R ) return;
+		if( __velocity == __oldVelocity &&  __oldLeadLag == __leadLag && m_fOldPan == m_fPan ) return;
 		SE_editNotePropertiesPianoRollAction *action = new SE_editNotePropertiesPianoRollAction( m_pDraggedNote->get_position(),
 																								 m_pDraggedNote->get_position(),
 																								 m_nSelectedPatternNumber,
 																								 __selectedInstrumentnumber,
 																								 __velocity,
 																								 __oldVelocity,
-																								 __pan_L,
-																								 __oldPan_L,
-																								 __pan_R,
-																								 __oldPan_R,
+																								 m_fPan,
+																								 m_fOldPan,
 																								 __leadLag,
 																								 __oldLeadLag,
 																								 __pressedLine );
@@ -890,8 +862,7 @@ void PianoRollEditor::deleteSelection()
 																			  nSelectedInstrumentNumber,
 																			  pNote->get_length(),
 																			  pNote->get_velocity(),
-																			  pNote->get_pan_l(),
-																			  pNote->get_pan_r(),
+																			  pNote->getPan(),
 																			  pNote->get_lead_lag(),
 																			  pNote->get_key(),
 																			  pNote->get_octave(),
@@ -1003,8 +974,7 @@ void PianoRollEditor::paste()
 																	nInstrument,
 																	pNote->get_length(),
 																	pNote->get_velocity(),
-																	pNote->get_pan_l(),
-																	pNote->get_pan_r(),
+																	pNote->getPan(),
 																	pNote->get_lead_lag(),
 																	0,
 																	0,
@@ -1194,8 +1164,7 @@ void PianoRollEditor::editNotePropertiesAction( int nColumn,
 						int selectedPatternNumber,
 						int selectedInstrumentnumber,
 						float velocity,
-						float pan_L,
-						float pan_R,
+						float fPan,
 						float leadLag,
 						int pressedline )
 {
@@ -1214,8 +1183,7 @@ void PianoRollEditor::editNotePropertiesAction( int nColumn,
 	pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, pressednotekey, pressedoctave, false );
 	if ( pDraggedNote ){
 		pDraggedNote->set_velocity( velocity );
-		pDraggedNote->set_pan_l( pan_L );
-		pDraggedNote->set_pan_r( pan_R );
+		pDraggedNote->setPan( fPan );
 		pDraggedNote->set_lead_lag( leadLag );
 	}
 	pSong->setIsModified( true );
@@ -1275,19 +1243,35 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 
 		if ( m_bCopyNotMove ) {
 			if ( bNoteInRange ) {
-				pUndo->push( new SE_addOrDeleteNotePianoRollAction( nNewPosition, nLine, nSelectedPatternNumber,
-																	nSelectedInstrumentNumber, pNote->get_length(), pNote->get_velocity(),
-																	pNote->get_pan_l(), pNote->get_pan_r(),
-																	pNote->get_lead_lag(), newKey, newOctave, pNote->get_probability(), false ) );
+				pUndo->push( new SE_addOrDeleteNotePianoRollAction( nNewPosition,
+																	nLine,
+																	nSelectedPatternNumber,
+																	nSelectedInstrumentNumber,
+																	pNote->get_length(),
+																	pNote->get_velocity(),
+																	pNote->getPan(),
+																	pNote->get_lead_lag(),
+																	newKey,
+																	newOctave,
+																	pNote->get_probability(),
+																	false ) );
 			}
 		} else {
 			if ( bNoteInRange ) {
 				pUndo->push( new SE_moveNotePianoRollAction( nPosition, octave, key, nSelectedPatternNumber, nNewPosition, newOctave, newKey, pNote ) );
 			} else {
-				pUndo->push( new SE_addOrDeleteNotePianoRollAction( pNote->get_position(), nLine - offset.y(),  nSelectedPatternNumber,
-																	nSelectedInstrumentNumber, pNote->get_length(), pNote->get_velocity(),
-																	pNote->get_pan_l(), pNote->get_pan_r(),
-																	pNote->get_lead_lag(), key, octave, pNote->get_probability(), true ) );
+				pUndo->push( new SE_addOrDeleteNotePianoRollAction( pNote->get_position(),
+																	nLine - offset.y(),
+																	nSelectedPatternNumber,
+																	nSelectedInstrumentNumber,
+																	pNote->get_length(),
+																	pNote->get_velocity(),
+																	pNote->getPan(),
+																	pNote->get_lead_lag(),
+																	key,
+																	octave,
+																	pNote->get_probability(),
+																	true ) );
 			}
 		}
 	}

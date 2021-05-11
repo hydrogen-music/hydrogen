@@ -82,7 +82,7 @@ class Note : public H2Core::Object
 		 * \param length it's length
 		 * \param pitch it's pitch
 		 */
-		Note( Instrument* instrument, int position, float velocity, float pan_l, float pan_r, int length, float pitch );
+		Note( Instrument* instrument, int position, float velocity, float pan, int length, float pitch );
 
 		/**
 		 * copy constructor with an optional parameter
@@ -146,20 +146,20 @@ class Note : public H2Core::Object
 		void set_velocity( float value );
 		/** #__velocity accessor */
 		float get_velocity() const;
-		/**
-		 * #__pan_l setter
-		 * \param value the new value
-		 */
-		void set_pan_l( float value );
-		/** #__pan_l accessor */
-		float get_pan_l() const;
-		/**
-		 * #__pan_r setter
-		 * \param value the new value
-		 */
-		void set_pan_r( float value );
-		/** #__pan_r accessor */
-		float get_pan_r() const;
+		
+		/** set pan of the note. assumes the input range in [-1;1]*/
+		void setPan( float val );
+		/** set pan of the note, assuming the input range in [0;1] */
+		void setPanWithRangeFrom0To1( float fVal ) {
+			this->setPan( -1.f + 2.f * fVal ); // scale and translate into [-1;1]
+		};
+		/** get pan of the note. Output pan range: [-1;1] */
+		float getPan() const;
+		/** get pan of the note, scaling and translating the range from [-1;1] to [0;1] */
+		float getPanWithRangeFrom0To1() const {
+			return 0.5f * ( 1.f + m_fPan );
+		}
+
 		/**
 		 * #__lead_lag setter
 		 * \param value the new value
@@ -315,8 +315,7 @@ class Note : public H2Core::Object
 		int				__specific_compo_id;    ///< play a specific component, -1 if playing all
 		int				__position;             ///< note position inside the pattern
 		float			__velocity;           ///< velocity (intensity) of the note [0;1]
-		float			__pan_l;              ///< pan of the note (left volume) [0;0.5]
-		float			__pan_r;              ///< pan of the note (right volume) [0;0.5]
+		float			m_fPan;		///< pan of the note, [-1;1] from left to right, as requested by Sampler PanLaws
 		int				__length;               ///< the length of the note
 		float			__pitch;              ///< the frequency of the note
 		Key				__key;                  ///< the key, [0;11]==[C;B]
@@ -391,14 +390,9 @@ inline float Note::get_velocity() const
 	return __velocity;
 }
 
-inline float Note::get_pan_l() const
+inline float Note::getPan() const
 {
-	return __pan_l;
-}
-
-inline float Note::get_pan_r() const
-{
-	return __pan_r;
+	return m_fPan;
 }
 
 inline float Note::get_lead_lag() const

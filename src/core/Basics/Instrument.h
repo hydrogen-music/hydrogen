@@ -163,15 +163,19 @@ class Instrument : public H2Core::Object
 		/** get muted status of the instrument */
 		bool is_muted() const;
 
-		/** set left pan of the instrument */
-		void set_pan_l( float val );
-		/** get left pan of the instrument */
-		float get_pan_l() const;
+		/** set pan of the instrument */
+		void setPan( float val );
+		/** set pan of the instrument, assuming the input range in [0;1] */
+		void setPanWithRangeFrom0To1( float fVal ) {
+			this->setPan( -1.f + 2.f * fVal ); // scale and translate into [-1;1]
+		};
+		/** get pan of the instrument */
+		float getPan() const;
+		/** get pan of the instrument scaling and translating the range from [-1;1] to [0;1] */
+		float getPanWithRangeFrom0To1() const {
+			return 0.5f * ( 1.f + m_fPan );
+		}
 
-		/** set right pan of the instrument */
-		void set_pan_r( float val );
-		/** get right pan of the instrument */
-		float get_pan_r() const;
 
 		/** set gain of the instrument */
 		void set_gain( float gain );
@@ -300,8 +304,7 @@ class Instrument : public H2Core::Object
 		QString					__drumkit_name;			///< the name of the drumkit this instrument belongs to
 		float					__gain;					///< gain of the instrument
 		float					__volume;				///< volume of the instrument
-		float					__pan_l;				///< left pan of the instrument
-		float					__pan_r;				///< right pan of the instrument
+		float					m_fPan;	///< pan of the instrument, [-1;1] from left to right, as requested by Sampler PanLaws
 		float					__peak_l;				///< left current peak value
 		float					__peak_r;				///< right current peak value
 		ADSR*					__adsr;					///< attack delay sustain release instance
@@ -415,24 +418,20 @@ inline bool Instrument::is_muted() const
 	return __muted;
 }
 
-inline void Instrument::set_pan_l( float val )
+inline void Instrument::setPan( float val ) //TODO check boundary factorize function?
 {
-	__pan_l = val;
+	if ( val > 1.0 ) {
+		m_fPan = 1.0;
+	} else if ( val < -1.0 ) {
+		m_fPan = -1.0;
+	} else {
+		m_fPan = val;
+	}
 }
 
-inline float Instrument::get_pan_l() const
+inline float Instrument::getPan() const
 {
-	return __pan_l;
-}
-
-inline void Instrument::set_pan_r( float val )
-{
-	__pan_r = val;
-}
-
-inline float Instrument::get_pan_r() const
-{
-	return __pan_r;
+	return m_fPan;
 }
 
 inline void Instrument::set_gain( float gain )

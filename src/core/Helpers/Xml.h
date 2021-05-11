@@ -107,14 +107,14 @@ class XMLNode : public H2Core::Object, public QDomNode
 		 * \param value the value to write in the attribute
 		 */
 		void write_attribute( const QString& attribute, const QString& value );
-	private:
-		/**
+		/** TODO it was private
 		 * reads a string stored into a child node
 		 * \param node the name of the child node to read into
 		 * \param inexistent_ok if set to false output a DEBUG log line if the node doesn't exists
 		 * \param empty_ok if set to false output a DEBUG log line if the child node is empty
 		 */
 		QString read_child_node( const QString& node, bool inexistent_ok, bool empty_ok );
+	private:
 		/**
 		 * write a string into a child node
 		 * \param node the name of the child node to create

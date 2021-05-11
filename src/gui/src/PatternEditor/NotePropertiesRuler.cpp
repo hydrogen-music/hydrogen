@@ -244,8 +244,7 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 			pNote->set_velocity( pOldNote->get_velocity() );
 			break;
 		case PAN:
-			pNote->set_pan_l( pOldNote->get_pan_l() );
-			pNote->set_pan_r( pOldNote->get_pan_r() );
+			pNote->setPan( pOldNote->getPan() );
 			break;
 		case LEADLAG:
 			pNote->set_lead_lag( pOldNote->get_lead_lag() );
@@ -355,7 +354,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 		val = 0.0;
 	}
 	int keyval = val;
-	val = val / height();
+	val = val / height(); // val is normalized, in [0;1]
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 	Song *pSong = pHydrogen->getSong();
@@ -376,22 +375,13 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 			HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
 		}
 		else if ( m_Mode == PAN && !pNote->get_note_off() ){
-			float pan_L, pan_R;
-			if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
-				val = 0.5;
+			if ( (ev->button() == Qt::MiddleButton)
+					|| (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+				val = 0.5; // central pan
 			}
-			if ( val > 0.5 ) {
-				pan_L = 1.0 - val;
-				pan_R = 0.5;
-			}
-			else {
-				pan_L = 0.5;
-				pan_R = val;
-			}
-			m_fLastSetValue = val;
+			pNote->setPanWithRangeFrom0To1( val ); // checks the boundaries
+			m_fLastSetValue = pNote->getPanWithRangeFrom0To1();
 			m_bValueHasBeenSet = true;
-			pNote->set_pan_l( pan_L );
-			pNote->set_pan_r( pan_R );
 		}
 		else if ( m_Mode == LEADLAG ){
 			if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
@@ -482,19 +472,9 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 		break;
 	case PAN:
 		if ( !pNote->get_note_off() ) {
-			float fPanL, fPanR;
-			float fValue = (pOldNote->get_pan_r() - pOldNote->get_pan_l() + 0.5) + fDelta;
-
-			if ( fValue > PAN_MAX ) {
-				fPanL = 2*PAN_MAX - fValue;
-				fPanR = PAN_MAX;
-			} else {
-				fPanL = PAN_MAX;
-				fPanR = fValue;
-			}
-			pNote->set_pan_l( fPanL );
-			pNote->set_pan_r( fPanR );
-			m_fLastSetValue = fValue;
+			float fVal = pOldNote->getPanWithRangeFrom0To1() + fDelta; // value in [0,1] or slight out of boundaries
+			pNote->setPanWithRangeFrom0To1( fVal ); // checks the boundaries as well
+			m_fLastSetValue = pNote->getPanWithRangeFrom0To1();
 			m_bValueHasBeenSet = true;
 		}
 		break;
@@ -680,12 +660,9 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 						break;
 					case PAN:
 						if ( !pNote->get_note_off() ) {
-							if ( m_fLastSetValue > PAN_MAX ) {
-								pNote->set_pan_l( 2*PAN_MAX - m_fLastSetValue );
-								pNote->set_pan_r( PAN_MAX );
-							} else {
-								pNote->set_pan_l( PAN_MAX );
-								pNote->set_pan_r( m_fLastSetValue);
+							if ( m_fLastSetValue > 1. ) { // TODO whats this for? is it ever reached?
+								printf( "reached  m_fLastSetValue > 1 in NotePropertiesRuler.cpp\n" );
+								pNote->setPanWithRangeFrom0To1( m_fLastSetValue );
 							}
 							break;
 						}
@@ -776,10 +753,8 @@ void NotePropertiesRuler::addUndoAction()
 																	 pInstrumentList->index( pNewNote->get_instrument() ),
 																	 pNewNote->get_velocity(),
 																	 pOldNote->get_velocity(),
-																	 pNewNote->get_pan_l(),
-																	 pOldNote->get_pan_l(),
-																	 pNewNote->get_pan_r(),
-																	 pOldNote->get_pan_r(),
+																	 pNewNote->getPan(),
+																	 pOldNote->getPan(),
 																	 pNewNote->get_lead_lag(),
 																	 pOldNote->get_lead_lag(),
 																	 pNewNote->get_probability(),
@@ -951,16 +926,17 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 				QColor centerColor = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
 
 				p.setPen( Qt::NoPen );
-				if (pNote->get_pan_r() == pNote->get_pan_l()) {
+				if ( pNote->getPan() == 0.f ) {
 					// pan value is centered - draw circle
 					int y_pos = (int)( height() * 0.5 );
 					p.setBrush(QColor( centerColor ));
 					p.drawEllipse( x_pos-4 + xoffset, y_pos-4, 8, 8);
 				} else {
-					int y_start = (int)( pNote->get_pan_l() * height() );
-					int y_end = (int)( height() - pNote->get_pan_r() * height() );
+					int y_start = height() * 0.5;
+					int y_width = (int)( - 0.5 * height() * pNote->getPan() );
+
 					int nLineWidth = 3;
-					p.fillRect( x_pos - 1 + xoffset, y_start, nLineWidth, y_end - y_start, QColor(  centerColor) );
+					p.fillRect( x_pos - 1 + xoffset, y_start, nLineWidth, y_width, QColor(  centerColor) );
 					p.fillRect( x_pos - 1 + xoffset, ( height() / 2.0 ) - 2 , nLineWidth, 5, QColor(  centerColor ) );
 				}
 

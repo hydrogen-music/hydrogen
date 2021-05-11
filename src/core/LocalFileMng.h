@@ -66,9 +66,9 @@ public:
 	static void		convertFromTinyXMLString( QByteArray* str );
 	static bool		checkTinyXMLCompatMode( const QString& filename );
 	static QDomDocument openXmlDocument( const QString& filename );
-
+	static QString processNode( QDomNode node, const QString& nodeName, bool bCanBeEmpty, bool bShouldExists ); //TODO this was private
 private:
-	static QString processNode( QDomNode node, const QString& nodeName, bool bCanBeEmpty, bool bShouldExists );
+
 };
 
 

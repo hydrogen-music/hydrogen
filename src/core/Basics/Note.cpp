@@ -30,6 +30,7 @@
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Sampler/Sampler.h>
 
 namespace H2Core
 {
@@ -37,15 +38,13 @@ namespace H2Core
 const char* Note::__class_name = "Note";
 const char* Note::__key_str[] = { "C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Af", "A", "Bf", "B" };
 
-Note::Note( Instrument* instrument, int position, float velocity, float pan_l, float pan_r, int length, float pitch )
+Note::Note( Instrument* instrument, int position, float velocity, float pan, int length, float pitch )
 	: Object( __class_name ),
 	  __instrument( instrument ),
 	  __instrument_id( 0 ),
 	  __specific_compo_id( -1 ),
 	  __position( position ),
 	  __velocity( velocity ),
-	  __pan_l( PAN_MAX ),
-	  __pan_r( PAN_MAX ),
 	  __length( length ),
 	  __pitch( pitch ),
 	  __key( C ),
@@ -80,8 +79,7 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
 		}
 	}
 
-	set_pan_l(pan_l);
-	set_pan_r(pan_r);
+	setPan( pan ); // this checks the boundaries
 }
 
 Note::Note( Note* other, Instrument* instrument )
@@ -91,8 +89,7 @@ Note::Note( Note* other, Instrument* instrument )
 	  __specific_compo_id( -1 ),
 	  __position( other->get_position() ),
 	  __velocity( other->get_velocity() ),
-	  __pan_l( other->get_pan_l() ),
-	  __pan_r( other->get_pan_r() ),
+	  m_fPan( other->getPan() ),
 	  __length( other->get_length() ),
 	  __pitch( other->get_pitch() ),
 	  __key( other->get_key() ),
@@ -152,14 +149,8 @@ void Note::set_lead_lag( float lead_lag )
 	__lead_lag = check_boundary( lead_lag, LEAD_LAG_MIN, LEAD_LAG_MAX );
 }
 
-void Note::set_pan_l( float pan )
-{
-	__pan_l = check_boundary( pan, PAN_MIN, PAN_MAX );
-}
-
-void Note::set_pan_r( float pan )
-{
-	__pan_r = check_boundary( pan, PAN_MIN, PAN_MAX );
+void Note::setPan( float val ) {
+	m_fPan = check_boundary( val, -1.0f, 1.0f );
 }
 
 void Note::map_instrument( InstrumentList* instruments )
@@ -215,8 +206,7 @@ void Note::save_to( XMLNode* node )
 	node->write_int( "position", __position );
 	node->write_float( "leadlag", __lead_lag );
 	node->write_float( "velocity", __velocity );
-	node->write_float( "pan_L", __pan_l );
-	node->write_float( "pan_R", __pan_r );
+	node->write_float( "pan", m_fPan );
 	node->write_float( "pitch", __pitch );
 	node->write_string( "key", key_to_string() );
 	node->write_int( "length", __length );
@@ -227,14 +217,25 @@ void Note::save_to( XMLNode* node )
 
 Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
 {
+	float fPan = node->read_float( "pan", 0.f );
+	
+   // check if pan is expressed in the old fashion (version <= 1.1 ) with the couple (pan_L, pan_R)	
+	QString sPanL = node->read_child_node( "pan_L", true, true );
+	QString sPanR = node->read_child_node( "pan_R", true, true );
+	if ( !sPanL.isNull() && !sPanL.isNull() ) { // found nodes pan_L and pan_R
+		QLocale c_locale = QLocale::c();
+		float fPanL = c_locale.toFloat( sPanL );
+		float fPanR = c_locale.toFloat( sPanR );
+		fPan = Sampler::getRatioPan( fPanL, fPanR ); // convert to single pan parameter in [-1,1]
+	}
+
 	Note* note = new Note(
-	    nullptr,
-	    node->read_int( "position", 0 ),
-	    node->read_float( "velocity", 0.8f ),
-	    node->read_float( "pan_L", 0.5f ),
-	    node->read_float( "pan_R", 0.5f ),
-	    node->read_int( "length", -1 ),
-	    node->read_float( "pitch", 0.0f )
+		nullptr,
+		node->read_int( "position", 0 ),
+		node->read_float( "velocity", 0.8f ),
+		fPan,
+		node->read_int( "length", -1 ),
+		node->read_float( "pitch", 0.0f )
 	);
 	note->set_lead_lag( node->read_float( "leadlag", 0, false, false ) );
 	note->set_key_octave( node->read_string( "key", "C0", false, false ) );
@@ -255,8 +256,7 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2specific_compo_id: %3\n" ).arg( sPrefix ).arg( s ).arg( __specific_compo_id ) )
 			.append( QString( "%1%2position: %3\n" ).arg( sPrefix ).arg( s ).arg( __position ) )
 			.append( QString( "%1%2velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __velocity ) )
-			.append( QString( "%1%2pan_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __pan_l ) )
-			.append( QString( "%1%2pan_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __pan_r ) )
+			.append( QString( "%1%2pan: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPan ) )
 			.append( QString( "%1%2length: %3\n" ).arg( sPrefix ).arg( s ).arg( __length ) )
 			.append( QString( "%1%2pitch: %3\n" ).arg( sPrefix ).arg( s ).arg( __pitch ) )
 			.append( QString( "%1%2key: %3\n" ).arg( sPrefix ).arg( s ).arg( __key ) )
@@ -293,8 +293,7 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", specific_compo_id: %1" ).arg( __specific_compo_id ) )
 			.append( QString( ", position: %1" ).arg( __position ) )
 			.append( QString( ", velocity: %1" ).arg( __velocity ) )
-			.append( QString( ", pan_l: %1" ).arg( __pan_l ) )
-			.append( QString( ", pan_r: %1" ).arg( __pan_r ) )
+			.append( QString( ", pan: %1" ).arg( m_fPan ) )
 			.append( QString( ", length: %1" ).arg( __length ) )
 			.append( QString( ", pitch: %1" ).arg( __pitch ) )
 			.append( QString( ", key: %1" ).arg( __key ) )
