@@ -944,15 +944,18 @@ Song* SongReader::readSong( const QString& sFileName )
 			float fVolume = LocalFileMng::readXmlFloat( instrumentNode, "volume", 1.0 );	// volume
 			bool bIsMuted = LocalFileMng::readXmlBool( instrumentNode, "isMuted", false );	// is muted
 			bool bIsSoloed = LocalFileMng::readXmlBool( instrumentNode, "isSoloed", false );	// is soloed
-			float fPan = LocalFileMng::readXmlFloat( instrumentNode, "pan", 0.f );
-			QString sPanL = LocalFileMng::processNode( instrumentNode, "pan_L", true, false );
-			QString sPanR = LocalFileMng::processNode( instrumentNode, "pan_R", true, false );
-			if ( !sPanL.isNull() && !sPanL.isNull() ) { // found nodes pan_L and pan_R
-				QLocale c_locale = QLocale::c();
-				float fPanL = c_locale.toFloat( sPanL );
-				float fPanR = c_locale.toFloat( sPanR );
-				fPan = Sampler::getRatioPan( fPanL, fPanR ); // convert to single pan parameter
+			
+			bool bFound, bFound2;
+			float fPan = LocalFileMng::readXmlFloat( instrumentNode, "pan", 0.f, &bFound );
+			if ( !bFound ) {
+				// check if pan is expressed in the old fashion (version <= 1.1 ) with the pair (pan_L, pan_R)
+				float fPanL = LocalFileMng::readXmlFloat( instrumentNode, "pan_L", 1.f, &bFound );
+				float fPanR = LocalFileMng::readXmlFloat( instrumentNode, "pan_R", 1.f, &bFound2 );
+				if ( bFound == true && bFound2 == true ) { // found nodes pan_L and pan_R
+					fPan = Sampler::getRatioPan( fPanL, fPanR );  // convert to single pan parameter
+				}
 			}
+
 			float fFX1Level = LocalFileMng::readXmlFloat( instrumentNode, "FX1Level", 0.0 );	// FX level
 			float fFX2Level = LocalFileMng::readXmlFloat( instrumentNode, "FX2Level", 0.0 );	// FX level
 			float fFX3Level = LocalFileMng::readXmlFloat( instrumentNode, "FX3Level", 0.0 );	// FX level
@@ -1540,16 +1543,16 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* pInstrList )
 			unsigned nPosition = LocalFileMng::readXmlInt( noteNode, "position", 0 );
 			float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0, false, false );
 			float fVelocity = LocalFileMng::readXmlFloat( noteNode, "velocity", 0.8f );
-			float fPan = LocalFileMng::readXmlFloat( noteNode, "pan", 0.f );
-						
-			// check if pan is expressed in the old fashion (version <= 1.1 ) with the couple (pan_L, pan_R)
-			QString sPanL = LocalFileMng::processNode( noteNode, "pan_L", true, false );
-			QString sPanR = LocalFileMng::processNode( noteNode, "pan_R", true, false );
-			if ( !sPanL.isNull() && !sPanL.isNull() ) { // found nodes pan_L and pan_R
-				QLocale c_locale = QLocale::c();
-				float fPanL = c_locale.toFloat( sPanL );
-				float fPanR = c_locale.toFloat( sPanR );
-				fPan = Sampler::getRatioPan( fPanL, fPanR ); // convert to single pan parameter
+			
+			bool bFound, bFound2;
+			float fPan = LocalFileMng::readXmlFloat( noteNode, "pan", 0.f, &bFound );
+			if ( !bFound ) {
+				// check if pan is expressed in the old fashion (version <= 1.1 ) with the couple (pan_L, pan_R)
+				float fPanL = LocalFileMng::readXmlFloat( noteNode, "pan_L", 1.f, &bFound );
+				float fPanR = LocalFileMng::readXmlFloat( noteNode, "pan_R", 1.f, &bFound2 );
+				if ( bFound == true && bFound2 == true ) { // found nodes pan_L and pan_R
+					fPan = Sampler::getRatioPan( fPanL, fPanR );  // convert to single pan parameter
+				}
 			}
 			
 			int nLength = LocalFileMng::readXmlInt( noteNode, "length", -1, true );

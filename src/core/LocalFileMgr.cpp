@@ -135,6 +135,20 @@ float LocalFileMng::readXmlFloat( QDomNode node , const QString& nodeName, float
 	}
 }
 
+float LocalFileMng::readXmlFloat( QDomNode node, const QString& nodeName, float defaultValue, bool *pFound,
+														 bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode )
+{
+	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
+	if ( text == nullptr ) {
+		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ));
+		*pFound = false;
+		return defaultValue;
+	} else {
+		*pFound = true;
+		return QLocale::c().toFloat( text );
+	}
+}
+
 int LocalFileMng::readXmlInt( QDomNode node , const QString& nodeName, int defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );

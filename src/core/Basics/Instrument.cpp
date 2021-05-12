@@ -284,17 +284,17 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	pInstrument->set_drumkit_name( dk_name );
 	pInstrument->set_volume( node->read_float( "volume", 1.0f ) );
 	pInstrument->set_muted( node->read_bool( "isMuted", false ) );
-	pInstrument->setPan( node->read_float( "pan", 0.f ) );
-
-   // check if pan is expressed in the old fashion (version <= 1.1 ) with the couple (pan_L, pan_R)
-	QString sPanL = node->read_child_node( "pan_L", true, true );
-	QString sPanR = node->read_child_node( "pan_R", true, true );
-	if ( !sPanL.isNull() && !sPanL.isNull() ) { // found nodes pan_L and pan_R
-		QLocale c_locale = QLocale::c();
-		float fPanL = c_locale.toFloat( sPanL );
-		float fPanR = c_locale.toFloat( sPanR );
-		pInstrument->setPan( Sampler::getRatioPan( fPanL, fPanR ) ); // convert to single pan parameter
+	bool bFound, bFound2;
+	float fPan = node->read_float( "pan", 0.f, &bFound );
+	if ( !bFound ) {
+		// check if pan is expressed in the old fashion (version <= 1.1 ) with the pair (pan_L, pan_R)
+		float fPanL = node->read_float( "pan_L", 1.f, &bFound );
+		float fPanR = node->read_float( "pan_R", 1.f, &bFound2 );
+		if ( bFound == true && bFound2 == true ) { // found nodes pan_L and pan_R
+			fPan = Sampler::getRatioPan( fPanL, fPanR );  // convert to single pan parameter
+		}
 	}
+	pInstrument->setPan( fPan );
 	
 	// may not exist, but can't be empty
 	pInstrument->set_apply_velocity( node->read_bool( "applyVelocity", true, false ) );

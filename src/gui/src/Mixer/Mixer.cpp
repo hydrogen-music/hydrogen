@@ -686,13 +686,13 @@ void Mixer::nameSelected(MixerLine* ref)
 
 
 void Mixer::panChanged(MixerLine* ref) {
-	float	fPan = ref->getPan();
+	float	fPanFrom0To1 = ref->getPan();
 	int		nLine = findMixerLineByRef(ref);
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	CoreActionController* pController = pHydrogen->getCoreActionController();
 
-	pController->setStripPan( nLine, fPan, true );
+	pController->setStripPan( nLine, fPanfrom0To1, true );
 }
 
 

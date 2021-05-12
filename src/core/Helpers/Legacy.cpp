@@ -72,8 +72,8 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 				pInstrument->set_drumkit_name( drumkit_name );
 				pInstrument->set_volume( instrument_node.read_float( "volume", 1.0f ) );
 				pInstrument->set_muted( instrument_node.read_bool( "isMuted", false ) );
-				float fPanL = instrument_node.read_float( "pan_L", 0.5 );
-				float fPanR = instrument_node.read_float( "pan_R", 0.5 );
+				float fPanL = instrument_node.read_float( "pan_L", 1.f );
+				float fPanR = instrument_node.read_float( "pan_R", 1.f );
 				float fPan = Sampler::getRatioPan( fPanL, fPanR ); // convert to single pan parameter				
 				pInstrument->setPan( fPan );
 
