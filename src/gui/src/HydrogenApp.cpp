@@ -641,12 +641,12 @@ void HydrogenApp::onEventQueueTimer()
 	// midi notes
 	while( !pQueue->m_addMidiNoteVector.empty() ){
 		Song *pSong = Hydrogen::get_instance()->getSong();
-		Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( pQueue->m_addMidiNoteVector[0].m_row );
+		Instrument *pInstrument = pSong->getInstrumentList()->get( pQueue->m_addMidiNoteVector[0].m_row );
 		// find if a (pitch matching) note is already present
-		Note *pOldNote = pSong->getPatternList()->get( Hydrogen::get_instance()->getSelectedPatternNumber() )
+		Note *pOldNote = pSong->getPatternList()->get( pQueue->m_addMidiNoteVector[0].m_pattern )
 														->find_note( pQueue->m_addMidiNoteVector[0].m_column,
 																	 pQueue->m_addMidiNoteVector[0].m_column,
-																	 pSelectedInstrument,
+																	 pInstrument,
 																	 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
 																	 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal );
 		auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
