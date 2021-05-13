@@ -2120,15 +2120,18 @@ void audioEngine_startAudioDrivers()
 
 
 	QString sAudioDriver = preferencesMng->m_sAudioDriver;
-	QStringList drivers = { "CoreAudio", "JACK", "ALSA", "OSS", "PulseAudio" };
-
-#ifdef WIN32
-	drivers.removeAll( "PortAudio" );
-	drivers.push_front( "PortAudio" );
+#if defined(WIN32)
+    QStringList drivers = { "PortAudio", "JACK" };
+#elif defined(__APPLE__)
+    QStringList drivers = { "CoreAudio", "JACK", "PulseAudio", "PortAudio" };
+#else /* Linux */
+    QStringList drivers = { "JACK", "ALSA", "OSS", "PulseAudio", "PortAudio" };
 #endif
+
+
 	if ( sAudioDriver != "Auto" ) {
 		drivers.removeAll( sAudioDriver );
-		drivers.push_front( sAudioDriver );
+		drivers.prepend( sAudioDriver );
 	}
 	for ( QString sDriver : drivers ) {
 		if ( ( m_pAudioDriver = createDriver( sDriver ) ) != nullptr ) {
