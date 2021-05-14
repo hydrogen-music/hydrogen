@@ -132,6 +132,7 @@ class Logger {
 		queue_t __msg_queue;            ///< the message queue
 		static unsigned __bit_msk;      ///< the bitmask of log_level_t
 		static const char* __levels[];  ///< levels strings
+		pthread_cond_t __messages_available;
 
 		/** constructor */
 		Logger();

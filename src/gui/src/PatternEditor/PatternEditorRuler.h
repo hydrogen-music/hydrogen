@@ -57,7 +57,7 @@ class PatternEditorRuler : public QWidget, public H2Core::Object, public EventLi
 		void zoomIn();
 		void zoomOut();
 		float getGridWidth() const {
-		return m_nGridWidth;
+		return m_fGridWidth;
 		};
 
 	public slots:
@@ -66,7 +66,7 @@ class PatternEditorRuler : public QWidget, public H2Core::Object, public EventLi
 	private:
 		uint m_nRulerWidth;
 		uint m_nRulerHeight;
-		float m_nGridWidth;
+		float m_fGridWidth;
 
 		QPixmap *m_pBackground;
 		QPixmap m_tickPosition;

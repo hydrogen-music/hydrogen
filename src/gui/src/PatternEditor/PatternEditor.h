@@ -70,7 +70,7 @@ public:
 	uint getResolution() const { return m_nResolution; }
 	bool isUsingTriplets() const { return m_bUseTriplets;	}
 
-	float getGridWidth() const { return m_nGridWidth; }
+	float getGridWidth() const { return m_fGridWidth; }
 	unsigned getGridHeight() const { return m_nGridHeight; }
 	//! Zoom in / out on the time axis
 	void zoomIn();
@@ -145,7 +145,7 @@ public slots:
 	virtual void paste() = 0;
 	virtual void cut();
 	virtual void selectInstrumentNotes( int nInstrument );
-
+	void setCurrentInstrument( int nInstrument );
 
 protected:
 
@@ -164,7 +164,7 @@ protected:
 	uint m_nEditorHeight;
 	uint m_nEditorWidth;
 
-	float m_nGridWidth;
+	float m_fGridWidth;
 	unsigned m_nGridHeight;
 
 	int m_nSelectedPatternNumber;
