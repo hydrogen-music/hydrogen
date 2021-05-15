@@ -2,6 +2,14 @@ environment:
   GENERATOR: "MinGW Makefiles"
   matrix:
 
+    - job_name: 'Ubuntu 20.04'
+      job_group: 'Linux'
+      appveyor_build_worker_image: Ubuntu2004
+
+    - job_name: 'OS X'
+      job_group: 'Mac OS X'
+      appveyor_build_worker_image: macos
+
     - job_name: 'WindowsDebug64'
       job_group: 'Windows'
       MSYS: 'C:\msys64\mingw64'
