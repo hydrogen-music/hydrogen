@@ -96,8 +96,9 @@ QString LocalFileMng::processNode( QDomNode node, const QString& nodeName, bool 
 {
 	QDomElement element = node.firstChildElement( nodeName );
 
+	QString text;
 	if ( !node.isNull() && !element.isNull() ) {
-		QString text = element.text();
+		text = element.text();
 		if( !text.isEmpty() ) {
 			return text;
 		} else {
@@ -110,13 +111,13 @@ QString LocalFileMng::processNode( QDomNode node, const QString& nodeName, bool 
 			_WARNINGLOG( "node '" + nodeName + "' is not found" );
 		}
 	}
-	return nullptr;
+	return text;
 }
 
 QString LocalFileMng::readXmlString( QDomNode node , const QString& nodeName, const QString& defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
-	if ( text == nullptr ) {
+	if ( text.isEmpty() ) {
 		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ) );
 		return defaultValue;
 	} else {
@@ -127,7 +128,7 @@ QString LocalFileMng::readXmlString( QDomNode node , const QString& nodeName, co
 QColor LocalFileMng::readXmlColor( QDomNode node , const QString& nodeName, const QColor& defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
-	if ( text == nullptr ) {
+	if ( text.isEmpty() ) {
 		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue.name() ).arg( nodeName ) );
 		return defaultValue;
 	} else {
@@ -148,7 +149,7 @@ QColor LocalFileMng::readXmlColor( QDomNode node , const QString& nodeName, cons
 float LocalFileMng::readXmlFloat( QDomNode node , const QString& nodeName, float defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
-	if ( text == nullptr ) {
+	if ( text.isEmpty() ) {
 		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ));
 		return defaultValue;
 	} else {
@@ -159,7 +160,7 @@ float LocalFileMng::readXmlFloat( QDomNode node , const QString& nodeName, float
 int LocalFileMng::readXmlInt( QDomNode node , const QString& nodeName, int defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
-	if ( text == nullptr ) {
+	if ( text.isEmpty() ) {
 		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ));
 		return defaultValue;
 	} else {
@@ -170,7 +171,7 @@ int LocalFileMng::readXmlInt( QDomNode node , const QString& nodeName, int defau
 bool LocalFileMng::readXmlBool( QDomNode node , const QString& nodeName, bool defaultValue, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bShouldExists, bShouldExists );
-	if ( text == nullptr ) {
+	if ( text.isEmpty() ) {
 		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ? "true" : "false" ).arg( nodeName ) );
 		return defaultValue;
 	} else {
