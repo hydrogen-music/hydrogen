@@ -118,6 +118,21 @@ void setPalette( QApplication *pQApp )
 	pQApp->setStyleSheet("QToolTip {padding: 1px; border: 1px solid rgb(199, 202, 204); background-color: rgb(227, 243, 252); color: rgb(64, 64, 66);}");
 }
 
+// Handle a fatal signal, allowing the logger to complete any outstanding messages before re-raising the
+// signal to allow normal termination.
+static void handleFatalSignal( int nSignal )
+{
+	// First disable signal handler to allow normal termination
+	signal( nSignal, SIG_DFL );
+
+	// Allow logger to complete
+	H2Core::Logger* pLogger = H2Core::Logger::get_instance();
+	if ( pLogger ) {
+		delete pLogger;
+	}
+
+	raise( nSignal );
+}
 
 static int setup_unix_signal_handlers()
 {
@@ -132,6 +147,11 @@ static int setup_unix_signal_handlers()
 	if (sigaction(SIGUSR1, &usr1, nullptr) > 0) {
 		return 1;
 	}
+
+	for ( int nSignal : { SIGSEGV, SIGILL, SIGFPE, SIGBUS } ) {
+		signal( nSignal, handleFatalSignal );
+	}
+
 #endif
 	
 	return 0;
@@ -375,7 +395,8 @@ int main(int argc, char *argv[])
 		// warning dialogs before they are covered by the splash screen.
 		pQApp->processEvents();
 
-		pQApp->setFont( QFont( pPref->getApplicationFontFamily(), 10 ) );
+		QString family = pPref->getApplicationFontFamily();
+		pQApp->setFont( QFont( family, 10 ) );
 
 		QTranslator qttor( nullptr );
 		QTranslator tor( nullptr );
@@ -490,20 +511,31 @@ int main(int argc, char *argv[])
 		// Tell Hydrogen it was started via the QT5 GUI.
 		H2Core::Hydrogen::get_instance()->setGUIState( H2Core::Hydrogen::GUIState::notReady );
 		
-		// Whether or not to load a default song or supplied one when
-		// constructing the MainForm object.
-		bool bLoadSong = true;
-
 		H2Core::Hydrogen::get_instance()->startNsmClient();
-		
-		if ( H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ){
-			
-			// When using the Non Session Management system, the new
-			// Song will be loaded by the NSM client singleton itself
-			// and not by the MainForm. The latter will just access
-			// the already loaded Song.
-			bLoadSong = false;
-			
+
+		// When using the Non Session Management system, the new Song
+		// will be loaded by the NSM client singleton itself and not
+		// by the MainForm. The latter will just access the already
+		// loaded Song.
+		if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ){
+			H2Core::Song *pSong = nullptr;
+
+			if ( sSongFilename.isEmpty() ) {
+				if ( pPref->isRestoreLastSongEnabled() ) {
+					sSongFilename = pPref->getLastSongFilename();
+				}
+			}
+
+			if ( !sSongFilename.isEmpty() ) {
+				pSong = H2Core::Song::load( sSongFilename );
+			}
+
+			if ( pSong == nullptr ) {
+				pSong = H2Core::Song::getEmptySong();
+				pSong->setFilename( sSongFilename );
+			}
+
+			H2Core::Hydrogen::get_instance()->getCoreActionController()->openSong( pSong );
 		}
 
 		// If the NSM_URL variable is present, Hydrogen will not
@@ -516,7 +548,7 @@ int main(int argc, char *argv[])
 			H2Core::Hydrogen::get_instance()->restartDrivers();
 		}
 
-		MainForm *pMainForm = new MainForm( pQApp, sSongFilename, bLoadSong );
+		MainForm *pMainForm = new MainForm( pQApp );
 		pMainForm->show();
 		
 		pSplash->finish( pMainForm );

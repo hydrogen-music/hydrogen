@@ -55,16 +55,16 @@ InstrumentComponent::InstrumentComponent( int related_drumkit_componentID )
 	}
 }
 
-InstrumentComponent::InstrumentComponent( InstrumentComponent* other )
+InstrumentComponent::InstrumentComponent( std::shared_ptr<InstrumentComponent> other )
 	: Object( __class_name )
 	, __related_drumkit_componentID( other->__related_drumkit_componentID )
 	, __gain( other->__gain )
 {
 	__layers.resize( m_nMaxLayers );
 	for ( int i = 0; i < m_nMaxLayers; i++ ) {
-		InstrumentLayer* other_layer = other->get_layer( i );
+		std::shared_ptr<InstrumentLayer> other_layer = other->get_layer( i );
 		if ( other_layer ) {
-			__layers[i] = new InstrumentLayer( other_layer );
+			__layers[i] = std::make_shared<InstrumentLayer>( other_layer );
 		} else {
 			__layers[i] = nullptr;
 		}
@@ -74,17 +74,13 @@ InstrumentComponent::InstrumentComponent( InstrumentComponent* other )
 InstrumentComponent::~InstrumentComponent()
 {
 	for ( int i = 0; i < m_nMaxLayers; i++ ) {
-		delete __layers[i];
 		__layers[i] = nullptr;
 	}
 }
 
-void InstrumentComponent::set_layer( InstrumentLayer* layer, int idx )
+void InstrumentComponent::set_layer( std::shared_ptr<InstrumentLayer> layer, int idx )
 {
 	assert( idx >= 0 && idx < m_nMaxLayers );
-	if ( __layers[ idx ] ) {
-		delete __layers[ idx ];
-	}
 	__layers[ idx ] = layer;
 }
 
@@ -98,14 +94,14 @@ int InstrumentComponent::getMaxLayers()
 	return m_nMaxLayers;
 }
 
-InstrumentComponent* InstrumentComponent::load_from( XMLNode* node, const QString& dk_path )
+std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from( XMLNode* node, const QString& dk_path )
 {
 	int id = node->read_int( "component_id", EMPTY_INSTR_ID, false, false );
 	if ( id==EMPTY_INSTR_ID ) {
 		return nullptr;
 	}
 
-	InstrumentComponent* pInstrumentComponent = new InstrumentComponent( id );
+	auto pInstrumentComponent = std::make_shared<InstrumentComponent>( id );
 	pInstrumentComponent->set_gain( node->read_float( "gain", 1.0f, true, false ) );
 	XMLNode layer_node = node->firstChildElement( "layer" );
 	int n = 0;
@@ -130,7 +126,7 @@ void InstrumentComponent::save_to( XMLNode* node, int component_id )
 		component_node.write_float( "gain", __gain );
 	}
 	for ( int n = 0; n < m_nMaxLayers; n++ ) {
-		InstrumentLayer* pLayer = get_layer( n );
+		auto pLayer = get_layer( n );
 		if( pLayer ) {
 			if( component_id == -1 ) {
 				pLayer->save_to( &component_node );

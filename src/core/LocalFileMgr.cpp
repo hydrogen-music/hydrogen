@@ -486,7 +486,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 
 	// INSTRUMENT NODE
 	for ( unsigned i = 0; i < nInstrument; i++ ) {
-		Instrument * pInstr = pSong->getInstrumentList()->get( i );
+		auto  pInstr = pSong->getInstrumentList()->get( i );
 		assert( pInstr );
 
 		QDomNode instrumentNode = doc.createElement( "instrument" );
@@ -540,8 +540,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 		LocalFileMng::writeXmlString( instrumentNode, "lower_cc", QString("%1").arg( pInstr->get_lower_cc() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "higher_cc", QString("%1").arg( pInstr->get_higher_cc() ) );
 
-		for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
-			InstrumentComponent* pComponent = *it;
+		for ( const auto& pComponent : *pInstr->get_components() ) {
 
 			QDomNode componentNode = doc.createElement( "instrumentComponent" );
 
@@ -549,7 +548,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 			LocalFileMng::writeXmlString( componentNode, "gain", QString("%1").arg( pComponent->get_gain() ) );
 
 			for ( unsigned nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-				InstrumentLayer *pLayer = pComponent->get_layer( nLayer );
+				auto pLayer = pComponent->get_layer( nLayer );
 				if ( pLayer == nullptr ) {
 					continue;
 				}

@@ -16,7 +16,7 @@ using namespace H2Core;
 
 #define ASSERT_INSTRUMENT_MIDI_NOTE(name, note, instr) checkInstrumentMidiNote(name, note, instr, CPPUNIT_SOURCELINE())
 void
-checkInstrumentMidiNote(std::string name, int note, Instrument *instr, CppUnit::SourceLine sl)
+checkInstrumentMidiNote(std::string name, int note, std::shared_ptr<Instrument> instr, CppUnit::SourceLine sl)
 {
 	auto instrName = instr->get_name().toStdString();
 	auto instrIdx = instr->get_id();

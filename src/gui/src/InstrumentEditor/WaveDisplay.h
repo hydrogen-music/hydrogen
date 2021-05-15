@@ -43,7 +43,7 @@ class WaveDisplay : public QWidget, public H2Core::Object
 		explicit WaveDisplay(QWidget* pParent);
 		~WaveDisplay();
 
-		virtual void	updateDisplay( H2Core::InstrumentLayer *pLayer );
+		virtual void	updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 
 		void			paintEvent( QPaintEvent *ev );
 		void			resizeEvent( QResizeEvent * event );
@@ -69,7 +69,7 @@ public slots:
 		
 		int							m_nCurrentWidth;
 		
-		H2Core::InstrumentLayer *	m_pLayer;
+		std::shared_ptr<H2Core::InstrumentLayer>	m_pLayer;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
 		/** Converts #m_lastUsedFontSize into a point size used for

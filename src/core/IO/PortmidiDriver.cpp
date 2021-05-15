@@ -348,7 +348,7 @@ void PortMidiDriver::handleQueueAllNoteOff()
 
 	unsigned int numInstruments = instList->size();
 	for (int index = 0; index < numInstruments; ++index) {
-		Instrument *pCurInst = instList->get(index);
+		auto pCurInst = instList->get(index);
 
 		int channel = pCurInst->get_midi_out_channel();
 		if (channel < 0) {

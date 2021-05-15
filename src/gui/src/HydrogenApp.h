@@ -74,7 +74,7 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		H2_OBJECT
 	Q_OBJECT
 	public:
-		HydrogenApp( MainForm* pMainForm, H2Core::Song *pFirstSong );
+		HydrogenApp( MainForm* pMainForm );
 
 		/// Returns the instance of HydrogenApp class
 		static HydrogenApp* get_instance();
@@ -267,12 +267,11 @@ signals:
 		 * an OSC message, this command will get core and GUI in sync
 		 * again. 
 		 *
-		 * \param nValue If 0 or 1, loads the Song stored in
-		 *     H2Core::Hydrogen::m_pNextSong. If 1, also restarts the
-		 *     audio driver via H2Core::Hydrogen::restartDrivers(). If
-		 *     2, a message in the status bar will be displayed
-		 *     notifying the user about the saving of the current Song
-		 *     to the config file.
+		 * \param nValue If 0, update the GUI to represent the new song. If
+		 *     1, a message in the status bar will be displayed
+		 *     notifying the user about the saving of the current
+		 *     Song. If 2, notifies the user that the current song is
+		 *     opened in read-only mode.
 		 */
 		virtual void updateSongEvent( int nValue ) override;
 		/**

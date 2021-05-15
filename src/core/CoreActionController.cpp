@@ -84,7 +84,7 @@ void CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
-	Instrument *pInstr = pInstrList->get( nStrip );
+	auto pInstr = pInstrList->get( nStrip );
 	pInstr->set_volume( fVolumeValue );
 	
 #ifdef H2CORE_HAVE_OSC
@@ -147,7 +147,7 @@ void CoreActionController::toggleStripIsMuted(int nStrip)
 	
 	if( pInstrList->is_valid_index( nStrip ))
 	{
-		Instrument* pInstr = pInstrList->get( nStrip );
+		auto pInstr = pInstrList->get( nStrip );
 		
 		if( pInstr ) {
 			setStripIsMuted( nStrip , !pInstr->is_muted() );
@@ -161,7 +161,7 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
-	Instrument *pInstr = pInstrList->get( nStrip );
+	auto pInstr = pInstrList->get( nStrip );
 	pInstr->set_muted( isMuted );
 	
 #ifdef H2CORE_HAVE_OSC
@@ -187,7 +187,7 @@ void CoreActionController::toggleStripIsSoloed( int nStrip )
 	
 	if( pInstrList->is_valid_index( nStrip ))
 	{
-		Instrument* pInstr = pInstrList->get( nStrip );
+		auto pInstr = pInstrList->get( nStrip );
 	
 		if( pInstr ) {
 			setStripIsSoloed( nStrip , !pInstr->is_soloed() );
@@ -201,7 +201,7 @@ void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
-	Instrument* pInstr = pInstrList->get( nStrip );
+	auto pInstr = pInstrList->get( nStrip );
 	pInstr->set_soloed( isSoloed );
 	
 #ifdef H2CORE_HAVE_OSC
@@ -243,7 +243,7 @@ void CoreActionController::setStripPan( int nStrip, float fPanValue, bool bSelec
 	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
-	Instrument *pInstr = pInstrList->get( nStrip );
+	auto pInstr = pInstrList->get( nStrip );
 	pInstr->set_pan_l( fPan_L );
 	pInstr->set_pan_r( fPan_R );
 	
@@ -292,7 +292,7 @@ void CoreActionController::initExternalControlInterfaces()
 	for(int i=0; i < pInstrList->size(); i++){
 		
 			//STRIP_VOLUME_ABSOLUTE
-			Instrument *pInstr = pInstrList->get( i );
+			auto pInstr = pInstrList->get( i );
 			setStripVolume( i, pInstr->get_volume(), false );
 			
 			float fPan_L = pInstr->get_pan_l();
@@ -335,9 +335,6 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 		pHydrogen->sequencer_stop();
 	}
 	
-	// Remove all BPM tags on the Timeline.
-	pHydrogen->getTimeline()->deleteAllTempoMarkers();
-	
 	// Create an empty Song.
 	auto pSong = Song::getEmptySong();
 	
@@ -347,26 +344,21 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 
 		return false;
 	}
-	
+
+	// Remove all BPM tags on the Timeline.
+	pHydrogen->getTimeline()->deleteAllTempoMarkers();
+	pHydrogen->getTimeline()->deleteAllTags();
+
+	if ( pHydrogen->isUnderSessionManagement() ) {
+		pHydrogen->restartDrivers();
+	}		
+
 	pSong->setFilename( sSongPath );
+
+	pHydrogen->setSong( pSong );
 	
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
-		
-		// Store the prepared Song for the GUI to access after the
-		// EVENT_UPDATE_SONG event was triggered.
-		pHydrogen->setNextSong( pSong );
-		
-		// If the GUI is active, the Song *must not* be set by the
-		// core part itself.
-		// Triggers an update of the Qt5 GUI and tells it to update
-		// the song itself.
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
-		
-	} else {
-
-		// Update the Song.
-		pHydrogen->setSong( pSong );
-		
 	}
 	
 	return true;
@@ -422,35 +414,24 @@ bool CoreActionController::setSong( Song* pSong ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	// Remove all BPM tags on the Timeline.
+	// Remove all BPM markers and tags on the Timeline.
 	pHydrogen->getTimeline()->deleteAllTempoMarkers();
+	pHydrogen->getTimeline()->deleteAllTags();
+
+	// Update the Song.
+	pHydrogen->setSong( pSong );
+		
+	if ( pHydrogen->isUnderSessionManagement() ) {
+		pHydrogen->restartDrivers();
+	} else {
+		// Add the new loaded song in the "last used song" vector.
+		// This behavior is prohibited under session management. Only
+		// songs open during normal runs will be listed.
+		Preferences::get_instance()->insertRecentFile( pSong->getFilename() );
+	}
 
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
-		
-		// Store the prepared Song for the GUI to access after the
-		// EVENT_UPDATE_SONG event was triggered.
-		pHydrogen->setNextSong( pSong );
-		
-		int nRestartAudioDriver = 0;
-
-		if ( pHydrogen->isUnderSessionManagement() ) {
-			nRestartAudioDriver = 1;
-		}
-		
-		// If the GUI is active, the Song *must not* be set by the
-		// core part itself.
-		// Triggers an update of the Qt5 GUI and tells it to update
-		// the song itself.
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, nRestartAudioDriver );
-		
-	} else {
-
-		// Update the Song.
-		pHydrogen->setSong( pSong );
-		
-		if ( pHydrogen->isUnderSessionManagement() ) {
-			pHydrogen->restartDrivers();
-		}
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
 	}
 	
 	return true;
@@ -481,7 +462,7 @@ bool CoreActionController::saveSong() {
 	
 	// Update the status bar.
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
 	}
 	
 	return true;
@@ -515,7 +496,7 @@ bool CoreActionController::saveSongAs( const QString& sSongPath ) {
 	
 	// Update the status bar.
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
 	}
 	
 	return true;
@@ -568,7 +549,7 @@ bool CoreActionController::isSongPathValid( const QString& sSongPath ) {
 		if ( !songFileInfo.isWritable() ) {
 			WARNINGLOG( QString( "You don't have permissions to write to the Song found in path [%1]. It will be opened as read-only (no autosave)." )
 						.arg( sSongPath.toLocal8Bit().data() ));
-			EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 3 );
+			EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
 		}
 	}
 	

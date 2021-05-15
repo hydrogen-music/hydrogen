@@ -200,7 +200,7 @@ void SoundLibraryPanel::updateDrumkitList()
 			if ( ! m_bInItsOwnDialog ) {
 				InstrumentList *pInstrList = pInfo->get_instruments();
 				for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
-					Instrument *pInstr = pInstrList->get( nInstr );
+					auto pInstr = pInstrList->get( nInstr );
 					QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
 					pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
 					pInstrumentItem->setToolTip( 0, pInstr->get_name() );
@@ -221,7 +221,7 @@ void SoundLibraryPanel::updateDrumkitList()
 			if ( ! m_bInItsOwnDialog ) {
 				InstrumentList *pInstrList = pInfo->get_instruments();
 				for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
-					Instrument *pInstr = pInstrList->get( nInstr );
+					auto pInstr = pInstrList->get( nInstr );
 					QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
 					pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
 					pInstrumentItem->setToolTip( 0, pInstr->get_name() );
@@ -348,7 +348,7 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 		QString sDrumkitName = item->parent()->text(0);
 		INFOLOG( QString(sDrumkitName) + ", instr:" + sInstrName );
 
-		Instrument *pInstrument = Instrument::load_instrument( sDrumkitName, sInstrName );
+		auto pInstrument = Instrument::load_instrument( sDrumkitName, sInstrName );
 		pInstrument->set_muted( false );
 
 		Hydrogen::get_instance()->getAudioEngine()->getSampler()->preview_instrument( pInstrument );

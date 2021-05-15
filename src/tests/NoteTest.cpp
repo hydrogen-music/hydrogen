@@ -30,7 +30,7 @@ class NoteTest : public CppUnit::TestCase {
 		XMLNode node(root);
 
 		InstrumentList *instruments = new InstrumentList();
-		Instrument *snare = new Instrument( 1, "Snare", nullptr );
+		auto snare = std::make_shared<Instrument>( 1, "Snare", nullptr );
 		instruments->add( snare );
 
 		Note *in = new Note(snare, 0, 1.0f, 0.5f, 0.5f, 1, 1.0f);

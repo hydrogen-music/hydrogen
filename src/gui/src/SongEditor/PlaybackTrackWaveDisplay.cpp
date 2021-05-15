@@ -80,7 +80,7 @@ void PlaybackTrackWaveDisplay::dragMoveEvent(QDragMoveEvent *event)
 	event->accept();
 }
 
-void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
+void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer )
 {
 	HydrogenApp* pH2App = HydrogenApp::get_instance();
 	Preferences* pPref = Preferences::get_instance();

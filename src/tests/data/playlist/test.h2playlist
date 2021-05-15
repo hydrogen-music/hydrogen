@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<playlist xmlns="http://www.hydrogen-music.org/playlist" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <name>test.h2playlist</name>
+ <songs>
+  <song>
+   <path>../../../git/hydrogen/data/demo_songs/GM_kit_demo1.h2song</path>
+   <scriptPath>no Script</scriptPath>
+   <scriptEnabled>false</scriptEnabled>
+  </song>
+  <song>
+   <path>../../../git/hydrogen/data/demo_songs/GM_kit_demo2.h2song</path>
+   <scriptPath>no Script</scriptPath>
+   <scriptEnabled>false</scriptEnabled>
+  </song>
+ </songs>
+</playlist>

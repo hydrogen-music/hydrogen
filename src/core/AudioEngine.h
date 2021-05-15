@@ -985,7 +985,7 @@ private:
 	 *
 	 * Initialized in audioEngine_init().
 	 */
-	Instrument *		m_pMetronomeInstrument;
+	std::shared_ptr<Instrument>		m_pMetronomeInstrument;
 };
 
 

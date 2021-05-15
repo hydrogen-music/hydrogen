@@ -134,7 +134,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
 	Song *pSong = pHydrogen->getSong();
-	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( pHydrogen->getSelectedInstrumentNumber() );
+	auto pSelectedInstrument = pSong->getInstrumentList()->get( pHydrogen->getSelectedInstrumentNumber() );
 
 	// Gather notes to act on: selected or under the mouse cursor
 	std::list< Note *> notes;
@@ -200,7 +200,7 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	Song *pSong = pHydrogen->getSong();
-	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( pHydrogen->getSelectedInstrumentNumber() );
+	auto pSelectedInstrument = pSong->getInstrumentList()->get( pHydrogen->getSelectedInstrumentNumber() );
 	float fDelta;
 
 	QPoint movingOffset = m_selection.movingOffset();
@@ -307,7 +307,7 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 
 	Song *pSong = pHydrogen->getSong();
 	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
-	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrument );
+	auto pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrument );
 
 	if ( m_selection.begin() != m_selection.end() ) {
 		// If there is a selection, preserve the initial state of all the selected notes.
@@ -361,7 +361,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 	Song *pSong = pHydrogen->getSong();
-	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrument );
+	auto pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrument );
 
 	FOREACH_NOTE_CST_IT_BOUND(  m_pPattern->get_notes(), it, nColumn ) {
 		Note *pNote = it->second;
@@ -1296,7 +1296,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 	const Pattern::notes_t* notes = m_pPattern->get_notes();
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	Instrument *pInstrument = pSong->getInstrumentList()->get( nSelectedInstrument );
+	auto pInstrument = pSong->getInstrumentList()->get( nSelectedInstrument );
 
 	// Account for the notional active area of the slider. We allow a
 	// width of 8 as this is the size of the circle used for the zero

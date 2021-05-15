@@ -51,12 +51,12 @@ namespace H2Core
 		/** copy constructor, will be initialized with an empty sample
 		 * \param other the instrument layer to copy from
 		 */
-		InstrumentLayer( InstrumentLayer* other );
+		InstrumentLayer( std::shared_ptr<InstrumentLayer> other );
 		/** copy constructor
 		 * \param other the instrument layer to copy from
 		 * \param sample the sample to use
 		 */
-		InstrumentLayer( InstrumentLayer* other, std::shared_ptr<Sample> sample );
+		InstrumentLayer( std::shared_ptr<InstrumentLayer> other, std::shared_ptr<Sample> sample );
 		/** destructor */
 		~InstrumentLayer();
 
@@ -103,7 +103,7 @@ namespace H2Core
 		 * \param dk_path the directory holding the drumkit data
 		 * \return a new InstrumentLayer instance
 		 */
-		static InstrumentLayer* load_from( XMLNode* node, const QString& dk_path );
+		static std::shared_ptr<InstrumentLayer> load_from( XMLNode* node, const QString& dk_path );
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line

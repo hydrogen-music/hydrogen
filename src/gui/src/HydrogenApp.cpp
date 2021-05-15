@@ -68,7 +68,7 @@ using namespace H2Core;
 HydrogenApp* HydrogenApp::m_pInstance = nullptr;
 const char* HydrogenApp::__class_name = "HydrogenApp";
 
-HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
+HydrogenApp::HydrogenApp( MainForm *pMainForm )
  : Object( __class_name )
  , m_pMainForm( pMainForm )
  , m_pMixer( nullptr )
@@ -89,12 +89,6 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	connect( m_pEventQueueTimer, SIGNAL( timeout() ), this, SLOT( onEventQueueTimer() ) );
 	m_pEventQueueTimer->start( QUEUE_TIMER_PERIOD );
 
-	if ( ! Hydrogen::get_instance()->isUnderSessionManagement() ) {
-		// When under Non Session Management the new Song will be
-		// loaded by the corresponding NSM client instance.
-		Hydrogen::get_instance()->setSong( pFirstSong );
-	} 
-	
 	SoundLibraryDatabase::create_instance();
 
 	//setup the undo stack
@@ -803,31 +797,17 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();	
 	
-	if ( nValue == 0 || nValue == 1 ) {
-
-		// Set a Song prepared by the core part.
-		Song* pNextSong = pHydrogen->getNextSong();
-		
-		pHydrogen->setSong( pNextSong );
-
+	if ( nValue == 0 ) {
 		// Cleanup
 		closeFXProperties();
 		m_pUndoStack->clear();
 		
-		// Add the new loaded song in the "last used song" vector.
-		// This behavior is prohibited under session management. Only
-		// songs open during normal runs will be listed.
-		if ( ! pHydrogen->isUnderSessionManagement() ) {
-			Preferences::get_instance()->insertRecentFile( pNextSong->getFilename() );
-		}
-
 		// Update GUI components
 		m_pSongEditorPanel->updateAll();
 		m_pPatternEditorPanel->updateSLnameLabel();
 		updateWindowTitle();
 		getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 		getSongEditorPanel()->updatePositionRuler();
-		pHydrogen->getTimeline()->deleteAllTags();
 	
 		// Trigger a reset of the Director and MetronomeWidget.
 		EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
@@ -837,11 +817,7 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		m_pPatternEditorPanel->updateSLnameLabel();
 		updateWindowTitle();
 		
-		if ( nValue == 1 ) {	
-			pHydrogen->restartDrivers();
-		}
-		
-	} else if ( nValue == 2 ) {
+	} else if ( nValue == 1 ) {
 		
 		QString filename = pHydrogen->getSong()->getFilename();
 		
@@ -850,7 +826,7 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		updateWindowTitle();
 		EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 		
-	} else if ( nValue == 3 ) {
+	} else if ( nValue == 2 ) {
 
 		// The event was triggered before the Song was fully loaded by
 		// the core. It's most likely to be present by now, but it's

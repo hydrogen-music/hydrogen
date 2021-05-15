@@ -59,6 +59,7 @@ Drumkit::Drumkit() : Object( __class_name ),
 					 __imageLicense( "undefined license" )
 {
 	__components = new std::vector<DrumkitComponent*> ();
+	__instruments = new InstrumentList();
 }
 
 Drumkit::Drumkit( Drumkit* other ) :
@@ -195,7 +196,6 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 	XMLNode instruments_node = node->firstChildElement( "instrumentList" );
 	if ( instruments_node.isNull() ) {
 		WARNINGLOG( "instrumentList node not found" );
-		pDrumkit->set_instruments( new InstrumentList() );
 	} else {
 		pDrumkit->set_instruments( InstrumentList::load_from( &instruments_node, dk_path, drumkit_name ) );
 	}
@@ -293,7 +293,7 @@ bool Drumkit::save( const QString&					sName,
 	pDrumkit->set_instruments( new InstrumentList( pInstruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
 	
 	std::vector<DrumkitComponent*>* pCopiedVector = new std::vector<DrumkitComponent*> ();
-	for ( auto pSrcComponent : *pComponents ) {
+	for ( auto& pSrcComponent : *pComponents ) {
 		pCopiedVector->push_back( new DrumkitComponent( pSrcComponent ) );
 	}
 	pDrumkit->set_components( pCopiedVector );
@@ -369,7 +369,7 @@ void Drumkit::save_to( XMLNode* node, int component_id )
 	} else {
 		WARNINGLOG( "Drumkit has no instruments. Storing an InstrumentList with a single empty Instrument as fallback." );
 		InstrumentList* pInstrumentList = new InstrumentList();
-		Instrument* pInstrument = new Instrument();
+		auto pInstrument = std::make_shared<Instrument>();
 		pInstrumentList->insert( 0, pInstrument );
 		pInstrumentList->save_to( node, component_id );
 		delete pInstrumentList;
@@ -385,12 +385,11 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 
 	InstrumentList* pInstrList = get_instruments();
 	for( int i = 0; i < pInstrList->size(); i++ ) {
-		Instrument* pInstrument = ( *pInstrList )[i];
-		for (std::vector<InstrumentComponent*>::iterator it = pInstrument->get_components()->begin() ; it != pInstrument->get_components()->end(); ++it) {
-			InstrumentComponent* pComponent = *it;
+		auto pInstrument = ( *pInstrList )[i];
+		for ( const auto& pComponent : *pInstrument->get_components() ) {
 
 			for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
-				InstrumentLayer* pLayer = pComponent->get_layer( n );
+				auto pLayer = pComponent->get_layer( n );
 				if( pLayer ) {
 					QString src = pLayer->get_sample()->get_filepath();
 					QString dst = dk_dir + "/" + pLayer->get_sample()->get_filename();
@@ -492,17 +491,15 @@ void Drumkit::dump()
 
 	DEBUGLOG( " |- Instrument list" );
 	for ( int i=0; i<__instruments->size(); i++ ) {
-		Instrument* instrument = ( *__instruments )[i];
+		auto instrument = ( *__instruments )[i];
 		DEBUGLOG( QString( "  |- (%1 of %2) Name = %3" )
 		          .arg( i )
 		          .arg( __instruments->size()-1 )
 		          .arg( instrument->get_name() )
 		        );
-		for (std::vector<InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
-			InstrumentComponent* pComponent = *it;
-
+		for ( const auto& pComponent : *instrument->get_components() ) {
 			for ( int j = 0; j < InstrumentComponent::getMaxLayers(); j++ ) {
-				InstrumentLayer* pLayer = pComponent->get_layer( j );
+				auto pLayer = pComponent->get_layer( j );
 				if ( pLayer ) {
 					auto pSample = pLayer->get_sample();
 					if ( pSample != nullptr ) {
