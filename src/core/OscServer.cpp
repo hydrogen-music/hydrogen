@@ -444,8 +444,8 @@ void OscServer::BPM_DECR_Handler(lo_arg **argv,int i)
 
 void OscServer::MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv,int i)
 {
-	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
-	H2Core::CoreActionController* pController = pEngine->getCoreActionController();
+	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
+	H2Core::CoreActionController* pController = pHydrogen->getCoreActionController();
 
 	pController->setMasterVolume( argv[0]->f );
 }
@@ -461,8 +461,8 @@ void OscServer::MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
 
 void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
 {
-	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
-	H2Core::CoreActionController* pController = pEngine->getCoreActionController();
+	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
+	H2Core::CoreActionController* pController = pHydrogen->getCoreActionController();
 
 	pController->setStripVolume( param1, param2, false );
 }
@@ -875,8 +875,8 @@ bool OscServer::init()
 																						lo_address_get_port( a ) );
 										m_pClientRegistry.push_back( newAddr );
 										
-										H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
-										H2Core::CoreActionController* pController = pEngine->getCoreActionController();
+										H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
+										H2Core::CoreActionController* pController = pHydrogen->getCoreActionController();
 										
 										pController->initExternalControlInterfaces();
 									}

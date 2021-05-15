@@ -84,7 +84,7 @@ void CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
-	Instrument *pInstr = pInstrList->get( nStrip );
+	auto pInstr = pInstrList->get( nStrip );
 	pInstr->set_volume( fVolumeValue );
 	
 #ifdef H2CORE_HAVE_OSC
@@ -147,7 +147,7 @@ void CoreActionController::toggleStripIsMuted(int nStrip)
 	
 	if( pInstrList->is_valid_index( nStrip ))
 	{
-		Instrument* pInstr = pInstrList->get( nStrip );
+		auto pInstr = pInstrList->get( nStrip );
 		
 		if( pInstr ) {
 			setStripIsMuted( nStrip , !pInstr->is_muted() );
@@ -161,7 +161,7 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
-	Instrument *pInstr = pInstrList->get( nStrip );
+	auto pInstr = pInstrList->get( nStrip );
 	pInstr->set_muted( isMuted );
 	
 #ifdef H2CORE_HAVE_OSC
@@ -187,7 +187,7 @@ void CoreActionController::toggleStripIsSoloed( int nStrip )
 	
 	if( pInstrList->is_valid_index( nStrip ))
 	{
-		Instrument* pInstr = pInstrList->get( nStrip );
+		auto pInstr = pInstrList->get( nStrip );
 	
 		if( pInstr ) {
 			setStripIsSoloed( nStrip , !pInstr->is_soloed() );
@@ -201,7 +201,7 @@ void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
-	Instrument* pInstr = pInstrList->get( nStrip );
+	auto pInstr = pInstrList->get( nStrip );
 	pInstr->set_soloed( isSoloed );
 	
 #ifdef H2CORE_HAVE_OSC
@@ -243,7 +243,7 @@ void CoreActionController::setStripPan( int nStrip, float fPanValue, bool bSelec
 	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
-	Instrument *pInstr = pInstrList->get( nStrip );
+	auto pInstr = pInstrList->get( nStrip );
 	pInstr->set_pan_l( fPan_L );
 	pInstr->set_pan_r( fPan_R );
 	
@@ -292,7 +292,7 @@ void CoreActionController::initExternalControlInterfaces()
 	for(int i=0; i < pInstrList->size(); i++){
 		
 			//STRIP_VOLUME_ABSOLUTE
-			Instrument *pInstr = pInstrList->get( i );
+			auto pInstr = pInstrList->get( i );
 			setStripVolume( i, pInstr->get_volume(), false );
 			
 			float fPan_L = pInstr->get_pan_l();
@@ -627,13 +627,13 @@ bool CoreActionController::activateJackTransport( bool bActivate ) {
 		return false;
 	}
 	
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 	if ( bActivate ) {
 		Preferences::get_instance()->m_bJackTransportMode = Preferences::USE_JACK_TRANSPORT;
 	} else {
 		Preferences::get_instance()->m_bJackTransportMode = Preferences::NO_JACK_TRANSPORT;
 	}
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	
 	EventQueue::get_instance()->push_event( EVENT_JACK_TRANSPORT_ACTIVATION, static_cast<int>( bActivate ) );
 	
@@ -652,7 +652,7 @@ bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
 		return false;
 	}
 	
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 	if ( bActivate ) {
 		Preferences::get_instance()->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER;
 		Hydrogen::get_instance()->onJackMaster();
@@ -660,7 +660,7 @@ bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
 		Preferences::get_instance()->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
 		Hydrogen::get_instance()->offJackMaster();
 	}
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	
 	EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_ACTIVATION, static_cast<int>( bActivate ) );
 	

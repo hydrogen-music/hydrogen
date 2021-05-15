@@ -90,7 +90,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	: QDialog(parent)
 	, Object( __class_name )
 	, m_bExporting( false )
-	, m_pEngine( Hydrogen::get_instance() )
+	, m_pHydrogen( Hydrogen::get_instance() )
 	, m_pPreferences( Preferences::get_instance() )
 {
 	setupUi( this );
@@ -127,7 +127,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	connect(toggleTimeLineBPMCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleTimeLineBPMMode( bool )));
 
 	// use of interpolation mode
-	m_OldInterpolationMode = AudioEngine::get_instance()->get_sampler()->getInterpolateMode();
+	m_OldInterpolationMode = m_pHydrogen->getAudioEngine()->getSampler()->getInterpolateMode();
 	resampleComboBox->setCurrentIndex( interpolateModeToComboBoxIndex( m_OldInterpolationMode ) );
 	connect(resampleComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(resampleComboBoIndexChanged(int)));
 
@@ -150,11 +150,11 @@ ExportSongDialog::~ExportSongDialog()
 
 QString ExportSongDialog::createDefaultFilename()
 {
-	QString sDefaultFilename = m_pEngine->getSong()->getFilename();
+	QString sDefaultFilename = m_pHydrogen->getSong()->getFilename();
 
 	// If song is not saved then use song name otherwise use the song filename
 	if( sDefaultFilename.isEmpty() ){
-		sDefaultFilename = m_pEngine->getSong()->getName();
+		sDefaultFilename = m_pHydrogen->getSong()->getName();
 	} else {
 		// extracting filename from full path
 		QFileInfo qDefaultFile( sDefaultFilename ); 
@@ -301,7 +301,7 @@ void ExportSongDialog::on_okBtn_clicked()
 	
 	saveSettingsToPreferences();
 	
-	Song *pSong = m_pEngine->getSong();
+	Song *pSong = m_pHydrogen->getSong();
 	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 
 	m_bOverwriteFiles = false;
@@ -337,15 +337,15 @@ void ExportSongDialog::on_okBtn_clicked()
 			pInstrumentList->get(i)->set_currently_exported( true );
 		}
 
-		m_pEngine->startExportSession( sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt());
-		m_pEngine->startExportSong( filename );
+		m_pHydrogen->startExportSession( sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt());
+		m_pHydrogen->startExportSong( filename );
 
 		return;
 	}
 
 	if( exportTypeCombo->currentIndex() == EXPORT_TO_SEPARATE_TRACKS ){
 		m_bExportTrackouts = true;
-		m_pEngine->startExportSession(sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt());
+		m_pHydrogen->startExportSession(sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt());
 		exportTracks();
 		return;
 	}
@@ -354,7 +354,7 @@ void ExportSongDialog::on_okBtn_clicked()
 
 bool ExportSongDialog::currentInstrumentHasNotes()
 {
-	Song *pSong = m_pEngine->getSong();
+	Song *pSong = m_pHydrogen->getSong();
 	unsigned nPatterns = pSong->getPatternList()->size();
 	
 	bool bInstrumentHasNotes = false;
@@ -376,9 +376,9 @@ bool ExportSongDialog::currentInstrumentHasNotes()
 	return bInstrumentHasNotes;
 }
 
-QString ExportSongDialog::findUniqueExportFilenameForInstrument(Instrument* pInstrument)
+QString ExportSongDialog::findUniqueExportFilenameForInstrument( std::shared_ptr<Instrument> pInstrument )
 {
-	Song *pSong = m_pEngine->getSong();
+	Song *pSong = m_pHydrogen->getSong();
 	QString uniqueInstrumentName;
 	
 	int instrumentOccurence = 0;
@@ -399,7 +399,7 @@ QString ExportSongDialog::findUniqueExportFilenameForInstrument(Instrument* pIns
 
 void ExportSongDialog::exportTracks()
 {
-	Song *pSong = m_pEngine->getSong();
+	Song *pSong = m_pHydrogen->getSong();
 	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 	
 	if( m_nInstrument < pInstrumentList->size() ){
@@ -436,7 +436,7 @@ void ExportSongDialog::exportTracks()
 		}
 		
 		if( m_nInstrument > 0 ){
-			m_pEngine->stopExportSong();
+			m_pHydrogen->stopExportSong();
 			m_bExporting = false;
 		}
 		
@@ -446,7 +446,7 @@ void ExportSongDialog::exportTracks()
 		
 		pSong->getInstrumentList()->get(m_nInstrument)->set_currently_exported( true );
 		
-		m_pEngine->startExportSong( filename );
+		m_pHydrogen->startExportSong( filename );
 
 		if(! (m_nInstrument == pInstrumentList->size()) ){
 			m_nInstrument++;
@@ -465,8 +465,8 @@ void ExportSongDialog::on_closeBtn_clicked()
 }
 void ExportSongDialog::closeExport() {
 	
-	m_pEngine->stopExportSong();
-	m_pEngine->stopExportSession();
+	m_pHydrogen->stopExportSong();
+	m_pHydrogen->stopExportSession();
 	
 	m_bExporting = false;
 	
@@ -476,7 +476,7 @@ void ExportSongDialog::closeExport() {
 	m_pPreferences->setRubberBandBatchMode( m_bOldRubberbandBatchMode );
 	m_pPreferences->setUseTimelineBpm( m_bOldTimeLineBPMMode );
 	
-	AudioEngine::get_instance()->get_sampler()->setInterpolateMode( m_OldInterpolationMode );
+	m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( m_OldInterpolationMode );
 	accept();
 }
 
@@ -689,19 +689,19 @@ void ExportSongDialog::setResamplerMode(int index)
 {
 	switch ( index ){
 	case 0:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
+		m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
 		break;
 	case 1:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
+		m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
 		break;
 	case 2:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
+		m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
 		break;
 	case 3:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
+		m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
 		break;
 	case 4:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
+		m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
 		break;
 	}
 }
@@ -713,10 +713,10 @@ void ExportSongDialog::calculateRubberbandTime()
 	resampleComboBox->setEnabled(false);
 	okBtn->setEnabled(false);
 	
-	Timeline* pTimeline = m_pEngine->getTimeline();
+	Timeline* pTimeline = m_pHydrogen->getTimeline();
 	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 
-	float oldBPM = m_pEngine->getSong()->getBpm();
+	float oldBPM = m_pHydrogen->getSong()->getBpm();
 	float lowBPM = oldBPM;
 
 	if ( tempoMarkerVector.size() >= 1 ){
@@ -728,23 +728,22 @@ void ExportSongDialog::calculateRubberbandTime()
 		}
 	}
 
-	m_pEngine->setBPM(lowBPM);
+	m_pHydrogen->setBPM(lowBPM);
 	time_t sTime = time(nullptr);
 
-	Song *pSong = m_pEngine->getSong();
+	Song *pSong = m_pHydrogen->getSong();
 	assert(pSong);
 	
 	if(pSong){
 		InstrumentList *songInstrList = pSong->getInstrumentList();
 		assert(songInstrList);
 		for ( unsigned nInstr = 0; nInstr < songInstrList->size(); ++nInstr ) {
-			Instrument *pInstr = songInstrList->get( nInstr );
+			auto pInstr = songInstrList->get( nInstr );
 			assert( pInstr );
 			if ( pInstr ){
-				for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
-					InstrumentComponent* pCompo = *it;
+				for ( auto& pCompo : *pInstr->get_components() ) {
 					for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+						auto pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer ) {
 							auto pSample = pLayer->get_sample();
 							if ( pSample != nullptr ) {
@@ -761,9 +760,9 @@ void ExportSongDialog::calculateRubberbandTime()
 									}
 	
 									// insert new sample from newInstrument
-									AudioEngine::get_instance()->lock( RIGHT_HERE );
+									m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 									pLayer->set_sample( pNewSample );
-									AudioEngine::get_instance()->unlock();
+									m_pHydrogen->getAudioEngine()->unlock();
 									
 								}
 							}
@@ -776,7 +775,7 @@ void ExportSongDialog::calculateRubberbandTime()
 	
 	Preferences::get_instance()->setRubberBandCalcTime(time(nullptr) - sTime);
 	
-	m_pEngine->setBPM(oldBPM);
+	m_pHydrogen->setBPM(oldBPM);
 	
 	closeBtn->setEnabled(true);
 	resampleComboBox->setEnabled(true);
@@ -786,20 +785,19 @@ void ExportSongDialog::calculateRubberbandTime()
 
 bool ExportSongDialog::checkUseOfRubberband()
 {
-	Song *pSong = m_pEngine->getSong();
+	Song *pSong = m_pHydrogen->getSong();
 	assert(pSong);
 	
 	if(pSong){
 		InstrumentList *pSongInstrList = pSong->getInstrumentList();
 		assert(pSongInstrList);
 		for ( unsigned nInstr = 0; nInstr < pSongInstrList->size(); ++nInstr ) {
-			Instrument *pInstr = pSongInstrList->get( nInstr );
+			auto pInstr = pSongInstrList->get( nInstr );
 			assert( pInstr );
 			if ( pInstr ){
-				for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
-					InstrumentComponent* pCompo = *it;
+				for ( const auto& pCompo : *pInstr->get_components() ) {
 					for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+						auto pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer ) {
 							auto pSample = pLayer->get_sample();
 							if ( pSample != nullptr ) {

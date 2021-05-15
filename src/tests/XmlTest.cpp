@@ -9,6 +9,7 @@
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/Sample.h>
+#include <core/Basics/Playlist.h>
 
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
@@ -24,11 +25,10 @@ static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
 	H2Core::InstrumentList* instruments = dk->get_instruments();
 	for( int i=0; i<instruments->size(); i++ ) {
 		count++;
-		H2Core::Instrument* pInstr = ( *instruments )[i];
-		for (std::vector<H2Core::InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
-			H2Core::InstrumentComponent* pComponent = *it;
+		auto pInstr = ( *instruments )[i];
+		for ( const auto& pComponent : *pInstr->get_components() ) {
 			for ( int nLayer = 0; nLayer < H2Core::InstrumentComponent::getMaxLayers(); nLayer++ ) {
-				H2Core::InstrumentLayer* pLayer = pComponent->get_layer( nLayer );
+				auto pLayer = pComponent->get_layer( nLayer );
 				if( pLayer ) {
 					auto pSample = pLayer->get_sample();
 					if( loaded ) {
@@ -52,66 +52,82 @@ static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
 
 void XmlTest::testDrumkit()
 {
-	QString dk_path = H2Core::Filesystem::tmp_dir()+"/dk0";
+	QString sDrumkitPath = H2Core::Filesystem::tmp_dir()+"dk0";
 
-	H2Core::Drumkit* dk0 = nullptr;
-	H2Core::Drumkit* dk1 = nullptr;
-	H2Core::Drumkit* dk2 = nullptr;
+	H2Core::Drumkit* pDrumkitLoaded = nullptr;
+	H2Core::Drumkit* pDrumkitReloaded = nullptr;
+	H2Core::Drumkit* pDrumkitCopied = nullptr;
+	H2Core::Drumkit* pDrumkitNew = nullptr;
+	H2Core::XMLDoc doc;
 
 	// load without samples
-	dk0 = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit") );
-	CPPUNIT_ASSERT( dk0!=nullptr );
-	CPPUNIT_ASSERT( dk0->samples_loaded()==false );
-	CPPUNIT_ASSERT( check_samples_data( dk0, false ) );
-	CPPUNIT_ASSERT_EQUAL( 4, dk0->get_instruments()->size() );
-	//dk0->dump();
+	pDrumkitLoaded = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit") );
+	CPPUNIT_ASSERT( pDrumkitLoaded!=nullptr );
+	CPPUNIT_ASSERT( pDrumkitLoaded->samples_loaded()==false );
+	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, false ) );
+	CPPUNIT_ASSERT_EQUAL( 4, pDrumkitLoaded->get_instruments()->size() );
 
 	// Check if drumkit was valid (what we assume in this test)
 	CPPUNIT_ASSERT( ! H2Core::Filesystem::file_exists( H2TEST_FILE( "/drumkits/baseKit/drumkit.xml.bak" ) ) );
 	
 	// manually load samples
-	dk0->load_samples();
-	CPPUNIT_ASSERT( dk0->samples_loaded()==true );
-	CPPUNIT_ASSERT( check_samples_data( dk0, true ) );
-	//dk0->dump();
+	pDrumkitLoaded->load_samples();
+	CPPUNIT_ASSERT( pDrumkitLoaded->samples_loaded()==true );
+	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, true ) );
 	
 	// load with samples
-	dk0 = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ), true );
-	CPPUNIT_ASSERT( dk0!=nullptr );
-	CPPUNIT_ASSERT( dk0->samples_loaded()==true );
-	CPPUNIT_ASSERT( check_samples_data( dk0, true ) );
-	//dk0->dump();
+	pDrumkitLoaded = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ), true );
+	CPPUNIT_ASSERT( pDrumkitLoaded!=nullptr );
+	CPPUNIT_ASSERT( pDrumkitLoaded->samples_loaded()==true );
+	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, true ) );
 	
 	// unload samples
-	dk0->unload_samples();
-	CPPUNIT_ASSERT( dk0->samples_loaded()==false );
-	CPPUNIT_ASSERT( check_samples_data( dk0, false ) );
-	//dk0->dump();
+	pDrumkitLoaded->unload_samples();
+	CPPUNIT_ASSERT( pDrumkitLoaded->samples_loaded()==false );
+	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, false ) );
 	
-	/*
 	// save drumkit elsewhere
-	dk0->set_name( "dk0" );
-	CPPUNIT_ASSERT( dk0->save( dk_path, false ) );
-	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( dk_path+"/drumkit.xml" ) );
-	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( dk_path+"/crash.wav" ) );
-	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( dk_path+"/hh.wav" ) );
-	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( dk_path+"/kick.wav" ) );
-	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( dk_path+"/snare.wav" ) );
-	// load file
-	dk1 = H2Core::Drumkit::load_file( dk_path+"/drumkit.xml" );
-	CPPUNIT_ASSERT( dk1!=nullptr );
-	//dk1->dump();
-	// copy constructor
-	dk2 = new H2Core::Drumkit( dk1 );
-	dk2->set_name( "COPY" );
-	CPPUNIT_ASSERT( dk2!=nullptr );
-	// save file
-	CPPUNIT_ASSERT( dk2->save_file( dk_path+"/drumkit.xml", true ) );
-	*/
+	pDrumkitLoaded->set_name( "pDrumkitLoaded" );
+	CPPUNIT_ASSERT( pDrumkitLoaded->save( sDrumkitPath, true ) );
+	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/drumkit.xml" ) );
+	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/crash.wav" ) );
+	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/hh.wav" ) );
+	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/kick.wav" ) );
+	CPPUNIT_ASSERT( H2Core::Filesystem::file_readable( sDrumkitPath+"/snare.wav" ) );
+
+	// Check whether the generated drumkit is valid.
+	CPPUNIT_ASSERT( doc.read( sDrumkitPath + "/drumkit.xml",
+							  H2Core::Filesystem::drumkit_xsd_path() ) );
 	
-	delete dk0;
-	//delete dk1;
-	//delete dk2;
+	// load file
+	pDrumkitReloaded = H2Core::Drumkit::load_file( sDrumkitPath+"/drumkit.xml" );
+	CPPUNIT_ASSERT( pDrumkitReloaded!=nullptr );
+	
+	// copy constructor
+	pDrumkitCopied = new H2Core::Drumkit( pDrumkitReloaded );
+	CPPUNIT_ASSERT( pDrumkitCopied!=nullptr );
+	// save file
+	pDrumkitCopied->set_name( "COPY" );
+	CPPUNIT_ASSERT( pDrumkitCopied->save_file( sDrumkitPath+"/drumkit.xml", true ) );
+
+	delete pDrumkitReloaded;
+
+	// Check whether blank drumkits are valid.
+	pDrumkitNew = new H2Core::Drumkit();
+	CPPUNIT_ASSERT( pDrumkitNew != nullptr );
+	CPPUNIT_ASSERT( pDrumkitNew->save_file( sDrumkitPath+"/drumkit.xml", true ) );
+	CPPUNIT_ASSERT( doc.read( sDrumkitPath + "/drumkit.xml",
+							  H2Core::Filesystem::drumkit_xsd_path() ) );
+	pDrumkitReloaded = H2Core::Drumkit::load_file( sDrumkitPath+"/drumkit.xml" );
+	CPPUNIT_ASSERT( pDrumkitReloaded!=nullptr );
+
+	delete pDrumkitLoaded;
+	delete pDrumkitReloaded;
+	delete pDrumkitCopied;
+	delete pDrumkitNew;
+
+	// Cleanup
+	H2Core::Filesystem::rm( sDrumkitPath, true );
 }
 
 void XmlTest::testShippedDrumkits()
@@ -142,10 +158,10 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	H2Core::InstrumentList* pInstruments = pDrumkit->get_instruments();
 	CPPUNIT_ASSERT( pInstruments != nullptr );
 	
-	H2Core::Instrument* pFirstInstrument = pInstruments->get(0);
+	auto pFirstInstrument = pInstruments->get(0);
 	CPPUNIT_ASSERT( pFirstInstrument != nullptr );
 	
-	H2Core::InstrumentLayer* pLayer = pFirstInstrument->get_components()->front()->get_layer(0);
+	auto pLayer = pFirstInstrument->get_components()->front()->get_layer(0);
 	CPPUNIT_ASSERT( pLayer != nullptr );
 	
 	auto pSample = pLayer->get_sample();
@@ -176,24 +192,72 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 
 void XmlTest::testPattern()
 {
-	QString pat_path = H2Core::Filesystem::tmp_dir()+"/pat";
+	QString sPatternPath = H2Core::Filesystem::tmp_dir()+"pat.h2pattern";
 
-	H2Core::Pattern* pat0 = nullptr;
-	H2Core::Drumkit* dk0 = nullptr;
-	H2Core::InstrumentList* instruments = nullptr;
+	H2Core::Pattern* pPatternLoaded = nullptr;
+	H2Core::Pattern* pPatternReloaded = nullptr;
+	H2Core::Pattern* pPatternCopied = nullptr;
+	H2Core::Pattern* pPatternNew = nullptr;
+	H2Core::Drumkit* pDrumkit = nullptr;
+	H2Core::InstrumentList* pInstrumentList = nullptr;
+	H2Core::XMLDoc doc;
 
-	dk0 = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ) );
-	CPPUNIT_ASSERT( dk0!=nullptr );
-	instruments = dk0->get_instruments();
-	CPPUNIT_ASSERT( instruments->size()==4 );
+	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ) );
+	CPPUNIT_ASSERT( pDrumkit!=nullptr );
+	pInstrumentList = pDrumkit->get_instruments();
+	CPPUNIT_ASSERT( pInstrumentList->size()==4 );
 
-	pat0 = H2Core::Pattern::load_file( H2TEST_FILE( "/pattern/pat.h2pattern" ), instruments );
-	CPPUNIT_ASSERT( pat0 );
+	pPatternLoaded = H2Core::Pattern::load_file( H2TEST_FILE( "/pattern/pat.h2pattern" ), pInstrumentList );
+	CPPUNIT_ASSERT( pPatternLoaded );
 
-	pat0->save_file( "dk_name", "author", "license", pat_path );
+	CPPUNIT_ASSERT( pPatternLoaded->save_file( "dk_name", "author", "license", sPatternPath, true ) );
 
-	delete pat0;
-	delete dk0;
+	// Check for double freeing when destructing both copy and original.
+	pPatternCopied = new H2Core::Pattern( pPatternLoaded );
+
+	// Is stored pattern valid?
+	CPPUNIT_ASSERT( doc.read( sPatternPath, H2Core::Filesystem::pattern_xsd_path() ) );
+	pPatternReloaded = H2Core::Pattern::load_file( sPatternPath, pInstrumentList );
+	CPPUNIT_ASSERT( pPatternReloaded != nullptr );
+
+	delete pPatternReloaded;
+
+	// Check whether the constructor produces valid patterns.
+	pPatternNew = new H2Core::Pattern( "test", "ladida", "", 1, 1 );
+	CPPUNIT_ASSERT( pPatternLoaded->save_file( "dk_name", "author", "license", sPatternPath, true ) );
+	CPPUNIT_ASSERT( doc.read( sPatternPath, H2Core::Filesystem::pattern_xsd_path() ) );
+	pPatternReloaded = H2Core::Pattern::load_file( sPatternPath, pInstrumentList );
+	CPPUNIT_ASSERT( pPatternReloaded != nullptr );
+
+	delete pPatternReloaded;
+	delete pPatternLoaded;
+	delete pPatternCopied;
+	delete pPatternNew;
+	delete pDrumkit;
+}
+
+void XmlTest::checkTestPatterns()
+{
+	H2Core::XMLDoc doc;
+	CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/pattern/pat.h2pattern" ),
+							  H2Core::Filesystem::pattern_xsd_path() ) );
+}
+
+void XmlTest::testPlaylist()
+{
+	QString sPath = H2Core::Filesystem::tmp_dir()+"playlist.h2playlist";
+
+	H2Core::Playlist* pPlaylistCurrent = H2Core::Playlist::get_instance();
+	H2Core::Playlist* pPlaylistLoaded = nullptr;
+	H2Core::XMLDoc doc;
+
+	CPPUNIT_ASSERT( pPlaylistCurrent->save_file( sPath, "ladida", true, false ) );
+	CPPUNIT_ASSERT( doc.read( sPath, H2Core::Filesystem::playlist_xsd_path() ) );
+	pPlaylistLoaded = H2Core::Playlist::load_file( sPath, false );
+	CPPUNIT_ASSERT( pPlaylistLoaded != nullptr );
+
+	delete pPlaylistLoaded;
+	delete pPlaylistCurrent;
 }
 
 void XmlTest::tearDown() {

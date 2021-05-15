@@ -733,7 +733,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemClicked ( QTreeWidgetItem * item, in
 
 void PlaylistDialog::nodePlayBTN( Button* ref )
 {
-	Hydrogen *		pEngine = Hydrogen::get_instance();
+	Hydrogen *		pHydrogen = Hydrogen::get_instance();
 	HydrogenApp *	pH2App = HydrogenApp::get_instance();
 
 	if (ref->isPressed()) {
@@ -746,8 +746,8 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 		QString sFilename = "";
 		sFilename = m_pPlaylistItem->text ( 0 );
 
-		if( sFilename == pEngine->getSong()->getFilename()){
-			pEngine->sequencer_play();
+		if( sFilename == pHydrogen->getSong()->getFilename()){
+			pHydrogen->sequencer_play();
 			return;
 		}
 
@@ -759,10 +759,10 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 			m_pPlayBtn->setPressed(false);
 		}
 
-		pEngine->sequencer_play();
+		pHydrogen->sequencer_play();
 	}else
 	{
-		pEngine->sequencer_stop();
+		pHydrogen->sequencer_stop();
 		pH2App->setStatusBarMessage(tr("Pause."), 5000);
 	}
 }

@@ -27,6 +27,7 @@
 #include <core/Basics/Note.h>
 #include <core/Basics/PatternList.h>
 #include <core/AudioEngine.h>
+#include <core/Hydrogen.h>
 
 #include <core/Helpers/Xml.h>
 #include <core/Helpers/Filesystem.h>
@@ -131,7 +132,7 @@ bool Pattern::save_file( const QString& drumkit_name, const QString& author, con
 	return doc.write( pattern_path );
 }
 
-void Pattern::save_to( XMLNode* node, const Instrument* instrumentOnly ) const
+void Pattern::save_to( XMLNode* node, const std::shared_ptr<Instrument> instrumentOnly ) const
 {
 	XMLNode pattern_node =  node->createNode( "pattern" );
 	pattern_node.write_string( "name", __name );
@@ -150,7 +151,7 @@ void Pattern::save_to( XMLNode* node, const Instrument* instrumentOnly ) const
 	}
 }
 
-Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict ) const
+Note* Pattern::find_note( int idx_a, int idx_b, std::shared_ptr<Instrument> instrument, Note::Key key, Note::Octave octave, bool strict ) const
 {
 	for( notes_cst_it_t it=__notes.lower_bound( idx_a ); it!=__notes.upper_bound( idx_a ); it++ ) {
 		Note* note = it->second;
@@ -175,7 +176,7 @@ Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, Note::Ke
 	return nullptr;
 }
 
-Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, bool strict ) const
+Note* Pattern::find_note( int idx_a, int idx_b, std::shared_ptr<Instrument> instrument, bool strict ) const
 {
 	notes_cst_it_t it;
 	for( it=__notes.lower_bound( idx_a ); it!=__notes.upper_bound( idx_a ); it++ ) {
@@ -213,7 +214,7 @@ void Pattern::remove_note( Note* note )
 	}
 }
 
-bool Pattern::references( Instrument* instr )
+bool Pattern::references( std::shared_ptr<Instrument> instr )
 {
 	for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
 		Note* note = it->second;
@@ -225,7 +226,7 @@ bool Pattern::references( Instrument* instr )
 	return false;
 }
 
-void Pattern::purge_instrument( Instrument* instr )
+void Pattern::purge_instrument( std::shared_ptr<Instrument> instr )
 {
 	bool locked = false;
 	std::list< Note* > slate;
@@ -234,7 +235,7 @@ void Pattern::purge_instrument( Instrument* instr )
 		assert( note );
 		if ( note->get_instrument() == instr ) {
 			if ( !locked ) {
-				H2Core::AudioEngine::get_instance()->lock( RIGHT_HERE );
+				Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 				locked = true;
 			}
 			slate.push_back( note );
@@ -244,7 +245,7 @@ void Pattern::purge_instrument( Instrument* instr )
 		}
 	}
 	if ( locked ) {
-		H2Core::AudioEngine::get_instance()->unlock();
+		Hydrogen::get_instance()->getAudioEngine()->unlock();
 		while ( slate.size() ) {
 			delete slate.front();
 			slate.pop_front();

@@ -107,7 +107,7 @@ void WaveDisplay::resizeEvent( QResizeEvent * event )
 
 
 
-void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
+void WaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer )
 {
 	int currentWidth = width();
 	

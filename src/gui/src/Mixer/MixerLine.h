@@ -31,7 +31,7 @@
 class Fader;
 class MasterFader;
 class PanFader;
-class Knob;
+//class Knob;
 class Button;
 class ToggleButton;
 class InstrumentPropertiesDialog;
@@ -133,7 +133,7 @@ class MixerLine: public PixmapWidget
 		void	rightClick(Button *ref);
 		void	faderChanged(Fader *ref);
 		void	panChanged(Rotary *ref);
-		void	knobChanged(Knob *ref);
+		void	knobChanged(Rotary *ref);
 		void	nameClicked();
 		void	nameSelected();
 
@@ -154,7 +154,7 @@ class MixerLine: public PixmapWidget
 		ToggleButton *			m_pSoloBtn;
 		Button *				m_pPlaySampleBtn;
 		Button *				m_pTriggerSampleLED;
-		Knob *					m_pKnob[MAX_FX];
+		Rotary *				m_pFxRotary[MAX_FX];
 
 		LCDDisplay *			m_pPeakLCD;
 };

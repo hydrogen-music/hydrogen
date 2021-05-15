@@ -25,6 +25,7 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include <memory>
 
 #include <core/Basics/Instrument.h>
 #include <core/Object.h>
@@ -68,6 +69,12 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		static int findFreeDrumkitComponentId( int startingPoint = 0 );
 
+
+	public slots:
+		void showLayers();
+		void showInstrument();
+		void showSampleEditor();
+
 	private slots:
 		void rotaryChanged(Rotary *ref);
 		void filterActiveBtnClicked(Button *ref);
@@ -92,7 +99,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void waveDisplayDoubleClicked( QWidget *pRef );
 
 	private:
-		H2Core::Instrument *m_pInstrument;
+		std::shared_ptr<H2Core::Instrument> m_pInstrument;
 		int m_nSelectedLayer;
 		int m_nSelectedComponent;
 

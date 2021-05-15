@@ -24,6 +24,7 @@
 #ifndef EXPORT_SONG_DIALOG_H
 #define EXPORT_SONG_DIALOG_H
 
+#include <memory>
 
 #include "ui_ExportSongDialog_UI.h"
 #include "EventListener.h"
@@ -74,7 +75,7 @@ private:
 	void		restoreSettingsFromPreferences();
 	
 	bool		currentInstrumentHasNotes();
-	QString		findUniqueExportFilenameForInstrument(H2Core::Instrument* pInstrument);
+	QString		findUniqueExportFilenameForInstrument( std::shared_ptr<H2Core::Instrument> pInstrument );
 
 	void		exportTracks();
 	bool 		validateUserInput();
@@ -91,7 +92,7 @@ private:
 	bool					m_bOldTimeLineBPMMode;
 	InterpolateMode			m_OldInterpolationMode;
 	bool					m_bQfileDialog;
-	H2Core::Hydrogen *		m_pEngine;
+	H2Core::Hydrogen *		m_pHydrogen;
 	H2Core::Preferences*	m_pPreferences;
 	
 	static QString 			sLastFilename;

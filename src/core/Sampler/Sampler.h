@@ -32,8 +32,6 @@
 #include <vector>
 #include <memory>
 
-
-
 namespace H2Core
 {
 
@@ -160,7 +158,7 @@ public:
 	 * Constructor of the Sampler.
 	 *
 	 * It is called by AudioEngine::AudioEngine() and stored in
-	 * AudioEngine::__sampler.
+	 * AudioEngine::m_pSampler.
 	 */
 	Sampler();
 	~Sampler();
@@ -174,27 +172,27 @@ public:
 	void noteOff( Note *pNote );
 	void midiKeyboardNoteOff( int key );
 
-	void stopPlayingNotes( Instrument* pInstr = nullptr );
+	void stopPlayingNotes( std::shared_ptr<Instrument> pInstr = nullptr );
 
 	int getPlayingNotesNumber() {
 		return m_playingNotesQueue.size();
 	}
 
 	void preview_sample( std::shared_ptr<Sample> pSample, int length );
-	void preview_instrument( Instrument* pInstr );
+	void preview_instrument( std::shared_ptr<Instrument> pInstr );
 
-	void setPlayingNotelength( Instrument* pInstrument, unsigned long ticks, unsigned long noteOnTick );
-	bool isInstrumentPlaying( Instrument* pInstr );
+	void setPlayingNotelength( std::shared_ptr<Instrument> pInstrument, unsigned long ticks, unsigned long noteOnTick );
+	bool isInstrumentPlaying( std::shared_ptr<Instrument> pInstr );
 
 	void setInterpolateMode( Interpolation::InterpolateMode mode ){
 			 m_interpolateMode = mode;
 	}
 	
-	Instrument* getPreviewInstrument() const {
+	std::shared_ptr<Instrument> getPreviewInstrument() const {
 		return m_pPreviewInstrument;
 	}
 	
-	Instrument* getPlaybackTrackInstrument() const {
+	std::shared_ptr<Instrument> getPlaybackTrackInstrument() const {
 		return m_pPlaybackTrackInstrument;
 	}
 
@@ -216,10 +214,10 @@ private:
 	std::vector<Note*> m_queuedNoteOffs;
 	
 	/// Instrument used for the playback track feature.
-	Instrument* m_pPlaybackTrackInstrument;
+	std::shared_ptr<Instrument> m_pPlaybackTrackInstrument;
 
 	/// Instrument used for the preview feature.
-	Instrument* m_pPreviewInstrument;
+	std::shared_ptr<Instrument> m_pPreviewInstrument;
 
 	/** Maximum number of layers to be used in the Instrument
 	    editor. It will be inferred from
@@ -248,7 +246,7 @@ private:
 		std::shared_ptr<Sample> pSample,
 		Note *pNote,
 		SelectedLayerInfo *pSelectedLayerInfo,
-		InstrumentComponent *pCompo,
+		std::shared_ptr<InstrumentComponent> pCompo,
 		DrumkitComponent *pDrumCompo,
 		int nBufferSize,
 		int nInitialSilence,
@@ -263,7 +261,7 @@ private:
 		std::shared_ptr<Sample> pSample,
 		Note *pNote,
 		SelectedLayerInfo *pSelectedLayerInfo,
-		InstrumentComponent *pCompo,
+		std::shared_ptr<InstrumentComponent> pCompo,
 		DrumkitComponent *pDrumCompo,
 		int nBufferSize,
 		int nInitialSilence,

@@ -177,6 +177,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	hearNotesBtn->setToolTip( tr( "Hear new notes" ) );
 	connect( hearNotesBtn, SIGNAL( clicked( Button* ) ), this, SLOT( hearNotesBtnClick( Button* ) ) );
 	hearNotesBtn->setPressed( pPref->getHearNewNotes() );
+	hearNotesBtn->setObjectName( "HearNotesBtn" );
 
 
 	// quantize
@@ -190,6 +191,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	quantizeEventsBtn->move( 90, 3 );
 	quantizeEventsBtn->setPressed( pPref->getQuantizeEvents() );
 	quantizeEventsBtn->setToolTip( tr( "Quantize keyboard/midi events to grid" ) );
+	quantizeEventsBtn->setObjectName( "QuantizeEventsBtn" );
 	connect( quantizeEventsBtn, SIGNAL( clicked( Button* ) ), this, SLOT( quantizeEventsBtnClick( Button* ) ) );
 
 	// Editor mode
@@ -203,6 +205,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__show_drum_btn->move( 137, 3 );
 	__show_drum_btn->setPressed( false );
 	__show_drum_btn->setToolTip( tr( "Show piano roll editor" ) );
+	__show_drum_btn->setObjectName( "ShowDrumBtn" );
 	connect( __show_drum_btn, SIGNAL( clicked( Button* ) ), this, SLOT( showDrumEditorBtnClick( Button* ) ) );
 
 	// zoom-in btn
@@ -236,7 +239,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	// Ruler ScrollView
 	m_pRulerScrollView = new WidgetScrollArea( nullptr );
-	m_pRulerScrollView->setObjectName( "RulerScrollView" );
 	m_pRulerScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pRulerScrollView->setFrameShape( QFrame::NoFrame );
 	m_pRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -463,6 +465,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 // NOTE_PROPERTIES BUTTONS
 	PixmapWidget *pPropertiesPanel = new PixmapWidget( nullptr );
+	pPropertiesPanel->setObjectName( "PropertiesPanel" );
 	pPropertiesPanel->setColor( QColor( 58, 62, 72 ) );
 
 	pPropertiesPanel->setFixedSize( 181, 100 );
@@ -482,6 +485,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	/* __pPropertiesCombo->addItem( tr("Cutoff") ); */
 	/* __pPropertiesCombo->addItem( tr("Resonance") ); */
 	// is triggered here below
+	__pPropertiesCombo->setObjectName( "PropertiesCombo" );
 	connect( __pPropertiesCombo, SIGNAL( valueChanged( int ) ), this, SLOT( propertiesComboChanged( int ) ) );
 
 	pPropertiesVBox->addWidget( __pPropertiesCombo );
@@ -769,47 +773,59 @@ void PatternEditorPanel::selectInstrumentNotes( int nInstrument )
 	}
 }
 
+void PatternEditorPanel::showDrumEditor()
+{
+	__show_drum_btn->setToolTip( tr( "Show piano roll editor" ) );
+	__show_drum_btn->setPressed( false );
+	m_pPianoRollScrollView->hide();
+	m_pEditorScrollView->show();
+	m_pInstrListScrollView->show();
+
+	m_pEditorScrollView->setFocus();
+	m_pPatternEditorRuler->setFocusProxy( m_pEditorScrollView );
+	m_pInstrumentList->setFocusProxy( m_pEditorScrollView );
+
+	m_pDrumPatternEditor->selectedInstrumentChangedEvent(); // force an update
+
+	m_pDrumPatternEditor->selectNone();
+	m_pPianoRollEditor->selectNone();
+
+	// force a re-sync of extern scrollbars
+	resizeEvent( nullptr );
+
+}
+
+void PatternEditorPanel::showPianoRollEditor()
+{
+	__show_drum_btn->setToolTip( tr( "Show drum editor" ) );
+	__show_drum_btn->setPressed( true );
+	m_pPianoRollScrollView->show();
+	m_pPianoRollScrollView->verticalScrollBar()->setValue( 250 );
+	m_pEditorScrollView->hide();
+	m_pInstrListScrollView->show();
+
+	m_pPianoRollScrollView->setFocus();
+	m_pPatternEditorRuler->setFocusProxy( m_pPianoRollScrollView );
+	m_pInstrumentList->setFocusProxy( m_pPianoRollScrollView );
+
+	m_pDrumPatternEditor->selectNone();
+	m_pPianoRollEditor->selectNone();
+
+	m_pPianoRollEditor->selectedPatternChangedEvent();
+	m_pPianoRollEditor->updateEditor(); // force an update
+	// force a re-sync of extern scrollbars
+	resizeEvent( nullptr );
+}
+
 void PatternEditorPanel::showDrumEditorBtnClick( Button *ref )
 {
 	UNUSED( ref );
 	if ( !__show_drum_btn->isPressed() ){
-		__show_drum_btn->setToolTip( tr( "Show piano roll editor" ) );
-		m_pPianoRollScrollView->hide();
-		m_pEditorScrollView->show();
-		m_pInstrListScrollView->show();
-
-		m_pEditorScrollView->setFocus();
-		m_pPatternEditorRuler->setFocusProxy( m_pEditorScrollView );
-		m_pInstrumentList->setFocusProxy( m_pEditorScrollView );
-
-		m_pDrumPatternEditor->selectedInstrumentChangedEvent(); // force an update
-
-		m_pDrumPatternEditor->selectNone();
-		m_pPianoRollEditor->selectNone();
-	
-		// force a re-sync of extern scrollbars
-		resizeEvent( nullptr );
-
+		showDrumEditor();
 	}
 	else
 	{
-		__show_drum_btn->setToolTip( tr( "Show drum editor" ) );
-		m_pPianoRollScrollView->show();
-		m_pPianoRollScrollView->verticalScrollBar()->setValue( 250 );
-		m_pEditorScrollView->hide();
-		m_pInstrListScrollView->show();
-
-		m_pPianoRollScrollView->setFocus();
-		m_pPatternEditorRuler->setFocusProxy( m_pPianoRollScrollView );
-		m_pInstrumentList->setFocusProxy( m_pPianoRollScrollView );
-
-		m_pDrumPatternEditor->selectNone();
-		m_pPianoRollEditor->selectNone();
-
-		m_pPianoRollEditor->selectedPatternChangedEvent();
-		m_pPianoRollEditor->updateEditor(); // force an update	
-		// force a re-sync of extern scrollbars
-		resizeEvent( nullptr );
+		showPianoRollEditor();
 	}
 }
 
@@ -1010,24 +1026,26 @@ void PatternEditorPanel::patternSizeLCDClicked()
 
 void PatternEditorPanel::moveUpBtnClicked( Button * )
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	int nSelectedInstrument = engine->getSelectedInstrumentNumber();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 
-	Song *pSong = engine->getSong();
+	pAudioEngine->lock( RIGHT_HERE );
+
+	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 
 	if ( ( nSelectedInstrument - 1 ) >= 0 ) {
 		pInstrumentList->swap( nSelectedInstrument -1, nSelectedInstrument );
 
-		AudioEngine::get_instance()->unlock();
-		engine->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
+		pAudioEngine->unlock();
+		pHydrogen->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
 
 		pSong->setIsModified( true );
 	}
 	else {
-		AudioEngine::get_instance()->unlock();
+		pAudioEngine->unlock();
 	}
 }
 
@@ -1035,24 +1053,26 @@ void PatternEditorPanel::moveUpBtnClicked( Button * )
 
 void PatternEditorPanel::moveDownBtnClicked( Button * )
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	int nSelectedInstrument = engine->getSelectedInstrumentNumber();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 
-	Song *pSong = engine->getSong();
+	pAudioEngine->lock( RIGHT_HERE );
+
+	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 
 	if ( ( nSelectedInstrument + 1 ) < (int)pInstrumentList->size() ) {
 		pInstrumentList->swap( nSelectedInstrument, nSelectedInstrument + 1 );
 
-		AudioEngine::get_instance()->unlock();
-		engine->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
+		pAudioEngine->unlock();
+		pHydrogen->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
 
 		pSong->setIsModified( true );
 	}
 	else {
-		AudioEngine::get_instance()->unlock();
+		pAudioEngine->unlock();
 	}
 
 }

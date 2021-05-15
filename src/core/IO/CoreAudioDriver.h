@@ -42,8 +42,6 @@
 #include <inttypes.h>
 
 
-typedef int ( *audioProcessCallback )( uint32_t, void * );
-
 namespace H2Core
 {
 

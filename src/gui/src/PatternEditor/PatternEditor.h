@@ -35,6 +35,7 @@
 
 namespace H2Core
 {
+	class AudioEngine;
 	class Note;
 	class Pattern;
 	class Instrument;
@@ -145,7 +146,7 @@ public slots:
 	virtual void paste() = 0;
 	virtual void cut();
 	virtual void selectInstrumentNotes( int nInstrument );
-
+	void setCurrentInstrument( int nInstrument );
 
 protected:
 
@@ -179,6 +180,8 @@ protected:
 
 	bool m_bSelectNewNotes;
 	H2Core::Note *m_pDraggedNote;
+	
+	H2Core::AudioEngine* m_pAudioEngine;
 
 	PatternEditorPanel *m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;

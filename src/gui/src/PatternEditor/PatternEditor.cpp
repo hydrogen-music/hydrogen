@@ -69,6 +69,8 @@ PatternEditor::PatternEditor( QWidget *pParent, const char *sClassName,
 	setFocusPolicy(Qt::StrongFocus);
 
 	HydrogenApp::get_instance()->addEventListener( this );
+	
+	m_pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
 	// Popup context menu
 	m_pPopupMenu = new QMenu( this );
@@ -322,7 +324,7 @@ void PatternEditor::cut()
 void PatternEditor::selectInstrumentNotes( int nInstrument )
 {
 	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
-	Instrument *pInstrument = pInstrumentList->get( nInstrument );
+	auto pInstrument = pInstrumentList->get( nInstrument );
 
 	m_selection.clearSelection();
 	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {
@@ -331,6 +333,11 @@ void PatternEditor::selectInstrumentNotes( int nInstrument )
 		}
 	}
 	m_selection.updateWidgetGroup();
+}
+
+void PatternEditor::setCurrentInstrument( int nInstrument ) {
+	Hydrogen::get_instance()->setSelectedInstrumentNumber( nInstrument );
+	m_pPatternEditorPanel->updateEditors();
 }
 
 void PatternEditor::mousePressEvent( QMouseEvent *ev )
@@ -371,7 +378,7 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 		}
 	}
 
-	if ( m_selection.isMoving() ) {
+	if ( m_selection.isMouseGesture() && m_selection.isMoving() ) {
 		// If a selection is currently being moved, change the cursor
 		// appropriately. Selection will change it back after the move
 		// is complete (or abandoned)
@@ -452,7 +459,7 @@ void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &sel
 {
 	// Iterate over all the notes in 'selected' and 'overwrite' by erasing any *other* notes occupying the
 	// same position.
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	m_pAudioEngine->lock( RIGHT_HERE );
 	Pattern::notes_t *pNotes = const_cast< Pattern::notes_t *>( m_pPattern->get_notes() );
 	for ( auto pSelectedNote : selected ) {
 		m_selection.removeFromSelection( pSelectedNote, /* bCheck=*/false );
@@ -474,7 +481,7 @@ void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &sel
 		}
 	}
 	Hydrogen::get_instance()->getSong()->setIsModified( true );
-	AudioEngine::get_instance()->unlock();
+	m_pAudioEngine->unlock();
 }
 
 
@@ -483,7 +490,7 @@ void PatternEditor::undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> 
 {
 	// Restore previously-overwritten notes, and select notes that were selected before.
 	m_selection.clearSelection( /* bCheck=*/false );
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	m_pAudioEngine->lock( RIGHT_HERE );
 	for ( auto pNote : overwritten ) {
 		Note *pNewNote = new Note( pNote );
 		m_pPattern->insert_note( pNewNote );
@@ -498,7 +505,7 @@ void PatternEditor::undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> 
 		}
 	}
 	Hydrogen::get_instance()->getSong()->setIsModified( true );
-	AudioEngine::get_instance()->unlock();
+	m_pAudioEngine->unlock();
 	m_pPatternEditorPanel->updateEditors();
 }
 

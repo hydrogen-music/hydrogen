@@ -36,6 +36,11 @@
 #include "PatternFillDialog.h"
 #include "../Selection.h"
 
+namespace H2Core {
+	class Hydrogen;
+	class AudioEngine;
+}
+
 class Button;
 class ToggleButton;
 class SongEditor;
@@ -106,22 +111,27 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 
 		Selection<QPoint> m_selection;
 
-		QScrollArea *m_pScrollView;
-		SongEditorPanel *m_pSongEditorPanel;
+		QScrollArea *			m_pScrollView;
+		SongEditorPanel *		m_pSongEditorPanel;
 
-		QMenu *m_pPopupMenu;
+		H2Core::Hydrogen* 		m_pHydrogen;
+		H2Core::AudioEngine* 	m_pAudioEngine;
 
-		unsigned m_nGridHeight;
-		unsigned m_nGridWidth;
-		unsigned m_nMaxPatternSequence;
-		bool m_bCopyNotMove;
-
-		//! Pattern sequence or selection has changed, so must be redrawn.
-		bool m_bSequenceChanged;
+		unsigned 				m_nGridHeight;
+		unsigned 				m_nGridWidth;
+		unsigned 				m_nMaxPatternSequence;
+		bool					m_bIsMoving;
+		bool					m_bCopyNotMove;
 
 		//! In "draw" mode, whether we're activating pattern cells ("drawing") or deactivating ("erasing") is
 		//! set at the start of the draw gesture.
-		bool m_bDrawingActiveCell;
+		bool 					m_bDrawingActiveCell;
+
+		//! Pattern sequence or selection has changed, so must be redrawn.
+		bool 					m_bSequenceChanged;
+
+		QMenu *					m_pPopupMenu;
+
 
 		//! @name Background pixmap caching
 		//!
@@ -131,8 +141,8 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		//!       * the cached grid background pixmap is used when repainting the pattern
 		//!   * selections and moving cells are painted on top of the cached sequence pixmap
 		//! @{
-		QPixmap *m_pBackgroundPixmap;
-		QPixmap *m_pSequencePixmap;
+		QPixmap *				m_pBackgroundPixmap;
+		QPixmap *				m_pSequencePixmap;
 		//! @}
 
 		const int m_nMargin = 10;
@@ -262,9 +272,11 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		virtual void timelineUpdateEvent( int nValue ) override;
 
 	private:
-		uint m_nGridHeight;
-		uint m_nWidth;
-		static const uint m_nInitialHeight = 10;
+		H2Core::Hydrogen* 		m_pHydrogen;
+		H2Core::AudioEngine* 	m_pAudioEngine;
+		uint 				m_nGridHeight;
+		uint 				m_nWidth;
+		static const uint 	m_nInitialHeight = 10;
 
 		QPixmap *			m_pBackgroundPixmap;
 							
@@ -320,8 +332,12 @@ class SongEditorPositionRuler : public QWidget, public H2Core::Object
 
 	public slots:
 		void updatePosition();
+		void showTagWidget( int nColumn );
+		void showBpmWidget( int nColumn );
 
 	private:
+		H2Core::Hydrogen* 		m_pHydrogen;
+		H2Core::AudioEngine* 	m_pAudioEngine;
 		QTimer *			m_pTimer;
 		uint				m_nGridWidth;
 		uint				m_nMaxPatternSequence;

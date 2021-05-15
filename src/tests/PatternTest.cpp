@@ -7,15 +7,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION( PatternTest );
 
 using namespace H2Core;
 
-void PatternTest::setUp()
-{
-	AudioEngine::create_instance();
-}
-
-
 void PatternTest::testPurgeInstrument()
 {
-	Instrument *pInstrument = new Instrument();
+	auto pInstrument = std::make_shared<Instrument>();
 	Note *pNote = new Note( pInstrument, 1, 1.0, 1.0, 1.0, 1, 1.0 );
 
 	Pattern *pPattern = new Pattern();

@@ -62,9 +62,9 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, Action* pActio
 	pVBox->addWidget( m_pURLLabel );
 	setLayout( pVBox );
 	
-	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
-	pEngine->lastMidiEvent = "";
-	pEngine->lastMidiEventParameter = 0;
+	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
+	pHydrogen->lastMidiEvent = "";
+	pHydrogen->lastMidiEventParameter = 0;
 
 	m_LastMidiEventParameter = 0;
 	
@@ -88,10 +88,10 @@ MidiSenseWidget::~MidiSenseWidget(){
 }
 
 void MidiSenseWidget::updateMidi(){
-	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
-	if(	!pEngine->lastMidiEvent.isEmpty() ){
-		m_sLastMidiEvent = pEngine->lastMidiEvent;
-		m_LastMidiEventParameter = pEngine->lastMidiEventParameter;
+	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
+	if(	!pHydrogen->lastMidiEvent.isEmpty() ){
+		m_sLastMidiEvent = pHydrogen->lastMidiEvent;
+		m_LastMidiEventParameter = pHydrogen->lastMidiEventParameter;
 
 
 		if( m_DirectWrite ){

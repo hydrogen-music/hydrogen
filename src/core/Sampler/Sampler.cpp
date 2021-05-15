@@ -56,12 +56,12 @@ namespace H2Core
 
 const char* Sampler::__class_name = "Sampler";
 
-static Instrument* createInstrument(int id, const QString& filepath, float volume )
+static std::shared_ptr<Instrument> createInstrument(int id, const QString& filepath, float volume )
 {
-	Instrument* pInstrument = new Instrument( id, filepath );
+	auto pInstrument = std::make_shared<Instrument>( id, filepath );
 	pInstrument->set_volume( volume );
-	InstrumentLayer* pLayer = new InstrumentLayer( Sample::load( filepath ) );
-	InstrumentComponent* pComponent = new InstrumentComponent( 0 );
+	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( filepath ) );
+	auto pComponent = std::make_shared<InstrumentComponent>( 0 );
 	
 	pComponent->set_layer( pLayer, 0 );
 	pInstrument->get_components()->push_back( pComponent );
@@ -101,10 +101,7 @@ Sampler::~Sampler()
 	delete[] m_pMainOut_L;
 	delete[] m_pMainOut_R;
 
-	delete m_pPreviewInstrument;
 	m_pPreviewInstrument = nullptr;
-
-	delete m_pPlaybackTrackInstrument;
 	m_pPlaybackTrackInstrument = nullptr;
 }
 
@@ -183,7 +180,7 @@ void Sampler::noteOn(Note *pNote )
 	assert( pNote );
 
 	pNote->get_adsr()->attack();
-	Instrument *pInstr = pNote->get_instrument();
+	auto pInstr = pNote->get_instrument();
 
 	// mute group
 	int nMuteGrp = pInstr->get_mute_group();
@@ -226,7 +223,7 @@ void Sampler::midiKeyboardNoteOff( int key )
 /// all other note_off stuff will handle in midi_keyboard_note_off() and note_on()
 void Sampler::noteOff(Note* pNote )
 {
-	Instrument *pInstr = pNote->get_instrument();
+	auto pInstr = pNote->get_instrument();
 	// find the notes using the same instrument, and release them
 	for ( const auto& pNote: m_playingNotesQueue ) {
 		if ( pNote->get_instrument() == pInstr ) {
@@ -429,7 +426,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 		nFramepos = pHydrogen->getRealtimeFrames();
 	}
 
-	Instrument *pInstr = pNote->get_instrument();
+	auto pInstr = pNote->get_instrument();
 	if ( !pInstr ) {
 		ERRORLOG( "NULL instrument" );
 		return 1;
@@ -521,7 +518,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 		}
 
 		if( pSelectedLayer->SelectedLayer != -1 ) {
-			InstrumentLayer *pLayer = pCompo->get_layer( pSelectedLayer->SelectedLayer );
+			auto pLayer = pCompo->get_layer( pSelectedLayer->SelectedLayer );
 
 			if( pLayer )
 			{
@@ -535,7 +532,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 			switch ( pInstr->sample_selection_alg() ) {
 				case Instrument::VELOCITY:
 					for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ) {
-						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+						auto pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer == nullptr ) continue;
 
 						if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
@@ -559,7 +556,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 						float shortestDistance = 1.0f;
 						int nearestLayer = -1;
 						for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ){
-							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+							auto pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == nullptr ) continue;
 							
 							if ( std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
@@ -573,7 +570,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 
 						// Check whether the search was successful and assign the results.
 						if ( nearestLayer > -1 ){
-							InstrumentLayer *pLayer = pCompo->get_layer( nearestLayer );
+							auto pLayer = pCompo->get_layer( nearestLayer );
 							pSelectedLayer->SelectedLayer = nearestLayer;
 						
 							pSample = pLayer->get_sample();
@@ -585,7 +582,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 
 				case Instrument::RANDOM:
 					if( nAlreadySelectedLayer != -1 ) {
-						InstrumentLayer *pLayer = pCompo->get_layer( nAlreadySelectedLayer );
+						auto pLayer = pCompo->get_layer( nAlreadySelectedLayer );
 						if ( pLayer != nullptr ) {
 							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
 
@@ -598,7 +595,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 						int __possibleIndex[ m_nMaxLayers ];
 						int __foundSamples = 0;
 						for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ) {
-							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+							auto pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == nullptr ) continue;
 
 							if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
@@ -622,7 +619,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 							float shortestDistance = 1.0f;
 							int nearestLayer = -1;
 							for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ){
-								InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+								auto pLayer = pCompo->get_layer( nLayer );
 								if ( pLayer == nullptr ) continue;
 								
 								if ( std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
@@ -653,7 +650,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 							nAlreadySelectedLayer = __possibleIndex[rand() % __foundSamples];
 							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
 
-							InstrumentLayer *pLayer = pCompo->get_layer( nAlreadySelectedLayer );
+							auto pLayer = pCompo->get_layer( nAlreadySelectedLayer );
 
 							pSample = pLayer->get_sample();
 							fLayerGain = pLayer->get_gain();
@@ -664,7 +661,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 
 				case Instrument::ROUND_ROBIN:
 					if( nAlreadySelectedLayer != -1 ) {
-						InstrumentLayer *pLayer = pCompo->get_layer( nAlreadySelectedLayer );
+						auto pLayer = pCompo->get_layer( nAlreadySelectedLayer );
 						if ( pLayer != nullptr ) {
 							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
 
@@ -678,7 +675,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 						int __foundSamples = 0;
 						float __roundRobinID;
 						for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ) {
-							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+							auto pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == nullptr ) continue;
 
 							if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
@@ -701,7 +698,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 							float shortestDistance = 1.0f;
 							int nearestLayer = -1;
 							for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ){
-								InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+								auto pLayer = pCompo->get_layer( nLayer );
 								if ( pLayer == nullptr ) {
 									continue;
 								}
@@ -719,7 +716,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 							// successful and assign the
 							// results.
 							if ( nearestLayer > -1 ){
-								InstrumentLayer *pLayer = pCompo->get_layer( nearestLayer );
+								auto pLayer = pCompo->get_layer( nearestLayer );
 								pSelectedLayer->SelectedLayer = nearestLayer;
 
 								// No loop needed in here.
@@ -745,7 +742,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 
 							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
 
-							InstrumentLayer *pLayer = pCompo->get_layer( nAlreadySelectedLayer );
+							auto pLayer = pCompo->get_layer( nAlreadySelectedLayer );
 							pSample = pLayer->get_sample();
 							fLayerGain = pLayer->get_gain();
 							fLayerPitch = pLayer->get_pitch();
@@ -891,18 +888,19 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 
 bool Sampler::processPlaybackTrack(int nBufferSize)
 {
-	Hydrogen* pEngine = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	AudioOutput* pAudioOutput = Hydrogen::get_instance()->getAudioOutput();
-	Song* pSong = pEngine->getSong();
+	Song* pSong = pHydrogen->getSong();
+
 
 	if(   !pSong->getPlaybackTrackEnabled()
-	   || pEngine->getState() != STATE_PLAYING
+	   || pHydrogen->getState() != STATE_PLAYING
 	   || pSong->getMode() != Song::SONG_MODE)
 	{
 		return false;
 	}
 
-	InstrumentComponent *pCompo = m_pPlaybackTrackInstrument->get_components()->front();
+	auto pCompo = m_pPlaybackTrackInstrument->get_components()->front();
 	auto pSample = pCompo->get_layer(0)->get_sample();
 
 	assert(pSample);
@@ -1053,7 +1051,7 @@ bool Sampler::renderNoteNoResample(
 	std::shared_ptr<Sample> pSample,
 	Note *pNote,
 	SelectedLayerInfo *pSelectedLayerInfo,
-	InstrumentComponent *pCompo,
+	std::shared_ptr<InstrumentComponent> pCompo,
 	DrumkitComponent *pDrumCompo,
 	int nBufferSize,
 	int nInitialSilence,
@@ -1079,9 +1077,6 @@ bool Sampler::renderNoteNoResample(
 		nAvail_bytes = nBufferSize - nInitialSilence;
 		retValue = false; // the note is not ended yet
 	}
-
-
-	//ADSR *pADSR = pNote->m_pADSR;
 
 	int nInitialBufferPos = nInitialSilence;
 	int nInitialSamplePos = ( int )pSelectedLayerInfo->SamplePosition;
@@ -1201,7 +1196,7 @@ bool Sampler::renderNoteResample(
 	std::shared_ptr<Sample> pSample,
 	Note *pNote,
 	SelectedLayerInfo *pSelectedLayerInfo,
-	InstrumentComponent *pCompo,
+	std::shared_ptr<InstrumentComponent> pCompo,
 	DrumkitComponent *pDrumCompo,
 	int nBufferSize,
 	int nInitialSilence,
@@ -1217,7 +1212,7 @@ bool Sampler::renderNoteResample(
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
-		float resampledTickSize = AudioEngine::compute_tick_size( pSample->get_sample_rate(),
+		float resampledTickSize = AudioEngine::computeTickSize( pSample->get_sample_rate(),
 		                                                          pAudioOutput->m_transport.m_fBPM,
 		                                                          pSong->getResolution() );
 		
@@ -1239,8 +1234,6 @@ bool Sampler::renderNoteResample(
 		nAvail_bytes = nBufferSize - nInitialSilence;
 		retValue = false; // the note is not ended yet
 	}
-
-	//	ADSR *pADSR = pNote->m_pADSR;
 
 	int nInitialBufferPos = nInitialSilence;
 	//float fInitialSamplePos = pNote->get_sample_position( pCompo->get_drumkit_componentID() );
@@ -1451,7 +1444,7 @@ bool Sampler::renderNoteResample(
 }
 
 
-void Sampler::stopPlayingNotes(Instrument* pInstr )
+void Sampler::stopPlayingNotes( std::shared_ptr<Instrument> pInstr )
 {
 	if ( pInstr ) { // stop all notes using this instrument
 		for ( unsigned i = 0; i < m_playingNotesQueue.size(); ) {
@@ -1480,10 +1473,10 @@ void Sampler::stopPlayingNotes(Instrument* pInstr )
 /// Preview, uses only the first layer
 void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int length )
 {
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	for (const auto& pComponent: *m_pPreviewInstrument->get_components()) {
-		InstrumentLayer *pLayer = pComponent->get_layer( 0 );
+		auto pLayer = pComponent->get_layer( 0 );
 
 		pLayer->set_sample( pSample );
 
@@ -1494,15 +1487,15 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int length )
 
 	}
 
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 }
 
 
 
-void Sampler::preview_instrument(Instrument* pInstr )
+void Sampler::preview_instrument( std::shared_ptr<Instrument> pInstr )
 {
-	Instrument * pOldPreview;
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	std::shared_ptr<Instrument> pOldPreview;
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	stopPlayingNotes( m_pPreviewInstrument );
 
@@ -1513,23 +1506,22 @@ void Sampler::preview_instrument(Instrument* pInstr )
 	Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.5, 0.5, MAX_NOTES, 0 );
 
 	noteOn( pPreviewNote );	// exclusive note
-	AudioEngine::get_instance()->unlock();
-	delete pOldPreview;
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 }
 
 
 
-void Sampler::setPlayingNotelength(Instrument* pInstrument, unsigned long ticks, unsigned long noteOnTick )
+void Sampler::setPlayingNotelength( std::shared_ptr<Instrument> pInstrument, unsigned long ticks, unsigned long noteOnTick )
 {
 	if ( pInstrument ) { // stop all notes using this instrument
-		Hydrogen *pEngine = Hydrogen::get_instance();
-		Song* pSong = pEngine->getSong();
-		int nSelectedpattern = pEngine->getSelectedPatternNumber();
+		Hydrogen *pHydrogen = Hydrogen::get_instance();
+		Song* pSong = pHydrogen->getSong();
+		int nSelectedpattern = pHydrogen->getSelectedPatternNumber();
 		Pattern* pCurrentPattern = nullptr;
 
 
 		if ( pSong->getMode() == Song::PATTERN_MODE ||
-		( pEngine->getState() != STATE_PLAYING )){
+		( pHydrogen->getState() != STATE_PLAYING )){
 			PatternList *pPatternList = pSong->getPatternList();
 			if ( ( nSelectedpattern != -1 )
 			&& ( nSelectedpattern < ( int )pPatternList->size() ) ) {
@@ -1539,7 +1531,7 @@ void Sampler::setPlayingNotelength(Instrument* pInstrument, unsigned long ticks,
 		{
 			std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
 //			Pattern *pPattern = NULL;
-			int pos = pEngine->getPatternPos() +1;
+			int pos = pHydrogen->getPatternPos() +1;
 			for ( int i = 0; i < pos; ++i ) {
 				PatternList *pColumn = ( *pColumns )[i];
 				pCurrentPattern = pColumn->get( 0 );
@@ -1558,26 +1550,26 @@ void Sampler::setPlayingNotelength(Instrument* pInstrument, unsigned long ticks,
 							if( !Preferences::get_instance()->__playselectedinstrument ){
 								if ( pNote->get_instrument() == pInstrument
 								&& pNote->get_position() == noteOnTick ) {
-									AudioEngine::get_instance()->lock( RIGHT_HERE );
+									pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 									if ( ticks >  patternsize ) {
 										ticks = patternsize - noteOnTick;
 									}
 									pNote->set_length( ticks );
 									Hydrogen::get_instance()->getSong()->setIsModified( true );
-									AudioEngine::get_instance()->unlock(); // unlock the audio engine
+									pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 								}
 							}else
 							{
-								if ( pNote->get_instrument() == pEngine->getSong()->getInstrumentList()->get( pEngine->getSelectedInstrumentNumber())
+								if ( pNote->get_instrument() == pHydrogen->getSong()->getInstrumentList()->get( pHydrogen->getSelectedInstrumentNumber())
 								&& pNote->get_position() == noteOnTick ) {
-									AudioEngine::get_instance()->lock( RIGHT_HERE );
+									Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 									if ( ticks >  patternsize ) {
 										ticks = patternsize - noteOnTick;
 									}
 									pNote->set_length( ticks );
-									Hydrogen::get_instance()->getSong()->setIsModified( true );
-									AudioEngine::get_instance()->unlock(); // unlock the audio engine
+									pHydrogen->getSong()->setIsModified( true );
+									pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 								}
 							}
 						}
@@ -1591,13 +1583,13 @@ void Sampler::setPlayingNotelength(Instrument* pInstrument, unsigned long ticks,
 
 bool Sampler::isAnyInstrumentSoloed() const
 {
-	Hydrogen*		pEngine = Hydrogen::get_instance();
-	Song*			pSong = pEngine->getSong();
+	Hydrogen*		pHydrogen = Hydrogen::get_instance();
+	Song*			pSong = pHydrogen->getSong();
 	InstrumentList* pInstrList = pSong->getInstrumentList();
 	bool			bAnyInstrumentIsSoloed = false;
 	
 	for(int i=0; i < pInstrList->size(); i++) {
-		Instrument* pInstr = pInstrList->get( i );
+		std::shared_ptr<Instrument> pInstr = pInstrList->get( i );
 		
 		if( pInstr->is_soloed() )	{
 			bAnyInstrumentIsSoloed = true;
@@ -1607,7 +1599,7 @@ bool Sampler::isAnyInstrumentSoloed() const
 	return bAnyInstrumentIsSoloed;
 }
 
-bool Sampler::isInstrumentPlaying( Instrument* instrument )
+bool Sampler::isInstrumentPlaying( std::shared_ptr<Instrument> instrument )
 {
 	if ( instrument ) { // stop all notes using this instrument
 		for ( unsigned j = 0; j < m_playingNotesQueue.size(); j++ ) {
@@ -1621,15 +1613,15 @@ bool Sampler::isInstrumentPlaying( Instrument* instrument )
 
 void Sampler::reinitializePlaybackTrack()
 {
-	Hydrogen*	pEngine = Hydrogen::get_instance();
-	Song*		pSong = pEngine->getSong();
+	Hydrogen*	pHydrogen = Hydrogen::get_instance();
+	Song*		pSong = pHydrogen->getSong();
 	std::shared_ptr<Sample>	pSample;
 
 	if(!pSong->getPlaybackTrackFilename().isEmpty()){
 		pSample = Sample::load( pSong->getPlaybackTrackFilename() );
 	}
 	
-	InstrumentLayer* pPlaybackTrackLayer = new InstrumentLayer( pSample );
+	auto  pPlaybackTrackLayer = std::make_shared<InstrumentLayer>( pSample );
 
 	m_pPlaybackTrackInstrument->get_components()->front()->set_layer( pPlaybackTrackLayer, 0 );
 	m_nPlayBackSamplePosition = 0;

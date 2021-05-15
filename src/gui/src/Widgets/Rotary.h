@@ -53,7 +53,8 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 	public:
 		enum RotaryType {
 			TYPE_NORMAL,
-			TYPE_CENTER
+			TYPE_CENTER,
+			TYPE_SMALL
 		};
 
 		Rotary(const Rotary&) = delete;
@@ -92,6 +93,7 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 		RotaryType m_type;
 		static QPixmap* m_background_normal;
 		static QPixmap* m_background_center;
+		static QPixmap* m_background_small;
 
 		int m_nWidgetWidth;
 		int m_nWidgetHeight;
@@ -113,6 +115,4 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void wheelEvent( QWheelEvent *ev );
 };
-
-
 #endif
