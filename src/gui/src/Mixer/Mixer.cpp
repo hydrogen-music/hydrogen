@@ -692,7 +692,7 @@ void Mixer::panChanged(MixerLine* ref) {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	CoreActionController* pController = pHydrogen->getCoreActionController();
 
-	pController->setStripPan( nLine, fPanfrom0To1, true );
+	pController->setStripPan( nLine, fPanFrom0To1, true );
 }
 
 
