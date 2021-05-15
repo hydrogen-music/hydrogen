@@ -925,17 +925,23 @@ void SoundLibraryPanel::onPreferencesChanged( bool bAppearanceOnly ) {
 				childNode->child( jj )->setFont( 0, font );
 			}
 		}
-		__song_item->setFont( 0, boldFont );
-		for ( ii = 0; ii < __song_item->childCount(); ii++ ){ 
-			__song_item->child( ii )->setFont( 0, font );
-			__song_item->setFont( ii, font );
+
+		if ( __song_item != nullptr ) {
+			__song_item->setFont( 0, boldFont );
+			for ( ii = 0; ii < __song_item->childCount(); ii++ ){ 
+				__song_item->child( ii )->setFont( 0, font );
+				__song_item->setFont( ii, font );
+			}
 		}
-		__pattern_item->setFont( 0, boldFont );
-		for ( ii = 0; ii < __pattern_item->childCount(); ii++ ){ 
-			childNode = __pattern_item->child( ii );
-			childNode->setFont( 0, font );
-			for ( jj = 0; jj < childNode->childCount(); jj++ ) {
-				childNode->child( jj )->setFont( 0, font );
+
+		if ( __pattern_item != nullptr ) {
+			__pattern_item->setFont( 0, boldFont );
+			for ( ii = 0; ii < __pattern_item->childCount(); ii++ ){ 
+				childNode = __pattern_item->child( ii );
+				childNode->setFont( 0, font );
+				for ( jj = 0; jj < childNode->childCount(); jj++ ) {
+					childNode->child( jj )->setFont( 0, font );
+				}
 			}
 		}
 	}
