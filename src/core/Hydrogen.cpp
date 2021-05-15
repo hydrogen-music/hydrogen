@@ -116,7 +116,6 @@ Hydrogen::Hydrogen()
 	INFOLOG( "[Hydrogen]" );
 
 	__song = nullptr;
-	m_pNextSong = nullptr;
 
 	m_bExportSessionIsActive = false;
 	m_pTimeline = new Timeline();
@@ -137,23 +136,7 @@ Hydrogen::Hydrogen()
 	// Prevent double creation caused by calls from MIDI thread
 	__instance = this;
 
-	// When under session management and using JACK as audio driver,
-	// it is crucial for Hydrogen to activate the JACK client _after_
-	// the initial Song was set. Else the per track outputs will not
-	// be registered in time and the session software won't be able to
-	// rewire them properly. Therefore, the audio driver is started in
-	// the callback function for opening a Song in nsm_open_cb().
-	//
-	// But the presence of the environmental variable NSM_URL does not
-	// guarantee for a session management to be present (and at this
-	// early point of initialization it's basically impossible to
-	// tell). As a fallback the main() function will check for the
-	// presence of the audio driver after creating both the Hydrogen
-	// and NsmClient instance and prior to the creation of the GUI. If
-	// absent, the starting of the audio driver will be triggered.
-	if ( ! getenv( "NSM_URL" ) ){
-		m_pAudioEngine->startAudioDrivers();
-	}
+	m_pAudioEngine->startAudioDrivers();
 	
 	for(int i = 0; i< MAX_INSTRUMENTS; i++){
 		m_nInstrumentLookupTable[i] = i;
@@ -288,6 +271,13 @@ void Hydrogen::setSong( Song *pSong )
 		 *       - this is actually some kind of cleanup 
 		 *       - removeSong cares itself for acquiring a lock
 		 */
+		
+		if ( isUnderSessionManagement() ) {
+			// When under session management Hydrogen is only allowed
+			// to replace the content of the session song but not to
+			// write to a different location.
+			pSong->setFilename( pCurrentSong->getFilename() );
+		}
 		removeSong();
 		delete pCurrentSong;
 	}
@@ -317,7 +307,7 @@ void Hydrogen::setSong( Song *pSong )
 
 	if ( isUnderSessionManagement() ) {
 #ifdef H2CORE_HAVE_OSC
-		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath.toLocal8Bit().data(), true );
+		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, true );
 #endif
 	} else {		
 		Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
@@ -471,7 +461,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	unsigned position = column;
 	pAudioEngine->setAddRealtimeNoteTickPosition( column );
 
-	Instrument *instrRef = nullptr;
+	std::shared_ptr<Instrument> instrRef = nullptr;
 	if ( pSong ) {
 		//getlookuptable index = instrument+36, ziel wert = der entprechende wert -36
 		instrRef = pSong->getInstrumentList()->get( m_nInstrumentLookupTable[ instrument ] );
@@ -523,7 +513,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 			midi_noteOn( pNote2 );
 		}
 	} else if ( hearnote  ) {
-		Instrument* pInstr = pSong->getInstrumentList()->get( getSelectedInstrumentNumber() );
+		auto pInstr = pSong->getInstrumentList()->get( getSelectedInstrumentNumber() );
 		Note *pNote2 = new Note( pInstr, nRealColumn, velocity, fPan, -1, 0 );
 
 		int divider = msg1 / 12;
@@ -901,13 +891,13 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	int nMaxID = -1;
 	
 	for ( unsigned nInstr = 0; nInstr < pDrumkitInstrList->size(); ++nInstr ) {
-		Instrument *pInstr = nullptr;
+		std::shared_ptr<Instrument> pInstr = nullptr;
 		if ( nInstr < pSongInstrList->size() ) {
 			//instrument exists already
 			pInstr = pSongInstrList->get( nInstr );
 			assert( pInstr );
 		} else {
-			pInstr = new Instrument();
+			pInstr = std::make_shared<Instrument>();
 			// The instrument isn't playing yet; no need for locking
 			// :-) - Jakob Lund.  m_pAudioEngine->lock(
 			// "Hydrogen::loadDrumkit" );
@@ -915,7 +905,7 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 			// m_pAudioEngine->unlock();
 		}
 
-		Instrument *pNewInstr = pDrumkitInstrList->get( nInstr );
+		auto pNewInstr = pDrumkitInstrList->get( nInstr );
 		assert( pNewInstr );
 		INFOLOG( QString( "Loading instrument (%1 of %2) [%3]" )
 				 .arg( nInstr + 1 )
@@ -959,7 +949,7 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	// management.
 	if ( isUnderSessionManagement() ) {
 #ifdef H2CORE_HAVE_OSC
-		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath.toLocal8Bit().data(), false );
+		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, false );
 #endif
 	}
 
@@ -967,7 +957,7 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 }
 
 // This will check if an instrument has any notes
-bool Hydrogen::instrumentHasNotes( Instrument *pInst )
+bool Hydrogen::instrumentHasNotes( std::shared_ptr<Instrument> pInst )
 {
 	Song* pSong = getSong();
 	PatternList* pPatternList = pSong->getPatternList();
@@ -990,7 +980,7 @@ bool Hydrogen::instrumentHasNotes( Instrument *pInst )
 void Hydrogen::removeInstrument( int instrumentNumber, bool conditional )
 {
 	Song* pSong = getSong();
-	Instrument *pInstr = pSong->getInstrumentList()->get( instrumentNumber );
+	auto pInstr = pSong->getInstrumentList()->get( instrumentNumber );
 	PatternList* pPatternList = pSong->getPatternList();
 
 	if ( conditional ) {
@@ -1013,10 +1003,9 @@ void Hydrogen::removeInstrument( int instrumentNumber, bool conditional )
 	InstrumentList* pList = pSong->getInstrumentList();
 	if ( pList->size()==1 ){
 		m_pAudioEngine->lock( RIGHT_HERE );
-		Instrument* pInstr = pList->get( 0 );
+		auto pInstr = pList->get( 0 );
 		pInstr->set_name( (QString( "Instrument 1" )) );
-		for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
-			InstrumentComponent* pCompo = *it;
+		for ( auto& pCompo : *pInstr->get_components() ) {
 			// remove all layers
 			for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 				pCompo->set_layer( nullptr, nLayer );
@@ -1573,7 +1562,7 @@ void Hydrogen::togglePlaysSelected()
 void Hydrogen::__kill_instruments()
 {
 	int c = 0;
-	Instrument * pInstr = nullptr;
+	std::shared_ptr<Instrument> pInstr = nullptr;
 	while ( __instrument_death_row.size()
 			&& __instrument_death_row.front()->is_queued() == 0 ) {
 		pInstr = __instrument_death_row.front();
@@ -1582,7 +1571,7 @@ void Hydrogen::__kill_instruments()
 						  "%2 unused remain." )
 				 . arg( pInstr->get_name() )
 				 . arg( __instrument_death_row.size() ) );
-		delete pInstr;
+		pInstr = nullptr;
 		c++;
 	}
 	if ( __instrument_death_row.size() ) {
@@ -1761,44 +1750,6 @@ void Hydrogen::startNsmClient()
 #endif
 }
 
-void Hydrogen::setInitialSong( Song *pSong )
-{
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-
-	// Since the function is only intended to set a Song prior to the
-	// initial creation of the audio driver, it will cause the
-	// application to get out of sync if used elsewhere. The following
-	// checks ensure it is called in the right context.
-	if ( pSong == nullptr ) {
-		return;
-	}
-	if ( __song != nullptr ) {
-		return;
-	}
-	if ( pAudioEngine->getAudioDriver() != nullptr ) {
-		return;
-	}
-	
-	// Just to be sure.
-	pAudioEngine->lock( RIGHT_HERE );
-
-	// Find the first pattern and set as current.
-	if ( pSong->getPatternList()->size() > 0 ) {
-		m_pAudioEngine->getPlayingPatterns()->add( pSong->getPatternList()->get( 0 ) );
-	}
-
-	pAudioEngine->unlock();
-
-	// Move to the beginning.
-	setSelectedPatternNumber( 0 );
-
-	__song = pSong;
-
-	// Push current state of Hydrogen to attached control interfaces,
-	// like OSC clients.
-	m_pCoreActionController->initExternalControlInterfaces();
-}
-
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 
 	QString s = Object::sPrintIndention;
@@ -1827,13 +1778,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_bOldLoopEnabled: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bOldLoopEnabled ) )
 			.append( QString( "%1%2m_bExportSessionIsActive: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bExportSessionIsActive ) )
 			.append( QString( "%1%2m_GUIState: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>( m_GUIState ) ) )
-			.append( QString( "%1%2m_pNextSong: " ).arg( sPrefix ).arg( s ) );
-		if ( m_pNextSong != nullptr ) {
-			sOutput.append( QString( "%1" ).arg( m_pNextSong->toQString( sPrefix + s, bShort ) ) );
-		} else {
-			sOutput.append( QString( "nullptr\n" ) );
-		}
-		sOutput.append( QString( "%1%2m_pTimeline:\n" ).arg( sPrefix ).arg( s ) );
+			.append( QString( "%1%2m_pTimeline:\n" ).arg( sPrefix ).arg( s ) );
 		if ( m_pTimeline != nullptr ) {
 			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix + s, bShort ) ) );
 		} else {
@@ -1883,13 +1828,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_oldEngineMode: %1" ).arg( m_oldEngineMode ) )
 			.append( QString( ", m_bOldLoopEnabled: %1" ).arg( m_bOldLoopEnabled ) )
 			.append( QString( ", m_bExportSessionIsActive: %1" ).arg( m_bExportSessionIsActive ) )
-			.append( QString( ", m_GUIState: %1" ).arg( static_cast<int>( m_GUIState ) ) )
-			.append( QString( ", m_pNextSong: " ) );
-		if ( m_pNextSong != nullptr ) {
-			sOutput.append( QString( "%1" ).arg( m_pNextSong->toQString( sPrefix + s, bShort ) ) );
-		} else {
-			sOutput.append( QString( "nullptr" ) );
-		}
+			.append( QString( ", m_GUIState: %1" ).arg( static_cast<int>( m_GUIState ) ) );
 		sOutput.append( QString( ", m_pTimeline: " ) );
 		if ( m_pTimeline != nullptr ) {
 			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix + s, bShort ) ) );

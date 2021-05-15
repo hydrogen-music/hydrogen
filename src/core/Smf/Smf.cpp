@@ -280,7 +280,7 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 						int nVelocity =
 							(int)( 127.0 * pNote->get_velocity() * fVelocityAdjustment );
 
-						Instrument *pInstr = pNote->get_instrument();
+						auto pInstr = pNote->get_instrument();
 						int nPitch = pNote->get_midi_key();
 						
 						int nChannel =  pInstr->get_midi_out_channel();
@@ -410,7 +410,7 @@ SMF1WriterSingle::~SMF1WriterSingle()
 
 
 
-EventList* SMF1WriterSingle::getEvents( Song* pSong, Instrument* pInstr )
+EventList* SMF1WriterSingle::getEvents( Song* pSong, std::shared_ptr<Instrument> pInstr )
 {
 	return &m_eventList;
 }
@@ -473,7 +473,7 @@ void SMF1WriterMulti::prepareEvents( Song *pSong, SMF* pSmf )
 }
 
 
-EventList* SMF1WriterMulti::getEvents( Song* pSong,  Instrument* pInstr )
+EventList* SMF1WriterMulti::getEvents( Song* pSong,  std::shared_ptr<Instrument> pInstr )
 {
 	int nInstr = pSong->getInstrumentList()->index(pInstr);
 	EventList* pEventList = m_eventLists.at( nInstr );
@@ -487,7 +487,7 @@ void SMF1WriterMulti::packEvents( Song *pSong, SMF* pSmf )
 	InstrumentList* pInstrumentList = pSong->getInstrumentList();
 	for ( unsigned nTrack = 0; nTrack < m_eventLists.size(); nTrack++ ) {
 		EventList* pEventList = m_eventLists.at( nTrack );
-		Instrument* instrument =  pInstrumentList->get( nTrack );
+		auto instrument =  pInstrumentList->get( nTrack );
 
 		sortEvents( pEventList );
 
@@ -541,7 +541,7 @@ SMF* SMF0Writer::createSMF( Song* pSong ){
 }
 
 
-EventList* SMF0Writer::getEvents( Song* pSong,  Instrument* pInstr )
+EventList* SMF0Writer::getEvents( Song* pSong,  std::shared_ptr<Instrument> pInstr )
 {
 	return &m_eventList;
 }

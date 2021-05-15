@@ -19,7 +19,7 @@ class InstrumentListTest : public CppUnit::TestCase {
 	void test_one_instrument()
 	{
 		InstrumentList list;
-		Instrument *pKick = new Instrument(EMPTY_INSTR_ID, "Kick");
+		auto pKick = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Kick" );
 		pKick->set_midi_out_note(42);
 		list.add(pKick);
 
@@ -31,15 +31,15 @@ class InstrumentListTest : public CppUnit::TestCase {
 	{
 		InstrumentList list;
 
-		Instrument *pKick = new Instrument(EMPTY_INSTR_ID, "Kick");
+		auto pKick = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Kick" );
 		pKick->set_midi_out_note(10);
 		list.add(pKick);
 
-		Instrument *pSnare = new Instrument(EMPTY_INSTR_ID, "Snare");
+		auto pSnare = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Snare" );
 		pSnare->set_midi_out_note(10);
 		list.add(pSnare);
 
-		Instrument *pHihat = new Instrument(EMPTY_INSTR_ID, "HiHat");
+		auto pHihat = std::make_shared<Instrument>( EMPTY_INSTR_ID, "HiHat" );
 		pHihat->set_midi_out_note(10);
 		list.add(pHihat);
 
@@ -52,19 +52,19 @@ class InstrumentListTest : public CppUnit::TestCase {
 	{
 		InstrumentList list;
 
-		Instrument *pKick = new Instrument(EMPTY_INSTR_ID, "Kick");
+		auto pKick = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Kick" );
 		pKick->set_midi_out_note(36);
 		list.add(pKick);
 
-		Instrument *pClap = new Instrument(EMPTY_INSTR_ID, "Clap");
+		auto pClap = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Clap" );
 		pClap->set_midi_out_note(37);
 		list.add(pClap);
 
-		Instrument *pRide = new Instrument(EMPTY_INSTR_ID, "Ride");
+		auto pRide = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Ride" );
 		pRide->set_midi_out_note(38);
 		list.add(pRide);
 
-		Instrument *pDummy = new Instrument(EMPTY_INSTR_ID, "Dummy Instrument");
+		auto pDummy = std::make_shared<Instrument>( EMPTY_INSTR_ID, "Dummy Instrument" );
 		pDummy->set_midi_out_note(36); // duplicate
 		list.add(pDummy);
 
@@ -77,9 +77,9 @@ class InstrumentListTest : public CppUnit::TestCase {
 	{
 		InstrumentList list;
 
-		list.add( new Instrument() );
-		list.add( new Instrument() );
-		list.add( new Instrument() );
+		list.add( std::make_shared<Instrument>() );
+		list.add( std::make_shared<Instrument>() );
+		list.add( std::make_shared<Instrument>() );
 
 		list.set_default_midi_out_notes();
 
@@ -93,7 +93,7 @@ class InstrumentListTest : public CppUnit::TestCase {
 	{
 		InstrumentList list;
 
-		list.add( new Instrument() );
+		list.add( std::make_shared<Instrument>() );
 		
 		CPPUNIT_ASSERT( list.is_valid_index(0) );
 		CPPUNIT_ASSERT( !list.is_valid_index(1) );

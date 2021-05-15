@@ -127,12 +127,10 @@ enum EventType {
 	 * or and OSC command.
 	 *
 	 * If the value of the event is 
-	 * - 0 - Hydrogen::m_pNextSong will be loaded.
-	 * - 1 - Hydrogen::m_pNextSong will be loaded and the audio
-	 *       drivers will be restarted via Hydrogen::restartDrivers()
-	 * - 2 - triggered whenever the Song was saved via the core part
+	 * - 0 - update the GUI to represent the song loaded by the core.
+	 * - 1 - triggered whenever the Song was saved via the core part
 	 *       (updated the title and status bar).
-	 * - 3 - Song is not writable (inform the user via a QMessageBox)
+	 * - 2 - Song is not writable (inform the user via a QMessageBox)
 	 */
 	EVENT_UPDATE_SONG,
 	/**

@@ -23,7 +23,7 @@
 #include <core/Basics/DrumkitComponent.h>
 
 #include <cassert>
-
+#include <memory>
 
 #include <core/Hydrogen.h>
 #include <core/AudioEngine.h>

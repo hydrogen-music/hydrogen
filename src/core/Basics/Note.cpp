@@ -38,7 +38,7 @@ namespace H2Core
 const char* Note::__class_name = "Note";
 const char* Note::__key_str[] = { "C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Af", "A", "Bf", "B" };
 
-Note::Note( Instrument* instrument, int position, float velocity, float pan, int length, float pitch )
+Note::Note( std::shared_ptr<Instrument> instrument, int position, float velocity, float pan, int length, float pitch )
 	: Object( __class_name ),
 	  __instrument( instrument ),
 	  __instrument_id( 0 ),
@@ -68,8 +68,7 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan, int
 		__adsr = __instrument->copy_adsr();
 		__instrument_id = __instrument->get_id();
 
-		for (std::vector<InstrumentComponent*>::iterator it = __instrument->get_components()->begin() ; it !=__instrument->get_components()->end(); ++it) {
-			InstrumentComponent *pCompo = *it;
+		for ( const auto& pCompo : *__instrument->get_components() ) {
 
 			SelectedLayerInfo *sampleInfo = new SelectedLayerInfo;
 			sampleInfo->SelectedLayer = -1;
@@ -82,7 +81,7 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan, int
 	setPan( pan ); // this checks the boundaries
 }
 
-Note::Note( Note* other, Instrument* instrument )
+Note::Note( Note* other, std::shared_ptr<Instrument> instrument )
 	: Object( __class_name ),
 	  __instrument( other->get_instrument() ),
 	  __instrument_id( 0 ),
@@ -114,9 +113,7 @@ Note::Note( Note* other, Instrument* instrument )
 		__adsr = __instrument->copy_adsr();
 		__instrument_id = __instrument->get_id();
 
-		for (std::vector<InstrumentComponent*>::iterator it = __instrument->get_components()->begin() ; it !=__instrument->get_components()->end(); ++it) {
-			InstrumentComponent *pCompo = *it;
-
+		for ( const auto& pCompo : *__instrument->get_components() ) {
 			SelectedLayerInfo *sampleInfo = new SelectedLayerInfo;
 			sampleInfo->SelectedLayer = -1;
 			sampleInfo->SamplePosition = 0;
@@ -128,8 +125,6 @@ Note::Note( Note* other, Instrument* instrument )
 
 Note::~Note()
 {
-	delete __adsr;
-	__adsr = nullptr;
 }
 
 static inline float check_boundary( float v, float min, float max )
@@ -156,10 +151,10 @@ void Note::setPan( float val ) {
 void Note::map_instrument( InstrumentList* instruments )
 {
 	assert( instruments );
-	Instrument* instr = instruments->find( __instrument_id );
+	auto instr = instruments->find( __instrument_id );
 	if( !instr ) {
 		ERRORLOG( QString( "Instrument with ID: '%1' not found. Using empty instrument." ).arg( __instrument_id ) );
-		__instrument = new Instrument();
+		__instrument = std::make_shared<Instrument>();
 	} else {
 		__instrument = instr;
 	}

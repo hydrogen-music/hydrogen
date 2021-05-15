@@ -9,7 +9,7 @@ using namespace H2Core;
 
 void PatternTest::testPurgeInstrument()
 {
-	Instrument *pInstrument = new Instrument();
+	auto pInstrument = std::make_shared<Instrument>();
 	Note *pNote = new Note( pInstrument, 1, 1.0, 0.f, 1, 1.0 );
 
 	Pattern *pPattern = new Pattern();

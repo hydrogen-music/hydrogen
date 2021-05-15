@@ -46,6 +46,14 @@ class Object {
 		/** constructor */
 		Object( const char* class_name );
 
+		/** an objects class map item type */
+		typedef struct {
+			unsigned constructed;
+			unsigned destructed;
+		} obj_cpt_t;
+		/** the objects class map type */
+		typedef std::map<const char*, obj_cpt_t> object_map_t;
+
 		const char* class_name( ) const         { return __class_name; }        ///< return the class name
 		/**
 		 * enable/disable class instances counting
@@ -58,8 +66,10 @@ class Object {
 		/**
 		 * output the full objects map to a given ostream
 		 * \param out the ostream to write to
+		 * \param map Object map to print out. Per default the current
+		 * object map __objects_map will be used.
 		 */
-		static void write_objects_map_to( std::ostream& out );
+		static void write_objects_map_to( std::ostream& out, object_map_t* map = nullptr );
 		static void write_objects_map_to_cerr() { Object::write_objects_map_to( std::cerr ); }  ///< output objects map to stderr
 
 		/**
@@ -70,6 +80,16 @@ class Object {
 		static int bootstrap( Logger* logger, bool count=false );
 		static Logger* logger()                 { return __logger; }            ///< return the logger instance
 
+		/** \return Total numbers of objects being alive. */
+		static int getAliveObjectCount();
+		/** \return Copy of the object map. */
+		static object_map_t getObjectMap();
+		/** Creates the difference between a snapshot of the object
+		 * map and its current state and prints it to std::cout.
+		 *
+		 * \param map Object map retrieved using getObjectMap().
+		 */
+		static void printObjectMapDiff( Object::object_map_t map );
 		/** String used to format the debugging string output of some
 			core classes.*/
 		static QString sPrintIndention;
@@ -102,14 +122,6 @@ class Object {
 		 * \param copy is it called from a copy constructor
 		 */
 		static void add_object( const Object* obj, bool copy );
-
-		/** an objects class map item type */
-		typedef struct {
-			unsigned constructed;
-			unsigned destructed;
-		} obj_cpt_t;
-		/** the objects class map type */
-		typedef std::map<const char*, obj_cpt_t> object_map_t;
 
 		const char* __class_name;               ///< the object class name
 		static bool __count;                    ///< should we count class instances

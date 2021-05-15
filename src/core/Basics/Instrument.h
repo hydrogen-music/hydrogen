@@ -24,6 +24,8 @@
 #define H2C_INSTRUMENT_H
 
 #include <cassert>
+#include <memory>
+
 #include <core/Object.h>
 #include <core/Basics/Adsr.h>
 #include <core/Helpers/Filesystem.h>
@@ -63,9 +65,9 @@ class Instrument : public H2Core::Object
 		 * \param name the name of the instrument
 		 * \param adsr attack decay sustain release instance
 		 */
-		Instrument( const int id=EMPTY_INSTR_ID, const QString& name="Empty Instrument", ADSR* adsr=nullptr );
+		Instrument( const int id=EMPTY_INSTR_ID, const QString& name="Empty Instrument", std::shared_ptr<ADSR> adsr=nullptr );
 		/** copy constructor */
-		Instrument( Instrument* other );
+		Instrument( std::shared_ptr<Instrument> other );
 		/** destructor */
 		~Instrument();
 
@@ -77,7 +79,7 @@ class Instrument : public H2Core::Object
 		 * for the drumkit.
 		 * \return a new Instrument instance
 		 */
-		static Instrument* load_instrument( const QString& drumkit_name, const QString& instrument_name, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
+		static std::shared_ptr<Instrument> load_instrument( const QString& drumkit_name, const QString& instrument_name, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
 
 		/**
 		 * loads instrument from a given instrument within a given drumkit into a `live` Instrument object.
@@ -95,7 +97,7 @@ class Instrument : public H2Core::Object
 		 * \param instrument to load samples and members from
 		 * \param is_live is it performed while playing
 		 */
-		void load_from( Drumkit* drumkit, Instrument* instrument, bool is_live = true );
+		void load_from( Drumkit* drumkit, std::shared_ptr<Instrument> instrument, bool is_live = true );
 
 		/**
 		 * Calls the InstrumentLayer::load_sample() member
@@ -124,7 +126,7 @@ class Instrument : public H2Core::Object
 		 * \param dk_name the name of the drumkit
 		 * \return a new Instrument instance
 		 */
-		static Instrument* load_from( XMLNode* node, const QString& dk_path, const QString& dk_name );
+		static std::shared_ptr<Instrument> load_from( XMLNode* node, const QString& dk_path, const QString& dk_name );
 
 		///< set the name of the instrument
 		void set_name( const QString& name );
@@ -137,11 +139,11 @@ class Instrument : public H2Core::Object
 		int get_id() const;
 
 		/** set the ADSR of the instrument */
-		void set_adsr( ADSR* adsr );
+		void set_adsr( std::shared_ptr<ADSR> adsr );
 		/** get the ADSR of the instrument */
-		ADSR* get_adsr() const;
+		std::shared_ptr<ADSR> get_adsr() const;
 		/** get a copy of the ADSR of the instrument */
-		ADSR* copy_adsr() const;
+		std::shared_ptr<ADSR> copy_adsr() const;
 
 		/** set the mute group of the instrument */
 		void set_mute_group( int group );
@@ -272,8 +274,8 @@ class Instrument : public H2Core::Object
 		void set_is_metronome_instrument(bool isMetronome);
 		bool is_metronome_instrument() const;
 
-		std::vector<InstrumentComponent*>* get_components();
-		InstrumentComponent* get_component( int DrumkitComponentID );
+		std::vector<std::shared_ptr<InstrumentComponent>>* get_components();
+		std::shared_ptr<InstrumentComponent> get_component( int DrumkitComponentID );
 
 		void set_apply_velocity( bool apply_velocity );
 		bool get_apply_velocity() const;
@@ -307,7 +309,7 @@ class Instrument : public H2Core::Object
 		float					m_fPan;	///< pan of the instrument, [-1;1] from left to right, as requested by Sampler PanLaws
 		float					__peak_l;				///< left current peak value
 		float					__peak_r;				///< right current peak value
-		ADSR*					__adsr;					///< attack delay sustain release instance
+		std::shared_ptr<ADSR>					__adsr;					///< attack delay sustain release instance
 		bool					__filter_active;		///< is filter active?
 		float					__filter_cutoff;		///< filter cutoff (0..1)
 		float					__filter_resonance;		///< filter resonant frequency (0..1)
@@ -328,7 +330,7 @@ class Instrument : public H2Core::Object
 		int						__higher_cc;			///< higher cc level
 		bool					__is_preview_instrument;		///< is the instrument an hydrogen preview instrument?
 		bool					__is_metronome_instrument;		///< is the instrument an metronome instrument?
-		std::vector<InstrumentComponent*>* __components;		///< InstrumentLayer array
+		std::vector<std::shared_ptr<InstrumentComponent>>* __components;		///< InstrumentLayer array
 		bool					__apply_velocity;				///< change the sample gain based on velocity
 		bool					__current_instr_for_export;		///< is the instrument currently being exported?
 		bool 					m_bHasMissingSamples;	///< does the instrument have missing sample files?
@@ -360,14 +362,14 @@ inline int Instrument::get_id() const
 	return __id;
 }
 
-inline ADSR* Instrument::get_adsr() const
+inline std::shared_ptr<ADSR> Instrument::get_adsr() const
 {
 	return __adsr;
 }
 
-inline ADSR* Instrument::copy_adsr() const
+inline std::shared_ptr<ADSR> Instrument::copy_adsr() const
 {
-	return new ADSR( __adsr );
+	return std::make_shared<ADSR>( __adsr );
 }
 
 inline void Instrument::set_mute_group( int group )
@@ -650,7 +652,7 @@ inline void Instrument::set_is_metronome_instrument(bool isMetronome)
 	__is_metronome_instrument = isMetronome;
 }
 
-inline std::vector<InstrumentComponent*>* Instrument::get_components()
+inline std::vector<std::shared_ptr<InstrumentComponent>>* Instrument::get_components()
 {
 	return __components;
 }

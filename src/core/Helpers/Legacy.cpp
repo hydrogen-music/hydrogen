@@ -65,10 +65,10 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 				ERRORLOG( QString( "instrument count >= %2, stop reading instruments" ).arg( MAX_INSTRUMENTS ) );
 				break;
 			}
-			Instrument* pInstrument = nullptr;
+			std::shared_ptr<Instrument> pInstrument = nullptr;
 			int id = instrument_node.read_int( "id", EMPTY_INSTR_ID, false, false );
 			if ( id!=EMPTY_INSTR_ID ) {
-				pInstrument = new Instrument( id, instrument_node.read_string( "name", "" ), nullptr );
+				pInstrument = std::make_shared<Instrument>( id, instrument_node.read_string( "name", "" ), nullptr );
 				pInstrument->set_drumkit_name( drumkit_name );
 				pInstrument->set_volume( instrument_node.read_float( "volume", 1.0f ) );
 				pInstrument->set_muted( instrument_node.read_bool( "isMuted", false ) );
@@ -87,7 +87,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 				float decay = instrument_node.read_float( "Decay", 0.0f, true, false  );
 				float sustain = instrument_node.read_float( "Sustain", 1.0f, true, false );
 				float release = instrument_node.read_float( "Release", 1000.0f, true, false );
-				pInstrument->set_adsr( new ADSR( attack, decay, sustain, release ) );
+				pInstrument->set_adsr( std::make_shared<ADSR>( attack, decay, sustain, release ) );
 				pInstrument->set_gain( instrument_node.read_float( "gain", 1.0f, true, false ) );
 				pInstrument->set_mute_group( instrument_node.read_int( "muteGroup", -1, true, false ) );
 				pInstrument->set_midi_out_channel( instrument_node.read_int( "midiOutChannel", -1, true, false ) );
@@ -133,8 +133,8 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 							pDrumkit->get_components()->push_back( pDrumkitCompo );
 						}
 						
-						InstrumentComponent* pComponent = new InstrumentComponent( 0 );
-						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
+						auto pComponent = std::make_shared<InstrumentComponent>( 0 );
+						auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 						pComponent->set_layer( pLayer, 0 );
 						pInstrument->get_components()->push_back( pComponent );
 						
@@ -154,7 +154,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 						DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
 						pDrumkit->get_components()->push_back(pDrumkitComponent);
 					}
-					InstrumentComponent* pComponent = new InstrumentComponent( 0 );
+					auto pComponent = std::make_shared<InstrumentComponent>( 0 );
 
 					XMLNode layer_node = instrument_node.firstChildElement( "layer" );
 					while ( !layer_node.isNull() ) {
@@ -163,7 +163,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 							break;
 						}
 						auto pSample = std::make_shared<Sample>( dk_path+"/"+layer_node.read_string( "filename", "" ) );
-						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
+						auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 						pLayer->set_start_velocity( layer_node.read_float( "min", 0.0 ) );
 						pLayer->set_end_velocity( layer_node.read_float( "max", 1.0 ) );
 						pLayer->set_gain( layer_node.read_float( "gain", 1.0, true, false ) );
@@ -236,7 +236,7 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 			QString nNoteOff = note_node.read_string( "note_off", "false", false, false );
 			int instrId = note_node.read_int( "instrument", 0, true );
 
-			Instrument *instrRef = instrList->find( instrId );
+			auto instrRef = instrList->find( instrId );
 			if ( !instrRef ) {
 				ERRORLOG( QString( "Instrument with ID: '%1' not found. Note skipped." ).arg( instrId ) );
 				note_node = note_node.nextSiblingElement( "note" );

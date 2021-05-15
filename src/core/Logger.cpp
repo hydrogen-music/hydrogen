@@ -29,10 +29,6 @@
 
 #ifdef WIN32
 #include <windows.h>
-#define LOGGER_SLEEP Sleep( 100 )
-#else
-#include <unistd.h>
-#define LOGGER_SLEEP do { usleep( 500000 ); usleep( 500000 ); } while (0)
 #endif
 
 namespace H2Core {
@@ -69,7 +65,8 @@ void* loggerThread_func( void* param ) {
 	Logger::queue_t::iterator it, last;
 
 	while ( logger->__running ) {
-		LOGGER_SLEEP;
+		pthread_cond_wait( &logger->__messages_available, &logger->__mutex );
+		pthread_mutex_unlock( &logger->__mutex );
 		if( !queue->empty() ) {
 			for( it = last = queue->begin() ; it != queue->end() ; ++it ) {
 				last = it;
@@ -94,7 +91,7 @@ void* loggerThread_func( void* param ) {
 #ifdef WIN32
 	::FreeConsole();
 #endif
-	LOGGER_SLEEP;
+
 	pthread_exit( nullptr );
 	return nullptr;
 }
@@ -114,11 +111,13 @@ Logger::Logger() : __use_file( true ), __running( true ) {
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
 	pthread_mutex_init( &__mutex, nullptr );
+	pthread_cond_init( &__messages_available, nullptr );
 	pthread_create( &loggerThread, &attr, loggerThread_func, this );
 }
 
 Logger::~Logger() {
 	__running = false;
+	pthread_cond_broadcast ( &__messages_available );
 	pthread_join( loggerThread, nullptr );
 }
 
@@ -164,6 +163,7 @@ void Logger::log( unsigned level, const QString& class_name, const char* func_na
 	pthread_mutex_lock( &__mutex );
 	__msg_queue.push_back( tmp );
 	pthread_mutex_unlock( &__mutex );
+	pthread_cond_broadcast( &__messages_available );
 }
 
 unsigned Logger::parse_log_level( const char* level ) {

@@ -138,10 +138,10 @@ AudioEngine::AudioEngine()
 	// Create metronome instrument
 	// Get the path to the file of the metronome sound.
 	QString sMetronomeFilename = Filesystem::click_file_path();
-	m_pMetronomeInstrument = new Instrument( METRONOME_INSTR_ID, "metronome" );
+	m_pMetronomeInstrument = std::make_shared<Instrument>( METRONOME_INSTR_ID, "metronome" );
 	
-	InstrumentLayer* pLayer =  new InstrumentLayer( Sample::load( sMetronomeFilename ) );
-	InstrumentComponent* pCompo = new InstrumentComponent( 0 );
+	auto pLayer =  std::make_shared<InstrumentLayer>( Sample::load( sMetronomeFilename ) );
+	auto pCompo = std::make_shared<InstrumentComponent>( 0 );
 	pCompo->set_layer(pLayer, 0);
 	m_pMetronomeInstrument->get_components()->push_back( pCompo );
 	m_pMetronomeInstrument->set_is_metronome_instrument(true);
@@ -266,7 +266,6 @@ void AudioEngine::destroy()
 	delete m_pNextPatterns;
 	m_pNextPatterns = nullptr;
 
-	delete m_pMetronomeInstrument;
 	m_pMetronomeInstrument = nullptr;
 
 	this->unlock();
@@ -738,7 +737,9 @@ void AudioEngine::startAudioDrivers()
 		}
 
 #ifdef H2CORE_HAVE_JACK
-		renameJackPorts( pSong );
+		if ( pSong != nullptr ) {
+			renameJackPorts( pSong );
+		}
 #endif
 
 		setupLadspaFX( m_pAudioDriver->getBufferSize() );
@@ -851,8 +852,6 @@ void AudioEngine::processCheckBPMChanged(Song* pSong)
 
 void AudioEngine::setupLadspaFX( unsigned nBufferSize )
 {
-	//___INFOLOG( "buffersize=" + to_string(nBufferSize) );
-
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
 	if ( ! pSong ) {
@@ -999,7 +998,7 @@ inline void AudioEngine::processPlayNotes( unsigned long nframes )
 			 * Check if the current instrument has the property "Stop-Note" set.
 			 * If yes, a NoteOff note is generated automatically after each note.
 			 */
-			Instrument * noteInstrument = pNote->get_instrument();
+			auto  noteInstrument = pNote->get_instrument();
 			if ( noteInstrument->is_stop_notes() ){
 				Note *pOffNote = new Note( noteInstrument,
 										   0.0,
@@ -1405,7 +1404,9 @@ void AudioEngine::setSong( Song* pNewSong )
 	}
 
 	// setup LADSPA FX
-	setupLadspaFX( m_pAudioDriver->getBufferSize() );
+	if ( m_pAudioDriver != nullptr ) {
+		setupLadspaFX( m_pAudioDriver->getBufferSize() );
+	}
 
 	// update tick size
 	processCheckBPMChanged( pNewSong );

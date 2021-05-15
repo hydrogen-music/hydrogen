@@ -38,17 +38,15 @@ InstrumentList::InstrumentList() : Object( __class_name )
 
 InstrumentList::InstrumentList( InstrumentList* other ) : Object( __class_name )
 {
+	assert( other );
 	assert( __instruments.size() == 0 );
 	for ( int i=0; i<other->size(); i++ ) {
-		( *this ) << ( new Instrument( ( *other )[i] ) );
+		( *this ) << ( std::make_shared<Instrument>( ( *other )[i] ) );
 	}
 }
 
 InstrumentList::~InstrumentList()
 {
-	for ( int i = 0; i < __instruments.size(); ++i ) {
-		delete __instruments[i];
-	}
 }
 
 void InstrumentList::load_samples()
@@ -76,7 +74,7 @@ InstrumentList* InstrumentList::load_from( XMLNode* node, const QString& dk_path
 			ERRORLOG( QString( "instrument count >= %2, stop reading instruments" ).arg( MAX_INSTRUMENTS ) );
 			break;
 		}
-		Instrument* instrument = Instrument::load_from( &instrument_node, dk_path, dk_name );
+		auto instrument = Instrument::load_from( &instrument_node, dk_path, dk_name );
 		if( instrument ) {
 			( *instruments ) << instrument;
 		} else {
@@ -96,7 +94,7 @@ void InstrumentList::save_to( XMLNode* node, int component_id )
 	}
 }
 
-void InstrumentList::operator<<( Instrument* instrument )
+void InstrumentList::operator<<( std::shared_ptr<Instrument> instrument )
 {
 	// do nothing if already in __instruments
 	for( int i=0; i<__instruments.size(); i++ ) {
@@ -105,7 +103,7 @@ void InstrumentList::operator<<( Instrument* instrument )
 	__instruments.push_back( instrument );
 }
 
-void InstrumentList::add( Instrument* instrument )
+void InstrumentList::add( std::shared_ptr<Instrument> instrument )
 {
 	// do nothing if already in __instruments
 	for( int i=0; i<__instruments.size(); i++ ) {
@@ -114,7 +112,7 @@ void InstrumentList::add( Instrument* instrument )
 	__instruments.push_back( instrument );
 }
 
-void InstrumentList::insert( int idx, Instrument* instrument )
+void InstrumentList::insert( int idx, std::shared_ptr<Instrument> instrument )
 {
 	// do nothing if already in __instruments
 	for( int i=0; i<__instruments.size(); i++ ) {
@@ -123,7 +121,7 @@ void InstrumentList::insert( int idx, Instrument* instrument )
 	__instruments.insert( __instruments.begin() + idx, instrument );
 }
 
-Instrument* InstrumentList::operator[]( int idx )
+std::shared_ptr<Instrument> InstrumentList::operator[]( int idx )
 {
 	if ( idx < 0 || idx >= __instruments.size() ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
@@ -144,7 +142,7 @@ bool InstrumentList::is_valid_index( int idx ) const
 	return is_valid_index;
 }
 
-Instrument* InstrumentList::get( int idx )
+std::shared_ptr<Instrument> InstrumentList::get( int idx )
 {
 	if ( !is_valid_index( idx ) ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
@@ -154,7 +152,7 @@ Instrument* InstrumentList::get( int idx )
 	return __instruments[idx];
 }
 
-int InstrumentList::index( Instrument* instr )
+int InstrumentList::index( std::shared_ptr<Instrument> instr )
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
 		if ( __instruments[i]==instr ) return i;
@@ -162,7 +160,7 @@ int InstrumentList::index( Instrument* instr )
 	return -1;
 }
 
-Instrument*  InstrumentList::find( const int id )
+std::shared_ptr<Instrument>  InstrumentList::find( const int id )
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
 		if ( __instruments[i]->get_id()==id ) return __instruments[i];
@@ -170,7 +168,7 @@ Instrument*  InstrumentList::find( const int id )
 	return nullptr;
 }
 
-Instrument*  InstrumentList::find( const QString& name )
+std::shared_ptr<Instrument>  InstrumentList::find( const QString& name )
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
 		if ( __instruments[i]->get_name()==name ) return __instruments[i];
@@ -178,7 +176,7 @@ Instrument*  InstrumentList::find( const QString& name )
 	return nullptr;
 }
 
-Instrument*  InstrumentList::findMidiNote( const int note )
+std::shared_ptr<Instrument>  InstrumentList::findMidiNote( const int note )
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
 		if ( __instruments[i]->get_midi_out_note()==note ) return __instruments[i];
@@ -186,15 +184,15 @@ Instrument*  InstrumentList::findMidiNote( const int note )
 	return nullptr;
 }
 
-Instrument* InstrumentList::del( int idx )
+std::shared_ptr<Instrument> InstrumentList::del( int idx )
 {
 	assert( idx >= 0 && idx < __instruments.size() );
-	Instrument* instrument = __instruments[idx];
+	auto instrument = __instruments[idx];
 	__instruments.erase( __instruments.begin() + idx );
 	return instrument;
 }
 
-Instrument* InstrumentList::del( Instrument* instrument )
+std::shared_ptr<Instrument> InstrumentList::del( std::shared_ptr<Instrument> instrument )
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
 		if( __instruments[i]==instrument ) {
@@ -211,7 +209,7 @@ void InstrumentList::swap( int idx_a, int idx_b )
 	assert( idx_b >= 0 && idx_b < __instruments.size() );
 	if( idx_a == idx_b ) return;
 	//DEBUGLOG(QString("===>> SWAP  %1 %2").arg(idx_a).arg(idx_b) );
-	Instrument* tmp = __instruments[idx_a];
+	auto tmp = __instruments[idx_a];
 	__instruments[idx_a] = __instruments[idx_b];
 	__instruments[idx_b] = tmp;
 }
@@ -222,7 +220,7 @@ void InstrumentList::move( int idx_a, int idx_b )
 	assert( idx_b >= 0 && idx_b < __instruments.size() );
 	if( idx_a == idx_b ) return;
 	//DEBUGLOG(QString("===>> MOVE  %1 %2").arg(idx_a).arg(idx_b) );
-	Instrument* tmp = __instruments[idx_a];
+	auto tmp = __instruments[idx_a];
 	__instruments.erase( __instruments.begin() + idx_a );
 	__instruments.insert( __instruments.begin() + idx_b, tmp );
 }

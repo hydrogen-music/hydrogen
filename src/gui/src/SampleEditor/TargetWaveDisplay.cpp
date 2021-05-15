@@ -191,7 +191,7 @@ void TargetWaveDisplay::paintLocatorEventTargetDisplay( int pos, bool updateposi
 	update();
 }
 
-void TargetWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
+void TargetWaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer )
 {
 	if ( pLayer && pLayer->get_sample() ) {
 

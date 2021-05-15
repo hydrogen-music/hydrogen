@@ -253,7 +253,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 
 		int nInstrument = nNote - 36;
 		InstrumentList *pInstrList = pHydrogen->getSong()->getInstrumentList();
-		Instrument *pInstr = nullptr;
+		std::shared_ptr<Instrument> pInstr = nullptr;
 		
 		if ( Preferences::get_instance()->__playselectedinstrument ){
 			nInstrument = pHydrogen->getSelectedInstrumentNumber();
@@ -293,7 +293,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		{
 			for(int i=0 ; i<=pInstrList->size() ; i++)
 			{
-				Instrument *instr_contestant = pInstrList->get( i );
+				auto instr_contestant = pInstrList->get( i );
 				if( instr_contestant != nullptr &&
 						pInstr->get_hihat_grp() == instr_contestant->get_hihat_grp() &&
 						__hihat_cc_openess >= instr_contestant->get_lower_cc() &&
@@ -339,7 +339,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	int nNote = msg.m_nData1;
 	//float fVelocity = msg.m_nData2 / 127.0; //we need this in future to control release velocity
 	int nInstrument = nNote - 36;
-	Instrument *pInstr = nullptr;
+	std::shared_ptr<Instrument> pInstr = nullptr;
 
 	if ( Preferences::get_instance()->__playselectedinstrument ){
 		nInstrument = pHydrogen->getSelectedInstrumentNumber();
