@@ -247,6 +247,7 @@ void XmlTest::testPlaylist()
 {
 	QString sPath = H2Core::Filesystem::tmp_dir()+"playlist.h2playlist";
 
+	H2Core::Playlist::create_instance();
 	H2Core::Playlist* pPlaylistCurrent = H2Core::Playlist::get_instance();
 	H2Core::Playlist* pPlaylistLoaded = nullptr;
 	H2Core::XMLDoc doc;
