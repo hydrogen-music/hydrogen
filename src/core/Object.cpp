@@ -122,7 +122,8 @@ inline void Object::del_object( const Object* obj ) {
 	pthread_mutex_unlock( &__mutex );
 #endif
 }
-void Object::write_objects_map_to( std::ostream& out ) {
+
+void Object::write_objects_map_to( std::ostream& out, object_map_t* map ) {
 #ifdef H2CORE_HAVE_DEBUG
 	if( !__count ) {
 #ifdef WIN32
@@ -132,10 +133,15 @@ void Object::write_objects_map_to( std::ostream& out ) {
 #endif
 		return;
 	}
+
+	if ( map == nullptr ) {
+		map = &__objects_map;
+	}
+	
 	std::ostringstream o;
 	pthread_mutex_lock( &__mutex );
-	object_map_t::iterator it = __objects_map.begin();
-	while ( it != __objects_map.end() ) {
+	object_map_t::iterator it = map->begin();
+	while ( it != map->end() ) {
 		o << "\t[ " << std::setw( 30 ) << ( *it ).first << " ]\t" << std::setw( 6 ) << ( *it ).second.constructed << "\t" << std::setw( 6 ) << ( *it ).second.destructed
 		  << "\t" << std::setw( 6 ) << ( *it ).second.constructed - ( *it ).second.destructed << std::endl;
 		it++;
@@ -156,6 +162,50 @@ void Object::write_objects_map_to( std::ostream& out ) {
 	out << "\033[35mObject::write_objects_map_to :: \033[31mnot compiled with H2CORE_HAVE_DEBUG flag set\033[0m" << std::endl;
 #endif
 #endif
+}
+
+int Object::getAliveObjectCount() {
+#ifdef H2CORE_HAVE_DEBUG
+	int nCount = 0;
+	for ( auto const& ii : __objects_map ) {
+		nCount += ii.second.constructed - ii.second.destructed;
+	}
+	return nCount;
+#else
+	ERRORLOG( "This function is only supported in debug builds of Hydrogen." );
+	return 0;
+#endif
+}
+
+Object::object_map_t Object::getObjectMap() {
+	object_map_t mapCopy;
+	obj_cpt_t copy;
+	
+	for ( auto const& ii : __objects_map ) {
+		copy.constructed = ii.second.constructed;
+		copy.destructed = ii.second.destructed;
+		mapCopy.insert( std::pair<const char*, obj_cpt_t>( ii.first, copy ) );
+	}
+	
+	return mapCopy;
+}
+void Object::printObjectMapDiff( Object::object_map_t mapSnapshot ) {
+	object_map_t mapDiff;
+	obj_cpt_t diff;
+
+	// Since key value pairs are only inserted but not erased while
+	// Hydrogen is running it is save to assume for mapSnapshot to be
+	// a subset of the current object map.
+	for ( auto const& ii : __objects_map ) {
+		auto it = mapSnapshot.find( ii.first );
+		if ( it != mapSnapshot.end() ) {
+			diff.constructed = ii.second.constructed - it->second.constructed;
+			diff.destructed = ii.second.destructed - it->second.destructed;
+			mapDiff.insert( std::pair<const char*, obj_cpt_t>( ii.first, diff ) );
+		}
+	}
+
+	write_objects_map_to( std::cout, &mapDiff );
 }
 
 QString Object::toQString( const QString& sPrefix, bool bShort ) const {
