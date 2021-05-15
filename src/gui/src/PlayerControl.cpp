@@ -68,7 +68,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	hbox->setMargin( 0 );
 	setLayout( hbox );
 
-	QFont fontButtons( pPreferences->getLevel3FontFamily(), getPointSize() );
+	QFont fontButtons( pPreferences->getLevel3FontFamily(), getPointSize( m_lastUsedFontSize ) );
 
 // CONTROLS
 	PixmapWidget *pControlsPanel = new PixmapWidget( nullptr );
@@ -1135,25 +1135,6 @@ void PlayerControl::jackTimebaseActivationEvent( int nValue ) {
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateTimelineUsage();
 }
 
-
-int PlayerControl::getPointSize() const {
-	int nPointSize;
-	
-	switch( m_lastUsedFontSize ) {
-	case H2Core::Preferences::FontSize::Small:
-		nPointSize = 5;
-		break;
-	case H2Core::Preferences::FontSize::Normal:
-		nPointSize = 6;
-		break;
-	case H2Core::Preferences::FontSize::Large:
-		nPointSize = 7;
-		break;
-	}
-
-	return nPointSize;
-}
-
 void PlayerControl::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
@@ -1161,7 +1142,7 @@ void PlayerControl::onPreferencesChanged( bool bAppearanceOnly ) {
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
 
 		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-		QFont fontButtons( pPref->getLevel3FontFamily(), getPointSize() );
+		QFont fontButtons( pPref->getLevel3FontFamily(), getPointSize( m_lastUsedFontSize ) );
 		m_pShowMixerBtn->setFont( fontButtons );
 		m_pShowInstrumentRackBtn->setFont( fontButtons );
 	}

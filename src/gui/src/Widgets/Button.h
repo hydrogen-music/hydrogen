@@ -33,6 +33,7 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include "WidgetWithScalableFont.h"
 
 
 class PixmapWidget;
@@ -40,7 +41,7 @@ class PixmapWidget;
 /**
  * Generic Button with pixmaps and text.
  */
-class Button : public QWidget, public H2Core::Object, public MidiLearnable
+class Button : public QWidget, protected WidgetWithScalableFont<6, 8, 10>, public H2Core::Object, public MidiLearnable
 {
     H2_OBJECT
 	Q_OBJECT
@@ -100,9 +101,6 @@ public slots:
 		int m_timerTimeout;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
-		/** Converts #m_lastUsedFontSize into a point size used for
-			the widget's font.*/
-		int getPointSize() const;
 		/** Used to detect changed in the font*/
 		H2Core::Preferences::FontSize m_lastUsedFontSize;
 

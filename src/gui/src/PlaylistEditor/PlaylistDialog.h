@@ -31,7 +31,7 @@
 #include <core/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Playlist.h>
-
+#include "../Widgets/WidgetWithScalableFont.h"
 
 class Button;
 class ToggleButton;
@@ -40,7 +40,7 @@ class PixmapWidget;
 ///
 /// This dialog is used to use the H2PlayList
 ///
-class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public H2Core::Object
+class PlaylistDialog : public QDialog, protected WidgetWithScalableFont<8, 10, 12>, public Ui_PlaylistDialog_UI, public H2Core::Object
 
 {
 		H2_OBJECT
@@ -96,9 +96,6 @@ public slots:
 		ToggleButton *m_pPlayBtn;
 		Button *m_pStopBtn;
 		Button *m_pFfwdBtn;
-		/** Converts #m_lastUsedFontSize into a point size used for
-			the widget's font.*/
-		int getPointSize() const;
 		/** Used to detect changed in the font*/
 		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };

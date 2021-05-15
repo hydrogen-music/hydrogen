@@ -30,6 +30,7 @@
 #include <unistd.h>
 
 #include "EventListener.h"
+#include "Widgets/WidgetWithScalableFont.h"
 
 #include <core/config.h>
 #include <core/Object.h>
@@ -41,7 +42,7 @@ class QUndoView;///debug only
 ///
 /// Main window
 ///
-class MainForm : public QMainWindow, public EventListener, public H2Core::Object
+class MainForm : public QMainWindow, protected WidgetWithScalableFont<8, 10, 12>, public EventListener, public H2Core::Object
 {
 		H2_OBJECT
 	Q_OBJECT
@@ -297,9 +298,6 @@ public slots:
 		 * application.
 		 */
 		void startPlaybackAtCursor( QObject* pObject );
-		/** Converts #m_lastUsedFontSize into a point size used for
-			the widget's font.*/
-		int getPointSize() const;
 		/** Used to detect changed in the font*/
 		H2Core::Preferences::FontSize m_lastUsedFontSize;
 

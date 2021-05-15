@@ -29,11 +29,12 @@
 #include "../EventListener.h"
 #include "../Selection.h"
 #include "PatternEditor.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 #include <QtGui>
 #include <QtWidgets>
 
-class PianoRollEditor: public PatternEditor
+class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>
 {
     H2_OBJECT
     Q_OBJECT
@@ -174,9 +175,6 @@ class PianoRollEditor: public PatternEditor
 		float __oldLeadLag;		
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
-		/** Converts #m_lastUsedFontSize into a point size used for
-			the widget's font.*/
-		int getPointSize() const;
 		/** Used to detect changed in the font*/
 		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };

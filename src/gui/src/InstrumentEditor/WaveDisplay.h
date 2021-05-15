@@ -28,13 +28,14 @@
 
 #include <core/Object.h>
 #include <core/Preferences.h>
+#include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {
 	class InstrumentLayer;
 }
 
-class WaveDisplay : public QWidget, public H2Core::Object
+class WaveDisplay : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
@@ -72,9 +73,6 @@ public slots:
 		std::shared_ptr<H2Core::InstrumentLayer>	m_pLayer;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
-		/** Converts #m_lastUsedFontSize into a point size used for
-			the widget's font.*/
-		int getPointSize() const;
 		/** Used to detect changed in the font*/
 		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };

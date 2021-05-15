@@ -1121,7 +1121,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	static QString noteNames[] = { tr( "B" ), tr( "A#" ), tr( "A" ), tr( "G#" ), tr( "G" ), tr( "F#" ),
 								   tr( "F" ), tr( "E" ), tr( "D#" ), tr( "D" ), tr( "C#" ), tr( "C" ) };
 	
-	QFont font( m_sLastUsedFontFamily, getPointSize() );
+	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 	
 	p.setFont( font );
 	p.setPen( QColor( 0, 0, 0 ) );
@@ -1336,25 +1336,6 @@ QRect NotePropertiesRuler::getKeyboardCursorRect()
 
 void NotePropertiesRuler::selectAll() {
 	selectInstrumentNotes( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
-}
-
-
-int NotePropertiesRuler::getPointSize() const {
-	int nPointSize;
-	
-	switch( m_lastUsedFontSize ) {
-	case H2Core::Preferences::FontSize::Small:
-		nPointSize = 7;
-		break;
-	case H2Core::Preferences::FontSize::Normal:
-		nPointSize = 9;
-		break;
-	case H2Core::Preferences::FontSize::Large:
-		nPointSize = 11;
-		break;
-	}
-
-	return nPointSize;
 }
 
 void NotePropertiesRuler::onPreferencesChanged( bool bAppearanceOnly ) {

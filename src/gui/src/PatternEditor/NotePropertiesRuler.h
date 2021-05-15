@@ -24,6 +24,7 @@
 #define NOTE_PROPERTIES_RULER_H
 
 #include "../EventListener.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 #include <QtGui>
 #include <QtWidgets>
@@ -42,7 +43,7 @@ namespace H2Core
 
 class PatternEditorPanel;
 
-class NotePropertiesRuler : public PatternEditor
+class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>
 {
     H2_OBJECT
 	Q_OBJECT
@@ -141,9 +142,6 @@ class NotePropertiesRuler : public PatternEditor
 		int m_nDragPreviousColumn;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
-		/** Converts #m_lastUsedFontSize into a point size used for
-			the widget's font.*/
-		int getPointSize() const;
 		/** Used to detect changed in the font*/
 		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };

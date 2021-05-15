@@ -198,7 +198,7 @@ void Button::paintEvent( QPaintEvent* ev)
 {
 	QPainter painter(this);
 
-	QFont boldFont( m_sLastUsedFontFamily, getPointSize() );
+	QFont boldFont( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 	boldFont.setBold( true );
 	painter.setFont( boldFont );
 
@@ -288,25 +288,6 @@ void Button::setText( const QString& sText )
 {
 	m_sText = sText;
 	update();
-}
-
-
-int Button::getPointSize() const {
-	int nPointSize;
-	
-	switch( m_lastUsedFontSize ) {
-	case H2Core::Preferences::FontSize::Small:
-		nPointSize = 6;
-		break;
-	case H2Core::Preferences::FontSize::Normal:
-		nPointSize = 8;
-		break;
-	case H2Core::Preferences::FontSize::Large:
-		nPointSize = 10;
-		break;
-	}
-
-	return nPointSize;
 }
 
 void Button::onPreferencesChanged( bool bAppearanceOnly ) {

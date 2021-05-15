@@ -1036,21 +1036,8 @@ void InstrumentNameWidget::paintEvent( QPaintEvent* ev )
 	PixmapWidget::paintEvent( ev );
 
 	QPainter p( this );
-
-	int nPointSize;
-	switch( m_lastUsedFontSize ) {
-	case H2Core::Preferences::FontSize::Small:
-		nPointSize = 8;
-		break;
-	case H2Core::Preferences::FontSize::Normal:
-		nPointSize = 10;
-		break;
-	case H2Core::Preferences::FontSize::Large:
-		nPointSize = 12;
-		break;
-	}
 	
-	QFont font( m_sLastUsedFontFamily, nPointSize );
+	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 
 	p.setPen( QColor(230, 230, 230) );
 	p.setFont( font );

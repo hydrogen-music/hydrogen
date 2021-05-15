@@ -33,6 +33,7 @@
 
 #include "../EventListener.h"
 #include "../Widgets/PixmapWidget.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 class Fader;
 class LCDDisplay;
@@ -48,7 +49,7 @@ class LayerPreview;
 ///
 /// Instrument Editor
 ///
-class InstrumentEditor : public QWidget, public H2Core::Object, public EventListener
+class InstrumentEditor : public QWidget, protected WidgetWithScalableFont<10, 12, 14>, public H2Core::Object, public EventListener
 {
 	H2_OBJECT
 	Q_OBJECT
@@ -205,9 +206,6 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		void loadLayer();
 		void setAutoVelocity();
-		/** Converts #m_lastUsedFontSize into a point size used for
-			the widget's font.*/
-		int getPointSize() const;
 		/** Converts #m_lastUsedFontSize into a point size used for
 			the widget's font.*/
 		int getPointSizeButton() const;

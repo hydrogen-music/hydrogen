@@ -239,7 +239,7 @@ void PianoRollEditor::createBackground()
 	}
 
 	//draw text
-	QFont font( m_sLastUsedFontFamily, getPointSize() );
+	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 	//	font.setWeight( 63 );
 	p.setFont( font );
 	p.setPen( QColor(10, 10, 10 ) );
@@ -1338,25 +1338,6 @@ QRect PianoRollEditor::getKeyboardCursorRect() {
 	QPoint pos = cursorPosition();
 	return QRect( pos.x() - m_nGridWidth*3, pos.y()-2,
 				  m_nGridWidth*6, m_nGridHeight+3 );
-}
-
-
-int PianoRollEditor::getPointSize() const {
-	int nPointSize;
-	
-	switch( m_lastUsedFontSize ) {
-	case H2Core::Preferences::FontSize::Small:
-		nPointSize = 7;
-		break;
-	case H2Core::Preferences::FontSize::Normal:
-		nPointSize = 9;
-		break;
-	case H2Core::Preferences::FontSize::Large:
-		nPointSize = 11;
-		break;
-	}
-
-	return nPointSize;
 }
 
 void PianoRollEditor::onPreferencesChanged( bool bAppearanceOnly ) {

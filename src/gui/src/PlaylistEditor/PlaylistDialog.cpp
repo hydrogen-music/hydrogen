@@ -63,7 +63,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	INFOLOG ( "INIT" );
 
 	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();	
-	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize() );
+	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
 	setFont( font );
 	m_pPlaylistTree->setFont( font );
 	
@@ -971,24 +971,6 @@ bool PlaylistDialog::loadListByFileName( QString filename )
 	return true;
 }
 
-int PlaylistDialog::getPointSize() const {
-	int nPointSize;
-	
-	switch( m_lastUsedFontSize ) {
-	case H2Core::Preferences::FontSize::Small:
-		nPointSize = 8;
-		break;
-	case H2Core::Preferences::FontSize::Normal:
-		nPointSize = 10;
-		break;
-	case H2Core::Preferences::FontSize::Large:
-		nPointSize = 12;
-		break;
-	}
-
-	return nPointSize;
-}
-
 void PlaylistDialog::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
@@ -999,8 +981,8 @@ void PlaylistDialog::onPreferencesChanged( bool bAppearanceOnly ) {
 		
 		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 		
-		QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize() );
-		QFont childFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize() );
+		QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+		QFont childFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize( m_lastUsedFontSize ) );
 		setFont( font );
 		m_pMenubar->setFont( font );
 		m_pPlaylistMenu->setFont( font );

@@ -32,6 +32,8 @@
 #include <core/Object.h>
 #include <core/Preferences.h>
 
+#include "../Widgets/WidgetWithScalableFont.h"
+
 namespace H2Core
 {
 	class Song;
@@ -42,7 +44,7 @@ namespace H2Core
 class SoundLibraryTree;
 class ToggleButton;
 
-class SoundLibraryPanel : public QWidget, private H2Core::Object
+class SoundLibraryPanel : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, private H2Core::Object
 {
 	H2_OBJECT
 Q_OBJECT
@@ -107,9 +109,6 @@ private:
 	bool m_bInItsOwnDialog;
 
 	QString m_sMessageFailedPreDrumkitLoad;
-	/** Converts #m_lastUsedFontSize into a point size used for
-		the widget's font.*/
-	int getPointSize() const;
 	/** Used to detect changed in the font*/
 	H2Core::Preferences::FontSize m_lastUsedFontSize;
 };

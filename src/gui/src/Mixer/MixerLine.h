@@ -41,9 +41,9 @@ class LCDDisplay;
 class Rotary;
 
 #include "../Widgets/PixmapWidget.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
-
-class InstrumentNameWidget : public PixmapWidget
+class InstrumentNameWidget : public PixmapWidget, protected WidgetWithScalableFont<8, 10, 12>
 {
 	H2_OBJECT
 	Q_OBJECT

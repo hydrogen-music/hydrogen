@@ -59,7 +59,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	setFixedSize(181, h);
 
 	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();	
-	QFont nameFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize() );
+	QFont nameFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize( m_lastUsedFontSize ) );
 	nameFont.setBold( true );
 
 	m_pNameLbl = new QLabel(this);
@@ -545,32 +545,13 @@ void InstrumentLine::functionDeleteInstrument()
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
-
-int InstrumentLine::getPointSize() const {
-	int nPointSize;
-	
-	switch( m_lastUsedFontSize ) {
-	case H2Core::Preferences::FontSize::Small:
-		nPointSize = 8;
-		break;
-	case H2Core::Preferences::FontSize::Normal:
-		nPointSize = 10;
-		break;
-	case H2Core::Preferences::FontSize::Large:
-		nPointSize = 12;
-		break;
-	}
-
-	return nPointSize;
-}
-
 void InstrumentLine::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
 	if ( m_pNameLbl->font().family() != pPref->getLevel2FontFamily() ||
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
 		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-		m_pNameLbl->setFont( QFont( pPref->getLevel2FontFamily(), getPointSize() ) );
+		m_pNameLbl->setFont( QFont( pPref->getLevel2FontFamily(), getPointSize( m_lastUsedFontSize ) ) );
 	}
 }
 

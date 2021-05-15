@@ -161,10 +161,10 @@ void SoundLibraryPanel::updateDrumkitList()
 
 	__sound_library_tree->clear();
 
-	QFont boldFont( Preferences::get_instance()->getApplicationFontFamily(), getPointSize() );
+	QFont boldFont( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
 	boldFont.setBold( true );
 
-	QFont childFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize() );
+	QFont childFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize( m_lastUsedFontSize ) );
 	setFont( childFont );
 
 	__system_drumkits_item = new QTreeWidgetItem( __sound_library_tree );
@@ -876,24 +876,6 @@ void SoundLibraryPanel::test_expandedItems()
 	//ERRORLOG( QString("songs %1 patterns %2").arg(__expand_songs_list).arg(__expand_pattern_list) );
 }
 
-int SoundLibraryPanel::getPointSize() const {
-	int nPointSize;
-	
-	switch( m_lastUsedFontSize ) {
-	case H2Core::Preferences::FontSize::Small:
-		nPointSize = 8;
-		break;
-	case H2Core::Preferences::FontSize::Normal:
-		nPointSize = 10;
-		break;
-	case H2Core::Preferences::FontSize::Large:
-		nPointSize = 12;
-		break;
-	}
-
-	return nPointSize;
-}
-
 void SoundLibraryPanel::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
@@ -903,8 +885,8 @@ void SoundLibraryPanel::onPreferencesChanged( bool bAppearanceOnly ) {
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
 		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 		
-		QFont font( pPref->getLevel2FontFamily(), getPointSize() );
-		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize() );
+		QFont font( pPref->getLevel2FontFamily(), getPointSize( m_lastUsedFontSize ) );
+		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
 		boldFont.setBold( true );
 
 		int ii, jj;

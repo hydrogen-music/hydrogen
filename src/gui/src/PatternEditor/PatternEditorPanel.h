@@ -31,6 +31,7 @@
 #include "../EventListener.h"
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/LCD.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 class Button;
 class ToggleButton;
@@ -53,7 +54,7 @@ namespace H2Core
 ///
 /// Pattern Editor Panel
 ///
-class PatternEditorPanel : public QWidget, public EventListener, public H2Core::Object
+class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public EventListener, public H2Core::Object
 {
 	H2_OBJECT
 	Q_OBJECT
@@ -197,9 +198,6 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 
 		virtual void resizeEvent(QResizeEvent *ev) override;
 		virtual void showEvent(QShowEvent *ev) override;
-		/** Converts #m_lastUsedFontSize into a point size used for
-			the widget's font.*/
-		int getPointSize() const;
 		/** Used to detect changed in the font*/
 		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };

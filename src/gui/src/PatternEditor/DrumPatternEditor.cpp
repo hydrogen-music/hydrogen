@@ -1112,7 +1112,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 					int y = ( nInstrument * m_nGridHeight);
 					const int boxWidth = 128;
 
-					QFont font( m_sLastUsedFontFamily, getPointSize() );
+					QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 					painter.setFont( font );
 					painter.setPen( QColor( 0, 0, 0 ) );
 
@@ -1344,25 +1344,6 @@ void DrumPatternEditor::undoRedoAction( int column,
 
 		m_pPatternEditorPanel->updateEditors();
 	}
-}
-
-
-int DrumPatternEditor::getPointSize() const {
-	int nPointSize;
-	
-	switch( m_lastUsedFontSize ) {
-	case H2Core::Preferences::FontSize::Small:
-		nPointSize = 7;
-		break;
-	case H2Core::Preferences::FontSize::Normal:
-		nPointSize = 9;
-		break;
-	case H2Core::Preferences::FontSize::Large:
-		nPointSize = 11;
-		break;
-	}
-
-	return nPointSize;
 }
 
 void DrumPatternEditor::onPreferencesChanged( bool bAppearanceOnly ) {

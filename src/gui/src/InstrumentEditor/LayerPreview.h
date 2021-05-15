@@ -30,13 +30,14 @@
 #include <core/Preferences.h>
 #include <core/Basics/Instrument.h>
 #include "../EventListener.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {
 class InstrumentLayer;
 }
 
-class LayerPreview : public QWidget, public H2Core::Object, public EventListener
+class LayerPreview : public QWidget, protected WidgetWithScalableFont<5, 6, 7>, public H2Core::Object, public EventListener
 {
     H2_OBJECT
 	Q_OBJECT
@@ -94,9 +95,6 @@ public slots:
 		virtual void selectedInstrumentChangedEvent() override;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
-		/** Converts #m_lastUsedFontSize into a point size used for
-			the widget's font.*/
-		int getPointSizeText() const;
 		/** Converts #m_lastUsedFontSize into a point size used for
 			the widget's font.*/
 		int getPointSizeButton() const;

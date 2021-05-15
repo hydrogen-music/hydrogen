@@ -91,7 +91,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 {
 	QPainter p( this );
 
-	QFont fontText( m_sLastUsedFontFamily, getPointSizeText() );
+	QFont fontText( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 	QFont fontButton( m_sLastUsedFontFamily, getPointSizeButton() );
 	
 	p.fillRect( ev->rect(), QColor( 58, 62, 72 ) );
@@ -447,25 +447,6 @@ void LayerPreview::showLayerEndVelocity( const std::shared_ptr<InstrumentLayer> 
 				.arg( QString::number( fVelo, 'f', 2) )
 				.arg( getMidiVelocityFromRaw( fVelo ) +1 ),
 			this);
-}
-
-
-int LayerPreview::getPointSizeText() const {
-	int nPointSize;
-	
-	switch( m_lastUsedFontSize ) {
-	case H2Core::Preferences::FontSize::Small:
-		nPointSize = 5;
-		break;
-	case H2Core::Preferences::FontSize::Normal:
-		nPointSize = 6;
-		break;
-	case H2Core::Preferences::FontSize::Large:
-		nPointSize = 7;
-		break;
-	}
-
-	return nPointSize;
 }
 
 int LayerPreview::getPointSizeButton() const {

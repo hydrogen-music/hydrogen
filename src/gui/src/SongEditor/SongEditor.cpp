@@ -1384,7 +1384,7 @@ void SongEditorPatternList::createBackground()
 	UIStyle *pStyle = pref->getDefaultUIStyle();
 	QColor textColor( pStyle->m_songEditor_textColor );
 
-	QFont boldTextFont( m_sLastUsedFontFamily, getPointSize() );
+	QFont boldTextFont( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 	boldTextFont.setBold( true );
 
 	//Do not redraw anything if Export is active.
@@ -2094,25 +2094,6 @@ void SongEditorPatternList::timelineUpdateEvent( int nEvent ){
 	Hydrogen::get_instance()->getSong()->setIsModified( true );
 }
 
-
-int SongEditorPatternList::getPointSize() const {
-	int nPointSize;
-	
-	switch( m_lastUsedFontSize ) {
-	case H2Core::Preferences::FontSize::Small:
-		nPointSize = 8;
-		break;
-	case H2Core::Preferences::FontSize::Normal:
-		nPointSize = 10;
-		break;
-	case H2Core::Preferences::FontSize::Large:
-		nPointSize = 12;
-		break;
-	}
-
-	return nPointSize;
-}
-
 void SongEditorPatternList::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
@@ -2208,7 +2189,7 @@ void SongEditorPositionRuler::createBackground()
 
 	m_pBackgroundPixmap->fill( backgroundColor );
 
-	QFont font( m_sLastUsedFontFamily, getPointSize() );
+	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 
 	QPainter p( m_pBackgroundPixmap );
 	p.setFont( font );
@@ -2466,24 +2447,6 @@ void SongEditorPositionRuler::deleteTagAction( QString text, int position )
 	}
 	
 	createBackground();
-}
-
-int SongEditorPositionRuler::getPointSize() const {
-	int nPointSize;
-	
-	switch( m_lastUsedFontSize ) {
-	case H2Core::Preferences::FontSize::Small:
-		nPointSize = 8;
-		break;
-	case H2Core::Preferences::FontSize::Normal:
-		nPointSize = 10;
-		break;
-	case H2Core::Preferences::FontSize::Large:
-		nPointSize = 12;
-		break;
-	}
-
-	return nPointSize;
 }
 
 void SongEditorPositionRuler::onPreferencesChanged( bool bAppearanceOnly ) {

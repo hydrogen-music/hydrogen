@@ -29,11 +29,12 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include "Widgets/WidgetWithScalableFont.h"
 
 class ToggleButton;
 class SoundLibraryPanel;
 
-class InstrumentRack : public QWidget, private H2Core::Object
+class InstrumentRack : public QWidget, protected WidgetWithScalableFont<5, 6, 7>, private H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
@@ -56,9 +57,6 @@ class InstrumentRack : public QWidget, private H2Core::Object
 		ToggleButton *m_pShowInstrumentEditorBtn;
 
 		SoundLibraryPanel* m_pSoundLibraryPanel;
-		/** Converts #m_lastUsedFontSize into a point size used for
-			the widget's font.*/
-		int getPointSize() const;
 		/** Used to detect changed in the font*/
 		H2Core::Preferences::FontSize m_lastUsedFontSize;
 

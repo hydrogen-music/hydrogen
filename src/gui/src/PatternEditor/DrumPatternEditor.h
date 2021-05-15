@@ -27,6 +27,7 @@
 #include "../EventListener.h"
 #include "../Selection.h"
 #include "PatternEditor.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 #include <core/Object.h>
 #include <core/Preferences.h>
@@ -40,7 +41,7 @@ class PatternEditorInstrumentList;
 ///
 /// Drum pattern editor
 ///
-class DrumPatternEditor : public PatternEditor
+class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>
 {
     H2_OBJECT
 	Q_OBJECT
@@ -155,9 +156,6 @@ class DrumPatternEditor : public PatternEditor
 		int __oldLength;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
-		/** Converts #m_lastUsedFontSize into a point size used for
-			the widget's font.*/
-		int getPointSize() const;
 		/** Used to detect changed in the font*/
 		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };

@@ -26,6 +26,7 @@
 #include "../EventListener.h"
 #include <QtGui>
 #include <QtWidgets>
+#include "../Widgets/WidgetWithScalableFont.h"
 
 #include <core/Object.h>
 #include <core/Preferences.h>
@@ -37,7 +38,7 @@ namespace H2Core
 	class Pattern;
 }
 
-class PatternEditorRuler : public QWidget, public H2Core::Object, public EventListener
+class PatternEditorRuler : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public H2Core::Object, public EventListener
 {
     H2_OBJECT
 	Q_OBJECT
@@ -79,9 +80,6 @@ class PatternEditorRuler : public QWidget, public H2Core::Object, public EventLi
 		H2Core::Pattern *m_pPattern;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
-		/** Converts #m_lastUsedFontSize into a point size used for
-			the widget's font.*/
-		int getPointSize() const;
 		/** Used to detect changed in the font*/
 		H2Core::Preferences::FontSize m_lastUsedFontSize;
 

@@ -202,7 +202,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 	QColor lineColor( 170, 170, 170 );
 
 	Preferences *pref = Preferences::get_instance();
-	QFont font( m_sLastUsedFontFamily, getPointSize() );
+	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 	painter.setFont(font);
 	painter.drawLine( 0, 0, m_nRulerWidth, 0 );
 	painter.drawLine( 0, m_nRulerHeight - 1, m_nRulerWidth - 1, m_nRulerHeight - 1);
@@ -277,27 +277,6 @@ void PatternEditorRuler::selectedPatternChangedEvent()
 {
 	updateEditor( true );
 }
-
-
-
-int PatternEditorRuler::getPointSize() const {
-	int nPointSize;
-	
-	switch( m_lastUsedFontSize ) {
-	case H2Core::Preferences::FontSize::Small:
-		nPointSize = 8;
-		break;
-	case H2Core::Preferences::FontSize::Normal:
-		nPointSize = 10;
-		break;
-	case H2Core::Preferences::FontSize::Large:
-		nPointSize = 12;
-		break;
-	}
-
-	return nPointSize;
-}
-
 
 void PatternEditorRuler::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();

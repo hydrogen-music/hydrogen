@@ -90,7 +90,7 @@ void WaveDisplay::paintEvent( QPaintEvent *ev )
 		
 	}
 	
-	QFont font( m_sLastUsedFontFamily, getPointSize() );
+	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 	font.setWeight( 63 );
 	painter.setFont( font );
 	painter.setPen( QColor( 255 , 255, 255, 200 ) );
@@ -178,25 +178,6 @@ void WaveDisplay::mouseDoubleClickEvent(QMouseEvent *ev)
 	if (ev->button() == Qt::LeftButton) {
 	    emit doubleClicked(this);
 	}	
-}
-
-
-int WaveDisplay::getPointSize() const {
-	int nPointSize;
-	
-	switch( m_lastUsedFontSize ) {
-	case H2Core::Preferences::FontSize::Small:
-		nPointSize = 8;
-		break;
-	case H2Core::Preferences::FontSize::Normal:
-		nPointSize = 10;
-		break;
-	case H2Core::Preferences::FontSize::Large:
-		nPointSize = 12;
-		break;
-	}
-
-	return nPointSize;
 }
 
 void WaveDisplay::onPreferencesChanged( bool bAppearanceOnly ) {

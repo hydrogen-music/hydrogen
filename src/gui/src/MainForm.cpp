@@ -106,7 +106,7 @@ MainForm::MainForm( QApplication * pQApplication )
 	m_pQApp->processEvents();
 
 	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();	
-	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize() );
+	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
 	setFont( font );
 	m_pQApp->setFont( font );
 
@@ -1371,7 +1371,7 @@ void MainForm::onPreferencesChanged( bool bAppearanceOnly ) {
 	if ( m_pQApp->font().family() != pPref->getApplicationFontFamily() ||
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
 		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-		QFont font( pPref->getApplicationFontFamily(), getPointSize() );
+		QFont font( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
 		m_pQApp->setFont( font );
 		menuBar()->setFont( font );
 
@@ -2283,22 +2283,4 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		pHydrogen->sequencer_play();
 		HydrogenApp::get_instance()->setStatusBarMessage(tr("Playing."), 5000);
 	}
-}
-
-int MainForm::getPointSize() const {
-	int nPointSize;
-	
-	switch( m_lastUsedFontSize ) {
-	case H2Core::Preferences::FontSize::Small:
-		nPointSize = 8;
-		break;
-	case H2Core::Preferences::FontSize::Normal:
-		nPointSize = 10;
-		break;
-	case H2Core::Preferences::FontSize::Large:
-		nPointSize = 12;
-		break;
-	}
-
-	return nPointSize;
 }

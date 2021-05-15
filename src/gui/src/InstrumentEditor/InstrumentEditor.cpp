@@ -176,7 +176,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	/////////////
 
-	QFont boldFont( Preferences::get_instance()->getApplicationFontFamily(), getPointSize() );
+	QFont boldFont( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
 	boldFont.setBold(true);
 	m_pNameLbl->setFont( boldFont );
 	connect( m_pNameLbl, SIGNAL( labelClicked(ClickableLabel*) ), this, SLOT( labelClicked(ClickableLabel*) ) );
@@ -1295,25 +1295,6 @@ void InstrumentEditor::update()
 	}
 }
 
-int InstrumentEditor::getPointSize() const {
-	int nPointSize;
-	
-	switch( m_lastUsedFontSize ) {
-	case H2Core::Preferences::FontSize::Small:
-		nPointSize = 10;
-		break;
-	case H2Core::Preferences::FontSize::Normal:
-		nPointSize = 12;
-		break;
-	case H2Core::Preferences::FontSize::Large:
-		nPointSize = 14;
-		break;
-	}
-
-	return nPointSize;
-}
-
-
 int InstrumentEditor::getPointSizeButton() const {
 	int nPointSize;
 	
@@ -1339,7 +1320,7 @@ void InstrumentEditor::onPreferencesChanged( bool bAppearanceOnly ) {
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
 		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 		
-		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize() );
+		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
 		boldFont.setBold(true);
 		m_pNameLbl->setFont( boldFont );
 		m_pCompoNameLbl->setFont( boldFont );
