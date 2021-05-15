@@ -596,11 +596,6 @@ void			previewSample( Sample *pSample );
 	   #m_GUIState.*/
 	void			setGUIState( const GUIState state );
 	
-	/**\return #m_pNextSong*/
-	Song*			getNextSong() const;
-	/**\param pNextSong Sets #m_pNextSong. Song which is about to be
-	   loaded by the GUI.*/
-	void			setNextSong( Song* pNextSong );
 	/** Calculates the lookahead for a specific tick size.
 	 *
 	 * During the humanization the onset of a Note will be moved
@@ -654,20 +649,6 @@ void			previewSample( Sample *pSample );
 	/** \return NsmClient::m_bUnderSessionManagement if NSM is
 		supported.*/
 	bool			isUnderSessionManagement() const;
-	/** Sets the first Song to be loaded under session management.
-	 *
-	 * Enables the creation of a JACK client with all per track output
-	 * ports present right from the start. This is necessary to ensure
-	 * their connection can be properly restored by external tools.
-	 *
-	 * The function will only work if no audio driver is present
-	 * (since this is the intended use case and the function will be
-	 * harmful if used otherwise. Use setSong() instead.) and fails if
-	 * there is already a Song present.
-	 *
-	 * \param pSong Song to be loaded.
-	 */
-	void			setInitialSong( Song* pSong );
 
 	///midi lookuptable
 	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
@@ -749,18 +730,6 @@ private:
 	GUIState		m_GUIState;
 	
 	/**
-	 * Stores a new Song which is about of the loaded by the GUI.
-	 *
-	 * If #m_GUIState is true, the core part of must not load a new
-	 * Song itself. Instead, the new Song is prepared and stored in
-	 * this object to be loaded by HydrogenApp::updateSongEvent() if
-	 * H2Core::EVENT_UPDATE_SONG is pushed with a '1'.
-	 *
-	 * Set by setNextSong() and accessed via getNextSong().
-	 */
-	Song*			m_pNextSong;
-
-	/**
 	 * Local instance of the Timeline object.
 	 */
 	Timeline*		m_pTimeline;
@@ -815,22 +784,6 @@ private:
 	 * Only one Hydrogen object is allowed to exist. If the
 	 * #__instance object is present, the constructor will throw
 	 * an error.
-	 *
-	 * - Sets the current #__song to NULL
-	 * - Sets #m_bExportSessionIsActive to false
-	 * - Creates a new Timeline #m_pTimeline 
-	 * - Creates a new CoreActionController
-	 *   #m_pCoreActionController, 
-	 * - Calls initBeatcounter(), audioEngine_init(), and
-	 *   audioEngine_startAudioDrivers() 
-	 * - Sets InstrumentComponent::m_nMaxLayers to
-	 *   Preferences::m_nMaxLayers via
-	 *   InstrumentComponent::setMaxLayers() and
-	 *   Preferences::getMaxLayers() 
-	 * - Starts the OscServer using OscServer::start() if
-	 *   #H2CORE_HAVE_OSC was set during compilation.
-	 * - Fills #m_nInstrumentLookupTable with the corresponding
-	 *   index of each element.
 	 */
 	Hydrogen();
 
@@ -900,14 +853,6 @@ inline void Hydrogen::setGUIState( const Hydrogen::GUIState state ) {
 	m_GUIState = state;
 }
 
-inline Song* Hydrogen::getNextSong() const {
-	return m_pNextSong;
-}
-
-inline void Hydrogen::setNextSong( Song* pNextSong ) {
-	m_pNextSong = pNextSong;
-}
-
 inline PatternList* Hydrogen::getCurrentPatternList()
 {
 	return m_pAudioEngine->getPlayingPatterns();
@@ -917,7 +862,6 @@ inline PatternList * Hydrogen::getNextPatterns()
 {
 	return m_pAudioEngine->getNextPatterns();
 }
-
 };
 
 #endif

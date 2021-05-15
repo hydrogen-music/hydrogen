@@ -737,7 +737,9 @@ void AudioEngine::startAudioDrivers()
 		}
 
 #ifdef H2CORE_HAVE_JACK
-		renameJackPorts( pSong );
+		if ( pSong != nullptr ) {
+			renameJackPorts( pSong );
+		}
 #endif
 
 		setupLadspaFX( m_pAudioDriver->getBufferSize() );
@@ -850,8 +852,6 @@ void AudioEngine::processCheckBPMChanged(Song* pSong)
 
 void AudioEngine::setupLadspaFX( unsigned nBufferSize )
 {
-	//___INFOLOG( "buffersize=" + to_string(nBufferSize) );
-
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
 	if ( ! pSong ) {
@@ -1405,7 +1405,9 @@ void AudioEngine::setSong( Song* pNewSong )
 	}
 
 	// setup LADSPA FX
-	setupLadspaFX( m_pAudioDriver->getBufferSize() );
+	if ( m_pAudioDriver != nullptr ) {
+		setupLadspaFX( m_pAudioDriver->getBufferSize() );
+	}
 
 	// update tick size
 	processCheckBPMChanged( pNewSong );
