@@ -95,20 +95,20 @@ ENDIF()
 
 
 OPTION(WANT_CLANG_TIDY "Use clang-tidy to check the sourcecode" OFF)
-find_program(CLANG_TIDY_CMD NAMES clang-tidy)
-IF(CLANG_TIDY_CMD)
+#find_program(CLANG_TIDY_CMD NAMES clang-tidy)
+#IF(CLANG_TIDY_CMD)
   #use config from .clang-tidy
-  SET(CMAKE_CXX_CLANG_TIDY clang-tidy)
-  SET(CLANG_TIDY_LIBRARIES ${CLANG_TIDY_CMD}) # Required for summary
-  SET(CLANG_TIDY_FOUND TRUE) # Required for summary
-ELSE()
-  SET(CLANG_TIDY_FOUND FALSE) # Required for summary
-ENDIF()
-IF(CLANG_TIDY_CMD AND WANT_CLANG_TIDY)
+#  SET(CMAKE_CXX_CLANG_TIDY clang-tidy)
+#  SET(CLANG_TIDY_LIBRARIES ${CLANG_TIDY_CMD}) # Required for summary
+#  SET(CLANG_TIDY_FOUND TRUE) # Required for summary
+#ELSE()
+#  SET(CLANG_TIDY_FOUND FALSE) # Required for summary
+#ENDIF()
+#IF(CLANG_TIDY_CMD AND WANT_CLANG_TIDY)
   #use config from .clang-tidy
-  SET(CMAKE_CXX_CLANG_TIDY clang-tidy)
-ENDIF()
-COMPUTE_PKGS_FLAGS(CLANG_TIDY) # Required for summary
+#  SET(CMAKE_CXX_CLANG_TIDY clang-tidy)
+#ENDIF()
+#COMPUTE_PKGS_FLAGS(CLANG_TIDY) # Required for summary
 
 IF(WANT_BUNDLE)
     SET(H2CORE_HAVE_BUNDLE TRUE)
