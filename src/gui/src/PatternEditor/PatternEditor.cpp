@@ -324,7 +324,7 @@ void PatternEditor::cut()
 void PatternEditor::selectInstrumentNotes( int nInstrument )
 {
 	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
-	Instrument *pInstrument = pInstrumentList->get( nInstrument );
+	auto pInstrument = pInstrumentList->get( nInstrument );
 
 	m_selection.clearSelection();
 	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {

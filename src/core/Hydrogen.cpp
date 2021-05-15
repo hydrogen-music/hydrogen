@@ -472,7 +472,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	unsigned position = column;
 	pAudioEngine->setAddRealtimeNoteTickPosition( column );
 
-	Instrument *instrRef = nullptr;
+	std::shared_ptr<Instrument> instrRef = nullptr;
 	if ( pSong ) {
 		//getlookuptable index = instrument+36, ziel wert = der entprechende wert -36
 		instrRef = pSong->getInstrumentList()->get( m_nInstrumentLookupTable[ instrument ] );
@@ -525,7 +525,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 			midi_noteOn( pNote2 );
 		}
 	} else if ( hearnote  ) {
-		Instrument* pInstr = pSong->getInstrumentList()->get( getSelectedInstrumentNumber() );
+		auto pInstr = pSong->getInstrumentList()->get( getSelectedInstrumentNumber() );
 		Note *pNote2 = new Note( pInstr, nRealColumn, velocity, pan_L, pan_R, -1, 0 );
 
 		int divider = msg1 / 12;
@@ -903,13 +903,13 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	int nMaxID = -1;
 	
 	for ( unsigned nInstr = 0; nInstr < pDrumkitInstrList->size(); ++nInstr ) {
-		Instrument *pInstr = nullptr;
+		std::shared_ptr<Instrument> pInstr = nullptr;
 		if ( nInstr < pSongInstrList->size() ) {
 			//instrument exists already
 			pInstr = pSongInstrList->get( nInstr );
 			assert( pInstr );
 		} else {
-			pInstr = new Instrument();
+			pInstr = std::make_shared<Instrument>();
 			// The instrument isn't playing yet; no need for locking
 			// :-) - Jakob Lund.  m_pAudioEngine->lock(
 			// "Hydrogen::loadDrumkit" );
@@ -917,7 +917,7 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 			// m_pAudioEngine->unlock();
 		}
 
-		Instrument *pNewInstr = pDrumkitInstrList->get( nInstr );
+		auto pNewInstr = pDrumkitInstrList->get( nInstr );
 		assert( pNewInstr );
 		INFOLOG( QString( "Loading instrument (%1 of %2) [%3]" )
 				 .arg( nInstr + 1 )
@@ -969,7 +969,7 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 }
 
 // This will check if an instrument has any notes
-bool Hydrogen::instrumentHasNotes( Instrument *pInst )
+bool Hydrogen::instrumentHasNotes( std::shared_ptr<Instrument> pInst )
 {
 	Song* pSong = getSong();
 	PatternList* pPatternList = pSong->getPatternList();
@@ -992,7 +992,7 @@ bool Hydrogen::instrumentHasNotes( Instrument *pInst )
 void Hydrogen::removeInstrument( int instrumentNumber, bool conditional )
 {
 	Song* pSong = getSong();
-	Instrument *pInstr = pSong->getInstrumentList()->get( instrumentNumber );
+	auto pInstr = pSong->getInstrumentList()->get( instrumentNumber );
 	PatternList* pPatternList = pSong->getPatternList();
 
 	if ( conditional ) {
@@ -1015,10 +1015,9 @@ void Hydrogen::removeInstrument( int instrumentNumber, bool conditional )
 	InstrumentList* pList = pSong->getInstrumentList();
 	if ( pList->size()==1 ){
 		m_pAudioEngine->lock( RIGHT_HERE );
-		Instrument* pInstr = pList->get( 0 );
+		auto pInstr = pList->get( 0 );
 		pInstr->set_name( (QString( "Instrument 1" )) );
-		for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
-			InstrumentComponent* pCompo = *it;
+		for ( auto& pCompo : *pInstr->get_components() ) {
 			// remove all layers
 			for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 				pCompo->set_layer( nullptr, nLayer );
@@ -1575,7 +1574,7 @@ void Hydrogen::togglePlaysSelected()
 void Hydrogen::__kill_instruments()
 {
 	int c = 0;
-	Instrument * pInstr = nullptr;
+	std::shared_ptr<Instrument> pInstr = nullptr;
 	while ( __instrument_death_row.size()
 			&& __instrument_death_row.front()->is_queued() == 0 ) {
 		pInstr = __instrument_death_row.front();
@@ -1584,7 +1583,7 @@ void Hydrogen::__kill_instruments()
 						  "%2 unused remain." )
 				 . arg( pInstr->get_name() )
 				 . arg( __instrument_death_row.size() ) );
-		delete pInstr;
+		pInstr = nullptr;
 		c++;
 	}
 	if ( __instrument_death_row.size() ) {

@@ -28,6 +28,7 @@
 #include <QDomNode>
 #include <vector>
 #include <map>
+#include <memory>
 
 #include <core/Object.h>
 
@@ -109,7 +110,7 @@ class Song : public H2Core::Object
 		  Remove all the notes in the song that play on instrument I.
 		  The function is real-time safe (it locks the audio data while deleting notes)
 		*/
-		void purgeInstrument( Instrument* pInstr );
+		void purgeInstrument( std::shared_ptr<Instrument> pInstr );
 
 
 		InstrumentList*		getInstrumentList() const;

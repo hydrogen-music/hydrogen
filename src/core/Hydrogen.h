@@ -38,6 +38,7 @@
 
 #include <stdint.h> // for uint32_t et al
 #include <cassert>
+#include <memory>
 
 inline int randomValue( int max );
 
@@ -337,7 +338,7 @@ public:
 
 		/** Test if an Instrument has some Note in the Pattern (used to
 		    test before deleting an Instrument)*/
-		bool 			instrumentHasNotes( Instrument *pInst );
+		bool 			instrumentHasNotes( std::shared_ptr<Instrument> pInst );
 
 		/** Delete an Instrument. If @a conditional is true, and there
 		    are some Pattern that are using this Instrument, it's not
@@ -357,7 +358,7 @@ public:
 
 
 void			previewSample( Sample *pSample );
-	void			previewInstrument( Instrument *pInstr );
+	void			previewInstrument( std::shared_ptr<Instrument> pInstr );
 
 	enum ErrorMessages {
 		/**
@@ -775,7 +776,7 @@ private:
 	Filesystem::Lookup	m_currentDrumkitLookup;
 	
 	/// Deleting instruments too soon leads to potential crashes.
-	std::list<Instrument*> 	__instrument_death_row; 
+	std::list<std::shared_ptr<Instrument>> 	__instrument_death_row; 
 	
 	/**
 	 * Fallback speed in beats per minute.

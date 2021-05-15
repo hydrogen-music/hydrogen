@@ -340,7 +340,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	int nSelectedInstrumentnumber = pHydrogen->getSelectedInstrumentNumber();
 	Song *pSong = pHydrogen->getSong();
-	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
+	auto pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
 
 	Note* pOldNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument,
 											  notekey, octave );
@@ -423,7 +423,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
 
-	Instrument *pSelectedInstrument = nullptr;
+	std::shared_ptr<Instrument> pSelectedInstrument = nullptr;
 	int nSelectedInstrumentnumber = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
 	assert(pSelectedInstrument);
@@ -481,7 +481,7 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 	int nColumn = getColumn( ev->x() );
 	Song *pSong = pH2->getSong();
 	int nSelectedInstrumentnumber = pH2->getSelectedInstrumentNumber();
-	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
+	auto pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
@@ -549,7 +549,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 	Song *pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
 
-	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( selectedinstrument );
+	auto pSelectedInstrument = pSong->getInstrumentList()->get( selectedinstrument );
 	assert(pSelectedInstrument);
 
 	Pattern *pPattern = nullptr;
@@ -1169,7 +1169,7 @@ void PianoRollEditor::editNoteLengthAction( int nColumn,  int nRealColumn,  int 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	Song *pSong = pHydrogen->getSong();
-	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
+	auto pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
 
 
 	Note::Octave pressedoctave = pitchToOctave( lineToPitch( pressedline ) );
@@ -1207,7 +1207,7 @@ void PianoRollEditor::editNotePropertiesAction( int nColumn,
 
 	Song *pSong = pHydrogen->getSong();
 
-	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( selectedInstrumentnumber );
+	auto pSelectedInstrument = pSong->getInstrumentList()->get( selectedInstrumentnumber );
 
 	Note* pDraggedNote = nullptr;
 	m_pAudioEngine->lock( RIGHT_HERE );
@@ -1301,7 +1301,7 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 	int w = 8;
 	int h = m_nGridHeight - 2;
 	int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	Instrument *pInstr = Hydrogen::get_instance()->getSong()->getInstrumentList()->get( nInstr );
+	auto pInstr = Hydrogen::get_instance()->getSong()->getInstrumentList()->get( nInstr );
 
 	r = r.normalized();
 	if ( r.top() == r.bottom() && r.left() == r.right() ) {

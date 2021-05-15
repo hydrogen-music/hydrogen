@@ -376,7 +376,7 @@ bool ExportSongDialog::currentInstrumentHasNotes()
 	return bInstrumentHasNotes;
 }
 
-QString ExportSongDialog::findUniqueExportFilenameForInstrument(Instrument* pInstrument)
+QString ExportSongDialog::findUniqueExportFilenameForInstrument( std::shared_ptr<Instrument> pInstrument )
 {
 	Song *pSong = m_pHydrogen->getSong();
 	QString uniqueInstrumentName;
@@ -738,13 +738,12 @@ void ExportSongDialog::calculateRubberbandTime()
 		InstrumentList *songInstrList = pSong->getInstrumentList();
 		assert(songInstrList);
 		for ( unsigned nInstr = 0; nInstr < songInstrList->size(); ++nInstr ) {
-			Instrument *pInstr = songInstrList->get( nInstr );
+			auto pInstr = songInstrList->get( nInstr );
 			assert( pInstr );
 			if ( pInstr ){
-				for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
-					InstrumentComponent* pCompo = *it;
+				for ( auto& pCompo : *pInstr->get_components() ) {
 					for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+						auto pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer ) {
 							auto pSample = pLayer->get_sample();
 							if ( pSample != nullptr ) {
@@ -793,13 +792,12 @@ bool ExportSongDialog::checkUseOfRubberband()
 		InstrumentList *pSongInstrList = pSong->getInstrumentList();
 		assert(pSongInstrList);
 		for ( unsigned nInstr = 0; nInstr < pSongInstrList->size(); ++nInstr ) {
-			Instrument *pInstr = pSongInstrList->get( nInstr );
+			auto pInstr = pSongInstrList->get( nInstr );
 			assert( pInstr );
 			if ( pInstr ){
-				for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
-					InstrumentComponent* pCompo = *it;
+				for ( const auto& pCompo : *pInstr->get_components() ) {
 					for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+						auto pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer ) {
 							auto pSample = pLayer->get_sample();
 							if ( pSample != nullptr ) {

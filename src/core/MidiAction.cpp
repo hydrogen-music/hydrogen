@@ -284,7 +284,7 @@ bool MidiActionManager::strip_mute_toggle(Action * pAction, Hydrogen* pHydrogen,
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if ( pInstrList->is_valid_index( nLine ) ) {
-		Instrument *pInstr = pInstrList->get( nLine );
+		auto pInstr = pInstrList->get( nLine );
 		
 		if ( pInstr ) {
 			pHydrogen->getCoreActionController()->setStripIsMuted( nLine, !pInstr->is_muted() );
@@ -309,7 +309,7 @@ bool MidiActionManager::strip_solo_toggle(Action * pAction, Hydrogen* pHydrogen,
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	if ( pInstrList->is_valid_index( nLine ) ) {
-		Instrument *pInstr = pInstrList->get( nLine );
+		auto pInstr = pInstrList->get( nLine );
 		
 		if ( pInstr ) {
 			pHydrogen->getCoreActionController()->setStripIsSoloed( nLine, !pInstr->is_soloed() );
@@ -438,7 +438,7 @@ bool MidiActionManager::effect_level_absolute(Action * pAction, Hydrogen* pHydro
 	
 	if ( pInstrList->is_valid_index( nLine) )
 	{
-		Instrument *pInstr = pInstrList->get( nLine );
+		auto pInstr = pInstrList->get( nLine );
 		
 		if ( pInstr ) {
 			if( fx_param != 0 ) {
@@ -514,7 +514,7 @@ bool MidiActionManager::strip_volume_absolute(Action * pAction, Hydrogen* pHydro
 	
 	if ( pInstrList->is_valid_index( nLine) )
 	{
-		Instrument *pInstr = pInstrList->get( nLine );
+		auto pInstr = pInstrList->get( nLine );
 	
 		if ( pInstr == nullptr) {
 			return false;
@@ -544,7 +544,7 @@ bool MidiActionManager::strip_volume_relative(Action * pAction, Hydrogen* pHydro
 
 	if ( pInstrList->is_valid_index( nLine) )
 	{
-		Instrument *pInstr = pInstrList->get( nLine );
+		auto pInstr = pInstrList->get( nLine );
 	
 		if ( pInstr == nullptr) {
 			return false;
@@ -585,7 +585,7 @@ bool MidiActionManager::pan_absolute(Action * pAction, Hydrogen* pHydrogen, targ
 	
 		pHydrogen->setSelectedInstrumentNumber( nLine );
 	
-		Instrument *pInstr = pInstrList->get( nLine );
+		auto pInstr = pInstrList->get( nLine );
 	
 		if( pInstr == nullptr ) {
 			return false;
@@ -642,7 +642,7 @@ bool MidiActionManager::pan_relative(Action * pAction, Hydrogen* pHydrogen, targ
 	
 		pHydrogen->setSelectedInstrumentNumber( nLine );
 	
-		Instrument *pInstr = pInstrList->get( nLine );
+		auto pInstr = pInstrList->get( nLine );
 	
 		if( pInstr == nullptr ) {
 			return false;
@@ -696,17 +696,17 @@ bool MidiActionManager::gain_level_absolute(Action * pAction, Hydrogen* pHydroge
 	
 	if( pInstrList->is_valid_index( nLine ) )
 	{
-		Instrument *pInstr = pInstrList->get( nLine );
+		auto pInstr = pInstrList->get( nLine );
 		if( pInstr == nullptr ) {
 			return false;
 		}
 	
-		InstrumentComponent* pComponent =  pInstr->get_component( nSample._id );
+		auto pComponent =  pInstr->get_component( nSample._id );
 		if( pComponent == nullptr) {
 			return false;
 		}
 	
-		InstrumentLayer* pLayer = pComponent->get_layer( nSample._subId );
+		auto pLayer = pComponent->get_layer( nSample._subId );
 		if( pLayer == nullptr ) {
 			return false;
 		}
@@ -735,17 +735,17 @@ bool MidiActionManager::pitch_level_absolute(Action * pAction, Hydrogen* pHydrog
 
 	if( pInstrList->is_valid_index( nLine ) )
 	{
-		Instrument *pInstr = pInstrList->get( nLine );
+		auto pInstr = pInstrList->get( nLine );
 		if( pInstr == nullptr ) {
 			return false;
 		}
 	
-		InstrumentComponent* pComponent =  pInstr->get_component( nSample._id );
+		auto pComponent =  pInstr->get_component( nSample._id );
 		if( pComponent == nullptr) {
 			return false;
 		}
 	
-		InstrumentLayer* pLayer = pComponent->get_layer( nSample._subId );
+		auto pLayer = pComponent->get_layer( nSample._subId );
 		if( pLayer == nullptr ) {
 			return false;
 		}
@@ -774,7 +774,7 @@ bool MidiActionManager::filter_cutoff_level_absolute(Action * pAction, Hydrogen*
 
 	if( pInstrList->is_valid_index( nLine ) )
 	{
-		Instrument *pInstr = pInstrList->get( nLine );
+		auto pInstr = pInstrList->get( nLine );
 		if( pInstr == nullptr ) {
 			return false;
 		}
