@@ -48,8 +48,8 @@ class Object {
 
 		/** an objects class map item type */
 		typedef struct {
-			unsigned constructed;
-			unsigned destructed;
+			int constructed;
+			int destructed;
 		} obj_cpt_t;
 		/** the objects class map type */
 		typedef std::map<const char*, obj_cpt_t> object_map_t;
@@ -61,7 +61,7 @@ class Object {
 		 */
 		static void set_count( bool flag );
 		static bool count_active()              { return __count; }             ///< return true if class instances counting is enabled
-		static unsigned objects_count()         { return __objects_count; }     ///< return the number of objects
+		static int objects_count()         { return __objects_count; }     ///< return the number of objects
 
 		/**
 		 * output the full objects map to a given ostream
@@ -125,7 +125,7 @@ class Object {
 
 		const char* __class_name;               ///< the object class name
 		static bool __count;                    ///< should we count class instances
-		static unsigned __objects_count;        ///< total objects count
+		static int __objects_count;        ///< total objects count
 		static object_map_t __objects_map;      ///< objects classes and instances count structure
 		static pthread_mutex_t __mutex;         ///< yeah this has to be thread safe
 
