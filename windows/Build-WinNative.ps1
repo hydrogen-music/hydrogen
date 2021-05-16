@@ -27,12 +27,16 @@ $env:QTDIR=$msys
 $env:CMAKE_PREFIX_PATH=$env:QTDIR
 $env:PATH="$msys\bin;$env:PATH"
 $env:PKG_CONFIG_PATH="$msys\lib\pkgconfig"
-$python_exe='C:\Python39\python'
+$python_exe='python'
 $build_type='Debug'
 
 if($installdeps)
 {
-    Write-Host 'Installing dependencies'
+    Write-Host "Installing python-pip"
+    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+    python get-pip.py
+
+    Write-Host 'Installing msys2 dependencies'
     c:\msys64\usr\bin\pacman --noconfirm -S -q openssh
     c:\msys64\usr\bin\pacman --noconfirm -S -q base-devel
 
@@ -104,6 +108,8 @@ if($deploy)
 else
 {
     Write-Host 'Usage: '
-    Write-Host 'Build-WinNative -build: Build hydrogen'
+    Write-Host 'Build-WinNative -build: Build hydrogen (32bit)'
+    Write-Host 'Build-WinNative -build -x86_64 : Build hydrogen (64bit)'
     Write-Host 'Build-WinNative -installdeps: Install build dependencies via pacman'
+    Write-Host 'Build-WinNative -deploy: Create installer'
 }
