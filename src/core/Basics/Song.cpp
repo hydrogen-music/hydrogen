@@ -745,7 +745,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_sPlaybackTrackFilename: %1" ).arg( m_sPlaybackTrackFilename ) )
 			.append( QString( ", m_bPlaybackTrackEnabled: %1" ).arg( m_bPlaybackTrackEnabled ) )
 			.append( QString( ", m_fPlaybackTrackVolume: %1" ).arg( m_fPlaybackTrackVolume ) )
-			.append( QString( "%1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix + s ) ) )
+			.append( QString( ", m_pVelocityAutomationPath: %1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix ) ) )
 			.append( QString( ", m_sLicense: %1" ).arg( m_sLicense ) );
 		if ( m_actionMode == ActionMode::selectMode ) {
 			sOutput.append( QString( ", m_actionMode: 0" ) );
