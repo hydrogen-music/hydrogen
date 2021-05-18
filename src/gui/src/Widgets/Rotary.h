@@ -28,91 +28,96 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include <QSvgRenderer>
+#include <QColor>
 
 class LCDDisplay;
 
 #include <core/Object.h>
 
-class RotaryTooltip : public QWidget
-{
-	public:
-		explicit RotaryTooltip( QPoint pos );
-		~RotaryTooltip();
-		void showTip( QPoint pos, QString sText );
-
-	private:
-		LCDDisplay *m_pDisplay;
-};
-
-
-
 class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 {
     H2_OBJECT
 	Q_OBJECT
-	public:
-		enum RotaryType {
-			TYPE_NORMAL,
-			TYPE_CENTER,
-			TYPE_SMALL
-		};
-
-		Rotary(const Rotary&) = delete;
-		Rotary& operator=( const Rotary& rhs ) = delete;
 	
-		Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseIntSteps, bool bUseValueTip, float fMin = 0.0, float fMax = 1.0 );
-		~Rotary();
+	public:
+	enum RotaryType {
+		TYPE_NORMAL,
+		TYPE_CENTER,
+		TYPE_SMALL
+	};
 
-		void setMin( float fMin );
-		float getMin();
+	Rotary(const Rotary&) = delete;
+	Rotary& operator=( const Rotary& rhs ) = delete;
+	
+	Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseIntSteps, bool bUseValueTip, float fMin = 0.0, float fMax = 1.0, QColor color = QColor( 255, 0, 0 ) );
+	~Rotary();
 
-		void setMax( float fMax );
-		float getMax();
+	void setMin( float fMin );
+	float getMin() const;
 
-		void setValue( float fValue );
-		float getValue() {
-			if ( m_bUseIntSteps ) {
-				int val = (int)m_fValue;
-				return val;
-			}
-			else
-				return m_fValue;
+	void setMax( float fMax );
+	float getMax() const;
+
+	void setValue( float fValue );
+	float getValue() const {
+		if ( m_bUseIntSteps ) {
+			int val = static_cast<int>(m_fValue);
+			return val;
 		}
+		else
+			return m_fValue;
+	}
 
-		void setDefaultValue( float fDefaultValue );
-		float getDefaultValue();
-		void resetValueToDefault();
+	void setDefaultValue( float fDefaultValue );
+	float getDefaultValue() const;
+	void resetValueToDefault();
+	void setColor( QColor color );
+	QColor getColor() const;
 
-	signals:
-		void valueChanged(Rotary *ref);
+signals:
+	void valueChanged(Rotary *ref);
 
-	private:
-		bool m_bUseIntSteps;
-		bool m_bIgnoreMouseMove;
+private:
+	bool m_bUseIntSteps;
+	bool m_bIgnoreMouseMove;
+	QString m_sBaseTooltip;
 
-		RotaryType m_type;
-		static QPixmap* m_background_normal;
-		static QPixmap* m_background_center;
-		static QPixmap* m_background_small;
+	RotaryType m_type;
+	QSvgRenderer* m_background;
+	QColor m_color;
 
-		int m_nWidgetWidth;
-		int m_nWidgetHeight;
+	int m_nWidgetWidth;
+	int m_nWidgetHeight;
 
-		float m_fMin;
-		float m_fMax;
-		float m_fValue;
-		float m_fDefaultValue;
+	int m_nScrollSpeedSlow;
+	int m_nScrollSpeedFast;
 
-		float m_fMousePressValue;
-		float m_fMousePressY;
+	float m_fMin;
+	float m_fMax;
+	float m_fValue;
+	float m_fDefaultValue;
 
-		RotaryTooltip *m_pValueToolTip;
-		bool m_bShowValueToolTip;
+	float m_fMousePressValue;
+	float m_fMousePressY;
 
-		virtual void paintEvent(QPaintEvent *ev);
-		virtual void mousePressEvent(QMouseEvent *ev);
-		virtual void mouseReleaseEvent( QMouseEvent *ev );
-		virtual void mouseMoveEvent(QMouseEvent *ev);
-		virtual void wheelEvent( QWheelEvent *ev );
+	virtual void paintEvent(QPaintEvent *ev);
+	virtual void mousePressEvent(QMouseEvent *ev);
+	virtual void mouseReleaseEvent( QMouseEvent *ev );
+	virtual void mouseMoveEvent(QMouseEvent *ev);
+	virtual void wheelEvent( QWheelEvent *ev );
 };
+
+inline float Rotary::getMin() const {
+	return m_fMin;
+}
+inline float Rotary::getMax() const {
+	return m_fMax;
+}
+inline float Rotary::getDefaultValue() const {
+	return m_fDefaultValue;
+}
+inline QColor Rotary::getColor() const {
+	return m_color;
+}
 #endif

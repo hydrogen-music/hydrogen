@@ -35,6 +35,10 @@ class Skin
 		{
 			return H2Core::Filesystem::img_dir().append( "/gray" );
 		}
+		static QString getSvgImagePath()
+		{
+			return H2Core::Filesystem::img_dir().append( "/scalable" );
+		}
 
 };
 

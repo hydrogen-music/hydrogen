@@ -180,19 +180,19 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pPitchLCD->move(25, 215 );
 
 	m_pPitchCoarseRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_CENTER, tr( "Pitch offset (Coarse)" ), true, false, -24, 24 );
-	m_pPitchCoarseRotary->move( 92, 210 );
+	m_pPitchCoarseRotary->move( 92 - 8, 210 );
 
 	connect( m_pPitchCoarseRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	m_pPitchFineRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_CENTER, tr( "Pitch offset (Fine)" ), false, false, -0.5, 0.5 );
 	//it will have resolution of 100 steps between Min and Max => quantum delta = 0.01
-	m_pPitchFineRotary->move( 144, 210 );
+	m_pPitchFineRotary->move( 144 - 8, 210 );
 	connect( m_pPitchFineRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	
 
 	m_pRandomPitchRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Random pitch factor" ), false, true );
-	m_pRandomPitchRotary->move( 202, 210 );
+	m_pRandomPitchRotary->move( 202 - 8, 210 );
 	connect( m_pRandomPitchRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	// Filter
@@ -213,8 +213,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pResonanceRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	m_pFilterBypassBtn->move( 70, 170 );
-	m_pCutoffRotary->move( 117, 164 );
-	m_pResonanceRotary->move( 170, 164 );
+	m_pCutoffRotary->move( 117 - 8, 164 );
+	m_pResonanceRotary->move( 170 - 8, 164 );
 	//~ Filter
 
 	// ADSR
@@ -228,10 +228,10 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pDecayRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 	connect( m_pSustainRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 	connect( m_pReleaseRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
-	m_pAttackRotary->move( 53, 52 );
-	m_pDecayRotary->move( 105, 52 );
-	m_pSustainRotary->move( 157, 52 );
-	m_pReleaseRotary->move( 209, 52 );
+	m_pAttackRotary->move( 53 - 8, 52 );
+	m_pDecayRotary->move( 105 - 8, 52 );
+	m_pSustainRotary->move( 157 - 8, 52 );
+	m_pReleaseRotary->move( 209 - 8, 52 );
 	//~ ADSR
 
 	// instrument gain
@@ -240,7 +240,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pInstrumentGain->setDefaultValue( 0.2 ); // gain is multiplied with 5, so default is 1.0 from users view
 	connect( m_pInstrumentGain, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 	m_pInstrumentGainLCD->move( 67, 105 );
-	m_pInstrumentGain->move( 117, 100 );
+	m_pInstrumentGain->move( 117 - 8, 100 );
 
 
 	m_pMuteGroupLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
@@ -473,17 +473,17 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pLayerPitchFineRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	m_pLayerGainLCD->move( 54, 341 + 3 );
-	m_pLayerGainRotary->move( 102, 341 );
+	m_pLayerGainRotary->move( 102 - 8, 341 );
 
 	m_pCompoGainLCD->move( 151, 341 + 3 );
-	m_pCompoGainRotary->move( 199, 341 );
+	m_pCompoGainRotary->move( 199 - 8, 341 );
 
 
 	m_pLayerPitchCoarseLCD->move( 54, 391 + 3 );
-	m_pLayerPitchCoarseRotary->move( 102, 391 );
+	m_pLayerPitchCoarseRotary->move( 102 - 8, 391 );
 
 	m_pLayerPitchFineLCD->move( 151, 391 + 3 );
-	m_pLayerPitchFineRotary->move( 199, 391 );
+	m_pLayerPitchFineRotary->move( 199 - 8, 391 );
 
 	m_sampleSelectionAlg = new LCDCombo(m_pLayerProp, 25);
 	m_sampleSelectionAlg->move( 60, 434 );

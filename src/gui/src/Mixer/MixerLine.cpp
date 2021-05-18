@@ -124,7 +124,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 
 	// pan rotary
 	m_pPanRotary = new Rotary( this, Rotary::TYPE_CENTER, tr( "Pan" ), false, true);
-	m_pPanRotary->move( 14, 32 );
+	m_pPanRotary->move( 6, 32 );
 	connect( m_pPanRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( panChanged(Rotary*) ) );
 	pAction = new Action("PAN_ABSOLUTE");
 	pAction->setParameter1( QString::number(nInstr ));
@@ -677,15 +677,15 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pPeakLCD->setPalette( lcdPalette );
 
 	m_pHumanizeVelocityRotary = new Rotary( this, Rotary::TYPE_NORMAL, tr( "Humanize velocity" ), false, true );
-	m_pHumanizeVelocityRotary->move( 74, 88 );
+	m_pHumanizeVelocityRotary->move( 66, 88 );
 	connect( m_pHumanizeVelocityRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	m_pHumanizeTimeRotary = new Rotary( this, Rotary::TYPE_NORMAL, tr( "Humanize time" ), false, true );
-	m_pHumanizeTimeRotary->move( 74, 125 );
+	m_pHumanizeTimeRotary->move( 66, 125 );
 	connect( m_pHumanizeTimeRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	m_pSwingRotary = new Rotary( this,  Rotary::TYPE_NORMAL, tr( "Swing" ), false, true );
-	m_pSwingRotary->move( 74, 162 );
+	m_pSwingRotary->move( 66, 162 );
 	connect( m_pSwingRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	// Mute btn
@@ -1116,7 +1116,7 @@ LadspaFXMixerLine::LadspaFXMixerLine(QWidget* parent)
 	// m_pRotary
 	m_pRotary = new Rotary( this,  Rotary::TYPE_NORMAL, tr( "Effect return" ), false, true );
 	m_pRotary->setDefaultValue( m_pRotary->getMax() );
-	m_pRotary->move( 132, 4 );
+	m_pRotary->move( 124, 4 );
 	connect( m_pRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 }
 
