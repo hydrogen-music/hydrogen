@@ -14,7 +14,7 @@
    viewBox="0 0 11.641666 6.6145834"
    version="1.1"
    id="svg1410"
-   sodipodi:docname="rotary4.svg"
+   sodipodi:docname="rotary.svg"
    inkscape:version="1.0.2 (e86c870879, 2021-01-15)">
   <sodipodi:namedview
      pagecolor="#ffffff"
@@ -34,15 +34,16 @@
      inkscape:snap-grids="true"
      inkscape:object-paths="true"
      inkscape:snap-intersection-paths="true"
-     inkscape:zoom="32"
-     inkscape:cx="23.513645"
-     inkscape:cy="15.969545"
+     inkscape:zoom="22.627417"
+     inkscape:cx="15.600883"
+     inkscape:cy="15.162813"
      inkscape:window-x="0"
      inkscape:window-y="18"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg1410"
      units="px"
-     inkscape:snap-midpoints="false">
+     inkscape:snap-midpoints="false"
+     inkscape:document-rotation="0">
     <inkscape:grid
        type="xygrid"
        id="grid23"
@@ -110,7 +111,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
         <cc:license
            rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/" />
       </cc:Work>
@@ -191,7 +192,7 @@
        cy="92.250092"
        r="2.014652" />
     <circle
-       style="fill:#80838e;fill-opacity:1;fill-rule:evenodd;stroke:#27282a;stroke-width:0.079375;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#999dad;fill-opacity:1;fill-rule:evenodd;stroke:#27282a;stroke-width:0.079375;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="circle4062"
        cx="89.485199"
        cy="92.267174"

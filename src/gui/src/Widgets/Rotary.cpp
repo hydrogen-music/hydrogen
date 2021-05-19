@@ -159,21 +159,7 @@ void Rotary::paintEvent( QPaintEvent* ev )
 			}
 		}
 	}
-
-	float fBaseX, fBaseY, fArcLength, fLineLength;
-	if ( m_type == TYPE_SMALL ) {
-		fBaseX = 9.0;
-		fBaseY = 8.0;
-		fArcLength = 4.0 / 6.0;
-		fLineLength = 8.0 / 3.0;
-	} else {
-		fBaseX = 22.0;
-		fBaseY = 14.0;
-		fArcLength = 1.0;
-		fLineLength = 4.0;
-	}
-
-	// std::acos( -1 ) => pi
+	
 	float fPi = std::acos( -1 );
 	float fCurrentAngle;
 	float fStartAngle;
@@ -184,31 +170,40 @@ void Rotary::paintEvent( QPaintEvent* ev )
 		fStartAngle = -90 * fPi / 180;
 		fCurrentAngle = fStartAngle + 255 * fPi / 180 * ( m_fValue - m_fMin - 0.5 * ( m_fMax - m_fMin ) ) / ( m_fMax - m_fMin );
 	}
-
-	float fArcToeCenterX = fBaseX + std::cos( fCurrentAngle ) * fArcLength / 2;
-	float fArcToeCenterY = fBaseY + std::sin( fCurrentAngle ) * fArcLength / 2;
-	float fLineRightEndX = fBaseX + fArcLength / 2 + std::cos( fCurrentAngle ) * ( fArcLength + fLineLength );
-	float fLineRightEndY = fBaseY + std::sin( fCurrentAngle ) * ( fArcLength + fLineLength );
-	float fArcTipCenterX = fBaseX + std::cos( fCurrentAngle ) * ( fArcLength * 3 / 2 + fLineLength );
-	float fArcTipCenterY = fBaseY + std::sin( fCurrentAngle ) * ( fArcLength * 3/ 2 + fLineLength );
-	float fLineLeftEndX = fBaseX - fArcLength / 2 + std::cos( fCurrentAngle ) * fArcLength;
-	float fLineLeftEndY = fBaseY + std::sin( fCurrentAngle ) * fArcLength;
-
-	float fArcToeStartAngle = ( 180 - ( fCurrentAngle * 180 / fPi ) ) * 16;
 	
-	QPainterPath path;
-	path.moveTo( fBaseX, fBaseY );
-	path.arcTo( fArcToeCenterX - fArcLength / 2, fArcToeCenterY - fArcLength / 2,
-				fArcLength, fArcLength, fArcToeStartAngle, fArcToeStartAngle - 90 * 16 );
-	path.lineTo( fLineRightEndX, fLineRightEndY );
-	path.arcTo( fArcTipCenterX - fArcLength / 2, fArcTipCenterY - fArcLength / 2,
-				fArcLength, fArcLength, fArcToeStartAngle - 90 * 16, fArcToeStartAngle - 270 * 16 );
-	path.lineTo( fLineLeftEndX, fLineLeftEndY );
-	path.arcTo( fArcTipCenterX - fArcLength / 2, fArcTipCenterY - fArcLength / 2,
-				fArcLength, fArcLength, fArcToeStartAngle - 270 * 16, fArcToeStartAngle );
+	float fLength, fWidth, fBaseX, fBaseY;
+	if ( m_type == TYPE_SMALL ) {
+		fBaseX = 9.0;
+		fBaseY = 9.0;
+		fLength = 4;
+		fWidth = 2;
+	} else {
+		fBaseX = 22.0;
+		fBaseY = 14.0;
+		fLength = 6;
+		fWidth = 3;
+	}
 
-	painter.setBrush( QBrush( Qt::green ) );
-	painter.setPen( QPen( Qt::black, 1 ) );
+	QPointF p1( fBaseX + std::cos( fCurrentAngle + fPi / 2 ) * fWidth / 2,
+				fBaseY + std::sin( fCurrentAngle + fPi / 2 ) * fWidth / 2 );
+	QPointF p2( p1.x() + std::cos( fCurrentAngle ) * fLength,
+				p1.y() + std::sin( fCurrentAngle ) * fLength );
+	QPointF p3( p2.x() - std::cos( fCurrentAngle + fPi / 2 ) * fWidth / 2,
+				p2.y() - std::sin( fCurrentAngle + fPi / 2 ) * fWidth / 2 );
+	QPointF p4( p3.x() - std::cos( fCurrentAngle ) * fLength,
+				p3.y() - std::sin( fCurrentAngle ) * fLength );
+	QPainterPath path;
+	path.moveTo( p1 );
+	path.lineTo( p2 );
+	path.lineTo( p3 );
+	path.lineTo( p4 );
+	
+	path.setFillRule( Qt::WindingFill );
+	QPen pen( Qt::black );
+	pen.setJoinStyle( Qt::RoundJoin );
+	pen.setWidth( 1.7 );
+	painter.setPen( pen );
+	painter.setBrush( QBrush( Qt::black ) );
 	painter.drawPath( path );
 }
 
