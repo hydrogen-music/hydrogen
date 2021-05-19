@@ -171,40 +171,59 @@ void Rotary::paintEvent( QPaintEvent* ev )
 		fCurrentAngle = fStartAngle + 255 * fPi / 180 * ( m_fValue - m_fMin - 0.5 * ( m_fMax - m_fMin ) ) / ( m_fMax - m_fMin );
 	}
 	
-	float fLength, fWidth, fBaseX, fBaseY;
+	// float fLength, fWidth, fBaseX, fBaseY;
+	// if ( m_type == TYPE_SMALL ) {
+	// 	fBaseX = 9.0;
+	// 	fBaseY = 9.0;
+	// 	fLength = 4;
+	// 	fWidth = 2;
+	// } else {
+	// 	fBaseX = 22.0;
+	// 	fBaseY = 14.0;
+	// 	fLength = 6;
+	// 	fWidth = 3;
+	// }
+
+	// QPointF p1( fBaseX + std::cos( fCurrentAngle + fPi / 2 ) * fWidth / 2,
+	// 			fBaseY + std::sin( fCurrentAngle + fPi / 2 ) * fWidth / 2 );
+	// QPointF p2( p1.x() + std::cos( fCurrentAngle ) * fLength,
+	// 			p1.y() + std::sin( fCurrentAngle ) * fLength );
+	// QPointF p3( p2.x() - std::cos( fCurrentAngle + fPi / 2 ) * fWidth / 2,
+	// 			p2.y() - std::sin( fCurrentAngle + fPi / 2 ) * fWidth / 2 );
+	// QPointF p4( p3.x() - std::cos( fCurrentAngle ) * fLength,
+	// 			p3.y() - std::sin( fCurrentAngle ) * fLength );
+	// QPainterPath path;
+	// path.moveTo( p1 );
+	// path.lineTo( p2 );
+	// path.lineTo( p3 );
+	// path.lineTo( p4 );
+	
+	// path.setFillRule( Qt::WindingFill );
+	// QPen pen( Qt::black );
+	// pen.setJoinStyle( Qt::RoundJoin );
+	// pen.setWidth( 1.7 );
+	// painter.setPen( pen );
+	// painter.setBrush( QBrush( Qt::black ) );
+	// painter.drawPath( path );
+
+	float fDistance, fRadius, fBaseX, fBaseY;
 	if ( m_type == TYPE_SMALL ) {
 		fBaseX = 9.0;
 		fBaseY = 9.0;
-		fLength = 4;
-		fWidth = 2;
+		fDistance = 3;
+		fRadius = 1;
 	} else {
 		fBaseX = 22.0;
 		fBaseY = 14.0;
-		fLength = 6;
-		fWidth = 3;
+		fDistance = 4;
+		fRadius = 1.5;
 	}
 
-	QPointF p1( fBaseX + std::cos( fCurrentAngle + fPi / 2 ) * fWidth / 2,
-				fBaseY + std::sin( fCurrentAngle + fPi / 2 ) * fWidth / 2 );
-	QPointF p2( p1.x() + std::cos( fCurrentAngle ) * fLength,
-				p1.y() + std::sin( fCurrentAngle ) * fLength );
-	QPointF p3( p2.x() - std::cos( fCurrentAngle + fPi / 2 ) * fWidth / 2,
-				p2.y() - std::sin( fCurrentAngle + fPi / 2 ) * fWidth / 2 );
-	QPointF p4( p3.x() - std::cos( fCurrentAngle ) * fLength,
-				p3.y() - std::sin( fCurrentAngle ) * fLength );
-	QPainterPath path;
-	path.moveTo( p1 );
-	path.lineTo( p2 );
-	path.lineTo( p3 );
-	path.lineTo( p4 );
-	
-	path.setFillRule( Qt::WindingFill );
-	QPen pen( Qt::black );
-	pen.setJoinStyle( Qt::RoundJoin );
-	pen.setWidth( 1.7 );
-	painter.setPen( pen );
+	QPointF p1( fBaseX + std::cos( fCurrentAngle ) * fDistance,
+				fBaseY + std::sin( fCurrentAngle ) * fDistance );
+	painter.setPen( QPen( Qt::black, 1 ) );
 	painter.setBrush( QBrush( Qt::black ) );
-	painter.drawPath( path );
+	painter.drawEllipse( p1, fRadius, fRadius );
 }
 
 
