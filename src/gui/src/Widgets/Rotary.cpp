@@ -29,6 +29,7 @@
 #include <QSvgRenderer>
 
 #include <core/Globals.h>
+#include <core/Preferences.h>
 
 const char* Rotary::__class_name = "Rotary";
 
@@ -42,9 +43,11 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseInt
  , m_fMousePressValue( 0.0 )
  , m_fMousePressY( 0.0 )
  , m_bIgnoreMouseMove( false )
- , m_color( color )
  , m_sBaseTooltip( sToolTip )
+ , m_bFocused( false )
+ , m_bIsActive( true )
 {
+	setAttribute( Qt::WA_Hover );
 	setToolTip( sToolTip );
 
 	if ( type == TYPE_SMALL ) {
@@ -52,7 +55,7 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseInt
 		m_nWidgetHeight = 18;
 	} else {
 		m_nWidgetWidth = 44;
-		m_nWidgetHeight = 25;
+		m_nWidgetHeight = 26;
 	}
 
 	if ( bUseIntSteps ) {
@@ -96,65 +99,74 @@ void Rotary::paintEvent( QPaintEvent* ev )
 
 	painter.setRenderHint( QPainter::Antialiasing, true );
 
-	float fRange = m_fMax - m_fMin;
-
-	int nFrame, nTotFrames;
-	if ( m_type == TYPE_NORMAL || m_type == TYPE_CENTER ) {
-		nTotFrames = 63;
-	} else if ( m_type == TYPE_SMALL ) {
-		nTotFrames = 31;	
-	} else { // undefined RotaryType
-		ERRORLOG( "Error undefined RotaryType" );
+	QColor colorHighlightActive;
+	QColor colorArc;
+	QColor colorArcCenterSet;
+	QColor colorArcCenterUnset;
+	if ( m_bIsActive ) {
+		colorHighlightActive = QColor( 97, 167, 251);
+		colorArc = Qt::red;
+		colorArcCenterSet = Qt::green;
+		colorArcCenterUnset = Qt::gray;
+	} else {
+		colorHighlightActive = Qt::lightGray;
+		colorArc = Qt::darkGray;
+		colorArcCenterSet = Qt::darkGray;
+		colorArcCenterUnset = Qt::lightGray;
 	}
+	QColor colorHandle = Qt::black;
+	QColor colorFont = Qt::white;
+
 	
-	if ( m_bUseIntSteps ) {
-		nFrame = (int)( nTotFrames * floor( m_fValue - m_fMin ) / fRange );
-	}
-	else {
-		nFrame = (int)( nTotFrames * ( m_fValue - m_fMin ) / fRange );
-	}
-
-	QRect source( 0, 0, m_nWidgetWidth, m_nWidgetHeight );
+	QRect rectBackground( 0, 0, m_nWidgetWidth, m_nWidgetHeight );
 
 	if ( m_background != nullptr ) {
-		m_background->render( &painter, source ); 
+		if ( m_type == TYPE_SMALL ) {
+			m_background->render( &painter, rectBackground );
+		} else {
+			m_background->render( &painter, "layer3", rectBackground );
+
+			if ( m_bFocused  ) {
+				painter.fillRect( 0, 23, m_nWidgetWidth, 2, colorHighlightActive );
+			}
+			m_background->render( &painter, "layer2", QRectF( 9.91, 1.6, 23.5, 23.5 ) );
+		}
 	}
 
 	if ( m_type != TYPE_SMALL ) {
 		QRectF arcRect( 9.951, 2.2, 24.5, 24.5 );
 
 		if ( m_type == TYPE_NORMAL ) {
-			int nStartAngle = 218 * 16; // given in 1/16 of a degree
-			int nSpanAngle  = static_cast<int>( -255 * 16 * ( m_fValue - m_fMin ) / ( m_fMax - m_fMin ) );
+			int nStartAngle = 210 * 16; // given in 1/16 of a degree
+			int nSpanAngle  = static_cast<int>( -239 * 16 * ( m_fValue - m_fMin ) / ( m_fMax - m_fMin ) );
 
-			painter.setBrush( m_color );
-			painter.setPen( QPen( m_color, 1.7 ) );
+			painter.setPen( QPen( colorArc, 1.7 ) );
 			painter.drawArc( arcRect, nStartAngle, nSpanAngle );
 		} else {
 			// TYPE_CENTER
 
 			// There will be a special indication of the
-			// center. Either as a grey dot or a bigger green one if
+			// center. Either as a gray dot or a bigger green one if
 			// the value is smaller than +/-1% of the range around 0.
 			if ( std::fabs( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) < 0.01 * ( m_fMax - m_fMin ) ) {
 				
-				painter.setPen( QPen( Qt::green, 2.5 ) );
+				painter.setPen( QPen( colorArcCenterSet, 2.5 ) );
 				painter.drawArc( arcRect, 90 * 16, -3 * 16 );
 				
 			} else {
 				
-				painter.setPen( QPen( Qt::gray, 2.5 ) );
+				painter.setPen( QPen( colorArcCenterUnset, 2.5 ) );
 				painter.drawArc( arcRect, 90 * 16, -3 * 16 );
 
 				int nStartAngle = -18 * 16;
-				int nSpanAngle  = static_cast<int>( -218* 16 * ( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) / ( m_fMax - m_fMin ) );
+				int nSpanAngle  = static_cast<int>( -200* 16 * ( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) / ( m_fMax - m_fMin ) );
 				if ( m_fValue - 0.5 * ( m_fMax + m_fMin ) < 0 ) {
 					nStartAngle *= -1;
 					nStartAngle -= 2 * 16;
 				}
 				nStartAngle += 89 * 16;
 				
-				painter.setPen( QPen( Qt::red, 1.7 ) );
+				painter.setPen( QPen( colorArc, 1.7 ) );
 				painter.drawArc( arcRect, nStartAngle, nSpanAngle ); 
 			}
 		}
@@ -171,6 +183,11 @@ void Rotary::paintEvent( QPaintEvent* ev )
 		fCurrentAngle = fStartAngle + 255 * fPi / 180 * ( m_fValue - m_fMin - 0.5 * ( m_fMax - m_fMin ) ) / ( m_fMax - m_fMin );
 	}
 	
+	///////////////////////
+	// Indicating the current position using a rotated line instead of
+	// a dot
+	///////////////////////
+	//
 	// float fLength, fWidth, fBaseX, fBaseY;
 	// if ( m_type == TYPE_SMALL ) {
 	// 	fBaseX = 9.0;
@@ -183,7 +200,7 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	// 	fLength = 6;
 	// 	fWidth = 3;
 	// }
-
+	//
 	// QPointF p1( fBaseX + std::cos( fCurrentAngle + fPi / 2 ) * fWidth / 2,
 	// 			fBaseY + std::sin( fCurrentAngle + fPi / 2 ) * fWidth / 2 );
 	// QPointF p2( p1.x() + std::cos( fCurrentAngle ) * fLength,
@@ -197,39 +214,65 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	// path.lineTo( p2 );
 	// path.lineTo( p3 );
 	// path.lineTo( p4 );
-	
+	//
 	// path.setFillRule( Qt::WindingFill );
-	// QPen pen( Qt::black );
+	// QPen pen( colorHandle );
 	// pen.setJoinStyle( Qt::RoundJoin );
 	// pen.setWidth( 1.7 );
 	// painter.setPen( pen );
-	// painter.setBrush( QBrush( Qt::black ) );
+	// painter.setBrush( QBrush( colorHandle ) );
 	// painter.drawPath( path );
+	///////////////////////
 
-	float fDistance, fRadius, fBaseX, fBaseY;
-	if ( m_type == TYPE_SMALL ) {
-		fBaseX = 9.0;
-		fBaseY = 9.0;
-		fDistance = 3;
-		fRadius = 1;
-	} else {
-		fBaseX = 22.0;
-		fBaseY = 14.0;
-		fDistance = 4;
-		fRadius = 1.5;
+	if ( m_bIsActive ) {
+		float fDistance, fRadius, fBaseX, fBaseY;
+		if ( m_type == TYPE_SMALL ) {
+			fBaseX = 9.0;
+			fBaseY = 9.0;
+			fDistance = 3;
+			fRadius = 1;
+		} else {
+			fBaseX = 22.0;
+			fBaseY = 14.0;
+			fDistance = 4;
+			fRadius = 1.5;
+		}
+
+		QPointF p1( fBaseX + std::cos( fCurrentAngle ) * fDistance,
+					fBaseY + std::sin( fCurrentAngle ) * fDistance );
+		painter.setPen( QPen( colorHandle, 1 ) );
+		painter.setBrush( QBrush( colorHandle ) );
+		painter.drawEllipse( p1, fRadius, fRadius );
 	}
 
-	QPointF p1( fBaseX + std::cos( fCurrentAngle ) * fDistance,
-				fBaseY + std::sin( fCurrentAngle ) * fDistance );
-	painter.setPen( QPen( Qt::black, 1 ) );
-	painter.setBrush( QBrush( Qt::black ) );
-	painter.drawEllipse( p1, fRadius, fRadius );
+	if ( m_type != TYPE_SMALL ) {
+		QRectF leftTextRec( 2, 15, 7, 7 );
+		QRectF rightTextRec( 34, 15, 9, 7 );
+
+		QFont font( H2Core::Preferences::get_instance()->getApplicationFontFamily() );
+		font.setPixelSize( 9 );
+		painter.setFont( font );
+		painter.setPen( QPen( colorFont, 3 ) );
+		painter.drawText( leftTextRec, Qt::AlignCenter, "-" );
+		painter.drawText( rightTextRec, Qt::AlignCenter, "+" );
+	}
 }
 
-
+void Rotary::setIsActive( bool bIsActive ) {
+	m_bIsActive = bIsActive;
+	update();
+}
 
 void Rotary::setValue( float fValue )
 {
+	if ( ! m_bIsActive ) {
+		return;
+	}
+	
+	if ( m_bUseIntSteps ) {
+		fValue = std::round( fValue );
+	}
+	
 	if ( fValue == m_fValue ) {
 		return;
 	}
@@ -322,7 +365,17 @@ void Rotary::mouseMoveEvent( QMouseEvent *ev )
 	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
 }
 
+void Rotary::enterEvent( QEvent *ev ) {
+	UNUSED( ev );
+	m_bFocused = true;
+	update();
+}
 
+void Rotary::leaveEvent( QEvent *ev ) {
+	UNUSED( ev );
+	m_bFocused = false;
+	update();
+}
 
 void Rotary::setMin( float fMin )
 {
@@ -358,9 +411,4 @@ void Rotary::setDefaultValue( float fDefaultValue )
 void Rotary::resetValueToDefault()
 {
 	setValue(m_fDefaultValue);
-}
-
-void Rotary::setColor( QColor color ) {
-	m_color = color;
-	update();
 }

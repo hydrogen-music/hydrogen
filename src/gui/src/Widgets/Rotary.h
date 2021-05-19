@@ -60,20 +60,13 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 	float getMax() const;
 
 	void setValue( float fValue );
-	float getValue() const {
-		if ( m_bUseIntSteps ) {
-			int val = static_cast<int>(m_fValue);
-			return val;
-		}
-		else
-			return m_fValue;
-	}
+	float getValue() const;
 
 	void setDefaultValue( float fDefaultValue );
 	float getDefaultValue() const;
 	void resetValueToDefault();
-	void setColor( QColor color );
-	QColor getColor() const;
+	bool getIsActive() const;
+	void setIsActive( bool bIsActive );
 
 signals:
 	void valueChanged(Rotary *ref);
@@ -85,7 +78,6 @@ private:
 
 	RotaryType m_type;
 	QSvgRenderer* m_background;
-	QColor m_color;
 
 	int m_nWidgetWidth;
 	int m_nWidgetHeight;
@@ -100,14 +92,21 @@ private:
 
 	float m_fMousePressValue;
 	float m_fMousePressY;
+	bool m_bFocused;
+	bool m_bIsActive;
 
 	virtual void paintEvent(QPaintEvent *ev);
 	virtual void mousePressEvent(QMouseEvent *ev);
 	virtual void mouseReleaseEvent( QMouseEvent *ev );
 	virtual void mouseMoveEvent(QMouseEvent *ev);
 	virtual void wheelEvent( QWheelEvent *ev );
+	virtual void enterEvent( QEvent *ev );
+	virtual void leaveEvent( QEvent *ev );
+	// bool event( QEvent *ev );
 };
-
+inline float Rotary::getValue() const {
+	return m_fValue;
+}
 inline float Rotary::getMin() const {
 	return m_fMin;
 }
@@ -117,7 +116,7 @@ inline float Rotary::getMax() const {
 inline float Rotary::getDefaultValue() const {
 	return m_fDefaultValue;
 }
-inline QColor Rotary::getColor() const {
-	return m_color;
+inline bool Rotary::getIsActive() const {
+	return m_bIsActive;
 }
 #endif
