@@ -654,7 +654,7 @@ void HydrogenApp::onEventQueueTimer()
 		if( pOldNote ) { // note found => remove it
 			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pOldNote->get_position(),
 																	 pOldNote->get_instrument_id(),
-+																	 pQueue->m_addMidiNoteVector[0].m_pattern,
+																	 pQueue->m_addMidiNoteVector[0].m_pattern,
 																	 pOldNote->get_length(),
 																	 pOldNote->get_velocity(),
 																	 pOldNote->get_pan_l(),
