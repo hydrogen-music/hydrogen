@@ -23,6 +23,8 @@
 #include "LCD.h"
 #include "../Skin.h"
 
+#include <cmath>
+
 #include <QFile>
 #include <QSvgRenderer>
 
@@ -119,14 +121,95 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	}
 
 	if ( m_type != TYPE_SMALL ) {
-		int nStartAngle = 218 * 16; // given in 1/16 of a degree
-		int nSpanAngle  = static_cast<int>( -255 * 16 * ( m_fValue - m_fMin ) / ( m_fMax - m_fMin ) );
 		QRectF arcRect( 9.951, 2.2, 24.5, 24.5 );
 
-		painter.setBrush( m_color );
-		painter.setPen( QPen( m_color, 1.7 ) );
-		painter.drawArc( arcRect, nStartAngle, nSpanAngle );
+		if ( m_type == TYPE_NORMAL ) {
+			int nStartAngle = 218 * 16; // given in 1/16 of a degree
+			int nSpanAngle  = static_cast<int>( -255 * 16 * ( m_fValue - m_fMin ) / ( m_fMax - m_fMin ) );
+
+			painter.setBrush( m_color );
+			painter.setPen( QPen( m_color, 1.7 ) );
+			painter.drawArc( arcRect, nStartAngle, nSpanAngle );
+		} else {
+			// TYPE_CENTER
+
+			// There will be a special indication of the
+			// center. Either as a grey dot or a bigger green one if
+			// the value is smaller than +/-1% of the range around 0.
+			if ( std::fabs( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) < 0.01 * ( m_fMax - m_fMin ) ) {
+				
+				painter.setPen( QPen( Qt::green, 2.5 ) );
+				painter.drawArc( arcRect, 90 * 16, -3 * 16 );
+				
+			} else {
+				
+				painter.setPen( QPen( Qt::gray, 2.5 ) );
+				painter.drawArc( arcRect, 90 * 16, -3 * 16 );
+
+				int nStartAngle = -18 * 16;
+				int nSpanAngle  = static_cast<int>( -218* 16 * ( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) / ( m_fMax - m_fMin ) );
+				if ( m_fValue - 0.5 * ( m_fMax + m_fMin ) < 0 ) {
+					nStartAngle *= -1;
+					nStartAngle -= 2 * 16;
+				}
+				nStartAngle += 89 * 16;
+				
+				painter.setPen( QPen( Qt::red, 1.7 ) );
+				painter.drawArc( arcRect, nStartAngle, nSpanAngle ); 
+			}
+		}
 	}
+
+	float fBaseX, fBaseY, fArcLength, fLineLength;
+	if ( m_type == TYPE_SMALL ) {
+		fBaseX = 9.0;
+		fBaseY = 8.0;
+		fArcLength = 4.0 / 6.0;
+		fLineLength = 8.0 / 3.0;
+	} else {
+		fBaseX = 22.0;
+		fBaseY = 14.0;
+		fArcLength = 1.0;
+		fLineLength = 4.0;
+	}
+
+	// std::acos( -1 ) => pi
+	float fPi = std::acos( -1 );
+	float fCurrentAngle;
+	float fStartAngle;
+	if ( m_type == TYPE_CENTER ) {
+		fStartAngle = -90 * fPi / 180;
+		fCurrentAngle = fStartAngle + 255 * fPi / 180 * ( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) / (  m_fMax - m_fMin );
+	} else {
+		fStartAngle = -90 * fPi / 180;
+		fCurrentAngle = fStartAngle + 255 * fPi / 180 * ( m_fValue - m_fMin - 0.5 * ( m_fMax - m_fMin ) ) / ( m_fMax - m_fMin );
+	}
+
+	float fArcToeCenterX = fBaseX + std::cos( fCurrentAngle ) * fArcLength / 2;
+	float fArcToeCenterY = fBaseY + std::sin( fCurrentAngle ) * fArcLength / 2;
+	float fLineRightEndX = fBaseX + fArcLength / 2 + std::cos( fCurrentAngle ) * ( fArcLength + fLineLength );
+	float fLineRightEndY = fBaseY + std::sin( fCurrentAngle ) * ( fArcLength + fLineLength );
+	float fArcTipCenterX = fBaseX + std::cos( fCurrentAngle ) * ( fArcLength * 3 / 2 + fLineLength );
+	float fArcTipCenterY = fBaseY + std::sin( fCurrentAngle ) * ( fArcLength * 3/ 2 + fLineLength );
+	float fLineLeftEndX = fBaseX - fArcLength / 2 + std::cos( fCurrentAngle ) * fArcLength;
+	float fLineLeftEndY = fBaseY + std::sin( fCurrentAngle ) * fArcLength;
+
+	float fArcToeStartAngle = ( 180 - ( fCurrentAngle * 180 / fPi ) ) * 16;
+	
+	QPainterPath path;
+	path.moveTo( fBaseX, fBaseY );
+	path.arcTo( fArcToeCenterX - fArcLength / 2, fArcToeCenterY - fArcLength / 2,
+				fArcLength, fArcLength, fArcToeStartAngle, fArcToeStartAngle - 90 * 16 );
+	path.lineTo( fLineRightEndX, fLineRightEndY );
+	path.arcTo( fArcTipCenterX - fArcLength / 2, fArcTipCenterY - fArcLength / 2,
+				fArcLength, fArcLength, fArcToeStartAngle - 90 * 16, fArcToeStartAngle - 270 * 16 );
+	path.lineTo( fLineLeftEndX, fLineLeftEndY );
+	path.arcTo( fArcTipCenterX - fArcLength / 2, fArcTipCenterY - fArcLength / 2,
+				fArcLength, fArcLength, fArcToeStartAngle - 270 * 16, fArcToeStartAngle );
+
+	painter.setBrush( QBrush( Qt::green ) );
+	painter.setPen( QPen( Qt::black, 1 ) );
+	painter.drawPath( path );
 }
 
 
