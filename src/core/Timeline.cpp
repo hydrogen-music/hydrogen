@@ -168,13 +168,13 @@ QString Timeline::toQString( const QString& sPrefix, bool bShort ) const {
 	} else {
 		
 		sOutput = QString( "%1[Timeline] " ).arg( sPrefix )
-			.append( QString( "m_tempoMarkers: [" ).arg( sPrefix ).arg( s ) );
+			.append( QString( "m_tempoMarkers: [" ) );
 		for ( auto const& tt : m_tempoMarkers ) {
 			if ( tt != nullptr ) {
 				sOutput.append( QString( " [bar: %1 , bpm: %2]" ).arg( tt->nBar ).arg( tt->fBpm ) );
 			}
 		}
-		sOutput.append( QString( "], m_tags: [" ).arg( sPrefix ).arg( s ) );
+		sOutput.append( QString( "], m_tags: [" ) );
 		for ( auto const& tt : m_tags ) {
 			if ( tt != nullptr ) {
 				sOutput.append( QString( " [bar: %1 , tag: %2]" ).arg( tt->nBar ).arg( tt->sTag ) );

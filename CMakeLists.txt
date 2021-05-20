@@ -98,7 +98,6 @@ OPTION(WANT_CLANG_TIDY "Use clang-tidy to check the sourcecode" OFF)
 find_program(CLANG_TIDY_CMD NAMES clang-tidy)
 IF(CLANG_TIDY_CMD)
   #use config from .clang-tidy
-  SET(CMAKE_CXX_CLANG_TIDY clang-tidy)
   SET(CLANG_TIDY_LIBRARIES ${CLANG_TIDY_CMD}) # Required for summary
   SET(CLANG_TIDY_FOUND TRUE) # Required for summary
 ELSE()

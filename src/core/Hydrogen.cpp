@@ -35,12 +35,10 @@
 #include <deque>
 #include <queue>
 #include <iostream>
-#include <ctime>
 #include <cmath>
 #include <algorithm>
 #include <thread>
 #include <chrono>
-#include <ctime>
 
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
@@ -1773,7 +1771,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		for ( auto dd : m_nBeatDiffs ) {
 			sOutput.append( QString( " %1" ).arg( dd ) );
 		}
-		sOutput.append( QString( "]\n%1%2m_CurrentTime: %3" ).arg( sPrefix ).arg( s ).arg( std::ctime( &m_CurrentTime.tv_sec ) ) )
+		sOutput.append( QString( "]\n%1%2m_CurrentTime: %3" ).arg( sPrefix ).arg( s ).arg( static_cast<long>(m_CurrentTime.tv_sec ) ) )
 			.append( QString( "%1%2m_nCoutOffset: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nCoutOffset ) )
 			.append( QString( "%1%2m_nStartOffset: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nStartOffset ) )
 			.append( QString( "%1%2m_oldEngineMode: %3\n" ).arg( sPrefix ).arg( s ).arg( m_oldEngineMode ) )
@@ -1798,14 +1796,12 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( QString( "%1%2m_fNewBpmJTM: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fNewBpmJTM ) )
 			.append( QString( "%1%2m_nSelectedInstrumentNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nSelectedInstrumentNumber ) )
-			.append( QString( "%1%2m_pAudioEngine: \n" ) )//.arg( sPrefix ).arg( s ).arg( m_pAudioEngine ) )
+			.append( QString( "%1%2m_pAudioEngine: \n" ).arg( sPrefix ).arg( s ) )//.arg( m_pAudioEngine ) )
 			.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s ).arg( lastMidiEvent ) )
 			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s ).arg( lastMidiEventParameter ) )
-			.append( QString( "%1%2m_nInstrumentLookupTable: [" ).arg( sPrefix ).arg( s ) );
-		for ( auto ll : m_nInstrumentLookupTable ) {
-			sOutput.append( QString( " %1" ).arg( ll ) );
-		}
-		sOutput.append( QString( "]\n%1%2m_nMaxTimeHumanize: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nMaxTimeHumanize ) );
+			.append( QString( "%1%2m_nInstrumentLookupTable: [ %3 ... %4 ]\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS ] ) )
+			.append( QString( "%1%2m_nMaxTimeHumanize: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nMaxTimeHumanize ) );
 	} else {
 		
 		sOutput = QString( "%1[Hydrogen]" ).arg( sPrefix )
@@ -1824,7 +1820,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		for ( auto dd : m_nBeatDiffs ) {
 			sOutput.append( QString( " %1" ).arg( dd ) );
 		}
-		sOutput.append( QString( "], m_CurrentTime: %1" ).arg( std::ctime( &m_CurrentTime.tv_sec ) ) )
+		sOutput.append( QString( "], m_CurrentTime: %1" ).arg( static_cast<long>( m_CurrentTime.tv_sec ) ) )
 			.append( QString( ", m_nCoutOffset: %1" ).arg( m_nCoutOffset ) )
 			.append( QString( ", m_nStartOffset: %1" ).arg( m_nStartOffset ) )
 			.append( QString( ", m_oldEngineMode: %1" ).arg( m_oldEngineMode ) )
@@ -1833,7 +1829,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_GUIState: %1" ).arg( static_cast<int>( m_GUIState ) ) );
 		sOutput.append( QString( ", m_pTimeline: " ) );
 		if ( m_pTimeline != nullptr ) {
-			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix + s, bShort ) ) );
+			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix, bShort ) ) );
 		} else {
 			sOutput.append( QString( "nullptr" ) );
 		}						 
@@ -1852,11 +1848,9 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_pAudioEngine: " ) )// .arg( m_pAudioEngine ) )
 			.append( QString( ", lastMidiEvent: %1" ).arg( lastMidiEvent ) )
 			.append( QString( ", lastMidiEventParameter: %1" ).arg( lastMidiEventParameter ) )
-			.append( QString( ", m_nInstrumentLookupTable: [" ) );
-		for ( auto ll : m_nInstrumentLookupTable ) {
-			sOutput.append( QString( " %1" ).arg( ll ) );
-		}
-		sOutput.append( QString( "], m_nMaxTimeHumanize: %1\n" ).arg( m_nMaxTimeHumanize ) );
+			.append( QString( ", m_nInstrumentLookupTable: [ %1 ... %2 ]" )
+					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS ] ) )
+			.append( QString( ", m_nMaxTimeHumanize: %1\n" ).arg( m_nMaxTimeHumanize ) );
 	}
 		
 	return sOutput;
