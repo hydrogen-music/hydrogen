@@ -38,6 +38,7 @@ class InstrumentPropertiesDialog;
 class InstrumentNameWidget;
 class LCDDisplay;
 class Rotary;
+class WidgetWithInput;
 
 #include "../Widgets/PixmapWidget.h"
 
@@ -132,8 +133,8 @@ class MixerLine: public PixmapWidget
 		void	click(Button *ref);
 		void	rightClick(Button *ref);
 		void	faderChanged(Fader *ref);
-		void	panChanged(Rotary *ref);
-		void	knobChanged(Rotary *ref);
+		void	panChanged(WidgetWithInput *ref);
+		void	knobChanged(WidgetWithInput *ref);
 		void	nameClicked();
 		void	nameSelected();
 
@@ -248,7 +249,7 @@ class MasterMixerLine: public PixmapWidget
 
 	public slots:
 		void	faderChanged(MasterFader * ref);
-		void	rotaryChanged( Rotary *pRef );
+		void	rotaryChanged( WidgetWithInput *pRef );
 		void	muteClicked(Button*);
 
 	private:
@@ -343,7 +344,7 @@ class LadspaFXMixerLine : public PixmapWidget
 
 	public slots:
 		void click(Button *ref);
-		void rotaryChanged(Rotary * ref);
+		void rotaryChanged( WidgetWithInput* ref);
 
 	signals:
 		void activeBtnClicked( LadspaFXMixerLine *ref );

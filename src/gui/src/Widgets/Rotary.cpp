@@ -20,7 +20,6 @@
  *
  */
 #include "Rotary.h"
-#include "LCD.h"
 #include "../Skin.h"
 
 #include <cmath>
@@ -33,22 +32,16 @@
 
 const char* Rotary::__class_name = "Rotary";
 
-Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseIntSteps, bool bUseValueTip, float fMin, float fMax, QColor color )
- : QWidget( parent )
- , Object( __class_name )
- , m_bUseIntSteps( bUseIntSteps )
- , m_type( type )
- , m_fMin( fMin )
- , m_fMax( fMax )
- , m_fMousePressValue( 0.0 )
- , m_fMousePressY( 0.0 )
- , m_bIgnoreMouseMove( false )
- , m_sBaseTooltip( sToolTip )
- , m_bFocused( false )
- , m_bIsActive( true )
-{
-	setAttribute( Qt::WA_Hover );
-	setToolTip( sToolTip );
+Rotary::Rotary( QWidget* parent, RotaryType type, QString sBaseTooltip, bool bUseIntSteps, float fMin, float fMax )
+	: WidgetWithInput( parent,
+					   bUseIntSteps,
+					   sBaseTooltip,
+					   1, //nScrollSpeed,
+					   5, // nScrollSpeedFast,
+					   fMin,
+					   fMax )
+	, Object( __class_name )
+	, m_type( type ) {
 
 	if ( type == TYPE_SMALL ) {
 		m_nWidgetWidth = 18;
@@ -66,9 +59,6 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseInt
 	}
 
 	m_fValue = m_fDefaultValue;
-
-	m_nScrollSpeedSlow = 1;
-	m_nScrollSpeedFast = 5;
 
 	// Since the load function does not report success, we will check
 	// for the existance of the background image separately.
@@ -256,159 +246,4 @@ void Rotary::paintEvent( QPaintEvent* ev )
 		painter.drawText( leftTextRec, Qt::AlignCenter, "-" );
 		painter.drawText( rightTextRec, Qt::AlignCenter, "+" );
 	}
-}
-
-void Rotary::setIsActive( bool bIsActive ) {
-	m_bIsActive = bIsActive;
-	update();
-}
-
-void Rotary::setValue( float fValue )
-{
-	if ( ! m_bIsActive ) {
-		return;
-	}
-	
-	if ( m_bUseIntSteps ) {
-		fValue = std::round( fValue );
-	}
-	
-	if ( fValue == m_fValue ) {
-		return;
-	}
-
-	if ( fValue < m_fMin ) {
-		fValue = m_fMin;
-	}
-	else if ( fValue > m_fMax ) {
-		fValue = m_fMax;
-	}
-
-	if ( fValue != m_fValue ) {
-		m_fValue = fValue;
-		update();
-	}
-}
-
-
-
-void Rotary::mousePressEvent(QMouseEvent *ev)
-{
-	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier ) {
-		resetValueToDefault();
-		m_bIgnoreMouseMove = true;
-		emit valueChanged(this);
-	}
-	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
-		MidiSenseWidget midiSense( this, true, this->getAction() );
-		midiSense.exec();
-	}
-	else {
-		setCursor( QCursor( Qt::SizeVerCursor ) );
-
-		m_fMousePressValue = m_fValue;
-		m_fMousePressY = ev->y();
-	}
-	
-	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
-}
-
-void Rotary::mouseReleaseEvent( QMouseEvent *ev )
-{
-	UNUSED( ev );
-	
-	setCursor( QCursor( Qt::ArrowCursor ) );
-
-	m_bIgnoreMouseMove = false;
-}
-
-void Rotary::wheelEvent ( QWheelEvent *ev )
-{
-	ev->accept();
-
-	float stepfactor = 5.0; // coarse adjustment
-	float delta = 1.0;
-
-	// Control Modifier = fine adjustment
-	if (ev->modifiers() == Qt::ControlModifier) {
-		stepfactor = 1.0;
-	}
-	if ( !m_bUseIntSteps ) {
-		float fRange = m_fMax - m_fMin;
-		delta = fRange / 100.0;
-	}
-	if ( ev->angleDelta().y() < 0 ) {
-		delta *= -1.;
-	}
-	setValue( getValue() + (delta * stepfactor) );
-	emit valueChanged(this);
-	
-	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
-}
-
-
-
-void Rotary::mouseMoveEvent( QMouseEvent *ev )
-{
-	if ( m_bIgnoreMouseMove ) {
-		return;
-	}
-
-	float fRange = m_fMax - m_fMin;
-
-	float deltaY = ev->y() - m_fMousePressY;
-	float fNewValue = ( m_fMousePressValue - ( deltaY / 100.0 * fRange ) );
-
-	setValue( fNewValue );
-	emit valueChanged(this);
-
-	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
-}
-
-void Rotary::enterEvent( QEvent *ev ) {
-	UNUSED( ev );
-	m_bFocused = true;
-	update();
-}
-
-void Rotary::leaveEvent( QEvent *ev ) {
-	UNUSED( ev );
-	m_bFocused = false;
-	update();
-}
-
-void Rotary::setMin( float fMin )
-{
-	m_fMin = fMin;
-	update();
-}
-
-void Rotary::setMax( float fMax )
-{
-	m_fMax = fMax;
-	update();
-}
-
-
-void Rotary::setDefaultValue( float fDefaultValue )
-{
-	if ( fDefaultValue == m_fDefaultValue ) {
-		return;
-	}
-
-	if ( fDefaultValue < m_fMin ) {
-		fDefaultValue = m_fMin;
-	}
-	else if ( fDefaultValue > m_fMax ) {
-		fDefaultValue = m_fMax;
-	}
-
-	if ( fDefaultValue != m_fDefaultValue ) {
-		m_fDefaultValue = fDefaultValue;
-	}
-}
-
-void Rotary::resetValueToDefault()
-{
-	setValue(m_fDefaultValue);
 }

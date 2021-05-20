@@ -23,22 +23,17 @@
 #ifndef ROTARY_H
 #define ROTARY_H
 
-#include "MidiLearnable.h"
-#include "MidiSenseWidget.h"
-
 #include <QtGui>
 #include <QtWidgets>
 #include <QSvgRenderer>
-#include <QColor>
 
-class LCDDisplay;
+#include "WidgetWithInput.h"
 
 #include <core/Object.h>
 
-class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
+class Rotary : public WidgetWithInput, H2Core::Object
 {
     H2_OBJECT
-	Q_OBJECT
 	
 	public:
 	enum RotaryType {
@@ -50,73 +45,13 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 	Rotary(const Rotary&) = delete;
 	Rotary& operator=( const Rotary& rhs ) = delete;
 	
-	Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseIntSteps, bool bUseValueTip, float fMin = 0.0, float fMax = 1.0, QColor color = QColor( 255, 0, 0 ) );
+	Rotary( QWidget* parent, RotaryType type, QString sBaseTooltip, bool bUseIntSteps, float fMin = 0.0, float fMax = 1.0 );
 	~Rotary();
 
-	void setMin( float fMin );
-	float getMin() const;
-
-	void setMax( float fMax );
-	float getMax() const;
-
-	void setValue( float fValue );
-	float getValue() const;
-
-	void setDefaultValue( float fDefaultValue );
-	float getDefaultValue() const;
-	void resetValueToDefault();
-	bool getIsActive() const;
-	void setIsActive( bool bIsActive );
-
-signals:
-	void valueChanged(Rotary *ref);
-
 private:
-	bool m_bUseIntSteps;
-	bool m_bIgnoreMouseMove;
-	QString m_sBaseTooltip;
-
 	RotaryType m_type;
 	QSvgRenderer* m_background;
 
-	int m_nWidgetWidth;
-	int m_nWidgetHeight;
-
-	int m_nScrollSpeedSlow;
-	int m_nScrollSpeedFast;
-
-	float m_fMin;
-	float m_fMax;
-	float m_fValue;
-	float m_fDefaultValue;
-
-	float m_fMousePressValue;
-	float m_fMousePressY;
-	bool m_bFocused;
-	bool m_bIsActive;
-
 	virtual void paintEvent(QPaintEvent *ev);
-	virtual void mousePressEvent(QMouseEvent *ev);
-	virtual void mouseReleaseEvent( QMouseEvent *ev );
-	virtual void mouseMoveEvent(QMouseEvent *ev);
-	virtual void wheelEvent( QWheelEvent *ev );
-	virtual void enterEvent( QEvent *ev );
-	virtual void leaveEvent( QEvent *ev );
-	// bool event( QEvent *ev );
 };
-inline float Rotary::getValue() const {
-	return m_fValue;
-}
-inline float Rotary::getMin() const {
-	return m_fMin;
-}
-inline float Rotary::getMax() const {
-	return m_fMax;
-}
-inline float Rotary::getDefaultValue() const {
-	return m_fDefaultValue;
-}
-inline bool Rotary::getIsActive() const {
-	return m_bIsActive;
-}
 #endif

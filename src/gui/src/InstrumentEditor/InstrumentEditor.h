@@ -42,7 +42,7 @@ class Rotary;
 class LCDCombo;
 class WaveDisplay;
 class LayerPreview;
-
+class WidgetWithInput;
 
 ///
 /// Instrument Editor
@@ -76,7 +76,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void showSampleEditor();
 
 	private slots:
-		void rotaryChanged(Rotary *ref);
+		void rotaryChanged(WidgetWithInput *ref);
 		void filterActiveBtnClicked(Button *ref);
 		void buttonClicked(Button*);
 		void labelClicked( ClickableLabel* pRef );

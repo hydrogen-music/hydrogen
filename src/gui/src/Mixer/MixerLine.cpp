@@ -31,6 +31,7 @@
 #include "../Widgets/Rotary.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/LCD.h"
+#include "../Widgets/WidgetWithInput.h"
 
 #include <core/Hydrogen.h>
 #include <core/Preferences.h>
@@ -123,9 +124,9 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	connect(m_pSoloBtn, SIGNAL(clicked(Button*)), this, SLOT(click(Button*)));
 
 	// pan rotary
-	m_pPanRotary = new Rotary( this, Rotary::TYPE_CENTER, tr( "Pan" ), false, true);
+	m_pPanRotary = new Rotary( this, Rotary::TYPE_CENTER, tr( "Pan" ), false );
 	m_pPanRotary->move( 6, 32 );
-	connect( m_pPanRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( panChanged(Rotary*) ) );
+	connect( m_pPanRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( panChanged( WidgetWithInput* ) ) );
 	pAction = new Action("PAN_ABSOLUTE");
 	pAction->setParameter1( QString::number(nInstr ));
 	pAction->setParameter2( QString::number( 1 ));
@@ -134,7 +135,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	// FX send
 	uint y = 0;
 	for ( uint i = 0; i < MAX_FX; i++ ) {
-		m_pFxRotary[i] = new Rotary( this, Rotary::TYPE_SMALL, tr( "FX %1 send" ).arg( i + 1 ), false, true );
+		m_pFxRotary[i] = new Rotary( this, Rotary::TYPE_SMALL, tr( "FX %1 send" ).arg( i + 1 ), false );
 		pAction = new Action(QString( "EFFECT%1_LEVEL_ABSOLUTE" ).arg( QString::number( i + 1 ) ) );
 		pAction->setParameter1( QString::number( nInstr ) );
 		m_pFxRotary[i]->setAction( pAction );
@@ -145,7 +146,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 			m_pFxRotary[i]->move( 30, 63 + (20 * y) );
 			y++;
 		}
-		connect( m_pFxRotary[i], SIGNAL( valueChanged(Rotary*) ), this, SLOT( knobChanged(Rotary*) ) );
+		connect( m_pFxRotary[i], SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( knobChanged( WidgetWithInput* ) ) );
 	}
 
 	Preferences *pPref = Preferences::get_instance();
@@ -338,7 +339,7 @@ void MixerLine::nameSelected() {
 	emit instrumentNameSelected(this);
 }
 
-void MixerLine::panChanged(Rotary *ref)
+void MixerLine::panChanged(WidgetWithInput *ref)
 {
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	pSong->setIsModified( true );
@@ -369,11 +370,12 @@ void MixerLine::setPlayClicked( bool clicked ) {
 	m_pTriggerSampleLED->setPressed( clicked );
 }
 
-void MixerLine::knobChanged(Rotary* pRef)
+void MixerLine::knobChanged( WidgetWithInput* pRef)
 {
-//	infoLog( "knobChanged" );
-	for (uint i = 0; i < MAX_FX; i++) {
-		if (m_pFxRotary[i] == pRef) {
+	Rotary* pRotary = dynamic_cast<Rotary*>( pRef );
+	
+	for ( uint i = 0; i < MAX_FX; i++ ) {
+		if ( m_pFxRotary[i] == pRotary ) {
 			emit knobChanged( this, i );
 			break;
 		}
@@ -676,17 +678,17 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	lcdPalette.setColor( QPalette::Window, QColor( 49, 53, 61 ) );
 	m_pPeakLCD->setPalette( lcdPalette );
 
-	m_pHumanizeVelocityRotary = new Rotary( this, Rotary::TYPE_NORMAL, tr( "Humanize velocity" ), false, true );
+	m_pHumanizeVelocityRotary = new Rotary( this, Rotary::TYPE_NORMAL, tr( "Humanize velocity" ), false );
 	m_pHumanizeVelocityRotary->move( 66, 88 );
-	connect( m_pHumanizeVelocityRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
+	connect( m_pHumanizeVelocityRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
-	m_pHumanizeTimeRotary = new Rotary( this, Rotary::TYPE_NORMAL, tr( "Humanize time" ), false, true );
+	m_pHumanizeTimeRotary = new Rotary( this, Rotary::TYPE_NORMAL, tr( "Humanize time" ), false );
 	m_pHumanizeTimeRotary->move( 66, 125 );
-	connect( m_pHumanizeTimeRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
+	connect( m_pHumanizeTimeRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
-	m_pSwingRotary = new Rotary( this,  Rotary::TYPE_NORMAL, tr( "Swing" ), false, true );
+	m_pSwingRotary = new Rotary( this,  Rotary::TYPE_NORMAL, tr( "Swing" ), false );
 	m_pSwingRotary->move( 66, 162 );
-	connect( m_pSwingRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
+	connect( m_pSwingRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
 	// Mute btn
 	m_pMuteBtn = new ToggleButton(
@@ -824,23 +826,25 @@ void MasterMixerLine::updateMixerLine()
 	}
 }
 
-void MasterMixerLine::rotaryChanged( Rotary *pRef )
+void MasterMixerLine::rotaryChanged( WidgetWithInput *pRef )
 {
+	Rotary* pRotary = dynamic_cast<Rotary*>( pRef );
+	
 	QString sMsg;
-	double fVal = (double) pRef->getValue();
+	double fVal = (double) pRotary->getValue();
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-	if ( pRef == m_pHumanizeTimeRotary ) {
+	if ( pRotary == m_pHumanizeTimeRotary ) {
 		pHydrogen->getSong()->setHumanizeTimeValue( fVal );
 		sMsg = tr( "Set humanize time param [%1]" ).arg( fVal, 0, 'f', 2 ); //not too long for display
 	}
-	else if ( pRef == m_pHumanizeVelocityRotary ) {
+	else if ( pRotary == m_pHumanizeVelocityRotary ) {
 		pHydrogen->getSong()->setHumanizeVelocityValue( fVal );
 		sMsg = tr( "Set humanize vel. param [%1]" ).arg( fVal, 0, 'f', 2 ); //not too long for display
 	}
-	else if ( pRef == m_pSwingRotary ) {
+	else if ( pRotary == m_pSwingRotary ) {
 		pHydrogen->getSong()->setSwingFactor( fVal );
 		sMsg = tr( "Set swing factor [%1]").arg( fVal, 0, 'f', 2 );
 	}
@@ -1114,11 +1118,11 @@ LadspaFXMixerLine::LadspaFXMixerLine(QWidget* parent)
 	m_pNameLCD->setToolTip( tr( "Ladspa FX name" ) );
 
 	// m_pRotary
-	m_pRotary = new Rotary( this,  Rotary::TYPE_NORMAL, tr( "Effect return" ), false, true );
+	m_pRotary = new Rotary( this,  Rotary::TYPE_NORMAL, tr( "Effect return" ), false );
 	m_pRotary->setDefaultValue( m_pRotary->getMax() );
 	m_pRotary->move( 124, 4 );
 	m_pRotary->setIsActive( false );
-	connect( m_pRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
+	connect( m_pRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 }
 
 
@@ -1154,7 +1158,7 @@ void LadspaFXMixerLine::setFxActive( bool active )
 	m_pRotary->setIsActive( active );
 }
 
-void LadspaFXMixerLine::rotaryChanged(Rotary *ref)
+void LadspaFXMixerLine::rotaryChanged( WidgetWithInput *ref)
 {
 	UNUSED( ref );
 	m_fMaxPeak = 0.0;
