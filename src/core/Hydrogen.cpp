@@ -247,9 +247,6 @@ int				m_nSelectedInstrumentNumber;
  */
 Instrument *			m_pMetronomeInstrument = nullptr;
 
-// Buffers used in the process function
-unsigned			m_nBufferSize = 0;
-
 /**
  * Current state of the H2Core::AudioEngine. 
  *
@@ -304,8 +301,8 @@ struct timeval			m_currentTickTime;
  * Variable keeping track of the transport position in realtime.
  *
  * Even if the audio engine is stopped, the variable will be
- * incremented by #m_nBufferSize (as audioEngine_process() would do at
- * the end of each cycle) to support realtime keyboard and MIDI event
+ * incremented (as audioEngine_process() would do at  the beginning
+ * of each cycle) to support realtime keyboard and MIDI event
  * timing. It is set using Hydrogen::setRealtimeFrames(), accessed via
  * Hydrogen::getRealtimeFrames(), and updated in
  * audioEngine_process_transport() using the current transport
@@ -445,8 +442,7 @@ static void			audioEngine_noteOn( Note *note );
  * #STATE_PLAYING or the locking of the AudioEngine failed, the
  * function will return 0 without performing any actions.
  *
- * \param nframes Buffersize. If it doesn't match #m_nBufferSize, the
-   latter will be set to @a nframes.
+ * \param nframes Buffersize.
  * \param arg Unused.
  * \return
  * - __2__ : Failed to acquire the audio engine lock, no processing took place.
@@ -506,13 +502,13 @@ inline void			audioEngine_process_playNotes( unsigned long nframes );
  *
  * If the status is TransportInfo::STOPPED but the engine is still
  * running, audioEngine_stop() will be called. In any case,
- * #m_nRealtimeFrames will be incremented by #m_nBufferSize to support
+ * #m_nRealtimeFrames will be incremented by #nFrames to support
  * realtime keyboard and MIDI event timing.
  *
  * If the H2Core::m_audioEngineState is neither in #STATE_READY nor
  * #STATE_PLAYING the function will immediately return.
  */
-inline void			audioEngine_process_transport();
+inline void			audioEngine_process_transport( unsigned nFrames );
 
 inline unsigned		audioEngine_renderNote( Note* pNote, const unsigned& nBufferSize );
 // TODO: Add documentation of inPunchArea, and
@@ -1076,7 +1072,7 @@ void audioEngine_seek( long long nFrames, bool bLoopMode )
 	audioEngine_clearNoteQueue();
 }
 
-inline void audioEngine_process_transport()
+inline void audioEngine_process_transport( unsigned nFrames )
 {
 	if ( m_audioEngineState != STATE_READY
 	  && m_audioEngineState != STATE_PLAYING
@@ -1130,10 +1126,10 @@ inline void audioEngine_process_transport()
 			audioEngine_stop( false );
 		}
 
-		// go ahead and increment the realtimeframes by buffersize
+		// go ahead and increment the realtimeframes by nFrames
 		// to support our realtime keyboard and midi event timing
 		// TODO: use method like setRealtimeFrames
-		m_nRealtimeFrames += m_nBufferSize;
+		m_nRealtimeFrames += nFrames;
 		break;
 	}
 }
@@ -1272,14 +1268,6 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		return 0;
 	}
 
-	if ( m_nBufferSize != nframes ) {
-		___INFOLOG(
-			   QString( "Buffer size changed. Old size = %1, new size = %2" )
-			   .arg( m_nBufferSize )
-			   .arg( nframes ) );
-		m_nBufferSize = nframes;
-	}
-
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
 
@@ -1290,7 +1278,7 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// the one used by the JACK server, and adjust the current
 	// transport position if it was changed by an user interaction
 	// (e.g. clicking on the timeline).
-	audioEngine_process_transport();
+	audioEngine_process_transport( nframes );
 	
 
 	// ___INFOLOG( QString( "[after process] status: %1, frame: %2, ticksize: %3, bpm: %4" )
