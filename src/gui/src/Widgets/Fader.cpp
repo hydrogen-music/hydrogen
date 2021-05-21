@@ -64,30 +64,33 @@ Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSte
 	setFixedSize( m_nWidgetWidth, m_nWidgetHeight );
 
 	// Background image
-	QString background_path;
-	QString leds_path;
-	QString knob_path;
+	QString sBackgroundPath;
+	QString sKnobPath;
 	if ( type == Type::Master ) {
-		background_path = Skin::getImagePath() + "/mixerPanel/masterMixer_background.png";
-		leds_path = Skin::getImagePath() + "/mixerPanel/masterMixer_leds.png";
-		knob_path = Skin::getImagePath() + "/mixerPanel/fader_knob.png";
+		sBackgroundPath = Skin::getSvgImagePath() + "/fader_master.svg";
+		sKnobPath = Skin::getSvgImagePath() + "/fader_knob.svg";
+	} else if ( type == Type::Vertical ) {
+		sBackgroundPath = Skin::getSvgImagePath() + "/fader_vertical.svg";
+		sKnobPath = Skin::getSvgImagePath() + "/fader_knob_vertical.svg";
 	} else {
-		background_path = Skin::getImagePath() + "/mixerPanel/fader_background.png";
-		leds_path = Skin::getImagePath()  + "/mixerPanel/fader_leds.png";
-		knob_path = Skin::getImagePath() + "/mixerPanel/fader_knob.png";
+		sBackgroundPath = Skin::getSvgImagePath() + "/fader.svg";
+		sKnobPath = Skin::getSvgImagePath() + "/fader_knob.svg";
 	}
-	
-	bool ok = m_back.load( background_path );
-	if( ok == false ) {
-		ERRORLOG("Fader: Error loading pixmap");
+		
+	QFile fileBackground( sBackgroundPath );
+	if ( fileBackground.exists() ) {
+		m_pBackground = new QSvgRenderer( sBackgroundPath, this );
+	} else {
+		m_pBackground = nullptr;
+		ERRORLOG( QString( "Unable to load background image [%1]" ).arg( sBackgroundPath ) );
 	}
-	ok = m_leds.load( leds_path );
-	if( ok == false ){
-		ERRORLOG( "Error loading pixmap" );
-	}
-	ok = m_knob.load( knob_path );
-	if( ok == false ){
-		ERRORLOG( "Error loading pixmap" );
+
+	QFile fileKnob( sKnobPath );
+	if ( fileKnob.exists() ) {
+		m_pKnob = new QSvgRenderer( sKnobPath, this );
+	} else {
+		m_pKnob = nullptr;
+		ERRORLOG( QString( "Unable to load knob image [%1]" ).arg( sKnobPath ) );
 	}
 	
 	resize( m_nWidgetWidth, m_nWidgetHeight );
@@ -95,7 +98,6 @@ Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSte
 		QTransform transform;
 		transform.rotate(90);
 	}
-
 }
 
 Fader::~Fader() {
@@ -109,7 +111,7 @@ void Fader::mouseMoveEvent( QMouseEvent *ev )
 
 	float fValue;
 	if ( m_type == Type::Vertical ) {
-		fValue = static_cast<float>( ev->x() ) - static_cast<float>( width() );
+		fValue = static_cast<float>( ev->x() ) / static_cast<float>( width() );
 	} else {
 		fValue = static_cast<float>( height() - ev->y() ) / static_cast<float>( height() );
 	}
@@ -131,64 +133,70 @@ void Fader::paintEvent( QPaintEvent *ev)
 	QPainter painter(this);
 
 	// background
-	painter.drawPixmap( ev->rect(), m_back, ev->rect() );
+	if ( m_pBackground != nullptr ) {
+		m_pBackground->render( &painter );
+	}
 
 	if ( m_type == Type::Master ) {
-		float peak_L = m_fPeakValue_L * 190.0;
-		uint offset_L = (uint)( 190.0 - peak_L );
-		painter.drawPixmap( QRect( 0, offset_L, 9, 190 - offset_L), m_leds, QRect( 0, offset_L, 9, 190 - offset_L) );
+		// float peak_L = m_fPeakValue_L * 190.0;
+		// uint offset_L = (uint)( 190.0 - peak_L );
+		// painter.drawPixmap( QRect( 0, offset_L, 9, 190 - offset_L), m_leds, QRect( 0, offset_L, 9, 190 - offset_L) );
 
-		float peak_R = m_fPeakValue_R * 190.0;
-		uint offset_R = (uint)( 190.0 - peak_R );
-		painter.drawPixmap( QRect( 9, offset_R, 9, 190 - offset_R), m_leds, QRect( 9, offset_R, 9, 190 - offset_R) );
+		// float peak_R = m_fPeakValue_R * 190.0;
+		// uint offset_R = (uint)( 190.0 - peak_R );
+		// painter.drawPixmap( QRect( 9, offset_R, 9, 190 - offset_R), m_leds, QRect( 9, offset_R, 9, 190 - offset_R) );
 	} else {
-		float realPeak_L = m_fPeakValue_L - m_fMinPeak;
-		int peak_L = 116 - ( realPeak_L / ( m_fMaxPeak - m_fMinPeak ) ) * 116.0;
+		
+		// float realPeak_L = m_fPeakValue_L - m_fMinPeak;
+		// int peak_L = 116 - ( realPeak_L / ( m_fMaxPeak - m_fMinPeak ) ) * 116.0;
 
-		if ( peak_L > 116 ) {
-			peak_L = 116;
-		}
-		if ( m_type == Type::Vertical ) {
-			painter.drawPixmap( QRect( 0, 0, 116 - peak_L, 11 ), m_leds, QRect( 0, 0, 116 - peak_L, 11 ) );
-		} else {
-			painter.drawPixmap( QRect( 0, peak_L, 11, 116 - peak_L ), m_leds, QRect( 0, peak_L, 11, 116 - peak_L ) );
-		}
+		// if ( peak_L > 116 ) {
+		// 	peak_L = 116;
+		// }
+		// if ( m_type == Type::Vertical ) {
+		// 	painter.drawPixmap( QRect( 0, 0, 116 - peak_L, 11 ), m_leds, QRect( 0, 0, 116 - peak_L, 11 ) );
+		// } else {
+		// 	painter.drawPixmap( QRect( 0, peak_L, 11, 116 - peak_L ), m_leds, QRect( 0, peak_L, 11, 116 - peak_L ) );
+		// }
 
-		float realPeak_R = m_fPeakValue_R - m_fMinPeak;
-		int peak_R = 116 - ( realPeak_R / ( m_fMaxPeak - m_fMinPeak ) ) * 116.0;
-		if ( peak_R > 116 ) {
-			peak_R = 116;
-		}
+		// float realPeak_R = m_fPeakValue_R - m_fMinPeak;
+		// int peak_R = 116 - ( realPeak_R / ( m_fMaxPeak - m_fMinPeak ) ) * 116.0;
+		// if ( peak_R > 116 ) {
+		// 	peak_R = 116;
+		// }
 
-		if ( m_type == Type::Vertical ) {
-			painter.drawPixmap( QRect( 0, 11, 116 - peak_R, 11 ), m_leds, QRect( 0, 11, 116 - peak_R, 11 ) );
-		} else {
-			painter.drawPixmap( QRect( 11, peak_R, 11, 116 - peak_R ), m_leds, QRect( 11, peak_R, 11, 116 - peak_R ) );
-		}
+		// if ( m_type == Type::Vertical ) {
+		// 	painter.drawPixmap( QRect( 0, 11, 116 - peak_R, 11 ), m_leds, QRect( 0, 11, 116 - peak_R, 11 ) );
+		// } else {
+		// 	painter.drawPixmap( QRect( 11, peak_R, 11, 116 - peak_R ), m_leds, QRect( 11, peak_R, 11, 116 - peak_R ) );
+		// }
 	}
 	
-	if ( m_bWithoutKnob == false ) {
-		float fRange = m_fMax - m_fMin;
-		float realVal = m_fValue - m_fMin;
+	if ( m_bIsActive && m_bWithoutKnob == false ) {
+		float fVal = ( m_fValue - m_fMin ) / ( m_fMax - m_fMin );
+		float fKnobHeight, fKnobWidth, fKnobX, fKnobY;
 
 		if ( m_type == Type::Vertical ) {
-			uint knob_height = 15;
-			uint knob_width = 29;
-			uint knob_x = (uint)( 116.0 - ( 101 * ( 1-realVal / fRange ) ) );
-
-			painter.drawPixmap( QRect(knob_x - knob_height, 4 , knob_width, knob_height), m_knob, QRect( 0, 0, knob_width, knob_height ) );
+			fKnobHeight = 15;
+			fKnobWidth = 29;
+			fKnobX = 116.0 - ( 101 * ( 1 - fVal ) ) - fKnobHeight;
+			fKnobY = 4;
 		} else {
-			uint knob_height = 29;
-			uint knob_width = 15;
+			fKnobHeight = 29;
 
 			if ( m_type == Type::Master ) {
-				uint knob_y = (uint)( 190.0 - ( 159.0 * ( m_fValue / ( m_fMax - m_fMin ) ) ) );
-				painter.drawPixmap( QRect( 19, knob_y - knob_height, knob_width, knob_height), m_knob, QRect( 0, 0, knob_width, knob_height ) );
+				fKnobWidth = 19;
+				fKnobY = 190.0 - ( 159.0 * fVal ) - fKnobHeight;
+				fKnobX = 21;
 			} else {
-				uint knob_y = (uint)( 116.0 - ( 86.0 * ( realVal / fRange ) ) );
-
-				painter.drawPixmap( QRect( 4, knob_y - knob_height, knob_width, knob_height), m_knob, QRect( 0, 0, knob_width, knob_height ) );
+				fKnobWidth = 15;
+				fKnobY = 116.0 - ( 86.0 * fVal ) - fKnobHeight;
+				fKnobX = 4;
 			}
+		}
+
+		if ( m_pKnob != nullptr ) {
+			m_pKnob->render( &painter, QRectF( fKnobX, fKnobY, fKnobWidth, fKnobHeight) );
 		}
 	}
 }

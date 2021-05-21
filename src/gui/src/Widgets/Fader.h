@@ -62,15 +62,13 @@ public:
 protected:
 	bool m_bWithoutKnob;
 	Type m_type;
+	QSvgRenderer* m_pBackground;
+	QSvgRenderer* m_pKnob;
 
 	float m_fPeakValue_L;
 	float m_fPeakValue_R;
 	float m_fMinPeak;
 	float m_fMaxPeak;
-
-	QPixmap m_back;
-	QPixmap m_leds;
-	QPixmap m_knob;
 
 	virtual void mouseMoveEvent(QMouseEvent *ev);
 	virtual void paintEvent(QPaintEvent *ev);
