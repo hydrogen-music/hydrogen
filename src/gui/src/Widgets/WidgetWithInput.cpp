@@ -49,7 +49,7 @@ WidgetWithInput::WidgetWithInput( QWidget* parent, bool bUseIntSteps, QString sB
 	, m_inputBufferTimeout( 2.0 ){
 
 	setAttribute( Qt::WA_Hover );
-	setToolTip( sBaseTooltip );
+	setToolTip( QString( "%1: %2" ).arg( sBaseTooltip ).arg( m_fValue )  );
 	setFocusPolicy( Qt::ClickFocus );
 	
 	gettimeofday( &m_inputBufferTimeval, nullptr );
@@ -86,6 +86,7 @@ void WidgetWithInput::setValue( float fValue )
 	if ( fValue != m_fValue ) {
 		m_fValue = fValue;
 		emit valueChanged( this );
+		setToolTip( QString( "%1: %2" ).arg( m_sBaseTooltip ).arg( m_fValue )  );
 		update();
 	}
 }
