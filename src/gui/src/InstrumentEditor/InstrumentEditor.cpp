@@ -237,8 +237,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	// instrument gain
 	m_pInstrumentGainLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pInstrumentGain = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Instrument gain" ), false );
-	m_pInstrumentGain->setDefaultValue( 0.2 ); // gain is multiplied with 5, so default is 1.0 from users view
+	m_pInstrumentGain = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Instrument gain" ), false, 0.0, 5.0 );
+	m_pInstrumentGain->setDefaultValue( 1.0 );
 	connect( m_pInstrumentGain, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 	m_pInstrumentGainLCD->move( 67, 105 );
 	m_pInstrumentGain->move( 117 - 8, 100 );
@@ -614,7 +614,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		// instr gain
 		sprintf( tmp, "%#.2f", m_pInstrument->get_gain() );
 		m_pInstrumentGainLCD->setText( tmp );
-		m_pInstrumentGain->setValue( m_pInstrument->get_gain()/ 5.0 );
+		m_pInstrumentGain->setValue( m_pInstrument->get_gain() );
 
 		// instr mute group
 		QString sMuteGroup = QString("%1").arg( m_pInstrument->get_mute_group() );
@@ -816,7 +816,7 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 			}
 		}
 		else if ( pRotary == m_pInstrumentGain ) {
-			fVal = fVal * 5.0;
+			fVal = fVal;
 			char tmp[20];
 			sprintf( tmp, "%#.2f", fVal );
 			m_pInstrumentGainLCD->setText( tmp );
