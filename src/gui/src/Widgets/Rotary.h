@@ -35,21 +35,21 @@ class Rotary : public WidgetWithInput, H2Core::Object
 {
     H2_OBJECT
 	
-	public:
-	enum RotaryType {
-		TYPE_NORMAL,
-		TYPE_CENTER,
-		TYPE_SMALL
+public:
+	enum class Type {
+		Normal,
+		Center,
+		Small
 	};
 
 	Rotary(const Rotary&) = delete;
 	Rotary& operator=( const Rotary& rhs ) = delete;
 	
-	Rotary( QWidget* parent, RotaryType type, QString sBaseTooltip, bool bUseIntSteps, float fMin = 0.0, float fMax = 1.0 );
+	Rotary( QWidget* parent, Type type, QString sBaseTooltip, bool bUseIntSteps, float fMin = 0.0, float fMax = 1.0 );
 	~Rotary();
 
 private:
-	RotaryType m_type;
+	Type m_type;
 	QSvgRenderer* m_background;
 
 	virtual void paintEvent(QPaintEvent *ev);

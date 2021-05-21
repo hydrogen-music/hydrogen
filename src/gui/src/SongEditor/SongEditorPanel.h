@@ -38,6 +38,7 @@ class SongEditorPatternList;
 class SongEditorPositionRuler;
 class ToggleButton;
 class Fader;
+class WidgetWithInput;
 class AutomationPathView;
 class LCDCombo;
 class PlaybackTrackWaveDisplay;
@@ -117,7 +118,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void zoomInBtnPressed( Button* pBtn );
 		void zoomOutBtnPressed( Button* pBtn );
 		
-		void faderChanged(Fader* pFader);
+		void faderChanged( WidgetWithInput* pRef );
 
 		void automationPathChanged();
 		void automationPathPointAdded(float x, float y);

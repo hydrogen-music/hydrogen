@@ -260,8 +260,21 @@ void WidgetWithInput::setMin( float fMin )
 					.arg( std::round( fMin ) ) );
 		fMin = std::round( fMin );
 	}
-	m_fMin = fMin;
-	update();
+
+	if ( fMin >= m_fMax ) {
+		___ERRORLOG( QString( "Supplied value [%1] must be smaller than maximal one [%2]" )
+					 .arg( fMin ).arg( m_fMax ) );
+		return;
+	}
+
+	if ( fMin != m_fMin ) {
+		m_fMin = fMin;
+
+		if ( m_fValue < fMin ) {
+			setValue( fMin );
+		}
+		update();
+	}
 }
 
 void WidgetWithInput::setMax( float fMax )
@@ -275,9 +288,21 @@ void WidgetWithInput::setMax( float fMax )
 					.arg( std::round( fMax ) ) );
 		fMax = std::round( fMax );
 	}
-	
-	m_fMax = fMax;
-	update();
+
+	if ( fMax >= m_fMin ) {
+		___ERRORLOG( QString( "Supplied value [%1] must be bigger than the minimal one [%2]" )
+					 .arg( fMax ).arg( m_fMin ) );
+		return;
+	}
+
+	if ( fMax != m_fMax ) {
+		m_fMax = fMax;
+
+		if ( m_fValue > fMax ) {
+			setValue( fMax );
+		}
+		update();
+	}
 }
 
 

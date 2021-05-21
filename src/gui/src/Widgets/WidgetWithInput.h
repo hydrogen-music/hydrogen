@@ -95,8 +95,7 @@ protected:
 	
 	bool m_bIsActive;
 	bool m_bFocused;
-
-private:
+	
 	bool m_bIgnoreMouseMove;
 	float m_fMousePressValue;
 	float m_fMousePressY;

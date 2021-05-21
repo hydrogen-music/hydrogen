@@ -32,7 +32,7 @@
 
 const char* Rotary::__class_name = "Rotary";
 
-Rotary::Rotary( QWidget* parent, RotaryType type, QString sBaseTooltip, bool bUseIntSteps, float fMin, float fMax )
+Rotary::Rotary( QWidget* parent, Type type, QString sBaseTooltip, bool bUseIntSteps, float fMin, float fMax )
 	: WidgetWithInput( parent,
 					   bUseIntSteps,
 					   sBaseTooltip,
@@ -43,7 +43,7 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sBaseTooltip, bool bUs
 	, Object( __class_name )
 	, m_type( type ) {
 
-	if ( type == TYPE_SMALL ) {
+	if ( type == Type::Small ) {
 		m_nWidgetWidth = 18;
 		m_nWidgetHeight = 18;
 	} else {
@@ -52,10 +52,10 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sBaseTooltip, bool bUs
 	}
 
 	if ( bUseIntSteps ) {
-		m_fDefaultValue = static_cast<int>( type == TYPE_CENTER ? ( m_fMin + ( m_fMax - m_fMin ) / 2.0 ) : m_fMin );
+		m_fDefaultValue = static_cast<int>( type == Type::Center ? ( m_fMin + ( m_fMax - m_fMin ) / 2.0 ) : m_fMin );
 	}
 	else {
-		m_fDefaultValue = ( type == TYPE_CENTER ? ( m_fMin + ( m_fMax - m_fMin ) / 2.0 ) : m_fMin );
+		m_fDefaultValue = ( type == Type::Center ? ( m_fMin + ( m_fMax - m_fMin ) / 2.0 ) : m_fMin );
 	}
 
 	m_fValue = m_fDefaultValue;
@@ -63,7 +63,7 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sBaseTooltip, bool bUs
 	// Since the load function does not report success, we will check
 	// for the existance of the background image separately.
 	QString sPath;
-	if ( type == TYPE_SMALL ) {
+	if ( type == Type::Small ) {
 		sPath = Skin::getSvgImagePath() + "/rotary2.svg";
 	} else {
 		sPath = Skin::getSvgImagePath() + "/rotary.svg";
@@ -111,7 +111,7 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	QRect rectBackground( 0, 0, m_nWidgetWidth, m_nWidgetHeight );
 
 	if ( m_background != nullptr ) {
-		if ( m_type == TYPE_SMALL ) {
+		if ( m_type == Type::Small ) {
 			m_background->render( &painter, rectBackground );
 		} else {
 			m_background->render( &painter, "layer3", rectBackground );
@@ -123,17 +123,17 @@ void Rotary::paintEvent( QPaintEvent* ev )
 		}
 	}
 
-	if ( m_type != TYPE_SMALL ) {
+	if ( m_type != Type::Small ) {
 		QRectF arcRect( 9.951, 2.2, 24.5, 24.5 );
 
-		if ( m_type == TYPE_NORMAL ) {
+		if ( m_type == Type::Normal ) {
 			int nStartAngle = 210 * 16; // given in 1/16 of a degree
 			int nSpanAngle  = static_cast<int>( -239 * 16 * ( m_fValue - m_fMin ) / ( m_fMax - m_fMin ) );
 
 			painter.setPen( QPen( colorArc, 1.7 ) );
 			painter.drawArc( arcRect, nStartAngle, nSpanAngle );
 		} else {
-			// TYPE_CENTER
+			// Type::Center
 
 			// There will be a special indication of the
 			// center. Either as a gray dot or a bigger green one if
@@ -165,7 +165,7 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	float fPi = std::acos( -1 );
 	float fCurrentAngle;
 	float fStartAngle;
-	if ( m_type == TYPE_CENTER ) {
+	if ( m_type == Type::Center ) {
 		fStartAngle = -90 * fPi / 180;
 		fCurrentAngle = fStartAngle + 255 * fPi / 180 * ( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) / (  m_fMax - m_fMin );
 	} else {
@@ -179,7 +179,7 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	///////////////////////
 	//
 	// float fLength, fWidth, fBaseX, fBaseY;
-	// if ( m_type == TYPE_SMALL ) {
+	// if ( m_type == Type::Small ) {
 	// 	fBaseX = 9.0;
 	// 	fBaseY = 9.0;
 	// 	fLength = 4;
@@ -216,7 +216,7 @@ void Rotary::paintEvent( QPaintEvent* ev )
 
 	if ( m_bIsActive ) {
 		float fDistance, fRadius, fBaseX, fBaseY;
-		if ( m_type == TYPE_SMALL ) {
+		if ( m_type == Type::Small ) {
 			fBaseX = 9.0;
 			fBaseY = 9.0;
 			fDistance = 3;
@@ -235,7 +235,7 @@ void Rotary::paintEvent( QPaintEvent* ev )
 		painter.drawEllipse( p1, fRadius, fRadius );
 	}
 
-	if ( m_type != TYPE_SMALL ) {
+	if ( m_type != Type::Small ) {
 		QRectF leftTextRec( 2, 15, 7, 7 );
 		QRectF rightTextRec( 34, 15, 9, 7 );
 

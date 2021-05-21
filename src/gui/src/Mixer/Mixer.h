@@ -35,7 +35,6 @@ class Button;
 class ToggleButton;
 class MixerLine;
 class ComponentMixerLine;
-class FxMixerLine;
 class MasterMixerLine;
 class LadspaFXMixerLine;
 class PixmapWidget;

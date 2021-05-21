@@ -231,13 +231,11 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pViewPlaybackToggleBtn->setPressed( false );
 	
 	// Playback Fader
-	m_pPlaybackTrackFader = new VerticalFader( pBackPanel, false, false );
+	m_pPlaybackTrackFader = new Fader( pBackPanel, Fader::Type::Vertical, tr( "Playback track volume" ), false, false, 0.0, 1.5 );
 	m_pPlaybackTrackFader->move( 6, 2 );
-	m_pPlaybackTrackFader->setMinValue( 0.0 );
-	m_pPlaybackTrackFader->setMaxValue( 1.5 );
 	m_pPlaybackTrackFader->setValue( pSong->getPlaybackTrackVolume() );
 	m_pPlaybackTrackFader->hide();
-	connect( m_pPlaybackTrackFader, SIGNAL( valueChanged(Fader*) ), this, SLOT( faderChanged(Fader*) ) );
+	connect( m_pPlaybackTrackFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( faderChanged( WidgetWithInput* ) ) );
 
 	// mute playback track toggle button
 	m_pMutePlaybackToggleBtn = new ToggleButton(
@@ -923,12 +921,12 @@ void SongEditorPanel::zoomOutBtnPressed( Button* pBtn )
 	updateAll();
 }
 
-void SongEditorPanel::faderChanged(Fader *pFader)
+void SongEditorPanel::faderChanged( WidgetWithInput *pRef )
 {
-	UNUSED( pFader );
-	
 	Hydrogen *	pHydrogen = Hydrogen::get_instance();
 	Song*		pSong = pHydrogen->getSong();
+
+	Fader* pFader = dynamic_cast<Fader*>( pRef );
 	
 	if( pSong ){
 		pSong->setPlaybackTrackVolume( pFader->getValue() );

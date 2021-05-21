@@ -180,19 +180,19 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pPitchLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 6 );
 	m_pPitchLCD->move(25, 215 );
 
-	m_pPitchCoarseRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_CENTER, tr( "Pitch offset (Coarse)" ), true, -24, 24 );
+	m_pPitchCoarseRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Center, tr( "Pitch offset (Coarse)" ), true, -24, 24 );
 	m_pPitchCoarseRotary->move( 92 - 8, 210 );
 
 	connect( m_pPitchCoarseRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
-	m_pPitchFineRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_CENTER, tr( "Pitch offset (Fine)" ), false, -0.5, 0.5 );
+	m_pPitchFineRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Center, tr( "Pitch offset (Fine)" ), false, -0.5, 0.5 );
 	//it will have resolution of 100 steps between Min and Max => quantum delta = 0.01
 	m_pPitchFineRotary->move( 144 - 8, 210 );
 	connect( m_pPitchFineRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
 	
 
-	m_pRandomPitchRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Random pitch factor" ), false );
+	m_pRandomPitchRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal, tr( "Random pitch factor" ), false );
 	m_pRandomPitchRotary->move( 202 - 8, 210 );
 	connect( m_pRandomPitchRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
@@ -206,11 +206,11 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 							 );
 	connect( m_pFilterBypassBtn, SIGNAL( clicked(Button*) ), this, SLOT( filterActiveBtnClicked(Button*) ) );
 
-	m_pCutoffRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Filter Cutoff" ), false );
+	m_pCutoffRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal, tr( "Filter Cutoff" ), false );
 	m_pCutoffRotary->setDefaultValue( m_pCutoffRotary->getMax() );
 	connect( m_pCutoffRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
-	m_pResonanceRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Filter resonance" ), false );
+	m_pResonanceRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal, tr( "Filter resonance" ), false );
 	connect( m_pResonanceRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
 	m_pFilterBypassBtn->move( 70, 170 );
@@ -219,11 +219,11 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	//~ Filter
 
 	// ADSR
-	m_pAttackRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Attack" ), false );
-	m_pDecayRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Decay" ), false );
-	m_pSustainRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Sustain" ), false );
+	m_pAttackRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal, tr( "Attack" ), false );
+	m_pDecayRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal, tr( "Decay" ), false );
+	m_pSustainRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal, tr( "Sustain" ), false );
 	m_pSustainRotary->setDefaultValue( m_pSustainRotary->getMax() );
-	m_pReleaseRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Release" ), false );
+	m_pReleaseRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal, tr( "Release" ), false );
 	m_pReleaseRotary->setDefaultValue( 0.09 );
 	connect( m_pAttackRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 	connect( m_pDecayRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
@@ -237,7 +237,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	// instrument gain
 	m_pInstrumentGainLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pInstrumentGain = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Instrument gain" ), false, 0.0, 5.0 );
+	m_pInstrumentGain = new Rotary( m_pInstrumentProp, Rotary::Type::Normal, tr( "Instrument gain" ), false, 0.0, 5.0 );
 	m_pInstrumentGain->setDefaultValue( 1.0 );
 	connect( m_pInstrumentGain, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 	m_pInstrumentGainLCD->move( 67, 105 );
@@ -455,22 +455,22 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pSampleEditorBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
 	// Layer gain
 	m_pLayerGainLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pLayerGainRotary = new Rotary( m_pLayerProp,  Rotary::TYPE_NORMAL, tr( "Layer gain" ), false );
+	m_pLayerGainRotary = new Rotary( m_pLayerProp,  Rotary::Type::Normal, tr( "Layer gain" ), false );
 	m_pLayerGainRotary->setDefaultValue ( 0.2 ); // gain is multiplied with 5, so default is 1.0 from users view
 	connect( m_pLayerGainRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
 	m_pCompoGainLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pCompoGainRotary = new Rotary( m_pLayerProp,  Rotary::TYPE_NORMAL, tr( "Component volume" ), false );
+	m_pCompoGainRotary = new Rotary( m_pLayerProp,  Rotary::Type::Normal, tr( "Component volume" ), false );
 	m_pCompoGainRotary->setDefaultValue ( 0.2 ); // gain is multiplied with 5, so default is 1.0 from users view
 	connect( m_pCompoGainRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
 	m_pLayerPitchCoarseLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pLayerPitchFineLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
 
-	m_pLayerPitchCoarseRotary = new Rotary( m_pLayerProp, Rotary::TYPE_CENTER, tr( "Layer pitch (Coarse)" ), true, -24.0, 24.0 );
+	m_pLayerPitchCoarseRotary = new Rotary( m_pLayerProp, Rotary::Type::Center, tr( "Layer pitch (Coarse)" ), true, -24.0, 24.0 );
 	connect( m_pLayerPitchCoarseRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
-	m_pLayerPitchFineRotary = new Rotary( m_pLayerProp, Rotary::TYPE_CENTER, tr( "Layer pitch (Fine)" ), true, -50.0, 50.0 );
+	m_pLayerPitchFineRotary = new Rotary( m_pLayerProp, Rotary::Type::Center, tr( "Layer pitch (Fine)" ), true, -50.0, 50.0 );
 	connect( m_pLayerPitchFineRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
 	m_pLayerGainLCD->move( 54, 341 + 3 );

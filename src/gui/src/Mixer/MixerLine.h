@@ -132,7 +132,7 @@ class MixerLine: public PixmapWidget
 	public slots:
 		void	click(Button *ref);
 		void	rightClick(Button *ref);
-		void	faderChanged(Fader *ref);
+		void	faderChanged(WidgetWithInput *ref);
 		void	panChanged(WidgetWithInput *ref);
 		void	knobChanged(WidgetWithInput *ref);
 		void	nameClicked();
@@ -197,7 +197,7 @@ class ComponentMixerLine: public PixmapWidget
 
 	public slots:
 		void	click(Button *ref);
-		void	faderChanged(Fader *ref);
+		void	faderChanged(WidgetWithInput *ref);
 
 
 	private:
@@ -248,7 +248,7 @@ class MasterMixerLine: public PixmapWidget
 
 
 	public slots:
-		void	faderChanged(MasterFader * ref);
+		void	faderChanged( WidgetWithInput* pRef);
 		void	rotaryChanged( WidgetWithInput *pRef );
 		void	muteClicked(Button*);
 
@@ -260,8 +260,8 @@ class MasterMixerLine: public PixmapWidget
 		float	m_fMaxPeak;
 		float	m_nFalloff;
 		
-		Fader *			m_pFader;
-		MasterFader *	m_pMasterFader;
+		Fader*			m_pFader;
+		Fader*			m_pMasterFader;
 
 		LCDDisplay *	m_pPeakLCD;
 
@@ -271,58 +271,6 @@ class MasterMixerLine: public PixmapWidget
 
 		ToggleButton *	m_pMuteBtn;
 };
-
-
-
-
-///
-/// Mixer strip for FX
-///
-class FxMixerLine: public PixmapWidget
-{
-	H2_OBJECT
-	Q_OBJECT
-	public:
-		explicit FxMixerLine(QWidget* parent);
-		~FxMixerLine();
-
-		float	getVolume();
-		void	setVolume(float value);
-
-		void	setPeak_L(float peak);
-		float	getPeak_L();
-
-		void	setPeak_R(float peak);
-		float	getPeak_R();
-
-		void	setName(QString name) {     m_pNameWidget->setText( name );        }
-		QString getName() {      return m_pNameWidget->text();        }
-
-		bool	isFxActive();
-		void	setFxActive( bool active );
-
-	signals:
-		void	volumeChanged( FxMixerLine *ref );
-		void	instrumentNameClicked( FxMixerLine *ref );
-		void	activeBtnClicked( FxMixerLine *ref );
-
-	public slots:
-		void	click(Button *ref);
-		void	faderChanged(Fader * ref);
-
-	private:
-		uint	m_nWidth;
-		uint	m_nHeight;
-		float	m_fMaxPeak;
-		
-		Fader *					m_pFader;
-		InstrumentNameWidget *	m_pNameWidget;
-		ToggleButton *			activeBtn;
-		LCDDisplay *			m_pPeakLCD;
-};
-
-
-
 
 class LadspaFXMixerLine : public PixmapWidget
 {

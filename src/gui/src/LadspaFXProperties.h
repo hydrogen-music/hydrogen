@@ -33,6 +33,7 @@
 class Fader;
 class LCDDisplay;
 class InstrumentNameWidget;
+class WidgetWithInput;
 
 class LadspaFXProperties : public QWidget, public H2Core::Object {
     H2_OBJECT
@@ -48,7 +49,7 @@ class LadspaFXProperties : public QWidget, public H2Core::Object {
 		void closeEvent( QCloseEvent *ev );
 
 	public slots:
-		void faderChanged( Fader* ref );
+		void faderChanged( WidgetWithInput* ref );
 		void selectFXBtnClicked();
 		void removeFXBtnClicked();
 		void activateBtnClicked();
