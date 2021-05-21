@@ -21,6 +21,13 @@
  */
 #include "WidgetWithInput.h"
 
+#ifdef WIN32
+#    include "core/Timehelper.h"
+#else
+#    include <unistd.h>
+#    include <sys/time.h>
+#endif
+
 WidgetWithInput::WidgetWithInput( QWidget* parent, bool bUseIntSteps, QString sBaseTooltip, int nScrollSpeed, int nScrollSpeedFast, float fMin, float fMax )
 	: QWidget( parent )
 	, m_bUseIntSteps( bUseIntSteps )
@@ -37,10 +44,15 @@ WidgetWithInput::WidgetWithInput( QWidget* parent, bool bUseIntSteps, QString sB
 	, m_bFocused( false )
 	, m_bIsActive( true )
 	, m_nWidgetHeight( 20 )
-	, m_nWidgetWidth( 20 ){
+	, m_nWidgetWidth( 20 )
+	, m_sInputBuffer( "" )
+	, m_inputBufferTimeout( 2.0 ){
 
 	setAttribute( Qt::WA_Hover );
 	setToolTip( sBaseTooltip );
+	setFocusPolicy( Qt::ClickFocus );
+	
+	gettimeofday( &m_inputBufferTimeval, nullptr );
 }
 
 WidgetWithInput::~WidgetWithInput() {}
@@ -170,6 +182,70 @@ void WidgetWithInput::leaveEvent( QEvent *ev ) {
 	UNUSED( ev );
 	m_bFocused = false;
 	update();
+}
+
+void WidgetWithInput::keyPressEvent( QKeyEvent *ev ) {
+
+	float fIncrement;
+	if ( !m_bUseIntSteps ) {
+		fIncrement = ( m_fMax - m_fMin ) / 100.0;
+	} else {
+		fIncrement = 1.0;
+	}
+	
+	if ( ev->key() == Qt::Key_Right || ev->key() == Qt::Key_Up ) {
+		if ( ev->modifiers() == Qt::ControlModifier ) {
+			fIncrement *= m_nScrollSpeedFast;
+		} else {
+			fIncrement *= m_nScrollSpeed;
+		}
+		setValue( m_fValue + fIncrement );
+	} else if ( ev->key() == Qt::Key_PageUp ) {
+		setValue( m_fValue + fIncrement * m_nScrollSpeedFast );
+	} else if ( ev->key() == Qt::Key_Home ) {
+		setValue( m_fMax );
+	} else if ( ev->key() == Qt::Key_Left || ev->key() == Qt::Key_Down ) {
+		if ( ev->modifiers() == Qt::ControlModifier ) {
+			fIncrement *= m_nScrollSpeedFast;
+		} else {
+			fIncrement *= m_nScrollSpeed;
+		}
+		setValue( m_fValue - fIncrement );
+	} else if ( ev->key() == Qt::Key_PageDown ) {
+		setValue( m_fValue - fIncrement * m_nScrollSpeedFast );
+	} else if ( ev->key() == Qt::Key_Home ) {
+		setValue( m_fMin );
+	} else if ( ( ev->key() >= Qt::Key_0 && ev->key() <= Qt::Key_9 ) || ev->key() == Qt::Key_Minus || ev->key() == Qt::Key_Period ) {
+
+		timeval now;
+		gettimeofday( &now, nullptr );
+		// Flush the input buffer if there was no user input for X
+		// seconds
+		if ( ( static_cast<double>( now.tv_sec ) +
+			   static_cast<double>( now.tv_usec * US_DIVIDER ))  -
+			 ( static_cast<double>( m_inputBufferTimeval.tv_sec ) +
+			   static_cast<double>( m_inputBufferTimeval.tv_usec * US_DIVIDER ) ) >
+			 m_inputBufferTimeout ) {
+			m_sInputBuffer.clear();
+		}
+		m_inputBufferTimeval = now;
+
+		if ( ev->key() == Qt::Key_Period  ) {
+			m_sInputBuffer += ".";
+		} else if ( ev->key() == Qt::Key_Minus ) {
+			m_sInputBuffer += "-";
+		} else {
+			m_sInputBuffer += QString::number( ev->key() - 48 );
+		}
+
+		bool bOk;
+		float fNewValue = m_sInputBuffer.toFloat( &bOk );
+		if ( ! bOk ) {
+			return;
+		}
+		setValue( fNewValue );
+		update();
+	}
 }
 
 void WidgetWithInput::setMin( float fMin )

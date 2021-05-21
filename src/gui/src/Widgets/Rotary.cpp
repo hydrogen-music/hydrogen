@@ -240,10 +240,24 @@ void Rotary::paintEvent( QPaintEvent* ev )
 		QRectF rightTextRec( 34, 15, 9, 7 );
 
 		QFont font( H2Core::Preferences::get_instance()->getApplicationFontFamily() );
-		font.setPixelSize( 9 );
-		painter.setFont( font );
 		painter.setPen( QPen( colorFont, 3 ) );
-		painter.drawText( leftTextRec, Qt::AlignCenter, "-" );
-		painter.drawText( rightTextRec, Qt::AlignCenter, "+" );
+		if ( std::fmod( m_fMin, 1 ) == 0 && std::fabs( m_fMin ) < 10 ) {
+			font.setPixelSize( 7 );
+			painter.setFont( font );
+			painter.drawText( leftTextRec, Qt::AlignCenter, QString::number( m_fMin ) );
+		} else {
+			font.setPixelSize( 9 );
+			painter.setFont( font );
+			painter.drawText( leftTextRec, Qt::AlignCenter, "-" );
+		}
+		if ( std::fmod( m_fMax, 1 ) == 0 && std::fabs( m_fMax ) < 10 ) {
+			font.setPixelSize( 7 );
+			painter.setFont( font );
+			painter.drawText( rightTextRec, Qt::AlignCenter, QString::number( m_fMax ) );
+		} else {
+			font.setPixelSize( 9 );
+			painter.setFont( font );
+			painter.drawText( rightTextRec, Qt::AlignCenter, "+" );
+		}
 	}
 }

@@ -29,6 +29,8 @@
 #include "MidiLearnable.h"
 #include "MidiSenseWidget.h"
 
+#include <core/Timehelper.h>
+
 class WidgetWithInput : public QWidget, public MidiLearnable {
 	Q_OBJECT
 
@@ -74,6 +76,7 @@ protected:
 	virtual void wheelEvent( QWheelEvent *ev );
 	virtual void enterEvent( QEvent *ev );
 	virtual void leaveEvent( QEvent *ev );
+	virtual void keyPressEvent( QKeyEvent *ev );
 	
 	bool m_bUseIntSteps;
 	QString m_sBaseTooltip;
@@ -97,6 +100,13 @@ private:
 	bool m_bIgnoreMouseMove;
 	float m_fMousePressValue;
 	float m_fMousePressY;
+
+	// All key input will be appended to this string.
+	QString m_sInputBuffer;
+	timeval m_inputBufferTimeval;
+	// Number of seconds before #m_sInputBuffer will be flushed
+	// (happens asynchronically whenever the next key input occurs.)
+	double m_inputBufferTimeout;
 
 };
 
