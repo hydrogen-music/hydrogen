@@ -127,6 +127,33 @@ void Fader::mouseMoveEvent( QMouseEvent *ev )
 	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
 }
 
+
+void Fader::mousePressEvent(QMouseEvent *ev)
+{
+	if ( ! m_bIsActive ) {
+		return;
+	}
+	
+	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier ) {
+		resetValueToDefault();
+		m_bIgnoreMouseMove = true;
+	}
+	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
+		MidiSenseWidget midiSense( this, true, this->getAction() );
+		midiSense.exec();
+		m_bIgnoreMouseMove = true;
+	}
+	else {
+		setCursor( QCursor( Qt::SizeVerCursor ) );
+
+		m_fMousePressValue = m_fValue;
+		m_fMousePressY = ev->y();
+		mouseMoveEvent( ev );
+	}
+	
+	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
+}
+
 void Fader::paintEvent( QPaintEvent *ev)
 {
 	QPainter painter(this);

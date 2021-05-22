@@ -71,6 +71,7 @@ protected:
 	float m_fMaxPeak;
 
 	virtual void mouseMoveEvent(QMouseEvent *ev);
+	virtual void mousePressEvent(QMouseEvent *ev);
 	virtual void paintEvent(QPaintEvent *ev);
 };
 #endif
