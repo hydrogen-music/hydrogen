@@ -2716,11 +2716,9 @@ unsigned long Hydrogen::getRealtimeTickPosition()
 	// .tv_usec (microseconds) members of the timeval struct.
 	timersub( &currtime, &m_currentTickTime, &deltatime );
 
-	// add a buffers worth for jitter resistance
 	double deltaSec =
 			( double ) deltatime.tv_sec
-			+ ( deltatime.tv_usec / 1000000.0 )
-			+ ( m_pAudioDriver->getBufferSize() / ( double )sampleRate );
+			+ ( deltatime.tv_usec / 1000000.0 );
 
 	retTick = ( unsigned long ) ( ( sampleRate / ( double ) m_pAudioDriver->m_transport.m_fTickSize ) * deltaSec );
 
