@@ -44,8 +44,8 @@ Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSte
 	, Object( __class_name )
 	, m_type( type )
 	, m_bWithoutKnob( bWithoutKnob )
-	, m_fPeakValue_L( 0.0 )
-	, m_fPeakValue_R( 0.0 )
+	, m_fPeakValue_L( 0.01f )
+	, m_fPeakValue_R( 0.01f )
 	, m_fMinPeak( 0.01f )
 	, m_fMaxPeak( 1.0 )
 {
@@ -132,44 +132,104 @@ void Fader::paintEvent( QPaintEvent *ev)
 
 	QPainter painter(this);
 
-	// background
+	if ( m_bIsActive ) {
+		float fFaderTopLeftX_L, fFaderTopLeftY_L, fFaderTopLeftX_R,
+			fFaderTopLeftY_R, fFaderWidth, fFaderHeight, fPeak_L, fPeak_R;
+
+		if ( m_type == Type::Master ) {
+			fFaderTopLeftX_L = 1;
+			fFaderTopLeftY_L = 2;
+			fFaderTopLeftX_R = 12;
+			fFaderTopLeftY_R = 2;
+			fFaderWidth = 6,8;
+			fFaderHeight = 186;
+			fPeak_L = ( m_fPeakValue_L - m_fMinPeak ) / ( m_fMaxPeak - m_fMinPeak ) * fFaderHeight;
+			fPeak_R = ( m_fPeakValue_R - m_fMinPeak ) / ( m_fMaxPeak - m_fMinPeak ) * fFaderHeight;
+		} else if ( m_type == Type::Vertical ) {
+			fFaderTopLeftX_L = 1.5;
+			fFaderTopLeftY_L = 2;
+			fFaderTopLeftX_R = 1.5;
+			fFaderTopLeftY_R = 14.5;
+			fFaderWidth = 114;
+			fFaderHeight = 6.5;
+			fPeak_L = ( m_fPeakValue_L - m_fMinPeak ) / ( m_fMaxPeak - m_fMinPeak ) * fFaderWidth;
+			fPeak_R = ( m_fPeakValue_R - m_fMinPeak ) / ( m_fMaxPeak - m_fMinPeak ) * fFaderWidth;
+		} else {
+			fFaderTopLeftX_L = 1.5;
+			fFaderTopLeftY_L = 1.7;
+			fFaderTopLeftX_R = 15.5;
+			fFaderTopLeftY_R = 1.7;
+			fFaderWidth = 6.5;
+			fFaderHeight = 114;
+			fPeak_L = ( m_fPeakValue_L - m_fMinPeak ) / ( m_fMaxPeak - m_fMinPeak ) * fFaderHeight;
+			fPeak_R = ( m_fPeakValue_R - m_fMinPeak ) / ( m_fMaxPeak - m_fMinPeak ) * fFaderHeight;
+		}
+
+		QLinearGradient gradient;
+		if ( m_type == Type::Vertical ) {
+			gradient = QLinearGradient( fFaderTopLeftX_L, fFaderTopLeftY_L, fFaderTopLeftX_L + fFaderWidth, fFaderTopLeftY_L );
+		gradient.setColorAt( 0.0, Qt::green );
+		gradient.setColorAt( 0.6, Qt::green );
+		gradient.setColorAt( 0.65, Qt::yellow );
+		gradient.setColorAt( 0.85, Qt::yellow );
+		gradient.setColorAt( 0.9, Qt::red );
+		gradient.setColorAt( 1.0, Qt::red );
+		} else {
+			gradient = QLinearGradient( fFaderTopLeftX_L, fFaderTopLeftY_L, fFaderTopLeftX_L, fFaderTopLeftY_L + fFaderHeight );	
+		gradient.setColorAt( 1.0, Qt::green );
+		gradient.setColorAt( 0.4, Qt::green );
+		gradient.setColorAt( 0.35, Qt::yellow );
+		gradient.setColorAt( 0.15, Qt::yellow );
+		gradient.setColorAt( 0.1, Qt::red );
+		gradient.setColorAt( 0.0, Qt::red );
+		}
+
+		if ( m_type == Type::Vertical ) {
+			painter.fillRect( QRectF( fFaderTopLeftX_L, fFaderTopLeftY_L, fPeak_L, fFaderHeight ), QBrush( gradient ) );
+			painter.fillRect( QRectF( fFaderTopLeftX_R, fFaderTopLeftY_R, fPeak_R, fFaderHeight ), QBrush( gradient ) );
+		} else {
+			painter.fillRect( QRectF( fFaderTopLeftX_L, fFaderTopLeftY_L + fFaderHeight - fPeak_L, fFaderWidth, fPeak_L ), QBrush( gradient ) );
+			painter.fillRect( QRectF( fFaderTopLeftX_R, fFaderTopLeftY_R + fFaderHeight - fPeak_R, fFaderWidth, fPeak_R ), QBrush( gradient ) );
+		}
+	}
+	// 	float peak_L = m_fPeakValue_L * 190.0;
+	// 	uint offset_L = (uint)( 190.0 - peak_L );
+	// 	painter.drawPixmap( QRect( 0, offset_L, 9, 190 - offset_L), m_leds, QRect( 0, offset_L, 9, 190 - offset_L) );
+
+	// 	float peak_R = m_fPeakValue_R * 190.0;
+	// 	uint offset_R = (uint)( 190.0 - peak_R );
+	// 	painter.drawPixmap( QRect( 9, offset_R, 9, 190 - offset_R), m_leds, QRect( 9, offset_R, 9, 190 - offset_R) );
+	// } else {
+		
+	// 	float realPeak_L = m_fPeakValue_L - m_fMinPeak;
+	// 	int peak_L = 116 - ( realPeak_L / ( m_fMaxPeak - m_fMinPeak ) ) * 116.0;
+
+	// 	if ( peak_L > 116 ) {
+	// 		peak_L = 116;
+	// 	}
+	// 	if ( m_type == Type::Vertical ) {
+	// 		painter.drawPixmap( QRect( 0, 0, 116 - peak_L, 11 ), m_leds, QRect( 0, 0, 116 - peak_L, 11 ) );
+	// 	} else {
+	// 		painter.drawPixmap( QRect( 0, peak_L, 11, 116 - peak_L ), m_leds, QRect( 0, peak_L, 11, 116 - peak_L ) );
+	// 	}
+
+	// 	float realPeak_R = m_fPeakValue_R - m_fMinPeak;
+	// 	int peak_R = 116 - ( realPeak_R / ( m_fMaxPeak - m_fMinPeak ) ) * 116.0;
+	// 	if ( peak_R > 116 ) {
+	// 		peak_R = 116;
+	// 	}
+
+	// 	if ( m_type == Type::Vertical ) {
+	// 		painter.drawPixmap( QRect( 0, 11, 116 - peak_R, 11 ), m_leds, QRect( 0, 11, 116 - peak_R, 11 ) );
+	// 	} else {
+	// 		painter.drawPixmap( QRect( 11, peak_R, 11, 116 - peak_R ), m_leds, QRect( 11, peak_R, 11, 116 - peak_R ) );
+	// 	}
+	// }
+	
+	// Draws the outline of the fader on top of the colors indicating
+	// the peak value.
 	if ( m_pBackground != nullptr ) {
 		m_pBackground->render( &painter );
-	}
-
-	if ( m_type == Type::Master ) {
-		// float peak_L = m_fPeakValue_L * 190.0;
-		// uint offset_L = (uint)( 190.0 - peak_L );
-		// painter.drawPixmap( QRect( 0, offset_L, 9, 190 - offset_L), m_leds, QRect( 0, offset_L, 9, 190 - offset_L) );
-
-		// float peak_R = m_fPeakValue_R * 190.0;
-		// uint offset_R = (uint)( 190.0 - peak_R );
-		// painter.drawPixmap( QRect( 9, offset_R, 9, 190 - offset_R), m_leds, QRect( 9, offset_R, 9, 190 - offset_R) );
-	} else {
-		
-		// float realPeak_L = m_fPeakValue_L - m_fMinPeak;
-		// int peak_L = 116 - ( realPeak_L / ( m_fMaxPeak - m_fMinPeak ) ) * 116.0;
-
-		// if ( peak_L > 116 ) {
-		// 	peak_L = 116;
-		// }
-		// if ( m_type == Type::Vertical ) {
-		// 	painter.drawPixmap( QRect( 0, 0, 116 - peak_L, 11 ), m_leds, QRect( 0, 0, 116 - peak_L, 11 ) );
-		// } else {
-		// 	painter.drawPixmap( QRect( 0, peak_L, 11, 116 - peak_L ), m_leds, QRect( 0, peak_L, 11, 116 - peak_L ) );
-		// }
-
-		// float realPeak_R = m_fPeakValue_R - m_fMinPeak;
-		// int peak_R = 116 - ( realPeak_R / ( m_fMaxPeak - m_fMinPeak ) ) * 116.0;
-		// if ( peak_R > 116 ) {
-		// 	peak_R = 116;
-		// }
-
-		// if ( m_type == Type::Vertical ) {
-		// 	painter.drawPixmap( QRect( 0, 11, 116 - peak_R, 11 ), m_leds, QRect( 0, 11, 116 - peak_R, 11 ) );
-		// } else {
-		// 	painter.drawPixmap( QRect( 11, peak_R, 11, 116 - peak_R ), m_leds, QRect( 11, peak_R, 11, 116 - peak_R ) );
-		// }
 	}
 	
 	if ( m_bIsActive && m_bWithoutKnob == false ) {
