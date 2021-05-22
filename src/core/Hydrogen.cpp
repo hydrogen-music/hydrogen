@@ -2599,8 +2599,6 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		}
 	}
 
-	nRealColumn = getRealtimeTickPosition();
-
 	if ( currentPattern && pPreferences->getQuantizeEvents() ) {
 		// quantize it to scale
 		unsigned qcolumn = ( unsigned )::round( column / ( double )scalar ) * scalar;
@@ -2663,12 +2661,12 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 
 	if ( !pPreferences->__playselectedinstrument ) {
 		if ( hearnote && instrRef ) {
-			Note *pNote2 = new Note( instrRef, nRealColumn, velocity, pan_L, pan_R, -1, 0 );
+			Note *pNote2 = new Note( instrRef, 0, velocity, pan_L, pan_R, -1, 0 );
 			midi_noteOn( pNote2 );
 		}
 	} else if ( hearnote  ) {
 		Instrument* pInstr = pSong->getInstrumentList()->get( getSelectedInstrumentNumber() );
-		Note *pNote2 = new Note( pInstr, nRealColumn, velocity, pan_L, pan_R, -1, 0 );
+		Note *pNote2 = new Note( pInstr, 0, velocity, pan_L, pan_R, -1, 0 );
 
 		int divider = msg1 / 12;
 		Note::Octave octave = (Note::Octave)(divider -3);
