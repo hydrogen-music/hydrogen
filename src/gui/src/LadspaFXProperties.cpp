@@ -277,7 +277,7 @@ void LadspaFXProperties::updateControls()
 
 			// fader
 			Fader *pFader = new Fader( m_pFrame, Fader::Type::Normal, tr( "Input control param. value" ), pControlPort->m_bIsInteger, false, pControlPort->fLowerBound, pControlPort->fUpperBound );
-			connect( pFader, SIGNAL( valueChanged(Fader*) ), this, SLOT( faderChanged(Fader*) ) );
+			connect( pFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( faderChanged( WidgetWithInput* ) ) );
 			m_pInputControlFaders.push_back( pFader );
 			pFader->move( nInputControl_X + 20, 60 );
 			pFader->show();
