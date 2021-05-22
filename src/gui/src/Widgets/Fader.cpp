@@ -56,10 +56,10 @@ Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSte
 		m_nWidgetHeight = 23;
 	} else if ( type == Type::Master ) {
 		m_nWidgetWidth = 34;
-		m_nWidgetHeight = 190;
+		m_nWidgetHeight = 189;
 	} else {
 		m_nWidgetWidth = 23;
-		m_nWidgetHeight = 116;
+		m_nWidgetHeight = 117;
 	}
 	setFixedSize( m_nWidgetWidth, m_nWidgetHeight );
 
@@ -105,7 +105,7 @@ Fader::~Fader() {
 
 void Fader::mouseMoveEvent( QMouseEvent *ev )
 {
-	if ( m_bIgnoreMouseMove ) {
+	if ( m_bIgnoreMouseMove || ! m_bIsActive ) {
 		return;
 	}
 
@@ -129,8 +129,17 @@ void Fader::mouseMoveEvent( QMouseEvent *ev )
 
 void Fader::paintEvent( QPaintEvent *ev)
 {
-
 	QPainter painter(this);
+	
+	QColor colorHighlightActive;
+	if ( m_bIsActive ) {
+		colorHighlightActive = QColor( 97, 167, 251);
+	} else {
+		colorHighlightActive = Qt::lightGray;
+	}
+	QColor colorGradientNormal( Qt::green );
+	QColor colorGradientWarning( Qt::yellow );
+	QColor colorGradientDanger( Qt::red );
 
 	if ( m_bIsActive ) {
 		float fFaderTopLeftX_L, fFaderTopLeftY_L, fFaderTopLeftX_R,
@@ -168,20 +177,20 @@ void Fader::paintEvent( QPaintEvent *ev)
 		QLinearGradient gradient;
 		if ( m_type == Type::Vertical ) {
 			gradient = QLinearGradient( fFaderTopLeftX_L, fFaderTopLeftY_L, fFaderTopLeftX_L + fFaderWidth, fFaderTopLeftY_L );
-		gradient.setColorAt( 0.0, Qt::green );
-		gradient.setColorAt( 0.6, Qt::green );
-		gradient.setColorAt( 0.65, Qt::yellow );
-		gradient.setColorAt( 0.85, Qt::yellow );
-		gradient.setColorAt( 0.9, Qt::red );
-		gradient.setColorAt( 1.0, Qt::red );
+		gradient.setColorAt( 0.0, colorGradientNormal );
+		gradient.setColorAt( 0.6, colorGradientNormal );
+		gradient.setColorAt( 0.65, colorGradientWarning );
+		gradient.setColorAt( 0.85, colorGradientWarning );
+		gradient.setColorAt( 0.9, colorGradientDanger );
+		gradient.setColorAt( 1.0, colorGradientDanger );
 		} else {
 			gradient = QLinearGradient( fFaderTopLeftX_L, fFaderTopLeftY_L, fFaderTopLeftX_L, fFaderTopLeftY_L + fFaderHeight );	
-		gradient.setColorAt( 1.0, Qt::green );
-		gradient.setColorAt( 0.4, Qt::green );
-		gradient.setColorAt( 0.35, Qt::yellow );
-		gradient.setColorAt( 0.15, Qt::yellow );
-		gradient.setColorAt( 0.1, Qt::red );
-		gradient.setColorAt( 0.0, Qt::red );
+		gradient.setColorAt( 1.0, colorGradientNormal );
+		gradient.setColorAt( 0.4, colorGradientNormal );
+		gradient.setColorAt( 0.35, colorGradientWarning );
+		gradient.setColorAt( 0.15, colorGradientWarning );
+		gradient.setColorAt( 0.1, colorGradientDanger );
+		gradient.setColorAt( 0.0, colorGradientDanger );
 		}
 
 		if ( m_type == Type::Vertical ) {
@@ -192,39 +201,10 @@ void Fader::paintEvent( QPaintEvent *ev)
 			painter.fillRect( QRectF( fFaderTopLeftX_R, fFaderTopLeftY_R + fFaderHeight - fPeak_R, fFaderWidth, fPeak_R ), QBrush( gradient ) );
 		}
 	}
-	// 	float peak_L = m_fPeakValue_L * 190.0;
-	// 	uint offset_L = (uint)( 190.0 - peak_L );
-	// 	painter.drawPixmap( QRect( 0, offset_L, 9, 190 - offset_L), m_leds, QRect( 0, offset_L, 9, 190 - offset_L) );
-
-	// 	float peak_R = m_fPeakValue_R * 190.0;
-	// 	uint offset_R = (uint)( 190.0 - peak_R );
-	// 	painter.drawPixmap( QRect( 9, offset_R, 9, 190 - offset_R), m_leds, QRect( 9, offset_R, 9, 190 - offset_R) );
-	// } else {
-		
-	// 	float realPeak_L = m_fPeakValue_L - m_fMinPeak;
-	// 	int peak_L = 116 - ( realPeak_L / ( m_fMaxPeak - m_fMinPeak ) ) * 116.0;
-
-	// 	if ( peak_L > 116 ) {
-	// 		peak_L = 116;
-	// 	}
-	// 	if ( m_type == Type::Vertical ) {
-	// 		painter.drawPixmap( QRect( 0, 0, 116 - peak_L, 11 ), m_leds, QRect( 0, 0, 116 - peak_L, 11 ) );
-	// 	} else {
-	// 		painter.drawPixmap( QRect( 0, peak_L, 11, 116 - peak_L ), m_leds, QRect( 0, peak_L, 11, 116 - peak_L ) );
-	// 	}
-
-	// 	float realPeak_R = m_fPeakValue_R - m_fMinPeak;
-	// 	int peak_R = 116 - ( realPeak_R / ( m_fMaxPeak - m_fMinPeak ) ) * 116.0;
-	// 	if ( peak_R > 116 ) {
-	// 		peak_R = 116;
-	// 	}
-
-	// 	if ( m_type == Type::Vertical ) {
-	// 		painter.drawPixmap( QRect( 0, 11, 116 - peak_R, 11 ), m_leds, QRect( 0, 11, 116 - peak_R, 11 ) );
-	// 	} else {
-	// 		painter.drawPixmap( QRect( 11, peak_R, 11, 116 - peak_R ), m_leds, QRect( 11, peak_R, 11, 116 - peak_R ) );
-	// 	}
-	// }
+	
+	if ( m_bFocused ) {
+		painter.fillRect( 0, m_nWidgetHeight - 2, m_nWidgetWidth, 2, colorHighlightActive );
+	}
 	
 	// Draws the outline of the fader on top of the colors indicating
 	// the peak value.

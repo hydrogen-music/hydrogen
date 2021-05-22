@@ -232,9 +232,10 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	
 	// Playback Fader
 	m_pPlaybackTrackFader = new Fader( pBackPanel, Fader::Type::Vertical, tr( "Playback track volume" ), false, false, 0.0, 1.5 );
-	m_pPlaybackTrackFader->move( 6, 2 );
+	m_pPlaybackTrackFader->move( 6, 1 );
 	m_pPlaybackTrackFader->setValue( pSong->getPlaybackTrackVolume() );
 	m_pPlaybackTrackFader->hide();
+	m_pPlaybackTrackFader->setIsActive( ! H2Core::Hydrogen::get_instance()->getSong()->getPlaybackTrackFilename().isEmpty() );
 	connect( m_pPlaybackTrackFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( faderChanged( WidgetWithInput* ) ) );
 
 	// mute playback track toggle button
@@ -544,6 +545,8 @@ void SongEditorPanel::updateAll()
  	m_pAutomationPathView->setAutomationPath( pSong->getVelocityAutomationPath() );
 
 	resyncExternalScrollBar();
+
+	m_pPlaybackTrackFader->setIsActive( ! H2Core::Hydrogen::get_instance()->getSong()->getPlaybackTrackFilename().isEmpty() );
 }
 
 void SongEditorPanel::updatePlaybackTrackIfNecessary()

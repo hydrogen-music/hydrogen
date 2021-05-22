@@ -112,12 +112,15 @@ void Rotary::paintEvent( QPaintEvent* ev )
 
 	if ( m_background != nullptr ) {
 		if ( m_type == Type::Small ) {
+			if ( m_bFocused  ) {
+				painter.fillRect( 0, m_nWidgetHeight - 2, m_nWidgetWidth, 2, colorHighlightActive );
+			}
 			m_background->render( &painter, rectBackground );
 		} else {
 			m_background->render( &painter, "layer3", rectBackground );
 
 			if ( m_bFocused  ) {
-				painter.fillRect( 0, 23, m_nWidgetWidth, 2, colorHighlightActive );
+				painter.fillRect( 0, m_nWidgetHeight - 2, m_nWidgetWidth, 2, colorHighlightActive );
 			}
 			m_background->render( &painter, "layer2", QRectF( 9.91, 1.6, 23.5, 23.5 ) );
 		}

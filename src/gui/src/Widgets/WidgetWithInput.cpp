@@ -49,7 +49,7 @@ WidgetWithInput::WidgetWithInput( QWidget* parent, bool bUseIntSteps, QString sB
 	, m_inputBufferTimeout( 2.0 ){
 
 	setAttribute( Qt::WA_Hover );
-	setToolTip( QString( "%1: %2" ).arg( sBaseTooltip ).arg( m_fValue )  );
+	setToolTip( QString( "%1: %2" ).arg( sBaseTooltip ).arg( m_fValue, 0, 'f', 2 )  );
 	setFocusPolicy( Qt::ClickFocus );
 	
 	gettimeofday( &m_inputBufferTimeval, nullptr );
@@ -86,7 +86,7 @@ void WidgetWithInput::setValue( float fValue )
 	if ( fValue != m_fValue ) {
 		m_fValue = fValue;
 		emit valueChanged( this );
-		setToolTip( QString( "%1: %2" ).arg( m_sBaseTooltip ).arg( m_fValue )  );
+		setToolTip( QString( "%1: %2" ).arg( m_sBaseTooltip ).arg( m_fValue, 0, 'f', 2 )  );
 		update();
 	}
 }
@@ -94,6 +94,10 @@ void WidgetWithInput::setValue( float fValue )
 
 void WidgetWithInput::mousePressEvent(QMouseEvent *ev)
 {
+	if ( ! m_bIsActive ) {
+		return;
+	}
+	
 	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier ) {
 		resetValueToDefault();
 		m_bIgnoreMouseMove = true;
@@ -117,6 +121,10 @@ void WidgetWithInput::mouseReleaseEvent( QMouseEvent *ev )
 {
 	UNUSED( ev );
 	
+	if ( ! m_bIsActive ) {
+		return;
+	}
+	
 	setCursor( QCursor( Qt::ArrowCursor ) );
 
 	m_bIgnoreMouseMove = false;
@@ -125,6 +133,10 @@ void WidgetWithInput::mouseReleaseEvent( QMouseEvent *ev )
 void WidgetWithInput::wheelEvent ( QWheelEvent *ev )
 {
 	ev->accept();
+	
+	if ( ! m_bIsActive ) {
+		return;
+	}
 
 	float fStepFactor;
 	float fDelta = 1.0;
@@ -151,7 +163,8 @@ void WidgetWithInput::wheelEvent ( QWheelEvent *ev )
 
 void WidgetWithInput::mouseMoveEvent( QMouseEvent *ev )
 {
-	if ( m_bIgnoreMouseMove ) {
+	
+	if ( ! m_bIsActive || m_bIgnoreMouseMove ) {
 		return;
 	}
 
@@ -187,6 +200,10 @@ void WidgetWithInput::leaveEvent( QEvent *ev ) {
 
 void WidgetWithInput::keyPressEvent( QKeyEvent *ev ) {
 
+	if ( ! m_bIsActive ) {
+		return;
+	}
+	
 	float fIncrement;
 	if ( !m_bUseIntSteps ) {
 		fIncrement = ( m_fMax - m_fMin ) / 100.0;
