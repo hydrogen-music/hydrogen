@@ -1449,18 +1449,11 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	return 0;
 }
 
-void audioEngine_setupLadspaFX( unsigned nBufferSize )
+void audioEngine_setupLadspaFX()
 {
-	//___INFOLOG( "buffersize=" + to_string(nBufferSize) );
-
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
 	if ( ! pSong ) {
-		return;
-	}
-
-	if ( nBufferSize == 0 ) {
-		___ERRORLOG( "nBufferSize=0" );
 		return;
 	}
 
@@ -1515,7 +1508,7 @@ void audioEngine_setSong( Song* pNewSong )
 	}
 
 	// setup LADSPA FX
-	audioEngine_setupLadspaFX( m_pAudioDriver->getBufferSize() );
+	audioEngine_setupLadspaFX();
 
 	// update tick size
 	audioEngine_process_checkBPMChanged( pNewSong );
@@ -2191,7 +2184,7 @@ void audioEngine_startAudioDrivers()
 		audioEngine_renameJackPorts( pSong );
 #endif
 
-		audioEngine_setupLadspaFX( m_pAudioDriver->getBufferSize() );
+		audioEngine_setupLadspaFX();
 	}
 
 
@@ -2918,7 +2911,7 @@ void Hydrogen::startExportSong( const QString& filename)
 		ERRORLOG( "Error starting disk writer driver [DiskWriterDriver::init()]" );
 	}
 
-	audioEngine_setupLadspaFX( m_pAudioDriver->getBufferSize() );
+	audioEngine_setupLadspaFX();
 
 	audioEngine_seek( 0, false );
 
@@ -3453,7 +3446,7 @@ void Hydrogen::restartLadspaFX()
 {
 	if ( m_pAudioDriver ) {
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
-		audioEngine_setupLadspaFX( m_pAudioDriver->getBufferSize() );
+		audioEngine_setupLadspaFX();
 		AudioEngine::get_instance()->unlock();
 	} else {
 		ERRORLOG( "m_pAudioDriver = NULL" );
