@@ -873,6 +873,10 @@ void PatternEditorPanel::zoomOutBtnClicked( Button *ref )
 
 
 void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
+
+	// Changes of pattern may leave the cursor out of bounds.
+	setCursorPosition( getCursorPosition() );
+
 	m_pPatternEditorRuler->updateEditor( true );
 	m_pNoteVelocityEditor->updateEditor();
 	m_pNotePanEditor->updateEditor();
@@ -1173,7 +1177,7 @@ void PatternEditorPanel::setCursorPosition(int nCursorPosition)
 {
 	if ( nCursorPosition < 0 ) {
 		m_nCursorPosition = 0;
-	} else if ( nCursorPosition >= m_pPattern->get_length() ) {
+	} else if ( m_pPattern != nullptr && nCursorPosition >= m_pPattern->get_length() ) {
 		m_nCursorPosition = m_pPattern->get_length() - m_nCursorIncrement;
 	} else {
 		m_nCursorPosition = nCursorPosition;
