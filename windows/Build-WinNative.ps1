@@ -27,7 +27,7 @@ $env:QTDIR=$msys
 $env:CMAKE_PREFIX_PATH=$env:QTDIR
 $env:PATH="$msys\bin;$env:PATH"
 $env:PKG_CONFIG_PATH="$msys\lib\pkgconfig"
-$python_exe='python'
+$python_exe='C:\python39\python'
 $build_type='Debug'
 
 if($installdeps)
@@ -68,7 +68,7 @@ if($build)
     g++ --version
 
     cd ..
-    If(!(test-path build))
+    if(!(test-path build))
     {
         mkdir build
     }
@@ -80,7 +80,7 @@ if($build)
     Write-Host 'Starting build'
     cmake --build . -j $env:NUMBER_OF_PROCESSORS
 
-    If(!(test-path "windows/extralibs"))
+    if(!(test-path "windows/extralibs"))
     {
         mkdir windows/extralibs
     }
@@ -96,7 +96,7 @@ if($build)
     & $python_exe $arguments
     
     cd ../windows
-}
+} 
 
 if($deploy) 
 {
@@ -105,7 +105,8 @@ if($deploy)
     cpack -G NSIS -v
     cd ../windows
 } 
-else
+
+if(!$deploy -and !$build -and !$installdeps )
 {
     Write-Host 'Usage: '
     Write-Host 'Build-WinNative -build: Build hydrogen (32bit)'

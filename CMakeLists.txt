@@ -436,7 +436,7 @@ IF(MINGW)
     #Program Files for Hydrogen
     SET(WINDOWS_DIR "windows")
     #Install files from the extralibs dir
-    INSTALL(DIRECTORY ${WINDOWS_DIR}/extralibs/ DESTINATION ./)
+    INSTALL(DIRECTORY ${CMAKE_BINARY_DIR}/${WINDOWS_DIR}/extralibs/ DESTINATION ./)
 
 	IF(WANT_FAT_BUILD)
 		INSTALL(DIRECTORY windows/jack_installer DESTINATION ./)
