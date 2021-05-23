@@ -6,20 +6,21 @@ param (
     [switch]$build=$false,
     [switch]$installdeps=$false,
     [switch]$deploy=$false,
-    [switch]$x86_64=$false
+    [switch]$32bit=$false
  )
 
-if($x86_64)
+if($32bit)
 {
-     $64bit_string = "ON"
-     $msys_repo='mingw64/mingw-w64-x86_64'
-     $msys='C:\msys64\mingw64'
-}
-else
-{
+
     $64bit_string = "OFF"
     $msys_repo='mingw32/mingw-w64-i686'
     $msys='C:\msys64\mingw32'
+}
+else
+{
+    $64bit_string = "ON"
+    $msys_repo='mingw64/mingw-w64-x86_64'
+    $msys='C:\msys64\mingw64'
 }
 
 
@@ -109,8 +110,10 @@ if($deploy)
 if(!$deploy -and !$build -and !$installdeps )
 {
     Write-Host 'Usage: '
-    Write-Host 'Build-WinNative -build: Build hydrogen (32bit)'
-    Write-Host 'Build-WinNative -build -x86_64 : Build hydrogen (64bit)'
-    Write-Host 'Build-WinNative -installdeps: Install build dependencies via pacman'
+    Write-Host 'Build-WinNative -build: Build hydrogen (64bit)'
+    Write-Host 'Build-WinNative -build -32bit : Build hydrogen (32bit)'
+    Write-Host 'Build-WinNative -installdeps: Install build dependencies via pacman (64bit)'
+    Write-Host 'Build-WinNative -installdeps -32bit: Install build dependencies via pacman (32bit)'
     Write-Host 'Build-WinNative -deploy: Create installer'
+    Write-Host 'Note: please delete the build folder when switching from 64bit to 32bit (or vice versa)'
 }
