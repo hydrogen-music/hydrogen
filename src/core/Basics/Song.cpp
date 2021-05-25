@@ -162,6 +162,23 @@ void Song::setActionMode( Song::ActionMode actionMode ) {
 		ERRORLOG( QString( "Unknown actionMode" ) );
 	}
 }
+
+int Song::lengthInTicks() const {
+	int nSongLength = 0;
+	int nColumns = m_pPatternGroupSequence->size();
+	// Sum the lengths of all pattern columns and use the macro
+	// MAX_NOTES in case some of them are of size zero.
+	for ( int i = 0; i < nColumns; i++ ) {
+		PatternList *pColumn = ( *m_pPatternGroupSequence )[ i ];
+		if ( pColumn->size() != 0 ) {
+			nSongLength += pColumn->longest_pattern_length();
+		} else {
+			nSongLength += MAX_NOTES;
+		}
+	}
+    return nSongLength;
+}
+
 	
 ///Load a song from file
 Song* Song::load( const QString& sFilename )

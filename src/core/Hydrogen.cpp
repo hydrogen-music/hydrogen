@@ -945,19 +945,17 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 		// use this to support realtime events when not playing
 		framepos = pHydrogen->getRealtimeFrames();
 	}
-
-	AutomationPath *vp = pSong->getVelocityAutomationPath();
 	
+	AutomationPath *pVelAutomationPath = pSong->getVelocityAutomationPath();
+
+	int nSongLength = 0;
+	if ( pSong->getMode() == Song::SONG_MODE ) {
+		nSongLength = pSong->lengthInTicks();
+	}
 
 	// reading from m_songNoteQueue
 	while ( !m_songNoteQueue.empty() ) {
 		Note *pNote = m_songNoteQueue.top();
-
-		float velocity_adjustment = 1.0f;
-		if ( pSong->getMode() == Song::SONG_MODE ) {
-			float fPos = m_nSongPos + (pNote->get_position()%192) / 192.f;
-			velocity_adjustment = vp->get_value(fPos);
-		}
 
 		// verifico se la nota rientra in questo ciclo
 		unsigned int noteStartInFrames =
@@ -977,11 +975,17 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 		bool isOldNote = noteStartInFrames < framepos;
 
 		if ( isNoteStart || isOldNote ) {
-			// Humanize - Velocity parameter
-			pNote->set_velocity( pNote->get_velocity() * velocity_adjustment );
+			// Velocity Automation Adjustment
+			if ( pSong->getMode() == Song::SONG_MODE ) {
+				// position in the pattern columns scale (refers to the pattern sequence which can be non-linear with time)
+				float fPos = static_cast<float>( m_nSongPos ) // this is the integer part
+							+ ( static_cast<float>( pNote->get_position() % nSongLength - m_nPatternStartTick )
+								/ static_cast<float>( pHydrogen->getCurrentPatternList()->longest_pattern_length() ) );
+				pNote->set_velocity( pNote->get_velocity() * pVelAutomationPath->get_value( fPos ) );
+			}
 			
-			/* Check if the current note has probability != 1
-			 * If yes remove call random function to dequeue or not the note
+			/* Check if the current note has probability != 1.
+			 * If yes call a random function to choose whether to dequeue the note or not
 			 */
 			float fNoteProbability = pNote->get_probability();
 			if ( fNoteProbability != 1. ) {
@@ -1928,7 +1932,7 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick 
 	Song* pSong = pHydrogen->getSong();
 	assert( pSong );
 
-	int nTotalTick = 0;
+	int nTotalLength = 0;
 	m_nSongSizeInTicks = 0;
 
 	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
@@ -1948,11 +1952,11 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick 
 			nPatternSize = MAX_NOTES;
 		}
 
-		if ( ( nTick >= nTotalTick ) && ( nTick < nTotalTick + nPatternSize ) ) {
-			( *pPatternStartTick ) = nTotalTick;
+		if ( ( nTick >= nTotalLength ) && ( nTick < nTotalLength + nPatternSize ) ) {
+			( *pPatternStartTick ) = nTotalLength;
 			return i;
 		}
-		nTotalTick += nPatternSize;
+		nTotalLength += nPatternSize;
 	}
 
 	// If the song is played in loop mode, the tick numbers of the
@@ -1960,12 +1964,12 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick 
 	// song. Therefore, we will introduced periodic boundary
 	// conditions and start the search again.
 	if ( bLoopMode ) {
-		m_nSongSizeInTicks = nTotalTick;
+		m_nSongSizeInTicks = nTotalLength;
 		int nLoopTick = 0;
 		if ( m_nSongSizeInTicks != 0 ) {
 			nLoopTick = nTick % m_nSongSizeInTicks;
 		}
-		nTotalTick = 0;
+		nTotalLength = 0;
 		for ( int i = 0; i < nColumns; ++i ) {
 			PatternList *pColumn = ( *pPatternColumns )[ i ];
 			if ( pColumn->size() != 0 ) {
@@ -1974,12 +1978,12 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick 
 				nPatternSize = MAX_NOTES;
 			}
 
-			if ( ( nLoopTick >= nTotalTick )
-				 && ( nLoopTick < nTotalTick + nPatternSize ) ) {
-				( *pPatternStartTick ) = nTotalTick;
+			if ( ( nLoopTick >= nTotalLength )
+				 && ( nLoopTick < nTotalLength + nPatternSize ) ) {
+				( *pPatternStartTick ) = nTotalLength;
 				return i;
 			}
-			nTotalTick += nPatternSize;
+			nTotalLength += nPatternSize;
 		}
 	}
 
@@ -2116,60 +2120,36 @@ void audioEngine_startAudioDrivers()
 
 
 	QString sAudioDriver = preferencesMng->m_sAudioDriver;
-	if ( sAudioDriver == "Auto" ) {
-	#ifndef WIN32
-		if ( ( m_pAudioDriver = createDriver( "JACK" ) ) == nullptr ) {
-			if ( ( m_pAudioDriver = createDriver( "ALSA" ) ) == nullptr ) {
-				if ( ( m_pAudioDriver = createDriver( "CoreAudio" ) ) == nullptr ) {
-					if ( ( m_pAudioDriver = createDriver( "PortAudio" ) ) == nullptr ) {
-						if ( ( m_pAudioDriver = createDriver( "OSS" ) ) == nullptr ) {
-							if ( ( m_pAudioDriver = createDriver( "PulseAudio" ) ) == nullptr ) {
-								audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
-								___ERRORLOG( "Error starting audio driver" );
-								___ERRORLOG( "Using the NULL output audio driver" );
+#if defined(WIN32)
+    QStringList drivers = { "PortAudio", "JACK" };
+#elif defined(__APPLE__)
+    QStringList drivers = { "CoreAudio", "JACK", "PulseAudio", "PortAudio" };
+#else /* Linux */
+    QStringList drivers = { "JACK", "ALSA", "OSS", "PulseAudio", "PortAudio" };
+#endif
 
-								// use the NULL output driver
-								m_pAudioDriver = new NullDriver( audioEngine_process );
-								m_pAudioDriver->init( 0 );
-							}
-						}
-					}
-				}
+
+	if ( sAudioDriver != "Auto" ) {
+		drivers.removeAll( sAudioDriver );
+		drivers.prepend( sAudioDriver );
+	}
+	for ( QString sDriver : drivers ) {
+		if ( ( m_pAudioDriver = createDriver( sDriver ) ) != nullptr ) {
+			if ( sDriver != sAudioDriver && sAudioDriver != "Auto" ) {
+				___ERRORLOG( QString( "Couldn't start preferred driver %1, falling back to %2" )
+							 .arg( sAudioDriver ).arg( sDriver ) );
 			}
+			break;
 		}
-	#else
-		//On Windows systems, use PortAudio is the prioritized backend
-		if ( ( m_pAudioDriver = createDriver( "PortAudio" ) ) == nullptr ) {
-			if ( ( m_pAudioDriver = createDriver( "ALSA" ) ) == nullptr ) {
-				if ( ( m_pAudioDriver = createDriver( "CoreAudio" ) ) == nullptr ) {
-					if ( ( m_pAudioDriver = createDriver( "JACK" ) ) == nullptr ) {
-						if ( ( m_pAudioDriver = createDriver( "OSS" ) ) == nullptr ) {
-							if ( ( m_pAudioDriver = createDriver( "PulseAudio" ) ) == nullptr ) {
-								audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
-								___ERRORLOG( "Error starting audio driver" );
-								___ERRORLOG( "Using the NULL output audio driver" );
+	}
+	if ( m_pAudioDriver == nullptr ) {
+		audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
+		___ERRORLOG( "Error starting audio driver" );
+		___ERRORLOG( "Using the NULL output audio driver" );
 
-								// use the NULL output driver
-								m_pAudioDriver = new NullDriver( audioEngine_process );
-								m_pAudioDriver->init( 0 );
-							}
-						}
-					}
-				}
-			}
-		}
-	#endif
-	} else {
-		m_pAudioDriver = createDriver( sAudioDriver );
-		if ( m_pAudioDriver == nullptr ) {
-			audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
-			___ERRORLOG( "Error starting audio driver" );
-			___ERRORLOG( "Using the NULL output audio driver" );
-
-			// use the NULL output driver
-			m_pAudioDriver = new NullDriver( audioEngine_process );
-			m_pAudioDriver->init( 0 );
-		}
+		// use the NULL output driver
+		m_pAudioDriver = new NullDriver( audioEngine_process );
+		m_pAudioDriver->init( 0 );
 	}
 
 	if ( preferencesMng->m_sMidiDriver == "ALSA" ) {

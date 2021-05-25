@@ -35,7 +35,6 @@
 #include "PlayerControl.h"
 #include "AudioEngineInfoForm.h"
 #include "FilesystemInfoForm.h"
-#include "HelpBrowser.h"
 #include "LadspaFXProperties.h"
 #include "InstrumentRack.h"
 #include "Director.h"
@@ -74,8 +73,6 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
  , m_pPatternEditorPanel( nullptr )
  , m_pAudioEngineInfoForm( nullptr )
  , m_pSongEditorPanel( nullptr )
- , m_pHelpBrowser( nullptr )
- , m_pFirstTimeInfo( nullptr )
  , m_pPlayerControl( nullptr )
  , m_pPlaylistDialog( nullptr )
  , m_pSampleEditor( nullptr )
@@ -141,7 +138,6 @@ HydrogenApp::~HydrogenApp()
 	//delete the undo tmp directory
 	cleanupTemporaryFiles();
 
-	delete m_pHelpBrowser;
 	delete m_pAudioEngineInfoForm;
 	delete m_pFilesystemInfoForm;
 	delete m_pMixer;
@@ -195,6 +191,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pSplitter->setOpaqueResize( true );
 
 	m_pTab = new QTabWidget( nullptr );
+	m_pTab->setObjectName( "TabbedInterface" );
 
 	// SONG EDITOR
 	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE) {
@@ -212,6 +209,7 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// this HBox will contain the InstrumentRack and the Pattern editor
 	QWidget *pSouthPanel = new QWidget( m_pSplitter );
+	pSouthPanel->setObjectName( "SouthPanel" );
 	QHBoxLayout *pEditorHBox = new QHBoxLayout();
 	pEditorHBox->setSpacing( 5 );
 	pEditorHBox->setMargin( 0 );
@@ -283,11 +281,6 @@ void HydrogenApp::setupSinglePanedInterface()
 		m_pMixer->hide();
 	}
 
-
-	// HELP BROWSER
-	QString sDocPath = H2Core::Filesystem::doc_dir();
-	QString sDocURI = sDocPath + "/manual.html";
-	m_pHelpBrowser = new SimpleHTMLBrowser( nullptr, sDocPath, sDocURI, SimpleHTMLBrowser::MANUAL );
 
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA FX
@@ -824,6 +817,10 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 
 		// Set a Song prepared by the core part.
 		Song* pNextSong = pHydrogen->getNextSong();
+
+		if ( ! pHydrogen->getNextSongPath().isEmpty() ) {
+			pNextSong->setFilename( pHydrogen->getNextSongPath() );
+		}
 		
 		pHydrogen->setSong( pNextSong );
 

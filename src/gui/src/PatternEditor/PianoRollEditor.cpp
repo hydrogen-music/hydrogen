@@ -83,10 +83,10 @@ void PianoRollEditor::updateEditor( bool bPatternOnly )
 {
 	//	uint nEditorWidth;
 	if ( m_pPattern ) {
-		m_nEditorWidth = m_nMargin + m_nGridWidth * m_pPattern->get_length();
+		m_nEditorWidth = m_nMargin + m_fGridWidth * m_pPattern->get_length();
 	}
 	else {
-		m_nEditorWidth = m_nMargin + m_nGridWidth * MAX_NOTES;
+		m_nEditorWidth = m_nMargin + m_fGridWidth * MAX_NOTES;
 	}
 	if ( !bPatternOnly ) {
 		m_bNeedsBackgroundUpdate = true;
@@ -284,10 +284,6 @@ void PianoRollEditor::createBackground()
 
 void PianoRollEditor::drawPattern()
 {
-	if ( isVisible() == false ) {
-		return;
-	}
-
 	//INFOLOG( "draw pattern" );
 
 	validateSelection();
@@ -316,8 +312,8 @@ void PianoRollEditor::drawPattern()
 		p.setPen( pen );
 		p.setBrush( Qt::NoBrush );
 		p.setRenderHint( QPainter::Antialiasing );
-		p.drawRoundedRect( QRect( pos.x() - m_nGridWidth*3, pos.y()-2,
-								  m_nGridWidth*6, m_nGridHeight+3 ), 4, 4 );
+		p.drawRoundedRect( QRect( pos.x() - m_fGridWidth*3, pos.y()-2,
+								  m_fGridWidth*6, m_nGridHeight+3 ), 4, 4 );
 	}
 
 }
@@ -328,7 +324,7 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	InstrumentList * pInstrList = pHydrogen->getSong()->getInstrumentList();
 	if ( pInstrList->index( pNote->get_instrument() ) == pHydrogen->getSelectedInstrumentNumber() ) {
-		QPoint pos ( m_nMargin + pNote->get_position() * m_nGridWidth,
+		QPoint pos ( m_nMargin + pNote->get_position() * m_fGridWidth,
 					 m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1);
 		drawNoteSymbol( *pPainter, pos, pNote );
 	}
@@ -441,7 +437,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 
 		unsigned nRealColumn = 0;
 		if( ev->x() > m_nMargin ) {
-			nRealColumn = (ev->x() - m_nMargin) / static_cast<float>(m_nGridWidth);
+			nRealColumn = (ev->x() - m_nMargin) / static_cast<float>(m_fGridWidth);
 		}
 
 		if ( ev->modifiers() & Qt::ShiftModifier ) {
@@ -500,7 +496,7 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 
 		unsigned nRealColumn = 0;
 		if( ev->x() > m_nMargin ) {
-			nRealColumn = (ev->x() - m_nMargin) / static_cast<float>(m_nGridWidth);
+			nRealColumn = (ev->x() - m_nMargin) / static_cast<float>(m_fGridWidth);
 		}
 
 
@@ -863,7 +859,7 @@ void PianoRollEditor::mouseDragEndEvent( QMouseEvent *ev )
 
 QPoint PianoRollEditor::cursorPosition()
 {
-	uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
+	uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
 	uint y = m_nGridHeight * pitchToLine( m_nCursorPitch ) + 1;
 	return QPoint(x, y);
 }
@@ -1313,8 +1309,8 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 	}
 
 	// Calculate the first and last position values that this rect will intersect with
-	int x_min = (r.left() - w - m_nMargin) / m_nGridWidth;
-	int x_max = (r.right() + w - m_nMargin) / m_nGridWidth;
+	int x_min = (r.left() - w - m_nMargin) / m_fGridWidth;
+	int x_max = (r.right() + w - m_nMargin) / m_fGridWidth;
 
 	const Pattern::notes_t* pNotes = m_pPattern->get_notes();
 	std::vector<SelectionIndex> result;
@@ -1322,7 +1318,7 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 	for ( auto it = pNotes->lower_bound( x_min ); it != pNotes->end() && it->first <= x_max; ++it ) {
 		Note *pNote = it->second;
 		if ( pNote->get_instrument() == pInstr ) {
-			uint start_x = m_nMargin + pNote->get_position() * m_nGridWidth;
+			uint start_x = m_nMargin + pNote->get_position() * m_fGridWidth;
 			uint start_y = m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1;
 
 			if ( r.intersects( QRect( start_x -4 , start_y, w, h ) ) ) {
@@ -1339,6 +1335,6 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 ///
 QRect PianoRollEditor::getKeyboardCursorRect() {
 	QPoint pos = cursorPosition();
-	return QRect( pos.x() - m_nGridWidth*3, pos.y()-2,
-				  m_nGridWidth*6, m_nGridHeight+3 );
+	return QRect( pos.x() - m_fGridWidth*3, pos.y()-2,
+				  m_fGridWidth*6, m_nGridHeight+3 );
 }
