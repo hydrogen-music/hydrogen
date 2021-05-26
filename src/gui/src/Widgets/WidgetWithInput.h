@@ -94,7 +94,7 @@ protected:
 	float m_fDefaultValue;
 	
 	bool m_bIsActive;
-	bool m_bFocused;
+	bool m_bEntered;
 	
 	bool m_bIgnoreMouseMove;
 	float m_fMousePressValue;

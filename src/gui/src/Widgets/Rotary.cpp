@@ -107,19 +107,25 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	QColor colorHandle = Qt::black;
 	QColor colorFont = Qt::white;
 
+	// If the mouse is placed on the widget but the user hasn't
+	// clicked it yet, the highlight will be done more transparent to
+	// indicate that keyboard inputs are not accepted yet.
+	if ( ! hasFocus() ) {
+		colorHighlightActive.setAlpha( 150 );
+	}
 	
 	QRect rectBackground( 0, 0, m_nWidgetWidth, m_nWidgetHeight );
 
 	if ( m_background != nullptr ) {
 		if ( m_type == Type::Small ) {
-			if ( m_bFocused  ) {
+			if ( m_bEntered || hasFocus()  ) {
 				painter.fillRect( 0, m_nWidgetHeight - 2, m_nWidgetWidth, 2, colorHighlightActive );
 			}
 			m_background->render( &painter, rectBackground );
 		} else {
 			m_background->render( &painter, "layer3", rectBackground );
 
-			if ( m_bFocused  ) {
+			if ( m_bEntered || hasFocus() ) {
 				painter.fillRect( 0, m_nWidgetHeight - 2, m_nWidgetWidth, 2, colorHighlightActive );
 			}
 			m_background->render( &painter, "layer2", QRectF( 9.91, 1.6, 23.5, 23.5 ) );

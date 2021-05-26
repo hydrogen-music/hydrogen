@@ -41,7 +41,7 @@ WidgetWithInput::WidgetWithInput( QWidget* parent, bool bUseIntSteps, QString sB
 	, m_fMousePressValue( 0.0 )
 	, m_fMousePressY( 0.0 )
 	, m_bIgnoreMouseMove( false )
-	, m_bFocused( false )
+	, m_bEntered( false )
 	, m_bIsActive( true )
 	, m_nWidgetHeight( 20 )
 	, m_nWidgetWidth( 20 )
@@ -188,13 +188,13 @@ void WidgetWithInput::mouseMoveEvent( QMouseEvent *ev )
 
 void WidgetWithInput::enterEvent( QEvent *ev ) {
 	UNUSED( ev );
-	m_bFocused = true;
+	m_bEntered = true;
 	update();
 }
 
 void WidgetWithInput::leaveEvent( QEvent *ev ) {
 	UNUSED( ev );
-	m_bFocused = false;
+	m_bEntered = false;
 	update();
 }
 
