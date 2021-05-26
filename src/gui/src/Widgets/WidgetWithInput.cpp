@@ -263,7 +263,18 @@ void WidgetWithInput::keyPressEvent( QKeyEvent *ev ) {
 		}
 		setValue( fNewValue );
 		update();
+	} else if (  ev->key() == Qt::Key_Escape ) {
+		// reset the input buffer
+		m_sInputBuffer.clear();
+		QToolTip::hideText();
+		return;
+	} else {
+		// return without showing a tooltop
+		return;
 	}
+	
+	QPoint p( mapToGlobal( QPoint( 0,0 ) ) );
+	QToolTip::showText( QPoint( p.x() + width(), p.y() ), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ), this, geometry(), m_inputBufferTimeout * 1000 );
 }
 
 void WidgetWithInput::setMin( float fMin )
