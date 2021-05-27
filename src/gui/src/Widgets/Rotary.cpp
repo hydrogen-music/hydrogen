@@ -132,9 +132,8 @@ void Rotary::paintEvent( QPaintEvent* ev )
 		}
 	}
 
+	QRectF arcRect( 9.951, 2.6, 24.4, 23 );
 	if ( m_type != Type::Small ) {
-		QRectF arcRect( 9.951, 2.2, 24.5, 24.5 );
-
 		if ( m_type == Type::Normal ) {
 			int nStartAngle = 210 * 16; // given in 1/16 of a degree
 			int nSpanAngle  = static_cast<int>( -239 * 16 * ( m_fValue - m_fMin ) / ( m_fMax - m_fMin ) );
@@ -150,12 +149,12 @@ void Rotary::paintEvent( QPaintEvent* ev )
 			if ( std::fabs( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) < 0.01 * ( m_fMax - m_fMin ) ) {
 				
 				painter.setPen( QPen( colorArcCenterSet, 2.5 ) );
-				painter.drawArc( arcRect, 90 * 16, -3 * 16 );
+				painter.drawArc( arcRect, 91 * 16, -3 * 16 );
 				
 			} else {
 				
 				painter.setPen( QPen( colorArcCenterUnset, 2.5 ) );
-				painter.drawArc( arcRect, 90 * 16, -3 * 16 );
+				painter.drawArc( arcRect, 91 * 16, -3 * 16 );
 
 				int nStartAngle = -18 * 16;
 				int nSpanAngle  = static_cast<int>( -200* 16 * ( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) / ( m_fMax - m_fMin ) );
@@ -163,7 +162,7 @@ void Rotary::paintEvent( QPaintEvent* ev )
 					nStartAngle *= -1;
 					nStartAngle -= 2 * 16;
 				}
-				nStartAngle += 89 * 16;
+				nStartAngle += 90 * 16;
 				
 				painter.setPen( QPen( colorArc, 1.7 ) );
 				painter.drawArc( arcRect, nStartAngle, nSpanAngle ); 
@@ -231,8 +230,8 @@ void Rotary::paintEvent( QPaintEvent* ev )
 			fDistance = 3;
 			fRadius = 1;
 		} else {
-			fBaseX = 22.0;
-			fBaseY = 14.0;
+			fBaseX = arcRect.x() + arcRect.width()/2;
+			fBaseY = arcRect.y() + arcRect.height()/2;
 			fDistance = 4;
 			fRadius = 1.5;
 		}
