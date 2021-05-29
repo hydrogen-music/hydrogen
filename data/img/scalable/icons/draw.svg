@@ -23,16 +23,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
-     inkscape:cx="7.4791431"
-     inkscape:cy="-1.513493"
+     inkscape:zoom="22.4"
+     inkscape:cx="7.5105401"
+     inkscape:cy="8.5152705"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
      showgrid="true"
      units="px"
      showguides="false"
-     inkscape:window-width="956"
+     inkscape:window-width="1237"
      inkscape:window-height="1041"
      inkscape:window-x="0"
      inkscape:window-y="18"
@@ -84,7 +84,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
         <cc:license
            rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/" />
       </cc:Work>
@@ -106,6 +106,6 @@
     <path
        id="rect3319"
        style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0;stroke-linecap:square;paint-order:fill markers stroke"
-       d="m 4.7737361,0.52916668 0.4156943,0.41569436 c 0.1151475,0.11514736 0.1151474,0.30054706 0,0.41569436 -0.1151473,0.1151473 -0.3005469,0.1151474 -0.4156943,0 L 4.3580417,0.94486104 c -0.1151473,-0.11514735 -0.1151473,-0.300547 0,-0.41569435 0.1151474,-0.11514735 0.3005471,-0.11514739 0.4156944,-1e-8 z M 4.358042,0.52916687 5.1894308,1.3605559 4.7737364,1.7762502 3.9423474,0.94486126 Z M 3.7345001,1.1527083 4.565889,1.9840972 1.8638752,4.686111 1.0324863,3.8547221 Z M 0.82463944,4.0625692 0.40894476,5.3096526 1.6560283,4.893958 Z" />
+       d="m 5.1593751,0.13229167 0.491369,0.49465573 c 0.1361094,0.13701967 0.1361093,0.35763614 0,0.4946557 -0.1361091,0.1370196 -0.3552596,0.1370198 -0.491369,0 L 4.6680061,0.6269474 c -0.1361092,-0.13701965 -0.1361092,-0.35763607 0,-0.49465572 0.1361093,-0.13701966 0.3552598,-0.1370197 0.491369,-10e-9 z M 4.6680064,0.1322919 5.6507445,1.1216037 5.1593754,1.6162594 4.1766371,0.62694767 Z M 3.9309526,0.87427525 4.9136907,1.863587 1.7197917,5.0788498 0.73705342,4.0895381 Z M 0.49136937,4.3368659 0,5.8208335 1.4741076,5.3261774 Z" />
   </g>
 </svg>
