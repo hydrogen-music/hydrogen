@@ -50,6 +50,8 @@ Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSte
 	, m_fMaxPeak( 1.0 )
 {
 	m_fDefaultValue = m_fMax;
+	m_fValue = m_fDefaultValue;
+	setToolTip( QString( "%1: %2" ).arg( sBaseTooltip ).arg( m_fValue, 0, 'f', 2 )  );
 
 	if ( type == Type::Vertical ){ 
 		m_nWidgetWidth = 116;

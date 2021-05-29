@@ -59,6 +59,7 @@ Rotary::Rotary( QWidget* parent, Type type, QString sBaseTooltip, bool bUseIntSt
 	}
 
 	m_fValue = m_fDefaultValue;
+	setToolTip( QString( "%1: %2" ).arg( sBaseTooltip ).arg( m_fValue, 0, 'f', 2 )  );
 
 	// Since the load function does not report success, we will check
 	// for the existance of the background image separately.
