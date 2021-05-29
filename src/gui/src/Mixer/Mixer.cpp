@@ -116,7 +116,7 @@ Mixer::Mixer( QWidget* pParent )
 	connect( m_pOpenMixerSettingsBtn, SIGNAL( clicked( Button* ) ), this, SLOT( openMixerSettingsDialog() ) );
 
 
-	m_pShowFXPanelBtn = new ToggleButton( m_pMasterLine, QSize( 42, 13 ), "", CommonStrings::getFXButton() );
+	m_pShowFXPanelBtn = new ToggleButton( m_pMasterLine, QSize( 42, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getFXButton() );
 	m_pShowFXPanelBtn->move( 67, 242 );
 	m_pShowFXPanelBtn->setPressed(false);
 	m_pShowFXPanelBtn->setToolTip( tr( "Show FX panel" ) );
@@ -127,7 +127,7 @@ Mixer::Mixer( QWidget* pParent )
 	m_pShowFXPanelBtn->hide();
 #endif
 
-	m_pShowPeaksBtn = new ToggleButton( m_pMasterLine, QSize( 42, 13 ), "", CommonStrings::getPeakButton() );
+	m_pShowPeaksBtn = new ToggleButton( m_pMasterLine, QSize( 42, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getPeakButton() );
 	m_pShowPeaksBtn->move( 67, 258 );
 	m_pShowPeaksBtn->setPressed( (Preferences::get_instance())->showInstrumentPeaks() );
 	m_pShowPeaksBtn->setToolTip( tr( "Show instrument peaks" ) );

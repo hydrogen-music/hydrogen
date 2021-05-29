@@ -75,7 +75,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// time line toggle button
 	m_sTimelineToolTip = tr( "Enable time line edit");
-	m_pTimeLineToggleBtn = new ToggleButton( pBackPanel, QSize( 54, 13 ), "", CommonStrings::getTimelineBigButton() );
+	m_pTimeLineToggleBtn = new ToggleButton( pBackPanel, QSize( 54, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getTimelineBigButton() );
 	m_pTimeLineToggleBtn->move( 133, 6 );
 	m_pTimeLineToggleBtn->setToolTip( m_sTimelineToolTip );
 	m_pTimeLineToggleBtn->setObjectName( "TimeLineToggleBtn" );
@@ -93,7 +93,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	}
 
 	// clear sequence button
-	m_pClearPatternSeqBtn = new Button( pBackPanel,	QSize( 53, 13 ), "", CommonStrings::getClearButton() );
+	m_pClearPatternSeqBtn = new Button( pBackPanel,	QSize( 53, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getClearButton() );
 	m_pClearPatternSeqBtn->move( 6, 5 + 25 );
 	m_pClearPatternSeqBtn->setToolTip( tr("Clear pattern sequence") );
 	connect( m_pClearPatternSeqBtn, SIGNAL( clicked( Button* ) ), this, SLOT( clearSequence(Button*) ) );
@@ -169,7 +169,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	connect( pZoomOutBtn, SIGNAL( clicked( Button* ) ), this, SLOT( zoomInBtnPressed(Button* ) ) );
 
 	// view playback track toggle button
-	m_pViewPlaybackToggleBtn = new ToggleButton( nullptr, QSize( 19, 13 ), "", CommonStrings::getPlaybackTrackButton() );
+	m_pViewPlaybackToggleBtn = new ToggleButton( nullptr, QSize( 19, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getPlaybackTrackButton() );
 	m_pViewPlaybackToggleBtn->setToolTip( tr( "View playback track") );
 	m_pViewPlaybackToggleBtn->setObjectName( "ViewPlaybackToggleBtn" );
 	connect( m_pViewPlaybackToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( viewPlaybackTrackBtnPressed(Button* ) ) );
@@ -184,7 +184,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	connect( m_pPlaybackTrackFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( faderChanged( WidgetWithInput* ) ) );
 
 	// mute playback track toggle button
-	m_pMutePlaybackToggleBtn = new ToggleButton( pBackPanel, QSize( 33, 13 ), "", CommonStrings::getBigMuteButton(), true );
+	m_pMutePlaybackToggleBtn = new ToggleButton( pBackPanel, QSize( 33, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getBigMuteButton(), true );
 	m_pMutePlaybackToggleBtn->setToolTip( tr( "Mute playback track") );
 	m_pMutePlaybackToggleBtn->move( 158, 6 );
 	m_pMutePlaybackToggleBtn->hide();
@@ -193,7 +193,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	
 	// edit playback track toggle button
 	/*: Text displayed on the button to edit the Playback track. Its size is designed to hold four characters.*/
-	m_pEditPlaybackBtn = new Button( pBackPanel, QSize( 33, 13 ), "", CommonStrings::getEditButton() );
+	m_pEditPlaybackBtn = new Button( pBackPanel, QSize( 33, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getEditButton() );
 	m_pEditPlaybackBtn->setToolTip( tr( "Choose playback track") );
 	m_pEditPlaybackBtn->move( 124, 6 );
 	m_pEditPlaybackBtn->hide();
@@ -202,7 +202,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// timeline view toggle button
 	/*: Text displayed on the button to toggle the Timeline. Only use a single letter.*/
-	m_pViewTimeLineToggleBtn = new ToggleButton( nullptr, QSize( 19, 13 ), "", CommonStrings::getTimelineButton() );
+	m_pViewTimeLineToggleBtn = new ToggleButton( nullptr, QSize( 19, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getTimelineButton() );
 	m_pViewTimeLineToggleBtn->setToolTip( tr( "View timeline") );
 	connect( m_pViewTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( viewTimeLineBtnPressed(Button* ) ) );
 	m_pViewTimeLineToggleBtn->setPressed( true );

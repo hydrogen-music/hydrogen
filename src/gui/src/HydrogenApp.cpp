@@ -30,6 +30,7 @@
 
 #include "HydrogenApp.h"
 #include "Skin.h"
+#include "CommonStrings.h"
 #include "PreferencesDialog.h"
 #include "MainForm.h"
 #include "PlayerControl.h"
@@ -86,6 +87,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	m_pEventQueueTimer->start( QUEUE_TIMER_PERIOD );
 
 	SoundLibraryDatabase::create_instance();
+	m_pCommonStrings = new CommonStrings();
 
 	//setup the undo stack
 	m_pUndoStack = new QUndoStack( this );

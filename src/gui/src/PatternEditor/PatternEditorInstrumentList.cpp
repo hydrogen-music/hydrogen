@@ -70,7 +70,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 
 	/*: Text displayed on the button for muting an instrument. Its
 	  size is designed for a single character.*/
-	m_pMuteBtn = new ToggleButton( this, QSize( 18, 13 ), "", CommonStrings::getSmallMuteButton(), true );
+	m_pMuteBtn = new ToggleButton( this, QSize( 18, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true );
 	m_pMuteBtn->move( 145, 5 );
 	m_pMuteBtn->setPressed(false);
 	m_pMuteBtn->setToolTip( tr("Mute instrument") );
@@ -79,7 +79,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 
 	/*: Text displayed on the button for soloing an instrument. Its
 	  size is designed for a single character.*/
-	m_pSoloBtn = new ToggleButton( this, QSize( 18, 13 ), "", CommonStrings::getSmallSoloButton() );
+	m_pSoloBtn = new ToggleButton( this, QSize( 18, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton() );
 	m_pSoloBtn->move( 163, 5 );
 	m_pSoloBtn->setPressed(false);
 	m_pSoloBtn->setToolTip( tr("Solo") );

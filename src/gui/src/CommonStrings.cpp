@@ -24,98 +24,104 @@
 
 const char* CommonStrings::__class_name = "CommonStrings";
 
-/*: Text displayed on the button for soloing an instrument strip in
-  the mixer. Its size is designed for a single character.*/
-QString CommonStrings::m_sSmallSoloButton( tr( "S" ) );
-/*: Text displayed on the button for muting an instrument strip in
-  the mixer. Its size is designed for a single character.*/
-QString CommonStrings::m_sSmallMuteButton( tr( "M" ) );
-/*: Text displayed on the button for muting the master strip. Its
-  size is designed for a four characters.*/
-QString CommonStrings::m_sBigMuteButton( tr( "MUTE" ) );
-/*: Text displayed on the button for bypassing an element. Its
-  size is designed for a three characters.*/
-QString CommonStrings::m_sBypassButton( tr( "BYP" ) );
-/*: Text displayed on the button for editin an element. Its
-  size is designed for a four characters.*/
-QString CommonStrings::m_sEditButton( tr( "EDIT" ) );
-/*: Text displayed on the button to clear all patterns in the
-  SongEditor. Its size is designed to hold five characters.*/
-QString CommonStrings::m_sClearButton( tr( "CLEAR" ) );
-/*: Text displayed on the button to show the Playback track. Its size
-  is designed to hold a single character.*/
-QString CommonStrings::m_sPlaybackTrackButton( tr( "P" ) );
-/*: Text displayed on the button to show the Timeline. Its size
-  is designed to hold a single character.*/
-QString CommonStrings::m_sTimelineButton( tr( "T" ) );
-/*: Text displayed on the button to activate the Timeline. Its size
-  is designed to hold three characters.*/
-QString CommonStrings::m_sTimelineBigButton( tr( "BPM" ) );
-/*: Text displayed on the button to enable the LADSPA effect strips. Its size
-  is designed to hold two characters.*/
-QString CommonStrings::m_sFXButton( tr( "FX" ) );
-/*: Text displayed on the button to show the instrument peaks. Its size
-  is designed to hold four characters.*/
-QString CommonStrings::m_sPeakButton( tr( "PEAK" ) );
-/*: Text displayed on the button to show the Instrument Rack. Its size
-  is designed to hold seven characters but is quite flexible.*/
-QString CommonStrings::m_sGeneralButton( tr( "General" ) );
-/*: Text displayed on the button to show the Instrument Editor in the Instrument Rack. Its size
-  is designed to hold ten characters but is quite flexible.*/
-QString CommonStrings::m_sInstrumentButton( tr( "Instrument" ) );
-/*: Text displayed on the button to show the Sound Library in the Instrument Rack. Its size
-  is designed to hold ten characters but is quite flexible.*/
-QString CommonStrings::m_sSoundLibraryButton( tr( "Sound Library" ) );
-/*: Text displayed on the button to show the Layer view of the Instrument Rack. Its size
-  is designed to hold six characters but is quite flexible.*/
-QString CommonStrings::m_sLayersButton( tr( "Layers" ) );
-/*: Text displayed on the button to load a layer into an
-  instrument. Its size is designed to hold ten characters but is quite
-  flexible.*/
-QString CommonStrings::m_sLoadLayerButton( tr( "Load Layer" ) );
+CommonStrings::CommonStrings() : Object( __class_name ) {
+	/*: Text displayed on the button to show the Playback track. Its size
+	  is designed to hold a single character.*/
+	m_sPlaybackTrackButton = tr( "P" );
 
-/*: Text displayed on the button to delete a layer into an
-  instrument. Its size is designed to hold twelve characters but is quite
-  flexible.*/
-QString CommonStrings::m_sDeleteLayerButton( tr( "Delete Layer" ) );
+	/*: Text displayed on the button for soloing an instrument strip in
+	  the mixer. Its size is designed for a single character.*/
+	m_sSmallSoloButton = tr( "S" );
+	/*: Text displayed on the button for muting an instrument strip in
+	  the mixer. Its size is designed for a single character.*/
+	m_sSmallMuteButton = tr( "M" );
+	/*: Text displayed on the button for muting the master strip. Its
+	  size is designed for a four characters.*/
+	m_sBigMuteButton = tr( "MUTE" );
+	/*: Text displayed on the button for bypassing an element. Its
+	  size is designed for a three characters.*/
+	m_sBypassButton = tr( "BYP" );
+	/*: Text displayed on the button for editin an element. Its
+	  size is designed for a four characters.*/
+	m_sEditButton = tr( "EDIT" );
+	/*: Text displayed on the button to clear all patterns in the
+	  SongEditor. Its size is designed to hold five characters.*/
+	m_sClearButton = tr( "CLEAR" );
+	/*: Text displayed on the button to show the Timeline. Its size
+	  is designed to hold a single character.*/
+	m_sTimelineButton = tr( "T" );
+	/*: Text displayed on the button to activate the Timeline. Its size
+	  is designed to hold three characters.*/
+	m_sTimelineBigButton = tr( "BPM" );
+	/*: Text displayed on the button to enable the LADSPA effect strips. Its size
+	  is designed to hold two characters.*/
+	m_sFXButton = tr( "FX" );
+	/*: Text displayed on the button to show the instrument peaks. Its size
+	  is designed to hold four characters.*/
+	m_sPeakButton = tr( "PEAK" );
+	/*: Text displayed on the button to show the Instrument Rack. Its size
+	  is designed to hold seven characters but is quite flexible.*/
+	m_sGeneralButton = tr( "General" );
+	/*: Text displayed on the button to show the Instrument Editor in the Instrument Rack. Its size
+	  is designed to hold ten characters but is quite flexible.*/
+	m_sInstrumentButton = tr( "Instrument" );
+	/*: Text displayed on the button to show the Sound Library in the Instrument Rack. Its size
+	  is designed to hold ten characters but is quite flexible.*/
+	m_sSoundLibraryButton = tr( "Sound Library" );
+	/*: Text displayed on the button to show the Layer view of the Instrument Rack. Its size
+	  is designed to hold six characters but is quite flexible.*/
+	m_sLayersButton = tr( "Layers" );
+	/*: Text displayed on the button to load a layer into an
+	  instrument. Its size is designed to hold ten characters but is quite
+	  flexible.*/
+	m_sLoadLayerButton = tr( "Load Layer" );
 
-/*: Text displayed on the button to edit a layer into an
-  instrument. Its size is designed to hold ten characters but is quite
-  flexible.*/
-QString CommonStrings::m_sEditLayerButton( tr( "Edit Layer" ) );
+	/*: Text displayed on the button to delete a layer into an
+	  instrument. Its size is designed to hold twelve characters but is quite
+	  flexible.*/
+	m_sDeleteLayerButton = tr( "Delete Layer" );
 
-/*: Text displayed on the button to activate the Beat Counter. Its
-  size is designed to hold two characters in two separate rows.*/
-QString CommonStrings::m_sBeatCounterButton( tr( "B\nC" ) );
+	/*: Text displayed on the button to edit a layer into an
+	  instrument. Its size is designed to hold ten characters but is quite
+	  flexible.*/
+	m_sEditLayerButton = tr( "Edit Layer" );
 
-/*: Text displayed on the button indicating that the Beat Counter will
-  only set tempo. Its size is designed to hold one character.*/
-QString CommonStrings::m_sBeatCounterSetPlayButtonOff( tr( "S" ) );
-/*: Text displayed on the button indicating that the Beat Counter will
-  start playing after setting the tempo. Its size is designed to hold one character.*/
-QString CommonStrings::m_sBeatCounterSetPlayButtonOn( tr( "P" ) );
+	/*: Text displayed on the button to activate the Beat Counter. Its
+	  size is designed to hold two characters in two separate rows.*/
+	m_sBeatCounterButton = tr( "B\nC" );
 
-/*: Text displayed on the button to activate the resampling using 
-  Rubberband. Its
-  size is designed to hold three characters in two separate rows.*/
-QString CommonStrings::m_sRubberbandButton( tr( "R\nU\nB" ) );
+	/*: Text displayed on the button indicating that the Beat Counter will
+	  only set tempo. Its size is designed to hold one character.*/
+	m_sBeatCounterSetPlayButtonOff = tr( "S" );
+	/*: Text displayed on the button indicating that the Beat Counter will
+	  start playing after setting the tempo. Its size is designed to hold one character.*/
+	m_sBeatCounterSetPlayButtonOn = tr( "P" );
 
-/*: Text displayed on the button to activate the JACK transport control. Its
-  size is designed to hold seven characters and is moderately flexible.*/
-QString CommonStrings::m_sJackTransportButton( tr( "J.TRANS" ) );
-/*: Text displayed on the button to activate the JACK Timebase master control. Its
-  size is designed to hold eight characters and is moderately flexible.*/
-QString CommonStrings::m_sJackMasterButton( tr( "J.MASTER" ) );
-/*: Text displayed on the button to show the Mixer window. Its
-  size is designed to hold five characters and is flexible.*/
-QString CommonStrings::m_sMixerButton( tr( "Mixer" ) );
-/*: Text displayed on the button to show the Instrument Rack. Its
-  size is designed to hold 15 characters and is flexible.*/
-QString CommonStrings::m_sInstrumentRackButton( tr( "Instrument Rack" ) );
+	/*: Text displayed on the button to activate the resampling using 
+	  Rubberband. Its
+	  size is designed to hold three characters in two separate rows.*/
+	m_sRubberbandButton = tr( "R\nU\nB" );
 
-/*: Text displayed on the button activating Pattern Mode for playback. Its
-  size is designed to hold seven characters and is slightly flexible.*/
-QString CommonStrings::m_sPatternModeButton( tr( "PATTERN" ) );
-/*: Text displayed on the button activating Song Mode for playback. Its
-  size is designed to hold four characters and is slightly flexible.*/
-QString CommonStrings::m_sSongModeButton( tr( "SONG" ) );
+	/*: Text displayed on the button to activate the JACK transport control. Its
+	  size is designed to hold seven characters and is moderately flexible.*/
+	m_sJackTransportButton = tr( "J.TRANS" );
+	/*: Text displayed on the button to activate the JACK Timebase master control. Its
+	  size is designed to hold eight characters and is moderately flexible.*/
+	m_sJackMasterButton = tr( "J.MASTER" );
+	/*: Text displayed on the button to show the Mixer window. Its
+	  size is designed to hold five characters and is flexible.*/
+	m_sMixerButton = tr( "Mixer" );
+	/*: Text displayed on the button to show the Instrument Rack. Its
+	  size is designed to hold 15 characters and is flexible.*/
+	m_sInstrumentRackButton = tr( "Instrument Rack" );
+
+	/*: Text displayed on the button activating Pattern Mode for playback. Its
+	  size is designed to hold seven characters and is slightly flexible.*/
+	m_sPatternModeButton = tr( "PATTERN" );
+	/*: Text displayed on the button activating Song Mode for playback. Its
+	  size is designed to hold four characters and is slightly flexible.*/
+	m_sSongModeButton = tr( "SONG" );
+}
+
+CommonStrings::~CommonStrings(){
+}

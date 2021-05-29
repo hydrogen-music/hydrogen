@@ -24,71 +24,73 @@
 #define COMMON_STRINGS_H
 
 #include <QString>
-#include <QWidget>
 #include <core/Object.h>
 
-class CommonStrings : public QWidget, public H2Core::Object {
+class CommonStrings : public H2Core::Object {
 	H2_OBJECT
-	Q_OBJECT
-
+	Q_DECLARE_TR_FUNCTIONS(CommonStrings)
+	
 public:
-	static const QString& getSmallSoloButton() { return m_sSmallSoloButton; }
-	static const QString& getSmallMuteButton() { return m_sSmallMuteButton; }
-	static const QString& getBigMuteButton() { return m_sBigMuteButton; }
-	static const QString& getBypassButton() { return m_sBypassButton; }
-	static const QString& getEditButton() { return m_sEditButton; }
-	static const QString& getClearButton() { return m_sClearButton; }
-	static const QString& getPlaybackTrackButton() { return m_sPlaybackTrackButton; }
-	static const QString& getTimelineButton() { return m_sTimelineButton; }
-	static const QString& getTimelineBigButton() { return m_sTimelineBigButton; }
-	static const QString& getFXButton() { return m_sFXButton; }
-	static const QString& getPeakButton() { return m_sPeakButton; }
-	static const QString& getGeneralButton() { return m_sGeneralButton; }
-	static const QString& getInstrumentButton() { return m_sInstrumentButton; }
-	static const QString& getSoundLibraryButton() { return m_sSoundLibraryButton; }
-	static const QString& getLayersButton() { return m_sLayersButton; }
-	static const QString& getLoadLayerButton() { return m_sLoadLayerButton; }
-	static const QString& getDeleteLayerButton() { return m_sDeleteLayerButton; }
-	static const QString& getEditLayerButton() { return m_sEditLayerButton; }
-	static const QString& getBeatCounterButton() { return m_sBeatCounterButton; }
-	static const QString& getBeatCounterSetPlayButtonOff() { return m_sBeatCounterSetPlayButtonOff; }
-	static const QString& getBeatCounterSetPlayButtonOn() { return m_sBeatCounterSetPlayButtonOn; }
-	static const QString& getRubberbandButton() { return m_sRubberbandButton; }
-	static const QString& getJackTransportButton() { return m_sJackTransportButton; }
-	static const QString& getJackMasterButton() { return m_sJackMasterButton; }
-	static const QString& getMixerButton() { return m_sMixerButton; }
-	static const QString& getInstrumentRackButton() { return m_sInstrumentRackButton; }
-	static const QString& getPatternModeButton() { return m_sPatternModeButton; }
-	static const QString& getSongModeButton() { return m_sSongModeButton; }
+    CommonStrings();
+	~CommonStrings();
+ 
+	const QString& getSmallSoloButton() { return m_sSmallSoloButton; }
+	const QString& getSmallMuteButton() { return m_sSmallMuteButton; }
+	const QString& getBigMuteButton() { return m_sBigMuteButton; }
+	const QString& getBypassButton() { return m_sBypassButton; }
+	const QString& getEditButton() { return m_sEditButton; }
+	const QString& getClearButton() { return m_sClearButton; }
+	const QString& getPlaybackTrackButton() { return m_sPlaybackTrackButton; }
+	const QString& getTimelineButton() { return m_sTimelineButton; }
+	const QString& getTimelineBigButton() { return m_sTimelineBigButton; }
+	const QString& getFXButton() { return m_sFXButton; }
+	const QString& getPeakButton() { return m_sPeakButton; }
+	const QString& getGeneralButton() { return m_sGeneralButton; }
+	const QString& getInstrumentButton() { return m_sInstrumentButton; }
+	const QString& getSoundLibraryButton() { return m_sSoundLibraryButton; }
+	const QString& getLayersButton() { return m_sLayersButton; }
+	const QString& getLoadLayerButton() { return m_sLoadLayerButton; }
+	const QString& getDeleteLayerButton() { return m_sDeleteLayerButton; }
+	const QString& getEditLayerButton() { return m_sEditLayerButton; }
+	const QString& getBeatCounterButton() { return m_sBeatCounterButton; }
+	const QString& getBeatCounterSetPlayButtonOff() { return m_sBeatCounterSetPlayButtonOff; }
+	const QString& getBeatCounterSetPlayButtonOn() { return m_sBeatCounterSetPlayButtonOn; }
+	const QString& getRubberbandButton() { return m_sRubberbandButton; }
+	const QString& getJackTransportButton() { return m_sJackTransportButton; }
+	const QString& getJackMasterButton() { return m_sJackMasterButton; }
+	const QString& getMixerButton() { return m_sMixerButton; }
+	const QString& getInstrumentRackButton() { return m_sInstrumentRackButton; }
+	const QString& getPatternModeButton() { return m_sPatternModeButton; }
+	const QString& getSongModeButton() { return m_sSongModeButton; }
 	
 private:
-	static QString m_sSmallSoloButton;
-	static QString m_sSmallMuteButton;
-	static QString m_sBigMuteButton;
-	static QString m_sBypassButton;
-	static QString m_sEditButton;
-	static QString m_sClearButton;
-	static QString m_sPlaybackTrackButton;
-	static QString m_sTimelineButton;
-	static QString m_sTimelineBigButton;
-	static QString m_sFXButton;
-	static QString m_sPeakButton;
-	static QString m_sGeneralButton;
-	static QString m_sInstrumentButton;
-	static QString m_sSoundLibraryButton;
-	static QString m_sLayersButton;
-	static QString m_sLoadLayerButton;
-	static QString m_sEditLayerButton;
-	static QString m_sDeleteLayerButton;
-	static QString m_sBeatCounterButton;
-	static QString m_sBeatCounterSetPlayButtonOff;
-	static QString m_sBeatCounterSetPlayButtonOn;
-	static QString m_sRubberbandButton;
-	static QString m_sJackTransportButton;
-	static QString m_sJackMasterButton;
-	static QString m_sMixerButton;
-	static QString m_sInstrumentRackButton;
-	static QString m_sPatternModeButton;
-	static QString m_sSongModeButton;
+	QString m_sSmallSoloButton;
+	QString m_sSmallMuteButton;
+	QString m_sBigMuteButton;
+	QString m_sBypassButton;
+	QString m_sEditButton;
+	QString m_sClearButton;
+	QString m_sPlaybackTrackButton;
+	QString m_sTimelineButton;
+	QString m_sTimelineBigButton;
+	QString m_sFXButton;
+	QString m_sPeakButton;
+	QString m_sGeneralButton;
+	QString m_sInstrumentButton;
+	QString m_sSoundLibraryButton;
+	QString m_sLayersButton;
+	QString m_sLoadLayerButton;
+	QString m_sEditLayerButton;
+	QString m_sDeleteLayerButton;
+	QString m_sBeatCounterButton;
+	QString m_sBeatCounterSetPlayButtonOff;
+	QString m_sBeatCounterSetPlayButtonOn;
+	QString m_sRubberbandButton;
+	QString m_sJackTransportButton;
+	QString m_sJackMasterButton;
+	QString m_sMixerButton;
+	QString m_sInstrumentRackButton;
+	QString m_sPatternModeButton;
+	QString m_sSongModeButton;
 };
 #endif

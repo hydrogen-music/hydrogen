@@ -68,6 +68,7 @@ class PlaylistDialog;
 class SampleEditor;
 class Director;
 class InfoBar;
+class CommonStrings;
 
 class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 {
@@ -112,6 +113,7 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		PatternEditorPanel*		getPatternEditorPanel();
 		PlayerControl*			getPlayerControl();
 		InstrumentRack*			getInstrumentRack();
+		CommonStrings*			getCommonStrings();
 		InfoBar *			addInfoBar();
 
 		QUndoStack*			m_pUndoStack;
@@ -214,6 +216,7 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		QTabWidget *				m_pTab;
 		QSplitter *					m_pSplitter;
 		QVBoxLayout *				m_pMainVBox;
+		CommonStrings*				m_pCommonStrings;
 
 		bool						m_bHideKeyboardCursor;
 
@@ -315,6 +318,11 @@ inline PlayerControl* HydrogenApp::getPlayerControl()
 inline InstrumentRack* HydrogenApp::getInstrumentRack()
 {
 	return m_pInstrumentRack;
+}
+
+inline CommonStrings* HydrogenApp::getCommonStrings()
+{
+	return m_pCommonStrings;
 }
 
 inline bool HydrogenApp::hideKeyboardCursor()

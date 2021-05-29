@@ -71,13 +71,13 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pInstrumentPropTop = new PixmapWidget( this );
 	m_pInstrumentPropTop->setPixmap( "/instrumentEditor/instrumentTab_top.png" );
 
-	m_pShowInstrumentBtn = new ToggleButton( m_pInstrumentPropTop, QSize( 100, 17 ), "", CommonStrings::getGeneralButton() );
+	m_pShowInstrumentBtn = new ToggleButton( m_pInstrumentPropTop, QSize( 100, 17 ), "", HydrogenApp::get_instance()->getCommonStrings()->getGeneralButton() );
 	m_pShowInstrumentBtn->setToolTip( tr( "Show instrument properties" ) );
 	connect( m_pShowInstrumentBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
 	m_pShowInstrumentBtn->move( 40, 7 );
 	m_pShowInstrumentBtn->setPressed( true );
 
-	m_pShowLayersBtn = new ToggleButton( m_pInstrumentPropTop, QSize( 100, 17 ), "", CommonStrings::getLayersButton() );
+	m_pShowLayersBtn = new ToggleButton( m_pInstrumentPropTop, QSize( 100, 17 ), "", HydrogenApp::get_instance()->getCommonStrings()->getLayersButton() );
 	m_pShowLayersBtn->setToolTip( tr( "Show layers properties" ) );
 	connect( m_pShowLayersBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
 	m_pShowLayersBtn->move( 144, 7 );
@@ -152,7 +152,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pRandomPitchRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
 	// Filter
-	m_pFilterBypassBtn = new ToggleButton( m_pInstrumentProp, QSize( 30, 13 ), "", CommonStrings::getBypassButton() );
+	m_pFilterBypassBtn = new ToggleButton( m_pInstrumentProp, QSize( 30, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getBypassButton() );
 	connect( m_pFilterBypassBtn, SIGNAL( clicked(Button*) ), this, SLOT( filterActiveBtnClicked(Button*) ) );
 
 	m_pCutoffRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal, tr( "Filter Cutoff" ), false );
@@ -302,15 +302,15 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pWaveDisplay->move( 5, 241 );
 	connect( m_pWaveDisplay, SIGNAL( doubleClicked(QWidget*) ), this, SLOT( waveDisplayDoubleClicked(QWidget*) ) );
 
-	m_pLoadLayerBtn = new Button( m_pLayerProp, QSize( 90, 13 ), "", CommonStrings::getLoadLayerButton() );
+	m_pLoadLayerBtn = new Button( m_pLayerProp, QSize( 90, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getLoadLayerButton() );
 	m_pLoadLayerBtn->setObjectName( "LoadLayerButton" );
 	m_pLoadLayerBtn->move( 6, 306 );
 
-	m_pRemoveLayerBtn = new Button( m_pLayerProp, QSize( 90, 13 ), "", CommonStrings::getDeleteLayerButton() );
+	m_pRemoveLayerBtn = new Button( m_pLayerProp, QSize( 90, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getDeleteLayerButton() );
 	m_pRemoveLayerBtn->setObjectName( "RemoveLayerButton" );
 	m_pRemoveLayerBtn->move( 99, 306 );
 
-	m_pSampleEditorBtn = new Button( m_pLayerProp, QSize( 90, 13 ), "", CommonStrings::getEditLayerButton() );
+	m_pSampleEditorBtn = new Button( m_pLayerProp, QSize( 90, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getEditLayerButton() );
 	m_pSampleEditorBtn->setObjectName( "SampleEditorButton" );
 	m_pSampleEditorBtn->move( 191, 306 );
 

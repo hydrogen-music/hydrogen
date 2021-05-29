@@ -21,6 +21,7 @@
  */
 
 #include "InstrumentRack.h"
+#include "HydrogenApp.h"
 #include "Skin.h"
 #include "CommonStrings.h"
 #include "Widgets/Button.h"
@@ -48,12 +49,12 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	pTabButtonsPanel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
 	// instrument editor button
-	m_pShowInstrumentEditorBtn = new ToggleButton( pTabButtonsPanel, QSize( 130, 17 ), "", CommonStrings::getInstrumentButton() );
+	m_pShowInstrumentEditorBtn = new ToggleButton( pTabButtonsPanel, QSize( 130, 17 ), "", HydrogenApp::get_instance()->getCommonStrings()->getInstrumentButton() );
 	m_pShowInstrumentEditorBtn->setToolTip( tr( "Show Instrument editor" ) );
 	connect( m_pShowInstrumentEditorBtn, SIGNAL( clicked( Button* ) ), this, SLOT( on_showInstrumentEditorBtnClicked() ) );
 
 	// show sound library button
-	m_pShowSoundLibraryBtn = new ToggleButton( pTabButtonsPanel,QSize( 150, 17 ), "", CommonStrings::getSoundLibraryButton() );
+	m_pShowSoundLibraryBtn = new ToggleButton( pTabButtonsPanel,QSize( 150, 17 ), "", HydrogenApp::get_instance()->getCommonStrings()->getSoundLibraryButton() );
 	m_pShowSoundLibraryBtn->setToolTip( tr( "Show sound library" ) );
 	connect( m_pShowSoundLibraryBtn, SIGNAL( clicked( Button* ) ), this, SLOT( on_showSoundLibraryBtnClicked() ) );
 
