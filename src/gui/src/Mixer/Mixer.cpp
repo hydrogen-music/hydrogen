@@ -24,6 +24,7 @@
 #include "MixerLine.h"
 
 #include "../Skin.h"
+#include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../LadspaFXProperties.h"
 #include "../InstrumentEditor/InstrumentEditorPanel.h"
@@ -109,25 +110,13 @@ Mixer::Mixer( QWidget* pParent )
 	m_pMasterLine->move( 0, 0 );
 	connect( m_pMasterLine, SIGNAL( volumeChanged(MasterMixerLine*) ), this, SLOT( masterVolumeChanged(MasterMixerLine*) ) );
 	
-	m_pOpenMixerSettingsBtn = new Button(
-			m_pMasterLine,
-			"/mixerPanel/openMixerSettings_over.png",
-			"/mixerPanel/openMixerSettings_off.png",
-			"/mixerPanel/openMixerSettings_over.png",
-			QSize(17, 17)
-	);
+	m_pOpenMixerSettingsBtn = new Button( m_pMasterLine, QSize( 17, 17 ), "cog.svg", "", false, QSize( 13, 13 ) );
 	m_pOpenMixerSettingsBtn->move( 96, 6 );
 	m_pOpenMixerSettingsBtn->setToolTip( tr( "Mixer Settings" ) );
 	connect( m_pOpenMixerSettingsBtn, SIGNAL( clicked( Button* ) ), this, SLOT( openMixerSettingsDialog() ) );
 
 
-	m_pShowFXPanelBtn = new ToggleButton(
-			m_pMasterLine,
-			"/mixerPanel/showFX_on.png",
-			"/mixerPanel/showFX_off.png",
-			"/mixerPanel/showFX_over.png",
-			QSize(42, 13)
-	);
+	m_pShowFXPanelBtn = new ToggleButton( m_pMasterLine, QSize( 42, 13 ), "", CommonStrings::getFXButton() );
 	m_pShowFXPanelBtn->move( 67, 242 );
 	m_pShowFXPanelBtn->setPressed(false);
 	m_pShowFXPanelBtn->setToolTip( tr( "Show FX panel" ) );
@@ -138,13 +127,7 @@ Mixer::Mixer( QWidget* pParent )
 	m_pShowFXPanelBtn->hide();
 #endif
 
-	m_pShowPeaksBtn = new ToggleButton(
-			m_pMasterLine,
-			"/mixerPanel/showPeaks_on.png",
-			"/mixerPanel/showPeaks_off.png",
-			"/mixerPanel/showPeaks_over.png",
-			QSize(42, 13)
-	);
+	m_pShowPeaksBtn = new ToggleButton( m_pMasterLine, QSize( 42, 13 ), "", CommonStrings::getPeakButton() );
 	m_pShowPeaksBtn->move( 67, 258 );
 	m_pShowPeaksBtn->setPressed( (Preferences::get_instance())->showInstrumentPeaks() );
 	m_pShowPeaksBtn->setToolTip( tr( "Show instrument peaks" ) );

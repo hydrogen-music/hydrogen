@@ -22,6 +22,7 @@
 
 #include "InstrumentRack.h"
 #include "Skin.h"
+#include "CommonStrings.h"
 #include "Widgets/Button.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
@@ -47,29 +48,13 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	pTabButtonsPanel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
 	// instrument editor button
-	m_pShowInstrumentEditorBtn = new ToggleButton(
-			pTabButtonsPanel,
-			"/skin_btn_on.png",
-			"/skin_btn_off.png",
-			"/skin_btn_over.png",
-			QSize( 130, 17 ), 
-			true );
-
+	m_pShowInstrumentEditorBtn = new ToggleButton( pTabButtonsPanel, QSize( 130, 17 ), "", CommonStrings::getInstrumentButton() );
 	m_pShowInstrumentEditorBtn->setToolTip( tr( "Show Instrument editor" ) );
-	m_pShowInstrumentEditorBtn->setText( tr( "Instrument" ) );
 	connect( m_pShowInstrumentEditorBtn, SIGNAL( clicked( Button* ) ), this, SLOT( on_showInstrumentEditorBtnClicked() ) );
 
 	// show sound library button
-	m_pShowSoundLibraryBtn = new ToggleButton(
-			pTabButtonsPanel,
-			"/skin_btn_on.png",
-			"/skin_btn_off.png",
-			"/skin_btn_over.png",
-			QSize( 150, 17 ), 
-			true );
-
+	m_pShowSoundLibraryBtn = new ToggleButton( pTabButtonsPanel,QSize( 150, 17 ), "", CommonStrings::getSoundLibraryButton() );
 	m_pShowSoundLibraryBtn->setToolTip( tr( "Show sound library" ) );
-	m_pShowSoundLibraryBtn->setText( tr( "Sound library" ) );
 	connect( m_pShowSoundLibraryBtn, SIGNAL( clicked( Button* ) ), this, SLOT( on_showSoundLibraryBtnClicked() ) );
 
 	QHBoxLayout *pTabHBox = new QHBoxLayout();

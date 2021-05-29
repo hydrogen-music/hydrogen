@@ -35,6 +35,7 @@
 #include <core/LocalFileMng.h>
 using namespace H2Core;
 
+#include "CommonStrings.h"
 #include "UndoActions.h"
 #include "PatternEditorPanel.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
@@ -67,38 +68,25 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	nameFont.setBold( true );
 	m_pNameLbl->setFont(nameFont);
 
-	m_pMuteBtn = new ToggleButton(
-			this,
-			"/mixerPanel/btn_mute_on.png",
-			"/mixerPanel/btn_mute_off.png",
-			"/mixerPanel/btn_mute_off.png",
-			QSize( 18, 13 )
-	);
+	/*: Text displayed on the button for muting an instrument. Its
+	  size is designed for a single character.*/
+	m_pMuteBtn = new ToggleButton( this, QSize( 18, 13 ), "", CommonStrings::getSmallMuteButton(), true );
 	m_pMuteBtn->move( 145, 5 );
 	m_pMuteBtn->setPressed(false);
 	m_pMuteBtn->setToolTip( tr("Mute instrument") );
 	m_pMuteBtn->setObjectName( "MuteButton" );
 	connect(m_pMuteBtn, SIGNAL(clicked(Button*)), this, SLOT(muteClicked()));
 
-	m_pSoloBtn = new ToggleButton(
-			this,
-			"/mixerPanel/btn_solo_on.png",
-			"/mixerPanel/btn_solo_off.png",
-			"/mixerPanel/btn_solo_off.png",
-			QSize( 18, 13 )
-	);
+	/*: Text displayed on the button for soloing an instrument. Its
+	  size is designed for a single character.*/
+	m_pSoloBtn = new ToggleButton( this, QSize( 18, 13 ), "", CommonStrings::getSmallSoloButton() );
 	m_pSoloBtn->move( 163, 5 );
 	m_pSoloBtn->setPressed(false);
 	m_pSoloBtn->setToolTip( tr("Solo") );
 	m_pSoloBtn->setObjectName( "SoloButton" );
 	connect(m_pSoloBtn, SIGNAL(clicked(Button*)), this, SLOT(soloClicked()));
 
-	m_pSampleWarning = new Button(
-			this,
-			"/patternEditor/icn_warning.png",
-			"/patternEditor/icn_warning.png",
-			"/patternEditor/icn_warning.png",
-			QSize( 15, 13 ) );
+	m_pSampleWarning = new Button( this, QSize( 15, 13 ), "warning.svg" );
 	m_pSampleWarning->move( 128, 5 );
 	m_pSampleWarning->hide();
 	m_pSampleWarning->setToolTip( tr( "Some samples for this instrument failed to load." ) );

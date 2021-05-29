@@ -38,12 +38,7 @@ LCDCombo::LCDCombo( QWidget *pParent, int digits, bool bAllowMenuOverflow )
 	INFOLOG( "INIT" );
 
 	display = new LCDDisplay( this, LCDDigit::SMALL_BLUE, digits, false );
-	button = new Button( this,
-	                     "/patternEditor/btn_dropdown_on.png",
-	                     "/patternEditor/btn_dropdown_off.png",
-	                     "/patternEditor/btn_dropdown_over.png",
-	                     QSize(13, 13)
-	                   );
+	button = new Button( this, QSize( 13, 13 ), "dropdown.svg" );
 	pop = new QMenu( this );
 
 	size = digits;

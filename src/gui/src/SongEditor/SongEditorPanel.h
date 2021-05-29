@@ -153,7 +153,8 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		Button *				m_pDownBtn;
 		Button *				m_pClearPatternSeqBtn;
 		ToggleButton *			m_pPointerActionBtn;
-		ToggleButton *			m_pModeActionBtn;
+		ToggleButton *			m_pModeActionSingleBtn;
+		ToggleButton *			m_pModeActionMultipleBtn;
 		ToggleButton *			m_pDrawActionBtn;
 		ToggleButton *			m_pTagbarToggleBtn;
 		

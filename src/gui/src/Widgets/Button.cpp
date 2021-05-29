@@ -22,95 +22,84 @@
 
 #include "Button.h"
 
-#include "PixmapWidget.h"
 #include "../Skin.h"
 #include "MidiSenseWidget.h"
 
 #include <qglobal.h>	// for QT_VERSION
 
 #include <core/Globals.h>
+#include <core/Preferences.h>
 
 const char* Button::__class_name = "Button";
 
-Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffImage, const QString& sOverImage, QSize size, bool use_skin_style, bool enable_press_hold )
+Button::Button( QWidget *pParent, QSize size, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize, bool bEnablePressHold )
  : QWidget( pParent )
  , Object( __class_name )
- , m_bPressed( false )
- , m_onPixmap( size )
- , m_offPixmap( size )
- , m_overPixmap( size )
+ , m_bIsPressed( false )
  , m_bMouseOver( false )
- , __use_skin_style(use_skin_style)
- , __enable_press_hold(enable_press_hold)
+ , m_sText( sText )
+ , m_bUseRedBackground( bUseRedBackground )
+ , m_iconSize( iconSize )
+ , m_bEnablePressHold( bEnablePressHold )
 {
-	// draw the background: slower but useful with transparent images!
-	//setAttribute(Qt::WA_OpaquePaintEvent);
+	setAttribute( Qt::WA_OpaquePaintEvent );
+	setFixedSize( size );
+	m_nWidth = size.width();
+	m_nHeight = size.height();
 
-	setMinimumSize( size );
-	setMaximumSize( size );
-	resize( size );
-
-	if ( loadImage( sOnImage, m_onPixmap ) == false ) {
-		m_onPixmap.fill( QColor( 0, 255, 0 ) );
+	// Since the load function does not report success, we will check
+	// for the existance of the background image separately.
+	QString sPath;
+	float fAspectRatio = static_cast<float>( m_nWidth ) / static_cast<float>( m_nHeight );
+	if ( fAspectRatio < 0.6216216 ) {
+		sPath = QString( Skin::getSvgImagePath() + "/button_9_37.svg" );
+	} else if ( fAspectRatio > 0.6216216 && fAspectRatio < 1.2647059 ) {
+		sPath = QString( Skin::getSvgImagePath() + "/button_17_17.svg" );
+	} else if ( fAspectRatio > 1.2647059 && fAspectRatio < 1.7352941 ) {
+		sPath = QString( Skin::getSvgImagePath() + "/button_26_17.svg" );
+	} else if ( fAspectRatio > 1.7352941 && fAspectRatio < 3.264706 ) {
+		sPath = QString( Skin::getSvgImagePath() + "/button_42_13.svg" );
+	} else {
+		sPath = QString( Skin::getSvgImagePath() + "/button_94_13.svg" );
 	}
 
-	if ( loadImage( sOffImage, m_offPixmap ) == false ) {
-		m_offPixmap.fill( QColor( 0, 100, 0 ) );
+	QFile file( sPath );
+	if ( file.exists() ) {
+		m_background = new QSvgRenderer( sPath, this );
+	} else {
+		m_background = nullptr;
+		ERRORLOG( QString( "Unable to load background image [%1]" ).arg( sPath ) );
 	}
+		
+	if ( ! sIcon.isEmpty() ) {
+		// Since the load function does not report success, we will check
+		// for the existance of the background image separately.
+		QString sPathIcon( Skin::getSvgImagePath() + "/icons/" + sIcon );
 
-	if ( loadImage( sOverImage, m_overPixmap ) == false ) {
-		m_overPixmap.fill( QColor( 0, 180, 0 ) );
+		QFile iconFile( sPathIcon );
+		if ( iconFile.exists() ) {
+			m_icon = new QSvgRenderer( sPathIcon, this );
+		} else {
+			m_icon = nullptr;
+			ERRORLOG( QString( "Unable to load icon image [%1]" ).arg( sPathIcon ) );
+		}
+	} else {
+		m_icon = nullptr;
+
+		if ( sText.isEmpty() ) {
+			ERRORLOG( "Neither an icon nor a text was provided. Button will be empty." );
+		}
 	}
-
-	this->setStyleSheet("font-size: 9px; font-weight: bold;");
 
 	m_timerTimeout = 0;
 	m_timer = new QTimer(this);
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(buttonPressed_timer_timeout()));
-}
-
-
-
-Button::~Button()
-{
-}
-
-
-
-bool Button::loadImage( const QString& sFilename, QPixmap& pixmap )
-{
-  /*
-	if ( sFilename.endsWith( ".svg" ) ) {
-		ERRORLOG( "************* LOAD SVG!!" );
-		if ( !QFile::exists( sFilename ) ) {
-			return false;
-		}
-		QSvgRenderer doc( sFilename );
-		if ( doc.isValid() == false ) {
-			ERRORLOG( "error loading SVG image: '" + sFilename.toLocal8Bit().constData() + "'" );
-			return false;
-		}
-
-		QPainter p;
-		p.begin( &pixmap );
-		p.setViewport( 0, 0, width(), height() );
-		p.eraseRect( 0, 0, width(), height() );
-		doc.render( &p );
-		p.end();
-		return true;
-	}
-  */
 	
-	// load an image
-	if ( pixmap.load( Skin::getImagePath() + sFilename ) == false ) {
-		if ( !sFilename.isEmpty() ) {
-			ERRORLOG( QString( "Error loading image: '%1'" ).arg( sFilename ) );
-		}
-		return false;
-	}
-	return true;
+	resize( size );
 }
 
+Button::~Button() {
+}
 
 void Button::mousePressEvent(QMouseEvent*ev) {
 	
@@ -118,17 +107,17 @@ void Button::mousePressEvent(QMouseEvent*ev) {
 	*  Shift + Left-Click activate the midi learn widget
 	*/
 	
-	if ( ev->button() == Qt::LeftButton && (ev->modifiers() & Qt::ShiftModifier) ){
+	if ( ev->button() == Qt::LeftButton && ( ev->modifiers() & Qt::ShiftModifier ) ){
 		MidiSenseWidget midiSense( this, true, this->getAction() );
 		midiSense.exec();
 		return;
 	}
 	
-	m_bPressed = true;
+	m_bIsPressed = true;
 	update();
-	emit mousePress(this);
+	emit mousePress( this );
 
-	if ( ev->button() == Qt::LeftButton && __enable_press_hold) {
+	if ( ev->button() == Qt::LeftButton && m_bEnablePressHold) {
 		m_timerTimeout = 2000;
 		buttonPressed_timer_timeout();
 	}
@@ -136,19 +125,19 @@ void Button::mousePressEvent(QMouseEvent*ev) {
 
 
 
-void Button::mouseReleaseEvent(QMouseEvent* ev)
+void Button::mouseReleaseEvent( QMouseEvent* ev )
 {
 	setPressed( false );
 
-	if (ev->button() == Qt::LeftButton) {
-		if(__enable_press_hold) {
+	if ( ev->button() == Qt::LeftButton ) {
+		if ( m_bEnablePressHold ) {
 			m_timer->stop();
 		} else {
-			emit clicked(this);
+			emit clicked( this );
 		}
 	}
-	else if (ev->button() == Qt::RightButton) {
-		emit rightClicked(this);
+	else if ( ev->button() == Qt::RightButton ) {
+		emit rightClicked( this );
 	}
 
 }
@@ -158,110 +147,135 @@ void Button::buttonPressed_timer_timeout()
 {
 	emit clicked(this);
 
-	if(m_timerTimeout > 100) {
+	if( m_timerTimeout > 100 ) {
 		m_timerTimeout = m_timerTimeout / 2;
 	}
 	
-	m_timer->start(m_timerTimeout);
+	m_timer->start( m_timerTimeout );
 }
 
-
-void Button::setFontSize(int size)
+void Button::setPressed( bool bIsPressed )
 {
-	m_textFont.setPointSize(size);
-}
-
-void Button::setPressed(bool pressed)
-{
-	if (pressed != m_bPressed) {
-		m_bPressed = pressed;
+	if ( bIsPressed != m_bIsPressed ) {
+		m_bIsPressed = bIsPressed;
 		update();
 	}
 }
 
-void Button::enterEvent(QEvent *ev)
+void Button::enterEvent( QEvent *ev )
 {
 	UNUSED( ev );
 	m_bMouseOver = true;
 	update();
 }
 
-
-
-void Button::leaveEvent(QEvent *ev)
+void Button::leaveEvent( QEvent *ev )
 {
 	UNUSED( ev );
 	m_bMouseOver = false;
 	update();
 }
 
-
-
-void Button::paintEvent( QPaintEvent* ev)
+void Button::paintEvent( QPaintEvent* ev )
 {
-	QPainter painter(this);
+	QPainter painter( this );
 
-	// background
-	if (m_bPressed) {
-		if (__use_skin_style) {
-			static int w = 5;
-			static int h = m_onPixmap.height();
+	if ( m_background != nullptr ) {
 
-			// central section, scaled
-			painter.drawPixmap( QRect(w, 0, width() - w * 2, h), m_onPixmap, QRect(10, 0, w, h) );
-
-			// left side
-			painter.drawPixmap( QRect(0, 0, w, h), m_onPixmap, QRect(0, 0, w, h) );
-
-			// right side
-			painter.drawPixmap( QRect(width() - w, 0, w, h), m_onPixmap, QRect(m_onPixmap.width() - w, 0, w, h) );
-		}
-		else {
-			painter.drawPixmap( ev->rect(), m_onPixmap, ev->rect() );
-		}
-	}
-	else {
-		if (m_bMouseOver) {
-			if (__use_skin_style) {
-				static int w = 5;
-				static int h = m_overPixmap.height();
-
-				// central section, scaled
-				painter.drawPixmap( QRect(w, 0, width() - w * 2, h), m_overPixmap, QRect(10, 0, w, h) );
-
-				// left side
-				painter.drawPixmap( QRect(0, 0, w, h), m_overPixmap, QRect(0, 0, w, h) );
-
-				// right side
-				painter.drawPixmap( QRect(width() - w, 0, w, h), m_overPixmap, QRect(m_overPixmap.width() - w, 0, w, h) );
+		if ( m_bIsPressed ) {
+			if ( m_bUseRedBackground ) {
+				m_background->render( &painter, "layer4" );
+			} else {
+				m_background->render( &painter, "layer3" );
 			}
-			else {
-				painter.drawPixmap( ev->rect(), m_overPixmap, ev->rect() );
-			}
-		}
-		else {
-			if (__use_skin_style) {
-				static int w = 5;
-				static int h = m_offPixmap.height();
-
-				// central section, scaled
-				painter.drawPixmap( QRect(w, 0, width() - w * 2, h), m_offPixmap, QRect(10, 0, w, h) );
-
-				// left side
-				painter.drawPixmap( QRect(0, 0, w, h), m_offPixmap, QRect(0, 0, w, h) );
-
-				// right side
-				painter.drawPixmap( QRect(width() - w, 0, w, h), m_offPixmap, QRect(m_offPixmap.width() - w, 0, w, h) );
-			}
-			else {
-				painter.drawPixmap( ev->rect(), m_offPixmap, ev->rect() );
-			}
+		} else if ( m_bMouseOver ) {
+			m_background->render( &painter, "layer2" );
+		} else {
+			m_background->render( &painter, "layer1" );
 		}
 	}
 
+	if ( m_icon != nullptr ) {
+		QSize size;
+		if ( m_iconSize.isEmpty() ) {
+			size = QSize( m_icon->defaultSize() );
+			if ( size.width() >= m_nWidth ) {
+				size.setWidth( m_nWidth - 5 );
+			}
+			if ( size.height() >= m_nHeight ) {
+				size.setHeight( m_nHeight - 5 );
+			}
+		} else {
+			size = m_iconSize;
+		}
 
-	if ( !m_sText.isEmpty() ) {
-		painter.setFont( m_textFont );
+		// Center icon in widget.
+		QRect rect( 0.5 * ( m_nWidth - size.width() ), 0.5 * ( m_nHeight - size.height() ),
+					size.width(), size.height() );
+		m_icon->render( &painter, rect );
+	}
+	
+	// // background
+	// if ( m_bIsPressed ) {
+	// 	if (__use_skin_style) {
+	// 		static int w = 5;
+	// 		static int h = m_onPixmap.height();
+
+	// 		// central section, scaled
+	// 		painter.drawPixmap( QRect(w, 0, width() - w * 2, h), m_onPixmap, QRect(10, 0, w, h) );
+
+	// 		// left side
+	// 		painter.drawPixmap( QRect(0, 0, w, h), m_onPixmap, QRect(0, 0, w, h) );
+
+	// 		// right side
+	// 		painter.drawPixmap( QRect(width() - w, 0, w, h), m_onPixmap, QRect(m_onPixmap.width() - w, 0, w, h) );
+	// 	}
+	// 	else {
+	// 		painter.drawPixmap( ev->rect(), m_onPixmap, ev->rect() );
+	// 	}
+	// }
+	// else {
+	// 	if (m_bMouseOver) {
+	// 		if (__use_skin_style) {
+	// 			static int w = 5;
+	// 			static int h = m_overPixmap.height();
+
+	// 			// central section, scaled
+	// 			painter.drawPixmap( QRect(w, 0, width() - w * 2, h), m_overPixmap, QRect(10, 0, w, h) );
+
+	// 			// left side
+	// 			painter.drawPixmap( QRect(0, 0, w, h), m_overPixmap, QRect(0, 0, w, h) );
+
+	// 			// right side
+	// 			painter.drawPixmap( QRect(width() - w, 0, w, h), m_overPixmap, QRect(m_overPixmap.width() - w, 0, w, h) );
+	// 		}
+	// 		else {
+	// 			painter.drawPixmap( ev->rect(), m_overPixmap, ev->rect() );
+	// 		}
+	// 	}
+	// 	else {
+	// 		if (__use_skin_style) {
+	// 			static int w = 5;
+	// 			static int h = m_offPixmap.height();
+
+	// 			// central section, scaled
+	// 			painter.drawPixmap( QRect(w, 0, width() - w * 2, h), m_offPixmap, QRect(10, 0, w, h) );
+
+	// 			// left side
+	// 			painter.drawPixmap( QRect(0, 0, w, h), m_offPixmap, QRect(0, 0, w, h) );
+
+	// 			// right side
+	// 			painter.drawPixmap( QRect(width() - w, 0, w, h), m_offPixmap, QRect(m_offPixmap.width() - w, 0, w, h) );
+	// 		}
+	// 		else {
+	// 			painter.drawPixmap( ev->rect(), m_offPixmap, ev->rect() );
+	// 		}
+	// 	}
+	// }
+
+
+	if ( ! m_sText.isEmpty() ) {
+		painter.setFont( QFont( H2Core::Preferences::get_instance()->getApplicationFontFamily(), 6 ) );
 
 		QColor shadow(150, 150, 150, 100);
 		QColor text(10, 10, 10);
@@ -282,8 +296,6 @@ void Button::paintEvent( QPaintEvent* ev)
 
 }
 
-
-
 void Button::setText( const QString& sText )
 {
 	m_sText = sText;
@@ -296,19 +308,14 @@ void Button::setText( const QString& sText )
 
 
 
-ToggleButton::ToggleButton( QWidget *pParent, const QString& sOnImg, const QString& sOffImg, const QString& sOverImg, QSize size, bool use_skin_style )
- : Button( pParent, sOnImg, sOffImg, sOverImg, size, use_skin_style, false )
-{
+ToggleButton::ToggleButton( QWidget *pParent, QSize size, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize )
+	: Button( pParent, size, sIcon, sText, bUseRedBackground, iconSize, false ) {
 }
-
-
 
 ToggleButton::~ToggleButton() {
 }
 
-
-
-void ToggleButton::mousePressEvent(QMouseEvent *ev) {
+void ToggleButton::mousePressEvent( QMouseEvent *ev ) {
 	
 	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ){
 		MidiSenseWidget midiSense( this, true, this->getAction() );
@@ -317,13 +324,13 @@ void ToggleButton::mousePressEvent(QMouseEvent *ev) {
 	}
 	
 	if (ev->button() == Qt::RightButton) {
-		emit rightClicked(this);
+		emit rightClicked( this );
 	}
 	else {
-		if (m_bPressed) {
-			m_bPressed = false;
+		if ( m_bIsPressed ) {
+			m_bIsPressed = false;
 		} else {
-			m_bPressed = true;
+			m_bIsPressed = true;
 		}
 		update();
 		
@@ -331,8 +338,44 @@ void ToggleButton::mousePressEvent(QMouseEvent *ev) {
 	}
 }
 
-
-
 void ToggleButton::mouseReleaseEvent(QMouseEvent*) {
 	// do nothing, this method MUST override Button's one
+}
+
+LEDButton::LEDButton( QWidget *pParent, QSize size )
+	: Button( pParent, size, "", "LED", false, QSize( 0, 0 ), false )
+{
+	setFixedSize( size );
+
+	// Since the load function does not report success, we will check
+	// for the existance of the background image separately.
+	QString sPath( Skin::getSvgImagePath() + "/led.svg" );
+
+	QFile file( sPath );
+	if ( file.exists() ) {
+		m_background = new QSvgRenderer( sPath, this );
+	} else {
+		m_background = nullptr;
+		ERRORLOG( QString( "Unable to load background image [%1]" ).arg( sPath ) );
+	}
+
+	m_icon = nullptr;	
+	resize( size );
+}
+
+LEDButton::~LEDButton(){
+}
+
+void LEDButton::paintEvent( QPaintEvent* ev )
+{
+	QPainter painter( this );
+
+	if ( m_background != nullptr ) {
+
+		if ( m_bIsPressed ) {
+			m_background->render( &painter, "layer2" );
+		} else {
+			m_background->render( &painter, "layer1" );
+		}
+	}
 }

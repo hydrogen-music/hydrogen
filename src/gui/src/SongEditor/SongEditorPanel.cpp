@@ -36,6 +36,7 @@
 
 #include "SongEditor.h"
 #include "UndoActions.h"
+#include "CommonStrings.h"
 
 #include <core/Hydrogen.h>
 #include <core/Preferences.h>
@@ -74,13 +75,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// time line toggle button
 	m_sTimelineToolTip = tr( "Enable time line edit");
-	m_pTimeLineToggleBtn = new ToggleButton(
-			pBackPanel,
-			"/songEditor/btn_bpm_on.png",
-			"/songEditor/btn_bpm_off.png",
-			"/songEditor/btn_bpm_over.png",
-			QSize( 54, 13 )
-	);
+	m_pTimeLineToggleBtn = new ToggleButton( pBackPanel, QSize( 54, 13 ), "", CommonStrings::getTimelineBigButton() );
 	m_pTimeLineToggleBtn->move( 133, 6 );
 	m_pTimeLineToggleBtn->setToolTip( m_sTimelineToolTip );
 	m_pTimeLineToggleBtn->setObjectName( "TimeLineToggleBtn" );
@@ -97,75 +92,38 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	}
 
-
 	// clear sequence button
-	m_pClearPatternSeqBtn = new Button(
-			pBackPanel,
-			"/songEditor/btn_clear_on.png",
-			"/songEditor/btn_clear_off.png",
-			"/songEditor/btn_clear_over.png",
-			QSize(53,13)
-	);
+	m_pClearPatternSeqBtn = new Button( pBackPanel,	QSize( 53, 13 ), "", CommonStrings::getClearButton() );
 	m_pClearPatternSeqBtn->move( 6, 5 + 25 );
 	m_pClearPatternSeqBtn->setToolTip( tr("Clear pattern sequence") );
 	connect( m_pClearPatternSeqBtn, SIGNAL( clicked( Button* ) ), this, SLOT( clearSequence(Button*) ) );
 
 	// new pattern button
-	Button *newPatBtn = new Button(
-			pBackPanel,
-			"/songEditor/btn_new_on.png",
-			"/songEditor/btn_new_off.png",
-			"/songEditor/btn_new_over.png",
-			QSize(19, 13)
-	);
+	Button *newPatBtn = new Button( pBackPanel,	QSize( 19, 13 ), "plus.svg", "", false, QSize( 9, 9 ) );
 	newPatBtn->move( 64, 5 + 25);
 	newPatBtn->setToolTip( tr("Create new pattern") );
 	connect( newPatBtn, SIGNAL( clicked( Button* ) ), this, SLOT( newPatBtnClicked( Button* ) ) );
 
 	// down button
-	m_pDownBtn = new Button(
-			pBackPanel,
-			"/songEditor/btn_down_on.png",
-			"/songEditor/btn_down_off.png",
-			"/songEditor/btn_down_over.png",
-			QSize(18,13)
-	);
+	m_pDownBtn = new Button( pBackPanel, QSize( 18, 13 ), "down.svg", "", false, QSize( 8, 7 ) );
 	m_pDownBtn->move( 89, 5 + 25);
 	m_pDownBtn->setToolTip( tr("Move the selected pattern down") );
 	connect( m_pDownBtn, SIGNAL( clicked( Button* ) ), this, SLOT( downBtnClicked( Button* ) ) );
 
 	// up button
-	m_pUpBtn = new Button(
-			pBackPanel,
-			"/songEditor/btn_up_on.png",
-			"/songEditor/btn_up_off.png",
-			"/songEditor/btn_up_over.png",
-			QSize(18,13)
-	);
+	m_pUpBtn = new Button( pBackPanel, QSize( 18, 13 ), "up.svg", "", false, QSize( 8, 7 ) );
 	m_pUpBtn->move( 106, 5 + 25 );
 	m_pUpBtn->setToolTip( tr("Move the selected pattern up") );
 	connect( m_pUpBtn, SIGNAL( clicked( Button* ) ), this, SLOT( upBtnClicked( Button* ) ) );
 
 	// select toggle button
-	m_pPointerActionBtn = new ToggleButton(
-			pBackPanel,
-			"/songEditor/btn_select_on.png",
-			"/songEditor/btn_select_off.png",
-			"/songEditor/btn_select_over.png",
-			QSize( 18, 13 )
-	);
+	m_pPointerActionBtn = new ToggleButton( pBackPanel, QSize( 18, 13 ), "select.svg", "", false, QSize( 14, 9 ) );
 	m_pPointerActionBtn->move( 128, 5 + 25 );
 	m_pPointerActionBtn->setToolTip( tr( "Select mode" ) );
 	connect( m_pPointerActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( pointerActionBtnPressed(Button*) ) );
 
 	// draw toggle button
-	m_pDrawActionBtn = new ToggleButton(
-			pBackPanel,
-			"/songEditor/btn_draw_on.png",
-			"/songEditor/btn_draw_off.png",
-			"/songEditor/btn_draw_over.png",
-			QSize( 18, 13 )
-	);
+	m_pDrawActionBtn = new ToggleButton( pBackPanel, QSize( 18, 13 ), "draw.svg", "", false, QSize( 14, 9 ) );
 	m_pDrawActionBtn->move( 147, 5 + 25 );
 	m_pDrawActionBtn->setToolTip( tr( "Draw mode") );
 	connect( m_pDrawActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( drawActionBtnPressed(Button* ) ) );
@@ -178,17 +136,22 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 		m_pDrawActionBtn->setPressed( true );
 	}
 
-	m_pModeActionBtn = new ToggleButton(
-			pBackPanel,
-			"/songEditor/btn_mode_on.png",
-			"/songEditor/btn_mode_off.png",
-			"/songEditor/btn_mode_over.png",
-			QSize( 18, 13 )
-	);
-	m_pModeActionBtn->move( 169, 5 + 25 );
-	m_pModeActionBtn->setToolTip( tr( "stacked mode") );
-	m_pModeActionBtn->setPressed(  pPref->patternModePlaysSelected() );
-	connect( m_pModeActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( modeActionBtnPressed() ) );
+	// Two buttons sharing the same position and either of them is
+	// shown unpressed.
+	m_pModeActionSingleBtn = new ToggleButton( pBackPanel, QSize( 18, 13 ), "single_layer.svg", "", false, QSize( 14, 11 ) );
+	m_pModeActionSingleBtn->move( 169, 5 + 25 );
+	m_pModeActionSingleBtn->setToolTip( tr( "single pattern mode") );
+	m_pModeActionSingleBtn->setPressed( false );
+	m_pModeActionSingleBtn->setVisible( pPref->patternModePlaysSelected() );
+	connect( m_pModeActionSingleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( modeActionBtnPressed() ) );
+
+	m_pModeActionMultipleBtn = new ToggleButton( pBackPanel, QSize( 18, 13 ), "multiple_layers.svg", "", false, QSize( 14, 11 ) );
+	m_pModeActionMultipleBtn->move( 169, 5 + 25 );
+	m_pModeActionMultipleBtn->hide();
+	m_pModeActionMultipleBtn->setToolTip( tr( "stacked pattern mode") );
+	m_pModeActionMultipleBtn->setPressed( false );
+	m_pModeActionMultipleBtn->setVisible( pPref->patternModePlaysSelected() );
+	connect( m_pModeActionMultipleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( modeActionBtnPressed() ) );
 
 // ZOOM
 	m_pHScrollBar = new QScrollBar( Qt::Horizontal, nullptr );
@@ -196,35 +159,17 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	connect( m_pHScrollBar, SIGNAL(valueChanged(int)), this, SLOT( hScrollTo(int) ) );
 
 	// zoom-in btn
-	Button* pZoomInBtn = new Button(
-			nullptr,
-			"/songEditor/btn_new_on.png",
-			"/songEditor/btn_new_off.png",
-			"/songEditor/btn_new_over.png",
-			QSize( 19, 13 )
-	);
+	Button* pZoomInBtn = new Button( nullptr, QSize( 19, 13 ), "plus.svg", "", false, QSize( 9, 9 ) );
 	connect( pZoomInBtn, SIGNAL( clicked( Button* ) ), this, SLOT( zoomOutBtnPressed(Button* ) ) );
 
 
 
 	// zoom-out btn
-	Button* pZoomOutBtn = new Button(
-			nullptr,
-			"/songEditor/btn_minus_on.png",
-			"/songEditor/btn_minus_off.png",
-			"/songEditor/btn_minus_over.png",
-			QSize( 19, 13 )
-	);
+	Button* pZoomOutBtn = new Button( nullptr, QSize( 19, 13 ), "minus.svg", "", false, QSize( 9, 9 ) );
 	connect( pZoomOutBtn, SIGNAL( clicked( Button* ) ), this, SLOT( zoomInBtnPressed(Button* ) ) );
 
 	// view playback track toggle button
-	m_pViewPlaybackToggleBtn = new ToggleButton(
-			nullptr,
-			"/songEditor/btn_viewPL_on.png",
-			"/songEditor/btn_viewPL_off.png",
-			"/songEditor/btn_viewPL_over.png",
-			QSize( 19, 13 )
-	);
+	m_pViewPlaybackToggleBtn = new ToggleButton( nullptr, QSize( 19, 13 ), "", CommonStrings::getPlaybackTrackButton() );
 	m_pViewPlaybackToggleBtn->setToolTip( tr( "View playback track") );
 	m_pViewPlaybackToggleBtn->setObjectName( "ViewPlaybackToggleBtn" );
 	connect( m_pViewPlaybackToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( viewPlaybackTrackBtnPressed(Button* ) ) );
@@ -239,27 +184,16 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	connect( m_pPlaybackTrackFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( faderChanged( WidgetWithInput* ) ) );
 
 	// mute playback track toggle button
-	m_pMutePlaybackToggleBtn = new ToggleButton(
-			pBackPanel,
-			"/mixerPanel/master_mute_on.png",
-			"/mixerPanel/master_mute_off.png",
-			"/mixerPanel/master_mute_over.png",
-			QSize( 42, 13 )
-	);
+	m_pMutePlaybackToggleBtn = new ToggleButton( pBackPanel, QSize( 33, 13 ), "", CommonStrings::getBigMuteButton(), true );
 	m_pMutePlaybackToggleBtn->setToolTip( tr( "Mute playback track") );
-	m_pMutePlaybackToggleBtn->move( 151, 6 );
+	m_pMutePlaybackToggleBtn->move( 158, 6 );
 	m_pMutePlaybackToggleBtn->hide();
 	connect( m_pMutePlaybackToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( mutePlaybackTrackBtnPressed(Button* ) ) );
 	m_pMutePlaybackToggleBtn->setPressed( !pSong->getPlaybackTrackEnabled() );
 	
 	// edit playback track toggle button
-	m_pEditPlaybackBtn = new Button(
-			pBackPanel,
-			"/mixerPanel/edit_on.png",
-			"/mixerPanel/edit_off.png",
-			"/mixerPanel/edit_over.png",
-			QSize( 42, 13 )
-	);
+	/*: Text displayed on the button to edit the Playback track. Its size is designed to hold four characters.*/
+	m_pEditPlaybackBtn = new Button( pBackPanel, QSize( 33, 13 ), "", CommonStrings::getEditButton() );
 	m_pEditPlaybackBtn->setToolTip( tr( "Choose playback track") );
 	m_pEditPlaybackBtn->move( 124, 6 );
 	m_pEditPlaybackBtn->hide();
@@ -267,13 +201,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pEditPlaybackBtn->setPressed( false );
 
 	// timeline view toggle button
-	m_pViewTimeLineToggleBtn = new ToggleButton(
-			nullptr,
-			"/songEditor/btn_viewTL_on.png",
-			"/songEditor/btn_viewTL_off.png",
-			"/songEditor/btn_viewTL_over.png",
-			QSize( 19, 13 )
-	);
+	/*: Text displayed on the button to toggle the Timeline. Only use a single letter.*/
+	m_pViewTimeLineToggleBtn = new ToggleButton( nullptr, QSize( 19, 13 ), "", CommonStrings::getTimelineButton() );
 	m_pViewTimeLineToggleBtn->setToolTip( tr( "View timeline") );
 	connect( m_pViewTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( viewTimeLineBtnPressed(Button* ) ) );
 	m_pViewTimeLineToggleBtn->setPressed( true );
@@ -873,11 +802,15 @@ void SongEditorPanel::editPlaybackTrackBtnPressed( Button* pBtn )
 
 void SongEditorPanel::modeActionBtnPressed( )
 {
-	if( m_pModeActionBtn->isPressed() ){
-		m_pModeActionBtn->setToolTip( tr( "stacked pattern mode") );
+	if( m_pModeActionSingleBtn->isVisible() ){
+		m_pModeActionSingleBtn->hide();
+		m_pModeActionMultipleBtn->show();
 	} else {
-		m_pModeActionBtn->setToolTip( tr( "single pattern mode") );
+		m_pModeActionSingleBtn->show();
+		m_pModeActionMultipleBtn->hide();
 	}
+	m_pModeActionMultipleBtn->setPressed( false );
+	m_pModeActionSingleBtn->setPressed( false );
 	Hydrogen::get_instance()->togglePlaysSelected();
 	updateAll();
 }
@@ -885,11 +818,11 @@ void SongEditorPanel::modeActionBtnPressed( )
 void SongEditorPanel::setModeActionBtn( bool mode )
 {
 	if( mode ){
-		m_pModeActionBtn->setPressed( true );
-		m_pModeActionBtn->setToolTip( tr( "stacked pattern mode") );
+		m_pModeActionSingleBtn->hide();
+		m_pModeActionMultipleBtn->show();
 	} else {
-		m_pModeActionBtn->setPressed( false );
-		m_pModeActionBtn->setToolTip( tr( "single pattern mode") );
+		m_pModeActionSingleBtn->show();
+		m_pModeActionMultipleBtn->hide();
 	}
 }
 
@@ -939,7 +872,7 @@ void SongEditorPanel::faderChanged( WidgetWithInput *pRef )
 
 void SongEditorPanel::selectedPatternChangedEvent()
 {
-	m_pModeActionBtn->setPressed( Preferences::get_instance()->patternModePlaysSelected() );
+	setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
 	updateAll();
 }
 

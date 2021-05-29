@@ -118,12 +118,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	connect( __pattern_size_LCD, SIGNAL( displayClicked( LCDDisplay* ) ), this, SLOT( patternSizeLCDClicked() ) );
 	
-	m_pDenominatorWarning = new Button(
-			pSizeResol,
-			"/patternEditor/icn_warning.png",
-			"/patternEditor/icn_warning.png",
-			"/patternEditor/icn_warning.png",
-			QSize( 15, 13 ) );
+	m_pDenominatorWarning = new Button( pSizeResol, QSize( 15, 13 ), "warning.svg" );
 	m_pDenominatorWarning->move( 114, 2 );
 	m_pDenominatorWarning->hide();
 	m_pDenominatorWarning->setToolTip( tr( "Unsupported note denominator. Click for more information." ) );
@@ -166,13 +161,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 	// Hear notes btn
-	ToggleButton *hearNotesBtn = new ToggleButton(
-			pRec,
-			"/patternEditor/btn_hear_on.png",
-			"/patternEditor/btn_hear_off.png",
-			"/patternEditor/btn_hear_off.png",
-			QSize( 15, 13 )
-	);
+	ToggleButton *hearNotesBtn = new ToggleButton( pRec, QSize( 15, 13 ), "speaker.svg", "", false, QSize( 13, 11 ) );
 	hearNotesBtn->move( 34, 3 );
 	hearNotesBtn->setToolTip( tr( "Hear new notes" ) );
 	connect( hearNotesBtn, SIGNAL( clicked( Button* ) ), this, SLOT( hearNotesBtnClick( Button* ) ) );
@@ -181,13 +170,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 	// quantize
-	ToggleButton* quantizeEventsBtn = new ToggleButton(
-			pRec,
-			"/patternEditor/btn_quant_on.png",
-			"/patternEditor/btn_quant_off.png",
-			"/patternEditor/btn_quant_off.png",
-			QSize(15, 13)
-	);
+	ToggleButton* quantizeEventsBtn = new ToggleButton( pRec, QSize( 15, 13 ), "quantization.svg", "", false, QSize( 13, 11 ) );
 	quantizeEventsBtn->move( 90, 3 );
 	quantizeEventsBtn->setPressed( pPref->getQuantizeEvents() );
 	quantizeEventsBtn->setToolTip( tr( "Quantize keyboard/midi events to grid" ) );
@@ -195,43 +178,30 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( quantizeEventsBtn, SIGNAL( clicked( Button* ) ), this, SLOT( quantizeEventsBtnClick( Button* ) ) );
 
 	// Editor mode
-	__show_drum_btn = new ToggleButton(
-				pRec,
-				"/patternEditor/btn_drum_piano_on.png",
-				"/patternEditor/btn_drum_piano_off.png",
-				"/patternEditor/btn_drum_piano_off.png",
-				QSize(17, 13)
-				);
+	__show_drum_btn = new ToggleButton(	pRec, QSize( 17, 13 ), "drum.svg", "", false, QSize( 13, 11 ) );
 	__show_drum_btn->move( 137, 3 );
 	__show_drum_btn->setPressed( false );
 	__show_drum_btn->setToolTip( tr( "Show piano roll editor" ) );
 	__show_drum_btn->setObjectName( "ShowDrumBtn" );
 	connect( __show_drum_btn, SIGNAL( clicked( Button* ) ), this, SLOT( showDrumEditorBtnClick( Button* ) ) );
+	__show_piano_btn = new ToggleButton( pRec, QSize( 17, 13 ), "piano.svg", "", false, QSize( 13, 11 ) );
+	__show_piano_btn->move( 137, 3 );
+	__show_piano_btn->setPressed( false );
+	__show_piano_btn->setToolTip( tr( "Show drumkit editor" ) );
+	__show_piano_btn->setObjectName( "ShowDrumBtn" );
+	__show_piano_btn->hide();
+	connect( __show_piano_btn, SIGNAL( clicked( Button* ) ), this, SLOT( showDrumEditorBtnClick( Button* ) ) );
 
 	// zoom-in btn
-	Button *zoom_in_btn = new Button(
-			nullptr,
-			"/songEditor/btn_new_on.png",
-			"/songEditor/btn_new_off.png",
-			"/songEditor/btn_new_over.png",
-			QSize( 19, 13 )
-	);
+	Button *zoom_in_btn = new Button( nullptr, QSize( 19, 13 ), "plus.svg", "", false, QSize( 9, 9 ) );
 	zoom_in_btn->setToolTip( tr( "Zoom in" ) );
 	connect( zoom_in_btn, SIGNAL( clicked( Button* ) ), this, SLOT( zoomInBtnClicked( Button* ) ) );
 
 
 	// zoom-out btn
-	Button *zoom_out_btn = new Button(
-			nullptr,
-			"/songEditor/btn_minus_on.png",
-			"/songEditor/btn_minus_off.png",
-			"/songEditor/btn_minus_over.png",
-			QSize(19, 13)
-	);
+	Button *zoom_out_btn = new Button( nullptr, QSize( 19, 13 ), "minus.svg", "", false, QSize( 9, 9 ) );
 	zoom_out_btn->setToolTip( tr( "Zoom out" ) );
 	connect( zoom_out_btn, SIGNAL( clicked( Button* ) ), this, SLOT( zoomOutBtnClicked(Button*) ) );
-
-
 // End Editor TOP
 
 
@@ -820,13 +790,17 @@ void PatternEditorPanel::showPianoRollEditor()
 void PatternEditorPanel::showDrumEditorBtnClick( Button *ref )
 {
 	UNUSED( ref );
-	if ( !__show_drum_btn->isPressed() ){
+	if ( __show_drum_btn->isVisible() ){
 		showDrumEditor();
-	}
-	else
-	{
+		__show_drum_btn->hide();
+		__show_piano_btn->show();
+	} else {
 		showPianoRollEditor();
+		__show_drum_btn->show();
+		__show_piano_btn->hide();
 	}
+	__show_drum_btn->setPressed( false );
+	__show_piano_btn->setPressed( false );
 }
 
 

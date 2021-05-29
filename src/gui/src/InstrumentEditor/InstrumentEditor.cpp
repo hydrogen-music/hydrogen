@@ -44,6 +44,7 @@ using namespace H2Core;
 
 #include "../HydrogenApp.h"
 #include "../Skin.h"
+#include "../CommonStrings.h"
 #include "../Widgets/Rotary.h"
 #include "../Widgets/WidgetWithInput.h"
 #include "../Widgets/ClickableLabel.h"
@@ -70,30 +71,13 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pInstrumentPropTop = new PixmapWidget( this );
 	m_pInstrumentPropTop->setPixmap( "/instrumentEditor/instrumentTab_top.png" );
 
-	m_pShowInstrumentBtn = new ToggleButton(
-							   m_pInstrumentPropTop,
-							   "/skin_btn_on.png",
-							   "/skin_btn_off.png",
-							   "/skin_btn_over.png",
-							   QSize( 100, 17 ),
-							   true
-							   );
-	m_pShowInstrumentBtn->setText(tr("General"));
+	m_pShowInstrumentBtn = new ToggleButton( m_pInstrumentPropTop, QSize( 100, 17 ), "", CommonStrings::getGeneralButton() );
 	m_pShowInstrumentBtn->setToolTip( tr( "Show instrument properties" ) );
 	connect( m_pShowInstrumentBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
 	m_pShowInstrumentBtn->move( 40, 7 );
 	m_pShowInstrumentBtn->setPressed( true );
 
-
-	m_pShowLayersBtn = new ToggleButton(
-						   m_pInstrumentPropTop,
-						   "/skin_btn_on.png",
-						   "/skin_btn_off.png",
-						   "/skin_btn_over.png",
-						   QSize( 100, 17 ),
-						   true
-						   );
-	m_pShowLayersBtn->setText( tr("Layers") );
+	m_pShowLayersBtn = new ToggleButton( m_pInstrumentPropTop, QSize( 100, 17 ), "", CommonStrings::getLayersButton() );
 	m_pShowLayersBtn->setToolTip( tr( "Show layers properties" ) );
 	connect( m_pShowLayersBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
 	m_pShowLayersBtn->move( 144, 7 );
@@ -115,25 +99,12 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pMidiOutChannelLCD->setToolTip(QString(tr("Midi out channel")));
 
 
-	m_pAddMidiOutChannelBtn = new Button(
-								  m_pInstrumentProp,
-								  "/lcd/LCDSpinBox_up_on.png",
-								  "/lcd/LCDSpinBox_up_off.png",
-								  "/lcd/LCDSpinBox_up_over.png",
-								  QSize( 16, 8 )
-								  );
-
+	m_pAddMidiOutChannelBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "plus.svg", "", false, QSize( 6, 6 ) );
 	m_pAddMidiOutChannelBtn->move( 109, 260 );
 	connect( m_pAddMidiOutChannelBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutChannelBtnClicked(Button*) ) );
 
 
-	m_pDelMidiOutChannelBtn = new Button(
-								  m_pInstrumentProp,
-								  "/lcd/LCDSpinBox_down_on.png",
-								  "/lcd/LCDSpinBox_down_off.png",
-								  "/lcd/LCDSpinBox_down_over.png",
-								  QSize(16,8)
-								  );
+	m_pDelMidiOutChannelBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "minus.svg", "", false, QSize( 6, 6 ) );
 	m_pDelMidiOutChannelBtn->move( 109, 269 );
 	connect( m_pDelMidiOutChannelBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutChannelBtnClicked(Button*) ) );
 
@@ -142,15 +113,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pMidiOutNoteLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pMidiOutNoteLCD->move( 160, 261 );
 
-	m_pAddMidiOutNoteBtn = new Button(
-							   m_pInstrumentProp,
-							   "/lcd/LCDSpinBox_up_on.png",
-							   "/lcd/LCDSpinBox_up_off.png",
-							   "/lcd/LCDSpinBox_up_over.png",
-							   QSize( 16, 8 ),
-							   false,
-							   true
-							   );
+	m_pAddMidiOutNoteBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "plus.svg", "", false, QSize( 6, 6 ), true );
 	m_pMidiOutNoteLCD->setToolTip(QString(tr("Midi out note")));
 
 
@@ -158,15 +121,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pAddMidiOutNoteBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutNoteBtnClicked(Button*) ) );
 
 
-	m_pDelMidiOutNoteBtn = new Button(
-							   m_pInstrumentProp,
-							   "/lcd/LCDSpinBox_down_on.png",
-							   "/lcd/LCDSpinBox_down_off.png",
-							   "/lcd/LCDSpinBox_down_over.png",
-							   QSize(16,8),
-							   false,
-							   true
-							   );
+	m_pDelMidiOutNoteBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "minus.svg", "", false, QSize( 6, 6 ) );
 	m_pDelMidiOutNoteBtn->move( 202, 269 );
 	connect( m_pDelMidiOutNoteBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutNoteBtnClicked(Button*) ) );
 
@@ -197,13 +152,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pRandomPitchRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
 	// Filter
-	m_pFilterBypassBtn = new ToggleButton(
-							 m_pInstrumentProp,
-							 "/instrumentEditor/bypass_on.png",
-							 "/instrumentEditor/bypass_off.png",
-							 "/instrumentEditor/bypass_over.png",
-							 QSize( 30, 13 )
-							 );
+	m_pFilterBypassBtn = new ToggleButton( m_pInstrumentProp, QSize( 30, 13 ), "", CommonStrings::getBypassButton() );
 	connect( m_pFilterBypassBtn, SIGNAL( clicked(Button*) ), this, SLOT( filterActiveBtnClicked(Button*) ) );
 
 	m_pCutoffRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal, tr( "Filter Cutoff" ), false );
@@ -247,25 +196,12 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pMuteGroupLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pMuteGroupLCD->move( 160, 105 );
 
-	m_pAddMuteGroupBtn = new Button(
-							 m_pInstrumentProp,
-							 "/lcd/LCDSpinBox_up_on.png",
-							 "/lcd/LCDSpinBox_up_off.png",
-							 "/lcd/LCDSpinBox_up_over.png",
-							 QSize( 16, 8 )
-							 );
-
+	m_pAddMuteGroupBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "plus.svg", "", false, QSize( 6, 6 ) );
 	m_pAddMuteGroupBtn->move( 202, 104 );
 	connect( m_pAddMuteGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( muteGroupBtnClicked(Button*) ) );
 
 
-	m_pDelMuteGroupBtn = new Button(
-							 m_pInstrumentProp,
-							 "/lcd/LCDSpinBox_down_on.png",
-							 "/lcd/LCDSpinBox_down_off.png",
-							 "/lcd/LCDSpinBox_down_over.png",
-							 QSize(16,8)
-							 );
+	m_pDelMuteGroupBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "minus.svg", "", false, QSize( 6, 6 ) );
 	m_pDelMuteGroupBtn->move( 202, 113 );
 	connect( m_pDelMuteGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( muteGroupBtnClicked(Button*) ) );
 
@@ -287,50 +223,22 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pHihatGroupLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pHihatGroupLCD->move( 27, 307 );
 
-	m_pAddHihatGroupBtn = new Button(
-					m_pInstrumentProp,
-					"/lcd/LCDSpinBox_up_on.png",
-					"/lcd/LCDSpinBox_up_off.png",
-					"/lcd/LCDSpinBox_up_over.png",
-					QSize( 16, 8 )
-					);
+	m_pAddHihatGroupBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "plus.svg", "", false, QSize( 6, 6 ) );
 	m_pAddHihatGroupBtn->move( 69, 306 );
 	connect( m_pAddHihatGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatGroupClicked(Button*) ) );
 
-	m_pDelHihatGroupBtn = new Button(
-					m_pInstrumentProp,
-					"/lcd/LCDSpinBox_down_on.png",
-					"/lcd/LCDSpinBox_down_off.png",
-					"/lcd/LCDSpinBox_down_over.png",
-					QSize(16,8)
-					);
+	m_pDelHihatGroupBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "minus.svg", "", false, QSize( 6, 6 ) );
 	m_pDelHihatGroupBtn->move( 69, 315 );
 	connect( m_pDelHihatGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatGroupClicked(Button*) ) );
 
 	m_pHihatMinRangeLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pHihatMinRangeLCD->move( 137, 307 );
 
-	m_pAddHihatMinRangeBtn = new Button(
-								 m_pInstrumentProp,
-								 "/lcd/LCDSpinBox_up_on.png",
-								 "/lcd/LCDSpinBox_up_off.png",
-								 "/lcd/LCDSpinBox_up_over.png",
-								 QSize( 16, 8 ),
-								 false,
-								 true
-								 );
+	m_pAddHihatMinRangeBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "plus.svg", "", false, QSize( 6, 6 ) );
 	m_pAddHihatMinRangeBtn->move( 179, 306 );
 	connect( m_pAddHihatMinRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMinRangeBtnClicked(Button*) ) );
 
-	m_pDelHihatMinRangeBtn = new Button(
-								 m_pInstrumentProp,
-								 "/lcd/LCDSpinBox_down_on.png",
-								 "/lcd/LCDSpinBox_down_off.png",
-								 "/lcd/LCDSpinBox_down_over.png",
-								 QSize(16,8),
-								 false,
-								 true
-								 );
+	m_pDelHihatMinRangeBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "minus.svg", "", false, QSize( 6, 6 ) );
 	m_pDelHihatMinRangeBtn->move( 179, 315 );
 	connect( m_pDelHihatMinRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMinRangeBtnClicked(Button*) ) );
 
@@ -338,27 +246,11 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pHihatMaxRangeLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pHihatMaxRangeLCD->move( 202, 307 );
 
-	m_pAddHihatMaxRangeBtn = new Button(
-								 m_pInstrumentProp,
-								 "/lcd/LCDSpinBox_up_on.png",
-								 "/lcd/LCDSpinBox_up_off.png",
-								 "/lcd/LCDSpinBox_up_over.png",
-								 QSize( 16, 8 ),
-								 false,
-								 true
-								 );
+	m_pAddHihatMaxRangeBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "plus.svg", "", false, QSize( 6, 6 ) );
 	m_pAddHihatMaxRangeBtn->move( 244, 306 );
 	connect( m_pAddHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
 
-	m_pDelHihatMaxRangeBtn = new Button(
-								 m_pInstrumentProp,
-								 "/lcd/LCDSpinBox_down_on.png",
-								 "/lcd/LCDSpinBox_down_off.png",
-								 "/lcd/LCDSpinBox_down_over.png",
-								 QSize(16,8),
-								 false,
-								 true
-								 );
+	m_pDelHihatMaxRangeBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "minus.svg", "", false, QSize( 6, 6 ) );
 	m_pDelHihatMaxRangeBtn->move( 244, 315 );
 	connect( m_pDelHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
 
@@ -384,12 +276,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pCompoNameLbl->setFont( boldFont );
 	connect( m_pCompoNameLbl, SIGNAL( labelClicked(ClickableLabel*) ), this, SLOT( labelCompoClicked(ClickableLabel*) ) );
 
-	m_buttonDropDownCompo = new Button( m_pLayerProp,
-										"/instrumentEditor/btn_dropdown_on.png",
-										"/instrumentEditor/btn_dropdown_off.png",
-										"/instrumentEditor/btn_dropdown_over.png",
-										QSize(13, 13)
-										);
+	m_buttonDropDownCompo = new Button( m_pLayerProp, QSize( 13, 13 ), "dropdown.svg" );
 	m_buttonDropDownCompo->move( 272, 10 );
 	connect( m_buttonDropDownCompo, SIGNAL( clicked( Button* ) ), this, SLOT( onClick( Button* ) ) );
 
@@ -415,39 +302,16 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pWaveDisplay->move( 5, 241 );
 	connect( m_pWaveDisplay, SIGNAL( doubleClicked(QWidget*) ), this, SLOT( waveDisplayDoubleClicked(QWidget*) ) );
 
-	m_pLoadLayerBtn = new Button(
-						  m_pLayerProp,
-						  "/instrumentEditor/loadLayer_on.png",
-						  "/instrumentEditor/loadLayer_off.png",
-						  "/instrumentEditor/loadLayer_over.png",
-						  QSize( 90, 13 )
-						  );
+	m_pLoadLayerBtn = new Button( m_pLayerProp, QSize( 90, 13 ), "", CommonStrings::getLoadLayerButton() );
 	m_pLoadLayerBtn->setObjectName( "LoadLayerButton" );
-
-	m_pRemoveLayerBtn = new Button(
-							m_pLayerProp,
-							"/instrumentEditor/deleteLayer_on.png",
-							"/instrumentEditor/deleteLayer_off.png",
-							"/instrumentEditor/deleteLayer_over.png",
-							QSize( 90, 13 )
-							);
-	m_pRemoveLayerBtn->setObjectName( "RemoveLayerButton" );
-
-	m_pSampleEditorBtn = new Button(
-							 m_pLayerProp,
-							 "/instrumentEditor/editLayer_on.png",
-							 "/instrumentEditor/editLayer_off.png",
-							 "/instrumentEditor/editLayer_over.png",
-							 QSize( 90, 13 )
-							 );
-	m_pSampleEditorBtn->setObjectName( "SampleEditorButton" );
-	m_pLoadLayerBtn->move( 48, 267 );
-	m_pRemoveLayerBtn->move( 145, 267 );
-
-
-
 	m_pLoadLayerBtn->move( 6, 306 );
+
+	m_pRemoveLayerBtn = new Button( m_pLayerProp, QSize( 90, 13 ), "", CommonStrings::getDeleteLayerButton() );
+	m_pRemoveLayerBtn->setObjectName( "RemoveLayerButton" );
 	m_pRemoveLayerBtn->move( 99, 306 );
+
+	m_pSampleEditorBtn = new Button( m_pLayerProp, QSize( 90, 13 ), "", CommonStrings::getEditLayerButton() );
+	m_pSampleEditorBtn->setObjectName( "SampleEditorButton" );
 	m_pSampleEditorBtn->move( 191, 306 );
 
 	connect( m_pLoadLayerBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );

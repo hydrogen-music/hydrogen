@@ -104,50 +104,26 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	vboxLayout->addWidget( pControlsPanel );
 
 	// Rewind button
-	m_pRwdBtn = new Button(
-			pControlsPanel,
-			"/playerControlPanel/btn_rwd_on.png",
-			"/playerControlPanel/btn_rwd_off.png",
-			"/playerControlPanel/btn_rwd_over.png",
-			QSize(21, 15)
-	);
+	m_pRwdBtn = new Button( pControlsPanel, QSize( 21, 15 ), "rewind.svg", "", false, QSize( 11, 11 ) );
 	m_pRwdBtn->move(6, 6);
 	m_pRwdBtn->setToolTip( tr("Rewind") );
 	connect(m_pRwdBtn, SIGNAL(clicked(Button*)), this, SLOT(rewindBtnClicked(Button*)));
 
 	// Play button
-	m_pPlayBtn = new ToggleButton(
-			pControlsPanel,
-			"/playerControlPanel/btn_play_on.png",
-			"/playerControlPanel/btn_play_off.png",
-			"/playerControlPanel/btn_play_over.png",
-			QSize(33, 17)
-	);
+	m_pPlayBtn = new ToggleButton( pControlsPanel, QSize( 26, 17 ), "play.svg", "", false, QSize( 11, 11 ) );
 	m_pPlayBtn->move(33, 6);
 	m_pPlayBtn->setPressed(false);
 	m_pPlayBtn->setToolTip( tr("Play/ Pause/ Load selected song") );
 	connect(m_pPlayBtn, SIGNAL(clicked(Button*)), this, SLOT(nodePlayBTN(Button*)));
 
 	// Stop button
-	m_pStopBtn = new Button(
-			pControlsPanel,
-			"/playerControlPanel/btn_stop_on.png",
-			"/playerControlPanel/btn_stop_off.png",
-			"/playerControlPanel/btn_stop_over.png",
-			QSize(21, 15)
-	);
+	m_pStopBtn = new Button( pControlsPanel, QSize( 21, 15 ), "stop.svg", "", false, QSize( 9, 9 )  );
 	m_pStopBtn->move(65, 6);
 	m_pStopBtn->setToolTip( tr("Stop") );
 	connect(m_pStopBtn, SIGNAL(clicked(Button*)), this, SLOT(nodeStopBTN(Button*)));
 
 	// Fast forward button
-	m_pFfwdBtn = new Button(
-			pControlsPanel,
-			"/playerControlPanel/btn_ffwd_on.png",
-			"/playerControlPanel/btn_ffwd_off.png",
-			"/playerControlPanel/btn_ffwd_over.png",
-			QSize(21, 15)
-	);
+	m_pFfwdBtn = new Button( pControlsPanel, QSize( 21, 15 ), "fast_forward.svg", "", false, QSize( 11, 11 ) );
 	m_pFfwdBtn->move(92, 6);
 	m_pFfwdBtn->setToolTip( tr("Fast Forward") );
 	connect(m_pFfwdBtn, SIGNAL(clicked(Button*)), this, SLOT(ffWDBtnClicked(Button*)));
@@ -192,29 +168,13 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 #endif
 
 	// zoom-in btn
-	Button *pUpBtn = new Button(
-			nullptr,
-			"/songEditor/btn_up_on.png",
-			"/songEditor/btn_up_off.png",
-			"/songEditor/btn_up_over.png",
-			QSize(18, 13)
-	);
-
-	pUpBtn->setFontSize(7);
+	Button *pUpBtn = new Button( nullptr, QSize( 18, 13 ), "up.svg", "", false, QSize( 7, 7 ) );
 	pUpBtn->setToolTip( tr( "sort" ) );
 	connect(pUpBtn, SIGNAL(clicked(Button*)), this, SLOT(o_upBClicked()) );
 	pSideBarLayout->addWidget(pUpBtn);
 
 	// zoom-in btn
-	Button *pDownBtn = new Button(
-			nullptr,
-			"/songEditor/btn_down_on.png",
-			"/songEditor/btn_down_off.png",
-			"/songEditor/btn_down_over.png",
-			QSize(18, 13)
-	);
-
-	pDownBtn->setFontSize(7);
+	Button *pDownBtn = new Button( nullptr, QSize( 18, 13 ), "down.svg", "", false, QSize( 7, 7 ) );
 	pDownBtn->setToolTip( tr( "sort" ) );
 	connect(pDownBtn, SIGNAL(clicked(Button*)), this, SLOT(o_downBClicked()));
 	pSideBarLayout->addWidget(pDownBtn);
