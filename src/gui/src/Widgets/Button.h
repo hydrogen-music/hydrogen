@@ -34,7 +34,6 @@
 #include <QtGui>
 #include <QtWidgets>
 #include <QSvgRenderer>
-#include "WidgetWithScalableFont.h"
 
 
 /**

@@ -25,6 +25,7 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include <chrono>
 
 #include "EventListener.h"
 #include <core/Object.h>
@@ -42,8 +43,8 @@ class Button;
 class ToggleButton;
 class LEDButton;
 class CpuLoadWidget;
-class MidiActivityWidget;
 class PixmapWidget;
+class LED;
 
 ///
 ///
@@ -143,6 +144,7 @@ public slots:
 		//rubberband
 		void rubberbandButtonToggle(Button* ref);
 
+		void deactivateMidiActivityLED();
 	private:
 		/**
 		 * Shared GUI update when activating loop mode via button
@@ -151,6 +153,7 @@ public slots:
 		 * @param nValue If 0, loop mode will be deactivate.
 		 */
 		void loopModeActivationEvent( int nValue ) override;
+		void midiActivityEvent() override;
 		H2Core::Hydrogen *m_pHydrogen;
 		QPixmap m_background;
 
@@ -161,9 +164,10 @@ public slots:
 		Button *m_pFfwdBtn;
 
 		ToggleButton *m_pSongLoopBtn;
-
 		ToggleButton *m_pSongModeBtn;
+		LED			 *m_pSongModeLED;
 		ToggleButton *m_pLiveModeBtn;
+		LED			 *m_pPatternModeLED;
 
 		//beatcounter
 		/** Store the tool tip of the beat counter since it gets
@@ -190,7 +194,7 @@ public slots:
 		Button *m_pBPMDownBtn;
 
 		CpuLoadWidget *m_pCpuLoadWidget;
-		MidiActivityWidget *m_pMidiActivityWidget;
+		LED *m_pMidiActivityLED;
 
 		LCDSpinBox *m_pLCDBPMSpinbox;
 
@@ -216,6 +220,11 @@ public slots:
 		LCDDisplay *m_pStatusLabel;
 		QTimer *m_pStatusTimer;
 		QTimer *m_pScrollTimer;
+		/** Used to turn off the LED #m_pMidiActivityLED indicating an
+			incoming MIDI event after #m_midiActivityTimeout
+			milliseconds.*/ 
+		QTimer *m_pMidiActivityTimer;
+		std::chrono::milliseconds m_midiActivityTimeout; 
 		QString m_pScrollMessage;
 		/** Used to detect changed in the font*/
 		H2Core::Preferences::FontSize m_lastUsedFontSize;

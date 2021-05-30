@@ -28,9 +28,9 @@
 #include "HydrogenApp.h"
 
 #include "Widgets/LCD.h"
+#include "Widgets/LED.h"
 #include "Widgets/Button.h"
 #include "Widgets/CpuLoadWidget.h"
-#include "Widgets/MidiActivityWidget.h"
 #include "Widgets/PixmapWidget.h"
 
 #include "Mixer/Mixer.h"
@@ -54,6 +54,7 @@ const char* PlayerControl::__class_name = "PlayerControl";
 PlayerControl::PlayerControl(QWidget *parent)
  : QLabel(parent)
  , Object( __class_name )
+ , m_midiActivityTimeout( 250 )
 {
 	setObjectName( "PlayerControl" );
 	HydrogenApp::get_instance()->addEventListener( this );
@@ -143,6 +144,9 @@ PlayerControl::PlayerControl(QWidget *parent)
 	connect( m_pSongLoopBtn, SIGNAL( clicked(Button*) ), this, SLOT( songLoopBtnClicked(Button*) ) );
 
 	// Live mode button
+	m_pPatternModeLED = new LED( pControlsPanel, QSize( 11, 9 ) );
+	m_pPatternModeLED->move( 179, 4 );
+	m_pPatternModeLED->setActivated( true );
 	m_pLiveModeBtn = new ToggleButton( pControlsPanel, QSize( 57, 9 ), "", HydrogenApp::get_instance()->getCommonStrings()->getPatternModeButton() );
 	m_pLiveModeBtn->move(191, 4);
 	m_pLiveModeBtn->setPressed(true);
@@ -150,6 +154,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	connect(m_pLiveModeBtn, SIGNAL(clicked(Button*)), this, SLOT(liveModeBtnClicked(Button*)));
 
 	// Song mode button
+	m_pSongModeLED = new LED( pControlsPanel, QSize( 11, 9 ) );
+	m_pSongModeLED->move( 252, 4 );
 	m_pSongModeBtn = new ToggleButton( pControlsPanel, QSize( 57, 9 ), "", HydrogenApp::get_instance()->getCommonStrings()->getSongModeButton() );
 	m_pSongModeBtn->move(264, 4);
 	m_pSongModeBtn->setPressed(false);
@@ -276,6 +282,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	hbox->addWidget( pJackPanel );
 
 	// Jack transport mode button
+	
 	m_pJackTransportBtn = new ToggleButton( pJackPanel, QSize( 45, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getJackTransportButton() );
 	m_pJackTransportBtn->hide();
 	if ( pPreferences->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
@@ -310,10 +317,12 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pCpuLoadWidget->setObjectName( "CpuLoadWidget" );
 
 	// Midi Activity widget
-	m_pMidiActivityWidget = new MidiActivityWidget( pJackPanel );
-	m_pMidiActivityWidget->setObjectName( "MidiActivityWidget" );
+	m_pMidiActivityLED = new LED( pJackPanel, QSize( 11, 9 ) );
+	m_pMidiActivityLED->setObjectName( "MidiActivityLED" );
+	m_pMidiActivityTimer = new QTimer( this );
+	connect( m_pMidiActivityTimer, SIGNAL( timeout() ), this, SLOT( deactivateMidiActivityLED() ) );
 
-	m_pMidiActivityWidget->move( 10, 14 );
+	m_pMidiActivityLED->move( 12, 14 );
 	m_pCpuLoadWidget->move( 10, 4 );
 //~ JACK
 
@@ -579,7 +588,16 @@ void PlayerControl::stopBtnClicked(Button* ref)
 	(HydrogenApp::get_instance())->setStatusBarMessage(tr("Stopped."), 5000);
 }
 
+void PlayerControl::midiActivityEvent() {
+	m_pMidiActivityTimer->stop();
+	m_pMidiActivityLED->setActivated( true );
+	m_pMidiActivityTimer->start( m_midiActivityTimeout );
+}
 
+void PlayerControl::deactivateMidiActivityLED() {
+	m_pMidiActivityTimer->stop();
+	m_pMidiActivityLED->setActivated( false );
+}
 
 
 /// Set Song mode
@@ -606,10 +624,14 @@ void PlayerControl::liveModeBtnClicked(Button* ref)
 void PlayerControl::songModeActivationEvent( int nValue )
 {
 	if ( nValue != 0 ) {
+		m_pPatternModeLED->setActivated( false );
+		m_pSongModeLED->setActivated( true );
 		m_pSongModeBtn->setPressed(true);
 		m_pLiveModeBtn->setPressed(false);
 		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Song mode selected."), 5000);
 	} else {
+		m_pPatternModeLED->setActivated( true );
+		m_pSongModeLED->setActivated( false );
 		m_pSongModeBtn->setPressed(false);
 		m_pLiveModeBtn->setPressed(true);
 		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Pattern mode selected."), 5000);

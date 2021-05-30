@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright (C) 2021 The hydrogen development team <hydrogen-devel@lists.sourceforge.net>
  *
  * http://www.hydrogen-music.org
  *
@@ -21,36 +21,46 @@
  */
 
 
-#ifndef MIDI_ACTIVITY_WIDGET_H
-#define MIDI_ACTIVITY_WIDGET_H
+#ifndef LED_H
+#define LED_H
 
+
+#include <core/Object.h>
+#include <core/Preferences.h>
 
 #include <QtGui>
 #include <QtWidgets>
+#include <QSvgRenderer>
 
-#include "../EventListener.h"
-#include <core/Object.h>
 
-class MidiActivityWidget : public QWidget, public EventListener, public H2Core::Object
+/**
+ * LED identicating a user selection.
+ */
+class LED : public QWidget, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
-	public:
-		explicit MidiActivityWidget(QWidget * parent);
-		~MidiActivityWidget();
 
-		void mousePressEvent(QMouseEvent *ev) override;
-		void paintEvent(QPaintEvent *ev) override;
+public:
+	LED( QWidget *pParent, QSize size );
+	virtual ~LED();
+	
+	LED(const LED&) = delete;
+	LED& operator=( const LED& rhs ) = delete;
+ 
+	bool getActivated() const;
+	void setActivated( bool bActivated );
 
-	public slots:
-		void restoreMidiActivityWidget();
+private:
+	QSvgRenderer* m_background;
+	
+	bool m_bActivated;
+	void paintEvent( QPaintEvent* ev);
 
-	private:
-		bool		m_bValue;
-		QTimer *	m_qTimer;
-		QPixmap		m_back;
-		QPixmap		m_leds;
-		virtual void midiActivityEvent() override;
 };
+
+inline bool LED::getActivated() const {
+	return m_bActivated;
+}
 
 #endif
