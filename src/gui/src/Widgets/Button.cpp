@@ -185,9 +185,35 @@ void Button::paintEvent( QPaintEvent* ev )
 {
 	QPainter painter( this );
 
-	QFont boldFont( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
-	boldFont.setBold( true );
-	painter.setFont( boldFont );
+	float fScalingFactor = 1.0;
+    switch ( m_lastUsedFontSize ) {
+    case H2Core::Preferences::FontSize::Small:
+		fScalingFactor = 1.5;
+		break;
+    case H2Core::Preferences::FontSize::Normal:
+		fScalingFactor = 1.0;
+		break;
+    case H2Core::Preferences::FontSize::Large:
+		fScalingFactor = 0.75;
+		break;
+	}
+
+	int nMargin, nPixelSize;
+	if ( m_nWidth <= 11 || m_nHeight <= 11 ) {
+		nMargin = 2;
+	} else {
+		nMargin = 5;
+	}
+	
+	if ( m_nWidth >= m_nHeight ) {
+		nPixelSize = m_nHeight - std::round( fScalingFactor * nMargin );
+	} else {
+		nPixelSize = m_nWidth - std::round( fScalingFactor * nMargin );
+	}
+
+	QFont font( m_sLastUsedFontFamily );
+	font.setPixelSize( nPixelSize );
+	painter.setFont( font );
 
 	if ( m_background != nullptr ) {
 
