@@ -24,13 +24,14 @@
 #define PLAYLIST_DIALOG_H
 
 
+#include <QMenuBar>
 #include <QDialog>
 #include "ui_PlaylistDialog_UI.h"
 #include <core/Object.h>
 #include <core/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Playlist.h>
-
+#include "../Widgets/WidgetWithScalableFont.h"
 
 class Button;
 class ToggleButton;
@@ -39,7 +40,7 @@ class PixmapWidget;
 ///
 /// This dialog is used to use the H2PlayList
 ///
-class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public H2Core::Object
+class PlaylistDialog : public QDialog, protected WidgetWithScalableFont<8, 10, 12>, public Ui_PlaylistDialog_UI, public H2Core::Object
 
 {
 		H2_OBJECT
@@ -51,6 +52,8 @@ class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public H2Cor
 
 		bool loadListByFileName( QString filename);
 
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
 
 	private slots:
 		void keyPressEvent( QKeyEvent* ev );
@@ -85,11 +88,16 @@ class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public H2Cor
 		void setFirstItemCurrent();
 		Button *zoom_in_btn;
 		QTimer *timer;
+		QMenuBar *m_pMenubar;
+		QMenu *m_pPlaylistMenu;
+		QMenu *m_pScriptMenu;
 
 		Button *m_pRwdBtn;
 		ToggleButton *m_pPlayBtn;
 		Button *m_pStopBtn;
 		Button *m_pFfwdBtn;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

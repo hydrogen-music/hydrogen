@@ -23,10 +23,13 @@
 #ifndef PREFERENCES_DIALOG_H
 #define PREFERENCES_DIALOG_H
 
+#include <vector>
 
 #include "ui_PreferencesDialog_UI.h"
+#include "Widgets/ColorSelectionButton.h"
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 
 ///
 /// Preferences Dialog
@@ -43,8 +46,6 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 	private slots:
 		void on_okBtn_clicked();
 		void on_cancelBtn_clicked();
-		void on_selectApplicationFontBtn_clicked();
-		void on_selectMixerFontBtn_clicked();
 		void on_restartDriverBtn_clicked();
 		void on_driverComboBox_activated( int index );
 		void on_bufferSizeSpinBox_valueChanged( int i );
@@ -57,16 +58,37 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void onMidiDriverComboBoxIndexChanged( int index );
 		void toggleTrackOutsCheckBox(bool toggled);
 		void toggleOscCheckBox(bool toggled);
-		void coloringMethodCombo_currentIndexChanged (int index);
+	void onRejected();
+	void onApplicationFontChanged(const QFont& font);
+	void onLevel2FontChanged( const QFont& font );
+	void onLevel3FontChanged( const QFont& font );
+	void onFontSizeChanged( int nIndex );
+	void onUILayoutChanged( int nIndex );
+	void onColorNumberChanged( int nIndex );
+	void onColorSelectionClicked();
+	void onColoringMethodChanged( int nIndex );
 
+private:
 
-	private:
-		bool m_bNeedDriverRestart;
-		QString m_sInitialLanguage;
+	void updateDriverInfo();
+	void updateDriverPreferences();
+	
 
-		void updateDriverInfo();
+	bool m_bNeedDriverRestart;
+	QString m_sInitialLanguage;
 
-		void updateDriverPreferences();
+	/** Caching the corresponding variable in Preferences in case the
+		QFontDialog will be cancelled.*/
+	QString m_sPreviousApplicationFontFamily;
+	QString m_sPreviousLevel2FontFamily;
+	QString m_sPreviousLevel3FontFamily;
+	H2Core::Preferences::FontSize m_previousFontSize;
+	int m_nPreviousVisiblePatternColors;
+	std::vector<QColor> m_previousPatternColors;
+
+	QStringList m_fontFamilies;
+	std::vector<ColorSelectionButton*> m_colorSelectionButtons;
+
 };
 
 #endif

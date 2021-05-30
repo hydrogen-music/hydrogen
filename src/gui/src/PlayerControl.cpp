@@ -40,7 +40,6 @@
 #include <core/Hydrogen.h>
 #include <core/AudioEngine.h>
 #include <core/IO/JackAudioDriver.h>
-#include <core/Preferences.h>
 #include <core/EventQueue.h>
 using namespace H2Core;
 
@@ -57,8 +56,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 {
 	setObjectName( "PlayerControl" );
 	HydrogenApp::get_instance()->addEventListener( this );
-	
 	auto pPreferences = Preferences::get_instance();
+	m_lastUsedFontSize = pPreferences->getFontSize();	
 	
 	// Background image
 	setPixmap( QPixmap( Skin::getImagePath() + "/playerControlPanel/background.png" ) );
@@ -69,7 +68,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	hbox->setMargin( 0 );
 	setLayout( hbox );
 
-
+	QFont fontButtons( pPreferences->getLevel3FontFamily(), getPointSize( m_lastUsedFontSize ) );
 
 // CONTROLS
 	PixmapWidget *pControlsPanel = new PixmapWidget( nullptr );
@@ -463,6 +462,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pShowMixerBtn->move( 7, 6 );
 	m_pShowMixerBtn->setToolTip( tr( "Show mixer" ) );
 	m_pShowMixerBtn->setText( tr( "Mixer" ) );
+	m_pShowMixerBtn->setFont( fontButtons );
 	connect(m_pShowMixerBtn, SIGNAL(clicked(Button*)), this, SLOT(showButtonClicked(Button*)));
 
 	m_pShowInstrumentRackBtn = new ToggleButton(
@@ -476,6 +476,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pShowInstrumentRackBtn->move( 88, 6 );
 	m_pShowInstrumentRackBtn->setToolTip( tr( "Show Instrument Rack" ) );
 	m_pShowInstrumentRackBtn->setText( tr( "Instrument rack" ) );
+	m_pShowInstrumentRackBtn->setFont( fontButtons );
 	connect( m_pShowInstrumentRackBtn, SIGNAL( clicked(Button*) ), this, SLOT( showButtonClicked( Button*)) );
 
 	m_pStatusLabel = new LCDDisplay(pLcdBackGround , LCDDigit::SMALL_BLUE, 30, true );
@@ -484,7 +485,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	hbox->addStretch( 1000 );	// this must be the last widget in the HBOX!!
 
-
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &PlayerControl::onPreferencesChanged );
 
 
 	QTimer *timer = new QTimer( this );
@@ -1132,6 +1133,19 @@ void PlayerControl::jackTimebaseActivationEvent( int nValue ) {
 	}
 	
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateTimelineUsage();
+}
+
+void PlayerControl::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_pShowMixerBtn->font().family() != pPref->getLevel3FontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		QFont fontButtons( pPref->getLevel3FontFamily(), getPointSize( m_lastUsedFontSize ) );
+		m_pShowMixerBtn->setFont( fontButtons );
+		m_pShowInstrumentRackBtn->setFont( fontButtons );
+	}
 }
 
 //::::::::::::::::::::::::::::::::::::::::::::::::

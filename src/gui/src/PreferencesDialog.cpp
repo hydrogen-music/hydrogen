@@ -31,12 +31,11 @@
 #include "qstylefactory.h"
 
 #include <QPixmap>
-#include <QFontDialog>
+#include <QFontDatabase>
 #include "Widgets/MidiTable.h"
 
 #include <core/MidiMap.h>
 #include <core/Hydrogen.h>
-#include <core/Preferences.h>
 #include <core/IO/MidiInput.h>
 #include <core/Lash/LashClient.h>
 #include <core/AudioEngine.h>
@@ -61,6 +60,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	setWindowTitle( tr( "Preferences" ) );
 
 	setMinimumSize( width(), height() );
+
+	connect( this, &PreferencesDialog::rejected, this, &PreferencesDialog::onRejected );
 
 	Preferences *pPref = Preferences::get_instance();
 	pPref->loadPreferences( false );	// reload user's preferences
@@ -208,20 +209,37 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	resampleComboBox->setCurrentIndex( (int) Hydrogen::get_instance()->getAudioEngine()->getSampler()->getInterpolateMode() );
 
+	QFontDatabase fontDB;
+	m_fontFamilies = fontDB.families();
+	
 	// Appearance tab
-	QString applicationFamily = pPref->getApplicationFontFamily();
-	int applicationPointSize = pPref->getApplicationFontPointSize();
+	m_sPreviousApplicationFontFamily = pPref->getApplicationFontFamily();
+	m_sPreviousLevel2FontFamily = pPref->getLevel2FontFamily();
+	m_sPreviousLevel3FontFamily = pPref->getLevel3FontFamily();
+	applicationFontComboBox->setCurrentFont( QFont( m_sPreviousApplicationFontFamily ) );
+	level2FontComboBox->setCurrentFont( QFont( m_sPreviousLevel2FontFamily ) );
+	level3FontComboBox->setCurrentFont( QFont( m_sPreviousLevel3FontFamily ) );
+	connect( applicationFontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onApplicationFontChanged );
+	connect( level2FontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onLevel2FontChanged );
+	connect( level3FontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onLevel3FontChanged );
 
-	QFont applicationFont( applicationFamily, applicationPointSize );
-	applicationFontLbl->setFont( applicationFont );
-	applicationFontLbl->setText( applicationFamily + QString("  %1").arg( applicationPointSize ) );
-
-	QString mixerFamily = pPref->getMixerFontFamily();
-	int mixerPointSize = pPref->getMixerFontPointSize();
-	QFont mixerFont( mixerFamily, mixerPointSize );
-	mixerFontLbl->setFont( mixerFont );
-	mixerFontLbl->setText( mixerFamily + QString("  %1").arg( mixerPointSize ) );
-
+	m_previousFontSize = pPref->getFontSize();
+	switch( m_previousFontSize ) {
+	case Preferences::FontSize::Small:
+		fontSizeComboBox->setCurrentIndex( 0 );
+		break;
+	case Preferences::FontSize::Normal:
+		fontSizeComboBox->setCurrentIndex( 1 );
+		break;
+	case Preferences::FontSize::Large:
+		fontSizeComboBox->setCurrentIndex( 2 );
+		break;
+	default:
+		ERRORLOG( QString( "Unknown font size: %1" )
+				  .arg( static_cast<int>( m_previousFontSize ) ) );
+	}
+	connect( fontSizeComboBox, SIGNAL( currentIndexChanged(int) ),
+			 this, SLOT( onFontSizeChanged(int) ) );
 
 	float falloffSpeed = pPref->getMixerFalloffSpeed();
 	if (falloffSpeed == FALLOFF_SLOW) {
@@ -236,8 +254,16 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	else {
 		ERRORLOG( QString("PreferencesDialog: wrong mixerFalloff value = %1").arg(falloffSpeed) );
 	}
-
+	
+	UIChangeWarningLabel->hide();
+	UIChangeWarningLabel->setText( QString( "<b><i><font color=" )
+								   .append( m_sColorRed )
+								   .append( ">" )
+								   .append( tr( "For changes of the interface layout to take effect Hydrogen must be restarted." ) )
+								   .append( "</font></i></b>" ) );
 	uiLayoutComboBox->setCurrentIndex(  pPref->getDefaultUILayout() );
+	connect( uiLayoutComboBox, SIGNAL( currentIndexChanged(int) ), this, SLOT( onUILayoutChanged(int) ) );
+	
 
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
 	uiScalingPolicyComboBox->setCurrentIndex( pPref->getUIScalingPolicy() );
@@ -262,22 +288,51 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	//SongEditor coloring
 	int coloringMethod = pPref->getColoringMethod();
-	int coloringMethodAuxValue = pPref->getColoringMethodAuxValue();
+	m_nPreviousVisiblePatternColors = pPref->getVisiblePatternColors();
 
+	if ( coloringMethod == 0 ) {
+		coloringMethodAuxSpinBox->hide();
+		colorSelectionLabel->hide();
+	} else {
+		coloringMethodAuxSpinBox->show();
+		colorSelectionLabel->show();
+	}
 	coloringMethodCombo->clear();
 	coloringMethodCombo->addItem(tr("Automatic"));
-	coloringMethodCombo->addItem(tr("Steps"));
-	coloringMethodCombo->addItem(tr("Fixed"));
-
-	coloringMethodAuxSpinBox->setMaximum(300);
+	coloringMethodCombo->addItem(tr("Custom"));
 
 	coloringMethodCombo->setCurrentIndex( coloringMethod );
-	coloringMethodAuxSpinBox->setValue( coloringMethodAuxValue );
+	coloringMethodAuxSpinBox->setValue( m_nPreviousVisiblePatternColors );
+	QSize size( uiScalingPolicyComboBox->width(), coloringMethodAuxSpinBox->height() );
+	coloringMethodAuxSpinBox->setFixedSize( size );
+	coloringMethodAuxSpinBox->resize( size );
 
-	coloringMethodCombo_currentIndexChanged( coloringMethod );
+	m_previousPatternColors = pPref->getPatternColors();
 
-	connect(coloringMethodCombo, SIGNAL(currentIndexChanged(int)), this, SLOT( coloringMethodCombo_currentIndexChanged(int) ));
+	int nMaxPatternColors = pPref->getMaxPatternColors();
+	m_colorSelectionButtons = std::vector<ColorSelectionButton*>( nMaxPatternColors );
+	int nButtonSize = coloringMethodAuxSpinBox->height();
+	int nButtonsPerLine = std::floor( static_cast<float>(coloringMethodAuxSpinBox->width()) /
+									  static_cast<float>(nButtonSize + 4) );
+	colorSelectionGrid->setHorizontalSpacing( 4 );
+	for ( int ii = 0; ii < nMaxPatternColors; ii++ ) {
+		ColorSelectionButton* bbutton = new ColorSelectionButton( this, m_previousPatternColors[ ii ], nButtonSize );
+		bbutton->hide();
+		connect( bbutton, &ColorSelectionButton::clicked, this, &PreferencesDialog::onColorSelectionClicked );
+		colorSelectionGrid->addWidget( bbutton,
+									   std::floor( static_cast<float>( ii ) /
+												   static_cast<float>( nButtonsPerLine ) ),
+									   (ii % nButtonsPerLine) + 1); //+1 to take the hspace into account.
+		m_colorSelectionButtons[ ii ] = bbutton;
+	}
 
+	if ( coloringMethod != 0 ) {
+		for ( int ii = 0; ii < m_nPreviousVisiblePatternColors; ii++ ) {
+			m_colorSelectionButtons[ ii ]->show();
+		}
+	}
+	connect( coloringMethodAuxSpinBox, SIGNAL( valueChanged(int)), this, SLOT( onColorNumberChanged( int ) ) );
+	connect( coloringMethodCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( onColoringMethodChanged(int) ) );
 
 	// midi tab
 	midiPortChannelComboBox->setEnabled( false );
@@ -394,9 +449,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	m_bNeedDriverRestart = false;
 	connect(m_pMidiDriverComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT( onMidiDriverComboBoxIndexChanged(int) ));
 }
-
-
-
 
 PreferencesDialog::~PreferencesDialog()
 {
@@ -614,25 +666,6 @@ void PreferencesDialog::on_okBtn_clicked()
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
 	pPref->setUIScalingPolicy( uiScalingPolicyComboBox->currentIndex() );
 #endif
-
-
-	int coloringMethod = coloringMethodCombo->currentIndex();
-
-	pPref->setColoringMethod( coloringMethod );
-
-	switch( coloringMethod )
-	{
-		case 0:
-			//Automatic
-			pPref->setColoringMethodAuxValue(0);
-			break;
-		case 1:
-			pPref->setColoringMethodAuxValue( coloringMethodAuxSpinBox->value() );
-			break;
-		case 2:
-			pPref->setColoringMethodAuxValue( coloringMethodAuxSpinBox->value() );
-			break;
-	}
 
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
 	SongEditorPanel* pSongEditorPanel = pH2App->getSongEditorPanel();
@@ -896,36 +929,110 @@ void PreferencesDialog::updateDriverInfo()
 	driverInfoLbl->setText(info);
 }
 
+void PreferencesDialog::onApplicationFontChanged( const QFont& font ) {
+	auto pPref = Preferences::get_instance();
+	
+	pPref->setApplicationFontFamily( font.family() );
 
-
-void PreferencesDialog::on_selectApplicationFontBtn_clicked()
-{
-	Preferences *preferencesMng = Preferences::get_instance();
-
-	QString family = preferencesMng->getApplicationFontFamily();
-	int pointSize = preferencesMng->getApplicationFontPointSize();
-
-	bool ok;
-	QFont font = QFontDialog::getFont( &ok, QFont( family, pointSize ), this );
-	if ( ok ) {
-		// font is set to the font the user selected
-		family = font.family();
-		pointSize = font.pointSize();
-		QString familyStr = family;
-		preferencesMng->setApplicationFontFamily(familyStr);
-		preferencesMng->setApplicationFontPointSize(pointSize);
-	} else {
-		// the user cancelled the dialog; font is set to the initial
-		// value, in this case Times, 12.
-	}
-
-	QFont newFont(family, pointSize);
-	applicationFontLbl->setFont(newFont);
-	applicationFontLbl->setText(family + QString("  %1").arg(pointSize));
+	HydrogenApp::get_instance()->changePreferences( true );
 }
 
+void PreferencesDialog::onLevel2FontChanged( const QFont& font ) {
+	auto pPref = Preferences::get_instance();
+	
+	pPref->setLevel2FontFamily( font.family() );
 
+	HydrogenApp::get_instance()->changePreferences( true );
+}
 
+void PreferencesDialog::onLevel3FontChanged( const QFont& font ) {
+	auto pPref = Preferences::get_instance();
+	
+	pPref->setLevel3FontFamily( font.family() );
+
+	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onRejected() {
+	auto pPref = Preferences::get_instance();
+	
+	pPref->setApplicationFontFamily( m_sPreviousApplicationFontFamily );
+	pPref->setLevel2FontFamily( m_sPreviousLevel2FontFamily );
+	pPref->setLevel3FontFamily( m_sPreviousLevel3FontFamily );
+	pPref->setFontSize( m_previousFontSize );
+	pPref->setPatternColors( m_previousPatternColors );
+	pPref->setVisiblePatternColors( m_nPreviousVisiblePatternColors );
+
+	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onFontSizeChanged( int nIndex ) {
+	auto pPref = Preferences::get_instance();
+
+	switch ( nIndex ) {
+	case 0:
+		pPref->setFontSize( Preferences::FontSize::Small );
+		break;
+	case 1:
+		pPref->setFontSize( Preferences::FontSize::Normal );
+		break;
+	case 2:
+		pPref->setFontSize( Preferences::FontSize::Large );
+		break;
+	default:
+		ERRORLOG( QString( "Unknown font size: %1" ).arg( nIndex ) );
+	}
+	
+	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onUILayoutChanged( int nIndex ) {
+	UIChangeWarningLabel->show();
+}
+
+void PreferencesDialog::onColorNumberChanged( int nIndex ) {
+	Preferences::get_instance()->setVisiblePatternColors( nIndex );
+	for ( int ii = 0; ii < Preferences::get_instance()->getMaxPatternColors(); ii++ ) {
+		if ( ii < nIndex ) {
+			m_colorSelectionButtons[ ii ]->show();
+		} else {
+			m_colorSelectionButtons[ ii ]->hide();
+		}
+	}
+	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onColorSelectionClicked() {
+	int nMaxPatternColors = Preferences::get_instance()->getMaxPatternColors();
+	std::vector<QColor> colors( nMaxPatternColors );
+	for ( int ii = 0; ii < nMaxPatternColors; ii++ ) {
+		colors[ ii ] = m_colorSelectionButtons[ ii ]->getColor();
+	}
+
+	Preferences::get_instance()->setPatternColors( colors );
+	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
+	Preferences::get_instance()->setColoringMethod( nIndex );
+
+	if ( nIndex == 0 ) {
+		coloringMethodAuxSpinBox->hide();
+		coloringMethodAuxLabel->hide();
+		colorSelectionLabel->hide();
+		for ( int ii = 0; ii < Preferences::get_instance()->getMaxPatternColors(); ii++ ) {
+			m_colorSelectionButtons[ ii ]->hide();
+		}
+	} else {
+		coloringMethodAuxSpinBox->show();
+		coloringMethodAuxLabel->show();
+		colorSelectionLabel->show();
+		for ( int ii = 0; ii < m_nPreviousVisiblePatternColors; ii++ ) {
+			m_colorSelectionButtons[ ii ]->show();
+		}
+	}
+	HydrogenApp::get_instance()->changePreferences( true );
+}
 
 void PreferencesDialog::on_bufferSizeSpinBox_valueChanged( int i )
 {
@@ -950,30 +1057,6 @@ void PreferencesDialog::on_restartDriverBtn_clicked()
 	pPref->savePreferences();
 	Hydrogen::get_instance()->restartDrivers();
 	m_bNeedDriverRestart = false;
-}
-
-
-
-void PreferencesDialog::on_selectMixerFontBtn_clicked()
-{
-	Preferences *preferencesMng = Preferences::get_instance();
-
-	QString family = preferencesMng->getMixerFontFamily();
-	int pointSize = preferencesMng->getMixerFontPointSize();
-
-	bool ok;
-	QFont font = QFontDialog::getFont( &ok, QFont( family, pointSize ), this );
-	if ( ok ) {
-		// font is set to the font the user selected
-		family = font.family();
-		pointSize = font.pointSize();
-		QString familyStr = family;
-		preferencesMng->setMixerFontFamily(familyStr);
-		preferencesMng->setMixerFontPointSize(pointSize);
-	}
-	QFont newFont(family, pointSize);
-	mixerFontLbl->setFont(newFont);
-	mixerFontLbl->setText(family + QString("  %1").arg(pointSize));
 }
 
 void PreferencesDialog::on_midiPortComboBox_activated( int index )
@@ -1011,27 +1094,6 @@ void PreferencesDialog::on_useLashCheckbox_clicked()
 		Preferences::get_instance()->m_bsetLash = false ;
 	}
 	QMessageBox::information ( this, "Hydrogen", tr ( "Please restart hydrogen to enable/disable LASH support" ) );
-}
-
-void PreferencesDialog::coloringMethodCombo_currentIndexChanged (int index)
-{
-	switch(index)
-	{
-		case 0:
-			coloringMethodAuxLabel->setText( "" );
-			coloringMethodAuxSpinBox->hide();
-			break;
-		case 1:
-			coloringMethodAuxLabel->setText( tr("Number of steps") );
-			coloringMethodAuxSpinBox->setMinimum(1);
-			coloringMethodAuxSpinBox->show();
-			break;
-		case 2:
-			coloringMethodAuxLabel->setText( tr("Color (Hue value)") );
-			coloringMethodAuxSpinBox->setMinimum(0);
-			coloringMethodAuxSpinBox->show();
-			break;
-	}
 }
 
 void PreferencesDialog::on_resampleComboBox_currentIndexChanged ( int index )

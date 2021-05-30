@@ -27,7 +27,6 @@
 #include <core/Globals.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
-#include <core/Preferences.h>
 #include <core/EventQueue.h>
 #include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Instrument.h>
@@ -62,6 +61,9 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
 	resize( m_nEditorWidth, m_nEditorHeight );
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( 0 );
+
+	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();	
 }
 
 
@@ -1008,7 +1010,7 @@ void DrumPatternEditor::paste()
 void DrumPatternEditor::__draw_pattern(QPainter& painter)
 {
 	const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor.getRed(), pStyle->m_patternEditor_selectedRowColor.getGreen(), pStyle->m_patternEditor_selectedRowColor.getBlue() );
+	const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor );
 
 	__create_background( painter );
 
@@ -1109,8 +1111,8 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 					int x = m_nMargin + (nPosition * m_fGridWidth);
 					int y = ( nInstrument * m_nGridHeight);
 					const int boxWidth = 128;
-					QFont font;
-					font.setPointSize( 9 );
+
+					QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 					painter.setFont( font );
 					painter.setPen( QColor( 0, 0, 0 ) );
 
@@ -1162,8 +1164,8 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 	}
 	
 	// fill the first half of the rect with a solid color
-	static const QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
-	static const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor.getRed(), pStyle->m_patternEditor_selectedRowColor.getGreen(), pStyle->m_patternEditor_selectedRowColor.getBlue() );
+	static const QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
+	static const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor );
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	int nInstruments = pSong->getInstrumentList()->size();
@@ -1183,9 +1185,9 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 void DrumPatternEditor::__create_background( QPainter& p)
 {
 	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	static const QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
-	static const QColor alternateRowColor( pStyle->m_patternEditor_alternateRowColor.getRed(), pStyle->m_patternEditor_alternateRowColor.getGreen(), pStyle->m_patternEditor_alternateRowColor.getBlue() );
-	static const QColor lineColor( pStyle->m_patternEditor_lineColor.getRed(), pStyle->m_patternEditor_lineColor.getGreen(), pStyle->m_patternEditor_lineColor.getBlue() );
+	static const QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
+	static const QColor alternateRowColor( pStyle->m_patternEditor_alternateRowColor );
+	static const QColor lineColor( pStyle->m_patternEditor_lineColor );
 
 	int nNotes = MAX_NOTES;
 	if ( m_pPattern ) {
@@ -1341,6 +1343,17 @@ void DrumPatternEditor::undoRedoAction( int column,
 		}
 
 		m_pPatternEditorPanel->updateEditors();
+	}
+}
+
+void DrumPatternEditor::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		update( 0, 0, width(), height() );
 	}
 }
 

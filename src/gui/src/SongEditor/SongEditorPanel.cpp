@@ -306,6 +306,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPatternList->setFocusPolicy( Qt::ClickFocus );
 	m_pPatternListScrollView->setFocusPolicy( Qt::ClickFocus );
 	m_pPatternListScrollView->setWidget( m_pPatternList );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, m_pPatternList, &SongEditorPatternList::onPreferencesChanged );
 
 	// EDITOR
 	m_pEditorScrollView = new WidgetScrollArea( nullptr );
@@ -335,6 +336,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPositionRulerScrollView->setWidget( m_pPositionRuler );
 	m_pPositionRulerScrollView->setFixedHeight( 50 );
 	connect( m_pPositionRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( hScrollTo(int) ) );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, m_pPositionRuler, &SongEditorPositionRuler::onPreferencesChanged );
+
 	m_pPositionRuler->setFocusPolicy( Qt::ClickFocus );
 	m_pPositionRuler->setFocusProxy( m_pSongEditor );
 	

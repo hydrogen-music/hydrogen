@@ -28,6 +28,8 @@
 
 #include "EventListener.h"
 #include <core/Object.h>
+#include <core/Preferences.h>
+#include "Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {
@@ -81,7 +83,7 @@ class MetronomeWidget : public QWidget,public EventListener, public H2Core::Obje
 ///
 /// Player control panel
 ///
-class PlayerControl : public QLabel, public EventListener, public H2Core::Object
+class PlayerControl : public QLabel, protected WidgetWithScalableFont<5, 6, 7>, public EventListener, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
@@ -104,7 +106,9 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		 * Song mode will be activated instead.
 		 */
 		void songModeActivationEvent( int nValue ) override;
-													
+
+public slots:
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private slots:
 		void recBtnClicked(Button* ref);
@@ -212,6 +216,8 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		QTimer *m_pStatusTimer;
 		QTimer *m_pScrollTimer;
 		QString m_pScrollMessage;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

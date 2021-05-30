@@ -30,7 +30,6 @@
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
-#include <core/Preferences.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/AudioEngine.h>
@@ -49,6 +48,9 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 {
 	INFOLOG( "INIT" );
 
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		
 	m_nGridHeight = 10;
 	m_nOctaves = 7;
 
@@ -237,8 +239,7 @@ void PianoRollEditor::createBackground()
 	}
 
 	//draw text
-	QFont font;
-	font.setPointSize ( 9 );
+	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 	//	font.setWeight( 63 );
 	p.setFont( font );
 	p.setPen( QColor(10, 10, 10 ) );
@@ -1337,4 +1338,15 @@ QRect PianoRollEditor::getKeyboardCursorRect() {
 	QPoint pos = cursorPosition();
 	return QRect( pos.x() - m_fGridWidth*3, pos.y()-2,
 				  m_fGridWidth*6, m_nGridHeight+3 );
+}
+
+void PianoRollEditor::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		createBackground();
+	}
 }

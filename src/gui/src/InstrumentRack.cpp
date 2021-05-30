@@ -25,6 +25,7 @@
 #include "Widgets/Button.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
+#include "HydrogenApp.h"
 
 #include <QGridLayout>
 
@@ -40,6 +41,8 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	setMinimumSize( width(), height() );
 	setFixedWidth( width() );
 
+	m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
+	QFont fontButtons( H2Core::Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
 
 // TAB buttons
 	QWidget *pTabButtonsPanel = new QWidget( nullptr );
@@ -57,6 +60,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 
 	m_pShowInstrumentEditorBtn->setToolTip( tr( "Show Instrument editor" ) );
 	m_pShowInstrumentEditorBtn->setText( tr( "Instrument" ) );
+	m_pShowInstrumentEditorBtn->setFont( fontButtons );
 	connect( m_pShowInstrumentEditorBtn, SIGNAL( clicked( Button* ) ), this, SLOT( on_showInstrumentEditorBtnClicked() ) );
 
 	// show sound library button
@@ -70,6 +74,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 
 	m_pShowSoundLibraryBtn->setToolTip( tr( "Show sound library" ) );
 	m_pShowSoundLibraryBtn->setText( tr( "Sound library" ) );
+	m_pShowSoundLibraryBtn->setFont( fontButtons );
 	connect( m_pShowSoundLibraryBtn, SIGNAL( clicked( Button* ) ), this, SLOT( on_showSoundLibraryBtnClicked() ) );
 
 	QHBoxLayout *pTabHBox = new QHBoxLayout();
@@ -97,7 +102,9 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	pGrid->addWidget( m_pSoundLibraryPanel, 2, 1 );
 
 	this->setLayout( pGrid );
-
+	
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &InstrumentRack::onPreferencesChanged );
+	
 	on_showInstrumentEditorBtnClicked();	// show the instrument editor as default
 }
 
@@ -130,3 +137,15 @@ void InstrumentRack::on_showInstrumentEditorBtnClicked()
 	m_pSoundLibraryPanel->hide();
 }
 
+void InstrumentRack::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_pShowInstrumentEditorBtn->font().family() != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
+		
+		QFont fontButtons( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+		m_pShowInstrumentEditorBtn->setFont( fontButtons );
+		m_pShowSoundLibraryBtn->setFont( fontButtons );
+	}
+}

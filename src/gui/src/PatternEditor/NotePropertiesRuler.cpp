@@ -20,7 +20,6 @@
  *
  */
 
-#include <core/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
@@ -47,6 +46,10 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	//infoLog("INIT");
 	//setAttribute(Qt::WA_OpaquePaintEvent);
 
+
+	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+	
 	m_Mode = mode;
 
 	m_fGridWidth = (Preferences::get_instance())->getPatternEditorGridWidth();
@@ -92,7 +95,6 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, &PatternEditor::selectNone );
 
 	setMouseTracking( true );
-
 }
 
 
@@ -812,17 +814,13 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 {
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 
-	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(),
-				  pStyle->m_patternEditor_line1Color.getGreen(),
-				  pStyle->m_patternEditor_line1Color.getBlue() );
+	QColor res_1( pStyle->m_patternEditor_line1Color );
 
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(),
-							pStyle->m_patternEditor_backgroundColor.getGreen(),
-							pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
 
-	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.getRed() - 20,
-							pStyle->m_patternEditor_backgroundColor.getGreen() - 20,
-							pStyle->m_patternEditor_backgroundColor.getBlue() - 20 );
+	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.red() - 20,
+							pStyle->m_patternEditor_backgroundColor.green() - 20,
+							pStyle->m_patternEditor_backgroundColor.blue() - 20 );
 
 	unsigned nNotes = MAX_NOTES;
 	if ( m_pPattern ) {
@@ -900,17 +898,13 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 {
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(),
-							pStyle->m_patternEditor_backgroundColor.getGreen(),
-							pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
 
-	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.getRed() - 20,
-							pStyle->m_patternEditor_backgroundColor.getGreen() - 20,
-							pStyle->m_patternEditor_backgroundColor.getBlue() - 20 );
+	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.red() - 20,
+							pStyle->m_patternEditor_backgroundColor.green() - 20,
+							pStyle->m_patternEditor_backgroundColor.blue() - 20 );
 
-	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(),
-				  pStyle->m_patternEditor_line1Color.getGreen(),
-				  pStyle->m_patternEditor_line1Color.getBlue() );
+	QColor res_1( pStyle->m_patternEditor_line1Color );
 
 	QPainter p( pixmap );
 
@@ -987,17 +981,13 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 {
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(),
-							pStyle->m_patternEditor_backgroundColor.getGreen(),
-							pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
 
-	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.getRed() - 20,
-							pStyle->m_patternEditor_backgroundColor.getGreen() - 20,
-							pStyle->m_patternEditor_backgroundColor.getBlue() - 20 );
+	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.red() - 20,
+							pStyle->m_patternEditor_backgroundColor.green() - 20,
+							pStyle->m_patternEditor_backgroundColor.blue() - 20 );
 
-	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(),
-				  pStyle->m_patternEditor_line1Color.getGreen(),
-				  pStyle->m_patternEditor_line1Color.getBlue() );
+	QColor res_1( pStyle->m_patternEditor_line1Color );
 
 	QPainter p( pixmap );
 
@@ -1096,17 +1086,13 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 {
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 
-	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(),
-				  pStyle->m_patternEditor_line1Color.getGreen(),
-				  pStyle->m_patternEditor_line1Color.getBlue() );
+	QColor res_1( pStyle->m_patternEditor_line1Color );
 
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(),
-							pStyle->m_patternEditor_backgroundColor.getGreen(),
-							pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
 
-	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.getRed() - 100,
-							pStyle->m_patternEditor_backgroundColor.getGreen() - 100,
-							pStyle->m_patternEditor_backgroundColor.getBlue() - 100 );
+	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.red() - 100,
+							pStyle->m_patternEditor_backgroundColor.green() - 100,
+							pStyle->m_patternEditor_backgroundColor.blue() - 100 );
 
 	unsigned nNotes = MAX_NOTES;
 	if (m_pPattern) {
@@ -1134,8 +1120,9 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	// Annotate with note class names
 	static QString noteNames[] = { tr( "B" ), tr( "A#" ), tr( "A" ), tr( "G#" ), tr( "G" ), tr( "F#" ),
 								   tr( "F" ), tr( "E" ), tr( "D#" ), tr( "D" ), tr( "C#" ), tr( "C" ) };
-	QFont font;
-	font.setPointSize( 9 );
+	
+	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
+	
 	p.setFont( font );
 	p.setPen( QColor( 0, 0, 0 ) );
 	for ( int n = 0; n < 12; n++ ) {
@@ -1349,4 +1336,15 @@ QRect NotePropertiesRuler::getKeyboardCursorRect()
 
 void NotePropertiesRuler::selectAll() {
 	selectInstrumentNotes( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+}
+
+void NotePropertiesRuler::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		createNoteKeyBackground( m_pBackground );
+	}
 }

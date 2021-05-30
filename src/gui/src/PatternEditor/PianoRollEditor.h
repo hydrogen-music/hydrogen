@@ -24,15 +24,17 @@
 #define PIANO_ROLL_EDITOR_H
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include <core/Basics/Note.h>
 #include "../EventListener.h"
 #include "../Selection.h"
 #include "PatternEditor.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 #include <QtGui>
 #include <QtWidgets>
 
-class PianoRollEditor: public PatternEditor
+class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>
 {
     H2_OBJECT
     Q_OBJECT
@@ -123,6 +125,7 @@ class PianoRollEditor: public PatternEditor
 		virtual void selectAll() override;
 		virtual void deleteSelection() override;
 		virtual void paste() override;
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
 		H2Core::AudioEngine* m_pAudioEngine;
@@ -170,6 +173,10 @@ class PianoRollEditor: public PatternEditor
 		float __oldPan_R;
 		float __leadLag;
 		float __oldLeadLag;		
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 #endif

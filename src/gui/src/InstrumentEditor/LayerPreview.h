@@ -27,15 +27,17 @@
 #include <memory>
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include <core/Basics/Instrument.h>
 #include "../EventListener.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {
 class InstrumentLayer;
 }
 
-class LayerPreview : public QWidget, public H2Core::Object, public EventListener
+class LayerPreview : public QWidget, protected WidgetWithScalableFont<5, 6, 7>, public H2Core::Object, public EventListener
 {
     H2_OBJECT
 	Q_OBJECT
@@ -53,6 +55,9 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 
 		void set_selected_component( int SelectedComponent );
 
+public slots:
+		void onPreferencesChanged( bool bAppearanceOnly );
+	
 	private:
 		static const int		m_nLayerHeight = 10;
 		QPixmap					m_speakerPixmap;
@@ -88,6 +93,13 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 		void showLayerEndVelocity( const std::shared_ptr<H2Core::InstrumentLayer> pLayer, const QMouseEvent* pEvent );
 
 		virtual void selectedInstrumentChangedEvent() override;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSizeButton() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

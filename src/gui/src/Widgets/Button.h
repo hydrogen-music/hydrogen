@@ -26,12 +26,14 @@
 
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include <core/MidiAction.h>
 
 #include "MidiLearnable.h"
 
 #include <QtGui>
 #include <QtWidgets>
+#include "WidgetWithScalableFont.h"
 
 
 class PixmapWidget;
@@ -39,7 +41,7 @@ class PixmapWidget;
 /**
  * Generic Button with pixmaps and text.
  */
-class Button : public QWidget, public H2Core::Object, public MidiLearnable
+class Button : public QWidget, protected WidgetWithScalableFont<6, 8, 10>, public H2Core::Object, public MidiLearnable
 {
     H2_OBJECT
 	Q_OBJECT
@@ -63,8 +65,10 @@ class Button : public QWidget, public H2Core::Object, public MidiLearnable
 		void setPressed(bool pressed);
 
 		void setText( const QString& sText );
-		void setFontSize( int size );
 
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
+	
 	signals:
 		void clicked(Button *pBtn);
 		void rightClicked(Button *pBtn);
@@ -76,7 +80,6 @@ class Button : public QWidget, public H2Core::Object, public MidiLearnable
 	protected:
 		bool m_bPressed;
 
-		QFont m_textFont;
 		QString m_sText;
 
 		QPixmap m_onPixmap;
@@ -96,6 +99,10 @@ class Button : public QWidget, public H2Core::Object, public MidiLearnable
 
 		QTimer *m_timer;
 		int m_timerTimeout;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 		bool loadImage( const QString& sFilename, QPixmap& pixmap );
 };
