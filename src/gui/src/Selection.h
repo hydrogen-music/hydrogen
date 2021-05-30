@@ -310,6 +310,11 @@ public:
 		return m_selectionState == MouseMoving || m_selectionState == KeyboardMoving;
 	}
 
+	//! Is there a mouse gesture in progress?
+	bool isMouseGesture() const {
+		return m_selectionState == MouseMoving || m_selectionState == MouseLasso;
+	}
+
 	//! During a selection "move" gesture, return the current movement position relative to the start
 	//! position, in screen coordinates.
 	QPoint movingOffset() const {

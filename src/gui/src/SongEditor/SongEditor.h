@@ -320,6 +320,8 @@ class SongEditorPositionRuler : public QWidget, public H2Core::Object
 
 	public slots:
 		void updatePosition();
+		void showTagWidget( int nColumn );
+		void showBpmWidget( int nColumn );
 
 	private:
 		QTimer *			m_pTimer;

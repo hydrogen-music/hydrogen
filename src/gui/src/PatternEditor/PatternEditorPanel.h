@@ -89,6 +89,10 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 
 		void updateEditors( bool bPatternOnly = false );
 
+	public slots:
+		void showDrumEditor();
+		void showPianoRollEditor();
+
 	private slots:
 		void gridResolutionChanged( int nSelected );
 		void propertiesComboChanged( int nSelected );
