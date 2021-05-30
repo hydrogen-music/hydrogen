@@ -20,7 +20,6 @@
  *
  */
 
-#include <core/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/AudioEngine.h>
 #include <core/Basics/Pattern.h>
@@ -50,15 +49,16 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	//infoLog( "INIT" );
 
 	Preferences *pPref = Preferences::get_instance();
+	m_lastUsedFontSize = pPref->getFontSize();
 
 	UIStyle *pStyle = pPref->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
 
 
 	m_pPattern = nullptr;
-	m_nGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
+	m_fGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
 
-	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
+	m_nRulerWidth = 20 + m_fGridWidth * ( MAX_NOTES * 4 );
 	m_nRulerHeight = 25;
 
 	resize( m_nRulerWidth, m_nRulerHeight );
@@ -75,6 +75,8 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateEditor()));
 
 	HydrogenApp::get_instance()->addEventListener( this );
+	
+	m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
 }
 
 
@@ -189,7 +191,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 	// gray background for unusable section of pattern
 	if (m_pPattern) {
-		int nXStart = 20 + m_pPattern->get_length() * m_nGridWidth;
+		int nXStart = 20 + m_pPattern->get_length() * m_fGridWidth;
 		if ( (m_nRulerWidth - nXStart) != 0 ) {
 			painter.fillRect( nXStart, 0, m_nRulerWidth - nXStart, m_nRulerHeight, QColor(170,170,170) );
 		}
@@ -200,9 +202,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 	QColor lineColor( 170, 170, 170 );
 
 	Preferences *pref = Preferences::get_instance();
-	QString family = pref->getApplicationFontFamily();
-	int size = pref->getApplicationFontPointSize();
-	QFont font( family, size );
+	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 	painter.setFont(font);
 	painter.drawLine( 0, 0, m_nRulerWidth, 0 );
 	painter.drawLine( 0, m_nRulerHeight - 1, m_nRulerWidth - 1, m_nRulerHeight - 1);
@@ -210,7 +210,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 	uint nQuarter = 48;
 
 	for ( int i = 0; i < 64 ; i++ ) {
-		int nText_x = 20 + nQuarter / 4 * i * m_nGridWidth;
+		int nText_x = 20 + nQuarter / 4 * i * m_fGridWidth;
 		if ( ( i % 4 ) == 0 ) {
 			painter.setPen( textColor );
 			painter.drawText( nText_x - 30, 0, 60, m_nRulerHeight, Qt::AlignCenter, QString("%1").arg(i / 4 + 1) );
@@ -225,7 +225,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 	// draw tickPosition
 	if (m_nTicks != -1) {
-		uint x = (uint)( 20 + m_nTicks * m_nGridWidth - 5 - 11 / 2.0 );
+		uint x = (uint)( 20 + m_nTicks * m_fGridWidth - 5 - 11 / 2.0 );
 		painter.drawPixmap( QRect( x, height() / 2, 11, 8 ), m_tickPosition, QRect( 0, 0, 11, 8 ) );
 
 	}
@@ -235,18 +235,18 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 void PatternEditorRuler::zoomIn()
 {
-	if (m_nGridWidth >= 3){
-		m_nGridWidth *= 2;
+	if (m_fGridWidth >= 3){
+		m_fGridWidth *= 2;
 	}else
 	{
-		m_nGridWidth *= 1.5;
+		m_fGridWidth *= 1.5;
 	}
-	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
+	m_nRulerWidth = 20 + m_fGridWidth * ( MAX_NOTES * 4 );
 	resize(  QSize(m_nRulerWidth, m_nRulerHeight ));
 	delete m_pBackground;
 	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
 	m_pBackground->fill( backgroundColor );
 	update();
 }
@@ -254,19 +254,19 @@ void PatternEditorRuler::zoomIn()
 
 void PatternEditorRuler::zoomOut()
 {
-	if ( m_nGridWidth > 1.5 ) {
-		if (m_nGridWidth > 3){
-			m_nGridWidth /= 2;
+	if ( m_fGridWidth > 1.5 ) {
+		if (m_fGridWidth > 3){
+			m_fGridWidth /= 2;
 		}else
 		{
-			m_nGridWidth /= 1.5;
+			m_fGridWidth /= 1.5;
 		}
-	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
+	m_nRulerWidth = 20 + m_fGridWidth * ( MAX_NOTES * 4 );
 	resize( QSize(m_nRulerWidth, m_nRulerHeight) );
 	delete m_pBackground;
 	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
 	m_pBackground->fill( backgroundColor );
 	update();
 	}
@@ -276,4 +276,15 @@ void PatternEditorRuler::zoomOut()
 void PatternEditorRuler::selectedPatternChangedEvent()
 {
 	updateEditor( true );
+}
+
+void PatternEditorRuler::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		update( 0, 0, width(), height() );
+	}
 }

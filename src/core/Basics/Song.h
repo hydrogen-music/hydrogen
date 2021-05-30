@@ -103,6 +103,9 @@ class Song : public H2Core::Object
 		 *   Pattern of the Song.*/
 		void setPatternGroupVector( std::vector<PatternList*>* pGroupVect );
 
+		/** get the length of the song, in tick units */
+		int lengthInTicks() const;
+
 		static Song* 	load( const QString& sFilename );
 		bool 			save( const QString& sFilename );
 

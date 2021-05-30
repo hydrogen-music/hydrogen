@@ -25,7 +25,6 @@
 #include <core/Hydrogen.h>
 #include <core/AudioEngine.h>
 #include <core/Smf/SMF.h>
-#include <core/Preferences.h>
 #include <core/Timeline.h>
 #include <core/Helpers/Files.h>
 #include <core/Basics/Pattern.h>
@@ -45,7 +44,6 @@
 #include "Skin.h"
 #include "MainForm.h"
 #include "PlayerControl.h"
-#include "HelpBrowser.h"
 #include "LadspaFXProperties.h"
 #include "SongPropertiesDialog.h"
 #include "UndoActions.h"
@@ -102,9 +100,14 @@ MainForm::MainForm( QApplication * pQApplication )
 	connect(snUsr1, SIGNAL(activated(int)), this, SLOT( handleSigUsr1() ));
 #endif
 
-	m_pQApp =  pQApplication;
+	m_pQApp = pQApplication;
 
 	m_pQApp->processEvents();
+
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();	
+	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+	setFont( font );
+	m_pQApp->setFont( font );
 
 	showDevelWarning();
 	h2app = new HydrogenApp( this );
@@ -215,11 +218,11 @@ MainForm::~MainForm()
 void MainForm::createMenuBar()
 {
 	// menubar
-	QMenuBar *m_pMenubar = new QMenuBar( this );
-	setMenuBar( m_pMenubar );
+	QMenuBar *pMenubar = new QMenuBar( this );
+	setMenuBar( pMenubar );
 
 	// FILE menu
-	QMenu *m_pFileMenu = m_pMenubar->addMenu( tr( "Pro&ject" ) );
+	m_pFileMenu = pMenubar->addMenu( tr( "Pro&ject" ) );
 
 	// Then under session management a couple of options will be named
 	// differently and some must be even omitted. 
@@ -281,13 +284,13 @@ void MainForm::createMenuBar()
 	//~ FILE menu
 
 	// Undo menu
-	QMenu *m_pUndoMenu = m_pMenubar->addMenu( tr( "&Undo" ) );
+	m_pUndoMenu = pMenubar->addMenu( tr( "&Undo" ) );
 	m_pUndoMenu->addAction( tr( "&Undo" ), this, SLOT( action_undo() ), QKeySequence( "Ctrl+Z" ) );
 	m_pUndoMenu->addAction( tr( "&Redo" ), this, SLOT( action_redo() ), QKeySequence( "Shift+Ctrl+Z" ) );
 	m_pUndoMenu->addAction( tr( "Undo &History" ), this, SLOT( openUndoStack() ), QKeySequence( "" ) );
 
 	// DRUMKITS MENU
-	QMenu *m_pDrumkitsMenu = m_pMenubar->addMenu( tr( "Drum&kits" ) );
+	m_pDrumkitsMenu = pMenubar->addMenu( tr( "Drum&kits" ) );
 	m_pDrumkitsMenu->addAction( tr( "&New" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
 	m_pDrumkitsMenu->addAction( tr( "&Open" ), this, SLOT( action_banks_open() ), QKeySequence( "" ) );
 	m_pDrumkitsMenu->addAction( tr( "&Properties" ), this, SLOT( action_banks_properties() ), QKeySequence( "" ) );
@@ -304,7 +307,7 @@ void MainForm::createMenuBar()
 	m_pDrumkitsMenu->addAction( tr( "On&line Import" ), this, SLOT( action_instruments_onlineImportLibrary() ), QKeySequence( "" ) );
 
 	// INSTRUMENTS MENU
-	QMenu *m_pInstrumentsMenu = m_pMenubar->addMenu( tr( "In&struments" ) );
+	m_pInstrumentsMenu = pMenubar->addMenu( tr( "In&struments" ) );
 	m_pInstrumentsMenu->addAction( tr( "Add &Instrument" ), this, SLOT( action_instruments_addInstrument() ), QKeySequence( "" ) );
 	m_pInstrumentsMenu->addAction( tr( "Clea&r All" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
 
@@ -313,7 +316,7 @@ void MainForm::createMenuBar()
 	m_pInstrumentsMenu->addAction( tr( "Add &Component" ), this, SLOT( action_instruments_addComponent() ), QKeySequence( "" ) );
 
 	// VIEW MENU
-	QMenu *m_pViewMenu = m_pMenubar->addMenu( tr( "&View" ) );
+	m_pViewMenu = pMenubar->addMenu( tr( "&View" ) );
 
 	m_pViewPlaylistEditorAction = m_pViewMenu->addAction( tr("Play&list Editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
 	m_pViewPlaylistEditorAction->setCheckable( true );
@@ -352,7 +355,7 @@ void MainForm::createMenuBar()
 
 
 	// Options menu
-	QMenu *m_pOptionsMenu = m_pMenubar->addMenu( tr( "&Options" ));
+	m_pOptionsMenu = pMenubar->addMenu( tr( "&Options" ));
 
 	m_pInputModeMenu = m_pOptionsMenu->addMenu( tr( "Input &Mode" ) );
 	m_pInstrumentAction = m_pInputModeMenu->addAction( tr( "&Instrument" ), this, SLOT( action_inputMode_instrument() ), QKeySequence( "Ctrl+Alt+I" ) );
@@ -378,7 +381,7 @@ void MainForm::createMenuBar()
 	Logger *pLogger = Logger::get_instance();
 	if ( pLogger->bit_mask() >= 1 ) {
 		// DEBUG menu
-		QMenu *m_pDebugMenu = m_pMenubar->addMenu( tr("De&bug") );
+		m_pDebugMenu = pMenubar->addMenu( tr("De&bug") );
 		m_pDebugMenu->addAction( tr( "Show &Audio Engine Info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );
 		m_pDebugMenu->addAction( tr( "Show &Filesystem Info" ), this, SLOT( action_debug_showFilesystemInfo() ) );
 		
@@ -399,7 +402,7 @@ void MainForm::createMenuBar()
 	}
 
 	// INFO menu
-	QMenu *m_pInfoMenu = m_pMenubar->addMenu( tr( "I&nfo" ) );
+	m_pInfoMenu = pMenubar->addMenu( tr( "I&nfo" ) );
 	m_pInfoMenu->addAction( tr("User &Manual"), this, SLOT( showUserManual() ), QKeySequence( "Ctrl+?" ) );
 	m_pInfoMenu->addSeparator();
 	m_pInfoMenu->addAction( tr("&About"), this, SLOT( action_help_about() ), QKeySequence( tr("", "Info|About") ) );
@@ -712,10 +715,40 @@ void MainForm::action_report_bug()
 	QDesktopServices::openUrl(QString("https://github.com/hydrogen-music/hydrogen/issues"));
 }
 
+// Find and open (a translation of) the manual appropriate for the user's preferences and locale
 void MainForm::showUserManual()
 {
-	h2app->getHelpBrowser()->hide();
-	h2app->getHelpBrowser()->show();
+	QString sDocPath = H2Core::Filesystem::doc_dir();
+	QString sPreferredLanguage = Preferences::get_instance()->getPreferredLanguage();
+	QStringList languages;
+
+	if ( !sPreferredLanguage.isNull() ) {
+		languages << sPreferredLanguage;
+	}
+	languages << QLocale::system().uiLanguages()
+			  << "en"; // English as fallback
+
+	// Find manual in filesystem
+	for ( QString sLang : languages ) {
+		QStringList sCandidates ( sLang );
+		QStringList s = sLang.split('-');
+		if ( s.size() != 1 ) {
+			sCandidates << s[0];
+		}
+		for ( QString sCandidate : sCandidates ) {
+			QString sManualPath = QString( "%1/manual_%2.html" ) .arg( sDocPath ).arg( sCandidate );
+			if ( Filesystem::file_exists( sManualPath ) ) {
+				QDesktopServices::openUrl( QUrl::fromLocalFile( sManualPath ) );
+				return;
+			}
+		}
+	}
+
+	// No manual found, not even the default English one. This must be a broken installation, so let's open
+	// the online manual as a sensible fallback option.
+
+	QDesktopServices::openUrl( QString( "http://hydrogen-music.org/documentation/manual/manual_en.html" ) );
+
 }
 
 void MainForm::action_file_export_pattern_as()
@@ -1360,6 +1393,30 @@ void MainForm::closeAll(){
 	m_pQApp->quit();
 }
 
+
+void MainForm::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+
+	if ( m_pQApp->font().family() != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		QFont font( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+		m_pQApp->setFont( font );
+		menuBar()->setFont( font );
+
+		m_pFileMenu->setFont( font );
+		m_pUndoMenu->setFont( font );
+		m_pDrumkitsMenu->setFont( font );
+		m_pInstrumentsMenu->setFont( font );
+		m_pViewMenu->setFont( font );
+		m_pOptionsMenu->setFont( font );
+		if ( m_pDebugMenu != nullptr ) {
+			m_pDebugMenu->setFont( font );
+		}
+		m_pInfoMenu->setFont( font );
+
+	}
+}
 
 
 // keybindings..

@@ -109,7 +109,6 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		PlaylistDialog*			getPlayListDialog();
 		Director*			getDirector();
 		SampleEditor*			getSampleEditor();
-		SimpleHTMLBrowser*		getHelpBrowser();
 		PatternEditorPanel*		getPatternEditorPanel();
 		PlayerControl*			getPlayerControl();
 		InstrumentRack*			getInstrumentRack();
@@ -132,6 +131,17 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		void onDrumkitLoad( QString name );
 
 		void cleanupTemporaryFiles();
+
+signals:
+	/** Propagates a change in the Preferences through the GUI.
+	 *
+	 * Triggered by the PreferencesDialog upon a change of the
+	 * underlying options in the Preferences class.
+	 *
+	 * @param bAppearanceOnly Whether all options or only those
+	 * associated with the Appearance tab of the PreferencesDialog
+	 * should be updated.*/
+	void preferencesChanged( bool bAppearanceOnly );
 
 	public slots:
 		/**
@@ -191,6 +201,17 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		void onEventQueueTimer();
 		void currentTabChanged(int);
 
+	/** Propagates a change in the Preferences through the GUI.
+	 *
+	 * Triggered by the PreferencesDialog upon a change of the
+	 * underlying options in the Preferences class.
+	 *
+	 * @param bAppearanceOnly Whether all options or only those
+	 * associated with the Appearance tab of the PreferencesDialog
+	 * should be updated.
+	 */
+	void changePreferences( bool bAppearanceOnly );
+
 	private:
 		static HydrogenApp *		m_pInstance;	///< HydrogenApp instance
 
@@ -204,8 +225,6 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		AudioEngineInfoForm *		m_pAudioEngineInfoForm;
 		FilesystemInfoForm *		m_pFilesystemInfoForm;
 		SongEditorPanel *			m_pSongEditorPanel;
-		SimpleHTMLBrowser *			m_pHelpBrowser;
-		SimpleHTMLBrowser *			m_pFirstTimeInfo;
 		InstrumentRack*				m_pInstrumentRack;
 		PlayerControl *				m_pPlayerControl;
 		PlaylistDialog *			m_pPlaylistDialog;
@@ -298,11 +317,6 @@ inline Director* HydrogenApp::getDirector()
 inline SampleEditor* HydrogenApp::getSampleEditor()
 {
 	return m_pSampleEditor;	
-}
-
-inline SimpleHTMLBrowser* HydrogenApp::getHelpBrowser()
-{
-	return m_pHelpBrowser;
 }
 
 inline PatternEditorPanel* HydrogenApp::getPatternEditorPanel()

@@ -27,6 +27,7 @@
 
 #include <core/Object.h>
 #include <core/Globals.h>
+#include <core/Preferences.h>
 
 class Fader;
 class MasterFader;
@@ -41,9 +42,9 @@ class Rotary;
 class WidgetWithInput;
 
 #include "../Widgets/PixmapWidget.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
-
-class InstrumentNameWidget : public PixmapWidget
+class InstrumentNameWidget : public PixmapWidget, protected WidgetWithScalableFont<8, 10, 12>
 {
 	H2_OBJECT
 	Q_OBJECT
@@ -57,6 +58,9 @@ class InstrumentNameWidget : public PixmapWidget
 		void	mousePressEvent( QMouseEvent * e ) override;
 		void	mouseDoubleClickEvent( QMouseEvent * e ) override;
 
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
+	
 	signals:
 		void	clicked();
 		void	doubleClicked();
@@ -68,7 +72,10 @@ class InstrumentNameWidget : public PixmapWidget
 		int			m_nWidgetWidth;
 		int			m_nWidgetHeight;
 		QString		m_sInstrName;
-		QFont		m_mixerFont;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

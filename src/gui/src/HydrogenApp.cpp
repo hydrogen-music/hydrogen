@@ -36,12 +36,15 @@
 #include "PlayerControl.h"
 #include "AudioEngineInfoForm.h"
 #include "FilesystemInfoForm.h"
-#include "HelpBrowser.h"
 #include "LadspaFXProperties.h"
 #include "InstrumentRack.h"
 #include "Director.h"
 
 #include "PatternEditor/PatternEditorPanel.h"
+#include "PatternEditor/PatternEditorRuler.h"
+#include "PatternEditor/NotePropertiesRuler.h"
+#include "PatternEditor/PianoRollEditor.h"
+#include "PatternEditor/DrumPatternEditor.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
@@ -72,8 +75,6 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
  , m_pPatternEditorPanel( nullptr )
  , m_pAudioEngineInfoForm( nullptr )
  , m_pSongEditorPanel( nullptr )
- , m_pHelpBrowser( nullptr )
- , m_pFirstTimeInfo( nullptr )
  , m_pPlayerControl( nullptr )
  , m_pPlaylistDialog( nullptr )
  , m_pSampleEditor( nullptr )
@@ -121,6 +122,9 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	// Events as well, it should be registered as an Eventlistener
 	// itself.
 	addEventListener( this );
+
+	connect( this, &HydrogenApp::preferencesChanged,
+			 m_pMainForm, &MainForm::onPreferencesChanged );
 }
 
 
@@ -134,7 +138,6 @@ HydrogenApp::~HydrogenApp()
 	//delete the undo tmp directory
 	cleanupTemporaryFiles();
 
-	delete m_pHelpBrowser;
 	delete m_pAudioEngineInfoForm;
 	delete m_pFilesystemInfoForm;
 	delete m_pMixer;
@@ -278,11 +281,6 @@ void HydrogenApp::setupSinglePanedInterface()
 		m_pMixer->hide();
 	}
 
-
-	// HELP BROWSER
-	QString sDocPath = H2Core::Filesystem::doc_dir();
-	QString sDocURI = sDocPath + "/manual.html";
-	m_pHelpBrowser = new SimpleHTMLBrowser( nullptr, sDocPath, sDocURI, SimpleHTMLBrowser::MANUAL );
 
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA FX
@@ -835,4 +833,8 @@ void HydrogenApp::quitEvent( int nValue ) {
 
 	m_pMainForm->closeAll();
 	
+}
+
+void HydrogenApp::changePreferences( bool bAppearanceOnly ) {
+	emit preferencesChanged( bAppearanceOnly );
 }

@@ -30,6 +30,9 @@
 #include <vector>
 
 #include <core/Object.h>
+#include <core/Preferences.h>
+
+#include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {
@@ -41,7 +44,7 @@ namespace H2Core
 class SoundLibraryTree;
 class ToggleButton;
 
-class SoundLibraryPanel : public QWidget, private H2Core::Object
+class SoundLibraryPanel : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, private H2Core::Object
 {
 	H2_OBJECT
 Q_OBJECT
@@ -71,6 +74,7 @@ private slots:
 	void on_songLoadAction();
 	void on_patternLoadAction();
 	void on_patternDeleteAction();
+	void onPreferencesChanged( bool bAppearanceOnly );
 
 signals:
 	void item_changed(bool bDrumkitSelected);
@@ -105,6 +109,8 @@ private:
 	bool m_bInItsOwnDialog;
 
 	QString m_sMessageFailedPreDrumkitLoad;
+	/** Used to detect changed in the font*/
+	H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 inline const QString& SoundLibraryPanel::getMessageFailedPreDrumkitLoad() const {

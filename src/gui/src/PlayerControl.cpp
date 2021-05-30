@@ -41,7 +41,6 @@
 #include <core/Hydrogen.h>
 #include <core/AudioEngine.h>
 #include <core/IO/JackAudioDriver.h>
-#include <core/Preferences.h>
 #include <core/EventQueue.h>
 using namespace H2Core;
 
@@ -58,8 +57,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 {
 	setObjectName( "PlayerControl" );
 	HydrogenApp::get_instance()->addEventListener( this );
-	
 	auto pPreferences = Preferences::get_instance();
+	m_lastUsedFontSize = pPreferences->getFontSize();	
 	
 	// Background image
 	setPixmap( QPixmap( Skin::getImagePath() + "/playerControlPanel/background.png" ) );
@@ -70,7 +69,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	hbox->setMargin( 0 );
 	setLayout( hbox );
 
-
+	QFont fontButtons( pPreferences->getLevel3FontFamily(), getPointSize( m_lastUsedFontSize ) );
 
 // CONTROLS
 	PixmapWidget *pControlsPanel = new PixmapWidget( nullptr );
@@ -341,7 +340,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	hbox->addStretch( 1000 );	// this must be the last widget in the HBOX!!
 
-
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &PlayerControl::onPreferencesChanged );
 
 
 	QTimer *timer = new QTimer( this );
@@ -991,6 +990,19 @@ void PlayerControl::jackTimebaseActivationEvent( int nValue ) {
 	}
 	
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateTimelineUsage();
+}
+
+void PlayerControl::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_pShowMixerBtn->font().family() != pPref->getLevel3FontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		QFont fontButtons( pPref->getLevel3FontFamily(), getPointSize( m_lastUsedFontSize ) );
+		m_pShowMixerBtn->setFont( fontButtons );
+		m_pShowInstrumentRackBtn->setFont( fontButtons );
+	}
 }
 
 //::::::::::::::::::::::::::::::::::::::::::::::::

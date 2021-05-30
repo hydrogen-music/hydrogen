@@ -294,6 +294,10 @@ SET(LIBRUBBERBAND_MSG "The use of librubberband2 is marked as experimental.
 *				 If rubberband-cli is installed, the hydrogen rubberband-function
 *				 will work properly as expected.")
 
+IF(WIN32)
+    SET(CMAKE_COLOR_MAKEFILE OFF)
+ENDIF()
+
 #
 # CONFIG PROCESS SUMMARY
 #
@@ -433,7 +437,7 @@ IF(MINGW)
     #Program Files for Hydrogen
     SET(WINDOWS_DIR "windows")
     #Install files from the extralibs dir
-    INSTALL(DIRECTORY ${WINDOWS_DIR}/extralibs/ DESTINATION ./)
+    INSTALL(DIRECTORY ${CMAKE_BINARY_DIR}/${WINDOWS_DIR}/extralibs/ DESTINATION ./)
 
 	IF(WANT_FAT_BUILD)
 		INSTALL(DIRECTORY windows/jack_installer DESTINATION ./)
@@ -442,6 +446,11 @@ IF(MINGW)
 
     SET(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data\\\\img\\\\h2-icon.bmp")
     #Begin NSIS Customizations
+
+    IF(H2CORE_HAVE_DEBUG)
+        SET(DEBUG_SUFFIX "_dbg")
+    ENDIF()
+
     # Installers for 32- vs. 64-bit CMake:
     #  - Root install directory (displayed to end user at installer-run time)
     #  - "NSIS package/display name" (text used in the installer GUI)
@@ -454,7 +463,7 @@ IF(MINGW)
     ELSE()
 		SET(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
 		SET(CPACK_NSIS_PACKAGE_NAME "Hydrogen - ${DISPLAY_VERSION}")
-		SET(CPACK_PACKAGE_FILE_NAME "Hydrogen-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-win32")
+		SET(CPACK_PACKAGE_FILE_NAME "Hydrogen-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-win32${DEBUG_SUFFIX}")
 		#SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME}${CPACK_PACKAGE_VERSION}")
     ENDIF()
 

@@ -29,9 +29,11 @@
 
 #include <core/Basics/Instrument.h>
 #include <core/Object.h>
+#include <core/Preferences.h>
 
 #include "../EventListener.h"
 #include "../Widgets/PixmapWidget.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 class Fader;
 class LCDDisplay;
@@ -47,7 +49,7 @@ class WidgetWithInput;
 ///
 /// Instrument Editor
 ///
-class InstrumentEditor : public QWidget, public H2Core::Object, public EventListener
+class InstrumentEditor : public QWidget, protected WidgetWithScalableFont<10, 12, 14>, public H2Core::Object, public EventListener
 {
 	H2_OBJECT
 	Q_OBJECT
@@ -66,7 +68,6 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		virtual void rubberbandbpmchangeEvent() override;
 		//~ implements EventListener interface
 		void update();
-
 		static int findFreeDrumkitComponentId( int startingPoint = 0 );
 
 
@@ -74,6 +75,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void showLayers();
 		void showInstrument();
 		void showSampleEditor();
+	void onPreferencesChanged( bool bAppearanceOnly );
 
 	private slots:
 		void rotaryChanged(WidgetWithInput *ref);
@@ -204,6 +206,11 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		void loadLayer();
 		void setAutoVelocity();
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSizeButton() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

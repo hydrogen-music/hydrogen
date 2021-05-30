@@ -45,6 +45,8 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object, public Eve
 		InstrumentEditorPanel& operator=( const InstrumentEditorPanel& rhs ) = delete;
 
 		virtual void parametersInstrumentChangedEvent() override;
+		
+		InstrumentEditor* getInstrumentEditor() const;
 
 		void selectLayer( int nLayer );
 		
@@ -64,5 +66,8 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object, public Eve
 
 };
 
+inline 	InstrumentEditor* InstrumentEditorPanel::getInstrumentEditor() const {
+	return m_pInstrumentEditor;
+}
 #endif
 

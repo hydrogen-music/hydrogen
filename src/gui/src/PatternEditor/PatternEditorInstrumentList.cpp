@@ -30,7 +30,6 @@
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/Preferences.h>
 #include <core/Basics/Song.h>
 #include <core/LocalFileMng.h>
 using namespace H2Core;
@@ -60,12 +59,13 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	int h = Preferences::get_instance()->getPatternEditorGridHeight();
 	setFixedSize(181, h);
 
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();	
+	QFont nameFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize( m_lastUsedFontSize ) );
+	nameFont.setBold( true );
+
 	m_pNameLbl = new QLabel(this);
 	m_pNameLbl->resize( 145, h );
 	m_pNameLbl->move( 10, 1 );
-	QFont nameFont;
-	nameFont.setPointSize( 10 );
-	nameFont.setBold( true );
 	m_pNameLbl->setFont(nameFont);
 
 	/*: Text displayed on the button for muting an instrument. Its
@@ -533,6 +533,15 @@ void InstrumentLine::functionDeleteInstrument()
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
+void InstrumentLine::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+
+	if ( m_pNameLbl->font().family() != pPref->getLevel2FontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		m_pNameLbl->setFont( QFont( pPref->getLevel2FontFamily(), getPointSize( m_lastUsedFontSize ) ) );
+	}
+}
 
 
 //////
@@ -590,6 +599,7 @@ PatternEditorInstrumentList::~PatternEditorInstrumentList()
 InstrumentLine* PatternEditorInstrumentList::createInstrumentLine()
 {
 	InstrumentLine *pLine = new InstrumentLine(this);
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, pLine, &InstrumentLine::onPreferencesChanged );
 	return pLine;
 }
 

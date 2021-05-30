@@ -35,7 +35,6 @@
 #include "../Widgets/WidgetWithInput.h"
 
 #include <core/Hydrogen.h>
-#include <core/Preferences.h>
 #include <core/AudioEngine.h>
 #include <core/MidiAction.h>
 using namespace H2Core;
@@ -638,7 +637,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pHumanizeTimeRotary->move( 66, 125 );
 	connect( m_pHumanizeTimeRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
-	m_pSwingRotary = new Rotary( this,  Rotary::Type::Normal, tr( "Swing" ), false );
+	m_pSwingRotary = new Rotary( this,  Rotary::Type::Normal, tr( "16th-note Swing" ), false );
 	m_pSwingRotary->move( 66, 162 );
 	connect( m_pSwingRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
@@ -811,11 +810,10 @@ InstrumentNameWidget::InstrumentNameWidget(QWidget* parent)
 	m_nWidgetWidth = 17;
 	m_nWidgetHeight = 116;
 
-	Preferences *pPref = Preferences::get_instance();
-	QString family = pPref->getMixerFontFamily();
-	int size = pPref->getMixerFontPointSize();
-	m_mixerFont.setFamily( family );
-	m_mixerFont.setPointSize( size );
+	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &InstrumentNameWidget::onPreferencesChanged );
 
 	setPixmap( "/mixerPanel/mixerline_label_background.png" );
 
@@ -834,9 +832,11 @@ void InstrumentNameWidget::paintEvent( QPaintEvent* ev )
 	PixmapWidget::paintEvent( ev );
 
 	QPainter p( this );
+	
+	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 
 	p.setPen( QColor(230, 230, 230) );
-	p.setFont( m_mixerFont );
+	p.setFont( font );
 	p.rotate( -90 );
 	p.drawText( -m_nWidgetHeight + 5, 0, m_nWidgetHeight - 10, m_nWidgetWidth, Qt::AlignVCenter, m_sInstrName );
 }
@@ -864,6 +864,17 @@ void InstrumentNameWidget::mouseDoubleClickEvent( QMouseEvent * e )
 {
 	UNUSED( e );
 	emit doubleClicked();
+}
+
+void InstrumentNameWidget::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		update();
+	}
 }
 
 // :::::::::::::::::::::

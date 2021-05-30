@@ -51,7 +51,6 @@
 #include <core/Hydrogen.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
-#include <core/Preferences.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Sample.h>
@@ -80,7 +79,8 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  , __pattern_item_list( nullptr )
  , m_bInItsOwnDialog( bInItsOwnDialog )
 {
-
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+	
 	//INFOLOG( "INIT" );
 	__drumkit_menu = new QMenu( this );
 	__drumkit_menu->addAction( tr( "Load" ), this, SLOT( on_drumkitLoadAction() ) );
@@ -131,7 +131,9 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	__expand_songs_list = Preferences::get_instance()->__expandSongItem;
 
 	m_sMessageFailedPreDrumkitLoad = tr( "Drumkit registered in the current song can not be found on disk.\nPlease load an existing drumkit first.\nCurrent kit:" );
-
+	
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &SoundLibraryPanel::onPreferencesChanged );
+	
 	updateDrumkitList();
 }
 
@@ -159,16 +161,21 @@ void SoundLibraryPanel::updateDrumkitList()
 
 	__sound_library_tree->clear();
 
+	QFont boldFont( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+	boldFont.setBold( true );
 
+	QFont childFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize( m_lastUsedFontSize ) );
+	setFont( childFont );
 
 	__system_drumkits_item = new QTreeWidgetItem( __sound_library_tree );
 	__system_drumkits_item->setText( 0, tr( "System drumkits" ) );
 	__system_drumkits_item->setExpanded( true );
+	__system_drumkits_item->setFont( 0, boldFont );
 
 	__user_drumkits_item = new QTreeWidgetItem( __sound_library_tree );
 	__user_drumkits_item->setText( 0, tr( "User drumkits" ) );
 	__user_drumkits_item->setExpanded( true );
-
+	__user_drumkits_item->setFont( 0, boldFont );
 	
 
 	for (uint i = 0; i < __system_drumkit_info_list.size(); ++i ) {
@@ -231,6 +238,7 @@ void SoundLibraryPanel::updateDrumkitList()
 			__song_item->setText( 0, tr( "Songs" ) );
 			__song_item->setToolTip( 0, tr("Double click to expand the list") );
 			__song_item->setExpanded( __expand_songs_list );
+			__song_item->setFont( 0, boldFont );
 			for (uint i = 0; i < songs.size(); i++) {
 				QTreeWidgetItem* pSongItem = new QTreeWidgetItem( __song_item );
 				QString song = songs[i];
@@ -248,6 +256,7 @@ void SoundLibraryPanel::updateDrumkitList()
 			__pattern_item->setText( 0, tr( "Patterns" ) );
 			__pattern_item->setToolTip( 0, tr("Double click to expand the list") );
 			__pattern_item->setExpanded( __expand_pattern_list );
+			__pattern_item->setFont( 0, boldFont );
 		
 			//this is the second step to push the mng.function
 			//SoundLibraryDatabase::create_instance();
@@ -865,4 +874,57 @@ void SoundLibraryPanel::test_expandedItems()
 	Preferences::get_instance()->__expandSongItem = __expand_songs_list;
 	Preferences::get_instance()->__expandPatternItem = __expand_pattern_list;
 	//ERRORLOG( QString("songs %1 patterns %2").arg(__expand_songs_list).arg(__expand_pattern_list) );
+}
+
+void SoundLibraryPanel::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( __system_drumkits_item->font( 0 ).family() != pPref->getApplicationFontFamily() ||
+		 ( __system_drumkits_item->child( 0 ) != nullptr &&
+		   __system_drumkits_item->child( 0 )->font( 0 ).family() != pPref->getLevel2FontFamily() ) ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		
+		QFont font( pPref->getLevel2FontFamily(), getPointSize( m_lastUsedFontSize ) );
+		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+		boldFont.setBold( true );
+
+		int ii, jj;
+		QTreeWidgetItem* childNode;
+		__system_drumkits_item->setFont( 0, boldFont );
+		for ( ii = 0; ii < __system_drumkits_item->childCount(); ii++ ){ 
+			childNode = __system_drumkits_item->child( ii );
+			childNode->setFont( 0, font );
+			for ( jj = 0; jj < childNode->childCount(); jj++ ) {
+				childNode->child( jj )->setFont( 0, font );
+			}
+		}
+		__user_drumkits_item->setFont( 0, boldFont );
+		for ( ii = 0; ii < __user_drumkits_item->childCount(); ii++ ){ 
+			childNode = __user_drumkits_item->child( ii );
+			childNode->setFont( 0, font );
+			for ( jj = 0; jj < childNode->childCount(); jj++ ) {
+				childNode->child( jj )->setFont( 0, font );
+			}
+		}
+
+		if ( __song_item != nullptr ) {
+			__song_item->setFont( 0, boldFont );
+			for ( ii = 0; ii < __song_item->childCount(); ii++ ){ 
+				__song_item->child( ii )->setFont( 0, font );
+				__song_item->setFont( ii, font );
+			}
+		}
+
+		if ( __pattern_item != nullptr ) {
+			__pattern_item->setFont( 0, boldFont );
+			for ( ii = 0; ii < __pattern_item->childCount(); ii++ ){ 
+				childNode = __pattern_item->child( ii );
+				childNode->setFont( 0, font );
+				for ( jj = 0; jj < childNode->childCount(); jj++ ) {
+					childNode->child( jj )->setFont( 0, font );
+				}
+			}
+		}
+	}
 }

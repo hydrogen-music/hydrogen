@@ -23,6 +23,7 @@
 #include "Button.h"
 
 #include "../Skin.h"
+#include "../HydrogenApp.h"
 #include "MidiSenseWidget.h"
 
 #include <qglobal.h>	// for QT_VERSION
@@ -42,6 +43,9 @@ Button::Button( QWidget *pParent, QSize size, const QString& sIcon, const QStrin
  , m_iconSize( iconSize )
  , m_bEnablePressHold( bEnablePressHold )
 {
+	m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
+	m_sLastUsedFontFamily = H2Core::Preferences::get_instance()->getLevel3FontFamily();
+	
 	setAttribute( Qt::WA_OpaquePaintEvent );
 	setFixedSize( size );
 	m_nWidth = size.width();
@@ -94,7 +98,8 @@ Button::Button( QWidget *pParent, QSize size, const QString& sIcon, const QStrin
 	m_timerTimeout = 0;
 	m_timer = new QTimer(this);
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(buttonPressed_timer_timeout()));
-	
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Button::onPreferencesChanged );
+
 	resize( size );
 }
 
@@ -180,6 +185,10 @@ void Button::paintEvent( QPaintEvent* ev )
 {
 	QPainter painter( this );
 
+	QFont boldFont( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
+	boldFont.setBold( true );
+	painter.setFont( boldFont );
+
 	if ( m_background != nullptr ) {
 
 		if ( m_bIsPressed ) {
@@ -214,69 +223,8 @@ void Button::paintEvent( QPaintEvent* ev )
 					size.width(), size.height() );
 		m_icon->render( &painter, rect );
 	}
-	
-	// // background
-	// if ( m_bIsPressed ) {
-	// 	if (__use_skin_style) {
-	// 		static int w = 5;
-	// 		static int h = m_onPixmap.height();
 
-	// 		// central section, scaled
-	// 		painter.drawPixmap( QRect(w, 0, width() - w * 2, h), m_onPixmap, QRect(10, 0, w, h) );
-
-	// 		// left side
-	// 		painter.drawPixmap( QRect(0, 0, w, h), m_onPixmap, QRect(0, 0, w, h) );
-
-	// 		// right side
-	// 		painter.drawPixmap( QRect(width() - w, 0, w, h), m_onPixmap, QRect(m_onPixmap.width() - w, 0, w, h) );
-	// 	}
-	// 	else {
-	// 		painter.drawPixmap( ev->rect(), m_onPixmap, ev->rect() );
-	// 	}
-	// }
-	// else {
-	// 	if (m_bMouseOver) {
-	// 		if (__use_skin_style) {
-	// 			static int w = 5;
-	// 			static int h = m_overPixmap.height();
-
-	// 			// central section, scaled
-	// 			painter.drawPixmap( QRect(w, 0, width() - w * 2, h), m_overPixmap, QRect(10, 0, w, h) );
-
-	// 			// left side
-	// 			painter.drawPixmap( QRect(0, 0, w, h), m_overPixmap, QRect(0, 0, w, h) );
-
-	// 			// right side
-	// 			painter.drawPixmap( QRect(width() - w, 0, w, h), m_overPixmap, QRect(m_overPixmap.width() - w, 0, w, h) );
-	// 		}
-	// 		else {
-	// 			painter.drawPixmap( ev->rect(), m_overPixmap, ev->rect() );
-	// 		}
-	// 	}
-	// 	else {
-	// 		if (__use_skin_style) {
-	// 			static int w = 5;
-	// 			static int h = m_offPixmap.height();
-
-	// 			// central section, scaled
-	// 			painter.drawPixmap( QRect(w, 0, width() - w * 2, h), m_offPixmap, QRect(10, 0, w, h) );
-
-	// 			// left side
-	// 			painter.drawPixmap( QRect(0, 0, w, h), m_offPixmap, QRect(0, 0, w, h) );
-
-	// 			// right side
-	// 			painter.drawPixmap( QRect(width() - w, 0, w, h), m_offPixmap, QRect(m_offPixmap.width() - w, 0, w, h) );
-	// 		}
-	// 		else {
-	// 			painter.drawPixmap( ev->rect(), m_offPixmap, ev->rect() );
-	// 		}
-	// 	}
-	// }
-
-
-	if ( ! m_sText.isEmpty() ) {
-		painter.setFont( QFont( H2Core::Preferences::get_instance()->getApplicationFontFamily(), 6 ) );
-
+	if ( !m_sText.isEmpty() ) {
 		QColor shadow(150, 150, 150, 100);
 		QColor text(10, 10, 10);
 
@@ -291,7 +239,6 @@ void Button::paintEvent( QPaintEvent* ev )
 		// text
 		painter.setPen( text );
 		painter.drawText( 0, 0, width(), height(), Qt::AlignHCenter | Qt::AlignVCenter,  m_sText );
-
 	}
 
 }
@@ -302,6 +249,16 @@ void Button::setText( const QString& sText )
 	update();
 }
 
+void Button::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getLevel3FontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = pPref->getFontSize();
+		m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
+		update();
+	}
+}
 
 
 // :::::::::::::::::::::::::

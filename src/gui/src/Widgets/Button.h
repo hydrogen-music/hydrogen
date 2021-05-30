@@ -26,6 +26,7 @@
 
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include <core/MidiAction.h>
 
 #include "MidiLearnable.h"
@@ -33,11 +34,13 @@
 #include <QtGui>
 #include <QtWidgets>
 #include <QSvgRenderer>
+#include "WidgetWithScalableFont.h"
+
 
 /**
  * Generic Button with pixmaps and text.
  */
-class Button : public QWidget, public H2Core::Object, public MidiLearnable
+class Button : public QWidget, protected WidgetWithScalableFont<6, 8, 10>, public H2Core::Object, public MidiLearnable
 {
     H2_OBJECT
 	Q_OBJECT
@@ -69,11 +72,14 @@ public:
 	void setText( const QString& sText );
 	const QString& getText() const ;
 
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
+
 signals:
 	void clicked(Button *pBtn);
 	void rightClicked(Button *pBtn);
 	void mousePress(Button *pBtn);
-
+	
 protected slots:
 	void buttonPressed_timer_timeout();
 
@@ -101,6 +107,10 @@ private:
 
 	QTimer *m_timer;
 	int m_timerTimeout;
+	/** Used to detect changed in the font*/
+	QString m_sLastUsedFontFamily;
+	/** Used to detect changed in the font*/
+	H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 inline bool Button::isPressed() const {

@@ -1,4 +1,17 @@
 20xx-xx-xx the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+	* Release 1.2
+	* PreferencesDialog > Appearance tab overhaul
+	  	- Drop previous font options in favor for three different
+		  levels of font (without exposing their point sizes)
+		- Ability to decrease or increase the overall font size
+		- Font and coloring updates take effect immediately (no
+		  restart required anymore)
+		- Drop the "fixed" coloring methods and rename "steps" to
+		  "Custom".
+		- Via a colored button the particular line color can now be
+		  adjusted using a QColorDialog
+
+20xx-xx-xx the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.1
 	* Keyboard cursor-driven pattern, song and note properties editing
 	* Note selection and movement in pattern editors
@@ -11,6 +24,8 @@
 	* Instrument main pitch shift offset
 	* Custom pattern size support with representation in note values
 	* Custom pan law support in mixer
+	* Attempt to find fallback Audio drivers if user preferred
+	  driver fails, as if the "Auto" driver option were selected
 
 2021-04-11 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.0.2
