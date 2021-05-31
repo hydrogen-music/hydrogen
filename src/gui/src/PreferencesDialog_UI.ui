@@ -1230,6 +1230,12 @@
          </item>
          <item row="2" column="1">
           <widget class="QSpinBox" name="coloringMethodAuxSpinBox">
+           <property name="minimumSize">
+            <size>
+             <width>308</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="minimum">
             <number>1</number>
            </property>

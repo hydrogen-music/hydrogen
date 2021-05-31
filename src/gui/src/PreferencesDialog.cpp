@@ -304,16 +304,20 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	coloringMethodCombo->setCurrentIndex( coloringMethod );
 	coloringMethodAuxSpinBox->setValue( m_nPreviousVisiblePatternColors );
 	QSize size( uiScalingPolicyComboBox->width(), coloringMethodAuxSpinBox->height() );
-	coloringMethodAuxSpinBox->setFixedSize( size );
-	coloringMethodAuxSpinBox->resize( size );
+	// coloringMethodAuxSpinBox->setFixedSize( size );
+	// coloringMethodAuxSpinBox->resize( size );
 
 	m_previousPatternColors = pPref->getPatternColors();
 
 	int nMaxPatternColors = pPref->getMaxPatternColors();
 	m_colorSelectionButtons = std::vector<ColorSelectionButton*>( nMaxPatternColors );
-	int nButtonSize = coloringMethodAuxSpinBox->height();
-	int nButtonsPerLine = std::floor( static_cast<float>(coloringMethodAuxSpinBox->width()) /
-									  static_cast<float>(nButtonSize + 4) );
+	int nButtonSize = fontSizeComboBox->height();
+	// float fLineWidth = static_cast<float>(fontSizeComboBox->width());
+	// Using a fixed one size resizing of the widget seems to happen
+	// after the constructor is called.
+	float fLineWidth = 308;
+	int nButtonsPerLine = std::floor( fLineWidth / static_cast<float>(nButtonSize + 4) );
+
 	colorSelectionGrid->setHorizontalSpacing( 4 );
 	for ( int ii = 0; ii < nMaxPatternColors; ii++ ) {
 		ColorSelectionButton* bbutton = new ColorSelectionButton( this, m_previousPatternColors[ ii ], nButtonSize );
