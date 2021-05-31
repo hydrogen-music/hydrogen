@@ -32,7 +32,6 @@
 class Fader;
 class MasterFader;
 class PanFader;
-//class Knob;
 class Button;
 class ToggleButton;
 class InstrumentPropertiesDialog;
@@ -40,6 +39,7 @@ class InstrumentNameWidget;
 class LCDDisplay;
 class Rotary;
 class WidgetWithInput;
+class LED;
 
 #include "../Widgets/PixmapWidget.h"
 #include "../Widgets/WidgetWithScalableFont.h"
@@ -161,7 +161,8 @@ class MixerLine: public PixmapWidget
 		ToggleButton *			m_pMuteBtn;
 		ToggleButton *			m_pSoloBtn;
 		Button *				m_pPlaySampleBtn;
-		Button *				m_pTriggerSampleLED;
+		LED*				m_pTriggerSampleLED;
+		LED*				m_pSelectionLED;
 		Rotary *				m_pFxRotary[MAX_FX];
 
 		LCDDisplay *			m_pPeakLCD;

@@ -32,6 +32,7 @@
 #include "../Widgets/Rotary.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/LCD.h"
+#include "../Widgets/LED.h"
 #include "../Widgets/WidgetWithInput.h"
 
 #include <core/Hydrogen.h>
@@ -80,10 +81,14 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	connect(m_pPlaySampleBtn, SIGNAL(rightClicked(Button*)), this, SLOT(rightClick(Button*)));
 
 	// Trigger sample LED
-	m_pTriggerSampleLED = new LEDButton( this, QSize( 5, 13 ) );
+	m_pTriggerSampleLED = new LED( this, QSize( 5, 13 ) );
 	m_pTriggerSampleLED->move( 26, 2 );
 	m_pTriggerSampleLED->setObjectName( "TriggerSampleLED" );
-	connect(m_pTriggerSampleLED, SIGNAL(clicked(Button*)), this, SLOT(click(Button*)));
+	
+	// LED indicating that this particular mixerline is selected
+	m_pSelectionLED = new LED( this, QSize( 11, 9 ) );
+	m_pSelectionLED->move( 39, 2 );
+	m_pSelectionLED->setObjectName( "SelectionLED" );
 
 	// Mute button
 
@@ -338,7 +343,7 @@ void MixerLine::setPan(float fValue)
 }
 
 void MixerLine::setPlayClicked( bool clicked ) {
-	m_pTriggerSampleLED->setPressed( clicked );
+	m_pTriggerSampleLED->setActivated( clicked );
 }
 
 void MixerLine::knobChanged( WidgetWithInput* pRef)
@@ -373,16 +378,12 @@ float MixerLine::getFXLevel(uint nFX)
 
 void MixerLine::setSelected( bool bIsSelected )
 {
-	if (m_bIsSelected == bIsSelected )	return;
+	if ( m_bIsSelected == bIsSelected ) {
+		return;
+	}
 
 	m_bIsSelected = bIsSelected;
-	if (m_bIsSelected) {
-		setPixmap( "/mixerPanel/mixerline_background_on.png" );
-	}
-	else {
-		setPixmap( "/mixerPanel/mixerline_background.png" );
-	}
-
+	m_pSelectionLED->setActivated( bIsSelected );
 }
 
 // ::::::::::::::::::::::::::::

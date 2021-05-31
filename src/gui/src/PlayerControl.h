@@ -41,7 +41,6 @@ class LCDSpinBox;
 class LCDDisplay;
 class Button;
 class ToggleButton;
-class LEDButton;
 class CpuLoadWidget;
 class PixmapWidget;
 class LED;

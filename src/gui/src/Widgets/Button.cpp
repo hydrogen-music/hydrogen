@@ -200,7 +200,7 @@ void Button::paintEvent( QPaintEvent* ev )
 
 	int nMargin, nPixelSize;
 	if ( m_nWidth <= 11 || m_nHeight <= 11 ) {
-		nMargin = 2;
+		nMargin = 1;
 	} else {
 		nMargin = 5;
 	}
@@ -323,42 +323,4 @@ void ToggleButton::mousePressEvent( QMouseEvent *ev ) {
 
 void ToggleButton::mouseReleaseEvent(QMouseEvent*) {
 	// do nothing, this method MUST override Button's one
-}
-
-LEDButton::LEDButton( QWidget *pParent, QSize size )
-	: Button( pParent, size, "", "LED", false, QSize( 0, 0 ), false )
-{
-	setFixedSize( size );
-
-	// Since the load function does not report success, we will check
-	// for the existance of the background image separately.
-	QString sPath( Skin::getSvgImagePath() + "/led.svg" );
-
-	QFile file( sPath );
-	if ( file.exists() ) {
-		m_background = new QSvgRenderer( sPath, this );
-	} else {
-		m_background = nullptr;
-		ERRORLOG( QString( "Unable to load background image [%1]" ).arg( sPath ) );
-	}
-
-	m_icon = nullptr;	
-	resize( size );
-}
-
-LEDButton::~LEDButton(){
-}
-
-void LEDButton::paintEvent( QPaintEvent* ev )
-{
-	QPainter painter( this );
-
-	if ( m_background != nullptr ) {
-
-		if ( m_bIsPressed ) {
-			m_background->render( &painter, "layer2" );
-		} else {
-			m_background->render( &painter, "layer1" );
-		}
-	}
 }

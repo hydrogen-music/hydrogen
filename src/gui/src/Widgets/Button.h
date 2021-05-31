@@ -134,15 +134,4 @@ private:
 	void mousePressEvent( QMouseEvent *ev );
 	void mouseReleaseEvent( QMouseEvent *ev );
 };
-
-class LEDButton : public Button {
-	Q_OBJECT
-
-public:
-	LEDButton( QWidget *pParent, QSize size );
-	~LEDButton();
-
-private:
-	void paintEvent( QPaintEvent* ev );
-};
 #endif

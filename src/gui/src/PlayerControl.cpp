@@ -322,7 +322,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pMidiActivityTimer = new QTimer( this );
 	connect( m_pMidiActivityTimer, SIGNAL( timeout() ), this, SLOT( deactivateMidiActivityLED() ) );
 
-	m_pMidiActivityLED->move( 12, 14 );
+	m_pMidiActivityLED->move( 11, 14 );
 	m_pCpuLoadWidget->move( 10, 4 );
 //~ JACK
 
