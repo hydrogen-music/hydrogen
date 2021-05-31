@@ -9,12 +9,11 @@ FIND_PACKAGE(PkgConfig REQUIRED)
 INCLUDE_DIRECTORIES( include
     ${CMAKE_SOURCE_DIR}/include                 # regular headers
     ${CMAKE_CURRENT_BINARY_DIR}/include         # generated config.h
+    ${CMAKE_SOURCE_DIR}/src/core/include        # core headers	
     ${QT_INCLUDES}
 )
 
 ADD_LIBRARY( hydrogen-lv2ui-${VERSION} ${H2CORE_LIBRARY_TYPE} ${hydrogen_SOURCES})
-
-
 
 TARGET_LINK_LIBRARIES(hydrogen-lv2ui-${VERSION}
 	hydrogen-core-${VERSION}

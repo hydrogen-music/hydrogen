@@ -20,16 +20,26 @@
 
 #include "lv2/log/log.h"
 #include "lv2/midi/midi.h"
+#include "lv2/atom/atom.h"
+#include "lv2/atom/forge.h"
 #include "lv2/parameters/parameters.h"
 #include "lv2/patch/patch.h"
 #include "lv2/state/state.h"
 
 #include <stdio.h>
 
-#define EG_SAMPLER_URI          "http://lv2plug.in/plugins/eg-sampler"
-#define EG_SAMPLER__applySample EG_SAMPLER_URI "#applySample"
-#define EG_SAMPLER__freeSample  EG_SAMPLER_URI "#freeSample"
-#define EG_SAMPLER__sample      EG_SAMPLER_URI "#sample"
+typedef enum {
+	H2_PORT_OUTPUT_L = 0,
+	H2_PORT_OUTPUT_R = 1,
+	H2_PORT_CONTROL = 2,
+	H2_PORT_NOTIFY = 3
+} PortIndex;
+
+
+#define H2_URI      "http://hydrogen-music.org/plugins/hydrogen"
+#define H2_UI_URI   "http://hydrogen-music.org/plugins/hydrogen#ui"
+
+#define H2_PROPERTY_DRUMKIT      H2_URI"#drumkit"
 
 typedef struct {
 	LV2_URID atom_Float;
@@ -38,9 +48,7 @@ typedef struct {
 	LV2_URID atom_Sequence;
 	LV2_URID atom_URID;
 	LV2_URID atom_eventTransfer;
-	LV2_URID eg_applySample;
-	LV2_URID eg_freeSample;
-	LV2_URID eg_sample;
+	LV2_URID h2_drumkit;
 	LV2_URID midi_Event;
 	LV2_URID param_gain;
 	LV2_URID patch_Get;
@@ -51,7 +59,7 @@ typedef struct {
 } SamplerURIs;
 
 static inline void
-map_sampler_uris(LV2_URID_Map* map, SamplerURIs* uris)
+mapSamplerUris(LV2_URID_Map* map, SamplerURIs* uris)
 {
 	uris->atom_Float         = map->map(map->handle, LV2_ATOM__Float);
 	uris->atom_Path          = map->map(map->handle, LV2_ATOM__Path);
@@ -59,9 +67,7 @@ map_sampler_uris(LV2_URID_Map* map, SamplerURIs* uris)
 	uris->atom_Sequence      = map->map(map->handle, LV2_ATOM__Sequence);
 	uris->atom_URID          = map->map(map->handle, LV2_ATOM__URID);
 	uris->atom_eventTransfer = map->map(map->handle, LV2_ATOM__eventTransfer);
-	uris->eg_applySample     = map->map(map->handle, EG_SAMPLER__applySample);
-	uris->eg_freeSample      = map->map(map->handle, EG_SAMPLER__freeSample);
-	uris->eg_sample          = map->map(map->handle, EG_SAMPLER__sample);
+	uris->h2_drumkit         = map->map(map->handle, H2_PROPERTY_DRUMKIT);
 	uris->midi_Event         = map->map(map->handle, LV2_MIDI__MidiEvent);
 	uris->param_gain         = map->map(map->handle, LV2_PARAMETERS__gain);
 	uris->patch_Get          = map->map(map->handle, LV2_PATCH__Get);
@@ -77,24 +83,24 @@ map_sampler_uris(LV2_URID_Map* map, SamplerURIs* uris)
    ----
    []
    a patch:Set ;
-   patch:property eg:sample ;
-   patch:value </home/me/foo.wav> .
+   patch:property drumkit ;
+   patch:value <GMRockKit> .
    ----
 */
 static inline LV2_Atom_Forge_Ref
-write_set_file(LV2_Atom_Forge*    forge,
-               const SamplerURIs* uris,
-               const char*        filename,
-               const uint32_t     filename_len)
+writeSetDrumkit(LV2_Atom_Forge*    forge,
+                const SamplerURIs* uris,
+                const char*        drumkitname,
+                const uint32_t     drumkitname_len)
 {
 	LV2_Atom_Forge_Frame frame;
 	LV2_Atom_Forge_Ref   set = lv2_atom_forge_object(
 		forge, &frame, 0, uris->patch_Set);
 
 	lv2_atom_forge_key(forge, uris->patch_property);
-	lv2_atom_forge_urid(forge, uris->eg_sample);
+	lv2_atom_forge_urid(forge, uris->h2_drumkit);
 	lv2_atom_forge_key(forge, uris->patch_value);
-	lv2_atom_forge_path(forge, filename, filename_len);
+	lv2_atom_forge_path(forge, drumkitname, drumkitname_len);
 
 	lv2_atom_forge_pop(forge, &frame);
 	return set;
@@ -106,13 +112,13 @@ write_set_file(LV2_Atom_Forge*    forge,
    ----
    []
    a patch:Set ;
-   patch:property eg:sample ;
-   patch:value </home/me/foo.wav> .
+   patch:property drumkit ;
+   patch:value <GMRockKit> .
    ----
 */
 static inline const char*
-read_set_file(const SamplerURIs*     uris,
-              const LV2_Atom_Object* obj)
+readSetDrumkit(const SamplerURIs*     uris,
+               const LV2_Atom_Object* obj)
 {
 	if (obj->body.otype != uris->patch_Set) {
 		fprintf(stderr, "Ignoring unknown message type %d\n", obj->body.otype);
@@ -128,7 +134,7 @@ read_set_file(const SamplerURIs*     uris,
 	} else if (property->type != uris->atom_URID) {
 		fprintf(stderr, "Malformed set message has non-URID property.\n");
 		return nullptr;
-	} else if (((const LV2_Atom_URID*)property)->body != uris->eg_sample) {
+	} else if (((const LV2_Atom_URID*)property)->body != uris->h2_drumkit) {
 		fprintf(stderr, "Set message for unknown property.\n");
 		return nullptr;
 	}

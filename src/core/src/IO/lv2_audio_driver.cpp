@@ -34,7 +34,7 @@ LV2AudioDriver::LV2AudioDriver(audioProcessCallback processCallback)
 		m_outL(nullptr),
 		m_outR(nullptr)
 {
-	___ERRORLOG("INIT");
+	___INFOLOG("INIT");
 	m_callback = processCallback;
 }
 
