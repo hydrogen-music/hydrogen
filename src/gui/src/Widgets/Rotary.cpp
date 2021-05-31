@@ -134,39 +134,41 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	}
 
 	QRectF arcRect( 9.951, 2.6, 24.4, 23 );
-	if ( m_type != Type::Small ) {
-		if ( m_type == Type::Normal ) {
-			int nStartAngle = 210 * 16; // given in 1/16 of a degree
-			int nSpanAngle  = static_cast<int>( -239 * 16 * ( m_fValue - m_fMin ) / ( m_fMax - m_fMin ) );
+	if ( m_bIsActive ) {
+		if ( m_type != Type::Small ) {
+			if ( m_type == Type::Normal ) {
+				int nStartAngle = 210 * 16; // given in 1/16 of a degree
+				int nSpanAngle  = static_cast<int>( -239 * 16 * ( m_fValue - m_fMin ) / ( m_fMax - m_fMin ) );
 
-			painter.setPen( QPen( colorArc, 1.7 ) );
-			painter.drawArc( arcRect, nStartAngle, nSpanAngle );
-		} else {
-			// Type::Center
-
-			// There will be a special indication of the
-			// center. Either as a gray dot or a bigger green one if
-			// the value is smaller than +/-1% of the range around 0.
-			if ( std::fabs( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) < 0.01 * ( m_fMax - m_fMin ) ) {
-				
-				painter.setPen( QPen( colorArcCenterSet, 2.5 ) );
-				painter.drawArc( arcRect, 91 * 16, -3 * 16 );
-				
-			} else {
-				
-				painter.setPen( QPen( colorArcCenterUnset, 2.5 ) );
-				painter.drawArc( arcRect, 91 * 16, -3 * 16 );
-
-				int nStartAngle = -18 * 16;
-				int nSpanAngle  = static_cast<int>( -200* 16 * ( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) / ( m_fMax - m_fMin ) );
-				if ( m_fValue - 0.5 * ( m_fMax + m_fMin ) < 0 ) {
-					nStartAngle *= -1;
-					nStartAngle -= 2 * 16;
-				}
-				nStartAngle += 90 * 16;
-				
 				painter.setPen( QPen( colorArc, 1.7 ) );
-				painter.drawArc( arcRect, nStartAngle, nSpanAngle ); 
+				painter.drawArc( arcRect, nStartAngle, nSpanAngle );
+			} else {
+				// Type::Center
+
+				// There will be a special indication of the
+				// center. Either as a gray dot or a bigger green one if
+				// the value is smaller than +/-1% of the range around 0.
+				if ( std::fabs( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) < 0.01 * ( m_fMax - m_fMin ) ) {
+				
+					painter.setPen( QPen( colorArcCenterSet, 2.5 ) );
+					painter.drawArc( arcRect, 91 * 16, -3 * 16 );
+				
+				} else {
+				
+					painter.setPen( QPen( colorArcCenterUnset, 2.5 ) );
+					painter.drawArc( arcRect, 91 * 16, -3 * 16 );
+
+					int nStartAngle = -18 * 16;
+					int nSpanAngle  = static_cast<int>( -200* 16 * ( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) / ( m_fMax - m_fMin ) );
+					if ( m_fValue - 0.5 * ( m_fMax + m_fMin ) < 0 ) {
+						nStartAngle *= -1;
+						nStartAngle -= 2 * 16;
+					}
+					nStartAngle += 90 * 16;
+				
+					painter.setPen( QPen( colorArc, 1.7 ) );
+					painter.drawArc( arcRect, nStartAngle, nSpanAngle ); 
+				}
 			}
 		}
 	}
