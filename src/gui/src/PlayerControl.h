@@ -44,6 +44,7 @@ class ToggleButton;
 class CpuLoadWidget;
 class PixmapWidget;
 class LED;
+class ClickableLabel;
 
 ///
 ///
@@ -194,13 +195,19 @@ public slots:
 
 		CpuLoadWidget *m_pCpuLoadWidget;
 		LED *m_pMidiActivityLED;
+		ClickableLabel* m_pMidiInLbl;
+		ClickableLabel* m_pCpuLbl;
 
 		LCDSpinBox *m_pLCDBPMSpinbox;
-
+		ClickableLabel* m_pBPMLbl;
 		LCDDisplay *m_pTimeDisplayH;
 		LCDDisplay *m_pTimeDisplayM;
 		LCDDisplay *m_pTimeDisplayS;
 		LCDDisplay *m_pTimeDisplayMS;
+		ClickableLabel* m_pTimeHoursLbl;
+		ClickableLabel* m_pTimeMinutesLbl;
+		ClickableLabel* m_pTimeSecondsLbl;
+		ClickableLabel* m_pTimeMilliSecondsLbl;
 
 		//beatcounter
 		PixmapWidget *m_pControlsBCPanel;

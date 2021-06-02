@@ -84,6 +84,18 @@ class CommonStrings : public H2Core::Object {
 	const QString& getLayerGainLabel() { return m_sLayerGainLabel; }
 	const QString& getComponentGainLabel() { return m_sComponentGainLabel; }
 	const QString& getSampleSelectionLabel() { return m_sSampleSelectionLabel; }
+	const QString& getPatternSizeLabel() { return m_sPatternSizeLabel; }
+	const QString& getResolutionLabel() { return m_sResolutionLabel; }
+	const QString& getHearNotesLabel() { return m_sHearNotesLabel; }
+	const QString& getQuantizeEventsLabel() { return m_sQuantizeEventsLabel; }
+	const QString& getShowPianoLabel() { return m_sShowPianoLabel; }
+	const QString& getMidiInLabel() { return m_sMidiInLabel; }
+	const QString& getCpuLabel() { return m_sCpuLabel; }
+	const QString& getBPMLabel() { return m_sBPMLabel; }
+	const QString& getTimeHoursLabel() { return m_sTimeHoursLabel; }
+	const QString& getTimeMinutesLabel() { return m_sTimeMinutesLabel; }
+	const QString& getTimeSecondsLabel() { return m_sTimeSecondsLabel; }
+	const QString& getTimeMilliSecondsLabel() { return m_sTimeMilliSecondsLabel; }
 	
 private:
 	QString m_sSmallSoloButton;
@@ -136,5 +148,17 @@ private:
 	QString m_sLayerGainLabel;
 	QString m_sComponentGainLabel;
 	QString m_sSampleSelectionLabel;
+	QString m_sPatternSizeLabel;
+	QString m_sResolutionLabel;
+	QString m_sHearNotesLabel;
+	QString m_sQuantizeEventsLabel;
+	QString m_sShowPianoLabel;
+	QString m_sMidiInLabel;
+	QString m_sCpuLabel;
+	QString m_sBPMLabel;
+	QString m_sTimeHoursLabel;
+	QString m_sTimeMinutesLabel;
+	QString m_sTimeSecondsLabel;
+	QString m_sTimeMilliSecondsLabel;
 };
 #endif

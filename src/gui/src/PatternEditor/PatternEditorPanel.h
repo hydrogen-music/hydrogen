@@ -42,7 +42,7 @@ class NotePropertiesRuler;
 class LCDCombo;
 class DrumPatternEditor;
 class PianoRollEditor;
-
+class ClickableLabel;
 
 enum patternEditorRightClickMode { VELOCITY_SELECTED, PAN_SELECTED, LEAD_LAG_SELECTED };
 
@@ -134,6 +134,11 @@ class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 1
 		LCDCombo *			__resolution_combo;
 		ToggleButton *		__show_drum_btn;
 		ToggleButton *		__show_piano_btn;
+		ClickableLabel*		m_pPatternSizeLbl;
+		ClickableLabel*		m_pResolutionLbl;
+		ClickableLabel*		m_pHearNotesLbl;
+		ClickableLabel*		m_pQuantizeEventsLbl;
+		ClickableLabel*		m_pShowPianoLbl;
 		// ~Editor top
 
 		//note properties combo

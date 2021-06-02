@@ -27,6 +27,7 @@
 #include "InstrumentRack.h"
 #include "HydrogenApp.h"
 
+#include "Widgets/ClickableLabel.h"
 #include "Widgets/LCD.h"
 #include "Widgets/LED.h"
 #include "Widgets/Button.h"
@@ -82,18 +83,26 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pTimeDisplayH = new LCDDisplay( pControlsPanel, LCDDigit::LARGE_GRAY, 2 );
 	m_pTimeDisplayH->move( 27, 12 );
 	m_pTimeDisplayH->setText( "00" );
+	m_pTimeHoursLbl = new ClickableLabel( pControlsPanel, QSize( 33, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getTimeHoursLabel(), ClickableLabel::Color::LCD );
+	m_pTimeHoursLbl->move( 24, 30 );
 
 	m_pTimeDisplayM = new LCDDisplay( pControlsPanel, LCDDigit::LARGE_GRAY, 2 );
 	m_pTimeDisplayM->move( 61, 12 );
 	m_pTimeDisplayM->setText( "00" );
+	m_pTimeMinutesLbl = new ClickableLabel( pControlsPanel, QSize( 33, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getTimeMinutesLabel(), ClickableLabel::Color::LCD );
+	m_pTimeMinutesLbl->move( 58, 30 );
 
 	m_pTimeDisplayS = new LCDDisplay( pControlsPanel, LCDDigit::LARGE_GRAY, 2 );
 	m_pTimeDisplayS->move( 95, 12 );
 	m_pTimeDisplayS->setText( "00" );
+	m_pTimeSecondsLbl = new ClickableLabel( pControlsPanel, QSize( 33, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getTimeSecondsLabel(), ClickableLabel::Color::LCD );
+	m_pTimeSecondsLbl->move( 92, 30 );
 
 	m_pTimeDisplayMS = new LCDDisplay( pControlsPanel, LCDDigit::SMALL_GRAY, 3 );
 	m_pTimeDisplayMS->move( 122, 16 );
 	m_pTimeDisplayMS->setText( "000" );
+	m_pTimeMilliSecondsLbl = new ClickableLabel( pControlsPanel, QSize( 34, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getTimeMilliSecondsLabel(), ClickableLabel::Color::LCD );
+	m_pTimeMilliSecondsLbl->move( 124, 30 );
 
 	// Rewind button
 	m_pRwdBtn = new Button( pControlsPanel, QSize( 21, 15 ), "rewind.svg", "", false, QSize( 11, 11 ) );
@@ -232,6 +241,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	pBPMPanel->setPixmap( "/playerControlPanel/background_BPM.png" );
 	pBPMPanel->setObjectName( "BPM" );
 	hbox->addWidget( pBPMPanel );
+	m_pBPMLbl = new ClickableLabel( pBPMPanel, QSize( 25, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getBPMLabel(), ClickableLabel::Color::LCD );
+	m_pBPMLbl->move( 105, 31 );
 
 	// LCD BPM SpinBox
 	m_pLCDBPMSpinbox = new LCDSpinBox( pBPMPanel, 6, LCDSpinBox::FLOAT, MIN_BPM, MAX_BPM );
@@ -321,6 +332,10 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pMidiActivityLED->setObjectName( "MidiActivityLED" );
 	m_pMidiActivityTimer = new QTimer( this );
 	connect( m_pMidiActivityTimer, SIGNAL( timeout() ), this, SLOT( deactivateMidiActivityLED() ) );
+	m_pMidiInLbl = new ClickableLabel( pJackPanel, QSize( 45, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getMidiInLabel() );
+	m_pMidiInLbl->move( 22, 14 );
+	m_pCpuLbl = new ClickableLabel( pJackPanel, QSize( 30, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getCpuLabel() );
+	m_pCpuLbl->move( 71, 14 );
 
 	m_pMidiActivityLED->move( 11, 14 );
 	m_pCpuLoadWidget->move( 10, 4 );

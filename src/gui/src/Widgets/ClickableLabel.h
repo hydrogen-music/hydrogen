@@ -35,7 +35,15 @@ class ClickableLabel : public QLabel, public H2Core::Object
 	Q_OBJECT
 
 public:
-	explicit ClickableLabel( QWidget *pParent, QSize size, QString sText );
+	/** The individual colors of the text won't be exposed but are up
+		to the palette/application-wide settings.*/
+	enum class Color {
+		Bright,
+		Dark,
+		LCD
+	};
+	
+	explicit ClickableLabel( QWidget *pParent, QSize size, QString sText, Color color = Color::Bright );
 	void mousePressEvent( QMouseEvent * e );
 
 public slots:
@@ -48,6 +56,7 @@ private:
 	void updateFont( QString sFontFamily, H2Core::Preferences::FontSize fontSize );
 
 	QSize m_size;
+	Color m_color;
 	
 	/** Used to detect changed in the font*/
 	QString m_sLastUsedFontFamily;

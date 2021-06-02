@@ -40,6 +40,7 @@ using namespace H2Core;
 
 #include "../MainForm.h"
 #include "../Widgets/Button.h"
+#include "../Widgets/ClickableLabel.h"
 #include "../Widgets/Fader.h"
 #include "../Widgets/PixmapWidget.h"
 #include "../Widgets/LCDCombo.h"
@@ -47,6 +48,7 @@ using namespace H2Core;
 #include "../WidgetScrollArea.h"
 
 #include "../Skin.h"
+#include "../CommonStrings.h"
 #include "../SongEditor/SongEditorPanel.h"
 
 #include <cmath>
@@ -118,6 +120,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__pattern_size_LCD = new LCDDisplay( pSizeResol, LCDDigit::SMALL_BLUE, 10 );
 	__pattern_size_LCD->move( 31, 2 );
 	__pattern_size_LCD->setToolTip( tr( "Select pattern size" ) );
+	m_pPatternSizeLbl = new ClickableLabel( pSizeResol, QSize( 30, 11 ), HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeLabel(), ClickableLabel::Color::Dark );
+	m_pPatternSizeLbl->move( 2, 4 );
 
 	connect( __pattern_size_LCD, SIGNAL( displayClicked( LCDDisplay* ) ), this, SLOT( patternSizeLCDClicked() ) );
 	
@@ -154,6 +158,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__resolution_combo->move( 154, 2 );
 	// is triggered from inside PatternEditorPanel()
 	connect( __resolution_combo, SIGNAL( valueChanged( int ) ), this, SLOT( gridResolutionChanged( int ) ) );
+	m_pResolutionLbl = new ClickableLabel( pSizeResol, QSize( 28, 11 ), HydrogenApp::get_instance()->getCommonStrings()->getResolutionLabel(), ClickableLabel::Color::Dark );
+	m_pResolutionLbl->move( 127, 4 );
 
 
 	PixmapWidget *pRec = new PixmapWidget( nullptr );
@@ -170,6 +176,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( hearNotesBtn, SIGNAL( clicked( Button* ) ), this, SLOT( hearNotesBtnClick( Button* ) ) );
 	hearNotesBtn->setPressed( pPref->getHearNewNotes() );
 	hearNotesBtn->setObjectName( "HearNotesBtn" );
+	m_pHearNotesLbl = new ClickableLabel( pRec, QSize( 30, 11 ), HydrogenApp::get_instance()->getCommonStrings()->getHearNotesLabel(), ClickableLabel::Color::Dark );
+	m_pHearNotesLbl->move( 3, 4 );
 
 
 	// quantize
@@ -179,6 +187,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	quantizeEventsBtn->setToolTip( tr( "Quantize keyboard/midi events to grid" ) );
 	quantizeEventsBtn->setObjectName( "QuantizeEventsBtn" );
 	connect( quantizeEventsBtn, SIGNAL( clicked( Button* ) ), this, SLOT( quantizeEventsBtnClick( Button* ) ) );
+	m_pQuantizeEventsLbl = new ClickableLabel( pRec, QSize( 38, 11 ), HydrogenApp::get_instance()->getCommonStrings()->getQuantizeEventsLabel(), ClickableLabel::Color::Dark );
+	m_pQuantizeEventsLbl->move( 51, 4 );
 
 	// Editor mode
 	__show_drum_btn = new ToggleButton(	pRec, QSize( 17, 13 ), "drum.svg", "", false, QSize( 13, 11 ) );
@@ -194,6 +204,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__show_piano_btn->setObjectName( "ShowDrumBtn" );
 	__show_piano_btn->hide();
 	connect( __show_piano_btn, SIGNAL( clicked( Button* ) ), this, SLOT( showDrumEditorBtnClick( Button* ) ) );
+	m_pShowPianoLbl = new ClickableLabel( pRec, QSize( 30, 11 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoLabel(), ClickableLabel::Color::Dark );
+	m_pShowPianoLbl->move( 106, 4 );
 
 	// zoom-in btn
 	Button *zoom_in_btn = new Button( nullptr, QSize( 19, 13 ), "plus.svg", "", false, QSize( 9, 9 ) );

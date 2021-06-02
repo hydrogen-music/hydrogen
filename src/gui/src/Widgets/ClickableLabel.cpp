@@ -30,20 +30,30 @@
 
 const char* ClickableLabel::__class_name = "ClickableLabel";
 
-ClickableLabel::ClickableLabel( QWidget *pParent, QSize size, QString sText  )
+ClickableLabel::ClickableLabel( QWidget *pParent, QSize size, QString sText, Color color  )
 	: QLabel( pParent )
 	, Object( __class_name )
 	, m_size( size )
+	, m_color( color )
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	m_lastUsedFontSize = pPref->getFontSize();
-	m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
+	m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
 	updateFont( m_sLastUsedFontFamily, m_lastUsedFontSize );
-	
+
 	QPalette defaultPalette;
-	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
-	defaultPalette.setColor( QPalette::WindowText, QColor( 230, 230, 230 ) );
+	if ( color == Color::Bright ) {
+		defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
+		defaultPalette.setColor( QPalette::WindowText, QColor( 230, 230, 230 ) );
+	} else if ( color == Color::LCD ) {
+		defaultPalette.setColor( QPalette::Window, QColor( 50, 50, 50 ) );
+		defaultPalette.setColor( QPalette::WindowText, QColor( 154, 195, 246 ) );
+	} else {
+		defaultPalette.setColor( QPalette::Window, QColor( 230, 230, 230 ) );
+		defaultPalette.setColor( QPalette::WindowText, QColor( 25, 25, 25 ) );
+	}
+	
 	this->setPalette( defaultPalette );
 
 	this->setAlignment( Qt::AlignCenter );
@@ -80,8 +90,10 @@ void ClickableLabel::updateFont( QString sFontFamily, H2Core::Preferences::FontS
 	}
 
 	int nMargin, nPixelSize;
-	if ( m_size.height() <= 10 ) {
+	if ( m_size.height() <= 9 ) {
 		nMargin = 2;
+	} else if ( m_size.height() <= 11 ) {
+		nMargin = 3;
 	} else {
 		nMargin = 8;
 	}
@@ -99,10 +111,10 @@ void ClickableLabel::updateFont( QString sFontFamily, H2Core::Preferences::FontS
 void ClickableLabel::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+	if ( m_sLastUsedFontFamily != pPref->getLevel3FontFamily() ||
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
 		m_lastUsedFontSize = pPref->getFontSize();
-		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
+		m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
 		
 		updateFont( m_sLastUsedFontFamily, m_lastUsedFontSize );
 	}

@@ -211,6 +211,59 @@ CommonStrings::CommonStrings() : Object( __class_name ) {
 	 Instrument Editor. Designed to hold eleven characters but not
 	 that flexible.*/
 	m_sSampleSelectionLabel = tr( "SAMPLE SEL." );
+	/*: Text displayed left of the pattern size LCD combo in the panel
+	 of the Pattern Editor. Designed to hold four characters but not
+	 that flexible.*/
+	m_sPatternSizeLabel = tr( "SIZE" );
+	/*: Text displayed left of the resolution LCD combo in the panel
+	 of the Pattern Editor. Designed to hold three characters but not
+	 that flexible.*/
+	m_sResolutionLabel = tr( "RES" );
+	/*: Text displayed left of the button to activate the playback of
+	 inserted notes in the panel of the Pattern Editor. Designed to
+	 hold four characters but not that flexible.*/
+	m_sHearNotesLabel = tr( "HEAR" );
+	/*: Text displayed left of the button to toggle the quantization
+	 in the panel of the Pattern Editor. Designed to hold five
+	 characters but not that flexible.*/
+	m_sQuantizeEventsLabel = tr( "QUANT" );
+	/*: Text displayed left of the button to switch between the
+	 Drum Pattern Editor and the Piano Roll Editor in the panel
+	 of the Pattern Editor. Designed to hold five characters but not
+	 that flexible.*/
+	m_sShowPianoLabel = tr( "INPUT" );
+	/*: Text displayed left of the button to switch between the
+	 Drum Pattern Editor and the Piano Roll Editor in the panel
+	 of the Pattern Editor. Designed to hold five characters but not
+	 that flexible.*/
+	m_sShowPianoLabel = tr( "INPUT" );
+	/*: Text displayed in the Player Control to indicate incoming MIDI
+	  events. Designed to hold seven characters but not that
+	  flexible.*/
+	m_sMidiInLabel = tr( "MIDI-IN" );
+	/*: Text displayed in the Player Control to indicate the CPU
+	 load. Designed to hold three characters but not that flexible.*/
+	m_sCpuLabel = tr( "CPU" );
+	/*: Text displayed in the Player Control to indicate where the set
+	 the tempo of the song. Designed to hold three characters but not
+	 that flexible.*/
+	m_sBPMLabel = tr( "BPM" );
+	/*: Text displayed in the Player Control to indicate the number of
+	 hours passed since playback started. Designed to hold three
+	 characters but not that flexible.*/
+	m_sTimeHoursLabel = tr( "HRS" );
+	/*: Text displayed in the Player Control to indicate the number of
+	 minutes passed since playback started. Designed to hold three
+	 characters but not that flexible.*/
+	m_sTimeMinutesLabel = tr( "MIN" );
+	/*: Text displayed in the Player Control to indicate the number of
+	 seconds passed since playback started. Designed to hold three
+	 characters but not that flexible.*/
+	m_sTimeSecondsLabel = tr( "SEC" );
+	/*: Text displayed in the Player Control to indicate the number of
+	 milliseconds passed since playback started. Designed to hold three
+	 characters but not that flexible.*/
+	m_sTimeMilliSecondsLabel = tr( "1/1000" );
 }
 
 CommonStrings::~CommonStrings(){
