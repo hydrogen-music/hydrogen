@@ -274,9 +274,13 @@ double PatternEditor::getColumn( int x, bool bUseFineGrained ) const
 }
 
 int PatternEditor::getGridIndex( int x ) const {
-	float fWidth = m_fGridWidth * granularity(); // distance between grid marks, in pixel units
-	int nGridIndex = round( ( x - m_nMargin ) / fWidth ); // The index of the nearest grid mark
-	return nGridIndex;
+	if ( x <= m_nMargin ) {
+		return 0;
+	} else {
+		float fWidth = m_fGridWidth * granularity(); // distance between grid marks, in pixel units
+		int nGridIndex = round( ( x - m_nMargin ) / fWidth ); // The index of the nearest grid mark
+		return nGridIndex;
+	}
 }
 
 
