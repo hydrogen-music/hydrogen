@@ -23,19 +23,36 @@
 #ifndef CLICKABLE_LABEL_H
 #define CLICKABLE_LABEL_H
 
+#include <core/Object.h>
+#include <core/Preferences.h>
+
 #include <QtGui>
 #include <QtWidgets>
 
-class ClickableLabel : public QLabel
+class ClickableLabel : public QLabel, public H2Core::Object
 {
+	H2_OBJECT
 	Q_OBJECT
 
-	public:
-		explicit ClickableLabel( QWidget *pParent );
-		void mousePressEvent( QMouseEvent * e );
+public:
+	explicit ClickableLabel( QWidget *pParent, QSize size, QString sText );
+	void mousePressEvent( QMouseEvent * e );
 
-	signals:
-		void labelClicked( ClickableLabel* pLabel );
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
+
+signals:
+	void labelClicked( ClickableLabel* pLabel );
+
+private:
+	void updateFont( QString sFontFamily, H2Core::Preferences::FontSize fontSize );
+
+	QSize m_size;
+	
+	/** Used to detect changed in the font*/
+	QString m_sLastUsedFontFamily;
+	/** Used to detect changed in the font*/
+	H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

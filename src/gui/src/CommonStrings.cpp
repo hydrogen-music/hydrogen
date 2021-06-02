@@ -121,6 +121,96 @@ CommonStrings::CommonStrings() : Object( __class_name ) {
 	/*: Text displayed on the button activating Song Mode for playback. Its
 	  size is designed to hold four characters and is slightly flexible.*/
 	m_sSongModeButton = tr( "SONG" );
+
+	/*: Text displayed below the rotary to adjust the attack of the
+	  ADSR in the Instrument Editor. Designed to hold six characters
+	  but flexible.*/
+	m_sAttackLabel = tr( "ATTACK" );
+	/*: Text displayed below the rotary to adjust the decay of the
+	  ADSR in the Instrument Editor. Designed to hold five characters
+	  but flexible.*/
+	m_sDecayLabel = tr( "DECAY" );
+	/*: Text displayed below the rotary to adjust the sustain of the
+	  ADSR in the Instrument Editor. Designed to hold seven characters
+	  but flexible.*/
+	m_sSustainLabel = tr( "SUSTAIN" );
+	/*: Text displayed below the rotary to adjust the release of the
+	  ADSR in the Instrument Editor. Designed to hold seven characters
+	  but flexible.*/
+	m_sReleaseLabel = tr( "RELEASE" );
+	/*: Text displayed below the LCD to set the output MIDI channel
+	  in the Instrument Editor. Designed to hold seven characters but
+	  flexible.*/
+	m_sMidiOutChannelLabel = tr( "CHANNEL" );
+	/*: Text displayed below the LCD to set the output MIDI note
+	  in the Instrument Editor. Designed to hold four characters but
+	  flexible.*/
+	m_sMidiOutNoteLabel = tr( "NOTE" );
+	/*: Text displayed in the Instrument Editor in the row of the
+	  pitch widget. Designed to hold five characters but flexible.*/
+	m_sPitchLabel = tr( "PITCH" );
+	/*: Text displayed below the rotary to adjust the deterministic
+	  part of the instrument pitch in front of decimal point in the
+	  Instrument Editor. Designed to hold six characters but
+	  flexible.*/
+	m_sPitchCoarseLabel = tr( "COARSE" );
+	/*: Text displayed below the rotary to adjust the deterministic
+	  part of the instrument pitch after decimal point in the
+	  Instrument Editor. Designed to hold four characters but
+	  flexible.*/
+	m_sPitchFineLabel = tr( "FINE" );
+	/*: Text displayed below the rotary to adjust the random part of
+	  the instrument pitch in the Instrument Editor. Designed to hold
+	 six characters but flexible.*/
+	m_sPitchRandomLabel = tr( "RANDOM" );
+	/*: Text displayed below the rotary to adjust the instrument gain
+	 in the Instrument Editor. Designed to hold four characters but
+	 flexible.*/
+	m_sGainLabel = tr( "GAIN" );
+	/*: Text displayed below the LCD to set the mute group in the
+	 Instrument Editor. Designed to hold ten characters but
+	 flexible.*/
+	m_sMuteGroupLabel = tr( "MUTE GROUP" );
+	/*: Text displayed next to the checkbox to activate the auto stop
+	 note feature in the Instrument Editor. Designed to hold 14
+	 characters but flexible.*/
+	m_sIsStopNoteLabel = tr( "AUTO-STOP-NOTE" );
+	/*: Text displayed next to the checkbox to activate the apply
+	 velocity feature in the Instrument Editor. Designed to hold 14
+	 characters but flexible.*/
+	m_sApplyVelocityLabel = tr( "APPLY VELOCITY" );
+	/*: Text displayed below the LCD to set the hihat pressure group
+	 in the Instrument Editor. Designed to hold 13 characters but
+	 is only moderately flexible.*/
+	m_sHihatGroupLabel = tr( "HH PRESS. GRP" );
+	/*: Text displayed below the LCD to set the maximum range of the
+	 hihat pressure group in the Instrument Editor. Designed to hold
+	 ten characters but flexible.*/
+	m_sHihatMaxRangeLabel = tr( "MAX. RANGE" );
+	/*: Text displayed below the LCD to set the minimum range of the
+	 hihat pressure group in the Instrument Editor. Designed to hold
+	 ten characters but flexible.*/
+	m_sHihatMinRangeLabel = tr( "MIN. RANGE" );
+	/*: Text displayed below the rotary to adjust the cutoff frequency
+	 of the lowpass filter applied to the instrument in the Instrument
+	 Editor. Designed to hold six characters but flexible.*/
+	m_sCutoffLabel = tr( "CUTOFF" );
+	/*: Text displayed below the rotary to adjust the resonance frequency
+	 of the lowpass filter applied to the instrument in the Instrument
+	 Editor. Designed to hold ten characters but flexible.*/
+	m_sResonanceLabel = tr( "RESONANCE" );
+	/*: Text displayed below the rotary to adjust the layer gain
+	 in the Instrument Editor. Designed to hold six characters but
+	 flexible.*/
+	m_sLayerGainLabel = tr( "L. GAIN" );
+	/*: Text displayed below the rotary to adjust the component gain
+	 in the Instrument Editor. Designed to hold six characters but
+	 flexible.*/
+	m_sComponentGainLabel = tr( "C. GAIN" );
+	/*: Text displayed left of the sample selection LCD combo in the
+	 Instrument Editor. Designed to hold eleven characters but not
+	 that flexible.*/
+	m_sSampleSelectionLabel = tr( "SAMPLE SEL." );
 }
 
 CommonStrings::~CommonStrings(){

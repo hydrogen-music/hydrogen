@@ -30,8 +30,8 @@ class CommonStrings : public H2Core::Object {
 	H2_OBJECT
 	Q_DECLARE_TR_FUNCTIONS(CommonStrings)
 	
-public:
-    CommonStrings();
+		public:
+		 CommonStrings();
 	~CommonStrings();
  
 	const QString& getSmallSoloButton() { return m_sSmallSoloButton; }
@@ -62,6 +62,28 @@ public:
 	const QString& getInstrumentRackButton() { return m_sInstrumentRackButton; }
 	const QString& getPatternModeButton() { return m_sPatternModeButton; }
 	const QString& getSongModeButton() { return m_sSongModeButton; }
+	const QString& getAttackLabel() { return m_sAttackLabel; }
+	const QString& getDecayLabel() { return m_sDecayLabel; }
+	const QString& getSustainLabel() { return m_sSustainLabel; }
+	const QString& getReleaseLabel() { return m_sReleaseLabel; }
+	const QString& getMidiOutChannelLabel() { return  m_sMidiOutChannelLabel; }
+	const QString& getMidiOutNoteLabel() { return  m_sMidiOutNoteLabel; }
+	const QString& getPitchLabel() { return  m_sPitchLabel; }
+	const QString& getPitchCoarseLabel() { return  m_sPitchCoarseLabel; }
+	const QString& getPitchFineLabel() { return  m_sPitchFineLabel; }
+	const QString& getPitchRandomLabel() { return  m_sPitchRandomLabel; }
+	const QString& getGainLabel() { return m_sGainLabel; }
+	const QString& getMuteGroupLabel() { return m_sMuteGroupLabel; }
+	const QString& getIsStopNoteLabel() { return m_sIsStopNoteLabel; }
+	const QString& getApplyVelocityLabel() { return m_sApplyVelocityLabel; }
+	const QString& getHihatGroupLabel() { return m_sHihatGroupLabel; }
+	const QString& getHihatMaxRangeLabel() { return m_sHihatMaxRangeLabel; }
+	const QString& getHihatMinRangeLabel() { return m_sHihatMinRangeLabel; }
+	const QString& getCutoffLabel() { return m_sCutoffLabel; }
+	const QString& getResonanceLabel() { return m_sResonanceLabel; }
+	const QString& getLayerGainLabel() { return m_sLayerGainLabel; }
+	const QString& getComponentGainLabel() { return m_sComponentGainLabel; }
+	const QString& getSampleSelectionLabel() { return m_sSampleSelectionLabel; }
 	
 private:
 	QString m_sSmallSoloButton;
@@ -92,5 +114,27 @@ private:
 	QString m_sInstrumentRackButton;
 	QString m_sPatternModeButton;
 	QString m_sSongModeButton;
+	QString m_sAttackLabel;
+	QString m_sDecayLabel;
+	QString m_sSustainLabel;
+	QString m_sReleaseLabel;
+	QString m_sMidiOutChannelLabel;
+	QString m_sMidiOutNoteLabel;
+	QString m_sPitchLabel;
+	QString m_sPitchCoarseLabel;
+	QString m_sPitchFineLabel;
+	QString m_sPitchRandomLabel;
+	QString m_sGainLabel;
+	QString m_sMuteGroupLabel;
+	QString m_sIsStopNoteLabel;
+	QString m_sApplyVelocityLabel;
+	QString m_sHihatGroupLabel;
+	QString m_sHihatMaxRangeLabel;
+	QString m_sHihatMinRangeLabel;
+	QString m_sCutoffLabel;
+	QString m_sResonanceLabel;
+	QString m_sLayerGainLabel;
+	QString m_sComponentGainLabel;
+	QString m_sSampleSelectionLabel;
 };
 #endif
