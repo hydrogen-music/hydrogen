@@ -421,10 +421,14 @@ void PlayerControl::updatePlayerControl()
 	if ( song->getMode() == Song::PATTERN_MODE ) {
 		m_pLiveModeBtn->setPressed( true );
 		m_pSongModeBtn->setPressed( false );
+		m_pPatternModeLED->setActivated( true );
+		m_pSongModeLED->setActivated( false );
 	}
 	else {
 		m_pLiveModeBtn->setPressed( false );
 		m_pSongModeBtn->setPressed( true );
+		m_pPatternModeLED->setActivated( false );
+		m_pSongModeLED->setActivated( true );
 	}
 
 	//beatcounter
