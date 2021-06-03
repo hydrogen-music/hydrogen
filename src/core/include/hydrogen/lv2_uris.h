@@ -38,6 +38,8 @@ typedef enum {
 
 #define H2_URI      "http://hydrogen-music.org/plugins/hydrogen"
 #define H2_UI_URI   "http://hydrogen-music.org/plugins/hydrogen#ui"
+#define H2_X11UI_URI   "http://hydrogen-music.org/plugins/hydrogen#ui_X11"
+
 
 #define H2_PROPERTY_DRUMKIT      H2_URI"#drumkit"
 

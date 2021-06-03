@@ -126,13 +126,13 @@ instantiate(const LV2UI_Descriptor*   descriptor,
 	mapSamplerUris(pUI->map, &pUI->uris);
 	lv2_atom_forge_init(&pUI->forge, pUI->map);
 	
+	// create the GUI
 	QWidget *pMainWidget = new QWidget;
 
 	pMainWidget->setMinimumSize(minWidgetWidth,minWidgetHeight);
 	pMainWidget->setMaximumSize(minWidgetWidth,minWidgetHeight);
 	pMainWidget->setStyleSheet("background-color: #545a69");
 
-	// create the GUI
 	QVBoxLayout* pVerticalLayout = new QVBoxLayout;
 	pMainWidget->setLayout(pVerticalLayout);
 	
@@ -184,6 +184,107 @@ instantiate(const LV2UI_Descriptor*   descriptor,
 	isReady = true;
 
 	return pUI;
+}
+
+static LV2UI_Handle
+instantiate_X11(const LV2UI_Descriptor*   descriptor,
+            const char*                   plugin_uri,
+            const char*                   bundle_path,
+            LV2UI_Write_Function          write_function,
+            LV2UI_Controller              controller,
+            LV2UI_Widget*                 pWidget,
+            const LV2_Feature* const*     features)
+{
+	WId winid, parent = 0;
+	LV2UI_Resize *resize = nullptr;
+	
+	H2_LV2UI* pUI = (H2_LV2UI*)calloc(1, sizeof(H2_LV2UI));
+	if (!pUI) {
+		return nullptr;
+	}
+	for (int i = 0; features[i]; ++i) {
+		if (::strcmp(features[i]->URI, LV2_UI__parent) == 0)
+			parent = (WId) features[i]->data;
+		else
+		if (::strcmp(features[i]->URI, LV2_UI__resize) == 0)
+			resize = (LV2UI_Resize *) features[i]->data;
+	}
+
+	if (!parent)
+		return nullptr;
+	
+	
+	unsigned logLevelOpt = H2Core::Logger::Error;
+	H2Core::Logger::create_instance();
+	H2Core::Logger::set_bit_mask( logLevelOpt );
+	H2Core::Filesystem::bootstrap(H2Core::Logger::get_instance());
+	QStringList SystemDrumkits = H2Core::Filesystem::sys_drumkit_list();
+	QStringList UserDrumkits = H2Core::Filesystem::usr_drumkit_list();
+
+	pUI->write      = write_function;
+	pUI->controller = controller;
+	*pWidget         = nullptr;
+
+	pUI->did_init   = false;
+
+	// Get host features
+	const char* missing = lv2_features_query(
+		features,
+		LV2_LOG__log,         &pUI->logger.log ,   false,
+		LV2_URID__map,        &pUI->map,           true,
+		nullptr);
+	
+	lv2_log_logger_set_map(&pUI->logger, pUI->map);
+	if (missing) {
+		lv2_log_error(&pUI->logger, "Missing feature <%s>\n", missing);
+		free(pUI);
+		return nullptr;
+	}
+
+	// Map URIs and initialise forge
+	mapSamplerUris(pUI->map, &pUI->uris);
+	lv2_atom_forge_init(&pUI->forge, pUI->map);
+	
+	// create the GUI
+	QWidget *pMainWidget = new QWidget;
+
+	pMainWidget->setMinimumSize(minWidgetWidth,minWidgetHeight);
+	pMainWidget->setMaximumSize(minWidgetWidth,minWidgetHeight);
+	pMainWidget->setStyleSheet("background-color: #545a69");
+
+	QVBoxLayout* pVerticalLayout = new QVBoxLayout;
+	pMainWidget->setLayout(pVerticalLayout);
+	
+	QComboBox* pComboBox = new QComboBox();
+	QObject::connect(pComboBox, &QComboBox::currentTextChanged, 
+		[pUI](const QString& item) {
+			comboBoxItemChanged(item, pUI);
+		} );
+	 
+	for(const auto& sysDkString : SystemDrumkits)
+	{
+		pComboBox->addItem(sysDkString);
+	}
+	 
+	for(const auto& usrDkString : UserDrumkits)
+	{
+		pComboBox->addItem(usrDkString);
+	}
+
+	 pVerticalLayout->addWidget(pComboBox);
+	
+	
+	
+	if (resize && resize->handle) {
+		const QSize& hint = pMainWidget->sizeHint();
+		resize->ui_resize(resize->handle, hint.width(), hint.height());
+	}
+	
+	winid = pMainWidget->winId();
+	pMainWidget->windowHandle()->setParent(QWindow::fromWinId(parent));
+	pMainWidget->show();
+	*pWidget = (LV2UI_Widget) winid;
+	return pWidget;
 }
 
 static void
@@ -326,6 +427,15 @@ extension_data(const char* uri)
 static const LV2UI_Descriptor descriptor = {
 	H2_UI_URI,
 	instantiate,
+	cleanup,
+	port_event,
+	extension_data
+};
+
+static const LV2UI_Descriptor synthv1_lv2ui_x11_descriptor =
+{
+	H2_X11UI_URI,
+	instantiate_X11,
 	cleanup,
 	port_event,
 	extension_data

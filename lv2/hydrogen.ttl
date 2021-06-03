@@ -27,7 +27,7 @@
 	  ];
 	doap:name "Hydrogen";
 	doap:license <https://opensource.org/licenses/GPL-2.0> ;
-	lv2:requiredFeature urid:map , work:schedule ;
+	lv2:requiredFeature state:loadDefaultState, urid:map , work:schedule ;
 	lv2:optionalFeature lv2:hardRTCapable ;
 	lv2:extensionData state:interface ,
 		work:interface ;
@@ -62,7 +62,10 @@
 			lv2:index 3 ;
 			lv2:symbol "notify" ;
 			lv2:name "Notify"
-	].
+	] ;
+	state:state [
+			<http://hydrogen-music.org/plugins/hydrogen#drumkit> <GMRockKit> ;
+		] .
 
 
 <http://hydrogen-music.org/plugins/hydrogen#ui>
@@ -75,3 +78,9 @@
 		lv2:symbol "notify" ;
 		ui:notifyType atom:Blank
 	] .
+
+<http://hydrogen-music.org/plugins/hydrogen#ui_x11>
+	a ui:X11UI ;
+	lv2:requiredFeature <http://lv2plug.in/ns/ext/instance-access> ;
+	lv2:optionalFeature ui:resize, ui:idleInterface, ui:showInterface ;
+	lv2:extensionData ui:resize, ui:idleInterface, ui:showInterface .

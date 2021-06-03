@@ -63,9 +63,9 @@ typedef struct {
 		float*						out_R;
 
 		// Features
-		LV2_URID_Map* map;
+		LV2_URID_Map*				map;
 
-		SamplerURIs uris;
+		SamplerURIs					uris;
 } H2Lv2Adapter;
 
 /**
@@ -238,25 +238,25 @@ run(LV2_Handle instance, uint32_t n_samples)
 	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
 	H2Core::LV2MidiDriver* pLV2MidiDriver = dynamic_cast< H2Core::LV2MidiDriver* >( pHydrogen->getMidiInput() );
 	H2Core::LV2AudioDriver* pLV2AudioDriver = dynamic_cast< H2Core::LV2AudioDriver* >( pHydrogen->getAudioOutput() );
-	H2Lv2Adapter* self = (H2Lv2Adapter*) instance;
+	H2Lv2Adapter* pLv2Adapter = (H2Lv2Adapter*) instance;
 	
 	assert(pLV2AudioDriver);
 	assert(pLV2MidiDriver);
 	
 	// Set up forge to write directly to notify output port.
-	const uint32_t notify_capacity = self->notify->atom.size;
-	lv2_atom_forge_set_buffer(&self->forge,
-							  (uint8_t*)self->notify,
+	const uint32_t notify_capacity = pLv2Adapter->notify->atom.size;
+	lv2_atom_forge_set_buffer(&pLv2Adapter->forge,
+							  (uint8_t*)pLv2Adapter->notify,
 							  notify_capacity);
-	lv2_atom_forge_sequence_head(&self->forge, &self->notify_frame, 0);
+	lv2_atom_forge_sequence_head(&pLv2Adapter->forge, &pLv2Adapter->notify_frame, 0);
 	
-	LV2_ATOM_SEQUENCE_FOREACH(self->control, ev) {
+	LV2_ATOM_SEQUENCE_FOREACH(pLv2Adapter->control, ev) {
 		
-		if (ev->body.type == self->uris.midi_Event) 
+		if (ev->body.type == pLv2Adapter->uris.midi_Event) 
 		{
 			H2Core::MidiMessage midiMsg;
 			
-			lv2_log_error(&self->logger, "incoming midi message\n");
+			lv2_log_error(&pLv2Adapter->logger, "incoming midi message\n");
 			
 			const uint8_t* const pRawLv2Msg = (const uint8_t*)(ev + 1);
 			switch (lv2_midi_message_type(pRawLv2Msg)) {
@@ -274,45 +274,45 @@ run(LV2_Handle instance, uint32_t n_samples)
 					
 				default: break;
 			}
-		} else if (lv2_atom_forge_is_object_type(&self->forge, ev->body.type)) {
+		} else if (lv2_atom_forge_is_object_type(&pLv2Adapter->forge, ev->body.type)) {
 			const LV2_Atom_Object* obj = (const LV2_Atom_Object*)&ev->body;
-			if (obj->body.otype == self->uris.patch_Get) {
+			if (obj->body.otype == pLv2Adapter->uris.patch_Get) {
 				
-				lv2_log_error(&self->logger, "incoming patch get\n");
+				lv2_log_error(&pLv2Adapter->logger, "incoming patch get\n");
 				
 				
 				QString DrumkitName = pHydrogen->getCurrentDrumkitname();
 				QByteArray byteArray = DrumkitName.toLocal8Bit();
 				const char* pDrumkitName = byteArray.data();
 				
-				lv2_atom_forge_frame_time(&self->forge, 0);
-				writeSetDrumkit(&self->forge, &self->uris,
+				lv2_atom_forge_frame_time(&pLv2Adapter->forge, 0);
+				writeSetDrumkit(&pLv2Adapter->forge, &pLv2Adapter->uris,
 								pDrumkitName,
 								strlen(pDrumkitName));
-			} else if (obj->body.otype == self->uris.patch_Set) {
+			} else if (obj->body.otype == pLv2Adapter->uris.patch_Set) {
 				//const LV2_Atom_Object* obj = (const LV2_Atom_Object*)&obj->body;
-				lv2_log_error(&self->logger, "incoming patch set\n");
+				lv2_log_error(&pLv2Adapter->logger, "incoming patch set\n");
 								
 				// Get the property and value of the set message
 				const LV2_Atom* property = nullptr;
 				const LV2_Atom* value    = nullptr;
 				lv2_atom_object_get(obj,
-									self->uris.patch_property, &property,
-									self->uris.patch_value,    &value,
+									pLv2Adapter->uris.patch_property, &property,
+									pLv2Adapter->uris.patch_value,    &value,
 									0);
 				if (!property) {
-					lv2_log_error(&self->logger, "Set message with no property\n");
+					lv2_log_error(&pLv2Adapter->logger, "Set message with no property\n");
 					return;
-				} else if (property->type != self->uris.atom_URID) {
-					lv2_log_error(&self->logger, "Set property is not a URID\n");
+				} else if (property->type != pLv2Adapter->uris.atom_URID) {
+					lv2_log_error(&pLv2Adapter->logger, "Set property is not a URID\n");
 					return;
 				}
 				
 				const uint32_t key = ((const LV2_Atom_URID*)property)->body;
-				if (key == self->uris.h2_drumkit) {
+				if (key == pLv2Adapter->uris.h2_drumkit) {
 					// Sample change, send it to the worker.
-					lv2_log_trace(&self->logger, "Scheduling sample change\n");
-					self->schedule->schedule_work(self->schedule->handle,
+					lv2_log_trace(&pLv2Adapter->logger, "Scheduling sample change\n");
+					pLv2Adapter->schedule->schedule_work(pLv2Adapter->schedule->handle,
 												  lv2_atom_total_size(&ev->body),
 												  &ev->body);
 				}
@@ -320,7 +320,63 @@ run(LV2_Handle instance, uint32_t n_samples)
 		}
 	}
 
-	pLV2AudioDriver->handleData(n_samples, self->out_L, self->out_R);
+	pLV2AudioDriver->handleData(n_samples, pLv2Adapter->out_L, pLv2Adapter->out_R);
+}
+
+LV2_State_Status
+save(LV2_Handle                 instance,
+     LV2_State_Store_Function   store,
+     LV2_State_Handle           handle,
+     uint32_t                   flags,
+     const LV2_Feature *const * features)
+{
+	H2Lv2Adapter*     pH2Lv2Adapter = (H2Lv2Adapter*)instance;
+	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
+	
+	if(!pHydrogen)
+	{
+		return LV2_STATE_ERR_UNKNOWN;
+	}
+	
+	QString CurrentDrumkit = pHydrogen->getCurrentDrumkitname();
+	QByteArray ByteArray = CurrentDrumkit.toLocal8Bit();
+	
+	const char* drumkitName = ByteArray.data();
+
+	store(handle,
+		  pH2Lv2Adapter->uris.h2_drumkit,
+		  drumkitName,
+		  strlen(drumkitName) + 1,
+		  pH2Lv2Adapter->uris.atom_Path,
+		  LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE);
+
+	return LV2_STATE_SUCCESS;
+}
+
+LV2_State_Status
+restore(LV2_Handle                  instance,
+        LV2_State_Retrieve_Function retrieve,
+        LV2_State_Handle            handle,
+        uint32_t                    flags,
+        const LV2_Feature *const *  features)
+{
+	H2Lv2Adapter*	pH2Lv2Adapter = (H2Lv2Adapter*)instance;
+	
+	size_t			size;
+	uint32_t		type;
+	
+	const void* value = retrieve(handle, pH2Lv2Adapter->uris.h2_drumkit, &size, &type, &flags);
+	
+	if(!value)
+	{
+		return LV2_STATE_ERR_NO_PROPERTY;
+	}
+	
+	const char* drumkitName = (const char*)value;
+
+	std::cout << "recoverd state: " << drumkitName << std::endl;
+
+	return LV2_STATE_SUCCESS;
 }
 
 static void
@@ -342,12 +398,12 @@ cleanup(LV2_Handle instance)
 static const void*
 extension_data(const char* uri)
 {
-	//static const LV2_State_Interface  state  = {save, restore};
+	static const LV2_State_Interface  state  = {save, restore};
 	static const LV2_Worker_Interface worker = {work, work_response, NULL};
 	
-	/*if (!strcmp(uri, LV2_STATE__interface)) {
+	if (!strcmp(uri, LV2_STATE__interface)) {
 	  return &state;
-	} else */
+	}
 		
 	if (!strcmp(uri, LV2_WORKER__interface)) {
 	  return &worker;
