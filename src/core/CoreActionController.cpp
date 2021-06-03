@@ -1,6 +1,7 @@
 /*
  * Hydrogen
- * Copyright(c) 2017 by Sebastian Moors
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
