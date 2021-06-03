@@ -54,7 +54,6 @@ SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent, bool bOnli
 	setupUi( this );
 	INFOLOG( "INIT" );
 	setWindowTitle( tr( "Sound Library import" ) );
-	setFixedSize( width(), height() );
 
 	QStringList headers;
 	headers << tr( "Sound library" ) << tr( "Status" );
@@ -72,6 +71,9 @@ SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent, bool bOnli
 	InstallBtn->setEnabled (false );
 
 	updateRepositoryCombo();
+
+	adjustSize();
+	setFixedSize( width(), height() );
 
 	if( bOnlineImport){
 		 tabWidget->setCurrentIndex( 0 );

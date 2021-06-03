@@ -34,6 +34,7 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 {
 	setupUi( this );
 
+	adjustSize();
 	setMaximumSize( width(), height() );
 	setMinimumSize( width(), height() );
 

@@ -37,7 +37,8 @@ SoundLibraryRepositoryDialog::SoundLibraryRepositoryDialog( QWidget* pParent )
 	setupUi( this );
 	INFOLOG( "INIT" );
 	setWindowTitle( tr( "Edit repository settings" ) );
-	setFixedSize( width(), height() );
+	adjustSize();
+	setMinimumSize( width(), height() );
 
 	updateDialog();
 

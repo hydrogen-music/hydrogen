@@ -114,6 +114,9 @@ MixerSettingsDialog::MixerSettingsDialog(QWidget* parent)
 	QValidator *validator = new QDoubleValidator( -10000., 0., 20, this );
 	dBCompensationLineEdit->setValidator( validator );
 	dBCompensationLineEdit->setText( QString( "%1" ).arg( -6.0206 / pSong->getPanLawKNorm() ) );
+
+	adjustSize();
+	setFixedSize( width(), height() );
 }
 
 

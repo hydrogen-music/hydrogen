@@ -87,7 +87,6 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
 
 	setWindowTitle ( QString( tr( "SampleEditor " ) + newfilename) );
-	setFixedSize ( width(), height() );
 	setModal ( true );
 
 	//this new sample give us the not changed real samplelength
@@ -110,6 +109,9 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	__rubberband.divider = 1.0;
 	openDisplays();
 	getAllFrameInfos();
+
+	adjustSize();
+	setFixedSize ( width(), height() );
 
 #ifndef H2CORE_HAVE_RUBBERBAND
 	if ( !Filesystem::file_executable( Preferences::get_instance()->m_rubberBandCLIexecutable , true /* silent */) ) {

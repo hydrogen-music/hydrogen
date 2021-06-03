@@ -45,7 +45,8 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 	setupUi( this );
 	INFOLOG( "INIT" );
 	setWindowTitle( tr( "SoundLibrary Properties" ) );
-	setFixedSize( width(), height() );
+	adjustSize();
+	setMinimumSize( width(), height() );
 
 	//display the current drumkit infos into the qlineedit
 	if ( pDrumkitInfo != nullptr ){
