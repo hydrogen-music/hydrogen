@@ -347,15 +347,15 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pSampleEditorBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
 	// Layer gain
 	m_pLayerGainLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pLayerGainRotary = new Rotary( m_pLayerProp,  Rotary::Type::Normal, tr( "Layer gain" ), false );
-	m_pLayerGainRotary->setDefaultValue ( 0.2 ); // gain is multiplied with 5, so default is 1.0 from users view
+	m_pLayerGainRotary = new Rotary( m_pLayerProp,  Rotary::Type::Normal, tr( "Layer gain" ), false , 0.0, 5.0);
+	m_pLayerGainRotary->setDefaultValue( 1.0 );
 	connect( m_pLayerGainRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 	m_pLayerGainLbl = new ClickableLabel( m_pLayerProp, QSize( 44, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getLayerGainLabel() );
 	m_pLayerGainLbl->move( 50, 361 );
 
 	m_pCompoGainLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pCompoGainRotary = new Rotary( m_pLayerProp,  Rotary::Type::Normal, tr( "Component volume" ), false );
-	m_pCompoGainRotary->setDefaultValue ( 0.2 ); // gain is multiplied with 5, so default is 1.0 from users view
+	m_pCompoGainRotary = new Rotary( m_pLayerProp,  Rotary::Type::Normal, tr( "Component volume" ), false, 0.0, 5.0 );
+	m_pCompoGainRotary->setDefaultValue ( 1.0 );
 	connect( m_pCompoGainRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 	m_pCompoGainLbl = new ClickableLabel( m_pLayerProp, QSize( 44, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getComponentGainLabel() );
 	m_pCompoGainLbl->move( 147, 361 );
@@ -586,6 +586,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pCompoNameLbl->setText( pTmpComponent->get_name() );
 
 		if( m_nSelectedLayer >= 0 ){
+			
 			auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
 			if( pComponent ) {
 
@@ -593,7 +594,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 				sprintf( tmp, "%#.2f", pComponent->get_gain());
 				m_pCompoGainLCD->setText( tmp );
 
-				m_pCompoGainRotary->setValue( pComponent->get_gain() / 5.0 );
+				m_pCompoGainRotary->setValue( pComponent->get_gain() );
 
 				auto pLayer = pComponent->get_layer( m_nSelectedLayer );
 				if(pLayer) {
@@ -669,7 +670,6 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 			m_pInstrument->get_adsr()->set_release( 256.0 + fVal * fVal * 100000 );
 		}
 		else if ( pRotary == m_pLayerGainRotary ) {
-			fVal = fVal * 5.0;
 			char tmp[20];
 			sprintf( tmp, "%#.2f", fVal );
 			m_pLayerGainLCD->setText( tmp );
@@ -684,7 +684,6 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 			}
 		}
 		else if ( pRotary == m_pCompoGainRotary ) {
-			fVal = fVal * 5.0;
 			char tmp[20];
 			sprintf( tmp, "%#.2f", fVal );
 			m_pCompoGainLCD->setText( tmp );
@@ -1062,14 +1061,14 @@ void InstrumentEditor::selectLayer( int nLayer )
 			char tmp[20];
 
 			// Layer GAIN
-			m_pLayerGainRotary->setValue( pLayer->get_gain() / 5.0 );
+			m_pLayerGainRotary->setValue( pLayer->get_gain() );
 			sprintf( tmp, "%#.2f", pLayer->get_gain() );
 			m_pLayerGainLCD->setText( tmp );
 
 			//Component GAIN
 			char tmp2[20];
 			sprintf( tmp2, "%#.2f", pComponent->get_gain());
-			m_pCompoGainRotary->setValue( pComponent->get_gain() / 5.0);
+			m_pCompoGainRotary->setValue( pComponent->get_gain());
 			m_pCompoGainLCD->setText( tmp2 );
 
 			// Layer PITCH
