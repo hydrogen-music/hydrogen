@@ -33,6 +33,7 @@
 #include <iostream>
 #include <cstdint>
 #include <vector>
+#include <memory>
 
 #include <QtGui>
 #include <QtWidgets>
@@ -112,7 +113,7 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		PatternEditorPanel*		getPatternEditorPanel();
 		PlayerControl*			getPlayerControl();
 		InstrumentRack*			getInstrumentRack();
-		CommonStrings*			getCommonStrings();
+	std::shared_ptr<CommonStrings>			getCommonStrings();
 		InfoBar *			addInfoBar();
 
 		QUndoStack*			m_pUndoStack;
@@ -235,7 +236,7 @@ signals:
 		QTabWidget *				m_pTab;
 		QSplitter *					m_pSplitter;
 		QVBoxLayout *				m_pMainVBox;
-		CommonStrings*				m_pCommonStrings;
+	std::shared_ptr<CommonStrings>				m_pCommonStrings;
 
 		bool						m_bHideKeyboardCursor;
 
@@ -334,7 +335,7 @@ inline InstrumentRack* HydrogenApp::getInstrumentRack()
 	return m_pInstrumentRack;
 }
 
-inline CommonStrings* HydrogenApp::getCommonStrings()
+inline std::shared_ptr<CommonStrings> HydrogenApp::getCommonStrings()
 {
 	return m_pCommonStrings;
 }

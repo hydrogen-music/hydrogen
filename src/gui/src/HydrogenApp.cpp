@@ -88,7 +88,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	m_pEventQueueTimer->start( QUEUE_TIMER_PERIOD );
 
 	SoundLibraryDatabase::create_instance();
-	m_pCommonStrings = new CommonStrings();
+	m_pCommonStrings = std::make_shared<CommonStrings>();
 
 	//setup the undo stack
 	m_pUndoStack = new QUndoStack( this );
