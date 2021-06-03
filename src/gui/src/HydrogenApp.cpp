@@ -52,6 +52,9 @@
 #include "Mixer/MixerLine.h"
 #include "UndoActions.h"
 
+#include <core/Basics/PatternList.h>
+#include <core/Basics/InstrumentList.h>
+
 #include "Widgets/InfoBar.h"
 
 #include <QtGui>
@@ -630,34 +633,57 @@ void HydrogenApp::onEventQueueTimer()
 	}
 
 	// midi notes
-	while(!pQueue->m_addMidiNoteVector.empty()){
-
-		int rounds = 1;
-		if(pQueue->m_addMidiNoteVector[0].b_noteExist) { // run twice, delete old note and add new note. this let the undo stack consistent 
-			rounds = 2;
+	while( !pQueue->m_addMidiNoteVector.empty() ){
+		Song *pSong = Hydrogen::get_instance()->getSong();
+		Instrument *pInstrument = pSong->getInstrumentList()->get( pQueue->m_addMidiNoteVector[0].m_row );
+		// find if a (pitch matching) note is already present
+		Note *pOldNote = pSong->getPatternList()->get( pQueue->m_addMidiNoteVector[0].m_pattern )
+														->find_note( pQueue->m_addMidiNoteVector[0].m_column,
+																	 pQueue->m_addMidiNoteVector[0].m_column,
+																	 pInstrument,
+																	 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
+																	 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal );
+		auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
+		pUndoStack->beginMacro( tr( "Input Midi Note" ) );
+		if( pOldNote ) { // note found => remove it
+			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pOldNote->get_position(),
+																	 pOldNote->get_instrument_id(),
+																	 pQueue->m_addMidiNoteVector[0].m_pattern,
+																	 pOldNote->get_length(),
+																	 pOldNote->get_velocity(),
+																	 pOldNote->get_pan_l(),
+																	 pOldNote->get_pan_r(),
+																	 pOldNote->get_lead_lag(),
+																	 pOldNote->get_key(),
+																	 pOldNote->get_octave(),
+																	 pOldNote->get_probability(),
+																	 /*isDelete*/ true,
+																	 /*hearNote*/ false,
+																	 /*isMidi*/ false,
+																	 /*isInstrumentMode*/ false,
+																	 /*isNoteOff*/ false );
+			pUndoStack->push( action );
 		}
-		for(int i = 0; i<rounds; i++){
-			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pQueue->m_addMidiNoteVector[0].m_column,
-																			 pQueue->m_addMidiNoteVector[0].m_row,
-																			 pQueue->m_addMidiNoteVector[0].m_pattern,
-																			 pQueue->m_addMidiNoteVector[0].m_length,
-																			 pQueue->m_addMidiNoteVector[0].f_velocity,
-																			 pQueue->m_addMidiNoteVector[0].f_pan_L,
-																			 pQueue->m_addMidiNoteVector[0].f_pan_R,
-																			 0.0,
-																			 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
-																			 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
-																			 1.0f,
-																			 false,
-																			 false,
-																			 pQueue->m_addMidiNoteVector[0].b_isMidi,
-																			 pQueue->m_addMidiNoteVector[0].b_isInstrumentMode,
-																			 false );
-
-			HydrogenApp::get_instance()->m_pUndoStack->push( action );
-		}
-		pQueue->m_addMidiNoteVector.erase(pQueue->m_addMidiNoteVector.begin());
-
+		// add the new note
+		SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pQueue->m_addMidiNoteVector[0].m_column,
+																	 pQueue->m_addMidiNoteVector[0].m_row,
+																	 pQueue->m_addMidiNoteVector[0].m_pattern,
+																	 pQueue->m_addMidiNoteVector[0].m_length,
+																	 pQueue->m_addMidiNoteVector[0].f_velocity,
+																	 pQueue->m_addMidiNoteVector[0].f_pan_L,
+																	 pQueue->m_addMidiNoteVector[0].f_pan_R,
+																	 0.0,
+																	 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
+																	 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
+																	 1.0f,
+																	 /*isDelete*/ false,
+																	 false,
+																	 pQueue->m_addMidiNoteVector[0].b_isMidi,
+																	 pQueue->m_addMidiNoteVector[0].b_isInstrumentMode,
+																	 false );
+		pUndoStack->push( action );
+		pUndoStack->endMacro();
+		pQueue->m_addMidiNoteVector.erase( pQueue->m_addMidiNoteVector.begin() );
 	}
 }
 
