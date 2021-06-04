@@ -2,8 +2,10 @@
 ## Usage: ./about_dialog_contributor_list_update.sh GIT_TAG_1 GIT_TAG_2
 ## e.g. ./about_dialog_contributor_list_update.sh origin/releases/1.0 HEAD
 
+
 # Hydrogen
 # Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+# Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
 #
 # http://www.hydrogen-music.org
 #

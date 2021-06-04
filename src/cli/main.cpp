@@ -1,6 +1,7 @@
 /*
- * A headless attempt for hydrogen
- * Copyright(c) 2013 by Sebastian Moors, Pawel Piatek
+ * Hydrogen
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -473,7 +474,7 @@ int main(int argc, char *argv[])
 void showInfo()
 {
 	std::cout << "\nHydrogen " + get_version() + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << std::endl;
-	std::cout << "Copyright 2002-2008 Alessandro Cominu" << std::endl;
+	std::cout << "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2021 The hydrogen development team" << std::endl;
 
 	if ( Object::count_active() ) {
 		std::cout << "\nObject counting active" << std::endl;
