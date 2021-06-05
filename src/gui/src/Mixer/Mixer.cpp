@@ -470,9 +470,9 @@ void Mixer::updateMixer()
 			pLine->setName( sName );
 
 			// pan
-			float fPanFrom0To1 = pInstr->getPanWithRangeFrom0To1();
-			if ( fPanFrom0To1 != pLine->getPan() ) {
-				pLine->setPan( fPanFrom0To1 );
+			float fPan = pInstr->getPan();
+			if ( fPan != pLine->getPan() ) {
+				pLine->setPan( fPan );
 			}
 
 			// activity
@@ -686,13 +686,13 @@ void Mixer::nameSelected(MixerLine* ref)
 
 
 void Mixer::panChanged(MixerLine* ref) {
-	float	fPanFrom0To1 = ref->getPan();
+	float	fPan = ref->getPan();
 	int		nLine = findMixerLineByRef(ref);
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	CoreActionController* pController = pHydrogen->getCoreActionController();
 
-	pController->setStripPan( nLine, fPanFrom0To1, true );
+	pController->setStripPanSym( nLine, fPan, true );
 }
 
 

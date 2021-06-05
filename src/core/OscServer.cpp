@@ -192,6 +192,17 @@ int OscServer::generic_handler(const char *	path,
 			}
 		}
 	}
+
+	QRegExp rxStripPanAbsSym( "/Hydrogen/PAN_ABSOLUTE_SYM/(\\d+)" );
+	pos = rxStripPanAbsSym.indexIn( oscPath );
+	if ( pos > -1 ) {
+		if( argc == 1 ){
+			int nStrip = rxStripPanAbsSym.cap(1).toInt() - 1;
+			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
+				pController->setStripPanSym( nStrip, argv[0]->f, false );
+			}
+		}
+	}
 	
 	QRegExp rxStripPanRel( "/Hydrogen/PAN_RELATIVE/(\\d+)" );
 	pos = rxStripPanRel.indexIn( oscPath );
@@ -498,6 +509,16 @@ void OscServer::SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv,int i)
 void OscServer::PAN_ABSOLUTE_Handler(QString param1, QString param2)
 {
 	Action currentAction("PAN_ABSOLUTE");
+	currentAction.setParameter1( param1 );
+	currentAction.setParameter2( param2 );
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	pActionManager->handleAction( &currentAction );
+}
+
+void OscServer::PAN_ABSOLUTE_SYM_Handler(QString param1, QString param2)
+{
+	Action currentAction("PAN_ABSOLUTE_SYM");
 	currentAction.setParameter1( param1 );
 	currentAction.setParameter2( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
@@ -837,6 +858,21 @@ void OscServer::handleAction( Action* pAction )
 		lo_message_add_float(reply, param2);
 
 		QByteArray ba = QString("/Hydrogen/PAN_ABSOLUTE/%1").arg(pAction->getParameter1()).toLatin1();
+		const char *c_str2 = ba.data();
+
+		broadcastMessage( c_str2, reply);
+		
+		lo_message_free( reply );
+	}
+
+	if( pAction->getType() == "PAN_ABSOLUTE_SYM"){
+		bool ok;
+		float param2 = pAction->getParameter2().toFloat(&ok);
+
+		lo_message reply = lo_message_new();
+		lo_message_add_float(reply, param2);
+
+		QByteArray ba = QString("/Hydrogen/PAN_ABSOLUTE_SYM/%1").arg(pAction->getParameter1()).toLatin1();
 		const char *c_str2 = ba.data();
 
 		broadcastMessage( c_str2, reply);

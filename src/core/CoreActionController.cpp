@@ -233,7 +233,7 @@ void CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectSt
 
 	auto pInstr = pInstrList->get( nStrip );
 	pInstr->setPanWithRangeFrom0To1( fValue );
-	
+
 #ifdef H2CORE_HAVE_OSC
 	Action FeedbackAction( "PAN_ABSOLUTE" );
 	
@@ -245,9 +245,35 @@ void CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectSt
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
-	
 
 	handleOutgoingControlChange( ccParamValue, fValue * 127 );
+}
+
+void CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelectStrip )
+{
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	if ( bSelectStrip ) {
+		pHydrogen->setSelectedInstrumentNumber( nStrip );
+	}
+	
+	Song *pSong = pHydrogen->getSong();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
+
+	auto pInstr = pInstrList->get( nStrip );
+	pInstr->setPan( fValue );
+
+#ifdef H2CORE_HAVE_OSC
+	Action FeedbackAction( "PAN_ABSOLUTE_SYM" );
+	
+	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
+	FeedbackAction.setParameter2( QString("%1").arg( fValue ) );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
+#endif
+	
+	MidiMap*	pMidiMap = MidiMap::get_instance();
+	
+	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
+	handleOutgoingControlChange( ccParamValue, pInstr->getPanWithRangeFrom0To1() * 127 );
 }
 
 void CoreActionController::handleOutgoingControlChange(int param, int value)
