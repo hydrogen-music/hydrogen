@@ -34,69 +34,78 @@ class CommonStrings : public H2Core::Object {
 		 CommonStrings();
 	~CommonStrings();
  
-	const QString& getSmallSoloButton() { return m_sSmallSoloButton; }
-	const QString& getSmallMuteButton() { return m_sSmallMuteButton; }
-	const QString& getBigMuteButton() { return m_sBigMuteButton; }
-	const QString& getBypassButton() { return m_sBypassButton; }
-	const QString& getEditButton() { return m_sEditButton; }
-	const QString& getClearButton() { return m_sClearButton; }
-	const QString& getPlaybackTrackButton() { return m_sPlaybackTrackButton; }
-	const QString& getTimelineButton() { return m_sTimelineButton; }
-	const QString& getTimelineBigButton() { return m_sTimelineBigButton; }
-	const QString& getFXButton() { return m_sFXButton; }
-	const QString& getPeakButton() { return m_sPeakButton; }
-	const QString& getGeneralButton() { return m_sGeneralButton; }
-	const QString& getInstrumentButton() { return m_sInstrumentButton; }
-	const QString& getSoundLibraryButton() { return m_sSoundLibraryButton; }
-	const QString& getLayersButton() { return m_sLayersButton; }
-	const QString& getLoadLayerButton() { return m_sLoadLayerButton; }
-	const QString& getDeleteLayerButton() { return m_sDeleteLayerButton; }
-	const QString& getEditLayerButton() { return m_sEditLayerButton; }
-	const QString& getBeatCounterButton() { return m_sBeatCounterButton; }
-	const QString& getBeatCounterSetPlayButtonOff() { return m_sBeatCounterSetPlayButtonOff; }
-	const QString& getBeatCounterSetPlayButtonOn() { return m_sBeatCounterSetPlayButtonOn; }
-	const QString& getRubberbandButton() { return m_sRubberbandButton; }
-	const QString& getJackTransportButton() { return m_sJackTransportButton; }
-	const QString& getJackMasterButton() { return m_sJackMasterButton; }
-	const QString& getMixerButton() { return m_sMixerButton; }
-	const QString& getInstrumentRackButton() { return m_sInstrumentRackButton; }
-	const QString& getPatternModeButton() { return m_sPatternModeButton; }
-	const QString& getSongModeButton() { return m_sSongModeButton; }
-	const QString& getAttackLabel() { return m_sAttackLabel; }
-	const QString& getDecayLabel() { return m_sDecayLabel; }
-	const QString& getSustainLabel() { return m_sSustainLabel; }
-	const QString& getReleaseLabel() { return m_sReleaseLabel; }
-	const QString& getMidiOutChannelLabel() { return  m_sMidiOutChannelLabel; }
-	const QString& getMidiOutNoteLabel() { return  m_sMidiOutNoteLabel; }
-	const QString& getPitchLabel() { return  m_sPitchLabel; }
-	const QString& getPitchCoarseLabel() { return  m_sPitchCoarseLabel; }
-	const QString& getPitchFineLabel() { return  m_sPitchFineLabel; }
-	const QString& getPitchRandomLabel() { return  m_sPitchRandomLabel; }
-	const QString& getGainLabel() { return m_sGainLabel; }
-	const QString& getMuteGroupLabel() { return m_sMuteGroupLabel; }
-	const QString& getIsStopNoteLabel() { return m_sIsStopNoteLabel; }
-	const QString& getApplyVelocityLabel() { return m_sApplyVelocityLabel; }
-	const QString& getHihatGroupLabel() { return m_sHihatGroupLabel; }
-	const QString& getHihatMaxRangeLabel() { return m_sHihatMaxRangeLabel; }
-	const QString& getHihatMinRangeLabel() { return m_sHihatMinRangeLabel; }
-	const QString& getCutoffLabel() { return m_sCutoffLabel; }
-	const QString& getResonanceLabel() { return m_sResonanceLabel; }
-	const QString& getLayerGainLabel() { return m_sLayerGainLabel; }
-	const QString& getComponentGainLabel() { return m_sComponentGainLabel; }
-	const QString& getSampleSelectionLabel() { return m_sSampleSelectionLabel; }
-	const QString& getPatternSizeLabel() { return m_sPatternSizeLabel; }
-	const QString& getResolutionLabel() { return m_sResolutionLabel; }
-	const QString& getHearNotesLabel() { return m_sHearNotesLabel; }
-	const QString& getQuantizeEventsLabel() { return m_sQuantizeEventsLabel; }
-	const QString& getShowPianoLabel() { return m_sShowPianoLabel; }
-	const QString& getMidiInLabel() { return m_sMidiInLabel; }
-	const QString& getCpuLabel() { return m_sCpuLabel; }
-	const QString& getBPMLabel() { return m_sBPMLabel; }
-	const QString& getTimeHoursLabel() { return m_sTimeHoursLabel; }
-	const QString& getTimeMinutesLabel() { return m_sTimeMinutesLabel; }
-	const QString& getTimeSecondsLabel() { return m_sTimeSecondsLabel; }
-	const QString& getTimeMilliSecondsLabel() { return m_sTimeMilliSecondsLabel; }
+	const QString& getSmallSoloButton() const { return m_sSmallSoloButton; }
+	const QString& getSmallMuteButton() const { return m_sSmallMuteButton; }
+	const QString& getBigMuteButton() const { return m_sBigMuteButton; }
+	const QString& getBypassButton() const { return m_sBypassButton; }
+	const QString& getEditButton() const { return m_sEditButton; }
+	const QString& getClearButton() const { return m_sClearButton; }
+	const QString& getPlaybackTrackButton() const { return m_sPlaybackTrackButton; }
+	const QString& getTimelineButton() const { return m_sTimelineButton; }
+	const QString& getTimelineBigButton() const { return m_sTimelineBigButton; }
+	const QString& getFXButton() const { return m_sFXButton; }
+	const QString& getPeakButton() const { return m_sPeakButton; }
+	const QString& getGeneralButton() const { return m_sGeneralButton; }
+	const QString& getInstrumentButton() const { return m_sInstrumentButton; }
+	const QString& getSoundLibraryButton() const { return m_sSoundLibraryButton; }
+	const QString& getLayersButton() const { return m_sLayersButton; }
+	const QString& getLoadLayerButton() const { return m_sLoadLayerButton; }
+	const QString& getDeleteLayerButton() const { return m_sDeleteLayerButton; }
+	const QString& getEditLayerButton() const { return m_sEditLayerButton; }
+	const QString& getBeatCounterButton() const { return m_sBeatCounterButton; }
+	const QString& getBeatCounterSetPlayButtonOff() const { return m_sBeatCounterSetPlayButtonOff; }
+	const QString& getBeatCounterSetPlayButtonOn() const { return m_sBeatCounterSetPlayButtonOn; }
+	const QString& getRubberbandButton() const { return m_sRubberbandButton; }
+	const QString& getJackTransportButton() const { return m_sJackTransportButton; }
+	const QString& getJackMasterButton() const { return m_sJackMasterButton; }
+	const QString& getMixerButton() const { return m_sMixerButton; }
+	const QString& getInstrumentRackButton() const { return m_sInstrumentRackButton; }
+	const QString& getPatternModeButton() const { return m_sPatternModeButton; }
+	const QString& getSongModeButton() const { return m_sSongModeButton; }
+	const QString& getAttackLabel() const { return m_sAttackLabel; }
+	const QString& getDecayLabel() const { return m_sDecayLabel; }
+	const QString& getSustainLabel() const { return m_sSustainLabel; }
+	const QString& getReleaseLabel() const { return m_sReleaseLabel; }
+	const QString& getMidiOutChannelLabel() const { return  m_sMidiOutChannelLabel; }
+	const QString& getMidiOutNoteLabel() const { return  m_sMidiOutNoteLabel; }
+	const QString& getPitchLabel() const { return  m_sPitchLabel; }
+	const QString& getPitchCoarseLabel() const { return  m_sPitchCoarseLabel; }
+	const QString& getPitchFineLabel() const { return  m_sPitchFineLabel; }
+	const QString& getPitchRandomLabel() const { return  m_sPitchRandomLabel; }
+	const QString& getGainLabel() const { return m_sGainLabel; }
+	const QString& getMuteGroupLabel() const { return m_sMuteGroupLabel; }
+	const QString& getIsStopNoteLabel() const { return m_sIsStopNoteLabel; }
+	const QString& getApplyVelocityLabel() const { return m_sApplyVelocityLabel; }
+	const QString& getHihatGroupLabel() const { return m_sHihatGroupLabel; }
+	const QString& getHihatMaxRangeLabel() const { return m_sHihatMaxRangeLabel; }
+	const QString& getHihatMinRangeLabel() const { return m_sHihatMinRangeLabel; }
+	const QString& getCutoffLabel() const { return m_sCutoffLabel; }
+	const QString& getResonanceLabel() const { return m_sResonanceLabel; }
+	const QString& getLayerGainLabel() const { return m_sLayerGainLabel; }
+	const QString& getComponentGainLabel() const { return m_sComponentGainLabel; }
+	const QString& getSampleSelectionLabel() const { return m_sSampleSelectionLabel; }
+	const QString& getPatternSizeLabel() const { return m_sPatternSizeLabel; }
+	const QString& getResolutionLabel() const { return m_sResolutionLabel; }
+	const QString& getHearNotesLabel() const { return m_sHearNotesLabel; }
+	const QString& getQuantizeEventsLabel() const { return m_sQuantizeEventsLabel; }
+	const QString& getShowPianoLabel() const { return m_sShowPianoLabel; }
+	const QString& getMidiInLabel() const { return m_sMidiInLabel; }
+	const QString& getCpuLabel() const { return m_sCpuLabel; }
+	const QString& getBPMLabel() const { return m_sBPMLabel; }
+	const QString& getTimeHoursLabel() const { return m_sTimeHoursLabel; }
+	const QString& getTimeMinutesLabel() const { return m_sTimeMinutesLabel; }
+	const QString& getTimeSecondsLabel() const { return m_sTimeSecondsLabel; }
+	const QString& getTimeMilliSecondsLabel() const { return m_sTimeMilliSecondsLabel; }
+
+	const QString& getRangeTooltip() const { return m_sRangeTooltip; }
+	const QString& getMidiTooltipHeading() const { return m_sMidiTooltipHeading; }
+	const QString& getMidiTooltipBound() const { return m_sMidiTooltipBound; }
+	const QString& getMidiTooltipUnbound() const { return m_sMidiTooltipUnbound; }
+	const QString& getMidiTooltipUnavailable() const { return m_sMidiTooltipUnavailable; }
 	
+	const QString& getMidiSenseWindowTitle() const { return m_sMidiSenseWindowTitle; }
+	const QString& getMidiSenseInput() const { return m_sMidiSenseInput; }
+
 private:
 	QString m_sSmallSoloButton;
 	QString m_sSmallMuteButton;
@@ -160,5 +169,14 @@ private:
 	QString m_sTimeMinutesLabel;
 	QString m_sTimeSecondsLabel;
 	QString m_sTimeMilliSecondsLabel;
+	
+	QString m_sRangeTooltip;
+	QString m_sMidiTooltipHeading;
+	QString m_sMidiTooltipBound;
+	QString m_sMidiTooltipUnbound;
+	QString m_sMidiTooltipUnavailable;
+
+	QString m_sMidiSenseWindowTitle;
+	QString m_sMidiSenseInput;
 };
 #endif

@@ -252,7 +252,6 @@ float MixerLine::getVolume()
 
 void MixerLine::setVolume( float value ) {
 	m_pFader->setValue( value );
-	m_pFader->setToolTip( tr( "Volume" ) + QString( " %1" ).arg( value, 0, 'f', 2 ) );
 }
 
 void MixerLine::setPeak_L( float peak ) {
@@ -532,7 +531,6 @@ float ComponentMixerLine::getVolume()
 
 void ComponentMixerLine::setVolume( float value ) {
 	m_pFader->setValue( value );
-	m_pFader->setToolTip( tr( "Volume" ) + QString( " %1" ).arg( value, 0, 'f', 2 ) );	
 }
 
 void ComponentMixerLine::setPeak_L( float peak ) {
@@ -680,7 +678,6 @@ float MasterMixerLine::getVolume()
 
 void MasterMixerLine::setVolume( float value ) {
 	m_pMasterFader->setValue( value );
-	m_pMasterFader->setToolTip( tr( "Volume" ) + QString( " %1" ).arg( value, 0, 'f', 2 ) );
 }
 
 void MasterMixerLine::setPeak_L(float peak)

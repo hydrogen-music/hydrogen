@@ -20,6 +20,11 @@
  *
  */
 #include "WidgetWithInput.h"
+#include "../CommonStrings.h"
+#include "../HydrogenApp.h"
+#include "MidiSenseWidget.h"
+
+#include <core/Hydrogen.h>
 
 #ifdef WIN32
 #    include "core/Timehelper.h"
@@ -46,16 +51,43 @@ WidgetWithInput::WidgetWithInput( QWidget* parent, bool bUseIntSteps, QString sB
 	, m_nWidgetHeight( 20 )
 	, m_nWidgetWidth( 20 )
 	, m_sInputBuffer( "" )
-	, m_inputBufferTimeout( 2.0 ){
-
+	, m_inputBufferTimeout( 2.0 )
+	, m_sRegisteredMidiEvent( "" )
+	, m_nRegisteredMidiParameter( 0 ){
+	
 	setAttribute( Qt::WA_Hover );
-	setToolTip( QString( "%1: %2" ).arg( sBaseTooltip ).arg( m_fValue, 0, 'f', 2 )  );
 	setFocusPolicy( Qt::ClickFocus );
+	updateTooltip();
 	
 	gettimeofday( &m_inputBufferTimeval, nullptr );
 }
 
 WidgetWithInput::~WidgetWithInput() {}
+
+void WidgetWithInput::updateTooltip() {
+
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	QString sTip = QString("%1: %2\n\n%3: [%4, %5]" ).arg( m_sBaseTooltip ).arg( m_fValue, 0, 'f', 2 )
+		.arg( pCommonStrings->getRangeTooltip() )
+		.arg( m_fMin, 0, 'f', 2 ).arg( m_fMax, 0, 'f', 2 );
+
+	// Add the associated MIDI action.
+	if ( m_action != nullptr ) {
+		sTip.append( QString( "\n%1: %2 " ).arg( pCommonStrings->getMidiTooltipHeading() )
+					 .arg( m_action->getType() ) );
+		if ( ! m_sRegisteredMidiEvent.isEmpty() ) {
+			sTip.append( QString( "%1 [%2 : %3]" ).arg( pCommonStrings->getMidiTooltipBound() )
+						 .arg( m_sRegisteredMidiEvent ).arg( m_nRegisteredMidiParameter ) );
+		} else {
+			sTip.append( QString( "%1" ).arg( pCommonStrings->getMidiTooltipUnbound() ) );
+		}
+	} else {
+		sTip.append( QString( "\n%1" ).arg( pCommonStrings->getMidiTooltipUnavailable() ) );
+	}
+			
+	setToolTip( sTip );
+}
 
 void WidgetWithInput::setIsActive( bool bIsActive ) {
 	m_bIsActive = bIsActive;
@@ -86,7 +118,7 @@ void WidgetWithInput::setValue( float fValue )
 	if ( fValue != m_fValue ) {
 		m_fValue = fValue;
 		emit valueChanged( this );
-		setToolTip( QString( "%1: %2" ).arg( m_sBaseTooltip ).arg( m_fValue, 0, 'f', 2 )  );
+		updateTooltip();
 		update();
 	}
 }
@@ -103,9 +135,19 @@ void WidgetWithInput::mousePressEvent(QMouseEvent *ev)
 		m_bIgnoreMouseMove = true;
 	}
 	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
-		MidiSenseWidget midiSense( this, true, this->getAction() );
+		MidiSenseWidget midiSense( this, true, this->m_action );
 		midiSense.exec();
+
+		// Store the registered MIDI event and parameter in order to
+		// show them in the tooltip. Looking them up in the MidiMap
+		// using the Action associated to the Widget might not yield a
+		// unique result since the Action can be registered from the
+		// PreferencesDialog as well.
+		m_sRegisteredMidiEvent = H2Core::Hydrogen::get_instance()->lastMidiEvent;
+		m_nRegisteredMidiParameter = H2Core::Hydrogen::get_instance()->lastMidiEventParameter;
+		
 		m_bIgnoreMouseMove = true;
+		updateTooltip();
 	}
 	else {
 		setCursor( QCursor( Qt::SizeVerCursor ) );
@@ -364,3 +406,7 @@ void WidgetWithInput::resetValueToDefault()
 	setValue( m_fDefaultValue );
 }
 
+void WidgetWithInput::setAction( Action* pAction ) {
+	m_action = pAction;
+	updateTooltip();
+}

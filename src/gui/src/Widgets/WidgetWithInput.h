@@ -27,7 +27,6 @@
 #include <QtWidgets>
 
 #include "MidiLearnable.h"
-#include "MidiSenseWidget.h"
 
 #include <core/Timehelper.h>
 
@@ -66,6 +65,8 @@ public:
 	int getScrollSpeedFast() const;
 	void setScrollSpeedFast( int nScrollSpeedFast ) const;
 
+	void setAction( Action* pAction );
+
 signals:
 	void valueChanged(WidgetWithInput *ref);	
 
@@ -77,6 +78,8 @@ protected:
 	virtual void enterEvent( QEvent *ev );
 	virtual void leaveEvent( QEvent *ev );
 	virtual void keyPressEvent( QKeyEvent *ev );
+
+	void updateTooltip();
 	
 	bool m_bUseIntSteps;
 	QString m_sBaseTooltip;
@@ -107,6 +110,8 @@ protected:
 	// (happens asynchronically whenever the next key input occurs.)
 	double m_inputBufferTimeout;
 
+	QString m_sRegisteredMidiEvent;
+	int m_nRegisteredMidiParameter;
 };
 
 inline float WidgetWithInput::getValue() const {

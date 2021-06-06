@@ -264,6 +264,36 @@ CommonStrings::CommonStrings() : Object( __class_name ) {
 	 milliseconds passed since playback started. Designed to hold three
 	 characters but not that flexible.*/
 	m_sTimeMilliSecondsLabel = tr( "1/1000" );
+
+	/*: Displayed in the tooltip of input widgets. Indicates the
+	  allowed values from minimum to maximum.*/
+	m_sRangeTooltip = tr( "Range" );
+	/*: Displayed in the tooltip of input widgets. General heading of
+	  the part associating the Action of the widget with the MIDI
+	  event and parameter it is bound to.*/
+	m_sMidiTooltipHeading = tr( "MIDI" );
+	/*: Displayed in the tooltip of input widgets. Body of the part
+	  associating the Action of the widget with the MIDI event and
+	  parameter it is bound to. It's full context is "ACTION bound to
+	  [EVENT : PARAMETER]".*/
+	m_sMidiTooltipBound = tr( "bound to" );
+	/*: Displayed in the tooltip of input widgets. Body of the part
+	  displaying the Action that is not associate to a MIDI event
+	  yet. It's full context is "ACTION not bound".*/
+	m_sMidiTooltipUnbound = tr( "not bound" );
+	/*: Displayed in the tooltip of input widgets and in the popup
+	  window when using the MIDI learning capabilities of
+	  Hydrogen. Indicating that there is not Action which could be
+	  associated to a MIDI event.*/
+	m_sMidiTooltipUnavailable = tr( "This element is not MIDI operable." );
+	
+	/*: Title of the window displayed when using the MIDI learning
+	  capabilities of Hydrogen.*/
+	m_sMidiSenseWindowTitle = tr( "Waiting..." );
+	/*: Text displayed when using the MIDI learning capabilities of
+	  Hydrogen. Only displayed if the widget has an associated
+	  action.*/
+	m_sMidiSenseInput = tr( "Waiting for MIDI input..." );
 }
 
 CommonStrings::~CommonStrings(){

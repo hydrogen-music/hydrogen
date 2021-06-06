@@ -30,6 +30,7 @@
 #include <QtWidgets>
 
 #include <core/Globals.h>
+#include <core/Hydrogen.h>
 
 const char* Fader::__class_name = "Fader";
 
@@ -51,7 +52,7 @@ Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSte
 {
 	m_fDefaultValue = m_fMax;
 	m_fValue = m_fDefaultValue;
-	setToolTip( QString( "%1: %2" ).arg( sBaseTooltip ).arg( m_fValue, 0, 'f', 2 )  );
+	updateTooltip();
 
 	if ( type == Type::Vertical ){ 
 		m_nWidgetWidth = 116;
@@ -143,7 +144,16 @@ void Fader::mousePressEvent(QMouseEvent *ev)
 	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
 		MidiSenseWidget midiSense( this, true, this->getAction() );
 		midiSense.exec();
+
+		// Store the registered MIDI event and parameter in order to
+		// show them in the tooltip. Looking them up in the MidiMap
+		// using the Action associated to the Widget might not yield a
+		// unique result since the Action can be registered from the
+		// PreferencesDialog as well.
+		m_sRegisteredMidiEvent = H2Core::Hydrogen::get_instance()->lastMidiEvent;
+		m_nRegisteredMidiParameter = H2Core::Hydrogen::get_instance()->lastMidiEventParameter;
 		m_bIgnoreMouseMove = true;
+		updateTooltip();
 	}
 	else {
 		setCursor( QCursor( Qt::SizeVerCursor ) );
