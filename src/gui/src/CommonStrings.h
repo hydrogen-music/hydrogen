@@ -101,10 +101,10 @@ class CommonStrings : public H2Core::Object {
 	const QString& getMidiTooltipHeading() const { return m_sMidiTooltipHeading; }
 	const QString& getMidiTooltipBound() const { return m_sMidiTooltipBound; }
 	const QString& getMidiTooltipUnbound() const { return m_sMidiTooltipUnbound; }
-	const QString& getMidiTooltipUnavailable() const { return m_sMidiTooltipUnavailable; }
 	
 	const QString& getMidiSenseWindowTitle() const { return m_sMidiSenseWindowTitle; }
 	const QString& getMidiSenseInput() const { return m_sMidiSenseInput; }
+	const QString& getMidiSenseUnavailable() const { return m_sMidiSenseUnavailable; }
 
 private:
 	QString m_sSmallSoloButton;
@@ -174,9 +174,10 @@ private:
 	QString m_sMidiTooltipHeading;
 	QString m_sMidiTooltipBound;
 	QString m_sMidiTooltipUnbound;
-	QString m_sMidiTooltipUnavailable;
 
 	QString m_sMidiSenseWindowTitle;
 	QString m_sMidiSenseInput;
+	QString m_sMidiSenseUnavailable;
+	
 };
 #endif

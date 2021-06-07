@@ -82,8 +82,6 @@ void WidgetWithInput::updateTooltip() {
 		} else {
 			sTip.append( QString( "%1" ).arg( pCommonStrings->getMidiTooltipUnbound() ) );
 		}
-	} else {
-		sTip.append( QString( "\n%1" ).arg( pCommonStrings->getMidiTooltipUnavailable() ) );
 	}
 			
 	setToolTip( sTip );

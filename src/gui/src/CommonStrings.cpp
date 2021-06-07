@@ -281,11 +281,6 @@ CommonStrings::CommonStrings() : Object( __class_name ) {
 	  displaying the Action that is not associate to a MIDI event
 	  yet. It's full context is "ACTION not bound".*/
 	m_sMidiTooltipUnbound = tr( "not bound" );
-	/*: Displayed in the tooltip of input widgets and in the popup
-	  window when using the MIDI learning capabilities of
-	  Hydrogen. Indicating that there is not Action which could be
-	  associated to a MIDI event.*/
-	m_sMidiTooltipUnavailable = tr( "This element is not MIDI operable." );
 	
 	/*: Title of the window displayed when using the MIDI learning
 	  capabilities of Hydrogen.*/
@@ -294,6 +289,10 @@ CommonStrings::CommonStrings() : Object( __class_name ) {
 	  Hydrogen. Only displayed if the widget has an associated
 	  action.*/
 	m_sMidiSenseInput = tr( "Waiting for MIDI input..." );
+	/*: Displayed in the  popup window when  using the  MIDI learning
+	  capabilities of  Hydrogen. Indicating  that there is  not Action
+	  which could be associated to a MIDI event.*/
+	m_sMidiSenseUnavailable = tr( "This element is not MIDI operable." );
 }
 
 CommonStrings::~CommonStrings(){

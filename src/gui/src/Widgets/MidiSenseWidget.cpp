@@ -54,7 +54,7 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, Action* pActio
 		 */
 
 		if(m_DirectWrite){
-			m_pURLLabel->setText( pCommonStrings->getMidiTooltipUnavailable() );
+			m_pURLLabel->setText( pCommonStrings->getMidiSenseUnavailable() );
 			midiOperable = false;
 		} else {
 			m_pURLLabel->setText( pCommonStrings->getMidiSenseInput() );
