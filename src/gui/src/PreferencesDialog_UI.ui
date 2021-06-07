@@ -99,7 +99,7 @@
        <item>
         <widget class="QCheckBox" name="useLashCheckbox">
          <property name="text">
-          <string extracomment="LASH (acronym for LASH Linux Audio Handler) is a protocol allowing for session management in Linux (recalling songs, preferences, and JACK port connections).">Use &amp;LASH</string>
+          <string extracomment="LASH (acronym for LASH Audio Session Handler) is a protocol allowing for session management in Linux (recalling songs, preferences, and JACK port connections).">Use &amp;LASH</string>
          </property>
         </widget>
        </item>
