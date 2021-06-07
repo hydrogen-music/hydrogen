@@ -62,21 +62,25 @@ Rotary::Rotary( QWidget* parent, Type type, QString sBaseTooltip, bool bUseIntSt
 	updateTooltip();
 
 	// Since the load function does not report success, we will check
-	// for the existance of the background image separately.
-	QString sPath;
-	if ( type == Type::Small ) {
-		sPath = Skin::getSvgImagePath() + "/rotary2.svg";
+	// for the existance of the knob image separately.
+	QString sKnobPath( Skin::getSvgImagePath() + "/rotary.svg" ); 
+	QFile knobFile( sKnobPath );
+	if ( knobFile.exists() ) {
+		m_knob = new QSvgRenderer( sKnobPath, this );
 	} else {
-		sPath = Skin::getSvgImagePath() + "/rotary.svg";
+		m_knob = nullptr;
+		ERRORLOG( QString( "Unable to load knob image [%1]" ).arg( sKnobPath ) );
 	}
-	
-	QFile backgroundFile( sPath );
+
+	QString sBackgroundPath( Skin::getSvgImagePath() + "/rotary_background.svg" ); 
+	QFile backgroundFile( sBackgroundPath );
 	if ( backgroundFile.exists() ) {
-		m_background = new QSvgRenderer( sPath, this );
+		m_background = new QSvgRenderer( sBackgroundPath, this );
 	} else {
 		m_background = nullptr;
-		ERRORLOG( QString( "Unable to load background image [%1]" ).arg( sPath ) );
+		ERRORLOG( QString( "Unable to load background image [%1]" ).arg( sBackgroundPath ) );
 	}
+	
 	resize( m_nWidgetWidth, m_nWidgetHeight );
 }
 
@@ -116,32 +120,47 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	}
 	
 	QRect rectBackground( 0, 0, m_nWidgetWidth, m_nWidgetHeight );
+	// Contains both the painted arc and the actual SVG image of the
+	// knob.
+	QRect rectRotary, rectArc;
+	float fArcLineWidth, fBlackMargin;
+	if ( m_type != Type::Small ) {
+		// Center the rotary while using the full height of the widget.
+		fArcLineWidth = 2.0;
+		rectArc = QRect( ( m_nWidgetWidth - m_nWidgetHeight + fArcLineWidth ) * 0.5,
+						 fArcLineWidth / 2,
+						 m_nWidgetHeight - fArcLineWidth,
+						 m_nWidgetHeight - fArcLineWidth );
+		rectRotary = QRect( rectArc.x() + fArcLineWidth / 2,
+							rectArc.y() + fArcLineWidth / 2,
+							rectArc.width() - fArcLineWidth,
+							rectArc.height() - fArcLineWidth );
+	}
+	
+	if ( m_background != nullptr && m_type != Type::Small ) {
+		m_background->render( &painter, rectBackground );
+	}
+			
+	if ( m_bEntered || hasFocus()  ) {
+		painter.fillRect( 0, m_nWidgetHeight - 2, m_nWidgetWidth, 2, colorHighlightActive );
+	}
 
-	if ( m_background != nullptr ) {
+	if ( m_knob != nullptr ) {
 		if ( m_type == Type::Small ) {
-			if ( m_bEntered || hasFocus()  ) {
-				painter.fillRect( 0, m_nWidgetHeight - 2, m_nWidgetWidth, 2, colorHighlightActive );
-			}
-			m_background->render( &painter, rectBackground );
+			m_knob->render( &painter, rectBackground );
 		} else {
-			m_background->render( &painter, "layer3", rectBackground );
-
-			if ( m_bEntered || hasFocus() ) {
-				painter.fillRect( 0, m_nWidgetHeight - 2, m_nWidgetWidth, 2, colorHighlightActive );
-			}
-			m_background->render( &painter, "layer2", QRectF( 9.91, 1.6, 23.5, 23.5 ) );
+			m_knob->render( &painter, "layer2", rectRotary );
 		}
 	}
 
-	QRectF arcRect( 9.951, 2.6, 24.4, 23 );
 	if ( m_bIsActive ) {
 		if ( m_type != Type::Small ) {
 			if ( m_type == Type::Normal ) {
 				int nStartAngle = 210 * 16; // given in 1/16 of a degree
 				int nSpanAngle  = static_cast<int>( -239 * 16 * ( m_fValue - m_fMin ) / ( m_fMax - m_fMin ) );
 
-				painter.setPen( QPen( colorArc, 1.7 ) );
-				painter.drawArc( arcRect, nStartAngle, nSpanAngle );
+				painter.setPen( QPen( colorArc, fArcLineWidth ) );
+				painter.drawArc( rectArc, nStartAngle, nSpanAngle );
 			} else {
 				// Type::Center
 
@@ -150,13 +169,13 @@ void Rotary::paintEvent( QPaintEvent* ev )
 				// the value is smaller than +/-1% of the range around 0.
 				if ( std::fabs( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) < 0.01 * ( m_fMax - m_fMin ) ) {
 				
-					painter.setPen( QPen( colorArcCenterSet, 2.5 ) );
-					painter.drawArc( arcRect, 91 * 16, -3 * 16 );
+					painter.setPen( QPen( colorArcCenterSet, fArcLineWidth * 1.25 ) );
+					painter.drawArc( rectArc, 91 * 16, -3 * 16 );
 				
 				} else {
 				
-					painter.setPen( QPen( colorArcCenterUnset, 2.5 ) );
-					painter.drawArc( arcRect, 91 * 16, -3 * 16 );
+					painter.setPen( QPen( colorArcCenterUnset, fArcLineWidth * 1.25 ) );
+					painter.drawArc( rectArc, 91 * 16, -3 * 16 );
 
 					int nStartAngle = -18 * 16;
 					int nSpanAngle  = static_cast<int>( -200* 16 * ( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) / ( m_fMax - m_fMin ) );
@@ -166,8 +185,8 @@ void Rotary::paintEvent( QPaintEvent* ev )
 					}
 					nStartAngle += 90 * 16;
 				
-					painter.setPen( QPen( colorArc, 1.7 ) );
-					painter.drawArc( arcRect, nStartAngle, nSpanAngle ); 
+					painter.setPen( QPen( colorArc, fArcLineWidth ) );
+					painter.drawArc( rectArc, nStartAngle, nSpanAngle ); 
 				}
 			}
 		}
@@ -228,13 +247,13 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	if ( m_bIsActive ) {
 		float fDistance, fRadius, fBaseX, fBaseY;
 		if ( m_type == Type::Small ) {
-			fBaseX = 9.0;
-			fBaseY = 9.0;
+			fBaseX = static_cast<float>( m_nWidgetWidth ) / 2.0;
+			fBaseY = static_cast<float>( m_nWidgetHeight ) / 2.0;
 			fDistance = 3;
 			fRadius = 1;
 		} else {
-			fBaseX = arcRect.x() + arcRect.width()/2;
-			fBaseY = arcRect.y() + arcRect.height()/2;
+			fBaseX = rectRotary.x() + rectRotary.width()/2;
+			fBaseY = rectRotary.y() + rectRotary.height()/2;
 			fDistance = 4;
 			fRadius = 1.5;
 		}
@@ -247,8 +266,8 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	}
 
 	if ( m_type != Type::Small ) {
-		QRectF leftTextRec( 2, 15, 7, 7 );
-		QRectF rightTextRec( 34, 15, 9, 7 );
+		QRectF leftTextRec( 2, 16, 7, 7 );
+		QRectF rightTextRec( 34, 16, 9, 7 );
 
 		QFont font( H2Core::Preferences::get_instance()->getApplicationFontFamily() );
 		painter.setPen( QPen( colorFont, 3 ) );

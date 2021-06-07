@@ -51,6 +51,7 @@ public:
 private:
 	Type m_type;
 	QSvgRenderer* m_background;
+	QSvgRenderer* m_knob;
 
 	virtual void paintEvent(QPaintEvent *ev);
 };
