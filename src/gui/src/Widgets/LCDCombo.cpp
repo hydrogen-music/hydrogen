@@ -32,6 +32,7 @@ LCDCombo::LCDCombo( QWidget *pParent, QSize size )
 	: QComboBox( pParent )
 	, Object( __class_name )
 	, m_size( size )
+	, m_bEntered( false )
 {
 	m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
 	m_sLastUsedFontFamily = H2Core::Preferences::get_instance()->getLevel3FontFamily();
@@ -66,4 +67,34 @@ void LCDCombo::onPreferencesChanged( bool bAppearanceOnly ) {
 		m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
 		updateFont();
 	}
+}
+
+void LCDCombo::paintEvent( QPaintEvent *ev ) {
+
+	QComboBox::paintEvent( ev );
+
+	if ( m_bEntered || hasFocus() ) {
+		QPainter painter(this);
+	
+		QColor colorHighlightActive = QColor( 97, 167, 251);
+
+		// If the mouse is placed on the widget but the user hasn't
+		// clicked it yet, the highlight will be done more transparent to
+		// indicate that keyboard inputs are not accepted yet.
+		if ( ! hasFocus() ) {
+			colorHighlightActive.setAlpha( 150 );
+		}
+	
+		painter.fillRect( 0, m_size.height() - 2, m_size.width(), 2, colorHighlightActive );
+	}
+}
+
+void LCDCombo::enterEvent( QEvent* ev ) {
+	QComboBox::enterEvent( ev );
+	m_bEntered = true;
+}
+
+void LCDCombo::leaveEvent( QEvent* ev ) {
+	QComboBox::leaveEvent( ev );
+	m_bEntered = false;
 }
