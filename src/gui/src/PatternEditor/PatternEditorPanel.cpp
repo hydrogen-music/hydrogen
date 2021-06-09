@@ -111,7 +111,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 //wolke some background images back_size_res
 	PixmapWidget *pSizeResol = new PixmapWidget( nullptr );
-	pSizeResol->setFixedSize( 216, 20 );
+	pSizeResol->setFixedSize( 365, 20 );
 	pSizeResol->setPixmap( "/patternEditor/background_res-new.png" );
 	pSizeResol->move( 0, 3 );
 	editor_top_hbox_2->addWidget( pSizeResol );
@@ -132,32 +132,32 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( m_pDenominatorWarning, SIGNAL( clicked( Button* ) ), this, SLOT( denominatorWarningClicked() ) );
 	
 	// GRID resolution
-	__resolution_combo = new LCDCombo( pSizeResol , 5, true );
-	__resolution_combo->setToolTip(tr( "Select grid resolution" ));
-	__resolution_combo->addItem( QString( "  1/4   - " )
+	m_pResolutionCombo = new LCDCombo( pSizeResol , QSize( 209, 16 ) );
+	m_pResolutionCombo->setToolTip(tr( "Select grid resolution" ));
+	m_pResolutionCombo->insertItem( 0, QString( "1/4 - " )
 								 .append( tr( "quarter" ) ) );
-	__resolution_combo->addItem( QString( "  1/8   - " )
+	m_pResolutionCombo->insertItem( 1, QString( "1/8 - " )
 								 .append( tr( "eighth" ) ) );
-	__resolution_combo->addItem( QString( " 1/16  - " )
+	m_pResolutionCombo->insertItem( 2, QString( "1/16 - " )
 								 .append( tr( "sixteenth" ) ) );
-	__resolution_combo->addItem( QString( " 1/32  - " )
+	m_pResolutionCombo->insertItem( 3, QString( "1/32 - " )
 								 .append( tr( "thirty-second" ) ) );
-	__resolution_combo->addItem( QString( " 1/64  - " )
+	m_pResolutionCombo->insertItem( 4, QString( "1/64 - " )
 								 .append( tr( "sixty-fourth" ) ) );
-	__resolution_combo->addSeparator();
-	__resolution_combo->addItem( QString( " 1/4T  - " )
+	m_pResolutionCombo->insertSeparator( 5 );
+	m_pResolutionCombo->insertItem( 6, QString( "1/4T - " )
 								 .append( tr( "quarter triplet" ) ) );
-	__resolution_combo->addItem( QString( " 1/8T  - " )
+	m_pResolutionCombo->insertItem( 7, QString( "1/8T - " )
 								 .append( tr( "eighth triplet" ) ) );
-	__resolution_combo->addItem( QString( "1/16T - " )
+	m_pResolutionCombo->insertItem( 8, QString( "1/16T - " )
 								 .append( tr( "sixteenth triplet" ) ) );
-	__resolution_combo->addItem( QString( "1/32T - " )
+	m_pResolutionCombo->insertItem( 9, QString( "1/32T - " )
 								 .append( tr( "thirty-second triplet" ) ) );
-	__resolution_combo->addSeparator();
-	__resolution_combo->addItem( tr( "off" ) );
-	__resolution_combo->move( 154, 2 );
+	m_pResolutionCombo->insertSeparator( 10 );
+	m_pResolutionCombo->insertItem( 11, tr( "off" ) );
+	m_pResolutionCombo->move( 154, 2 );
 	// is triggered from inside PatternEditorPanel()
-	connect( __resolution_combo, SIGNAL( valueChanged( int ) ), this, SLOT( gridResolutionChanged( int ) ) );
+	connect( m_pResolutionCombo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( gridResolutionChanged( int ) ) );
 	m_pResolutionLbl = new ClickableLabel( pSizeResol, QSize( 28, 11 ), HydrogenApp::get_instance()->getCommonStrings()->getResolutionLabel(), ClickableLabel::Color::Dark );
 	m_pResolutionLbl->move( 127, 4 );
 
@@ -465,20 +465,20 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pPropertiesVBox->setMargin( 0 );
 
 
-	__pPropertiesCombo = new LCDCombo( nullptr, 20 );
-	__pPropertiesCombo->setToolTip( tr( "Select note properties" ) );
-	__pPropertiesCombo->addItem( tr("Velocity") );
-	__pPropertiesCombo->addItem( tr("Pan") );
-	__pPropertiesCombo->addItem( tr("Lead and Lag") );
-	__pPropertiesCombo->addItem( tr("NoteKey") );
-	__pPropertiesCombo->addItem( tr("Probability") );
-	/* __pPropertiesCombo->addItem( tr("Cutoff") ); */
-	/* __pPropertiesCombo->addItem( tr("Resonance") ); */
+	m_pPropertiesCombo = new LCDCombo( nullptr, QSize( m_pInstrumentList->width(), 18 ) );
+	m_pPropertiesCombo->setToolTip( tr( "Select note properties" ) );
+	m_pPropertiesCombo->addItem( tr("Velocity") );
+	m_pPropertiesCombo->addItem( tr("Pan") );
+	m_pPropertiesCombo->addItem( tr("Lead and Lag") );
+	m_pPropertiesCombo->addItem( tr("NoteKey") );
+	m_pPropertiesCombo->addItem( tr("Probability") );
+	/* m_pPropertiesCombo->addItem( tr("Cutoff") ); */
+	/* m_pPropertiesCombo->addItem( tr("Resonance") ); */
 	// is triggered here below
-	__pPropertiesCombo->setObjectName( "PropertiesCombo" );
-	connect( __pPropertiesCombo, SIGNAL( valueChanged( int ) ), this, SLOT( propertiesComboChanged( int ) ) );
+	m_pPropertiesCombo->setObjectName( "PropertiesCombo" );
+	connect( m_pPropertiesCombo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( propertiesComboChanged( int ) ) );
 
-	pPropertiesVBox->addWidget( __pPropertiesCombo );
+	pPropertiesVBox->addWidget( m_pPropertiesCombo );
 
 //~ NOTE_PROPERTIES BUTTONS
 
@@ -540,7 +540,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
 		}
 	}
-	__resolution_combo->select( nIndex );
+	m_pResolutionCombo->setCurrentIndex( nIndex );
 
 	// LAYOUT
 	QVBoxLayout *pVBox = new QVBoxLayout();
@@ -555,7 +555,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &PatternEditorPanel::onPreferencesChanged );
 
 	// update
-	__pPropertiesCombo->select( 0 );
+	m_pPropertiesCombo->setCurrentIndex( 0 );
 	selectedPatternChangedEvent();
 }
 

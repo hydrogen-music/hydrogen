@@ -72,7 +72,7 @@ class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 1
 		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
 		PianoRollEditor* getPianoRollEditor() {		return m_pPianoRollEditor;	}
 		PatternEditorRuler* getPatternEditorRuler() {		return m_pPatternEditorRuler;  }
-		int getPropertiesComboValue(){ return __pPropertiesCombo->selected(); }
+	int getPropertiesComboValue(){ return m_pPropertiesCombo->currentIndex(); }
 
 		void updateSLnameLabel();
 		void updatePianorollEditor();
@@ -131,7 +131,7 @@ class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 1
 		// Editor top
 		LCDDisplay *			__pattern_size_LCD;
 		Button *			m_pDenominatorWarning;
-		LCDCombo *			__resolution_combo;
+		LCDCombo *			m_pResolutionCombo;
 		ToggleButton *		__show_drum_btn;
 		ToggleButton *		__show_piano_btn;
 		ClickableLabel*		m_pPatternSizeLbl;
@@ -142,7 +142,7 @@ class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 1
 		// ~Editor top
 
 		//note properties combo
-		LCDCombo *			__pPropertiesCombo;
+		LCDCombo *			m_pPropertiesCombo;
 
 		// drum editor
 		QScrollArea*		m_pEditorScrollView;

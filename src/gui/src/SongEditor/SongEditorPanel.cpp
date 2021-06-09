@@ -297,10 +297,10 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	connect( m_pAutomationPathView, SIGNAL( pointRemoved(float, float) ), this, SLOT( automationPathPointRemoved(float,float) ) );
 	connect( m_pAutomationPathView, SIGNAL( pointMoved(float, float, float, float) ), this, SLOT( automationPathPointMoved(float,float, float, float) ) );
 
-	m_pAutomationCombo = new LCDCombo( nullptr, 22 );
+	m_pAutomationCombo = new LCDCombo( nullptr, QSize( m_nPatternListWidth, 18 ) );
 	m_pAutomationCombo->setToolTip( tr("Adjust parameter values in time") );
 	m_pAutomationCombo->addItem( tr("Velocity") );
-	m_pAutomationCombo->select( 0 );
+	m_pAutomationCombo->setCurrentIndex( 0 );
 
 	m_pVScrollBar = new QScrollBar( Qt::Vertical, nullptr );
 	m_pVScrollBar->setObjectName( "SongEditorPanel VScrollBar" );

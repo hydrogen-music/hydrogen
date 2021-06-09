@@ -95,7 +95,7 @@ class InstrumentEditor : public QWidget, protected WidgetWithScalableFont<10, 12
 		void hihatMinRangeBtnClicked(Button *pRef);
 		void hihatMaxRangeBtnClicked(Button *pRef);
 
-		void pSampleSelectionChanged( int );
+		void sampleSelectionChanged( int );
 
 		void waveDisplayDoubleClicked( QWidget *pRef );
 

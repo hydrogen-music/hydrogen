@@ -388,13 +388,13 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerPitchFineLCD->move( 151, 394 );
 	m_pLayerPitchFineRotary->move( 191, 391 );
 
-	m_sampleSelectionAlg = new LCDCombo(m_pLayerProp, 23);
-	m_sampleSelectionAlg->move( 76, 434 );
+	m_sampleSelectionAlg = new LCDCombo(m_pLayerProp, QSize( width() - 76 - 8, 16 ) );
+	m_sampleSelectionAlg->move( 76, 433 );
 	m_sampleSelectionAlg->setToolTip( tr( "Select selection algorithm" ) );
 	m_sampleSelectionAlg->addItem( QString( "First in Velocity" ) );
 	m_sampleSelectionAlg->addItem( QString( "Round Robin" ) );
 	m_sampleSelectionAlg->addItem( QString( "Random" ) );
-	connect( m_sampleSelectionAlg, SIGNAL( valueChanged( int ) ), this, SLOT( pSampleSelectionChanged( int ) ) );
+	connect( m_sampleSelectionAlg, SIGNAL( currentIndexChanged( int ) ), this, SLOT( sampleSelectionChanged( int ) ) );
 	m_pSampleSelectionLbl = new ClickableLabel( m_pLayerProp, QSize( 70, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getSampleSelectionLabel() );
 	m_pSampleSelectionLbl->move( 7, 437 );
 
@@ -550,7 +550,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pHihatMaxRangeLCD->setText( sHiHatMaxRange );
 
 		// see instrument.h
-		m_sampleSelectionAlg->select( m_pInstrument->sample_selection_alg(), false);
+		m_sampleSelectionAlg->setCurrentIndex( m_pInstrument->sample_selection_alg() );
 
 		itemsCompo.clear();
 		std::vector<DrumkitComponent*>* compoList = pSong->getComponents();
@@ -1381,7 +1381,7 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 
 }
 
-void InstrumentEditor::pSampleSelectionChanged( int selected )
+void InstrumentEditor::sampleSelectionChanged( int selected )
 {
 	assert( m_pInstrument );
 

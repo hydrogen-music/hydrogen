@@ -25,52 +25,32 @@
 
 
 #include <QtGui>
-#include <QtWidgets>
+#include <QComboBox>
+#include "WidgetWithScalableFont.h"
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 
-class Button;
-class LCDDisplay;
-
-class LCDCombo : public QWidget, public H2Core::Object
+class LCDCombo : public QComboBox, protected WidgetWithScalableFont<6, 8, 9>, public H2Core::Object
 {
-		H2_OBJECT
-		Q_OBJECT
-	public:
-		explicit LCDCombo( QWidget *pParent, int digits = 5, bool bAllowMenuOverflow = false );
-		~LCDCombo();
+	H2_OBJECT
+	Q_OBJECT
 
-		bool addItem( const QString &text );
-		void addSeparator();
-		int selected();
-	public slots:
-		bool select(int idx );
-		bool select(int idx, bool emitValueChanged );
+public:
+	explicit LCDCombo( QWidget *pParent, QSize size = QSize( 0, 0 ) );
+	~LCDCombo();
 
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
 
-	private slots:
-		void changeText( QAction* );
-		void onClick( Button* );
+private:
+	void updateFont();
+	QSize m_size;
 
-	signals:
-		void valueChanged( int idx );
-
-	private:
-		QList<QAction*> actions;
-		LCDDisplay *display;
-		Button *button;
-		QMenu *pop;
-		int size;
-		int active;
-		/** Allows for the entries in #pop to be larger than the
-			display itself. Only the first #size characters will be 
-			displayed.*/
-		bool m_bAllowMenuOverflow;
-		
-		static const QString SEPARATOR;
-
-		virtual void mousePressEvent( QMouseEvent *ev );
-		virtual void wheelEvent( QWheelEvent * ev );
+	/** Used to detect changed in the font*/
+	QString m_sLastUsedFontFamily;
+	/** Used to detect changed in the font*/
+	H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 
