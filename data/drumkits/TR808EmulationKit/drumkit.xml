@@ -9,7 +9,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">This drum kit contains 16 original sounds that were synthesized from scratch (using only basic synth waves, like sine, noise etc.). It simulates the sounds of the legendary Roland TR-808 Rhythm Composer. More kits from ArtemioLabs: http://artemiolabs.com/downloads/audio/hydrogen/&lt;/p>&lt;/body>&lt;/html></info>
  <license>GPL</license>
  <image></image>
- <imageLicense></imageLicense>
+ <imageLicense>undefined license</imageLicense>
  <componentList>
   <drumkitComponent>
    <id>0</id>
@@ -24,8 +24,7 @@ p, li { white-space: pre-wrap; }
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -67,8 +66,7 @@ p, li { white-space: pre-wrap; }
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -110,8 +108,7 @@ p, li { white-space: pre-wrap; }
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -153,8 +150,7 @@ p, li { white-space: pre-wrap; }
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -196,8 +192,7 @@ p, li { white-space: pre-wrap; }
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -239,8 +234,7 @@ p, li { white-space: pre-wrap; }
    <volume>0.77</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.52</pan_R>
+   <pan>-0.48</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -282,8 +276,7 @@ p, li { white-space: pre-wrap; }
    <volume>0.79</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -325,8 +318,7 @@ p, li { white-space: pre-wrap; }
    <volume>0.79</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>0.48</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0.52</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -368,8 +360,7 @@ p, li { white-space: pre-wrap; }
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -411,8 +402,7 @@ p, li { white-space: pre-wrap; }
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -454,8 +444,7 @@ p, li { white-space: pre-wrap; }
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -497,8 +486,7 @@ p, li { white-space: pre-wrap; }
    <volume>0.82</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -540,8 +528,7 @@ p, li { white-space: pre-wrap; }
    <volume>0.84</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -583,8 +570,7 @@ p, li { white-space: pre-wrap; }
    <volume>0.88</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>0.9</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0.1</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -626,8 +612,7 @@ p, li { white-space: pre-wrap; }
    <volume>0.84</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>0.96</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0.04</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -669,8 +654,7 @@ p, li { white-space: pre-wrap; }
    <volume>0.85</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>0.96</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0.04</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>

@@ -326,8 +326,7 @@ void Hydrogen::midi_noteOn( Note *note )
 
 void Hydrogen::addRealtimeNote(	int		instrument,
 								float	velocity,
-								float	pan_L,
-								float	pan_R,
+								float	fPan,
 								float	pitch,
 								bool	noteOff,
 								bool	forcePlay,
@@ -473,8 +472,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 			noteAction.m_column = column;
 			noteAction.m_pattern = currentPatternNumber;
 			noteAction.f_velocity = velocity;
-			noteAction.f_pan_L = pan_L;
-			noteAction.f_pan_R = pan_R;
+			noteAction.f_pan = fPan;
 			noteAction.m_length = -1;
 			noteAction.b_isMidi = true;
 
@@ -509,12 +507,12 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 
 	if ( !pPreferences->__playselectedinstrument ) {
 		if ( hearnote && instrRef ) {
-			Note *pNote2 = new Note( instrRef, nRealColumn, velocity, pan_L, pan_R, -1, 0 );
+			Note *pNote2 = new Note( instrRef, nRealColumn, velocity, fPan, -1, 0 );
 			midi_noteOn( pNote2 );
 		}
 	} else if ( hearnote  ) {
 		auto pInstr = pSong->getInstrumentList()->get( getSelectedInstrumentNumber() );
-		Note *pNote2 = new Note( pInstr, nRealColumn, velocity, pan_L, pan_R, -1, 0 );
+		Note *pNote2 = new Note( pInstr, nRealColumn, velocity, fPan, -1, 0 );
 
 		int divider = msg1 / 12;
 		Note::Octave octave = (Note::Octave)(divider -3);

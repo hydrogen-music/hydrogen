@@ -85,6 +85,20 @@ float XMLNode::read_float( const QString& node, float default_value, bool inexis
 	return c_locale.toFloat( ret );
 }
 
+float XMLNode::read_float( const QString& node, float default_value, bool *pFound, bool inexistent_ok, bool empty_ok )
+{
+	QString ret = read_child_node( node, inexistent_ok, empty_ok );
+	if( ret.isNull() ) {
+		DEBUGLOG( QString( "Using default value %1 for %2" ).arg( default_value ).arg( node ) );
+		*pFound = false;
+		return default_value;
+	} else {
+		*pFound = true;
+		QLocale c_locale = QLocale::c();
+		return c_locale.toFloat( ret );
+	}
+}
+
 int XMLNode::read_int( const QString& node, int default_value, bool inexistent_ok, bool empty_ok )
 {
 	QString ret = read_child_node( node, inexistent_ok, empty_ok );

@@ -136,20 +136,21 @@ void Rotary::paintEvent( QPaintEvent* ev )
 
 	float fRange = m_fMax - m_fMin;
 
-	int nFrame, nTotFrames;
-	if ( m_type == TYPE_NORMAL || m_type == TYPE_CENTER ) {
-		nTotFrames = 63;
+	int nFrame, nEndFrame;
+	if ( m_type == TYPE_NORMAL ) {
+		nEndFrame = 63; // there are 64 frames, indices from 0 to 63
+	} else if ( m_type == TYPE_CENTER ) {
+		nEndFrame = 62;
 	} else if ( m_type == TYPE_SMALL ) {
-		nTotFrames = 31;	
+		nEndFrame = 31;	
 	} else { // undefined RotaryType
-		ERRORLOG( "Error undefined RotaryType" );
+		ERRORLOG( "Error: undefined RotaryType" );
 	}
 	
 	if ( m_bUseIntSteps ) {
-		nFrame = (int)( nTotFrames * floor( m_fValue - m_fMin ) / fRange );
-	}
-	else {
-		nFrame = (int)( nTotFrames * ( m_fValue - m_fMin ) / fRange );
+		nFrame = (int)( nEndFrame * floor( m_fValue - m_fMin ) / fRange );
+	} else {
+		nFrame = (int)( nEndFrame * ( m_fValue - m_fMin ) / fRange );
 	}
 
 //	INFOLOG( "\nrange: " + toString( fRange ) );

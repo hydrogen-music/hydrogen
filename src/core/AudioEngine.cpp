@@ -1004,7 +1004,6 @@ inline void AudioEngine::processPlayNotes( unsigned long nframes )
 										   0.0,
 										   0.0,
 										   0.0,
-										   0.0,
 										   -1,
 										   0 );
 				pOffNote->set_note_off( true );
@@ -1688,8 +1687,7 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 				Note *pMetronomeNote = new Note( m_pMetronomeInstrument,
 												 tick,
 												 fVelocity,
-												 0.5,
-												 0.5,
+												 0.f, // pan
 												 -1,
 												 fPitch
 												 );

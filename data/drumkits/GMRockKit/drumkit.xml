@@ -9,7 +9,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">A Sampled 5pc Pearl DX Series Drumkit.&lt;/p>&lt;/body>&lt;/html></info>
  <license>GPL</license>
  <image></image>
- <imageLicense></imageLicense>
+ <imageLicense>undefined license</imageLicense>
  <componentList>
   <drumkitComponent>
    <id>0</id>
@@ -24,8 +24,7 @@ p, li { white-space: pre-wrap; }
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -95,8 +94,7 @@ p, li { white-space: pre-wrap; }
    <volume>0.99569</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.7</pan_R>
+   <pan>-0.3</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -166,8 +164,7 @@ p, li { white-space: pre-wrap; }
    <volume>1.02155</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.7</pan_R>
+   <pan>-0.3</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -237,8 +234,7 @@ p, li { white-space: pre-wrap; }
    <volume>1.02155</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>0.7</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0.3</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -280,8 +276,7 @@ p, li { white-space: pre-wrap; }
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.7</pan_R>
+   <pan>-0.3</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -351,8 +346,7 @@ p, li { white-space: pre-wrap; }
    <volume>1.04741</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>0.44</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0.56</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -422,8 +416,7 @@ p, li { white-space: pre-wrap; }
    <volume>0.685345</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.48</pan_R>
+   <pan>-0.52</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -493,8 +486,7 @@ p, li { white-space: pre-wrap; }
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>0.76</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0.24</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -564,8 +556,7 @@ p, li { white-space: pre-wrap; }
    <volume>0.685345</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.48</pan_R>
+   <pan>-0.52</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -635,8 +626,7 @@ p, li { white-space: pre-wrap; }
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.8</pan_R>
+   <pan>-0.2</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -706,8 +696,7 @@ p, li { white-space: pre-wrap; }
    <volume>0.698276</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.48</pan_R>
+   <pan>-0.52</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -777,8 +766,7 @@ p, li { white-space: pre-wrap; }
    <volume>0.568965</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.32</pan_R>
+   <pan>-0.68</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -848,8 +836,7 @@ p, li { white-space: pre-wrap; }
    <volume>0.633621</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>0.56</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0.44</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -919,8 +906,7 @@ p, li { white-space: pre-wrap; }
    <volume>0.517241</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.74</pan_R>
+   <pan>-0.26</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -990,8 +976,7 @@ p, li { white-space: pre-wrap; }
    <volume>1</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>0.5</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0.5</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>0.6</gain>
@@ -1061,8 +1046,7 @@ p, li { white-space: pre-wrap; }
    <volume>0.543103</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>0.98</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0.02</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -1132,8 +1116,7 @@ p, li { white-space: pre-wrap; }
    <volume>0.69</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>1</pan_L>
-   <pan_R>0.48</pan_R>
+   <pan>-0.52</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
@@ -1203,8 +1186,7 @@ p, li { white-space: pre-wrap; }
    <volume>0.534828</volume>
    <isMuted>false</isMuted>
    <isSoloed>false</isSoloed>
-   <pan_L>0.56</pan_L>
-   <pan_R>1</pan_R>
+   <pan>0.44</pan>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>

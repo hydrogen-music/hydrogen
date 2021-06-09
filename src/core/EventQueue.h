@@ -241,8 +241,7 @@ public:/**
 		int m_pattern;      // pattern number
 		int m_length;
 		float f_velocity;
-		float f_pan_L;
-		float f_pan_R;
+		float f_pan;
 		Note::Key nk_noteKeyVal;
 		Note::Octave no_octaveKeyVal;
 		bool b_isMidi;

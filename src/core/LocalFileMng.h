@@ -64,12 +64,14 @@ public:
 	static QString	readXmlString( QDomNode , const QString& nodeName, const QString& defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
 	static QColor	readXmlColor( QDomNode , const QString& nodeName, const QColor& defaultValue = QColor( 97, 167, 251 ), bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
 	static float	readXmlFloat( QDomNode , const QString& nodeName, float defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
+	static float	readXmlFloat( QDomNode, const QString& nodeName, float defaultValue, bool *pFound,
+								 bool bCanBeEmpty = false, bool bShouldExists = true, bool tinyXmlCompatMode = false );	
 	static int		readXmlInt( QDomNode , const QString& nodeName, int defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
 	static bool		readXmlBool( QDomNode , const QString& nodeName, bool defaultValue, bool bShouldExists = true , bool tinyXmlCompatMode = false );
 	static void		convertFromTinyXMLString( QByteArray* str );
 	static bool		checkTinyXMLCompatMode( const QString& filename );
 	static QDomDocument openXmlDocument( const QString& filename );
-
+	
 private:
 	static QString processNode( QDomNode node, const QString& nodeName, bool bCanBeEmpty, bool bShouldExists );
 };

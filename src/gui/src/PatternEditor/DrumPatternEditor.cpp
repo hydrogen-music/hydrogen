@@ -108,8 +108,7 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int row,
 
 	int oldLength = -1;
 	float oldVelocity = 0.8f;
-	float oldPan_L = 0.5f;
-	float oldPan_R = 0.5f;
+	float fOldPan = 0.f;
 	float oldLeadLag = 0.0f;
 	float fProbability = 1.0f;
 	Note::Key oldNoteKeyVal = Note::C;
@@ -127,8 +126,7 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int row,
 	if ( pOldNote ) {
 		oldLength = pOldNote->get_length();
 		oldVelocity = pOldNote->get_velocity();
-		oldPan_L = pOldNote->get_pan_l();
-		oldPan_R = pOldNote->get_pan_r();
+		fOldPan = pOldNote->getPan();
 		oldLeadLag = pOldNote->get_lead_lag();
 		oldNoteKeyVal = pOldNote->get_key();
 		oldOctaveKeyVal = pOldNote->get_octave();
@@ -141,8 +139,7 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int row,
 																	 m_nSelectedPatternNumber,
 																	 oldLength,
 																	 oldVelocity,
-																	 oldPan_L,
-																	 oldPan_R,
+																	 fOldPan,
 																	 oldLeadLag,
 																	 oldNoteKeyVal,
 																	 oldOctaveKeyVal,
@@ -195,8 +192,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 																			 m_nSelectedPatternNumber,
 																			 pNote->get_length(),
 																			 pNote->get_velocity(),
-																			 pNote->get_pan_l(),
-																			 pNote->get_pan_r(),
+																			 pNote->getPan(),
 																			 pNote->get_lead_lag(),
 																			 pNote->get_key(),
 																			 pNote->get_octave(),
@@ -273,8 +269,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 												int selectedPatternNumber,
 												int oldLength,
 												float oldVelocity,
-												float oldPan_L,
-												float oldPan_R,
+												float fOldPan,
 												float oldLeadLag,
 												int oldNoteKeyVal,
 												int oldOctaveKeyVal,
@@ -330,23 +325,20 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		// create the new note
 		unsigned nPosition = nColumn;
 		float fVelocity = oldVelocity;
-		float fPan_L = oldPan_L ;
-		float fPan_R = oldPan_R;
+		float fPan = fOldPan ;
 		int nLength = oldLength;
 
 
-		if ( isNoteOff )
-		{
+		if ( isNoteOff ) {
 			fVelocity = 0.0f;
-			fPan_L = 0.5f;
-			fPan_R = 0.5f;
+			fPan = 0.f;
 			nLength = 1;
 			fProbability = 1.0;
 		}
 
 		float fPitch = 0.f;
 		
-		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
+		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan, nLength, fPitch );
 		pNote->set_note_off( isNoteOff );
 		if ( !isNoteOff ) {
 			pNote->set_lead_lag( oldLeadLag );
@@ -365,7 +357,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		// hear note
 		if ( listen && !isNoteOff ) {
 			fPitch = pSelectedInstrument->get_pitch_offset();
-			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch);
+			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan, nLength, fPitch);
 			m_pAudioEngine->getSampler()->noteOn(pNote2);
 		}
 	}
@@ -409,8 +401,7 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 			 && pCandidateNote->get_octave() == pNote->get_octave()
 			 && pCandidateNote->get_velocity() == pNote->get_velocity()
 			 && pCandidateNote->get_lead_lag() == pNote->get_lead_lag()
-			 && pCandidateNote->get_pan_r() == pNote->get_pan_r()
-			 && pCandidateNote->get_pan_l() == pNote->get_pan_r()
+			 && pCandidateNote->getPan() == pNote->getPan()
 			 && pCandidateNote->get_note_off() == pNote->get_note_off() ) {
 			pFoundNote = pCandidateNote;
 			if ( m_selection.isSelected( pCandidateNote ) ) {
@@ -524,8 +515,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 														   m_nSelectedPatternNumber,
 														   pNote->get_length(),
 														   pNote->get_velocity(),
-														   pNote->get_pan_l(),
-														   pNote->get_pan_r(),
+														   pNote->getPan(),
 														   pNote->get_lead_lag(),
 														   pNote->get_key(),
 														   pNote->get_octave(),
@@ -545,8 +535,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 														   m_nSelectedPatternNumber,
 														   pNote->get_length(),
 														   pNote->get_velocity(),
-														   pNote->get_pan_l(),
-														   pNote->get_pan_r(),
+														   pNote->getPan(),
 														   pNote->get_lead_lag(),
 														   pNote->get_key(),
 														   pNote->get_octave(),
@@ -868,8 +857,7 @@ void DrumPatternEditor::deleteSelection()
 																 m_nSelectedPatternNumber,
 																 pNote->get_length(),
 																 pNote->get_velocity(),
-																 pNote->get_pan_l(),
-																 pNote->get_pan_r(),
+																 pNote->getPan(),
 																 pNote->get_lead_lag(),
 																 pNote->get_key(),
 																 pNote->get_octave(),
@@ -982,8 +970,7 @@ void DrumPatternEditor::paste()
 														   m_nSelectedPatternNumber,
 														   pNote->get_length(),
 														   pNote->get_velocity(),
-														   pNote->get_pan_l(),
-														   pNote->get_pan_r(),
+														   pNote->getPan(),
 														   pNote->get_lead_lag(),
 														   pNote->get_key(),
 														   pNote->get_octave(),
@@ -1294,8 +1281,7 @@ void DrumPatternEditor::undoRedoAction( int column,
 					int nSelectedPatternNumber,
 					int nSelectedInstrument,
 					float velocity,
-					float pan_L,
-					float pan_R,
+					float fPan,
 					float leadLag,
 					float probability,
 					int noteKeyVal,
@@ -1324,9 +1310,7 @@ void DrumPatternEditor::undoRedoAction( int column,
 				pNote->set_velocity( velocity );
 			}
 			else if ( mode == "PAN" ){
-
-				pNote->set_pan_l( pan_L );
-				pNote->set_pan_r( pan_R );
+				pNote->setPan( fPan );
 			}
 			else if ( mode == "LEADLAG" ){
 				pNote->set_lead_lag( leadLag );
@@ -1553,8 +1537,7 @@ void DrumPatternEditor::functionFillNotesRedoAction( QStringList noteList, int n
 	auto pSelectedInstrument = H->getSong()->getInstrumentList()->get( nSelectedInstrument );
 
 	const float velocity = 0.8f;
-	const float pan_L = 0.5f;
-	const float pan_R = 0.5f;
+	const float fPan = 0.f;
 	const float fPitch = 0.0f;
 	const int nLength = -1;
 
@@ -1563,7 +1546,7 @@ void DrumPatternEditor::functionFillNotesRedoAction( QStringList noteList, int n
 
 		// create the new note
 		int position = noteList.value(i).toInt();
-		Note *pNote = new Note( pSelectedInstrument, position, velocity, pan_L, pan_R, nLength, fPitch );
+		Note *pNote = new Note( pSelectedInstrument, position, velocity, fPan, nLength, fPitch );
 		pPattern->insert_note( pNote );
 	}
 	m_pAudioEngine->unlock();	// unlock the audio engine

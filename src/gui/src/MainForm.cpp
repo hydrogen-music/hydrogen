@@ -1810,10 +1810,8 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			int row = (*found).second;
 
 			float velocity = 0.8;
-			float pan_L = 0.5f;
-			float pan_R = 0.5f;
 
-			pHydrogen->addRealtimeNote (row, velocity, pan_L, pan_R, 0, false, false , row + 36);
+			pHydrogen->addRealtimeNote (row, velocity, 0.f, 0, false, false , row + 36);
 
 			return true; // eat event
 		}

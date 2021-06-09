@@ -233,15 +233,14 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 	if ( ev->button() == Qt::LeftButton ) {
 		const int width = m_pMuteBtn->x() - 5; // clickable field width
 		const float velocity = std::min((float)ev->x()/(float)width, 1.0f);
-		const float pan_L = 0.5f;
-		const float pan_R = 0.5f;
+		const float fPan = 0.f;
 		const int nLength = -1;
 
 		Song *pSong = Hydrogen::get_instance()->getSong();
 		auto pInstr = pSong->getInstrumentList()->get( m_nInstrumentNumber );
 		const float fPitch = pInstr->get_pitch_offset();
 
-		Note *pNote = new Note( pInstr, 0, velocity, pan_L, pan_R, nLength, fPitch);
+		Note *pNote = new Note( pInstr, 0, velocity, fPan, nLength, fPitch);
 		Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
 	}
 	else if (ev->button() == Qt::RightButton ) {
