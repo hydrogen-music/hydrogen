@@ -96,44 +96,4 @@ class LCDDisplay : public QWidget, public H2Core::Object
 		bool m_bLeftAlign;
 };
 
-
-class LCDSpinBox : public QWidget, public H2Core::Object
-{
-    H2_OBJECT
-	Q_OBJECT
-	public:
-		enum LCDSpinBoxType {
-			INTEGER,
-			FLOAT
-		};
-
-		LCDSpinBox( QWidget *pParent, int nDigits, LCDSpinBoxType type, int nMin = -1, int nMax = -1 );
-		~LCDSpinBox();
-
-		void setValue( float nValue );
-		float getValue() {	return m_fValue;	}
-
-		virtual void wheelEvent( QWheelEvent *ev );
-
-		// richiamati da PlayerControl
-		void upBtnClicked();
-		void downBtnClicked();
-
-	signals:
-		void changed(LCDSpinBox *pRef);
-		void spinboxClicked();
-
-	public slots:
-		void displayClicked( LCDDisplay *pRef );
-
-	private:
-		LCDSpinBoxType m_type;
-		LCDDisplay* m_pDisplay;
-
-		float m_fValue;
-		int m_nMinValue;
-		int m_nMaxValue;
-};
-
-
 #endif

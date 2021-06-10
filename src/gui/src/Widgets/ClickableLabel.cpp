@@ -92,7 +92,7 @@ void ClickableLabel::updateFont( QString sFontFamily, H2Core::Preferences::FontS
 	int nMargin, nPixelSize;
 	if ( m_size.height() <= 9 ) {
 		nMargin = 2;
-	} else if ( m_size.height() <= 11 ) {
+	} else if ( m_size.height() <= 12 ) {
 		nMargin = 3;
 	} else {
 		nMargin = 8;

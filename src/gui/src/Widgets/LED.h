@@ -24,6 +24,7 @@
 #ifndef LED_H
 #define LED_H
 
+#include <chrono>
 
 #include <core/Object.h>
 #include <core/Preferences.h>
@@ -32,6 +33,7 @@
 #include <QtWidgets>
 #include <QSvgRenderer>
 
+#include "../EventListener.h"
 
 /**
  * LED identicating a user selection.
@@ -51,7 +53,7 @@ public:
 	bool getActivated() const;
 	void setActivated( bool bActivated );
 
-private:
+protected:
 	QSvgRenderer* m_background;
 	
 	bool m_bActivated;
@@ -62,5 +64,28 @@ private:
 inline bool LED::getActivated() const {
 	return m_bActivated;
 }
+
+class MetronomeLED : public LED, public EventListener
+{
+    H2_OBJECT
+	Q_OBJECT
+
+public:
+	MetronomeLED( QWidget *pParent, QSize size );
+	virtual ~MetronomeLED();
+
+public slots:
+	void metronomeEvent( int nValue );
+						   
+private slots:
+	void turnOff();
+	
+private:
+	bool m_bFirstBeat;
+	QTimer* m_pTimer;
+	std::chrono::milliseconds m_activityTimeout;
+	
+	void paintEvent( QPaintEvent* ev);
+};
 
 #endif

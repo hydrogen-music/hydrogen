@@ -44,47 +44,9 @@ class ToggleButton;
 class CpuLoadWidget;
 class PixmapWidget;
 class LED;
+class MetronomeLED;
 class ClickableLabel;
 
-///
-///
-///
-class MetronomeWidget : public QWidget,public EventListener, public H2Core::Object
-{
-    H2_OBJECT
-	Q_OBJECT
-	public:
-		explicit MetronomeWidget(QWidget *pParent);
-		~MetronomeWidget();
-
-		virtual void metronomeEvent( int nValue ) override;
-		virtual void paintEvent( QPaintEvent*) override;
-
-
-	public slots:
-		void updateWidget();
-
-
-	private:
-		enum m_state {
-			METRO_FIRST,
-			METRO_ON,
-			METRO_OFF
-		};
-
-		int m_nValue;
-		int m_state;
-
-		QPixmap m_metro_off;
-		QPixmap m_metro_on_firstbeat;
-		QPixmap m_metro_on;
-
-};
-
-
-///
-/// Player control panel
-///
 class PlayerControl : public QLabel, protected WidgetWithScalableFont<5, 6, 7>, public EventListener, public H2Core::Object
 {
     H2_OBJECT
@@ -123,9 +85,7 @@ public slots:
 		//jack time master
 		void jackMasterBtnClicked(Button* ref);
 		//~ jack time master
-		void bpmChanged();
-		void bpmButtonClicked( Button *pRef );
-		void bpmClicked();
+		void bpmChanged( double );
 		void FFWDBtnClicked(Button *pRef);
 		void RewindBtnClicked(Button *pRef);
 		void songLoopBtnClicked(Button* ref);
@@ -190,8 +150,6 @@ public slots:
 		ToggleButton *m_pJackMasterBtn;
 		QString m_sJackMasterModeToolTip;
 		//~ jack time master
-		Button *m_pBPMUpBtn;
-		Button *m_pBPMDownBtn;
 
 		CpuLoadWidget *m_pCpuLoadWidget;
 		LED *m_pMidiActivityLED;
@@ -217,7 +175,7 @@ public slots:
 		LCDDisplay *m_pBCDisplayT;
 		//~ beatcounter
 
-		MetronomeWidget *m_pMetronomeWidget;
+		MetronomeLED *m_pMetronomeLED;
 		ToggleButton *m_pMetronomeBtn;
 
 		ToggleButton *m_pShowMixerBtn;

@@ -23,7 +23,9 @@
 #include "LED.h"
 #include "../Skin.h"
 
+#include "../HydrogenApp.h"
 #include <core/Globals.h>
+#include <core/Preferences.h>
 
 const char* LED::__class_name = "LED";
 
@@ -72,6 +74,85 @@ void LED::paintEvent( QPaintEvent* ev )
 
 		if ( m_bActivated ) {
 			m_background->render( &painter, "layer2" );
+		} else {
+			m_background->render( &painter, "layer1" );
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////
+
+const char* MetronomeLED::__class_name = "MetronomeLED";
+
+MetronomeLED::MetronomeLED( QWidget *pParent, QSize size )
+	: LED( pParent, size )
+	, m_bFirstBeat( false )
+	, m_activityTimeout( 250 )
+{
+	HydrogenApp::get_instance()->addEventListener( this );
+	
+	// Since the load function does not report success, we will check
+	// for the existance of the background image separately.
+	QString sPath( Skin::getSvgImagePath() + "/led_22_7.svg" );
+	QFile file( sPath );
+	if ( file.exists() ) {
+		m_background = new QSvgRenderer( sPath, this );
+	} else {
+		m_background = nullptr;
+		ERRORLOG( QString( "Unable to load background image [%1]" ).arg( sPath ) );
+	}
+
+	m_pTimer = new QTimer( this );
+	connect( m_pTimer, SIGNAL( timeout() ), this, SLOT( turnOff() ) );
+
+	resize( size );
+}
+
+MetronomeLED::~MetronomeLED() {
+}
+
+void MetronomeLED::metronomeEvent( int nValue ) {
+
+	// Only trigger LED if the metronome button was pressed or it was
+	// activated via MIDI or OSC.
+	if ( ! H2Core::Preferences::get_instance()->m_bUseMetronome ) {
+		return;
+	}
+	
+	if ( nValue == 2 ) { // 2 = set pattern position is not needed here
+		return;
+	}
+
+	m_bActivated = true;
+	if ( nValue == 1 ) {
+		m_bFirstBeat = true;
+	} else {
+		m_bFirstBeat = false;
+	}
+	
+	update();
+
+	m_pTimer->start( m_activityTimeout );
+}
+
+void MetronomeLED::turnOff() {
+	m_pTimer->stop();
+	m_bActivated = false;
+	update();
+}
+
+void MetronomeLED::paintEvent( QPaintEvent* ev )
+{
+	QPainter painter( this );
+
+	if ( m_background != nullptr ) {
+
+		if ( m_bActivated ) {
+			if ( m_bFirstBeat ) {
+				m_background->render( &painter, "layer3" );
+			} else {
+				m_background->render( &painter, "layer2" );
+			}
 		} else {
 			m_background->render( &painter, "layer1" );
 		}

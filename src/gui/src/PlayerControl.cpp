@@ -29,6 +29,7 @@
 
 #include "Widgets/ClickableLabel.h"
 #include "Widgets/LCD.h"
+#include "Widgets/LCDSpinBox.h"
 #include "Widgets/LED.h"
 #include "Widgets/Button.h"
 #include "Widgets/CpuLoadWidget.h"
@@ -241,22 +242,13 @@ PlayerControl::PlayerControl(QWidget *parent)
 	pBPMPanel->setPixmap( "/playerControlPanel/background_BPM.png" );
 	pBPMPanel->setObjectName( "BPM" );
 	hbox->addWidget( pBPMPanel );
-	m_pBPMLbl = new ClickableLabel( pBPMPanel, QSize( 25, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getBPMLabel(), ClickableLabel::Color::LCD );
-	m_pBPMLbl->move( 105, 31 );
+	m_pBPMLbl = new ClickableLabel( pBPMPanel, QSize( 26, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getBPMLabel(), ClickableLabel::Color::Dark );
+	m_pBPMLbl->move( 36, 31 );
 
 	// LCD BPM SpinBox
-	m_pLCDBPMSpinbox = new LCDSpinBox( pBPMPanel, 6, LCDSpinBox::FLOAT, MIN_BPM, MAX_BPM );
-	m_pLCDBPMSpinbox->move( 43, 6 );
-	connect( m_pLCDBPMSpinbox, SIGNAL(changed(LCDSpinBox*)), this, SLOT(bpmChanged()));
-	connect( m_pLCDBPMSpinbox, SIGNAL(spinboxClicked()), this, SLOT(bpmClicked()));
-
-	m_pBPMUpBtn = new Button( pBPMPanel, QSize( 16, 8 ), "plus.svg", "", false, QSize( 6, 6 ) );
-	m_pBPMUpBtn->move( 12, 5 );
-	connect( m_pBPMUpBtn, SIGNAL( clicked( Button* ) ), this, SLOT(bpmButtonClicked( Button* ) ) );
-
-	m_pBPMDownBtn = new Button( pBPMPanel, QSize( 16, 8 ), "minus.svg", "", false, QSize( 6, 6 ) );
-	m_pBPMDownBtn->move( 12, 14 );
-	connect( m_pBPMDownBtn, SIGNAL( clicked( Button* ) ), this, SLOT(bpmButtonClicked( Button* ) ) );
+	m_pLCDBPMSpinbox = new LCDSpinBox( pBPMPanel, QSize( 95, 28), static_cast<float>( MIN_BPM ), static_cast<float>( MAX_BPM ) );
+	m_pLCDBPMSpinbox->move( 36, 3 );
+	connect( m_pLCDBPMSpinbox, SIGNAL( valueChanged( double ) ), this, SLOT( bpmChanged( double ) ) );
 
 	m_pRubberBPMChange = new ToggleButton( pBPMPanel, QSize( 9, 37 ), "", HydrogenApp::get_instance()->getCommonStrings()->getRubberbandButton() );
 
@@ -271,12 +263,11 @@ PlayerControl::PlayerControl(QWidget *parent)
 		m_pRubberBPMChange->hide();
 	}
 
-	m_pMetronomeWidget = new MetronomeWidget( pBPMPanel );
-	m_pMetronomeWidget->resize( 85, 5 );
-	m_pMetronomeWidget->move( 42, 25 );
+	m_pMetronomeLED = new MetronomeLED( pBPMPanel, QSize( 22, 7 ) );
+	m_pMetronomeLED->move( 7, 32 );
 
-	m_pMetronomeBtn = new ToggleButton( pBPMPanel, QSize( 16, 15 ), "metronome.svg", "", false, QSize( 13, 13 ) );
-	m_pMetronomeBtn->move( 12, 23 );
+	m_pMetronomeBtn = new ToggleButton( pBPMPanel, QSize( 22, 26 ), "metronome.svg", "", false, QSize( 20, 20 ) );
+	m_pMetronomeBtn->move( 7, 4 );
 	m_pMetronomeBtn->setToolTip( tr("Switch metronome on/off") );
 	connect( m_pMetronomeBtn, SIGNAL( clicked( Button* ) ), this, SLOT(metronomeButtonClicked( Button* ) ) );
 		pAction = new Action("TOGGLE_METRONOME");
@@ -488,19 +479,11 @@ void PlayerControl::updatePlayerControl()
 					pPref->m_bbc = Preferences::BC_OFF;
 					m_pLCDBPMSpinbox->setDisabled( true );
 					m_pLCDBPMSpinbox->setToolTip( sTBMToolTip );
-					m_pBPMUpBtn->setDisabled( true );
-					m_pBPMUpBtn->setToolTip( sTBMToolTip );
-					m_pBPMDownBtn->setDisabled( true );
-					m_pBPMDownBtn->setToolTip( sTBMToolTip );
 					
 				} else {
 					m_pBConoffBtn->setDisabled( false );
 					m_pBConoffBtn->setToolTip( m_sBConoffBtnToolTip );
 					m_pLCDBPMSpinbox->setDisabled( false );
-					m_pBConoffBtn->setToolTip( "" );
-					m_pBPMUpBtn->setDisabled( false );
-					m_pBConoffBtn->setToolTip( "" );
-					m_pBPMDownBtn->setDisabled( false );
 					m_pBConoffBtn->setToolTip( "" );
 				}
 				
@@ -657,15 +640,11 @@ void PlayerControl::songModeActivationEvent( int nValue )
 	}
 }
 
-void PlayerControl::bpmChanged() {
-	float fNewBpmValue = m_pLCDBPMSpinbox->getValue();
-
-
+void PlayerControl::bpmChanged( double fNewBpmValue ) {
 	m_pHydrogen->getSong()->setIsModified( true );
 
-
 	m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-	m_pHydrogen->setBPM( fNewBpmValue );
+	m_pHydrogen->setBPM( static_cast<float>( fNewBpmValue ) );
 	m_pHydrogen->getAudioEngine()->unlock();
 }
 
@@ -842,35 +821,6 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 }
 //~ jack time master
 
-void PlayerControl::bpmClicked()
-{
-	bool bIsOkPressed;
-	double fNewVal= QInputDialog::getDouble( this, "Hydrogen", tr( "New BPM value" ),  m_pLCDBPMSpinbox->getValue(), MIN_BPM, MAX_BPM, 2, &bIsOkPressed );
-	if ( bIsOkPressed  ) {
-
-		m_pHydrogen->getSong()->setIsModified( true );
-
-		m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-
-		m_pHydrogen->setBPM( fNewVal );
-		m_pHydrogen->getAudioEngine()->unlock();
-	}
-	else {
-		// user entered nothing or pressed Cancel
-	}
-}
-
-
-void PlayerControl::bpmButtonClicked( Button* pBtn )
-{
-	if ( pBtn == m_pBPMUpBtn ) {
-		m_pLCDBPMSpinbox->upBtnClicked();
-	} else {
-		m_pLCDBPMSpinbox->downBtnClicked();
-	}
-}
-
-
 void PlayerControl::FFWDBtnClicked( Button* )
 {
 	WARNINGLOG( "relocate via button press" );
@@ -1045,85 +995,3 @@ void PlayerControl::onPreferencesChanged( bool bAppearanceOnly ) {
 		m_pShowInstrumentRackBtn->setFont( fontButtons );
 	}
 }
-
-//::::::::::::::::::::::::::::::::::::::::::::::::
-
-const char* MetronomeWidget::__class_name = "MetronomeWidget";
-
-MetronomeWidget::MetronomeWidget(QWidget *pParent)
- : QWidget( pParent )
- , Object( __class_name )
- , m_nValue( 0 )
- , m_state( METRO_OFF )
-{
-//	INFOLOG( "INIT" );
-	HydrogenApp::get_instance()->addEventListener( this );
-
-	m_metro_off.load( Skin::getImagePath() + "/playerControlPanel/metronome_off.png" );
-	m_metro_on_firstbeat.load( Skin::getImagePath() + "/playerControlPanel/metronome_up.png" );
-	m_metro_on.load( Skin::getImagePath() + "/playerControlPanel/metronome_down.png" );
-
-	QTimer *timer = new QTimer(this);
-	connect( timer, SIGNAL( timeout() ), this, SLOT( updateWidget() ) );
-	timer->start(50);	// update player control at 20 fps
-}
-
-
-MetronomeWidget::~MetronomeWidget()
-{
-//	INFOLOG( "DESTROY" );
-}
-
-
-void MetronomeWidget::metronomeEvent( int nValue )
-{
-	if (nValue == 2) { // 2 = set pattern position is not needed here
-		return;
-	}
-
-	if (nValue == 1) {
-		m_state = METRO_FIRST;
-		m_nValue = 5;
-	}
-	else {
-		m_state = METRO_ON;
-		m_nValue = 5;
-	}
-	updateWidget();
-}
-
-
-void MetronomeWidget::updateWidget()
-{
-	if ( m_nValue > 0 ) {
-		m_nValue -= 1;
-		if (m_nValue == 0 ) {
-			m_nValue = 0;
-			m_state = METRO_OFF;
-		}
-		update();
-	}
-}
-
-
-void MetronomeWidget::paintEvent( QPaintEvent* ev)
-{
-	QPainter painter(this);
-	switch( m_state ) {
-		case METRO_FIRST:
-			painter.drawPixmap( ev->rect(), m_metro_on_firstbeat, ev->rect() );
-			break;
-
-		case METRO_ON:
-			painter.drawPixmap( ev->rect(), m_metro_on, ev->rect() );
-			break;
-
-		case METRO_OFF:
-			painter.drawPixmap( ev->rect(), m_metro_off, ev->rect() );
-			break;
-	}
-}
-
-
-
-
