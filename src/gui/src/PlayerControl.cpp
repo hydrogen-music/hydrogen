@@ -246,7 +246,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pBPMLbl->move( 36, 31 );
 
 	// LCD BPM SpinBox
-	m_pLCDBPMSpinbox = new LCDSpinBox( pBPMPanel, QSize( 95, 28), static_cast<float>( MIN_BPM ), static_cast<float>( MAX_BPM ) );
+	m_pLCDBPMSpinbox = new LCDSpinBox( pBPMPanel, QSize( 95, 28), LCDSpinBox::Type::Double, static_cast<double>( MIN_BPM ), static_cast<double>( MAX_BPM ) );
 	m_pLCDBPMSpinbox->move( 36, 3 );
 	connect( m_pLCDBPMSpinbox, SIGNAL( valueChanged( double ) ), this, SLOT( bpmChanged( double ) ) );
 

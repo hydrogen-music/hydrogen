@@ -50,6 +50,7 @@ using namespace H2Core;
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/LCD.h"
+#include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/Fader.h"
 #include "InstrumentEditor.h"
@@ -64,6 +65,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	, Object( __class_name )
 	, m_pInstrument( nullptr )
 	, m_nSelectedLayer( 0 )
+	, m_nPreviousMidiOutChannel( -1 )
 {
 	setFixedWidth( 290 );
 	
@@ -94,40 +96,20 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	/////////////
 	//Midi Out
 
-	m_pMidiOutChannelLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pMidiOutChannelLCD->move( 67, 261 );
+	m_pMidiOutChannelLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 51, 20 ), LCDSpinBox::Type::Int, -1, 16 );
+	m_pMidiOutChannelLCD->move( 72, 259 );
 	m_pMidiOutChannelLCD->setToolTip(QString(tr("Midi out channel")));
+	connect( m_pMidiOutChannelLCD, SIGNAL( valueChanged( double ) ), this, SLOT( midiOutChannelChanged( double ) ) );
 	m_pMidiOutChannelLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getMidiOutChannelLabel() );
 	m_pMidiOutChannelLbl->move( 66, 282 );
 
-
-	m_pAddMidiOutChannelBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "plus.svg", "", false, QSize( 6, 6 ) );
-	m_pAddMidiOutChannelBtn->move( 109, 260 );
-	connect( m_pAddMidiOutChannelBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutChannelBtnClicked(Button*) ) );
-
-
-	m_pDelMidiOutChannelBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "minus.svg", "", false, QSize( 6, 6 ) );
-	m_pDelMidiOutChannelBtn->move( 109, 269 );
-	connect( m_pDelMidiOutChannelBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutChannelBtnClicked(Button*) ) );
-
-
 	///
-	m_pMidiOutNoteLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pMidiOutNoteLCD->move( 160, 261 );
-
-	m_pAddMidiOutNoteBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "plus.svg", "", false, QSize( 6, 6 ), true );
+	m_pMidiOutNoteLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 51, 20 ), LCDSpinBox::Type::Int, 0, 100 );
+	m_pMidiOutNoteLCD->move( 165, 259 );
 	m_pMidiOutNoteLCD->setToolTip(QString(tr("Midi out note")));
+	connect( m_pMidiOutNoteLCD, SIGNAL( valueChanged( double ) ), this, SLOT( midiOutNoteChanged( double ) ) );
 	m_pMidiOutNoteLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getMidiOutNoteLabel() );
 	m_pMidiOutNoteLbl->move( 159, 282 );
-
-
-	m_pAddMidiOutNoteBtn->move( 202, 260 );
-	connect( m_pAddMidiOutNoteBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutNoteBtnClicked(Button*) ) );
-
-
-	m_pDelMidiOutNoteBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "minus.svg", "", false, QSize( 6, 6 ) );
-	m_pDelMidiOutNoteBtn->move( 202, 269 );
-	connect( m_pDelMidiOutNoteBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutNoteBtnClicked(Button*) ) );
 
 	/////////////
 
@@ -218,19 +200,11 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pGainLbl->move( 107, 126 );
 
 
-	m_pMuteGroupLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pMuteGroupLCD->move( 160, 105 );
+	m_pMuteGroupLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 51, 20 ), LCDSpinBox::Type::Int, -1, 100 );
+	m_pMuteGroupLCD->move( 164, 103 );
+	connect( m_pMuteGroupLCD, SIGNAL( valueChanged( double ) ), this, SLOT( muteGroupChanged( double ) ) );
 	m_pMuteGroupLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getMuteGroupLabel() );
 	m_pMuteGroupLbl->move( 159, 126 );
-
-	m_pAddMuteGroupBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "plus.svg", "", false, QSize( 6, 6 ) );
-	m_pAddMuteGroupBtn->move( 202, 104 );
-	connect( m_pAddMuteGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( muteGroupBtnClicked(Button*) ) );
-
-
-	m_pDelMuteGroupBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "minus.svg", "", false, QSize( 6, 6 ) );
-	m_pDelMuteGroupBtn->move( 202, 113 );
-	connect( m_pDelMuteGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( muteGroupBtnClicked(Button*) ) );
 
 	m_pIsStopNoteCheckBox = new QCheckBox ( tr( "" ), m_pInstrumentProp );
 	m_pIsStopNoteCheckBox->move( 53, 138 );
@@ -251,45 +225,23 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	//////////////////////////
 	// HiHat setup
 
-	m_pHihatGroupLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pHihatGroupLCD->move( 27, 307 );
+	m_pHihatGroupLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 51, 20 ), LCDSpinBox::Type::Int, -1, 32 );
+	m_pHihatGroupLCD->move( 32, 305 );
+	connect( m_pHihatGroupLCD, SIGNAL( valueChanged( double ) ), this, SLOT( hihatGroupChanged( double ) ) );
 	m_pHihatGroupLbl = new ClickableLabel( m_pInstrumentProp, QSize( 69, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getHihatGroupLabel() );
 	m_pHihatGroupLbl->move( 22, 328 );
 
-	m_pAddHihatGroupBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "plus.svg", "", false, QSize( 6, 6 ) );
-	m_pAddHihatGroupBtn->move( 69, 306 );
-	connect( m_pAddHihatGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatGroupClicked(Button*) ) );
-
-	m_pDelHihatGroupBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "minus.svg", "", false, QSize( 6, 6 ) );
-	m_pDelHihatGroupBtn->move( 69, 315 );
-	connect( m_pDelHihatGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatGroupClicked(Button*) ) );
-
-	m_pHihatMinRangeLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pHihatMinRangeLCD->move( 137, 307 );
+	m_pHihatMinRangeLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 51, 20 ), LCDSpinBox::Type::Int, 0, 127 );
+	m_pHihatMinRangeLCD->move( 142, 305 );
+	connect( m_pHihatMinRangeLCD, SIGNAL( valueChanged( double ) ), this, SLOT( hihatMinRangeChanged( double ) ) );
 	m_pHihatMinRangeLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getHihatMinRangeLabel() );
 	m_pHihatMinRangeLbl->move( 136, 328 );
 
-	m_pAddHihatMinRangeBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "plus.svg", "", false, QSize( 6, 6 ) );
-	m_pAddHihatMinRangeBtn->move( 179, 306 );
-	connect( m_pAddHihatMinRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMinRangeBtnClicked(Button*) ) );
-
-	m_pDelHihatMinRangeBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "minus.svg", "", false, QSize( 6, 6 ) );
-	m_pDelHihatMinRangeBtn->move( 179, 315 );
-	connect( m_pDelHihatMinRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMinRangeBtnClicked(Button*) ) );
-
-
-	m_pHihatMaxRangeLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pHihatMaxRangeLCD->move( 202, 307 );
+	m_pHihatMaxRangeLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 51, 20 ), LCDSpinBox::Type::Int, 0, 127 );
+	m_pHihatMaxRangeLCD->move( 207, 305 );
+	connect( m_pHihatMaxRangeLCD, SIGNAL( valueChanged( double ) ), this, SLOT( hihatMaxRangeChanged( double ) ) );
 	m_pHihatMaxRangeLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getHihatMaxRangeLabel() );
 	m_pHihatMaxRangeLbl->move( 201, 328 );
-
-	m_pAddHihatMaxRangeBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "plus.svg", "", false, QSize( 6, 6 ) );
-	m_pAddHihatMaxRangeBtn->move( 244, 306 );
-	connect( m_pAddHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
-
-	m_pDelHihatMaxRangeBtn = new Button( m_pInstrumentProp, QSize( 16, 8 ), "minus.svg", "", false, QSize( 6, 6 ) );
-	m_pDelHihatMaxRangeBtn->move( 244, 315 );
-	connect( m_pDelHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
 	//~ Instrument properties
 
 	// LAYER properties
@@ -521,33 +473,23 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pInstrumentGain->setValue( m_pInstrument->get_gain() );
 
 		// instr mute group
-		QString sMuteGroup = QString("%1").arg( m_pInstrument->get_mute_group() );
-		if (m_pInstrument->get_mute_group() == -1 ) {
-			sMuteGroup = "Off";
-		}
-		m_pMuteGroupLCD->setText( sMuteGroup );
+		m_pMuteGroupLCD->setValue( m_pInstrument->get_mute_group());
 
 		// midi out channel
-		QString sMidiOutChannel = QString("%1").arg( m_pInstrument->get_midi_out_channel()+1 );
-		if (m_pInstrument->get_midi_out_channel() == -1 ) {
-			sMidiOutChannel = "Off";
+		if ( m_pInstrument->get_midi_out_channel() == -1 ) {
+			m_pMidiOutChannelLCD->setValue( -1 ); // turn off
+		} else {
+			// The MIDI channels start at 1 instead of zero.
+			m_pMidiOutChannelLCD->setValue( m_pInstrument->get_midi_out_channel() + 1 );
 		}
-		m_pMidiOutChannelLCD->setText( sMidiOutChannel );
 
 		//midi out note
-		QString sMidiOutNote = QString("%1").arg( m_pInstrument->get_midi_out_note() );
-		m_pMidiOutNoteLCD->setText( sMidiOutNote );
+		m_pMidiOutNoteLCD->setValue( m_pInstrument->get_midi_out_note() );
 
 		// hihat
-		QString sHHGroup = QString("%1").arg( m_pInstrument->get_hihat_grp() );
-		if (m_pInstrument->get_hihat_grp() == -1 ) {
-			sHHGroup = "Off";
-		}
-		m_pHihatGroupLCD->setText( sHHGroup );
-		QString sHiHatMinRange = QString("%1").arg( m_pInstrument->get_lower_cc() );
-		m_pHihatMinRangeLCD->setText( sHiHatMinRange );
-		QString sHiHatMaxRange = QString("%1").arg( m_pInstrument->get_higher_cc() );
-		m_pHihatMaxRangeLCD->setText( sHiHatMaxRange );
+		m_pHihatGroupLCD->setValue( m_pInstrument->get_hihat_grp() );
+		m_pHihatMinRangeLCD->setValue( m_pInstrument->get_lower_cc() );
+		m_pHihatMaxRangeLCD->setValue( m_pInstrument->get_higher_cc() );
 
 		// see instrument.h
 		m_sampleSelectionAlg->setCurrentIndex( m_pInstrument->sample_selection_alg() );
@@ -1119,19 +1061,11 @@ void InstrumentEditor::selectLayer( int nLayer )
 
 
 
-void InstrumentEditor::muteGroupBtnClicked(Button *pRef)
+void InstrumentEditor::muteGroupChanged( int nValue )
 {
 	assert( m_pInstrument );
 
-	int mute_grp = m_pInstrument->get_mute_group();
-	if (pRef == m_pAddMuteGroupBtn ) {
-		mute_grp += 1;
-	}
-	else if (pRef == m_pDelMuteGroupBtn ) {
-		mute_grp -= 1;
-	}
-	m_pInstrument->set_mute_group( mute_grp );
-
+	m_pInstrument->set_mute_group( nValue );
 	selectedInstrumentChangedEvent();	// force an update
 }
 
@@ -1149,32 +1083,28 @@ void InstrumentEditor::onIsApplyVelocityCheckBoxClicked( bool on )
 	selectedInstrumentChangedEvent();	// force an update
 }
 
-void InstrumentEditor::midiOutChannelBtnClicked(Button *pRef)
-{
+void InstrumentEditor::midiOutChannelChanged( int nValue ) {
 	assert( m_pInstrument );
 
-	if (pRef == m_pAddMidiOutChannelBtn ) {
-		m_pInstrument->set_midi_out_channel( m_pInstrument->get_midi_out_channel() + 1);
-	}
-	else if (pRef == m_pDelMidiOutChannelBtn ) {
-		m_pInstrument->set_midi_out_channel( m_pInstrument->get_midi_out_channel() - 1);
+	if ( nValue != 0 ) {
+		m_pInstrument->set_midi_out_channel( nValue );
+	} else {
+		if ( m_nPreviousMidiOutChannel == -1 ) {
+			m_pMidiOutChannelLCD->setValue( 1 );
+			return;
+		} else {
+			m_pMidiOutChannelLCD->setValue( -1 );
+			return;
+		}
 	}
 
-	selectedInstrumentChangedEvent();	// force an update
+	m_nPreviousMidiOutChannel = nValue;
 }
 
-void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
-{
+void InstrumentEditor::midiOutNoteChanged( int nValue ) {
 	assert( m_pInstrument );
 
-	if (pRef == m_pAddMidiOutNoteBtn ) {
-		m_pInstrument->set_midi_out_note( m_pInstrument->get_midi_out_note() + 1);
-	}
-	else if (pRef == m_pDelMidiOutNoteBtn ) {
-		m_pInstrument->set_midi_out_note( m_pInstrument->get_midi_out_note() - 1);
-	}
-
-	selectedInstrumentChangedEvent();	// force an update
+	m_pInstrument->set_midi_out_note( nValue );
 }
 
 void InstrumentEditor::onClick(Button*)
@@ -1398,44 +1328,22 @@ void InstrumentEditor::sampleSelectionChanged( int selected )
 	selectedInstrumentChangedEvent();	// force an update
 }
 
-void InstrumentEditor::hihatGroupClicked(Button *pRef)
+void InstrumentEditor::hihatGroupChanged( int nValue )
 {
 	assert( m_pInstrument );
-
-	if ( pRef == m_pAddHihatGroupBtn && m_pInstrument->get_hihat_grp() < 32 ){
-		m_pInstrument->set_hihat_grp( m_pInstrument->get_hihat_grp() + 1 );
-	}
-	else if ( pRef == m_pDelHihatGroupBtn && m_pInstrument->get_hihat_grp() > -1 ){
-		m_pInstrument->set_hihat_grp( m_pInstrument->get_hihat_grp() - 1 );
-	}
-
-	selectedInstrumentChangedEvent();   // force an update
+	m_pInstrument->set_hihat_grp( nValue );
 }
 
-void InstrumentEditor::hihatMinRangeBtnClicked(Button *pRef)
+void InstrumentEditor::hihatMinRangeChanged( int nValue )
 {
 	assert( m_pInstrument );
-
-	if ( pRef == m_pAddHihatMinRangeBtn && m_pInstrument->get_lower_cc() < 127 ){
-		m_pInstrument->set_lower_cc( m_pInstrument->get_lower_cc() + 1 );
-	}
-	else if ( pRef == m_pDelHihatMinRangeBtn && m_pInstrument->get_lower_cc() > 0 ){
-		m_pInstrument->set_lower_cc( m_pInstrument->get_lower_cc() - 1 );
-	}
-
-	selectedInstrumentChangedEvent();	// force an update
+	m_pInstrument->set_lower_cc( nValue );
+	m_pHihatMaxRangeLCD->setMinimum( nValue );
 }
 
-void InstrumentEditor::hihatMaxRangeBtnClicked(Button *pRef)
+void InstrumentEditor::hihatMaxRangeChanged( int nValue )
 {
 	assert( m_pInstrument );
-
-	if ( pRef == m_pAddHihatMaxRangeBtn && m_pInstrument->get_higher_cc() < 127 ){
-		m_pInstrument->set_higher_cc( m_pInstrument->get_higher_cc() + 1);
-	}
-	else if ( pRef == m_pDelHihatMaxRangeBtn && m_pInstrument->get_higher_cc() > 0 ){
-		m_pInstrument->set_higher_cc( m_pInstrument->get_higher_cc() - 1);
-	}
-
-	selectedInstrumentChangedEvent();	// force an update
+	m_pInstrument->set_higher_cc( nValue );
+	m_pHihatMinRangeLCD->setMaximum( nValue );
 }

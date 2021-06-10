@@ -26,12 +26,15 @@
 const char* LCDSpinBox::__class_name = "LCDSpinBox";
 
 // used in PlayerControl
-LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, float fMin, float fMax )
+LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, double fMax )
  : QDoubleSpinBox( pParent )
  , Object( __class_name )
  , m_size( size )
+ , m_type( type )
  , m_bEntered( false )
 {
+	setFocusPolicy( Qt::ClickFocus );
+	
 	if ( ! size.isNull() ) {
 		adjustSize();
 		setFixedSize( size );
@@ -42,15 +45,37 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, float fMin, float fMax )
 	setValue( fMin );
 
 	setStyleSheet( "color: #eff5fc;" );
-	// 			   "color: #1b3049;"
-	// 			   "QDoubleSpinBox::down-button { width: 100px; };"
-	// 			   "QSpinBox::down-button { width: 12px; };"
-	// 			   "LCDSpinBox QDoubleSpinBox::down-button { width: 2px; };"
-	// 			   );
-				  
 }
 
 LCDSpinBox::~LCDSpinBox() {
+}
+
+QString LCDSpinBox::textFromValue( double fValue ) const {
+	QString result;
+	if ( fValue == -1.0 ) {
+		result = "off";
+	} else {
+		if ( m_type == Type::Int ) {
+			result = QString( "%1" ).arg( fValue, 0, 'f', 0 );
+		} else {
+			result = QString( "%1" ).arg( fValue, 0, 'f', 2 );
+		}
+	}
+
+	return result;
+}
+
+double LCDSpinBox::valueFromText( const QString& sText ) const {
+
+	double fResult;
+	
+	if ( sText == "off" ){
+		fResult = -1.0;
+	} else {
+		fResult = QDoubleSpinBox::valueFromText( sText );
+	}
+
+	return fResult;
 }
 
 void LCDSpinBox::paintEvent( QPaintEvent *ev ) {

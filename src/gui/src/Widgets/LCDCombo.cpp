@@ -34,6 +34,9 @@ LCDCombo::LCDCombo( QWidget *pParent, QSize size )
 	, m_size( size )
 	, m_bEntered( false )
 {
+		
+	setFocusPolicy( Qt::ClickFocus );
+	
 	m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
 	m_sLastUsedFontFamily = H2Core::Preferences::get_instance()->getLevel3FontFamily();
 

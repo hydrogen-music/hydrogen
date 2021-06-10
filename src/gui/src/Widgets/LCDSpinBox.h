@@ -37,18 +37,25 @@ class LCDSpinBox : public QDoubleSpinBox, public H2Core::Object
 
 public:
 
-	LCDSpinBox( QWidget *pParent, QSize size, float fMin = 0.0, float fMax = 1.0 );
+	enum class Type {
+		Int,
+		Double
+	};
+
+	LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin = 0.0, double fMax = 1.0 );
 	~LCDSpinBox();
 
 private:
 	QSize m_size;
+	Type m_type;
 
 	bool m_bEntered;
-	
+
+	virtual QString textFromValue( double fValue ) const;
+	virtual double valueFromText( const QString& sText ) const;	
 	virtual void paintEvent( QPaintEvent *ev );
 	virtual void enterEvent( QEvent *ev );
 	virtual void leaveEvent( QEvent *ev );
 };
-
 
 #endif

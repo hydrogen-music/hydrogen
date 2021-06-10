@@ -37,6 +37,7 @@
 
 class Fader;
 class LCDDisplay;
+class LCDSpinBox;
 class Button;
 class ToggleButton;
 class ClickableLabel;
@@ -85,15 +86,15 @@ class InstrumentEditor : public QWidget, protected WidgetWithScalableFont<10, 12
 		void compoChangeAddDelete(QAction*);
 		void onClick(Button*);
 
-		void muteGroupBtnClicked(Button *pRef);
+		void muteGroupChanged( int nValue );
 		void onIsStopNoteCheckBoxClicked( bool on );
 		void onIsApplyVelocityCheckBoxClicked( bool on);
-		void midiOutChannelBtnClicked(Button *pRef);
-		void midiOutNoteBtnClicked(Button *pRef);
+		void midiOutChannelChanged( int nValue );
+		void midiOutNoteChanged( int nValue );
 
-		void hihatGroupClicked(Button *pRef);
-		void hihatMinRangeBtnClicked(Button *pRef);
-		void hihatMaxRangeBtnClicked(Button *pRef);
+		void hihatGroupChanged( int nValue );
+		void hihatMinRangeChanged( int nValue );
+		void hihatMaxRangeChanged( int nValue );
 
 		void sampleSelectionChanged( int );
 
@@ -149,37 +150,28 @@ class InstrumentEditor : public QWidget, protected WidgetWithScalableFont<10, 12
 		ClickableLabel *m_pIsStopNoteLbl;
 
 		// Instrument mute group
-		LCDDisplay *m_pMuteGroupLCD;
-		Button *m_pAddMuteGroupBtn;
-		Button *m_pDelMuteGroupBtn;
+		LCDSpinBox *m_pMuteGroupLCD;
 		ClickableLabel *m_pMuteGroupLbl;
 
 		// Instrument midi out
-		LCDDisplay *m_pMidiOutChannelLCD;
-		Button *m_pAddMidiOutChannelBtn;
-		Button *m_pDelMidiOutChannelBtn;
+		LCDSpinBox *m_pMidiOutChannelLCD;
 		ClickableLabel* m_pMidiOutChannelLbl;
+	/** In order to allow for enumerations starting at 1 while using
+		-1 to turn off the LCD.*/
+	int m_nPreviousMidiOutChannel;
 
-		LCDDisplay *m_pMidiOutNoteLCD;
-		Button *m_pAddMidiOutNoteBtn;
-		Button *m_pDelMidiOutNoteBtn;
+		LCDSpinBox *m_pMidiOutNoteLCD;
 		ClickableLabel* m_pMidiOutNoteLbl;
 
 		// Instrument hihat
 
-		LCDDisplay *m_pHihatGroupLCD;
-		Button *m_pAddHihatGroupBtn;
-		Button *m_pDelHihatGroupBtn;
+		LCDSpinBox *m_pHihatGroupLCD;
 		ClickableLabel* m_pHihatGroupLbl;
 
-		LCDDisplay *m_pHihatMinRangeLCD;
-		Button *m_pAddHihatMinRangeBtn;
-		Button *m_pDelHihatMinRangeBtn;
+		LCDSpinBox *m_pHihatMinRangeLCD;
 		ClickableLabel* m_pHihatMinRangeLbl;
 
-		LCDDisplay *m_pHihatMaxRangeLCD;
-		Button *m_pAddHihatMaxRangeBtn;
-		Button *m_pDelHihatMaxRangeBtn;
+		LCDSpinBox *m_pHihatMaxRangeLCD;
 		ClickableLabel* m_pHihatMaxRangeLbl;
 
 		//~ Instrument properties
