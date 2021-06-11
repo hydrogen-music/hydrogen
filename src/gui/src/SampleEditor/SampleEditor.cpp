@@ -211,7 +211,7 @@ void SampleEditor::getAllFrameInfos()
 		m_pTargetSampleView->get_velocity()->clear();
 		
 		for(auto& pEnvPtr : *pSample->get_velocity_envelope() ){
-			m_pTargetSampleView->get_velocity()->emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr->value, pEnvPtr->frame ) );
+			m_pTargetSampleView->get_velocity()->emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr.get() ) );
 		}
 	}
 
