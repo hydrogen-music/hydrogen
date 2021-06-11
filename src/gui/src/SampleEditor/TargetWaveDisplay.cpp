@@ -262,18 +262,13 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 		for ( int i = 0; i < static_cast<int>(m_VelocityEnvelope.size()); i++){
 			if ( m_VelocityEnvelope[i]->frame >= ev->x() - snapradius && m_VelocityEnvelope[i]->frame <= ev->x() + snapradius ) {
 				m_VelocityEnvelope.erase( m_VelocityEnvelope.begin() + i);
-				int Frame = 0;
-				int Value = 0;
+				int Frame = ev->x();
+				int Value = ev->y();
 				
 				if ( i == 0 ){
 					Frame = 0;
-					Value = ev->y();
 				} else if ( i == static_cast<int>(m_VelocityEnvelope.size()) ) {
-					Frame = m_VelocityEnvelope[i]->frame;
-					Value = ev->y();
-				} else {
-					Frame = ev->x();
-					Value = ev->y();
+					Frame = UI_WIDTH;
 				}
 				m_VelocityEnvelope.push_back( std::make_unique<EnvelopePoint>( Frame, Value) );
 				sort( m_VelocityEnvelope.begin(), m_VelocityEnvelope.end(), EnvelopePoint::Comparator() );
