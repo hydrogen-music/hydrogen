@@ -42,7 +42,6 @@ namespace H2Core
 }
 
 class PatternEditorPanel;
-class ToggleButton;
 class Button;
 
 class InstrumentLine : public PixmapWidget, protected WidgetWithScalableFont<8, 10, 12>
@@ -97,8 +96,8 @@ public slots:
 		QLabel *m_pNameLbl;
 		bool m_bIsSelected;
 		int m_nInstrumentNumber;	///< The related instrument number
-		ToggleButton *m_pMuteBtn;
-		ToggleButton *m_pSoloBtn;
+		Button *m_pMuteBtn;
+		Button *m_pSoloBtn;
 		Button *m_pSampleWarning;
 
 		virtual void mousePressEvent(QMouseEvent *ev);

@@ -30,7 +30,6 @@
 #include "EventListener.h"
 #include <core/Object.h>
 #include <core/Preferences.h>
-#include "Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {
@@ -40,158 +39,156 @@ namespace H2Core
 class LCDSpinBox;
 class LCDDisplay;
 class Button;
-class ToggleButton;
 class CpuLoadWidget;
 class PixmapWidget;
 class LED;
 class MetronomeLED;
 class ClickableLabel;
 
-class PlayerControl : public QLabel, protected WidgetWithScalableFont<5, 6, 7>, public EventListener, public H2Core::Object
+class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
-	public:
-		explicit PlayerControl(QWidget *parent);
-		~PlayerControl();
 
-		void showMessage( const QString& msg, int msec );
-		void showScrollMessage( const QString& msg, int msec, bool test );
-		void resetStatusLabel();
+public:
+	explicit PlayerControl(QWidget *parent);
+	~PlayerControl();
 
-		virtual void tempoChangedEvent( int nValue ) override;
-		virtual void jackTransportActivationEvent( int nValue ) override;
-		virtual void jackTimebaseActivationEvent( int nValue ) override;
-		/**
-		 * Shared GUI update when activating Song or Pattern mode via
-		 * button click or via OSC command.
-		 *
-		 * @param nValue If 0, Pattern mode will be activate. Else,
-		 * Song mode will be activated instead.
-		 */
-		void songModeActivationEvent( int nValue ) override;
+	void showMessage( const QString& msg, int msec );
+	void showScrollMessage( const QString& msg, int msec, bool test );
+	void resetStatusLabel();
 
-public slots:
-		void onPreferencesChanged( bool bAppearanceOnly );
+	virtual void tempoChangedEvent( int nValue ) override;
+	virtual void jackTransportActivationEvent( int nValue ) override;
+	virtual void jackTimebaseActivationEvent( int nValue ) override;
+	/**
+	 * Shared GUI update when activating Song or Pattern mode via
+	 * button click or via OSC command.
+	 *
+	 * @param nValue If 0, Pattern mode will be activate. Else,
+	 * Song mode will be activated instead.
+	 */
+	void songModeActivationEvent( int nValue ) override;
 
-	private slots:
-		void recBtnClicked(Button* ref);
-		void playBtnClicked(Button* ref);
-		void stopBtnClicked(Button* ref);
-		void updatePlayerControl();
-		void songModeBtnClicked(Button* ref);
-		void liveModeBtnClicked(Button* ref);
-		void jackTransportBtnClicked(Button* ref);
-		//jack time master
-		void jackMasterBtnClicked(Button* ref);
-		//~ jack time master
-		void bpmChanged( double );
-		void FFWDBtnClicked(Button *pRef);
-		void RewindBtnClicked(Button *pRef);
-		void songLoopBtnClicked(Button* ref);
-		void metronomeButtonClicked(Button* ref);
-		void onStatusTimerEvent();
-		void onScrollTimerEvent();
-		void showButtonClicked( Button* pRef );
+private slots:
+	void recBtnClicked();
+	void playBtnClicked();
+	void stopBtnClicked();
+	void updatePlayerControl();
+	void songModeBtnClicked();
+	void patternModeBtnClicked();
+	void jackTransportBtnClicked();
+	//jack time master
+	void jackMasterBtnClicked();
+	//~ jack time master
+	void bpmChanged( double );
+	void fastForwardBtnClicked();
+	void rewindBtnClicked();
+	void songLoopBtnClicked();
+	void metronomeButtonClicked();
+	void onStatusTimerEvent();
+	void onScrollTimerEvent();
+	void showMixerButtonClicked();
+	void showInstrumentRackButtonClicked();
 
-		//beatcounter
-		void bconoffBtnClicked( Button* ref);
-		void bcSetPlayBtnClicked(Button* ref);
-		void bcbButtonClicked(Button* bBtn);
-		void bctButtonClicked(Button* tBtn);
-		//~ beatcounter
+	//beatcounter
+	void bcOnOffBtnClicked();
+	void bcSetPlayBtnClicked();
+	void bcbUpButtonClicked();
+	void bcbDownButtonClicked();
+	void bctUpButtonClicked();
+	void bctDownButtonClicked();
+	//~ beatcounter
 		
-		//rubberband
-		void rubberbandButtonToggle(Button* ref);
+	//rubberband
+	void rubberbandButtonToggle();
 
-		void deactivateMidiActivityLED();
-	private:
-		/**
-		 * Shared GUI update when activating loop mode via button
-		 * click or via OSC command.
-		 *
-		 * @param nValue If 0, loop mode will be deactivate.
-		 */
-		void loopModeActivationEvent( int nValue ) override;
-		void midiActivityEvent() override;
-		H2Core::Hydrogen *m_pHydrogen;
-		QPixmap m_background;
+	void deactivateMidiActivityLED();
+private:
+	/**
+	 * Shared GUI update when activating loop mode via button
+	 * click or via OSC command.
+	 *
+	 * @param nValue If 0, loop mode will be deactivate.
+	 */
+	void loopModeActivationEvent( int nValue ) override;
+	void midiActivityEvent() override;
+	H2Core::Hydrogen *m_pHydrogen;
+	QPixmap m_background;
 
-		Button *m_pRwdBtn;
-		ToggleButton *m_pRecBtn;
-		ToggleButton *m_pPlayBtn;
-		Button *m_pStopBtn;
-		Button *m_pFfwdBtn;
+	Button *m_pRwdBtn;
+	Button *m_pRecBtn;
+	Button *m_pPlayBtn;
+	Button *m_pStopBtn;
+	Button *m_pFfwdBtn;
 
-		ToggleButton *m_pSongLoopBtn;
-		ToggleButton *m_pSongModeBtn;
-		LED			 *m_pSongModeLED;
-		ToggleButton *m_pLiveModeBtn;
-		LED			 *m_pPatternModeLED;
+	Button *m_pSongLoopBtn;
+	Button *m_pSongModeBtn;
+	LED			 *m_pSongModeLED;
+	Button *m_pPatternModeBtn;
+	LED			 *m_pPatternModeLED;
 
-		//beatcounter
-		/** Store the tool tip of the beat counter since it gets
-			overwritten during deactivation.*/
-		QString m_sBConoffBtnToolTip;
-		ToggleButton *m_pBConoffBtn;
-		ToggleButton *m_pBCSpaceBtn;
-		ToggleButton *m_pBCSetPlayBtn;
-		Button *m_pBCTUpBtn;
-		Button *m_pBCTDownBtn;
-		Button *m_pBCBUpBtn;
-		Button *m_pBCBDownBtn;
-		//~ beatcounter
+	//beatcounter
+	/** Store the tool tip of the beat counter since it gets
+		overwritten during deactivation.*/
+	QString m_sBCOnOffBtnToolTip;
+	Button *m_pBCOnOffBtn;
+	Button *m_pBCSpaceBtn;
+	Button *m_pBCSetPlayBtn;
+	Button *m_pBCTUpBtn;
+	Button *m_pBCTDownBtn;
+	Button *m_pBCBUpBtn;
+	Button *m_pBCBDownBtn;
+	//~ beatcounter
 
-		//rubberbandBPMChange
-		ToggleButton *m_pRubberBPMChange;
+	//rubberbandBPMChange
+	Button *m_pRubberBPMChange;
 
-		ToggleButton *m_pJackTransportBtn;
-		//jack time master
-		ToggleButton *m_pJackMasterBtn;
-		QString m_sJackMasterModeToolTip;
-		//~ jack time master
+	Button *m_pJackTransportBtn;
+	//jack time master
+	Button *m_pJackMasterBtn;
+	QString m_sJackMasterModeToolTip;
+	//~ jack time master
 
-		CpuLoadWidget *m_pCpuLoadWidget;
-		LED *m_pMidiActivityLED;
-		ClickableLabel* m_pMidiInLbl;
-		ClickableLabel* m_pCpuLbl;
+	CpuLoadWidget *m_pCpuLoadWidget;
+	LED *m_pMidiActivityLED;
+	ClickableLabel* m_pMidiInLbl;
+	ClickableLabel* m_pCpuLbl;
 
-		LCDSpinBox *m_pLCDBPMSpinbox;
-		ClickableLabel* m_pBPMLbl;
-		LCDDisplay *m_pTimeDisplayH;
-		LCDDisplay *m_pTimeDisplayM;
-		LCDDisplay *m_pTimeDisplayS;
-		LCDDisplay *m_pTimeDisplayMS;
-		ClickableLabel* m_pTimeHoursLbl;
-		ClickableLabel* m_pTimeMinutesLbl;
-		ClickableLabel* m_pTimeSecondsLbl;
-		ClickableLabel* m_pTimeMilliSecondsLbl;
+	LCDSpinBox *m_pLCDBPMSpinbox;
+	ClickableLabel* m_pBPMLbl;
+	LCDDisplay *m_pTimeDisplayH;
+	LCDDisplay *m_pTimeDisplayM;
+	LCDDisplay *m_pTimeDisplayS;
+	LCDDisplay *m_pTimeDisplayMS;
+	ClickableLabel* m_pTimeHoursLbl;
+	ClickableLabel* m_pTimeMinutesLbl;
+	ClickableLabel* m_pTimeSecondsLbl;
+	ClickableLabel* m_pTimeMilliSecondsLbl;
 
-		//beatcounter
-		PixmapWidget *m_pControlsBCPanel;
+	//beatcounter
+	PixmapWidget *m_pControlsBCPanel;
 
-		LCDDisplay *m_pBCDisplayZ;
-		LCDDisplay *m_pBCDisplayB;
-		LCDDisplay *m_pBCDisplayT;
-		//~ beatcounter
+	LCDDisplay *m_pBCDisplayZ;
+	LCDDisplay *m_pBCDisplayB;
+	LCDDisplay *m_pBCDisplayT;
+	//~ beatcounter
 
-		MetronomeLED *m_pMetronomeLED;
-		ToggleButton *m_pMetronomeBtn;
+	MetronomeLED *m_pMetronomeLED;
+	Button *m_pMetronomeBtn;
 
-		ToggleButton *m_pShowMixerBtn;
-		ToggleButton *m_pShowInstrumentRackBtn;
+	Button *m_pShowMixerBtn;
+	Button *m_pShowInstrumentRackBtn;
 
-		LCDDisplay *m_pStatusLabel;
-		QTimer *m_pStatusTimer;
-		QTimer *m_pScrollTimer;
-		/** Used to turn off the LED #m_pMidiActivityLED indicating an
-			incoming MIDI event after #m_midiActivityTimeout
-			milliseconds.*/ 
-		QTimer *m_pMidiActivityTimer;
-		std::chrono::milliseconds m_midiActivityTimeout; 
-		QString m_pScrollMessage;
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
+	LCDDisplay *m_pStatusLabel;
+	QTimer *m_pStatusTimer;
+	QTimer *m_pScrollTimer;
+	/** Used to turn off the LED #m_pMidiActivityLED indicating an
+		incoming MIDI event after #m_midiActivityTimeout
+		milliseconds.*/ 
+	QTimer *m_pMidiActivityTimer;
+	std::chrono::milliseconds m_midiActivityTimeout; 
+	QString m_pScrollMessage;
 };
 
 

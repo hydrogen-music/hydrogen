@@ -32,19 +32,24 @@
 #include "MidiLearnable.h"
 
 #include <QtGui>
-#include <QtWidgets>
-#include <QSvgRenderer>
+#include <QPushButton>
 
 
 /**
- * Generic Button with pixmaps and text.
+ * Generic Button with SVG icons or text.
  */
-class Button : public QWidget, public H2Core::Object, public MidiLearnable
+class Button : public QPushButton, public H2Core::Object, public MidiLearnable
 {
     H2_OBJECT
 	Q_OBJECT
 
 public:
+
+	enum class Type {
+		Push,
+		Toggle
+	};
+	
 	/**
 	 * Either the path to a SVG image or a text to be displayed has to
 	 * be provided. If both are given, the icon will be used over the
@@ -54,22 +59,19 @@ public:
 	Button(
 		   QWidget *pParent,
 		   QSize size,
+		   Type type,
 		   const QString& sIcon,
 		   const QString& sText = "",
 		   bool bUseRedBackground = false,
 		   QSize iconSize = QSize( 0, 0 ),
-		   bool bEnablePressHold = false
+		   QString sBaseTooltip = ""
 		   );
 	virtual ~Button();
 	
 	Button(const Button&) = delete;
 	Button& operator=( const Button& rhs ) = delete;
 
-	bool isPressed() const;
-	void setPressed(bool pressed);
-
-	void setText( const QString& sText );
-	const QString& getText() const ;
+	void setBaseToolTip( const QString& sNewTip );
 
 public slots:
 	void onPreferencesChanged( bool bAppearanceOnly );
@@ -78,60 +80,29 @@ signals:
 	void clicked(Button *pBtn);
 	void rightClicked(Button *pBtn);
 	void mousePress(Button *pBtn);
-	
-protected slots:
-	void buttonPressed_timer_timeout();
-
-protected:
-	bool m_bIsPressed;
-	QString m_sText;
-
-	QSvgRenderer* m_icon;
-	QSvgRenderer* m_background;
 
 private:
-	bool m_bMouseOver;
-	bool m_bUseRedBackground;
-	bool m_bEnablePressHold;
-
-	int m_nHeight;
-	int m_nWidth;
+	void updateFont();
+	void updateTooltip();
+	
+	Type m_type;
+	QSize m_size;
 	QSize m_iconSize;
+	QString m_sBaseTooltip;
+	QString m_sRegisteredMidiEvent;
+	int m_nRegisteredMidiParameter;
+
+	bool m_bEntered;
 
 	void mousePressEvent(QMouseEvent *ev);
-	void mouseReleaseEvent(QMouseEvent *ev);
 	void enterEvent(QEvent *ev);
 	void leaveEvent(QEvent *ev);
 	void paintEvent( QPaintEvent* ev);
-
-	QTimer *m_timer;
-	int m_timerTimeout;
+	
 	/** Used to detect changed in the font*/
 	QString m_sLastUsedFontFamily;
 	/** Used to detect changed in the font*/
 	H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
-inline bool Button::isPressed() const {
-	return m_bIsPressed;
-}
-inline const QString& Button::getText() const {
-	return m_sText;
-}
-
-/**
- * A ToggleButton (On/Off).
- */
-class ToggleButton : public Button
-{
-	Q_OBJECT
-
-public:
-	ToggleButton( QWidget *pParent, QSize size, const QString& sIcon, const QString& sText = "", bool bUseRedBackground = false, QSize iconSize = QSize( 0, 0 ) );
-	~ToggleButton();
-
-private:
-	void mousePressEvent( QMouseEvent *ev );
-	void mouseReleaseEvent( QMouseEvent *ev );
-};
 #endif

@@ -39,7 +39,6 @@ class Fader;
 class LCDDisplay;
 class LCDSpinBox;
 class Button;
-class ToggleButton;
 class ClickableLabel;
 class Rotary;
 class LCDCombo;
@@ -79,22 +78,23 @@ class InstrumentEditor : public QWidget, protected WidgetWithScalableFont<10, 12
 
 	private slots:
 		void rotaryChanged(WidgetWithInput *ref);
-		void filterActiveBtnClicked(Button *ref);
-		void buttonClicked(Button*);
+		void loadLayerBtnClicked();
+		void filterActiveBtnClicked();
+		void removeLayerButtonClicked();
 		void labelClicked( ClickableLabel* pRef );
 		void labelCompoClicked( ClickableLabel* pRef );
 		void compoChangeAddDelete(QAction*);
-		void onClick(Button*);
+		void onDropDownCompoClicked();
 
-		void muteGroupChanged( int nValue );
+		void muteGroupChanged( double fValue );
 		void onIsStopNoteCheckBoxClicked( bool on );
 		void onIsApplyVelocityCheckBoxClicked( bool on);
-		void midiOutChannelChanged( int nValue );
-		void midiOutNoteChanged( int nValue );
+		void midiOutChannelChanged( double fValue );
+		void midiOutNoteChanged( double fValue );
 
-		void hihatGroupChanged( int nValue );
-		void hihatMinRangeChanged( int nValue );
-		void hihatMaxRangeChanged( int nValue );
+		void hihatGroupChanged( double fValue );
+		void hihatMinRangeChanged( double fValue );
+		void hihatMaxRangeChanged( double fValue );
 
 		void sampleSelectionChanged( int );
 
@@ -105,8 +105,8 @@ class InstrumentEditor : public QWidget, protected WidgetWithScalableFont<10, 12
 		int m_nSelectedLayer;
 		int m_nSelectedComponent;
 
-		ToggleButton *m_pShowInstrumentBtn;
-		ToggleButton *m_pShowLayersBtn;
+		Button *m_pShowInstrumentBtn;
+		Button *m_pShowLayersBtn;
 
 		// Instrument properties
 		PixmapWidget *m_pInstrumentProp;
@@ -134,7 +134,7 @@ class InstrumentEditor : public QWidget, protected WidgetWithScalableFont<10, 12
 		ClickableLabel* m_pPitchRandomLbl;
 
 		// Low pass filter
-		ToggleButton *m_pFilterBypassBtn;
+		Button *m_pFilterBypassBtn;
 		Rotary *m_pCutoffRotary;
 		Rotary *m_pResonanceRotary;
 		ClickableLabel* m_pCutoffLbl;
@@ -158,7 +158,7 @@ class InstrumentEditor : public QWidget, protected WidgetWithScalableFont<10, 12
 		ClickableLabel* m_pMidiOutChannelLbl;
 	/** In order to allow for enumerations starting at 1 while using
 		-1 to turn off the LCD.*/
-	int m_nPreviousMidiOutChannel;
+	double m_fPreviousMidiOutChannel;
 
 		LCDSpinBox *m_pMidiOutNoteLCD;
 		ClickableLabel* m_pMidiOutNoteLbl;
@@ -219,7 +219,6 @@ class InstrumentEditor : public QWidget, protected WidgetWithScalableFont<10, 12
 		LCDDisplay *m_pCompoGainLCD;
 		//~ Component
 
-		void loadLayer();
 		void setAutoVelocity();
 };
 

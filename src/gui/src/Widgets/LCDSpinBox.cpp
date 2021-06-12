@@ -43,8 +43,6 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, do
 	setMaximum( fMax );
 	setMinimum( fMin );
 	setValue( fMin );
-
-	setStyleSheet( "color: #eff5fc;" );
 }
 
 LCDSpinBox::~LCDSpinBox() {

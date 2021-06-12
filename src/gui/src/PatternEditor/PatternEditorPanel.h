@@ -34,7 +34,6 @@
 #include "../Widgets/WidgetWithScalableFont.h"
 
 class Button;
-class ToggleButton;
 class Fader;
 class PatternEditorRuler;
 class PatternEditorInstrumentList;
@@ -105,11 +104,10 @@ class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 1
 		void patternSizeLCDClicked();
 		void denominatorWarningClicked();
 
+		void hearNotesBtnClick();
+		void quantizeEventsBtnClick();
 
-		void hearNotesBtnClick(Button *ref);
-		void quantizeEventsBtnClick(Button *ref);
-
-		void showDrumEditorBtnClick(Button *ref);
+		void showDrumEditorBtnClick();
 
 		void syncToExternalHorizontalScrollbar(int);
 		void contentsMoving(int dummy);
@@ -117,11 +115,8 @@ class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 1
 		void on_patternEditorHScroll(int);
 
 
-		void zoomInBtnClicked(Button *ref);
-		void zoomOutBtnClicked(Button *ref);
-
-		void moveDownBtnClicked(Button *);
-		void moveUpBtnClicked(Button *);
+		void zoomInBtnClicked();
+		void zoomOutBtnClicked();
 
 	private:
 		H2Core::Pattern *	m_pPattern;
@@ -132,8 +127,11 @@ class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 1
 		LCDDisplay *			__pattern_size_LCD;
 		Button *			m_pDenominatorWarning;
 		LCDCombo *			m_pResolutionCombo;
-		ToggleButton *		__show_drum_btn;
-		ToggleButton *		__show_piano_btn;
+		Button *		__show_drum_btn;
+		Button *		__show_piano_btn;
+	Button *		m_pHearNotesBtn;
+	Button *		m_pQuantizeEventsBtn;
+	
 		ClickableLabel*		m_pPatternSizeLbl;
 		ClickableLabel*		m_pResolutionLbl;
 		ClickableLabel*		m_pHearNotesLbl;

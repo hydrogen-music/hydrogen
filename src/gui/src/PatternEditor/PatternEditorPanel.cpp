@@ -125,11 +125,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	connect( __pattern_size_LCD, SIGNAL( displayClicked( LCDDisplay* ) ), this, SLOT( patternSizeLCDClicked() ) );
 	
-	m_pDenominatorWarning = new Button( pSizeResol, QSize( 15, 13 ), "warning.svg" );
+	m_pDenominatorWarning = new Button( pSizeResol, QSize( 15, 13 ), Button::Type::Push, "warning.svg", "", false, QSize(), tr( "Unsupported note denominator. Click for more information." ) );
 	m_pDenominatorWarning->move( 114, 2 );
 	m_pDenominatorWarning->hide();
-	m_pDenominatorWarning->setToolTip( tr( "Unsupported note denominator. Click for more information." ) );
-	connect( m_pDenominatorWarning, SIGNAL( clicked( Button* ) ), this, SLOT( denominatorWarningClicked() ) );
+	connect( m_pDenominatorWarning, SIGNAL( pressed() ), this, SLOT( denominatorWarningClicked() ) );
 	
 	// GRID resolution
 	m_pResolutionCombo = new LCDCombo( pSizeResol , QSize( 209, 16 ) );
@@ -170,53 +169,45 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 	// Hear notes btn
-	ToggleButton *hearNotesBtn = new ToggleButton( pRec, QSize( 15, 13 ), "speaker.svg", "", false, QSize( 13, 11 ) );
-	hearNotesBtn->move( 34, 3 );
-	hearNotesBtn->setToolTip( tr( "Hear new notes" ) );
-	connect( hearNotesBtn, SIGNAL( clicked( Button* ) ), this, SLOT( hearNotesBtnClick( Button* ) ) );
-	hearNotesBtn->setPressed( pPref->getHearNewNotes() );
-	hearNotesBtn->setObjectName( "HearNotesBtn" );
+	m_pHearNotesBtn = new Button( pRec, QSize( 15, 13 ), Button::Type::Toggle, "speaker.svg", "", false, QSize( 13, 11 ), tr( "Hear new notes" ) );
+	m_pHearNotesBtn->move( 34, 3 );
+	connect( m_pHearNotesBtn, SIGNAL( pressed() ), this, SLOT( hearNotesBtnClick() ) );
+	m_pHearNotesBtn->setChecked( pPref->getHearNewNotes() );
+	m_pHearNotesBtn->setObjectName( "HearNotesBtn" );
 	m_pHearNotesLbl = new ClickableLabel( pRec, QSize( 30, 11 ), HydrogenApp::get_instance()->getCommonStrings()->getHearNotesLabel(), ClickableLabel::Color::Dark );
 	m_pHearNotesLbl->move( 3, 4 );
 
 
 	// quantize
-	ToggleButton* quantizeEventsBtn = new ToggleButton( pRec, QSize( 15, 13 ), "quantization.svg", "", false, QSize( 13, 11 ) );
-	quantizeEventsBtn->move( 90, 3 );
-	quantizeEventsBtn->setPressed( pPref->getQuantizeEvents() );
-	quantizeEventsBtn->setToolTip( tr( "Quantize keyboard/midi events to grid" ) );
-	quantizeEventsBtn->setObjectName( "QuantizeEventsBtn" );
-	connect( quantizeEventsBtn, SIGNAL( clicked( Button* ) ), this, SLOT( quantizeEventsBtnClick( Button* ) ) );
+	m_pQuantizeEventsBtn = new Button( pRec, QSize( 15, 13 ), Button::Type::Toggle, "quantization.svg", "", false, QSize( 13, 11 ), tr( "Quantize keyboard/midi events to grid" ) );
+	m_pQuantizeEventsBtn->move( 90, 3 );
+	m_pQuantizeEventsBtn->setChecked( pPref->getQuantizeEvents() );
+	m_pQuantizeEventsBtn->setObjectName( "QuantizeEventsBtn" );
+	connect( m_pQuantizeEventsBtn, SIGNAL( pressed() ), this, SLOT( quantizeEventsBtnClick() ) );
 	m_pQuantizeEventsLbl = new ClickableLabel( pRec, QSize( 38, 11 ), HydrogenApp::get_instance()->getCommonStrings()->getQuantizeEventsLabel(), ClickableLabel::Color::Dark );
 	m_pQuantizeEventsLbl->move( 51, 4 );
 
 	// Editor mode
-	__show_drum_btn = new ToggleButton(	pRec, QSize( 17, 13 ), "drum.svg", "", false, QSize( 13, 11 ) );
+	__show_drum_btn = new Button( pRec, QSize( 17, 13 ), Button::Type::Push, "drum.svg", "", false, QSize( 13, 11 ), tr( "Show piano roll editor" ) );
 	__show_drum_btn->move( 137, 3 );
-	__show_drum_btn->setPressed( false );
-	__show_drum_btn->setToolTip( tr( "Show piano roll editor" ) );
 	__show_drum_btn->setObjectName( "ShowDrumBtn" );
-	connect( __show_drum_btn, SIGNAL( clicked( Button* ) ), this, SLOT( showDrumEditorBtnClick( Button* ) ) );
-	__show_piano_btn = new ToggleButton( pRec, QSize( 17, 13 ), "piano.svg", "", false, QSize( 13, 11 ) );
+	connect( __show_drum_btn, SIGNAL( pressed() ), this, SLOT( showDrumEditorBtnClick() ) );
+	__show_piano_btn = new Button( pRec, QSize( 17, 13 ), Button::Type::Push, "piano.svg", "", false, QSize( 13, 11 ), tr( "Show drumkit editor" ) );
 	__show_piano_btn->move( 137, 3 );
-	__show_piano_btn->setPressed( false );
-	__show_piano_btn->setToolTip( tr( "Show drumkit editor" ) );
 	__show_piano_btn->setObjectName( "ShowDrumBtn" );
 	__show_piano_btn->hide();
-	connect( __show_piano_btn, SIGNAL( clicked( Button* ) ), this, SLOT( showDrumEditorBtnClick( Button* ) ) );
+	connect( __show_piano_btn, SIGNAL( pressed() ), this, SLOT( showDrumEditorBtnClick() ) );
 	m_pShowPianoLbl = new ClickableLabel( pRec, QSize( 30, 11 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoLabel(), ClickableLabel::Color::Dark );
 	m_pShowPianoLbl->move( 106, 4 );
 
 	// zoom-in btn
-	Button *zoom_in_btn = new Button( nullptr, QSize( 19, 13 ), "plus.svg", "", false, QSize( 9, 9 ) );
-	zoom_in_btn->setToolTip( tr( "Zoom in" ) );
-	connect( zoom_in_btn, SIGNAL( clicked( Button* ) ), this, SLOT( zoomInBtnClicked( Button* ) ) );
+	Button *zoom_in_btn = new Button( nullptr, QSize( 19, 13 ), Button::Type::Push, "plus.svg", "", false, QSize( 9, 9 ), tr( "Zoom in" ) );
+	connect( zoom_in_btn, SIGNAL( pressed() ), this, SLOT( zoomInBtnClicked() ) );
 
 
 	// zoom-out btn
-	Button *zoom_out_btn = new Button( nullptr, QSize( 19, 13 ), "minus.svg", "", false, QSize( 9, 9 ) );
-	zoom_out_btn->setToolTip( tr( "Zoom out" ) );
-	connect( zoom_out_btn, SIGNAL( clicked( Button* ) ), this, SLOT( zoomOutBtnClicked(Button*) ) );
+	Button *zoom_out_btn = new Button( nullptr, QSize( 19, 13 ), Button::Type::Push, "minus.svg", "", false, QSize( 9, 9 ), tr( "Zoom out" ) );
+	connect( zoom_out_btn, SIGNAL( pressed() ), this, SLOT( zoomOutBtnClicked() ) );
 // End Editor TOP
 
 
@@ -680,34 +671,27 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 	resizeEvent( nullptr ); // force an update of the scrollbars
 }
 
-
-
-void PatternEditorPanel::hearNotesBtnClick(Button *ref)
+void PatternEditorPanel::hearNotesBtnClick()
 {
 	Preferences *pref = ( Preferences::get_instance() );
-	pref->setHearNewNotes( ref->isPressed() );
+	pref->setHearNewNotes( ! m_pHearNotesBtn->isChecked() );
 
-	if (ref->isPressed() ) {
+	if ( ! m_pHearNotesBtn->isChecked() ) {
 		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Hear new notes = On" ), 2000 );
-	}
-	else {
+	} else {
 		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Hear new notes = Off" ), 2000 );
 	}
-
 }
 
-void PatternEditorPanel::quantizeEventsBtnClick( Button *ref )
+void PatternEditorPanel::quantizeEventsBtnClick()
 {
 	Preferences *pref = ( Preferences::get_instance() );
-	pref->setQuantizeEvents( ref->isPressed() );
+	pref->setQuantizeEvents( ! m_pQuantizeEventsBtn->isChecked() );
 
-	if (ref->isPressed() ) {
-		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Quantize incoming keyboard/midi events = On" ),
-																												2000 );
-	}
-	else {
-		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Quantize incoming keyboard/midi events = Off" ),
-																												2000 );
+	if ( ! m_pQuantizeEventsBtn->isChecked() ) {
+		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Quantize incoming keyboard/midi events = On" ),	2000 );
+	} else {
+		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Quantize incoming keyboard/midi events = Off" ), 2000 );
 	}
 }
 
@@ -758,7 +742,7 @@ void PatternEditorPanel::selectedInstrumentChangedEvent()
 
 void PatternEditorPanel::selectInstrumentNotes( int nInstrument )
 {
-	if ( __show_drum_btn->isPressed() ) {
+	if ( __show_drum_btn->isChecked() ) {
 		m_pPianoRollEditor->selectInstrumentNotes( nInstrument );
 	} else {
 		m_pDrumPatternEditor->selectInstrumentNotes( nInstrument );
@@ -768,7 +752,7 @@ void PatternEditorPanel::selectInstrumentNotes( int nInstrument )
 void PatternEditorPanel::showDrumEditor()
 {
 	__show_drum_btn->setToolTip( tr( "Show piano roll editor" ) );
-	__show_drum_btn->setPressed( false );
+	__show_drum_btn->setChecked( false );
 	m_pPianoRollScrollView->hide();
 	m_pEditorScrollView->show();
 	m_pInstrListScrollView->show();
@@ -790,7 +774,7 @@ void PatternEditorPanel::showDrumEditor()
 void PatternEditorPanel::showPianoRollEditor()
 {
 	__show_drum_btn->setToolTip( tr( "Show drum editor" ) );
-	__show_drum_btn->setPressed( true );
+	__show_drum_btn->setChecked( true );
 	m_pPianoRollScrollView->show();
 	m_pPianoRollScrollView->verticalScrollBar()->setValue( 250 );
 	m_pEditorScrollView->hide();
@@ -809,9 +793,8 @@ void PatternEditorPanel::showPianoRollEditor()
 	resizeEvent( nullptr );
 }
 
-void PatternEditorPanel::showDrumEditorBtnClick( Button *ref )
+void PatternEditorPanel::showDrumEditorBtnClick()
 {
-	UNUSED( ref );
 	if ( __show_drum_btn->isVisible() ){
 		showDrumEditor();
 		__show_drum_btn->hide();
@@ -821,17 +804,15 @@ void PatternEditorPanel::showDrumEditorBtnClick( Button *ref )
 		__show_drum_btn->show();
 		__show_piano_btn->hide();
 	}
-	__show_drum_btn->setPressed( false );
-	__show_piano_btn->setPressed( false );
 }
 
 
-void PatternEditorPanel::zoomInBtnClicked( Button *ref )
+void PatternEditorPanel::zoomInBtnClicked()
 {
 	if( m_pPatternEditorRuler->getGridWidth() >= 24 ){
 		return;
 	}
-	UNUSED( ref );
+
 	m_pPatternEditorRuler->zoomIn();
 	m_pDrumPatternEditor->zoomIn();
 	m_pNoteVelocityEditor->zoomIn();
@@ -847,11 +828,8 @@ void PatternEditorPanel::zoomInBtnClicked( Button *ref )
 	resizeEvent( nullptr );
 }
 
-
-
-void PatternEditorPanel::zoomOutBtnClicked( Button *ref )
+void PatternEditorPanel::zoomOutBtnClicked()
 {
-	UNUSED( ref );
 	m_pPatternEditorRuler->zoomOut();
 	m_pDrumPatternEditor->zoomOut();
 	m_pNoteVelocityEditor->zoomOut();
@@ -1022,63 +1000,6 @@ void PatternEditorPanel::patternSizeLCDClicked()
 		}
 	}
 }
-
-
-void PatternEditorPanel::moveUpBtnClicked( Button * )
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
-
-	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
-
-	pAudioEngine->lock( RIGHT_HERE );
-
-	Song *pSong = pHydrogen->getSong();
-	InstrumentList *pInstrumentList = pSong->getInstrumentList();
-
-	if ( ( nSelectedInstrument - 1 ) >= 0 ) {
-		pInstrumentList->swap( nSelectedInstrument -1, nSelectedInstrument );
-
-		pAudioEngine->unlock();
-		pHydrogen->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
-
-		pSong->setIsModified( true );
-	}
-	else {
-		pAudioEngine->unlock();
-	}
-}
-
-
-
-void PatternEditorPanel::moveDownBtnClicked( Button * )
-{
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
-
-	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
-
-	pAudioEngine->lock( RIGHT_HERE );
-
-	Song *pSong = pHydrogen->getSong();
-	InstrumentList *pInstrumentList = pSong->getInstrumentList();
-
-	if ( ( nSelectedInstrument + 1 ) < (int)pInstrumentList->size() ) {
-		pInstrumentList->swap( nSelectedInstrument, nSelectedInstrument + 1 );
-
-		pAudioEngine->unlock();
-		pHydrogen->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
-
-		pSong->setIsModified( true );
-	}
-	else {
-		pAudioEngine->unlock();
-	}
-
-}
-
-
-
 
 void PatternEditorPanel::dragEnterEvent( QDragEnterEvent *event )
 {

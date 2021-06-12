@@ -65,7 +65,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	, Object( __class_name )
 	, m_pInstrument( nullptr )
 	, m_nSelectedLayer( 0 )
-	, m_nPreviousMidiOutChannel( -1 )
+	, m_fPreviousMidiOutChannel( -1.0 )
 {
 	setFixedWidth( 290 );
 	
@@ -73,15 +73,13 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pInstrumentPropTop = new PixmapWidget( this );
 	m_pInstrumentPropTop->setPixmap( "/instrumentEditor/instrumentTab_top.png" );
 
-	m_pShowInstrumentBtn = new ToggleButton( m_pInstrumentPropTop, QSize( 100, 17 ), "", HydrogenApp::get_instance()->getCommonStrings()->getGeneralButton() );
-	m_pShowInstrumentBtn->setToolTip( tr( "Show instrument properties" ) );
-	connect( m_pShowInstrumentBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
+	m_pShowInstrumentBtn = new Button( m_pInstrumentPropTop, QSize( 100, 17 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getGeneralButton(), false, QSize(), tr( "Show instrument properties" ) );
+	connect( m_pShowInstrumentBtn, SIGNAL( pressed() ), this, SLOT( showInstrument() ) );
 	m_pShowInstrumentBtn->move( 40, 7 );
-	m_pShowInstrumentBtn->setPressed( true );
+	m_pShowInstrumentBtn->setChecked( true );
 
-	m_pShowLayersBtn = new ToggleButton( m_pInstrumentPropTop, QSize( 100, 17 ), "", HydrogenApp::get_instance()->getCommonStrings()->getLayersButton() );
-	m_pShowLayersBtn->setToolTip( tr( "Show layers properties" ) );
-	connect( m_pShowLayersBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
+	m_pShowLayersBtn = new Button( m_pInstrumentPropTop, QSize( 100, 17 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getLayersButton(), false, QSize(), tr( "Show layers properties" ) );
+	connect( m_pShowLayersBtn, SIGNAL( pressed() ), this, SLOT( showLayers() ) );
 	m_pShowLayersBtn->move( 144, 7 );
 
 
@@ -144,8 +142,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pPitchRandomLbl->move( 192, 236 );
 
 	// Filter
-	m_pFilterBypassBtn = new ToggleButton( m_pInstrumentProp, QSize( 30, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getBypassButton(), true );
-	connect( m_pFilterBypassBtn, SIGNAL( clicked(Button*) ), this, SLOT( filterActiveBtnClicked(Button*) ) );
+	m_pFilterBypassBtn = new Button( m_pInstrumentProp, QSize( 30, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBypassButton(), true );
+	connect( m_pFilterBypassBtn, SIGNAL( pressed() ), this, SLOT( filterActiveBtnClicked() ) );
 
 	m_pCutoffRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal, tr( "Filter Cutoff" ), false );
 	m_pCutoffRotary->setDefaultValue( m_pCutoffRotary->getMax() );
@@ -256,9 +254,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pCompoNameLbl->move( 8, 5 );
 	connect( m_pCompoNameLbl, SIGNAL( labelClicked(ClickableLabel*) ), this, SLOT( labelCompoClicked(ClickableLabel*) ) );
 
-	m_buttonDropDownCompo = new Button( m_pLayerProp, QSize( 13, 13 ), "dropdown.svg" );
-	m_buttonDropDownCompo->move( 272, 10 );
-	connect( m_buttonDropDownCompo, SIGNAL( clicked( Button* ) ), this, SLOT( onClick( Button* ) ) );
+	m_buttonDropDownCompo = new Button( m_pLayerProp, QSize( 13, 13 ), Button::Type::Push, "dropdown.svg", "", false, QSize( 8, 8 ) );
+	m_buttonDropDownCompo->move( 270, 10 );
+	connect( m_buttonDropDownCompo, SIGNAL( pressed() ), this, SLOT( onDropDownCompoClicked() ) );
 
 	// Layer preview
 	m_pLayerPreview = new LayerPreview( nullptr );
@@ -282,21 +280,21 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pWaveDisplay->move( 5, 241 );
 	connect( m_pWaveDisplay, SIGNAL( doubleClicked(QWidget*) ), this, SLOT( waveDisplayDoubleClicked(QWidget*) ) );
 
-	m_pLoadLayerBtn = new Button( m_pLayerProp, QSize( 90, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getLoadLayerButton() );
+	m_pLoadLayerBtn = new Button( m_pLayerProp, QSize( 90, 13 ), Button::Type::Push, "", HydrogenApp::get_instance()->getCommonStrings()->getLoadLayerButton() );
 	m_pLoadLayerBtn->setObjectName( "LoadLayerButton" );
 	m_pLoadLayerBtn->move( 6, 306 );
 
-	m_pRemoveLayerBtn = new Button( m_pLayerProp, QSize( 90, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getDeleteLayerButton() );
+	m_pRemoveLayerBtn = new Button( m_pLayerProp, QSize( 90, 13 ), Button::Type::Push, "", HydrogenApp::get_instance()->getCommonStrings()->getDeleteLayerButton() );
 	m_pRemoveLayerBtn->setObjectName( "RemoveLayerButton" );
 	m_pRemoveLayerBtn->move( 99, 306 );
 
-	m_pSampleEditorBtn = new Button( m_pLayerProp, QSize( 90, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getEditLayerButton() );
+	m_pSampleEditorBtn = new Button( m_pLayerProp, QSize( 90, 13 ), Button::Type::Push, "", HydrogenApp::get_instance()->getCommonStrings()->getEditLayerButton() );
 	m_pSampleEditorBtn->setObjectName( "SampleEditorButton" );
 	m_pSampleEditorBtn->move( 191, 306 );
 
-	connect( m_pLoadLayerBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
-	connect( m_pRemoveLayerBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
-	connect( m_pSampleEditorBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
+	connect( m_pLoadLayerBtn, SIGNAL( pressed() ), this, SLOT( loadLayerBtnClicked() ) );
+	connect( m_pRemoveLayerBtn, SIGNAL( pressed() ), this, SLOT( removeLayerButtonClicked() ) );
+	connect( m_pSampleEditorBtn, SIGNAL( pressed() ), this, SLOT( showSampleEditor() ) );
 	// Layer gain
 	m_pLayerGainLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pLayerGainRotary = new Rotary( m_pLayerProp,  Rotary::Type::Normal, tr( "Layer gain" ), false , 0.0, 5.0);
@@ -438,7 +436,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		//~ ADSR
 
 		// filter
-		m_pFilterBypassBtn->setPressed( !m_pInstrument->is_filter_active() );
+		m_pFilterBypassBtn->setChecked( !m_pInstrument->is_filter_active() );
 		m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff() );
 		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance() );
 		//~ filter
@@ -674,10 +672,10 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 }
 
 
-void InstrumentEditor::filterActiveBtnClicked(Button *ref)
+void InstrumentEditor::filterActiveBtnClicked()
 {
 	if ( m_pInstrument ) {
-		m_pInstrument->set_filter_active( !ref->isPressed() );
+		m_pInstrument->set_filter_active( m_pFilterBypassBtn->isChecked() );
 	}
 }
 
@@ -703,14 +701,16 @@ void InstrumentEditor::waveDisplayDoubleClicked( QWidget* pRef )
 		}
 	}
 	else {
-		loadLayer();
+		loadLayerBtnClicked();
 	}
 }
 
 void InstrumentEditor::showLayers()
 {
-	m_pShowLayersBtn->setPressed( true );
-	m_pShowInstrumentBtn->setPressed( false );
+	if ( ! m_pShowLayersBtn->isDown() ) {
+		m_pShowLayersBtn->setChecked( true );
+	}
+	m_pShowInstrumentBtn->setChecked( false );
 	m_pLayerProp->show();
 	m_pInstrumentProp->hide();
 
@@ -720,8 +720,10 @@ void InstrumentEditor::showLayers()
 
 void InstrumentEditor::showInstrument()
 {
-	m_pShowInstrumentBtn->setPressed( true );
-	m_pShowLayersBtn->setPressed( false );
+	if ( ! m_pShowInstrumentBtn->isDown() ) {
+		m_pShowInstrumentBtn->setChecked( true );
+	}
+	m_pShowLayersBtn->setChecked( false );
 	m_pInstrumentProp->show();
 	m_pLayerProp->hide();
 
@@ -747,55 +749,36 @@ void InstrumentEditor::showSampleEditor()
 	}
 }
 	
-void InstrumentEditor::buttonClicked( Button* pButton )
+void InstrumentEditor::removeLayerButtonClicked()
 {
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
-	if ( pButton == m_pShowInstrumentBtn ) {
-		showInstrument();
-	}
-	else if ( pButton == m_pShowLayersBtn ) {
-		showLayers();
-	}
-	else if ( pButton == m_pLoadLayerBtn ) {
-		loadLayer();
-	}
-	else if ( pButton == m_pRemoveLayerBtn ) {
-		//Hydrogen *pHydrogen = Hydrogen::get_instance();
-		Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
+	if ( m_pInstrument ) {
+		auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+		if( pCompo ) {
+			pCompo->set_layer( nullptr, m_nSelectedLayer );
 
-		if ( m_pInstrument ) {
-			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
-			if( pCompo ) {
-				pCompo->set_layer( nullptr, m_nSelectedLayer );
-
-				int nCount = 0;
-				for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
-					auto pLayer = pCompo->get_layer( n );
-					if( pLayer ){
-						nCount++;
-					}
-				}
-
-				if( nCount == 0 ){
-					m_pInstrument->get_components()->erase( m_pInstrument->get_components()->begin() + m_nSelectedComponent );
+			int nCount = 0;
+			for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
+				auto pLayer = pCompo->get_layer( n );
+				if( pLayer ){
+					nCount++;
 				}
 			}
+
+			if( nCount == 0 ){
+				m_pInstrument->get_components()->erase( m_pInstrument->get_components()->begin() + m_nSelectedComponent );
+			}
 		}
-		Hydrogen::get_instance()->getAudioEngine()->unlock();
-		selectedInstrumentChangedEvent();    // update all
-		m_pLayerPreview->updateAll();
 	}
-	else if ( pButton == m_pSampleEditorBtn ){
-		showSampleEditor();
-	}
-	else {
-		ERRORLOG( "[buttonClicked] unhandled button" );
-	}
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
+	selectedInstrumentChangedEvent();    // update all
+	m_pLayerPreview->updateAll();
 }
 
 
 
-void InstrumentEditor::loadLayer()
+void InstrumentEditor::loadLayerBtnClicked()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
@@ -1061,11 +1044,11 @@ void InstrumentEditor::selectLayer( int nLayer )
 
 
 
-void InstrumentEditor::muteGroupChanged( int nValue )
+void InstrumentEditor::muteGroupChanged( double fValue )
 {
 	assert( m_pInstrument );
 
-	m_pInstrument->set_mute_group( nValue );
+	m_pInstrument->set_mute_group( static_cast<int>(fValue) );
 	selectedInstrumentChangedEvent();	// force an update
 }
 
@@ -1083,13 +1066,13 @@ void InstrumentEditor::onIsApplyVelocityCheckBoxClicked( bool on )
 	selectedInstrumentChangedEvent();	// force an update
 }
 
-void InstrumentEditor::midiOutChannelChanged( int nValue ) {
+void InstrumentEditor::midiOutChannelChanged( double fValue ) {
 	assert( m_pInstrument );
 
-	if ( nValue != 0 ) {
-		m_pInstrument->set_midi_out_channel( nValue );
+	if ( fValue != 0.0 ) {
+		m_pInstrument->set_midi_out_channel( static_cast<int>(fValue) );
 	} else {
-		if ( m_nPreviousMidiOutChannel == -1 ) {
+		if ( m_fPreviousMidiOutChannel == -1.0 ) {
 			m_pMidiOutChannelLCD->setValue( 1 );
 			return;
 		} else {
@@ -1098,16 +1081,16 @@ void InstrumentEditor::midiOutChannelChanged( int nValue ) {
 		}
 	}
 
-	m_nPreviousMidiOutChannel = nValue;
+	m_fPreviousMidiOutChannel = fValue;
 }
 
-void InstrumentEditor::midiOutNoteChanged( int nValue ) {
+void InstrumentEditor::midiOutNoteChanged( double fValue ) {
 	assert( m_pInstrument );
 
-	m_pInstrument->set_midi_out_note( nValue );
+	m_pInstrument->set_midi_out_note( static_cast<int>(fValue) );
 }
 
-void InstrumentEditor::onClick(Button*)
+void InstrumentEditor::onDropDownCompoClicked()
 {
 	popCompo->popup( m_pCompoNameLbl->mapToGlobal( QPoint( m_pCompoNameLbl->width() - 40, m_pCompoNameLbl->height() / 2 ) ) );
 }
@@ -1328,22 +1311,22 @@ void InstrumentEditor::sampleSelectionChanged( int selected )
 	selectedInstrumentChangedEvent();	// force an update
 }
 
-void InstrumentEditor::hihatGroupChanged( int nValue )
+void InstrumentEditor::hihatGroupChanged( double fValue )
 {
 	assert( m_pInstrument );
-	m_pInstrument->set_hihat_grp( nValue );
+	m_pInstrument->set_hihat_grp( static_cast<int>(fValue) );
 }
 
-void InstrumentEditor::hihatMinRangeChanged( int nValue )
+void InstrumentEditor::hihatMinRangeChanged( double fValue )
 {
 	assert( m_pInstrument );
-	m_pInstrument->set_lower_cc( nValue );
-	m_pHihatMaxRangeLCD->setMinimum( nValue );
+	m_pInstrument->set_lower_cc( static_cast<int>(fValue) );
+	m_pHihatMaxRangeLCD->setMinimum( static_cast<int>(fValue) );
 }
 
-void InstrumentEditor::hihatMaxRangeChanged( int nValue )
+void InstrumentEditor::hihatMaxRangeChanged( double fValue )
 {
 	assert( m_pInstrument );
-	m_pInstrument->set_higher_cc( nValue );
-	m_pHihatMinRangeLCD->setMaximum( nValue );
+	m_pInstrument->set_higher_cc( static_cast<int>(fValue) );
+	m_pHihatMinRangeLCD->setMaximum( static_cast<int>(fValue) );
 }

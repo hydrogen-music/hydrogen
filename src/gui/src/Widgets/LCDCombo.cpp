@@ -45,9 +45,6 @@ LCDCombo::LCDCombo( QWidget *pParent, QSize size )
 		setFixedSize( size );
 	}
 
-	setStyleSheet("background-color: #8e94a6;" 
-				  "color: #0a0a0a;" );
-
 	updateFont();
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &LCDCombo::onPreferencesChanged );

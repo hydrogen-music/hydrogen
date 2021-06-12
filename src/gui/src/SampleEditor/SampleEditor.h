@@ -34,7 +34,6 @@
 #include <core/Basics/Instrument.h>
 
 
-class Button;
 class 	MainSampleWaveDisplay;
 class	TargetWaveDisplay;
 class	DetailWaveDisplay;

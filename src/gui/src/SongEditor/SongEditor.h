@@ -43,8 +43,6 @@ namespace H2Core {
 	class AudioEngine;
 }
 
-class Button;
-class ToggleButton;
 class SongEditor;
 class SongEditorPatternList;
 class SongEditorPositionRuler;

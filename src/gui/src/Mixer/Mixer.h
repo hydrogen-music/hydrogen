@@ -32,7 +32,6 @@
 #include "../EventListener.h"
 
 class Button;
-class ToggleButton;
 class MixerLine;
 class ComponentMixerLine;
 class MasterMixerLine;
@@ -70,8 +69,8 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 		void nameClicked(MixerLine* ref);
 		void nameSelected(MixerLine* ref);
 		void updateMixer();
-		void showFXPanelClicked(Button* ref);
-		void showPeaksBtnClicked(Button* ref);
+		void showFXPanelClicked();
+		void showPeaksBtnClicked();
 		void openMixerSettingsDialog();
 		void ladspaActiveBtnClicked( LadspaFXMixerLine* ref );
 		void ladspaEditBtnClicked( LadspaFXMixerLine *ref );
@@ -84,8 +83,8 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 		LadspaFXMixerLine *		m_pLadspaFXLine[MAX_FX];
 
 		QScrollArea*			m_pFaderScrollArea;
-		ToggleButton *			m_pShowFXPanelBtn;
-		ToggleButton *			m_pShowPeaksBtn;
+		Button *			m_pShowFXPanelBtn;
+		Button *			m_pShowPeaksBtn;
 		Button *				m_pOpenMixerSettingsBtn;
 		MasterMixerLine *		m_pMasterLine;
 

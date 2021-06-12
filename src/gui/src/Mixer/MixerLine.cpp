@@ -73,12 +73,10 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	setPixmap( "/mixerPanel/mixerline_background.png" );
 
 	// Play sample button
-	m_pPlaySampleBtn = new Button( this, QSize( 18, 13 ), "play.svg", "", false, QSize( 7, 7 ) );
+	m_pPlaySampleBtn = new Button( this, QSize( 18, 13 ), Button::Type::Push, "play.svg", "", false, QSize( 7, 7 ), tr( "Play sample" ) );
 	m_pPlaySampleBtn->move( 8, 2 );
-	m_pPlaySampleBtn->setToolTip( tr( "Play sample" ) );
 	m_pPlaySampleBtn->setObjectName( "PlaySampleButton" );
-	connect(m_pPlaySampleBtn, SIGNAL(clicked(Button*)), this, SLOT(click(Button*)));
-	connect(m_pPlaySampleBtn, SIGNAL(rightClicked(Button*)), this, SLOT(rightClick(Button*)));
+	connect(m_pPlaySampleBtn, SIGNAL( pressed() ), this, SLOT( playSampleBtnClicked() ) );
 
 	// Trigger sample LED
 	m_pTriggerSampleLED = new LED( this, QSize( 5, 13 ) );
@@ -92,18 +90,16 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 
 	// Mute button
 
-	m_pMuteBtn = new ToggleButton( this, QSize( 18, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true );
+	m_pMuteBtn = new Button( this, QSize( 18, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true, QSize(), tr( "Mute" ) );
 	m_pMuteBtn->move( 8, 17 );
-	m_pMuteBtn->setToolTip( tr( "Mute" ) );
 	m_pMuteBtn->setObjectName( "MixerMuteButton" );
-	connect(m_pMuteBtn, SIGNAL(clicked(Button*)), this, SLOT(click(Button*)));
+	connect(m_pMuteBtn, SIGNAL( pressed() ), this, SLOT( muteBtnClicked() ));
 
 	// Solo button
-	m_pSoloBtn = new ToggleButton( this, QSize( 18, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton() );
+	m_pSoloBtn = new Button( this, QSize( 18, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton(), false, QSize(), tr( "Solo" ) );
 	m_pSoloBtn->move( 30, 17);
-	m_pSoloBtn->setToolTip( tr( "Solo" ) );
 	m_pSoloBtn->setObjectName( "MixerSoloButton" );
-	connect(m_pSoloBtn, SIGNAL(clicked(Button*)), this, SLOT(click(Button*)));
+	connect(m_pSoloBtn, SIGNAL( pressed() ), this, SLOT( soloBtnClicked() ));
 
 	// pan rotary
 	m_pPanRotary = new Rotary( this, Rotary::Type::Center, tr( "Pan" ), false );
@@ -194,28 +190,18 @@ void MixerLine::updateMixerLine()
 	m_nPeakTimer++;
 }
 
-void MixerLine::click(Button *ref) {
-	Song *song = (Hydrogen::get_instance())->getSong();
-
-	if (ref == m_pMuteBtn) {
-		song->setIsModified(true);
-		emit muteBtnClicked(this);
-	}
-	else if (ref == m_pSoloBtn) {
-		song->setIsModified(true);
-		emit soloBtnClicked(this);
-	}
-	else if (ref == m_pPlaySampleBtn) {
-		emit noteOnClicked(this);
-	}
+void MixerLine::playSampleBtnClicked() {
+	emit noteOnClicked(this);
 }
 
-void MixerLine::rightClick(Button *ref)
-{
-	if (ref == m_pPlaySampleBtn) {
-		emit noteOffClicked(this);
-	}
+void MixerLine::muteBtnClicked() {
+	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	emit muteBtnClicked(this);
+}
 
+void MixerLine::soloBtnClicked() {
+	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	emit soloBtnClicked(this);
 }
 
 void MixerLine::faderChanged( WidgetWithInput *pRef ) {
@@ -230,19 +216,23 @@ void MixerLine::faderChanged( WidgetWithInput *pRef ) {
 }
 
 bool MixerLine::isMuteClicked() {
-	return m_pMuteBtn->isPressed();
+	return ( ( m_pMuteBtn->isChecked() && ! m_pMuteBtn->isDown() ) || ( ! m_pMuteBtn->isChecked() && m_pMuteBtn->isDown() ) );
 }
 
 void MixerLine::setMuteClicked(bool isClicked) {
-	m_pMuteBtn->setPressed(isClicked);
+	if ( ! m_pMuteBtn->isDown() ) {
+		m_pMuteBtn->setChecked(isClicked);
+	}
 }
 
 bool MixerLine::isSoloClicked() {
-	return m_pSoloBtn->isPressed();
+	return ( ( m_pSoloBtn->isChecked() && ! m_pSoloBtn->isDown() ) || ( ! m_pSoloBtn->isChecked() && m_pSoloBtn->isDown() ) );
 }
 
 void MixerLine::setSoloClicked(bool isClicked) {
-	m_pSoloBtn->setPressed(isClicked);
+	if ( ! m_pSoloBtn->isDown() ) {
+		m_pSoloBtn->setChecked(isClicked);
+	}
 }
 
 float MixerLine::getVolume()
@@ -410,16 +400,14 @@ ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
 	setPixmap( "/mixerPanel/componentmixerline_background.png" );
 
 	// Mute button
-	m_pMuteBtn = new ToggleButton( this, QSize( 18, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true );
+	m_pMuteBtn = new Button( this, QSize( 18, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true, QSize(), tr( "Mute" ) );
 	m_pMuteBtn->move( 8, 17 );
-	m_pMuteBtn->setToolTip( tr( "Mute" ) );
-	connect(m_pMuteBtn, SIGNAL(clicked(Button*)), this, SLOT(click(Button*)));
+	connect(m_pMuteBtn, SIGNAL( pressed() ), this, SLOT( muteBtnClicked() ));
 
 	// Solo button
-	m_pSoloBtn = new ToggleButton( this, QSize( 18, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton() );
+	m_pSoloBtn = new Button( this, QSize( 18, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton(), false, QSize(), tr( "Solo" ) );
 	m_pSoloBtn->move( 30, 17);
-	m_pSoloBtn->setToolTip( tr( "Solo" ) );
-	connect(m_pSoloBtn, SIGNAL(clicked(Button*)), this, SLOT(click(Button*)));
+	connect(m_pSoloBtn, SIGNAL( pressed() ), this, SLOT( soloBtnClicked() ));
 
 	Preferences *pPref = Preferences::get_instance();
 
@@ -485,17 +473,14 @@ void ComponentMixerLine::updateMixerLine()
 	m_nPeakTimer++;
 }
 
-void ComponentMixerLine::click(Button *ref) {
-	Song *pSong = (Hydrogen::get_instance())->getSong();
+void ComponentMixerLine::muteBtnClicked() {
+	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	emit muteBtnClicked(this);
+}
 
-	if (ref == m_pMuteBtn) {
-		pSong->setIsModified( true );
-		emit muteBtnClicked(this);
-	}
-	else if (ref == m_pSoloBtn) {
-		pSong->setIsModified( true );
-		emit soloBtnClicked(this);
-	}
+void ComponentMixerLine::soloBtnClicked() {
+	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	emit soloBtnClicked(this);
 }
 
 void ComponentMixerLine::faderChanged( WidgetWithInput *pRef ) {
@@ -509,19 +494,23 @@ void ComponentMixerLine::faderChanged( WidgetWithInput *pRef ) {
 }
 
 bool ComponentMixerLine::isMuteClicked() {
-	return m_pMuteBtn->isPressed();
+	return ( ( m_pMuteBtn->isChecked() && ! m_pMuteBtn->isDown() ) || ( ! m_pMuteBtn->isChecked() && m_pMuteBtn->isDown() ) );
 }
 
 void ComponentMixerLine::setMuteClicked(bool isClicked) {
-	m_pMuteBtn->setPressed(isClicked);
+	if ( ! m_pMuteBtn->isDown() ) {
+		m_pMuteBtn->setChecked(isClicked);
+	}
 }
 
 bool ComponentMixerLine::isSoloClicked() {
-	return m_pSoloBtn->isPressed();
+	return ( ( m_pSoloBtn->isChecked() && ! m_pSoloBtn->isDown() ) || ( ! m_pSoloBtn->isChecked() && m_pSoloBtn->isDown() ) );
 }
 
 void ComponentMixerLine::setSoloClicked(bool isClicked) {
-	m_pSoloBtn->setPressed(isClicked);
+	if ( ! m_pSoloBtn->isDown() ) {
+		m_pSoloBtn->setChecked(isClicked);
+	}
 }
 
 float ComponentMixerLine::getVolume()
@@ -641,9 +630,9 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	connect( m_pSwingRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
 	// Mute btn
-	m_pMuteBtn = new ToggleButton( this, QSize( 42, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getBigMuteButton(), true );
+	m_pMuteBtn = new Button( this, QSize( 42, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBigMuteButton(), true );
 	m_pMuteBtn->move( 20, 32 );
-	connect( m_pMuteBtn, SIGNAL( clicked(Button*) ), this, SLOT( muteClicked(Button*) ) );
+	connect( m_pMuteBtn, SIGNAL( pressed() ), this, SLOT( muteClicked() ) );
 	m_pMuteBtn->setAction( new Action("MUTE_TOGGLE"));
 }
 
@@ -652,9 +641,9 @@ MasterMixerLine::~MasterMixerLine()
 	m_fMaxPeak = 0.0;
 }
 
-void MasterMixerLine::muteClicked(Button* pBtn)
+void MasterMixerLine::muteClicked()
 {
-	Hydrogen::get_instance()->getCoreActionController()->setMasterIsMuted( pBtn->isPressed() );
+	Hydrogen::get_instance()->getCoreActionController()->setMasterIsMuted( ! m_pMuteBtn->isChecked() );
 }
 
 void MasterMixerLine::faderChanged( WidgetWithInput *pRef )
@@ -761,7 +750,9 @@ void MasterMixerLine::updateMixerLine()
 		m_pHumanizeTimeRotary->setValue( pSong->getHumanizeTimeValue() );
 		m_pHumanizeVelocityRotary->setValue( pSong->getHumanizeVelocityValue() );
 		m_pSwingRotary->setValue( pSong->getSwingFactor() );
-		m_pMuteBtn->setPressed( pSong->getIsMuted() );
+		if ( ! m_pMuteBtn->isDown() ) {
+			m_pMuteBtn->setChecked( pSong->getIsMuted() );
+		}
 	}
 	else {
 		WARNINGLOG( "pSong == NULL ");
@@ -889,16 +880,14 @@ LadspaFXMixerLine::LadspaFXMixerLine(QWidget* parent)
 	setPixmap( "/mixerPanel/fxline_background.png" );
 
 	// active button
-	m_pActiveBtn = new ToggleButton( this, QSize( 30, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getBypassButton(), true );
+	m_pActiveBtn = new Button( this, QSize( 30, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBypassButton(), true, QSize(), tr( "FX bypass") );
 	m_pActiveBtn->move( 55, 25 );
-	m_pActiveBtn->setToolTip( tr( "FX bypass") );
-	connect( m_pActiveBtn, SIGNAL( clicked(Button*) ), this, SLOT( click(Button*) ) );
+	connect( m_pActiveBtn, SIGNAL( pressed() ), this, SLOT( activeBtnClicked() ) );
 
 	// edit button
-	m_pEditBtn = new Button( this, QSize( 30, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getEditButton() );
+	m_pEditBtn = new Button( this, QSize( 30, 13 ), Button::Type::Push, "", HydrogenApp::get_instance()->getCommonStrings()->getEditButton(), false, QSize(), tr( "Edit FX parameters") );
 	m_pEditBtn->move( 87, 25 );
-	m_pEditBtn->setToolTip( tr( "Edit FX parameters") );
-	connect( m_pEditBtn, SIGNAL( clicked(Button*) ), this, SLOT( click(Button*) ) );
+	connect( m_pEditBtn, SIGNAL( pressed() ), this, SLOT( editBtnClicked() ) );
 
 	// instrument name widget
 	m_pNameLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 13 );
@@ -926,24 +915,24 @@ void LadspaFXMixerLine::setName(QString name)
 	m_pNameLCD->setText( name );
 }
 
-void LadspaFXMixerLine::click(Button *ref)
-{
-	if ( ref == m_pActiveBtn ) {
-		emit activeBtnClicked( this );
-	}
-	else if( ref == m_pEditBtn ) {
-		emit editBtnClicked( this );
-	}
+
+void LadspaFXMixerLine::activeBtnClicked() {
+	emit activeBtnClicked( this );
+}
+void LadspaFXMixerLine::editBtnClicked() {
+	emit editBtnClicked( this );
 }
 
 bool LadspaFXMixerLine::isFxActive()
 {
-	return !m_pActiveBtn->isPressed();
+	return ( ( m_pActiveBtn->isChecked() && ! m_pActiveBtn->isDown() ) || ( ! m_pActiveBtn->isChecked() && m_pActiveBtn->isDown() ) );
 }
 
 void LadspaFXMixerLine::setFxActive( bool active )
 {
-	m_pActiveBtn->setPressed( !active );
+	if ( ! m_pActiveBtn->isDown() ) {
+		m_pActiveBtn->setChecked( active );
+	}
 	m_pRotary->setIsActive( active );
 }
 

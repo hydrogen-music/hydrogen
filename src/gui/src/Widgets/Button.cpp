@@ -24,86 +24,81 @@
 
 #include "../Skin.h"
 #include "../HydrogenApp.h"
+#include "../CommonStrings.h"
 #include "MidiSenseWidget.h"
 
 #include <qglobal.h>	// for QT_VERSION
 
 #include <core/Globals.h>
 #include <core/Preferences.h>
+#include <core/Hydrogen.h>
 
 const char* Button::__class_name = "Button";
 
-Button::Button( QWidget *pParent, QSize size, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize, bool bEnablePressHold )
- : QWidget( pParent )
- , Object( __class_name )
- , m_bIsPressed( false )
- , m_bMouseOver( false )
- , m_sText( sText )
- , m_bUseRedBackground( bUseRedBackground )
- , m_iconSize( iconSize )
- , m_bEnablePressHold( bEnablePressHold )
+Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize, QString sBaseTooltip )
+	: QPushButton( pParent )
+	, Object( __class_name )
+	, m_size( size )
+	, m_bEntered( false )
+	, m_iconSize( iconSize )
+	, m_sBaseTooltip( sBaseTooltip )
+	, m_sRegisteredMidiEvent( "" )
+	, m_nRegisteredMidiParameter( 0 )
 {
 	m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
 	m_sLastUsedFontFamily = H2Core::Preferences::get_instance()->getLevel3FontFamily();
 	
 	setAttribute( Qt::WA_OpaquePaintEvent );
+	setFocusPolicy( Qt::NoFocus );
+	
+	adjustSize();
 	setFixedSize( size );
-	m_nWidth = size.width();
-	m_nHeight = size.height();
 
-	// Since the load function does not report success, we will check
-	// for the existance of the background image separately.
-	QString sPath;
-	float fAspectRatio = static_cast<float>( m_nWidth ) / static_cast<float>( m_nHeight );
-	if ( fAspectRatio < 0.6216216 ) {
-		sPath = QString( Skin::getSvgImagePath() + "/button_9_37.svg" );
-	} else if ( fAspectRatio > 0.6216216 && fAspectRatio < 1.2647059 ) {
-		sPath = QString( Skin::getSvgImagePath() + "/button_17_17.svg" );
-	} else if ( fAspectRatio > 1.2647059 && fAspectRatio < 1.7352941 ) {
-		sPath = QString( Skin::getSvgImagePath() + "/button_26_17.svg" );
-	} else if ( fAspectRatio > 1.7352941 && fAspectRatio < 3.264706 ) {
-		sPath = QString( Skin::getSvgImagePath() + "/button_42_13.svg" );
-	} else {
-		sPath = QString( Skin::getSvgImagePath() + "/button_94_13.svg" );
-	}
-
-	QFile file( sPath );
-	if ( file.exists() ) {
-		m_background = new QSvgRenderer( sPath, this );
-	} else {
-		m_background = nullptr;
-		ERRORLOG( QString( "Unable to load background image [%1]" ).arg( sPath ) );
-	}
-		
 	if ( ! sIcon.isEmpty() ) {
-		// Since the load function does not report success, we will check
-		// for the existance of the background image separately.
-		QString sPathIcon( Skin::getSvgImagePath() + "/icons/" + sIcon );
-
-		QFile iconFile( sPathIcon );
-		if ( iconFile.exists() ) {
-			m_icon = new QSvgRenderer( sPathIcon, this );
-		} else {
-			m_icon = nullptr;
-			ERRORLOG( QString( "Unable to load icon image [%1]" ).arg( sPathIcon ) );
-		}
+		setIcon( QIcon( Skin::getSvgImagePath() + "/icons/" + sIcon ) );
+		setIconSize( iconSize );
 	} else {
-		m_icon = nullptr;
-
-		if ( sText.isEmpty() ) {
-			ERRORLOG( "Neither an icon nor a text was provided. Button will be empty." );
-		}
+		setText( sText );
 	}
 
-	m_timerTimeout = 0;
-	m_timer = new QTimer(this);
-	connect(m_timer, SIGNAL(timeout()), this, SLOT(buttonPressed_timer_timeout()));
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Button::onPreferencesChanged );
+	if ( bUseRedBackground ) {
+		setStyleSheet( "QPushButton {"
+					   "color: #0a0a0a;"
+					   "background-color: #9fa3af;"
+					   "}"
+					   "QPushButton:checked {"
+					   "background-color: #ff6767;"
+					   "}"
+					   );
+	} else {
+		setStyleSheet( "QPushButton {"
+					   "background-color: #9fa3af;"
+					   "color: #0a0a0a;"
+					   "}"
+					   "QPushButton:checked {"
+					   "background-color: #61a7fb;"
+					   "}"
+					   );
+	}
+	
+	if ( type == Type::Toggle ) {
+		setCheckable( true );
+	} else {
+		setCheckable( false );
+	}
 
+	updateFont();
+	
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Button::onPreferencesChanged );
 	resize( size );
 }
 
 Button::~Button() {
+}
+
+void Button::setBaseToolTip( const QString& sNewTip ) {
+	m_sBaseTooltip = sNewTip;
+	updateTooltip();
 }
 
 void Button::mousePressEvent(QMouseEvent*ev) {
@@ -115,76 +110,57 @@ void Button::mousePressEvent(QMouseEvent*ev) {
 	if ( ev->button() == Qt::LeftButton && ( ev->modifiers() & Qt::ShiftModifier ) ){
 		MidiSenseWidget midiSense( this, true, this->getAction() );
 		midiSense.exec();
+
+		// Store the registered MIDI event and parameter in order to
+		// show them in the tooltip. Looking them up in the MidiMap
+		// using the Action associated to the Widget might not yield a
+		// unique result since the Action can be registered from the
+		// PreferencesDialog as well.
+		m_sRegisteredMidiEvent = H2Core::Hydrogen::get_instance()->lastMidiEvent;
+		m_nRegisteredMidiParameter = H2Core::Hydrogen::get_instance()->lastMidiEventParameter;
+		
+		updateTooltip();
 		return;
 	}
-	
-	m_bIsPressed = true;
-	update();
-	emit mousePress( this );
 
-	if ( ev->button() == Qt::LeftButton && m_bEnablePressHold) {
-		m_timerTimeout = 2000;
-		buttonPressed_timer_timeout();
-	}
-}
-
-
-
-void Button::mouseReleaseEvent( QMouseEvent* ev )
-{
-	setPressed( false );
-
-	if ( ev->button() == Qt::LeftButton ) {
-		if ( m_bEnablePressHold ) {
-			m_timer->stop();
-		} else {
-			emit clicked( this );
-		}
-	}
-	else if ( ev->button() == Qt::RightButton ) {
-		emit rightClicked( this );
-	}
-
-}
-
-
-void Button::buttonPressed_timer_timeout()
-{
-	emit clicked(this);
-
-	if( m_timerTimeout > 100 ) {
-		m_timerTimeout = m_timerTimeout / 2;
-	}
-	
-	m_timer->start( m_timerTimeout );
-}
-
-void Button::setPressed( bool bIsPressed )
-{
-	if ( bIsPressed != m_bIsPressed ) {
-		m_bIsPressed = bIsPressed;
-		update();
-	}
+	QPushButton::mousePressEvent( ev );
 }
 
 void Button::enterEvent( QEvent *ev )
 {
-	UNUSED( ev );
-	m_bMouseOver = true;
-	update();
+	QPushButton::enterEvent( ev );
+	m_bEntered = true;
 }
 
 void Button::leaveEvent( QEvent *ev )
 {
-	UNUSED( ev );
-	m_bMouseOver = false;
-	update();
+	QPushButton::leaveEvent( ev );
+	m_bEntered = false;
 }
 
-void Button::paintEvent( QPaintEvent* ev )
-{
-	QPainter painter( this );
+void Button::updateTooltip() {
 
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	QString sTip = QString("%1" ).arg( m_sBaseTooltip );
+
+	// Add the associated MIDI action.
+	if ( m_action != nullptr ) {
+		sTip.append( QString( "\n%1: %2 " ).arg( pCommonStrings->getMidiTooltipHeading() )
+					 .arg( m_action->getType() ) );
+		if ( ! m_sRegisteredMidiEvent.isEmpty() ) {
+			sTip.append( QString( "%1 [%2 : %3]" ).arg( pCommonStrings->getMidiTooltipBound() )
+						 .arg( m_sRegisteredMidiEvent ).arg( m_nRegisteredMidiParameter ) );
+		} else {
+			sTip.append( QString( "%1" ).arg( pCommonStrings->getMidiTooltipUnbound() ) );
+		}
+	}
+			
+	setToolTip( sTip );
+}
+
+void Button::updateFont() {
+	
 	float fScalingFactor = 1.0;
     switch ( m_lastUsedFontSize ) {
     case H2Core::Preferences::FontSize::Small:
@@ -199,80 +175,42 @@ void Button::paintEvent( QPaintEvent* ev )
 	}
 
 	int nMargin, nPixelSize;
-	if ( m_nWidth <= 11 || m_nHeight <= 11 ) {
+	if ( m_size.width() <= 11 || m_size.height() <= 11 ) {
 		nMargin = 1;
 	} else {
 		nMargin = 5;
 	}
 	
-	if ( m_nWidth >= m_nHeight ) {
-		nPixelSize = m_nHeight - std::round( fScalingFactor * nMargin );
+	if ( m_size.width() >= m_size.height() ) {
+		nPixelSize = m_size.height() - std::round( fScalingFactor * nMargin );
 	} else {
-		nPixelSize = m_nWidth - std::round( fScalingFactor * nMargin );
+		nPixelSize = m_size.width() - std::round( fScalingFactor * nMargin );
 	}
 
 	QFont font( m_sLastUsedFontFamily );
 	font.setPixelSize( nPixelSize );
-	painter.setFont( font );
-
-	if ( m_background != nullptr ) {
-
-		if ( m_bIsPressed ) {
-			if ( m_bUseRedBackground ) {
-				m_background->render( &painter, "layer4" );
-			} else {
-				m_background->render( &painter, "layer3" );
-			}
-		} else if ( m_bMouseOver ) {
-			m_background->render( &painter, "layer2" );
-		} else {
-			m_background->render( &painter, "layer1" );
-		}
-	}
-
-	if ( m_icon != nullptr ) {
-		QSize size;
-		if ( m_iconSize.isEmpty() ) {
-			size = QSize( m_icon->defaultSize() );
-			if ( size.width() >= m_nWidth ) {
-				size.setWidth( m_nWidth - 5 );
-			}
-			if ( size.height() >= m_nHeight ) {
-				size.setHeight( m_nHeight - 5 );
-			}
-		} else {
-			size = m_iconSize;
-		}
-
-		// Center icon in widget.
-		QRect rect( 0.5 * ( m_nWidth - size.width() ), 0.5 * ( m_nHeight - size.height() ),
-					size.width(), size.height() );
-		m_icon->render( &painter, rect );
-	}
-
-	if ( !m_sText.isEmpty() ) {
-		QColor shadow(150, 150, 150, 100);
-		QColor text(10, 10, 10);
-
-		if (m_bMouseOver) {
-			shadow = QColor(220, 220, 220, 100);
-		}
-
-		// shadow
-		painter.setPen( shadow );
-		painter.drawText( 1, 1, width(), height(), Qt::AlignHCenter | Qt::AlignVCenter,  m_sText );
-
-		// text
-		painter.setPen( text );
-		painter.drawText( 0, 0, width(), height(), Qt::AlignHCenter | Qt::AlignVCenter,  m_sText );
-	}
-
+	setFont( font );
 }
 
-void Button::setText( const QString& sText )
+void Button::paintEvent( QPaintEvent* ev )
 {
-	m_sText = sText;
-	update();
+	QPushButton::paintEvent( ev );
+	
+	QPainter painter( this );
+	if ( m_bEntered || hasFocus() ) {
+		QPainter painter(this);
+	
+		QColor colorHighlightActive = QColor( 97, 167, 251);
+
+		// If the mouse is placed on the widget but the user hasn't
+		// clicked it yet, the highlight will be done more transparent to
+		// indicate that keyboard inputs are not accepted yet.
+		if ( ! hasFocus() ) {
+			colorHighlightActive.setAlpha( 150 );
+		}
+	
+		painter.fillRect( 0, m_size.height() - 2, m_size.width(), 2, colorHighlightActive );
+	}
 }
 
 void Button::onPreferencesChanged( bool bAppearanceOnly ) {
@@ -282,45 +220,6 @@ void Button::onPreferencesChanged( bool bAppearanceOnly ) {
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
 		m_lastUsedFontSize = pPref->getFontSize();
 		m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
-		update();
+		updateFont();
 	}
-}
-
-
-// :::::::::::::::::::::::::
-
-
-
-ToggleButton::ToggleButton( QWidget *pParent, QSize size, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize )
-	: Button( pParent, size, sIcon, sText, bUseRedBackground, iconSize, false ) {
-}
-
-ToggleButton::~ToggleButton() {
-}
-
-void ToggleButton::mousePressEvent( QMouseEvent *ev ) {
-	
-	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ){
-		MidiSenseWidget midiSense( this, true, this->getAction() );
-		midiSense.exec();
-		return;
-	}
-	
-	if (ev->button() == Qt::RightButton) {
-		emit rightClicked( this );
-	}
-	else {
-		if ( m_bIsPressed ) {
-			m_bIsPressed = false;
-		} else {
-			m_bIsPressed = true;
-		}
-		update();
-		
-		emit clicked(this);
-	}
-}
-
-void ToggleButton::mouseReleaseEvent(QMouseEvent*) {
-	// do nothing, this method MUST override Button's one
 }

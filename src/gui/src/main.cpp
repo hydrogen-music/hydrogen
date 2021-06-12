@@ -115,7 +115,26 @@ void setPalette( QApplication *pQApp )
 	defaultPalette.setColor( QPalette::HighlightedText, QColor( 255, 255, 255 ) );
 
 	pQApp->setPalette( defaultPalette );
-	pQApp->setStyleSheet("QToolTip {padding: 1px; border: 1px solid rgb(199, 202, 204); background-color: rgb(227, 243, 252); color: rgb(64, 64, 66);}");
+	pQApp->setStyleSheet(
+						 "QToolTip {padding: 1px;"
+						 "border: 1px solid rgb(199, 202, 204);"
+						 "background-color: rgb(227, 243, 252);"
+						 "color: rgb(64, 64, 66);"
+						 "}"
+						 "QPushButton {"
+						 "background-color: #9fa3af;"
+						 "color: #0a0a0a;"
+						 "}"
+						 "QPushButton:checked {"
+						 "background-color: #61a7fb;"
+						 "}"
+						 "QComboBox { color: #0a0a0a;"
+						 "background-color: #9fa3af;"
+						 "}"
+						 "QDoubleSpinBox, QSpinBox { color: #ffffff;"
+						 "background-color: #2e3138;"
+						 "}"
+						 );
 }
 
 // Handle a fatal signal, allowing the logger to complete any outstanding messages before re-raising the

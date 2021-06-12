@@ -70,27 +70,24 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 
 	/*: Text displayed on the button for muting an instrument. Its
 	  size is designed for a single character.*/
-	m_pMuteBtn = new ToggleButton( this, QSize( 18, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true );
+	m_pMuteBtn = new Button( this, QSize( 18, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true, QSize(), tr("Mute instrument") );
 	m_pMuteBtn->move( 145, 5 );
-	m_pMuteBtn->setPressed(false);
-	m_pMuteBtn->setToolTip( tr("Mute instrument") );
+	m_pMuteBtn->setChecked(false);
 	m_pMuteBtn->setObjectName( "MuteButton" );
-	connect(m_pMuteBtn, SIGNAL(clicked(Button*)), this, SLOT(muteClicked()));
+	connect(m_pMuteBtn, SIGNAL( pressed() ), this, SLOT( muteClicked() ));
 
 	/*: Text displayed on the button for soloing an instrument. Its
 	  size is designed for a single character.*/
-	m_pSoloBtn = new ToggleButton( this, QSize( 18, 13 ), "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton() );
+	m_pSoloBtn = new Button( this, QSize( 18, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton(), false, QSize(), tr("Solo") );
 	m_pSoloBtn->move( 163, 5 );
-	m_pSoloBtn->setPressed(false);
-	m_pSoloBtn->setToolTip( tr("Solo") );
+	m_pSoloBtn->setChecked(false);
 	m_pSoloBtn->setObjectName( "SoloButton" );
-	connect(m_pSoloBtn, SIGNAL(clicked(Button*)), this, SLOT(soloClicked()));
+	connect(m_pSoloBtn, SIGNAL( pressed() ), this, SLOT(soloClicked()));
 
-	m_pSampleWarning = new Button( this, QSize( 15, 13 ), "warning.svg" );
+	m_pSampleWarning = new Button( this, QSize( 15, 13 ), Button::Type::Push, "warning.svg", "", false, QSize(), tr( "Some samples for this instrument failed to load." ) );
 	m_pSampleWarning->move( 128, 5 );
 	m_pSampleWarning->hide();
-	m_pSampleWarning->setToolTip( tr( "Some samples for this instrument failed to load." ) );
-	connect(m_pSampleWarning, SIGNAL(clicked(Button*)), this, SLOT(sampleWarningClicked()));
+	connect(m_pSampleWarning, SIGNAL( pressed() ), this, SLOT( sampleWarningClicked() ));
 
 
 	// Popup menu
@@ -160,13 +157,13 @@ void InstrumentLine::setNumber(int nIndex)
 
 void InstrumentLine::setMuted(bool isMuted)
 {
-	m_pMuteBtn->setPressed(isMuted);
+	m_pMuteBtn->setChecked(isMuted);
 }
 
 
 void InstrumentLine::setSoloed( bool soloed )
 {
-	m_pSoloBtn->setPressed( soloed );
+	m_pSoloBtn->setChecked( soloed );
 }
 
 

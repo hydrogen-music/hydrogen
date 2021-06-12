@@ -52,14 +52,12 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	pTabButtonsPanel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
 	// instrument editor button
-	m_pShowInstrumentEditorBtn = new ToggleButton( pTabButtonsPanel, QSize( 130, 17 ), "", HydrogenApp::get_instance()->getCommonStrings()->getInstrumentButton() );
-	m_pShowInstrumentEditorBtn->setToolTip( tr( "Show Instrument editor" ) );
-	connect( m_pShowInstrumentEditorBtn, SIGNAL( clicked( Button* ) ), this, SLOT( on_showInstrumentEditorBtnClicked() ) );
+	m_pShowInstrumentEditorBtn = new Button( pTabButtonsPanel, QSize( 130, 17 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getInstrumentButton(), false, QSize(), tr( "Show Instrument editor" ) );
+	connect( m_pShowInstrumentEditorBtn, SIGNAL( pressed() ), this, SLOT( on_showInstrumentEditorBtnClicked() ) );
 
 	// show sound library button
-	m_pShowSoundLibraryBtn = new ToggleButton( pTabButtonsPanel,QSize( 150, 17 ), "", HydrogenApp::get_instance()->getCommonStrings()->getSoundLibraryButton() );
-	m_pShowSoundLibraryBtn->setToolTip( tr( "Show sound library" ) );
-	connect( m_pShowSoundLibraryBtn, SIGNAL( clicked( Button* ) ), this, SLOT( on_showSoundLibraryBtnClicked() ) );
+	m_pShowSoundLibraryBtn = new Button( pTabButtonsPanel,QSize( 150, 17 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSoundLibraryButton(), false, QSize(), tr( "Show sound library" ) );
+	connect( m_pShowSoundLibraryBtn, SIGNAL( pressed() ), this, SLOT( on_showSoundLibraryBtnClicked() ) );
 
 	QHBoxLayout *pTabHBox = new QHBoxLayout();
 	pTabHBox->setSpacing( 0 );
@@ -99,23 +97,23 @@ InstrumentRack::~InstrumentRack()
 	INFOLOG( "DESTROY" );
 }
 
-
-
 void InstrumentRack::on_showSoundLibraryBtnClicked()
 {
-	m_pShowSoundLibraryBtn->setPressed( true );
-	m_pShowInstrumentEditorBtn->setPressed( false );
+	if ( ! m_pShowSoundLibraryBtn->isDown() ) {
+		m_pShowSoundLibraryBtn->setChecked( true );
+	}
+	m_pShowInstrumentEditorBtn->setChecked( false );
 
 	m_pSoundLibraryPanel->show();
 	InstrumentEditorPanel::get_instance()->hide();
 }
 
-
-
 void InstrumentRack::on_showInstrumentEditorBtnClicked()
 {
-	m_pShowInstrumentEditorBtn->setPressed( true );
-	m_pShowSoundLibraryBtn->setPressed( false );
+	if ( ! m_pShowInstrumentEditorBtn->isDown() ) {
+		m_pShowInstrumentEditorBtn->setChecked( true );
+	}
+	m_pShowSoundLibraryBtn->setChecked( false );
 
 	InstrumentEditorPanel::get_instance()->show();
 	m_pSoundLibraryPanel->hide();
