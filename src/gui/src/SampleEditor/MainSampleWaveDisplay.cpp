@@ -248,8 +248,6 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 			m_nEndFramePosition = m_nStartFramePosition;
 			m_bEndSliderIsmoved = true;
 		}
-		m_SelectedSlider = START;
-//		update();
 	}
 
 //loopframeposition
@@ -264,11 +262,9 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 			m_nEndFramePosition = m_nLoopFramePosition;
 			m_bEndSliderIsmoved = true;
 		}
-		m_SelectedSlider = LOOP;
-//		update();
 	}
 //endframeposition
-	else if  ( ev->y() >= 86 && ev->y() <= 179  ) {
+	else if  ( m_SelectedSlider == END) {
 		m_nEndFramePosition = ev->x() ;
 		m_bEndSliderIsmoved = true;
 		if ( m_nEndFramePosition <  m_nLoopFramePosition ){
@@ -279,8 +275,6 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 			m_nStartFramePosition = m_nEndFramePosition;
 			m_bStartSliderIsMoved = true;
 		}
-		m_SelectedSlider = END;
-//		update();
 	}
 
 	if ( ( m_nStartFramePosition ) >= width() -25 ) m_nStartFramePosition =width() -25;
@@ -310,22 +304,22 @@ void MainSampleWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
 void MainSampleWaveDisplay::chooseSlider(QMouseEvent * ev)
 {
 	assert(ev);
-	m_SelectedSlider = NONE;
-//startframepointer
-	if  (ev->y()>=200 ) {
-		m_SelectedSlider = START;
-//		update();
-	}
 
-//loopframeposition
-	else if  (ev->y()<=65 ) {
-		m_SelectedSlider = LOOP;
-//		update();
-	}
-//endframeposition
-	else if  ( ev->y() >= 86 && ev->y() <= 179  ) {
+	QPoint start = QPoint(m_nStartFramePosition, height());
+	QPoint end = QPoint(m_nEndFramePosition, height() / 2);
+	QPoint loop = QPoint(m_nLoopFramePosition, 0);
+
+	int ds = (ev->pos() - start).manhattanLength();
+	int de = (ev->pos() - end).manhattanLength();
+	int dl = (ev->pos() - loop).manhattanLength();
+	m_SelectedSlider = NONE;
+
+	if (ds <= de && ds <= dl) {
+		m_SelectedSlider = START;
+	} else if (de < ds && de <= dl) {
 		m_SelectedSlider = END;
-//		update();
+	} else if (dl < ds && dl < de) {
+		m_SelectedSlider = LOOP;
 	}
 }
 
