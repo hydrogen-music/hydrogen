@@ -268,7 +268,7 @@
     </message>
     <message>
         <source>Pla&amp;y samples by clicking</source>
-        <translation>Reprodu&amp;ce samples haciendo click</translation>
+        <translation>Reprodu&amp;ce samples haciendo clic</translation>
     </message>
     <message>
         <source>&amp;Up</source>
@@ -690,7 +690,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Please enter a number within the range of </source>
-        <translation>Por favor teclea un número dentro del rango de </translation>
+        <translation>Por favor ingresa un número dentro del rango de </translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
