@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -461,7 +462,7 @@ void Sample::apply_rubberband( const Rubberband& rb )
 	DEBUGLOG( QString( "on %1\n\toptions\t\t: %2\n\ttime ratio\t: %3\n\tpitch\t\t: %4" ).arg( get_filename() ).arg( options ).arg( time_ratio ).arg( pitch_scale ) );
 
 	float* ibuf[2];
-	int block_size = Hydrogen::get_instance()->getAudioOutput()->getBufferSize();
+	int block_size = MAX_BUFFER_SIZE;
 
 	// If the RUB button in the player control is activated and
 	// Hydrogen is told to apply Rubber Band to samples on-the-fly

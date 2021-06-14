@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://hydrogen.sourceforge.net
  *
@@ -45,22 +46,12 @@ static OSStatus renderProc(
 )
 {
 	H2Core::CoreAudioDriver* pDriver = ( H2Core::CoreAudioDriver * )inRefCon;
-	pDriver->mProcessCallback( pDriver->m_nBufferSize, NULL );
-	for ( unsigned i = 0; i < ioData->mNumberBuffers; i++ ) {
-		AudioBuffer &outData = ioData->mBuffers[ i ];
-		Float32* pOutData = ( float* )( outData.mData );
-
-		float *pAudioSource;
-		if ( i == 0 ) {
-			pAudioSource = pDriver->m_pOut_L;
-		} else {
-			pAudioSource = pDriver->m_pOut_R;
-		}
-		for ( unsigned j = 0; j < inNumberFrames; ++j ) {
-			pOutData[ j ] = pAudioSource[ j ];
-		}
-	}
-
+	assert( ioData->mNumberBuffers > 0 && ioData->mNumberBuffers <= 2 );
+	pDriver->m_pOut_L =  static_cast< float *>( ioData->mBuffers[ 0 ].mData );
+	pDriver->m_pOut_R =  static_cast< float *>( ioData->mBuffers[ 1 ].mData );
+	pDriver->mProcessCallback( inNumberFrames, NULL );
+	pDriver->m_pOut_L = nullptr;
+	pDriver->m_pOut_R = nullptr;
 	return noErr;
 }
 
@@ -189,12 +180,6 @@ CoreAudioDriver::~CoreAudioDriver()
 int CoreAudioDriver::init( unsigned bufferSize )
 {
 	OSStatus err = noErr;
-
-	m_pOut_L = new float[ m_nBufferSize ];
-	m_pOut_R = new float[ m_nBufferSize ];
-
-	memset ( m_pOut_L, 0, m_nBufferSize * sizeof( float ) );
-	memset ( m_pOut_R, 0, m_nBufferSize * sizeof( float ) );
 
 	// Get Component
 	AudioComponent compOutput;

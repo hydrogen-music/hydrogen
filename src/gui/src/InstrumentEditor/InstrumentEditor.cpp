@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -372,6 +373,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	// LAYER properties
 	m_pLayerProp = new PixmapWidget( this );
+	m_pLayerProp->setObjectName( "LayerProperties" );
 	m_pLayerProp->move( 0, 31 );
 	m_pLayerProp->hide();
 	m_pLayerProp->setPixmap( "/instrumentEditor/layerTabsupernew.png" );
@@ -420,6 +422,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 						  "/instrumentEditor/loadLayer_over.png",
 						  QSize( 90, 13 )
 						  );
+	m_pLoadLayerBtn->setObjectName( "LoadLayerButton" );
 
 	m_pRemoveLayerBtn = new Button(
 							m_pLayerProp,
@@ -428,6 +431,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 							"/instrumentEditor/deleteLayer_over.png",
 							QSize( 90, 13 )
 							);
+	m_pRemoveLayerBtn->setObjectName( "RemoveLayerButton" );
 
 	m_pSampleEditorBtn = new Button(
 							 m_pLayerProp,
@@ -436,6 +440,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 							 "/instrumentEditor/editLayer_over.png",
 							 QSize( 90, 13 )
 							 );
+	m_pSampleEditorBtn->setObjectName( "SampleEditorButton" );
 	m_pLoadLayerBtn->move( 48, 267 );
 	m_pRemoveLayerBtn->move( 145, 267 );
 
@@ -855,26 +860,54 @@ void InstrumentEditor::waveDisplayDoubleClicked( QWidget* pRef )
 	}
 }
 
+void InstrumentEditor::showLayers()
+{
+	m_pShowLayersBtn->setPressed( true );
+	m_pShowInstrumentBtn->setPressed( false );
+	m_pLayerProp->show();
+	m_pInstrumentProp->hide();
+
+	m_pShowLayersBtn->show();
+	m_pShowInstrumentBtn->show();
+}
+
+void InstrumentEditor::showInstrument()
+{
+	m_pShowInstrumentBtn->setPressed( true );
+	m_pShowLayersBtn->setPressed( false );
+	m_pInstrumentProp->show();
+	m_pLayerProp->hide();
+
+	m_pShowLayersBtn->show();
+	m_pShowInstrumentBtn->show();
+}
+
+void InstrumentEditor::showSampleEditor()
+{
+	if ( m_pInstrument ) {
+		InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+		if( pCompo ) {
+			H2Core::InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
+			if ( pLayer != nullptr ) {
+				auto pSample = pLayer->get_sample();
+				if ( pSample == nullptr ) {
+					return;
+				}
+				QString name = pSample->get_filepath();
+				HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedComponent, m_nSelectedLayer );
+			}
+		}
+	}
+}
+	
 void InstrumentEditor::buttonClicked( Button* pButton )
 {
 
 	if ( pButton == m_pShowInstrumentBtn ) {
-		m_pShowInstrumentBtn->setPressed( true );
-		m_pShowLayersBtn->setPressed( false );
-		m_pInstrumentProp->show();
-		m_pLayerProp->hide();
-
-		m_pShowLayersBtn->show();
-		m_pShowInstrumentBtn->show();
+		showInstrument();
 	}
 	else if ( pButton == m_pShowLayersBtn ) {
-		m_pShowLayersBtn->setPressed( true );
-		m_pShowInstrumentBtn->setPressed( false );
-		m_pLayerProp->show();
-		m_pInstrumentProp->hide();
-
-		m_pShowLayersBtn->show();
-		m_pShowInstrumentBtn->show();
+		showLayers();
 	}
 	else if ( pButton == m_pLoadLayerBtn ) {
 		loadLayer();
@@ -906,21 +939,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 		m_pLayerPreview->updateAll();
 	}
 	else if ( pButton == m_pSampleEditorBtn ){
-		if ( m_pInstrument ) {
-			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
-			if( pCompo ) {
-				H2Core::InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
-				if ( pLayer != nullptr ) {
-					auto pSample = pLayer->get_sample();
-					if ( pSample == nullptr ) {
-						return;
-					}
-					QString name = pSample->get_filepath();
-					HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedComponent, m_nSelectedLayer );
-				}
-			}
-		}
-
+		showSampleEditor();
 	}
 	else {
 		ERRORLOG( "[buttonClicked] unhandled button" );

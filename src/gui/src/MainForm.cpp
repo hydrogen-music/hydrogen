@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -45,7 +46,6 @@
 #include "Skin.h"
 #include "MainForm.h"
 #include "PlayerControl.h"
-#include "HelpBrowser.h"
 #include "LadspaFXProperties.h"
 #include "SongPropertiesDialog.h"
 #include "UndoActions.h"
@@ -91,6 +91,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& songFilename, c
 	: QMainWindow( nullptr )
 	, Object( __class_name )
 {
+	setObjectName( "MainForm" );
 	setMinimumSize( QSize( 1000, 500 ) );
 
 #ifndef WIN32
@@ -767,10 +768,40 @@ void MainForm::action_report_bug()
 	QDesktopServices::openUrl(QString("https://github.com/hydrogen-music/hydrogen/issues"));
 }
 
+// Find and open (a translation of) the manual appropriate for the user's preferences and locale
 void MainForm::showUserManual()
 {
-	h2app->getHelpBrowser()->hide();
-	h2app->getHelpBrowser()->show();
+	QString sDocPath = H2Core::Filesystem::doc_dir();
+	QString sPreferredLanguage = Preferences::get_instance()->getPreferredLanguage();
+	QStringList languages;
+
+	if ( !sPreferredLanguage.isNull() ) {
+		languages << sPreferredLanguage;
+	}
+	languages << QLocale::system().uiLanguages()
+			  << "en"; // English as fallback
+
+	// Find manual in filesystem
+	for ( QString sLang : languages ) {
+		QStringList sCandidates ( sLang );
+		QStringList s = sLang.split('-');
+		if ( s.size() != 1 ) {
+			sCandidates << s[0];
+		}
+		for ( QString sCandidate : sCandidates ) {
+			QString sManualPath = QString( "%1/manual_%2.html" ) .arg( sDocPath ).arg( sCandidate );
+			if ( Filesystem::file_exists( sManualPath ) ) {
+				QDesktopServices::openUrl( QUrl::fromLocalFile( sManualPath ) );
+				return;
+			}
+		}
+	}
+
+	// No manual found, not even the default English one. This must be a broken installation, so let's open
+	// the online manual as a sensible fallback option.
+
+	QDesktopServices::openUrl( QString( "http://hydrogen-music.org/documentation/manual/manual_en.html" ) );
+
 }
 
 void MainForm::action_file_export_pattern_as()
@@ -825,10 +856,13 @@ void MainForm::action_file_export_pattern_as()
 }
 
 void MainForm::action_file_open() {
-	const bool bUnderSessionManagement = H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
+
+	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
+	
+	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
 		
-	if ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) {
-		Hydrogen::get_instance()->sequencer_stop();
+	if ( pHydrogen->getState() == STATE_PLAYING ) {
+		pHydrogen->sequencer_stop();
 	}
 
 	bool bProceed = handleUnsavedChanges();
@@ -857,22 +891,15 @@ void MainForm::action_file_open() {
 
 	// When under session management the filename of the current Song
 	// has to be preserved.
-	QString sCurrentFilename;
 	if ( bUnderSessionManagement ) {
-		sCurrentFilename = H2Core::Hydrogen::get_instance()->getSong()->getFilename();
+		// The current path needs to be preserved. This will be done
+		// using an auxiliary variable since the GUI opens the song
+		// via the core, which in turn opens it asynchronously via the
+		// GUI.
+		pHydrogen->setNextSongPath( pHydrogen->getSong()->getFilename() );
 	}
 	if ( !sFilename.isEmpty() ) {
 		HydrogenApp::get_instance()->openSong( sFilename );
-	}
-
-	if ( bUnderSessionManagement ) {
-		
-		Song* pSong = H2Core::Hydrogen::get_instance()->getSong();
-		if ( pSong == nullptr ) {
-			ERRORLOG( QString( "No song present while under session management" ) );
-			return;
-		}
-		pSong->setFilename( sCurrentFilename );
 	}
 
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
@@ -1526,20 +1553,15 @@ void MainForm::updateRecentUsedSongList()
 
 void MainForm::action_file_open_recent(QAction *pAction)
 {
-	// When under session management the filename of the current Song
-	// has to be preserved.
-	const bool bUnderSessionManagement = H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
-	
-	QString currentFilename;
-	if ( bUnderSessionManagement ) {
-		currentFilename = H2Core::Hydrogen::get_instance()->getSong()->getFilename();
+	if ( H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
+		// The current path needs to be preserved. This will be done
+		// using an auxiliary variable since the GUI opens the song
+		// via the core, which in turn opens it asynchronously via the
+		// GUI.
+		H2Core::Hydrogen::get_instance()->setNextSongPath( H2Core::Hydrogen::get_instance()->getSong()->getFilename() );
 	}
 	
 	HydrogenApp::get_instance()->openSong( pAction->text() );
-	
-	if ( bUnderSessionManagement ) {
-		H2Core::Hydrogen::get_instance()->getSong()->setFilename( currentFilename );
-	}
 }
 
 void MainForm::checkMissingSamples()
@@ -2052,11 +2074,13 @@ void MainForm::onAutoSaveTimer()
 	//INFOLOG( "[onAutoSaveTimer]" );
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	assert( pSong );
-	QString sOldFilename = pSong->getFilename();
+	if ( pSong->getIsModified() ) {
+		QString sOldFilename = pSong->getFilename();
+		pSong->save( getAutoSaveFilename() );
 
-	pSong->save( getAutoSaveFilename() );
-
-	pSong->setFilename(sOldFilename);
+		pSong->setFilename( sOldFilename );
+		pSong->setIsModified( true );
+	}
 }
 
 

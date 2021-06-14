@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -108,7 +109,6 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		PlaylistDialog*			getPlayListDialog();
 		Director*			getDirector();
 		SampleEditor*			getSampleEditor();
-		SimpleHTMLBrowser*		getHelpBrowser();
 		PatternEditorPanel*		getPatternEditorPanel();
 		PlayerControl*			getPlayerControl();
 		InstrumentRack*			getInstrumentRack();
@@ -202,8 +202,6 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		AudioEngineInfoForm *		m_pAudioEngineInfoForm;
 		FilesystemInfoForm *		m_pFilesystemInfoForm;
 		SongEditorPanel *			m_pSongEditorPanel;
-		SimpleHTMLBrowser *			m_pHelpBrowser;
-		SimpleHTMLBrowser *			m_pFirstTimeInfo;
 		InstrumentRack*				m_pInstrumentRack;
 		PlayerControl *				m_pPlayerControl;
 		PlaylistDialog *			m_pPlaylistDialog;
@@ -296,11 +294,6 @@ inline Director* HydrogenApp::getDirector()
 inline SampleEditor* HydrogenApp::getSampleEditor()
 {
 	return m_pSampleEditor;	
-}
-
-inline SimpleHTMLBrowser* HydrogenApp::getHelpBrowser()
-{
-	return m_pHelpBrowser;
 }
 
 inline PatternEditorPanel* HydrogenApp::getPatternEditorPanel()

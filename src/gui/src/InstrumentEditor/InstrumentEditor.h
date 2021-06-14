@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -67,6 +68,12 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void update();
 
 		static int findFreeDrumkitComponentId( int startingPoint = 0 );
+
+
+	public slots:
+		void showLayers();
+		void showInstrument();
+		void showSampleEditor();
 
 	private slots:
 		void rotaryChanged(Rotary *ref);

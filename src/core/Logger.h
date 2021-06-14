@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -132,6 +133,7 @@ class Logger {
 		queue_t __msg_queue;            ///< the message queue
 		static unsigned __bit_msk;      ///< the bitmask of log_level_t
 		static const char* __levels[];  ///< levels strings
+		pthread_cond_t __messages_available;
 
 		/** constructor */
 		Logger();

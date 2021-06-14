@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -101,6 +102,9 @@ class Song : public H2Core::Object
 		 * \param pGroupVect Pointer to a vector containing all
 		 *   Pattern of the Song.*/
 		void setPatternGroupVector( std::vector<PatternList*>* pGroupVect );
+
+		/** get the length of the song, in tick units */
+		int lengthInTicks() const;
 
 		static Song* 	load( const QString& sFilename );
 		bool 			save( const QString& sFilename );

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -213,6 +214,11 @@ public slots:
 		void savePreferences();
 		void checkMidiSetup();
 		void checkMissingSamples();
+
+		// Interface for screen grabs
+		void setMainWindowSize( int w, int h ) {
+			setFixedSize( w, h );
+		}
 
 	private slots:
 		void onAutoSaveTimer();

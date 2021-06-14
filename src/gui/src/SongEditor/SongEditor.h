@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -320,6 +321,8 @@ class SongEditorPositionRuler : public QWidget, public H2Core::Object
 
 	public slots:
 		void updatePosition();
+		void showTagWidget( int nColumn );
+		void showBpmWidget( int nColumn );
 
 	private:
 		QTimer *			m_pTimer;

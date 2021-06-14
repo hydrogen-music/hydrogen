@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -244,83 +245,43 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 	int snapradius = 10;
 	int editType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentIndex();
 
-
+	m_VMove = true;
+	Sample::VelocityEnvelope* envelope;
 	///edit volume points
 	if( editType == 0 ){
-		m_VMove = true;
+		envelope = &m_VelocityEnvelope;
+	} else {
+		envelope = &m_PanEnvelope;
+	}
 
-		if ( ev->x() <= 0 || ev->x() >= UI_WIDTH || ev->y() < 0 || ev->y() > UI_HEIGHT ){
-			update();
-			m_VMove = false;
-			return;
-		}
-		float info = (UI_HEIGHT - ev->y()) / (float)UI_HEIGHT;
-		m_sInfo.setNum( info, 'g', 2 );
-		m_nX = ev->x();
-		m_nY = ev->y();
+	if ( ev->x() <= 0 || ev->x() >= UI_WIDTH || ev->y() < 0 || ev->y() > UI_HEIGHT ){
+		update();
+		m_VMove = false;
+		return;
+	}
+	float info = (UI_HEIGHT - ev->y()) / (float)UI_HEIGHT;
+	m_sInfo.setNum( info, 'g', 2 );
+	m_nX = ev->x();
+	m_nY = ev->y();
 
-		for ( int i = 0; i < static_cast<int>(m_VelocityEnvelope.size()); i++){
-			if ( m_VelocityEnvelope[i]->frame >= ev->x() - snapradius && m_VelocityEnvelope[i]->frame <= ev->x() + snapradius ) {
-				m_VelocityEnvelope.erase( m_VelocityEnvelope.begin() + i);
-				int Frame = 0;
-				int Value = 0;
-				
-				if ( i == 0 ){
-					Frame = 0;
-					Value = ev->y();
-				} else if ( i == static_cast<int>(m_VelocityEnvelope.size()) ) {
-					Frame = m_VelocityEnvelope[i]->frame;
-					Value = ev->y();
-				} else {
-					Frame = ev->x();
-					Value = ev->y();
-				}
-				m_VelocityEnvelope.push_back( std::make_unique<EnvelopePoint>( Frame, Value) );
-				sort( m_VelocityEnvelope.begin(), m_VelocityEnvelope.end(), EnvelopePoint::Comparator() );
-				update();
-				return;
-			}else
-			{
-				m_VMove = false;
+	for ( int i = 0; i < static_cast<int>(envelope->size()); i++){
+		if ( (*envelope)[i]->frame >= ev->x() - snapradius && (*envelope)[i]->frame <= ev->x() + snapradius ) {
+			envelope->erase( envelope->begin() + i);
+			int Frame = ev->x();
+			int Value = ev->y();
+
+			if ( i == 0 ){
+				Frame = 0;
+			} else if ( i == static_cast<int>(envelope->size()) ) {
+				Frame = UI_WIDTH;
 			}
-		}
-		///edit panorama points
-	}else if( editType == 1 ){
-		m_VMove = true;
-
-		if ( ev->x() <= 0 || ev->x() >= UI_WIDTH || ev->y() < 0 || ev->y() > UI_HEIGHT ){
+			envelope->push_back( std::make_unique<EnvelopePoint>( Frame, Value) );
+			sort( envelope->begin(), envelope->end(), EnvelopePoint::Comparator() );
 			update();
-			m_VMove = false;
 			return;
-		}
-		float info = (UI_HEIGHT/2 - ev->y()) / (UI_HEIGHT/2.0);
-		m_sInfo.setNum( info, 'g', 2 );
-		m_nX = ev->x();
-		m_nY = ev->y();
-
-		for ( int i = 0; i < static_cast<int>(m_PanEnvelope.size()); i++){
-			if ( m_PanEnvelope[i]->frame >= ev->x() - snapradius && m_PanEnvelope[i]->frame <= ev->x() + snapradius ) {
-				m_PanEnvelope.erase( m_PanEnvelope.begin() + i);
-				int Frame = 0;
-				int Value = 0;
-				if ( i == 0 ){
-					Frame = 0;
-					Value = ev->y();
-				} else if ( i == static_cast<int>(m_PanEnvelope.size()) ) {
-					Frame = m_PanEnvelope[i]->frame;
-					Value = ev->y();
-				} else {
-					Frame = ev->x();
-					Value = ev->y();
-				}
-				m_PanEnvelope.push_back( std::make_unique<EnvelopePoint>(Frame, Value) );
-				sort( m_PanEnvelope.begin(), m_PanEnvelope.end(), EnvelopePoint::Comparator() );
-				update();
-				return;
-			}else
-			{
-				m_VMove = false;
-			}
+		}else
+		{
+			m_VMove = false;
 		}
 	}
 
@@ -338,88 +299,51 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 	// add new point
 	int EditType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentIndex();
 
+	Sample::VelocityEnvelope* envelope;
+
 	///edit volume points
 	if( EditType == 0 ){
+		envelope = &m_VelocityEnvelope;
+	} else {
+		envelope = &m_PanEnvelope;
+	}
 
-		// test if there is already a point
-		for ( int i = 0; i < static_cast<int>(m_VelocityEnvelope.size()); ++i){
-			if ( m_VelocityEnvelope[i]->frame >= ev->x() - SnapRadius && m_VelocityEnvelope[i]->frame <= ev->x() + SnapRadius ){
-				NewPoint = false;
-			}
-		}
-
-		int x = ev->x();
-		int y = ev->y();
-		if (ev->button() == Qt::LeftButton && !m_VMove && NewPoint){
-			float info = (UI_HEIGHT - ev->y()) / (float)UI_HEIGHT;
-			m_sInfo.setNum( info, 'g', 2 );
-			m_nX = ev->x();
-			m_nY = ev->y();
-			if ( ev->y() <= 0 ) y = 0;
-			if ( ev->y() >= UI_HEIGHT ) y = UI_HEIGHT;
-			if ( ev->x() <= SnapRadius ) x = SnapRadius;
-			if ( ev->x() >= UI_WIDTH-SnapRadius ) x = UI_WIDTH-SnapRadius;
-			m_VelocityEnvelope.push_back( std::make_unique<EnvelopePoint>( x, y ) );
-			sort( m_VelocityEnvelope.begin(), m_VelocityEnvelope.end(), EnvelopePoint::Comparator() );
-		}
-
-		//remove point
-		SnapRadius = 10;
-		if (ev->button() == Qt::RightButton ){
-
-			if ( ev->x() <= 0 || ev->x() >= UI_WIDTH ){
-				update();
-				return;
-			}
-			m_sInfo = "";
-
-			for ( int i = 0; i < static_cast<int>(m_VelocityEnvelope.size()); i++){
-				if ( m_VelocityEnvelope[i]->frame >= ev->x() - SnapRadius && m_VelocityEnvelope[i]->frame <= ev->x() + SnapRadius ){
-					if ( m_VelocityEnvelope[i]->frame == 0 || m_VelocityEnvelope[i]->frame == UI_WIDTH) return;
-					m_VelocityEnvelope.erase( m_VelocityEnvelope.begin() +  i);
-				}
-			}
+	// test if there is already a point
+	for ( int i = 0; i < static_cast<int>(envelope->size()); ++i){
+		if ( (*envelope)[i]->frame >= ev->x() - SnapRadius && (*envelope)[i]->frame <= ev->x() + SnapRadius ){
+			NewPoint = false;
 		}
 	}
-	///edit panorama points
-	else if( EditType == 1 ){
-		// test if there is already a point
-		for ( int i = 0; i < static_cast<int>(m_PanEnvelope.size()); ++i){
-			if ( m_PanEnvelope[i]->frame >= ev->x() - SnapRadius && m_PanEnvelope[i]->frame <= ev->x() + SnapRadius ){
-				NewPoint = false;
-			}
+
+	int x = ev->x();
+	int y = ev->y();
+	if (ev->button() == Qt::LeftButton && !m_VMove && NewPoint){
+		float info = (UI_HEIGHT - ev->y()) / (float)UI_HEIGHT;
+		m_sInfo.setNum( info, 'g', 2 );
+		m_nX = ev->x();
+		m_nY = ev->y();
+		if ( ev->y() <= 0 ) y = 0;
+		if ( ev->y() >= UI_HEIGHT ) y = UI_HEIGHT;
+		if ( ev->x() <= SnapRadius ) x = SnapRadius;
+		if ( ev->x() >= UI_WIDTH-SnapRadius ) x = UI_WIDTH-SnapRadius;
+		envelope->push_back( std::make_unique<EnvelopePoint>( x, y ) );
+		sort( envelope->begin(), envelope->end(), EnvelopePoint::Comparator() );
+	}
+
+	//remove point
+	SnapRadius = 10;
+	if (ev->button() == Qt::RightButton ){
+
+		if ( ev->x() <= 0 || ev->x() >= UI_WIDTH ){
+			update();
+			return;
 		}
-		int x = ev->x();
-		int y = ev->y();
-		if (ev->button() == Qt::LeftButton && !m_VMove && NewPoint){
-			float info = (UI_HEIGHT/2 - ev->y()) / (UI_HEIGHT/2.0);
-			m_sInfo.setNum( info, 'g', 2 );
-			m_nX = ev->x();
-			m_nY = ev->y();
-			if ( ev->y() <= 0 ) y = 0;
-			if ( ev->y() >= UI_HEIGHT ) y = UI_HEIGHT;
-			if ( ev->x() <= SnapRadius ) x = SnapRadius;
-			if ( ev->x() >= UI_WIDTH-SnapRadius ) x = UI_WIDTH-SnapRadius;
-			m_PanEnvelope.push_back( std::make_unique<EnvelopePoint>( x, y ) );
-			sort( m_PanEnvelope.begin(), m_PanEnvelope.end(), EnvelopePoint::Comparator() );
-		}
+		m_sInfo = "";
 
-
-		//remove point
-		SnapRadius = 10;
-		if (ev->button() == Qt::RightButton ){
-
-			if ( ev->x() <= 0 || ev->x() >= UI_WIDTH ){
-				update();
-				return;
-			}
-			m_sInfo = "";
-
-			for ( int i = 0; i < static_cast<int>(m_PanEnvelope.size()); i++){
-				if ( m_PanEnvelope[i]->frame >= ev->x() - SnapRadius && m_PanEnvelope[i]->frame <= ev->x() + SnapRadius ){
-					if ( m_PanEnvelope[i]->frame == 0 || m_PanEnvelope[i]->frame == UI_WIDTH) return;
-					m_PanEnvelope.erase( m_PanEnvelope.begin() +  i);
-				}
+		for ( int i = 0; i < static_cast<int>(envelope->size()); i++){
+			if ( (*envelope)[i]->frame >= ev->x() - SnapRadius && (*envelope)[i]->frame <= ev->x() + SnapRadius ){
+				if ( (*envelope)[i]->frame == 0 || (*envelope)[i]->frame == UI_WIDTH) return;
+				envelope->erase( envelope->begin() +  i);
 			}
 		}
 	}

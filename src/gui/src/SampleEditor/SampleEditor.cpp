@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -211,7 +212,7 @@ void SampleEditor::getAllFrameInfos()
 		m_pTargetSampleView->get_velocity()->clear();
 		
 		for(auto& pEnvPtr : *pSample->get_velocity_envelope() ){
-			m_pTargetSampleView->get_velocity()->emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr->value, pEnvPtr->frame ) );
+			m_pTargetSampleView->get_velocity()->emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr.get() ) );
 		}
 	}
 

@@ -47,7 +47,16 @@ for:
         - job_group: 'Mac OS X'
 
     before_build: |-
+      export MACOSX_DEPLOYMENT_TARGET=10.12
+      sudo ln -s /usr/local /opt/local;
+
       brew update
+      # Build libsndfile and bdb from source to enable building for 10.12
+      brew install --build-from-source ./macos/HomebrewFormulae/berkeley-db.rb
+      brew install --build-from-source ./macos/HomebrewFormulae/libogg.rb
+      brew install --build-from-source ./macos/HomebrewFormulae/libvorbis.rb
+      brew install --build-from-source ./macos/HomebrewFormulae/libsndfile.rb
+
       brew install qt5; export CMAKE_PREFIX_PATH="$(brew --prefix qt5)";
       brew install libarchive; export PKG_CONFIG_PATH="$(brew --prefix libarchive)/lib/pkgconfig";
       brew install libsndfile jack pulseaudio cppunit
