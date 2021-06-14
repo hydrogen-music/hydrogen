@@ -87,6 +87,19 @@ void MainSampleWaveDisplay::paintLocatorEvent( int pos, bool updateposi)
 	update();
 }
 
+static void set_paint_color(QPainter & painter, const QColor & color, bool selected, MainSampleWaveDisplay::Slider which)
+{
+	if (!selected) {
+		painter.setPen( color );
+	} else {
+		QColor highlight = QColor(std::min(255, color.red() + 20 + 20 * (which == MainSampleWaveDisplay::END)),
+				std::min(255, color.green() + 20 + 20 * (which == MainSampleWaveDisplay::START)),
+				std::min(255, color.blue() + 20 + 20 * (which == MainSampleWaveDisplay::LOOP)));
+
+		painter.setPen ( highlight );
+	}
+}
+
 void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
@@ -125,18 +138,22 @@ void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 	painter.drawLine( 0, VCenterr, width(),VCenterr );
 
 	QFont font;
+
+	QColor startColor = QColor( 32, 173, 0, 200 );
+	QColor endColor = QColor( 217, 68, 0, 200 );
+	QColor loopColor =  QColor( 93, 170, 254, 200 );
 	font.setWeight( 63 );
 	painter.setFont( font );
 //start frame pointer
-	painter.setPen( QColor( 32, 173, 0, 200 ) );
+	set_paint_color(painter, startColor, m_SelectedSlider == START, m_SelectedSlider);
 	painter.drawLine( m_nStartFramePosition, 4, m_nStartFramePosition, height() -4 );	
 	painter.drawText( m_nStartFramePosition -10, 250, 10,20, Qt::AlignRight, "S" );
 //endframe pointer
-	painter.setPen( QColor( 217, 68, 0, 200 ) );
+	set_paint_color(painter, endColor, m_SelectedSlider == END, m_SelectedSlider);
 	painter.drawLine( m_nEndFramePosition, 4, m_nEndFramePosition, height() -4 );
 	painter.drawText( m_nEndFramePosition -10, 123, 10, 20, Qt::AlignRight, "E" );
 //loopframe pointer
-	painter.setPen( QColor( 93, 170, 254, 200 ) );
+	set_paint_color(painter, loopColor, m_SelectedSlider == LOOP, m_SelectedSlider);
 	painter.drawLine( m_nLoopFramePosition, 4, m_nLoopFramePosition, height() -4 );
 	painter.drawText( m_nLoopFramePosition , 0, 10, 20, Qt::AlignLeft, "L" );
 
@@ -202,14 +219,16 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 
 void MainSampleWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
+	chooseSlider( ev );
 	if (ev->buttons() && Qt::LeftButton) {
 		testPosition( ev );
-		update();
 	}
+	update();
 }
 
 void MainSampleWaveDisplay::mousePressEvent(QMouseEvent *ev)
 {
+	chooseSlider( ev );
 	testPosition( ev );
 	update();
 }
@@ -217,9 +236,8 @@ void MainSampleWaveDisplay::mousePressEvent(QMouseEvent *ev)
 void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 {
 	assert(ev);
-	
 //startframepointer
-	if  (ev->y()>=200 ) {
+	if  ( m_SelectedSlider == START ) {
 		m_nStartFramePosition = ev->x() ;
 		m_bStartSliderIsMoved = true;
 		if ( m_nStartFramePosition > m_nLoopFramePosition ){
@@ -230,11 +248,12 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 			m_nEndFramePosition = m_nStartFramePosition;
 			m_bEndSliderIsmoved = true;
 		}
+		m_SelectedSlider = START;
 //		update();
 	}
 
 //loopframeposition
-	else if  (ev->y()<=65 ) {
+	else if  ( m_SelectedSlider == LOOP ) {
 		m_nLoopFramePosition = ev->x() ;
 		m_bLoopSliderIsMoved = true;		
 		if ( m_nLoopFramePosition < m_nStartFramePosition ){
@@ -245,6 +264,7 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 			m_nEndFramePosition = m_nLoopFramePosition;
 			m_bEndSliderIsmoved = true;
 		}
+		m_SelectedSlider = LOOP;
 //		update();
 	}
 //endframeposition
@@ -259,6 +279,7 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 			m_nStartFramePosition = m_nEndFramePosition;
 			m_bStartSliderIsMoved = true;
 		}
+		m_SelectedSlider = END;
 //		update();
 	}
 
@@ -284,4 +305,27 @@ void MainSampleWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
 }
 
 
+
+
+void MainSampleWaveDisplay::chooseSlider(QMouseEvent * ev)
+{
+	assert(ev);
+	m_SelectedSlider = NONE;
+//startframepointer
+	if  (ev->y()>=200 ) {
+		m_SelectedSlider = START;
+//		update();
+	}
+
+//loopframeposition
+	else if  (ev->y()<=65 ) {
+		m_SelectedSlider = LOOP;
+//		update();
+	}
+//endframeposition
+	else if  ( ev->y() >= 86 && ev->y() <= 179  ) {
+		m_SelectedSlider = END;
+//		update();
+	}
+}
 
