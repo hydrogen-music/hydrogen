@@ -69,7 +69,6 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 
 		unsigned m_nSampleLength;
 
-		bool m_VMove;
 		bool m_UpdatePosition;
 
 		virtual void mouseMoveEvent(QMouseEvent *ev);
