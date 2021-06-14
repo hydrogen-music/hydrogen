@@ -406,6 +406,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	} else {
 		m_pJackTransportBtn->setPressed( false );
 	}
+	/*: Using the JACK the audio/midi input and output ports of any
+	  number of application can be connected.*/
 	m_pJackTransportBtn->setToolTip( tr("JACK transport on/off") );
 	connect(m_pJackTransportBtn, SIGNAL(clicked(Button*)), this, SLOT(jackTransportBtnClicked(Button*)));
 	m_pJackTransportBtn->move(10, 26);
@@ -426,6 +428,10 @@ PlayerControl::PlayerControl(QWidget *parent)
 	} else {
 		m_pJackMasterBtn->setPressed( false );
 	}
+	/*: Using the JACK Timebase Master functionality one of the
+connected programs can broadcast both speed and measure information to
+all other connected applications in order to have a more fine-grained
+transport control.*/
 	m_sJackMasterModeToolTip = tr("JACK Timebase master on/off");
 	m_pJackMasterBtn->setToolTip( m_sJackMasterModeToolTip );
 	connect(m_pJackMasterBtn, SIGNAL(clicked(Button*)), this, SLOT(jackMasterBtnClicked(Button*)));

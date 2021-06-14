@@ -783,6 +783,10 @@ Bist Du sicher?
 Use &apos;Save as&apos; to enable autosave.</source>
         <translation>Der aktuelle Song ist nur lesend geöffnet. Benutze &quot;Speichern unter&quot; um Autosafe zu aktivieren.</translation>
     </message>
+    <message>
+        <source>Input Midi Note</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InstrumentEditor</name>
@@ -1495,19 +1499,23 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Replace With &amp;New Song</source>
-        <translation type="unfinished"></translation>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with an empty one.</extracomment>
+        <translation>Mit &amp;Neuen Song Ersetzen</translation>
     </message>
     <message>
         <source>Imp&amp;ort Into Session</source>
-        <translation type="unfinished"></translation>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with one chosen by the user via a file browser widget.</extracomment>
+        <translation>Imp&amp;ortiere Song in Session</translation>
     </message>
     <message>
         <source>Import &amp;Recent Into Session</source>
-        <translation type="unfinished"></translation>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with one chosen recently used by the user.</extracomment>
+        <translation>Importiere &amp;zuletzt verwendeten Song in Session</translation>
     </message>
     <message>
         <source>Export From Session &amp;As...</source>
-        <translation type="unfinished"></translation>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows the user store the current song in a .h2song anywhere on her system. The filepath of the current song won&apos;t be altered.</extracomment>
+        <translation>Exportiere Song &amp; als...</translation>
     </message>
     <message>
         <source>Open &amp;Recent</source>
@@ -2419,10 +2427,12 @@ Maximum = 16/4</source>
     </message>
     <message>
         <source>JACK transport on/off</source>
+        <extracomment>Using the JACK the audio/midi input and output ports of any number of application can be connected.</extracomment>
         <translation>JACK Transport an/aus</translation>
     </message>
     <message>
         <source>JACK Timebase master on/off</source>
+        <extracomment>Using the JACK Timebase Master functionality one of the connected programs can broadcast both speed and measure information to all other connected applications in order to have a more fine-grained transport control.</extracomment>
         <translation>JACK Timebase master an/aus</translation>
     </message>
     <message>
@@ -2876,6 +2886,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Meters falloff speed</source>
+        <extracomment>In case of a rapid sound lasting for just a milli second the meters in the Mixer would raise to peak value and fall of immediately without the user being able to see them. The falloff speed introduces a delay. The smaller the value, the longer the meter requires to reach 0dB again.</extracomment>
         <translation>Peak-Abfallgeschwindigkeit</translation>
     </message>
     <message>
@@ -3136,6 +3147,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Use &amp;LASH</source>
+        <extracomment>LASH (acronym for LASH Linux Audio Handler) is a protocol allowing for session management in Linux (recalling songs, preferences, and JACK port connections).</extracomment>
         <translation>Verwende &amp;LASH</translation>
     </message>
     <message>
@@ -3683,29 +3695,6 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Hier kannst Du weiterführende Informationen finden:&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>SimpleHTMLBrowser</name>
-    <message>
-        <source>Manual</source>
-        <translation>Handbuch</translation>
-    </message>
-    <message>
-        <source>Welcome to Hydrogen</source>
-        <translation>Willkommen in Hydrogen</translation>
-    </message>
-    <message>
-        <source>Don&apos;t show this message anymore</source>
-        <translation>Diese Nachricht nicht mehr anzeigen</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation>OK</translation>
-    </message>
-    <message>
-        <source>Documentation index</source>
-        <translation>Index der Dokumentation</translation>
     </message>
 </context>
 <context>
