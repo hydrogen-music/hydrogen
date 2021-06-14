@@ -246,14 +246,10 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 
 	Sample::VelocityEnvelope & envelope = (m_EditMode == TargetWaveDisplay::VELOCITY) ? m_VelocityEnvelope : m_PanEnvelope;
 
-	if ( ev->x() <= 0 || ev->x() >= UI_WIDTH || ev->y() < 0 || ev->y() > UI_HEIGHT ){
-		update();
-		return;
-	}
-	float info = (UI_HEIGHT - ev->y()) / (float)UI_HEIGHT;
+	m_nX = std::min(UI_WIDTH, std::max(0, ev->x()));
+	m_nY = std::min(UI_HEIGHT, std::max(0, ev->y()));
+	float info = (UI_HEIGHT - m_nY) / (float)UI_HEIGHT;
 	m_sInfo.setNum( info, 'g', 2 );
-	m_nX = ev->x();
-	m_nY = ev->y();
 
 	if ( ! (ev->buttons() & Qt::LeftButton) ) {
 		// we are not dragging any point
@@ -263,8 +259,8 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 	for ( int i = 0; i < static_cast<int>(envelope.size()); i++){
 		if ( envelope[i]->frame >= ev->x() - snapradius && envelope[i]->frame <= ev->x() + snapradius ) {
 			envelope.erase( envelope.begin() + i);
-			int Frame = ev->x();
-			int Value = ev->y();
+			int Frame = m_nX;
+			int Value = m_nY;
 
 			if ( i == 0 ){
 				Frame = 0;
