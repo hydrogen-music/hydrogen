@@ -234,13 +234,7 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 	int snapradius = 10;
 	int editType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentIndex();
 
-	Sample::VelocityEnvelope* envelope;
-	///edit volume points
-	if( editType == 0 ){
-		envelope = &m_VelocityEnvelope;
-	} else {
-		envelope = &m_PanEnvelope;
-	}
+	Sample::VelocityEnvelope & envelope = (editType == 0) ? m_VelocityEnvelope : m_PanEnvelope;
 
 	if ( ev->x() <= 0 || ev->x() >= UI_WIDTH || ev->y() < 0 || ev->y() > UI_HEIGHT ){
 		update();
@@ -255,19 +249,19 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 		// we are not dragging any point
 		return;
 	}
-	for ( int i = 0; i < static_cast<int>(envelope->size()); i++){
-		if ( (*envelope)[i]->frame >= ev->x() - snapradius && (*envelope)[i]->frame <= ev->x() + snapradius ) {
-			envelope->erase( envelope->begin() + i);
+	for ( int i = 0; i < static_cast<int>(envelope.size()); i++){
+		if ( envelope[i]->frame >= ev->x() - snapradius && envelope[i]->frame <= ev->x() + snapradius ) {
+			envelope.erase( envelope.begin() + i);
 			int Frame = ev->x();
 			int Value = ev->y();
 
 			if ( i == 0 ){
 				Frame = 0;
-			} else if ( i == static_cast<int>(envelope->size()) ) {
+			} else if ( i == static_cast<int>(envelope.size()) ) {
 				Frame = UI_WIDTH;
 			}
-			envelope->push_back( std::make_unique<EnvelopePoint>( Frame, Value) );
-			sort( envelope->begin(), envelope->end(), EnvelopePoint::Comparator() );
+			envelope.push_back( std::make_unique<EnvelopePoint>( Frame, Value) );
+			sort( envelope.begin(), envelope.end(), EnvelopePoint::Comparator() );
 			update();
 			return;
 		}
