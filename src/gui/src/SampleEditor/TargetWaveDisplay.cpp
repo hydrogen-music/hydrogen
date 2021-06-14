@@ -81,7 +81,20 @@ TargetWaveDisplay::~TargetWaveDisplay()
 	delete[] m_pPeakData_Right;
 }
 
-
+static void paint_envelope(QPainter &painter, int VCenter, int LCenter, int RCenter, Sample::VelocityEnvelope &envelope, const QColor & lineColor, const QColor & handleColor)
+{
+	if (envelope.empty())
+		return;
+	for ( int i = 0; i < static_cast<int>(envelope.size()) -1; i++){
+		painter.setPen( QPen(lineColor, 1 , Qt::SolidLine) );
+		painter.drawLine( envelope[i]->frame, envelope[i]->value, envelope[i + 1]->frame, envelope[i +1]->value );
+		painter.setBrush( handleColor );
+		painter.drawEllipse ( envelope[i]->frame - 6/2, envelope[i]->value  - 6/2, 6, 6 );
+	}
+	// draw first and last points as squares
+	painter.drawRect ( envelope[0]->frame - 12/2, envelope[0]->value  - 6/2, 12, 6 );
+	painter.drawRect ( envelope[envelope.size() -1]->frame - 12/2, envelope[envelope.size() -1]->value  - 6/2, 12, 6 );
+}
 
 void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 {
@@ -108,42 +121,19 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 	Font.setWeight( 63 );
 	painter.setFont( Font );
 
-	for ( int i = 0; i < static_cast<int>(m_VelocityEnvelope.size()) -1; i++){
-		//volume line
-		painter.setPen( QPen(QColor( 255, 255, 255, 200 ) ,1 , Qt::SolidLine) );
-		painter.drawLine( m_VelocityEnvelope[i]->frame, m_VelocityEnvelope[i]->value, m_VelocityEnvelope[i + 1]->frame, m_VelocityEnvelope[i +1]->value );
-		painter.setBrush(QColor( 99, 160, 233 ));
-		painter.drawEllipse ( m_VelocityEnvelope[i]->frame - 6/2, m_VelocityEnvelope[i]->value  - 6/2, 6, 6 );
-	}
-
-	for ( int i = 0; i < static_cast<int>(m_PanEnvelope.size()) -1; i++){
-		//pan line
-		painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine) );
-		painter.drawLine( m_PanEnvelope[i]->frame, m_PanEnvelope[i]->value, m_PanEnvelope[i + 1]->frame, m_PanEnvelope[i +1]->value );
-		painter.setBrush(QColor( 77, 189, 55 ));
-		painter.drawEllipse ( m_PanEnvelope[i]->frame - 6/2, m_PanEnvelope[i]->value  - 6/2, 6, 6 );
-	}
-
-
 	painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );
 	painter.drawLine( m_nLocator, 4, m_nLocator, height() -4);
 
-	//volume line
-	//first rect
-	painter.setPen( QPen(QColor( 255, 255, 255, 200 ) ,1 , Qt::SolidLine) );
-	painter.setBrush(QColor( 99, 160, 233 ));
-	painter.drawRect ( m_VelocityEnvelope[0]->frame - 12/2, m_VelocityEnvelope[0]->value  - 6/2, 12, 6 );
-	//last rect
-	painter.drawRect ( m_VelocityEnvelope[m_VelocityEnvelope.size() -1]->frame - 12/2, m_VelocityEnvelope[m_VelocityEnvelope.size() -1]->value  - 6/2, 12, 6 );
+	QColor volumeLineColor = QColor( 255, 255, 255, 200);
+	QColor volumeHandleColor = QColor( 99, 160, 233);
+	QColor panLineColor = QColor( 249, 235, 116, 200 );
+	QColor panHandleColor = QColor( 77, 189, 55 );
 
+	//volume line
+	paint_envelope(painter, VCenter, LCenter, RCenter, m_VelocityEnvelope, volumeLineColor, volumeHandleColor);
 	//pan line
-	//first rect
-	painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine) );
-	painter.setBrush(QColor( 77, 189, 55 ));
-	painter.drawRect ( m_PanEnvelope[0]->frame - 12/2, m_PanEnvelope[0]->value  - 6/2, 12, 6 );
-	//last rect
-	painter.drawRect ( m_PanEnvelope[m_PanEnvelope.size() -1]->frame - 12/2, m_PanEnvelope[m_PanEnvelope.size() -1]->value  - 6/2, 12, 6 );
+	paint_envelope(painter, VCenter, LCenter, RCenter, m_PanEnvelope, panLineColor, panHandleColor);
 
 
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
