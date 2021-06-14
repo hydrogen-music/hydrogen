@@ -50,7 +50,6 @@ class MainSampleWaveDisplay : public QWidget, public H2Core::Object
 		int		m_nStartFramePosition;
 		int		m_nLoopFramePosition;
 		int		m_nEndFramePosition;
-		bool	m_bMove;
 		bool	m_bStartSliderIsMoved;
 		bool	m_bLoopSliderIsMoved;
 		bool	m_bEndSliderIsmoved;

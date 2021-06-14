@@ -54,7 +54,6 @@ MainSampleWaveDisplay::MainSampleWaveDisplay(QWidget* pParent)
 	m_nStartFramePosition = 25;
 	m_nLoopFramePosition = 25;
 	m_nEndFramePosition = width() -25;
-	m_bMove = false;
 	m_nLocator = -1;
 	m_bUpdatePosition = false;
 	m_nSampleLength = 0;

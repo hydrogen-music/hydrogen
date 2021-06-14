@@ -61,7 +61,6 @@ TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
 
 	m_pPeakData_Left = new int[ w ];
 	m_pPeakData_Right = new int[ w ];
-	m_VMove = false;
 	m_sInfo = "";
 	m_nX = -10;
 	m_nY = -10;
@@ -235,7 +234,6 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 	int snapradius = 10;
 	int editType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentIndex();
 
-	m_VMove = true;
 	Sample::VelocityEnvelope* envelope;
 	///edit volume points
 	if( editType == 0 ){
@@ -246,7 +244,6 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 
 	if ( ev->x() <= 0 || ev->x() >= UI_WIDTH || ev->y() < 0 || ev->y() > UI_HEIGHT ){
 		update();
-		m_VMove = false;
 		return;
 	}
 	float info = (UI_HEIGHT - ev->y()) / (float)UI_HEIGHT;
@@ -254,7 +251,7 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 	m_nX = ev->x();
 	m_nY = ev->y();
 
-	if (ev->buttons() & Qt::LeftButton == 0) {
+	if ( ! (ev->buttons() & Qt::LeftButton) ) {
 		// we are not dragging any point
 		return;
 	}
@@ -273,9 +270,6 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 			sort( envelope->begin(), envelope->end(), EnvelopePoint::Comparator() );
 			update();
 			return;
-		}else
-		{
-			m_VMove = false;
 		}
 	}
 
@@ -311,7 +305,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 
 	int x = ev->x();
 	int y = ev->y();
-	if (ev->button() == Qt::LeftButton && !m_VMove && NewPoint){
+	if (ev->button() == Qt::LeftButton && NewPoint){
 		float info = (UI_HEIGHT - ev->y()) / (float)UI_HEIGHT;
 		m_sInfo.setNum( info, 'g', 2 );
 		m_nX = ev->x();
