@@ -67,6 +67,7 @@ TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
 	m_nY = -10;
 	m_nLocator = -1;
 	m_UpdatePosition = false;
+	setMouseTracking(true);
 }
 
 
@@ -263,6 +264,10 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 	m_nX = ev->x();
 	m_nY = ev->y();
 
+	if (ev->buttons() & Qt::LeftButton == 0) {
+		// we are not dragging any point
+		return;
+	}
 	for ( int i = 0; i < static_cast<int>(envelope->size()); i++){
 		if ( (*envelope)[i]->frame >= ev->x() - snapradius && (*envelope)[i]->frame <= ev->x() + snapradius ) {
 			envelope->erase( envelope->begin() + i);

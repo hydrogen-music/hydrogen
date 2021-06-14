@@ -62,6 +62,7 @@ MainSampleWaveDisplay::MainSampleWaveDisplay(QWidget* pParent)
 	m_bStartSliderIsMoved = false;
 	m_bLoopSliderIsMoved = false;
 	m_bEndSliderIsmoved = false;
+	setMouseTracking(true);
 }
 
 
@@ -202,8 +203,10 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 
 void MainSampleWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
-	testPosition( ev );
-	update();
+	if (ev->buttons() && Qt::LeftButton) {
+		testPosition( ev );
+		update();
+	}
 }
 
 void MainSampleWaveDisplay::mousePressEvent(QMouseEvent *ev)
