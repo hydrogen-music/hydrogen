@@ -40,6 +40,8 @@ using namespace H2Core;
 #include "TargetWaveDisplay.h"
 #include "../Skin.h"
 
+static TargetWaveDisplay::EnvelopeEditMode get_current_edit_mode();
+
 const char* TargetWaveDisplay::__class_name = "TargetWaveDisplay";
 
 TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
@@ -228,13 +230,12 @@ void TargetWaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> 
 
 }
 
-
 void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
 	int snapradius = 10;
-	int editType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentIndex();
+	m_EditMode = get_current_edit_mode();
 
-	Sample::VelocityEnvelope & envelope = (editType == 0) ? m_VelocityEnvelope : m_PanEnvelope;
+	Sample::VelocityEnvelope & envelope = (m_EditMode == TargetWaveDisplay::VELOCITY) ? m_VelocityEnvelope : m_PanEnvelope;
 
 	if ( ev->x() <= 0 || ev->x() >= UI_WIDTH || ev->y() < 0 || ev->y() > UI_HEIGHT ){
 		update();
@@ -247,6 +248,7 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 
 	if ( ! (ev->buttons() & Qt::LeftButton) ) {
 		// we are not dragging any point
+		update();
 		return;
 	}
 	for ( int i = 0; i < static_cast<int>(envelope.size()); i++){
@@ -277,22 +279,16 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 {
 	int SnapRadius = 6;
 	bool NewPoint = true;
+	m_EditMode = get_current_edit_mode();
 
 	// add new point
-	int EditType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentIndex();
+	Sample::VelocityEnvelope & envelope = (m_EditMode == TargetWaveDisplay::VELOCITY) ? m_VelocityEnvelope : m_PanEnvelope;
 
-	Sample::VelocityEnvelope* envelope;
-
-	///edit volume points
-	if( EditType == 0 ){
-		envelope = &m_VelocityEnvelope;
-	} else {
-		envelope = &m_PanEnvelope;
-	}
+	///edit envelope points
 
 	// test if there is already a point
-	for ( int i = 0; i < static_cast<int>(envelope->size()); ++i){
-		if ( (*envelope)[i]->frame >= ev->x() - SnapRadius && (*envelope)[i]->frame <= ev->x() + SnapRadius ){
+	for ( int i = 0; i < static_cast<int>(envelope.size()); ++i){
+		if ( envelope[i]->frame >= ev->x() - SnapRadius && envelope[i]->frame <= ev->x() + SnapRadius ){
 			NewPoint = false;
 		}
 	}
@@ -308,8 +304,8 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 		if ( ev->y() >= UI_HEIGHT ) y = UI_HEIGHT;
 		if ( ev->x() <= SnapRadius ) x = SnapRadius;
 		if ( ev->x() >= UI_WIDTH-SnapRadius ) x = UI_WIDTH-SnapRadius;
-		envelope->push_back( std::make_unique<EnvelopePoint>( x, y ) );
-		sort( envelope->begin(), envelope->end(), EnvelopePoint::Comparator() );
+		envelope.push_back( std::make_unique<EnvelopePoint>( x, y ) );
+		sort( envelope.begin(), envelope.end(), EnvelopePoint::Comparator() );
 	}
 
 	//remove point
@@ -322,10 +318,10 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 		}
 		m_sInfo = "";
 
-		for ( int i = 0; i < static_cast<int>(envelope->size()); i++){
-			if ( (*envelope)[i]->frame >= ev->x() - SnapRadius && (*envelope)[i]->frame <= ev->x() + SnapRadius ){
-				if ( (*envelope)[i]->frame == 0 || (*envelope)[i]->frame == UI_WIDTH) return;
-				envelope->erase( envelope->begin() +  i);
+		for ( int i = 0; i < static_cast<int>(envelope.size()); i++){
+			if ( envelope[i]->frame >= ev->x() - SnapRadius && envelope[i]->frame <= ev->x() + SnapRadius ){
+				if ( envelope[i]->frame == 0 || envelope[i]->frame == UI_WIDTH) return;
+				envelope.erase( envelope.begin() +  i);
 			}
 		}
 	}
@@ -342,4 +338,18 @@ void TargetWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
 {
 	update();
 	HydrogenApp::get_instance()->getSampleEditor()->returnAllTargetDisplayValues();
+}
+
+
+static TargetWaveDisplay::EnvelopeEditMode get_current_edit_mode()
+{
+	int editType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentIndex();
+	if (editType == 0) {
+		return TargetWaveDisplay::VELOCITY;
+	} else if (editType == 1) {
+		return TargetWaveDisplay::PAN;
+	} else {
+		// combo options added
+		return TargetWaveDisplay::PAN;
+	}
 }
