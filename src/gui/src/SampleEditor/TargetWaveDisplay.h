@@ -86,5 +86,4 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		H2Core::Sample::VelocityEnvelope m_VelocityEnvelope;
 };
 
-
 #endif

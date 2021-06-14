@@ -82,14 +82,19 @@ TargetWaveDisplay::~TargetWaveDisplay()
 	delete[] m_pPeakData_Right;
 }
 
-static void paint_envelope(QPainter &painter, int VCenter, int LCenter, int RCenter, Sample::VelocityEnvelope &envelope, const QColor & lineColor, const QColor & handleColor)
+static void envelope_paint(Sample::VelocityEnvelope &envelope, QPainter &painter,
+	bool selection, int mouseX, int VCenter, int LCenter, int RCenter,
+	const QColor & lineColor, const QColor & handleColor, const QColor & selectedColor)
 {
 	if (envelope.empty())
 		return;
 	for ( int i = 0; i < static_cast<int>(envelope.size()) -1; i++){
 		painter.setPen( QPen(lineColor, 1 , Qt::SolidLine) );
 		painter.drawLine( envelope[i]->frame, envelope[i]->value, envelope[i + 1]->frame, envelope[i +1]->value );
-		painter.setBrush( handleColor );
+		if (selection && envelope[i]->frame >= mouseX - 3 && envelope[i]->frame <= mouseX + 3)
+			painter.setBrush( selectedColor );
+		else
+			painter.setBrush( handleColor );
 		painter.drawEllipse ( envelope[i]->frame - 6/2, envelope[i]->value  - 6/2, 6, 6 );
 	}
 	// draw first and last points as squares
@@ -100,6 +105,8 @@ static void paint_envelope(QPainter &painter, int VCenter, int LCenter, int RCen
 void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
+
+	m_EditMode = get_current_edit_mode();
 
 	painter.setRenderHint( QPainter::Antialiasing );
 	painter.drawPixmap( ev->rect(), m_Background, ev->rect() );
@@ -130,12 +137,14 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 	QColor volumeHandleColor = QColor( 99, 160, 233);
 	QColor panLineColor = QColor( 249, 235, 116, 200 );
 	QColor panHandleColor = QColor( 77, 189, 55 );
-
+	QColor selectedtHandleColor = QColor( 255, 100, 90 );
 	//volume line
-	paint_envelope(painter, VCenter, LCenter, RCenter, m_VelocityEnvelope, volumeLineColor, volumeHandleColor);
-	//pan line
-	paint_envelope(painter, VCenter, LCenter, RCenter, m_PanEnvelope, panLineColor, panHandleColor);
 
+	envelope_paint(m_VelocityEnvelope, painter, m_EditMode == TargetWaveDisplay::VELOCITY, m_nX,
+		VCenter, LCenter, RCenter, volumeLineColor, volumeHandleColor, selectedtHandleColor);
+	//pan line
+	envelope_paint(m_PanEnvelope, painter, m_EditMode == TargetWaveDisplay::PAN, m_nX,
+		VCenter, LCenter, RCenter, panLineColor, panHandleColor, selectedtHandleColor);
 
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
 	painter.drawLine( 0, LCenter, UI_WIDTH, LCenter );
