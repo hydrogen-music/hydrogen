@@ -44,6 +44,7 @@ using namespace H2Core;
 #include "../Widgets/Fader.h"
 #include "../Widgets/PixmapWidget.h"
 #include "../Widgets/LCDCombo.h"
+#include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/LCD.h"
 #include "../WidgetScrollArea.h"
 
@@ -117,8 +118,19 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	editor_top_hbox_2->addWidget( pSizeResol );
 
 	// PATTERN size
+	LCDSpinBox* LCDSpLCDSpinBox1 = new LCDSpinBox( pSizeResol, QSize( 62, 17 ), LCDSpinBox::Type::Double, 1.0, 16.0 );
+	LCDSpinBox* LCDSpLCDSpinBox2 = new LCDSpinBox( pSizeResol, QSize( 30, 17 ), LCDSpinBox::Type::Double, 1, 16 );
+	LCDSpLCDSpinBox1->move( 31, 1 );
+	LCDSpLCDSpinBox2->move( 101, 1 );
+	QLabel* label1 = new ClickableLabel( pSizeResol, QSize( 4, 11 ), "/", ClickableLabel::Color::Dark );
+	label1->resize( QSize( 20, 17 ) );
+	label1->move( 95, 4 );
+	label1->setText( "/" );
+	label1->setFont( boldFont );
+	label1->setStyleSheet( "color: #191919;" );
 	__pattern_size_LCD = new LCDDisplay( pSizeResol, LCDDigit::SMALL_BLUE, 10 );
 	__pattern_size_LCD->move( 31, 2 );
+	__pattern_size_LCD->hide();
 	__pattern_size_LCD->setToolTip( tr( "Select pattern size" ) );
 	m_pPatternSizeLbl = new ClickableLabel( pSizeResol, QSize( 30, 11 ), HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeLabel(), ClickableLabel::Color::Dark );
 	m_pPatternSizeLbl->move( 2, 4 );
