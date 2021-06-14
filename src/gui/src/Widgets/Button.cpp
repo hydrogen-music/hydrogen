@@ -88,6 +88,7 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	}
 
 	updateFont();
+	updateTooltip();
 	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Button::onPreferencesChanged );
 	resize( size );
@@ -98,6 +99,11 @@ Button::~Button() {
 
 void Button::setBaseToolTip( const QString& sNewTip ) {
 	m_sBaseTooltip = sNewTip;
+	updateTooltip();
+}
+
+void Button::setAction( Action *pAction ) {
+	m_action = pAction;
 	updateTooltip();
 }
 

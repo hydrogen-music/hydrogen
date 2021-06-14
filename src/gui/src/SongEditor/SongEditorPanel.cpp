@@ -179,7 +179,6 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pMutePlaybackBtn->setChecked( !pSong->getPlaybackTrackEnabled() );
 	
 	// edit playback track toggle button
-	/*: Text displayed on the button to edit the Playback track. Its size is designed to hold four characters.*/
 	m_pEditPlaybackBtn = new Button( pBackPanel, QSize( 33, 13 ), Button::Type::Push, "", HydrogenApp::get_instance()->getCommonStrings()->getEditButton(), false, QSize(), tr( "Choose playback track") );
 	m_pEditPlaybackBtn->move( 124, 6 );
 	m_pEditPlaybackBtn->hide();
@@ -187,7 +186,6 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pEditPlaybackBtn->setChecked( false );
 
 	// timeline view toggle button
-	/*: Text displayed on the button to toggle the Timeline. Only use a single letter.*/
 	m_pViewTimeLineBtn = new Button( nullptr, QSize( 19, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getTimelineButton(), false, QSize(), tr( "View timeline" ) );
 	connect( m_pViewTimeLineBtn, SIGNAL( pressed() ), this, SLOT( viewTimeLineBtnPressed() ) );
 	m_pViewTimeLineBtn->setChecked( true );
@@ -650,12 +648,20 @@ void SongEditorPanel::actionModeChangeEvent( int nValue ) {
 
 void SongEditorPanel::selectionModeBtnPressed()
 {
-	Hydrogen::get_instance()->getSong()->setActionMode( H2Core::Song::ActionMode::selectMode );
+	if ( Hydrogen::get_instance()->getSong()->getActionMode() != H2Core::Song::ActionMode::selectMode ) {
+		Hydrogen::get_instance()->getSong()->setActionMode( H2Core::Song::ActionMode::selectMode );
+	} else {
+		m_pSelectionModeBtn->setChecked( false );
+	}
 }
 
 void SongEditorPanel::drawModeBtnPressed()
 {
-	Hydrogen::get_instance()->getSong()->setActionMode( H2Core::Song::ActionMode::drawMode );
+	if ( Hydrogen::get_instance()->getSong()->getActionMode() != H2Core::Song::ActionMode::drawMode ) {
+		Hydrogen::get_instance()->getSong()->setActionMode( H2Core::Song::ActionMode::drawMode );
+	} else {
+		m_pDrawModeBtn->setChecked( false );
+	}
 }
 
 void SongEditorPanel::updateTimelineUsage() {
@@ -709,7 +715,9 @@ void SongEditorPanel::showTimeline()
 	m_pMutePlaybackBtn->hide();
 	m_pEditPlaybackBtn->hide();
 	m_pPlaybackTrackFader->hide();
-	m_pViewPlaybackBtn->setChecked( false );
+	if ( ! m_pViewPlaybackBtn->isDown() ) {
+		m_pViewPlaybackBtn->setChecked( false );
+	}
 	if ( ! m_pViewTimeLineBtn->isDown() ) {
 		m_pViewTimeLineBtn->setChecked( true );
 	}
@@ -724,7 +732,9 @@ void SongEditorPanel::showPlaybackTrack()
 	m_pMutePlaybackBtn->show();
 	m_pEditPlaybackBtn->show();
 	m_pPlaybackTrackFader->show();
-	m_pViewTimeLineBtn->setChecked( false );
+	if ( ! m_pViewTimeLineBtn->isDown() ) {
+		m_pViewTimeLineBtn->setChecked( false );
+	}
 	if ( ! m_pViewPlaybackBtn->isDown() ) {
 		m_pViewPlaybackBtn->setChecked( true );
 	}

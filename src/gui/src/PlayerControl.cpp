@@ -106,6 +106,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pRwdBtn = new Button( pControlsPanel, QSize( 21, 15 ), Button::Type::Push, "rewind.svg", "", false, QSize( 11, 11 ), tr("Rewind") );
 	m_pRwdBtn->move(168, 17);
 	connect(m_pRwdBtn, SIGNAL( pressed() ), this, SLOT( rewindBtnClicked() ));
+	Action* pAction = new Action("<<_PREVIOUS_BAR");
+	m_pRwdBtn->setAction( pAction );
 
 	// Record button
 	m_pRecBtn = new Button( pControlsPanel, QSize( 21, 15 ), Button::Type::Toggle, "record.svg", "", false, QSize( 9, 9 ), tr("Record") );
@@ -113,8 +115,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pRecBtn->setChecked(false);
 	m_pRecBtn->setHidden(false);
 	connect(m_pRecBtn, SIGNAL( pressed() ), this, SLOT( recBtnClicked() ));
-
-	Action* pAction = new Action("RECORD_READY");
+	pAction = new Action("RECORD_READY");
 	m_pRecBtn->setAction( pAction );
 
 	// Play button
@@ -122,10 +123,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pPlayBtn->move(222, 17);
 	m_pPlayBtn->setChecked(false);
 	connect(m_pPlayBtn, SIGNAL( pressed() ), this, SLOT( playBtnClicked() ));
-
-	pAction = new Action("PLAY");
+	pAction = new Action("PLAY/PAUSE_TOGGLE");
 	m_pPlayBtn->setAction( pAction );
-
 
 	// Stop button
 	m_pStopBtn = new Button( pControlsPanel, QSize( 21, 15 ), Button::Type::Push, "stop.svg", "", false, QSize( 9, 9 ), tr("Stop") );
@@ -138,6 +137,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pFfwdBtn = new Button( pControlsPanel, QSize( 21, 15 ), Button::Type::Push, "fast_forward.svg", "", false, QSize( 11, 11 ), tr("Fast Forward") );
 	m_pFfwdBtn->move(281, 17);
 	connect(m_pFfwdBtn, SIGNAL( pressed() ), this, SLOT( fastForwardBtnClicked() ));
+	pAction = new Action(">>_NEXT_BAR");
+	m_pFfwdBtn->setAction( pAction );
 
 	// Loop song button button
 	m_pSongLoopBtn = new Button( pControlsPanel, QSize( 21, 15 ), Button::Type::Toggle, "loop.svg", "", false, QSize( 13, 11 ), tr("Loop song") );
@@ -175,6 +176,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pBCOnOffBtn->move(1, 1);
 	m_pBCOnOffBtn->setChecked(false);
 	connect(m_pBCOnOffBtn, SIGNAL( pressed() ), this, SLOT( bcOnOffBtnClicked() ));
+	pAction = new Action("BEATCOUNTER");
+	m_pBCOnOffBtn->setAction( pAction );
 //~  BC on off
 
 //beatcounter

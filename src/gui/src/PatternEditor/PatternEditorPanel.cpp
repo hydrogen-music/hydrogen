@@ -547,6 +547,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	// update
 	m_pPropertiesCombo->setCurrentIndex( 0 );
+	propertiesComboChanged( 0 );
 	selectedPatternChangedEvent();
 }
 

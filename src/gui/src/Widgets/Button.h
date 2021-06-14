@@ -72,6 +72,7 @@ public:
 	Button& operator=( const Button& rhs ) = delete;
 
 	void setBaseToolTip( const QString& sNewTip );
+	void setAction( Action* pAction );
 
 public slots:
 	void onPreferencesChanged( bool bAppearanceOnly );

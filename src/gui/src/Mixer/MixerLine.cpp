@@ -94,12 +94,18 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pMuteBtn->move( 8, 17 );
 	m_pMuteBtn->setObjectName( "MixerMuteButton" );
 	connect(m_pMuteBtn, SIGNAL( pressed() ), this, SLOT( muteBtnClicked() ));
+	pAction = new Action("STRIP_MUTE_TOGGLE");
+	pAction->setParameter1( QString::number(nInstr ));
+	m_pMuteBtn->setAction(pAction);
 
 	// Solo button
 	m_pSoloBtn = new Button( this, QSize( 18, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton(), false, QSize(), tr( "Solo" ) );
 	m_pSoloBtn->move( 30, 17);
 	m_pSoloBtn->setObjectName( "MixerSoloButton" );
 	connect(m_pSoloBtn, SIGNAL( pressed() ), this, SLOT( soloBtnClicked() ));
+	pAction = new Action("STRIP_SOLO_TOGGLE");
+	pAction->setParameter1( QString::number(nInstr ));
+	m_pSoloBtn->setAction(pAction);
 
 	// pan rotary
 	m_pPanRotary = new Rotary( this, Rotary::Type::Center, tr( "Pan" ), false );
