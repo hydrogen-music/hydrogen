@@ -280,7 +280,7 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 
 	update_envelope(envelope, m_nX, m_nY, snapradius);
 	update();
-	HydrogenApp::get_instance()->getSampleEditor()->setTrue();
+	HydrogenApp::get_instance()->getSampleEditor()->setUnclean();
 }
 
 
@@ -347,7 +347,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 	}
 
 	update();
-	HydrogenApp::get_instance()->getSampleEditor()->setTrue();
+	HydrogenApp::get_instance()->getSampleEditor()->setUnclean();
 }
 
 

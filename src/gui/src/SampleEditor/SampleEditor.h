@@ -55,9 +55,10 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		bool getCloseQuestion();
 		bool returnAllMainWaveDisplayValues();
 		void returnAllTargetDisplayValues();
-		void setTrue();
-		
-		bool m_bSampleEditorStatus;
+		void setUnclean();
+		void setClean();
+
+		bool m_bSampleEditorClean;
 
 		//this values come from the real sample to restore a frm song loaded sample
 		bool m_bSampleIsModified;	///< true if sample is modified
