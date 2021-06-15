@@ -78,12 +78,16 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		bool m_UpdatePosition;
 		EnvelopeEditMode m_EditMode;
 
+		int m_nSnapRadius;
+
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 
 		H2Core::Sample::PanEnvelope m_PanEnvelope;
 		H2Core::Sample::VelocityEnvelope m_VelocityEnvelope;
+
+		int m_nSelectedEnvelopePoint;
 };
 
 #endif
