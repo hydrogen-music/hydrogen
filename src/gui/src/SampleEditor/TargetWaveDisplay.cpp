@@ -239,6 +239,26 @@ void TargetWaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> 
 
 }
 
+
+static void update_envelope(Sample::VelocityEnvelope & envelope, int x, int y, int snapradius)
+{
+	for ( int i = 0; i < static_cast<int>(envelope.size()); i++){
+		if ( envelope[i]->frame >= x - snapradius && envelope[i]->frame <= x + snapradius ) {
+			envelope.erase( envelope.begin() + i);
+			int Frame = x;
+			int Value = y;
+
+			if ( i == 0 ){
+				Frame = 0;
+			} else if ( i == static_cast<int>(envelope.size()) ) {
+				Frame = UI_WIDTH;
+			}
+			envelope.push_back( std::make_unique<EnvelopePoint>( Frame, Value) );
+			sort( envelope.begin(), envelope.end(), EnvelopePoint::Comparator() );
+			return;
+		}
+	}
+}
 void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
 	int snapradius = 10;
@@ -256,24 +276,7 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 		update();
 		return;
 	}
-	for ( int i = 0; i < static_cast<int>(envelope.size()); i++){
-		if ( envelope[i]->frame >= ev->x() - snapradius && envelope[i]->frame <= ev->x() + snapradius ) {
-			envelope.erase( envelope.begin() + i);
-			int Frame = m_nX;
-			int Value = m_nY;
-
-			if ( i == 0 ){
-				Frame = 0;
-			} else if ( i == static_cast<int>(envelope.size()) ) {
-				Frame = UI_WIDTH;
-			}
-			envelope.push_back( std::make_unique<EnvelopePoint>( Frame, Value) );
-			sort( envelope.begin(), envelope.end(), EnvelopePoint::Comparator() );
-			update();
-			return;
-		}
-	}
-
+	update_envelope(envelope, m_nX, m_nY, snapradius);
 	update();
 	HydrogenApp::get_instance()->getSampleEditor()->setTrue();
 }
@@ -298,35 +301,44 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 		}
 	}
 
-	int x = ev->x();
-	int y = ev->y();
-	if (ev->button() == Qt::LeftButton && NewPoint){
-		float info = (UI_HEIGHT - ev->y()) / (float)UI_HEIGHT;
-		m_sInfo.setNum( info, 'g', 2 );
-		m_nX = ev->x();
-		m_nY = ev->y();
-		if ( ev->y() <= 0 ) y = 0;
-		if ( ev->y() >= UI_HEIGHT ) y = UI_HEIGHT;
-		if ( ev->x() <= SnapRadius ) x = SnapRadius;
-		if ( ev->x() >= UI_WIDTH-SnapRadius ) x = UI_WIDTH-SnapRadius;
-		envelope.push_back( std::make_unique<EnvelopePoint>( x, y ) );
-		sort( envelope.begin(), envelope.end(), EnvelopePoint::Comparator() );
+	int x = std::min(UI_WIDTH, std::max(0, ev->x()));
+	int y = std::min(UI_HEIGHT, std::max(0, ev->y()));
+	if (ev->button() == Qt::LeftButton) {
+		if (NewPoint){
+			float info = (UI_HEIGHT - y) / (float)UI_HEIGHT;
+			m_sInfo.setNum( info, 'g', 2 );
+
+			m_nX = x;
+			m_nY = y;
+			if (envelope.empty()) {
+				envelope.push_back( std::make_unique<EnvelopePoint>(0, m_nY) );
+				envelope.push_back( std::make_unique<EnvelopePoint>(UI_WIDTH, m_nY));
+			} else {
+				envelope.push_back( std::make_unique<EnvelopePoint>( m_nX, m_nY ) );
+			}
+			sort( envelope.begin(), envelope.end(), EnvelopePoint::Comparator() );
+		} else {
+			// move old one to new position
+			update_envelope(envelope, m_nX, m_nY, SnapRadius);
+		}
 	}
 
 	//remove point
 	SnapRadius = 10;
-	if (ev->button() == Qt::RightButton ){
+	if (ev->button() == Qt::RightButton ) {
 
-		if ( ev->x() <= 0 || ev->x() >= UI_WIDTH ){
+		if ((x == 0 || x == UI_WIDTH) && envelope.size() > 2) {
 			update();
 			return;
-		}
-		m_sInfo = "";
-
-		for ( int i = 0; i < static_cast<int>(envelope.size()); i++){
-			if ( envelope[i]->frame >= ev->x() - SnapRadius && envelope[i]->frame <= ev->x() + SnapRadius ){
-				if ( envelope[i]->frame == 0 || envelope[i]->frame == UI_WIDTH) return;
-				envelope.erase( envelope.begin() +  i);
+		} else if (envelope.size() == 2) {
+			envelope.clear();
+		} else {
+			for ( int i = 0; i < static_cast<int>(envelope.size()); i++){
+				if ( envelope[i]->frame >= x - SnapRadius && envelope[i]->frame <= x + SnapRadius ){
+					if ( envelope[i]->frame == 0 || envelope[i]->frame == UI_WIDTH)
+						return;
+					envelope.erase( envelope.begin() +  i);
+				}
 			}
 		}
 	}
