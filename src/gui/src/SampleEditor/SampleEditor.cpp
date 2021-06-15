@@ -419,6 +419,8 @@ void SampleEditor::mouseReleaseEvent(QMouseEvent *ev)
 
 bool SampleEditor::returnAllMainWaveDisplayValues()
 {
+	m_bAdjusting = true;
+
 	testpTimer();
 //	QMessageBox::information ( this, "Hydrogen", tr ( "jep %1" ).arg(m_pSample->get_frames()));
 	m_bSampleIsModified = true;
@@ -432,6 +434,7 @@ bool SampleEditor::returnAllMainWaveDisplayValues()
 	m_bOnewayLoop = true;
 	m_bOnewayEnd = true;
 	setSamplelengthFrames();
+	m_bAdjusting = false;
 	setUnclean();
 	return true;
 }
@@ -462,6 +465,7 @@ void SampleEditor::valueChangedStartFrameSpinBox( int )
 	testpTimer();
 	m_pDetailFrame = StartFrameSpinBox->value();
 	if (m_pDetailFrame == __loops.start_frame) { // no actual change
+		if (! m_bAdjusting ) on_PlayPushButton_clicked();
 		return;
 	}
 	m_sLineColor = "Start";
@@ -486,6 +490,7 @@ void SampleEditor::valueChangedLoopFrameSpinBox( int )
 	testpTimer();
 	m_pDetailFrame = LoopFrameSpinBox->value();
 	if (m_pDetailFrame == __loops.loop_frame) {
+		if ( ! m_bAdjusting ) on_PlayPushButton_clicked();
 		return;
 	}
 	m_sLineColor = "Loop";
@@ -509,6 +514,7 @@ void SampleEditor::valueChangedEndFrameSpinBox( int )
 	testpTimer();
 	m_pDetailFrame = EndFrameSpinBox->value();
 	if ( m_pDetailFrame == __loops.end_frame) {
+		if ( ! m_bAdjusting ) on_PlayPushButton_clicked();
 		return;
 	}
 	m_sLineColor = "End";
@@ -775,6 +781,7 @@ void SampleEditor::valueChangedLoopCountSpinBox( int )
 	int count = LoopCountSpinBox->value();
 
 	if (count == __loops.count) {
+		if ( ! m_bAdjusting ) on_PlayOrigPushButton_clicked();
 		return;
 	}
 	if ( m_nSlframes > Hydrogen::get_instance()->getAudioOutput()->getSampleRate() * 60 ){
@@ -798,6 +805,7 @@ void SampleEditor::valueChangedrubberbandCsettingscomboBox( const QString  )
 {
 	int new_settings = rubberbandCsettingscomboBox->currentIndex();
 	if (new_settings == __rubberband.c_settings) {
+		if (! m_bAdjusting ) on_PlayPushButton_clicked();
 		return;
 	}
 	__rubberband.c_settings = new_settings;
@@ -810,6 +818,7 @@ void SampleEditor::valueChangedpitchdoubleSpinBox( double )
 {
 	double new_value = pitchdoubleSpinBox->value();
 	if (std::abs(new_value - __rubberband.pitch) < 0.0001) {
+		if (! m_bAdjusting ) on_PlayPushButton_clicked();
 		return;
 	}
 	__rubberband.pitch = new_value;
@@ -934,6 +943,7 @@ void SampleEditor::on_verticalzoomSlider_valueChanged( int value )
 
 void SampleEditor::testPositionsSpinBoxes()
 {
+	m_bAdjusting = true;
 	if (  __loops.start_frame > __loops.loop_frame ) __loops.loop_frame = __loops.start_frame;
 	if (  __loops.start_frame > __loops.end_frame ) __loops.end_frame = __loops.start_frame;
 	if (  __loops.loop_frame > __loops.end_frame ) __loops.end_frame = __loops.loop_frame;
@@ -942,6 +952,7 @@ void SampleEditor::testPositionsSpinBoxes()
 	StartFrameSpinBox->setValue( __loops.start_frame );
 	LoopFrameSpinBox->setValue( __loops.loop_frame );
 	EndFrameSpinBox->setValue( __loops.end_frame );
+	m_bAdjusting = false;
 }
 
 
