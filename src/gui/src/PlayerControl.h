@@ -157,10 +157,7 @@ private:
 
 	LCDSpinBox *m_pLCDBPMSpinbox;
 	ClickableLabel* m_pBPMLbl;
-	LCDDisplay *m_pTimeDisplayH;
-	LCDDisplay *m_pTimeDisplayM;
-	LCDDisplay *m_pTimeDisplayS;
-	LCDDisplay *m_pTimeDisplayMS;
+	LCDDisplay *m_pTimeDisplay;
 	ClickableLabel* m_pTimeHoursLbl;
 	ClickableLabel* m_pTimeMinutesLbl;
 	ClickableLabel* m_pTimeSecondsLbl;
@@ -169,9 +166,9 @@ private:
 	//beatcounter
 	PixmapWidget *m_pControlsBCPanel;
 
-	LCDDisplay *m_pBCDisplayZ;
-	LCDDisplay *m_pBCDisplayB;
-	LCDDisplay *m_pBCDisplayT;
+	QLabel *m_pBCDisplayZ;
+	QLabel *m_pBCDisplayB;
+	QLabel *m_pBCDisplayT;
 	//~ beatcounter
 
 	MetronomeLED *m_pMetronomeLED;
@@ -183,12 +180,12 @@ private:
 	LCDDisplay *m_pStatusLabel;
 	QTimer *m_pStatusTimer;
 	QTimer *m_pScrollTimer;
+	QString m_pScrollMessage;
 	/** Used to turn off the LED #m_pMidiActivityLED indicating an
 		incoming MIDI event after #m_midiActivityTimeout
 		milliseconds.*/ 
 	QTimer *m_pMidiActivityTimer;
 	std::chrono::milliseconds m_midiActivityTimeout; 
-	QString m_pScrollMessage;
 };
 
 

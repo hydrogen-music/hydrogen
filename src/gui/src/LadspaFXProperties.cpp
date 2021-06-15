@@ -33,7 +33,7 @@
 #include "LadspaFXSelector.h"
 #include "Skin.h"
 #include "Widgets/Fader.h"
-#include "Widgets/LCD.h"
+#include "Widgets/LCDDisplay.h"
 
 #include "Mixer/Mixer.h"
 #include "Mixer/MixerLine.h"
@@ -257,7 +257,7 @@ void LadspaFXProperties::updateControls()
 				sValue = QString("%1").arg( pControlPort->fControlValue, 0, 'f', 0);
 			}
 
-			LCDDisplay *pLCD = new LCDDisplay( m_pFrame, LCDDigit::SMALL_BLUE, 4 );
+			LCDDisplay *pLCD = new LCDDisplay( m_pFrame, QSize( 32, 11 ) );
 			pLCD->move( nInputControl_X, 40 );
 			pLCD->setText( sValue );
 			pLCD->show();

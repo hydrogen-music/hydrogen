@@ -31,7 +31,7 @@
 #include "../Widgets/Fader.h"
 #include "../Widgets/Rotary.h"
 #include "../Widgets/Button.h"
-#include "../Widgets/LCD.h"
+#include "../Widgets/LCDDisplay.h"
 #include "../Widgets/LED.h"
 #include "../Widgets/WidgetWithInput.h"
 
@@ -161,8 +161,8 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pFader->setAction( pAction );
 
 
-	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 4 );
-	m_pPeakLCD->move( 10, 106 );
+	m_pPeakLCD = new LCDDisplay( this, QSize( 39, 17 ) );
+	m_pPeakLCD->move( 9, 106 );
 	m_pPeakLCD->setText( "0.00" );
 	m_pPeakLCD->setToolTip( tr( "Peak" ) );
 	QPalette lcdPalette;
@@ -183,14 +183,12 @@ void MixerLine::updateMixerLine()
 			m_fMaxPeak = 0.0f;
 			m_nPeakTimer = 0;
 		}
-		char tmp[20];
-		snprintf(tmp, 19, "%#.2f", (double)m_fMaxPeak );
-		m_pPeakLCD->setText(tmp);
+		m_pPeakLCD->setText( QString( "%1" ).arg( m_fMaxPeak, 0, 'f', 2 ) );
 		if ( m_fMaxPeak > 1.0 ) {
-			m_pPeakLCD->setSmallRed();
+			m_pPeakLCD->setRedFont();
 		}
 		else {
-			m_pPeakLCD->setSmallBlue();
+			m_pPeakLCD->setDefaultFont();
 		}
 	}
 	m_nPeakTimer++;
@@ -257,14 +255,12 @@ void MixerLine::setPeak_L( float peak ) {
 			if ( peak < 0.1f ) {
 				peak = 0.0f;
 			}
-			char tmp[20];
-			snprintf(tmp, 19, "%#.2f", peak);
-			m_pPeakLCD->setText( tmp );
+			m_pPeakLCD->setText( QString( "%1" ).arg( peak, 0, 'f', 2 ) );
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setSmallRed();
+				m_pPeakLCD->setRedFont();
 			}
 			else {
-				m_pPeakLCD->setSmallBlue();
+				m_pPeakLCD->setDefaultFont();
 			}
 			m_fMaxPeak = peak;
 			m_nPeakTimer = 0;
@@ -283,14 +279,12 @@ void MixerLine::setPeak_R( float peak ) {
 			if ( peak < 0.1f ) {
 				peak = 0.0f;
 			}
-			char tmp[20];
-			snprintf(tmp, 19, "%#.2f", peak);
-			m_pPeakLCD->setText( tmp );
+			m_pPeakLCD->setText( QString( "%1" ).arg( peak, 0, 'f', 2 ) );
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setSmallRed();
+				m_pPeakLCD->setRedFont();
 			}
 			else {
-				m_pPeakLCD->setSmallBlue();
+				m_pPeakLCD->setDefaultFont();
 			}
 			m_fMaxPeak = peak;
 			m_nPeakTimer = 0;
@@ -442,8 +436,8 @@ ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
 	//m_pFader->setAction( pAction );
 
 
-	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 4 );
-	m_pPeakLCD->move( 10, 106 );
+	m_pPeakLCD = new LCDDisplay( this, QSize( 39, 17 ) );
+	m_pPeakLCD->move( 9, 106 );
 	m_pPeakLCD->setText( "0.00" );
 	m_pPeakLCD->setToolTip( tr( "Peak" ) );
 	QPalette lcdPalette;
@@ -466,14 +460,12 @@ void ComponentMixerLine::updateMixerLine()
 			m_fMaxPeak = 0.0f;
 			m_nPeakTimer = 0;
 		}
-		char tmp[20];
-		snprintf(tmp, 19, "%#.2f", (double)m_fMaxPeak );
-		m_pPeakLCD->setText(tmp);
+		m_pPeakLCD->setText( QString( "%1" ).arg( m_fMaxPeak, 0, 'f', 2 ) );
 		if ( m_fMaxPeak > 1.0 ) {
-			m_pPeakLCD->setSmallRed();
+			m_pPeakLCD->setRedFont();
 		}
 		else {
-			m_pPeakLCD->setSmallBlue();
+			m_pPeakLCD->setDefaultFont();
 		}
 	}
 	m_nPeakTimer++;
@@ -535,14 +527,12 @@ void ComponentMixerLine::setPeak_L( float peak ) {
 			if ( peak < 0.1f ) {
 				peak = 0.0f;
 			}
-			char tmp[20];
-			snprintf(tmp, 19, "%#.2f", peak);
-			m_pPeakLCD->setText( tmp );
+			m_pPeakLCD->setText( QString( "%1" ).arg( peak, 0, 'f', 2 ) );
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setSmallRed();
+				m_pPeakLCD->setRedFont();
 			}
 			else {
-				m_pPeakLCD->setSmallBlue();
+				m_pPeakLCD->setDefaultFont();
 			}
 			m_fMaxPeak = peak;
 			m_nPeakTimer = 0;
@@ -561,14 +551,12 @@ void ComponentMixerLine::setPeak_R( float peak ) {
 			if ( peak < 0.1f ) {
 				peak = 0.0f;
 			}
-			char tmp[20];
-			snprintf(tmp, 19, "%#.2f", peak);
-			m_pPeakLCD->setText( tmp );
+			m_pPeakLCD->setText( QString( "%1" ).arg( peak, 0, 'f', 2 ) );
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setSmallRed();
+				m_pPeakLCD->setRedFont();
 			}
 			else {
-				m_pPeakLCD->setSmallBlue();
+				m_pPeakLCD->setDefaultFont();
 		}
 			m_fMaxPeak = peak;
 			m_nPeakTimer = 0;
@@ -615,8 +603,8 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	Action* pAction = new Action("MASTER_VOLUME_ABSOLUTE");
 	m_pMasterFader->setAction( pAction );
 
-	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 4 );
-	m_pPeakLCD->move( 23, 53 );
+	m_pPeakLCD = new LCDDisplay( this, QSize( 37, 17 ) );
+	m_pPeakLCD->move( 23, 52 );
 	m_pPeakLCD->setText( "0.00" );
 	m_pPeakLCD->setToolTip( tr( "Peak" ) );
 	QPalette lcdPalette;
@@ -683,14 +671,12 @@ void MasterMixerLine::setPeak_L(float peak)
 			if ( peak < 0.1f ) {
 				peak = 0.0f;
 			}
-			char tmp[20];
-			snprintf(tmp, 19, "%#.2f", peak);
-			m_pPeakLCD->setText(tmp);
+			m_pPeakLCD->setText( QString( "%1" ).arg( m_fMaxPeak, 0, 'f', 2 ) );
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setSmallRed();
+				m_pPeakLCD->setRedFont();
 			}
 			else {
-				m_pPeakLCD->setSmallBlue();
+				m_pPeakLCD->setDefaultFont();
 			}
 			m_fMaxPeak = peak;
 			m_nPeakTimer = 0;
@@ -709,14 +695,12 @@ void MasterMixerLine::setPeak_R(float peak) {
 			if ( peak < 0.1f ) {
 				peak = 0.0f;
 			}
-			char tmp[20];
-			snprintf(tmp, 19,"%#.2f", peak);
-			m_pPeakLCD->setText(tmp);
+			m_pPeakLCD->setText( QString( "%1" ).arg( peak, 0, 'f', 2 ) );
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setSmallRed();
+				m_pPeakLCD->setRedFont();
 			}
 			else {
-				m_pPeakLCD->setSmallBlue();
+				m_pPeakLCD->setDefaultFont();
 			}
 			m_fMaxPeak = peak;
 			m_nPeakTimer = 0;
@@ -739,14 +723,12 @@ void MasterMixerLine::updateMixerLine()
 			m_fMaxPeak = 0.0f;
 			m_nPeakTimer = 0;
 		}
-		char tmp[20];
-		snprintf(tmp, 19, "%#.2f", m_fMaxPeak );
-		m_pPeakLCD->setText(tmp);
+		m_pPeakLCD->setText( QString( "%1" ).arg( m_fMaxPeak, 0, 'f', 2 ) );
 		if ( m_fMaxPeak > 1.0 ) {
-			m_pPeakLCD->setSmallRed();
+			m_pPeakLCD->setRedFont();
 		}
 		else {
-			m_pPeakLCD->setSmallBlue();
+			m_pPeakLCD->setDefaultFont();
 		}
 	}
 	m_nPeakTimer++;
@@ -896,13 +878,13 @@ LadspaFXMixerLine::LadspaFXMixerLine(QWidget* parent)
 	connect( m_pEditBtn, SIGNAL( pressed() ), this, SLOT( editBtnClicked() ) );
 
 	// instrument name widget
-	m_pNameLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 13 );
+	m_pNameLCD = new LCDDisplay( this, QSize( 108, 15 ) );
 	m_pNameLCD->move( 11, 9 );
 	m_pNameLCD->setText( "No name" );
 	m_pNameLCD->setToolTip( tr( "Ladspa FX name" ) );
 
 	// m_pRotary
-	m_pRotary = new Rotary( this,  Rotary::Type::Normal, tr( "Effect return" ), false );
+	m_pRotary = new Rotary( this, Rotary::Type::Normal, tr( "Effect return" ), false );
 	m_pRotary->setDefaultValue( m_pRotary->getMax() );
 	m_pRotary->move( 124, 4 );
 	m_pRotary->setIsActive( false );

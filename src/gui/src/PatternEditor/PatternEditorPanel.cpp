@@ -45,7 +45,6 @@ using namespace H2Core;
 #include "../Widgets/PixmapWidget.h"
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/LCDSpinBox.h"
-#include "../Widgets/LCD.h"
 #include "../WidgetScrollArea.h"
 
 #include "../Skin.h"
@@ -128,14 +127,14 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	label1->setText( "/" );
 	label1->setFont( boldFont );
 	label1->setStyleSheet( "color: #191919;" );
-	__pattern_size_LCD = new LCDDisplay( pSizeResol, LCDDigit::SMALL_BLUE, 10 );
+	__pattern_size_LCD = new LCDDisplay( pSizeResol, QSize( 100, 17 ) );
 	__pattern_size_LCD->move( 31, 2 );
 	__pattern_size_LCD->hide();
 	__pattern_size_LCD->setToolTip( tr( "Select pattern size" ) );
 	m_pPatternSizeLbl = new ClickableLabel( pSizeResol, QSize( 30, 11 ), HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeLabel(), ClickableLabel::Color::Dark );
 	m_pPatternSizeLbl->move( 2, 4 );
 
-	connect( __pattern_size_LCD, SIGNAL( displayClicked( LCDDisplay* ) ), this, SLOT( patternSizeLCDClicked() ) );
+	// connect( __pattern_size_LCD, SIGNAL( displayClicked( LCDDisplay* ) ), this, SLOT( patternSizeLCDClicked() ) );
 	
 	m_pDenominatorWarning = new Button( pSizeResol, QSize( 15, 13 ), Button::Type::Push, "warning.svg", "", false, QSize(), tr( "Unsupported note denominator. Click for more information." ) );
 	m_pDenominatorWarning->move( 114, 2 );
@@ -943,11 +942,11 @@ void PatternEditorPanel::patternSizeLCDClicked()
 	int denominator;
 	
 	QString qtmp = QInputDialog::getText( this, "Hydrogen", tr( "New Pattern length (beats/note value)" ),
-													QLineEdit::Normal, __pattern_size_LCD->getText(), &bIsOkPressed );
+													QLineEdit::Normal, __pattern_size_LCD->text(), &bIsOkPressed );
 													//Note: actually is (beats * note value) but looks less clear
 	
 	if ( bIsOkPressed ) {
-	    if	(__pattern_size_LCD->getText() == qtmp ) { // text unchanged
+	    if	(__pattern_size_LCD->text() == qtmp ) { // text unchanged
 	    	return;
 	    }
 	    

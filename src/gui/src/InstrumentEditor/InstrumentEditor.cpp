@@ -49,7 +49,7 @@ using namespace H2Core;
 #include "../Widgets/WidgetWithInput.h"
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/Button.h"
-#include "../Widgets/LCD.h"
+#include "../Widgets/LCDDisplay.h"
 #include "../Widgets/LCDSpinBox.h"
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/Fader.h"
@@ -113,8 +113,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	connect( m_pNameLbl, SIGNAL( labelClicked(ClickableLabel*) ), this, SLOT( labelClicked(ClickableLabel*) ) );
 	
-	m_pPitchLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 6 );
-	m_pPitchLCD->move(25, 215 );
+	m_pPitchLCD = new LCDDisplay( m_pInstrumentProp, QSize( 54, 16 ) );
+	m_pPitchLCD->move(25, 214 );
 	m_pPitchLbl = new ClickableLabel( m_pInstrumentProp, QSize( 54, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getPitchLabel() );
 	m_pPitchLbl->move( 25, 236 );
 	
@@ -188,11 +188,11 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	//~ ADSR
 
 	// instrument gain
-	m_pInstrumentGainLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
+	m_pInstrumentGainLCD = new LCDDisplay( m_pInstrumentProp, QSize( 39, 18 ) );
 	m_pInstrumentGain = new Rotary( m_pInstrumentProp, Rotary::Type::Normal, tr( "Instrument gain" ), false, 0.0, 5.0 );
 	m_pInstrumentGain->setDefaultValue( 1.0 );
 	connect( m_pInstrumentGain, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
-	m_pInstrumentGainLCD->move( 67, 105 );
+	m_pInstrumentGainLCD->move( 65, 104 );
 	m_pInstrumentGain->move( 109, 100 );
 	m_pGainLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getGainLabel() );
 	m_pGainLbl->move( 107, 126 );
@@ -296,22 +296,22 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pRemoveLayerBtn, SIGNAL( pressed() ), this, SLOT( removeLayerButtonClicked() ) );
 	connect( m_pSampleEditorBtn, SIGNAL( pressed() ), this, SLOT( showSampleEditor() ) );
 	// Layer gain
-	m_pLayerGainLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pLayerGainRotary = new Rotary( m_pLayerProp,  Rotary::Type::Normal, tr( "Layer gain" ), false , 0.0, 5.0);
+	m_pLayerGainLCD = new LCDDisplay( m_pLayerProp, QSize( 36, 16 ) );
+	m_pLayerGainRotary = new Rotary( m_pLayerProp, Rotary::Type::Normal, tr( "Layer gain" ), false , 0.0, 5.0);
 	m_pLayerGainRotary->setDefaultValue( 1.0 );
 	connect( m_pLayerGainRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 	m_pLayerGainLbl = new ClickableLabel( m_pLayerProp, QSize( 44, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getLayerGainLabel() );
 	m_pLayerGainLbl->move( 50, 361 );
 
-	m_pCompoGainLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pCompoGainRotary = new Rotary( m_pLayerProp,  Rotary::Type::Normal, tr( "Component volume" ), false, 0.0, 5.0 );
+	m_pCompoGainLCD = new LCDDisplay( m_pLayerProp, QSize( 36, 16 ) );
+	m_pCompoGainRotary = new Rotary( m_pLayerProp, Rotary::Type::Normal, tr( "Component volume" ), false, 0.0, 5.0 );
 	m_pCompoGainRotary->setDefaultValue ( 1.0 );
 	connect( m_pCompoGainRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 	m_pCompoGainLbl = new ClickableLabel( m_pLayerProp, QSize( 44, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getComponentGainLabel() );
 	m_pCompoGainLbl->move( 147, 361 );
 
-	m_pLayerPitchCoarseLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pLayerPitchFineLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
+	m_pLayerPitchCoarseLCD = new LCDDisplay( m_pLayerProp, QSize( 28, 16 ) );
+	m_pLayerPitchFineLCD = new LCDDisplay( m_pLayerProp, QSize( 28, 16 ) );
 	m_pLayerPitchLbl = new ClickableLabel( m_pLayerProp, QSize( 45, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getPitchLabel() );
 	m_pLayerPitchLbl->move( 17, 412 );
 
@@ -325,17 +325,16 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerPitchFineLbl = new ClickableLabel( m_pLayerProp, QSize( 44, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getPitchFineLabel() );
 	m_pLayerPitchFineLbl->move( 147, 411 );
 
-	m_pLayerGainLCD->move( 54, 344 );
+	m_pLayerGainLCD->move( 53, 343 );
 	m_pLayerGainRotary->move( 94, 341 );
 
-	m_pCompoGainLCD->move( 151, 344 );
+	m_pCompoGainLCD->move( 151, 343 );
 	m_pCompoGainRotary->move( 191, 341 );
 
-
-	m_pLayerPitchCoarseLCD->move( 66, 394 );
+	m_pLayerPitchCoarseLCD->move( 70, 393 );
 	m_pLayerPitchCoarseRotary->move( 105, 391 );
 
-	m_pLayerPitchFineLCD->move( 151, 394 );
+	m_pLayerPitchFineLCD->move( 155, 393 );
 	m_pLayerPitchFineRotary->move( 191, 391 );
 
 	m_sampleSelectionAlg = new LCDCombo(m_pLayerProp, QSize( width() - 76 - 8, 16 ) );

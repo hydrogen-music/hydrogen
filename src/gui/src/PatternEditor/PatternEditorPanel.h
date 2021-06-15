@@ -30,7 +30,7 @@
 #include "PianoRollEditor.h"
 #include "../EventListener.h"
 #include "../Widgets/LCDCombo.h"
-#include "../Widgets/LCD.h"
+#include "../Widgets/LCDDisplay.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
 class Button;

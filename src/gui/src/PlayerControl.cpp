@@ -28,7 +28,7 @@
 #include "HydrogenApp.h"
 
 #include "Widgets/ClickableLabel.h"
-#include "Widgets/LCD.h"
+#include "Widgets/LCDDisplay.h"
 #include "Widgets/LCDSpinBox.h"
 #include "Widgets/LED.h"
 #include "Widgets/Button.h"
@@ -78,29 +78,20 @@ PlayerControl::PlayerControl(QWidget *parent)
 	pControlsPanel->setObjectName( "ControlsPanel" );
 	hbox->addWidget( pControlsPanel );
 
-	m_pTimeDisplayH = new LCDDisplay( pControlsPanel, LCDDigit::LARGE_GRAY, 2 );
-	m_pTimeDisplayH->move( 27, 12 );
-	m_pTimeDisplayH->setText( "00" );
+	m_pTimeDisplay = new LCDDisplay( pControlsPanel, QSize( 146, 22 ) );
+	m_pTimeDisplay->move( 13, 7 );
+	m_pTimeDisplay->setAlignment( Qt::AlignRight );
+	m_pTimeDisplay->setText( "00:00:00:0000" );
+	m_pTimeDisplay->setStyleSheet( "font-size: 17px;" );
+
 	m_pTimeHoursLbl = new ClickableLabel( pControlsPanel, QSize( 33, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getTimeHoursLabel(), ClickableLabel::Color::LCD );
 	m_pTimeHoursLbl->move( 24, 30 );
-
-	m_pTimeDisplayM = new LCDDisplay( pControlsPanel, LCDDigit::LARGE_GRAY, 2 );
-	m_pTimeDisplayM->move( 61, 12 );
-	m_pTimeDisplayM->setText( "00" );
 	m_pTimeMinutesLbl = new ClickableLabel( pControlsPanel, QSize( 33, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getTimeMinutesLabel(), ClickableLabel::Color::LCD );
-	m_pTimeMinutesLbl->move( 58, 30 );
-
-	m_pTimeDisplayS = new LCDDisplay( pControlsPanel, LCDDigit::LARGE_GRAY, 2 );
-	m_pTimeDisplayS->move( 95, 12 );
-	m_pTimeDisplayS->setText( "00" );
+	m_pTimeMinutesLbl->move( 51, 30 );
 	m_pTimeSecondsLbl = new ClickableLabel( pControlsPanel, QSize( 33, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getTimeSecondsLabel(), ClickableLabel::Color::LCD );
-	m_pTimeSecondsLbl->move( 92, 30 );
-
-	m_pTimeDisplayMS = new LCDDisplay( pControlsPanel, LCDDigit::SMALL_GRAY, 3 );
-	m_pTimeDisplayMS->move( 122, 16 );
-	m_pTimeDisplayMS->setText( "000" );
+	m_pTimeSecondsLbl->move( 79, 30 );
 	m_pTimeMilliSecondsLbl = new ClickableLabel( pControlsPanel, QSize( 34, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getTimeMilliSecondsLabel(), ClickableLabel::Color::LCD );
-	m_pTimeMilliSecondsLbl->move( 124, 30 );
+	m_pTimeMilliSecondsLbl->move( 116, 30 );
 
 	// Rewind button
 	m_pRwdBtn = new Button( pControlsPanel, QSize( 21, 15 ), Button::Type::Push, "rewind.svg", "", false, QSize( 11, 11 ), tr("Rewind") );
@@ -188,19 +179,28 @@ PlayerControl::PlayerControl(QWidget *parent)
 	hbox->addWidget( m_pControlsBCPanel );
 
 
-	m_pBCDisplayZ = new LCDDisplay( m_pControlsBCPanel, LCDDigit::LARGE_GRAY, 2 );
-	m_pBCDisplayZ->move( 36, 8 );
+	m_pBCDisplayZ = new QLabel( m_pControlsBCPanel );
+	m_pBCDisplayZ->resize( QSize( 23, 13 ) );
+	m_pBCDisplayZ->move( 45, 8 );
 	m_pBCDisplayZ->setText( "--" );
 
-
-	m_pBCDisplayT = new LCDDisplay( m_pControlsBCPanel, LCDDigit::SMALL_GRAY, 1 );
-	m_pBCDisplayT->move( 23, 26 );
+	QLabel* pLabelBC1 = new QLabel( m_pControlsBCPanel );
+	pLabelBC1->resize( QSize( 9, 11 ) );
+	pLabelBC1->move( 25, 9 );
+	pLabelBC1->setText( "1" );
+	QLabel* pLabelBC2 = new QLabel( m_pControlsBCPanel );
+	pLabelBC2->resize( QSize( 9, 3 ) );
+	pLabelBC2->move( 25, 20 );
+	pLabelBC2->setText( "—" );
+	
+	m_pBCDisplayT = new QLabel( m_pControlsBCPanel );
+	m_pBCDisplayT->resize( QSize( 9, 11 ) );
+	m_pBCDisplayT->move( 25, 25 );
 	m_pBCDisplayT->setText( "4" );
 
-	m_pBCDisplayB = new LCDDisplay( m_pControlsBCPanel, LCDDigit::SMALL_GRAY, 2 );
-	m_pBCDisplayB->move( 39, 26 );
-// set display from 4 to 04. fix against qt4 transparent problem
-//	m_pBCDisplayB->setText( "4" );
+	m_pBCDisplayB = new QLabel( m_pControlsBCPanel );
+	m_pBCDisplayB->resize( QSize( 23, 11 ) );
+	m_pBCDisplayB->move( 45, 25 );
 	m_pBCDisplayB->setText( "04" );
 
 	m_pBCTUpBtn = new Button( m_pControlsBCPanel, QSize( 15, 8 ), Button::Type::Push, "plus.svg", "", false, QSize( 6, 6 ) );
@@ -331,8 +331,10 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pShowInstrumentRackBtn->move( 88, 6 );
 	connect( m_pShowInstrumentRackBtn, SIGNAL( pressed() ), this, SLOT( showInstrumentRackButtonClicked() ) );
 
-	m_pStatusLabel = new LCDDisplay(pLcdBackGround , LCDDigit::SMALL_BLUE, 30, true );
-	m_pStatusLabel->move( 7, 25 );
+	m_pStatusLabel = new LCDDisplay(pLcdBackGround, QSize( 240, 16 ) );
+	// m_pStatusLabel->setAlignment( Qt::AlignLeft );
+	m_pStatusLabel->setMaxLength( 34 );
+	m_pStatusLabel->move( 7, 24 );
 
 
 	hbox->addStretch( 1000 );	// this must be the last widget in the HBOX!!
@@ -518,17 +520,30 @@ void PlayerControl::updatePlayerControl()
 	int nHours = (int)( fSeconds / 3600.0 );
 
 	char tmp[100];
-	sprintf(tmp, "%02d", nHours );
-	m_pTimeDisplayH->setText( QString( tmp ) );
+	QString sTime;
 
-	sprintf(tmp, "%02d", nMins );
-	m_pTimeDisplayM->setText( QString( tmp ) );
+	if ( nHours  < 10 ) {
+		sTime.append( "0" );
+	}
+	sTime.append( QString::number( nHours ) + ":");
+	if ( nMins  < 10 ) {
+		sTime.append( "0" );
+	}
+	sTime.append( QString::number( nMins ) + ":" );
+	if ( nSeconds  < 10 ) {
+		sTime.append( "0" );
+	}
+	sTime.append( QString::number( nSeconds ) + ":" );
+	if ( nMSec  < 10 ) {
+		sTime.append( "000" );
+	} else if ( nMSec < 100 ) {
+		sTime.append( "00" );
+	} else if ( nMSec < 1000 ) {
+		sTime.append( "0" );
+	}
+	sTime.append( QString::number( nMSec ) );
 
-	sprintf(tmp, "%02d", nSeconds );
-	m_pTimeDisplayS->setText( QString( tmp ) );
-
-	sprintf(tmp, "%03d", nMSec );
-	m_pTimeDisplayMS->setText( QString( tmp ) );
+	m_pTimeDisplay->setText( sTime );
 
 	if ( ! m_pMetronomeBtn->isDown() ) {
 		m_pMetronomeBtn->setChecked(pPref->m_bUseMetronome);
@@ -907,7 +922,7 @@ void PlayerControl::showScrollMessage( const QString& msg, int msec, bool test )
 
 void PlayerControl::onScrollTimerEvent()
 {
-	int lwl = 25;
+	int lwl = 34;
 	int msgLength = m_pScrollMessage.length();
 	if ( msgLength > lwl) {
 		m_pScrollMessage = m_pScrollMessage.right( msgLength - 1 ); 

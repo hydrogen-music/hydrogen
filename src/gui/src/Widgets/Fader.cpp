@@ -23,7 +23,6 @@
 
 #include "../Skin.h"
 #include "Fader.h"
-#include "LCD.h"
 #include "MidiSenseWidget.h"
 
 #include <QtGui>
