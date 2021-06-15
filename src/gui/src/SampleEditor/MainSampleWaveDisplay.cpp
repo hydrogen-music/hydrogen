@@ -217,13 +217,25 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 
 }
 
+static bool propagate() {
+	bool test = HydrogenApp::get_instance()->getSampleEditor()->returnAllMainWaveDisplayValues();
+	return test;
+}
+
+
 void MainSampleWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
-	chooseSlider( ev );
 	if (ev->buttons() && Qt::LeftButton) {
 		testPosition( ev );
+	} else {
+		chooseSlider( ev );
 	}
 	update();
+	if (propagate()){
+		m_bStartSliderIsMoved = false;
+		m_bLoopSliderIsMoved = false;
+		m_bEndSliderIsmoved = false;
+	}
 }
 
 void MainSampleWaveDisplay::mousePressEvent(QMouseEvent *ev)
@@ -231,14 +243,21 @@ void MainSampleWaveDisplay::mousePressEvent(QMouseEvent *ev)
 	chooseSlider( ev );
 	testPosition( ev );
 	update();
+	if (propagate()){
+		m_bStartSliderIsMoved = false;
+		m_bLoopSliderIsMoved = false;
+		m_bEndSliderIsmoved = false;
+	}
 }
 
 void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 {
 	assert(ev);
 //startframepointer
+	int x = std::min(width() - 25, std::max(25, ev->x()));
+
 	if  ( m_SelectedSlider == START ) {
-		m_nStartFramePosition = ev->x() ;
+		m_nStartFramePosition = x;
 		m_bStartSliderIsMoved = true;
 		if ( m_nStartFramePosition > m_nLoopFramePosition ){
 			m_nLoopFramePosition = m_nStartFramePosition;
@@ -252,46 +271,30 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 
 //loopframeposition
 	else if  ( m_SelectedSlider == LOOP ) {
-		m_nLoopFramePosition = ev->x() ;
-		m_bLoopSliderIsMoved = true;		
-		if ( m_nLoopFramePosition < m_nStartFramePosition ){
-			m_nStartFramePosition = m_nLoopFramePosition;
-			m_bStartSliderIsMoved = true;
-		}
-		if ( m_nLoopFramePosition > m_nEndFramePosition ){
-			m_nEndFramePosition = m_nLoopFramePosition;
-			m_bEndSliderIsmoved = true;
+		if (x >= m_nStartFramePosition && x <= m_nEndFramePosition ) {
+			m_nLoopFramePosition = x ;
+			m_bLoopSliderIsMoved = true;
 		}
 	}
 //endframeposition
 	else if  ( m_SelectedSlider == END) {
-		m_nEndFramePosition = ev->x() ;
-		m_bEndSliderIsmoved = true;
+		if (x >= m_nStartFramePosition) {
+			m_nEndFramePosition = x ;
+			m_bEndSliderIsmoved = true;
+		}
 		if ( m_nEndFramePosition <  m_nLoopFramePosition ){
 			m_nLoopFramePosition = m_nEndFramePosition;
 			m_bLoopSliderIsMoved = true;
 		}
-		if ( m_nEndFramePosition <  m_nStartFramePosition ){
-			m_nStartFramePosition = m_nEndFramePosition;
-			m_bStartSliderIsMoved = true;
-		}
 	}
-
-	if ( ( m_nStartFramePosition ) >= width() -25 ) m_nStartFramePosition =width() -25;
-	if ( ( m_nLoopFramePosition ) >= width() -25 ) m_nLoopFramePosition =width() -25;
-	if ( ( m_nEndFramePosition ) >= width() -25 ) m_nEndFramePosition =width() -25;
-	if ( ( m_nStartFramePosition ) <= 25 ) m_nStartFramePosition = 25;
-	if ( ( m_nLoopFramePosition ) <= 25 ) m_nLoopFramePosition = 25;
-	if ( ( m_nEndFramePosition ) <= 25 ) m_nEndFramePosition = 25;
 }
 
 
 void MainSampleWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
 {
+	m_SelectedSlider = NONE;
 	update();
-	bool test = HydrogenApp::get_instance()->getSampleEditor()->returnAllMainWaveDisplayValues();
-
-	if (test){
+	if (propagate()){
 		m_bStartSliderIsMoved = false;
 		m_bLoopSliderIsMoved = false;
 		m_bEndSliderIsmoved = false;
