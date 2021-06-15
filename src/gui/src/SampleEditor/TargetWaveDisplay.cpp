@@ -240,7 +240,7 @@ void TargetWaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> 
 }
 
 
-static void update_envelope(Sample::VelocityEnvelope & envelope, int x, int y, int snapradius)
+static bool update_envelope(Sample::VelocityEnvelope & envelope, int x, int y, int snapradius)
 {
 	for ( int i = 0; i < static_cast<int>(envelope.size()); i++){
 		if ( envelope[i]->frame >= x - snapradius && envelope[i]->frame <= x + snapradius ) {
@@ -255,9 +255,10 @@ static void update_envelope(Sample::VelocityEnvelope & envelope, int x, int y, i
 			}
 			envelope.push_back( std::make_unique<EnvelopePoint>( Frame, Value) );
 			sort( envelope.begin(), envelope.end(), EnvelopePoint::Comparator() );
-			return;
+			return true;
 		}
 	}
+	return false;
 }
 void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
@@ -268,14 +269,15 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 
 	m_nX = std::min(UI_WIDTH, std::max(0, ev->x()));
 	m_nY = std::min(UI_HEIGHT, std::max(0, ev->y()));
-	float info = (UI_HEIGHT - m_nY) / (float)UI_HEIGHT;
-	m_sInfo.setNum( info, 'g', 2 );
 
 	if ( ! (ev->buttons() & Qt::LeftButton) ) {
 		// we are not dragging any point
 		update();
 		return;
 	}
+	float info = (UI_HEIGHT - m_nY) / (float)UI_HEIGHT;
+	m_sInfo.setNum( info, 'g', 2 );
+
 	update_envelope(envelope, m_nX, m_nY, snapradius);
 	update();
 	HydrogenApp::get_instance()->getSampleEditor()->setTrue();
@@ -303,10 +305,11 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 
 	int x = std::min(UI_WIDTH, std::max(0, ev->x()));
 	int y = std::min(UI_HEIGHT, std::max(0, ev->y()));
+	float info = (UI_HEIGHT - y) / (float)UI_HEIGHT;
+	m_sInfo.setNum( info, 'g', 2 );
+
 	if (ev->button() == Qt::LeftButton) {
 		if (NewPoint){
-			float info = (UI_HEIGHT - y) / (float)UI_HEIGHT;
-			m_sInfo.setNum( info, 'g', 2 );
 
 			m_nX = x;
 			m_nY = y;
@@ -353,6 +356,7 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 
 void TargetWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
 {
+	m_sInfo = "";
 	update();
 	HydrogenApp::get_instance()->getSampleEditor()->returnAllTargetDisplayValues();
 }
