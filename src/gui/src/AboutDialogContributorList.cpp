@@ -35,9 +35,14 @@ AboutDialogContributorList::AboutDialogContributorList() : H2Core::Object( __cla
 ,"Olivier Humbert"
 ,"Clara Hobbs"
 ,"Przemysław Sitek"
+,"Charbel Jacquin"
 ,"Jérémy Zurcher"
+,"Guocheng"
 ,"freddii"
 ,"David Runge"
+,"daryl"
+,"Darío Hereñú"
+,"Aaron"
 };
 	m_pContributorList = std::make_shared<std::vector<QString>>(v);
 }
