@@ -116,6 +116,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		bool m_bOnewayLoop;
 		bool m_bOnewayEnd;
 		bool m_bPlayButton;
+		bool m_bAdjusting;
 		
 		unsigned long m_nRealtimeFrameEnd;
 		unsigned long m_nRealtimeFrameEndForTarget;
