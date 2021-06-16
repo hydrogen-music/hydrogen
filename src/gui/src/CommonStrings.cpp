@@ -37,28 +37,28 @@ CommonStrings::CommonStrings() : Object( __class_name ) {
 	m_sSmallMuteButton = tr( "M" );
 	/*: Text displayed on the button for muting the master strip. Its
 	  size is designed for a four characters.*/
-	m_sBigMuteButton = tr( "MUTE" );
+	m_sBigMuteButton = tr( "Mute" );
 	/*: Text displayed on the button for bypassing an element. Its
 	  size is designed for a three characters.*/
 	m_sBypassButton = tr( "BYP" );
 	/*: Text displayed on the button for editin an element. Its
 	  size is designed for a four characters.*/
-	m_sEditButton = tr( "EDIT" );
+	m_sEditButton = tr( "Edit" );
 	/*: Text displayed on the button to clear all patterns in the
 	  SongEditor. Its size is designed to hold five characters.*/
-	m_sClearButton = tr( "CLEAR" );
+	m_sClearButton = tr( "Clear" );
 	/*: Text displayed on the button to show the Timeline. Its size
 	  is designed to hold a single character.*/
 	m_sTimelineButton = tr( "T" );
 	/*: Text displayed on the button to activate the Timeline. Its size
 	  is designed to hold three characters.*/
-	m_sTimelineBigButton = tr( "BPM" );
+	m_sTimelineBigButton = tr( "Timeline" );
 	/*: Text displayed on the button to enable the LADSPA effect strips. Its size
-	  is designed to hold two characters.*/
+	  is designed to hold eigth characters.*/
 	m_sFXButton = tr( "FX" );
 	/*: Text displayed on the button to show the instrument peaks. Its size
 	  is designed to hold four characters.*/
-	m_sPeakButton = tr( "PEAK" );
+	m_sPeakButton = tr( "Peak" );
 	/*: Text displayed on the button to show the Instrument Rack. Its size
 	  is designed to hold seven characters but is quite flexible.*/
 	m_sGeneralButton = tr( "General" );
@@ -104,10 +104,10 @@ CommonStrings::CommonStrings() : Object( __class_name ) {
 
 	/*: Text displayed on the button to activate the JACK transport control. Its
 	  size is designed to hold seven characters and is moderately flexible.*/
-	m_sJackTransportButton = tr( "J.TRANS" );
+	m_sJackTransportButton = tr( "J.Trans" );
 	/*: Text displayed on the button to activate the JACK Timebase master control. Its
 	  size is designed to hold eight characters and is moderately flexible.*/
-	m_sJackMasterButton = tr( "J.MASTER" );
+	m_sJackMasterButton = tr( "J.Master" );
 	/*: Text displayed on the button to show the Mixer window. Its
 	  size is designed to hold five characters and is flexible.*/
 	m_sMixerButton = tr( "Mixer" );
@@ -117,130 +117,125 @@ CommonStrings::CommonStrings() : Object( __class_name ) {
 
 	/*: Text displayed on the button activating Pattern Mode for playback. Its
 	  size is designed to hold seven characters and is slightly flexible.*/
-	m_sPatternModeButton = tr( "PATTERN" );
+	m_sPatternModeButton = tr( "Pattern" );
 	/*: Text displayed on the button activating Song Mode for playback. Its
 	  size is designed to hold four characters and is slightly flexible.*/
-	m_sSongModeButton = tr( "SONG" );
+	m_sSongModeButton = tr( "Song" );
 
 	/*: Text displayed below the rotary to adjust the attack of the
 	  ADSR in the Instrument Editor. Designed to hold six characters
 	  but flexible.*/
-	m_sAttackLabel = tr( "ATTACK" );
+	m_sAttackLabel = tr( "Attack" );
 	/*: Text displayed below the rotary to adjust the decay of the
 	  ADSR in the Instrument Editor. Designed to hold five characters
 	  but flexible.*/
-	m_sDecayLabel = tr( "DECAY" );
+	m_sDecayLabel = tr( "Decay" );
 	/*: Text displayed below the rotary to adjust the sustain of the
 	  ADSR in the Instrument Editor. Designed to hold seven characters
 	  but flexible.*/
-	m_sSustainLabel = tr( "SUSTAIN" );
+	m_sSustainLabel = tr( "Sustain" );
 	/*: Text displayed below the rotary to adjust the release of the
 	  ADSR in the Instrument Editor. Designed to hold seven characters
 	  but flexible.*/
-	m_sReleaseLabel = tr( "RELEASE" );
+	m_sReleaseLabel = tr( "Release" );
 	/*: Text displayed below the LCD to set the output MIDI channel
 	  in the Instrument Editor. Designed to hold seven characters but
 	  flexible.*/
-	m_sMidiOutChannelLabel = tr( "CHANNEL" );
+	m_sMidiOutChannelLabel = tr( "Channel" );
 	/*: Text displayed below the LCD to set the output MIDI note
 	  in the Instrument Editor. Designed to hold four characters but
 	  flexible.*/
-	m_sMidiOutNoteLabel = tr( "NOTE" );
+	m_sMidiOutNoteLabel = tr( "Note" );
 	/*: Text displayed in the Instrument Editor in the row of the
 	  pitch widget. Designed to hold five characters but flexible.*/
-	m_sPitchLabel = tr( "PITCH" );
+	m_sPitchLabel = tr( "Pitch" );
 	/*: Text displayed below the rotary to adjust the deterministic
 	  part of the instrument pitch in front of decimal point in the
 	  Instrument Editor. Designed to hold six characters but
 	  flexible.*/
-	m_sPitchCoarseLabel = tr( "COARSE" );
+	m_sPitchCoarseLabel = tr( "Coarse" );
 	/*: Text displayed below the rotary to adjust the deterministic
 	  part of the instrument pitch after decimal point in the
 	  Instrument Editor. Designed to hold four characters but
 	  flexible.*/
-	m_sPitchFineLabel = tr( "FINE" );
+	m_sPitchFineLabel = tr( "Fine" );
 	/*: Text displayed below the rotary to adjust the random part of
 	  the instrument pitch in the Instrument Editor. Designed to hold
 	 six characters but flexible.*/
-	m_sPitchRandomLabel = tr( "RANDOM" );
+	m_sPitchRandomLabel = tr( "Random" );
 	/*: Text displayed below the rotary to adjust the instrument gain
 	 in the Instrument Editor. Designed to hold four characters but
 	 flexible.*/
-	m_sGainLabel = tr( "GAIN" );
+	m_sGainLabel = tr( "Gain" );
 	/*: Text displayed below the LCD to set the mute group in the
 	 Instrument Editor. Designed to hold ten characters but
 	 flexible.*/
-	m_sMuteGroupLabel = tr( "MUTE GROUP" );
+	m_sMuteGroupLabel = tr( "Mute Group" );
 	/*: Text displayed next to the checkbox to activate the auto stop
 	 note feature in the Instrument Editor. Designed to hold 14
 	 characters but flexible.*/
-	m_sIsStopNoteLabel = tr( "AUTO-STOP-NOTE" );
+	m_sIsStopNoteLabel = tr( "Auto-Stop Note" );
 	/*: Text displayed next to the checkbox to activate the apply
 	 velocity feature in the Instrument Editor. Designed to hold 14
 	 characters but flexible.*/
-	m_sApplyVelocityLabel = tr( "APPLY VELOCITY" );
+	m_sApplyVelocityLabel = tr( "Apply Velocity" );
 	/*: Text displayed below the LCD to set the hihat pressure group
 	 in the Instrument Editor. Designed to hold 13 characters but
 	 is only moderately flexible.*/
-	m_sHihatGroupLabel = tr( "HH PRESS. GRP" );
+	m_sHihatGroupLabel = tr( "HH Press. Grp" );
 	/*: Text displayed below the LCD to set the maximum range of the
 	 hihat pressure group in the Instrument Editor. Designed to hold
-	 ten characters but flexible.*/
-	m_sHihatMaxRangeLabel = tr( "MAX. RANGE" );
+	 nine characters but flexible.*/
+	m_sHihatMaxRangeLabel = tr( "Max Range" );
 	/*: Text displayed below the LCD to set the minimum range of the
 	 hihat pressure group in the Instrument Editor. Designed to hold
-	 ten characters but flexible.*/
-	m_sHihatMinRangeLabel = tr( "MIN. RANGE" );
+	 nine characters but flexible.*/
+	m_sHihatMinRangeLabel = tr( "Min Range" );
 	/*: Text displayed below the rotary to adjust the cutoff frequency
 	 of the lowpass filter applied to the instrument in the Instrument
 	 Editor. Designed to hold six characters but flexible.*/
-	m_sCutoffLabel = tr( "CUTOFF" );
+	m_sCutoffLabel = tr( "Cutoff" );
 	/*: Text displayed below the rotary to adjust the resonance frequency
 	 of the lowpass filter applied to the instrument in the Instrument
 	 Editor. Designed to hold ten characters but flexible.*/
-	m_sResonanceLabel = tr( "RESONANCE" );
+	m_sResonanceLabel = tr( "Resonance" );
 	/*: Text displayed below the rotary to adjust the layer gain
 	 in the Instrument Editor. Designed to hold six characters but
 	 flexible.*/
-	m_sLayerGainLabel = tr( "L. GAIN" );
+	m_sLayerGainLabel = tr( "L. Gain" );
 	/*: Text displayed below the rotary to adjust the component gain
 	 in the Instrument Editor. Designed to hold six characters but
 	 flexible.*/
-	m_sComponentGainLabel = tr( "C. GAIN" );
+	m_sComponentGainLabel = tr( "C. Gain" );
 	/*: Text displayed left of the sample selection LCD combo in the
 	 Instrument Editor. Designed to hold eleven characters but not
 	 that flexible.*/
-	m_sSampleSelectionLabel = tr( "SAMPLE SEL." );
+	m_sSampleSelectionLabel = tr( "Sample Sel." );
 	/*: Text displayed left of the pattern size LCD combo in the panel
 	 of the Pattern Editor. Designed to hold four characters but not
 	 that flexible.*/
-	m_sPatternSizeLabel = tr( "SIZE" );
+	m_sPatternSizeLabel = tr( "Size" );
 	/*: Text displayed left of the resolution LCD combo in the panel
 	 of the Pattern Editor. Designed to hold three characters but not
 	 that flexible.*/
-	m_sResolutionLabel = tr( "RES" );
+	m_sResolutionLabel = tr( "Res" );
 	/*: Text displayed left of the button to activate the playback of
 	 inserted notes in the panel of the Pattern Editor. Designed to
 	 hold four characters but not that flexible.*/
-	m_sHearNotesLabel = tr( "HEAR" );
+	m_sHearNotesLabel = tr( "Hear" );
 	/*: Text displayed left of the button to toggle the quantization
 	 in the panel of the Pattern Editor. Designed to hold five
 	 characters but not that flexible.*/
-	m_sQuantizeEventsLabel = tr( "QUANT" );
+	m_sQuantizeEventsLabel = tr( "Quant" );
 	/*: Text displayed left of the button to switch between the
 	 Drum Pattern Editor and the Piano Roll Editor in the panel
 	 of the Pattern Editor. Designed to hold five characters but not
 	 that flexible.*/
-	m_sShowPianoLabel = tr( "INPUT" );
-	/*: Text displayed left of the button to switch between the
-	 Drum Pattern Editor and the Piano Roll Editor in the panel
-	 of the Pattern Editor. Designed to hold five characters but not
-	 that flexible.*/
-	m_sShowPianoLabel = tr( "INPUT" );
+	m_sShowPianoLabel = tr( "Input" );
 	/*: Text displayed in the Player Control to indicate incoming MIDI
 	  events. Designed to hold seven characters but not that
 	  flexible.*/
-	m_sMidiInLabel = tr( "MIDI-IN" );
+	m_sMidiInLabel = tr( "MIDI-In" );
 	/*: Text displayed in the Player Control to indicate the CPU
 	 load. Designed to hold three characters but not that flexible.*/
 	m_sCpuLabel = tr( "CPU" );
@@ -251,15 +246,15 @@ CommonStrings::CommonStrings() : Object( __class_name ) {
 	/*: Text displayed in the Player Control to indicate the number of
 	 hours passed since playback started. Designed to hold three
 	 characters but not that flexible.*/
-	m_sTimeHoursLabel = tr( "HRS" );
+	m_sTimeHoursLabel = tr( "Hrs" );
 	/*: Text displayed in the Player Control to indicate the number of
 	 minutes passed since playback started. Designed to hold three
 	 characters but not that flexible.*/
-	m_sTimeMinutesLabel = tr( "MIN" );
+	m_sTimeMinutesLabel = tr( "Min" );
 	/*: Text displayed in the Player Control to indicate the number of
 	 seconds passed since playback started. Designed to hold three
 	 characters but not that flexible.*/
-	m_sTimeSecondsLabel = tr( "SEC" );
+	m_sTimeSecondsLabel = tr( "Sec" );
 	/*: Text displayed in the Player Control to indicate the number of
 	 milliseconds passed since playback started. Designed to hold three
 	 characters but not that flexible.*/
@@ -267,15 +262,15 @@ CommonStrings::CommonStrings() : Object( __class_name ) {
 	/*: Text displayed in the Master Mixer Strip as a heading for the
 	  humanization rotaries. Designed to hold eigth characters but not
 	  that flexible.*/
-	m_sHumanizeLabel = tr( "HUMANIZE" );
+	m_sHumanizeLabel = tr( "Humanize" );
 	/*: Text displayed in the Master Mixer Strip as a heading for the
 	 swing humanization rotary. Designed to hold five characters but
 	  flexible.*/
-	m_sSwingLabel = tr( "SWING" );
+	m_sSwingLabel = tr( "Swing" );
 	/*: Text displayed in the Master Mixer Strip as a heading for the
 	 timing humanization rotary. Designed to hold six characters but
 	  flexible.*/
-	m_sTimingLabel = tr( "TIMING" );
+	m_sTimingLabel = tr( "Timing" );
 	/*: Text displayed in the Master Mixer Strip as a heading for the
 	 velocity humanization rotary. Designed to hold eight characters
 	 flexible.*/
