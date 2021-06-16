@@ -1,0 +1,209 @@
+# =============================== PySide bindings ============================================
+set(bindings_library "h2core")
+
+set(wrapped_header ${CMAKE_SOURCE_DIR}/src/bindings/core_bindings.h)
+set(typesystem_file ${CMAKE_SOURCE_DIR}/src/bindings/core_bindings.xml)
+
+set(generated_sources
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_module_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_object_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_sample_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_sample_loops_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_sample_rubberband_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_envelopepoint_wrapper.cpp
+)
+# ================================== Shiboken detection ======================================
+# Use provided python interpreter if given.
+if(NOT python_interpreter)
+    find_program(python_interpreter "python")
+endif()
+message(STATUS "Using python interpreter: ${python_interpreter}")
+
+# Macro to get various pyside / python include / link flags and paths.
+# Uses the not entirely supported utils/pyside2_config.py file.
+macro(pyside_config option output_var)
+    if(${ARGC} GREATER 1)
+        set(is_list ${ARGV1})
+    else()
+        set(is_list "")
+    endif()
+
+    execute_process(
+      COMMAND ${python_interpreter} "${CMAKE_CURRENT_SOURCE_DIR}/utils/pyside2_config.py"
+              ${option}
+      OUTPUT_VARIABLE ${output_var}
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    if ("${${output_var}}" STREQUAL "")
+        message(FATAL_ERROR "Error: Calling pyside2_config.py ${option} returned no output.")
+    endif()
+    if(is_list)
+        string (REPLACE " " ";" ${output_var} "${${output_var}}")
+    endif()
+    message(INFO "${green}option: ${option}, output_var: ${output_var}; value: ${${output_var}}")
+endmacro()
+
+# Query for the shiboken generator path, Python path, include paths and linker flags.
+pyside_config(--shiboken2-module-path shiboken_module_path)
+pyside_config(--shiboken2-generator-path shiboken_generator_path)
+pyside_config(--python-include-path python_include_dir)
+pyside_config(--shiboken2-generator-include-path shiboken_include_dir 1)
+pyside_config(--shiboken2-module-shared-libraries-cmake shiboken_shared_libraries 0)
+pyside_config(--python-link-flags-cmake python_linking_data 0)
+
+set(shiboken_path "${shiboken_generator_path}/shiboken2${CMAKE_EXECUTABLE_SUFFIX}")
+if(NOT EXISTS ${shiboken_path})
+    message(FATAL_ERROR "Shiboken executable not found at path: ${shiboken_path}")
+endif()
+
+message(STATUS "Shiboken: ${shiboken_path}")
+
+# ====================== Shiboken target for generating binding C++ files  ====================
+message(STATUS "QtIncl ${QT_INCLUDES}")
+
+
+# Set up the options to pass to shiboken.
+set(shiboken_options --generator-set=shiboken --enable-parent-ctor-heuristic
+    --enable-return-value-heuristic --use-isnull-as-nb_nonzero
+    --avoid-protected-hack
+    -I${CMAKE_SOURCE_DIR}/src
+    -I${CMAKE_SOURCE_DIR}/src/core
+    -I${CMAKE_BINARY_DIR}/src
+    -I${CMAKE_BINARY_DIR}/src/core
+    -I/usr/include/x86_64-linux-gnu/qt5                 # FIXME: how to get Qt includes ?
+    -I/usr/include/x86_64-linux-gnu/qt5/QtCore
+    -I/usr/include/x86_64-linux-gnu/qt5/QDebug
+    -I/usr/include/x86_64-linux-gnu/qt5/QtXml
+    --output-directory=${CMAKE_CURRENT_BINARY_DIR}
+    )
+set(generated_sources_dependencies ${wrapped_header} ${typesystem_file})
+
+# Add custom target to run shiboken to generate the binding cpp files.
+add_custom_command(OUTPUT ${generated_sources}
+                    COMMAND ${shiboken_path}
+                    ${shiboken_options} ${wrapped_header} ${typesystem_file}
+                    DEPENDS ${generated_sources_dependencies}
+                    IMPLICIT_DEPENDS CXX ${wrapped_header}
+                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/src/bindings
+                    COMMENT "Running generator for ${typesystem_file}.")
+
+
+
+# # ==================================== RPATH configuration ====================================
+
+
+# # =============================================================================================
+# # !!! (The section below is deployment related, so in a real world application you will want to
+# # take care of this properly with some custom script or tool).
+# # =============================================================================================
+# # Enable rpaths so that the built shared libraries find their dependencies.
+# set(CMAKE_SKIP_BUILD_RPATH FALSE)
+# set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+# set(CMAKE_INSTALL_RPATH ${shiboken2_module_path} ${CMAKE_CURRENT_SOURCE_DIR})
+# set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+# # =============================================================================================
+# # !!! End of dubious section.
+# # ======
+
+
+# =============================== CMake target - bindings_library =============================
+
+# Set the cpp files which will be used for the bindings library.
+set(${bindings_library}_sources ${generated_sources})
+
+# Define and build the bindings library.
+add_library(${bindings_library} MODULE ${${bindings_library}_sources})
+INCLUDE_DIRECTORIES(
+    ${QT_INCLUDES}
+)
+# Apply relevant include and link flags.
+target_include_directories(${bindings_library} PRIVATE ${python_include_dir})
+target_include_directories(${bindings_library} PRIVATE ${shiboken_include_dir})
+target_include_directories(${bindings_library} PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(${bindings_library} PRIVATE ${CMAKE_BINARY_DIR}/src)
+target_include_directories(${bindings_library} PRIVATE ${CMAKE_SOURCE_DIR}/src/core)
+
+target_link_libraries(${bindings_library} PRIVATE ${shiboken_shared_libraries})
+target_link_libraries(${bindings_library} PRIVATE hydrogen-core-${VERSION})
+
+TARGET_LINK_LIBRARIES(${bindings_library}
+	Qt5::Core
+	Qt5::Xml
+	Qt5::XmlPatterns
+)
+
+# Adjust the name of generated module.
+set_property(TARGET ${bindings_library} PROPERTY PREFIX "")
+set_property(TARGET ${bindings_library} PROPERTY OUTPUT_NAME
+             "${bindings_library}${PYTHON_EXTENSION_SUFFIX}")
+if(WIN32)
+    set_property(TARGET ${bindings_library} PROPERTY SUFFIX ".pyd")
+endif()
+
+# Make sure the linker doesn't complain about not finding Python symbols on macOS.
+if(APPLE)
+  set_target_properties(${bindings_library} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+endif(APPLE)
+
+# Find and link to the python import library only on Windows.
+# On Linux and macOS, the undefined symbols will get resolved by the dynamic linker
+# (the symbols will be picked up in the Python executable).
+if (WIN32)
+    list(GET python_linking_data 0 python_libdir)
+    list(GET python_linking_data 1 python_lib)
+    find_library(python_link_flags ${python_lib} PATHS ${python_libdir} HINTS ${python_libdir})
+    target_link_libraries(${bindings_library} PRIVATE ${python_link_flags})
+endif()
+
+# ================================= Dubious deployment section ================================
+
+set(windows_shiboken_shared_libraries)
+
+if(WIN32)
+    # =========================================================================================
+    # !!! (The section below is deployment related, so in a real world application you will
+    # want to take care of this properly (this is simply to eliminate errors that users usually
+    # encounter.
+    # =========================================================================================
+    # Circumvent some "#pragma comment(lib)"s in "include/pyconfig.h" which might force to link
+    # against a wrong python shared library.
+
+    set(python_versions_list 3 32 33 34 35 36 37 38)
+    set(python_additional_link_flags "")
+    foreach(ver ${python_versions_list})
+        set(python_additional_link_flags
+            "${python_additional_link_flags} /NODEFAULTLIB:\"python${ver}_d.lib\"")
+        set(python_additional_link_flags
+            "${python_additional_link_flags} /NODEFAULTLIB:\"python${ver}.lib\"")
+    endforeach()
+
+    set_target_properties(${bindings_library}
+                           PROPERTIES LINK_FLAGS "${python_additional_link_flags}")
+
+    # Compile a list of shiboken shared libraries to be installed, so that
+    # the user doesn't have to set the PATH manually to point to the PySide2 package.
+    foreach(library_path ${shiboken_shared_libraries})
+        string(REGEX REPLACE ".lib$" ".dll" library_path ${library_path})
+        file(TO_CMAKE_PATH ${library_path} library_path)
+        list(APPEND windows_shiboken_shared_libraries "${library_path}")
+    endforeach()
+    # =========================================================================================
+    # !!! End of dubious section.
+    # =========================================================================================
+endif()
+
+# =============================================================================================
+# !!! (The section below is deployment related, so in a real world application you will want to
+# take care of this properly with some custom script or tool).
+# =============================================================================================
+# Install the library and the bindings module into the source folder near the main.py file, so
+# that the Python interpeter successfully imports the used module.
+install(TARGETS ${bindings_library} 
+        LIBRARY DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}
+        RUNTIME DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}
+        )    
+install(FILES ${windows_shiboken_shared_libraries} DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
+# =============================================================================================
+# !!! End of dubious section.
+# =============================================================================================

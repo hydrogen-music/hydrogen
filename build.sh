@@ -2,7 +2,9 @@
 
 QTDIR=${QTDIR:-/usr/lib/qt}
 VERBOSE=${VERBOSE:-0}
-CMAKE_OPTIONS="
+USE_NINJA=${USE_NINJA:-0}
+WANT_PYSIDE=${WANT_PYSIDE:-0}
+CMAKE_OPTIONS="\
     -DCMAKE_COLOR_MAKEFILE=1 \
     -DWANT_DEBUG=1 \
     -DWANT_JACK=1 \
@@ -17,6 +19,12 @@ CMAKE_OPTIONS="
     -DWANT_COREAUDIO=1 \
     -DWANT_COREMIDI=1
 "
+if [ ${WANT_PYSIDE} -ne 0 ]; then
+    CMAKE_OPTIONS="${CMAKE_OPTIONS} -DWANT_PYSIDE=TRUE"
+fi
+if [ ${USE_NINJA} -ne 0 ]; then
+    CMAKE_OPTIONS="${CMAKE_OPTIONS} -G Ninja"
+fi
 MAKE_OPTS="-j 3"
 H2FLAGS="-V0xf"
 BUILD_DIR=./build
@@ -50,11 +58,19 @@ function cmake_make() {
     cmake_init
     echo -e " * cmake make\n" && cd $BUILD_DIR || exit 1
     if [ $VERBOSE -eq 1 ]; then
-        VERBOSE=1 make translations $MAKE_OPTS || exit 1
-        VERBOSE=1 make $MAKE_OPTS || exit 1
+        if [ $USE_NINJA -ne 0 ]; then
+            VERBOSE=1 ninja $MAKE_OPTS || exit 1
+        else
+            VERBOSE=1 make translations $MAKE_OPTS || exit 1
+            VERBOSE=1 make $MAKE_OPTS || exit 1
+        fi
     else
-        make translations $MAKE_OPTS || exit 1
-        make $MAKE_OPTS || exit 1
+        if [ $USE_NINJA -ne 0 ]; then
+            ninja $MAKE_OPTS || exit 1
+        else
+            make translations $MAKE_OPTS || exit 1
+            make $MAKE_OPTS || exit 1
+        fi
     fi
 
     if [[ "$PLATFORM_STR" == 'Linux' ]]; then

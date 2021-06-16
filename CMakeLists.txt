@@ -81,6 +81,7 @@ ENDIF()
 
 OPTION(WANT_CPPUNIT         "Include CppUnit test suite" ON)
 OPTION(FIXME_DISABLE_OPTIMIZATIONS "Fix broken builds by turning off optimizations" OFF)
+OPTION(WANT_PYSIDE          "Build PySide bindings for h2core library")
 
 include(Sanitizers)
 INCLUDE(StatusSupportOptions)
@@ -316,7 +317,8 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * core library build as        : ${H2CORE_LIBRARY_TYPE}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
 * macosx bundle                : ${H2CORE_HAVE_BUNDLE}
-* fat build                    : ${WANT_FAT_BUILD}\n"
+* fat build                    : ${WANT_FAT_BUILD}
+* PySide bindings              : ${WANT_PYSIDE}\n"
 )
 
 COLOR_MESSAGE("${cyan}Main librarires${reset}")
@@ -397,6 +399,10 @@ ADD_SUBDIRECTORY(data/i18n)
 ADD_SUBDIRECTORY(src/cli)
 ADD_SUBDIRECTORY(src/player)
 ADD_SUBDIRECTORY(src/gui)
+IF (WANT_PYSIDE)
+    message("${purple}PySide!!!!\n")
+    ADD_SUBDIRECTORY(src/bindings)
+ENDIF()
 IF(EXISTS ${CMAKE_SOURCE_DIR}/data/doc/CMakeLists.txt)
 	ADD_SUBDIRECTORY(data/doc)
 ENDIF()
