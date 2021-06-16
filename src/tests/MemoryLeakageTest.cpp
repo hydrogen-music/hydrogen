@@ -100,7 +100,7 @@ void MemoryLeakageTest::testConstructors() {
 	{
 		auto pADSR = std::make_shared<H2Core::ADSR>();
 		auto pInstrument = std::make_shared<H2Core::Instrument>( 0, "ladida", pADSR );
-		auto Note = new H2Core::Note( pInstrument, 0, 0, 0, 0, 1, 1 );
+		auto Note = new H2Core::Note( pInstrument, 0, 0.f, 0.f, 1, 1.f );
 		auto Note2 = new H2Core::Note( Note );
 		delete Note;
 		delete Note2;

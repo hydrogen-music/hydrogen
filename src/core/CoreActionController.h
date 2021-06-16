@@ -45,12 +45,19 @@ class CoreActionController : public H2Core::Object {
 		 */
 		void setStripVolume( int nStrip, float fVolumeValue, bool bSelectStrip );
 		/**
-		 * \param nStrip Instrument which to set the volume for.
+		 * \param nStrip Instrument which to set the pan for.
 		 * \param fPanValue New pan.
 		 * \param bSelectedStrip Whether the corresponding instrument
 		 * should be selected.
 		 */
-		void setStripPan( int nStrip, float fPanValue, bool bSelectStrip );
+		void setStripPan( int nStrip, float fValue, bool bSelectStrip );
+		/**
+		 * \param nStrip Instrument which to set the pan for.
+		 * \param fPanValue New pan. range in [-1;1] => symmetric respect to 0
+		 * \param bSelectedStrip Whether the corresponding instrument
+		 * should be selected.
+		 */
+		void setStripPanSym( int nStrip, float fValue, bool bSelectStrip );
 		void setMetronomeIsActive( bool isActive );
 		void setMasterIsMuted( bool isMuted );
 		

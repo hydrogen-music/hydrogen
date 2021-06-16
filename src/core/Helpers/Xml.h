@@ -52,6 +52,7 @@ class XMLNode : public H2Core::Object, public QDomNode
 		 * \param empty_ok if set to false output a DEBUG log line if the child node is empty
 		 */
 		float read_float( const QString& node, float default_value, bool inexistent_ok=true, bool empty_ok=true );
+		float read_float( const QString& node, float default_value, bool *pFound, bool inexistent_ok=true, bool empty_ok=true );
 		/**
 		 * reads a string stored into a child node
 		 * \param node the name of the child node to read into

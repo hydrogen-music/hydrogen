@@ -36,6 +36,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Sampler/Sampler.h>
 
 namespace H2Core
 {
@@ -48,8 +49,7 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 	, __name( name )
 	, __gain( 1.0 )
 	, __volume( 1.0 )
-	, __pan_l( 1.0 )
-	, __pan_r( 1.0 )
+	, m_fPan( 0.f )
 	, __peak_l( 0.0 )
 	, __peak_r( 0.0 )
 	, __adsr( adsr )
@@ -101,8 +101,7 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	, __name( other->get_name() )
 	, __gain( other->__gain )
 	, __volume( other->get_volume() )
-	, __pan_l( other->get_pan_l() )
-	, __pan_r( other->get_pan_r() )
+	, m_fPan( other->getPan() )
 	, __peak_l( other->get_peak_l() )
 	, __peak_r( other->get_peak_r() )
 	, __adsr( std::make_shared<ADSR>( *( other->get_adsr() ) ) )
@@ -221,8 +220,7 @@ void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInst
 	this->set_drumkit_name( pDrumkit->get_name() );
 	this->set_gain( pInstrument->get_gain() );
 	this->set_volume( pInstrument->get_volume() );
-	this->set_pan_l( pInstrument->get_pan_l() );
-	this->set_pan_r( pInstrument->get_pan_r() );
+	this->setPan( pInstrument->getPan() );
 	this->set_adsr( std::make_shared<ADSR>( *( pInstrument->get_adsr() ) ) );
 	this->set_filter_active( pInstrument->is_filter_active() );
 	this->set_filter_cutoff( pInstrument->get_filter_cutoff() );
@@ -273,8 +271,18 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* node, const QString&
 	pInstrument->set_drumkit_name( dk_name );
 	pInstrument->set_volume( node->read_float( "volume", 1.0f ) );
 	pInstrument->set_muted( node->read_bool( "isMuted", false ) );
-	pInstrument->set_pan_l( node->read_float( "pan_L", 1.0f ) );
-	pInstrument->set_pan_r( node->read_float( "pan_R", 1.0f ) );
+	bool bFound, bFound2;
+	float fPan = node->read_float( "pan", 0.f, &bFound );
+	if ( !bFound ) {
+		// check if pan is expressed in the old fashion (version <= 1.1 ) with the pair (pan_L, pan_R)
+		float fPanL = node->read_float( "pan_L", 1.f, &bFound );
+		float fPanR = node->read_float( "pan_R", 1.f, &bFound2 );
+		if ( bFound == true && bFound2 == true ) { // found nodes pan_L and pan_R
+			fPan = Sampler::getRatioPan( fPanL, fPanR );  // convert to single pan parameter
+		}
+	}
+	pInstrument->setPan( fPan );
+	
 	// may not exist, but can't be empty
 	pInstrument->set_apply_velocity( node->read_bool( "applyVelocity", true, false ) );
 	pInstrument->set_filter_active( node->read_bool( "filterActive", true, false ) );
@@ -352,8 +360,7 @@ void Instrument::save_to( XMLNode* node, int component_id )
 	InstrumentNode.write_float( "volume", __volume );
 	InstrumentNode.write_bool( "isMuted", __muted );
 	InstrumentNode.write_bool( "isSoloed", __soloed );
-	InstrumentNode.write_float( "pan_L", __pan_l );
-	InstrumentNode.write_float( "pan_R", __pan_r );
+	InstrumentNode.write_float( "pan", m_fPan );
 	InstrumentNode.write_float( "pitchOffset", __pitch_offset );
 	InstrumentNode.write_float( "randomPitchFactor", __random_pitch_factor );
 	InstrumentNode.write_float( "gain", __gain );
@@ -422,8 +429,7 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2drumkit_name: %3\n" ).arg( sPrefix ).arg( s ).arg( __drumkit_name ) )
 			.append( QString( "%1%2gain: %3\n" ).arg( sPrefix ).arg( s ).arg( __gain ) )
 			.append( QString( "%1%2volume: %3\n" ).arg( sPrefix ).arg( s ).arg( __volume ) )
-			.append( QString( "%1%2pan_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __pan_l ) )
-			.append( QString( "%1%2pan_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __pan_r ) )
+			.append( QString( "%1%2pan: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPan ) )
 			.append( QString( "%1%2peak_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __peak_l ) )
 			.append( QString( "%1%2peak_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __peak_r ) )
 			.append( QString( "%1" ).arg( __adsr->toQString( sPrefix + s, bShort ) ) )
@@ -468,8 +474,7 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", drumkit_name: %1" ).arg( __drumkit_name ) )
 			.append( QString( ", gain: %1" ).arg( __gain ) )
 			.append( QString( ", volume: %1" ).arg( __volume ) )
-			.append( QString( ", pan_l: %1" ).arg( __pan_l ) )
-			.append( QString( ", pan_r: %1" ).arg( __pan_r ) )
+			.append( QString( ", pan: %1" ).arg( m_fPan ) )
 			.append( QString( ", peak_l: %1" ).arg( __peak_l ) )
 			.append( QString( ", peak_r: %1" ).arg( __peak_r ) )
 			.append( QString( ", [%1" ).arg( __adsr->toQString( sPrefix + s, bShort ).replace( "\n", "]" ) ) )

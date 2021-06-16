@@ -516,8 +516,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 		return;
 	}
 
-	const float pan_L = 0.5f;
-	const float pan_R = 0.5f;
+	const float fPan = 0.f;
 	const int nLength = -1;
 	const float fPitch = 0.0f;
 	const int selectedLayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
@@ -530,7 +529,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 	if ( pInstr == nullptr ) {
 		return;
 	}
-	Note *pNote = new Note( pInstr, 0, pInstr->get_component( m_nSelectedComponent )->get_layer( selectedLayer )->get_end_velocity() - 0.01, pan_L, pan_R, nLength, fPitch);
+	Note *pNote = new Note( pInstr, 0, pInstr->get_component( m_nSelectedComponent )->get_layer( selectedLayer )->get_end_velocity() - 0.01, fPan, nLength, fPitch);
 	pNote->set_specific_compo_id( m_nSelectedComponent );
 	pHydrogen->getAudioEngine()->getSampler()->noteOn(pNote);
 

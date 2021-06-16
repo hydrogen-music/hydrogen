@@ -108,12 +108,12 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pSoloBtn->setAction(pAction);
 
 	// pan rotary
-	m_pPanRotary = new Rotary( this, Rotary::Type::Center, tr( "Pan" ), false );
+	m_pPanRotary = new Rotary( this, Rotary::Type::Center, tr( "Pan" ), false, -1.0, 1.0 );
 	m_pPanRotary->move( 6, 32 );
 	connect( m_pPanRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( panChanged( WidgetWithInput* ) ) );
-	pAction = new Action("PAN_ABSOLUTE");
+	pAction = new Action("PAN_ABSOLUTE_SYM");
 	pAction->setParameter1( QString::number(nInstr ));
-	pAction->setParameter2( QString::number( 1 ));
+	pAction->setParameter2( QString::number( 0 ));
 	m_pPanRotary->setAction(pAction);
 
 	// FX send

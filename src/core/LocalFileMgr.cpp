@@ -157,6 +157,20 @@ float LocalFileMng::readXmlFloat( QDomNode node , const QString& nodeName, float
 	}
 }
 
+float LocalFileMng::readXmlFloat( QDomNode node, const QString& nodeName, float defaultValue, bool *pFound,
+														 bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode )
+{
+	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
+	if ( text == nullptr ) {
+		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ));
+		*pFound = false;
+		return defaultValue;
+	} else {
+		*pFound = true;
+		return QLocale::c().toFloat( text );
+	}
+}
+
 int LocalFileMng::readXmlInt( QDomNode node , const QString& nodeName, int defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
@@ -499,8 +513,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 		LocalFileMng::writeXmlString( instrumentNode, "volume", QString("%1").arg( pInstr->get_volume() ) );
 		LocalFileMng::writeXmlBool( instrumentNode, "isMuted", pInstr->is_muted() );
 		LocalFileMng::writeXmlBool( instrumentNode, "isSoloed", pInstr->is_soloed() );
-		LocalFileMng::writeXmlString( instrumentNode, "pan_L", QString("%1").arg( pInstr->get_pan_l() ) );
-		LocalFileMng::writeXmlString( instrumentNode, "pan_R", QString("%1").arg( pInstr->get_pan_r() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "pan", QString("%1").arg( pInstr->getPan() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "gain", QString("%1").arg( pInstr->get_gain() ) );
 		LocalFileMng::writeXmlBool( instrumentNode, "applyVelocity", pInstr->get_apply_velocity() );
 
@@ -634,8 +647,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 			LocalFileMng::writeXmlString( noteNode, "position", QString("%1").arg( pNote->get_position() ) );
 			LocalFileMng::writeXmlString( noteNode, "leadlag", QString("%1").arg( pNote->get_lead_lag() ) );
 			LocalFileMng::writeXmlString( noteNode, "velocity", QString("%1").arg( pNote->get_velocity() ) );
-			LocalFileMng::writeXmlString( noteNode, "pan_L", QString("%1").arg( pNote->get_pan_l() ) );
-			LocalFileMng::writeXmlString( noteNode, "pan_R", QString("%1").arg( pNote->get_pan_r() ) );
+			LocalFileMng::writeXmlString( noteNode, "pan", QString("%1").arg( pNote->getPan() ) );
 			LocalFileMng::writeXmlString( noteNode, "pitch", QString("%1").arg( pNote->get_pitch() ) );
 			LocalFileMng::writeXmlString( noteNode, "probability", QString("%1").arg( pNote->get_probability() ) );
 
