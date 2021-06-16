@@ -39,6 +39,7 @@ class LCDDisplay;
 class Rotary;
 class WidgetWithInput;
 class LED;
+class ClickableLabel;
 
 #include "../Widgets/PixmapWidget.h"
 #include "../Widgets/WidgetWithScalableFont.h"
@@ -269,6 +270,12 @@ private:
 	Fader*			m_pFader;
 	Fader*			m_pMasterFader;
 
+	ClickableLabel* m_pMasterLbl;
+	ClickableLabel* m_pHumanizeLbl;
+	ClickableLabel* m_pSwingLbl;
+	ClickableLabel* m_pTimingLbl;
+	ClickableLabel* m_pVelocityLbl;
+
 	LCDDisplay *	m_pPeakLCD;
 
 	Rotary *		m_pSwingRotary;
@@ -313,6 +320,7 @@ private:
 	Button *		m_pEditBtn;
 	Rotary *		m_pRotary;
 	LCDDisplay *	m_pNameLCD;
+	ClickableLabel* m_pReturnLbl;
 };
 
 

@@ -28,6 +28,7 @@
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 #include "../CommonStrings.h"
+#include "../Widgets/ClickableLabel.h"
 #include "../Widgets/Fader.h"
 #include "../Widgets/Rotary.h"
 #include "../Widgets/Button.h"
@@ -628,6 +629,18 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pMuteBtn->move( 20, 32 );
 	connect( m_pMuteBtn, SIGNAL( pressed() ), this, SLOT( muteClicked() ) );
 	m_pMuteBtn->setAction( new Action("MUTE_TOGGLE"));
+
+	m_pMasterLbl = new ClickableLabel( this, QSize( 55, 15 ), HydrogenApp::get_instance()->getCommonStrings()->getMasterLabel(), ClickableLabel::Color::Dark );
+	m_pMasterLbl->move( 14, 8 );
+	m_pHumanizeLbl = new ClickableLabel( this, QSize( 51, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getHumanizeLabel(), ClickableLabel::Color::Dark );
+	m_pHumanizeLbl->move( 62, 79 );
+	m_pSwingLbl = new ClickableLabel( this, QSize( 51, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getVelocityLabel(), ClickableLabel::Color::Dark );
+	m_pSwingLbl->move( 62, 116 );
+	m_pTimingLbl = new ClickableLabel( this, QSize( 51, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getTimingLabel(), ClickableLabel::Color::Dark );
+	m_pTimingLbl->move( 62, 153 );
+	m_pVelocityLbl = new ClickableLabel( this, QSize( 51, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getSwingLabel(), ClickableLabel::Color::Dark );
+	m_pVelocityLbl->move( 62, 190 );
+
 }
 
 MasterMixerLine::~MasterMixerLine()
@@ -889,6 +902,9 @@ LadspaFXMixerLine::LadspaFXMixerLine(QWidget* parent)
 	m_pRotary->move( 124, 4 );
 	m_pRotary->setIsActive( false );
 	connect( m_pRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
+
+	m_pReturnLbl = new ClickableLabel( this, QSize( 46, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getReturnLabel(), ClickableLabel::Color::Dark );
+	m_pReturnLbl->move( 123, 30 );
 }
 
 

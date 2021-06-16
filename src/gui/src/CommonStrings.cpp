@@ -264,6 +264,28 @@ CommonStrings::CommonStrings() : Object( __class_name ) {
 	 milliseconds passed since playback started. Designed to hold three
 	 characters but not that flexible.*/
 	m_sTimeMilliSecondsLabel = tr( "1/1000" );
+	/*: Text displayed in the Master Mixer Strip as a heading for the
+	  humanization rotaries. Designed to hold eigth characters but not
+	  that flexible.*/
+	m_sHumanizeLabel = tr( "HUMANIZE" );
+	/*: Text displayed in the Master Mixer Strip as a heading for the
+	 swing humanization rotary. Designed to hold five characters but
+	  flexible.*/
+	m_sSwingLabel = tr( "SWING" );
+	/*: Text displayed in the Master Mixer Strip as a heading for the
+	 timing humanization rotary. Designed to hold six characters but
+	  flexible.*/
+	m_sTimingLabel = tr( "TIMING" );
+	/*: Text displayed in the Master Mixer Strip as a heading for the
+	 velocity humanization rotary. Designed to hold eight characters
+	 flexible.*/
+	m_sVelocityLabel = tr( "Velocity" );
+	/*: Text displayed as the title of the Master Mixer
+	 Strip. Designed to hold six characters but flexible.*/
+	m_sMasterLabel = tr( "Master" );
+	/*: Text displayed below the rotary in the FX Mixerline. Designed
+	  to hold six characters but flexible.*/
+	m_sReturnLabel = tr( "Return" );
 
 	/*: Displayed in the tooltip of input widgets. Indicates the
 	  allowed values from minimum to maximum.*/

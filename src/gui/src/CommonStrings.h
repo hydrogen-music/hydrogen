@@ -96,6 +96,12 @@ class CommonStrings : public H2Core::Object {
 	const QString& getTimeMinutesLabel() const { return m_sTimeMinutesLabel; }
 	const QString& getTimeSecondsLabel() const { return m_sTimeSecondsLabel; }
 	const QString& getTimeMilliSecondsLabel() const { return m_sTimeMilliSecondsLabel; }
+	const QString& getHumanizeLabel() const { return m_sHumanizeLabel; }
+	const QString& getSwingLabel() const { return m_sSwingLabel; }
+	const QString& getTimingLabel() const { return m_sTimingLabel; }
+	const QString& getVelocityLabel() const { return m_sVelocityLabel; }
+	const QString& getMasterLabel() const { return m_sMasterLabel; }
+	const QString& getReturnLabel() const { return m_sReturnLabel; }
 
 	const QString& getRangeTooltip() const { return m_sRangeTooltip; }
 	const QString& getMidiTooltipHeading() const { return m_sMidiTooltipHeading; }
@@ -169,6 +175,12 @@ private:
 	QString m_sTimeMinutesLabel;
 	QString m_sTimeSecondsLabel;
 	QString m_sTimeMilliSecondsLabel;
+	QString m_sHumanizeLabel;
+	QString m_sSwingLabel;
+	QString m_sTimingLabel;
+	QString m_sVelocityLabel;
+	QString m_sMasterLabel;
+	QString m_sReturnLabel;
 	
 	QString m_sRangeTooltip;
 	QString m_sMidiTooltipHeading;
