@@ -237,6 +237,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	// LCD BPM SpinBox
 	m_pLCDBPMSpinbox = new LCDSpinBox( pBPMPanel, QSize( 95, 28), LCDSpinBox::Type::Double, static_cast<double>( MIN_BPM ), static_cast<double>( MAX_BPM ) );
 	m_pLCDBPMSpinbox->move( 36, 3 );
+	m_pLCDBPMSpinbox->setStyleSheet( "font-size: 15px;" );
 	connect( m_pLCDBPMSpinbox, SIGNAL( valueChanged( double ) ), this, SLOT( bpmChanged( double ) ) );
 
 	m_pRubberBPMChange = new Button( pBPMPanel, QSize( 9, 37 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getRubberbandButton(), false, QSize(), tr("Recalculate Rubberband modified samples if bpm will change") );

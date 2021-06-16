@@ -61,25 +61,27 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 		setText( sText );
 	}
 
+	QString sBackground0, sBackground1;
 	if ( bUseRedBackground ) {
-		setStyleSheet( "QPushButton {"
-					   "color: #0a0a0a;"
-					   "background-color: #9fa3af;"
-					   "}"
-					   "QPushButton:checked {"
-					   "background-color: #ff6767;"
-					   "}"
-					   );
+		sBackground0 = "#ffb1b1";
+		sBackground1 = "#ff6767";
 	} else {
-		setStyleSheet( "QPushButton {"
-					   "background-color: #9fa3af;"
-					   "color: #0a0a0a;"
-					   "}"
-					   "QPushButton:checked {"
-					   "background-color: #61a7fb;"
-					   "}"
-					   );
+		sBackground0 = "#a2cdff";
+		sBackground1 = "#69a2e5";
 	}
+
+
+	setStyleSheet( QString( "QPushButton { \
+    border: 1px solid #1e1e1e; \
+    border-radius: 3px; \
+    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
+                                      stop: 0 #dae0f2, stop: 1 #9298aa); \
+} \
+QPushButton:checked { \
+background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
+                                      stop: 0 %1, stop: 1 %2); \
+}"
+							).arg( sBackground0 ).arg( sBackground1 ) );
 	
 	if ( type == Type::Toggle ) {
 		setCheckable( true );

@@ -79,10 +79,10 @@ void ClickableLabel::updateFont( QString sFontFamily, H2Core::Preferences::FontS
 	float fScalingFactor = 1.0;
     switch ( fontSize ) {
     case H2Core::Preferences::FontSize::Small:
-		fScalingFactor = 1.5;
+		fScalingFactor = 1.0;
 		break;
     case H2Core::Preferences::FontSize::Normal:
-		fScalingFactor = 1.0;
+		fScalingFactor = 0.75;
 		break;
     case H2Core::Preferences::FontSize::Large:
 		fScalingFactor = 0.5;

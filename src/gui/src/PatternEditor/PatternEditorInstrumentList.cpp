@@ -157,13 +157,17 @@ void InstrumentLine::setNumber(int nIndex)
 
 void InstrumentLine::setMuted(bool isMuted)
 {
-	m_pMuteBtn->setChecked(isMuted);
+	if ( ! m_pMuteBtn->isDown() ) {
+		m_pMuteBtn->setChecked(isMuted);
+	}
 }
 
 
 void InstrumentLine::setSoloed( bool soloed )
 {
-	m_pSoloBtn->setChecked( soloed );
+	if ( ! m_pSoloBtn->isDown() ) {
+		m_pSoloBtn->setChecked( soloed );
+	}
 }
 
 
