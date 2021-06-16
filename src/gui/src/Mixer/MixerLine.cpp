@@ -74,8 +74,8 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	setPixmap( "/mixerPanel/mixerline_background.png" );
 
 	// Play sample button
-	m_pPlaySampleBtn = new Button( this, QSize( 18, 13 ), Button::Type::Push, "play.svg", "", false, QSize( 7, 7 ), tr( "Play sample" ) );
-	m_pPlaySampleBtn->move( 8, 2 );
+	m_pPlaySampleBtn = new Button( this, QSize( 20, 15 ), Button::Type::Push, "play.svg", "", false, QSize( 7, 7 ), tr( "Play sample" ) );
+	m_pPlaySampleBtn->move( 6, 1 );
 	m_pPlaySampleBtn->setObjectName( "PlaySampleButton" );
 	connect(m_pPlaySampleBtn, SIGNAL( pressed() ), this, SLOT( playSampleBtnClicked() ) );
 
@@ -91,8 +91,8 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 
 	// Mute button
 
-	m_pMuteBtn = new Button( this, QSize( 18, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true, QSize(), tr( "Mute" ) );
-	m_pMuteBtn->move( 8, 17 );
+	m_pMuteBtn = new Button( this, QSize( 22, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true, QSize(), tr( "Mute" ) );
+	m_pMuteBtn->move( 5, 16 );
 	m_pMuteBtn->setObjectName( "MixerMuteButton" );
 	connect(m_pMuteBtn, SIGNAL( pressed() ), this, SLOT( muteBtnClicked() ));
 	pAction = new Action("STRIP_MUTE_TOGGLE");
@@ -100,8 +100,8 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pMuteBtn->setAction(pAction);
 
 	// Solo button
-	m_pSoloBtn = new Button( this, QSize( 18, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton(), false, QSize(), tr( "Solo" ) );
-	m_pSoloBtn->move( 30, 17);
+	m_pSoloBtn = new Button( this, QSize( 22, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton(), false, QSize(), tr( "Solo" ) );
+	m_pSoloBtn->move( 28, 16 );
 	m_pSoloBtn->setObjectName( "MixerSoloButton" );
 	connect(m_pSoloBtn, SIGNAL( pressed() ), this, SLOT( soloBtnClicked() ));
 	pAction = new Action("STRIP_SOLO_TOGGLE");
@@ -162,8 +162,8 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pFader->setAction( pAction );
 
 
-	m_pPeakLCD = new LCDDisplay( this, QSize( 39, 17 ) );
-	m_pPeakLCD->move( 9, 106 );
+	m_pPeakLCD = new LCDDisplay( this, QSize( 41, 19 ) );
+	m_pPeakLCD->move( 8, 105 );
 	m_pPeakLCD->setText( "0.00" );
 	m_pPeakLCD->setToolTip( tr( "Peak" ) );
 	QPalette lcdPalette;
@@ -401,13 +401,13 @@ ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
 	setPixmap( "/mixerPanel/componentmixerline_background.png" );
 
 	// Mute button
-	m_pMuteBtn = new Button( this, QSize( 18, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true, QSize(), tr( "Mute" ) );
-	m_pMuteBtn->move( 8, 17 );
+	m_pMuteBtn = new Button( this, QSize( 22, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true, QSize(), tr( "Mute" ) );
+	m_pMuteBtn->move( 5, 16 );
 	connect(m_pMuteBtn, SIGNAL( pressed() ), this, SLOT( muteBtnClicked() ));
 
 	// Solo button
-	m_pSoloBtn = new Button( this, QSize( 18, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton(), false, QSize(), tr( "Solo" ) );
-	m_pSoloBtn->move( 30, 17);
+	m_pSoloBtn = new Button( this, QSize( 22, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton(), false, QSize(), tr( "Solo" ) );
+	m_pSoloBtn->move( 28, 16 );
 	connect(m_pSoloBtn, SIGNAL( pressed() ), this, SLOT( soloBtnClicked() ));
 
 	Preferences *pPref = Preferences::get_instance();
@@ -437,8 +437,8 @@ ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
 	//m_pFader->setAction( pAction );
 
 
-	m_pPeakLCD = new LCDDisplay( this, QSize( 39, 17 ) );
-	m_pPeakLCD->move( 9, 106 );
+	m_pPeakLCD = new LCDDisplay( this, QSize( 41, 19 ) );
+	m_pPeakLCD->move( 8, 105 );
 	m_pPeakLCD->setText( "0.00" );
 	m_pPeakLCD->setToolTip( tr( "Peak" ) );
 	QPalette lcdPalette;
@@ -604,8 +604,8 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	Action* pAction = new Action("MASTER_VOLUME_ABSOLUTE");
 	m_pMasterFader->setAction( pAction );
 
-	m_pPeakLCD = new LCDDisplay( this, QSize( 37, 17 ) );
-	m_pPeakLCD->move( 23, 52 );
+	m_pPeakLCD = new LCDDisplay( this, QSize( 38, 18 ) );
+	m_pPeakLCD->move( 22, 51 );
 	m_pPeakLCD->setText( "0.00" );
 	m_pPeakLCD->setToolTip( tr( "Peak" ) );
 	QPalette lcdPalette;
@@ -625,8 +625,8 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	connect( m_pSwingRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 
 	// Mute btn
-	m_pMuteBtn = new Button( this, QSize( 42, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBigMuteButton(), true );
-	m_pMuteBtn->move( 20, 32 );
+	m_pMuteBtn = new Button( this, QSize( 42, 17 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBigMuteButton(), true );
+	m_pMuteBtn->move( 20, 31 );
 	connect( m_pMuteBtn, SIGNAL( pressed() ), this, SLOT( muteClicked() ) );
 	m_pMuteBtn->setAction( new Action("MUTE_TOGGLE"));
 
@@ -881,13 +881,13 @@ LadspaFXMixerLine::LadspaFXMixerLine(QWidget* parent)
 	setPixmap( "/mixerPanel/fxline_background.png" );
 
 	// active button
-	m_pActiveBtn = new Button( this, QSize( 30, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBypassButton(), true, QSize(), tr( "FX bypass") );
-	m_pActiveBtn->move( 55, 25 );
+	m_pActiveBtn = new Button( this, QSize( 34, 14 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBypassButton(), true, QSize(), tr( "FX bypass") );
+	m_pActiveBtn->move( 52, 25 );
 	connect( m_pActiveBtn, SIGNAL( pressed() ), this, SLOT( activeBtnClicked() ) );
 
 	// edit button
-	m_pEditBtn = new Button( this, QSize( 30, 13 ), Button::Type::Push, "", HydrogenApp::get_instance()->getCommonStrings()->getEditButton(), false, QSize(), tr( "Edit FX parameters") );
-	m_pEditBtn->move( 87, 25 );
+	m_pEditBtn = new Button( this, QSize( 34, 14 ), Button::Type::Push, "", HydrogenApp::get_instance()->getCommonStrings()->getEditButton(), false, QSize(), tr( "Edit FX parameters") );
+	m_pEditBtn->move( 86, 25 );
 	connect( m_pEditBtn, SIGNAL( pressed() ), this, SLOT( editBtnClicked() ) );
 
 	// instrument name widget

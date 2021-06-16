@@ -117,18 +117,18 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	editor_top_hbox_2->addWidget( pSizeResol );
 
 	// PATTERN size
-	LCDSpinBox* LCDSpLCDSpinBox1 = new LCDSpinBox( pSizeResol, QSize( 62, 17 ), LCDSpinBox::Type::Double, 1.0, 16.0 );
-	LCDSpinBox* LCDSpLCDSpinBox2 = new LCDSpinBox( pSizeResol, QSize( 30, 17 ), LCDSpinBox::Type::Double, 1, 16 );
-	LCDSpLCDSpinBox1->move( 31, 1 );
-	LCDSpLCDSpinBox2->move( 101, 1 );
+	LCDSpinBox* LCDSpLCDSpinBox1 = new LCDSpinBox( pSizeResol, QSize( 62, 19 ), LCDSpinBox::Type::Double, 1.0, 16.0 );
+	LCDSpinBox* LCDSpLCDSpinBox2 = new LCDSpinBox( pSizeResol, QSize( 30, 19 ), LCDSpinBox::Type::Double, 1, 16 );
+	LCDSpLCDSpinBox1->move( 31, 0 );
+	LCDSpLCDSpinBox2->move( 101, 0 );
 	QLabel* label1 = new ClickableLabel( pSizeResol, QSize( 4, 11 ), "/", ClickableLabel::Color::Dark );
 	label1->resize( QSize( 20, 17 ) );
 	label1->move( 95, 4 );
 	label1->setText( "/" );
 	label1->setFont( boldFont );
 	label1->setStyleSheet( "color: #191919;" );
-	__pattern_size_LCD = new LCDDisplay( pSizeResol, QSize( 100, 17 ) );
-	__pattern_size_LCD->move( 31, 2 );
+	__pattern_size_LCD = new LCDDisplay( pSizeResol, QSize( 100, 19 ) );
+	__pattern_size_LCD->move( 31, 1 );
 	__pattern_size_LCD->hide();
 	__pattern_size_LCD->setToolTip( tr( "Select pattern size" ) );
 	m_pPatternSizeLbl = new ClickableLabel( pSizeResol, QSize( 30, 11 ), HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeLabel(), ClickableLabel::Color::Dark );
@@ -142,7 +142,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( m_pDenominatorWarning, SIGNAL( pressed() ), this, SLOT( denominatorWarningClicked() ) );
 	
 	// GRID resolution
-	m_pResolutionCombo = new LCDCombo( pSizeResol , QSize( 209, 16 ) );
+	m_pResolutionCombo = new LCDCombo( pSizeResol , QSize( 209, 17 ) );
 	m_pResolutionCombo->setToolTip(tr( "Select grid resolution" ));
 	m_pResolutionCombo->insertItem( 0, QString( "1/4 - " )
 								 .append( tr( "quarter" ) ) );
@@ -165,10 +165,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 								 .append( tr( "thirty-second triplet" ) ) );
 	m_pResolutionCombo->insertSeparator( 10 );
 	m_pResolutionCombo->insertItem( 11, tr( "off" ) );
-	m_pResolutionCombo->move( 154, 2 );
+	m_pResolutionCombo->move( 157, 1 );
 	// is triggered from inside PatternEditorPanel()
 	connect( m_pResolutionCombo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( gridResolutionChanged( int ) ) );
 	m_pResolutionLbl = new ClickableLabel( pSizeResol, QSize( 28, 11 ), HydrogenApp::get_instance()->getCommonStrings()->getResolutionLabel(), ClickableLabel::Color::Dark );
+	m_pResolutionLbl->setAlignment( Qt::AlignRight );
 	m_pResolutionLbl->move( 127, 4 );
 
 
@@ -180,44 +181,47 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 	// Hear notes btn
-	m_pHearNotesBtn = new Button( pRec, QSize( 15, 13 ), Button::Type::Toggle, "speaker.svg", "", false, QSize( 13, 11 ), tr( "Hear new notes" ) );
-	m_pHearNotesBtn->move( 34, 3 );
+	m_pHearNotesBtn = new Button( pRec, QSize( 21, 17 ), Button::Type::Toggle, "speaker.svg", "", false, QSize( 17, 15 ), tr( "Hear new notes" ) );
+	m_pHearNotesBtn->move( 37, 1 );
 	connect( m_pHearNotesBtn, SIGNAL( pressed() ), this, SLOT( hearNotesBtnClick() ) );
 	m_pHearNotesBtn->setChecked( pPref->getHearNewNotes() );
 	m_pHearNotesBtn->setObjectName( "HearNotesBtn" );
-	m_pHearNotesLbl = new ClickableLabel( pRec, QSize( 30, 11 ), HydrogenApp::get_instance()->getCommonStrings()->getHearNotesLabel(), ClickableLabel::Color::Dark );
+	m_pHearNotesLbl = new ClickableLabel( pRec, QSize( 31, 11 ), HydrogenApp::get_instance()->getCommonStrings()->getHearNotesLabel(), ClickableLabel::Color::Dark );
+	m_pHearNotesLbl->setAlignment( Qt::AlignRight );
 	m_pHearNotesLbl->move( 3, 4 );
 
 
 	// quantize
-	m_pQuantizeEventsBtn = new Button( pRec, QSize( 15, 13 ), Button::Type::Toggle, "quantization.svg", "", false, QSize( 13, 11 ), tr( "Quantize keyboard/midi events to grid" ) );
-	m_pQuantizeEventsBtn->move( 90, 3 );
+	m_pQuantizeEventsBtn = new Button( pRec, QSize( 21, 17 ), Button::Type::Toggle, "quantization.svg", "", false, QSize( 17, 15 ), tr( "Quantize keyboard/midi events to grid" ) );
+	m_pQuantizeEventsBtn->move( 96, 1 );
 	m_pQuantizeEventsBtn->setChecked( pPref->getQuantizeEvents() );
 	m_pQuantizeEventsBtn->setObjectName( "QuantizeEventsBtn" );
 	connect( m_pQuantizeEventsBtn, SIGNAL( pressed() ), this, SLOT( quantizeEventsBtnClick() ) );
-	m_pQuantizeEventsLbl = new ClickableLabel( pRec, QSize( 38, 11 ), HydrogenApp::get_instance()->getCommonStrings()->getQuantizeEventsLabel(), ClickableLabel::Color::Dark );
-	m_pQuantizeEventsLbl->move( 51, 4 );
+	m_pQuantizeEventsLbl = new ClickableLabel( pRec, QSize( 34, 11 ), HydrogenApp::get_instance()->getCommonStrings()->getQuantizeEventsLabel(), ClickableLabel::Color::Dark );
+	m_pQuantizeEventsLbl->setAlignment( Qt::AlignRight );
+	m_pQuantizeEventsLbl->move( 59, 4 );
 
 	// Editor mode
-	__show_drum_btn = new Button( pRec, QSize( 17, 13 ), Button::Type::Push, "drum.svg", "", false, QSize( 13, 11 ), tr( "Show piano roll editor" ) );
-	__show_drum_btn->move( 137, 3 );
+	__show_drum_btn = new Button( pRec, QSize( 25, 17 ), Button::Type::Push, "drum.svg", "", false, QSize( 19, 15 ), tr( "Show piano roll editor" ) );
+	__show_drum_btn->move( 153, 1 );
 	__show_drum_btn->setObjectName( "ShowDrumBtn" );
 	connect( __show_drum_btn, SIGNAL( pressed() ), this, SLOT( showDrumEditorBtnClick() ) );
-	__show_piano_btn = new Button( pRec, QSize( 17, 13 ), Button::Type::Push, "piano.svg", "", false, QSize( 13, 11 ), tr( "Show drumkit editor" ) );
-	__show_piano_btn->move( 137, 3 );
+	__show_piano_btn = new Button( pRec, QSize( 25, 17 ), Button::Type::Push, "piano.svg", "", false, QSize( 19, 15 ), tr( "Show drumkit editor" ) );
+	__show_piano_btn->move( 153, 1 );
 	__show_piano_btn->setObjectName( "ShowDrumBtn" );
 	__show_piano_btn->hide();
 	connect( __show_piano_btn, SIGNAL( pressed() ), this, SLOT( showDrumEditorBtnClick() ) );
 	m_pShowPianoLbl = new ClickableLabel( pRec, QSize( 30, 11 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoLabel(), ClickableLabel::Color::Dark );
-	m_pShowPianoLbl->move( 106, 4 );
+	m_pShowPianoLbl->setAlignment( Qt::AlignRight );
+	m_pShowPianoLbl->move( 120, 4 );
 
 	// zoom-in btn
-	Button *zoom_in_btn = new Button( nullptr, QSize( 19, 13 ), Button::Type::Push, "plus.svg", "", false, QSize( 9, 9 ), tr( "Zoom in" ) );
+	Button *zoom_in_btn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Push, "plus.svg", "", false, QSize( 9, 9 ), tr( "Zoom in" ) );
 	connect( zoom_in_btn, SIGNAL( pressed() ), this, SLOT( zoomInBtnClicked() ) );
 
 
 	// zoom-out btn
-	Button *zoom_out_btn = new Button( nullptr, QSize( 19, 13 ), Button::Type::Push, "minus.svg", "", false, QSize( 9, 9 ), tr( "Zoom out" ) );
+	Button *zoom_out_btn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Push, "minus.svg", "", false, QSize( 9, 9 ), tr( "Zoom out" ) );
 	connect( zoom_out_btn, SIGNAL( pressed() ), this, SLOT( zoomOutBtnClicked() ) );
 // End Editor TOP
 

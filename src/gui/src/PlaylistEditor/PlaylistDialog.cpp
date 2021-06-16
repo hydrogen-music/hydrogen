@@ -112,30 +112,30 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	vboxLayout->addWidget( pControlsPanel );
 
 	// Rewind button
-	m_pRwdBtn = new Button( pControlsPanel, QSize( 21, 15 ), Button::Type::Push, "rewind.svg", "", false, QSize( 11, 11 ), tr("Rewind") );
-	m_pRwdBtn->move(6, 6);
+	m_pRwdBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "rewind.svg", "", false, QSize( 13, 13 ), tr("Rewind") );
+	m_pRwdBtn->move( 4, 4 );
 	connect(m_pRwdBtn, SIGNAL( pressed() ), this, SLOT( rewindBtnClicked() ));
 	Action* pAction = new Action("PLAYLIST_PREV_SONG");
 	m_pRwdBtn->setAction( pAction );
 
 	// Play button
-	m_pPlayBtn = new Button( pControlsPanel, QSize( 26, 17 ), Button::Type::Toggle, "play.svg", "", false, QSize( 11, 11 ), tr("Play/ Pause/ Load selected song") );
-	m_pPlayBtn->move(33, 6);
+	m_pPlayBtn = new Button( pControlsPanel, QSize( 30, 21 ), Button::Type::Toggle, "play.svg", "", false, QSize( 13, 13 ), tr("Play/ Pause/ Load selected song") );
+	m_pPlayBtn->move( 31, 4 );
 	m_pPlayBtn->setChecked(false);
 	connect(m_pPlayBtn, SIGNAL( pressed() ), this, SLOT( nodePlayBTN() ));
 	pAction = new Action("PLAY/PAUSE_TOGGLE");
 	m_pPlayBtn->setAction( pAction );
 
 	// Stop button
-	m_pStopBtn = new Button( pControlsPanel, QSize( 21, 15 ), Button::Type::Push, "stop.svg", "", false, QSize( 9, 9 ), tr("Stop") );
-	m_pStopBtn->move(65, 6);
+	m_pStopBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "stop.svg", "", false, QSize( 11, 11 ), tr("Stop") );
+	m_pStopBtn->move( 63, 4 );
 	connect(m_pStopBtn, SIGNAL( pressed() ), this, SLOT( nodeStopBTN() ));
 	pAction = new Action("STOP");
 	m_pStopBtn->setAction( pAction );
 
 	// Fast forward button
-	m_pFfwdBtn = new Button( pControlsPanel, QSize( 21, 15 ), Button::Type::Push, "fast_forward.svg", "", false, QSize( 11, 11 ), tr("Fast Forward") );
-	m_pFfwdBtn->move(92, 6);
+	m_pFfwdBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "fast_forward.svg", "", false, QSize( 13, 13 ), tr("Fast Forward") );
+	m_pFfwdBtn->move( 90, 4 );
 	connect(m_pFfwdBtn, SIGNAL( pressed() ), this, SLOT( ffWDBtnClicked() ));
 	pAction = new Action("PLAYLIST_NEXT_SONG");
 	m_pFfwdBtn->setAction( pAction );
@@ -185,12 +185,12 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 #endif
 
 	// zoom-in btn
-	Button *pUpBtn = new Button( nullptr, QSize( 18, 13 ), Button::Type::Push, "up.svg", "", false, QSize( 7, 7 ), tr( "sort" ) );
+	Button *pUpBtn = new Button( nullptr, QSize( 16, 16 ), Button::Type::Push, "up.svg", "", false, QSize( 9, 9 ), tr( "sort" ) );
 	connect(pUpBtn, SIGNAL( pressed() ), this, SLOT(o_upBClicked()) );
 	pSideBarLayout->addWidget(pUpBtn);
 
 	// zoom-in btn
-	Button *pDownBtn = new Button( nullptr, QSize( 18, 13 ), Button::Type::Push, "down.svg", "", false, QSize( 7, 7 ), tr( "sort" ) );
+	Button *pDownBtn = new Button( nullptr, QSize( 16, 16 ), Button::Type::Push, "down.svg", "", false, QSize( 9, 9 ), tr( "sort" ) );
 	connect(pDownBtn, SIGNAL( pressed() ), this, SLOT(o_downBClicked()));
 	pSideBarLayout->addWidget(pDownBtn);
 

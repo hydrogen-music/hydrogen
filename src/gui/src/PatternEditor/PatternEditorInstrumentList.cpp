@@ -70,16 +70,16 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 
 	/*: Text displayed on the button for muting an instrument. Its
 	  size is designed for a single character.*/
-	m_pMuteBtn = new Button( this, QSize( 18, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true, QSize(), tr("Mute instrument") );
-	m_pMuteBtn->move( 145, 5 );
+	m_pMuteBtn = new Button( this, QSize( 18, height() - 1 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true, QSize(), tr("Mute instrument") );
+	m_pMuteBtn->move( 145, 0 );
 	m_pMuteBtn->setChecked(false);
 	m_pMuteBtn->setObjectName( "MuteButton" );
 	connect(m_pMuteBtn, SIGNAL( pressed() ), this, SLOT( muteClicked() ));
 
 	/*: Text displayed on the button for soloing an instrument. Its
 	  size is designed for a single character.*/
-	m_pSoloBtn = new Button( this, QSize( 18, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton(), false, QSize(), tr("Solo") );
-	m_pSoloBtn->move( 163, 5 );
+	m_pSoloBtn = new Button( this, QSize( 18, height() - 1 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton(), false, QSize(), tr("Solo") );
+	m_pSoloBtn->move( 163, 0 );
 	m_pSoloBtn->setChecked(false);
 	m_pSoloBtn->setObjectName( "SoloButton" );
 	connect(m_pSoloBtn, SIGNAL( pressed() ), this, SLOT(soloClicked()));

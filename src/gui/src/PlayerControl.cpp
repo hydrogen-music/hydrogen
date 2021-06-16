@@ -94,15 +94,15 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pTimeMilliSecondsLbl->move( 116, 30 );
 
 	// Rewind button
-	m_pRwdBtn = new Button( pControlsPanel, QSize( 21, 15 ), Button::Type::Push, "rewind.svg", "", false, QSize( 11, 11 ), tr("Rewind") );
-	m_pRwdBtn->move(168, 17);
+	m_pRwdBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "rewind.svg", "", false, QSize( 13, 13 ), tr("Rewind") );
+	m_pRwdBtn->move( 166, 15 );
 	connect(m_pRwdBtn, SIGNAL( pressed() ), this, SLOT( rewindBtnClicked() ));
 	Action* pAction = new Action("<<_PREVIOUS_BAR");
 	m_pRwdBtn->setAction( pAction );
 
 	// Record button
-	m_pRecBtn = new Button( pControlsPanel, QSize( 21, 15 ), Button::Type::Toggle, "record.svg", "", false, QSize( 9, 9 ), tr("Record") );
-	m_pRecBtn->move(195, 17);
+	m_pRecBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Toggle, "record.svg", "", false, QSize( 11, 11 ), tr("Record") );
+	m_pRecBtn->move( 193, 15 );
 	m_pRecBtn->setChecked(false);
 	m_pRecBtn->setHidden(false);
 	connect(m_pRecBtn, SIGNAL( pressed() ), this, SLOT( recBtnClicked() ));
@@ -110,46 +110,46 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pRecBtn->setAction( pAction );
 
 	// Play button
-	m_pPlayBtn = new Button( pControlsPanel, QSize( 26, 17 ), Button::Type::Toggle, "play_pause.svg", "", false, QSize( 22, 16 ), tr("Play/ Pause") );
-	m_pPlayBtn->move(222, 17);
+	m_pPlayBtn = new Button( pControlsPanel, QSize( 30, 21 ), Button::Type::Toggle, "play_pause.svg", "", false, QSize( 30, 21 ), tr("Play/ Pause") );
+	m_pPlayBtn->move( 220, 15 );
 	m_pPlayBtn->setChecked(false);
 	connect(m_pPlayBtn, SIGNAL( pressed() ), this, SLOT( playBtnClicked() ));
 	pAction = new Action("PLAY/PAUSE_TOGGLE");
 	m_pPlayBtn->setAction( pAction );
 
 	// Stop button
-	m_pStopBtn = new Button( pControlsPanel, QSize( 21, 15 ), Button::Type::Push, "stop.svg", "", false, QSize( 9, 9 ), tr("Stop") );
-	m_pStopBtn->move(254, 17);
+	m_pStopBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "stop.svg", "", false, QSize( 11, 11 ), tr("Stop") );
+	m_pStopBtn->move( 252, 15 );
 	connect(m_pStopBtn, SIGNAL( pressed() ), this, SLOT( stopBtnClicked() ));
 	pAction = new Action("STOP");
 	m_pStopBtn->setAction( pAction );
 
 	// Fast forward button
-	m_pFfwdBtn = new Button( pControlsPanel, QSize( 21, 15 ), Button::Type::Push, "fast_forward.svg", "", false, QSize( 11, 11 ), tr("Fast Forward") );
-	m_pFfwdBtn->move(281, 17);
+	m_pFfwdBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "fast_forward.svg", "", false, QSize( 13, 13 ), tr("Fast Forward") );
+	m_pFfwdBtn->move( 279, 15 );
 	connect(m_pFfwdBtn, SIGNAL( pressed() ), this, SLOT( fastForwardBtnClicked() ));
 	pAction = new Action(">>_NEXT_BAR");
 	m_pFfwdBtn->setAction( pAction );
 
 	// Loop song button button
-	m_pSongLoopBtn = new Button( pControlsPanel, QSize( 21, 15 ), Button::Type::Toggle, "loop.svg", "", false, QSize( 13, 11 ), tr("Loop song") );
-	m_pSongLoopBtn->move(310, 17);
+	m_pSongLoopBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Toggle, "loop.svg", "", false, QSize( 19, 15 ), tr("Loop song") );
+	m_pSongLoopBtn->move( 308, 15);
 	connect( m_pSongLoopBtn, SIGNAL( pressed() ), this, SLOT( songLoopBtnClicked() ) );
 
 	// Live mode button
 	m_pPatternModeLED = new LED( pControlsPanel, QSize( 11, 9 ) );
 	m_pPatternModeLED->move( 179, 4 );
 	m_pPatternModeLED->setActivated( true );
-	m_pPatternModeBtn = new Button( pControlsPanel, QSize( 57, 9 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getPatternModeButton(), false, QSize(), tr("Pattern Mode") );
-	m_pPatternModeBtn->move(191, 4);
+	m_pPatternModeBtn = new Button( pControlsPanel, QSize( 59, 11 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getPatternModeButton(), false, QSize(), tr("Pattern Mode") );
+	m_pPatternModeBtn->move( 190, 3 );
 	m_pPatternModeBtn->setChecked(true);
 	connect(m_pPatternModeBtn, SIGNAL( pressed() ), this, SLOT( patternModeBtnClicked() ));
 
 	// Song mode button
 	m_pSongModeLED = new LED( pControlsPanel, QSize( 11, 9 ) );
 	m_pSongModeLED->move( 252, 4 );
-	m_pSongModeBtn = new Button( pControlsPanel, QSize( 57, 9 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSongModeButton(), false, QSize(), tr("Song Mode") );
-	m_pSongModeBtn->move(264, 4);
+	m_pSongModeBtn = new Button( pControlsPanel, QSize( 59, 11 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSongModeButton(), false, QSize(), tr("Song Mode") );
+	m_pSongModeBtn->move( 263, 3 );
 	m_pSongModeBtn->setChecked(false);
 	connect(m_pSongModeBtn, SIGNAL( pressed() ), this, SLOT( songModeBtnClicked() ));
 
@@ -163,7 +163,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	hbox->addWidget( pControlsBBTBConoffPanel );
 
 	m_sBCOnOffBtnToolTip = tr("BeatCounter Panel on");
-	m_pBCOnOffBtn = new Button( pControlsBBTBConoffPanel, QSize( 10, 40 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBeatCounterButton(), false, QSize(), m_sBCOnOffBtnToolTip );
+	m_pBCOnOffBtn = new Button( pControlsBBTBConoffPanel, QSize( 12, 40 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBeatCounterButton(), false, QSize(), m_sBCOnOffBtnToolTip );
 	m_pBCOnOffBtn->move(1, 1);
 	m_pBCOnOffBtn->setChecked(false);
 	connect(m_pBCOnOffBtn, SIGNAL( pressed() ), this, SLOT( bcOnOffBtnClicked() ));
@@ -203,24 +203,24 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pBCDisplayB->move( 45, 25 );
 	m_pBCDisplayB->setText( "04" );
 
-	m_pBCTUpBtn = new Button( m_pControlsBCPanel, QSize( 15, 8 ), Button::Type::Push, "plus.svg", "", false, QSize( 6, 6 ) );
-	m_pBCTUpBtn->move( 4, 6 );
+	m_pBCTUpBtn = new Button( m_pControlsBCPanel, QSize( 19, 12 ), Button::Type::Push, "plus.svg", "", false, QSize( 10, 10 ) );
+	m_pBCTUpBtn->move( 2, 3 );
 	connect( m_pBCTUpBtn, SIGNAL( pressed() ), this, SLOT( bctUpButtonClicked() ) );
 
-	m_pBCTDownBtn = new Button( m_pControlsBCPanel, QSize( 15, 8 ), Button::Type::Push, "minus.svg", "", false, QSize( 6, 6 ) );
-	m_pBCTDownBtn->move( 4, 15 );
+	m_pBCTDownBtn = new Button( m_pControlsBCPanel, QSize( 19, 12 ), Button::Type::Push, "minus.svg", "", false, QSize( 10, 10 ) );
+	m_pBCTDownBtn->move( 2, 14 );
 	connect( m_pBCTDownBtn, SIGNAL( pressed() ), this, SLOT( bctDownButtonClicked() ) );
 
-	m_pBCBUpBtn = new Button( m_pControlsBCPanel, QSize( 15, 8 ), Button::Type::Push, "plus.svg", "", false, QSize( 6, 6 ) );
-	m_pBCBUpBtn->move( 66, 6 );
+	m_pBCBUpBtn = new Button( m_pControlsBCPanel, QSize( 19, 12 ), Button::Type::Push, "plus.svg", "", false, QSize( 10, 10 ) );
+	m_pBCBUpBtn->move( 64, 3 );
 	connect( m_pBCBUpBtn, SIGNAL( pressed() ), this, SLOT( bcbUpButtonClicked() ) );
 
-	m_pBCBDownBtn = new Button( m_pControlsBCPanel, QSize( 15, 8 ), Button::Type::Push, "minus.svg", "", false, QSize( 6, 6 ) );
-	m_pBCBDownBtn->move( 66, 15 );
+	m_pBCBDownBtn = new Button( m_pControlsBCPanel, QSize( 19, 12 ), Button::Type::Push, "minus.svg", "", false, QSize( 10, 10 ) );
+	m_pBCBDownBtn->move( 64, 14 );
 	connect( m_pBCBDownBtn, SIGNAL( pressed() ), this, SLOT( bcbDownButtonClicked() ) );
 
-	m_pBCSetPlayBtn = new Button( m_pControlsBCPanel, QSize( 15, 13 ), Button::Type::Push, "", HydrogenApp::get_instance()->getCommonStrings()->getBeatCounterSetPlayButtonOff(), false, QSize(), tr("Set BPM / Set BPM and play") );
-	m_pBCSetPlayBtn->move(66, 24);
+	m_pBCSetPlayBtn = new Button( m_pControlsBCPanel, QSize( 19, 15 ), Button::Type::Push, "", HydrogenApp::get_instance()->getCommonStrings()->getBeatCounterSetPlayButtonOff(), false, QSize(), tr("Set BPM / Set BPM and play") );
+	m_pBCSetPlayBtn->move( 64, 25 );
 	connect(m_pBCSetPlayBtn, SIGNAL( pressed() ), this, SLOT( bcSetPlayBtnClicked() ));
 //~ beatcounter
 
@@ -235,14 +235,14 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pBPMLbl->move( 36, 31 );
 
 	// LCD BPM SpinBox
-	m_pLCDBPMSpinbox = new LCDSpinBox( pBPMPanel, QSize( 95, 28), LCDSpinBox::Type::Double, static_cast<double>( MIN_BPM ), static_cast<double>( MAX_BPM ) );
-	m_pLCDBPMSpinbox->move( 36, 3 );
-	m_pLCDBPMSpinbox->setStyleSheet( "font-size: 15px;" );
+	m_pLCDBPMSpinbox = new LCDSpinBox( pBPMPanel, QSize( 95, 30), LCDSpinBox::Type::Double, static_cast<double>( MIN_BPM ), static_cast<double>( MAX_BPM ) );
+	m_pLCDBPMSpinbox->move( 36, 1 );
+	m_pLCDBPMSpinbox->setStyleSheet( "font-size: 16px;" );
 	connect( m_pLCDBPMSpinbox, SIGNAL( valueChanged( double ) ), this, SLOT( bpmChanged( double ) ) );
 
-	m_pRubberBPMChange = new Button( pBPMPanel, QSize( 9, 37 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getRubberbandButton(), false, QSize(), tr("Recalculate Rubberband modified samples if bpm will change") );
+	m_pRubberBPMChange = new Button( pBPMPanel, QSize( 12, 40 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getRubberbandButton(), false, QSize(), tr("Recalculate Rubberband modified samples if bpm will change") );
 
-	m_pRubberBPMChange->move( 133, 3 );
+	m_pRubberBPMChange->move( 131, 1 );
 	m_pRubberBPMChange->setChecked( pPreferences->getRubberBandBatchMode());
 	connect( m_pRubberBPMChange, SIGNAL( pressed() ), this, SLOT( rubberbandButtonToggle() ) );
 	QString program = pPreferences->m_rubberBandCLIexecutable;
@@ -254,8 +254,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pMetronomeLED = new MetronomeLED( pBPMPanel, QSize( 22, 7 ) );
 	m_pMetronomeLED->move( 7, 32 );
 
-	m_pMetronomeBtn = new Button( pBPMPanel, QSize( 22, 26 ), Button::Type::Toggle, "metronome.svg", "", false, QSize( 20, 20 ), tr("Switch metronome on/off") );
-	m_pMetronomeBtn->move( 7, 4 );
+	m_pMetronomeBtn = new Button( pBPMPanel, QSize( 24, 28 ), Button::Type::Toggle, "metronome.svg", "", false, QSize( 24, 24 ), tr("Switch metronome on/off") );
+	m_pMetronomeBtn->move( 7, 2 );
 	connect( m_pMetronomeBtn, SIGNAL( pressed() ), this, SLOT( metronomeButtonClicked() ) );
 		pAction = new Action("TOGGLE_METRONOME");
 		m_pMetronomeBtn->setAction( pAction );
@@ -272,7 +272,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	// Jack transport mode button
 	
-	m_pJackTransportBtn = new Button( pJackPanel, QSize( 45, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getJackTransportButton(), false, QSize(), tr("JACK transport on/off") );
+	m_pJackTransportBtn = new Button( pJackPanel, QSize( 53, 16 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getJackTransportButton(), false, QSize(), tr("JACK transport on/off") );
 	m_pJackTransportBtn->hide();
 	if ( pPreferences->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
 		m_pJackTransportBtn->setChecked( true );
@@ -280,11 +280,11 @@ PlayerControl::PlayerControl(QWidget *parent)
 		m_pJackTransportBtn->setChecked( false );
 	}
 	connect(m_pJackTransportBtn, SIGNAL( pressed() ), this, SLOT( jackTransportBtnClicked() ));
-	m_pJackTransportBtn->move(10, 26);
+	m_pJackTransportBtn->move( 3, 24 );
 
 	//jack time master
 	m_sJackMasterModeToolTip = tr("JACK Timebase master on/off");
-	m_pJackMasterBtn = new Button( pJackPanel, QSize( 45, 13 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getJackMasterButton(), false, QSize(), m_sJackMasterModeToolTip );
+	m_pJackMasterBtn = new Button( pJackPanel, QSize( 53, 16 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getJackMasterButton(), false, QSize(), m_sJackMasterModeToolTip );
 	m_pJackMasterBtn->hide();
 	if ( m_pJackTransportBtn->isChecked() &&
 		 pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&
@@ -294,7 +294,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 		m_pJackMasterBtn->setChecked( false );
 	}
 	connect(m_pJackMasterBtn, SIGNAL( pressed() ), this, SLOT( jackMasterBtnClicked() ));
-	m_pJackMasterBtn->move(56, 26);
+	m_pJackMasterBtn->move( 56, 24 );
 	//~ jack time master
 
 	m_pHydrogen = Hydrogen::get_instance();
@@ -324,18 +324,18 @@ PlayerControl::PlayerControl(QWidget *parent)
 	pLcdBackGround->setObjectName( "LcdBackground" );
 	hbox->addWidget( pLcdBackGround );
 
-	m_pShowMixerBtn = new Button( pLcdBackGround, QSize( 80, 17 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getMixerButton(), false, QSize(), tr( "Show mixer" ) );
-	m_pShowMixerBtn->move( 7, 6 );
+	m_pShowMixerBtn = new Button( pLcdBackGround, QSize( 86, 21 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getMixerButton(), false, QSize(), tr( "Show mixer" ) );
+	m_pShowMixerBtn->move( 2, 2 );
 	connect(m_pShowMixerBtn, SIGNAL( pressed() ), this, SLOT( showMixerButtonClicked() ));
 
-	m_pShowInstrumentRackBtn = new Button( pLcdBackGround, QSize( 160, 17 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getInstrumentRackButton(), false, QSize(), tr( "Show Instrument Rack" ) );
-	m_pShowInstrumentRackBtn->move( 88, 6 );
+	m_pShowInstrumentRackBtn = new Button( pLcdBackGround, QSize( 166, 21 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getInstrumentRackButton(), false, QSize(), tr( "Show Instrument Rack" ) );
+	m_pShowInstrumentRackBtn->move( 88, 2 );
 	connect( m_pShowInstrumentRackBtn, SIGNAL( pressed() ), this, SLOT( showInstrumentRackButtonClicked() ) );
 
-	m_pStatusLabel = new LCDDisplay(pLcdBackGround, QSize( 240, 16 ) );
+	m_pStatusLabel = new LCDDisplay(pLcdBackGround, QSize( 251, 16 ) );
 	// m_pStatusLabel->setAlignment( Qt::AlignLeft );
-	m_pStatusLabel->setMaxLength( 34 );
-	m_pStatusLabel->move( 7, 24 );
+	m_pStatusLabel->setMaxLength( 36 );
+	m_pStatusLabel->move( 2, 24 );
 
 
 	hbox->addStretch( 1000 );	// this must be the last widget in the HBOX!!

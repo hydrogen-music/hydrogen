@@ -53,6 +53,7 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	
 	adjustSize();
 	setFixedSize( size );
+	resize( size );
 
 	if ( ! sIcon.isEmpty() ) {
 		setIcon( QIcon( Skin::getSvgImagePath() + "/icons/" + sIcon ) );
@@ -60,6 +61,8 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	} else {
 		setText( sText );
 	}
+
+	updateFont();
 
 	QString sBackground0, sBackground1;
 	if ( bUseRedBackground ) {
@@ -70,30 +73,35 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 		sBackground1 = "#69a2e5";
 	}
 
+	QString sRadius;
+	if ( size.width() <= 12 || size.height() <= 12 ) {
+		sRadius = "0";
+	} else if ( size.width() <= 20 || size.height() <= 20 ) {
+		sRadius = "3";
+	} else {
+		sRadius = "5";
+	}
 
 	setStyleSheet( QString( "QPushButton { \
     border: 1px solid #1e1e1e; \
-    border-radius: 3px; \
+    border-radius: %1px; \
     background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
                                       stop: 0 #dae0f2, stop: 1 #9298aa); \
 } \
 QPushButton:checked { \
 background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
-                                      stop: 0 %1, stop: 1 %2); \
+                                      stop: 0 %2, stop: 1 %3); \
 }"
-							).arg( sBackground0 ).arg( sBackground1 ) );
+							).arg( sRadius ).arg( sBackground0 ).arg( sBackground1 ) );
 	
 	if ( type == Type::Toggle ) {
 		setCheckable( true );
 	} else {
 		setCheckable( false );
 	}
-
-	updateFont();
 	updateTooltip();
 	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Button::onPreferencesChanged );
-	resize( size );
 }
 
 Button::~Button() {
@@ -172,7 +180,7 @@ void Button::updateFont() {
 	float fScalingFactor = 1.0;
     switch ( m_lastUsedFontSize ) {
     case H2Core::Preferences::FontSize::Small:
-		fScalingFactor = 1.5;
+		fScalingFactor = 1.2;
 		break;
     case H2Core::Preferences::FontSize::Normal:
 		fScalingFactor = 1.0;
@@ -183,10 +191,14 @@ void Button::updateFont() {
 	}
 
 	int nMargin, nPixelSize;
-	if ( m_size.width() <= 11 || m_size.height() <= 11 ) {
+	if ( m_size.width() <= 12 || m_size.height() <= 12 ) {
 		nMargin = 1;
-	} else {
+	} else if ( m_size.width() <= 19 || m_size.height() <= 19 ) {
 		nMargin = 5;
+	} else if ( m_size.width() <= 22 || m_size.height() <= 22 ) {
+		nMargin = 7;
+	} else {
+		nMargin = 9;
 	}
 	
 	if ( m_size.width() >= m_size.height() ) {
@@ -203,6 +215,8 @@ void Button::updateFont() {
 void Button::paintEvent( QPaintEvent* ev )
 {
 	QPushButton::paintEvent( ev );
+
+	updateFont();
 	
 	QPainter painter( this );
 	if ( m_bEntered || hasFocus() ) {
