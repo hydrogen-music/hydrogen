@@ -30,15 +30,18 @@
 ///
 class Skin
 {
-	public:
-		static QString getImagePath()
-		{
-			return H2Core::Filesystem::img_dir().append( "/gray" );
-		}
-		static QString getSvgImagePath()
-		{
-			return H2Core::Filesystem::img_dir().append( "/scalable" );
-		}
+public:
+	static QString getImagePath()
+	{
+		return H2Core::Filesystem::img_dir().append( "/gray" );
+	}
+	static QString getSvgImagePath()
+	{
+		return H2Core::Filesystem::img_dir().append( "/scalable" );
+	}
+	static QColor getHighlightColor() {
+		return QColor( 54, 93, 140 );
+	}
 
 };
 

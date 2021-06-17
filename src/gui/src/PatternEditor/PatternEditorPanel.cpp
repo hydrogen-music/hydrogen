@@ -202,11 +202,17 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pQuantizeEventsLbl->move( 59, 4 );
 
 	// Editor mode
-	__show_drum_btn = new Button( pRec, QSize( 25, 17 ), Button::Type::Push, "drum.svg", "", false, QSize( 19, 15 ), tr( "Show piano roll editor" ) );
+	__show_drum_btn = new Button( pRec, QSize( 25, 17 ), Button::Type::Push, "drum.svg", "", false, QSize( 19, 15 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
 	__show_drum_btn->move( 153, 1 );
 	__show_drum_btn->setObjectName( "ShowDrumBtn" );
 	connect( __show_drum_btn, SIGNAL( pressed() ), this, SLOT( showDrumEditorBtnClick() ) );
-	__show_piano_btn = new Button( pRec, QSize( 25, 17 ), Button::Type::Push, "piano.svg", "", false, QSize( 19, 15 ), tr( "Show drumkit editor" ) );
+	// Since the button to activate the piano roll is shown
+	// initially, both buttons get the same tooltip. Actually only the
+	// last one does need a tooltip since it will be shown regardless
+	// of whether it is hidden or not. But since this behavior might
+	// change in future versions of Qt the tooltip will be assigned to
+	// both of them.
+	__show_piano_btn = new Button( pRec, QSize( 25, 17 ), Button::Type::Push, "piano.svg", "", false, QSize( 19, 15 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
 	__show_piano_btn->move( 153, 1 );
 	__show_piano_btn->setObjectName( "ShowDrumBtn" );
 	__show_piano_btn->hide();
@@ -812,13 +818,17 @@ void PatternEditorPanel::showPianoRollEditor()
 void PatternEditorPanel::showDrumEditorBtnClick()
 {
 	if ( __show_drum_btn->isVisible() ){
-		showDrumEditor();
+		showPianoRollEditor();
 		__show_drum_btn->hide();
 		__show_piano_btn->show();
+		__show_drum_btn->setBaseToolTip( HydrogenApp::get_instance()->getCommonStrings()->getShowDrumkitEditorTooltip() );
+		__show_piano_btn->setBaseToolTip( HydrogenApp::get_instance()->getCommonStrings()->getShowDrumkitEditorTooltip() );
 	} else {
-		showPianoRollEditor();
+		showDrumEditor();
 		__show_drum_btn->show();
 		__show_piano_btn->hide();
+		__show_drum_btn->setBaseToolTip( HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
+		__show_piano_btn->setBaseToolTip( HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
 	}
 }
 

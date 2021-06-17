@@ -146,6 +146,10 @@ CommonStrings::CommonStrings() : Object( __class_name ) {
 	  in the Instrument Editor. Designed to hold four characters but
 	  flexible.*/
 	m_sMidiOutNoteLabel = tr( "Note" );
+	/*: Text displayed in the left part of the row of the Instrument
+	  Editor concerned with MIDI output parameters. Designed to hold
+	  eleven characters but flexible.*/
+	m_sMidiOutLabel = tr( "MIDI Output" );
 	/*: Text displayed in the Instrument Editor in the row of the
 	  pitch widget. Designed to hold five characters but flexible.*/
 	m_sPitchLabel = tr( "Pitch" );
@@ -298,6 +302,13 @@ CommonStrings::CommonStrings() : Object( __class_name ) {
 	  displaying the Action that is not associate to a MIDI event
 	  yet. It's full context is "ACTION not bound".*/
 	m_sMidiTooltipUnbound = tr( "not bound" );
+
+	/*: Displayed when hovering over the button in the
+	PatternEditorPanel to activate the DrumkitEditor.*/
+	m_sShowDrumkitEditorTooltip = tr( "Show drumkit editor" );
+	/*: Displayed when hovering over the button in the
+	PatternEditorPanel to activate the PianoRollEditor.*/
+	m_sShowPianoRollEditorTooltip = tr( "Show piano roll editor" );
 	
 	/*: Title of the window displayed when using the MIDI learning
 	  capabilities of Hydrogen.*/

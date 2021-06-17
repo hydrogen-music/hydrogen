@@ -78,7 +78,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	pControlsPanel->setObjectName( "ControlsPanel" );
 	hbox->addWidget( pControlsPanel );
 
-	m_pTimeDisplay = new LCDDisplay( pControlsPanel, QSize( 146, 22 ) );
+	m_pTimeDisplay = new LCDDisplay( pControlsPanel, QSize( 146, 22 ), true );
 	m_pTimeDisplay->move( 13, 7 );
 	m_pTimeDisplay->setAlignment( Qt::AlignRight );
 	m_pTimeDisplay->setText( "00:00:00:0000" );
@@ -648,14 +648,22 @@ void PlayerControl::songModeActivationEvent( int nValue )
 	if ( nValue != 0 ) {
 		m_pPatternModeLED->setActivated( false );
 		m_pSongModeLED->setActivated( true );
-		m_pSongModeBtn->setChecked(true);
-		m_pPatternModeBtn->setChecked(false);
+		if ( ! m_pSongModeBtn->isDown() ) {
+			m_pSongModeBtn->setChecked( true );
+		}
+		if ( ! m_pPatternModeBtn->isDown() ) {
+			m_pPatternModeBtn->setChecked(false);
+		}
 		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Song mode selected."), 5000);
 	} else {
 		m_pPatternModeLED->setActivated( true );
 		m_pSongModeLED->setActivated( false );
-		m_pSongModeBtn->setChecked(false);
-		m_pPatternModeBtn->setChecked(true);
+		if ( ! m_pSongModeBtn->isDown() ) {
+			m_pSongModeBtn->setChecked(false);
+		}
+		if ( ! m_pPatternModeBtn->isDown() ) {
+			m_pPatternModeBtn->setChecked(true);
+		}
 		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Pattern mode selected."), 5000);
 	}
 }

@@ -94,20 +94,23 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	/////////////
 	//Midi Out
 
-	m_pMidiOutChannelLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 49, 24 ), LCDSpinBox::Type::Int, -1, 16 );
-	m_pMidiOutChannelLCD->move( 73, 257 );
+	ClickableLabel* pMidiOutLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getMidiOutLabel() );
+	pMidiOutLbl->move( 22, 281 );
+
+	m_pMidiOutChannelLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, -1, 16 );
+	m_pMidiOutChannelLCD->move( 98, 257 );
 	m_pMidiOutChannelLCD->setToolTip(QString(tr("Midi out channel")));
 	connect( m_pMidiOutChannelLCD, SIGNAL( valueChanged( double ) ), this, SLOT( midiOutChannelChanged( double ) ) );
-	m_pMidiOutChannelLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getMidiOutChannelLabel() );
-	m_pMidiOutChannelLbl->move( 66, 282 );
+	m_pMidiOutChannelLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getMidiOutChannelLabel() );
+	m_pMidiOutChannelLbl->move( 96, 281 );
 
 	///
-	m_pMidiOutNoteLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 49, 24 ), LCDSpinBox::Type::Int, 0, 100 );
-	m_pMidiOutNoteLCD->move( 166, 257 );
+	m_pMidiOutNoteLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, 0, 100 );
+	m_pMidiOutNoteLCD->move( 161, 257 );
 	m_pMidiOutNoteLCD->setToolTip(QString(tr("Midi out note")));
 	connect( m_pMidiOutNoteLCD, SIGNAL( valueChanged( double ) ), this, SLOT( midiOutNoteChanged( double ) ) );
-	m_pMidiOutNoteLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getMidiOutNoteLabel() );
-	m_pMidiOutNoteLbl->move( 159, 282 );
+	m_pMidiOutNoteLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getMidiOutNoteLabel() );
+	m_pMidiOutNoteLbl->move( 159, 281 );
 
 	/////////////
 
@@ -115,31 +118,31 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	
 	m_pPitchLCD = new LCDDisplay( m_pInstrumentProp, QSize( 56, 20 ) );
 	m_pPitchLCD->move( 24, 213 );
-	m_pPitchLbl = new ClickableLabel( m_pInstrumentProp, QSize( 54, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getPitchLabel() );
-	m_pPitchLbl->move( 25, 236 );
+	m_pPitchLbl = new ClickableLabel( m_pInstrumentProp, QSize( 54, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getPitchLabel() );
+	m_pPitchLbl->move( 25, 235 );
 	
 
 	m_pPitchCoarseRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Center, tr( "Pitch offset (Coarse)" ), true, -24, 24 );
 	m_pPitchCoarseRotary->move( 84, 210 );
 
 	connect( m_pPitchCoarseRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
-	m_pPitchCoarseLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getPitchCoarseLabel() );
-	m_pPitchCoarseLbl->move( 82, 236 );
+	m_pPitchCoarseLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getPitchCoarseLabel() );
+	m_pPitchCoarseLbl->move( 82, 235 );
 
 	m_pPitchFineRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Center, tr( "Pitch offset (Fine)" ), false, -0.5, 0.5 );
 	//it will have resolution of 100 steps between Min and Max => quantum delta = 0.01
 	m_pPitchFineRotary->move( 138, 210 );
 	connect( m_pPitchFineRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
-	m_pPitchFineLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getPitchFineLabel() );
-	m_pPitchFineLbl->move( 136, 236 );
+	m_pPitchFineLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getPitchFineLabel() );
+	m_pPitchFineLbl->move( 136, 235 );
 
 	
 
 	m_pRandomPitchRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal, tr( "Random pitch factor" ), false );
 	m_pRandomPitchRotary->move( 194, 210 );
 	connect( m_pRandomPitchRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
-	m_pPitchRandomLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getPitchRandomLabel() );
-	m_pPitchRandomLbl->move( 192, 236 );
+	m_pPitchRandomLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getPitchRandomLabel() );
+	m_pPitchRandomLbl->move( 192, 235 );
 
 	// Filter
 	m_pFilterBypassBtn = new Button( m_pInstrumentProp, QSize( 36, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBypassButton(), true );
@@ -149,13 +152,13 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pCutoffRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal, tr( "Filter Cutoff" ), false );
 	m_pCutoffRotary->setDefaultValue( m_pCutoffRotary->getMax() );
 	connect( m_pCutoffRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
-	m_pCutoffLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getCutoffLabel() );
-	m_pCutoffLbl->move( 107, 190 );
+	m_pCutoffLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getCutoffLabel() );
+	m_pCutoffLbl->move( 107, 189 );
 
 	m_pResonanceRotary = new Rotary( m_pInstrumentProp, Rotary::Type::Normal, tr( "Filter resonance" ), false );
 	connect( m_pResonanceRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
-	m_pResonanceLbl = new ClickableLabel( m_pInstrumentProp, QSize( 56, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getResonanceLabel() );
-	m_pResonanceLbl->move( 157, 190 );
+	m_pResonanceLbl = new ClickableLabel( m_pInstrumentProp, QSize( 56, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getResonanceLabel() );
+	m_pResonanceLbl->move( 157, 189 );
 
 	m_pCutoffRotary->move( 109, 164 );
 	m_pResonanceRotary->move( 163, 164 );
@@ -177,14 +180,14 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pSustainRotary->move( 149, 52 );
 	m_pReleaseRotary->move( 201, 52 );
 
-	m_pAttackLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getAttackLabel() );
-	m_pAttackLbl->move( 43, 79 );
-	m_pDecayLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getDecayLabel() );
-	m_pDecayLbl->move( 95, 79 );
-	m_pSustainLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getSustainLabel() );
-	m_pSustainLbl->move( 147, 79 );
-	m_pReleaseLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getReleaseLabel() );
-	m_pReleaseLbl->move( 199, 79 );
+	m_pAttackLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getAttackLabel() );
+	m_pAttackLbl->move( 43, 78 );
+	m_pDecayLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getDecayLabel() );
+	m_pDecayLbl->move( 95, 78 );
+	m_pSustainLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getSustainLabel() );
+	m_pSustainLbl->move( 147, 78 );
+	m_pReleaseLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getReleaseLabel() );
+	m_pReleaseLbl->move( 199, 78 );
 	//~ ADSR
 
 	// instrument gain
@@ -194,22 +197,22 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pInstrumentGain, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
 	m_pInstrumentGainLCD->move( 64, 103 );
 	m_pInstrumentGain->move( 109, 100 );
-	m_pGainLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getGainLabel() );
-	m_pGainLbl->move( 107, 126 );
+	m_pGainLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getGainLabel() );
+	m_pGainLbl->move( 107, 125 );
 
 
-	m_pMuteGroupLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 49, 24 ), LCDSpinBox::Type::Int, -1, 100 );
-	m_pMuteGroupLCD->move( 165, 101 );
+	m_pMuteGroupLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, -1, 100 );
+	m_pMuteGroupLCD->move( 160, 101 );
 	connect( m_pMuteGroupLCD, SIGNAL( valueChanged( double ) ), this, SLOT( muteGroupChanged( double ) ) );
-	m_pMuteGroupLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getMuteGroupLabel() );
-	m_pMuteGroupLbl->move( 159, 126 );
+	m_pMuteGroupLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getMuteGroupLabel() );
+	m_pMuteGroupLbl->move( 159, 125 );
 
 	m_pIsStopNoteCheckBox = new QCheckBox ( tr( "" ), m_pInstrumentProp );
 	m_pIsStopNoteCheckBox->move( 53, 138 );
 	m_pIsStopNoteCheckBox->setToolTip( tr( "Stop the current playing instrument-note before trigger the next note sample" ) );
 	m_pIsStopNoteCheckBox->setFocusPolicy ( Qt::NoFocus );
 	connect( m_pIsStopNoteCheckBox, SIGNAL( toggled( bool ) ), this, SLOT( onIsStopNoteCheckBoxClicked( bool ) ) );
-	m_pIsStopNoteLbl = new ClickableLabel( m_pInstrumentProp, QSize( 79, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getIsStopNoteLabel() );
+	m_pIsStopNoteLbl = new ClickableLabel( m_pInstrumentProp, QSize( 79, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getIsStopNoteLabel() );
 	m_pIsStopNoteLbl->move( 68, 140 );
 
 	m_pApplyVelocity = new QCheckBox ( tr( "" ), m_pInstrumentProp );
@@ -217,29 +220,29 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pApplyVelocity->setToolTip( tr( "Don't change the layers' gain based on velocity" ) );
 	m_pApplyVelocity->setFocusPolicy( Qt::NoFocus );
 	connect( m_pApplyVelocity, SIGNAL( toggled( bool ) ), this, SLOT( onIsApplyVelocityCheckBoxClicked( bool ) ) );
-	m_pApplyVelocityLbl = new ClickableLabel( m_pInstrumentProp, QSize( 75, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getApplyVelocityLabel() );
+	m_pApplyVelocityLbl = new ClickableLabel( m_pInstrumentProp, QSize( 75, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getApplyVelocityLabel() );
 	m_pApplyVelocityLbl->move( 168, 140 );
 
 	//////////////////////////
 	// HiHat setup
 
-	m_pHihatGroupLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 49, 24 ), LCDSpinBox::Type::Int, -1, 32 );
-	m_pHihatGroupLCD->move( 33, 303 );
+	m_pHihatGroupLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, -1, 32 );
+	m_pHihatGroupLCD->move( 28, 303 );
 	connect( m_pHihatGroupLCD, SIGNAL( valueChanged( double ) ), this, SLOT( hihatGroupChanged( double ) ) );
-	m_pHihatGroupLbl = new ClickableLabel( m_pInstrumentProp, QSize( 69, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getHihatGroupLabel() );
-	m_pHihatGroupLbl->move( 22, 328 );
+	m_pHihatGroupLbl = new ClickableLabel( m_pInstrumentProp, QSize( 69, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getHihatGroupLabel() );
+	m_pHihatGroupLbl->move( 22, 327 );
 
-	m_pHihatMinRangeLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 49, 24 ), LCDSpinBox::Type::Int, 0, 127 );
-	m_pHihatMinRangeLCD->move( 143, 303 );
+	m_pHihatMinRangeLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, 0, 127 );
+	m_pHihatMinRangeLCD->move( 138, 303 );
 	connect( m_pHihatMinRangeLCD, SIGNAL( valueChanged( double ) ), this, SLOT( hihatMinRangeChanged( double ) ) );
-	m_pHihatMinRangeLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getHihatMinRangeLabel() );
-	m_pHihatMinRangeLbl->move( 136, 328 );
+	m_pHihatMinRangeLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getHihatMinRangeLabel() );
+	m_pHihatMinRangeLbl->move( 136, 327 );
 
-	m_pHihatMaxRangeLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 49, 24 ), LCDSpinBox::Type::Int, 0, 127 );
-	m_pHihatMaxRangeLCD->move( 208, 303 );
+	m_pHihatMaxRangeLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ), LCDSpinBox::Type::Int, 0, 127 );
+	m_pHihatMaxRangeLCD->move( 203, 303 );
 	connect( m_pHihatMaxRangeLCD, SIGNAL( valueChanged( double ) ), this, SLOT( hihatMaxRangeChanged( double ) ) );
-	m_pHihatMaxRangeLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getHihatMaxRangeLabel() );
-	m_pHihatMaxRangeLbl->move( 201, 328 );
+	m_pHihatMaxRangeLbl = new ClickableLabel( m_pInstrumentProp, QSize( 61, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getHihatMaxRangeLabel() );
+	m_pHihatMaxRangeLbl->move( 201, 327 );
 	//~ Instrument properties
 
 	// LAYER properties
@@ -300,30 +303,30 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerGainRotary = new Rotary( m_pLayerProp, Rotary::Type::Normal, tr( "Layer gain" ), false , 0.0, 5.0);
 	m_pLayerGainRotary->setDefaultValue( 1.0 );
 	connect( m_pLayerGainRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
-	m_pLayerGainLbl = new ClickableLabel( m_pLayerProp, QSize( 44, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getLayerGainLabel() );
-	m_pLayerGainLbl->move( 50, 361 );
+	m_pLayerGainLbl = new ClickableLabel( m_pLayerProp, QSize( 44, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getLayerGainLabel() );
+	m_pLayerGainLbl->move( 50, 360 );
 
 	m_pCompoGainLCD = new LCDDisplay( m_pLayerProp, QSize( 36, 16 ) );
 	m_pCompoGainRotary = new Rotary( m_pLayerProp, Rotary::Type::Normal, tr( "Component volume" ), false, 0.0, 5.0 );
 	m_pCompoGainRotary->setDefaultValue ( 1.0 );
 	connect( m_pCompoGainRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
-	m_pCompoGainLbl = new ClickableLabel( m_pLayerProp, QSize( 44, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getComponentGainLabel() );
-	m_pCompoGainLbl->move( 147, 361 );
+	m_pCompoGainLbl = new ClickableLabel( m_pLayerProp, QSize( 44, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getComponentGainLabel() );
+	m_pCompoGainLbl->move( 147, 360 );
 
 	m_pLayerPitchCoarseLCD = new LCDDisplay( m_pLayerProp, QSize( 28, 16 ) );
 	m_pLayerPitchFineLCD = new LCDDisplay( m_pLayerProp, QSize( 28, 16 ) );
-	m_pLayerPitchLbl = new ClickableLabel( m_pLayerProp, QSize( 45, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getPitchLabel() );
+	m_pLayerPitchLbl = new ClickableLabel( m_pLayerProp, QSize( 45, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getPitchLabel() );
 	m_pLayerPitchLbl->move( 17, 412 );
 
 	m_pLayerPitchCoarseRotary = new Rotary( m_pLayerProp, Rotary::Type::Center, tr( "Layer pitch (Coarse)" ), true, -24.0, 24.0 );
 	connect( m_pLayerPitchCoarseRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
-	m_pLayerPitchCoarseLbl = new ClickableLabel( m_pLayerProp, QSize( 44, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getPitchCoarseLabel() );
-	m_pLayerPitchCoarseLbl->move( 61, 411 );
+	m_pLayerPitchCoarseLbl = new ClickableLabel( m_pLayerProp, QSize( 44, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getPitchCoarseLabel() );
+	m_pLayerPitchCoarseLbl->move( 61, 412 );
 
 	m_pLayerPitchFineRotary = new Rotary( m_pLayerProp, Rotary::Type::Center, tr( "Layer pitch (Fine)" ), true, -50.0, 50.0 );
 	connect( m_pLayerPitchFineRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
-	m_pLayerPitchFineLbl = new ClickableLabel( m_pLayerProp, QSize( 44, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getPitchFineLabel() );
-	m_pLayerPitchFineLbl->move( 147, 411 );
+	m_pLayerPitchFineLbl = new ClickableLabel( m_pLayerProp, QSize( 44, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getPitchFineLabel() );
+	m_pLayerPitchFineLbl->move( 147, 412 );
 
 	m_pLayerGainLCD->move( 53, 343 );
 	m_pLayerGainRotary->move( 94, 341 );
@@ -344,8 +347,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_sampleSelectionAlg->addItem( QString( "Round Robin" ) );
 	m_sampleSelectionAlg->addItem( QString( "Random" ) );
 	connect( m_sampleSelectionAlg, SIGNAL( currentIndexChanged( int ) ), this, SLOT( sampleSelectionChanged( int ) ) );
-	m_pSampleSelectionLbl = new ClickableLabel( m_pLayerProp, QSize( 70, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getSampleSelectionLabel() );
-	m_pSampleSelectionLbl->move( 7, 437 );
+	m_pSampleSelectionLbl = new ClickableLabel( m_pLayerProp, QSize( 70, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getSampleSelectionLabel() );
+	m_pSampleSelectionLbl->move( 7, 436 );
 
 	//~ Layer properties
 

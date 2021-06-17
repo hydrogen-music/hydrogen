@@ -171,7 +171,7 @@ void Fader::paintEvent( QPaintEvent *ev)
 	
 	QColor colorHighlightActive;
 	if ( m_bIsActive ) {
-		colorHighlightActive = QColor( 97, 167, 251);
+		colorHighlightActive = Skin::getHighlightColor();
 	} else {
 		colorHighlightActive = Qt::lightGray;
 	}

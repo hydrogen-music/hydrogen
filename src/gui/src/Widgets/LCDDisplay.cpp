@@ -22,16 +22,18 @@
 
 #include "LCDDisplay.h"
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 
 #include <core/Globals.h>
 
 const char* LCDDisplay::__class_name = "LCDDisplay";
 
-LCDDisplay::LCDDisplay( QWidget * pParent, QSize size )
+LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont )
  : QLineEdit( pParent )
  , Object( __class_name )
  , m_size( size )
  , m_bEntered( false )
+ , m_bFixedFont( bFixedFont )
 {
 	setReadOnly( true );
 	setFocusPolicy( Qt::NoFocus );
@@ -48,11 +50,6 @@ LCDDisplay::LCDDisplay( QWidget * pParent, QSize size )
 	updateFont();
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &LCDDisplay::onPreferencesChanged );
-
-	// QPalette defaultPalette;
-	// defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
-	// this->setPalette( defaultPalette );
-
 }
 
 LCDDisplay::~LCDDisplay() {
@@ -64,14 +61,11 @@ void LCDDisplay::setDefaultFont() {
 void LCDDisplay::setRedFont() {
 }
 
-// void LCDDisplay::setText( float fValue ) {
-// {
-// 	QLineEdit::setText( QString( "%1" ).arg( fValue, 0, 'f', 2 ) );
-// }
-
 void LCDDisplay::updateFont() {
-	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
-	// setFont( font );
+	if ( ! m_bFixedFont ) {
+		QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
+		setFont( font );
+	}
 }
 
 void LCDDisplay::onPreferencesChanged( bool bAppearanceOnly ) {
@@ -88,11 +82,12 @@ void LCDDisplay::onPreferencesChanged( bool bAppearanceOnly ) {
 void LCDDisplay::paintEvent( QPaintEvent *ev ) {
 
 	QLineEdit::paintEvent( ev );
+	updateFont();
 
 	if ( m_bEntered ) {
 		QPainter painter(this);
 	
-		QColor colorHighlightActive = QColor( 97, 167, 251);
+		QColor colorHighlightActive = Skin::getHighlightColor();
 		colorHighlightActive.setAlpha( 150 );
 	
 		painter.fillRect( 0, m_size.height() - 2, m_size.width(), 2, colorHighlightActive );

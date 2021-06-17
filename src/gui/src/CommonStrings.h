@@ -68,6 +68,7 @@ class CommonStrings : public H2Core::Object {
 	const QString& getReleaseLabel() const { return m_sReleaseLabel; }
 	const QString& getMidiOutChannelLabel() const { return  m_sMidiOutChannelLabel; }
 	const QString& getMidiOutNoteLabel() const { return  m_sMidiOutNoteLabel; }
+	const QString& getMidiOutLabel() const { return  m_sMidiOutLabel; }
 	const QString& getPitchLabel() const { return  m_sPitchLabel; }
 	const QString& getPitchCoarseLabel() const { return  m_sPitchCoarseLabel; }
 	const QString& getPitchFineLabel() const { return  m_sPitchFineLabel; }
@@ -108,6 +109,9 @@ class CommonStrings : public H2Core::Object {
 	const QString& getMidiTooltipBound() const { return m_sMidiTooltipBound; }
 	const QString& getMidiTooltipUnbound() const { return m_sMidiTooltipUnbound; }
 	
+	const QString& getShowDrumkitEditorTooltip() const { return m_sShowDrumkitEditorTooltip; }
+	const QString& getShowPianoRollEditorTooltip() const { return m_sShowPianoRollEditorTooltip; }
+	
 	const QString& getMidiSenseWindowTitle() const { return m_sMidiSenseWindowTitle; }
 	const QString& getMidiSenseInput() const { return m_sMidiSenseInput; }
 	const QString& getMidiSenseUnavailable() const { return m_sMidiSenseUnavailable; }
@@ -147,6 +151,7 @@ private:
 	QString m_sReleaseLabel;
 	QString m_sMidiOutChannelLabel;
 	QString m_sMidiOutNoteLabel;
+	QString m_sMidiOutLabel;
 	QString m_sPitchLabel;
 	QString m_sPitchCoarseLabel;
 	QString m_sPitchFineLabel;
@@ -186,7 +191,10 @@ private:
 	QString m_sMidiTooltipHeading;
 	QString m_sMidiTooltipBound;
 	QString m_sMidiTooltipUnbound;
-
+	
+	QString m_sShowDrumkitEditorTooltip;
+	QString m_sShowPianoRollEditorTooltip;
+	
 	QString m_sMidiSenseWindowTitle;
 	QString m_sMidiSenseInput;
 	QString m_sMidiSenseUnavailable;

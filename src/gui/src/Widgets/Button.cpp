@@ -64,13 +64,15 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 
 	updateFont();
 
-	QString sBackground0, sBackground1;
+	QString sBackground0, sBackground1, sColorChecked;
 	if ( bUseRedBackground ) {
 		sBackground0 = "#ffb1b1";
 		sBackground1 = "#ff6767";
+		sColorChecked = "#0a0a0a";
 	} else {
-		sBackground0 = "#a2cdff";
-		sBackground1 = "#69a2e5";
+		sBackground0 = "#6796ce";
+		sBackground1 = "#374f6c";
+		sColorChecked = "#ffffff";
 	}
 
 	QString sRadius;
@@ -83,16 +85,19 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	}
 
 	setStyleSheet( QString( "QPushButton { \
-    border: 1px solid #1e1e1e; \
+    color: #0a0a0a; \
+    border: 1px solid #0a0a0a; \
     border-radius: %1px; \
+    padding: 0px; \
     background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
                                       stop: 0 #dae0f2, stop: 1 #9298aa); \
 } \
 QPushButton:checked { \
-background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
-                                      stop: 0 %2, stop: 1 %3); \
+    color: %2; \
+    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
+                                      stop: 0 %3, stop: 1 %4); \
 }"
-							).arg( sRadius ).arg( sBackground0 ).arg( sBackground1 ) );
+							).arg( sRadius ).arg( sColorChecked ).arg( sBackground0 ).arg( sBackground1 ) );
 	
 	if ( type == Type::Toggle ) {
 		setCheckable( true );
@@ -222,7 +227,7 @@ void Button::paintEvent( QPaintEvent* ev )
 	if ( m_bEntered || hasFocus() ) {
 		QPainter painter(this);
 	
-		QColor colorHighlightActive = QColor( 97, 167, 251);
+		QColor colorHighlightActive = Skin::getHighlightColor();
 
 		// If the mouse is placed on the widget but the user hasn't
 		// clicked it yet, the highlight will be done more transparent to

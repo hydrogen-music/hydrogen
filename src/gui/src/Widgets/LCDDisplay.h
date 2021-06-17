@@ -35,13 +35,13 @@
 
 #include <vector>
 
-class LCDDisplay : public QLineEdit, protected WidgetWithScalableFont<6, 8, 9>, public H2Core::Object
+class LCDDisplay : public QLineEdit, protected WidgetWithScalableFont<7, 9, 11>, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
 
 public:
-	LCDDisplay( QWidget* pParent, QSize size);
+	LCDDisplay( QWidget* pParent, QSize size, bool bFixedFont = false );
 	~LCDDisplay();
 
 	// void setText( float fValue );
@@ -57,6 +57,7 @@ private:
 	QSize m_size;
 
 	bool m_bEntered;
+	bool m_bFixedFont;
 
 	/** Used to detect changed in the font*/
 	QString m_sLastUsedFontFamily;

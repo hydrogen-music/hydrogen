@@ -21,6 +21,7 @@
  */
 
 #include "LCDSpinBox.h"
+#include "../Skin.h"
 #include <core/Globals.h>
 
 const char* LCDSpinBox::__class_name = "LCDSpinBox";
@@ -83,7 +84,7 @@ void LCDSpinBox::paintEvent( QPaintEvent *ev ) {
 	if ( m_bEntered || hasFocus() ) {
 		QPainter painter(this);
 	
-		QColor colorHighlightActive = QColor( 97, 167, 251);
+		QColor colorHighlightActive = Skin::getHighlightColor();
 
 		// If the mouse is placed on the widget but the user hasn't
 		// clicked it yet, the highlight will be done more transparent to
