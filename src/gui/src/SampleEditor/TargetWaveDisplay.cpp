@@ -341,8 +341,11 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 	} else if (ev->button() == Qt::RightButton ) {
 		//remove point
 
-		if ((x == 0 || x == UI_WIDTH) && envelope.size() > 2) {
-			// don't remove first and last points if there is more than two points
+		if ( m_nSelectedEnvelopePoint == -1 ||
+			 envelope.size() > 2 &&
+			 (m_nSelectedEnvelopePoint == 0 || m_nSelectedEnvelopePoint == envelope.size() - 1) ) {
+			// do nothing if no point is selected
+			// don't remove first or last point if more than 2 points in envelope
 			update();
 			return;
 		} else if (envelope.size() == 2) {
