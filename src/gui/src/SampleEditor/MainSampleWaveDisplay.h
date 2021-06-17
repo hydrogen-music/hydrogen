@@ -72,6 +72,7 @@ class MainSampleWaveDisplay : public QWidget, public H2Core::Object
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		void testPosition( QMouseEvent *ev );
 		void chooseSlider( QMouseEvent *ev );
+		void mouseUpdateDone();
 		
 		QPixmap m_background;
 		int*	m_pPeakDatal;
