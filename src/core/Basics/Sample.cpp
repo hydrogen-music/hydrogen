@@ -138,6 +138,10 @@ void Sample::set_filename( const QString& filename )
 	__filepath = QDir(Dest.absolutePath()).filePath( Filename.fileName() );
 }
 
+void Sample::set_filepath( const QString& filepath)
+{
+	__filepath = filepath;
+}
 
 std::shared_ptr<Sample> Sample::load( const QString& sFilepath )
 {

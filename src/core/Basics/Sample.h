@@ -144,9 +144,6 @@ class Sample : public H2Core::Object
 		~Sample();
 
 
-		void setPath( const QString& filepath ) {
-			__filepath = filepath;
-		}
 		/**
 		 * write sample to a file
 		 * \param path the path to write the sample to
@@ -277,6 +274,8 @@ class Sample : public H2Core::Object
 		const QString get_filepath() const;
 		/** \return Filename part of #__filepath */
 		const QString get_filename() const;
+		/** \param filepath the file to load audio data from*/
+		void set_filepath( const QString& filepath );
 		/** \param filename Filename part of #__filepath*/
 		void set_filename( const QString& filename );
 		/**
@@ -369,7 +368,7 @@ inline void Sample::unload()
 
 inline bool Sample::is_empty() const
 {
-	return ( __data_l==__data_r==0 );
+	return ( __data_l==nullptr && __data_r==nullptr );
 }
 
 inline const QString Sample::get_filepath() const
