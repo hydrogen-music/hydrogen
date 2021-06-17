@@ -54,6 +54,8 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object, public Eve
 			return m_nLayer;
 		}
 
+		void updateWaveDisplay();
+
 	public slots:
 		void notifyOfDrumkitChange();
 

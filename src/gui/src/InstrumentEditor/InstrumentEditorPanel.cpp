@@ -96,6 +96,9 @@ void InstrumentEditorPanel::selectLayer( int nLayer )
 	m_nLayer = nLayer;
 }
 
-
+void InstrumentEditorPanel::updateWaveDisplay()
+{
+	selectLayer ( m_nLayer ); // trigger a redisplay of wave preview
+}
 
 
