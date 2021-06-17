@@ -348,8 +348,7 @@ void SampleEditor::on_PrevChangesPushButton_clicked()
 	createNewLayer();
 	setClean();
 	QApplication::restoreOverrideCursor();
-	InstrumentEditorPanel *panel = InstrumentEditorPanel::get_instance();
-	panel->selectLayer( panel->getSelectedLayer() ); // reselect layer to trigger update
+	InstrumentEditorPanel::get_instance()->updateWaveDisplay();
 }
 
 
