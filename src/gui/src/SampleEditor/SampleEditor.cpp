@@ -123,6 +123,8 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 
 	__rubberband.pitch = 0.0;
 
+	m_bAdjusting = false;
+	m_bSampleEditorClean = true;
 }
 
 
