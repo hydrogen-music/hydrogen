@@ -126,6 +126,7 @@ class Sample : public H2Core::Object
 				}
 				QString toQString( const QString& sPrefix, bool bShort ) const;
 		};
+		Sample();
 
 		/**
 		 * Sample constructor
@@ -135,6 +136,7 @@ class Sample : public H2Core::Object
 		 * \param data_l the left channel array of data
 		 * \param data_r the right channel array of data
 		 */
+
 		Sample( const QString& filepath, int frames=0, int sample_rate=0, float* data_l=nullptr, float* data_r=nullptr );
 		/** copy constructor */
 		Sample( std::shared_ptr<Sample> other );
@@ -142,6 +144,9 @@ class Sample : public H2Core::Object
 		~Sample();
 
 
+		void setPath( const QString& filepath ) {
+			__filepath = filepath;
+		}
 		/**
 		 * write sample to a file
 		 * \param path the path to write the sample to
@@ -212,6 +217,7 @@ class Sample : public H2Core::Object
 		 *
 		 * \fn load()
 		 */
+
 		bool load();
 		/**
 		 * Flush the current content of the left and right

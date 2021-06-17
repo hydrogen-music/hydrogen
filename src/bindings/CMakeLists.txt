@@ -7,7 +7,7 @@ set(typesystem_file ${CMAKE_SOURCE_DIR}/src/bindings/core_bindings.xml)
 set(generated_sources
     ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_module_wrapper.cpp
     ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_object_wrapper.cpp
+    #${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_object_wrapper.cpp
     ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_sample_wrapper.cpp
     ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_sample_loops_wrapper.cpp
     ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_sample_rubberband_wrapper.cpp
@@ -30,13 +30,13 @@ macro(pyside_config option output_var)
     endif()
 
     execute_process(
-      COMMAND ${python_interpreter} "${CMAKE_CURRENT_SOURCE_DIR}/utils/pyside2_config.py"
+      COMMAND ${python_interpreter} "${CMAKE_CURRENT_SOURCE_DIR}/utils/pyside_config.py"
               ${option}
       OUTPUT_VARIABLE ${output_var}
       OUTPUT_STRIP_TRAILING_WHITESPACE)
 
     if ("${${output_var}}" STREQUAL "")
-        message(FATAL_ERROR "Error: Calling pyside2_config.py ${option} returned no output.")
+        message(FATAL_ERROR "Error: Calling pyside_config.py ${option} returned no output.")
     endif()
     if(is_list)
         string (REPLACE " " ";" ${output_var} "${${output_var}}")
@@ -45,14 +45,14 @@ macro(pyside_config option output_var)
 endmacro()
 
 # Query for the shiboken generator path, Python path, include paths and linker flags.
-pyside_config(--shiboken2-module-path shiboken_module_path)
-pyside_config(--shiboken2-generator-path shiboken_generator_path)
+pyside_config(--shiboken-module-path shiboken_module_path)
+pyside_config(--shiboken-generator-path shiboken_generator_path)
 pyside_config(--python-include-path python_include_dir)
-pyside_config(--shiboken2-generator-include-path shiboken_include_dir 1)
-pyside_config(--shiboken2-module-shared-libraries-cmake shiboken_shared_libraries 0)
+pyside_config(--shiboken-generator-include-path shiboken_include_dir 1)
+pyside_config(--shiboken-module-shared-libraries-cmake shiboken_shared_libraries 0)
 pyside_config(--python-link-flags-cmake python_linking_data 0)
 
-set(shiboken_path "${shiboken_generator_path}/shiboken2${CMAKE_EXECUTABLE_SUFFIX}")
+set(shiboken_path "${shiboken_generator_path}/shiboken6${CMAKE_EXECUTABLE_SUFFIX}")
 if(NOT EXISTS ${shiboken_path})
     message(FATAL_ERROR "Shiboken executable not found at path: ${shiboken_path}")
 endif()
@@ -64,9 +64,14 @@ message(STATUS "QtIncl ${QT_INCLUDES}")
 
 
 # Set up the options to pass to shiboken.
-set(shiboken_options --generator-set=shiboken --enable-parent-ctor-heuristic
-    --enable-return-value-heuristic --use-isnull-as-nb_nonzero
+set(shiboken_options 
+    --generator-set=shiboken
+    --enable-parent-ctor-heuristic
+    # --enable-return-value-heuristic
+    --use-isnull-as-nb_nonzero
+    #--enable-pyside-extensions
     --avoid-protected-hack
+    -T/home/rebelcat/.virtualenvs/pyside/lib/python3.9/site-packages/PySide2/typesystems/
     -I${CMAKE_SOURCE_DIR}/src
     -I${CMAKE_SOURCE_DIR}/src/core
     -I${CMAKE_BINARY_DIR}/src
@@ -123,7 +128,7 @@ target_include_directories(${bindings_library} PRIVATE ${shiboken_include_dir})
 target_include_directories(${bindings_library} PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_include_directories(${bindings_library} PRIVATE ${CMAKE_BINARY_DIR}/src)
 target_include_directories(${bindings_library} PRIVATE ${CMAKE_SOURCE_DIR}/src/core)
-
+target_include_directories(${bindings_library} PRIVATE ${shiboken_module_path}/../PySide2/include)
 target_link_libraries(${bindings_library} PRIVATE ${shiboken_shared_libraries})
 target_link_libraries(${bindings_library} PRIVATE hydrogen-core-${VERSION})
 

@@ -67,6 +67,17 @@ EnvelopePoint::EnvelopePoint( EnvelopePoint* other ) : Object( EnvelopePoint::__
 /* EnvelopePoint */
 
 
+Sample::Sample() : Object( Sample::__class_name ),
+	__filepath( "" ),
+	__frames( 0 ),
+	__sample_rate( 0 ),
+	__data_l( nullptr ),
+	__data_r( nullptr ),
+	__is_modified( false )
+{
+}
+
+
 Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* data_l, float* data_r ) : Object( Sample::__class_name ),
 	__filepath( filepath ),
 	__frames( frames ),
