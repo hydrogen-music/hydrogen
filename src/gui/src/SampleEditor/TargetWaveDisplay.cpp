@@ -99,7 +99,16 @@ static void envelope_paint(Sample::VelocityEnvelope &envelope, QPainter &painter
 		painter.drawEllipse ( envelope[i]->frame - 6/2, envelope[i]->value  - 6/2, 6, 6 );
 	}
 	// draw first and last points as squares
+	if ( 0 == selected )
+		painter.setBrush( selectedColor );
+	else
+		painter.setBrush( handleColor );
 	painter.drawRect ( envelope[0]->frame - 12/2, envelope[0]->value  - 6/2, 12, 6 );
+
+	if ( envelope.size() - 1 == selected )
+		painter.setBrush( selectedColor );
+	else
+		painter.setBrush( handleColor );
 	painter.drawRect ( envelope[envelope.size() -1]->frame - 12/2, envelope[envelope.size() -1]->value  - 6/2, 12, 6 );
 }
 
