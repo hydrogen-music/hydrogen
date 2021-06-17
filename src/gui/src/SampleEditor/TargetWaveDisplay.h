@@ -84,6 +84,7 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 
 		virtual void updateMouseSelection(QMouseEvent *ev);
+		virtual void updateEnvelope();
 
 		H2Core::Sample::PanEnvelope m_PanEnvelope;
 		H2Core::Sample::VelocityEnvelope m_VelocityEnvelope;
