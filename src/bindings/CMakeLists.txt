@@ -7,11 +7,23 @@ set(typesystem_file ${CMAKE_SOURCE_DIR}/src/bindings/core_bindings.xml)
 set(generated_sources
     ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_module_wrapper.cpp
     ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_wrapper.cpp
-    #${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_object_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_object_wrapper.cpp
     ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_sample_wrapper.cpp
     ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_sample_loops_wrapper.cpp
     ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_sample_rubberband_wrapper.cpp
     ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_envelopepoint_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_instrument_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_instrumentcomponent_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_instrumentlayer_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_instrumentlist_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_drumkit_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_song_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_songreader_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_adsr_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_logger_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_hydrogen_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_filesystem_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_preferences_wrapper.cpp
 )
 # ================================== Shiboken detection ======================================
 # Use provided python interpreter if given.
@@ -45,14 +57,18 @@ macro(pyside_config option output_var)
 endmacro()
 
 # Query for the shiboken generator path, Python path, include paths and linker flags.
+pyside_config(--shiboken-path shiboken_path)
 pyside_config(--shiboken-module-path shiboken_module_path)
 pyside_config(--shiboken-generator-path shiboken_generator_path)
 pyside_config(--python-include-path python_include_dir)
+#pyside_config(--pyside-typesystems-path pyside_typesystems)
+pyside_config(--pyside-include-path pyside_include_dir)
 pyside_config(--shiboken-generator-include-path shiboken_include_dir 1)
 pyside_config(--shiboken-module-shared-libraries-cmake shiboken_shared_libraries 0)
 pyside_config(--python-link-flags-cmake python_linking_data 0)
+pyside_config(--pyside-shared-libraries-cmake pyside_shared_libraries 0)
 
-set(shiboken_path "${shiboken_generator_path}/shiboken6${CMAKE_EXECUTABLE_SUFFIX}")
+set(shiboken_path "${shiboken_path}${CMAKE_EXECUTABLE_SUFFIX}")
 if(NOT EXISTS ${shiboken_path})
     message(FATAL_ERROR "Shiboken executable not found at path: ${shiboken_path}")
 endif()
@@ -69,7 +85,7 @@ set(shiboken_options
     --enable-parent-ctor-heuristic
     # --enable-return-value-heuristic
     --use-isnull-as-nb_nonzero
-    #--enable-pyside-extensions
+    --enable-pyside-extensions
     --avoid-protected-hack
     -T/home/rebelcat/.virtualenvs/pyside/lib/python3.9/site-packages/PySide2/typesystems/
     -I${CMAKE_SOURCE_DIR}/src
@@ -78,6 +94,7 @@ set(shiboken_options
     -I${CMAKE_BINARY_DIR}/src/core
     -I/usr/include/x86_64-linux-gnu/qt5                 # FIXME: how to get Qt includes ?
     -I/usr/include/x86_64-linux-gnu/qt5/QtCore
+    -I/usr/include/x86_64-linux-gnu/qt5/QtGui
     -I/usr/include/x86_64-linux-gnu/qt5/QDebug
     -I/usr/include/x86_64-linux-gnu/qt5/QtXml
     --output-directory=${CMAKE_CURRENT_BINARY_DIR}
@@ -93,7 +110,8 @@ add_custom_command(OUTPUT ${generated_sources}
                     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/src/bindings
                     COMMENT "Running generator for ${typesystem_file}.")
 
-
+# file(GLOB_RECURSE generated_sources 
+#     ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/*.cpp)
 
 # # ==================================== RPATH configuration ====================================
 
@@ -121,6 +139,8 @@ set(${bindings_library}_sources ${generated_sources})
 add_library(${bindings_library} MODULE ${${bindings_library}_sources})
 INCLUDE_DIRECTORIES(
     ${QT_INCLUDES}
+    ${pyside_include_dir}
+    ${pyside_include_dir}/QtCore
 )
 # Apply relevant include and link flags.
 target_include_directories(${bindings_library} PRIVATE ${python_include_dir})
@@ -128,9 +148,11 @@ target_include_directories(${bindings_library} PRIVATE ${shiboken_include_dir})
 target_include_directories(${bindings_library} PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_include_directories(${bindings_library} PRIVATE ${CMAKE_BINARY_DIR}/src)
 target_include_directories(${bindings_library} PRIVATE ${CMAKE_SOURCE_DIR}/src/core)
-target_include_directories(${bindings_library} PRIVATE ${shiboken_module_path}/../PySide2/include)
+target_include_directories(${bindings_library} PRIVATE ${pyside_include_dir})
 target_link_libraries(${bindings_library} PRIVATE ${shiboken_shared_libraries})
 target_link_libraries(${bindings_library} PRIVATE hydrogen-core-${VERSION})
+target_link_libraries(${bindings_library} PRIVATE ${pyside_shared_libraries})
+#target_link_libraries(${bindings_library} PRIVATE pyside6)
 
 TARGET_LINK_LIBRARIES(${bindings_library}
 	Qt5::Core

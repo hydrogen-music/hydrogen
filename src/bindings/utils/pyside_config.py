@@ -45,10 +45,14 @@ import os
 import re
 import sys
 
-
-PYSIDE = 'pyside6'
-PYSIDE_MODULE = 'PySide6'
-SHIBOKEN = 'shiboken6'
+if os.environ.get("QT6"):
+    PYSIDE = 'pyside6'
+    PYSIDE_MODULE = 'PySide6'
+    SHIBOKEN = 'shiboken6'
+else:
+    PYSIDE = 'pyside2'
+    PYSIDE_MODULE = 'PySide2'
+    SHIBOKEN = 'shiboken2'
 
 
 class Package(Enum):
@@ -62,6 +66,7 @@ generic_error = ('Did you forget to activate your virtualenv? Or perhaps'
                  ' environment?')
 pyside_error = f'Unable to locate {PYSIDE_MODULE}. {generic_error}'
 shiboken_module_error = f'Unable to locate {SHIBOKEN}-module. {generic_error}'
+shiboken_error = f'Unable to locate ${SHIBOKEN} program. {generic_error}'
 shiboken_generator_error = f'Unable to locate shiboken-generator. {generic_error}'
 pyside_libs_error = f'Unable to locate the PySide shared libraries.  {generic_error}'
 python_link_error = 'Unable to locate the Python library for linking.'
@@ -70,6 +75,10 @@ python_include_error = 'Unable to locate the Python include headers directory.'
 options = []
 
 # option, function, error, description
+options.append(("--shiboken-path",
+                lambda: find_shiboken(),
+                shiboken_error,
+                "Print shiboken path"))
 options.append(("--shiboken-module-path",
                 lambda: find_shiboken_module(),
                 shiboken_module_error,
@@ -175,7 +184,7 @@ def shared_library_glob_pattern():
 def filter_shared_libraries(libs_list):
     def predicate(lib_name):
         basename = os.path.basename(lib_name)
-        if 'shiboken' in basename or 'pyside6' in basename:
+        if 'shiboken' in basename or PYSIDE in basename:
             return True
         return False
     result = [lib for lib in libs_list if predicate(lib)]
@@ -203,6 +212,14 @@ def link_option(lib):
 def find_pyside():
     return find_package_path(PYSIDE_MODULE)
 
+def find_shiboken():
+    override = os.environ.get("SHIBOKEN_PATH")
+    if override:
+        return override
+    gen = find_shiboken_generator()
+    if gen:
+        return os.path.join(gen, SHIBOKEN)
+    return None
 
 def find_shiboken_module():
     return find_package_path(SHIBOKEN)

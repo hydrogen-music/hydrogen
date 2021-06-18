@@ -3,7 +3,8 @@
 -->
 <typesystem package="h2core">
     <load-typesystem name="core_common.xml" />
-    <custom-type name="str" />
+    <load-typesystem name="typesystem_core_common.xml" generate="no"/>
+    <!-- <custom-type name="str" />
     <custom-type name="PyBytes" />
     <custom-type name="PyByteArray" />
     <custom-type name="PyCallable" />
@@ -23,11 +24,9 @@
     <add-function signature="qWarning(const char*)">
         <inject-code file="../glue/qtcore.cpp" snippet="use-stream-for-format-security" />
     </add-function>
-    <!-- TODO: We do not support void* or const void* as arg -->
     <rejection class="QMetaObject" function-name="activate" />
     <rejection class="QMetaObject" function-name="metacall" />
     <rejection class="QMetaObject" function-name="static_metacall" />
-    <!-- TODO: Support to addGuard(QObject**) -->
     <rejection class="QMetaObject" function-name="addGuard" />
     <rejection class="QMetaObject" function-name="changeGuard" />
     <rejection class="QMetaObject" function-name="removeGuard" />
@@ -77,15 +76,11 @@
     <primitive-type name="long" />
     <primitive-type name="unsigned long int" />
     <primitive-type name="unsigned long" />
-    <primitive-type name="bool" />
+    <primitive-type name="bool" /> -->
 
     <!-- <smart-pointer-type name="std::shared_ptr" type="shared" getter="get"/> -->
-    <!-- Current limitation: shared pointer python objects can only be instantiated from API usage,
-         like when they are returned as a result of a method, or passed as arguments. It is not
-         possible to explicitly instantiate a new shared pointer in python e.g. o = SharedPtr_Foo()
-         won't work.
-    -->
-    <primitive-type name="QString" target-lang-api-name="PyUnicode">
+
+    <!-- <primitive-type name="QString" target-lang-api-name="PyUnicode">
         <include file-name="QString" location="global" />
         <conversion-rule>
             <native-to-target file="../glue/qtcore.cpp" snippet="return-pyunicode" />
@@ -94,7 +89,7 @@
                 <add-conversion type="Py_None" file="../glue/qtcore.cpp" snippet="conversion-pynone" />
             </target-to-native>
         </conversion-rule>
-    </primitive-type>
+    </primitive-type> -->
 
 
     <container-type name="std::vector" type="list">
@@ -121,9 +116,11 @@
             </target-to-native>
         </conversion-rule>
     </container-type>
-    <!-- <object-type name="QDebug"/> -->
-    <!-- <rejection class="H2Core::Sample" function-name="Sample"/> -->
+
+    <rejection class="H2Core::Hydrogen" field-name="m_nInstrumentLookupTable"/>
+    <rejection class="H2Core::Preferences" function-name="getDataDirectory"/>
     <namespace-type name="H2Core">
+        <object-type name="Object"></object-type>
         <!-- <object-type name="Object"> -->
         <!-- <modify-function signature="Object(const char*)">
             	<modify-argument index="1">
@@ -138,34 +135,38 @@
         <!-- <object-type name="Logger"/> -->
         <object-type name="EnvelopePoint"></object-type>
         <object-type name="Sample">
-            <modify-function signature="Sample(QString, int, int, const float*, const float*)" remove="yes" />
-            <!-- <modify-argument index="2">
-                    <remove-argument/>
-                </modify-argument>
-
-                <modify-argument index="3">
-                    <remove-argument/>
-                </modify-argument>
-
-                <modify-argument index="4">
-                    <remove-argument/>
-                    <replace-type modified-type="int"/>
-                    <conversion-rule class="native">
-                    float* %out = 0;
-                    </conversion-rule>
-                </modify-argument>
-                <modify-argument index="5">
-                    <remove-argument/>
-                    <conversion-rule class="native">
-                    float* %out = 0;
-                    </conversion-rule>
-                </modify-argument>
-            </modify-function> -->
+            <modify-function signature="Sample(QString, int, int, float*, float*)" remove="all" />
             <value-type name="Loops">
                 <enum-type name="LoopMode" />
             </value-type>
             <value-type name="Rubberband"></value-type>
         </object-type>
 
+        <object-type name="Instrument">
+        </object-type>
+        <object-type name="InstrumentComponent">
+        </object-type>
+        <object-type name="InstrumentLayer">
+        </object-type>
+        <object-type name="InstrumentList">
+        </object-type>
+        <object-type name="Drumkit">
+        </object-type>
+        <object-type name="Filesystem">
+            <modify-function signature="Filesystem()" remove="all" />
+        </object-type>
+        <object-type name="Song">
+        </object-type>
+        <object-type name="SongReader">
+        </object-type>
+
+        <object-type name="ADSR"></object-type>
+        <object-type name="Logger">
+            <enum-type name="log_levels"/>>
+        </object-type>
+
+        <object-type name="Hydrogen">
+        </object-type>
+        <object-type name="Preferences"/>
     </namespace-type>
 </typesystem>
