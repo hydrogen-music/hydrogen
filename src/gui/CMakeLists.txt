@@ -1,17 +1,25 @@
 
-FILE(GLOB_RECURSE hydrogen_SRCS src/*.cpp src/*.h)
+FILE(GLOB_RECURSE hydrogen_SRCS src/main.cpp)
+get_filename_component(main_cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ABSOLUTE)
+message("${main_cpp}")
+FILE(GLOB_RECURSE libhydrogen_gui_INCLUDES *.h)
+FILE(GLOB_RECURSE libhydrogen_gui_SOURCES *.cpp *.cc *.c *.ui)
+list(REMOVE_ITEM libhydrogen_gui_SOURCES "${main_cpp}")
+#LIST(APPEND libhydrogen_gui_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 # add undiscovered dependencies to generated config.h
 INCLUDE(AddFileDependencies)
-FOREACH( _file ${hydrogen_H} ${hydrogen_SRCS})
+FOREACH( _file ${libhydrogen_gui_INCLUDES} ${libhydrogen_gui_SRCS} ${hydrogen_SRCS})
     FILE(READ "${_file}" _FILE_CONTENT)
     IF( "${_FILE_CONTENT}" MATCHES "H2CORE_HAVE_" )
         ADD_FILE_DEPENDENCIES( ${_file} ${CMAKE_BINARY_DIR}/src/core/config.h)
     ENDIF()
 ENDFOREACH()
-
+message("DEBUG::")
+message(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_BINARY_DIR}                 # ui_ headers
+    ${CMAKE_CURRENT_BINARY_DIR}/hydrogen-gui-${VERSION}_autogen/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src             # gui headers
     ${CMAKE_BINARY_DIR}/src                     # generated config.h
     ${CMAKE_SOURCE_DIR}/src                     # top level headers
@@ -44,8 +52,19 @@ IF(APPLE)
     FILE(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION hydrogen.app/Contents/Resources PATTERN ".svn" EXCLUDE PATTERN i18n EXCLUDE)
   	
 ENDIF()
+message("DEBUG MOC")
+FOREACH( _file ${libhydrogen_gui_MOC})
+    message("${_file}")
+ENDFOREACH()
+message("END MOC")
+ADD_LIBRARY( hydrogen-gui-${VERSION} ${H2CORE_LIBRARY_TYPE} ${libhydrogen_gui_SOURCES} ${libhydrogen_gui_MOC} ${libhydrogen_gui_UIS_H} ${CMAKE_SOURCE_DIR}/windows/icon.rc)
 
-ADD_EXECUTABLE(hydrogen WIN32 MACOSX_BUNDLE ${hydrogen_SRCS} ${hydrogen_MOC} ${hydrogen_UIS_H} ${CMAKE_SOURCE_DIR}/windows/icon.rc)
+TARGET_LINK_LIBRARIES(hydrogen-gui-${VERSION}
+    hydrogen-core-${VERSION}
+    Qt5::Widgets
+)
+
+ADD_EXECUTABLE(hydrogen WIN32 MACOSX_BUNDLE ${hydrogen_SRCS})
 SET_PROPERTY(TARGET hydrogen PROPERTY CXX_STANDARD 17)
 if(APPLE)
     add_custom_command(
@@ -74,8 +93,13 @@ if(APPLE)
 
 endif()
 
-TARGET_LINK_LIBRARIES(hydrogen
+TARGET_LINK_LIBRARIES(hydrogen-gui-${VERSION}
 	hydrogen-core-${VERSION}
+	Qt5::Widgets
+)
+
+TARGET_LINK_LIBRARIES(hydrogen
+    hydrogen-gui-${VERSION}
 	Qt5::Widgets
 )
 
@@ -89,6 +113,24 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.16)
 endif()
 
 
-ADD_DEPENDENCIES(hydrogen hydrogen-core-${VERSION})
+ADD_DEPENDENCIES(hydrogen hydrogen-gui-${VERSION})
 
 INSTALL(TARGETS hydrogen RUNTIME DESTINATION ${H2_BIN_PATH} BUNDLE DESTINATION ${H2_BIN_PATH})
+
+IF(WIN32)
+    # On Windows we do not want to install import library (.dll.a)
+    INSTALL(TARGETS hydrogen-gui-${VERSION}
+        LIBRARY DESTINATION "${H2_LIB_PATH}"
+        RUNTIME DESTINATION "${H2_LIB_PATH}"
+    )
+ELSE()
+    INSTALL(TARGETS hydrogen-gui-${VERSION}
+        LIBRARY DESTINATION "${H2_LIB_PATH}"
+        RUNTIME DESTINATION "${H2_LIB_PATH}"
+        ARCHIVE DESTINATION "${H2_LIB_PATH}"
+    )
+ENDIF()
+IF(NOT APPLE AND NOT WIN32)
+    INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/src/core DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/hydrogen" FILES_MATCHING PATTERN "*.h" PATTERN ".svn" EXCLUDE)
+    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/config.h" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/hydrogen" )
+ENDIF()

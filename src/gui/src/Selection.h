@@ -127,7 +127,7 @@ class DragScroller : public QObject {
 	const int m_nInterval = 20; // ms
 
 public:
-	DragScroller( QScrollArea *pScrollArea ) {
+	explicit DragScroller( QScrollArea *pScrollArea ) {
 		m_pTimer = nullptr;
 		m_pScrollArea = pScrollArea;
 	}
