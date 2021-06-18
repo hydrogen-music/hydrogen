@@ -143,6 +143,7 @@
         </object-type>
 
         <object-type name="Instrument">
+            <enum-type name="SampleSelectionAlgo"/>
         </object-type>
         <object-type name="InstrumentComponent">
         </object-type>
@@ -154,8 +155,12 @@
         </object-type>
         <object-type name="Filesystem">
             <modify-function signature="Filesystem()" remove="all" />
+            <enum-type name="file_perms"/>
+            <enum-type name="Lookup"/>
         </object-type>
         <object-type name="Song">
+            <enum-type name="SongMode"/>
+            <enum-type name="ActionMode"/>
         </object-type>
         <object-type name="SongReader">
         </object-type>
@@ -166,7 +171,15 @@
         </object-type>
 
         <object-type name="Hydrogen">
+            <enum-type name="ErrorMessages"/>
+            <enum-type name="GUIState"/>
         </object-type>
-        <object-type name="Preferences"/>
+        <object-type name="Preferences">
+            <enum-type name="UI_LAYOUT_TYPES"/>
+            <enum-type name="UI_SCALING_POLICY"/>
+            <enum-type name="JackTrackOutputMode"/>
+            <enum-type name="JackBBTSyncMethod"/>
+
+        </object-type>
     </namespace-type>
 </typesystem>
