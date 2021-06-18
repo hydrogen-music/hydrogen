@@ -1,29 +1,29 @@
 # =============================== PySide bindings ============================================
-set(bindings_library "h2core")
+set(core_bindings_library "h2core")
 
-set(wrapped_header ${CMAKE_SOURCE_DIR}/src/bindings/core_bindings.h)
-set(typesystem_file ${CMAKE_SOURCE_DIR}/src/bindings/core_bindings.xml)
+set(core_wrapped_header ${CMAKE_SOURCE_DIR}/src/bindings/core_bindings.h)
+set(core_typesystem_file ${CMAKE_SOURCE_DIR}/src/bindings/core_bindings.xml)
 
-set(generated_sources
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_module_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_object_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_sample_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_sample_loops_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_sample_rubberband_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_envelopepoint_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_instrument_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_instrumentcomponent_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_instrumentlayer_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_instrumentlist_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_drumkit_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_song_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_songreader_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_adsr_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_logger_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_hydrogen_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_filesystem_wrapper.cpp
-    ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/h2core_preferences_wrapper.cpp
+set(core_generated_sources
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_module_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_object_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_sample_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_sample_loops_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_sample_rubberband_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_envelopepoint_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_instrument_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_instrumentcomponent_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_instrumentlayer_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_instrumentlist_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_drumkit_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_song_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_songreader_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_adsr_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_logger_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_hydrogen_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_filesystem_wrapper.cpp
+    ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/h2core_preferences_wrapper.cpp
 )
 # ================================== Shiboken detection ======================================
 # Use provided python interpreter if given.
@@ -99,19 +99,19 @@ set(shiboken_options
     -I/usr/include/x86_64-linux-gnu/qt5/QtXml
     --output-directory=${CMAKE_CURRENT_BINARY_DIR}
     )
-set(generated_sources_dependencies ${wrapped_header} ${typesystem_file})
+set(core_generated_sources_dependencies ${core_wrapped_header} ${core_typesystem_file})
 
 # Add custom target to run shiboken to generate the binding cpp files.
-add_custom_command(OUTPUT ${generated_sources}
+add_custom_command(OUTPUT ${core_generated_sources}
                     COMMAND ${shiboken_path}
-                    ${shiboken_options} ${wrapped_header} ${typesystem_file}
-                    DEPENDS ${generated_sources_dependencies}
-                    IMPLICIT_DEPENDS CXX ${wrapped_header}
+                    ${shiboken_options} ${core_wrapped_header} ${core_typesystem_file}
+                    DEPENDS ${core_generated_sources_dependencies}
+                    IMPLICIT_DEPENDS CXX ${core_wrapped_header}
                     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/src/bindings
-                    COMMENT "Running generator for ${typesystem_file}.")
+                    COMMENT "Running generator for ${core_typesystem_file}.")
 
-# file(GLOB_RECURSE generated_sources 
-#     ${CMAKE_BINARY_DIR}/src/bindings/${bindings_library}/*.cpp)
+# file(GLOB_RECURSE core_generated_sources 
+#     ${CMAKE_BINARY_DIR}/src/bindings/${core_bindings_library}/*.cpp)
 
 # # ==================================== RPATH configuration ====================================
 
@@ -130,47 +130,47 @@ add_custom_command(OUTPUT ${generated_sources}
 # # ======
 
 
-# =============================== CMake target - bindings_library =============================
+# =============================== CMake target - core_bindings_library =============================
 
 # Set the cpp files which will be used for the bindings library.
-set(${bindings_library}_sources ${generated_sources})
+set(${core_bindings_library}_sources ${core_generated_sources})
 
 # Define and build the bindings library.
-add_library(${bindings_library} MODULE ${${bindings_library}_sources})
+add_library(${core_bindings_library} MODULE ${${core_bindings_library}_sources})
 INCLUDE_DIRECTORIES(
     ${QT_INCLUDES}
     ${pyside_include_dir}
     ${pyside_include_dir}/QtCore
 )
 # Apply relevant include and link flags.
-target_include_directories(${bindings_library} PRIVATE ${python_include_dir})
-target_include_directories(${bindings_library} PRIVATE ${shiboken_include_dir})
-target_include_directories(${bindings_library} PRIVATE ${CMAKE_SOURCE_DIR}/src)
-target_include_directories(${bindings_library} PRIVATE ${CMAKE_BINARY_DIR}/src)
-target_include_directories(${bindings_library} PRIVATE ${CMAKE_SOURCE_DIR}/src/core)
-target_include_directories(${bindings_library} PRIVATE ${pyside_include_dir})
-target_link_libraries(${bindings_library} PRIVATE ${shiboken_shared_libraries})
-target_link_libraries(${bindings_library} PRIVATE hydrogen-core-${VERSION})
-target_link_libraries(${bindings_library} PRIVATE ${pyside_shared_libraries})
-#target_link_libraries(${bindings_library} PRIVATE pyside6)
+target_include_directories(${core_bindings_library} PRIVATE ${python_include_dir})
+target_include_directories(${core_bindings_library} PRIVATE ${shiboken_include_dir})
+target_include_directories(${core_bindings_library} PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(${core_bindings_library} PRIVATE ${CMAKE_BINARY_DIR}/src)
+target_include_directories(${core_bindings_library} PRIVATE ${CMAKE_SOURCE_DIR}/src/core)
+target_include_directories(${core_bindings_library} PRIVATE ${pyside_include_dir})
+target_link_libraries(${core_bindings_library} PRIVATE ${shiboken_shared_libraries})
+target_link_libraries(${core_bindings_library} PRIVATE hydrogen-core-${VERSION})
+target_link_libraries(${core_bindings_library} PRIVATE ${pyside_shared_libraries})
+#target_link_libraries(${core_bindings_library} PRIVATE pyside6)
 
-TARGET_LINK_LIBRARIES(${bindings_library}
+TARGET_LINK_LIBRARIES(${core_bindings_library}
 	Qt5::Core
 	Qt5::Xml
 	Qt5::XmlPatterns
 )
 
 # Adjust the name of generated module.
-set_property(TARGET ${bindings_library} PROPERTY PREFIX "")
-set_property(TARGET ${bindings_library} PROPERTY OUTPUT_NAME
-             "${bindings_library}${PYTHON_EXTENSION_SUFFIX}")
+set_property(TARGET ${core_bindings_library} PROPERTY PREFIX "")
+set_property(TARGET ${core_bindings_library} PROPERTY OUTPUT_NAME
+             "${core_bindings_library}${PYTHON_EXTENSION_SUFFIX}")
 if(WIN32)
-    set_property(TARGET ${bindings_library} PROPERTY SUFFIX ".pyd")
+    set_property(TARGET ${core_bindings_library} PROPERTY SUFFIX ".pyd")
 endif()
 
 # Make sure the linker doesn't complain about not finding Python symbols on macOS.
 if(APPLE)
-  set_target_properties(${bindings_library} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+  set_target_properties(${core_bindings_library} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 endif(APPLE)
 
 # Find and link to the python import library only on Windows.
@@ -180,7 +180,7 @@ if (WIN32)
     list(GET python_linking_data 0 python_libdir)
     list(GET python_linking_data 1 python_lib)
     find_library(python_link_flags ${python_lib} PATHS ${python_libdir} HINTS ${python_libdir})
-    target_link_libraries(${bindings_library} PRIVATE ${python_link_flags})
+    target_link_libraries(${core_bindings_library} PRIVATE ${python_link_flags})
 endif()
 
 # ================================= Dubious deployment section ================================
@@ -205,7 +205,7 @@ if(WIN32)
             "${python_additional_link_flags} /NODEFAULTLIB:\"python${ver}.lib\"")
     endforeach()
 
-    set_target_properties(${bindings_library}
+    set_target_properties(${core_bindings_library}
                            PROPERTIES LINK_FLAGS "${python_additional_link_flags}")
 
     # Compile a list of shiboken shared libraries to be installed, so that
@@ -226,7 +226,7 @@ endif()
 # =============================================================================================
 # Install the library and the bindings module into the source folder near the main.py file, so
 # that the Python interpeter successfully imports the used module.
-install(TARGETS ${bindings_library} 
+install(TARGETS ${core_bindings_library} 
         LIBRARY DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}
         RUNTIME DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}
         )    
