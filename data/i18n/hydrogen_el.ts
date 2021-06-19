@@ -782,6 +782,10 @@ Are you sure?</source>
 Use &apos;Save as&apos; to enable autosave.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Input Midi Note</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InstrumentEditor</name>
@@ -1483,18 +1487,22 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Replace With &amp;New Song</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with an empty one.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Imp&amp;ort Into Session</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with one chosen by the user via a file browser widget.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import &amp;Recent Into Session</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with one chosen recently used by the user.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Export From Session &amp;As...</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows the user store the current song in a .h2song anywhere on her system. The filepath of the current song won&apos;t be altered.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2422,10 +2430,12 @@ Maximum = 16/4</source>
     </message>
     <message>
         <source>JACK transport on/off</source>
+        <extracomment>Using the JACK the audio/midi input and output ports of any number of application can be connected.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>JACK Timebase master on/off</source>
+        <extracomment>Using the JACK Timebase Master functionality one of the connected programs can broadcast both speed and measure information to all other connected applications in order to have a more fine-grained transport control.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2685,18 +2695,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Προτιμήσεις</translation>
     </message>
     <message>
-        <source>Slow</source>
-        <translation>Αργά</translation>
-    </message>
-    <message>
-        <source>Normal</source>
-        <translation>Κανονικά</translation>
-    </message>
-    <message>
-        <source>Fast</source>
-        <translation>Γρήγορα</translation>
-    </message>
-    <message>
         <source>Driver restart required.
  Restart driver?</source>
         <translation>Απαιτείται επανεκκίνηση του οδηγού.
@@ -2824,6 +2822,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Meters falloff speed</source>
+        <extracomment>In case of a rapid sound lasting for just a milli second the meters in the Mixer would raise to peak value and fall of immediately without the user being able to see them. The falloff speed introduces a delay. The smaller the value, the longer the meter requires to reach 0dB again.</extracomment>
         <translation>Ταχύτητα πτώσης των μετρητών</translation>
     </message>
     <message>
@@ -3130,6 +3129,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Use &amp;LASH</source>
+        <extracomment>LASH (acronym for LASH Linux Audio Handler) is a protocol allowing for session management in Linux (recalling songs, preferences, and JACK port connections).</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3711,29 +3711,6 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;μπορείς να βρεις επιπλέον πληροφορίες, εδώ:&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>SimpleHTMLBrowser</name>
-    <message>
-        <source>Manual</source>
-        <translation>Εγχειρίδιο Χρήσης</translation>
-    </message>
-    <message>
-        <source>Welcome to Hydrogen</source>
-        <translation>Καλώς ήρθες στο Υδρογόνο</translation>
-    </message>
-    <message>
-        <source>Don&apos;t show this message anymore</source>
-        <translation>Να μην προβάλλεται αυτό το μήνυμα, από εδώ και πέρα</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation>Εντάξει</translation>
-    </message>
-    <message>
-        <source>Documentation index</source>
-        <translation>Περιεχόμενα της τεκμηρίωσης</translation>
     </message>
 </context>
 <context>

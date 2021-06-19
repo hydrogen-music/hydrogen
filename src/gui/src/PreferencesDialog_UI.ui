@@ -29,7 +29,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="GeneralTab">
       <attribute name="title">
@@ -99,7 +99,7 @@
        <item>
         <widget class="QCheckBox" name="useLashCheckbox">
          <property name="text">
-          <string>Use &amp;LASH</string>
+          <string extracomment="LASH (acronym for LASH Audio Session Handler) is a protocol allowing for session management in Linux (recalling songs, preferences, and JACK port connections).">Use &amp;LASH</string>
          </property>
         </widget>
        </item>
@@ -1058,7 +1058,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Meters falloff speed</string>
+            <string extracomment="In case of a rapid sound lasting for just a milli second the meters in the Mixer would raise to peak value and fall of immediately without the user being able to see them. The falloff speed introduces a delay. The smaller the value, the longer the meter requires to reach 0dB again.">Meters falloff speed</string>
            </property>
           </widget>
          </item>

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -405,6 +405,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	} else {
 		m_pJackTransportBtn->setPressed( false );
 	}
+	/*: Using the JACK the audio/midi input and output ports of any
+	  number of application can be connected.*/
 	m_pJackTransportBtn->setToolTip( tr("JACK transport on/off") );
 	connect(m_pJackTransportBtn, SIGNAL(clicked(Button*)), this, SLOT(jackTransportBtnClicked(Button*)));
 	m_pJackTransportBtn->move(10, 26);
@@ -425,6 +427,10 @@ PlayerControl::PlayerControl(QWidget *parent)
 	} else {
 		m_pJackMasterBtn->setPressed( false );
 	}
+	/*: Using the JACK Timebase Master functionality one of the
+connected programs can broadcast both speed and measure information to
+all other connected applications in order to have a more fine-grained
+transport control.*/
 	m_sJackMasterModeToolTip = tr("JACK Timebase master on/off");
 	m_pJackMasterBtn->setToolTip( m_sJackMasterModeToolTip );
 	connect(m_pJackMasterBtn, SIGNAL(clicked(Button*)), this, SLOT(jackMasterBtnClicked(Button*)));
