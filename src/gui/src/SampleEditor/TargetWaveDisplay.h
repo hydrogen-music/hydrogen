@@ -59,6 +59,12 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		H2Core::Sample::PanEnvelope* get_pan() { return &m_PanEnvelope; }
 		H2Core::Sample::VelocityEnvelope* get_velocity() { return &m_VelocityEnvelope; }
 
+	signals:
+		void envelopeEdited(int which);
+		void doneEditingEnvelope(int which);
+
+	public slots:
+		void setEditMode(int which);
 	private:
 		QPixmap m_Background;
 
@@ -75,9 +81,13 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		unsigned m_nSampleLength;
 
 		bool m_UpdatePosition;
-		EnvelopeEditMode m_EditMode;
 
 		int m_nSnapRadius;
+		EnvelopeEditMode m_EditMode;
+		H2Core::Sample::PanEnvelope m_PanEnvelope;
+		H2Core::Sample::VelocityEnvelope m_VelocityEnvelope;
+
+		int m_nSelectedEnvelopePoint;
 
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent(QMouseEvent *ev);
@@ -86,10 +96,6 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		virtual void updateMouseSelection(QMouseEvent *ev);
 		virtual void updateEnvelope();
 
-		H2Core::Sample::PanEnvelope m_PanEnvelope;
-		H2Core::Sample::VelocityEnvelope m_VelocityEnvelope;
-
-		int m_nSelectedEnvelopePoint;
 };
 
 #endif

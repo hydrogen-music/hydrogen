@@ -374,12 +374,12 @@ namespace H2Core
 		static QStringList __ladspa_paths;  ///< paths to laspa plugins
 	};
 
-	inline const QString& Filesystem::getPreferencesOverwritePath() {
-		return Filesystem::m_sPreferencesOverwritePath;
-	}
-	inline void Filesystem::setPreferencesOverwritePath( const QString& sPath ) {
-		Filesystem::m_sPreferencesOverwritePath = sPath;
-	}
+	// inline const QString& Filesystem::getPreferencesOverwritePath() {
+	// 	return Filesystem::m_sPreferencesOverwritePath;
+	// }
+	// inline void Filesystem::setPreferencesOverwritePath( const QString& sPath ) {
+	// 	Filesystem::m_sPreferencesOverwritePath = sPath;
+	// }
 
 };
 #endif  // H2C_FILESYSTEM_H

@@ -786,6 +786,13 @@ void Filesystem::info()
 	INFOLOG( QString( "Songs dir                  : %1" ).arg( songs_dir() ) );
 }
 
-};
 
+const QString& Filesystem::getPreferencesOverwritePath() {
+	return Filesystem::m_sPreferencesOverwritePath;
+}
+void Filesystem::setPreferencesOverwritePath( const QString& sPath ) {
+	Filesystem::m_sPreferencesOverwritePath = sPath;
+}
+
+};
 /* vim: set softtabstop=4 noexpandtab: */

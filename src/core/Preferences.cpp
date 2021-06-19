@@ -49,7 +49,14 @@ namespace H2Core
 {
 
 Preferences* Preferences::__instance = nullptr;
-
+#if 0
+QString Preferences::getPreferencesOverwritePath() {
+	return Filesystem::getPreferencesOverwritePath();
+}
+void Preferences::setPreferencesOverwritePath( const QString& sPath ) {
+	Filesystem::setPreferencesOverwritePath( sPath );
+}
+#endif
 void Preferences::create_instance()
 {
 	if ( __instance == nullptr ) {

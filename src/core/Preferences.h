@@ -415,7 +415,7 @@ public:
 	/// Save the preferences file
 	void			savePreferences();
 
-	const QString&	getDataDirectory();
+	// const QString&	getDataDirectory();
 
 	const QString&	getDefaultEditor();
 	void			setDefaultEditor( QString editor);

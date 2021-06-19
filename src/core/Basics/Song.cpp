@@ -734,16 +734,18 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_fVolume: %1" ).arg( m_fVolume ) )
 			.append( QString( ", m_fMetronomeVolume: %1" ).arg( m_fMetronomeVolume ) )
 			.append( QString( ", m_sNotes: %1" ).arg( m_sNotes ) )
-			.append( QString( "%1" ).arg( m_pPatternList->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1" ).arg( m_pPatternList ?m_pPatternList->toQString( sPrefix + s, bShort ) : "None") )
 			.append( QString( ", m_pPatternGroupSequence:" ) );
+			if ( m_pPatternGroupSequence) {
 		for ( auto pp : *m_pPatternGroupSequence ) {
 			if ( pp != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s + s, bShort ) ) );
 			}
-		}
+		}}
+		if ( m_pInstrumentList )
 		sOutput.append( QString( "%1" ).arg( m_pInstrumentList->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( ", m_pComponents:" ) );
-		for ( auto cc : *m_pComponents ) {
+		if ( m_pComponents ) for ( auto cc : *m_pComponents ) {
 			if ( cc != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s, bShort ) ) );
 			}

@@ -40,7 +40,6 @@ using namespace H2Core;
 #include "TargetWaveDisplay.h"
 #include "../Skin.h"
 
-static TargetWaveDisplay::EnvelopeEditMode getEnvelopeEditMode();
 
 const char* TargetWaveDisplay::__class_name = "TargetWaveDisplay";
 
@@ -70,10 +69,14 @@ TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
 	m_UpdatePosition = false;
 	m_nSelectedEnvelopePoint = -1;
 	m_nSnapRadius = 6;
+	m_EditMode = VELOCITY;
 	setMouseTracking(true);
 }
 
-
+void TargetWaveDisplay::setEditMode(int mode)
+{
+	m_EditMode = static_cast<TargetWaveDisplay::EnvelopeEditMode>(mode);
+}
 
 
 TargetWaveDisplay::~TargetWaveDisplay()
@@ -115,8 +118,6 @@ static void paintEnvelope(Sample::VelocityEnvelope &envelope, QPainter &painter,
 void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
-
-	m_EditMode = getEnvelopeEditMode();
 
 	painter.setRenderHint( QPainter::Antialiasing );
 	painter.drawPixmap( ev->rect(), m_Background, ev->rect() );
@@ -251,7 +252,6 @@ void TargetWaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> 
 
 void TargetWaveDisplay::updateMouseSelection(QMouseEvent *ev)
 {
-	m_EditMode = getEnvelopeEditMode();
 	const Sample::VelocityEnvelope & envelope = (m_EditMode == TargetWaveDisplay::VELOCITY) ? m_VelocityEnvelope : m_PanEnvelope;
 
 	m_nX = std::min(UI_WIDTH, std::max(0, ev->x()));
@@ -286,7 +286,6 @@ void TargetWaveDisplay::updateEnvelope()
 	if ( m_nSelectedEnvelopePoint == -1 ) {
 		return;
 	}
-	m_EditMode = getEnvelopeEditMode();
 	Sample::VelocityEnvelope & envelope = (m_EditMode == TargetWaveDisplay::VELOCITY) ? m_VelocityEnvelope : m_PanEnvelope;
 	envelope.erase( envelope.begin() + m_nSelectedEnvelopePoint );
 	if ( m_nSelectedEnvelopePoint == 0 ){
@@ -318,14 +317,14 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 	updateEnvelope();
 	updateMouseSelection(ev);
 	update();
-	HydrogenApp::get_instance()->getSampleEditor()->setUnclean();
+	// HydrogenApp::get_instance()->getSampleEditor()->setUnclean();
+	emit envelopeEdited ( m_EditMode );
 }
 
 
 
 void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 {
-	m_EditMode = getEnvelopeEditMode();
 	Sample::VelocityEnvelope & envelope = (m_EditMode == TargetWaveDisplay::VELOCITY) ? m_VelocityEnvelope : m_PanEnvelope;
 
 	updateMouseSelection(ev);
@@ -370,7 +369,8 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 
 	updateMouseSelection(ev);
 	update();
-	HydrogenApp::get_instance()->getSampleEditor()->setUnclean();
+	emit envelopeEdited ( m_EditMode );
+	// HydrogenApp::get_instance()->getSampleEditor()->setUnclean();
 }
 
 
@@ -381,7 +381,8 @@ void TargetWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
 {
 	updateMouseSelection(ev);
 	update();
-	HydrogenApp::get_instance()->getSampleEditor()->returnAllTargetDisplayValues();
+	// HydrogenApp::get_instance()->getSampleEditor()->returnAllTargetDisplayValues();
+	emit doneEditingEnvelope( m_EditMode );
 }
 
 
