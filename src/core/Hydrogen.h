@@ -355,9 +355,10 @@ public:
 
 		void			raiseError( unsigned nErrorCode );
 
-
-void			previewSample( Sample *pSample );
+#if 0
+	void			previewSample( Sample *pSample );
 	void			previewInstrument( std::shared_ptr<Instrument> pInstr );
+#endif
 
 	enum ErrorMessages {
 		/**

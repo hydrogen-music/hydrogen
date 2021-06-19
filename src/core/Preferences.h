@@ -429,7 +429,6 @@ public:
 	// General
 	const QString&	getPreferredLanguage();
 	void			setPreferredLanguage( const QString& sLanguage );
-
 	void			setRestoreLastSongEnabled( bool restore );
 	void			setRestoreLastPlaylistEnabled( bool restore );
 	void			setUseRelativeFilenamesForPlaylists( bool value );
@@ -649,12 +648,14 @@ public:
     QString			getMidiExportDirectory() const;
     void			setMidiExportDirectory( const QString &sExportDirectory );
 
+	#if 0
 	/** Returns #m_sPreferencesOverwritePath
 	 * \return #m_sPreferencesOverwritePath */
 	QString			getPreferencesOverwritePath();
 	/** Setting #m_sPreferencesOverwritePath.
 	 * \param newPath Path to a local preferences file.*/
 	void			setPreferencesOverwritePath( const QString& newPath );
+	#endif
 	
 private:
 	/**
