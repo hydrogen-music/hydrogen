@@ -25,7 +25,7 @@ fi
 if [ ${USE_NINJA} -ne 0 ]; then
     CMAKE_OPTIONS="${CMAKE_OPTIONS} -G Ninja"
 fi
-MAKE_OPTS="-j 3"
+MAKE_OPTS="-j 12"
 H2FLAGS="-V0xf"
 BUILD_DIR=./build
 

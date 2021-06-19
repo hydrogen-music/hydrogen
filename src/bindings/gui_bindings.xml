@@ -1,22 +1,23 @@
 <typesystem package="h2gui">
 
-    <load-typesystem name="core_common.xml" />
-    <load-typesystem name="xml_common.xml" />
+    <load-typesystem name="core_common.xml" generate="no" />
+    <load-typesystem name="xml_common.xml" generate="no" />
     <load-typesystem name="gui_common.xml" generate="no"/>
     <load-typesystem name="widgets_common.xml" generate="no"/>
     <load-typesystem name="typesystem_core_common.xml" generate="no"/>
-    <load-typesystem name="typesystem_widgets.xml" generate="no"/>
-    <load-typesystem name="typesystem_widgets_common.xml" generate="no"/>
+    <!-- <load-typesystem name="typesystem_widgets.xml" generate="no"/>
+    <load-typesystem name="typesystem_widgets_common.xml" generate="no"/> -->
 
     <load-typesystem name="core_bindings.xml" generate="no"/>
 
-<namespace-type name="h2gui" package="h2gui">
+<!-- <namespace-type name="h2gui" package="h2gui"> -->
 
-<object-type name="AboutDialogContributorList"/>
-<object-type name="AboutDialog"/> -->
+<!-- <object-type name="AboutDialogContributorList"/>
+<object-type name="AboutDialog"/>
 <object-type name="AudioEngineInfoForm"/>
-<object-type name="Director"/>
+<object-type name="Director"/> -->
 <object-type name="EventListener"/>
+<!--
 <object-type name="ExportMidiDialog"/>
 <object-type name="ExportSongDialog"/>
 <object-type name="FilesystemInfoForm"/>
@@ -57,8 +58,9 @@
 <object-type name="PlaylistDialog"/>
 <object-type name="DetailWaveDisplay"/>
 <object-type name="MainSampleWaveDisplay"/>
-<object-type name="SampleEditor"/>
+<object-type name="SampleEditor"/> -->
 <object-type name="TargetWaveDisplay"/>
+<!--
 <object-type name="PatternFillDialog"/>
 <object-type name="PlaybackTrackWaveDisplay"/>
 <object-type name="SongEditor"/>
@@ -76,23 +78,24 @@
 <object-type name="SoundLibraryRepositoryDialog"/>
 <object-type name="SoundLibrarySaveDialog"/>
 <object-type name="SoundLibraryTree"/>
-<object-type name="AutomationPathView"/>
-<object-type name="Button"/>
-<object-type name="ClickableLabel"/>
-<object-type name="ColorSelectionButton"/>
-<object-type name="CpuLoadWidget"/>
-<object-type name="DownloadWidget"/>
-<object-type name="Fader"/>
-<object-type name="InfoBar"/>
-<object-type name="LCDCombo"/>
-<object-type name="LCD"/>
-<object-type name="MidiActivityWidget"/>
-<object-type name="MidiLearnable"/>
-<object-type name="MidiSenseWidget"/>
-<object-type name="MidiTable"/>
-<object-type name="PixmapWidget"/>
-<object-type name="Rotary"/>
-<object-type name="WidgetWithScalableFont"/>
+<object-type name="AutomationPathView"/> -->
 
-</namespace-type>
+<!-- <object-type name="Button"/> -->
+<!-- <object-type name="ClickableLabel"/>
+<object-type name="ColorSelectionButton"/> -->
+<!-- <object-type name="CpuLoadWidget"/> -->
+<!-- <object-type name="DownloadWidget"/> -->
+<!-- <object-type name="Fader"/> -->
+<!-- <object-type name="InfoBar"/> -->
+<!-- <object-type name="LCDCombo"/> -->
+<!-- <object-type name="LCD"/> -->
+<!-- <object-type name="MidiActivityWidget"/> -->
+<!-- <object-type name="MidiLearnable"/> -->
+<!-- <object-type name="MidiSenseWidget"/> -->
+<!-- <object-type name="MidiTable"/> -->
+<!-- <object-type name="PixmapWidget"/> -->
+<!-- <object-type name="Rotary"/> -->
+<!-- <object-type name="WidgetWithScalableFont"/> -->
+
+<!-- </namespace-type> -->
 </typesystem>
