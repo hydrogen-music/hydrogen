@@ -66,15 +66,18 @@ LayerPreview::LayerPreview( QWidget* pParent )
 	resize( w, h );
 
 	m_speakerPixmap.load( Skin::getImagePath() + "/instrumentEditor/speaker.png" );
-
-	HydrogenApp::get_instance()->addEventListener( this );
-
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &LayerPreview::onPreferencesChanged );
-
 	/**
 	 * We get a style similar to the one used for the 2 buttons on top of the instrument editor panel
 	 */
 	this->setStyleSheet("font-size: 9px; font-weight: bold;");
+
+	HydrogenApp *app = HydrogenApp::get_instance();
+
+	if ( app ) {
+		app->addEventListener( this );
+		connect( app, &HydrogenApp::preferencesChanged, this, &LayerPreview::onPreferencesChanged );
+	}
+
 }
 
 LayerPreview::~ LayerPreview()
@@ -177,8 +180,16 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 
 void LayerPreview::selectedInstrumentChangedEvent()
 {
-	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	Hydrogen *app = Hydrogen::get_instance();
+
+	if ( ! app ) {
+		update();
+		qWarning() << "LayerPreview::selectedInstrumentChangedEvent(): no hydrogen app instance";
+		return;
+	}
+
+	app->getAudioEngine()->lock( RIGHT_HERE );
+	Song *pSong = app->getSong();
 	if (pSong != nullptr) {
 		InstrumentList *pInstrList = pSong->getInstrumentList();
 		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
@@ -196,22 +207,8 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	else {
 		m_pInstrument = nullptr;
 	}
-	Hydrogen::get_instance()->getAudioEngine()->unlock();
+	app->getAudioEngine()->unlock();
 	
-	/*
-	if ( m_pInstrument ) {
-		auto p_tmpCompo = m_pInstrument->get_component( m_nSelectedComponent );
-		if(!p_tmpCompo) {
-			for(int i = 0 ; i < InstrumentComponent::getMaxLayers() ; i++) {
-				p_tmpCompo = m_pInstrument->get_component( i );
-				if(p_tmpCompo) {
-					m_nSelectedComponent = i;
-					break;
-				}
-			}
-		}
-	}
-	*/
 	
 	// select the last valid layer
 	if ( m_pInstrument ) {

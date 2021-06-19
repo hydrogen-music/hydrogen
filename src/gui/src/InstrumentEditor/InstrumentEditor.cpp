@@ -505,7 +505,17 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	popCompo = new QMenu( this );
 	itemsCompo.clear();
 
-	std::vector<DrumkitComponent*>* pComponentList = Hydrogen::get_instance()->getSong()->getComponents();
+	Hydrogen *hydrogen = Hydrogen::get_instance();
+	if ( ! hydrogen ) {
+		update();
+		return;
+	}
+	Song *song = hydrogen->getSong();
+	if ( ! song ) {
+		update();
+		return;
+	}
+	std::vector<DrumkitComponent*>* pComponentList = song->getComponents();
 	for (std::vector<DrumkitComponent*>::iterator it = pComponentList->begin() ; it != pComponentList->end(); ++it) {
 		DrumkitComponent* pComponent = *it;
 		if( !itemsCompo.contains( pComponent->get_name() ) ) {

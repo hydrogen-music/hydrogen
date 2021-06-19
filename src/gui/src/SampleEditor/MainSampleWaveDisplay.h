@@ -28,7 +28,6 @@
 
 #include <core/Object.h>
 #include "SampleEditor.h"
-class SampleEditor;
 
 class MainSampleWaveDisplay : public QWidget, public H2Core::Object
 {
@@ -36,18 +35,10 @@ class MainSampleWaveDisplay : public QWidget, public H2Core::Object
 	Q_OBJECT
 
 	public:
-
-		enum Slider {
-			NONE,
-			START,
-			LOOP,
-			END
-		};
-
 		explicit MainSampleWaveDisplay(QWidget* pParent);
 		~MainSampleWaveDisplay();
 
-		void updateDisplay( const QString& filename );
+		std::shared_ptr<H2Core::Sample> loadSampleAndUpdateDisplay( const QString& filename );
 		void updateDisplayPointer();
 
 		void paintLocatorEvent( int pos, bool last_event);
@@ -63,11 +54,13 @@ class MainSampleWaveDisplay : public QWidget, public H2Core::Object
 		bool	m_bLoopSliderIsMoved;
 		bool	m_bEndSliderIsmoved;
 
-		Slider  m_SelectedSlider;
+		SampleEditor::Slider m_SelectedSlider;
+
+		std::shared_ptr<H2Core::Sample> getEditedSample() { return m_pEditedSample; }
 
 	signals:
-		void doneEditingSlider (int slider );
-		void sliderEdited ( int slider );
+		void doneEditingSlider ( SampleEditor::Slider slider );
+		void sliderEdited ( SampleEditor::Slider slider );
 
 	private:
 		virtual void mouseMoveEvent(QMouseEvent *ev);
@@ -77,6 +70,7 @@ class MainSampleWaveDisplay : public QWidget, public H2Core::Object
 		void chooseSlider( QMouseEvent *ev );
 		void mouseUpdateDone();
 		
+		std::shared_ptr<H2Core::Sample> m_pEditedSample;
 		QPixmap m_background;
 		int*	m_pPeakDatal;
 		int*	m_pPeakDatar;

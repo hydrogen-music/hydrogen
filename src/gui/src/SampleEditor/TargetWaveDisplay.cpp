@@ -69,13 +69,8 @@ TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
 	m_UpdatePosition = false;
 	m_nSelectedEnvelopePoint = -1;
 	m_nSnapRadius = 6;
-	m_EditMode = VELOCITY;
+	m_EditMode = SampleEditor::VelocityEnvelope;
 	setMouseTracking(true);
-}
-
-void TargetWaveDisplay::setEditMode(int mode)
-{
-	m_EditMode = static_cast<TargetWaveDisplay::EnvelopeEditMode>(mode);
 }
 
 
@@ -85,6 +80,12 @@ TargetWaveDisplay::~TargetWaveDisplay()
 
 	delete[] m_pPeakData_Left;
 	delete[] m_pPeakData_Right;
+}
+
+void TargetWaveDisplay::setEditMode(SampleEditor::EnvelopeType	mode)
+{
+	qWarning() << "SetEditMode:" << mode;
+	m_EditMode = mode;
 }
 
 static void paintEnvelope(Sample::VelocityEnvelope &envelope, QPainter &painter,
@@ -151,10 +152,10 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 	QColor selectedtHandleColor = QColor( 255, 100, 90 );
 	//volume line
 
-	paintEnvelope(m_VelocityEnvelope, painter, m_EditMode == TargetWaveDisplay::VELOCITY ? m_nSelectedEnvelopePoint : -1,
+	paintEnvelope(m_VelocityEnvelope, painter, m_EditMode == SampleEditor::VelocityEnvelope ? m_nSelectedEnvelopePoint : -1,
 		volumeLineColor, volumeHandleColor, selectedtHandleColor);
 	//pan line
-	paintEnvelope(m_PanEnvelope, painter, m_EditMode == TargetWaveDisplay::PAN ? m_nSelectedEnvelopePoint : -1,
+	paintEnvelope(m_PanEnvelope, painter, m_EditMode == SampleEditor::PanEnvelope ? m_nSelectedEnvelopePoint : -1,
 		panLineColor, panHandleColor, selectedtHandleColor);
 
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
@@ -205,54 +206,64 @@ void TargetWaveDisplay::paintLocatorEventTargetDisplay( int pos, bool updateposi
 
 void TargetWaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer )
 {
-	if ( pLayer && pLayer->get_sample() ) {
+	qWarning() << "TargetWaveDisplay::updateDisplay: layer:" << pLayer;
+	if ( ! pLayer ) {
+		return;
+	}
+	updateDisplay( pLayer->get_sample(), pLayer->get_gain() );
 
-		int nSampleLength = pLayer->get_sample()->get_frames();
-		float nScaleFactor = nSampleLength / width();
-
-		float fGain = (height() - 8) / 2.0 * pLayer->get_gain();
-
-		auto pSampleDatal = pLayer->get_sample()->get_data_l();
-		auto pSampleDatar = pLayer->get_sample()->get_data_r();
-		int nSamplePos = 0;
-		int nVall;
-		int nValr;
-		for ( int i = 0; i < width(); ++i ){
-			nVall = 0;
-			nValr = 0;
-			for ( int j = 0; j < nScaleFactor; ++j ) {
-				if ( j < nSampleLength ) {
-					if ( pSampleDatal[ nSamplePos ] < 0 ){
-						int newVal = static_cast<int>( pSampleDatal[ nSamplePos ] * -fGain );
-						nVall = newVal;
-					}else
-					{
-						int newVal = static_cast<int>( pSampleDatal[ nSamplePos ] * fGain );
-						nVall = newVal;
-					}
-					if ( pSampleDatar[ nSamplePos ] > 0 ){
-						int newVal = static_cast<int>( pSampleDatar[ nSamplePos ] * -fGain );
-						nValr = newVal;
-					}else
-					{
-						int newVal = static_cast<int>( pSampleDatar[ nSamplePos ] * fGain );
-						nValr = newVal;
-					}
-				}
-				++nSamplePos;
-			}
-			m_pPeakData_Left[ i ] = nVall;
-			m_pPeakData_Right[ i ] = nValr;
-		}
+}
+void TargetWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Sample> pSample, float gain )
+{
+	qWarning() << "TargetWaveDisplay::updateDisplay: sample:" << pSample;
+	if ( ! pSample ) {
+		return;
 	}
 
-	update();
+	int nSampleLength = pSample->get_frames();
+	float nScaleFactor = nSampleLength / width();
 
+	float fGain = (height() - 8) / 2.0 * gain;
+
+	auto pSampleDatal = pSample->get_data_l();
+	auto pSampleDatar = pSample->get_data_r();
+
+	int nSamplePos = 0;
+	int nVall;
+	int nValr;
+	for ( int i = 0; i < width(); ++i ){
+		nVall = 0;
+		nValr = 0;
+		for ( int j = 0; j < nScaleFactor; ++j ) {
+			if ( j < nSampleLength ) {
+				if ( pSampleDatal[ nSamplePos ] < 0 ){
+					int newVal = static_cast<int>( pSampleDatal[ nSamplePos ] * -fGain );
+					nVall = newVal;
+				}else
+				{
+					int newVal = static_cast<int>( pSampleDatal[ nSamplePos ] * fGain );
+					nVall = newVal;
+				}
+				if ( pSampleDatar[ nSamplePos ] > 0 ){
+					int newVal = static_cast<int>( pSampleDatar[ nSamplePos ] * -fGain );
+					nValr = newVal;
+				}else
+				{
+					int newVal = static_cast<int>( pSampleDatar[ nSamplePos ] * fGain );
+					nValr = newVal;
+				}
+			}
+			++nSamplePos;
+		}
+		m_pPeakData_Left[ i ] = nVall;
+		m_pPeakData_Right[ i ] = nValr;
+	}
+	update();
 }
 
 void TargetWaveDisplay::updateMouseSelection(QMouseEvent *ev)
 {
-	const Sample::VelocityEnvelope & envelope = (m_EditMode == TargetWaveDisplay::VELOCITY) ? m_VelocityEnvelope : m_PanEnvelope;
+	const Sample::VelocityEnvelope & envelope = (m_EditMode == SampleEditor::VelocityEnvelope) ? m_VelocityEnvelope : m_PanEnvelope;
 
 	m_nX = std::min(UI_WIDTH, std::max(0, ev->x()));
 	m_nY = std::min(UI_HEIGHT, std::max(0, ev->y()));
@@ -286,7 +297,7 @@ void TargetWaveDisplay::updateEnvelope()
 	if ( m_nSelectedEnvelopePoint == -1 ) {
 		return;
 	}
-	Sample::VelocityEnvelope & envelope = (m_EditMode == TargetWaveDisplay::VELOCITY) ? m_VelocityEnvelope : m_PanEnvelope;
+	Sample::VelocityEnvelope & envelope = (m_EditMode == SampleEditor::VelocityEnvelope) ? m_VelocityEnvelope : m_PanEnvelope;
 	envelope.erase( envelope.begin() + m_nSelectedEnvelopePoint );
 	if ( m_nSelectedEnvelopePoint == 0 ){
 		m_nX = 0;
@@ -325,7 +336,7 @@ void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 
 void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 {
-	Sample::VelocityEnvelope & envelope = (m_EditMode == TargetWaveDisplay::VELOCITY) ? m_VelocityEnvelope : m_PanEnvelope;
+	Sample::VelocityEnvelope & envelope = (m_EditMode == SampleEditor::VelocityEnvelope) ? m_VelocityEnvelope : m_PanEnvelope;
 
 	updateMouseSelection(ev);
 
@@ -386,19 +397,19 @@ void TargetWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
 }
 
 
-static TargetWaveDisplay::EnvelopeEditMode getEnvelopeEditMode()
+static SampleEditor::EnvelopeType getEnvelopeEditMode()
 {
 	HydrogenApp *app = HydrogenApp::get_instance();
 	if ( ! app ) {
-		return TargetWaveDisplay::VELOCITY;
+		return SampleEditor::VelocityEnvelope;
 	}
 	int editType = app->getSampleEditor()->EditTypeComboBox->currentIndex();
 	if (editType == 0) {
-		return TargetWaveDisplay::VELOCITY;
+		return SampleEditor::VelocityEnvelope;
 	} else if (editType == 1) {
-		return TargetWaveDisplay::PAN;
+		return SampleEditor::PanEnvelope;
 	} else {
 		// combo options added
-		return TargetWaveDisplay::PAN;
+		return SampleEditor::PanEnvelope;
 	}
 }

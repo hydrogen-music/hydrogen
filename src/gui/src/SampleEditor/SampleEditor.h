@@ -25,7 +25,6 @@
 
 #include "ui_SampleEditor_UI.h"
 #include "../InstrumentEditor/InstrumentEditor.h"
-
 #include <QDialog>
 #include <core/Object.h>
 #include <core/Preferences.h>
@@ -35,10 +34,9 @@
 
 
 class Button;
+class	DetailWaveDisplay;
 class 	MainSampleWaveDisplay;
 class	TargetWaveDisplay;
-class	DetailWaveDisplay;
-
 ///
 /// This dialog is used to preview audiofiles
 ///
@@ -47,11 +45,25 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		
-		SampleEditor( QWidget* pParent, int nSelectedComponent, int nSelectedLayer, QString nSampleFilename );
+
+		enum Slider {
+			NoSlider,
+			StartSlider,
+			EndSlider,
+			LoopSlider
+		};	
+		enum EnvelopeType {
+			NoEnvelope,
+			VelocityEnvelope,
+			PanEnvelope
+		};
+		SampleEditor( QWidget* pParent, 
+		              int nSelectedComponent, int nSelectedLayer, QString nSampleFilename );
 		~SampleEditor();
 
+#if 0
 		void setSampleName( QString name);
+#endif
 		bool getCloseQuestion();
 		bool returnAllMainWaveDisplayValues();
 		void returnAllTargetDisplayValues();
@@ -61,6 +73,20 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		//this values come from the real sample to restore a frm song loaded sample
 		bool m_bSampleIsModified;	///< true if sample is modified
 
+	protected:
+		MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
+		TargetWaveDisplay *m_pTargetSampleView;
+		DetailWaveDisplay *m_pSampleAdjustView;
+
+	public slots:
+		void envelopeEdited( SampleEditor::EnvelopeType mode);
+		void doneEditingEnvelope( SampleEditor::EnvelopeType mode);
+		void sliderEdited( SampleEditor::Slider slider);
+		void doneEditingSlider( SampleEditor::Slider slider);
+
+
+	public slots:
+		void valueChangedEditTypeComboBox( int );
 	private slots:
 		void valueChangedLoopCountSpinBox( int );
 		void valueChangedProcessingTypeComboBox( const QString );
@@ -96,9 +122,6 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 	
-		MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
-		TargetWaveDisplay *m_pTargetSampleView;
-		DetailWaveDisplay *m_pSampleAdjustView;
 	
 		std::shared_ptr<H2Core::Sample> m_pSampleFromFile;
 		int m_nSelectedLayer;

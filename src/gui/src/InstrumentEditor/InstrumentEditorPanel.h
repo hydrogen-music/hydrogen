@@ -38,7 +38,7 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object, public Eve
     H2_OBJECT
 	Q_OBJECT
 	public:
-		static InstrumentEditorPanel* get_instance();
+		static InstrumentEditorPanel* get_instance(bool create = true);
 		~InstrumentEditorPanel();
 	
 		explicit InstrumentEditorPanel(const InstrumentEditorPanel&) = delete;

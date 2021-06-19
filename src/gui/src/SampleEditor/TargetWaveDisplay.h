@@ -30,7 +30,7 @@
 #include <core/Basics/Sample.h>
 #include <memory>
 
-class SampleEditor;
+#include "SampleEditor.h"
 
 namespace H2Core
 {
@@ -47,11 +47,7 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		explicit TargetWaveDisplay(QWidget* pParent);
 		~TargetWaveDisplay();
 
-		enum EnvelopeEditMode {
-			VELOCITY = 0,
-			PAN = 1
-		};
-
+		void updateDisplay( std::shared_ptr<H2Core::Sample> pSample, float gain );
 		void updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 		void updateDisplayPointer();
 		void paintLocatorEventTargetDisplay( int pos, bool last_event);
@@ -60,11 +56,12 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		H2Core::Sample::VelocityEnvelope* get_velocity() { return &m_VelocityEnvelope; }
 
 	signals:
-		void envelopeEdited(int which);
-		void doneEditingEnvelope(int which);
+		void envelopeEdited(SampleEditor::EnvelopeType which);
+		void doneEditingEnvelope(SampleEditor::EnvelopeType which);
 
 	public slots:
-		void setEditMode(int which);
+		void setEditMode(SampleEditor::EnvelopeType which);
+
 	private:
 		QPixmap m_Background;
 
@@ -83,7 +80,7 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		bool m_UpdatePosition;
 
 		int m_nSnapRadius;
-		EnvelopeEditMode m_EditMode;
+		SampleEditor::EnvelopeType m_EditMode;
 		H2Core::Sample::PanEnvelope m_PanEnvelope;
 		H2Core::Sample::VelocityEnvelope m_VelocityEnvelope;
 

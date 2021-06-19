@@ -35,9 +35,9 @@
 InstrumentEditorPanel* InstrumentEditorPanel::m_pInstance = nullptr;
 const char* InstrumentEditorPanel::__class_name = "InstrumentEditorPanel";
 
-InstrumentEditorPanel* InstrumentEditorPanel::get_instance()
+InstrumentEditorPanel* InstrumentEditorPanel::get_instance(bool create )
 {
-	if ( m_pInstance == nullptr  ) {
+	if ( m_pInstance == nullptr && create ) {
 		m_pInstance = new InstrumentEditorPanel( nullptr );
 	}
 	return m_pInstance;
@@ -67,7 +67,13 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent )
 	this->setLayout( vbox );
 	m_nLayer = 0;
 
-	HydrogenApp::get_instance()->addEventListener(this);
+	HydrogenApp * app = HydrogenApp::get_instance();
+
+	if ( app ) {
+		app->addEventListener(this);
+	} else {
+		qWarning() << "no hydrogen app, can't add event listener";
+	}
 }
 
 

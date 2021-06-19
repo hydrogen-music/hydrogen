@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
+#include <QDebug>
 #include "SampleEditor.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentEditor/InstrumentEditor.h"
@@ -109,7 +109,25 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	__rubberband.use = false;
 	__rubberband.divider = 1.0;
 	openDisplays();
+
 	getAllFrameInfos();
+
+	connect( StartFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedStartFrameSpinBox(int) ) );
+	connect( LoopFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopFrameSpinBox(int) ) );
+	connect( EndFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedEndFrameSpinBox(int) ) );
+	connect( LoopCountSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopCountSpinBox( int ) ) );
+	connect( ProcessingTypeComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedProcessingTypeComboBox( const QString ) ) );
+	connect( rubberComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberComboBox( const QString ) ) );
+	connect( rubberbandCsettingscomboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberbandCsettingscomboBox( const QString ) ) );
+	connect( pitchdoubleSpinBox, SIGNAL ( valueChanged( double )  ), this, SLOT( valueChangedpitchdoubleSpinBox( double ) ) );
+	connect( EditTypeComboBox, SIGNAL ( currentIndexChanged ( int ) ), this, SLOT( valueChangedEditTypeComboBox( int ) ) );
+
+	connect( m_pTargetSampleView, SIGNAL ( envelopeEdited ( SampleEditor::EnvelopeType ) ), this, SLOT( envelopeEdited( SampleEditor::EnvelopeType ) ) );
+	connect( m_pTargetSampleView, SIGNAL ( doneEditingEnvelope ( SampleEditor::EnvelopeType ) ), this, SLOT( doneEditingEnvelope( SampleEditor::EnvelopeType ) ) );
+
+	connect( m_pMainSampleWaveDisplay, SIGNAL ( sliderEdited ( SampleEditor::Slider ) ), this, SLOT( sliderEdited( SampleEditor::Slider ) ) );
+	connect( m_pMainSampleWaveDisplay, SIGNAL ( doneEditingSlider ( SampleEditor::Slider ) ), this, SLOT( doneEditingSlider( SampleEditor::Slider ) ) );
+	
 
 #ifndef H2CORE_HAVE_RUBBERBAND
 	if ( !Filesystem::file_executable( Preferences::get_instance()->m_rubberBandCLIexecutable , true /* silent */) ) {
@@ -146,6 +164,30 @@ SampleEditor::~SampleEditor()
 	INFOLOG ( "DESTROY" );
 }
 
+void SampleEditor::envelopeEdited( SampleEditor::EnvelopeType mode)
+{ 
+	qWarning() << "[slot] SampleEditor::envelopeEdited" << mode;
+	returnAllTargetDisplayValues();
+	setUnclean();
+}
+
+void SampleEditor::doneEditingEnvelope( SampleEditor::EnvelopeType mode)
+{
+	
+}
+
+void SampleEditor::sliderEdited( SampleEditor::Slider slider )
+{
+	qWarning() << "[slot] SampleEditor::sliderEdited" << slider;
+	returnAllMainWaveDisplayValues();
+	setUnclean();
+}
+
+void SampleEditor::doneEditingSlider( SampleEditor::Slider slider )
+{
+
+}
+
 
 void SampleEditor::closeEvent(QCloseEvent *event)
 {
@@ -166,27 +208,38 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 
 void SampleEditor::getAllFrameInfos()
 {
+	H2Core::Hydrogen *hydrogen = Hydrogen::get_instance();
 	std::shared_ptr<H2Core::Instrument> pInstrument = nullptr;
-	std::shared_ptr<Sample> pSample;
-	Song *pSong = Hydrogen::get_instance()->getSong();
-	
-	if (pSong != nullptr) {
-		InstrumentList *pInstrList = pSong->getInstrumentList();
-		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		if ( nInstr >= static_cast<int>(pInstrList->size()) ) {
-			nInstr = -1;
-		}
+	std::shared_ptr<H2Core::Sample> pSample = nullptr;
+	H2Core::Song *pSong = nullptr;
 
-		if (nInstr == -1) {
-			pInstrument = nullptr;
-		}
-		else {
-			pInstrument = pInstrList->get( nInstr );
-			//INFOLOG( "new instr: " + pInstrument->m_sName );
+	if ( ! hydrogen ) {
+		qWarning() << "no hydrogen";
+	} else {
+		pSong = hydrogen->getSong();
+		if ( ! pSong ) {
+			qWarning() << "no song";
+		} else {
+			InstrumentList *pInstrList = pSong->getInstrumentList();
+			int nInstr = hydrogen->getSelectedInstrumentNumber();
+			if ( nInstr >= static_cast<int>(pInstrList->size()) ) {
+				nInstr = -1;
+			}
+
+			if (nInstr == -1) {
+				pInstrument = nullptr;
+			}
+			else {
+				pInstrument = pInstrList->get( nInstr );
+				//INFOLOG( "new instr: " + pInstrument->m_sName );
+			}
 		}
 	}
 	
-	assert( pInstrument );
+	if (   ! pInstrument ) {
+		qWarning() << "SampleEditor::getAllFramesInfos(): no instrument";
+		return;
+	}
 
 	auto pCompo = pInstrument->get_component(0);
 	assert( pCompo );
@@ -286,15 +339,6 @@ void SampleEditor::getAllFrameInfos()
 
 	}
 	m_pTargetSampleView->updateDisplay( pLayer );
-
-	connect( StartFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedStartFrameSpinBox(int) ) );
-	connect( LoopFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopFrameSpinBox(int) ) );
-	connect( EndFrameSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedEndFrameSpinBox(int) ) );
-	connect( LoopCountSpinBox, SIGNAL( valueChanged( int ) ), this, SLOT( valueChangedLoopCountSpinBox( int ) ) );
-	connect( ProcessingTypeComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedProcessingTypeComboBox( const QString ) ) );
-	connect( rubberComboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberComboBox( const QString ) ) );
-	connect( rubberbandCsettingscomboBox, SIGNAL( currentIndexChanged ( const QString )  ), this, SLOT( valueChangedrubberbandCsettingscomboBox( const QString ) ) );
-	connect( pitchdoubleSpinBox, SIGNAL ( valueChanged( double )  ), this, SLOT( valueChangedpitchdoubleSpinBox( double ) ) );
 }
 
 void SampleEditor::getAllLocalFrameInfos()
@@ -311,13 +355,13 @@ void SampleEditor::openDisplays()
 {
 	// wavedisplays
 	m_divider = m_pSampleFromFile->get_frames() / 574.0F;
-	m_pMainSampleWaveDisplay->updateDisplay( m_sSampleName );
-	m_pMainSampleWaveDisplay->move( 1, 1 );
+	auto sample = m_pMainSampleWaveDisplay->loadSampleAndUpdateDisplay( m_sSampleName );
 
+	m_pMainSampleWaveDisplay->move( 1, 1 );
 	m_pSampleAdjustView->updateDisplay( m_sSampleName );
 	m_pSampleAdjustView->move( 1, 1 );
-
 	m_pTargetSampleView->move( 1, 1 );
+	m_pTargetSampleView->updateDisplay( sample, 1.0 );
 }
 
 
@@ -546,7 +590,12 @@ void SampleEditor::on_PlayPushButton_clicked()
 	const float fPan = 0.f;
 	const int nLength = -1;
 	const float fPitch = 0.0f;
-	const int selectedLayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
+	InstrumentEditorPanel *panel = InstrumentEditorPanel::get_instance( false );
+
+	if ( ! panel ) {
+		return;
+	}
+	const int selectedLayer = panel->getSelectedLayer();
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
@@ -594,6 +643,10 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 
 	const int selectedlayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
 	Song *pSong = Hydrogen::get_instance()->getSong();
+
+	if ( ! pSong ) {
+		return;
+	}
 	auto pInstr = pSong->getInstrumentList()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 
 	/*
@@ -932,6 +985,31 @@ void SampleEditor::valueChangedProcessingTypeComboBox( const QString unused )
 	setUnclean();
 }
 
+
+
+
+void SampleEditor::valueChangedEditTypeComboBox( int index )
+{
+	qDebug() << QString("EditMode<int> changed (%1) %2").arg(index).arg(reinterpret_cast<unsigned long>(static_cast<void*>(m_pTargetSampleView)));
+	if ( ! m_pTargetSampleView ) {
+		qWarning() << "no TargetSampleView!";
+		return;
+	}
+	switch ( index ){
+		case 0 ://
+			m_pTargetSampleView->setEditMode( SampleEditor::EnvelopeType::VelocityEnvelope );
+			break;
+		case 1 ://
+			if ( m_pTargetSampleView ) {
+				m_pTargetSampleView->setEditMode( SampleEditor::EnvelopeType::PanEnvelope );
+			}
+			break;
+		default:
+			if ( m_pTargetSampleView ) {
+				m_pTargetSampleView->setEditMode( SampleEditor::EnvelopeType::NoEnvelope );
+			}
+	}
+}
 
 
 void SampleEditor::on_verticalzoomSlider_valueChanged( int value )
