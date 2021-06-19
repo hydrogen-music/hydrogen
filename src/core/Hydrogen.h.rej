@@ -1,0 +1,13 @@
+--- src/core/Hydrogen.h
++++ src/core/Hydrogen.h
+@@ -356,8 +356,8 @@ public:
+ 		void			raiseError( unsigned nErrorCode );
+ 
+ 
+-void			previewSample( Sample *pSample );
+-	void			previewInstrument( std::shared_ptr<Instrument> pInstr );
++// void			previewSample( Sample *pSample );
++// 	void			previewInstrument( std::shared_ptr<Instrument> pInstr );
+ 
+ 	enum ErrorMessages {
+ 		/**

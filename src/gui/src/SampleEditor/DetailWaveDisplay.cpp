@@ -89,8 +89,14 @@ void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 
 	for ( int x = 0; x < width() ; x++ ) {
 		if ( (startpos) > 0 ){
-			painter.drawLine( x, (-m_pPeakDatal[startpos -1] *m_pZoomFactor) +VCenterl, x, (-m_pPeakDatal[startpos ] *m_pZoomFactor)+VCenterl );
-			painter.drawLine( x, (-m_pPeakDatar[startpos -1] *m_pZoomFactor) +VCenterr, x, (-m_pPeakDatar[startpos ] *m_pZoomFactor)+VCenterr );
+			if ( m_pPeakDatal ) {
+				painter.drawLine( x, (-m_pPeakDatal[startpos -1] *m_pZoomFactor) +VCenterl,
+								  x, (-m_pPeakDatal[startpos ] *m_pZoomFactor)+VCenterl );
+			}
+			if ( m_pPeakDatar ) {
+				painter.drawLine( x, (-m_pPeakDatar[startpos -1] *m_pZoomFactor) +VCenterr,
+								  x, (-m_pPeakDatar[startpos ] *m_pZoomFactor)+VCenterr );
+			}
 			//ERRORLOG( QString("startpos: %1").arg(startpos) )
 		}
 		else

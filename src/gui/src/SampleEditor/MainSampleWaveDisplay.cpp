@@ -219,7 +219,8 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 
 }
 void MainSampleWaveDisplay::mouseUpdateDone() {
-	HydrogenApp::get_instance()->getSampleEditor()->returnAllMainWaveDisplayValues();
+	// HydrogenApp::get_instance()->getSampleEditor()->returnAllMainWaveDisplayValues();
+	emit doneEditingSlider( m_SelectedSlider );
 	m_bStartSliderIsMoved = false;
 	m_bLoopSliderIsMoved = false;
 	m_bEndSliderIsmoved = false;
@@ -228,21 +229,27 @@ void MainSampleWaveDisplay::mouseUpdateDone() {
 
 void MainSampleWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
-	if (ev->buttons() && Qt::LeftButton) {
+	if ( ev->buttons() && Qt::LeftButton ) {
 		testPosition( ev );
+		if ( m_SelectedSlider != NONE ) {
+			emit sliderEdited( m_SelectedSlider );
+		}
 	} else {
 		chooseSlider( ev );
 	}
 	update();
-	mouseUpdateDone();
+	// mouseUpdateDone();
 }
 
 void MainSampleWaveDisplay::mousePressEvent(QMouseEvent *ev)
 {
 	chooseSlider( ev );
 	testPosition( ev );
+	if ( m_SelectedSlider != NONE ) {
+		emit sliderEdited( m_SelectedSlider );
+	}
 	update();
-	mouseUpdateDone();
+	// mouseUpdateDone();
 }
 
 void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
@@ -287,9 +294,11 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 
 void MainSampleWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
 {
+	if ( m_SelectedSlider != NONE ) {
+		emit doneEditingSlider( m_SelectedSlider );
+	}
 	m_SelectedSlider = NONE;
 	update();
-	mouseUpdateDone();
 }
 
 

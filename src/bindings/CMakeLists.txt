@@ -240,7 +240,7 @@ ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/h2gui_module_wrapper.cp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/clickablelabel_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/colorselectionbutton_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/cpuloadwidget_wrapper.cpp
-# ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/detailwavedisplay_wrapper.cpp
+${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/detailwavedisplay_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/director_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/downloadwidget_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/drumpatterneditor_wrapper.cpp
@@ -260,7 +260,7 @@ ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/eventlistener_wrapper.c
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/layerpreview_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/lcdcombo_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/mainform_wrapper.cpp
-# ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/mainsamplewavedisplay_wrapper.cpp
+${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/mainsamplewavedisplay_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/midiactivitywidget_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/midilearnable_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/midisensewidget_wrapper.cpp

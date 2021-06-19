@@ -20,12 +20,12 @@ if not app:
 
 fr = QFrame()
 
-widget = h2gui.DetailWaveDisplay(fr)
+widget = h2gui.TargetWaveDisplay(fr)
 
 class Spy(QObject):
 
     def eventFilter(self, obj, event):
-        print("e", obj, event.type())
+        print("e", obj, event)
         return QObject.eventFilter(self, obj, event)
     
     def envelopeEdited(self, mode):
@@ -36,9 +36,9 @@ class Spy(QObject):
 
 spy = Spy()
 
-# widget.envelopeEdited.connect(spy.envelopeEdited)
-# widget.doneEditingEnvelope.connect(spy.doneEnvelopeEditing)
-fr.installEventFilter(spy)
+widget.envelopeEdited.connect(spy.envelopeEdited)
+widget.doneEditingEnvelope.connect(spy.doneEnvelopeEditing)
+# fr.installEventFilter(spy)
 
 fr.show()
 

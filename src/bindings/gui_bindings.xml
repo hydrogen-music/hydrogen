@@ -56,9 +56,10 @@
 <object-type name="PatternEditorRuler"/>
 <object-type name="PianoRollEditor"/>
 <object-type name="PlaylistDialog"/>
+-->
 <object-type name="DetailWaveDisplay"/>
 <object-type name="MainSampleWaveDisplay"/>
-<object-type name="SampleEditor"/> -->
+<!-- <object-type name="SampleEditor"/> -->
 <object-type name="TargetWaveDisplay"/>
 <!--
 <object-type name="PatternFillDialog"/>
