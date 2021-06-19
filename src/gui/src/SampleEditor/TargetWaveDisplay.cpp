@@ -387,7 +387,11 @@ void TargetWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
 
 static TargetWaveDisplay::EnvelopeEditMode getEnvelopeEditMode()
 {
-	int editType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentIndex();
+	HydrogenApp *app = HydrogenApp::get_instance();
+	if ( ! app ) {
+		return TargetWaveDisplay::VELOCITY;
+	}
+	int editType = app->getSampleEditor()->EditTypeComboBox->currentIndex();
 	if (editType == 0) {
 		return TargetWaveDisplay::VELOCITY;
 	} else if (editType == 1) {
