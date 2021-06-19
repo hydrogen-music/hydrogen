@@ -63,7 +63,6 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	m_pTargetDisplayTimer = new QTimer(this);
 	connect(m_pTargetDisplayTimer, SIGNAL(timeout()), this, SLOT(updateTargetsamplePositionRuler()));
 
-	setClean();
 	m_nSelectedLayer = nSelectedLayer;
 	m_nSelectedComponent = nSelectedComponent;
 	m_sSampleName = sSampleFilename;
@@ -108,6 +107,8 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 
 	__rubberband.use = false;
 	__rubberband.divider = 1.0;
+	__rubberband.pitch = 0.0;
+
 	openDisplays();
 
 	getAllFrameInfos();
@@ -132,14 +133,12 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 #ifndef H2CORE_HAVE_RUBBERBAND
 	if ( !Filesystem::file_executable( Preferences::get_instance()->m_rubberBandCLIexecutable , true /* silent */) ) {
 		RubberbandCframe->setDisabled ( true );
-		setClean();
 	}
 #else
 	RubberbandCframe->setDisabled ( false );
-	setClean();
 #endif
+	setClean();
 
-	__rubberband.pitch = 0.0;
 
 	m_bAdjusting = false;
 	m_bSampleEditorClean = true;
@@ -173,7 +172,20 @@ void SampleEditor::envelopeEdited( SampleEditor::EnvelopeType mode)
 
 void SampleEditor::doneEditingEnvelope( SampleEditor::EnvelopeType mode)
 {
-	
+	qWarning() << "[slot] SampleEditor::doneEditingEnvelope" << mode;
+	doneEditing();
+}
+
+void SampleEditor::doneEditing() {
+	auto original = m_pMainSampleWaveDisplay->getEditedSample();
+	std::shared_ptr<H2Core::Sample> edited;
+	edited = std::make_shared<H2Core::Sample>(original);
+	edited->set_filepath("");
+	edited->apply(__loops,
+				__rubberband,
+				*m_pTargetSampleView->get_velocity(),
+				*m_pTargetSampleView->get_pan());
+	m_pTargetSampleView->updateDisplay( edited, 1.0 );
 }
 
 void SampleEditor::sliderEdited( SampleEditor::Slider slider )
@@ -185,7 +197,8 @@ void SampleEditor::sliderEdited( SampleEditor::Slider slider )
 
 void SampleEditor::doneEditingSlider( SampleEditor::Slider slider )
 {
-
+	qWarning() << "[slot] SampleEditor::doneEditingSlider" << slider;
+	doneEditing();
 }
 
 
@@ -847,6 +860,7 @@ void SampleEditor::valueChangedLoopCountSpinBox( int )
 	__loops.count = count; 
 	setUnclean();
 	setSamplelengthFrames();
+	doneEditing();
 	if ( m_nSlframes > Hydrogen::get_instance()->getAudioOutput()->getSampleRate() * 60 * 30){ // >30 min
 		LoopCountSpinBox->setMaximum(LoopCountSpinBox->value() -1);
 	}
@@ -863,6 +877,7 @@ void SampleEditor::valueChangedrubberbandCsettingscomboBox( const QString  )
 		return;
 	}
 	__rubberband.c_settings = new_settings;
+	doneEditing();
 	setUnclean();
 }
 
@@ -876,6 +891,7 @@ void SampleEditor::valueChangedpitchdoubleSpinBox( double )
 		return;
 	}
 	__rubberband.pitch = new_value;
+	doneEditing();
 	setUnclean();
 }
 
@@ -924,7 +940,7 @@ void SampleEditor::valueChangedrubberComboBox( const QString  )
 //	float __rubberband.divider;
 	setSamplelengthFrames();
 
-
+	doneEditing();
 	setUnclean();
 }
 
@@ -982,6 +998,7 @@ void SampleEditor::valueChangedProcessingTypeComboBox( const QString unused )
 		default:
 			__loops.mode = Sample::Loops::FORWARD;
 	}
+	doneEditing();
 	setUnclean();
 }
 

@@ -63,6 +63,7 @@ MainSampleWaveDisplay::MainSampleWaveDisplay(QWidget* pParent)
 	m_bEndSliderIsmoved = false;
 
 	m_SelectedSlider = SampleEditor::Slider::NoSlider;
+	m_pEditedSample = nullptr;
 	setMouseTracking(true);
 }
 

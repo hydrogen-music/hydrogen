@@ -213,20 +213,17 @@ void TargetWaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> 
 	updateDisplay( pLayer->get_sample(), pLayer->get_gain() );
 
 }
-void TargetWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Sample> pSample, float gain )
+void TargetWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Sample> sample, double gain )
 {
-	qWarning() << "TargetWaveDisplay::updateDisplay: sample:" << pSample;
-	if ( ! pSample ) {
-		return;
-	}
+	qWarning() << "TargetWaveDisplay::updateDisplay: sample:" << sample;
 
-	int nSampleLength = pSample->get_frames();
+	int nSampleLength = sample->get_frames();
 	float nScaleFactor = nSampleLength / width();
 
 	float fGain = (height() - 8) / 2.0 * gain;
 
-	auto pSampleDatal = pSample->get_data_l();
-	auto pSampleDatar = pSample->get_data_r();
+	auto pSampleDatal = sample->get_data_l();
+	auto pSampleDatar = sample->get_data_r();
 
 	int nSamplePos = 0;
 	int nVall;

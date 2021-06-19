@@ -83,7 +83,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		void doneEditingEnvelope( SampleEditor::EnvelopeType mode);
 		void sliderEdited( SampleEditor::Slider slider);
 		void doneEditingSlider( SampleEditor::Slider slider);
-
+		void doneEditing();
 
 	public slots:
 		void valueChangedEditTypeComboBox( int );

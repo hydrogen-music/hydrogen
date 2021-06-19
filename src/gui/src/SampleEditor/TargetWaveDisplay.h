@@ -47,7 +47,7 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		explicit TargetWaveDisplay(QWidget* pParent);
 		~TargetWaveDisplay();
 
-		void updateDisplay( std::shared_ptr<H2Core::Sample> pSample, float gain );
+		void updateDisplay( const std::shared_ptr<H2Core::Sample> pSample, double gain );
 		void updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 		void updateDisplayPointer();
 		void paintLocatorEventTargetDisplay( int pos, bool last_event);
