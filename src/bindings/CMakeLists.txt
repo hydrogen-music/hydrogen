@@ -230,6 +230,7 @@ set(gui_wrapped_header ${CMAKE_SOURCE_DIR}/src/bindings/gui_bindings.h)
 set(gui_typesystem_file ${CMAKE_SOURCE_DIR}/src/bindings/gui_bindings.xml)
 
 set(gui_generated_sources
+${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/h2gui_module_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/aboutdialogcontributorlist_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/aboutdialog_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/audioengineinfoform_wrapper.cpp
@@ -249,7 +250,6 @@ ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/eventlistener_wrapper.c
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/fader_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/filebrowser_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/filesysteminfoform_wrapper.cpp
-# ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/h2gui_module_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/hydrogenapp_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/infobar_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/instrumenteditorpanel_wrapper.cpp

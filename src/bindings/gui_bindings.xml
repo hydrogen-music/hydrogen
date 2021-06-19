@@ -5,8 +5,8 @@
     <load-typesystem name="gui_common.xml" generate="no"/>
     <load-typesystem name="widgets_common.xml" generate="no"/>
     <load-typesystem name="typesystem_core_common.xml" generate="no"/>
-    <!-- <load-typesystem name="typesystem_widgets.xml" generate="no"/>
-    <load-typesystem name="typesystem_widgets_common.xml" generate="no"/> -->
+    <load-typesystem name="typesystem_widgets.xml" generate="no"/>
+    <load-typesystem name="typesystem_widgets_common.xml" generate="no"/>
 
     <load-typesystem name="core_bindings.xml" generate="no"/>
 
