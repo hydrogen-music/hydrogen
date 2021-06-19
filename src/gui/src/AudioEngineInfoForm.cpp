@@ -47,9 +47,8 @@ AudioEngineInfoForm::AudioEngineInfoForm(QWidget* parent)
  , Object( __class_name )
 {
 	setupUi( this );
-
-	setMinimumSize( width(), height() );	// not resizable
-	setMaximumSize( width(), height() );	// not resizable
+	adjustSize();
+	setFixedSize( width(), height() );	// not resizable
 
 	setWindowTitle( tr( "Audio Engine Info" ) );
 

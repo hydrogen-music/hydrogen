@@ -61,8 +61,9 @@ SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,  const QSt
 	INFOLOG( "INIT" );
 	setWindowTitle( tr( "Export Sound Library" ) );
 	m_sSysDrumkitSuffix = " (system)";
-	setFixedSize( width(), height() );
 	updateDrumkitList();
+	adjustSize();
+	setFixedSize( width(), height() );
 	drumkitPathTxt->setText( QDir::homePath() );
 }
 

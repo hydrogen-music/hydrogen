@@ -47,6 +47,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect, b
 	setupUi ( this );
 	INFOLOG ( "INIT" );
 	setWindowTitle ( tr ( "Audio File Browser" ) );
+	adjustSize();
 	setFixedSize ( width(), height() );
 	
 	m_bAllowMultiSelect = bAllowMultiSelect;

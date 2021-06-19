@@ -43,8 +43,7 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );
-	setWindowTitle( tr( "BPM" ) );	
-	setFixedSize( width(), height() );
+	setWindowTitle( tr( "BPM" ) );
 
 	lineEditBeat->setText(QString("%1").arg( m_stimelineposition + 1) );
 	deleteBtn->setEnabled ( false );
@@ -52,6 +51,9 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Timeline* pTimeline = pHydrogen->getTimeline();
 	auto tempoMarkers = pTimeline->getAllTempoMarkers();
+	adjustSize();
+	setFixedSize( width(), height() );
+
 
 	//restore the bpm value
 	if( tempoMarkers.size() > 0 ){

@@ -37,8 +37,9 @@ VirtualPatternDialog::VirtualPatternDialog(QWidget* parent)
     , Object( __class_name )
 {
     setupUi( this );
-    setFixedSize( width(), height() );
     setWindowTitle( tr( "Select virtual pattern" ) );
+    adjustSize();
+    setMinimumSize( width(), height() );
 }
 
 VirtualPatternDialog::~VirtualPatternDialog()
