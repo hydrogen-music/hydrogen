@@ -1,0 +1,98 @@
+<typesystem package="h2gui">
+
+    <load-typesystem name="core_common.xml" />
+    <load-typesystem name="xml_common.xml" />
+    <load-typesystem name="gui_common.xml" generate="no"/>
+    <load-typesystem name="widgets_common.xml" generate="no"/>
+    <load-typesystem name="typesystem_core_common.xml" generate="no"/>
+    <load-typesystem name="typesystem_widgets.xml" generate="no"/>
+    <load-typesystem name="typesystem_widgets_common.xml" generate="no"/>
+
+    <load-typesystem name="core_bindings.xml" generate="no"/>
+
+<namespace-type name="h2gui" package="h2gui">
+
+<object-type name="AboutDialogContributorList"/>
+<object-type name="AboutDialog"/> -->
+<object-type name="AudioEngineInfoForm"/>
+<object-type name="Director"/>
+<object-type name="EventListener"/>
+<object-type name="ExportMidiDialog"/>
+<object-type name="ExportSongDialog"/>
+<object-type name="FilesystemInfoForm"/>
+<object-type name="HydrogenApp"/>
+<object-type name="InstrumentRack"/>
+<object-type name="LadspaFXProperties"/>
+<object-type name="LadspaFXSelector"/>
+<object-type name="MainForm"/>
+<object-type name="PatternPropertiesDialog"/>
+<object-type name="PlayerControl"/>
+<object-type name="precompiled"/>
+<object-type name="PreferencesDialog"/>
+<object-type name="Selection"/>
+<object-type name="ShotList"/>
+<object-type name="Skin"/>
+<object-type name="SongPropertiesDialog"/>
+<object-type name="SplashScreen"/>
+<object-type name="UndoActions"/>
+<object-type name="WidgetScrollArea"/>
+
+
+<object-type name="AudioFileBrowser"/>
+<object-type name="SampleWaveDisplay"/>
+<object-type name="InstrumentEditor"/>
+<object-type name="InstrumentEditorPanel"/>
+<object-type name="LayerPreview"/>
+<object-type name="WaveDisplay"/>
+<object-type name="Mixer"/>
+<object-type name="MixerLine"/>
+<object-type name="MixerSettingsDialog"/>
+<object-type name="DrumPatternEditor"/>
+<object-type name="NotePropertiesRuler"/>
+<object-type name="PatternEditor"/>
+<object-type name="PatternEditorInstrumentList"/>
+<object-type name="PatternEditorPanel"/>
+<object-type name="PatternEditorRuler"/>
+<object-type name="PianoRollEditor"/>
+<object-type name="PlaylistDialog"/>
+<object-type name="DetailWaveDisplay"/>
+<object-type name="MainSampleWaveDisplay"/>
+<object-type name="SampleEditor"/>
+<object-type name="TargetWaveDisplay"/>
+<object-type name="PatternFillDialog"/>
+<object-type name="PlaybackTrackWaveDisplay"/>
+<object-type name="SongEditor"/>
+<object-type name="SongEditorPanelBpmWidget"/>
+<object-type name="SongEditorPanel"/>
+<object-type name="SongEditorPanelTagWidget"/>
+<object-type name="VirtualPatternDialog"/>
+<object-type name="FileBrowser"/>
+<object-type name="SoundLibraryDatastructures"/>
+<object-type name="SoundLibraryExportDialog"/>
+<object-type name="SoundLibraryImportDialog"/>
+<object-type name="SoundLibraryOpenDialog"/>
+<object-type name="SoundLibraryPanel"/>
+<object-type name="SoundLibraryPropertiesDialog"/>
+<object-type name="SoundLibraryRepositoryDialog"/>
+<object-type name="SoundLibrarySaveDialog"/>
+<object-type name="SoundLibraryTree"/>
+<object-type name="AutomationPathView"/>
+<object-type name="Button"/>
+<object-type name="ClickableLabel"/>
+<object-type name="ColorSelectionButton"/>
+<object-type name="CpuLoadWidget"/>
+<object-type name="DownloadWidget"/>
+<object-type name="Fader"/>
+<object-type name="InfoBar"/>
+<object-type name="LCDCombo"/>
+<object-type name="LCD"/>
+<object-type name="MidiActivityWidget"/>
+<object-type name="MidiLearnable"/>
+<object-type name="MidiSenseWidget"/>
+<object-type name="MidiTable"/>
+<object-type name="PixmapWidget"/>
+<object-type name="Rotary"/>
+<object-type name="WidgetWithScalableFont"/>
+
+</namespace-type>
+</typesystem>

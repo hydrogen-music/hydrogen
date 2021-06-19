@@ -90,10 +90,10 @@
             </target-to-native>
         </conversion-rule>
     </primitive-type> -->
-    <namespace-type name="std">
+    <!-- <namespace-type name="std">
         <smart-pointer-type name="shared_ptr" type="shared" getter="get"
         instantiations="H2Core::ADSR "/>
-    </namespace-type>
+    </namespace-type> -->
     <!-- <custom-type name="std::shared_ptr" /> -->
     <custom-type name="std::unique_ptr" />
 
@@ -150,7 +150,7 @@
 
     <rejection class="H2Core::Hydrogen" field-name="m_nInstrumentLookupTable"/>
     <rejection class="H2Core::Preferences" function-name="getDataDirectory"/>
-    <namespace-type name="H2Core">
+    <namespace-type name="H2Core" package="h2core">
         <object-type name="Object"></object-type>
         <!-- <object-type name="Object"> -->
         <!-- <modify-function signature="Object(const char*)">
@@ -166,7 +166,7 @@
         <!-- <object-type name="Logger"/> -->
         <object-type name="EnvelopePoint"></object-type>
         <object-type name="Sample">
-            <modify-function signature="Sample(QString, int, int, float*, float*)" remove="all" /
+            <modify-function signature="Sample(QString, int, int, float*, float*)" remove="all" />
 
             <!-- <modify-function signature="Sample(QString, int, int, float*, float*)"> 
                     <modify-argument index="2">
