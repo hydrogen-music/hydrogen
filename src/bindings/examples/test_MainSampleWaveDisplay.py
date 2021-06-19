@@ -38,7 +38,7 @@ spy = Spy()
 
 widget.sliderEdited.connect(spy.sliderEdited)
 widget.doneEditingSlider.connect(spy.doneEditingSlider)
-fr.installEventFilter(spy)
+# fr.installEventFilter(spy)
 
 fr.show()
 

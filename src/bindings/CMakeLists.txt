@@ -282,7 +282,8 @@ ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/mainsamplewavedisplay_w
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/playlistdialog_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/preferencesdialog_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/rotary_wrapper.cpp
-# ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/sampleeditor_wrapper.cpp
+${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/sampleeditor_wrapper.cpp
+${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/ui_sampleeditor_ui_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/samplewavedisplay_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/selection_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/shotlist_wrapper.cpp
@@ -305,6 +306,10 @@ ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/targetwavedisplay_wrapp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/widgetwithscalablefont_wrapper.cpp
 
 )
+set_property(SOURCE
+    ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/ui_sampleeditor_ui_wrapper.cpp
+    PROPERTY SKIP_AUTOUIC ON)
+
 # ================================== Shiboken detection ======================================
 set(shiboken_options 
     --generator-set=shiboken

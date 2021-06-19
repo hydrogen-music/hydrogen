@@ -58,9 +58,18 @@
 <object-type name="PlaylistDialog"/>
 -->
 <object-type name="DetailWaveDisplay"/>
-<object-type name="MainSampleWaveDisplay"/>
-<!-- <object-type name="SampleEditor"/> -->
-<object-type name="TargetWaveDisplay"/>
+<object-type name="MainSampleWaveDisplay">
+</object-type>
+<object-type name="SampleEditor">
+    <enum-type name="Slider"/>
+    <enum-type name="EnvelopeType"/>
+</object-type>
+<!-- <namespace-type name="Ui" package="h2gui">
+    <object-type name="SampleEditor_UI"/>
+</namespace-type> -->
+<object-type name="Ui_SampleEditor_UI"/>
+<object-type name="TargetWaveDisplay">
+</object-type>
 <!--
 <object-type name="PatternFillDialog"/>
 <object-type name="PlaybackTrackWaveDisplay"/>
