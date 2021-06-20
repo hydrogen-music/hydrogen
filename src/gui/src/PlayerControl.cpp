@@ -156,9 +156,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 //~ CONTROLS
 
 // BC on off
-	PixmapWidget *pControlsBBTBConoffPanel = new PixmapWidget( nullptr );
+	QWidget *pControlsBBTBConoffPanel = new QWidget( nullptr );
 	pControlsBBTBConoffPanel->setFixedSize( 15, 43 );
-	pControlsBBTBConoffPanel->setPixmap( "/playerControlPanel/onoff.png" );
 	pControlsBBTBConoffPanel->setObjectName( "BeatCounterOnOff" );
 	hbox->addWidget( pControlsBBTBConoffPanel );
 
@@ -318,25 +317,22 @@ PlayerControl::PlayerControl(QWidget *parent)
 //~ JACK
 
 
-	PixmapWidget *pLcdBackGround = new PixmapWidget( nullptr );
+	QWidget *pLcdBackGround = new QWidget( nullptr );
 	pLcdBackGround->setFixedSize( 256, 43 );
-	pLcdBackGround->setPixmap( "/playerControlPanel/lcd_background.png" );
 	pLcdBackGround->setObjectName( "LcdBackground" );
 	hbox->addWidget( pLcdBackGround );
 
-	m_pShowMixerBtn = new Button( pLcdBackGround, QSize( 86, 21 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getMixerButton(), false, QSize(), tr( "Show mixer" ) );
-	m_pShowMixerBtn->move( 2, 2 );
+	m_pShowMixerBtn = new Button( pLcdBackGround, QSize( 88, 23 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getMixerButton(), false, QSize(), tr( "Show mixer" ) );
+	m_pShowMixerBtn->move( 0, 0 );
 	connect(m_pShowMixerBtn, SIGNAL( pressed() ), this, SLOT( showMixerButtonClicked() ));
 
-	m_pShowInstrumentRackBtn = new Button( pLcdBackGround, QSize( 166, 21 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getInstrumentRackButton(), false, QSize(), tr( "Show Instrument Rack" ) );
-	m_pShowInstrumentRackBtn->move( 88, 2 );
+	m_pShowInstrumentRackBtn = new Button( pLcdBackGround, QSize( 168, 23 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getInstrumentRackButton(), false, QSize(), tr( "Show Instrument Rack" ) );
+	m_pShowInstrumentRackBtn->move( 88, 0 );
 	connect( m_pShowInstrumentRackBtn, SIGNAL( pressed() ), this, SLOT( showInstrumentRackButtonClicked() ) );
 
-	m_pStatusLabel = new LCDDisplay(pLcdBackGround, QSize( 251, 16 ) );
-	// m_pStatusLabel->setAlignment( Qt::AlignLeft );
-	m_pStatusLabel->setMaxLength( 36 );
-	m_pStatusLabel->move( 2, 24 );
-
+	m_pStatusLabel = new LCDDisplay(pLcdBackGround, QSize( 255, 18 ) );
+	m_pStatusLabel->setMaxLength( 37 );
+	m_pStatusLabel->move( 0, 24 );
 
 	hbox->addStretch( 1000 );	// this must be the last widget in the HBOX!!
 

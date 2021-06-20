@@ -70,96 +70,23 @@ void setPalette( QApplication *pQApp )
 	// create the default palette
 	QPalette defaultPalette;
 
-	// A general background color.
-	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
-
-	// A general foreground color.
-	defaultPalette.setColor( QPalette::WindowText, QColor( 255, 255, 255 ) );
-
-	// Used as the background color for text entry widgets; usually white or another light color.
-	defaultPalette.setColor( QPalette::Base, QColor( 88, 94, 112 ) );
-
-	// Used as the alternate background color in views with alternating row colors
-	defaultPalette.setColor( QPalette::AlternateBase, QColor( 138, 144, 162 ) );
-
-	// The foreground color used with Base. This is usually the same as the Foreground, in which case it must provide good contrast with Background and Base.
-	defaultPalette.setColor( QPalette::Text, QColor( 255, 255, 255 ) );
-
-	// The general button background color. This background can be different from Background as some styles require a different background color for buttons.
-	defaultPalette.setColor( QPalette::Button, QColor( 88, 94, 112 ) );
-
-	// A foreground color used with the Button color.
-	defaultPalette.setColor( QPalette::ButtonText, QColor( 255, 255, 255 ) );
-
-
-	// Lighter than Button color.
-	defaultPalette.setColor( QPalette::Light, QColor( 138, 144, 162 ) );
-
-	// Between Button and Light.
-	defaultPalette.setColor( QPalette::Midlight, QColor( 128, 134, 152 ) );
-
-	// Darker than Button.
-	defaultPalette.setColor( QPalette::Dark, QColor( 58, 62, 72 ) );
-
-	// Between Button and Dark.
-	defaultPalette.setColor( QPalette::Mid, QColor( 81, 86, 99 ) );
-
-	// A very dark color. By default, the shadow color is Qt::black.
-	defaultPalette.setColor( QPalette::Shadow, QColor( 255, 255, 255 ) );
-
-
-	// A color to indicate a selected item or the current item.
-	defaultPalette.setColor( QPalette::Highlight, QColor( 116, 124, 149 ) );
-
-	// A text color that contrasts with Highlight.
-	defaultPalette.setColor( QPalette::HighlightedText, QColor( 255, 255, 255 ) );
+	defaultPalette.setColor( QPalette::Window, Skin::getWindowColor() );
+	defaultPalette.setColor( QPalette::WindowText, Skin::getWindowTextColor() );
+	defaultPalette.setColor( QPalette::Base, Skin::getBaseColor() );
+	defaultPalette.setColor( QPalette::AlternateBase, Skin::getAlternateBaseColor() );
+	defaultPalette.setColor( QPalette::Text, Skin::getTextColor() );
+	defaultPalette.setColor( QPalette::Button, Skin::getButtonColor() );
+	defaultPalette.setColor( QPalette::ButtonText, Skin::getButtonTextColor() );
+	defaultPalette.setColor( QPalette::Light, Skin::getLightColor() );
+	defaultPalette.setColor( QPalette::Midlight, Skin::getMidLightColor() );
+	defaultPalette.setColor( QPalette::Dark, Skin::getDarkColor() );
+	defaultPalette.setColor( QPalette::Mid, Skin::getMidColor() );
+	defaultPalette.setColor( QPalette::Shadow, Skin::getShadowTextColor() );
+	defaultPalette.setColor( QPalette::Highlight, Skin::getHighlightColor() );
+	defaultPalette.setColor( QPalette::HighlightedText, Skin::getHighlightedTextColor() );
 
 	pQApp->setPalette( defaultPalette );
-	pQApp->setStyleSheet(
-						 "QToolTip { \
-    padding: 1px; \
-    border: 1px solid rgb(199, 202, 204); \
-    background-color: rgb(227, 243, 252); \
-    color: rgb(64, 64, 66); \
-} \
-QPushButton { \
-    color: #0a0a0a; \
-    border: 1px solid #0a0a0a; \
-    border-radius: 2px; \
-    padding: 5px; \
-    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
-                                      stop: 0 #dae0f2, stop: 1 #9298aa); \
-} \
-QPushButton:hover { \
-background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
-                                      stop: 0 #e1e7fa, stop: 1 #9ba1b4); \
-} \
-QPushButton:checked { \
-background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
-                                      stop: 0 #a2cdff, stop: 1 #69a2e5); \
-} \
-QComboBox { \
-    color: #0a0a0a; \
-    background-color: #a4aabe; \
-} \
-QComboBox QAbstractItemView { \
-    background-color: #babfcf; \
-} \
-QLineEdit { \
-    color: #ffffff; \
-    background-color: #3a3e48; \
-} \
-QDoubleSpinBox, QSpinBox { \
-    color: #ffffff; \
-    background-color: #374f6c; \
-    selection-color: #0a0a0a; \
-    selection-background-color: #babfcf; \
-} \
-QDoubleSpinBox:selected, QSpinBox:selected { \
-    color: blue; \
-    background-color: #babfcf; \
-}"
-						 );
+	pQApp->setStyleSheet( Skin::getGlobalStyleSheet() );
 }
 
 // Handle a fatal signal, allowing the logger to complete any outstanding messages before re-raising the

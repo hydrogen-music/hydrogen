@@ -65,7 +65,7 @@ LayerPreview::LayerPreview( QWidget* pParent )
 	int h = 20 + m_nLayerHeight * InstrumentComponent::getMaxLayers();
 	resize( w, h );
 
-	m_speakerPixmap.load( Skin::getImagePath() + "/instrumentEditor/speaker.png" );
+	m_speakerPixmap.load( Skin::getSvgImagePath() + "/icons/speaker.svg" );
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
