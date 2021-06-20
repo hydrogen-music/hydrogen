@@ -4,92 +4,10 @@
 <typesystem package="h2core">
     <load-typesystem name="core_common.xml" generate="no" />
     <load-typesystem name="typesystem_core_common.xml" generate="no"/>
-    <!-- <custom-type name="str" />
-    <custom-type name="PyBytes" />
-    <custom-type name="PyByteArray" />
-    <custom-type name="PyCallable" />
-    <custom-type name="PyObject" />
-    <custom-type name="PySequence" />
-    <custom-type name="PyTypeObject" />
-    <custom-type name="PyUnicode" />
-    <add-function signature="qDebug(const char*)">
-        <inject-code file="../glue/qtcore.cpp" snippet="use-stream-for-format-security" />
-    </add-function>
-    <add-function signature="qCritical(const char*)">
-        <inject-code file="../glue/qtcore.cpp" snippet="use-stream-for-format-security" />
-    </add-function>
-    <add-function signature="qFatal(const char*)">
-        <inject-code file="../glue/qtcore.cpp" snippet="qfatal" />
-    </add-function>
-    <add-function signature="qWarning(const char*)">
-        <inject-code file="../glue/qtcore.cpp" snippet="use-stream-for-format-security" />
-    </add-function>
-    <rejection class="QMetaObject" function-name="activate" />
-    <rejection class="QMetaObject" function-name="metacall" />
-    <rejection class="QMetaObject" function-name="static_metacall" />
-    <rejection class="QMetaObject" function-name="addGuard" />
-    <rejection class="QMetaObject" function-name="changeGuard" />
-    <rejection class="QMetaObject" function-name="removeGuard" />
-
-    <rejection class="QAlgorithmsPrivate" />
-    <rejection class="QJsonPrivate" />
-    <rejection class="QTextStreamFunctions" />
-    <rejection class="QtGlobalStatic" />
-    <rejection class="QtMetaTypePrivate" />
-    <rejection class="QtPrivate" />
-    <rejection class="QtSharedPointer" />
-    <rejection class="QtStringBuilder" />
-    <rejection class="std" />
-
-    <primitive-type name="qint8" />
-    <primitive-type name="qint16" />
-    <primitive-type name="qint32" />
-    <primitive-type name="quint8" />
-    <primitive-type name="quint16" />
-    <primitive-type name="quint32" />
-    <primitive-type name="quint64" />
-    <primitive-type name="double" />
-    <primitive-type name="qreal" />
-    <primitive-type name="float" />
-    <primitive-type name="qint64" />
-    <primitive-type name="unsigned long long" />
-    <primitive-type name="long long" />
-    <primitive-type name="qlonglong" target-lang-api-name="PyLong" />
-    <primitive-type name="qulonglong" target-lang-api-name="PyLong" />
-    <primitive-type name="short" />
-    <primitive-type name="signed short" />
-    <primitive-type name="signed short int" />
-    <primitive-type name="ushort" target-lang-api-name="PyInt" />
-    <primitive-type name="unsigned short int" />
-    <primitive-type name="unsigned short" />
-    <primitive-type name="char" />
-    <primitive-type name="signed char" />
-    <primitive-type name="uchar" />
-    <primitive-type name="unsigned char" />
-    <primitive-type name="int" />
-    <primitive-type name="signed int" />
-    <primitive-type name="uint" />
-    <primitive-type name="ulong" />
-    <primitive-type name="unsigned int" />
-    <primitive-type name="signed long" />
-    <primitive-type name="signed long int" />
-    <primitive-type name="long" />
-    <primitive-type name="unsigned long int" />
-    <primitive-type name="unsigned long" />
-    <primitive-type name="bool" /> -->
+  
 
     <!-- <smart-pointer-type name="std::shared_ptr" type="shared" getter="get"/> -->
 
-    <!-- <primitive-type name="QString" target-lang-api-name="PyUnicode">
-        <include file-name="QString" location="global" />
-        <conversion-rule>
-            <native-to-target file="../glue/qtcore.cpp" snippet="return-pyunicode" />
-            <target-to-native>
-                <add-conversion type="PyUnicode" file="../glue/qtcore.cpp" snippet="conversion-pyunicode" />
-                <add-conversion type="Py_None" file="../glue/qtcore.cpp" snippet="conversion-pynone" />
-            </target-to-native>
-        </conversion-rule>
-    </primitive-type> -->
     <!-- <namespace-type name="std">
         <smart-pointer-type name="shared_ptr" type="shared" getter="get"
         instantiations="H2Core::ADSR "/>
@@ -166,7 +84,7 @@
         <!-- <object-type name="Logger"/> -->
         <object-type name="EnvelopePoint"></object-type>
         <object-type name="Sample">
-            <modify-function signature="Sample(QString, int, int, float*, float*)" remove="all" />
+            <!-- <modify-function signature="Sample(QString, int, int, float*, float*)" remove="all" /> -->
 
             <!-- <modify-function signature="Sample(QString, int, int, float*, float*)"> 
                     <modify-argument index="2">
@@ -189,6 +107,43 @@
                         %RETURN_TYPE sample = %CPPSELF.%FUNCTION_NAME(%in1, frames, %in3, left, right);
                     </inject-code>
             </modify-function> -->
+            <modify-function signature="get_data_l()const">
+                <modify-argument index="return">
+                    <conversion-rule class="target">
+                        // conversion-rule: class=target, get_data_l() -> float * -> PySequence
+                        // $0        : %0
+                        // $CPPSELF  : %CPPSELF
+                        // $CPPTYPE  : %CPPTYPE 
+                        // $PYARG_0  : %PYARG_0
+                        // $PYSELF   : %PYSELF
+                        // $RETURN_TYPE: %RETURN_TYPE
+                        %PYARG_0 = PyList_New(%CPPSELF->get_frames());
+                        for (int i = 0; i &lt; %CPPSELF->get_frames(); ++i) {
+                            PyObject *fl = PyFloat_FromDouble(%0[i]);
+                            PyList_SET_ITEM(%PYARG_0, i, fl);
+                        }
+                    </conversion-rule>
+                </modify-argument>
+            </modify-function>
+
+            <modify-function signature="get_data_r()const">
+                <modify-argument index="return">
+                    <conversion-rule class="target">
+                        // conversion-rule: class=target, get_data_r() -> float * -> PySequence
+                        // $0        : %0
+                        // $CPPSELF  : %CPPSELF
+                        // $CPPTYPE  : %CPPTYPE 
+                        // $PYARG_0  : %PYARG_0
+                        // $PYSELF   : %PYSELF
+                        // $RETURN_TYPE: %RETURN_TYPE
+                        %PYARG_0 = PyList_New(%CPPSELF->get_frames());
+                        for (int i = 0; i &lt; %CPPSELF->get_frames(); ++i) {
+                            PyObject *fl = PyFloat_FromDouble(%0[i]);
+                            PyList_SET_ITEM(%PYARG_0, i, fl);
+                        }
+                    </conversion-rule>
+                </modify-argument>
+            </modify-function>
 
             <value-type name="Loops">
                 <enum-type name="LoopMode" />
