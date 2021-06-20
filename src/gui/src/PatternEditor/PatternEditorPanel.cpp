@@ -136,7 +136,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	// connect( __pattern_size_LCD, SIGNAL( displayClicked( LCDDisplay* ) ), this, SLOT( patternSizeLCDClicked() ) );
 	
-	m_pDenominatorWarning = new Button( pSizeResol, QSize( 15, 13 ), Button::Type::Push, "warning.svg", "", false, QSize(), tr( "Unsupported note denominator. Click for more information." ) );
+	m_pDenominatorWarning = new Button( pSizeResol, QSize( 15, 13 ), Button::Type::Push, "warning.svg", "", false, QSize(), tr( "Unsupported note denominator. Click for more information." ), true );
 	m_pDenominatorWarning->move( 114, 2 );
 	m_pDenominatorWarning->hide();
 	connect( m_pDenominatorWarning, SIGNAL( pressed() ), this, SLOT( denominatorWarningClicked() ) );

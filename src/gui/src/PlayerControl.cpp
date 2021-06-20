@@ -101,7 +101,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pRwdBtn->setAction( pAction );
 
 	// Record button
-	m_pRecBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Toggle, "record.svg", "", false, QSize( 11, 11 ), tr("Record") );
+	m_pRecBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Toggle, "record.svg", "", false, QSize( 11, 11 ), tr("Record"), true );
 	m_pRecBtn->move( 193, 15 );
 	m_pRecBtn->setChecked(false);
 	m_pRecBtn->setHidden(false);
@@ -606,7 +606,9 @@ void PlayerControl::playBtnClicked() {
 void PlayerControl::stopBtnClicked()
 {
 	auto pHydrogen = Hydrogen::get_instance();
-	m_pPlayBtn->setChecked(false);
+	if ( ! m_pPlayBtn->isDown() ) {
+		m_pPlayBtn->setChecked(false);
+	}
 	pHydrogen->sequencer_stop();
 	pHydrogen->getCoreActionController()->relocate( 0 );
 	(HydrogenApp::get_instance())->setStatusBarMessage(tr("Stopped."), 5000);
@@ -797,7 +799,9 @@ void PlayerControl::jackTransportBtnClicked()
 		pPref->m_bJackTransportMode = Preferences::NO_JACK_TRANSPORT;
 		m_pHydrogen->getAudioEngine()->unlock();
 		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-transport mode = Off"), 5000);
-		m_pJackMasterBtn->setChecked( false );
+		if ( ! m_pJackMasterBtn->isDown() ) {
+			m_pJackMasterBtn->setChecked( false );
+		}
 		m_pJackMasterBtn->setDisabled( true );
 	}
 }
@@ -866,11 +870,15 @@ void PlayerControl::songLoopBtnClicked()
 void PlayerControl::loopModeActivationEvent( int nValue ) {
 
 	if ( nValue == 0 ) {
-		m_pSongLoopBtn->setChecked( false );
+		if ( ! m_pSongLoopBtn->isDown() ) {
+			m_pSongLoopBtn->setChecked( false );
+		}
 		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop song = Off"), 5000);
 	}
 	else {
-		m_pSongLoopBtn->setChecked( true );
+		if ( ! m_pSongLoopBtn->isDown() ) {
+			m_pSongLoopBtn->setChecked( true );
+		}
 		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop song = On"), 5000);
 	}
 }
@@ -970,7 +978,9 @@ void PlayerControl::jackTransportActivationEvent( int nValue ) {
 
 	if ( nValue == 0 && m_pJackTransportBtn->isChecked() ){
 		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK transport mode = Off"), 5000);
-		m_pJackMasterBtn->setChecked( false );
+		if ( ! m_pJackMasterBtn->isDown() ) {
+			m_pJackMasterBtn->setChecked( false );
+		}
 		m_pJackMasterBtn->setDisabled( true );
 	} else if ( nValue != 0 && !m_pJackTransportBtn->isChecked() ) {
 		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK transport mode = On"), 5000);
@@ -981,11 +991,15 @@ void PlayerControl::jackTransportActivationEvent( int nValue ) {
 void PlayerControl::jackTimebaseActivationEvent( int nValue ) {
 	if ( nValue == 0 && m_pJackMasterBtn->isChecked() ){
 		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK Timebase master mode = Off"), 5000);
-		m_pJackMasterBtn->setChecked( false );
+		if ( ! m_pJackMasterBtn->isDown() ) {
+			m_pJackMasterBtn->setChecked( false );
+		}
 		
 	} else if ( nValue != 0 && !m_pJackMasterBtn->isChecked() ) {
 		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK Timebase master mode = On"), 5000);
-		m_pJackMasterBtn->setChecked( true );
+		if ( ! m_pJackMasterBtn->isDown() ) {
+			m_pJackMasterBtn->setChecked( true );
+		}
 	}
 	
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateTimelineUsage();

@@ -55,6 +55,11 @@ public:
 	 * be provided. If both are given, the icon will be used over the
 	 * text. If the text should be used instead, @a sIcon must the
 	 * an empty string.
+	 *
+	 * \param bColorful If set to false, the icon @a sIcon is expected
+	 * to exist in both subfolders "black" and "white" in the "icons"
+	 * folder. If the button is not checked, the black version is used
+	 * and if checked, the white one is used instead.
 	 */
 	Button(
 		   QWidget *pParent,
@@ -64,7 +69,8 @@ public:
 		   const QString& sText = "",
 		   bool bUseRedBackground = false,
 		   QSize iconSize = QSize( 0, 0 ),
-		   QString sBaseTooltip = ""
+		   QString sBaseTooltip = "",
+		   bool bColorful = false
 		   );
 	virtual ~Button();
 	
@@ -91,9 +97,12 @@ private:
 	QSize m_iconSize;
 	QString m_sBaseTooltip;
 	QString m_sRegisteredMidiEvent;
+	QString m_sIcon;
 	int m_nRegisteredMidiParameter;
 
 	bool m_bEntered;
+	bool m_bColorful;
+	bool m_bLastCheckedState;
 
 	void mousePressEvent(QMouseEvent *ev);
 	void enterEvent(QEvent *ev);

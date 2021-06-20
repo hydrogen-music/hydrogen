@@ -84,7 +84,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pSoloBtn->setObjectName( "SoloButton" );
 	connect(m_pSoloBtn, SIGNAL( pressed() ), this, SLOT(soloClicked()));
 
-	m_pSampleWarning = new Button( this, QSize( 15, 13 ), Button::Type::Push, "warning.svg", "", false, QSize(), tr( "Some samples for this instrument failed to load." ) );
+	m_pSampleWarning = new Button( this, QSize( 15, 13 ), Button::Type::Push, "warning.svg", "", false, QSize(), tr( "Some samples for this instrument failed to load." ), true );
 	m_pSampleWarning->move( 128, 5 );
 	m_pSampleWarning->hide();
 	connect(m_pSampleWarning, SIGNAL( pressed() ), this, SLOT( sampleWarningClicked() ));

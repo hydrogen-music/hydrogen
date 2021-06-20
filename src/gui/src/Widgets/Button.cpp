@@ -35,7 +35,7 @@
 
 const char* Button::__class_name = "Button";
 
-Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize, QString sBaseTooltip )
+Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize, QString sBaseTooltip, bool bColorful )
 	: QPushButton( pParent )
 	, Object( __class_name )
 	, m_size( size )
@@ -44,6 +44,9 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	, m_sBaseTooltip( sBaseTooltip )
 	, m_sRegisteredMidiEvent( "" )
 	, m_nRegisteredMidiParameter( 0 )
+	, m_bColorful( bColorful )
+	, m_bLastCheckedState( false )
+	, m_sIcon( sIcon )
 {
 	m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
 	m_sLastUsedFontFamily = H2Core::Preferences::get_instance()->getLevel3FontFamily();
@@ -56,7 +59,12 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	resize( size );
 
 	if ( ! sIcon.isEmpty() ) {
-		setIcon( QIcon( Skin::getSvgImagePath() + "/icons/" + sIcon ) );
+		if ( bColorful ) {
+			setIcon( QIcon( Skin::getSvgImagePath() + "/icons/" + sIcon ) );
+		} else {
+			// Unchecked version
+			setIcon( QIcon( Skin::getSvgImagePath() + "/icons/black/" + sIcon ) );
+		}
 		setIconSize( iconSize );
 	} else {
 		setText( sText );
@@ -94,6 +102,9 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 } \
 QPushButton:checked { \
     color: %2; \
+    border: 1px solid #0a0a0a; \
+    border-radius: %1px; \
+    padding: 0px; \
     background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
                                       stop: 0 %3, stop: 1 %4); \
 }"
@@ -222,6 +233,16 @@ void Button::paintEvent( QPaintEvent* ev )
 	QPushButton::paintEvent( ev );
 
 	updateFont();
+
+	if ( ! m_sIcon.isEmpty() && !m_bColorful && isChecked() != m_bLastCheckedState ) {
+		if ( isChecked() ) {
+			setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/" + m_sIcon ) );
+		} else {
+			setIcon( QIcon( Skin::getSvgImagePath() + "/icons/black/" + m_sIcon ) );
+		}
+
+		m_bLastCheckedState = isChecked();
+	}
 	
 	QPainter painter( this );
 	if ( m_bEntered || hasFocus() ) {
