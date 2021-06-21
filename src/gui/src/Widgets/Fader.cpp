@@ -185,6 +185,26 @@ void Fader::paintEvent( QPaintEvent *ev)
 	if ( ! hasFocus() ) {
 		colorHighlightActive.setAlpha( 150 );
 	}
+	
+	if ( m_bEntered || hasFocus() ) {
+		if ( m_type == Type::Master ) {
+			painter.fillRect( 0, 0, 19, 2, colorHighlightActive );
+			painter.fillRect( m_nWidgetWidth / 2 - 10, 2, 3, m_nWidgetHeight - 2, colorHighlightActive );
+			painter.fillRect( m_nWidgetWidth / 2 + 8, 2, 2, m_nWidgetHeight - 4, colorHighlightActive );
+			painter.fillRect( m_nWidgetWidth / 2 + 13, 2, 2, m_nWidgetHeight - 4, colorHighlightActive );
+			painter.fillRect( 0, m_nWidgetHeight - 2, 19, 2, colorHighlightActive );
+			painter.fillRect( m_nWidgetWidth / 2 + 7, 0, 9, 2, colorHighlightActive );
+			painter.fillRect( m_nWidgetWidth / 2 + 7, m_nWidgetHeight - 2, 9, 2, colorHighlightActive );
+		} else if ( m_type == Type::Vertical ) {
+			painter.fillRect( 0, 0, 2, m_nWidgetHeight, colorHighlightActive );
+			painter.fillRect( 2, m_nWidgetHeight / 2 - 3, m_nWidgetWidth - 4, 7, colorHighlightActive );
+			painter.fillRect( m_nWidgetWidth - 2, 0, 2, m_nWidgetHeight, colorHighlightActive );
+		} else {
+			painter.fillRect( 0, 0, m_nWidgetWidth, 2, colorHighlightActive );
+			painter.fillRect( m_nWidgetWidth / 2 - 4, 2, 9, m_nWidgetHeight - 4, colorHighlightActive );
+			painter.fillRect( 0, m_nWidgetHeight - 2, m_nWidgetWidth, 2, colorHighlightActive );
+		}
+	}
 
 	if ( m_bIsActive ) {
 		float fFaderTopLeftX_L, fFaderTopLeftY_L, fFaderTopLeftX_R,
@@ -245,10 +265,6 @@ void Fader::paintEvent( QPaintEvent *ev)
 			painter.fillRect( QRectF( fFaderTopLeftX_L, fFaderTopLeftY_L + fFaderHeight - fPeak_L, fFaderWidth, fPeak_L ), QBrush( gradient ) );
 			painter.fillRect( QRectF( fFaderTopLeftX_R, fFaderTopLeftY_R + fFaderHeight - fPeak_R, fFaderWidth, fPeak_R ), QBrush( gradient ) );
 		}
-	}
-	
-	if ( m_bEntered || hasFocus() ) {
-		painter.fillRect( 0, m_nWidgetHeight - 2, m_nWidgetWidth, 2, colorHighlightActive );
 	}
 	
 	// Draws the outline of the fader on top of the colors indicating

@@ -89,61 +89,14 @@ public:
 	}
 	/** A color to indicate a selected item or the current item.*/
 	static QColor getHighlightColor() {
-		return QColor( 116, 124, 149 );
+		return QColor( 206, 150, 30 );
 	}
 	/** A text color that contrasts with Highlight. */
 	static QColor getHighlightedTextColor() {
 		return QColor( 255, 255, 255 );
 	}
 
-	static QString getGlobalStyleSheet() {
-		return QString( "\
-QToolTip { \
-    padding: 1px; \
-    border: 1px solid rgb(199, 202, 204); \
-    background-color: rgb(227, 243, 252); \
-    color: rgb(64, 64, 66); \
-} \
-QPushButton { \
-    color: #0a0a0a; \
-    border: 1px solid #0a0a0a; \
-    border-radius: 2px; \
-    padding: 5px; \
-    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
-                                      stop: 0 #dae0f2, stop: 1 #9298aa); \
-} \
-QPushButton:hover { \
-background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
-                                      stop: 0 #e1e7fa, stop: 1 #9ba1b4); \
-} \
-QPushButton:checked { \
-background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
-                                      stop: 0 #a2cdff, stop: 1 #69a2e5); \
-} \
-QComboBox { \
-    color: #0a0a0a; \
-    background-color: #a4aabe; \
-} \
-QComboBox QAbstractItemView { \
-    background-color: #babfcf; \
-} \
-QLineEdit { \
-    color: #ffffff; \
-    background-color: #3a3e48; \
-} \
-QDoubleSpinBox, QSpinBox { \
-    color: #ffffff; \
-    background-color: #374f6c; \
-    selection-color: #0a0a0a; \
-    selection-background-color: #babfcf; \
-} \
-QDoubleSpinBox:selected, QSpinBox:selected { \
-    color: blue; \
-    background-color: #babfcf; \
-}"
-						);
-	}
-
+	static QString getGlobalStyleSheet();
 };
 
 

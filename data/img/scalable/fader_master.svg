@@ -70,7 +70,7 @@
        y1="15.345834"
        x2="4.2333331"
        y2="15.345834"
-       gradientTransform="matrix(1,0,0,1.6403508,4.4979168,-0.33885219)" />
+       gradientTransform="matrix(1,0,0,1.6875001,4.4979168,-0.89296863)" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -80,15 +80,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.6568543"
-     inkscape:cx="-35.500682"
-     inkscape:cy="39.983742"
+     inkscape:cx="-33.285349"
+     inkscape:cy="153.38675"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer5"
+     inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
      showgrid="true"
      units="px"
      inkscape:snap-global="true"
-     inkscape:window-width="1392"
+     inkscape:window-width="1916"
      inkscape:window-height="1041"
      inkscape:window-x="0"
      inkscape:window-y="18"
@@ -111,7 +111,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
         <cc:license
            rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/" />
       </cc:Work>
@@ -130,7 +130,8 @@
      inkscape:groupmode="layer"
      id="layer5"
      inkscape:label="Grid"
-     style="display:inline">
+     style="display:inline"
+     sodipodi:insensitive="true">
     <rect
        style="fill:#101113;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
        id="rect16828"
@@ -766,8 +767,7 @@
      inkscape:label="Outline"
      inkscape:groupmode="layer"
      id="layer1"
-     style="display:inline"
-     sodipodi:insensitive="true">
+     style="display:inline">
     <rect
        style="fill:#62615e;fill-opacity:0;stroke:url(#linearGradient6466);stroke-width:0.485408;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;paint-order:normal"
        id="rect6384"
@@ -785,12 +785,12 @@
        y="0.26458332"
        ry="0.43400952" />
     <rect
-       style="display:inline;fill:url(#linearGradient9282);fill-opacity:1;stroke:none;stroke-width:0.101661;stroke-linecap:square"
+       style="display:inline;fill:url(#linearGradient9282);fill-opacity:1;stroke:none;stroke-width:0.103112;stroke-linecap:square"
        id="rect6442-8"
        width="0.79374999"
-       height="48.609062"
+       height="50.006252"
        x="7.1437502"
-       y="0.52916664"
-       ry="0.65101421" />
+       y="8.1046281e-15"
+       ry="0.66972655" />
   </g>
 </svg>

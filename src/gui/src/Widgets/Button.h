@@ -100,13 +100,10 @@ private:
 	QString m_sIcon;
 	int m_nRegisteredMidiParameter;
 
-	bool m_bEntered;
 	bool m_bColorful;
 	bool m_bLastCheckedState;
 
 	void mousePressEvent(QMouseEvent *ev);
-	void enterEvent(QEvent *ev);
-	void leaveEvent(QEvent *ev);
 	void paintEvent( QPaintEvent* ev);
 	
 	/** Used to detect changed in the font*/

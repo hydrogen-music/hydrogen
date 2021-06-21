@@ -73,14 +73,14 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pInstrumentPropTop = new PixmapWidget( this );
 	m_pInstrumentPropTop->setPixmap( "/instrumentEditor/instrumentTab_top.png" );
 
-	m_pShowInstrumentBtn = new Button( m_pInstrumentPropTop, QSize( 140, 20 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getGeneralButton(), false, QSize(), tr( "Show instrument properties" ) );
+	m_pShowInstrumentBtn = new Button( m_pInstrumentPropTop, QSize( 141, 22 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getGeneralButton(), false, QSize(), tr( "Show instrument properties" ) );
 	connect( m_pShowInstrumentBtn, SIGNAL( pressed() ), this, SLOT( showInstrument() ) );
-	m_pShowInstrumentBtn->move( 5, 5 );
+	m_pShowInstrumentBtn->move( 4, 4 );
 	m_pShowInstrumentBtn->setChecked( true );
 
-	m_pShowLayersBtn = new Button( m_pInstrumentPropTop, QSize( 139, 20 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getLayersButton(), false, QSize(), tr( "Show layers properties" ) );
+	m_pShowLayersBtn = new Button( m_pInstrumentPropTop, QSize( 140, 22 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getLayersButton(), false, QSize(), tr( "Show layers properties" ) );
 	connect( m_pShowLayersBtn, SIGNAL( pressed() ), this, SLOT( showLayers() ) );
-	m_pShowLayersBtn->move( 145, 5 );
+	m_pShowLayersBtn->move( 145, 4 );
 
 
 	// Instrument properties
@@ -208,20 +208,20 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pMuteGroupLbl->move( 159, 125 );
 
 	m_pIsStopNoteCheckBox = new QCheckBox ( tr( "" ), m_pInstrumentProp );
-	m_pIsStopNoteCheckBox->move( 53, 138 );
+	m_pIsStopNoteCheckBox->move( 42, 139 );
 	m_pIsStopNoteCheckBox->setToolTip( tr( "Stop the current playing instrument-note before trigger the next note sample" ) );
 	m_pIsStopNoteCheckBox->setFocusPolicy ( Qt::NoFocus );
 	connect( m_pIsStopNoteCheckBox, SIGNAL( toggled( bool ) ), this, SLOT( onIsStopNoteCheckBoxClicked( bool ) ) );
-	m_pIsStopNoteLbl = new ClickableLabel( m_pInstrumentProp, QSize( 79, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getIsStopNoteLabel() );
-	m_pIsStopNoteLbl->move( 68, 140 );
+	m_pIsStopNoteLbl = new ClickableLabel( m_pInstrumentProp, QSize( 87, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getIsStopNoteLabel() );
+	m_pIsStopNoteLbl->move( 59, 144 );
 
 	m_pApplyVelocity = new QCheckBox ( tr( "" ), m_pInstrumentProp );
-	m_pApplyVelocity->move( 153, 138 );
+	m_pApplyVelocity->move( 153, 139 );
 	m_pApplyVelocity->setToolTip( tr( "Don't change the layers' gain based on velocity" ) );
 	m_pApplyVelocity->setFocusPolicy( Qt::NoFocus );
 	connect( m_pApplyVelocity, SIGNAL( toggled( bool ) ), this, SLOT( onIsApplyVelocityCheckBoxClicked( bool ) ) );
-	m_pApplyVelocityLbl = new ClickableLabel( m_pInstrumentProp, QSize( 75, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getApplyVelocityLabel() );
-	m_pApplyVelocityLbl->move( 168, 140 );
+	m_pApplyVelocityLbl = new ClickableLabel( m_pInstrumentProp, QSize( 87, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getApplyVelocityLabel() );
+	m_pApplyVelocityLbl->move( 170, 144 );
 
 	//////////////////////////
 	// HiHat setup

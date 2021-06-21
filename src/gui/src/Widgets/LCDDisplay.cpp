@@ -32,7 +32,6 @@ LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont )
  : QLineEdit( pParent )
  , Object( __class_name )
  , m_size( size )
- , m_bEntered( false )
  , m_bFixedFont( bFixedFont )
 {
 	setReadOnly( true );
@@ -83,25 +82,4 @@ void LCDDisplay::paintEvent( QPaintEvent *ev ) {
 
 	QLineEdit::paintEvent( ev );
 	updateFont();
-
-	if ( m_bEntered ) {
-		QPainter painter(this);
-	
-		QColor colorHighlightActive = Skin::getHighlightColor();
-		colorHighlightActive.setAlpha( 150 );
-	
-		painter.fillRect( 0, m_size.height() - 2, m_size.width(), 2, colorHighlightActive );
-	}
-}
-
-void LCDDisplay::enterEvent( QEvent* ev ) {
-	QLineEdit::enterEvent( ev );
-	m_bEntered = true;
-	update();
-}
-
-void LCDDisplay::leaveEvent( QEvent* ev ) {
-	QLineEdit::leaveEvent( ev );
-	m_bEntered = false;
-	update();
 }

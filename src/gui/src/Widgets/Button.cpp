@@ -39,7 +39,6 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	: QPushButton( pParent )
 	, Object( __class_name )
 	, m_size( size )
-	, m_bEntered( false )
 	, m_iconSize( iconSize )
 	, m_sBaseTooltip( sBaseTooltip )
 	, m_sRegisteredMidiEvent( "" )
@@ -72,14 +71,19 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 
 	updateFont();
 
-	QString sBackground0, sBackground1, sColorChecked;
+	QString sBackgroundCheckedLight, sBackgroundCheckedDark,
+		sBackgroundCheckedHoverLight, sBackgroundCheckedHoverDark, sColorChecked;
 	if ( bUseRedBackground ) {
-		sBackground0 = "#ffb1b1";
-		sBackground1 = "#ff6767";
+		sBackgroundCheckedLight = "#ffb1b1";
+		sBackgroundCheckedDark = "#ff6767";
+		sBackgroundCheckedHoverLight = "#ffc0c0";
+		sBackgroundCheckedHoverDark = "#ff7676";
 		sColorChecked = "#0a0a0a";
 	} else {
-		sBackground0 = "#6796ce";
-		sBackground1 = "#374f6c";
+		sBackgroundCheckedLight = "#5276a2";
+		sBackgroundCheckedDark = "#3b5574";
+		sBackgroundCheckedHoverLight = "#5a81b1";
+		sBackgroundCheckedHoverDark = "#436083";
 		sColorChecked = "#ffffff";
 	}
 
@@ -100,6 +104,10 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
     background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
                                       stop: 0 #dae0f2, stop: 1 #9298aa); \
 } \
+QPushButton:hover { \
+    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
+                                      stop: 0 #e8eeff, stop: 1 #9fa6b9); \
+} \
 QPushButton:checked { \
     color: %2; \
     border: 1px solid #0a0a0a; \
@@ -107,8 +115,14 @@ QPushButton:checked { \
     padding: 0px; \
     background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
                                       stop: 0 %3, stop: 1 %4); \
+} \
+QPushButton:checked:hover { \
+    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
+                                      stop: 0 %5, stop: 1 %6); \
 }"
-							).arg( sRadius ).arg( sColorChecked ).arg( sBackground0 ).arg( sBackground1 ) );
+							).arg( sRadius ).arg( sColorChecked )
+				   .arg( sBackgroundCheckedLight ).arg( sBackgroundCheckedDark )
+				   .arg( sBackgroundCheckedHoverLight ).arg( sBackgroundCheckedHoverDark ) );
 	
 	if ( type == Type::Toggle ) {
 		setCheckable( true );
@@ -156,18 +170,6 @@ void Button::mousePressEvent(QMouseEvent*ev) {
 	}
 
 	QPushButton::mousePressEvent( ev );
-}
-
-void Button::enterEvent( QEvent *ev )
-{
-	QPushButton::enterEvent( ev );
-	m_bEntered = true;
-}
-
-void Button::leaveEvent( QEvent *ev )
-{
-	QPushButton::leaveEvent( ev );
-	m_bEntered = false;
 }
 
 void Button::updateTooltip() {
@@ -242,22 +244,6 @@ void Button::paintEvent( QPaintEvent* ev )
 		}
 
 		m_bLastCheckedState = isChecked();
-	}
-	
-	QPainter painter( this );
-	if ( m_bEntered || hasFocus() ) {
-		QPainter painter(this);
-	
-		QColor colorHighlightActive = Skin::getHighlightColor();
-
-		// If the mouse is placed on the widget but the user hasn't
-		// clicked it yet, the highlight will be done more transparent to
-		// indicate that keyboard inputs are not accepted yet.
-		if ( ! hasFocus() ) {
-			colorHighlightActive.setAlpha( 150 );
-		}
-	
-		painter.fillRect( 0, m_size.height() - 2, m_size.width(), 2, colorHighlightActive );
 	}
 }
 

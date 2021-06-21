@@ -151,7 +151,7 @@
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:zoom="22.627417"
-     inkscape:cx="3.7641465"
+     inkscape:cx="-7.0192319"
      inkscape:cy="13.184273"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
@@ -213,7 +213,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
         <cc:license
            rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/" />
       </cc:Work>
@@ -233,7 +233,7 @@
      inkscape:groupmode="layer"
      id="layer1">
     <path
-       style="fill:#ffffff;stroke:#fbfbfb;stroke-width:0.926042;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;paint-order:fill markers stroke;stroke-opacity:1;fill-opacity:0"
+       style="fill:#ffffff;stroke:#fbfbfb;stroke-width:0.8;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;paint-order:fill markers stroke;stroke-opacity:1;fill-opacity:0"
        id="path10953-3"
        sodipodi:type="arc"
        sodipodi:cx="-3.96875"
@@ -265,7 +265,7 @@
        inkscape:transform-center-y="0.023384608"
        transform="matrix(1.2233435,0,-0.01982899,1.6375018,-0.98871873,-0.91740058)" />
     <path
-       style="fill:#ffffff;stroke:#ffffff;stroke-width:0.926042;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;paint-order:fill markers stroke;stroke-opacity:1;fill-opacity:0"
+       style="fill:#ffffff;stroke:#ffffff;stroke-width:0.8;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;paint-order:fill markers stroke;stroke-opacity:1;fill-opacity:0"
        id="path10953-3-5"
        sodipodi:type="arc"
        sodipodi:cx="1.8631666"

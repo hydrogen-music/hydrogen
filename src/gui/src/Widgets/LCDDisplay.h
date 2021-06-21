@@ -56,7 +56,6 @@ private:
 	void updateFont();
 	QSize m_size;
 
-	bool m_bEntered;
 	bool m_bFixedFont;
 
 	/** Used to detect changed in the font*/
@@ -65,8 +64,6 @@ private:
 	H2Core::Preferences::FontSize m_lastUsedFontSize;
 	
 	virtual void paintEvent( QPaintEvent *ev );
-	virtual void enterEvent( QEvent *ev );
-	virtual void leaveEvent( QEvent *ev );
 };
 
 #endif
