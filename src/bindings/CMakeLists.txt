@@ -83,6 +83,7 @@ message(STATUS "QtIncl ${QT_INCLUDES}")
 
 # Set up the options to pass to shiboken.
 set(shiboken_options 
+    --language-level=c++17
     --generator-set=shiboken
     --enable-parent-ctor-heuristic
     # --enable-return-value-heuristic
@@ -252,12 +253,12 @@ ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/eventlistener_wrapper.c
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/filesysteminfoform_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/hydrogenapp_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/infobar_wrapper.cpp
-# ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/instrumenteditorpanel_wrapper.cpp
-# ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/instrumenteditor_wrapper.cpp
+${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/instrumenteditorpanel_wrapper.cpp
+${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/instrumenteditor_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/instrumentrack_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/ladspafxproperties_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/ladspafxselector_wrapper.cpp
-# ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/layerpreview_wrapper.cpp
+${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/layerpreview_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/lcdcombo_wrapper.cpp
 # ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/mainform_wrapper.cpp
 ${CMAKE_BINARY_DIR}/src/bindings/${gui_bindings_library}/mainsamplewavedisplay_wrapper.cpp
@@ -312,6 +313,7 @@ set_property(SOURCE
 
 # ================================== Shiboken detection ======================================
 set(shiboken_options 
+    --language-level=c++17
     --generator-set=shiboken
     --enable-parent-ctor-heuristic
     # --enable-return-value-heuristic

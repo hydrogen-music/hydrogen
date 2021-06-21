@@ -14,7 +14,7 @@
     </namespace-type> -->
     <!-- <custom-type name="std::shared_ptr" /> -->
     <custom-type name="std::unique_ptr" />
-
+<!--
     <container-type name="std::list" type="list">
         <include file-name="list" location="global" />
         <conversion-rule>
@@ -64,7 +64,13 @@
                 </add-conversion>
             </target-to-native>
         </conversion-rule>
-    </container-type>
+    </container-type> -->
+
+    <namespace-type name="std" generate="no">
+        <smart-pointer-type name="shared_ptr" type="shared" getter="get"/>
+        <!-- <custom-type name="shared_ptr"/> -->
+        <!-- <primitive-type name="shared_ptr"/> -->
+    </namespace-type>
 
     <rejection class="H2Core::Hydrogen" field-name="m_nInstrumentLookupTable"/>
     <rejection class="H2Core::Preferences" function-name="getDataDirectory"/>
@@ -154,7 +160,7 @@
         <object-type name="Instrument">
             <enum-type name="SampleSelectionAlgo"/>
         </object-type>
-
+        <smart-pointer-type name="::std::shared_ptr&lt;Instrument>" type="shared" getter="get"/>
         <object-type name="InstrumentComponent">
         </object-type>
 

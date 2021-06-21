@@ -10,6 +10,11 @@
 
     <load-typesystem name="core_bindings.xml" generate="no"/>
 
+    <!-- <smart-pointer-type name="std::shared_ptr" type="shared" getter="get" instantiations="H2Core::Instrument"/> -->
+    <namespace-type name="std" generate="no">
+        <primitive-type name="shared_ptr"/>
+    </namespace-type>
+
 <!-- <namespace-type name="h2gui" package="h2gui"> -->
 
 <!-- <object-type name="AboutDialogContributorList"/>
@@ -41,10 +46,14 @@
 
 <object-type name="AudioFileBrowser"/>
 <object-type name="SampleWaveDisplay"/>
+-->
 <object-type name="InstrumentEditor"/>
 <object-type name="InstrumentEditorPanel"/>
 <object-type name="LayerPreview"/>
-<object-type name="WaveDisplay"/>
+<!-- <object-type name="WaveDisplay">
+    <modify-field name="m_pPeakData" remove="target"/>
+</object-type> -->
+<!--
 <object-type name="Mixer"/>
 <object-type name="MixerLine"/>
 <object-type name="MixerSettingsDialog"/>
@@ -64,9 +73,6 @@
     <enum-type name="Slider"/>
     <enum-type name="EnvelopeType"/>
 </object-type>
-<!-- <namespace-type name="Ui" package="h2gui">
-    <object-type name="SampleEditor_UI"/>
-</namespace-type> -->
 <object-type name="Ui_SampleEditor_UI"/>
 <object-type name="TargetWaveDisplay">
 </object-type>
