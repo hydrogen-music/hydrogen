@@ -76,43 +76,9 @@
     <rejection class="H2Core::Preferences" function-name="getDataDirectory"/>
     <namespace-type name="H2Core" package="h2core">
         <object-type name="Object"></object-type>
-        <!-- <object-type name="Object"> -->
-        <!-- <modify-function signature="Object(const char*)">
-            	<modify-argument index="1">
-	    	        <replace-type modified-type="PyBytes" />
-	    	        <conversion-rule class="native">
-	    		        const char* %out = reinterpret_cast&lt;const char*>(PyBytes_AS_STRING(%PYARG_1));
-	    	        </conversion-rule>
-	            </modify-argument>
-            </modify-function> -->
-        <!-- </object-type>  -->
-
-        <!-- <object-type name="Logger"/> -->
         <object-type name="EnvelopePoint"></object-type>
         <object-type name="Sample">
-            <!-- <modify-function signature="Sample(QString, int, int, float*, float*)" remove="all" /> -->
 
-            <!-- <modify-function signature="Sample(QString, int, int, float*, float*)"> 
-                    <modify-argument index="2">
-                        <replace-type modified-type="PySequence"/>
-                    </modify-argument>
-                    <modify-argument index="4">
-                        <remove-argument/>
-                    </modify-argument>
-                    <modify-argument index="5">
-                        <remove-argument/>
-                    </modify-argument>
-                    <inject-code class="target" position="beginning">
-                        int frames = 0;
-                        float *left = nullptr;
-                        float *right = nullptr;
-                        if ( ! (PySequence_FAST_SIZE(%PYARG_1) == 2) ) {
-                            PyErr_SetString(PyExc_TypeError, "error excepted sequence of size two");
-                            return 0;
-                        }
-                        %RETURN_TYPE sample = %CPPSELF.%FUNCTION_NAME(%in1, frames, %in3, left, right);
-                    </inject-code>
-            </modify-function> -->
             <modify-function signature="get_data_l()const">
                 <modify-argument index="return">
                     <conversion-rule class="target">

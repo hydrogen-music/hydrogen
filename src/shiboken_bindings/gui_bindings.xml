@@ -8,7 +8,7 @@
     <load-typesystem name="typesystem_widgets.xml" generate="no"/>
     <load-typesystem name="typesystem_widgets_common.xml" generate="no"/>
 
-    <load-typesystem name="core_bindings.xml" generate="no"/>
+    <!-- <load-typesystem name="core_bindings.xml" generate="no"/> -->
 
     <!-- <smart-pointer-type name="std::shared_ptr" type="shared" getter="get" instantiations="H2Core::Instrument"/> -->
     <namespace-type name="std" generate="no">
