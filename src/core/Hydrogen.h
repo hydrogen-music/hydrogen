@@ -82,7 +82,15 @@ public:
 	/**
 	 * Returns the current Hydrogen instance #__instance.
 	 */
-	static Hydrogen*	get_instance(){ assert(__instance); return __instance; };
+	static Hydrogen*	get_instance( bool nullok = false, bool create = false ) {
+		if ( create && ! __instance ) {
+			create_instance();
+		}
+		if ( ! __instance && ! nullok ) {
+			assert(__instance);
+		}
+		return __instance;
+	};
 
 	/*
 	 * return central instance of the audio engine

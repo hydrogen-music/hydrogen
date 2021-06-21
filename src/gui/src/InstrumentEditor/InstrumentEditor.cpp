@@ -559,6 +559,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Instrument> pInstrument = nullptr;
 	
 	if ( pSong != nullptr ) {
 		InstrumentList *pInstrList = pSong->getInstrumentList();
@@ -568,18 +569,25 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		}
 
 		if ( nInstr == -1 ) {
-			m_pInstrument = nullptr;
+			pInstrument = nullptr;
 		}
 		else {
-			m_pInstrument = pInstrList->get( nInstr );
+			pInstrument = pInstrList->get( nInstr );
 			//INFOLOG( "new instr: " + m_pInstrument->m_sName );
 		}
 	}
 	else {
-		m_pInstrument = nullptr;
+		pInstrument = nullptr;
 	}
 	pHydrogen->getAudioEngine()->unlock();
+	if ( pInstrument && pSong ) {
+		setInstrument( pInstrument, pSong );
+	}
+}
 
+void InstrumentEditor::setInstrument( std::shared_ptr<Instrument> pInstrument, const Song * pSong )
+{
+	m_pInstrument = pInstrument;
 	// update layer list
 	if ( m_pInstrument ) {
 		m_pNameLbl->setText( m_pInstrument->get_name() );

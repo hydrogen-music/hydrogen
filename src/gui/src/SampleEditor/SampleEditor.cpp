@@ -76,6 +76,9 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	m_pPositionsRulerPath = nullptr;
 	m_bPlayButton = false;
 	m_fRatio = 1.0f;
+	Hydrogen *hydrogen = Hydrogen::get_instance( true );
+	m_fBPM = hydrogen ? hydrogen->getNewBpmJTM() : 120;
+	m_nSampleRate = hydrogen ? hydrogen->getAudioOutput()->getSampleRate() : 44000;
 	__rubberband.c_settings = 4;
 
 	QString newfilename = sSampleFilename.section( '/', -1 );
@@ -221,7 +224,7 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 
 void SampleEditor::getAllFrameInfos()
 {
-	H2Core::Hydrogen *hydrogen = Hydrogen::get_instance();
+	H2Core::Hydrogen *hydrogen = Hydrogen::get_instance( true );
 	std::shared_ptr<H2Core::Instrument> pInstrument = nullptr;
 	std::shared_ptr<H2Core::Sample> pSample = nullptr;
 	H2Core::Song *pSong = nullptr;
@@ -400,6 +403,7 @@ void SampleEditor::on_ClosePushButton_clicked()
 
 void SampleEditor::on_PrevChangesPushButton_clicked()
 {
+	qWarning() << "on_PrevChangesPushButton_clicked()";
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 	getAllLocalFrameInfos();
 	createNewLayer();
@@ -423,6 +427,7 @@ bool SampleEditor::getCloseQuestion()
 
 void SampleEditor::createNewLayer()
 {
+	Hydrogen *hydrogen = Hydrogen::get_instance( true );
 	if ( !m_bSampleEditorClean ){
 
 		auto pEditSample = Sample::load( m_sSampleName, __loops, __rubberband, *m_pTargetSampleView->get_velocity(), *m_pTargetSampleView->get_pan() );
@@ -431,13 +436,15 @@ void SampleEditor::createNewLayer()
 			return;
 		}
 
-		Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
+		if ( hydrogen ) {
+			hydrogen->getAudioEngine()->lock( RIGHT_HERE );
+		}
 
 		std::shared_ptr<H2Core::Instrument> pInstrument = nullptr;
-		Song *pSong = Hydrogen::get_instance()->getSong();
-		if (pSong != nullptr) {
+		Song *pSong = hydrogen ? hydrogen->getSong() : nullptr;
+		if ( pSong ) {
 			InstrumentList *pInstrList = pSong->getInstrumentList();
-			int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+			int nInstr = hydrogen->getSelectedInstrumentNumber();
 			if ( nInstr >= static_cast<int>(pInstrList->size()) ) {
 				nInstr = -1;
 			}
@@ -458,7 +465,9 @@ void SampleEditor::createNewLayer()
 			pLayer->set_sample( pEditSample );
 		}
 
-		Hydrogen::get_instance()->getAudioEngine()->unlock();
+		if ( hydrogen ) {
+			hydrogen->getAudioEngine()->unlock();
+		}
 
 		if( pLayer ) {
 			m_pTargetSampleView->updateDisplay( pLayer );
@@ -593,7 +602,7 @@ void SampleEditor::valueChangedEndFrameSpinBox( int )
 
 void SampleEditor::on_PlayPushButton_clicked()
 {
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Hydrogen* hydrogen = Hydrogen::get_instance( true );
 
 	if (PlayPushButton->text() == "Stop" ){
 		testpTimer();
@@ -610,17 +619,21 @@ void SampleEditor::on_PlayPushButton_clicked()
 	}
 	const int selectedLayer = panel->getSelectedLayer();
 
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	Song *pSong = hydrogen ? hydrogen->getSong() : nullptr;
 	if ( pSong == nullptr ) {
 		return;
 	}
-	auto pInstr = pSong->getInstrumentList()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+	assert( hydrogen );
+
+	auto pInstr = pSong->getInstrumentList()->get( hydrogen->getSelectedInstrumentNumber() );
 	if ( pInstr == nullptr ) {
 		return;
 	}
+
 	Note *pNote = new Note( pInstr, 0, pInstr->get_component( m_nSelectedComponent )->get_layer( selectedLayer )->get_end_velocity() - 0.01, fPan, nLength, fPitch);
 	pNote->set_specific_compo_id( m_nSelectedComponent );
-	pHydrogen->getAudioEngine()->getSampler()->noteOn(pNote);
+
+	hydrogen->getAudioEngine()->getSampler()->noteOn(pNote);
 
 	setSamplelengthFrames();
 	createPositionsRulerPath();
@@ -632,12 +645,11 @@ void SampleEditor::on_PlayPushButton_clicked()
 		m_pTimer->start(40);	// update ruler at 25 fps
 	}
 
-
-	m_nRealtimeFrameEnd = pHydrogen->getRealtimeFrames() + m_nSlframes;
+	m_nRealtimeFrameEnd = hydrogen->getRealtimeFrames() + m_nSlframes;
 
 	//calculate the new rubberband sample length
 	if( __rubberband.use ){
-		m_nRealtimeFrameEndForTarget = pHydrogen->getRealtimeFrames() + (m_nSlframes * m_fRatio + 0.1);
+		m_nRealtimeFrameEndForTarget = hydrogen->getRealtimeFrames() + (m_nSlframes * m_fRatio + 0.1);
 	}else
 	{
 		m_nRealtimeFrameEndForTarget = m_nRealtimeFrameEnd;
@@ -649,18 +661,25 @@ void SampleEditor::on_PlayPushButton_clicked()
 
 void SampleEditor::on_PlayOrigPushButton_clicked()
 {
+	Hydrogen *hydrogen = Hydrogen::get_instance( true );
+
 	if (PlayOrigPushButton->text() == "Stop" ){
 		testpTimer();
 		return;
 	}
 
+	if ( ! hydrogen ) {
+		qWarning() << "on_PlayOrigPushButton_clicked(), no hydrogen instance";
+		return;
+	}
+
 	const int selectedlayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	Song *pSong = hydrogen->getSong();
 
 	if ( ! pSong ) {
 		return;
 	}
-	auto pInstr = pSong->getInstrumentList()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+	auto pInstr = pSong->getInstrumentList()->get( hydrogen->getSelectedInstrumentNumber() );
 
 	/*
 	 *preview_instrument deletes the last used preview instrument, therefore we have to construct a temporary
@@ -671,21 +690,22 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 
 	if ( pNewSample != nullptr ){
 		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->preview_instrument( pTmpInstrument );
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->preview_sample( pNewSample, length );
+		hydrogen->getAudioEngine()->getSampler()->preview_instrument( pTmpInstrument );
+		hydrogen->getAudioEngine()->getSampler()->preview_sample( pNewSample, length );
 		m_nSlframes = pNewSample->get_frames();
 	}
 
 	m_pMainSampleWaveDisplay->paintLocatorEvent( StartFrameSpinBox->value() / m_divider + 24 , true);
 	m_pSampleAdjustView->setDetailSamplePosition( __loops.start_frame, m_fZoomfactor , nullptr);
 	m_pTimer->start(40);	// update ruler at 25 fps
-	m_nRealtimeFrameEnd = Hydrogen::get_instance()->getRealtimeFrames() + m_nSlframes;
+	m_nRealtimeFrameEnd = hydrogen->getRealtimeFrames() + m_nSlframes;
 	PlayOrigPushButton->setText( QString( "Stop") );
 }
 
 void SampleEditor::updateMainsamplePositionRuler()
 {
-	unsigned long realpos = Hydrogen::get_instance()->getRealtimeFrames();
+	Hydrogen *hydrogen = Hydrogen::get_instance( true );
+	unsigned long realpos = hydrogen ? hydrogen->getRealtimeFrames() : 0;
 	if ( realpos < m_nRealtimeFrameEnd ){
 		unsigned frame = m_nSlframes - ( m_nRealtimeFrameEnd  - realpos );
 		if ( m_bPlayButton == true ){
@@ -708,7 +728,8 @@ void SampleEditor::updateMainsamplePositionRuler()
 
 void SampleEditor::updateTargetsamplePositionRuler()
 {
-	unsigned long realpos = Hydrogen::get_instance()->getRealtimeFrames();
+	Hydrogen *hydrogen = Hydrogen::get_instance( true );
+	unsigned long realpos = hydrogen ? hydrogen->getRealtimeFrames() : 0;
 	unsigned targetSampleLength;
 	if( __rubberband.use ){
 		targetSampleLength =  m_nSlframes * m_fRatio + 0.1;
@@ -844,6 +865,8 @@ void SampleEditor::setSamplelengthFrames()
 
 void SampleEditor::valueChangedLoopCountSpinBox( int )
 {
+	Hydrogen *hydrogen = Hydrogen::get_instance( true );
+
 	testpTimer();
 	int count = LoopCountSpinBox->value();
 
@@ -851,8 +874,8 @@ void SampleEditor::valueChangedLoopCountSpinBox( int )
 		if ( ! m_bAdjusting ) on_PlayOrigPushButton_clicked();
 		return;
 	}
-	if ( m_nSlframes > Hydrogen::get_instance()->getAudioOutput()->getSampleRate() * 60 ){
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->stopPlayingNotes();
+	if ( hydrogen && m_nSlframes > hydrogen->getAudioOutput()->getSampleRate() * 60 ){
+		hydrogen->getAudioEngine()->getSampler()->stopPlayingNotes();
 		m_pMainSampleWaveDisplay->paintLocatorEvent( -1 , false);
 		m_pTimer->stop();
 		m_bPlayButton = false;
@@ -861,7 +884,7 @@ void SampleEditor::valueChangedLoopCountSpinBox( int )
 	setUnclean();
 	setSamplelengthFrames();
 	doneEditing();
-	if ( m_nSlframes > Hydrogen::get_instance()->getAudioOutput()->getSampleRate() * 60 * 30){ // >30 min
+	if ( hydrogen && m_nSlframes > hydrogen->getAudioOutput()->getSampleRate() * 60 * 30){ // >30 min
 		LoopCountSpinBox->setMaximum(LoopCountSpinBox->value() -1);
 	}
 
@@ -946,8 +969,12 @@ void SampleEditor::valueChangedrubberComboBox( const QString  )
 
 void SampleEditor::checkRatioSettings()
 {
+	Hydrogen *hydrogen = Hydrogen::get_instance( true );
+	if ( hydrogen ) {
+		m_fBPM = hydrogen->getNewBpmJTM();
+	}
 	//calculate ratio
-	double durationtime = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * __rubberband.divider;
+	double durationtime = 60.0 / m_fBPM * __rubberband.divider;
 	double induration = (double) m_nSlframes / (double) m_nSamplerate;
 	if (induration != 0.0) m_fRatio = durationtime / induration;
 
@@ -1061,7 +1088,10 @@ void SampleEditor::testpTimer()
 		m_pTargetDisplayTimer->stop();
 		PlayPushButton->setText( QString( tr( "&Play" ) ) );
 		PlayOrigPushButton->setText( QString( tr( "P&lay original sample" ) ) );
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->stopPlayingNotes();
+		Hydrogen *hydrogen = Hydrogen::get_instance( true );
+		if ( hydrogen ) {
+			hydrogen->getAudioEngine()->getSampler()->stopPlayingNotes();
+		}
 		m_bPlayButton = false;
 	}
 }

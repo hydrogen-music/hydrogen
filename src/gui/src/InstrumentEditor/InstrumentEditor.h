@@ -28,6 +28,7 @@
 #include <memory>
 
 #include <core/Basics/Instrument.h>
+#include <core/Basics/Song.h>
 #include <core/Object.h>
 #include <core/Preferences.h>
 
@@ -59,7 +60,9 @@ class InstrumentEditor : public QWidget, protected WidgetWithScalableFont<10, 12
 		~InstrumentEditor();
 
 		void selectLayer( int nLayer );
+		#if 0
 		void setFileforLayer(QString filename );
+		#endif
 
 		void selectComponent( int nComponent );
 
@@ -69,6 +72,7 @@ class InstrumentEditor : public QWidget, protected WidgetWithScalableFont<10, 12
 		//~ implements EventListener interface
 		void update();
 		static int findFreeDrumkitComponentId( int startingPoint = 0 );
+		void setInstrument( std::shared_ptr<H2Core::Instrument> pInstrument, const H2Core::Song *pSong );
 
 
 	public slots:

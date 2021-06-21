@@ -133,6 +133,8 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		unsigned m_pDetailFrame;
 		QString m_sLineColor;
 
+		float m_fBPM;
+		unsigned int m_nSampleRate;
 		bool m_bOnewayStart;
 		bool m_bOnewayLoop;
 		bool m_bOnewayEnd;
