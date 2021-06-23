@@ -1,18 +1,23 @@
 from PySide2.QtCore import QObject
 from PySide2.QtWidgets import QFrame, QApplication
-from h2core import H2Core as h2core
-Logger = h2core.Logger
+
+from hydra.H2Core import *
+import h2gui
+import time
 logger = Logger.bootstrap(
     Logger.Debug | Logger.Error | Logger.Warning | Logger.Info
 )
-h2core.Object.bootstrap(logger, True)
-h2core.Filesystem.bootstrap(logger, "/usr/local/share/hydrogen/data/")
-prefs = h2core.Preferences.create_instance()
-hydrogen = h2core.Hydrogen.create_instance()
-song = h2core.Song("foo", "bar", 120, 1)
-print(song)
-import h2gui
+Object.bootstrap(logger, True)
+Filesystem.bootstrap(logger, "/usr/local/share/hydrogen/data/")
+Preferences.create_instance()
+prefs = Preferences.get_instance()
+hydrogen = Hydrogen.get_instance( False, True )
+song = Song.load('/home/rebelcat/envelope_test.h2song')
+hydrogen.setSong(song)
+time.sleep(1)
 interactive = True
+
+
 app = QApplication.instance()
 if not app:
     app = QApplication()
