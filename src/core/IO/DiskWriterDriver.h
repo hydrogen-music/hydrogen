@@ -57,7 +57,9 @@ class DiskWriterDriver : public AudioOutput
 		int connect();
 		void disconnect();
 
+#if 0
 		void write( float* buffer_L, float* buffer_R, unsigned int bufferSize );
+#endif
 
 		void audioEngine_process_checkBPMChanged();
 

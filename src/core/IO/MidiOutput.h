@@ -39,6 +39,7 @@ class Note;
 class MidiOutput : public virtual Object
 {
 public:
+	MidiOutput();
 	MidiOutput( const char* class_name );
 	virtual ~MidiOutput();
 	

@@ -30,9 +30,10 @@
 
 namespace H2Core
 {
+const char* PulseAudioDriver::__class_name = "PulseAudioDriver";
 
 PulseAudioDriver::PulseAudioDriver(audioProcessCallback processCallback)
-	:	AudioOutput("PulseAudioDriver"),
+	:	AudioOutput(__class_name),
 		m_callback(processCallback),
 		m_main_loop(nullptr),
 		m_ctx(nullptr),

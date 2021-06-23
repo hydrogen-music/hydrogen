@@ -34,6 +34,9 @@
 
 namespace H2Core
 {
+const char *LadspaControlPort::__class_name = "LadspaControlPort";
+
+LadspaControlPort::LadspaControlPort() : Object( __class_name ) {};
 
 const char* LadspaFXGroup::__class_name = "LadspaFXGroup";
 

@@ -33,7 +33,7 @@
 
 #include <QStringList>
 #include <QDomDocument>
-#include <QColor>
+#include <QtGui/QColor>
 
 namespace H2Core
 {

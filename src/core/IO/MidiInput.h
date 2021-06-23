@@ -37,6 +37,7 @@ namespace H2Core
 class MidiInput : public virtual Object
 {
 public:
+	MidiInput();
 	MidiInput( const char* class_name );
 	virtual ~MidiInput();
 

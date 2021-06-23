@@ -24,6 +24,7 @@
 #define H2C_PLAYLIST_H
 
 #include <core/Object.h>
+#include <core/Helpers/Xml.h>
 
 namespace H2Core
 {

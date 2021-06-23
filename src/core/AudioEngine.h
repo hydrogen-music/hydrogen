@@ -382,8 +382,9 @@ public:
 	 * #STATE_PLAYING the function will immediately return.
 	 */
 	inline void			processTransport();
-	
+#if 0	
 	inline unsigned		renderNote( Note* pNote, const unsigned& nBufferSize );
+#endif
 	// TODO: Add documentation of inPunchArea, and
 	// m_addMidiNoteVector
 	/**
@@ -438,7 +439,9 @@ public:
 	 * cycle.
 	 */
 	int				updateNoteQueue( unsigned nFrames );
+#if 0
 	void			prepNoteQueue();
+#endif
 	
 	/**
 	 * Find a PatternList corresponding to the supplied tick position @a

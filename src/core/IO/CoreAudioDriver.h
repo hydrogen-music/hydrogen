@@ -28,7 +28,7 @@
 
 #ifndef COREAUDIO_DRIVER_H
 #define COREAUDIO_DRIVER_H
-
+#include <core/config.h>
 #include <core/IO/AudioOutput.h>
 #include <core/IO/NullDriver.h>
 
@@ -94,17 +94,6 @@ private:
 	unsigned m_nSampleRate;
 	unsigned oSampleRate;
 };
-
-#else
-
-class CoreAudioDriver : public NullDriver
-{
-	H2_OBJECT
-public:
-	CoreAudioDriver( audioProcessCallback processCallback ) : NullDriver ( processCallback ) {}
-
-};
-
 #endif // H2CORE_HAVE_COREAUDIO
 
 }

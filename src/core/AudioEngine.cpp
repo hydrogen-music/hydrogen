@@ -20,7 +20,6 @@
  *
  */
 
-#include <core/AudioEngine.h>
 
 #ifdef WIN32
 #    include "core/Timehelper.h"
@@ -28,7 +27,8 @@
 #    include <unistd.h>
 #    include <sys/time.h>
 #endif
-
+#include <core/config.h>
+#include <core/AudioEngine.h>
 #include <core/EventQueue.h>
 #include <core/FX/Effects.h>
 #include <core/Basics/Song.h>
@@ -58,7 +58,9 @@
 #include <core/IO/AlsaMidiDriver.h>
 #include <core/IO/JackMidiDriver.h>
 #include <core/IO/PortMidiDriver.h>
+#ifdef H2CORE_HAVE_COREAUDIO
 #include <core/IO/CoreAudioDriver.h>
+#endif
 #include <core/IO/PulseAudioDriver.h>
 
 #include <core/Hydrogen.h>	// TODO: remove this line as soon as possible
@@ -537,6 +539,7 @@ AudioOutput* AudioEngine::createDriver( const QString& sDriver )
 		}
 	}
 	//#ifdef Q_OS_MACX
+	#ifdef H2CORE_HAVE_COREAUDIO
 	else if ( sDriver == "CoreAudio" ) {
 		___INFOLOG( "Creating CoreAudioDriver" );
 		pDriver = new CoreAudioDriver( m_AudioProcessCallback );
@@ -545,6 +548,7 @@ AudioOutput* AudioEngine::createDriver( const QString& sDriver )
 			pDriver = nullptr;
 		}
 	}
+	#endif
 	//#endif
 	else if ( sDriver == "PulseAudio" ) {
 		pDriver = new PulseAudioDriver( m_AudioProcessCallback );

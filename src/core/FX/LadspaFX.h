@@ -93,8 +93,6 @@ private:
 	std::vector<LadspaFXGroup*> m_childGroups;
 };
 
-
-
 class LadspaControlPort : public H2Core::Object
 {
 	H2_OBJECT
@@ -107,7 +105,7 @@ public:
 	LADSPA_Data fLowerBound;
 	LADSPA_Data fUpperBound;
 
-	LadspaControlPort() : Object( "LadspaControlPort" ) { }
+	LadspaControlPort();
 };
 
 

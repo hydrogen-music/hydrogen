@@ -223,6 +223,7 @@ std::vector<char> SMFTimeSignatureMetaEvent::getBuffer()
 }
 
 // :::::::::::::
+const char* SMFEvent::__class_name = "SMFEvent";
 
 
 SMFEvent::SMFEvent( const char* sEventName, unsigned nTicks )

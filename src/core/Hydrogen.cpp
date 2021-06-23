@@ -89,8 +89,12 @@
 #include <core/IO/AlsaMidiDriver.h>
 #include <core/IO/JackMidiDriver.h>
 #include <core/IO/PortMidiDriver.h>
+#ifdef H2CORE_HAVE_COREAUDIO
 #include <core/IO/CoreAudioDriver.h>
+#endif
+#ifdef H2CORE_HAVE_PULSEAUDIO
 #include <core/IO/PulseAudioDriver.h>
+#endif
 
 namespace H2Core
 {

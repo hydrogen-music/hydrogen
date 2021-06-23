@@ -1143,7 +1143,7 @@ Song* SongReader::readSong( const QString& sFileName )
 							while (  ! volumeNode.isNull()  ) {
 								Frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
 								Value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
-								velocity.push_back( std::make_unique<EnvelopePoint>(Frame, Value) );
+								velocity.push_back( EnvelopePoint(Frame, Value) );
 								volumeNode = volumeNode.nextSiblingElement( "volume" );
 								//ERRORLOG( QString("volume-posi %1").arg(LocalFileMng::readXmlInt( volumeNode, "volume-position", 0)) );
 							}
@@ -1153,7 +1153,7 @@ Song* SongReader::readSong( const QString& sFileName )
 							while (  ! panNode.isNull()  ) {
 								Frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
 								Value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
-								pan.push_back( std::make_unique<EnvelopePoint>(Frame, Value) );
+								pan.push_back( EnvelopePoint(Frame, Value) );
 								panNode = panNode.nextSiblingElement( "pan" );
 							}
 
@@ -1223,15 +1223,14 @@ Song* SongReader::readSong( const QString& sFileName )
 						if ( !sIsModified ) {
 							pSample = Sample::load( sFilename );
 						} else {
-							int Frame = 0;
-							int Value = 0;
+							EnvelopePoint point;
 
 							Sample::VelocityEnvelope velocity;
 							QDomNode volumeNode = layerNode.firstChildElement( "volume" );
 							while (  ! volumeNode.isNull()  ) {
-								Frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
-								Value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
-								velocity.push_back( std::make_unique<EnvelopePoint>(Frame, Value) );
+								point.frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
+								point.value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
+								velocity.push_back( point );
 								volumeNode = volumeNode.nextSiblingElement( "volume" );
 								//ERRORLOG( QString("volume-posi %1").arg(LocalFileMng::readXmlInt( volumeNode, "volume-position", 0)) );
 							}
@@ -1239,9 +1238,9 @@ Song* SongReader::readSong( const QString& sFileName )
 							Sample::VelocityEnvelope pan;
 							QDomNode  panNode = layerNode.firstChildElement( "pan" );
 							while (  ! panNode.isNull()  ) {
-								Frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
-								Value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
-								pan.push_back( std::make_unique<EnvelopePoint>(Frame, Value) );
+								point.frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
+								point.value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
+								pan.push_back( point );
 								panNode = panNode.nextSiblingElement( "pan" );
 							}
 

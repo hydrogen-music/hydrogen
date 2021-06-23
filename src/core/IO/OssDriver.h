@@ -22,7 +22,7 @@
 
 #ifndef OSS_AUDIO_DRIVER_H
 #define OSS_AUDIO_DRIVER_H
-
+#include <core/config.h>
 #include <core/IO/AudioOutput.h>
 #include <core/IO/NullDriver.h>
 

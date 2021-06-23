@@ -41,6 +41,7 @@ class Object {
 	public:
 		/** destructor */
 		~Object();
+		Object();
 		/** copy constructor */
 		Object( const Object& obj );
 		/** constructor */

@@ -45,7 +45,7 @@ public:
 	int m_nXRuns;
 	QString m_sAlsaAudioDevice;
 	audioProcessCallback m_processCallback;
-
+	AlsaAudioDriver() = delete;
 	AlsaAudioDriver( audioProcessCallback processCallback );
 	~AlsaAudioDriver();
 

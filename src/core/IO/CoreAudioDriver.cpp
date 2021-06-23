@@ -27,9 +27,9 @@
  * More cleaning . . . (2005/12/28 Jonathan Dempsey)
  */
 
-#include <core/IO/CoreAudioDriver.h>
-
+#include <core/config.h>
 #if defined(H2CORE_HAVE_COREAUDIO) || _DOXYGEN_
+#include <core/IO/CoreAudioDriver.h>
 
 #include "CoreServices/CoreServices.h"
 ///
@@ -373,5 +373,16 @@ void CoreAudioDriver::setBpm( float fBPM )
 }
 
 }
+#else
+#include <core/IO/NullDriver.h>
+namespace H2Core {
 
+class CoreAudioDriver : public NullDriver
+{
+	H2_OBJECT
+public:
+	CoreAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
+
+};
+};
 #endif // H2CORE_HAVE_COREAUDIO
