@@ -54,6 +54,7 @@ using namespace H2Core;
 #include "WaveDisplay.h"
 #include "LayerPreview.h"
 #include "AudioFileBrowser/AudioFileBrowser.h"
+#include <SampleEditor/SampleEditor.h>
 
 const char* InstrumentEditor::__class_name = "InstrumentEditor";
 
@@ -63,10 +64,14 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	, m_pInstrument( nullptr )
 	, m_nSelectedLayer( 0 )
 {
+	Preferences *preferences = Preferences::get_instance();
 	setFixedWidth( 290 );
-	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+	if ( ! preferences ) {
+		qWarning() << "no preferences!!\n";
+	}
+	m_lastUsedFontSize = preferences ? preferences->getFontSize() : H2Core::Preferences::FontSize::Normal; 
 
-	QFont fontButtons( Preferences::get_instance()->getApplicationFontFamily(), getPointSizeButton() );
+	QFont fontButtons( preferences ? preferences->getApplicationFontFamily(): QLatin1String("Monospace"), getPointSizeButton() );
 	
 	// Instrument properties top
 	m_pInstrumentPropTop = new PixmapWidget( this );
@@ -176,7 +181,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	/////////////
 
-	QFont boldFont( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+	QFont boldFont( preferences ? preferences->getApplicationFontFamily() : QLatin1String("Monospace"), getPointSize( m_lastUsedFontSize ) );
 	boldFont.setBold(true);
 	m_pNameLbl->setFont( boldFont );
 	connect( m_pNameLbl, SIGNAL( labelClicked(ClickableLabel*) ), this, SLOT( labelClicked(ClickableLabel*) ) );
@@ -536,7 +541,11 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	selectLayer( m_nSelectedLayer );
 
-	HydrogenApp::get_instance()->addEventListener(this);
+	HydrogenApp *app = HydrogenApp::get_instance();
+	if ( app )
+		app->addEventListener(this);
+	else
+		qWarning() << "no HydrogenApp!!";
 
 	selectedInstrumentChangedEvent(); 	// force an update
 
@@ -874,7 +883,16 @@ void InstrumentEditor::waveDisplayDoubleClicked( QWidget* pRef )
 		
 		if( pSample != nullptr ) {
 			QString name = pSample->get_filepath();
-			HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedComponent, m_nSelectedLayer );
+			HydrogenApp *app = HydrogenApp::get_instance();
+			if ( app )
+				app->showSampleEditor( name, m_nSelectedComponent, m_nSelectedLayer );
+			else {
+				qWarning() << "no HydrogenApp!";
+				QApplication::setOverrideCursor(Qt::WaitCursor);
+				auto pSampleEditor = new SampleEditor( nullptr, 0, 0, name );
+				pSampleEditor->show();
+				QApplication::restoreOverrideCursor();
+			}
 		}
 	}
 	else {
