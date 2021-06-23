@@ -123,19 +123,20 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 
 		virtual QRect getKeyboardCursorRect() override;
 
-
 	public slots:
 		virtual void updateEditor( bool bPatternOnly = false ) override;
 		virtual void selectAll() override;
 		virtual void deleteSelection() override;
 		virtual void paste() override;
 		void onPreferencesChanged( bool bAppearanceOnly );
+		void scrolled( int );
 
 	private:
 		void __draw_note( H2Core::Note* note, QPainter& painter );
 		void __draw_pattern( QPainter& painter );
 		void __draw_grid( QPainter& painter );
 		void __create_background( QPainter& pointer );
+		void drawFocus( QPainter& painter );
 
 		virtual void keyPressEvent (QKeyEvent *ev) override;
 		virtual void keyReleaseEvent (QKeyEvent *ev) override;
@@ -143,6 +144,8 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		virtual void hideEvent ( QHideEvent *ev ) override;
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void focusInEvent( QFocusEvent *ev ) override;
+		virtual void enterEvent( QEvent *ev ) override;
+		virtual void leaveEvent( QEvent *ev ) override;
 
 		int findFreeCompoID( int startingPoint = 0 );
 		int findExistingCompo( QString SourceName );
@@ -152,6 +155,7 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		int __nColumn;
 		int __row;
 		int __oldLength;
+		bool m_bEntered;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
 		/** Used to detect changed in the font*/

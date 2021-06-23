@@ -124,6 +124,7 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		virtual void deleteSelection() override;
 		virtual void paste() override;
 		void onPreferencesChanged( bool bAppearanceOnly );
+		void scrolled( int );
 
 	private:
 		H2Core::AudioEngine* m_pAudioEngine;
@@ -148,6 +149,7 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		void createBackground();
 		void drawPattern();
 		void drawNote( H2Core::Note *pNote, QPainter *pPainter );
+		void drawFocus( QPainter& painter );
 
 		void addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 							  int nNotekey, int nOctave,
@@ -156,6 +158,8 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void keyPressEvent ( QKeyEvent * ev ) override;
 		virtual void focusInEvent ( QFocusEvent * ev ) override;
+		virtual void enterEvent( QEvent *ev ) override;
+		virtual void leaveEvent( QEvent *ev ) override;
 
 		int __selectedInstrumentnumber;
 		int __nRealColumn;
@@ -169,6 +173,7 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		float m_fOldPan;
 		float __leadLag;
 		float __oldLeadLag;		
+		bool m_bEntered;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
 		/** Used to detect changed in the font*/

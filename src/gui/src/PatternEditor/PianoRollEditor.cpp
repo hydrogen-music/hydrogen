@@ -24,6 +24,7 @@
 #include "PatternEditorPanel.h"
 #include "NotePropertiesRuler.h"
 #include "UndoActions.h"
+#include "../Skin.h"
 #include <cassert>
 
 #include <core/Hydrogen.h>
@@ -45,6 +46,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 								  QScrollArea *pScrollView)
 	: PatternEditor( pParent, __class_name, panel )
 	, m_pScrollView( pScrollView )
+	, m_bEntered( false )
 {
 	INFOLOG( "INIT" );
 
@@ -149,6 +151,54 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 	}
 	painter.drawPixmap( ev->rect(), *m_pTemp, ev->rect() );
 	m_selection.paintSelection( &painter );
+
+	drawFocus( painter );
+}
+
+void PianoRollEditor::drawFocus( QPainter& painter ) {
+
+	if ( ! m_bEntered && ! hasFocus() ) {
+		return;
+	}
+	
+	QColor color = Skin::getHighlightColor();
+
+	// If the mouse is placed on the widget but the user hasn't
+	// clicked it yet, the highlight will be done more transparent to
+	// indicate that keyboard inputs are not accepted yet.
+	if ( ! hasFocus() ) {
+		color.setAlpha( 125 );
+	}
+
+	int nStartY = HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditorScrollArea()->verticalScrollBar()->value();
+	int nStartX = HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditorScrollArea()->horizontalScrollBar()->value();
+	int nEndY = nStartY + HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditorScrollArea()->viewport()->size().height();
+	int nEndX = std::min( nStartX + HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditorScrollArea()->viewport()->size().width(), width() );
+
+	QPen pen( color );
+	pen.setWidth( 4 );
+	painter.setPen( pen );
+	painter.drawLine( QPoint( nStartX, nStartY ), QPoint( nEndX, nStartY ) );
+	painter.drawLine( QPoint( nStartX, nStartY ), QPoint( nStartX, nEndY ) );
+	painter.drawLine( QPoint( nEndX, nStartY ), QPoint( nEndX, nEndY ) );
+	painter.drawLine( QPoint( nEndX, nEndY ), QPoint( nStartX, nEndY ) );
+}
+
+void PianoRollEditor::scrolled( int nValue ) {
+	UNUSED( nValue );
+	update();
+}
+
+void PianoRollEditor::enterEvent( QEvent *ev ) {
+	UNUSED( ev );
+	m_bEntered = true;
+	update();
+}
+
+void PianoRollEditor::leaveEvent( QEvent *ev ) {
+	UNUSED( ev );
+	m_bEntered = false;
+	update();
 }
 
 

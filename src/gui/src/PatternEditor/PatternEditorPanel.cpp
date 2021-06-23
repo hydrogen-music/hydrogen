@@ -291,6 +291,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport(), this, m_pPianoRollScrollView );
 	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
 	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pPianoRollScrollView->verticalScrollBar(), SIGNAL( valueChanged( int ) ),
+			 m_pPianoRollEditor, SLOT( scrolled( int ) ) );
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 m_pPianoRollEditor, &PianoRollEditor::onPreferencesChanged );
 
@@ -342,6 +344,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteVelocityScrollView->setWidget( m_pNoteVelocityEditor );
 	m_pNoteVelocityScrollView->setFixedHeight( 100 );
 	connect( m_pNoteVelocityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pNoteVelocityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 m_pNoteVelocityEditor, SLOT( scrolled( int ) ) );
 
 	m_pNoteVelocityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
@@ -361,6 +365,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	connect( m_pNotePanScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
 			 this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pNotePanScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 m_pNotePanEditor, SLOT( scrolled( int ) ) );
 
 	m_pNotePanEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
@@ -381,6 +387,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	connect( m_pNoteLeadLagScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
 			 this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pNoteLeadLagScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 m_pNoteLeadLagEditor, SLOT( scrolled( int ) ) );
 
 	m_pNoteLeadLagEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
@@ -400,8 +408,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 																						NotePropertiesRuler::NOTEKEY );
 	m_pNoteNoteKeyScrollView->setWidget( m_pNoteNoteKeyEditor );
 	m_pNoteNoteKeyScrollView->setFixedHeight( 210 );
-	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ), this,
-																			SLOT( on_patternEditorHScroll( int ) ) );
+	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
+			 this, SLOT( on_patternEditorHScroll( int ) ) );
+	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
+			 m_pNoteNoteKeyEditor, SLOT( scrolled( int ) ) );
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 m_pNoteNoteKeyEditor, &NotePropertiesRuler::onPreferencesChanged );
 	
@@ -422,6 +432,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteProbabilityScrollView->setFixedHeight( 100 );
 	connect( m_pNoteProbabilityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
 			 this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pNoteProbabilityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 m_pNoteProbabilityEditor, SLOT( scrolled( int ) ) );
 	
 	m_pNoteProbabilityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
@@ -440,7 +452,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPatternEditorVScrollBar->setObjectName( "PatternEditorVScrollBar" );
 	connect( m_pPatternEditorVScrollBar, SIGNAL(valueChanged( int)), this,
 																	SLOT( syncToExternalHorizontalScrollbar(int) ) );
-
+	connect( m_pPatternEditorVScrollBar, SIGNAL( valueChanged( int ) ),
+			 m_pDrumPatternEditor, SLOT( scrolled( int ) ) );
+	connect( m_pPatternEditorHScrollBar, SIGNAL( valueChanged( int ) ),
+			 m_pDrumPatternEditor, SLOT( scrolled( int ) ) );
+	
 	QHBoxLayout *pPatternEditorHScrollBarLayout = new QHBoxLayout();
 	pPatternEditorHScrollBarLayout->setSpacing( 0 );
 	pPatternEditorHScrollBarLayout->setMargin( 0 );

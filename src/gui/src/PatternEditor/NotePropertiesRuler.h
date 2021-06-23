@@ -96,11 +96,13 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		virtual void paste() override {}
 		virtual void cut() override {}
 		void onPreferencesChanged( bool bAppearanceOnly );
+		void scrolled( int );
 
 	private:
 
 		bool m_bNeedsUpdate;
 		void finishUpdateEditor();
+		void drawFocus( QPainter& painter );
 
 		NotePropertiesMode m_Mode;
 
@@ -121,6 +123,8 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		void focusOutEvent( QFocusEvent *ev ) override;
 		void addUndoAction();
 		void prepareUndoAction( int x );
+		void enterEvent( QEvent *ev ) override;
+		void leaveEvent( QEvent *ev ) override;
 
 		virtual void mouseMoveEvent( QMouseEvent *ev ) override;
 
@@ -140,6 +144,7 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		void adjustNotePropertyDelta( H2Core::Note *pNote, float fDelta, bool bMessage = false );
 
 		int m_nDragPreviousColumn;
+		bool m_bEntered;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
 		/** Used to detect changed in the font*/

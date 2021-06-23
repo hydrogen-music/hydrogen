@@ -81,6 +81,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
  , m_selection( this )
  , m_pHydrogen( nullptr )
  , m_pAudioEngine( nullptr )
+ , m_bEntered( false )
 {
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
@@ -93,6 +94,8 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 	m_nLastUsedColoringMethod = pPref->getColoringMethod();
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &SongEditor::onPreferencesChanged );
+	connect( m_pScrollView->verticalScrollBar(), SIGNAL( valueChanged( int ) ), this, SLOT( scrolled( int ) ) );
+	connect( m_pScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ), this, SLOT( scrolled( int ) ) );
 
 	setAttribute(Qt::WA_OpaquePaintEvent);
 	setFocusPolicy (Qt::StrongFocus);
@@ -879,8 +882,55 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 
 	m_selection.paintSelection( &painter );
 
+	drawFocus( painter );
 }
 
+void SongEditor::drawFocus( QPainter& painter ) {
+
+	if ( ! m_bEntered && ! hasFocus() ) {
+		return;
+	}
+	
+	QColor color = Skin::getHighlightColor();
+
+	// If the mouse is placed on the widget but the user hasn't
+	// clicked it yet, the highlight will be done more transparent to
+	// indicate that keyboard inputs are not accepted yet.
+	if ( ! hasFocus() ) {
+		color.setAlpha( 125 );
+	}
+
+	int nStartX = m_pScrollView->horizontalScrollBar()->value();
+	int nEndX = std::min( nStartX + m_pScrollView->viewport()->size().width(), width() );
+	int nStartY = m_pScrollView->verticalScrollBar()->value();
+	int nEndY = std::min( static_cast<int>( m_nGridHeight ) * m_pHydrogen->getSong()->getPatternList()->size(),
+						  nStartY + m_pScrollView->viewport()->size().height() );
+
+	QPen pen( color );
+	pen.setWidth( 4 );
+	painter.setPen( pen );
+	painter.drawLine( QPoint( nStartX, nStartY ), QPoint( nEndX, nStartY ) );
+	painter.drawLine( QPoint( nStartX, nStartY ), QPoint( nStartX, nEndY ) );
+	painter.drawLine( QPoint( nEndX, nStartY ), QPoint( nEndX, nEndY ) );
+	painter.drawLine( QPoint( nEndX, nEndY ), QPoint( nStartX, nEndY ) );
+}
+
+void SongEditor::scrolled( int nValue ) {
+	UNUSED( nValue );
+	update();
+}
+
+void SongEditor::enterEvent( QEvent *ev ) {
+	UNUSED( ev );
+	m_bEntered = true;
+	update();
+}
+
+void SongEditor::leaveEvent( QEvent *ev ) {
+	UNUSED( ev );
+	m_bEntered = false;
+	update();
+}
 
 void SongEditor::createBackground()
 {
@@ -1363,7 +1413,6 @@ void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 	);
 	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, srcRect );
 }
-
 
 
 void SongEditorPatternList::updateEditor()

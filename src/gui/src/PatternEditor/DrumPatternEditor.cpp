@@ -55,6 +55,7 @@ const char* DrumPatternEditor::__class_name = "DrumPatternEditor";
 
 DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
  : PatternEditor( parent, __class_name, panel )
+ , m_bEntered( false )
 {
 	m_nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
 	m_nEditorHeight = m_nGridHeight * MAX_INSTRUMENTS;
@@ -1212,17 +1213,60 @@ void DrumPatternEditor::__create_background( QPainter& p)
 
 void DrumPatternEditor::paintEvent( QPaintEvent* /*ev*/ )
 {
-	//INFOLOG( "paint" );
-	//QWidget::paintEvent(ev);
 
 	QPainter painter( this );
 	__draw_pattern( painter );
 	m_selection.paintSelection( &painter );
+
+	drawFocus( painter );
 }
 
+void DrumPatternEditor::drawFocus( QPainter& painter ) {
 
+	if ( ! m_bEntered && ! hasFocus() ) {
+		return;
+	}
+	
+	QColor color = Skin::getHighlightColor();
 
+	// If the mouse is placed on the widget but the user hasn't
+	// clicked it yet, the highlight will be done more transparent to
+	// indicate that keyboard inputs are not accepted yet.
+	if ( ! hasFocus() ) {
+		color.setAlpha( 125 );
+	}
 
+	int nStartY = HydrogenApp::get_instance()->getPatternEditorPanel()->getVerticalScrollBar()->value();
+	int nStartX = HydrogenApp::get_instance()->getPatternEditorPanel()->getHorizontalScrollBar()->value();
+	int nEndY = std::min( static_cast<int>( m_nGridHeight ) * Hydrogen::get_instance()->getSong()->getInstrumentList()->size(),
+						 nStartY + HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditorScrollArea()->viewport()->size().height() );
+	int nEndX = std::min( nStartX + HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditorScrollArea()->viewport()->size().width(), width() );
+
+	QPen pen( color );
+	pen.setWidth( 4 );
+	painter.setPen( pen );
+	painter.drawLine( QPoint( nStartX, nStartY ), QPoint( nEndX, nStartY ) );
+	painter.drawLine( QPoint( nStartX, nStartY ), QPoint( nStartX, nEndY ) );
+	painter.drawLine( QPoint( nEndX, nStartY ), QPoint( nEndX, nEndY ) );
+	painter.drawLine( QPoint( nEndX, nEndY ), QPoint( nStartX, nEndY ) );
+}
+
+void DrumPatternEditor::scrolled( int nValue ) {
+	UNUSED( nValue );
+	update();
+}
+
+void DrumPatternEditor::enterEvent( QEvent *ev ) {
+	UNUSED( ev );
+	m_bEntered = true;
+	update();
+}
+
+void DrumPatternEditor::leaveEvent( QEvent *ev ) {
+	UNUSED( ev );
+	m_bEntered = false;
+	update();
+}
 
 
 void DrumPatternEditor::showEvent ( QShowEvent *ev )

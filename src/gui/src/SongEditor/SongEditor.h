@@ -107,6 +107,7 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		void paste();
 		void cut();
 		void onPreferencesChanged( bool bAppearanceOnly );
+		void scrolled( int );
 
 	private:
 
@@ -187,6 +188,8 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		virtual void keyReleaseEvent (QKeyEvent *ev) override;
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void focusInEvent( QFocusEvent *ev ) override;
+		virtual void enterEvent( QEvent *ev ) override;
+		virtual void leaveEvent( QEvent *ev ) override;
 		//! @}
 
 		bool togglePatternActive( int nColumn, int nRow );
@@ -195,10 +198,12 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		void drawSequence();
   
 		void drawPattern( int pos, int number, bool invertColour, double width );
+		void drawFocus( QPainter& painter );
 
 		std::map< QPoint, GridCell > m_gridCells;
 		void updateGridCells();
 		std::vector<QColor> m_lastUsedPatternColors;
+		bool m_bEntered;
 		int m_nLastUsedVisiblePatternColors;
 		int m_nMaxPatternColors;
 		int m_nLastUsedColoringMethod;

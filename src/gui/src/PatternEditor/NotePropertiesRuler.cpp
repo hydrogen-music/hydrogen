@@ -31,6 +31,7 @@ using namespace H2Core;
 #include <cassert>
 
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 
 #include "UndoActions.h"
 #include "NotePropertiesRuler.h"
@@ -42,10 +43,8 @@ const char* NotePropertiesRuler::__class_name = "NotePropertiesRuler";
 
 NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, NotePropertiesMode mode )
 	: PatternEditor( parent, __class_name, pPatternEditorPanel )
+	, m_bEntered( false )
 {
-	//infoLog("INIT");
-	//setAttribute(Qt::WA_OpaquePaintEvent);
-
 
 	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
 	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
@@ -781,6 +780,95 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	}
 	painter.drawPixmap( ev->rect(), *m_pBackground, ev->rect() );
 	m_selection.paintSelection( &painter );
+
+	drawFocus( painter );
+}
+
+void NotePropertiesRuler::drawFocus( QPainter& painter ) {
+
+	if ( ! m_bEntered && ! hasFocus() ) {
+		return;
+	}
+	
+	QColor color = Skin::getHighlightColor();
+
+	// If the mouse is placed on the widget but the user hasn't
+	// clicked it yet, the highlight will be done more transparent to
+	// indicate that keyboard inputs are not accepted yet.
+	if ( ! hasFocus() ) {
+		color.setAlpha( 125 );
+	}
+
+	const QScrollArea* pScrollArea;
+	
+	switch ( m_Mode ) {
+	case VELOCITY:
+		pScrollArea = HydrogenApp::get_instance()->getPatternEditorPanel()->getNoteVelocityScrollArea();
+		break;
+	case PAN:
+		pScrollArea = HydrogenApp::get_instance()->getPatternEditorPanel()->getNotePanScrollArea();
+		break;
+	case LEADLAG:
+		pScrollArea = HydrogenApp::get_instance()->getPatternEditorPanel()->getNoteLeadLagScrollArea();
+		break;
+	case NOTEKEY:
+		pScrollArea = HydrogenApp::get_instance()->getPatternEditorPanel()->getNoteNoteKeyScrollArea();
+		break;
+	case PROBABILITY:
+		pScrollArea = HydrogenApp::get_instance()->getPatternEditorPanel()->getNoteProbabilityScrollArea();
+		break;
+	default:
+		return;
+	}
+	int nStartY = pScrollArea->verticalScrollBar()->value();
+	int nStartX = pScrollArea->horizontalScrollBar()->value();
+	int nEndY = nStartY + pScrollArea->viewport()->size().height();
+	// In order to match the width used in the DrumPatternEditor.
+	int nEndX = std::min( nStartX + pScrollArea->viewport()->size().width(),
+						  static_cast<int>( m_nEditorWidth ) );
+
+	int nMargin;
+	if ( nEndX == static_cast<int>( m_nEditorWidth ) ) {
+		nEndX = nEndX - 2;
+		nMargin = 1;
+	} else {
+		nMargin = 0;
+	}
+
+	QPen pen( color );
+	pen.setWidth( 4 );
+	painter.setPen( pen );
+	painter.drawLine( QPoint( nStartX, nStartY ), QPoint( nEndX, nStartY ) );
+	painter.drawLine( QPoint( nStartX, nStartY ), QPoint( nStartX, nEndY ) );
+	painter.drawLine( QPoint( nEndX, nEndY ), QPoint( nStartX, nEndY ) );
+
+	if ( nMargin != 0 ) {
+		// Since for all other lines we are drawing at a border with just
+		// half of the line being painted in the visual viewport, there
+		// has to be some tweaking since the NotePropertiesRuler is
+		// paintable to the right.
+		pen.setWidth( 2 );
+		painter.setPen( pen );
+	}
+	painter.drawLine( QPoint( nEndX + nMargin, nStartY ), QPoint( nEndX + nMargin, nEndY ) );
+		
+}
+
+void NotePropertiesRuler::scrolled( int nValue ) {
+	UNUSED( nValue );
+	update();
+}
+
+void NotePropertiesRuler::enterEvent( QEvent *ev ) {
+	UNUSED( ev );
+	m_bEntered = true;
+	update();
+}
+
+void NotePropertiesRuler::leaveEvent( QEvent *ev ) {
+	UNUSED( ev );
+	m_bEntered = false;
+	update();
 }
 
 
@@ -1307,7 +1395,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 QRect NotePropertiesRuler::getKeyboardCursorRect()
 {
 	uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
-	return QRect( x-m_fGridWidth*3, 0+1, m_fGridWidth*6, height()-2 );
+	return QRect( x-m_fGridWidth*3, 3, m_fGridWidth*6, height()-6 );
 }
 
 void NotePropertiesRuler::selectAll() {

@@ -111,7 +111,6 @@ void ClickableLabel::updateFont( QString sFontFamily, H2Core::Preferences::FontS
 	// width of the label
 	while ( fontMetrics().size( Qt::TextSingleLine, text() ).width() > width()
 			&& nPixelSize > 1 ) {
-		DEBUGLOG( QString( "Decreasing font size to fit label: frameWidth: %1, textWidth: %2, nPixelSize: %3" ).arg( width() ).arg( fontMetrics().size( Qt::TextSingleLine, text() ).width() ).arg( nPixelSize ) );
 		nPixelSize--;
 		font.setPixelSize( nPixelSize );
 		setFont( font );

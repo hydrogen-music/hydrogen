@@ -71,7 +71,17 @@ class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 1
 		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
 		PianoRollEditor* getPianoRollEditor() {		return m_pPianoRollEditor;	}
 		PatternEditorRuler* getPatternEditorRuler() {		return m_pPatternEditorRuler;  }
-	int getPropertiesComboValue(){ return m_pPropertiesCombo->currentIndex(); }
+		const QScrollArea* getDrumPatternEditorScrollArea() const { return m_pEditorScrollView; }
+		const QScrollArea* getPianoRollEditorScrollArea() const { return m_pPianoRollScrollView; }
+		const QScrollArea* getNoteVelocityScrollArea() const { return m_pNoteVelocityScrollView; }
+		const QScrollArea* getNotePanScrollArea() const { return m_pNotePanScrollView; }
+		const QScrollArea* getNoteLeadLagScrollArea() const { return m_pNoteLeadLagScrollView; }
+		const QScrollArea* getNoteNoteKeyScrollArea() const { return m_pNoteNoteKeyScrollView; }
+		const QScrollArea* getNoteProbabilityScrollArea() const { return m_pNoteProbabilityScrollView; }
+		const QScrollBar* getVerticalScrollBar() const { return m_pPatternEditorVScrollBar; }
+		const QScrollBar* getHorizontalScrollBar() const { return m_pPatternEditorHScrollBar; }
+		int getPropertiesComboValue(){ return m_pPropertiesCombo->currentIndex(); }
+	
 
 		void updateSLnameLabel();
 		void updatePianorollEditor();
