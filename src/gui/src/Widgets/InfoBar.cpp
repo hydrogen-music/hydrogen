@@ -43,7 +43,7 @@ InfoBar::InfoBar( QWidget *parent )
 void InfoBar::setBackgroundColor()
 {
 	QPalette pal = palette();
-	pal.setColor( QPalette::Window, QColor( 97, 165, 249 ) );
+	pal.setColor( QPalette::Window, Skin::getBlueAccentColor() );
 	setAutoFillBackground( true );
 	setPalette( pal );
 }

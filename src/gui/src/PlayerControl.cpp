@@ -81,17 +81,17 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pTimeDisplay = new LCDDisplay( pControlsPanel, QSize( 146, 22 ), true );
 	m_pTimeDisplay->move( 13, 7 );
 	m_pTimeDisplay->setAlignment( Qt::AlignRight );
-	m_pTimeDisplay->setText( "00:00:00:0000" );
-	m_pTimeDisplay->setStyleSheet( "font-size: 17px;" );
+	m_pTimeDisplay->setText( "00:00:00:000" );
+	m_pTimeDisplay->setStyleSheet( "font-size: 19px;" );
 
-	m_pTimeHoursLbl = new ClickableLabel( pControlsPanel, QSize( 33, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getTimeHoursLabel(), ClickableLabel::Color::LCD );
-	m_pTimeHoursLbl->move( 24, 30 );
-	m_pTimeMinutesLbl = new ClickableLabel( pControlsPanel, QSize( 33, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getTimeMinutesLabel(), ClickableLabel::Color::LCD );
-	m_pTimeMinutesLbl->move( 51, 30 );
-	m_pTimeSecondsLbl = new ClickableLabel( pControlsPanel, QSize( 33, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getTimeSecondsLabel(), ClickableLabel::Color::LCD );
-	m_pTimeSecondsLbl->move( 79, 30 );
-	m_pTimeMilliSecondsLbl = new ClickableLabel( pControlsPanel, QSize( 34, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getTimeMilliSecondsLabel(), ClickableLabel::Color::LCD );
-	m_pTimeMilliSecondsLbl->move( 116, 30 );
+	m_pTimeHoursLbl = new ClickableLabel( pControlsPanel, QSize( 33, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getTimeHoursLabel() );
+	m_pTimeHoursLbl->move( 23, 30 );
+	m_pTimeMinutesLbl = new ClickableLabel( pControlsPanel, QSize( 33, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getTimeMinutesLabel() );
+	m_pTimeMinutesLbl->move( 53, 30 );
+	m_pTimeSecondsLbl = new ClickableLabel( pControlsPanel, QSize( 33, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getTimeSecondsLabel() );
+	m_pTimeSecondsLbl->move( 83, 30 );
+	m_pTimeMilliSecondsLbl = new ClickableLabel( pControlsPanel, QSize( 34, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getTimeMilliSecondsLabel() );
+	m_pTimeMilliSecondsLbl->move( 119, 30 );
 
 	// Rewind button
 	m_pRwdBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "rewind.svg", "", false, QSize( 13, 13 ), tr("Rewind") );
@@ -162,8 +162,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	hbox->addWidget( pControlsBBTBConoffPanel );
 
 	m_sBCOnOffBtnToolTip = tr("BeatCounter Panel on");
-	m_pBCOnOffBtn = new Button( pControlsBBTBConoffPanel, QSize( 12, 40 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBeatCounterButton(), false, QSize(), m_sBCOnOffBtnToolTip );
-	m_pBCOnOffBtn->move(1, 1);
+	m_pBCOnOffBtn = new Button( pControlsBBTBConoffPanel, QSize( 13, 42 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBeatCounterButton(), false, QSize(), m_sBCOnOffBtnToolTip );
+	m_pBCOnOffBtn->move(0, 0);
 	m_pBCOnOffBtn->setChecked(false);
 	connect(m_pBCOnOffBtn, SIGNAL( pressed() ), this, SLOT( bcOnOffBtnClicked() ));
 	pAction = new Action("BEATCOUNTER");
@@ -239,9 +239,9 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pLCDBPMSpinbox->setStyleSheet( "font-size: 16px;" );
 	connect( m_pLCDBPMSpinbox, SIGNAL( valueChanged( double ) ), this, SLOT( bpmChanged( double ) ) );
 
-	m_pRubberBPMChange = new Button( pBPMPanel, QSize( 12, 40 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getRubberbandButton(), false, QSize(), tr("Recalculate Rubberband modified samples if bpm will change") );
+	m_pRubberBPMChange = new Button( pBPMPanel, QSize( 13, 42 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getRubberbandButton(), false, QSize(), tr("Recalculate Rubberband modified samples if bpm will change") );
 
-	m_pRubberBPMChange->move( 131, 1 );
+	m_pRubberBPMChange->move( 131, 0 );
 	m_pRubberBPMChange->setChecked( pPreferences->getRubberBandBatchMode());
 	connect( m_pRubberBPMChange, SIGNAL( pressed() ), this, SLOT( rubberbandButtonToggle() ) );
 	QString program = pPreferences->m_rubberBandCLIexecutable;
@@ -532,10 +532,8 @@ void PlayerControl::updatePlayerControl()
 	}
 	sTime.append( QString::number( nSeconds ) + ":" );
 	if ( nMSec  < 10 ) {
-		sTime.append( "000" );
-	} else if ( nMSec < 100 ) {
 		sTime.append( "00" );
-	} else if ( nMSec < 1000 ) {
+	} else if ( nMSec < 100 ) {
 		sTime.append( "0" );
 	}
 	sTime.append( QString::number( nMSec ) );

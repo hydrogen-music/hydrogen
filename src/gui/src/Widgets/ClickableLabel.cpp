@@ -22,6 +22,7 @@
 
 #include "ClickableLabel.h"
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 
 #include <QtGui>
 #include <QtWidgets>
@@ -44,19 +45,19 @@ ClickableLabel::ClickableLabel( QWidget *pParent, QSize size, QString sText, Col
 
 	QPalette defaultPalette;
 	if ( color == Color::Bright ) {
-		defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
+		defaultPalette.setColor( QPalette::Window, Skin::getWindowColor() );
 		defaultPalette.setColor( QPalette::WindowText, QColor( 230, 230, 230 ) );
 	} else if ( color == Color::LCD ) {
 		defaultPalette.setColor( QPalette::Window, QColor( 50, 50, 50 ) );
-		defaultPalette.setColor( QPalette::WindowText, QColor( 154, 195, 246 ) );
+		defaultPalette.setColor( QPalette::WindowText, Skin::getBlueAccentColor() );
 	} else {
 		defaultPalette.setColor( QPalette::Window, QColor( 230, 230, 230 ) );
 		defaultPalette.setColor( QPalette::WindowText, QColor( 25, 25, 25 ) );
 	}
 	
-	this->setPalette( defaultPalette );
+	setPalette( defaultPalette );
 
-	this->setAlignment( Qt::AlignCenter );
+	setAlignment( Qt::AlignCenter );
 		
 	setText( sText );
 
@@ -106,6 +107,15 @@ void ClickableLabel::updateFont( QString sFontFamily, H2Core::Preferences::FontS
 	
 	setFont( font );
 
+	// Check whether the width of the text fits the available frame
+	// width of the label
+	while ( fontMetrics().size( Qt::TextSingleLine, text() ).width() > width()
+			&& nPixelSize > 1 ) {
+		DEBUGLOG( QString( "Decreasing font size to fit label: frameWidth: %1, textWidth: %2, nPixelSize: %3" ).arg( width() ).arg( fontMetrics().size( Qt::TextSingleLine, text() ).width() ).arg( nPixelSize ) );
+		nPixelSize--;
+		font.setPixelSize( nPixelSize );
+		setFont( font );
+	}
 }
 
 void ClickableLabel::onPreferencesChanged( bool bAppearanceOnly ) {
@@ -118,4 +128,9 @@ void ClickableLabel::onPreferencesChanged( bool bAppearanceOnly ) {
 		
 		updateFont( m_sLastUsedFontFamily, m_lastUsedFontSize );
 	}
+}
+
+void ClickableLabel::setText( const QString& sNewText ) {
+	QLabel::setText( sNewText );
+	updateFont( m_sLastUsedFontFamily, m_lastUsedFontSize );
 }

@@ -138,7 +138,7 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 	QPoint def = translatePoint(0, _path->get_default());
 	painter.drawLine(0, def.y(), width(), def.y());
 
-	QPen linePen( Skin::getHighlightColor() );
+	QPen linePen( Skin::getBlueAccentColor() );
 	linePen.setWidth(2);
 	painter.setPen(linePen);
 

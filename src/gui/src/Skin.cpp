@@ -31,8 +31,8 @@ QToolTip { \
     color: rgb(64, 64, 66); \
 } \
 QPushButton { \
-    color: #0a0a0a; \
-    border: 1px solid #0a0a0a; \
+    color: %2; \
+    border: 1px solid %2; \
     border-radius: 2px; \
     padding: 5px; \
     background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
@@ -46,25 +46,26 @@ QPushButton:checked { \
     background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
                                       stop: 0 #a2cdff, stop: 1 #69a2e5); \
 } \
-QCheckBox { \
-    background-color: #3a3e48; \
-} \
 QComboBox { \
-    color: #0a0a0a; \
-    background-color: #a4aabe; \
+    color: %2; \
+    background-color: %3; \
 } \
 QComboBox QAbstractItemView { \
     background-color: #babfcf; \
 } \
 QLineEdit { \
     color: #ffffff; \
-    background-color: #3a3e48; \
+    background-color: %1; \
 } \
 QDoubleSpinBox, QSpinBox { \
     color: #ffffff; \
-    background-color: #436083; \
+    background-color: %4; \
     selection-color: #f0f0f0; \
     selection-background-color: #334a64; \
 }"
-					);
+					)
+		.arg( getWindowColor().name() )
+		.arg( getCustomButtonTextColor().name() )
+		.arg( getCustomButtonColor().name() )
+		.arg( getBlueAccentColor().name() );
 }

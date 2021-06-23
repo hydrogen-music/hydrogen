@@ -91,9 +91,18 @@ public:
 	static QColor getHighlightColor() {
 		return QColor( 206, 150, 30 );
 	}
+	static QColor getCustomButtonColor() {
+		return QColor( 164, 170, 190 );
+	}
+	static QColor getCustomButtonTextColor() {
+		return QColor( 10, 10, 10 );
+	}
 	/** A text color that contrasts with Highlight. */
 	static QColor getHighlightedTextColor() {
 		return QColor( 255, 255, 255 );
+	}
+	static QColor getBlueAccentColor() {
+		return QColor( 67, 96, 131 );
 	}
 
 	static QString getGlobalStyleSheet();

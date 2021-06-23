@@ -48,6 +48,7 @@ public:
 
 public slots:
 	void onPreferencesChanged( bool bAppearanceOnly );
+	void setText( const QString& sNewText );
 
 signals:
 	void labelClicked( ClickableLabel* pLabel );

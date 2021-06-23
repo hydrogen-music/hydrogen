@@ -77,14 +77,14 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect, b
 
 	m_sEmptySampleFilename = Filesystem::empty_sample_path();
 
-	m_pPathUptoolButton->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/go-up.svg"));
+	m_pPathUptoolButton->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/go-up.svg"));
 	m_pPathUptoolButton->setToolTip( QString( tr( "Parent Folder" )));
-	m_pPathHometoolButton->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/home.svg"));
+	m_pPathHometoolButton->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/home.svg"));
 	m_pPathHometoolButton->setToolTip( QString( tr( "Home" )));
 
-	m_pPlayBtn->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/play.svg"));
+	m_pPlayBtn->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/play.svg"));
 	m_pPlayBtn->setToolTip( QString( tr( "Play selected" ) ));
-	m_pStopBtn->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/stop.svg"));
+	m_pStopBtn->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/stop.svg"));
 	m_pStopBtn->setToolTip( QString( tr( "Stop" )));
 
 	m_pSampleWaveDisplay = new SampleWaveDisplay( waveformview );
