@@ -82,7 +82,7 @@ ENDIF()
 OPTION(WANT_CPPUNIT         "Include CppUnit test suite" ON)
 OPTION(FIXME_DISABLE_OPTIMIZATIONS "Fix broken builds by turning off optimizations" OFF)
 OPTION(WANT_PYSIDE          "Build PySide bindings for h2core library" OFF)
-OPTION(WANT_PYBIND11        "Build PyBind11 bindings for h2core library" ON)
+OPTION(WANT_PYBIND11        "Build PyBind11 bindings for h2core library" OFF)
 
 include(Sanitizers)
 INCLUDE(StatusSupportOptions)
@@ -319,7 +319,8 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
 * macosx bundle                : ${H2CORE_HAVE_BUNDLE}
 * fat build                    : ${WANT_FAT_BUILD}
-* PySide bindings              : ${WANT_PYSIDE}\n"
+* PySide bindings              : ${WANT_PYSIDE}
+* Pybind11 bindings            : ${WANT_PYBIND11}\n"
 )
 
 COLOR_MESSAGE("${cyan}Main librarires${reset}")
