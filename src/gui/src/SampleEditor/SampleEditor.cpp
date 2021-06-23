@@ -275,23 +275,23 @@ void SampleEditor::getAllFrameInfos()
 
 	if ( pSample->get_velocity_envelope()->size()==0 ) {
 		m_pTargetSampleView->get_velocity()->clear();
-		m_pTargetSampleView->get_velocity()->push_back( std::make_unique<EnvelopePoint>( 0, 0 ) );
-		m_pTargetSampleView->get_velocity()->push_back( std::make_unique<EnvelopePoint>( m_pTargetSampleView->width(), 0 ) );
+		m_pTargetSampleView->get_velocity()->push_back( EnvelopePoint( 0, 0 ) );
+		m_pTargetSampleView->get_velocity()->push_back( EnvelopePoint( m_pTargetSampleView->width(), 0 ) );
 	} else {
 		m_pTargetSampleView->get_velocity()->clear();
 		
 		for(auto& pEnvPtr : *pSample->get_velocity_envelope() ){
-			m_pTargetSampleView->get_velocity()->emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr.get() ) );
+			m_pTargetSampleView->get_velocity()->emplace_back( pEnvPtr );
 		}
 	}
 
 	if ( pSample->get_pan_envelope()->size()==0 ) {
 		m_pTargetSampleView->get_pan()->clear();
-		m_pTargetSampleView->get_pan()->push_back( std::make_unique<EnvelopePoint>( 0, m_pTargetSampleView->height()/2 ) );
-		m_pTargetSampleView->get_pan()->push_back( std::make_unique<EnvelopePoint>( m_pTargetSampleView->width(), m_pTargetSampleView->height()/2 ) );
+		m_pTargetSampleView->get_pan()->push_back( EnvelopePoint( 0, m_pTargetSampleView->height()/2 ) );
+		m_pTargetSampleView->get_pan()->push_back( EnvelopePoint( m_pTargetSampleView->width(), m_pTargetSampleView->height()/2 ) );
 	} else {
 		for(auto& pEnvPtr : *pSample->get_pan_envelope() ){
-			m_pTargetSampleView->get_pan()->emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr.get() ) );
+			m_pTargetSampleView->get_pan()->emplace_back( pEnvPtr );
 		}
 	}
 
