@@ -1034,7 +1034,6 @@ void SampleEditor::valueChangedProcessingTypeComboBox( const QString unused )
 
 void SampleEditor::valueChangedEditTypeComboBox( int index )
 {
-	qDebug() << QString("EditMode<int> changed (%1) %2").arg(index).arg(reinterpret_cast<unsigned long>(static_cast<void*>(m_pTargetSampleView)));
 	if ( ! m_pTargetSampleView ) {
 		qWarning() << "no TargetSampleView!";
 		return;
