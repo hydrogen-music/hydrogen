@@ -35,12 +35,7 @@ ${binder_outdir}/hydra.cpp
 )
 file(GLOB_RECURSE core_generated_sources *.cpp)
 
-
-set(core_generated_headers
-
-)
-
-add_custom_command(OUTPUT ${core_generated_sources} ${core_generated_headers}
+add_custom_command(OUTPUT ${core_generated_sources}
                     COMMAND ${binder}
                     --trace
                     -v
@@ -52,7 +47,7 @@ add_custom_command(OUTPUT ${core_generated_sources} ${core_generated_headers}
                     --bind ${binder_namespace} # namespace to build
                     ${core_wrapped_header}
                     -- ${binder_options}
-                    DEPENDS ${core_generated_sources_dependencies}
+                    DEPENDS ${core_wrapped_header} ${core_config_file}
                     IMPLICIT_DEPENDS CXX ${core_wrapped_header}
                     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                     COMMENT "Running generator for ${core_bindings_library}.")

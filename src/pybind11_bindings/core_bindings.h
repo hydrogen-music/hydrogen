@@ -1,3 +1,4 @@
+#include <core/config.h>
 #include <core/AudioEngine.h>
 #include <core/AutomationPathSerializer.h>
 #include <core/Basics/Adsr.h>
@@ -30,8 +31,8 @@
 #include <core/IO/AlsaAudioDriver.h>
 #include <core/IO/AlsaMidiDriver.h>
 #include <core/IO/AudioOutput.h>
-#include <core/IO/CoreAudioDriver.h>
-#include <core/IO/CoreMidiDriver.h>
+// #include <core/IO/CoreAudioDriver.h>
+// #include <core/IO/CoreMidiDriver.h>
 #include <core/IO/DiskWriterDriver.h>
 #include <core/IO/FakeDriver.h>
 #include <core/IO/JackAudioDriver.h>
@@ -40,10 +41,10 @@
 #include <core/IO/MidiInput.h>
 #include <core/IO/MidiOutput.h>
 #include <core/IO/NullDriver.h>
-#include <core/IO/OssDriver.h>
+// #include <core/IO/OssDriver.h>
 #include <core/IO/PortAudioDriver.h>
 #include <core/IO/PortMidiDriver.h>
-#include <core/IO/PulseAudioDriver.h>
+// #include <core/IO/PulseAudioDriver.h>
 #include <core/IO/TransportInfo.h>
 #include <core/Lash/LashClient.h>
 #include <core/Lilipond/Lilypond.h>
