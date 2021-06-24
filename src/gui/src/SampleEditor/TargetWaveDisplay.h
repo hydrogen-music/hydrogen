@@ -47,6 +47,11 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		explicit TargetWaveDisplay(QWidget* pParent);
 		~TargetWaveDisplay();
 
+		enum EnvelopeEditMode {
+			VELOCITY = 0,
+			PAN = 1
+		};
+
 		void updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 		void updateDisplayPointer();
 		void paintLocatorEventTargetDisplay( int pos, bool last_event);
@@ -69,16 +74,22 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 
 		unsigned m_nSampleLength;
 
-		bool m_VMove;
 		bool m_UpdatePosition;
+		EnvelopeEditMode m_EditMode;
+
+		int m_nSnapRadius;
 
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 
+		virtual void updateMouseSelection(QMouseEvent *ev);
+		virtual void updateEnvelope();
+
 		H2Core::Sample::PanEnvelope m_PanEnvelope;
 		H2Core::Sample::VelocityEnvelope m_VelocityEnvelope;
-};
 
+		int m_nSelectedEnvelopePoint;
+};
 
 #endif

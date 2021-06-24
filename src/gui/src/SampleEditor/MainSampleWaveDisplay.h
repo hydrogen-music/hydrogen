@@ -36,6 +36,14 @@ class MainSampleWaveDisplay : public QWidget, public H2Core::Object
 	Q_OBJECT
 
 	public:
+
+		enum Slider {
+			NONE,
+			START,
+			LOOP,
+			END
+		};
+
 		explicit MainSampleWaveDisplay(QWidget* pParent);
 		~MainSampleWaveDisplay();
 
@@ -50,10 +58,12 @@ class MainSampleWaveDisplay : public QWidget, public H2Core::Object
 		int		m_nStartFramePosition;
 		int		m_nLoopFramePosition;
 		int		m_nEndFramePosition;
-		bool	m_bMove;
+
 		bool	m_bStartSliderIsMoved;
 		bool	m_bLoopSliderIsMoved;
 		bool	m_bEndSliderIsmoved;
+
+		Slider  m_SelectedSlider;
 
 
 	private:
@@ -61,6 +71,8 @@ class MainSampleWaveDisplay : public QWidget, public H2Core::Object
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		void testPosition( QMouseEvent *ev );
+		void chooseSlider( QMouseEvent *ev );
+		void mouseUpdateDone();
 		
 		QPixmap m_background;
 		int*	m_pPeakDatal;

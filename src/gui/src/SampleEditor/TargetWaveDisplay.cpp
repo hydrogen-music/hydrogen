@@ -40,6 +40,8 @@ using namespace H2Core;
 #include "TargetWaveDisplay.h"
 #include "../Skin.h"
 
+static TargetWaveDisplay::EnvelopeEditMode getEnvelopeEditMode();
+
 const char* TargetWaveDisplay::__class_name = "TargetWaveDisplay";
 
 TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
@@ -61,12 +63,14 @@ TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
 
 	m_pPeakData_Left = new int[ w ];
 	m_pPeakData_Right = new int[ w ];
-	m_VMove = false;
 	m_sInfo = "";
 	m_nX = -10;
 	m_nY = -10;
 	m_nLocator = -1;
 	m_UpdatePosition = false;
+	m_nSelectedEnvelopePoint = -1;
+	m_nSnapRadius = 6;
+	setMouseTracking(true);
 }
 
 
@@ -80,11 +84,39 @@ TargetWaveDisplay::~TargetWaveDisplay()
 	delete[] m_pPeakData_Right;
 }
 
+static void paintEnvelope(Sample::VelocityEnvelope &envelope, QPainter &painter,
+	int selected, const QColor & lineColor, const QColor & handleColor, const QColor & selectedColor)
+{
+	if (envelope.empty())
+		return;
+	for ( int i = 0; i < static_cast<int>(envelope.size()) -1; i++){
+		painter.setPen( QPen(lineColor, 1 , Qt::SolidLine) );
+		painter.drawLine( envelope[i]->frame, envelope[i]->value, envelope[i + 1]->frame, envelope[i +1]->value );
+		if ( i == selected )
+			painter.setBrush( selectedColor );
+		else
+			painter.setBrush( handleColor );
+		painter.drawEllipse ( envelope[i]->frame - 6/2, envelope[i]->value  - 6/2, 6, 6 );
+	}
+	// draw first and last points as squares
+	if ( 0 == selected )
+		painter.setBrush( selectedColor );
+	else
+		painter.setBrush( handleColor );
+	painter.drawRect ( envelope[0]->frame - 12/2, envelope[0]->value  - 6/2, 12, 6 );
 
+	if ( envelope.size() - 1 == selected )
+		painter.setBrush( selectedColor );
+	else
+		painter.setBrush( handleColor );
+	painter.drawRect ( envelope[envelope.size() -1]->frame - 12/2, envelope[envelope.size() -1]->value  - 6/2, 12, 6 );
+}
 
 void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
+
+	m_EditMode = getEnvelopeEditMode();
 
 	painter.setRenderHint( QPainter::Antialiasing );
 	painter.drawPixmap( ev->rect(), m_Background, ev->rect() );
@@ -107,43 +139,22 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 	Font.setWeight( 63 );
 	painter.setFont( Font );
 
-	for ( int i = 0; i < static_cast<int>(m_VelocityEnvelope.size()) -1; i++){
-		//volume line
-		painter.setPen( QPen(QColor( 255, 255, 255, 200 ) ,1 , Qt::SolidLine) );
-		painter.drawLine( m_VelocityEnvelope[i]->frame, m_VelocityEnvelope[i]->value, m_VelocityEnvelope[i + 1]->frame, m_VelocityEnvelope[i +1]->value );
-		painter.setBrush(QColor( 99, 160, 233 ));
-		painter.drawEllipse ( m_VelocityEnvelope[i]->frame - 6/2, m_VelocityEnvelope[i]->value  - 6/2, 6, 6 );
-	}
-
-	for ( int i = 0; i < static_cast<int>(m_PanEnvelope.size()) -1; i++){
-		//pan line
-		painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine) );
-		painter.drawLine( m_PanEnvelope[i]->frame, m_PanEnvelope[i]->value, m_PanEnvelope[i + 1]->frame, m_PanEnvelope[i +1]->value );
-		painter.setBrush(QColor( 77, 189, 55 ));
-		painter.drawEllipse ( m_PanEnvelope[i]->frame - 6/2, m_PanEnvelope[i]->value  - 6/2, 6, 6 );
-	}
-
-
 	painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );
 	painter.drawLine( m_nLocator, 4, m_nLocator, height() -4);
 
+	QColor volumeLineColor = QColor( 255, 255, 255, 200);
+	QColor volumeHandleColor = QColor( 99, 160, 233);
+	QColor panLineColor = QColor( 249, 235, 116, 200 );
+	QColor panHandleColor = QColor( 77, 189, 55 );
+	QColor selectedtHandleColor = QColor( 255, 100, 90 );
 	//volume line
-	//first rect
-	painter.setPen( QPen(QColor( 255, 255, 255, 200 ) ,1 , Qt::SolidLine) );
-	painter.setBrush(QColor( 99, 160, 233 ));
-	painter.drawRect ( m_VelocityEnvelope[0]->frame - 12/2, m_VelocityEnvelope[0]->value  - 6/2, 12, 6 );
-	//last rect
-	painter.drawRect ( m_VelocityEnvelope[m_VelocityEnvelope.size() -1]->frame - 12/2, m_VelocityEnvelope[m_VelocityEnvelope.size() -1]->value  - 6/2, 12, 6 );
 
+	paintEnvelope(m_VelocityEnvelope, painter, m_EditMode == TargetWaveDisplay::VELOCITY ? m_nSelectedEnvelopePoint : -1,
+		volumeLineColor, volumeHandleColor, selectedtHandleColor);
 	//pan line
-	//first rect
-	painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine) );
-	painter.setBrush(QColor( 77, 189, 55 ));
-	painter.drawRect ( m_PanEnvelope[0]->frame - 12/2, m_PanEnvelope[0]->value  - 6/2, 12, 6 );
-	//last rect
-	painter.drawRect ( m_PanEnvelope[m_PanEnvelope.size() -1]->frame - 12/2, m_PanEnvelope[m_PanEnvelope.size() -1]->value  - 6/2, 12, 6 );
-
+	paintEnvelope(m_PanEnvelope, painter, m_EditMode == TargetWaveDisplay::PAN ? m_nSelectedEnvelopePoint : -1,
+		panLineColor, panHandleColor, selectedtHandleColor);
 
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::DotLine ) );
 	painter.drawLine( 0, LCenter, UI_WIDTH, LCenter );
@@ -238,194 +249,128 @@ void TargetWaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> 
 
 }
 
-
-void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
+void TargetWaveDisplay::updateMouseSelection(QMouseEvent *ev)
 {
-	int snapradius = 10;
-	int editType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentIndex();
+	m_EditMode = getEnvelopeEditMode();
+	const Sample::VelocityEnvelope & envelope = (m_EditMode == TargetWaveDisplay::VELOCITY) ? m_VelocityEnvelope : m_PanEnvelope;
 
+	m_nX = std::min(UI_WIDTH, std::max(0, ev->x()));
+	m_nY = std::min(UI_HEIGHT, std::max(0, ev->y()));
 
-	///edit volume points
-	if( editType == 0 ){
-		m_VMove = true;
-
-		if ( ev->x() <= 0 || ev->x() >= UI_WIDTH || ev->y() < 0 || ev->y() > UI_HEIGHT ){
-			update();
-			m_VMove = false;
-			return;
-		}
-		float info = (UI_HEIGHT - ev->y()) / (float)UI_HEIGHT;
-		m_sInfo.setNum( info, 'g', 2 );
-		m_nX = ev->x();
-		m_nY = ev->y();
-
-		for ( int i = 0; i < static_cast<int>(m_VelocityEnvelope.size()); i++){
-			if ( m_VelocityEnvelope[i]->frame >= ev->x() - snapradius && m_VelocityEnvelope[i]->frame <= ev->x() + snapradius ) {
-				m_VelocityEnvelope.erase( m_VelocityEnvelope.begin() + i);
-				int Frame = 0;
-				int Value = 0;
-				
-				if ( i == 0 ){
-					Frame = 0;
-					Value = ev->y();
-				} else if ( i == static_cast<int>(m_VelocityEnvelope.size()) ) {
-					Frame = m_VelocityEnvelope[i]->frame;
-					Value = ev->y();
-				} else {
-					Frame = ev->x();
-					Value = ev->y();
+	if ( !(ev->buttons() & Qt::LeftButton) || m_nSelectedEnvelopePoint == -1) {
+		QPoint mousePoint(m_nX, m_nY);
+		int selection = -1;
+		int min_distance = 1000000;
+		for ( int i = 0; i < static_cast<int>(envelope.size()); i++){
+			if ( envelope[i]->frame >= m_nX - m_nSnapRadius && envelope[i]->frame <= m_nX + m_nSnapRadius ) {
+				QPoint envelopePoint(envelope[i]->frame, envelope[i]->value);
+				int delta = (mousePoint - envelopePoint).manhattanLength();
+				if (delta < min_distance) {
+					min_distance = delta;
+					selection = i;
 				}
-				m_VelocityEnvelope.push_back( std::make_unique<EnvelopePoint>( Frame, Value) );
-				sort( m_VelocityEnvelope.begin(), m_VelocityEnvelope.end(), EnvelopePoint::Comparator() );
-				update();
-				return;
-			}else
-			{
-				m_VMove = false;
 			}
 		}
-		///edit panorama points
-	}else if( editType == 1 ){
-		m_VMove = true;
-
-		if ( ev->x() <= 0 || ev->x() >= UI_WIDTH || ev->y() < 0 || ev->y() > UI_HEIGHT ){
-			update();
-			m_VMove = false;
-			return;
-		}
-		float info = (UI_HEIGHT/2 - ev->y()) / (UI_HEIGHT/2.0);
+		m_nSelectedEnvelopePoint = selection;
+	}
+	if (m_nSelectedEnvelopePoint == -1)
+		m_sInfo = "";
+	else {
+		float info = (UI_HEIGHT - envelope[m_nSelectedEnvelopePoint]->value) / (float)UI_HEIGHT;
 		m_sInfo.setNum( info, 'g', 2 );
-		m_nX = ev->x();
-		m_nY = ev->y();
+	}
+}
 
-		for ( int i = 0; i < static_cast<int>(m_PanEnvelope.size()); i++){
-			if ( m_PanEnvelope[i]->frame >= ev->x() - snapradius && m_PanEnvelope[i]->frame <= ev->x() + snapradius ) {
-				m_PanEnvelope.erase( m_PanEnvelope.begin() + i);
-				int Frame = 0;
-				int Value = 0;
-				if ( i == 0 ){
-					Frame = 0;
-					Value = ev->y();
-				} else if ( i == static_cast<int>(m_PanEnvelope.size()) ) {
-					Frame = m_PanEnvelope[i]->frame;
-					Value = ev->y();
-				} else {
-					Frame = ev->x();
-					Value = ev->y();
-				}
-				m_PanEnvelope.push_back( std::make_unique<EnvelopePoint>(Frame, Value) );
-				sort( m_PanEnvelope.begin(), m_PanEnvelope.end(), EnvelopePoint::Comparator() );
-				update();
-				return;
-			}else
-			{
-				m_VMove = false;
+void TargetWaveDisplay::updateEnvelope()
+{
+	if ( m_nSelectedEnvelopePoint == -1 ) {
+		return;
+	}
+	m_EditMode = getEnvelopeEditMode();
+	Sample::VelocityEnvelope & envelope = (m_EditMode == TargetWaveDisplay::VELOCITY) ? m_VelocityEnvelope : m_PanEnvelope;
+	envelope.erase( envelope.begin() + m_nSelectedEnvelopePoint );
+	if ( m_nSelectedEnvelopePoint == 0 ){
+		m_nX = 0;
+	} else if ( m_nSelectedEnvelopePoint == static_cast<int>(envelope.size()) ) {
+		m_nX = UI_WIDTH;
+	}
+	envelope.push_back( std::make_unique<EnvelopePoint>( m_nX, m_nY ) );
+	sort( envelope.begin(), envelope.end(), EnvelopePoint::Comparator() );
+	for (int i = 0; i < envelope.size() - 1; ++i) {
+		if (envelope[i]->frame == envelope[i+1]->frame) {
+			envelope.erase( envelope.begin() + i);
+			if (i + 1 == m_nSelectedEnvelopePoint) {
+				m_nSelectedEnvelopePoint = i;
 			}
 		}
 	}
+}
 
+void TargetWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
+{
+	updateMouseSelection(ev);
+
+	if ( ! (ev->buttons() & Qt::LeftButton) ) {
+		// we are not dragging any point
+		update();
+		return;
+	}
+	updateEnvelope();
+	updateMouseSelection(ev);
 	update();
-	HydrogenApp::get_instance()->getSampleEditor()->setTrue();
+	HydrogenApp::get_instance()->getSampleEditor()->setUnclean();
 }
 
 
 
 void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 {
-	int SnapRadius = 6;
-	bool NewPoint = true;
+	m_EditMode = getEnvelopeEditMode();
+	Sample::VelocityEnvelope & envelope = (m_EditMode == TargetWaveDisplay::VELOCITY) ? m_VelocityEnvelope : m_PanEnvelope;
 
-	// add new point
-	int EditType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentIndex();
+	updateMouseSelection(ev);
 
-	///edit volume points
-	if( EditType == 0 ){
+	if (ev->button() == Qt::LeftButton) {
+		// add or move point
+		bool NewPoint = false;
 
-		// test if there is already a point
-		for ( int i = 0; i < static_cast<int>(m_VelocityEnvelope.size()); ++i){
-			if ( m_VelocityEnvelope[i]->frame >= ev->x() - SnapRadius && m_VelocityEnvelope[i]->frame <= ev->x() + SnapRadius ){
-				NewPoint = false;
+		if ( m_nSelectedEnvelopePoint == -1 ) {
+			NewPoint = true;
+		}
+
+		if (NewPoint){
+			if (envelope.empty()) {
+				envelope.push_back( std::make_unique<EnvelopePoint>(0, m_nY) );
+				envelope.push_back( std::make_unique<EnvelopePoint>(UI_WIDTH, m_nY));
+			} else {
+				envelope.push_back( std::make_unique<EnvelopePoint>( m_nX, m_nY ) );
 			}
+			sort( envelope.begin(), envelope.end(), EnvelopePoint::Comparator() );
+		} else {
+			// move old point to new position
+			updateEnvelope();
 		}
-
-		int x = ev->x();
-		int y = ev->y();
-		if (ev->button() == Qt::LeftButton && !m_VMove && NewPoint){
-			float info = (UI_HEIGHT - ev->y()) / (float)UI_HEIGHT;
-			m_sInfo.setNum( info, 'g', 2 );
-			m_nX = ev->x();
-			m_nY = ev->y();
-			if ( ev->y() <= 0 ) y = 0;
-			if ( ev->y() >= UI_HEIGHT ) y = UI_HEIGHT;
-			if ( ev->x() <= SnapRadius ) x = SnapRadius;
-			if ( ev->x() >= UI_WIDTH-SnapRadius ) x = UI_WIDTH-SnapRadius;
-			m_VelocityEnvelope.push_back( std::make_unique<EnvelopePoint>( x, y ) );
-			sort( m_VelocityEnvelope.begin(), m_VelocityEnvelope.end(), EnvelopePoint::Comparator() );
-		}
-
+	} else if (ev->button() == Qt::RightButton ) {
 		//remove point
-		SnapRadius = 10;
-		if (ev->button() == Qt::RightButton ){
 
-			if ( ev->x() <= 0 || ev->x() >= UI_WIDTH ){
-				update();
-				return;
-			}
-			m_sInfo = "";
-
-			for ( int i = 0; i < static_cast<int>(m_VelocityEnvelope.size()); i++){
-				if ( m_VelocityEnvelope[i]->frame >= ev->x() - SnapRadius && m_VelocityEnvelope[i]->frame <= ev->x() + SnapRadius ){
-					if ( m_VelocityEnvelope[i]->frame == 0 || m_VelocityEnvelope[i]->frame == UI_WIDTH) return;
-					m_VelocityEnvelope.erase( m_VelocityEnvelope.begin() +  i);
-				}
-			}
-		}
-	}
-	///edit panorama points
-	else if( EditType == 1 ){
-		// test if there is already a point
-		for ( int i = 0; i < static_cast<int>(m_PanEnvelope.size()); ++i){
-			if ( m_PanEnvelope[i]->frame >= ev->x() - SnapRadius && m_PanEnvelope[i]->frame <= ev->x() + SnapRadius ){
-				NewPoint = false;
-			}
-		}
-		int x = ev->x();
-		int y = ev->y();
-		if (ev->button() == Qt::LeftButton && !m_VMove && NewPoint){
-			float info = (UI_HEIGHT/2 - ev->y()) / (UI_HEIGHT/2.0);
-			m_sInfo.setNum( info, 'g', 2 );
-			m_nX = ev->x();
-			m_nY = ev->y();
-			if ( ev->y() <= 0 ) y = 0;
-			if ( ev->y() >= UI_HEIGHT ) y = UI_HEIGHT;
-			if ( ev->x() <= SnapRadius ) x = SnapRadius;
-			if ( ev->x() >= UI_WIDTH-SnapRadius ) x = UI_WIDTH-SnapRadius;
-			m_PanEnvelope.push_back( std::make_unique<EnvelopePoint>( x, y ) );
-			sort( m_PanEnvelope.begin(), m_PanEnvelope.end(), EnvelopePoint::Comparator() );
-		}
-
-
-		//remove point
-		SnapRadius = 10;
-		if (ev->button() == Qt::RightButton ){
-
-			if ( ev->x() <= 0 || ev->x() >= UI_WIDTH ){
-				update();
-				return;
-			}
-			m_sInfo = "";
-
-			for ( int i = 0; i < static_cast<int>(m_PanEnvelope.size()); i++){
-				if ( m_PanEnvelope[i]->frame >= ev->x() - SnapRadius && m_PanEnvelope[i]->frame <= ev->x() + SnapRadius ){
-					if ( m_PanEnvelope[i]->frame == 0 || m_PanEnvelope[i]->frame == UI_WIDTH) return;
-					m_PanEnvelope.erase( m_PanEnvelope.begin() +  i);
-				}
-			}
+		if ( m_nSelectedEnvelopePoint == -1 ||
+			 envelope.size() > 2 &&
+			 (m_nSelectedEnvelopePoint == 0 || m_nSelectedEnvelopePoint == envelope.size() - 1) ) {
+			// do nothing if no point is selected
+			// don't remove first or last point if more than 2 points in envelope
+			update();
+			return;
+		} else if (envelope.size() == 2) {
+			// if only 2 points, remove them both
+			envelope.clear();
+		} else {
+			envelope.erase( envelope.begin() +  m_nSelectedEnvelopePoint );
 		}
 	}
 
+	updateMouseSelection(ev);
 	update();
-	HydrogenApp::get_instance()->getSampleEditor()->setTrue();
+	HydrogenApp::get_instance()->getSampleEditor()->setUnclean();
 }
 
 
@@ -434,6 +379,21 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 
 void TargetWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
 {
+	updateMouseSelection(ev);
 	update();
 	HydrogenApp::get_instance()->getSampleEditor()->returnAllTargetDisplayValues();
+}
+
+
+static TargetWaveDisplay::EnvelopeEditMode getEnvelopeEditMode()
+{
+	int editType = HydrogenApp::get_instance()->getSampleEditor()->EditTypeComboBox->currentIndex();
+	if (editType == 0) {
+		return TargetWaveDisplay::VELOCITY;
+	} else if (editType == 1) {
+		return TargetWaveDisplay::PAN;
+	} else {
+		// combo options added
+		return TargetWaveDisplay::PAN;
+	}
 }
