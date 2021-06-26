@@ -784,6 +784,10 @@ Está certo disto?</translation>
 Use &apos;Save as&apos; to enable autosave.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Input Midi Note</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InstrumentEditor</name>
@@ -1472,18 +1476,22 @@ Deseja descartar as mudanças?
     </message>
     <message>
         <source>Replace With &amp;New Song</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with an empty one.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Imp&amp;ort Into Session</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with one chosen by the user via a file browser widget.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import &amp;Recent Into Session</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with one chosen recently used by the user.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Export From Session &amp;As...</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows the user store the current song in a .h2song anywhere on her system. The filepath of the current song won&apos;t be altered.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2419,10 +2427,12 @@ Maximum = 16/4</source>
     </message>
     <message>
         <source>JACK transport on/off</source>
+        <extracomment>Using the JACK the audio/midi input and output ports of any number of application can be connected.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>JACK Timebase master on/off</source>
+        <extracomment>Using the JACK Timebase Master functionality one of the connected programs can broadcast both speed and measure information to all other connected applications in order to have a more fine-grained transport control.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2681,18 +2691,6 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
         <translation>Preferências</translation>
     </message>
     <message>
-        <source>Slow</source>
-        <translation>Lento</translation>
-    </message>
-    <message>
-        <source>Normal</source>
-        <translation>Normal</translation>
-    </message>
-    <message>
-        <source>Fast</source>
-        <translation>Rápido</translation>
-    </message>
-    <message>
         <source>Please restart hydrogen to enable/disable LASH support</source>
         <translation>Por favor, reinicie o Hydrogen para ativar/desativar o suporte ao LASH</translation>
     </message>
@@ -2855,6 +2853,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Meters falloff speed</source>
+        <extracomment>In case of a rapid sound lasting for just a milli second the meters in the Mixer would raise to peak value and fall of immediately without the user being able to see them. The falloff speed introduces a delay. The smaller the value, the longer the meter requires to reach 0dB again.</extracomment>
         <translation>Medidores de velocidade de queda</translation>
     </message>
     <message>
@@ -3107,6 +3106,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Use &amp;LASH</source>
+        <extracomment>LASH (acronym for LASH Linux Audio Handler) is a protocol allowing for session management in Linux (recalling songs, preferences, and JACK port connections).</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3702,29 +3702,6 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;você pode achar mais informação aqui:&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>SimpleHTMLBrowser</name>
-    <message>
-        <source>Manual</source>
-        <translation>Manual</translation>
-    </message>
-    <message>
-        <source>Welcome to Hydrogen</source>
-        <translation>Bem-vindo ao Hydrogen</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation>Ok</translation>
-    </message>
-    <message>
-        <source>Documentation index</source>
-        <translation>Índice de documentação</translation>
-    </message>
-    <message>
-        <source>Don&apos;t show this message anymore</source>
-        <translation>Não mostrar mais esta mensagem</translation>
     </message>
 </context>
 <context>

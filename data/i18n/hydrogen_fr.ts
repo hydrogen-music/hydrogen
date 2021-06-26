@@ -786,6 +786,10 @@ Use &apos;Save as&apos; to enable autosave.</source>
         <translation>Le morceau est en lecture seule.
 Utilisez &apos;Sauvegarder sous&apos; pour activer la sauvegarde automatique.</translation>
     </message>
+    <message>
+        <source>Input Midi Note</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InstrumentEditor</name>
@@ -1535,18 +1539,22 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Replace With &amp;New Song</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with an empty one.</extracomment>
         <translation>Remplacer avec un &amp;nouveau morceau</translation>
     </message>
     <message>
         <source>Imp&amp;ort Into Session</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with one chosen by the user via a file browser widget.</extracomment>
         <translation>Imp&amp;orter dans la session</translation>
     </message>
     <message>
         <source>Import &amp;Recent Into Session</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with one chosen recently used by the user.</extracomment>
         <translation>Importer un &amp;récent depuis la session</translation>
     </message>
     <message>
         <source>Export From Session &amp;As...</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows the user store the current song in a .h2song anywhere on her system. The filepath of the current song won&apos;t be altered.</extracomment>
         <translation>Exporter depuis l&amp;a session sous</translation>
     </message>
     <message>
@@ -2439,10 +2447,12 @@ Maximum = 16/4</translation>
     </message>
     <message>
         <source>JACK transport on/off</source>
+        <extracomment>Using the JACK the audio/midi input and output ports of any number of application can be connected.</extracomment>
         <translation>Transport JACK on/off</translation>
     </message>
     <message>
         <source>JACK Timebase master on/off</source>
+        <extracomment>Using the JACK Timebase Master functionality one of the connected programs can broadcast both speed and measure information to all other connected applications in order to have a more fine-grained transport control.</extracomment>
         <translation>Maître JACK Timebase on/off</translation>
     </message>
     <message>
@@ -2697,18 +2707,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <source>Slow</source>
-        <translation>Lent</translation>
-    </message>
-    <message>
-        <source>Normal</source>
-        <translation>Normal</translation>
-    </message>
-    <message>
-        <source>Fast</source>
-        <translation>Rapide</translation>
-    </message>
-    <message>
         <source>Preferences</source>
         <translation>Préférences</translation>
     </message>
@@ -2859,6 +2857,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Meters falloff speed</source>
+        <extracomment>In case of a rapid sound lasting for just a milli second the meters in the Mixer would raise to peak value and fall of immediately without the user being able to see them. The falloff speed introduces a delay. The smaller the value, the longer the meter requires to reach 0dB again.</extracomment>
         <translation>Vitesse de chute des niveaux</translation>
     </message>
     <message>
@@ -3183,6 +3182,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Use &amp;LASH</source>
+        <extracomment>LASH (acronym for LASH Linux Audio Handler) is a protocol allowing for session management in Linux (recalling songs, preferences, and JACK port connections).</extracomment>
         <translation>Utiliser &amp;LASH</translation>
     </message>
     <message>
@@ -3723,29 +3723,6 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;vous pouvez trouver davantage d&apos;information ici :&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>SimpleHTMLBrowser</name>
-    <message>
-        <source>Manual</source>
-        <translation>Manuel</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation>OK</translation>
-    </message>
-    <message>
-        <source>Welcome to Hydrogen</source>
-        <translation>Bienvenue dans Hydrogen</translation>
-    </message>
-    <message>
-        <source>Don&apos;t show this message anymore</source>
-        <translation>Ne plus afficher ce message</translation>
-    </message>
-    <message>
-        <source>Documentation index</source>
-        <translation>Index de la documentation</translation>
     </message>
 </context>
 <context>
