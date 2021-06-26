@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -111,8 +111,7 @@ public:
 	* -# It sets #m_nSongPos = -1.
 	* -# It sets #m_nSelectedPatternNumber, #m_nSelectedInstrumentNumber,
 	*	and #m_nPatternTickPosition to 0.
-	* -# It sets #m_pMetronomeInstrument, #m_pAudioDriver,
-	*	#m_pMainBuffer_L, #m_pMainBuffer_R to NULL.
+	* -# It sets #m_pMetronomeInstrument, #m_pAudioDriver to NULL.
 	* -# It uses the current time to a random seed via std::srand(). This
 	*	way the states of the pseudo-random number generator are not
 	*	cross-correlated between different runs of Hydrogen.
@@ -330,8 +329,8 @@ public:
 	 * - If audioEngine_updateNoteQueue() returns with 2, the
 	 * EVENT_PATTERN_CHANGED event will be pushed to the EventQueue.
 	 * - writes the audio output of the Sampler, Synth, and the LadspaFX
-	 * (if #H2CORE_HAVE_LADSPA is defined) to #m_pMainBuffer_L and
-	 * #m_pMainBuffer_R and sets we peak values for #m_fFXPeak_L,
+	 * (if #H2CORE_HAVE_LADSPA is defined) to audio output buffers, and
+     * sets we peak values for #m_fFXPeak_L,
 	 * #m_fFXPeak_R, #m_fMasterPeak_L, and #m_fMasterPeak_R.
 	 * - finally increments the transport position
 	 * TransportInfo::m_nFrames with the buffersize @a nframes. So, if
@@ -342,8 +341,7 @@ public:
 	 * #STATE_PLAYING or the locking of the AudioEngine failed, the
 	 * function will return 0 without performing any actions.
 	 *
-	 * \param nframes Buffersize. If it doesn't match #m_nBufferSize, the
-	   latter will be set to @a nframes.
+	 * \param nframes Buffersize.
 	 * \param arg Unused.
 	 * \return
 	 * - __2__ : Failed to aquire the audio engine lock, no processing took place.
@@ -375,13 +373,13 @@ public:
 	 *
 	 * If the status is TransportInfo::STOPPED but the engine is still
 	 * running, audioEngine_stop() will be called. In any case,
-	 * #m_nRealtimeFrames will be incremented by #m_nBufferSize to support
+	 * #m_nRealtimeFrames will be incremented by #nFrames to support
 	 * realtime keyboard and MIDI event timing.
 	 *
 	 * If the H2Core::m_audioEngineState is neither in #STATE_READY nor
 	 * #STATE_PLAYING the function will immediately return.
 	 */
-	inline void			processTransport();
+	inline void			processTransport( unsigned nFrames );
 	
 	inline unsigned		renderNote( Note* pNote, const unsigned& nBufferSize );
 	// TODO: Add documentation of inPunchArea, and
@@ -547,8 +545,7 @@ public:
 	/** Clear all audio buffers.
 	 *
 	 * It locks the audio output buffer using #mutex_OutputPointer, gets
-	 * fresh pointers to the output buffers #m_pMainBuffer_L and
-	 * #m_pMainBuffer_R using AudioOutput::getOut_L() and
+	 * pointers to the output buffers using AudioOutput::getOut_L() and
 	 * AudioOutput::getOut_R() of the current instance of the audio driver
 	 * #m_pAudioDriver, and overwrites their memory with
 	 * \code{.cpp}
@@ -646,7 +643,7 @@ public:
 					
 	void			restartAudioDrivers();
 					
-	void			setupLadspaFX( unsigned nBufferSize );
+	void			setupLadspaFX();
 	
 	/**
 	 * Hands the provided Song to JackAudioDriver::makeTrackOutputs() if
@@ -675,9 +672,6 @@ public:
 	//set the current state of the audio engine state, see #m_State
 	void 			setState( int state );
 
-	void			setMainBuffer_L( float* pMainBufferL );
-	void			setMainBuffer_R( float* pMainBufferR );
-	
 	void 			setMasterPeak_L( float value );
 	float 			getMasterPeak_L() const;
 
@@ -743,22 +737,6 @@ private:
 	MidiOutput *		m_pMidiDriverOut;
 	
 	EventQueue* 		m_pEventQueue;
-
-	// Buffers used in the process function
-	unsigned			m_nBufferSize;
-
-
-	/**
-	 * Pointer to the audio buffer of the left stereo output returned by
-	 * AudioOutput::getOut_L().
-	 */
-	float*				m_pMainBuffer_L;
-	
-	/**
-	 * Pointer to the audio buffer of the right stereo output returned by
-	 * AudioOutput::getOut_R().
-	 */
-	float*				m_pMainBuffer_R;
 
 	#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
 	float				m_fFXPeak_L[MAX_FX];
@@ -944,8 +922,8 @@ private:
 	 * Variable keeping track of the transport position in realtime.
 	 *
 	 * Even if the audio engine is stopped, the variable will be
-	 * incremented by #m_nBufferSize (as audioEngine_process() would do at
-	 * the end of each cycle) to support realtime keyboard and MIDI event
+	 * incremented  (as audioEngine_process() would do at the beginning
+	 * of each cycle) to support realtime keyboard and MIDI event
 	 * timing. It is set using Hydrogen::setRealtimeFrames(), accessed via
 	 * Hydrogen::getRealtimeFrames(), and updated in
 	 * audioEngine_process_transport() using the current transport
@@ -1039,14 +1017,6 @@ inline void AudioEngine::assertLocked( ) {
 #ifndef NDEBUG
 	assert( m_LockingThread == std::this_thread::get_id() );
 #endif
-}
-
-inline void AudioEngine::setMainBuffer_R( float* pMainBufferR ) {
-	m_pMainBuffer_R = pMainBufferR;
-}
-
-inline void AudioEngine::setMainBuffer_L( float* pMainBufferL ) {
-	m_pMainBuffer_L = pMainBufferL;
 }
 
 inline void	AudioEngine::setMasterPeak_L( float value ) {
