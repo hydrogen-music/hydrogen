@@ -217,9 +217,8 @@ are optional and do not have to be included into the command).
 
 Using `ccache` to build Hydrogen, `./build.sh mm`, will result in a
 compilation, which takes a little longer than the one with the usual
-`make` command. But in all further runs not the entire code base but
-just the parts you touched will be recompiled. This can speed up
-development by a margin.
+`make` command. But in all further runs, only the recently-modified
+components will be recompiled. This can marginally speed up development.
 
 
 ### Additional Build Features and Uninstall
