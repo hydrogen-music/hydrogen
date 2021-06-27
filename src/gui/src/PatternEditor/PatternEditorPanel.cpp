@@ -47,7 +47,6 @@ using namespace H2Core;
 #include "../Widgets/LCDSpinBox.h"
 #include "../WidgetScrollArea.h"
 
-#include "../Skin.h"
 #include "../CommonStrings.h"
 #include "../SongEditor/SongEditorPanel.h"
 
@@ -73,7 +72,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	setAcceptDrops(true);
 
 	Preferences *pPref = Preferences::get_instance();
-	m_lastUsedFontSize = pPref->getFontSize();	
+	m_lastUsedFontSize = pPref->getFontSize();
 	QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
 	boldFont.setBold( true );
 

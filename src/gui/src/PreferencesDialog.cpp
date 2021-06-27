@@ -22,7 +22,6 @@
 
 #include <cstring>
 
-#include "Skin.h"
 #include "PreferencesDialog.h"
 #include "HydrogenApp.h"
 #include "MainForm.h"
@@ -33,6 +32,7 @@
 #include <QPixmap>
 #include <QFontDatabase>
 #include "Widgets/MidiTable.h"
+#include "PreferencesDialog/PaletteDialog.h"
 
 #include <core/MidiMap.h>
 #include <core/Hydrogen.h>
@@ -337,6 +337,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	}
 	connect( coloringMethodAuxSpinBox, SIGNAL( valueChanged(int)), this, SLOT( onColorNumberChanged( int ) ) );
 	connect( coloringMethodCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( onColoringMethodChanged(int) ) );
+	connect( customizePalette, SIGNAL( clicked() ), this, SLOT( onCustomizePaletteClicked() ) );
 
 	// midi tab
 	midiPortChannelComboBox->setEnabled( false );
@@ -1036,6 +1037,14 @@ void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
 		}
 	}
 	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onCustomizePaletteClicked() {
+
+	PaletteDialog* pPaletteDialog = new PaletteDialog( nullptr );
+
+	pPaletteDialog->exec();
+	delete pPaletteDialog;
 }
 
 void PreferencesDialog::on_bufferSizeSpinBox_valueChanged( int i )

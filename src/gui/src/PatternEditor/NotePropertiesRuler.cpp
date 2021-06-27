@@ -31,7 +31,6 @@ using namespace H2Core;
 #include <cassert>
 
 #include "../HydrogenApp.h"
-#include "../Skin.h"
 
 #include "UndoActions.h"
 #include "NotePropertiesRuler.h"
@@ -45,9 +44,13 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	: PatternEditor( parent, __class_name, pPatternEditorPanel )
 	, m_bEntered( false )
 {
+	auto pPref = H2Core::Preferences::get_instance();
 
-	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
-	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+	m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
+	m_lastUsedFontSize = pPref->getFontSize();
+	m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
+	m_lastPatternEditor_line1Color = pPref->getDefaultUIStyle()->m_patternEditor_line1Color;
+	m_lastPatternEditor_backgroundColor = pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor;
 	
 	m_Mode = mode;
 
@@ -83,6 +86,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	show();
 
 	HydrogenApp::get_instance()->addEventListener( this );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &NotePropertiesRuler::onPreferencesChanged );
 
 	setFocusPolicy( Qt::StrongFocus );
 
@@ -779,9 +783,10 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 		finishUpdateEditor();
 	}
 	painter.drawPixmap( ev->rect(), *m_pBackground, ev->rect() );
-	m_selection.paintSelection( &painter );
 
 	drawFocus( painter );
+	
+	m_selection.paintSelection( &painter );
 }
 
 void NotePropertiesRuler::drawFocus( QPainter& painter ) {
@@ -790,7 +795,7 @@ void NotePropertiesRuler::drawFocus( QPainter& painter ) {
 		return;
 	}
 	
-	QColor color = Skin::getHighlightColor();
+	QColor color = m_lastHighlightColor;
 
 	// If the mouse is placed on the widget but the user hasn't
 	// clicked it yet, the highlight will be done more transparent to
@@ -875,15 +880,13 @@ void NotePropertiesRuler::leaveEvent( QEvent *ev ) {
 
 void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 {
-	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
+	QColor res_1( m_lastPatternEditor_line1Color );
 
-	QColor res_1( pStyle->m_patternEditor_line1Color );
+	QColor backgroundColor( m_lastPatternEditor_backgroundColor );
 
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
-
-	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.red() - 20,
-							pStyle->m_patternEditor_backgroundColor.green() - 20,
-							pStyle->m_patternEditor_backgroundColor.blue() - 20 );
+	QColor horizLinesColor( backgroundColor.red() - 20,
+							backgroundColor.green() - 20,
+							backgroundColor.blue() - 20 );
 
 	unsigned nNotes = MAX_NOTES;
 	if ( m_pPattern ) {
@@ -907,7 +910,7 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
 
-		QPen selectedPen( selectedNoteColor( pStyle ) );
+		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
@@ -959,15 +962,13 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 
 void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 {
-	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
+	QColor backgroundColor( m_lastPatternEditor_backgroundColor );
 
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
+	QColor horizLinesColor( backgroundColor.red() - 20,
+							backgroundColor.green() - 20,
+							backgroundColor.blue() - 20 );
 
-	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.red() - 20,
-							pStyle->m_patternEditor_backgroundColor.green() - 20,
-							pStyle->m_patternEditor_backgroundColor.blue() - 20 );
-
-	QColor res_1( pStyle->m_patternEditor_line1Color );
+	QColor res_1( m_lastPatternEditor_line1Color );
 
 	QPainter p( pixmap );
 
@@ -987,7 +988,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
-		QPen selectedPen( selectedNoteColor( pStyle ) );
+		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
@@ -1043,15 +1044,13 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 
 void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 {
-	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
+	QColor backgroundColor( m_lastPatternEditor_backgroundColor );
 
-	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.red() - 20,
-							pStyle->m_patternEditor_backgroundColor.green() - 20,
-							pStyle->m_patternEditor_backgroundColor.blue() - 20 );
+	QColor horizLinesColor( backgroundColor.red() - 20,
+							backgroundColor.green() - 20,
+							backgroundColor.blue() - 20 );
 
-	QColor res_1( pStyle->m_patternEditor_line1Color );
+	QColor res_1( m_lastPatternEditor_line1Color );
 
 	QPainter p( pixmap );
 
@@ -1071,7 +1070,7 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
-		QPen selectedPen( selectedNoteColor( pStyle ) );
+		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
@@ -1148,15 +1147,13 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 
 void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 {
-	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
+	QColor res_1( m_lastPatternEditor_line1Color );
 
-	QColor res_1( pStyle->m_patternEditor_line1Color );
+	QColor backgroundColor( m_lastPatternEditor_backgroundColor );
 
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
-
-	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.red() - 100,
-							pStyle->m_patternEditor_backgroundColor.green() - 100,
-							pStyle->m_patternEditor_backgroundColor.blue() - 100 );
+	QColor horizLinesColor( backgroundColor.red() - 100,
+							backgroundColor.green() - 100,
+							backgroundColor.blue() - 100 );
 
 	unsigned nNotes = MAX_NOTES;
 	if (m_pPattern) {
@@ -1211,7 +1208,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
-		QPen selectedPen( selectedNoteColor( pStyle ) );
+		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
@@ -1235,7 +1232,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
-		QPen selectedPen( selectedNoteColor( pStyle ) );
+		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
@@ -1404,11 +1401,20 @@ void NotePropertiesRuler::selectAll() {
 
 void NotePropertiesRuler::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
-	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+
+	if ( m_lastHighlightColor != pPref->getDefaultUIStyle()->m_highlightColor ||
+		 m_lastPatternEditor_line1Color != pPref->getDefaultUIStyle()->m_patternEditor_line1Color ||
+		 m_lastPatternEditor_backgroundColor != pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor ||
+		 m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-		createNoteKeyBackground( m_pBackground );
+
+		m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
+		m_lastPatternEditor_line1Color = pPref->getDefaultUIStyle()->m_patternEditor_line1Color;
+		m_lastPatternEditor_backgroundColor = pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor;;
+		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
+		m_lastUsedFontSize = pPref->getFontSize();
+
+		m_bNeedsUpdate = true;
+		update();
 	}
 }

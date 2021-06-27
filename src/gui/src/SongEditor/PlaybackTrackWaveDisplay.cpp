@@ -31,7 +31,6 @@
 using namespace H2Core;
 
 
-#include "../Skin.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentEditor/WaveDisplay.h"
 

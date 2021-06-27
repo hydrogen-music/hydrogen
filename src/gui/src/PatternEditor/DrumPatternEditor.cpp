@@ -42,7 +42,6 @@
 #include "UndoActions.h"
 #include "../HydrogenApp.h"
 #include "../Mixer/Mixer.h"
-#include "../Skin.h"
 
 #include <math.h>
 #include <cassert>
@@ -57,17 +56,22 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
  : PatternEditor( parent, __class_name, panel )
  , m_bEntered( false )
 {
-	m_nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
+	auto pPref = H2Core::Preferences::get_instance();
+
+	m_nGridHeight = pPref->getPatternEditorGridHeight();
 	m_nEditorHeight = m_nGridHeight * MAX_INSTRUMENTS;
 	resize( m_nEditorWidth, m_nEditorHeight );
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( 0 );
 
-	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
-	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();	
+	m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
+	m_lastUsedFontSize = pPref->getFontSize();
+	m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
+	m_lastPatternEditor_selectedRowColor = pPref->getDefaultUIStyle()->m_patternEditor_selectedRowColor;
+	m_lastPatternEditor_alternateRowColor = pPref->getDefaultUIStyle()->m_patternEditor_alternateRowColor;
+	m_lastPatternEditor_backgroundColor = pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor;
+	m_lastPatternEditor_lineColor = pPref->getDefaultUIStyle()->m_patternEditor_lineColor;
 }
-
-
 
 DrumPatternEditor::~DrumPatternEditor()
 {
@@ -997,8 +1001,7 @@ void DrumPatternEditor::paste()
 ///
 void DrumPatternEditor::__draw_pattern(QPainter& painter)
 {
-	const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor );
+	const QColor selectedRowColor( m_lastPatternEditor_selectedRowColor );
 
 	__create_background( painter );
 
@@ -1145,15 +1148,14 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 	// Start with generic pattern editor grid lining.
 	drawGridLines( p );
 
-	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	int nNotes = MAX_NOTES;
 	if ( m_pPattern ) {
 		nNotes = m_pPattern->get_length();
 	}
 	
 	// fill the first half of the rect with a solid color
-	static const QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
-	static const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor );
+	const QColor backgroundColor( m_lastPatternEditor_backgroundColor );
+	const QColor selectedRowColor( m_lastPatternEditor_selectedRowColor );
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	int nInstruments = pSong->getInstrumentList()->size();
@@ -1172,10 +1174,9 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 
 void DrumPatternEditor::__create_background( QPainter& p)
 {
-	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	static const QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
-	static const QColor alternateRowColor( pStyle->m_patternEditor_alternateRowColor );
-	static const QColor lineColor( pStyle->m_patternEditor_lineColor );
+	const QColor backgroundColor( m_lastPatternEditor_backgroundColor );
+	const QColor alternateRowColor( m_lastPatternEditor_alternateRowColor );
+	const QColor lineColor( m_lastPatternEditor_lineColor );
 
 	int nNotes = MAX_NOTES;
 	if ( m_pPattern ) {
@@ -1213,12 +1214,12 @@ void DrumPatternEditor::__create_background( QPainter& p)
 
 void DrumPatternEditor::paintEvent( QPaintEvent* /*ev*/ )
 {
-
 	QPainter painter( this );
 	__draw_pattern( painter );
-	m_selection.paintSelection( &painter );
 
 	drawFocus( painter );
+	
+	m_selection.paintSelection( &painter );
 }
 
 void DrumPatternEditor::drawFocus( QPainter& painter ) {
@@ -1227,7 +1228,7 @@ void DrumPatternEditor::drawFocus( QPainter& painter ) {
 		return;
 	}
 	
-	QColor color = Skin::getHighlightColor();
+	QColor color = m_lastHighlightColor;
 
 	// If the mouse is placed on the widget but the user hasn't
 	// clicked it yet, the highlight will be done more transparent to
@@ -1377,11 +1378,23 @@ void DrumPatternEditor::undoRedoAction( int column,
 void DrumPatternEditor::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+	if ( m_lastHighlightColor != pPref->getDefaultUIStyle()->m_highlightColor ||
+		 m_lastPatternEditor_selectedRowColor != pPref->getDefaultUIStyle()->m_patternEditor_selectedRowColor ||
+		 m_lastPatternEditor_alternateRowColor != pPref->getDefaultUIStyle()->m_patternEditor_alternateRowColor ||
+		 m_lastPatternEditor_backgroundColor != pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor ||
+		 m_lastPatternEditor_lineColor != pPref->getDefaultUIStyle()->m_patternEditor_lineColor ||
+		 m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
-		update( 0, 0, width(), height() );
+		
+		m_lastPatternEditor_selectedRowColor = pPref->getDefaultUIStyle()->m_patternEditor_selectedRowColor;
+		m_lastPatternEditor_alternateRowColor = pPref->getDefaultUIStyle()->m_patternEditor_alternateRowColor;
+		m_lastPatternEditor_backgroundColor = pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor;
+		m_lastPatternEditor_lineColor = pPref->getDefaultUIStyle()->m_patternEditor_lineColor;
+		m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
+		m_lastUsedFontSize = pPref->getFontSize();
+		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
+
+		updateEditor();
 	}
 }
 

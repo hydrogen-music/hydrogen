@@ -220,34 +220,15 @@ Preferences::Preferences()
 	m_nMaxBars = 400;
 	m_nMaxLayers = 16;
 
+	UIStyle uis = m_pDefaultUIStyle;
+
 	m_nColoringMethod = 2;
 	m_nMaxPatternColors = 50;
 	std::vector<QColor> m_patternColors( m_nMaxPatternColors );
 	for ( int ii = 0; ii < m_nMaxPatternColors; ii++ ) {
-		m_patternColors[ ii ] = QColor( 97, 167, 251 );
+		m_patternColors[ ii ] = uis.m_accentColor;
 	}
 	m_nVisiblePatternColors = 1;
-
-	UIStyle* uis = m_pDefaultUIStyle;
-	uis->m_songEditor_backgroundColor = QColor(95, 101, 117);
-	uis->m_songEditor_alternateRowColor = QColor(128, 134, 152);
-	uis->m_songEditor_selectedRowColor = QColor(128, 134, 152);
-	uis->m_songEditor_lineColor = QColor(72, 76, 88);
-	uis->m_songEditor_textColor = QColor(196, 201, 214);
-	uis->m_songEditor_pattern1Color = QColor(97, 167, 251);
-	uis->m_patternEditor_backgroundColor = QColor(167, 168, 163);
-	uis->m_patternEditor_alternateRowColor = QColor(167, 168, 163);
-	uis->m_patternEditor_selectedRowColor = QColor(207, 208, 200);
-	uis->m_patternEditor_textColor = QColor(40, 40, 40);
-	uis->m_patternEditor_noteColor = QColor(40, 40, 40);
-	uis->m_patternEditor_lineColor = QColor(65, 65, 65);
-	uis->m_patternEditor_line1Color = QColor(75, 75, 75);
-	uis->m_patternEditor_line2Color = QColor(95, 95, 95);
-	uis->m_patternEditor_line3Color = QColor(115, 115, 115);
-	uis->m_patternEditor_line4Color = QColor(125, 125, 125);
-	uis->m_patternEditor_line5Color = QColor(135, 135, 135);
-	uis->m_selectionHighlightColor = QColor(0, 0, 255);
-	uis->m_selectionInactiveColor = QColor(85, 85, 85);
 
 	/////////////////////////////////////////////////////////////////////////
 	//////////////// END OF DEFAULT SETTINGS ////////////////////////////////
@@ -642,7 +623,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				}
 				std::vector<QColor> colors( m_nMaxPatternColors );
 				for ( int ii = 0; ii < m_nMaxPatternColors; ii++ ) {
-					colors[ ii ] = LocalFileMng::readXmlColor( guiNode, QString( "SongEditor_pattern_color_%1" ).arg( ii ), QColor( 97, 167, 251 ) );
+					colors[ ii ] = LocalFileMng::readXmlColor( guiNode, QString( "SongEditor_pattern_color_%1" ).arg( ii ), m_pDefaultUIStyle->m_accentColor );
 				}
 				m_patternColors = colors;
 				m_nVisiblePatternColors = LocalFileMng::readXmlInt( guiNode, "SongEditor_visible_pattern_colors", 1 );
@@ -1267,7 +1248,6 @@ void Preferences::writeUIStyle( QDomNode parent )
 	LocalFileMng::writeXmlColor( songEditorNode, "selectedRowColor", m_pDefaultUIStyle->m_songEditor_selectedRowColor );
 	LocalFileMng::writeXmlColor( songEditorNode, "lineColor", m_pDefaultUIStyle->m_songEditor_lineColor );
 	LocalFileMng::writeXmlColor( songEditorNode, "textColor", m_pDefaultUIStyle->m_songEditor_textColor );
-	LocalFileMng::writeXmlColor( songEditorNode, "pattern1Color", m_pDefaultUIStyle->m_songEditor_pattern1Color );
 	node.appendChild( songEditorNode );
 
 	// PATTERN EDITOR
@@ -1291,8 +1271,42 @@ void Preferences::writeUIStyle( QDomNode parent )
 	LocalFileMng::writeXmlColor( selectionNode, "highlightColor", m_pDefaultUIStyle->m_selectionHighlightColor );
 	LocalFileMng::writeXmlColor( selectionNode, "inactiveColor", m_pDefaultUIStyle->m_selectionInactiveColor );
 	node.appendChild( selectionNode );
-
+	
+	QDomNode paletteNode = doc.createElement( "palette" );
+	LocalFileMng::writeXmlColor( paletteNode, "windowColor", m_pDefaultUIStyle->m_windowColor );
+	LocalFileMng::writeXmlColor( paletteNode, "windowTextColor", m_pDefaultUIStyle->m_windowTextColor );
+	LocalFileMng::writeXmlColor( paletteNode, "baseColor", m_pDefaultUIStyle->m_baseColor );
+	LocalFileMng::writeXmlColor( paletteNode, "alternateBaseColor", m_pDefaultUIStyle->m_alternateBaseColor );
+	LocalFileMng::writeXmlColor( paletteNode, "textColor", m_pDefaultUIStyle->m_textColor );
+	LocalFileMng::writeXmlColor( paletteNode, "buttonColor", m_pDefaultUIStyle->m_buttonColor );
+	LocalFileMng::writeXmlColor( paletteNode, "buttonTextColor", m_pDefaultUIStyle->m_buttonTextColor );
+	LocalFileMng::writeXmlColor( paletteNode, "lightColor", m_pDefaultUIStyle->m_lightColor );
+	LocalFileMng::writeXmlColor( paletteNode, "midLightColor", m_pDefaultUIStyle->m_midLightColor );
+	LocalFileMng::writeXmlColor( paletteNode, "midColor", m_pDefaultUIStyle->m_midColor );
+	LocalFileMng::writeXmlColor( paletteNode, "darkColor", m_pDefaultUIStyle->m_darkColor );
+	LocalFileMng::writeXmlColor( paletteNode, "shadowTextColor", m_pDefaultUIStyle->m_shadowTextColor );
+	LocalFileMng::writeXmlColor( paletteNode, "highlightColor", m_pDefaultUIStyle->m_highlightColor );
+	LocalFileMng::writeXmlColor( paletteNode, "highlightedTextColor", m_pDefaultUIStyle->m_highlightedTextColor );
+	LocalFileMng::writeXmlColor( paletteNode, "toolTipBaseColor", m_pDefaultUIStyle->m_toolTipBaseColor );
+	LocalFileMng::writeXmlColor( paletteNode, "toolTipTextColor", m_pDefaultUIStyle->m_toolTipTextColor );
+	node.appendChild( paletteNode );
+	
+	QDomNode widgetNode = doc.createElement( "widget" );
+	LocalFileMng::writeXmlColor( widgetNode, "accentColor", m_pDefaultUIStyle->m_accentColor );
+	LocalFileMng::writeXmlColor( widgetNode, "accentTextColor", m_pDefaultUIStyle->m_accentTextColor );
+	LocalFileMng::writeXmlColor( widgetNode, "widgetColor", m_pDefaultUIStyle->m_widgetColor );
+	LocalFileMng::writeXmlColor( widgetNode, "widgetTextColor", m_pDefaultUIStyle->m_widgetTextColor );
+	LocalFileMng::writeXmlColor( widgetNode, "buttonRedColor", m_pDefaultUIStyle->m_buttonRedColor );
+	LocalFileMng::writeXmlColor( widgetNode, "buttonRedTextColor", m_pDefaultUIStyle->m_buttonRedTextColor );
+	LocalFileMng::writeXmlColor( widgetNode, "spinBoxSelectionColor", m_pDefaultUIStyle->m_spinBoxSelectionColor );
+	LocalFileMng::writeXmlColor( widgetNode, "spinBoxSelectionTextColor", m_pDefaultUIStyle->m_spinBoxSelectionTextColor );
+	LocalFileMng::writeXmlColor( widgetNode, "automationColor", m_pDefaultUIStyle->m_automationColor );
+	LocalFileMng::writeXmlColor( widgetNode, "automationCircleColor", m_pDefaultUIStyle->m_automationCircleColor );
+	node.appendChild( widgetNode );
+	
 	parent.appendChild( node );
+
+
 }
 
 
@@ -1307,7 +1321,6 @@ void Preferences::readUIStyle( QDomNode parent )
 		m_pDefaultUIStyle->m_songEditor_selectedRowColor = LocalFileMng::readXmlColor( pSongEditorNode, "selectedRowColor", m_pDefaultUIStyle->m_songEditor_selectedRowColor );
 		m_pDefaultUIStyle->m_songEditor_lineColor = LocalFileMng::readXmlColor( pSongEditorNode, "lineColor", m_pDefaultUIStyle->m_songEditor_lineColor );
 		m_pDefaultUIStyle->m_songEditor_textColor = LocalFileMng::readXmlColor( pSongEditorNode, "textColor", m_pDefaultUIStyle->m_songEditor_textColor );
-		m_pDefaultUIStyle->m_songEditor_pattern1Color = LocalFileMng::readXmlColor( pSongEditorNode, "pattern1Color", m_pDefaultUIStyle->m_songEditor_pattern1Color );
 	} else {
 		WARNINGLOG( "songEditor node not found" );
 	}
@@ -1337,6 +1350,44 @@ void Preferences::readUIStyle( QDomNode parent )
 		m_pDefaultUIStyle->m_selectionInactiveColor = LocalFileMng::readXmlColor( pSelectionNode, "inactiveColor", m_pDefaultUIStyle->m_selectionInactiveColor );
 	} else {
 		WARNINGLOG( "selection node not found" );
+	}
+
+	QDomNode pPaletteNode = parent.firstChildElement( "palette" );
+	if ( !pPaletteNode.isNull() ) {
+		m_pDefaultUIStyle->m_windowColor = LocalFileMng::readXmlColor( pPaletteNode, "windowColor", m_pDefaultUIStyle->m_windowColor );
+		m_pDefaultUIStyle->m_windowTextColor = LocalFileMng::readXmlColor( pPaletteNode, "windowTextColor", m_pDefaultUIStyle->m_windowTextColor );
+		m_pDefaultUIStyle->m_baseColor = LocalFileMng::readXmlColor( pPaletteNode, "baseColor", m_pDefaultUIStyle->m_baseColor );
+		m_pDefaultUIStyle->m_alternateBaseColor = LocalFileMng::readXmlColor( pPaletteNode, "alternateBaseColor", m_pDefaultUIStyle->m_alternateBaseColor );
+		m_pDefaultUIStyle->m_textColor = LocalFileMng::readXmlColor( pPaletteNode, "textColor", m_pDefaultUIStyle->m_textColor );
+		m_pDefaultUIStyle->m_buttonColor = LocalFileMng::readXmlColor( pPaletteNode, "buttonColor", m_pDefaultUIStyle->m_buttonColor );
+		m_pDefaultUIStyle->m_buttonTextColor = LocalFileMng::readXmlColor( pPaletteNode, "buttonTextColor", m_pDefaultUIStyle->m_buttonTextColor );
+		m_pDefaultUIStyle->m_lightColor = LocalFileMng::readXmlColor( pPaletteNode, "lightColor", m_pDefaultUIStyle->m_lightColor );
+		m_pDefaultUIStyle->m_midLightColor = LocalFileMng::readXmlColor( pPaletteNode, "midLightColor", m_pDefaultUIStyle->m_midLightColor );
+		m_pDefaultUIStyle->m_midColor = LocalFileMng::readXmlColor( pPaletteNode, "midColor", m_pDefaultUIStyle->m_midColor );
+		m_pDefaultUIStyle->m_darkColor = LocalFileMng::readXmlColor( pPaletteNode, "darkColor", m_pDefaultUIStyle->m_darkColor );
+		m_pDefaultUIStyle->m_shadowTextColor = LocalFileMng::readXmlColor( pPaletteNode, "shadowTextColor", m_pDefaultUIStyle->m_shadowTextColor );
+		m_pDefaultUIStyle->m_highlightColor = LocalFileMng::readXmlColor( pPaletteNode, "highlightColor", m_pDefaultUIStyle->m_highlightColor );
+		m_pDefaultUIStyle->m_highlightedTextColor = LocalFileMng::readXmlColor( pPaletteNode, "highlightedTextColor", m_pDefaultUIStyle->m_highlightedTextColor );
+		m_pDefaultUIStyle->m_toolTipBaseColor = LocalFileMng::readXmlColor( pPaletteNode, "toolTipBaseColor", m_pDefaultUIStyle->m_toolTipBaseColor );
+		m_pDefaultUIStyle->m_toolTipTextColor = LocalFileMng::readXmlColor( pPaletteNode, "toolTipTextColor", m_pDefaultUIStyle->m_toolTipTextColor );
+	} else {
+		WARNINGLOG( "palette node not found" );
+	}
+
+	QDomNode pWidgetNode = parent.firstChildElement( "widget" );
+	if ( !pWidgetNode.isNull() ) {
+		m_pDefaultUIStyle->m_accentColor = LocalFileMng::readXmlColor( pWidgetNode, "accentColor", m_pDefaultUIStyle->m_accentColor );
+		m_pDefaultUIStyle->m_accentTextColor = LocalFileMng::readXmlColor( pWidgetNode, "accentTextColor", m_pDefaultUIStyle->m_accentTextColor );
+		m_pDefaultUIStyle->m_widgetColor = LocalFileMng::readXmlColor( pWidgetNode, "widgetColor", m_pDefaultUIStyle->m_widgetColor );
+		m_pDefaultUIStyle->m_widgetTextColor = LocalFileMng::readXmlColor( pWidgetNode, "widgetTextColor", m_pDefaultUIStyle->m_widgetTextColor );
+		m_pDefaultUIStyle->m_buttonRedColor = LocalFileMng::readXmlColor( pWidgetNode, "buttonRedColor", m_pDefaultUIStyle->m_buttonRedColor );
+		m_pDefaultUIStyle->m_buttonRedTextColor = LocalFileMng::readXmlColor( pWidgetNode, "buttonRedTextColor", m_pDefaultUIStyle->m_buttonRedTextColor );
+		m_pDefaultUIStyle->m_spinBoxSelectionColor = LocalFileMng::readXmlColor( pWidgetNode, "spinBoxSelectionColor", m_pDefaultUIStyle->m_spinBoxSelectionColor );
+		m_pDefaultUIStyle->m_spinBoxSelectionTextColor = LocalFileMng::readXmlColor( pWidgetNode, "spinBoxSelectionTextColor", m_pDefaultUIStyle->m_spinBoxSelectionTextColor );
+		m_pDefaultUIStyle->m_automationColor = LocalFileMng::readXmlColor( pWidgetNode, "automationColor", m_pDefaultUIStyle->m_automationColor );
+		m_pDefaultUIStyle->m_automationCircleColor = LocalFileMng::readXmlColor( pWidgetNode, "automationCircleColor", m_pDefaultUIStyle->m_automationCircleColor );
+	} else {
+		WARNINGLOG( "widget node not found" );
 	}
 }
 
@@ -1374,8 +1425,101 @@ WindowProperties::~WindowProperties()
 const char* UIStyle::__class_name = "UIStyle";
 
 UIStyle::UIStyle()
-		: Object( __class_name )
+	: Object( __class_name )
+	, m_songEditor_backgroundColor( QColor(95, 101, 117) )
+	, m_songEditor_alternateRowColor( QColor(128, 134, 152) )
+	, m_songEditor_selectedRowColor( QColor(128, 134, 152) )
+	, m_songEditor_lineColor( QColor(72, 76, 88) )
+	, m_songEditor_textColor( QColor(196, 201, 214) )
+	, m_patternEditor_backgroundColor( QColor(167, 168, 163) )
+	, m_patternEditor_alternateRowColor( QColor(167, 168, 163) )
+	, m_patternEditor_selectedRowColor( QColor(207, 208, 200) )
+	, m_patternEditor_textColor( QColor(40, 40, 40) )
+	, m_patternEditor_noteColor( QColor(40, 40, 40) )
+	, m_patternEditor_lineColor( QColor(65, 65, 65) )
+	, m_patternEditor_line1Color( QColor(75, 75, 75) )
+	, m_patternEditor_line2Color( QColor(95, 95, 95) )
+	, m_patternEditor_line3Color( QColor(115, 115, 115) )
+	, m_patternEditor_line4Color( QColor(125, 125, 125) )
+	, m_patternEditor_line5Color( QColor(135, 135, 135) )
+	, m_selectionHighlightColor( QColor(0, 0, 255) )
+	, m_selectionInactiveColor( QColor(85, 85, 85) )
+	, m_windowColor( QColor( 58, 62, 72 ) )
+	, m_windowTextColor( QColor( 255, 255, 255 ) )
+	, m_baseColor( QColor( 88, 94, 112 ) )
+	, m_alternateBaseColor( QColor( 138, 144, 162 ) )
+	, m_textColor( QColor( 255, 255, 255 ) )
+	, m_buttonColor( QColor( 88, 94, 112 ) )
+	, m_buttonTextColor( QColor( 255, 255, 255 ) )
+	, m_lightColor( QColor( 138, 144, 162 ) )
+	, m_midLightColor( QColor( 128, 134, 152 ) )
+	, m_midColor( QColor( 81, 86, 99 ) )
+	, m_darkColor( QColor( 81, 86, 99 ) )
+	, m_shadowTextColor( QColor( 255, 255, 255 ) )
+	, m_highlightColor( QColor( 206, 150, 30 ) )
+	, m_highlightedTextColor( QColor( 255, 255, 255 ) )
+	, m_toolTipBaseColor( QColor( 227, 243, 252 ) )
+	, m_toolTipTextColor( QColor( 64, 64, 66 ) )
+	, m_widgetColor( QColor( 164, 170, 190 ) )
+	, m_widgetTextColor( QColor( 10, 10, 10 ) )
+	, m_buttonRedColor( QColor( 247, 100, 100 ) )
+	, m_buttonRedTextColor( QColor( 10, 10, 10 ) )
+	, m_spinBoxSelectionColor( QColor( 51, 74 , 100 ) )
+	, m_spinBoxSelectionTextColor( QColor( 240, 240, 240 ) )
+	, m_automationColor( QColor( 67, 96, 131 ) )
+	, m_automationCircleColor( QColor( 255, 255, 255 ) )
+	, m_accentColor( QColor( 67, 96, 131 ) )
+	, m_accentTextColor( QColor( 255, 255, 255 ) )
 {
-//	infoLog( "INIT" );
+}
+
+UIStyle::UIStyle( const UIStyle* pOther )
+	: Object( __class_name )
+	, m_songEditor_backgroundColor( pOther->m_songEditor_backgroundColor )
+	, m_songEditor_alternateRowColor( pOther->m_songEditor_alternateRowColor )
+	, m_songEditor_selectedRowColor( pOther->m_songEditor_selectedRowColor )
+	, m_songEditor_lineColor( pOther->m_songEditor_lineColor )
+	, m_songEditor_textColor( pOther->m_songEditor_textColor )
+	, m_patternEditor_backgroundColor( pOther->m_patternEditor_backgroundColor )
+	, m_patternEditor_alternateRowColor( pOther->m_patternEditor_alternateRowColor )
+	, m_patternEditor_selectedRowColor( pOther->m_patternEditor_selectedRowColor )
+	, m_patternEditor_textColor( pOther->m_patternEditor_textColor )
+	, m_patternEditor_noteColor( pOther->m_patternEditor_noteColor )
+	, m_patternEditor_noteoffColor( pOther->m_patternEditor_noteoffColor )
+	, m_patternEditor_lineColor( pOther->m_patternEditor_lineColor )
+	, m_patternEditor_line1Color( pOther->m_patternEditor_line1Color )
+	, m_patternEditor_line2Color( pOther->m_patternEditor_line2Color )
+	, m_patternEditor_line3Color( pOther->m_patternEditor_line3Color )
+	, m_patternEditor_line4Color( pOther->m_patternEditor_line4Color )
+	, m_patternEditor_line5Color( pOther->m_patternEditor_line5Color )
+	, m_selectionHighlightColor( pOther->m_selectionHighlightColor )
+	, m_selectionInactiveColor( pOther->m_selectionInactiveColor )
+	, m_windowColor( pOther->m_windowColor )
+	, m_windowTextColor( pOther->m_windowTextColor )
+	, m_baseColor( pOther->m_baseColor )
+	, m_alternateBaseColor( pOther->m_alternateBaseColor )
+	, m_textColor( pOther->m_textColor )
+	, m_buttonColor( pOther->m_buttonColor )
+	, m_buttonTextColor( pOther->m_buttonTextColor )
+	, m_lightColor( pOther->m_lightColor )
+	, m_midLightColor( pOther->m_midLightColor )
+	, m_midColor( pOther->m_midColor )
+	, m_darkColor( pOther->m_darkColor )
+	, m_shadowTextColor( pOther->m_shadowTextColor )
+	, m_highlightColor( pOther->m_highlightColor )
+	, m_highlightedTextColor( pOther->m_highlightedTextColor )
+	, m_toolTipBaseColor( pOther->m_toolTipBaseColor )
+	, m_toolTipTextColor( pOther->m_toolTipTextColor )
+	, m_accentColor( pOther->m_accentColor )
+	, m_accentTextColor( pOther->m_accentTextColor )
+	, m_widgetColor( pOther->m_widgetColor )
+	, m_widgetTextColor( pOther->m_widgetTextColor )
+	, m_buttonRedColor( pOther->m_buttonRedColor )
+	, m_buttonRedTextColor( pOther->m_buttonRedTextColor )
+	, m_spinBoxSelectionColor( pOther->m_spinBoxSelectionColor )
+	, m_spinBoxSelectionTextColor( pOther->m_spinBoxSelectionTextColor )
+	, m_automationColor( pOther->m_automationColor )
+	, m_automationCircleColor( pOther->m_automationCircleColor )
+{
 }
 };

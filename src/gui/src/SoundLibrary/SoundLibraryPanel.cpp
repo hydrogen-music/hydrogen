@@ -36,7 +36,6 @@
 #include "../HydrogenApp.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/PixmapWidget.h"
-#include "../Skin.h"
 #include "../SongEditor/SongEditorPanel.h"
 #include "../PatternEditor/PatternEditorPanel.h"
 #include "../PatternEditor/DrumPatternEditor.h"

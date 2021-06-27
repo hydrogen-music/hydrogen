@@ -28,7 +28,6 @@
 #include <core/Basics/DrumkitComponent.h>
 
 #include "InstrumentEditorPanel.h"
-#include "../Skin.h"
 #include "../HydrogenApp.h"
 
 

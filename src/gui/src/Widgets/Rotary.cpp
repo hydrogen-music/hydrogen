@@ -21,6 +21,7 @@
  */
 #include "Rotary.h"
 #include "../Skin.h"
+#include "../HydrogenApp.h"
 
 #include <cmath>
 
@@ -42,6 +43,13 @@ Rotary::Rotary( QWidget* parent, Type type, QString sBaseTooltip, bool bUseIntSt
 					   fMax )
 	, Object( __class_name )
 	, m_type( type ) {
+
+	auto pPref = H2Core::Preferences::get_instance();
+	m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
+	m_lastLightColor = pPref->getDefaultUIStyle()->m_lightColor;
+
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Rotary::onPreferencesChanged );
+
 
 	if ( type == Type::Small ) {
 		m_nWidgetWidth = 18;
@@ -99,12 +107,12 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	QColor colorArcCenterSet;
 	QColor colorArcCenterUnset;
 	if ( m_bIsActive ) {
-		colorHighlightActive = Skin::getHighlightColor();
+		colorHighlightActive = m_lastHighlightColor;
 		colorArc = Qt::red;
 		colorArcCenterSet = Qt::green;
 		colorArcCenterUnset = Qt::gray;
 	} else {
-		colorHighlightActive = Qt::lightGray;
+		colorHighlightActive = m_lastLightColor;
 		colorArc = Qt::darkGray;
 		colorArcCenterSet = Qt::darkGray;
 		colorArcCenterUnset = Qt::lightGray;
@@ -289,5 +297,17 @@ void Rotary::paintEvent( QPaintEvent* ev )
 			painter.setFont( font );
 			painter.drawText( rightTextRec, Qt::AlignCenter, "+" );
 		}
+	}
+}
+
+void Rotary::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_lastHighlightColor != pPref->getDefaultUIStyle()->m_highlightColor ||
+		 m_lastLightColor != pPref->getDefaultUIStyle()->m_lightColor ) {
+		
+		m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
+		m_lastLightColor = pPref->getDefaultUIStyle()->m_lightColor;
+		update();
 	}
 }

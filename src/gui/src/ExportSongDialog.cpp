@@ -25,7 +25,6 @@
 #include <QLabel>
 
 #include "ExportSongDialog.h"
-#include "Skin.h"
 #include "HydrogenApp.h"
 #include "Mixer/Mixer.h"
 

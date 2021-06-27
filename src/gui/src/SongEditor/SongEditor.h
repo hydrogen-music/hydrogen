@@ -207,6 +207,10 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		int m_nLastUsedVisiblePatternColors;
 		int m_nMaxPatternColors;
 		int m_nLastUsedColoringMethod;
+		QColor m_lastSongEditor_backgroundColor;
+		QColor m_lastSongEditor_alternateRowColor;
+		QColor m_lastSongEditor_lineColor;
+		QColor m_lastHighlightColor;
 public:
 
 		//! @name Selection interfaces
@@ -314,6 +318,8 @@ class SongEditorPatternList : public QWidget, protected WidgetWithScalableFont<8
 		virtual void patternChangedEvent() override;
 		void mouseMoveEvent(QMouseEvent *event) override;
 		QPoint __drag_start_position;
+		QColor m_lastSongEditor_textColor;
+		QColor m_lastSongEditor_alternateRowColor;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
 		/** Used to detect changed in the font*/
@@ -371,6 +377,9 @@ class SongEditorPositionRuler : public QWidget, protected WidgetWithScalableFont
 		virtual void mousePressEvent( QMouseEvent *ev );
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		virtual void paintEvent( QPaintEvent *ev );
+		QColor m_lastSongEditor_textColor;
+		QColor m_lastSongEditor_backgroundColor;
+		QColor m_lastSongEditor_alternateRowColor;
 		/** Used to detect changed in the font*/
 		H2Core::Preferences::FontSize m_lastUsedFontSize;
 

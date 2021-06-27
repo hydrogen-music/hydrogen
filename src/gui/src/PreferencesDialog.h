@@ -67,6 +67,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 	void onColorNumberChanged( int nIndex );
 	void onColorSelectionClicked();
 	void onColoringMethodChanged( int nIndex );
+	void onCustomizePaletteClicked();
 
 private:
 

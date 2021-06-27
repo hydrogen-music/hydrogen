@@ -38,6 +38,11 @@ class AutomationPathView : public QWidget, public H2Core::Object
 	int m_nMarginWidth; /** < Width of an empty space on the left side */
 	int m_nMarginHeight;/** < Height of top and bottom margins */
 	int m_nMaxPatternSequence;
+	
+	QColor m_lastLightColor;
+	QColor m_lastAutomationColor;
+	QColor m_lastWindowColor;
+	QColor m_lastAutomationCircleColor;
 
 	bool m_bIsHolding; /** < Whether any points are being dragged */
 	bool m_bPointAdded;/** < Whether a new point was added during mouse move */
@@ -68,6 +73,9 @@ protected:
 	std::pair<const float, float> locate(QMouseEvent *) const;
 
 	void autoResize();
+
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
 
 signals:
 	void valueChanged();

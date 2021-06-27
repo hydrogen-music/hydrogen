@@ -24,7 +24,6 @@
 #include <QtWidgets>
 
 #include "../HydrogenApp.h"
-#include "../Skin.h"
 
 #include "SoundLibraryPropertiesDialog.h"
 #include "../InstrumentRack.h"

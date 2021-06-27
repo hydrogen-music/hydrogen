@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright (C) 2021 The hydrogen development team <hydrogen-devel@lists.sourceforge.net>
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -20,46 +20,33 @@
  *
  */
 
-
-#ifndef COLORSELECTIONBUTTON_H
-#define COLORSELECTIONBUTTON_H
-
+#ifndef PALETTE_DIALOG_H
+#define PALETTE_DIALOG_H
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <QDialog>
+#include "../Widgets/ClickableLabel.h"
+#include "../Widgets/ColorSelectionButton.h"
 
-#include <QtGui>
-#include <QPushButton>
-#include <QColor>
-
-class ColorSelectionButton : public QPushButton, public H2Core::Object
+class PaletteDialog : public QDialog, private H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 	Q_OBJECT
 
 public:
-	ColorSelectionButton( QWidget *pParent, QColor sInitialColor, int nSize = 0 );
-	~ColorSelectionButton();
+	explicit PaletteDialog( QWidget* pParent );
+	~PaletteDialog();
 
-	QColor getColor() const;
-
-signals:
-	void colorChanged();
+private slots:
+	void onRejected();
+	void onColorSelectionClicked();
 
 private:
-	bool m_bMouseOver;
-
-	void mousePressEvent(QMouseEvent *ev);
-	void enterEvent(QEvent *ev);
-	void leaveEvent(QEvent *ev);
-	void paintEvent( QPaintEvent* ev);
-
-	QColor m_sColor;
-
+	void addPair( QString sNew, QColor newColor );
+	
+	std::vector<std::pair<std::shared_ptr<ClickableLabel>, std::shared_ptr<ColorSelectionButton>>> m_colorSelections;
+	H2Core::UIStyle m_previousStyle;
+	H2Core::UIStyle m_currentStyle;
 };
-
-inline QColor ColorSelectionButton::getColor() const {
-	return m_sColor;
-}
-
+	
 #endif

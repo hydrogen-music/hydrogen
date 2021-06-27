@@ -174,6 +174,8 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		float __leadLag;
 		float __oldLeadLag;		
 		bool m_bEntered;
+
+		QColor m_lastHighlightColor;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
 		/** Used to detect changed in the font*/

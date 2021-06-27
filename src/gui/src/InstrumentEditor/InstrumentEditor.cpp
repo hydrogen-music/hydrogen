@@ -43,7 +43,6 @@
 using namespace H2Core;
 
 #include "../HydrogenApp.h"
-#include "../Skin.h"
 #include "../CommonStrings.h"
 #include "../Widgets/Rotary.h"
 #include "../Widgets/WidgetWithInput.h"

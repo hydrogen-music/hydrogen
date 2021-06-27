@@ -22,7 +22,6 @@
 
 #include <cstring>
 
-#include "Skin.h"
 #include "MixerSettingsDialog.h"
 #include "HydrogenApp.h"
 #include "MainForm.h"

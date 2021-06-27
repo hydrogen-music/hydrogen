@@ -39,6 +39,7 @@ class InfoBar : public QWidget
 	QString m_sText;
 
 	std::vector<QPushButton *> m_buttons;
+	QColor m_lastHighlightColor;
 
 	public:
 	InfoBar(QWidget *parent = Q_NULLPTR);
@@ -47,8 +48,12 @@ class InfoBar : public QWidget
 	QPushButton *addButton( const QString &label );
 	void reset();
 
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
+
+
 	private:
-	void setBackgroundColor();
+	void updateStyleSheet();
 	void createLayout();
 	void createIcon();
 	void createLabel();

@@ -39,11 +39,10 @@ public:
 		to the palette/application-wide settings.*/
 	enum class Color {
 		Bright,
-		Dark,
-		LCD
+		Dark
 	};
 	
-	explicit ClickableLabel( QWidget *pParent, QSize size, QString sText, Color color = Color::Bright );
+	explicit ClickableLabel( QWidget *pParent, QSize size = QSize( 0, 0 ), QString sText = "", Color color = Color::Bright );
 	void mousePressEvent( QMouseEvent * e );
 
 public slots:
@@ -54,11 +53,16 @@ signals:
 	void labelClicked( ClickableLabel* pLabel );
 
 private:
+	void updateStyleSheet();
 	void updateFont( QString sFontFamily, H2Core::Preferences::FontSize fontSize );
 
 	QSize m_size;
 	Color m_color;
 	
+	QColor m_lastWindowColor;
+	QColor m_lastWindowTextColor;
+	QColor m_lastWidgetColor;
+	QColor m_lastWidgetTextColor;
 	/** Used to detect changed in the font*/
 	QString m_sLastUsedFontFamily;
 	/** Used to detect changed in the font*/

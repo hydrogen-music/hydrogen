@@ -5,6 +5,7 @@
 #include "Skin.h"
 
 #include "core/Helpers/Filesystem.h"
+#include "core/Preferences.h"
 
 const char* FilesystemInfoForm::__class_name = "FilesystemInfoForm";
 
@@ -15,13 +16,16 @@ FilesystemInfoForm::FilesystemInfoForm( QWidget *parent ) :
 {
 	ui->setupUi(this);
 
+	QColor windowColor = H2Core::Preferences::get_instance()->getDefaultUIStyle()->m_windowColor;
+	QColor windowTextColor = H2Core::Preferences::get_instance()->getDefaultUIStyle()->m_windowTextColor;
+
 	ui->tmpDirWarningButton->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/warning.svg" ) );
 	ui->tmpDirWarningButton->setStyleSheet( QString( "	\
 width: 16px; \
 height: 16px; \
 color: %1; \
 background-color: %2; \
-border-color: %2;" ).arg( Skin::getWindowTextColor().name() ).arg( Skin::getWindowColor().name() ) );
+border-color: %2;" ).arg( windowTextColor.name() ).arg( windowColor.name() ) );
 	ui->tmpDirWarningButton->setToolTip( tr( "Filesystem is not writable!" ) );
 	ui->tmpDirWarningButton->setFlat( true );
 	
@@ -31,7 +35,7 @@ width: 16px; \
 height: 16px; \
 color: %1; \
 background-color: %2; \
-border-color: %2;" ).arg( Skin::getWindowTextColor().name() ).arg( Skin::getWindowColor().name() ) );
+border-color: %2;" ).arg( windowTextColor.name() ).arg( windowColor.name() ) );
 	ui->usrDataDirWarningButton->setToolTip( tr( "User data folder is not writable!" ) );
 	ui->usrDataDirWarningButton->setFlat( true );
 	

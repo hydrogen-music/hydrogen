@@ -23,7 +23,6 @@
 #include "Mixer.h"
 #include "MixerLine.h"
 
-#include "../Skin.h"
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../LadspaFXProperties.h"

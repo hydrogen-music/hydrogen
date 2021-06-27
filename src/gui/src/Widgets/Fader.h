@@ -59,7 +59,10 @@ public:
 	void setPeak_R( float peak );
 	float getPeak_R() const {	return m_fPeakValue_R;	}
 
-protected:
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
+
+private:
 	bool m_bWithoutKnob;
 	Type m_type;
 	QSvgRenderer* m_pBackground;
@@ -70,6 +73,9 @@ protected:
 	float m_fMinPeak;
 	float m_fMaxPeak;
 
+	QColor m_lastHighlightColor;
+	QColor m_lastLightColor;
+	
 	virtual void mouseMoveEvent(QMouseEvent *ev);
 	virtual void mousePressEvent(QMouseEvent *ev);
 	virtual void paintEvent(QPaintEvent *ev);

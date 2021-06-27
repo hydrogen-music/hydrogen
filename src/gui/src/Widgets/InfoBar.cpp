@@ -21,33 +21,46 @@
  */
 
 #include "InfoBar.h"
+#include "../Skin.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QStyle>
 
-#include "../Skin.h"
+#include <core/Preferences.h>
+
+#include "../HydrogenApp.h"
 
 InfoBar::InfoBar( QWidget *parent )
 	: QWidget( parent )
 {
-	setBackgroundColor();
+	setAutoFillBackground( true );
+	
 	createLayout();
 	createIcon();
 	createLabel();
 	createCloseButton();
+	
+	m_lastHighlightColor = H2Core::Preferences::get_instance()->getDefaultUIStyle()->m_highlightColor;
+	updateStyleSheet();
+	
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &InfoBar::onPreferencesChanged );
 }
 
-
-void InfoBar::setBackgroundColor()
-{
-	QPalette pal = palette();
-	pal.setColor( QPalette::Window, Skin::getBlueAccentColor() );
-	setAutoFillBackground( true );
-	setPalette( pal );
+void InfoBar::updateStyleSheet(){
+	setStyleSheet( QString( "background: %1;" ).arg( m_lastHighlightColor.name() ) );
 }
 
+void InfoBar::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_lastHighlightColor != pPref->getDefaultUIStyle()->m_highlightColor ) {
+		
+		m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
+		updateStyleSheet();
+	}
+}
 
 void InfoBar::createLayout()
 {

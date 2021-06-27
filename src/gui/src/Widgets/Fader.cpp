@@ -22,6 +22,7 @@
 
 
 #include "../Skin.h"
+#include "../HydrogenApp.h"
 #include "Fader.h"
 #include "MidiSenseWidget.h"
 
@@ -30,6 +31,7 @@
 
 #include <core/Globals.h>
 #include <core/Hydrogen.h>
+#include <core/Preferences.h>
 
 const char* Fader::__class_name = "Fader";
 
@@ -96,6 +98,13 @@ Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSte
 	}
 	
 	resize( m_nWidgetWidth, m_nWidgetHeight );
+
+	auto pPref = H2Core::Preferences::get_instance();
+	m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
+	m_lastLightColor = pPref->getDefaultUIStyle()->m_lightColor;
+
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Fader::onPreferencesChanged );
+	
 	if ( type == Type::Vertical ) {
 		QTransform transform;
 		transform.rotate(90);
@@ -103,6 +112,18 @@ Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSte
 }
 
 Fader::~Fader() {
+}
+
+void Fader::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_lastHighlightColor != pPref->getDefaultUIStyle()->m_highlightColor ||
+		 m_lastLightColor != pPref->getDefaultUIStyle()->m_lightColor ) {
+		
+		m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
+		m_lastLightColor = pPref->getDefaultUIStyle()->m_lightColor;
+		update();
+	}
 }
 
 void Fader::mouseMoveEvent( QMouseEvent *ev )
@@ -171,9 +192,9 @@ void Fader::paintEvent( QPaintEvent *ev)
 	
 	QColor colorHighlightActive;
 	if ( m_bIsActive ) {
-		colorHighlightActive = Skin::getHighlightColor();
+		colorHighlightActive = m_lastHighlightColor;
 	} else {
-		colorHighlightActive = Qt::lightGray;
+		colorHighlightActive = m_lastLightColor;
 	}
 	QColor colorGradientNormal( Qt::green );
 	QColor colorGradientWarning( Qt::yellow );

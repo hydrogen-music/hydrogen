@@ -39,7 +39,6 @@ namespace H2Core
 	class Note;
 	class Pattern;
 	class Instrument;
-	class UIStyle;
 }
 
 class PatternEditorPanel;
@@ -147,6 +146,7 @@ public slots:
 	virtual void cut();
 	virtual void selectInstrumentNotes( int nInstrument );
 	void setCurrentInstrument( int nInstrument );
+	void onPreferencesChanged( bool bAppearanceOnly );
 
 protected:
 
@@ -193,13 +193,23 @@ protected:
 	void drawGridLines( QPainter &p, Qt::PenStyle style = Qt::SolidLine ) const;
 
 	//! Colour to use for outlining selected notes
-	QColor selectedNoteColor( const H2Core::UIStyle *pStyle ) const;
+	QColor selectedNoteColor() const;
 
 	//! Draw a note
 	void drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote ) const;
 
 	//! Update current pattern information
 	void updatePatternInfo();
+
+	QColor m_lastPatternEditor_line1Color;
+	QColor m_lastPatternEditor_line2Color;
+	QColor m_lastPatternEditor_line3Color;
+	QColor m_lastPatternEditor_line4Color;
+	QColor m_lastPatternEditor_line5Color;
+	QColor m_lastPatternEditor_noteColor;
+	QColor m_lastPatternEditor_noteoffColor;
+	QColor m_lastSelectionHighlightColor;
+	QColor m_lastSelectionInactiveColor;
 
 };
 

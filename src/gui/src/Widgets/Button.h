@@ -89,9 +89,11 @@ signals:
 	void mousePress(Button *pBtn);
 
 private:
+	void updateStyleSheet();
 	void updateFont();
 	void updateTooltip();
-	
+
+	bool m_bUseRedBackground;
 	Type m_type;
 	QSize m_size;
 	QSize m_iconSize;
@@ -99,6 +101,8 @@ private:
 	QString m_sRegisteredMidiEvent;
 	QString m_sIcon;
 	int m_nRegisteredMidiParameter;
+
+	QString m_sBorderRadius;
 
 	bool m_bColorful;
 	bool m_bLastCheckedState;
@@ -110,6 +114,13 @@ private:
 	QString m_sLastUsedFontFamily;
 	/** Used to detect changed in the font*/
 	H2Core::Preferences::FontSize m_lastUsedFontSize;
+	QColor m_lastWidgetTextColor;
+	QColor m_lastWidgetColor;
+	QColor m_lastAccentColor;
+	QColor m_lastAccentTextColor;
+	QColor m_lastButtonRedColor;
+	QColor m_lastButtonRedTextColor;
+
 };
 
 #endif

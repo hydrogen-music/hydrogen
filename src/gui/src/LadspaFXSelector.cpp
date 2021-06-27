@@ -22,7 +22,6 @@
 
 #include "LadspaFXSelector.h"
 #include "HydrogenApp.h"
-#include "Skin.h"
 
 #include <core/Hydrogen.h>
 #include <core/Basics/Song.h>

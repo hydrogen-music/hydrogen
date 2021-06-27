@@ -62,33 +62,6 @@
 #include <map>
 #include <set>
 
-//
-// Set the palette used in the application
-//
-void setPalette( QApplication *pQApp )
-{
-	// create the default palette
-	QPalette defaultPalette;
-
-	defaultPalette.setColor( QPalette::Window, Skin::getWindowColor() );
-	defaultPalette.setColor( QPalette::WindowText, Skin::getWindowTextColor() );
-	defaultPalette.setColor( QPalette::Base, Skin::getBaseColor() );
-	defaultPalette.setColor( QPalette::AlternateBase, Skin::getAlternateBaseColor() );
-	defaultPalette.setColor( QPalette::Text, Skin::getTextColor() );
-	defaultPalette.setColor( QPalette::Button, Skin::getButtonColor() );
-	defaultPalette.setColor( QPalette::ButtonText, Skin::getButtonTextColor() );
-	defaultPalette.setColor( QPalette::Light, Skin::getLightColor() );
-	defaultPalette.setColor( QPalette::Midlight, Skin::getMidLightColor() );
-	defaultPalette.setColor( QPalette::Dark, Skin::getDarkColor() );
-	defaultPalette.setColor( QPalette::Mid, Skin::getMidColor() );
-	defaultPalette.setColor( QPalette::Shadow, Skin::getShadowTextColor() );
-	defaultPalette.setColor( QPalette::Highlight, Skin::getHighlightColor() );
-	defaultPalette.setColor( QPalette::HighlightedText, Skin::getHighlightedTextColor() );
-
-	pQApp->setPalette( defaultPalette );
-	pQApp->setStyleSheet( Skin::getGlobalStyleSheet() );
-}
-
 // Handle a fatal signal, allowing the logger to complete any outstanding messages before re-raising the
 // signal to allow normal termination.
 static void handleFatalSignal( int nSignal )
@@ -405,7 +378,7 @@ int main(int argc, char *argv[])
 			pQApp->setStyle( sStyle );
 		}
 
-		setPalette( pQApp );
+		Skin::setPalette( pQApp );
 		setApplicationIcon(pQApp);
 
 		SplashScreen *pSplash = new SplashScreen();

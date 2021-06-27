@@ -24,7 +24,6 @@
 #include <QLabel>
 
 #include "ExportMidiDialog.h"
-#include "Skin.h"
 #include "HydrogenApp.h"
 
 #include <core/Basics/Song.h>

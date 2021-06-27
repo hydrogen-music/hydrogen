@@ -26,7 +26,6 @@
 #include <QMessageBox>
 
 #include "../HydrogenApp.h"
-#include "../Skin.h"
 
 const char* SoundLibrarySaveDialog::__class_name = "SoundLibrarySaveDialog";
 

@@ -45,9 +45,19 @@ public:
 	LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin = 0.0, double fMax = 1.0 );
 	~LCDSpinBox();
 
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
+	
 private:
+	void updateStyleSheet();
 	QSize m_size;
 	Type m_type;
+
+	QColor m_lastHighlightColor;
+	QColor m_lastAccentColor;
+	QColor m_lastSpinBoxSelectionColor;
+	QColor m_lastSpinBoxSelectionTextColor;
+	QColor m_lastAccentTextColor;
 
 	bool m_bEntered;
 

@@ -22,7 +22,6 @@
 
 #include "ClickableLabel.h"
 #include "../HydrogenApp.h"
-#include "../Skin.h"
 
 #include <QtGui>
 #include <QtWidgets>
@@ -37,37 +36,42 @@ ClickableLabel::ClickableLabel( QWidget *pParent, QSize size, QString sText, Col
 	, m_size( size )
 	, m_color( color )
 {
+	if ( ! size.isNull() ) {
+		setFixedSize( size );
+		resize( size );
+	}
+	
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	m_lastUsedFontSize = pPref->getFontSize();
 	m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
 	updateFont( m_sLastUsedFontFamily, m_lastUsedFontSize );
 
-	QPalette defaultPalette;
-	if ( color == Color::Bright ) {
-		defaultPalette.setColor( QPalette::Window, Skin::getWindowColor() );
-		defaultPalette.setColor( QPalette::WindowText, QColor( 230, 230, 230 ) );
-	} else if ( color == Color::LCD ) {
-		defaultPalette.setColor( QPalette::Window, QColor( 50, 50, 50 ) );
-		defaultPalette.setColor( QPalette::WindowText, Skin::getBlueAccentColor() );
-	} else {
-		defaultPalette.setColor( QPalette::Window, QColor( 230, 230, 230 ) );
-		defaultPalette.setColor( QPalette::WindowText, QColor( 25, 25, 25 ) );
-	}
-	
-	setPalette( defaultPalette );
+	m_lastWindowColor = pPref->getDefaultUIStyle()->m_windowColor;
+	m_lastWindowTextColor = pPref->getDefaultUIStyle()->m_windowTextColor;
+	m_lastWidgetColor = pPref->getDefaultUIStyle()->m_widgetColor;
+	m_lastWidgetTextColor = pPref->getDefaultUIStyle()->m_widgetTextColor;
+
+	updateStyleSheet();
 
 	setAlignment( Qt::AlignCenter );
-		
 	setText( sText );
-
-	setFixedSize( size );
-	resize( size );
 	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &ClickableLabel::onPreferencesChanged );
 
 }
 
+void ClickableLabel::updateStyleSheet() {
+
+	QColor text;
+	if ( m_color == Color::Bright ) {
+		text = m_lastWindowTextColor;
+	} else {
+		text = m_lastWidgetTextColor;
+	}
+
+	setStyleSheet( QString( "color: %1" ).arg( text.name() ) );
+}
 
 void ClickableLabel::mousePressEvent( QMouseEvent * e )
 {
@@ -76,44 +80,54 @@ void ClickableLabel::mousePressEvent( QMouseEvent * e )
 }
 
 void ClickableLabel::updateFont( QString sFontFamily, H2Core::Preferences::FontSize fontSize ) {
-		
-	float fScalingFactor = 1.0;
-    switch ( fontSize ) {
-    case H2Core::Preferences::FontSize::Small:
-		fScalingFactor = 1.0;
-		break;
-    case H2Core::Preferences::FontSize::Normal:
-		fScalingFactor = 0.75;
-		break;
-    case H2Core::Preferences::FontSize::Large:
-		fScalingFactor = 0.5;
-		break;
-	}
 
-	int nMargin, nPixelSize;
-	if ( m_size.height() <= 9 ) {
-		nMargin = 1;
-	} else if ( m_size.height() <= 16 ) {
-		nMargin = 2;
-	} else {
-		nMargin = 8;
-	}
+	int nPixelSize;
+	
+	if ( ! m_size.isNull() ) {
+	
+		float fScalingFactor = 1.0;
+		switch ( fontSize ) {
+		case H2Core::Preferences::FontSize::Small:
+			fScalingFactor = 1.0;
+			break;
+		case H2Core::Preferences::FontSize::Normal:
+			fScalingFactor = 0.75;
+			break;
+		case H2Core::Preferences::FontSize::Large:
+			fScalingFactor = 0.5;
+			break;
+		}
 
-	nPixelSize = m_size.height() - std::round( fScalingFactor * nMargin );
+		int nMargin;
+		if ( m_size.height() <= 9 ) {
+			nMargin = 1;
+		} else if ( m_size.height() <= 16 ) {
+			nMargin = 2;
+		} else {
+			nMargin = 8;
+		}
+
+		nPixelSize = m_size.height() - std::round( fScalingFactor * nMargin );
+	}
 
 	QFont font( sFontFamily );
-	font.setPixelSize( nPixelSize );
+
+	if ( ! m_size.isNull() ) {
+		font.setPixelSize( nPixelSize );
+	}
 	font.setBold( true );
 	
 	setFont( font );
 
-	// Check whether the width of the text fits the available frame
-	// width of the label
-	while ( fontMetrics().size( Qt::TextSingleLine, text() ).width() > width()
-			&& nPixelSize > 1 ) {
-		nPixelSize--;
-		font.setPixelSize( nPixelSize );
-		setFont( font );
+	if ( ! m_size.isNull() ) {
+		// Check whether the width of the text fits the available frame
+		// width of the label
+		while ( fontMetrics().size( Qt::TextSingleLine, text() ).width() > width()
+				&& nPixelSize > 1 ) {
+			nPixelSize--;
+			font.setPixelSize( nPixelSize );
+			setFont( font );
+		}
 	}
 }
 
@@ -121,11 +135,22 @@ void ClickableLabel::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( m_sLastUsedFontFamily != pPref->getLevel3FontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		 m_lastUsedFontSize != pPref->getFontSize() ||
+		 m_lastWindowColor != pPref->getDefaultUIStyle()->m_windowColor ||
+		 m_lastWindowTextColor != pPref->getDefaultUIStyle()->m_windowTextColor ||
+		 m_lastWidgetColor != pPref->getDefaultUIStyle()->m_widgetColor ||
+		 m_lastWidgetTextColor != pPref->getDefaultUIStyle()->m_widgetTextColor ) {
+		
 		m_lastUsedFontSize = pPref->getFontSize();
 		m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
+
+		m_lastWindowColor = pPref->getDefaultUIStyle()->m_windowColor;
+		m_lastWindowTextColor = pPref->getDefaultUIStyle()->m_windowTextColor;
+		m_lastWidgetColor = pPref->getDefaultUIStyle()->m_widgetColor;
+		m_lastWidgetTextColor = pPref->getDefaultUIStyle()->m_widgetTextColor;
 		
 		updateFont( m_sLastUsedFontFamily, m_lastUsedFontSize );
+		updateStyleSheet();
 	}
 }
 

@@ -50,10 +50,9 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	Preferences *pPref = Preferences::get_instance();
 	m_lastUsedFontSize = pPref->getFontSize();
+	m_lastPatternEditor_backgroundColor = pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor;
 
-	UIStyle *pStyle = pPref->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
-
+	QColor backgroundColor( m_lastPatternEditor_backgroundColor );
 
 	m_pPattern = nullptr;
 	m_fGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
@@ -186,6 +185,8 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 	QPainter painter(this);
 
+	QColor backgroundColor( m_lastPatternEditor_backgroundColor );
+	m_pBackground->fill( backgroundColor );
 
 	painter.drawPixmap( ev->rect(), *m_pBackground, ev->rect() );
 
@@ -245,8 +246,7 @@ void PatternEditorRuler::zoomIn()
 	resize(  QSize(m_nRulerWidth, m_nRulerHeight ));
 	delete m_pBackground;
 	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
-	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
+	QColor backgroundColor( m_lastPatternEditor_backgroundColor );
 	m_pBackground->fill( backgroundColor );
 	update();
 }
@@ -265,8 +265,7 @@ void PatternEditorRuler::zoomOut()
 	resize( QSize(m_nRulerWidth, m_nRulerHeight) );
 	delete m_pBackground;
 	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
-	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
+	QColor backgroundColor( m_lastPatternEditor_backgroundColor );
 	m_pBackground->fill( backgroundColor );
 	update();
 	}
@@ -282,7 +281,10 @@ void PatternEditorRuler::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		 m_lastUsedFontSize != pPref->getFontSize() ||
+		 m_lastPatternEditor_backgroundColor != pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor) {
+		
+		m_lastPatternEditor_backgroundColor = pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor;
 		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
 		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 		update( 0, 0, width(), height() );

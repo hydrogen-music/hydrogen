@@ -34,9 +34,12 @@ ColorSelectionButton::ColorSelectionButton( QWidget* pParent, QColor sInitialCol
  , m_bMouseOver( false )
 {
 	setFlat( true );
-	QSize size( nSize, nSize );
-	setFixedSize( size );
-	resize( size );
+
+	if ( nSize != 0 ) {
+		QSize size( nSize, nSize );
+		setFixedSize( size );
+		resize( size );
+	}
 }
 
 ColorSelectionButton::~ColorSelectionButton() {

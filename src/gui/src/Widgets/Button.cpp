@@ -46,10 +46,19 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	, m_bColorful( bColorful )
 	, m_bLastCheckedState( false )
 	, m_sIcon( sIcon )
+	, m_bUseRedBackground( bUseRedBackground )
 {
-	m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
-	m_sLastUsedFontFamily = H2Core::Preferences::get_instance()->getLevel3FontFamily();
+	auto pPref = H2Core::Preferences::get_instance();
 	
+	m_lastUsedFontSize = pPref->getFontSize();
+	m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
+	m_lastWidgetTextColor = pPref->getDefaultUIStyle()->m_widgetTextColor;
+	m_lastWidgetColor = pPref->getDefaultUIStyle()->m_widgetColor;
+	m_lastAccentColor = pPref->getDefaultUIStyle()->m_accentColor;
+	m_lastAccentTextColor = pPref->getDefaultUIStyle()->m_accentTextColor;
+	m_lastButtonRedColor = pPref->getDefaultUIStyle()->m_buttonRedColor;
+	m_lastButtonRedTextColor = pPref->getDefaultUIStyle()->m_buttonRedTextColor;
+		
 	setAttribute( Qt::WA_OpaquePaintEvent );
 	setFocusPolicy( Qt::NoFocus );
 	
@@ -69,72 +78,88 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 		setText( sText );
 	}
 
-	updateFont();
-
-	QString sBackgroundCheckedLight, sBackgroundCheckedDark,
-		sBackgroundCheckedHoverLight, sBackgroundCheckedHoverDark, sColorChecked;
-	if ( bUseRedBackground ) {
-		sBackgroundCheckedLight = "#ffb1b1";
-		sBackgroundCheckedDark = "#ff6767";
-		sBackgroundCheckedHoverLight = "#ffc0c0";
-		sBackgroundCheckedHoverDark = "#ff7676";
-		sColorChecked = "#0a0a0a";
-	} else {
-		sBackgroundCheckedLight = "#5276a2";
-		sBackgroundCheckedDark = "#3b5574";
-		sBackgroundCheckedHoverLight = "#5a81b1";
-		sBackgroundCheckedHoverDark = "#436083";
-		sColorChecked = "#ffffff";
-	}
-
-	QString sRadius;
 	if ( size.width() <= 12 || size.height() <= 12 ) {
-		sRadius = "0";
+		m_sBorderRadius = "0";
 	} else if ( size.width() <= 20 || size.height() <= 20 ) {
-		sRadius = "3";
+		m_sBorderRadius = "3";
 	} else {
-		sRadius = "5";
+		m_sBorderRadius = "5";
 	}
-
-	setStyleSheet( QString( "QPushButton { \
-    color: #0a0a0a; \
-    border: 1px solid #0a0a0a; \
-    border-radius: %1px; \
-    padding: 0px; \
-    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
-                                      stop: 0 #dae0f2, stop: 1 #9298aa); \
-} \
-QPushButton:hover { \
-    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
-                                      stop: 0 #e8eeff, stop: 1 #9fa6b9); \
-} \
-QPushButton:checked { \
-    color: %2; \
-    border: 1px solid #0a0a0a; \
-    border-radius: %1px; \
-    padding: 0px; \
-    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
-                                      stop: 0 %3, stop: 1 %4); \
-} \
-QPushButton:checked:hover { \
-    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
-                                      stop: 0 %5, stop: 1 %6); \
-}"
-							).arg( sRadius ).arg( sColorChecked )
-				   .arg( sBackgroundCheckedLight ).arg( sBackgroundCheckedDark )
-				   .arg( sBackgroundCheckedHoverLight ).arg( sBackgroundCheckedHoverDark ) );
 	
 	if ( type == Type::Toggle ) {
 		setCheckable( true );
 	} else {
 		setCheckable( false );
 	}
+
+	updateFont();
+	updateStyleSheet();
 	updateTooltip();
 	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Button::onPreferencesChanged );
 }
 
 Button::~Button() {
+}
+
+void Button::updateStyleSheet() {
+
+	int nFactorGradient = 120;
+	int nHover = 10;
+	
+	QColor backgroundLight = m_lastWidgetColor.lighter( nFactorGradient );
+	QColor backgroundDark = m_lastWidgetColor.darker( nFactorGradient );
+	QColor backgroundLightHover = m_lastWidgetColor.lighter( nFactorGradient + nHover );
+	QColor backgroundDarkHover = m_lastWidgetColor.darker( nFactorGradient + nHover );
+
+	QColor backgroundCheckedLight, backgroundCheckedDark, backgroundCheckedLightHover,
+		backgroundCheckedDarkHover, textChecked;
+	if ( ! m_bUseRedBackground ) {
+		backgroundCheckedLight = m_lastAccentColor.lighter( nFactorGradient );
+		backgroundCheckedDark = m_lastAccentColor.darker( nFactorGradient );
+		backgroundCheckedLightHover = m_lastAccentColor.lighter( nFactorGradient + nHover );
+		backgroundCheckedDarkHover = m_lastAccentColor.darker( nFactorGradient + nHover );
+		textChecked = m_lastAccentTextColor;
+	} else {
+		backgroundCheckedLight = m_lastButtonRedColor.lighter( nFactorGradient );
+		backgroundCheckedDark = m_lastButtonRedColor.darker( nFactorGradient );
+		backgroundCheckedLightHover = m_lastButtonRedColor.lighter( nFactorGradient + nHover );
+		backgroundCheckedDarkHover = m_lastButtonRedColor.darker( nFactorGradient + nHover );
+		textChecked = m_lastButtonRedTextColor;
+	}
+	
+	setStyleSheet( QString( "QPushButton { \
+    color: %1; \
+    border: 1px solid %1; \
+    border-radius: %2px; \
+    padding: 0px; \
+    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
+                                      stop: 0 %3, stop: 1 %4); \
+} \
+QPushButton:hover { \
+    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
+                                      stop: 0 %5, stop: 1 %6); \
+} \
+QPushButton:checked { \
+    color: %7; \
+    border: 1px solid %1; \
+    border-radius: %2px; \
+    padding: 0px; \
+    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
+                                      stop: 0 %8, stop: 1 %9); \
+} \
+QPushButton:checked:hover { \
+    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
+                                      stop: 0 %10, stop: 1 %11); \
+}"
+							)
+				   .arg( m_lastWidgetTextColor.name() )
+				   .arg( m_sBorderRadius )
+				   .arg( backgroundLight.name() ).arg( backgroundDark.name() )
+				   .arg( backgroundLightHover.name() ).arg( backgroundDarkHover.name() )
+				   .arg( textChecked.name() )
+				   .arg( backgroundCheckedLight.name() ).arg( backgroundCheckedDark.name() )
+				   .arg( backgroundCheckedLightHover.name() ).arg( backgroundCheckedDarkHover.name() ) );
 }
 
 void Button::setBaseToolTip( const QString& sNewTip ) {
@@ -251,9 +276,24 @@ void Button::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( m_sLastUsedFontFamily != pPref->getLevel3FontFamily() ||
+		 m_lastWidgetTextColor != pPref->getDefaultUIStyle()->m_widgetTextColor ||
+		 m_lastWidgetColor != pPref->getDefaultUIStyle()->m_widgetColor ||
+		 m_lastAccentColor != pPref->getDefaultUIStyle()->m_accentColor ||
+		 m_lastAccentTextColor != pPref->getDefaultUIStyle()->m_accentTextColor ||
+		 m_lastButtonRedColor != pPref->getDefaultUIStyle()->m_buttonRedColor ||
+		 m_lastButtonRedTextColor != pPref->getDefaultUIStyle()->m_buttonRedTextColor ||
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
+
+		m_lastWidgetTextColor = pPref->getDefaultUIStyle()->m_widgetTextColor;
+		m_lastWidgetColor = pPref->getDefaultUIStyle()->m_widgetColor;
+		m_lastAccentColor = pPref->getDefaultUIStyle()->m_accentColor;
+		m_lastAccentTextColor = pPref->getDefaultUIStyle()->m_accentTextColor;
+		m_lastButtonRedColor = pPref->getDefaultUIStyle()->m_buttonRedColor;
+		m_lastButtonRedTextColor = pPref->getDefaultUIStyle()->m_buttonRedTextColor;
+		
 		m_lastUsedFontSize = pPref->getFontSize();
 		m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
 		updateFont();
+		updateStyleSheet();
 	}
 }

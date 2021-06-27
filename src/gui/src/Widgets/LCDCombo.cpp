@@ -23,7 +23,6 @@
 #include "LCDCombo.h"
 
 #include "../HydrogenApp.h"
-#include "../Skin.h"
 
 #include <core/Globals.h>
 
@@ -35,11 +34,12 @@ LCDCombo::LCDCombo( QWidget *pParent, QSize size )
 	, m_size( size )
 	, m_bEntered( false )
 {
-		
+	auto pPref = H2Core::Preferences::get_instance();
 	setFocusPolicy( Qt::ClickFocus );
-	
-	m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
-	m_sLastUsedFontFamily = H2Core::Preferences::get_instance()->getLevel3FontFamily();
+
+	m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
+	m_lastUsedFontSize = pPref->getFontSize();
+	m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
 
 	if ( ! size.isNull() ) {
 		adjustSize();
@@ -62,11 +62,15 @@ void LCDCombo::updateFont() {
 void LCDCombo::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getLevel3FontFamily() ||
+	if ( m_lastHighlightColor != pPref->getDefaultUIStyle()->m_highlightColor ||
+		 m_sLastUsedFontFamily != pPref->getLevel3FontFamily() ||
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
+
+		m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
 		m_lastUsedFontSize = pPref->getFontSize();
 		m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
 		updateFont();
+		update();
 	}
 }
 
@@ -77,7 +81,7 @@ void LCDCombo::paintEvent( QPaintEvent *ev ) {
 	if ( m_bEntered || hasFocus() ) {
 		QPainter painter(this);
 	
-		QColor colorHighlightActive = Skin::getHighlightColor();
+		QColor colorHighlightActive = m_lastHighlightColor;
 
 		// If the mouse is placed on the widget but the user hasn't
 		// clicked it yet, the highlight will be done more transparent to

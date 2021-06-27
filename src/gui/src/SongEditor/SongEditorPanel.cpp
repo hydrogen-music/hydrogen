@@ -31,7 +31,6 @@
 #include "../Widgets/Fader.h"
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/PixmapWidget.h"
-#include "../Skin.h"
 #include "../WidgetScrollArea.h"
 
 #include "SongEditor.h"

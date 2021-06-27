@@ -309,6 +309,30 @@ public slots:
 		QMenu* m_pOptionsMenu;
 		QMenu* m_pDebugMenu;
 		QMenu* m_pInfoMenu;
+	
+		QColor m_lastWidgetColor;
+		QColor m_lastWidgetTextColor;
+		QColor m_lastAccentColor;
+		QColor m_lastAccentTextColor;
+		QColor m_lastToolTipTextColor;
+		QColor m_lastToolTipBaseColor;
+		QColor m_lastWindowColor;
+		QColor m_lastWindowTextColor;
+		QColor m_lastSpinBoxSelectionTextColor;
+		QColor m_lastSpinBoxSelectionColor;
+		QColor m_lastBaseColor;
+		QColor m_lastAlternateBaseColor;
+		QColor m_lastTextColor;
+		QColor m_lastButtonColor;
+		QColor m_lastButtonTextColor;
+		QColor m_lastLightColor;
+		QColor m_lastMidLightColor;
+		QColor m_lastDarkColor;
+		QColor m_lastMidColor;
+		QColor m_lastShadowTextColor;
+		QColor m_lastHighlightColor;
+		QColor m_lastHighlightedTextColor;
+
 };
 
 #endif

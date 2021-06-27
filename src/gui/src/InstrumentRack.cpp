@@ -22,7 +22,6 @@
 
 #include "InstrumentRack.h"
 #include "HydrogenApp.h"
-#include "Skin.h"
 #include "CommonStrings.h"
 #include "Widgets/Button.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"

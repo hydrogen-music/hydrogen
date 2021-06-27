@@ -24,7 +24,6 @@
 #include "PatternEditorPanel.h"
 #include "NotePropertiesRuler.h"
 #include "UndoActions.h"
-#include "../Skin.h"
 #include <cassert>
 
 #include <core/Hydrogen.h>
@@ -52,6 +51,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 
 	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+	m_lastHighlightColor = Preferences::get_instance()->getDefaultUIStyle()->m_highlightColor;
 		
 	m_nGridHeight = 10;
 	m_nOctaves = 7;
@@ -150,9 +150,10 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 		finishUpdateEditor();
 	}
 	painter.drawPixmap( ev->rect(), *m_pTemp, ev->rect() );
-	m_selection.paintSelection( &painter );
 
 	drawFocus( painter );
+	
+	m_selection.paintSelection( &painter );
 }
 
 void PianoRollEditor::drawFocus( QPainter& painter ) {
@@ -161,7 +162,7 @@ void PianoRollEditor::drawFocus( QPainter& painter ) {
 		return;
 	}
 	
-	QColor color = Skin::getHighlightColor();
+	QColor color = m_lastHighlightColor;
 
 	// If the mouse is placed on the widget but the user hasn't
 	// clicked it yet, the highlight will be done more transparent to
@@ -1377,10 +1378,14 @@ QRect PianoRollEditor::getKeyboardCursorRect() {
 void PianoRollEditor::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+	if (  m_lastHighlightColor != pPref->getDefaultUIStyle()->m_highlightColor ||
+		  m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		  m_lastUsedFontSize != pPref->getFontSize() ) {
+
+		m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
+		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
+		m_lastUsedFontSize = pPref->getFontSize();
 		createBackground();
+		update();
 	}
 }

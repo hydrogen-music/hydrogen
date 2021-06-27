@@ -76,12 +76,13 @@ class UIStyle : public H2Core::Object
 	H2_OBJECT
 public:
 	UIStyle();
+	UIStyle( const UIStyle* pOther );
+	
 	QColor m_songEditor_backgroundColor;
 	QColor m_songEditor_alternateRowColor;
 	QColor m_songEditor_selectedRowColor;
 	QColor m_songEditor_lineColor;
 	QColor m_songEditor_textColor;
-	QColor m_songEditor_pattern1Color;
 
 	QColor m_patternEditor_backgroundColor;
 	QColor m_patternEditor_alternateRowColor;
@@ -98,6 +99,36 @@ public:
 
 	QColor m_selectionHighlightColor;
 	QColor m_selectionInactiveColor;
+
+	// QWidget palette stuff
+	QColor m_windowColor;
+	QColor m_windowTextColor;
+	QColor m_baseColor;
+	QColor m_alternateBaseColor;
+	QColor m_textColor;
+	QColor m_buttonColor;
+	QColor m_buttonTextColor;
+	QColor m_lightColor;
+	QColor m_midLightColor;
+	QColor m_midColor;
+	QColor m_darkColor;
+	QColor m_shadowTextColor;
+	QColor m_highlightColor;
+	QColor m_highlightedTextColor;
+	QColor m_toolTipBaseColor;
+	QColor m_toolTipTextColor;
+
+	// General widget stuff
+	QColor m_accentColor;
+	QColor m_accentTextColor;
+	QColor m_widgetColor;
+	QColor m_widgetTextColor;
+	QColor m_buttonRedColor;
+	QColor m_buttonRedTextColor;
+	QColor m_spinBoxSelectionColor;
+	QColor m_spinBoxSelectionTextColor;
+	QColor m_automationColor;
+	QColor m_automationCircleColor;
 };
 
 
@@ -550,7 +581,8 @@ public:
 	WindowProperties	getLadspaProperties( unsigned nFX );
 	void			setLadspaProperties( unsigned nFX, const WindowProperties& prop );
 
-	UIStyle*		getDefaultUIStyle();
+	const UIStyle*	getDefaultUIStyle() const;
+	void			setDefaultUIStyle( UIStyle* pNewUIStyle );
 
 	/** \return #m_bPatternModePlaysSelected*/
 	bool			patternModePlaysSelected();
@@ -1225,8 +1257,12 @@ inline void Preferences::setLadspaProperties( unsigned nFX, const WindowProperti
 	m_ladspaProperties[nFX] = prop;
 }
 
-inline UIStyle* Preferences::getDefaultUIStyle() {
+inline const UIStyle* Preferences::getDefaultUIStyle() const {
 	return m_pDefaultUIStyle;
+}
+inline void Preferences::setDefaultUIStyle( UIStyle* pNewUIStyle ) {
+	delete m_pDefaultUIStyle;
+	m_pDefaultUIStyle = new UIStyle( pNewUIStyle );
 }
 
 inline bool Preferences::patternModePlaysSelected() {

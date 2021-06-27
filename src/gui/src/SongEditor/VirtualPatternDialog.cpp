@@ -28,8 +28,6 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 
-#include "Skin.h"
-
 const char* VirtualPatternDialog::__class_name = "VirtualPatternDialog";
 
 VirtualPatternDialog::VirtualPatternDialog(QWidget* parent)

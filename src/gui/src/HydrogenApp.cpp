@@ -29,7 +29,6 @@
 #include <core/Helpers/Filesystem.h>
 
 #include "HydrogenApp.h"
-#include "Skin.h"
 #include "CommonStrings.h"
 #include "PreferencesDialog.h"
 #include "MainForm.h"

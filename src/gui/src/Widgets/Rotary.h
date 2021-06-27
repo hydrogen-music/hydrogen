@@ -48,10 +48,16 @@ public:
 	Rotary( QWidget* parent, Type type, QString sBaseTooltip, bool bUseIntSteps, float fMin = 0.0, float fMax = 1.0 );
 	~Rotary();
 
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
+
 private:
 	Type m_type;
 	QSvgRenderer* m_background;
 	QSvgRenderer* m_knob;
+
+	QColor m_lastHighlightColor;
+	QColor m_lastLightColor;
 
 	virtual void paintEvent(QPaintEvent *ev);
 };

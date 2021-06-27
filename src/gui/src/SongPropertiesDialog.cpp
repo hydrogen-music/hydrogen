@@ -21,7 +21,6 @@
  */
 
 #include "SongPropertiesDialog.h"
-#include "Skin.h"
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 

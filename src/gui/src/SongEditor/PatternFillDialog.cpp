@@ -27,8 +27,6 @@
 #include <core/Basics/Song.h>
 #include <core/Basics/Pattern.h>
 
-#include "Skin.h"
-
 const char* PatternFillDialog::__class_name = "PatternFillDialog";
 
 PatternFillDialog::PatternFillDialog(QWidget* parent, FillRange* pRange)

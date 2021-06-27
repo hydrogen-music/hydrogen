@@ -92,6 +92,10 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 	m_lastUsedPatternColors = pPref->getPatternColors();
 	m_nLastUsedVisiblePatternColors = pPref->getVisiblePatternColors();
 	m_nLastUsedColoringMethod = pPref->getColoringMethod();
+	m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
+	m_lastSongEditor_backgroundColor = pPref->getDefaultUIStyle()->m_songEditor_backgroundColor;
+	m_lastSongEditor_alternateRowColor = pPref->getDefaultUIStyle()->m_songEditor_alternateRowColor;
+	m_lastSongEditor_lineColor = pPref->getDefaultUIStyle()->m_songEditor_lineColor;
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &SongEditor::onPreferencesChanged );
 	connect( m_pScrollView->verticalScrollBar(), SIGNAL( valueChanged( int ) ), this, SLOT( scrolled( int ) ) );
@@ -880,9 +884,9 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 								 4, 4 );
 	}
 
-	m_selection.paintSelection( &painter );
-
 	drawFocus( painter );
+
+	m_selection.paintSelection( &painter );
 }
 
 void SongEditor::drawFocus( QPainter& painter ) {
@@ -891,7 +895,7 @@ void SongEditor::drawFocus( QPainter& painter ) {
 		return;
 	}
 	
-	QColor color = Skin::getHighlightColor();
+	QColor color = m_lastHighlightColor;
 
 	// If the mouse is placed on the widget but the user hasn't
 	// clicked it yet, the highlight will be done more transparent to
@@ -934,11 +938,6 @@ void SongEditor::leaveEvent( QEvent *ev ) {
 
 void SongEditor::createBackground()
 {
-	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_songEditor_backgroundColor );
-	QColor alternateRowColor( pStyle->m_songEditor_alternateRowColor );
-	QColor linesColor( pStyle->m_songEditor_lineColor );
-
 	Song *pSong = m_pHydrogen->getSong();
 
 	uint nPatterns = pSong->getPatternList()->size();
@@ -957,23 +956,10 @@ void SongEditor::createBackground()
 		this->resize( QSize( width(), nNewHeight ) );
 	}
 
-	m_pBackgroundPixmap->fill( alternateRowColor );
+	m_pBackgroundPixmap->fill( m_lastSongEditor_alternateRowColor );
 
 	QPainter p( m_pBackgroundPixmap );
-	p.setPen( linesColor );
-
-/*	// sfondo per celle scure (alternato)
-	for (uint i = 0; i < nPatterns; i++) {
-		if ( ( i % 2) != 0) {
-			uint y = m_nGridHeight * i;
-			p.fillRect ( 0, y, m_nMaxPatternSequence * m_nGridWidth, 2, backgroundColor );
-			p.fillRect ( 0, y + 2, m_nMaxPatternSequence * m_nGridWidth, m_nGridHeight - 4, alternateRowColor );
-			p.fillRect ( 0, y + m_nGridHeight - 2, m_nMaxPatternSequence * m_nGridWidth, 2, backgroundColor );
-		}
-	}
-*/
-	// celle...
-	p.setPen( linesColor );
+	p.setPen( m_lastSongEditor_lineColor );
 
 	// vertical lines
 	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
@@ -985,7 +971,7 @@ void SongEditor::createBackground()
 		p.drawLine( x2, 0, x2, m_nGridHeight * nPatterns );
 	}
 
-	p.setPen( linesColor );
+	p.setPen( m_lastSongEditor_lineColor );
 	// horizontal lines
 	for (uint i = 0; i < nPatterns; i++) {
 		uint y = m_nGridHeight * i;
@@ -998,12 +984,12 @@ void SongEditor::createBackground()
 	}
 
 
-	p.setPen( backgroundColor );
+	p.setPen( m_lastSongEditor_backgroundColor );
 	// horizontal lines (erase..)
 	for (uint i = 0; i < nPatterns + 1; i++) {
 		uint y = m_nGridHeight * i;
 
-		p.fillRect( 0, y, m_nMaxPatternSequence * m_nGridWidth, 2, backgroundColor );
+		p.fillRect( 0, y, m_nMaxPatternSequence * m_nGridWidth, 2, m_lastSongEditor_backgroundColor );
 		p.drawLine( 0, y + m_nGridHeight - 1, m_nMaxPatternSequence * m_nGridWidth, y + m_nGridHeight - 1 );
 	}
 
@@ -1192,13 +1178,23 @@ void SongEditor::updateEditorandSetTrue()
 void SongEditor::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( m_lastUsedPatternColors != pPref->getPatternColors() ||
+	if ( m_lastHighlightColor != pPref->getDefaultUIStyle()->m_highlightColor ||
+		 m_lastSongEditor_backgroundColor != pPref->getDefaultUIStyle()->m_songEditor_backgroundColor ||
+		 m_lastSongEditor_alternateRowColor != pPref->getDefaultUIStyle()->m_songEditor_alternateRowColor ||
+		 m_lastSongEditor_lineColor != pPref->getDefaultUIStyle()->m_songEditor_lineColor ||
+		 m_lastUsedPatternColors != pPref->getPatternColors() ||
 		 m_nLastUsedVisiblePatternColors != pPref->getVisiblePatternColors() ||
 		 m_nLastUsedColoringMethod != pPref->getColoringMethod() ) {
+		
+		m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
+		m_lastSongEditor_backgroundColor = pPref->getDefaultUIStyle()->m_songEditor_backgroundColor;
+		m_lastSongEditor_alternateRowColor = pPref->getDefaultUIStyle()->m_songEditor_alternateRowColor;
+		m_lastSongEditor_lineColor = pPref->getDefaultUIStyle()->m_songEditor_lineColor;
 		m_lastUsedPatternColors = pPref->getPatternColors();
 		m_nLastUsedVisiblePatternColors = pPref->getVisiblePatternColors();
 		m_nLastUsedColoringMethod = pPref->getColoringMethod();
 		m_bSequenceChanged = true;
+		createBackground();
 		update();
 	}
 }
@@ -1221,6 +1217,8 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	
 	m_sLastUsedFontFamily = pPref->getLevel2FontFamily();
 	m_lastUsedFontSize = pPref->getFontSize();
+	m_lastSongEditor_textColor = pPref->getDefaultUIStyle()->m_songEditor_textColor;
+	m_lastSongEditor_alternateRowColor = pPref->getDefaultUIStyle()->m_songEditor_alternateRowColor;
 	
 	m_nWidth = 200;
 	m_nGridHeight = pPref->getSongEditorGridHeight();
@@ -1429,8 +1427,6 @@ void SongEditorPatternList::updateEditor()
 void SongEditorPatternList::createBackground()
 {
 	Preferences *pref = Preferences::get_instance();
-	UIStyle *pStyle = pref->getDefaultUIStyle();
-	QColor textColor( pStyle->m_songEditor_textColor );
 
 	QFont boldTextFont( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 	boldTextFont.setBold( true );
@@ -1509,7 +1505,7 @@ void SongEditorPatternList::createBackground()
 			p.setPen( QColor( 0,0,0 ) );
 		}
 		else {
-			p.setPen( textColor );
+			p.setPen( m_lastSongEditor_textColor );
 		}
 
 		uint text_y = i * m_nGridHeight;
@@ -2146,7 +2142,12 @@ void SongEditorPatternList::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( m_sLastUsedFontFamily != pPref->getLevel2FontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		 m_lastUsedFontSize != pPref->getFontSize() ||
+		 m_lastSongEditor_textColor != pPref->getDefaultUIStyle()->m_songEditor_textColor ||
+		 m_lastSongEditor_alternateRowColor != pPref->getDefaultUIStyle()->m_songEditor_alternateRowColor ) {
+		
+		m_lastSongEditor_textColor = pPref->getDefaultUIStyle()->m_songEditor_textColor;
+		m_lastSongEditor_alternateRowColor = pPref->getDefaultUIStyle()->m_songEditor_alternateRowColor;
 		m_sLastUsedFontFamily = pPref->getLevel2FontFamily();
 		m_lastUsedFontSize = pPref->getFontSize();
 		createBackground();
@@ -2171,6 +2172,9 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	Preferences *pPref = Preferences::get_instance();
 	m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
 	m_lastUsedFontSize = pPref->getFontSize();
+	m_lastSongEditor_textColor = pPref->getDefaultUIStyle()->m_songEditor_textColor;
+	m_lastSongEditor_backgroundColor = pPref->getDefaultUIStyle()->m_songEditor_backgroundColor;
+	m_lastSongEditor_alternateRowColor = pPref->getDefaultUIStyle()->m_songEditor_alternateRowColor;
 
 	m_nGridWidth = pPref->getSongEditorGridWidth();
 	m_nMaxPatternSequence = pPref->getMaxBars();
@@ -2228,14 +2232,10 @@ void SongEditorPositionRuler::createBackground()
 	auto tagVector = pTimeline->getAllTags();
 	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 	
-	UIStyle *pStyle = pPref->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_songEditor_backgroundColor );
-	QColor textColor( pStyle->m_songEditor_textColor );
-	QColor textColorAlpha( textColor );
+	QColor textColorAlpha( m_lastSongEditor_textColor );
 	textColorAlpha.setAlpha( 45 );
-	QColor alternateRowColor( pStyle->m_songEditor_alternateRowColor );
 
-	m_pBackgroundPixmap->fill( backgroundColor );
+	m_pBackgroundPixmap->fill( m_lastSongEditor_backgroundColor );
 
 	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 
@@ -2254,12 +2254,12 @@ void SongEditorPositionRuler::createBackground()
 		}
 
 		if ( (i % 4) == 0 ) {
-			p.setPen( textColor );
+			p.setPen( m_lastSongEditor_textColor );
 			sprintf( tmp, "%d", i + 1 );
 			p.drawText( x - m_nGridWidth, 12, m_nGridWidth * 2, height(), Qt::AlignCenter, tmp );
 		}
 		else {
-			p.setPen( textColor );
+			p.setPen( m_lastSongEditor_textColor );
 			p.drawLine( x, 32, x, 40 );
 		}
 	}
@@ -2267,7 +2267,7 @@ void SongEditorPositionRuler::createBackground()
 
 	//draw tempo content
 	if(pPref->getUseTimelineBpm()){
-		p.setPen( textColor );
+		p.setPen( m_lastSongEditor_textColor );
 	}else
 	{
 		p.setPen( textColorAlpha );
@@ -2289,7 +2289,7 @@ void SongEditorPositionRuler::createBackground()
 	p.drawLine( 0, 0, width(), 0 );
 
 	p.fillRect ( 0, height() - 27, width(), 1, QColor(35, 39, 51) );
-	p.fillRect ( 0, height() - 3, width(), 2, alternateRowColor );
+	p.fillRect ( 0, height() - 3, width(), 2, m_lastSongEditor_alternateRowColor );
 
 }
 
@@ -2501,10 +2501,18 @@ void SongEditorPositionRuler::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		 m_lastUsedFontSize != pPref->getFontSize() ||
+		 m_lastSongEditor_textColor != pPref->getDefaultUIStyle()->m_songEditor_textColor ||
+		 m_lastSongEditor_backgroundColor != pPref->getDefaultUIStyle()->m_songEditor_backgroundColor ||
+		 m_lastSongEditor_alternateRowColor != pPref->getDefaultUIStyle()->m_songEditor_alternateRowColor ) {
+		
+		m_lastSongEditor_textColor = pPref->getDefaultUIStyle()->m_songEditor_textColor;
+		m_lastSongEditor_backgroundColor = pPref->getDefaultUIStyle()->m_songEditor_backgroundColor;
+		m_lastSongEditor_alternateRowColor = pPref->getDefaultUIStyle()->m_songEditor_alternateRowColor;
+		m_lastUsedFontSize = pPref->getFontSize();
 		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
 		createBackground();
+		update();
 	}
 }
 

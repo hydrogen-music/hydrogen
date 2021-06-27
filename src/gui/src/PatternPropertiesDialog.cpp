@@ -21,7 +21,6 @@
  */
 
 #include "PatternPropertiesDialog.h"
-#include "Skin.h"
 #include "HydrogenApp.h"
 #include "UndoActions.h"
 

@@ -22,7 +22,6 @@
 
 #include "LCDDisplay.h"
 #include "../HydrogenApp.h"
-#include "../Skin.h"
 
 #include <core/Globals.h>
 

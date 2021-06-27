@@ -156,6 +156,11 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		int __row;
 		int __oldLength;
 		bool m_bEntered;
+		QColor m_lastHighlightColor;
+		QColor m_lastPatternEditor_selectedRowColor;
+		QColor m_lastPatternEditor_alternateRowColor;
+		QColor m_lastPatternEditor_backgroundColor;
+		QColor m_lastPatternEditor_lineColor;
 		/** Used to detect changed in the font*/
 		QString m_sLastUsedFontFamily;
 		/** Used to detect changed in the font*/

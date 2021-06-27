@@ -38,8 +38,6 @@
 #include <core/AudioEngine.h>
 using namespace H2Core;
 
-#include "Skin.h"
-
 const char* AudioEngineInfoForm::__class_name = "AudioEngineInfoForm";
 
 AudioEngineInfoForm::AudioEngineInfoForm(QWidget* parent)
