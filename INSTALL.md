@@ -197,9 +197,9 @@ see [issue#677](https://github.com/hydrogen-music/hydrogen/issues/677)
 
 Alternatively you could use our custom build script
 [./build.sh](https://github.com/hydrogen-music/hydrogen/blob/master/build.sh). This
-is the recommended way in case you are actively developing new
+is the recommended way if you are actively developing new
 features or bug fixes for Hydrogen (all characters in squared brackets
-are optional and do not have to be included into the command).
+are optional and do not have to be included in the command).
 
 | Command    | Functionality                                                     |
 | ---        | ---                                                               |
