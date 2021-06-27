@@ -323,9 +323,9 @@ run the following command
 $ ./build.sh d
 ```
 
-It will produce two folder *build/docs/html/* and *build/docs/latex*
-containing the documentation as either HTML or LaTeX. The HTML version
-is recommended since it provides a more friendly way to navigate
+It will produce two folders, *build/docs/html/* and *build/docs/latex*,
+containing the documentation as HTML and LaTeX, respectively. The HTML
+version is recommended since it provides a more friendly way to navigate
 through the set of created files. You can view them using your
 favorite browser, e.g.
 
