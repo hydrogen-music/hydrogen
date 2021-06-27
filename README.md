@@ -4,7 +4,7 @@
 [![Packaging status](https://repology.org/badge/tiny-repos/hydrogen.svg)](https://repology.org/project/hydrogen/versions)
 
 Hydrogen is an advanced drum machine for GNU/Linux, Mac and Windows.
-It's main goal is to bring professional yet simple and intuitive pattern-based drum programming.
+Its main goal is to bring professional yet simple and intuitive pattern-based drum programming.
 
 **Official Website:** http://www.hydrogen-music.org
 
