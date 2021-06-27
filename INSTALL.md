@@ -50,7 +50,7 @@ $ sudo apt-get install hydrogen
 ```
 
 However, if you wish to have a more current version of Hydrogen, the
-Hydrogen dev's typically maintain a .deb package for Debian stable,
+Hydrogen devs typically maintain a .deb package for Debian stable,
 testing, and some Ubuntu distributions.  Note that `apt` takes care of
 any library dependencies that you have.
 
