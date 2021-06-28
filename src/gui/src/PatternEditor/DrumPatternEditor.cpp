@@ -1044,13 +1044,40 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 	*/
 	updatePatternInfo();
 
-	if( m_pPattern ) {
-		const Pattern::notes_t *pNotes = m_pPattern->get_notes();
-		if ( pNotes->size() == 0 ) {
-			return;
-		}
+	std::vector<Pattern *> patterns;
 
+	// Add stacked-mode patterns
+	if ( pSong->getMode() == Song::PATTERN_MODE ) {
+		if ( !Preferences::get_instance()->patternModePlaysSelected() ) {
+			m_pAudioEngine->lock( RIGHT_HERE );
+			PatternList *pPatternList =
+				// m_pAudioEngine->getPlayingPatterns();
+				// Hydrogen::get_instance()->getCurrentPatternList();
+				Hydrogen::get_instance()->getNextPatterns();
+			for ( int i = 0; i <  pPatternList->size(); i++) {
+				Pattern *pPattern = pPatternList->get( i );
+				if ( pPattern != m_pPattern ) {
+					patterns.push_back( pPattern );
+				}
+			}
+			m_pAudioEngine->unlock();
+		}
+	}
+
+	if ( m_pPattern) {
+		patterns.push_back( m_pPattern );
+	}
+
+
+	if ( patterns.size() > 0) {
 		validateSelection();
+	}
+
+	for ( Pattern *pPattern : patterns ) {
+		const Pattern::notes_t *pNotes = pPattern->get_notes();
+		if ( pNotes->size() == 0 ) {
+			continue;
+		}
 
 		std::vector< int > noteCount; // instrument_id -> count
 		std::stack<std::shared_ptr<Instrument>> instruments;
