@@ -157,7 +157,7 @@ QColor PatternEditor::computeNoteColor( float velocity ) {
 }
 
 
-void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote ) const
+void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote, bool bIsForeground ) const
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
@@ -165,7 +165,6 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 	static const QColor noteoffColor( pPref->getColorTheme()->m_patternEditor_noteoffColor );
 
 	p.setRenderHint( QPainter::Antialiasing );
-
 
 	QColor color = computeNoteColor( pNote->get_velocity() );
 
@@ -196,6 +195,13 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 	if ( pNote->get_note_off() == false ) {	// trigger note
 		int width = w;
 
+		QBrush noteBrush( color );
+		QPen notePen( noteColor );
+		if ( !bIsForeground ) {
+			noteBrush.setStyle( Qt::Dense4Pattern );
+			notePen.setStyle( Qt::DotLine );
+		}
+
 		if ( bSelected ) {
 			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
 		}
@@ -210,15 +216,15 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 			if ( bSelected ) {
 				p.drawRoundedRect( x_pos-2, y_pos, width+4, 3+4, 4, 4 );
 			}
-			p.setPen( noteColor );
-			p.setBrush( color );
+			p.setPen( notePen );
+			p.setBrush( noteBrush );
 			p.fillRect( x_pos, y_pos +2, width, 3, color );	/// \todo: definire questo colore nelle preferenze
 			p.drawRect( x_pos, y_pos +2, width, 3 );
 			p.drawLine( x_pos+width, y_pos, x_pos+width, y_pos + h );
 		}
 
-		p.setPen( noteColor );
-		p.setBrush( color );
+		p.setPen( notePen );
+		p.setBrush( noteBrush );
 		p.drawEllipse( x_pos -4 , y_pos, w, h );
 
 		if ( bMoving ) {
@@ -231,17 +237,21 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 				p.setBrush( Qt::NoBrush );
 				p.drawRoundedRect( movingOffset.x() + x_pos-2, movingOffset.y() + y_pos, width+4, 3+4, 4, 4 );
 			}
-
 		}
-
 	}
 	else if ( pNote->get_length() == 1 && pNote->get_note_off() == true ) {
 
 		if ( bSelected ) {
 			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
 		}
- 		p.setPen( noteoffColor );
-		p.setBrush( QColor( noteoffColor ) );
+
+		QBrush noteOffBrush( noteoffColor );
+		if ( !bIsForeground ) {
+			noteOffBrush.setStyle( Qt::Dense4Pattern );
+		}
+
+		p.setPen( Qt::NoPen );
+		p.setBrush( noteOffBrush );
 		p.drawEllipse( x_pos -4 , y_pos, w, h );
 
 		if ( bMoving ) {

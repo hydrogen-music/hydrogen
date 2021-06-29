@@ -1174,6 +1174,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 
 	if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ){
 		togglePattern( row );
+		EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 	} else {
 		m_pHydrogen->setSelectedPatternNumber( row );
 		if (ev->button() == Qt::RightButton)  {
