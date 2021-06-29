@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -255,11 +255,26 @@ void MainForm::createMenuBar()
 	QString sLabelNew, sLabelOpen, sLabelOpenRecent, sLabelSaveAs, sLabelOpenDemo;
 	
 	if ( bUnderSessionManagement ) {
+		/*: When Hydrogen is under session management the path the
+		song is stored to can not be changed by the user. This option
+		allows to replace the current song with an empty one.*/
 		sLabelNew = tr( "Replace With &New Song" );
+		/*: When Hydrogen is under session management the path the
+		song is stored to can not be changed by the user. This option
+		allows to replace the current song with one chosen by the
+		user via a file browser widget.*/
 		sLabelOpen = tr( "Imp&ort Into Session" );
+		/*: When Hydrogen is under session management the path the
+		song is stored to can not be changed by the user. This option
+		allows to replace the current song with one chosen recently
+		used by the user.*/
 		sLabelOpenRecent = tr( "Import &Recent Into Session" );
+		/*: When Hydrogen is under session management the path the
+		song is stored to can not be changed by the user. This option
+		allows the user store the current song in a .h2song anywhere
+		on her system. The filepath of the current song won't be
+		altered.*/
 		sLabelSaveAs = tr( "Export From Session &As..." );
-		sLabelOpenDemo = tr( "Import &Demo into Session" );
 	} else {
 		sLabelNew = tr( "&New" );
 		sLabelOpen = tr( "&Open" );

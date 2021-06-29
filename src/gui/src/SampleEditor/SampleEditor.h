@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -54,9 +54,8 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		bool getCloseQuestion();
 		bool returnAllMainWaveDisplayValues();
 		void returnAllTargetDisplayValues();
-		void setTrue();
-		
-		bool m_bSampleEditorStatus;
+		void setUnclean();
+		void setClean();
 
 		//this values come from the real sample to restore a frm song loaded sample
 		bool m_bSampleIsModified;	///< true if sample is modified
@@ -114,6 +113,8 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		bool m_bOnewayLoop;
 		bool m_bOnewayEnd;
 		bool m_bPlayButton;
+		bool m_bAdjusting;
+		bool m_bSampleEditorClean;
 		
 		unsigned long m_nRealtimeFrameEnd;
 		unsigned long m_nRealtimeFrameEndForTarget;

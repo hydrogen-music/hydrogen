@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -54,7 +54,6 @@ MainSampleWaveDisplay::MainSampleWaveDisplay(QWidget* pParent)
 	m_nStartFramePosition = 25;
 	m_nLoopFramePosition = 25;
 	m_nEndFramePosition = width() -25;
-	m_bMove = false;
 	m_nLocator = -1;
 	m_bUpdatePosition = false;
 	m_nSampleLength = 0;
@@ -62,6 +61,9 @@ MainSampleWaveDisplay::MainSampleWaveDisplay(QWidget* pParent)
 	m_bStartSliderIsMoved = false;
 	m_bLoopSliderIsMoved = false;
 	m_bEndSliderIsmoved = false;
+
+	m_SelectedSlider = NONE;
+	setMouseTracking(true);
 }
 
 
@@ -85,6 +87,19 @@ void MainSampleWaveDisplay::paintLocatorEvent( int pos, bool updateposi)
 		m_nLocator = pos;
 	}
 	update();
+}
+
+static void set_paint_color(QPainter & painter, const QColor & color, bool selected, MainSampleWaveDisplay::Slider which)
+{
+	if (!selected) {
+		painter.setPen( color );
+	} else {
+		QColor highlight = QColor(std::min(255, color.red() + 20 + 20 * (which == MainSampleWaveDisplay::END)),
+				std::min(255, color.green() + 20 + 20 * (which == MainSampleWaveDisplay::START)),
+				std::min(255, color.blue() + 20 + 20 * (which == MainSampleWaveDisplay::LOOP)));
+
+		painter.setPen ( highlight );
+	}
 }
 
 void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
@@ -125,18 +140,22 @@ void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 	painter.drawLine( 0, VCenterr, width(),VCenterr );
 
 	QFont font;
+
+	QColor startColor = QColor( 32, 173, 0, 200 );
+	QColor endColor = QColor( 217, 68, 0, 200 );
+	QColor loopColor =  QColor( 93, 170, 254, 200 );
 	font.setWeight( 63 );
 	painter.setFont( font );
 //start frame pointer
-	painter.setPen( QColor( 32, 173, 0, 200 ) );
+	set_paint_color(painter, startColor, m_SelectedSlider == START, m_SelectedSlider);
 	painter.drawLine( m_nStartFramePosition, 4, m_nStartFramePosition, height() -4 );	
 	painter.drawText( m_nStartFramePosition -10, 250, 10,20, Qt::AlignRight, "S" );
 //endframe pointer
-	painter.setPen( QColor( 217, 68, 0, 200 ) );
+	set_paint_color(painter, endColor, m_SelectedSlider == END, m_SelectedSlider);
 	painter.drawLine( m_nEndFramePosition, 4, m_nEndFramePosition, height() -4 );
 	painter.drawText( m_nEndFramePosition -10, 123, 10, 20, Qt::AlignRight, "E" );
 //loopframe pointer
-	painter.setPen( QColor( 93, 170, 254, 200 ) );
+	set_paint_color(painter, loopColor, m_SelectedSlider == LOOP, m_SelectedSlider);
 	painter.drawLine( m_nLoopFramePosition, 4, m_nLoopFramePosition, height() -4 );
 	painter.drawText( m_nLoopFramePosition , 0, 10, 20, Qt::AlignLeft, "L" );
 
@@ -199,26 +218,41 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 	update();
 
 }
+void MainSampleWaveDisplay::mouseUpdateDone() {
+	HydrogenApp::get_instance()->getSampleEditor()->returnAllMainWaveDisplayValues();
+	m_bStartSliderIsMoved = false;
+	m_bLoopSliderIsMoved = false;
+	m_bEndSliderIsmoved = false;
+}
+
 
 void MainSampleWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
-	testPosition( ev );
+	if (ev->buttons() && Qt::LeftButton) {
+		testPosition( ev );
+	} else {
+		chooseSlider( ev );
+	}
 	update();
+	mouseUpdateDone();
 }
 
 void MainSampleWaveDisplay::mousePressEvent(QMouseEvent *ev)
 {
+	chooseSlider( ev );
 	testPosition( ev );
 	update();
+	mouseUpdateDone();
 }
 
 void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 {
 	assert(ev);
-	
 //startframepointer
-	if  (ev->y()>=200 ) {
-		m_nStartFramePosition = ev->x() ;
+	int x = std::min(width() - 25, std::max(25, ev->x()));
+
+	if  ( m_SelectedSlider == START ) {
+		m_nStartFramePosition = x;
 		m_bStartSliderIsMoved = true;
 		if ( m_nStartFramePosition > m_nLoopFramePosition ){
 			m_nLoopFramePosition = m_nStartFramePosition;
@@ -228,58 +262,58 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 			m_nEndFramePosition = m_nStartFramePosition;
 			m_bEndSliderIsmoved = true;
 		}
-//		update();
 	}
 
 //loopframeposition
-	else if  (ev->y()<=65 ) {
-		m_nLoopFramePosition = ev->x() ;
-		m_bLoopSliderIsMoved = true;		
-		if ( m_nLoopFramePosition < m_nStartFramePosition ){
-			m_nStartFramePosition = m_nLoopFramePosition;
-			m_bStartSliderIsMoved = true;
+	else if  ( m_SelectedSlider == LOOP ) {
+		if (x >= m_nStartFramePosition && x <= m_nEndFramePosition ) {
+			m_nLoopFramePosition = x ;
+			m_bLoopSliderIsMoved = true;
 		}
-		if ( m_nLoopFramePosition > m_nEndFramePosition ){
-			m_nEndFramePosition = m_nLoopFramePosition;
-			m_bEndSliderIsmoved = true;
-		}
-//		update();
 	}
 //endframeposition
-	else if  ( ev->y() >= 86 && ev->y() <= 179  ) {
-		m_nEndFramePosition = ev->x() ;
-		m_bEndSliderIsmoved = true;
+	else if  ( m_SelectedSlider == END) {
+		if (x >= m_nStartFramePosition) {
+			m_nEndFramePosition = x ;
+			m_bEndSliderIsmoved = true;
+		}
 		if ( m_nEndFramePosition <  m_nLoopFramePosition ){
 			m_nLoopFramePosition = m_nEndFramePosition;
 			m_bLoopSliderIsMoved = true;
 		}
-		if ( m_nEndFramePosition <  m_nStartFramePosition ){
-			m_nStartFramePosition = m_nEndFramePosition;
-			m_bStartSliderIsMoved = true;
-		}
-//		update();
 	}
-
-	if ( ( m_nStartFramePosition ) >= width() -25 ) m_nStartFramePosition =width() -25;
-	if ( ( m_nLoopFramePosition ) >= width() -25 ) m_nLoopFramePosition =width() -25;
-	if ( ( m_nEndFramePosition ) >= width() -25 ) m_nEndFramePosition =width() -25;
-	if ( ( m_nStartFramePosition ) <= 25 ) m_nStartFramePosition = 25;
-	if ( ( m_nLoopFramePosition ) <= 25 ) m_nLoopFramePosition = 25;
-	if ( ( m_nEndFramePosition ) <= 25 ) m_nEndFramePosition = 25;
 }
 
 
 void MainSampleWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
 {
+	m_SelectedSlider = NONE;
 	update();
-	bool test = HydrogenApp::get_instance()->getSampleEditor()->returnAllMainWaveDisplayValues();
-
-	if (test){
-		m_bStartSliderIsMoved = false;
-		m_bLoopSliderIsMoved = false;
-		m_bEndSliderIsmoved = false;
-	}
+	mouseUpdateDone();
 }
 
 
+
+
+void MainSampleWaveDisplay::chooseSlider(QMouseEvent * ev)
+{
+	assert(ev);
+
+	QPoint start = QPoint(m_nStartFramePosition, height());
+	QPoint end = QPoint(m_nEndFramePosition, height() / 2);
+	QPoint loop = QPoint(m_nLoopFramePosition, 0);
+
+	int ds = (ev->pos() - start).manhattanLength();
+	int de = (ev->pos() - end).manhattanLength();
+	int dl = (ev->pos() - loop).manhattanLength();
+	m_SelectedSlider = NONE;
+
+	if (ds <= de && ds <= dl) {
+		m_SelectedSlider = START;
+	} else if (de < ds && de <= dl) {
+		m_SelectedSlider = END;
+	} else if (dl < ds && dl < de) {
+		m_SelectedSlider = LOOP;
+	}
+}
 

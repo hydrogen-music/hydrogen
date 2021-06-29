@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -43,8 +43,7 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );
-	setWindowTitle( tr( "BPM" ) );	
-	setFixedSize( width(), height() );
+	setWindowTitle( tr( "BPM" ) );
 
 	lineEditBeat->setText(QString("%1").arg( m_stimelineposition + 1) );
 	deleteBtn->setEnabled ( false );
@@ -52,6 +51,9 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Timeline* pTimeline = pHydrogen->getTimeline();
 	auto tempoMarkers = pTimeline->getAllTempoMarkers();
+	adjustSize();
+	setFixedSize( width(), height() );
+
 
 	//restore the bpm value
 	if( tempoMarkers.size() > 0 ){

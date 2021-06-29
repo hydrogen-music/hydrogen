@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -105,14 +105,11 @@ AudioEngine::AudioEngine()
 		, m_pSampler( nullptr )
 		, m_pSynth( nullptr )
 		, m_fElapsedTime( 0 )
-		, m_pMainBuffer_L( nullptr )
-		, m_pMainBuffer_R( nullptr )
 		, m_pAudioDriver( nullptr )
 		, m_pMidiDriver( nullptr )
 		, m_pMidiDriverOut( nullptr )
 		, m_State( STATE_INITIALIZED )
 		, m_pMetronomeInstrument( nullptr )
-		, m_nBufferSize( 0 )
 		, m_nPatternStartTick( -1 )
 		, m_nPatternTickPosition( 0 )
 		, m_nSongSizeInTicks( 0 )
@@ -458,19 +455,15 @@ void AudioEngine::locate( const unsigned long nFrame ) {
 void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 {
 	QMutexLocker mx( &m_MutexOutputPointer );
+	float *pBuffer_L, *pBuffer_R;
 
 	// clear main out Left and Right
 	if ( m_pAudioDriver ) {
-		m_pMainBuffer_L = m_pAudioDriver->getOut_L();
-		m_pMainBuffer_R = m_pAudioDriver->getOut_R();
-	} else {
-		m_pMainBuffer_L = m_pMainBuffer_R = nullptr;
-	}
-	if ( m_pMainBuffer_L ) {
-		memset( m_pMainBuffer_L, 0, nFrames * sizeof( float ) );
-	}
-	if ( m_pMainBuffer_R ) {
-		memset( m_pMainBuffer_R, 0, nFrames * sizeof( float ) );
+		pBuffer_L = m_pAudioDriver->getOut_L();
+		pBuffer_R = m_pAudioDriver->getOut_R();
+		assert( pBuffer_L != nullptr && pBuffer_R != nullptr );
+		memset( pBuffer_L, 0, nFrames * sizeof( float ) );
+		memset( pBuffer_R, 0, nFrames * sizeof( float ) );
 	}
 
 #ifdef H2CORE_HAVE_JACK
@@ -729,20 +722,13 @@ void AudioEngine::startAudioDrivers()
 			m_pAudioDriver->connect();
 		}
 
-		if ( ( m_pMainBuffer_L = m_pAudioDriver->getOut_L() ) == nullptr ) {
-			___ERRORLOG( "m_pMainBuffer_L == NULL" );
-		}
-		if ( ( m_pMainBuffer_R = m_pAudioDriver->getOut_R() ) == nullptr ) {
-			___ERRORLOG( "m_pMainBuffer_R == NULL" );
-		}
-
 #ifdef H2CORE_HAVE_JACK
 		if ( pSong != nullptr ) {
 			renameJackPorts( pSong );
 		}
 #endif
 
-		setupLadspaFX( m_pAudioDriver->getBufferSize() );
+		setupLadspaFX();
 	}
 }
 
@@ -850,16 +836,11 @@ void AudioEngine::processCheckBPMChanged(Song* pSong)
 	EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
 }
 
-void AudioEngine::setupLadspaFX( unsigned nBufferSize )
+void AudioEngine::setupLadspaFX()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
 	if ( ! pSong ) {
-		return;
-	}
-
-	if ( nBufferSize == 0 ) {
-		___ERRORLOG( "nBufferSize=0" );
 		return;
 	}
 
@@ -1071,7 +1052,7 @@ void AudioEngine::seek( long long nFrames, bool bLoopMode )
 	clearNoteQueue();
 }
 
-inline void AudioEngine::processTransport()
+inline void AudioEngine::processTransport( unsigned nFrames )
 {
 	if (   getState() != STATE_READY
 		&& getState() != STATE_PLAYING
@@ -1125,10 +1106,10 @@ inline void AudioEngine::processTransport()
 			this->stop( false );
 		}
 
-		// go ahead and increment the realtimeframes by buffersize
+		// go ahead and increment the realtimeframes by nFrames
 		// to support our realtime keyboard and midi event timing
 		// TODO: use method like setRealtimeFrames
-		m_nRealtimeFrames += m_nBufferSize;
+		m_nRealtimeFrames += nFrames;
 		break;
 	}
 }
@@ -1207,14 +1188,6 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		return 0;
 	}
 
-	if ( pAudioEngine->m_nBufferSize != nframes ) {
-		___INFOLOG(
-			   QString( "Buffer size changed. Old size = %1, new size = %2" )
-			   .arg( pAudioEngine->m_nBufferSize )
-			   .arg( nframes ) );
-		pAudioEngine->m_nBufferSize = nframes;
-	}
-
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
 
@@ -1225,7 +1198,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// the one used by the JACK server, and adjust the current
 	// transport position if it was changed by an user interaction
 	// (e.g. clicking on the timeline).
-	pAudioEngine->processTransport();
+	pAudioEngine->processTransport( nframes );
 	
 
 	// ___INFOLOG( QString( "[after process] status: %1, frame: %2, ticksize: %3, bpm: %4" )
@@ -1262,13 +1235,17 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// play all notes
 	pAudioEngine->processPlayNotes( nframes );
 
+	float *pBuffer_L = pAudioEngine->m_pAudioDriver->getOut_L(),
+		*pBuffer_R = pAudioEngine->m_pAudioDriver->getOut_R();
+	assert( pBuffer_L != nullptr && pBuffer_R != nullptr );
+
 	// SAMPLER
 	pAudioEngine->getSampler()->process( nframes, pSong );
 	float* out_L = pAudioEngine->getSampler()->m_pMainOut_L;
 	float* out_R = pAudioEngine->getSampler()->m_pMainOut_R;
 	for ( unsigned i = 0; i < nframes; ++i ) {
-		pAudioEngine->m_pMainBuffer_L[ i ] += out_L[ i ];
-		pAudioEngine->m_pMainBuffer_R[ i ] += out_R[ i ];
+		pBuffer_L[ i ] += out_L[ i ];
+		pBuffer_R[ i ] += out_R[ i ];
 	}
 
 	// SYNTH
@@ -1276,8 +1253,8 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	out_L = pAudioEngine->getSynth()->m_pOut_L;
 	out_R = pAudioEngine->getSynth()->m_pOut_R;
 	for ( unsigned i = 0; i < nframes; ++i ) {
-		pAudioEngine->m_pMainBuffer_L[ i ] += out_L[ i ];
-		pAudioEngine->m_pMainBuffer_R[ i ] += out_R[ i ];
+		pBuffer_L[ i ] += out_L[ i ];
+		pBuffer_R[ i ] += out_R[ i ];
 	}
 
 	timeval renderTime_end = currentTime2();
@@ -1301,8 +1278,8 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 				}
 
 				for ( unsigned i = 0; i < nframes; ++i ) {
-					pAudioEngine->m_pMainBuffer_L[ i ] += buf_L[ i ];
-					pAudioEngine->m_pMainBuffer_R[ i ] += buf_R[ i ];
+					pBuffer_L[ i ] += buf_L[ i ];
+					pBuffer_R[ i ] += buf_R[ i ];
 					if ( buf_L[ i ] > pAudioEngine->m_fFXPeak_L[nFX] ) {
 						pAudioEngine->m_fFXPeak_L[nFX] = buf_L[ i ];
 					}
@@ -1322,8 +1299,8 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	float val_L, val_R;
 	if ( pAudioEngine->getState() >= STATE_READY ) {
 		for ( unsigned i = 0; i < nframes; ++i ) {
-			val_L = pAudioEngine->m_pMainBuffer_L[i];
-			val_R = pAudioEngine->m_pMainBuffer_R[i];
+			val_L = pBuffer_L[i];
+			val_R = pBuffer_R[i];
 
 			if ( val_L > pAudioEngine->m_fMasterPeak_L ) {
 				pAudioEngine->m_fMasterPeak_L = val_L;
@@ -1360,7 +1337,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			+ ( finishTimeval.tv_usec - startTimeval.tv_usec ) / 1000.0;
 
 	if ( pAudioEngine->getState() == STATE_PLAYING ) {
-		pAudioEngine->updateElapsedTime( pAudioEngine->m_pAudioDriver->getBufferSize(), pAudioEngine->m_pAudioDriver->getSampleRate() );
+		pAudioEngine->updateElapsedTime( nframes, pAudioEngine->m_pAudioDriver->getSampleRate() );
 	}
 
 #ifdef CONFIG_DEBUG
@@ -1405,7 +1382,7 @@ void AudioEngine::setSong( Song* pNewSong )
 
 	// setup LADSPA FX
 	if ( m_pAudioDriver != nullptr ) {
-		setupLadspaFX( m_pAudioDriver->getBufferSize() );
+		setupLadspaFX();
 	}
 
 	// update tick size

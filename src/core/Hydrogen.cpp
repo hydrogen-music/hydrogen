@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 #include <core/config.h>
@@ -444,8 +444,6 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		}
 	}
 
-	nRealColumn = getRealtimeTickPosition();
-
 	if ( currentPattern && pPreferences->getQuantizeEvents() ) {
 		// quantize it to scale
 		unsigned qcolumn = ( unsigned )::round( column / ( double )scalar ) * scalar;
@@ -554,11 +552,9 @@ unsigned long Hydrogen::getRealtimeTickPosition()
 	// .tv_usec (microseconds) members of the timeval struct.
 	timersub( &currtime, &pAudioEngine->getCurrentTickTime(), &deltatime );
 
-	// add a buffers worth for jitter resistance
 	double deltaSec =
 			( double ) deltatime.tv_sec
-			+ ( deltatime.tv_usec / 1000000.0 )
-			+ ( pAudioEngine->getAudioDriver()->getBufferSize() / ( double )sampleRate );
+			+ ( deltatime.tv_usec / 1000000.0 );
 
 	retTick = ( unsigned long ) ( ( sampleRate / ( double ) pAudioEngine->getAudioDriver()->m_transport.m_fTickSize ) * deltaSec );
 
@@ -742,10 +738,7 @@ void Hydrogen::startExportSong( const QString& filename)
 		ERRORLOG( "Error starting disk writer driver [DiskWriterDriver::init()]" );
 	}
 
-	pAudioEngine->setMainBuffer_L( pAudioEngine->getAudioDriver()->getOut_L() );
-	pAudioEngine->setMainBuffer_R( pAudioEngine->getAudioDriver()->getOut_R() );
-
-	pAudioEngine->setupLadspaFX( pAudioEngine->getAudioDriver()->getBufferSize() );
+	pAudioEngine->setupLadspaFX();
 
 	pAudioEngine->seek( 0, false );
 
@@ -1255,7 +1248,7 @@ void Hydrogen::restartLadspaFX()
 	
 	if ( pAudioEngine->getAudioDriver() ) {
 		pAudioEngine->lock( RIGHT_HERE );
-		pAudioEngine->setupLadspaFX( pAudioEngine->getAudioDriver()->getBufferSize() );
+		pAudioEngine->setupLadspaFX();
 		pAudioEngine->unlock();
 	} else {
 		ERRORLOG( "m_pAudioDriver = NULL" );

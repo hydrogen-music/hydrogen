@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -36,6 +36,14 @@ class MainSampleWaveDisplay : public QWidget, public H2Core::Object
 	Q_OBJECT
 
 	public:
+
+		enum Slider {
+			NONE,
+			START,
+			LOOP,
+			END
+		};
+
 		explicit MainSampleWaveDisplay(QWidget* pParent);
 		~MainSampleWaveDisplay();
 
@@ -50,10 +58,12 @@ class MainSampleWaveDisplay : public QWidget, public H2Core::Object
 		int		m_nStartFramePosition;
 		int		m_nLoopFramePosition;
 		int		m_nEndFramePosition;
-		bool	m_bMove;
+
 		bool	m_bStartSliderIsMoved;
 		bool	m_bLoopSliderIsMoved;
 		bool	m_bEndSliderIsmoved;
+
+		Slider  m_SelectedSlider;
 
 
 	private:
@@ -61,6 +71,8 @@ class MainSampleWaveDisplay : public QWidget, public H2Core::Object
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		void testPosition( QMouseEvent *ev );
+		void chooseSlider( QMouseEvent *ev );
+		void mouseUpdateDone();
 		
 		QPixmap m_background;
 		int*	m_pPeakDatal;

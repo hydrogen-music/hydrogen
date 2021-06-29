@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -270,7 +270,9 @@ PlayerControl::PlayerControl(QWidget *parent)
 	hbox->addWidget( pJackPanel );
 
 	// Jack transport mode button
-	
+
+	/*: Using the JACK the audio/midi input and output ports of any
+	  number of application can be connected.*/
 	m_pJackTransportBtn = new Button( pJackPanel, QSize( 53, 16 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getJackTransportButton(), false, QSize(), tr("JACK transport on/off") );
 	m_pJackTransportBtn->hide();
 	if ( pPreferences->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
@@ -282,6 +284,10 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pJackTransportBtn->move( 3, 24 );
 
 	//jack time master
+	/*: Using the JACK Timebase Master functionality one of the
+connected programs can broadcast both speed and measure information to
+all other connected applications in order to have a more fine-grained
+transport control.*/
 	m_sJackMasterModeToolTip = tr("JACK Timebase master on/off");
 	m_pJackMasterBtn = new Button( pJackPanel, QSize( 53, 16 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getJackMasterButton(), false, QSize(), m_sJackMasterModeToolTip );
 	m_pJackMasterBtn->hide();

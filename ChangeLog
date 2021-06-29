@@ -10,6 +10,9 @@
 		  "Custom".
 		- Via a colored button the particular line color can now be
 		  adjusted using a QColorDialog
+	* InstrumentEditor UX improvements:
+		- rework start/end/loop frame slider selection and motion.
+		- rework velocity/pan envelope editing
 
 20xx-xx-xx the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.1

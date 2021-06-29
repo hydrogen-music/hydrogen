@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -62,7 +62,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	m_pTargetDisplayTimer = new QTimer(this);
 	connect(m_pTargetDisplayTimer, SIGNAL(timeout()), this, SLOT(updateTargetsamplePositionRuler()));
 
-	m_bSampleEditorStatus = true;
+	setClean();
 	m_nSelectedLayer = nSelectedLayer;
 	m_nSelectedComponent = nSelectedComponent;
 	m_sSampleName = sSampleFilename;
@@ -86,7 +86,6 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
 
 	setWindowTitle ( QString( tr( "SampleEditor " ) + newfilename) );
-	setFixedSize ( width(), height() );
 	setModal ( true );
 
 	//this new sample give us the not changed real samplelength
@@ -110,19 +109,23 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	openDisplays();
 	getAllFrameInfos();
 
+	adjustSize();
+	setFixedSize ( width(), height() );
+
 #ifndef H2CORE_HAVE_RUBBERBAND
 	if ( !Filesystem::file_executable( Preferences::get_instance()->m_rubberBandCLIexecutable , true /* silent */) ) {
 		RubberbandCframe->setDisabled ( true );
-		__rubberband.use = false;
-		m_bSampleEditorStatus = true;
+		setClean();
 	}
 #else
 	RubberbandCframe->setDisabled ( false );
-	m_bSampleEditorStatus = true;
+	setClean();
 #endif
 
 	__rubberband.pitch = 0.0;
 
+	m_bAdjusting = false;
+	m_bSampleEditorClean = true;
 }
 
 
@@ -147,10 +150,10 @@ SampleEditor::~SampleEditor()
 
 void SampleEditor::closeEvent(QCloseEvent *event)
 {
-	if ( !m_bSampleEditorStatus ) {
+	if ( !m_bSampleEditorClean ) {
 		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. These changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
 		if ( err == 0 ) {
-			m_bSampleEditorStatus = true;
+			setClean();
 			accept();
 		} else {
 			event->ignore();
@@ -210,7 +213,7 @@ void SampleEditor::getAllFrameInfos()
 		m_pTargetSampleView->get_velocity()->clear();
 		
 		for(auto& pEnvPtr : *pSample->get_velocity_envelope() ){
-			m_pTargetSampleView->get_velocity()->emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr->value, pEnvPtr->frame ) );
+			m_pTargetSampleView->get_velocity()->emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr.get() ) );
 		}
 	}
 
@@ -322,10 +325,10 @@ void SampleEditor::openDisplays()
 
 void SampleEditor::on_ClosePushButton_clicked()
 {
-	if ( !m_bSampleEditorStatus ){
+	if ( !m_bSampleEditorClean ){
 		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. These changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
 		if ( err == 0 ){
-			m_bSampleEditorStatus = true;
+			setClean();
 			accept();
 		}else
 		{
@@ -344,8 +347,9 @@ void SampleEditor::on_PrevChangesPushButton_clicked()
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 	getAllLocalFrameInfos();
 	createNewLayer();
-	m_bSampleEditorStatus = true;
+	setClean();
 	QApplication::restoreOverrideCursor();
+	InstrumentEditorPanel::get_instance()->updateWaveDisplay();
 }
 
 
@@ -363,7 +367,7 @@ bool SampleEditor::getCloseQuestion()
 
 void SampleEditor::createNewLayer()
 {
-	if ( !m_bSampleEditorStatus ){
+	if ( !m_bSampleEditorClean ){
 
 		auto pEditSample = Sample::load( m_sSampleName, __loops, __rubberband, *m_pTargetSampleView->get_velocity(), *m_pTargetSampleView->get_pan() );
 
@@ -417,6 +421,8 @@ void SampleEditor::mouseReleaseEvent(QMouseEvent *ev)
 
 bool SampleEditor::returnAllMainWaveDisplayValues()
 {
+	m_bAdjusting = true;
+
 	testpTimer();
 //	QMessageBox::information ( this, "Hydrogen", tr ( "jep %1" ).arg(m_pSample->get_frames()));
 	m_bSampleIsModified = true;
@@ -430,7 +436,8 @@ bool SampleEditor::returnAllMainWaveDisplayValues()
 	m_bOnewayLoop = true;
 	m_bOnewayEnd = true;
 	setSamplelengthFrames();
-
+	m_bAdjusting = false;
+	setUnclean();
 	return true;
 }
 
@@ -438,24 +445,37 @@ void SampleEditor::returnAllTargetDisplayValues()
 {
 	setSamplelengthFrames();
 	m_bSampleIsModified = true;
-
 }
 
-void SampleEditor::setTrue()
+void SampleEditor::setUnclean()
 {
-	m_bSampleEditorStatus = false;
+	m_bSampleEditorClean = false;
+	PrevChangesPushButton->setDisabled ( false );
+	PrevChangesPushButton->setFlat ( false );
+	// PrevChangesPushButton->show();
+}
+
+void SampleEditor::setClean()
+{
+	m_bSampleEditorClean = true;
+	PrevChangesPushButton->setDisabled ( true );
+	PrevChangesPushButton->setFlat ( true );
 }
 
 void SampleEditor::valueChangedStartFrameSpinBox( int )
 {
 	testpTimer();
 	m_pDetailFrame = StartFrameSpinBox->value();
+	if (m_pDetailFrame == __loops.start_frame) { // no actual change
+		if (! m_bAdjusting ) on_PlayPushButton_clicked();
+		return;
+	}
 	m_sLineColor = "Start";
 	if ( !m_bOnewayStart ){
 		m_pMainSampleWaveDisplay->m_nStartFramePosition = StartFrameSpinBox->value() / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_sLineColor);
-		__loops.start_frame = StartFrameSpinBox->value();
+		__loops.start_frame = m_pDetailFrame;
 
 	}else
 	{
@@ -463,7 +483,7 @@ void SampleEditor::valueChangedStartFrameSpinBox( int )
 		m_bOnewayStart = false;
 	}
 	testPositionsSpinBoxes();
-	m_bSampleEditorStatus = false;
+	setUnclean();
 	setSamplelengthFrames();
 }
 
@@ -471,19 +491,23 @@ void SampleEditor::valueChangedLoopFrameSpinBox( int )
 {
 	testpTimer();
 	m_pDetailFrame = LoopFrameSpinBox->value();
+	if (m_pDetailFrame == __loops.loop_frame) {
+		if ( ! m_bAdjusting ) on_PlayPushButton_clicked();
+		return;
+	}
 	m_sLineColor = "Loop";
 	if ( !m_bOnewayLoop ){
 		m_pMainSampleWaveDisplay->m_nLoopFramePosition = LoopFrameSpinBox->value() / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_sLineColor);
-		__loops.loop_frame = LoopFrameSpinBox->value();
+		__loops.loop_frame = m_pDetailFrame;
 	}else
 	{
 		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_sLineColor);
 		m_bOnewayLoop = false;
 	}
 	testPositionsSpinBoxes();
-	m_bSampleEditorStatus = false;
+	setUnclean();
 	setSamplelengthFrames();
 }
 
@@ -491,19 +515,23 @@ void SampleEditor::valueChangedEndFrameSpinBox( int )
 {
 	testpTimer();
 	m_pDetailFrame = EndFrameSpinBox->value();
+	if ( m_pDetailFrame == __loops.end_frame) {
+		if ( ! m_bAdjusting ) on_PlayPushButton_clicked();
+		return;
+	}
 	m_sLineColor = "End";
 	if ( !m_bOnewayEnd ){
 		m_pMainSampleWaveDisplay->m_nEndFramePosition = EndFrameSpinBox->value() / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_sLineColor);
-		__loops.end_frame = EndFrameSpinBox->value();
+		__loops.end_frame = m_pDetailFrame;
 	}else
 	{
 		m_bOnewayEnd = false;
 		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_sLineColor);
 	}
 	testPositionsSpinBoxes();
-	m_bSampleEditorStatus = false;
+	setUnclean();
 	setSamplelengthFrames();
 }
 
@@ -752,14 +780,20 @@ void SampleEditor::setSamplelengthFrames()
 void SampleEditor::valueChangedLoopCountSpinBox( int )
 {
 	testpTimer();
+	int count = LoopCountSpinBox->value();
+
+	if (count == __loops.count) {
+		if ( ! m_bAdjusting ) on_PlayOrigPushButton_clicked();
+		return;
+	}
 	if ( m_nSlframes > Hydrogen::get_instance()->getAudioOutput()->getSampleRate() * 60 ){
 		Hydrogen::get_instance()->getAudioEngine()->getSampler()->stopPlayingNotes();
 		m_pMainSampleWaveDisplay->paintLocatorEvent( -1 , false);
 		m_pTimer->stop();
 		m_bPlayButton = false;
 	}
-	__loops.count = LoopCountSpinBox->value() ;
-	m_bSampleEditorStatus = false;
+	__loops.count = count; 
+	setUnclean();
 	setSamplelengthFrames();
 	if ( m_nSlframes > Hydrogen::get_instance()->getAudioOutput()->getSampleRate() * 60 * 30){ // >30 min
 		LoopCountSpinBox->setMaximum(LoopCountSpinBox->value() -1);
@@ -771,16 +805,26 @@ void SampleEditor::valueChangedLoopCountSpinBox( int )
 
 void SampleEditor::valueChangedrubberbandCsettingscomboBox( const QString  )
 {
-	__rubberband.c_settings = rubberbandCsettingscomboBox->currentIndex();
-	m_bSampleEditorStatus = false;
+	int new_settings = rubberbandCsettingscomboBox->currentIndex();
+	if (new_settings == __rubberband.c_settings) {
+		if (! m_bAdjusting ) on_PlayPushButton_clicked();
+		return;
+	}
+	__rubberband.c_settings = new_settings;
+	setUnclean();
 }
 
 
 
 void SampleEditor::valueChangedpitchdoubleSpinBox( double )
 {
-	__rubberband.pitch = pitchdoubleSpinBox->value();
-	m_bSampleEditorStatus = false;
+	double new_value = pitchdoubleSpinBox->value();
+	if (std::abs(new_value - __rubberband.pitch) < 0.0001) {
+		if (! m_bAdjusting ) on_PlayPushButton_clicked();
+		return;
+	}
+	__rubberband.pitch = new_value;
+	setUnclean();
 }
 
 
@@ -829,7 +873,7 @@ void SampleEditor::valueChangedrubberComboBox( const QString  )
 	setSamplelengthFrames();
 
 
-	m_bSampleEditorStatus = false;
+	setUnclean();
 }
 
 void SampleEditor::checkRatioSettings()
@@ -886,7 +930,7 @@ void SampleEditor::valueChangedProcessingTypeComboBox( const QString unused )
 		default:
 			__loops.mode = Sample::Loops::FORWARD;
 	}
-	m_bSampleEditorStatus = false;
+	setUnclean();
 }
 
 
@@ -901,6 +945,7 @@ void SampleEditor::on_verticalzoomSlider_valueChanged( int value )
 
 void SampleEditor::testPositionsSpinBoxes()
 {
+	m_bAdjusting = true;
 	if (  __loops.start_frame > __loops.loop_frame ) __loops.loop_frame = __loops.start_frame;
 	if (  __loops.start_frame > __loops.end_frame ) __loops.end_frame = __loops.start_frame;
 	if (  __loops.loop_frame > __loops.end_frame ) __loops.end_frame = __loops.loop_frame;
@@ -909,6 +954,7 @@ void SampleEditor::testPositionsSpinBoxes()
 	StartFrameSpinBox->setValue( __loops.start_frame );
 	LoopFrameSpinBox->setValue( __loops.loop_frame );
 	EndFrameSpinBox->setValue( __loops.end_frame );
+	m_bAdjusting = false;
 }
 
 
