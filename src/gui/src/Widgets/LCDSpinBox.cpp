@@ -34,6 +34,7 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, do
  , m_size( size )
  , m_type( type )
  , m_bEntered( false )
+ , m_kind( Kind::Default )
 {
 	setFocusPolicy( Qt::ClickFocus );
 	
@@ -62,6 +63,116 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, do
 LCDSpinBox::~LCDSpinBox() {
 }
 
+void LCDSpinBox::wheelEvent( QWheelEvent *ev ) {
+	static float fCumulatedDelta;
+	
+	if ( m_kind == Kind::PatternSizeDenominator ) {
+
+		// Cumulate scroll positions to provide a native feeling for
+		// fine-grained mouse wheel and touch pads.
+		fCumulatedDelta += ev->angleDelta().y();
+		
+		if ( std::fabs( fCumulatedDelta ) >= 120 ) {
+			fCumulatedDelta = 0;
+		 
+			double fNextValue = nextValueInPatternSizeDenominator( ev->angleDelta().y() > 0, ev->modifiers() == Qt::ControlModifier );
+
+
+			if ( fNextValue == 0 ) {
+				ERRORLOG( QString( "Couldn't find next value for input: %1" ).arg( value() ) );
+				return;
+			}
+
+			if ( ev->angleDelta().y() > 0 ) {
+				setValue( fNextValue + 1 );
+			} else {
+				setValue( fNextValue - 1 );
+			}
+		}
+	} else if (	m_kind == Kind::PatternSizeNumerator ) {
+		QDoubleSpinBox::wheelEvent( ev );
+		if ( value() < 1 ) {
+			setValue( 1 );
+		}
+	} else {
+	
+		QDoubleSpinBox::wheelEvent( ev );
+
+	}
+}
+
+void LCDSpinBox::keyPressEvent( QKeyEvent *ev ) {
+	if ( m_kind == Kind::PatternSizeDenominator &&
+		 ( ev->key() == Qt::Key_Up || ev->key() == Qt::Key_Down ) ) {
+		 double fNextValue;
+		 
+		 if ( ev->key() == Qt::Key_Up ) {
+			 fNextValue = nextValueInPatternSizeDenominator( true, false );
+		 } else if ( ev->key() == Qt::Key_Down ) {
+			 fNextValue = nextValueInPatternSizeDenominator( false, false );
+		 }
+
+		 if ( fNextValue == 0 ) {
+			 ERRORLOG( QString( "Couldn't find next value for input: %1" ).arg( value() ) );
+			 return;
+		 }
+
+		 setValue( fNextValue );
+	 
+		 QDoubleSpinBox::keyPressEvent( ev );
+		 
+	 } else if ( m_kind == Kind::PatternSizeNumerator ) {
+		
+		QDoubleSpinBox::keyPressEvent( ev );
+		
+		if ( value() < 1 ) {
+			setValue( 1 );
+		}
+		
+	} else {
+	 
+		 QDoubleSpinBox::keyPressEvent( ev );
+	}
+}
+
+double LCDSpinBox::nextValueInPatternSizeDenominator( bool bUp, bool bAccelerated ) {
+
+	// Determine the next value.
+	std::vector vChoices{ 1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 192 };
+	bool bContained;
+
+	double fNextValue;
+	double fOffset;
+	if ( bAccelerated ) {
+		fOffset = 10;
+	} else {
+		fOffset = 1;
+	}
+	for ( int ii = 0; ii < vChoices.size(); ii++ ) {
+		if ( vChoices[ ii ] == value() ) {
+
+			if ( bUp ) {
+				if ( ii < vChoices.size() - 1 ) {
+					fNextValue = vChoices[ ii + 1 ] - fOffset;
+				} else {
+					fNextValue = vChoices[ ii ] - fOffset;
+				}
+				if ( fNextValue < 0 ) {
+					fNextValue = 2;
+				}
+			} else {
+				if ( ii > 0 ) {
+					fNextValue = vChoices[ ii - 1 ] + fOffset;
+				} else {
+					fNextValue = vChoices[ ii ] + fOffset;
+				}
+			}
+		}
+	}
+
+	return fNextValue;
+}
+
 QString LCDSpinBox::textFromValue( double fValue ) const {
 	QString result;
 	if ( fValue == -1.0 ) {
@@ -75,6 +186,38 @@ QString LCDSpinBox::textFromValue( double fValue ) const {
 	}
 
 	return result;
+}
+
+QValidator::State LCDSpinBox::validate( QString &text, int &pos ) const {
+	if ( m_kind == Kind::PatternSizeDenominator ) {
+		std::vector vChoices{ "1", "2", "3", "4", "6", "8", "12", "16", "24", "32", "48", "64", "96", "192" };
+		std::vector vCandidates1{ "1", "2", "3", "4", "6", "9" };
+		QString sCandidate2( "19" );
+		bool bContained = false;
+		bool bIsCandidate = false;
+		for ( const auto& ii : vChoices ) {
+			if ( ii == text ) {
+				bContained = true;
+			}
+		}
+		for ( const auto& ii : vCandidates1 ) {
+			if ( ii == text.left( 1 ) ) {
+				bIsCandidate = true;
+			}
+		}
+		if ( sCandidate2 == text.left( 2 ) ) {
+			bIsCandidate = true;
+		}
+		
+		if ( bContained ) {
+			return QValidator::Acceptable;
+		} else if ( bIsCandidate ) {
+			return QValidator::Intermediate;
+		} else {
+			return QValidator::Invalid;
+		}
+	}
+	return QDoubleSpinBox::validate( text, pos );
 }
 
 double LCDSpinBox::valueFromText( const QString& sText ) const {

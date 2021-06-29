@@ -101,19 +101,33 @@ public:
 	QColor m_selectionInactiveColor;
 
 	// QWidget palette stuff
+	/** A general background color.*/
 	QColor m_windowColor;
+	/** A general foreground color.*/
 	QColor m_windowTextColor;
+	/** Used as the background color for text entry widgets; usually white or another light color.*/
 	QColor m_baseColor;
+	/** Used as the alternate background color in views with alternating row colors.*/
 	QColor m_alternateBaseColor;
+	/** The foreground color used with Base. This is usually the same as the Foreground, in which case it must provide good contrast with Background and Base.*/
 	QColor m_textColor;
+	/** The general button background color. This background can be different from Background as some styles require a different background color for buttons.*/
 	QColor m_buttonColor;
+	/** A foreground color used with the Button color.*/
 	QColor m_buttonTextColor;
+	/** Lighter than Button color.*/
 	QColor m_lightColor;
+	/** Between Button and Light.*/
 	QColor m_midLightColor;
+	/** Darker than Button.*/
 	QColor m_midColor;
+	/** Between Button and Dark.*/
 	QColor m_darkColor;
+	/** A very dark color. By default, the shadow color is Qt::black.*/
 	QColor m_shadowTextColor;
+	/** A color to indicate a selected item or the current item.*/
 	QColor m_highlightColor;
+	/** A text color that contrasts with Highlight.*/
 	QColor m_highlightedTextColor;
 	QColor m_toolTipBaseColor;
 	QColor m_toolTipTextColor;

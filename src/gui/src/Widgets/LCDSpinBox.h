@@ -42,16 +42,27 @@ public:
 		Double
 	};
 
+	enum class Kind {
+		Default,
+		PatternSizeNumerator,
+		PatternSizeDenominator
+	};
+
 	LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin = 0.0, double fMax = 1.0 );
 	~LCDSpinBox();
+
+	void setKind( Kind kind );
+	QValidator::State validate( QString &text, int &pos ) const;
 
 public slots:
 	void onPreferencesChanged( bool bAppearanceOnly );
 	
 private:
 	void updateStyleSheet();
+	double nextValueInPatternSizeDenominator( bool bUp, bool bAccelerated );
 	QSize m_size;
 	Type m_type;
+	Kind m_kind;
 
 	QColor m_lastHighlightColor;
 	QColor m_lastAccentColor;
@@ -61,11 +72,16 @@ private:
 
 	bool m_bEntered;
 
-	virtual QString textFromValue( double fValue ) const;
-	virtual double valueFromText( const QString& sText ) const;	
-	virtual void paintEvent( QPaintEvent *ev );
-	virtual void enterEvent( QEvent *ev );
-	virtual void leaveEvent( QEvent *ev );
+	virtual QString textFromValue( double fValue ) const override;
+	virtual double valueFromText( const QString& sText ) const override;	
+	virtual void paintEvent( QPaintEvent *ev ) override;
+	virtual void enterEvent( QEvent *ev ) override;
+	virtual void leaveEvent( QEvent *ev ) override;
+	virtual void wheelEvent( QWheelEvent *ev ) override;
+	virtual void keyPressEvent( QKeyEvent *ev ) override;
 };
 
+inline void LCDSpinBox::setKind( Kind kind ) {
+	m_kind = kind;
+}
 #endif

@@ -42,6 +42,7 @@ class LCDCombo;
 class DrumPatternEditor;
 class PianoRollEditor;
 class ClickableLabel;
+class LCDSpinBox;
 
 enum patternEditorRightClickMode { VELOCITY_SELECTED, PAN_SELECTED, LEAD_LAG_SELECTED };
 
@@ -111,8 +112,6 @@ class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 1
 		void propertiesComboChanged( int nSelected );
 		void patternLengthChanged();
 		void updatePatternSizeLCD();
-		void patternSizeLCDClicked();
-		void denominatorWarningClicked();
 
 		void hearNotesBtnClick();
 		void quantizeEventsBtnClick();
@@ -128,14 +127,25 @@ class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 1
 		void zoomInBtnClicked();
 		void zoomOutBtnClicked();
 
+	void patternSizeChanged( double );
+
 	private:
+	void updateStyleSheet();
+	
 		H2Core::Pattern *	m_pPattern;
 		QPixmap				m_backgroundPixmap;
 		QLabel *			m_pSLlabel;
 
+	QWidget* m_pEditorTop1;
+	QWidget* m_pEditorTop2;
+	QWidget* m_pSizeResol;
+	QWidget* m_pRec;
+
+	LCDSpinBox* m_pLCDSpinBoxNumerator;
+	LCDSpinBox* m_pLCDSpinBoxDenominator;
+
 		// Editor top
 		LCDDisplay *			__pattern_size_LCD;
-		Button *			m_pDenominatorWarning;
 		LCDCombo *			m_pResolutionCombo;
 		Button *		__show_drum_btn;
 		Button *		__show_piano_btn;
@@ -211,6 +221,10 @@ class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 1
 
 		virtual void resizeEvent(QResizeEvent *ev) override;
 		virtual void showEvent(QShowEvent *ev) override;
+
+	QColor m_lastMidColor;
+	QColor m_lastMidLightColor;
+	QColor m_lastWidgetColor;
 		/** Used to detect changed in the font*/
 		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
