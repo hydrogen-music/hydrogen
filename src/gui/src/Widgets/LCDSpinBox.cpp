@@ -103,13 +103,18 @@ void LCDSpinBox::wheelEvent( QWheelEvent *ev ) {
 
 void LCDSpinBox::keyPressEvent( QKeyEvent *ev ) {
 	if ( m_kind == Kind::PatternSizeDenominator &&
-		 ( ev->key() == Qt::Key_Up || ev->key() == Qt::Key_Down ) ) {
+		 ( ev->key() == Qt::Key_Up || ev->key() == Qt::Key_Down ||
+		   ev->key() == Qt::Key_PageUp || ev->key() == Qt::Key_PageDown ) ) {
 		 double fNextValue;
-		 
+
 		 if ( ev->key() == Qt::Key_Up ) {
 			 fNextValue = nextValueInPatternSizeDenominator( true, false );
 		 } else if ( ev->key() == Qt::Key_Down ) {
 			 fNextValue = nextValueInPatternSizeDenominator( false, false );
+		 } else if ( ev->key() == Qt::Key_PageUp ) {
+			 fNextValue = nextValueInPatternSizeDenominator( true, true );
+		 } else if ( ev->key() == Qt::Key_PageDown ) {
+			 fNextValue = nextValueInPatternSizeDenominator( false, true );
 		 }
 
 		 if ( fNextValue == 0 ) {
