@@ -319,7 +319,7 @@ transport control.*/
 	m_pCpuLbl->move( 71, 14 );
 
 	m_pMidiActivityLED->move( 11, 14 );
-	m_pCpuLoadWidget->move( 10, 4 );
+	m_pCpuLoadWidget->move( 10, 3 );
 //~ JACK
 
 

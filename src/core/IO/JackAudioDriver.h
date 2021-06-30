@@ -611,6 +611,8 @@ public:
 	 * @return 0 on success
 	 */
 	static int jackDriverBufferSize( jack_nframes_t nframes, void* arg );
+	/** Report an XRun event to the GUI.*/
+	static int jackXRunCallback( void* arg );
 protected:
 	/**
 	 * Callback function registered to the JACK server in

@@ -23,8 +23,7 @@
 #ifndef CPU_LOAD_WIDGET_H
 #define CPU_LOAD_WIDGET_H
 
-
-#include <iostream>
+#include <chrono>
 
 #include "../EventListener.h"
 #include <core/Object.h>
@@ -40,27 +39,22 @@ class CpuLoadWidget : public QWidget, public EventListener, public H2Core::Objec
     H2_OBJECT
 	Q_OBJECT
 
-	public:
-		explicit CpuLoadWidget(QWidget *pParent );
-		~CpuLoadWidget();
+public:
+	explicit CpuLoadWidget( QWidget *pParent );
+	~CpuLoadWidget();
 
-		void setValue( float newValue );
-		float getValue();
+private slots:
+	void updateCpuLoadWidget();
 
-		void mousePressEvent(QMouseEvent *ev);
-		void paintEvent(QPaintEvent *ev);
+private:
+	float m_fValue;
+	uint m_nXRunValue;
+	QSize m_size;
+	
+	virtual void paintEvent( QPaintEvent *ev ) override;
 
-		void XRunEvent();
+	void XRunEvent();
 
-	public slots:
-		void updateCpuLoadWidget();
-
-	private:
-		float m_fValue;
-		uint m_nXRunValue;
-
-		QPixmap m_back;
-		QPixmap m_leds;
 };
 
 
