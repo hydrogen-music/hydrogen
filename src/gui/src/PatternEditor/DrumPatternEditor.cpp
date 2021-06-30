@@ -1052,8 +1052,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 			m_pAudioEngine->lock( RIGHT_HERE );
 			std::set< Pattern *> patternSet;
 			for ( PatternList *pPatternList : { m_pAudioEngine->getPlayingPatterns(),
-						                        Hydrogen::get_instance()->getCurrentPatternList(),
-						                        Hydrogen::get_instance()->getNextPatterns() } ) {
+						                        m_pAudioEngine->getNextPatterns() } ) {
 				for ( int i = 0; i <  pPatternList->size(); i++) {
 					Pattern *pPattern = pPatternList->get( i );
 					if ( pPattern != m_pPattern ) {
