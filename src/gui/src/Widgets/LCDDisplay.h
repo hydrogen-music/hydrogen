@@ -35,6 +35,8 @@
 
 #include <vector>
 
+/** Non-interactive display used for both numerical values and the
+	status display.*/
 class LCDDisplay : public QLineEdit, protected WidgetWithScalableFont<7, 9, 11>, public H2Core::Object
 {
     H2_OBJECT
@@ -44,20 +46,22 @@ public:
 	LCDDisplay( QWidget* pParent, QSize size, bool bFixedFont = false );
 	~LCDDisplay();
 
-	// void setText( float fValue );
-
-	void setRedFont();
-	void setDefaultFont();
+	void setUseRedFont( bool bUseRedFont );
 
 public slots:
 	void onPreferencesChanged( bool bAppearanceOnly );
 
 private:
 	void updateFont();
+	void updateStyleSheet();
 	QSize m_size;
 
 	bool m_bFixedFont;
+	bool m_bUseRedFont;
 
+	QColor m_lastWindowColor;
+	QColor m_lastButtonRedColor;
+	QColor m_lastWindowTextColor;
 	/** Used to detect changed in the font*/
 	QString m_sLastUsedFontFamily;
 	/** Used to detect changed in the font*/

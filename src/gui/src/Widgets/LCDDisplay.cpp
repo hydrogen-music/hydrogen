@@ -32,13 +32,20 @@ LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont )
  , Object( __class_name )
  , m_size( size )
  , m_bFixedFont( bFixedFont )
+ , m_bUseRedFont( false )
 {
 	setReadOnly( true );
 	setFocusPolicy( Qt::NoFocus );
 	setAlignment( Qt::AlignCenter );
 	
-	m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
-	m_sLastUsedFontFamily = H2Core::Preferences::get_instance()->getLevel3FontFamily();
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	m_lastUsedFontSize = pPref->getFontSize();
+	m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
+
+	m_lastWindowColor = pPref->getDefaultUIStyle()->m_windowColor;
+	m_lastButtonRedColor = pPref->getDefaultUIStyle()->m_buttonRedColor;
+	m_lastWindowTextColor = pPref->getDefaultUIStyle()->m_windowTextColor;
 
 	if ( ! size.isNull() ) {
 		adjustSize();
@@ -46,6 +53,7 @@ LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont )
 	}
 
 	updateFont();
+	updateStyleSheet();
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &LCDDisplay::onPreferencesChanged );
 }
@@ -53,10 +61,9 @@ LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont )
 LCDDisplay::~LCDDisplay() {
 }
 
-void LCDDisplay::setDefaultFont() {
-}
-
-void LCDDisplay::setRedFont() {
+void LCDDisplay::setUseRedFont( bool bUseRedFont ) {
+	m_bUseRedFont = bUseRedFont;
+	updateStyleSheet();
 }
 
 void LCDDisplay::updateFont() {
@@ -64,6 +71,23 @@ void LCDDisplay::updateFont() {
 		QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 		setFont( font );
 	}
+}
+
+void LCDDisplay::updateStyleSheet() {
+
+	QColor textColor;
+	if ( m_bUseRedFont ) {
+		textColor = m_lastButtonRedColor;
+	} else {
+		textColor = m_lastWindowTextColor;
+	}
+
+	setStyleSheet( QString( "\
+QLineEdit { \
+    color: %1; \
+    background-color: %2; \
+}" )
+				   .arg( textColor.name() ).arg( m_lastWindowColor.name() ) );
 }
 
 void LCDDisplay::onPreferencesChanged( bool bAppearanceOnly ) {
@@ -74,6 +98,17 @@ void LCDDisplay::onPreferencesChanged( bool bAppearanceOnly ) {
 		m_lastUsedFontSize = pPref->getFontSize();
 		m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
 		updateFont();
+	}
+
+	if ( m_lastWindowColor != pPref->getDefaultUIStyle()->m_windowColor ||
+		 m_lastButtonRedColor != pPref->getDefaultUIStyle()->m_buttonRedColor ||
+		 m_lastWindowTextColor != pPref->getDefaultUIStyle()->m_windowTextColor ) {
+	
+		m_lastWindowColor = pPref->getDefaultUIStyle()->m_windowColor;
+		m_lastButtonRedColor = pPref->getDefaultUIStyle()->m_buttonRedColor;
+		m_lastWindowTextColor = pPref->getDefaultUIStyle()->m_windowTextColor;
+
+		updateStyleSheet();
 	}
 }
 

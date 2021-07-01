@@ -186,10 +186,10 @@ void MixerLine::updateMixerLine()
 		}
 		m_pPeakLCD->setText( QString( "%1" ).arg( m_fMaxPeak, 0, 'f', 2 ) );
 		if ( m_fMaxPeak > 1.0 ) {
-			m_pPeakLCD->setRedFont();
+			m_pPeakLCD->setUseRedFont( true );
 		}
 		else {
-			m_pPeakLCD->setDefaultFont();
+			m_pPeakLCD->setUseRedFont( false );
 		}
 	}
 	m_nPeakTimer++;
@@ -258,10 +258,10 @@ void MixerLine::setPeak_L( float peak ) {
 			}
 			m_pPeakLCD->setText( QString( "%1" ).arg( peak, 0, 'f', 2 ) );
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setRedFont();
+				m_pPeakLCD->setUseRedFont( true );
 			}
 			else {
-				m_pPeakLCD->setDefaultFont();
+				m_pPeakLCD->setUseRedFont( false );
 			}
 			m_fMaxPeak = peak;
 			m_nPeakTimer = 0;
@@ -282,10 +282,10 @@ void MixerLine::setPeak_R( float peak ) {
 			}
 			m_pPeakLCD->setText( QString( "%1" ).arg( peak, 0, 'f', 2 ) );
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setRedFont();
+				m_pPeakLCD->setUseRedFont( true );
 			}
 			else {
-				m_pPeakLCD->setDefaultFont();
+				m_pPeakLCD->setUseRedFont( false );
 			}
 			m_fMaxPeak = peak;
 			m_nPeakTimer = 0;
@@ -463,10 +463,10 @@ void ComponentMixerLine::updateMixerLine()
 		}
 		m_pPeakLCD->setText( QString( "%1" ).arg( m_fMaxPeak, 0, 'f', 2 ) );
 		if ( m_fMaxPeak > 1.0 ) {
-			m_pPeakLCD->setRedFont();
+			m_pPeakLCD->setUseRedFont( true );
 		}
 		else {
-			m_pPeakLCD->setDefaultFont();
+			m_pPeakLCD->setUseRedFont( false );
 		}
 	}
 	m_nPeakTimer++;
@@ -530,10 +530,10 @@ void ComponentMixerLine::setPeak_L( float peak ) {
 			}
 			m_pPeakLCD->setText( QString( "%1" ).arg( peak, 0, 'f', 2 ) );
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setRedFont();
+				m_pPeakLCD->setUseRedFont( true );
 			}
 			else {
-				m_pPeakLCD->setDefaultFont();
+				m_pPeakLCD->setUseRedFont( false );
 			}
 			m_fMaxPeak = peak;
 			m_nPeakTimer = 0;
@@ -554,10 +554,10 @@ void ComponentMixerLine::setPeak_R( float peak ) {
 			}
 			m_pPeakLCD->setText( QString( "%1" ).arg( peak, 0, 'f', 2 ) );
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setRedFont();
+				m_pPeakLCD->setUseRedFont( true );
 			}
 			else {
-				m_pPeakLCD->setDefaultFont();
+				m_pPeakLCD->setUseRedFont( false );
 		}
 			m_fMaxPeak = peak;
 			m_nPeakTimer = 0;
@@ -686,10 +686,10 @@ void MasterMixerLine::setPeak_L(float peak)
 			}
 			m_pPeakLCD->setText( QString( "%1" ).arg( m_fMaxPeak, 0, 'f', 2 ) );
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setRedFont();
+				m_pPeakLCD->setUseRedFont( true );
 			}
 			else {
-				m_pPeakLCD->setDefaultFont();
+				m_pPeakLCD->setUseRedFont( false );
 			}
 			m_fMaxPeak = peak;
 			m_nPeakTimer = 0;
@@ -710,10 +710,10 @@ void MasterMixerLine::setPeak_R(float peak) {
 			}
 			m_pPeakLCD->setText( QString( "%1" ).arg( peak, 0, 'f', 2 ) );
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setRedFont();
+				m_pPeakLCD->setUseRedFont( true );
 			}
 			else {
-				m_pPeakLCD->setDefaultFont();
+				m_pPeakLCD->setUseRedFont( false );
 			}
 			m_fMaxPeak = peak;
 			m_nPeakTimer = 0;
@@ -738,10 +738,10 @@ void MasterMixerLine::updateMixerLine()
 		}
 		m_pPeakLCD->setText( QString( "%1" ).arg( m_fMaxPeak, 0, 'f', 2 ) );
 		if ( m_fMaxPeak > 1.0 ) {
-			m_pPeakLCD->setRedFont();
+			m_pPeakLCD->setUseRedFont( true );
 		}
 		else {
-			m_pPeakLCD->setDefaultFont();
+			m_pPeakLCD->setUseRedFont( false );
 		}
 	}
 	m_nPeakTimer++;
