@@ -175,7 +175,7 @@ void Rotary::paintEvent( QPaintEvent* ev )
 				// There will be a special indication of the
 				// center. Either as a gray dot or a bigger green one if
 				// the value is smaller than +/-1% of the range around 0.
-				if ( std::fabs( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) < 0.01 * ( m_fMax - m_fMin ) ) {
+				if ( ( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) == 0 ) {
 				
 					painter.setPen( QPen( colorArcCenterSet, fArcLineWidth * 1.25 ) );
 					painter.drawArc( rectArc, 91 * 16, -3 * 16 );
