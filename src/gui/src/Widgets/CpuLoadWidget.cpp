@@ -20,7 +20,6 @@
  *
  */
 
-
 #include "CpuLoadWidget.h"
 
 #include <core/Hydrogen.h>
@@ -41,6 +40,11 @@ CpuLoadWidget::CpuLoadWidget( QWidget *pParent )
 
 	adjustSize();
 	setFixedSize( m_size.width(), m_size.height() );
+
+	m_recentValues.resize( 5 );
+	for ( auto ii : m_recentValues ) {
+		ii = 0;
+	}
 
 	QTimer* pTimer = new QTimer(this);
 	connect( pTimer, SIGNAL( timeout() ), this, SLOT( updateCpuLoadWidget() ) );
@@ -64,7 +68,11 @@ void CpuLoadWidget::paintEvent( QPaintEvent*)
 
 	QPainter painter(this);
 
-	float fPeak = m_fValue * m_size.width();
+	float fSum = 0;
+	for ( auto ii : m_recentValues ) {
+		fSum += ii;
+	}
+	float fPeak = static_cast<float>( m_size.width() ) * fSum / static_cast<float>( m_recentValues.size() );
 	float fBorderWidth = 2;
 
 	QColor colorGradientGreen( Qt::green );
@@ -120,12 +128,15 @@ void CpuLoadWidget::updateCpuLoadWidget()
 	}
 
 	if ( fPercentage > 1.0 ) {
-		m_fValue = 1.0;
+		fPercentage = 1.0;
 	} else if ( fPercentage < 0.0 ) {
-		m_fValue = 0.0;
-	} else {
-		m_fValue = fPercentage;
+		fPercentage = 0.0;
 	}
+
+	for ( int ii = ( m_recentValues.size() - 1 ) ; ii > 0; ii-- ) {
+		m_recentValues[ ii ] = m_recentValues[ ii - 1 ];
+	}
+	m_recentValues[ 0 ] = fPercentage;
 
 	if ( m_nXRunValue > 0 ){
 		m_nXRunValue--;

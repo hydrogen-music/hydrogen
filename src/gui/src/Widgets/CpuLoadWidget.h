@@ -24,6 +24,7 @@
 #define CPU_LOAD_WIDGET_H
 
 #include <chrono>
+#include <vector>
 
 #include "../EventListener.h"
 #include <core/Object.h>
@@ -47,6 +48,7 @@ private slots:
 	void updateCpuLoadWidget();
 
 private:
+	std::vector<float> m_recentValues;
 	float m_fValue;
 	uint m_nXRunValue;
 	QSize m_size;
