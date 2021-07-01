@@ -401,7 +401,9 @@ void PlayerControl::updatePlayerControl()
 		m_pSongLoopBtn->setChecked( song->getIsLoopEnabled() );
 	}
 
-	m_pLCDBPMSpinbox->setValue( song->getBpm() );
+	if ( ! m_pLCDBPMSpinbox->hasFocus() ) {
+		m_pLCDBPMSpinbox->setValue( song->getBpm() );
+	}
 
 	if ( song->getMode() == Song::PATTERN_MODE ) {
 		if ( ! m_pPatternModeBtn->isDown() ) {
@@ -544,7 +546,9 @@ void PlayerControl::updatePlayerControl()
 	}
 	sTime.append( QString::number( nMSec ) );
 
-	m_pTimeDisplay->setText( sTime );
+	if ( m_pTimeDisplay->text() != sTime ) {
+		m_pTimeDisplay->setText( sTime );
+	}
 
 	if ( ! m_pMetronomeBtn->isDown() ) {
 		m_pMetronomeBtn->setChecked(pPref->m_bUseMetronome);
