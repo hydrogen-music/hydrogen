@@ -56,6 +56,8 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		virtual void patternChangedEvent() override;
 		virtual void selectedPatternChangedEvent() override;
 		virtual void selectedInstrumentChangedEvent() override;
+		virtual void songModeActivationEvent( int nValue ) override;
+		virtual void stackedModeActivationEvent( int nValue ) override;
 		//~ Implements EventListener interface
 		void addOrDeleteNoteAction(		int nColumn,
 										int row,

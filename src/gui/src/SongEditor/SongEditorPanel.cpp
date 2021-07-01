@@ -43,6 +43,7 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/PatternList.h>
 #include <core/IO/JackAudioDriver.h>
+#include <core/EventQueue.h>
 
 #ifdef WIN32
 #include <time.h>
@@ -787,16 +788,23 @@ void SongEditorPanel::editPlaybackTrackBtnPressed()
 	updateAll();
 }
 
+void SongEditorPanel::songModeActivationEvent( int nValue ) {
+	// Disable the stacked mode button in song mode since it does nothing in song mode
+	m_pModeActionMultipleBtn->setDisabled( nValue != 0 );
+}
+
 void SongEditorPanel::modeActionBtnPressed( )
 {
-	if( m_pModeActionSingleBtn->isVisible() ){
+	bool bWasStacked = m_pModeActionSingleBtn->isVisible();
+	if( bWasStacked ){
 		m_pModeActionSingleBtn->hide();
 		m_pModeActionMultipleBtn->show();
 	} else {
 		m_pModeActionSingleBtn->show();
 		m_pModeActionMultipleBtn->hide();
 	}
-	Hydrogen::get_instance()->togglePlaysSelected();
+	Hydrogen::get_instance()->setPlaysSelected( bWasStacked );
+	EventQueue::get_instance()->push_event( EVENT_STACKED_MODE_ACTIVATION, bWasStacked ? 0 : 1 );
 	updateAll();
 }
 

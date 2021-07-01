@@ -1093,6 +1093,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_labelBackgroundSelected.load( Skin::getImagePath() + "/songEditor/songEditorLabelSBG.png" );
 	m_playingPattern_on_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_on.png" );
 	m_playingPattern_off_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_off.png" );
+	m_playingPattern_empty_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_empty.png" );
 
 	m_pPatternPopup = new QMenu( this );
 	m_pPatternPopup->addAction( tr("Duplicate"),  this, SLOT( patternPopup_duplicate() ) );
@@ -1163,6 +1164,7 @@ void SongEditorPatternList::patternChangedEvent()
 /// Single click, select the next pattern
 void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 {
+	__drag_start_position = ev->pos();
 	int row = (ev->y() / m_nGridHeight);
 
 	std::shared_ptr<Song> song = m_pHydrogen->getSong();
@@ -1172,7 +1174,10 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		return;
 	}
 
-	if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ){
+	if ( (ev->button() == Qt::MiddleButton)
+		 || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton)
+		 || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton)
+		 || ev->pos().x() < 15 ){
 		togglePattern( row );
 		EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 	} else {
@@ -1272,7 +1277,16 @@ void SongEditorPatternList::updateEditor()
 	update();
 }
 
+void SongEditorPatternList::songModeActivationEvent( int nValue ) {
 
+	UNUSED( nValue );
+
+	// Refresh pattern list display if in stacked mode
+	if ( ! Preferences::get_instance()->patternModePlaysSelected() ) {
+		createBackground();
+		update();
+	}
+}
 
 void SongEditorPatternList::createBackground()
 {
@@ -1370,6 +1384,8 @@ void SongEditorPatternList::createBackground()
 			if( ! pPref->patternModePlaysSelected() ){
 				p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_on_Pixmap );
 			}
+		} else if ( ! pPref->patternModePlaysSelected() && pSong->getMode() == Song::PATTERN_MODE) {
+			p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_empty_Pixmap );
 		}
 
 		p.drawText( 25, text_y - 1, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, PatternArray[i].sPatternName);
@@ -1818,7 +1834,13 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 	}
 	
 	if ( sText.startsWith("move pattern:") ) {
-		int nSourcePattern = m_pHydrogen->getSelectedPatternNumber();
+		QStringList tokens = sText.split( ":" );
+		bool bOK = true;
+
+		int nSourcePattern = tokens[1].toInt(&bOK);
+		if ( ! bOK ) {
+			return;
+		}
 
 		if ( nSourcePattern == nTargetPattern ) {
 			event->acceptProposedAction();
@@ -1922,12 +1944,21 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 	if (!(event->buttons() & Qt::LeftButton)) {
 		return;
 	}
-	if ( abs(event->pos().y() - __drag_start_position.y()) < (int)m_nGridHeight) {
+	if ( (event->pos().y() / m_nGridHeight) == (__drag_start_position.y() / m_nGridHeight) ) {
 		return;
 	}
-
-
-	QString sText = QString("move pattern:%1");
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
+	PatternList *pPatternList = pSong->getPatternList();
+	int row = (__drag_start_position.y() / m_nGridHeight);
+	if ( row >= (int)pPatternList->size() ) {
+		return;
+	}
+	Pattern *pPattern = pPatternList->get( row );
+	QString sName = "<unknown>";
+	if ( pPattern ) {
+		sName = pPattern->get_name();
+	}
+	QString sText = QString("move pattern:%1:%2").arg( row ).arg( sName );
 
 	QDrag *pDrag = new QDrag(this);
 	QMimeData *pMimeData = new QMimeData;

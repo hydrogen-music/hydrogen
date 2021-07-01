@@ -1308,6 +1308,19 @@ void DrumPatternEditor::selectedInstrumentChangedEvent()
 	update( 0, 0, width(), height() );
 }
 
+void DrumPatternEditor::songModeActivationEvent( int nValue )
+{
+	UNUSED( nValue );
+	// May need to draw (or hide) other background patterns
+	update();
+}
+
+void DrumPatternEditor::stackedModeActivationEvent( int nValue )
+{
+	UNUSED( nValue );
+	// May need to draw (or hide) other background patterns
+	update();
+}
 
 /// This method is called from another thread (audio engine)
 void DrumPatternEditor::patternModifiedEvent()

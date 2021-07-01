@@ -1286,7 +1286,7 @@ void Hydrogen::setNewBpmJTM( float bpmJTM )
 	m_fNewBpmJTM = bpmJTM;
 }
 
-void Hydrogen::togglePlaysSelected()
+void Hydrogen::setPlaysSelected( bool bPlaysSelected )
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;	
 	std::shared_ptr<Song> pSong = getSong();
@@ -1300,14 +1300,14 @@ void Hydrogen::togglePlaysSelected()
 	Preferences* pPref = Preferences::get_instance();
 	bool isPlaysSelected = pPref->patternModePlaysSelected();
 
-	if (isPlaysSelected) {
+	if ( isPlaysSelected && !bPlaysSelected ) {
 		pAudioEngine->getPlayingPatterns()->clear();
 		Pattern* pSelectedPattern =
 				pSong->getPatternList()->get( getSelectedPatternNumber() );
 		pAudioEngine->getPlayingPatterns()->add( pSelectedPattern );
 	}
 
-	pPref->setPatternModePlaysSelected( !isPlaysSelected );
+	pPref->setPatternModePlaysSelected( bPlaysSelected );
 	pAudioEngine->unlock();
 }
 

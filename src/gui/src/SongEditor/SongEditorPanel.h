@@ -84,6 +84,8 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void actionModeChangeEvent( int nValue ) override;
 		void updateSongEditorEvent( int nValue ) override;
 
+		virtual void songModeActivationEvent( int nValue ) override;
+
 	public slots:
 		void setModeActionBtn( bool mode );
 		void showHideTimeLine( bool bPressed ) {
