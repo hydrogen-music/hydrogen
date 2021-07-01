@@ -1122,6 +1122,9 @@ QWidget {\
 } \
 QComboBox { \
     background-color: %3; \
+} \
+QComboBox QAbstractItemView { \
+    background-color: #babfcf; \
 }")
 		.arg( topColorLight.name() ).arg( topColorDark.name() )
 		.arg( m_lastWidgetColor.name() );
