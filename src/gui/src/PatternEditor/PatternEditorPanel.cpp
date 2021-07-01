@@ -590,7 +590,20 @@ PatternEditorPanel::~PatternEditorPanel()
 {
 }
 
-
+void PatternEditorPanel::stateChangedEvent( int nState ) {
+	// Deactivate the pattern size widgets while playback is rolling.
+	if ( nState == STATE_PLAYING ) {
+		m_pLCDSpinBoxNumerator->setEnabled( false );
+		m_pLCDSpinBoxNumerator->setToolTip( HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeDisabledTooltip() );
+		m_pLCDSpinBoxDenominator->setEnabled( false );
+		m_pLCDSpinBoxDenominator->setToolTip( HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeDisabledTooltip() );
+	} else {
+		m_pLCDSpinBoxNumerator->setEnabled( true );
+		m_pLCDSpinBoxNumerator->setToolTip( "" );
+		m_pLCDSpinBoxDenominator->setEnabled( true );
+		m_pLCDSpinBoxDenominator->setToolTip( "" );
+	}
+}
 
 void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
 {
@@ -923,8 +936,7 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	if ( pEngine->getState() != STATE_READY ) {	
-		QMessageBox::information( this, "Hydrogen", tr( "Is not possible to change the pattern size when playing." ) );
-		return;
+		QMessageBox::information( this, "Hydrogen", HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeDisabledTooltip() );
 	} // TODO is it really impossible to change the pattern size when
 	  // playing?
 
