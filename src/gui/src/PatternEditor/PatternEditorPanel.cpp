@@ -933,8 +933,12 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 		return;
 	}
 
-	m_pLCDSpinBoxNumerator->setValue( static_cast<double>( m_pPattern->get_length() * m_pPattern->get_denominator() ) / static_cast<double>( MAX_NOTES ) );
-	m_pLCDSpinBoxDenominator->setValue( static_cast<double>( m_pPattern->get_denominator() ) );
+	if ( ! m_pLCDSpinBoxNumerator->hasFocus() ) {
+		m_pLCDSpinBoxNumerator->setValue( static_cast<double>( m_pPattern->get_length() * m_pPattern->get_denominator() ) / static_cast<double>( MAX_NOTES ) );
+	}
+	if ( ! m_pLCDSpinBoxDenominator->hasFocus() ) {
+		m_pLCDSpinBoxDenominator->setValue( static_cast<double>( m_pPattern->get_denominator() ) );
+	}
 	
 }
 
