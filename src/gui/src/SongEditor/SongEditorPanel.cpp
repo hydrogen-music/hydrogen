@@ -92,32 +92,32 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// clear sequence button
 	m_pClearPatternSeqBtn = new Button( pBackPanel,	QSize( 60, 19 ), Button::Type::Push, "", HydrogenApp::get_instance()->getCommonStrings()->getClearButton(), false, QSize(), tr("Clear pattern sequence") );
-	m_pClearPatternSeqBtn->move( 2, 27 );
+	m_pClearPatternSeqBtn->move( 2, 26 );
 	connect( m_pClearPatternSeqBtn, SIGNAL( pressed() ), this, SLOT( clearSequence() ) );
 
 	// new pattern button
 	Button *newPatBtn = new Button( pBackPanel,	QSize( 20, 19 ), Button::Type::Push, "plus.svg", "", false, QSize( 13, 13 ), tr("Create new pattern") );
-	newPatBtn->move( 64, 27 );
+	newPatBtn->move( 64, 26 );
 	connect( newPatBtn, SIGNAL( pressed() ), this, SLOT( newPatBtnClicked() ) );
 
 	// down button
 	m_pDownBtn = new Button( pBackPanel, QSize( 20, 19 ), Button::Type::Push, "down.svg", "", false, QSize( 13, 13 ), tr("Move the selected pattern down") );
-	m_pDownBtn->move( 87, 27 );
+	m_pDownBtn->move( 87, 26 );
 	connect( m_pDownBtn, SIGNAL( pressed() ), this, SLOT( downBtnClicked() ) );
 
 	// up button
 	m_pUpBtn = new Button( pBackPanel, QSize( 20, 19 ), Button::Type::Push, "up.svg", "", false, QSize( 13, 13 ), tr("Move the selected pattern up") );
-	m_pUpBtn->move( 106, 27 );
+	m_pUpBtn->move( 106, 26 );
 	connect( m_pUpBtn, SIGNAL( pressed() ), this, SLOT( upBtnClicked() ) );
 
 	// select toggle button
 	m_pSelectionModeBtn = new Button( pBackPanel, QSize( 20, 19 ), Button::Type::Toggle, "select.svg", "", false, QSize( 18, 15 ), tr( "Select mode" ) );
-	m_pSelectionModeBtn->move( 128, 27 );
+	m_pSelectionModeBtn->move( 128, 26 );
 	connect( m_pSelectionModeBtn, SIGNAL( pressed() ), this, SLOT( selectionModeBtnPressed() ) );
 
 	// draw toggle button
 	m_pDrawModeBtn = new Button( pBackPanel, QSize( 20, 19 ), Button::Type::Toggle, "draw.svg", "", false, QSize( 18, 15 ), tr( "Draw mode") );
-	m_pDrawModeBtn->move( 147, 27 );
+	m_pDrawModeBtn->move( 147, 26 );
 	connect( m_pDrawModeBtn, SIGNAL( pressed() ), this, SLOT( drawModeBtnPressed() ) );
 
 	if ( pSong->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
@@ -131,12 +131,12 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	// Two buttons sharing the same position and either of them is
 	// shown unpressed.
 	m_pModeActionSingleBtn = new Button( pBackPanel, QSize( 23, 19 ), Button::Type::Push, "single_layer.svg", "", false, QSize( 19, 15 ), tr( "single pattern mode") );
-	m_pModeActionSingleBtn->move( 170, 27 );
+	m_pModeActionSingleBtn->move( 170, 26 );
 	m_pModeActionSingleBtn->setVisible( pPref->patternModePlaysSelected() );
 	connect( m_pModeActionSingleBtn, SIGNAL( pressed() ), this, SLOT( modeActionBtnPressed() ) );
 
 	m_pModeActionMultipleBtn = new Button( pBackPanel, QSize( 23, 19 ), Button::Type::Push, "multiple_layers.svg", "", false, QSize( 19, 15 ), tr( "stacked pattern mode") );
-	m_pModeActionMultipleBtn->move( 170, 27 );
+	m_pModeActionMultipleBtn->move( 170, 26 );
 	m_pModeActionMultipleBtn->hide();
 	m_pModeActionMultipleBtn->setVisible( pPref->patternModePlaysSelected() );
 	connect( m_pModeActionMultipleBtn, SIGNAL( pressed() ), this, SLOT( modeActionBtnPressed() ) );
