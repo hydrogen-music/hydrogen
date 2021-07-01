@@ -786,7 +786,7 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 
 	drawFocus( painter );
 	
-	m_selection.paintSelection( &painter );
+	// m_selection.paintSelection( &painter );
 }
 
 void NotePropertiesRuler::drawFocus( QPainter& painter ) {
@@ -1330,7 +1330,7 @@ void NotePropertiesRuler::finishUpdateEditor()
 		pen.setWidth( 2 );
 		p.setPen( pen );
 		p.setRenderHint( QPainter::Antialiasing );
-		p.drawRoundedRect( QRect( x-m_fGridWidth*3, 0+1, m_fGridWidth*6, height()-2 ), 4, 4 );
+		p.drawRoundedRect( QRect( x-m_fGridWidth*3, 0 + 3, m_fGridWidth*6, height() - 6 ), 4, 4 );
 	}
 
 	// redraw all
