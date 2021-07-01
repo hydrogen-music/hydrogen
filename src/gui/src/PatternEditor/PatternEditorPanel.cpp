@@ -125,9 +125,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pLCDSpinBoxDenominator->setKind( LCDSpinBox::Kind::PatternSizeDenominator );
 	m_pLCDSpinBoxNumerator->move( 36, 0 );
 	m_pLCDSpinBoxDenominator->move( 106, 0 );
-	connect( m_pLCDSpinBoxNumerator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
-	connect( m_pLCDSpinBoxDenominator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
-	
+			
 	QLabel* label1 = new ClickableLabel( m_pSizeResol, QSize( 4, 13 ), "/", ClickableLabel::Color::Dark );
 	label1->resize( QSize( 20, 17 ) );
 	label1->move( 100, 4 );
@@ -581,6 +579,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	propertiesComboChanged( 0 );
 	selectedPatternChangedEvent();
 	updateStyleSheet();
+
+	connect( m_pLCDSpinBoxNumerator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
+	connect( m_pLCDSpinBoxDenominator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
 }
 
 
@@ -928,8 +929,13 @@ void PatternEditorPanel::patternLengthChanged()
 
 void PatternEditorPanel::updatePatternSizeLCD() {
 
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
+
 	m_pLCDSpinBoxNumerator->setValue( static_cast<double>( m_pPattern->get_length() * m_pPattern->get_denominator() ) / static_cast<double>( MAX_NOTES ) );
 	m_pLCDSpinBoxDenominator->setValue( static_cast<double>( m_pPattern->get_denominator() ) );
+	
 }
 
 void PatternEditorPanel::patternSizeChanged( double fValue ){
