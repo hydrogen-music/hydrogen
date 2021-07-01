@@ -40,7 +40,18 @@ public:
 	{
 		return H2Core::Filesystem::img_dir().append( "/scalable" );
 	}
+	/** Top-level stylesheet for Hydrogen.
+
+		This one affects all widgets within Hydrogen (including
+		popups, file browser etc) and will get the most recent color
+		values from the #H2Core::Preferences.
+		
+		\return String version of the stylesheet.*/
 	static QString getGlobalStyleSheet();
+	/** Function used to update the global palette of the
+	QApplication.
+	
+	It will get the most recent color values from the #H2Core::Preferences.*/
 	static void setPalette( QApplication *pQApp );
 };
 

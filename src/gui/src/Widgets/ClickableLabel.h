@@ -29,6 +29,13 @@
 #include <QtGui>
 #include <QtWidgets>
 
+/** Custom QLabel that emits a signal when clicked.
+ *
+ * The label tries to be smart when choosing the font size. It knows
+ * its own size and decreases the font size - if the original would
+ * make the text overflow - until the text fits.
+ *
+ */
 class ClickableLabel : public QLabel, public H2Core::Object
 {
 	H2_OBJECT

@@ -26,12 +26,19 @@
 #include <QString>
 #include <core/Object.h>
 
+/** A container class to collect all translatable strings at one place
+	in order to allow for the reusage. This will (some day) make
+	translation work faster.
+
+	Initially I wanted the whole thing as well as the getter methods
+	to be static. But Qt requires the class to be initialized for the
+	translation engine to take effect.*/
 class CommonStrings : public H2Core::Object {
 	H2_OBJECT
 	Q_DECLARE_TR_FUNCTIONS(CommonStrings)
 	
-		public:
-		 CommonStrings();
+public:
+	 CommonStrings();
 	~CommonStrings();
  
 	const QString& getSmallSoloButton() const { return m_sSmallSoloButton; }

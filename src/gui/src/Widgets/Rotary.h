@@ -31,14 +31,27 @@
 
 #include <core/Object.h>
 
+/** Custom rotary widget.
+ *
+ * The background image - for Rotary::Type::Normal and
+ * Rotary::Type::Center - as well as the knob is loaded via a SVG
+ * image. The arc indicating the current value will the painted within
+ * Qt.
+ *
+ */
 class Rotary : public WidgetWithInput, H2Core::Object
 {
     H2_OBJECT
 	
 public:
 	enum class Type {
+		/** The arc is of solid red color.*/
 		Normal,
+		/** The arc features a point at its upmost position. If set
+		 * by the user, it shows a green color. If another value is
+		 * used, a grey and smaller dot will be displayed instead.*/
 		Center,
+		/** No arc will be drawn*/
 		Small
 	};
 

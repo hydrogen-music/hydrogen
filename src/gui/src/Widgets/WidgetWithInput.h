@@ -30,6 +30,30 @@
 
 #include <core/Timehelper.h>
 
+/** Base class for active user input widget, which are not based on
+ * a high-level Qt widget.
+ *
+ * The widgets can be set by click-drag, wheel event, and by
+ * keyboard. For the latter the widget has to be clicked first, in
+ * order for it to aquire focus. The derived class must indicate the
+ * presence of the focus in its paintEvent() using the
+ * H2Core::UIStyle::m_highlightColor.
+ *
+ * The widget will be reset to its default value of Ctrl-clicking
+ * it. It's MIDI learnable and the MIDI action - added by the parent -
+ * can be bound by the user by Shift-clicking it. The derived class
+ * must display an available MIDI action and a possible binding in its
+ * tooltip.
+ *
+ * The current value of the derived class has to be displayed in the
+ * tooltip and when altering the value via mouse or keyboard a static
+ * tooltip must be used to indicate the new value.
+ *
+ * For keyboard input a buffer is used to accumulate all provided
+ * numbers. After 2 seconds the input buffer is flushed and the next
+ * key press will fill a fresh buffer. Alternatively, the user can use
+ * the ESC key to immediately flush the input buffer.
+ */
 class WidgetWithInput : public QWidget, public MidiLearnable {
 	Q_OBJECT
 

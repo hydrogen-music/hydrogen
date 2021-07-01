@@ -37,6 +37,21 @@
 
 /**
  * Generic Button with SVG icons or text.
+ *
+ * The class comes in two different types, as Button::Type::Push and
+ * Button::Type::Toggle. If it is set checkabale via
+ * Button::Type::Toggle, the button will change color after it is
+ * clicked by mouse _and_ the button is released. The action
+ * associated with the button will, however, be triggered once the
+ * button is clicked (this is implemented in the parent wigets and can
+ * be changed. But giving immediate feedback seems to be intuitive.)
+ *
+ * Most icons used are black and white. For those, the black one will
+ * be used in unchecked state and the white one in checked.
+ * 
+ * Buttons are MIDI learnable. This means they can be associated with
+ * a MIDI action. If done, the action (and the binding) will show up
+ * in the tooltip.
  */
 class Button : public QPushButton, public H2Core::Object, public MidiLearnable
 {
@@ -46,7 +61,9 @@ class Button : public QPushButton, public H2Core::Object, public MidiLearnable
 public:
 
 	enum class Type {
+		/** Button is not set checkable.*/
 		Push,
+		/** Button is set checkable.*/
 		Toggle
 	};
 	

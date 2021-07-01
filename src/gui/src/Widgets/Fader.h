@@ -33,9 +33,12 @@
 
 #include <core/Object.h>
 
-///
-/// Fader and VuMeter widget
-///
+/** Custom fader widget.
+ *
+ * The meter, outline, and slider will be loaded from a SVG file while
+ * the bars indicating the current value will be painted by Qt.
+ *
+ */
 class Fader : public WidgetWithInput, public H2Core::Object
 {
     H2_OBJECT
@@ -43,6 +46,7 @@ class Fader : public WidgetWithInput, public H2Core::Object
 public:
 	enum class Type {
 		Normal,
+		/** Only used for the playback track in the SongEditorPanel*/
 		Vertical,
 		Master
 	};

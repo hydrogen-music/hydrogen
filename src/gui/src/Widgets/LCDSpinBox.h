@@ -28,8 +28,21 @@
 
 #include <core/Object.h>
 
-/** Updating the font family in QDoubleSpinBox is not supported and
-	changing the font size (both via setFont()) yields erratic results.*/
+/** Custom spin box.
+ *
+ * The QDoubleSpinBox is used for both integer and float values
+ * instead of using QSpinBox as a base for the former. This is done to
+ * keep the code concise. All internal values will be handled as
+ * floats and only textFromValue() makes a difference.
+ *
+ * The LCDSpinBox::Kind was introduced to handle custom constraints
+ * for the widgets concerning with the pattern size in the
+ * PatternEditorPanel.
+ *
+ * Updating the font family in QDoubleSpinBox is not supported and
+ * changing the font size (both via setFont()) yields erratic
+ * results.
+ */
 class LCDSpinBox : public QDoubleSpinBox, public H2Core::Object
 {
     H2_OBJECT
@@ -43,8 +56,14 @@ public:
 	};
 
 	enum class Kind {
+		/** Behaves like QDoubleSpinBox.*/
 		Default,
+		/** The minimum value - a fractional one - can only be reached
+		 * by entering it using the keyboard. up/down keys as well as
+		 * mouse wheel increment the number by one and will stay at
+		 * integer values per default.*/
 		PatternSizeNumerator,
+		/** Only a limited number of values is allowed.*/
 		PatternSizeDenominator
 	};
 

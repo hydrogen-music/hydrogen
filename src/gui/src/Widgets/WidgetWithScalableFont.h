@@ -26,6 +26,14 @@
 #include <core/Object.h>
 #include <core/Preferences.h>
 
+/** Widget is affected by the "Font size" settings in the
+ *	PreferencesDialog.
+ *
+ * To improve accessibility, three different font sizes,
+ * H2Core::Preferences::FontSize::Small,
+ * H2Core::Preferences::FontSize::Normal, and
+ * H2Core::Preferences::FontSize::Large, are available.
+ */
 template < int nSmall, int nNormal, int nLarge >
 class WidgetWithScalableFont {
 protected:

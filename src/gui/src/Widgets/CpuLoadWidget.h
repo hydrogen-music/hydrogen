@@ -32,9 +32,19 @@
 #include <QtGui>
 #include <QtWidgets>
 
-///
-/// Shows CPU load
-///
+/**
+ * Shows the current CPU load using a meter similar to the one used in
+ * #Fader.
+ *
+ * All aspects of the widgets are directly drawn.
+ *
+ * In order to not annoy and to give a better view on the overall CPU
+ * load, the widget measures the load at five consecutive points in
+ * time and displays the average.
+ *
+ * In case an XRun event is reported by the JACK server, the outlines
+ * of he widget will be painted in red for 1.5 seconds.
+ */
 class CpuLoadWidget : public QWidget, public EventListener, public H2Core::Object
 {
     H2_OBJECT

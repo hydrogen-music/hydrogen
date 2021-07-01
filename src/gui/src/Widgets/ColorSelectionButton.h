@@ -32,6 +32,10 @@
 #include <QPushButton>
 #include <QColor>
 
+/** QPushButton opening a QColorDialog when clicked and displaying the
+ * selected color as background - with neither text nor an icon present.
+ * 
+ */
 class ColorSelectionButton : public QPushButton, public H2Core::Object
 {
     H2_OBJECT

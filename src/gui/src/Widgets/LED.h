@@ -65,6 +65,7 @@ inline bool LED::getActivated() const {
 	return m_bActivated;
 }
 
+/** Custom LED that comes with its own timer.*/
 class MetronomeLED : public LED, public EventListener
 {
     H2_OBJECT
