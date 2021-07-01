@@ -933,22 +933,37 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 		return;
 	}
 
+	bool bTurnOffAgain = false;
+
+	if ( ! m_pLCDSpinBoxNumerator->isEnabled() ) {
+		// Both spin boxes are deactivated since playback is rolling
+		// and the pattern size changed due to the user selecting a
+		// different pattern via mouse. We have to take care not to
+		// trigger a patternSizeChanged() in here.
+		m_pLCDSpinBoxNumerator->setEnabled( true );
+		m_pLCDSpinBoxDenominator->setEnabled( true );
+
+		bTurnOffAgain = true;
+	}
+
 	if ( ! m_pLCDSpinBoxNumerator->hasFocus() ) {
+		// Only update the spin box if its not the one holding
+		// focus or this line will mess with the user keyboard
+		// input.
 		m_pLCDSpinBoxNumerator->setValue( static_cast<double>( m_pPattern->get_length() * m_pPattern->get_denominator() ) / static_cast<double>( MAX_NOTES ) );
 	}
 	if ( ! m_pLCDSpinBoxDenominator->hasFocus() ) {
 		m_pLCDSpinBoxDenominator->setValue( static_cast<double>( m_pPattern->get_denominator() ) );
 	}
-	
+
+	if (  bTurnOffAgain ) {
+		m_pLCDSpinBoxNumerator->setEnabled( false );
+		m_pLCDSpinBoxDenominator->setEnabled( false );
+	}
+
 }
 
 void PatternEditorPanel::patternSizeChanged( double fValue ){
-
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	if ( pEngine->getState() != STATE_READY ) {	
-		QMessageBox::information( this, "Hydrogen", HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeDisabledTooltip() );
-	} // TODO is it really impossible to change the pattern size when
-	  // playing?
 
 	// Update numerator to allow only for a maximum pattern length of
 	// four measures.
