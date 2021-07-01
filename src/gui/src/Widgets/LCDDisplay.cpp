@@ -35,6 +35,7 @@ LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont )
  , m_bUseRedFont( false )
 {
 	setReadOnly( true );
+	setEnabled( false );
 	setFocusPolicy( Qt::NoFocus );
 	setAlignment( Qt::AlignCenter );
 	
