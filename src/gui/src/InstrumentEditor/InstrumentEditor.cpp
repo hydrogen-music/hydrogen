@@ -191,11 +191,11 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	//~ ADSR
 
 	// instrument gain
-	m_pInstrumentGainLCD = new LCDDisplay( m_pInstrumentProp, QSize( 41, 20 ) );
+	m_pInstrumentGainLCD = new LCDDisplay( m_pInstrumentProp, QSize( 43, 20 ) );
 	m_pInstrumentGain = new Rotary( m_pInstrumentProp, Rotary::Type::Normal, tr( "Instrument gain" ), false, 0.0, 5.0 );
 	m_pInstrumentGain->setDefaultValue( 1.0 );
 	connect( m_pInstrumentGain, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( rotaryChanged( WidgetWithInput* ) ) );
-	m_pInstrumentGainLCD->move( 64, 103 );
+	m_pInstrumentGainLCD->move( 62, 103 );
 	m_pInstrumentGain->move( 109, 100 );
 	m_pGainLbl = new ClickableLabel( m_pInstrumentProp, QSize( 48, 10 ), HydrogenApp::get_instance()->getCommonStrings()->getGainLabel() );
 	m_pGainLbl->move( 107, 125 );

@@ -60,7 +60,10 @@ PlayerControl::PlayerControl(QWidget *parent)
 {
 	setObjectName( "PlayerControl" );
 	HydrogenApp::get_instance()->addEventListener( this );
-	auto pPreferences = Preferences::get_instance();
+
+	auto pPref = H2Core::Preferences::get_instance();
+	m_lastUsedFontSize = pPref->getFontSize();
+	m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
 	
 	// Background image
 	setPixmap( QPixmap( Skin::getImagePath() + "/playerControlPanel/background.png" ) );
@@ -242,9 +245,9 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pRubberBPMChange = new Button( pBPMPanel, QSize( 13, 42 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getRubberbandButton(), false, QSize(), tr("Recalculate Rubberband modified samples if bpm will change") );
 
 	m_pRubberBPMChange->move( 131, 0 );
-	m_pRubberBPMChange->setChecked( pPreferences->getRubberBandBatchMode());
+	m_pRubberBPMChange->setChecked( pPref->getRubberBandBatchMode());
 	connect( m_pRubberBPMChange, SIGNAL( pressed() ), this, SLOT( rubberbandButtonToggle() ) );
-	QString program = pPreferences->m_rubberBandCLIexecutable;
+	QString program = pPref->m_rubberBandCLIexecutable;
 	//test the path. if test fails, no button
 	if ( QFile( program ).exists() == false) {
 		m_pRubberBPMChange->hide();
@@ -275,7 +278,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	  number of application can be connected.*/
 	m_pJackTransportBtn = new Button( pJackPanel, QSize( 53, 16 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getJackTransportButton(), false, QSize(), tr("JACK transport on/off") );
 	m_pJackTransportBtn->hide();
-	if ( pPreferences->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
+	if ( pPref->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
 		m_pJackTransportBtn->setChecked( true );
 	} else {
 		m_pJackTransportBtn->setChecked( false );
@@ -292,8 +295,8 @@ transport control.*/
 	m_pJackMasterBtn = new Button( pJackPanel, QSize( 53, 16 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getJackMasterButton(), false, QSize(), m_sJackMasterModeToolTip );
 	m_pJackMasterBtn->hide();
 	if ( m_pJackTransportBtn->isChecked() &&
-		 pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&
-		 pPreferences->m_bJackTimebaseEnabled ) {
+		 pPref->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&
+		 pPref->m_bJackTimebaseEnabled ) {
 		m_pJackMasterBtn->setChecked( true );
 	} else {
 		m_pJackMasterBtn->setChecked( false );
@@ -337,7 +340,6 @@ transport control.*/
 	connect( m_pShowInstrumentRackBtn, SIGNAL( pressed() ), this, SLOT( showInstrumentRackButtonClicked() ) );
 
 	m_pStatusLabel = new LCDDisplay(pLcdBackGround, QSize( 255, 18 ) );
-	m_pStatusLabel->setMaxLength( 37 );
 	m_pStatusLabel->move( 0, 24 );
 
 	hbox->addStretch( 1000 );	// this must be the last widget in the HBOX!!
@@ -352,6 +354,9 @@ transport control.*/
 	m_pScrollTimer = new QTimer( this );
 	connect( m_pScrollTimer, SIGNAL( timeout() ), this, SLOT( onScrollTimerEvent() ) );
 	m_pScrollMessage = "";
+
+	updateStatusLabel();
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &PlayerControl::onPreferencesChanged );
 }
 
 
@@ -919,9 +924,15 @@ void PlayerControl::showMessage( const QString& msg, int msec )
 		m_pScrollTimer->stop(); 
 	}
 	m_pStatusLabel->setText( msg );
+
+	if ( fontMetrics().size( Qt::TextSingleLine, text() ).width() > width() ) {
+		// Text is too large to fit in the display. Use scrolled
+		// message instead.
+		showScrollMessage( msg, 150, false );
+		return;
+	}
+	
 	m_pStatusTimer->start( msec );
-
-
 }
 
 
@@ -1011,4 +1022,31 @@ void PlayerControl::jackTimebaseActivationEvent( int nValue ) {
 	}
 	
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateTimelineUsage();
+}
+
+void PlayerControl::onPreferencesChanged( bool bAppearanceOnly ) {
+	
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getLevel3FontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		
+		m_lastUsedFontSize = pPref->getFontSize();
+		m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
+		
+		updateStatusLabel();
+	}
+}
+
+void PlayerControl::updateStatusLabel() {
+
+	QString sLongString( "ThisIsALongOneThatShouldNotFitInTheLCDDisplayEvenWithVeryNarrowFonts" );
+	m_pStatusLabel->setMaxLength( 120 );
+	
+	while ( m_pStatusLabel->fontMetrics().size( Qt::TextSingleLine, sLongString ).width() >
+			m_pStatusLabel->width() && ! sLongString.isEmpty() ) {
+		sLongString.chop( 1 );
+	}
+
+	m_pStatusLabel->setMaxLength( sLongString.length() );
 }

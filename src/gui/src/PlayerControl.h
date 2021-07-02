@@ -70,6 +70,9 @@ public:
 	 */
 	void songModeActivationEvent( int nValue ) override;
 
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
+
 private slots:
 	void recBtnClicked();
 	void playBtnClicked();
@@ -105,6 +108,9 @@ private slots:
 
 	void deactivateMidiActivityLED();
 private:
+	/** Ensure that the full width of the status label is used without
+	 * cutting of the beginning of the message.*/
+	void updateStatusLabel();
 	/**
 	 * Shared GUI update when activating loop mode via button
 	 * click or via OSC command.
@@ -186,6 +192,10 @@ private:
 		milliseconds.*/ 
 	QTimer *m_pMidiActivityTimer;
 	std::chrono::milliseconds m_midiActivityTimeout; 
+	/** Used to detect changed in the font*/
+	QString m_sLastUsedFontFamily;
+	/** Used to detect changed in the font*/
+	H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 
