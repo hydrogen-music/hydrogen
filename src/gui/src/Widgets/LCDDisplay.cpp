@@ -43,6 +43,26 @@ LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont )
 	
 	m_lastUsedFontSize = pPref->getFontSize();
 	m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
+	
+	// Derive a set of scaling-dependent font sizes on the basis of
+	// the default font size determined by Qt itself.
+	QFont currentFont = font();
+	int nStepSize = 2;
+
+	m_fontPointSizes.resize( 3 );
+	switch ( m_lastUsedFontSize ) {
+    case H2Core::Preferences::FontSize::Small:
+		m_fontPointSizes[ 0 ] = currentFont.pointSize();
+		break;
+    case H2Core::Preferences::FontSize::Large:
+		m_fontPointSizes[ 0 ] = currentFont.pointSize() - 2 * nStepSize;
+		break;
+    default:
+		m_fontPointSizes[ 0 ] = currentFont.pointSize() - nStepSize;
+	}
+	
+	m_fontPointSizes[ 1 ] = m_fontPointSizes[ 0 ] + nStepSize;
+	m_fontPointSizes[ 2 ] = m_fontPointSizes[ 0 ] + 2 * nStepSize;
 
 	m_lastWindowColor = pPref->getDefaultUIStyle()->m_windowColor;
 	m_lastButtonRedColor = pPref->getDefaultUIStyle()->m_buttonRedColor;
@@ -69,8 +89,18 @@ void LCDDisplay::setUseRedFont( bool bUseRedFont ) {
 
 void LCDDisplay::updateFont() {
 	if ( ! m_bFixedFont ) {
-		QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
-		setFont( font );
+
+		int nIndex = 1;
+		if ( m_lastUsedFontSize == H2Core::Preferences::FontSize::Small ) {
+			nIndex = 0;
+		} else if ( m_lastUsedFontSize == H2Core::Preferences::FontSize::Large ) {
+			nIndex = 2;
+		}
+
+		QFont newFont = font();
+		newFont.setFamily( m_sLastUsedFontFamily );
+		newFont.setPointSize( m_fontPointSizes[ nIndex ] );
+		setFont( newFont );
 	}
 }
 

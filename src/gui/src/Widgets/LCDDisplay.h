@@ -31,13 +31,11 @@
 #include <core/Object.h>
 #include <core/Preferences.h>
 
-#include "WidgetWithScalableFont.h"
-
 #include <vector>
 
 /** Non-interactive display used for both numerical values and the
 	status display.*/
-class LCDDisplay : public QLineEdit, protected WidgetWithScalableFont<7, 9, 11>, public H2Core::Object
+class LCDDisplay : public QLineEdit, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
@@ -58,6 +56,8 @@ private:
 
 	bool m_bFixedFont;
 	bool m_bUseRedFont;
+
+	std::vector<int> m_fontPointSizes;
 
 	QColor m_lastWindowColor;
 	QColor m_lastButtonRedColor;
