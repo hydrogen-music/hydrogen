@@ -254,7 +254,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pMetronomeLED->move( 7, 32 );
 
 	m_pMetronomeBtn = new Button( pBPMPanel, QSize( 24, 28 ), Button::Type::Toggle, "metronome.svg", "", false, QSize( 24, 24 ), tr("Switch metronome on/off") );
-	m_pMetronomeBtn->move( 7, 2 );
+	m_pMetronomeBtn->move( 6, 2 );
 	connect( m_pMetronomeBtn, SIGNAL( pressed() ), this, SLOT( metronomeButtonClicked() ) );
 		pAction = new Action("TOGGLE_METRONOME");
 		m_pMetronomeBtn->setAction( pAction );
