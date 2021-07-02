@@ -68,6 +68,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
  : QWidget( pParent )
  , Object( __class_name )
  , m_pPattern( nullptr )
+ , m_bArmPatternSizeSpinBoxes( true )
 {
 	setAcceptDrops(true);
 
@@ -694,6 +695,7 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 
 void PatternEditorPanel::selectedPatternChangedEvent()
 {
+
 	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
 	int nSelectedPatternNumber = Hydrogen::get_instance()->getSelectedPatternNumber();
 
@@ -928,10 +930,11 @@ void PatternEditorPanel::patternLengthChanged()
 }
 
 void PatternEditorPanel::updatePatternSizeLCD() {
-
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
+
+	m_bArmPatternSizeSpinBoxes = false;
 
 	bool bTurnOffAgain = false;
 
@@ -946,24 +949,44 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 		bTurnOffAgain = true;
 	}
 
-	if ( ! m_pLCDSpinBoxNumerator->hasFocus() ) {
-		// Only update the spin box if its not the one holding
-		// focus or this line will mess with the user keyboard
-		// input.
-		m_pLCDSpinBoxNumerator->setValue( static_cast<double>( m_pPattern->get_length() * m_pPattern->get_denominator() ) / static_cast<double>( MAX_NOTES ) );
-	}
-	if ( ! m_pLCDSpinBoxDenominator->hasFocus() ) {
-		m_pLCDSpinBoxDenominator->setValue( static_cast<double>( m_pPattern->get_denominator() ) );
+	bool bChanged = false;
+
+	double fNewDenominator = static_cast<double>( m_pPattern->get_denominator() );
+	if ( fNewDenominator != m_pLCDSpinBoxDenominator->value() ) {
+		m_pLCDSpinBoxDenominator->setValue( fNewDenominator );
+		bool bChanged = true;
+
+		// Update numerator to allow only for a maximum pattern length of
+		// four measures.
+		m_pLCDSpinBoxNumerator->setMaximum( 4 * m_pLCDSpinBoxDenominator->value() );
 	}
 
-	if (  bTurnOffAgain ) {
+	double fNewNumerator = static_cast<double>( m_pPattern->get_length() * m_pPattern->get_denominator() ) / static_cast<double>( MAX_NOTES );
+	if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() ) {
+		m_pLCDSpinBoxNumerator->setValue( fNewNumerator );
+		bChanged = true;
+	}
+
+	if ( bTurnOffAgain ) {
 		m_pLCDSpinBoxNumerator->setEnabled( false );
 		m_pLCDSpinBoxDenominator->setEnabled( false );
+	}
+	
+	m_bArmPatternSizeSpinBoxes = true;
+
+	if ( bChanged ) {
+		patternLengthChanged();
 	}
 
 }
 
 void PatternEditorPanel::patternSizeChanged( double fValue ){
+
+	if ( ! m_bArmPatternSizeSpinBoxes ) {
+		// Don't execute this function if the values of the spin boxes
+		// have been set by Hydrogen instead of by the user.
+		return;
+	}
 
 	// Update numerator to allow only for a maximum pattern length of
 	// four measures.

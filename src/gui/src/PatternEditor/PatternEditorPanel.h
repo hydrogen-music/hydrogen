@@ -112,6 +112,7 @@ class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 1
 		void gridResolutionChanged( int nSelected );
 		void propertiesComboChanged( int nSelected );
 		void patternLengthChanged();
+	/** Batch version for setting the values of the pattern size spin boxes.*/
 		void updatePatternSizeLCD();
 
 		void hearNotesBtnClick();
@@ -144,6 +145,9 @@ class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 1
 
 	LCDSpinBox* m_pLCDSpinBoxNumerator;
 	LCDSpinBox* m_pLCDSpinBoxDenominator;
+	/** Indicates whether the LCD spin boxes for the pattern size have
+		been altered by Hydrogen or by the user.*/
+	bool m_bArmPatternSizeSpinBoxes;
 
 		// Editor top
 		LCDDisplay *			__pattern_size_LCD;
