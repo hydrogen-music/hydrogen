@@ -253,8 +253,8 @@ class SongEditorPatternList : public QWidget, protected WidgetWithScalableFont<8
 		void updateEditor();
 		void createBackground();
 		void movePatternLine( int, int );
-		void deletePatternFromList( QString patternFilename, QString sequenceFileName, int patternPosition );
-		void restoreDeletedPatternsFromList( QString patternFilename, QString sequenceFileName, int patternPosition );
+		void deletePatternFromList( QString patternFilename, int patternPosition );
+		void restoreDeletedPatternsFromList( QString patternFilename, int patternPosition );
 		void acceptPatternPropertiesDialogSettings( QString newPatternName, QString newPatternInfo, QString newPatternCategory, int patternNr );
 		void revertPatternPropertiesDialogSettings(QString oldPatternName, QString oldPatternInfo, QString oldPatternCategory, int patternNr);
 		void loadPatternAction( QString filename, int position);

@@ -66,7 +66,6 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
-		void restoreGroupVector( QString filename );
 		//~ Implements EventListener interface	
 		///< an empty new pattern will be added to pattern list at idx
 		void insertPattern( int idx, H2Core::Pattern* pPattern );
