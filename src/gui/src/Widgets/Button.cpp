@@ -253,8 +253,19 @@ void Button::updateFont() {
 	QFont font( m_sLastUsedFontFamily );
 	font.setPixelSize( nPixelSize );
 	setFont( font );
-}
 
+	if ( m_size.width() > m_size.height() ) {
+		// Check whether the width of the text fits the available frame
+		// width of the button.
+		while ( fontMetrics().size( Qt::TextSingleLine, text() ).width() > width()
+				&& nPixelSize > 1 ) {
+			nPixelSize--;
+			font.setPixelSize( nPixelSize );
+			setFont( font );
+		}
+	}
+}
+	
 void Button::paintEvent( QPaintEvent* ev )
 {
 	QPushButton::paintEvent( ev );
