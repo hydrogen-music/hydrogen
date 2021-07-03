@@ -121,6 +121,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	// PATTERN size
 	m_pLCDSpinBoxNumerator = new LCDSpinBox( m_pSizeResol, QSize( 62, 20 ), LCDSpinBox::Type::Double, 0.1, 16.0 );
 	m_pLCDSpinBoxNumerator->setKind( LCDSpinBox::Kind::PatternSizeNumerator );
+	m_pLCDSpinBoxNumerator->setDecimals( 16 );
 	m_pLCDSpinBoxDenominator = new LCDSpinBox( m_pSizeResol, QSize( 48, 20 ), LCDSpinBox::Type::Int, 1, 192 );
 	m_pLCDSpinBoxDenominator->setKind( LCDSpinBox::Kind::PatternSizeDenominator );
 	m_pLCDSpinBoxNumerator->move( 36, 0 );
@@ -951,7 +952,8 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 	bool bChanged = false;
 
 	double fNewDenominator = static_cast<double>( m_pPattern->get_denominator() );
-	if ( fNewDenominator != m_pLCDSpinBoxDenominator->value() ) {
+	if ( fNewDenominator != m_pLCDSpinBoxDenominator->value() &&
+		 ! m_pLCDSpinBoxDenominator->hasFocus() ) {
 		m_pLCDSpinBoxDenominator->setValue( fNewDenominator );
 		bool bChanged = true;
 
@@ -961,7 +963,7 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 	}
 
 	double fNewNumerator = static_cast<double>( m_pPattern->get_length() * m_pPattern->get_denominator() ) / static_cast<double>( MAX_NOTES );
-	if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() ) {
+	if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() && ! m_pLCDSpinBoxNumerator->hasFocus() ) {
 		m_pLCDSpinBoxNumerator->setValue( fNewNumerator );
 		bChanged = true;
 	}

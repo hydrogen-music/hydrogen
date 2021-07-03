@@ -180,13 +180,19 @@ double LCDSpinBox::nextValueInPatternSizeDenominator( bool bUp, bool bAccelerate
 
 QString LCDSpinBox::textFromValue( double fValue ) const {
 	QString result;
-	if ( fValue == -1.0 ) {
+	if ( m_type == Type::Int && fValue == -1.0 ) {
 		result = "off";
 	} else {
 		if ( m_type == Type::Int ) {
 			result = QString( "%1" ).arg( fValue, 0, 'f', 0 );
 		} else {
-			result = QString( "%1" ).arg( fValue, 0, 'f', 2 );
+			// Only show a larger precision than 2 digits after point
+			// if there are more than 2 non-zero digits after point.
+			if ( std::fmod( fValue * 100, 1 ) > 0 ) {
+				result = QString( "%1" ).arg( fValue, 0, 'f', 16 ) ;
+			} else {
+				result = QString( "%1" ).arg( fValue, 0, 'f', 2 ) ;
+			}
 		}
 	}
 
