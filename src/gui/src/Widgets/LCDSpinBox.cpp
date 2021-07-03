@@ -244,6 +244,16 @@ double LCDSpinBox::valueFromText( const QString& sText ) const {
 	return fResult;
 }
 
+bool LCDSpinBox::event( QEvent* ev ) {
+
+	if ( ev->type() == QEvent::KeyPress && dynamic_cast<QKeyEvent*>( ev)->key() == Qt::Key_Slash ) {
+		emit slashKeyPressed();
+		return 0;
+	}
+
+	return QDoubleSpinBox::event( ev );
+}
+
 void LCDSpinBox::paintEvent( QPaintEvent *ev ) {
 
 	QDoubleSpinBox::paintEvent( ev );

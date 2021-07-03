@@ -75,6 +75,9 @@ public:
 
 public slots:
 	void onPreferencesChanged( bool bAppearanceOnly );
+
+signals:
+	void slashKeyPressed();
 	
 private:
 	void updateStyleSheet();
@@ -98,6 +101,7 @@ private:
 	virtual void leaveEvent( QEvent *ev ) override;
 	virtual void wheelEvent( QWheelEvent *ev ) override;
 	virtual void keyPressEvent( QKeyEvent *ev ) override;
+	virtual bool event( QEvent* ev ) override;
 };
 
 inline void LCDSpinBox::setKind( Kind kind ) {

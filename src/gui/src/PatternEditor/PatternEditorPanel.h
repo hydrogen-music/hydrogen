@@ -130,6 +130,7 @@ class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 1
 		void zoomOutBtnClicked();
 
 	void patternSizeChanged( double );
+	void switchPatternSizeFocus();
 
 	private:
 	void updateStyleSheet();

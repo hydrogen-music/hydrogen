@@ -122,8 +122,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pLCDSpinBoxNumerator = new LCDSpinBox( m_pSizeResol, QSize( 62, 20 ), LCDSpinBox::Type::Double, 0.1, 16.0 );
 	m_pLCDSpinBoxNumerator->setKind( LCDSpinBox::Kind::PatternSizeNumerator );
 	m_pLCDSpinBoxNumerator->setDecimals( 16 );
+	connect( m_pLCDSpinBoxNumerator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
 	m_pLCDSpinBoxDenominator = new LCDSpinBox( m_pSizeResol, QSize( 48, 20 ), LCDSpinBox::Type::Int, 1, 192 );
 	m_pLCDSpinBoxDenominator->setKind( LCDSpinBox::Kind::PatternSizeDenominator );
+	connect( m_pLCDSpinBoxDenominator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
 	m_pLCDSpinBoxNumerator->move( 36, 0 );
 	m_pLCDSpinBoxDenominator->move( 106, 0 );
 			
@@ -133,6 +135,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	label1->setText( "/" );
 	label1->setFont( boldFont );
 	label1->setStyleSheet( "color: #191919;" );
+	label1->setToolTip( tr( "You can use the '/' inside the pattern size spin boxes to switch back and forth." ) );
 	m_pPatternSizeLbl = new ClickableLabel( m_pSizeResol, QSize( 30, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeLabel(), ClickableLabel::Color::Dark );
 	m_pPatternSizeLbl->move( 2, 4 );
 	
@@ -1182,4 +1185,12 @@ QWidget {\
 	m_pSizeResol->setStyleSheet( sWidgetTopStyleSheet );
 	m_pRec->setStyleSheet( sWidgetTopStyleSheet );
 									
+}
+
+void PatternEditorPanel::switchPatternSizeFocus() {
+	if ( ! m_pLCDSpinBoxDenominator->hasFocus() ) {
+		m_pLCDSpinBoxDenominator->setFocus();
+	} else {
+		m_pLCDSpinBoxNumerator->setFocus();
+	}
 }
