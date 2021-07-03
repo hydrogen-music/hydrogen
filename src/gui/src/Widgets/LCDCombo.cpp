@@ -38,6 +38,7 @@ LCDCombo::LCDCombo( QWidget *pParent, QSize size )
 	setFocusPolicy( Qt::ClickFocus );
 
 	m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
+	m_lastWidgetColor = pPref->getDefaultUIStyle()->m_widgetColor;
 	m_lastUsedFontSize = pPref->getFontSize();
 	m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
 
@@ -46,7 +47,7 @@ LCDCombo::LCDCombo( QWidget *pParent, QSize size )
 		setFixedSize( size );
 	}
 
-	updateFont();
+	updateStyleSheet();
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &LCDCombo::onPreferencesChanged );
 }
@@ -54,23 +55,36 @@ LCDCombo::LCDCombo( QWidget *pParent, QSize size )
 LCDCombo::~LCDCombo() {
 }
 
-void LCDCombo::updateFont() {
-	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
-	setFont( font );
+void LCDCombo::updateStyleSheet() {
+
+	setStyleSheet( QString( "\
+QComboBox { \
+    background-color: %1; \
+    font-family: %2; \
+    font-size: %3; \
+} \
+QComboBox QAbstractItemView { \
+    background-color: #babfcf; \
+}")
+				   .arg( m_lastWidgetColor.name() )
+				   .arg( m_sLastUsedFontFamily )
+				   .arg( getPointSize( m_lastUsedFontSize ) ) );
 }
 
 void LCDCombo::onPreferencesChanged( bool bAppearanceOnly ) {
+
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( m_lastHighlightColor != pPref->getDefaultUIStyle()->m_highlightColor ||
+		 m_lastWidgetColor != pPref->getDefaultUIStyle()->m_widgetColor ||
 		 m_sLastUsedFontFamily != pPref->getLevel3FontFamily() ||
 		 m_lastUsedFontSize != pPref->getFontSize() ) {
 
 		m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
+		m_lastWidgetColor = pPref->getDefaultUIStyle()->m_widgetColor;
 		m_lastUsedFontSize = pPref->getFontSize();
 		m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
-		updateFont();
-		update();
+		updateStyleSheet();
 	}
 }
 

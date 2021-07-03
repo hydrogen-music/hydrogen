@@ -44,11 +44,12 @@ public slots:
 	void onPreferencesChanged( bool bAppearanceOnly );
 
 private:
-	void updateFont();
+	void updateStyleSheet();
 	QSize m_size;
 
 	bool m_bEntered;
-
+	
+	QColor m_lastWidgetColor;
 	QColor m_lastHighlightColor;
 	/** Used to detect changed in the font*/
 	QString m_sLastUsedFontFamily;

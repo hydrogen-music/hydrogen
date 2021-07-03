@@ -229,7 +229,6 @@ class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 1
 
 	QColor m_lastMidColor;
 	QColor m_lastMidLightColor;
-	QColor m_lastWidgetColor;
 		/** Used to detect changed in the font*/
 		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };

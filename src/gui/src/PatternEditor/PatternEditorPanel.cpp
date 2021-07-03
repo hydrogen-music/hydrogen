@@ -76,7 +76,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_lastUsedFontSize = pPref->getFontSize();
 	m_lastMidColor = pPref->getDefaultUIStyle()->m_midColor;
 	m_lastMidLightColor = pPref->getDefaultUIStyle()->m_midLightColor;
-	m_lastWidgetColor = pPref->getDefaultUIStyle()->m_widgetColor; 
 	
 	QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
 	boldFont.setBold( true );
@@ -1143,15 +1142,15 @@ void PatternEditorPanel::onPreferencesChanged( bool bAppearanceOnly ) {
 		boldFont.setBold( true );
 		m_pSLlabel->setFont( boldFont );
 		m_pPatternNameLbl->setFont( boldFont );
+
+		updateStyleSheet();
 	}
 
 	if ( m_lastMidColor != pPref->getDefaultUIStyle()->m_midColor ||
-		 m_lastMidLightColor != pPref->getDefaultUIStyle()->m_midLightColor ||
-		 m_lastWidgetColor != pPref->getDefaultUIStyle()->m_widgetColor ) {
+		 m_lastMidLightColor != pPref->getDefaultUIStyle()->m_midLightColor ) {
 		
 		m_lastMidColor = pPref->getDefaultUIStyle()->m_midColor;
 		m_lastMidLightColor = pPref->getDefaultUIStyle()->m_midLightColor;
-		m_lastWidgetColor = pPref->getDefaultUIStyle()->m_widgetColor; 
 		updateStyleSheet();
 	}
 }
@@ -1167,15 +1166,8 @@ void PatternEditorPanel::updateStyleSheet() {
 QWidget {\
      background-color: qlineargradient(x1: 0.5, y1: 0.1, x2: 0.5, y2: 0.9, \
                                       stop: 0 %1, stop: 1 %2); \
-} \
-QComboBox { \
-    background-color: %3; \
-} \
-QComboBox QAbstractItemView { \
-    background-color: #babfcf; \
 }")
-		.arg( topColorLight.name() ).arg( topColorDark.name() )
-		.arg( m_lastWidgetColor.name() );
+		.arg( topColorLight.name() ).arg( topColorDark.name() );
 	QString sWidgetTopStyleSheet = QString( "\
 QWidget {\
     background-color: %1;\
