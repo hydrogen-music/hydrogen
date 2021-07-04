@@ -41,11 +41,13 @@ PYBIND11_MODULE(h2core, m) {
 	py::class_<H2Core::Logger, std::shared_ptr<H2Core::Logger>> _Logger(m, "Logger");
 	_Logger.def_static("bootstrap", &H2Core::Logger::bootstrap,
 		"create the logger instance if not exists, set the log level and return the instance",
-		py::arg("msk"));
+		py::arg("msk"),
+	py::return_value_policy::reference);
 	_Logger.def_static("create_instance", &H2Core::Logger::create_instance,
 		"If #__instance equals 0, a new H2Core::Logger singleton will be created and stored in it.");
 	_Logger.def_static("get_instance", &H2Core::Logger::get_instance,
-		"Returns a pointer to the current H2Core::Logger singleton stored in #__instance.");
+		"Returns a pointer to the current H2Core::Logger singleton stored in #__instance.",
+	py::return_value_policy::reference);
 	_Logger.def("should_log", &H2Core::Logger::should_log,
 		"return true if the level is set in the bitmask",
 		py::arg("lvl"));
@@ -87,7 +89,7 @@ PYBIND11_MODULE(h2core, m) {
 	_MidiMessage.def_readwrite("m_nData1", &H2Core::MidiMessage::m_nData1);
 	_MidiMessage.def_readwrite("m_nData2", &H2Core::MidiMessage::m_nData2);
 	_MidiMessage.def_readwrite("m_nChannel", &H2Core::MidiMessage::m_nChannel);
-	_MidiMessage.def_readwrite("m_sysexData", &H2Core::MidiMessage::m_sysexData);
+	// [<ClassTemplate 'vector<_Tp, _Alloc>'>] _MidiMessage.def_readwrite("m_sysexData", &H2Core::MidiMessage::m_sysexData);
 
 	py::class_<std::runtime_error, std::shared_ptr<std::runtime_error>> _runtime_error(m, "runtime_error");
 	_runtime_error.def(py::init<const std::string &>());
@@ -712,13 +714,30 @@ PYBIND11_MODULE(h2core, m) {
 	_LadspaFX.def("setVolume", &H2Core::LadspaFX::setVolume,
 		py::arg("fValue"));
 	_LadspaFX.def("getVolume", &H2Core::LadspaFX::getVolume);
+	_LadspaFX.def("__repr__",
+	[](H2Core::LadspaFX & fx) {
+  return "<LadspaFX \"" + fx.getPluginName() + "\">";
+}
+);
+
+	py::class_<H2Core::LadspaControlPort, H2Core::Object, std::shared_ptr<H2Core::LadspaControlPort>> _LadspaControlPort(m, "LadspaControlPort");
+	_LadspaControlPort.def(py::init<>());
+	_LadspaControlPort.def_readwrite("sName", &H2Core::LadspaControlPort::sName);
+	_LadspaControlPort.def_readwrite("isToggle", &H2Core::LadspaControlPort::isToggle);
+	_LadspaControlPort.def_readwrite("m_bIsInteger", &H2Core::LadspaControlPort::m_bIsInteger);
+	_LadspaControlPort.def_readwrite("fDefaultValue", &H2Core::LadspaControlPort::fDefaultValue);
+	_LadspaControlPort.def_readwrite("fControlValue", &H2Core::LadspaControlPort::fControlValue);
+	_LadspaControlPort.def_readwrite("fLowerBound", &H2Core::LadspaControlPort::fLowerBound);
+	_LadspaControlPort.def_readwrite("fUpperBound", &H2Core::LadspaControlPort::fUpperBound);
+	// [banned] _LadspaControlPort.def_static("class_name", &H2Core::LadspaControlPort::class_name);
 
 	py::class_<H2Core::Effects, H2Core::Object, std::shared_ptr<H2Core::Effects>> _Effects(m, "Effects");
 	_Effects.def_static("class_name", &H2Core::Effects::class_name);
 	_Effects.def_static("create_instance", &H2Core::Effects::create_instance,
 		"If #__instance equals 0, a new Effects singleton will be created and stored in it.");
 	_Effects.def_static("get_instance", &H2Core::Effects::get_instance,
-		"Returns a pointer to the current Effects singleton stored in #__instance.");
+		"Returns a pointer to the current Effects singleton stored in #__instance.",
+	py::return_value_policy::reference);
 	_Effects.def("getLadspaFX", &H2Core::Effects::getLadspaFX,
 		py::arg("nFX"));
 	_Effects.def("setLadspaFX", &H2Core::Effects::setLadspaFX,
@@ -759,6 +778,11 @@ PYBIND11_MODULE(h2core, m) {
 	_LadspaFXInfo.def_static("alphabeticOrder", &H2Core::LadspaFXInfo::alphabeticOrder,
 		py::arg("a"),
 		py::arg("b"));
+	_LadspaFXInfo.def("__repr__",
+	[](H2Core::LadspaFXInfo & fxi) {
+  return "<LadspaFXInfo \"" + fxi.m_sName + "\">";
+}
+);
 
 	py::class_<H2Core::Timeline, H2Core::Object, std::shared_ptr<H2Core::Timeline>> _Timeline(m, "Timeline");
 	_Timeline.def(py::init<>());
@@ -822,7 +846,8 @@ PYBIND11_MODULE(h2core, m) {
 	_EventQueue.def_static("create_instance", &H2Core::EventQueue::create_instance,
 		"If #__instance equals 0, a new EventQueue singleton will be created and stored in it.");
 	_EventQueue.def_static("get_instance", &H2Core::EventQueue::get_instance,
-		"Returns a pointer to the current EventQueue singleton stored in #__instance.");
+		"Returns a pointer to the current EventQueue singleton stored in #__instance.",
+	py::return_value_policy::reference);
 	_EventQueue.def("push_event", &H2Core::EventQueue::push_event,
 		"Queues the next event into the EventQueue.",
 		py::arg("type"),
@@ -1687,7 +1712,8 @@ PYBIND11_MODULE(h2core, m) {
 	_Playlist.def_static("create_instance", &H2Core::Playlist::create_instance,
 		"If #__instance equals 0, a new Playlist singleton will be created and stored in it.");
 	_Playlist.def_static("get_instance", &H2Core::Playlist::get_instance,
-		"Returns a pointer to the current Playlist singleton stored in #__instance.");
+		"Returns a pointer to the current Playlist singleton stored in #__instance.",
+	py::return_value_policy::reference);
 	_Playlist.def("activateSong", &H2Core::Playlist::activateSong,
 		py::arg("SongNumber"));
 	_Playlist.def("size", &H2Core::Playlist::size);
@@ -1780,7 +1806,8 @@ PYBIND11_MODULE(h2core, m) {
 	_Preferences.def_static("create_instance", &H2Core::Preferences::create_instance,
 		"If #__instance equals 0, a new Preferences singleton will be created and stored in it.");
 	_Preferences.def_static("get_instance", &H2Core::Preferences::get_instance,
-		"Returns a pointer to the current Preferences singleton stored in #__instance.");
+		"Returns a pointer to the current Preferences singleton stored in #__instance.",
+	py::return_value_policy::reference);
 	_Preferences.def("loadPreferences", &H2Core::Preferences::loadPreferences,
 		"Load the preferences file",
 		py::arg("bGlobal"));
@@ -2786,6 +2813,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("value"));
 
 	// enum log_levels
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Logger.h', line 44, column 8>
 	py::enum_<H2Core::Logger::log_levels>(_Logger, "log_levels")
 		.value("None", H2Core::Logger::log_levels::None)
 		.value("Error", H2Core::Logger::log_levels::Error)
@@ -2796,6 +2824,7 @@ PYBIND11_MODULE(h2core, m) {
 		.value("AELockTracing", H2Core::Logger::log_levels::AELockTracing);
 
 	// enum MidiMessageType
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/IO/MidiCommon.h', line 37, column 7>
 	py::enum_<H2Core::MidiMessage::MidiMessageType>(_MidiMessage, "MidiMessageType")
 		.value("UNKNOWN", H2Core::MidiMessage::MidiMessageType::UNKNOWN)
 		.value("SYSEX", H2Core::MidiMessage::MidiMessageType::SYSEX)
@@ -2889,11 +2918,13 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("bShort"));
 
 	// enum NameFormat
+	// <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtGui/qcolor.h', line 68, column 10>
 	py::enum_<QColor::NameFormat>(_QColor, "NameFormat")
 		.value("HexRgb", QColor::NameFormat::HexRgb)
 		.value("HexArgb", QColor::NameFormat::HexArgb);
 
 	// enum Spec
+	// <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtGui/qcolor.h', line 67, column 10>
 	py::enum_<QColor::Spec>(_QColor, "Spec")
 		.value("Invalid", QColor::Spec::Invalid)
 		.value("Rgb", QColor::Spec::Rgb)
@@ -2903,6 +2934,7 @@ PYBIND11_MODULE(h2core, m) {
 		.value("ExtendedRgb", QColor::Spec::ExtendedRgb);
 
 	// enum Octave
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Note.h', line 75, column 8>
 	py::enum_<H2Core::Note::Octave>(_Note, "Octave")
 		.value("P8Z", H2Core::Note::Octave::P8Z)
 		.value("P8Y", H2Core::Note::Octave::P8Y)
@@ -2913,6 +2945,7 @@ PYBIND11_MODULE(h2core, m) {
 		.value("P8C", H2Core::Note::Octave::P8C);
 
 	// enum Key
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Note.h', line 73, column 8>
 	py::enum_<H2Core::Note::Key>(_Note, "Key")
 		.value("C", H2Core::Note::Key::C)
 		.value("Cs", H2Core::Note::Key::Cs)
@@ -2928,6 +2961,7 @@ PYBIND11_MODULE(h2core, m) {
 		.value("B", H2Core::Note::Key::B);
 
 	// enum PAN_LAW_TYPES
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Sampler/Sampler.h', line 104, column 7>
 	py::enum_<H2Core::Sampler::PAN_LAW_TYPES>(_Sampler, "PAN_LAW_TYPES")
 		.value("RATIO_STRAIGHT_POLYGONAL", H2Core::Sampler::PAN_LAW_TYPES::RATIO_STRAIGHT_POLYGONAL)
 		.value("RATIO_CONST_POWER", H2Core::Sampler::PAN_LAW_TYPES::RATIO_CONST_POWER)
@@ -3234,6 +3268,7 @@ PYBIND11_MODULE(h2core, m) {
 	_AddMidiNoteVector.def_readwrite("b_noteExist", &H2Core::EventQueue::AddMidiNoteVector::b_noteExist);
 
 	// enum ErrorMessages
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Hydrogen.h', line 362, column 7>
 	py::enum_<H2Core::Hydrogen::ErrorMessages>(_Hydrogen, "ErrorMessages")
 		.value("UNKNOWN_DRIVER", H2Core::Hydrogen::ErrorMessages::UNKNOWN_DRIVER)
 		.value("ERROR_STARTING_DRIVER", H2Core::Hydrogen::ErrorMessages::ERROR_STARTING_DRIVER)
@@ -3245,18 +3280,21 @@ PYBIND11_MODULE(h2core, m) {
 		.value("OSC_CANNOT_CONNECT_TO_PORT", H2Core::Hydrogen::ErrorMessages::OSC_CANNOT_CONNECT_TO_PORT);
 
 	// enum GUIState
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Hydrogen.h', line 583, column 14>
 	py::enum_<H2Core::Hydrogen::GUIState>(_Hydrogen, "GUIState")
 		.value("notReady", H2Core::Hydrogen::GUIState::notReady)
 		.value("unavailable", H2Core::Hydrogen::GUIState::unavailable)
 		.value("ready", H2Core::Hydrogen::GUIState::ready);
 
 	// enum Lookup
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Helpers/Filesystem.h', line 52, column 13>
 	py::enum_<H2Core::Filesystem::Lookup>(_Filesystem, "Lookup")
 		.value("stacked", H2Core::Filesystem::Lookup::stacked)
 		.value("user", H2Core::Filesystem::Lookup::user)
 		.value("system", H2Core::Filesystem::Lookup::system);
 
 	// enum file_perms
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Helpers/Filesystem.h', line 40, column 8>
 	py::enum_<H2Core::Filesystem::file_perms>(_Filesystem, "file_perms")
 		.value("is_dir", H2Core::Filesystem::file_perms::is_dir)
 		.value("is_file", H2Core::Filesystem::file_perms::is_file)
@@ -3265,11 +3303,13 @@ PYBIND11_MODULE(h2core, m) {
 		.value("is_executable", H2Core::Filesystem::file_perms::is_executable);
 
 	// enum ActionMode
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Song.h', line 189, column 14>
 	py::enum_<H2Core::Song::ActionMode>(_Song, "ActionMode")
 		.value("selectMode", H2Core::Song::ActionMode::selectMode)
 		.value("drawMode", H2Core::Song::ActionMode::drawMode);
 
 	// enum SongMode
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Song.h', line 59, column 8>
 	py::enum_<H2Core::Song::SongMode>(_Song, "SongMode")
 		.value("PATTERN_MODE", H2Core::Song::SongMode::PATTERN_MODE)
 		.value("SONG_MODE", H2Core::Song::SongMode::SONG_MODE);
@@ -3281,28 +3321,33 @@ PYBIND11_MODULE(h2core, m) {
 	_Entry.def_readwrite("scriptEnabled", &H2Core::Playlist::Entry::scriptEnabled);
 
 	// enum UI_SCALING_POLICY
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 161, column 7>
 	py::enum_<H2Core::Preferences::UI_SCALING_POLICY>(_Preferences, "UI_SCALING_POLICY")
 		.value("UI_SCALING_SMALLER", H2Core::Preferences::UI_SCALING_POLICY::UI_SCALING_SMALLER)
 		.value("UI_SCALING_SYSTEM", H2Core::Preferences::UI_SCALING_POLICY::UI_SCALING_SYSTEM)
 		.value("UI_SCALING_LARGER", H2Core::Preferences::UI_SCALING_POLICY::UI_SCALING_LARGER);
 
 	// enum UI_LAYOUT_TYPES
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 156, column 7>
 	py::enum_<H2Core::Preferences::UI_LAYOUT_TYPES>(_Preferences, "UI_LAYOUT_TYPES")
 		.value("UI_LAYOUT_SINGLE_PANE", H2Core::Preferences::UI_LAYOUT_TYPES::UI_LAYOUT_SINGLE_PANE)
 		.value("UI_LAYOUT_TABBED", H2Core::Preferences::UI_LAYOUT_TYPES::UI_LAYOUT_TABBED);
 
 	// enum FontSize
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 149, column 13>
 	py::enum_<H2Core::Preferences::FontSize>(_Preferences, "FontSize")
 		.value("Normal", H2Core::Preferences::FontSize::Normal)
 		.value("Small", H2Core::Preferences::FontSize::Small)
 		.value("Large", H2Core::Preferences::FontSize::Large);
 
 	// enum JackBBTSyncMethod
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 356, column 13>
 	py::enum_<H2Core::Preferences::JackBBTSyncMethod>(_Preferences, "JackBBTSyncMethod")
 		.value("constMeasure", H2Core::Preferences::JackBBTSyncMethod::constMeasure)
 		.value("identicalBars", H2Core::Preferences::JackBBTSyncMethod::identicalBars);
 
 	// enum JackTrackOutputMode
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 330, column 13>
 	py::enum_<H2Core::Preferences::JackTrackOutputMode>(_Preferences, "JackTrackOutputMode")
 		.value("postFader", H2Core::Preferences::JackTrackOutputMode::postFader)
 		.value("preFader", H2Core::Preferences::JackTrackOutputMode::preFader);
@@ -3337,18 +3382,21 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("bShort"));
 
 	// enum SampleSelectionAlgo
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Instrument.h', line 56, column 8>
 	py::enum_<H2Core::Instrument::SampleSelectionAlgo>(_Instrument, "SampleSelectionAlgo")
 		.value("VELOCITY", H2Core::Instrument::SampleSelectionAlgo::VELOCITY)
 		.value("ROUND_ROBIN", H2Core::Instrument::SampleSelectionAlgo::ROUND_ROBIN)
 		.value("RANDOM", H2Core::Instrument::SampleSelectionAlgo::RANDOM);
 
 	// enum Timebase
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/IO/JackAudioDriver.h', line 122, column 13>
 	py::enum_<H2Core::JackAudioDriver::Timebase>(_JackAudioDriver, "Timebase")
 		.value("Master", H2Core::JackAudioDriver::Timebase::Master)
 		.value("Slave", H2Core::JackAudioDriver::Timebase::Slave)
 		.value("None", H2Core::JackAudioDriver::Timebase::None);
 
 	// enum LoopMode
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Sample.h', line 79, column 10>
 	py::enum_<H2Core::Sample::Loops::LoopMode>(_Loops, "LoopMode")
 		.value("FORWARD", H2Core::Sample::Loops::LoopMode::FORWARD)
 		.value("REVERSE", H2Core::Sample::Loops::LoopMode::REVERSE)

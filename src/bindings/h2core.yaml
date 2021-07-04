@@ -70,11 +70,10 @@ module:
     H2Core::Sampler: core/Sampler/Sampler.h
     H2Core::Synth: core/Synth/Synth.h
   ban:
+    # Qt non namespace
     - QColor::QColor(QColor &&)  # ban this constructor, pybind11 bark on this
     - QColor::name(QColor::NameFormat)
     - QColor::operator=
-    - H2Core::Note::match
-    - H2Core::Pattern::find_note
     - std::thread::thread(const std::thread &)
     - std::thread::operator=(const std::thread &)
     - std::thread::operator=(std::thread &&)
@@ -88,8 +87,6 @@ module:
     - std::__cow_string::__cow_string(std::__cow_string &&)
     - std::runtime_error::operator=(std::runtime_error &&)
     - std::runtime_error::runtime_error(std::runtime_error &&)
-    - targeted_element
-    - MidiActionManager::targeted_element
     - _locker_struct
     - QDomNodePrivate
     - QStringList
@@ -100,22 +97,6 @@ module:
     - QFileInfo::QFileInfo(QFileInfoPrivate *)
     - QFileInfo::operator=(QFileInfo &&)
     - QFileInfo::exists
-    - H2Core::AlsaAudioDriver::AlsaAudioDriver()
-    - H2Core::AlsaMidiDriver::midi_action
-    - H2Core::JackAudioDriver::m_pClient
-    # std::vector
-    - H2Core::Synth::m_playingNotesQueue
-    - H2Core::Hydrogen::m_nInstrumentLookupTable
-    - H2Core::AlsaAudioDriver::m_pPlayback_handle
-    - H2Core::PortAudioDriver::m_processCallback
-    - H2Core::DiskWriterDriver::m_processCallback
-    - H2Core::AlsaAudioDriver::m_processCallback
-    # Qt Reduction, phase 2
-    - H2Core::LadspaFX::m_pLibrary
-    - H2Core::AudioEngine::m_EngineMutex
-    - H2Core::AudioEngine::m_MutexOutputPointer
-    - H2Core::AudioEngine::m_LockingThread
-    - H2Core::AudioEngine::m_currentTickTime
     - QRgba64::operator=
     - QMetaType
     - QStringRef
@@ -128,7 +109,28 @@ module:
     - "*::metaObject()"
     - "*::qt_metacall(QMetaObject::Call, int, void **)"
     - "*::qt_static_metacall(QObject *, QMetaObject::Call, int, void **)"
-    - "H2Core::DiskWriterDriver::write"  # inlined ?
+    ### Hydrogen names
+    - targeted_element
+    - MidiActionManager::targeted_element
+    - H2Core::AlsaAudioDriver::AlsaAudioDriver()
+    - H2Core::AlsaMidiDriver::midi_action
+    - H2Core::JackAudioDriver::m_pClient
+    # std::vector
+    - H2Core::Synth::m_playingNotesQueue
+    - H2Core::Hydrogen::m_nInstrumentLookupTable
+    - H2Core::AlsaAudioDriver::m_pPlayback_handle
+    - H2Core::PortAudioDriver::m_processCallback
+    - H2Core::DiskWriterDriver::m_processCallback
+    - H2Core::AlsaAudioDriver::m_processCallback
+    # Qt Reduction, phase 2
+    # - H2Core::LadspaFX::m_pLibrary                # QLibrary
+    - H2Core::AudioEngine::m_EngineMutex          # QMutex ?
+    - H2Core::AudioEngine::m_MutexOutputPointer
+    - H2Core::AudioEngine::m_LockingThread
+    - H2Core::AudioEngine::m_currentTickTime
+    - H2Core::Note::match
+    - H2Core::Pattern::find_note
+    - H2Core::DiskWriterDriver::write  # inlined ?
     - H2Core::CoreAudioDriver
     - H2Core::PulseAudioDriver
     - H2Core::Hydrogen::previewSample  # defined in headers but no implementation
@@ -138,6 +140,8 @@ module:
     - H2Core::Preferences::setPreferencesOverwritePath
     - H2Core::Preferences::getPreferencesOverwritePath
     - H2Core::Preferences::getDataDirectory
+    - H2Core::LadspaControlPort::__class_name
+    - H2Core::LadspaControlPort::class_name
   cleaners:
     - qtreset.h
   plugins:
@@ -209,10 +213,32 @@ module:
         [](const H2Core::Sample & sample) {
           return "<Sample \"" + sample.get_filename() + "\">";
         }
+    - name: H2Core::LadspaFX::__repr__
+      code: |
+        [](H2Core::LadspaFX & fx) {
+          return "<LadspaFX \"" + fx.getPluginName() + "\">";
+        }
+    - name: H2Core::LadspaFXInfo::__repr__
+      code: |
+        [](H2Core::LadspaFXInfo & fxi) {
+          return "<LadspaFXInfo \"" + fxi.m_sName + "\">";
+        }
   policies:
     - name: H2Core::Drumkit::get_instruments
       policy: py::return_value_policy::reference_internal
     - name: H2Core::Hydrogen::get_instance
+      policy: py::return_value_policy::reference
+    - name: H2Core::Logger::bootstrap
+      policy: py::return_value_policy::reference
+    - name: H2Core::Logger::get_instance
+      policy: py::return_value_policy::reference
+    - name: H2Core::Effects::get_instance
+      policy: py::return_value_policy::reference
+    - name: H2Core::EventQueue::get_instance
+      policy: py::return_value_policy::reference
+    - name: H2Core::Playlist::get_instance
+      policy: py::return_value_policy::reference
+    - name: H2Core::Preferences::get_instance
       policy: py::return_value_policy::reference
   prolog: |
     using namespace H2Core;
