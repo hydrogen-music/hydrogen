@@ -30,7 +30,7 @@
 #include <core/Basics/Sample.h>
 #include <memory>
 
-class SampleEditor;
+#include "SampleEditor.h"
 
 namespace H2Core
 {
@@ -47,17 +47,20 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		explicit TargetWaveDisplay(QWidget* pParent);
 		~TargetWaveDisplay();
 
-		enum EnvelopeEditMode {
-			VELOCITY = 0,
-			PAN = 1
-		};
-
+		void updateDisplay( const std::shared_ptr<H2Core::Sample> pSample, double gain );
 		void updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 		void updateDisplayPointer();
 		void paintLocatorEventTargetDisplay( int pos, bool last_event);
 		void paintEvent(QPaintEvent *ev);
 		H2Core::Sample::PanEnvelope* get_pan() { return &m_PanEnvelope; }
 		H2Core::Sample::VelocityEnvelope* get_velocity() { return &m_VelocityEnvelope; }
+
+	signals:
+		void envelopeEdited(SampleEditor::EnvelopeType which);
+		void doneEditingEnvelope(SampleEditor::EnvelopeType which);
+
+	public slots:
+		void setEditMode(SampleEditor::EnvelopeType which);
 
 	private:
 		QPixmap m_Background;
@@ -75,9 +78,13 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		unsigned m_nSampleLength;
 
 		bool m_UpdatePosition;
-		EnvelopeEditMode m_EditMode;
 
 		int m_nSnapRadius;
+		SampleEditor::EnvelopeType m_EditMode;
+		H2Core::Sample::PanEnvelope m_PanEnvelope;
+		H2Core::Sample::VelocityEnvelope m_VelocityEnvelope;
+
+		int m_nSelectedEnvelopePoint;
 
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent(QMouseEvent *ev);
@@ -86,10 +93,6 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		virtual void updateMouseSelection(QMouseEvent *ev);
 		virtual void updateEnvelope();
 
-		H2Core::Sample::PanEnvelope m_PanEnvelope;
-		H2Core::Sample::VelocityEnvelope m_VelocityEnvelope;
-
-		int m_nSelectedEnvelopePoint;
 };
 
 #endif
