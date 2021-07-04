@@ -52,14 +52,12 @@ EnvelopePoint::EnvelopePoint() : Object(), frame( 0 ), value( 0 )
 {
 }
 
-EnvelopePoint::EnvelopePoint( int f, int v ) : Object(), frame( f ), value( v ) 
+EnvelopePoint::EnvelopePoint( int f, int v ) : Object(), frame( f ), value( v )
 {
 }
 
-EnvelopePoint::EnvelopePoint( const EnvelopePoint & other ) : Object()
+EnvelopePoint::EnvelopePoint( const EnvelopePoint& other ) : Object(), frame ( other.frame ), value ( other.value )
 {
-	frame = other.frame;
-	value = other.value;
 }
 /* EnvelopePoint */
 

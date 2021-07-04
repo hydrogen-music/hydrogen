@@ -37,7 +37,7 @@ namespace H2Core
  */
 
 /** an envelope point within a frame */
-class EnvelopePoint : public H2Core::Object
+class EnvelopePoint: public H2Core::Object
 {
 		H2_OBJECT(EnvelopePoint)
 	public:

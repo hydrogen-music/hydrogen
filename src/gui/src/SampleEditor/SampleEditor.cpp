@@ -211,7 +211,6 @@ void SampleEditor::getAllFrameInfos()
 		m_pTargetSampleView->get_velocity()->push_back( EnvelopePoint( m_pTargetSampleView->width(), 0 ) );
 	} else {
 		m_pTargetSampleView->get_velocity()->clear();
-
 		for(auto& pt : *pSample->get_velocity_envelope() ){
 			m_pTargetSampleView->get_velocity()->emplace_back( pt );
 		}
