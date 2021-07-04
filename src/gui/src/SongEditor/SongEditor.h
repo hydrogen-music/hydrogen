@@ -106,7 +106,7 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		void copy();
 		void paste();
 		void cut();
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 		void scrolled( int );
 
 	private:
@@ -124,6 +124,9 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		unsigned 				m_nMaxPatternSequence;
 		bool					m_bIsMoving;
 		bool					m_bCopyNotMove;
+
+		int m_nMaxPatternColors;
+
 
 		//! In "draw" mode, whether we're activating pattern cells ("drawing") or deactivating ("erasing") is
 		//! set at the start of the draw gesture.
@@ -202,15 +205,7 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 
 		std::map< QPoint, GridCell > m_gridCells;
 		void updateGridCells();
-		std::vector<QColor> m_lastUsedPatternColors;
 		bool m_bEntered;
-		int m_nLastUsedVisiblePatternColors;
-		int m_nMaxPatternColors;
-		int m_nLastUsedColoringMethod;
-		QColor m_lastSongEditor_backgroundColor;
-		QColor m_lastSongEditor_alternateRowColor;
-		QColor m_lastSongEditor_lineColor;
-		QColor m_lastHighlightColor;
 public:
 
 		//! @name Selection interfaces
@@ -284,7 +279,7 @@ class SongEditorPatternList : public QWidget, protected WidgetWithScalableFont<8
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
 		virtual void timelineUpdateEvent( int nValue ) override;
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private:
 		H2Core::Hydrogen* 		m_pHydrogen;
@@ -318,12 +313,6 @@ class SongEditorPatternList : public QWidget, protected WidgetWithScalableFont<8
 		virtual void patternChangedEvent() override;
 		void mouseMoveEvent(QMouseEvent *event) override;
 		QPoint __drag_start_position;
-		QColor m_lastSongEditor_textColor;
-		QColor m_lastSongEditor_alternateRowColor;
-		/** Used to detect changed in the font*/
-		QString m_sLastUsedFontFamily;
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 };
 
@@ -355,7 +344,7 @@ class SongEditorPositionRuler : public QWidget, protected WidgetWithScalableFont
 		void updatePosition();
 		void showTagWidget( int nColumn );
 		void showBpmWidget( int nColumn );
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private:
 		H2Core::Hydrogen* 		m_pHydrogen;
@@ -370,18 +359,11 @@ class SongEditorPositionRuler : public QWidget, protected WidgetWithScalableFont
 		QPixmap *			m_pBackgroundPixmap;
 		QPixmap				m_tickPositionPixmap;
 		bool				m_bRightBtnPressed;
-		/** Used to detect changed in the font*/
-		QString m_sLastUsedFontFamily;
 		
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent( QMouseEvent *ev );
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		virtual void paintEvent( QPaintEvent *ev );
-		QColor m_lastSongEditor_textColor;
-		QColor m_lastSongEditor_backgroundColor;
-		QColor m_lastSongEditor_alternateRowColor;
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 };
 

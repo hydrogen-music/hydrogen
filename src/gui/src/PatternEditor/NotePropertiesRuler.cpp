@@ -46,12 +46,6 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
-	m_lastUsedFontSize = pPref->getFontSize();
-	m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
-	m_lastPatternEditor_line1Color = pPref->getDefaultUIStyle()->m_patternEditor_line1Color;
-	m_lastPatternEditor_backgroundColor = pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor;
-	
 	m_Mode = mode;
 
 	m_fGridWidth = (Preferences::get_instance())->getPatternEditorGridWidth();
@@ -795,7 +789,9 @@ void NotePropertiesRuler::drawFocus( QPainter& painter ) {
 		return;
 	}
 	
-	QColor color = m_lastHighlightColor;
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	QColor color = pPref->getDefaultUIStyle()->m_highlightColor;
 
 	// If the mouse is placed on the widget but the user hasn't
 	// clicked it yet, the highlight will be done more transparent to
@@ -880,9 +876,10 @@ void NotePropertiesRuler::leaveEvent( QEvent *ev ) {
 
 void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 {
-	QColor res_1( m_lastPatternEditor_line1Color );
+	auto pPref = H2Core::Preferences::get_instance();
+	QColor res_1( pPref->getDefaultUIStyle()->m_patternEditor_line1Color );
 
-	QColor backgroundColor( m_lastPatternEditor_backgroundColor );
+	QColor backgroundColor( pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor );
 
 	QColor horizLinesColor( backgroundColor.red() - 20,
 							backgroundColor.green() - 20,
@@ -962,13 +959,15 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 
 void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 {
-	QColor backgroundColor( m_lastPatternEditor_backgroundColor );
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	QColor backgroundColor( pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor );
 
 	QColor horizLinesColor( backgroundColor.red() - 20,
 							backgroundColor.green() - 20,
 							backgroundColor.blue() - 20 );
 
-	QColor res_1( m_lastPatternEditor_line1Color );
+	QColor res_1( pPref->getDefaultUIStyle()->m_patternEditor_line1Color );
 
 	QPainter p( pixmap );
 
@@ -1044,13 +1043,15 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 
 void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 {
-	QColor backgroundColor( m_lastPatternEditor_backgroundColor );
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	QColor backgroundColor( pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor );
 
 	QColor horizLinesColor( backgroundColor.red() - 20,
 							backgroundColor.green() - 20,
 							backgroundColor.blue() - 20 );
 
-	QColor res_1( m_lastPatternEditor_line1Color );
+	QColor res_1( pPref->getDefaultUIStyle()->m_patternEditor_line1Color );
 
 	QPainter p( pixmap );
 
@@ -1147,9 +1148,11 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 
 void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 {
-	QColor res_1( m_lastPatternEditor_line1Color );
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	QColor res_1( pPref->getDefaultUIStyle()->m_patternEditor_line1Color );
 
-	QColor backgroundColor( m_lastPatternEditor_backgroundColor );
+	QColor backgroundColor( pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor );
 
 	QColor horizLinesColor( backgroundColor.red() - 100,
 							backgroundColor.green() - 100,
@@ -1182,7 +1185,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	static QString noteNames[] = { tr( "B" ), tr( "A#" ), tr( "A" ), tr( "G#" ), tr( "G" ), tr( "F#" ),
 								   tr( "F" ), tr( "E" ), tr( "D#" ), tr( "D" ), tr( "C#" ), tr( "C" ) };
 	
-	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
+	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	
 	p.setFont( font );
 	p.setPen( QColor( 0, 0, 0 ) );
@@ -1399,20 +1402,11 @@ void NotePropertiesRuler::selectAll() {
 	selectInstrumentNotes( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 }
 
-void NotePropertiesRuler::onPreferencesChanged( bool bAppearanceOnly ) {
+void NotePropertiesRuler::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( m_lastHighlightColor != pPref->getDefaultUIStyle()->m_highlightColor ||
-		 m_lastPatternEditor_line1Color != pPref->getDefaultUIStyle()->m_patternEditor_line1Color ||
-		 m_lastPatternEditor_backgroundColor != pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor ||
-		 m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-
-		m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
-		m_lastPatternEditor_line1Color = pPref->getDefaultUIStyle()->m_patternEditor_line1Color;
-		m_lastPatternEditor_backgroundColor = pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor;;
-		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
-		m_lastUsedFontSize = pPref->getFontSize();
+	if ( changes & ( H2Core::Preferences::Changes::Colors |
+					 H2Core::Preferences::Changes::Font ) ) {
 
 		m_bNeedsUpdate = true;
 		update();

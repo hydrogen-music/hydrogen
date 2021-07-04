@@ -139,10 +139,9 @@ signals:
 	 * Triggered by the PreferencesDialog upon a change of the
 	 * underlying options in the Preferences class.
 	 *
-	 * @param bAppearanceOnly Whether all options or only those
-	 * associated with the Appearance tab of the PreferencesDialog
-	 * should be updated.*/
-	void preferencesChanged( bool bAppearanceOnly );
+	 * @param changes Or-able options indicating which part of the
+	 * Preferences did change.*/
+	void preferencesChanged( H2Core::Preferences::Changes changes );
 
 	public slots:
 		/**
@@ -211,7 +210,7 @@ signals:
 	 * associated with the Appearance tab of the PreferencesDialog
 	 * should be updated.
 	 */
-	void changePreferences( bool bAppearanceOnly );
+	void changePreferences( H2Core::Preferences::Changes changes );
 
 	private:
 		static HydrogenApp *		m_pInstance;	///< HydrogenApp instance

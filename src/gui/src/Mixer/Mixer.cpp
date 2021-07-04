@@ -38,7 +38,6 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Song.h>
-#include <core/Preferences.h>
 #include <core/Basics/Note.h>
 #include <core/FX/Effects.h>
 using namespace H2Core;
@@ -817,10 +816,10 @@ void Mixer::openMixerSettingsDialog() {
 }
 
 
-void Mixer::onPreferencesChanged( bool bAppearanceOnly ) {
+void Mixer::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( font() != pPref->getApplicationFontFamily() ) {
-		setFont( QFont( Preferences::get_instance()->getApplicationFontFamily(), 10 ) );
+	if ( changes & H2Core::Preferences::Changes::Font ) {
+		setFont( QFont( pPref->getApplicationFontFamily(), 10 ) );
 	}
 }

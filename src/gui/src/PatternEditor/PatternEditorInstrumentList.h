@@ -60,7 +60,7 @@ class InstrumentLine : public PixmapWidget, protected WidgetWithScalableFont<8, 
 		void setSamplesMissing( bool bSamplesMissing );
 
 public slots:
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private slots:
 		void functionClearNotes();
@@ -102,8 +102,6 @@ public slots:
 
 		virtual void mousePressEvent(QMouseEvent *ev);
 		H2Core::Pattern* getCurrentPattern();
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

@@ -52,7 +52,7 @@ class PlaylistDialog : public QDialog, protected WidgetWithScalableFont<8, 10, 1
 		bool loadListByFileName( QString filename);
 
 public slots:
-	void onPreferencesChanged( bool bAppearanceOnly );
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private slots:
 		void keyPressEvent( QKeyEvent* ev );
@@ -95,8 +95,6 @@ public slots:
 		Button *m_pPlayBtn;
 		Button *m_pStopBtn;
 		Button *m_pFfwdBtn;
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

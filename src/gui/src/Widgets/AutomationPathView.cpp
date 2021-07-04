@@ -21,7 +21,6 @@
  */
 
 #include "AutomationPathView.h"
-#include <core/Preferences.h>
 #include "../SongEditor/SongEditor.h"
 #include "../HydrogenApp.h"
 
@@ -41,29 +40,16 @@ AutomationPathView::AutomationPathView(QWidget *parent)
 	Preferences *pPref = Preferences::get_instance();
 	m_nMaxPatternSequence = pPref->getMaxBars();
 
-	m_lastAutomationColor = pPref->getDefaultUIStyle()->m_automationColor;
-	m_lastLightColor = pPref->getDefaultUIStyle()->m_lightColor;
-	m_lastWindowColor = pPref->getDefaultUIStyle()->m_windowColor;
-	m_lastAutomationCircleColor = pPref->getDefaultUIStyle()->m_automationCircleColor;
-		
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &AutomationPathView::onPreferencesChanged );
 	
 	_path = nullptr;
 	autoResize();
 }
 
-void AutomationPathView::onPreferencesChanged( bool bAppearanceOnly ) {
+void AutomationPathView::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( m_lastAutomationColor != pPref->getDefaultUIStyle()->m_automationColor ||
-		 m_lastLightColor != pPref->getDefaultUIStyle()->m_lightColor ||
-		 m_lastWindowColor != pPref->getDefaultUIStyle()->m_windowColor ||
-		 m_lastAutomationCircleColor != pPref->getDefaultUIStyle()->m_widgetTextColor ) {
-
-		m_lastAutomationColor = pPref->getDefaultUIStyle()->m_automationColor;
-		m_lastLightColor = pPref->getDefaultUIStyle()->m_lightColor;
-		m_lastWindowColor = pPref->getDefaultUIStyle()->m_windowColor;
-		m_lastAutomationCircleColor = pPref->getDefaultUIStyle()->m_widgetTextColor;
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		update();
 	}
 }
@@ -143,11 +129,14 @@ std::pair<const float, float> AutomationPathView::locate(QMouseEvent *event) con
  **/
 void AutomationPathView::paintEvent(QPaintEvent *event)
 {
+
+	auto pPref = H2Core::Preferences::get_instance();
+
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing);
 
 	QPen rulerPen(Qt::DotLine);
-	rulerPen.setColor( m_lastLightColor );
+	rulerPen.setColor( pPref->getDefaultUIStyle()->m_lightColor );
 	painter.setPen(rulerPen);
 
 	/* Paint min, max  */
@@ -162,7 +151,7 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 	QPoint def = translatePoint(0, _path->get_default());
 	painter.drawLine(0, def.y(), width(), def.y());
 
-	QPen linePen( m_lastAutomationColor );
+	QPen linePen( pPref->getDefaultUIStyle()->m_automationColor );
 	linePen.setWidth(2);
 	painter.setPen(linePen);
 
@@ -185,10 +174,10 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 	}
 
 
-	QPen circlePen( m_lastAutomationCircleColor );
+	QPen circlePen( pPref->getDefaultUIStyle()->m_automationCircleColor );
 	circlePen.setWidth(1);
 	painter.setPen(circlePen);
-	painter.setBrush(QBrush( m_lastWindowColor ));
+	painter.setBrush(QBrush( pPref->getDefaultUIStyle()->m_windowColor ));
 
 	for (auto point : *_path) {
 

@@ -27,6 +27,7 @@
 #include <QDoubleSpinBox>
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 
 /** Custom spin box.
  *
@@ -74,7 +75,7 @@ public:
 	QValidator::State validate( QString &text, int &pos ) const;
 
 public slots:
-	void onPreferencesChanged( bool bAppearanceOnly );
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 signals:
 	void slashKeyPressed();
@@ -85,13 +86,7 @@ private:
 	QSize m_size;
 	Type m_type;
 	Kind m_kind;
-
-	QColor m_lastHighlightColor;
-	QColor m_lastAccentColor;
-	QColor m_lastSpinBoxSelectionColor;
-	QColor m_lastSpinBoxSelectionTextColor;
-	QColor m_lastAccentTextColor;
-
+	
 	bool m_bEntered;
 
 	virtual QString textFromValue( double fValue ) const override;

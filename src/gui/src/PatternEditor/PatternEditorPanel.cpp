@@ -55,7 +55,9 @@ using namespace H2Core;
 
 void PatternEditorPanel::updateSLnameLabel( )
 {
-	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	font.setBold( true );
 	m_pSLlabel->setFont( font );
 	m_pSLlabel->setText( Hydrogen::get_instance()->getCurrentDrumkitName() );
@@ -73,11 +75,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	setAcceptDrops(true);
 
 	Preferences *pPref = Preferences::get_instance();
-	m_lastUsedFontSize = pPref->getFontSize();
-	m_lastMidColor = pPref->getDefaultUIStyle()->m_midColor;
-	m_lastMidLightColor = pPref->getDefaultUIStyle()->m_midLightColor;
 	
-	QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+	QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	boldFont.setBold( true );
 
 	m_nCursorPosition = 0;
@@ -1135,15 +1134,14 @@ int PatternEditorPanel::moveCursorRight( int n )
 	return m_nCursorPosition;
 }
 
-void PatternEditorPanel::onPreferencesChanged( bool bAppearanceOnly ) {
+void PatternEditorPanel::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( m_pSLlabel->font().family() != pPref->getApplicationFontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+	if ( changes & H2Core::Preferences::Changes::Font ) {
+		
 		// It's sufficient to check the properties of just one label
 		// because they will always carry the same.
-		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 		boldFont.setBold( true );
 		m_pSLlabel->setFont( boldFont );
 		m_pPatternNameLbl->setFont( boldFont );
@@ -1151,21 +1149,18 @@ void PatternEditorPanel::onPreferencesChanged( bool bAppearanceOnly ) {
 		updateStyleSheet();
 	}
 
-	if ( m_lastMidColor != pPref->getDefaultUIStyle()->m_midColor ||
-		 m_lastMidLightColor != pPref->getDefaultUIStyle()->m_midLightColor ) {
-		
-		m_lastMidColor = pPref->getDefaultUIStyle()->m_midColor;
-		m_lastMidLightColor = pPref->getDefaultUIStyle()->m_midLightColor;
+	if ( changes & ( H2Core::Preferences::Changes::Colors ) ) {
 		updateStyleSheet();
 	}
 }
 
 void PatternEditorPanel::updateStyleSheet() {
 
+	auto pPref = H2Core::Preferences::get_instance();
 	int nFactorTop = 112;
 	
-	QColor topColorLight = m_lastMidColor.lighter( nFactorTop );
-	QColor topColorDark = m_lastMidColor.darker( nFactorTop );
+	QColor topColorLight = pPref->getDefaultUIStyle()->m_midColor.lighter( nFactorTop );
+	QColor topColorDark = pPref->getDefaultUIStyle()->m_midColor.darker( nFactorTop );
 
 	QString sEditorTopStyleSheet = QString( "\
 QWidget {\
@@ -1177,7 +1172,7 @@ QWidget {\
 QWidget {\
     background-color: %1;\
 }" )
-		.arg( m_lastMidLightColor.name() );
+		.arg( pPref->getDefaultUIStyle()->m_midLightColor.name() );
 
 	m_pEditorTop1->setStyleSheet( sEditorTopStyleSheet );
 	m_pEditorTop2->setStyleSheet( sEditorTopStyleSheet );

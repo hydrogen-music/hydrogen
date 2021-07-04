@@ -42,11 +42,6 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
-	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
-	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-
-	//INFOLOG( "INIT" );
-
 	bool ok = m_Background.load( Skin::getImagePath() + "/waveDisplay/bgsamplewavedisplay.png" );
 	if( ok == false ){
 		ERRORLOG( "Error loading pixmap" );
@@ -72,6 +67,8 @@ void WaveDisplay::paintEvent( QPaintEvent *ev )
 {
 	UNUSED(ev);
 	
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	QPainter painter( this );
 	painter.setRenderHint( QPainter::Antialiasing );
 
@@ -90,7 +87,7 @@ void WaveDisplay::paintEvent( QPaintEvent *ev )
 		
 	}
 	
-	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
+	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	font.setWeight( 63 );
 	painter.setFont( font );
 	painter.setPen( QColor( 255 , 255, 255, 200 ) );
@@ -180,13 +177,10 @@ void WaveDisplay::mouseDoubleClickEvent(QMouseEvent *ev)
 	}	
 }
 
-void WaveDisplay::onPreferencesChanged( bool bAppearanceOnly ) {
+void WaveDisplay::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+	if ( changes & H2Core::Preferences::Changes::Font ) {
 		update();
 	}
 }

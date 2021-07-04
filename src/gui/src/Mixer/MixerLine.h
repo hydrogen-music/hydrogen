@@ -60,7 +60,7 @@ public:
 	void	mouseDoubleClickEvent( QMouseEvent * e ) override;
 
 public slots:
-	void onPreferencesChanged( bool bAppearanceOnly );
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 	
 signals:
 	void	clicked();
@@ -73,10 +73,6 @@ private:
 	int			m_nWidgetWidth;
 	int			m_nWidgetHeight;
 	QString		m_sInstrName;
-	/** Used to detect changed in the font*/
-	QString m_sLastUsedFontFamily;
-	/** Used to detect changed in the font*/
-	H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 ///

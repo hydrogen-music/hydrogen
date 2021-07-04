@@ -260,11 +260,11 @@ void PaletteDialog::onColorSelectionClicked() {
 	m_currentStyle.m_toolTipTextColor = m_colorSelections[ 44 ].second->getColor();
 	
 	H2Core::Preferences::get_instance()->setDefaultUIStyle( &m_currentStyle );
-	HydrogenApp::get_instance()->changePreferences( true );
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
 }
 
 void PaletteDialog::onRejected() {
 	H2Core::Preferences::get_instance()->setDefaultUIStyle( &m_previousStyle );
-	HydrogenApp::get_instance()->changePreferences( true );
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
 }
 	

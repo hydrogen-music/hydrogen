@@ -56,11 +56,13 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	: PixmapWidget(pParent, __class_name)
 	, m_bIsSelected(false)
 {
-	int h = Preferences::get_instance()->getPatternEditorGridHeight();
+
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	int h = pPref->getPatternEditorGridHeight();
 	setFixedSize(181, h);
 
-	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();	
-	QFont nameFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize( m_lastUsedFontSize ) );
+	QFont nameFont( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
 	nameFont.setBold( true );
 
 	m_pNameLbl = new QLabel(this);
@@ -533,13 +535,12 @@ void InstrumentLine::functionDeleteInstrument()
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
-void InstrumentLine::onPreferencesChanged( bool bAppearanceOnly ) {
+void InstrumentLine::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( m_pNameLbl->font().family() != pPref->getLevel2FontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-		m_pNameLbl->setFont( QFont( pPref->getLevel2FontFamily(), getPointSize( m_lastUsedFontSize ) ) );
+	if ( changes & H2Core::Preferences::Changes::Font ) {
+		
+		m_pNameLbl->setFont( QFont( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) ) );
 	}
 }
 

@@ -43,14 +43,6 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, do
 		setFixedSize( size );
 	}
 
-	auto pPref = H2Core::Preferences::get_instance();
-	
-	m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
-	m_lastAccentColor = pPref->getDefaultUIStyle()->m_accentColor;
-	m_lastSpinBoxSelectionColor = pPref->getDefaultUIStyle()->m_spinBoxSelectionColor;
-	m_lastSpinBoxSelectionTextColor = pPref->getDefaultUIStyle()->m_spinBoxSelectionTextColor;
-	m_lastAccentTextColor = pPref->getDefaultUIStyle()->m_accentTextColor;
-
 	updateStyleSheet();
 		
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &LCDSpinBox::onPreferencesChanged );
@@ -256,12 +248,14 @@ bool LCDSpinBox::event( QEvent* ev ) {
 
 void LCDSpinBox::paintEvent( QPaintEvent *ev ) {
 
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	QDoubleSpinBox::paintEvent( ev );
 
 	if ( m_bEntered || hasFocus() ) {
 		QPainter painter(this);
 	
-		QColor colorHighlightActive = m_lastHighlightColor;
+		QColor colorHighlightActive = pPref->getDefaultUIStyle()->m_highlightColor;
 
 		// If the mouse is placed on the widget but the user hasn't
 		// clicked it yet, the highlight will be done more transparent to
@@ -289,6 +283,9 @@ void LCDSpinBox::leaveEvent( QEvent* ev ) {
 }
 
 void LCDSpinBox::updateStyleSheet() {
+	
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	setStyleSheet( QString( "\
 QDoubleSpinBox, QSpinBox { \
     color: %1; \
@@ -296,29 +293,17 @@ QDoubleSpinBox, QSpinBox { \
     selection-color: %3; \
     selection-background-color: %4; \
 }" )
-				   .arg( m_lastAccentTextColor.name() )
-				   .arg( m_lastAccentColor.name() )
-				   .arg( m_lastSpinBoxSelectionTextColor.name() )
-				   .arg( m_lastSpinBoxSelectionColor.name() ) );
+				   .arg( pPref->getDefaultUIStyle()->m_accentTextColor.name() )
+				   .arg( pPref->getDefaultUIStyle()->m_accentColor.name() )
+				   .arg( pPref->getDefaultUIStyle()->m_spinBoxSelectionTextColor.name() )
+				   .arg( pPref->getDefaultUIStyle()->m_spinBoxSelectionColor.name() ) );
 }
 
-void LCDSpinBox::onPreferencesChanged( bool bAppearanceOnly ) {
+void LCDSpinBox::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( m_lastHighlightColor != pPref->getDefaultUIStyle()->m_highlightColor ||
-		 m_lastAccentColor != pPref->getDefaultUIStyle()->m_accentColor ||
-		 m_lastSpinBoxSelectionColor != pPref->getDefaultUIStyle()->m_spinBoxSelectionColor ||
-		 m_lastSpinBoxSelectionTextColor != pPref->getDefaultUIStyle()->m_spinBoxSelectionTextColor ||
-		 m_lastAccentTextColor != pPref->getDefaultUIStyle()->m_accentTextColor ) {
-		
-		m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
-		m_lastAccentColor = pPref->getDefaultUIStyle()->m_accentColor;
-		m_lastSpinBoxSelectionColor = pPref->getDefaultUIStyle()->m_spinBoxSelectionColor;
-		m_lastSpinBoxSelectionTextColor = pPref->getDefaultUIStyle()->m_spinBoxSelectionTextColor;
-		m_lastAccentTextColor = pPref->getDefaultUIStyle()->m_accentTextColor;
-
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		updateStyleSheet();
-		update();
 	}
 }

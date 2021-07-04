@@ -106,33 +106,9 @@ MainForm::MainForm( QApplication * pQApplication )
 
 	m_pQApp->processEvents();
 
-	m_lastUsedFontSize = pPref->getFontSize();	
-	QFont font( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	setFont( font );
 	m_pQApp->setFont( font );
-
-	m_lastWidgetColor = pPref->getDefaultUIStyle()->m_widgetColor;
-	m_lastWidgetTextColor = pPref->getDefaultUIStyle()->m_widgetTextColor;
-	m_lastAccentColor = pPref->getDefaultUIStyle()->m_accentColor;
-	m_lastAccentTextColor = pPref->getDefaultUIStyle()->m_accentTextColor;
-	m_lastToolTipTextColor = pPref->getDefaultUIStyle()->m_toolTipTextColor;
-	m_lastToolTipBaseColor = pPref->getDefaultUIStyle()->m_toolTipBaseColor;
-	m_lastWindowColor = pPref->getDefaultUIStyle()->m_windowColor; 
-	m_lastWindowTextColor = pPref->getDefaultUIStyle()->m_windowTextColor;
-	m_lastSpinBoxSelectionTextColor = pPref->getDefaultUIStyle()->m_spinBoxSelectionTextColor;
-	m_lastSpinBoxSelectionColor = pPref->getDefaultUIStyle()->m_spinBoxSelectionColor;
-	m_lastBaseColor = pPref->getDefaultUIStyle()->m_baseColor;
-	m_lastAlternateBaseColor = pPref->getDefaultUIStyle()->m_alternateBaseColor;
-	m_lastTextColor = pPref->getDefaultUIStyle()->m_textColor;
-	m_lastButtonColor = pPref->getDefaultUIStyle()->m_buttonColor;
-	m_lastButtonTextColor = pPref->getDefaultUIStyle()->m_buttonTextColor;
-	m_lastLightColor = pPref->getDefaultUIStyle()->m_lightColor;
-	m_lastMidLightColor = pPref->getDefaultUIStyle()->m_midLightColor;
-	m_lastDarkColor = pPref->getDefaultUIStyle()->m_darkColor;
-	m_lastMidColor = pPref->getDefaultUIStyle()->m_midColor;
-	m_lastShadowTextColor = pPref->getDefaultUIStyle()->m_shadowTextColor;
-	m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
-	m_lastHighlightedTextColor = pPref->getDefaultUIStyle()->m_highlightedTextColor;
 
 	showDevelWarning();
 	h2app = new HydrogenApp( this );
@@ -1433,14 +1409,12 @@ void MainForm::closeAll(){
 }
 
 
-void MainForm::onPreferencesChanged( bool bAppearanceOnly ) {
+void MainForm::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( m_pQApp->font().family() != pPref->getApplicationFontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
+	if ( changes & H2Core::Preferences::Changes::Font ) {
 		
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-		QFont font( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+		QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 		m_pQApp->setFont( font );
 		menuBar()->setFont( font );
 
@@ -1458,52 +1432,7 @@ void MainForm::onPreferencesChanged( bool bAppearanceOnly ) {
 		Skin::setPalette( m_pQApp );
 	}
 
-	if ( m_lastWidgetColor != pPref->getDefaultUIStyle()->m_widgetColor ||
-		 m_lastWidgetTextColor != pPref->getDefaultUIStyle()->m_widgetTextColor ||
-		 m_lastAccentColor != pPref->getDefaultUIStyle()->m_accentColor ||
-		 m_lastAccentTextColor != pPref->getDefaultUIStyle()->m_accentTextColor ||
-		 m_lastToolTipTextColor != pPref->getDefaultUIStyle()->m_toolTipTextColor ||
-		 m_lastToolTipBaseColor != pPref->getDefaultUIStyle()->m_toolTipBaseColor ||
-		 m_lastWindowColor != pPref->getDefaultUIStyle()->m_windowColor || 
-		 m_lastWindowTextColor != pPref->getDefaultUIStyle()->m_windowTextColor ||
-		 m_lastBaseColor != pPref->getDefaultUIStyle()->m_baseColor ||
-		 m_lastAlternateBaseColor != pPref->getDefaultUIStyle()->m_alternateBaseColor ||
-		 m_lastTextColor != pPref->getDefaultUIStyle()->m_textColor ||
-		 m_lastButtonColor != pPref->getDefaultUIStyle()->m_buttonColor ||
-		 m_lastButtonTextColor != pPref->getDefaultUIStyle()->m_buttonTextColor ||
-		 m_lastLightColor != pPref->getDefaultUIStyle()->m_lightColor ||
-		 m_lastMidLightColor != pPref->getDefaultUIStyle()->m_midLightColor ||
-		 m_lastDarkColor != pPref->getDefaultUIStyle()->m_darkColor ||
-		 m_lastMidColor != pPref->getDefaultUIStyle()->m_midColor ||
-		 m_lastShadowTextColor != pPref->getDefaultUIStyle()->m_shadowTextColor ||
-		 m_lastHighlightColor != pPref->getDefaultUIStyle()->m_highlightColor ||
-		 m_lastHighlightedTextColor != pPref->getDefaultUIStyle()->m_highlightedTextColor ||
-		 m_lastSpinBoxSelectionTextColor != pPref->getDefaultUIStyle()->m_spinBoxSelectionTextColor ||
-		 m_lastSpinBoxSelectionColor != pPref->getDefaultUIStyle()->m_spinBoxSelectionColor ) {
-		
-		m_lastWidgetColor = pPref->getDefaultUIStyle()->m_widgetColor;
-		m_lastWidgetTextColor = pPref->getDefaultUIStyle()->m_widgetTextColor;
-		m_lastAccentColor = pPref->getDefaultUIStyle()->m_accentColor;
-		m_lastAccentTextColor = pPref->getDefaultUIStyle()->m_accentTextColor;
-		m_lastToolTipTextColor = pPref->getDefaultUIStyle()->m_toolTipTextColor;
-		m_lastToolTipBaseColor = pPref->getDefaultUIStyle()->m_toolTipBaseColor;
-		m_lastWindowColor = pPref->getDefaultUIStyle()->m_windowColor; 
-		m_lastWindowTextColor = pPref->getDefaultUIStyle()->m_windowTextColor;
-		m_lastSpinBoxSelectionTextColor = pPref->getDefaultUIStyle()->m_spinBoxSelectionTextColor;
-		m_lastSpinBoxSelectionColor = pPref->getDefaultUIStyle()->m_spinBoxSelectionColor;
-		m_lastBaseColor = pPref->getDefaultUIStyle()->m_baseColor;
-		m_lastAlternateBaseColor = pPref->getDefaultUIStyle()->m_alternateBaseColor;
-		m_lastTextColor = pPref->getDefaultUIStyle()->m_textColor;
-		m_lastButtonColor = pPref->getDefaultUIStyle()->m_buttonColor;
-		m_lastButtonTextColor = pPref->getDefaultUIStyle()->m_buttonTextColor;
-		m_lastLightColor = pPref->getDefaultUIStyle()->m_lightColor;
-		m_lastMidLightColor = pPref->getDefaultUIStyle()->m_midLightColor;
-		m_lastDarkColor = pPref->getDefaultUIStyle()->m_darkColor;
-		m_lastMidColor = pPref->getDefaultUIStyle()->m_midColor;
-		m_lastShadowTextColor = pPref->getDefaultUIStyle()->m_shadowTextColor;
-		m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
-		m_lastHighlightedTextColor = pPref->getDefaultUIStyle()->m_highlightedTextColor;
-
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		Skin::setPalette( m_pQApp );
 	}	
 }

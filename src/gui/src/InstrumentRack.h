@@ -47,7 +47,7 @@ class InstrumentRack : public QWidget, protected WidgetWithScalableFont<5, 6, 7>
 	public slots:
 		void on_showSoundLibraryBtnClicked();
 		void on_showInstrumentEditorBtnClicked();
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private:
 		/// button for showing the Sound Library
@@ -57,8 +57,6 @@ class InstrumentRack : public QWidget, protected WidgetWithScalableFont<5, 6, 7>
 		Button *m_pShowInstrumentEditorBtn;
 
 		SoundLibraryPanel* m_pSoundLibraryPanel;
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 };
 

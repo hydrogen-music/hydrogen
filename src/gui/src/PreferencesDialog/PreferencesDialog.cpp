@@ -23,16 +23,16 @@
 #include <cstring>
 
 #include "PreferencesDialog.h"
-#include "HydrogenApp.h"
-#include "MainForm.h"
+#include "../HydrogenApp.h"
+#include "../MainForm.h"
 
 #include "qmessagebox.h"
 #include "qstylefactory.h"
 
 #include <QPixmap>
 #include <QFontDatabase>
-#include "Widgets/MidiTable.h"
-#include "PreferencesDialog/PaletteDialog.h"
+#include "../Widgets/MidiTable.h"
+#include "PaletteDialog.h"
 
 #include <core/MidiMap.h>
 #include <core/Hydrogen.h>
@@ -41,8 +41,8 @@
 #include <core/AudioEngine.h>
 #include <core/Helpers/Translations.h>
 #include <core/Sampler/Sampler.h>
-#include "SongEditor/SongEditor.h"
-#include "SongEditor/SongEditorPanel.h"
+#include "../SongEditor/SongEditor.h"
+#include "../SongEditor/SongEditorPanel.h"
 
 
 using namespace H2Core;
@@ -939,7 +939,7 @@ void PreferencesDialog::onApplicationFontChanged( const QFont& font ) {
 	
 	pPref->setApplicationFontFamily( font.family() );
 
-	HydrogenApp::get_instance()->changePreferences( true );
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Font );
 }
 
 void PreferencesDialog::onLevel2FontChanged( const QFont& font ) {
@@ -947,7 +947,7 @@ void PreferencesDialog::onLevel2FontChanged( const QFont& font ) {
 	
 	pPref->setLevel2FontFamily( font.family() );
 
-	HydrogenApp::get_instance()->changePreferences( true );
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Font );
 }
 
 void PreferencesDialog::onLevel3FontChanged( const QFont& font ) {
@@ -955,7 +955,7 @@ void PreferencesDialog::onLevel3FontChanged( const QFont& font ) {
 	
 	pPref->setLevel3FontFamily( font.family() );
 
-	HydrogenApp::get_instance()->changePreferences( true );
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Font );
 }
 
 void PreferencesDialog::onRejected() {
@@ -968,7 +968,9 @@ void PreferencesDialog::onRejected() {
 	pPref->setPatternColors( m_previousPatternColors );
 	pPref->setVisiblePatternColors( m_nPreviousVisiblePatternColors );
 
-	HydrogenApp::get_instance()->changePreferences( true );
+	HydrogenApp::get_instance()->changePreferences( static_cast<H2Core::Preferences::Changes>( H2Core::Preferences::Changes::Font |
+																							   H2Core::Preferences::Changes::Colors |
+																							   H2Core::Preferences::Changes::AppearanceTab ) );
 }
 
 void PreferencesDialog::onFontSizeChanged( int nIndex ) {
@@ -988,7 +990,7 @@ void PreferencesDialog::onFontSizeChanged( int nIndex ) {
 		ERRORLOG( QString( "Unknown font size: %1" ).arg( nIndex ) );
 	}
 	
-	HydrogenApp::get_instance()->changePreferences( true );
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Font );
 }
 
 void PreferencesDialog::onUILayoutChanged( int nIndex ) {
@@ -1004,7 +1006,7 @@ void PreferencesDialog::onColorNumberChanged( int nIndex ) {
 			m_colorSelectionButtons[ ii ]->hide();
 		}
 	}
-	HydrogenApp::get_instance()->changePreferences( true );
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
 void PreferencesDialog::onColorSelectionClicked() {
@@ -1015,7 +1017,7 @@ void PreferencesDialog::onColorSelectionClicked() {
 	}
 
 	Preferences::get_instance()->setPatternColors( colors );
-	HydrogenApp::get_instance()->changePreferences( true );
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
 void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
@@ -1036,7 +1038,7 @@ void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
 			m_colorSelectionButtons[ ii ]->show();
 		}
 	}
-	HydrogenApp::get_instance()->changePreferences( true );
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
 void PreferencesDialog::onCustomizePaletteClicked() {

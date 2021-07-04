@@ -26,6 +26,7 @@
 #include "../Selection.h"
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 
 #include <QtGui>
 #if QT_VERSION >= 0x050000
@@ -145,7 +146,7 @@ public slots:
 	virtual void cut();
 	virtual void selectInstrumentNotes( int nInstrument );
 	void setCurrentInstrument( int nInstrument );
-	void onPreferencesChanged( bool bAppearanceOnly );
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 protected:
 
@@ -199,16 +200,6 @@ protected:
 
 	//! Update current pattern information
 	void updatePatternInfo();
-
-	QColor m_lastPatternEditor_line1Color;
-	QColor m_lastPatternEditor_line2Color;
-	QColor m_lastPatternEditor_line3Color;
-	QColor m_lastPatternEditor_line4Color;
-	QColor m_lastPatternEditor_line5Color;
-	QColor m_lastPatternEditor_noteColor;
-	QColor m_lastPatternEditor_noteoffColor;
-	QColor m_lastSelectionHighlightColor;
-	QColor m_lastSelectionInactiveColor;
 
 };
 

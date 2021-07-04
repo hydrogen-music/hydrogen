@@ -48,10 +48,6 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 	, m_bEntered( false )
 {
 	INFOLOG( "INIT" );
-
-	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
-	m_lastHighlightColor = Preferences::get_instance()->getDefaultUIStyle()->m_highlightColor;
 		
 	m_nGridHeight = 10;
 	m_nOctaves = 7;
@@ -158,11 +154,13 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 
 void PianoRollEditor::drawFocus( QPainter& painter ) {
 
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	if ( ! m_bEntered && ! hasFocus() ) {
 		return;
 	}
 	
-	QColor color = m_lastHighlightColor;
+	QColor color = pPref->getDefaultUIStyle()->m_highlightColor;
 
 	// If the mouse is placed on the widget but the user hasn't
 	// clicked it yet, the highlight will be done more transparent to
@@ -206,6 +204,9 @@ void PianoRollEditor::leaveEvent( QEvent *ev ) {
 
 void PianoRollEditor::createBackground()
 {
+	
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	//INFOLOG( "(re)creating the background" );
 
 	QColor backgroundColor( 250, 250, 250 );
@@ -290,7 +291,7 @@ void PianoRollEditor::createBackground()
 	}
 
 	//draw text
-	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
+	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	//	font.setWeight( 63 );
 	p.setFont( font );
 	p.setPen( QColor(10, 10, 10 ) );
@@ -1375,16 +1376,11 @@ QRect PianoRollEditor::getKeyboardCursorRect() {
 				  m_fGridWidth*6, m_nGridHeight+3 );
 }
 
-void PianoRollEditor::onPreferencesChanged( bool bAppearanceOnly ) {
+void PianoRollEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if (  m_lastHighlightColor != pPref->getDefaultUIStyle()->m_highlightColor ||
-		  m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
-		  m_lastUsedFontSize != pPref->getFontSize() ) {
-
-		m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
-		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
-		m_lastUsedFontSize = pPref->getFontSize();
+	if ( changes & ( H2Core::Preferences::Changes::Colors |
+					 H2Core::Preferences::Changes::Font ) ) {
 		createBackground();
 		update();
 	}

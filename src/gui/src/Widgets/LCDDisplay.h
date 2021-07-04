@@ -47,7 +47,7 @@ public:
 	void setUseRedFont( bool bUseRedFont );
 
 public slots:
-	void onPreferencesChanged( bool bAppearanceOnly );
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 private:
 	void updateFont();
@@ -58,14 +58,6 @@ private:
 	bool m_bUseRedFont;
 
 	std::vector<int> m_fontPointSizes;
-
-	QColor m_lastWindowColor;
-	QColor m_lastButtonRedColor;
-	QColor m_lastWindowTextColor;
-	/** Used to detect changed in the font*/
-	QString m_sLastUsedFontFamily;
-	/** Used to detect changed in the font*/
-	H2Core::Preferences::FontSize m_lastUsedFontSize;
 	
 	virtual void paintEvent( QPaintEvent *ev );
 };

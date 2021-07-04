@@ -99,10 +99,6 @@ Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSte
 	
 	resize( m_nWidgetWidth, m_nWidgetHeight );
 
-	auto pPref = H2Core::Preferences::get_instance();
-	m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
-	m_lastLightColor = pPref->getDefaultUIStyle()->m_lightColor;
-
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Fader::onPreferencesChanged );
 	
 	if ( type == Type::Vertical ) {
@@ -114,14 +110,10 @@ Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSte
 Fader::~Fader() {
 }
 
-void Fader::onPreferencesChanged( bool bAppearanceOnly ) {
+void Fader::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_lastHighlightColor != pPref->getDefaultUIStyle()->m_highlightColor ||
-		 m_lastLightColor != pPref->getDefaultUIStyle()->m_lightColor ) {
-		
-		m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
-		m_lastLightColor = pPref->getDefaultUIStyle()->m_lightColor;
+	if ( changes & ( H2Core::Preferences::Changes::Colors ) ) {
 		update();
 	}
 }
@@ -188,13 +180,16 @@ void Fader::mousePressEvent(QMouseEvent *ev)
 
 void Fader::paintEvent( QPaintEvent *ev)
 {
+	
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	QPainter painter(this);
 	
 	QColor colorHighlightActive;
 	if ( m_bIsActive ) {
-		colorHighlightActive = m_lastHighlightColor;
+		colorHighlightActive = pPref->getDefaultUIStyle()->m_highlightColor;
 	} else {
-		colorHighlightActive = m_lastLightColor;
+		colorHighlightActive = pPref->getDefaultUIStyle()->m_lightColor;
 	}
 	QColor colorGradientNormal( Qt::green );
 	QColor colorGradientWarning( Qt::yellow );

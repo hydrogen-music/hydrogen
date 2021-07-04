@@ -42,16 +42,8 @@ ClickableLabel::ClickableLabel( QWidget *pParent, QSize size, QString sText, Col
 	}
 	
 	auto pPref = H2Core::Preferences::get_instance();
-	
-	m_lastUsedFontSize = pPref->getFontSize();
-	m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
-	updateFont( m_sLastUsedFontFamily, m_lastUsedFontSize );
 
-	m_lastWindowColor = pPref->getDefaultUIStyle()->m_windowColor;
-	m_lastWindowTextColor = pPref->getDefaultUIStyle()->m_windowTextColor;
-	m_lastWidgetColor = pPref->getDefaultUIStyle()->m_widgetColor;
-	m_lastWidgetTextColor = pPref->getDefaultUIStyle()->m_widgetTextColor;
-
+	updateFont( pPref->getLevel3FontFamily(), pPref->getFontSize() );
 	updateStyleSheet();
 
 	setAlignment( Qt::AlignCenter );
@@ -63,11 +55,13 @@ ClickableLabel::ClickableLabel( QWidget *pParent, QSize size, QString sText, Col
 
 void ClickableLabel::updateStyleSheet() {
 
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	QColor text;
 	if ( m_color == Color::Bright ) {
-		text = m_lastWindowTextColor;
+		text = pPref->getDefaultUIStyle()->m_windowTextColor;
 	} else {
-		text = m_lastWidgetTextColor;
+		text = pPref->getDefaultUIStyle()->m_widgetTextColor;
 	}
 
 	setStyleSheet( QString( "color: %1" ).arg( text.name() ) );
@@ -131,30 +125,19 @@ void ClickableLabel::updateFont( QString sFontFamily, H2Core::Preferences::FontS
 	}
 }
 
-void ClickableLabel::onPreferencesChanged( bool bAppearanceOnly ) {
+void ClickableLabel::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getLevel3FontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ||
-		 m_lastWindowColor != pPref->getDefaultUIStyle()->m_windowColor ||
-		 m_lastWindowTextColor != pPref->getDefaultUIStyle()->m_windowTextColor ||
-		 m_lastWidgetColor != pPref->getDefaultUIStyle()->m_widgetColor ||
-		 m_lastWidgetTextColor != pPref->getDefaultUIStyle()->m_widgetTextColor ) {
-		
-		m_lastUsedFontSize = pPref->getFontSize();
-		m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
-
-		m_lastWindowColor = pPref->getDefaultUIStyle()->m_windowColor;
-		m_lastWindowTextColor = pPref->getDefaultUIStyle()->m_windowTextColor;
-		m_lastWidgetColor = pPref->getDefaultUIStyle()->m_widgetColor;
-		m_lastWidgetTextColor = pPref->getDefaultUIStyle()->m_widgetTextColor;
-		
-		updateFont( m_sLastUsedFontFamily, m_lastUsedFontSize );
+	if ( changes & ( H2Core::Preferences::Changes::Colors |
+					 H2Core::Preferences::Changes::Font ) ) {
+		updateFont( pPref->getLevel3FontFamily(), pPref->getFontSize() );
 		updateStyleSheet();
 	}
 }
 
 void ClickableLabel::setText( const QString& sNewText ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	QLabel::setText( sNewText );
-	updateFont( m_sLastUsedFontFamily, m_lastUsedFontSize );
+	updateFont( pPref->getLevel3FontFamily(), pPref->getFontSize() );
 }

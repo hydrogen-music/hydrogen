@@ -95,7 +95,7 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		virtual void copy() override {}
 		virtual void paste() override {}
 		virtual void cut() override {}
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 		void scrolled( int );
 
 	private:
@@ -145,13 +145,6 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 
 		int m_nDragPreviousColumn;
 		bool m_bEntered;
-		QColor m_lastHighlightColor;
-		QColor m_lastPatternEditor_line1Color;
-		QColor m_lastPatternEditor_backgroundColor;
-		/** Used to detect changed in the font*/
-		QString m_sLastUsedFontFamily;
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

@@ -28,6 +28,7 @@
 #include <QtWidgets>
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include <core/Globals.h>
 #include "../EventListener.h"
 
@@ -76,7 +77,7 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 		void ladspaEditBtnClicked( LadspaFXMixerLine *ref );
 		void ladspaVolumeChanged( LadspaFXMixerLine* ref);
 		void closeEvent(QCloseEvent *event) override;
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private:
 		QHBoxLayout *			m_pFaderHBox;

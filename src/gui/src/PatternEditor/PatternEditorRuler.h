@@ -64,7 +64,7 @@ class PatternEditorRuler : public QWidget, protected WidgetWithScalableFont<8, 1
 
 	public slots:
 		void updateEditor( bool bRedrawAll = false );
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private:
 		uint m_nRulerWidth;
@@ -78,11 +78,6 @@ class PatternEditorRuler : public QWidget, protected WidgetWithScalableFont<8, 1
 		int m_nTicks;
 		PatternEditorPanel *m_pPatternEditorPanel;
 		H2Core::Pattern *m_pPattern;
-		QColor m_lastPatternEditor_backgroundColor;
-		/** Used to detect changed in the font*/
-		QString m_sLastUsedFontFamily;
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;

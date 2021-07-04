@@ -53,7 +53,7 @@ class WaveDisplay : public QWidget, protected WidgetWithScalableFont<8, 10, 12>,
 		void			setSampleNameAlignment(Qt::AlignmentFlag flag);
 
 public slots:
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 	
 	signals:
 		void doubleClicked(QWidget *pWidget);
@@ -71,10 +71,6 @@ public slots:
 		int							m_nCurrentWidth;
 		
 		std::shared_ptr<H2Core::InstrumentLayer>	m_pLayer;
-		/** Used to detect changed in the font*/
-		QString m_sLastUsedFontFamily;
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 inline void WaveDisplay::setSampleNameAlignment(Qt::AlignmentFlag flag)

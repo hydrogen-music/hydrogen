@@ -78,7 +78,6 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  , __pattern_item_list( nullptr )
  , m_bInItsOwnDialog( bInItsOwnDialog )
 {
-	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 	
 	//INFOLOG( "INIT" );
 	__drumkit_menu = new QMenu( this );
@@ -156,14 +155,17 @@ SoundLibraryPanel::~SoundLibraryPanel()
 
 void SoundLibraryPanel::updateDrumkitList()
 {
+
+	auto pPref = H2Core::Preferences::get_instance();
+
 	LocalFileMng mng;
 
 	__sound_library_tree->clear();
 
-	QFont boldFont( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+	QFont boldFont( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	boldFont.setBold( true );
 
-	QFont childFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize( m_lastUsedFontSize ) );
+	QFont childFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
 	setFont( childFont );
 
 	__system_drumkits_item = new QTreeWidgetItem( __sound_library_tree );
@@ -875,17 +877,14 @@ void SoundLibraryPanel::test_expandedItems()
 	//ERRORLOG( QString("songs %1 patterns %2").arg(__expand_songs_list).arg(__expand_pattern_list) );
 }
 
-void SoundLibraryPanel::onPreferencesChanged( bool bAppearanceOnly ) {
+void SoundLibraryPanel::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( __system_drumkits_item->font( 0 ).family() != pPref->getApplicationFontFamily() ||
-		 ( __system_drumkits_item->child( 0 ) != nullptr &&
-		   __system_drumkits_item->child( 0 )->font( 0 ).family() != pPref->getLevel2FontFamily() ) ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+	if ( __system_drumkits_item->child( 0 ) != nullptr &&
+		 ( changes & H2Core::Preferences::Changes::Font ) ) {
 		
-		QFont font( pPref->getLevel2FontFamily(), getPointSize( m_lastUsedFontSize ) );
-		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+		QFont font( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
+		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 		boldFont.setBold( true );
 
 		int ii, jj;

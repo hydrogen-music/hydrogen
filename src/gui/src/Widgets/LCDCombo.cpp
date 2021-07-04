@@ -34,13 +34,7 @@ LCDCombo::LCDCombo( QWidget *pParent, QSize size )
 	, m_size( size )
 	, m_bEntered( false )
 {
-	auto pPref = H2Core::Preferences::get_instance();
 	setFocusPolicy( Qt::ClickFocus );
-
-	m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
-	m_lastWidgetColor = pPref->getDefaultUIStyle()->m_widgetColor;
-	m_lastUsedFontSize = pPref->getFontSize();
-	m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
 
 	if ( ! size.isNull() ) {
 		adjustSize();
@@ -57,6 +51,8 @@ LCDCombo::~LCDCombo() {
 
 void LCDCombo::updateStyleSheet() {
 
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	setStyleSheet( QString( "\
 QComboBox { \
     background-color: %1; \
@@ -66,36 +62,31 @@ QComboBox { \
 QComboBox QAbstractItemView { \
     background-color: #babfcf; \
 }")
-				   .arg( m_lastWidgetColor.name() )
-				   .arg( m_sLastUsedFontFamily )
-				   .arg( getPointSize( m_lastUsedFontSize ) ) );
+				   .arg( pPref->getDefaultUIStyle()->m_widgetColor.name() )
+				   .arg( pPref->getLevel3FontFamily() )
+				   .arg( getPointSize( pPref->getFontSize() ) ) );
 }
 
-void LCDCombo::onPreferencesChanged( bool bAppearanceOnly ) {
+void LCDCombo::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_lastHighlightColor != pPref->getDefaultUIStyle()->m_highlightColor ||
-		 m_lastWidgetColor != pPref->getDefaultUIStyle()->m_widgetColor ||
-		 m_sLastUsedFontFamily != pPref->getLevel3FontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-
-		m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
-		m_lastWidgetColor = pPref->getDefaultUIStyle()->m_widgetColor;
-		m_lastUsedFontSize = pPref->getFontSize();
-		m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
+	if ( changes & ( H2Core::Preferences::Changes::Colors |
+					 H2Core::Preferences::Changes::Font ) ) {
 		updateStyleSheet();
 	}
 }
 
 void LCDCombo::paintEvent( QPaintEvent *ev ) {
 
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	QComboBox::paintEvent( ev );
 
 	if ( m_bEntered || hasFocus() ) {
 		QPainter painter(this);
 	
-		QColor colorHighlightActive = m_lastHighlightColor;
+		QColor colorHighlightActive = pPref->getDefaultUIStyle()->m_highlightColor;
 
 		// If the mouse is placed on the widget but the user hasn't
 		// clicked it yet, the highlight will be done more transparent to

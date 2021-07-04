@@ -62,8 +62,6 @@ PlayerControl::PlayerControl(QWidget *parent)
 	HydrogenApp::get_instance()->addEventListener( this );
 
 	auto pPref = H2Core::Preferences::get_instance();
-	m_lastUsedFontSize = pPref->getFontSize();
-	m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
 	
 	// Background image
 	setPixmap( QPixmap( Skin::getImagePath() + "/playerControlPanel/background.png" ) );
@@ -1024,16 +1022,11 @@ void PlayerControl::jackTimebaseActivationEvent( int nValue ) {
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateTimelineUsage();
 }
 
-void PlayerControl::onPreferencesChanged( bool bAppearanceOnly ) {
+void PlayerControl::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getLevel3FontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		
-		m_lastUsedFontSize = pPref->getFontSize();
-		m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
-		
+	if ( changes & H2Core::Preferences::Changes::Font ) {
 		updateStatusLabel();
 	}
 }

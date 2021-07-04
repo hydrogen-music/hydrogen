@@ -123,7 +123,7 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		virtual void selectAll() override;
 		virtual void deleteSelection() override;
 		virtual void paste() override;
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 		void scrolled( int );
 
 	private:
@@ -174,12 +174,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		float __leadLag;
 		float __oldLeadLag;		
 		bool m_bEntered;
-
-		QColor m_lastHighlightColor;
-		/** Used to detect changed in the font*/
-		QString m_sLastUsedFontFamily;
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 #endif

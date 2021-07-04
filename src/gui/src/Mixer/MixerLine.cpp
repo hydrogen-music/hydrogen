@@ -800,9 +800,6 @@ InstrumentNameWidget::InstrumentNameWidget(QWidget* parent)
 	m_nWidgetWidth = 17;
 	m_nWidgetHeight = 116;
 
-	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
-	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &InstrumentNameWidget::onPreferencesChanged );
 
 	setPixmap( "/mixerPanel/mixerline_label_background.png" );
@@ -819,11 +816,14 @@ InstrumentNameWidget::~InstrumentNameWidget()
 
 void InstrumentNameWidget::paintEvent( QPaintEvent* ev )
 {
+
+	auto pPref = H2Core::Preferences::get_instance();
+
 	PixmapWidget::paintEvent( ev );
 
 	QPainter p( this );
 	
-	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
+	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 
 	p.setPen( QColor(230, 230, 230) );
 	p.setFont( font );
@@ -856,13 +856,8 @@ void InstrumentNameWidget::mouseDoubleClickEvent( QMouseEvent * e )
 	emit doubleClicked();
 }
 
-void InstrumentNameWidget::onPreferencesChanged( bool bAppearanceOnly ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+void InstrumentNameWidget::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+	if ( changes & H2Core::Preferences::Changes::Font ) {
 		update();
 	}
 }

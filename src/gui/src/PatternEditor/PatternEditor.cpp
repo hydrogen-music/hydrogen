@@ -63,15 +63,6 @@ PatternEditor::PatternEditor( QWidget *pParent, const char *sClassName,
 	m_bCopyNotMove = false;
 
 	auto pPref = H2Core::Preferences::get_instance();
-	m_lastPatternEditor_line1Color = pPref->getDefaultUIStyle()->m_patternEditor_line1Color;
-	m_lastPatternEditor_line2Color = pPref->getDefaultUIStyle()->m_patternEditor_line2Color;
-	m_lastPatternEditor_line3Color = pPref->getDefaultUIStyle()->m_patternEditor_line3Color;
-	m_lastPatternEditor_line4Color = pPref->getDefaultUIStyle()->m_patternEditor_line4Color;
-	m_lastPatternEditor_line5Color = pPref->getDefaultUIStyle()->m_patternEditor_line5Color;
-	m_lastPatternEditor_noteColor = pPref->getDefaultUIStyle()->m_patternEditor_noteColor;
-	m_lastPatternEditor_noteoffColor = pPref->getDefaultUIStyle()->m_patternEditor_noteoffColor;
-	m_lastSelectionHighlightColor = pPref->getDefaultUIStyle()->m_selectionHighlightColor;
-	m_lastSelectionInactiveColor = pPref->getDefaultUIStyle()->m_selectionInactiveColor;
 	
 	m_fGridWidth = pPref->getPatternEditorGridWidth();
 	m_nEditorWidth = m_nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
@@ -95,28 +86,10 @@ PatternEditor::PatternEditor( QWidget *pParent, const char *sClassName,
 
 }
 
-void PatternEditor::onPreferencesChanged( bool bAppearanceOnly ) {
+void PatternEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( m_lastPatternEditor_line1Color != pPref->getDefaultUIStyle()->m_patternEditor_line1Color ||
-		 m_lastPatternEditor_line2Color != pPref->getDefaultUIStyle()->m_patternEditor_line2Color ||
-		 m_lastPatternEditor_line3Color != pPref->getDefaultUIStyle()->m_patternEditor_line3Color ||
-		 m_lastPatternEditor_line4Color != pPref->getDefaultUIStyle()->m_patternEditor_line4Color ||
-		 m_lastPatternEditor_line5Color != pPref->getDefaultUIStyle()->m_patternEditor_line5Color ||
-		 m_lastPatternEditor_noteColor != pPref->getDefaultUIStyle()->m_patternEditor_noteColor ||
-		 m_lastPatternEditor_noteoffColor != pPref->getDefaultUIStyle()->m_patternEditor_noteoffColor ||
-		 m_lastSelectionHighlightColor != pPref->getDefaultUIStyle()->m_selectionHighlightColor ||
-		 m_lastSelectionInactiveColor != pPref->getDefaultUIStyle()->m_selectionInactiveColor ) {
-
-		m_lastPatternEditor_line1Color = pPref->getDefaultUIStyle()->m_patternEditor_line1Color;
-		m_lastPatternEditor_line2Color = pPref->getDefaultUIStyle()->m_patternEditor_line2Color;
-		m_lastPatternEditor_line3Color = pPref->getDefaultUIStyle()->m_patternEditor_line3Color;
-		m_lastPatternEditor_line4Color = pPref->getDefaultUIStyle()->m_patternEditor_line4Color;
-		m_lastPatternEditor_line5Color = pPref->getDefaultUIStyle()->m_patternEditor_line5Color;
-		m_lastPatternEditor_noteColor = pPref->getDefaultUIStyle()->m_patternEditor_noteColor;
-		m_lastPatternEditor_noteoffColor = pPref->getDefaultUIStyle()->m_patternEditor_noteoffColor;
-		m_lastSelectionHighlightColor = pPref->getDefaultUIStyle()->m_selectionHighlightColor;
-		m_lastSelectionInactiveColor = pPref->getDefaultUIStyle()->m_selectionInactiveColor;
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		
 		update( 0, 0, width(), height() );
 		m_pPatternEditorPanel->updateEditors();
@@ -186,8 +159,10 @@ QColor PatternEditor::computeNoteColor( float velocity ) {
 
 void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote ) const
 {
-	static const QColor noteColor( m_lastPatternEditor_noteColor );
-	static const QColor noteoffColor( m_lastPatternEditor_noteoffColor );
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	static const QColor noteColor( pPref->getDefaultUIStyle()->m_patternEditor_noteColor );
+	static const QColor noteoffColor( pPref->getDefaultUIStyle()->m_patternEditor_noteoffColor );
 
 	p.setRenderHint( QPainter::Antialiasing );
 
@@ -587,12 +562,13 @@ QPoint PatternEditor::movingGridOffset( ) const {
 //! Draw lines for note grid.
 void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 {
+	auto pPref = H2Core::Preferences::get_instance();
 	static const QColor res[5] = {
-		QColor( m_lastPatternEditor_line1Color ),
-		QColor( m_lastPatternEditor_line2Color ),
-		QColor( m_lastPatternEditor_line3Color ),
-		QColor( m_lastPatternEditor_line4Color ),
-		QColor( m_lastPatternEditor_line5Color ),
+		QColor( pPref->getDefaultUIStyle()->m_patternEditor_line1Color ),
+		QColor( pPref->getDefaultUIStyle()->m_patternEditor_line2Color ),
+		QColor( pPref->getDefaultUIStyle()->m_patternEditor_line3Color ),
+		QColor( pPref->getDefaultUIStyle()->m_patternEditor_line4Color ),
+		QColor( pPref->getDefaultUIStyle()->m_patternEditor_line5Color ),
 	};
 
 	int nGranularity = granularity() * m_nResolution;
@@ -662,11 +638,14 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 
 
 QColor PatternEditor::selectedNoteColor() const {
+	
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	if ( hasFocus() ) {
-		static const QColor selectHilightColor( m_lastSelectionHighlightColor );
+		static const QColor selectHilightColor( pPref->getDefaultUIStyle()->m_selectionHighlightColor );
 		return selectHilightColor;
 	} else {
-		static const QColor selectInactiveColor( m_lastSelectionInactiveColor );
+		static const QColor selectInactiveColor( pPref->getDefaultUIStyle()->m_selectionInactiveColor );
 		return selectInactiveColor;
 	}
 }

@@ -24,6 +24,7 @@
 #define AUTOMATION_PATH_VIEW_H
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include <core/Basics/AutomationPath.h>
 
 #include <QtGui>
@@ -39,11 +40,6 @@ class AutomationPathView : public QWidget, public H2Core::Object
 	int m_nMarginWidth; /** < Width of an empty space on the left side */
 	int m_nMarginHeight;/** < Height of top and bottom margins */
 	int m_nMaxPatternSequence;
-	
-	QColor m_lastLightColor;
-	QColor m_lastAutomationColor;
-	QColor m_lastWindowColor;
-	QColor m_lastAutomationCircleColor;
 
 	bool m_bIsHolding; /** < Whether any points are being dragged */
 	bool m_bPointAdded;/** < Whether a new point was added during mouse move */
@@ -76,7 +72,7 @@ protected:
 	void autoResize();
 
 public slots:
-	void onPreferencesChanged( bool bAppearanceOnly );
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 signals:
 	void valueChanged();

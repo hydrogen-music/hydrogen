@@ -197,6 +197,26 @@ public:
 		Large = 2
 	};
 
+	/** Bitwise or-able options showing which part of the Preferences
+	 * were altered using the PreferencesDialog.*/ 
+	enum Changes {
+		/** Either the font size or font family have changed.*/
+		Font = 0x001,
+		/** At least one of the colors has changed.*/
+		Colors = 0x002,
+		/** Any option in the Appearance tab excluding colors, font
+			size, or font family. Those have to be indicated by
+			or-ing the didicated option.*/
+		AppearanceTab = 0x004,
+		/** Any option in the General tab appeared.*/
+		GeneralTab = 0x008,
+		/** Any option in the Audio tab appeared.*/
+		AudioTab = 0x010,
+		/** Any option in the MIDI tab appeared.*/
+		MidiTab = 0x020,
+		/** Any option in the OSC tab appeared.*/
+		OscTab = 0x040
+	};
 
 	enum UI_LAYOUT_TYPES {
 			UI_LAYOUT_SINGLE_PANE,

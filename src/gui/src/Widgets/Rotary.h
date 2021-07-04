@@ -30,6 +30,7 @@
 #include "WidgetWithInput.h"
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 
 /** Custom rotary widget.
  *
@@ -62,15 +63,12 @@ public:
 	~Rotary();
 
 public slots:
-	void onPreferencesChanged( bool bAppearanceOnly );
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 private:
 	Type m_type;
 	QSvgRenderer* m_background;
 	QSvgRenderer* m_knob;
-
-	QColor m_lastHighlightColor;
-	QColor m_lastLightColor;
 
 	virtual void paintEvent(QPaintEvent *ev);
 };

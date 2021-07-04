@@ -71,7 +71,7 @@ public:
 	void songModeActivationEvent( int nValue ) override;
 
 public slots:
-	void onPreferencesChanged( bool bAppearanceOnly );
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 private slots:
 	void recBtnClicked();
@@ -192,10 +192,6 @@ private:
 		milliseconds.*/ 
 	QTimer *m_pMidiActivityTimer;
 	std::chrono::milliseconds m_midiActivityTimeout; 
-	/** Used to detect changed in the font*/
-	QString m_sLastUsedFontFamily;
-	/** Used to detect changed in the font*/
-	H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

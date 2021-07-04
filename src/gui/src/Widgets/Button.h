@@ -98,7 +98,7 @@ public:
 	void setAction( Action* pAction );
 
 public slots:
-	void onPreferencesChanged( bool bAppearanceOnly );
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 signals:
 	void clicked(Button *pBtn);
@@ -126,17 +126,6 @@ private:
 
 	void mousePressEvent(QMouseEvent *ev);
 	void paintEvent( QPaintEvent* ev);
-	
-	/** Used to detect changed in the font*/
-	QString m_sLastUsedFontFamily;
-	/** Used to detect changed in the font*/
-	H2Core::Preferences::FontSize m_lastUsedFontSize;
-	QColor m_lastWidgetTextColor;
-	QColor m_lastWidgetColor;
-	QColor m_lastAccentColor;
-	QColor m_lastAccentTextColor;
-	QColor m_lastButtonRedColor;
-	QColor m_lastButtonRedTextColor;
 
 };
 

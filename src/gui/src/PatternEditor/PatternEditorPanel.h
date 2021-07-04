@@ -106,7 +106,7 @@ class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 1
 	public slots:
 		void showDrumEditor();
 		void showPianoRollEditor();
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private slots:
 		void gridResolutionChanged( int nSelected );
@@ -227,11 +227,6 @@ class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 1
 
 		virtual void resizeEvent(QResizeEvent *ev) override;
 		virtual void showEvent(QShowEvent *ev) override;
-
-	QColor m_lastMidColor;
-	QColor m_lastMidLightColor;
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

@@ -48,17 +48,6 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	, m_sIcon( sIcon )
 	, m_bUseRedBackground( bUseRedBackground )
 {
-	auto pPref = H2Core::Preferences::get_instance();
-	
-	m_lastUsedFontSize = pPref->getFontSize();
-	m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
-	m_lastWidgetTextColor = pPref->getDefaultUIStyle()->m_widgetTextColor;
-	m_lastWidgetColor = pPref->getDefaultUIStyle()->m_widgetColor;
-	m_lastAccentColor = pPref->getDefaultUIStyle()->m_accentColor;
-	m_lastAccentTextColor = pPref->getDefaultUIStyle()->m_accentTextColor;
-	m_lastButtonRedColor = pPref->getDefaultUIStyle()->m_buttonRedColor;
-	m_lastButtonRedTextColor = pPref->getDefaultUIStyle()->m_buttonRedTextColor;
-		
 	setAttribute( Qt::WA_OpaquePaintEvent );
 	setFocusPolicy( Qt::NoFocus );
 	
@@ -104,28 +93,30 @@ Button::~Button() {
 
 void Button::updateStyleSheet() {
 
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	int nFactorGradient = 120;
 	int nHover = 10;
 	
-	QColor backgroundLight = m_lastWidgetColor.lighter( nFactorGradient );
-	QColor backgroundDark = m_lastWidgetColor.darker( nFactorGradient );
-	QColor backgroundLightHover = m_lastWidgetColor.lighter( nFactorGradient + nHover );
-	QColor backgroundDarkHover = m_lastWidgetColor.darker( nFactorGradient + nHover );
+	QColor backgroundLight = pPref->getDefaultUIStyle()->m_widgetColor.lighter( nFactorGradient );
+	QColor backgroundDark = pPref->getDefaultUIStyle()->m_widgetColor.darker( nFactorGradient );
+	QColor backgroundLightHover = pPref->getDefaultUIStyle()->m_widgetColor.lighter( nFactorGradient + nHover );
+	QColor backgroundDarkHover = pPref->getDefaultUIStyle()->m_widgetColor.darker( nFactorGradient + nHover );
 
 	QColor backgroundCheckedLight, backgroundCheckedDark, backgroundCheckedLightHover,
 		backgroundCheckedDarkHover, textChecked;
 	if ( ! m_bUseRedBackground ) {
-		backgroundCheckedLight = m_lastAccentColor.lighter( nFactorGradient );
-		backgroundCheckedDark = m_lastAccentColor.darker( nFactorGradient );
-		backgroundCheckedLightHover = m_lastAccentColor.lighter( nFactorGradient + nHover );
-		backgroundCheckedDarkHover = m_lastAccentColor.darker( nFactorGradient + nHover );
-		textChecked = m_lastAccentTextColor;
+		backgroundCheckedLight = pPref->getDefaultUIStyle()->m_accentColor.lighter( nFactorGradient );
+		backgroundCheckedDark = pPref->getDefaultUIStyle()->m_accentColor.darker( nFactorGradient );
+		backgroundCheckedLightHover = pPref->getDefaultUIStyle()->m_accentColor.lighter( nFactorGradient + nHover );
+		backgroundCheckedDarkHover = pPref->getDefaultUIStyle()->m_accentColor.darker( nFactorGradient + nHover );
+		textChecked = pPref->getDefaultUIStyle()->m_accentTextColor;
 	} else {
-		backgroundCheckedLight = m_lastButtonRedColor.lighter( nFactorGradient );
-		backgroundCheckedDark = m_lastButtonRedColor.darker( nFactorGradient );
-		backgroundCheckedLightHover = m_lastButtonRedColor.lighter( nFactorGradient + nHover );
-		backgroundCheckedDarkHover = m_lastButtonRedColor.darker( nFactorGradient + nHover );
-		textChecked = m_lastButtonRedTextColor;
+		backgroundCheckedLight = pPref->getDefaultUIStyle()->m_buttonRedColor.lighter( nFactorGradient );
+		backgroundCheckedDark = pPref->getDefaultUIStyle()->m_buttonRedColor.darker( nFactorGradient );
+		backgroundCheckedLightHover = pPref->getDefaultUIStyle()->m_buttonRedColor.lighter( nFactorGradient + nHover );
+		backgroundCheckedDarkHover = pPref->getDefaultUIStyle()->m_buttonRedColor.darker( nFactorGradient + nHover );
+		textChecked = pPref->getDefaultUIStyle()->m_buttonRedTextColor;
 	}
 	
 	setStyleSheet( QString( "QPushButton { \
@@ -153,7 +144,7 @@ QPushButton:checked:hover { \
                                       stop: 0 %10, stop: 1 %11); \
 }"
 							)
-				   .arg( m_lastWidgetTextColor.name() )
+				   .arg( pPref->getDefaultUIStyle()->m_widgetTextColor.name() )
 				   .arg( m_sBorderRadius )
 				   .arg( backgroundLight.name() ).arg( backgroundDark.name() )
 				   .arg( backgroundLightHover.name() ).arg( backgroundDarkHover.name() )
@@ -219,9 +210,11 @@ void Button::updateTooltip() {
 }
 
 void Button::updateFont() {
+
+	auto pPref = H2Core::Preferences::get_instance();
 	
 	float fScalingFactor = 1.0;
-    switch ( m_lastUsedFontSize ) {
+    switch ( pPref->getFontSize() ) {
     case H2Core::Preferences::FontSize::Small:
 		fScalingFactor = 1.2;
 		break;
@@ -250,7 +243,7 @@ void Button::updateFont() {
 		nPixelSize = m_size.width() - std::round( fScalingFactor * nMargin );
 	}
 
-	QFont font( m_sLastUsedFontFamily );
+	QFont font( pPref->getLevel3FontFamily() );
 	font.setPixelSize( nPixelSize );
 	setFont( font );
 
@@ -283,27 +276,12 @@ void Button::paintEvent( QPaintEvent* ev )
 	}
 }
 
-void Button::onPreferencesChanged( bool bAppearanceOnly ) {
+void Button::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getLevel3FontFamily() ||
-		 m_lastWidgetTextColor != pPref->getDefaultUIStyle()->m_widgetTextColor ||
-		 m_lastWidgetColor != pPref->getDefaultUIStyle()->m_widgetColor ||
-		 m_lastAccentColor != pPref->getDefaultUIStyle()->m_accentColor ||
-		 m_lastAccentTextColor != pPref->getDefaultUIStyle()->m_accentTextColor ||
-		 m_lastButtonRedColor != pPref->getDefaultUIStyle()->m_buttonRedColor ||
-		 m_lastButtonRedTextColor != pPref->getDefaultUIStyle()->m_buttonRedTextColor ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
+	if ( changes & ( H2Core::Preferences::Changes::Colors |
+					 H2Core::Preferences::Changes::Font ) ) {
 
-		m_lastWidgetTextColor = pPref->getDefaultUIStyle()->m_widgetTextColor;
-		m_lastWidgetColor = pPref->getDefaultUIStyle()->m_widgetColor;
-		m_lastAccentColor = pPref->getDefaultUIStyle()->m_accentColor;
-		m_lastAccentTextColor = pPref->getDefaultUIStyle()->m_accentTextColor;
-		m_lastButtonRedColor = pPref->getDefaultUIStyle()->m_buttonRedColor;
-		m_lastButtonRedTextColor = pPref->getDefaultUIStyle()->m_buttonRedTextColor;
-		
-		m_lastUsedFontSize = pPref->getFontSize();
-		m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
 		updateFont();
 		updateStyleSheet();
 	}

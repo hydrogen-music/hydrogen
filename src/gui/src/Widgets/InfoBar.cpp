@@ -35,6 +35,8 @@
 InfoBar::InfoBar( QWidget *parent )
 	: QWidget( parent )
 {
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	setAutoFillBackground( true );
 	
 	createLayout();
@@ -42,22 +44,21 @@ InfoBar::InfoBar( QWidget *parent )
 	createLabel();
 	createCloseButton();
 	
-	m_lastHighlightColor = H2Core::Preferences::get_instance()->getDefaultUIStyle()->m_highlightColor;
 	updateStyleSheet();
 	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &InfoBar::onPreferencesChanged );
 }
 
 void InfoBar::updateStyleSheet(){
-	setStyleSheet( QString( "background: %1;" ).arg( m_lastHighlightColor.name() ) );
-}
-
-void InfoBar::onPreferencesChanged( bool bAppearanceOnly ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_lastHighlightColor != pPref->getDefaultUIStyle()->m_highlightColor ) {
-		
-		m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
+	setStyleSheet( QString( "background: %1;" ).arg( pPref->getDefaultUIStyle()->m_highlightColor.name() ) );
+}
+
+void InfoBar::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		updateStyleSheet();
 	}
 }

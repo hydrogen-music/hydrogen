@@ -29,7 +29,6 @@
 #include <QSvgRenderer>
 
 #include <core/Globals.h>
-#include <core/Preferences.h>
 
 const char* Rotary::__class_name = "Rotary";
 
@@ -43,10 +42,6 @@ Rotary::Rotary( QWidget* parent, Type type, QString sBaseTooltip, bool bUseIntSt
 					   fMax )
 	, Object( __class_name )
 	, m_type( type ) {
-
-	auto pPref = H2Core::Preferences::get_instance();
-	m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
-	m_lastLightColor = pPref->getDefaultUIStyle()->m_lightColor;
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Rotary::onPreferencesChanged );
 
@@ -97,6 +92,9 @@ Rotary::~ Rotary() {
 
 void Rotary::paintEvent( QPaintEvent* ev )
 {
+
+	auto pPref = H2Core::Preferences::get_instance();
+
 	ev->accept();
 	QPainter painter( this );
 
@@ -107,12 +105,12 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	QColor colorArcCenterSet;
 	QColor colorArcCenterUnset;
 	if ( m_bIsActive ) {
-		colorHighlightActive = m_lastHighlightColor;
+		colorHighlightActive = pPref->getDefaultUIStyle()->m_highlightColor;
 		colorArc = Qt::red;
 		colorArcCenterSet = Qt::green;
 		colorArcCenterUnset = Qt::gray;
 	} else {
-		colorHighlightActive = m_lastLightColor;
+		colorHighlightActive = pPref->getDefaultUIStyle()->m_lightColor;
 		colorArc = Qt::darkGray;
 		colorArcCenterSet = Qt::darkGray;
 		colorArcCenterUnset = Qt::lightGray;
@@ -300,14 +298,10 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	}
 }
 
-void Rotary::onPreferencesChanged( bool bAppearanceOnly ) {
+void Rotary::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_lastHighlightColor != pPref->getDefaultUIStyle()->m_highlightColor ||
-		 m_lastLightColor != pPref->getDefaultUIStyle()->m_lightColor ) {
-		
-		m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
-		m_lastLightColor = pPref->getDefaultUIStyle()->m_lightColor;
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		update();
 	}
 }

@@ -63,14 +63,6 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
 	resize( m_nEditorWidth, m_nEditorHeight );
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( 0 );
-
-	m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
-	m_lastUsedFontSize = pPref->getFontSize();
-	m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
-	m_lastPatternEditor_selectedRowColor = pPref->getDefaultUIStyle()->m_patternEditor_selectedRowColor;
-	m_lastPatternEditor_alternateRowColor = pPref->getDefaultUIStyle()->m_patternEditor_alternateRowColor;
-	m_lastPatternEditor_backgroundColor = pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor;
-	m_lastPatternEditor_lineColor = pPref->getDefaultUIStyle()->m_patternEditor_lineColor;
 }
 
 DrumPatternEditor::~DrumPatternEditor()
@@ -1000,7 +992,9 @@ void DrumPatternEditor::paste()
 ///
 void DrumPatternEditor::__draw_pattern(QPainter& painter)
 {
-	const QColor selectedRowColor( m_lastPatternEditor_selectedRowColor );
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	const QColor selectedRowColor( pPref->getDefaultUIStyle()->m_patternEditor_selectedRowColor );
 
 	__create_background( painter );
 
@@ -1102,7 +1096,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 					int y = ( nInstrument * m_nGridHeight);
 					const int boxWidth = 128;
 
-					QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
+					QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 					painter.setFont( font );
 					painter.setPen( QColor( 0, 0, 0 ) );
 
@@ -1144,6 +1138,9 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 
 void DrumPatternEditor::__draw_grid( QPainter& p )
 {
+	
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	// Start with generic pattern editor grid lining.
 	drawGridLines( p );
 
@@ -1153,8 +1150,8 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 	}
 	
 	// fill the first half of the rect with a solid color
-	const QColor backgroundColor( m_lastPatternEditor_backgroundColor );
-	const QColor selectedRowColor( m_lastPatternEditor_selectedRowColor );
+	const QColor backgroundColor( pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor );
+	const QColor selectedRowColor( pPref->getDefaultUIStyle()->m_patternEditor_selectedRowColor );
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	int nInstruments = pSong->getInstrumentList()->size();
@@ -1173,9 +1170,12 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 
 void DrumPatternEditor::__create_background( QPainter& p)
 {
-	const QColor backgroundColor( m_lastPatternEditor_backgroundColor );
-	const QColor alternateRowColor( m_lastPatternEditor_alternateRowColor );
-	const QColor lineColor( m_lastPatternEditor_lineColor );
+	
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	const QColor backgroundColor( pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor );
+	const QColor alternateRowColor( pPref->getDefaultUIStyle()->m_patternEditor_alternateRowColor );
+	const QColor lineColor( pPref->getDefaultUIStyle()->m_patternEditor_lineColor );
 
 	int nNotes = MAX_NOTES;
 	if ( m_pPattern ) {
@@ -1227,7 +1227,9 @@ void DrumPatternEditor::drawFocus( QPainter& painter ) {
 		return;
 	}
 	
-	QColor color = m_lastHighlightColor;
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	QColor color = pPref->getDefaultUIStyle()->m_highlightColor;
 
 	// If the mouse is placed on the widget but the user hasn't
 	// clicked it yet, the highlight will be done more transparent to
@@ -1374,25 +1376,11 @@ void DrumPatternEditor::undoRedoAction( int column,
 	}
 }
 
-void DrumPatternEditor::onPreferencesChanged( bool bAppearanceOnly ) {
+void DrumPatternEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_lastHighlightColor != pPref->getDefaultUIStyle()->m_highlightColor ||
-		 m_lastPatternEditor_selectedRowColor != pPref->getDefaultUIStyle()->m_patternEditor_selectedRowColor ||
-		 m_lastPatternEditor_alternateRowColor != pPref->getDefaultUIStyle()->m_patternEditor_alternateRowColor ||
-		 m_lastPatternEditor_backgroundColor != pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor ||
-		 m_lastPatternEditor_lineColor != pPref->getDefaultUIStyle()->m_patternEditor_lineColor ||
-		 m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		
-		m_lastPatternEditor_selectedRowColor = pPref->getDefaultUIStyle()->m_patternEditor_selectedRowColor;
-		m_lastPatternEditor_alternateRowColor = pPref->getDefaultUIStyle()->m_patternEditor_alternateRowColor;
-		m_lastPatternEditor_backgroundColor = pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor;
-		m_lastPatternEditor_lineColor = pPref->getDefaultUIStyle()->m_patternEditor_lineColor;
-		m_lastHighlightColor = pPref->getDefaultUIStyle()->m_highlightColor;
-		m_lastUsedFontSize = pPref->getFontSize();
-		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
-
+	if ( changes & ( H2Core::Preferences::Changes::Colors |
+					 H2Core::Preferences::Changes::Font ) ) {
 		updateEditor();
 	}
 }

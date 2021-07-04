@@ -64,7 +64,7 @@ public:
 	float getPeak_R() const {	return m_fPeakValue_R;	}
 
 public slots:
-	void onPreferencesChanged( bool bAppearanceOnly );
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 private:
 	bool m_bWithoutKnob;
@@ -76,9 +76,6 @@ private:
 	float m_fPeakValue_R;
 	float m_fMinPeak;
 	float m_fMaxPeak;
-
-	QColor m_lastHighlightColor;
-	QColor m_lastLightColor;
 	
 	virtual void mouseMoveEvent(QMouseEvent *ev);
 	virtual void mousePressEvent(QMouseEvent *ev);

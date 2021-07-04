@@ -50,8 +50,6 @@ LayerPreview::LayerPreview( QWidget* pParent )
  , m_bMouseGrab( false )
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);
-	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-	m_sLastUsedFontFamily = Preferences::get_instance()->getLevel2FontFamily();
 
 	//INFOLOG( "INIT" );
 
@@ -90,9 +88,11 @@ void LayerPreview::set_selected_component( int SelectedComponent )
 void LayerPreview::paintEvent(QPaintEvent *ev)
 {
 	QPainter p( this );
+	
+	auto pPref = H2Core::Preferences::get_instance();
 
-	QFont fontText( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
-	QFont fontButton( m_sLastUsedFontFamily, getPointSizeButton() );
+	QFont fontText( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont fontButton( pPref->getLevel2FontFamily(), getPointSizeButton() );
 	
 	p.fillRect( ev->rect(), QColor( 58, 62, 72 ) );
 
@@ -449,9 +449,12 @@ void LayerPreview::showLayerEndVelocity( const std::shared_ptr<InstrumentLayer> 
 }
 
 int LayerPreview::getPointSizeButton() const {
+	
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	int nPointSize;
 	
-	switch( m_lastUsedFontSize ) {
+	switch( pPref->getFontSize() ) {
 	case H2Core::Preferences::FontSize::Small:
 		nPointSize = 6;
 		break;
@@ -466,13 +469,10 @@ int LayerPreview::getPointSizeButton() const {
 	return nPointSize;
 }
 
-void LayerPreview::onPreferencesChanged( bool bAppearanceOnly ) {
+void LayerPreview::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getLevel2FontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-		m_sLastUsedFontFamily = Preferences::get_instance()->getLevel2FontFamily();
+	if ( changes & H2Core::Preferences::Changes::Font ) {
 		update();
 	}
 }

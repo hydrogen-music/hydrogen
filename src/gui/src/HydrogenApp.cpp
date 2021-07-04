@@ -30,7 +30,7 @@
 
 #include "HydrogenApp.h"
 #include "CommonStrings.h"
-#include "PreferencesDialog.h"
+#include "PreferencesDialog/PreferencesDialog.h"
 #include "MainForm.h"
 #include "PlayerControl.h"
 #include "AudioEngineInfoForm.h"
@@ -858,6 +858,6 @@ void HydrogenApp::quitEvent( int nValue ) {
 	
 }
 
-void HydrogenApp::changePreferences( bool bAppearanceOnly ) {
-	emit preferencesChanged( bAppearanceOnly );
+void HydrogenApp::changePreferences( H2Core::Preferences::Changes changes ) {
+	emit preferencesChanged( changes );
 }

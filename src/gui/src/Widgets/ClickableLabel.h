@@ -53,7 +53,7 @@ public:
 	void mousePressEvent( QMouseEvent * e );
 
 public slots:
-	void onPreferencesChanged( bool bAppearanceOnly );
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 	void setText( const QString& sNewText );
 
 signals:
@@ -65,15 +65,6 @@ private:
 
 	QSize m_size;
 	Color m_color;
-	
-	QColor m_lastWindowColor;
-	QColor m_lastWindowTextColor;
-	QColor m_lastWidgetColor;
-	QColor m_lastWidgetTextColor;
-	/** Used to detect changed in the font*/
-	QString m_sLastUsedFontFamily;
-	/** Used to detect changed in the font*/
-	H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 
