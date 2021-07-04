@@ -40,7 +40,7 @@ namespace H2Core
 {
 
 const char* Sample::__class_name = "Sample";
-const char* EnvelopePoint::__class_name = "EnvolopePoint";
+const char* EnvelopePoint::__class_name = "EnvelopePoint";
 
 const std::vector<QString> Sample::__loop_modes = { "forward", "reverse", "pingpong" };
 
@@ -51,11 +51,11 @@ static RubberBand::RubberBandStretcher::Options compute_rubberband_options( cons
 
 
 /* EnvelopePoint */
-EnvelopePoint::EnvelopePoint() : Object( EnvelopePoint::__class_name ), frame( 0 ), value( 0 ) 
+EnvelopePoint::EnvelopePoint() : Object( EnvelopePoint::__class_name ), frame( 0 ), value( 0 )
 {
 }
 
-EnvelopePoint::EnvelopePoint( int f, int v ) : Object( EnvelopePoint::__class_name ), frame( f ), value( v ) 
+EnvelopePoint::EnvelopePoint( int f, int v ) : Object ( EnvelopePoint::__class_name), frame( f ), value( v )
 {
 }
 
