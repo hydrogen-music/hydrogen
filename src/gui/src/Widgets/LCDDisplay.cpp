@@ -39,7 +39,7 @@ LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont )
 	setFocusPolicy( Qt::NoFocus );
 	setAlignment( Qt::AlignCenter );
 	setLocale( QLocale( QLocale::C, QLocale::AnyCountry ) );
-	
+
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	// Derive a set of scaling-dependent font sizes on the basis of
@@ -61,7 +61,7 @@ LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont )
 	
 	m_fontPointSizes[ 1 ] = m_fontPointSizes[ 0 ] + nStepSize;
 	m_fontPointSizes[ 2 ] = m_fontPointSizes[ 0 ] + 2 * nStepSize;
-
+	
 	if ( ! size.isNull() ) {
 		adjustSize();
 		setFixedSize( size );
@@ -103,10 +103,6 @@ void LCDDisplay::updateFont() {
 }
 
 void LCDDisplay::updateStyleSheet() {
-	
-	if ( m_bFixedFont ) {
-		return;
-	}
 
 	auto pPref = H2Core::Preferences::get_instance();
 	
@@ -117,12 +113,24 @@ void LCDDisplay::updateStyleSheet() {
 		textColor = pPref->getDefaultUIStyle()->m_windowTextColor;
 	}
 
-	setStyleSheet( QString( "\
+	QString sStyleSheet = QString( "\
 QLineEdit { \
     color: %1; \
-    background-color: %2; \
-}" )
-				   .arg( textColor.name() ).arg( pPref->getDefaultUIStyle()->m_windowColor.name() ) );
+    background-color: %2;" )
+		.arg( textColor.name() )
+		.arg( pPref->getDefaultUIStyle()->m_windowColor.name() );
+
+	// For fixed font displays we have to add the current font
+	// parameters as well to avoid any inherited changes.
+	if ( m_bFixedFont && font().pixelSize() > 0 ) {
+		sStyleSheet.append( QString( "\
+    font-size: %1px; \
+    font-family: %2;" )
+							.arg( font().pixelSize() )
+							.arg( font().family() ) );
+	}
+
+	setStyleSheet( sStyleSheet.append( "}" ) );
 }
 
 void LCDDisplay::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
