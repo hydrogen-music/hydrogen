@@ -317,7 +317,7 @@ void JackAudioDriver::relocateUsingBBT()
 	}
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	float fTicksPerBeat = static_cast<float>( pSong->getResolution() / m_JackTransportPos.beat_type * 4 );
 
@@ -912,7 +912,7 @@ int JackAudioDriver::init( unsigned bufferSize )
 	
 	// Whenever there is a Song present, create per track outputs (if
 	// activated in the Preferences).
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong != nullptr ) {
 		makeTrackOutputs( pSong );
 		setBpm( pSong->getBpm() );
@@ -922,7 +922,7 @@ int JackAudioDriver::init( unsigned bufferSize )
 	return 0;
 }
 
-void JackAudioDriver::makeTrackOutputs( Song* pSong )
+void JackAudioDriver::makeTrackOutputs( std::shared_ptr<Song> pSong )
 {
 	if( Preferences::get_instance()->m_bJackTrackOuts == false ) {
 		return;
@@ -968,7 +968,7 @@ void JackAudioDriver::makeTrackOutputs( Song* pSong )
 	m_nTrackPortCount = nTrackCount;
 }
 
-void JackAudioDriver::setTrackOutput( int n, std::shared_ptr<Instrument> pInstrument, std::shared_ptr<InstrumentComponent> pInstrumentComponent, Song* pSong )
+void JackAudioDriver::setTrackOutput( int n, std::shared_ptr<Instrument> pInstrument, std::shared_ptr<InstrumentComponent> pInstrumentComponent, std::shared_ptr<Song> pSong )
 {
 	QString sComponentName;
 
@@ -1088,7 +1088,7 @@ void JackAudioDriver::jack_session_callback_impl(jack_session_event_t* event)
 	};
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	Preferences* pPreferences = Preferences::get_instance();
 	EventQueue* pEventQueue = EventQueue::get_instance();
 
@@ -1255,7 +1255,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	}
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}

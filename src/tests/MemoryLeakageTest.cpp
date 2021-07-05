@@ -233,7 +233,7 @@ void MemoryLeakageTest::testConstructors() {
 	}
 	
 	delete pDrumkitProper;
-	delete pSongProper;
+	pSongProper = nullptr;
 	CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
 }
 
@@ -383,7 +383,7 @@ void MemoryLeakageTest::testLoading() {
 	{
 		auto pSong = H2Core::Song::getDefaultSong();
 		CPPUNIT_ASSERT( pSong != nullptr );
-		delete pSong;
+		pSong = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
 	}
 
@@ -391,7 +391,7 @@ void MemoryLeakageTest::testLoading() {
 		auto pReader = new H2Core::SongReader();
 		auto pSong = pReader->readSong( H2TEST_FILE( "functional/test.h2song" ) );
 		CPPUNIT_ASSERT( pSong != nullptr );
-		delete pSong;
+		pSong = nullptr;
 		delete pReader;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Object::getAliveObjectCount() );
 	}

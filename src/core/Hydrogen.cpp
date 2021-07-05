@@ -217,7 +217,7 @@ void Hydrogen::initBeatcounter()
 /// Start the internal sequencer
 void Hydrogen::sequencer_play()
 {
-	Song* pSong = getSong();
+	std::shared_ptr<Song> pSong = getSong();
 	pSong->getPatternList()->set_to_old();
 	m_pAudioEngine->getAudioDriver()->play();
 }
@@ -235,7 +235,7 @@ void Hydrogen::sequencer_stop()
 
 bool Hydrogen::setPlaybackTrackState( const bool state )
 {
-	Song* pSong = getSong();
+	std::shared_ptr<Song> pSong = getSong();
 	if ( pSong == nullptr ) {
 		return false;
 	}
@@ -245,20 +245,20 @@ bool Hydrogen::setPlaybackTrackState( const bool state )
 
 void Hydrogen::loadPlaybackTrack( const QString filename )
 {
-	Song* pSong = getSong();
+	std::shared_ptr<Song> pSong = getSong();
 	pSong->setPlaybackTrackFilename(filename);
 
 	m_pAudioEngine->getSampler()->reinitializePlaybackTrack();
 }
 
-void Hydrogen::setSong( Song *pSong )
+void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 {
 	assert ( pSong );
 	
 	// Move to the beginning.
 	setSelectedPatternNumber( 0 );
 
-	Song* pCurrentSong = getSong();
+	std::shared_ptr<Song> pCurrentSong = getSong();
 	if ( pSong == pCurrentSong ) {
 		DEBUGLOG( "pSong == pCurrentSong" );
 		return;
@@ -277,7 +277,7 @@ void Hydrogen::setSong( Song *pSong )
 			pSong->setFilename( pCurrentSong->getFilename() );
 		}
 		removeSong();
-		delete pCurrentSong;
+		// delete pCurrentSong;
 	}
 
 	if ( m_GUIState != GUIState::unavailable ) {
@@ -345,7 +345,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 
-	Song *pSong = getSong();
+	std::shared_ptr<Song> pSong = getSong();
 	if ( !pPreferences->__playselectedinstrument ) {
 		if ( instrument >= ( int ) pSong->getInstrumentList()->size() ) {
 			// unused instrument
@@ -568,7 +568,7 @@ void Hydrogen::sequencer_setNextPattern( int pos )
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
 	pAudioEngine->lock( RIGHT_HERE );
-	Song* pSong = getSong();
+	std::shared_ptr<Song> pSong = getSong();
 	if ( pSong && pSong->getMode() == Song::PATTERN_MODE ) {
 		PatternList* pPatternList = pSong->getPatternList();
 		
@@ -602,7 +602,7 @@ void Hydrogen::sequencer_setOnlyNextPattern( int pos )
 	AudioEngine* pAudioEngine = m_pAudioEngine;	
 	pAudioEngine->lock( RIGHT_HERE );
 	
-	Song* pSong = getSong();
+	std::shared_ptr<Song> pSong = getSong();
 	if ( pSong && pSong->getMode() == Song::PATTERN_MODE ) {
 		PatternList* pPatternList = pSong->getPatternList();
 		
@@ -635,7 +635,7 @@ int Hydrogen::getPatternPos()
 /* Return pattern for selected song tick position */
 int Hydrogen::getPosForTick( unsigned long TickPos, int* nPatternStartTick )
 {
-	Song* pSong = getSong();
+	std::shared_ptr<Song> pSong = getSong();
 	if ( pSong == nullptr ) {
 		return 0;
 	}
@@ -675,7 +675,7 @@ void Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 	
 	pAudioEngine->getSampler()->stopPlayingNotes();
 
-	Song* pSong = getSong();
+	std::shared_ptr<Song> pSong = getSong();
 	
 	m_oldEngineMode = pSong->getMode();
 	m_bOldLoopEnabled = pSong->getIsLoopEnabled();
@@ -706,7 +706,7 @@ void Hydrogen::stopExportSession()
 	delete pAudioEngine->getAudioDriver();
 	pAudioEngine->setAudioDriver( nullptr );
 	
-	Song* pSong = getSong();
+	std::shared_ptr<Song> pSong = getSong();
 	pSong->setMode( m_oldEngineMode );
 	pSong->setIsLoopEnabled( m_bOldLoopEnabled );
 	
@@ -950,7 +950,7 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 // This will check if an instrument has any notes
 bool Hydrogen::instrumentHasNotes( std::shared_ptr<Instrument> pInst )
 {
-	Song* pSong = getSong();
+	std::shared_ptr<Song> pSong = getSong();
 	PatternList* pPatternList = pSong->getPatternList();
 
 	for ( int nPattern = 0 ; nPattern < (int)pPatternList->size() ; ++nPattern )
@@ -970,7 +970,7 @@ bool Hydrogen::instrumentHasNotes( std::shared_ptr<Instrument> pInst )
 //Hydrogen::loadDrumkit to delete the instruments by number
 void Hydrogen::removeInstrument( int instrumentNumber, bool conditional )
 {
-	Song* pSong = getSong();
+	std::shared_ptr<Song> pSong = getSong();
 	auto pInstr = pSong->getInstrumentList()->get( instrumentNumber );
 	PatternList* pPatternList = pSong->getPatternList();
 
@@ -1061,7 +1061,7 @@ unsigned long Hydrogen::getRealtimeFrames()
 
 long Hydrogen::getTickForPosition( int pos )
 {
-	Song* pSong = getSong();	
+	std::shared_ptr<Song> pSong = getSong();
 
 	int nPatternGroups = pSong->getPatternGroupVector()->size();
 	if ( nPatternGroups == 0 ) {
@@ -1217,7 +1217,7 @@ void Hydrogen::setTapTempo( float fInterval )
 void Hydrogen::setBPM( float fBPM )
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;	
-	Song* pSong = getSong();
+	std::shared_ptr<Song> pSong = getSong();
 	if ( ! pAudioEngine->getAudioDriver() || ! pSong ){
 		return;
 	}
@@ -1302,7 +1302,7 @@ void Hydrogen::refreshInstrumentParameters( int nInstrument )
 }
 
 #ifdef H2CORE_HAVE_JACK
-void Hydrogen::renameJackPorts( Song *pSong )
+void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 {
 	if( Preferences::get_instance()->m_bJackTrackOuts == true ){
 		m_pAudioEngine->renameJackPorts(pSong);
@@ -1476,7 +1476,7 @@ void Hydrogen::onJackMaster()
 
 long Hydrogen::getPatternLength( int nPattern )
 {
-	Song* pSong = getSong();
+	std::shared_ptr<Song> pSong = getSong();
 	if ( pSong == nullptr ){
 		return -1;
 	}
@@ -1528,7 +1528,7 @@ void Hydrogen::resetPatternStartTick()
 void Hydrogen::togglePlaysSelected()
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;	
-	Song* pSong = getSong();
+	std::shared_ptr<Song> pSong = getSong();
 
 	if ( pSong->getMode() != Song::PATTERN_MODE ) {
 		return;
@@ -1584,7 +1584,7 @@ void Hydrogen::__panic()
 
 float Hydrogen::getTimelineBpm( int nBar )
 {
-	Song* pSong = getSong();
+	std::shared_ptr<Song> pSong = getSong();
 
 	// We need return something
 	if ( pSong == nullptr ) {
@@ -1625,7 +1625,7 @@ void Hydrogen::setTimelineBpm()
 		return;
 	}
 
-	Song* pSong = getSong();
+	std::shared_ptr<Song> pSong = getSong();
 	// Obtain the local speed specified for the current Pattern.
 	float fBPM = getTimelineBpm( getPatternPos() );
 

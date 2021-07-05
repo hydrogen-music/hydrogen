@@ -81,7 +81,7 @@ void CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 	
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	auto pInstr = pInstrList->get( nStrip );
@@ -142,7 +142,7 @@ void CoreActionController::setMasterIsMuted( bool isMuted )
 void CoreActionController::toggleStripIsMuted(int nStrip)
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if( pInstrList->is_valid_index( nStrip ))
@@ -158,7 +158,7 @@ void CoreActionController::toggleStripIsMuted(int nStrip)
 void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	auto pInstr = pInstrList->get( nStrip );
@@ -182,7 +182,7 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 void CoreActionController::toggleStripIsSoloed( int nStrip )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if( pInstrList->is_valid_index( nStrip ))
@@ -198,7 +198,7 @@ void CoreActionController::toggleStripIsSoloed( int nStrip )
 void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	auto pInstr = pInstrList->get( nStrip );
@@ -228,7 +228,7 @@ void CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectSt
 		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 	
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	auto pInstr = pInstrList->get( nStrip );
@@ -256,7 +256,7 @@ void CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelec
 		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 	
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	auto pInstr = pInstrList->get( nStrip );
@@ -297,7 +297,7 @@ void CoreActionController::initExternalControlInterfaces()
 	
 	//MASTER_VOLUME_ABSOLUTE
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	setMasterVolume( pSong->getVolume() );
 	
 	//PER-INSTRUMENT/STRIP STATES
@@ -395,7 +395,7 @@ bool CoreActionController::openSong( const QString& sSongPath ) {
 	return setSong( pSong );
 }
 
-bool CoreActionController::openSong( Song* pSong ) {
+bool CoreActionController::openSong( std::shared_ptr<Song> pSong ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
  
@@ -413,7 +413,7 @@ bool CoreActionController::openSong( Song* pSong ) {
 	return setSong( pSong );
 }
 
-bool CoreActionController::setSong( Song* pSong ) {
+bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	

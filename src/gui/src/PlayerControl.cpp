@@ -539,7 +539,7 @@ void PlayerControl::updatePlayerControl()
 		m_pRecBtn->setPressed(false);
 	}
 
-	Song *song = m_pHydrogen->getSong();
+	std::shared_ptr<Song> song = m_pHydrogen->getSong();
 
 	m_pSongLoopBtn->setPressed( song->getIsLoopEnabled() );
 

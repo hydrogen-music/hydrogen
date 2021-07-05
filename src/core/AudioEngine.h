@@ -284,7 +284,7 @@ public:
 	 *
 	 * \param pNewSong Song to load.
 	 */
-	void			setSong(Song *pNewSong );
+	void			setSong(std::shared_ptr<Song>pNewSong );
 
 	/**
 	 * Does the necessary cleanup of the global objects in the audioEngine.
@@ -532,7 +532,7 @@ public:
 	 * function will only perform actions if #m_audioEngineState is in
 	 * either #STATE_READY or #STATE_PLAYING.
 	 */
-	void			processCheckBPMChanged(Song *pSong);
+	void			processCheckBPMChanged(std::shared_ptr<Song>pSong);
 	
 	/** Relocate using the audio driver and update the
 	 * #m_fElapsedTime.
@@ -651,7 +651,7 @@ public:
 	 * is an instance of the JackAudioDriver.
 	 * \param pSong Song for which per-track output ports should be generated.
 	 */
-	void			renameJackPorts(Song * pSong);
+	void			renameJackPorts(std::shared_ptr<Song> pSong);
 	
  
 	void			setAudioDriver( AudioOutput* pAudioDriver );

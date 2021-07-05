@@ -124,7 +124,7 @@ class CoreActionController : public H2Core::Object {
 		 * \param pSong New Song.
 		 * \return true on success
 		 */
-		bool openSong( Song* pSong );
+		bool openSong( std::shared_ptr<Song> pSong );
 		/**
 		 * Saves the current #Song.
 		 *
@@ -288,7 +288,7 @@ class CoreActionController : public H2Core::Object {
 		 * \param pSong Pointer to the #Song to set.
 		 * \return true on success
 		 */
-		bool setSong( Song* pSong );
+		bool setSong( std::shared_ptr<Song> pSong );
 		
 		const int m_nDefaultMidiFeedbackChannel;
 };

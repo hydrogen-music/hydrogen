@@ -444,7 +444,7 @@ void MainForm::onLashPollTimer()
 
 		std::string songFilename;
 		QString filenameSong;
-		Song *song = Hydrogen::get_instance()->getSong();
+		std::shared_ptr<Song> song = Hydrogen::get_instance()->getSong();
 		// Extra parentheses for -Wparentheses
 		while ( (event = client->getNextEvent()) ) {
 
@@ -551,7 +551,7 @@ void MainForm::action_file_new()
 	h2app->m_pUndoStack->clear();
 	pHydrogen->getTimeline()->deleteAllTempoMarkers();
 	pHydrogen->getTimeline()->deleteAllTags();
-	Song* pSong = Song::getEmptySong();
+	std::shared_ptr<Song> pSong = Song::getEmptySong();
 
 	if ( bUnderSessionManagement ) {
 		// Just a single click will allow the user to discard the
@@ -607,7 +607,7 @@ void MainForm::action_file_save_as()
 	
 	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::songs_dir() ) );
 
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	QString defaultFilename;
 	QString lastFilename = pSong->getFilename();
 
@@ -652,7 +652,7 @@ void MainForm::action_file_save_as()
 
 void MainForm::action_file_save()
 {
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	QString filename = pSong->getFilename();
 
 	if ( filename.isEmpty() ) {
@@ -773,7 +773,7 @@ void MainForm::action_file_export_pattern_as()
 	}
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	Pattern *pPattern = pSong->getPatternList()->get( pHydrogen->getSelectedPatternNumber() );
 
 	QDir dir = Preferences::get_instance()->__lastspatternDirectory;
@@ -858,7 +858,7 @@ void MainForm::action_file_open() {
 void MainForm::action_file_openPattern()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 	int selectedPatternPosition = pHydrogen->getSelectedPatternNumber();
 
@@ -1122,7 +1122,7 @@ void MainForm::action_instruments_clearAll()
 	}
 
 	// Remove all instruments
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	InstrumentList* pList = pSong->getInstrumentList();
 	for (uint i = pList->size(); i > 0; i--) {
 		functionDeleteInstrument(i - 1);
@@ -1137,7 +1137,7 @@ void MainForm::functionDeleteInstrument(int instrument)
 	auto pSelectedInstrument = pHydrogen->getSong()->getInstrumentList()->get( instrument );
 
 	std::list< Note* > noteList;
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 
 	QString instrumentName =  pSelectedInstrument->get_name();
@@ -1468,7 +1468,7 @@ void MainForm::onBPMPlusAccelEvent()
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	pHydrogen->setBPM( pSong->getBpm() + 0.1 );
 	pHydrogen->getAudioEngine()->unlock();
 }
@@ -1480,7 +1480,7 @@ void MainForm::onBPMMinusAccelEvent()
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	pHydrogen->setBPM( pSong->getBpm() - 0.1 );
 	pHydrogen->getAudioEngine()->unlock();
 }
@@ -1552,7 +1552,7 @@ void MainForm::checkMissingSamples()
 
 void MainForm::checkMidiSetup()
 {
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong->getInstrumentList()->has_all_midi_notes_same() ) {
 		WARNINGLOG( "Incorrect MIDI setup" );
 
@@ -1582,7 +1582,7 @@ void MainForm::checkNecessaryDirectories()
 void MainForm::onFixMidiSetup()
 {
 	INFOLOG( "Fixing MIDI setup" );
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	pSong->getInstrumentList()->set_default_midi_out_notes();
 	pSong->setIsModified( true );
 
@@ -1900,7 +1900,7 @@ void MainForm::action_file_export_lilypond()
 			sFilename += ".ly";
 		}
 
-		Song *pSong = Hydrogen::get_instance()->getSong();
+		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 
 		LilyPond ly;
 		ly.extractData( *pSong );
@@ -2024,7 +2024,7 @@ void MainForm::showDevelWarning()
 
 QString MainForm::getAutoSaveFilename()
 {
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	assert( pSong );
 	QString sOldFilename = pSong->getFilename();
 	QString newName = "autosave.h2song";
@@ -2041,7 +2041,7 @@ QString MainForm::getAutoSaveFilename()
 void MainForm::onAutoSaveTimer()
 {
 	//INFOLOG( "[onAutoSaveTimer]" );
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	assert( pSong );
 	if ( pSong->getIsModified() ) {
 		QString sOldFilename = pSong->getFilename();
@@ -2281,7 +2281,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	HydrogenApp* pApp = HydrogenApp::get_instance();
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	if ( pObject->inherits( "SongEditorPanel" ) ) {
 			

@@ -239,7 +239,7 @@ public:
 	 * The function will only perform its tasks if the
 	 * Preferences::m_bJackTrackOuts is set to true.
 	 */
-	void makeTrackOutputs( Song* pSong );
+	void makeTrackOutputs( std::shared_ptr<Song> pSong );
 
 	/** \param flag Sets #m_bConnectDefaults*/
 	void setConnectDefaults( bool flag ) {
@@ -729,7 +729,7 @@ private:
 	 *   InstrumentComponent.
 	 * \param pSong Pointer to the corresponding Song.
 	 */
-	void setTrackOutput( int n, std::shared_ptr<Instrument> instr, std::shared_ptr<InstrumentComponent> pCompo, Song* pSong );
+	void setTrackOutput( int n, std::shared_ptr<Instrument> instr, std::shared_ptr<InstrumentComponent> pCompo, std::shared_ptr<Song> pSong );
 	/**
 	 * Constant offset between the internal transport position in
 	 * TransportInfo::m_nFrames and the external one.

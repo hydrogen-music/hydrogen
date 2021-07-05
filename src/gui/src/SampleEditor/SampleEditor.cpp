@@ -170,7 +170,7 @@ void SampleEditor::getAllFrameInfos()
 {
 	std::shared_ptr<H2Core::Instrument> pInstrument = nullptr;
 	std::shared_ptr<Sample> pSample;
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	
 	if (pSong != nullptr) {
 		InstrumentList *pInstrList = pSong->getInstrumentList();
@@ -379,7 +379,7 @@ void SampleEditor::createNewLayer()
 		Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 		std::shared_ptr<H2Core::Instrument> pInstrument = nullptr;
-		Song *pSong = Hydrogen::get_instance()->getSong();
+		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 		if (pSong != nullptr) {
 			InstrumentList *pInstrList = pSong->getInstrumentList();
 			int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
@@ -550,7 +550,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 	const float fPitch = 0.0f;
 	const int selectedLayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
 
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -595,7 +595,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	}
 
 	const int selectedlayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	auto pInstr = pSong->getInstrumentList()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 
 	/*

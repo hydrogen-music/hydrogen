@@ -307,7 +307,7 @@ void PlaylistDialog::addSong()
 
 void PlaylistDialog::addCurrentSong()
 {
-	Song *	pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> 	pSong = Hydrogen::get_instance()->getSong();
 	QString filename = 	pSong->getFilename();
 
 	if (filename == "") {

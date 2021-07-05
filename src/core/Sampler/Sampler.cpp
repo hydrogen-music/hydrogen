@@ -110,7 +110,7 @@ Sampler::~Sampler()
  */
 float const Sampler::K_NORM_DEFAULT = 1.33333333333333;
 
-void Sampler::process( uint32_t nFrames, Song* pSong )
+void Sampler::process( uint32_t nFrames, std::shared_ptr<Song> pSong )
 {
 	//infoLog( "[process]" );
 	AudioOutput* pAudioOutpout = Hydrogen::get_instance()->getAudioOutput();
@@ -365,7 +365,7 @@ float Sampler::ratioConstKNormPanLaw( float fPan, float k) {
 }
 
 // function to direct the computation to the selected pan law.
-inline float Sampler::panLaw( float fPan, Song* pSong ) {
+inline float Sampler::panLaw( float fPan, std::shared_ptr<Song> pSong ) {
 	int nPanLawType = pSong->getPanLawType();
 	if ( nPanLawType == RATIO_STRAIGHT_POLYGONAL ) {
 		return ratioStraightPolygonalPanLaw( fPan );
@@ -411,7 +411,7 @@ inline float Sampler::panLaw( float fPan, Song* pSong ) {
 /// Render a note
 /// Return false: the note is not ended
 /// Return true: the note is ended
-bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
+bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Song> pSong )
 {
 	//infoLog( "[renderNote] instr: " + pNote->getInstrument()->m_sName );
 	assert( pSong );
@@ -878,7 +878,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	AudioOutput* pAudioOutput = Hydrogen::get_instance()->getAudioOutput();
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 
 	if(   !pSong->getPlaybackTrackEnabled()
@@ -1047,7 +1047,7 @@ bool Sampler::renderNoteNoResample(
 	float cost_R,
 	float cost_track_L,
 	float cost_track_R,
-	Song* pSong
+	std::shared_ptr<Song> pSong
 )
 {
 	AudioOutput* pAudioOutput = Hydrogen::get_instance()->getAudioOutput();
@@ -1193,7 +1193,7 @@ bool Sampler::renderNoteResample(
 	float cost_track_L,
 	float cost_track_R,
 	float fLayerPitch,
-	Song* pSong
+	std::shared_ptr<Song> pSong
 )
 {
 	AudioOutput* pAudioOutput = Hydrogen::get_instance()->getAudioOutput();
@@ -1503,7 +1503,7 @@ void Sampler::setPlayingNotelength( std::shared_ptr<Instrument> pInstrument, uns
 {
 	if ( pInstrument ) { // stop all notes using this instrument
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
-		Song* pSong = pHydrogen->getSong();
+		std::shared_ptr<Song> pSong = pHydrogen->getSong();
 		int nSelectedpattern = pHydrogen->getSelectedPatternNumber();
 		Pattern* pCurrentPattern = nullptr;
 
@@ -1572,7 +1572,7 @@ void Sampler::setPlayingNotelength( std::shared_ptr<Instrument> pInstrument, uns
 bool Sampler::isAnyInstrumentSoloed() const
 {
 	Hydrogen*		pHydrogen = Hydrogen::get_instance();
-	Song*			pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> 			pSong = pHydrogen->getSong();
 	InstrumentList* pInstrList = pSong->getInstrumentList();
 	bool			bAnyInstrumentIsSoloed = false;
 	
@@ -1602,7 +1602,7 @@ bool Sampler::isInstrumentPlaying( std::shared_ptr<Instrument> instrument )
 void Sampler::reinitializePlaybackTrack()
 {
 	Hydrogen*	pHydrogen = Hydrogen::get_instance();
-	Song*		pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> 		pSong = pHydrogen->getSong();
 	std::shared_ptr<Sample>	pSample;
 
 	if(!pSong->getPlaybackTrackFilename().isEmpty()){

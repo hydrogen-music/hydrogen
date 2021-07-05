@@ -89,7 +89,7 @@ public:
 	~SongWriter();
 
 	// Returns 0 on success.
-	int writeSong( Song *song, const QString& filename );
+	int writeSong( std::shared_ptr<Song> song, const QString& filename );
 };
 
 };

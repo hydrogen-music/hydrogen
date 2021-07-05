@@ -510,7 +510,7 @@ void PatternEditor::undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> 
 
 void PatternEditor::updatePatternInfo() {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	m_pPattern = nullptr;
 	m_nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();

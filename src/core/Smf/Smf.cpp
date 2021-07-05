@@ -222,7 +222,7 @@ SMFWriter::~SMFWriter()
 }
 
 
-SMFTrack* SMFWriter::createTrack0( Song* pSong ) {
+SMFTrack* SMFWriter::createTrack0( std::shared_ptr<Song> pSong ) {
 	SMFTrack *pTrack0 = new SMFTrack();
 	pTrack0->addEvent( new SMFCopyRightNoticeMetaEvent( pSong->getAuthor() , 0 ) );
 	pTrack0->addEvent( new SMFTrackNameMetaEvent( pSong->getName() , 0 ) );
@@ -232,7 +232,7 @@ SMFTrack* SMFWriter::createTrack0( Song* pSong ) {
 }
 
 
-void SMFWriter::save( const QString& sFilename, Song *pSong )
+void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 {
 	INFOLOG( "save" );
 
@@ -377,7 +377,7 @@ SMF1Writer::~SMF1Writer()
 }
 
 
-SMF* SMF1Writer::createSMF( Song* pSong ){
+SMF* SMF1Writer::createSMF( std::shared_ptr<Song> pSong ){
 	SMF* pSmf =  new SMF( 1, TPQN );	
 	// Standard MIDI format 1 files should have the first track being the tempo map
 	// which is a track that contains global meta events only.
@@ -409,21 +409,21 @@ SMF1WriterSingle::~SMF1WriterSingle()
 
 
 
-EventList* SMF1WriterSingle::getEvents( Song* pSong, std::shared_ptr<Instrument> pInstr )
+EventList* SMF1WriterSingle::getEvents( std::shared_ptr<Song> pSong, std::shared_ptr<Instrument> pInstr )
 {
 	return &m_eventList;
 }
 
 
 
-void SMF1WriterSingle::prepareEvents( Song *pSong, SMF* pSmf )
+void SMF1WriterSingle::prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 {
    m_eventList.clear();
 }
 
 
 
-void SMF1WriterSingle::packEvents( Song *pSong, SMF* pSmf )
+void SMF1WriterSingle::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 {
 	sortEvents( &m_eventList );
 
@@ -462,7 +462,7 @@ SMF1WriterMulti::~SMF1WriterMulti()
 }
 
 
-void SMF1WriterMulti::prepareEvents( Song *pSong, SMF* pSmf )
+void SMF1WriterMulti::prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 {
 	InstrumentList* pInstrumentList = pSong->getInstrumentList();
 	m_eventLists.clear();
@@ -472,7 +472,7 @@ void SMF1WriterMulti::prepareEvents( Song *pSong, SMF* pSmf )
 }
 
 
-EventList* SMF1WriterMulti::getEvents( Song* pSong,  std::shared_ptr<Instrument> pInstr )
+EventList* SMF1WriterMulti::getEvents( std::shared_ptr<Song> pSong,  std::shared_ptr<Instrument> pInstr )
 {
 	int nInstr = pSong->getInstrumentList()->index(pInstr);
 	EventList* pEventList = m_eventLists.at( nInstr );
@@ -481,7 +481,7 @@ EventList* SMF1WriterMulti::getEvents( Song* pSong,  std::shared_ptr<Instrument>
 }
 
 
-void SMF1WriterMulti::packEvents( Song *pSong, SMF* pSmf )
+void SMF1WriterMulti::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 {
 	InstrumentList* pInstrumentList = pSong->getInstrumentList();
 	for ( unsigned nTrack = 0; nTrack < m_eventLists.size(); nTrack++ ) {
@@ -531,7 +531,7 @@ SMF0Writer::~SMF0Writer()
 }
 
 
-SMF* SMF0Writer::createSMF( Song* pSong ){
+SMF* SMF0Writer::createSMF( std::shared_ptr<Song> pSong ){
 	// MIDI files format 0 have all their events in one track
 	SMF* pSmf =  new SMF( 0, TPQN );	
 	m_pTrack = createTrack0( pSong );
@@ -540,19 +540,19 @@ SMF* SMF0Writer::createSMF( Song* pSong ){
 }
 
 
-EventList* SMF0Writer::getEvents( Song* pSong,  std::shared_ptr<Instrument> pInstr )
+EventList* SMF0Writer::getEvents( std::shared_ptr<Song> pSong,  std::shared_ptr<Instrument> pInstr )
 {
 	return &m_eventList;
 }
 
 
-void SMF0Writer::prepareEvents( Song *pSong, SMF* pSmf )
+void SMF0Writer::prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 {
    m_eventList.clear();
 }
 
 
-void SMF0Writer::packEvents( Song *pSong, SMF* pSmf )
+void SMF0Writer::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 {
 	sortEvents( &m_eventList );
 

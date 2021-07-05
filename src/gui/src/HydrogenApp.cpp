@@ -150,10 +150,8 @@ HydrogenApp::~HydrogenApp()
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	if (pHydrogen) {
-		H2Core::Song * pSong = pHydrogen->getSong();
 		// Hydrogen calls removeSong on from its destructor, so here we just delete the objects:
 		delete pHydrogen;
-		delete pSong;
 	}
 
 	#ifdef H2CORE_HAVE_LADSPA
@@ -339,7 +337,7 @@ bool HydrogenApp::openSong( const QString sFilename ) {
 	return true;
 }
 
-bool HydrogenApp::openSong( H2Core::Song* pSong ) {
+bool HydrogenApp::openSong( std::shared_ptr<H2Core::Song> pSong ) {
 
 	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
 	if ( ! pCoreActionController->openSong( pSong ) ) {
@@ -409,7 +407,7 @@ void HydrogenApp::setStatusBarMessage( const QString& msg, int msec )
 
 void HydrogenApp::updateWindowTitle()
 {
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	assert(pSong);
 
 	QString title;
@@ -634,7 +632,7 @@ void HydrogenApp::onEventQueueTimer()
 
 	// midi notes
 	while( !pQueue->m_addMidiNoteVector.empty() ){
-		Song *pSong = Hydrogen::get_instance()->getSong();
+		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 		auto pInstrument = pSong->getInstrumentList()->get( pQueue->m_addMidiNoteVector[0].m_row );
 		// find if a (pitch matching) note is already present
 		Note *pOldNote = pSong->getPatternList()->get( pQueue->m_addMidiNoteVector[0].m_pattern )

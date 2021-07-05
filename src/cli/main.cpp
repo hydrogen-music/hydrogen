@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
 #endif
 		Hydrogen::create_instance();
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
-		Song *pSong = nullptr;
+		std::shared_ptr<Song> pSong = nullptr;
 		Playlist *pPlaylist = nullptr;
 
 		// Load playlist
@@ -439,7 +439,8 @@ int main(int argc, char *argv[])
 			pHydrogen->sequencer_stop();
 		}
 
-		delete pSong;
+		//delete pSong;
+		pSong = nullptr;
 		delete pPlaylist;
 
 		delete pQueue;
