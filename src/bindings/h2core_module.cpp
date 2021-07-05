@@ -1977,7 +1977,7 @@ PYBIND11_MODULE(h2core, m) {
 	_CoreActionController.def("openSong", py::overload_cast<const QString &>(&H2Core::CoreActionController::openSong),
 		"Opens the #Song specified in songPath.",
 		py::arg("songPath"));
-	_CoreActionController.def("openSong", py::overload_cast<H2Core::Song *>(&H2Core::CoreActionController::openSong),
+	_CoreActionController.def("openSong", py::overload_cast<std::shared_ptr<Song>>(&H2Core::CoreActionController::openSong),
 		"Opens the #Song specified in songPath.",
 		py::arg("pSong"));
 	_CoreActionController.def("saveSong", &H2Core::CoreActionController::saveSong,
