@@ -82,25 +82,30 @@ void LCDDisplay::setUseRedFont( bool bUseRedFont ) {
 
 void LCDDisplay::updateFont() {
 	
-	auto pPref = H2Core::Preferences::get_instance();
-	
-	if ( ! m_bFixedFont ) {
-
-		int nIndex = 1;
-		if ( pPref->getFontSize() == H2Core::Preferences::FontSize::Small ) {
-			nIndex = 0;
-		} else if ( pPref->getFontSize() == H2Core::Preferences::FontSize::Large ) {
-			nIndex = 2;
-		}
-
-		QFont newFont = font();
-		newFont.setFamily( pPref->getLevel3FontFamily() );
-		newFont.setPointSize( m_fontPointSizes[ nIndex ] );
-		setFont( newFont );
+	if ( m_bFixedFont ) {
+		return;
 	}
+	
+	auto pPref = H2Core::Preferences::get_instance();
+
+	int nIndex = 1;
+	if ( pPref->getFontSize() == H2Core::Preferences::FontSize::Small ) {
+		nIndex = 0;
+	} else if ( pPref->getFontSize() == H2Core::Preferences::FontSize::Large ) {
+		nIndex = 2;
+	}
+
+	QFont newFont = font();
+	newFont.setFamily( pPref->getLevel3FontFamily() );
+	newFont.setPointSize( m_fontPointSizes[ nIndex ] );
+	setFont( newFont );
 }
 
 void LCDDisplay::updateStyleSheet() {
+	
+	if ( m_bFixedFont ) {
+		return;
+	}
 
 	auto pPref = H2Core::Preferences::get_instance();
 	
