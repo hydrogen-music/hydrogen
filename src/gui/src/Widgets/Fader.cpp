@@ -23,6 +23,7 @@
 
 #include "../Skin.h"
 #include "../HydrogenApp.h"
+#include "../MainForm.h"
 #include "Fader.h"
 #include "MidiSenseWidget.h"
 
@@ -54,6 +55,8 @@ Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSte
 	m_fDefaultValue = m_fMax;
 	m_fValue = m_fDefaultValue;
 	updateTooltip();
+
+	installEventFilter( HydrogenApp::get_instance()->getMainForm() );
 
 	if ( type == Type::Vertical ){ 
 		m_nWidgetWidth = 116;
