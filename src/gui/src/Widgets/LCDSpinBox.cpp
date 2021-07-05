@@ -37,6 +37,7 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, do
  , m_kind( Kind::Default )
 {
 	setFocusPolicy( Qt::ClickFocus );
+	setLocale( QLocale( QLocale::C, QLocale::AnyCountry ) );
 	
 	if ( ! size.isNull() ) {
 		adjustSize();

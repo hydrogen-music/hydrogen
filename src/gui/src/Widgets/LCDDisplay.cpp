@@ -38,6 +38,7 @@ LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont )
 	setEnabled( false );
 	setFocusPolicy( Qt::NoFocus );
 	setAlignment( Qt::AlignCenter );
+	setLocale( QLocale( QLocale::C, QLocale::AnyCountry ) );
 	
 	auto pPref = H2Core::Preferences::get_instance();
 	

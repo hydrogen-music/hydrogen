@@ -104,6 +104,9 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	rubberbandCsettingscomboBox->setCurrentIndex( 4 );
 	rubberComboBox->setCurrentIndex( 0 );
 
+	// Make things consistent with the LCDDisplay and LCDSpinBox classes.
+	pitchdoubleSpinBox->setLocale( QLocale( QLocale::C, QLocale::AnyCountry ) );
+
 	__rubberband.use = false;
 	__rubberband.divider = 1.0;
 	openDisplays();
