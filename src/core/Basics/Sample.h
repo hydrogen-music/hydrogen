@@ -363,7 +363,7 @@ inline void Sample::unload()
 
 inline bool Sample::is_empty() const
 {
-	return ( __data_l==__data_r==0 );
+	return ( __data_l == 0 && __data_r == 0 );
 }
 
 inline const QString Sample::get_filepath() const
