@@ -124,7 +124,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		virtual void deleteSelection() override;
 		virtual void paste() override;
 		void onPreferencesChanged( H2Core::Preferences::Changes changes );
-		void scrolled( int );
 
 	private:
 		H2Core::AudioEngine* m_pAudioEngine;
@@ -158,8 +157,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void keyPressEvent ( QKeyEvent * ev ) override;
 		virtual void focusInEvent ( QFocusEvent * ev ) override;
-		virtual void enterEvent( QEvent *ev ) override;
-		virtual void leaveEvent( QEvent *ev ) override;
 
 		int __selectedInstrumentnumber;
 		int __nRealColumn;
@@ -173,7 +170,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		float m_fOldPan;
 		float __leadLag;
 		float __oldLeadLag;		
-		bool m_bEntered;
 };
 
 #endif

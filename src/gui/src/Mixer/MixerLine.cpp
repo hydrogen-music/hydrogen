@@ -210,11 +210,14 @@ void MixerLine::soloBtnClicked() {
 }
 
 void MixerLine::faderChanged( WidgetWithInput *pRef ) {
+
+	assert( pRef );
+	
 	Song *pSong = (Hydrogen::get_instance())->getSong();
 	pSong->setIsModified( true );
 	emit volumeChanged(this);
 
-	WidgetWithInput* pFader = dynamic_cast<Fader*>( pRef );
+	WidgetWithInput* pFader = static_cast<Fader*>( pRef );
 	
 	double value = (double) pFader->getValue();
 	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set instrument volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
@@ -338,7 +341,8 @@ void MixerLine::setPlayClicked( bool clicked ) {
 
 void MixerLine::knobChanged( WidgetWithInput* pRef)
 {
-	Rotary* pRotary = dynamic_cast<Rotary*>( pRef );
+	assert( pRef );
+	Rotary* pRotary = static_cast<Rotary*>( pRef );
 	
 	for ( uint i = 0; i < MAX_FX; i++ ) {
 		if ( m_pFxRotary[i] == pRotary ) {
@@ -483,11 +487,14 @@ void ComponentMixerLine::soloBtnClicked() {
 }
 
 void ComponentMixerLine::faderChanged( WidgetWithInput *pRef ) {
+
+	assert( pRef );
+	
 	Song *pSong = (Hydrogen::get_instance())->getSong();
 	pSong->setIsModified( true );
 	emit volumeChanged(this);
 
-	WidgetWithInput* pFader = dynamic_cast<Fader*>( pRef );
+	WidgetWithInput* pFader = static_cast<Fader*>( pRef );
 	double value = (double) pFader->getValue();
 	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set main volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
 }
@@ -655,7 +662,9 @@ void MasterMixerLine::muteClicked()
 
 void MasterMixerLine::faderChanged( WidgetWithInput *pRef )
 {
-	Fader* pFader = dynamic_cast<Fader*>( pRef );
+	assert( pRef );
+	
+	Fader* pFader = static_cast<Fader*>( pRef );
 	m_pMasterFader->setValue( pFader->getValue() );
 
 	emit volumeChanged(this);
@@ -762,7 +771,9 @@ void MasterMixerLine::updateMixerLine()
 
 void MasterMixerLine::rotaryChanged( WidgetWithInput *pRef )
 {
-	Rotary* pRotary = dynamic_cast<Rotary*>( pRef );
+	assert( pRef );
+	
+	Rotary* pRotary = static_cast<Rotary*>( pRef );
 	
 	QString sMsg;
 	double fVal = (double) pRotary->getValue();

@@ -54,7 +54,6 @@ const char* DrumPatternEditor::__class_name = "DrumPatternEditor";
 
 DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
  : PatternEditor( parent, __class_name, panel )
- , m_bEntered( false )
 {
 	auto pPref = H2Core::Preferences::get_instance();
 
@@ -1252,24 +1251,6 @@ void DrumPatternEditor::drawFocus( QPainter& painter ) {
 	painter.drawLine( QPoint( nEndX, nStartY ), QPoint( nEndX, nEndY ) );
 	painter.drawLine( QPoint( nEndX, nEndY ), QPoint( nStartX, nEndY ) );
 }
-
-void DrumPatternEditor::scrolled( int nValue ) {
-	UNUSED( nValue );
-	update();
-}
-
-void DrumPatternEditor::enterEvent( QEvent *ev ) {
-	UNUSED( ev );
-	m_bEntered = true;
-	update();
-}
-
-void DrumPatternEditor::leaveEvent( QEvent *ev ) {
-	UNUSED( ev );
-	m_bEntered = false;
-	update();
-}
-
 
 void DrumPatternEditor::showEvent ( QShowEvent *ev )
 {

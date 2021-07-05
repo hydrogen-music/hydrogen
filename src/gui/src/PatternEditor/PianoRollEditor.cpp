@@ -45,7 +45,6 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 								  QScrollArea *pScrollView)
 	: PatternEditor( pParent, __class_name, panel )
 	, m_pScrollView( pScrollView )
-	, m_bEntered( false )
 {
 	INFOLOG( "INIT" );
 		
@@ -182,25 +181,6 @@ void PianoRollEditor::drawFocus( QPainter& painter ) {
 	painter.drawLine( QPoint( nEndX, nStartY ), QPoint( nEndX, nEndY ) );
 	painter.drawLine( QPoint( nEndX, nEndY ), QPoint( nStartX, nEndY ) );
 }
-
-void PianoRollEditor::scrolled( int nValue ) {
-	UNUSED( nValue );
-	update();
-}
-
-void PianoRollEditor::enterEvent( QEvent *ev ) {
-	UNUSED( ev );
-	m_bEntered = true;
-	update();
-}
-
-void PianoRollEditor::leaveEvent( QEvent *ev ) {
-	UNUSED( ev );
-	m_bEntered = false;
-	update();
-}
-
-
 
 void PianoRollEditor::createBackground()
 {

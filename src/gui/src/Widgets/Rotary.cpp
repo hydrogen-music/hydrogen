@@ -198,15 +198,14 @@ void Rotary::paintEvent( QPaintEvent* ev )
 		}
 	}
 	
-	float fPi = std::acos( -1 );
 	float fCurrentAngle;
 	float fStartAngle;
 	if ( m_type == Type::Center ) {
-		fStartAngle = -90 * fPi / 180;
-		fCurrentAngle = fStartAngle + 255 * fPi / 180 * ( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) / (  m_fMax - m_fMin );
+		fStartAngle = -90 * M_PI / 180;
+		fCurrentAngle = fStartAngle + 255 * M_PI / 180 * ( m_fValue - 0.5 * ( m_fMax + m_fMin ) ) / (  m_fMax - m_fMin );
 	} else {
-		fStartAngle = -90 * fPi / 180;
-		fCurrentAngle = fStartAngle + 255 * fPi / 180 * ( m_fValue - m_fMin - 0.5 * ( m_fMax - m_fMin ) ) / ( m_fMax - m_fMin );
+		fStartAngle = -90 * M_PI / 180;
+		fCurrentAngle = fStartAngle + 255 * M_PI / 180 * ( m_fValue - m_fMin - 0.5 * ( m_fMax - m_fMin ) ) / ( m_fMax - m_fMin );
 	}
 	
 	///////////////////////
@@ -227,12 +226,12 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	// 	fWidth = 3;
 	// }
 	//
-	// QPointF p1( fBaseX + std::cos( fCurrentAngle + fPi / 2 ) * fWidth / 2,
-	// 			fBaseY + std::sin( fCurrentAngle + fPi / 2 ) * fWidth / 2 );
+	// QPointF p1( fBaseX + std::cos( fCurrentAngle + M_PI / 2 ) * fWidth / 2,
+	// 			fBaseY + std::sin( fCurrentAngle + M_PI / 2 ) * fWidth / 2 );
 	// QPointF p2( p1.x() + std::cos( fCurrentAngle ) * fLength,
 	// 			p1.y() + std::sin( fCurrentAngle ) * fLength );
-	// QPointF p3( p2.x() - std::cos( fCurrentAngle + fPi / 2 ) * fWidth / 2,
-	// 			p2.y() - std::sin( fCurrentAngle + fPi / 2 ) * fWidth / 2 );
+	// QPointF p3( p2.x() - std::cos( fCurrentAngle + M_PI / 2 ) * fWidth / 2,
+	// 			p2.y() - std::sin( fCurrentAngle + M_PI / 2 ) * fWidth / 2 );
 	// QPointF p4( p3.x() - std::cos( fCurrentAngle ) * fLength,
 	// 			p3.y() - std::sin( fCurrentAngle ) * fLength );
 	// QPainterPath path;

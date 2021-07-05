@@ -147,6 +147,7 @@ public slots:
 	virtual void selectInstrumentNotes( int nInstrument );
 	void setCurrentInstrument( int nInstrument );
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void scrolled( int nValue );
 
 protected:
 
@@ -200,6 +201,11 @@ protected:
 
 	//! Update current pattern information
 	void updatePatternInfo();
+
+	/** Indicates whether the mouse pointer entered the widget.*/
+	bool m_bEntered;
+	virtual void enterEvent( QEvent *ev ) override;
+	virtual void leaveEvent( QEvent *ev ) override;
 
 };
 

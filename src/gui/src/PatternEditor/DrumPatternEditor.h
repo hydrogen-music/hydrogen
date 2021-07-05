@@ -129,7 +129,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		virtual void deleteSelection() override;
 		virtual void paste() override;
 		void onPreferencesChanged( H2Core::Preferences::Changes changes );
-		void scrolled( int );
 
 	private:
 		void __draw_note( H2Core::Note* note, QPainter& painter );
@@ -144,8 +143,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		virtual void hideEvent ( QHideEvent *ev ) override;
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void focusInEvent( QFocusEvent *ev ) override;
-		virtual void enterEvent( QEvent *ev ) override;
-		virtual void leaveEvent( QEvent *ev ) override;
 
 		int findFreeCompoID( int startingPoint = 0 );
 		int findExistingCompo( QString SourceName );
@@ -155,7 +152,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		int __nColumn;
 		int __row;
 		int __oldLength;
-		bool m_bEntered;
 };
 
 

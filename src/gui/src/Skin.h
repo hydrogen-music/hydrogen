@@ -53,6 +53,19 @@ public:
 	
 	It will get the most recent color values from the #H2Core::Preferences.*/
 	static void setPalette( QApplication *pQApp );
+
+	/** Get the style sheet used for warning icons. 
+	 *
+	 * In addition, the icon of the warning button has to be set to
+	 * Skin::getSvgImagePath() + "/icons/warning.svg".
+	 *
+	 * \param nSize Size in pixel (value will be used as both width
+	 * and height).
+	 *
+	 * \return Argument used of the setStyleSheet() method of the
+	 * warning button.
+	 */
+	static QString getWarningButtonStyleSheet( int nSize );
 };
 
 

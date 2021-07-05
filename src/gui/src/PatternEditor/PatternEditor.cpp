@@ -52,15 +52,18 @@ const char* PatternEditor::__class_name = "PatternEditor";
 
 PatternEditor::PatternEditor( QWidget *pParent, const char *sClassName,
 							  PatternEditorPanel *panel )
-	: Object ( sClassName ), QWidget( pParent ), m_selection( this ) {
-	m_nResolution = 8;
-	m_bUseTriplets = false;
-	m_pDraggedNote = nullptr;
-	m_pPatternEditorPanel = panel;
-	m_pPattern = nullptr;
-	m_bSelectNewNotes = false;
-	m_bFineGrained = false;
-	m_bCopyNotMove = false;
+	: Object ( sClassName )
+	, QWidget( pParent )
+	, m_selection( this )
+	, m_bEntered( false )
+	, m_nResolution( 8 )
+	, m_bUseTriplets( false )
+	, m_pDraggedNote( nullptr )
+	, m_pPatternEditorPanel( panel )
+	, m_pPattern( nullptr )
+	, m_bSelectNewNotes( false )
+	, m_bFineGrained( false )
+	, m_bCopyNotMove( false ) {
 
 	auto pPref = H2Core::Preferences::get_instance();
 	
@@ -674,4 +677,21 @@ void PatternEditor::validateSelection()
 	for ( auto i : invalidated ) {
 		m_selection.removeFromSelection( i, /* bCheck=*/false );
 	}
+}
+
+void PatternEditor::scrolled( int nValue ) {
+	UNUSED( nValue );
+	update();
+}
+
+void PatternEditor::enterEvent( QEvent *ev ) {
+	UNUSED( ev );
+	m_bEntered = true;
+	update();
+}
+
+void PatternEditor::leaveEvent( QEvent *ev ) {
+	UNUSED( ev );
+	m_bEntered = false;
+	update();
 }
