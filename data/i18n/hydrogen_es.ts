@@ -690,7 +690,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Please enter a number within the range of </source>
-        <translation>Por favor ingresa un número dentro del rango de </translation>
+        <translation>Por favor introduce un número dentro del rango de </translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
