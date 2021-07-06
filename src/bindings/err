@@ -1,0 +1,1414 @@
+banned
+	 QColor::QColor(QColor &&)
+	 QColor::name(QColor::NameFormat)
+	 QColor::operator=
+	 std::thread::thread(const std::thread &)
+	 std::thread::operator=(const std::thread &)
+	 std::thread::operator=(std::thread &&)
+	 std::thread::thread(std::thread &&)
+	 std::timed_mutex::timed_mutex(const std::timed_mutex &)
+	 std::timed_mutex::operator=
+	 std::exception::operator=(std::exception &&)
+	 std::exception::exception(std::exception &&)
+	 std::__cow_string
+	 std::__cow_string::operator=(std::__cow_string &&)
+	 std::__cow_string::__cow_string(std::__cow_string &&)
+	 std::runtime_error::operator=(std::runtime_error &&)
+	 std::runtime_error::runtime_error(std::runtime_error &&)
+	 _locker_struct
+	 QDomNodePrivate
+	 QStringList
+	 QFileInfoPrivate
+	 QLibraryPrivate
+	 Entry
+	 QObject
+	 QFileInfo::QFileInfo(QFileInfoPrivate *)
+	 QFileInfo::operator=(QFileInfo &&)
+	 QFileInfo::exists
+	 QRgba64::operator=
+	 QMetaType
+	 QStringRef
+	 QStringView
+	 QByteArray
+	 QChar
+	 QDomNode
+	 QFileInfo
+	 QLatin1String
+	 targeted_element
+	 MidiActionManager::targeted_element
+	 H2Core::AlsaAudioDriver::AlsaAudioDriver()
+	 H2Core::AlsaMidiDriver::midi_action
+	 H2Core::JackAudioDriver::m_pClient
+	 H2Core::Synth::m_playingNotesQueue
+	 H2Core::Hydrogen::m_nInstrumentLookupTable
+	 H2Core::AlsaAudioDriver::m_pPlayback_handle
+	 H2Core::PortAudioDriver::m_processCallback
+	 H2Core::DiskWriterDriver::m_processCallback
+	 H2Core::AlsaAudioDriver::m_processCallback
+	 H2Core::AudioEngine::m_EngineMutex
+	 H2Core::AudioEngine::m_MutexOutputPointer
+	 H2Core::AudioEngine::m_LockingThread
+	 H2Core::AudioEngine::m_currentTickTime
+	 H2Core::Note::match
+	 H2Core::Pattern::find_note
+	 H2Core::DiskWriterDriver::write
+	 H2Core::CoreAudioDriver
+	 H2Core::PulseAudioDriver
+	 H2Core::Hydrogen::previewSample
+	 H2Core::Hydrogen::previewInstrument
+	 H2Core::AudioEngine::prepNoteQueue
+	 H2Core::AudioEngine::renderNote
+	 H2Core::Preferences::setPreferencesOverwritePath
+	 H2Core::Preferences::getPreferencesOverwritePath
+	 H2Core::Preferences::getDataDirectory
+	 H2Core::LadspaControlPort::__class_name
+	 H2Core::LadspaControlPort::class_name
+banned pattern
+	 metaObject()
+	 qt_metacall(QMetaObject::Call, int, void **)
+	 qt_static_metacall(QObject *, QMetaObject::Call, int, void **)
+include path
+	 /usr/include/c++/10
+	 /usr/include/x86_64-linux-gnu/c++/10
+	 /usr/include/x86_64-linux-gnu/qt5
+	 /usr/include/x86_64-linux-gnu/qt5/QtCore
+	 /usr/include/x86_64-linux-gnu/qt5/QtGui
+	 /usr/include/x86_64-linux-gnu/qt5/QtXml
+	 /home/rebelcat/Hack/hydrogen/src
+	 /home/rebelcat/Hack/hydrogen/build/src
+	 /usr/include/python3.9
+	 /home/rebelcat/Hack/hydragen/include
+	 /usr/include
+clags
+	 -x c++ -fPIC -std=c++14 -fexceptions
+cleaners
+	 qtreset.h
+plugins
+	 pybind11/stl.h
+	 pybind11/numpy.h
+	 qtcasters.h
+[W 210704 18:18:46 dom:221] XXX rpnf: <Variable 'value'>, CursorKind.STRUCT_DECL integral_constant:
+    <SourceLocation file '/usr/include/c++/10/type_traits', line 72, column 48>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Variable 'value'>, CursorKind.STRUCT_DECL integral_constant:
+    <SourceLocation file '/usr/include/c++/10/type_traits', line 72, column 48>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/type_traits', line 2535, column 43>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Variable 'value'>, CursorKind.STRUCT_DECL integral_constant:
+    <SourceLocation file '/usr/include/c++/10/type_traits', line 72, column 48>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Variable 'value'>, CursorKind.STRUCT_DECL integral_constant:
+    <SourceLocation file '/usr/include/c++/10/type_traits', line 72, column 48>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Variable 'value'>, CursorKind.STRUCT_DECL integral_constant:
+    <SourceLocation file '/usr/include/c++/10/type_traits', line 72, column 48>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Variable 'value'>, CursorKind.STRUCT_DECL integral_constant:
+    <SourceLocation file '/usr/include/c++/10/type_traits', line 72, column 48>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Variable 'value'>, CursorKind.STRUCT_DECL integral_constant:
+    <SourceLocation file '/usr/include/c++/10/type_traits', line 72, column 48>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Struct ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/clang/11.0.1/include/__stddef_max_align_t.h', line 19, column 9>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Struct ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/bits/types.h', line 155, column 12>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Struct ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/bits/cpu-set.h', line 39, column 9>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Struct '__locale_data'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/bits/types/__locale_t.h', line 31, column 10>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Struct '__pthread_internal_list'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/bits/thread-shared-types.h', line 49, column 16>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Struct '__pthread_internal_slist'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/bits/thread-shared-types.h', line 55, column 16>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Struct ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/bits/thread-shared-types.h', line 122, column 9>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Struct ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/bits/types/__sigset_t.h', line 5, column 9>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pthread.h', line 159, column 28>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Struct ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h', line 13, column 9>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/c++/10/bits/gthr-default.h', line 660, column 66>
+[W 210704 18:18:46 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/c++/10/bits/gthr-default.h', line 706, column 69>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1083, column 29>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1089, column 52>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1100, column 32>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1109, column 30>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1109, column 37>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1115, column 54>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1115, column 61>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1126, column 33>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1126, column 40>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1279, column 40>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1287, column 29>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1297, column 46>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1305, column 29>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1315, column 44>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1323, column 29>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1333, column 50>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1341, column 29>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1368, column 34>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1373, column 34>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1378, column 38>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/stl_function.h', line 1383, column 38>
+[W 210704 18:18:47 dom:242] TypeDef/Field Enum/Struct: <Struct '_Sink'>, <Field '_M_a'>, <Struct '__uses_alloc0'>: <SourceLocation file '/usr/include/c++/10/bits/uses_allocator.h', line 75, column 12>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 99, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 99, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 99, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 99, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 99, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 99, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 99, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 99, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 100, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 100, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 100, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 100, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 100, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 100, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 100, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 100, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 101, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 101, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 101, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 101, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 101, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 101, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 101, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 101, column 1>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 133, column 52>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 138, column 52>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 143, column 55>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 149, column 48>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 222, column 44>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 227, column 44>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 232, column 44>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 237, column 44>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 243, column 44>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 243, column 49>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 248, column 44>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 248, column 49>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 253, column 44>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 253, column 49>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 258, column 44>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 258, column 49>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 264, column 47>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 270, column 47>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 270, column 52>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/refwrap.h', line 342, column 36>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_add_ref_lock()'>, CursorKind.CLASS_DECL _Sp_counted_base:
+    <SourceLocation file '/usr/include/c++/10/bits/shared_ptr_base.h', line 220, column 5>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_add_ref_lock()'>, CursorKind.CLASS_DECL _Sp_counted_base:
+    <SourceLocation file '/usr/include/c++/10/bits/shared_ptr_base.h', line 230, column 5>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_add_ref_lock()'>, CursorKind.CLASS_DECL _Sp_counted_base:
+    <SourceLocation file '/usr/include/c++/10/bits/shared_ptr_base.h', line 243, column 5>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_add_ref_lock_nothrow()'>, CursorKind.CLASS_DECL _Sp_counted_base:
+    <SourceLocation file '/usr/include/c++/10/bits/shared_ptr_base.h', line 262, column 5>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_add_ref_lock_nothrow()'>, CursorKind.CLASS_DECL _Sp_counted_base:
+    <SourceLocation file '/usr/include/c++/10/bits/shared_ptr_base.h', line 273, column 5>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_add_ref_lock_nothrow()'>, CursorKind.CLASS_DECL _Sp_counted_base:
+    <SourceLocation file '/usr/include/c++/10/bits/shared_ptr_base.h', line 287, column 5>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_add_ref_copy()'>, CursorKind.CLASS_DECL _Sp_counted_base:
+    <SourceLocation file '/usr/include/c++/10/bits/shared_ptr_base.h', line 306, column 34>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_release()'>, CursorKind.CLASS_DECL _Sp_counted_base:
+    <SourceLocation file '/usr/include/c++/10/bits/shared_ptr_base.h', line 311, column 34>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_weak_add_ref()'>, CursorKind.CLASS_DECL _Sp_counted_base:
+    <SourceLocation file '/usr/include/c++/10/bits/shared_ptr_base.h', line 323, column 34>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_weak_release()'>, CursorKind.CLASS_DECL _Sp_counted_base:
+    <SourceLocation file '/usr/include/c++/10/bits/shared_ptr_base.h', line 328, column 34>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_get_use_count()'>, CursorKind.CLASS_DECL _Sp_counted_base:
+    <SourceLocation file '/usr/include/c++/10/bits/shared_ptr_base.h', line 336, column 34>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_dispose()'>, CursorKind.CLASS_DECL _Sp_counted_ptr:
+    <SourceLocation file '/usr/include/c++/10/bits/shared_ptr_base.h', line 399, column 44>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_dispose()'>, CursorKind.CLASS_DECL _Sp_counted_ptr:
+    <SourceLocation file '/usr/include/c++/10/bits/shared_ptr_base.h', line 403, column 43>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_dispose()'>, CursorKind.CLASS_DECL _Sp_counted_ptr:
+    <SourceLocation file '/usr/include/c++/10/bits/shared_ptr_base.h', line 407, column 44>
+[W 210704 18:18:47 dom:242] TypeDef/Field Enum/Struct: <Enum 'memory_order'>, <TypeDef 'memory_order'>, <Namespace 'std'>: <SourceLocation file '/usr/include/c++/10/bits/atomic_base.h', line 74, column 16>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/ext/string_conversions.h', line 54, column 43>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/ext/string_conversions.h', line 54, column 53>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/ext/string_conversions.h', line 54, column 63>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/ext/string_conversions.h', line 99, column 41>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/ext/string_conversions.h', line 99, column 54>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/ext/string_conversions.h', line 99, column 69>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/ext/string_conversions.h', line 100, column 23>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_compare(const char *, const char *)'>, CursorKind.CLASS_DECL collate:
+    <SourceLocation file '/usr/include/c++/10/bits/locale_classes.h', line 800, column 20>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_transform(char *, const char *, std::size_t)'>, CursorKind.CLASS_DECL collate:
+    <SourceLocation file '/usr/include/c++/10/bits/locale_classes.h', line 804, column 20>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_compare(const wchar_t *, const wchar_t *)'>, CursorKind.CLASS_DECL collate:
+    <SourceLocation file '/usr/include/c++/10/bits/locale_classes.h', line 809, column 23>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_transform(wchar_t *, const wchar_t *, std::size_t)'>, CursorKind.CLASS_DECL collate:
+    <SourceLocation file '/usr/include/c++/10/bits/locale_classes.h', line 813, column 23>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param '__e'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/ios_base.h', line 529, column 43>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param '__b'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/ios_base.h', line 529, column 58>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param '__i'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/ios_base.h', line 529, column 67>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Destructor '~numpunct()'>, CursorKind.CLASS_DECL numpunct:
+    <SourceLocation file '/usr/include/c++/10/bits/locale_facets.h', line 1886, column 21>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_initialize_numpunct(std::__c_locale)'>, CursorKind.CLASS_DECL numpunct:
+    <SourceLocation file '/usr/include/c++/10/bits/locale_facets.h', line 1890, column 21>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Destructor '~numpunct()'>, CursorKind.CLASS_DECL numpunct:
+    <SourceLocation file '/usr/include/c++/10/bits/locale_facets.h', line 1894, column 24>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method '_M_initialize_numpunct(std::__c_locale)'>, CursorKind.CLASS_DECL numpunct:
+    <SourceLocation file '/usr/include/c++/10/bits/locale_facets.h', line 1898, column 24>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/ostream', line 108, column 57>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/ostream', line 117, column 49>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/ostream', line 127, column 46>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/istream', line 120, column 57>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/istream', line 124, column 49>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/istream', line 131, column 45>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method 'getline(std::basic_istream<char, std::char_traits<char>>::char_type *, std::streamsize, std::basic_istream<char, std::char_traits<char>>::char_type)'>, CursorKind.CLASS_DECL basic_istream:
+    <SourceLocation file '/usr/include/c++/10/istream', line 648, column 5>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method 'ignore(std::streamsize)'>, CursorKind.CLASS_DECL basic_istream:
+    <SourceLocation file '/usr/include/c++/10/istream', line 653, column 5>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method 'ignore(std::streamsize, std::basic_istream<char, std::char_traits<char>>::int_type)'>, CursorKind.CLASS_DECL basic_istream:
+    <SourceLocation file '/usr/include/c++/10/istream', line 658, column 5>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method 'getline(std::basic_istream<wchar_t, std::char_traits<wchar_t>>::char_type *, std::streamsize, std::basic_istream<wchar_t, std::char_traits<wchar_t>>::char_type)'>, CursorKind.CLASS_DECL basic_istream:
+    <SourceLocation file '/usr/include/c++/10/istream', line 664, column 5>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method 'ignore(std::streamsize)'>, CursorKind.CLASS_DECL basic_istream:
+    <SourceLocation file '/usr/include/c++/10/istream', line 669, column 5>
+[W 210704 18:18:47 dom:221] XXX rpnf: <Method 'ignore(std::streamsize, std::basic_istream<wchar_t, std::char_traits<wchar_t>>::int_type)'>, CursorKind.CLASS_DECL basic_istream:
+    <SourceLocation file '/usr/include/c++/10/istream', line 674, column 5>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qglobal.h', line 1213, column 57>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qglobal.h', line 1217, column 56>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qglobal.h', line 1225, column 57>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qglobal.h', line 1229, column 56>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qglobal.h', line 1242, column 54>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qglobal.h', line 1246, column 53>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qlogging.h', line 196, column 43>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qlogging.h', line 196, column 71>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qlogging.h', line 196, column 88>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Method 'isLockFree()'>, CursorKind.STRUCT_DECL QAtomicTraits:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qatomic_cxx11.h', line 89, column 60>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Method 'isLockFree()'>, CursorKind.STRUCT_DECL QAtomicTraits:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qatomic_cxx11.h', line 142, column 60>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Method 'isLockFree()'>, CursorKind.STRUCT_DECL QAtomicTraits:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qatomic_cxx11.h', line 170, column 60>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Method 'isLockFree()'>, CursorKind.STRUCT_DECL QAtomicTraits:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qatomic_cxx11.h', line 199, column 60>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qnamespace.h', line 1881, column 42>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h', line 150, column 96>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h', line 151, column 55>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h', line 156, column 96>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h', line 157, column 55>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h', line 176, column 101>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h', line 181, column 46>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h', line 188, column 101>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h', line 193, column 46>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h', line 201, column 85>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h', line 205, column 41>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param 'which'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h', line 380, column 36>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param 'this_'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h', line 380, column 60>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param 'receiver'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h', line 380, column 76>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param 'args'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h', line 380, column 93>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param 'ret'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h', line 380, column 105>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs.h', line 608, column 57>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs.h', line 608, column 76>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs.h', line 608, column 81>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs.h', line 608, column 90>
+[W 210704 18:18:48 dom:242] TypeDef/Field Enum/Struct: <Struct ''>, <Field 'd'>, <Struct 'QMetaObject'>: <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs.h', line 604, column 5>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs.h', line 608, column 57>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs.h', line 608, column 76>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs.h', line 608, column 81>
+[W 210704 18:18:48 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs.h', line 608, column 90>
+[W 210704 18:18:49 dom:242] TypeDef/Field Enum/Struct: <Enum 'Tag'>, <Field 'tag'>, <Struct 'ArgBase'>: <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qstring.h', line 2089, column 10>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 250, column 45>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 250, column 63>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 251, column 25>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 261, column 46>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 303, column 37>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 544, column 54>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 544, column 70>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 587, column 31>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 601, column 33>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 617, column 31>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 628, column 31>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 644, column 33>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 655, column 33>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 680, column 44>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 687, column 55>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 699, column 44>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 705, column 55>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 720, column 32>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/std_function.h', line 720, column 63>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/functional', line 401, column 40>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/functional', line 461, column 63>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/functional', line 552, column 56>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/functional', line 733, column 47>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/functional', line 740, column 47>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/functional', line 768, column 68>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/functional', line 798, column 57>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 258, column 63>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 258, column 72>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 258, column 86>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 259, column 58>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 287, column 64>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 287, column 78>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 287, column 92>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 288, column 62>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 288, column 76>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 288, column 90>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 289, column 57>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 343, column 64>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 343, column 78>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 343, column 85>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 373, column 66>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 390, column 39>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 501, column 35>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 502, column 42>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 505, column 38>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 506, column 40>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 506, column 54>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 508, column 40>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 508, column 48>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 509, column 42>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 509, column 50>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 509, column 64>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 511, column 47>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 511, column 61>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 512, column 47>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 512, column 55>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 681, column 60>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'container'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1002, column 48>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'newElement'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1002, column 71>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'p'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1089, column 40>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'p'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1090, column 48>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1090, column 54>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'p'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1091, column 50>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1091, column 60>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'p'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1093, column 51>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1093, column 61>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'position'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1093, column 72>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'p'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1094, column 40>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1094, column 46>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'p'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1095, column 51>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'metaTypeId'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1095, column 58>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'flags'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1095, column 75>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'p'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1096, column 44>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'p'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1097, column 49>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'other'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1097, column 66>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1098, column 41>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1098, column 57>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'container'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1099, column 47>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'newElement'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1099, column 70>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'p'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1288, column 40>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'container'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1289, column 42>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'p'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1289, column 65>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'iterator'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1289, column 75>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'p'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1290, column 43>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1290, column 53>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'p'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1291, column 40>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1291, column 46>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'p'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1292, column 50>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'metaTypeId'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1292, column 57>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'flags'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1095, column 75>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'p'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1293, column 44>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'p'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1294, column 49>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'other'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1294, column 66>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1295, column 41>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1295, column 57>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'p'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1422, column 56>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'metaTypeId'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1422, column 63>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param 'flags'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1095, column 75>
+[W 210704 18:18:49 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h', line 1798, column 63>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Variable 'num'>, CursorKind.STRUCT_DECL ratio:
+    <SourceLocation file '/usr/include/c++/10/ratio', line 283, column 43>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Variable 'den'>, CursorKind.STRUCT_DECL ratio:
+    <SourceLocation file '/usr/include/c++/10/ratio', line 286, column 43>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Variable 'num'>, CursorKind.STRUCT_DECL ratio:
+    <SourceLocation file '/usr/include/c++/10/ratio', line 283, column 43>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Variable 'den'>, CursorKind.STRUCT_DECL ratio:
+    <SourceLocation file '/usr/include/c++/10/ratio', line 286, column 43>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Variable 'num'>, CursorKind.STRUCT_DECL ratio:
+    <SourceLocation file '/usr/include/c++/10/ratio', line 283, column 43>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Variable 'den'>, CursorKind.STRUCT_DECL ratio:
+    <SourceLocation file '/usr/include/c++/10/ratio', line 286, column 43>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Variable 'num'>, CursorKind.STRUCT_DECL ratio:
+    <SourceLocation file '/usr/include/c++/10/ratio', line 283, column 43>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Variable 'den'>, CursorKind.STRUCT_DECL ratio:
+    <SourceLocation file '/usr/include/c++/10/ratio', line 286, column 43>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Variable 'num'>, CursorKind.STRUCT_DECL ratio:
+    <SourceLocation file '/usr/include/c++/10/ratio', line 283, column 43>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Variable 'den'>, CursorKind.STRUCT_DECL ratio:
+    <SourceLocation file '/usr/include/c++/10/ratio', line 286, column 43>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Variable 'num'>, CursorKind.STRUCT_DECL ratio:
+    <SourceLocation file '/usr/include/c++/10/ratio', line 283, column 43>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Variable 'den'>, CursorKind.STRUCT_DECL ratio:
+    <SourceLocation file '/usr/include/c++/10/ratio', line 286, column 43>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qhash.h', line 84, column 59>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qhash.h', line 84, column 67>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qhash.h', line 84, column 96>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qhash.h', line 89, column 48>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h', line 437, column 42>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h', line 437, column 56>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h', line 438, column 38>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h', line 439, column 43>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h', line 441, column 37>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h', line 441, column 52>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h', line 442, column 43>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h', line 442, column 58>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h', line 444, column 46>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h', line 444, column 63>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param 'd'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h', line 445, column 56>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param 't'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h', line 445, column 63>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h', line 445, column 72>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h', line 445, column 80>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param 'd'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h', line 445, column 56>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param 't'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h', line 446, column 66>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h', line 447, column 41>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h', line 447, column 59>
+[W 210704 18:18:50 dom:242] TypeDef/Field Enum/Struct: <Struct 'Skiptable'>, <Field 'm_skiptable'>, <Class 'QStaticByteArrayMatcherBase'>: <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qbytearraymatcher.h', line 91, column 12>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qtextstream.h', line 208, column 59>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qtextstream.h', line 209, column 40>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qtextstream.h', line 210, column 42>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qsharedpointer_impl.h', line 135, column 59>
+[W 210704 18:18:50 dom:242] TypeDef/Field Enum/Struct: <Struct 'Stream'>, <Field 'stream'>, <Class 'QDebug'>: <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qdebug.h', line 70, column 12>
+[W 210704 18:18:50 dom:221] XXX rpnf: <Param 'progress'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qeasingcurve.h', line 114, column 43>
+[W 210704 18:18:51 dom:221] XXX rpnf: <TypeAliasTemplateDecl 'QLEInteger'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qendian.h', line 411, column 1>
+[W 210704 18:18:51 dom:221] XXX rpnf: <TypeAliasTemplateDecl 'QBEInteger'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qendian.h', line 414, column 1>
+[W 210704 18:18:51 dom:242] TypeDef/Field Enum/Struct: <Struct 'SegmentStorage'>, <Field 'm_segments'>, <Class 'QVersionNumber'>: <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qversionnumber.h', line 79, column 12>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qloggingcategory.h', line 79, column 53>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param 'from'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariantanimation.h', line 90, column 50>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param 'to'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariantanimation.h', line 90, column 68>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param 'progress'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariantanimation.h', line 90, column 78>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param 'from'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariantanimation.h', line 114, column 63>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param 'to'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariantanimation.h', line 114, column 78>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param 'progress'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariantanimation.h', line 90, column 78>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Variable 'state_size'>, CursorKind.CLASS_DECL mersenne_twister_engine:
+    <SourceLocation file '/usr/include/c++/10/bits/random.tcc', line 206, column 39>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param 'device'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qsettings.h', line 199, column 41>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param 'map'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qsettings.h', line 199, column 62>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param 'device'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qsettings.h', line 199, column 41>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param 'map'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qsettings.h', line 199, column 62>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/condition_variable', line 246, column 24>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/future', line 1391, column 57>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/future', line 1418, column 65>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/future', line 1449, column 56>
+[W 210704 18:18:51 dom:242] TypeDef/Field Enum/Struct: <Struct '_Impl'>, <Field '_M_impl'>, <ClassTemplatePartialSpecialization '_Task_state<_Fn, _Alloc, _Res (_Args...)>'>: <SourceLocation file '/usr/include/c++/10/future', line 1452, column 14>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/future', line 1472, column 61>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/future', line 1473, column 58>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/future', line 1481, column 42>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/future', line 1483, column 64>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/future', line 1591, column 41>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/future', line 1592, column 34>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtCore/qthreadstorage.h', line 53, column 52>
+[W 210704 18:18:51 dom:242] TypeDef/Field Enum/Struct: <Struct ''>, <TypeDef 'obj_cpt_t'>, <Class 'Object'>: <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Object.h', line 50, column 11>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/MidiAction.h', line 95, column 56>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/MidiAction.h', line 95, column 77>
+[W 210704 18:18:51 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/MidiAction.h', line 95, column 96>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/IO/AudioOutput.h', line 33, column 49>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/IO/AudioOutput.h', line 33, column 58>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/AudioEngine.h', line 81, column 49>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/AudioEngine.h', line 81, column 58>
+[W 210704 18:18:52 dom:242] TypeDef/Field Enum/Struct: <Struct '_locker_struct'>, <Field '__locker'>, <Class 'AudioEngine'>: <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/AudioEngine.h', line 783, column 9>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/IO/NullDriver.h', line 34, column 49>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/IO/NullDriver.h', line 34, column 58>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param 'file'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/alsa/error.h', line 78, column 55>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param 'line'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/alsa/error.h', line 78, column 65>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param 'func'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/alsa/error.h', line 79, column 20>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param 'err'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/alsa/error.h', line 79, column 30>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param 'fmt'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/alsa/error.h', line 80, column 20>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param 'arg'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/alsa/error.h', line 80, column 33>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Struct 'snd_seq_addr'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/alsa/seq_event.h', line 178, column 16>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Struct 'snd_seq_connect'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/alsa/seq_event.h', line 184, column 16>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Struct 'snd_seq_real_time'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/alsa/seq_event.h', line 191, column 16>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Struct 'snd_seq_ev_note'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/alsa/seq_event.h', line 230, column 16>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Struct 'snd_seq_ev_ctrl'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/alsa/seq_event.h', line 239, column 16>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Struct 'snd_seq_ev_raw8'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/alsa/seq_event.h', line 247, column 16>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Struct 'snd_seq_ev_raw32'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/alsa/seq_event.h', line 252, column 16>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Struct 'snd_seq_result'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/alsa/seq_event.h', line 269, column 16>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Struct 'snd_seq_queue_skew'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/alsa/seq_event.h', line 275, column 16>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Struct 'snd_seq_ev_queue_control'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/alsa/seq_event.h', line 281, column 16>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Struct 'snd_seq_event'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/alsa/seq_event.h', line 296, column 16>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/common.h', line 548, column 83>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/common.h', line 548, column 108>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/common.h', line 549, column 83>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/common.h', line 549, column 114>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/common.h', line 782, column 51>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/common.h', line 786, column 59>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/common.h', line 790, column 59>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/../pytypes.h', line 1201, column 98>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/../pytypes.h', line 1208, column 59>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/../pytypes.h', line 1214, column 57>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/internals.h', line 101, column 45>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/internals.h', line 101, column 54>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/internals.h', line 103, column 51>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/internals.h', line 132, column 33>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/internals.h', line 133, column 37>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/internals.h', line 133, column 51>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param 'v_h'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/internals.h', line 134, column 39>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/internals.h', line 135, column 41>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/internals.h', line 135, column 57>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/internals.h', line 136, column 67>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/internals.h', line 137, column 36>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/internals.h', line 137, column 45>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/internals.h', line 138, column 42>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/internals.h', line 138, column 50>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/internals.h', line 140, column 42>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/internals.h', line 140, column 61>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/cast.h', line 501, column 80>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/cast.h', line 502, column 80>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/cast.h', line 924, column 47>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/../attr.h', line 160, column 36>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param 'ptr'>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/../attr.h', line 166, column 41>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/../attr.h', line 245, column 33>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/../attr.h', line 248, column 37>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/../attr.h', line 248, column 51>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/../attr.h', line 251, column 47>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/../attr.h', line 280, column 87>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/class.h', line 281, column 39>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/class.h', line 281, column 60>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/init.h', line 219, column 53>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/init.h', line 247, column 46>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/init.h', line 247, column 65>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/init.h', line 306, column 46>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/detail/init.h', line 306, column 69>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/pybind11.h', line 69, column 37>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/pybind11.h', line 83, column 43>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/pybind11.h', line 92, column 43>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/pybind11.h', line 99, column 43>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/pybind11.h', line 108, column 43>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/pybind11.h', line 1146, column 50>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/pybind11.h', line 1146, column 58>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/pybind11.h', line 1229, column 49>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/pybind11.h', line 1229, column 82>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/pybind11.h', line 1236, column 49>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/pybind11.h', line 1236, column 88>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/pybind11.h', line 1386, column 53>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/pybind11.h', line 1391, column 53>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/valarray_before.h', line 433, column 52>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/valarray_before.h', line 443, column 33>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/valarray_before.h', line 453, column 47>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/valarray_before.h', line 462, column 56>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/valarray_before.h', line 473, column 54>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/valarray_before.h', line 484, column 63>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/valarray', line 545, column 65>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/valarray', line 557, column 72>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/valarray_after.h', line 276, column 48>
+[W 210704 18:18:52 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/bits/valarray_after.h', line 284, column 41>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/valarray', line 1065, column 38>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/c++/10/valarray', line 1073, column 46>
+[W 210704 18:18:53 dom:242] TypeDef/Field Enum/Struct: <Struct ''>, <TypeDef 'PyArray_Dims'>, <Struct 'npy_api'>: <SourceLocation file '/usr/include/pybind11/numpy.h', line 167, column 13>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 185, column 44>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 187, column 24>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 187, column 36>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 187, column 41>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 187, column 62>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 188, column 29>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 188, column 37>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 188, column 42>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 188, column 54>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 190, column 47>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 191, column 40>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 191, column 52>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 192, column 45>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 192, column 50>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 196, column 53>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 197, column 46>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 197, column 58>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 197, column 63>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 197, column 68>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 197, column 73>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 197, column 85>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 198, column 47>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 198, column 60>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 199, column 44>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 199, column 56>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 200, column 56>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 200, column 68>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 200, column 83>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 200, column 96>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 200, column 103>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 201, column 59>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 201, column 72>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 201, column 84>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 202, column 45>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 204, column 45>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 204, column 57>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 205, column 43>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 205, column 58>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 205, column 63>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 205, column 68>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 1099, column 40>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 1099, column 49>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 1663, column 44>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 1664, column 32>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 1678, column 44>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/numpy.h', line 1685, column 44>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/functional.h', line 19, column 48>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/functional.h', line 20, column 46>
+[W 210704 18:18:53 dom:221] XXX rpnf: <Param ''>, CursorKind.TRANSLATION_UNIT /home/rebelcat/Hack/hydrogen/src/bindings/h2core_module.hpp:
+    <SourceLocation file '/usr/include/pybind11/functional.h', line 22, column 46>
+[W 210704 18:18:53 gen:352] H2Core::CoreMidiDriver not found
+[W 210704 18:18:53 gen:352] LashClient not found
+[I 210704 18:18:53 gen:356] caster for: <Builtin 'type'>
+[I 210704 18:18:53 gen:356] caster for: <Builtin 'T'>
+[I 210704 18:18:53 gen:356] caster for: <Struct 'void_type'>
+[I 210704 18:18:53 gen:356] caster for: <TypeDef 'nullptr_t'>
+[I 210704 18:18:53 gen:356] caster for: <Builtin 'CharT'>
+[I 210704 18:18:53 gen:356] caster for: <Builtin 'T1'>
+[I 210704 18:18:53 gen:356] caster for: <Builtin 'Ts'>
+[I 210704 18:18:53 gen:356] caster for: <Struct 'value_and_holder'>
+[I 210704 18:18:53 gen:356] caster for: <Builtin 'Type'>
+[I 210704 18:18:53 gen:356] caster for: <Builtin 'Key'>
+[I 210704 18:18:53 gen:356] caster for: <Builtin 'Return'>
+[I 210704 18:18:53 gen:356] caster for: <Class 'QString'>
+[I 210704 18:18:53 gen:377] add <Class 'Synth'>
+[I 210704 18:18:53 gen:383] queue <Class 'Object'> for H2Core::Synth
+[I 210704 18:18:53 gen:400] queue <Class 'Note'> for member H2Core::Synth::noteOn(H2Core::Note *)
+[I 210704 18:18:53 gen:377] add <Class 'Note'>
+[I 210704 18:18:53 gen:400] queue <Enum 'Key'> for member H2Core::Note::get_key()
+[I 210704 18:18:53 gen:400] queue <Enum 'Octave'> for member H2Core::Note::get_octave()
+[I 210704 18:18:53 gen:393] queue member: H2Core::Note:Key
+[I 210704 18:18:53 gen:393] queue member: H2Core::Note:Octave
+[I 210704 18:18:53 gen:377] add <Enum 'Octave'>
+[I 210704 18:18:53 gen:377] add <Enum 'Key'>
+[I 210704 18:18:53 gen:377] add <Class 'Object'>
+[I 210704 18:18:53 gen:400] queue <Class 'Logger'> for member H2Core::Object::bootstrap(H2Core::Logger *, bool)
+[I 210704 18:18:53 gen:393] queue member: H2Core::Object:
+[I 210704 18:18:53 gen:377] add <Struct ''>
+[I 210704 18:18:53 gen:377] add <Class 'Logger'>
+[I 210704 18:18:53 gen:393] queue member: H2Core::Logger:log_levels
+[I 210704 18:18:53 gen:377] add <Enum 'log_levels'>
+[I 210704 18:18:53 gen:377] add <Class 'Sampler'>
+[I 210704 18:18:53 gen:400] queue <Enum 'InterpolateMode'> for member H2Core::Sampler::setInterpolateMode(Interpolation::InterpolateMode)
+[I 210704 18:18:53 gen:393] queue member: H2Core::Sampler:PAN_LAW_TYPES
+[I 210704 18:18:53 gen:377] add <Enum 'PAN_LAW_TYPES'>
+[I 210704 18:18:53 gen:377] add <Enum 'InterpolateMode'>
+[I 210704 18:18:53 gen:377] add <Class 'LilyPond'>
+[I 210704 18:18:53 gen:377] add <Class 'TransportInfo'>
+[I 210704 18:18:53 gen:393] queue member: H2Core::TransportInfo:
+[I 210704 18:18:53 gen:377] add <Enum ''>
+[I 210704 18:18:53 gen:377] add <Class 'PortMidiDriver'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL PortMidiStream
+[W 210704 18:18:53 dom:672] No Type for <Field 'm_pMidiIn'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL PortMidiStream
+[W 210704 18:18:53 dom:672] No Type for <Field 'm_pMidiOut'>
+[I 210704 18:18:53 gen:377] add <Class 'PortAudioDriver'>
+[I 210704 18:18:53 gen:377] add <Class 'NullDriver'>
+[I 210704 18:18:53 gen:377] add <Class 'MidiPortInfo'>
+[I 210704 18:18:53 gen:377] add <Class 'MidiOutput'>
+[I 210704 18:18:53 gen:377] add <Class 'MidiMessage'>
+[I 210704 18:18:53 gen:400] queue <Enum 'MidiMessageType'> for member H2Core::MidiMessage::m_type
+[W 210704 18:18:53 dom:707] BaseSpec: <BaseSpecifier '_Vector_base<_Tp, _Alloc>'>
+[I 210704 18:18:53 gen:393] queue member: H2Core::MidiMessage:MidiMessageType
+[I 210704 18:18:53 gen:377] add <Enum 'MidiMessageType'>
+[I 210704 18:18:53 gen:377] add <Class 'MidiInput'>
+[I 210704 18:18:53 gen:377] add <Class 'JackMidiDriver'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL jack_nframes_t
+[W 210704 18:18:53 dom:650] hu... <Param 'nframes'>
+[W 210704 18:18:53 dom:518] no type for <Param 'nframes'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL jack_nframes_t
+[W 210704 18:18:53 dom:650] hu... <Param 'nframes'>
+[W 210704 18:18:53 dom:518] no type for <Param 'nframes'>
+[I 210704 18:18:53 gen:377] add <Class 'JackAudioDriver'>
+[I 210704 18:18:53 gen:400] queue <Enum 'Timebase'> for member H2Core::JackAudioDriver::getTimebaseState()
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL jack_nframes_t
+[W 210704 18:18:53 dom:650] hu... <Param 'nframes'>
+[W 210704 18:18:53 dom:518] no type for <Param 'nframes'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL jack_nframes_t
+[W 210704 18:18:53 dom:650] hu... <Param 'nframes'>
+[W 210704 18:18:53 dom:518] no type for <Param 'nframes'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL JackProcessCallback
+[W 210704 18:18:53 dom:650] hu... <Param 'm_processCallback'>
+[W 210704 18:18:53 dom:518] no type for <Param 'm_processCallback'>
+[I 210704 18:18:53 gen:393] queue member: H2Core::JackAudioDriver:Timebase
+[I 210704 18:18:53 gen:377] add <Enum 'Timebase'>
+[I 210704 18:18:53 gen:377] add <Class 'FakeDriver'>
+[I 210704 18:18:53 gen:377] add <Class 'DiskWriterDriver'>
+[I 210704 18:18:53 gen:377] add <Class 'AudioOutput'>
+[I 210704 18:18:53 gen:377] add <Class 'AlsaMidiDriver'>
+[I 210704 18:18:53 gen:377] add <Class 'AlsaAudioDriver'>
+[I 210704 18:18:53 gen:377] add <Class 'LadspaFX'>
+[I 210704 18:18:53 gen:400] queue <Class 'LadspaControlPort'> for member H2Core::LadspaFX::inputControlPorts
+[I 210704 18:18:53 gen:393] queue member: H2Core::LadspaFX:
+[I 210704 18:18:53 gen:377] add <Enum ''>
+[I 210704 18:18:53 gen:377] add <Class 'LadspaControlPort'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL LADSPA_Data
+[W 210704 18:18:53 dom:672] No Type for <Field 'fDefaultValue'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL LADSPA_Data
+[W 210704 18:18:53 dom:672] No Type for <Field 'fControlValue'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL LADSPA_Data
+[W 210704 18:18:53 dom:672] No Type for <Field 'fLowerBound'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL LADSPA_Data
+[W 210704 18:18:53 dom:672] No Type for <Field 'fUpperBound'>
+[I 210704 18:18:53 gen:377] add <Class 'Effects'>
+[I 210704 18:18:53 gen:400] queue <Class 'LadspaFXInfo'> for member H2Core::Effects::getPluginList()
+[I 210704 18:18:53 gen:400] queue <Class 'LadspaFXGroup'> for member H2Core::Effects::getLadspaFXGroup()
+[I 210704 18:18:53 gen:377] add <Class 'LadspaFXGroup'>
+[I 210704 18:18:53 gen:377] add <Class 'LadspaFXInfo'>
+[I 210704 18:18:53 gen:377] add <Function 'version_older_than(int, int, int)'>
+[I 210704 18:18:53 gen:377] add <Function 'get_version()'>
+[I 210704 18:18:53 gen:377] add <Class 'Timeline'>
+[I 210704 18:18:53 gen:400] queue <Struct 'TempoMarker'> for member H2Core::Timeline::getAllTempoMarkers()
+[I 210704 18:18:53 gen:400] queue <Struct 'Tag'> for member H2Core::Timeline::getAllTags()
+[I 210704 18:18:53 gen:393] queue member: H2Core::Timeline:TempoMarker
+[I 210704 18:18:53 gen:393] queue member: H2Core::Timeline:Tag
+[I 210704 18:18:53 gen:377] add <Struct 'Tag'>
+[I 210704 18:18:53 gen:377] add <Struct 'TempoMarker'>
+[I 210704 18:18:53 gen:377] add <Class 'MidiActionManager'>
+[I 210704 18:18:53 gen:377] add <Class 'Action'>
+[I 210704 18:18:53 gen:377] add <Class 'H2Exception'>
+[I 210704 18:18:53 gen:383] queue <Class 'runtime_error'> for H2Core::H2Exception
+[I 210704 18:18:53 gen:377] add <Class 'runtime_error'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.CLASS_DECL exception
+[W 210704 18:18:53 dom:764] base-spec, missing type: <BaseSpecifier 'class std::exception'>
+[I 210704 18:18:53 gen:377] add <Class 'EventQueue'>
+[I 210704 18:18:53 gen:400] queue <Struct 'AddMidiNoteVector'> for member H2Core::EventQueue::m_addMidiNoteVector
+[I 210704 18:18:53 gen:400] queue <Enum 'EventType'> for member H2Core::EventQueue::push_event(const H2Core::EventType, const int)
+[I 210704 18:18:53 gen:400] queue <Class 'Event'> for member H2Core::EventQueue::pop_event()
+[I 210704 18:18:53 gen:393] queue member: H2Core::EventQueue:AddMidiNoteVector
+[I 210704 18:18:53 gen:377] add <Class 'Event'>
+[I 210704 18:18:53 gen:377] add <Enum 'EventType'>
+[I 210704 18:18:53 gen:377] add <Struct 'AddMidiNoteVector'>
+[I 210704 18:18:53 gen:377] add <Class 'CoreActionController'>
+[I 210704 18:18:53 gen:377] add <Class 'AudioEngine'>
+[I 210704 18:18:53 gen:377] add <Class 'Hydrogen'>
+[I 210704 18:18:53 gen:400] queue <Enum 'Lookup'> for member H2Core::Hydrogen::setCurrentDrumkitLookup(Filesystem::Lookup)
+[I 210704 18:18:53 gen:400] queue <Enum 'GUIState'> for member H2Core::Hydrogen::getGUIState()
+[I 210704 18:18:53 gen:393] queue member: H2Core::Hydrogen:ErrorMessages
+[I 210704 18:18:53 gen:393] queue member: H2Core::Hydrogen:GUIState
+[I 210704 18:18:53 gen:377] add <Enum 'ErrorMessages'>
+[I 210704 18:18:53 gen:377] add <Enum 'GUIState'>
+[I 210704 18:18:53 gen:377] add <Enum 'Lookup'>
+[I 210704 18:18:53 gen:383] queue <Class 'Filesystem'> for H2Core::Filesystem::Lookup
+[I 210704 18:18:53 gen:377] add <Class 'Filesystem'>
+[I 210704 18:18:53 gen:393] queue member: H2Core::Filesystem:file_perms
+[I 210704 18:18:53 gen:393] queue member: H2Core::Filesystem:Lookup
+[I 210704 18:18:53 gen:377] add <Enum 'Lookup'>
+[I 210704 18:18:53 gen:377] add <Enum 'file_perms'>
+[I 210704 18:18:53 gen:377] add <Class 'Song'>
+[I 210704 18:18:53 gen:400] queue <Enum 'SongMode'> for member H2Core::Song::getMode()
+[I 210704 18:18:53 gen:400] queue <Enum 'ActionMode'> for member H2Core::Song::getActionMode()
+[I 210704 18:18:53 gen:393] queue member: H2Core::Song:SongMode
+[I 210704 18:18:53 gen:393] queue member: H2Core::Song:ActionMode
+[I 210704 18:18:53 gen:377] add <Enum 'ActionMode'>
+[I 210704 18:18:53 gen:377] add <Enum 'SongMode'>
+[I 210704 18:18:53 gen:377] add <Class 'AutomationPath'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL iterator
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL const_iterator
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL iterator
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL const_iterator
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL iterator
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL iterator
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL iterator
+[I 210704 18:18:53 gen:377] add <Class 'PatternList'>
+[I 210704 18:18:53 gen:383] queue <Class 'AudioEngineLocking'> for H2Core::PatternList
+[I 210704 18:18:53 gen:377] add <Class 'AudioEngineLocking'>
+[I 210704 18:18:53 gen:377] add <Class 'Pattern'>
+[I 210704 18:18:53 gen:377] add <Class 'Playlist'>
+[I 210704 18:18:53 gen:400] queue <Struct 'Entry'> for member H2Core::Playlist::get(int)
+[I 210704 18:18:53 gen:393] queue member: H2Core::Playlist:Entry
+[I 210704 18:18:53 gen:377] add <Struct 'Entry'>
+[I 210704 18:18:53 gen:377] add <Class 'Preferences'>
+[I 210704 18:18:53 gen:400] queue <Enum 'JackTrackOutputMode'> for member H2Core::Preferences::m_JackTrackOutputMode
+[I 210704 18:18:53 gen:400] queue <Enum 'JackBBTSyncMethod'> for member H2Core::Preferences::m_JackBBTSync
+[I 210704 18:18:53 gen:400] queue <Enum 'FontSize'> for member H2Core::Preferences::getFontSize()
+[I 210704 18:18:53 gen:400] queue <Class 'QColor'> for member H2Core::Preferences::setPatternColors(std::vector<QColor>)
+[I 210704 18:18:53 gen:400] queue <Class 'WindowProperties'> for member H2Core::Preferences::setMainFormProperties(const H2Core::WindowProperties &)
+[I 210704 18:18:53 gen:393] queue member: H2Core::Preferences:
+[I 210704 18:18:53 gen:393] queue member: H2Core::Preferences:FontSize
+[I 210704 18:18:53 gen:393] queue member: H2Core::Preferences:UI_LAYOUT_TYPES
+[I 210704 18:18:53 gen:393] queue member: H2Core::Preferences:UI_SCALING_POLICY
+[I 210704 18:18:53 gen:393] queue member: H2Core::Preferences:JackTrackOutputMode
+[I 210704 18:18:53 gen:393] queue member: H2Core::Preferences:JackBBTSyncMethod
+[I 210704 18:18:53 gen:377] add <Enum 'UI_SCALING_POLICY'>
+[I 210704 18:18:53 gen:377] add <Enum 'UI_LAYOUT_TYPES'>
+[I 210704 18:18:53 gen:377] add <Enum ''>
+[I 210704 18:18:53 gen:377] add <Class 'WindowProperties'>
+[I 210704 18:18:53 gen:377] add <Class 'QColor'>
+[I 210704 18:18:53 gen:400] queue <Enum 'Spec'> for member QColor::spec()
+[I 210704 18:18:53 gen:400] queue <Class 'QRgba64'> for member QColor::rgba64()
+[I 210704 18:18:53 gen:400] queue <Enum 'GlobalColor'> for member QColor::QColor(Qt::GlobalColor)
+[I 210704 18:18:53 gen:393] queue member: QColor:Spec
+[I 210704 18:18:53 gen:393] queue member: QColor:NameFormat
+[I 210704 18:18:53 gen:377] add <Enum 'NameFormat'>
+[I 210704 18:18:53 gen:377] add <Enum 'GlobalColor'>
+[I 210704 18:18:53 gen:377] add <Class 'QRgba64'>
+[I 210704 18:18:53 gen:377] add <Enum 'Spec'>
+[I 210704 18:18:53 gen:377] add <Enum 'FontSize'>
+[I 210704 18:18:53 gen:377] add <Enum 'JackBBTSyncMethod'>
+[I 210704 18:18:53 gen:377] add <Enum 'JackTrackOutputMode'>
+[I 210704 18:18:53 gen:377] add <Class 'Sample'>
+[I 210704 18:18:53 gen:400] queue <Class 'Loops'> for member H2Core::Sample::load(const QString &, const H2Core::Sample::Loops &, const H2Core::Sample::Rubberband &, const H2Core::Sample::VelocityEnvelope &, const H2Core::Sample::PanEnvelope &)
+[I 210704 18:18:53 gen:400] queue <Class 'Rubberband'> for member H2Core::Sample::load(const QString &, const H2Core::Sample::Loops &, const H2Core::Sample::Rubberband &, const H2Core::Sample::VelocityEnvelope &, const H2Core::Sample::PanEnvelope &)
+[I 210704 18:18:53 gen:400] queue <Enum 'LoopMode'> for member H2Core::Sample::parse_loop_mode(const QString &)
+[I 210704 18:18:53 gen:393] queue member: H2Core::Sample:Loops
+[I 210704 18:18:53 gen:393] queue member: H2Core::Sample:Rubberband
+[I 210704 18:18:53 gen:377] add <Enum 'LoopMode'>
+[I 210704 18:18:53 gen:377] add <Class 'Rubberband'>
+[I 210704 18:18:53 gen:377] add <Class 'Loops'>
+[I 210704 18:18:53 gen:393] queue member: H2Core::Sample::Loops:LoopMode
+[I 210704 18:18:53 gen:377] add <Enum 'LoopMode'>
+[I 210704 18:18:53 gen:377] add <Class 'InstrumentList'>
+[I 210704 18:18:53 gen:377] add <Class 'InstrumentLayer'>
+[I 210704 18:18:53 gen:377] add <Class 'InstrumentComponent'>
+[I 210704 18:18:53 gen:377] add <Class 'Instrument'>
+[I 210704 18:18:53 gen:400] queue <Class 'ADSR'> for member H2Core::Instrument::set_adsr(std::shared_ptr<ADSR>)
+[I 210704 18:18:53 gen:400] queue <Enum 'SampleSelectionAlgo'> for member H2Core::Instrument::set_sample_selection_alg(H2Core::Instrument::SampleSelectionAlgo)
+[I 210704 18:18:53 gen:393] queue member: H2Core::Instrument:SampleSelectionAlgo
+[I 210704 18:18:53 gen:377] add <Enum 'SampleSelectionAlgo'>
+[I 210704 18:18:53 gen:377] add <Class 'ADSR'>
+[I 210704 18:18:53 gen:377] add <Class 'DrumkitComponent'>
+[I 210704 18:18:53 gen:377] add <Class 'Drumkit'>
+[I 210704 18:18:53 gen:377] add <Class 'XMLNode'>
+[I 210704 18:18:53 gen:426] binding <Class 'Object'>
+[I 210704 18:18:53 gen:426] binding <Class 'Logger'>
+[I 210704 18:18:53 gen:426] binding <Enum 'InterpolateMode'>
+[I 210704 18:18:53 gen:426] binding <Class 'LilyPond'>
+[I 210704 18:18:53 gen:426] binding <Class 'MidiPortInfo'>
+[I 210704 18:18:53 gen:426] binding <Class 'MidiMessage'>
+[I 210704 18:18:53 gen:426] binding <Function 'version_older_than(int, int, int)'>
+[I 210704 18:18:53 gen:426] binding <Function 'get_version()'>
+[I 210704 18:18:53 gen:426] binding <Class 'runtime_error'>
+[I 210704 18:18:53 gen:426] binding <Class 'Event'>
+[I 210704 18:18:53 gen:426] binding <Enum 'EventType'>
+[I 210704 18:18:53 gen:426] binding <Class 'AudioEngineLocking'>
+[I 210704 18:18:53 gen:426] binding <Class 'QColor'>
+[I 210704 18:18:53 gen:426] binding <Enum 'GlobalColor'>
+[I 210704 18:18:53 gen:426] binding <Class 'QRgba64'>
+[I 210704 18:18:53 gen:426] binding <Class 'Synth'>
+[I 210704 18:18:53 gen:426] binding <Class 'Note'>
+[I 210704 18:18:53 gen:426] binding <Struct ''>
+[I 210704 18:18:53 gen:426] binding <Class 'Sampler'>
+[I 210704 18:18:53 gen:426] binding <Class 'TransportInfo'>
+[I 210704 18:18:53 gen:426] binding <Class 'MidiOutput'>
+[I 210704 18:18:53 gen:426] binding <Class 'MidiInput'>
+[I 210704 18:18:53 gen:426] binding <Class 'AudioOutput'>
+[I 210704 18:18:53 gen:426] binding <Class 'LadspaFX'>
+[I 210704 18:18:53 gen:426] binding <Class 'LadspaControlPort'>
+[I 210704 18:18:53 gen:426] binding <Class 'Effects'>
+[I 210704 18:18:53 gen:426] binding <Class 'LadspaFXGroup'>
+[I 210704 18:18:53 gen:426] binding <Class 'LadspaFXInfo'>
+[I 210704 18:18:53 gen:426] binding <Class 'Timeline'>
+[I 210704 18:18:53 gen:426] binding <Class 'MidiActionManager'>
+[I 210704 18:18:53 gen:426] binding <Class 'Action'>
+[I 210704 18:18:53 gen:426] binding <Class 'EventQueue'>
+[I 210704 18:18:53 gen:426] binding <Class 'CoreActionController'>
+[I 210704 18:18:53 gen:426] binding <Class 'AudioEngine'>
+[I 210704 18:18:53 gen:426] binding <Class 'Hydrogen'>
+[I 210704 18:18:53 gen:426] binding <Class 'Filesystem'>
+[I 210704 18:18:53 gen:426] binding <Class 'Song'>
+[I 210704 18:18:53 gen:426] binding <Class 'AutomationPath'>
+[I 210704 18:18:53 gen:426] binding <Class 'Pattern'>
+[I 210704 18:18:53 gen:426] binding <Class 'Playlist'>
+[I 210704 18:18:53 gen:426] binding <Class 'Preferences'>
+[I 210704 18:18:53 gen:426] binding <Class 'WindowProperties'>
+[I 210704 18:18:53 gen:426] binding <Class 'Sample'>
+[I 210704 18:18:53 gen:426] binding <Class 'InstrumentList'>
+[I 210704 18:18:53 gen:426] binding <Class 'InstrumentLayer'>
+[I 210704 18:18:53 gen:426] binding <Class 'InstrumentComponent'>
+[I 210704 18:18:53 gen:426] binding <Class 'Instrument'>
+[I 210704 18:18:53 gen:426] binding <Class 'ADSR'>
+[I 210704 18:18:53 gen:426] binding <Class 'DrumkitComponent'>
+[I 210704 18:18:53 gen:426] binding <Class 'Drumkit'>
+[I 210704 18:18:53 gen:426] binding <Class 'XMLNode'>
+[I 210704 18:18:53 gen:426] binding <Enum 'log_levels'>
+[I 210704 18:18:53 gen:426] binding <Enum 'MidiMessageType'>
+[I 210704 18:18:53 gen:426] binding <Class 'H2Exception'>
+[I 210704 18:18:53 gen:426] binding <Class 'PatternList'>
+[I 210704 18:18:53 gen:426] binding <Enum 'NameFormat'>
+[I 210704 18:18:53 gen:426] binding <Enum 'Spec'>
+[I 210704 18:18:53 gen:426] binding <Enum 'Octave'>
+[I 210704 18:18:53 gen:426] binding <Enum 'Key'>
+[I 210704 18:18:53 gen:426] binding <Enum 'PAN_LAW_TYPES'>
+[I 210704 18:18:53 gen:426] binding <Enum ''>
+[I 210704 18:18:53 gen:426] binding <Class 'PortMidiDriver'>
+[I 210704 18:18:53 gen:426] binding <Class 'JackMidiDriver'>
+[I 210704 18:18:53 gen:426] binding <Class 'AlsaMidiDriver'>
+[I 210704 18:18:53 gen:426] binding <Class 'PortAudioDriver'>
+[I 210704 18:18:53 gen:426] binding <Class 'NullDriver'>
+[I 210704 18:18:53 gen:426] binding <Class 'JackAudioDriver'>
+[I 210704 18:18:53 gen:426] binding <Class 'FakeDriver'>
+[I 210704 18:18:53 gen:426] binding <Class 'DiskWriterDriver'>
+[I 210704 18:18:53 gen:426] binding <Class 'AlsaAudioDriver'>
+[I 210704 18:18:53 gen:426] binding <Enum ''>
+[I 210704 18:18:53 gen:426] binding <Struct 'Tag'>
+[I 210704 18:18:53 gen:426] binding <Struct 'TempoMarker'>
+[I 210704 18:18:53 gen:426] binding <Struct 'AddMidiNoteVector'>
+[I 210704 18:18:53 gen:426] binding <Enum 'ErrorMessages'>
+[I 210704 18:18:53 gen:426] binding <Enum 'GUIState'>
+[I 210704 18:18:53 gen:426] binding <Enum 'Lookup'>
+[I 210704 18:18:53 gen:426] binding <Enum 'file_perms'>
+[I 210704 18:18:53 gen:426] binding <Enum 'ActionMode'>
+[I 210704 18:18:53 gen:426] binding <Enum 'SongMode'>
+[I 210704 18:18:53 gen:426] binding <Struct 'Entry'>
+[I 210704 18:18:53 gen:426] binding <Enum 'UI_SCALING_POLICY'>
+[I 210704 18:18:53 gen:426] binding <Enum 'UI_LAYOUT_TYPES'>
+[I 210704 18:18:53 gen:426] binding <Enum ''>
+[I 210704 18:18:53 gen:426] binding <Enum 'FontSize'>
+[I 210704 18:18:53 gen:426] binding <Enum 'JackBBTSyncMethod'>
+[I 210704 18:18:53 gen:426] binding <Enum 'JackTrackOutputMode'>
+[I 210704 18:18:53 gen:426] binding <Class 'Rubberband'>
+[I 210704 18:18:53 gen:426] binding <Class 'Loops'>
+[I 210704 18:18:53 gen:426] binding <Enum 'SampleSelectionAlgo'>
+[I 210704 18:18:53 gen:426] binding <Enum 'Timebase'>
+[I 210704 18:18:53 gen:426] binding <Enum 'LoopMode'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL LADSPA_Data
+[W 210704 18:18:53 dom:672] No Type for <Field 'fDefaultValue'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL LADSPA_Data
+[W 210704 18:18:53 dom:672] No Type for <Field 'fControlValue'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL LADSPA_Data
+[W 210704 18:18:53 dom:672] No Type for <Field 'fLowerBound'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL LADSPA_Data
+[W 210704 18:18:53 dom:672] No Type for <Field 'fUpperBound'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL iterator
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL iterator
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL const_iterator
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL const_iterator
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL iterator
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL iterator
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL const_iterator
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL const_iterator
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL iterator
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL iterator
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL iterator
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL iterator
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL iterator
+[W 210704 18:18:53 gen:95] base class not in bindings or abstract: <Class 'XMLNode'> <Class 'QDomNode'>
+[W 210704 18:18:53 gen:95] base class not in bindings or abstract: <Class 'PortMidiDriver'> <Class 'MidiInput'>
+[W 210704 18:18:53 gen:95] base class not in bindings or abstract: <Class 'PortMidiDriver'> <Class 'MidiOutput'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL PortMidiStream
+[W 210704 18:18:53 dom:672] No Type for <Field 'm_pMidiIn'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL PortMidiStream
+[W 210704 18:18:53 dom:672] No Type for <Field 'm_pMidiOut'>
+[W 210704 18:18:53 gen:95] base class not in bindings or abstract: <Class 'JackMidiDriver'> <Class 'MidiInput'>
+[W 210704 18:18:53 gen:95] base class not in bindings or abstract: <Class 'JackMidiDriver'> <Class 'MidiOutput'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL jack_nframes_t
+[W 210704 18:18:53 dom:650] hu... <Param 'nframes'>
+[W 210704 18:18:53 dom:518] no type for <Param 'nframes'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL jack_nframes_t
+[W 210704 18:18:53 dom:650] hu... <Param 'nframes'>
+[W 210704 18:18:53 dom:518] no type for <Param 'nframes'>
+[W 210704 18:18:53 gen:95] base class not in bindings or abstract: <Class 'AlsaMidiDriver'> <Class 'MidiInput'>
+[W 210704 18:18:53 gen:95] base class not in bindings or abstract: <Class 'AlsaMidiDriver'> <Class 'MidiOutput'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL snd_seq_t
+[W 210704 18:18:53 dom:650] hu... <Param 'seq_handle'>
+[W 210704 18:18:53 dom:518] no type for <Param 'seq_handle'>
+[W 210704 18:18:53 gen:95] base class not in bindings or abstract: <Class 'PortAudioDriver'> <Class 'AudioOutput'>
+[W 210704 18:18:53 gen:95] base class not in bindings or abstract: <Class 'NullDriver'> <Class 'AudioOutput'>
+[W 210704 18:18:53 gen:95] base class not in bindings or abstract: <Class 'JackAudioDriver'> <Class 'AudioOutput'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL jack_nframes_t
+[W 210704 18:18:53 dom:650] hu... <Param 'nframes'>
+[W 210704 18:18:53 dom:518] no type for <Param 'nframes'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL jack_nframes_t
+[W 210704 18:18:53 dom:650] hu... <Param 'nframes'>
+[W 210704 18:18:53 dom:518] no type for <Param 'nframes'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL jack_transport_state_t
+[W 210704 18:18:53 dom:650] hu... <Param 'state'>
+[W 210704 18:18:53 dom:518] no type for <Param 'state'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL jack_nframes_t
+[W 210704 18:18:53 dom:650] hu... <Param 'nFrames'>
+[W 210704 18:18:53 dom:518] no type for <Param 'nFrames'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL jack_position_t
+[W 210704 18:18:53 dom:650] hu... <Param 'pJackPosition'>
+[W 210704 18:18:53 dom:518] no type for <Param 'pJackPosition'>
+[W 210704 18:18:53 dom:469] lookup failed: decl: CursorKind.TYPEDEF_DECL jack_position_t
+[W 210704 18:18:53 dom:650] hu... <Param 'pPos'>
+[W 210704 18:18:53 dom:518] no type for <Param 'pPos'>
+[W 210704 18:18:53 gen:95] base class not in bindings or abstract: <Class 'FakeDriver'> <Class 'AudioOutput'>
+[W 210704 18:18:53 gen:95] base class not in bindings or abstract: <Class 'DiskWriterDriver'> <Class 'AudioOutput'>
+[W 210704 18:18:53 gen:95] base class not in bindings or abstract: <Class 'AlsaAudioDriver'> <Class 'AudioOutput'>

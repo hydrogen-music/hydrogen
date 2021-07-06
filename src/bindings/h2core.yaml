@@ -69,6 +69,7 @@ module:
     H2Core::LilyPond: core/Lilipond/Lilypond.h
     H2Core::Sampler: core/Sampler/Sampler.h
     H2Core::Synth: core/Synth/Synth.h
+
   ban:
     # Qt non namespace
     - QColor::QColor(QColor &&)  # ban this constructor, pybind11 bark on this
@@ -142,6 +143,8 @@ module:
     - H2Core::Preferences::getDataDirectory
     - H2Core::LadspaControlPort::__class_name
     - H2Core::LadspaControlPort::class_name
+    - H2Core::Sample::get_pan_envelope        # unique pointers in stl containers, pybind11 can't cope with this.
+    - H2Core::Sample::get_velocity_envelope
   cleaners:
     - qtreset.h
   plugins:

@@ -7,10 +7,9 @@ PYBIND11_MODULE(h2core, m) {
 	py::class_<H2Core::Object, std::shared_ptr<H2Core::Object>> _Object(m, "Object");
 	_Object.def(py::init<const H2Core::Object &>());
 	_Object.def(py::init<const char *>());
+	_Object.def_property_readonly_static("alive_object_count", [](py::object) { return H2Core::Object::getAliveObjectCount(); });
+	_Object.def_property_readonly_static("object_map", [](py::object) { return H2Core::Object::getObjectMap(); });
 	_Object.def("class_name", &H2Core::Object::class_name);
-	_Object.def_static("set_count", &H2Core::Object::set_count,
-		"enable/disable class instances counting",
-		py::arg("flag"));
 	_Object.def_static("count_active", &H2Core::Object::count_active);
 	_Object.def_static("objects_count", &H2Core::Object::objects_count);
 	// [<TypeDef 'ostream'>] _Object.def_static("write_objects_map_to", &H2Core::Object::write_objects_map_to,
@@ -23,10 +22,6 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("logger"),
 		py::arg("count"));
 	_Object.def_static("logger", &H2Core::Object::logger);
-	_Object.def_static("getAliveObjectCount", &H2Core::Object::getAliveObjectCount,
-		"Returns Total numbers of objects being alive.");
-	// [<TypeDef 'object_map_t'>] _Object.def_static("getObjectMap", &H2Core::Object::getObjectMap,
-		// [<TypeDef 'object_map_t'>] "Returns Copy of the object map.");
 	// [<TypeDef 'object_map_t'>] _Object.def_static("printObjectMapDiff", &H2Core::Object::printObjectMapDiff,
 		// [<TypeDef 'object_map_t'>] "Creates the difference between a snapshot of the object map and its current state and prints it to std::cout.",
 	// [<TypeDef 'object_map_t'>] 	py::arg("map"));
@@ -39,26 +34,18 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("bShort"));
 
 	py::class_<H2Core::Logger, std::shared_ptr<H2Core::Logger>> _Logger(m, "Logger");
+	_Logger.def_property_readonly_static("instance", [](py::object) { return H2Core::Logger::get_instance(); }, py::return_value_policy::reference);
 	_Logger.def_static("bootstrap", &H2Core::Logger::bootstrap,
 		"create the logger instance if not exists, set the log level and return the instance",
 		py::arg("msk"),
 	py::return_value_policy::reference);
 	_Logger.def_static("create_instance", &H2Core::Logger::create_instance,
 		"If #__instance equals 0, a new H2Core::Logger singleton will be created and stored in it.");
-	_Logger.def_static("get_instance", &H2Core::Logger::get_instance,
-		"Returns a pointer to the current H2Core::Logger singleton stored in #__instance.",
-	py::return_value_policy::reference);
 	_Logger.def("should_log", &H2Core::Logger::should_log,
 		"return true if the level is set in the bitmask",
 		py::arg("lvl"));
-	_Logger.def_static("set_bit_mask", &H2Core::Logger::set_bit_mask,
-		"set the bitmask",
-		py::arg("msk"));
 	_Logger.def_static("bit_mask", &H2Core::Logger::bit_mask,
 		"return the current log level bit mask");
-	_Logger.def("set_use_file", &H2Core::Logger::set_use_file,
-		"set use file flag",
-		py::arg("use"));
 	_Logger.def("use_file", &H2Core::Logger::use_file,
 		"return __use_file");
 	_Logger.def_static("parse_log_level", &H2Core::Logger::parse_log_level,
@@ -107,9 +94,6 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::AudioEngineLocking, std::shared_ptr<H2Core::AudioEngineLocking>> _AudioEngineLocking(m, "AudioEngineLocking");
 	_AudioEngineLocking.def(py::init<>());
-	_AudioEngineLocking.def("setNeedsLock", &H2Core::AudioEngineLocking::setNeedsLock,
-		"The audio processing thread can modify some PatternLists. For these structures, the audio engine lock must be held for any thread to access them.",
-		py::arg("bNeedsLock"));
 
 	py::class_<QColor, std::shared_ptr<QColor>> _QColor(m, "QColor");
 	_QColor.def(py::init<>());
@@ -147,29 +131,13 @@ PYBIND11_MODULE(h2core, m) {
 	// [<Class 'QStringList'>] _QColor.def_static("colorNames", &QColor::colorNames);
 	_QColor.def("spec", &QColor::spec);
 	_QColor.def("alpha", &QColor::alpha);
-	_QColor.def("setAlpha", &QColor::setAlpha,
-		py::arg("alpha"));
 	_QColor.def("alphaF", &QColor::alphaF);
-	_QColor.def("setAlphaF", &QColor::setAlphaF,
-		py::arg("alpha"));
 	_QColor.def("red", &QColor::red);
 	_QColor.def("green", &QColor::green);
 	_QColor.def("blue", &QColor::blue);
-	_QColor.def("setRed", &QColor::setRed,
-		py::arg("red"));
-	_QColor.def("setGreen", &QColor::setGreen,
-		py::arg("green"));
-	_QColor.def("setBlue", &QColor::setBlue,
-		py::arg("blue"));
 	_QColor.def("redF", &QColor::redF);
 	_QColor.def("greenF", &QColor::greenF);
 	_QColor.def("blueF", &QColor::blueF);
-	_QColor.def("setRedF", &QColor::setRedF,
-		py::arg("red"));
-	_QColor.def("setGreenF", &QColor::setGreenF,
-		py::arg("green"));
-	_QColor.def("setBlueF", &QColor::setBlueF,
-		py::arg("blue"));
 	_QColor.def("getRgb", &QColor::getRgb,
 		py::arg("r"),
 		py::arg("g"),
@@ -193,11 +161,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("b"),
 		py::arg("a"));
 	_QColor.def("rgba64", &QColor::rgba64);
-	_QColor.def("setRgba64", &QColor::setRgba64,
-		py::arg("rgba"));
 	_QColor.def("rgba", &QColor::rgba);
-	_QColor.def("setRgba", &QColor::setRgba,
-		py::arg("rgba"));
 	_QColor.def("rgb", &QColor::rgb);
 	_QColor.def("hue", &QColor::hue);
 	_QColor.def("saturation", &QColor::saturation);
@@ -405,14 +369,6 @@ PYBIND11_MODULE(h2core, m) {
 	_QRgba64.def("green", &QRgba64::green);
 	_QRgba64.def("blue", &QRgba64::blue);
 	_QRgba64.def("alpha", &QRgba64::alpha);
-	_QRgba64.def("setRed", &QRgba64::setRed,
-		py::arg("_red"));
-	_QRgba64.def("setGreen", &QRgba64::setGreen,
-		py::arg("_green"));
-	_QRgba64.def("setBlue", &QRgba64::setBlue,
-		py::arg("_blue"));
-	_QRgba64.def("setAlpha", &QRgba64::setAlpha,
-		py::arg("_alpha"));
 	_QRgba64.def("red8", &QRgba64::red8);
 	_QRgba64.def("green8", &QRgba64::green8);
 	_QRgba64.def("blue8", &QRgba64::blue8);
@@ -428,6 +384,7 @@ PYBIND11_MODULE(h2core, m) {
 	_Synth.def(py::init<>());
 	_Synth.def_readwrite("m_pOut_L", &H2Core::Synth::m_pOut_L);
 	_Synth.def_readwrite("m_pOut_R", &H2Core::Synth::m_pOut_R);
+	_Synth.def_property_readonly("playing_notes_number", &H2Core::Synth::getPlayingNotesNumber);
 	_Synth.def_static("class_name", &H2Core::Synth::class_name);
 	_Synth.def("noteOn", &H2Core::Synth::noteOn,
 		"Start playing a note",
@@ -437,13 +394,39 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("pNote"));
 	_Synth.def("process", &H2Core::Synth::process,
 		py::arg("nFrames"));
-	_Synth.def("setAudioOutput", &H2Core::Synth::setAudioOutput,
-		py::arg("pAudioOutput"));
-	_Synth.def("getPlayingNotesNumber", &H2Core::Synth::getPlayingNotesNumber);
 
 	py::class_<H2Core::Note, H2Core::Object, std::shared_ptr<H2Core::Note>> _Note(m, "Note");
 	_Note.def(py::init<std::shared_ptr<Instrument>, int, float, float, int, float>());
 	_Note.def(py::init<H2Core::Note *, std::shared_ptr<Instrument>>());
+	_Note.def_property_readonly("instrument", &H2Core::Note::get_instrument);
+	_Note.def_property("instrument_id", &H2Core::Note::get_instrument_id, &H2Core::Note::set_instrument_id);
+	_Note.def_property("specific_compo_id", &H2Core::Note::get_specific_compo_id, &H2Core::Note::set_specific_compo_id);
+	_Note.def_property("position", &H2Core::Note::get_position, &H2Core::Note::set_position);
+	_Note.def_property("velocity", &H2Core::Note::get_velocity, &H2Core::Note::set_velocity);
+	_Note.def_property("pan", &H2Core::Note::getPan, &H2Core::Note::setPan);
+	_Note.def_property("pan_with_range_from_0_to_1", &H2Core::Note::getPanWithRangeFrom0To1, &H2Core::Note::setPanWithRangeFrom0To1);
+	_Note.def_property("lead_lag", &H2Core::Note::get_lead_lag, &H2Core::Note::set_lead_lag);
+	_Note.def_property("length", &H2Core::Note::get_length, &H2Core::Note::set_length);
+	_Note.def_property("pitch", &H2Core::Note::get_pitch, &H2Core::Note::set_pitch);
+	_Note.def_property("note_off", &H2Core::Note::get_note_off, &H2Core::Note::set_note_off);
+	_Note.def_property_readonly("midi_msg", &H2Core::Note::get_midi_msg);
+	_Note.def_property("pattern_idx", &H2Core::Note::get_pattern_idx, &H2Core::Note::set_pattern_idx);
+	_Note.def_property("just_recorded", &H2Core::Note::get_just_recorded, &H2Core::Note::set_just_recorded);
+	_Note.def_property("probability", &H2Core::Note::get_probability, &H2Core::Note::set_probability);
+	_Note.def_property("humanize_delay", &H2Core::Note::get_humanize_delay, &H2Core::Note::set_humanize_delay);
+	_Note.def_property_readonly("cut_off", &H2Core::Note::get_cut_off);
+	_Note.def_property_readonly("resonance", &H2Core::Note::get_resonance);
+	_Note.def_property_readonly("bpfb_l", &H2Core::Note::get_bpfb_l);
+	_Note.def_property_readonly("bpfb_r", &H2Core::Note::get_bpfb_r);
+	_Note.def_property_readonly("lpfb_l", &H2Core::Note::get_lpfb_l);
+	_Note.def_property_readonly("lpfb_r", &H2Core::Note::get_lpfb_r);
+	_Note.def_property_readonly("key", &H2Core::Note::get_key);
+	_Note.def_property_readonly("octave", &H2Core::Note::get_octave);
+	_Note.def_property_readonly("midi_key", &H2Core::Note::get_midi_key);
+	_Note.def_property_readonly("midi_velocity", &H2Core::Note::get_midi_velocity);
+	_Note.def_property_readonly("notekey_pitch", &H2Core::Note::get_notekey_pitch);
+	_Note.def_property_readonly("total_pitch", &H2Core::Note::get_total_pitch);
+	_Note.def_property_readonly("adsr", &H2Core::Note::get_adsr);
 	_Note.def_static("class_name", &H2Core::Note::class_name);
 	_Note.def("save_to", &H2Core::Note::save_to,
 		py::arg("node"));
@@ -456,106 +439,10 @@ PYBIND11_MODULE(h2core, m) {
 	_Note.def("map_instrument", &H2Core::Note::map_instrument,
 		"find the corresponding instrument and point to it, or an empty instrument",
 		py::arg("instruments"));
-	_Note.def("get_instrument", &H2Core::Note::get_instrument,
-		"#__instrument accessor");
 	_Note.def("has_instrument", &H2Core::Note::has_instrument,
 		"return true if #__instrument is set");
-	_Note.def("set_instrument_id", &H2Core::Note::set_instrument_id,
-		"#__instrument_id setter",
-		py::arg("value"));
-	_Note.def("get_instrument_id", &H2Core::Note::get_instrument_id,
-		"#__instrument_id accessor");
-	_Note.def("set_specific_compo_id", &H2Core::Note::set_specific_compo_id,
-		"#__specific_compo_id setter",
-		py::arg("value"));
-	_Note.def("get_specific_compo_id", &H2Core::Note::get_specific_compo_id,
-		"#__specific_compo_id accessor");
-	_Note.def("set_position", &H2Core::Note::set_position,
-		"#__position setter",
-		py::arg("value"));
-	_Note.def("get_position", &H2Core::Note::get_position,
-		"#__position accessor");
-	_Note.def("set_velocity", &H2Core::Note::set_velocity,
-		"#__velocity setter",
-		py::arg("value"));
-	_Note.def("get_velocity", &H2Core::Note::get_velocity,
-		"#__velocity accessor");
-	_Note.def("setPan", &H2Core::Note::setPan,
-		"set pan of the note. assumes the input range in [-1;1]",
-		py::arg("val"));
-	_Note.def("setPanWithRangeFrom0To1", &H2Core::Note::setPanWithRangeFrom0To1,
-		"set pan of the note, assuming the input range in [0;1]",
-		py::arg("fVal"));
-	_Note.def("getPan", &H2Core::Note::getPan,
-		"get pan of the note. Output pan range: [-1;1]");
-	_Note.def("getPanWithRangeFrom0To1", &H2Core::Note::getPanWithRangeFrom0To1,
-		"get pan of the note, scaling and translating the range from [-1;1] to [0;1]");
-	_Note.def("set_lead_lag", &H2Core::Note::set_lead_lag,
-		"#__lead_lag setter",
-		py::arg("value"));
-	_Note.def("get_lead_lag", &H2Core::Note::get_lead_lag,
-		"#__lead_lag accessor");
-	_Note.def("set_length", &H2Core::Note::set_length,
-		"#__length setter",
-		py::arg("value"));
-	_Note.def("get_length", &H2Core::Note::get_length,
-		"#__length accessor");
-	_Note.def("set_pitch", &H2Core::Note::set_pitch,
-		"#__pitch setter",
-		py::arg("value"));
-	_Note.def("get_pitch", &H2Core::Note::get_pitch,
-		"#__pitch accessor");
-	_Note.def("set_note_off", &H2Core::Note::set_note_off,
-		"#__note_off setter",
-		py::arg("value"));
-	_Note.def("get_note_off", &H2Core::Note::get_note_off,
-		"#__note_off accessor");
-	_Note.def("get_midi_msg", &H2Core::Note::get_midi_msg,
-		"#__midi_msg accessor");
-	_Note.def("set_pattern_idx", &H2Core::Note::set_pattern_idx,
-		"#__pattern_idx setter",
-		py::arg("value"));
-	_Note.def("get_pattern_idx", &H2Core::Note::get_pattern_idx,
-		"#__pattern_idx accessor");
-	_Note.def("set_just_recorded", &H2Core::Note::set_just_recorded,
-		"#__just_recorded setter",
-		py::arg("value"));
-	_Note.def("get_just_recorded", &H2Core::Note::get_just_recorded,
-		"#__just_recorded accessor");
 	_Note.def("get_layer_selected", &H2Core::Note::get_layer_selected,
 		py::arg("CompoID"));
-	_Note.def("set_probability", &H2Core::Note::set_probability,
-		py::arg("value"));
-	_Note.def("get_probability", &H2Core::Note::get_probability);
-	_Note.def("set_humanize_delay", &H2Core::Note::set_humanize_delay,
-		"#__humanize_delay setter",
-		py::arg("value"));
-	_Note.def("get_humanize_delay", &H2Core::Note::get_humanize_delay,
-		"#__humanize_delay accessor");
-	_Note.def("get_cut_off", &H2Core::Note::get_cut_off,
-		"#__cut_off accessor");
-	_Note.def("get_resonance", &H2Core::Note::get_resonance,
-		"#__resonance accessor");
-	_Note.def("get_bpfb_l", &H2Core::Note::get_bpfb_l,
-		"#__bpfb_l accessor");
-	_Note.def("get_bpfb_r", &H2Core::Note::get_bpfb_r,
-		"#__bpfb_r accessor");
-	_Note.def("get_lpfb_l", &H2Core::Note::get_lpfb_l,
-		"#__lpfb_l accessor");
-	_Note.def("get_lpfb_r", &H2Core::Note::get_lpfb_r,
-		"#__lpfb_r accessor");
-	_Note.def("get_key", &H2Core::Note::get_key,
-		"#__key accessor");
-	_Note.def("get_octave", &H2Core::Note::get_octave,
-		"#__octave accessor");
-	_Note.def("get_midi_key", &H2Core::Note::get_midi_key,
-		"return scaled key for midi output, !!! DO NOT CHECK IF INSTRUMENT IS SET !!!");
-	_Note.def("get_midi_velocity", &H2Core::Note::get_midi_velocity,
-		"midi velocity accessor");
-	_Note.def("get_notekey_pitch", &H2Core::Note::get_notekey_pitch,
-		"note key pitch accessor");
-	_Note.def("get_total_pitch", &H2Core::Note::get_total_pitch,
-		"returns");
 	_Note.def("key_to_string", &H2Core::Note::key_to_string,
 		"return a string representation of key-octave");
 	_Note.def("set_key_octave", py::overload_cast<const QString &>(&H2Core::Note::set_key_octave),
@@ -570,8 +457,6 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("key"),
 		py::arg("octave"),
 		py::arg("msg"));
-	_Note.def("get_adsr", &H2Core::Note::get_adsr,
-		"get the ADSR of the note");
 	// [banned] _Note.def("match", py::overload_cast<std::shared_ptr<Instrument>, H2Core::Note::Key, H2Core::Note::Octave>(&H2Core::Note::match),
 		// [banned] "return true if instrument, key and octave matches with internal",
 	// [banned] 	py::arg("instrument"),
@@ -593,6 +478,10 @@ PYBIND11_MODULE(h2core, m) {
 	_Sampler.def(py::init<>());
 	_Sampler.def_readwrite("m_pMainOut_L", &H2Core::Sampler::m_pMainOut_L);
 	_Sampler.def_readwrite("m_pMainOut_R", &H2Core::Sampler::m_pMainOut_R);
+	_Sampler.def_property_readonly("playing_notes_number", &H2Core::Sampler::getPlayingNotesNumber);
+	_Sampler.def_property("interpolate_mode", &H2Core::Sampler::getInterpolateMode, &H2Core::Sampler::setInterpolateMode);
+	_Sampler.def_property_readonly("preview_instrument", &H2Core::Sampler::getPreviewInstrument);
+	_Sampler.def_property_readonly("playback_track_instrument", &H2Core::Sampler::getPlaybackTrackInstrument);
 	_Sampler.def_static("class_name", &H2Core::Sampler::class_name);
 	_Sampler.def_static("ratioStraightPolygonalPanLaw", &H2Core::Sampler::ratioStraightPolygonalPanLaw,
 		py::arg("fPan"));
@@ -647,23 +536,15 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("key"));
 	_Sampler.def("stopPlayingNotes", &H2Core::Sampler::stopPlayingNotes,
 		py::arg("pInstr"));
-	_Sampler.def("getPlayingNotesNumber", &H2Core::Sampler::getPlayingNotesNumber);
 	_Sampler.def("preview_sample", &H2Core::Sampler::preview_sample,
 		py::arg("pSample"),
 		py::arg("length"));
-	_Sampler.def("preview_instrument", &H2Core::Sampler::preview_instrument,
-		py::arg("pInstr"));
 	_Sampler.def("setPlayingNotelength", &H2Core::Sampler::setPlayingNotelength,
 		py::arg("pInstrument"),
 		py::arg("ticks"),
 		py::arg("noteOnTick"));
 	_Sampler.def("isInstrumentPlaying", &H2Core::Sampler::isInstrumentPlaying,
 		py::arg("pInstr"));
-	_Sampler.def("setInterpolateMode", &H2Core::Sampler::setInterpolateMode,
-		py::arg("mode"));
-	_Sampler.def("getPreviewInstrument", &H2Core::Sampler::getPreviewInstrument);
-	_Sampler.def("getPlaybackTrackInstrument", &H2Core::Sampler::getPlaybackTrackInstrument);
-	_Sampler.def("getInterpolateMode", &H2Core::Sampler::getInterpolateMode);
 	_Sampler.def("reinitializePlaybackTrack", &H2Core::Sampler::reinitializePlaybackTrack,
 		"Loading of the playback track.");
 
@@ -688,6 +569,11 @@ PYBIND11_MODULE(h2core, m) {
 	_LadspaFX.def_readwrite("m_pBuffer_R", &H2Core::LadspaFX::m_pBuffer_R);
 	_LadspaFX.def_readwrite("inputControlPorts", &H2Core::LadspaFX::inputControlPorts);
 	_LadspaFX.def_readwrite("outputControlPorts", &H2Core::LadspaFX::outputControlPorts);
+	_LadspaFX.def_property_readonly("plugin_label", &H2Core::LadspaFX::getPluginLabel);
+	_LadspaFX.def_property("plugin_name", &H2Core::LadspaFX::getPluginName, &H2Core::LadspaFX::setPluginName);
+	_LadspaFX.def_property_readonly("library_path", &H2Core::LadspaFX::getLibraryPath);
+	_LadspaFX.def_property_readonly("plugin_type", &H2Core::LadspaFX::getPluginType);
+	_LadspaFX.def_property("volume", &H2Core::LadspaFX::getVolume, &H2Core::LadspaFX::setVolume);
 	_LadspaFX.def_static("class_name", &H2Core::LadspaFX::class_name);
 	_LadspaFX.def("connectAudioPorts", &H2Core::LadspaFX::connectAudioPorts,
 		py::arg("pIn_L"),
@@ -698,22 +584,11 @@ PYBIND11_MODULE(h2core, m) {
 	_LadspaFX.def("deactivate", &H2Core::LadspaFX::deactivate);
 	_LadspaFX.def("processFX", &H2Core::LadspaFX::processFX,
 		py::arg("nFrames"));
-	_LadspaFX.def("getPluginLabel", &H2Core::LadspaFX::getPluginLabel);
-	_LadspaFX.def("getPluginName", &H2Core::LadspaFX::getPluginName);
-	_LadspaFX.def("setPluginName", &H2Core::LadspaFX::setPluginName,
-		py::arg("sName"));
-	_LadspaFX.def("getLibraryPath", &H2Core::LadspaFX::getLibraryPath);
 	_LadspaFX.def("isEnabled", &H2Core::LadspaFX::isEnabled);
-	_LadspaFX.def("setEnabled", &H2Core::LadspaFX::setEnabled,
-		py::arg("value"));
 	_LadspaFX.def_static("load", &H2Core::LadspaFX::load,
 		py::arg("sLibraryPath"),
 		py::arg("sPluginLabel"),
 		py::arg("nSampleRate"));
-	_LadspaFX.def("getPluginType", &H2Core::LadspaFX::getPluginType);
-	_LadspaFX.def("setVolume", &H2Core::LadspaFX::setVolume,
-		py::arg("fValue"));
-	_LadspaFX.def("getVolume", &H2Core::LadspaFX::getVolume);
 	_LadspaFX.def("__repr__",
 	[](H2Core::LadspaFX & fx) {
   return "<LadspaFX \"" + fx.getPluginName() + "\">";
@@ -732,30 +607,28 @@ PYBIND11_MODULE(h2core, m) {
 	// [banned] _LadspaControlPort.def_static("class_name", &H2Core::LadspaControlPort::class_name);
 
 	py::class_<H2Core::Effects, H2Core::Object, std::shared_ptr<H2Core::Effects>> _Effects(m, "Effects");
+	_Effects.def_property_readonly_static("instance", [](py::object) { return H2Core::Effects::get_instance(); }, py::return_value_policy::reference);
+	_Effects.def_property_readonly("plugin_list", &H2Core::Effects::getPluginList);
 	_Effects.def_static("class_name", &H2Core::Effects::class_name);
 	_Effects.def_static("create_instance", &H2Core::Effects::create_instance,
 		"If #__instance equals 0, a new Effects singleton will be created and stored in it.");
-	_Effects.def_static("get_instance", &H2Core::Effects::get_instance,
-		"Returns a pointer to the current Effects singleton stored in #__instance.",
-	py::return_value_policy::reference);
 	_Effects.def("getLadspaFX", &H2Core::Effects::getLadspaFX,
 		py::arg("nFX"));
 	_Effects.def("setLadspaFX", &H2Core::Effects::setLadspaFX,
 		py::arg("pFX"),
 		py::arg("nFX"));
-	_Effects.def("getPluginList", &H2Core::Effects::getPluginList);
 	_Effects.def("getLadspaFXGroup", &H2Core::Effects::getLadspaFXGroup);
 
 	py::class_<H2Core::LadspaFXGroup, H2Core::Object, std::shared_ptr<H2Core::LadspaFXGroup>> _LadspaFXGroup(m, "LadspaFXGroup");
 	_LadspaFXGroup.def(py::init<const QString &>());
+	_LadspaFXGroup.def_property_readonly("name", &H2Core::LadspaFXGroup::getName);
+	_LadspaFXGroup.def_property_readonly("ladspa_info", &H2Core::LadspaFXGroup::getLadspaInfo);
+	_LadspaFXGroup.def_property_readonly("child_list", &H2Core::LadspaFXGroup::getChildList);
 	_LadspaFXGroup.def_static("class_name", &H2Core::LadspaFXGroup::class_name);
-	_LadspaFXGroup.def("getName", &H2Core::LadspaFXGroup::getName);
 	_LadspaFXGroup.def("addLadspaInfo", &H2Core::LadspaFXGroup::addLadspaInfo,
 		py::arg("pInfo"));
-	_LadspaFXGroup.def("getLadspaInfo", &H2Core::LadspaFXGroup::getLadspaInfo);
 	_LadspaFXGroup.def("addChild", &H2Core::LadspaFXGroup::addChild,
 		py::arg("pChild"));
-	_LadspaFXGroup.def("getChildList", &H2Core::LadspaFXGroup::getChildList);
 	_LadspaFXGroup.def("clear", &H2Core::LadspaFXGroup::clear);
 	_LadspaFXGroup.def_static("alphabeticOrder", &H2Core::LadspaFXGroup::alphabeticOrder,
 		py::arg(""),
@@ -786,6 +659,8 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::Timeline, H2Core::Object, std::shared_ptr<H2Core::Timeline>> _Timeline(m, "Timeline");
 	_Timeline.def(py::init<>());
+	_Timeline.def_property_readonly("all_tempo_markers", &H2Core::Timeline::getAllTempoMarkers);
+	_Timeline.def_property_readonly("all_tags", &H2Core::Timeline::getAllTags);
 	_Timeline.def_static("class_name", &H2Core::Timeline::class_name);
 	_Timeline.def("addTempoMarker", &H2Core::Timeline::addTempoMarker,
 		py::arg("nBar"),
@@ -797,8 +672,6 @@ PYBIND11_MODULE(h2core, m) {
 		"Returns the tempo of the Song at a given bar.",
 		py::arg("nBar"),
 		py::arg("bSticky"));
-	_Timeline.def("getAllTempoMarkers", &H2Core::Timeline::getAllTempoMarkers,
-		"Returns std::vector<std::shared_ptr<const TempoMarker>> Provides read-only access to m_tempoMarker.");
 	_Timeline.def("addTag", &H2Core::Timeline::addTag,
 		py::arg("nBar"),
 		py::arg("sTag"));
@@ -809,8 +682,6 @@ PYBIND11_MODULE(h2core, m) {
 		"Returns the tag of the Song at a given bar.",
 		py::arg("nBar"),
 		py::arg("bSticky"));
-	_Timeline.def("getAllTags", &H2Core::Timeline::getAllTags,
-		"Returns std::vector<std::shared_ptr<const Tag>> Provides read-only access to m_tags.");
 	_Timeline.def("toQString", &H2Core::Timeline::toQString,
 		"Formatted string version for debugging purposes.",
 		py::arg("sPrefix"),
@@ -818,36 +689,29 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<MidiActionManager, H2Core::Object, std::shared_ptr<MidiActionManager>> _MidiActionManager(m, "MidiActionManager");
 	_MidiActionManager.def(py::init<>());
+	_MidiActionManager.def_property_readonly_static("instance", [](py::object) { return MidiActionManager::get_instance(); });
+	_MidiActionManager.def_property_readonly("action_list", &MidiActionManager::getActionList);
+	_MidiActionManager.def_property_readonly("event_list", &MidiActionManager::getEventList);
 	_MidiActionManager.def_static("class_name", &MidiActionManager::class_name);
 	_MidiActionManager.def("handleAction", &MidiActionManager::handleAction,
 		"The handleAction method is the heart of the MidiActionManager class. It executes the operations that are needed to carry the desired action.",
 		py::arg(""));
 	_MidiActionManager.def_static("create_instance", &MidiActionManager::create_instance,
 		"If #__instance equals 0, a new MidiActionManager singleton will be created and stored in it.");
-	_MidiActionManager.def_static("get_instance", &MidiActionManager::get_instance,
-		"Returns a pointer to the current MidiActionManager singleton stored in #__instance.");
-	// [<Class 'QStringList'>] _MidiActionManager.def("getActionList", &MidiActionManager::getActionList);
-	// [<Class 'QStringList'>] _MidiActionManager.def("getEventList", &MidiActionManager::getEventList);
 
 	py::class_<Action, H2Core::Object, std::shared_ptr<Action>> _Action(m, "Action");
 	_Action.def(py::init<QString>());
+	_Action.def_property("parameter_1", &Action::getParameter1, &Action::setParameter1);
+	_Action.def_property("parameter_2", &Action::getParameter2, &Action::setParameter2);
+	_Action.def_property_readonly("type", &Action::getType);
 	_Action.def_static("class_name", &Action::class_name);
-	_Action.def("setParameter1", &Action::setParameter1,
-		py::arg("text"));
-	_Action.def("setParameter2", &Action::setParameter2,
-		py::arg("text"));
-	_Action.def("getParameter1", &Action::getParameter1);
-	_Action.def("getParameter2", &Action::getParameter2);
-	_Action.def("getType", &Action::getType);
 
 	py::class_<H2Core::EventQueue, H2Core::Object, std::shared_ptr<H2Core::EventQueue>> _EventQueue(m, "EventQueue");
 	_EventQueue.def_readwrite("m_addMidiNoteVector", &H2Core::EventQueue::m_addMidiNoteVector);
+	_EventQueue.def_property_readonly_static("instance", [](py::object) { return H2Core::EventQueue::get_instance(); }, py::return_value_policy::reference);
 	_EventQueue.def_static("class_name", &H2Core::EventQueue::class_name);
 	_EventQueue.def_static("create_instance", &H2Core::EventQueue::create_instance,
 		"If #__instance equals 0, a new EventQueue singleton will be created and stored in it.");
-	_EventQueue.def_static("get_instance", &H2Core::EventQueue::get_instance,
-		"Returns a pointer to the current EventQueue singleton stored in #__instance.",
-	py::return_value_policy::reference);
 	_EventQueue.def("push_event", &H2Core::EventQueue::push_event,
 		"Queues the next event into the EventQueue.",
 		py::arg("type"),
@@ -858,8 +722,6 @@ PYBIND11_MODULE(h2core, m) {
 	py::class_<H2Core::CoreActionController, H2Core::Object, std::shared_ptr<H2Core::CoreActionController>> _CoreActionController(m, "CoreActionController");
 	_CoreActionController.def(py::init<>());
 	_CoreActionController.def_static("class_name", &H2Core::CoreActionController::class_name);
-	_CoreActionController.def("setMasterVolume", &H2Core::CoreActionController::setMasterVolume,
-		py::arg("masterVolumeValue"));
 	_CoreActionController.def("setStripVolume", &H2Core::CoreActionController::setStripVolume,
 		py::arg("nStrip"),
 		py::arg("fVolumeValue"),
@@ -872,10 +734,6 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("nStrip"),
 		py::arg("fValue"),
 		py::arg("bSelectStrip"));
-	_CoreActionController.def("setMetronomeIsActive", &H2Core::CoreActionController::setMetronomeIsActive,
-		py::arg("isActive"));
-	_CoreActionController.def("setMasterIsMuted", &H2Core::CoreActionController::setMasterIsMuted,
-		py::arg("isMuted"));
 	_CoreActionController.def("setStripIsMuted", &H2Core::CoreActionController::setStripIsMuted,
 		py::arg("nStrip"),
 		py::arg("isMuted"));
@@ -941,6 +799,23 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::AudioEngine, H2Core::Object, std::shared_ptr<H2Core::AudioEngine>> _AudioEngine(m, "AudioEngine");
 	_AudioEngine.def(py::init<>());
+	_AudioEngine.def_property_readonly("sampler", &H2Core::AudioEngine::getSampler);
+	_AudioEngine.def_property_readonly("synth", &H2Core::AudioEngine::getSynth);
+	_AudioEngine.def_property_readonly("elapsed_time", &H2Core::AudioEngine::getElapsedTime);
+	_AudioEngine.def_property("audio_driver", &H2Core::AudioEngine::getAudioDriver, &H2Core::AudioEngine::setAudioDriver);
+	_AudioEngine.def_property_readonly("midi_driver", &H2Core::AudioEngine::getMidiDriver);
+	_AudioEngine.def_property_readonly("midi_out_driver", &H2Core::AudioEngine::getMidiOutDriver);
+	_AudioEngine.def_property("state", &H2Core::AudioEngine::getState, &H2Core::AudioEngine::setState);
+	_AudioEngine.def_property_readonly("process_time", &H2Core::AudioEngine::getProcessTime);
+	_AudioEngine.def_property_readonly("max_process_time", &H2Core::AudioEngine::getMaxProcessTime);
+	_AudioEngine.def_property("selected_pattern_number", &H2Core::AudioEngine::getSelectedPatternNumber, &H2Core::AudioEngine::setSelectedPatternNumber);
+	_AudioEngine.def_property("pattern_tick_position", &H2Core::AudioEngine::getPatternTickPosition, &H2Core::AudioEngine::setPatternTickPosition);
+	_AudioEngine.def_property("song_pos", &H2Core::AudioEngine::getSongPos, &H2Core::AudioEngine::setSongPos);
+	_AudioEngine.def_property_readonly("next_patterns", &H2Core::AudioEngine::getNextPatterns);
+	_AudioEngine.def_property_readonly("playing_patterns", &H2Core::AudioEngine::getPlayingPatterns);
+	_AudioEngine.def_property("realtime_frames", &H2Core::AudioEngine::getRealtimeFrames, &H2Core::AudioEngine::setRealtimeFrames);
+	_AudioEngine.def_property("add_realtime_note_tick_position", &H2Core::AudioEngine::getAddRealtimeNoteTickPosition, &H2Core::AudioEngine::setAddRealtimeNoteTickPosition);
+	_AudioEngine.def_property_readonly("current_tick_time", &H2Core::AudioEngine::getCurrentTickTime);
 	_AudioEngine.def_static("class_name", &H2Core::AudioEngine::class_name);
 	_AudioEngine.def("lock", &H2Core::AudioEngine::lock,
 		"Mutex locking of the AudioEngine.",
@@ -970,9 +845,6 @@ PYBIND11_MODULE(h2core, m) {
 	_AudioEngine.def("stop", &H2Core::AudioEngine::stop,
 		"If the audio engine is in state #m_audioEngineState #STATE_PLAYING, this function will - sets #m_fMasterPeak_L and #m_fMasterPeak_R to 0.0f - sets #m_audioEngineState to #STATE_READY - sets #m_nPatternStartTick to -1 - deletes all copied Note in song notes queue #m_songNoteQueue and MIDI notes queue #m_midiNoteQueue - calls the _clear()_ member of #m_midiNoteQueue",
 		py::arg("bLockEngine"));
-	_AudioEngine.def("setSong", &H2Core::AudioEngine::setSong,
-		"Updates the global objects of the audioEngine according to new Song.",
-		py::arg("pNewSong"));
 	_AudioEngine.def("removeSong", &H2Core::AudioEngine::removeSong,
 		"Does the necessary cleanup of the global objects in the audioEngine.");
 	_AudioEngine.def("noteOn", &H2Core::AudioEngine::noteOn,
@@ -1006,12 +878,6 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("nSampleRate"),
 		py::arg("fBpm"),
 		py::arg("nResolution"));
-	_AudioEngine.def("getSampler", &H2Core::AudioEngine::getSampler,
-		"Returns #m_pSampler");
-	_AudioEngine.def("getSynth", &H2Core::AudioEngine::getSynth,
-		"Returns #m_pSynth");
-	_AudioEngine.def("getElapsedTime", &H2Core::AudioEngine::getElapsedTime,
-		"Returns #m_fElapsedTime");
 	_AudioEngine.def("calculateElapsedTime", &H2Core::AudioEngine::calculateElapsedTime,
 		"Calculates the elapsed time for an arbitrary position.",
 		py::arg("sampleRate"),
@@ -1042,56 +908,47 @@ PYBIND11_MODULE(h2core, m) {
 	_AudioEngine.def("renameJackPorts", &H2Core::AudioEngine::renameJackPorts,
 		"Hands the provided Song to JackAudioDriver::makeTrackOutputs() if pSong is not a null pointer and the audio driver #m_pAudioDriver is an instance of the JackAudioDriver.",
 		py::arg("pSong"));
-	_AudioEngine.def("setAudioDriver", &H2Core::AudioEngine::setAudioDriver,
-		py::arg("pAudioDriver"));
-	_AudioEngine.def("getAudioDriver", &H2Core::AudioEngine::getAudioDriver);
-	_AudioEngine.def("getMidiDriver", &H2Core::AudioEngine::getMidiDriver);
-	_AudioEngine.def("getMidiOutDriver", &H2Core::AudioEngine::getMidiOutDriver);
 	_AudioEngine.def("raiseError", &H2Core::AudioEngine::raiseError,
 		py::arg("nErrorCode"));
-	_AudioEngine.def("getState", &H2Core::AudioEngine::getState);
-	_AudioEngine.def("setState", &H2Core::AudioEngine::setState,
-		py::arg("state"));
 	_AudioEngine.def("setMasterPeak_L", &H2Core::AudioEngine::setMasterPeak_L,
 		py::arg("value"));
 	_AudioEngine.def("getMasterPeak_L", &H2Core::AudioEngine::getMasterPeak_L);
 	_AudioEngine.def("setMasterPeak_R", &H2Core::AudioEngine::setMasterPeak_R,
 		py::arg("value"));
 	_AudioEngine.def("getMasterPeak_R", &H2Core::AudioEngine::getMasterPeak_R);
-	_AudioEngine.def("getProcessTime", &H2Core::AudioEngine::getProcessTime);
-	_AudioEngine.def("getMaxProcessTime", &H2Core::AudioEngine::getMaxProcessTime);
-	_AudioEngine.def("getSelectedPatternNumber", &H2Core::AudioEngine::getSelectedPatternNumber);
-	_AudioEngine.def("setSelectedPatternNumber", &H2Core::AudioEngine::setSelectedPatternNumber,
-		py::arg("number"));
-	_AudioEngine.def("setPatternStartTick", &H2Core::AudioEngine::setPatternStartTick,
-		py::arg("tick"));
-	_AudioEngine.def("setPatternTickPosition", &H2Core::AudioEngine::setPatternTickPosition,
-		py::arg("tick"));
-	_AudioEngine.def("getPatternTickPosition", &H2Core::AudioEngine::getPatternTickPosition);
-	_AudioEngine.def("setSongPos", &H2Core::AudioEngine::setSongPos,
-		py::arg("songPos"));
-	_AudioEngine.def("getSongPos", &H2Core::AudioEngine::getSongPos);
-	_AudioEngine.def("getNextPatterns", &H2Core::AudioEngine::getNextPatterns);
-	_AudioEngine.def("getPlayingPatterns", &H2Core::AudioEngine::getPlayingPatterns);
-	_AudioEngine.def("getRealtimeFrames", &H2Core::AudioEngine::getRealtimeFrames);
-	_AudioEngine.def("setRealtimeFrames", &H2Core::AudioEngine::setRealtimeFrames,
-		py::arg("nFrames"));
-	_AudioEngine.def("getAddRealtimeNoteTickPosition", &H2Core::AudioEngine::getAddRealtimeNoteTickPosition);
-	_AudioEngine.def("setAddRealtimeNoteTickPosition", &H2Core::AudioEngine::setAddRealtimeNoteTickPosition,
-		py::arg("tickPosition"));
-	_AudioEngine.def("getCurrentTickTime", &H2Core::AudioEngine::getCurrentTickTime);
 
 	py::class_<H2Core::Hydrogen, H2Core::Object, std::shared_ptr<H2Core::Hydrogen>> _Hydrogen(m, "Hydrogen");
 	_Hydrogen.def_readwrite("lastMidiEvent", &H2Core::Hydrogen::lastMidiEvent);
 	_Hydrogen.def_readwrite("lastMidiEventParameter", &H2Core::Hydrogen::lastMidiEventParameter);
 	_Hydrogen.def_readwrite("m_nMaxTimeHumanize", &H2Core::Hydrogen::m_nMaxTimeHumanize);
+	_Hydrogen.def_property_readonly_static("instance", [](py::object) { return H2Core::Hydrogen::get_instance(); }, py::return_value_policy::reference);
+	_Hydrogen.def_property_readonly("audio_engine", &H2Core::Hydrogen::getAudioEngine);
+	_Hydrogen.def_property("song", &H2Core::Hydrogen::getSong, &H2Core::Hydrogen::setSong);
+	_Hydrogen.def_property_readonly("tick_position", &H2Core::Hydrogen::getTickPosition);
+	_Hydrogen.def_property_readonly("realtime_tick_position", &H2Core::Hydrogen::getRealtimeTickPosition);
+	_Hydrogen.def_property_readonly("total_frames", &H2Core::Hydrogen::getTotalFrames);
+	_Hydrogen.def_property("realtime_frames", &H2Core::Hydrogen::getRealtimeFrames, &H2Core::Hydrogen::setRealtimeFrames);
+	_Hydrogen.def_property("current_pattern_list", &H2Core::Hydrogen::getCurrentPatternList, &H2Core::Hydrogen::setCurrentPatternList);
+	_Hydrogen.def_property_readonly("next_patterns", &H2Core::Hydrogen::getNextPatterns);
+	_Hydrogen.def_property("pattern_pos", &H2Core::Hydrogen::getPatternPos, &H2Core::Hydrogen::setPatternPos);
+	_Hydrogen.def_property_readonly("audio_output", &H2Core::Hydrogen::getAudioOutput);
+	_Hydrogen.def_property_readonly("midi_input", &H2Core::Hydrogen::getMidiInput);
+	_Hydrogen.def_property_readonly("midi_output", &H2Core::Hydrogen::getMidiOutput);
+	_Hydrogen.def_property_readonly("state", &H2Core::Hydrogen::getState);
+	_Hydrogen.def_property("current_drumkit_name", &H2Core::Hydrogen::getCurrentDrumkitName, &H2Core::Hydrogen::setCurrentDrumkitName);
+	_Hydrogen.def_property("current_drumkit_lookup", &H2Core::Hydrogen::getCurrentDrumkitLookup, &H2Core::Hydrogen::setCurrentDrumkitLookup);
+	_Hydrogen.def_property("selected_pattern_number", &H2Core::Hydrogen::getSelectedPatternNumber, &H2Core::Hydrogen::setSelectedPatternNumber);
+	_Hydrogen.def_property("selected_instrument_number", &H2Core::Hydrogen::getSelectedInstrumentNumber, &H2Core::Hydrogen::setSelectedInstrumentNumber);
+	_Hydrogen.def_property("note_length", &H2Core::Hydrogen::getNoteLength, &H2Core::Hydrogen::setNoteLength);
+	_Hydrogen.def_property_readonly("bc_status", &H2Core::Hydrogen::getBcStatus);
+	_Hydrogen.def_property_readonly("timeline", &H2Core::Hydrogen::getTimeline);
+	_Hydrogen.def_property_readonly("is_export_session_active", &H2Core::Hydrogen::getIsExportSessionActive);
+	_Hydrogen.def_property_readonly("core_action_controller", &H2Core::Hydrogen::getCoreActionController);
+	_Hydrogen.def_property("playback_track_state", &H2Core::Hydrogen::getPlaybackTrackState, &H2Core::Hydrogen::setPlaybackTrackState);
+	_Hydrogen.def_property_readonly("jack_timebase_state", &H2Core::Hydrogen::getJackTimebaseState);
 	_Hydrogen.def_static("class_name", &H2Core::Hydrogen::class_name);
 	_Hydrogen.def_static("create_instance", &H2Core::Hydrogen::create_instance,
 		"Creates all the instances used within Hydrogen in the right order.");
-	_Hydrogen.def_static("get_instance", &H2Core::Hydrogen::get_instance,
-		"Returns the current Hydrogen instance #__instance.",
-	py::return_value_policy::reference);
-	_Hydrogen.def("getAudioEngine", &H2Core::Hydrogen::getAudioEngine);
 	_Hydrogen.def("sequencer_play", &H2Core::Hydrogen::sequencer_play,
 		"Start the internal sequencer");
 	_Hydrogen.def("sequencer_stop", &H2Core::Hydrogen::sequencer_stop,
@@ -1106,11 +963,6 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("pos"));
 	_Hydrogen.def("togglePlaysSelected", &H2Core::Hydrogen::togglePlaysSelected,
 		"Switches playback to focused pattern.");
-	_Hydrogen.def("getSong", &H2Core::Hydrogen::getSong,
-		"Get the current song.");
-	_Hydrogen.def("setSong", &H2Core::Hydrogen::setSong,
-		"Sets the current song #__song to newSong.",
-		py::arg("newSong"));
 	_Hydrogen.def("removeSong", &H2Core::Hydrogen::removeSong);
 	_Hydrogen.def("addRealtimeNote", &H2Core::Hydrogen::addRealtimeNote,
 		py::arg("instrument"),
@@ -1120,28 +972,6 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("noteoff"),
 		py::arg("forcePlay"),
 		py::arg("msg1"));
-	_Hydrogen.def("getTickPosition", &H2Core::Hydrogen::getTickPosition,
-		"Returns #m_nPatternTickPosition");
-	_Hydrogen.def("getRealtimeTickPosition", &H2Core::Hydrogen::getRealtimeTickPosition,
-		"Keep track of the tick position in realtime.");
-	_Hydrogen.def("getTotalFrames", &H2Core::Hydrogen::getTotalFrames);
-	_Hydrogen.def("setRealtimeFrames", &H2Core::Hydrogen::setRealtimeFrames,
-		"Sets #m_nRealtimeFrames",
-		py::arg("frames"));
-	_Hydrogen.def("getRealtimeFrames", &H2Core::Hydrogen::getRealtimeFrames,
-		"Returns the current realtime transport position TransportInfo::m_nFrames.");
-	_Hydrogen.def("getCurrentPatternList", &H2Core::Hydrogen::getCurrentPatternList,
-		"Returns #m_pPlayingPatterns");
-	_Hydrogen.def("setCurrentPatternList", &H2Core::Hydrogen::setCurrentPatternList,
-		"Sets #m_pPlayingPatterns.",
-		py::arg("pPatternList"));
-	_Hydrogen.def("getNextPatterns", &H2Core::Hydrogen::getNextPatterns,
-		"Returns #m_pNextPatterns");
-	_Hydrogen.def("getPatternPos", &H2Core::Hydrogen::getPatternPos,
-		"Get the position of the current Pattern in the Song.");
-	_Hydrogen.def("setPatternPos", &H2Core::Hydrogen::setPatternPos,
-		"Relocate the position to another Pattern in the Song.",
-		py::arg("pos"));
 	_Hydrogen.def("getPosForTick", &H2Core::Hydrogen::getPosForTick,
 		"Returns the pattern number corresponding to the tick position TickPos.",
 		py::arg("TickPos"),
@@ -1152,11 +982,6 @@ PYBIND11_MODULE(h2core, m) {
 		"Get the total number of ticks passed up to a Pattern at position pos.",
 		py::arg("pos"));
 	_Hydrogen.def("restartDrivers", &H2Core::Hydrogen::restartDrivers);
-	_Hydrogen.def("getAudioOutput", &H2Core::Hydrogen::getAudioOutput);
-	_Hydrogen.def("getMidiInput", &H2Core::Hydrogen::getMidiInput);
-	_Hydrogen.def("getMidiOutput", &H2Core::Hydrogen::getMidiOutput);
-	_Hydrogen.def("getState", &H2Core::Hydrogen::getState,
-		"Returns the current state of the audio engine.");
 	_Hydrogen.def("loadDrumkit", py::overload_cast<H2Core::Drumkit *>(&H2Core::Hydrogen::loadDrumkit),
 		"Wrapper around loadDrumkit( Drumkit, bool ) with the conditional argument set to true.",
 		py::arg("pDrumkitInfo"));
@@ -1171,14 +996,6 @@ PYBIND11_MODULE(h2core, m) {
 		"Delete an Instrument. If conditional is true, and there are some Pattern that are using this Instrument, it's not deleted anyway.",
 		py::arg("instrumentnumber"),
 		py::arg("conditional"));
-	_Hydrogen.def("getCurrentDrumkitName", &H2Core::Hydrogen::getCurrentDrumkitName,
-		"Returns m_sCurrentDrumkitName");
-	_Hydrogen.def("setCurrentDrumkitName", &H2Core::Hydrogen::setCurrentDrumkitName,
-		py::arg("sName"));
-	_Hydrogen.def("getCurrentDrumkitLookup", &H2Core::Hydrogen::getCurrentDrumkitLookup,
-		"Returns m_currentDrumkitLookup");
-	_Hydrogen.def("setCurrentDrumkitLookup", &H2Core::Hydrogen::setCurrentDrumkitLookup,
-		py::arg("lookup"));
 	_Hydrogen.def("raiseError", &H2Core::Hydrogen::raiseError,
 		py::arg("nErrorCode"));
 	// [banned] _Hydrogen.def("previewSample", &H2Core::Hydrogen::previewSample,
@@ -1186,20 +1003,10 @@ PYBIND11_MODULE(h2core, m) {
 	// [banned] _Hydrogen.def("previewInstrument", &H2Core::Hydrogen::previewInstrument,
 	// [banned] 	py::arg("pInstr"));
 	_Hydrogen.def("onTapTempoAccelEvent", &H2Core::Hydrogen::onTapTempoAccelEvent);
-	_Hydrogen.def("setTapTempo", &H2Core::Hydrogen::setTapTempo,
-		py::arg("fInterval"));
 	_Hydrogen.def("setBPM", &H2Core::Hydrogen::setBPM,
 		"Updates the speed.",
 		py::arg("fBPM"));
 	_Hydrogen.def("restartLadspaFX", &H2Core::Hydrogen::restartLadspaFX);
-	_Hydrogen.def("getSelectedPatternNumber", &H2Core::Hydrogen::getSelectedPatternNumber,
-		"Returns #m_nSelectedPatternNumber");
-	_Hydrogen.def("setSelectedPatternNumber", &H2Core::Hydrogen::setSelectedPatternNumber,
-		"Sets #m_nSelectedPatternNumber.",
-		py::arg("nPat"));
-	_Hydrogen.def("getSelectedInstrumentNumber", &H2Core::Hydrogen::getSelectedInstrumentNumber);
-	_Hydrogen.def("setSelectedInstrumentNumber", &H2Core::Hydrogen::setSelectedInstrumentNumber,
-		py::arg("nInstrument"));
 	_Hydrogen.def("refreshInstrumentParameters", &H2Core::Hydrogen::refreshInstrumentParameters,
 		py::arg("nInstrument"));
 	_Hydrogen.def("renameJackPorts", &H2Core::Hydrogen::renameJackPorts,
@@ -1214,10 +1021,6 @@ PYBIND11_MODULE(h2core, m) {
 	_Hydrogen.def("setbeatsToCount", &H2Core::Hydrogen::setbeatsToCount,
 		py::arg("beatstocount"));
 	_Hydrogen.def("getbeatsToCount", &H2Core::Hydrogen::getbeatsToCount);
-	_Hydrogen.def("setNoteLength", &H2Core::Hydrogen::setNoteLength,
-		py::arg("notelength"));
-	_Hydrogen.def("getNoteLength", &H2Core::Hydrogen::getNoteLength);
-	_Hydrogen.def("getBcStatus", &H2Core::Hydrogen::getBcStatus);
 	_Hydrogen.def("handleBeatCounter", &H2Core::Hydrogen::handleBeatCounter);
 	_Hydrogen.def("setBcOffsetAdjust", &H2Core::Hydrogen::setBcOffsetAdjust);
 	_Hydrogen.def("offJackMaster", &H2Core::Hydrogen::offJackMaster,
@@ -1238,8 +1041,6 @@ PYBIND11_MODULE(h2core, m) {
 	_Hydrogen.def("getTimelineBpm", &H2Core::Hydrogen::getTimelineBpm,
 		"Returns the local speed at a specific nBar in the Timeline.",
 		py::arg("nBar"));
-	_Hydrogen.def("getTimeline", &H2Core::Hydrogen::getTimeline);
-	_Hydrogen.def("getIsExportSessionActive", &H2Core::Hydrogen::getIsExportSessionActive);
 	_Hydrogen.def("startExportSession", &H2Core::Hydrogen::startExportSession,
 		py::arg("rate"),
 		py::arg("depth"));
@@ -1247,12 +1048,6 @@ PYBIND11_MODULE(h2core, m) {
 	_Hydrogen.def("startExportSong", &H2Core::Hydrogen::startExportSong,
 		py::arg("filename"));
 	_Hydrogen.def("stopExportSong", &H2Core::Hydrogen::stopExportSong);
-	_Hydrogen.def("getCoreActionController", &H2Core::Hydrogen::getCoreActionController);
-	_Hydrogen.def("setPlaybackTrackState", &H2Core::Hydrogen::setPlaybackTrackState,
-		"*********************************************************",
-		py::arg("state"));
-	_Hydrogen.def("getPlaybackTrackState", &H2Core::Hydrogen::getPlaybackTrackState,
-		"Wrapper around Song::getPlaybackTrackEnabled().");
 	_Hydrogen.def("loadPlaybackTrack", &H2Core::Hydrogen::loadPlaybackTrack,
 		"Wrapper function for loading the playback track.",
 		py::arg("filename"));
@@ -1270,8 +1065,6 @@ PYBIND11_MODULE(h2core, m) {
 		"Returns Whether JackAudioDriver is used as current audio driver.");
 	_Hydrogen.def("haveJackTransport", &H2Core::Hydrogen::haveJackTransport,
 		"Returns Whether JackAudioDriver is used as current audio driver and JACK transport was activated via the GUI (#Preferences::m_bJackTransportMode).");
-	_Hydrogen.def("getJackTimebaseState", &H2Core::Hydrogen::getJackTimebaseState,
-		"Returns Whether we haveJackTransport() and there is an external JACK timebase master broadcasting us tempo information and making use disregard Hydrogen's Timeline information (see #JackAudioDriver::m_timebaseState).");
 	_Hydrogen.def("isUnderSessionManagement", &H2Core::Hydrogen::isUnderSessionManagement,
 		"Returns NsmClient::m_bUnderSessionManagement if NSM is supported.");
 	_Hydrogen.def("toQString", &H2Core::Hydrogen::toQString,
@@ -1280,6 +1073,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("bShort"));
 
 	py::class_<H2Core::Filesystem, H2Core::Object, std::shared_ptr<H2Core::Filesystem>> _Filesystem(m, "Filesystem");
+	_Filesystem.def_property("preferences_overwrite_path", &H2Core::Filesystem::getPreferencesOverwritePath, &H2Core::Filesystem::setPreferencesOverwritePath);
 	_Filesystem.def_static("class_name", &H2Core::Filesystem::class_name);
 	_Filesystem.def_static("bootstrap", &H2Core::Filesystem::bootstrap,
 		"check user and system filesystem usability",
@@ -1458,44 +1252,42 @@ PYBIND11_MODULE(h2core, m) {
 	_Filesystem.def_static("mkdir", &H2Core::Filesystem::mkdir,
 		"create a path",
 		py::arg("path"));
-	_Filesystem.def_static("getPreferencesOverwritePath", &H2Core::Filesystem::getPreferencesOverwritePath,
-		"Returns m_sPreferencesOverwritePath");
-	_Filesystem.def_static("setPreferencesOverwritePath", &H2Core::Filesystem::setPreferencesOverwritePath,
-		py::arg("sPath"));
 
 	py::class_<H2Core::Song, H2Core::Object, std::shared_ptr<H2Core::Song>> _Song(m, "Song");
 	_Song.def(py::init<const QString &, const QString &, float, float>());
+	_Song.def_property_readonly_static("empty_song", [](py::object) { return H2Core::Song::getEmptySong(); });
+	_Song.def_property_readonly_static("default_song", [](py::object) { return H2Core::Song::getDefaultSong(); });
+	_Song.def_property("is_muted", &H2Core::Song::getIsMuted, &H2Core::Song::setIsMuted);
+	_Song.def_property("resolution", &H2Core::Song::getResolution, &H2Core::Song::setResolution);
+	_Song.def_property("bpm", &H2Core::Song::getBpm, &H2Core::Song::setBpm);
+	_Song.def_property("name", &H2Core::Song::getName, &H2Core::Song::setName);
+	_Song.def_property("volume", &H2Core::Song::getVolume, &H2Core::Song::setVolume);
+	_Song.def_property("metronome_volume", &H2Core::Song::getMetronomeVolume, &H2Core::Song::setMetronomeVolume);
+	_Song.def_property("pattern_list", &H2Core::Song::getPatternList, &H2Core::Song::setPatternList);
+	_Song.def_property("instrument_list", &H2Core::Song::getInstrumentList, &H2Core::Song::setInstrumentList);
+	_Song.def_property("notes", &H2Core::Song::getNotes, &H2Core::Song::setNotes);
+	_Song.def_property("license", &H2Core::Song::getLicense, &H2Core::Song::setLicense);
+	_Song.def_property("author", &H2Core::Song::getAuthor, &H2Core::Song::setAuthor);
+	_Song.def_property("filename", &H2Core::Song::getFilename, &H2Core::Song::setFilename);
+	_Song.def_property("is_loop_enabled", &H2Core::Song::getIsLoopEnabled, &H2Core::Song::setIsLoopEnabled);
+	_Song.def_property("humanize_time_value", &H2Core::Song::getHumanizeTimeValue, &H2Core::Song::setHumanizeTimeValue);
+	_Song.def_property("humanize_velocity_value", &H2Core::Song::getHumanizeVelocityValue, &H2Core::Song::setHumanizeVelocityValue);
+	_Song.def_property("swing_factor", &H2Core::Song::getSwingFactor, &H2Core::Song::setSwingFactor);
+	_Song.def_property("mode", &H2Core::Song::getMode, &H2Core::Song::setMode);
+	_Song.def_property("is_modified", &H2Core::Song::getIsModified, &H2Core::Song::setIsModified);
+	_Song.def_property_readonly("components", &H2Core::Song::getComponents);
+	_Song.def_property_readonly("velocity_automation_path", &H2Core::Song::getVelocityAutomationPath);
+	_Song.def_property("playback_track_filename", &H2Core::Song::getPlaybackTrackFilename, &H2Core::Song::setPlaybackTrackFilename);
+	_Song.def_property("playback_track_enabled", &H2Core::Song::getPlaybackTrackEnabled, &H2Core::Song::setPlaybackTrackEnabled);
+	_Song.def_property("playback_track_volume", &H2Core::Song::getPlaybackTrackVolume, &H2Core::Song::setPlaybackTrackVolume);
+	_Song.def_property("action_mode", &H2Core::Song::getActionMode, &H2Core::Song::setActionMode);
+	_Song.def_property("pan_law_type", &H2Core::Song::getPanLawType, &H2Core::Song::setPanLawType);
+	_Song.def_property("pan_law_k_norm", &H2Core::Song::getPanLawKNorm, &H2Core::Song::setPanLawKNorm);
 	_Song.def_static("class_name", &H2Core::Song::class_name);
-	_Song.def_static("getEmptySong", &H2Core::Song::getEmptySong);
-	_Song.def_static("getDefaultSong", &H2Core::Song::getDefaultSong);
-	_Song.def("getIsMuted", &H2Core::Song::getIsMuted);
-	_Song.def("setIsMuted", &H2Core::Song::setIsMuted,
-		py::arg("bIsMuted"));
-	_Song.def("getResolution", &H2Core::Song::getResolution);
-	_Song.def("setResolution", &H2Core::Song::setResolution,
-		py::arg("resolution"));
-	_Song.def("getBpm", &H2Core::Song::getBpm);
-	_Song.def("setBpm", &H2Core::Song::setBpm,
-		py::arg("fBpm"));
-	_Song.def("getName", &H2Core::Song::getName);
-	_Song.def("setName", &H2Core::Song::setName,
-		py::arg("sName"));
-	_Song.def("setVolume", &H2Core::Song::setVolume,
-		py::arg("fValue"));
-	_Song.def("getVolume", &H2Core::Song::getVolume);
-	_Song.def("setMetronomeVolume", &H2Core::Song::setMetronomeVolume,
-		py::arg("fValue"));
-	_Song.def("getMetronomeVolume", &H2Core::Song::getMetronomeVolume);
-	_Song.def("getPatternList", &H2Core::Song::getPatternList);
-	_Song.def("setPatternList", &H2Core::Song::setPatternList,
-		py::arg("pList"));
 	_Song.def("getPatternGroupVector", py::overload_cast<>(&H2Core::Song::getPatternGroupVector),
 		"Return a pointer to a vector storing all Pattern present in the Song.");
 	_Song.def("getPatternGroupVector", py::overload_cast<>(&H2Core::Song::getPatternGroupVector),
 		"Return a pointer to a vector storing all Pattern present in the Song.");
-	_Song.def("setPatternGroupVector", &H2Core::Song::setPatternGroupVector,
-		"Sets the vector storing all Pattern present in the Song #m_pPatternGroupSequence.",
-		py::arg("pGroupVector"));
 	_Song.def("lengthInTicks", &H2Core::Song::lengthInTicks,
 		"get the length of the song, in tick units");
 	_Song.def_static("load", &H2Core::Song::load,
@@ -1505,41 +1297,6 @@ PYBIND11_MODULE(h2core, m) {
 	_Song.def("purgeInstrument", &H2Core::Song::purgeInstrument,
 		"Remove all the notes in the song that play on instrument I. The function is real-time safe (it locks the audio data while deleting notes)",
 		py::arg("pInstr"));
-	_Song.def("getInstrumentList", &H2Core::Song::getInstrumentList);
-	_Song.def("setInstrumentList", &H2Core::Song::setInstrumentList,
-		py::arg("pList"));
-	_Song.def("setNotes", &H2Core::Song::setNotes,
-		py::arg("sNotes"));
-	_Song.def("getNotes", &H2Core::Song::getNotes);
-	_Song.def("setLicense", &H2Core::Song::setLicense,
-		py::arg("sLicense"));
-	_Song.def("getLicense", &H2Core::Song::getLicense);
-	_Song.def("setAuthor", &H2Core::Song::setAuthor,
-		py::arg("sAuthor"));
-	_Song.def("getAuthor", &H2Core::Song::getAuthor);
-	_Song.def("getFilename", &H2Core::Song::getFilename);
-	_Song.def("setFilename", &H2Core::Song::setFilename,
-		py::arg("sFilename"));
-	_Song.def("getIsLoopEnabled", &H2Core::Song::getIsLoopEnabled);
-	_Song.def("setIsLoopEnabled", &H2Core::Song::setIsLoopEnabled,
-		py::arg("bEnabled"));
-	_Song.def("getHumanizeTimeValue", &H2Core::Song::getHumanizeTimeValue);
-	_Song.def("setHumanizeTimeValue", &H2Core::Song::setHumanizeTimeValue,
-		py::arg("fValue"));
-	_Song.def("getHumanizeVelocityValue", &H2Core::Song::getHumanizeVelocityValue);
-	_Song.def("setHumanizeVelocityValue", &H2Core::Song::setHumanizeVelocityValue,
-		py::arg("fValue"));
-	_Song.def("getSwingFactor", &H2Core::Song::getSwingFactor);
-	_Song.def("setSwingFactor", &H2Core::Song::setSwingFactor,
-		py::arg("fFactor"));
-	_Song.def("getMode", &H2Core::Song::getMode);
-	_Song.def("setMode", &H2Core::Song::setMode,
-		py::arg("mode"));
-	_Song.def("setIsModified", &H2Core::Song::setIsModified,
-		py::arg("bIsModified"));
-	_Song.def("getIsModified", &H2Core::Song::getIsModified);
-	_Song.def("getComponents", &H2Core::Song::getComponents);
-	_Song.def("getVelocityAutomationPath", &H2Core::Song::getVelocityAutomationPath);
 	_Song.def("getComponent", &H2Core::Song::getComponent,
 		py::arg("nID"));
 	_Song.def("readTempPatternList", &H2Core::Song::readTempPatternList,
@@ -1559,31 +1316,9 @@ PYBIND11_MODULE(h2core, m) {
 	_Song.def("setLatestRoundRobin", &H2Core::Song::setLatestRoundRobin,
 		py::arg("fStartVelocity"),
 		py::arg("nLatestRoundRobin"));
-	_Song.def("getPlaybackTrackFilename", &H2Core::Song::getPlaybackTrackFilename,
-		"Returns #m_sPlaybackTrackFilename");
-	_Song.def("setPlaybackTrackFilename", &H2Core::Song::setPlaybackTrackFilename,
-		py::arg("sFilename"));
-	_Song.def("getPlaybackTrackEnabled", &H2Core::Song::getPlaybackTrackEnabled,
-		"Returns #m_bPlaybackTrackEnabled");
-	_Song.def("setPlaybackTrackEnabled", &H2Core::Song::setPlaybackTrackEnabled,
-		"Specifies whether a playback track should be used.",
-		py::arg("bEnabled"));
-	_Song.def("getPlaybackTrackVolume", &H2Core::Song::getPlaybackTrackVolume,
-		"Returns #m_fPlaybackTrackVolume");
-	_Song.def("setPlaybackTrackVolume", &H2Core::Song::setPlaybackTrackVolume,
-		py::arg("fVolume"));
-	_Song.def("getActionMode", &H2Core::Song::getActionMode);
-	_Song.def("setActionMode", &H2Core::Song::setActionMode,
-		py::arg("actionMode"));
 	_Song.def("hasMissingSamples", &H2Core::Song::hasMissingSamples,
 		"Song was incompletely loaded from file (missing samples)");
 	_Song.def("clearMissingSamples", &H2Core::Song::clearMissingSamples);
-	_Song.def("setPanLawType", &H2Core::Song::setPanLawType,
-		py::arg("nPanLawType"));
-	_Song.def("getPanLawType", &H2Core::Song::getPanLawType);
-	_Song.def("setPanLawKNorm", &H2Core::Song::setPanLawKNorm,
-		py::arg("fKNorm"));
-	_Song.def("getPanLawKNorm", &H2Core::Song::getPanLawKNorm);
 	_Song.def("toQString", &H2Core::Song::toQString,
 		"Formatted string version for debugging purposes.",
 		py::arg("sPrefix"),
@@ -1596,11 +1331,11 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::AutomationPath, H2Core::Object, std::shared_ptr<H2Core::AutomationPath>> _AutomationPath(m, "AutomationPath");
 	_AutomationPath.def(py::init<float, float, float>());
+	_AutomationPath.def_property_readonly("min", &H2Core::AutomationPath::get_min);
+	_AutomationPath.def_property_readonly("max", &H2Core::AutomationPath::get_max);
+	_AutomationPath.def_property_readonly("default", &H2Core::AutomationPath::get_default);
 	_AutomationPath.def_static("class_name", &H2Core::AutomationPath::class_name);
 	_AutomationPath.def("empty", &H2Core::AutomationPath::empty);
-	_AutomationPath.def("get_min", &H2Core::AutomationPath::get_min);
-	_AutomationPath.def("get_max", &H2Core::AutomationPath::get_max);
-	_AutomationPath.def("get_default", &H2Core::AutomationPath::get_default);
 	_AutomationPath.def("get_value", &H2Core::AutomationPath::get_value,
 		py::arg("x"));
 	_AutomationPath.def("add_point", &H2Core::AutomationPath::add_point,
@@ -1626,6 +1361,14 @@ PYBIND11_MODULE(h2core, m) {
 	py::class_<H2Core::Pattern, H2Core::Object, std::shared_ptr<H2Core::Pattern>> _Pattern(m, "Pattern");
 	_Pattern.def(py::init<const QString &, const QString &, const QString &, int, int>());
 	_Pattern.def(py::init<H2Core::Pattern *>());
+	_Pattern.def_property("name", &H2Core::Pattern::get_name, &H2Core::Pattern::set_name);
+	_Pattern.def_property("category", &H2Core::Pattern::get_category, &H2Core::Pattern::set_category);
+	_Pattern.def_property("info", &H2Core::Pattern::get_info, &H2Core::Pattern::set_info);
+	_Pattern.def_property("length", &H2Core::Pattern::get_length, &H2Core::Pattern::set_length);
+	_Pattern.def_property("denominator", &H2Core::Pattern::get_denominator, &H2Core::Pattern::set_denominator);
+	_Pattern.def_property_readonly("notes", &H2Core::Pattern::get_notes);
+	_Pattern.def_property_readonly("virtual_patterns", &H2Core::Pattern::get_virtual_patterns);
+	_Pattern.def_property_readonly("flattened_virtual_patterns", &H2Core::Pattern::get_flattened_virtual_patterns);
 	_Pattern.def_static("class_name", &H2Core::Pattern::class_name);
 	_Pattern.def_static("load_file", &H2Core::Pattern::load_file,
 		"load a pattern from a file",
@@ -1638,24 +1381,6 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("license"),
 		py::arg("pattern_path"),
 		py::arg("overwrite"));
-	_Pattern.def("set_name", &H2Core::Pattern::set_name,
-		py::arg("name"));
-	_Pattern.def("get_name", &H2Core::Pattern::get_name);
-	_Pattern.def("set_category", &H2Core::Pattern::set_category,
-		py::arg("category"));
-	_Pattern.def("set_info", &H2Core::Pattern::set_info,
-		py::arg("info"));
-	_Pattern.def("get_info", &H2Core::Pattern::get_info);
-	_Pattern.def("get_category", &H2Core::Pattern::get_category);
-	_Pattern.def("set_length", &H2Core::Pattern::set_length,
-		py::arg("length"));
-	_Pattern.def("get_length", &H2Core::Pattern::get_length);
-	_Pattern.def("set_denominator", &H2Core::Pattern::set_denominator,
-		py::arg("denominator"));
-	_Pattern.def("get_denominator", &H2Core::Pattern::get_denominator);
-	// [<TypeDef 'notes_t'>] _Pattern.def("get_notes", &H2Core::Pattern::get_notes);
-	// [<TypeDef 'virtual_patterns_t'>] _Pattern.def("get_virtual_patterns", &H2Core::Pattern::get_virtual_patterns);
-	// [<TypeDef 'virtual_patterns_t'>] _Pattern.def("get_flattened_virtual_patterns", &H2Core::Pattern::get_flattened_virtual_patterns);
 	_Pattern.def("insert_note", &H2Core::Pattern::insert_note,
 		"insert a new note within __notes",
 		py::arg("note"));
@@ -1708,12 +1433,14 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("bShort"));
 
 	py::class_<H2Core::Playlist, H2Core::Object, std::shared_ptr<H2Core::Playlist>> _Playlist(m, "Playlist");
+	_Playlist.def_property_readonly_static("instance", [](py::object) { return H2Core::Playlist::get_instance(); }, py::return_value_policy::reference);
+	_Playlist.def_property("selected_song_nr", &H2Core::Playlist::getSelectedSongNr, &H2Core::Playlist::setSelectedSongNr);
+	_Playlist.def_property("active_song_number", &H2Core::Playlist::getActiveSongNumber, &H2Core::Playlist::setActiveSongNumber);
+	_Playlist.def_property("filename", &H2Core::Playlist::getFilename, &H2Core::Playlist::setFilename);
+	_Playlist.def_property("is_modified", &H2Core::Playlist::getIsModified, &H2Core::Playlist::setIsModified);
 	_Playlist.def_static("class_name", &H2Core::Playlist::class_name);
 	_Playlist.def_static("create_instance", &H2Core::Playlist::create_instance,
 		"If #__instance equals 0, a new Playlist singleton will be created and stored in it.");
-	_Playlist.def_static("get_instance", &H2Core::Playlist::get_instance,
-		"Returns a pointer to the current Playlist singleton stored in #__instance.",
-	py::return_value_policy::reference);
 	_Playlist.def("activateSong", &H2Core::Playlist::activateSong,
 		py::arg("SongNumber"));
 	_Playlist.def("size", &H2Core::Playlist::size);
@@ -1722,23 +1449,9 @@ PYBIND11_MODULE(h2core, m) {
 	_Playlist.def("clear", &H2Core::Playlist::clear);
 	_Playlist.def("add", &H2Core::Playlist::add,
 		py::arg("entry"));
-	_Playlist.def("setNextSongByNumber", &H2Core::Playlist::setNextSongByNumber,
-		py::arg("SongNumber"));
-	_Playlist.def("getSelectedSongNr", &H2Core::Playlist::getSelectedSongNr);
-	_Playlist.def("setSelectedSongNr", &H2Core::Playlist::setSelectedSongNr,
-		py::arg("songNumber"));
-	_Playlist.def("getActiveSongNumber", &H2Core::Playlist::getActiveSongNumber);
-	_Playlist.def("setActiveSongNumber", &H2Core::Playlist::setActiveSongNumber,
-		py::arg("ActiveSongNumber"));
 	_Playlist.def("getSongFilenameByNumber", &H2Core::Playlist::getSongFilenameByNumber,
 		py::arg("songNumber"),
 		py::arg("fileName"));
-	_Playlist.def("getFilename", &H2Core::Playlist::getFilename);
-	_Playlist.def("setFilename", &H2Core::Playlist::setFilename,
-		py::arg("filename"));
-	_Playlist.def("getIsModified", &H2Core::Playlist::getIsModified);
-	_Playlist.def("setIsModified", &H2Core::Playlist::setIsModified,
-		py::arg("IsModified"));
 	_Playlist.def_static("load", &H2Core::Playlist::load,
 		py::arg("filename"),
 		py::arg("useRelativePaths"));
@@ -1802,72 +1515,82 @@ PYBIND11_MODULE(h2core, m) {
 	_Preferences.def_readwrite("m_bJackMasterMode", &H2Core::Preferences::m_bJackMasterMode);
 	_Preferences.def_readwrite("m_sDefaultEditor", &H2Core::Preferences::m_sDefaultEditor);
 	_Preferences.def_readwrite("m_rubberBandCLIexecutable", &H2Core::Preferences::m_rubberBandCLIexecutable);
+	_Preferences.def_property_readonly_static("instance", [](py::object) { return H2Core::Preferences::get_instance(); }, py::return_value_policy::reference);
+	_Preferences.def_property("default_editor", &H2Core::Preferences::getDefaultEditor, &H2Core::Preferences::setDefaultEditor);
+	_Preferences.def_property("preferred_language", &H2Core::Preferences::getPreferredLanguage, &H2Core::Preferences::setPreferredLanguage);
+	_Preferences.def_property("show_devel_warning", &H2Core::Preferences::getShowDevelWarning, &H2Core::Preferences::setShowDevelWarning);
+	_Preferences.def_property("show_note_overwrite_warning", &H2Core::Preferences::getShowNoteOverwriteWarning, &H2Core::Preferences::setShowNoteOverwriteWarning);
+	_Preferences.def_property("last_song_filename", &H2Core::Preferences::getLastSongFilename, &H2Core::Preferences::setLastSongFilename);
+	_Preferences.def_property("last_playlist_filename", &H2Core::Preferences::getLastPlaylistFilename, &H2Core::Preferences::setLastPlaylistFilename);
+	_Preferences.def_property("hear_new_notes", &H2Core::Preferences::getHearNewNotes, &H2Core::Preferences::setHearNewNotes);
+	_Preferences.def_property("record_events", &H2Core::Preferences::getRecordEvents, &H2Core::Preferences::setRecordEvents);
+	_Preferences.def_property("punch_in_pos", &H2Core::Preferences::getPunchInPos, &H2Core::Preferences::setPunchInPos);
+	_Preferences.def_property("punch_out_pos", &H2Core::Preferences::getPunchOutPos, &H2Core::Preferences::setPunchOutPos);
+	_Preferences.def_property("quantize_events", &H2Core::Preferences::getQuantizeEvents, &H2Core::Preferences::setQuantizeEvents);
+	_Preferences.def_property("recent_files", &H2Core::Preferences::getRecentFiles, &H2Core::Preferences::setRecentFiles);
+	_Preferences.def_property("application_font_family", &H2Core::Preferences::getApplicationFontFamily, &H2Core::Preferences::setApplicationFontFamily);
+	_Preferences.def_property("level_2_font_family", &H2Core::Preferences::getLevel2FontFamily, &H2Core::Preferences::setLevel2FontFamily);
+	_Preferences.def_property("level_3_font_family", &H2Core::Preferences::getLevel3FontFamily, &H2Core::Preferences::setLevel3FontFamily);
+	_Preferences.def_property("font_size", &H2Core::Preferences::getFontSize, &H2Core::Preferences::setFontSize);
+	_Preferences.def_property("mixer_falloff_speed", &H2Core::Preferences::getMixerFalloffSpeed, &H2Core::Preferences::setMixerFalloffSpeed);
+	_Preferences.def_property("pattern_editor_grid_resolution", &H2Core::Preferences::getPatternEditorGridResolution, &H2Core::Preferences::setPatternEditorGridResolution);
+	_Preferences.def_property("show_automation_area", &H2Core::Preferences::getShowAutomationArea, &H2Core::Preferences::setShowAutomationArea);
+	_Preferences.def_property("pattern_editor_grid_height", &H2Core::Preferences::getPatternEditorGridHeight, &H2Core::Preferences::setPatternEditorGridHeight);
+	_Preferences.def_property("pattern_editor_grid_width", &H2Core::Preferences::getPatternEditorGridWidth, &H2Core::Preferences::setPatternEditorGridWidth);
+	_Preferences.def_property("song_editor_grid_height", &H2Core::Preferences::getSongEditorGridHeight, &H2Core::Preferences::setSongEditorGridHeight);
+	_Preferences.def_property("song_editor_grid_width", &H2Core::Preferences::getSongEditorGridWidth, &H2Core::Preferences::setSongEditorGridWidth);
+	_Preferences.def_property("coloring_method", &H2Core::Preferences::getColoringMethod, &H2Core::Preferences::setColoringMethod);
+	_Preferences.def_property("pattern_colors", &H2Core::Preferences::getPatternColors, &H2Core::Preferences::setPatternColors);
+	_Preferences.def_property("max_pattern_colors", &H2Core::Preferences::getMaxPatternColors, &H2Core::Preferences::setMaxPatternColors);
+	_Preferences.def_property("visible_pattern_colors", &H2Core::Preferences::getVisiblePatternColors, &H2Core::Preferences::setVisiblePatternColors);
+	_Preferences.def_property("main_form_properties", &H2Core::Preferences::getMainFormProperties, &H2Core::Preferences::setMainFormProperties);
+	_Preferences.def_property("mixer_properties", &H2Core::Preferences::getMixerProperties, &H2Core::Preferences::setMixerProperties);
+	_Preferences.def_property("pattern_editor_properties", &H2Core::Preferences::getPatternEditorProperties, &H2Core::Preferences::setPatternEditorProperties);
+	_Preferences.def_property("song_editor_properties", &H2Core::Preferences::getSongEditorProperties, &H2Core::Preferences::setSongEditorProperties);
+	_Preferences.def_property("instrument_rack_properties", &H2Core::Preferences::getInstrumentRackProperties, &H2Core::Preferences::setInstrumentRackProperties);
+	_Preferences.def_property("audio_engine_info_properties", &H2Core::Preferences::getAudioEngineInfoProperties, &H2Core::Preferences::setAudioEngineInfoProperties);
+	_Preferences.def_property("max_bars", &H2Core::Preferences::getMaxBars, &H2Core::Preferences::setMaxBars);
+	_Preferences.def_property("max_layers", &H2Core::Preferences::getMaxLayers, &H2Core::Preferences::setMaxLayers);
+	_Preferences.def_property("wait_for_session_handler", &H2Core::Preferences::getWaitForSessionHandler, &H2Core::Preferences::setWaitForSessionHandler);
+	_Preferences.def_property("nsm_client_id", &H2Core::Preferences::getNsmClientId, &H2Core::Preferences::setNsmClientId);
+	_Preferences.def_property("nsm_song_name", &H2Core::Preferences::getNsmSongName, &H2Core::Preferences::setNsmSongName);
+	_Preferences.def_property("osc_server_enabled", &H2Core::Preferences::getOscServerEnabled, &H2Core::Preferences::setOscServerEnabled);
+	_Preferences.def_property("osc_feedback_enabled", &H2Core::Preferences::getOscFeedbackEnabled, &H2Core::Preferences::setOscFeedbackEnabled);
+	_Preferences.def_property("osc_server_port", &H2Core::Preferences::getOscServerPort, &H2Core::Preferences::setOscServerPort);
+	_Preferences.def_property("use_timeline_bpm", &H2Core::Preferences::getUseTimelineBpm, &H2Core::Preferences::setUseTimelineBpm);
+	_Preferences.def_property("show_playback_track", &H2Core::Preferences::getShowPlaybackTrack, &H2Core::Preferences::setShowPlaybackTrack);
+	_Preferences.def_property("rubber_band_calc_time", &H2Core::Preferences::getRubberBandCalcTime, &H2Core::Preferences::setRubberBandCalcTime);
+	_Preferences.def_property("rubber_band_batch_mode", &H2Core::Preferences::getRubberBandBatchMode, &H2Core::Preferences::setRubberBandBatchMode);
+	_Preferences.def_property("last_open_tab", &H2Core::Preferences::getLastOpenTab, &H2Core::Preferences::setLastOpenTab);
+	_Preferences.def_property("h_2_process_name", &H2Core::Preferences::getH2ProcessName, &H2Core::Preferences::setH2ProcessName);
+	_Preferences.def_property("export_sample_depth_idx", &H2Core::Preferences::getExportSampleDepthIdx, &H2Core::Preferences::setExportSampleDepthIdx);
+	_Preferences.def_property("export_sample_rate_idx", &H2Core::Preferences::getExportSampleRateIdx, &H2Core::Preferences::setExportSampleRateIdx);
+	_Preferences.def_property("export_mode_idx", &H2Core::Preferences::getExportModeIdx, &H2Core::Preferences::setExportModeIdx);
+	_Preferences.def_property("export_directory", &H2Core::Preferences::getExportDirectory, &H2Core::Preferences::setExportDirectory);
+	_Preferences.def_property("export_template_idx", &H2Core::Preferences::getExportTemplateIdx, &H2Core::Preferences::setExportTemplateIdx);
+	_Preferences.def_property("midi_export_mode", &H2Core::Preferences::getMidiExportMode, &H2Core::Preferences::setMidiExportMode);
+	_Preferences.def_property("midi_export_directory", &H2Core::Preferences::getMidiExportDirectory, &H2Core::Preferences::setMidiExportDirectory);
 	_Preferences.def_static("class_name", &H2Core::Preferences::class_name);
 	_Preferences.def_static("create_instance", &H2Core::Preferences::create_instance,
 		"If #__instance equals 0, a new Preferences singleton will be created and stored in it.");
-	_Preferences.def_static("get_instance", &H2Core::Preferences::get_instance,
-		"Returns a pointer to the current Preferences singleton stored in #__instance.",
-	py::return_value_policy::reference);
 	_Preferences.def("loadPreferences", &H2Core::Preferences::loadPreferences,
 		"Load the preferences file",
 		py::arg("bGlobal"));
 	_Preferences.def("savePreferences", &H2Core::Preferences::savePreferences,
 		"Save the preferences file");
 	// [banned] _Preferences.def("getDataDirectory", &H2Core::Preferences::getDataDirectory);
-	_Preferences.def("getDefaultEditor", &H2Core::Preferences::getDefaultEditor);
-	_Preferences.def("setDefaultEditor", &H2Core::Preferences::setDefaultEditor,
-		py::arg("editor"));
 	_Preferences.def("getDefaultUILayout", &H2Core::Preferences::getDefaultUILayout);
 	_Preferences.def("setDefaultUILayout", &H2Core::Preferences::setDefaultUILayout,
 		py::arg("layout"));
 	_Preferences.def("getUIScalingPolicy", &H2Core::Preferences::getUIScalingPolicy);
 	_Preferences.def("setUIScalingPolicy", &H2Core::Preferences::setUIScalingPolicy,
 		py::arg("nPolicy"));
-	_Preferences.def("getPreferredLanguage", &H2Core::Preferences::getPreferredLanguage);
-	_Preferences.def("setPreferredLanguage", &H2Core::Preferences::setPreferredLanguage,
-		py::arg("sLanguage"));
-	_Preferences.def("setRestoreLastSongEnabled", &H2Core::Preferences::setRestoreLastSongEnabled,
-		py::arg("restore"));
-	_Preferences.def("setRestoreLastPlaylistEnabled", &H2Core::Preferences::setRestoreLastPlaylistEnabled,
-		py::arg("restore"));
-	_Preferences.def("setUseRelativeFilenamesForPlaylists", &H2Core::Preferences::setUseRelativeFilenamesForPlaylists,
-		py::arg("value"));
-	_Preferences.def("setShowDevelWarning", &H2Core::Preferences::setShowDevelWarning,
-		py::arg("value"));
-	_Preferences.def("getShowDevelWarning", &H2Core::Preferences::getShowDevelWarning);
-	_Preferences.def("getShowNoteOverwriteWarning", &H2Core::Preferences::getShowNoteOverwriteWarning);
-	_Preferences.def("setShowNoteOverwriteWarning", &H2Core::Preferences::setShowNoteOverwriteWarning,
-		py::arg("bValue"));
 	_Preferences.def("isRestoreLastSongEnabled", &H2Core::Preferences::isRestoreLastSongEnabled);
 	_Preferences.def("isRestoreLastPlaylistEnabled", &H2Core::Preferences::isRestoreLastPlaylistEnabled);
 	_Preferences.def("isPlaylistUsingRelativeFilenames", &H2Core::Preferences::isPlaylistUsingRelativeFilenames);
-	_Preferences.def("setLastSongFilename", &H2Core::Preferences::setLastSongFilename,
-		py::arg("filename"));
-	_Preferences.def("getLastSongFilename", &H2Core::Preferences::getLastSongFilename);
-	_Preferences.def("setLastPlaylistFilename", &H2Core::Preferences::setLastPlaylistFilename,
-		py::arg("filename"));
-	_Preferences.def("getLastPlaylistFilename", &H2Core::Preferences::getLastPlaylistFilename);
-	_Preferences.def("setHearNewNotes", &H2Core::Preferences::setHearNewNotes,
-		py::arg("value"));
-	_Preferences.def("getHearNewNotes", &H2Core::Preferences::getHearNewNotes);
-	_Preferences.def("setRecordEvents", &H2Core::Preferences::setRecordEvents,
-		py::arg("value"));
-	_Preferences.def("getRecordEvents", &H2Core::Preferences::getRecordEvents);
-	_Preferences.def("setPunchInPos", &H2Core::Preferences::setPunchInPos,
-		py::arg("pos"));
-	_Preferences.def("getPunchInPos", &H2Core::Preferences::getPunchInPos);
-	_Preferences.def("setPunchOutPos", &H2Core::Preferences::setPunchOutPos,
-		py::arg("pos"));
-	_Preferences.def("getPunchOutPos", &H2Core::Preferences::getPunchOutPos);
 	_Preferences.def("inPunchArea", &H2Core::Preferences::inPunchArea,
 		py::arg("pos"));
 	_Preferences.def("unsetPunchArea", &H2Core::Preferences::unsetPunchArea);
-	_Preferences.def("setQuantizeEvents", &H2Core::Preferences::setQuantizeEvents,
-		py::arg("value"));
-	_Preferences.def("getQuantizeEvents", &H2Core::Preferences::getQuantizeEvents);
-	_Preferences.def("getRecentFiles", &H2Core::Preferences::getRecentFiles);
-	_Preferences.def("setRecentFiles", &H2Core::Preferences::setRecentFiles,
-		py::arg("recentFiles"));
 	_Preferences.def("insertRecentFile", &H2Core::Preferences::insertRecentFile,
 		py::arg("sFilename"));
 	_Preferences.def("getRecentFX", &H2Core::Preferences::getRecentFX);
@@ -1876,78 +1599,11 @@ PYBIND11_MODULE(h2core, m) {
 	_Preferences.def("getQTStyle", &H2Core::Preferences::getQTStyle);
 	_Preferences.def("setQTStyle", &H2Core::Preferences::setQTStyle,
 		py::arg("sStyle"));
-	_Preferences.def("getApplicationFontFamily", &H2Core::Preferences::getApplicationFontFamily);
-	_Preferences.def("setApplicationFontFamily", &H2Core::Preferences::setApplicationFontFamily,
-		py::arg("family"));
-	_Preferences.def("getLevel2FontFamily", &H2Core::Preferences::getLevel2FontFamily);
-	_Preferences.def("setLevel2FontFamily", &H2Core::Preferences::setLevel2FontFamily,
-		py::arg("family"));
-	_Preferences.def("getLevel3FontFamily", &H2Core::Preferences::getLevel3FontFamily);
-	_Preferences.def("setLevel3FontFamily", &H2Core::Preferences::setLevel3FontFamily,
-		py::arg("family"));
-	_Preferences.def("getFontSize", &H2Core::Preferences::getFontSize);
-	_Preferences.def("setFontSize", &H2Core::Preferences::setFontSize,
-		py::arg("fontSize"));
-	_Preferences.def("getMixerFalloffSpeed", &H2Core::Preferences::getMixerFalloffSpeed);
-	_Preferences.def("setMixerFalloffSpeed", &H2Core::Preferences::setMixerFalloffSpeed,
-		py::arg("value"));
 	_Preferences.def("showInstrumentPeaks", &H2Core::Preferences::showInstrumentPeaks);
-	_Preferences.def("setInstrumentPeaks", &H2Core::Preferences::setInstrumentPeaks,
-		py::arg("value"));
-	_Preferences.def("getPatternEditorGridResolution", &H2Core::Preferences::getPatternEditorGridResolution);
-	_Preferences.def("setPatternEditorGridResolution", &H2Core::Preferences::setPatternEditorGridResolution,
-		py::arg("value"));
 	_Preferences.def("isPatternEditorUsingTriplets", &H2Core::Preferences::isPatternEditorUsingTriplets);
-	_Preferences.def("setPatternEditorUsingTriplets", &H2Core::Preferences::setPatternEditorUsingTriplets,
-		py::arg("value"));
 	_Preferences.def("isFXTabVisible", &H2Core::Preferences::isFXTabVisible);
 	_Preferences.def("setFXTabVisible", &H2Core::Preferences::setFXTabVisible,
 		py::arg("value"));
-	_Preferences.def("getShowAutomationArea", &H2Core::Preferences::getShowAutomationArea);
-	_Preferences.def("setShowAutomationArea", &H2Core::Preferences::setShowAutomationArea,
-		py::arg("value"));
-	_Preferences.def("getPatternEditorGridHeight", &H2Core::Preferences::getPatternEditorGridHeight);
-	_Preferences.def("setPatternEditorGridHeight", &H2Core::Preferences::setPatternEditorGridHeight,
-		py::arg("value"));
-	_Preferences.def("getPatternEditorGridWidth", &H2Core::Preferences::getPatternEditorGridWidth);
-	_Preferences.def("setPatternEditorGridWidth", &H2Core::Preferences::setPatternEditorGridWidth,
-		py::arg("value"));
-	_Preferences.def("getSongEditorGridHeight", &H2Core::Preferences::getSongEditorGridHeight);
-	_Preferences.def("setSongEditorGridHeight", &H2Core::Preferences::setSongEditorGridHeight,
-		py::arg("value"));
-	_Preferences.def("getSongEditorGridWidth", &H2Core::Preferences::getSongEditorGridWidth);
-	_Preferences.def("setSongEditorGridWidth", &H2Core::Preferences::setSongEditorGridWidth,
-		py::arg("value"));
-	_Preferences.def("setColoringMethod", &H2Core::Preferences::setColoringMethod,
-		py::arg("value"));
-	_Preferences.def("getColoringMethod", &H2Core::Preferences::getColoringMethod);
-	_Preferences.def("setPatternColors", &H2Core::Preferences::setPatternColors,
-		py::arg("patternColors"));
-	_Preferences.def("getPatternColors", &H2Core::Preferences::getPatternColors);
-	_Preferences.def("setMaxPatternColors", &H2Core::Preferences::setMaxPatternColors,
-		py::arg("nValue"));
-	_Preferences.def("getMaxPatternColors", &H2Core::Preferences::getMaxPatternColors);
-	_Preferences.def("setVisiblePatternColors", &H2Core::Preferences::setVisiblePatternColors,
-		py::arg("nValue"));
-	_Preferences.def("getVisiblePatternColors", &H2Core::Preferences::getVisiblePatternColors);
-	_Preferences.def("getMainFormProperties", &H2Core::Preferences::getMainFormProperties);
-	_Preferences.def("setMainFormProperties", &H2Core::Preferences::setMainFormProperties,
-		py::arg("prop"));
-	_Preferences.def("getMixerProperties", &H2Core::Preferences::getMixerProperties);
-	_Preferences.def("setMixerProperties", &H2Core::Preferences::setMixerProperties,
-		py::arg("prop"));
-	_Preferences.def("getPatternEditorProperties", &H2Core::Preferences::getPatternEditorProperties);
-	_Preferences.def("setPatternEditorProperties", &H2Core::Preferences::setPatternEditorProperties,
-		py::arg("prop"));
-	_Preferences.def("getSongEditorProperties", &H2Core::Preferences::getSongEditorProperties);
-	_Preferences.def("setSongEditorProperties", &H2Core::Preferences::setSongEditorProperties,
-		py::arg("prop"));
-	_Preferences.def("getInstrumentRackProperties", &H2Core::Preferences::getInstrumentRackProperties);
-	_Preferences.def("setInstrumentRackProperties", &H2Core::Preferences::setInstrumentRackProperties,
-		py::arg("prop"));
-	_Preferences.def("getAudioEngineInfoProperties", &H2Core::Preferences::getAudioEngineInfoProperties);
-	_Preferences.def("setAudioEngineInfoProperties", &H2Core::Preferences::setAudioEngineInfoProperties,
-		py::arg("prop"));
 	_Preferences.def("getLadspaProperties", &H2Core::Preferences::getLadspaProperties,
 		py::arg("nFX"));
 	_Preferences.def("setLadspaProperties", &H2Core::Preferences::setLadspaProperties,
@@ -1956,84 +1612,8 @@ PYBIND11_MODULE(h2core, m) {
 	_Preferences.def("getDefaultUIStyle", &H2Core::Preferences::getDefaultUIStyle);
 	_Preferences.def("patternModePlaysSelected", &H2Core::Preferences::patternModePlaysSelected,
 		"Returns #m_bPatternModePlaysSelected");
-	_Preferences.def("setPatternModePlaysSelected", &H2Core::Preferences::setPatternModePlaysSelected,
-		py::arg("b"));
 	_Preferences.def("useLash", &H2Core::Preferences::useLash);
-	_Preferences.def("setUseLash", &H2Core::Preferences::setUseLash,
-		py::arg("b"));
 	_Preferences.def("hideKeyboardCursor", &H2Core::Preferences::hideKeyboardCursor);
-	_Preferences.def("setHideKeyboardCursor", &H2Core::Preferences::setHideKeyboardCursor,
-		py::arg("value"));
-	_Preferences.def("setMaxBars", &H2Core::Preferences::setMaxBars,
-		py::arg("bars"));
-	_Preferences.def("getMaxBars", &H2Core::Preferences::getMaxBars,
-		"Returns #m_nMaxBars.");
-	_Preferences.def("setMaxLayers", &H2Core::Preferences::setMaxLayers,
-		py::arg("layers"));
-	_Preferences.def("getMaxLayers", &H2Core::Preferences::getMaxLayers,
-		"Returns #m_nMaxLayers.");
-	_Preferences.def("setWaitForSessionHandler", &H2Core::Preferences::setWaitForSessionHandler,
-		py::arg("value"));
-	_Preferences.def("getWaitForSessionHandler", &H2Core::Preferences::getWaitForSessionHandler);
-	_Preferences.def("setNsmClientId", &H2Core::Preferences::setNsmClientId,
-		py::arg("nsmClientId"));
-	_Preferences.def("getNsmClientId", &H2Core::Preferences::getNsmClientId);
-	_Preferences.def("setNsmSongName", &H2Core::Preferences::setNsmSongName,
-		py::arg("nsmSongName"));
-	_Preferences.def("getNsmSongName", &H2Core::Preferences::getNsmSongName);
-	_Preferences.def("getOscServerEnabled", &H2Core::Preferences::getOscServerEnabled,
-		"Returns #m_bOscServerEnabled");
-	_Preferences.def("setOscServerEnabled", &H2Core::Preferences::setOscServerEnabled,
-		py::arg("val"));
-	_Preferences.def("getOscFeedbackEnabled", &H2Core::Preferences::getOscFeedbackEnabled,
-		"Returns #m_bOscFeedbackEnabled");
-	_Preferences.def("setOscFeedbackEnabled", &H2Core::Preferences::setOscFeedbackEnabled,
-		py::arg("val"));
-	_Preferences.def("getOscServerPort", &H2Core::Preferences::getOscServerPort,
-		"Returns #m_nOscServerPort");
-	_Preferences.def("setOscServerPort", &H2Core::Preferences::setOscServerPort,
-		py::arg("oscPort"));
-	_Preferences.def("getUseTimelineBpm", &H2Core::Preferences::getUseTimelineBpm,
-		"Whether to use the bpm of the timeline.");
-	_Preferences.def("setUseTimelineBpm", &H2Core::Preferences::setUseTimelineBpm,
-		"Setting #__useTimelineBpm.",
-		py::arg("val"));
-	_Preferences.def("setShowPlaybackTrack", &H2Core::Preferences::setShowPlaybackTrack,
-		py::arg("val"));
-	_Preferences.def("getShowPlaybackTrack", &H2Core::Preferences::getShowPlaybackTrack);
-	_Preferences.def("getRubberBandCalcTime", &H2Core::Preferences::getRubberBandCalcTime);
-	_Preferences.def("setRubberBandCalcTime", &H2Core::Preferences::setRubberBandCalcTime,
-		py::arg("val"));
-	_Preferences.def("getRubberBandBatchMode", &H2Core::Preferences::getRubberBandBatchMode);
-	_Preferences.def("setRubberBandBatchMode", &H2Core::Preferences::setRubberBandBatchMode,
-		py::arg("val"));
-	_Preferences.def("getLastOpenTab", &H2Core::Preferences::getLastOpenTab);
-	_Preferences.def("setLastOpenTab", &H2Core::Preferences::setLastOpenTab,
-		py::arg("n"));
-	_Preferences.def("setH2ProcessName", &H2Core::Preferences::setH2ProcessName,
-		py::arg("processName"));
-	_Preferences.def("getH2ProcessName", &H2Core::Preferences::getH2ProcessName);
-	_Preferences.def("getExportSampleDepthIdx", &H2Core::Preferences::getExportSampleDepthIdx);
-	_Preferences.def("setExportSampleDepthIdx", &H2Core::Preferences::setExportSampleDepthIdx,
-		py::arg("ExportSampleDepth"));
-	_Preferences.def("getExportSampleRateIdx", &H2Core::Preferences::getExportSampleRateIdx);
-	_Preferences.def("setExportSampleRateIdx", &H2Core::Preferences::setExportSampleRateIdx,
-		py::arg("ExportSampleRate"));
-	_Preferences.def("getExportModeIdx", &H2Core::Preferences::getExportModeIdx);
-	_Preferences.def("setExportModeIdx", &H2Core::Preferences::setExportModeIdx,
-		py::arg("ExportModeIdx"));
-	_Preferences.def("getExportDirectory", &H2Core::Preferences::getExportDirectory);
-	_Preferences.def("setExportDirectory", &H2Core::Preferences::setExportDirectory,
-		py::arg("ExportDirectory"));
-	_Preferences.def("getExportTemplateIdx", &H2Core::Preferences::getExportTemplateIdx);
-	_Preferences.def("setExportTemplateIdx", &H2Core::Preferences::setExportTemplateIdx,
-		py::arg("ExportTemplateIdx"));
-	_Preferences.def("getMidiExportMode", &H2Core::Preferences::getMidiExportMode);
-	_Preferences.def("setMidiExportMode", &H2Core::Preferences::setMidiExportMode,
-		py::arg("ExportMode"));
-	_Preferences.def("getMidiExportDirectory", &H2Core::Preferences::getMidiExportDirectory);
-	_Preferences.def("setMidiExportDirectory", &H2Core::Preferences::setMidiExportDirectory,
-		py::arg("ExportDirectory"));
 	// [banned] _Preferences.def("getPreferencesOverwritePath", &H2Core::Preferences::getPreferencesOverwritePath,
 		// [banned] "Returns #m_sPreferencesOverwritePath");
 	// [banned] _Preferences.def("setPreferencesOverwritePath", &H2Core::Preferences::setPreferencesOverwritePath,
@@ -2058,6 +1638,40 @@ PYBIND11_MODULE(h2core, m) {
 	py::class_<H2Core::Sample, H2Core::Object, std::shared_ptr<H2Core::Sample>> _Sample(m, "Sample");
 	_Sample.def(py::init<const QString &, int, int, float *, float *>());
 	_Sample.def(py::init<std::shared_ptr<Sample>>());
+	_Sample.def_property_readonly("filepath", &H2Core::Sample::get_filepath);
+	_Sample.def_property("filename", &H2Core::Sample::get_filename, &H2Core::Sample::set_filename);
+	_Sample.def_property("frames", &H2Core::Sample::get_frames, &H2Core::Sample::set_frames);
+	_Sample.def_property("sample_rate", &H2Core::Sample::get_sample_rate, &H2Core::Sample::set_sample_rate);
+	_Sample.def_property_readonly("sample_duration", &H2Core::Sample::get_sample_duration);
+	_Sample.def_property_readonly("size", &H2Core::Sample::get_size);
+	_Sample.def_property_readonly("data_l", [](const H2Core::Sample & sample) {
+    size_t nframes = sample.is_empty() ? 0 : sample.get_frames();
+    auto result = py::array_t<float>(nframes);
+    py::buffer_info buf = result.request();
+    float *ptr = static_cast<float *>(buf.ptr);
+    float *src = sample.get_data_l();
+    for (size_t idx = 0; idx < nframes; idx++) {
+        ptr[idx] = src[idx];
+    }
+    return result;
+}
+);
+	_Sample.def_property_readonly("data_r", [](const H2Core::Sample & sample) {
+    size_t nframes = sample.is_empty() ? 0 : sample.get_frames();
+    auto result = py::array_t<float>(nframes);
+    py::buffer_info buf = result.request();
+    float *ptr = static_cast<float *>(buf.ptr);
+    float *src = sample.get_data_r();
+    for (size_t idx = 0; idx < nframes; idx++) {
+        ptr[idx] = src[idx];
+    }
+    return result;
+}
+);
+	_Sample.def_property("is_modified", &H2Core::Sample::get_is_modified, &H2Core::Sample::set_is_modified);
+	_Sample.def_property_readonly("loops", &H2Core::Sample::get_loops);
+	_Sample.def_property_readonly("rubberband", &H2Core::Sample::get_rubberband);
+	_Sample.def_property_readonly("loop_mode_string", &H2Core::Sample::get_loop_mode_string);
 	_Sample.def_static("class_name", &H2Core::Sample::class_name);
 	_Sample.def("write", &H2Core::Sample::write,
 		"write sample to a file",
@@ -2100,73 +1714,13 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("rb"));
 	_Sample.def("is_empty", &H2Core::Sample::is_empty,
 		"Returns true if both data channels are null pointers");
-	_Sample.def("get_filepath", &H2Core::Sample::get_filepath,
-		"Returns #__filepath");
-	_Sample.def("get_filename", &H2Core::Sample::get_filename,
-		"Returns Filename part of #__filepath");
-	_Sample.def("set_filename", &H2Core::Sample::set_filename,
-		py::arg("filename"));
-	_Sample.def("set_frames", &H2Core::Sample::set_frames,
-		"#__frames setter",
-		py::arg("frames"));
-	_Sample.def("get_frames", &H2Core::Sample::get_frames,
-		"Returns #__frames accessor");
-	_Sample.def("set_sample_rate", &H2Core::Sample::set_sample_rate,
-		py::arg("sampleRate"));
-	_Sample.def("get_sample_rate", &H2Core::Sample::get_sample_rate,
-		"Returns #__sample_rate");
-	_Sample.def("get_sample_duration", &H2Core::Sample::get_sample_duration,
-		"Returns sample duration in seconds");
-	_Sample.def("get_size", &H2Core::Sample::get_size,
-		"Returns data size, which is calculated by #__frames time sizeof( float ) * 2");
-	_Sample.def("get_data_l",
-	[](const H2Core::Sample & sample) {
-
-    size_t nframes = sample.get_frames();
-    auto result = py::array_t<float>(nframes);
-    py::buffer_info buf = result.request();
-    float *ptr = static_cast<float *>(buf.ptr);
-    float *src = sample.get_data_l();
-    for (size_t idx = 0; idx < nframes; idx++) {
-        ptr[idx] = src[idx];
-    }
-    return result;
-}
-,
-		"Returns #__data_l");
-	_Sample.def("get_data_r",
-	[](const H2Core::Sample & sample) {
-
-    size_t nframes = sample.get_frames();
-    auto result = py::array_t<float>(nframes);
-    py::buffer_info buf = result.request();
-    float *ptr = static_cast<float *>(buf.ptr);
-    float *src = sample.get_data_r();
-    for (size_t idx = 0; idx < nframes; idx++) {
-        ptr[idx] = src[idx];
-    }
-    return result;
-}
-,
-		"Returns #__data_r");
-	_Sample.def("set_is_modified", &H2Core::Sample::set_is_modified,
-		"#__is_modified setter",
-		py::arg("is_modified"));
-	_Sample.def("get_is_modified", &H2Core::Sample::get_is_modified,
-		"Returns #__is_modified");
-	// [<TemplateRef 'vector'>] _Sample.def("get_pan_envelope", &H2Core::Sample::get_pan_envelope,
-		// [<TemplateRef 'vector'>] "Returns #__pan_envelope");
-	// [<TemplateRef 'vector'>] _Sample.def("get_velocity_envelope", &H2Core::Sample::get_velocity_envelope,
-		// [<TemplateRef 'vector'>] "Returns #__velocity_envelope");
-	_Sample.def("get_loops", &H2Core::Sample::get_loops,
-		"Returns #__loops parameters");
-	_Sample.def("get_rubberband", &H2Core::Sample::get_rubberband,
-		"Returns #__rubberband parameters");
+	// [banned] _Sample.def("get_pan_envelope", &H2Core::Sample::get_pan_envelope,
+		// [banned] "Returns #__pan_envelope");
+	// [banned] _Sample.def("get_velocity_envelope", &H2Core::Sample::get_velocity_envelope,
+		// [banned] "Returns #__velocity_envelope");
 	_Sample.def_static("parse_loop_mode", &H2Core::Sample::parse_loop_mode,
 		"parse the given string and rturn the corresponding loop_mode",
 		py::arg("string"));
-	_Sample.def("get_loop_mode_string", &H2Core::Sample::get_loop_mode_string,
-		"Returns mode member of #__loops as a string");
 	_Sample.def("toQString", &H2Core::Sample::toQString,
 		"Formatted string version for debugging purposes.",
 		py::arg("sPrefix"),
@@ -2256,32 +1810,12 @@ PYBIND11_MODULE(h2core, m) {
 	_InstrumentLayer.def(py::init<std::shared_ptr<Sample>>());
 	_InstrumentLayer.def(py::init<std::shared_ptr<InstrumentLayer>>());
 	_InstrumentLayer.def(py::init<std::shared_ptr<InstrumentLayer>, std::shared_ptr<Sample>>());
+	_InstrumentLayer.def_property("gain", &H2Core::InstrumentLayer::get_gain, &H2Core::InstrumentLayer::set_gain);
+	_InstrumentLayer.def_property("pitch", &H2Core::InstrumentLayer::get_pitch, &H2Core::InstrumentLayer::set_pitch);
+	_InstrumentLayer.def_property("start_velocity", &H2Core::InstrumentLayer::get_start_velocity, &H2Core::InstrumentLayer::set_start_velocity);
+	_InstrumentLayer.def_property("end_velocity", &H2Core::InstrumentLayer::get_end_velocity, &H2Core::InstrumentLayer::set_end_velocity);
+	_InstrumentLayer.def_property("sample", &H2Core::InstrumentLayer::get_sample, &H2Core::InstrumentLayer::set_sample);
 	_InstrumentLayer.def_static("class_name", &H2Core::InstrumentLayer::class_name);
-	_InstrumentLayer.def("set_gain", &H2Core::InstrumentLayer::set_gain,
-		"set the gain of the layer",
-		py::arg("gain"));
-	_InstrumentLayer.def("get_gain", &H2Core::InstrumentLayer::get_gain,
-		"get the gain of the layer");
-	_InstrumentLayer.def("set_pitch", &H2Core::InstrumentLayer::set_pitch,
-		"set the pitch of the layer",
-		py::arg("pitch"));
-	_InstrumentLayer.def("get_pitch", &H2Core::InstrumentLayer::get_pitch,
-		"get the pitch of the layer");
-	_InstrumentLayer.def("set_start_velocity", &H2Core::InstrumentLayer::set_start_velocity,
-		"set the start ivelocity of the layer",
-		py::arg("start"));
-	_InstrumentLayer.def("get_start_velocity", &H2Core::InstrumentLayer::get_start_velocity,
-		"get the start velocity of the layer");
-	_InstrumentLayer.def("set_end_velocity", &H2Core::InstrumentLayer::set_end_velocity,
-		"set the end velocity of the layer",
-		py::arg("end"));
-	_InstrumentLayer.def("get_end_velocity", &H2Core::InstrumentLayer::get_end_velocity,
-		"get the end velocity of the layer");
-	_InstrumentLayer.def("set_sample", &H2Core::InstrumentLayer::set_sample,
-		"set the sample of the layer",
-		py::arg("sample"));
-	_InstrumentLayer.def("get_sample", &H2Core::InstrumentLayer::get_sample,
-		"get the sample of the layer");
 	_InstrumentLayer.def("load_sample", &H2Core::InstrumentLayer::load_sample,
 		"Calls the #H2Core::Sample::load() member function of #__sample.");
 	_InstrumentLayer.def("unload_sample", &H2Core::InstrumentLayer::unload_sample);
@@ -2300,6 +1834,9 @@ PYBIND11_MODULE(h2core, m) {
 	py::class_<H2Core::InstrumentComponent, H2Core::Object, std::shared_ptr<H2Core::InstrumentComponent>> _InstrumentComponent(m, "InstrumentComponent");
 	_InstrumentComponent.def(py::init<int>());
 	_InstrumentComponent.def(py::init<std::shared_ptr<InstrumentComponent>>());
+	_InstrumentComponent.def_property("drumkit_componentID", &H2Core::InstrumentComponent::get_drumkit_componentID, &H2Core::InstrumentComponent::set_drumkit_componentID);
+	_InstrumentComponent.def_property("gain", &H2Core::InstrumentComponent::get_gain, &H2Core::InstrumentComponent::set_gain);
+	_InstrumentComponent.def_property("max_layers", &H2Core::InstrumentComponent::getMaxLayers, &H2Core::InstrumentComponent::setMaxLayers);
 	_InstrumentComponent.def_static("class_name", &H2Core::InstrumentComponent::class_name);
 	_InstrumentComponent.def("save_to", &H2Core::InstrumentComponent::save_to,
 		py::arg("node"),
@@ -2314,18 +1851,6 @@ PYBIND11_MODULE(h2core, m) {
 	_InstrumentComponent.def("set_layer", &H2Core::InstrumentComponent::set_layer,
 		py::arg("layer"),
 		py::arg("idx"));
-	_InstrumentComponent.def("set_drumkit_componentID", &H2Core::InstrumentComponent::set_drumkit_componentID,
-		"Sets the component ID #__related_drumkit_componentID",
-		py::arg("related_drumkit_componentID"));
-	_InstrumentComponent.def("get_drumkit_componentID", &H2Core::InstrumentComponent::get_drumkit_componentID,
-		"Returns the component ID of the drumkit.");
-	_InstrumentComponent.def("set_gain", &H2Core::InstrumentComponent::set_gain,
-		py::arg("gain"));
-	_InstrumentComponent.def("get_gain", &H2Core::InstrumentComponent::get_gain);
-	_InstrumentComponent.def_static("getMaxLayers", &H2Core::InstrumentComponent::getMaxLayers,
-		"Returns #m_nMaxLayers.");
-	_InstrumentComponent.def_static("setMaxLayers", &H2Core::InstrumentComponent::setMaxLayers,
-		py::arg("layers"));
 	_InstrumentComponent.def("toQString", &H2Core::InstrumentComponent::toQString,
 		"Formatted string version for debugging purposes.",
 		py::arg("sPrefix"),
@@ -2334,6 +1859,28 @@ PYBIND11_MODULE(h2core, m) {
 	py::class_<H2Core::Instrument, H2Core::Object, std::shared_ptr<H2Core::Instrument>> _Instrument(m, "Instrument");
 	_Instrument.def(py::init<const int, const QString &, std::shared_ptr<ADSR>>());
 	_Instrument.def(py::init<std::shared_ptr<Instrument>>());
+	_Instrument.def_property("name", &H2Core::Instrument::get_name, &H2Core::Instrument::set_name);
+	_Instrument.def_property("id", &H2Core::Instrument::get_id, &H2Core::Instrument::set_id);
+	_Instrument.def_property("adsr", &H2Core::Instrument::get_adsr, &H2Core::Instrument::set_adsr);
+	_Instrument.def_property("mute_group", &H2Core::Instrument::get_mute_group, &H2Core::Instrument::set_mute_group);
+	_Instrument.def_property("midi_out_channel", &H2Core::Instrument::get_midi_out_channel, &H2Core::Instrument::set_midi_out_channel);
+	_Instrument.def_property("midi_out_note", &H2Core::Instrument::get_midi_out_note, &H2Core::Instrument::set_midi_out_note);
+	_Instrument.def_property("pan", &H2Core::Instrument::getPan, &H2Core::Instrument::setPan);
+	_Instrument.def_property("pan_with_range_from_0_to_1", &H2Core::Instrument::getPanWithRangeFrom0To1, &H2Core::Instrument::setPanWithRangeFrom0To1);
+	_Instrument.def_property("gain", &H2Core::Instrument::get_gain, &H2Core::Instrument::set_gain);
+	_Instrument.def_property("volume", &H2Core::Instrument::get_volume, &H2Core::Instrument::set_volume);
+	_Instrument.def_property("filter_resonance", &H2Core::Instrument::get_filter_resonance, &H2Core::Instrument::set_filter_resonance);
+	_Instrument.def_property("filter_cutoff", &H2Core::Instrument::get_filter_cutoff, &H2Core::Instrument::set_filter_cutoff);
+	_Instrument.def_property("peak_l", &H2Core::Instrument::get_peak_l, &H2Core::Instrument::set_peak_l);
+	_Instrument.def_property("peak_r", &H2Core::Instrument::get_peak_r, &H2Core::Instrument::set_peak_r);
+	_Instrument.def_property("random_pitch_factor", &H2Core::Instrument::get_random_pitch_factor, &H2Core::Instrument::set_random_pitch_factor);
+	_Instrument.def_property("pitch_offset", &H2Core::Instrument::get_pitch_offset, &H2Core::Instrument::set_pitch_offset);
+	_Instrument.def_property("hihat_grp", &H2Core::Instrument::get_hihat_grp, &H2Core::Instrument::set_hihat_grp);
+	_Instrument.def_property("lower_cc", &H2Core::Instrument::get_lower_cc, &H2Core::Instrument::set_lower_cc);
+	_Instrument.def_property("higher_cc", &H2Core::Instrument::get_higher_cc, &H2Core::Instrument::set_higher_cc);
+	_Instrument.def_property("drumkit_name", &H2Core::Instrument::get_drumkit_name, &H2Core::Instrument::set_drumkit_name);
+	_Instrument.def_property_readonly("components", &H2Core::Instrument::get_components);
+	_Instrument.def_property("apply_velocity", &H2Core::Instrument::get_apply_velocity, &H2Core::Instrument::set_apply_velocity);
 	_Instrument.def_static("class_name", &H2Core::Instrument::class_name);
 	_Instrument.def_static("load_instrument", &H2Core::Instrument::load_instrument,
 		"creates a new Instrument, loads samples from a given instrument within a given drumkit",
@@ -2364,88 +1911,12 @@ PYBIND11_MODULE(h2core, m) {
 		"save the instrument within the given XMLNode",
 		py::arg("node"),
 		py::arg("component_id"));
-	_Instrument.def("set_name", &H2Core::Instrument::set_name,
-		"Sets the name of the Instrument #__name.",
-		py::arg("name"));
-	_Instrument.def("get_name", &H2Core::Instrument::get_name,
-		"Access the name of the Instrument.");
-	_Instrument.def("set_id", &H2Core::Instrument::set_id,
-		"Sets #__id to id.",
-		py::arg("id"));
-	_Instrument.def("get_id", &H2Core::Instrument::get_id,
-		"Returns #__id.");
-	_Instrument.def("set_adsr", &H2Core::Instrument::set_adsr,
-		"set the ADSR of the instrument",
-		py::arg("adsr"));
-	_Instrument.def("get_adsr", &H2Core::Instrument::get_adsr,
-		"get the ADSR of the instrument");
 	_Instrument.def("copy_adsr", &H2Core::Instrument::copy_adsr,
 		"get a copy of the ADSR of the instrument");
-	_Instrument.def("set_mute_group", &H2Core::Instrument::set_mute_group,
-		"set the mute group of the instrument",
-		py::arg("group"));
-	_Instrument.def("get_mute_group", &H2Core::Instrument::get_mute_group,
-		"get the mute group of the instrument");
-	_Instrument.def("set_midi_out_channel", &H2Core::Instrument::set_midi_out_channel,
-		"set the midi out channel of the instrument",
-		py::arg("channel"));
-	_Instrument.def("get_midi_out_channel", &H2Core::Instrument::get_midi_out_channel,
-		"get the midi out channel of the instrument");
-	_Instrument.def("set_midi_out_note", &H2Core::Instrument::set_midi_out_note,
-		"set the midi out note of the instrument",
-		py::arg("note"));
-	_Instrument.def("get_midi_out_note", &H2Core::Instrument::get_midi_out_note,
-		"get the midi out note of the instrument");
-	_Instrument.def("set_muted", &H2Core::Instrument::set_muted,
-		"set muted status of the instrument",
-		py::arg("muted"));
 	_Instrument.def("is_muted", &H2Core::Instrument::is_muted,
 		"get muted status of the instrument");
-	_Instrument.def("setPan", &H2Core::Instrument::setPan,
-		"set pan of the instrument",
-		py::arg("val"));
-	_Instrument.def("setPanWithRangeFrom0To1", &H2Core::Instrument::setPanWithRangeFrom0To1,
-		"set pan of the instrument, assuming the input range in [0;1]",
-		py::arg("fVal"));
-	_Instrument.def("getPan", &H2Core::Instrument::getPan,
-		"get pan of the instrument");
-	_Instrument.def("getPanWithRangeFrom0To1", &H2Core::Instrument::getPanWithRangeFrom0To1,
-		"get pan of the instrument scaling and translating the range from [-1;1] to [0;1]");
-	_Instrument.def("set_gain", &H2Core::Instrument::set_gain,
-		"set gain of the instrument",
-		py::arg("gain"));
-	_Instrument.def("get_gain", &H2Core::Instrument::get_gain,
-		"get gain of the instrument");
-	_Instrument.def("set_volume", &H2Core::Instrument::set_volume,
-		"set the volume of the instrument",
-		py::arg("volume"));
-	_Instrument.def("get_volume", &H2Core::Instrument::get_volume,
-		"get the volume of the instrument");
-	_Instrument.def("set_filter_active", &H2Core::Instrument::set_filter_active,
-		"activate the filter of the instrument",
-		py::arg("active"));
 	_Instrument.def("is_filter_active", &H2Core::Instrument::is_filter_active,
 		"get the status of the filter of the instrument");
-	_Instrument.def("set_filter_resonance", &H2Core::Instrument::set_filter_resonance,
-		"set the filter resonance of the instrument",
-		py::arg("val"));
-	_Instrument.def("get_filter_resonance", &H2Core::Instrument::get_filter_resonance,
-		"get the filter resonance of the instrument");
-	_Instrument.def("set_filter_cutoff", &H2Core::Instrument::set_filter_cutoff,
-		"set the filter cutoff of the instrument",
-		py::arg("val"));
-	_Instrument.def("get_filter_cutoff", &H2Core::Instrument::get_filter_cutoff,
-		"get the filter cutoff of the instrument");
-	_Instrument.def("set_peak_l", &H2Core::Instrument::set_peak_l,
-		"set the left peak of the instrument",
-		py::arg("val"));
-	_Instrument.def("get_peak_l", &H2Core::Instrument::get_peak_l,
-		"get the left peak of the instrument");
-	_Instrument.def("set_peak_r", &H2Core::Instrument::set_peak_r,
-		"set the right peak of the instrument",
-		py::arg("val"));
-	_Instrument.def("get_peak_r", &H2Core::Instrument::get_peak_r,
-		"get the right peak of the instrument");
 	_Instrument.def("set_fx_level", &H2Core::Instrument::set_fx_level,
 		"set the fx level of the instrument",
 		py::arg("level"),
@@ -2453,24 +1924,8 @@ PYBIND11_MODULE(h2core, m) {
 	_Instrument.def("get_fx_level", &H2Core::Instrument::get_fx_level,
 		"get the fx level of the instrument",
 		py::arg("index"));
-	_Instrument.def("set_random_pitch_factor", &H2Core::Instrument::set_random_pitch_factor,
-		"set the random pitch factor of the instrument",
-		py::arg("val"));
-	_Instrument.def("get_random_pitch_factor", &H2Core::Instrument::get_random_pitch_factor,
-		"get the random pitch factor of the instrument");
-	_Instrument.def("set_pitch_offset", &H2Core::Instrument::set_pitch_offset,
-		"set the pitch offset of the instrument",
-		py::arg("val"));
-	_Instrument.def("get_pitch_offset", &H2Core::Instrument::get_pitch_offset,
-		"get the pitch offset of the instrument");
-	_Instrument.def("set_active", &H2Core::Instrument::set_active,
-		"set the active status of the instrument",
-		py::arg("active"));
 	_Instrument.def("is_active", &H2Core::Instrument::is_active,
 		"get the active status of the instrument");
-	_Instrument.def("set_soloed", &H2Core::Instrument::set_soloed,
-		"set the soloed status of the instrument",
-		py::arg("soloed"));
 	_Instrument.def("is_soloed", &H2Core::Instrument::is_soloed,
 		"get the soloed status of the instrument");
 	_Instrument.def("enqueue", &H2Core::Instrument::enqueue,
@@ -2479,46 +1934,15 @@ PYBIND11_MODULE(h2core, m) {
 		"dequeue the instrument");
 	_Instrument.def("is_queued", &H2Core::Instrument::is_queued,
 		"get the queued status of the instrument");
-	_Instrument.def("set_stop_notes", &H2Core::Instrument::set_stop_notes,
-		"set the stop notes status of the instrument",
-		py::arg("stopnotes"));
 	_Instrument.def("is_stop_notes", &H2Core::Instrument::is_stop_notes,
 		"get the stop notes of the instrument");
-	_Instrument.def("set_sample_selection_alg", &H2Core::Instrument::set_sample_selection_alg,
-		py::arg("selected_algo"));
 	_Instrument.def("sample_selection_alg", &H2Core::Instrument::sample_selection_alg);
-	_Instrument.def("set_hihat_grp", &H2Core::Instrument::set_hihat_grp,
-		py::arg("hihat_grp"));
-	_Instrument.def("get_hihat_grp", &H2Core::Instrument::get_hihat_grp);
-	_Instrument.def("set_lower_cc", &H2Core::Instrument::set_lower_cc,
-		py::arg("message"));
-	_Instrument.def("get_lower_cc", &H2Core::Instrument::get_lower_cc);
-	_Instrument.def("set_higher_cc", &H2Core::Instrument::set_higher_cc,
-		py::arg("message"));
-	_Instrument.def("get_higher_cc", &H2Core::Instrument::get_higher_cc);
-	_Instrument.def("set_drumkit_name", &H2Core::Instrument::set_drumkit_name,
-		py::arg("name"));
-	_Instrument.def("get_drumkit_name", &H2Core::Instrument::get_drumkit_name);
-	_Instrument.def("set_is_preview_instrument", &H2Core::Instrument::set_is_preview_instrument,
-		"Mark the instrument as hydrogen's preview instrument",
-		py::arg("isPreview"));
 	_Instrument.def("is_preview_instrument", &H2Core::Instrument::is_preview_instrument);
-	_Instrument.def("set_is_metronome_instrument", &H2Core::Instrument::set_is_metronome_instrument,
-		"Mark the instrument as metronome instrument",
-		py::arg("isMetronome"));
 	_Instrument.def("is_metronome_instrument", &H2Core::Instrument::is_metronome_instrument);
-	_Instrument.def("get_components", &H2Core::Instrument::get_components);
 	_Instrument.def("get_component", &H2Core::Instrument::get_component,
 		py::arg("DrumkitComponentID"));
-	_Instrument.def("set_apply_velocity", &H2Core::Instrument::set_apply_velocity,
-		py::arg("apply_velocity"));
-	_Instrument.def("get_apply_velocity", &H2Core::Instrument::get_apply_velocity);
 	_Instrument.def("is_currently_exported", &H2Core::Instrument::is_currently_exported);
-	_Instrument.def("set_currently_exported", &H2Core::Instrument::set_currently_exported,
-		py::arg("isCurrentlyExported"));
 	_Instrument.def("has_missing_samples", &H2Core::Instrument::has_missing_samples);
-	_Instrument.def("set_missing_samples", &H2Core::Instrument::set_missing_samples,
-		py::arg("bHasMissingSamples"));
 	_Instrument.def("toQString", &H2Core::Instrument::toQString,
 		"Formatted string version for debugging purposes.",
 		py::arg("sPrefix"),
@@ -2532,34 +1956,14 @@ PYBIND11_MODULE(h2core, m) {
 	py::class_<H2Core::ADSR, H2Core::Object, std::shared_ptr<H2Core::ADSR>> _ADSR(m, "ADSR");
 	_ADSR.def(py::init<unsigned int, unsigned int, float, unsigned int>());
 	_ADSR.def(py::init<const std::shared_ptr<ADSR>>());
+	_ADSR.def_property("attack", &H2Core::ADSR::get_attack, &H2Core::ADSR::set_attack);
+	_ADSR.def_property("decay", &H2Core::ADSR::get_decay, &H2Core::ADSR::set_decay);
+	_ADSR.def_property("sustain", &H2Core::ADSR::get_sustain, &H2Core::ADSR::set_sustain);
+	_ADSR.def_property("release", &H2Core::ADSR::get_release, &H2Core::ADSR::set_release);
 	_ADSR.def_static("class_name", &H2Core::ADSR::class_name);
-	_ADSR.def("set_attack", &H2Core::ADSR::set_attack,
-		"__attack setter",
-		py::arg("value"));
-	_ADSR.def("get_attack", &H2Core::ADSR::get_attack,
-		"__attack accessor");
-	_ADSR.def("set_decay", &H2Core::ADSR::set_decay,
-		"__decay setter",
-		py::arg("value"));
-	_ADSR.def("get_decay", &H2Core::ADSR::get_decay,
-		"__decay accessor");
-	_ADSR.def("set_sustain", &H2Core::ADSR::set_sustain,
-		"__sustain setter",
-		py::arg("value"));
-	_ADSR.def("get_sustain", &H2Core::ADSR::get_sustain,
-		"__sustain accessor");
-	_ADSR.def("set_release", &H2Core::ADSR::set_release,
-		"__release setter",
-		py::arg("value"));
-	_ADSR.def("get_release", &H2Core::ADSR::get_release,
-		"__release accessor");
-	_ADSR.def("attack", &H2Core::ADSR::attack,
-		"sets state to ATTACK");
 	_ADSR.def("get_value", &H2Core::ADSR::get_value,
 		"compute the value and return it",
 		py::arg("step"));
-	_ADSR.def("release", &H2Core::ADSR::release,
-		"sets state to RELEASE, returns 0 if the state is IDLE, __value if the state is RELEASE, set state to RELEASE, save __release_value and return it.");
 	_ADSR.def("toQString", &H2Core::ADSR::toQString,
 		"Formatted string version for debugging purposes.",
 		py::arg("sPrefix"),
@@ -2568,6 +1972,11 @@ PYBIND11_MODULE(h2core, m) {
 	py::class_<H2Core::DrumkitComponent, H2Core::Object, std::shared_ptr<H2Core::DrumkitComponent>> _DrumkitComponent(m, "DrumkitComponent");
 	_DrumkitComponent.def(py::init<const int, const QString &>());
 	_DrumkitComponent.def(py::init<H2Core::DrumkitComponent *>());
+	_DrumkitComponent.def_property("name", &H2Core::DrumkitComponent::get_name, &H2Core::DrumkitComponent::set_name);
+	_DrumkitComponent.def_property("id", &H2Core::DrumkitComponent::get_id, &H2Core::DrumkitComponent::set_id);
+	_DrumkitComponent.def_property("volume", &H2Core::DrumkitComponent::get_volume, &H2Core::DrumkitComponent::set_volume);
+	_DrumkitComponent.def_property("peak_l", &H2Core::DrumkitComponent::get_peak_l, &H2Core::DrumkitComponent::set_peak_l);
+	_DrumkitComponent.def_property("peak_r", &H2Core::DrumkitComponent::get_peak_r, &H2Core::DrumkitComponent::set_peak_r);
 	_DrumkitComponent.def_static("class_name", &H2Core::DrumkitComponent::class_name);
 	_DrumkitComponent.def("save_to", &H2Core::DrumkitComponent::save_to,
 		py::arg("node"));
@@ -2577,29 +1986,8 @@ PYBIND11_MODULE(h2core, m) {
 	_DrumkitComponent.def("load_from", py::overload_cast<H2Core::DrumkitComponent *, bool>(&H2Core::DrumkitComponent::load_from),
 		py::arg("component"),
 		py::arg("is_live"));
-	_DrumkitComponent.def("set_name", &H2Core::DrumkitComponent::set_name,
-		"Sets the name of the DrumkitComponent #__name.",
-		py::arg("name"));
-	_DrumkitComponent.def("get_name", &H2Core::DrumkitComponent::get_name,
-		"Access the name of the DrumkitComponent.");
-	_DrumkitComponent.def("set_id", &H2Core::DrumkitComponent::set_id,
-		py::arg("id"));
-	_DrumkitComponent.def("get_id", &H2Core::DrumkitComponent::get_id);
-	_DrumkitComponent.def("set_volume", &H2Core::DrumkitComponent::set_volume,
-		py::arg("volume"));
-	_DrumkitComponent.def("get_volume", &H2Core::DrumkitComponent::get_volume);
-	_DrumkitComponent.def("set_muted", &H2Core::DrumkitComponent::set_muted,
-		py::arg("muted"));
 	_DrumkitComponent.def("is_muted", &H2Core::DrumkitComponent::is_muted);
-	_DrumkitComponent.def("set_soloed", &H2Core::DrumkitComponent::set_soloed,
-		py::arg("soloed"));
 	_DrumkitComponent.def("is_soloed", &H2Core::DrumkitComponent::is_soloed);
-	_DrumkitComponent.def("set_peak_l", &H2Core::DrumkitComponent::set_peak_l,
-		py::arg("val"));
-	_DrumkitComponent.def("get_peak_l", &H2Core::DrumkitComponent::get_peak_l);
-	_DrumkitComponent.def("set_peak_r", &H2Core::DrumkitComponent::set_peak_r,
-		py::arg("val"));
-	_DrumkitComponent.def("get_peak_r", &H2Core::DrumkitComponent::get_peak_r);
 	_DrumkitComponent.def("reset_outs", &H2Core::DrumkitComponent::reset_outs,
 		py::arg("nFrames"));
 	_DrumkitComponent.def("set_outs", &H2Core::DrumkitComponent::set_outs,
@@ -2623,6 +2011,15 @@ PYBIND11_MODULE(h2core, m) {
 	py::class_<H2Core::Drumkit, H2Core::Object, std::shared_ptr<H2Core::Drumkit>> _Drumkit(m, "Drumkit");
 	_Drumkit.def(py::init<>());
 	_Drumkit.def(py::init<H2Core::Drumkit *>());
+	_Drumkit.def_property("instruments", &H2Core::Drumkit::get_instruments, &H2Core::Drumkit::set_instruments, py::return_value_policy::reference_internal);
+	_Drumkit.def_property("path", &H2Core::Drumkit::get_path, &H2Core::Drumkit::set_path);
+	_Drumkit.def_property("name", &H2Core::Drumkit::get_name, &H2Core::Drumkit::set_name);
+	_Drumkit.def_property("author", &H2Core::Drumkit::get_author, &H2Core::Drumkit::set_author);
+	_Drumkit.def_property("info", &H2Core::Drumkit::get_info, &H2Core::Drumkit::set_info);
+	_Drumkit.def_property("license", &H2Core::Drumkit::get_license, &H2Core::Drumkit::set_license);
+	_Drumkit.def_property("image", &H2Core::Drumkit::get_image, &H2Core::Drumkit::set_image);
+	_Drumkit.def_property("image_license", &H2Core::Drumkit::get_image_license, &H2Core::Drumkit::set_image_license);
+	_Drumkit.def_property("components", &H2Core::Drumkit::get_components, &H2Core::Drumkit::set_components);
 	_Drumkit.def_static("class_name", &H2Core::Drumkit::class_name);
 	_Drumkit.def_static("load", &H2Core::Drumkit::load,
 		"Load drumkit information from a directory.",
@@ -2686,55 +2083,11 @@ PYBIND11_MODULE(h2core, m) {
 		"remove a drumkit from the disk",
 		py::arg("dk_name"),
 		py::arg("lookup"));
-	_Drumkit.def("set_instruments", &H2Core::Drumkit::set_instruments,
-		"set __instruments, delete existing one",
-		py::arg("instruments"));
-	_Drumkit.def("get_instruments", &H2Core::Drumkit::get_instruments,
-		"returns #__instruments",
-	py::return_value_policy::reference_internal);
-	_Drumkit.def("set_path", &H2Core::Drumkit::set_path,
-		"#__path setter",
-		py::arg("path"));
-	_Drumkit.def("get_path", &H2Core::Drumkit::get_path,
-		"#__path accessor");
-	_Drumkit.def("set_name", &H2Core::Drumkit::set_name,
-		"#__name setter",
-		py::arg("name"));
-	_Drumkit.def("get_name", &H2Core::Drumkit::get_name,
-		"#__name accessor");
-	_Drumkit.def("set_author", &H2Core::Drumkit::set_author,
-		"#__author setter",
-		py::arg("author"));
-	_Drumkit.def("get_author", &H2Core::Drumkit::get_author,
-		"#__author accessor");
-	_Drumkit.def("set_info", &H2Core::Drumkit::set_info,
-		"#__info setter",
-		py::arg("info"));
-	_Drumkit.def("get_info", &H2Core::Drumkit::get_info,
-		"#__info accessor");
-	_Drumkit.def("set_license", &H2Core::Drumkit::set_license,
-		"#__license setter",
-		py::arg("license"));
-	_Drumkit.def("get_license", &H2Core::Drumkit::get_license,
-		"#__license accessor");
-	_Drumkit.def("set_image", &H2Core::Drumkit::set_image,
-		"#__image setter",
-		py::arg("image"));
-	_Drumkit.def("get_image", &H2Core::Drumkit::get_image,
-		"#__image accessor");
-	_Drumkit.def("set_image_license", &H2Core::Drumkit::set_image_license,
-		"#__imageLicense setter",
-		py::arg("imageLicense"));
-	_Drumkit.def("get_image_license", &H2Core::Drumkit::get_image_license,
-		"#__imageLicense accessor");
 	_Drumkit.def("samples_loaded", &H2Core::Drumkit::samples_loaded,
 		"return true if the samples are loaded");
 	_Drumkit.def("dump", &H2Core::Drumkit::dump);
 	_Drumkit.def("isUserDrumkit", &H2Core::Drumkit::isUserDrumkit,
 		"Returns Whether the associated files are located in the user or the systems drumkit folder.");
-	_Drumkit.def("get_components", &H2Core::Drumkit::get_components);
-	_Drumkit.def("set_components", &H2Core::Drumkit::set_components,
-		py::arg("components"));
 	_Drumkit.def("toQString", &H2Core::Drumkit::toQString,
 		"Formatted string version for debugging purposes.",
 		py::arg("sPrefix"),
@@ -2814,7 +2167,7 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum log_levels
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Logger.h', line 44, column 8>
-	py::enum_<H2Core::Logger::log_levels>(_Logger, "log_levels")
+	py::enum_<H2Core::Logger::log_levels>(_Logger, "log_levels", py::arithmetic())
 		.value("None", H2Core::Logger::log_levels::None)
 		.value("Error", H2Core::Logger::log_levels::Error)
 		.value("Warning", H2Core::Logger::log_levels::Warning)
@@ -2825,7 +2178,7 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum MidiMessageType
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/IO/MidiCommon.h', line 37, column 7>
-	py::enum_<H2Core::MidiMessage::MidiMessageType>(_MidiMessage, "MidiMessageType")
+	py::enum_<H2Core::MidiMessage::MidiMessageType>(_MidiMessage, "MidiMessageType", py::arithmetic())
 		.value("UNKNOWN", H2Core::MidiMessage::MidiMessageType::UNKNOWN)
 		.value("SYSEX", H2Core::MidiMessage::MidiMessageType::SYSEX)
 		.value("NOTE_ON", H2Core::MidiMessage::MidiMessageType::NOTE_ON)
@@ -2919,13 +2272,13 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum NameFormat
 	// <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtGui/qcolor.h', line 68, column 10>
-	py::enum_<QColor::NameFormat>(_QColor, "NameFormat")
+	py::enum_<QColor::NameFormat>(_QColor, "NameFormat", py::arithmetic())
 		.value("HexRgb", QColor::NameFormat::HexRgb)
 		.value("HexArgb", QColor::NameFormat::HexArgb);
 
 	// enum Spec
 	// <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtGui/qcolor.h', line 67, column 10>
-	py::enum_<QColor::Spec>(_QColor, "Spec")
+	py::enum_<QColor::Spec>(_QColor, "Spec", py::arithmetic())
 		.value("Invalid", QColor::Spec::Invalid)
 		.value("Rgb", QColor::Spec::Rgb)
 		.value("Hsv", QColor::Spec::Hsv)
@@ -2935,7 +2288,7 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum Octave
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Note.h', line 75, column 8>
-	py::enum_<H2Core::Note::Octave>(_Note, "Octave")
+	py::enum_<H2Core::Note::Octave>(_Note, "Octave", py::arithmetic())
 		.value("P8Z", H2Core::Note::Octave::P8Z)
 		.value("P8Y", H2Core::Note::Octave::P8Y)
 		.value("P8X", H2Core::Note::Octave::P8X)
@@ -2946,7 +2299,7 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum Key
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Note.h', line 73, column 8>
-	py::enum_<H2Core::Note::Key>(_Note, "Key")
+	py::enum_<H2Core::Note::Key>(_Note, "Key", py::arithmetic())
 		.value("C", H2Core::Note::Key::C)
 		.value("Cs", H2Core::Note::Key::Cs)
 		.value("D", H2Core::Note::Key::D)
@@ -2962,7 +2315,7 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum PAN_LAW_TYPES
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Sampler/Sampler.h', line 104, column 7>
-	py::enum_<H2Core::Sampler::PAN_LAW_TYPES>(_Sampler, "PAN_LAW_TYPES")
+	py::enum_<H2Core::Sampler::PAN_LAW_TYPES>(_Sampler, "PAN_LAW_TYPES", py::arithmetic())
 		.value("RATIO_STRAIGHT_POLYGONAL", H2Core::Sampler::PAN_LAW_TYPES::RATIO_STRAIGHT_POLYGONAL)
 		.value("RATIO_CONST_POWER", H2Core::Sampler::PAN_LAW_TYPES::RATIO_CONST_POWER)
 		.value("RATIO_CONST_SUM", H2Core::Sampler::PAN_LAW_TYPES::RATIO_CONST_SUM)
@@ -2985,11 +2338,11 @@ PYBIND11_MODULE(h2core, m) {
 	_PortMidiDriver.def_readwrite("m_pMidiIn", &H2Core::PortMidiDriver::m_pMidiIn);
 	_PortMidiDriver.def_readwrite("m_pMidiOut", &H2Core::PortMidiDriver::m_pMidiOut);
 	_PortMidiDriver.def_readwrite("m_bRunning", &H2Core::PortMidiDriver::m_bRunning);
+	_PortMidiDriver.def_property_readonly("input_port_list", &H2Core::PortMidiDriver::getInputPortList);
+	_PortMidiDriver.def_property_readonly("output_port_list", &H2Core::PortMidiDriver::getOutputPortList);
 	_PortMidiDriver.def_static("class_name", &H2Core::PortMidiDriver::class_name);
 	_PortMidiDriver.def("open", &H2Core::PortMidiDriver::open);
 	_PortMidiDriver.def("close", &H2Core::PortMidiDriver::close);
-	_PortMidiDriver.def("getInputPortList", &H2Core::PortMidiDriver::getInputPortList);
-	_PortMidiDriver.def("getOutputPortList", &H2Core::PortMidiDriver::getOutputPortList);
 	_PortMidiDriver.def("handleQueueNote", &H2Core::PortMidiDriver::handleQueueNote,
 		py::arg("pNote"));
 	_PortMidiDriver.def("handleQueueNoteOff", &H2Core::PortMidiDriver::handleQueueNoteOff,
@@ -3004,11 +2357,11 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::JackMidiDriver, std::shared_ptr<H2Core::JackMidiDriver>> _JackMidiDriver(m, "JackMidiDriver");
 	_JackMidiDriver.def(py::init<>());
+	_JackMidiDriver.def_property_readonly("input_port_list", &H2Core::JackMidiDriver::getInputPortList);
+	_JackMidiDriver.def_property_readonly("output_port_list", &H2Core::JackMidiDriver::getOutputPortList);
 	_JackMidiDriver.def_static("class_name", &H2Core::JackMidiDriver::class_name);
 	_JackMidiDriver.def("open", &H2Core::JackMidiDriver::open);
 	_JackMidiDriver.def("close", &H2Core::JackMidiDriver::close);
-	_JackMidiDriver.def("getInputPortList", &H2Core::JackMidiDriver::getInputPortList);
-	_JackMidiDriver.def("getOutputPortList", &H2Core::JackMidiDriver::getOutputPortList);
 	_JackMidiDriver.def("getPortInfo", &H2Core::JackMidiDriver::getPortInfo,
 		py::arg("sPortName"),
 		py::arg("nClient"),
@@ -3031,11 +2384,11 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::AlsaMidiDriver, std::shared_ptr<H2Core::AlsaMidiDriver>> _AlsaMidiDriver(m, "AlsaMidiDriver");
 	_AlsaMidiDriver.def(py::init<>());
+	_AlsaMidiDriver.def_property_readonly("input_port_list", &H2Core::AlsaMidiDriver::getInputPortList);
+	_AlsaMidiDriver.def_property_readonly("output_port_list", &H2Core::AlsaMidiDriver::getOutputPortList);
 	_AlsaMidiDriver.def_static("class_name", &H2Core::AlsaMidiDriver::class_name);
 	_AlsaMidiDriver.def("open", &H2Core::AlsaMidiDriver::open);
 	_AlsaMidiDriver.def("close", &H2Core::AlsaMidiDriver::close);
-	_AlsaMidiDriver.def("getInputPortList", &H2Core::AlsaMidiDriver::getInputPortList);
-	_AlsaMidiDriver.def("getOutputPortList", &H2Core::AlsaMidiDriver::getOutputPortList);
 	// [banned] _AlsaMidiDriver.def("midi_action", &H2Core::AlsaMidiDriver::midi_action,
 	// [banned] 	py::arg("seq_handle"));
 	_AlsaMidiDriver.def("getPortInfo", &H2Core::AlsaMidiDriver::getPortInfo,
@@ -3059,13 +2412,13 @@ PYBIND11_MODULE(h2core, m) {
 	_PortAudioDriver.def_readwrite("m_pOut_L", &H2Core::PortAudioDriver::m_pOut_L);
 	_PortAudioDriver.def_readwrite("m_pOut_R", &H2Core::PortAudioDriver::m_pOut_R);
 	_PortAudioDriver.def_readwrite("m_nBufferSize", &H2Core::PortAudioDriver::m_nBufferSize);
+	_PortAudioDriver.def_property_readonly("buffer_size", &H2Core::PortAudioDriver::getBufferSize);
+	_PortAudioDriver.def_property_readonly("sample_rate", &H2Core::PortAudioDriver::getSampleRate);
 	_PortAudioDriver.def_static("class_name", &H2Core::PortAudioDriver::class_name);
 	_PortAudioDriver.def("init", &H2Core::PortAudioDriver::init,
 		py::arg("nBufferSize"));
 	_PortAudioDriver.def("connect", &H2Core::PortAudioDriver::connect);
 	_PortAudioDriver.def("disconnect", &H2Core::PortAudioDriver::disconnect);
-	_PortAudioDriver.def("getBufferSize", &H2Core::PortAudioDriver::getBufferSize);
-	_PortAudioDriver.def("getSampleRate", &H2Core::PortAudioDriver::getSampleRate);
 	_PortAudioDriver.def("getOut_L", &H2Core::PortAudioDriver::getOut_L);
 	_PortAudioDriver.def("getOut_R", &H2Core::PortAudioDriver::getOut_R);
 	_PortAudioDriver.def("updateTransportInfo", &H2Core::PortAudioDriver::updateTransportInfo);
@@ -3073,18 +2426,16 @@ PYBIND11_MODULE(h2core, m) {
 	_PortAudioDriver.def("stop", &H2Core::PortAudioDriver::stop);
 	_PortAudioDriver.def("locate", &H2Core::PortAudioDriver::locate,
 		py::arg("nFrame"));
-	_PortAudioDriver.def("setBpm", &H2Core::PortAudioDriver::setBpm,
-		py::arg("fBPM"));
 
 	py::class_<H2Core::NullDriver, std::shared_ptr<H2Core::NullDriver>> _NullDriver(m, "NullDriver");
 	_NullDriver.def(py::init<H2Core::audioProcessCallback>());
+	_NullDriver.def_property_readonly("buffer_size", &H2Core::NullDriver::getBufferSize);
+	_NullDriver.def_property_readonly("sample_rate", &H2Core::NullDriver::getSampleRate);
 	_NullDriver.def_static("class_name", &H2Core::NullDriver::class_name);
 	_NullDriver.def("init", &H2Core::NullDriver::init,
 		py::arg("nBufferSize"));
 	_NullDriver.def("connect", &H2Core::NullDriver::connect);
 	_NullDriver.def("disconnect", &H2Core::NullDriver::disconnect);
-	_NullDriver.def("getBufferSize", &H2Core::NullDriver::getBufferSize);
-	_NullDriver.def("getSampleRate", &H2Core::NullDriver::getSampleRate);
 	_NullDriver.def("getOut_L", &H2Core::NullDriver::getOut_L);
 	_NullDriver.def("getOut_R", &H2Core::NullDriver::getOut_R);
 	_NullDriver.def("play", &H2Core::NullDriver::play);
@@ -3092,12 +2443,14 @@ PYBIND11_MODULE(h2core, m) {
 	_NullDriver.def("locate", &H2Core::NullDriver::locate,
 		py::arg("nFrame"));
 	_NullDriver.def("updateTransportInfo", &H2Core::NullDriver::updateTransportInfo);
-	_NullDriver.def("setBpm", &H2Core::NullDriver::setBpm,
-		py::arg("fBPM"));
 
 	py::class_<H2Core::JackAudioDriver, std::shared_ptr<H2Core::JackAudioDriver>> _JackAudioDriver(m, "JackAudioDriver");
 	_JackAudioDriver.def(py::init<JackProcessCallback>());
 	_JackAudioDriver.def_readwrite("m_currentPos", &H2Core::JackAudioDriver::m_currentPos);
+	_JackAudioDriver.def_property_readonly("buffer_size", &H2Core::JackAudioDriver::getBufferSize);
+	_JackAudioDriver.def_property_readonly("sample_rate", &H2Core::JackAudioDriver::getSampleRate);
+	_JackAudioDriver.def_property("connect_defaults", &H2Core::JackAudioDriver::getConnectDefaults, &H2Core::JackAudioDriver::setConnectDefaults);
+	_JackAudioDriver.def_property_readonly("timebase_state", &H2Core::JackAudioDriver::getTimebaseState);
 	_JackAudioDriver.def_static("class_name", &H2Core::JackAudioDriver::class_name);
 	_JackAudioDriver.def("connect", &H2Core::JackAudioDriver::connect,
 		"Connects to output ports via the JACK server.");
@@ -3105,20 +2458,12 @@ PYBIND11_MODULE(h2core, m) {
 		"Disconnects the JACK client of the Hydrogen from the JACK server.");
 	_JackAudioDriver.def("deactivate", &H2Core::JackAudioDriver::deactivate,
 		"Deactivates the JACK client of Hydrogen and disconnects all ports belonging to it.");
-	_JackAudioDriver.def("getBufferSize", &H2Core::JackAudioDriver::getBufferSize,
-		"Returns Global variable #jackServerBufferSize.");
-	_JackAudioDriver.def("getSampleRate", &H2Core::JackAudioDriver::getSampleRate,
-		"Returns Global variable #jackServerSampleRate.");
 	_JackAudioDriver.def("clearPerTrackAudioBuffers", &H2Core::JackAudioDriver::clearPerTrackAudioBuffers,
 		"Resets the buffers contained in #m_pTrackOutputPortsL and #m_pTrackOutputPortsR.",
 		py::arg("nFrames"));
 	_JackAudioDriver.def("makeTrackOutputs", &H2Core::JackAudioDriver::makeTrackOutputs,
 		"Creates per component output ports for each instrument.",
 		py::arg("pSong"));
-	_JackAudioDriver.def("setConnectDefaults", &H2Core::JackAudioDriver::setConnectDefaults,
-		py::arg("flag"));
-	_JackAudioDriver.def("getConnectDefaults", &H2Core::JackAudioDriver::getConnectDefaults,
-		"Returns #m_bConnectDefaults");
 	_JackAudioDriver.def("getOut_L", &H2Core::JackAudioDriver::getOut_L,
 		"Get content in the left stereo output port.");
 	_JackAudioDriver.def("getOut_R", &H2Core::JackAudioDriver::getOut_R,
@@ -3149,9 +2494,6 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("nFrame"));
 	_JackAudioDriver.def("updateTransportInfo", &H2Core::JackAudioDriver::updateTransportInfo,
 		"Updating the local instance of the TransportInfo AudioOutput::m_transport.");
-	_JackAudioDriver.def("setBpm", &H2Core::JackAudioDriver::setBpm,
-		"Set the tempo stored TransportInfo::m_fBPM of the local instance of the TransportInfo AudioOutput::m_transport.",
-		py::arg("fBPM"));
 	_JackAudioDriver.def("calculateFrameOffset", &H2Core::JackAudioDriver::calculateFrameOffset,
 		"Calculates the difference between the true transport position and the internal one.",
 		py::arg("oldFrame"));
@@ -3159,8 +2501,6 @@ PYBIND11_MODULE(h2core, m) {
 		"Registers Hydrogen as JACK timebase master.");
 	_JackAudioDriver.def("releaseTimebaseMaster", &H2Core::JackAudioDriver::releaseTimebaseMaster,
 		"Calls _jack_release_timebase()_ (jack/transport.h) to release Hydrogen from the JACK timebase master responsibilities. This causes the JackTimebaseCallback() callback function to not be called by the JACK server anymore.");
-	_JackAudioDriver.def("getTimebaseState", &H2Core::JackAudioDriver::getTimebaseState,
-		"Returns #m_timebaseState");
 	_JackAudioDriver.def_static("jackDriverSampleRate", &H2Core::JackAudioDriver::jackDriverSampleRate,
 		"Callback function for the JACK audio server to set the sample rate #jackServerSampleRate and prints a message to the #__INFOLOG, which has to be included via a Logger instance in the provided param.",
 		py::arg("nframes"),
@@ -3172,13 +2512,13 @@ PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::FakeDriver, std::shared_ptr<H2Core::FakeDriver>> _FakeDriver(m, "FakeDriver");
 	_FakeDriver.def(py::init<H2Core::audioProcessCallback>());
+	_FakeDriver.def_property_readonly("buffer_size", &H2Core::FakeDriver::getBufferSize);
+	_FakeDriver.def_property_readonly("sample_rate", &H2Core::FakeDriver::getSampleRate);
 	_FakeDriver.def_static("class_name", &H2Core::FakeDriver::class_name);
 	_FakeDriver.def("init", &H2Core::FakeDriver::init,
 		py::arg("nBufferSize"));
 	_FakeDriver.def("connect", &H2Core::FakeDriver::connect);
 	_FakeDriver.def("disconnect", &H2Core::FakeDriver::disconnect);
-	_FakeDriver.def("getBufferSize", &H2Core::FakeDriver::getBufferSize);
-	_FakeDriver.def("getSampleRate", &H2Core::FakeDriver::getSampleRate);
 	_FakeDriver.def("getOut_L", &H2Core::FakeDriver::getOut_L);
 	_FakeDriver.def("getOut_R", &H2Core::FakeDriver::getOut_R);
 	_FakeDriver.def("play", &H2Core::FakeDriver::play);
@@ -3186,8 +2526,6 @@ PYBIND11_MODULE(h2core, m) {
 	_FakeDriver.def("locate", &H2Core::FakeDriver::locate,
 		py::arg("nFrame"));
 	_FakeDriver.def("updateTransportInfo", &H2Core::FakeDriver::updateTransportInfo);
-	_FakeDriver.def("setBpm", &H2Core::FakeDriver::setBpm,
-		py::arg("fBPM"));
 
 	py::class_<H2Core::DiskWriterDriver, std::shared_ptr<H2Core::DiskWriterDriver>> _DiskWriterDriver(m, "DiskWriterDriver");
 	_DiskWriterDriver.def(py::init<H2Core::audioProcessCallback, unsigned int, int>());
@@ -3197,6 +2535,8 @@ PYBIND11_MODULE(h2core, m) {
 	_DiskWriterDriver.def_readwrite("m_nSampleDepth", &H2Core::DiskWriterDriver::m_nSampleDepth);
 	_DiskWriterDriver.def_readwrite("m_pOut_L", &H2Core::DiskWriterDriver::m_pOut_L);
 	_DiskWriterDriver.def_readwrite("m_pOut_R", &H2Core::DiskWriterDriver::m_pOut_R);
+	_DiskWriterDriver.def_property_readonly("buffer_size", &H2Core::DiskWriterDriver::getBufferSize);
+	_DiskWriterDriver.def_property_readonly("sample_rate", &H2Core::DiskWriterDriver::getSampleRate);
 	_DiskWriterDriver.def_static("class_name", &H2Core::DiskWriterDriver::class_name);
 	_DiskWriterDriver.def("init", &H2Core::DiskWriterDriver::init,
 		py::arg("nBufferSize"));
@@ -3207,19 +2547,13 @@ PYBIND11_MODULE(h2core, m) {
 	// [banned] 	py::arg("buffer_R"),
 	// [banned] 	py::arg("bufferSize"));
 	_DiskWriterDriver.def("audioEngine_process_checkBPMChanged", &H2Core::DiskWriterDriver::audioEngine_process_checkBPMChanged);
-	_DiskWriterDriver.def("getBufferSize", &H2Core::DiskWriterDriver::getBufferSize);
-	_DiskWriterDriver.def("getSampleRate", &H2Core::DiskWriterDriver::getSampleRate);
 	_DiskWriterDriver.def("getOut_L", &H2Core::DiskWriterDriver::getOut_L);
 	_DiskWriterDriver.def("getOut_R", &H2Core::DiskWriterDriver::getOut_R);
-	_DiskWriterDriver.def("setFileName", &H2Core::DiskWriterDriver::setFileName,
-		py::arg("sFilename"));
 	_DiskWriterDriver.def("play", &H2Core::DiskWriterDriver::play);
 	_DiskWriterDriver.def("stop", &H2Core::DiskWriterDriver::stop);
 	_DiskWriterDriver.def("locate", &H2Core::DiskWriterDriver::locate,
 		py::arg("nFrame"));
 	_DiskWriterDriver.def("updateTransportInfo", &H2Core::DiskWriterDriver::updateTransportInfo);
-	_DiskWriterDriver.def("setBpm", &H2Core::DiskWriterDriver::setBpm,
-		py::arg("fBPM"));
 
 	py::class_<H2Core::AlsaAudioDriver, std::shared_ptr<H2Core::AlsaAudioDriver>> _AlsaAudioDriver(m, "AlsaAudioDriver");
 	_AlsaAudioDriver.def(py::init<H2Core::audioProcessCallback>());
@@ -3229,13 +2563,13 @@ PYBIND11_MODULE(h2core, m) {
 	_AlsaAudioDriver.def_readwrite("m_pOut_R", &H2Core::AlsaAudioDriver::m_pOut_R);
 	_AlsaAudioDriver.def_readwrite("m_nXRuns", &H2Core::AlsaAudioDriver::m_nXRuns);
 	_AlsaAudioDriver.def_readwrite("m_sAlsaAudioDevice", &H2Core::AlsaAudioDriver::m_sAlsaAudioDevice);
+	_AlsaAudioDriver.def_property_readonly("buffer_size", &H2Core::AlsaAudioDriver::getBufferSize);
+	_AlsaAudioDriver.def_property_readonly("sample_rate", &H2Core::AlsaAudioDriver::getSampleRate);
 	_AlsaAudioDriver.def_static("class_name", &H2Core::AlsaAudioDriver::class_name);
 	_AlsaAudioDriver.def("init", &H2Core::AlsaAudioDriver::init,
 		py::arg("nBufferSize"));
 	_AlsaAudioDriver.def("connect", &H2Core::AlsaAudioDriver::connect);
 	_AlsaAudioDriver.def("disconnect", &H2Core::AlsaAudioDriver::disconnect);
-	_AlsaAudioDriver.def("getBufferSize", &H2Core::AlsaAudioDriver::getBufferSize);
-	_AlsaAudioDriver.def("getSampleRate", &H2Core::AlsaAudioDriver::getSampleRate);
 	_AlsaAudioDriver.def("getOut_L", &H2Core::AlsaAudioDriver::getOut_L);
 	_AlsaAudioDriver.def("getOut_R", &H2Core::AlsaAudioDriver::getOut_R);
 	_AlsaAudioDriver.def("updateTransportInfo", &H2Core::AlsaAudioDriver::updateTransportInfo);
@@ -3243,8 +2577,6 @@ PYBIND11_MODULE(h2core, m) {
 	_AlsaAudioDriver.def("stop", &H2Core::AlsaAudioDriver::stop);
 	_AlsaAudioDriver.def("locate", &H2Core::AlsaAudioDriver::locate,
 		py::arg("nFrame"));
-	_AlsaAudioDriver.def("setBpm", &H2Core::AlsaAudioDriver::setBpm,
-		py::arg("fBPM"));
 
 	py::class_<H2Core::Timeline::Tag, std::shared_ptr<H2Core::Timeline::Tag>> _Tag(m, "Tag");
 	_Tag.def_readwrite("nBar", &H2Core::Timeline::Tag::nBar);
@@ -3269,7 +2601,7 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum ErrorMessages
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Hydrogen.h', line 362, column 7>
-	py::enum_<H2Core::Hydrogen::ErrorMessages>(_Hydrogen, "ErrorMessages")
+	py::enum_<H2Core::Hydrogen::ErrorMessages>(_Hydrogen, "ErrorMessages", py::arithmetic())
 		.value("UNKNOWN_DRIVER", H2Core::Hydrogen::ErrorMessages::UNKNOWN_DRIVER)
 		.value("ERROR_STARTING_DRIVER", H2Core::Hydrogen::ErrorMessages::ERROR_STARTING_DRIVER)
 		.value("JACK_SERVER_SHUTDOWN", H2Core::Hydrogen::ErrorMessages::JACK_SERVER_SHUTDOWN)
@@ -3281,21 +2613,21 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum GUIState
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Hydrogen.h', line 583, column 14>
-	py::enum_<H2Core::Hydrogen::GUIState>(_Hydrogen, "GUIState")
+	py::enum_<H2Core::Hydrogen::GUIState>(_Hydrogen, "GUIState", py::arithmetic())
 		.value("notReady", H2Core::Hydrogen::GUIState::notReady)
 		.value("unavailable", H2Core::Hydrogen::GUIState::unavailable)
 		.value("ready", H2Core::Hydrogen::GUIState::ready);
 
 	// enum Lookup
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Helpers/Filesystem.h', line 52, column 13>
-	py::enum_<H2Core::Filesystem::Lookup>(_Filesystem, "Lookup")
+	py::enum_<H2Core::Filesystem::Lookup>(_Filesystem, "Lookup", py::arithmetic())
 		.value("stacked", H2Core::Filesystem::Lookup::stacked)
 		.value("user", H2Core::Filesystem::Lookup::user)
 		.value("system", H2Core::Filesystem::Lookup::system);
 
 	// enum file_perms
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Helpers/Filesystem.h', line 40, column 8>
-	py::enum_<H2Core::Filesystem::file_perms>(_Filesystem, "file_perms")
+	py::enum_<H2Core::Filesystem::file_perms>(_Filesystem, "file_perms", py::arithmetic())
 		.value("is_dir", H2Core::Filesystem::file_perms::is_dir)
 		.value("is_file", H2Core::Filesystem::file_perms::is_file)
 		.value("is_readable", H2Core::Filesystem::file_perms::is_readable)
@@ -3304,13 +2636,13 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum ActionMode
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Song.h', line 189, column 14>
-	py::enum_<H2Core::Song::ActionMode>(_Song, "ActionMode")
+	py::enum_<H2Core::Song::ActionMode>(_Song, "ActionMode", py::arithmetic())
 		.value("selectMode", H2Core::Song::ActionMode::selectMode)
 		.value("drawMode", H2Core::Song::ActionMode::drawMode);
 
 	// enum SongMode
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Song.h', line 59, column 8>
-	py::enum_<H2Core::Song::SongMode>(_Song, "SongMode")
+	py::enum_<H2Core::Song::SongMode>(_Song, "SongMode", py::arithmetic())
 		.value("PATTERN_MODE", H2Core::Song::SongMode::PATTERN_MODE)
 		.value("SONG_MODE", H2Core::Song::SongMode::SONG_MODE);
 
@@ -3322,33 +2654,33 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum UI_SCALING_POLICY
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 161, column 7>
-	py::enum_<H2Core::Preferences::UI_SCALING_POLICY>(_Preferences, "UI_SCALING_POLICY")
+	py::enum_<H2Core::Preferences::UI_SCALING_POLICY>(_Preferences, "UI_SCALING_POLICY", py::arithmetic())
 		.value("UI_SCALING_SMALLER", H2Core::Preferences::UI_SCALING_POLICY::UI_SCALING_SMALLER)
 		.value("UI_SCALING_SYSTEM", H2Core::Preferences::UI_SCALING_POLICY::UI_SCALING_SYSTEM)
 		.value("UI_SCALING_LARGER", H2Core::Preferences::UI_SCALING_POLICY::UI_SCALING_LARGER);
 
 	// enum UI_LAYOUT_TYPES
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 156, column 7>
-	py::enum_<H2Core::Preferences::UI_LAYOUT_TYPES>(_Preferences, "UI_LAYOUT_TYPES")
+	py::enum_<H2Core::Preferences::UI_LAYOUT_TYPES>(_Preferences, "UI_LAYOUT_TYPES", py::arithmetic())
 		.value("UI_LAYOUT_SINGLE_PANE", H2Core::Preferences::UI_LAYOUT_TYPES::UI_LAYOUT_SINGLE_PANE)
 		.value("UI_LAYOUT_TABBED", H2Core::Preferences::UI_LAYOUT_TYPES::UI_LAYOUT_TABBED);
 
 	// enum FontSize
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 149, column 13>
-	py::enum_<H2Core::Preferences::FontSize>(_Preferences, "FontSize")
+	py::enum_<H2Core::Preferences::FontSize>(_Preferences, "FontSize", py::arithmetic())
 		.value("Normal", H2Core::Preferences::FontSize::Normal)
 		.value("Small", H2Core::Preferences::FontSize::Small)
 		.value("Large", H2Core::Preferences::FontSize::Large);
 
 	// enum JackBBTSyncMethod
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 356, column 13>
-	py::enum_<H2Core::Preferences::JackBBTSyncMethod>(_Preferences, "JackBBTSyncMethod")
+	py::enum_<H2Core::Preferences::JackBBTSyncMethod>(_Preferences, "JackBBTSyncMethod", py::arithmetic())
 		.value("constMeasure", H2Core::Preferences::JackBBTSyncMethod::constMeasure)
 		.value("identicalBars", H2Core::Preferences::JackBBTSyncMethod::identicalBars);
 
 	// enum JackTrackOutputMode
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 330, column 13>
-	py::enum_<H2Core::Preferences::JackTrackOutputMode>(_Preferences, "JackTrackOutputMode")
+	py::enum_<H2Core::Preferences::JackTrackOutputMode>(_Preferences, "JackTrackOutputMode", py::arithmetic())
 		.value("postFader", H2Core::Preferences::JackTrackOutputMode::postFader)
 		.value("preFader", H2Core::Preferences::JackTrackOutputMode::preFader);
 
@@ -3383,21 +2715,21 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum SampleSelectionAlgo
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Instrument.h', line 56, column 8>
-	py::enum_<H2Core::Instrument::SampleSelectionAlgo>(_Instrument, "SampleSelectionAlgo")
+	py::enum_<H2Core::Instrument::SampleSelectionAlgo>(_Instrument, "SampleSelectionAlgo", py::arithmetic())
 		.value("VELOCITY", H2Core::Instrument::SampleSelectionAlgo::VELOCITY)
 		.value("ROUND_ROBIN", H2Core::Instrument::SampleSelectionAlgo::ROUND_ROBIN)
 		.value("RANDOM", H2Core::Instrument::SampleSelectionAlgo::RANDOM);
 
 	// enum Timebase
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/IO/JackAudioDriver.h', line 122, column 13>
-	py::enum_<H2Core::JackAudioDriver::Timebase>(_JackAudioDriver, "Timebase")
+	py::enum_<H2Core::JackAudioDriver::Timebase>(_JackAudioDriver, "Timebase", py::arithmetic())
 		.value("Master", H2Core::JackAudioDriver::Timebase::Master)
 		.value("Slave", H2Core::JackAudioDriver::Timebase::Slave)
 		.value("None", H2Core::JackAudioDriver::Timebase::None);
 
 	// enum LoopMode
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Sample.h', line 79, column 10>
-	py::enum_<H2Core::Sample::Loops::LoopMode>(_Loops, "LoopMode")
+	py::enum_<H2Core::Sample::Loops::LoopMode>(_Loops, "LoopMode", py::arithmetic())
 		.value("FORWARD", H2Core::Sample::Loops::LoopMode::FORWARD)
 		.value("REVERSE", H2Core::Sample::Loops::LoopMode::REVERSE)
 		.value("PINGPONG", H2Core::Sample::Loops::LoopMode::PINGPONG);
