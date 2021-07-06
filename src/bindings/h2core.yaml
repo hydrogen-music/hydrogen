@@ -157,8 +157,7 @@ module:
     - name: H2Core::Sample::get_data_l()
       code: |
         [](const H2Core::Sample & sample) {
-
-            size_t nframes = sample.get_frames();
+            size_t nframes = sample.is_empty() ? 0 : sample.get_frames();
             auto result = py::array_t<float>(nframes);
             py::buffer_info buf = result.request();
             float *ptr = static_cast<float *>(buf.ptr);
@@ -171,8 +170,7 @@ module:
     - name: H2Core::Sample::get_data_r()
       code: |
         [](const H2Core::Sample & sample) {
-
-            size_t nframes = sample.get_frames();
+            size_t nframes = sample.is_empty() ? 0 : sample.get_frames();
             auto result = py::array_t<float>(nframes);
             py::buffer_info buf = result.request();
             float *ptr = static_cast<float *>(buf.ptr);
