@@ -2174,7 +2174,8 @@ PYBIND11_MODULE(h2core, m) {
 		.value("Info", H2Core::Logger::log_levels::Info)
 		.value("Debug", H2Core::Logger::log_levels::Debug)
 		.value("Constructors", H2Core::Logger::log_levels::Constructors)
-		.value("AELockTracing", H2Core::Logger::log_levels::AELockTracing);
+		.value("AELockTracing", H2Core::Logger::log_levels::AELockTracing)
+		.export_values();
 
 	// enum MidiMessageType
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/IO/MidiCommon.h', line 37, column 7>
