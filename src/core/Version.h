@@ -35,8 +35,9 @@ std::string get_version();
  */
 bool version_older_than( int major, int minor, int patch );
 
+};
+
 #endif // H2C_VERSION
 
-};
 
 /* vim: set softtabstop=4 noexpandtab: */
