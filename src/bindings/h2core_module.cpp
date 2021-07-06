@@ -2179,7 +2179,7 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum MidiMessageType
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/IO/MidiCommon.h', line 37, column 7>
-	py::enum_<H2Core::MidiMessage::MidiMessageType>(_MidiMessage, "MidiMessageType", py::arithmetic())
+	py::enum_<H2Core::MidiMessage::MidiMessageType>(_MidiMessage, "MidiMessageType")
 		.value("UNKNOWN", H2Core::MidiMessage::MidiMessageType::UNKNOWN)
 		.value("SYSEX", H2Core::MidiMessage::MidiMessageType::SYSEX)
 		.value("NOTE_ON", H2Core::MidiMessage::MidiMessageType::NOTE_ON)
@@ -2273,13 +2273,13 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum NameFormat
 	// <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtGui/qcolor.h', line 68, column 10>
-	py::enum_<QColor::NameFormat>(_QColor, "NameFormat", py::arithmetic())
+	py::enum_<QColor::NameFormat>(_QColor, "NameFormat")
 		.value("HexRgb", QColor::NameFormat::HexRgb)
 		.value("HexArgb", QColor::NameFormat::HexArgb);
 
 	// enum Spec
 	// <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtGui/qcolor.h', line 67, column 10>
-	py::enum_<QColor::Spec>(_QColor, "Spec", py::arithmetic())
+	py::enum_<QColor::Spec>(_QColor, "Spec")
 		.value("Invalid", QColor::Spec::Invalid)
 		.value("Rgb", QColor::Spec::Rgb)
 		.value("Hsv", QColor::Spec::Hsv)
@@ -2289,7 +2289,7 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum Octave
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Note.h', line 75, column 8>
-	py::enum_<H2Core::Note::Octave>(_Note, "Octave", py::arithmetic())
+	py::enum_<H2Core::Note::Octave>(_Note, "Octave")
 		.value("P8Z", H2Core::Note::Octave::P8Z)
 		.value("P8Y", H2Core::Note::Octave::P8Y)
 		.value("P8X", H2Core::Note::Octave::P8X)
@@ -2300,7 +2300,7 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum Key
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Note.h', line 73, column 8>
-	py::enum_<H2Core::Note::Key>(_Note, "Key", py::arithmetic())
+	py::enum_<H2Core::Note::Key>(_Note, "Key")
 		.value("C", H2Core::Note::Key::C)
 		.value("Cs", H2Core::Note::Key::Cs)
 		.value("D", H2Core::Note::Key::D)
@@ -2316,7 +2316,7 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum PAN_LAW_TYPES
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Sampler/Sampler.h', line 104, column 7>
-	py::enum_<H2Core::Sampler::PAN_LAW_TYPES>(_Sampler, "PAN_LAW_TYPES", py::arithmetic())
+	py::enum_<H2Core::Sampler::PAN_LAW_TYPES>(_Sampler, "PAN_LAW_TYPES")
 		.value("RATIO_STRAIGHT_POLYGONAL", H2Core::Sampler::PAN_LAW_TYPES::RATIO_STRAIGHT_POLYGONAL)
 		.value("RATIO_CONST_POWER", H2Core::Sampler::PAN_LAW_TYPES::RATIO_CONST_POWER)
 		.value("RATIO_CONST_SUM", H2Core::Sampler::PAN_LAW_TYPES::RATIO_CONST_SUM)
@@ -2602,7 +2602,7 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum ErrorMessages
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Hydrogen.h', line 362, column 7>
-	py::enum_<H2Core::Hydrogen::ErrorMessages>(_Hydrogen, "ErrorMessages", py::arithmetic())
+	py::enum_<H2Core::Hydrogen::ErrorMessages>(_Hydrogen, "ErrorMessages")
 		.value("UNKNOWN_DRIVER", H2Core::Hydrogen::ErrorMessages::UNKNOWN_DRIVER)
 		.value("ERROR_STARTING_DRIVER", H2Core::Hydrogen::ErrorMessages::ERROR_STARTING_DRIVER)
 		.value("JACK_SERVER_SHUTDOWN", H2Core::Hydrogen::ErrorMessages::JACK_SERVER_SHUTDOWN)
@@ -2614,21 +2614,21 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum GUIState
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Hydrogen.h', line 583, column 14>
-	py::enum_<H2Core::Hydrogen::GUIState>(_Hydrogen, "GUIState", py::arithmetic())
+	py::enum_<H2Core::Hydrogen::GUIState>(_Hydrogen, "GUIState")
 		.value("notReady", H2Core::Hydrogen::GUIState::notReady)
 		.value("unavailable", H2Core::Hydrogen::GUIState::unavailable)
 		.value("ready", H2Core::Hydrogen::GUIState::ready);
 
 	// enum Lookup
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Helpers/Filesystem.h', line 52, column 13>
-	py::enum_<H2Core::Filesystem::Lookup>(_Filesystem, "Lookup", py::arithmetic())
+	py::enum_<H2Core::Filesystem::Lookup>(_Filesystem, "Lookup")
 		.value("stacked", H2Core::Filesystem::Lookup::stacked)
 		.value("user", H2Core::Filesystem::Lookup::user)
 		.value("system", H2Core::Filesystem::Lookup::system);
 
 	// enum file_perms
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Helpers/Filesystem.h', line 40, column 8>
-	py::enum_<H2Core::Filesystem::file_perms>(_Filesystem, "file_perms", py::arithmetic())
+	py::enum_<H2Core::Filesystem::file_perms>(_Filesystem, "file_perms")
 		.value("is_dir", H2Core::Filesystem::file_perms::is_dir)
 		.value("is_file", H2Core::Filesystem::file_perms::is_file)
 		.value("is_readable", H2Core::Filesystem::file_perms::is_readable)
@@ -2637,13 +2637,13 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum ActionMode
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Song.h', line 189, column 14>
-	py::enum_<H2Core::Song::ActionMode>(_Song, "ActionMode", py::arithmetic())
+	py::enum_<H2Core::Song::ActionMode>(_Song, "ActionMode")
 		.value("selectMode", H2Core::Song::ActionMode::selectMode)
 		.value("drawMode", H2Core::Song::ActionMode::drawMode);
 
 	// enum SongMode
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Song.h', line 59, column 8>
-	py::enum_<H2Core::Song::SongMode>(_Song, "SongMode", py::arithmetic())
+	py::enum_<H2Core::Song::SongMode>(_Song, "SongMode")
 		.value("PATTERN_MODE", H2Core::Song::SongMode::PATTERN_MODE)
 		.value("SONG_MODE", H2Core::Song::SongMode::SONG_MODE);
 
@@ -2655,33 +2655,33 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum UI_SCALING_POLICY
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 161, column 7>
-	py::enum_<H2Core::Preferences::UI_SCALING_POLICY>(_Preferences, "UI_SCALING_POLICY", py::arithmetic())
+	py::enum_<H2Core::Preferences::UI_SCALING_POLICY>(_Preferences, "UI_SCALING_POLICY")
 		.value("UI_SCALING_SMALLER", H2Core::Preferences::UI_SCALING_POLICY::UI_SCALING_SMALLER)
 		.value("UI_SCALING_SYSTEM", H2Core::Preferences::UI_SCALING_POLICY::UI_SCALING_SYSTEM)
 		.value("UI_SCALING_LARGER", H2Core::Preferences::UI_SCALING_POLICY::UI_SCALING_LARGER);
 
 	// enum UI_LAYOUT_TYPES
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 156, column 7>
-	py::enum_<H2Core::Preferences::UI_LAYOUT_TYPES>(_Preferences, "UI_LAYOUT_TYPES", py::arithmetic())
+	py::enum_<H2Core::Preferences::UI_LAYOUT_TYPES>(_Preferences, "UI_LAYOUT_TYPES")
 		.value("UI_LAYOUT_SINGLE_PANE", H2Core::Preferences::UI_LAYOUT_TYPES::UI_LAYOUT_SINGLE_PANE)
 		.value("UI_LAYOUT_TABBED", H2Core::Preferences::UI_LAYOUT_TYPES::UI_LAYOUT_TABBED);
 
 	// enum FontSize
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 149, column 13>
-	py::enum_<H2Core::Preferences::FontSize>(_Preferences, "FontSize", py::arithmetic())
+	py::enum_<H2Core::Preferences::FontSize>(_Preferences, "FontSize")
 		.value("Normal", H2Core::Preferences::FontSize::Normal)
 		.value("Small", H2Core::Preferences::FontSize::Small)
 		.value("Large", H2Core::Preferences::FontSize::Large);
 
 	// enum JackBBTSyncMethod
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 356, column 13>
-	py::enum_<H2Core::Preferences::JackBBTSyncMethod>(_Preferences, "JackBBTSyncMethod", py::arithmetic())
+	py::enum_<H2Core::Preferences::JackBBTSyncMethod>(_Preferences, "JackBBTSyncMethod")
 		.value("constMeasure", H2Core::Preferences::JackBBTSyncMethod::constMeasure)
 		.value("identicalBars", H2Core::Preferences::JackBBTSyncMethod::identicalBars);
 
 	// enum JackTrackOutputMode
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 330, column 13>
-	py::enum_<H2Core::Preferences::JackTrackOutputMode>(_Preferences, "JackTrackOutputMode", py::arithmetic())
+	py::enum_<H2Core::Preferences::JackTrackOutputMode>(_Preferences, "JackTrackOutputMode")
 		.value("postFader", H2Core::Preferences::JackTrackOutputMode::postFader)
 		.value("preFader", H2Core::Preferences::JackTrackOutputMode::preFader);
 
@@ -2716,21 +2716,21 @@ PYBIND11_MODULE(h2core, m) {
 
 	// enum SampleSelectionAlgo
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Instrument.h', line 56, column 8>
-	py::enum_<H2Core::Instrument::SampleSelectionAlgo>(_Instrument, "SampleSelectionAlgo", py::arithmetic())
+	py::enum_<H2Core::Instrument::SampleSelectionAlgo>(_Instrument, "SampleSelectionAlgo")
 		.value("VELOCITY", H2Core::Instrument::SampleSelectionAlgo::VELOCITY)
 		.value("ROUND_ROBIN", H2Core::Instrument::SampleSelectionAlgo::ROUND_ROBIN)
 		.value("RANDOM", H2Core::Instrument::SampleSelectionAlgo::RANDOM);
 
 	// enum Timebase
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/IO/JackAudioDriver.h', line 122, column 13>
-	py::enum_<H2Core::JackAudioDriver::Timebase>(_JackAudioDriver, "Timebase", py::arithmetic())
+	py::enum_<H2Core::JackAudioDriver::Timebase>(_JackAudioDriver, "Timebase")
 		.value("Master", H2Core::JackAudioDriver::Timebase::Master)
 		.value("Slave", H2Core::JackAudioDriver::Timebase::Slave)
 		.value("None", H2Core::JackAudioDriver::Timebase::None);
 
 	// enum LoopMode
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Sample.h', line 79, column 10>
-	py::enum_<H2Core::Sample::Loops::LoopMode>(_Loops, "LoopMode", py::arithmetic())
+	py::enum_<H2Core::Sample::Loops::LoopMode>(_Loops, "LoopMode")
 		.value("FORWARD", H2Core::Sample::Loops::LoopMode::FORWARD)
 		.value("REVERSE", H2Core::Sample::Loops::LoopMode::REVERSE)
 		.value("PINGPONG", H2Core::Sample::Loops::LoopMode::PINGPONG);

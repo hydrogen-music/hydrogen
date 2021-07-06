@@ -243,6 +243,8 @@ module:
       policy: py::return_value_policy::reference
   export_enum_values:
     - H2Core::Logger::log_levels
+  arith_enum:
+    - H2Core::Logger::log_levels
   prolog: |
     using namespace H2Core;
 
