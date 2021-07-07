@@ -150,6 +150,7 @@ module:
     - H2Core::Sample::get_velocity_envelope
     - H2Core::Object::Object(const H2Core::Object &)
     - std::runtime_error::runtime_error(const std::runtime_error &)
+    - QColor::Spec::ExtendedRgb
   cleaners:
     - qtreset.h
   plugins:

@@ -3508,6 +3508,7 @@ PYBIND11_MODULE(h2core, m) {
 		.value("Hsv", QColor::Spec::Hsv)
 		.value("Cmyk", QColor::Spec::Cmyk)
 		.value("Hsl", QColor::Spec::Hsl)
+	// [banned] .value("ExtendedRgb", QColor::Spec::ExtendedRgb)
 		.value("ExtendedRgb", QColor::Spec::ExtendedRgb);
 
 	// enum Octave
