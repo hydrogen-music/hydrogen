@@ -1,11 +1,1191 @@
 #include <h2core_module.hpp>
 namespace py = pybind11;
 
+
+class PyB11_Object: public H2Core::Object {
+    public:
+        // Inherit the constructors
+        using H2Core::Object::Object;
+
+        QString toQString(const QString & sPrefix, bool bShort = true) const override {
+            PYBIND11_OVERRIDE(
+                QString,
+                H2Core::Object,
+                toQString,
+			sPrefix,
+			bShort
+                );
+            }
+
+    };
+
+class PyB11_runtime_error: public std::runtime_error {
+    public:
+        // Inherit the constructors
+        using std::runtime_error::runtime_error;
+
+        const char * what() const noexcept override {
+            PYBIND11_OVERRIDE(
+                const char *,
+                std::runtime_error,
+                what
+                );
+            }
+
+    };
+
+class PyB11_Note: public H2Core::Note {
+    public:
+        // Inherit the constructors
+        using H2Core::Note::Note;
+
+        QString toQString(const QString & sPrefix, bool bShort = true) const override {
+            PYBIND11_OVERRIDE(
+                QString,
+                H2Core::Note,
+                toQString,
+			sPrefix,
+			bShort
+                );
+            }
+
+    };
+
+class PyB11_MidiOutput: public H2Core::MidiOutput {
+    public:
+        // Inherit the constructors
+        using H2Core::MidiOutput::MidiOutput;
+
+        std::vector<QString> getInputPortList() override {
+            PYBIND11_OVERRIDE_PURE(
+                std::vector<QString>,
+                H2Core::MidiOutput,
+                getInputPortList
+                );
+            }
+
+        void handleQueueNote(H2Core::Note * pNote) override {
+            PYBIND11_OVERRIDE_PURE(
+                void,
+                H2Core::MidiOutput,
+                handleQueueNote,
+			pNote
+                );
+            }
+
+        void handleQueueNoteOff(int channel, int key, int velocity) override {
+            PYBIND11_OVERRIDE_PURE(
+                void,
+                H2Core::MidiOutput,
+                handleQueueNoteOff,
+			channel,
+			key,
+			velocity
+                );
+            }
+
+        void handleQueueAllNoteOff() override {
+            PYBIND11_OVERRIDE_PURE(
+                void,
+                H2Core::MidiOutput,
+                handleQueueAllNoteOff
+                );
+            }
+
+        void handleOutgoingControlChange(int param, int value, int channel) override {
+            PYBIND11_OVERRIDE_PURE(
+                void,
+                H2Core::MidiOutput,
+                handleOutgoingControlChange,
+			param,
+			value,
+			channel
+                );
+            }
+
+    };
+
+class PyB11_MidiInput: public H2Core::MidiInput {
+    public:
+        // Inherit the constructors
+        using H2Core::MidiInput::MidiInput;
+
+        void open() override {
+            PYBIND11_OVERRIDE_PURE(
+                void,
+                H2Core::MidiInput,
+                open
+                );
+            }
+
+        void close() override {
+            PYBIND11_OVERRIDE_PURE(
+                void,
+                H2Core::MidiInput,
+                close
+                );
+            }
+
+        std::vector<QString> getOutputPortList() override {
+            PYBIND11_OVERRIDE_PURE(
+                std::vector<QString>,
+                H2Core::MidiInput,
+                getOutputPortList
+                );
+            }
+
+    };
+
+class PyB11_AudioOutput: public H2Core::AudioOutput {
+    public:
+        // Inherit the constructors
+        using H2Core::AudioOutput::AudioOutput;
+
+        int init(unsigned int nBufferSize) override {
+            PYBIND11_OVERRIDE_PURE(
+                int,
+                H2Core::AudioOutput,
+                init,
+			nBufferSize
+                );
+            }
+
+        int connect() override {
+            PYBIND11_OVERRIDE_PURE(
+                int,
+                H2Core::AudioOutput,
+                connect
+                );
+            }
+
+        void disconnect() override {
+            PYBIND11_OVERRIDE_PURE(
+                void,
+                H2Core::AudioOutput,
+                disconnect
+                );
+            }
+
+        unsigned int getBufferSize() override {
+            PYBIND11_OVERRIDE_PURE(
+                unsigned int,
+                H2Core::AudioOutput,
+                getBufferSize
+                );
+            }
+
+        unsigned int getSampleRate() override {
+            PYBIND11_OVERRIDE_PURE(
+                unsigned int,
+                H2Core::AudioOutput,
+                getSampleRate
+                );
+            }
+
+        float * getOut_L() override {
+            PYBIND11_OVERRIDE_PURE(
+                float *,
+                H2Core::AudioOutput,
+                getOut_L
+                );
+            }
+
+        float * getOut_R() override {
+            PYBIND11_OVERRIDE_PURE(
+                float *,
+                H2Core::AudioOutput,
+                getOut_R
+                );
+            }
+
+        void updateTransportInfo() override {
+            PYBIND11_OVERRIDE_PURE(
+                void,
+                H2Core::AudioOutput,
+                updateTransportInfo
+                );
+            }
+
+        void play() override {
+            PYBIND11_OVERRIDE_PURE(
+                void,
+                H2Core::AudioOutput,
+                play
+                );
+            }
+
+        void stop() override {
+            PYBIND11_OVERRIDE_PURE(
+                void,
+                H2Core::AudioOutput,
+                stop
+                );
+            }
+
+        void locate(unsigned long nFrame) override {
+            PYBIND11_OVERRIDE_PURE(
+                void,
+                H2Core::AudioOutput,
+                locate,
+			nFrame
+                );
+            }
+
+        void setBpm(float fBPM) override {
+            PYBIND11_OVERRIDE_PURE(
+                void,
+                H2Core::AudioOutput,
+                setBpm,
+			fBPM
+                );
+            }
+
+    };
+
+class PyB11_Timeline: public H2Core::Timeline {
+    public:
+        // Inherit the constructors
+        using H2Core::Timeline::Timeline;
+
+        QString toQString(const QString & sPrefix, bool bShort = true) const override {
+            PYBIND11_OVERRIDE(
+                QString,
+                H2Core::Timeline,
+                toQString,
+			sPrefix,
+			bShort
+                );
+            }
+
+    };
+
+class PyB11_Hydrogen: public H2Core::Hydrogen {
+    public:
+        // Inherit the constructors
+        using H2Core::Hydrogen::Hydrogen;
+
+        QString toQString(const QString & sPrefix, bool bShort = true) const override {
+            PYBIND11_OVERRIDE(
+                QString,
+                H2Core::Hydrogen,
+                toQString,
+			sPrefix,
+			bShort
+                );
+            }
+
+    };
+
+class PyB11_Song: public H2Core::Song {
+    public:
+        // Inherit the constructors
+        using H2Core::Song::Song;
+
+        QString toQString(const QString & sPrefix, bool bShort = true) const override {
+            PYBIND11_OVERRIDE(
+                QString,
+                H2Core::Song,
+                toQString,
+			sPrefix,
+			bShort
+                );
+            }
+
+    };
+
+class PyB11_AutomationPath: public H2Core::AutomationPath {
+    public:
+        // Inherit the constructors
+        using H2Core::AutomationPath::AutomationPath;
+
+        QString toQString(const QString & sPrefix, bool bShort = true) const override {
+            PYBIND11_OVERRIDE(
+                QString,
+                H2Core::AutomationPath,
+                toQString,
+			sPrefix,
+			bShort
+                );
+            }
+
+    };
+
+class PyB11_Pattern: public H2Core::Pattern {
+    public:
+        // Inherit the constructors
+        using H2Core::Pattern::Pattern;
+
+        QString toQString(const QString & sPrefix, bool bShort = true) const override {
+            PYBIND11_OVERRIDE(
+                QString,
+                H2Core::Pattern,
+                toQString,
+			sPrefix,
+			bShort
+                );
+            }
+
+    };
+
+class PyB11_Playlist: public H2Core::Playlist {
+    public:
+        // Inherit the constructors
+        using H2Core::Playlist::Playlist;
+
+        QString toQString(const QString & sPrefix, bool bShort = true) const override {
+            PYBIND11_OVERRIDE(
+                QString,
+                H2Core::Playlist,
+                toQString,
+			sPrefix,
+			bShort
+                );
+            }
+
+    };
+
+class PyB11_Sample: public H2Core::Sample {
+    public:
+        // Inherit the constructors
+        using H2Core::Sample::Sample;
+
+        QString toQString(const QString & sPrefix, bool bShort = true) const override {
+            PYBIND11_OVERRIDE(
+                QString,
+                H2Core::Sample,
+                toQString,
+			sPrefix,
+			bShort
+                );
+            }
+
+    };
+
+class PyB11_InstrumentList: public H2Core::InstrumentList {
+    public:
+        // Inherit the constructors
+        using H2Core::InstrumentList::InstrumentList;
+
+        QString toQString(const QString & sPrefix, bool bShort = true) const override {
+            PYBIND11_OVERRIDE(
+                QString,
+                H2Core::InstrumentList,
+                toQString,
+			sPrefix,
+			bShort
+                );
+            }
+
+    };
+
+class PyB11_InstrumentLayer: public H2Core::InstrumentLayer {
+    public:
+        // Inherit the constructors
+        using H2Core::InstrumentLayer::InstrumentLayer;
+
+        QString toQString(const QString & sPrefix, bool bShort = true) const override {
+            PYBIND11_OVERRIDE(
+                QString,
+                H2Core::InstrumentLayer,
+                toQString,
+			sPrefix,
+			bShort
+                );
+            }
+
+    };
+
+class PyB11_InstrumentComponent: public H2Core::InstrumentComponent {
+    public:
+        // Inherit the constructors
+        using H2Core::InstrumentComponent::InstrumentComponent;
+
+        QString toQString(const QString & sPrefix, bool bShort = true) const override {
+            PYBIND11_OVERRIDE(
+                QString,
+                H2Core::InstrumentComponent,
+                toQString,
+			sPrefix,
+			bShort
+                );
+            }
+
+    };
+
+class PyB11_Instrument: public H2Core::Instrument {
+    public:
+        // Inherit the constructors
+        using H2Core::Instrument::Instrument;
+
+        QString toQString(const QString & sPrefix, bool bShort = true) const override {
+            PYBIND11_OVERRIDE(
+                QString,
+                H2Core::Instrument,
+                toQString,
+			sPrefix,
+			bShort
+                );
+            }
+
+    };
+
+class PyB11_ADSR: public H2Core::ADSR {
+    public:
+        // Inherit the constructors
+        using H2Core::ADSR::ADSR;
+
+        QString toQString(const QString & sPrefix, bool bShort = true) const override {
+            PYBIND11_OVERRIDE(
+                QString,
+                H2Core::ADSR,
+                toQString,
+			sPrefix,
+			bShort
+                );
+            }
+
+    };
+
+class PyB11_DrumkitComponent: public H2Core::DrumkitComponent {
+    public:
+        // Inherit the constructors
+        using H2Core::DrumkitComponent::DrumkitComponent;
+
+        QString toQString(const QString & sPrefix, bool bShort = true) const override {
+            PYBIND11_OVERRIDE(
+                QString,
+                H2Core::DrumkitComponent,
+                toQString,
+			sPrefix,
+			bShort
+                );
+            }
+
+    };
+
+class PyB11_Drumkit: public H2Core::Drumkit {
+    public:
+        // Inherit the constructors
+        using H2Core::Drumkit::Drumkit;
+
+        QString toQString(const QString & sPrefix, bool bShort = true) const override {
+            PYBIND11_OVERRIDE(
+                QString,
+                H2Core::Drumkit,
+                toQString,
+			sPrefix,
+			bShort
+                );
+            }
+
+    };
+
+class PyB11_PatternList: public H2Core::PatternList {
+    public:
+        // Inherit the constructors
+        using H2Core::PatternList::PatternList;
+
+        QString toQString(const QString & sPrefix, bool bShort = true) const override {
+            PYBIND11_OVERRIDE(
+                QString,
+                H2Core::PatternList,
+                toQString,
+			sPrefix,
+			bShort
+                );
+            }
+
+    };
+
+class PyB11_JackMidiDriver: public H2Core::JackMidiDriver {
+    public:
+        // Inherit the constructors
+        using H2Core::JackMidiDriver::JackMidiDriver;
+
+        void open() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::JackMidiDriver,
+                open
+                );
+            }
+
+        void close() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::JackMidiDriver,
+                close
+                );
+            }
+
+        std::vector<QString> getInputPortList() override {
+            PYBIND11_OVERRIDE(
+                std::vector<QString>,
+                H2Core::JackMidiDriver,
+                getInputPortList
+                );
+            }
+
+        std::vector<QString> getOutputPortList() override {
+            PYBIND11_OVERRIDE(
+                std::vector<QString>,
+                H2Core::JackMidiDriver,
+                getOutputPortList
+                );
+            }
+
+        void handleQueueNote(H2Core::Note * pNote) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::JackMidiDriver,
+                handleQueueNote,
+			pNote
+                );
+            }
+
+        void handleQueueNoteOff(int channel, int key, int velocity) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::JackMidiDriver,
+                handleQueueNoteOff,
+			channel,
+			key,
+			velocity
+                );
+            }
+
+        void handleQueueAllNoteOff() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::JackMidiDriver,
+                handleQueueAllNoteOff
+                );
+            }
+
+        void handleOutgoingControlChange(int param, int value, int channel) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::JackMidiDriver,
+                handleOutgoingControlChange,
+			param,
+			value,
+			channel
+                );
+            }
+
+    };
+
+class PyB11_AlsaMidiDriver: public H2Core::AlsaMidiDriver {
+    public:
+        // Inherit the constructors
+        using H2Core::AlsaMidiDriver::AlsaMidiDriver;
+
+        void open() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::AlsaMidiDriver,
+                open
+                );
+            }
+
+        void close() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::AlsaMidiDriver,
+                close
+                );
+            }
+
+        std::vector<QString> getInputPortList() override {
+            PYBIND11_OVERRIDE(
+                std::vector<QString>,
+                H2Core::AlsaMidiDriver,
+                getInputPortList
+                );
+            }
+
+        std::vector<QString> getOutputPortList() override {
+            PYBIND11_OVERRIDE(
+                std::vector<QString>,
+                H2Core::AlsaMidiDriver,
+                getOutputPortList
+                );
+            }
+
+        void handleQueueNote(H2Core::Note * pNote) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::AlsaMidiDriver,
+                handleQueueNote,
+			pNote
+                );
+            }
+
+        void handleQueueNoteOff(int channel, int key, int velocity) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::AlsaMidiDriver,
+                handleQueueNoteOff,
+			channel,
+			key,
+			velocity
+                );
+            }
+
+        void handleQueueAllNoteOff() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::AlsaMidiDriver,
+                handleQueueAllNoteOff
+                );
+            }
+
+        void handleOutgoingControlChange(int param, int value, int channel) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::AlsaMidiDriver,
+                handleOutgoingControlChange,
+			param,
+			value,
+			channel
+                );
+            }
+
+    };
+
+class PyB11_NullDriver: public H2Core::NullDriver {
+    public:
+        // Inherit the constructors
+        using H2Core::NullDriver::NullDriver;
+
+        int init(unsigned int nBufferSize) override {
+            PYBIND11_OVERRIDE(
+                int,
+                H2Core::NullDriver,
+                init,
+			nBufferSize
+                );
+            }
+
+        int connect() override {
+            PYBIND11_OVERRIDE(
+                int,
+                H2Core::NullDriver,
+                connect
+                );
+            }
+
+        void disconnect() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::NullDriver,
+                disconnect
+                );
+            }
+
+        unsigned int getBufferSize() override {
+            PYBIND11_OVERRIDE(
+                unsigned int,
+                H2Core::NullDriver,
+                getBufferSize
+                );
+            }
+
+        unsigned int getSampleRate() override {
+            PYBIND11_OVERRIDE(
+                unsigned int,
+                H2Core::NullDriver,
+                getSampleRate
+                );
+            }
+
+        float * getOut_L() override {
+            PYBIND11_OVERRIDE(
+                float *,
+                H2Core::NullDriver,
+                getOut_L
+                );
+            }
+
+        float * getOut_R() override {
+            PYBIND11_OVERRIDE(
+                float *,
+                H2Core::NullDriver,
+                getOut_R
+                );
+            }
+
+        void play() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::NullDriver,
+                play
+                );
+            }
+
+        void stop() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::NullDriver,
+                stop
+                );
+            }
+
+        void locate(unsigned long nFrame) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::NullDriver,
+                locate,
+			nFrame
+                );
+            }
+
+        void updateTransportInfo() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::NullDriver,
+                updateTransportInfo
+                );
+            }
+
+        void setBpm(float fBPM) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::NullDriver,
+                setBpm,
+			fBPM
+                );
+            }
+
+    };
+
+class PyB11_JackAudioDriver: public H2Core::JackAudioDriver {
+    public:
+        // Inherit the constructors
+        using H2Core::JackAudioDriver::JackAudioDriver;
+
+        int connect() override {
+            PYBIND11_OVERRIDE(
+                int,
+                H2Core::JackAudioDriver,
+                connect
+                );
+            }
+
+        void disconnect() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::JackAudioDriver,
+                disconnect
+                );
+            }
+
+        unsigned int getBufferSize() override {
+            PYBIND11_OVERRIDE(
+                unsigned int,
+                H2Core::JackAudioDriver,
+                getBufferSize
+                );
+            }
+
+        unsigned int getSampleRate() override {
+            PYBIND11_OVERRIDE(
+                unsigned int,
+                H2Core::JackAudioDriver,
+                getSampleRate
+                );
+            }
+
+        float * getOut_L() override {
+            PYBIND11_OVERRIDE(
+                float *,
+                H2Core::JackAudioDriver,
+                getOut_L
+                );
+            }
+
+        float * getOut_R() override {
+            PYBIND11_OVERRIDE(
+                float *,
+                H2Core::JackAudioDriver,
+                getOut_R
+                );
+            }
+
+        int init(unsigned int bufferSize) override {
+            PYBIND11_OVERRIDE(
+                int,
+                H2Core::JackAudioDriver,
+                init,
+			bufferSize
+                );
+            }
+
+        void play() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::JackAudioDriver,
+                play
+                );
+            }
+
+        void stop() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::JackAudioDriver,
+                stop
+                );
+            }
+
+        void locate(unsigned long nFrame) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::JackAudioDriver,
+                locate,
+			nFrame
+                );
+            }
+
+        void updateTransportInfo() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::JackAudioDriver,
+                updateTransportInfo
+                );
+            }
+
+        void setBpm(float fBPM) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::JackAudioDriver,
+                setBpm,
+			fBPM
+                );
+            }
+
+    };
+
+class PyB11_FakeDriver: public H2Core::FakeDriver {
+    public:
+        // Inherit the constructors
+        using H2Core::FakeDriver::FakeDriver;
+
+        int init(unsigned int nBufferSize) override {
+            PYBIND11_OVERRIDE(
+                int,
+                H2Core::FakeDriver,
+                init,
+			nBufferSize
+                );
+            }
+
+        int connect() override {
+            PYBIND11_OVERRIDE(
+                int,
+                H2Core::FakeDriver,
+                connect
+                );
+            }
+
+        void disconnect() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::FakeDriver,
+                disconnect
+                );
+            }
+
+        unsigned int getBufferSize() override {
+            PYBIND11_OVERRIDE(
+                unsigned int,
+                H2Core::FakeDriver,
+                getBufferSize
+                );
+            }
+
+        unsigned int getSampleRate() override {
+            PYBIND11_OVERRIDE(
+                unsigned int,
+                H2Core::FakeDriver,
+                getSampleRate
+                );
+            }
+
+        float * getOut_L() override {
+            PYBIND11_OVERRIDE(
+                float *,
+                H2Core::FakeDriver,
+                getOut_L
+                );
+            }
+
+        float * getOut_R() override {
+            PYBIND11_OVERRIDE(
+                float *,
+                H2Core::FakeDriver,
+                getOut_R
+                );
+            }
+
+        void play() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::FakeDriver,
+                play
+                );
+            }
+
+        void stop() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::FakeDriver,
+                stop
+                );
+            }
+
+        void locate(unsigned long nFrame) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::FakeDriver,
+                locate,
+			nFrame
+                );
+            }
+
+        void updateTransportInfo() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::FakeDriver,
+                updateTransportInfo
+                );
+            }
+
+        void setBpm(float fBPM) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::FakeDriver,
+                setBpm,
+			fBPM
+                );
+            }
+
+    };
+
+class PyB11_DiskWriterDriver: public H2Core::DiskWriterDriver {
+    public:
+        // Inherit the constructors
+        using H2Core::DiskWriterDriver::DiskWriterDriver;
+
+        int init(unsigned int nBufferSize) override {
+            PYBIND11_OVERRIDE(
+                int,
+                H2Core::DiskWriterDriver,
+                init,
+			nBufferSize
+                );
+            }
+
+        int connect() override {
+            PYBIND11_OVERRIDE(
+                int,
+                H2Core::DiskWriterDriver,
+                connect
+                );
+            }
+
+        void disconnect() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::DiskWriterDriver,
+                disconnect
+                );
+            }
+
+        unsigned int getBufferSize() override {
+            PYBIND11_OVERRIDE(
+                unsigned int,
+                H2Core::DiskWriterDriver,
+                getBufferSize
+                );
+            }
+
+        unsigned int getSampleRate() override {
+            PYBIND11_OVERRIDE(
+                unsigned int,
+                H2Core::DiskWriterDriver,
+                getSampleRate
+                );
+            }
+
+        float * getOut_L() override {
+            PYBIND11_OVERRIDE(
+                float *,
+                H2Core::DiskWriterDriver,
+                getOut_L
+                );
+            }
+
+        float * getOut_R() override {
+            PYBIND11_OVERRIDE(
+                float *,
+                H2Core::DiskWriterDriver,
+                getOut_R
+                );
+            }
+
+        void play() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::DiskWriterDriver,
+                play
+                );
+            }
+
+        void stop() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::DiskWriterDriver,
+                stop
+                );
+            }
+
+        void locate(unsigned long nFrame) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::DiskWriterDriver,
+                locate,
+			nFrame
+                );
+            }
+
+        void updateTransportInfo() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::DiskWriterDriver,
+                updateTransportInfo
+                );
+            }
+
+        void setBpm(float fBPM) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::DiskWriterDriver,
+                setBpm,
+			fBPM
+                );
+            }
+
+    };
+
+class PyB11_AlsaAudioDriver: public H2Core::AlsaAudioDriver {
+    public:
+        // Inherit the constructors
+        using H2Core::AlsaAudioDriver::AlsaAudioDriver;
+
+        int init(unsigned int nBufferSize) override {
+            PYBIND11_OVERRIDE(
+                int,
+                H2Core::AlsaAudioDriver,
+                init,
+			nBufferSize
+                );
+            }
+
+        int connect() override {
+            PYBIND11_OVERRIDE(
+                int,
+                H2Core::AlsaAudioDriver,
+                connect
+                );
+            }
+
+        void disconnect() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::AlsaAudioDriver,
+                disconnect
+                );
+            }
+
+        unsigned int getBufferSize() override {
+            PYBIND11_OVERRIDE(
+                unsigned int,
+                H2Core::AlsaAudioDriver,
+                getBufferSize
+                );
+            }
+
+        unsigned int getSampleRate() override {
+            PYBIND11_OVERRIDE(
+                unsigned int,
+                H2Core::AlsaAudioDriver,
+                getSampleRate
+                );
+            }
+
+        float * getOut_L() override {
+            PYBIND11_OVERRIDE(
+                float *,
+                H2Core::AlsaAudioDriver,
+                getOut_L
+                );
+            }
+
+        float * getOut_R() override {
+            PYBIND11_OVERRIDE(
+                float *,
+                H2Core::AlsaAudioDriver,
+                getOut_R
+                );
+            }
+
+        void updateTransportInfo() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::AlsaAudioDriver,
+                updateTransportInfo
+                );
+            }
+
+        void play() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::AlsaAudioDriver,
+                play
+                );
+            }
+
+        void stop() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::AlsaAudioDriver,
+                stop
+                );
+            }
+
+        void locate(unsigned long nFrame) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::AlsaAudioDriver,
+                locate,
+			nFrame
+                );
+            }
+
+        void setBpm(float fBPM) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::AlsaAudioDriver,
+                setBpm,
+			fBPM
+                );
+            }
+
+    };
 using namespace H2Core;
 PYBIND11_MODULE(h2core, m) {
 
-	py::class_<H2Core::Object, std::shared_ptr<H2Core::Object>> _Object(m, "Object");
-	_Object.def(py::init<const H2Core::Object &>());
+	py::class_<H2Core::Object, PyB11_Object, std::shared_ptr<H2Core::Object>> _Object(m, "Object");
 	_Object.def(py::init<const char *>());
 	_Object.def_property_readonly_static("alive_object_count", [](py::object) { return H2Core::Object::getAliveObjectCount(); });
 	_Object.def_property_readonly_static("object_map", [](py::object) { return H2Core::Object::getObjectMap(); });
@@ -78,10 +1258,9 @@ PYBIND11_MODULE(h2core, m) {
 	_MidiMessage.def_readwrite("m_nChannel", &H2Core::MidiMessage::m_nChannel);
 	// [<ClassTemplate 'vector<_Tp, _Alloc>'>] _MidiMessage.def_readwrite("m_sysexData", &H2Core::MidiMessage::m_sysexData);
 
-	py::class_<std::runtime_error, std::shared_ptr<std::runtime_error>> _runtime_error(m, "runtime_error");
+	py::class_<std::runtime_error, PyB11_runtime_error, std::shared_ptr<std::runtime_error>> _runtime_error(m, "runtime_error");
 	_runtime_error.def(py::init<const std::string &>());
 	_runtime_error.def(py::init<const char *>());
-	_runtime_error.def(py::init<const std::runtime_error &>());
 	// [banned] _runtime_error.def("operator=", py::overload_cast<std::runtime_error &&>(&std::runtime_error::operator=),
 	// [banned] 	py::arg(""));
 	_runtime_error.def("operator=", py::overload_cast<const std::runtime_error &>(&std::runtime_error::operator=),
@@ -267,7 +1446,7 @@ PYBIND11_MODULE(h2core, m) {
 	_QColor.def("toHsv", &QColor::toHsv);
 	_QColor.def("toCmyk", &QColor::toCmyk);
 	_QColor.def("toHsl", &QColor::toHsl);
-	_QColor.def("toExtendedRgb", &QColor::toExtendedRgb);
+	// [banned] _QColor.def("toExtendedRgb", &QColor::toExtendedRgb);
 	_QColor.def("convertTo", &QColor::convertTo,
 		py::arg("colorSpec"));
 	_QColor.def_static("fromRgb_static", py::overload_cast<QRgb>(&QColor::fromRgb),
@@ -395,7 +1574,7 @@ PYBIND11_MODULE(h2core, m) {
 	_Synth.def("process", &H2Core::Synth::process,
 		py::arg("nFrames"));
 
-	py::class_<H2Core::Note, H2Core::Object, std::shared_ptr<H2Core::Note>> _Note(m, "Note");
+	py::class_<H2Core::Note, PyB11_Note, H2Core::Object, std::shared_ptr<H2Core::Note>> _Note(m, "Note");
 	_Note.def(py::init<std::shared_ptr<Instrument>, int, float, float, int, float>());
 	_Note.def(py::init<H2Core::Note *, std::shared_ptr<Instrument>>());
 	_Note.def_property_readonly("instrument", &H2Core::Note::get_instrument);
@@ -558,11 +1737,53 @@ PYBIND11_MODULE(h2core, m) {
 	_TransportInfo.def("printInfo", &H2Core::TransportInfo::printInfo,
 		"Displays general information about the transport state in the #INFOLOG");
 
-// abstract class MidiOutput
+	py::class_<H2Core::MidiOutput, PyB11_MidiOutput, H2Core::Object, std::shared_ptr<H2Core::MidiOutput>> _MidiOutput(m, "MidiOutput");
+	_MidiOutput.def(py::init<const char *>());
+	_MidiOutput.def_property_readonly("input_port_list", &H2Core::MidiOutput::getInputPortList);
+	_MidiOutput.def("handleQueueNote", &H2Core::MidiOutput::handleQueueNote,
+		py::arg("pNote"));
+	_MidiOutput.def("handleQueueNoteOff", &H2Core::MidiOutput::handleQueueNoteOff,
+		py::arg("channel"),
+		py::arg("key"),
+		py::arg("velocity"));
+	_MidiOutput.def("handleQueueAllNoteOff", &H2Core::MidiOutput::handleQueueAllNoteOff);
+	_MidiOutput.def("handleOutgoingControlChange", &H2Core::MidiOutput::handleOutgoingControlChange,
+		py::arg("param"),
+		py::arg("value"),
+		py::arg("channel"));
 
-// abstract class MidiInput
+	py::class_<H2Core::MidiInput, PyB11_MidiInput, H2Core::Object, std::shared_ptr<H2Core::MidiInput>> _MidiInput(m, "MidiInput");
+	_MidiInput.def(py::init<const char *>());
+	_MidiInput.def_property_readonly("output_port_list", &H2Core::MidiInput::getOutputPortList);
+	_MidiInput.def("open", &H2Core::MidiInput::open);
+	_MidiInput.def("close", &H2Core::MidiInput::close);
+	_MidiInput.def("handleMidiMessage", &H2Core::MidiInput::handleMidiMessage,
+		py::arg("msg"));
+	_MidiInput.def("handleSysexMessage", &H2Core::MidiInput::handleSysexMessage,
+		py::arg("msg"));
+	_MidiInput.def("handleControlChangeMessage", &H2Core::MidiInput::handleControlChangeMessage,
+		py::arg("msg"));
+	_MidiInput.def("handleProgramChangeMessage", &H2Core::MidiInput::handleProgramChangeMessage,
+		py::arg("msg"));
+	_MidiInput.def("handlePolyphonicKeyPressureMessage", &H2Core::MidiInput::handlePolyphonicKeyPressureMessage,
+		py::arg("msg"));
 
-// abstract class AudioOutput
+	py::class_<H2Core::AudioOutput, PyB11_AudioOutput, H2Core::Object, std::shared_ptr<H2Core::AudioOutput>> _AudioOutput(m, "AudioOutput");
+	_AudioOutput.def(py::init<const char *>());
+	_AudioOutput.def_readwrite("m_transport", &H2Core::AudioOutput::m_transport);
+	_AudioOutput.def_property_readonly("buffer_size", &H2Core::AudioOutput::getBufferSize);
+	_AudioOutput.def_property_readonly("sample_rate", &H2Core::AudioOutput::getSampleRate);
+	_AudioOutput.def("init", &H2Core::AudioOutput::init,
+		py::arg("nBufferSize"));
+	_AudioOutput.def("connect", &H2Core::AudioOutput::connect);
+	_AudioOutput.def("disconnect", &H2Core::AudioOutput::disconnect);
+	_AudioOutput.def("getOut_L", &H2Core::AudioOutput::getOut_L);
+	_AudioOutput.def("getOut_R", &H2Core::AudioOutput::getOut_R);
+	_AudioOutput.def("updateTransportInfo", &H2Core::AudioOutput::updateTransportInfo);
+	_AudioOutput.def("play", &H2Core::AudioOutput::play);
+	_AudioOutput.def("stop", &H2Core::AudioOutput::stop);
+	_AudioOutput.def("locate", &H2Core::AudioOutput::locate,
+		py::arg("nFrame"));
 
 	py::class_<H2Core::LadspaFX, H2Core::Object, std::shared_ptr<H2Core::LadspaFX>> _LadspaFX(m, "LadspaFX");
 	_LadspaFX.def_readwrite("m_pBuffer_L", &H2Core::LadspaFX::m_pBuffer_L);
@@ -657,7 +1878,7 @@ PYBIND11_MODULE(h2core, m) {
 }
 );
 
-	py::class_<H2Core::Timeline, H2Core::Object, std::shared_ptr<H2Core::Timeline>> _Timeline(m, "Timeline");
+	py::class_<H2Core::Timeline, PyB11_Timeline, H2Core::Object, std::shared_ptr<H2Core::Timeline>> _Timeline(m, "Timeline");
 	_Timeline.def(py::init<>());
 	_Timeline.def_property_readonly("all_tempo_markers", &H2Core::Timeline::getAllTempoMarkers);
 	_Timeline.def_property_readonly("all_tags", &H2Core::Timeline::getAllTags);
@@ -917,7 +2138,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("value"));
 	_AudioEngine.def("getMasterPeak_R", &H2Core::AudioEngine::getMasterPeak_R);
 
-	py::class_<H2Core::Hydrogen, H2Core::Object, std::shared_ptr<H2Core::Hydrogen>> _Hydrogen(m, "Hydrogen");
+	py::class_<H2Core::Hydrogen, PyB11_Hydrogen, H2Core::Object, std::shared_ptr<H2Core::Hydrogen>> _Hydrogen(m, "Hydrogen");
 	_Hydrogen.def_readwrite("lastMidiEvent", &H2Core::Hydrogen::lastMidiEvent);
 	_Hydrogen.def_readwrite("lastMidiEventParameter", &H2Core::Hydrogen::lastMidiEventParameter);
 	_Hydrogen.def_readwrite("m_nMaxTimeHumanize", &H2Core::Hydrogen::m_nMaxTimeHumanize);
@@ -1253,7 +2474,7 @@ PYBIND11_MODULE(h2core, m) {
 		"create a path",
 		py::arg("path"));
 
-	py::class_<H2Core::Song, H2Core::Object, std::shared_ptr<H2Core::Song>> _Song(m, "Song");
+	py::class_<H2Core::Song, PyB11_Song, H2Core::Object, std::shared_ptr<H2Core::Song>> _Song(m, "Song");
 	_Song.def(py::init<const QString &, const QString &, float, float>());
 	_Song.def_property_readonly_static("empty_song", [](py::object) { return H2Core::Song::getEmptySong(); });
 	_Song.def_property_readonly_static("default_song", [](py::object) { return H2Core::Song::getDefaultSong(); });
@@ -1329,7 +2550,7 @@ PYBIND11_MODULE(h2core, m) {
 }
 );
 
-	py::class_<H2Core::AutomationPath, H2Core::Object, std::shared_ptr<H2Core::AutomationPath>> _AutomationPath(m, "AutomationPath");
+	py::class_<H2Core::AutomationPath, PyB11_AutomationPath, H2Core::Object, std::shared_ptr<H2Core::AutomationPath>> _AutomationPath(m, "AutomationPath");
 	_AutomationPath.def(py::init<float, float, float>());
 	_AutomationPath.def_property_readonly("min", &H2Core::AutomationPath::get_min);
 	_AutomationPath.def_property_readonly("max", &H2Core::AutomationPath::get_max);
@@ -1358,7 +2579,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("sPrefix"),
 		py::arg("bShort"));
 
-	py::class_<H2Core::Pattern, H2Core::Object, std::shared_ptr<H2Core::Pattern>> _Pattern(m, "Pattern");
+	py::class_<H2Core::Pattern, PyB11_Pattern, H2Core::Object, std::shared_ptr<H2Core::Pattern>> _Pattern(m, "Pattern");
 	_Pattern.def(py::init<const QString &, const QString &, const QString &, int, int>());
 	_Pattern.def(py::init<H2Core::Pattern *>());
 	_Pattern.def_property("name", &H2Core::Pattern::get_name, &H2Core::Pattern::set_name);
@@ -1432,7 +2653,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("sPrefix"),
 		py::arg("bShort"));
 
-	py::class_<H2Core::Playlist, H2Core::Object, std::shared_ptr<H2Core::Playlist>> _Playlist(m, "Playlist");
+	py::class_<H2Core::Playlist, PyB11_Playlist, H2Core::Object, std::shared_ptr<H2Core::Playlist>> _Playlist(m, "Playlist");
 	_Playlist.def_property_readonly_static("instance", [](py::object) { return H2Core::Playlist::get_instance(); }, py::return_value_policy::reference);
 	_Playlist.def_property("selected_song_nr", &H2Core::Playlist::getSelectedSongNr, &H2Core::Playlist::setSelectedSongNr);
 	_Playlist.def_property("active_song_number", &H2Core::Playlist::getActiveSongNumber, &H2Core::Playlist::setActiveSongNumber);
@@ -1635,7 +2856,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("_height"),
 		py::arg("_visible"));
 
-	py::class_<H2Core::Sample, H2Core::Object, std::shared_ptr<H2Core::Sample>> _Sample(m, "Sample");
+	py::class_<H2Core::Sample, PyB11_Sample, H2Core::Object, std::shared_ptr<H2Core::Sample>> _Sample(m, "Sample");
 	_Sample.def(py::init<const QString &, int, int, float *, float *>());
 	_Sample.def(py::init<std::shared_ptr<Sample>>());
 	_Sample.def_property_readonly("filepath", &H2Core::Sample::get_filepath);
@@ -1669,6 +2890,8 @@ PYBIND11_MODULE(h2core, m) {
 }
 );
 	_Sample.def_property("is_modified", &H2Core::Sample::get_is_modified, &H2Core::Sample::set_is_modified);
+	_Sample.def_property_readonly("pan_envelope", &H2Core::Sample::get_pan_envelope);
+	_Sample.def_property_readonly("velocity_envelope", &H2Core::Sample::get_velocity_envelope);
 	_Sample.def_property_readonly("loops", &H2Core::Sample::get_loops);
 	_Sample.def_property_readonly("rubberband", &H2Core::Sample::get_rubberband);
 	_Sample.def_property_readonly("loop_mode_string", &H2Core::Sample::get_loop_mode_string);
@@ -1714,10 +2937,6 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("rb"));
 	_Sample.def("is_empty", &H2Core::Sample::is_empty,
 		"Returns true if both data channels are null pointers");
-	// [banned] _Sample.def("get_pan_envelope", &H2Core::Sample::get_pan_envelope,
-		// [banned] "Returns #__pan_envelope");
-	// [banned] _Sample.def("get_velocity_envelope", &H2Core::Sample::get_velocity_envelope,
-		// [banned] "Returns #__velocity_envelope");
 	_Sample.def_static("parse_loop_mode", &H2Core::Sample::parse_loop_mode,
 		"parse the given string and rturn the corresponding loop_mode",
 		py::arg("string"));
@@ -1731,7 +2950,7 @@ PYBIND11_MODULE(h2core, m) {
 }
 );
 
-	py::class_<H2Core::InstrumentList, H2Core::Object, std::shared_ptr<H2Core::InstrumentList>> _InstrumentList(m, "InstrumentList");
+	py::class_<H2Core::InstrumentList, PyB11_InstrumentList, H2Core::Object, std::shared_ptr<H2Core::InstrumentList>> _InstrumentList(m, "InstrumentList");
 	_InstrumentList.def(py::init<>());
 	_InstrumentList.def(py::init<H2Core::InstrumentList *>());
 	_InstrumentList.def_static("class_name", &H2Core::InstrumentList::class_name);
@@ -1806,7 +3025,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("sPrefix"),
 		py::arg("bShort"));
 
-	py::class_<H2Core::InstrumentLayer, H2Core::Object, std::shared_ptr<H2Core::InstrumentLayer>> _InstrumentLayer(m, "InstrumentLayer");
+	py::class_<H2Core::InstrumentLayer, PyB11_InstrumentLayer, H2Core::Object, std::shared_ptr<H2Core::InstrumentLayer>> _InstrumentLayer(m, "InstrumentLayer");
 	_InstrumentLayer.def(py::init<std::shared_ptr<Sample>>());
 	_InstrumentLayer.def(py::init<std::shared_ptr<InstrumentLayer>>());
 	_InstrumentLayer.def(py::init<std::shared_ptr<InstrumentLayer>, std::shared_ptr<Sample>>());
@@ -1831,7 +3050,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("sPrefix"),
 		py::arg("bShort"));
 
-	py::class_<H2Core::InstrumentComponent, H2Core::Object, std::shared_ptr<H2Core::InstrumentComponent>> _InstrumentComponent(m, "InstrumentComponent");
+	py::class_<H2Core::InstrumentComponent, PyB11_InstrumentComponent, H2Core::Object, std::shared_ptr<H2Core::InstrumentComponent>> _InstrumentComponent(m, "InstrumentComponent");
 	_InstrumentComponent.def(py::init<int>());
 	_InstrumentComponent.def(py::init<std::shared_ptr<InstrumentComponent>>());
 	_InstrumentComponent.def_property("drumkit_componentID", &H2Core::InstrumentComponent::get_drumkit_componentID, &H2Core::InstrumentComponent::set_drumkit_componentID);
@@ -1856,7 +3075,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("sPrefix"),
 		py::arg("bShort"));
 
-	py::class_<H2Core::Instrument, H2Core::Object, std::shared_ptr<H2Core::Instrument>> _Instrument(m, "Instrument");
+	py::class_<H2Core::Instrument, PyB11_Instrument, H2Core::Object, std::shared_ptr<H2Core::Instrument>> _Instrument(m, "Instrument");
 	_Instrument.def(py::init<const int, const QString &, std::shared_ptr<ADSR>>());
 	_Instrument.def(py::init<std::shared_ptr<Instrument>>());
 	_Instrument.def_property("name", &H2Core::Instrument::get_name, &H2Core::Instrument::set_name);
@@ -1953,7 +3172,7 @@ PYBIND11_MODULE(h2core, m) {
 }
 );
 
-	py::class_<H2Core::ADSR, H2Core::Object, std::shared_ptr<H2Core::ADSR>> _ADSR(m, "ADSR");
+	py::class_<H2Core::ADSR, PyB11_ADSR, H2Core::Object, std::shared_ptr<H2Core::ADSR>> _ADSR(m, "ADSR");
 	_ADSR.def(py::init<unsigned int, unsigned int, float, unsigned int>());
 	_ADSR.def(py::init<const std::shared_ptr<ADSR>>());
 	_ADSR.def_property("attack", &H2Core::ADSR::get_attack, &H2Core::ADSR::set_attack);
@@ -1969,7 +3188,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("sPrefix"),
 		py::arg("bShort"));
 
-	py::class_<H2Core::DrumkitComponent, H2Core::Object, std::shared_ptr<H2Core::DrumkitComponent>> _DrumkitComponent(m, "DrumkitComponent");
+	py::class_<H2Core::DrumkitComponent, PyB11_DrumkitComponent, H2Core::Object, std::shared_ptr<H2Core::DrumkitComponent>> _DrumkitComponent(m, "DrumkitComponent");
 	_DrumkitComponent.def(py::init<const int, const QString &>());
 	_DrumkitComponent.def(py::init<H2Core::DrumkitComponent *>());
 	_DrumkitComponent.def_property("name", &H2Core::DrumkitComponent::get_name, &H2Core::DrumkitComponent::set_name);
@@ -2008,7 +3227,7 @@ PYBIND11_MODULE(h2core, m) {
 }
 );
 
-	py::class_<H2Core::Drumkit, H2Core::Object, std::shared_ptr<H2Core::Drumkit>> _Drumkit(m, "Drumkit");
+	py::class_<H2Core::Drumkit, PyB11_Drumkit, H2Core::Object, std::shared_ptr<H2Core::Drumkit>> _Drumkit(m, "Drumkit");
 	_Drumkit.def(py::init<>());
 	_Drumkit.def(py::init<H2Core::Drumkit *>());
 	_Drumkit.def_property("instruments", &H2Core::Drumkit::get_instruments, &H2Core::Drumkit::set_instruments, py::return_value_policy::reference_internal);
@@ -2199,7 +3418,7 @@ PYBIND11_MODULE(h2core, m) {
 	py::class_<H2Core::H2Exception, std::runtime_error, std::shared_ptr<H2Core::H2Exception>> _H2Exception(m, "H2Exception");
 	_H2Exception.def(py::init<const QString &>());
 
-	py::class_<H2Core::PatternList, H2Core::Object, H2Core::AudioEngineLocking, std::shared_ptr<H2Core::PatternList>> _PatternList(m, "PatternList");
+	py::class_<H2Core::PatternList, PyB11_PatternList, H2Core::Object, H2Core::AudioEngineLocking, std::shared_ptr<H2Core::PatternList>> _PatternList(m, "PatternList");
 	_PatternList.def(py::init<>());
 	_PatternList.def(py::init<H2Core::PatternList *>());
 	_PatternList.def_static("class_name", &H2Core::PatternList::class_name);
@@ -2334,29 +3553,7 @@ PYBIND11_MODULE(h2core, m) {
 		.value("POLAR_CONST_K_NORM", H2Core::Sampler::PAN_LAW_TYPES::POLAR_CONST_K_NORM)
 		.value("QUADRATIC_CONST_K_NORM", H2Core::Sampler::PAN_LAW_TYPES::QUADRATIC_CONST_K_NORM);
 
-	py::class_<H2Core::PortMidiDriver, std::shared_ptr<H2Core::PortMidiDriver>> _PortMidiDriver(m, "PortMidiDriver");
-	_PortMidiDriver.def(py::init<>());
-	_PortMidiDriver.def_readwrite("m_pMidiIn", &H2Core::PortMidiDriver::m_pMidiIn);
-	_PortMidiDriver.def_readwrite("m_pMidiOut", &H2Core::PortMidiDriver::m_pMidiOut);
-	_PortMidiDriver.def_readwrite("m_bRunning", &H2Core::PortMidiDriver::m_bRunning);
-	_PortMidiDriver.def_property_readonly("input_port_list", &H2Core::PortMidiDriver::getInputPortList);
-	_PortMidiDriver.def_property_readonly("output_port_list", &H2Core::PortMidiDriver::getOutputPortList);
-	_PortMidiDriver.def_static("class_name", &H2Core::PortMidiDriver::class_name);
-	_PortMidiDriver.def("open", &H2Core::PortMidiDriver::open);
-	_PortMidiDriver.def("close", &H2Core::PortMidiDriver::close);
-	_PortMidiDriver.def("handleQueueNote", &H2Core::PortMidiDriver::handleQueueNote,
-		py::arg("pNote"));
-	_PortMidiDriver.def("handleQueueNoteOff", &H2Core::PortMidiDriver::handleQueueNoteOff,
-		py::arg("channel"),
-		py::arg("key"),
-		py::arg("velocity"));
-	_PortMidiDriver.def("handleQueueAllNoteOff", &H2Core::PortMidiDriver::handleQueueAllNoteOff);
-	_PortMidiDriver.def("handleOutgoingControlChange", &H2Core::PortMidiDriver::handleOutgoingControlChange,
-		py::arg("param"),
-		py::arg("value"),
-		py::arg("channel"));
-
-	py::class_<H2Core::JackMidiDriver, std::shared_ptr<H2Core::JackMidiDriver>> _JackMidiDriver(m, "JackMidiDriver");
+	py::class_<H2Core::JackMidiDriver, PyB11_JackMidiDriver, H2Core::MidiInput, H2Core::MidiOutput, std::shared_ptr<H2Core::JackMidiDriver>> _JackMidiDriver(m, "JackMidiDriver");
 	_JackMidiDriver.def(py::init<>());
 	_JackMidiDriver.def_property_readonly("input_port_list", &H2Core::JackMidiDriver::getInputPortList);
 	_JackMidiDriver.def_property_readonly("output_port_list", &H2Core::JackMidiDriver::getOutputPortList);
@@ -2383,7 +3580,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("value"),
 		py::arg("channel"));
 
-	py::class_<H2Core::AlsaMidiDriver, std::shared_ptr<H2Core::AlsaMidiDriver>> _AlsaMidiDriver(m, "AlsaMidiDriver");
+	py::class_<H2Core::AlsaMidiDriver, PyB11_AlsaMidiDriver, H2Core::MidiInput, H2Core::MidiOutput, std::shared_ptr<H2Core::AlsaMidiDriver>> _AlsaMidiDriver(m, "AlsaMidiDriver");
 	_AlsaMidiDriver.def(py::init<>());
 	_AlsaMidiDriver.def_property_readonly("input_port_list", &H2Core::AlsaMidiDriver::getInputPortList);
 	_AlsaMidiDriver.def_property_readonly("output_port_list", &H2Core::AlsaMidiDriver::getOutputPortList);
@@ -2408,27 +3605,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("value"),
 		py::arg("channel"));
 
-	py::class_<H2Core::PortAudioDriver, std::shared_ptr<H2Core::PortAudioDriver>> _PortAudioDriver(m, "PortAudioDriver");
-	_PortAudioDriver.def(py::init<H2Core::audioProcessCallback>());
-	_PortAudioDriver.def_readwrite("m_pOut_L", &H2Core::PortAudioDriver::m_pOut_L);
-	_PortAudioDriver.def_readwrite("m_pOut_R", &H2Core::PortAudioDriver::m_pOut_R);
-	_PortAudioDriver.def_readwrite("m_nBufferSize", &H2Core::PortAudioDriver::m_nBufferSize);
-	_PortAudioDriver.def_property_readonly("buffer_size", &H2Core::PortAudioDriver::getBufferSize);
-	_PortAudioDriver.def_property_readonly("sample_rate", &H2Core::PortAudioDriver::getSampleRate);
-	_PortAudioDriver.def_static("class_name", &H2Core::PortAudioDriver::class_name);
-	_PortAudioDriver.def("init", &H2Core::PortAudioDriver::init,
-		py::arg("nBufferSize"));
-	_PortAudioDriver.def("connect", &H2Core::PortAudioDriver::connect);
-	_PortAudioDriver.def("disconnect", &H2Core::PortAudioDriver::disconnect);
-	_PortAudioDriver.def("getOut_L", &H2Core::PortAudioDriver::getOut_L);
-	_PortAudioDriver.def("getOut_R", &H2Core::PortAudioDriver::getOut_R);
-	_PortAudioDriver.def("updateTransportInfo", &H2Core::PortAudioDriver::updateTransportInfo);
-	_PortAudioDriver.def("play", &H2Core::PortAudioDriver::play);
-	_PortAudioDriver.def("stop", &H2Core::PortAudioDriver::stop);
-	_PortAudioDriver.def("locate", &H2Core::PortAudioDriver::locate,
-		py::arg("nFrame"));
-
-	py::class_<H2Core::NullDriver, std::shared_ptr<H2Core::NullDriver>> _NullDriver(m, "NullDriver");
+	py::class_<H2Core::NullDriver, PyB11_NullDriver, H2Core::AudioOutput, std::shared_ptr<H2Core::NullDriver>> _NullDriver(m, "NullDriver");
 	_NullDriver.def(py::init<H2Core::audioProcessCallback>());
 	_NullDriver.def_property_readonly("buffer_size", &H2Core::NullDriver::getBufferSize);
 	_NullDriver.def_property_readonly("sample_rate", &H2Core::NullDriver::getSampleRate);
@@ -2445,7 +3622,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("nFrame"));
 	_NullDriver.def("updateTransportInfo", &H2Core::NullDriver::updateTransportInfo);
 
-	py::class_<H2Core::JackAudioDriver, std::shared_ptr<H2Core::JackAudioDriver>> _JackAudioDriver(m, "JackAudioDriver");
+	py::class_<H2Core::JackAudioDriver, PyB11_JackAudioDriver, H2Core::AudioOutput, std::shared_ptr<H2Core::JackAudioDriver>> _JackAudioDriver(m, "JackAudioDriver");
 	_JackAudioDriver.def(py::init<JackProcessCallback>());
 	_JackAudioDriver.def_readwrite("m_currentPos", &H2Core::JackAudioDriver::m_currentPos);
 	_JackAudioDriver.def_property_readonly("buffer_size", &H2Core::JackAudioDriver::getBufferSize);
@@ -2511,7 +3688,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("nframes"),
 		py::arg("arg"));
 
-	py::class_<H2Core::FakeDriver, std::shared_ptr<H2Core::FakeDriver>> _FakeDriver(m, "FakeDriver");
+	py::class_<H2Core::FakeDriver, PyB11_FakeDriver, H2Core::AudioOutput, std::shared_ptr<H2Core::FakeDriver>> _FakeDriver(m, "FakeDriver");
 	_FakeDriver.def(py::init<H2Core::audioProcessCallback>());
 	_FakeDriver.def_property_readonly("buffer_size", &H2Core::FakeDriver::getBufferSize);
 	_FakeDriver.def_property_readonly("sample_rate", &H2Core::FakeDriver::getSampleRate);
@@ -2528,7 +3705,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("nFrame"));
 	_FakeDriver.def("updateTransportInfo", &H2Core::FakeDriver::updateTransportInfo);
 
-	py::class_<H2Core::DiskWriterDriver, std::shared_ptr<H2Core::DiskWriterDriver>> _DiskWriterDriver(m, "DiskWriterDriver");
+	py::class_<H2Core::DiskWriterDriver, PyB11_DiskWriterDriver, H2Core::AudioOutput, std::shared_ptr<H2Core::DiskWriterDriver>> _DiskWriterDriver(m, "DiskWriterDriver");
 	_DiskWriterDriver.def(py::init<H2Core::audioProcessCallback, unsigned int, int>());
 	_DiskWriterDriver.def_readwrite("m_nSampleRate", &H2Core::DiskWriterDriver::m_nSampleRate);
 	_DiskWriterDriver.def_readwrite("m_sFilename", &H2Core::DiskWriterDriver::m_sFilename);
@@ -2556,7 +3733,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("nFrame"));
 	_DiskWriterDriver.def("updateTransportInfo", &H2Core::DiskWriterDriver::updateTransportInfo);
 
-	py::class_<H2Core::AlsaAudioDriver, std::shared_ptr<H2Core::AlsaAudioDriver>> _AlsaAudioDriver(m, "AlsaAudioDriver");
+	py::class_<H2Core::AlsaAudioDriver, PyB11_AlsaAudioDriver, H2Core::AudioOutput, std::shared_ptr<H2Core::AlsaAudioDriver>> _AlsaAudioDriver(m, "AlsaAudioDriver");
 	_AlsaAudioDriver.def(py::init<H2Core::audioProcessCallback>());
 	_AlsaAudioDriver.def_readwrite("m_bIsRunning", &H2Core::AlsaAudioDriver::m_bIsRunning);
 	_AlsaAudioDriver.def_readwrite("m_nBufferSize", &H2Core::AlsaAudioDriver::m_nBufferSize);

@@ -75,6 +75,7 @@ module:
     - QColor::QColor(QColor &&)  # ban this constructor, pybind11 bark on this
     - QColor::name(QColor::NameFormat)
     - QColor::operator=
+    - QColor::toExtendedRgb
     - std::thread::thread(const std::thread &)
     - std::thread::operator=(const std::thread &)
     - std::thread::operator=(std::thread &&)
@@ -116,6 +117,8 @@ module:
     - H2Core::AlsaAudioDriver::AlsaAudioDriver()
     - H2Core::AlsaMidiDriver::midi_action
     - H2Core::JackAudioDriver::m_pClient
+    - H2Core::PortMidiDriver
+    - H2Core::PortAudioDriver
     # std::vector
     - H2Core::Synth::m_playingNotesQueue
     - H2Core::Hydrogen::m_nInstrumentLookupTable
@@ -143,8 +146,10 @@ module:
     - H2Core::Preferences::getDataDirectory
     - H2Core::LadspaControlPort::__class_name
     - H2Core::LadspaControlPort::class_name
-    - H2Core::Sample::get_pan_envelope        # unique pointers in stl containers, pybind11 can't cope with this.
-    - H2Core::Sample::get_velocity_envelope
+    # - H2Core::Sample::get_pan_envelope        # unique pointers in stl containers, pybind11 can't cope with this.
+    # - H2Core::Sample::get_velocity_envelope
+    - H2Core::Object::Object(const H2Core::Object &)
+    - std::runtime_error::runtime_error(const std::runtime_error &)
   cleaners:
     - qtreset.h
   plugins:
