@@ -294,7 +294,7 @@ int AudioEngine::start( bool bLockEngine, unsigned nTotalFrames )
 	m_nPatternTickPosition = 0;
 
 	// prepare the tick size for this song
-	Song* pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	m_pAudioDriver->m_transport.m_fTickSize =
 		AudioEngine::computeTickSize( static_cast<float>(m_pAudioDriver->getSampleRate()), pSong->getBpm(), pSong->getResolution() );
 
@@ -688,7 +688,7 @@ void AudioEngine::startAudioDrivers()
 
 	// change the current audio engine state
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong ) {
 		m_State = STATE_READY;
 		m_pAudioDriver->setBpm( pSong->getBpm() );
@@ -787,7 +787,7 @@ void AudioEngine::restartAudioDrivers()
 	startAudioDrivers();
 }
 
-void AudioEngine::processCheckBPMChanged(Song* pSong)
+void AudioEngine::processCheckBPMChanged(std::shared_ptr<Song> pSong)
 {
 	if ( m_State != STATE_READY
 		 && m_State != STATE_PLAYING ) {
@@ -839,7 +839,7 @@ void AudioEngine::processCheckBPMChanged(Song* pSong)
 void AudioEngine::setupLadspaFX()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( ! pSong ) {
 		return;
 	}
@@ -864,7 +864,7 @@ void AudioEngine::setupLadspaFX()
 #endif
 }
 
-void AudioEngine::renameJackPorts(Song * pSong)
+void AudioEngine::renameJackPorts(std::shared_ptr<Song> pSong)
 {
 #ifdef H2CORE_HAVE_JACK
 	// renames jack ports
@@ -892,7 +892,7 @@ void AudioEngine::raiseError( unsigned nErrorCode )
 inline void AudioEngine::processPlayNotes( unsigned long nframes )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	unsigned int framepos;
 
@@ -1015,7 +1015,7 @@ inline void AudioEngine::processPlayNotes( unsigned long nframes )
 void AudioEngine::seek( long long nFrames, bool bLoopMode )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	if ( m_pAudioDriver->m_transport.m_nFrames == nFrames ) {
 		return;
@@ -1067,7 +1067,7 @@ inline void AudioEngine::processTransport( unsigned nFrames )
 	m_pAudioDriver->updateTransportInfo();
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	// Update the state of the audio engine depending on the
 	// status of the audio driver. E.g. if the JACK transport was
@@ -1189,7 +1189,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	}
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	// In case of the JackAudioDriver:
 	// Query the JACK server for the current status of the
@@ -1368,7 +1368,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	return 0;
 }
 
-void AudioEngine::setSong( Song* pNewSong )
+void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 {
 	___WARNINGLOG( QString( "Set song: %1" ).arg( pNewSong->getName() ) );
 	
@@ -1441,7 +1441,7 @@ void AudioEngine::removeSong()
 inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	// Indicates whether the current pattern list changed with respect
 	// to the last cycle.
@@ -1768,7 +1768,7 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 inline int AudioEngine::findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	assert( pSong );
 
 	int nTotalTick = 0;

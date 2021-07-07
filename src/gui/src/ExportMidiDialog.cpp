@@ -179,7 +179,7 @@ void ExportMidiDialog::on_okBtn_clicked()
 	
 	saveSettingsToPreferences();
 
-	Song *pSong = m_pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	
 	QString sFilename = exportNameTxt->text();
 	QFileInfo qFile( sFilename );

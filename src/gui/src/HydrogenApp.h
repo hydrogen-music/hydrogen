@@ -86,7 +86,7 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		 * \return bool true on success
 		 */
 		bool openSong( const QString sFilename );
-		bool openSong( H2Core::Song* pSong );
+		bool openSong( std::shared_ptr<H2Core::Song> pSong );
 
 		void showPreferencesDialog();
 		void updateMixerCheckbox();

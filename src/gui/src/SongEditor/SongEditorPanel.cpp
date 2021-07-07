@@ -62,7 +62,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	Preferences *pPref = Preferences::get_instance();
 
 	Hydrogen*	pHydrogen = Hydrogen::get_instance();
-	Song*		pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> 		pSong = pHydrogen->getSong();
 
 	setWindowTitle( tr( "Song Editor" ) );
 
@@ -437,7 +437,7 @@ SongEditorPanel::~SongEditorPanel()
 
 void SongEditorPanel::updatePlayHeadPosition()
 {
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 
 	if ( Preferences::get_instance()->m_bFollowPlayhead && pSong->getMode() == Song::SONG_MODE) {
 		if ( Hydrogen::get_instance()->getState() != STATE_PLAYING ) {
@@ -531,7 +531,7 @@ void SongEditorPanel::hScrollTo( int value )
 void SongEditorPanel::updateAll()
 {
 	Hydrogen *	pHydrogen = Hydrogen::get_instance();
-	Song *		pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> 		pSong = pHydrogen->getSong();
 	
 	updatePlaybackTrackIfNecessary();
 
@@ -572,7 +572,7 @@ void SongEditorPanel::newPatBtnClicked( Button* btn )
 {
 	UNUSED( btn );
 	Hydrogen	*pHydrogen = Hydrogen::get_instance();
-	Song		*pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 	Pattern		*pNewPattern = new Pattern( tr("Pattern %1").arg(pPatternList->size()+1));
 	PatternPropertiesDialog *pDialog = new PatternPropertiesDialog( this, pNewPattern, 0, true );
@@ -591,7 +591,7 @@ void SongEditorPanel::newPatBtnClicked( Button* btn )
 void SongEditorPanel::insertPattern( int idx, Pattern* pPattern )
 {
 	Hydrogen	*pHydrogen = Hydrogen::get_instance();
-	Song		*pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 
 	pPatternList->insert( idx, pPattern );
@@ -603,7 +603,7 @@ void SongEditorPanel::insertPattern( int idx, Pattern* pPattern )
 void SongEditorPanel::deletePattern( int idx )
 {
 	Hydrogen	*pHydrogen = Hydrogen::get_instance();
-	Song		*pSong = 	pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = 	pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 	H2Core::Pattern *pPattern = pPatternList->get( idx );
 	
@@ -641,7 +641,7 @@ void SongEditorPanel::downBtnClicked( Button* btn )
 {
 	UNUSED( btn );
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 
 	if( pHydrogen->getSelectedPatternNumber() +1 >=  pPatternList->size() ) { 
@@ -931,7 +931,7 @@ void SongEditorPanel::faderChanged(Fader *pFader)
 	UNUSED( pFader );
 	
 	Hydrogen *	pHydrogen = Hydrogen::get_instance();
-	Song*		pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> 		pSong = pHydrogen->getSong();
 	
 	if( pSong ){
 		pSong->setPlaybackTrackVolume( pFader->getValue() );
@@ -949,7 +949,7 @@ void SongEditorPanel::selectedPatternChangedEvent()
 void SongEditorPanel::automationPathChanged()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	pSong->setIsModified(true);
 }
 

@@ -174,12 +174,12 @@ public:
 		 * Get the current song.
 		 * \return #__song
 		 */ 	
-		Song*			getSong() const{ return __song; }
+		std::shared_ptr<Song>			getSong() const{ return __song; }
 		/**
 		 * Sets the current song #__song to @a newSong.
 		 * \param newSong Pointer to the new Song object.
 		 */
-		void			setSong	( Song *newSong );
+		void			setSong	( std::shared_ptr<Song> newSong );
 
 		void			removeSong();
 
@@ -449,7 +449,7 @@ void			previewSample( Sample *pSample );
 	 * Preferences::m_bJackTrackOuts is set to true.
 	 * \param pSong Handed to audioEngine_renameJackPorts().
 	 */
-	void			renameJackPorts(Song* pSong);
+	void			renameJackPorts(std::shared_ptr<Song> pSong);
 #endif
 
 	/** Starts/stops the OSC server
@@ -684,7 +684,7 @@ private:
 	 * the Hydrogen() constructor, set via setSong(), and accessed
 	 * via getSong().
 	 */
-	Song*			__song;
+	std::shared_ptr<Song>			__song;
 
 	/**
 	 * Auxiliary function setting a bunch of global variables.
@@ -721,7 +721,7 @@ private:
 	 * Specifies whether the Qt5 GUI is active.
 	 *
 	 * When a new Song is set via the core part of Hydrogen, e.g. in
-	 * the context of session management, the Song *must* be set via
+	 * the context of session management, the std::shared_ptr<Song> must* be set via
 	 * the GUI if active. Else the GUI will freeze.
 	 *
 	 * Set by setGUIState() and accessed via getGUIState().
@@ -833,7 +833,7 @@ inline AudioEngine* Hydrogen::getAudioEngine() const {
 
 inline bool Hydrogen::getPlaybackTrackState() const
 {
-	Song* pSong = getSong();
+	std::shared_ptr<Song> pSong = getSong();
 	bool  bState;
 
 	if(!pSong){

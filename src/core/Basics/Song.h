@@ -52,7 +52,7 @@ class AutomationPath;
 \ingroup H2CORE
 \brief	Song class
 */
-class Song : public H2Core::Object
+class Song : public H2Core::Object, public std::enable_shared_from_this<Song>
 {
 		H2_OBJECT
 	public:
@@ -64,8 +64,8 @@ class Song : public H2Core::Object
 		Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume );
 		~Song();
 
-		static Song* getEmptySong();
-		static Song* getDefaultSong();
+		static std::shared_ptr<Song> getEmptySong();
+		static std::shared_ptr<Song> getDefaultSong();
 
 		bool getIsMuted() const;
 		void setIsMuted( bool bIsMuted );
@@ -106,7 +106,7 @@ class Song : public H2Core::Object
 		/** get the length of the song, in tick units */
 		int lengthInTicks() const;
 
-		static Song* 	load( const QString& sFilename );
+		static std::shared_ptr<Song> 	load( const QString& sFilename );
 		bool 			save( const QString& sFilename );
 
 		/**
@@ -561,7 +561,7 @@ class SongReader : public H2Core::Object
 		SongReader();
 		~SongReader();
 		const QString getPath( const QString& filename ) const;
-		Song* readSong( const QString& filename );
+		std::shared_ptr<Song> readSong( const QString& filename );
 
 	private:
 		QString m_sSongVersion;

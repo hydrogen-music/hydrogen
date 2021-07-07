@@ -68,7 +68,7 @@ int main(int argc, char** argv){
 	H2Core::Hydrogen::create_instance();
 	H2Core::Preferences *preferences = H2Core::Preferences::get_instance();
 
-	H2Core::Song *pSong = H2Core::Song::load( filename );
+	std::shared_ptr<H2Core::Song>pSong = H2Core::Song::load( filename );
 	if (pSong == nullptr) {
 		cout << "Error loading song!" << endl;
 		exit(2);
@@ -93,8 +93,8 @@ int main(int argc, char** argv){
 				cout << endl << "HydrogenPlayer shutdown..." << endl;
 				hydrogen->sequencer_stop();
 
+				pSong = nullptr;
 				delete hydrogen;
-				delete pSong;
 				delete H2Core::EventQueue::get_instance();
 				delete preferences;
 				delete H2Core::Logger::get_instance();

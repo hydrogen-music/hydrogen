@@ -94,7 +94,7 @@ void AudioEngineInfoForm::updateInfo()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();;
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	// Song position
 	QString sSongPos = "N/A";

@@ -123,7 +123,7 @@ int NsmClient::OpenCallback( const char *name,
 		return ERR_NOT_NOW;
 	}
 	
-	H2Core::Song* pSong = nullptr;
+	std::shared_ptr<H2Core::Song> pSong = nullptr;
 	if ( songFileInfo.exists() ) {
 
 		pSong = H2Core::Song::load( sSongPath );

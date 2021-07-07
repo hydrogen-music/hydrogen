@@ -301,7 +301,7 @@ void ExportSongDialog::on_okBtn_clicked()
 	
 	saveSettingsToPreferences();
 	
-	Song *pSong = m_pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 
 	m_bOverwriteFiles = false;
@@ -354,7 +354,7 @@ void ExportSongDialog::on_okBtn_clicked()
 
 bool ExportSongDialog::currentInstrumentHasNotes()
 {
-	Song *pSong = m_pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	unsigned nPatterns = pSong->getPatternList()->size();
 	
 	bool bInstrumentHasNotes = false;
@@ -378,7 +378,7 @@ bool ExportSongDialog::currentInstrumentHasNotes()
 
 QString ExportSongDialog::findUniqueExportFilenameForInstrument( std::shared_ptr<Instrument> pInstrument )
 {
-	Song *pSong = m_pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	QString uniqueInstrumentName;
 	
 	int instrumentOccurence = 0;
@@ -399,7 +399,7 @@ QString ExportSongDialog::findUniqueExportFilenameForInstrument( std::shared_ptr
 
 void ExportSongDialog::exportTracks()
 {
-	Song *pSong = m_pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 	
 	if( m_nInstrument < pInstrumentList->size() ){
@@ -731,7 +731,7 @@ void ExportSongDialog::calculateRubberbandTime()
 	m_pHydrogen->setBPM(lowBPM);
 	time_t sTime = time(nullptr);
 
-	Song *pSong = m_pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	assert(pSong);
 	
 	if(pSong){
@@ -785,7 +785,7 @@ void ExportSongDialog::calculateRubberbandTime()
 
 bool ExportSongDialog::checkUseOfRubberband()
 {
-	Song *pSong = m_pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	assert(pSong);
 	
 	if(pSong){

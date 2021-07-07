@@ -1047,7 +1047,7 @@ void PatternEditorPanel::moveUpBtnClicked( Button * )
 
 	pAudioEngine->lock( RIGHT_HERE );
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 
 	if ( ( nSelectedInstrument - 1 ) >= 0 ) {
@@ -1074,7 +1074,7 @@ void PatternEditorPanel::moveDownBtnClicked( Button * )
 
 	pAudioEngine->lock( RIGHT_HERE );
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 
 	if ( ( nSelectedInstrument + 1 ) < (int)pInstrumentList->size() ) {

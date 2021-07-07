@@ -374,7 +374,7 @@ SongWriter::~SongWriter()
 
 
 // Returns 0 on success, passes the TinyXml error code otherwise.
-int SongWriter::writeSong( Song * pSong, const QString& filename )
+int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename )
 {
 	QFileInfo fi( filename );
 	if ( ( Filesystem::file_exists( filename, true ) && ! Filesystem::file_writable( filename, true ) ) ||

@@ -280,7 +280,7 @@ bool MidiActionManager::strip_mute_toggle(Action * pAction, Hydrogen* pHydrogen,
 	
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if ( pInstrList->is_valid_index( nLine ) ) {
@@ -305,7 +305,7 @@ bool MidiActionManager::strip_solo_toggle(Action * pAction, Hydrogen* pHydrogen,
 	
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	if ( pInstrList->is_valid_index( nLine ) ) {
@@ -433,7 +433,7 @@ bool MidiActionManager::effect_level_absolute(Action * pAction, Hydrogen* pHydro
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int fx_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if ( pInstrList->is_valid_index( nLine) )
@@ -468,7 +468,7 @@ bool MidiActionManager::master_volume_absolute(Action * pAction, Hydrogen* pHydr
 	bool ok;
 	int vol_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *song = pHydrogen->getSong();
+	std::shared_ptr<Song> song = pHydrogen->getSong();
 
 	if( vol_param != 0 ){
 		song->setVolume( 1.5* ( (float) (vol_param / 127.0 ) ));
@@ -485,7 +485,7 @@ bool MidiActionManager::master_volume_relative(Action * pAction, Hydrogen* pHydr
 	bool ok;
 	int vol_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *song = pHydrogen->getSong();
+	std::shared_ptr<Song> song = pHydrogen->getSong();
 
 	if( vol_param != 0 ) {
 		if ( vol_param == 1 && song->getVolume() < 1.5 ) {
@@ -509,7 +509,7 @@ bool MidiActionManager::strip_volume_absolute(Action * pAction, Hydrogen* pHydro
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int vol_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if ( pInstrList->is_valid_index( nLine) )
@@ -539,7 +539,7 @@ bool MidiActionManager::strip_volume_relative(Action * pAction, Hydrogen* pHydro
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int vol_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	if ( pInstrList->is_valid_index( nLine) )
@@ -575,7 +575,7 @@ bool MidiActionManager::pan_absolute(Action * pAction, Hydrogen* pHydrogen, targ
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pan_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if( pInstrList->is_valid_index( nLine ) ) {
@@ -603,7 +603,7 @@ bool MidiActionManager::pan_relative(Action * pAction, Hydrogen* pHydrogen, targ
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pan_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if( pInstrList->is_valid_index( nLine ) ) {	
@@ -634,7 +634,7 @@ bool MidiActionManager::gain_level_absolute(Action * pAction, Hydrogen* pHydroge
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int gain_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if( pInstrList->is_valid_index( nLine ) )
@@ -673,7 +673,7 @@ bool MidiActionManager::pitch_level_absolute(Action * pAction, Hydrogen* pHydrog
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pitch_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	if( pInstrList->is_valid_index( nLine ) )
@@ -712,7 +712,7 @@ bool MidiActionManager::filter_cutoff_level_absolute(Action * pAction, Hydrogen*
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int filter_cutoff_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	if( pInstrList->is_valid_index( nLine ) )
@@ -757,7 +757,7 @@ bool MidiActionManager::bpm_cc_relative(Action * pAction, Hydrogen* pHydrogen, t
 		m_nLastBpmChangeCCParameter = cc_param;
 	}
 
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	if ( m_nLastBpmChangeCCParameter >= cc_param && pSong->getBpm()  < 300) {
 		pHydrogen->setBPM( pSong->getBpm() - 1*mult );
@@ -792,7 +792,7 @@ bool MidiActionManager::bpm_fine_cc_relative(Action * pAction, Hydrogen* pHydrog
 		m_nLastBpmChangeCCParameter = cc_param;
 	}
 
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	if ( m_nLastBpmChangeCCParameter >= cc_param && pSong->getBpm()  < 300) {
 		pHydrogen->setBPM( pSong->getBpm() - 0.01*mult );
@@ -815,7 +815,7 @@ bool MidiActionManager::bpm_increase(Action * pAction, Hydrogen* pHydrogen, targ
 	bool ok;
 	int mult = pAction->getParameter1().toInt(&ok,10);
 
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	pHydrogen->setBPM( pSong->getBpm() + 1*mult );
 
 	pHydrogen->getAudioEngine()->unlock();
@@ -831,7 +831,7 @@ bool MidiActionManager::bpm_decrease(Action * pAction, Hydrogen* pHydrogen, targ
 	bool ok;
 	int mult = pAction->getParameter1().toInt(&ok,10);
 
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	pHydrogen->setBPM( pSong->getBpm() - 1*mult );
 	
 	pHydrogen->getAudioEngine()->unlock();

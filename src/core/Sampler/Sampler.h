@@ -172,7 +172,7 @@ public:
 	Sampler();
 	~Sampler();
 
-	void process( uint32_t nFrames, Song* pSong );
+	void process( uint32_t nFrames, std::shared_ptr<Song> pSong );
 
 	/// Start playing a note
 	void noteOn( Note * pNote );
@@ -239,7 +239,7 @@ private:
 	
 	/** function to direct the computation to the selected pan law function
 	 */
-	float panLaw( float fPan, Song* pSong );
+	float panLaw( float fPan, std::shared_ptr<Song> pSong );
 
 
 
@@ -247,7 +247,7 @@ private:
 	
 	bool isAnyInstrumentSoloed() const;
 	
-	bool renderNote( Note* pNote, unsigned nBufferSize, Song* pSong );
+	bool renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Song> pSong );
 
 	Interpolation::InterpolateMode m_interpolateMode;
 
@@ -263,7 +263,7 @@ private:
 		float cost_R,
 		float cost_track_L,
 		float cost_track_R,
-		Song* pSong
+		std::shared_ptr<Song> pSong
 	);
 
 	bool renderNoteResample(
@@ -279,7 +279,7 @@ private:
 		float cost_track_L,
 		float cost_track_R,
 		float fLayerPitch,
-		Song* pSong
+		std::shared_ptr<Song> pSong
 	);
 };
 

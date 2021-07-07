@@ -819,7 +819,7 @@ void SoundLibraryPanel::on_patternLoadAction()
 	LocalFileMng mng;
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 	QString patternName = __sound_library_tree->currentItem()->text( 0 );
 	QString drumkitName = __sound_library_tree->currentItem()->toolTip ( 0 );

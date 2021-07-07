@@ -263,7 +263,7 @@ void Mixer::soloClicked(MixerLine* ref)
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	CoreActionController* pController = pHydrogen->getCoreActionController();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	int nInstruments = pInstrList->size();
 
@@ -306,7 +306,7 @@ bool Mixer::isSoloClicked( uint n )
 void Mixer::noteOnClicked( MixerLine* ref )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	int nLine = findMixerLineByRef( ref );
 	pHydrogen->setSelectedInstrumentNumber( nLine );
@@ -324,7 +324,7 @@ void Mixer::noteOnClicked( MixerLine* ref )
  void Mixer::noteOffClicked( MixerLine* ref )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	
 	int nLine = findMixerLineByRef( ref );
 	pHydrogen->setSelectedInstrumentNumber( nLine );
@@ -388,7 +388,7 @@ void Mixer::updateMixer()
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	AudioEngine *pAudioEngine = pHydrogen->getAudioEngine();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	std::vector<DrumkitComponent*>* pDrumkitComponentList = pSong->getComponents();
 
@@ -705,7 +705,7 @@ void Mixer::knobChanged(MixerLine* ref, int nKnob) {
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	auto pInstr = pInstrList->get(nLine);
 	pInstr->set_fx_level( ref->getFXLevel(nKnob), nKnob );
@@ -807,7 +807,7 @@ void Mixer::ladspaEditBtnClicked( LadspaFXMixerLine *ref )
 void Mixer::ladspaVolumeChanged( LadspaFXMixerLine* ref)
 {
 #ifdef H2CORE_HAVE_LADSPA
-	Song *pSong = (Hydrogen::get_instance() )->getSong();
+	std::shared_ptr<Song> pSong = (Hydrogen::get_instance() )->getSong();
 	pSong->setIsModified( true );
 
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {

@@ -102,7 +102,7 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 
 void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int row,
 										 bool bDoAdd, bool bDoDelete ) {
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	auto pSelectedInstrument = pSong->getInstrumentList()->get( row );
 	H2Core::Note *pOldNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument );
 
@@ -162,7 +162,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	int nInstruments = pSong->getInstrumentList()->size();
 	int row = (int)( ev->y()  / (float)m_nGridHeight);
 	if (row >= nInstruments) {
@@ -235,7 +235,7 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 {
 	int row = (int)( ev->y()  / (float)m_nGridHeight);
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	int nColumn = getColumn( ev->x() );
 	if ( ev->button() == Qt::RightButton ) {
 		// Right button drag: adjust note length
@@ -290,7 +290,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 
 	assert(pPattern);
 
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 
 	auto pSelectedInstrument = pSong->getInstrumentList()->get( row );
 
@@ -376,7 +376,7 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 										Note *pNote)
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 	PatternList *pPatternList = pSong->getPatternList();
@@ -568,7 +568,7 @@ void DrumPatternEditor::editNoteLengthAction( int nColumn, int nRealColumn, int 
 
 	if( pPattern ) {
 		Note *pDraggedNote = nullptr;
-		Song *pSong = pHydrogen->getSong();
+		std::shared_ptr<Song> pSong = pHydrogen->getSong();
 		auto pSelectedInstrument = pSong->getInstrumentList()->get( row );
 
 		m_pAudioEngine->lock( RIGHT_HERE );
@@ -776,7 +776,7 @@ void DrumPatternEditor::keyReleaseEvent( QKeyEvent *ev ) {
 ///
 std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsIntersecting( QRect r )
 {
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	InstrumentList * pInstrList = pSong->getInstrumentList();
 	uint h = m_nGridHeight / 3;
 
@@ -1006,7 +1006,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 
 	int nNotes = m_pPattern->get_length();
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 
 	InstrumentList * pInstrList = pSong->getInstrumentList();
 
@@ -1153,7 +1153,7 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 	static const QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
 	static const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor );
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	int nInstruments = pSong->getInstrumentList()->size();
 	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
 		uint y = m_nGridHeight * i + 1;
@@ -1180,7 +1180,7 @@ void DrumPatternEditor::__create_background( QPainter& p)
 		nNotes = m_pPattern->get_length();
 	}
 
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	int nInstruments = pSong->getInstrumentList()->size();
 
 	if ( m_nEditorHeight != (int)( m_nGridHeight * nInstruments ) ) {
@@ -1287,7 +1287,7 @@ void DrumPatternEditor::undoRedoAction( int column,
 					int octaveKeyVal)
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	Pattern *pPattern = nullptr;
 	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
 
@@ -1591,7 +1591,7 @@ void DrumPatternEditor::functionMoveInstrumentAction( int nSourceInstrument,  in
 		Hydrogen *engine = Hydrogen::get_instance();
 		m_pAudioEngine->lock( RIGHT_HERE );
 
-		Song *pSong = engine->getSong();
+		std::shared_ptr<Song> pSong = engine->getSong();
 		InstrumentList *pInstrumentList = pSong->getInstrumentList();
 
 		if ( ( nTargetInstrument > (int)pInstrumentList->size() ) || ( nTargetInstrument < 0) ) {
@@ -1633,7 +1633,7 @@ void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 #ifdef H2CORE_HAVE_JACK
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	pHydrogen->renameJackPorts( pSong );
 #endif
 	m_pAudioEngine->unlock();
@@ -1857,7 +1857,7 @@ void DrumPatternEditor::functionAddEmptyInstrumentUndo()
 void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 {
 	m_pAudioEngine->lock( RIGHT_HERE );
-	Song* pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	InstrumentList* pList = pSong->getInstrumentList();
 
 	// create a new valid ID for this instrument

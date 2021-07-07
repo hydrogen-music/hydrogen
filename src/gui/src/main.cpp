@@ -518,7 +518,7 @@ int main(int argc, char *argv[])
 		// by the MainForm. The latter will just access the already
 		// loaded Song.
 		if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ){
-			H2Core::Song *pSong = nullptr;
+			std::shared_ptr<H2Core::Song>pSong = nullptr;
 
 			if ( sSongFilename.isEmpty() ) {
 				if ( pPref->isRestoreLastSongEnabled() ) {

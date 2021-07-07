@@ -548,7 +548,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	
 	if ( pSong != nullptr ) {
 		InstrumentList *pInstrList = pSong->getInstrumentList();
@@ -977,7 +977,7 @@ void InstrumentEditor::loadLayer()
 	int firstSelection = selectedLayer;
 
 	// Ensure instrument pointer is current
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong ) {
 		InstrumentList *pInstrList = pSong->getInstrumentList();
 		m_pInstrument = pInstrList->get( pHydrogen->getSelectedInstrumentNumber() );
@@ -1084,7 +1084,7 @@ void InstrumentEditor::setAutoVelocity()
 void InstrumentEditor::labelCompoClicked( ClickableLabel* pRef )
 {
 	UNUSED( pRef );
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -1469,7 +1469,7 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 	}
 	//	INFOLOG( "Tempo change: Recomputing rubberband samples." );
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *song = pHydrogen->getSong();
+	std::shared_ptr<Song> song = pHydrogen->getSong();
 	assert(song);
 	if(song){
 		InstrumentList *pSongInstrList = song->getInstrumentList();

@@ -99,16 +99,16 @@ class SMFWriter : public H2Core::Object
 public:
 	SMFWriter( const char* sWriterName );
 	virtual ~SMFWriter();
-	void save( const QString& sFilename, Song *pSong );
+	void save( const QString& sFilename, std::shared_ptr<Song> pSong );
 
 protected:
 	void sortEvents( EventList* pEventList );
-	SMFTrack* createTrack0( Song* pSong );
+	SMFTrack* createTrack0( std::shared_ptr<Song> pSong );
 	
-	virtual SMF* createSMF( Song* pSong )=0;
-	virtual void prepareEvents( Song* pSong, SMF* pSmf )=0;
-	virtual EventList* getEvents( Song* pSong, std::shared_ptr<Instrument> pInstr ) = 0;
-	virtual void  packEvents( Song* pSong, SMF* pSmf ) = 0;
+	virtual SMF* createSMF( std::shared_ptr<Song> pSong )=0;
+	virtual void prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf )=0;
+	virtual EventList* getEvents( std::shared_ptr<Song> pSong, std::shared_ptr<Instrument> pInstr ) = 0;
+	virtual void  packEvents( std::shared_ptr<Song> pSong, SMF* pSmf ) = 0;
 	
 private:
 	void saveSMF( const QString& sFilename, SMF* pSmf );
@@ -124,7 +124,7 @@ public:
     SMF1Writer( const char* sWriterName );
 	virtual ~SMF1Writer();
 protected:
-	virtual SMF* createSMF( Song* pSong );
+	virtual SMF* createSMF( std::shared_ptr<Song> pSong );
 };
 
 
@@ -135,9 +135,9 @@ public:
     SMF1WriterSingle();
 	virtual ~SMF1WriterSingle();
 protected:
-	virtual void prepareEvents( Song* pSong, SMF* pSmf );
-	virtual void  packEvents( Song* pSong, SMF* pSmf );
-	virtual EventList* getEvents( Song* pSong, std::shared_ptr<Instrument> pInstr );
+	virtual void prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf );
+	virtual void  packEvents( std::shared_ptr<Song> pSong, SMF* pSmf );
+	virtual EventList* getEvents( std::shared_ptr<Song> pSong, std::shared_ptr<Instrument> pInstr );
 private:
 	EventList m_eventList;
 };
@@ -150,9 +150,9 @@ public:
     SMF1WriterMulti();
 	virtual ~SMF1WriterMulti();
 protected:
-	virtual void prepareEvents( Song* pSong, SMF* pSmf );
-	virtual void  packEvents( Song* pSong, SMF* pSmf );
-	virtual EventList* getEvents( Song* pSong, std::shared_ptr<Instrument> pInstr );
+	virtual void prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf );
+	virtual void  packEvents( std::shared_ptr<Song> pSong, SMF* pSmf );
+	virtual EventList* getEvents( std::shared_ptr<Song> pSong, std::shared_ptr<Instrument> pInstr );
 private:
 	// contains events for each instrument in separate vector
 	std::vector<EventList*> m_eventLists;
@@ -168,10 +168,10 @@ public:
     SMF0Writer();
 	virtual ~SMF0Writer();
 protected:
-	virtual SMF* createSMF( Song* pSong );
-	virtual void prepareEvents( Song* pSong, SMF* pSmf );
-	virtual void  packEvents( Song* pSong, SMF* pSmf );
-	virtual EventList* getEvents( Song* pSong, std::shared_ptr<Instrument> pInstr );
+	virtual SMF* createSMF( std::shared_ptr<Song> pSong );
+	virtual void prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf );
+	virtual void  packEvents( std::shared_ptr<Song> pSong, SMF* pSmf );
+	virtual EventList* getEvents( std::shared_ptr<Song> pSong, std::shared_ptr<Instrument> pInstr );
 private:
 	SMFTrack* m_pTrack;
 	EventList m_eventList;
