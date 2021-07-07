@@ -1186,10 +1186,10 @@ using namespace H2Core;
 PYBIND11_MODULE(h2core, m) {
 
 	py::class_<H2Core::Object, PyB11_Object, std::shared_ptr<H2Core::Object>> _Object(m, "Object");
-	_Object.def(py::init<const char *>());
+	_Object.def(py::init<>());
 	_Object.def_property_readonly_static("alive_object_count", [](py::object) { return H2Core::Object::getAliveObjectCount(); });
 	_Object.def_property_readonly_static("object_map", [](py::object) { return H2Core::Object::getObjectMap(); });
-	_Object.def("class_name", &H2Core::Object::class_name);
+	_Object.def_static("class_name", &H2Core::Object::class_name);
 	_Object.def_static("count_active", &H2Core::Object::count_active);
 	_Object.def_static("objects_count", &H2Core::Object::objects_count);
 	// [<TypeDef 'ostream'>] _Object.def_static("write_objects_map_to", &H2Core::Object::write_objects_map_to,
@@ -1738,8 +1738,9 @@ PYBIND11_MODULE(h2core, m) {
 		"Displays general information about the transport state in the #INFOLOG");
 
 	py::class_<H2Core::MidiOutput, PyB11_MidiOutput, H2Core::Object, std::shared_ptr<H2Core::MidiOutput>> _MidiOutput(m, "MidiOutput");
-	_MidiOutput.def(py::init<const char *>());
+	_MidiOutput.def(py::init<>());
 	_MidiOutput.def_property_readonly("input_port_list", &H2Core::MidiOutput::getInputPortList);
+	_MidiOutput.def_static("class_name", &H2Core::MidiOutput::class_name);
 	_MidiOutput.def("handleQueueNote", &H2Core::MidiOutput::handleQueueNote,
 		py::arg("pNote"));
 	_MidiOutput.def("handleQueueNoteOff", &H2Core::MidiOutput::handleQueueNoteOff,
@@ -1753,7 +1754,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("channel"));
 
 	py::class_<H2Core::MidiInput, PyB11_MidiInput, H2Core::Object, std::shared_ptr<H2Core::MidiInput>> _MidiInput(m, "MidiInput");
-	_MidiInput.def(py::init<const char *>());
+	_MidiInput.def(py::init<>());
 	_MidiInput.def_property_readonly("output_port_list", &H2Core::MidiInput::getOutputPortList);
 	_MidiInput.def("open", &H2Core::MidiInput::open);
 	_MidiInput.def("close", &H2Core::MidiInput::close);
@@ -1769,10 +1770,11 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("msg"));
 
 	py::class_<H2Core::AudioOutput, PyB11_AudioOutput, H2Core::Object, std::shared_ptr<H2Core::AudioOutput>> _AudioOutput(m, "AudioOutput");
-	_AudioOutput.def(py::init<const char *>());
+	_AudioOutput.def(py::init<>());
 	_AudioOutput.def_readwrite("m_transport", &H2Core::AudioOutput::m_transport);
 	_AudioOutput.def_property_readonly("buffer_size", &H2Core::AudioOutput::getBufferSize);
 	_AudioOutput.def_property_readonly("sample_rate", &H2Core::AudioOutput::getSampleRate);
+	_AudioOutput.def_static("class_name", &H2Core::AudioOutput::class_name);
 	_AudioOutput.def("init", &H2Core::AudioOutput::init,
 		py::arg("nBufferSize"));
 	_AudioOutput.def("connect", &H2Core::AudioOutput::connect);
@@ -2890,8 +2892,6 @@ PYBIND11_MODULE(h2core, m) {
 }
 );
 	_Sample.def_property("is_modified", &H2Core::Sample::get_is_modified, &H2Core::Sample::set_is_modified);
-	_Sample.def_property_readonly("pan_envelope", &H2Core::Sample::get_pan_envelope);
-	_Sample.def_property_readonly("velocity_envelope", &H2Core::Sample::get_velocity_envelope);
 	_Sample.def_property_readonly("loops", &H2Core::Sample::get_loops);
 	_Sample.def_property_readonly("rubberband", &H2Core::Sample::get_rubberband);
 	_Sample.def_property_readonly("loop_mode_string", &H2Core::Sample::get_loop_mode_string);
@@ -2937,6 +2937,10 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("rb"));
 	_Sample.def("is_empty", &H2Core::Sample::is_empty,
 		"Returns true if both data channels are null pointers");
+	// [banned] _Sample.def("get_pan_envelope", &H2Core::Sample::get_pan_envelope,
+		// [banned] "Returns #__pan_envelope");
+	// [banned] _Sample.def("get_velocity_envelope", &H2Core::Sample::get_velocity_envelope,
+		// [banned] "Returns #__velocity_envelope");
 	_Sample.def_static("parse_loop_mode", &H2Core::Sample::parse_loop_mode,
 		"parse the given string and rturn the corresponding loop_mode",
 		py::arg("string"));

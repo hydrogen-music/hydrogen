@@ -146,8 +146,8 @@ module:
     - H2Core::Preferences::getDataDirectory
     - H2Core::LadspaControlPort::__class_name
     - H2Core::LadspaControlPort::class_name
-    # - H2Core::Sample::get_pan_envelope        # unique pointers in stl containers, pybind11 can't cope with this.
-    # - H2Core::Sample::get_velocity_envelope
+    - H2Core::Sample::get_pan_envelope        # unique pointers in stl containers, pybind11 can't cope with this.
+    - H2Core::Sample::get_velocity_envelope
     - H2Core::Object::Object(const H2Core::Object &)
     - std::runtime_error::runtime_error(const std::runtime_error &)
   cleaners:
