@@ -32,7 +32,7 @@ class FilesystemInfoForm;
 
 class FilesystemInfoForm : public QWidget, public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(FilesystemInfoForm)
 	Q_OBJECT
 	
 public:

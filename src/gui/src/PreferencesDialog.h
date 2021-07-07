@@ -36,7 +36,7 @@
 ///
 class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(PreferencesDialog)
 	Q_OBJECT
 	public:
 		explicit PreferencesDialog( QWidget* parent );

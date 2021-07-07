@@ -43,7 +43,7 @@ class PixmapWidget;
  */
 class Button : public QWidget, protected WidgetWithScalableFont<6, 8, 10>, public H2Core::Object, public MidiLearnable
 {
-    H2_OBJECT
+    H2_OBJECT(Button)
 	Q_OBJECT
 
 	public:

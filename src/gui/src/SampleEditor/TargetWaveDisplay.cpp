@@ -42,11 +42,9 @@ using namespace H2Core;
 
 static TargetWaveDisplay::EnvelopeEditMode getEnvelopeEditMode();
 
-const char* TargetWaveDisplay::__class_name = "TargetWaveDisplay";
-
 TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
  : QWidget( pParent )
- , Object( __class_name )
+ , Object()
  , m_sSampleName( "" )
 {
 //	setAttribute(Qt::WA_OpaquePaintEvent);

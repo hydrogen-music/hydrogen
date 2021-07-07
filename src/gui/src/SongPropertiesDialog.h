@@ -32,7 +32,7 @@
  */
 class SongPropertiesDialog : public QDialog, private Ui_SongPropertiesDialog_UI
 {
-    H2_OBJECT
+    H2_OBJECT(SongPropertiesDialog)
 	Q_OBJECT
 
 	public:

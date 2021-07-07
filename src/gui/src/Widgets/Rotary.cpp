@@ -64,11 +64,9 @@ QPixmap* Rotary::m_background_normal = nullptr;
 QPixmap* Rotary::m_background_center = nullptr;
 QPixmap* Rotary::m_background_small = nullptr;
 
-const char* Rotary::__class_name = "Rotary";
-
 Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseIntSteps, bool bUseValueTip, float fMin, float fMax )
  : QWidget( parent )
- , Object( __class_name )
+ , Object()
  , m_bUseIntSteps( bUseIntSteps )
  , m_type( type )
  , m_fMin( fMin )

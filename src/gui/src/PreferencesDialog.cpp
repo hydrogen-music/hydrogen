@@ -47,13 +47,12 @@
 
 using namespace H2Core;
 
-const char* PreferencesDialog::__class_name = "PreferencesDialog";
 
 QString PreferencesDialog::m_sColorRed = "#ca0003";
 
 PreferencesDialog::PreferencesDialog(QWidget* parent)
  : QDialog( parent )
- , Object( __class_name )
+ , Object()
 {
 	setupUi( this );
 

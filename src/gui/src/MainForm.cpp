@@ -83,11 +83,9 @@ using namespace H2Core;
 
 int MainForm::sigusr1Fd[2];
 
-const char* MainForm::__class_name = "MainForm";
-
 MainForm::MainForm( QApplication * pQApplication )
 	: QMainWindow( nullptr )
-	, Object( __class_name )
+	, Object()
 {
 	setObjectName( "MainForm" );
 	setMinimumSize( QSize( 1000, 500 ) );

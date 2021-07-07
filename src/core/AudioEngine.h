@@ -100,7 +100,7 @@ namespace H2Core
  */ 
 class AudioEngine : public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(AudioEngine)
 public:
 
 	/**

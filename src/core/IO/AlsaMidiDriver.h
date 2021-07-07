@@ -41,7 +41,7 @@ namespace H2Core
 ///
 class AlsaMidiDriver : public virtual MidiInput, public virtual MidiOutput
 {
-	H2_OBJECT
+	H2_OBJECT(AlsaMidiDriver)
 public:
 	AlsaMidiDriver();
 	virtual ~AlsaMidiDriver();

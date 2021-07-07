@@ -30,11 +30,9 @@ QPixmap* LCDDigit::m_pSmallRedFontSet = nullptr;
 QPixmap* LCDDigit::m_pLargeGrayFontSet = nullptr;
 QPixmap* LCDDigit::m_pSmallGrayFontSet = nullptr;
 
-const char* LCDDigit::__class_name = "LCDDigit";
-
 LCDDigit::LCDDigit( QWidget * pParent, LCDType type )
  : QWidget( pParent )
- , Object( __class_name )
+ , Object()
  , m_type( type )
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);
@@ -196,11 +194,9 @@ void LCDDigit::setSmallBlue()
 // ::::::::::::::::::
 
 
-const char* LCDDisplay::__class_name = "LCDDisplay";
-
 LCDDisplay::LCDDisplay( QWidget * pParent, LCDDigit::LCDType type, int nDigits, bool leftAlign )
  : QWidget( pParent )
- , Object( __class_name )
+ , Object()
  , m_sMsg( "" )
  , m_bLeftAlign( leftAlign )
 {
@@ -315,12 +311,10 @@ void LCDDisplay::digitClicked()
 // :::::::::::::::::::
 
 
-const char* LCDSpinBox::__class_name = "LCDSpinBox";
-
 // used in PlayerControl
 LCDSpinBox::LCDSpinBox( QWidget *pParent, int nDigits, LCDSpinBoxType type, int nMin, int nMax )
  : QWidget( pParent )
- , Object( __class_name )
+ , Object()
  , m_type( type )
  , m_fValue( 0 )
  , m_nMinValue( nMin )

@@ -30,7 +30,7 @@
 
 class MidiTable : public QTableWidget, public H2Core::Object
 {
-    H2_OBJECT
+    H2_OBJECT(MidiTable)
 	Q_OBJECT
 	public:
 		explicit MidiTable( QWidget* pParent );

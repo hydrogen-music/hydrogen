@@ -40,7 +40,7 @@ namespace H2Core
 
 class TargetWaveDisplay : public QWidget, public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(TargetWaveDisplay)
 	Q_OBJECT
 
 	public:

@@ -38,8 +38,9 @@ class Note;
  */
 class MidiOutput : public virtual Object
 {
+	H2_OBJECT(MidiOutput)
 public:
-	MidiOutput( const char* class_name );
+	MidiOutput();
 	virtual ~MidiOutput();
 	
 	virtual std::vector<QString> getInputPortList() = 0;

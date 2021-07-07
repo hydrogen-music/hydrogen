@@ -34,8 +34,8 @@
 namespace H2Core
 {
 
-MidiInput::MidiInput( const char* class_name )
-		: Object( class_name )
+MidiInput::MidiInput()
+		: Object()
 		, m_bActive( false )
 		, __hihat_cc_openess ( 127 )
 		, __noteOffTick( 0 )

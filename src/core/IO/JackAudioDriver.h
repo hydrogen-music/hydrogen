@@ -114,7 +114,7 @@ class InstrumentComponent;
  */
 class JackAudioDriver : public AudioOutput
 {
-	H2_OBJECT
+	H2_OBJECT(JackAudioDriver)
 public:
 	/**
 	 * Whether Hydrogen or another program is Jack timebase master.
@@ -942,7 +942,7 @@ private:
 
 namespace H2Core {
 class JackAudioDriver : public NullDriver {
-	H2_OBJECT
+	H2_OBJECT(JackAudioDriver)
 public:
 	/**
 	 * Whether Hydrogen or another program is Jack timebase master.

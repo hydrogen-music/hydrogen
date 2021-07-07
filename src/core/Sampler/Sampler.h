@@ -49,7 +49,7 @@ class AudioOutput;
 ///
 class Sampler : public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(Sampler)
 public:
 
    /** PAN LAWS

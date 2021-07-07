@@ -30,7 +30,7 @@ namespace H2Core
 {
 
 class CoreActionController : public H2Core::Object {
-	H2_OBJECT
+	H2_OBJECT(CoreActionController)
 	
 	public:
 		CoreActionController();

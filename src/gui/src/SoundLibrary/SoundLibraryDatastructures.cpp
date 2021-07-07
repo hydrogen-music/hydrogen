@@ -45,9 +45,7 @@ using namespace H2Core;
 
 SoundLibraryDatabase* SoundLibraryDatabase::__instance = nullptr;
 
-const char* SoundLibraryDatabase::__class_name = "SoundLibraryDatabase";
-
-SoundLibraryDatabase::SoundLibraryDatabase() : Object( __class_name )
+SoundLibraryDatabase::SoundLibraryDatabase() : Object()
 {
 	INFOLOG( "INIT" );
 	patternVector = new soundLibraryInfoVector();
@@ -137,14 +135,12 @@ soundLibraryInfoVector* SoundLibraryDatabase::getAllPatterns() const
 
 
 
-
-const char* SoundLibraryInfo::__class_name = "SoundLibraryInfo";
-SoundLibraryInfo::SoundLibraryInfo() : Object( __class_name )
+SoundLibraryInfo::SoundLibraryInfo() : Object()
 {
 	//default constructor
 }
 
-SoundLibraryInfo::SoundLibraryInfo(const QString &path) : Object( __class_name )
+SoundLibraryInfo::SoundLibraryInfo(const QString &path) : Object()
 {
 	/*
 	 *Use the provided file instantiate this object with the corresponding meta

@@ -30,7 +30,6 @@
 namespace H2Core
 {
 
-	const char* Files::__class_name = "Files";
 
 	QString Files::savePattern( SaveMode mode, const QString& fileName, const Pattern* pPattern, std::shared_ptr<Song> pSong, const QString& drumkitName )
 	{

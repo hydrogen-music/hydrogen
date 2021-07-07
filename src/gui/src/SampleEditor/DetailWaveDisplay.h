@@ -35,7 +35,7 @@ namespace H2Core
 
 class DetailWaveDisplay : public QWidget, public H2Core::Object
 {
-    H2_OBJECT
+    H2_OBJECT(DetailWaveDisplay)
 	Q_OBJECT
 
 	public:

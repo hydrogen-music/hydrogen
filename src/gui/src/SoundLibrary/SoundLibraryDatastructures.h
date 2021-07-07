@@ -43,7 +43,7 @@ typedef std::vector<SoundLibraryInfo*> soundLibraryInfoVector;
 
 class SoundLibraryDatabase:  public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(SoundLibraryDatabase)
 	public:
 		SoundLibraryDatabase();
 		~SoundLibraryDatabase();
@@ -85,7 +85,7 @@ class SoundLibraryDatabase:  public H2Core::Object
 
 class SoundLibraryInfo :  public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(SoundLibraryInfo)
 	public:
 		SoundLibraryInfo();
 		explicit SoundLibraryInfo( const QString& path);

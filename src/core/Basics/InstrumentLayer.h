@@ -42,7 +42,7 @@ namespace H2Core
 	 */
 	class InstrumentLayer : public H2Core::Object
 	{
-		H2_OBJECT
+		H2_OBJECT(InstrumentLayer)
 		public:
 		/** constructor
 		 * \param sample the sample to use

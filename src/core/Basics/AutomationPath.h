@@ -35,7 +35,7 @@ namespace H2Core
 
 class AutomationPath : public Object
 {
-	H2_OBJECT
+	H2_OBJECT(AutomationPath)
 
 	public:
 	typedef std::map<float,float>::iterator iterator;

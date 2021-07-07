@@ -39,7 +39,7 @@ namespace H2Core
 	 */
 	class Timeline : public H2Core::Object
 	{
-		H2_OBJECT
+		H2_OBJECT(Timeline)
 
 		public:
 			Timeline();

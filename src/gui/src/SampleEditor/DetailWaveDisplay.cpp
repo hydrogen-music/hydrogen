@@ -28,11 +28,9 @@ using namespace H2Core;
 #include "DetailWaveDisplay.h"
 #include "../Skin.h"
 
-const char* DetailWaveDisplay::__class_name = "DetailWaveDisplay";
-
 DetailWaveDisplay::DetailWaveDisplay(QWidget* pParent )
  : QWidget( pParent )
- , Object( __class_name )
+ , Object()
  , m_sSampleName( "" )
  , m_pPeakDatal( nullptr )
  , m_pPeakDatar( nullptr )  

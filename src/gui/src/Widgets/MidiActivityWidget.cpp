@@ -30,11 +30,10 @@
 #include <QMouseEvent>
 #include <QPaintEvent>
 
-const char* MidiActivityWidget::__class_name = "MidiActivityWidget";
 
 MidiActivityWidget::MidiActivityWidget( QWidget * parent )
  : QWidget( parent )
- , Object( __class_name )
+ , Object()
  , m_bValue( false )
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);

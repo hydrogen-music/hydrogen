@@ -41,10 +41,8 @@
 namespace H2Core
 {
 
-const char* Instrument::__class_name = "Instrument";
-
 Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR> adsr )
-	: Object( __class_name )
+	: Object()
 	, __id( id )
 	, __name( name )
 	, __gain( 1.0 )
@@ -96,7 +94,7 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 }
 
 Instrument::Instrument( std::shared_ptr<Instrument> other )
-	: Object( __class_name )
+	: Object()
 	, __id( other->get_id() )
 	, __name( other->get_name() )
 	, __gain( other->__gain )

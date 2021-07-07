@@ -37,7 +37,7 @@ class InstrumentLayer;
 
 class DrumkitComponent : public H2Core::Object
 {
-		H2_OBJECT
+		H2_OBJECT(DrumkitComponent)
 	public:
 		DrumkitComponent( const int id, const QString& name );
 		DrumkitComponent( DrumkitComponent* other );

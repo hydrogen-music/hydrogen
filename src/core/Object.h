@@ -44,7 +44,7 @@ class Object {
 		/** copy constructor */
 		Object( const Object& obj );
 		/** constructor */
-		Object( const char* class_name );
+		explicit Object();
 
 		/** an objects class map item type */
 		typedef struct {
@@ -54,7 +54,7 @@ class Object {
 		/** the objects class map type */
 		typedef std::map<const char*, obj_cpt_t> object_map_t;
 
-		const char* class_name( ) const         { return __class_name; }        ///< return the class name
+		static const char* class_name( )    { return "Object"; }        ///< return the class name
 		/**
 		 * enable/disable class instances counting
 		 * \param flag the counting status to set
@@ -123,7 +123,6 @@ class Object {
 		 */
 		static void add_object( const Object* obj, bool copy );
 
-		const char* __class_name;               ///< the object class name
 		static bool __count;                    ///< should we count class instances
 		static int __objects_count;        ///< total objects count
 		static object_map_t __objects_map;      ///< objects classes and instances count structure
@@ -148,9 +147,8 @@ inline QDebug operator<<( QDebug d, std::shared_ptr<Object> o ) {
 }
 
 // Object inherited class declaration macro
-#define H2_OBJECT                                                       \
-	public: static const char* class_name() { return __class_name; }    \
-	private: static const char* __class_name;                           \
+#define H2_OBJECT(name)                                                 \
+	public: static const char* class_name() { return #name; }    \
 
 // LOG MACROS
 #define __LOG_METHOD(   lvl, msg )  if( __logger->should_log( (lvl) ) )                 { __logger->log( (lvl), class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }

@@ -30,7 +30,7 @@
 
 class AboutDialogContributorList : public H2Core::Object
 {
-H2_OBJECT
+H2_OBJECT(AboutDialogContributorList)
 public:
 	AboutDialogContributorList();
 	~AboutDialogContributorList();

@@ -40,11 +40,9 @@
 
 using namespace H2Core;
 
-const char* LadspaFXProperties::__class_name = "LadspaFXProperties";
-
 LadspaFXProperties::LadspaFXProperties(QWidget* parent, uint nLadspaFX)
  : QWidget( parent )
- , Object( __class_name )
+ , Object()
 {
 //	INFOLOG( "INIT" );
 

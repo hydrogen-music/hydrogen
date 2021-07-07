@@ -34,7 +34,7 @@ namespace H2Core
 class Playlist : public H2Core::Object
 
 {
-		H2_OBJECT
+		H2_OBJECT(Playlist)
 
 	public:
 		struct Entry
