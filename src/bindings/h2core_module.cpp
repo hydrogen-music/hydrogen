@@ -19,6 +19,8 @@ class PyB11_Object: public H2Core::Object {
 
     };
 
+
+
 class PyB11_runtime_error: public std::runtime_error {
     public:
         // Inherit the constructors
@@ -33,6 +35,8 @@ class PyB11_runtime_error: public std::runtime_error {
             }
 
     };
+
+
 
 class PyB11_Note: public H2Core::Note {
     public:
@@ -50,6 +54,8 @@ class PyB11_Note: public H2Core::Note {
             }
 
     };
+
+
 
 class PyB11_MidiOutput: public H2Core::MidiOutput {
     public:
@@ -105,6 +111,8 @@ class PyB11_MidiOutput: public H2Core::MidiOutput {
 
     };
 
+
+
 class PyB11_MidiInput: public H2Core::MidiInput {
     public:
         // Inherit the constructors
@@ -135,6 +143,8 @@ class PyB11_MidiInput: public H2Core::MidiInput {
             }
 
     };
+
+
 
 class PyB11_AudioOutput: public H2Core::AudioOutput {
     public:
@@ -242,6 +252,8 @@ class PyB11_AudioOutput: public H2Core::AudioOutput {
 
     };
 
+
+
 class PyB11_Timeline: public H2Core::Timeline {
     public:
         // Inherit the constructors
@@ -258,6 +270,8 @@ class PyB11_Timeline: public H2Core::Timeline {
             }
 
     };
+
+
 
 class PyB11_Hydrogen: public H2Core::Hydrogen {
     public:
@@ -276,6 +290,8 @@ class PyB11_Hydrogen: public H2Core::Hydrogen {
 
     };
 
+
+
 class PyB11_Song: public H2Core::Song {
     public:
         // Inherit the constructors
@@ -292,6 +308,8 @@ class PyB11_Song: public H2Core::Song {
             }
 
     };
+
+
 
 class PyB11_AutomationPath: public H2Core::AutomationPath {
     public:
@@ -310,6 +328,8 @@ class PyB11_AutomationPath: public H2Core::AutomationPath {
 
     };
 
+
+
 class PyB11_Pattern: public H2Core::Pattern {
     public:
         // Inherit the constructors
@@ -326,6 +346,8 @@ class PyB11_Pattern: public H2Core::Pattern {
             }
 
     };
+
+
 
 class PyB11_Playlist: public H2Core::Playlist {
     public:
@@ -344,6 +366,8 @@ class PyB11_Playlist: public H2Core::Playlist {
 
     };
 
+
+
 class PyB11_Sample: public H2Core::Sample {
     public:
         // Inherit the constructors
@@ -360,6 +384,8 @@ class PyB11_Sample: public H2Core::Sample {
             }
 
     };
+
+
 
 class PyB11_InstrumentList: public H2Core::InstrumentList {
     public:
@@ -378,6 +404,8 @@ class PyB11_InstrumentList: public H2Core::InstrumentList {
 
     };
 
+
+
 class PyB11_InstrumentLayer: public H2Core::InstrumentLayer {
     public:
         // Inherit the constructors
@@ -394,6 +422,8 @@ class PyB11_InstrumentLayer: public H2Core::InstrumentLayer {
             }
 
     };
+
+
 
 class PyB11_InstrumentComponent: public H2Core::InstrumentComponent {
     public:
@@ -412,6 +442,8 @@ class PyB11_InstrumentComponent: public H2Core::InstrumentComponent {
 
     };
 
+
+
 class PyB11_Instrument: public H2Core::Instrument {
     public:
         // Inherit the constructors
@@ -428,6 +460,8 @@ class PyB11_Instrument: public H2Core::Instrument {
             }
 
     };
+
+
 
 class PyB11_ADSR: public H2Core::ADSR {
     public:
@@ -446,6 +480,8 @@ class PyB11_ADSR: public H2Core::ADSR {
 
     };
 
+
+
 class PyB11_DrumkitComponent: public H2Core::DrumkitComponent {
     public:
         // Inherit the constructors
@@ -462,6 +498,8 @@ class PyB11_DrumkitComponent: public H2Core::DrumkitComponent {
             }
 
     };
+
+
 
 class PyB11_Drumkit: public H2Core::Drumkit {
     public:
@@ -480,6 +518,8 @@ class PyB11_Drumkit: public H2Core::Drumkit {
 
     };
 
+
+
 class PyB11_PatternList: public H2Core::PatternList {
     public:
         // Inherit the constructors
@@ -496,6 +536,91 @@ class PyB11_PatternList: public H2Core::PatternList {
             }
 
     };
+
+
+#ifdef H2CORE_HAVE_PORTAUDIO
+
+class PyB11_PortMidiDriver: public H2Core::PortMidiDriver {
+    public:
+        // Inherit the constructors
+        using H2Core::PortMidiDriver::PortMidiDriver;
+
+        void open() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::PortMidiDriver,
+                open
+                );
+            }
+
+        void close() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::PortMidiDriver,
+                close
+                );
+            }
+
+        std::vector<QString> getInputPortList() override {
+            PYBIND11_OVERRIDE(
+                std::vector<QString>,
+                H2Core::PortMidiDriver,
+                getInputPortList
+                );
+            }
+
+        std::vector<QString> getOutputPortList() override {
+            PYBIND11_OVERRIDE(
+                std::vector<QString>,
+                H2Core::PortMidiDriver,
+                getOutputPortList
+                );
+            }
+
+        void handleQueueNote(H2Core::Note * pNote) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::PortMidiDriver,
+                handleQueueNote,
+			pNote
+                );
+            }
+
+        void handleQueueNoteOff(int channel, int key, int velocity) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::PortMidiDriver,
+                handleQueueNoteOff,
+			channel,
+			key,
+			velocity
+                );
+            }
+
+        void handleQueueAllNoteOff() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::PortMidiDriver,
+                handleQueueAllNoteOff
+                );
+            }
+
+        void handleOutgoingControlChange(int param, int value, int channel) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::PortMidiDriver,
+                handleOutgoingControlChange,
+			param,
+			value,
+			channel
+                );
+            }
+
+    };
+#endif // H2CORE_HAVE_PORTAUDIO
+
+
+#ifdef H2CORE_HAVE_JACK
 
 class PyB11_JackMidiDriver: public H2Core::JackMidiDriver {
     public:
@@ -574,6 +699,10 @@ class PyB11_JackMidiDriver: public H2Core::JackMidiDriver {
             }
 
     };
+#endif // H2CORE_HAVE_JACK
+
+
+#ifdef H2CORE_HAVE_ALSA
 
 class PyB11_AlsaMidiDriver: public H2Core::AlsaMidiDriver {
     public:
@@ -652,6 +781,119 @@ class PyB11_AlsaMidiDriver: public H2Core::AlsaMidiDriver {
             }
 
     };
+#endif // H2CORE_HAVE_ALSA
+
+
+#ifdef H2CORE_HAVE_PORTAUDIO
+
+class PyB11_PortAudioDriver: public H2Core::PortAudioDriver {
+    public:
+        // Inherit the constructors
+        using H2Core::PortAudioDriver::PortAudioDriver;
+
+        int init(unsigned int nBufferSize) override {
+            PYBIND11_OVERRIDE(
+                int,
+                H2Core::PortAudioDriver,
+                init,
+			nBufferSize
+                );
+            }
+
+        int connect() override {
+            PYBIND11_OVERRIDE(
+                int,
+                H2Core::PortAudioDriver,
+                connect
+                );
+            }
+
+        void disconnect() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::PortAudioDriver,
+                disconnect
+                );
+            }
+
+        unsigned int getBufferSize() override {
+            PYBIND11_OVERRIDE(
+                unsigned int,
+                H2Core::PortAudioDriver,
+                getBufferSize
+                );
+            }
+
+        unsigned int getSampleRate() override {
+            PYBIND11_OVERRIDE(
+                unsigned int,
+                H2Core::PortAudioDriver,
+                getSampleRate
+                );
+            }
+
+        float * getOut_L() override {
+            PYBIND11_OVERRIDE(
+                float *,
+                H2Core::PortAudioDriver,
+                getOut_L
+                );
+            }
+
+        float * getOut_R() override {
+            PYBIND11_OVERRIDE(
+                float *,
+                H2Core::PortAudioDriver,
+                getOut_R
+                );
+            }
+
+        void updateTransportInfo() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::PortAudioDriver,
+                updateTransportInfo
+                );
+            }
+
+        void play() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::PortAudioDriver,
+                play
+                );
+            }
+
+        void stop() override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::PortAudioDriver,
+                stop
+                );
+            }
+
+        void locate(unsigned long nFrame) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::PortAudioDriver,
+                locate,
+			nFrame
+                );
+            }
+
+        void setBpm(float fBPM) override {
+            PYBIND11_OVERRIDE(
+                void,
+                H2Core::PortAudioDriver,
+                setBpm,
+			fBPM
+                );
+            }
+
+    };
+#endif // H2CORE_HAVE_PORTAUDIO
+
+
 
 class PyB11_NullDriver: public H2Core::NullDriver {
     public:
@@ -759,6 +1001,9 @@ class PyB11_NullDriver: public H2Core::NullDriver {
 
     };
 
+
+#ifdef H2CORE_HAVE_JACK
+
 class PyB11_JackAudioDriver: public H2Core::JackAudioDriver {
     public:
         // Inherit the constructors
@@ -864,6 +1109,9 @@ class PyB11_JackAudioDriver: public H2Core::JackAudioDriver {
             }
 
     };
+#endif // H2CORE_HAVE_JACK
+
+
 
 class PyB11_FakeDriver: public H2Core::FakeDriver {
     public:
@@ -971,6 +1219,8 @@ class PyB11_FakeDriver: public H2Core::FakeDriver {
 
     };
 
+
+
 class PyB11_DiskWriterDriver: public H2Core::DiskWriterDriver {
     public:
         // Inherit the constructors
@@ -1077,6 +1327,9 @@ class PyB11_DiskWriterDriver: public H2Core::DiskWriterDriver {
 
     };
 
+
+#ifdef H2CORE_HAVE_ALSA
+
 class PyB11_AlsaAudioDriver: public H2Core::AlsaAudioDriver {
     public:
         // Inherit the constructors
@@ -1182,6 +1435,9 @@ class PyB11_AlsaAudioDriver: public H2Core::AlsaAudioDriver {
             }
 
     };
+#endif // H2CORE_HAVE_ALSA
+
+
 using namespace H2Core;
 PYBIND11_MODULE(h2core, m) {
 
@@ -3398,7 +3654,6 @@ PYBIND11_MODULE(h2core, m) {
 		.value("Constructors", H2Core::Logger::log_levels::Constructors)
 		.value("AELockTracing", H2Core::Logger::log_levels::AELockTracing)
 		.export_values();
-
 	// enum MidiMessageType
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/IO/MidiCommon.h', line 37, column 7>
 	py::enum_<H2Core::MidiMessage::MidiMessageType>(_MidiMessage, "MidiMessageType")
@@ -3417,7 +3672,6 @@ PYBIND11_MODULE(h2core, m) {
 		.value("STOP", H2Core::MidiMessage::MidiMessageType::STOP)
 		.value("SONG_POS", H2Core::MidiMessage::MidiMessageType::SONG_POS)
 		.value("QUARTER_FRAME", H2Core::MidiMessage::MidiMessageType::QUARTER_FRAME);
-
 	py::class_<H2Core::H2Exception, std::runtime_error, std::shared_ptr<H2Core::H2Exception>> _H2Exception(m, "H2Exception");
 	_H2Exception.def(py::init<const QString &>());
 
@@ -3498,7 +3752,6 @@ PYBIND11_MODULE(h2core, m) {
 	py::enum_<QColor::NameFormat>(_QColor, "NameFormat")
 		.value("HexRgb", QColor::NameFormat::HexRgb)
 		.value("HexArgb", QColor::NameFormat::HexArgb);
-
 	// enum Spec
 	// <SourceLocation file '/usr/include/x86_64-linux-gnu/qt5/QtGui/qcolor.h', line 67, column 10>
 	py::enum_<QColor::Spec>(_QColor, "Spec")
@@ -3507,8 +3760,8 @@ PYBIND11_MODULE(h2core, m) {
 		.value("Hsv", QColor::Spec::Hsv)
 		.value("Cmyk", QColor::Spec::Cmyk)
 		.value("Hsl", QColor::Spec::Hsl)
-	// [banned] .value("ExtendedRgb", QColor::Spec::ExtendedRgb);
-
+	// [banned] .value("ExtendedRgb", QColor::Spec::ExtendedRgb)
+;
 	// enum Octave
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Note.h', line 75, column 8>
 	py::enum_<H2Core::Note::Octave>(_Note, "Octave")
@@ -3519,7 +3772,6 @@ PYBIND11_MODULE(h2core, m) {
 		.value("P8A", H2Core::Note::Octave::P8A)
 		.value("P8B", H2Core::Note::Octave::P8B)
 		.value("P8C", H2Core::Note::Octave::P8C);
-
 	// enum Key
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Note.h', line 73, column 8>
 	py::enum_<H2Core::Note::Key>(_Note, "Key")
@@ -3535,7 +3787,6 @@ PYBIND11_MODULE(h2core, m) {
 		.value("A", H2Core::Note::Key::A)
 		.value("Bf", H2Core::Note::Key::Bf)
 		.value("B", H2Core::Note::Key::B);
-
 	// enum PAN_LAW_TYPES
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Sampler/Sampler.h', line 104, column 7>
 	py::enum_<H2Core::Sampler::PAN_LAW_TYPES>(_Sampler, "PAN_LAW_TYPES")
@@ -3555,7 +3806,31 @@ PYBIND11_MODULE(h2core, m) {
 		.value("RATIO_CONST_K_NORM", H2Core::Sampler::PAN_LAW_TYPES::RATIO_CONST_K_NORM)
 		.value("POLAR_CONST_K_NORM", H2Core::Sampler::PAN_LAW_TYPES::POLAR_CONST_K_NORM)
 		.value("QUADRATIC_CONST_K_NORM", H2Core::Sampler::PAN_LAW_TYPES::QUADRATIC_CONST_K_NORM);
+#ifdef H2CORE_HAVE_PORTAUDIO
+	py::class_<H2Core::PortMidiDriver, PyB11_PortMidiDriver, H2Core::MidiInput, H2Core::MidiOutput, std::shared_ptr<H2Core::PortMidiDriver>> _PortMidiDriver(m, "PortMidiDriver");
+	_PortMidiDriver.def(py::init<>());
+	_PortMidiDriver.def_readwrite("m_pMidiIn", &H2Core::PortMidiDriver::m_pMidiIn);
+	_PortMidiDriver.def_readwrite("m_pMidiOut", &H2Core::PortMidiDriver::m_pMidiOut);
+	_PortMidiDriver.def_readwrite("m_bRunning", &H2Core::PortMidiDriver::m_bRunning);
+	_PortMidiDriver.def_property_readonly("input_port_list", &H2Core::PortMidiDriver::getInputPortList);
+	_PortMidiDriver.def_property_readonly("output_port_list", &H2Core::PortMidiDriver::getOutputPortList);
+	_PortMidiDriver.def_static("class_name", &H2Core::PortMidiDriver::class_name);
+	_PortMidiDriver.def("open", &H2Core::PortMidiDriver::open);
+	_PortMidiDriver.def("close", &H2Core::PortMidiDriver::close);
+	_PortMidiDriver.def("handleQueueNote", &H2Core::PortMidiDriver::handleQueueNote,
+		py::arg("pNote"));
+	_PortMidiDriver.def("handleQueueNoteOff", &H2Core::PortMidiDriver::handleQueueNoteOff,
+		py::arg("channel"),
+		py::arg("key"),
+		py::arg("velocity"));
+	_PortMidiDriver.def("handleQueueAllNoteOff", &H2Core::PortMidiDriver::handleQueueAllNoteOff);
+	_PortMidiDriver.def("handleOutgoingControlChange", &H2Core::PortMidiDriver::handleOutgoingControlChange,
+		py::arg("param"),
+		py::arg("value"),
+		py::arg("channel"));
+#endif // H2CORE_HAVE_PORTAUDIO
 
+#ifdef H2CORE_HAVE_JACK
 	py::class_<H2Core::JackMidiDriver, PyB11_JackMidiDriver, H2Core::MidiInput, H2Core::MidiOutput, std::shared_ptr<H2Core::JackMidiDriver>> _JackMidiDriver(m, "JackMidiDriver");
 	_JackMidiDriver.def(py::init<>());
 	_JackMidiDriver.def_property_readonly("input_port_list", &H2Core::JackMidiDriver::getInputPortList);
@@ -3582,7 +3857,9 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("param"),
 		py::arg("value"),
 		py::arg("channel"));
+#endif // H2CORE_HAVE_JACK
 
+#ifdef H2CORE_HAVE_ALSA
 	py::class_<H2Core::AlsaMidiDriver, PyB11_AlsaMidiDriver, H2Core::MidiInput, H2Core::MidiOutput, std::shared_ptr<H2Core::AlsaMidiDriver>> _AlsaMidiDriver(m, "AlsaMidiDriver");
 	_AlsaMidiDriver.def(py::init<>());
 	_AlsaMidiDriver.def_property_readonly("input_port_list", &H2Core::AlsaMidiDriver::getInputPortList);
@@ -3607,6 +3884,29 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("param"),
 		py::arg("value"),
 		py::arg("channel"));
+#endif // H2CORE_HAVE_ALSA
+
+#ifdef H2CORE_HAVE_PORTAUDIO
+	py::class_<H2Core::PortAudioDriver, PyB11_PortAudioDriver, H2Core::AudioOutput, std::shared_ptr<H2Core::PortAudioDriver>> _PortAudioDriver(m, "PortAudioDriver");
+	_PortAudioDriver.def(py::init<H2Core::audioProcessCallback>());
+	_PortAudioDriver.def_readwrite("m_pOut_L", &H2Core::PortAudioDriver::m_pOut_L);
+	_PortAudioDriver.def_readwrite("m_pOut_R", &H2Core::PortAudioDriver::m_pOut_R);
+	_PortAudioDriver.def_readwrite("m_nBufferSize", &H2Core::PortAudioDriver::m_nBufferSize);
+	_PortAudioDriver.def_property_readonly("buffer_size", &H2Core::PortAudioDriver::getBufferSize);
+	_PortAudioDriver.def_property_readonly("sample_rate", &H2Core::PortAudioDriver::getSampleRate);
+	_PortAudioDriver.def_static("class_name", &H2Core::PortAudioDriver::class_name);
+	_PortAudioDriver.def("init", &H2Core::PortAudioDriver::init,
+		py::arg("nBufferSize"));
+	_PortAudioDriver.def("connect", &H2Core::PortAudioDriver::connect);
+	_PortAudioDriver.def("disconnect", &H2Core::PortAudioDriver::disconnect);
+	_PortAudioDriver.def("getOut_L", &H2Core::PortAudioDriver::getOut_L);
+	_PortAudioDriver.def("getOut_R", &H2Core::PortAudioDriver::getOut_R);
+	_PortAudioDriver.def("updateTransportInfo", &H2Core::PortAudioDriver::updateTransportInfo);
+	_PortAudioDriver.def("play", &H2Core::PortAudioDriver::play);
+	_PortAudioDriver.def("stop", &H2Core::PortAudioDriver::stop);
+	_PortAudioDriver.def("locate", &H2Core::PortAudioDriver::locate,
+		py::arg("nFrame"));
+#endif // H2CORE_HAVE_PORTAUDIO
 
 	py::class_<H2Core::NullDriver, PyB11_NullDriver, H2Core::AudioOutput, std::shared_ptr<H2Core::NullDriver>> _NullDriver(m, "NullDriver");
 	_NullDriver.def(py::init<H2Core::audioProcessCallback>());
@@ -3625,6 +3925,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("nFrame"));
 	_NullDriver.def("updateTransportInfo", &H2Core::NullDriver::updateTransportInfo);
 
+#ifdef H2CORE_HAVE_JACK
 	py::class_<H2Core::JackAudioDriver, PyB11_JackAudioDriver, H2Core::AudioOutput, std::shared_ptr<H2Core::JackAudioDriver>> _JackAudioDriver(m, "JackAudioDriver");
 	_JackAudioDriver.def(py::init<JackProcessCallback>());
 	_JackAudioDriver.def_readwrite("m_currentPos", &H2Core::JackAudioDriver::m_currentPos);
@@ -3690,6 +3991,7 @@ PYBIND11_MODULE(h2core, m) {
 		"Callback function for the JACK audio server to set the buffer size #jackServerBufferSize.",
 		py::arg("nframes"),
 		py::arg("arg"));
+#endif // H2CORE_HAVE_JACK
 
 	py::class_<H2Core::FakeDriver, PyB11_FakeDriver, H2Core::AudioOutput, std::shared_ptr<H2Core::FakeDriver>> _FakeDriver(m, "FakeDriver");
 	_FakeDriver.def(py::init<H2Core::audioProcessCallback>());
@@ -3736,6 +4038,7 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("nFrame"));
 	_DiskWriterDriver.def("updateTransportInfo", &H2Core::DiskWriterDriver::updateTransportInfo);
 
+#ifdef H2CORE_HAVE_ALSA
 	py::class_<H2Core::AlsaAudioDriver, PyB11_AlsaAudioDriver, H2Core::AudioOutput, std::shared_ptr<H2Core::AlsaAudioDriver>> _AlsaAudioDriver(m, "AlsaAudioDriver");
 	_AlsaAudioDriver.def(py::init<H2Core::audioProcessCallback>());
 	_AlsaAudioDriver.def_readwrite("m_bIsRunning", &H2Core::AlsaAudioDriver::m_bIsRunning);
@@ -3758,6 +4061,7 @@ PYBIND11_MODULE(h2core, m) {
 	_AlsaAudioDriver.def("stop", &H2Core::AlsaAudioDriver::stop);
 	_AlsaAudioDriver.def("locate", &H2Core::AlsaAudioDriver::locate,
 		py::arg("nFrame"));
+#endif // H2CORE_HAVE_ALSA
 
 	py::class_<H2Core::Timeline::Tag, std::shared_ptr<H2Core::Timeline::Tag>> _Tag(m, "Tag");
 	_Tag.def_readwrite("nBar", &H2Core::Timeline::Tag::nBar);
@@ -3791,21 +4095,18 @@ PYBIND11_MODULE(h2core, m) {
 		.value("JACK_CANNOT_CLOSE_CLIENT", H2Core::Hydrogen::ErrorMessages::JACK_CANNOT_CLOSE_CLIENT)
 		.value("JACK_ERROR_IN_PORT_REGISTER", H2Core::Hydrogen::ErrorMessages::JACK_ERROR_IN_PORT_REGISTER)
 		.value("OSC_CANNOT_CONNECT_TO_PORT", H2Core::Hydrogen::ErrorMessages::OSC_CANNOT_CONNECT_TO_PORT);
-
 	// enum GUIState
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Hydrogen.h', line 583, column 14>
 	py::enum_<H2Core::Hydrogen::GUIState>(_Hydrogen, "GUIState")
 		.value("notReady", H2Core::Hydrogen::GUIState::notReady)
 		.value("unavailable", H2Core::Hydrogen::GUIState::unavailable)
 		.value("ready", H2Core::Hydrogen::GUIState::ready);
-
 	// enum Lookup
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Helpers/Filesystem.h', line 52, column 13>
 	py::enum_<H2Core::Filesystem::Lookup>(_Filesystem, "Lookup")
 		.value("stacked", H2Core::Filesystem::Lookup::stacked)
 		.value("user", H2Core::Filesystem::Lookup::user)
 		.value("system", H2Core::Filesystem::Lookup::system);
-
 	// enum file_perms
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Helpers/Filesystem.h', line 40, column 8>
 	py::enum_<H2Core::Filesystem::file_perms>(_Filesystem, "file_perms")
@@ -3814,19 +4115,16 @@ PYBIND11_MODULE(h2core, m) {
 		.value("is_readable", H2Core::Filesystem::file_perms::is_readable)
 		.value("is_writable", H2Core::Filesystem::file_perms::is_writable)
 		.value("is_executable", H2Core::Filesystem::file_perms::is_executable);
-
 	// enum ActionMode
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Song.h', line 189, column 14>
 	py::enum_<H2Core::Song::ActionMode>(_Song, "ActionMode")
 		.value("selectMode", H2Core::Song::ActionMode::selectMode)
 		.value("drawMode", H2Core::Song::ActionMode::drawMode);
-
 	// enum SongMode
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Song.h', line 59, column 8>
 	py::enum_<H2Core::Song::SongMode>(_Song, "SongMode")
 		.value("PATTERN_MODE", H2Core::Song::SongMode::PATTERN_MODE)
 		.value("SONG_MODE", H2Core::Song::SongMode::SONG_MODE);
-
 	py::class_<H2Core::Playlist::Entry, std::shared_ptr<H2Core::Playlist::Entry>> _Entry(m, "Entry");
 	_Entry.def_readwrite("filePath", &H2Core::Playlist::Entry::filePath);
 	_Entry.def_readwrite("fileExists", &H2Core::Playlist::Entry::fileExists);
@@ -3839,32 +4137,27 @@ PYBIND11_MODULE(h2core, m) {
 		.value("UI_SCALING_SMALLER", H2Core::Preferences::UI_SCALING_POLICY::UI_SCALING_SMALLER)
 		.value("UI_SCALING_SYSTEM", H2Core::Preferences::UI_SCALING_POLICY::UI_SCALING_SYSTEM)
 		.value("UI_SCALING_LARGER", H2Core::Preferences::UI_SCALING_POLICY::UI_SCALING_LARGER);
-
 	// enum UI_LAYOUT_TYPES
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 156, column 7>
 	py::enum_<H2Core::Preferences::UI_LAYOUT_TYPES>(_Preferences, "UI_LAYOUT_TYPES")
 		.value("UI_LAYOUT_SINGLE_PANE", H2Core::Preferences::UI_LAYOUT_TYPES::UI_LAYOUT_SINGLE_PANE)
 		.value("UI_LAYOUT_TABBED", H2Core::Preferences::UI_LAYOUT_TYPES::UI_LAYOUT_TABBED);
-
 	// enum FontSize
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 149, column 13>
 	py::enum_<H2Core::Preferences::FontSize>(_Preferences, "FontSize")
 		.value("Normal", H2Core::Preferences::FontSize::Normal)
 		.value("Small", H2Core::Preferences::FontSize::Small)
 		.value("Large", H2Core::Preferences::FontSize::Large);
-
 	// enum JackBBTSyncMethod
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 356, column 13>
 	py::enum_<H2Core::Preferences::JackBBTSyncMethod>(_Preferences, "JackBBTSyncMethod")
 		.value("constMeasure", H2Core::Preferences::JackBBTSyncMethod::constMeasure)
 		.value("identicalBars", H2Core::Preferences::JackBBTSyncMethod::identicalBars);
-
 	// enum JackTrackOutputMode
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Preferences.h', line 330, column 13>
 	py::enum_<H2Core::Preferences::JackTrackOutputMode>(_Preferences, "JackTrackOutputMode")
 		.value("postFader", H2Core::Preferences::JackTrackOutputMode::postFader)
 		.value("preFader", H2Core::Preferences::JackTrackOutputMode::preFader);
-
 	py::class_<H2Core::Sample::Rubberband, std::shared_ptr<H2Core::Sample::Rubberband>> _Rubberband(m, "Rubberband");
 	_Rubberband.def(py::init<>());
 	_Rubberband.def(py::init<const H2Core::Sample::Rubberband *>());
@@ -3900,19 +4193,16 @@ PYBIND11_MODULE(h2core, m) {
 		.value("VELOCITY", H2Core::Instrument::SampleSelectionAlgo::VELOCITY)
 		.value("ROUND_ROBIN", H2Core::Instrument::SampleSelectionAlgo::ROUND_ROBIN)
 		.value("RANDOM", H2Core::Instrument::SampleSelectionAlgo::RANDOM);
-
 	// enum Timebase
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/IO/JackAudioDriver.h', line 122, column 13>
 	py::enum_<H2Core::JackAudioDriver::Timebase>(_JackAudioDriver, "Timebase")
 		.value("Master", H2Core::JackAudioDriver::Timebase::Master)
 		.value("Slave", H2Core::JackAudioDriver::Timebase::Slave)
 		.value("None", H2Core::JackAudioDriver::Timebase::None);
-
 	// enum LoopMode
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Sample.h', line 79, column 10>
 	py::enum_<H2Core::Sample::Loops::LoopMode>(_Loops, "LoopMode")
 		.value("FORWARD", H2Core::Sample::Loops::LoopMode::FORWARD)
 		.value("REVERSE", H2Core::Sample::Loops::LoopMode::REVERSE)
 		.value("PINGPONG", H2Core::Sample::Loops::LoopMode::PINGPONG);
-
 }

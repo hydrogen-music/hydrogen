@@ -117,8 +117,8 @@ module:
     - H2Core::AlsaAudioDriver::AlsaAudioDriver()
     - H2Core::AlsaMidiDriver::midi_action
     - H2Core::JackAudioDriver::m_pClient
-    - H2Core::PortMidiDriver
-    - H2Core::PortAudioDriver
+    #- H2Core::PortMidiDriver
+    #- H2Core::PortAudioDriver
     # std::vector
     - H2Core::Synth::m_playingNotesQueue
     - H2Core::Hydrogen::m_nInstrumentLookupTable
@@ -152,6 +152,20 @@ module:
     - std::runtime_error::runtime_error(const std::runtime_error &)
     - QColor::Spec::ExtendedRgb
     - QColor::QColor(QColor::Spec, ushort, ushort, ushort, ushort, ushort)
+  shield:
+    H2Core::AlsaAudioDriver: H2CORE_HAVE_ALSA
+    H2Core::AlsaMidiDriver: H2CORE_HAVE_ALSA
+    H2Core::AlsaAudioDriver: H2CORE_HAVE_ALSA
+    H2Core::AlsaMidiDriver: H2CORE_HAVE_ALSA
+    H2Core::JackAudioDriver: H2CORE_HAVE_JACK
+    H2Core::JackMidiDriver: H2CORE_HAVE_JACK
+    H2Core::JackAudioDriver: H2CORE_HAVE_JACK
+    H2Core::JackMidiDriver: H2CORE_HAVE_JACK
+    H2Core::PortAudioDriver: H2CORE_HAVE_PORTAUDIO
+    H2Core::PortMidiDriver: H2CORE_HAVE_PORTAUDIO
+    H2Core::PulseAudioDriver: H2CORE_HAVE_PULSEAUDIO
+    H2Core::OssDriver: H2CORE_HAVE_OSS
+
   cleaners:
     - qtreset.h
   plugins:
