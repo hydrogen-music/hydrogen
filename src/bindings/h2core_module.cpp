@@ -3508,8 +3508,7 @@ PYBIND11_MODULE(h2core, m) {
 		.value("Hsv", QColor::Spec::Hsv)
 		.value("Cmyk", QColor::Spec::Cmyk)
 		.value("Hsl", QColor::Spec::Hsl)
-	// [banned] .value("ExtendedRgb", QColor::Spec::ExtendedRgb)
-		.value("ExtendedRgb", QColor::Spec::ExtendedRgb);
+	// [banned] .value("ExtendedRgb", QColor::Spec::ExtendedRgb);
 
 	// enum Octave
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Note.h', line 75, column 8>
