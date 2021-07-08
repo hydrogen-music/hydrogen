@@ -151,6 +151,7 @@ module:
     - H2Core::Object::Object(const H2Core::Object &)
     - std::runtime_error::runtime_error(const std::runtime_error &)
     - QColor::Spec::ExtendedRgb
+    - QColor::QColor(QColor::Spec, ushort, ushort, ushort, ushort, ushort)
   cleaners:
     - qtreset.h
   plugins:

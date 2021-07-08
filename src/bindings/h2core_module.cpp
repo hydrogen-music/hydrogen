@@ -1286,7 +1286,6 @@ PYBIND11_MODULE(h2core, m) {
 	_QColor.def(py::init<QLatin1String>());
 	_QColor.def(py::init<QColor::Spec>());
 	_QColor.def(py::init<const QColor &>());
-	_QColor.def(py::init<QColor::Spec, ushort, ushort, ushort, ushort, ushort>());
 	// [banned] _QColor.def("operator=", py::overload_cast<QColor &&>(&QColor::operator=),
 	// [banned] 	py::arg("other"));
 	// [banned] _QColor.def("operator=", py::overload_cast<const QColor &>(&QColor::operator=),
