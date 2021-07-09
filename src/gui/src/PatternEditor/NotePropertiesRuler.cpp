@@ -38,10 +38,8 @@ using namespace H2Core;
 #include "DrumPatternEditor.h"
 #include "PianoRollEditor.h"
 
-const char* NotePropertiesRuler::__class_name = "NotePropertiesRuler";
-
 NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, NotePropertiesMode mode )
-	: PatternEditor( parent, __class_name, pPatternEditorPanel )
+	: PatternEditor( parent, pPatternEditorPanel )
 {
 	//infoLog("INIT");
 	//setAttribute(Qt::WA_OpaquePaintEvent);

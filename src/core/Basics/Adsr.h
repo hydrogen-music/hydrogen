@@ -35,7 +35,7 @@ namespace H2Core
  */
 class ADSR : public Object
 {
-		H2_OBJECT
+		H2_OBJECT(ADSR)
 	public:
 
 		/**

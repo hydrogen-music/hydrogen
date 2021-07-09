@@ -30,7 +30,7 @@
 
 class PixmapWidget : public H2Core::Object, public QWidget
 {
-    H2_OBJECT
+    H2_OBJECT(PixmapWidget)
 	public:
 		PixmapWidget( QWidget *pParent, const char* = "PixmapWidget" );
 		~PixmapWidget();

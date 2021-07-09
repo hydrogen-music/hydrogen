@@ -43,7 +43,7 @@ class PixmapWidget;
 class PlaylistDialog : public QDialog, protected WidgetWithScalableFont<8, 10, 12>, public Ui_PlaylistDialog_UI, public H2Core::Object
 
 {
-		H2_OBJECT
+		H2_OBJECT(PlaylistDialog)
 	Q_OBJECT
 	public:
 

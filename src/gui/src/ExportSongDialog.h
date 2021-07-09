@@ -44,7 +44,7 @@ namespace H2Core {
 ///
 class ExportSongDialog : public QDialog, public Ui_ExportSongDialog_UI, public EventListener, public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(ExportSongDialog)
 	Q_OBJECT
 
 	public:

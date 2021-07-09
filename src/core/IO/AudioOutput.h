@@ -37,12 +37,13 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 ///
 class AudioOutput : public H2Core::Object
 {
+	H2_OBJECT(AudioOutput)
 public:
 	/** Local instance of the TransportInfo. */
 	TransportInfo m_transport;
 
-	AudioOutput( const char* class_name )
-			: Object( class_name ) { }
+	AudioOutput()
+			: Object() { }
 
 	virtual ~AudioOutput() { }
 

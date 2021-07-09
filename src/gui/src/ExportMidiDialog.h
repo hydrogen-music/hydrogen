@@ -38,7 +38,7 @@ namespace H2Core {
 ///
 class ExportMidiDialog : public QDialog, public Ui_ExportMidiDialog_UI, public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(ExportMidiDialog)
 	Q_OBJECT
 
 	public:

@@ -50,7 +50,7 @@ namespace H2Core
 ///
 class Hydrogen : public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(Hydrogen)
 public:
 	
 	/**

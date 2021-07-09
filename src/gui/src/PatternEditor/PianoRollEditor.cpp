@@ -39,11 +39,9 @@ using namespace H2Core;
 #include "../HydrogenApp.h"
 
 
-const char* PianoRollEditor::__class_name = "PianoRollEditor";
-
 PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 								  QScrollArea *pScrollView)
-	: PatternEditor( pParent, __class_name, panel )
+	: PatternEditor( pParent, panel )
 	, m_pScrollView( pScrollView )
 {
 	INFOLOG( "INIT" );

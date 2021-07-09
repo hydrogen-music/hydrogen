@@ -38,7 +38,7 @@ class DrumkitComponent;
 */
 class Drumkit : public H2Core::Object
 {
-		H2_OBJECT
+		H2_OBJECT(Drumkit)
 	public:
 		/** drumkit constructor, does nothing */
 		Drumkit();

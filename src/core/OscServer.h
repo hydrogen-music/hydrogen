@@ -87,7 +87,7 @@ namespace H2Core
 */
 class OscServer : public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(OscServer)
 	public:
 		/**
 		 * Object holding the current OscServer singleton. It is

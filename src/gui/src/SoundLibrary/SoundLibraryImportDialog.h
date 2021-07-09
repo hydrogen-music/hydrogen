@@ -36,7 +36,7 @@
 ///
 class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDialog_UI, public H2Core::Object
 {
-    H2_OBJECT
+    H2_OBJECT(SoundLibraryImportDialog)
 	Q_OBJECT
 	public:
 		SoundLibraryImportDialog( QWidget* pParent, bool bOnlineImport );

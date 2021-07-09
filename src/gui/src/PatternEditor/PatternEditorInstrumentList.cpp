@@ -49,10 +49,9 @@ using namespace H2Core;
 #include <cassert>
 #include <algorithm> // for std::min
 
-const char* InstrumentLine::__class_name = "InstrumentLine";
 
 InstrumentLine::InstrumentLine(QWidget* pParent)
-	: PixmapWidget(pParent, __class_name)
+	: PixmapWidget(pParent)
 	, m_bIsSelected(false)
 {
 	int h = Preferences::get_instance()->getPatternEditorGridHeight();
@@ -557,11 +556,9 @@ void InstrumentLine::onPreferencesChanged( bool bAppearanceOnly ) {
 
 //////
 
-const char* PatternEditorInstrumentList::__class_name = "PatternEditorInstrumentList";
-
 PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, PatternEditorPanel *pPatternEditorPanel )
  : QWidget( parent )
- , Object( __class_name )
+ , Object()
 {
 	//INFOLOG("INIT");
 	m_pPattern = nullptr;

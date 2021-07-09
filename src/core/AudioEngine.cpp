@@ -98,10 +98,8 @@ inline timeval currentTime2()
 	return now;
 }
 
-const char* AudioEngine::__class_name = "AudioEngine";
-
 AudioEngine::AudioEngine()
-		: Object( __class_name )
+		: Object()
 		, m_pSampler( nullptr )
 		, m_pSynth( nullptr )
 		, m_fElapsedTime( 0 )

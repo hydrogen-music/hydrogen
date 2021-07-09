@@ -34,7 +34,7 @@ namespace H2Core
 	 */
 	class Filesystem : public H2Core::Object
 	{
-		H2_OBJECT
+		H2_OBJECT(Filesystem)
 		public:
 		/** flags available for check_permissions() */
 		enum file_perms {

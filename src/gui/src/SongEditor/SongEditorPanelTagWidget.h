@@ -35,7 +35,7 @@ namespace H2Core
 
 class SongEditorPanelTagWidget : public QDialog, public Ui_SongEditorPanelTagWidget_UI, public H2Core::Object
 {
-    H2_OBJECT
+    H2_OBJECT(SongEditorPanelTagWidget)
 
 //lineEditBEAT
 //lineEditBPM

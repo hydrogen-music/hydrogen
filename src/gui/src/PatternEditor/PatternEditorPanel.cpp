@@ -60,12 +60,10 @@ void PatternEditorPanel::updateSLnameLabel( )
 	m_pSLlabel->setText( Hydrogen::get_instance()->getCurrentDrumkitName() );
 }
 
-const char* PatternEditorPanel::__class_name = "PatternEditorPanel";
-
 
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
  : QWidget( pParent )
- , Object( __class_name )
+ , Object()
  , m_pPattern( nullptr )
 {
 	setAcceptDrops(true);

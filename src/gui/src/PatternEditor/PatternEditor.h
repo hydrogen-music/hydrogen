@@ -57,11 +57,11 @@ class PatternEditor : public QWidget,
 					  public H2Core::Object,
 					  public SelectionWidget<H2Core::Note *>
 {
-	H2_OBJECT
+	H2_OBJECT(PatternEditor)
 	Q_OBJECT
 
 public:
-	PatternEditor( QWidget *pParent, const char *sClassName,
+	PatternEditor( QWidget *pParent,
 				   PatternEditorPanel *panel );
 
 

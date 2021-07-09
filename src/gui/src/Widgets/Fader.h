@@ -36,7 +36,7 @@
 ///
 class Fader : public QWidget, public H2Core::Object, public MidiLearnable
 {
-    H2_OBJECT
+    H2_OBJECT(Fader)
 	Q_OBJECT
 
 	public:
@@ -108,7 +108,7 @@ public:
 
 class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable
 {
-    H2_OBJECT
+    H2_OBJECT(MasterFader)
 	Q_OBJECT
 
 	public:

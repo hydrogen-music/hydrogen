@@ -56,7 +56,7 @@
 
 class NsmClient : public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(NsmClient)
 	public:
 		/**
 		 * Object holding the current NsmClient singleton. It

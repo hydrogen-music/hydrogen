@@ -42,7 +42,6 @@
 #include "core/MidiAction.h"
 
 OscServer * OscServer::__instance = nullptr;
-const char* OscServer::__class_name = "OscServer";
 
 
 QString OscServer::qPrettyPrint(lo_type type,void * data)
@@ -261,7 +260,7 @@ int OscServer::generic_handler(const char *	path,
 
 
 
-OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name ),
+OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object(),
 															m_bInitialized( false )
 {
 	m_pPreferences = pPreferences;

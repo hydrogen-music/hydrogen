@@ -67,7 +67,7 @@ struct SelectedLayerInfo {
  */
 class Note : public H2Core::Object
 {
-		H2_OBJECT
+		H2_OBJECT(Note)
 	public:
 		/** possible keys */
 		enum Key { C=KEY_MIN, Cs, D, Ef, E, F, Fs, G, Af, A, Bf, B };

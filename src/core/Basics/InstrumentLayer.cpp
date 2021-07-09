@@ -28,9 +28,7 @@
 namespace H2Core
 {
 
-const char* InstrumentLayer::__class_name = "InstrumentLayer";
-
-InstrumentLayer::InstrumentLayer( std::shared_ptr<Sample> sample ) : Object( __class_name ),
+InstrumentLayer::InstrumentLayer( std::shared_ptr<Sample> sample ) : Object(),
 	__start_velocity( 0.0 ),
 	__end_velocity( 1.0 ),
 	__pitch( 0.0 ),
@@ -39,7 +37,7 @@ InstrumentLayer::InstrumentLayer( std::shared_ptr<Sample> sample ) : Object( __c
 {
 }
 
-InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> other ) : Object( __class_name ),
+InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> other ) : Object(),
 	__start_velocity( other->get_start_velocity() ),
 	__end_velocity( other->get_end_velocity() ),
 	__pitch( other->get_pitch() ),
@@ -48,7 +46,7 @@ InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> other ) : Obj
 {
 }
 
-InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> other, std::shared_ptr<Sample> sample ) : Object( __class_name ),
+InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> other, std::shared_ptr<Sample> sample ) : Object(),
 	__start_velocity( other->get_start_velocity() ),
 	__end_velocity( other->get_end_velocity() ),
 	__pitch( other->get_pitch() ),

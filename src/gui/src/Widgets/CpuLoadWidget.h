@@ -37,7 +37,7 @@
 ///
 class CpuLoadWidget : public QWidget, public EventListener, public H2Core::Object
 {
-    H2_OBJECT
+    H2_OBJECT(CpuLoadWidget)
 	Q_OBJECT
 
 	public:

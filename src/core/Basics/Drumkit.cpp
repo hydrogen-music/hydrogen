@@ -47,9 +47,7 @@
 namespace H2Core
 {
 
-const char* Drumkit::__class_name = "Drumkit";
-
-Drumkit::Drumkit() : Object( __class_name ),
+Drumkit::Drumkit() : Object(),
 					 __samples_loaded( false ),
 					 __instruments( nullptr ),
 					 __name( "empty" ),
@@ -63,7 +61,7 @@ Drumkit::Drumkit() : Object( __class_name ),
 }
 
 Drumkit::Drumkit( Drumkit* other ) :
-	Object( __class_name ),
+	Object(),
 	__path( other->get_path() ),
 	__name( other->get_name() ),
 	__author( other->get_author() ),

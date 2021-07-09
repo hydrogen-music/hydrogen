@@ -31,11 +31,9 @@
 
 #include <core/Globals.h>
 
-const char* Button::__class_name = "Button";
-
 Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffImage, const QString& sOverImage, QSize size, bool use_skin_style, bool enable_press_hold )
  : QWidget( pParent )
- , Object( __class_name )
+ , Object()
  , m_bPressed( false )
  , m_onPixmap( size )
  , m_offPixmap( size )

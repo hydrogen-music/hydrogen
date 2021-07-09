@@ -59,8 +59,6 @@ static OSStatus renderProc(
 namespace H2Core
 {
 
-const char* CoreAudioDriver::__class_name = "CoreAudioDriver";
-
 
 void CoreAudioDriver::retrieveDefaultDevice(void)
 {

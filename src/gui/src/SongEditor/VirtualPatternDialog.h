@@ -43,7 +43,7 @@ namespace H2Core
 ///
 class VirtualPatternDialog : public QDialog, public Ui_VirtualPatternDialog_UI, public H2Core::Object
 {
-    H2_OBJECT
+    H2_OBJECT(VirtualPatternDialog)
 	Q_OBJECT
 	public:
 		explicit VirtualPatternDialog( QWidget* parent );

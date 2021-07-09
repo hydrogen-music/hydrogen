@@ -37,7 +37,7 @@ namespace H2Core
 {
 class Effects : public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(Effects)
 public:
 	/**
 	 * If #__instance equals 0, a new Effects

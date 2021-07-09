@@ -280,10 +280,8 @@ void* diskWriterDriver_thread( void* param )
 
 
 
-const char* DiskWriterDriver::__class_name = "DiskWriterDriver";
-
 DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, int nSampleDepth )
-		: AudioOutput( __class_name )
+		: AudioOutput()
 		, m_nSampleRate( nSamplerate )
 		, m_nSampleDepth ( nSampleDepth )
 		, m_processCallback( processCallback )

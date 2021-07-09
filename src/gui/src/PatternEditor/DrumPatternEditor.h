@@ -43,7 +43,7 @@ class PatternEditorInstrumentList;
 ///
 class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>
 {
-    H2_OBJECT
+    H2_OBJECT(DrumPatternEditor)
 	Q_OBJECT
 
 	public:

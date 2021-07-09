@@ -32,7 +32,7 @@
 
 class SplashScreen : public QSplashScreen, public H2Core::Object
 {
-    H2_OBJECT
+    H2_OBJECT(SplashScreen)
 	Q_OBJECT
 	public:
 		SplashScreen();
