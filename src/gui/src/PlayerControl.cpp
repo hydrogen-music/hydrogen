@@ -424,7 +424,8 @@ void PlayerControl::updatePlayerControl()
 	}
 
 	int state = m_pHydrogen->getState();
-	if ( ! m_pPlayBtn->isDown() ) {
+	if ( ! m_pPlayBtn->isDown() && ! m_pStopBtn->isDown() &&
+		 ! m_pFfwdBtn->isDown() && ! m_pRwdBtn->isDown() ) {
 		if (state == STATE_PLAYING ) {
 			m_pPlayBtn->setChecked(true);
 		}
