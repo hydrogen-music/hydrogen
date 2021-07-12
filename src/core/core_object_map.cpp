@@ -54,6 +54,7 @@
 namespace H2Core {
 void init_core_object_map()
 {
+#ifdef H2CORE_HAVE_DEBUG
     H2_REGISTER(Object);
 	H2_REGISTER(MidiMap);
 	H2_REGISTER(NsmClient);
@@ -146,5 +147,6 @@ void init_core_object_map()
 	H2_REGISTER(WindowProperties);
 	H2_REGISTER(UIStyle);
 	H2_REGISTER(Preferences);
+#endif // H2CORE_HAVE_DEBUG
 }
 }; // namespace H2Core

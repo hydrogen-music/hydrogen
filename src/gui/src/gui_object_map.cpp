@@ -66,6 +66,7 @@
 namespace H2Core {
 void init_gui_object_map()
 {
+#ifdef H2CORE_HAVE_DEBUG
 	H2_REGISTER(AboutDialogContributorList);
 	H2_REGISTER(PreferencesDialog);
 	H2_REGISTER(SongEditorPanel);
@@ -145,6 +146,7 @@ void init_gui_object_map()
     H2_REGISTER(Rotary);
     H2_REGISTER(MidiTable);
 	H2_REGISTER(AutomationPathView);
+#endif
 }
 
 }; // namespace H2Core
