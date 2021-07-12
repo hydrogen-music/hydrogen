@@ -36,7 +36,7 @@ class Note;
 /**
  * MIDI input base class
  */
-class MidiOutput : public virtual Object
+class MidiOutput : public Countable<MidiOutput>, public virtual Object
 {
 	H2_OBJECT(MidiOutput)
 public:

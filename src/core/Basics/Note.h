@@ -65,7 +65,7 @@ struct SelectedLayerInfo {
 /**
  * A note plays an associated instrument with a velocity left and right pan
  */
-class Note : public H2Core::Object
+class Note : public H2Core::Countable<Note>, public H2Core::Object
 {
 		H2_OBJECT(Note)
 	public:

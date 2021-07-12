@@ -31,7 +31,7 @@ namespace H2Core
 /**
  * Drumkit info
 */
-class Playlist : public H2Core::Object
+class Playlist : public H2Core::Countable<Playlist>, public H2Core::Object
 
 {
 		H2_OBJECT(Playlist)

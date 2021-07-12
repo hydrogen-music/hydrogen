@@ -1239,7 +1239,7 @@ void SongEditorPatternList::patternChangedEvent()
 	// lines of code the GUI, instead, just sets the speed to 0 BPM.
 	auto pDriver = pHydrogen->getAudioOutput();
 	if ( pDriver != nullptr ) {
-		if ( DiskWriterDriver::class_name() == pDriver->class_name() ) {
+		if ( DiskWriterDriver::_class_name() == pDriver->class_name() ) {
 			return;
 		}
 	}

@@ -183,7 +183,7 @@ public:
  * will be invoked to respond to the condition of the engine. For
  * details about the mapping of EventTypes to functions please see the
  * documentation of HydrogenApp::onEventQueueTimer().*/
-class EventQueue : public H2Core::Object
+class EventQueue : public H2Core::Countable<EventQueue>, public H2Core::Object
 {
 	H2_OBJECT(EventQueue)
 public:/**

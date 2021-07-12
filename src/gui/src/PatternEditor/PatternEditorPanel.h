@@ -54,7 +54,7 @@ namespace H2Core
 ///
 /// Pattern Editor Panel
 ///
-class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public EventListener, public H2Core::Object
+class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public EventListener,  public H2Core::Countable<PatternEditorPanel>, public H2Core::Object
 {
 	H2_OBJECT(PatternEditorPanel)
 	Q_OBJECT

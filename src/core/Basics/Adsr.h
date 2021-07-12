@@ -33,7 +33,7 @@ namespace H2Core
 /**
  * Attack Decay Sustain Release envelope.
  */
-class ADSR : public Object
+class ADSR : public Countable<ADSR>, public Object
 {
 		H2_OBJECT(ADSR)
 	public:

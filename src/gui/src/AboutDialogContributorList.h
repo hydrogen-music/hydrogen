@@ -28,7 +28,7 @@
 #include <QString>
 #include <core/Object.h>
 
-class AboutDialogContributorList : public H2Core::Object
+class AboutDialogContributorList :   public H2Core::Countable<AboutDialogContributorList>, public H2Core::Object
 {
 H2_OBJECT(AboutDialogContributorList)
 public:

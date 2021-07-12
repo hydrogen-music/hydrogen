@@ -26,7 +26,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cstdlib>
-
+#include <typeinfo>
 
 /**
 * @class Object
@@ -43,11 +43,11 @@
 
 namespace H2Core {
 
-Logger* Object::__logger = nullptr;
-bool Object::__count = false;
-int Object::__objects_count = 0;
+Logger* CountControl::__logger = nullptr;
+bool CountControl::__count = false;
+std::atomic<int> CountControl::__objects_count(0);
 pthread_mutex_t Object::__mutex;
-Object::object_map_t Object::__objects_map;
+object_internal_map_t Object::__objects_map;
 QString Object::sPrintIndention = "  ";
 
 int Object::bootstrap( Logger* logger, bool count ) {
@@ -61,65 +61,21 @@ int Object::bootstrap( Logger* logger, bool count ) {
 }
 
 Object::~Object( ) {
-#ifdef H2CORE_HAVE_DEBUG
-	if( __count ) del_object( this );
-#endif
 }
 
 Object::Object( const Object& obj ) {
-#ifdef H2CORE_HAVE_DEBUG
-	if( __count ) add_object( this, true );
-#endif
 }
 
 Object::Object() {
-#ifdef H2CORE_HAVE_DEBUG
-	if( __count ) add_object( this, false );
-#endif
 }
 
-void Object::set_count( bool flag ) {
+void CountControl::set_count( bool flag ) {
 #ifdef H2CORE_HAVE_DEBUG
 	__count = flag;
 #else
 	if( __logger!=0 && __logger->should_log( Logger::Error ) ) {
 		__logger->log(  Logger::Error, "set_count", "Object", "not compiled with H2CORE_HAVE_DEBUG flag set" );
 	}
-#endif
-}
-
-inline void Object::add_object( const Object* obj, bool copy ) {
-#ifdef H2CORE_HAVE_DEBUG
-	const char* class_name = ( ( Object* )obj )->class_name();
-	if( __logger && __logger->should_log( Logger::Constructors ) ) __logger->log( Logger::Debug, nullptr, class_name, ( copy ? "Copy Constructor" : "Constructor" ) );
-	pthread_mutex_lock( &__mutex );
-	//if( __objects_map.size()==0) atexit( Object::write_objects_map_to_cerr );
-	__objects_count++;
-	__objects_map[ class_name ].constructed++;
-	pthread_mutex_unlock( &__mutex );
-#endif
-}
-
-inline void Object::del_object( const Object* obj ) {
-#ifdef H2CORE_HAVE_DEBUG
-	const char* class_name = ( ( Object* )obj )->class_name();
-	if( __logger && __logger->should_log( Logger::Constructors ) ) __logger->log( Logger::Debug, nullptr, class_name, "Destructor" );
-	object_map_t::iterator it_count = __objects_map.find( class_name );
-	if ( it_count==__objects_map.end() ) {
-		if( __logger!=nullptr && __logger->should_log( Logger::Error ) ) {
-			std::stringstream msg;
-			msg << "the class " <<  class_name << " is not registered ! [" << obj << "]";
-			__logger->log( Logger::Error,"del_object", "Object", QString::fromStdString( msg.str() ) );
-		}
-		return;
-	}
-	assert( ( *it_count ).first == class_name );
-	pthread_mutex_lock( &__mutex );
-	assert( __objects_map[class_name].constructed > ( __objects_map[class_name].destructed ) );
-	__objects_count--;
-	assert( __objects_count>=0 );
-	__objects_map[ ( *it_count ).first ].destructed++;
-	pthread_mutex_unlock( &__mutex );
 #endif
 }
 
@@ -133,17 +89,20 @@ void Object::write_objects_map_to( std::ostream& out, object_map_t* map ) {
 #endif
 		return;
 	}
-
+	object_map_t snapshot;
 	if ( map == nullptr ) {
-		map = &__objects_map;
+		snapshot = getObjectMap();
+		map = &snapshot;
 	}
 	
 	std::ostringstream o;
 	pthread_mutex_lock( &__mutex );
 	object_map_t::iterator it = map->begin();
 	while ( it != map->end() ) {
-		o << "\t[ " << std::setw( 30 ) << ( *it ).first << " ]\t" << std::setw( 6 ) << ( *it ).second.constructed << "\t" << std::setw( 6 ) << ( *it ).second.destructed
-		  << "\t" << std::setw( 6 ) << ( *it ).second.constructed - ( *it ).second.destructed << std::endl;
+		if ( it->second.constructed || it->second.destructed ) {
+			o << "\t[ " << std::setw( 30 ) << ( *it ).first << " ]\t" << std::setw( 6 ) << ( *it ).second.constructed << "\t" << std::setw( 6 ) << ( *it ).second.destructed
+			  << "\t" << std::setw( 6 ) << ( *it ).second.constructed - ( *it ).second.destructed << std::endl;
+		}
 		it++;
 	}
 	pthread_mutex_unlock( &__mutex );
@@ -167,8 +126,10 @@ void Object::write_objects_map_to( std::ostream& out, object_map_t* map ) {
 int Object::getAliveObjectCount() {
 #ifdef H2CORE_HAVE_DEBUG
 	int nCount = 0;
-	for ( auto const& ii : __objects_map ) {
-		nCount += ii.second.constructed - ii.second.destructed;
+	for (auto const& ii : __objects_map ) {
+		if (!strcmp(ii.first, "Object")) {
+			return ii.second->constructed - ii.second->destructed;
+		}
 	}
 	return nCount;
 #else
@@ -177,19 +138,20 @@ int Object::getAliveObjectCount() {
 #endif
 }
 
-Object::object_map_t Object::getObjectMap() {
+object_map_t Object::getObjectMap() {
 	object_map_t mapCopy;
 	obj_cpt_t copy;
 	
 	for ( auto const& ii : __objects_map ) {
-		copy.constructed = ii.second.constructed;
-		copy.destructed = ii.second.destructed;
+		copy.constructed = ii.second->constructed;
+		copy.destructed = ii.second->destructed;
 		mapCopy.insert( std::pair<const char*, obj_cpt_t>( ii.first, copy ) );
 	}
 	
 	return mapCopy;
 }
-void Object::printObjectMapDiff( Object::object_map_t mapSnapshot ) {
+
+void Object::printObjectMapDiff( object_map_t mapSnapshot ) {
 	object_map_t mapDiff;
 	obj_cpt_t diff;
 
@@ -199,8 +161,8 @@ void Object::printObjectMapDiff( Object::object_map_t mapSnapshot ) {
 	for ( auto const& ii : __objects_map ) {
 		auto it = mapSnapshot.find( ii.first );
 		if ( it != mapSnapshot.end() ) {
-			diff.constructed = ii.second.constructed - it->second.constructed;
-			diff.destructed = ii.second.destructed - it->second.destructed;
+			diff.constructed = ii.second->constructed - it->second.constructed;
+			diff.destructed = ii.second->destructed - it->second.destructed;
 			mapDiff.insert( std::pair<const char*, obj_cpt_t>( ii.first, diff ) );
 		}
 	}
@@ -225,6 +187,18 @@ std::ostream& operator<<( std::ostream& os, const Object* object ) {
 	return os << object->toQString( "", true ).toLocal8Bit().data() << std::endl;
 }
 
-};
+void Object::registerClass(const char *name, const atomic_obj_cpt_t *counters)
+{
+	if ( ! counters ) {
+		qWarning() << "Object::registerClass: " << name << " null counters!";
+	}
+	if ( ! __objects_map[name] ) {
+	__objects_map[name] = counters;
+	} else {
+		qWarning() << "Object::registerClass: " << name << " already registered";
+	}
+}
+
+}; // namespace H2Core
 
 /* vim: set softtabstop=4 noexpandtab: */

@@ -36,7 +36,7 @@ class Song;
 /**
  * Files is in charge of writing and reading Patterns, Drumkits, Songs to the filesystem
  */
-class Files : public H2Core::Object
+class Files : public H2Core::Countable<Files>, public H2Core::Object
 {
 		H2_OBJECT(Files)
 	public:

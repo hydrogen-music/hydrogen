@@ -39,7 +39,7 @@ class PatternList;
 /**
 Pattern class is a Note container
 */
-class Pattern : public H2Core::Object
+class Pattern : public H2Core::Countable<Pattern>, public H2Core::Object
 {
 		H2_OBJECT(Pattern)
 	public:

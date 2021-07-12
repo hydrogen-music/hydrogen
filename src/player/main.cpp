@@ -45,6 +45,7 @@ void usage()
 }
 
 int main(int argc, char** argv){
+	H2Core::init_core_object_map();
 
 	unsigned logLevelOpt = H2Core::Logger::Error;
 	H2Core::Logger::create_instance();

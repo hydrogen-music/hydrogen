@@ -32,7 +32,7 @@
 #include <QPushButton>
 #include <QColor>
 
-class ColorSelectionButton : public QPushButton, public H2Core::Object
+class ColorSelectionButton :  public QPushButton,  public H2Core::Countable<ColorSelectionButton>, public H2Core::Object
 {
     H2_OBJECT(ColorSelectionButton)
 	Q_OBJECT

@@ -38,7 +38,7 @@ class AudioOutput;
 ///
 /// A simple synthetizer...
 ///
-class Synth : public H2Core::Object
+class Synth : public H2Core::Countable<Synth>, public H2Core::Object
 {
 	H2_OBJECT(Synth)
 public:

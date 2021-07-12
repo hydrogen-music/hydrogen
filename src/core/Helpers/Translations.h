@@ -37,7 +37,7 @@ namespace H2Core
 ///
 /// Translations manager
 ///
-class Translations : public Object
+class Translations : public Countable<Translations>, public Object
 {
 
   // Need methods to:

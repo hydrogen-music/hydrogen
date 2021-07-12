@@ -42,7 +42,7 @@ namespace H2Core {
 ///
 /// Dialog for exporting song
 ///
-class ExportSongDialog : public QDialog, public Ui_ExportSongDialog_UI, public EventListener, public H2Core::Object
+class ExportSongDialog :  public QDialog, public Ui_ExportSongDialog_UI, public EventListener,  public H2Core::Countable<ExportSongDialog>, public H2Core::Object
 {
 	H2_OBJECT(ExportSongDialog)
 	Q_OBJECT

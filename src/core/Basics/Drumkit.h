@@ -36,7 +36,7 @@ class DrumkitComponent;
 /**
  * Drumkit info
 */
-class Drumkit : public H2Core::Object
+class Drumkit : public H2Core::Countable<Drumkit>, public H2Core::Object
 {
 		H2_OBJECT(Drumkit)
 	public:

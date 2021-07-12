@@ -38,7 +38,7 @@ class Drumkit;
 class InstrumentLayer;
 class DrumkitComponent;
 
-class InstrumentComponent : public H2Core::Object
+class InstrumentComponent : public H2Core::Countable<InstrumentComponent>, public H2Core::Object
 {
 		H2_OBJECT(InstrumentComponent)
 	public:

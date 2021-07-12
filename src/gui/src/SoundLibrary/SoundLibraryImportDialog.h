@@ -34,7 +34,7 @@
 ///
 /// This dialog is used to import a SoundLibrary file from a local file or via HTTP.
 ///
-class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDialog_UI, public H2Core::Object
+class SoundLibraryImportDialog :  public QDialog, public Ui_SoundLibraryImportDialog_UI,  public H2Core::Countable<SoundLibraryImportDialog>, public H2Core::Object
 {
     H2_OBJECT(SoundLibraryImportDialog)
 	Q_OBJECT

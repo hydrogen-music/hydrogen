@@ -30,7 +30,7 @@ namespace Ui {
 class FilesystemInfoForm;
 }
 
-class FilesystemInfoForm : public QWidget, public H2Core::Object
+class FilesystemInfoForm :  public QWidget,  public H2Core::Countable<FilesystemInfoForm>, public H2Core::Object
 {
 	H2_OBJECT(FilesystemInfoForm)
 	Q_OBJECT

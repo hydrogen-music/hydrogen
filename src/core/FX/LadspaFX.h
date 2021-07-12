@@ -35,7 +35,7 @@
 namespace H2Core
 {
 
-class LadspaFXInfo : public H2Core::Object
+class LadspaFXInfo : public H2Core::Countable<LadspaFXInfo>, public H2Core::Object
 {
 	H2_OBJECT(LadspaFXInfo)
 public:
@@ -57,7 +57,7 @@ public:
 
 
 
-class LadspaFXGroup : public H2Core::Object
+class LadspaFXGroup : public H2Core::Countable<LadspaFXGroup>, public H2Core::Object
 {
 	H2_OBJECT(LadspaFXGroup)
 public:
@@ -95,7 +95,7 @@ private:
 
 
 
-class LadspaControlPort : public H2Core::Object
+class LadspaControlPort : public H2Core::Countable<LadspaControlPort>, public H2Core::Object
 {
 	H2_OBJECT(LadspaControlPort)
 public:
@@ -112,7 +112,7 @@ public:
 
 
 
-class LadspaFX : public H2Core::Object
+class LadspaFX : public H2Core::Countable<LadspaFX>, public H2Core::Object
 {
 	H2_OBJECT(LadspaFX)
 public:

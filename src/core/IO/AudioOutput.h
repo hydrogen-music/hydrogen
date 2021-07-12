@@ -35,7 +35,7 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 ///
 /// Base abstract class for audio output classes.
 ///
-class AudioOutput : public H2Core::Object
+class AudioOutput : public H2Core::Countable<AudioOutput>, public H2Core::Object
 {
 	H2_OBJECT(AudioOutput)
 public:

@@ -60,7 +60,7 @@ namespace H2Core
 ///
 /// OSS Audio Driver
 ///
-class OssDriver : public AudioOutput
+class OssDriver : public Countable<OssDriver>, public AudioOutput
 {
 	H2_OBJECT(OssDriver)
 public:
@@ -100,7 +100,7 @@ private:
 
 namespace H2Core {
 
-class OssDriver : public NullDriver
+class OssDriver : public Countable<OssDriver>, public NullDriver
 {
 	H2_OBJECT(OssDriver)
 public:

@@ -46,7 +46,7 @@ const float FALLOFF_FAST =	1.5f;
 /**
 \ingroup H2CORE
 */
-class WindowProperties : public H2Core::Object
+class WindowProperties : public H2Core::Countable<WindowProperties>, public H2Core::Object
 {
 	H2_OBJECT(WindowProperties)
 public:
@@ -57,6 +57,7 @@ public:
 	bool visible;
 
 	WindowProperties();
+	WindowProperties(const WindowProperties &other);
 	~WindowProperties();
 
 	void set(int _x, int _y, int _width, int _height, bool _visible) {
@@ -71,7 +72,7 @@ public:
 \ingroup H2CORE
 \brief	Colors for hydrogen
 */
-class UIStyle : public H2Core::Object
+class UIStyle : public H2Core::Countable<UIStyle>, public H2Core::Object
 {
 	H2_OBJECT(UIStyle)
 public:
@@ -106,7 +107,7 @@ public:
 \ingroup H2CORE
 \brief	Manager for User Preferences File (singleton)
 */
-class Preferences : public H2Core::Object
+class Preferences : public H2Core::Countable<Preferences>, public H2Core::Object
 {
 	H2_OBJECT(Preferences)
 public:

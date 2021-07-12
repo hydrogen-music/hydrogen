@@ -754,7 +754,7 @@ void Hydrogen::stopExportSong()
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
-	if ( pAudioEngine->getAudioDriver()->class_name() != DiskWriterDriver::class_name() ) {
+	if ( pAudioEngine->getAudioDriver()->class_name() != DiskWriterDriver::_class_name() ) {
 		return;
 	}
 
@@ -1649,7 +1649,7 @@ bool Hydrogen::haveJackAudioDriver() const {
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	if ( pAudioEngine->getAudioDriver() != nullptr ) {
-		if ( JackAudioDriver::class_name() == pAudioEngine->getAudioDriver()->class_name() ){
+		if ( JackAudioDriver::_class_name() == pAudioEngine->getAudioDriver()->class_name() ){
 			return true;
 		}
 	}
@@ -1663,7 +1663,7 @@ bool Hydrogen::haveJackTransport() const {
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	if ( pAudioEngine->getAudioDriver() != nullptr ) {
-		if ( JackAudioDriver::class_name() == pAudioEngine->getAudioDriver()->class_name() &&
+		if ( JackAudioDriver::_class_name() == pAudioEngine->getAudioDriver()->class_name() &&
 			 Preferences::get_instance()->m_bJackTransportMode ==
 			 Preferences::USE_JACK_TRANSPORT ){
 			return true;

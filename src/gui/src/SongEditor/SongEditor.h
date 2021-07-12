@@ -63,7 +63,7 @@ static const uint SONG_EDITOR_MAX_GRID_WIDTH = 16;
 //! multiple pattern+timeslot cells using a 2-dimensional visual representation, with copy, paste, move,
 //! delete, duplicate etc.
 //!
-class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget<QPoint>
+class SongEditor :  public QWidget,  public H2Core::Countable<SongEditor>, public H2Core::Object, public SelectionWidget<QPoint>
 {
     H2_OBJECT(SongEditor)
 	Q_OBJECT
@@ -238,7 +238,7 @@ inline int SongEditor::getCursorColumn() const {
 ///
 /// Song editor pattern list
 ///
-class SongEditorPatternList : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public H2Core::Object, public EventListener
+class SongEditorPatternList :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>,  public H2Core::Countable<SongEditorPatternList>, public H2Core::Object, public EventListener
 {
     H2_OBJECT(SongEditorPatternList)
 	Q_OBJECT
@@ -324,7 +324,7 @@ class SongEditorPatternList : public QWidget, protected WidgetWithScalableFont<8
 // }
 //
 
-class SongEditorPositionRuler : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public H2Core::Object
+class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>,  public H2Core::Countable<SongEditorPositionRuler>, public H2Core::Object
 {
     H2_OBJECT(SongEditorPositionRuler)
 	Q_OBJECT

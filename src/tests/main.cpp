@@ -36,6 +36,7 @@
 
 void setupEnvironment(unsigned log_level)
 {
+	H2Core::init_core_object_map();
 	/* Logger */
 	H2Core::Logger* logger = H2Core::Logger::bootstrap( log_level );
 	/* Test helper */

@@ -38,7 +38,7 @@ namespace H2Core
 ///
 /// PulseAudio driver.
 ///
-class PulseAudioDriver : public AudioOutput
+class PulseAudioDriver : public Countable<PulseAudioDriver>, public AudioOutput
 {
 	H2_OBJECT(PulseAudioDriver)
 public:

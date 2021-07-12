@@ -46,7 +46,7 @@
 namespace H2Core
 {
 
-class JackMidiDriver : public virtual MidiInput, public virtual MidiOutput
+class JackMidiDriver : public Countable<JackMidiDriver>, public virtual MidiInput, public virtual MidiOutput
 {
 	H2_OBJECT(JackMidiDriver)
 public:

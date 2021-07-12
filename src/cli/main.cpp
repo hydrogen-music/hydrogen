@@ -206,6 +206,7 @@ int main(int argc, char *argv[])
 		}
 
 		// Man your battle stations... this is not a drill.
+		init_core_object_map();
 		Logger* logger = Logger::bootstrap( Logger::parse_log_level( logLevelOpt ) );
 		Object::bootstrap( logger, logger->should_log( Logger::Debug ) );
 		Filesystem::bootstrap( logger );

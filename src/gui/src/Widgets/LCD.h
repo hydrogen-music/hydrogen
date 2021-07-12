@@ -31,7 +31,7 @@
 
 #include <vector>
 
-class LCDDigit : public QWidget, public H2Core::Object
+class LCDDigit :  public QWidget,  public H2Core::Countable<LCDDigit>, public H2Core::Object
 {
     H2_OBJECT(LCDDigit)
 	Q_OBJECT
@@ -70,7 +70,7 @@ class LCDDigit : public QWidget, public H2Core::Object
 
 
 
-class LCDDisplay : public QWidget, public H2Core::Object
+class LCDDisplay :  public QWidget,  public H2Core::Countable<LCDDisplay>, public H2Core::Object
 {
     H2_OBJECT(LCDDisplay)
 	Q_OBJECT
@@ -97,7 +97,7 @@ class LCDDisplay : public QWidget, public H2Core::Object
 };
 
 
-class LCDSpinBox : public QWidget, public H2Core::Object
+class LCDSpinBox :  public QWidget,  public H2Core::Countable<LCDSpinBox>, public H2Core::Object
 {
     H2_OBJECT(LCDSpinBox)
 	Q_OBJECT

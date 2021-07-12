@@ -38,7 +38,7 @@
 namespace H2Core
 {
 
-class CoreMidiDriver : public virtual MidiInput, public virtual MidiOutput
+class CoreMidiDriver : public Countable<CoreMidiDriver>, public virtual MidiInput, public virtual MidiOutput
 {
 	H2_OBJECT(CoreMidiDriver)
 public:

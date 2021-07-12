@@ -32,7 +32,7 @@ namespace H2Core
  * the AudioEngine, like if it is playing or stopped or its current
  * transport position and speed.
  */
-class TransportInfo : public H2Core::Object
+class TransportInfo : public H2Core::Countable<TransportInfo>, public H2Core::Object
 {
 	H2_OBJECT(TransportInfo)
 public:

@@ -35,7 +35,7 @@ class ADSR;
 class Drumkit;
 class InstrumentLayer;
 
-class DrumkitComponent : public H2Core::Object
+class DrumkitComponent : public H2Core::Countable<DrumkitComponent>, public H2Core::Object
 {
 		H2_OBJECT(DrumkitComponent)
 	public:

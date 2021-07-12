@@ -35,7 +35,7 @@
 
 namespace H2Core
 {
-class Effects : public H2Core::Object
+class Effects : public H2Core::Countable<Effects>, public H2Core::Object
 {
 	H2_OBJECT(Effects)
 public:

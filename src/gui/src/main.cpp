@@ -61,7 +61,9 @@
 #include <iostream>
 #include <map>
 #include <set>
-
+namespace H2Core {
+	void init_gui_object_map();
+};
 //
 // Set the palette used in the application
 //
@@ -314,6 +316,8 @@ int main(int argc, char *argv[])
 		setup_unix_signal_handlers();
 
 		// Man your battle stations... this is not a drill.
+		H2Core::init_core_object_map();
+		H2Core::init_gui_object_map();
 		H2Core::Logger::create_instance();
 		H2Core::Logger::set_bit_mask( logLevelOpt );
 		H2Core::Logger* pLogger = H2Core::Logger::get_instance();

@@ -49,7 +49,7 @@ class InstrumentComponent;
 /**
 Instrument class
 */
-class Instrument : public H2Core::Object
+class Instrument : public H2Core::Countable<Instrument>, public H2Core::Object
 {
 		H2_OBJECT(Instrument)
 	public:

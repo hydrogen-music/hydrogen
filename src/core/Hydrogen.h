@@ -48,7 +48,7 @@ namespace H2Core
 ///
 /// Hydrogen Audio Engine.
 ///
-class Hydrogen : public H2Core::Object
+class Hydrogen : public H2Core::Countable<Hydrogen>, public H2Core::Object
 {
 	H2_OBJECT(Hydrogen)
 public:

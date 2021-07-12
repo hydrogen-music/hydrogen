@@ -36,7 +36,7 @@ class AudioEngineLocking;
 /**
  * PatternList is a collection of patterns
 */
-  class PatternList : public H2Core::Object, public H2Core::AudioEngineLocking
+  class PatternList : public H2Core::Countable<PatternList>, public H2Core::Object, public H2Core::AudioEngineLocking
 {
 		H2_OBJECT(PatternList)
 	public:

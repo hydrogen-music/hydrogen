@@ -1355,6 +1355,18 @@ WindowProperties::WindowProperties()
 }
 
 
+WindowProperties::WindowProperties(const WindowProperties & other)
+		: Object(),
+		x(other.x),
+		y(other.y),
+		width(other.width),
+		height(other.height),
+		visible(other.visible)
+{
+//	infoLog( "INIT" );
+}
+
+
 
 WindowProperties::~WindowProperties()
 {

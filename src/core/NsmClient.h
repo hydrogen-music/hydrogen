@@ -54,7 +54,7 @@
 *
 */
 
-class NsmClient : public H2Core::Object
+class NsmClient : public H2Core::Countable<NsmClient>, public H2Core::Object
 {
 	H2_OBJECT(NsmClient)
 	public:

@@ -33,7 +33,7 @@
 namespace H2Core
 {
 
-class AlsaAudioDriver : public AudioOutput
+class AlsaAudioDriver : public Countable<AlsaAudioDriver>, public AudioOutput
 {
 	H2_OBJECT(AlsaAudioDriver)
 public:

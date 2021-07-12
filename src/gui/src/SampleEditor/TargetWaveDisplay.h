@@ -38,7 +38,7 @@ namespace H2Core
 	class EnvelopePoint;
 }
 
-class TargetWaveDisplay : public QWidget, public H2Core::Object
+class TargetWaveDisplay :  public QWidget,  public H2Core::Countable<TargetWaveDisplay>, public H2Core::Object
 {
 	H2_OBJECT(TargetWaveDisplay)
 	Q_OBJECT

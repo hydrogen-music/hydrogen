@@ -36,7 +36,7 @@ namespace H2Core
 class Song;
 class Instrument;
 
-class SMFHeader : public SMFBase, public H2Core::Object
+class SMFHeader : public Countable<SMFHeader>, public SMFBase, public H2Core::Object
 {
 	H2_OBJECT(SMFHeader)
 public:
@@ -54,7 +54,7 @@ private:
 
 
 
-class SMFTrack : public SMFBase, public H2Core::Object
+class SMFTrack : public Countable<SMFTrack>, public SMFBase, public H2Core::Object
 {
 	H2_OBJECT(SMFTrack)
 public:
@@ -72,7 +72,7 @@ private:
 
 
 
-class SMF : public SMFBase, public H2Core::Object
+class SMF : public Countable<SMF>, public SMFBase, public H2Core::Object
 {
 	H2_OBJECT(SMF)
 public:
@@ -93,7 +93,7 @@ private:
 typedef std::vector<SMFEvent*> EventList;
 
 
-class SMFWriter : public H2Core::Object
+class SMFWriter : public H2Core::Countable<SMFWriter>, public H2Core::Object
 {
 	H2_OBJECT(SMFWriter)
 public:
@@ -117,7 +117,7 @@ private:
 
 //-------
 
-class SMF1Writer : public SMFWriter
+class SMF1Writer : public Countable<SMF1Writer>, public SMFWriter
 {
     H2_OBJECT(SMF1Writer)
 public:
@@ -128,7 +128,7 @@ protected:
 };
 
 
-class SMF1WriterSingle : public SMF1Writer
+class SMF1WriterSingle : public Countable<SMF1WriterSingle>, public SMF1Writer
 {
     H2_OBJECT(SMF1WriterSingle)
 public:
@@ -143,7 +143,7 @@ private:
 };
 
 
-class SMF1WriterMulti : public SMF1Writer
+class SMF1WriterMulti : public Countable<SMF1WriterMulti>, public SMF1Writer
 {
     H2_OBJECT(SMF1WriterMulti)
 public:
@@ -161,7 +161,7 @@ private:
 
 //-------
 
-class SMF0Writer : public SMFWriter
+class SMF0Writer : public Countable<SMF0Writer>, public SMFWriter
 {
     H2_OBJECT(SMF0Writer)
 public:

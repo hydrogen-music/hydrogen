@@ -29,15 +29,103 @@
 
 #include <unistd.h>
 #include <iostream>
+#include <atomic>
+#include <map>
 #include <QtCore>
 #include <QDebug>
 
 namespace H2Core {
 
+/** an objects class map item type */
+typedef struct atomic_obj_cpt_t {
+	std::atomic<int> constructed;
+	std::atomic<int> destructed;
+	atomic_obj_cpt_t() : constructed(0), destructed(0) {}
+} atomic_obj_cpt_t;
+typedef struct {
+	int constructed;
+	int destructed;
+} obj_cpt_t;
+
+
+/** the objects class map types */
+typedef std::map<const char*, obj_cpt_t> object_map_t;
+typedef std::map<const char*, const atomic_obj_cpt_t*> object_internal_map_t;
+
+class CountControl {
+	public:
+		static void set_count( bool flag );
+		static bool count_active() { return __count; }
+		static int objects_count() { return __objects_count; }
+		CountControl() {
+#ifdef H2CORE_HAVE_DEBUG
+			if ( __count ) {
+				++__objects_count;
+			}
+#endif
+		}
+		CountControl(const CountControl &other) {
+#ifdef H2CORE_HAVE_DEBUG
+			if ( __count ) {
+				++__objects_count;
+			}
+#endif
+		}
+	protected:
+		~CountControl() {
+#ifdef H2CORE_HAVE_DEBUG
+			if ( __count ) {
+				--__objects_count;
+			}
+#endif
+		}
+		static bool __count;               ///< should we count class instances
+		static std::atomic<int> __objects_count;        ///< total objects count
+		static Logger * __logger;
+};
+
+template<typename T> class Countable: public CountControl {
+	public:
+		Countable() {
+#ifdef H2CORE_HAVE_DEBUG
+			if ( __logger && __logger->should_log( Logger::Constructors ) ) {
+				__logger->log( Logger::Debug, nullptr, T::_class_name(), "Constructor" );
+			}
+			if ( __count ) {
+				++counters.constructed;
+			}
+#endif
+		}
+		Countable(const Countable<T> &other) {
+#ifdef H2CORE_HAVE_DEBUG
+			if( __logger && __logger->should_log( Logger::Constructors ) ) {
+				__logger->log( Logger::Debug, nullptr, T::_class_name(), "Copy Constructor" );
+			}
+			if ( __count ) {
+				++counters.destructed;
+			}
+#endif
+		}
+	protected:
+		~Countable() {
+#ifdef H2CORE_HAVE_DEBUG
+			if( __logger && __logger->should_log( Logger::Constructors ) ) {
+				__logger->log( Logger::Debug, nullptr, T::_class_name(), "Destructor" );
+			}
+			if ( __count ) {
+				++counters.destructed;
+			}
+#endif
+		}
+		static atomic_obj_cpt_t counters;
+		friend void init_core_object_map();
+		friend void init_gui_object_map();
+};
+template<typename T> atomic_obj_cpt_t Countable<T>::counters;
 /**
  * Base class.
  */
-class Object {
+class Object : public Countable<Object> {
 	public:
 		/** destructor */
 		~Object();
@@ -46,22 +134,14 @@ class Object {
 		/** constructor */
 		explicit Object();
 
-		/** an objects class map item type */
-		typedef struct {
-			int constructed;
-			int destructed;
-		} obj_cpt_t;
-		/** the objects class map type */
-		typedef std::map<const char*, obj_cpt_t> object_map_t;
-
-		static const char* class_name( )    { return "Object"; }        ///< return the class name
+		static const char *_class_name() { return "Object"; }        ///< return the class name
+		virtual const char* class_name() const { return _class_name(); }
 		/**
 		 * enable/disable class instances counting
 		 * \param flag the counting status to set
 		 */
-		static void set_count( bool flag );
-		static bool count_active()              { return __count; }             ///< return true if class instances counting is enabled
-		static int objects_count()         { return __objects_count; }     ///< return the number of objects
+		// static void set_count( bool flag );
+		// static bool count_active()              { return __count; }             ///< return true if class instances counting is enabled
 
 		/**
 		 * output the full objects map to a given ostream
@@ -83,13 +163,15 @@ class Object {
 		/** \return Total numbers of objects being alive. */
 		static int getAliveObjectCount();
 		/** \return Copy of the object map. */
+
+		static void registerClass(const char *name, const atomic_obj_cpt_t *counters);
 		static object_map_t getObjectMap();
 		/** Creates the difference between a snapshot of the object
 		 * map and its current state and prints it to std::cout.
 		 *
 		 * \param map Object map retrieved using getObjectMap().
 		 */
-		static void printObjectMapDiff( Object::object_map_t map );
+		static void printObjectMapDiff( object_map_t map );
 		/** String used to format the debugging string output of some
 			core classes.*/
 		static QString sPrintIndention;
@@ -111,25 +193,8 @@ class Object {
 		void Print( bool bShort = true ) const;
 
 	private:
-		/**
-		 * search for the class name within __objects_map, decrease class and global counts
-		 * \param obj the object to be taken into account
-		 */
-		static void del_object( const Object* obj );
-		/**
-		 * search for the class name within __objects_map, create it if doesn't exists, increase class and global counts
-		 * \param obj the object to be taken into account
-		 * \param copy is it called from a copy constructor
-		 */
-		static void add_object( const Object* obj, bool copy );
-
-		static bool __count;                    ///< should we count class instances
-		static int __objects_count;        ///< total objects count
-		static object_map_t __objects_map;      ///< objects classes and instances count structure
+		static object_internal_map_t __objects_map;      ///< objects classes and instances count structure
 		static pthread_mutex_t __mutex;         ///< yeah this has to be thread safe
-
-	protected:
-		static Logger* __logger;                ///< logger instance pointer
 };
 
 std::ostream& operator<<( std::ostream& os, const Object& object );
@@ -146,13 +211,18 @@ inline QDebug operator<<( QDebug d, std::shared_ptr<Object> o ) {
 	return d;
 }
 
+void init_core_object_map();
+
 // Object inherited class declaration macro
 #define H2_OBJECT(name)                                                 \
-	public: static const char* class_name() { return #name; }    \
+	public: static const char* _class_name() { return #name; } \
+			const char* class_name() const override { return _class_name(); }
+
+#define H2_REGISTER(name) H2Core::Object::registerClass(#name, &H2Core::Countable<name>::counters)
 
 // LOG MACROS
-#define __LOG_METHOD(   lvl, msg )  if( __logger->should_log( (lvl) ) )                 { __logger->log( (lvl), class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
-#define __LOG_CLASS(    lvl, msg )  if( logger()->should_log( (lvl) ) )                 { logger()->log( (lvl), class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
+#define __LOG_METHOD(   lvl, msg )  if( __logger->should_log( (lvl) ) )                 { __logger->log( (lvl), _class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
+#define __LOG_CLASS(    lvl, msg )  if( logger()->should_log( (lvl) ) )                 { logger()->log( (lvl), _class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
 #define __LOG_OBJ(      lvl, msg )  if( __object->logger()->should_log( (lvl) ) )       { __object->logger()->log( (lvl), 0, __PRETTY_FUNCTION__, QString( "%1" ).arg( msg ) ); }
 #define __LOG_STATIC(   lvl, msg )  if( H2Core::Logger::get_instance()->should_log( (lvl) ) )   { H2Core::Logger::get_instance()->log( (lvl), 0, __PRETTY_FUNCTION__, QString( "%1" ).arg( msg ) ); }
 #define __LOG( logger,  lvl, msg )  if( (logger)->should_log( (lvl) ) )                 { (logger)->log( (lvl), 0, 0, QString( "%1" ).arg( msg ) ); }

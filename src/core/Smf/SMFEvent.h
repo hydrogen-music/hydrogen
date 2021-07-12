@@ -29,7 +29,7 @@
 namespace H2Core
 {
 
-class SMFBuffer : public H2Core::Object
+class SMFBuffer : public H2Core::Countable<SMFBuffer>, public H2Core::Object
 {
 	H2_OBJECT(SMFBuffer)
 public:
