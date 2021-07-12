@@ -57,7 +57,6 @@ void init_core_object_map()
 #ifdef H2CORE_HAVE_DEBUG
     H2_REGISTER(Object);
 	H2_REGISTER(MidiMap);
-	H2_REGISTER(NsmClient);
 	H2_REGISTER(Action);
 	H2_REGISTER(MidiActionManager);
 	H2_REGISTER(InstrumentList);
@@ -136,7 +135,10 @@ void init_core_object_map()
 #endif
 	H2_REGISTER(LocalFileMng);
 	H2_REGISTER(SongWriter);
+#ifdef H2CORE_HAVE_OSC
+	H2_REGISTER(NsmClient);
 	H2_REGISTER(OscServer);
+#endif
 	H2_REGISTER(AutomationPathSerializer);
 	H2_REGISTER(Hydrogen);
 	H2_REGISTER(Sampler);
