@@ -2471,8 +2471,8 @@ void Hydrogen::setSong( Song *pSong )
 /* Mean: remove current song from memory */
 void Hydrogen::removeSong()
 {
-	__song = nullptr;
 	audioEngine_removeSong();
+	__song = nullptr;
 }
 
 void Hydrogen::midi_noteOn( Note *note )
