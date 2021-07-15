@@ -37,7 +37,13 @@ class ADSR : public Object
 {
 		H2_OBJECT(ADSR)
 	public:
-
+		enum ADSRState {
+			ATTACK=0,
+			DECAY,
+			SUSTAIN,
+			RELEASE,
+			IDLE
+		};
 		/**
 		 * constructor
 		 * \param attack tick duration
@@ -87,6 +93,10 @@ class ADSR : public Object
 		 */
 		void attack();
 		/**
+		 * get current state
+		 */
+		ADSRState get_state();
+		/**
 		 * compute the value and return it
 		 * \param step the increment to be added to __ticks
 		 */
@@ -114,13 +124,7 @@ class ADSR : public Object
 		float __sustain;			///< Sustain level
 		unsigned int __release;		///< Release tick count
 		/** possible states */
-		enum ADSRState {
-			ATTACK=0,
-			DECAY,
-			SUSTAIN,
-			RELEASE,
-			IDLE
-		};
+
 		ADSRState __state;      ///< current state
 		float __ticks;          ///< current tick count
 		float __value;          ///< current value
@@ -170,7 +174,13 @@ inline unsigned int ADSR::get_release()
 	return __release;
 }
 
-};
+
+inline ADSR::ADSRState ADSR::get_state()
+{
+	return __state;
+}
+
+}; // namespace H2Core
 
 #endif // H2C_ADRS_H
 

@@ -1480,8 +1480,14 @@ PYBIND11_MODULE(h2core, m) {
 	_Logger.def("should_log", &H2Core::Logger::should_log,
 		"return true if the level is set in the bitmask",
 		py::arg("lvl"));
+	_Logger.def_static("set_bit_mask", &H2Core::Logger::set_bit_mask,
+		"set the bitmask",
+		py::arg("msk"));
 	_Logger.def_static("bit_mask", &H2Core::Logger::bit_mask,
 		"return the current log level bit mask");
+	_Logger.def("set_use_file", &H2Core::Logger::set_use_file,
+		"set use file flag",
+		py::arg("use"));
 	_Logger.def("use_file", &H2Core::Logger::use_file,
 		"return __use_file");
 	_Logger.def_static("parse_log_level", &H2Core::Logger::parse_log_level,
@@ -1565,10 +1571,18 @@ PYBIND11_MODULE(h2core, m) {
 	// [<Class 'QStringList'>] _QColor.def_static("colorNames", &QColor::colorNames);
 	_QColor.def("spec", &QColor::spec);
 	_QColor.def("alpha", &QColor::alpha);
+	_QColor.def("setAlpha", &QColor::setAlpha,
+		py::arg("alpha"));
 	_QColor.def("alphaF", &QColor::alphaF);
 	_QColor.def("red", &QColor::red);
 	_QColor.def("green", &QColor::green);
 	_QColor.def("blue", &QColor::blue);
+	_QColor.def("setRed", &QColor::setRed,
+		py::arg("red"));
+	_QColor.def("setGreen", &QColor::setGreen,
+		py::arg("green"));
+	_QColor.def("setBlue", &QColor::setBlue,
+		py::arg("blue"));
 	_QColor.def("redF", &QColor::redF);
 	_QColor.def("greenF", &QColor::greenF);
 	_QColor.def("blueF", &QColor::blueF);
@@ -1596,6 +1610,8 @@ PYBIND11_MODULE(h2core, m) {
 		py::arg("a"));
 	_QColor.def("rgba64", &QColor::rgba64);
 	_QColor.def("rgba", &QColor::rgba);
+	_QColor.def("setRgba", &QColor::setRgba,
+		py::arg("rgba"));
 	_QColor.def("rgb", &QColor::rgb);
 	_QColor.def("hue", &QColor::hue);
 	_QColor.def("saturation", &QColor::saturation);
@@ -1803,6 +1819,14 @@ PYBIND11_MODULE(h2core, m) {
 	_QRgba64.def("green", &QRgba64::green);
 	_QRgba64.def("blue", &QRgba64::blue);
 	_QRgba64.def("alpha", &QRgba64::alpha);
+	_QRgba64.def("setRed", &QRgba64::setRed,
+		py::arg("_red"));
+	_QRgba64.def("setGreen", &QRgba64::setGreen,
+		py::arg("_green"));
+	_QRgba64.def("setBlue", &QRgba64::setBlue,
+		py::arg("_blue"));
+	_QRgba64.def("setAlpha", &QRgba64::setAlpha,
+		py::arg("_alpha"));
 	_QRgba64.def("red8", &QRgba64::red8);
 	_QRgba64.def("green8", &QRgba64::green8);
 	_QRgba64.def("blue8", &QRgba64::blue8);
@@ -1914,7 +1938,6 @@ PYBIND11_MODULE(h2core, m) {
 	_Sampler.def_readwrite("m_pMainOut_R", &H2Core::Sampler::m_pMainOut_R);
 	_Sampler.def_property_readonly("playing_notes_number", &H2Core::Sampler::getPlayingNotesNumber);
 	_Sampler.def_property("interpolate_mode", &H2Core::Sampler::getInterpolateMode, &H2Core::Sampler::setInterpolateMode);
-	_Sampler.def_property_readonly("preview_instrument", &H2Core::Sampler::getPreviewInstrument);
 	_Sampler.def_property_readonly("playback_track_instrument", &H2Core::Sampler::getPlaybackTrackInstrument);
 	_Sampler.def_static("class_name", &H2Core::Sampler::class_name);
 	_Sampler.def_static("ratioStraightPolygonalPanLaw", &H2Core::Sampler::ratioStraightPolygonalPanLaw,
@@ -1973,12 +1996,15 @@ PYBIND11_MODULE(h2core, m) {
 	_Sampler.def("preview_sample", &H2Core::Sampler::preview_sample,
 		py::arg("pSample"),
 		py::arg("length"));
+	_Sampler.def("preview_instrument", &H2Core::Sampler::preview_instrument,
+		py::arg("pInstr"));
 	_Sampler.def("setPlayingNotelength", &H2Core::Sampler::setPlayingNotelength,
 		py::arg("pInstrument"),
 		py::arg("ticks"),
 		py::arg("noteOnTick"));
 	_Sampler.def("isInstrumentPlaying", &H2Core::Sampler::isInstrumentPlaying,
 		py::arg("pInstr"));
+	_Sampler.def("getPreviewInstrument", &H2Core::Sampler::getPreviewInstrument);
 	_Sampler.def("reinitializePlaybackTrack", &H2Core::Sampler::reinitializePlaybackTrack,
 		"Loading of the playback track.");
 
@@ -3414,8 +3440,16 @@ PYBIND11_MODULE(h2core, m) {
 		"get the queued status of the instrument");
 	_Instrument.def("is_stop_notes", &H2Core::Instrument::is_stop_notes,
 		"get the stop notes of the instrument");
+	_Instrument.def("set_sample_selection_alg", &H2Core::Instrument::set_sample_selection_alg,
+		py::arg("selected_algo"));
 	_Instrument.def("sample_selection_alg", &H2Core::Instrument::sample_selection_alg);
+	_Instrument.def("set_is_preview_instrument", &H2Core::Instrument::set_is_preview_instrument,
+		"Mark the instrument as hydrogen's preview instrument",
+		py::arg("isPreview"));
 	_Instrument.def("is_preview_instrument", &H2Core::Instrument::is_preview_instrument);
+	_Instrument.def("set_is_metronome_instrument", &H2Core::Instrument::set_is_metronome_instrument,
+		"Mark the instrument as metronome instrument",
+		py::arg("isMetronome"));
 	_Instrument.def("is_metronome_instrument", &H2Core::Instrument::is_metronome_instrument);
 	_Instrument.def("get_component", &H2Core::Instrument::get_component,
 		py::arg("DrumkitComponentID"));
@@ -3434,14 +3468,27 @@ PYBIND11_MODULE(h2core, m) {
 	py::class_<H2Core::ADSR, PyB11_ADSR, H2Core::Object, std::shared_ptr<H2Core::ADSR>> _ADSR(m, "ADSR");
 	_ADSR.def(py::init<unsigned int, unsigned int, float, unsigned int>());
 	_ADSR.def(py::init<const std::shared_ptr<ADSR>>());
-	_ADSR.def_property("attack", &H2Core::ADSR::get_attack, &H2Core::ADSR::set_attack);
 	_ADSR.def_property("decay", &H2Core::ADSR::get_decay, &H2Core::ADSR::set_decay);
 	_ADSR.def_property("sustain", &H2Core::ADSR::get_sustain, &H2Core::ADSR::set_sustain);
-	_ADSR.def_property("release", &H2Core::ADSR::get_release, &H2Core::ADSR::set_release);
+	_ADSR.def_property_readonly("state", &H2Core::ADSR::get_state);
 	_ADSR.def_static("class_name", &H2Core::ADSR::class_name);
+	_ADSR.def("set_attack", &H2Core::ADSR::set_attack,
+		"__attack setter",
+		py::arg("value"));
+	_ADSR.def("get_attack", &H2Core::ADSR::get_attack,
+		"__attack accessor");
+	_ADSR.def("set_release", &H2Core::ADSR::set_release,
+		"__release setter",
+		py::arg("value"));
+	_ADSR.def("get_release", &H2Core::ADSR::get_release,
+		"__release accessor");
+	_ADSR.def("attack", &H2Core::ADSR::attack,
+		"sets state to ATTACK");
 	_ADSR.def("get_value", &H2Core::ADSR::get_value,
 		"compute the value and return it",
 		py::arg("step"));
+	_ADSR.def("release", &H2Core::ADSR::release,
+		"sets state to RELEASE, returns 0 if the state is IDLE, __value if the state is RELEASE, set state to RELEASE, save __release_value and return it.");
 	_ADSR.def("toQString", &H2Core::ADSR::toQString,
 		"Formatted string version for debugging purposes.",
 		py::arg("sPrefix"),
@@ -4193,6 +4240,14 @@ PYBIND11_MODULE(h2core, m) {
 		.value("VELOCITY", H2Core::Instrument::SampleSelectionAlgo::VELOCITY)
 		.value("ROUND_ROBIN", H2Core::Instrument::SampleSelectionAlgo::ROUND_ROBIN)
 		.value("RANDOM", H2Core::Instrument::SampleSelectionAlgo::RANDOM);
+	// enum ADSRState
+	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/Basics/Adsr.h', line 40, column 8>
+	py::enum_<H2Core::ADSR::ADSRState>(_ADSR, "ADSRState")
+		.value("ATTACK", H2Core::ADSR::ADSRState::ATTACK)
+		.value("DECAY", H2Core::ADSR::ADSRState::DECAY)
+		.value("SUSTAIN", H2Core::ADSR::ADSRState::SUSTAIN)
+		.value("RELEASE", H2Core::ADSR::ADSRState::RELEASE)
+		.value("IDLE", H2Core::ADSR::ADSRState::IDLE);
 	// enum Timebase
 	// <SourceLocation file '/home/rebelcat/Hack/hydrogen/src/core/IO/JackAudioDriver.h', line 122, column 13>
 	py::enum_<H2Core::JackAudioDriver::Timebase>(_JackAudioDriver, "Timebase")
