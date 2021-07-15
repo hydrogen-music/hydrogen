@@ -102,7 +102,7 @@ template<typename T> class Countable: public CountControl {
 				__logger->log( Logger::Debug, nullptr, T::_class_name(), "Copy Constructor" );
 			}
 			if ( __count ) {
-				++counters.destructed;
+				++counters.constructed;
 			}
 #endif
 		}
