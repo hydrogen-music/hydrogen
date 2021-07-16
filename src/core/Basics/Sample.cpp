@@ -56,10 +56,8 @@ EnvelopePoint::EnvelopePoint( int f, int v ) : Object(), frame( f ), value( v )
 {
 }
 
-EnvelopePoint::EnvelopePoint( const EnvelopePoint & other ) : Object()
+EnvelopePoint::EnvelopePoint( const EnvelopePoint& other ) : Object(other), frame ( other.frame ), value ( other.value )
 {
-	frame = other.frame;
-	value = other.value;
 }
 /* EnvelopePoint */
 
@@ -736,7 +734,7 @@ bool Sample::write( const QString& path, int format )
 }
 
 QString Sample::Loops::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Loops]\n" ).arg( sPrefix )
@@ -758,7 +756,7 @@ QString Sample::Loops::toQString( const QString& sPrefix, bool bShort ) const {
 }
 
 QString Sample::Rubberband::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Rubberband]\n" ).arg( sPrefix )
@@ -777,7 +775,7 @@ QString Sample::Rubberband::toQString( const QString& sPrefix, bool bShort ) con
 }
 
 QString Sample::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Sample]\n" ).arg( sPrefix )

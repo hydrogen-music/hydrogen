@@ -36,7 +36,7 @@
 namespace H2Core
 {
 
-class PortAudioDriver : public Countable<PortAudioDriver>, public AudioOutput
+class PortAudioDriver : public Object<PortAudioDriver>, public AudioOutput
 {
 	H2_OBJECT(PortAudioDriver)
 public:

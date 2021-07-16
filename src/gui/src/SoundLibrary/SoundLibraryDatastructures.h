@@ -41,7 +41,7 @@ class SoundLibraryInfo;
 
 typedef std::vector<SoundLibraryInfo*> soundLibraryInfoVector;
 
-class SoundLibraryDatabase :    public H2Core::Countable<SoundLibraryDatabase>, public H2Core::Object
+class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 {
 	H2_OBJECT(SoundLibraryDatabase)
 	public:
@@ -83,7 +83,7 @@ class SoundLibraryDatabase :    public H2Core::Countable<SoundLibraryDatabase>, 
 *
 */
 
-class SoundLibraryInfo :    public H2Core::Countable<SoundLibraryInfo>, public H2Core::Object
+class SoundLibraryInfo :    public H2Core::Object<SoundLibraryInfo>
 {
 	H2_OBJECT(SoundLibraryInfo)
 	public:

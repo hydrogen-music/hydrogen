@@ -34,7 +34,7 @@ namespace H2Core
 /**
  * MIDI input base class
  */
-class MidiInput : public Countable<MidiInput>, public virtual Object
+class MidiInput : public virtual Object<MidiInput>
 {
 	H2_OBJECT(MidiInput);
 public:

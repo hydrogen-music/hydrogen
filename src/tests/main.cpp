@@ -36,14 +36,13 @@
 
 void setupEnvironment(unsigned log_level)
 {
-	H2Core::init_core_object_map();
 	/* Logger */
 	H2Core::Logger* logger = H2Core::Logger::bootstrap( log_level );
 	/* Test helper */
 	TestHelper::createInstance();
 	TestHelper* test_helper = TestHelper::get_instance();
-	/* Object */
-	H2Core::Object::bootstrap( logger, true );
+	/* Base */
+	H2Core::Base::bootstrap( logger, true );
 	/* Filesystem */
 	H2Core::Filesystem::bootstrap( logger, test_helper->getDataDir() );
 	H2Core::Filesystem::info();

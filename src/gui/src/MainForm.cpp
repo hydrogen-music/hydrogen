@@ -1845,7 +1845,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 void MainForm::action_debug_printObjects()
 {
 	INFOLOG( "[action_debug_printObjects]" );
-	Object::write_objects_map_to_cerr();
+	Base::write_objects_map_to_cerr();
 }
 
 

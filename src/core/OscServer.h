@@ -85,7 +85,7 @@ namespace H2Core
 * @author Sebastian Moors
 *
 */
-class OscServer : public H2Core::Countable<OscServer>, public H2Core::Object
+class OscServer : public H2Core::Object<OscServer>
 {
 	H2_OBJECT(OscServer)
 	public:

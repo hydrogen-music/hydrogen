@@ -31,7 +31,7 @@
 namespace H2Core
 {
 
-class AutomationPathSerializer : private Object
+class AutomationPathSerializer : private Object<AutomationPathSerializer>
 {
 	H2_OBJECT(AutomationPathSerializer)
 

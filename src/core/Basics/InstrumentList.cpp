@@ -253,7 +253,7 @@ void InstrumentList::set_default_midi_out_notes()
 }
 
 QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[InstrumentList]\n" ).arg( sPrefix );

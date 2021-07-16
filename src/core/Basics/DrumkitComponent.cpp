@@ -142,7 +142,7 @@ void DrumkitComponent::save_to( XMLNode* node )
 }
 
 QString DrumkitComponent::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[DrumkitComponent]\n" ).arg( sPrefix )

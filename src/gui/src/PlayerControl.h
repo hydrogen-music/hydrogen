@@ -47,7 +47,7 @@ class PixmapWidget;
 ///
 ///
 ///
-class MetronomeWidget :  public QWidget,public EventListener,  public H2Core::Countable<MetronomeWidget>, public H2Core::Object
+class MetronomeWidget :  public QWidget,public EventListener,  public H2Core::Object<MetronomeWidget>
 {
     H2_OBJECT(MetronomeWidget)
 	Q_OBJECT
@@ -83,7 +83,7 @@ class MetronomeWidget :  public QWidget,public EventListener,  public H2Core::Co
 ///
 /// Player control panel
 ///
-class PlayerControl :  public QLabel, protected WidgetWithScalableFont<5, 6, 7>, public EventListener,  public H2Core::Countable<PlayerControl>, public H2Core::Object
+class PlayerControl :  public QLabel, protected WidgetWithScalableFont<5, 6, 7>, public EventListener,  public H2Core::Object<PlayerControl>
 {
     H2_OBJECT(PlayerControl)
 	Q_OBJECT

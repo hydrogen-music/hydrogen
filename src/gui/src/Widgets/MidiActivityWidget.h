@@ -31,7 +31,7 @@
 #include "../EventListener.h"
 #include <core/Object.h>
 
-class MidiActivityWidget :  public QWidget, public EventListener,  public H2Core::Countable<MidiActivityWidget>, public H2Core::Object
+class MidiActivityWidget :  public QWidget, public EventListener,  public H2Core::Object<MidiActivityWidget>
 {
     H2_OBJECT(MidiActivityWidget)
 	Q_OBJECT

@@ -29,7 +29,7 @@
 namespace H2Core
 {
 
-class CoreActionController : public H2Core::Countable<CoreActionController>, public H2Core::Object {
+class CoreActionController : public H2Core::Object<CoreActionController> {
 	H2_OBJECT(CoreActionController)
 	
 	public:

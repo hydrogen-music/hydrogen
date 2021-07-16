@@ -28,7 +28,7 @@
 
 #include <core/Object.h>
 
-class SoundLibraryTree : public QTreeWidget, private H2Core::Object
+class SoundLibraryTree : public QTreeWidget, private H2Core::Object<SoundLibraryTree>
 {
     H2_OBJECT(SoundLibraryTree)
 	Q_OBJECT

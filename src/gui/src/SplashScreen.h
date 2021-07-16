@@ -30,7 +30,7 @@
 
 #include <core/Object.h>
 
-class SplashScreen :  public QSplashScreen,  public H2Core::Countable<SplashScreen>, public H2Core::Object
+class SplashScreen :  public QSplashScreen,  public H2Core::Object<SplashScreen>
 {
     H2_OBJECT(SplashScreen)
 	Q_OBJECT

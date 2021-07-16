@@ -136,7 +136,7 @@ void InstrumentComponent::save_to( XMLNode* node, int component_id )
 }
 
 QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[InstrumentComponent]\n" ).arg( sPrefix )

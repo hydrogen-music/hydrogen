@@ -33,7 +33,7 @@
 ///
 /// Container for the Instrument Editor (Singleton).
 ///
-class InstrumentEditorPanel : public QWidget, private H2Core::Object, public EventListener
+class InstrumentEditorPanel : public QWidget, private H2Core::Object<InstrumentEditorPanel>, public EventListener
 {
     H2_OBJECT(InstrumentEditorPanel)
 	Q_OBJECT

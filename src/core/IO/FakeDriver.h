@@ -31,7 +31,7 @@ namespace H2Core
 /**
  * Fake audio driver. Used only for profiling.
  */
-class FakeDriver : Countable<FakeDriver>, public AudioOutput
+class FakeDriver : Object<FakeDriver>, public AudioOutput
 {
 	H2_OBJECT(FakeDriver)
 public:

@@ -42,6 +42,7 @@ typedef struct atomic_obj_cpt_t {
 	std::atomic<int> destructed;
 	atomic_obj_cpt_t() : constructed(0), destructed(0) {}
 } atomic_obj_cpt_t;
+
 typedef struct {
 	int constructed;
 	int destructed;
@@ -52,96 +53,34 @@ typedef struct {
 typedef std::map<const char*, obj_cpt_t> object_map_t;
 typedef std::map<const char*, const atomic_obj_cpt_t*> object_internal_map_t;
 
-class CountControl {
-	public:
-		static void set_count( bool flag );
-		static bool count_active() { return __count; }
-		static int objects_count() { return __objects_count; }
-		CountControl() {
-#ifdef H2CORE_HAVE_DEBUG
-			if ( __count ) {
-				++__objects_count;
-			}
-#endif
-		}
-		CountControl(const CountControl &other) {
-#ifdef H2CORE_HAVE_DEBUG
-			if ( __count ) {
-				++__objects_count;
-			}
-#endif
-		}
-	protected:
-		~CountControl() {
-#ifdef H2CORE_HAVE_DEBUG
-			if ( __count ) {
-				--__objects_count;
-			}
-#endif
-		}
-		static bool __count;               ///< should we count class instances
-		static std::atomic<int> __objects_count;        ///< total objects count
-		static Logger * __logger;
-};
-
-template<typename T> class Countable: public CountControl {
-	public:
-		Countable() {
-#ifdef H2CORE_HAVE_DEBUG
-			if ( __logger && __logger->should_log( Logger::Constructors ) ) {
-				__logger->log( Logger::Debug, nullptr, T::_class_name(), "Constructor" );
-			}
-			if ( __count ) {
-				++counters.constructed;
-			}
-#endif
-		}
-		Countable(const Countable<T> &other) {
-#ifdef H2CORE_HAVE_DEBUG
-			if( __logger && __logger->should_log( Logger::Constructors ) ) {
-				__logger->log( Logger::Debug, nullptr, T::_class_name(), "Copy Constructor" );
-			}
-			if ( __count ) {
-				++counters.constructed;
-			}
-#endif
-		}
-	protected:
-		~Countable() {
-#ifdef H2CORE_HAVE_DEBUG
-			if( __logger && __logger->should_log( Logger::Constructors ) ) {
-				__logger->log( Logger::Debug, nullptr, T::_class_name(), "Destructor" );
-			}
-			if ( __count ) {
-				++counters.destructed;
-			}
-#endif
-		}
-		static atomic_obj_cpt_t counters;
-		friend void init_core_object_map();
-		friend void init_gui_object_map();
-};
-template<typename T> atomic_obj_cpt_t Countable<T>::counters;
 /**
  * Base class.
  */
-class Object : public Countable<Object> {
+class Base {
 	public:
-		/** destructor */
-		~Object();
-		/** copy constructor */
-		Object( const Object& obj );
-		/** constructor */
-		explicit Object();
-
+		Base() {
+#ifdef H2CORE_HAVE_DEBUG
+			if ( __count ) {
+				++__objects_count;
+			}
+#endif
+		}
+		Base(const Base &other) {
+#ifdef H2CORE_HAVE_DEBUG
+			if ( __count ) {
+				++__objects_count;
+			}
+#endif
+		}
 		static const char *_class_name() { return "Object"; }        ///< return the class name
 		virtual const char* class_name() const { return _class_name(); }
 		/**
 		 * enable/disable class instances counting
 		 * \param flag the counting status to set
 		 */
-		// static void set_count( bool flag );
-		// static bool count_active()              { return __count; }             ///< return true if class instances counting is enabled
+		static void set_count( bool flag );
+		static bool count_active() { return __count; }
+		static int objects_count() { return __objects_count; }
 
 		/**
 		 * output the full objects map to a given ostream
@@ -150,7 +89,7 @@ class Object : public Countable<Object> {
 		 * object map __objects_map will be used.
 		 */
 		static void write_objects_map_to( std::ostream& out, object_map_t* map = nullptr );
-		static void write_objects_map_to_cerr() { Object::write_objects_map_to( std::cerr ); }  ///< output objects map to stderr
+		static void write_objects_map_to_cerr() { Base::write_objects_map_to( std::cerr ); }  ///< output objects map to stderr
 
 		/**
 		 * must be called before any Object instantiation !
@@ -164,7 +103,6 @@ class Object : public Countable<Object> {
 		static int getAliveObjectCount();
 		/** \return Copy of the object map. */
 
-		static void registerClass(const char *name, const atomic_obj_cpt_t *counters);
 		static object_map_t getObjectMap();
 		/** Creates the difference between a snapshot of the object
 		 * map and its current state and prints it to std::cout.
@@ -192,33 +130,87 @@ class Object : public Countable<Object> {
 		 */
 		void Print( bool bShort = true ) const;
 
+	protected:
+		~Base() {
+#ifdef H2CORE_HAVE_DEBUG
+			if ( __count ) {
+				--__objects_count;
+			}
+#endif
+		}
+		static bool __count;               ///< should we count class instances
+		static Logger * __logger;
+		static void registerClass(const char *name, const atomic_obj_cpt_t *counters);
+
 	private:
+		static std::atomic<int> __objects_count;        ///< total objects count
 		static object_internal_map_t __objects_map;      ///< objects classes and instances count structure
 		static pthread_mutex_t __mutex;         ///< yeah this has to be thread safe
 };
 
-std::ostream& operator<<( std::ostream& os, const Object& object );
-std::ostream& operator<<( std::ostream& os, const Object* object );
+std::ostream& operator<<( std::ostream& os, const Base& object );
+std::ostream& operator<<( std::ostream& os, const Base* object );
 
 
-inline QDebug operator<<( QDebug d, Object *o ) {
+inline QDebug operator<<( QDebug d, Base *o ) {
 	d << ( o ? o->toQString( "", true ) : "(nullptr)" );
 	return d;
 }
 
-inline QDebug operator<<( QDebug d, std::shared_ptr<Object> o ) {
+inline QDebug operator<<( QDebug d, std::shared_ptr<Base> o ) {
 	d << ( o ? o->toQString( "", true ) : "(nullptr)" );
 	return d;
 }
 
-void init_core_object_map();
+template<typename T> class Object: public Base {
+	public:
+		Object() {
+#ifdef H2CORE_HAVE_DEBUG
+			if ( __logger && __logger->should_log( Logger::Constructors ) ) {
+				__logger->log( Logger::Debug, nullptr, T::_class_name(), "Constructor" );
+			}
+			if ( __count ) {
+				if ( ! counters.constructed ) {
+					registerClass(T::_class_name(), &counters);
+				}
+				++counters.constructed;
+			}
+#endif
+		}
+		Object(const Object<T> &other) {
+#ifdef H2CORE_HAVE_DEBUG
+			if( __logger && __logger->should_log( Logger::Constructors ) ) {
+				__logger->log( Logger::Debug, nullptr, T::_class_name(), "Copy Constructor" );
+			}
+			if ( __count ) {
+				if ( ! counters.constructed ) {
+					registerClass(T::_class_name(), &counters);
+				}
+				++counters.constructed;
+			}
+#endif
+		}
+	protected:
+		~Object() {
+#ifdef H2CORE_HAVE_DEBUG
+			if( __logger && __logger->should_log( Logger::Constructors ) ) {
+				__logger->log( Logger::Debug, nullptr, T::_class_name(), "Destructor" );
+			}
+			if ( __count ) {
+				++counters.destructed;
+			}
+#endif
+		}
+	private:
+		static atomic_obj_cpt_t counters;
+};
+template<typename T> atomic_obj_cpt_t Object<T>::counters;
+
 
 // Object inherited class declaration macro
 #define H2_OBJECT(name)                                                 \
 	public: static const char* _class_name() { return #name; } \
 			const char* class_name() const override { return _class_name(); }
-
-#define H2_REGISTER(name) H2Core::Object::registerClass(#name, &H2Core::Countable<name>::counters)
 
 // LOG MACROS
 #define __LOG_METHOD(   lvl, msg )  if( __logger->should_log( (lvl) ) )                 { __logger->log( (lvl), _class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
@@ -239,13 +231,13 @@ void init_core_object_map();
 #define _WARNINGLOG(x)  __LOG_CLASS( H2Core::Logger::Warning, (x) );
 #define _ERRORLOG(x)    __LOG_CLASS( H2Core::Logger::Error,   (x) );
 
-// logging macros using an Object *__object ( thread :  Object* __object = ( Object* )param; )
+// logging macros using an Base *__object ( thread :  Base * __object = ( Base * )param; )
 #define __DEBUGLOG(x)   __LOG_OBJ( H2Core::Logger::Debug,      (x) );
 #define __INFOLOG(x)    __LOG_OBJ( H2Core::Logger::Info,       (x) );
 #define __WARNINGLOG(x) __LOG_OBJ( H2Core::Logger::Warning,    (x) );
 #define __ERRORLOG(x)   __LOG_OBJ( H2Core::Logger::Error,      (x) );
 
-// logging macros using  ( thread :  Object* __object = ( Object* )param; )
+// logging macros using  ( thread :  Base * __object = ( Base * )param; )
 #define ___DEBUGLOG(x)  __LOG_STATIC( H2Core::Logger::Debug,    (x) );
 #define ___INFOLOG(x)   __LOG_STATIC( H2Core::Logger::Info,     (x) );
 #define ___WARNINGLOG(x) __LOG_STATIC(H2Core::Logger::Warning,  (x) );

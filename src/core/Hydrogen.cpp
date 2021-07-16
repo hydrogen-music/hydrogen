@@ -1742,7 +1742,7 @@ void Hydrogen::startNsmClient()
 
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Hydrogen]\n" ).arg( sPrefix )

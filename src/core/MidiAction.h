@@ -26,7 +26,7 @@
 #include <string>
 #include <cassert>
 
-class Action : public H2Core::Countable<Action>, public H2Core::Object {
+class Action : public H2Core::Object<Action> {
 	H2_OBJECT(Action)
 	public:
 		Action( QString );
@@ -62,7 +62,7 @@ namespace H2Core
 	class Hydrogen;
 }
 
-class MidiActionManager : public H2Core::Countable<MidiActionManager>, public H2Core::Object
+class MidiActionManager : public H2Core::Object<MidiActionManager>
 {
 	H2_OBJECT(MidiActionManager)
 	private:

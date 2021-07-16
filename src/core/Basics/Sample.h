@@ -37,7 +37,7 @@ namespace H2Core
  */
 
 /** an envelope point within a frame */
-class EnvelopePoint : public H2Core::Countable<EnvelopePoint>, public H2Core::Object
+class EnvelopePoint : public H2Core::Object<EnvelopePoint>
 {
 		H2_OBJECT(EnvelopePoint)
 	public:
@@ -62,7 +62,7 @@ class EnvelopePoint : public H2Core::Countable<EnvelopePoint>, public H2Core::Ob
 		EnvelopePoint( const EnvelopePoint& other );
 };
 
-class Sample : public H2Core::Countable<Sample>, public H2Core::Object
+class Sample : public H2Core::Object<Sample>
 {
 		H2_OBJECT(Sample)
 	public:

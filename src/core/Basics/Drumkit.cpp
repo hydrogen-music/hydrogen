@@ -631,7 +631,7 @@ bool Drumkit::install( const QString& path )
 }
 
 QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Drumkit]\n" ).arg( sPrefix )

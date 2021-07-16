@@ -44,7 +44,7 @@ namespace H2Core
 class SoundLibraryTree;
 class ToggleButton;
 
-class SoundLibraryPanel : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, private H2Core::Object
+class SoundLibraryPanel : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, private H2Core::Object<SoundLibraryPanel>
 {
 	H2_OBJECT(SoundLibraryPanel)
 Q_OBJECT

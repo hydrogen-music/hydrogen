@@ -29,7 +29,7 @@
 namespace H2Core
 {
 
-class SMFBuffer : public H2Core::Countable<SMFBuffer>, public H2Core::Object
+class SMFBuffer : public H2Core::Object<SMFBuffer>
 {
 	H2_OBJECT(SMFBuffer)
 public:
@@ -82,7 +82,7 @@ public:
 
 
 
-class SMFEvent : public SMFBase, public H2Core::Object
+class SMFEvent : public SMFBase, public H2Core::Object<SMFEvent>
 {
 	H2_OBJECT(SMFEvent)
 public:
@@ -95,7 +95,7 @@ public:
 
 
 
-class SMFTrackNameMetaEvent : public SMFEvent
+class SMFTrackNameMetaEvent : public SMFEvent, public H2Core::Object<SMFTrackNameMetaEvent>
 {
 	H2_OBJECT(SMFTrackNameMetaEvent)
 public:
@@ -109,7 +109,7 @@ private:
 
 
 
-class SMFSetTempoMetaEvent : public SMFEvent
+class SMFSetTempoMetaEvent : public SMFEvent, public H2Core::Object<SMFSetTempoMetaEvent>
 {
 	H2_OBJECT(SMFSetTempoMetaEvent)
 public:
@@ -123,7 +123,7 @@ private:
 
 
 
-class SMFCopyRightNoticeMetaEvent : public SMFEvent
+class SMFCopyRightNoticeMetaEvent : public SMFEvent, public H2Core::Object<SMFCopyRightNoticeMetaEvent>
 {
 	H2_OBJECT(SMFCopyRightNoticeMetaEvent)
 public:
@@ -137,7 +137,7 @@ private:
 
 
 
-class SMFTimeSignatureMetaEvent : public SMFEvent
+class SMFTimeSignatureMetaEvent : public SMFEvent, public H2Core::Object<SMFTimeSignatureMetaEvent>
 {
 	H2_OBJECT(SMFTimeSignatureMetaEvent)
 public:
@@ -151,7 +151,7 @@ private:
 
 
 
-class SMFNoteOnEvent : public SMFEvent
+class SMFNoteOnEvent : public SMFEvent, public H2Core::Object<SMFNoteOnEvent>
 {
 	H2_OBJECT(SMFNoteOnEvent)
 public:
@@ -167,7 +167,7 @@ protected:
 
 
 
-class SMFNoteOffEvent : public SMFEvent
+class SMFNoteOffEvent : public SMFEvent, public H2Core::Object<SMFNoteOffEvent>
 {
 	H2_OBJECT(SMFNoteOffEvent)
 public:

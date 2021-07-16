@@ -33,7 +33,7 @@
 #include "EventListener.h"
 
 
-class Director :  public QDialog, public Ui_Director_UI,  public H2Core::Countable<Director>, public H2Core::Object, public EventListener
+class Director :  public QDialog, public Ui_Director_UI,  public H2Core::Object<Director>, public EventListener
 {
 	H2_OBJECT(Director)
 	Q_OBJECT

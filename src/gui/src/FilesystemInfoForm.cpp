@@ -30,7 +30,7 @@
 
 FilesystemInfoForm::FilesystemInfoForm( QWidget *parent ) :
 	QWidget( parent ),
-	H2Core::Object(),
+	H2Core::Object<FilesystemInfoForm>(),
 	ui(new Ui::FilesystemInfoForm)
 {
 	ui->setupUi(this);

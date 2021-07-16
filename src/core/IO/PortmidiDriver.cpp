@@ -49,7 +49,7 @@ pthread_t PortMidiDriverThread;
 
 void* PortMidiDriver_thread( void* param )
 {
-	Object *__object = (Object*)param;
+	Base *__object = (Base *)param;
 	PortMidiDriver *instance = ( PortMidiDriver* )param;
 	__INFOLOG( "PortMidiDriver_thread starting" );
 
@@ -119,7 +119,7 @@ void* PortMidiDriver_thread( void* param )
 }
 
 PortMidiDriver::PortMidiDriver()
-		: MidiInput(), MidiOutput(), Object()
+		: MidiInput(), MidiOutput(), Object<PortMidiDriver>()
 		, m_bRunning( false )
 		, m_pMidiIn( nullptr )
 		, m_pMidiOut( nullptr )

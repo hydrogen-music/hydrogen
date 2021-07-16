@@ -43,14 +43,14 @@
 
 namespace H2Core {
 
-Logger* CountControl::__logger = nullptr;
-bool CountControl::__count = false;
-std::atomic<int> CountControl::__objects_count(0);
-pthread_mutex_t Object::__mutex;
-object_internal_map_t Object::__objects_map;
-QString Object::sPrintIndention = "  ";
+Logger* Base::__logger = nullptr;
+bool Base::__count = false;
+std::atomic<int> Base::__objects_count(0);
+pthread_mutex_t Base::__mutex;
+object_internal_map_t Base::__objects_map;
+QString Base::sPrintIndention = "  ";
 
-int Object::bootstrap( Logger* logger, bool count ) {
+int Base::bootstrap( Logger* logger, bool count ) {
 	if( __logger==nullptr && logger!=nullptr ) {
 		__logger = logger;
 		__count = count;
@@ -60,16 +60,7 @@ int Object::bootstrap( Logger* logger, bool count ) {
 	return 1;
 }
 
-Object::~Object( ) {
-}
-
-Object::Object( const Object& obj ) {
-}
-
-Object::Object() {
-}
-
-void CountControl::set_count( bool flag ) {
+void Base::set_count( bool flag ) {
 #ifdef H2CORE_HAVE_DEBUG
 	__count = flag;
 #else
@@ -79,7 +70,7 @@ void CountControl::set_count( bool flag ) {
 #endif
 }
 
-void Object::write_objects_map_to( std::ostream& out, object_map_t* map ) {
+void Base::write_objects_map_to( std::ostream& out, object_map_t* map ) {
 #ifdef H2CORE_HAVE_DEBUG
 	if( !__count ) {
 #ifdef WIN32
@@ -116,14 +107,14 @@ void Object::write_objects_map_to( std::ostream& out, object_map_t* map ) {
 	out << std::endl << std::endl;
 #else
 #ifdef WIN32
-	out << "Object::write_objects_map_to :: not compiled with H2CORE_HAVE_DEBUG flag set" << std::endl;
+	out << "Base::write_objects_map_to :: not compiled with H2CORE_HAVE_DEBUG flag set" << std::endl;
 #else
-	out << "\033[35mObject::write_objects_map_to :: \033[31mnot compiled with H2CORE_HAVE_DEBUG flag set\033[0m" << std::endl;
+	out << "\033[35mBase::write_objects_map_to :: \033[31mnot compiled with H2CORE_HAVE_DEBUG flag set\033[0m" << std::endl;
 #endif
 #endif
 }
 
-int Object::getAliveObjectCount() {
+int Base::getAliveObjectCount() {
 #ifdef H2CORE_HAVE_DEBUG
 	int nCount = 0;
 	for (auto const& ii : __objects_map ) {
@@ -138,7 +129,7 @@ int Object::getAliveObjectCount() {
 #endif
 }
 
-object_map_t Object::getObjectMap() {
+object_map_t Base::getObjectMap() {
 	object_map_t mapCopy;
 	obj_cpt_t copy;
 	
@@ -151,7 +142,7 @@ object_map_t Object::getObjectMap() {
 	return mapCopy;
 }
 
-void Object::printObjectMapDiff( object_map_t mapSnapshot ) {
+void Base::printObjectMapDiff( object_map_t mapSnapshot ) {
 	object_map_t mapDiff;
 	obj_cpt_t diff;
 
@@ -170,32 +161,36 @@ void Object::printObjectMapDiff( object_map_t mapSnapshot ) {
 	write_objects_map_to( std::cout, &mapDiff );
 }
 
-QString Object::toQString( const QString& sPrefix, bool bShort ) const {
+QString Base::toQString( const QString& sPrefix, bool bShort ) const {
 	return QString( "[%1] instances alive: %2" )
 		.arg( class_name() ).arg( count_active() );
 }
 
-void Object::Print( bool bShort ) const {
+void Base::Print( bool bShort ) const {
 	DEBUGLOG( toQString( "", bShort ) );
 }
 
-std::ostream& operator<<( std::ostream& os, const Object& object ) {
+std::ostream& operator<<( std::ostream& os, const Base& object ) {
 	return os << object.toQString( "", true ).toLocal8Bit().data() << std::endl;
 }
 
-std::ostream& operator<<( std::ostream& os, const Object* object ) {
+std::ostream& operator<<( std::ostream& os, const Base* object ) {
 	return os << object->toQString( "", true ).toLocal8Bit().data() << std::endl;
 }
 
-void Object::registerClass(const char *name, const atomic_obj_cpt_t *counters)
+void Base::registerClass(const char *name, const atomic_obj_cpt_t *counters)
 {
 	if ( ! counters ) {
-		qWarning() << "Object::registerClass: " << name << " null counters!";
+		qWarning() << "Base::registerClass: " << name << " null counters!";
+	}
+	if ( counters->constructed ) {
+		// already registered by another thread
+		return;
 	}
 	if ( ! __objects_map[name] ) {
 	__objects_map[name] = counters;
 	} else {
-		qWarning() << "Object::registerClass: " << name << " already registered";
+		qWarning() << "Base::registerClass: " << name << " already registered";
 	}
 }
 

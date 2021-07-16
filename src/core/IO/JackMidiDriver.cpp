@@ -336,7 +336,7 @@ JackMidiShutdown(void *arg)
 }
 
 JackMidiDriver::JackMidiDriver()
-	: MidiInput(), MidiOutput(), Object()
+	: MidiInput(), MidiOutput(), Object<JackMidiDriver>()
 {
 	pthread_mutex_init(&mtx, nullptr);
 

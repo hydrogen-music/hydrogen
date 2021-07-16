@@ -33,7 +33,7 @@ namespace H2Core
 	class Sample;
 }
 
-class DetailWaveDisplay :  public QWidget,  public H2Core::Countable<DetailWaveDisplay>, public H2Core::Object
+class DetailWaveDisplay :  public QWidget,  public H2Core::Object<DetailWaveDisplay>
 {
     H2_OBJECT(DetailWaveDisplay)
 	Q_OBJECT

@@ -23,7 +23,7 @@
  */
 #include "AboutDialogContributorList.h"
 
-AboutDialogContributorList::AboutDialogContributorList() : H2Core::Object() {
+AboutDialogContributorList::AboutDialogContributorList() {
 
 	std::vector<QString> v{
 "theGreatWhiteShark"

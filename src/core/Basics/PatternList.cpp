@@ -251,7 +251,7 @@ int PatternList::longest_pattern_length() {
 }
 
 QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[PatternList]\n" ).arg( sPrefix );

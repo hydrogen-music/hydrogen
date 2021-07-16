@@ -37,7 +37,7 @@ class SampleWaveDisplay;
 ///
 /// This dialog is used to preview audiofiles
 ///
-class AudioFileBrowser :  public QDialog, public Ui_AudioFileBrowser_UI,  public H2Core::Countable<AudioFileBrowser>, public H2Core::Object
+class AudioFileBrowser :  public QDialog, public Ui_AudioFileBrowser_UI,  public H2Core::Object<AudioFileBrowser>
 
 {
 	H2_OBJECT(AudioFileBrowser)

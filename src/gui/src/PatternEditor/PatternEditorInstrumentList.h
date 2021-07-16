@@ -108,7 +108,7 @@ public slots:
 };
 
 
-class PatternEditorInstrumentList :  public QWidget,  public H2Core::Countable<PatternEditorInstrumentList>, public H2Core::Object {
+class PatternEditorInstrumentList :  public QWidget,  public H2Core::Object<PatternEditorInstrumentList> {
 	H2_OBJECT(PatternEditorInstrumentList)
 	Q_OBJECT
 

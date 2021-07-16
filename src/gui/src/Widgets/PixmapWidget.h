@@ -28,7 +28,7 @@
 
 #include <core/Object.h>
 
-class PixmapWidget :   public H2Core::Countable<PixmapWidget>, public H2Core::Object, public QWidget
+class PixmapWidget :   public H2Core::Object<PixmapWidget>, public QWidget
 {
     H2_OBJECT(PixmapWidget)
 	public:

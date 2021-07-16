@@ -28,7 +28,7 @@ using namespace H2Core;
 
 AutomationPathView::AutomationPathView(QWidget *parent)
 	: QWidget(parent),
-	  H2Core::Object(),
+	  H2Core::Object<AutomationPathView>(),
 	  m_nGridWidth(16),
 	  m_nMarginWidth(10),
 	  m_nMarginHeight(4),

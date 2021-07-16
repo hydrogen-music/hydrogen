@@ -56,7 +56,7 @@ int outPortId;
 
 void* alsaMidiDriver_thread( void* param )
 {
-	Object* __object = ( Object* )param;
+	Base * __object = ( Base * )param;
 	AlsaMidiDriver *pDriver = ( AlsaMidiDriver* )param;
 	__INFOLOG( "starting" );
 
@@ -198,7 +198,7 @@ void* alsaMidiDriver_thread( void* param )
 
 
 AlsaMidiDriver::AlsaMidiDriver()
-		: MidiInput(), MidiOutput(), Object()
+		: MidiInput(), MidiOutput(), Object<AlsaMidiDriver>()
 {
 //	infoLog("INIT");
 }

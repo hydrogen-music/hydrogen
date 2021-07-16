@@ -30,7 +30,7 @@
 
 class SoundLibraryPanel;
 
-class SoundLibraryOpenDialog :  public QDialog,  public H2Core::Countable<SoundLibraryOpenDialog>, public H2Core::Object
+class SoundLibraryOpenDialog :  public QDialog,  public H2Core::Object<SoundLibraryOpenDialog>
 {
 	H2_OBJECT(SoundLibraryOpenDialog)
 	Q_OBJECT

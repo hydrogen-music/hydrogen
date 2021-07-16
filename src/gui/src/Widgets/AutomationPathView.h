@@ -29,7 +29,7 @@
 #include <QtGui>
 #include <QtWidgets>
 
-class AutomationPathView :  public QWidget,  public H2Core::Countable<AutomationPathView>, public H2Core::Object
+class AutomationPathView :  public QWidget,  public H2Core::Object<AutomationPathView>
 {
 	Q_OBJECT
 	H2_OBJECT(AutomationPathView)

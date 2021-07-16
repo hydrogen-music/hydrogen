@@ -45,13 +45,12 @@ void usage()
 }
 
 int main(int argc, char** argv){
-	H2Core::init_core_object_map();
 
 	unsigned logLevelOpt = H2Core::Logger::Error;
 	H2Core::Logger::create_instance();
 	H2Core::Logger::set_bit_mask( logLevelOpt );
 	H2Core::Logger* logger = H2Core::Logger::get_instance();
-	H2Core::Object::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
+	H2Core::Base::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
 
 	QCoreApplication a(argc, argv);
 
@@ -100,8 +99,8 @@ int main(int argc, char** argv){
 				delete preferences;
 				delete H2Core::Logger::get_instance();
 
-				std::cout << std::endl << std::endl << H2Core::Object::objects_count() << " alive objects" << std::endl << std::endl;
-				H2Core::Object::write_objects_map_to_cerr();
+				std::cout << std::endl << std::endl << H2Core::Base::objects_count() << " alive objects" << std::endl << std::endl;
+				H2Core::Base::write_objects_map_to_cerr();
 
 				exit(0);
 				break;
@@ -124,8 +123,8 @@ int main(int argc, char** argv){
 
 			case 'd':
 				cout << "DEBUG" << endl;
-				H2Core::Object::write_objects_map_to_cerr();
-				int nObj = H2Core::Object::objects_count();
+				H2Core::Base::write_objects_map_to_cerr();
+				int nObj = H2Core::Base::objects_count();
 				std::cout << std::endl << std::endl << nObj << " alive objects" << std::endl << std::endl;
 				break;
 		}

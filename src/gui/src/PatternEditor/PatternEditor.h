@@ -54,7 +54,7 @@ class PatternEditorPanel;
 //!
 class PatternEditor : public QWidget,
 					  public EventListener,
-					  public H2Core::Object,
+					  public H2Core::Object<PatternEditor>,
 					  public SelectionWidget<H2Core::Note *>
 {
 	H2_OBJECT(PatternEditor)

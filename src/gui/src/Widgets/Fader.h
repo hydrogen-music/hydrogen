@@ -34,7 +34,7 @@
 ///
 /// Fader and VuMeter widget
 ///
-class Fader :  public QWidget,  public H2Core::Countable<Fader>, public H2Core::Object, public MidiLearnable
+class Fader :  public QWidget,  public H2Core::Object<Fader>, public MidiLearnable
 {
     H2_OBJECT(Fader)
 	Q_OBJECT
@@ -106,7 +106,7 @@ public:
 };
 
 
-class MasterFader :  public QWidget,  public H2Core::Countable<MasterFader>, public H2Core::Object, public MidiLearnable
+class MasterFader :  public QWidget,  public H2Core::Object<MasterFader>, public MidiLearnable
 {
     H2_OBJECT(MasterFader)
 	Q_OBJECT

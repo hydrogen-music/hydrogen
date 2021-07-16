@@ -47,7 +47,7 @@ namespace H2Core
 
 #if defined(H2CORE_HAVE_COREAUDIO) || _DOXYGEN_
 
-class CoreAudioDriver : public Countable<CoreAudioDriver>, public AudioOutput
+class CoreAudioDriver : public Object<CoreAudioDriver>, public AudioOutput
 {
 	H2_OBJECT(CoreAudioDriver)
 public:

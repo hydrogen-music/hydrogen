@@ -54,7 +54,7 @@ static int alsa_xrun_recovery( snd_pcm_t *handle, int err )
 
 void* alsaAudioDriver_processCaller( void* param )
 {
-	Object *__object = (Object*)param;
+	Base *__object = (Base*)param;
 	AlsaAudioDriver *pDriver = ( AlsaAudioDriver* )param;
 
 	// stolen from amSynth

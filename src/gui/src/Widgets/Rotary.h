@@ -46,7 +46,7 @@ class RotaryTooltip : public QWidget
 
 
 
-class Rotary :  public QWidget,  public H2Core::Countable<Rotary>, public H2Core::Object, public MidiLearnable
+class Rotary :  public QWidget,  public H2Core::Object<Rotary>, public MidiLearnable
 {
     H2_OBJECT(Rotary)
 	Q_OBJECT

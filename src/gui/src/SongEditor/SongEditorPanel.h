@@ -42,7 +42,7 @@ class AutomationPathView;
 class LCDCombo;
 class PlaybackTrackWaveDisplay;
 
-class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::Countable<SongEditorPanel>, public H2Core::Object
+class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::Object<SongEditorPanel>
 {
 	H2_OBJECT(SongEditorPanel)
 	Q_OBJECT

@@ -284,7 +284,7 @@ void Pattern::extand_with_flattened_virtual_patterns( PatternList* patterns )
 }
 
 QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Pattern]\n" ).arg( sPrefix )

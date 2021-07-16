@@ -53,7 +53,7 @@ pthread_t diskWriterDriverThread;
 
 void* diskWriterDriver_thread( void* param )
 {
-	Object* __object = ( Object* )param;	
+	Base * __object = ( Base * )param;
 	DiskWriterDriver *pDriver = ( DiskWriterDriver* )param;
 
 	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 0 );

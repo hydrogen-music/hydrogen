@@ -32,7 +32,7 @@
 class QNetworkAccessManager;
 class QNetworkReply;
 
-class Download :  public QDialog,  public H2Core::Countable<Download>, public H2Core::Object
+class Download :  public QDialog,  public H2Core::Object<Download>
 {
 	H2_OBJECT(Download)
 	Q_OBJECT

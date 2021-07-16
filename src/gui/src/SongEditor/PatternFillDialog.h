@@ -47,7 +47,7 @@ struct FillRange {
 ///
 /// Pattern Fill Dialog
 ///
-class PatternFillDialog :  public QDialog, public Ui_PatternFillDialog_UI,  public H2Core::Countable<PatternFillDialog>, public H2Core::Object
+class PatternFillDialog :  public QDialog, public Ui_PatternFillDialog_UI,  public H2Core::Object<PatternFillDialog>
 {
 	H2_OBJECT(PatternFillDialog)
 	Q_OBJECT

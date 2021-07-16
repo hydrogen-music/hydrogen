@@ -148,7 +148,7 @@ namespace H2Core
 	}
 
 QString Timeline::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Timeline]\n" ).arg( sPrefix )

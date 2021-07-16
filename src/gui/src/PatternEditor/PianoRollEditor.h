@@ -34,7 +34,7 @@
 #include <QtGui>
 #include <QtWidgets>
 
-class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>
+class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>, public H2Core::Object<PianoRollEditor>
 {
     H2_OBJECT(PianoRollEditor)
     Q_OBJECT

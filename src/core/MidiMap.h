@@ -31,7 +31,7 @@
 
 class Action;
 
-class MidiMap : public H2Core::Countable<MidiMap>, public H2Core::Object
+class MidiMap : public H2Core::Object<MidiMap>
 {
 	H2_OBJECT(MidiMap)
 	public:

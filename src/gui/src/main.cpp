@@ -316,12 +316,10 @@ int main(int argc, char *argv[])
 		setup_unix_signal_handlers();
 
 		// Man your battle stations... this is not a drill.
-		H2Core::init_core_object_map();
-		H2Core::init_gui_object_map();
 		H2Core::Logger::create_instance();
 		H2Core::Logger::set_bit_mask( logLevelOpt );
 		H2Core::Logger* pLogger = H2Core::Logger::get_instance();
-		H2Core::Object::bootstrap( pLogger, pLogger->should_log(H2Core::Logger::Debug) );
+		H2Core::Base::bootstrap( pLogger, pLogger->should_log(H2Core::Logger::Debug) );
 		
 		if( sSysDataPath.length() == 0 ) {
 			H2Core::Filesystem::bootstrap( pLogger );
@@ -607,8 +605,8 @@ int main(int argc, char *argv[])
 		std::cout << "\nBye..." << std::endl;
 		delete H2Core::Logger::get_instance();
 
-		if (H2Core::Object::count_active()) {
-			H2Core::Object::write_objects_map_to_cerr();
+		if (H2Core::Base::count_active()) {
+			H2Core::Base::write_objects_map_to_cerr();
 		}
 
 	}

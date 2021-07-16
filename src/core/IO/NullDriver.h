@@ -33,7 +33,7 @@ namespace H2Core
 
 typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
-class NullDriver : public Countable<NullDriver>, public AudioOutput
+class NullDriver : public Object<NullDriver>, public AudioOutput
 {
 	H2_OBJECT(NullDriver)
 public:

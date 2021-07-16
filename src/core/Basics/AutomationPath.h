@@ -33,7 +33,7 @@
 namespace H2Core
 {
 
-class AutomationPath : public Countable<AutomationPath>, public Object
+class AutomationPath : public Object<AutomationPath>
 {
 	H2_OBJECT(AutomationPath)
 
