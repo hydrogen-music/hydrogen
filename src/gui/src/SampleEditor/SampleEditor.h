@@ -70,12 +70,13 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		void setUnclean();
 		void setClean();
 
-		void playSample(const std::shared_ptr<H2Core::Sample> sample);
+		void playSample(const std::shared_ptr<H2Core::Sample> sample, bool original);
 		double computeNoopRubberbandDivider();
 		double computeCurrentRatio();
 		//this values come from the real sample to restore a frm song loaded sample
 		bool m_bSampleIsModified;	///< true if sample is modified
 
+		bool rubberbandIsOff();
 	protected:
 		MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
 		TargetWaveDisplay *m_pTargetSampleView;
@@ -118,7 +119,8 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		void testPositionsSpinBoxes();
 		void createNewLayer();
 		void setSamplelengthFrames();
-		void createPositionsRulerPath();
+		void createPositionsRulerPath(std::shared_ptr<H2Core::Sample> sample, bool original);
+		void resetPositionsRulerPath();
 		void testpTimer();
 		void closeEvent(QCloseEvent *event);
 		void checkRatioSettings();
@@ -143,15 +145,16 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		bool m_bPlayButton;
 		bool m_bAdjusting;
 		bool m_bSampleEditorClean;
-
+		bool m_bPlayingOriginalSample;
 		unsigned long m_nRealtimeFrameEnd;
 		unsigned long m_nRealtimeFrameEndForTarget;
 		unsigned m_nSlframes;
+		unsigned m_nOriginalFrames;
 		unsigned m_nSamplerate;
 		QTimer *m_pTimer;
 		QTimer *m_pTargetDisplayTimer;
 		unsigned *m_pPositionsRulerPath;
-		float m_fRatio;
+		double m_Ratio;
 		H2Core::Sample::Loops __loops;
 		H2Core::Sample::Rubberband __rubberband;
 };

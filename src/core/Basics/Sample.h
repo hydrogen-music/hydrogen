@@ -112,7 +112,7 @@ class Sample : public H2Core::Object
 				float pitch;            ///< desired pitch
 				int c_settings;        ///< TODO should be crispness, see rubberband -h
 				/** constructor */
-				Rubberband() : use( false ), divider ( 1.0 ), pitch( 1.0 ), c_settings( 4 ) { };
+				Rubberband() : use( false ), divider ( 1.0 ), pitch( 0.0 ), c_settings( 4 ) { };
 				/** copy constructor */
 				Rubberband( const Rubberband* other ) :
 					use( other->use ),

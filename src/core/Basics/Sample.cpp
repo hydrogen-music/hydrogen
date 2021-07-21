@@ -78,7 +78,7 @@ Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* da
 	assert( filepath.lastIndexOf( "/" ) >0 );
 }
 
-Sample::Sample( std::shared_ptr<Sample> pOther ): Object( __class_name ),
+Sample::Sample( std::shared_ptr<Sample> pOther ): Object(  *pOther ),
 	__filepath( pOther->get_filepath() ),
 	__frames( pOther->get_frames() ),
 	__sample_rate( pOther->get_sample_rate() ),
