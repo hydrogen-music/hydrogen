@@ -97,7 +97,7 @@ private:
 
 #else
 
-class CoreAudioDriver : public NullDriver
+class CoreAudioDriver : public Object<CoreAudioDriver>, public NullDriver
 {
 	H2_OBJECT(CoreAudioDriver)
 public:
