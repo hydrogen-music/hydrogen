@@ -132,7 +132,7 @@ public:
 		m_pScrollArea = pScrollArea;
 	}
 
-	~DragScroller() {
+	virtual ~DragScroller() {
 		if ( m_pTimer != nullptr) {
 			delete m_pTimer;
 		}
