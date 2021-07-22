@@ -85,7 +85,6 @@ int MainForm::sigusr1Fd[2];
 
 MainForm::MainForm( QApplication * pQApplication )
 	: QMainWindow( nullptr )
-	, Object()
 {
 	setObjectName( "MainForm" );
 	setMinimumSize( QSize( 1000, 500 ) );

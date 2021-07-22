@@ -356,8 +356,7 @@ QDomDocument LocalFileMng::openXmlDocument( const QString& filename )
 //	Implementation of SongWriter class
 //-----------------------------------------------------------------------------
 
-SongWriter::SongWriter()
-	: Object()
+SongWriter::SongWriter() 
 {
 	//	infoLog("init");
 }

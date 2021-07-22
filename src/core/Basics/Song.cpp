@@ -63,8 +63,7 @@ namespace H2Core
 {
 
 Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume )
-	: Object()
-	, m_bIsMuted( false )
+	: m_bIsMuted( false )
 	, m_resolution( 48 )
 	, m_fBpm( fBpm )
 	, m_sName( sName )
@@ -626,7 +625,6 @@ bool Song::pasteInstrumentLineFromString( const QString& sSerialized, int nSelec
 //-----------------------------------------------------------------------------
 
 SongReader::SongReader()
-	: Object()
 {
 //	infoLog("init");
 }

@@ -52,8 +52,7 @@ using namespace H2Core;
 
 SongEditorPanel::SongEditorPanel(QWidget *pParent)
  : QWidget( pParent )
- , Object()
-{
+ {
 	m_nInitialWidth = 600;
 	m_nInitialHeight = 250;
 	

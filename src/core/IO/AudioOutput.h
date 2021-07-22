@@ -42,9 +42,7 @@ public:
 	/** Local instance of the TransportInfo. */
 	TransportInfo m_transport;
 
-	AudioOutput()
-			: Object() { }
-
+	AudioOutput() = default;
 	virtual ~AudioOutput() { }
 
 	virtual int init( unsigned nBufferSize ) = 0;

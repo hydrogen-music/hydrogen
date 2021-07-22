@@ -260,8 +260,7 @@ int OscServer::generic_handler(const char *	path,
 
 
 
-OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object(),
-															m_bInitialized( false )
+OscServer::OscServer( H2Core::Preferences* pPreferences ) : m_bInitialized( false )
 {
 	m_pPreferences = pPreferences;
 	

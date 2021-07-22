@@ -31,8 +31,7 @@
 
 PatternFillDialog::PatternFillDialog(QWidget* parent, FillRange* pRange)
  : QDialog(parent)
- , Object()
-{
+ {
 	setupUi( this );
 
 	setWindowTitle( tr( "Fill with selected pattern" ) );

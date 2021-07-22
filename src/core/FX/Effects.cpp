@@ -44,8 +44,7 @@ namespace H2Core
 Effects* Effects::__instance = nullptr;
 
 Effects::Effects()
-		: Object()
-		, m_pRootGroup( nullptr )
+		: m_pRootGroup( nullptr )
 		, m_pRecentGroup( nullptr )
 {
 	__instance = this;

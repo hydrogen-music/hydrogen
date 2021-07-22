@@ -103,7 +103,6 @@ namespace H2Core
 Hydrogen* Hydrogen::__instance = nullptr;
 
 Hydrogen::Hydrogen()
-	: Object()
 {
 	if ( __instance ) {
 		ERRORLOG( "Hydrogen audio engine is already running" );

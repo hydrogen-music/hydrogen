@@ -25,7 +25,6 @@
 
 SoundLibraryTree::SoundLibraryTree( QWidget *pParent )
  : QTreeWidget( pParent )
- , Object()
 {
 	setHeaderLabels( QStringList( tr( "Sound library" ) ) );
 	setAlternatingRowColors( true );

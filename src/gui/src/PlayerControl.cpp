@@ -50,7 +50,6 @@ int bcDisplaystatus = 0;
 
 PlayerControl::PlayerControl(QWidget *parent)
  : QLabel(parent)
- , Object()
 {
 	setObjectName( "PlayerControl" );
 	HydrogenApp::get_instance()->addEventListener( this );
@@ -1156,7 +1155,6 @@ void PlayerControl::onPreferencesChanged( bool bAppearanceOnly ) {
 
 MetronomeWidget::MetronomeWidget(QWidget *pParent)
  : QWidget( pParent )
- , Object()
  , m_nValue( 0 )
  , m_state( METRO_OFF )
 {

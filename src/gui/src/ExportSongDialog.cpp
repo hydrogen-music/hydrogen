@@ -86,7 +86,6 @@ QString ExportSongDialog::sLastFilename = "";
 
 ExportSongDialog::ExportSongDialog(QWidget* parent)
 	: QDialog(parent)
-	, Object()
 	, m_bExporting( false )
 	, m_pHydrogen( Hydrogen::get_instance() )
 	, m_pPreferences( Preferences::get_instance() )

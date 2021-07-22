@@ -32,7 +32,6 @@ QPixmap* LCDDigit::m_pSmallGrayFontSet = nullptr;
 
 LCDDigit::LCDDigit( QWidget * pParent, LCDType type )
  : QWidget( pParent )
- , Object()
  , m_type( type )
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);
@@ -196,7 +195,6 @@ void LCDDigit::setSmallBlue()
 
 LCDDisplay::LCDDisplay( QWidget * pParent, LCDDigit::LCDType type, int nDigits, bool leftAlign )
  : QWidget( pParent )
- , Object()
  , m_sMsg( "" )
  , m_bLeftAlign( leftAlign )
 {
@@ -314,7 +312,6 @@ void LCDDisplay::digitClicked()
 // used in PlayerControl
 LCDSpinBox::LCDSpinBox( QWidget *pParent, int nDigits, LCDSpinBoxType type, int nMin, int nMax )
  : QWidget( pParent )
- , Object()
  , m_type( type )
  , m_fValue( 0 )
  , m_nMinValue( nMin )

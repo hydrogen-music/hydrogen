@@ -63,7 +63,7 @@ void ADSR::normalise()
 	}
 }
 
-ADSR::ADSR( unsigned int attack, unsigned int decay, float sustain, unsigned int release ) : Object(),
+ADSR::ADSR( unsigned int attack, unsigned int decay, float sustain, unsigned int release ) :
 	__attack( attack ),
 	__decay( decay ),
 	__sustain( sustain ),
@@ -76,7 +76,7 @@ ADSR::ADSR( unsigned int attack, unsigned int decay, float sustain, unsigned int
 	normalise();
 }
 
-ADSR::ADSR( const std::shared_ptr<ADSR> other ) : Object(),
+ADSR::ADSR( const std::shared_ptr<ADSR> other ) :
 	__attack( other->__attack ),
 	__decay( other->__decay ),
 	__sustain( other->__sustain ),

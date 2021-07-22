@@ -32,7 +32,6 @@
 
 VirtualPatternDialog::VirtualPatternDialog(QWidget* parent)
     : QDialog(parent)
-    , Object()
 {
     setupUi( this );
     setWindowTitle( tr( "Select virtual pattern" ) );

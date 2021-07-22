@@ -45,7 +45,6 @@ InstrumentEditorPanel* InstrumentEditorPanel::get_instance()
 
 
 InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent )
- : Object()
 {
 	UNUSED( pParent );
 

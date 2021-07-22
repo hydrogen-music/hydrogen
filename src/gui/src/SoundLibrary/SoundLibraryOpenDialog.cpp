@@ -30,7 +30,6 @@ using namespace H2Core;
 
 SoundLibraryOpenDialog::SoundLibraryOpenDialog( QWidget* pParent )
 	: QDialog( pParent )
-	, Object()
 {
 	INFOLOG( "INIT" );
 	setWindowTitle( tr( "Open Sound Library" ) );

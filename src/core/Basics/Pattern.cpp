@@ -37,8 +37,7 @@ namespace H2Core
 {
 
 Pattern::Pattern( const QString& name, const QString& info, const QString& category, int length, int denominator )
-	: Object()
-	, __length( length )
+	: __length( length )
 	, __denominator( denominator)
 	, __name( name )
 	, __info( info )
@@ -47,8 +46,7 @@ Pattern::Pattern( const QString& name, const QString& info, const QString& categ
 }
 
 Pattern::Pattern( Pattern* other )
-	: Object()
-	, __length( other->get_length() )
+	: __length( other->get_length() )
 	, __denominator( other->get_denominator() )
 	, __name( other->get_name() )
 	, __info( other->get_info() )

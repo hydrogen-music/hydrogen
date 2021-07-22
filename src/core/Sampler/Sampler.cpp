@@ -67,8 +67,7 @@ static std::shared_ptr<Instrument> createInstrument(int id, const QString& filep
 }
 
 Sampler::Sampler()
-		: Object()
-		, m_pMainOut_L( nullptr )
+		: m_pMainOut_L( nullptr )
 		, m_pMainOut_R( nullptr )
 		, m_pPreviewInstrument( nullptr )
 		, m_interpolateMode( Interpolation::InterpolateMode::Linear )

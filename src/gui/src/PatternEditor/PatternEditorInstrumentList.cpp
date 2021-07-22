@@ -558,8 +558,7 @@ void InstrumentLine::onPreferencesChanged( bool bAppearanceOnly ) {
 
 PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, PatternEditorPanel *pPatternEditorPanel )
  : QWidget( parent )
- , Object()
-{
+ {
 	//INFOLOG("INIT");
 	m_pPattern = nullptr;
 	m_pPatternEditorPanel = pPatternEditorPanel;

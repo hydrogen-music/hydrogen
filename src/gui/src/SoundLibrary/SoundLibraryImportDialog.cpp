@@ -48,7 +48,6 @@ const int max_redirects = 30;
 
 SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent, bool bOnlineImport )
  : QDialog( pParent )
- , Object()
 {
 	setupUi( this );
 	INFOLOG( "INIT" );

@@ -26,7 +26,7 @@
 namespace H2Core
 {
 
-SMFBuffer::SMFBuffer() : Object() { }
+SMFBuffer::SMFBuffer() {}
 
 void SMFBuffer::writeByte( short int nByte )
 {

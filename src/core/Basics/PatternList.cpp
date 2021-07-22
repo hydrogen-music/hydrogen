@@ -32,11 +32,11 @@ namespace H2Core
 {
 
 
-PatternList::PatternList() : Object()
+PatternList::PatternList()
 {
 }
 
-PatternList::PatternList( PatternList* other ) : Object()
+PatternList::PatternList( PatternList* other ) : Object( *other )
 {
 	assert( __patterns.size() == 0 );
 	for ( int i=0; i<other->size(); i++ ) {

@@ -44,7 +44,6 @@
 MidiMap * MidiMap::__instance = nullptr;
 
 MidiMap::MidiMap()
-	: Object()
 {
 	__instance = this;
 	QMutexLocker mx(&__mutex);

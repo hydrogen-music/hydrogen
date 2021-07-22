@@ -36,7 +36,6 @@ namespace H2Core
 
 SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 	: QDialog( pParent )
-	, Object()
 	, m_stimelineposition ( beat )
 {
 	setupUi( this );

@@ -31,7 +31,6 @@
 
 LCDCombo::LCDCombo( QWidget *pParent, int digits, bool bAllowMenuOverflow )
 	: QWidget(pParent)
-	, Object()
 	, m_bAllowMenuOverflow( bAllowMenuOverflow )
 {
 	INFOLOG( "INIT" );

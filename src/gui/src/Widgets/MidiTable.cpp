@@ -34,8 +34,7 @@
 
 MidiTable::MidiTable( QWidget *pParent )
  : QTableWidget( pParent )
- , Object()
-{
+ {
 	__row_count = 0;
 	setupMidiTable();
 

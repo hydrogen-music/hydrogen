@@ -70,8 +70,7 @@ using namespace H2Core;
 HydrogenApp* HydrogenApp::m_pInstance = nullptr;
 
 HydrogenApp::HydrogenApp( MainForm *pMainForm )
- : Object()
- , m_pMainForm( pMainForm )
+ : m_pMainForm( pMainForm )
  , m_pMixer( nullptr )
  , m_pPatternEditorPanel( nullptr )
  , m_pAudioEngineInfoForm( nullptr )

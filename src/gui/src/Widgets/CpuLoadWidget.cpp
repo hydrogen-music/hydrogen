@@ -35,7 +35,6 @@
 
 CpuLoadWidget::CpuLoadWidget( QWidget *pParent )
  : QWidget( pParent )
- , Object()
  , m_fValue( 0 )
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);

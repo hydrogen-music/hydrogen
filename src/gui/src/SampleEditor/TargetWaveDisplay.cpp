@@ -44,7 +44,6 @@ static TargetWaveDisplay::EnvelopeEditMode getEnvelopeEditMode();
 
 TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
  : QWidget( pParent )
- , Object()
  , m_sSampleName( "" )
 {
 //	setAttribute(Qt::WA_OpaquePaintEvent);

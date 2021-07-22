@@ -33,7 +33,6 @@
 
 Fader::Fader( QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob)
  : QWidget( pParent )
- , Object()
  , m_bWithoutKnob( bWithoutKnob )
  , m_bUseIntSteps( bUseIntSteps )
  , m_fPeakValue_L( 0.0 )
@@ -450,7 +449,6 @@ void VerticalFader::paintEvent( QPaintEvent *ev)
 
 MasterFader::MasterFader(QWidget *pParent, bool bWithoutKnob)
  : QWidget( pParent )
- , Object()
  , m_bWithoutKnob( bWithoutKnob )
  , m_fPeakValue_L( 0.0 )
  , m_fPeakValue_R( 0.0 )

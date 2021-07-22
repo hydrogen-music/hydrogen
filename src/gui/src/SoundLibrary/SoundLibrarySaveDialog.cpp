@@ -30,7 +30,6 @@
 
 SoundLibrarySaveDialog::SoundLibrarySaveDialog( QWidget* pParent )
  : QDialog( pParent )
- , Object()
 {
 	setupUi( this );
 	INFOLOG( "INIT" );

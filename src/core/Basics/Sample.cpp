@@ -48,11 +48,11 @@ static RubberBand::RubberBandStretcher::Options compute_rubberband_options( cons
 
 
 /* EnvelopePoint */
-EnvelopePoint::EnvelopePoint() : Object(), frame( 0 ), value( 0 )
+EnvelopePoint::EnvelopePoint() : frame( 0 ), value( 0 )
 {
 }
 
-EnvelopePoint::EnvelopePoint( int f, int v ) : Object(), frame( f ), value( v )
+EnvelopePoint::EnvelopePoint( int f, int v ) : frame( f ), value( v )
 {
 }
 
@@ -62,8 +62,8 @@ EnvelopePoint::EnvelopePoint( const EnvelopePoint& other ) : Object(other), fram
 /* EnvelopePoint */
 
 
-Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* data_l, float* data_r ) : Object(),
-	__filepath( filepath ),
+Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* data_l, float* data_r ) 
+  : __filepath( filepath ),
 	__frames( frames ),
 	__sample_rate( sample_rate ),
 	__data_l( data_l ),
@@ -73,7 +73,7 @@ Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* da
 	assert( filepath.lastIndexOf( "/" ) >0 );
 }
 
-Sample::Sample( std::shared_ptr<Sample> pOther ): Object(),
+Sample::Sample( std::shared_ptr<Sample> pOther ): Object( *pOther ),
 	__filepath( pOther->get_filepath() ),
 	__frames( pOther->get_frames() ),
 	__sample_rate( pOther->get_sample_rate() ),

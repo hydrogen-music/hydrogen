@@ -43,8 +43,7 @@ namespace H2Core
 
 
 DrumkitComponent::DrumkitComponent( const int id, const QString& name )
-	: Object()
-	, __id( id )
+	: __id( id )
 	, __name( name )
 	, __volume( 1.0 )
 	, __muted( false )
@@ -59,8 +58,7 @@ DrumkitComponent::DrumkitComponent( const int id, const QString& name )
 }
 
 DrumkitComponent::DrumkitComponent( DrumkitComponent* other )
-	: Object()
-	, __id( other->get_id() )
+	: __id( other->get_id() )
 	, __name( other->get_name() )
 	, __volume( other->__volume )
 	, __muted( other->__muted )

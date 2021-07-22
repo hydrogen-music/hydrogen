@@ -41,7 +41,6 @@ using namespace H2Core;
 
 LayerPreview::LayerPreview( QWidget* pParent )
  : QWidget( pParent )
- , Object()
  , m_pInstrument( nullptr )
  , m_nSelectedComponent( 0 )
  , m_nSelectedLayer( 0 )

@@ -56,8 +56,8 @@ protected:
 
 
 
-XMLNode::XMLNode() : Object() { }
-XMLNode::XMLNode( QDomNode node ) : Object(), QDomNode( node ) { }
+XMLNode::XMLNode() { }
+XMLNode::XMLNode( QDomNode node ) : QDomNode( node ) { }
 
 XMLNode XMLNode::createNode( const QString& name )
 {
@@ -200,7 +200,7 @@ void XMLNode::write_bool( const QString& name, const bool value )
 }
 
 
-XMLDoc::XMLDoc( ) : Object() { }
+XMLDoc::XMLDoc( ) { }
 
 bool XMLDoc::read( const QString& filepath, const QString& schemapath )
 {

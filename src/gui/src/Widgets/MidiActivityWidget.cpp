@@ -33,7 +33,6 @@
 
 MidiActivityWidget::MidiActivityWidget( QWidget * parent )
  : QWidget( parent )
- , Object()
  , m_bValue( false )
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);

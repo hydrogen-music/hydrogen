@@ -30,11 +30,11 @@
 namespace H2Core
 {
 
-InstrumentList::InstrumentList() : Object()
+InstrumentList::InstrumentList()
 {
 }
 
-InstrumentList::InstrumentList( InstrumentList* other ) : Object()
+InstrumentList::InstrumentList( InstrumentList* other ) : Object( *other )
 {
 	assert( other );
 	assert( __instruments.size() == 0 );

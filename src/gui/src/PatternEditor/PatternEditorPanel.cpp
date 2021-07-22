@@ -63,7 +63,6 @@ void PatternEditorPanel::updateSLnameLabel( )
 
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
  : QWidget( pParent )
- , Object()
  , m_pPattern( nullptr )
 {
 	setAcceptDrops(true);

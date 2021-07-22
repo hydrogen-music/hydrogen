@@ -73,7 +73,6 @@ struct PatternDisplayInfo {
 
 SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPanel *pSongEditorPanel )
  : QWidget( parent )
- , Object()
  , m_bSequenceChanged( true )
  , m_pScrollView( pScrollView )
  , m_pSongEditorPanel( pSongEditorPanel )
@@ -1157,7 +1156,6 @@ void SongEditor::onPreferencesChanged( bool bAppearanceOnly ) {
 
 SongEditorPatternList::SongEditorPatternList( QWidget *parent )
  : QWidget( parent )
- , Object()
  , EventListener()
  , m_pBackgroundPixmap( nullptr )
 {
@@ -2106,7 +2104,6 @@ void SongEditorPatternList::onPreferencesChanged( bool bAppearanceOnly ) {
 
 SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
  : QWidget( parent )
- , Object()
  , m_bRightBtnPressed( false )
 {
 	m_pHydrogen = Hydrogen::get_instance();

@@ -58,7 +58,6 @@ void Preferences::create_instance()
 }
 
 Preferences::Preferences()
-		: Object()
 {
 	__instance = this;
 	INFOLOG( "INIT" );
@@ -1344,7 +1343,6 @@ void Preferences::readUIStyle( QDomNode parent )
 
 
 WindowProperties::WindowProperties()
-		: Object()
 {
 //	infoLog( "INIT" );
 	x = 0;
@@ -1356,8 +1354,7 @@ WindowProperties::WindowProperties()
 
 
 WindowProperties::WindowProperties(const WindowProperties & other)
-		: Object(),
-		x(other.x),
+		: x(other.x),
 		y(other.y),
 		width(other.width),
 		height(other.height),

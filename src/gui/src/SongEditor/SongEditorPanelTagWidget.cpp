@@ -37,7 +37,6 @@ namespace H2Core
 
 SongEditorPanelTagWidget::SongEditorPanelTagWidget( QWidget* pParent, int beat )
 	: QDialog( pParent )
-	, Object()
 	, m_stimelineposition ( beat )
 {
 	setupUi( this );

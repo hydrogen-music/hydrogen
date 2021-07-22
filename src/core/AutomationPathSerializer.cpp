@@ -26,7 +26,6 @@ namespace H2Core
 
 
 AutomationPathSerializer::AutomationPathSerializer()
-	: Object()
 {
 }
 

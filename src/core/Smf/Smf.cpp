@@ -33,8 +33,7 @@ namespace H2Core
 {
 
 SMFHeader::SMFHeader( int nFormat, int nTracks, int nTPQN )
-		: Object()
-		, m_nFormat( nFormat )
+		: m_nFormat( nFormat )
 		, m_nTracks( nTracks )
 		, m_nTPQN( nTPQN )
 {
@@ -138,7 +137,6 @@ void SMFTrack::addEvent( SMFEvent *pEvent )
 // ::::::::::::::::::::::
 
 SMF::SMF(int nFormat, int nTPQN )
-		: Object()
 {
 	INFOLOG( "INIT" );
 
@@ -200,7 +198,6 @@ constexpr unsigned int DRUM_CHANNEL = 9;
 constexpr unsigned int NOTE_LENGTH = 12;
 
 SMFWriter::SMFWriter()
-		: Object()
 {
 	INFOLOG( "INIT" );
 }

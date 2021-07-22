@@ -47,8 +47,7 @@
 namespace H2Core
 {
 
-Drumkit::Drumkit() : Object(),
-					 __samples_loaded( false ),
+Drumkit::Drumkit() : __samples_loaded( false ),
 					 __instruments( nullptr ),
 					 __name( "empty" ),
 					 __author( "undefined author" ),

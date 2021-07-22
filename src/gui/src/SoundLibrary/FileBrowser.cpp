@@ -35,7 +35,6 @@ using namespace H2Core;
 
 FileBrowser::FileBrowser( QWidget* pParent )
  : QWidget( pParent )
- , Object()
 {
 	INFOLOG( "[FileBrowser]" );
 

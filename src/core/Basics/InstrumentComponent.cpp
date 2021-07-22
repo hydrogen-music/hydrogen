@@ -43,8 +43,7 @@ namespace H2Core
 int InstrumentComponent::m_nMaxLayers;
 
 InstrumentComponent::InstrumentComponent( int related_drumkit_componentID )
-	: Object()
-	, __related_drumkit_componentID( related_drumkit_componentID )
+	: __related_drumkit_componentID( related_drumkit_componentID )
 	, __gain( 1.0 )
 {
 	__layers.resize( m_nMaxLayers );
@@ -54,8 +53,7 @@ InstrumentComponent::InstrumentComponent( int related_drumkit_componentID )
 }
 
 InstrumentComponent::InstrumentComponent( std::shared_ptr<InstrumentComponent> other )
-	: Object()
-	, __related_drumkit_componentID( other->__related_drumkit_componentID )
+	: __related_drumkit_componentID( other->__related_drumkit_componentID )
 	, __gain( other->__gain )
 {
 	__layers.resize( m_nMaxLayers );

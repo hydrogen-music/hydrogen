@@ -43,8 +43,7 @@ namespace H2Core
 {
 
 
-CoreActionController::CoreActionController() : Object(),
-												m_nDefaultMidiFeedbackChannel(0)
+CoreActionController::CoreActionController() : m_nDefaultMidiFeedbackChannel(0)
 {
 	//nothing
 }

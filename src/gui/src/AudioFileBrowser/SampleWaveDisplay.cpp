@@ -30,7 +30,6 @@ using namespace H2Core;
 
 SampleWaveDisplay::SampleWaveDisplay(QWidget* pParent)
  : QWidget( pParent )
- , Object()
  , m_sSampleName( "" )
 {
 //	setAttribute(Qt::WA_OpaquePaintEvent);

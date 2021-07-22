@@ -34,7 +34,6 @@ namespace H2Core
 Playlist* Playlist::__instance = nullptr;
 
 Playlist::Playlist()
-	: Object()
 {
 	__filename = "";
 	m_nSelectedSongNumber = -1;

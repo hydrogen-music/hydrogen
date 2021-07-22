@@ -36,8 +36,7 @@ void EventQueue::create_instance()
 
 
 EventQueue::EventQueue()
-		: Object()
-		, __read_index( 0 )
+		: __read_index( 0 )
 		, __write_index( 0 )
 {
 	__instance = this;

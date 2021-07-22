@@ -33,7 +33,6 @@
 
 Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffImage, const QString& sOverImage, QSize size, bool use_skin_style, bool enable_press_hold )
  : QWidget( pParent )
- , Object()
  , m_bPressed( false )
  , m_onPixmap( size )
  , m_offPixmap( size )

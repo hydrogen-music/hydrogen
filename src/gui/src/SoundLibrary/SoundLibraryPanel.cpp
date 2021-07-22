@@ -63,7 +63,6 @@ using namespace H2Core;
 
 SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  : QWidget( pParent )
- , Object()
  , __sound_library_tree( nullptr )
  , __drumkit_menu( nullptr )
  , __instrument_menu( nullptr )

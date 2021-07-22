@@ -24,7 +24,7 @@
 #include "MidiSenseWidget.h"
 #include <core/Hydrogen.h>
 
-MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, Action* pAction): QDialog( pParent ) , Object()
+MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, Action* pAction): QDialog( pParent )
 {
 	m_DirectWrite = directWr;
 	m_pAction = pAction;

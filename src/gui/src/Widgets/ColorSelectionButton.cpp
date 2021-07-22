@@ -27,7 +27,6 @@
 
 ColorSelectionButton::ColorSelectionButton( QWidget* pParent, QColor sInitialColor, int nSize )
  : QPushButton( pParent )
- , Object()
  , m_sColor( sInitialColor )
  , m_bMouseOver( false )
 {

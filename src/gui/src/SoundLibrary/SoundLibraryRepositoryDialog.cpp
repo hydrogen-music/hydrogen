@@ -30,8 +30,7 @@
 
 SoundLibraryRepositoryDialog::SoundLibraryRepositoryDialog( QWidget* pParent )
  : QDialog( pParent )
- , Object()
-{
+ {
 	setupUi( this );
 	INFOLOG( "INIT" );
 	setWindowTitle( tr( "Edit repository settings" ) );

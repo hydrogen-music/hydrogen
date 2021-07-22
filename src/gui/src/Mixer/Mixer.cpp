@@ -50,7 +50,6 @@ using namespace H2Core;
 
 Mixer::Mixer( QWidget* pParent )
  : QWidget( pParent )
- , Object()
 {
 	setWindowTitle( tr( "Mixer" ) );
 	setMaximumHeight( 284 );

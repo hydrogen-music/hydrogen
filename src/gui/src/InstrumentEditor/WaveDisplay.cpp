@@ -32,7 +32,6 @@ using namespace H2Core;
 
 WaveDisplay::WaveDisplay(QWidget* pParent)
  : QWidget( pParent )
- , Object()
  , m_nCurrentWidth( 0 )
  , m_sSampleName( "-" )
  , m_pLayer( nullptr )

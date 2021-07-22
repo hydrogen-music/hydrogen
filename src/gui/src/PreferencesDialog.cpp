@@ -52,7 +52,6 @@ QString PreferencesDialog::m_sColorRed = "#ca0003";
 
 PreferencesDialog::PreferencesDialog(QWidget* parent)
  : QDialog( parent )
- , Object()
 {
 	setupUi( this );
 

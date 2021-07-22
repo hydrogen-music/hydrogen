@@ -40,8 +40,7 @@ using namespace H2Core;
 
 PatternEditorRuler::PatternEditorRuler( QWidget* parent )
  : QWidget( parent )
- , Object()
-{
+ {
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//infoLog( "INIT" );

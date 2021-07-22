@@ -30,7 +30,6 @@ using namespace H2Core;
 
 DetailWaveDisplay::DetailWaveDisplay(QWidget* pParent )
  : QWidget( pParent )
- , Object()
  , m_sSampleName( "" )
  , m_pPeakDatal( nullptr )
  , m_pPeakDatar( nullptr )  

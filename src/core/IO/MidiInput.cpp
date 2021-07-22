@@ -35,8 +35,7 @@ namespace H2Core
 {
 
 MidiInput::MidiInput()
-		: Object()
-		, m_bActive( false )
+		: m_bActive( false )
 		, __hihat_cc_openess ( 127 )
 		, __noteOffTick( 0 )
 		, __noteOnTick( 0 )

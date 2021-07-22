@@ -57,7 +57,6 @@ using namespace H2Core;
 
 InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	: QWidget( pParent )
-	, Object()
 	, m_pInstrument( nullptr )
 	, m_nSelectedLayer( 0 )
 {

@@ -26,7 +26,6 @@ namespace H2Core
 {
 
 TransportInfo::TransportInfo()
-		: Object()
 {
 //	INFOLOG( "INIT" );
 	m_status = STOPPED;
