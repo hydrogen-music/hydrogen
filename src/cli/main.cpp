@@ -1,6 +1,7 @@
 /*
- * A headless attempt for hydrogen
- * Copyright(c) 2013 by Sebastian Moors, Pawel Piatek
+ * Hydrogen
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,38 +16,37 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
 #include <QLibraryInfo>
 #include <QThread>
-#include <hydrogen/config.h>
-#include <hydrogen/version.h>
+#include <core/config.h>
+#include <core/Version.h>
 #include <getopt.h>
 
 #ifdef H2CORE_HAVE_LASH
-#include <hydrogen/LashClient.h>
+#include <core/Lash/LashClient.h>
 #endif
 
-#include <hydrogen/basics/song.h>
-#include <hydrogen/midi_map.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/globals.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/basics/playlist.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/Basics/Song.h>
+#include <core/MidiMap.h>
+#include <core/AudioEngine.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Instrument.h>
+#include <core/Globals.h>
+#include <core/EventQueue.h>
+#include <core/Preferences.h>
+#include <core/H2Exception.h>
+#include <core/Basics/Playlist.h>
+#include <core/Sampler/Interpolation.h>
+#include <core/Helpers/Filesystem.h>
 
 #include <iostream>
 #include <signal.h>
 
-using namespace std;
 using namespace H2Core;
 
 void showInfo();
@@ -84,7 +84,7 @@ volatile bool quit = false;
 void signal_handler ( int signum )
 {
 	if ( signum == SIGINT ) {
-		cout << "Terminate signal caught" << endl;
+		std::cout << "Terminate signal caught" << std::endl;
 		quit = true;
 	}
 }
@@ -95,13 +95,15 @@ void show_playlist (uint active )
 	Playlist* pPlaylist = Playlist::get_instance();
 	if ( pPlaylist->size() > 0) {
 		for ( uint i = 0; i < pPlaylist->size(); ++i ) {
-			cout << ( i + 1 ) << "." << pPlaylist->get( i )->filePath.toLocal8Bit().constData();
-			if ( i == active ) cout << " *";
-			cout << endl;
+			std::cout << ( i + 1 ) << "." << pPlaylist->get( i )->filePath.toLocal8Bit().constData();
+			if ( i == active ) {
+				std::cout << " *";
+			}
+			std::cout << std::endl;
 		}
 	}
 	
-	cout << endl;
+	std::cout << std::endl;
 }
 
 #define NELEM(a) ( sizeof(a)/sizeof((a)[0]) )
@@ -118,10 +120,12 @@ int main(int argc, char *argv[])
 		cp = opts;
 		for (op = long_opts; op < &long_opts[NELEM(long_opts)]; op++) {
 			*cp++ = op->val;
-			if (op->has_arg)
+			if (op->has_arg) {
 				*cp++ = ':';
-			if (op->has_arg == optional_argument )
+			}
+			if (op->has_arg == optional_argument ) {
 				*cp++ = ':';  // gets another one
+			}
 		}
 
 		// Deal with the options
@@ -191,7 +195,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( showVersionOpt ) {
-			cout << get_version() << endl;
+			std::cout << get_version() << std::endl;
 			exit(0);
 		}
 
@@ -208,6 +212,9 @@ int main(int argc, char *argv[])
 		MidiMap::create_instance();
 		Preferences::create_instance();
 		Preferences* preferences = Preferences::get_instance();
+#ifdef H2CORE_HAVE_OSC
+		preferences->setOscServerEnabled( true );
+#endif
 		// See below for Hydrogen.
 
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
@@ -227,13 +234,13 @@ int main(int argc, char *argv[])
 			preferences->m_sAudioDriver = "Auto";
 		}
 		else if (sSelectedDriver == "jack") {
-			preferences->m_sAudioDriver = "Jack";
+			preferences->m_sAudioDriver = "JACK";
 		}
 		else if ( sSelectedDriver == "oss" ) {
-			preferences->m_sAudioDriver = "Oss";
+			preferences->m_sAudioDriver = "OSS";
 		}
 		else if ( sSelectedDriver == "alsa" ) {
-			preferences->m_sAudioDriver = "Alsa";
+			preferences->m_sAudioDriver = "ALSA";
 		}
 		else if (sSelectedDriver == "CoreAudio") {
 			preferences->m_sAudioDriver = "CoreAudio";
@@ -270,7 +277,7 @@ int main(int argc, char *argv[])
 			 * here we make it save that hydrogen start in a jacksession case
 			 * every time with jack as audio driver
 			 */
-			preferences->m_sAudioDriver = "Jack";
+			preferences->m_sAudioDriver = "JACK";
 
 		}
 		/* the use of applicationFilePath() make it
@@ -283,7 +290,7 @@ int main(int argc, char *argv[])
 #endif
 		Hydrogen::create_instance();
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
-		Song *pSong = nullptr;
+		std::shared_ptr<Song> pSong = nullptr;
 		Playlist *pPlaylist = nullptr;
 
 		// Load playlist
@@ -319,15 +326,16 @@ int main(int argc, char *argv[])
 				/* Try load last song */
 				bool restoreLastSong = preferences->isRestoreLastSongEnabled();
 				QString filename = preferences->getLastSongFilename();
-				if ( restoreLastSong && ( !filename.isEmpty() ))
+				if ( restoreLastSong && ( !filename.isEmpty() )) {
 					pSong = Song::load( filename );
+				}
 			}
 
 			/* Still not loaded */
 			if (! pSong) {
 				___INFOLOG("Starting with empty song");
-				pSong = Song::get_empty_song();
-				pSong->set_filename( "" );
+				pSong = Song::getEmptySong();
+				pSong->setFilename( "" );
 			}
 
 			pHydrogen->setSong( pSong );
@@ -343,24 +351,24 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		AudioEngine* AudioEngine = AudioEngine::get_instance();
-		Sampler* sampler = AudioEngine->get_sampler();
+		AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
+		Sampler* pSampler = pAudioEngine->getSampler();
 		switch ( interpolation ) {
 			case 1:
-					sampler->setInterpolateMode( Sampler::COSINE );
+					pSampler->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
 					break;
 			case 2:
-					sampler->setInterpolateMode( Sampler::THIRD );
+					pSampler->setInterpolateMode( Interpolation::InterpolateMode::Third );
 					break;
 			case 3:
-					sampler->setInterpolateMode( Sampler::CUBIC );
+					pSampler->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
 					break;
 			case 4:
-					sampler->setInterpolateMode( Sampler::HERMITE );
+					pSampler->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
 					break;
 			case 0:
 			default:
-					sampler->setInterpolateMode( Sampler::LINEAR );
+					pSampler->setInterpolateMode( Interpolation::InterpolateMode::Linear );
 		}
 
 		EventQueue *pQueue = EventQueue::get_instance();
@@ -370,13 +378,13 @@ int main(int argc, char *argv[])
 		
 		bool ExportMode = false;
 		if ( ! outFilename.isEmpty() ) {
-			InstrumentList *pInstrumentList = pSong->get_instrument_list();
+			InstrumentList *pInstrumentList = pSong->getInstrumentList();
 			for (auto i = 0; i < pInstrumentList->size(); i++) {
 				pInstrumentList->get(i)->set_currently_exported( true );
 			}
 			pHydrogen->startExportSession(rate, bits);
 			pHydrogen->startExportSong( outFilename );
-			cout << "Export Progress ... ";
+			std::cout << "Export Progress ... ";
 			ExportMode = true;
 		}
 
@@ -384,7 +392,7 @@ int main(int argc, char *argv[])
 		while ( ! quit ) {
 			/* FIXME: Someday here will be The Real CLI ;-) */
 			Event event = pQueue->pop_event();
-			// if ( event.type > 0) cout << "EVENT TYPE: " << event.type << endl;
+			// if ( event.type > 0) std::cout << "EVENT TYPE: " << event.type << std::endl;
 
 			/* Event handler */
 			switch ( event.type ) {
@@ -392,10 +400,10 @@ int main(int argc, char *argv[])
 				if ( ! ExportMode ) break;
 	
 				if ( event.value < 100 ) {
-					cout << "\rExport Progress ... " << event.value << "%";
+					std::cout << "\rExport Progress ... " << event.value << "%";
 				} else {
 					pHydrogen->stopExportSession();
-					cout << "\rExport Progress ... DONE" << endl;
+					std::cout << "\rExport Progress ... DONE" << std::endl;
 					quit = true;
 				}
 				break;
@@ -416,19 +424,28 @@ int main(int argc, char *argv[])
 			case EVENT_NONE: /* Sleep if there is no more events */
 				Sleeper::msleep ( 100 );
 				break;
+				
+			case EVENT_QUIT: // Shutdown if indicated by a
+							 // corresponding OSC message.
+				quit = true;
+				break;
+			default:
+				// EVENT_STATE, EVENT_PATTERN_CHANGED, etc are ignored
+				break;
 			}
 		}
 
-		if ( pHydrogen->getState() == STATE_PLAYING )
+		if ( pHydrogen->getState() == STATE_PLAYING ) {
 			pHydrogen->sequencer_stop();
+		}
 
-		delete pSong;
+		//delete pSong;
+		pSong = nullptr;
 		delete pPlaylist;
 
 		delete pQueue;
 		delete pHydrogen;
 		delete preferences;
-		delete AudioEngine;
 
 		delete MidiMap::get_instance();
 		delete MidiActionManager::get_instance();
@@ -438,15 +455,15 @@ int main(int argc, char *argv[])
 
 		int nObj = Object::objects_count();
 		if (nObj != 0) {
-			cerr << "\n\n\n " << nObj << " alive objects\n\n" << endl << endl;
+			std::cerr << "\n\n\n " << nObj << " alive objects\n\n" << std::endl << std::endl;
 			Object::write_objects_map_to_cerr();
 		}
 	}
 	catch ( const H2Exception& ex ) {
-		cerr << "[main] Exception: " << ex.what() << endl;
+		std::cerr << "[main] Exception: " << ex.what() << std::endl;
 	}
 	catch (...) {
-		cerr << "[main] Unknown exception X-(" << endl;
+		std::cerr << "[main] Unknown exception X-(" << std::endl;
 	}
 
 	return 0;
@@ -455,16 +472,16 @@ int main(int argc, char *argv[])
 /* Show some information */
 void showInfo()
 {
-	cout << "\nHydrogen " + get_version() + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << endl;
-	cout << "Copyright 2002-2008 Alessandro Cominu" << endl;
+	std::cout << "\nHydrogen " + get_version() + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << std::endl;
+	std::cout << "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2021 The hydrogen development team" << std::endl;
 
 	if ( Object::count_active() ) {
-		cout << "\nObject counting active" << endl;
+		std::cout << "\nObject counting active" << std::endl;
 	}
 
-	cout << "\nHydrogen comes with ABSOLUTELY NO WARRANTY" << endl;
-	cout << "This is free software, and you are welcome to redistribute it" << endl;
-	cout << "under certain conditions. See the file COPYING for details\n" << endl;
+	std::cout << "\nHydrogen comes with ABSOLUTELY NO WARRANTY" << std::endl;
+	std::cout << "This is free software, and you are welcome to redistribute it" << std::endl;
+	std::cout << "under certain conditions. See the file COPYING for details\n" << std::endl;
 }
 
 /**
@@ -472,30 +489,30 @@ void showInfo()
  */
 void showUsage()
 {
-	cout << "Usage: hydrogen [-v] [-h] -s file" << endl;
-	cout << "   -d, --driver AUDIODRIVER - Use the selected audio driver (jack, alsa, oss)" << endl;
-	cout << "   -s, --song FILE - Load a song (*.h2song) at startup" << endl;
-	cout << "   -p, --playlist FILE - Load a playlist (*.h2playlist) at startup" << endl;
-	cout << "   -o, --outfile FILE - Output to file (export)" << endl;
-	cout << "   -r, --rate RATE - Set bitrate while exporting file" << endl;
-	cout << "   -b, --bits BITS - Set bits depth while exporting file" << endl;
-	cout << "   -k, --kit drumkit_name - Load a drumkit at startup" << endl;
-	cout << "   -i, --install FILE - install a drumkit (*.h2drumkit)" << endl;
-	cout << "   -I, --interpolate INT - Interpolation" << endl;
-	cout << "       (0:linear [default],1:cosine,2:third,3:cubic,4:hermite)" << endl;
+	std::cout << "Usage: hydrogen [-v] [-h] -s file" << std::endl;
+	std::cout << "   -d, --driver AUDIODRIVER - Use the selected audio driver (jack, alsa, oss)" << std::endl;
+	std::cout << "   -s, --song FILE - Load a song (*.h2song) at startup" << std::endl;
+	std::cout << "   -p, --playlist FILE - Load a playlist (*.h2playlist) at startup" << std::endl;
+	std::cout << "   -o, --outfile FILE - Output to file (export)" << std::endl;
+	std::cout << "   -r, --rate RATE - Set bitrate while exporting file" << std::endl;
+	std::cout << "   -b, --bits BITS - Set bits depth while exporting file" << std::endl;
+	std::cout << "   -k, --kit drumkit_name - Load a drumkit at startup" << std::endl;
+	std::cout << "   -i, --install FILE - install a drumkit (*.h2drumkit)" << std::endl;
+	std::cout << "   -I, --interpolate INT - Interpolation" << std::endl;
+	std::cout << "       (0:linear [default],1:cosine,2:third,3:cubic,4:hermite)" << std::endl;
 
 #ifdef H2CORE_HAVE_JACKSESSION
-	cout << "   -S, --jacksessionid ID - Start a JackSessionHandler session" << endl;
+	std::cout << "   -S, --jacksessionid ID - Start a JackSessionHandler session" << std::endl;
 #endif
 
 #ifdef H2CORE_HAVE_LASH
-	cout << "   --lash-no-start-server - If LASH server not running, don't start" << endl
-			  << "                            it (LASH 0.5.3 and later)." << endl;
-	cout << "   --lash-no-autoresume - Tell LASH server not to assume I'm returning" << endl
-			  << "                          from a crash." << endl;
+	std::cout << "   --lash-no-start-server - If LASH server not running, don't start" << std::endl
+			  << "                            it (LASH 0.5.3 and later)." << std::endl;
+	std::cout << "   --lash-no-autoresume - Tell LASH server not to assume I'm returning" << std::endl
+			  << "                          from a crash." << std::endl;
 #endif
-	cout << "   -V[Level], --verbose[=Level] - Print a lot of debugging info" << endl;
-	cout << "                 Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH" << endl;
-	cout << "   -v, --version - Show version info" << endl;
-	cout << "   -h, --help - Show this help message" << endl;
+	std::cout << "   -V[Level], --verbose[=Level] - Print a lot of debugging info" << std::endl;
+	std::cout << "                 Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH" << std::endl;
+	std::cout << "   -v, --version - Show version info" << std::endl;
+	std::cout << "   -h, --help - Show this help message" << std::endl;
 }

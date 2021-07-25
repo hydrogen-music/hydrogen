@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,25 +16,24 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
 #ifndef INSTRUMENT_EDITOR_DIALOG_H
 #define INSTRUMENT_EDITOR_DIALOG_H
 
-
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
+#include <memory>
 
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/object.h>
+#include <core/Basics/Instrument.h>
+#include <core/Object.h>
+#include <core/Preferences.h>
 
 #include "../EventListener.h"
 #include "../Widgets/PixmapWidget.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 class Fader;
 class LCDDisplay;
@@ -49,13 +49,13 @@ class LayerPreview;
 ///
 /// Instrument Editor
 ///
-class InstrumentEditor : public QWidget, public H2Core::Object, public EventListener
+class InstrumentEditor : public QWidget, protected WidgetWithScalableFont<10, 12, 14>, public H2Core::Object, public EventListener
 {
 	H2_OBJECT
 	Q_OBJECT
 
 	public:
-		InstrumentEditor( QWidget* parent );
+		explicit InstrumentEditor( QWidget* parent );
 		~InstrumentEditor();
 
 		void selectLayer( int nLayer );
@@ -64,12 +64,18 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void selectComponent( int nComponent );
 
 		// implements EventListener interface
-		virtual void selectedInstrumentChangedEvent();
-		virtual void rubberbandbpmchangeEvent();
+		virtual void selectedInstrumentChangedEvent() override;
+		virtual void rubberbandbpmchangeEvent() override;
 		//~ implements EventListener interface
 		void update();
-
 		static int findFreeDrumkitComponentId( int startingPoint = 0 );
+
+
+	public slots:
+		void showLayers();
+		void showInstrument();
+		void showSampleEditor();
+	void onPreferencesChanged( bool bAppearanceOnly );
 
 	private slots:
 		void rotaryChanged(Rotary *ref);
@@ -95,7 +101,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void waveDisplayDoubleClicked( QWidget *pRef );
 
 	private:
-		H2Core::Instrument *m_pInstrument;
+		std::shared_ptr<H2Core::Instrument> m_pInstrument;
 		int m_nSelectedLayer;
 		int m_nSelectedComponent;
 
@@ -113,8 +119,11 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		Rotary *m_pSustainRotary;
 		Rotary *m_pReleaseRotary;
 
-		// Random pitch
+		// Instrument pitch
+		Rotary *m_pPitchCoarseRotary;
+		Rotary *m_pPitchFineRotary;
 		Rotary *m_pRandomPitchRotary;
+		LCDDisplay *m_pPitchLCD;
 
 		// Low pass filter
 		ToggleButton *m_pFilterBypassBtn;
@@ -197,6 +206,11 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		void loadLayer();
 		void setAutoVelocity();
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSizeButton() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

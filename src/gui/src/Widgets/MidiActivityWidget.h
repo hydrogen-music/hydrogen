@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -26,33 +26,31 @@
 
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include "../EventListener.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 class MidiActivityWidget : public QWidget, public EventListener, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
 	public:
-		MidiActivityWidget(QWidget * parent);
+		explicit MidiActivityWidget(QWidget * parent);
 		~MidiActivityWidget();
 
-		void mousePressEvent(QMouseEvent *ev);
-		void paintEvent(QPaintEvent *ev);
+		void mousePressEvent(QMouseEvent *ev) override;
+		void paintEvent(QPaintEvent *ev) override;
 
 	public slots:
 		void restoreMidiActivityWidget();
 
 	private:
-		bool m_bValue;
-		QTimer *m_qTimer;
-		QPixmap m_back;
-		QPixmap m_leds;
-		virtual void midiActivityEvent();
+		bool		m_bValue;
+		QTimer *	m_qTimer;
+		QPixmap		m_back;
+		QPixmap		m_leds;
+		virtual void midiActivityEvent() override;
 };
 
 #endif

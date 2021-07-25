@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -25,13 +25,14 @@
 
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include <vector>
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
+#include <core/Preferences.h>
+
+#include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {
@@ -43,7 +44,7 @@ namespace H2Core
 class SoundLibraryTree;
 class ToggleButton;
 
-class SoundLibraryPanel : public QWidget, private H2Core::Object
+class SoundLibraryPanel : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, private H2Core::Object
 {
 	H2_OBJECT
 Q_OBJECT
@@ -54,6 +55,7 @@ public:
 	void updateDrumkitList();
 	void test_expandedItems();
 	void update_background_color();
+	const QString& getMessageFailedPreDrumkitLoad() const;
 
 public slots:
 	void on_drumkitLoadAction();
@@ -72,6 +74,7 @@ private slots:
 	void on_songLoadAction();
 	void on_patternLoadAction();
 	void on_patternDeleteAction();
+	void onPreferencesChanged( bool bAppearanceOnly );
 
 signals:
 	void item_changed(bool bDrumkitSelected);
@@ -100,6 +103,18 @@ private:
 	void restore_background_color();
 	void change_background_color();
 
+	/** Whether the dialog was constructed via a click in the MainForm
+	 * or as part of the GUI.
+	 */
+	bool m_bInItsOwnDialog;
+
+	QString m_sMessageFailedPreDrumkitLoad;
+	/** Used to detect changed in the font*/
+	H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
+
+inline const QString& SoundLibraryPanel::getMessageFailedPreDrumkitLoad() const {
+	return m_sMessageFailedPreDrumkitLoad;
+}
 
 #endif

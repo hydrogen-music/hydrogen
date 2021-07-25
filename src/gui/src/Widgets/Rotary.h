@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -27,18 +27,16 @@
 #include "MidiSenseWidget.h"
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 class LCDDisplay;
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 class RotaryTooltip : public QWidget
 {
 	public:
-		RotaryTooltip( QPoint pos );
+		explicit RotaryTooltip( QPoint pos );
 		~RotaryTooltip();
 		void showTip( QPoint pos, QString sText );
 
@@ -55,10 +53,14 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 	public:
 		enum RotaryType {
 			TYPE_NORMAL,
-			TYPE_CENTER
+			TYPE_CENTER,
+			TYPE_SMALL
 		};
 
-		Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseIntSteps, bool bUseValueTip );
+		Rotary(const Rotary&) = delete;
+		Rotary& operator=( const Rotary& rhs ) = delete;
+	
+		Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseIntSteps, bool bUseValueTip, float fMin = 0.0, float fMax = 1.0 );
 		~Rotary();
 
 		void setMin( float fMin );
@@ -91,6 +93,7 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 		RotaryType m_type;
 		static QPixmap* m_background_normal;
 		static QPixmap* m_background_center;
+		static QPixmap* m_background_small;
 
 		int m_nWidgetWidth;
 		int m_nWidgetHeight;
@@ -112,6 +115,4 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void wheelEvent( QWheelEvent *ev );
 };
-
-
 #endif

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -24,30 +24,30 @@
 #ifndef INSTRUMENT_RACK_H
 #define INSTRUMENT_RACK_H
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
+#include <core/Preferences.h>
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
+#include "Widgets/WidgetWithScalableFont.h"
 
 class ToggleButton;
 class SoundLibraryPanel;
 
-class InstrumentRack : public QWidget, private H2Core::Object
+class InstrumentRack : public QWidget, protected WidgetWithScalableFont<5, 6, 7>, private H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
 	public:
-		InstrumentRack( QWidget *pParent );
+		explicit InstrumentRack( QWidget *pParent );
 		~InstrumentRack();
 
 		SoundLibraryPanel* getSoundLibraryPanel() {	return m_pSoundLibraryPanel;	}
 
-	private slots:
+	public slots:
 		void on_showSoundLibraryBtnClicked();
 		void on_showInstrumentEditorBtnClicked();
-
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
 		/// button for showing the Sound Library
@@ -57,6 +57,8 @@ class InstrumentRack : public QWidget, private H2Core::Object
 		ToggleButton *m_pShowInstrumentEditorBtn;
 
 		SoundLibraryPanel* m_pSoundLibraryPanel;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 };
 

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,19 +16,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_layer.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentLayer.h>
 using namespace H2Core;
 
 #include "WaveDisplay.h"
 #include "../Skin.h"
+#include "../HydrogenApp.h"
 
 const char* WaveDisplay::__class_name = "WaveDisplay";
 
@@ -39,7 +40,10 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
  , m_pLayer( nullptr )
  , m_SampleNameAlignment( Qt::AlignCenter )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
+
+	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 
 	//INFOLOG( "INIT" );
 
@@ -48,7 +52,10 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
 		ERRORLOG( "Error loading pixmap" );
 	}
 
-	m_pPeakData = new int[ width() ]{};
+	m_pPeakData = new int[ width() ];
+	memset( m_pPeakData, 0, width() * sizeof( m_pPeakData[0] ) );
+	
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &WaveDisplay::onPreferencesChanged );
 }
 
 
@@ -83,7 +90,7 @@ void WaveDisplay::paintEvent( QPaintEvent *ev )
 		
 	}
 	
-	QFont font;
+	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 	font.setWeight( 63 );
 	painter.setFont( font );
 	painter.setPen( QColor( 255 , 255, 255, 200 ) );
@@ -106,14 +113,15 @@ void WaveDisplay::resizeEvent( QResizeEvent * event )
 
 
 
-void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
+void WaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer )
 {
 	int currentWidth = width();
 	
 	if(!pLayer || currentWidth <= 0){
 		m_pLayer = nullptr;
 		m_sSampleName = "-";
-		
+
+		update();
 		return;
 	}
 	
@@ -128,14 +136,14 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 		m_pLayer = pLayer;
 		m_sSampleName = pLayer->get_sample()->get_filename();
 
-//		INFOLOG( "[updateDisplay] sample: " + m_sSampleName  );
+		//INFOLOG( "[updateDisplay] sample: " + m_sSampleName  );
 
 		int nSampleLength = pLayer->get_sample()->get_frames();
 		int nScaleFactor = nSampleLength / m_nCurrentWidth;
 
 		float fGain = height() / 2.0 * pLayer->get_gain();
 
-		float *pSampleData = pLayer->get_sample()->get_data_l();
+		auto pSampleData = pLayer->get_sample()->get_data_l();
 
 		int nSamplePos =0;
 		int nVal;
@@ -154,6 +162,7 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 		}
 	}
 	else {
+		m_pLayer = nullptr;
 		m_sSampleName = "-";
 		for ( int i =0; i < m_nCurrentWidth; ++i ){
 			m_pPeakData[ i ] = 0;
@@ -169,4 +178,15 @@ void WaveDisplay::mouseDoubleClickEvent(QMouseEvent *ev)
 	if (ev->button() == Qt::LeftButton) {
 	    emit doubleClicked(this);
 	}	
+}
+
+void WaveDisplay::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		update();
+	}
 }

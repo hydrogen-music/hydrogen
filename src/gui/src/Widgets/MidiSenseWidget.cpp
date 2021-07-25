@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,21 +16,20 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
-#include "hydrogen/midi_map.h"
+#include "core/MidiMap.h"
 #include "MidiSenseWidget.h"
-#include <hydrogen/hydrogen.h>
+#include <core/Hydrogen.h>
 
 const char* MidiSenseWidget::__class_name = "MidiSenseWidget";
 
-MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, Action* midiAction): QDialog( pParent ) , Object(__class_name)
+MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, Action* pAction): QDialog( pParent ) , Object(__class_name)
 {
 	m_DirectWrite = directWr;
-	m_pAction = midiAction;
+	m_pAction = pAction;
 
 	setWindowTitle( "Waiting.." );
 	setFixedSize( 280, 100 );
@@ -62,9 +62,9 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, Action* midiAc
 	pVBox->addWidget( m_pURLLabel );
 	setLayout( pVBox );
 	
-	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
-	pEngine->lastMidiEvent = "";
-	pEngine->lastMidiEventParameter = 0;
+	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
+	pHydrogen->lastMidiEvent = "";
+	pHydrogen->lastMidiEventParameter = 0;
 
 	m_LastMidiEventParameter = 0;
 	
@@ -88,10 +88,10 @@ MidiSenseWidget::~MidiSenseWidget(){
 }
 
 void MidiSenseWidget::updateMidi(){
-	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
-	if(	!pEngine->lastMidiEvent.isEmpty() ){
-		m_sLastMidiEvent = pEngine->lastMidiEvent;
-		m_LastMidiEventParameter = pEngine->lastMidiEventParameter;
+	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
+	if(	!pHydrogen->lastMidiEvent.isEmpty() ){
+		m_sLastMidiEvent = pHydrogen->lastMidiEvent;
+		m_LastMidiEventParameter = pHydrogen->lastMidiEventParameter;
 
 
 		if( m_DirectWrite ){

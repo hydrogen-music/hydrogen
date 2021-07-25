@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,21 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
 #include "LCD.h"
-
 #include "../Skin.h"
 
-#include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
-
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 
 QPixmap* LCDDigit::m_pSmallBlueFontSet = nullptr;
 QPixmap* LCDDigit::m_pSmallRedFontSet = nullptr;
@@ -43,7 +37,7 @@ LCDDigit::LCDDigit( QWidget * pParent, LCDType type )
  , Object( __class_name )
  , m_type( type )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	switch ( m_type ) {
 		case SMALL_BLUE:
@@ -241,7 +235,7 @@ LCDDisplay::LCDDisplay( QWidget * pParent, LCDDigit::LCDType type, int nDigits, 
 	setText( "    ");
 
 	QPalette defaultPalette;
-	defaultPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
+	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 	this->setPalette( defaultPalette );
 
 }
@@ -420,7 +414,7 @@ void LCDSpinBox::wheelEvent ( QWheelEvent *ev )
 {
 	ev->accept();
 
-	if ( ev->delta() > 0 ) {
+	if ( ev->angleDelta().y() > 0 ) {
 		switch( m_type ) {
 			case INTEGER:
 				setValue( m_fValue + 1);

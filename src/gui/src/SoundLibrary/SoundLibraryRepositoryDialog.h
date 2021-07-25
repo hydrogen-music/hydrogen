@@ -1,6 +1,7 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -24,7 +24,7 @@
 #define SOUND_LIBRARY_REPOSITORY_DIALOG_H
 
 #include "ui_SoundLibraryRepositoryDialog_UI.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 ///
 ///
@@ -34,12 +34,13 @@ class SoundLibraryRepositoryDialog : public QDialog, public Ui_SoundLibraryRepos
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		SoundLibraryRepositoryDialog( QWidget* pParent );
+		explicit SoundLibraryRepositoryDialog( QWidget* pParent );
 		~SoundLibraryRepositoryDialog();
 
 	private slots:
 		void on_AddBtn_clicked();
 		void on_DeleteBtn_clicked();
+		void on_CloseBtn_clicked();		
 
 	private:
 		void updateDialog();

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -24,11 +24,14 @@
 #ifndef PATTERN_EDITOR_PANEL_H
 #define PATTERN_EDITOR_PANEL_H
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
+#include <core/Preferences.h>
 
 #include "PianoRollEditor.h"
 #include "../EventListener.h"
 #include "../Widgets/LCDCombo.h"
+#include "../Widgets/LCD.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 class Button;
 class ToggleButton;
@@ -51,13 +54,13 @@ namespace H2Core
 ///
 /// Pattern Editor Panel
 ///
-class PatternEditorPanel : public QWidget, public EventListener, public H2Core::Object
+class PatternEditorPanel : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public EventListener, public H2Core::Object
 {
 	H2_OBJECT
 	Q_OBJECT
 
 	public:
-		PatternEditorPanel(QWidget *parent);
+		explicit PatternEditorPanel(QWidget *parent);
 		~PatternEditorPanel();
 
 		DrumPatternEditor* getDrumPatternEditor() {	return m_pDrumPatternEditor;	}
@@ -68,22 +71,40 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		NotePropertiesRuler* getProbabilityEditor() {	return m_pNoteProbabilityEditor;	}
 		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
 		PianoRollEditor* getPianoRollEditor() {		return m_pPianoRollEditor;	}
+		PatternEditorRuler* getPatternEditorRuler() {		return m_pPatternEditorRuler;  }
 		int getPropertiesComboValue(){ return __pPropertiesCombo->selected(); }
 
 		void updateSLnameLabel();
-		void displayorHidePrePostCB();
 		void updatePianorollEditor();
 
 		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent();
-		virtual void selectedInstrumentChangedEvent();
-		virtual void stateChangedEvent(int nState);
+		virtual void selectedPatternChangedEvent() override;
+		virtual void selectedInstrumentChangedEvent() override;
 		//~ Implements EventListener interface
+
+		void ensureCursorVisible();
+		int getCursorPosition();
+		void setCursorPosition(int nCursorPosition);
+		int moveCursorLeft( int n = 1 );
+		int moveCursorRight( int n = 1 );
+
+		void selectInstrumentNotes( int nInstrument );
+
+		void updateEditors( bool bPatternOnly = false );
+
+	public slots:
+		void showDrumEditor();
+		void showPianoRollEditor();
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private slots:
 		void gridResolutionChanged( int nSelected );
 		void propertiesComboChanged( int nSelected );
-		void patternSizeChanged( int nSelected );
+		void patternLengthChanged();
+		void updatePatternSizeLCD();
+		void patternSizeLCDClicked();
+		void denominatorWarningClicked();
+
 
 		void hearNotesBtnClick(Button *ref);
 		void quantizeEventsBtnClick(Button *ref);
@@ -102,23 +123,17 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		void moveDownBtnClicked(Button *);
 		void moveUpBtnClicked(Button *);
 
-		void recPreDeleteSelect( int index );
-		void recPostDeleteSelect( int index );
-
 	private:
 		H2Core::Pattern *	m_pPattern;
 		QPixmap				m_backgroundPixmap;
-		QLabel *			pSLlabel;
+		QLabel *			m_pSLlabel;
 
 		// Editor top
-		LCDCombo *			__pattern_size_combo;
+		LCDDisplay *			__pattern_size_LCD;
+		Button *			m_pDenominatorWarning;
 		LCDCombo *			__resolution_combo;
 		ToggleButton *		__show_drum_btn;
 		ToggleButton *		__show_piano_btn;
-		QComboBox *			__recpredelete;
-		QComboBox *			__recpostdelete;
-
-
 		// ~Editor top
 
 		//note properties combo
@@ -129,7 +144,6 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		DrumPatternEditor *	m_pDrumPatternEditor;
 
 		// piano roll editor
-		QScrollArea*		m_pPianoRollInternScrollView;
 		QScrollArea*		m_pPianoRollScrollView;
 		PianoRollEditor *	m_pPianoRollEditor;
 
@@ -166,25 +180,28 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 
 		// TOOLBAR
 		QLabel *			m_pPatternNameLbl;
-
-
-
 		Button *			m_pRandomVelocityBtn;
 		//~ TOOLBAR
-
 
 		Button *			sizeDropdownBtn;
 		Button *			resDropdownBtn;
 
 		bool				m_bEnablePatternResize;
 
+		// Cursor positioning
+		int					m_nCursorPosition;
+		int					m_nCursorIncrement;
+		//~ Cursor
 
-		virtual void dragEnterEvent(QDragEnterEvent *event);
-		virtual void dropEvent(QDropEvent *event);
+		virtual void dragEnterEvent(QDragEnterEvent *event) override;
+		virtual void dropEvent(QDropEvent *event) override;
 
-		virtual void resizeEvent(QResizeEvent *ev);
-		virtual void showEvent(QShowEvent *ev);
+		virtual void resizeEvent(QResizeEvent *ev) override;
+		virtual void showEvent(QShowEvent *ev) override;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
+
 
 
 

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,14 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
 #include "SoundLibrarySaveDialog.h"
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/drumkit.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Drumkit.h>
 #include <QMessageBox>
 
 #include "../HydrogenApp.h"
@@ -37,6 +37,7 @@ SoundLibrarySaveDialog::SoundLibrarySaveDialog( QWidget* pParent )
 	setupUi( this );
 	INFOLOG( "INIT" );
 	setWindowTitle( tr( "Save Sound Library" ) );
+	adjustSize();
 	setFixedSize( width(), height() );
 }
 
@@ -138,8 +139,8 @@ void SoundLibrarySaveDialog::on_saveBtn_clicked()
 								licenseTxt->text(),
 								H2Core::Filesystem::usr_drumkits_dir() + "/" + nameTxt->text() + "/" + imageText->text(),
 								imageLicenseText->text(),
-								H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(),
-								H2Core::Hydrogen::get_instance()->getSong()->get_components(),
+								H2Core::Hydrogen::get_instance()->getSong()->getInstrumentList(),
+								H2Core::Hydrogen::get_instance()->getSong()->getComponents(),
 								Overwrite ) ) {
 		QMessageBox::information( this, "Hydrogen", tr ( "Saving of this library failed."));
 		return;

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -25,6 +25,8 @@
 #include <cmath>
 #include <cstdlib>
 #include <QNetworkReply>
+#include <QtNetwork>
+
 
 const char* Download::__class_name = "Download";
 
@@ -38,7 +40,7 @@ Download::Download( QWidget* pParent, const QString& download_url, const QString
 		, __remote_url( download_url )
 		, __local_file( local_file )
 		, __reply(nullptr)
-		, __error(false)
+		, __error( "" )
 {
 	if ( !__local_file.isEmpty() ) {
 		INFOLOG( QString( "Downloading '%1' in '%2'" ).arg( __remote_url.toString() ).arg( __local_file ) );
@@ -88,9 +90,8 @@ Download::~Download()
 void Download::finished()
 {
 	if ( __reply->error() ) {
-		__error = true;
-		ERRORLOG(QString( tr( "Importing item failed: %1" ) ).arg( __reply->errorString() ));
-		QMessageBox::information( this, "Hydrogen", QString( tr( "Importing item failed: %1" ) ).arg( __reply->errorString() ) );
+		__error = QString( tr( "Importing item failed: %1" ) ).arg( __reply->errorString() );
+		ERRORLOG( __error );
 		reject();
 		return;
 	}

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -28,9 +28,9 @@
 #include "math.h"
 #include "string.h"
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/audio_engine.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Sample.h>
+#include <core/AudioEngine.h>
 using namespace H2Core;
 
 const char* FileBrowser::__class_name = "FileBrowser";
@@ -114,11 +114,14 @@ void FileBrowser::loadDirectoryTree( const QString& sBasedir )
 		QListWidgetItem *pItem = new QListWidgetItem();
 		if ( fileInfo.isDir() ) {
 			if ( fileInfo.fileName().startsWith( "." ) ) {
+				delete pItem;
 				continue;
 			}
 
 			pItem->setText( fileInfo.fileName() );
 			m_pDirList->insertItem( 0, pItem);
+		} else {
+			delete pItem;
 		}
 	}
 	m_pDirList->sortItems( Qt::AscendingOrder );
@@ -146,7 +149,11 @@ void FileBrowser::loadDirectoryTree( const QString& sBasedir )
 			if ( bOk ) {
 				pItem->setText( fileInfo.fileName() );
 				m_pFileList->insertItem( 0, pItem);
+			} else {
+				delete pItem;
 			}
+		} else {
+			delete pItem;
 		}
 	}
 	m_pFileList->sortItems( Qt::AscendingOrder );
@@ -217,8 +224,7 @@ void FileBrowser::on_fileList_ItemActivated( QListWidgetItem* item )
 	if ( !item ) {
 		return;
 	}
-	QString sFileName = m_directory.absolutePath() + "/" + ( item->text() );
-
+	
 	QFileInfoList list = m_directory.entryInfoList();
 	for (int i = 0; i < list.size(); ++i) {
 		QFileInfo fileInfo = list.at(i);
@@ -227,10 +233,10 @@ void FileBrowser::on_fileList_ItemActivated( QListWidgetItem* item )
 			if ( !fileInfo.isDir() ) {
 
 				// FIXME: evitare di caricare il sample, visualizzare solo le info del file
-				Sample *pNewSample = Sample::load( fileInfo.absoluteFilePath() );
-				if (pNewSample) {
+				auto pNewSample = Sample::load( fileInfo.absoluteFilePath() );
+				if ( pNewSample != nullptr ) {
 					updateFileInfo( fileInfo.absoluteFilePath(), pNewSample->get_sample_rate(), pNewSample->get_size() );
-					AudioEngine::get_instance()->get_sampler()->preview_sample(pNewSample, 192);
+					Hydrogen::get_instance()->getAudioEngine()->getSampler()->preview_sample(pNewSample, 192);
 				}
 			}
 		}
@@ -246,7 +252,6 @@ void FileBrowser::on_dirList_ItemActivated( QListWidgetItem* pItem )
 	if ( !pItem ) {
 		return;
 	}
-	QString sFileName = m_directory.absolutePath() + "/" + ( pItem->text() );
 
 	QFileInfoList list = m_directory.entryInfoList();
 	for (int i = 0; i < list.size(); ++i) {

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -25,12 +25,12 @@
 
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
-#include <QtNetwork>
+#include <QtWidgets>
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
+
+class QNetworkAccessManager;
+class QNetworkReply;
 
 class Download : public QDialog, public H2Core::Object
 {
@@ -43,7 +43,7 @@ public:
 
 	int get_percent_done() {	return (int)__download_percent;	}
 	const QString& get_xml_content() {	return __feed_xml_string;	}
-	bool get_error() { return __error; }
+	const QString& get_error() { return __error; }
 
 private slots:
 	void	finished();
@@ -53,7 +53,7 @@ protected:
 	QNetworkAccessManager*	__http_client;
 	QNetworkReply*			__reply;
 
-	QTime					__time;
+	QElapsedTimer			__time;
 
 	float					__download_percent;
 	int						__eta;
@@ -67,7 +67,7 @@ protected:
 	QString					__local_file;
 	QString					__feed_xml_string;
 
-	bool					__error;
+	QString					__error;
 };
 
 

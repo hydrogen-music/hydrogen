@@ -1,5 +1,25 @@
 #! /bin/bash
 
+# Hydrogen
+# Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+# Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+#
+# http://www.hydrogen-music.org
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
 QTDIR=${QTDIR:-/usr/lib/qt}
 VERBOSE=${VERBOSE:-0}
 CMAKE_OPTIONS="
@@ -56,14 +76,14 @@ function cmake_make() {
         make translations $MAKE_OPTS || exit 1
         make $MAKE_OPTS || exit 1
     fi
-	
-	if [[ "$PLATFORM_STR" == 'Linux' ]]; then
-		cp src/gui/hydrogen ..
-	elif [[ "$PLATFORM_STR" == *BSD ]]; then
-		cp src/gui/hydrogen ..
-	elif [[ "$PLATFORM_STR" == 'Darwin' ]]; then
-		cp -rf src/gui/hydrogen.app ..
-	fi
+
+    if [[ "$PLATFORM_STR" == 'Linux' ]]; then
+        cp src/gui/hydrogen ..
+    elif [[ "$PLATFORM_STR" == *BSD ]]; then
+        cp src/gui/hydrogen ..
+    elif [[ "$PLATFORM_STR" == 'Darwin' ]]; then
+        cp -rf src/gui/hydrogen.app ..
+    fi
 
     cd ..
 }
@@ -110,10 +130,11 @@ if [ $# -eq 0 ]; then
     echo "   c[lean]  => remove cache files"
     echo "   m[ake]   => launch the build process"
     echo "   mm       => launch the build process using ccache"
+    echo "   mt       => launch the build process with clang tidy checks enabled"
     echo "   d[oc]    => build html documentation"
     echo "   g[raph]  => draw a dependencies graph"
     echo "   h[elp]   => show the build options"
-    echo "   x|exec   => execute hydrogen"
+    echo "   x[exec]  => execute hydrogen"
     echo "   t[ests]  => execute tests"
     echo "   p[kg]    => build source package"
     echo "   z        => build using ccache and run from tree"
@@ -132,6 +153,9 @@ for arg in $@; do
         mm)
             CMAKE_OPTIONS="$CMAKE_OPTIONS -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
             cmd="cmake_make";;
+        mt)
+            CMAKE_OPTIONS="$CMAKE_OPTIONS -DWANT_CLANG_TIDY=1"
+            cmd="cmake_make";;
         g|graph)
             cmd="cmake_graph";;
         d|doc)
@@ -145,9 +169,12 @@ for arg in $@; do
         p|pkg)
             cmd="cmake_pkg";;
         z)
+            CMAKE_OPTIONS="$CMAKE_OPTIONS -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
             cmd="zoop";;
         *)
-         echo "unknown command ${arg}" && exit 1
-     esac
-     $cmd
+            echo "unknown command ${arg}" && exit 1
+    esac
+    $cmd
 done
+
+# vim: set softtabstop=4 expandtab:

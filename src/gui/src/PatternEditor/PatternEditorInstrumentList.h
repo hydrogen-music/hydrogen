@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -25,15 +25,16 @@
 #define PATTERN_EDITOR_INSTRUMENT_LIST_H
 
 
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
+#include <core/Preferences.h>
 #include "../Widgets/PixmapWidget.h"
+#include "../Selection.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {
@@ -42,20 +43,25 @@ namespace H2Core
 
 class PatternEditorPanel;
 class ToggleButton;
+class Button;
 
-class InstrumentLine : public PixmapWidget
+class InstrumentLine : public PixmapWidget, protected WidgetWithScalableFont<8, 10, 12>
 {
     H2_OBJECT
 	Q_OBJECT
 
 	public:
-		InstrumentLine(QWidget* pParent);
+		explicit InstrumentLine(QWidget* pParent);
 
 		void setName(const QString& sName);
 		void setSelected(bool isSelected);
 		void setNumber(int nIndex);
 		void setMuted(bool isMuted);
 		void setSoloed( bool soloed );
+		void setSamplesMissing( bool bSamplesMissing );
+
+public slots:
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private slots:
 		void functionClearNotes();
@@ -69,32 +75,36 @@ class InstrumentLine : public PixmapWidget
 		void functionFillEveryTwelveNotes();
 		void functionFillEverySixteenNotes();
 		void functionFillNotes( int every );
-		void functionCopyInstrumentPattern();
 		void functionCopyAllInstrumentPatterns();
-		void functionPasteInstrumentPattern();
 		void functionPasteAllInstrumentPatterns();
 		void functionPasteInstrumentPatternExec(int patternID);
+		void functionDeleteNotesAllPatterns();
+		void functionCutNotesAllPatterns();
 
 		void functionRandomizeVelocity();
 		void functionDeleteInstrument();
 		void functionRenameInstrument();
 		void muteClicked();
 		void soloClicked();
+		void sampleWarningClicked();
+
+		void selectInstrumentNotes();
 
 
 	private:
 		QMenu *m_pFunctionPopup;
 		QMenu *m_pFunctionPopupSub;
-		QMenu *m_pCopyPopupSub;
-		QMenu *m_pPastePopupSub;
 		QLabel *m_pNameLbl;
 		bool m_bIsSelected;
 		int m_nInstrumentNumber;	///< The related instrument number
 		ToggleButton *m_pMuteBtn;
 		ToggleButton *m_pSoloBtn;
+		Button *m_pSampleWarning;
 
 		virtual void mousePressEvent(QMouseEvent *ev);
 		H2Core::Pattern* getCurrentPattern();
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 
@@ -126,6 +136,7 @@ class PatternEditorInstrumentList : public QWidget, public H2Core::Object {
 		uint m_nEditorHeight;
 		InstrumentLine* m_pInstrumentLine[MAX_INSTRUMENTS];
 		QTimer *m_pUpdateTimer;
+		DragScroller *m_pDragScroller;
 
 		QPoint __drag_start_position;
 

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,14 +16,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
 #include "SoundLibraryOpenDialog.h"
 
 #include "SoundLibrary/SoundLibraryPanel.h"
+#include "../HydrogenApp.h"
+#include "../InstrumentRack.h"
 
 using namespace H2Core;
 
@@ -43,7 +45,7 @@ SoundLibraryOpenDialog::SoundLibraryOpenDialog( QWidget* pParent )
 
 	// Sound Library Panel
 	m_pSoundLibraryPanel = new SoundLibraryPanel( nullptr, true );
-	pVBox->addWidget( m_pSoundLibraryPanel, 0, nullptr );
+	pVBox->addWidget( m_pSoundLibraryPanel, 0 );
 
 
 	// Buttons
@@ -85,6 +87,7 @@ void SoundLibraryOpenDialog::on_soundLib_item_changed( bool bDrumkitSelected)
 void SoundLibraryOpenDialog::on_open_btn_clicked()
 {
 	m_pSoundLibraryPanel->on_drumkitLoadAction();
+	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 	accept();
 }
 

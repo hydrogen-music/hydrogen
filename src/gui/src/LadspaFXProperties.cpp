@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,17 +16,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/fx/Effects.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/IO/AudioOutput.h>
+#include <core/Hydrogen.h>
+#include <core/AudioEngine.h>
+#include <core/Basics/Song.h>
+#include <core/FX/Effects.h>
+#include <core/Preferences.h>
+#include <core/IO/AudioOutput.h>
 
 
 #include "LadspaFXProperties.h"
@@ -38,7 +38,6 @@
 #include "Mixer/Mixer.h"
 #include "Mixer/MixerLine.h"
 
-using namespace std;
 using namespace H2Core;
 
 const char* LadspaFXProperties::__class_name = "LadspaFXProperties";
@@ -137,7 +136,7 @@ void LadspaFXProperties::faderChanged( Fader * ref )
 	ref->setPeak_L( ref->getValue() );
 	ref->setPeak_R( ref->getValue() );
 
-	Song *pSong = (Hydrogen::get_instance() )->getSong();
+	std::shared_ptr<Song> pSong = (Hydrogen::get_instance() )->getSong();
 
 #ifdef H2CORE_HAVE_LADSPA
 	LadspaFX *pFX = Effects::get_instance()->getLadspaFX( m_nLadspaFX );
@@ -163,7 +162,7 @@ void LadspaFXProperties::faderChanged( Fader * ref )
 			m_pInputControlLabel[ i ]->setText( sValue );
 		}
 	}
-	pSong->set_is_modified( true );
+	pSong->setIsModified( true );
 #endif
 }
 
@@ -262,7 +261,7 @@ void LadspaFXProperties::updateControls()
 			pLCD->setText( sValue );
 			pLCD->show();
 			QPalette lcdPalette;
-			lcdPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
+			lcdPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 			pLCD->setPalette( lcdPalette );
 
 			m_pInputControlLabel.push_back( pLCD );
@@ -354,7 +353,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 		if ( !sSelectedFX.isEmpty() ) {
 			LadspaFX *pFX = nullptr;
 
-			vector<H2Core::LadspaFXInfo*> pluginList = Effects::get_instance()->getPluginList();
+			std::vector<H2Core::LadspaFXInfo*> pluginList = Effects::get_instance()->getPluginList();
 			for (uint i = 0; i < pluginList.size(); i++) {
 				H2Core::LadspaFXInfo *pFXInfo = pluginList[i];
 				if (pFXInfo->m_sName == sSelectedFX ) {
@@ -364,12 +363,11 @@ void LadspaFXProperties::selectFXBtnClicked()
 					break;
 				}
 			}
-			Song *pSong = (Hydrogen::get_instance() )->getSong();
-			pSong->set_is_modified(true);
+			std::shared_ptr<Song> pSong = (Hydrogen::get_instance() )->getSong();
+			pSong->setIsModified(true);
 
 			Effects::get_instance()->setLadspaFX( pFX, m_nLadspaFX );
 
-			//AudioEngine::get_instance()->unlock();
 			Hydrogen::get_instance()->restartLadspaFX();
 			updateControls();
 		}
@@ -384,8 +382,8 @@ void LadspaFXProperties::selectFXBtnClicked()
 void LadspaFXProperties::removeFXBtnClicked()
 {
 #ifdef H2CORE_HAVE_LADSPA
-	Song *pSong = (Hydrogen::get_instance() )->getSong();
-	pSong->set_is_modified( true );
+	std::shared_ptr<Song> pSong = (Hydrogen::get_instance() )->getSong();
+	pSong->setIsModified( true );
 	Effects::get_instance()->setLadspaFX( nullptr, m_nLadspaFX );
 	Hydrogen::get_instance()->restartLadspaFX();
 	updateControls();	
@@ -398,7 +396,7 @@ void LadspaFXProperties::updateOutputControls()
 #ifdef H2CORE_HAVE_LADSPA
 
 //	INFOLOG( "[updateOutputControls]" );
-//	Song *pSong = (Hydrogen::get_instance() )->getSong();
+//	std::shared_ptr<Song> pSong = (Hydrogen::get_instance() )->getSong();
 	LadspaFX *pFX = Effects::get_instance()->getLadspaFX(m_nLadspaFX);
 
 	if (pFX) {
@@ -413,7 +411,7 @@ void LadspaFXProperties::updateOutputControls()
 		for (uint i = 0; i < pFX->outputControlPorts.size(); i++) {
 			LadspaControlPort *pControl = pFX->outputControlPorts[i];
 
-			vector<Fader*>::iterator it = m_pOutputControlFaders.begin() + i;
+			std::vector<Fader*>::iterator it = m_pOutputControlFaders.begin() + i;
 			if (it != m_pOutputControlFaders.end() ) {
 				Fader *pFader = *it;
 				if (pFader == nullptr) {
@@ -421,9 +419,8 @@ void LadspaFXProperties::updateOutputControls()
 					continue;
 				}
 
-				float fValue = pControl->fControlValue;
 				float fInterval = pControl->fUpperBound - pControl->fLowerBound;
-				fValue = pControl->fControlValue / fInterval;
+				float fValue = pControl->fControlValue / fInterval;
 
 				if (fValue < 0) fValue = -fValue;
 
@@ -444,12 +441,11 @@ void LadspaFXProperties::updateOutputControls()
 void LadspaFXProperties::activateBtnClicked()
 {
 #ifdef H2CORE_HAVE_LADSPA
-//	Song *pSong = (Hydrogen::get_instance() )->getSong();
 	LadspaFX *pFX = Effects::get_instance()->getLadspaFX(m_nLadspaFX);
 	if (pFX) {
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 		pFX->setEnabled( !pFX->isEnabled() );
-		AudioEngine::get_instance()->unlock();
+		Hydrogen::get_instance()->getAudioEngine()->unlock();
 	}
 #endif
 }

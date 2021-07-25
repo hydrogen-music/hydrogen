@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -37,11 +37,10 @@
 #include "PatternEditor/PatternEditorPanel.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/IO/jack_audio_driver.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/event_queue.h>
+#include <core/Hydrogen.h>
+#include <core/AudioEngine.h>
+#include <core/IO/JackAudioDriver.h>
+#include <core/EventQueue.h>
 using namespace H2Core;
 
 
@@ -55,7 +54,10 @@ PlayerControl::PlayerControl(QWidget *parent)
  : QLabel(parent)
  , Object( __class_name )
 {
+	setObjectName( "PlayerControl" );
 	HydrogenApp::get_instance()->addEventListener( this );
+	auto pPreferences = Preferences::get_instance();
+	m_lastUsedFontSize = pPreferences->getFontSize();	
 	
 	// Background image
 	setPixmap( QPixmap( Skin::getImagePath() + "/playerControlPanel/background.png" ) );
@@ -66,12 +68,13 @@ PlayerControl::PlayerControl(QWidget *parent)
 	hbox->setMargin( 0 );
 	setLayout( hbox );
 
-
+	QFont fontButtons( pPreferences->getLevel3FontFamily(), getPointSize( m_lastUsedFontSize ) );
 
 // CONTROLS
 	PixmapWidget *pControlsPanel = new PixmapWidget( nullptr );
 	pControlsPanel->setFixedSize( 344, 43 );
 	pControlsPanel->setPixmap( "/playerControlPanel/background_Control.png" );
+	pControlsPanel->setObjectName( "ControlsPanel" );
 	hbox->addWidget( pControlsPanel );
 
 	m_pTimeDisplayH = new LCDDisplay( pControlsPanel, LCDDigit::LARGE_GRAY, 2 );
@@ -115,28 +118,9 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pRecBtn->setHidden(false);
 	m_pRecBtn->setToolTip( tr("Record") );
 	connect(m_pRecBtn, SIGNAL(clicked(Button*)), this, SLOT(recBtnClicked(Button*)));
-	connect(m_pRecBtn, SIGNAL(rightClicked(Button*)), this, SLOT(recBtnRightClicked(Button*)));
 
 	Action* pAction = new Action("RECORD_READY");
 	m_pRecBtn->setAction( pAction );
-
-
-	// Record+delete button
-	m_pRecDelBtn = new ToggleButton(
-			pControlsPanel,
-			"/playerControlPanel/btn_recdel_on.png",
-			"/playerControlPanel/btn_recdel_off.png",
-			"/playerControlPanel/btn_recdel_over.png",
-			QSize(21, 15)
-	);
-	m_pRecDelBtn->move(195, 17);
-	m_pRecDelBtn->setPressed(false);
-	m_pRecDelBtn->setHidden(true);
-	m_pRecDelBtn->setToolTip( tr("Destructive Record") );
-	connect(m_pRecDelBtn, SIGNAL(clicked(Button*)), this, SLOT(recBtnClicked(Button*)));
-	connect(m_pRecDelBtn, SIGNAL(rightClicked(Button*)), this, SLOT(recBtnRightClicked(Button*)));
-
-
 
 	// Play button
 	m_pPlayBtn = new ToggleButton(
@@ -229,8 +213,10 @@ PlayerControl::PlayerControl(QWidget *parent)
 	PixmapWidget *pControlsBBTBConoffPanel = new PixmapWidget( nullptr );
 	pControlsBBTBConoffPanel->setFixedSize( 15, 43 );
 	pControlsBBTBConoffPanel->setPixmap( "/playerControlPanel/onoff.png" );
+	pControlsBBTBConoffPanel->setObjectName( "BeatCounterOnOff" );
 	hbox->addWidget( pControlsBBTBConoffPanel );
 
+	m_sBConoffBtnToolTip = tr("BeatCounter Panel on");
 	m_pBConoffBtn = new ToggleButton(
 			pControlsBBTBConoffPanel,
 			"/playerControlPanel/bc_on.png",
@@ -240,7 +226,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	);
 	m_pBConoffBtn->move(1, 1);
 	m_pBConoffBtn->setPressed(false);
-	m_pBConoffBtn->setToolTip( tr("BeatCounter Panel on") );
+	m_pBConoffBtn->setToolTip( m_sBConoffBtnToolTip );
 	connect(m_pBConoffBtn, SIGNAL(clicked(Button*)), this, SLOT(bconoffBtnClicked(Button*)));
 //~  BC on off
 
@@ -248,6 +234,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pControlsBCPanel = new PixmapWidget( nullptr );
 	m_pControlsBCPanel->setFixedSize( 86, 43 );
 	m_pControlsBCPanel->setPixmap( "/playerControlPanel/beatConter_BG.png" );
+	m_pControlsBCPanel->setObjectName( "BeatCounter" );
 	hbox->addWidget( m_pControlsBCPanel );
 
 
@@ -324,10 +311,11 @@ PlayerControl::PlayerControl(QWidget *parent)
 	PixmapWidget *pBPMPanel = new PixmapWidget( nullptr );
 	pBPMPanel->setFixedSize( 145, 43 );
 	pBPMPanel->setPixmap( "/playerControlPanel/background_BPM.png" );
+	pBPMPanel->setObjectName( "BPM" );
 	hbox->addWidget( pBPMPanel );
 
 	// LCD BPM SpinBox
-	m_pLCDBPMSpinbox = new LCDSpinBox( pBPMPanel, 6, LCDSpinBox::FLOAT, 30, 400 );
+	m_pLCDBPMSpinbox = new LCDSpinBox( pBPMPanel, 6, LCDSpinBox::FLOAT, MIN_BPM, MAX_BPM );
 	m_pLCDBPMSpinbox->move( 43, 6 );
 	connect( m_pLCDBPMSpinbox, SIGNAL(changed(LCDSpinBox*)), this, SLOT(bpmChanged()));
 	connect( m_pLCDBPMSpinbox, SIGNAL(spinboxClicked()), this, SLOT(bpmClicked()));
@@ -366,15 +354,14 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	m_pRubberBPMChange->move( 133, 3 );
 	m_pRubberBPMChange->setToolTip( tr("Recalculate Rubberband modified samples if bpm will change") );
-	m_pRubberBPMChange->setPressed( Preferences::get_instance()->getRubberBandBatchMode());
+	m_pRubberBPMChange->setPressed( pPreferences->getRubberBandBatchMode());
 
 	connect( m_pRubberBPMChange, SIGNAL( clicked( Button* ) ), this, SLOT(rubberbandButtonToggle( Button* ) ) );
-	QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
+	QString program = pPreferences->m_rubberBandCLIexecutable;
 	//test the path. if test fails, no button
 	if ( QFile( program ).exists() == false) {
 		m_pRubberBPMChange->hide();
 	}
-
 
 	m_pMetronomeWidget = new MetronomeWidget( pBPMPanel );
 	m_pMetronomeWidget->resize( 85, 5 );
@@ -400,6 +387,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	PixmapWidget *pJackPanel = new PixmapWidget( nullptr );
 	pJackPanel->setFixedSize( 113, 43 );
 	pJackPanel->setPixmap( "/playerControlPanel/background_Jack.png" );
+	pJackPanel->setObjectName( "JackPanel" );
 	hbox->addWidget( pJackPanel );
 
 	// Jack transport mode button
@@ -411,8 +399,14 @@ PlayerControl::PlayerControl(QWidget *parent)
 			QSize(45, 13)
 	);
 	m_pJackTransportBtn->hide();
-	m_pJackTransportBtn->setPressed(true);
-	m_pJackTransportBtn->setToolTip( tr("Jack-transport on/off") );
+	if ( pPreferences->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
+		m_pJackTransportBtn->setPressed( true );
+	} else {
+		m_pJackTransportBtn->setPressed( false );
+	}
+	/*: Using the JACK the audio/midi input and output ports of any
+	  number of application can be connected.*/
+	m_pJackTransportBtn->setToolTip( tr("JACK transport on/off") );
 	connect(m_pJackTransportBtn, SIGNAL(clicked(Button*)), this, SLOT(jackTransportBtnClicked(Button*)));
 	m_pJackTransportBtn->move(10, 26);
 
@@ -425,19 +419,32 @@ PlayerControl::PlayerControl(QWidget *parent)
 			QSize(45, 13)
 	);
 	m_pJackMasterBtn->hide();
-	m_pJackMasterBtn->setPressed(true);
-	m_pJackMasterBtn->setToolTip( tr("Jack-Time-Master on/off") );
+	if ( m_pJackTransportBtn->isPressed() &&
+		 pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&
+		 pPreferences->m_bJackTimebaseEnabled ) {
+		m_pJackMasterBtn->setPressed( true );
+	} else {
+		m_pJackMasterBtn->setPressed( false );
+	}
+	/*: Using the JACK Timebase Master functionality one of the
+connected programs can broadcast both speed and measure information to
+all other connected applications in order to have a more fine-grained
+transport control.*/
+	m_sJackMasterModeToolTip = tr("JACK Timebase master on/off");
+	m_pJackMasterBtn->setToolTip( m_sJackMasterModeToolTip );
 	connect(m_pJackMasterBtn, SIGNAL(clicked(Button*)), this, SLOT(jackMasterBtnClicked(Button*)));
 	m_pJackMasterBtn->move(56, 26);
 	//~ jack time master
 
-	m_pEngine = Hydrogen::get_instance();
+	m_pHydrogen = Hydrogen::get_instance();
 
 	// CPU load widget
 	m_pCpuLoadWidget = new CpuLoadWidget( pJackPanel );
+	m_pCpuLoadWidget->setObjectName( "CpuLoadWidget" );
 
 	// Midi Activity widget
 	m_pMidiActivityWidget = new MidiActivityWidget( pJackPanel );
+	m_pMidiActivityWidget->setObjectName( "MidiActivityWidget" );
 
 	m_pMidiActivityWidget->move( 10, 14 );
 	m_pCpuLoadWidget->move( 10, 4 );
@@ -447,6 +454,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	PixmapWidget *pLcdBackGround = new PixmapWidget( nullptr );
 	pLcdBackGround->setFixedSize( 256, 43 );
 	pLcdBackGround->setPixmap( "/playerControlPanel/lcd_background.png" );
+	pLcdBackGround->setObjectName( "LcdBackground" );
 	hbox->addWidget( pLcdBackGround );
 
 	m_pShowMixerBtn = new ToggleButton(
@@ -460,6 +468,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pShowMixerBtn->move( 7, 6 );
 	m_pShowMixerBtn->setToolTip( tr( "Show mixer" ) );
 	m_pShowMixerBtn->setText( tr( "Mixer" ) );
+	m_pShowMixerBtn->setFont( fontButtons );
 	connect(m_pShowMixerBtn, SIGNAL(clicked(Button*)), this, SLOT(showButtonClicked(Button*)));
 
 	m_pShowInstrumentRackBtn = new ToggleButton(
@@ -473,6 +482,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pShowInstrumentRackBtn->move( 88, 6 );
 	m_pShowInstrumentRackBtn->setToolTip( tr( "Show Instrument Rack" ) );
 	m_pShowInstrumentRackBtn->setText( tr( "Instrument rack" ) );
+	m_pShowInstrumentRackBtn->setFont( fontButtons );
 	connect( m_pShowInstrumentRackBtn, SIGNAL( clicked(Button*) ), this, SLOT( showButtonClicked( Button*)) );
 
 	m_pStatusLabel = new LCDDisplay(pLcdBackGround , LCDDigit::SMALL_BLUE, 30, true );
@@ -481,7 +491,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	hbox->addStretch( 1000 );	// this must be the last widget in the HBOX!!
 
-
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &PlayerControl::onPreferencesChanged );
 
 
 	QTimer *timer = new QTimer( this );
@@ -514,7 +524,7 @@ void PlayerControl::updatePlayerControl()
 	m_pShowMixerBtn->setPressed( pH2App->getMixer()->isVisible() );
 	m_pShowInstrumentRackBtn->setPressed( pH2App->getInstrumentRack()->isVisible() );
 
-	int state = m_pEngine->getState();
+	int state = m_pHydrogen->getState();
 	if (state == STATE_PLAYING ) {
 		m_pPlayBtn->setPressed(true);
 	}
@@ -524,33 +534,18 @@ void PlayerControl::updatePlayerControl()
 
 	if (pPref->getRecordEvents()) {
 		m_pRecBtn->setPressed(true);
-		m_pRecDelBtn->setPressed(true);
 	}
 	else {
 		m_pRecBtn->setPressed(false);
-		m_pRecDelBtn->setPressed(false);
 	}
 
-	if (pPref->getDestructiveRecord()) {
-		if (  m_pRecDelBtn->isHidden() ) {
-			m_pRecBtn->setHidden(true);
-			m_pRecDelBtn->setHidden(false);
-		}
-	}
-	else {
-		if (  m_pRecBtn->isHidden() ) {
-			m_pRecBtn->setHidden(false);
-			m_pRecDelBtn->setHidden(true);
-		}
-	}
+	std::shared_ptr<Song> song = m_pHydrogen->getSong();
 
-	Song *song = m_pEngine->getSong();
+	m_pSongLoopBtn->setPressed( song->getIsLoopEnabled() );
 
-	m_pSongLoopBtn->setPressed( song->is_loop_enabled() );
+	m_pLCDBPMSpinbox->setValue( song->getBpm() );
 
-	m_pLCDBPMSpinbox->setValue( song->__bpm );
-
-	if ( song->get_mode() == Song::PATTERN_MODE ) {
+	if ( song->getMode() == Song::PATTERN_MODE ) {
 		m_pLiveModeBtn->setPressed( true );
 		m_pSongModeBtn->setPressed( false );
 	}
@@ -578,81 +573,89 @@ void PlayerControl::updatePlayerControl()
 	//~ beatcounter
 
 
-#ifdef H2CORE_HAVE_JACK
-	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
-	if ( p_Driver && strncmp(p_Driver->class_name(), "JackAudioDriver", 10) == 0){
+
+	if ( m_pHydrogen->haveJackAudioDriver() ) {
 		m_pJackTransportBtn->show();
+		m_pJackMasterBtn->show();
+		
 		switch ( pPref->m_bJackTransportMode ) {
 			case Preferences::NO_JACK_TRANSPORT:
 				m_pJackTransportBtn->setPressed(false);
-				// Jack Master Btn
 				m_pJackMasterBtn->setPressed(false);
 				break;
 
 			case Preferences::USE_JACK_TRANSPORT:
 				m_pJackTransportBtn->setPressed(true);
+				
+				if ( m_pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Master ) {
+					m_pJackMasterBtn->setPressed( true );
+				} else {
+					m_pJackMasterBtn->setPressed( false );
+				}
+
+				if ( pPref->m_bJackTimebaseEnabled ) {
+					m_pJackMasterBtn->setDisabled( false );
+					m_pJackMasterBtn->setToolTip( m_sJackMasterModeToolTip );
+				} else {
+					m_pJackMasterBtn->setDisabled( true );
+					m_pJackMasterBtn->setToolTip( tr( "JACK timebase support is disabled in the Preferences" ) );
+				}
+
+				if ( m_pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
+					QString sTBMToolTip( tr( "In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen" ) );
+					m_pBConoffBtn->setPressed( false );
+					m_pBConoffBtn->setDisabled( true );
+					m_pBConoffBtn->setToolTip( sTBMToolTip );
+					m_pControlsBCPanel->hide();
+					pPref->m_bbc = Preferences::BC_OFF;
+					m_pLCDBPMSpinbox->setDisabled( true );
+					m_pLCDBPMSpinbox->setToolTip( sTBMToolTip );
+					m_pBPMUpBtn->setDisabled( true );
+					m_pBPMUpBtn->setToolTip( sTBMToolTip );
+					m_pBPMDownBtn->setDisabled( true );
+					m_pBPMDownBtn->setToolTip( sTBMToolTip );
+					
+				} else {
+					m_pBConoffBtn->setDisabled( false );
+					m_pBConoffBtn->setToolTip( m_sBConoffBtnToolTip );
+					m_pLCDBPMSpinbox->setDisabled( false );
+					m_pBConoffBtn->setToolTip( "" );
+					m_pBPMUpBtn->setDisabled( false );
+					m_pBConoffBtn->setToolTip( "" );
+					m_pBPMDownBtn->setDisabled( false );
+					m_pBConoffBtn->setToolTip( "" );
+				}
+				
 				break;
 		}
 
-
-		m_pJackMasterBtn->show();
-		switch ( pPref->m_bJackMasterMode ) {
-			case Preferences::NO_JACK_TIME_MASTER:
-				m_pJackMasterBtn->setPressed(false);
-				break;
-
-			case Preferences::USE_JACK_TIME_MASTER:
-				if ( m_pJackTransportBtn->isPressed()){
-					m_pJackMasterBtn->setPressed(true);
-				}
-				else
-				{
-					m_pJackMasterBtn->setPressed(false);
-					Hydrogen::get_instance()->offJackMaster();
-					pPref->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
-				}
-				break;
-		}
 	}
 	else {
 		m_pJackTransportBtn->hide();
 		m_pJackMasterBtn->hide();
 	}
-#endif
 
 	// time
-	float fFrames = m_pEngine->getAudioOutput()->m_transport.m_nFrames;
+	float fSeconds = m_pHydrogen->getAudioEngine()->getElapsedTime();
+	
+	int nMSec = (int)( (fSeconds - (int)fSeconds) * 1000.0 );
+	int nSeconds = ( (int)fSeconds ) % 60;
+	int nMins = (int)( fSeconds / 60.0 ) % 60;
+	int nHours = (int)( fSeconds / 3600.0 );
 
-#ifdef H2CORE_HAVE_JACK
-	if ( pPref->m_sAudioDriver == "Jack"  && Preferences::get_instance()->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT )
-	{
-		fFrames =  m_pEngine->getHumantimeFrames();
-	}
-#endif
+	char tmp[100];
+	sprintf(tmp, "%02d", nHours );
+	m_pTimeDisplayH->setText( QString( tmp ) );
 
-	float fSampleRate = m_pEngine->getAudioOutput()->getSampleRate();
-	if ( fSampleRate != 0 ) {
-		float fSeconds = fFrames / fSampleRate;
+	sprintf(tmp, "%02d", nMins );
+	m_pTimeDisplayM->setText( QString( tmp ) );
 
-		int nMSec = (int)( (fSeconds - (int)fSeconds) * 1000.0 );
-		int nSeconds = ( (int)fSeconds ) % 60;
-		int nMins = (int)( fSeconds / 60.0 ) % 60;
-		int nHours = (int)( fSeconds / 3600.0 );
+	sprintf(tmp, "%02d", nSeconds );
+	m_pTimeDisplayS->setText( QString( tmp ) );
 
-		char tmp[100];
-		sprintf(tmp, "%02d", nHours );
-		m_pTimeDisplayH->setText( QString( tmp ) );
-
-		sprintf(tmp, "%02d", nMins );
-		m_pTimeDisplayM->setText( QString( tmp ) );
-
-		sprintf(tmp, "%02d", nSeconds );
-		m_pTimeDisplayS->setText( QString( tmp ) );
-
-		sprintf(tmp, "%03d", nMSec );
-		m_pTimeDisplayMS->setText( QString( tmp ) );
-	}
+	sprintf(tmp, "%03d", nMSec );
+	m_pTimeDisplayMS->setText( QString( tmp ) );
 
 	m_pMetronomeBtn->setPressed(pPref->m_bUseMetronome);
 
@@ -660,7 +663,7 @@ void PlayerControl::updatePlayerControl()
 	//beatcounter get BC message
 	char bcstatus[4];
 	int beatstocountondisplay = 1;
-	beatstocountondisplay = m_pEngine->getBcStatus();
+	beatstocountondisplay = m_pHydrogen->getBcStatus();
 
 	switch (beatstocountondisplay){
 		case 1 :
@@ -688,7 +691,7 @@ void PlayerControl::updatePlayerControl()
 
 /// Toggle record mode
 void PlayerControl::recBtnClicked(Button* ref) {
-	if ( m_pEngine->getState() != STATE_PLAYING ) {
+	if ( m_pHydrogen->getState() != STATE_PLAYING ) {
 		if (ref->isPressed()) {
 			Preferences::get_instance()->setRecordEvents(true);
 			(HydrogenApp::get_instance())->setScrollStatusBarMessage(tr("Record midi events = On" ), 2000 );
@@ -700,30 +703,14 @@ void PlayerControl::recBtnClicked(Button* ref) {
 	}
 }
 
-
-/// Toggle destructive/nondestructive move
-void PlayerControl::recBtnRightClicked(Button* ref) {
-	UNUSED( ref );
-	if ( Preferences::get_instance()->getDestructiveRecord() ) {
-		Preferences::get_instance()->setDestructiveRecord(false);
-		(HydrogenApp::get_instance())->setScrollStatusBarMessage(tr("Destructive mode = Off" ), 2000 );
-	}
-	else {
-		Preferences::get_instance()->setDestructiveRecord(true);
-		(HydrogenApp::get_instance())->setScrollStatusBarMessage(tr("Destructive mode = On" ), 2000 );
-	}
-	HydrogenApp::get_instance()->enableDestructiveRecMode();
-}
-
-
 /// Start audio engine
 void PlayerControl::playBtnClicked(Button* ref) {
 	if (ref->isPressed()) {
-		m_pEngine->sequencer_play();
+		m_pHydrogen->sequencer_play();
 		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Playing."), 5000);
 	}
 	else {
-		m_pEngine->sequencer_stop();
+		m_pHydrogen->sequencer_stop();
 		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Pause."), 5000);
 	}
 }
@@ -735,11 +722,12 @@ void PlayerControl::playBtnClicked(Button* ref) {
 void PlayerControl::stopBtnClicked(Button* ref)
 {
 	UNUSED( ref );
+
+	auto pHydrogen = Hydrogen::get_instance();
 	m_pPlayBtn->setPressed(false);
-	m_pEngine->sequencer_stop();
-	m_pEngine->setPatternPos( 0 );
+	pHydrogen->sequencer_stop();
+	pHydrogen->getCoreActionController()->relocate( 0 );
 	(HydrogenApp::get_instance())->setStatusBarMessage(tr("Stopped."), 5000);
-	Hydrogen::get_instance()->setTimelineBpm();
 }
 
 
@@ -750,15 +738,10 @@ void PlayerControl::songModeBtnClicked(Button* ref)
 {
 	UNUSED( ref );
 
-	m_pEngine->sequencer_stop();
-	m_pEngine->setPatternPos( 0 );	// from start
-	m_pEngine->getSong()->set_mode( Song::SONG_MODE );
-	m_pSongModeBtn->setPressed(true);
-	m_pLiveModeBtn->setPressed(false);
-	(HydrogenApp::get_instance())->setStatusBarMessage(tr("Song mode selected."), 5000);
+	Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true, false );
+
+	songModeActivationEvent( 1 );
 }
-
-
 
 
 ///Set Live mode
@@ -766,29 +749,34 @@ void PlayerControl::liveModeBtnClicked(Button* ref)
 {
 	UNUSED( ref );
 
-	m_pEngine->sequencer_stop();
-	m_pEngine->getSong()->set_mode( Song::PATTERN_MODE );
-	m_pSongModeBtn->setPressed(false);
-	m_pLiveModeBtn->setPressed(true);
-	(HydrogenApp::get_instance())->setStatusBarMessage(tr("Pattern mode selected."), 5000);
+	Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false, false );
+
+	songModeActivationEvent( 0 );
 }
 
-
+void PlayerControl::songModeActivationEvent( int nValue )
+{
+	if ( nValue != 0 ) {
+		m_pSongModeBtn->setPressed(true);
+		m_pLiveModeBtn->setPressed(false);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Song mode selected."), 5000);
+	} else {
+		m_pSongModeBtn->setPressed(false);
+		m_pLiveModeBtn->setPressed(true);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Pattern mode selected."), 5000);
+	}
+}
 
 void PlayerControl::bpmChanged() {
 	float fNewBpmValue = m_pLCDBPMSpinbox->getValue();
-	if (fNewBpmValue < 30) {
-		fNewBpmValue = 30;
-	}
-	else if (fNewBpmValue > 400 ) {
-		fNewBpmValue = 400;
-	}
 
-	m_pEngine->getSong()->set_is_modified( true );
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
-	m_pEngine->setBPM( fNewBpmValue );
-	AudioEngine::get_instance()->unlock();
+	m_pHydrogen->getSong()->setIsModified( true );
+
+
+	m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+	m_pHydrogen->setBPM( fNewBpmValue );
+	m_pHydrogen->getAudioEngine()->unlock();
 }
 
 
@@ -842,12 +830,13 @@ void PlayerControl::rubberbandButtonToggle(Button* )
 
 void PlayerControl::bcbButtonClicked( Button* bBtn)
 {
-	int tmp = m_pEngine->getbeatsToCount();
+	int tmp = m_pHydrogen->getbeatsToCount();
 	char tmpb[3];       // m_pBCBUpBtn
 		if ( bBtn == m_pBCBUpBtn ) {
 			tmp ++;
-			if (tmp > 16)
+			if (tmp > 16) {
 				tmp = 2;
+			}
 //small fix against qt4 png transparent problem
 //think this will be solved in next time
 //			if (tmp < 10 ){
@@ -857,12 +846,13 @@ void PlayerControl::bcbButtonClicked( Button* bBtn)
 				sprintf(tmpb, "%02d", tmp );
 //			}
 			m_pBCDisplayB->setText( QString( tmpb ) );
-			m_pEngine->setbeatsToCount( tmp );
+			m_pHydrogen->setbeatsToCount( tmp );
 	}
 	else {
 			tmp --;
-			if (tmp < 2 )
+			if (tmp < 2 ) {
 				 tmp = 16;
+			}
 //small fix against qt4 png transparent problem
 //think this will be solved in next time
 //			if (tmp < 10 ){
@@ -872,7 +862,7 @@ void PlayerControl::bcbButtonClicked( Button* bBtn)
 				sprintf(tmpb, "%02d", tmp );
 //			}
 			m_pBCDisplayB->setText( QString( tmpb ) );
-			m_pEngine->setbeatsToCount( tmp );
+			m_pHydrogen->setbeatsToCount( tmp );
 	}
 }
 
@@ -880,21 +870,23 @@ void PlayerControl::bcbButtonClicked( Button* bBtn)
 
 void PlayerControl::bctButtonClicked( Button* tBtn)
 {
-	float tmp = m_pEngine->getNoteLength() * 4;
+	float tmp = m_pHydrogen->getNoteLength() * 4;
 
 	if ( tBtn == m_pBCTUpBtn) {
 			tmp = tmp / 2 ;
-			if (tmp < 1)
+			if (tmp < 1) {
 				tmp = 8;
+			}
 
 			m_pBCDisplayT->setText( QString::number( tmp ) );
-			m_pEngine->setNoteLength( (tmp) / 4 );
+			m_pHydrogen->setNoteLength( (tmp) / 4 );
 	} else {
 			tmp = tmp * 2;
-			if (tmp > 8 )
+			if (tmp > 8 ) {
 				 tmp = 1;
+			}
 			m_pBCDisplayT->setText( QString::number(tmp) );
-			m_pEngine->setNoteLength( (tmp) / 4 );
+			m_pHydrogen->setNoteLength( (tmp) / 4 );
 	}
 }
 //~ beatcounter
@@ -904,25 +896,25 @@ void PlayerControl::bctButtonClicked( Button* tBtn)
 void PlayerControl::jackTransportBtnClicked( Button* )
 {
 	Preferences *pPref = Preferences::get_instance();
-	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
-	if ( ! ( p_Driver && strncmp(p_Driver->class_name(), "JackAudioDriver", 10) == 0 ) ){
+	if ( !m_pHydrogen->haveJackAudioDriver() ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "JACK-transport will work only with JACK driver." ) );
 		return;
 	}
 
 	if (m_pJackTransportBtn->isPressed()) {
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 		pPref->m_bJackTransportMode = Preferences::USE_JACK_TRANSPORT;
-		AudioEngine::get_instance()->unlock();
+		m_pHydrogen->getAudioEngine()->unlock();
 		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-transport mode = On"), 5000);
 		m_pJackMasterBtn->setDisabled( false );
 	}
 	else {
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 		pPref->m_bJackTransportMode = Preferences::NO_JACK_TRANSPORT;
-		AudioEngine::get_instance()->unlock();
+		m_pHydrogen->getAudioEngine()->unlock();
 		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-transport mode = Off"), 5000);
+		m_pJackMasterBtn->setPressed( false );
 		m_pJackMasterBtn->setDisabled( true );
 	}
 }
@@ -933,28 +925,27 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 {
 #ifdef H2CORE_HAVE_JACK
 	Preferences *pPref = Preferences::get_instance();
-	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
-	if ( ! ( p_Driver && strncmp(p_Driver->class_name(), "JackAudioDriver", 10) == 0 ) ){
-		QMessageBox::warning( this, "Hydrogen", tr( "JACK-transport will work only with JACK driver." ) );
+	if ( !m_pHydrogen->haveJackTransport() ) {
+		QMessageBox::warning( this, "Hydrogen", tr( "JACK transport will work only with JACK driver." ) );
 		return;
 	}
 
 	if (m_pJackMasterBtn->isPressed()) {
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 		pPref->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER;
-		AudioEngine::get_instance()->unlock();
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr(" Jack-Time-Master mode = On"), 5000);
+		m_pHydrogen->getAudioEngine()->unlock();
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK Timebase master mode = On"), 5000);
 		Hydrogen::get_instance()->onJackMaster();
 
-	}
-	else {
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
+	} else {
+		m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 		pPref->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
-		AudioEngine::get_instance()->unlock();
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr(" Jack-Time-Master mode = Off"), 5000);
+		m_pHydrogen->getAudioEngine()->unlock();
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK Timebase master mode = Off"), 5000);
 		Hydrogen::get_instance()->offJackMaster();
 	}
+	HydrogenApp::get_instance()->getSongEditorPanel()->updateTimelineUsage();
 #endif
 }
 //~ jack time master
@@ -962,17 +953,15 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 void PlayerControl::bpmClicked()
 {
 	bool bIsOkPressed;
-	double fNewVal= QInputDialog::getDouble( this, "Hydrogen", tr( "New BPM value" ),  m_pLCDBPMSpinbox->getValue(), 10, 400, 2, &bIsOkPressed );
+	double fNewVal= QInputDialog::getDouble( this, "Hydrogen", tr( "New BPM value" ),  m_pLCDBPMSpinbox->getValue(), MIN_BPM, MAX_BPM, 2, &bIsOkPressed );
 	if ( bIsOkPressed  ) {
-		if ( fNewVal < 30 ) {
-			return;
-		}
 
-		m_pEngine->getSong()->set_is_modified( true );
+		m_pHydrogen->getSong()->setIsModified( true );
 
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
-		m_pEngine->setBPM( fNewVal );
-		AudioEngine::get_instance()->unlock();
+		m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+
+		m_pHydrogen->setBPM( fNewVal );
+		m_pHydrogen->getAudioEngine()->unlock();
 	}
 	else {
 		// user entered nothing or pressed Cancel
@@ -982,19 +971,20 @@ void PlayerControl::bpmClicked()
 
 void PlayerControl::bpmButtonClicked( Button* pBtn )
 {
-	if ( pBtn == m_pBPMUpBtn )
+	if ( pBtn == m_pBPMUpBtn ) {
 		m_pLCDBPMSpinbox->upBtnClicked();
-	else
+	} else {
 		m_pLCDBPMSpinbox->downBtnClicked();
+	}
 }
 
 
 void PlayerControl::FFWDBtnClicked( Button* )
 {
 	WARNINGLOG( "relocate via button press" );
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->setPatternPos( pEngine->getPatternPos() + 1 );
-	Hydrogen::get_instance()->setTimelineBpm();
+
+	auto pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() + 1 );
 }
 
 
@@ -1002,31 +992,39 @@ void PlayerControl::FFWDBtnClicked( Button* )
 void PlayerControl::RewindBtnClicked( Button* )
 {
 	WARNINGLOG( "relocate via button press" );
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->setPatternPos( pEngine->getPatternPos() - 1 );
-	Hydrogen::get_instance()->setTimelineBpm();
+	
+	auto pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() - 1 );
 }
 
 
-void PlayerControl::songLoopBtnClicked( Button* )
+void PlayerControl::songLoopBtnClicked( Button* pButton )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *song = pEngine->getSong();
-	song->set_loop_enabled( ! song->is_loop_enabled() );
-	song->set_is_modified( true );
+	Hydrogen::get_instance()->getCoreActionController()->activateLoopMode( pButton->isPressed(), false );
 
-	if ( song->is_loop_enabled() ) {
-		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop song = On"), 5000);
+	if ( pButton->isPressed() ){
+		loopModeActivationEvent( 1 );
+	} else {
+		loopModeActivationEvent( 0 );
+	}
+}
+
+void PlayerControl::loopModeActivationEvent( int nValue ) {
+
+	if ( nValue == 0 ) {
+		m_pSongLoopBtn->setPressed( false );
+		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop song = Off"), 5000);
 	}
 	else {
-		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop song = Off"), 5000);
+		m_pSongLoopBtn->setPressed( true );
+		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop song = On"), 5000);
 	}
 }
 
 void PlayerControl::metronomeButtonClicked(Button* ref)
 {
-	Hydrogen*	pEngine = Hydrogen::get_instance();
-	CoreActionController* pController = pEngine->getCoreActionController();
+	Hydrogen*	pHydrogen = Hydrogen::get_instance();
+	CoreActionController* pController = pHydrogen->getCoreActionController();
 	
 	pController->setMetronomeIsActive( ref->isPressed() );
 }
@@ -1051,8 +1049,9 @@ void PlayerControl::showButtonClicked( Button* pRef )
 
 void PlayerControl::showMessage( const QString& msg, int msec )
 {
-	if ( m_pScrollTimer->isActive ())
-		m_pScrollTimer->stop();
+	if ( m_pScrollTimer->isActive ()) {
+		m_pScrollTimer->stop(); 
+	}
 	m_pStatusLabel->setText( msg );
 	m_pStatusTimer->start( msec );
 
@@ -1080,8 +1079,9 @@ void PlayerControl::onScrollTimerEvent()
 {
 	int lwl = 25;
 	int msgLength = m_pScrollMessage.length();
-	if ( msgLength > lwl)
-		m_pScrollMessage = m_pScrollMessage.right( msgLength - 1 );
+	if ( msgLength > lwl) {
+		m_pScrollMessage = m_pScrollMessage.right( msgLength - 1 ); 
+	}
 	m_pScrollTimer->stop();
 
 	if ( msgLength > lwl){
@@ -1113,7 +1113,45 @@ void PlayerControl::tempoChangedEvent( int nValue )
 	 * of the song.
 	 */
 	
-	m_pLCDBPMSpinbox->setValue( m_pEngine->getSong()->__bpm );
+	m_pLCDBPMSpinbox->setValue( m_pHydrogen->getSong()->getBpm() );
+}
+
+void PlayerControl::jackTransportActivationEvent( int nValue ) {
+
+	if ( nValue == 0 && m_pJackTransportBtn->isPressed() ){
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK transport mode = Off"), 5000);
+		m_pJackMasterBtn->setPressed( false );
+		m_pJackMasterBtn->setDisabled( true );
+	} else if ( nValue != 0 && !m_pJackTransportBtn->isPressed() ) {
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK transport mode = On"), 5000);
+		m_pJackMasterBtn->setDisabled( false );
+	}
+}
+
+void PlayerControl::jackTimebaseActivationEvent( int nValue ) {
+	if ( nValue == 0 && m_pJackMasterBtn->isPressed() ){
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK Timebase master mode = Off"), 5000);
+		m_pJackMasterBtn->setPressed( false );
+		
+	} else if ( nValue != 0 && !m_pJackMasterBtn->isPressed() ) {
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK Timebase master mode = On"), 5000);
+		m_pJackMasterBtn->setPressed( true );
+	}
+	
+	HydrogenApp::get_instance()->getSongEditorPanel()->updateTimelineUsage();
+}
+
+void PlayerControl::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_pShowMixerBtn->font().family() != pPref->getLevel3FontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		QFont fontButtons( pPref->getLevel3FontFamily(), getPointSize( m_lastUsedFontSize ) );
+		m_pShowMixerBtn->setFont( fontButtons );
+		m_pShowInstrumentRackBtn->setFont( fontButtons );
+	}
 }
 
 //::::::::::::::::::::::::::::::::::::::::::::::::
@@ -1147,8 +1185,9 @@ MetronomeWidget::~MetronomeWidget()
 
 void MetronomeWidget::metronomeEvent( int nValue )
 {
-	if (nValue == 2) // 2 = set pattern position is not needed here
+	if (nValue == 2) { // 2 = set pattern position is not needed here
 		return;
+	}
 
 	if (nValue == 1) {
 		m_state = METRO_FIRST;

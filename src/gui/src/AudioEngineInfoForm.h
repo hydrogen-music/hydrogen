@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -24,15 +24,13 @@
 #ifndef AUDIO_ENGINE_INFO_FORM_H
 #define AUDIO_ENGINE_INFO_FORM_H
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 #include "EventListener.h"
 #include "ui_AudioEngineInfoForm_UI.h"
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 /**
  * Audio Engine information form
@@ -42,24 +40,25 @@ class AudioEngineInfoForm : public QWidget, public Ui_AudioEngineInfoForm_UI, pu
     H2_OBJECT
 	Q_OBJECT
 	private:
-		QTimer *timer;
-
-		virtual void updateAudioEngineState();
+		QTimer* m_pTimer;
 
 		// EventListener implementation
-		virtual void stateChangedEvent(int nState);
-		virtual void patternChangedEvent();
+		virtual void stateChangedEvent(int nState) override;
+		virtual void patternChangedEvent() override;
 		//~ EventListener implementation
 
 	public:
-		AudioEngineInfoForm(QWidget* parent);
+		explicit AudioEngineInfoForm(QWidget* parent);
 		~AudioEngineInfoForm();
 
-		void showEvent ( QShowEvent *ev );
-		void hideEvent ( QHideEvent *ev );
+		void showEvent ( QShowEvent *ev ) override;
+		void hideEvent ( QHideEvent *ev ) override;
 
 	public slots:
 		void updateInfo();
+
+	private:
+		void updateAudioEngineState();
 };
 
 #endif

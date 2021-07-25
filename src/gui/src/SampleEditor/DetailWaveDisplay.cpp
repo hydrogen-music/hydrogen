@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,14 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/basics/instrument.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Instrument.h>
 using namespace H2Core;
 
 #include "DetailWaveDisplay.h"
@@ -34,8 +34,10 @@ DetailWaveDisplay::DetailWaveDisplay(QWidget* pParent )
  : QWidget( pParent )
  , Object( __class_name )
  , m_sSampleName( "" )
+ , m_pPeakDatal( nullptr )
+ , m_pPeakDatar( nullptr )  
 {
-//	setAttribute(Qt::WA_NoBackground);
+//	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//INFOLOG( "INIT" );
 	int w = 180;
@@ -75,7 +77,7 @@ void DetailWaveDisplay::setDetailSamplePosition( unsigned posi, float zoomfactor
 void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
-	painter.setRenderHint( QPainter::HighQualityAntialiasing );
+	painter.setRenderHint( QPainter::Antialiasing );
 	painter.drawPixmap( ev->rect(), m_background, ev->rect() );
 
 	painter.setPen( QColor( 230, 230, 230 ) );
@@ -105,14 +107,15 @@ void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 	painter.drawLine( 0, VCenterl, width(),VCenterl );
 	painter.drawLine( 0, VCenterr, width(),VCenterr );
 	QColor _color;
-	if ( m_pType == "Start" )
+	if ( m_pType == "Start" ) {
 		 _color = QColor( 32, 173, 0 );
-	else if ( m_pType == "Loop" )
+	} else if ( m_pType == "Loop" ) {
 		_color = QColor( 93, 170, 254 );
-	else if ( m_pType == "End" )
+	} else if ( m_pType == "End" ) {
 		_color = QColor( 217, 68, 0 );
-	else
+	} else {
 		_color = QColor(  255, 255, 255 );
+	}
 
 	painter.setPen( QPen( _color, 1, Qt::SolidLine ) );
 	painter.drawLine( 90, 0, 90,265 );
@@ -123,9 +126,9 @@ void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 void DetailWaveDisplay::updateDisplay( QString filename )
 {
 
-	Sample *pNewSample = Sample::load( filename );
+	auto pNewSample = Sample::load( filename );
 
-	if ( pNewSample ) {
+	if ( pNewSample != nullptr ) {
 
 		int mSampleLength = pNewSample->get_frames();
 
@@ -139,8 +142,8 @@ void DetailWaveDisplay::updateDisplay( QString filename )
 
 		float fGain = height() / 4.0 * 1.0;
 
-		float *pSampleDatal = pNewSample->get_data_l();
-		float *pSampleDatar = pNewSample->get_data_r();
+		auto pSampleDatal = pNewSample->get_data_l();
+		auto pSampleDatar = pNewSample->get_data_r();
 
 		for ( int i = 0; i < mSampleLength; i++ ){
 			m_pPeakDatal[ i ] = static_cast<int>( pSampleDatal[ i ] * fGain );
@@ -149,7 +152,6 @@ void DetailWaveDisplay::updateDisplay( QString filename )
 
 
 	}
-	delete pNewSample;
 }
 
 

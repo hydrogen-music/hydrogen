@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -25,10 +25,11 @@
 
 #include "../EventListener.h"
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
-#include <hydrogen/object.h>
+#include <QtWidgets>
+#include "../Widgets/WidgetWithScalableFont.h"
+
+#include <core/Object.h>
+#include <core/Preferences.h>
 
 class PatternEditorPanel;
 
@@ -37,34 +38,38 @@ namespace H2Core
 	class Pattern;
 }
 
-class PatternEditorRuler : public QWidget, public H2Core::Object, public EventListener
+class PatternEditorRuler : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public H2Core::Object, public EventListener
 {
     H2_OBJECT
 	Q_OBJECT
 
 	public:
-		PatternEditorRuler( QWidget* parent );
+		explicit PatternEditorRuler( QWidget* parent );
 		~PatternEditorRuler();
+	
+		PatternEditorRuler(const PatternEditorRuler&) = delete;
+		PatternEditorRuler& operator=( const PatternEditorRuler& rhs ) = delete;
 
-		void paintEvent(QPaintEvent *ev);
+		void paintEvent(QPaintEvent *ev) override;
 		void updateStart(bool start);
 
-		void showEvent( QShowEvent *ev );
-		void hideEvent( QHideEvent *ev );
+		void showEvent( QShowEvent *ev ) override;
+		void hideEvent( QHideEvent *ev ) override;
 
 		void zoomIn();
 		void zoomOut();
 		float getGridWidth() const {
-		return m_nGridWidth;
+		return m_fGridWidth;
 		};
 
 	public slots:
 		void updateEditor( bool bRedrawAll = false );
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
 		uint m_nRulerWidth;
 		uint m_nRulerHeight;
-		float m_nGridWidth;
+		float m_fGridWidth;
 
 		QPixmap *m_pBackground;
 		QPixmap m_tickPosition;
@@ -73,9 +78,13 @@ class PatternEditorRuler : public QWidget, public H2Core::Object, public EventLi
 		int m_nTicks;
 		PatternEditorPanel *m_pPatternEditorPanel;
 		H2Core::Pattern *m_pPattern;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent();
+		virtual void selectedPatternChangedEvent() override;
 		//~ Implements EventListener interface
 };
 

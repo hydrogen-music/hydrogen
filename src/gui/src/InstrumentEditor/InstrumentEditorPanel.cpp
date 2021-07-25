@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -24,8 +24,8 @@
 #include <QPixmap>
 #include <QGridLayout>
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/drumkit_component.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/DrumkitComponent.h>
 
 #include "InstrumentEditorPanel.h"
 #include "../Skin.h"
@@ -54,6 +54,8 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent )
 
 	m_pInstance = this;
 	m_pInstrumentEditor = new InstrumentEditor( nullptr );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 m_pInstrumentEditor, &InstrumentEditor::onPreferencesChanged );
 
 	// LAYOUT
 	QGridLayout *vbox = new QGridLayout();
@@ -82,7 +84,7 @@ void InstrumentEditorPanel::parametersInstrumentChangedEvent()
 
 void InstrumentEditorPanel::notifyOfDrumkitChange()
 {
-	std::vector<H2Core::DrumkitComponent*>* pComponentList = H2Core::Hydrogen::get_instance()->getSong()->get_components();
+	std::vector<H2Core::DrumkitComponent*>* pComponentList = H2Core::Hydrogen::get_instance()->getSong()->getComponents();
 
 	m_pInstrumentEditor->selectComponent(pComponentList->front()->get_id());
 	m_pInstrumentEditor->selectedInstrumentChangedEvent();
@@ -94,6 +96,9 @@ void InstrumentEditorPanel::selectLayer( int nLayer )
 	m_nLayer = nLayer;
 }
 
-
+void InstrumentEditorPanel::updateWaveDisplay()
+{
+	selectLayer ( m_nLayer ); // trigger a redisplay of wave preview
+}
 
 

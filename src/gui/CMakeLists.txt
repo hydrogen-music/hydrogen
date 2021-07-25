@@ -1,23 +1,26 @@
 
-FILE(GLOB_RECURSE hydrogen_SRCS src/*.cpp)
+FILE(GLOB_RECURSE hydrogen_SRCS src/*.cpp src/*.h)
 
 # add undiscovered dependencies to generated config.h
 INCLUDE(AddFileDependencies)
 FOREACH( _file ${hydrogen_H} ${hydrogen_SRCS})
     FILE(READ "${_file}" _FILE_CONTENT)
     IF( "${_FILE_CONTENT}" MATCHES "H2CORE_HAVE_" )
-        ADD_FILE_DEPENDENCIES( ${_file} ${CMAKE_BINARY_DIR}/src/core/include/hydrogen/config.h)
+        ADD_FILE_DEPENDENCIES( ${_file} ${CMAKE_BINARY_DIR}/src/core/config.h)
     ENDIF()
 ENDFOREACH()
 
 INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_BINARY_DIR}                 # ui_ headers
     ${CMAKE_CURRENT_SOURCE_DIR}/src             # gui headers
-    ${CMAKE_SOURCE_DIR}/src/core/include        # core headers
-    ${CMAKE_BINARY_DIR}/src/core/include        # generated config.h
+    ${CMAKE_BINARY_DIR}/src                     # generated config.h
+    ${CMAKE_SOURCE_DIR}/src                     # top level headers
     ${QT_INCLUDES}
     ${LASH_INCLUDE_DIRS}
     ${LIBARCHIVE_INCLUDE_DIRS}
+    ${LIBSNDFILE_INCLUDE_DIRS}
+    ${JACK_INCLUDE_DIRS}
+
 )
 
 IF(APPLE)
@@ -38,17 +41,54 @@ IF(APPLE)
 	SET(hydrogen_SRCS ${hydrogen_SRCS} ${CMAKE_SOURCE_DIR}/data/img/gray/icon.icns)
 	
 	#copy the data folder
-	FILE(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION hydrogen.app/Contents/Resources PATTERN ".svn" EXCLUDE)
+    FILE(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION hydrogen.app/Contents/Resources PATTERN ".svn" EXCLUDE PATTERN i18n EXCLUDE)
   	
 ENDIF()
 
 ADD_EXECUTABLE(hydrogen WIN32 MACOSX_BUNDLE ${hydrogen_SRCS} ${hydrogen_MOC} ${hydrogen_UIS_H} ${CMAKE_SOURCE_DIR}/windows/icon.rc)
-SET_PROPERTY(TARGET hydrogen PROPERTY CXX_STANDARD 14)
+SET_PROPERTY(TARGET hydrogen PROPERTY CXX_STANDARD 17)
+if(APPLE)
+    add_custom_command(
+        TARGET hydrogen
+        POST_BUILD
+        COMMAND plutil -replace NSPrincipalClass -string NSApplication hydrogen.app/Contents/Info.plist
+    )
+    add_custom_command(
+        TARGET hydrogen
+        POST_BUILD
+        COMMAND plutil -replace NSHighResolutionCapable -bool true hydrogen.app/Contents/Info.plist
+    )
+    add_custom_command(
+        TARGET hydrogen
+        POST_BUILD
+        COMMAND
+            plutil -extract CFBundleDocumentTypes json
+                   -o /dev/null
+                   hydrogen.app/Contents/Info.plist >/dev/null
+            || plutil -insert CFBundleDocumentTypes
+                      -json
+                         \"` cat ${CMAKE_SOURCE_DIR}/macos/CFBundleDocumentTypes.json `\"
+                       hydrogen.app/Contents/Info.plist )
+
+    ADD_DEPENDENCIES(hydrogen ${CMAKE_SOURCE_DIR}/macos/CFBundleDocumentTypes.json)
+
+endif()
 
 TARGET_LINK_LIBRARIES(hydrogen
 	hydrogen-core-${VERSION}
 	Qt5::Widgets
 )
+
+# Precompiled headers for Qt and std::vector. These dramatically reduce GUI build times
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.16)
+	target_precompile_headers(hydrogen
+		PUBLIC
+			<QtGui>
+			<QtWidgets>
+			<vector> )
+endif()
+
+
 ADD_DEPENDENCIES(hydrogen hydrogen-core-${VERSION})
 
-INSTALL(TARGETS hydrogen RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR})
+INSTALL(TARGETS hydrogen RUNTIME DESTINATION ${H2_BIN_PATH} BUNDLE DESTINATION ${H2_BIN_PATH})

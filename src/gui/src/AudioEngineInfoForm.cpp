@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,28 +16,26 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
 #include "AudioEngineInfoForm.h"
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
+
 
 #include "HydrogenApp.h"
 
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/IO/MidiInput.h>
-#include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/sampler/Sampler.h>
-#include <hydrogen/audio_engine.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Preferences.h>
+#include <core/Hydrogen.h>
+#include <core/IO/MidiInput.h>
+#include <core/IO/AudioOutput.h>
+#include <core/Sampler/Sampler.h>
+#include <core/AudioEngine.h>
 using namespace H2Core;
 
 #include "Skin.h"
@@ -48,16 +47,15 @@ AudioEngineInfoForm::AudioEngineInfoForm(QWidget* parent)
  , Object( __class_name )
 {
 	setupUi( this );
-
-	setMinimumSize( width(), height() );	// not resizable
-	setMaximumSize( width(), height() );	// not resizable
+	adjustSize();
+	setFixedSize( width(), height() );	// not resizable
 
 	setWindowTitle( tr( "Audio Engine Info" ) );
 
 	updateInfo();
 
-	timer = new QTimer(this);
-	connect(timer, SIGNAL(timeout()), this, SLOT(updateInfo()));
+	m_pTimer = new QTimer(this);
+	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateInfo()));
 
 	HydrogenApp::get_instance()->addEventListener( this );
 	updateAudioEngineState();
@@ -79,7 +77,7 @@ AudioEngineInfoForm::~AudioEngineInfoForm()
 void AudioEngineInfoForm::showEvent ( QShowEvent* )
 {
 	updateInfo();
-	timer->start(200);
+	m_pTimer->start(200);
 }
 
 
@@ -88,19 +86,20 @@ void AudioEngineInfoForm::showEvent ( QShowEvent* )
  */
 void AudioEngineInfoForm::hideEvent ( QHideEvent* )
 {
-	timer->stop();
+	m_pTimer->stop();
 }
 
 
 void AudioEngineInfoForm::updateInfo()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();;
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	// Song position
 	QString sSongPos = "N/A";
-	if ( pEngine->getPatternPos() != -1 ) {
-		sSongPos = QString::number( pEngine->getPatternPos() );
+	if ( pHydrogen->getPatternPos() != -1 ) {
+		sSongPos = QString::number( pHydrogen->getPatternPos() );
 	}
 	m_pSongPositionLbl->setText( sSongPos );
 
@@ -110,10 +109,10 @@ void AudioEngineInfoForm::updateInfo()
 
 	// Process time
 	int perc = 0;
-	if ( pEngine->getMaxProcessTime() != 0.0 ) {
-		perc= (int)( pEngine->getProcessTime() / ( pEngine->getMaxProcessTime() / 100.0 ) );
+	if ( pAudioEngine->getMaxProcessTime() != 0.0 ) {
+		perc= (int)( pAudioEngine->getProcessTime() / ( pAudioEngine->getMaxProcessTime() / 100.0 ) );
 	}
-	sprintf(tmp, "%#.2f / %#.2f  (%d%%)", pEngine->getProcessTime(), pEngine->getMaxProcessTime(), perc );
+	sprintf(tmp, "%#.2f / %#.2f  (%d%%)", pAudioEngine->getProcessTime(), pAudioEngine->getMaxProcessTime(), perc );
 	processTimeLbl->setText(tmp);
 
 	// Song state
@@ -121,7 +120,7 @@ void AudioEngineInfoForm::updateInfo()
 		songStateLbl->setText( "NULL song" );
 	}
 	else {
-		if (pSong->get_is_modified()) {
+		if (pSong->getIsModified()) {
 			songStateLbl->setText( "Modified" );
 		}
 		else {
@@ -130,13 +129,13 @@ void AudioEngineInfoForm::updateInfo()
 	}
 
 	// tick number
-	sprintf(tmp, "%03d", (int)pEngine->getTickPosition() );
+	sprintf(tmp, "%03d", (int)pHydrogen->getTickPosition() );
 	nTicksLbl->setText(tmp);
 
 
 
 	// Audio driver info
-	AudioOutput *driver = pEngine->getAudioOutput();
+	AudioOutput *driver = pHydrogen->getAudioOutput();
 	if (driver) {
 		QString audioDriverName = driver->class_name();
 		driverLbl->setText(audioDriverName);
@@ -159,11 +158,11 @@ void AudioEngineInfoForm::updateInfo()
 		sampleRateLbl->setText( "N/A" );
 		nFramesLbl->setText( "N/A" );
 	}
-	nRealtimeFramesLbl->setText( QString( "%1" ).arg( pEngine->getRealtimeFrames() ) );
+	nRealtimeFramesLbl->setText( QString( "%1" ).arg( pHydrogen->getRealtimeFrames() ) );
 
 
 	// Midi driver info
-	MidiInput *pMidiDriver = pEngine->getMidiInput();
+	MidiInput *pMidiDriver = pHydrogen->getMidiInput();
 	if (pMidiDriver) {
 		midiDriverName->setText( pMidiDriver->class_name() );
 	}
@@ -174,7 +173,7 @@ void AudioEngineInfoForm::updateInfo()
 	m_pMidiDeviceName->setText( Preferences::get_instance()->m_sMidiPortName );
 
 
-	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
+	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 	if (nSelectedPatternNumber == -1) {
 		selectedPatLbl->setText( "N/A");
 	}
@@ -182,7 +181,7 @@ void AudioEngineInfoForm::updateInfo()
 		selectedPatLbl->setText( QString("%1").arg(nSelectedPatternNumber) );
 	}
 
-	int nSelectedInstrumentNumber = pEngine->getSelectedInstrumentNumber();
+	int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
 	if (nSelectedInstrumentNumber == -1) {
 		m_pSelectedInstrLbl->setText( "N/A" );
 	}
@@ -199,11 +198,11 @@ void AudioEngineInfoForm::updateInfo()
 	}
 
 	// SAMPLER
-	Sampler *pSampler = AudioEngine::get_instance()->get_sampler();
-	sampler_playingNotesLbl->setText(QString( "%1 / %2" ).arg(pSampler->get_playing_notes_number()).arg(Preferences::get_instance()->m_nMaxNotes));
+	Sampler *pSampler = pAudioEngine->getSampler();
+	sampler_playingNotesLbl->setText(QString( "%1 / %2" ).arg(pSampler->getPlayingNotesNumber()).arg(Preferences::get_instance()->m_nMaxNotes));
 
 	// Synth
-	Synth *pSynth = AudioEngine::get_instance()->get_synth();
+	Synth *pSynth = pAudioEngine->getSynth();
 	synth_playingNotesLbl->setText( QString( "%1" ).arg( pSynth->getPlayingNotesNumber() ) );
 }
 

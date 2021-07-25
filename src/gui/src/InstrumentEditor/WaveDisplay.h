@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -24,37 +24,41 @@
 #define WAVE_DISPLAY
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
-#include <hydrogen/object.h>
+#include <QtWidgets>
+
+#include <core/Object.h>
+#include <core/Preferences.h>
+#include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {
 	class InstrumentLayer;
 }
 
-class WaveDisplay : public QWidget, public H2Core::Object
+class WaveDisplay : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
 
 	public:
-		WaveDisplay(QWidget* pParent);
+		explicit WaveDisplay(QWidget* pParent);
 		~WaveDisplay();
 
-		void		updateDisplay( H2Core::InstrumentLayer *pLayer );
+		virtual void	updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 
-		void		paintEvent( QPaintEvent *ev );
-		void		resizeEvent( QResizeEvent * event );
-		void		mouseDoubleClickEvent(QMouseEvent *ev);
+		void			paintEvent( QPaintEvent *ev );
+		void			resizeEvent( QResizeEvent * event );
+		void			mouseDoubleClickEvent(QMouseEvent *ev);
 		
-		void		setSampleNameAlignment(Qt::AlignmentFlag flag);
+		void			setSampleNameAlignment(Qt::AlignmentFlag flag);
 
+public slots:
+		void onPreferencesChanged( bool bAppearanceOnly );
+	
 	signals:
 		void doubleClicked(QWidget *pWidget);
 
-	private:
+	protected:
 		Qt::AlignmentFlag			m_SampleNameAlignment;
 		QPixmap						m_Background;
 		QString						m_sSampleName;
@@ -66,7 +70,11 @@ class WaveDisplay : public QWidget, public H2Core::Object
 		
 		int							m_nCurrentWidth;
 		
-		H2Core::InstrumentLayer *	m_pLayer;
+		std::shared_ptr<H2Core::InstrumentLayer>	m_pLayer;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 inline void WaveDisplay::setSampleNameAlignment(Qt::AlignmentFlag flag)

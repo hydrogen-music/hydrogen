@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -25,22 +25,23 @@
 #define BUTTON_H
 
 
-#include <hydrogen/object.h>
-#include <hydrogen/midi_action.h>
+#include <core/Object.h>
+#include <core/Preferences.h>
+#include <core/MidiAction.h>
 
 #include "MidiLearnable.h"
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
+#include "WidgetWithScalableFont.h"
+
 
 class PixmapWidget;
 
 /**
  * Generic Button with pixmaps and text.
  */
-class Button : public QWidget, public H2Core::Object, public MidiLearnable
+class Button : public QWidget, protected WidgetWithScalableFont<6, 8, 10>, public H2Core::Object, public MidiLearnable
 {
     H2_OBJECT
 	Q_OBJECT
@@ -56,13 +57,18 @@ class Button : public QWidget, public H2Core::Object, public MidiLearnable
 				bool enable_press_hold = false
 		);
 		virtual ~Button();
+	
+		Button(const Button&) = delete;
+		Button& operator=( const Button& rhs ) = delete;
 
 		bool isPressed() {	return m_bPressed;	}
 		void setPressed(bool pressed);
 
 		void setText( const QString& sText );
-		void setFontSize( int size );
 
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
+	
 	signals:
 		void clicked(Button *pBtn);
 		void rightClicked(Button *pBtn);
@@ -74,7 +80,6 @@ class Button : public QWidget, public H2Core::Object, public MidiLearnable
 	protected:
 		bool m_bPressed;
 
-		QFont m_textFont;
 		QString m_sText;
 
 		QPixmap m_onPixmap;
@@ -94,6 +99,10 @@ class Button : public QWidget, public H2Core::Object, public MidiLearnable
 
 		QTimer *m_timer;
 		int m_timerTimeout;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 		bool loadImage( const QString& sFilename, QPixmap& pixmap );
 };

@@ -1,5 +1,24 @@
 #!/bin/bash
 
+# Hydrogen
+# Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+# Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+#
+# http://www.hydrogen-music.org
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 # Default application bundle name
 SRC_APP="hydrogen.app"
@@ -12,6 +31,9 @@ VERBOSE=0
 
 # Option: open image after creating it
 OPEN=0
+
+# Option: Translation directory
+TRANSLATIONS="data/i18n"
 
 
 # Print message if verbose mode is enabled
@@ -73,7 +95,7 @@ function clean_up {
 
 # Parse options
 
-while getopts ":vho" opt; do
+while getopts ":vhot:" opt; do
 	case $opt in
 		v)
 			VERBOSE=1
@@ -85,6 +107,9 @@ while getopts ":vho" opt; do
 		o)
 			OPEN=1
 			;;
+        t)
+            TRANSLATIONS="$OPTARG"
+            ;;
 		\?)
 			echo "Unknown option: $OPTARG"
 			usage;
@@ -122,6 +147,11 @@ cp -r "$SRC_APP" "$DMG_ROOT/Hydrogen.app" || error "Can't copy $SRC_APP"
 
 verbose "Deploying Qt libraries"
 macdeployqt "$DMG_ROOT/Hydrogen.app" || error "macdeployqt failed"
+
+verbose "Deploying translations"
+I18N_DEST="$DMG_ROOT/Hydrogen.app/Contents/Resources/data/i18n"
+mkdir -p "$I18N_DEST"
+find "$TRANSLATIONS" -name '*.qm' -exec cp {} "$I18N_DEST" \;
 
 verbose "Deploying additional assets"
 ln -s /Applications "$DMG_ROOT/Applications"

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,27 +16,25 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
 #ifndef MAINFORM_H
 #define MAINFORM_H
 
-#include <QtNetwork>
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include <map>
 #include <unistd.h>
 
 #include "EventListener.h"
+#include "Widgets/WidgetWithScalableFont.h"
 
-#include <hydrogen/config.h>
-#include <hydrogen/object.h>
+#include <core/config.h>
+#include <core/Object.h>
+#include <core/Preferences.h>
 
 class HydrogenApp;
 class QUndoView;///debug only
@@ -43,7 +42,7 @@ class QUndoView;///debug only
 ///
 /// Main window
 ///
-class MainForm : public QMainWindow, public EventListener, public H2Core::Object
+class MainForm : public QMainWindow, protected WidgetWithScalableFont<8, 10, 12>, public EventListener, public H2Core::Object
 {
 		H2_OBJECT
 	Q_OBJECT
@@ -51,15 +50,33 @@ class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 	public:
 		QApplication* m_pQApp;
 
-		MainForm( QApplication *app, const QString& songFilename );
+		MainForm( QApplication * pQApplication );
 		~MainForm();
 
 		void updateRecentUsedSongList();
 
-		virtual void errorEvent( int nErrorCode );
-		virtual void jacksessionEvent( int nValue);
-		virtual void playlistLoadSongEvent(int nIndex);
-		virtual void undoRedoActionEvent( int nEvent );
+		virtual void errorEvent( int nErrorCode ) override;
+		virtual void jacksessionEvent( int nValue) override;
+		virtual void playlistLoadSongEvent(int nIndex) override;
+
+		/** Handles the loading and saving of the H2Core::Preferences
+		 * from the core part of H2Core::Hydrogen.
+		 *
+		 * If \a nValue is 0 - the H2Core::Preferences should be saved
+		 * - it triggers savePreferences() to write the state of the
+		 * GUI into the H2Core::Preferences instance and write it
+		 * subsequentially to disk using
+		 * H2Core::Preferences::savePreferences(). If, on the other
+		 * hand, \a nValue is 1 and the configuration file has been
+		 * reloaded, it gets a fresh version of H2Core::Preferences
+		 * and updates #m_pInstrumentAction and #m_pDrumkitAction to
+		 * reflect the changes in the configuration.
+		 *
+		 * \param nValue If 0, H2Core::Preferences was save. If 1, it was
+		 *     loaded.
+		 */
+		virtual void updatePreferencesEvent( int nValue ) override;
+		virtual void undoRedoActionEvent( int nEvent ) override;
 		static void usr1SignalHandler(int unused);
 
 
@@ -67,10 +84,48 @@ public slots:
 		void showPreferencesDialog();
 		void showUserManual();
 
+		/**
+		 * Project > New handling function.
+		 *
+		 * Creates an empty Song and set it as the current one.
+		 *
+		 * When Hydrogen is under session management (NSM) this
+		 * function will assume that there is already a Song present
+		 * (which is the case). Else it will return without doing
+		 * anything. It uses the current Song to assign the it file
+		 * path to the empty one since the name provided by the NSM
+		 * server must be used or the restart of the session fails.
+		 */
 		void action_file_new();
+		
+		/**
+		 * Project > Open / Import into Session handling function.
+		 *
+		 * Opens an existing Song.
+		 *
+		 * When Hydrogen is under session management (NSM) this
+		 * function will assume that there is already a Song present
+		 * (which is the case). Else it will return without doing
+		 * anything. It opens the chosen file and uses the current
+		 * Song to assign its file path to the opened one since the
+		 * name provided by the NSM server must be used or the restart
+		 * of the session fails.
+		 */
 		void action_file_open();
 		void action_file_openDemo();
 		void action_file_save();
+		
+		/**
+		 * Project > Save As / Export from Session handling function.
+		 *
+		 * Saves the current Song in a different path.
+		 *
+		 * When Hydrogen is under session management (NSM) this
+		 * function will store the Song in the chosen location but
+		 * keeps its previous file path associated with it since the
+		 * name provided by the NSM server must be used or the restart
+		 * of the session fails.
+		 */
 		void action_file_save_as();
 		void action_file_openPattern();
 		void action_file_export_pattern_as();
@@ -96,13 +151,13 @@ public slots:
 
 		void action_banks_properties();
 		void action_banks_open();
-
+		
 		void action_window_showMixer();
 		void action_window_showPlaylistDialog();
 		void action_window_show_DirectorWidget();
 		void action_window_showSongEditor();
 		void action_window_showPatternEditor();
-		void action_window_showDrumkitManagerPanel();
+		void action_window_showInstrumentRack();
 		void action_window_showAutomationArea();
 		void action_window_showTimeline();
 		void action_window_showPlaybackTrack();
@@ -111,13 +166,24 @@ public slots:
 		void update_mixer_checkbox();
 		void update_instrument_checkbox( bool show );
 		void update_automation_checkbox();
+		void update_playback_track_group();
 		void update_director_checkbox();
 		void update_playlist_checkbox();
 
 		void action_debug_printObjects();
 		void action_debug_showAudioEngineInfo();
+		void action_debug_showFilesystemInfo();
+		void action_debug_openLogfile();
+		
 
-		void closeEvent( QCloseEvent* ev );
+		void action_debug_logLevel_none();
+		void action_debug_logLevel_error();
+		void action_debug_logLevel_warn();
+		void action_debug_logLevel_info();
+		void action_debug_logLevel_debug();
+		
+		
+		void closeEvent( QCloseEvent* ev ) override;
 
 		void onPlayStopAccelEvent();
 		void onRestartAccelEvent();
@@ -134,15 +200,34 @@ public slots:
 		void openUndoStack();
 		void action_undo();
 		void action_redo();
-
-		void action_toggle_input_mode();
+		
+		void action_inputMode_instrument();
+		void action_inputMode_drumkit();
 
 		void handleSigUsr1();
+		/** Wrapper around savePreferences() and quit() method of
+			#m_pQApp.*/
+		void closeAll();
+		/** Stores the current state of the GUI (position, width,
+		 * height, and visibility of the widgets) in the
+		 * H2Core::Preferences.
+		 */
+		void savePreferences();
+		void checkMidiSetup();
+		void checkMissingSamples();
+
+		// Interface for screen grabs
+		void setMainWindowSize( int w, int h ) {
+			setFixedSize( w, h );
+		}
+	void onPreferencesChanged( bool bAppearanceOnly );
+
 
 	private slots:
 		void onAutoSaveTimer();
 		void onPlaylistDisplayTimer();
 		void onFixMidiSetup();
+		void onFixMissingSamples();
 
 	protected:
 		// Returns true if handled, false if aborted.
@@ -156,6 +241,7 @@ public slots:
 
 		void functionDeleteInstrument(int instrument);
 
+		QMenu *		m_pLogLevelMenu;		
 		QMenu *		m_pInputModeMenu;
 		QAction *	m_pViewPlaylistEditorAction;
 		QAction *	m_pViewDirectorAction;
@@ -164,6 +250,7 @@ public slots:
 		QAction *	m_pViewAutomationPathAction;
 		QAction *	m_pViewTimelineAction;
 		QAction *	m_pViewPlaybackTrackAction;
+		QActionGroup *	m_pViewPlaybackTrackActionGroup;
 		QAction *	m_pInstrumentAction;
 		QAction *	m_pDrumkitAction;
 
@@ -180,12 +267,10 @@ public slots:
 
 		/** Create the menubar */
 		void createMenuBar();
+		
+		void checkNecessaryDirectories();
 
-		void closeAll();
-		void openSongFile( const QString& sFilename );
-		void checkMidiSetup();
-
-		bool eventFilter( QObject *o, QEvent *e );
+		bool eventFilter( QObject *o, QEvent *e ) override;
 
 		std::map<int,int>  keycodeInstrumentMap;
 		void initKeyInstMap();
@@ -195,9 +280,35 @@ public slots:
 		QTimer *lashPollTimer;
 	#endif
 
+		InfoBar *m_pMidiSetupInfoBar;
+		InfoBar *m_pMissingSamplesInfoBar;
 
 		bool handleSelectNextPrevSongOnPlaylist(int step);
 
+		/**
+		 * Relocates to current position of the cursor and starts
+		 * playback if the transport isn't rolling yet.
+		 *
+		 * If triggered while focusing the song editor, the song will
+		 * be set to H2Core::Song::SONE_MODE. Similarly,
+		 * H2Core::Song::PATTERN_MODE will be activated if triggered
+		 * in the pattern editor of note properties ruler.
+		 *
+		 * \param pObject Used to determine the focused part of the
+		 * application.
+		 */
+		void startPlaybackAtCursor( QObject* pObject );
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
+
+		QMenu* m_pFileMenu;
+		QMenu* m_pUndoMenu;
+		QMenu* m_pDrumkitsMenu;
+		QMenu* m_pInstrumentsMenu;
+		QMenu* m_pViewMenu;
+		QMenu* m_pOptionsMenu;
+		QMenu* m_pDebugMenu;
+		QMenu* m_pInfoMenu;
 };
 
 #endif

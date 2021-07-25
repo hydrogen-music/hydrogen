@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -27,11 +27,11 @@
 #include "../InstrumentEditor/InstrumentEditor.h"
 
 #include <QDialog>
-#include <hydrogen/object.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/instrument.h>
+#include <core/Object.h>
+#include <core/Preferences.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Instrument.h>
 
 
 class Button;
@@ -53,13 +53,13 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 
 		void setSampleName( QString name);
 		bool getCloseQuestion();
-		bool m_pSampleEditorStatus;
 		bool returnAllMainWaveDisplayValues();
 		void returnAllTargetDisplayValues();
-		void setTrue();
+		void setUnclean();
+		void setClean();
 
 		//this values come from the real sample to restore a frm song loaded sample
-		bool m_sample_is_modified;	///< true if sample is modified
+		bool m_bSampleIsModified;	///< true if sample is modified
 
 	private slots:
 		void valueChangedLoopCountSpinBox( int );
@@ -82,13 +82,6 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 
 	private:
 
-		H2Core::Sample *m_pSampleFromFile;
-		int m_pSelectedLayer;
-		int m_pSelectedComponent;
-		QString m_samplename;
-	
-		double m_divider;
-
 		void openDisplays();
 		void getAllFrameInfos();
 		void getAllLocalFrameInfos();
@@ -106,25 +99,34 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
 		TargetWaveDisplay *m_pTargetSampleView;
 		DetailWaveDisplay *m_pSampleAdjustView;
-
-		float m_pZoomfactor;
+	
+		std::shared_ptr<H2Core::Sample> m_pSampleFromFile;
+		int m_nSelectedLayer;
+		int m_nSelectedComponent;
+		QString m_sSampleName;
+	
+		double m_divider;
+		float m_fZoomfactor;
 		unsigned m_pDetailFrame;
-		QString m_pLineColor;
-		bool m_pOnewayStart;
-		bool m_pOnewayLoop;
-		bool m_pOnewayEnd;
-		unsigned long m_pRealtimeFrameEnd;
-		unsigned long m_prealtimeframeendfortarget;
-		unsigned m_pslframes;
-		unsigned m_pSamplerate;
+		QString m_sLineColor;
+
+		bool m_bOnewayStart;
+		bool m_bOnewayLoop;
+		bool m_bOnewayEnd;
+		bool m_bPlayButton;
+		bool m_bAdjusting;
+		bool m_bSampleEditorClean;
+		
+		unsigned long m_nRealtimeFrameEnd;
+		unsigned long m_nRealtimeFrameEndForTarget;
+		unsigned m_nSlframes;
+		unsigned m_nSamplerate;
 		QTimer *m_pTimer;
 		QTimer *m_pTargetDisplayTimer;
 		unsigned *m_pPositionsRulerPath;
-		bool m_pPlayButton;
-		float m_pRatio;
+		float m_fRatio;
 		H2Core::Sample::Loops __loops;
 		H2Core::Sample::Rubberband __rubberband;
-		
 };
 
 

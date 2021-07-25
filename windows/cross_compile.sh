@@ -110,7 +110,7 @@ mxe_files(){
 	mkdir $extralibs
 
 	#Make arrays for the filenames to loop through.
-	declare -a libs=("liblzo2-2" "libgnurx" "libsndfile" "libFLAC" "libogg" "libvorbis" "libvorbisenc" "zlib1" "libwinpthread"  "libarchive" "libbz2" "liblzma" "libnettle" "libxml2" "libpng16" "libportmidi" "libportaudio" "libiconv" "libiconv"  "liblo" "jack")
+	declare -a libs=("liblzo2-2" "libgnurx" "libsndfile" "libFLAC" "libogg" "libvorbis" "libvorbisenc" "zlib1" "libwinpthread"  "libarchive" "libbz2" "liblzma" "libnettle" "libxml2" "libpng16" "libportmidi" "libportaudio" "libiconv" "libiconv"  "liblo" "jack" "libzstd" "libssp")
 	declare -a gcclibs=("libgcc" "libstdc++")
 
 	#special stuff for qt5 handling

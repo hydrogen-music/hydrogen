@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -26,13 +26,14 @@
 #include "LCD.h"
 #include "Button.h"
 
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 
 const char* LCDCombo::__class_name = "LCDCombo";
 
-LCDCombo::LCDCombo( QWidget *pParent, int digits )
+LCDCombo::LCDCombo( QWidget *pParent, int digits, bool bAllowMenuOverflow )
 	: QWidget(pParent)
 	, Object( __class_name )
+	, m_bAllowMenuOverflow( bAllowMenuOverflow )
 {
 	INFOLOG( "INIT" );
 
@@ -44,6 +45,7 @@ LCDCombo::LCDCombo( QWidget *pParent, int digits )
 	                     QSize(13, 13)
 	                   );
 	pop = new QMenu( this );
+
 	size = digits;
 	active = -1;
 
@@ -71,7 +73,7 @@ void LCDCombo::onClick( Button* )
 bool LCDCombo::addItem( const QString &text )
 {
 	//INFOLOG( "add item" );
-	if ( text.size() <= size ) {
+	if ( text.size() <= size || m_bAllowMenuOverflow ) {
 		actions.append( pop->addAction( text ) );
 		return true;
 	} else {
@@ -95,10 +97,12 @@ void LCDCombo::wheelEvent( QWheelEvent * ev )
 {
 	ev->ignore();
 	const int n = actions.size();
-	const int d = ( ev->delta() > 0 ) ? -1: 1;
+	const int d = ( ev->angleDelta().y() > 0 ) ? -1: 1;
 	int next = ( n + active + d ) % n;
-	if ( actions.at( next )->isSeparator() )
+	if ( actions.at( next )->isSeparator() ) {
 		next = ( n + next + d ) % n;
+	}
+	
 	select( next );
 }
 
@@ -114,8 +118,9 @@ bool LCDCombo::select( int idx )
 
 bool LCDCombo::select( int idx, bool emitValueChanged )
 {
-	if (active == idx)
+	if (active == idx) {
 		return false;
+	}
 
 	if (idx < 0 || idx >= actions.size()) {
 		WARNINGLOG(QString("out of index %1 >= %2").arg(idx).arg(actions.size()));
@@ -124,7 +129,9 @@ bool LCDCombo::select( int idx, bool emitValueChanged )
 
 	active = idx;
 	display->setText( actions.at( idx )->text() );
-	if ( emitValueChanged )
+	if ( emitValueChanged ) {
 		emit valueChanged( idx );
+	}
+	
 	return true;
 }

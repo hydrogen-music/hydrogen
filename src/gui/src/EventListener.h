@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,14 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 #ifndef EVENT_LISTENER
 #define EVENT_LISTENER
 
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 class EventListener
 {
 	public:
@@ -44,6 +44,16 @@ class EventListener
 		virtual void playlistLoadSongEvent( int nIndex ){ UNUSED( nIndex ); }
 		virtual void undoRedoActionEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void tempoChangedEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void updateSongEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void quitEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void timelineActivationEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void timelineUpdateEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void jackTransportActivationEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void jackTimebaseActivationEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void songModeActivationEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void loopModeActivationEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void updatePreferencesEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void actionModeChangeEvent( int nValue ){ UNUSED( nValue ); }
 
 		virtual ~EventListener() {}
 };

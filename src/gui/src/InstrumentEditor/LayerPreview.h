@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,52 +16,52 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 #ifndef LAYER_PREVIEW_H
 #define LAYER_PREVIEW_H
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
+#include <memory>
 
-#include <hydrogen/object.h>
-#include <hydrogen/basics/instrument.h>
+#include <core/Object.h>
+#include <core/Preferences.h>
+#include <core/Basics/Instrument.h>
 #include "../EventListener.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {
 class InstrumentLayer;
 }
 
-using H2Core::InstrumentLayer;
-
-
-class LayerPreview : public QWidget, public H2Core::Object, public EventListener
+class LayerPreview : public QWidget, protected WidgetWithScalableFont<5, 6, 7>, public H2Core::Object, public EventListener
 {
     H2_OBJECT
 	Q_OBJECT
 
 	public:
-		LayerPreview(QWidget* pParent);
+		explicit LayerPreview(QWidget* pParent);
 		~LayerPreview();
 
 		void updateAll();
 
-		void paintEvent(QPaintEvent *ev);
-		virtual void mousePressEvent(QMouseEvent *ev);
-		virtual void mouseReleaseEvent(QMouseEvent *ev);
-		virtual void mouseMoveEvent ( QMouseEvent *ev );
+		void paintEvent(QPaintEvent *ev) override;
+		virtual void mousePressEvent(QMouseEvent *ev) override;
+		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
+		virtual void mouseMoveEvent ( QMouseEvent *ev ) override;
 
 		void set_selected_component( int SelectedComponent );
 
+public slots:
+		void onPreferencesChanged( bool bAppearanceOnly );
+	
 	private:
 		static const int		m_nLayerHeight = 10;
 		QPixmap					m_speakerPixmap;
-		H2Core::Instrument *	m_pInstrument;
+		std::shared_ptr<H2Core::Instrument>	m_pInstrument;
 		int						m_nSelectedLayer;
 		int						m_nSelectedComponent;
 		bool					m_bMouseGrab;
@@ -81,7 +82,7 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 		 * @param pLayer    The layer
 		 * @param pEvent    The event carrying mouse position
 		 */
-		void showLayerStartVelocity( const InstrumentLayer* pLayer, const QMouseEvent* pEvent );
+		void showLayerStartVelocity( const std::shared_ptr<H2Core::InstrumentLayer> pLayer, const QMouseEvent* pEvent );
 
 		/**
 		 * display a layer's end velocity in a tooltip
@@ -89,9 +90,16 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 		 * @param pLayer    The layer
 		 * @param pEvent    The event carrying mouse position
 		 */
-		void showLayerEndVelocity( const InstrumentLayer* pLayer, const QMouseEvent* pEvent );
+		void showLayerEndVelocity( const std::shared_ptr<H2Core::InstrumentLayer> pLayer, const QMouseEvent* pEvent );
 
-		virtual void selectedInstrumentChangedEvent();
+		virtual void selectedInstrumentChangedEvent() override;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSizeButton() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

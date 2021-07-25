@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,25 +16,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/sampler/Sampler.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/Note.h>
+#include <core/AudioEngine.h>
+#include <core/Sampler/Sampler.h>
 using namespace H2Core;
 
 #include "../Skin.h"
@@ -51,21 +49,27 @@ LayerPreview::LayerPreview( QWidget* pParent )
  , m_nSelectedLayer( 0 )
  , m_bMouseGrab( false )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+	m_sLastUsedFontFamily = Preferences::get_instance()->getLevel2FontFamily();
 
 	//INFOLOG( "INIT" );
 
 	setMouseTracking( true );
 
 	int w = 276;
-	if( InstrumentComponent::getMaxLayers() > 16)
+	if( InstrumentComponent::getMaxLayers() > 16) {
 		w = 261;
+	}
+	
 	int h = 20 + m_nLayerHeight * InstrumentComponent::getMaxLayers();
 	resize( w, h );
 
 	m_speakerPixmap.load( Skin::getImagePath() + "/instrumentEditor/speaker.png" );
 
 	HydrogenApp::get_instance()->addEventListener( this );
+
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &LayerPreview::onPreferencesChanged );
 
 	/**
 	 * We get a style similar to the one used for the 2 buttons on top of the instrument editor panel
@@ -86,14 +90,18 @@ void LayerPreview::set_selected_component( int SelectedComponent )
 void LayerPreview::paintEvent(QPaintEvent *ev)
 {
 	QPainter p( this );
+
+	QFont fontText( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
+	QFont fontButton( m_sLastUsedFontFamily, getPointSizeButton() );
+	
 	p.fillRect( ev->rect(), QColor( 58, 62, 72 ) );
 
 	int nLayers = 0;
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 		if ( m_pInstrument ) {
-			InstrumentComponent* pComponent = m_pInstrument->get_component( m_nSelectedComponent );
+			auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
 			if(pComponent) {
-				InstrumentLayer *pLayer = pComponent->get_layer( i );
+				auto pLayer = pComponent->get_layer( i );
 				if ( pLayer ) {
 					nLayers++;
 				}
@@ -107,12 +115,12 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 		QString label = "< - >";
 		
 		if ( m_pInstrument ) {
-			InstrumentComponent* pComponent = m_pInstrument->get_component( m_nSelectedComponent );
+			auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
 			if( pComponent ) {
-				InstrumentLayer *pLayer = pComponent->get_layer( i );
+				auto pLayer = pComponent->get_layer( i );
 				
 				if ( pLayer && nLayers > 0 ) {
-					Sample* pSample = pLayer->get_sample();
+					auto pSample = pLayer->get_sample();
 					if( pSample != nullptr) {
 						label = pSample->get_filename();
 					}
@@ -127,6 +135,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 					
 					p.fillRect( x1, 0, x2 - x1, 19, layerColor );
 					p.setPen( QColor( 230, 230, 230 ) );
+					p.setFont( fontButton );
 					p.drawText( x1, 0, x2 - x1, 20, Qt::AlignCenter, QString("%1").arg( i + 1 ) );
 					
 					if ( m_nSelectedLayer == i ) {
@@ -154,8 +163,9 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 			// layer view
 			p.fillRect( 0, y, width(), m_nLayerHeight, QColor( 59, 73, 96 ) );
 		}
-		p.setPen( QColor( 128, 134, 152 ) );
+		p.setPen( QColor( 255, 255, 255, 200 ) ); //128, 134, 152 ) );
 		p.drawRect( 0, y, width() - 1, m_nLayerHeight );
+		p.setFont( fontText );
 		p.drawText( 10, y, width() - 10, 20, Qt::AlignLeft, QString( "%1: %2" ).arg( i + 1 ).arg( label ) );
 	}
 	
@@ -167,10 +177,10 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 
 void LayerPreview::selectedInstrumentChangedEvent()
 {
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	if (pSong != nullptr) {
-		InstrumentList *pInstrList = pSong->get_instrument_list();
+		InstrumentList *pInstrList = pSong->getInstrumentList();
 		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		if ( nInstr >= (int)pInstrList->size() ) {
 			nInstr = -1;
@@ -186,11 +196,11 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	else {
 		m_pInstrument = nullptr;
 	}
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	
 	/*
 	if ( m_pInstrument ) {
-		InstrumentComponent* p_tmpCompo = m_pInstrument->get_component( m_nSelectedComponent );
+		auto p_tmpCompo = m_pInstrument->get_component( m_nSelectedComponent );
 		if(!p_tmpCompo) {
 			for(int i = 0 ; i < InstrumentComponent::getMaxLayers() ; i++) {
 				p_tmpCompo = m_pInstrument->get_component( i );
@@ -206,7 +216,7 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	// select the last valid layer
 	if ( m_pInstrument ) {
 		for (int i = InstrumentComponent::getMaxLayers() - 1; i >= 0; i-- ) {
-			InstrumentComponent* p_compo = m_pInstrument->get_component( m_nSelectedComponent );
+			auto p_compo = m_pInstrument->get_component( m_nSelectedComponent );
 			if ( p_compo ) {
 				if ( p_compo->get_layer( i ) ) {
 					m_nSelectedLayer = i;
@@ -230,14 +240,18 @@ void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 	m_bMouseGrab = false;
 	setCursor( QCursor( Qt::ArrowCursor ) );
 
+	if ( m_pInstrument == nullptr ) {
+		return;
+	}
+
 	/*
 	 * We want the tooltip to still show if mouse pointer
 	 * is over an active layer's boundary
 	 */
-	InstrumentComponent *pCompo = m_pInstrument->get_component( m_nSelectedComponent );
+	auto pCompo = m_pInstrument->get_component( m_nSelectedComponent );
 	if ( pCompo ) {
-		InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
-		
+		auto pLayer = pCompo->get_layer( m_nSelectedLayer );
+
 		if ( pLayer ) {
 			int x1 = (int)( pLayer->get_start_velocity() * width() );
 			int x2 = (int)( pLayer->get_end_velocity() * width() );
@@ -257,8 +271,7 @@ void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 void LayerPreview::mousePressEvent(QMouseEvent *ev)
 {
 	const unsigned nPosition = 0;
-	const float fPan_L = 0.5f;
-	const float fPan_R = 0.5f;
+	const float fPan = 0.f;
 	const int nLength = -1;
 	const float fPitch = 0.0f;
 
@@ -268,14 +281,14 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 	if ( ev->y() < 20 ) {
 		float fVelocity = (float)ev->x() / (float)width();
 
-		Note *note = new Note( m_pInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
-		note->set_specific_compo_id( m_nSelectedComponent );
-		AudioEngine::get_instance()->get_sampler()->note_on(note);
+		Note * pNote = new Note( m_pInstrument, nPosition, fVelocity, fPan, nLength, fPitch );
+		pNote->set_specific_compo_id( m_nSelectedComponent );
+		Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
 		
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			InstrumentComponent *pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if(pCompo){
-				InstrumentLayer *pLayer = pCompo->get_layer( i );
+				auto pLayer = pCompo->get_layer( i );
 				if ( pLayer ) {
 					if ( ( fVelocity > pLayer->get_start_velocity()) && ( fVelocity < pLayer->get_end_velocity() ) ) {
 						if ( i != m_nSelectedLayer ) {
@@ -295,13 +308,13 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		update();
 		InstrumentEditorPanel::get_instance()->selectLayer( m_nSelectedLayer );
 		
-		InstrumentComponent *pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+		auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 		if(pCompo) {
-			InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
+			auto pLayer = pCompo->get_layer( m_nSelectedLayer );
 			if ( pLayer ) {
-				Note *note = new Note( m_pInstrument , nPosition, m_pInstrument->get_component(m_nSelectedComponent)->get_layer( m_nSelectedLayer )->get_end_velocity() - 0.01, fPan_L, fPan_R, nLength, fPitch );
+				Note *note = new Note( m_pInstrument , nPosition, m_pInstrument->get_component(m_nSelectedComponent)->get_layer( m_nSelectedLayer )->get_end_velocity() - 0.01, fPan, nLength, fPitch );
 				note->set_specific_compo_id( m_nSelectedComponent );
-				AudioEngine::get_instance()->get_sampler()->note_on(note);
+				Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(note);
 				
 				int x1 = (int)( pLayer->get_start_velocity() * width() );
 				int x2 = (int)( pLayer->get_end_velocity() * width() );
@@ -348,7 +361,7 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 		return;
 	}
 	if ( m_bMouseGrab ) {
-		InstrumentLayer *pLayer = m_pInstrument->get_component( m_nSelectedComponent )->get_layer( m_nSelectedLayer );
+		auto pLayer = m_pInstrument->get_component( m_nSelectedComponent )->get_layer( m_nSelectedLayer );
 		if ( pLayer ) {
 			if ( m_bMouseGrab ) {
 				if ( m_bGrabLeft ) {
@@ -370,9 +383,9 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 	else {
 		m_nSelectedLayer = ( ev->y() - 20 ) / m_nLayerHeight;
 		if ( m_nSelectedLayer < InstrumentComponent::getMaxLayers() ) {
-			InstrumentComponent* pComponent = m_pInstrument->get_component(m_nSelectedComponent);
+			auto pComponent = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pComponent ){
-				InstrumentLayer *pLayer = pComponent->get_layer( m_nSelectedLayer );
+				auto pLayer = pComponent->get_layer( m_nSelectedLayer );
 				if ( pLayer ) {
 					int x1 = (int)( pLayer->get_start_velocity() * width() );
 					int x2 = (int)( pLayer->get_end_velocity() * width() );
@@ -413,7 +426,7 @@ int LayerPreview::getMidiVelocityFromRaw( const float raw )
 	return static_cast<int> (raw * 127);
 }
 
-void LayerPreview::showLayerStartVelocity( const InstrumentLayer* pLayer, const QMouseEvent* pEvent )
+void LayerPreview::showLayerStartVelocity( const std::shared_ptr<InstrumentLayer> pLayer, const QMouseEvent* pEvent )
 {
 	const float fVelo = pLayer->get_start_velocity();
 
@@ -424,7 +437,7 @@ void LayerPreview::showLayerStartVelocity( const InstrumentLayer* pLayer, const 
 			this);
 }
 
-void LayerPreview::showLayerEndVelocity( const InstrumentLayer* pLayer, const QMouseEvent* pEvent )
+void LayerPreview::showLayerEndVelocity( const std::shared_ptr<InstrumentLayer> pLayer, const QMouseEvent* pEvent )
 {
 	const float fVelo = pLayer->get_end_velocity();
 
@@ -433,4 +446,33 @@ void LayerPreview::showLayerEndVelocity( const InstrumentLayer* pLayer, const QM
 				.arg( QString::number( fVelo, 'f', 2) )
 				.arg( getMidiVelocityFromRaw( fVelo ) +1 ),
 			this);
+}
+
+int LayerPreview::getPointSizeButton() const {
+	int nPointSize;
+	
+	switch( m_lastUsedFontSize ) {
+	case H2Core::Preferences::FontSize::Small:
+		nPointSize = 6;
+		break;
+	case H2Core::Preferences::FontSize::Normal:
+		nPointSize = 8;
+		break;
+	case H2Core::Preferences::FontSize::Large:
+		nPointSize = 12;
+		break;
+	}
+
+	return nPointSize;
+}
+
+void LayerPreview::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getLevel2FontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		m_sLastUsedFontFamily = Preferences::get_instance()->getLevel2FontFamily();
+		update();
+	}
 }

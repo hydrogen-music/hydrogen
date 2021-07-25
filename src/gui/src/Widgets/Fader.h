@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -26,11 +26,9 @@
 
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 #include "MidiLearnable.h"
 
 ///
@@ -103,11 +101,8 @@ public:
 		VerticalFader(QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob );
 		~VerticalFader();
 		
-		virtual void paintEvent(QPaintEvent *ev);
-		virtual void mouseMoveEvent(QMouseEvent *ev);
-		
-		
-	
+		virtual void paintEvent(QPaintEvent *ev) override;
+		virtual void mouseMoveEvent(QMouseEvent *ev) override;	
 };
 
 
@@ -117,7 +112,7 @@ class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable
 	Q_OBJECT
 
 	public:
-		MasterFader(QWidget *pParent, bool bWithoutKnob = false);
+		explicit MasterFader(QWidget *pParent, bool bWithoutKnob = false);
 		~MasterFader();
 
 		void setMin( float fMin );
@@ -165,46 +160,4 @@ class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable
 
 
 };
-
-
-
-class Knob : public QWidget, public H2Core::Object, public MidiLearnable
-{
-    H2_OBJECT
-	Q_OBJECT
-	public:
-		Knob( QWidget* parent );
-		~Knob();
-
-		void setValue( float fValue );
-		float getValue() {	return m_fValue;	}
-
-		void setDefaultValue( float fDefaultValue );
-		float getDefaultValue() { return m_fDefaultValue; }
-		void resetValueToDefault();
-
-
-	signals:
-		void valueChanged( Knob *ref );
-
-	private:
-		static QPixmap *m_background;
-		bool m_bIgnoreMouseMove;
-
-		int m_nWidgetWidth;
-		int m_nWidgetHeight;
-
-		float m_fValue;
-		float m_fDefaultValue;
-		float m_fMousePressValue;
-		float m_fMousePressY;
-
-		virtual void paintEvent( QPaintEvent *ev );
-		virtual void mousePressEvent( QMouseEvent *ev );
-		virtual void mouseReleaseEvent( QMouseEvent *ev );
-		virtual void mouseMoveEvent( QMouseEvent *ev );
-		virtual void wheelEvent( QWheelEvent *ev );
-};
-
-
 #endif

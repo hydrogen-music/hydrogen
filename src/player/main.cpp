@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -24,14 +24,14 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include <hydrogen/object.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/fx/Effects.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/midi_map.h>
+#include <core/Object.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/FX/Effects.h>
+#include <core/EventQueue.h>
+#include <core/AudioEngine.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/MidiMap.h>
 
 using std::cout;
 using std::endl;
@@ -68,7 +68,7 @@ int main(int argc, char** argv){
 	H2Core::Hydrogen::create_instance();
 	H2Core::Preferences *preferences = H2Core::Preferences::get_instance();
 
-	H2Core::Song *pSong = H2Core::Song::load( filename );
+	std::shared_ptr<H2Core::Song>pSong = H2Core::Song::load( filename );
 	if (pSong == nullptr) {
 		cout << "Error loading song!" << endl;
 		exit(2);
@@ -93,10 +93,9 @@ int main(int argc, char** argv){
 				cout << endl << "HydrogenPlayer shutdown..." << endl;
 				hydrogen->sequencer_stop();
 
+				pSong = nullptr;
 				delete hydrogen;
-				delete pSong;
 				delete H2Core::EventQueue::get_instance();
-				delete H2Core::AudioEngine::get_instance();
 				delete preferences;
 				delete H2Core::Logger::get_instance();
 

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -24,12 +24,12 @@
 #define PLAYER_CONTROL_H
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include "EventListener.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
+#include <core/Preferences.h>
+#include "Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {
@@ -52,11 +52,11 @@ class MetronomeWidget : public QWidget,public EventListener, public H2Core::Obje
     H2_OBJECT
 	Q_OBJECT
 	public:
-		MetronomeWidget(QWidget *pParent);
+		explicit MetronomeWidget(QWidget *pParent);
 		~MetronomeWidget();
 
-		virtual void metronomeEvent( int nValue );
-		virtual void paintEvent( QPaintEvent*);
+		virtual void metronomeEvent( int nValue ) override;
+		virtual void paintEvent( QPaintEvent*) override;
 
 
 	public slots:
@@ -83,23 +83,35 @@ class MetronomeWidget : public QWidget,public EventListener, public H2Core::Obje
 ///
 /// Player control panel
 ///
-class PlayerControl : public QLabel, public EventListener, public H2Core::Object
+class PlayerControl : public QLabel, protected WidgetWithScalableFont<5, 6, 7>, public EventListener, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
 	public:
-		PlayerControl(QWidget *parent);
+		explicit PlayerControl(QWidget *parent);
 		~PlayerControl();
 
 		void showMessage( const QString& msg, int msec );
 		void showScrollMessage( const QString& msg, int msec, bool test );
 		void resetStatusLabel();
-		
-		virtual void tempoChangedEvent( int nValue );
+
+		virtual void tempoChangedEvent( int nValue ) override;
+		virtual void jackTransportActivationEvent( int nValue ) override;
+		virtual void jackTimebaseActivationEvent( int nValue ) override;
+		/**
+		 * Shared GUI update when activating Song or Pattern mode via
+		 * button click or via OSC command.
+		 *
+		 * @param nValue If 0, Pattern mode will be activate. Else,
+		 * Song mode will be activated instead.
+		 */
+		void songModeActivationEvent( int nValue ) override;
+
+public slots:
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private slots:
 		void recBtnClicked(Button* ref);
-		void recBtnRightClicked(Button* ref);
 		void playBtnClicked(Button* ref);
 		void stopBtnClicked(Button* ref);
 		void updatePlayerControl();
@@ -131,12 +143,18 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		void rubberbandButtonToggle(Button* ref);
 
 	private:
-		H2Core::Hydrogen *m_pEngine;
+		/**
+		 * Shared GUI update when activating loop mode via button
+		 * click or via OSC command.
+		 *
+		 * @param nValue If 0, loop mode will be deactivate.
+		 */
+		void loopModeActivationEvent( int nValue ) override;
+		H2Core::Hydrogen *m_pHydrogen;
 		QPixmap m_background;
 
 		Button *m_pRwdBtn;
 		ToggleButton *m_pRecBtn;
-		ToggleButton *m_pRecDelBtn;
 		ToggleButton *m_pPlayBtn;
 		Button *m_pStopBtn;
 		Button *m_pFfwdBtn;
@@ -147,6 +165,9 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		ToggleButton *m_pLiveModeBtn;
 
 		//beatcounter
+		/** Store the tool tip of the beat counter since it gets
+			overwritten during deactivation.*/
+		QString m_sBConoffBtnToolTip;
 		ToggleButton *m_pBConoffBtn;
 		ToggleButton *m_pBCSpaceBtn;
 		ToggleButton *m_pBCSetPlayBtn;
@@ -162,6 +183,7 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		ToggleButton *m_pJackTransportBtn;
 		//jack time master
 		ToggleButton *m_pJackMasterBtn;
+		QString m_sJackMasterModeToolTip;
 		//~ jack time master
 		Button *m_pBPMUpBtn;
 		Button *m_pBPMDownBtn;
@@ -194,6 +216,8 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		QTimer *m_pStatusTimer;
 		QTimer *m_pScrollTimer;
 		QString m_pScrollMessage;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

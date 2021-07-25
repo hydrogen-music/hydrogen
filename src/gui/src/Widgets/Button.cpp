@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -24,15 +24,12 @@
 
 #include "PixmapWidget.h"
 #include "../Skin.h"
+#include "../HydrogenApp.h"
 #include "MidiSenseWidget.h"
 
 #include <qglobal.h>	// for QT_VERSION
 
-#if QT_VERSION == 0x040100	// SVG renderer was introduced in QT4.1
-	#include <QSvgRenderer>
-#endif
-
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 
 const char* Button::__class_name = "Button";
 
@@ -48,7 +45,10 @@ Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffI
  , __enable_press_hold(enable_press_hold)
 {
 	// draw the background: slower but useful with transparent images!
-	//setAttribute(Qt::WA_NoBackground);
+	//setAttribute(Qt::WA_OpaquePaintEvent);
+
+	m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
+	m_sLastUsedFontFamily = H2Core::Preferences::get_instance()->getLevel3FontFamily();
 
 	setMinimumSize( size );
 	setMaximumSize( size );
@@ -66,11 +66,10 @@ Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffI
 		m_overPixmap.fill( QColor( 0, 180, 0 ) );
 	}
 
-    this->setStyleSheet("font-size: 9px; font-weight: bold;");
-
 	m_timerTimeout = 0;
 	m_timer = new QTimer(this);
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(buttonPressed_timer_timeout()));
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Button::onPreferencesChanged );
 }
 
 
@@ -83,7 +82,6 @@ Button::~Button()
 
 bool Button::loadImage( const QString& sFilename, QPixmap& pixmap )
 {
-#if QT_VERSION == 0x040100	// SVG renderer was introduced in QT4.1
   /*
 	if ( sFilename.endsWith( ".svg" ) ) {
 		ERRORLOG( "************* LOAD SVG!!" );
@@ -105,7 +103,7 @@ bool Button::loadImage( const QString& sFilename, QPixmap& pixmap )
 		return true;
 	}
   */
-#endif
+	
 	// load an image
 	if ( pixmap.load( Skin::getImagePath() + sFilename ) == false ) {
 		if ( !sFilename.isEmpty() ) {
@@ -118,20 +116,20 @@ bool Button::loadImage( const QString& sFilename, QPixmap& pixmap )
 
 
 void Button::mousePressEvent(QMouseEvent*ev) {
-
-    /*
-    *  Shift + Left-Click activate the midi learn widget
-    */
-
-    if ( ev->button() == Qt::LeftButton && (ev->modifiers() & Qt::ShiftModifier) ){
-	    MidiSenseWidget midiSense( this, true, this->getAction() );
-	    midiSense.exec();
-	    return;
-    }
-
-    m_bPressed = true;
-    update();
-    emit mousePress(this);
+	
+	/*
+	*  Shift + Left-Click activate the midi learn widget
+	*/
+	
+	if ( ev->button() == Qt::LeftButton && (ev->modifiers() & Qt::ShiftModifier) ){
+		MidiSenseWidget midiSense( this, true, this->getAction() );
+		midiSense.exec();
+		return;
+	}
+	
+	m_bPressed = true;
+	update();
+	emit mousePress(this);
 
 	if ( ev->button() == Qt::LeftButton && __enable_press_hold) {
 		m_timerTimeout = 2000;
@@ -146,10 +144,11 @@ void Button::mouseReleaseEvent(QMouseEvent* ev)
 	setPressed( false );
 
 	if (ev->button() == Qt::LeftButton) {
-		if(__enable_press_hold)
+		if(__enable_press_hold) {
 			m_timer->stop();
-		else
+		} else {
 			emit clicked(this);
+		}
 	}
 	else if (ev->button() == Qt::RightButton) {
 		emit rightClicked(this);
@@ -162,15 +161,11 @@ void Button::buttonPressed_timer_timeout()
 {
 	emit clicked(this);
 
-	if(m_timerTimeout > 100)
+	if(m_timerTimeout > 100) {
 		m_timerTimeout = m_timerTimeout / 2;
+	}
+	
 	m_timer->start(m_timerTimeout);
-}
-
-
-void Button::setFontSize(int size)
-{
-	m_textFont.setPointSize(size);
 }
 
 void Button::setPressed(bool pressed)
@@ -202,6 +197,10 @@ void Button::leaveEvent(QEvent *ev)
 void Button::paintEvent( QPaintEvent* ev)
 {
 	QPainter painter(this);
+
+	QFont boldFont( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
+	boldFont.setBold( true );
+	painter.setFont( boldFont );
 
 	// background
 	if (m_bPressed) {
@@ -263,7 +262,6 @@ void Button::paintEvent( QPaintEvent* ev)
 
 
 	if ( !m_sText.isEmpty() ) {
-        painter.setFont( m_textFont );
 
 		QColor shadow(150, 150, 150, 100);
 		QColor text(10, 10, 10);
@@ -292,6 +290,16 @@ void Button::setText( const QString& sText )
 	update();
 }
 
+void Button::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getLevel3FontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = pPref->getFontSize();
+		m_sLastUsedFontFamily = pPref->getLevel3FontFamily();
+		update();
+	}
+}
 
 
 // :::::::::::::::::::::::::
@@ -311,25 +319,24 @@ ToggleButton::~ToggleButton() {
 
 
 void ToggleButton::mousePressEvent(QMouseEvent *ev) {
-
+	
 	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ){
-	    MidiSenseWidget midiSense( this, true, this->getAction() );
-	    midiSense.exec();
-	    return;
+		MidiSenseWidget midiSense( this, true, this->getAction() );
+		midiSense.exec();
+		return;
 	}
-
+	
 	if (ev->button() == Qt::RightButton) {
-                emit rightClicked(this);
-        }
+		emit rightClicked(this);
+	}
 	else {
 		if (m_bPressed) {
 			m_bPressed = false;
-		}
-		else {
+		} else {
 			m_bPressed = true;
 		}
 		update();
-
+		
 		emit clicked(this);
 	}
 }

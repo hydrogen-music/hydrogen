@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -24,10 +24,14 @@
 #ifndef EXPORT_SONG_DIALOG_H
 #define EXPORT_SONG_DIALOG_H
 
+#include <memory>
 
 #include "ui_ExportSongDialog_UI.h"
 #include "EventListener.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
+#include <core/Sampler/Sampler.h>
+
+using InterpolateMode = H2Core::Interpolation::InterpolateMode;
 
 namespace H2Core {
 	class Instrument;
@@ -44,10 +48,11 @@ class ExportSongDialog : public QDialog, public Ui_ExportSongDialog_UI, public E
 	Q_OBJECT
 
 	public:
-		ExportSongDialog(QWidget* parent);
+		explicit ExportSongDialog(QWidget* parent);
 		~ExportSongDialog();
 
-		virtual void progressEvent( int nValue );
+		virtual void progressEvent( int nValue ) override;
+		void closeEvent( QCloseEvent* event ) override;
 
 
 private slots:
@@ -70,9 +75,13 @@ private:
 	void		restoreSettingsFromPreferences();
 	
 	bool		currentInstrumentHasNotes();
-	QString		findUniqueExportFilenameForInstrument(H2Core::Instrument* pInstrument);
+	QString		findUniqueExportFilenameForInstrument( std::shared_ptr<H2Core::Instrument> pInstrument );
 
 	void		exportTracks();
+	bool 		validateUserInput();
+	QString		createDefaultFilename();
+
+	void		closeExport();
 	
 	bool					m_bExporting;
 	bool					m_bExportTrackouts;
@@ -81,10 +90,12 @@ private:
 	QString					m_sExtension;
 	bool					m_bOldRubberbandBatchMode;
 	bool					m_bOldTimeLineBPMMode;
-	int						m_nOldInterpolation;
+	InterpolateMode			m_OldInterpolationMode;
 	bool					m_bQfileDialog;
-	H2Core::Hydrogen *		m_pEngine;
+	H2Core::Hydrogen *		m_pHydrogen;
 	H2Core::Preferences*	m_pPreferences;
+	
+	static QString 			sLastFilename;
 };
 
 
