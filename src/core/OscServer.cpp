@@ -151,7 +151,7 @@ int OscServer::generic_handler(const char *	path,
 							   const char *	types,
 							   lo_arg **	argv,
 							   int			argc,
-							   void *		data,
+							   lo_message	data,
 							   void *		user_data)
 {
 	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
