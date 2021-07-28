@@ -26,7 +26,7 @@
 #include <memory>
 
 #include <core/Hydrogen.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 
 #include <core/Helpers/Xml.h>
 #include <core/Helpers/Filesystem.h>

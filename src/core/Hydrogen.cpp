@@ -48,7 +48,8 @@
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/DrumkitComponent.h>
 #include <core/H2Exception.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportInfo.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
@@ -80,7 +81,6 @@
 #include <core/IO/MidiInput.h>
 #include <core/IO/MidiOutput.h>
 #include <core/IO/CoreMidiDriver.h>
-#include <core/IO/TransportInfo.h>
 #include <core/IO/OssDriver.h>
 #include <core/IO/FakeDriver.h>
 #include <core/IO/AlsaAudioDriver.h>
@@ -219,7 +219,7 @@ void Hydrogen::sequencer_play()
 {
 	std::shared_ptr<Song> pSong = getSong();
 	pSong->getPatternList()->set_to_old();
-	m_pAudioEngine->getAudioDriver()->play();
+	m_pAudioEngine->play();
 }
 
 /// Stop the internal sequencer
@@ -229,7 +229,7 @@ void Hydrogen::sequencer_stop()
 		Hydrogen::get_instance()->getMidiOutput()->handleQueueAllNoteOff();
 	}
 
-	m_pAudioEngine->getAudioDriver()->stop();
+	m_pAudioEngine->pause();
 	Preferences::get_instance()->setRecordEvents(false);
 }
 
@@ -357,7 +357,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	// Get current partern and column, compensating for "lookahead" if required
 	const Pattern* currentPattern = nullptr;
 	unsigned int column = 0;
-	float fTickSize = pAudioEngine->getAudioDriver()->m_transport.m_fTickSize;
+	float fTickSize = pAudioEngine->getTickSize();
 	unsigned int lookaheadTicks = calculateLookahead( fTickSize ) / fTickSize;
 	bool doRecord = pPreferences->getRecordEvents();
 	if ( pSong->getMode() == Song::SONG_MODE && doRecord &&
@@ -536,7 +536,7 @@ unsigned long Hydrogen::getRealtimeTickPosition()
 	// Get the realtime transport position in frames and convert
 	// it into ticks.
 	unsigned int initTick = ( unsigned int )( getRealtimeFrames() /
-						  pAudioEngine->getAudioDriver()->m_transport.m_fTickSize );
+											  pAudioEngine->getTickSize() );
 	unsigned long retTick;
 
 	struct timeval currtime;
@@ -556,7 +556,7 @@ unsigned long Hydrogen::getRealtimeTickPosition()
 			( double ) deltatime.tv_sec
 			+ ( deltatime.tv_usec / 1000000.0 );
 
-	retTick = ( unsigned long ) ( ( sampleRate / ( double ) pAudioEngine->getAudioDriver()->m_transport.m_fTickSize ) * deltaSec );
+	retTick = ( unsigned long ) ( ( sampleRate / ( double ) pAudioEngine->getTickSize() ) * deltaSec );
 
 	retTick += initTick;
 
@@ -712,11 +712,11 @@ void Hydrogen::stopExportSession()
 	
 	pAudioEngine->startAudioDrivers();
 
-	if ( pAudioEngine->getAudioDriver() ) {
-		pAudioEngine->getAudioDriver()->setBpm( pSong->getBpm() );
-	} else {
+	if ( pAudioEngine->getAudioDriver() == nullptr ) {
 		ERRORLOG( "pAudioEngine->getAudioDriver() = nullptr" );
 	}
+
+	pAudioEngine->setBpm( pSong->getBpm() );
 }
 
 /// Export a song to a wav file
@@ -724,7 +724,7 @@ void Hydrogen::startExportSong( const QString& filename)
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	// reset
-	pAudioEngine->getAudioDriver()->m_transport.m_nFrames = 0; // reset total frames
+	pAudioEngine->setFrames( 0 ); // reset total frames
 	// TODO: not -1 instead?
 	pAudioEngine->setSongPos( 0 );
 	pAudioEngine->setPatternTickPosition( 0 );
@@ -1045,7 +1045,7 @@ unsigned long Hydrogen::getTotalFrames()
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
-	return pAudioEngine->getAudioDriver()->m_transport.m_nFrames;
+	return pAudioEngine->getFrames();
 }
 
 void Hydrogen::setRealtimeFrames( unsigned long frames )
@@ -1131,7 +1131,7 @@ void Hydrogen::setPatternPos( int nPatternNumber )
 	}
 	INFOLOG( "relocate" );
 
-	pAudioEngine->locate( static_cast<int>( totalTick * pAudioEngine->getAudioDriver()->m_transport.m_fTickSize ));
+	pAudioEngine->locate( static_cast<int>( totalTick * pAudioEngine->getTickSize() ));
 
 	pAudioEngine->unlock();
 }
@@ -1237,9 +1237,9 @@ void Hydrogen::setBPM( float fBPM )
 		return;
 	}
 	
-	pAudioEngine->getAudioDriver()->setBpm( fBPM );
+	pAudioEngine->setBpm( fBPM );
 	pSong->setBpm( fBPM );
-	setNewBpmJTM ( fBPM );
+	setNewBpmJTM( fBPM );
 }
 
 void Hydrogen::restartLadspaFX()

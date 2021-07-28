@@ -144,36 +144,6 @@ float* PulseAudioDriver::getOut_R()
 	return m_outR;
 }
 
-
-void PulseAudioDriver::updateTransportInfo()
-{
-}
-
-
-void PulseAudioDriver::play()
-{
-	m_transport.m_status = TransportInfo::ROLLING;
-}
-
-
-void PulseAudioDriver::stop()
-{
-	m_transport.m_status = TransportInfo::STOPPED;
-}
-
-
-void PulseAudioDriver::locate( unsigned long nFrame )
-{
-	m_transport.m_nFrames = nFrame;
-}
-
-
-void PulseAudioDriver::setBpm( float fBPM )
-{
-	m_transport.m_fBPM = fBPM;
-}
-
-
 void* PulseAudioDriver::s_thread_body(void* arg)
 {
 	PulseAudioDriver* self = (PulseAudioDriver*)arg;

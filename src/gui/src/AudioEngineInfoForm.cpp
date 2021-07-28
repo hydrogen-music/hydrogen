@@ -35,7 +35,7 @@
 #include <core/IO/MidiInput.h>
 #include <core/IO/AudioOutput.h>
 #include <core/Sampler/Sampler.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 using namespace H2Core;
 
 #include "Skin.h"
@@ -149,7 +149,7 @@ void AudioEngineInfoForm::updateInfo()
 		sampleRateLbl->setText(QString(tmp));
 
 		// Number of frames
-		sprintf(tmp, "%d", (int)driver->m_transport.m_nFrames );
+		sprintf(tmp, "%d", static_cast<int>( pAudioEngine->getFrames() ) );
 		nFramesLbl->setText(tmp);
 	}
 	else {

@@ -23,7 +23,7 @@
 #include <core/EventQueue.h>
 #include <core/Version.h>
 #include <core/Hydrogen.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Smf/SMF.h>
 #include <core/Timeline.h>
 #include <core/Helpers/Files.h>
@@ -2305,7 +2305,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// To provide a similar behaviour as when pressing
 		// [backspace], transport is relocated to the beginning of
 		// the song.
-		float fTickSize = pHydrogen->getAudioOutput()->m_transport.m_fTickSize;
+		float fTickSize = pHydrogen->getAudioEngine()->getTickSize();
 		int nCursorColumn = pApp->getPatternEditorPanel()->getCursorPosition();
 
 		// While updating the note queue the audio engine does add

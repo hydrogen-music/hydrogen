@@ -39,7 +39,7 @@
 
 #include <core/Hydrogen.h>
 #include <core/Preferences.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/PatternList.h>
 #include <core/IO/JackAudioDriver.h>

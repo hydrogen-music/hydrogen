@@ -30,7 +30,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/Note.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Sampler/Sampler.h>
 using namespace H2Core;
 

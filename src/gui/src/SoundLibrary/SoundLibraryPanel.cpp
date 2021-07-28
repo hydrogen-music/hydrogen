@@ -46,7 +46,7 @@
 
 #include <core/LocalFileMng.h>
 #include <core/Basics/Adsr.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/H2Exception.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Instrument.h>

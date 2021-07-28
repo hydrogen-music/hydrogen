@@ -38,7 +38,7 @@
 #include <core/Hydrogen.h>
 #include <core/IO/MidiInput.h>
 #include <core/Lash/LashClient.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Helpers/Translations.h>
 #include <core/Sampler/Sampler.h>
 #include "SongEditor/SongEditor.h"

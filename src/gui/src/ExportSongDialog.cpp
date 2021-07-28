@@ -42,7 +42,7 @@
 #include <core/Preferences.h>
 #include <core/Timeline.h>
 #include <core/IO/AudioOutput.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Sampler/Sampler.h>
 #include <core/EventQueue.h>
 

@@ -30,7 +30,7 @@
 
 #include <core/Hydrogen.h>
 #include <core/Basics/Sample.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 using namespace H2Core;
 
 const char* FileBrowser::__class_name = "FileBrowser";

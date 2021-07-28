@@ -32,7 +32,8 @@
 #include <jack/metadata.h>
 
 #include <core/Hydrogen.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/TransportInfo.h>
 #include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -101,16 +102,9 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	  m_nTimebaseTracking( -1 ),
 	  m_timebaseState( Timebase::None )
 {
-	INFOLOG( "INIT" );
-	
 	auto pPreferences = Preferences::get_instance();
 	
 	m_bConnectDefaults = pPreferences->m_bJackConnectDefaults;
-	
-	m_transport.m_status = TransportInfo::STOPPED;
-	m_transport.m_nFrames = 0;
-	m_transport.m_fTickSize = 100;
-	m_transport.m_fBPM = 120;
 
 	JackAudioDriver::pJackDriverInstance = this;
 	this->m_processCallback = m_processCallback;
@@ -129,7 +123,6 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 
 JackAudioDriver::~JackAudioDriver()
 {
-	INFOLOG( "DESTROY" );
 	disconnect();
 }
 
@@ -279,10 +272,11 @@ void JackAudioDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
 
 void JackAudioDriver::calculateFrameOffset(long long oldFrame)
 {
+	long long nFrames = Hydrogen::get_instance()->getAudioEngine()->getFrames();
 	if ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) {
-		m_frameOffset = m_JackTransportPos.frame - m_transport.m_nFrames;
+		m_frameOffset = m_JackTransportPos.frame - nFrames;
 	} else {
-		m_frameOffset = oldFrame - m_transport.m_nFrames;
+		m_frameOffset = oldFrame - nFrames;
 	}
 }
 
@@ -423,13 +417,17 @@ void JackAudioDriver::relocateUsingBBT()
 
 	// NOTE this prevents audioEngine_process_checkBPMChanged
 	// in Hydrogen.cpp from recalculating things.
-	m_transport.m_fTickSize = fNewTickSize;
-	m_transport.m_nFrames = static_cast<long long>(fNewTick * fNewTickSize);
-	m_frameOffset = m_JackTransportPos.frame - m_transport.m_nFrames;
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	long long nNewFrames = static_cast<long long>( fNewTick * fNewTickSize );
+	
+	pAudioEngine->setTickSize( fNewTickSize );
+	pAudioEngine->setFrames( nNewFrames );
+	m_frameOffset = m_JackTransportPos.frame - nNewFrames;
 
 	float fBPM = static_cast<float>(m_JackTransportPos.beats_per_minute);
-	if ( m_transport.m_fBPM != fBPM ) {
-		setBpm( fBPM );
+	if ( pAudioEngine->getBpm() != fBPM ) {
+		pAudioEngine->setBpm( fBPM );
 		pHydrogen->getSong()->setBpm( fBPM );
 		pHydrogen->setNewBpmJTM( fBPM );
 	}
@@ -441,6 +439,9 @@ void JackAudioDriver::updateTransportInfo()
 	     Preferences::USE_JACK_TRANSPORT ){
 		return;
 	}
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	const bool bTimebaseEnabled = Preferences::get_instance()->m_bJackTimebaseEnabled;
 	
@@ -457,17 +458,17 @@ void JackAudioDriver::updateTransportInfo()
 
 	switch ( m_JackTransportState ) {
 	case JackTransportStopped: // Transport is halted
-		m_transport.m_status = TransportInfo::STOPPED;
+		pAudioEngine->setStatus( TransportInfo::Status::Stopped );
 		return;
 		
 	case JackTransportRolling: // Transport is playing
-		m_transport.m_status = TransportInfo::ROLLING;
+		pAudioEngine->setStatus( TransportInfo::Status::Rolling );
 		break;
 
 	case JackTransportStarting: 
 		// Waiting for sync ready. If there are slow-sync clients,
 		// this can take more than one cycle.
-		m_transport.m_status = TransportInfo::STOPPED;
+		pAudioEngine->setStatus( TransportInfo::Status::Stopped );
 
 		if ( m_timebaseState == Timebase::Slave ) {
 			return;
@@ -495,30 +496,28 @@ void JackAudioDriver::updateTransportInfo()
 			}
 		}
 		if ( m_nTimebaseTracking == 0 && 
-			 !(m_JackTransportPos.valid & JackPositionBBT) ) {
+			 !( m_JackTransportPos.valid & JackPositionBBT ) ) {
 			// No external timebase master anymore -> regular client
 			m_nTimebaseTracking = -1;
 			m_timebaseState = Timebase::None;
 		} else if ( m_nTimebaseTracking < 0 && 
-					(m_JackTransportPos.valid & JackPositionBBT) ) {
+					( m_JackTransportPos.valid & JackPositionBBT ) ) {
 			// External timebase master detected -> timebase client
 			m_nTimebaseTracking = 0;
 			m_timebaseState = Timebase::Slave;
 		}
 	}
-		
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
 	// timeline) or by a different JACK client.
-	if ( m_transport.m_nFrames + m_frameOffset != m_JackTransportPos.frame ) {
+	if ( pAudioEngine->getFrames() + m_frameOffset != m_JackTransportPos.frame ) {
 		// Reset playback to the beginning of the pattern if Hydrogen
 		// is in pattern mode.
 		pHydrogen->resetPatternStartTick();
 
 		if ( !bTimebaseEnabled || m_timebaseState != Timebase::Slave ) {
-			m_transport.m_nFrames = m_JackTransportPos.frame;
+			pAudioEngine->setFrames( m_JackTransportPos.frame );
 		
 			// There maybe was an offset introduced when passing a
 			// tempo marker.
@@ -532,7 +531,7 @@ void JackAudioDriver::updateTransportInfo()
 		// There is a JACK timebase master and it's not us. If it
 		// provides a tempo that differs from the local one, we will
 		// use the former instead.
-		if ( m_transport.m_fBPM !=
+		if ( pAudioEngine->getBpm() !=
 			 static_cast<float>(m_JackTransportPos.beats_per_minute ) ||
 			 !compareAdjacentBBT() ) {
 			relocateUsingBBT();
@@ -909,14 +908,17 @@ int JackAudioDriver::init( unsigned bufferSize )
 		 pPreferences->m_bJackTimebaseEnabled ){
 		initTimebaseMaster();
 	}
-	
+
+	// TODO: Apart from the makeTrackOutputs() all other calls should
+	// be redundant.
+	//
 	// Whenever there is a Song present, create per track outputs (if
 	// activated in the Preferences).
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong != nullptr ) {
 		makeTrackOutputs( pSong );
-		setBpm( pSong->getBpm() );
-		locate( 0 );
+		pHydrogen->getAudioEngine()->setBpm( pSong->getBpm() );
+		pHydrogen->getAudioEngine()->locate( 0 );
 	}
 	
 	return 0;
@@ -1010,59 +1012,35 @@ void JackAudioDriver::setTrackOutput( int n, std::shared_ptr<Instrument> pInstru
 #endif
 }
 
-void JackAudioDriver::play()
+void JackAudioDriver::startTransport()
 {
-	Preferences* pPreferences = Preferences::get_instance();
-	if ( pPreferences->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
-		if ( m_pClient != nullptr ) {
-			INFOLOG( "jack_transport_start()" );
-			jack_transport_start( m_pClient );
-		}
+	if ( m_pClient != nullptr ) {
+		INFOLOG( "jack_transport_start()" );
+		jack_transport_start( m_pClient );
 	} else {
-		m_transport.m_status = TransportInfo::ROLLING;
+		ERRORLOG( "No client registered" );
 	}
 }
 
-void JackAudioDriver::stop()
+void JackAudioDriver::stopTransport()
 {
-	Preferences* pPreferences = Preferences::get_instance();
-	if ( pPreferences->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT ) {
-		if ( m_pClient != nullptr ) {
-			INFOLOG( "jack_transport_stop()" );
-			jack_transport_stop( m_pClient );
-		}
+	if ( m_pClient != nullptr ) {
+		INFOLOG( "jack_transport_stop()" );
+		jack_transport_stop( m_pClient );
 	} else {
-		m_transport.m_status = TransportInfo::STOPPED;
+		ERRORLOG( "No client registered" );
 	}
 }
 
-void JackAudioDriver::locate( unsigned long frame )
+void JackAudioDriver::locateTransport( unsigned long frame )
 {
-	if ( ( Preferences::get_instance() )->m_bJackTransportMode ==
-	     Preferences::USE_JACK_TRANSPORT ) {
-		if ( m_pClient != nullptr ) {
-			// jack_transport_locate() (jack/transport.h )
-			// re-positions the transport to a new frame number. May
-			// be called at any time by any client.
-			jack_transport_locate( m_pClient, frame );
-		}
+	if ( m_pClient != nullptr ) {
+		// jack_transport_locate() (jack/transport.h )
+		// re-positions the transport to a new frame number. May
+		// be called at any time by any client.
+		jack_transport_locate( m_pClient, frame );
 	} else {
-		m_transport.m_nFrames = static_cast<long long>(frame);
-	}
-}
-
-void JackAudioDriver::setBpm( float fBPM )
-{
-	if ( fBPM > MAX_BPM ) {
-		m_transport.m_fBPM = MAX_BPM;
-		ERRORLOG( QString( "Provided bpm %1 is too high. Assigning upper bound %2 instead" )
-					.arg( fBPM ).arg( MAX_BPM ) );
-	} else if ( fBPM < MIN_BPM ) {
-		m_transport.m_fBPM = fBPM;
-		ERRORLOG( QString( "Provided bpm %1 is too low. Assigning lower bound %2 instead" )
-					.arg( fBPM ).arg( MIN_BPM ) );
-	} else {
-		m_transport.m_fBPM = fBPM;
+		ERRORLOG( "No client registered" );
 	}
 }
 
@@ -1256,6 +1234,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -1275,12 +1254,12 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	//
 	// A tick is an internal measure representing the smallest
 	// resolution of the transport position in terms of the
-	// patterns. It consist of m_transport.m_fTickSize frames, which
+	// patterns. It consist of pAudioEngine->getTickSize() frames, which
 	// changes depending on the current tempo.
 	// ---------------------------------------------------------------
 
 	// First tick covered during the next cycle.
-	float fTickSize = pDriver->m_transport.m_fTickSize;
+	float fTickSize = pAudioEngine->getTickSize();
 	unsigned long nextTick = 
 		floor(( pJackPosition->frame - pDriver->m_frameOffset ) / 
 			  fTickSize );
@@ -1316,7 +1295,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	// Time signature "denominator"
 	pJackPosition->beat_type = 4.0;
 	
-	if ( pDriver->m_transport.m_nFrames + pDriver->m_frameOffset != pJackPosition->frame ) {
+	if ( pAudioEngine->getFrames() + pDriver->m_frameOffset != pJackPosition->frame ) {
 		// In case of a relocation, wait two full cycles till the new
 		// tempo will be broadcast.
 		JackAudioDriver::nWaits = 2;
@@ -1329,12 +1308,12 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 		pJackPosition->beats_per_minute = 
 			static_cast<double>(pHydrogen->getTimelineBpm( nNextPatternInternal ));
 	} else {
-		pJackPosition->beats_per_minute = static_cast<double>(pDriver->m_transport.m_fBPM);
+		pJackPosition->beats_per_minute = static_cast<double>(pAudioEngine->getBpm());
 	}
 		
 	JackAudioDriver::nWaits = std::max( int(0), JackAudioDriver::nWaits - 1);
 
-	if ( pDriver->m_transport.m_nFrames < 1 ) {
+	if ( pAudioEngine->getFrames() < 1 ) {
 		pJackPosition->bar = 1;
 		pJackPosition->beat = 1;
 		pJackPosition->tick = 0;
@@ -1380,10 +1359,6 @@ void JackAudioDriver::printState() const {
 	printJackTransportPos( &m_JackTransportPos );
 	
 	std::cout << "\033[35m[Hydrogen] [JackAudioDriver state]"
-			  << " m_transport.m_nFrames: " << m_transport.m_nFrames
-			  << ", m_transport.m_fBPM: " << m_transport.m_fBPM
-			  << ", m_transport.m_fTickSize: " << m_transport.m_fTickSize
-			  << ", m_transport.m_status: " << m_transport.m_status
 			  << ", m_frameOffset: " << m_frameOffset
 			  << ", m_JackTransportState: " << m_JackTransportState
 			  << ", m_timebaseState: " << static_cast<int>(m_timebaseState)

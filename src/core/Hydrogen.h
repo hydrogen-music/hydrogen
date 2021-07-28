@@ -34,7 +34,7 @@
 #include <core/Basics/Drumkit.h>
 #include <core/CoreActionController.h>
 #include <core/Timehelper.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 
 #include <stdint.h> // for uint32_t et al
 #include <cassert>

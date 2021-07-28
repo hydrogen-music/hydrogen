@@ -28,7 +28,7 @@
 #include <core/IO/JackAudioDriver.h>
 
 #include <core/Basics/Adsr.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Globals.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/DrumkitComponent.h>
@@ -418,9 +418,10 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 
 	unsigned int nFramepos;
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	AudioOutput* pAudioOutput = pHydrogen->getAudioOutput();
+	auto pAudioDriver = pHydrogen->getAudioOutput();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	if ( pHydrogen->getState() == STATE_PLAYING ) {
-		nFramepos = pAudioOutput->m_transport.m_nFrames;
+		nFramepos = pAudioEngine->getFrames();
 	} else {
 		// use this to support realtime events when not playing
 		nFramepos = pHydrogen->getRealtimeFrames();
@@ -752,14 +753,14 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 			continue;
 		}
 
-		int noteStartInFrames = ( int ) ( pNote->get_position() * pAudioOutput->m_transport.m_fTickSize ) + pNote->get_humanize_delay();
+		int noteStartInFrames = ( int ) ( pNote->get_position() * pAudioEngine->getTickSize() ) + pNote->get_humanize_delay();
 
 		int nInitialSilence = 0;
 		if ( noteStartInFrames > ( int ) nFramepos ) {	// scrivo silenzio prima dell'inizio della nota
 			nInitialSilence = noteStartInFrames - nFramepos;
 			int nFrames = nBufferSize - nInitialSilence;
 			if ( nFrames < 0 ) {
-				int noteStartInFramesNoHumanize = ( int )pNote->get_position() * pAudioOutput->m_transport.m_fTickSize;
+				int noteStartInFramesNoHumanize = ( int )pNote->get_position() * pAudioEngine->getTickSize();
 				if ( noteStartInFramesNoHumanize > ( int )( nFramepos + nBufferSize ) ) {
 					// this note is not valid. it's in the future...let's skip it....
 					ERRORLOG( QString( "Note pos in the future?? Current frames: %1, note frame pos: %2" ).arg( nFramepos ).arg(noteStartInFramesNoHumanize ) );
@@ -857,7 +858,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 			}
 		}
 
-		if ( fTotalPitch == 0.0 && pSample->get_sample_rate() == pAudioOutput->getSampleRate() ) { // NO RESAMPLE
+		if ( fTotalPitch == 0.0 && pSample->get_sample_rate() == pAudioDriver->getSampleRate() ) { // NO RESAMPLE
 			nReturnValues[nReturnValueIndex] = renderNoteNoResample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, pSong );
 		}
 		else { // RESAMPLE
@@ -877,7 +878,8 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 bool Sampler::processPlaybackTrack(int nBufferSize)
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	AudioOutput* pAudioOutput = Hydrogen::get_instance()->getAudioOutput();
+	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 
@@ -905,9 +907,9 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	int nAvail_bytes = 0;
 	int	nInitialBufferPos = 0;
 
-	if(pSample->get_sample_rate() == pAudioOutput->getSampleRate()){
+	if(pSample->get_sample_rate() == pAudioDriver->getSampleRate()){
 		//No resampling	
-		m_nPlayBackSamplePosition = pAudioOutput->m_transport.m_nFrames;
+		m_nPlayBackSamplePosition = pAudioEngine->getFrames();
 	
 		nAvail_bytes = pSample->get_frames() - ( int )m_nPlayBackSamplePosition;
 		
@@ -952,13 +954,13 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		double	fSamplePos = 0;
 		int		nSampleFrames = pSample->get_frames();
 		float	fStep = 1;
-		fStep *= ( float )pSample->get_sample_rate() / pAudioOutput->getSampleRate(); // Adjust for audio driver sample rate
+		fStep *= ( float )pSample->get_sample_rate() / pAudioDriver->getSampleRate(); // Adjust for audio driver sample rate
 		
 		
-		if(pAudioOutput->m_transport.m_nFrames == 0){
+		if( pAudioEngine->getFrames() == 0){
 			fSamplePos = 0;
 		} else {
-			fSamplePos = ( (pAudioOutput->m_transport.m_nFrames/nBufferSize) * (nBufferSize * fStep));
+			fSamplePos = ( ( pAudioEngine->getFrames() /nBufferSize) * (nBufferSize * fStep));
 		}
 		
 		nAvail_bytes = ( int )( ( float )( pSample->get_frames() - fSamplePos ) / fStep );
@@ -1050,12 +1052,13 @@ bool Sampler::renderNoteNoResample(
 	std::shared_ptr<Song> pSong
 )
 {
-	AudioOutput* pAudioOutput = Hydrogen::get_instance()->getAudioOutput();
+	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	bool retValue = true; // the note is ended
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
-		nNoteLength = ( int )( pNote->get_length() * pAudioOutput->m_transport.m_fTickSize );
+		nNoteLength = ( int )( pNote->get_length() * pAudioEngine->getTickSize() );
 	}
 
 	int nAvail_bytes = pSample->get_frames() - ( int )pSelectedLayerInfo->SamplePosition;	// verifico il numero di frame disponibili ancora da eseguire
@@ -1087,7 +1090,7 @@ bool Sampler::renderNoteNoResample(
 	float *		pTrackOutR = nullptr;
 
 	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
-		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput);
+		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>( pAudioDriver );
 		if( pJackAudioDriver ) {
 			pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
 			pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
@@ -1196,13 +1199,14 @@ bool Sampler::renderNoteResample(
 	std::shared_ptr<Song> pSong
 )
 {
-	AudioOutput* pAudioOutput = Hydrogen::get_instance()->getAudioOutput();
+	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
 		float resampledTickSize = AudioEngine::computeTickSize( pSample->get_sample_rate(),
-		                                                          pAudioOutput->m_transport.m_fBPM,
-		                                                          pSong->getResolution() );
+																pAudioEngine->getBpm(),
+																pSong->getResolution() );
 		
 		nNoteLength = ( int )( pNote->get_length() * resampledTickSize);
 	}
@@ -1210,7 +1214,7 @@ bool Sampler::renderNoteResample(
 
 	float fStep = pow( 1.0594630943593, ( double )fNotePitch );
 //	_ERRORLOG( QString("pitch: %1, step: %2" ).arg(fNotePitch).arg( fStep) );
-	fStep *= ( float )pSample->get_sample_rate() / pAudioOutput->getSampleRate(); // Adjust for audio driver sample rate
+	fStep *= ( float )pSample->get_sample_rate() / pAudioDriver->getSampleRate(); // Adjust for audio driver sample rate
 
 	// verifico il numero di frame disponibili ancora da eseguire
 	int nAvail_bytes = ( int )( ( float )( pSample->get_frames() - pSelectedLayerInfo->SamplePosition ) / fStep );
@@ -1245,7 +1249,7 @@ bool Sampler::renderNoteResample(
 	float *		pTrackOutR = nullptr;
 
 	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
-		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput);
+		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>( pAudioDriver );
 		if( pJackAudioDriver ) {
 			pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
 			pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );

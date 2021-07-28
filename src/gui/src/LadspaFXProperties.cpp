@@ -21,7 +21,7 @@
  */
 
 #include <core/Hydrogen.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Song.h>
 #include <core/FX/Effects.h>
 #include <core/Preferences.h>

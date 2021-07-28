@@ -38,7 +38,7 @@
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 
 #include <core/Hydrogen.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/EventQueue.h>
 using namespace H2Core;

@@ -36,7 +36,7 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Note.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Helpers/Xml.h>
 
 #include "UndoActions.h"

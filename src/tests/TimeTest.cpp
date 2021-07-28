@@ -24,7 +24,7 @@
 
 #include "TimeTest.h"
 #include <core/CoreActionController.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Song.h>
 #include <core/Helpers/Filesystem.h>
@@ -68,7 +68,7 @@ float TimeTest::locateAndLookupTime( int nPatternPos ){
 	pAudioEngine->unlock();
 	
 	pAudioEngine->calculateElapsedTime( pAudioDriver->getSampleRate(),
-										nTick * pAudioDriver->m_transport.m_fTickSize,
+										nTick * pAudioEngine->getTickSize(),
 										pSong->getResolution() );
 	return pAudioEngine->getElapsedTime();
 }

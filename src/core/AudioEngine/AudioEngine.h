@@ -28,6 +28,7 @@
 #include <core/Sampler/Sampler.h>
 #include <core/Synth/Synth.h>
 #include <core/Basics/Note.h>
+#include <core/AudioEngine/TransportInfo.h>
 
 #include <core/IO/AudioOutput.h>
 
@@ -98,7 +99,7 @@ namespace H2Core
  * be called by a thread to lock the engine and unlock() to make it
  * accessible for other threads once again.
  */ 
-class AudioEngine : public H2Core::Object
+class AudioEngine : public H2Core::TransportInfo
 {
 	H2_OBJECT
 public:
@@ -456,10 +457,11 @@ public:
 	 *   - >=0 : PatternList index in Song::__pattern_group_sequence.
 	 */
 	int				findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick );
-	
+
+	// TODO wrap this
 	void			seek( long long nFrames, bool bLoopMode = false );
 	
-	
+	// TODO wrap this
 	static float	computeTickSize( const int nSampleRate, const float fBpm, const int nResolution);
 
 	/** \return #m_pSampler */
@@ -467,6 +469,7 @@ public:
 	/** \return #m_pSynth */
 	Synth*			getSynth();
 	
+		// TODO wrap this
 	/** \return #m_fElapsedTime */
 	float			getElapsedTime() const;
 	
@@ -488,6 +491,7 @@ public:
 	 * \param nResolution Resolution of the Song (number of ticks per 
 	 *   quarter).
 	 */
+		// TODO wrap this
 	void			calculateElapsedTime( unsigned sampleRate, unsigned long nFrame, int nResolution );
 	
 	/** Increments #m_fElapsedTime at the end of a process cycle.
@@ -501,6 +505,7 @@ public:
 	 * \param sampleRate Temporal resolution used by the sound card in
 	 * frames per second.
 	 */
+		// TODO wrap this
 	void			updateElapsedTime( unsigned bufferSize, unsigned sampleRate );
 	
 	/**
@@ -539,6 +544,7 @@ public:
 	 *
 	 * \param nFrame Next transport position in frames.
 	 */
+		// TODO wrap this
 	void			locate( unsigned long nFrame );
 	
 	
@@ -686,10 +692,14 @@ public:
 
 	void			setPatternStartTick( int tick );
 
+		// TODO wrap this
 	void			setPatternTickPosition( int tick );
+		// TODO wrap this
 	int				getPatternTickPosition() const;
 
+		// TODO wrap this
 	void			setSongPos( int songPos );
+		// TODO wrap this
 	int				getSongPos() const;
 
 	PatternList*	getNextPatterns() const;
@@ -701,11 +711,15 @@ public:
 	unsigned int	getAddRealtimeNoteTickPosition() const; 
 	void			setAddRealtimeNoteTickPosition( unsigned int tickPosition );
 
-	
-	struct timeval& 	getCurrentTickTime(); 
+	// TODO wrap this
+	struct timeval& 	getCurrentTickTime();
+
+	void play();
+	/** Stop transport without resetting the transport position and
+		other internal variables.*/
+	void pause();
 	
 private:
-
 	/** Local instance of the Sampler. */
 	Sampler* 			m_pSampler;
 	/** Local instance of the Synth. */

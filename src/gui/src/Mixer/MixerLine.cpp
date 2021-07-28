@@ -33,7 +33,7 @@
 #include "../Widgets/LCD.h"
 
 #include <core/Hydrogen.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/MidiAction.h>
 using namespace H2Core;
 

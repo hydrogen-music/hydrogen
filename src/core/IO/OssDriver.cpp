@@ -73,7 +73,6 @@ const char* OssDriver::__class_name = "OssDriver";
 OssDriver::OssDriver( audioProcessCallback processCallback )
 		: AudioOutput( __class_name )
 {
-	INFOLOG( "INIT" );
 	audioBuffer = NULL;
 	ossDriver_running = false;
 	this->processCallback = processCallback;
@@ -86,9 +85,7 @@ OssDriver::OssDriver( audioProcessCallback processCallback )
 
 
 
-OssDriver::~OssDriver()
-{
-	INFOLOG( "DESTROY" );
+OssDriver::~OssDriver() {
 }
 
 
@@ -293,35 +290,6 @@ float* OssDriver::getOut_R()
 {
 	return out_R;
 }
-
-
-void OssDriver::play()
-{
-	m_transport.m_status = TransportInfo::ROLLING;
-}
-
-void OssDriver::stop()
-{
-	m_transport.m_status = TransportInfo::STOPPED;
-}
-
-void OssDriver::locate( unsigned long nFrame )
-{
-	m_transport.m_nFrames = nFrame;
-}
-
-
-void OssDriver::updateTransportInfo()
-{
-	// not used
-}
-
-void OssDriver::setBpm( float fBPM )
-{
-	INFOLOG( QString( "setBpm: %1" ).arg( fBPM ) );
-	m_transport.m_fBPM = fBPM;
-}
-
 };
 
 #endif // OSS support

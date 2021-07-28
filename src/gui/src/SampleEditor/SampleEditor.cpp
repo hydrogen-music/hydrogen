@@ -38,7 +38,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Helpers/Filesystem.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
 
 #include <QModelIndex>

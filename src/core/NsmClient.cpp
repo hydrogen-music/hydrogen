@@ -26,7 +26,7 @@
 #include "core/EventQueue.h"
 #include "core/Hydrogen.h"
 #include "core/Basics/Song.h"
-#include "core/AudioEngine.h"
+#include "core/AudioEngine/AudioEngine.h"
 #include "core/NsmClient.h"
 
 #include <QDir>

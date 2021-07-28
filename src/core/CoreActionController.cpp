@@ -20,7 +20,7 @@
  *
  */
 
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
@@ -694,12 +694,13 @@ bool CoreActionController::relocate( int nPatternGroup ) {
 	
 #ifdef H2CORE_HAVE_JACK
 	auto pDriver = pHydrogen->getAudioOutput();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	if ( pHydrogen->haveJackTransport() &&
-		 pDriver->m_transport.m_status != TransportInfo::ROLLING ) {
+		 pAudioEngine->getStatus() != TransportInfo::Status::Rolling ) {
 	long totalTick = pHydrogen->getTickForPosition( nPatternGroup );
 	static_cast<JackAudioDriver*>(pDriver)->m_currentPos = 
-		totalTick * pDriver->m_transport.m_fTickSize;
+		totalTick * pAudioEngine->getTickSize();
 	}
 #endif
 	return true;

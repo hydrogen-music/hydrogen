@@ -28,7 +28,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
 #include <core/MidiAction.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/MidiMap.h>
 
 namespace H2Core

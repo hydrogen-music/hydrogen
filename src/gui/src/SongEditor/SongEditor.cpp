@@ -28,7 +28,7 @@
 #include <core/Hydrogen.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/Files.h>
 #include <core/Basics/Instrument.h>

@@ -56,12 +56,6 @@ public:
 	virtual float* getOut_L();
 	virtual float* getOut_R();
 
-	virtual void updateTransportInfo();
-	virtual void play();
-	virtual void stop();
-	virtual void locate( unsigned long nFrame );
-	virtual void setBpm( float fBPM );
-
 private:
 	PaStream *m_pStream;
 	unsigned m_nSampleRate;

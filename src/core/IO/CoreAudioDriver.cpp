@@ -153,7 +153,6 @@ CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
 		, m_pOut_L( NULL )
 		, m_pOut_R( NULL )
 {
-	//INFOLOG( "INIT" );
 	m_nSampleRate = Preferences::get_instance()->m_nSampleRate;
 
 	//Get the default playback device and store it in m_outputDevice
@@ -170,7 +169,6 @@ CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
 
 CoreAudioDriver::~CoreAudioDriver()
 {
-	//INFOLOG( "DESTROY" );
 	disconnect();
 }
 
@@ -288,24 +286,6 @@ void CoreAudioDriver::disconnect()
 	err = AudioComponentInstanceDispose( m_outputUnit );
 }
 
-
-
-void CoreAudioDriver::play()
-{
-	//INFOLOG( "play" );
-	m_transport.m_status = TransportInfo::ROLLING;
-}
-
-
-
-void CoreAudioDriver::stop()
-{
-	//INFOLOG( "stop" );
-	m_transport.m_status = TransportInfo::STOPPED;
-}
-
-
-
 float* CoreAudioDriver::getOut_L()
 {
 	return m_pOut_L;
@@ -330,30 +310,6 @@ unsigned CoreAudioDriver::getBufferSize()
 unsigned CoreAudioDriver::getSampleRate()
 {
 	return m_nSampleRate;
-}
-
-
-
-void CoreAudioDriver::updateTransportInfo()
-{
-	// INFOLOG( "nothing");
-}
-
-
-
-void CoreAudioDriver::locate( unsigned long nFrame )
-{
-	//INFOLOG( "locate: " + to_string( nFrame ) );
-	m_transport.m_nFrames = nFrame;
-	//fprintf ( stderr, "m_transport.m_nFrames = %lu\n", m_transport.m_nFrames );
-}
-
-
-
-void CoreAudioDriver::setBpm( float fBPM )
-{
-	//INFOLOG( "[setBpm]" + to_string( fBPM ));
-	m_transport.m_fBPM = fBPM;
 }
 
 }

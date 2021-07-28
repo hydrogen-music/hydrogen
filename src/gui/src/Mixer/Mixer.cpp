@@ -31,7 +31,7 @@
 #include "../Widgets/PixmapWidget.h"
 #include "MixerSettingsDialog.h"
 
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/DrumkitComponent.h>

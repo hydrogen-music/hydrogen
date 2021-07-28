@@ -29,7 +29,7 @@
 #include <core/Preferences.h>
 #include <core/FX/Effects.h>
 #include <core/EventQueue.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/MidiMap.h>
 

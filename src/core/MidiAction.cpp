@@ -21,7 +21,7 @@
  */
 #include <QObject>
 
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 

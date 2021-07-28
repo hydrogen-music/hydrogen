@@ -32,7 +32,7 @@
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Helpers/Xml.h>
 using namespace H2Core;
 

@@ -21,6 +21,8 @@
  */
 
 #include <core/IO/FakeDriver.h>
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/Hydrogen.h>
 
 namespace H2Core
 {
@@ -32,15 +34,11 @@ FakeDriver::FakeDriver( audioProcessCallback processCallback )
 		, m_processCallback( processCallback )
 		, m_pOut_L( nullptr )
 		, m_pOut_R( nullptr )
-		, m_nBufferSize( 0 )
-{
-	INFOLOG( "INIT" );
+		, m_nBufferSize( 0 ) {
 }
 
 
-FakeDriver::~FakeDriver()
-{
-	INFOLOG( "DESTROY" );
+FakeDriver::~FakeDriver() {
 }
 
 
@@ -61,7 +59,7 @@ int FakeDriver::connect()
 	INFOLOG( "connect" );
 
 	// 	// always rolling, no user interaction
-	m_transport.m_status = TransportInfo::ROLLING;
+	Hydrogen::get_instance()->getAudioEngine()->setStatus( TransportInfo::Status::Rolling );
 
 	return 0;
 }
@@ -96,33 +94,12 @@ float* FakeDriver::getOut_R()
 }
 
 
-void FakeDriver::play()
+void FakeDriver::processCallback()
 {
-	m_transport.m_status = TransportInfo::ROLLING;
-
 	while ( m_processCallback( m_nBufferSize, nullptr ) == 0 ) {
 		// process...
 	}
 }
 
-void FakeDriver::stop()
-{
-	m_transport.m_status = TransportInfo::STOPPED;
-}
-
-void FakeDriver::locate( unsigned long nFrame )
-{
-	m_transport.m_nFrames = nFrame;
-}
-
-void FakeDriver::updateTransportInfo()
-{
-	// not used
-}
-
-void FakeDriver::setBpm( float fBPM )
-{
-	m_transport.m_fBPM = fBPM;
-}
 
 };
