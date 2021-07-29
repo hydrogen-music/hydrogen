@@ -362,7 +362,11 @@ float AudioEngine::computeTickSize( const int nSampleRate, const float fBpm, con
 }
 	
 void AudioEngine::calculateElapsedTime( const unsigned sampleRate, const unsigned long nFrame, const int nResolution ) {
+	
 	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pSong = pHydrogen->getSong();
+	assert( pSong );
+	
 	float fTickSize = getTickSize();
 	
 	if ( fTickSize == 0 || sampleRate == 0 || nResolution == 0 ) {
@@ -384,8 +388,9 @@ void AudioEngine::calculateElapsedTime( const unsigned sampleRate, const unsigne
 		 tempoMarkers.size() == 0 ){
 		
 		int nPatternStartInTicks;
-		const int nCurrentPatternNumber = pHydrogen->getPosForTick( currentTick, &nPatternStartInTicks );
-		long totalTicks = pHydrogen->getTickForPosition( nCurrentPatternNumber );
+		const int nCurrentPatternNumber = getColumnForTick( currentTick, pSong->getIsLoopEnabled(),
+															 &nPatternStartInTicks );
+		long totalTicks = getTickForColumn( nCurrentPatternNumber );
 		
 		// The code above calculates the number of ticks elapsed since
 		// the beginning of the Song till the start of the current
@@ -411,7 +416,7 @@ void AudioEngine::calculateElapsedTime( const unsigned sampleRate, const unsigne
 		// of ticks since the previous marker/beginning and convert
 		// them into time using tick size corresponding to the tempo.
 		for ( auto const& mmarker: tempoMarkers ){
-			totalTicks = pHydrogen->getTickForPosition( mmarker->nBar );
+			totalTicks = getTickForColumn( mmarker->nBar );
 			    
 			if ( totalTicks < currentTick ) {
 				m_fElapsedTime += static_cast<float>(totalTicks - previousTicks) * 
@@ -426,8 +431,9 @@ void AudioEngine::calculateElapsedTime( const unsigned sampleRate, const unsigne
 												   mmarker->fBpm, nResolution );
 			previousTicks = totalTicks;
 		}
-		const int nCurrentPatternNumber = pHydrogen->getPosForTick( currentTick, &nPatternStartInTicks );
-		totalTicks = pHydrogen->getTickForPosition( nCurrentPatternNumber );
+		const int nCurrentPatternNumber = getColumnForTick( currentTick, pSong->getIsLoopEnabled(),
+															&nPatternStartInTicks );
+		totalTicks = getTickForColumn( nCurrentPatternNumber );
 		
 		// The code above calculates the number of ticks elapsed since
 		// the beginning of the Song till the start of the current
@@ -1447,10 +1453,10 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 				return -1;
 			}
 	
-			m_nSongPos = findPatternInTick( tick, pSong->getIsLoopEnabled(), &m_nPatternStartTick );
+			m_nSongPos = getColumnForTick( tick, pSong->getIsLoopEnabled(), &m_nPatternStartTick );
 
 			// The `m_nSongSizeInTicks` variable is only set to some
-			// value other than zero in `findPatternInTick()` if
+			// value other than zero in `getColumnForTick()` if
 			// either the pattern list was not found of loop mode was
 			// enabled and will contain the total size of the song in
 			// ticks.
@@ -1481,10 +1487,10 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 				___INFOLOG( "song pos = -1" );
 				if ( pSong->getIsLoopEnabled() == true ) {
 					// TODO: This function call should be redundant
-					// since `findPatternInTick()` is deterministic
+					// since `getColumnForTick()` is deterministic
 					// and was already invoked with
 					// `pSong->is_loop_enabled()` as second argument.
-					m_nSongPos = findPatternInTick( 0, true, &m_nPatternStartTick );
+					m_nSongPos = getColumnForTick( 0, true, &m_nPatternStartTick );
 				} else {
 
 					___INFOLOG( "End of Song" );
@@ -1706,7 +1712,7 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 	return 0;
 }
 
-inline int AudioEngine::findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick )
+inline int AudioEngine::getColumnForTick( int nTick, bool bLoopMode, int* pPatternStartTick )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
@@ -1768,6 +1774,50 @@ inline int AudioEngine::findPatternInTick( int nTick, bool bLoopMode, int* pPatt
 	}
 
 	return -1;
+}
+
+long AudioEngine::getTickForColumn( int nColumn )
+{
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+
+	const int nPatternGroups = pSong->getPatternGroupVector()->size();
+	if ( nPatternGroups == 0 ) {
+		return -1;
+	}
+
+	if ( nColumn >= nPatternGroups ) {
+		// The position is beyond the end of the Song, we
+		// set periodic boundary conditions or return the
+		// beginning of the Song as a fallback.
+		if ( pSong->getIsLoopEnabled() ) {
+			nColumn = nColumn % nPatternGroups;
+		} else {
+			WARNINGLOG( QString( "Provided column [%1] is larger than the available number [%2]")
+						.arg( nColumn ) .arg(  nPatternGroups )
+						);
+			return -1;
+		}
+	}
+
+	std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
+	long totalTick = 0;
+	int nPatternSize;
+	Pattern *pPattern = nullptr;
+	
+	for ( int i = 0; i < nColumn; ++i ) {
+		PatternList *pColumn = ( *pColumns )[ i ];
+		
+		if( pColumn->size() > 0)
+		{
+			nPatternSize = pColumn->longest_pattern_length();
+		} else {
+			nPatternSize = MAX_NOTES;
+		}
+		totalTick += nPatternSize;
+	}
+	
+	return totalTick;
 }
 
 void AudioEngine::noteOn( Note *note )

@@ -230,51 +230,12 @@ public:
 
 	/** \return #m_pNextPatterns*/
 	PatternList *		getNextPatterns();
-	/** Returns the pattern number corresponding to the tick
-	 * position @a TickPos.
-	 *
-	 * Wrapper around function findPatternInTick() (globally defined
-	 * in hydrogen.cpp).
-	 *
-	 * \param TickPos Position in ticks.
-	 * \param nPatternStartTick Pointer to an int the starting
-	 * position (in ticks) of the corresponding pattern will be
-	 * written to.
-	 *
-	 * \return 
-	 * - __0__ : if the Song isn't specified yet.
-	 * - the output of the findPatternInTick() function called
-	 *   with @a TickPos and Song::getIsLoopEnabled() as input
-	 *   arguments.
-	 */
-	int			getPosForTick( unsigned long TickPos, int* nPatternStartTick );
 	/** Move playback in Pattern mode to the beginning of the pattern.
 	 *
 	 * Resetting the global variable #m_nPatternStartTick to -1 if the
 	 * current Song mode is Song::PATTERN_MODE.
 	 */
 	void			resetPatternStartTick();
-	
-		/**
-		 * Get the total number of ticks passed up to a Pattern at
-		 * position @a pos.
-		 *
-		 * The function will loop over all and sums up their
-		 * Pattern::__length. If one of the Pattern is NULL or no
-		 * Pattern is present one of the PatternList, #MAX_NOTES will
-		 * be added instead.
-		 *
-		 * The driver should be LOCKED when calling this!
-		 *
-		 * \param pos Position of the Pattern in the
-		 *   Song::__pattern_group_sequence.
-		 * \return
-		 *  - -1 : if @a pos is bigger than the number of patterns in
-		 *   the Song and Song::getIsLoopEnabled() is set to false or
-		 *   no Patterns could be found at all.
-		 *  - >= 0 : the total number of ticks passed.
-		 */
-		long			getTickForPosition( int pos );
 
 		void			restartDrivers();
 

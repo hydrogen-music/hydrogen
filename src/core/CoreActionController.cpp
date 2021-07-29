@@ -700,7 +700,7 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 	pAudioEngine->lock( RIGHT_HERE );
 
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
-	long nTotalTick = pHydrogen->getTickForPosition( nPatternGroup );
+	long nTotalTick = pAudioEngine->getTickForColumn( nPatternGroup );
 	if ( nTotalTick < 0 ) {
 		// TODO: why not locating to the beginning in here?
 		DEBUGLOG( QString( "Obtained ticks [%1] are smaller than zero. No relocation done." )
@@ -725,7 +725,7 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 
 bool CoreActionController::locateToFrame( unsigned long nFrame ) {
 
-	auto pHydrogen = Hydrogen::get_instance();
+	const auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pDriver = pHydrogen->getAudioOutput();
 

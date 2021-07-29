@@ -312,6 +312,7 @@ void JackAudioDriver::relocateUsingBBT()
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	float fTicksPerBeat = static_cast<float>( pSong->getResolution() / m_JackTransportPos.beat_type * 4 );
 
@@ -322,7 +323,7 @@ void JackAudioDriver::relocateUsingBBT()
  
 		if ( Preferences::get_instance()->m_JackBBTSync ==
 			 Preferences::JackBBTSyncMethod::identicalBars ) {
-			barTicks = pHydrogen->getTickForPosition( m_JackTransportPos.bar - 1 );
+			barTicks = pAudioEngine->getTickForColumn( m_JackTransportPos.bar - 1 );
 
 			if ( barTicks < 0 ) {
 				barTicks = 0;
@@ -373,7 +374,7 @@ void JackAudioDriver::relocateUsingBBT()
 			}
 
 			// Position of the resulting pattern in ticks.
-			barTicks = pHydrogen->getTickForPosition( nNumberOfPatternsPassed );
+			barTicks = pAudioEngine->getTickForColumn( nNumberOfPatternsPassed );
 			if ( barTicks < 0 ) {
 				barTicks = 0;
 			} else if ( fNextIncrement > 1 &&
@@ -413,12 +414,10 @@ void JackAudioDriver::relocateUsingBBT()
 	}
 
 	int nPatternStart;
-	int nPattern = pHydrogen->getPosForTick( fNewTick, &nPatternStart );
+	int nPattern = pHydrogen->getAudioEngine()->getColumnForTick( fNewTick, pSong->getIsLoopEnabled(), &nPatternStart );
 
 	// NOTE this prevents audioEngine_process_checkBPMChanged
 	// in Hydrogen.cpp from recalculating things.
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-
 	long long nNewFrames = static_cast<long long>( fNewTick * fNewTickSize );
 	
 	pAudioEngine->setTickSize( fNewTickSize );
@@ -1266,7 +1265,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	
 	int nNextPatternStartTick;
 	int nNextPattern = 
-		pHydrogen->getPosForTick( nextTick, &nNextPatternStartTick );
+		pAudioEngine->getColumnForTick( nextTick, pSong->getIsLoopEnabled(), &nNextPatternStartTick );
 
 	// In order to determine the tempo, which will be set by Hydrogen
 	// during the next transport cycle, we have to look at the last
@@ -1278,7 +1277,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 			  fTickSize) - 1;
 	int nNextPatternStartTickInternal;
 	int nNextPatternInternal = 
-		pHydrogen->getPosForTick( nextTickInternal, &nNextPatternStartTickInternal );
+		pAudioEngine->getColumnForTick( nextTickInternal, pSong->getIsLoopEnabled(), &nNextPatternStartTickInternal );
 
 	// Calculate the length of the next pattern in ticks == number
 	// of ticks in the next bar.

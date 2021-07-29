@@ -441,8 +441,8 @@ public:
 	void			prepNoteQueue();
 	
 	/**
-	 * Find a PatternList corresponding to the supplied tick position @a
-	 * nTick.
+	 * Find a PatternList/column corresponding to the supplied tick
+	 * position @a nTick.
 	 *
 	 * Adds up the lengths of all pattern columns until @a nTick lies in
 	 * between the bounds of a Pattern.
@@ -457,7 +457,21 @@ public:
 	 *   - -1 : pattern list couldn't be found.
 	 *   - >=0 : PatternList index in Song::__pattern_group_sequence.
 	 */
-	int				findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick );
+	int				getColumnForTick( int nTick, bool bLoopMode, int* pPatternStartTick );
+	/**
+	 * Get the total number of ticks passed up to a @a nColumn /
+	 * pattern group.
+	 *
+	 * The driver should be LOCKED when calling this!
+	 *
+	 * \param nColumn pattern group.
+	 * \return
+	 *  - -1 : if @a nColumn is bigger than the number of patterns in
+	 *   the Song and Song::getIsLoopEnabled() is set to false or
+	 *   no Patterns could be found at all.
+	 *  - >= 0 : the total number of ticks passed.
+	 */
+	long			getTickForColumn( int nColumn );
 
 	static float	computeTickSize( const int nSampleRate, const float fBpm, const int nResolution);
 

@@ -627,17 +627,6 @@ void Hydrogen::sequencer_setOnlyNextPattern( int pos )
 	pAudioEngine->unlock();
 }
 
-/* Return pattern for selected song tick position */
-int Hydrogen::getPosForTick( unsigned long TickPos, int* nPatternStartTick )
-{
-	std::shared_ptr<Song> pSong = getSong();
-	if ( pSong == nullptr ) {
-		return 0;
-	}
-
-	return m_pAudioEngine->findPatternInTick( TickPos, pSong->getIsLoopEnabled(), nPatternStartTick );
-}
-
 int Hydrogen::calculateLeadLagFactor( float fTickSize ){
 	return fTickSize * 5;
 }
@@ -1051,51 +1040,6 @@ void Hydrogen::setRealtimeFrames( unsigned long frames )
 unsigned long Hydrogen::getRealtimeFrames()
 {
 	return m_pAudioEngine->getRealtimeFrames();
-}
-
-
-long Hydrogen::getTickForPosition( int pos )
-{
-	std::shared_ptr<Song> pSong = getSong();
-
-	int nPatternGroups = pSong->getPatternGroupVector()->size();
-	if ( nPatternGroups == 0 ) {
-		return -1;
-	}
-
-	if ( pos >= nPatternGroups ) {
-		// The position is beyond the end of the Song, we
-		// set periodic boundary conditions or return the
-		// beginning of the Song as a fallback.
-		if ( pSong->getIsLoopEnabled() ) {
-			pos = pos % nPatternGroups;
-		} else {
-			WARNINGLOG( QString( "patternPos > nPatternGroups. pos:"
-								 " %1, nPatternGroups: %2")
-						.arg( pos ) .arg(  nPatternGroups )
-						);
-			return -1;
-		}
-	}
-
-	std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
-	long totalTick = 0;
-	int nPatternSize;
-	Pattern *pPattern = nullptr;
-	
-	for ( int i = 0; i < pos; ++i ) {
-		PatternList *pColumn = ( *pColumns )[ i ];
-		
-		if( pColumn->size() > 0)
-		{
-			nPatternSize = pColumn->longest_pattern_length();
-		} else {
-			nPatternSize = MAX_NOTES;
-		}
-		totalTick += nPatternSize;
-	}
-	
-	return totalTick;
 }
 
 void Hydrogen::onTapTempoAccelEvent()
@@ -1600,7 +1544,7 @@ void Hydrogen::setTimelineBpm()
 	// not playing.
 	unsigned long PlayTick = getRealtimeTickPosition();
 	int nStartPos;
-	int nRealtimePatternPos = getPosForTick( PlayTick, &nStartPos );
+	int nRealtimePatternPos = getAudioEngine()->getColumnForTick( PlayTick, pSong->getIsLoopEnabled(), &nStartPos );
 	float fRealtimeBPM = getTimelineBpm( nRealtimePatternPos );
 
 	// FIXME: this was already done in setBPM but for "engine" time
