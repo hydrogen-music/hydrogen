@@ -686,7 +686,7 @@ bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent 
 	return true;
 }
 
-bool CoreActionController::relocate( int nPatternGroup ) {
+bool CoreActionController::locateToColumn( int nPatternGroup ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pDriver = pHydrogen->getAudioOutput();
@@ -697,10 +697,19 @@ bool CoreActionController::relocate( int nPatternGroup ) {
 
 	if ( pHydrogen->haveJackTransport() &&
 		 pAudioEngine->getStatus() != TransportInfo::Status::Rolling ) {
-	long totalTick = pHydrogen->getTickForPosition( nPatternGroup );
-	static_cast<JackAudioDriver*>(pDriver)->m_currentPos = 
-		totalTick * pAudioEngine->getTickSize();
+		long totalTick = pHydrogen->getTickForPosition( nPatternGroup );
+		static_cast<JackAudioDriver*>(pDriver)->m_currentPos = 
+			totalTick * pAudioEngine->getTickSize();
 	}
+	return true;
+}
+
+bool CoreActionController::locateToFrame( unsigned long nFrame ) {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	pAudioEngine->locate( nFrame );
 	return true;
 }
 }

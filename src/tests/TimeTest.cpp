@@ -61,7 +61,7 @@ float TimeTest::locateAndLookupTime( int nPatternPos ){
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 
-	pCoreActionController->relocate( nPatternPos );
+	pCoreActionController->locateToColumn( nPatternPos );
 
 	pAudioEngine->lock( RIGHT_HERE );
 	long nTick = pHydrogen->getTickForPosition( nPatternPos );

@@ -1458,7 +1458,7 @@ void MainForm::onPlayStopAccelEvent()
 void MainForm::onRestartAccelEvent()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->relocate( 0 );
+	pHydrogen->getCoreActionController()->locateToColumn( 0 );
 }
 
 
@@ -1806,12 +1806,12 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			break;
 
 		case  Qt::Key_F9 : // Qt::Key_Left do not work. Some ideas ?
-			pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() - 1 );
+			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getPatternPos() - 1 );
 			return true;
 			break;
 
 		case  Qt::Key_F10 : // Qt::Key_Right do not work. Some ideas ?
-			pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() + 1 );
+			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getPatternPos() + 1 );
 			return true;
 			break;
 		}
@@ -2281,24 +2281,25 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	HydrogenApp* pApp = HydrogenApp::get_instance();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	if ( pObject->inherits( "SongEditorPanel" ) ) {
 			
 		if ( pSong->getMode() != Song::SONG_MODE ) {
-			pHydrogen->getCoreActionController()->activateSongMode( true, false );
+			pCoreActionController->activateSongMode( true, false );
 			pApp->getPlayerControl()->songModeActivationEvent( 1 );
 		}
 
 		int nCursorColumn = pApp->getSongEditorPanel()->getSongEditor()->getCursorColumn();
-		pHydrogen->getCoreActionController()->relocate( nCursorColumn );
+		pCoreActionController->locateToColumn( nCursorColumn );
 			
 	} else if ( pObject->inherits( "PatternEditorPanel" ) ) {
 		// Covers both the PatternEditor and the
 		// NotePropertiesRuler.
 			
 		if ( pSong->getMode() != Song::PATTERN_MODE ) {
-			pHydrogen->getCoreActionController()->activateSongMode( false, false );
+			pCoreActionController->activateSongMode( false, false );
 			pApp->getPlayerControl()->songModeActivationEvent( 0 );
 		}
 
@@ -2315,7 +2316,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		if ( nCursorColumn > 0 ) {
 			nCursorColumn -= pHydrogen->calculateLookahead( fTickSize ) / fTickSize;
 		}
-		pHydrogen->getAudioEngine()->locate( nCursorColumn * fTickSize );
+		pCoreActionController->locateToFrame( static_cast<unsigned long>( nCursorColumn * fTickSize ) );
 	} else {
 		ERRORLOG( QString( "Unknown object class" ) );
 	}
@@ -2323,6 +2324,6 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 	int nState = pHydrogen->getState();
 	if ( nState == STATE_READY ) {
 		pHydrogen->sequencer_play();
-		HydrogenApp::get_instance()->setStatusBarMessage(tr("Playing."), 5000);
+		pApp->setStatusBarMessage(tr("Playing."), 5000);
 	}
 }

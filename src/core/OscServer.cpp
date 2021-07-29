@@ -728,7 +728,7 @@ void OscServer::LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 
 void OscServer::RELOCATE_Handler(lo_arg **argv, int argc) {
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->relocate( static_cast<int>(std::round( argv[0]->f ) ) );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( static_cast<int>(std::round( argv[0]->f ) ) );
 }
 
 // -------------------------------------------------------------------

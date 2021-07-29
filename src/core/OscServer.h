@@ -709,8 +709,6 @@ class OscServer : public H2Core::Object
 		 * message.*/
 		static void LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::relocateToPattern().
-		 *
 		 * \param argv The "i" field does contain the desired
 		 * position / number of the pattern group (starting with
 		 * 0).

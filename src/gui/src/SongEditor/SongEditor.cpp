@@ -2307,7 +2307,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		if ( nPatternPos != column ) {
 			WARNINGLOG( "relocate via mouse click" );
 			
-			m_pHydrogen->getCoreActionController()->relocate( column );
+			m_pHydrogen->getCoreActionController()->locateToColumn( column );
 			update();
 		}
 		
