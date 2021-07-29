@@ -353,7 +353,7 @@ public:
 	 */
 	static int			audioEngine_process( uint32_t nframes, void *arg );
 	
-	inline void			clearNoteQueue();
+	void			clearNoteQueue();
 	
 	inline void			processPlayNotes( unsigned long nframes );
 	/**
@@ -458,18 +458,13 @@ public:
 	 */
 	int				findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick );
 
-	// TODO wrap this
-	void			seek( long long nFrames, bool bLoopMode = false );
-	
-	// TODO wrap this
 	static float	computeTickSize( const int nSampleRate, const float fBpm, const int nResolution);
 
 	/** \return #m_pSampler */
 	Sampler*		getSampler();
 	/** \return #m_pSynth */
 	Synth*			getSynth();
-	
-		// TODO wrap this
+
 	/** \return #m_fElapsedTime */
 	float			getElapsedTime() const;
 	
@@ -491,7 +486,6 @@ public:
 	 * \param nResolution Resolution of the Song (number of ticks per 
 	 *   quarter).
 	 */
-		// TODO wrap this
 	void			calculateElapsedTime( unsigned sampleRate, unsigned long nFrame, int nResolution );
 	
 	/** Increments #m_fElapsedTime at the end of a process cycle.
@@ -505,7 +499,6 @@ public:
 	 * \param sampleRate Temporal resolution used by the sound card in
 	 * frames per second.
 	 */
-		// TODO wrap this
 	void			updateElapsedTime( unsigned bufferSize, unsigned sampleRate );
 	
 	/**
@@ -544,7 +537,6 @@ public:
 	 *
 	 * \param nFrame Next transport position in frames.
 	 */
-		// TODO wrap this
 	void			locate( unsigned long nFrame );
 	
 	
@@ -692,14 +684,10 @@ public:
 
 	void			setPatternStartTick( int tick );
 
-		// TODO wrap this
 	void			setPatternTickPosition( int tick );
-		// TODO wrap this
 	int				getPatternTickPosition() const;
 
-		// TODO wrap this
 	void			setSongPos( int songPos );
-		// TODO wrap this
 	int				getSongPos() const;
 
 	PatternList*	getNextPatterns() const;
@@ -711,7 +699,6 @@ public:
 	unsigned int	getAddRealtimeNoteTickPosition() const; 
 	void			setAddRealtimeNoteTickPosition( unsigned int tickPosition );
 
-	// TODO wrap this
 	struct timeval& 	getCurrentTickTime();
 
 	void play();

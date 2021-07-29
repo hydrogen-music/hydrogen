@@ -39,11 +39,11 @@ TransportInfo::~TransportInfo() {
 
 void TransportInfo::setBpm( float fNewBpm ) {
 	if ( fNewBpm > MAX_BPM ) {
-		ERRORLOG( QString( "Provided bpm %1 is too high. Assigning upper bound %2 instead" )
+		ERRORLOG( QString( "Provided bpm [%1] is too high. Assigning upper bound %2 instead" )
 					.arg( fNewBpm ).arg( MAX_BPM ) );
 		fNewBpm = MAX_BPM;
 	} else if ( fNewBpm < MIN_BPM ) {
-		ERRORLOG( QString( "Provided bpm %1 is too low. Assigning lower bound %2 instead" )
+		ERRORLOG( QString( "Provided bpm [%1] is too low. Assigning lower bound %2 instead" )
 					.arg( fNewBpm ).arg( MIN_BPM ) );
 		fNewBpm = MIN_BPM;
 	}
@@ -52,11 +52,18 @@ void TransportInfo::setBpm( float fNewBpm ) {
 }
  
 void TransportInfo::setFrames( long long nNewFrames ) {
+	if ( nNewFrames < 0 ) {
+		ERRORLOG( QString( "Provided frame [%1] is negative. Setting frame 0 instead." )
+				  .arg( nNewFrames ) );
+		nNewFrames = 0;
+	}
+	
 	m_nFrames = nNewFrames;
 }
+	
 void TransportInfo::setTickSize( float fNewTickSize ) {
 	if ( fNewTickSize <= 0 ) {
-		ERRORLOG( QString( "Provided tick size %1 is too small. Using 400 as a fallback instead." )
+		ERRORLOG( QString( "Provided tick size [%1] is too small. Using 400 as a fallback instead." )
 				  .arg( fNewTickSize ) );
 		fNewTickSize = 400;
 	}

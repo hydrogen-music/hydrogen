@@ -1023,45 +1023,6 @@ inline void AudioEngine::processPlayNotes( unsigned long nframes )
 	}
 }
 
-
-void AudioEngine::seek( long long nFrames, bool bLoopMode )
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-
-	if ( getFrames() == nFrames ) {
-		return;
-	}
-
-	if ( nFrames < 0 ) {
-		___ERRORLOG( "nFrames < 0" );
-	}
-
-	char tmp[200];
-	sprintf( tmp, "seek in %lld (old pos = %d)",
-			 nFrames,
-			 ( int ) getFrames() );
-	___INFOLOG( tmp );
-
-	setFrames( nFrames );
-
-	int tickNumber_start = ( unsigned )( getFrames() / getTickSize() );
-	//	sprintf(tmp, "[audioEngine_seek()] tickNumber_start = %d", tickNumber_start);
-	//	__instance->infoLog(tmp);
-
-	bool loop = pSong->getIsLoopEnabled();
-
-	if ( bLoopMode ) {
-		loop = true;
-	}
-
-	m_nSongPos = findPatternInTick( tickNumber_start, loop, &m_nPatternStartTick );
-	//	sprintf(tmp, "[audioEngine_seek()] m_nSongPos = %d", m_nSongPos);
-	//	__instance->infoLog(tmp);
-	
-	clearNoteQueue();
-}
-
 inline void AudioEngine::processTransport( unsigned nFrames )
 {
 	assert( m_pAudioDriver );
