@@ -29,6 +29,7 @@
 #include <core/Synth/Synth.h>
 #include <core/Basics/Note.h>
 #include <core/AudioEngine/TransportInfo.h>
+#include <core/CoreActionController.h>
 
 #include <core/IO/AudioOutput.h>
 
@@ -532,13 +533,6 @@ public:
 	 */
 	void			processCheckBPMChanged(std::shared_ptr<Song>pSong);
 	
-	/** Relocate using the audio driver and update the
-	 * #m_fElapsedTime.
-	 *
-	 * \param nFrame Next transport position in frames.
-	 */
-	void			locate( unsigned long nFrame );
-	
 	
 	/** Clear all audio buffers.
 	 *
@@ -705,8 +699,16 @@ public:
 	/** Stop transport without resetting the transport position and
 		other internal variables.*/
 	void pause();
-	
+
+	friend bool CoreActionController::locateToFrame( unsigned long nFrame );
 private:
+	
+	/** Relocate using the audio driver and update the
+	 * #m_fElapsedTime.
+	 *
+	 * \param nFrame Next transport position in frames.
+	 */
+	void			locate( unsigned long nFrame );
 	/** Local instance of the Sampler. */
 	Sampler* 			m_pSampler;
 	/** Local instance of the Synth. */
@@ -855,30 +857,14 @@ private:
 	 * Ticks passed since the beginning of the current pattern.
 	 *
 	 * Queried using Hydrogen::getTickPosition().
-	 *
-	 * Initialized to 0 in audioEngine_init() and reset to 0 in
-	 * Hydrogen::setPatternPos(), if the AudioEngine is not playing, in
-	 * audioEngine_start(), Hydrogen::startExportSong() and
-	 * Hydrogen::stopExportSong(), which marks the beginning of a Song.
 	 */
 	unsigned int		m_nPatternTickPosition;
 
 	/**
-	 * Index of the current PatternList in the
+	 * Index of the current PatternList/column in the
 	 * Song::__pattern_group_sequence.
 	 *
 	 * A value of -1 corresponds to "pattern list could not be found".
-	 *
-	 * Assigned using findPatternInTick() in
-	 * audioEngine_updateNoteQueue(), queried using
-	 * Hydrogen::getPatternPos() and set using Hydrogen::setPatternPos()
-	 * if it AudioEngine is playing.
-	 *
-	 * It is initialized with -1 value in audioEngine_init(), and reset to
-	 * the same value in audioEngine_start(), and
-	 * Hydrogen::stopExportSong(). In Hydrogen::startExportSong() it will
-	 * be set to 0. Please note that ALL of these functions do access the
-	 * variable directly!
 	 */
 	int					m_nSongPos; // TODO: rename it to something more
 									// accurate, like m_nPatternListNumber

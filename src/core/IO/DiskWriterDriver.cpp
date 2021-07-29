@@ -25,6 +25,7 @@
 #include <core/Preferences.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
+#include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/Timeline.h>
 #include <core/Basics/Pattern.h>
@@ -193,7 +194,7 @@ void* diskWriterDriver_thread( void* param )
 														validBpm,
 														pSong->getResolution() );
 			pDriver->audioEngine_process_checkBPMChanged();
-			pHydrogen->setPatternPos(patternPosition);
+			pHydrogen->getCoreActionController()->locateToColumn( patternPosition );
 			
 			// delay needed time to calculate all rubberband samples
 			if( Preferences::get_instance()->getRubberBandBatchMode() && validBpm != oldBPM ){

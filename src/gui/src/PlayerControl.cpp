@@ -984,7 +984,7 @@ void PlayerControl::FFWDBtnClicked( Button* )
 	WARNINGLOG( "relocate via button press" );
 
 	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getPatternPos() + 1 );
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getSongPos() + 1 );
 }
 
 
@@ -994,7 +994,7 @@ void PlayerControl::RewindBtnClicked( Button* )
 	WARNINGLOG( "relocate via button press" );
 	
 	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getPatternPos() - 1 );
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getSongPos() - 1 );
 }
 
 

@@ -918,7 +918,7 @@ int JackAudioDriver::init( unsigned bufferSize )
 	if ( pSong != nullptr ) {
 		makeTrackOutputs( pSong );
 		pHydrogen->getAudioEngine()->setBpm( pSong->getBpm() );
-		pHydrogen->getAudioEngine()->locate( 0 );
+		pHydrogen->getCoreActionController()->locateToFrame( 0 );
 	}
 	
 	return 0;
@@ -1363,7 +1363,7 @@ void JackAudioDriver::printState() const {
 			  << ", m_JackTransportState: " << m_JackTransportState
 			  << ", m_timebaseState: " << static_cast<int>(m_timebaseState)
 			  << ", m_currentPos: " << m_currentPos
-			  << ", pHydrogen->getPatternPos(): " << pHydrogen->getPatternPos()
+			  << ", current pattern column: " << pHydrogen->getAudioEngine()->getSongPos()
 			  << "\33[0m" << std::endl;
 }
 

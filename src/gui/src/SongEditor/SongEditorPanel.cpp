@@ -448,7 +448,8 @@ void SongEditorPanel::updatePlayHeadPosition()
 		int x = -pos.x();
 		int w = m_pPositionRulerScrollView->viewport()->width();
 
-		int nPlayHeadPosition = Hydrogen::get_instance()->getPatternPos() * m_pSongEditor->getGridWidth();
+		int nPlayHeadPosition = Hydrogen::get_instance()->getAudioEngine()->getSongPos() *
+			m_pSongEditor->getGridWidth();
 
 		int value = m_pEditorScrollView->horizontalScrollBar()->value();
 		if ( nPlayHeadPosition > ( x + w - 50 ) ) {

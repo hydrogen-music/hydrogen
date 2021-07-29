@@ -114,7 +114,7 @@ int main(int argc, char** argv){
 				break;
 
 			case 'b':
-				hydrogen->setPatternPos( 0 );
+				hydrogen->getCoreActionController()->locateToColumn( 0 );
 				break;
 
 			case 'f':

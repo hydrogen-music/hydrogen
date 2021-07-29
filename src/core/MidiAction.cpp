@@ -23,6 +23,7 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
+#include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 
 #include <core/Basics/Instrument.h>
@@ -227,8 +228,7 @@ bool MidiActionManager::pause(Action * , Hydrogen* pHydrogen, targeted_element )
 
 bool MidiActionManager::stop(Action * , Hydrogen* pHydrogen, targeted_element ) {
 	pHydrogen->sequencer_stop();
-	pHydrogen->setPatternPos( 0 );
-	pHydrogen->setTimelineBpm();
+	pHydrogen->getCoreActionController()->locateToColumn( 0 );
 	return true;
 }
 
@@ -243,10 +243,9 @@ bool MidiActionManager::play_stop_pause_toggle(Action * pAction, Hydrogen* pHydr
 
 	case STATE_PLAYING:
 		if( sActionString == "PLAY/STOP_TOGGLE" ) {
-			pHydrogen->setPatternPos( 0 );
+			pHydrogen->getCoreActionController()->locateToColumn( 0 );
 		}
 		pHydrogen->sequencer_stop();
-		pHydrogen->setTimelineBpm();
 		break;
 
 	default:
@@ -842,15 +841,13 @@ bool MidiActionManager::bpm_decrease(Action * pAction, Hydrogen* pHydrogen, targ
 }
 
 bool MidiActionManager::next_bar(Action * , Hydrogen* pHydrogen, targeted_element ) {
-	pHydrogen->setPatternPos(pHydrogen->getPatternPos() +1 );
-	pHydrogen->setTimelineBpm();
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getSongPos() +1 );
 	return true;
 }
 
 
 bool MidiActionManager::previous_bar(Action * , Hydrogen* pHydrogen, targeted_element ) {
-	pHydrogen->setPatternPos(pHydrogen->getPatternPos() -1 );
-	pHydrogen->setTimelineBpm();
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getSongPos() -1 );
 	return true;
 }
 

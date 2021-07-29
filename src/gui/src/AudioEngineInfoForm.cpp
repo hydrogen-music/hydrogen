@@ -98,8 +98,8 @@ void AudioEngineInfoForm::updateInfo()
 
 	// Song position
 	QString sSongPos = "N/A";
-	if ( pHydrogen->getPatternPos() != -1 ) {
-		sSongPos = QString::number( pHydrogen->getPatternPos() );
+	if ( pAudioEngine->getSongPos() != -1 ) {
+		sSongPos = QString::number( pAudioEngine->getSongPos() );
 	}
 	m_pSongPositionLbl->setText( sSongPos );
 

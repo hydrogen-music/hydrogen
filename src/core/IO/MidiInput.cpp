@@ -23,6 +23,7 @@
 #include <core/IO/MidiInput.h>
 #include <core/EventQueue.h>
 #include <core/Preferences.h>
+#include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
@@ -141,7 +142,7 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		case MidiMessage::START: /* Start from position 0 */
 				INFOLOG( "START event" );
 				if ( pHydrogen->getState() != STATE_PLAYING ) {
-					pHydrogen->setPatternPos( 0 );
+					pHydrogen->getCoreActionController()->locateToColumn( 0 );
 					pHydrogen->setTimelineBpm();
 					pHydrogen->sequencer_play();
 				}

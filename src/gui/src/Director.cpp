@@ -127,7 +127,7 @@ void Director::metronomeEvent( int nValue )
 	//bpm
 	m_fBpm = Hydrogen::get_instance()->getSong()->getBpm();
 	//bar
-	m_nBar = Hydrogen::get_instance()->getPatternPos() + 1;
+	m_nBar = Hydrogen::get_instance()->getAudioEngine()->getSongPos() + 1;
 
 	if ( m_nBar <= 0 ){
 		m_nBar = 1;

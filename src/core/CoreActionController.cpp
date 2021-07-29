@@ -660,7 +660,7 @@ bool CoreActionController::activateSongMode( bool bActivate, bool bTriggerEvent 
 	auto pHydrogen = Hydrogen::get_instance();
 	pHydrogen->sequencer_stop();
 	if ( bActivate ) {
-		pHydrogen->setPatternPos( 0 );
+		locateToColumn( 0 );
 		pHydrogen->getSong()->setMode( Song::SONG_MODE );
 	} else {
 		pHydrogen->getSong()->setMode( Song::PATTERN_MODE );
@@ -688,19 +688,38 @@ bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent 
 
 bool CoreActionController::locateToColumn( int nPatternGroup ) {
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pDriver = pHydrogen->getAudioOutput();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-
-	pHydrogen->setPatternPos( nPatternGroup );
-	pHydrogen->setTimelineBpm();
-
-	if ( pHydrogen->haveJackTransport() &&
-		 pAudioEngine->getStatus() != TransportInfo::Status::Rolling ) {
-		long totalTick = pHydrogen->getTickForPosition( nPatternGroup );
-		static_cast<JackAudioDriver*>(pDriver)->m_currentPos = 
-			totalTick * pAudioEngine->getTickSize();
+	if ( nPatternGroup < -1 ) {
+		ERRORLOG( QString( "Provided column [%1] too low. Assigning -1 instead." )
+				  .arg( nPatternGroup ) );
+		nPatternGroup = -1;
 	}
+	
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	
+	pAudioEngine->lock( RIGHT_HERE );
+
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
+	long nTotalTick = pHydrogen->getTickForPosition( nPatternGroup );
+	if ( nTotalTick < 0 ) {
+		// TODO: why not locating to the beginning in here?
+		DEBUGLOG( QString( "Obtained ticks [%1] are smaller than zero. No relocation done." )
+				  .arg( nTotalTick ) );
+		pAudioEngine->unlock();
+		return false;
+	}
+
+	if ( pHydrogen->getState() != STATE_PLAYING ) {
+		// find pattern immediately when not playing
+		pAudioEngine->setSongPos( nPatternGroup );
+		pAudioEngine->setPatternTickPosition( 0 );
+	}
+	pAudioEngine->unlock();
+
+	locateToFrame( static_cast<unsigned long>( nTotalTick * pAudioEngine->getTickSize() ) );
+
+	pHydrogen->setTimelineBpm();
+	
 	return true;
 }
 
@@ -708,8 +727,16 @@ bool CoreActionController::locateToFrame( unsigned long nFrame ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pDriver = pHydrogen->getAudioOutput();
 
+	pAudioEngine->lock( RIGHT_HERE );
 	pAudioEngine->locate( nFrame );
+	pAudioEngine->unlock();
+
+	if ( pHydrogen->haveJackTransport() &&
+		 pAudioEngine->getStatus() != TransportInfo::Status::Rolling ) {
+		static_cast<JackAudioDriver*>(pDriver)->m_currentPos = nFrame;
+	}
 	return true;
 }
 }

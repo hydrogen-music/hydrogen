@@ -84,9 +84,7 @@ enum EventType {
 	 *      MetronomeWidget::updateWidget().
 	 * - 1: Beat in the remainder of a Pattern in
 	 *      audioEngine_updateNoteQueue(). The corresponding Note will
-	 *      be created with a pitch of 0 and velocity of 0.8. In
-	 *      addition, it will be also pushed by
-	 *      Hydrogen::setPatternPos() without creating a Note.
+	 *      be created with a pitch of 0 and velocity of 0.8.
 	 *      Sets MetronomeWidget::m_state to
 	 *      MetronomeWidget::METRO_FIRST and triggers
 	 *      MetronomeWidget::updateWidget().

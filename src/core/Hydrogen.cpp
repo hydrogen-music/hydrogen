@@ -366,7 +366,8 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 
 		// Recording + song playback mode + actually playing
 		PatternList *pPatternList = pSong->getPatternList();
-		int ipattern = getPatternPos(); // playlist index
+		int ipattern = pAudioEngine->getSongPos(); // current column
+												   // or pattern group
 		if ( ipattern < 0 || ipattern >= (int) pPatternList->size() ) {
 			pAudioEngine->unlock(); // unlock the audio engine
 			return;
@@ -626,12 +627,6 @@ void Hydrogen::sequencer_setOnlyNextPattern( int pos )
 	pAudioEngine->unlock();
 }
 
-// TODO: make variable name and getter/setter consistent.
-int Hydrogen::getPatternPos()
-{
-	return m_pAudioEngine->getSongPos();
-}
-
 /* Return pattern for selected song tick position */
 int Hydrogen::getPosForTick( unsigned long TickPos, int* nPatternStartTick )
 {
@@ -739,7 +734,7 @@ void Hydrogen::startExportSong( const QString& filename)
 
 	pAudioEngine->setupLadspaFX();
 
-	pAudioEngine->locate( 0 );
+	getCoreActionController()->locateToFrame( 0 );
 	pAudioEngine->clearNoteQueue();
 
 	DiskWriterDriver* pDiskWriterDriver = (DiskWriterDriver*) pAudioEngine->getAudioDriver();
@@ -1101,39 +1096,6 @@ long Hydrogen::getTickForPosition( int pos )
 	}
 	
 	return totalTick;
-}
-
-void Hydrogen::setPatternPos( int nPatternNumber )
-{
-	if ( nPatternNumber < -1 ) {
-		nPatternNumber = -1;
-	}
-	
-	auto pAudioEngine = m_pAudioEngine;
-	
-	pAudioEngine->lock( RIGHT_HERE );
-	// TODO: why?
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
-	long totalTick = getTickForPosition( nPatternNumber );
-	if ( totalTick < 0 ) {
-		pAudioEngine->unlock();
-		return;
-	}
-
-	if ( getState() != STATE_PLAYING ) {
-		// find pattern immediately when not playing
-		//		int dummy;
-		// 		m_nSongPos = findPatternInTick( totalTick,
-		//					        pSong->getIsLoopEnabled(),
-		//					        &dummy );
-		pAudioEngine->setSongPos( nPatternNumber );
-		pAudioEngine->setPatternTickPosition( 0 );
-	}
-	INFOLOG( "relocate" );
-
-	pAudioEngine->locate( static_cast<int>( totalTick * pAudioEngine->getTickSize() ));
-
-	pAudioEngine->unlock();
 }
 
 void Hydrogen::onTapTempoAccelEvent()
@@ -1627,7 +1589,7 @@ void Hydrogen::setTimelineBpm()
 
 	std::shared_ptr<Song> pSong = getSong();
 	// Obtain the local speed specified for the current Pattern.
-	float fBPM = getTimelineBpm( getPatternPos() );
+	float fBPM = getTimelineBpm( getAudioEngine()->getSongPos() );
 
 	if ( fBPM != pSong->getBpm() ) {
 		setBPM( fBPM );

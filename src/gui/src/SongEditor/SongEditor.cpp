@@ -1233,11 +1233,9 @@ void SongEditorPatternList::patternChangedEvent()
 	
 	///here we check the timeline  && m_pSong->getMode() == Song::SONG_MODE
 	
-#ifdef H2CORE_HAVE_JACK
 	if ( m_pHydrogen->haveJackTransport() ) {
 		return;
 	}
-#endif
 
 	// The disk writer runs at it's own pace. Due to the following
 	// lines of code the GUI, instead, just sets the speed to 0 BPM.
@@ -1252,7 +1250,7 @@ void SongEditorPatternList::patternChangedEvent()
 	if ( ( Preferences::get_instance()->getUseTimelineBpm() ) &&
 		 ( m_pHydrogen->getSong()->getMode() == Song::SONG_MODE ) ){
 
-		float fTimelineBpm = pTimeline->getTempoAtBar( pHydrogen->getPatternPos(), false );
+		float fTimelineBpm = pTimeline->getTempoAtBar( pHydrogen->getAudioEngine()->getSongPos(), false );
 
 		if ( fTimelineBpm != 0 && pHydrogen->getNewBpmJTM() != fTimelineBpm ) {
 			/* TODO: For now the function returns 0 if the bar is
@@ -2303,7 +2301,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 			return;
 		}
 
-		int nPatternPos = m_pHydrogen->getPatternPos();
+		int nPatternPos = m_pHydrogen->getAudioEngine()->getSongPos();
 		if ( nPatternPos != column ) {
 			WARNINGLOG( "relocate via mouse click" );
 			
@@ -2350,7 +2348,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		return;
 	}
 
-	float fPos = m_pHydrogen->getPatternPos();
+	float fPos = m_pHydrogen->getAudioEngine()->getSongPos();
 	int pIPos = Preferences::get_instance()->getPunchInPos();
 	int pOPos = Preferences::get_instance()->getPunchOutPos();
 
