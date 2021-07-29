@@ -689,12 +689,11 @@ bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent 
 bool CoreActionController::relocate( int nPatternGroup ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->setPatternPos( nPatternGroup );
-	pHydrogen->setTimelineBpm();
-	
-#ifdef H2CORE_HAVE_JACK
 	auto pDriver = pHydrogen->getAudioOutput();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	pHydrogen->setPatternPos( nPatternGroup );
+	pHydrogen->setTimelineBpm();
 
 	if ( pHydrogen->haveJackTransport() &&
 		 pAudioEngine->getStatus() != TransportInfo::Status::Rolling ) {
@@ -702,7 +701,6 @@ bool CoreActionController::relocate( int nPatternGroup ) {
 	static_cast<JackAudioDriver*>(pDriver)->m_currentPos = 
 		totalTick * pAudioEngine->getTickSize();
 	}
-#endif
 	return true;
 }
 }
