@@ -26,7 +26,6 @@ namespace H2Core {
 
 TransportInfo::TransportInfo( const char* __class_name )
 	: Object( __class_name )
-	, m_status( Status::Stopped )
 	, m_nFrames( 0 )
 	, m_nExternalFrames( 0 )
 	, m_fTickSize( 1 )

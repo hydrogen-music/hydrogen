@@ -332,7 +332,7 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
 
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
 		// Stops recording, all queued MIDI notes, and the playback of
 		// the audio driver.
 		pHydrogen->sequencer_stop();
@@ -371,7 +371,7 @@ bool CoreActionController::openSong( const QString& sSongPath ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
  
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
 		// Stops recording, all queued MIDI notes, and the playback of
 		// the audio driver.
 		pHydrogen->sequencer_stop();
@@ -399,7 +399,7 @@ bool CoreActionController::openSong( std::shared_ptr<Song> pSong ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
  
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
 		// Stops recording, all queued MIDI notes, and the playback of
 		// the audio driver.
 		pHydrogen->sequencer_stop();
@@ -709,7 +709,7 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 		return false;
 	}
 
-	if ( pHydrogen->getState() != STATE_PLAYING ) {
+	if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
 		// find pattern immediately when not playing
 		pAudioEngine->setSongPos( nPatternGroup );
 		pAudioEngine->setPatternTickPosition( 0 );
@@ -734,7 +734,7 @@ bool CoreActionController::locateToFrame( unsigned long nFrame ) {
 	pAudioEngine->unlock();
 
 	if ( pHydrogen->haveJackTransport() &&
-		 pAudioEngine->getStatus() != TransportInfo::Status::Rolling ) {
+		 pAudioEngine->getState() != AudioEngine::State::Playing ) {
 		static_cast<JackAudioDriver*>(pDriver)->m_currentPos = nFrame;
 	}
 	return true;

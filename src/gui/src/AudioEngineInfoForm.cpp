@@ -217,25 +217,24 @@ void AudioEngineInfoForm::updateInfo()
 void AudioEngineInfoForm::updateAudioEngineState() {
 	// Audio Engine state
 	QString stateTxt;
-	int state = Hydrogen::get_instance()->getState();
-	switch (state) {
-	case STATE_UNINITIALIZED:
+	switch ( H2Core::Hydrogen::get_instance()->getAudioEngine()->getState() ) {
+	case H2Core::AudioEngine::State::Uninitialized:
 		stateTxt = "Uninitialized";
 		break;
 
-	case STATE_INITIALIZED:
+	case H2Core::AudioEngine::State::Initialized:
 		stateTxt = "Initialized";
 		break;
 
-	case STATE_PREPARED:
+	case H2Core::AudioEngine::State::Prepared:
 		stateTxt = "Prepared";
 		break;
 
-	case STATE_READY:
+	case H2Core::AudioEngine::State::Ready:
 		stateTxt = "Ready";
 		break;
 
-	case STATE_PLAYING:
+	case H2Core::AudioEngine::State::Playing:
 		stateTxt = "Playing";
 		break;
 

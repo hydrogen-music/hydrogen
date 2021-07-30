@@ -156,9 +156,7 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 
 	pAudioEngine->unlock();
 
-
-	int state = pHydrogen->getState();
-	if ( ( state == STATE_PLAYING ) && (bActive) ) {
+	if ( ( pAudioEngine->getState() == H2Core::AudioEngine::State::Playing ) && bActive ) {
 		m_nTicks = pAudioEngine->getPatternTickPosition();
 	}
 	else {

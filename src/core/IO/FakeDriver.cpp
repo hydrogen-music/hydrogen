@@ -58,8 +58,8 @@ int FakeDriver::connect()
 {
 	INFOLOG( "connect" );
 
-	// 	// always rolling, no user interaction
-	Hydrogen::get_instance()->getAudioEngine()->setStatus( TransportInfo::Status::Rolling );
+	// always rolling, no user interaction
+	Hydrogen::get_instance()->getAudioEngine()->setState( AudioEngine::State::Playing );
 
 	return 0;
 }

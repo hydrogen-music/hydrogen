@@ -128,7 +128,7 @@ Hydrogen::Hydrogen()
 	m_pAudioEngine = new AudioEngine();
 	Playlist::create_instance();
 
-	EventQueue::get_instance()->push_event( EVENT_STATE, STATE_INITIALIZED );
+	EventQueue::get_instance()->push_event( EVENT_STATE, static_cast<int>(AudioEngine::State::Initialized) );
 
 	// Prevent double creation caused by calls from MIDI thread
 	__instance = this;
@@ -159,12 +159,8 @@ Hydrogen::~Hydrogen()
 		delete pOscServer;
 	}
 #endif
-
-	if ( getState() == STATE_PLAYING ) {
-		m_pAudioEngine->stop();
-	}
-	removeSong();
 	
+	removeSong();
 	
 	m_pAudioEngine->stopAudioDrivers();
 	m_pAudioEngine->destroy();
@@ -228,7 +224,7 @@ void Hydrogen::sequencer_stop()
 		Hydrogen::get_instance()->getMidiOutput()->handleQueueAllNoteOff();
 	}
 
-	m_pAudioEngine->pause();
+	m_pAudioEngine->stop();
 	Preferences::get_instance()->setRecordEvents(false);
 }
 
@@ -360,7 +356,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	unsigned int lookaheadTicks = pAudioEngine->calculateLookahead( fTickSize ) / fTickSize;
 	bool doRecord = pPreferences->getRecordEvents();
 	if ( pSong->getMode() == Song::SONG_MODE && doRecord &&
-		 pAudioEngine->getState() == STATE_PLAYING )
+		 pAudioEngine->getState() == AudioEngine::State::Playing )
 	{
 
 		// Recording + song playback mode + actually playing
@@ -463,7 +459,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		instrRef = pSong->getInstrumentList()->get( m_nInstrumentLookupTable[ instrument ] );
 	}
 
-	if ( currentPattern && ( getState() == STATE_PLAYING ) ) {
+	if ( currentPattern && ( pAudioEngine->getState() == AudioEngine::State::Playing ) ) {
 		assert( currentPattern );
 		if ( doRecord ) {
 			EventQueue::AddMidiNoteVector noteAction;
@@ -501,7 +497,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		}/* if doRecord */
 	} else if ( pPreferences->getHearNewNotes() ) {
 			hearnote = true;
-	} /* if .. STATE_PLAYING */
+	} /* if .. AudioEngine::State::Playing */
 
 	if ( !pPreferences->__playselectedinstrument ) {
 		if ( hearnote && instrRef ) {
@@ -597,7 +593,7 @@ void Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
-	if ( getState() == STATE_PLAYING ) {
+	if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
 		sequencer_stop();
 	}
 	
@@ -623,6 +619,7 @@ void Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 	pAudioEngine->setAudioDriver( new DiskWriterDriver( AudioEngine::audioEngine_process, nSamplerate, sampleDepth ) );
 	
 	m_bExportSessionIsActive = true;
+	
 }
 
 void Hydrogen::stopExportSession()
@@ -632,21 +629,20 @@ void Hydrogen::stopExportSession()
 	m_bExportSessionIsActive = false;
 	
  	pAudioEngine->stopAudioDrivers();
-	
+
 	delete pAudioEngine->getAudioDriver();
 	pAudioEngine->setAudioDriver( nullptr );
-	
 	std::shared_ptr<Song> pSong = getSong();
 	pSong->setMode( m_oldEngineMode );
 	pSong->setIsLoopEnabled( m_bOldLoopEnabled );
 	
 	pAudioEngine->startAudioDrivers();
-
 	if ( pAudioEngine->getAudioDriver() == nullptr ) {
 		ERRORLOG( "pAudioEngine->getAudioDriver() = nullptr" );
 	}
 
 	pAudioEngine->setBpm( pSong->getBpm() );
+	
 }
 
 /// Export a song to a wav file
@@ -657,7 +653,7 @@ void Hydrogen::startExportSong( const QString& filename)
 	// TODO: not -1 instead?
 	pAudioEngine->setSongPos( 0 );
 	pAudioEngine->setPatternTickPosition( 0 );
-	pAudioEngine->setState( STATE_PLAYING );
+	pAudioEngine->play();
 	pAudioEngine->setPatternStartTick( -1 );
 
 	Preferences *pPref = Preferences::get_instance();
@@ -671,6 +667,7 @@ void Hydrogen::startExportSong( const QString& filename)
 
 	getCoreActionController()->locateToFrame( 0 );
 	pAudioEngine->clearNoteQueue();
+	pAudioEngine->getSampler()->stopPlayingNotes();
 
 	DiskWriterDriver* pDiskWriterDriver = (DiskWriterDriver*) pAudioEngine->getAudioDriver();
 	pDiskWriterDriver->setFileName( filename );
@@ -679,10 +676,12 @@ void Hydrogen::startExportSong( const QString& filename)
 	if ( res != 0 ) {
 		ERRORLOG( "Error starting disk writer driver [DiskWriterDriver::connect()]" );
 	}
+	
 }
 
 void Hydrogen::stopExportSong()
 {
+	
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
 	if ( pAudioEngine->getAudioDriver()->class_name() != DiskWriterDriver::class_name() ) {
@@ -716,11 +715,6 @@ MidiOutput* Hydrogen::getMidiOutput() const
 	return m_pAudioEngine->getMidiOutDriver();
 }
 
-int Hydrogen::getState() const
-{
-	return m_pAudioEngine->getState();
-}
-
 // Setting conditional to true will keep instruments that have notes if new kit has less instruments than the old one
 int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo )
 {
@@ -732,9 +726,10 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	assert ( pDrumkitInfo );
 
-	int old_ae_state = getState();
-	if( getState() >= STATE_READY ) {
-		pAudioEngine->setState( STATE_PREPARED );
+	AudioEngine::State oldAudioEngineState = pAudioEngine->getState();
+	if( pAudioEngine->getState() == AudioEngine::State::Ready ||
+		pAudioEngine->getState() == AudioEngine::State::Playing ) {
+		pAudioEngine->setState( AudioEngine::State::Prepared );
 	}
 
 	INFOLOG( pDrumkitInfo->get_name() );
@@ -845,7 +840,7 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	pAudioEngine->unlock();
 #endif
 
-	pAudioEngine->setState( old_ae_state );
+	pAudioEngine->setState( oldAudioEngineState );
 	
 	m_pCoreActionController->initExternalControlInterfaces();
 	
@@ -1229,7 +1224,7 @@ void Hydrogen::handleBeatCounter()
 				m_nBeatCount = 1;
 				m_nEventCount = 1;
 			}else{
-				if ( getState() != STATE_PLAYING ){
+				if ( pAudioEngine->getState() != AudioEngine::State::Playing ){
 					unsigned bcsamplerate =
 							pAudioEngine->getAudioDriver()->getSampleRate();
 					unsigned long rtstartframe = 0;

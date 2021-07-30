@@ -33,6 +33,7 @@
 #include <core/H2Exception.h>
 #include <core/Preferences.h>
 #include <core/Hydrogen.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Timeline.h>
 #include <core/EventQueue.h>
 #include <core/Basics/Playlist.h>

@@ -214,8 +214,7 @@ void MidiActionManager::create_instance() {
 }
 
 bool MidiActionManager::play(Action * , Hydrogen* pHydrogen, targeted_element ) {
-	int nState = pHydrogen->getState();
-	if ( nState == STATE_READY ) {
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Ready ) {
 		pHydrogen->sequencer_play();
 	}
 	return true;
@@ -234,14 +233,13 @@ bool MidiActionManager::stop(Action * , Hydrogen* pHydrogen, targeted_element ) 
 
 bool MidiActionManager::play_stop_pause_toggle(Action * pAction, Hydrogen* pHydrogen, targeted_element ) {
 	QString sActionString = pAction->getType();
-	int nState = pHydrogen->getState();
-	switch ( nState )
+	switch ( pHydrogen->getAudioEngine()->getState() )
 	{
-	case STATE_READY:
+	case AudioEngine::State::Ready:
 		pHydrogen->sequencer_play();
 		break;
 
-	case STATE_PLAYING:
+	case AudioEngine::State::Playing:
 		if( sActionString == "PLAY/STOP_TOGGLE" ) {
 			pHydrogen->getCoreActionController()->locateToColumn( 0 );
 		}
@@ -403,8 +401,7 @@ bool MidiActionManager::select_and_play_pattern(Action * pAction, Hydrogen* pHyd
 		return false;
 	}
 
-	int nState = pHydrogen->getState();
-	if ( nState == STATE_READY ) {
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Ready ) {
 		pHydrogen->sequencer_play();
 	}
 
@@ -876,7 +873,7 @@ bool MidiActionManager::playlist_previous_song(Action * pAction, Hydrogen* pHydr
 }
 
 bool MidiActionManager::record_ready(Action * pAction, Hydrogen* pHydrogen, targeted_element ) {
-	if ( pHydrogen->getState() != STATE_PLAYING ) {
+	if ( pHydrogen->getAudioEngine()->getState() != AudioEngine::State::Playing ) {
 		if (!Preferences::get_instance()->getRecordEvents()) {
 			Preferences::get_instance()->setRecordEvents(true);
 		}

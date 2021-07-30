@@ -69,8 +69,7 @@ void* diskWriterDriver_thread( void* param )
 	__INFOLOG( "DiskWriterDriver thread start" );
 
 	// always rolling, no user interaction
-	pAudioEngine->setStatus( TransportInfo::Status::Rolling );
-
+	pAudioEngine->setState( AudioEngine::State::Playing );
 	SF_INFO soundInfo;
 	soundInfo.samplerate = pDriver->m_nSampleRate;
 //	soundInfo.frames = -1;//getNFrames();		///\todo: da terminare
@@ -109,7 +108,6 @@ void* diskWriterDriver_thread( void* param )
 	if( pDriver->m_sFilename.endsWith( ".ogg" ) | pDriver->m_sFilename.endsWith( ".OGG" ) ) {
 		soundInfo.format = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
 	}
-
 //	#endif
 
 
@@ -168,7 +166,6 @@ void* diskWriterDriver_thread( void* param )
 	int validBpm = pHydrogen->getSong()->getBpm();
 	float oldBPM = 0;
 	float fTicksize = 0;
-	
 	for ( int patternPosition = 0; patternPosition < nColumns; ++patternPosition ) {
 		PatternList *pColumn = ( *pPatternColumns )[ patternPosition ];
 		if ( pColumn->size() != 0 ) {
@@ -270,7 +267,6 @@ void* diskWriterDriver_thread( void* param )
 		float fPercent = ( float )(patternPosition +1) / ( float )nColumns * 100.0;
 		EventQueue::get_instance()->push_event( EVENT_PROGRESS, ( int )fPercent );
 	}
-
 	delete[] pData;
 	pData = nullptr;
 
@@ -279,7 +275,6 @@ void* diskWriterDriver_thread( void* param )
 	__INFOLOG( "DiskWriterDriver thread end" );
 
 	pthread_exit( nullptr );
-
 	return nullptr;
 }
 
@@ -367,11 +362,11 @@ void DiskWriterDriver::audioEngine_process_checkBPMChanged()
 			static_cast<float>( pAudioEngine->getFrames() )
 			/ static_cast<float>( pAudioEngine->getTickSize () );
 
-		pAudioEngine->setTickSize( fNewTickSize );
-
 		if ( fNewTickSize == 0 ) {
 			return;
 		}
+
+		pAudioEngine->setTickSize( fNewTickSize );
 
 		// update frame position
 		pAudioEngine->setFrames( static_cast<long long>( fTickNumber * fNewTickSize ) );

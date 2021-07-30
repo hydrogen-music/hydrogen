@@ -524,8 +524,7 @@ void PlayerControl::updatePlayerControl()
 	m_pShowMixerBtn->setPressed( pH2App->getMixer()->isVisible() );
 	m_pShowInstrumentRackBtn->setPressed( pH2App->getInstrumentRack()->isVisible() );
 
-	int state = m_pHydrogen->getState();
-	if (state == STATE_PLAYING ) {
+	if ( m_pHydrogen->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 		m_pPlayBtn->setPressed(true);
 	}
 	else {
@@ -691,7 +690,7 @@ void PlayerControl::updatePlayerControl()
 
 /// Toggle record mode
 void PlayerControl::recBtnClicked(Button* ref) {
-	if ( m_pHydrogen->getState() != STATE_PLAYING ) {
+	if ( m_pHydrogen->getAudioEngine()->getState() != H2Core::AudioEngine::State::Playing ) {
 		if (ref->isPressed()) {
 			Preferences::get_instance()->setRecordEvents(true);
 			(HydrogenApp::get_instance())->setScrollStatusBarMessage(tr("Record midi events = On" ), 2000 );

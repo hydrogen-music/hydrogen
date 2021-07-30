@@ -20,6 +20,7 @@
  *
  */
 #include <core/FX/Effects.h>
+#include <core/AudioEngine/AudioEngine.h>
 
 #if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
 

@@ -420,7 +420,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pAudioDriver = pHydrogen->getAudioOutput();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
+	if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
 		nFramepos = pAudioEngine->getFrames();
 	} else {
 		// use this to support realtime events when not playing
@@ -883,8 +883,8 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 
-	if(   !pSong->getPlaybackTrackEnabled()
-	   || pHydrogen->getState() != STATE_PLAYING
+	if ( !pSong->getPlaybackTrackEnabled()
+	   || pAudioEngine->getState() != AudioEngine::State::Playing
 	   || pSong->getMode() != Song::SONG_MODE)
 	{
 		return false;
@@ -1507,13 +1507,14 @@ void Sampler::setPlayingNotelength( std::shared_ptr<Instrument> pInstrument, uns
 {
 	if ( pInstrument ) { // stop all notes using this instrument
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
+		auto pAudioEngine = pHydrogen->getAudioEngine();
 		std::shared_ptr<Song> pSong = pHydrogen->getSong();
 		int nSelectedpattern = pHydrogen->getSelectedPatternNumber();
 		Pattern* pCurrentPattern = nullptr;
 
 
 		if ( pSong->getMode() == Song::PATTERN_MODE ||
-		( pHydrogen->getState() != STATE_PLAYING )){
+			 ( pAudioEngine->getState() != AudioEngine::State::Playing )){
 			PatternList *pPatternList = pSong->getPatternList();
 			if ( ( nSelectedpattern != -1 )
 			&& ( nSelectedpattern < ( int )pPatternList->size() ) ) {

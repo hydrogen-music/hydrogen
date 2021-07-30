@@ -435,7 +435,7 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		if ( pHydrogen->getState() == STATE_PLAYING ) {
+		if ( pHydrogen->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 			pHydrogen->sequencer_stop();
 		}
 

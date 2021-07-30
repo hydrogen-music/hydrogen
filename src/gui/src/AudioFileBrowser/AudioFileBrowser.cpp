@@ -30,6 +30,7 @@
 #include <core/Preferences.h>
 #include <core/Basics/Sample.h>
 #include <core/Hydrogen.h>
+#include <core/AudioEngine/AudioEngine.h>
 
 #include <QFileSystemModel>
 #include <QModelIndex>

@@ -273,7 +273,7 @@ void JackAudioDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
 void JackAudioDriver::calculateFrameOffset(long long oldFrame)
 {
 	long long nFrames = Hydrogen::get_instance()->getAudioEngine()->getFrames();
-	if ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) {
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
 		m_frameOffset = m_JackTransportPos.frame - nFrames;
 	} else {
 		m_frameOffset = oldFrame - nFrames;
@@ -457,17 +457,17 @@ void JackAudioDriver::updateTransportInfo()
 
 	switch ( m_JackTransportState ) {
 	case JackTransportStopped: // Transport is halted
-		pAudioEngine->setStatus( TransportInfo::Status::Stopped );
+		pAudioEngine->setNextState( AudioEngine::State::Ready );
 		return;
 		
 	case JackTransportRolling: // Transport is playing
-		pAudioEngine->setStatus( TransportInfo::Status::Rolling );
+		pAudioEngine->setNextState( AudioEngine::State::Playing );
 		break;
 
 	case JackTransportStarting: 
 		// Waiting for sync ready. If there are slow-sync clients,
 		// this can take more than one cycle.
-		pAudioEngine->setStatus( TransportInfo::Status::Stopped );
+		pAudioEngine->setNextState( AudioEngine::State::Ready );
 
 		if ( m_timebaseState == Timebase::Slave ) {
 			return;
@@ -719,7 +719,6 @@ int JackAudioDriver::init( unsigned bufferSize )
 		sClientName = sNsmClientId;
 	}
 #endif
-
 	// The address of the status object will be used by JACK to
 	// return information from the open operation.
 	jack_status_t status;
@@ -834,7 +833,6 @@ int JackAudioDriver::init( unsigned bufferSize )
 	if ( m_pClient == nullptr ) {
 		return -1;
 	}
-
 	JackAudioDriver::jackServerSampleRate = jack_get_sample_rate( m_pClient );
 	JackAudioDriver::jackServerBufferSize = jack_get_buffer_size( m_pClient );
 
@@ -884,7 +882,6 @@ int JackAudioDriver::init( unsigned bufferSize )
 					    JackPortIsOutput, 0 );
 	jack_set_property( m_pClient, jack_port_uuid( m_pOutputPort2 ),
 					   JACK_METADATA_PRETTY_NAME, "Main Output R", "text/plain" );
-
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	if ( ( m_pOutputPort1 == nullptr ) || ( m_pOutputPort2 == nullptr ) ) {
 		pHydrogen->raiseError( Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
@@ -919,7 +916,11 @@ int JackAudioDriver::init( unsigned bufferSize )
 	if ( pSong != nullptr ) {
 		makeTrackOutputs( pSong );
 		pHydrogen->getAudioEngine()->setBpm( pSong->getBpm() );
-		pHydrogen->getCoreActionController()->locateToFrame( 0 );
+		// Caution: this one is called while the AudioEngine is still
+		// locked when exporting a song and closing the dialog. As
+		// long as CoreActionController::locateTo* still lock it, they
+		// mustn't be used.
+		pHydrogen->getAudioEngine()->setFrames( 0 );
 	}
 	
 	return 0;

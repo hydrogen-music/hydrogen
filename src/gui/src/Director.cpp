@@ -58,6 +58,7 @@
 
 #include <core/Preferences.h>
 #include <core/Hydrogen.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Timeline.h>
 #include <core/Helpers/Filesystem.h>
 

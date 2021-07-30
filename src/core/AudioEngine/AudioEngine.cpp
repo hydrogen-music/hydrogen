@@ -21,7 +21,6 @@
  */
 
 #include <core/AudioEngine/AudioEngine.h>
-#include <core/AudioEngine/TransportInfo.h>
 
 #ifdef WIN32
 #    include "core/Timehelper.h"
@@ -108,7 +107,7 @@ AudioEngine::AudioEngine()
 		, m_pAudioDriver( nullptr )
 		, m_pMidiDriver( nullptr )
 		, m_pMidiDriverOut( nullptr )
-		, m_State( STATE_INITIALIZED )
+		, m_state( State::Initialized )
 		, m_pMetronomeInstrument( nullptr )
 		, m_nPatternStartTick( -1 )
 		, m_nPatternTickPosition( 0 )
@@ -118,6 +117,7 @@ AudioEngine::AudioEngine()
 		, m_nSongPos( -1 )
 		, m_nSelectedPatternNumber( 0 )
 		, m_nMaxTimeHumanize( 2000 )
+		, m_nextState( State::Ready )
 {
 	INFOLOG( "INIT" );
 
@@ -232,8 +232,8 @@ void AudioEngine::unlock()
 void AudioEngine::destroy()
 {
 	// check current state
-	if ( getState() != STATE_INITIALIZED ) {
-		___ERRORLOG( "Error the audio engine is not in INITIALIZED state" );
+	if ( getState() != State::Initialized ) {
+		___ERRORLOG( "Error the audio engine is not in State::Initialized" );
 		return;
 	}
 	m_pSampler->stopPlayingNotes();
@@ -254,9 +254,9 @@ void AudioEngine::destroy()
 	m_midiNoteQueue.clear();
 
 	// change the current audio engine state
-	setState( STATE_UNINITIALIZED );
+	setState( State::Uninitialized );
 
-	EventQueue::get_instance()->push_event( EVENT_STATE, STATE_UNINITIALIZED );
+	EventQueue::get_instance()->push_event( EVENT_STATE, static_cast<int>(State::Uninitialized) );
 
 	delete m_pPlayingPatterns;
 	m_pPlayingPatterns = nullptr;
@@ -269,89 +269,48 @@ void AudioEngine::destroy()
 	this->unlock();
 }
 
-int AudioEngine::start( bool bLockEngine, unsigned nTotalFrames )
+void AudioEngine::startPlayback()
 {
-	if ( bLockEngine ) {
-		this->lock( RIGHT_HERE );
-	}
-
-	___INFOLOG( "[audioEngine_start]" );
+	___INFOLOG( "" );
 
 	// check current state
-	if ( getState() != STATE_READY ) {
-		___ERRORLOG( "Error the audio engine is not in READY state" );
-		if ( bLockEngine ) {
-			this->unlock();
-		}
-		return 0;	// FIXME!!
+	if ( getState() != State::Ready ) {
+		___ERRORLOG( "Error the audio engine is not in State::Ready" );
+		return;
 	}
 
 	m_fMasterPeak_L = 0.0f;
 	m_fMasterPeak_R = 0.0f;
-	// Reset the current transport position.
-	setFrames( nTotalFrames );
 	m_nSongPos = -1;
 	m_nPatternStartTick = -1;
 	m_nPatternTickPosition = 0;
 
-	// prepare the tick size for this song
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	setTickSize( AudioEngine::computeTickSize( static_cast<float>(m_pAudioDriver->getSampleRate()),
-											   pSong->getBpm(), pSong->getResolution() ) );
-
 	// change the current audio engine state
-	setState( STATE_PLAYING );
-	m_pEventQueue->push_event( EVENT_STATE, STATE_PLAYING );
-
-	if ( bLockEngine ) {
-		this->unlock();
-	}
-	return 0;
+	setState( State::Playing );
+	m_pEventQueue->push_event( EVENT_STATE, static_cast<int>(State::Playing) );
 }
 
-void AudioEngine::stop( bool bLockEngine )
+void AudioEngine::stopPlayback()
 {
-	
-	if ( bLockEngine ) {
-		this->lock( RIGHT_HERE );
-	}
-	
-	___INFOLOG( "[audioEngine_stop]" );
+	___INFOLOG( "" );
 
 	// check current state
-	if ( getState() != STATE_PLAYING ) {
-		___ERRORLOG( "Error the audio engine is not in PLAYING state" );
-		if ( bLockEngine ) {
-			this->unlock();
-		}
+	if ( getState() != State::Playing ) {
+		___ERRORLOG( QString( "Error the audio engine is not in State::Playing but [%1]" )
+					 .arg( static_cast<int>( getState() ) ) );
 		return;
 	}
 
 	// change the current audio engine state
-	setState( STATE_READY );
-	m_pEventQueue->push_event( EVENT_STATE, STATE_READY );
+	setState( State::Ready );
+	m_pEventQueue->push_event( EVENT_STATE, static_cast<int>(State::Ready) );
 
 	m_fMasterPeak_L = 0.0f;
 	m_fMasterPeak_R = 0.0f;
 	//	m_nPatternTickPosition = 0;
 	m_nPatternStartTick = -1;
 
-	// delete all copied notes in the song notes queue
-	while(!m_songNoteQueue.empty()){
-		m_songNoteQueue.top()->get_instrument()->dequeue();
-		delete m_songNoteQueue.top();
-		m_songNoteQueue.pop();
-	}
-
-	// delete all copied notes in the midi notes queue
-	for ( unsigned i = 0; i < m_midiNoteQueue.size(); ++i ) {
-		delete m_midiNoteQueue[i];
-	}
-	m_midiNoteQueue.clear();
-
-	if ( bLockEngine ) {
-		this->unlock();
-	}
+	clearNoteQueue();
 }
 
 
@@ -495,7 +454,7 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 	mx.unlock();
 
 #ifdef H2CORE_HAVE_LADSPA
-	if ( m_State >= STATE_READY ) {
+	if ( getState() == State::Ready || getState() == State::Playing ) {
 		Effects* pEffects = Effects::get_instance();
 		for ( unsigned i = 0; i < MAX_FX; ++i ) {	// clear FX buffers
 			LadspaFX* pFX = pEffects->getLadspaFX( i );
@@ -581,7 +540,6 @@ AudioOutput* AudioEngine::createDriver( const QString& sDriver )
 			pDriver = nullptr;
 		}
 	}
-
 	return pDriver;
 }
 
@@ -596,10 +554,9 @@ void AudioEngine::startAudioDrivers()
 	___INFOLOG( "[audioEngine_startAudioDrivers]" );
 	
 	// check current state
-	if ( m_State != STATE_INITIALIZED ) {
-		___ERRORLOG( QString( "Error the audio engine is not in INITIALIZED"
-							  " state. state=%1" )
-					 .arg( m_State ) );
+	if ( getState() != State::Initialized ) {
+		___ERRORLOG( QString( "Audio engine is not in State::Initialized but [%1]" )
+					 .arg( static_cast<int>( getState() ) ) );
 		this->unlock();
 		return;
 	}
@@ -610,7 +567,6 @@ void AudioEngine::startAudioDrivers()
 	if ( m_pMidiDriver ) {	// check if midi driver is still alive
 		___ERRORLOG( "The MIDI driver is still active" );
 	}
-
 
 	QString sAudioDriver = preferencesMng->m_sAudioDriver;
 	if ( sAudioDriver == "Auto" ) {
@@ -668,7 +624,6 @@ void AudioEngine::startAudioDrivers()
 			m_pAudioDriver->init( 0 );
 		}
 	}
-
 	if ( preferencesMng->m_sMidiDriver == "ALSA" ) {
 #ifdef H2CORE_HAVE_ALSA
 		// Create MIDI driver
@@ -708,18 +663,13 @@ void AudioEngine::startAudioDrivers()
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong ) {
-		m_State = STATE_READY;
+		m_state = State::Ready;
 		setBpm( pSong->getBpm() );
 	} else {
-		m_State = STATE_PREPARED;
+		m_state = State::Prepared;
 	}
 
-	if ( m_State == STATE_PREPARED ) {
-		m_pEventQueue->push_event( EVENT_STATE, STATE_PREPARED );
-	} else if ( m_State == STATE_READY ) {
-		m_pEventQueue->push_event( EVENT_STATE, STATE_READY );
-	}
-
+	m_pEventQueue->push_event( EVENT_STATE, static_cast<int>( getState() ) );
 	// Unlocking earlier might execute the jack process() callback before we
 	// are fully initialized.
 	mx.unlock();
@@ -750,21 +700,20 @@ void AudioEngine::stopAudioDrivers()
 	___INFOLOG( "[audioEngine_stopAudioDrivers]" );
 
 	// check current state
-	if ( m_State == STATE_PLAYING ) {
-		this->stop(); 
+	if ( m_state == State::Playing ) {
+		this->stopPlayback(); 
 	}
 
-	if ( ( m_State != STATE_PREPARED )
-		 && ( m_State != STATE_READY ) ) {
-		___ERRORLOG( QString( "Error: the audio engine is not in PREPARED"
-							  " or READY state. state=%1" )
-					 .arg( m_State ) );
+	if ( ( m_state != State::Prepared )
+		 && ( m_state != State::Ready ) ) {
+		___ERRORLOG( QString( "Audio engine is not in State::Prepared or State::Ready but [%1]" )
+					 .arg( static_cast<int>(m_state) ) );
 		return;
 	}
 
 	// change the current audio engine state
-	m_State = STATE_INITIALIZED;
-	m_pEventQueue->push_event( EVENT_STATE, STATE_INITIALIZED );
+	m_state = State::Initialized;
+	m_pEventQueue->push_event( EVENT_STATE, static_cast<int>(State::Initialized) );
 
 	this->lock( RIGHT_HERE );
 
@@ -802,14 +751,13 @@ void AudioEngine::restartAudioDrivers()
 
 void AudioEngine::processCheckBPMChanged(std::shared_ptr<Song> pSong)
 {
-	if ( m_State != STATE_READY
-		 && m_State != STATE_PLAYING ) {
+	if ( m_state != State::Ready && m_state != State::Playing ) {
 		return;
 	}
 
 	long long oldFrame;
 	if ( Hydrogen::get_instance()->haveJackTransport() && 
-		 m_State != STATE_PLAYING ) {
+		 m_state != State::Playing ) {
 		oldFrame = static_cast< JackAudioDriver* >( m_pAudioDriver )->m_currentPos;
 			
 	} else {
@@ -898,7 +846,7 @@ inline void AudioEngine::processPlayNotes( unsigned long nframes )
 
 	unsigned int framepos;
 
-	if (  getState() == STATE_PLAYING ) {
+	if ( getState() == State::Playing ) {
 		framepos = getFrames();
 	} else {
 		// use this to support realtime events when not playing
@@ -1017,9 +965,9 @@ inline void AudioEngine::processTransport( unsigned nFrames )
 {
 	assert( m_pAudioDriver );
 	
-	if (   getState() != STATE_READY
-		&& getState() != STATE_PLAYING
-	) return;
+	if ( getState() != State::Ready && getState() != State::Playing ) {
+		return;
+	}
 
 	if ( Hydrogen::get_instance()->haveJackTransport() ) {
 		// Compares the current transport state, speed in bpm, and
@@ -1033,55 +981,46 @@ inline void AudioEngine::processTransport( unsigned nFrames )
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
-	// Update the state of the audio engine depending on the
-	// status of the audio driver. E.g. if the JACK transport was
-	// started by another client, the audio engine has to be
-	// started as well.
-	switch ( getStatus() ) {
-	case TransportInfo::Status::Rolling:
-		if ( getState() == STATE_READY ) {
-			// false == no engine lock. Already locked
-			// this should set STATE_PLAYING
-			this->start( false, getFrames() );
-		}
-		// So, we are not playing even after attempt to start engine
-		if ( getState() != STATE_PLAYING ) {
-			return;
+	assert( pSong );
+
+	// Update the state of the audio engine depending on whether it
+	// was started or stopped by the user.
+	if ( m_nextState == State::Playing ) {
+		if ( getState() == State::Ready ) {
+			startPlayback();
 		}
 
-		/* Now we're playing | Update BPM */
+		/* Now we're playing. Update BPM */
+	
 		if ( pSong->getBpm() != getBpm() ) {
-			___INFOLOG( QString( "song bpm: (%1) gets transport bpm: (%2)" )
+			___INFOLOG( QString( "Mismatch of BPM used in AudioEngine [%1] and Song [%2]. Update the second with the first one." )
 				.arg( pSong->getBpm() )
 						.arg( getBpm() )
 			);
 
 			pHydrogen->setBPM( getBpm() );
 		}
+		setTickSize( AudioEngine::computeTickSize( static_cast<float>(m_pAudioDriver->getSampleRate()),
+												   getBpm(), pSong->getResolution() ) );
+
 
 		// Update the variable m_nRealtimeFrames keeping track
 		// of the current transport position.
 		setRealtimeFrames( getFrames() );
-		break;
-	case TransportInfo::Status::Stopped:
-		// So, we are not playing even after attempt to start engine
-		if ( getState() == STATE_PLAYING ) {
-			// false == no engine lock. Already locked
-			this->stop( false );
+
+	} else {
+		if ( getState() == State::Playing ) {
+			stopPlayback();
 		}
 
 		// go ahead and increment the realtimeframes by nFrames
 		// to support our realtime keyboard and midi event timing
-		// TODO: use method like setRealtimeFrames
-		m_nRealtimeFrames += nFrames;
-		break;
+		setRealtimeFrames( getRealtimeFrames() + nFrames );
 	}
 }
 
 void AudioEngine::clearNoteQueue()
 {
-	//___INFOLOG( "clear notes...");
-
 	// delete all copied notes in the song notes queue
 	while (!m_songNoteQueue.empty()) {
 		m_songNoteQueue.top()->get_instrument()->dequeue();
@@ -1089,14 +1028,11 @@ void AudioEngine::clearNoteQueue()
 		m_songNoteQueue.pop();
 	}
 
-	m_pSampler->stopPlayingNotes();
-
 	// delete all copied notes in the midi notes queue
 	for ( unsigned i = 0; i < m_midiNoteQueue.size(); ++i ) {
 		delete m_midiNoteQueue[i];
 	}
 	m_midiNoteQueue.clear();
-
 }
 
 int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
@@ -1142,7 +1078,8 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		return 0;
 	}
 
-	if ( pAudioEngine->getState() < STATE_READY) {
+	if ( pAudioEngine->getState() != AudioEngine::State::Ready &&
+		 pAudioEngine->getState() != AudioEngine::State::Playing ) {
 		pAudioEngine->unlock();
 		return 0;
 	}
@@ -1170,7 +1107,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	if ( nResNoteQueue == -1 ) {	// end of song
 		___INFOLOG( "End of song received, calling engine_stop()" );
 		pAudioEngine->unlock();
-		pAudioEngine->pause();
+		pAudioEngine->stop();
 		pAudioEngine->locate( 0 ); // locate 0, reposition from start of the song
 
 		if ( (pAudioEngine->m_pAudioDriver->class_name() == DiskWriterDriver::class_name() )
@@ -1216,31 +1153,29 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 #ifdef H2CORE_HAVE_LADSPA
 	// Process LADSPA FX
-	if ( pAudioEngine->getState() >= STATE_READY ) {
-		for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-			LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
-			if ( ( pFX ) && ( pFX->isEnabled() ) ) {
-				pFX->processFX( nframes );
+	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
+		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
+		if ( ( pFX ) && ( pFX->isEnabled() ) ) {
+			pFX->processFX( nframes );
 
-				float *buf_L, *buf_R;
-				if ( pFX->getPluginType() == LadspaFX::STEREO_FX ) {
-					buf_L = pFX->m_pBuffer_L;
-					buf_R = pFX->m_pBuffer_R;
-				} else { // MONO FX
-					buf_L = pFX->m_pBuffer_L;
-					buf_R = buf_L;
+			float *buf_L, *buf_R;
+			if ( pFX->getPluginType() == LadspaFX::STEREO_FX ) {
+				buf_L = pFX->m_pBuffer_L;
+				buf_R = pFX->m_pBuffer_R;
+			} else { // MONO FX
+				buf_L = pFX->m_pBuffer_L;
+				buf_R = buf_L;
+			}
+
+			for ( unsigned i = 0; i < nframes; ++i ) {
+				pBuffer_L[ i ] += buf_L[ i ];
+				pBuffer_R[ i ] += buf_R[ i ];
+				if ( buf_L[ i ] > pAudioEngine->m_fFXPeak_L[nFX] ) {
+					pAudioEngine->m_fFXPeak_L[nFX] = buf_L[ i ];
 				}
 
-				for ( unsigned i = 0; i < nframes; ++i ) {
-					pBuffer_L[ i ] += buf_L[ i ];
-					pBuffer_R[ i ] += buf_R[ i ];
-					if ( buf_L[ i ] > pAudioEngine->m_fFXPeak_L[nFX] ) {
-						pAudioEngine->m_fFXPeak_L[nFX] = buf_L[ i ];
-					}
-
-					if ( buf_R[ i ] > pAudioEngine->m_fFXPeak_R[nFX] ) {
-						pAudioEngine->m_fFXPeak_R[nFX] = buf_R[ i ];
-					}
+				if ( buf_R[ i ] > pAudioEngine->m_fFXPeak_R[nFX] ) {
+					pAudioEngine->m_fFXPeak_R[nFX] = buf_R[ i ];
 				}
 			}
 		}
@@ -1251,48 +1186,43 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 	// update master peaks
 	float val_L, val_R;
-	if ( pAudioEngine->getState() >= STATE_READY ) {
-		for ( unsigned i = 0; i < nframes; ++i ) {
-			val_L = pBuffer_L[i];
-			val_R = pBuffer_R[i];
+	for ( unsigned i = 0; i < nframes; ++i ) {
+		val_L = pBuffer_L[i];
+		val_R = pBuffer_R[i];
 
-			if ( val_L > pAudioEngine->m_fMasterPeak_L ) {
-				pAudioEngine->m_fMasterPeak_L = val_L;
+		if ( val_L > pAudioEngine->m_fMasterPeak_L ) {
+			pAudioEngine->m_fMasterPeak_L = val_L;
+		}
+
+		if ( val_R > pAudioEngine->m_fMasterPeak_R ) {
+			pAudioEngine->m_fMasterPeak_R = val_R;
+		}
+
+		for (std::vector<DrumkitComponent*>::iterator it = pSong->getComponents()->begin() ; it != pSong->getComponents()->end(); ++it) {
+			DrumkitComponent* drumkit_component = *it;
+
+			float compo_val_L = drumkit_component->get_out_L(i);
+			float compo_val_R = drumkit_component->get_out_R(i);
+
+			if( compo_val_L > drumkit_component->get_peak_l() ) {
+				drumkit_component->set_peak_l( compo_val_L );
 			}
-
-			if ( val_R > pAudioEngine->m_fMasterPeak_R ) {
-				pAudioEngine->m_fMasterPeak_R = val_R;
-			}
-
-			for (std::vector<DrumkitComponent*>::iterator it = pSong->getComponents()->begin() ; it != pSong->getComponents()->end(); ++it) {
-				DrumkitComponent* drumkit_component = *it;
-
-				float compo_val_L = drumkit_component->get_out_L(i);
-				float compo_val_R = drumkit_component->get_out_R(i);
-
-				if( compo_val_L > drumkit_component->get_peak_l() ) {
-					drumkit_component->set_peak_l( compo_val_L );
-				}
-				if( compo_val_R > drumkit_component->get_peak_r() ) {
-					drumkit_component->set_peak_r( compo_val_R );
-				}
+			if( compo_val_R > drumkit_component->get_peak_r() ) {
+				drumkit_component->set_peak_r( compo_val_R );
 			}
 		}
 	}
 
 	// update total frames number
-	if ( pAudioEngine->getState() == STATE_PLAYING ) {
+	if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
 		pAudioEngine->setFrames( pAudioEngine->getFrames() + nframes );
+		pAudioEngine->updateElapsedTime( nframes, pAudioEngine->m_pAudioDriver->getSampleRate() );
 	}
 
 	timeval finishTimeval = currentTime2();
 	pAudioEngine->m_fProcessTime =
 			( finishTimeval.tv_sec - startTimeval.tv_sec ) * 1000.0
 			+ ( finishTimeval.tv_usec - startTimeval.tv_usec ) / 1000.0;
-
-	if ( pAudioEngine->getState() == STATE_PLAYING ) {
-		pAudioEngine->updateElapsedTime( nframes, pAudioEngine->m_pAudioDriver->getSampleRate() );
-	}
 
 #ifdef CONFIG_DEBUG
 	if ( pAudioEngine->m_fProcessTime > m_fMaxProcessTime ) {
@@ -1325,8 +1255,9 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 
 	// check current state
 	// should be set by removeSong called earlier
-	if ( getState() != STATE_PREPARED ) {
-		___ERRORLOG( "Error the audio engine is not in PREPARED state" );
+	if ( getState() != State::Prepared ) {
+		___ERRORLOG( QString( "Error the audio engine is not in State::Prepared but [%1]" )
+					 .arg( static_cast<int>( getState() ) ) );
 	}
 
 	// setup LADSPA FX
@@ -1350,27 +1281,28 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 											   static_cast<int>(pNewSong->getResolution()) ) );
 
 	// change the current audio engine state
-	setState( STATE_READY );
+	setState( State::Ready );
 
 	locate( 0 );
 
 	this->unlock();
 
-	m_pEventQueue->push_event( EVENT_STATE, STATE_READY );
+	m_pEventQueue->push_event( EVENT_STATE, static_cast<int>(State::Ready) );
 }
 
 void AudioEngine::removeSong()
 {
 	this->lock( RIGHT_HERE );
 
-	if ( getState() == STATE_PLAYING ) {
-		pause();
-		this->stop( false );
+	if ( getState() == State::Playing ) {
+		stop();
+		this->stopPlayback();
 	}
 
 	// check current state
-	if ( getState() != STATE_READY ) {
-		___ERRORLOG( "Error the audio engine is not in READY state" );
+	if ( getState() != State::Ready ) {
+		___ERRORLOG( QString( "Error the audio engine is not in State::Ready but [%1]" )
+					 .arg( static_cast<int>( getState() ) ) );
 		this->unlock();
 		return;
 	}
@@ -1378,12 +1310,13 @@ void AudioEngine::removeSong()
 	m_pPlayingPatterns->clear();
 	m_pNextPatterns->clear();
 	clearNoteQueue();
+	m_pSampler->stopPlayingNotes();
 
 	// change the current audio engine state
-	setState( STATE_PREPARED );
+	setState( State::Prepared );
 	this->unlock();
 
-	m_pEventQueue->push_event( EVENT_STATE, STATE_PREPARED );
+	m_pEventQueue->push_event( EVENT_STATE, static_cast<int>( getState() ) );
 }
 
 inline int AudioEngine::updateNoteQueue( unsigned nFrames )
@@ -1398,7 +1331,7 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 	int nLeadLagFactor = calculateLeadLagFactor( fTickSize );
 
 	unsigned int framepos;
-	if ( getState() == STATE_PLAYING ) {
+	if ( getState() == State::Playing ) {
 		// Current transport position.
 		framepos = getFrames();
 	} else {
@@ -1410,7 +1343,7 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 	int lookahead = calculateLookahead( fTickSize );
 	int tickNumber_start = 0;
 	if ( framepos == 0
-		 || ( getState() == STATE_PLAYING
+		 || ( getState() == State::Playing
 			  && pSong->getMode() == Song::SONG_MODE
 			  && m_nSongPos == -1 )
 	) {
@@ -1439,7 +1372,7 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 			m_songNoteQueue.push( pNote );
 		}
 
-		if (  getState() != STATE_PLAYING ) {
+		if (  getState() != State::Playing ) {
 			// only keep going if we're playing
 			continue;
 		}
@@ -1450,7 +1383,7 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 			if ( pSong->getPatternGroupVector()->size() == 0 ) {
 				// there's no song!!
 				___ERRORLOG( "no patterns in song." );
-				pause();
+				stop();
 				return -1;
 			}
 	
@@ -1824,9 +1757,9 @@ long AudioEngine::getTickForColumn( int nColumn )
 void AudioEngine::noteOn( Note *note )
 {
 	// check current state
-	if ( ( getState() != STATE_READY )
-		 && ( getState() != STATE_PLAYING ) ) {
-		___ERRORLOG( "Error the audio engine is not in READY state" );
+	if ( ( getState() != State::Playing ) && ( getState() != State::Ready ) ) {
+		___ERRORLOG( QString( "Error the audio engine is not in State::Ready or State::Playing but [%1]" )
+					 .arg( static_cast<int>( getState() ) ) );
 		delete note;
 		return;
 	}
@@ -1845,7 +1778,7 @@ bool AudioEngine::compare_pNotes::operator()(Note* pNote1, Note* pNote2)
 }
 
 void AudioEngine::play() {
-
+	
 	assert( m_pAudioDriver );
 
 	if ( Hydrogen::get_instance()->haveJackTransport() ) {
@@ -1855,14 +1788,14 @@ void AudioEngine::play() {
 		return;
 	}
 
-	setStatus( TransportInfo::Status::Rolling );
+	setNextState( State::Playing );
 
 	if ( m_pAudioDriver->class_name() == FakeDriver::class_name() ) {
 		static_cast<FakeDriver*>( m_pAudioDriver )->processCallback();
 	}
 }
 
-void AudioEngine::pause() {
+void AudioEngine::stop() {
 
 	assert( m_pAudioDriver );
 
@@ -1873,7 +1806,7 @@ void AudioEngine::pause() {
 		return;
 	}
 	
-	setStatus( TransportInfo::Status::Stopped );
+	setNextState( State::Ready );
 }
 
 unsigned long AudioEngine::getRealtimeTickPosition()

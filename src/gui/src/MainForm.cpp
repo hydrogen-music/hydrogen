@@ -192,7 +192,7 @@ MainForm::~MainForm()
 	//if a playlist is used, we save the last playlist-path to hydrogen.conf
 	Preferences::get_instance()->setLastPlaylistFilename( Playlist::get_instance()->getFilename() );
 
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+	if ( (Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
@@ -539,7 +539,7 @@ void MainForm::action_file_new()
 	const bool bUnderSessionManagement = H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
 	
 	Hydrogen * pHydrogen = Hydrogen::get_instance();
-	if ( (pHydrogen->getState() == STATE_PLAYING) ) {
+	if ( pHydrogen->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 		pHydrogen->sequencer_stop();
 	}
 
@@ -589,7 +589,7 @@ void MainForm::action_file_save_as()
 		
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
+	if ( pHydrogen->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 			pHydrogen->sequencer_stop();
 	}
 
@@ -768,11 +768,12 @@ void MainForm::showUserManual()
 
 void MainForm::action_file_export_pattern_as()
 {
-	if ( ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) ) {
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+		
+	if ( ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	Pattern *pPattern = pSong->getPatternList()->get( pHydrogen->getSelectedPatternNumber() );
 
@@ -819,7 +820,7 @@ void MainForm::action_file_export_pattern_as()
 
 void MainForm::action_file_open() {
 		
-	if ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) {
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
@@ -902,7 +903,7 @@ void MainForm::action_file_openPattern()
 /// \todo parametrizzare il metodo action_file_open ed eliminare il seguente...
 void MainForm::action_file_openDemo()
 {
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
@@ -1287,7 +1288,7 @@ void MainForm::closeEvent( QCloseEvent* ev )
 
 void MainForm::action_file_export()
 {
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
@@ -1438,13 +1439,12 @@ void MainForm::onPreferencesChanged( bool bAppearanceOnly ) {
 
 void MainForm::onPlayStopAccelEvent()
 {
-	int nState = Hydrogen::get_instance()->getState();
-	switch (nState) {
-	case STATE_READY:
+	switch ( Hydrogen::get_instance()->getAudioEngine()->getState() ) {
+	case H2Core::AudioEngine::State::Ready:
 		Hydrogen::get_instance()->sequencer_play();
 		break;
 
-	case STATE_PLAYING:
+	case H2Core::AudioEngine::State::Playing:
 		Hydrogen::get_instance()->sequencer_stop();
 		break;
 
@@ -1857,7 +1857,7 @@ void MainForm::action_debug_printObjects()
 
 void MainForm::action_file_export_midi()
 {
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
@@ -1871,7 +1871,7 @@ void MainForm::action_file_export_midi()
 
 void MainForm::action_file_export_lilypond()
 {
-	if ( ( ( Hydrogen::get_instance() )->getState() == STATE_PLAYING ) ) {
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
@@ -2322,8 +2322,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		ERRORLOG( QString( "Unknown object class" ) );
 	}
 
-	int nState = pHydrogen->getState();
-	if ( nState == STATE_READY ) {
+	if ( pAudioEngine->getState() == H2Core::AudioEngine::State::Ready ) {
 		pHydrogen->sequencer_play();
 		pApp->setStatusBarMessage(tr("Playing."), 5000);
 	}

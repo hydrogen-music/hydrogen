@@ -34,7 +34,6 @@
 #include <core/Basics/Drumkit.h>
 #include <core/CoreActionController.h>
 #include <core/Timehelper.h>
-#include <core/AudioEngine/AudioEngine.h>
 
 #include <stdint.h> // for uint32_t et al
 #include <cassert>
@@ -45,6 +44,7 @@ inline int randomValue( int max );
 namespace H2Core
 {
 	class CoreActionController;
+	class AudioEngine;
 ///
 /// Hydrogen Audio Engine.
 ///
@@ -196,10 +196,6 @@ public:
 		AudioOutput*		getAudioOutput() const;
 		MidiInput*		getMidiInput() const;
 		MidiOutput*		getMidiOutput() const;
-
-		/** Returns the current state of the audio engine.
-		 * \return #m_audioEngineState*/
-		int			getState() const;
 
 		/** Wrapper around loadDrumkit( Drumkit, bool ) with the
 			conditional argument set to true.

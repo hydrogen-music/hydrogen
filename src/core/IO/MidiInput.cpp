@@ -88,6 +88,7 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		}
 
 		Hydrogen* pHydrogen = Hydrogen::get_instance();
+		auto pAudioEngine = pHydrogen->getAudioEngine();
 		if ( ! pHydrogen->getSong() ) {
 			ERRORLOG( "No song loaded, skipping note" );
 			return;
@@ -141,7 +142,7 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 
 		case MidiMessage::START: /* Start from position 0 */
 				INFOLOG( "START event" );
-				if ( pHydrogen->getState() != STATE_PLAYING ) {
+				if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
 					pHydrogen->getCoreActionController()->locateToColumn( 0 );
 					pHydrogen->setTimelineBpm();
 					pHydrogen->sequencer_play();
@@ -150,14 +151,14 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 
 		case MidiMessage::CONTINUE: /* Just start */
 				ERRORLOG( "CONTINUE event" );
-				if ( pHydrogen->getState() != STATE_PLAYING ) {
+				if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
 					pHydrogen->sequencer_play();
 				}
 				break;
 
 		case MidiMessage::STOP: /* Stop in current position i.e. Pause */
 				INFOLOG( "STOP event" );
-				if ( pHydrogen->getState() == STATE_PLAYING ) {
+				if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
 					pHydrogen->sequencer_stop();
 				}
 				break;

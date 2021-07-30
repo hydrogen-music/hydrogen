@@ -44,29 +44,14 @@ namespace H2Core
 class TransportInfo : public H2Core::Object
 {
 public:
-	enum class Status {
-	      /** The audio engine is playing back or processing audio
-		  and the transport is stopped. */
-	      Stopped,
-	      /** The audio engine is playing back or processing audio
-		  and the transport is running. */
-	      Rolling,
-	      /** This option is not yet used in the source code. */
-	      Bad
-	};
 
 	/**
 	 * Constructor of TransportInfo
-	 *
-	 * - Sets #m_status to TransportInfo::STOPPED
-	 * - Sets #m_nFrames and #m_fTickSize to 0
-	 * - Sets #m_fBPM to 120
 	 */
 	TransportInfo( const char* __class_name );
 	/** Destructor of TransportInfo */
 	~TransportInfo();
 
-	Status getStatus() const;
 	long long getFrames() const;
 	float getTickSize() const;
 	float getBpm() const;
@@ -75,7 +60,6 @@ public:
 		Hydrogen would be frame- instead of tick-based.*/
 	long long getExternalFrames() const;
 	
-	void setStatus( Status newStatus );
 	void setBpm( float fNewBpm );
 
 	// TODO: make this protected
@@ -90,10 +74,6 @@ protected:
 	void setExternalFrames( long long nNewExternalFrames );
 
 private:
-	/**
-	 * Current transport state of the audio engine.
-	 */
-	Status m_status;
 
 	/** 
 	 * Current transport position in number of frames since the
@@ -131,10 +111,6 @@ private:
 	float m_fBpm;
 };
 
-
-inline TransportInfo::Status TransportInfo::getStatus() const {
-	return m_status;
-}
 inline long long TransportInfo::getFrames() const {
 	return m_nFrames;
 }
@@ -146,9 +122,6 @@ inline float TransportInfo::getTickSize() const {
 }
 inline float TransportInfo::getBpm() const {
 	return m_fBpm;
-}
-inline void TransportInfo::setStatus( TransportInfo::Status newStatus ) {
-	m_status = newStatus;
 }
 };
 

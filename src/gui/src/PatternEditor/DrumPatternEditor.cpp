@@ -76,11 +76,9 @@ DrumPatternEditor::~DrumPatternEditor()
 
 void DrumPatternEditor::updateEditor( bool bPatternOnly )
 {
-	Hydrogen* engine = Hydrogen::get_instance();
-
-	// check engine state
-	int state = engine->getState();
-	if ( (state != STATE_READY) && (state != STATE_PLAYING) ) {
+	auto pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
+	if ( pAudioEngine->getState() != H2Core::AudioEngine::State::Ready &&
+		 pAudioEngine->getState() != H2Core::AudioEngine::State::Playing ) {
 		ERRORLOG( "FIXME: skipping pattern editor update (state should be READY or PLAYING)" );
 		return;
 	}

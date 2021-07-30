@@ -33,6 +33,7 @@
 namespace H2Core
 {
 
+	void* diskWriterDriver_thread( void *param );
 ///
 /// Driver for export audio to disk
 ///

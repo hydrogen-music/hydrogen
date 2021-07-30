@@ -339,7 +339,6 @@ void ExportSongDialog::on_okBtn_clicked()
 
 		m_pHydrogen->startExportSession( sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt());
 		m_pHydrogen->startExportSong( filename );
-
 		return;
 	}
 

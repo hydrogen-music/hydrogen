@@ -437,10 +437,12 @@ SongEditorPanel::~SongEditorPanel()
 
 void SongEditorPanel::updatePlayHeadPosition()
 {
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	if ( Preferences::get_instance()->m_bFollowPlayhead && pSong->getMode() == Song::SONG_MODE) {
-		if ( Hydrogen::get_instance()->getState() != STATE_PLAYING ) {
+		if ( pAudioEngine->getState() != H2Core::AudioEngine::State::Playing ) {
 			return;
 		}
 
@@ -448,7 +450,7 @@ void SongEditorPanel::updatePlayHeadPosition()
 		int x = -pos.x();
 		int w = m_pPositionRulerScrollView->viewport()->width();
 
-		int nPlayHeadPosition = Hydrogen::get_instance()->getAudioEngine()->getSongPos() *
+		int nPlayHeadPosition = pAudioEngine->getSongPos() *
 			m_pSongEditor->getGridWidth();
 
 		int value = m_pEditorScrollView->horizontalScrollBar()->value();
@@ -846,7 +848,7 @@ void SongEditorPanel::mutePlaybackTrackBtnPressed( Button* pBtn )
 
 void SongEditorPanel::editPlaybackTrackBtnPressed( Button* pBtn )
 {
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 	
