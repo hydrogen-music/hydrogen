@@ -37,6 +37,7 @@
 #include <core/IO/DiskWriterDriver.h>
 #include <core/IO/FakeDriver.h>
 
+#include <memory>
 #include <string>
 #include <cassert>
 #include <mutex>
@@ -66,6 +67,7 @@ namespace H2Core
 	class EventQueue;
 	class PatternList;
 	class Drumkit;
+	class Song;
 	
 /**
  * Audio Engine main class.
@@ -209,19 +211,7 @@ public:
 	 * AudioEngine lock.
 	 */
 	void			assertLocked( );
-	
-	/**
-	 * Updates the global objects of the audioEngine according to new
-	 * Song.
-	 *
-	 * \param pNewSong Song to load.
-	 */
-	void			setSong(std::shared_ptr<Song>pNewSong );
 
-	/**
-	 * Does the necessary cleanup of the global objects in the audioEngine.
-	 */
-	void			removeSong();
 	void			noteOn( Note *note );
 	
 	/**
@@ -543,6 +533,10 @@ public:
 	 */
 	void stop();
 
+	/** Is allowed to call setSong().*/
+	friend void Hydrogen::setSong( std::shared_ptr<Song> pSong );
+	/** Is allowed to call removeSong().*/
+	friend void Hydrogen::removeSong();
 	/** Is allowed to use locate() to directly set the position in frames*/
 	friend bool CoreActionController::locateToFrame( unsigned long nFrame );
 	/** Is allowed to set m_state to State::Prepared via setState()*/
@@ -554,6 +548,18 @@ public:
 		what the JACK server reports.*/
 	friend void JackAudioDriver::updateTransportInfo();
 private:
+	
+	/**
+	 * Updates the global objects of the audioEngine according to new
+	 * Song.
+	 *
+	 * \param pNewSong Song to load.
+	 */
+	void			setSong( std::shared_ptr<Song>pNewSong );
+	/**
+	 * Does the necessary cleanup of the global objects in the audioEngine.
+	 */
+	void			removeSong();
 	void 			setState( State state );
 	void 			setNextState( State state );
 
