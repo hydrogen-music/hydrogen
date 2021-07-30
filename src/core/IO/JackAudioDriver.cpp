@@ -513,7 +513,9 @@ void JackAudioDriver::updateTransportInfo()
 	if ( pAudioEngine->getFrames() + m_frameOffset != m_JackTransportPos.frame ) {
 		// Reset playback to the beginning of the pattern if Hydrogen
 		// is in pattern mode.
-		pHydrogen->resetPatternStartTick();
+		if ( pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {
+			pAudioEngine->setPatternStartTick( -1 );
+		}
 
 		if ( !bTimebaseEnabled || m_timebaseState != Timebase::Slave ) {
 			pAudioEngine->setFrames( m_JackTransportPos.frame );
@@ -1273,7 +1275,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	// cycle and after the updateTransportInfo() returns.
 	unsigned long nextTickInternal = 
 		floor(( pJackPosition->frame - pDriver->m_frameOffset + 
-				pHydrogen->calculateLookahead( fTickSize ) ) / 
+				pAudioEngine->calculateLookahead( fTickSize ) ) / 
 			  fTickSize) - 1;
 	int nNextPatternStartTickInternal;
 	int nNextPatternInternal = 
@@ -1281,7 +1283,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 
 	// Calculate the length of the next pattern in ticks == number
 	// of ticks in the next bar.
-	long ticksPerBar = pHydrogen->getPatternLength( nNextPattern );
+	long ticksPerBar = pAudioEngine->getPatternLength( nNextPattern );
 	if ( ticksPerBar < 1 ) {
 		return;
 	}

@@ -1431,7 +1431,7 @@ void SongEditorPatternList::createBackground()
 	std::unique_ptr<PatternDisplayInfo[]> PatternArray{new PatternDisplayInfo[nPatterns]};
 
 	m_pAudioEngine->lock( RIGHT_HERE );
-	PatternList *pCurrentPatternList = m_pHydrogen->getCurrentPatternList();
+	PatternList *pCurrentPatternList = m_pAudioEngine->getPlayingPatterns();
 	
 	//assemble the data..
 	for ( int i = 0; i < nPatterns; i++ ) {
@@ -1443,7 +1443,7 @@ void SongEditorPatternList::createBackground()
 			PatternArray[i].bActive = false;
 		}
 
-		if ( m_pHydrogen->getNextPatterns()->index( pPattern ) != -1 ) {
+		if ( m_pAudioEngine->getNextPatterns()->index( pPattern ) != -1 ) {
 			PatternArray[i].bNext = true;
 		} else {
 			PatternArray[i].bNext = false;
@@ -1739,7 +1739,7 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 	//Lock because PatternList will be modified
 	m_pAudioEngine->lock( RIGHT_HERE );
 
-	PatternList *list = m_pHydrogen->getCurrentPatternList();
+	PatternList *list = m_pAudioEngine->getPlayingPatterns();
 	list->del( pattern );
 	// se esiste, seleziono il primo pattern
 	if ( pSongPatternList->size() > 0 ) {
@@ -2354,13 +2354,13 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 
-	if ( m_pHydrogen->getCurrentPatternList()->size() != 0 ) {
-		int nLength = m_pHydrogen->getCurrentPatternList()->longest_pattern_length();
-		fPos += (float)m_pHydrogen->getTickPosition() / (float)nLength;
+	if ( m_pAudioEngine->getPlayingPatterns()->size() != 0 ) {
+		int nLength = m_pAudioEngine->getPlayingPatterns()->longest_pattern_length();
+		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)nLength;
 	}
 	else {
 		// nessun pattern, uso la grandezza di default
-		fPos += (float)m_pHydrogen->getTickPosition() / (float)MAX_NOTES;
+		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)MAX_NOTES;
 	}
 
 	if ( m_pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {

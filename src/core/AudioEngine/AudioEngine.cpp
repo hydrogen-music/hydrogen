@@ -117,6 +117,7 @@ AudioEngine::AudioEngine()
 		, m_nAddRealtimeNoteTickPosition( 0 )
 		, m_nSongPos( -1 )
 		, m_nSelectedPatternNumber( 0 )
+		, m_nMaxTimeHumanize( 2000 )
 {
 	INFOLOG( "INIT" );
 
@@ -901,7 +902,7 @@ inline void AudioEngine::processPlayNotes( unsigned long nframes )
 		framepos = getFrames();
 	} else {
 		// use this to support realtime events when not playing
-		framepos = pHydrogen->getRealtimeFrames();
+		framepos = getRealtimeFrames();
 	}
 
 	AutomationPath *vp = pSong->getVelocityAutomationPath();
@@ -1060,7 +1061,7 @@ inline void AudioEngine::processTransport( unsigned nFrames )
 
 		// Update the variable m_nRealtimeFrames keeping track
 		// of the current transport position.
-		pHydrogen->setRealtimeFrames( getFrames() );
+		setRealtimeFrames( getFrames() );
 		break;
 	case TransportInfo::Status::Stopped:
 		// So, we are not playing even after attempt to start engine
@@ -1394,7 +1395,7 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 	// to the last cycle.
 	bool bSendPatternChange = false;
 	float fTickSize = getTickSize();
-	int nLeadLagFactor = pHydrogen->calculateLeadLagFactor( fTickSize );
+	int nLeadLagFactor = calculateLeadLagFactor( fTickSize );
 
 	unsigned int framepos;
 	if ( getState() == STATE_PLAYING ) {
@@ -1403,10 +1404,10 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 	} else {
 		// Use this to support realtime events, like MIDI, when not
 		// playing.
-		framepos = pHydrogen->getRealtimeFrames();
+		framepos = getRealtimeFrames();
 	}
 
-	int lookahead = pHydrogen->calculateLookahead( fTickSize );
+	int lookahead = calculateLookahead( fTickSize );
 	int tickNumber_start = 0;
 	if ( framepos == 0
 		 || ( getState() == STATE_PLAYING
@@ -1673,7 +1674,7 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 							nOffset += ( int )(
 										getGaussian( 0.3 )
 										* pSong->getHumanizeTimeValue()
-										* pHydrogen->m_nMaxTimeHumanize
+										* m_nMaxTimeHumanize
 										);
 						}
 
@@ -1875,6 +1876,83 @@ void AudioEngine::pause() {
 	setStatus( TransportInfo::Status::Stopped );
 }
 
+unsigned long AudioEngine::getRealtimeTickPosition()
+{
+	// Get the realtime transport position in frames and convert
+	// it into ticks.
+	unsigned int initTick = ( unsigned int )( getRealtimeFrames() /
+											  getTickSize() );
+	unsigned long retTick;
+
+	struct timeval currtime;
+	struct timeval deltatime;
+
+	double sampleRate = ( double ) getAudioDriver()->getSampleRate();
+	gettimeofday ( &currtime, nullptr );
+
+	// Definition macro from timehelper.h calculating the time
+	// difference between `currtime` and `m_currentTickTime`
+	// (`currtime`-`m_currentTickTime`) and storing the results in
+	// `deltatime`. It uses both the .tv_sec (seconds) and
+	// .tv_usec (microseconds) members of the timeval struct.
+	timersub( &currtime, &getCurrentTickTime(), &deltatime );
+
+	double deltaSec =
+			( double ) deltatime.tv_sec
+			+ ( deltatime.tv_usec / 1000000.0 );
+
+	retTick = ( unsigned long ) ( ( sampleRate / ( double ) getTickSize() ) * deltaSec );
+
+	retTick += initTick;
+
+	return retTick;
+}
+
+long AudioEngine::getPatternLength( int nPattern )
+{
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+	
+	if ( pSong == nullptr ){
+		return -1;
+	}
+
+	std::vector< PatternList* > *pColumns = pSong->getPatternGroupVector();
+
+	int nPatternGroups = pColumns->size();
+	if ( nPattern >= nPatternGroups ) {
+		if ( pSong->getIsLoopEnabled() ) {
+			nPattern = nPattern % nPatternGroups;
+		} else {
+			return MAX_NOTES;
+		}
+	}
+
+	if ( nPattern < 1 ){
+		return MAX_NOTES;
+	}
+
+	PatternList* pPatternList = pColumns->at( nPattern - 1 );
+	if ( pPatternList->size() > 0 ) {
+		return pPatternList->longest_pattern_length();
+	} else {
+		return MAX_NOTES;
+	}
+}
+
+int AudioEngine::calculateLeadLagFactor( float fTickSize ){
+	return fTickSize * 5;
+}
+
+int AudioEngine::calculateLookahead( float fTickSize ){
+	// Introduce a lookahead of 5 ticks. Since the ticksize is
+	// depending of the current tempo of the song, this component does
+	// make the lookahead dynamic.
+	int nLeadLagFactor = calculateLeadLagFactor( fTickSize );
+
+	// We need to look ahead in the song for notes with negative offsets
+	// from LeadLag or Humanize.
+	return nLeadLagFactor + m_nMaxTimeHumanize + 1;
+}
 
 void AudioEngineLocking::assertAudioEngineLocked() const 
 {

@@ -334,7 +334,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	InstrumentList* pInstrList = pHydrogen->getSong()->getInstrumentList();
 
-	__noteOffTick = pHydrogen->getTickPosition();
+	__noteOffTick = pHydrogen->getAudioEngine()->getPatternTickPosition();
 	unsigned long notelength = computeDeltaNoteOnOfftime();
 
 	int nNote = msg.m_nData1;

@@ -129,7 +129,7 @@ void AudioEngineInfoForm::updateInfo()
 	}
 
 	// tick number
-	sprintf(tmp, "%03d", (int)pHydrogen->getTickPosition() );
+	sprintf(tmp, "%03d", (int)pAudioEngine->getPatternTickPosition() );
 	nTicksLbl->setText(tmp);
 
 
@@ -158,7 +158,7 @@ void AudioEngineInfoForm::updateInfo()
 		sampleRateLbl->setText( "N/A" );
 		nFramesLbl->setText( "N/A" );
 	}
-	nRealtimeFramesLbl->setText( QString( "%1" ).arg( pHydrogen->getRealtimeFrames() ) );
+	nRealtimeFramesLbl->setText( QString( "%1" ).arg( pAudioEngine->getRealtimeFrames() ) );
 
 
 	// Midi driver info
@@ -189,7 +189,7 @@ void AudioEngineInfoForm::updateInfo()
 		m_pSelectedInstrLbl->setText( QString("%1").arg(nSelectedInstrumentNumber) );
 	}
 
-	PatternList *pPatternList = Hydrogen::get_instance()->getCurrentPatternList();
+	PatternList *pPatternList = pAudioEngine->getPlayingPatterns();
 	if (pPatternList) {
 		currentPatternLbl->setText( QString::number(pPatternList->size()) );
 	}

@@ -119,7 +119,6 @@ Hydrogen::Hydrogen()
 	m_pTimeline = new Timeline();
 	m_pCoreActionController = new CoreActionController();
 	m_GUIState = GUIState::unavailable;
-	m_nMaxTimeHumanize = 2000;
 	m_fNewBpmJTM = 120;
 	m_nSelectedInstrumentNumber =  0;
 
@@ -358,7 +357,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	const Pattern* currentPattern = nullptr;
 	unsigned int column = 0;
 	float fTickSize = pAudioEngine->getTickSize();
-	unsigned int lookaheadTicks = calculateLookahead( fTickSize ) / fTickSize;
+	unsigned int lookaheadTicks = pAudioEngine->calculateLookahead( fTickSize ) / fTickSize;
 	bool doRecord = pPreferences->getRecordEvents();
 	if ( pSong->getMode() == Song::SONG_MODE && doRecord &&
 		 pAudioEngine->getState() == STATE_PLAYING )
@@ -373,7 +372,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 			return;
 		}
 		// Locate column -- may need to jump back in the pattern list
-		column = getTickPosition();
+		column = pAudioEngine->getPatternTickPosition();
 		while ( column < lookaheadTicks ) {
 			ipattern -= 1;
 			if ( ipattern < 0 || ipattern >= (int) pPatternList->size() ) {
@@ -435,7 +434,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		}
 
 		// Locate column -- may need to wrap around end of pattern
-		column = getTickPosition();
+		column = pAudioEngine->getPatternTickPosition();
 		if ( column >= lookaheadTicks ) {
 			column -= lookaheadTicks;
 		} else {
@@ -496,7 +495,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 			EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
 
 			// hear note if its not in the future
-			if ( pPreferences->getHearNewNotes() && position <= getTickPosition() ) {
+			if ( pPreferences->getHearNewNotes() && position <= pAudioEngine->getPatternTickPosition() ) {
 				hearnote = true;
 			}
 		}/* if doRecord */
@@ -525,44 +524,6 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	m_pAudioEngine->unlock(); // unlock the audio engine
 }
 
-unsigned long Hydrogen::getTickPosition()
-{
-	return m_pAudioEngine->getPatternTickPosition();
-}
-
-unsigned long Hydrogen::getRealtimeTickPosition()
-{
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-	
-	// Get the realtime transport position in frames and convert
-	// it into ticks.
-	unsigned int initTick = ( unsigned int )( getRealtimeFrames() /
-											  pAudioEngine->getTickSize() );
-	unsigned long retTick;
-
-	struct timeval currtime;
-	struct timeval deltatime;
-
-	double sampleRate = ( double ) pAudioEngine->getAudioDriver()->getSampleRate();
-	gettimeofday ( &currtime, nullptr );
-
-	// Definition macro from timehelper.h calculating the time
-	// difference between `currtime` and `m_currentTickTime`
-	// (`currtime`-`m_currentTickTime`) and storing the results in
-	// `deltatime`. It uses both the .tv_sec (seconds) and
-	// .tv_usec (microseconds) members of the timeval struct.
-	timersub( &currtime, &pAudioEngine->getCurrentTickTime(), &deltatime );
-
-	double deltaSec =
-			( double ) deltatime.tv_sec
-			+ ( deltatime.tv_usec / 1000000.0 );
-
-	retTick = ( unsigned long ) ( ( sampleRate / ( double ) pAudioEngine->getTickSize() ) * deltaSec );
-
-	retTick += initTick;
-
-	return retTick;
-}
 
 void Hydrogen::sequencer_setNextPattern( int pos )
 {
@@ -625,21 +586,6 @@ void Hydrogen::sequencer_setOnlyNextPattern( int pos )
 	}
 	
 	pAudioEngine->unlock();
-}
-
-int Hydrogen::calculateLeadLagFactor( float fTickSize ){
-	return fTickSize * 5;
-}
-
-int Hydrogen::calculateLookahead( float fTickSize ){
-	// Introduce a lookahead of 5 ticks. Since the ticksize is
-	// depending of the current tempo of the song, this component does
-	// make the lookahead dynamic.
-	int nLeadLagFactor = calculateLeadLagFactor( fTickSize );
-
-	// We need to look ahead in the song for notes with negative offsets
-	// from LeadLag or Humanize.
-	return nLeadLagFactor + m_nMaxTimeHumanize + 1;
 }
 
 void Hydrogen::restartDrivers()
@@ -773,23 +719,6 @@ MidiOutput* Hydrogen::getMidiOutput() const
 int Hydrogen::getState() const
 {
 	return m_pAudioEngine->getState();
-}
-
-void Hydrogen::setCurrentPatternList( PatternList *pPatternList )
-{
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-	
-	pAudioEngine->lock( RIGHT_HERE );
-	if ( pAudioEngine->getPlayingPatterns() ) {
-		pAudioEngine->getPlayingPatterns()->setNeedsLock( false );
-	}
-
-	(*pAudioEngine->getPlayingPatterns()) = pPatternList;
-	pPatternList->setNeedsLock( true );
-	
-	EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
-	
-	pAudioEngine->unlock();
 }
 
 // Setting conditional to true will keep instruments that have notes if new kit has less instruments than the old one
@@ -1023,23 +952,6 @@ void Hydrogen::removeInstrument( int instrumentNumber, bool conditional )
 void Hydrogen::raiseError( unsigned nErrorCode )
 {
 	m_pAudioEngine->raiseError( nErrorCode );
-}
-
-unsigned long Hydrogen::getTotalFrames()
-{
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-	
-	return pAudioEngine->getFrames();
-}
-
-void Hydrogen::setRealtimeFrames( unsigned long frames )
-{
-	m_pAudioEngine->setRealtimeFrames( frames );
-}
-
-unsigned long Hydrogen::getRealtimeFrames()
-{
-	return m_pAudioEngine->getRealtimeFrames();
 }
 
 void Hydrogen::onTapTempoAccelEvent()
@@ -1296,7 +1208,6 @@ void Hydrogen::handleBeatCounter()
 		}
 		// Compute and reset:
 		if (m_nBeatCount == m_nbeatsToCount){
-			//				unsigned long currentframe = getRealtimeFrames();
 			double beatTotalDiffs = 0;
 			for(int i = 0; i < (m_nbeatsToCount - 1); i++) {
 				beatTotalDiffs += m_nBeatDiffs[i];
@@ -1380,35 +1291,6 @@ void Hydrogen::onJackMaster()
 }
 #endif
 
-long Hydrogen::getPatternLength( int nPattern )
-{
-	std::shared_ptr<Song> pSong = getSong();
-	if ( pSong == nullptr ){
-		return -1;
-	}
-
-	std::vector< PatternList* > *pColumns = pSong->getPatternGroupVector();
-
-	int nPatternGroups = pColumns->size();
-	if ( nPattern >= nPatternGroups ) {
-		if ( pSong->getIsLoopEnabled() ) {
-			nPattern = nPattern % nPatternGroups;
-		} else {
-			return MAX_NOTES;
-		}
-	}
-
-	if ( nPattern < 1 ){
-		return MAX_NOTES;
-	}
-
-	PatternList* pPatternList = pColumns->at( nPattern - 1 );
-	if ( pPatternList->size() > 0 ) {
-		return pPatternList->longest_pattern_length();
-	} else {
-		return MAX_NOTES;
-	}
-}
 
 float Hydrogen::getNewBpmJTM() const
 {
@@ -1418,17 +1300,6 @@ float Hydrogen::getNewBpmJTM() const
 void Hydrogen::setNewBpmJTM( float bpmJTM )
 {
 	m_fNewBpmJTM = bpmJTM;
-}
-
-//~ jack transport master
-void Hydrogen::resetPatternStartTick()
-{
-	AudioEngine* pAudioEngine = m_pAudioEngine;	
-	
-	// This forces the barline position
-	if ( getSong()->getMode() == Song::PATTERN_MODE ) {
-		pAudioEngine->setPatternStartTick( -1 );
-	}
 }
 
 void Hydrogen::togglePlaysSelected()
@@ -1526,6 +1397,7 @@ float Hydrogen::getTimelineBpm( int nBar )
 
 void Hydrogen::setTimelineBpm()
 {
+	auto pAudioEngine = getAudioEngine();
 	if ( ! Preferences::get_instance()->getUseTimelineBpm() ||
 		 getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		return;
@@ -1533,7 +1405,7 @@ void Hydrogen::setTimelineBpm()
 
 	std::shared_ptr<Song> pSong = getSong();
 	// Obtain the local speed specified for the current Pattern.
-	float fBPM = getTimelineBpm( getAudioEngine()->getSongPos() );
+	float fBPM = getTimelineBpm( pAudioEngine->getSongPos() );
 
 	if ( fBPM != pSong->getBpm() ) {
 		setBPM( fBPM );
@@ -1542,9 +1414,9 @@ void Hydrogen::setTimelineBpm()
 	// Get the realtime pattern position. This also covers
 	// keyboard and MIDI input events in case the audio engine is
 	// not playing.
-	unsigned long PlayTick = getRealtimeTickPosition();
+	unsigned long PlayTick = pAudioEngine->getRealtimeTickPosition();
 	int nStartPos;
-	int nRealtimePatternPos = getAudioEngine()->getColumnForTick( PlayTick, pSong->getIsLoopEnabled(), &nStartPos );
+	int nRealtimePatternPos = pAudioEngine->getColumnForTick( PlayTick, pSong->getIsLoopEnabled(), &nStartPos );
 	float fRealtimeBPM = getTimelineBpm( nRealtimePatternPos );
 
 	// FIXME: this was already done in setBPM but for "engine" time
@@ -1697,8 +1569,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s ).arg( lastMidiEvent ) )
 			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s ).arg( lastMidiEventParameter ) )
 			.append( QString( "%1%2m_nInstrumentLookupTable: [ %3 ... %4 ]\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS ] ) )
-			.append( QString( "%1%2m_nMaxTimeHumanize: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nMaxTimeHumanize ) );
+					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS ] ) );
 	} else {
 		
 		sOutput = QString( "%1[Hydrogen]" ).arg( sPrefix )
@@ -1746,8 +1617,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", lastMidiEvent: %1" ).arg( lastMidiEvent ) )
 			.append( QString( ", lastMidiEventParameter: %1" ).arg( lastMidiEventParameter ) )
 			.append( QString( ", m_nInstrumentLookupTable: [ %1 ... %2 ]" )
-					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS ] ) )
-			.append( QString( ", m_nMaxTimeHumanize: %1\n" ).arg( m_nMaxTimeHumanize ) );
+					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS ] ) );
 	}
 		
 	return sOutput;

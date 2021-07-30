@@ -118,7 +118,7 @@ int main(int argc, char** argv){
 				break;
 
 			case 'f':
-				cout << "Frames = " << hydrogen->getTotalFrames() << endl;
+				cout << "Frames = " << hydrogen->getAudioEngine()->getFrames() << endl;
 				break;
 
 			case 'd':

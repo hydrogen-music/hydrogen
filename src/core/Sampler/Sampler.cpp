@@ -424,7 +424,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 		nFramepos = pAudioEngine->getFrames();
 	} else {
 		// use this to support realtime events when not playing
-		nFramepos = pHydrogen->getRealtimeFrames();
+		nFramepos = pAudioEngine->getRealtimeFrames();
 	}
 
 	auto pInstr = pNote->get_instrument();

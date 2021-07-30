@@ -191,52 +191,6 @@ public:
 							  bool forcePlay=false,
 							  int msg1=0 );
 
-	/** \return #m_nPatternTickPosition */
-	unsigned long		getTickPosition();
-	/** Keep track of the tick position in realtime.
-	 *
-	 * Firstly, it gets the current transport position in frames
-	 * #m_nRealtimeFrames and converts it into ticks using
-	 * TransportInfo::m_fTickSize. Afterwards, it accesses how
-	 * much time passed since the last update of
-	 * #m_currentTickTime, converts the time difference +
-	 * AudioOutput::getBufferSize()/ AudioOutput::getSampleRate()
-	 * in frames, and adds the result to the first value to
-	 * support keyboard and MIDI events as well.
-	 *
-	 * \return Current position in ticks.
-	 */
-	unsigned long		getRealtimeTickPosition();
-	unsigned long		getTotalFrames();
-
-	/** Sets #m_nRealtimeFrames
-	 * \param frames Current transport realtime position*/
-	void			setRealtimeFrames( unsigned long frames );
-	/** Returns the current realtime transport position
-	 * TransportInfo::m_nFrames.
-	 * \return #m_nRealtimeFrames */
-	unsigned long		getRealtimeFrames();
-	/** \return #m_pPlayingPatterns*/
-	PatternList *		getCurrentPatternList();
-	/** 
-	 * Sets #m_pPlayingPatterns.
-	 *
-	 * Before setting the variable it first locks the AudioEngine. In
-	 * addition, it also pushes the Event #EVENT_PATTERN_CHANGED with
-	 * the value -1 to the EventQueue.
-	 *
-	 * \param pPatternList Sets #m_pPlayingPatterns.*/
-	void			setCurrentPatternList( PatternList * pPatternList );
-
-	/** \return #m_pNextPatterns*/
-	PatternList *		getNextPatterns();
-	/** Move playback in Pattern mode to the beginning of the pattern.
-	 *
-	 * Resetting the global variable #m_nPatternStartTick to -1 if the
-	 * current Song mode is Song::PATTERN_MODE.
-	 */
-	void			resetPatternStartTick();
-
 		void			restartDrivers();
 
 		AudioOutput*		getAudioOutput() const;
@@ -413,25 +367,6 @@ void			previewSample( Sample *pSample );
 	/** Calling JackAudioDriver::initTimebaseMaster() directly from
 	    the GUI*/
 	void			onJackMaster();
-	/**
-	 * Get the length (in ticks) of the @a nPattern th pattern.
-	 *
-	 * Access the length of the first Pattern found in the
-	 * PatternList at @a nPattern - 1.
-	 *
-	 * This function should also work if the loop mode is enabled
-	 * in Song::getIsLoopEnabled().
-	 *
-	 * \param nPattern Position + 1 of the desired PatternList.
-	 * \return 
-	 * - __-1__ : if not Song was initialized yet.
-	 * - #MAX_NOTES : if @a nPattern was smaller than 1, larger
-	 * than the length of the vector of the PatternList in
-	 * Song::m_pPatternGroupSequence or no Pattern could be found
-	 * in the PatternList at @a nPattern - 1.
-	 * - __else__ : length of first Pattern found at @a nPattern.
-	 */
-	long			getPatternLength( int nPattern );
 	/** Returns the fallback speed.
 	 * \return #m_fNewBpmJTM */
 	float			getNewBpmJTM() const;
@@ -526,39 +461,6 @@ void			previewSample( Sample *pSample );
 	/**\param state Specifies whether the Qt5 GUI is active. Sets
 	   #m_GUIState.*/
 	void			setGUIState( const GUIState state );
-	
-	/** Calculates the lookahead for a specific tick size.
-	 *
-	 * During the humanization the onset of a Note will be moved
-	 * Note::__lead_lag times the value calculated by this function.
-	 *
-	 * Since the size of a tick is tempo dependent, @a fTickSize
-	 * allows you to calculate the lead-lag factor for an arbitrary
-	 * position on the Timeline.
-	 *
-	 * \param fTickSize Number of frames that make up one tick.
-	 *
-	 * \return Five times the current size of a tick
-	 * (TransportInfo::m_fTickSize) (in frames)
-	 */
-	int 			calculateLeadLagFactor( float fTickSize );
-	/** Calculates time offset (in frames) used to determine the notes
-	 * process by the audio engine.
-	 *
-	 * Due to the humanization there might be negative offset in the
-	 * position of a particular note. To be able to still render it
-	 * appropriately, we have to look into and handle notes from the
-	 * future.
-	 *
-	 * The Lookahead is the sum of the #m_nMaxTimeHumanize and
-	 * calculateLeadLagFactor() plus one (since it has to be larger
-	 * than that).
-	 *
-	 * \param fTickSize Number of frames that make up one tick. Passed
-	 * to calculateLeadLagFactor().
-	 *
-	 * \return Frame offset*/
-	int 			calculateLookahead( float fTickSize );
 	/**
 	 * \return Whether JackAudioDriver is used as current audio
 	 * driver.
@@ -583,13 +485,6 @@ void			previewSample( Sample *pSample );
 
 	///midi lookuptable
 	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
-	/**
-	 * Maximum time (in frames) a note's position can be off due to
-	 * the humanization (lead-lag).
-	 *
-	 * Required to calculateLookahead(). Set to 2000.
-	 */
-	int 			m_nMaxTimeHumanize;
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -782,16 +677,6 @@ inline Hydrogen::GUIState Hydrogen::getGUIState() const {
 
 inline void Hydrogen::setGUIState( const Hydrogen::GUIState state ) {
 	m_GUIState = state;
-}
-
-inline PatternList* Hydrogen::getCurrentPatternList()
-{
-	return m_pAudioEngine->getPlayingPatterns();
-}
-
-inline PatternList * Hydrogen::getNextPatterns()
-{
-	return m_pAudioEngine->getNextPatterns();
 }
 };
 

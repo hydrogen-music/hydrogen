@@ -290,9 +290,6 @@ public:
 
 	/**
 	 * Does the necessary cleanup of the global objects in the audioEngine.
-	 *
-	 * Class the clear() member of #m_pPlayingPatterns and
-	 * #m_pNextPatterns as well as audioEngine_clearNoteQueue();
 	 */
 	void			removeSong();
 	void			noteOn( Note *note );
@@ -472,7 +469,12 @@ public:
 	 *  - >= 0 : the total number of ticks passed.
 	 */
 	long			getTickForColumn( int nColumn );
-
+	/** Keep track of the tick position in realtime.
+	 *
+	 * \return Current position in ticks.
+	 */
+	unsigned long		getRealtimeTickPosition();
+	
 	static float	computeTickSize( const int nSampleRate, const float fBpm, const int nResolution);
 
 	/** \return #m_pSampler */
@@ -708,6 +710,58 @@ public:
 	void			setAddRealtimeNoteTickPosition( unsigned int tickPosition );
 
 	struct timeval& 	getCurrentTickTime();
+	/**
+	 * Get the length (in ticks) of the @a nPattern th pattern.
+	 *
+	 * Access the length of the first Pattern found in the
+	 * PatternList in column @a nPattern - 1.
+	 *
+	 * This function should also work if the loop mode is enabled
+	 * in Song::getIsLoopEnabled().
+	 *
+	 * \param nPattern Position + 1 of the desired PatternList.
+	 * \return 
+	 * - __-1__ : if not Song was initialized yet.
+	 * - #MAX_NOTES : if @a nPattern was smaller than 1, larger
+	 * than the length of the vector of the PatternList in
+	 * Song::m_pPatternGroupSequence or no Pattern could be found
+	 * in the PatternList at @a nPattern - 1.
+	 * - __else__ : length of first Pattern found at @a nPattern.
+	 */
+	long			getPatternLength( int nPattern );
+	
+	/** Calculates the lookahead for a specific tick size.
+	 *
+	 * During the humanization the onset of a Note will be moved
+	 * Note::__lead_lag times the value calculated by this function.
+	 *
+	 * Since the size of a tick is tempo dependent, @a fTickSize
+	 * allows you to calculate the lead-lag factor for an arbitrary
+	 * position on the Timeline.
+	 *
+	 * \param fTickSize Number of frames that make up one tick.
+	 *
+	 * \return Five times the current size of a tick
+	 * (TransportInfo::m_fTickSize) (in frames)
+	 */
+	int 			calculateLeadLagFactor( float fTickSize );
+	/** Calculates time offset (in frames) used to determine the notes
+	 * process by the audio engine.
+	 *
+	 * Due to the humanization there might be negative offset in the
+	 * position of a particular note. To be able to still render it
+	 * appropriately, we have to look into and handle notes from the
+	 * future.
+	 *
+	 * The Lookahead is the sum of the #m_nMaxTimeHumanize and
+	 * calculateLeadLagFactor() plus one (since it has to be larger
+	 * than that).
+	 *
+	 * \param fTickSize Number of frames that make up one tick. Passed
+	 * to calculateLeadLagFactor().
+	 *
+	 * \return Frame offset*/
+	int 			calculateLookahead( float fTickSize );
 
 	void play();
 	/** Stop transport without resetting the transport position and
@@ -869,8 +923,6 @@ private:
 
 	/**
 	 * Ticks passed since the beginning of the current pattern.
-	 *
-	 * Queried using Hydrogen::getTickPosition().
 	 */
 	unsigned int		m_nPatternTickPosition;
 
@@ -890,32 +942,11 @@ private:
 
 		/**
 	 * Patterns to be played next in Song::PATTERN_MODE.
-	 *
-	 * In audioEngine_updateNoteQueue() whenever the end of the current
-	 * pattern is reached the content of #m_pNextPatterns will be added to
-	 * #m_pPlayingPatterns.
-	 *
-	 * Queried with Hydrogen::getNextPatterns(), set by
-	 * Hydrogen::sequencer_setNextPattern() and
-	 * Hydrogen::sequencer_setOnlyNextPattern(), initialized with an empty
-	 * PatternList in audioEngine_init(), destroyed and set to NULL in
-	 * audioEngine_destroy(), cleared in audioEngine_remove_Song(), and
-	 * updated in audioEngine_updateNoteQueue(). Please note that ALL of
-	 * these functions do access the variable directly!
 	 */
 	PatternList*		m_pNextPatterns;
 	
 	/**
 	 * PatternList containing all Patterns currently played back.
-	 *
-	 * Queried using Hydrogen::getCurrentPatternList(), set using
-	 * Hydrogen::setCurrentPatternList(), initialized with an empty
-	 * PatternList in audioEngine_init(), destroyed and set to NULL in
-	 * audioEngine_destroy(), set to the first pattern list of the new
-	 * song in audioEngine_setSong(), cleared in
-	 * audioEngine_removeSong(), reset in Hydrogen::togglePlaysSelected()
-	 * and processed in audioEngine_updateNoteQueue(). Please note that
-	 * ALL of these functions do access the variable directly!
 	 */
 	PatternList*		m_pPlayingPatterns;
 
@@ -925,10 +956,7 @@ private:
 	 * Even if the audio engine is stopped, the variable will be
 	 * incremented  (as audioEngine_process() would do at the beginning
 	 * of each cycle) to support realtime keyboard and MIDI event
-	 * timing. It is set using Hydrogen::setRealtimeFrames(), accessed via
-	 * Hydrogen::getRealtimeFrames(), and updated in
-	 * audioEngine_process_transport() using the current transport
-	 * position TransportInfo::m_nFrames.
+	 * timing.
 	 */
 	unsigned long		m_nRealtimeFrames;
 	unsigned int		m_nAddRealtimeNoteTickPosition;
@@ -965,6 +993,13 @@ private:
 	 * Initialized in audioEngine_init().
 	 */
 	std::shared_ptr<Instrument>		m_pMetronomeInstrument;
+	/**
+	 * Maximum time (in frames) a note's position can be off due to
+	 * the humanization (lead-lag).
+	 *
+	 * Required to calculateLookahead(). Set to 2000.
+	 */
+	int 			m_nMaxTimeHumanize;
 };
 
 
