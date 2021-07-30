@@ -119,7 +119,6 @@ AudioEngine::AudioEngine()
 		, m_nMaxTimeHumanize( 2000 )
 		, m_nextState( State::Ready )
 {
-	INFOLOG( "INIT" );
 
 	m_pSampler = new Sampler;
 	m_pSynth = new Synth;
@@ -159,7 +158,33 @@ AudioEngine::AudioEngine()
 
 AudioEngine::~AudioEngine()
 {
-	INFOLOG( "DESTROY" );
+	stopAudioDrivers();
+	if ( getState() != State::Initialized ) {
+		___ERRORLOG( "Error the audio engine is not in State::Initialized" );
+		return;
+	}
+	m_pSampler->stopPlayingNotes();
+
+	this->lock( RIGHT_HERE );
+	___INFOLOG( "*** Hydrogen audio engine shutdown ***" );
+
+	clearNoteQueue();
+
+	// change the current audio engine state
+	setState( State::Uninitialized );
+
+	EventQueue::get_instance()->push_event( EVENT_STATE, static_cast<int>(State::Uninitialized) );
+
+	delete m_pPlayingPatterns;
+	m_pPlayingPatterns = nullptr;
+
+	delete m_pNextPatterns;
+	m_pNextPatterns = nullptr;
+
+	m_pMetronomeInstrument = nullptr;
+
+	this->unlock();
+	
 #ifdef H2CORE_HAVE_LADSPA
 	delete Effects::get_instance();
 #endif
@@ -226,47 +251,6 @@ void AudioEngine::unlock()
 	// Leave "__locker" dirty.
 	m_LockingThread = std::thread::id();
 	m_EngineMutex.unlock();
-}
-
-
-void AudioEngine::destroy()
-{
-	// check current state
-	if ( getState() != State::Initialized ) {
-		___ERRORLOG( "Error the audio engine is not in State::Initialized" );
-		return;
-	}
-	m_pSampler->stopPlayingNotes();
-
-	this->lock( RIGHT_HERE );
-	___INFOLOG( "*** Hydrogen audio engine shutdown ***" );
-
-	// delete all copied notes in the song notes queue
-	while ( !m_songNoteQueue.empty() ) {
-		m_songNoteQueue.top()->get_instrument()->dequeue();
-		delete m_songNoteQueue.top();
-		m_songNoteQueue.pop();
-	}
-	// delete all copied notes in the midi notes queue
-	for ( unsigned i = 0; i < m_midiNoteQueue.size(); ++i ) {
-		delete m_midiNoteQueue[i];
-	}
-	m_midiNoteQueue.clear();
-
-	// change the current audio engine state
-	setState( State::Uninitialized );
-
-	EventQueue::get_instance()->push_event( EVENT_STATE, static_cast<int>(State::Uninitialized) );
-
-	delete m_pPlayingPatterns;
-	m_pPlayingPatterns = nullptr;
-
-	delete m_pNextPatterns;
-	m_pNextPatterns = nullptr;
-
-	m_pMetronomeInstrument = nullptr;
-
-	this->unlock();
 }
 
 void AudioEngine::startPlayback()

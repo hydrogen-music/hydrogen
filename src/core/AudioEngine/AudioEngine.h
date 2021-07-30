@@ -210,9 +210,6 @@ public:
 	 */
 	void			assertLocked( );
 	
-	
-	void			destroy();
-	
 	/**
 	 * Updates the global objects of the audioEngine according to new
 	 * Song.

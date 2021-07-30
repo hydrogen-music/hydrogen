@@ -162,8 +162,6 @@ Hydrogen::~Hydrogen()
 	
 	removeSong();
 	
-	m_pAudioEngine->stopAudioDrivers();
-	m_pAudioEngine->destroy();
 	__kill_instruments();
 
 	delete m_pCoreActionController;
