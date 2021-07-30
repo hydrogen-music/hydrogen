@@ -114,21 +114,20 @@ AudioEngine::AudioEngine()
 		, m_nSongSizeInTicks( 0 )
 		, m_nRealtimeFrames( 0 )
 		, m_nAddRealtimeNoteTickPosition( 0 )
+		, m_fMasterPeak_L( 0.0f )
+		, m_fMasterPeak_R( 0.0f )
 		, m_nSongPos( -1 )
 		, m_nSelectedPatternNumber( 0 )
 		, m_nMaxTimeHumanize( 2000 )
 		, m_nextState( State::Ready )
+		, m_fProcessTime( 0.0f )
+		, m_fMaxProcessTime( 0.0f )
 {
 
 	m_pSampler = new Sampler;
 	m_pSynth = new Synth;
 	
 	m_pEventQueue = EventQueue::get_instance();
-	
-	m_fMasterPeak_L = 0.0f;		///< Master peak (left channel)
-	m_fMasterPeak_R = 0.0f;		///< Master peak (right channel)
-	m_fProcessTime = 0.0f;		///< time used in process function
-	m_fMaxProcessTime = 0.0f;	///< max ms usable in process with no xrun
 	
 	srand( time( nullptr ) );
 
@@ -137,7 +136,7 @@ AudioEngine::AudioEngine()
 	QString sMetronomeFilename = Filesystem::click_file_path();
 	m_pMetronomeInstrument = std::make_shared<Instrument>( METRONOME_INSTR_ID, "metronome" );
 	
-	auto pLayer =  std::make_shared<InstrumentLayer>( Sample::load( sMetronomeFilename ) );
+	auto pLayer = std::make_shared<InstrumentLayer>( Sample::load( sMetronomeFilename ) );
 	auto pCompo = std::make_shared<InstrumentComponent>( 0 );
 	pCompo->set_layer(pLayer, 0);
 	m_pMetronomeInstrument->get_components()->push_back( pCompo );
@@ -263,11 +262,7 @@ void AudioEngine::startPlayback()
 		return;
 	}
 
-	m_fMasterPeak_L = 0.0f;
-	m_fMasterPeak_R = 0.0f;
-	m_nSongPos = -1;
-	m_nPatternStartTick = -1;
-	m_nPatternTickPosition = 0;
+	reset();
 
 	// change the current audio engine state
 	setState( State::Playing );
@@ -289,14 +284,18 @@ void AudioEngine::stopPlayback()
 	setState( State::Ready );
 	m_pEventQueue->push_event( EVENT_STATE, static_cast<int>(State::Ready) );
 
+	reset();
+}
+
+void AudioEngine::reset() {
 	m_fMasterPeak_L = 0.0f;
 	m_fMasterPeak_R = 0.0f;
-	//	m_nPatternTickPosition = 0;
+	m_nSongPos = -1;
 	m_nPatternStartTick = -1;
+	m_nPatternTickPosition = 0;
 
 	clearNoteQueue();
 }
-
 
 float AudioEngine::computeTickSize( const int nSampleRate, const float fBpm, const int nResolution)
 {

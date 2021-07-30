@@ -647,12 +647,8 @@ void Hydrogen::stopExportSession()
 void Hydrogen::startExportSong( const QString& filename)
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
-	// reset
-	// TODO: not -1 instead?
-	pAudioEngine->setSongPos( 0 );
-	pAudioEngine->setPatternTickPosition( 0 );
+	pAudioEngine->reset();
 	pAudioEngine->play();
-	pAudioEngine->setPatternStartTick( -1 );
 
 	Preferences *pPref = Preferences::get_instance();
 
@@ -664,7 +660,6 @@ void Hydrogen::startExportSong( const QString& filename)
 	pAudioEngine->setupLadspaFX();
 
 	getCoreActionController()->locateToFrame( 0 );
-	pAudioEngine->clearNoteQueue();
 	pAudioEngine->getSampler()->stopPlayingNotes();
 
 	DiskWriterDriver* pDiskWriterDriver = (DiskWriterDriver*) pAudioEngine->getAudioDriver();

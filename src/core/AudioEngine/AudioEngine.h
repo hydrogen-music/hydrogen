@@ -312,6 +312,9 @@ public:
 	
 	static float	computeTickSize( const int nSampleRate, const float fBpm, const int nResolution);
 
+	/** Resets a number of member variables to their initial state.*/
+	void reset();
+
 	/** \return #m_pSampler */
 	Sampler*		getSampler();
 	/** \return #m_pSynth */
