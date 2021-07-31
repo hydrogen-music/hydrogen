@@ -450,7 +450,7 @@ void SongEditorPanel::updatePlayHeadPosition()
 		int x = -pos.x();
 		int w = m_pPositionRulerScrollView->viewport()->width();
 
-		int nPlayHeadPosition = pAudioEngine->getSongPos() *
+		int nPlayHeadPosition = pAudioEngine->getColumn() *
 			m_pSongEditor->getGridWidth();
 
 		int value = m_pEditorScrollView->horizontalScrollBar()->value();

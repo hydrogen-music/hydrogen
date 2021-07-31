@@ -361,7 +361,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 
 		// Recording + song playback mode + actually playing
 		PatternList *pPatternList = pSong->getPatternList();
-		int ipattern = pAudioEngine->getSongPos(); // current column
+		int ipattern = pAudioEngine->getColumn(); // current column
 												   // or pattern group
 		if ( ipattern < 0 || ipattern >= (int) pPatternList->size() ) {
 			pAudioEngine->unlock(); // unlock the audio engine
@@ -826,7 +826,9 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	}
 
 #ifdef H2CORE_HAVE_JACK
+	pAudioEngine->lock( RIGHT_HERE );
 	renameJackPorts( getSong() );
+	pAudioEngine->unlock();
 #endif
 
 	pAudioEngine->setState( oldAudioEngineState );
@@ -1093,6 +1095,10 @@ void Hydrogen::refreshInstrumentParameters( int nInstrument )
 #ifdef H2CORE_HAVE_JACK
 void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 {
+	if ( pSong == nullptr ) {
+		return;
+	}
+	
 	if( Preferences::get_instance()->m_bJackTrackOuts == true ){
 		if ( haveJackAudioDriver() && pSong != nullptr ) {
 
@@ -1104,9 +1110,7 @@ void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 			}
 			auto pAudioEngine = m_pAudioEngine;
 
-			pAudioEngine->lock( RIGHT_HERE );
 			static_cast< JackAudioDriver* >( m_pAudioEngine->getAudioDriver() )->makeTrackOutputs( pSong );
-			pAudioEngine->unlock();
 		}
 	}
 }
@@ -1389,7 +1393,7 @@ void Hydrogen::setTimelineBpm()
 
 	std::shared_ptr<Song> pSong = getSong();
 	// Obtain the local speed specified for the current Pattern.
-	float fBPM = getTimelineBpm( pAudioEngine->getSongPos() );
+	float fBPM = getTimelineBpm( pAudioEngine->getColumn() );
 
 	if ( fBPM != pSong->getBpm() ) {
 		setBPM( fBPM );

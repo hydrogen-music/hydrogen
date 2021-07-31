@@ -116,7 +116,7 @@ AudioEngine::AudioEngine()
 		, m_nAddRealtimeNoteTickPosition( 0 )
 		, m_fMasterPeak_L( 0.0f )
 		, m_fMasterPeak_R( 0.0f )
-		, m_nSongPos( -1 )
+		, m_nColumn( -1 )
 		, m_nMaxTimeHumanize( 2000 )
 		, m_nextState( State::Ready )
 		, m_fProcessTime( 0.0f )
@@ -289,7 +289,7 @@ void AudioEngine::stopPlayback()
 void AudioEngine::reset() {
 	m_fMasterPeak_L = 0.0f;
 	m_fMasterPeak_R = 0.0f;
-	m_nSongPos = -1;
+	m_nColumn = -1;
 	m_nPatternStartTick = -1;
 	m_nPatternTickPosition = 0;
 
@@ -672,7 +672,12 @@ void AudioEngine::startAudioDrivers()
 			m_pAudioDriver->connect();
 		}
 
+#ifdef H2CORE_HAVE_JACK
+		if ( pSong != nullptr ) {
 		pHydrogen->renameJackPorts( pSong );
+		}
+#endif
+		
 		setupLadspaFX();
 	}
 }
@@ -829,7 +834,7 @@ inline void AudioEngine::processPlayNotes( unsigned long nframes )
 
 		float velocity_adjustment = 1.0f;
 		if ( pSong->getMode() == Song::SONG_MODE ) {
-			float fPos = m_nSongPos + (pNote->get_position()%192) / 192.f;
+			float fPos = m_nColumn + (pNote->get_position()%192) / 192.f;
 			velocity_adjustment = vp->get_value(fPos);
 		}
 
@@ -1313,7 +1318,7 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 	if ( framepos == 0
 		 || ( getState() == State::Playing
 			  && pSong->getMode() == Song::SONG_MODE
-			  && m_nSongPos == -1 )
+			  && m_nColumn == -1 )
 	) {
 		tickNumber_start = framepos / fTickSize;
 	} else {
@@ -1355,7 +1360,7 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 				return -1;
 			}
 	
-			m_nSongPos = getColumnForTick( tick, pSong->getIsLoopEnabled(), &m_nPatternStartTick );
+			m_nColumn = getColumnForTick( tick, pSong->getIsLoopEnabled(), &m_nPatternStartTick );
 
 			if ( tick > m_nSongSizeInTicks && m_nSongSizeInTicks != 0 ) {
 				// When using the JACK audio driver the overall
@@ -1380,14 +1385,14 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 			// the first one if loop mode is activate or the
 			// function returns indicating that the end of the song is
 			// reached.
-			if ( m_nSongPos == -1 ) {
+			if ( m_nColumn == -1 ) {
 				___INFOLOG( "song pos = -1" );
 				if ( pSong->getIsLoopEnabled() == true ) {
 					// TODO: This function call should be redundant
 					// since `getColumnForTick()` is deterministic
 					// and was already invoked with
 					// `pSong->is_loop_enabled()` as second argument.
-					m_nSongPos = getColumnForTick( 0, true, &m_nPatternStartTick );
+					m_nColumn = getColumnForTick( 0, true, &m_nPatternStartTick );
 				} else {
 
 					___INFOLOG( "End of Song" );
@@ -1405,7 +1410,7 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 			// TODO: Why overwriting it for each and every tick
 			//       without check if it did changed? This is highly
 			//       inefficient.
-			PatternList *pPatternList = ( *( pSong->getPatternGroupVector() ) )[m_nSongPos];
+			PatternList *pPatternList = ( *( pSong->getPatternGroupVector() ) )[m_nColumn];
 			m_pPlayingPatterns->clear();
 			for ( int i=0; i< pPatternList->size(); ++i ) {
 				Pattern* pPattern = pPatternList->get(i);

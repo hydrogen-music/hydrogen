@@ -1806,12 +1806,12 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			break;
 
 		case  Qt::Key_F9 : // Qt::Key_Left do not work. Some ideas ?
-			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getSongPos() - 1 );
+			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() - 1 );
 			return true;
 			break;
 
 		case  Qt::Key_F10 : // Qt::Key_Right do not work. Some ideas ?
-			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getSongPos() + 1 );
+			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() + 1 );
 			return true;
 			break;
 		}

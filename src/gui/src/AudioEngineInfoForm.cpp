@@ -97,11 +97,11 @@ void AudioEngineInfoForm::updateInfo()
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	// Song position
-	QString sSongPos = "N/A";
-	if ( pAudioEngine->getSongPos() != -1 ) {
-		sSongPos = QString::number( pAudioEngine->getSongPos() );
+	QString sColumn = "N/A";
+	if ( pAudioEngine->getColumn() != -1 ) {
+		sColumn = QString::number( pAudioEngine->getColumn() );
 	}
-	m_pSongPositionLbl->setText( sSongPos );
+	m_pSongPositionLbl->setText( sColumn );
 
 
 	// Audio engine Playing notes

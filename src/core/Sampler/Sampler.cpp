@@ -1524,7 +1524,7 @@ void Sampler::setPlayingNotelength( std::shared_ptr<Instrument> pInstrument, uns
 		{
 			std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
 //			Pattern *pPattern = NULL;
-			int pos = pHydrogen->getAudioEngine()->getSongPos() + 1;
+			int pos = pHydrogen->getAudioEngine()->getColumn() + 1;
 			for ( int i = 0; i < pos; ++i ) {
 				PatternList *pColumn = ( *pColumns )[i];
 				pCurrentPattern = pColumn->get( 0 );

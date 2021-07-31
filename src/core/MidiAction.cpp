@@ -838,13 +838,13 @@ bool MidiActionManager::bpm_decrease(Action * pAction, Hydrogen* pHydrogen, targ
 }
 
 bool MidiActionManager::next_bar(Action * , Hydrogen* pHydrogen, targeted_element ) {
-	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getSongPos() +1 );
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() +1 );
 	return true;
 }
 
 
 bool MidiActionManager::previous_bar(Action * , Hydrogen* pHydrogen, targeted_element ) {
-	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getSongPos() -1 );
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() -1 );
 	return true;
 }
 

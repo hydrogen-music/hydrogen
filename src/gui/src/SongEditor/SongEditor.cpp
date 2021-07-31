@@ -1250,7 +1250,7 @@ void SongEditorPatternList::patternChangedEvent()
 	if ( ( Preferences::get_instance()->getUseTimelineBpm() ) &&
 		 ( m_pHydrogen->getSong()->getMode() == Song::SONG_MODE ) ){
 
-		float fTimelineBpm = pTimeline->getTempoAtBar( pHydrogen->getAudioEngine()->getSongPos(), false );
+		float fTimelineBpm = pTimeline->getTempoAtBar( pHydrogen->getAudioEngine()->getColumn(), false );
 
 		if ( fTimelineBpm != 0 && pHydrogen->getNewBpmJTM() != fTimelineBpm ) {
 			/* TODO: For now the function returns 0 if the bar is
@@ -2301,7 +2301,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 			return;
 		}
 
-		int nPatternPos = m_pHydrogen->getAudioEngine()->getSongPos();
+		int nPatternPos = m_pHydrogen->getAudioEngine()->getColumn();
 		if ( nPatternPos != column ) {
 			WARNINGLOG( "relocate via mouse click" );
 			
@@ -2348,7 +2348,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		return;
 	}
 
-	float fPos = m_pHydrogen->getAudioEngine()->getSongPos();
+	float fPos = m_pHydrogen->getAudioEngine()->getColumn();
 	int pIPos = Preferences::get_instance()->getPunchInPos();
 	int pOPos = Preferences::get_instance()->getPunchOutPos();
 

@@ -355,7 +355,7 @@ public:
 
 	int				getPatternTickPosition() const;
 
-	int				getSongPos() const;
+	int				getColumn() const;
 
 	PatternList*	getNextPatterns() const;
 	PatternList*	getPlayingPatterns() const;
@@ -443,7 +443,7 @@ public:
 	/** Is allowed to call removeSong().*/
 	friend void Hydrogen::removeSong();
 	/** Is allowed to use locate() to directly set the position in
-		frames as well as to used setSongPos and setPatternTickPos to
+		frames as well as to used setColumn and setPatternTickPos to
 		move the arrow in the SongEditorPositionRuler even when
 		playback is stopped.*/
 	friend bool CoreActionController::locateToFrame( unsigned long nFrame );
@@ -539,7 +539,7 @@ private:
 	
 	void			setPatternStartTick( int tick );
 	void			setPatternTickPosition( int tick );
-	void			setSongPos( int songPos );
+	void			setColumn( int nColumn );
 	void			setRealtimeFrames( unsigned long nFrames );
 	
 	/**
@@ -697,8 +697,7 @@ private:
 	 *
 	 * A value of -1 corresponds to "pattern list could not be found".
 	 */
-	int					m_nSongPos; // TODO: rename it to something more
-									// accurate, like m_nPatternListNumber
+	int					m_nColumn;
 
 	/** Set to the total number of ticks in a Song in findPatternInTick()
 		if Song::SONG_MODE is chosen and playback is at least in the
@@ -882,12 +881,12 @@ inline int AudioEngine::getPatternTickPosition() const {
 	return m_nPatternTickPosition;
 }
 
-inline void AudioEngine::setSongPos( int songPos ) {
-	m_nSongPos = songPos;
+inline void AudioEngine::setColumn( int songPos ) {
+	m_nColumn = songPos;
 }
 
-inline int AudioEngine::getSongPos() const {
-	return m_nSongPos;
+inline int AudioEngine::getColumn() const {
+	return m_nColumn;
 }
 
 inline PatternList* AudioEngine::getPlayingPatterns() const {

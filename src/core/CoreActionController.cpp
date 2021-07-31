@@ -733,7 +733,7 @@ bool CoreActionController::locateToFrame( unsigned long nFrame ) {
 		int nPatternStartTick;
 		int nColumn = pAudioEngine->getColumnForTick( nTotalTick, pHydrogen->getSong()->getIsLoopEnabled(), &nPatternStartTick );
 
-		pAudioEngine->setSongPos( nColumn );
+		pAudioEngine->setColumn( nColumn );
 		pAudioEngine->setPatternTickPosition( nTotalTick - nPatternStartTick );
 	}
 	pAudioEngine->locate( nFrame );

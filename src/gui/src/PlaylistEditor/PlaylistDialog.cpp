@@ -793,14 +793,14 @@ void PlaylistDialog::ffWDBtnClicked( Button* ref)
 {
 	UNUSED( ref );
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getSongPos() + 1 );
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() + 1 );
 }
 
 void PlaylistDialog::rewindBtnClicked( Button* ref )
 {
 	UNUSED( ref );
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getSongPos() - 1 );
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() - 1 );
 }
 
 void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
