@@ -514,7 +514,7 @@ void JackAudioDriver::updateTransportInfo()
 		// Reset playback to the beginning of the pattern if Hydrogen
 		// is in pattern mode.
 		if ( pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {
-			pAudioEngine->setPatternStartTick( -1 );
+			pAudioEngine->reset();
 		}
 
 		if ( !bTimebaseEnabled || m_timebaseState != Timebase::Slave ) {

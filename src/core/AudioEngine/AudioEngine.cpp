@@ -117,7 +117,6 @@ AudioEngine::AudioEngine()
 		, m_fMasterPeak_L( 0.0f )
 		, m_fMasterPeak_R( 0.0f )
 		, m_nSongPos( -1 )
-		, m_nSelectedPatternNumber( 0 )
 		, m_nMaxTimeHumanize( 2000 )
 		, m_nextState( State::Ready )
 		, m_fProcessTime( 0.0f )
@@ -193,13 +192,13 @@ AudioEngine::~AudioEngine()
 	delete m_pSynth;
 }
 
-Sampler* AudioEngine::getSampler()
+Sampler* AudioEngine::getSampler() const
 {
 	assert(m_pSampler);
 	return m_pSampler;
 }
 
-Synth* AudioEngine::getSynth()
+Synth* AudioEngine::getSynth() const
 {
 	assert(m_pSynth);
 	return m_pSynth;
@@ -673,7 +672,7 @@ void AudioEngine::startAudioDrivers()
 			m_pAudioDriver->connect();
 		}
 
-		renameJackPorts( pSong );
+		pHydrogen->renameJackPorts( pSong );
 		setupLadspaFX();
 	}
 }
@@ -800,21 +799,6 @@ void AudioEngine::setupLadspaFX()
 		pFX->activate();
 	}
 #endif
-}
-
-void AudioEngine::renameJackPorts(std::shared_ptr<Song> pSong)
-{
-	if ( Hydrogen::get_instance()->haveJackAudioDriver() && pSong != nullptr ) {
-
-		// When restarting the audio driver after loading a new song under
-		// Non session management all ports have to be registered _prior_
-		// to the activation of the client.
-		if ( Hydrogen::get_instance()->isUnderSessionManagement() ) {
-			return;
-		}
-		
-		static_cast< JackAudioDriver* >( m_pAudioDriver )->makeTrackOutputs( pSong );
-	}
 }
 
 void AudioEngine::raiseError( unsigned nErrorCode )
@@ -1256,12 +1240,13 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 		m_pPlayingPatterns->add( pNewSong->getPatternList()->get( 0 ) );
 	}
 
-	renameJackPorts( pNewSong );
+	Hydrogen::get_instance()->renameJackPorts( pNewSong );
 
 	setBpm( pNewSong->getBpm() );
 	setTickSize( AudioEngine::computeTickSize( static_cast<int>(m_pAudioDriver->getSampleRate()),
 											   pNewSong->getBpm(),
 											   static_cast<int>(pNewSong->getResolution()) ) );
+	m_nSongSizeInTicks = pNewSong->lengthInTicks();
 
 	// change the current audio engine state
 	setState( State::Ready );
@@ -1372,12 +1357,7 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 	
 			m_nSongPos = getColumnForTick( tick, pSong->getIsLoopEnabled(), &m_nPatternStartTick );
 
-			// The `m_nSongSizeInTicks` variable is only set to some
-			// value other than zero in `getColumnForTick()` if
-			// either the pattern list was not found of loop mode was
-			// enabled and will contain the total size of the song in
-			// ticks.
-			if ( m_nSongSizeInTicks != 0 ) {
+			if ( tick > m_nSongSizeInTicks && m_nSongSizeInTicks != 0 ) {
 				// When using the JACK audio driver the overall
 				// transport position will be managed by an external
 				// server. Since it is agnostic of all the looping in
@@ -1412,8 +1392,8 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 
 					___INFOLOG( "End of Song" );
 
-					if( Hydrogen::get_instance()->getMidiOutput() != nullptr ){
-						Hydrogen::get_instance()->getMidiOutput()->handleQueueAllNoteOff();
+					if( pHydrogen->getMidiOutput() != nullptr ){
+						pHydrogen->getMidiOutput()->handleQueueAllNoteOff();
 					}
 
 					return -1;
@@ -1447,7 +1427,7 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 				// TODO: Again, a check whether the pattern did change
 				// would be more efficient.
 				m_pPlayingPatterns->clear();
-				Pattern * pattern = pSong->getPatternList()->get(m_nSelectedPatternNumber);
+				Pattern * pattern = pSong->getPatternList()->get( pHydrogen->getSelectedPatternNumber() );
 				m_pPlayingPatterns->add( pattern );
 				pattern->extand_with_flattened_virtual_patterns( m_pPlayingPatterns );
 			}
@@ -1629,14 +1609,13 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 	return 0;
 }
 
-inline int AudioEngine::getColumnForTick( int nTick, bool bLoopMode, int* pPatternStartTick )
+inline int AudioEngine::getColumnForTick( int nTick, bool bLoopMode, int* pPatternStartTick ) const
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	assert( pSong );
 
 	int nTotalTick = 0;
-	m_nSongSizeInTicks = 0;
 
 	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
 	int nColumns = pPatternColumns->size();
@@ -1667,10 +1646,10 @@ inline int AudioEngine::getColumnForTick( int nTick, bool bLoopMode, int* pPatte
 	// song. Therefore, we will introduced periodic boundary
 	// conditions and start the search again.
 	if ( bLoopMode ) {
-		m_nSongSizeInTicks = nTotalTick;
 		int nLoopTick = 0;
-		if ( m_nSongSizeInTicks != 0 ) {
-			nLoopTick = nTick % m_nSongSizeInTicks;
+		// nTotalTicks is now the same as m_nSongSizeInTicks
+		if ( nTotalTick != 0 ) {
+			nLoopTick = nTick % nTotalTick;
 		}
 		nTotalTick = 0;
 		for ( int i = 0; i < nColumns; ++i ) {
@@ -1693,7 +1672,7 @@ inline int AudioEngine::getColumnForTick( int nTick, bool bLoopMode, int* pPatte
 	return -1;
 }
 
-long AudioEngine::getTickForColumn( int nColumn )
+long AudioEngine::getTickForColumn( int nColumn ) const
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -1792,7 +1771,7 @@ void AudioEngine::stop() {
 	setNextState( State::Ready );
 }
 
-unsigned long AudioEngine::getRealtimeTickPosition()
+unsigned long AudioEngine::getRealtimeTickPosition() const
 {
 	// Get the realtime transport position in frames and convert
 	// it into ticks.
@@ -1824,7 +1803,7 @@ unsigned long AudioEngine::getRealtimeTickPosition()
 	return retTick;
 }
 
-long AudioEngine::getPatternLength( int nPattern )
+long AudioEngine::getPatternLength( int nPattern ) const
 {
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	
@@ -1855,11 +1834,11 @@ long AudioEngine::getPatternLength( int nPattern )
 	}
 }
 
-int AudioEngine::calculateLeadLagFactor( float fTickSize ){
+int AudioEngine::calculateLeadLagFactor( float fTickSize ) const {
 	return fTickSize * 5;
 }
 
-int AudioEngine::calculateLookahead( float fTickSize ){
+int AudioEngine::calculateLookahead( float fTickSize ) const {
 	// Introduce a lookahead of 5 ticks. Since the ticksize is
 	// depending of the current tempo of the song, this component does
 	// make the lookahead dynamic.

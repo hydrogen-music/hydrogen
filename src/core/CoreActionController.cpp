@@ -689,7 +689,7 @@ bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent 
 bool CoreActionController::locateToColumn( int nPatternGroup ) {
 
 	if ( nPatternGroup < -1 ) {
-		ERRORLOG( QString( "Provided column [%1] too low. Assigning -1 instead." )
+		ERRORLOG( QString( "Provided column [%1] too low. Assigning -1 (indicating the beginning of a song without showing a cursor in the SongEditorPositionRuler) instead." )
 				  .arg( nPatternGroup ) );
 		nPatternGroup = -1;
 	}
@@ -697,24 +697,14 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	
-	pAudioEngine->lock( RIGHT_HERE );
-
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
 	long nTotalTick = pAudioEngine->getTickForColumn( nPatternGroup );
 	if ( nTotalTick < 0 ) {
 		// TODO: why not locating to the beginning in here?
 		DEBUGLOG( QString( "Obtained ticks [%1] are smaller than zero. No relocation done." )
 				  .arg( nTotalTick ) );
-		pAudioEngine->unlock();
 		return false;
 	}
-
-	if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
-		// find pattern immediately when not playing
-		pAudioEngine->setSongPos( nPatternGroup );
-		pAudioEngine->setPatternTickPosition( 0 );
-	}
-	pAudioEngine->unlock();
 
 	locateToFrame( static_cast<unsigned long>( nTotalTick * pAudioEngine->getTickSize() ) );
 
@@ -730,6 +720,22 @@ bool CoreActionController::locateToFrame( unsigned long nFrame ) {
 	auto pDriver = pHydrogen->getAudioOutput();
 
 	pAudioEngine->lock( RIGHT_HERE );
+	
+	if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
+		// Required to move the playhead when clicking e.g. fast
+		// forward or the song editor ruler. The variables set in here
+		// do not interfere with the realtime audio (playback of MIDI
+		// events of virtual keyboard) and all other position
+		// variables in the AudioEngine will be set properly with
+		// respect to them by then.
+
+		int nTotalTick = static_cast<int>(nFrame / pAudioEngine->getTickSize());
+		int nPatternStartTick;
+		int nColumn = pAudioEngine->getColumnForTick( nTotalTick, pHydrogen->getSong()->getIsLoopEnabled(), &nPatternStartTick );
+
+		pAudioEngine->setSongPos( nColumn );
+		pAudioEngine->setPatternTickPosition( nTotalTick - nPatternStartTick );
+	}
 	pAudioEngine->locate( nFrame );
 	pAudioEngine->unlock();
 

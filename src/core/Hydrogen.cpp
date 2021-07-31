@@ -105,6 +105,12 @@ const char* Hydrogen::__class_name = "Hydrogen";
 
 Hydrogen::Hydrogen()
 	: Object( __class_name )
+	, m_nSelectedInstrumentNumber( 0 )
+	, m_nSelectedPatternNumber( 0 )
+	, m_bExportSessionIsActive( false )
+	, m_GUIState( GUIState::unavailable )
+	, m_fNewBpmJTM( 120 )
+
 {
 	if ( __instance ) {
 		ERRORLOG( "Hydrogen audio engine is already running" );
@@ -115,12 +121,8 @@ Hydrogen::Hydrogen()
 
 	__song = nullptr;
 
-	m_bExportSessionIsActive = false;
 	m_pTimeline = new Timeline();
 	m_pCoreActionController = new CoreActionController();
-	m_GUIState = GUIState::unavailable;
-	m_fNewBpmJTM = 120;
-	m_nSelectedInstrumentNumber =  0;
 
 	initBeatcounter();
 	InstrumentComponent::setMaxLayers( Preferences::get_instance()->getMaxLayers() );
@@ -414,12 +416,11 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	} else { // Not song-record mode
 		PatternList *pPatternList = pSong->getPatternList();
 
-		int selectedPatternNumber = pAudioEngine->getSelectedPatternNumber();
-		if ( ( selectedPatternNumber != -1 )
-			 && ( selectedPatternNumber < ( int )pPatternList->size() ) )
+		if ( ( m_nSelectedPatternNumber != -1 )
+			 && ( m_nSelectedPatternNumber < ( int )pPatternList->size() ) )
 		{
-			currentPattern = pPatternList->get( selectedPatternNumber );
-			currentPatternNumber = selectedPatternNumber;
+			currentPattern = pPatternList->get( m_nSelectedPatternNumber );
+			currentPatternNumber = m_nSelectedPatternNumber;
 		}
 
 		if ( ! currentPattern ) {
@@ -682,11 +683,8 @@ void Hydrogen::stopExportSong()
 	}
 
 	pAudioEngine->getSampler()->stopPlayingNotes();
-	
 	pAudioEngine->getAudioDriver()->disconnect();
-
-	pAudioEngine->setSongPos( -1 );
-	pAudioEngine->setPatternTickPosition( 0 );
+	pAudioEngine->reset();
 }
 
 /// Used to display audio driver info
@@ -828,9 +826,7 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	}
 
 #ifdef H2CORE_HAVE_JACK
-	pAudioEngine->lock( RIGHT_HERE );
-	pAudioEngine->renameJackPorts( getSong() );
-	pAudioEngine->unlock();
+	renameJackPorts( getSong() );
 #endif
 
 	pAudioEngine->setState( oldAudioEngineState );
@@ -912,9 +908,7 @@ void Hydrogen::removeInstrument( int instrumentNumber, bool conditional )
 	// if the instrument was the last on the instruments list, select the
 	// next-last
 	if ( instrumentNumber >= (int)getSong()->getInstrumentList()->size() - 1 ) {
-		Hydrogen::get_instance()->setSelectedInstrumentNumber(
-					std::max(0, instrumentNumber - 1 )
-					);
+		setSelectedInstrumentNumber( std::max(0, instrumentNumber - 1 ) );
 	}
 	//
 	// delete the instrument from the instruments list
@@ -1061,35 +1055,24 @@ void Hydrogen::restartLadspaFX()
 	}
 }
 
-int Hydrogen::getSelectedPatternNumber()
-{
-	return m_pAudioEngine->getSelectedPatternNumber();
-}
-
 
 void Hydrogen::setSelectedPatternNumber( int nPat )
 {
-	AudioEngine* pAudioEngine = m_pAudioEngine;	
-	
-	if ( nPat == pAudioEngine->getSelectedPatternNumber() )	return;
-
+	if ( nPat == m_nSelectedPatternNumber ) {
+		return;
+	}
 
 	if ( Preferences::get_instance()->patternModePlaysSelected() ) {
-		pAudioEngine->lock( RIGHT_HERE );
+		getAudioEngine()->lock( RIGHT_HERE );
 		
-		pAudioEngine->setSelectedPatternNumber( nPat );
+		m_nSelectedPatternNumber = nPat;
 
-		pAudioEngine->unlock();
+		getAudioEngine()->unlock();
 	} else {
-		pAudioEngine->setSelectedPatternNumber( nPat );
+		m_nSelectedPatternNumber = nPat;
 	}
 
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
-}
-
-int Hydrogen::getSelectedInstrumentNumber()
-{
-	return m_nSelectedInstrumentNumber;
 }
 
 void Hydrogen::setSelectedInstrumentNumber( int nInstrument )
@@ -1111,7 +1094,20 @@ void Hydrogen::refreshInstrumentParameters( int nInstrument )
 void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 {
 	if( Preferences::get_instance()->m_bJackTrackOuts == true ){
-		m_pAudioEngine->renameJackPorts(pSong);
+		if ( haveJackAudioDriver() && pSong != nullptr ) {
+
+			// When restarting the audio driver after loading a new song under
+			// Non session management all ports have to be registered _prior_
+			// to the activation of the client.
+			if ( isUnderSessionManagement() ) {
+				return;
+			}
+			auto pAudioEngine = m_pAudioEngine;
+
+			pAudioEngine->lock( RIGHT_HERE );
+			static_cast< JackAudioDriver* >( m_pAudioEngine->getAudioDriver() )->makeTrackOutputs( pSong );
+			pAudioEngine->unlock();
+		}
 	}
 }
 #endif
@@ -1307,7 +1303,7 @@ void Hydrogen::togglePlaysSelected()
 	if (isPlaysSelected) {
 		pAudioEngine->getPlayingPatterns()->clear();
 		Pattern* pSelectedPattern =
-				pSong->getPatternList()->get(pAudioEngine->getSelectedPatternNumber());
+				pSong->getPatternList()->get( getSelectedPatternNumber() );
 		pAudioEngine->getPlayingPatterns()->add( pSelectedPattern );
 	}
 

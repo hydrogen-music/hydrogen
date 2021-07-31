@@ -310,7 +310,7 @@ void			previewSample( Sample *pSample );
 
 	void			restartLadspaFX();
 	/** \return #m_nSelectedPatternNumber*/
-	int				getSelectedPatternNumber();
+	int				getSelectedPatternNumber() const;
 	/**
 	 * Sets #m_nSelectedPatternNumber.
 	 *
@@ -325,7 +325,7 @@ void			previewSample( Sample *pSample );
 	 *\param nPat Sets #m_nSelectedPatternNumber*/
 	void			setSelectedPatternNumber( int nPat );
 
-	int				getSelectedInstrumentNumber();
+	int				getSelectedInstrumentNumber() const;
 	void			setSelectedInstrumentNumber( int nInstrument );
 
 
@@ -584,11 +584,13 @@ private:
 	 * Preferences::__playselectedinstrument incoming MIDI signals can be
 	 * used to play back only the selected instrument or the whole
 	 * drumkit.
-	 *
-	 * Queried using Hydrogen::getSelectedInstrumentNumber() and set by
-	 * Hydrogen::setSelectedInstrumentNumber().
 	 */
 	int				m_nSelectedInstrumentNumber;
+	/**
+	 * Index of the pattern selected in the GUI or by a MIDI event.
+	 */
+	int				m_nSelectedPatternNumber;
+
 
 	/*
 	 * Central instance of the audio engine. 
@@ -673,6 +675,14 @@ inline Hydrogen::GUIState Hydrogen::getGUIState() const {
 
 inline void Hydrogen::setGUIState( const Hydrogen::GUIState state ) {
 	m_GUIState = state;
+}
+inline int Hydrogen::getSelectedPatternNumber() const
+{
+	return m_nSelectedPatternNumber;
+}
+inline int Hydrogen::getSelectedInstrumentNumber() const
+{
+	return m_nSelectedInstrumentNumber;
 }
 };
 
