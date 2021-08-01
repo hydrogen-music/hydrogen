@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -87,7 +87,6 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
 
 	setWindowTitle ( QString( tr( "SampleEditor " ) + newfilename) );
-	setFixedSize ( width(), height() );
 	setModal ( true );
 
 	//this new sample give us the not changed real samplelength
@@ -110,6 +109,9 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	__rubberband.divider = 1.0;
 	openDisplays();
 	getAllFrameInfos();
+
+	adjustSize();
+	setFixedSize ( width(), height() );
 
 #ifndef H2CORE_HAVE_RUBBERBAND
 	if ( !Filesystem::file_executable( Preferences::get_instance()->m_rubberBandCLIexecutable , true /* silent */) ) {
@@ -211,7 +213,7 @@ void SampleEditor::getAllFrameInfos()
 		m_pTargetSampleView->get_velocity()->clear();
 		
 		for(auto& pEnvPtr : *pSample->get_velocity_envelope() ){
-			m_pTargetSampleView->get_velocity()->emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr->value, pEnvPtr->frame ) );
+			m_pTargetSampleView->get_velocity()->emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr.get() ) );
 		}
 	}
 

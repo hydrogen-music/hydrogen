@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -108,7 +108,6 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		PlaylistDialog*			getPlayListDialog();
 		Director*			getDirector();
 		SampleEditor*			getSampleEditor();
-		SimpleHTMLBrowser*		getHelpBrowser();
 		PatternEditorPanel*		getPatternEditorPanel();
 		PlayerControl*			getPlayerControl();
 		InstrumentRack*			getInstrumentRack();
@@ -202,8 +201,6 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		AudioEngineInfoForm *		m_pAudioEngineInfoForm;
 		FilesystemInfoForm *		m_pFilesystemInfoForm;
 		SongEditorPanel *			m_pSongEditorPanel;
-		SimpleHTMLBrowser *			m_pHelpBrowser;
-		SimpleHTMLBrowser *			m_pFirstTimeInfo;
 		InstrumentRack*				m_pInstrumentRack;
 		PlayerControl *				m_pPlayerControl;
 		PlaylistDialog *			m_pPlaylistDialog;
@@ -296,11 +293,6 @@ inline Director* HydrogenApp::getDirector()
 inline SampleEditor* HydrogenApp::getSampleEditor()
 {
 	return m_pSampleEditor;	
-}
-
-inline SimpleHTMLBrowser* HydrogenApp::getHelpBrowser()
-{
-	return m_pHelpBrowser;
 }
 
 inline PatternEditorPanel* HydrogenApp::getPatternEditorPanel()

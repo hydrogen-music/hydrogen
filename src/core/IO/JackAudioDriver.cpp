@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -319,6 +319,13 @@ void JackAudioDriver::relocateUsingBBT()
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
 
+	if ( pSong == nullptr ) {
+		// Expected behavior if Hydrogen is exited while playback is
+		// still running.
+		DEBUGLOG( "No song set." );
+		return;
+	}
+
 	float fTicksPerBeat = static_cast<float>( pSong->getResolution() / m_JackTransportPos.beat_type * 4 );
 
 	long barTicks = 0;
@@ -430,7 +437,7 @@ void JackAudioDriver::relocateUsingBBT()
 	float fBPM = static_cast<float>(m_JackTransportPos.beats_per_minute);
 	if ( m_transport.m_fBPM != fBPM ) {
 		setBpm( fBPM );
-		pHydrogen->getSong()->setBpm( fBPM );
+		pSong->setBpm( fBPM );
 		pHydrogen->setNewBpmJTM( fBPM );
 	}
 }
@@ -479,6 +486,15 @@ void JackAudioDriver::updateTransportInfo()
 		ERRORLOG( "Unknown jack transport state" );
 	}
 
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	
+	if ( pHydrogen->getSong() == nullptr ) {
+		// Expected behavior if Hydrogen is exited while playback is
+		// still running.
+		DEBUGLOG( "No song set." );
+		return;
+	}
+
 	// printState();
 	
 	m_currentPos = m_JackTransportPos.frame;
@@ -506,8 +522,6 @@ void JackAudioDriver::updateTransportInfo()
 			m_timebaseState = Timebase::Slave;
 		}
 	}
-		
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
@@ -1095,6 +1109,13 @@ void JackAudioDriver::jack_session_callback_impl(jack_session_event_t* event)
 	Preferences* pPreferences = Preferences::get_instance();
 	EventQueue* pEventQueue = EventQueue::get_instance();
 
+	if ( pSong == nullptr ) {
+		// Expected behavior if Hydrogen is exited while playback is
+		// still running.
+		DEBUGLOG( "No song set." );
+		return;
+	}
+
 	jack_session_event_t* ev = static_cast<jack_session_event_t*>(event);
 
 	QString sJackSessionDirectory = static_cast<QString>(ev->session_dir);
@@ -1260,6 +1281,9 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
+		// Expected behavior if Hydrogen is exited while playback is
+		// still running.
+		DEBUGLOG( "No song set." );
 		return;
 	}
 	

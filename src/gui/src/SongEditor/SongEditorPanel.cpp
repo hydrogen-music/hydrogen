@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 #include "SongEditorPanel.h"
@@ -68,6 +68,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// background
 	PixmapWidget *pBackPanel = new PixmapWidget( nullptr );
+	pBackPanel->setObjectName( "SongEditorBackPanel" );
 	pBackPanel->setFixedSize( 196, 49 );
 	pBackPanel->setPixmap( "/songEditor/bg_topPanel.png" );
 
@@ -82,6 +83,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	);
 	m_pTimeLineToggleBtn->move( 133, 6 );
 	m_pTimeLineToggleBtn->setToolTip( m_sTimelineToolTip );
+	m_pTimeLineToggleBtn->setObjectName( "TimeLineToggleBtn" );
 	connect( m_pTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( timeLineBtnPressed(Button* ) ) );
 	
 	if ( pPref->getUseTimelineBpm() &&
@@ -224,6 +226,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			QSize( 19, 13 )
 	);
 	m_pViewPlaybackToggleBtn->setToolTip( tr( "View playback track") );
+	m_pViewPlaybackToggleBtn->setObjectName( "ViewPlaybackToggleBtn" );
 	connect( m_pViewPlaybackToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( viewPlaybackTrackBtnPressed(Button* ) ) );
 	m_pViewPlaybackToggleBtn->setPressed( false );
 	

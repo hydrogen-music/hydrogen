@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 #ifndef HYDROGEN_H
@@ -630,6 +630,8 @@ void			previewSample( Sample *pSample );
 	/**\param pNextSong Sets #m_pNextSong. Song which is about to be
 	   loaded by the GUI.*/
 	void			setNextSong( Song* pNextSong );
+	void			setNextSongPath( const QString sSongPath );
+	QString			getNextSongPath();
 	/** Calculates the lookahead for a specific tick size.
 	 *
 	 * During the humanization the onset of a Note will be moved
@@ -778,6 +780,7 @@ private:
 	 * Set by setNextSong() and accessed via getNextSong().
 	 */
 	Song*			m_pNextSong;
+	QString			m_sNextSongPath;
 
 	/**
 	 * Local instance of the Timeline object.
@@ -893,7 +896,12 @@ inline Song* Hydrogen::getNextSong() const {
 inline void Hydrogen::setNextSong( Song* pNextSong ) {
 	m_pNextSong = pNextSong;
 }
-
+inline QString Hydrogen::getNextSongPath() {
+	return m_sNextSongPath;
+}
+inline void Hydrogen::setNextSongPath( const QString sSongPath ) {
+	m_sNextSongPath = sSongPath;
+}
 };
 
 #endif

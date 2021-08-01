@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -55,6 +55,7 @@ PlayerControl::PlayerControl(QWidget *parent)
  : QLabel(parent)
  , Object( __class_name )
 {
+	setObjectName( "PlayerControl" );
 	HydrogenApp::get_instance()->addEventListener( this );
 	
 	auto pPreferences = Preferences::get_instance();
@@ -74,6 +75,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	PixmapWidget *pControlsPanel = new PixmapWidget( nullptr );
 	pControlsPanel->setFixedSize( 344, 43 );
 	pControlsPanel->setPixmap( "/playerControlPanel/background_Control.png" );
+	pControlsPanel->setObjectName( "ControlsPanel" );
 	hbox->addWidget( pControlsPanel );
 
 	m_pTimeDisplayH = new LCDDisplay( pControlsPanel, LCDDigit::LARGE_GRAY, 2 );
@@ -212,6 +214,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	PixmapWidget *pControlsBBTBConoffPanel = new PixmapWidget( nullptr );
 	pControlsBBTBConoffPanel->setFixedSize( 15, 43 );
 	pControlsBBTBConoffPanel->setPixmap( "/playerControlPanel/onoff.png" );
+	pControlsBBTBConoffPanel->setObjectName( "BeatCounterOnOff" );
 	hbox->addWidget( pControlsBBTBConoffPanel );
 
 	m_sBConoffBtnToolTip = tr("BeatCounter Panel on");
@@ -232,6 +235,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pControlsBCPanel = new PixmapWidget( nullptr );
 	m_pControlsBCPanel->setFixedSize( 86, 43 );
 	m_pControlsBCPanel->setPixmap( "/playerControlPanel/beatConter_BG.png" );
+	m_pControlsBCPanel->setObjectName( "BeatCounter" );
 	hbox->addWidget( m_pControlsBCPanel );
 
 
@@ -308,6 +312,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	PixmapWidget *pBPMPanel = new PixmapWidget( nullptr );
 	pBPMPanel->setFixedSize( 145, 43 );
 	pBPMPanel->setPixmap( "/playerControlPanel/background_BPM.png" );
+	pBPMPanel->setObjectName( "BPM" );
 	hbox->addWidget( pBPMPanel );
 
 	// LCD BPM SpinBox
@@ -383,6 +388,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	PixmapWidget *pJackPanel = new PixmapWidget( nullptr );
 	pJackPanel->setFixedSize( 113, 43 );
 	pJackPanel->setPixmap( "/playerControlPanel/background_Jack.png" );
+	pJackPanel->setObjectName( "JackPanel" );
 	hbox->addWidget( pJackPanel );
 
 	// Jack transport mode button
@@ -399,6 +405,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	} else {
 		m_pJackTransportBtn->setPressed( false );
 	}
+	/*: Using the JACK the audio/midi input and output ports of any
+	  number of application can be connected.*/
 	m_pJackTransportBtn->setToolTip( tr("JACK transport on/off") );
 	connect(m_pJackTransportBtn, SIGNAL(clicked(Button*)), this, SLOT(jackTransportBtnClicked(Button*)));
 	m_pJackTransportBtn->move(10, 26);
@@ -419,6 +427,10 @@ PlayerControl::PlayerControl(QWidget *parent)
 	} else {
 		m_pJackMasterBtn->setPressed( false );
 	}
+	/*: Using the JACK Timebase Master functionality one of the
+connected programs can broadcast both speed and measure information to
+all other connected applications in order to have a more fine-grained
+transport control.*/
 	m_sJackMasterModeToolTip = tr("JACK Timebase master on/off");
 	m_pJackMasterBtn->setToolTip( m_sJackMasterModeToolTip );
 	connect(m_pJackMasterBtn, SIGNAL(clicked(Button*)), this, SLOT(jackMasterBtnClicked(Button*)));
@@ -429,9 +441,11 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	// CPU load widget
 	m_pCpuLoadWidget = new CpuLoadWidget( pJackPanel );
+	m_pCpuLoadWidget->setObjectName( "CpuLoadWidget" );
 
 	// Midi Activity widget
 	m_pMidiActivityWidget = new MidiActivityWidget( pJackPanel );
+	m_pMidiActivityWidget->setObjectName( "MidiActivityWidget" );
 
 	m_pMidiActivityWidget->move( 10, 14 );
 	m_pCpuLoadWidget->move( 10, 4 );
@@ -441,6 +455,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	PixmapWidget *pLcdBackGround = new PixmapWidget( nullptr );
 	pLcdBackGround->setFixedSize( 256, 43 );
 	pLcdBackGround->setPixmap( "/playerControlPanel/lcd_background.png" );
+	pLcdBackGround->setObjectName( "LcdBackground" );
 	hbox->addWidget( pLcdBackGround );
 
 	m_pShowMixerBtn = new ToggleButton(

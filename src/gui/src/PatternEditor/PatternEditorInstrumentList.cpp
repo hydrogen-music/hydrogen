@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -77,6 +77,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pMuteBtn->move( 145, 5 );
 	m_pMuteBtn->setPressed(false);
 	m_pMuteBtn->setToolTip( tr("Mute instrument") );
+	m_pMuteBtn->setObjectName( "MuteButton" );
 	connect(m_pMuteBtn, SIGNAL(clicked(Button*)), this, SLOT(muteClicked()));
 
 	m_pSoloBtn = new ToggleButton(
@@ -89,6 +90,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pSoloBtn->move( 163, 5 );
 	m_pSoloBtn->setPressed(false);
 	m_pSoloBtn->setToolTip( tr("Solo") );
+	m_pSoloBtn->setObjectName( "SoloButton" );
 	connect(m_pSoloBtn, SIGNAL(clicked(Button*)), this, SLOT(soloClicked()));
 
 	m_pSampleWarning = new Button(
@@ -130,6 +132,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopup->addSection( tr( "Instrument" ) );
 	m_pFunctionPopup->addAction( tr( "Rename instrument" ), this, SLOT( functionRenameInstrument() ) );
 	m_pFunctionPopup->addAction( tr( "Delete instrument" ), this, SLOT( functionDeleteInstrument() ) );
+	m_pFunctionPopup->setObjectName( "PatternEditorFunctionPopup" );
 
 	m_bIsSelected = true;
 	setSelected(false);

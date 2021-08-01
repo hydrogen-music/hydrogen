@@ -268,7 +268,7 @@
     </message>
     <message>
         <source>Pla&amp;y samples by clicking</source>
-        <translation>Reprodu&amp;ce samples haciendo click</translation>
+        <translation>Reprodu&amp;ce samples haciendo clic</translation>
     </message>
     <message>
         <source>&amp;Up</source>
@@ -690,7 +690,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Please enter a number within the range of </source>
-        <translation>Por favor teclea un número dentro del rango de </translation>
+        <translation>Por favor introduce un número dentro del rango de </translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -784,6 +784,10 @@ Are you sure?</source>
 Use &apos;Save as&apos; to enable autosave.</source>
         <translation>La canción es de solo lectura.
 Utiliza &apos;Guardar como&apos; para habilitar el auto-guardado.</translation>
+    </message>
+    <message>
+        <source>Input Midi Note</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1482,18 +1486,22 @@ El playlist actual contiene cambios sin guardar.
     </message>
     <message>
         <source>Replace With &amp;New Song</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with an empty one.</extracomment>
         <translation>Reemplazar con Canción &amp;Nueva</translation>
     </message>
     <message>
         <source>Imp&amp;ort Into Session</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with one chosen by the user via a file browser widget.</extracomment>
         <translation>Imp&amp;ortar a Sesión</translation>
     </message>
     <message>
         <source>Import &amp;Recent Into Session</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows to replace the current song with one chosen recently used by the user.</extracomment>
         <translation>Importar &amp;Reciente a Sesión</translation>
     </message>
     <message>
         <source>Export From Session &amp;As...</source>
+        <extracomment>When Hydrogen is under session management the path the song is stored to can not be changed by the user. This option allows the user store the current song in a .h2song anywhere on her system. The filepath of the current song won&apos;t be altered.</extracomment>
         <translation>Export&amp;ar de Sesión Como...</translation>
     </message>
     <message>
@@ -2429,10 +2437,12 @@ Máximo = 16/4</translation>
     </message>
     <message>
         <source>JACK transport on/off</source>
+        <extracomment>Using the JACK the audio/midi input and output ports of any number of application can be connected.</extracomment>
         <translation>Transporte JACK encendido/apagado</translation>
     </message>
     <message>
         <source>JACK Timebase master on/off</source>
+        <extracomment>Using the JACK Timebase Master functionality one of the connected programs can broadcast both speed and measure information to all other connected applications in order to have a more fine-grained transport control.</extracomment>
         <translation>Timebase maestro JACK encendido/apagado</translation>
     </message>
     <message>
@@ -2687,18 +2697,6 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <source>Slow</source>
-        <translation>Lento</translation>
-    </message>
-    <message>
-        <source>Normal</source>
-        <translation>Normal</translation>
-    </message>
-    <message>
-        <source>Fast</source>
-        <translation>Rápido</translation>
-    </message>
-    <message>
         <source>Preferences</source>
         <translation>Preferencias</translation>
     </message>
@@ -2829,6 +2827,7 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     </message>
     <message>
         <source>Meters falloff speed</source>
+        <extracomment>In case of a rapid sound lasting for just a milli second the meters in the Mixer would raise to peak value and fall of immediately without the user being able to see them. The falloff speed introduces a delay. The smaller the value, the longer the meter requires to reach 0dB again.</extracomment>
         <translation>Velocidad de caída de vúmetros</translation>
     </message>
     <message>
@@ -3133,6 +3132,7 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     </message>
     <message>
         <source>Use &amp;LASH</source>
+        <extracomment>LASH (acronym for LASH Linux Audio Handler) is a protocol allowing for session management in Linux (recalling songs, preferences, and JACK port connections).</extracomment>
         <translation>Utilizar &amp;LASH</translation>
     </message>
     <message>
@@ -3712,29 +3712,6 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;puede encontrar más información aquí:&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>SimpleHTMLBrowser</name>
-    <message>
-        <source>Manual</source>
-        <translation>Manual</translation>
-    </message>
-    <message>
-        <source>Welcome to Hydrogen</source>
-        <translation>Bienvenid@ a Hydrogen</translation>
-    </message>
-    <message>
-        <source>Don&apos;t show this message anymore</source>
-        <translation>No mostrar este mensaje de nuevo</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation>Aceptar</translation>
-    </message>
-    <message>
-        <source>Documentation index</source>
-        <translation>Índice de documentación</translation>
     </message>
 </context>
 <context>

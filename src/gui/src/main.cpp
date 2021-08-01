@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -28,6 +28,7 @@
 #include <core/Version.h>
 #include <getopt.h>
 
+#include "ShotList.h"
 #include "SplashScreen.h"
 #include "HydrogenApp.h"
 #include "MainForm.h"
@@ -58,6 +59,8 @@
 
 #include <signal.h>
 #include <iostream>
+#include <map>
+#include <set>
 
 //
 // Set the palette used in the application
@@ -115,6 +118,20 @@ void setPalette( QApplication *pQApp )
 	pQApp->setStyleSheet("QToolTip {padding: 1px; border: 1px solid rgb(199, 202, 204); background-color: rgb(227, 243, 252); color: rgb(64, 64, 66);}");
 }
 
+// Handle a fatal signal, allowing the logger to complete any outstanding messages before re-raising the
+// signal to allow normal termination.
+static void handleFatalSignal( int nSignal )
+{
+	// First disable signal handler to allow normal termination
+	signal( nSignal, SIG_DFL );
+
+	// Allow logger to complete
+	H2Core::Logger* pLogger = H2Core::Logger::get_instance();
+	if ( pLogger )
+		delete pLogger;
+
+	raise( nSignal );
+}
 
 static int setup_unix_signal_handlers()
 {
@@ -129,6 +146,11 @@ static int setup_unix_signal_handlers()
 	if (sigaction(SIGUSR1, &usr1, nullptr) > 0) {
 		return 1;
 	}
+
+	for ( int nSignal : { SIGSEGV, SIGILL, SIGFPE, SIGBUS } ) {
+		signal( nSignal, handleFatalSignal );
+	}
+
 #endif
 	
 	return 0;
@@ -189,6 +211,8 @@ public:
 };
 
 
+
+
 int main(int argc, char *argv[])
 {
 	try {
@@ -198,11 +222,13 @@ int main(int argc, char *argv[])
 
 		// Create bootstrap QApplication to get H2 Core set up with correct Filesystem paths before starting GUI application.
 		QCoreApplication *pBootStrApp = new QCoreApplication( argc, argv );
+		pBootStrApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
+
 		
 		QCommandLineParser parser;
 		
 		QString aboutText = QString( "\nHydrogen " ) + QString::fromStdString( H2Core::get_version() )  + QString( " [" ) + QString::fromStdString( __DATE__ ) + QString( "]  [http://www.hydrogen-music.org]" ) +
-		QString( "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2020 The hydrogen development team" ) +
+		QString( "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2021 The hydrogen development team" ) +
 		QString( "\nHydrogen comes with ABSOLUTELY NO WARRANTY\nThis is free software, and you are welcome to redistribute it under certain conditions. See the file COPYING for details.\n" );
 		
 		parser.setApplicationDescription( aboutText );
@@ -215,6 +241,8 @@ int main(int argc, char *argv[])
 		QCommandLineOption songFileOption( QStringList() << "s" << "song", "Load a song (*.h2song) at startup", "File" );
 		QCommandLineOption kitOption( QStringList() << "k" << "kit", "Load a drumkit at startup", "DrumkitName" );
 		QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH","Level");
+		QCommandLineOption shotListOption( QStringList() << "t" << "shotlist", "Shot list of widgets to grab", "ShotList" );
+		QCommandLineOption uiLayoutOption( QStringList() << "layout", "UI layout ('tabbed' or 'single')", "Layout" );
 		
 		parser.addHelpOption();
 		parser.addVersionOption();
@@ -226,6 +254,8 @@ int main(int argc, char *argv[])
 		parser.addOption( songFileOption );
 		parser.addOption( kitOption );
 		parser.addOption( verboseOption );
+		parser.addOption( shotListOption );
+		parser.addOption( uiLayoutOption );
 		parser.addPositionalArgument( "file", "Song, playlist or Drumkit file" );
 		
 		//Conditional options
@@ -244,6 +274,8 @@ int main(int argc, char *argv[])
 		QString sSongFilename = parser.value ( songFileOption );
 		QString sDrumkitToLoad = parser.value( kitOption );
 		QString sVerbosityString = parser.value( verboseOption );
+		QString sShotList = parser.value( shotListOption );
+		QString sUiLayout = parser.value( uiLayoutOption );
 		
 		unsigned logLevelOpt = H2Core::Logger::Error;
 		if( parser.isSet(verboseOption) ){
@@ -318,6 +350,15 @@ int main(int argc, char *argv[])
 		}
 		QGuiApplication::setHighDpiScaleFactorRoundingPolicy( policy );
 #endif
+
+		// Force layout
+		if ( !sUiLayout.isEmpty() ) {
+			if ( sUiLayout == "tabbed" ) {
+				pPref->setDefaultUILayout( 1 );
+			} else {
+				pPref->setDefaultUILayout( 0 );
+			}
+		}
 
 #ifdef H2CORE_HAVE_LASH
 
@@ -529,6 +570,11 @@ int main(int argc, char *argv[])
 			NsmClient::get_instance()->sendDirtyState( false );
 		}
 #endif
+
+		if ( sShotList != QString() ) {
+			ShotList *sl = new ShotList( sShotList );
+			sl->shoot();
+		}
 
 		pQApp->exec();
 
