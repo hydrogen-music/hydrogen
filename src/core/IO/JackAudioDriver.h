@@ -919,6 +919,9 @@ public:
 	 */
 	JackAudioDriver( audioProcessCallback m_processCallback ) : NullDriver( m_processCallback ) {}
 
+	// Required since this function is a friend of AudioEngine which
+	// needs to be build even if no JACK support is desired.
+	void updateTransportInfo() {}
 };
 
 }; // H2Core namespace
