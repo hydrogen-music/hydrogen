@@ -485,8 +485,6 @@ void JackAudioDriver::updateTransportInfo()
 	default:
 		ERRORLOG( "Unknown jack transport state" );
 	}
-
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	
 	if ( pHydrogen->getSong() == nullptr ) {
 		// Expected behavior if Hydrogen is exited while playback is
