@@ -396,12 +396,14 @@ void AudioEngine::locate( const unsigned long nFrame ) {
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pDriver = pHydrogen->getAudioOutput();
 
+#ifdef H2CORE_HAVE_JACK
 	if ( pHydrogen->haveJackTransport() ) {
 		// Tell all other JACK clients to relocate as well and wait for
 		// the JACK server to give the signal.
 		static_cast<JackAudioDriver*>( m_pAudioDriver )->locateTransport( nFrame );
 		return;
 	}
+#endif
 
 	setFrames( nFrame );
 
@@ -424,7 +426,8 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 		memset( pBuffer_L, 0, nFrames * sizeof( float ) );
 		memset( pBuffer_R, 0, nFrames * sizeof( float ) );
 	}
-
+	
+#ifdef H2CORE_HAVE_JACK
 	if ( Hydrogen::get_instance()->haveJackAudioDriver() ) {
 		JackAudioDriver * pJackAudioDriver = dynamic_cast<JackAudioDriver*>(m_pAudioDriver);
 	
@@ -432,6 +435,7 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 			pJackAudioDriver->clearPerTrackAudioBuffers( nFrames );
 		}
 	}
+#endif
 
 	mx.unlock();
 
@@ -743,6 +747,7 @@ void AudioEngine::processCheckBPMChanged(std::shared_ptr<Song> pSong)
 	}
 
 	long long oldFrame;
+#ifdef H2CORE_HAVE_JACK
 	if ( Hydrogen::get_instance()->haveJackTransport() && 
 		 m_state != State::Playing ) {
 		oldFrame = static_cast< JackAudioDriver* >( m_pAudioDriver )->m_currentPos;
@@ -750,6 +755,9 @@ void AudioEngine::processCheckBPMChanged(std::shared_ptr<Song> pSong)
 	} else {
 		oldFrame = getFrames();
 	}
+#else
+	oldFrame = getFrames();
+#endif
 	float fOldTickSize = getTickSize();
 	float fNewTickSize = AudioEngine::computeTickSize( m_pAudioDriver->getSampleRate(), pSong->getBpm(), pSong->getResolution() );
 
@@ -771,10 +779,11 @@ void AudioEngine::processCheckBPMChanged(std::shared_ptr<Song> pSong)
 	___WARNINGLOG( QString( "Tempo change: Recomputing ticksize and frame position. Old TS: %1, new TS: %2, new pos: %3" )
 		.arg( fOldTickSize ).arg( fNewTickSize )
 				   .arg( getFrames() ) );
-	
+#ifdef H2CORE_HAVE_JACK
 	if ( Hydrogen::get_instance()->haveJackTransport() ) {
 		static_cast< JackAudioDriver* >( m_pAudioDriver )->calculateFrameOffset(oldFrame);
 	}
+#endif
 	EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
 }
 
@@ -941,6 +950,7 @@ inline void AudioEngine::processTransport( unsigned nFrames )
 		return;
 	}
 
+#ifdef H2CORE_HAVE_JACK
 	if ( Hydrogen::get_instance()->haveJackTransport() ) {
 		// Compares the current transport state, speed in bpm, and
 		// transport position with a query request to the JACK
@@ -949,6 +959,7 @@ inline void AudioEngine::processTransport( unsigned nFrames )
 		// e.g. clicking on the timeline.
 		static_cast<JackAudioDriver*>( m_pAudioDriver )->updateTransportInfo();
 	}
+#endif
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
@@ -1245,7 +1256,9 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 		m_pPlayingPatterns->add( pNewSong->getPatternList()->get( 0 ) );
 	}
 
+#ifdef H2CORE_HAVE_JACK
 	Hydrogen::get_instance()->renameJackPorts( pNewSong );
+#endif
 
 	setBpm( pNewSong->getBpm() );
 	setTickSize( AudioEngine::computeTickSize( static_cast<int>(m_pAudioDriver->getSampleRate()),
@@ -1748,12 +1761,14 @@ void AudioEngine::play() {
 	
 	assert( m_pAudioDriver );
 
+#ifdef H2CORE_HAVE_JACK
 	if ( Hydrogen::get_instance()->haveJackTransport() ) {
 		// Tell all other JACK clients to start as well and wait for
 		// the JACK server to give the signal.
 		static_cast<JackAudioDriver*>( m_pAudioDriver )->startTransport();
 		return;
 	}
+#endif
 
 	setNextState( State::Playing );
 
@@ -1765,13 +1780,15 @@ void AudioEngine::play() {
 void AudioEngine::stop() {
 
 	assert( m_pAudioDriver );
-
+	
+#ifdef H2CORE_HAVE_JACK
 	if ( Hydrogen::get_instance()->haveJackTransport() ) {
 		// Tell all other JACK clients to stop as well and wait for
 		// the JACK server to give the signal.
 		static_cast<JackAudioDriver*>( m_pAudioDriver )->stopTransport();
 		return;
 	}
+#endif
 	
 	setNextState( State::Ready );
 }

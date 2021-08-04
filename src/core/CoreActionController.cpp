@@ -739,10 +739,12 @@ bool CoreActionController::locateToFrame( unsigned long nFrame ) {
 	pAudioEngine->locate( nFrame );
 	pAudioEngine->unlock();
 
+#ifdef H2CORE_HAVE_JACK
 	if ( pHydrogen->haveJackTransport() &&
 		 pAudioEngine->getState() != AudioEngine::State::Playing ) {
 		static_cast<JackAudioDriver*>(pDriver)->m_currentPos = nFrame;
 	}
+#endif
 	return true;
 }
 }
