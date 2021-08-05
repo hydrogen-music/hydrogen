@@ -10,14 +10,21 @@ environment:
       job_group: 'Mac OS X'
       appveyor_build_worker_image: macos
 
-    - job_name: 'WindowsDebug64'
+    - job_name: 'Windows64'
       job_group: 'Windows'
       MSYS: 'C:\msys64\mingw64'
       MSYS_REPO: 'mingw64/mingw-w64-x86_64'
-      BUILD_TYPE: "Debug"
-      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=ON -DWIN64:BOOL=ON"
+      BUILD_TYPE: "Release"
+      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON"
       appveyor_build_worker_image: Visual Studio 2019
 
+    - job_name: 'Windows32'
+      job_group: 'Windows'
+      MSYS: 'C:\msys64\mingw32'
+      MSYS_REPO: 'mingw-w64-i686'
+      BUILD_TYPE: "Release"
+      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=OFF"
+      appveyor_build_worker_image: Visual Studio 2019
 
 build:
   verbosity: detailed
