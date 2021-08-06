@@ -131,7 +131,7 @@ int PortAudioDriver::connect()
 			pDeviceInfo = Pa_GetDeviceInfo( nDevice );
 			if ( QString::compare( m_sDevice,  pDeviceInfo->name, Qt::CaseInsensitive ) == 0 ) {
 				PaStreamParameters outputParameters;
-				bzero( &outputParameters, sizeof( outputParameters ) );
+				memset( &outputParameters, '\0', sizeof( outputParameters ) );
 				outputParameters.channelCount = 2;
 				outputParameters.device = nDevice;
 				outputParameters.hostApiSpecificStreamInfo = NULL;
