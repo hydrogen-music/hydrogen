@@ -329,6 +329,9 @@ public:
 	//	alsa audio driver properties ___
 	QString				m_sAlsaAudioDevice;
 
+	// PortAudio properties
+	QString				m_sPortAudioDevice;
+
 	//	jack driver properties ___
 	QString				m_sJackPortName1;
 	QString				m_sJackPortName2;

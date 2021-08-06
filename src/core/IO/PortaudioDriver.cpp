@@ -53,6 +53,9 @@ int portAudioCallback(
 
 const char* PortAudioDriver::__class_name = "PortAudioDriver";
 
+bool PortAudioDriver::m_bInitialised = false;
+
+
 PortAudioDriver::PortAudioDriver( audioProcessCallback processCallback )
 		: AudioOutput( __class_name )
 		, m_processCallback( processCallback )
@@ -63,6 +66,7 @@ PortAudioDriver::PortAudioDriver( audioProcessCallback processCallback )
 	INFOLOG( "INIT" );
 	m_nBufferSize = Preferences::get_instance()->m_nBufferSize;
 	m_nSampleRate = Preferences::get_instance()->m_nSampleRate;
+	m_sDevice = Preferences::get_instance()->m_sPortAudioDevice;
 }
 
 
@@ -76,6 +80,26 @@ int PortAudioDriver::init( unsigned nBufferSize )
 	return 0;
 }
 
+// List devices
+QStringList PortAudioDriver::getDevices() {
+	if ( ! m_bInitialised ) {
+		Pa_Initialize();
+	}
+
+	QStringList devices;
+	int nDevices = Pa_GetDeviceCount();
+	for ( int nDevice = 0; nDevice < nDevices; nDevice++ ) {
+		const PaDeviceInfo *pDeviceInfo = Pa_GetDeviceInfo( nDevice );
+		if ( pDeviceInfo->maxOutputChannels >= 2 ) {
+			devices.push_back( QString( pDeviceInfo->name ) );
+		}
+	}
+
+	if ( ! m_bInitialised ) {
+		Pa_Terminate();
+	}
+	return devices;
+}
 
 //
 // Connect
@@ -84,29 +108,69 @@ int PortAudioDriver::init( unsigned nBufferSize )
 //
 int PortAudioDriver::connect()
 {
+	bool bUseDefaultStream = true;
 	INFOLOG( "[connect]" );
 
 	m_pOut_L = new float[ m_nBufferSize ];
 	m_pOut_R = new float[ m_nBufferSize ];
 
 	int err = Pa_Initialize();
-
+	m_bInitialised = true;
 
 	if ( err != paNoError ) {
 		ERRORLOG( "Portaudio error in Pa_Initialize: " + QString( Pa_GetErrorText( err ) ) );
 		return 1;
 	}
 
-	err = Pa_OpenDefaultStream(
-				&m_pStream,        /* passes back stream pointer */
-				0,              /* no input channels */
-				2,              /* stereo output */
-				paFloat32,      /* 32 bit floating point output */
-				m_nSampleRate,          // sample rate
-				m_nBufferSize,            // frames per buffer
-				portAudioCallback, /* specify our custom callback */
-				this );        /* pass our data through to callback */
+	if ( ! m_sDevice.isNull() && m_sDevice != "" ) {
 
+		// Find device to use
+		int nDevices = Pa_GetDeviceCount();
+		const PaDeviceInfo *pDeviceInfo;
+		for ( int nDevice = 0; nDevice < nDevices; nDevice++ ) {
+			pDeviceInfo = Pa_GetDeviceInfo( nDevice );
+			if ( QString::compare( m_sDevice,  pDeviceInfo->name, Qt::CaseInsensitive ) == 0 ) {
+				PaStreamParameters outputParameters;
+				bzero( &outputParameters, sizeof( outputParameters ) );
+				outputParameters.channelCount = 2;
+				outputParameters.device = nDevice;
+				outputParameters.hostApiSpecificStreamInfo = NULL;
+				outputParameters.sampleFormat = paFloat32;
+
+				err = Pa_OpenStream( &m_pStream,
+									 nullptr, /* No input stream */
+									 &outputParameters,
+									 m_nSampleRate, m_nBufferSize, paNoFlag,
+									 portAudioCallback, this );
+				if ( err != paNoError ) {
+					ERRORLOG( QString( "Found but can't open device '%1': %2" )
+							  .arg( m_sDevice ).arg( Pa_GetErrorText( err ) ) );
+					// Use the default stream
+					break;
+				}
+
+				INFOLOG( QString( "Opened device '%1'" ).arg( m_sDevice ) );
+				bUseDefaultStream = false;
+				break;
+			}
+		}
+		if ( bUseDefaultStream ) {
+			ERRORLOG( QString( "Can't use device '%1', using default stream" )
+					  .arg( m_sDevice ) );
+		}
+	}
+
+	if ( bUseDefaultStream ) {
+		err = Pa_OpenDefaultStream(
+					&m_pStream,        /* passes back stream pointer */
+					0,              /* no input channels */
+					2,              /* stereo output */
+					paFloat32,      /* 32 bit floating point output */
+					m_nSampleRate,          // sample rate
+					m_nBufferSize,            // frames per buffer
+					portAudioCallback, /* specify our custom callback */
+					this );        /* pass our data through to callback */
+	}
 
 	if ( err != paNoError ) {
 		ERRORLOG(  "Portaudio error in Pa_OpenDefaultStream: " + QString( Pa_GetErrorText( err ) ) );
@@ -139,6 +203,7 @@ void PortAudioDriver::disconnect()
 		ERRORLOG( "Err: " + QString( Pa_GetErrorText( err ) ) );
 	}
 
+	m_bInitialised = false;
 	Pa_Terminate();
 
 	delete[] m_pOut_L;

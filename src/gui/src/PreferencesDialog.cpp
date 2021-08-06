@@ -45,6 +45,9 @@
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 
+#ifdef H2CORE_HAVE_PORTAUDIO
+#include <core/IO/PortAudioDriver.h>
+#endif
 
 using namespace H2Core;
 
@@ -434,14 +437,15 @@ void PreferencesDialog::updateDriverPreferences() {
 	}
 	else if (driverComboBox->currentText() == "ALSA" ) {
 		pPref->m_sAudioDriver = "ALSA";
-		pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->text();
+		pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
 	}
 	else if (driverComboBox->currentText() == "OSS" ) {
 		pPref->m_sAudioDriver = "OSS";
-		pPref->m_sOSSDevice = m_pAudioDeviceTxt->text();
+		pPref->m_sOSSDevice = m_pAudioDeviceTxt->lineEdit()->text();
 	}
 	else if (driverComboBox->currentText() == "PortAudio" ) {
 		pPref->m_sAudioDriver = "PortAudio";
+		pPref->m_sPortAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
 	}
 	else if (driverComboBox->currentText() == "CoreAudio" ) {
 		pPref->m_sAudioDriver = "CoreAudio";
@@ -711,8 +715,9 @@ void PreferencesDialog::updateDriverInfo()
 				.append( H2Core::Hydrogen::get_instance()->getAudioOutput()->class_name() )
 				.append( "</b> " ).append( tr( "selected") );
 		}
+		m_pAudioDeviceTxt->clear();
 		m_pAudioDeviceTxt->setEnabled( true );
-		m_pAudioDeviceTxt->setText( "" );
+		m_pAudioDeviceTxt->lineEdit()->setText( "" );
 		bufferSizeSpinBox->setEnabled( true );
 		sampleRateComboBox->setEnabled( true );
 		trackOutputComboBox->setEnabled( false );
@@ -762,8 +767,9 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
+		m_pAudioDeviceTxt->clear();
 		m_pAudioDeviceTxt->setEnabled(true);
-		m_pAudioDeviceTxt->setText( pPref->m_sOSSDevice );
+		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sOSSDevice );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
@@ -785,8 +791,9 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
+		m_pAudioDeviceTxt->clear();
 		m_pAudioDeviceTxt->setEnabled(false);
-		m_pAudioDeviceTxt->setText( "" );
+		m_pAudioDeviceTxt->lineEdit()->setText( "" );
 		bufferSizeSpinBox->setEnabled(false);
 		sampleRateComboBox->setEnabled(false);
 		trackOutputComboBox->setEnabled( true );
@@ -810,8 +817,9 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
+		m_pAudioDeviceTxt->clear();
 		m_pAudioDeviceTxt->setEnabled(true);
-		m_pAudioDeviceTxt->setText( pPref->m_sAlsaAudioDevice );
+		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sAlsaAudioDevice );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
@@ -831,8 +839,12 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setEnabled(false);
-		m_pAudioDeviceTxt->setText( "" );
+		m_pAudioDeviceTxt->clear();
+		for ( QString s : PortAudioDriver::getDevices() ) {
+			m_pAudioDeviceTxt->addItem( s );
+		}
+		m_pAudioDeviceTxt->setEnabled( true );
+		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sPortAudioDevice );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
@@ -852,8 +864,9 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
+		m_pAudioDeviceTxt->clear();
 		m_pAudioDeviceTxt->setEnabled(false);
-		m_pAudioDeviceTxt->setText( "" );
+		m_pAudioDeviceTxt->lineEdit()->setText( "" );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
@@ -873,8 +886,9 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
+		m_pAudioDeviceTxt->clear();
 		m_pAudioDeviceTxt->setEnabled(false);
-		m_pAudioDeviceTxt->setText("");
+		m_pAudioDeviceTxt->lineEdit()->setText("");
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();

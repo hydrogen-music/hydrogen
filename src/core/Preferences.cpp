@@ -154,6 +154,9 @@ Preferences::Preferences()
 	m_bMidiFixedMapping = false;
 	m_bMidiDiscardNoteAfterAction = false;
 
+	// PortAudio properties
+	m_sPortAudioDevice = QString();
+
 	//___  alsa audio driver properties ___
 	m_sAlsaAudioDevice = QString("hw:0");
 
@@ -425,6 +428,15 @@ void Preferences::loadPreferences( bool bGlobal )
 					recreate = true;
 				} else {
 					m_sOSSDevice = LocalFileMng::readXmlString( ossDriverNode, "ossDevice", m_sOSSDevice );
+				}
+
+				//// PORTAUDIO DRIVER ////
+				QDomNode portAudioDriverNode = audioEngineNode.firstChildElement( "portaudio_driver" );
+				if ( portAudioDriverNode.isNull()  ) {
+					WARNINGLOG( "portaudio_driver node not found" );
+					recreate = true;
+				} else {
+					m_sPortAudioDevice = LocalFileMng::readXmlString( portAudioDriverNode, "portAudioDevice", m_sPortAudioDevice );
 				}
 
 				//// JACK DRIVER ////
@@ -862,6 +874,13 @@ void Preferences::savePreferences()
 			LocalFileMng::writeXmlString( ossDriverNode, "ossDevice", m_sOSSDevice );
 		}
 		audioEngineNode.appendChild( ossDriverNode );
+
+		//// PORTAUIO DRIVER ////
+		QDomNode portAudioDriverNode = doc.createElement( "portaudio_driver" );
+		{
+			LocalFileMng::writeXmlString( portAudioDriverNode, "portAudioDevice", m_sPortAudioDevice );
+		}
+		audioEngineNode.appendChild( portAudioDriverNode );
 
 		//// JACK DRIVER ////
 		QDomNode jackDriverNode = doc.createElement( "jack_driver" );
