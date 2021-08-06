@@ -45,9 +45,8 @@
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 
-#ifdef H2CORE_HAVE_PORTAUDIO
 #include <core/IO/PortAudioDriver.h>
-#endif
+
 
 using namespace H2Core;
 
