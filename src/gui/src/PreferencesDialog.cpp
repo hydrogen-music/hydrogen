@@ -50,9 +50,46 @@
 
 using namespace H2Core;
 
+
+DeviceComboBox::DeviceComboBox( QWidget *pParent )
+	: QComboBox( pParent)
+{
+	m_bHasDevices = false;
+	m_sDriver = "";
+}
+
+void DeviceComboBox::setDriver( QString sDriver )
+{
+	if ( sDriver != m_sDriver ) {
+		m_bHasDevices = false;
+		m_sDriver = sDriver;
+	}
+}
+
+void DeviceComboBox::showPopup()
+{
+	if ( ! m_bHasDevices ) {
+		/* Recalculate the devices list */
+		clear();
+
+		QApplication::setOverrideCursor( Qt::WaitCursor );
+		if ( m_sDriver == "PortAudio" ) {
+			for ( QString s : PortAudioDriver::getDevices() ) {
+				addItem( s );
+			}
+		}
+		QApplication::restoreOverrideCursor();
+
+		m_bHasDevices = true;
+	}
+	QComboBox::showPopup();
+}
+
+
 const char* PreferencesDialog::__class_name = "PreferencesDialog";
 
 QString PreferencesDialog::m_sColorRed = "#ca0003";
+
 
 PreferencesDialog::PreferencesDialog(QWidget* parent)
  : QDialog( parent )
@@ -705,6 +742,7 @@ void PreferencesDialog::updateDriverInfo()
 	bPulseAudio_support = true;
 #endif
 
+	m_pAudioDeviceTxt->setDriver( driverComboBox->currentText() );
 	if ( driverComboBox->currentText() == "Auto" ) {
 		info += tr("Automatic driver selection");
 		
@@ -714,7 +752,6 @@ void PreferencesDialog::updateDriverInfo()
 				.append( H2Core::Hydrogen::get_instance()->getAudioOutput()->class_name() )
 				.append( "</b> " ).append( tr( "selected") );
 		}
-		m_pAudioDeviceTxt->clear();
 		m_pAudioDeviceTxt->setEnabled( true );
 		m_pAudioDeviceTxt->lineEdit()->setText( "" );
 		bufferSizeSpinBox->setEnabled( true );
@@ -766,7 +803,6 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->clear();
 		m_pAudioDeviceTxt->setEnabled(true);
 		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sOSSDevice );
 		bufferSizeSpinBox->setEnabled(true);
@@ -790,7 +826,6 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->clear();
 		m_pAudioDeviceTxt->setEnabled(false);
 		m_pAudioDeviceTxt->lineEdit()->setText( "" );
 		bufferSizeSpinBox->setEnabled(false);
@@ -816,7 +851,6 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->clear();
 		m_pAudioDeviceTxt->setEnabled(true);
 		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sAlsaAudioDevice );
 		bufferSizeSpinBox->setEnabled(true);
@@ -837,10 +871,6 @@ void PreferencesDialog::updateDriverInfo()
 				.append( m_sColorRed ).append( ">")
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
-		}
-		m_pAudioDeviceTxt->clear();
-		for ( QString s : PortAudioDriver::getDevices() ) {
-			m_pAudioDeviceTxt->addItem( s );
 		}
 		m_pAudioDeviceTxt->setEnabled( true );
 		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sPortAudioDevice );
@@ -863,7 +893,6 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->clear();
 		m_pAudioDeviceTxt->setEnabled(false);
 		m_pAudioDeviceTxt->lineEdit()->setText( "" );
 		bufferSizeSpinBox->setEnabled(true);
@@ -885,7 +914,6 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->clear();
 		m_pAudioDeviceTxt->setEnabled(false);
 		m_pAudioDeviceTxt->lineEdit()->setText("");
 		bufferSizeSpinBox->setEnabled(true);
