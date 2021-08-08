@@ -46,6 +46,7 @@
 #include "SongEditor/SongEditorPanel.h"
 
 #include <core/IO/PortAudioDriver.h>
+#include <core/IO/CoreAudioDriver.h>
 
 
 using namespace H2Core;
@@ -75,6 +76,10 @@ void DeviceComboBox::showPopup()
 		QApplication::setOverrideCursor( Qt::WaitCursor );
 		if ( m_sDriver == "PortAudio" ) {
 			for ( QString s : PortAudioDriver::getDevices() ) {
+				addItem( s );
+			}
+		} else if ( m_sDriver == "CoreAudio" ) {
+			for ( QString s : CoreAudioDriver::getDevices() ) {
 				addItem( s );
 			}
 		}
@@ -485,6 +490,7 @@ void PreferencesDialog::updateDriverPreferences() {
 	}
 	else if (driverComboBox->currentText() == "CoreAudio" ) {
 		pPref->m_sAudioDriver = "CoreAudio";
+		pPref->m_sCoreAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
 	}
 	else if (driverComboBox->currentText() == "PulseAudio" ) {
 		pPref->m_sAudioDriver = "PulseAudio";
@@ -893,8 +899,8 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setEnabled(false);
-		m_pAudioDeviceTxt->lineEdit()->setText( "" );
+		m_pAudioDeviceTxt->setEnabled( true );
+		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sCoreAudioDevice );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
