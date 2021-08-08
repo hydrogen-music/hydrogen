@@ -110,8 +110,8 @@ std::vector< AudioDeviceID > CoreAudioDriver::outputDeviceIDs()
 	int nDevices = dataSize / sizeof( AudioDeviceID );
 	AudioDeviceID deviceIDs[ nDevices ];
 
-	err = AudioObjectGetPropertyData(kAudioObjectSystemObject,
-									 &propertyAddress, 0, NULL, &dataSize, deviceIDs);
+	err = AudioObjectGetPropertyData( kAudioObjectSystemObject,
+									  &propertyAddress, 0, NULL, &dataSize, deviceIDs );
 	if ( err != noErr ) {
 		ERRORLOG( "Couldn't read device IDs" );
 		return outputDeviceIDs;
@@ -119,7 +119,7 @@ std::vector< AudioDeviceID > CoreAudioDriver::outputDeviceIDs()
 
 	// Find suitable output devices
 
-	for ( int i = 0; i < nDevices; i++) {
+	for ( int i = 0; i < nDevices; i++ ) {
 		UInt32 nBufferListSize = 0;
 		AudioObjectPropertyAddress propertyAddress = {
 			kAudioDevicePropertyStreamConfiguration,
@@ -156,6 +156,7 @@ std::vector< AudioDeviceID > CoreAudioDriver::outputDeviceIDs()
 QStringList CoreAudioDriver::getDevices()
 {
 	QStringList res;
+	res.push_back( "default" );
 	for ( AudioDeviceID device : outputDeviceIDs() ) {
 		res.push_back( deviceName( device ) );
 	}
@@ -167,7 +168,7 @@ AudioDeviceID CoreAudioDriver::preferredOutputDevice()
 	QString sPreferredDeviceName = Preferences::get_instance()->m_sCoreAudioDevice;
 
 	if ( sPreferredDeviceName.isNull()
-		 || QString::compare( sPreferredDeviceName, "default", Qt::CaseInsensitive ) == 0) {
+		 || QString::compare( sPreferredDeviceName, "default", Qt::CaseInsensitive ) == 0 ) {
 		INFOLOG( "Using default device" );
 		return defaultOutputDevice();
 	}
@@ -327,7 +328,7 @@ int CoreAudioDriver::init( unsigned bufferSize )
 	}
 
 	// Get Current Output Device
-	m_outputDevice = defaultOutputDevice();
+	m_outputDevice = preferredOutputDevice();
 
 	// Set AUHAL to Current Device
 	err = AudioUnitSetProperty(
