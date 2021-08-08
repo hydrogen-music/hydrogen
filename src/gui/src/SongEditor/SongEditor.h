@@ -65,7 +65,7 @@ static const uint SONG_EDITOR_MAX_GRID_WIDTH = 16;
 //!
 class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget<QPoint>
 {
-    H2_OBJECT
+    H2_OBJECT(SongEditor)
 	Q_OBJECT
 
 		struct GridCell {
@@ -240,7 +240,7 @@ inline int SongEditor::getCursorColumn() const {
 ///
 class SongEditorPatternList : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public H2Core::Object, public EventListener
 {
-    H2_OBJECT
+    H2_OBJECT(SongEditorPatternList)
 	Q_OBJECT
 
 	public:
@@ -326,7 +326,7 @@ class SongEditorPatternList : public QWidget, protected WidgetWithScalableFont<8
 
 class SongEditorPositionRuler : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public H2Core::Object
 {
-    H2_OBJECT
+    H2_OBJECT(SongEditorPositionRuler)
 	Q_OBJECT
 
 	public:

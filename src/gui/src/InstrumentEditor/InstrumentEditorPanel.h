@@ -35,7 +35,7 @@
 ///
 class InstrumentEditorPanel : public QWidget, private H2Core::Object, public EventListener
 {
-    H2_OBJECT
+    H2_OBJECT(InstrumentEditorPanel)
 	Q_OBJECT
 	public:
 		static InstrumentEditorPanel* get_instance();

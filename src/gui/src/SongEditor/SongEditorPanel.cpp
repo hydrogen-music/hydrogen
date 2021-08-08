@@ -49,12 +49,10 @@
 #endif
 using namespace H2Core;
 
-const char* SongEditorPanel::__class_name = "SongEditorPanel";
-
 
 SongEditorPanel::SongEditorPanel(QWidget *pParent)
  : QWidget( pParent )
- , Object( __class_name )
+ , Object()
 {
 	m_nInitialWidth = 600;
 	m_nInitialHeight = 250;

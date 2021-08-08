@@ -31,7 +31,7 @@
 
 class FileBrowser : public QWidget, private H2Core::Object
 {
-    H2_OBJECT
+    H2_OBJECT(FileBrowser)
 	Q_OBJECT
 	public:
 		explicit FileBrowser( QWidget* pParent );

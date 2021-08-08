@@ -34,7 +34,7 @@
 
 class ColorSelectionButton : public QPushButton, public H2Core::Object
 {
-    H2_OBJECT
+    H2_OBJECT(ColorSelectionButton)
 	Q_OBJECT
 
 public:

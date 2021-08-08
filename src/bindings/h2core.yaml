@@ -1,0 +1,272 @@
+version: 0.1.0
+module:
+  name: h2core
+  flags: [-x, c++, -fPIC, -std=c++14, -fexceptions]
+  include_path:
+    - /usr/include/c++/10
+    - /usr/include/x86_64-linux-gnu/c++/10
+    - /usr/include/x86_64-linux-gnu/qt5
+    - /usr/include/x86_64-linux-gnu/qt5/QtCore
+    - /usr/include/x86_64-linux-gnu/qt5/QtGui
+    - /usr/include/x86_64-linux-gnu/qt5/QtXml
+    - /home/rebelcat/Hack/hydrogen/src
+    - /home/rebelcat/Hack/hydrogen/build/src
+    - /usr/include/python3.9
+    - /home/rebelcat/Hack/hydragen/include
+    - /usr/include
+  bindings:
+    H2Core::XMLNode: core/Helpers/Xml.h
+    H2Core::Drumkit: core/Basics/Drumkit.h
+    H2Core::DrumkitComponent: core/Basics/DrumkitComponent.h
+    H2Core::Instrument: core/Basics/Instrument.h
+    H2Core::InstrumentComponent: core/Basics/InstrumentComponent.h
+    H2Core::InstrumentLayer: core/Basics/InstrumentLayer.h
+    H2Core::InstrumentList: core/Basics/InstrumentList.h
+    H2Core::Sample: core/Basics/Sample.h
+    H2Core::Preferences: core/Preferences.h
+    H2Core::Playlist: core/Basics/Playlist.h
+    H2Core::Pattern: core/Basics/Pattern.h
+    H2Core::PatternList: core/Basics/PatternList.h
+    H2Core::AutomationPath: core/Basics/AutomationPath.h
+    H2Core::Song: core/Basics/Song.h
+    H2Core::Hydrogen: core/Hydrogen.h
+    H2Core::AudioEngine: core/AudioEngine.h
+    H2Core::CoreActionController: core/CoreActionController.h
+    H2Core::EventQueue: core/EventQueue.h
+    H2Core::H2Exception: core/H2Exception.h
+    Action: core/MidiAction.h
+    MidiActionManager::targeted_element: core/MidiAction.h
+    MidiActionManager: core/MidiAction.h
+    # MidiMap: core/MidiMap.h
+    # OscServer: core/OscServer.h
+    H2Core::Timeline: core/Timeline.h
+    H2Core::get_version: core/Version.h
+    H2Core::version_older_than: core/Version.h
+    H2Core::Effects: core/FX/Effects.h
+    H2Core::LadspaFX: core/FX/LadspaFX.h
+    H2Core::AlsaAudioDriver: core/IO/AlsaAudioDriver.h
+    H2Core::AlsaMidiDriver: core/IO/AlsaMidiDriver.h
+    H2Core::AudioOutput: core/IO/AudioOutput.h
+    # H2Core::CoreAudioDriver: core/IO/CoreAudioDriver.h
+    H2Core::CoreMidiDriver: core/IO/CoreMidiDriver.h
+    H2Core::DiskWriterDriver: core/IO/DiskWriterDriver.h
+    H2Core::FakeDriver: core/IO/FakeDriver.h
+    H2Core::JackAudioDriver: core/IO/JackAudioDriver.h
+    H2Core::JackMidiDriver: core/IO/JackMidiDriver.h
+    H2Core::MidiInput: core/IO/MidiInput.h
+    H2Core::MidiMessage: core/IO/MidiCommon.h
+    H2Core::MidiOutput: core/IO/MidiOutput.h
+    H2Core::MidiPortInfo: core/IO/MidiCommon.h
+    H2Core::NullDriver: core/IO/NullDriver.h
+    # H2Core::OssDriver: core/IO/OssDriver.h
+    H2Core::PortAudioDriver: core/IO/PortAudioDriver.h
+    H2Core::PortMidiDriver: core/IO/PortMidiDriver.h
+    H2Core::PulseAudioDriver: core/IO/PulseAudioDriver.h
+    # ("Song;IO/JackAudioDriver.h", ""),
+    H2Core::JackAudioDriver: core/IO/JackAudioDriver.h
+    H2Core::TransportInfo: core/IO/TransportInfo.h
+    LashClient: core/Lash/LashClient.h
+    H2Core::LilyPond: core/Lilipond/Lilypond.h
+    H2Core::Sampler: core/Sampler/Sampler.h
+    H2Core::Synth: core/Synth/Synth.h
+
+  ban:
+    # Qt non namespace
+    - QColor::QColor(QColor &&)  # ban this constructor, pybind11 bark on this
+    - QColor::name(QColor::NameFormat)
+    - QColor::operator=
+    - QColor::toExtendedRgb
+    - std::thread::thread(const std::thread &)
+    - std::thread::operator=(const std::thread &)
+    - std::thread::operator=(std::thread &&)
+    - std::thread::thread(std::thread &&)
+    - std::timed_mutex::timed_mutex(const std::timed_mutex &)
+    - std::timed_mutex::operator=
+    - std::exception::operator=(std::exception &&)
+    - std::exception::exception(std::exception &&)
+    - std::__cow_string
+    - std::__cow_string::operator=(std::__cow_string &&)
+    - std::__cow_string::__cow_string(std::__cow_string &&)
+    - std::runtime_error::operator=(std::runtime_error &&)
+    - std::runtime_error::runtime_error(std::runtime_error &&)
+    - _locker_struct
+    - QDomNodePrivate
+    - QStringList
+    - QFileInfoPrivate
+    - QLibraryPrivate
+    - Entry
+    - QObject
+    - QFileInfo::QFileInfo(QFileInfoPrivate *)
+    - QFileInfo::operator=(QFileInfo &&)
+    - QFileInfo::exists
+    - QRgba64::operator=
+    - QMetaType
+    - QStringRef
+    - QStringView
+    - QByteArray
+    - QChar
+    - QDomNode
+    - QFileInfo
+    - QLatin1String
+    - "*::metaObject()"
+    - "*::qt_metacall(QMetaObject::Call, int, void **)"
+    - "*::qt_static_metacall(QObject *, QMetaObject::Call, int, void **)"
+    ### Hydrogen names
+    - targeted_element
+    - MidiActionManager::targeted_element
+    - H2Core::AlsaAudioDriver::AlsaAudioDriver()
+    - H2Core::AlsaMidiDriver::midi_action
+    - H2Core::JackAudioDriver::m_pClient
+    #- H2Core::PortMidiDriver
+    #- H2Core::PortAudioDriver
+    # std::vector
+    - H2Core::Synth::m_playingNotesQueue
+    - H2Core::Hydrogen::m_nInstrumentLookupTable
+    - H2Core::AlsaAudioDriver::m_pPlayback_handle
+    - H2Core::PortAudioDriver::m_processCallback
+    - H2Core::DiskWriterDriver::m_processCallback
+    - H2Core::AlsaAudioDriver::m_processCallback
+    # Qt Reduction, phase 2
+    # - H2Core::LadspaFX::m_pLibrary                # QLibrary
+    - H2Core::AudioEngine::m_EngineMutex          # QMutex ?
+    - H2Core::AudioEngine::m_MutexOutputPointer
+    - H2Core::AudioEngine::m_LockingThread
+    - H2Core::AudioEngine::m_currentTickTime
+    - H2Core::Note::match
+    - H2Core::Pattern::find_note
+    - H2Core::DiskWriterDriver::write  # inlined ?
+    - H2Core::CoreAudioDriver
+    - H2Core::PulseAudioDriver
+    - H2Core::Hydrogen::previewSample  # defined in headers but no implementation
+    - H2Core::Hydrogen::previewInstrument  # defined in headers but no implementation
+    - H2Core::AudioEngine::prepNoteQueue
+    - H2Core::AudioEngine::renderNote  # inline
+    - H2Core::Preferences::setPreferencesOverwritePath
+    - H2Core::Preferences::getPreferencesOverwritePath
+    - H2Core::Preferences::getDataDirectory
+    - H2Core::LadspaControlPort::__class_name
+    - H2Core::LadspaControlPort::class_name
+    - H2Core::Sample::get_pan_envelope        # unique pointers in stl containers, pybind11 can't cope with this.
+    - H2Core::Sample::get_velocity_envelope
+    - H2Core::Object::Object(const H2Core::Object &)
+    - std::runtime_error::runtime_error(const std::runtime_error &)
+    - QColor::Spec::ExtendedRgb
+    - QColor::QColor(QColor::Spec, ushort, ushort, ushort, ushort, ushort)
+  shield:
+    H2Core::AlsaAudioDriver: H2CORE_HAVE_ALSA
+    H2Core::AlsaMidiDriver: H2CORE_HAVE_ALSA
+    H2Core::AlsaAudioDriver: H2CORE_HAVE_ALSA
+    H2Core::AlsaMidiDriver: H2CORE_HAVE_ALSA
+    H2Core::JackAudioDriver: H2CORE_HAVE_JACK
+    H2Core::JackMidiDriver: H2CORE_HAVE_JACK
+    H2Core::JackAudioDriver: H2CORE_HAVE_JACK
+    H2Core::JackMidiDriver: H2CORE_HAVE_JACK
+    H2Core::PortAudioDriver: H2CORE_HAVE_PORTAUDIO
+    H2Core::PortMidiDriver: H2CORE_HAVE_PORTAUDIO
+    H2Core::PulseAudioDriver: H2CORE_HAVE_PULSEAUDIO
+    H2Core::OssDriver: H2CORE_HAVE_OSS
+
+  cleaners:
+    - qtreset.h
+  plugins:
+    - pybind11/stl.h
+    - pybind11/numpy.h
+    - qtcasters.h
+  bind_with_lambda:
+    - name: QColor::name()
+      code: |
+        [](const QColor &color) {
+          return color.name();
+        }
+    - name: H2Core::Sample::get_data_l()
+      code: |
+        [](const H2Core::Sample & sample) {
+            size_t nframes = sample.is_empty() ? 0 : sample.get_frames();
+            auto result = py::array_t<float>(nframes);
+            py::buffer_info buf = result.request();
+            float *ptr = static_cast<float *>(buf.ptr);
+            float *src = sample.get_data_l();
+            for (size_t idx = 0; idx < nframes; idx++) {
+                ptr[idx] = src[idx];
+            }
+            return result;
+        }
+    - name: H2Core::Sample::get_data_r()
+      code: |
+        [](const H2Core::Sample & sample) {
+            size_t nframes = sample.is_empty() ? 0 : sample.get_frames();
+            auto result = py::array_t<float>(nframes);
+            py::buffer_info buf = result.request();
+            float *ptr = static_cast<float *>(buf.ptr);
+            float *src = sample.get_data_r();
+            for (size_t idx = 0; idx < nframes; idx++) {
+                ptr[idx] = src[idx];
+            }
+            return result;
+        }
+  add_method:
+    - name: QColor::__repr__
+      code: |
+        [](const QColor &color) {
+          return "QColor(\"" + color.name() + "\")";
+        }
+    - name: H2Core::Song::__repr__
+      code: |
+        [](const H2Core::Song & song) {
+          return "<Song \"" + song.getName() + "\">";
+        }
+    - name: H2Core::Drumkit::__repr__
+      code: |
+        [](const H2Core::Drumkit & drumkit) {
+          return "<Drumkit \"" + drumkit.get_name() + "\">";
+        }
+    - name: H2Core::DrumkitComponent::__repr__
+      code: |
+        [](const H2Core::DrumkitComponent & dkc) {
+          return "<DrumkitComponent \"" + dkc.get_name() + "\">";
+        }
+    - name: H2Core::Instrument::__repr__
+      code: |
+        [](const H2Core::Instrument & instrument) {
+          return "<Instrument \"" + instrument.get_name() + "\">";
+        }
+    - name: H2Core::Sample::__repr__
+      code: |
+        [](const H2Core::Sample & sample) {
+          return "<Sample \"" + sample.get_filename() + "\">";
+        }
+    - name: H2Core::LadspaFX::__repr__
+      code: |
+        [](H2Core::LadspaFX & fx) {
+          return "<LadspaFX \"" + fx.getPluginName() + "\">";
+        }
+    - name: H2Core::LadspaFXInfo::__repr__
+      code: |
+        [](H2Core::LadspaFXInfo & fxi) {
+          return "<LadspaFXInfo \"" + fxi.m_sName + "\">";
+        }
+  policies:
+    - name: H2Core::Drumkit::get_instruments
+      policy: py::return_value_policy::reference_internal
+    - name: H2Core::Hydrogen::get_instance
+      policy: py::return_value_policy::reference
+    - name: H2Core::Logger::bootstrap
+      policy: py::return_value_policy::reference
+    - name: H2Core::Logger::get_instance
+      policy: py::return_value_policy::reference
+    - name: H2Core::Effects::get_instance
+      policy: py::return_value_policy::reference
+    - name: H2Core::EventQueue::get_instance
+      policy: py::return_value_policy::reference
+    - name: H2Core::Playlist::get_instance
+      policy: py::return_value_policy::reference
+    - name: H2Core::Preferences::get_instance
+      policy: py::return_value_policy::reference
+  export_enum_values:
+    - H2Core::Logger::log_levels
+  arith_enum:
+    - H2Core::Logger::log_levels
+  prolog: |
+    using namespace H2Core;
+
+  # end of bindings

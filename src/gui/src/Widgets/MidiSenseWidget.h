@@ -31,7 +31,7 @@
 
 class MidiSenseWidget : public QDialog ,public H2Core::Object
 	{
-	H2_OBJECT
+	H2_OBJECT(MidiSenseWidget)
 	Q_OBJECT
 
 	public:

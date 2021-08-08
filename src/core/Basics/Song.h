@@ -54,7 +54,7 @@ class AutomationPath;
 */
 class Song : public H2Core::Object, public std::enable_shared_from_this<Song>
 {
-		H2_OBJECT
+		H2_OBJECT(Song)
 	public:
 		enum SongMode {
 			PATTERN_MODE,
@@ -556,7 +556,7 @@ inline float Song::getPanLawKNorm() const {
 */
 class SongReader : public H2Core::Object
 {
-		H2_OBJECT
+		H2_OBJECT(SongReader)
 	public:
 		SongReader();
 		~SongReader();

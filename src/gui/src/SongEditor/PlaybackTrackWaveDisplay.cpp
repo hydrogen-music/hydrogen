@@ -39,8 +39,6 @@ using namespace H2Core;
 #include "SongEditor.h"
 #include "SongEditorPanel.h"
 
-const char* PlaybackTrackWaveDisplay::__class_name = "PlaybackTrackWaveDisplay";
-
 PlaybackTrackWaveDisplay::PlaybackTrackWaveDisplay(QWidget* pParent)
  : WaveDisplay( pParent )
 {

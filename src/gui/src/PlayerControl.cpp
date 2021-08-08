@@ -48,11 +48,9 @@ using namespace H2Core;
 int bcDisplaystatus = 0;
 //~ beatcounter
 
-const char* PlayerControl::__class_name = "PlayerControl";
-
 PlayerControl::PlayerControl(QWidget *parent)
  : QLabel(parent)
- , Object( __class_name )
+ , Object()
 {
 	setObjectName( "PlayerControl" );
 	HydrogenApp::get_instance()->addEventListener( this );
@@ -1156,11 +1154,9 @@ void PlayerControl::onPreferencesChanged( bool bAppearanceOnly ) {
 
 //::::::::::::::::::::::::::::::::::::::::::::::::
 
-const char* MetronomeWidget::__class_name = "MetronomeWidget";
-
 MetronomeWidget::MetronomeWidget(QWidget *pParent)
  : QWidget( pParent )
- , Object( __class_name )
+ , Object()
  , m_nValue( 0 )
  , m_state( METRO_OFF )
 {

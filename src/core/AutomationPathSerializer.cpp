@@ -24,11 +24,9 @@
 namespace H2Core
 {
 
-const char* AutomationPathSerializer::__class_name = "AutomationPathSerializer";
-
 
 AutomationPathSerializer::AutomationPathSerializer()
-	: Object(__class_name)
+	: Object()
 {
 }
 

@@ -27,7 +27,7 @@
 #include <cassert>
 
 class Action : public H2Core::Object {
-	H2_OBJECT
+	H2_OBJECT(Action)
 	public:
 		Action( QString );
 
@@ -64,7 +64,7 @@ namespace H2Core
 
 class MidiActionManager : public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(MidiActionManager)
 	private:
 		/**
 		 * Object holding the current MidiActionManager

@@ -39,9 +39,6 @@
 namespace H2Core
 {
 
-const char* Sample::__class_name = "Sample";
-const char* EnvelopePoint::__class_name = "EnvolopePoint";
-
 const std::vector<QString> Sample::__loop_modes = { "forward", "reverse", "pingpong" };
 
 #if defined(H2CORE_HAVE_RUBBERBAND) || _DOXYGEN_
@@ -51,23 +48,21 @@ static RubberBand::RubberBandStretcher::Options compute_rubberband_options( cons
 
 
 /* EnvelopePoint */
-EnvelopePoint::EnvelopePoint() : Object( EnvelopePoint::__class_name ), frame( 0 ), value( 0 ) 
+EnvelopePoint::EnvelopePoint() : Object(), frame( 0 ), value( 0 ) 
 {
 }
 
-EnvelopePoint::EnvelopePoint( int f, int v ) : Object( EnvelopePoint::__class_name ), frame( f ), value( v ) 
+EnvelopePoint::EnvelopePoint( int f, int v ) : Object(), frame( f ), value( v )
 {
 }
 
-EnvelopePoint::EnvelopePoint( const EnvelopePoint & other ) : Object( EnvelopePoint::__class_name )
+EnvelopePoint::EnvelopePoint( const EnvelopePoint& other ) : Object(), frame ( other.frame ), value ( other.value )
 {
-	frame = other.frame;
-	value = other.value;
 }
 /* EnvelopePoint */
 
 
-Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* data_l, float* data_r ) : Object( Sample::__class_name ),
+Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* data_l, float* data_r ) : Object(),
 	__filepath( filepath ),
 	__frames( frames ),
 	__sample_rate( sample_rate ),
@@ -78,7 +73,7 @@ Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* da
 	assert( filepath.lastIndexOf( "/" ) >0 );
 }
 
-Sample::Sample( std::shared_ptr<Sample> pOther ): Object( __class_name ),
+Sample::Sample( std::shared_ptr<Sample> pOther ): Object(),
 	__filepath( pOther->get_filepath() ),
 	__frames( pOther->get_frames() ),
 	__sample_rate( pOther->get_sample_rate() ),

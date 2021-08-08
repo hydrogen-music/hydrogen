@@ -42,10 +42,8 @@
 namespace H2Core
 {
 
-const char* CoreActionController::__class_name = "CoreActionController";
 
-
-CoreActionController::CoreActionController() : Object( __class_name ),
+CoreActionController::CoreActionController() : Object(),
 												m_nDefaultMidiFeedbackChannel(0)
 {
 	//nothing

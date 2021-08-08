@@ -64,8 +64,6 @@ using namespace H2Core;
 #include <windows.h>
 #endif
 
-const char* SongEditor::__class_name = "SongEditor";
-
 struct PatternDisplayInfo {
 	bool bActive;
 	bool bNext;
@@ -75,7 +73,7 @@ struct PatternDisplayInfo {
 
 SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPanel *pSongEditorPanel )
  : QWidget( parent )
- , Object( __class_name )
+ , Object()
  , m_bSequenceChanged( true )
  , m_pScrollView( pScrollView )
  , m_pSongEditorPanel( pSongEditorPanel )
@@ -1157,11 +1155,9 @@ void SongEditor::onPreferencesChanged( bool bAppearanceOnly ) {
 // :::::::::::::::::::
 
 
-const char* SongEditorPatternList::__class_name = "SongEditorPatternList";
-
 SongEditorPatternList::SongEditorPatternList( QWidget *parent )
  : QWidget( parent )
- , Object( __class_name )
+ , Object()
  , EventListener()
  , m_pBackgroundPixmap( nullptr )
 {
@@ -2108,11 +2104,9 @@ void SongEditorPatternList::onPreferencesChanged( bool bAppearanceOnly ) {
 
 // ::::::::::::::::::::::::::
 
-const char* SongEditorPositionRuler::__class_name = "SongEditorPositionRuler";
-
 SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
  : QWidget( parent )
- , Object( __class_name )
+ , Object()
  , m_bRightBtnPressed( false )
 {
 	m_pHydrogen = Hydrogen::get_instance();

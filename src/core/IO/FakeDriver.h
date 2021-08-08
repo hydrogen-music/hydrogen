@@ -33,7 +33,7 @@ namespace H2Core
  */
 class FakeDriver : public AudioOutput
 {
-	H2_OBJECT
+	H2_OBJECT(FakeDriver)
 public:
 	FakeDriver( audioProcessCallback processCallback );
 	~FakeDriver();

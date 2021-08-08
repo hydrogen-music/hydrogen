@@ -49,11 +49,9 @@
 
 using namespace H2Core;
 
-const char* SoundLibraryExportDialog::__class_name = "SoundLibraryExportDialog";
-
 SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,  const QString& sSelectedKit, H2Core::Filesystem::Lookup lookup )
 	: QDialog( pParent )
-	, Object( __class_name )
+	, Object()
 	, m_sPreselectedKit( sSelectedKit )
 	, m_preselectedKitLookup( lookup )
 {

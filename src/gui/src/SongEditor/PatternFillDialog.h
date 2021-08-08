@@ -49,7 +49,7 @@ struct FillRange {
 ///
 class PatternFillDialog : public QDialog, public Ui_PatternFillDialog_UI, public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(PatternFillDialog)
 	Q_OBJECT
 	public:
 		PatternFillDialog( QWidget* parent, FillRange* range );

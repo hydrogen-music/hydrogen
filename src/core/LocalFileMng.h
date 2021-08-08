@@ -50,7 +50,7 @@ class Drumkit;
  */
 class LocalFileMng : public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(LocalFileMng)
 public:
 	LocalFileMng();
 	~LocalFileMng();
@@ -83,7 +83,7 @@ private:
  */
 class SongWriter : public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(SongWriter)
 public:
 	SongWriter();
 	~SongWriter();

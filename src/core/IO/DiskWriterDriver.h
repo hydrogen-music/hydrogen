@@ -38,7 +38,7 @@ namespace H2Core
 ///
 class DiskWriterDriver : public AudioOutput
 {
-	H2_OBJECT
+	H2_OBJECT(DiskWriterDriver)
 	public:
 
 		unsigned				m_nSampleRate;

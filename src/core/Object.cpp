@@ -66,13 +66,13 @@ Object::~Object( ) {
 #endif
 }
 
-Object::Object( const Object& obj ) : __class_name( obj.__class_name ) {
+Object::Object( const Object& obj ) {
 #ifdef H2CORE_HAVE_DEBUG
 	if( __count ) add_object( this, true );
 #endif
 }
 
-Object::Object( const char* class_name ) :__class_name( class_name ) {
+Object::Object() {
 #ifdef H2CORE_HAVE_DEBUG
 	if( __count ) add_object( this, false );
 #endif

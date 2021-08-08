@@ -33,7 +33,7 @@
 
 class MidiActivityWidget : public QWidget, public EventListener, public H2Core::Object
 {
-    H2_OBJECT
+    H2_OBJECT(MidiActivityWidget)
 	Q_OBJECT
 	public:
 		explicit MidiActivityWidget(QWidget * parent);

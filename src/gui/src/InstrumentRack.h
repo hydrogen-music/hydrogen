@@ -36,7 +36,7 @@ class SoundLibraryPanel;
 
 class InstrumentRack : public QWidget, protected WidgetWithScalableFont<5, 6, 7>, private H2Core::Object
 {
-    H2_OBJECT
+    H2_OBJECT(InstrumentRack)
 	Q_OBJECT
 	public:
 		explicit InstrumentRack( QWidget *pParent );

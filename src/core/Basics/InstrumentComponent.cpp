@@ -40,12 +40,10 @@
 namespace H2Core
 {
 
-const char* InstrumentComponent::__class_name = "InstrumentComponent";
-
 int InstrumentComponent::m_nMaxLayers;
 
 InstrumentComponent::InstrumentComponent( int related_drumkit_componentID )
-	: Object( __class_name )
+	: Object()
 	, __related_drumkit_componentID( related_drumkit_componentID )
 	, __gain( 1.0 )
 {
@@ -56,7 +54,7 @@ InstrumentComponent::InstrumentComponent( int related_drumkit_componentID )
 }
 
 InstrumentComponent::InstrumentComponent( std::shared_ptr<InstrumentComponent> other )
-	: Object( __class_name )
+	: Object()
 	, __related_drumkit_componentID( other->__related_drumkit_componentID )
 	, __gain( other->__gain )
 {

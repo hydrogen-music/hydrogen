@@ -46,7 +46,7 @@ class ToggleButton;
 
 class SoundLibraryPanel : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, private H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(SoundLibraryPanel)
 Q_OBJECT
 public:
 	SoundLibraryPanel( QWidget* parent, bool bInItsOwnDialog );

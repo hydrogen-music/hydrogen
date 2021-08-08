@@ -71,7 +71,7 @@ class InfoBar;
 
 class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 {
-		H2_OBJECT
+		H2_OBJECT(HydrogenApp)
 	Q_OBJECT
 	public:
 		HydrogenApp( MainForm* pMainForm );

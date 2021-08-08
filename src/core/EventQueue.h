@@ -185,7 +185,7 @@ public:
  * documentation of HydrogenApp::onEventQueueTimer().*/
 class EventQueue : public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(EventQueue)
 public:/**
 	* If #__instance equals 0, a new EventQueue singleton will be
 	 * created and stored in it.

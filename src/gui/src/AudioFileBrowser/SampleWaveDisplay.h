@@ -31,7 +31,7 @@
 
 class SampleWaveDisplay : public QWidget, public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(SampleWaveDisplay)
 	Q_OBJECT
 
 	public:

@@ -85,14 +85,13 @@ void JackAudioDriver::jackDriverShutdown( void* arg )
 }
 
 
-const char* JackAudioDriver::__class_name = "JackAudioDriver";
 unsigned long JackAudioDriver::jackServerSampleRate = 0;
 jack_nframes_t JackAudioDriver::jackServerBufferSize = 0;
 JackAudioDriver* JackAudioDriver::pJackDriverInstance = nullptr;
 int JackAudioDriver::nWaits = 0;
 
 JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
-	: AudioOutput( __class_name ),
+	: AudioOutput(),
 	  m_frameOffset( 0 ),
 	  m_nTrackPortCount( 0 ),
 	  m_pClient( nullptr ),

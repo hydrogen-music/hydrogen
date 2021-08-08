@@ -28,11 +28,10 @@
 
 #include <core/Globals.h>
 
-const char* LCDCombo::__class_name = "LCDCombo";
 
 LCDCombo::LCDCombo( QWidget *pParent, int digits, bool bAllowMenuOverflow )
 	: QWidget(pParent)
-	, Object( __class_name )
+	, Object()
 	, m_bAllowMenuOverflow( bAllowMenuOverflow )
 {
 	INFOLOG( "INIT" );

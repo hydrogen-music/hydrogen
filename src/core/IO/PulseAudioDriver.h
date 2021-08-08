@@ -40,7 +40,7 @@ namespace H2Core
 ///
 class PulseAudioDriver : public AudioOutput
 {
-	H2_OBJECT
+	H2_OBJECT(PulseAudioDriver)
 public:
 	PulseAudioDriver(audioProcessCallback processCallback);
 	~PulseAudioDriver();
@@ -94,7 +94,7 @@ private:
 namespace H2Core {
 	class PulseAudioDriver : public NullDriver
 	{
-		H2_OBJECT
+		H2_OBJECT(PulseAudioDriver)
 	public:
 		PulseAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
 

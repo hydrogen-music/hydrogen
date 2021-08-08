@@ -35,7 +35,7 @@ namespace H2Core
 */
 class XMLNode : public H2Core::Object, public QDomNode
 {
-		H2_OBJECT
+		H2_OBJECT(XMLNode)
 	public:
 		/** basic constructor */
 		XMLNode( );
@@ -150,7 +150,7 @@ class XMLNode : public H2Core::Object, public QDomNode
 */
 class XMLDoc : public H2Core::Object, public QDomDocument
 {
-		H2_OBJECT
+		H2_OBJECT(XMLDoc)
 	public:
 		/** basic constructor */
 		XMLDoc( );

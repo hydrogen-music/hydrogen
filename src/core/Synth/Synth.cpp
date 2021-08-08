@@ -31,10 +31,8 @@
 namespace H2Core
 {
 
-const char* Synth::__class_name = "Synth";
-
 Synth::Synth()
-		: Object( __class_name )
+		: Object()
 {
 	INFOLOG( "INIT" );
 

@@ -41,10 +41,9 @@
 namespace H2Core
 {
 
-const char* DrumkitComponent::__class_name = "DrumkitComponent";
 
 DrumkitComponent::DrumkitComponent( const int id, const QString& name )
-	: Object( __class_name )
+	: Object()
 	, __id( id )
 	, __name( name )
 	, __volume( 1.0 )
@@ -60,7 +59,7 @@ DrumkitComponent::DrumkitComponent( const int id, const QString& name )
 }
 
 DrumkitComponent::DrumkitComponent( DrumkitComponent* other )
-	: Object( __class_name )
+	: Object()
 	, __id( other->get_id() )
 	, __name( other->get_name() )
 	, __volume( other->__volume )

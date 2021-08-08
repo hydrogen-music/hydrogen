@@ -26,10 +26,8 @@
 
 #include <core/Object.h>
 
-const char* PixmapWidget::__class_name = "PixmapWidget";
-
 PixmapWidget::PixmapWidget( QWidget *pParent, const char* sClassName )
- : Object( __class_name )
+ : Object()
  , QWidget( pParent )
  , m_sPixmapPath( "" )
  , __expand_horiz(false)

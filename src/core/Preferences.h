@@ -48,7 +48,7 @@ const float FALLOFF_FAST =	1.5f;
 */
 class WindowProperties : public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(WindowProperties)
 public:
 	int x;
 	int y;
@@ -73,7 +73,7 @@ public:
 */
 class UIStyle : public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(UIStyle)
 public:
 	UIStyle();
 	QColor m_songEditor_backgroundColor;
@@ -108,7 +108,7 @@ public:
 */
 class Preferences : public H2Core::Object
 {
-	H2_OBJECT
+	H2_OBJECT(Preferences)
 public:
 	enum {
 	      /** 

@@ -45,7 +45,7 @@ class Rotary;
 
 class InstrumentNameWidget : public PixmapWidget, protected WidgetWithScalableFont<8, 10, 12>
 {
-	H2_OBJECT
+	H2_OBJECT(InstrumentNameWidget)
 	Q_OBJECT
 	public:
 		explicit InstrumentNameWidget(QWidget* parent);
@@ -85,7 +85,7 @@ public slots:
 ///
 class MixerLine: public PixmapWidget
 {
-	H2_OBJECT
+	H2_OBJECT(MixerLine)
 	Q_OBJECT
 	public:
 		MixerLine(QWidget* parent, int nInstr);
@@ -168,7 +168,7 @@ class MixerLine: public PixmapWidget
 
 class ComponentMixerLine: public PixmapWidget
 {
-	H2_OBJECT
+	H2_OBJECT(ComponentMixerLine)
 	Q_OBJECT
 	public:
 		ComponentMixerLine(QWidget* parent, int CompoID);
@@ -231,7 +231,7 @@ class ComponentMixerLine: public PixmapWidget
 
 class MasterMixerLine: public PixmapWidget
 {
-	H2_OBJECT
+	H2_OBJECT(MasterMixerLine)
 	Q_OBJECT
 	public:
 		explicit MasterMixerLine(QWidget* parent);
@@ -286,7 +286,7 @@ class MasterMixerLine: public PixmapWidget
 ///
 class FxMixerLine: public PixmapWidget
 {
-	H2_OBJECT
+	H2_OBJECT(FxMixerLine)
 	Q_OBJECT
 	public:
 		explicit FxMixerLine(QWidget* parent);
@@ -332,7 +332,7 @@ class FxMixerLine: public PixmapWidget
 
 class LadspaFXMixerLine : public PixmapWidget
 {
-	H2_OBJECT
+	H2_OBJECT(LadspaMixerLine)
 	Q_OBJECT
 	public:
 		explicit LadspaFXMixerLine(QWidget* parent);

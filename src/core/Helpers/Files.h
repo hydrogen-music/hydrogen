@@ -38,7 +38,7 @@ class Song;
  */
 class Files : public H2Core::Object
 {
-		H2_OBJECT
+		H2_OBJECT(Files)
 	public:
 		enum SaveMode {
 			SAVE_NEW,				// construct regular path, do not overwrite
