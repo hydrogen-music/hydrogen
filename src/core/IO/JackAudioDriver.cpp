@@ -318,6 +318,13 @@ void JackAudioDriver::relocateUsingBBT()
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
+	if ( pSong == nullptr ) {
+		// Expected behavior if Hydrogen is exited while playback is
+		// still running.
+		DEBUGLOG( "No song set." );
+		return;
+	}
+
 	float fTicksPerBeat = static_cast<float>( pSong->getResolution() / m_JackTransportPos.beat_type * 4 );
 
 	long barTicks = 0;
@@ -429,7 +436,7 @@ void JackAudioDriver::relocateUsingBBT()
 	float fBPM = static_cast<float>(m_JackTransportPos.beats_per_minute);
 	if ( m_transport.m_fBPM != fBPM ) {
 		setBpm( fBPM );
-		pHydrogen->getSong()->setBpm( fBPM );
+		pSong->setBpm( fBPM );
 		pHydrogen->setNewBpmJTM( fBPM );
 	}
 }
@@ -478,6 +485,15 @@ void JackAudioDriver::updateTransportInfo()
 		ERRORLOG( "Unknown jack transport state" );
 	}
 
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	
+	if ( pHydrogen->getSong() == nullptr ) {
+		// Expected behavior if Hydrogen is exited while playback is
+		// still running.
+		DEBUGLOG( "No song set." );
+		return;
+	}
+
 	// printState();
 	
 	m_currentPos = m_JackTransportPos.frame;
@@ -505,8 +521,6 @@ void JackAudioDriver::updateTransportInfo()
 			m_timebaseState = Timebase::Slave;
 		}
 	}
-		
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
@@ -1091,6 +1105,13 @@ void JackAudioDriver::jack_session_callback_impl(jack_session_event_t* event)
 	Preferences* pPreferences = Preferences::get_instance();
 	EventQueue* pEventQueue = EventQueue::get_instance();
 
+	if ( pSong == nullptr ) {
+		// Expected behavior if Hydrogen is exited while playback is
+		// still running.
+		DEBUGLOG( "No song set." );
+		return;
+	}
+
 	jack_session_event_t* ev = static_cast<jack_session_event_t*>(event);
 
 	QString sJackSessionDirectory = static_cast<QString>(ev->session_dir);
@@ -1256,6 +1277,9 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
+		// Expected behavior if Hydrogen is exited while playback is
+		// still running.
+		DEBUGLOG( "No song set." );
 		return;
 	}
 	

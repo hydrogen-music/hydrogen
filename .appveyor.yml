@@ -125,7 +125,7 @@ for:
           echo %CORE_PATH%
           set PATH=%CORE_PATH%;%PATH%
           src\tests\tests.exe --appveyor || cmd /c "exit /b 0"
-          7z a %APPVEYOR_BUILD_FOLDER%\testresults.zip %TEMP%\hydrogen
+          7z a %APPVEYOR_BUILD_FOLDER%\testresults.zip %TEMP%\hydrogen || cmd /c "exit  /b 0"
           if %APPVEYOR_REPO_BRANCH%==appveyor-build-with-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\testresults.zip
 
           mkdir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
