@@ -313,8 +313,8 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 /* Mean: remove current song from memory */
 void Hydrogen::removeSong()
 {
-	__song = nullptr;
 	m_pAudioEngine->removeSong();
+	__song = nullptr;
 }
 
 void Hydrogen::midi_noteOn( Note *note )
