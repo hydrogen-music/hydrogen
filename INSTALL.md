@@ -50,7 +50,7 @@ $ sudo apt-get install hydrogen
 ```
 
 However, if you wish to have a more current version of Hydrogen, the
-Hydrogen dev's typically maintain a .deb package for Debian stable,
+Hydrogen devs typically maintain a .deb package for Debian stable,
 testing, and some Ubuntu distributions.  Note that `apt` takes care of
 any library dependencies that you have.
 
@@ -197,9 +197,9 @@ see [issue#677](https://github.com/hydrogen-music/hydrogen/issues/677)
 
 Alternatively you could use our custom build script
 [./build.sh](https://github.com/hydrogen-music/hydrogen/blob/master/build.sh). This
-is the recommended way in case you are actively developing new
+is the recommended way if you are actively developing new
 features or bug fixes for Hydrogen (all characters in squared brackets
-are optional and do not have to be included into the command).
+are optional and do not have to be included in the command).
 
 | Command    | Functionality                                                     |
 | ---        | ---                                                               |
@@ -217,9 +217,8 @@ are optional and do not have to be included into the command).
 
 Using `ccache` to build Hydrogen, `./build.sh mm`, will result in a
 compilation, which takes a little longer than the one with the usual
-`make` command. But in all further runs not the entire code base but
-just the parts you touched will be recompiled. This can speed up
-development by a margin.
+`make` command. But in all further runs, only the recently-modified
+components will be recompiled. This can marginally speed up development.
 
 
 ### Additional Build Features and Uninstall
@@ -324,9 +323,9 @@ run the following command
 $ ./build.sh d
 ```
 
-It will produce two folder *build/docs/html/* and *build/docs/latex*
-containing the documentation as either HTML or LaTeX. The HTML version
-is recommended since it provides a more friendly way to navigate
+It will produce two folders, *build/docs/html/* and *build/docs/latex*,
+containing the documentation as HTML and LaTeX, respectively. The HTML
+version is recommended since it provides a more friendly way to navigate
 through the set of created files. You can view them using your
 favorite browser, e.g.
 
