@@ -45,12 +45,61 @@
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 
+#include <core/IO/PortAudioDriver.h>
+#include <core/IO/CoreAudioDriver.h>
+#include <core/IO/AlsaAudioDriver.h>
+
 
 using namespace H2Core;
+
+
+DeviceComboBox::DeviceComboBox( QWidget *pParent )
+	: QComboBox( pParent)
+{
+	m_bHasDevices = false;
+	m_sDriver = "";
+}
+
+void DeviceComboBox::setDriver( QString sDriver )
+{
+	if ( sDriver != m_sDriver ) {
+		m_bHasDevices = false;
+		m_sDriver = sDriver;
+	}
+}
+
+void DeviceComboBox::showPopup()
+{
+	if ( ! m_bHasDevices ) {
+		/* Recalculate the devices list */
+		clear();
+
+		QApplication::setOverrideCursor( Qt::WaitCursor );
+		if ( m_sDriver == "PortAudio" ) {
+			for ( QString s : PortAudioDriver::getDevices() ) {
+				addItem( s );
+			}
+		} else if ( m_sDriver == "CoreAudio" ) {
+			for ( QString s : CoreAudioDriver::getDevices() ) {
+				addItem( s );
+			}
+		} else if ( m_sDriver == "ALSA" ) {
+			for ( QString s : AlsaAudioDriver::getDevices() ) {
+				addItem( s );
+			}
+		}
+		QApplication::restoreOverrideCursor();
+
+		m_bHasDevices = true;
+	}
+	QComboBox::showPopup();
+}
+
 
 const char* PreferencesDialog::__class_name = "PreferencesDialog";
 
 QString PreferencesDialog::m_sColorRed = "#ca0003";
+
 
 PreferencesDialog::PreferencesDialog(QWidget* parent)
  : QDialog( parent )
@@ -434,17 +483,19 @@ void PreferencesDialog::updateDriverPreferences() {
 	}
 	else if (driverComboBox->currentText() == "ALSA" ) {
 		pPref->m_sAudioDriver = "ALSA";
-		pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->text();
+		pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
 	}
 	else if (driverComboBox->currentText() == "OSS" ) {
 		pPref->m_sAudioDriver = "OSS";
-		pPref->m_sOSSDevice = m_pAudioDeviceTxt->text();
+		pPref->m_sOSSDevice = m_pAudioDeviceTxt->lineEdit()->text();
 	}
 	else if (driverComboBox->currentText() == "PortAudio" ) {
 		pPref->m_sAudioDriver = "PortAudio";
+		pPref->m_sPortAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
 	}
 	else if (driverComboBox->currentText() == "CoreAudio" ) {
 		pPref->m_sAudioDriver = "CoreAudio";
+		pPref->m_sCoreAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
 	}
 	else if (driverComboBox->currentText() == "PulseAudio" ) {
 		pPref->m_sAudioDriver = "PulseAudio";
@@ -702,6 +753,7 @@ void PreferencesDialog::updateDriverInfo()
 	bPulseAudio_support = true;
 #endif
 
+	m_pAudioDeviceTxt->setDriver( driverComboBox->currentText() );
 	if ( driverComboBox->currentText() == "Auto" ) {
 		info += tr("Automatic driver selection");
 		
@@ -712,7 +764,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( "</b> " ).append( tr( "selected") );
 		}
 		m_pAudioDeviceTxt->setEnabled( true );
-		m_pAudioDeviceTxt->setText( "" );
+		m_pAudioDeviceTxt->lineEdit()->setText( "" );
 		bufferSizeSpinBox->setEnabled( true );
 		sampleRateComboBox->setEnabled( true );
 		trackOutputComboBox->setEnabled( false );
@@ -763,7 +815,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setEnabled(true);
-		m_pAudioDeviceTxt->setText( pPref->m_sOSSDevice );
+		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sOSSDevice );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
@@ -786,7 +838,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setEnabled(false);
-		m_pAudioDeviceTxt->setText( "" );
+		m_pAudioDeviceTxt->lineEdit()->setText( "" );
 		bufferSizeSpinBox->setEnabled(false);
 		sampleRateComboBox->setEnabled(false);
 		trackOutputComboBox->setEnabled( true );
@@ -811,7 +863,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setEnabled(true);
-		m_pAudioDeviceTxt->setText( pPref->m_sAlsaAudioDevice );
+		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sAlsaAudioDevice );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
@@ -831,8 +883,8 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setEnabled(false);
-		m_pAudioDeviceTxt->setText( "" );
+		m_pAudioDeviceTxt->setEnabled( true );
+		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sPortAudioDevice );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
@@ -852,8 +904,8 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setEnabled(false);
-		m_pAudioDeviceTxt->setText( "" );
+		m_pAudioDeviceTxt->setEnabled( true );
+		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sCoreAudioDevice );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
@@ -874,7 +926,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setEnabled(false);
-		m_pAudioDeviceTxt->setText("");
+		m_pAudioDeviceTxt->lineEdit()->setText("");
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();

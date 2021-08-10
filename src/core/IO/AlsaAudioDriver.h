@@ -65,6 +65,8 @@ public:
 	virtual void locate( unsigned long nFrame );
 	virtual void setBpm( float fBPM );
 
+	static QStringList getDevices();
+
 private:
 
 	unsigned int m_nSampleRate;

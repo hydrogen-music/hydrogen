@@ -24,9 +24,27 @@
 #define PREFERENCES_DIALOG_H
 
 
-#include "ui_PreferencesDialog_UI.h"
-
 #include <core/Object.h>
+
+///
+/// Combo box showing a list of available devices for a given driver.
+/// List is calculated lazily when needed.
+///
+class DeviceComboBox : public QComboBox {
+
+	bool m_bHasDevices;
+	QString m_sDriver;
+
+public:
+	DeviceComboBox( QWidget *pParent );
+
+	/// Set the driver name to use
+	void setDriver( QString sDriver );
+
+	virtual void showPopup();
+};
+
+#include "ui_PreferencesDialog_UI.h"
 
 ///
 /// Preferences Dialog
@@ -68,6 +86,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 
 		void updateDriverPreferences();
 };
+
 
 #endif
 
