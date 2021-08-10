@@ -47,6 +47,7 @@
 
 #include <core/IO/PortAudioDriver.h>
 #include <core/IO/CoreAudioDriver.h>
+#include <core/IO/AlsaAudioDriver.h>
 
 
 using namespace H2Core;
@@ -80,6 +81,10 @@ void DeviceComboBox::showPopup()
 			}
 		} else if ( m_sDriver == "CoreAudio" ) {
 			for ( QString s : CoreAudioDriver::getDevices() ) {
+				addItem( s );
+			}
+		} else if ( m_sDriver == "ALSA" ) {
+			for ( QString s : AlsaAudioDriver::getDevices() ) {
 				addItem( s );
 			}
 		}
