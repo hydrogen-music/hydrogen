@@ -57,6 +57,9 @@ public:
 	virtual void stop() = 0;
 	virtual void locate( unsigned long nFrame ) = 0;
 	virtual void setBpm( float fBPM ) = 0;
+
+	static QStringList getDevices() { return QStringList(); }
+
 };
 
 };

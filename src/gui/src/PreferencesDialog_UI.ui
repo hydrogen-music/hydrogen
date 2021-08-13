@@ -29,7 +29,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="GeneralTab">
       <attribute name="title">
@@ -247,7 +247,7 @@
           <layout class="QHBoxLayout" name="horizontalLayout"/>
          </item>
          <item>
-          <layout class="QGridLayout">
+          <layout class="QGridLayout" columnstretch="1,2">
            <item row="7" column="1">
             <widget class="QComboBox" name="trackOutputComboBox">
              <property name="currentIndex">
@@ -266,12 +266,15 @@
             </widget>
            </item>
            <item row="4" column="1">
-            <widget class="QLineEdit" name="m_pAudioDeviceTxt">
+            <widget class="DeviceComboBox" name="m_pAudioDeviceTxt">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -1337,6 +1340,11 @@
    <class>MidiTable</class>
    <extends>QTableWidget</extends>
    <header location="global">../src/Widgets/MidiTable.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DeviceComboBox</class>
+   <extends>QComboBox</extends>
+   <header>PreferencesDialog.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

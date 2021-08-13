@@ -64,9 +64,14 @@ public:
 	virtual void locate( unsigned long nFrame );
 	virtual void setBpm( float fBPM );
 
+	static QStringList getDevices();
+
 private:
 	PaStream *m_pStream;
 	unsigned m_nSampleRate;
+	QString m_sDevice;
+
+	static bool m_bInitialised;
 
 };
 

@@ -111,6 +111,38 @@ void* alsaAudioDriver_processCaller( void* param )
 }
 
 
+/// Use the name hints to build a list of potential device names.
+QStringList AlsaAudioDriver::getDevices()
+{
+	QStringList result;
+	void **pHints, **pHint;
+
+	if ( snd_device_name_hint( -1, "pcm", &pHints) < 0) {
+		ERRORLOG( "Couldn't get device hints" );
+		return result;
+	}
+
+	for ( pHint = pHints; *pHint != nullptr; pHint++) {
+		const char *sName = snd_device_name_get_hint( *pHint, "NAME"),
+			*sIOID = snd_device_name_get_hint( *pHint, "IOID");
+
+		if ( sIOID && QString( sIOID ) != "Output") {
+			continue;
+		}
+
+		QString sDev = QString( sName );
+		if ( sName ) {
+			free( (void *)sName );
+		}
+		if ( sIOID ) {
+			free( (void *)sIOID );
+		}
+		result.push_back( sDev );
+	}
+	snd_device_name_free_hint( pHints );
+	return result;
+}
+
 const char* AlsaAudioDriver::__class_name = "AlsaAudioDriver";
 
 AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
