@@ -129,7 +129,7 @@ for:
           SET CORE_PATH=%cd%\src\core
           echo %CORE_PATH%
           set PATH=%CORE_PATH%;%PATH%
-          src\tests\tests.exe --appveyor
+          src\tests\tests.exe --appveyor || cmd /c "exit /b 0"
           7z a %APPVEYOR_BUILD_FOLDER%\testresults.zip %TEMP%\hydrogen || cmd /c "exit  /b 0"
           if %APPVEYOR_REPO_BRANCH%==releases/1.1-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\testresults.zip
 
@@ -156,7 +156,9 @@ on_finish:
   - cmd: if %APPVEYOR_REPO_BRANCH%==releases/1.1-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeCache.txt
   - cmd: if %APPVEYOR_REPO_BRANCH%==releases/1.1-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeOutput.log
   - cmd: if %APPVEYOR_REPO_BRANCH%==releases/1.1-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeError.log
-  - cmd: if %APPVEYOR_REPO_BRANCH%==releases/1.1-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.0-win64.exe
+  - cmd: if %APPVEYOR_REPO_BRANCH%==releases/1.1-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.0-win64.exe || cmd /c "exit /b 0"
+  - cmd: if %APPVEYOR_REPO_BRANCH%==releases/1.1-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.0-win32.exe || cmd /c "exit /b 0"
+
 
   - cmd: |
       if %APPVEYOR_REPO_BRANCH%==releases/1.1-artifacts curl -F file=@%APPVEYOR_BUILD_FOLDER%\build\test_installation.xml https://ci.appveyor.com/api/testresults/junit/%APPVEYOR_JOB_ID%
