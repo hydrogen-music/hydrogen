@@ -129,7 +129,8 @@ int PortAudioDriver::connect()
 		const PaDeviceInfo *pDeviceInfo;
 		for ( int nDevice = 0; nDevice < nDevices; nDevice++ ) {
 			pDeviceInfo = Pa_GetDeviceInfo( nDevice );
-			if ( QString::compare( m_sDevice,  pDeviceInfo->name, Qt::CaseInsensitive ) == 0 ) {
+			if ( pDeviceInfo->maxOutputChannels >= 2
+				 && QString::compare( m_sDevice,  pDeviceInfo->name, Qt::CaseInsensitive ) == 0 ) {
 				PaStreamParameters outputParameters;
 				memset( &outputParameters, '\0', sizeof( outputParameters ) );
 				outputParameters.channelCount = 2;
