@@ -80,16 +80,47 @@ int PortAudioDriver::init( unsigned nBufferSize )
 	return 0;
 }
 
+
+// String list of API names
+QStringList PortAudioDriver::getHostAPIs()
+{
+	if ( ! m_bInitialised ) {
+		Pa_Initialize();
+	}
+
+	QStringList hostAPIs;
+	int nHostAPIs = Pa_GetHostApiCount();
+	for ( int n = 0; n < nHostAPIs; n++ ) {
+		const PaHostApiInfo *pHostApiInfo = Pa_GetHostApiInfo( (PaHostApiIndex)n );
+		assert( pHostApiInfo != nullptr );
+		hostAPIs.push_back( pHostApiInfo->name );
+	}
+
+	if ( ! m_bInitialised ) {
+		Pa_Terminate();
+	}
+
+	return hostAPIs;
+}
+	
 // List devices
 QStringList PortAudioDriver::getDevices() {
 	if ( ! m_bInitialised ) {
 		Pa_Initialize();
 	}
 
+	Preferences *pPreferences = Preferences::get_instance();
+
 	QStringList devices;
 	int nDevices = Pa_GetDeviceCount();
 	for ( int nDevice = 0; nDevice < nDevices; nDevice++ ) {
 		const PaDeviceInfo *pDeviceInfo = Pa_GetDeviceInfo( nDevice );
+		// Filter by API
+		if ( ! pPreferences->m_sPortAudioHostAPI.isNull() || pPreferences->m_sPortAudioHostAPI != "" ) {
+			if ( Pa_GetHostApiInfo( pDeviceInfo->hostApi )->name != pPreferences->m_sPortAudioHostAPI ) {
+				continue;
+			}
+		}
 		if ( pDeviceInfo->maxOutputChannels >= 2 ) {
 			devices.push_back( QString( pDeviceInfo->name ) );
 		}
@@ -109,6 +140,7 @@ QStringList PortAudioDriver::getDevices() {
 int PortAudioDriver::connect()
 {
 	bool bUseDefaultStream = true;
+	Preferences *pPreferences = Preferences::get_instance();
 	INFOLOG( "[connect]" );
 
 	m_pOut_L = new float[ m_nBufferSize ];
@@ -129,6 +161,13 @@ int PortAudioDriver::connect()
 		const PaDeviceInfo *pDeviceInfo;
 		for ( int nDevice = 0; nDevice < nDevices; nDevice++ ) {
 			pDeviceInfo = Pa_GetDeviceInfo( nDevice );
+			// Filter by HostAPI
+			if ( ! pPreferences->m_sPortAudioHostAPI.isNull() || pPreferences->m_sPortAudioHostAPI != "" ) {
+				if ( Pa_GetHostApiInfo( pDeviceInfo->hostApi )->name != pPreferences->m_sPortAudioHostAPI ) {
+					continue;
+				}
+			}
+
 			if ( pDeviceInfo->maxOutputChannels >= 2
 				 && QString::compare( m_sDevice,  pDeviceInfo->name, Qt::CaseInsensitive ) == 0 ) {
 				PaStreamParameters outputParameters;
@@ -144,8 +183,9 @@ int PortAudioDriver::connect()
 									 m_nSampleRate, m_nBufferSize, paNoFlag,
 									 portAudioCallback, this );
 				if ( err != paNoError ) {
-					ERRORLOG( QString( "Found but can't open device '%1': %2" )
-							  .arg( m_sDevice ).arg( Pa_GetErrorText( err ) ) );
+					ERRORLOG( QString( "Found but can't open device '%1' (max %3 in, %4 out): %2" )
+							  .arg( m_sDevice ).arg( Pa_GetErrorText( err ) )
+							  .arg( pDeviceInfo->maxInputChannels ).arg( pDeviceInfo->maxOutputChannels ) );
 					// Use the default stream
 					break;
 				}

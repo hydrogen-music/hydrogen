@@ -331,6 +331,7 @@ public:
 
 	// PortAudio properties
 	QString				m_sPortAudioDevice;
+	QString				m_sPortAudioHostAPI;
 
 	// CoreAudio properties
 	QString				m_sCoreAudioDevice;

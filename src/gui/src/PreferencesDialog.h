@@ -65,6 +65,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void on_selectMixerFontBtn_clicked();
 		void on_restartDriverBtn_clicked();
 		void on_driverComboBox_activated( int index );
+		void on_portaudioHostAPIComboBox_activated( int index );
 		void on_bufferSizeSpinBox_valueChanged( int i );
 		void on_resampleComboBox_currentIndexChanged ( int index );
 		void on_sampleRateComboBox_editTextChanged( const QString& text );
@@ -73,6 +74,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void on_styleComboBox_activated( int index );
 		void on_useLashCheckbox_clicked();
 		void onMidiDriverComboBoxIndexChanged( int index );
+		void on_m_pAudioDeviceTxt_currentTextChanged( QString );
 		void toggleTrackOutsCheckBox(bool toggled);
 		void toggleOscCheckBox(bool toggled);
 		void coloringMethodCombo_currentIndexChanged (int index);

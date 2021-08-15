@@ -65,6 +65,7 @@ public:
 	virtual void setBpm( float fBPM );
 
 	static QStringList getDevices();
+	static QStringList getHostAPIs();
 
 private:
 	PaStream *m_pStream;
