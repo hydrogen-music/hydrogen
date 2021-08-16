@@ -430,7 +430,7 @@
             </widget>
            </item>
            <item row="4" column="1">
-            <widget class="QComboBox" name="portaudioHostAPIComboBox"/>
+            <widget class="HostAPIComboBox" name="portaudioHostAPIComboBox"/>
            </item>
           </layout>
          </item>
@@ -1353,6 +1353,11 @@
   </customwidget>
   <customwidget>
    <class>DeviceComboBox</class>
+   <extends>QComboBox</extends>
+   <header>PreferencesDialog.h</header>
+  </customwidget>
+  <customwidget>
+   <class>HostAPIComboBox</class>
    <extends>QComboBox</extends>
    <header>PreferencesDialog.h</header>
   </customwidget>

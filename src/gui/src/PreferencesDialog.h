@@ -34,13 +34,26 @@ class DeviceComboBox : public QComboBox {
 
 	bool m_bHasDevices;
 	QString m_sDriver;
+	QString m_sHostAPI;
 
 public:
 	DeviceComboBox( QWidget *pParent );
 
 	/// Set the driver name to use
-	void setDriver( QString sDriver );
+	void setDriver( QString sDriver ) { m_sDriver = sDriver; }
+	void setHostAPI( QString sHostAPI ) { m_sHostAPI = sHostAPI; }
 
+	virtual void showPopup();
+};
+
+///
+/// Combo box showing a list of HostAPIs.
+///
+class HostAPIComboBox : public QComboBox {
+
+public:
+	HostAPIComboBox( QWidget *pParent );
+	void setValue( QString sHostAPI );
 	virtual void showPopup();
 };
 

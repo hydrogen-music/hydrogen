@@ -56,45 +56,57 @@ using namespace H2Core;
 DeviceComboBox::DeviceComboBox( QWidget *pParent )
 	: QComboBox( pParent)
 {
-	m_bHasDevices = false;
 	m_sDriver = "";
-}
-
-void DeviceComboBox::setDriver( QString sDriver )
-{
-	if ( sDriver != m_sDriver ) {
-		m_bHasDevices = false;
-		m_sDriver = sDriver;
-	}
 }
 
 void DeviceComboBox::showPopup()
 {
-	if ( ! m_bHasDevices ) {
-		/* Recalculate the devices list */
-		clear();
-
-		QApplication::setOverrideCursor( Qt::WaitCursor );
-		if ( m_sDriver == "PortAudio" ) {
-			for ( QString s : PortAudioDriver::getDevices() ) {
-				addItem( s );
-			}
-		} else if ( m_sDriver == "CoreAudio" ) {
-			for ( QString s : CoreAudioDriver::getDevices() ) {
-				addItem( s );
-			}
-		} else if ( m_sDriver == "ALSA" ) {
-			for ( QString s : AlsaAudioDriver::getDevices() ) {
-				addItem( s );
-			}
+	clear();
+	QApplication::setOverrideCursor( Qt::WaitCursor );
+	if ( m_sDriver == "PortAudio" ) {
+		// Get device list for PortAudio based on current value of the API combo box
+		for ( QString s : PortAudioDriver::getDevices( m_sHostAPI ) ) {
+			addItem( s );
 		}
-		QApplication::restoreOverrideCursor();
-
-		m_bHasDevices = true;
+		} else if ( m_sDriver == "CoreAudio" ) {
+		for ( QString s : CoreAudioDriver::getDevices() ) {
+			addItem( s );
+		}
+	} else if ( m_sDriver == "ALSA" ) {
+		for ( QString s : AlsaAudioDriver::getDevices() ) {
+			addItem( s );
+		}
 	}
+	QApplication::restoreOverrideCursor();
 	QComboBox::showPopup();
 }
 
+
+HostAPIComboBox::HostAPIComboBox( QWidget *pParent )
+	: QComboBox( pParent )
+{
+}
+
+void HostAPIComboBox::setValue( QString sHostAPI ) {
+	// The ComboBox doesn't have any item strings until it's actually opened,
+	// so we must add the item to it temporarily
+	clear();
+	addItem( sHostAPI );
+	setCurrentText( sHostAPI );
+}
+
+void HostAPIComboBox::showPopup()
+{
+	clear();
+
+	QApplication::setOverrideCursor( Qt::WaitCursor );
+	for ( QString s : PortAudioDriver::getHostAPIs() ) {
+		addItem( s );
+	}
+	QApplication::restoreOverrideCursor();
+
+	QComboBox::showPopup();
+}
 
 const char* PreferencesDialog::__class_name = "PreferencesDialog";
 
@@ -134,6 +146,10 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 #ifdef H2CORE_HAVE_PULSEAUDIO
 	driverComboBox->addItem( "PulseAudio" );
 #endif
+
+	// Set the PortAudio HostAPI combo box to the current selected value.
+	portaudioHostAPIComboBox->setValue( pPref->m_sPortAudioHostAPI );
+
 
 	// Language selection menu
 	for ( QString sLang : Translations::availableTranslations( "hydrogen" ) ) {
@@ -725,6 +741,7 @@ void PreferencesDialog::on_driverComboBox_activated( int index )
 
 void PreferencesDialog::on_portaudioHostAPIComboBox_activated( int index )
 {
+	m_pAudioDeviceTxt->setHostAPI( portaudioHostAPIComboBox->currentText() );
 	updateDriverInfo();
 	m_bNeedDriverRestart = true;
 }
@@ -914,12 +931,6 @@ void PreferencesDialog::updateDriverInfo()
 		jackBBTSyncLbl->hide();
 		portaudioHostAPIComboBox->show();
 		portaudioHostAPILabel->show();
-
-		portaudioHostAPIComboBox->clear();
-		for ( QString s : PortAudioDriver::getHostAPIs() ) {
-			portaudioHostAPIComboBox->addItem( s );
-		}
-		portaudioHostAPIComboBox->setCurrentText( pPref->m_sPortAudioHostAPI );
 	}
 	else if ( driverComboBox->currentText() == "CoreAudio" ) {
 		info.append( "<b>" ).append( tr( "CoreAudio Driver" ) )

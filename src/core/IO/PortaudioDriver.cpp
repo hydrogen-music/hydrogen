@@ -86,6 +86,7 @@ QStringList PortAudioDriver::getHostAPIs()
 {
 	if ( ! m_bInitialised ) {
 		Pa_Initialize();
+		m_bInitialised = true;
 	}
 
 	QStringList hostAPIs;
@@ -96,28 +97,24 @@ QStringList PortAudioDriver::getHostAPIs()
 		hostAPIs.push_back( pHostApiInfo->name );
 	}
 
-	if ( ! m_bInitialised ) {
-		Pa_Terminate();
-	}
-
 	return hostAPIs;
 }
 	
 // List devices
-QStringList PortAudioDriver::getDevices() {
+QStringList PortAudioDriver::getDevices( QString HostAPI ) {
 	if ( ! m_bInitialised ) {
 		Pa_Initialize();
+		m_bInitialised = true;
 	}
-
-	Preferences *pPreferences = Preferences::get_instance();
 
 	QStringList devices;
 	int nDevices = Pa_GetDeviceCount();
 	for ( int nDevice = 0; nDevice < nDevices; nDevice++ ) {
 		const PaDeviceInfo *pDeviceInfo = Pa_GetDeviceInfo( nDevice );
+
 		// Filter by API
-		if ( ! pPreferences->m_sPortAudioHostAPI.isNull() || pPreferences->m_sPortAudioHostAPI != "" ) {
-			if ( Pa_GetHostApiInfo( pDeviceInfo->hostApi )->name != pPreferences->m_sPortAudioHostAPI ) {
+		if ( ! HostAPI.isNull() || HostAPI != "" ) {
+			if ( Pa_GetHostApiInfo( pDeviceInfo->hostApi )->name != HostAPI ) {
 				continue;
 			}
 		}
@@ -126,10 +123,12 @@ QStringList PortAudioDriver::getDevices() {
 		}
 	}
 
-	if ( ! m_bInitialised ) {
-		Pa_Terminate();
-	}
 	return devices;
+}
+
+QStringList PortAudioDriver::getDevices() {
+	Preferences *pPreferences = Preferences::get_instance();
+	return getDevices( pPreferences->m_sPortAudioHostAPI );
 }
 
 //
@@ -146,13 +145,18 @@ int PortAudioDriver::connect()
 	m_pOut_L = new float[ m_nBufferSize ];
 	m_pOut_R = new float[ m_nBufferSize ];
 
-	int err = Pa_Initialize();
-	m_bInitialised = true;
+	int err;
+	if ( ! m_bInitialised ) {
+		err = Pa_Initialize();
 
-	if ( err != paNoError ) {
-		ERRORLOG( "Portaudio error in Pa_Initialize: " + QString( Pa_GetErrorText( err ) ) );
-		return 1;
+		if ( err != paNoError ) {
+			ERRORLOG( "Portaudio error in Pa_Initialize: " + QString( Pa_GetErrorText( err ) ) );
+			return 1;
+		}
+		m_bInitialised = true;
+
 	}
+
 
 	if ( ! m_sDevice.isNull() && m_sDevice != "" ) {
 
