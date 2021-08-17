@@ -230,6 +230,7 @@ int main(int argc, char *argv[])
 			exit(0);
 		}
 
+		sSelectedDriver = sSelectedDriver.toLower();
 		if (sSelectedDriver == "auto") {
 			preferences->m_sAudioDriver = "Auto";
 		}
@@ -242,11 +243,14 @@ int main(int argc, char *argv[])
 		else if ( sSelectedDriver == "alsa" ) {
 			preferences->m_sAudioDriver = "ALSA";
 		}
-		else if (sSelectedDriver == "CoreAudio") {
+		else if (sSelectedDriver == "coreaudio") {
 			preferences->m_sAudioDriver = "CoreAudio";
 		}
-		else if (sSelectedDriver == "PulseAudio") {
+		else if (sSelectedDriver == "pulseaudio") {
 			preferences->m_sAudioDriver = "PulseAudio";
+		}
+		else {
+			___ERRORLOG( QString( "Unknown driver '%1'" ).arg( sSelectedDriver ) );
 		}
 
 #ifdef H2CORE_HAVE_LASH
