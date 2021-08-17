@@ -196,7 +196,6 @@ int PortAudioDriver::connect()
 					// Use the default stream
 					break;
 				}
-
 				INFOLOG( QString( "Opened device '%1'" ).arg( m_sDevice ) );
 				bUseDefaultStream = false;
 				break;
@@ -223,6 +222,12 @@ int PortAudioDriver::connect()
 	if ( err != paNoError ) {
 		ERRORLOG(  "Portaudio error in Pa_OpenDefaultStream: " + QString( Pa_GetErrorText( err ) ) );
 		return 1;
+	}
+
+	const PaStreamInfo *pStreamInfo = Pa_GetStreamInfo( m_pStream );
+	if ( (unsigned) pStreamInfo->sampleRate != m_nSampleRate ) {
+		ERRORLOG( QString( "Couldn't get sample rate %d, using %d instead" ).arg( m_nSampleRate ).arg( pStreamInfo->sampleRate ) );
+		m_nSampleRate = (unsigned) pStreamInfo->sampleRate;
 	}
 
 	err = Pa_StartStream( m_pStream );
