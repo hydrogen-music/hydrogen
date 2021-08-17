@@ -149,6 +149,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	// Set the PortAudio HostAPI combo box to the current selected value.
 	portaudioHostAPIComboBox->setValue( pPref->m_sPortAudioHostAPI );
+	m_pAudioDeviceTxt->setHostAPI( pPref->m_sPortAudioHostAPI );
 
 
 	// Language selection menu

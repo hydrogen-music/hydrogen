@@ -107,16 +107,19 @@ QStringList PortAudioDriver::getDevices( QString HostAPI ) {
 		m_bInitialised = true;
 	}
 
+	if ( HostAPI.isNull() || HostAPI == "" ) {
+		WARNINGLOG( "Using default HostAPI" );
+		HostAPI = Pa_GetHostApiInfo( Pa_GetDefaultHostApi() )->name;
+	}
+
 	QStringList devices;
 	int nDevices = Pa_GetDeviceCount();
 	for ( int nDevice = 0; nDevice < nDevices; nDevice++ ) {
 		const PaDeviceInfo *pDeviceInfo = Pa_GetDeviceInfo( nDevice );
 
 		// Filter by API
-		if ( ! HostAPI.isNull() || HostAPI != "" ) {
-			if ( Pa_GetHostApiInfo( pDeviceInfo->hostApi )->name != HostAPI ) {
-				continue;
-			}
+		if ( Pa_GetHostApiInfo( pDeviceInfo->hostApi )->name != HostAPI ) {
+			continue;
 		}
 		if ( pDeviceInfo->maxOutputChannels >= 2 ) {
 			devices.push_back( QString( pDeviceInfo->name ) );
