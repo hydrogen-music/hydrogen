@@ -370,7 +370,7 @@ int main(int argc, char *argv[])
 			H2Core::Drumkit::install( sDrumkitName );
 			exit(0);
 		}
-		
+		sSelectedDriver = sSelectedDriver.toLower();
 		if (sSelectedDriver == "auto") {
 			pPref->m_sAudioDriver = "Auto";
 		}
@@ -382,6 +382,18 @@ int main(int argc, char *argv[])
 		}
 		else if ( sSelectedDriver == "alsa" ) {
 			pPref->m_sAudioDriver = "ALSA";
+		}
+		else if ( sSelectedDriver == "portaudio" ) {
+			pPref->m_sAudioDriver = "PortAudio";
+		}
+		else if ( sSelectedDriver == "pulseaudio" ) {
+			pPref->m_sAudioDriver = "PulseAudio";
+		}
+		else if ( sSelectedDriver == "coreaudio" ) {
+			pPref->m_sAudioDriver = "CoreAudio";
+		}
+		else {
+			___ERRORLOG( QString( "Unknown driver '%1'" ).arg( sSelectedDriver ) );
 		}
 
 		// Bootstrap is complete, start GUI
