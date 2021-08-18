@@ -89,8 +89,6 @@ class PortAudioDriver : public NullDriver
 	H2_OBJECT
 public:
 	PortAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
-	static QStringList getHostAPIs() { return QStringList(); }
-	static QStringList getDevices( QString HostAPI );
 };
 
 };

@@ -64,18 +64,24 @@ void DeviceComboBox::showPopup()
 	clear();
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 	if ( m_sDriver == "PortAudio" ) {
+#ifdef H2CORE_HAVE_PORTAUDIO
 		// Get device list for PortAudio based on current value of the API combo box
 		for ( QString s : PortAudioDriver::getDevices( m_sHostAPI ) ) {
 			addItem( s );
 		}
-		} else if ( m_sDriver == "CoreAudio" ) {
+#endif
+	} else if ( m_sDriver == "CoreAudio" ) {
+#ifdef H2CORE_HAVE_COREAUDIO
 		for ( QString s : CoreAudioDriver::getDevices() ) {
 			addItem( s );
 		}
+#endif
 	} else if ( m_sDriver == "ALSA" ) {
+#ifdef H2CORE_HAVE_ALSA
 		for ( QString s : AlsaAudioDriver::getDevices() ) {
 			addItem( s );
 		}
+#endif
 	}
 	QApplication::restoreOverrideCursor();
 	QComboBox::showPopup();
@@ -98,12 +104,13 @@ void HostAPIComboBox::setValue( QString sHostAPI ) {
 void HostAPIComboBox::showPopup()
 {
 	clear();
-
+#ifdef H2CORE_HAVE_PORTAUDIO
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 	for ( QString s : PortAudioDriver::getHostAPIs() ) {
 		addItem( s );
 	}
 	QApplication::restoreOverrideCursor();
+#endif
 
 	QComboBox::showPopup();
 }
