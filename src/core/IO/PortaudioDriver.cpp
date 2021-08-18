@@ -184,6 +184,11 @@ int PortAudioDriver::connect()
 				outputParameters.hostApiSpecificStreamInfo = NULL;
 				outputParameters.sampleFormat = paFloat32;
 
+				// Use the same latency setting as Pa_OpenDefaultStream() -- defaulting to the high suggested
+				// latency. This should probably be an option.
+				outputParameters.suggestedLatency =
+					Pa_GetDeviceInfo( nDevice )->defaultHighInputLatency;
+
 				err = Pa_OpenStream( &m_pStream,
 									 nullptr, /* No input stream */
 									 &outputParameters,
