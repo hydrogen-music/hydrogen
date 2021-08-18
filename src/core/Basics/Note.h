@@ -65,9 +65,9 @@ struct SelectedLayerInfo {
 /**
  * A note plays an associated instrument with a velocity left and right pan
  */
-class Note : public H2Core::Object
+class Note : public H2Core::Object<Note>
 {
-		H2_OBJECT
+		H2_OBJECT(Note)
 	public:
 		/** possible keys */
 		enum Key { C=KEY_MIN, Cs, D, Ef, E, F, Fs, G, Af, A, Bf, B };

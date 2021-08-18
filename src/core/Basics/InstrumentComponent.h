@@ -38,9 +38,9 @@ class Drumkit;
 class InstrumentLayer;
 class DrumkitComponent;
 
-class InstrumentComponent : public H2Core::Object
+class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 {
-		H2_OBJECT
+		H2_OBJECT(InstrumentComponent)
 	public:
 		InstrumentComponent( int related_drumkit_componentID );
 		InstrumentComponent( std::shared_ptr<InstrumentComponent> other );

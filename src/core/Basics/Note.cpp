@@ -35,12 +35,10 @@
 namespace H2Core
 {
 
-const char* Note::__class_name = "Note";
 const char* Note::__key_str[] = { "C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Af", "A", "Bf", "B" };
 
 Note::Note( std::shared_ptr<Instrument> instrument, int position, float velocity, float pan, int length, float pitch )
-	: Object( __class_name ),
-	  __instrument( instrument ),
+	: __instrument( instrument ),
 	  __instrument_id( 0 ),
 	  __specific_compo_id( -1 ),
 	  __position( position ),
@@ -82,7 +80,7 @@ Note::Note( std::shared_ptr<Instrument> instrument, int position, float velocity
 }
 
 Note::Note( Note* other, std::shared_ptr<Instrument> instrument )
-	: Object( __class_name ),
+	: Object( *other ),
 	  __instrument( other->get_instrument() ),
 	  __instrument_id( 0 ),
 	  __specific_compo_id( -1 ),
@@ -242,7 +240,7 @@ Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
 }
 
 QString Note::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Note]\n" ).arg( sPrefix )

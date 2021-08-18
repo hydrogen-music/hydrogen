@@ -35,7 +35,7 @@ namespace H2Core {
 
 unsigned Logger::__bit_msk = 0;
 Logger* Logger::__instance=nullptr;
-const char* Logger::__levels[] = { "None", "Error", "Warning", "Info", "Debug" };
+const char* Logger::__levels[] = { "None", "Error", "Warning", "Info", "Debug", "Constructors" };
 
 pthread_t loggerThread;
 
@@ -127,11 +127,11 @@ void Logger::log( unsigned level, const QString& class_name, const char* func_na
 		return;
 	}
 
-	const char* prefix[] = { "", "(E) ", "(W) ", "(I) ", "(D) " };
+	const char* prefix[] = { "", "(E) ", "(W) ", "(I) ", "(D) ", "(C) " };
 #ifdef WIN32
-	const char* color[] = { "", "", "", "", "" };
+	const char* color[] = { "", "", "", "", "", "" };
 #else
-	const char* color[] = { "", "\033[31m", "\033[36m", "\033[32m", "\033[35m" };
+	const char* color[] = { "", "\033[31m", "\033[36m", "\033[32m", "\033[35m", "\033[35m" };
 #endif // WIN32
 
 	int i;
@@ -148,6 +148,8 @@ void Logger::log( unsigned level, const QString& class_name, const char* func_na
 	case Debug:
 		i = 4;
 		break;
+	case Constructors:
+		i = 5;
 	default:
 		i = 0;
 		break;
@@ -178,6 +180,8 @@ unsigned Logger::parse_log_level( const char* level ) {
 		log_level = Logger::Error | Logger::Warning | Logger::Info;
 	} else if ( 0 == strncasecmp( level, __levels[4], strlen( __levels[4] ) ) ) {
 		log_level = Logger::Error | Logger::Warning | Logger::Info | Logger::Debug;
+	} else if ( 0 == strncasecmp( level, __levels[5], strlen( __levels[5] ) ) ) {
+		log_level = Logger::Error | Logger::Warning | Logger::Info | Logger::Debug | Logger::Constructors;
 	} else {
 #ifdef HAVE_SSCANF
 		int val = sscanf( level,"%x",&log_level );

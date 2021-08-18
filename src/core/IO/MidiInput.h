@@ -34,10 +34,11 @@ namespace H2Core
 /**
  * MIDI input base class
  */
-class MidiInput : public virtual Object
+class MidiInput : public virtual Object<MidiInput>
 {
+	H2_OBJECT(MidiInput);
 public:
-	MidiInput( const char* class_name );
+	MidiInput();
 	virtual ~MidiInput();
 
 	virtual void open() = 0;

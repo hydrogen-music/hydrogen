@@ -83,11 +83,8 @@ using namespace H2Core;
 
 int MainForm::sigusr1Fd[2];
 
-const char* MainForm::__class_name = "MainForm";
-
 MainForm::MainForm( QApplication * pQApplication )
 	: QMainWindow( nullptr )
-	, Object( __class_name )
 {
 	setObjectName( "MainForm" );
 	setMinimumSize( QSize( 1000, 500 ) );
@@ -1847,7 +1844,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 void MainForm::action_debug_printObjects()
 {
 	INFOLOG( "[action_debug_printObjects]" );
-	Object::write_objects_map_to_cerr();
+	Base::write_objects_map_to_cerr();
 }
 
 

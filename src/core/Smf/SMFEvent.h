@@ -29,9 +29,9 @@
 namespace H2Core
 {
 
-class SMFBuffer : public H2Core::Object
+class SMFBuffer : public H2Core::Object<SMFBuffer>
 {
-	H2_OBJECT
+	H2_OBJECT(SMFBuffer)
 public:
 	std::vector<char> getBuffer() {
 		return m_buffer;
@@ -82,11 +82,11 @@ public:
 
 
 
-class SMFEvent : public SMFBase, public H2Core::Object
+class SMFEvent : public SMFBase, public H2Core::Object<SMFEvent>
 {
-	H2_OBJECT
+	H2_OBJECT(SMFEvent)
 public:
-	SMFEvent( const char* sEventName, unsigned nTicks );
+	SMFEvent(unsigned nTicks );
 	virtual ~SMFEvent();
 
 	int m_nTicks;
@@ -95,9 +95,9 @@ public:
 
 
 
-class SMFTrackNameMetaEvent : public SMFEvent
+class SMFTrackNameMetaEvent : public SMFEvent, public H2Core::Object<SMFTrackNameMetaEvent>
 {
-	H2_OBJECT
+	H2_OBJECT(SMFTrackNameMetaEvent)
 public:
 	SMFTrackNameMetaEvent( const QString& sTrackName, unsigned nDeltaTime );
 	virtual std::vector<char> getBuffer();
@@ -109,9 +109,9 @@ private:
 
 
 
-class SMFSetTempoMetaEvent : public SMFEvent
+class SMFSetTempoMetaEvent : public SMFEvent, public H2Core::Object<SMFSetTempoMetaEvent>
 {
-	H2_OBJECT
+	H2_OBJECT(SMFSetTempoMetaEvent)
 public:
 	SMFSetTempoMetaEvent( float fBPM, unsigned nDeltaTime );
 	virtual std::vector<char> getBuffer();
@@ -123,9 +123,9 @@ private:
 
 
 
-class SMFCopyRightNoticeMetaEvent : public SMFEvent
+class SMFCopyRightNoticeMetaEvent : public SMFEvent, public H2Core::Object<SMFCopyRightNoticeMetaEvent>
 {
-	H2_OBJECT
+	H2_OBJECT(SMFCopyRightNoticeMetaEvent)
 public:
 	SMFCopyRightNoticeMetaEvent( const QString& sAuthor, unsigned nDeltaTime );
 	virtual std::vector<char> getBuffer();
@@ -137,9 +137,9 @@ private:
 
 
 
-class SMFTimeSignatureMetaEvent : public SMFEvent
+class SMFTimeSignatureMetaEvent : public SMFEvent, public H2Core::Object<SMFTimeSignatureMetaEvent>
 {
-	H2_OBJECT
+	H2_OBJECT(SMFTimeSignatureMetaEvent)
 public:
 	SMFTimeSignatureMetaEvent( unsigned nBeats, unsigned nNote , unsigned nMTPMC , unsigned nTSNP24 , unsigned nTicks );
 	virtual std::vector<char> getBuffer();
@@ -151,9 +151,9 @@ private:
 
 
 
-class SMFNoteOnEvent : public SMFEvent
+class SMFNoteOnEvent : public SMFEvent, public H2Core::Object<SMFNoteOnEvent>
 {
-	H2_OBJECT
+	H2_OBJECT(SMFNoteOnEvent)
 public:
 	SMFNoteOnEvent( unsigned nTicks, int nChannel, int nPitch, int nVelocity );
 
@@ -167,9 +167,9 @@ protected:
 
 
 
-class SMFNoteOffEvent : public SMFEvent
+class SMFNoteOffEvent : public SMFEvent, public H2Core::Object<SMFNoteOffEvent>
 {
-	H2_OBJECT
+	H2_OBJECT(SMFNoteOffEvent)
 public:
 	SMFNoteOffEvent(  unsigned nTicks, int nChannel, int nPitch, int nVelocity );
 

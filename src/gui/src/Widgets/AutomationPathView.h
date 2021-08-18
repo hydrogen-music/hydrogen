@@ -29,10 +29,10 @@
 #include <QtGui>
 #include <QtWidgets>
 
-class AutomationPathView : public QWidget, public H2Core::Object
+class AutomationPathView :  public QWidget,  public H2Core::Object<AutomationPathView>
 {
 	Q_OBJECT
-	H2_OBJECT
+	H2_OBJECT(AutomationPathView)
 
 	H2Core::AutomationPath *_path;
 	int m_nGridWidth;   /** < Width of song grid cell size - in order to properly align AutomationPathView and SongEditor */

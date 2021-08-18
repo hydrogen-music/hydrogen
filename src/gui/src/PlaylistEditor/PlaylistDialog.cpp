@@ -52,11 +52,10 @@
 
 using namespace H2Core;
 
-const char* PlaylistDialog::__class_name = "PlaylistDialog";
 
 PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 		: QDialog ( pParent )
-		, Object ( __class_name )
+		, Object ()
 {
 
 	setupUi ( this );

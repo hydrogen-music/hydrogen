@@ -54,8 +54,6 @@
 namespace H2Core
 {
 
-const char* Sampler::__class_name = "Sampler";
-
 static std::shared_ptr<Instrument> createInstrument(int id, const QString& filepath, float volume )
 {
 	auto pInstrument = std::make_shared<Instrument>( id, filepath );
@@ -69,8 +67,7 @@ static std::shared_ptr<Instrument> createInstrument(int id, const QString& filep
 }
 
 Sampler::Sampler()
-		: Object( __class_name )
-		, m_pMainOut_L( nullptr )
+		: m_pMainOut_L( nullptr )
 		, m_pMainOut_R( nullptr )
 		, m_pPreviewInstrument( nullptr )
 		, m_interpolateMode( Interpolation::InterpolateMode::Linear )

@@ -101,10 +101,8 @@ namespace H2Core
 //----------------------------------------------------------------------------
 
 Hydrogen* Hydrogen::__instance = nullptr;
-const char* Hydrogen::__class_name = "Hydrogen";
 
 Hydrogen::Hydrogen()
-	: Object( __class_name )
 {
 	if ( __instance ) {
 		ERRORLOG( "Hydrogen audio engine is already running" );
@@ -755,7 +753,7 @@ void Hydrogen::stopExportSong()
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
-	if ( pAudioEngine->getAudioDriver()->class_name() != DiskWriterDriver::class_name() ) {
+	if ( pAudioEngine->getAudioDriver()->class_name() != DiskWriterDriver::_class_name() ) {
 		return;
 	}
 
@@ -1650,7 +1648,7 @@ bool Hydrogen::haveJackAudioDriver() const {
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	if ( pAudioEngine->getAudioDriver() != nullptr ) {
-		if ( JackAudioDriver::class_name() == pAudioEngine->getAudioDriver()->class_name() ){
+		if ( JackAudioDriver::_class_name() == pAudioEngine->getAudioDriver()->class_name() ){
 			return true;
 		}
 	}
@@ -1664,7 +1662,7 @@ bool Hydrogen::haveJackTransport() const {
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	if ( pAudioEngine->getAudioDriver() != nullptr ) {
-		if ( JackAudioDriver::class_name() == pAudioEngine->getAudioDriver()->class_name() &&
+		if ( JackAudioDriver::_class_name() == pAudioEngine->getAudioDriver()->class_name() &&
 			 Preferences::get_instance()->m_bJackTransportMode ==
 			 Preferences::USE_JACK_TRANSPORT ){
 			return true;
@@ -1743,7 +1741,7 @@ void Hydrogen::startNsmClient()
 
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Hydrogen]\n" ).arg( sPrefix )

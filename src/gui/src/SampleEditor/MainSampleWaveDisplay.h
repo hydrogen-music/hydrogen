@@ -30,9 +30,9 @@
 #include "SampleEditor.h"
 class SampleEditor;
 
-class MainSampleWaveDisplay : public QWidget, public H2Core::Object
+class MainSampleWaveDisplay :  public QWidget,  public H2Core::Object<MainSampleWaveDisplay>
 {
-    H2_OBJECT
+    H2_OBJECT(MainSampleWaveDisplay)
 	Q_OBJECT
 
 	public:

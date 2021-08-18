@@ -42,7 +42,7 @@ unsigned nNextFrames = 0;
 
 void* ossDriver_processCaller( void* param )
 {
-	Object* __object = ( Object* )param;
+	Base * __object = ( Base * )param;
 	// stolen from amSynth
 	struct sched_param sched;
 	sched.sched_priority = 50;
@@ -66,9 +66,6 @@ void* ossDriver_processCaller( void* param )
 	return NULL;
 }
 
-
-
-const char* OssDriver::__class_name = "OssDriver";
 
 OssDriver::OssDriver( audioProcessCallback processCallback )
 		: AudioOutput( __class_name )

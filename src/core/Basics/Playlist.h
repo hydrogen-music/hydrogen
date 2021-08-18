@@ -31,10 +31,10 @@ namespace H2Core
 /**
  * Drumkit info
 */
-class Playlist : public H2Core::Object
+class Playlist : public H2Core::Object<Playlist>
 
 {
-		H2_OBJECT
+		H2_OBJECT(Playlist)
 
 	public:
 		struct Entry

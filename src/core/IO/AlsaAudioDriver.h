@@ -33,9 +33,9 @@
 namespace H2Core
 {
 
-class AlsaAudioDriver : public AudioOutput
+class AlsaAudioDriver : public Object<AlsaAudioDriver>, public AudioOutput
 {
-	H2_OBJECT
+	H2_OBJECT(AlsaAudioDriver)
 public:
 	snd_pcm_t *m_pPlayback_handle;
 	bool m_bIsRunning;
@@ -74,7 +74,7 @@ namespace H2Core {
 
 class AlsaAudioDriver : public NullDriver
 {
-	H2_OBJECT
+	H2_OBJECT(AlsaAudioDriver)
 public:
 	AlsaAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
 

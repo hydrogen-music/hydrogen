@@ -36,9 +36,9 @@ namespace H2Core
 class Song;
 class Instrument;
 
-class SMFHeader : public SMFBase, public H2Core::Object
+class SMFHeader : public Object<SMFHeader>, public SMFBase
 {
-	H2_OBJECT
+	H2_OBJECT(SMFHeader)
 public:
 	SMFHeader( int nFormat, int nTracks, int nTPQN );
 	~SMFHeader();
@@ -54,9 +54,9 @@ private:
 
 
 
-class SMFTrack : public SMFBase, public H2Core::Object
+class SMFTrack : public Object<SMFTrack>, public SMFBase
 {
-	H2_OBJECT
+	H2_OBJECT(SMFTrack)
 public:
 
 	SMFTrack();
@@ -72,9 +72,9 @@ private:
 
 
 
-class SMF : public SMFBase, public H2Core::Object
+class SMF : public Object<SMF>, public SMFBase
 {
-	H2_OBJECT
+	H2_OBJECT(SMF)
 public:
 	SMF( int nFormat, int nTPQN );
 	~SMF();
@@ -93,11 +93,11 @@ private:
 typedef std::vector<SMFEvent*> EventList;
 
 
-class SMFWriter : public H2Core::Object
+class SMFWriter : public H2Core::Object<SMFWriter>
 {
-	H2_OBJECT
+	H2_OBJECT(SMFWriter)
 public:
-	SMFWriter( const char* sWriterName );
+	SMFWriter();
 	virtual ~SMFWriter();
 	void save( const QString& sFilename, std::shared_ptr<Song> pSong );
 
@@ -117,20 +117,20 @@ private:
 
 //-------
 
-class SMF1Writer : public SMFWriter
+class SMF1Writer : public Object<SMF1Writer>, public SMFWriter
 {
-    H2_OBJECT
+    H2_OBJECT(SMF1Writer)
 public:
-    SMF1Writer( const char* sWriterName );
+    SMF1Writer();
 	virtual ~SMF1Writer();
 protected:
 	virtual SMF* createSMF( std::shared_ptr<Song> pSong );
 };
 
 
-class SMF1WriterSingle : public SMF1Writer
+class SMF1WriterSingle : public Object<SMF1WriterSingle>, public SMF1Writer
 {
-    H2_OBJECT
+    H2_OBJECT(SMF1WriterSingle)
 public:
     SMF1WriterSingle();
 	virtual ~SMF1WriterSingle();
@@ -143,9 +143,9 @@ private:
 };
 
 
-class SMF1WriterMulti : public SMF1Writer
+class SMF1WriterMulti : public Object<SMF1WriterMulti>, public SMF1Writer
 {
-    H2_OBJECT
+    H2_OBJECT(SMF1WriterMulti)
 public:
     SMF1WriterMulti();
 	virtual ~SMF1WriterMulti();
@@ -161,9 +161,9 @@ private:
 
 //-------
 
-class SMF0Writer : public SMFWriter
+class SMF0Writer : public Object<SMF0Writer>, public SMFWriter
 {
-    H2_OBJECT
+    H2_OBJECT(SMF0Writer)
 public:
     SMF0Writer();
 	virtual ~SMF0Writer();
