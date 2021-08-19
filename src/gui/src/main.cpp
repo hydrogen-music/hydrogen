@@ -533,7 +533,11 @@ int main(int argc, char *argv[])
 		// variable does not guarantee for a session management and if
 		// no audio driver is initialized yet, we will do it here. 
 		if ( H2Core::Hydrogen::get_instance()->getAudioOutput() == nullptr ) {
+			// Starting drivers can take some time, so show the wait cursor to let the user know that, yes,
+			// we're definitely busy.
+			QApplication::setOverrideCursor( Qt::WaitCursor );
 			H2Core::Hydrogen::get_instance()->restartDrivers();
+			QApplication::restoreOverrideCursor();
 		}
 
 		MainForm *pMainForm = new MainForm( pQApp, sSongFilename, bLoadSong );

@@ -185,7 +185,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	else
 	{
 		driverInfoLbl->setText( tr("Select your Audio Driver" ));
-		ERRORLOG( "Unknown MIDI input from preferences [" + pPref->m_sAudioDriver + "]" );
+		ERRORLOG( "Unknown audio driver from preferences [" + pPref->m_sAudioDriver + "]" );
 	}
 
 
@@ -733,7 +733,9 @@ void PreferencesDialog::on_okBtn_clicked()
 	if (m_bNeedDriverRestart) {
 		int res = QMessageBox::information( this, "Hydrogen", tr( "Driver restart required.\n Restart driver?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
 		if ( res == 0 ) {
+			QApplication::setOverrideCursor( Qt::WaitCursor );
 			Hydrogen::get_instance()->restartDrivers();
+			QApplication::restoreOverrideCursor();
 		}
 	}
 	accept();
