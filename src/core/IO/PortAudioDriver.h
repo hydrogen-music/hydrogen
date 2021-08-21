@@ -65,6 +65,8 @@ public:
 	virtual void setBpm( float fBPM );
 
 	static QStringList getDevices();
+	static QStringList getDevices( QString HostAPI );
+	static QStringList getHostAPIs();
 
 private:
 	PaStream *m_pStream;
@@ -87,7 +89,6 @@ class PortAudioDriver : public NullDriver
 	H2_OBJECT
 public:
 	PortAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
-
 };
 
 };
