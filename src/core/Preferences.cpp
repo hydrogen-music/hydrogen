@@ -156,6 +156,7 @@ Preferences::Preferences()
 
 	// PortAudio properties
 	m_sPortAudioDevice = QString();
+	m_sPortAudioHostAPI = QString();
 
 	// CoreAudio
 	m_sCoreAudioDevice = QString();
@@ -440,6 +441,7 @@ void Preferences::loadPreferences( bool bGlobal )
 					recreate = true;
 				} else {
 					m_sPortAudioDevice = LocalFileMng::readXmlString( portAudioDriverNode, "portAudioDevice", m_sPortAudioDevice );
+					m_sPortAudioHostAPI = LocalFileMng::readXmlString( portAudioDriverNode, "portAudioHostAPI", m_sPortAudioHostAPI );
 				}
 
 				//// COREAUDIO DRIVER ////
@@ -891,6 +893,7 @@ void Preferences::savePreferences()
 		QDomNode portAudioDriverNode = doc.createElement( "portaudio_driver" );
 		{
 			LocalFileMng::writeXmlString( portAudioDriverNode, "portAudioDevice", m_sPortAudioDevice );
+			LocalFileMng::writeXmlString( portAudioDriverNode, "portAudioHostAPI", m_sPortAudioHostAPI );
 		}
 		audioEngineNode.appendChild( portAudioDriverNode );
 
