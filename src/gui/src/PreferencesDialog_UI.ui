@@ -29,7 +29,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="GeneralTab">
       <attribute name="title">
@@ -247,9 +247,51 @@
           <layout class="QHBoxLayout" name="horizontalLayout"/>
          </item>
          <item>
-          <layout class="QGridLayout" columnstretch="1,2">
+          <layout class="QGridLayout" columnstretch="1,0">
+           <item row="6" column="0">
+            <widget class="QLabel" name="buffer_sizeLbl">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Buffer size</string>
+             </property>
+            </widget>
+           </item>
            <item row="9" column="0">
-            <widget class="QLabel" name="jackBBTSyncLbl">
+            <widget class="QLabel" name="trackOutputLbl">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Track output</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="DeviceComboBox" name="m_pAudioDeviceTxt">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="HostAPIComboBox" name="portaudioHostAPIComboBox"/>
+           </item>
+           <item row="10" column="1">
+            <widget class="QComboBox" name="jackBBTSyncComboBox">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -259,8 +301,39 @@
              <property name="toolTip">
               <string>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</string>
              </property>
+             <item>
+              <property name="text">
+               <string>constant measure</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>matching bars</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="9" column="1">
+            <widget class="QComboBox" name="trackOutputComboBox">
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>Post-Fader</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Pre-Fader</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="audioDeviceLbl">
              <property name="text">
-              <string>BBT sync method</string>
+              <string>Device</string>
              </property>
             </widget>
            </item>
@@ -286,7 +359,21 @@
              </property>
             </widget>
            </item>
-           <item row="7" column="1">
+           <item row="4" column="0">
+            <widget class="QLabel" name="portaudioHostAPILabel">
+             <property name="text">
+              <string>Host API</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Audio System</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="1">
             <widget class="QComboBox" name="sampleRateComboBox">
              <property name="currentIndex">
               <number>0</number>
@@ -313,51 +400,8 @@
              </item>
             </widget>
            </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="audioDeviceLbl">
-             <property name="text">
-              <string>Device</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_6">
-             <property name="text">
-              <string>Audio System</string>
-             </property>
-            </widget>
-           </item>
-           <item row="8" column="0">
-            <widget class="QLabel" name="trackOutputLbl">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Track output</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QComboBox" name="driverComboBox"/>
-           </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="buffer_sizeLbl">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Buffer size</string>
-             </property>
-            </widget>
-           </item>
-           <item row="9" column="1">
-            <widget class="QComboBox" name="jackBBTSyncComboBox">
+           <item row="10" column="0">
+            <widget class="QLabel" name="jackBBTSyncLbl">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -367,32 +411,12 @@
              <property name="toolTip">
               <string>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</string>
              </property>
-             <item>
-              <property name="text">
-               <string>constant measure</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>matching bars</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <widget class="DeviceComboBox" name="m_pAudioDeviceTxt">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="editable">
-              <bool>true</bool>
+             <property name="text">
+              <string>BBT sync method</string>
              </property>
             </widget>
            </item>
-           <item row="7" column="0">
+           <item row="8" column="0">
             <widget class="QLabel" name="sampleRateLbl">
              <property name="minimumSize">
               <size>
@@ -405,32 +429,36 @@
              </property>
             </widget>
            </item>
-           <item row="8" column="1">
-            <widget class="QComboBox" name="trackOutputComboBox">
-             <property name="currentIndex">
-              <number>0</number>
-             </property>
-             <item>
-              <property name="text">
-               <string>Post-Fader</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Pre-Fader</string>
-              </property>
-             </item>
-            </widget>
+           <item row="3" column="1">
+            <widget class="QComboBox" name="driverComboBox"/>
            </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="portaudioHostAPILabel">
+           <item row="7" column="0">
+            <widget class="QLabel" name="portaudioLatencyLabel">
              <property name="text">
-              <string>Host API</string>
+              <string>Latency target (ms)</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
-            <widget class="HostAPIComboBox" name="portaudioHostAPIComboBox"/>
+           <item row="7" column="1">
+            <layout class="QHBoxLayout" name="portaudioLatencyControls">
+             <item>
+              <widget class="QSlider" name="portaudioLatencySlider">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="portaudioLatencySpinBox">
+               <property name="minimumSize">
+                <size>
+                 <width>64</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </item>
@@ -1363,5 +1391,38 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>portaudioLatencySlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>portaudioLatencySpinBox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>245</x>
+     <y>203</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>327</x>
+     <y>203</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>portaudioLatencySpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>portaudioLatencySlider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>327</x>
+     <y>203</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>245</x>
+     <y>203</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
