@@ -25,7 +25,6 @@
 
 
 #include <core/Object.h>
-#include <QtWidgets>
 
 ///
 /// Combo box showing a list of available devices for a given driver.

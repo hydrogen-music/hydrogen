@@ -86,6 +86,7 @@ QStringList PortAudioDriver::getHostAPIs()
 {
 	if ( ! m_bInitialised ) {
 		Pa_Initialize();
+		m_bInitialised = true;
 	}
 
 	QStringList hostAPIs;
@@ -94,10 +95,6 @@ QStringList PortAudioDriver::getHostAPIs()
 		const PaHostApiInfo *pHostApiInfo = Pa_GetHostApiInfo( (PaHostApiIndex)n );
 		assert( pHostApiInfo != nullptr );
 		hostAPIs.push_back( pHostApiInfo->name );
-	}
-
-	if ( ! m_bInitialised ) {
-		Pa_Terminate();
 	}
 
 	return hostAPIs;
@@ -127,10 +124,6 @@ QStringList PortAudioDriver::getDevices( QString HostAPI ) {
 		if ( pDeviceInfo->maxOutputChannels >= 2 ) {
 			devices.push_back( QString( pDeviceInfo->name ) );
 		}
-	}
-
-	if ( ! m_bInitialised ) {
-		Pa_Terminate();
 	}
 
 	return devices;
@@ -255,7 +248,6 @@ int PortAudioDriver::connect()
 void PortAudioDriver::disconnect()
 {
 	int err = Pa_StopStream( m_pStream );
-	qDebug() << "Disconnect";
 
 
 	if ( err != paNoError ) {

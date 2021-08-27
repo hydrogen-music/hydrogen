@@ -791,10 +791,6 @@ void PreferencesDialog::updateDriverInfo()
 	bPulseAudio_support = true;
 #endif
 
-	portaudioLatencyLabel->hide();
-	portaudioLatencySpinBox->hide();
-	portaudioLatencySlider->hide();
-	
 	m_pAudioDeviceTxt->setDriver( driverComboBox->currentText() );
 	if ( driverComboBox->currentText() == "Auto" ) {
 		info += tr("Automatic driver selection");
@@ -945,9 +941,6 @@ void PreferencesDialog::updateDriverInfo()
 		jackBBTSyncLbl->hide();
 		portaudioHostAPIComboBox->show();
 		portaudioHostAPILabel->show();
-		portaudioLatencyLabel->show();
-		portaudioLatencySpinBox->show();
-		portaudioLatencySlider->show();
 	}
 	else if ( driverComboBox->currentText() == "CoreAudio" ) {
 		info.append( "<b>" ).append( tr( "CoreAudio Driver" ) )
@@ -992,6 +985,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
+		portaudioHostAPIComboBox->hide();
+		portaudioHostAPILabel->hide();
 	}
 	else {
 		QString selectedDriver = driverComboBox->currentText();
