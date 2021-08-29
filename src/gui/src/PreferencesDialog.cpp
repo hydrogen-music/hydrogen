@@ -727,15 +727,13 @@ void PreferencesDialog::on_okBtn_clicked()
 		pPref->setPreferredLanguage( sPreferredLanguage );
 	}
 
-	pPref->savePreferences();
-
-
 	if (m_bNeedDriverRestart) {
 		int res = QMessageBox::information( this, "Hydrogen", tr( "Driver restart required.\n Restart driver?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
 		if ( res == 0 ) {
 			QApplication::setOverrideCursor( Qt::WaitCursor );
 			Hydrogen::get_instance()->restartDrivers();
 			QApplication::restoreOverrideCursor();
+			pPref->savePreferences();
 		}
 	}
 	accept();
@@ -1050,8 +1048,8 @@ void PreferencesDialog::on_restartDriverBtn_clicked()
 {
 	updateDriverPreferences();
 	Preferences *pPref = Preferences::get_instance();
-	pPref->savePreferences();
 	Hydrogen::get_instance()->restartDrivers();
+	pPref->savePreferences();
 	m_bNeedDriverRestart = false;
 }
 
