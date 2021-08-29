@@ -1233,10 +1233,16 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// last calculated processing time as an estimate of the expected
 	// processing time for this frame, the amount of slack time that
 	// we can afford to wait is: m_fMaxProcessTime - m_fProcessTime.
+	//
+	// This is assuming ideal scheduling, where processing starts,
+	// uninterrupted, as soon as possible. Since that's not guaranteed,
+	// we make a conservative assumption and allow only half of that
+	// time. This should be fine as expected lock wait times are
+	// actually small except during things like shutdown.
 
 	float sampleRate = static_cast<float>(m_pAudioDriver->getSampleRate());
 	m_fMaxProcessTime = 1000.0 / ( sampleRate / nframes );
-	float fSlackTime = m_fMaxProcessTime - m_fProcessTime;
+	float fSlackTime = ( m_fMaxProcessTime - m_fProcessTime ) / 2.0;
 
 	// If we expect to take longer than the available time to process,
 	// require immediate locking or not at all: we're bound to drop a
