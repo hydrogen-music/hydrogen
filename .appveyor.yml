@@ -17,6 +17,9 @@ environment:
       BUILD_TYPE: "Release"
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON"
       appveyor_build_worker_image: Visual Studio 2019
+      LIBJACK: libjack64.dll
+      CHOCO_ARCH:
+      PROGRAM_FILES: "Program Files"
 
     - job_name: 'Windows32'
       job_group: 'Windows'
@@ -25,6 +28,9 @@ environment:
       BUILD_TYPE: "Release"
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=OFF"
       appveyor_build_worker_image: Visual Studio 2019
+      LIBJACK: libjack.dll
+      CHOCO_ARCH:  --x86
+      PROGRAM_FILES: "Program Files (x86)"
 
 build:
   verbosity: detailed
@@ -97,6 +103,10 @@ for:
 
           cmake --version
           g++ --version
+          choco install %CHOCO_ARCH% -y jack
+
+          dir "c:\%PROGRAM_FILES%\JACK2"
+          dir "c:\%PROGRAM_FILES%\JACK2\lib"
 
           REM *** Install dependencies ***
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libarchive
@@ -116,11 +126,12 @@ for:
           rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
           mkdir build
           cd build
-          cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %CMAKE_FLAGS% ..
+          cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %CMAKE_FLAGS% -DJACK_INCLUDE_DIRS="c:/%PROGRAM_FILES%/JACK2/include" -DJACK_LIBRARIES="c:/%PROGRAM_FILES%/JACK2/lib/%LIBJACK%.a" ..
 
     build_script:
       - cmd: |-
           REM *** Build ***
+          set VERBOSE=1
           cmake --build . -j %NUMBER_OF_PROCESSORS%
 
           REM *** Run tests and report results ***
@@ -141,7 +152,12 @@ for:
           REM *** Deploy other libraries ***
           set PYTHON=C:\Python38\python
           %PYTHON% -m pip install -r %APPVEYOR_BUILD_FOLDER%\windows\ci\requirements.txt
-          %PYTHON% %APPVEYOR_BUILD_FOLDER%\windows\ci\copy_thirdparty_dlls.py --no-overwrite -V info -L %MSYS%\bin -d %APPVEYOR_BUILD_FOLDER%\windows\extralibs src/gui/hydrogen.exe src/core/libhydrogen-core-1.1.0.dll
+          %PYTHON% %APPVEYOR_BUILD_FOLDER%\windows\ci\copy_thirdparty_dlls.py --no-overwrite -V debug -L %MSYS%\bin -d %APPVEYOR_BUILD_FOLDER%\windows\extralibs src/gui/hydrogen.exe src/core/libhydrogen-core-1.1.0.dll
+
+          REM Chocolatey installs JACK dlls in c:\Windows, so
+          REM copy_third_party_libs.py thinks it's a system lib and
+          REM won't copy it.
+          copy c:\Windows\%LIBJACK% %APPVEYOR_BUILD_FOLDER%\windows\extralibs
 
           REM *** Build installer ***
           cpack -G NSIS -v
