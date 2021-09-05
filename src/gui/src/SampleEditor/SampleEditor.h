@@ -47,8 +47,20 @@ class SampleEditor :  public QDialog, public Ui_SampleEditor_UI,  public H2Core:
 	H2_OBJECT(SampleEditor)
 	Q_OBJECT
 	public:
-		
-		SampleEditor( QWidget* pParent, int nSelectedComponent, int nSelectedLayer, QString nSampleFilename );
+
+		enum Slider {
+			NoSlider,
+			StartSlider,
+			EndSlider,
+			LoopSlider
+		};
+		enum EnvelopeType {
+			NoEnvelope,
+			VelocityEnvelope,
+			PanEnvelope
+		};
+		SampleEditor( QWidget* pParent,
+		              int nSelectedComponent, int nSelectedLayer, QString nSampleFilename );
 		~SampleEditor();
 
 		void setSampleName( QString name);
@@ -58,9 +70,25 @@ class SampleEditor :  public QDialog, public Ui_SampleEditor_UI,  public H2Core:
 		void setUnclean();
 		void setClean();
 
+		void playSample(const std::shared_ptr<H2Core::Sample> sample, bool original);
+		double computeNoopRubberbandDivider();
+		double computeCurrentRatio();
 		//this values come from the real sample to restore a frm song loaded sample
 		bool m_bSampleIsModified;	///< true if sample is modified
 
+		bool rubberbandIsOff();
+	protected:
+		MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
+		TargetWaveDisplay *m_pTargetSampleView;
+		DetailWaveDisplay *m_pSampleAdjustView;
+
+	public slots:
+		void envelopeEdited( SampleEditor::EnvelopeType mode);
+		void sliderEdited( SampleEditor::Slider slider);
+		void doneEditing();
+
+	public slots:
+		void valueChangedEditTypeComboBox( int );
 	private slots:
 		void valueChangedLoopCountSpinBox( int );
 		void valueChangedProcessingTypeComboBox( const QString );
@@ -69,9 +97,11 @@ class SampleEditor :  public QDialog, public Ui_SampleEditor_UI,  public H2Core:
 		void valueChangedpitchdoubleSpinBox( double );
 		void on_ClosePushButton_clicked();
 		void on_PrevChangesPushButton_clicked();
+
 		void valueChangedStartFrameSpinBox( int );
 		void valueChangedLoopFrameSpinBox( int );
 		void valueChangedEndFrameSpinBox( int );
+
 		void on_PlayPushButton_clicked();
 		void on_PlayOrigPushButton_clicked();
 		void on_verticalzoomSlider_valueChanged ( int value );
@@ -89,22 +119,21 @@ class SampleEditor :  public QDialog, public Ui_SampleEditor_UI,  public H2Core:
 		void testPositionsSpinBoxes();
 		void createNewLayer();
 		void setSamplelengthFrames();
-		void createPositionsRulerPath();
+		void createPositionsRulerPath(std::shared_ptr<H2Core::Sample> sample, bool original);
+		void resetPositionsRulerPath();
 		void testpTimer();
 		void closeEvent(QCloseEvent *event);
 		void checkRatioSettings();
 
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
-	
-		MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
-		TargetWaveDisplay *m_pTargetSampleView;
-		DetailWaveDisplay *m_pSampleAdjustView;
-	
+
+
 		std::shared_ptr<H2Core::Sample> m_pSampleFromFile;
+		std::shared_ptr<H2Core::Sample> m_pEditedSample;
 		int m_nSelectedLayer;
 		int m_nSelectedComponent;
 		QString m_sSampleName;
-	
+
 		double m_divider;
 		float m_fZoomfactor;
 		unsigned m_pDetailFrame;
@@ -116,15 +145,16 @@ class SampleEditor :  public QDialog, public Ui_SampleEditor_UI,  public H2Core:
 		bool m_bPlayButton;
 		bool m_bAdjusting;
 		bool m_bSampleEditorClean;
-		
+		bool m_bPlayingOriginalSample;
 		unsigned long m_nRealtimeFrameEnd;
 		unsigned long m_nRealtimeFrameEndForTarget;
 		unsigned m_nSlframes;
+		unsigned m_nOriginalFrames;
 		unsigned m_nSamplerate;
 		QTimer *m_pTimer;
 		QTimer *m_pTargetDisplayTimer;
 		unsigned *m_pPositionsRulerPath;
-		float m_fRatio;
+		double m_Ratio;
 		H2Core::Sample::Loops __loops;
 		H2Core::Sample::Rubberband __rubberband;
 };
