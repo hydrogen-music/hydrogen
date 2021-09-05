@@ -70,7 +70,7 @@ if(APPLE)
                          \"` cat ${CMAKE_SOURCE_DIR}/macos/CFBundleDocumentTypes.json `\"
                        hydrogen.app/Contents/Info.plist )
 
-    ADD_DEPENDENCIES(hydrogen ${CMAKE_SOURCE_DIR}/macos/CFBundleDocumentTypes.json)
+    ADD_FILE_DEPENDENCIES(hydrogen ${CMAKE_SOURCE_DIR}/macos/CFBundleDocumentTypes.json)
 
 endif()
 
