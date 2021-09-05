@@ -1,6 +1,6 @@
 environment:
   GENERATOR: "MinGW Makefiles"
-  ARTIFACT_BRANCH: release/1.1-artifacts
+  ARTIFACT_BRANCH: master-artifacts
   matrix:
 
     - job_name: 'Ubuntu 20.04'
@@ -39,7 +39,7 @@ build:
 matrix:
   exclude:
     - job_name: Windows32
-      branches: "releases/1.1"
+      branches: "master"
 
 for:
   - 
