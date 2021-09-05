@@ -47,9 +47,9 @@ class AudioOutput;
 ///
 /// Waveform based sampler.
 ///
-class Sampler : public H2Core::Object
+class Sampler : public H2Core::Object<Sampler>
 {
-	H2_OBJECT
+	H2_OBJECT(Sampler)
 public:
 
    /** PAN LAWS

@@ -38,11 +38,9 @@
 
 using namespace H2Core;
 
-const char* AudioFileBrowser::__class_name = "AudioFileBrowser";
-
 AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect, bool bShowInstrumentManipulationControls)
 		: QDialog ( pParent )
-		, Object ( __class_name )
+		, Object ()
 {
 	setupUi ( this );
 	INFOLOG ( "INIT" );

@@ -32,9 +32,9 @@ namespace H2Core
 	/**
 	 * Filesystem is a thin layer over QDir, QFile and QFileInfo
 	 */
-	class Filesystem : public H2Core::Object
+	class Filesystem : public H2Core::Object<Filesystem>
 	{
-		H2_OBJECT
+		H2_OBJECT(Filesystem)
 		public:
 		/** flags available for check_permissions() */
 		enum file_perms {

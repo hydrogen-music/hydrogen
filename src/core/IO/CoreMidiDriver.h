@@ -38,9 +38,9 @@
 namespace H2Core
 {
 
-class CoreMidiDriver : public virtual MidiInput, public virtual MidiOutput
+class CoreMidiDriver : public Object<CoreMidiDriver>, public virtual MidiInput, public virtual MidiOutput
 {
-	H2_OBJECT
+	H2_OBJECT(CoreMidiDriver)
 public:
 	CoreMidiDriver();
 	~CoreMidiDriver();

@@ -37,7 +37,7 @@ namespace H2Core
 
 class PlaybackTrackWaveDisplay : public WaveDisplay
 {
-    H2_OBJECT
+    H2_OBJECT(PlaybackTrackWaveDisplay)
 	Q_OBJECT
 
 	public:

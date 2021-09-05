@@ -43,9 +43,9 @@ class Rotary;
 #include "../Widgets/PixmapWidget.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
-class InstrumentNameWidget : public PixmapWidget, protected WidgetWithScalableFont<8, 10, 12>
+class InstrumentNameWidget : public PixmapWidget, public H2Core::Object<InstrumentNameWidget>, protected WidgetWithScalableFont<8, 10, 12>
 {
-	H2_OBJECT
+	H2_OBJECT(InstrumentNameWidget)
 	Q_OBJECT
 	public:
 		explicit InstrumentNameWidget(QWidget* parent);
@@ -83,9 +83,9 @@ public slots:
 ///
 /// A mixer strip
 ///
-class MixerLine: public PixmapWidget
+class MixerLine: public PixmapWidget, public H2Core::Object<MixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(MixerLine)
 	Q_OBJECT
 	public:
 		MixerLine(QWidget* parent, int nInstr);
@@ -166,9 +166,9 @@ class MixerLine: public PixmapWidget
 		LCDDisplay *			m_pPeakLCD;
 };
 
-class ComponentMixerLine: public PixmapWidget
+class ComponentMixerLine: public PixmapWidget, public H2Core::Object<ComponentMixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(ComponentMixerLine)
 	Q_OBJECT
 	public:
 		ComponentMixerLine(QWidget* parent, int CompoID);
@@ -229,9 +229,9 @@ class ComponentMixerLine: public PixmapWidget
 
 
 
-class MasterMixerLine: public PixmapWidget
+class MasterMixerLine: public PixmapWidget, public H2Core::Object<MasterMixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(MasterMixerLine)
 	Q_OBJECT
 	public:
 		explicit MasterMixerLine(QWidget* parent);
@@ -284,9 +284,9 @@ class MasterMixerLine: public PixmapWidget
 ///
 /// Mixer strip for FX
 ///
-class FxMixerLine: public PixmapWidget
+class FxMixerLine: public PixmapWidget, public H2Core::Object<FxMixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(FxMixerLine)
 	Q_OBJECT
 	public:
 		explicit FxMixerLine(QWidget* parent);
@@ -330,9 +330,9 @@ class FxMixerLine: public PixmapWidget
 
 
 
-class LadspaFXMixerLine : public PixmapWidget
+class LadspaFXMixerLine : public PixmapWidget, public H2Core::Object<LadspaFXMixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(LadspaFXMixerLine)
 	Q_OBJECT
 	public:
 		explicit LadspaFXMixerLine(QWidget* parent);

@@ -48,10 +48,8 @@ using namespace H2Core;
 
 using namespace H2Core;
 
-const char* MixerLine::__class_name = "MixerLine";
-
 MixerLine::MixerLine(QWidget* parent, int nInstr)
- : PixmapWidget( parent, __class_name )
+ : PixmapWidget( parent )
 {
 //	INFOLOG( "INIT" );
 
@@ -414,10 +412,8 @@ void MixerLine::setSelected( bool bIsSelected )
 // ::::::::::::::::::::::::::::
 
 
-const char* ComponentMixerLine::__class_name = "ComponentMixerLine";
-
 ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
- : PixmapWidget( parent, __class_name )
+ : PixmapWidget( parent )
 {
 //	INFOLOG( "INIT" );
 
@@ -632,10 +628,9 @@ float ComponentMixerLine::getPeak_R() {
 
 
 // ::::::::::::::::::::::::::::
-const char* MasterMixerLine::__class_name = "MasterMixerLine";
 
 MasterMixerLine::MasterMixerLine(QWidget* parent)
- : PixmapWidget( parent, __class_name )
+ : PixmapWidget( parent )
 {
 	m_nWidth = MASTERMIXERLINE_WIDTH;
 	m_nHeight = MASTERMIXERLINE_HEIGHT;

@@ -31,11 +31,8 @@
 
 #include <core/Globals.h>
 
-const char* Fader::__class_name = "Fader";
-
 Fader::Fader( QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob)
  : QWidget( pParent )
- , Object( __class_name )
  , m_bWithoutKnob( bWithoutKnob )
  , m_bUseIntSteps( bUseIntSteps )
  , m_fPeakValue_L( 0.0 )
@@ -450,11 +447,8 @@ void VerticalFader::paintEvent( QPaintEvent *ev)
 
 //////////////////////////////////
 
-const char* MasterFader::__class_name = "MasterFader";
-
 MasterFader::MasterFader(QWidget *pParent, bool bWithoutKnob)
  : QWidget( pParent )
- , Object( __class_name )
  , m_bWithoutKnob( bWithoutKnob )
  , m_fPeakValue_L( 0.0 )
  , m_fPeakValue_R( 0.0 )

@@ -37,9 +37,9 @@ namespace H2Core
  */
 
 /** an envelope point within a frame */
-class EnvelopePoint : public H2Core::Object
+class EnvelopePoint : public H2Core::Object<EnvelopePoint>
 {
-		H2_OBJECT
+		H2_OBJECT(EnvelopePoint)
 	public:
 		int frame;  ///< frame index
 		int value;  ///< value
@@ -62,9 +62,9 @@ class EnvelopePoint : public H2Core::Object
 		EnvelopePoint( const EnvelopePoint& other );
 };
 
-class Sample : public H2Core::Object
+class Sample : public H2Core::Object<Sample>
 {
-		H2_OBJECT
+		H2_OBJECT(Sample)
 	public:
 
 		/** define the type used to store pan envelope points */

@@ -55,11 +55,8 @@ using namespace H2Core;
 #include "LayerPreview.h"
 #include "AudioFileBrowser/AudioFileBrowser.h"
 
-const char* InstrumentEditor::__class_name = "InstrumentEditor";
-
 InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	: QWidget( pParent )
-	, Object( __class_name )
 	, m_pInstrument( nullptr )
 	, m_nSelectedLayer( 0 )
 {

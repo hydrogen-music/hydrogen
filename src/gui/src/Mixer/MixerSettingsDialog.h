@@ -31,9 +31,9 @@
 ///
 /// Mixer Settings Dialog
 ///
-class MixerSettingsDialog : public QDialog, private Ui_MixerSettingsDialog_UI, public H2Core::Object
+class MixerSettingsDialog :  public QDialog, private Ui_MixerSettingsDialog_UI,  public H2Core::Object<MixerSettingsDialog>
 {
-	H2_OBJECT
+	H2_OBJECT(MixerSettingsDialog)
 	Q_OBJECT
 	public:
 		explicit MixerSettingsDialog( QWidget* parent );

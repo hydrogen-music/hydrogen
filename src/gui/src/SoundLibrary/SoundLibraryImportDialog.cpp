@@ -44,12 +44,10 @@
 
 #include <memory>
 
-const char* SoundLibraryImportDialog::__class_name = "SoundLibraryImportDialog";
 const int max_redirects = 30;
 
 SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent, bool bOnlineImport )
  : QDialog( pParent )
- , Object( __class_name )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );

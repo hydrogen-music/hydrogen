@@ -25,11 +25,8 @@
 #include <QColorDialog>
 #include <core/Globals.h>
 
-const char* ColorSelectionButton::__class_name = "ColorSelectionButton";
-
 ColorSelectionButton::ColorSelectionButton( QWidget* pParent, QColor sInitialColor, int nSize )
  : QPushButton( pParent )
- , Object( __class_name )
  , m_sColor( sInitialColor )
  , m_bMouseOver( false )
 {

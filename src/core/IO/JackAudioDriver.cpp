@@ -59,9 +59,9 @@ namespace H2Core {
 
 int JackAudioDriver::jackDriverSampleRate( jack_nframes_t nframes, void* param ){
 	// Used for logging.
-	Object* __object = ( Object* )param;
+	Base * __object = ( Base * )param;
 	QString msg = QString("Jack SampleRate changed: the sample rate is now %1/sec").arg( QString::number( static_cast<int>(nframes) ) );
-	// The __INFOLOG macro uses the Object *__object and not the
+	// The __INFOLOG macro uses the Base *__object and not the
 	// Object instance as INFOLOG does. It will call
 	// __object->logger()->log( H2Core::Logger::Info, ..., msg )
 	// (see object.h).
@@ -85,14 +85,13 @@ void JackAudioDriver::jackDriverShutdown( void* arg )
 }
 
 
-const char* JackAudioDriver::__class_name = "JackAudioDriver";
 unsigned long JackAudioDriver::jackServerSampleRate = 0;
 jack_nframes_t JackAudioDriver::jackServerBufferSize = 0;
 JackAudioDriver* JackAudioDriver::pJackDriverInstance = nullptr;
 int JackAudioDriver::nWaits = 0;
 
 JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
-	: AudioOutput( __class_name ),
+	: AudioOutput(),
 	  m_frameOffset( 0 ),
 	  m_nTrackPortCount( 0 ),
 	  m_pClient( nullptr ),
@@ -319,6 +318,13 @@ void JackAudioDriver::relocateUsingBBT()
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
+	if ( pSong == nullptr ) {
+		// Expected behavior if Hydrogen is exited while playback is
+		// still running.
+		DEBUGLOG( "No song set." );
+		return;
+	}
+
 	float fTicksPerBeat = static_cast<float>( pSong->getResolution() / m_JackTransportPos.beat_type * 4 );
 
 	long barTicks = 0;
@@ -430,7 +436,7 @@ void JackAudioDriver::relocateUsingBBT()
 	float fBPM = static_cast<float>(m_JackTransportPos.beats_per_minute);
 	if ( m_transport.m_fBPM != fBPM ) {
 		setBpm( fBPM );
-		pHydrogen->getSong()->setBpm( fBPM );
+		pSong->setBpm( fBPM );
 		pHydrogen->setNewBpmJTM( fBPM );
 	}
 }
@@ -479,6 +485,15 @@ void JackAudioDriver::updateTransportInfo()
 		ERRORLOG( "Unknown jack transport state" );
 	}
 
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	
+	if ( pHydrogen->getSong() == nullptr ) {
+		// Expected behavior if Hydrogen is exited while playback is
+		// still running.
+		DEBUGLOG( "No song set." );
+		return;
+	}
+
 	// printState();
 	
 	m_currentPos = m_JackTransportPos.frame;
@@ -506,8 +521,6 @@ void JackAudioDriver::updateTransportInfo()
 			m_timebaseState = Timebase::Slave;
 		}
 	}
-		
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
@@ -1092,6 +1105,13 @@ void JackAudioDriver::jack_session_callback_impl(jack_session_event_t* event)
 	Preferences* pPreferences = Preferences::get_instance();
 	EventQueue* pEventQueue = EventQueue::get_instance();
 
+	if ( pSong == nullptr ) {
+		// Expected behavior if Hydrogen is exited while playback is
+		// still running.
+		DEBUGLOG( "No song set." );
+		return;
+	}
+
 	jack_session_event_t* ev = static_cast<jack_session_event_t*>(event);
 
 	QString sJackSessionDirectory = static_cast<QString>(ev->session_dir);
@@ -1257,6 +1277,9 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
+		// Expected behavior if Hydrogen is exited while playback is
+		// still running.
+		DEBUGLOG( "No song set." );
 		return;
 	}
 	

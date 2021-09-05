@@ -30,12 +30,9 @@ using namespace H2Core;
 #include "MainSampleWaveDisplay.h"
 #include "../Skin.h"
 
-const char* MainSampleWaveDisplay::__class_name = "MainSampleWaveDisplay";
-
 MainSampleWaveDisplay::MainSampleWaveDisplay(QWidget* pParent)
  : QWidget( pParent )
- , Object( __class_name )
-{
+ {
 //	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//INFOLOG( "INIT" );

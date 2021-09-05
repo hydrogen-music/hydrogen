@@ -45,7 +45,7 @@ class PatternEditorPanel;
 
 class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>
 {
-    H2_OBJECT
+    H2_OBJECT(NotePropertiesRuler)
 	Q_OBJECT
 	public:
 		//! NotePropertiesEditor is (currently) a single class instantiated in different "modes" to select

@@ -55,10 +55,9 @@ protected:
 };
 
 
-const char* XMLNode::__class_name ="XMLNode";
 
-XMLNode::XMLNode() : Object( __class_name ) { }
-XMLNode::XMLNode( QDomNode node ) : Object( __class_name ), QDomNode( node ) { }
+XMLNode::XMLNode() { }
+XMLNode::XMLNode( QDomNode node ) : QDomNode( node ) { }
 
 XMLNode XMLNode::createNode( const QString& name )
 {
@@ -200,9 +199,8 @@ void XMLNode::write_bool( const QString& name, const bool value )
 	write_child_node( name, QString( ( value ? "true" : "false" ) ) );
 }
 
-const char* XMLDoc::__class_name ="XMLDoc";
 
-XMLDoc::XMLDoc( ) : Object( __class_name ) { }
+XMLDoc::XMLDoc( ) { }
 
 bool XMLDoc::read( const QString& filepath, const QString& schemapath )
 {

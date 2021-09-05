@@ -35,9 +35,9 @@ class Instrument;
 /**
  * InstrumentList is a collection of instruments used within a song, a drumkit, ...
 */
-class InstrumentList : public H2Core::Object
+class InstrumentList : public H2Core::Object<InstrumentList>
 {
-		H2_OBJECT
+		H2_OBJECT(InstrumentList)
 	public:
 		/** constructor */
 		InstrumentList();
