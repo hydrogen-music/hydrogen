@@ -2047,7 +2047,7 @@ void MainForm::action_window_showPatternEditor()
 void MainForm::showDevelWarning()
 {
 	//set this to 'false' for the case that you want to make a release..
-	if ( false ) {
+	if ( true ) {
 		Preferences *pPreferences = Preferences::get_instance();
 		bool isDevelWarningEnabled = pPreferences->getShowDevelWarning();
 		if(isDevelWarningEnabled) {
