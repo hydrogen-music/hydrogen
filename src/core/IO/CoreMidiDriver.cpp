@@ -99,7 +99,7 @@ static void midiProc ( const MIDIPacketList * pktlist,
 
 
 CoreMidiDriver::CoreMidiDriver()
-		: MidiInput() ,MidiOutput(), Object<CoreMidiDriver>(),
+		: MidiInput() ,MidiOutput(), Object<CoreMidiDriver>()
 		, m_bRunning( false )
 {
 	INFOLOG( "INIT" );
