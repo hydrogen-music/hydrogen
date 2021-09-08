@@ -209,7 +209,7 @@ void ShotList::shoot() {
 void ShotList::nextShot( void ) {
 	if ( ( m_nNextShot + 1) < m_shots.size() ) {
 		// Cue up next shot
-		QMetaObject::invokeMethod( this, &ShotList::nextShot, Qt::QueuedConnection );
+		QMetaObject::invokeMethod( this, "nextShot", Qt::QueuedConnection );
 	}
 	shoot( m_shots[ m_nNextShot++ ] );
 }

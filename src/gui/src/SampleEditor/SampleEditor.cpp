@@ -189,7 +189,7 @@ void SampleEditor::getAllFrameInfos()
 	
 	assert( pInstrument );
 
-	auto pCompo = pInstrument->get_component(0);
+	auto pCompo = pInstrument->get_component( m_nSelectedComponent );
 	assert( pCompo );
 
 	auto pLayer = pCompo->get_layer( m_nSelectedLayer );
@@ -396,7 +396,7 @@ void SampleEditor::createNewLayer()
 		
 		std::shared_ptr<H2Core::InstrumentLayer> pLayer = nullptr;
 		if( pInstrument ) {
-			pLayer = pInstrument->get_component(0)->get_layer( m_nSelectedLayer );
+			pLayer = pInstrument->get_component( m_nSelectedComponent )->get_layer( m_nSelectedLayer );
 
 			// insert new sample from newInstrument
 			pLayer->set_sample( pEditSample );
@@ -602,7 +602,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	 *instrument. Otherwise pInstr would be deleted if consumed by preview_instrument.
 	*/
 	auto pTmpInstrument = Instrument::load_instrument( pInstr->get_drumkit_name(), pInstr->get_name() );
-	auto pNewSample = Sample::load( pInstr->get_component(0)->get_layer( selectedlayer )->get_sample()->get_filepath() );
+	auto pNewSample = Sample::load( pInstr->get_component( m_nSelectedComponent )->get_layer( selectedlayer )->get_sample()->get_filepath() );
 
 	if ( pNewSample != nullptr ){
 		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );

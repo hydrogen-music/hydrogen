@@ -261,6 +261,7 @@ bool XMLDoc::write( const QString& filepath )
 		return false;
 	}
 	QTextStream out( &file );
+	out.setCodec( "UTF-8" );
 	out << toString().toUtf8();
 	out.flush();
 

@@ -44,11 +44,79 @@
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 
+#include <core/IO/PortAudioDriver.h>
+#include <core/IO/CoreAudioDriver.h>
+#include <core/IO/AlsaAudioDriver.h>
+
 
 using namespace H2Core;
 
 
+DeviceComboBox::DeviceComboBox( QWidget *pParent )
+	: QComboBox( pParent)
+{
+	m_sDriver = "";
+}
+
+void DeviceComboBox::showPopup()
+{
+	clear();
+	QApplication::setOverrideCursor( Qt::WaitCursor );
+	if ( m_sDriver == "PortAudio" ) {
+#ifdef H2CORE_HAVE_PORTAUDIO
+		// Get device list for PortAudio based on current value of the API combo box
+		for ( QString s : PortAudioDriver::getDevices( m_sHostAPI ) ) {
+			addItem( s );
+		}
+#endif
+	} else if ( m_sDriver == "CoreAudio" ) {
+#ifdef H2CORE_HAVE_COREAUDIO
+		for ( QString s : CoreAudioDriver::getDevices() ) {
+			addItem( s );
+		}
+#endif
+	} else if ( m_sDriver == "ALSA" ) {
+#ifdef H2CORE_HAVE_ALSA
+		for ( QString s : AlsaAudioDriver::getDevices() ) {
+			addItem( s );
+		}
+#endif
+	}
+	QApplication::restoreOverrideCursor();
+	QComboBox::showPopup();
+}
+
+
+HostAPIComboBox::HostAPIComboBox( QWidget *pParent )
+	: QComboBox( pParent )
+{
+}
+
+void HostAPIComboBox::setValue( QString sHostAPI ) {
+	// The ComboBox doesn't have any item strings until it's actually opened,
+	// so we must add the item to it temporarily
+	clear();
+	addItem( sHostAPI );
+	setCurrentText( sHostAPI );
+}
+
+void HostAPIComboBox::showPopup()
+{
+	clear();
+#ifdef H2CORE_HAVE_PORTAUDIO
+	QApplication::setOverrideCursor( Qt::WaitCursor );
+	for ( QString s : PortAudioDriver::getHostAPIs() ) {
+		addItem( s );
+	}
+	QApplication::restoreOverrideCursor();
+#endif
+
+	QComboBox::showPopup();
+}
+
+
 QString PreferencesDialog::m_sColorRed = "#ca0003";
+
 
 PreferencesDialog::PreferencesDialog(QWidget* parent)
  : QDialog( parent )
@@ -85,6 +153,11 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	driverComboBox->addItem( "PulseAudio" );
 #endif
 
+	// Set the PortAudio HostAPI combo box to the current selected value.
+	portaudioHostAPIComboBox->setValue( pPref->m_sPortAudioHostAPI );
+	m_pAudioDeviceTxt->setHostAPI( pPref->m_sPortAudioHostAPI );
+
+
 	// Language selection menu
 	for ( QString sLang : Translations::availableTranslations( "hydrogen" ) ) {
 		QLocale loc( sLang );
@@ -111,8 +184,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	else
 	{
 		driverInfoLbl->setText( tr("Select your Audio Driver" ));
-		ERRORLOG( "Unknown MIDI input from preferences [" + pPref->m_sAudioDriver + "]" );
+		ERRORLOG( "Unknown audio driver from preferences [" + pPref->m_sAudioDriver + "]" );
 	}
+
 
 
 	m_pMidiDriverComboBox->clear();
@@ -472,6 +546,11 @@ void PreferencesDialog::on_cancelBtn_clicked()
 	reject();
 }
 
+void PreferencesDialog::on_m_pAudioDeviceTxt_currentTextChanged( QString str )
+{
+	m_bNeedDriverRestart = true;
+}
+
 void PreferencesDialog::updateDriverPreferences() {
 	Preferences *pPref = Preferences::get_instance();
 
@@ -484,17 +563,20 @@ void PreferencesDialog::updateDriverPreferences() {
 	}
 	else if (driverComboBox->currentText() == "ALSA" ) {
 		pPref->m_sAudioDriver = "ALSA";
-		pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->text();
+		pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
 	}
 	else if (driverComboBox->currentText() == "OSS" ) {
 		pPref->m_sAudioDriver = "OSS";
-		pPref->m_sOSSDevice = m_pAudioDeviceTxt->text();
+		pPref->m_sOSSDevice = m_pAudioDeviceTxt->lineEdit()->text();
 	}
 	else if (driverComboBox->currentText() == "PortAudio" ) {
 		pPref->m_sAudioDriver = "PortAudio";
+		pPref->m_sPortAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
+		pPref->m_sPortAudioHostAPI = portaudioHostAPIComboBox->currentText();
 	}
 	else if (driverComboBox->currentText() == "CoreAudio" ) {
 		pPref->m_sAudioDriver = "CoreAudio";
+		pPref->m_sCoreAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
 	}
 	else if (driverComboBox->currentText() == "PulseAudio" ) {
 		pPref->m_sAudioDriver = "PulseAudio";
@@ -676,13 +758,13 @@ void PreferencesDialog::on_okBtn_clicked()
 		pPref->setPreferredLanguage( sPreferredLanguage );
 	}
 
-	pPref->savePreferences();
-
-
 	if (m_bNeedDriverRestart) {
 		int res = QMessageBox::information( this, "Hydrogen", tr( "Driver restart required.\n Restart driver?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
 		if ( res == 0 ) {
+			QApplication::setOverrideCursor( Qt::WaitCursor );
 			Hydrogen::get_instance()->restartDrivers();
+			QApplication::restoreOverrideCursor();
+			pPref->savePreferences();
 		}
 	}
 	accept();
@@ -692,11 +774,16 @@ void PreferencesDialog::on_okBtn_clicked()
 void PreferencesDialog::on_driverComboBox_activated( int index )
 {
 	UNUSED( index );
-	QString selectedDriver = driverComboBox->currentText();
 	updateDriverInfo();
 	m_bNeedDriverRestart = true;
 }
 
+void PreferencesDialog::on_portaudioHostAPIComboBox_activated( int index )
+{
+	m_pAudioDeviceTxt->setHostAPI( portaudioHostAPIComboBox->currentText() );
+	updateDriverInfo();
+	m_bNeedDriverRestart = true;
+}
 
 void PreferencesDialog::updateDriverInfo()
 {
@@ -733,6 +820,7 @@ void PreferencesDialog::updateDriverInfo()
 	bPulseAudio_support = true;
 #endif
 
+	m_pAudioDeviceTxt->setDriver( driverComboBox->currentText() );
 	if ( driverComboBox->currentText() == "Auto" ) {
 		info += tr("Automatic driver selection");
 		
@@ -743,7 +831,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( "</b> " ).append( tr( "selected") );
 		}
 		m_pAudioDeviceTxt->setEnabled( true );
-		m_pAudioDeviceTxt->setText( "" );
+		m_pAudioDeviceTxt->lineEdit()->setText( "" );
 		bufferSizeSpinBox->setEnabled( true );
 		sampleRateComboBox->setEnabled( true );
 		trackOutputComboBox->setEnabled( false );
@@ -752,7 +840,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutsCheckBox->setEnabled( false );
 		jackBBTSyncComboBox->setEnabled( false );
 		jackBBTSyncLbl->setEnabled( false );
-
+		portaudioHostAPIComboBox->hide();
+		portaudioHostAPILabel->hide();
 		if ( std::strcmp( H2Core::Hydrogen::get_instance()->getAudioOutput()->class_name(),
 						  "JackAudioDriver" ) == 0 ) {
 			trackOutputComboBox->setEnabled( true );
@@ -794,7 +883,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setEnabled(true);
-		m_pAudioDeviceTxt->setText( pPref->m_sOSSDevice );
+		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sOSSDevice );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
@@ -804,6 +893,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
+		portaudioHostAPIComboBox->hide();
+		portaudioHostAPILabel->hide();
 	}
 	else if ( driverComboBox->currentText() == "JACK" ) {	// JACK
 		info.append( "<b>" )
@@ -817,7 +908,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setEnabled(false);
-		m_pAudioDeviceTxt->setText( "" );
+		m_pAudioDeviceTxt->lineEdit()->setText( "" );
 		bufferSizeSpinBox->setEnabled(false);
 		sampleRateComboBox->setEnabled(false);
 		trackOutputComboBox->setEnabled( true );
@@ -831,6 +922,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutsCheckBox->show();
 		jackBBTSyncComboBox->show();
 		jackBBTSyncLbl->show();
+		portaudioHostAPIComboBox->hide();
+		portaudioHostAPILabel->hide();
 	}
 	else if ( driverComboBox->currentText() == "ALSA" ) {	// ALSA
 		info.append( "<b>" ).append( tr( "ALSA Driver" ) )
@@ -842,7 +935,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setEnabled(true);
-		m_pAudioDeviceTxt->setText( pPref->m_sAlsaAudioDevice );
+		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sAlsaAudioDevice );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
@@ -852,6 +945,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
+		portaudioHostAPIComboBox->hide();
+		portaudioHostAPILabel->hide();
 	}
 	else if ( driverComboBox->currentText() == "PortAudio" ) {
 		info.append( "<b>" ).append( tr( "PortAudio Driver" ) )
@@ -862,8 +957,8 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setEnabled(false);
-		m_pAudioDeviceTxt->setText( "" );
+		m_pAudioDeviceTxt->setEnabled( true );
+		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sPortAudioDevice );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
@@ -873,6 +968,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
+		portaudioHostAPIComboBox->show();
+		portaudioHostAPILabel->show();
 	}
 	else if ( driverComboBox->currentText() == "CoreAudio" ) {
 		info.append( "<b>" ).append( tr( "CoreAudio Driver" ) )
@@ -883,8 +980,8 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setEnabled(false);
-		m_pAudioDeviceTxt->setText( "" );
+		m_pAudioDeviceTxt->setEnabled( true );
+		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sCoreAudioDevice );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
@@ -894,6 +991,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
+		portaudioHostAPIComboBox->hide();
+		portaudioHostAPILabel->hide();
 	}
 	else if ( driverComboBox->currentText() == "PulseAudio" ) {
 		info.append( "<b>" ).append( tr( "PulseAudio Driver" ) )
@@ -905,7 +1004,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setEnabled(false);
-		m_pAudioDeviceTxt->setText("");
+		m_pAudioDeviceTxt->lineEdit()->setText("");
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
@@ -915,6 +1014,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
+		portaudioHostAPIComboBox->hide();
+		portaudioHostAPILabel->hide();
 	}
 	else {
 		QString selectedDriver = driverComboBox->currentText();
@@ -1052,8 +1153,8 @@ void PreferencesDialog::on_restartDriverBtn_clicked()
 {
 	updateDriverPreferences();
 	Preferences *pPref = Preferences::get_instance();
-	pPref->savePreferences();
 	Hydrogen::get_instance()->restartDrivers();
+	pPref->savePreferences();
 	m_bNeedDriverRestart = false;
 }
 
