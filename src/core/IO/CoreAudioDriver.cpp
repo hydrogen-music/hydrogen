@@ -145,8 +145,8 @@ void CoreAudioDriver::printStreamInfo(void)
 
 
 CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
-		: H2Core::AudioOutput(),
-		, H2Core::Object<CoreAudioDriver>(),
+		: H2Core::AudioOutput()
+		, H2Core::Object<CoreAudioDriver>()
 		, m_bIsRunning( false )
 		, mProcessCallback( processCallback )
 		, m_pOut_L( NULL )
