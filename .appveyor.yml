@@ -56,7 +56,10 @@ for:
 
     build_script: |-
       git submodule init && git submodule update
-      mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
+
+      CPUS=$(nproc)
+      echo "Building with $CPUS cpus"
+      mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make -j $CPUS
 
     test_script: |-
       TMPDIR=/tmp src/tests/tests --appveyor
@@ -85,7 +88,10 @@ for:
       sed -i '' 's/, int register,/, int,/g' /opt/local/include/jack/types.h
 
       git submodule init && git submodule update
-      mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
+      CPUS=$(sysctl -n hw.ncpu)
+      echo "Building with $CPUS cpus"
+      mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make -j $CPUS
+
       PATH="$(brew --prefix qt5)/bin:$PATH"
       ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
 
