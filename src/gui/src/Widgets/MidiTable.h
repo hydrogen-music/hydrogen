@@ -28,9 +28,9 @@
 #include <QtGui>
 #include <QtWidgets>
 
-class MidiTable : public QTableWidget, public H2Core::Object
+class MidiTable :  public QTableWidget,  public H2Core::Object<MidiTable>
 {
-    H2_OBJECT
+    H2_OBJECT(MidiTable)
 	Q_OBJECT
 	public:
 		explicit MidiTable( QWidget* pParent );

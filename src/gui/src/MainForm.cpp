@@ -25,7 +25,6 @@
 #include <core/Hydrogen.h>
 #include <core/AudioEngine.h>
 #include <core/Smf/SMF.h>
-#include <core/Preferences.h>
 #include <core/Timeline.h>
 #include <core/Helpers/Files.h>
 #include <core/Basics/Pattern.h>
@@ -84,11 +83,8 @@ using namespace H2Core;
 
 int MainForm::sigusr1Fd[2];
 
-const char* MainForm::__class_name = "MainForm";
-
-MainForm::MainForm( QApplication * pQApplication, const QString& songFilename, const bool bLoadSong )
+MainForm::MainForm( QApplication * pQApplication )
 	: QMainWindow( nullptr )
-	, Object( __class_name )
 {
 	setObjectName( "MainForm" );
 	setMinimumSize( QSize( 1000, 500 ) );
@@ -101,61 +97,17 @@ MainForm::MainForm( QApplication * pQApplication, const QString& songFilename, c
 	connect(snUsr1, SIGNAL(activated(int)), this, SLOT( handleSigUsr1() ));
 #endif
 
-	m_pQApp =  pQApplication;
+	m_pQApp = pQApplication;
 
 	m_pQApp->processEvents();
 
-	Song *pSong = nullptr;
-	
-	if ( bLoadSong ) {
-		if ( !songFilename.isEmpty() ) {
-			pSong = Song::load( songFilename );
-
-			/*
-			 * If the song could not be loaded, create
-			 * a new one with the specified filename
-			 */
-			if ( pSong == nullptr ) {
-				pSong = Song::getEmptySong();
-				pSong->setFilename( songFilename );
-			}
-		}
-		else {
-			Preferences *pref = Preferences::get_instance();
-			bool restoreLastSong = pref->isRestoreLastSongEnabled();
-			QString filename = pref->getLastSongFilename();
-			if ( restoreLastSong && ( !filename.isEmpty() )) {
-				pSong = Song::load( filename );
-				if ( pSong == nullptr ) {
-					//QMessageBox::warning( this, "Hydrogen", tr("Error restoring last song.") );
-					pSong = Song::getEmptySong();
-					pSong->setFilename( "" );
-				}
-			}
-			else {
-				pSong = Song::getEmptySong();
-				pSong->setFilename( "" );
-			}
-		}
-	} else {
-		// When under Non Session Management the new Song will be
-		// prepared by the corresponding NSM client instance and in
-		// here we will just obtain and handed to the HydrogenApp but
-		// not load there.
-		pSong = Hydrogen::get_instance()->getSong();
-
-		// In case something went wrong when setting the Song to the
-		// loaded by the GUI via an OSC command, load the default Song
-		// instead.
-		if ( pSong == nullptr ) {
-			pSong = Song::getEmptySong();
-			pSong->setFilename( songFilename );
-		}
-		
-	}
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();	
+	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+	setFont( font );
+	m_pQApp->setFont( font );
 
 	showDevelWarning();
-	h2app = new HydrogenApp( this, pSong );
+	h2app = new HydrogenApp( this );
 	h2app->addEventListener( this );
 	createMenuBar();
 	checkMidiSetup();
@@ -263,62 +215,63 @@ MainForm::~MainForm()
 void MainForm::createMenuBar()
 {
 	// menubar
-	QMenuBar *m_pMenubar = new QMenuBar( this );
-	setMenuBar( m_pMenubar );
+	QMenuBar *pMenubar = new QMenuBar( this );
+	setMenuBar( pMenubar );
 
 	// FILE menu
-	QMenu *m_pFileMenu = m_pMenubar->addMenu( tr( "Pro&ject" ) );
+	m_pFileMenu = pMenubar->addMenu( tr( "Pro&ject" ) );
 
 	// Then under session management a couple of options will be named
 	// differently and some must be even omitted. 
 	const bool bUnderSessionManagement = H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
 	
-	QString textFileNew, textFileOpen, textFileOpenRecent, textFileSaveAs;
+	QString sLabelNew, sLabelOpen, sLabelOpenRecent, sLabelSaveAs, sLabelOpenDemo;
 	
 	if ( bUnderSessionManagement ) {
 		/*: When Hydrogen is under session management the path the
 		song is stored to can not be changed by the user. This option
 		allows to replace the current song with an empty one.*/
-		textFileNew = tr( "Replace With &New Song" );
+		sLabelNew = tr( "Replace With &New Song" );
 		/*: When Hydrogen is under session management the path the
 		song is stored to can not be changed by the user. This option
 		allows to replace the current song with one chosen by the
 		user via a file browser widget.*/
-		textFileOpen = tr( "Imp&ort Into Session" );
+		sLabelOpen = tr( "Imp&ort Into Session" );
 		/*: When Hydrogen is under session management the path the
 		song is stored to can not be changed by the user. This option
 		allows to replace the current song with one chosen recently
 		used by the user.*/
-		textFileOpenRecent = tr( "Import &Recent Into Session" );
+		sLabelOpenRecent = tr( "Import &Recent Into Session" );
 		/*: When Hydrogen is under session management the path the
 		song is stored to can not be changed by the user. This option
 		allows the user store the current song in a .h2song anywhere
 		on her system. The filepath of the current song won't be
 		altered.*/
-		textFileSaveAs = tr( "Export From Session &As..." );
+		sLabelSaveAs = tr( "Export From Session &As..." );
 	} else {
-		textFileNew = tr( "&New" );
-		textFileOpen = tr( "&Open" );
-		textFileOpenRecent = tr( "Open &Recent" );
-		textFileSaveAs = tr( "Save &As..." );
+		sLabelNew = tr( "&New" );
+		sLabelOpen = tr( "&Open" );
+		sLabelOpenRecent = tr( "Open &Recent" );
+		sLabelSaveAs = tr( "Save &As..." );
+		sLabelOpenDemo = tr( "Open &Demo" );
 	}
 	
-	m_pFileMenu->addAction( textFileNew, this, SLOT( action_file_new() ), QKeySequence( "Ctrl+N" ) );
+	m_pFileMenu->addAction( sLabelNew, this, SLOT( action_file_new() ), QKeySequence( "Ctrl+N" ) );
 	
 	m_pFileMenu->addAction( tr( "Show &Info" ), this, SLOT( action_file_songProperties() ), QKeySequence( "" ) );
 	
 	m_pFileMenu->addSeparator();				// -----
 
-	m_pFileMenu->addAction( textFileOpen, this, SLOT( action_file_open() ), QKeySequence( "Ctrl+O" ) );
+	m_pFileMenu->addAction( sLabelOpen, this, SLOT( action_file_open() ), QKeySequence( "Ctrl+O" ) );
 	if ( ! bUnderSessionManagement ) {
-		m_pFileMenu->addAction( tr( "Open &Demo" ), this, SLOT( action_file_openDemo() ), QKeySequence( "Ctrl+D" ) );
+		m_pFileMenu->addAction( sLabelOpenDemo, this, SLOT( action_file_openDemo() ), QKeySequence( "Ctrl+D" ) );
 	}
-	m_pRecentFilesMenu = m_pFileMenu->addMenu( textFileOpenRecent );
+	m_pRecentFilesMenu = m_pFileMenu->addMenu( sLabelOpenRecent );
 
 	m_pFileMenu->addSeparator();				// -----
 
 	m_pFileMenu->addAction( tr( "&Save" ), this, SLOT( action_file_save() ), QKeySequence( "Ctrl+S" ) );
-	m_pFileMenu->addAction( textFileSaveAs, this, SLOT( action_file_save_as() ), QKeySequence( "Ctrl+Shift+S" ) );
+	m_pFileMenu->addAction( sLabelSaveAs, this, SLOT( action_file_save_as() ), QKeySequence( "Ctrl+Shift+S" ) );
 	
 	m_pFileMenu->addSeparator();				// -----
 
@@ -343,13 +296,13 @@ void MainForm::createMenuBar()
 	//~ FILE menu
 
 	// Undo menu
-	QMenu *m_pUndoMenu = m_pMenubar->addMenu( tr( "&Undo" ) );
+	m_pUndoMenu = pMenubar->addMenu( tr( "&Undo" ) );
 	m_pUndoMenu->addAction( tr( "&Undo" ), this, SLOT( action_undo() ), QKeySequence( "Ctrl+Z" ) );
 	m_pUndoMenu->addAction( tr( "&Redo" ), this, SLOT( action_redo() ), QKeySequence( "Shift+Ctrl+Z" ) );
 	m_pUndoMenu->addAction( tr( "Undo &History" ), this, SLOT( openUndoStack() ), QKeySequence( "" ) );
 
 	// DRUMKITS MENU
-	QMenu *m_pDrumkitsMenu = m_pMenubar->addMenu( tr( "Drum&kits" ) );
+	m_pDrumkitsMenu = pMenubar->addMenu( tr( "Drum&kits" ) );
 	m_pDrumkitsMenu->addAction( tr( "&New" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
 	m_pDrumkitsMenu->addAction( tr( "&Open" ), this, SLOT( action_banks_open() ), QKeySequence( "" ) );
 	m_pDrumkitsMenu->addAction( tr( "&Properties" ), this, SLOT( action_banks_properties() ), QKeySequence( "" ) );
@@ -366,7 +319,7 @@ void MainForm::createMenuBar()
 	m_pDrumkitsMenu->addAction( tr( "On&line Import" ), this, SLOT( action_instruments_onlineImportLibrary() ), QKeySequence( "" ) );
 
 	// INSTRUMENTS MENU
-	QMenu *m_pInstrumentsMenu = m_pMenubar->addMenu( tr( "In&struments" ) );
+	m_pInstrumentsMenu = pMenubar->addMenu( tr( "In&struments" ) );
 	m_pInstrumentsMenu->addAction( tr( "Add &Instrument" ), this, SLOT( action_instruments_addInstrument() ), QKeySequence( "" ) );
 	m_pInstrumentsMenu->addAction( tr( "Clea&r All" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
 
@@ -375,7 +328,7 @@ void MainForm::createMenuBar()
 	m_pInstrumentsMenu->addAction( tr( "Add &Component" ), this, SLOT( action_instruments_addComponent() ), QKeySequence( "" ) );
 
 	// VIEW MENU
-	QMenu *m_pViewMenu = m_pMenubar->addMenu( tr( "&View" ) );
+	m_pViewMenu = pMenubar->addMenu( tr( "&View" ) );
 
 	m_pViewPlaylistEditorAction = m_pViewMenu->addAction( tr("Play&list Editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
 	m_pViewPlaylistEditorAction->setCheckable( true );
@@ -414,7 +367,7 @@ void MainForm::createMenuBar()
 
 
 	// Options menu
-	QMenu *m_pOptionsMenu = m_pMenubar->addMenu( tr( "&Options" ));
+	m_pOptionsMenu = pMenubar->addMenu( tr( "&Options" ));
 
 	m_pInputModeMenu = m_pOptionsMenu->addMenu( tr( "Input &Mode" ) );
 	m_pInstrumentAction = m_pInputModeMenu->addAction( tr( "&Instrument" ), this, SLOT( action_inputMode_instrument() ), QKeySequence( "Ctrl+Alt+I" ) );
@@ -440,7 +393,7 @@ void MainForm::createMenuBar()
 	Logger *pLogger = Logger::get_instance();
 	if ( pLogger->bit_mask() >= 1 ) {
 		// DEBUG menu
-		QMenu *m_pDebugMenu = m_pMenubar->addMenu( tr("De&bug") );
+		m_pDebugMenu = pMenubar->addMenu( tr("De&bug") );
 		m_pDebugMenu->addAction( tr( "Show &Audio Engine Info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );
 		m_pDebugMenu->addAction( tr( "Show &Filesystem Info" ), this, SLOT( action_debug_showFilesystemInfo() ) );
 		
@@ -461,7 +414,7 @@ void MainForm::createMenuBar()
 	}
 
 	// INFO menu
-	QMenu *m_pInfoMenu = m_pMenubar->addMenu( tr( "I&nfo" ) );
+	m_pInfoMenu = pMenubar->addMenu( tr( "I&nfo" ) );
 	m_pInfoMenu->addAction( tr("User &Manual"), this, SLOT( showUserManual() ), QKeySequence( "Ctrl+?" ) );
 	m_pInfoMenu->addSeparator();
 	m_pInfoMenu->addAction( tr("&About"), this, SLOT( action_help_about() ), QKeySequence( tr("", "Info|About") ) );
@@ -488,7 +441,7 @@ void MainForm::onLashPollTimer()
 
 		std::string songFilename;
 		QString filenameSong;
-		Song *song = Hydrogen::get_instance()->getSong();
+		std::shared_ptr<Song> song = Hydrogen::get_instance()->getSong();
 		// Extra parentheses for -Wparentheses
 		while ( (event = client->getNextEvent()) ) {
 
@@ -582,9 +535,9 @@ void MainForm::action_file_new()
 {
 	const bool bUnderSessionManagement = H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
 	
-	Hydrogen * pEngine = Hydrogen::get_instance();
-	if ( (pEngine->getState() == STATE_PLAYING) ) {
-		pEngine->sequencer_stop();
+	Hydrogen * pHydrogen = Hydrogen::get_instance();
+	if ( (pHydrogen->getState() == STATE_PLAYING) ) {
+		pHydrogen->sequencer_stop();
 	}
 
 	bool proceed = handleUnsavedChanges();
@@ -593,18 +546,13 @@ void MainForm::action_file_new()
 	}
 	
 	h2app->m_pUndoStack->clear();
-	pEngine->getTimeline()->deleteAllTempoMarkers();
-	pEngine->getTimeline()->deleteAllTags();
-	Song* pSong = Song::getEmptySong();
+	pHydrogen->getTimeline()->deleteAllTempoMarkers();
+	pHydrogen->getTimeline()->deleteAllTags();
+	std::shared_ptr<Song> pSong = Song::getEmptySong();
 
-	// When under session management the filename of the current Song
-	// has to be preserved.
-	QString currentFilename;
 	if ( bUnderSessionManagement ) {
-		currentFilename = H2Core::Hydrogen::get_instance()->getSong()->getFilename();
-		
 		// Just a single click will allow the user to discard the
-		// current song and replace it with an empty one with now way
+		// current song and replace it with an empty one with no way
 		// of undoing the action. Therefore, a warning popup will
 		// check whether the action was intentional.
 		QMessageBox confirmationBox;
@@ -618,10 +566,6 @@ void MainForm::action_file_new()
 		if ( confirmationChoice == QMessageBox::No ) {
 			return;
 		}
-								 
-		pSong->setFilename( currentFilename );
-	} else {
-		pSong->setFilename( "" );
 	}
 
 	h2app->openSong( pSong );
@@ -660,7 +604,7 @@ void MainForm::action_file_save_as()
 	
 	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::songs_dir() ) );
 
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	QString defaultFilename;
 	QString lastFilename = pSong->getFilename();
 
@@ -705,7 +649,7 @@ void MainForm::action_file_save_as()
 
 void MainForm::action_file_save()
 {
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	QString filename = pSong->getFilename();
 
 	if ( filename.isEmpty() ) {
@@ -825,9 +769,9 @@ void MainForm::action_file_export_pattern_as()
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	Pattern *pPattern = pSong->getPatternList()->get( pEngine->getSelectedPatternNumber() );
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	Pattern *pPattern = pSong->getPatternList()->get( pHydrogen->getSelectedPatternNumber() );
 
 	QDir dir = Preferences::get_instance()->__lastspatternDirectory;
 
@@ -852,7 +796,7 @@ void MainForm::action_file_export_pattern_as()
 
 	QString originalName = pPattern->get_name();
 	pPattern->set_name( fileInfo.baseName() );
-	QString path = Files::savePatternPath( filePath, pPattern, pSong, pEngine->getCurrentDrumkitName() );
+	QString path = Files::savePatternPath( filePath, pPattern, pSong, pHydrogen->getCurrentDrumkitName() );
 	pPattern->set_name( originalName );
 
 	if ( path.isEmpty() ) {
@@ -871,13 +815,9 @@ void MainForm::action_file_export_pattern_as()
 }
 
 void MainForm::action_file_open() {
-
-	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
-	
-	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
 		
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
-		pHydrogen->sequencer_stop();
+	if ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) {
+		Hydrogen::get_instance()->sequencer_stop();
 	}
 
 	bool bProceed = handleUnsavedChanges();
@@ -892,7 +832,7 @@ void MainForm::action_file_open() {
 	fd.setDirectory( sLastUsedDir );
 	fd.setNameFilter( Filesystem::songs_filter_name );
 
-	if ( bUnderSessionManagement ) {
+	if ( H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
 		fd.setWindowTitle( tr( "Import song into Session" ) );
 	} else {
 		fd.setWindowTitle( tr( "Open song" ) );
@@ -904,15 +844,6 @@ void MainForm::action_file_open() {
 		sLastUsedDir = fd.directory().absolutePath();
 	}
 
-	// When under session management the filename of the current Song
-	// has to be preserved.
-	if ( bUnderSessionManagement ) {
-		// The current path needs to be preserved. This will be done
-		// using an auxiliary variable since the GUI opens the song
-		// via the core, which in turn opens it asynchronously via the
-		// GUI.
-		pHydrogen->setNextSongPath( pHydrogen->getSong()->getFilename() );
-	}
 	if ( !sFilename.isEmpty() ) {
 		HydrogenApp::get_instance()->openSong( sFilename );
 	}
@@ -923,12 +854,12 @@ void MainForm::action_file_open() {
 
 void MainForm::action_file_openPattern()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
-	int selectedPatternPosition = pEngine->getSelectedPatternNumber();
+	int selectedPatternPosition = pHydrogen->getSelectedPatternNumber();
 
-	Instrument *pInstrument = pSong->getInstrumentList()->get ( 0 );
+	auto pInstrument = pSong->getInstrumentList()->get ( 0 );
 	assert ( pInstrument );
 
 	QFileDialog fd(this);
@@ -982,7 +913,11 @@ void MainForm::action_file_openDemo()
 	fd.setFileMode(QFileDialog::ExistingFile);
 	fd.setNameFilter( Filesystem::songs_filter_name );
 
-	fd.setWindowTitle( tr( "Open song" ) );
+	if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
+		fd.setWindowTitle( tr( "Open Demo Song" ) );
+	} else {
+		fd.setWindowTitle( tr( "Import Demo Song into Session" ) );
+	}
 
 	fd.setDirectory( Filesystem::demos_dir() );
 
@@ -993,7 +928,9 @@ void MainForm::action_file_openDemo()
 
 	if ( !filename.isEmpty() ) {
 		HydrogenApp::get_instance()->openSong( filename );
-		Hydrogen::get_instance()->getSong()->setFilename( "" );
+		if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
+			Hydrogen::get_instance()->getSong()->setFilename( "" );
+		}
 	}
 }
 
@@ -1135,10 +1072,10 @@ void MainForm::action_instruments_addComponent()
 	bool bIsOkPressed;
 	QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
 	if ( bIsOkPressed  ) {
-		Hydrogen *pEngine = Hydrogen::get_instance();
+		Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( InstrumentEditor::findFreeDrumkitComponentId(), sNewName );
-		pEngine->getSong()->getComponents()->push_back( pDrumkitComponent );
+		pHydrogen->getSong()->getComponents()->push_back( pDrumkitComponent );
 
 		selectedInstrumentChangedEvent();
 
@@ -1146,7 +1083,7 @@ void MainForm::action_instruments_addComponent()
 		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 
 #ifdef H2CORE_HAVE_JACK
-		pEngine->renameJackPorts(pEngine->getSong());
+		pHydrogen->renameJackPorts(pHydrogen->getSong());
 #endif
 	}
 	else {
@@ -1182,7 +1119,7 @@ void MainForm::action_instruments_clearAll()
 	}
 
 	// Remove all instruments
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	InstrumentList* pList = pSong->getInstrumentList();
 	for (uint i = pList->size(); i > 0; i--) {
 		functionDeleteInstrument(i - 1);
@@ -1193,15 +1130,15 @@ void MainForm::action_instruments_clearAll()
 
 void MainForm::functionDeleteInstrument(int instrument)
 {
-	Hydrogen * pEngine = Hydrogen::get_instance();
-	Instrument *pSelectedInstrument = pEngine->getSong()->getInstrumentList()->get( instrument );
+	Hydrogen * pHydrogen = Hydrogen::get_instance();
+	auto pSelectedInstrument = pHydrogen->getSong()->getInstrumentList()->get( instrument );
 
 	std::list< Note* > noteList;
-	Song* pSong = pEngine->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 
 	QString instrumentName =  pSelectedInstrument->get_name();
-	QString drumkitName = pEngine->getCurrentDrumkitName();
+	QString drumkitName = pHydrogen->getCurrentDrumkitName();
 
 	for ( int i = 0; i < pPatternList->size(); i++ ) {
 		const H2Core::Pattern *pPattern = pSong->getPatternList()->get(i);
@@ -1469,6 +1406,30 @@ void MainForm::closeAll(){
 }
 
 
+void MainForm::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+
+	if ( m_pQApp->font().family() != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		QFont font( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+		m_pQApp->setFont( font );
+		menuBar()->setFont( font );
+
+		m_pFileMenu->setFont( font );
+		m_pUndoMenu->setFont( font );
+		m_pDrumkitsMenu->setFont( font );
+		m_pInstrumentsMenu->setFont( font );
+		m_pViewMenu->setFont( font );
+		m_pOptionsMenu->setFont( font );
+		if ( m_pDebugMenu != nullptr ) {
+			m_pDebugMenu->setFont( font );
+		}
+		m_pInfoMenu->setFont( font );
+
+	}
+}
+
 
 // keybindings..
 
@@ -1501,24 +1462,24 @@ void MainForm::onRestartAccelEvent()
 
 void MainForm::onBPMPlusAccelEvent()
 {
-	Hydrogen* pEngine = Hydrogen::get_instance();
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-	Song* pSong = pEngine->getSong();
-	pEngine->setBPM( pSong->getBpm() + 0.1 );
-	AudioEngine::get_instance()->unlock();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	pHydrogen->setBPM( pSong->getBpm() + 0.1 );
+	pHydrogen->getAudioEngine()->unlock();
 }
 
 
 
 void MainForm::onBPMMinusAccelEvent()
 {
-	Hydrogen* pEngine = Hydrogen::get_instance();
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-	Song* pSong = pEngine->getSong();
-	pEngine->setBPM( pSong->getBpm() - 0.1 );
-	AudioEngine::get_instance()->unlock();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	pHydrogen->setBPM( pSong->getBpm() - 0.1 );
+	pHydrogen->getAudioEngine()->unlock();
 }
 
 
@@ -1568,14 +1529,6 @@ void MainForm::updateRecentUsedSongList()
 
 void MainForm::action_file_open_recent(QAction *pAction)
 {
-	if ( H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
-		// The current path needs to be preserved. This will be done
-		// using an auxiliary variable since the GUI opens the song
-		// via the core, which in turn opens it asynchronously via the
-		// GUI.
-		H2Core::Hydrogen::get_instance()->setNextSongPath( H2Core::Hydrogen::get_instance()->getSong()->getFilename() );
-	}
-	
 	HydrogenApp::get_instance()->openSong( pAction->text() );
 }
 
@@ -1596,7 +1549,7 @@ void MainForm::checkMissingSamples()
 
 void MainForm::checkMidiSetup()
 {
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong->getInstrumentList()->has_all_midi_notes_same() ) {
 		WARNINGLOG( "Incorrect MIDI setup" );
 
@@ -1626,7 +1579,7 @@ void MainForm::checkNecessaryDirectories()
 void MainForm::onFixMidiSetup()
 {
 	INFOLOG( "Fixing MIDI setup" );
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	pSong->getInstrumentList()->set_default_midi_out_notes();
 	pSong->setIsModified( true );
 
@@ -1869,10 +1822,8 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			int row = (*found).second;
 
 			float velocity = 0.8;
-			float pan_L = 0.5f;
-			float pan_R = 0.5f;
 
-			pHydrogen->addRealtimeNote (row, velocity, pan_L, pan_R, 0, false, false , row + 36);
+			pHydrogen->addRealtimeNote (row, velocity, 0.f, 0, false, false , row + 36);
 
 			return true; // eat event
 		}
@@ -1893,7 +1844,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 void MainForm::action_debug_printObjects()
 {
 	INFOLOG( "[action_debug_printObjects]" );
-	Object::write_objects_map_to_cerr();
+	Base::write_objects_map_to_cerr();
 }
 
 
@@ -1946,7 +1897,7 @@ void MainForm::action_file_export_lilypond()
 			sFilename += ".ly";
 		}
 
-		Song *pSong = Hydrogen::get_instance()->getSong();
+		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 
 		LilyPond ly;
 		ly.extractData( *pSong );
@@ -2070,7 +2021,7 @@ void MainForm::showDevelWarning()
 
 QString MainForm::getAutoSaveFilename()
 {
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	assert( pSong );
 	QString sOldFilename = pSong->getFilename();
 	QString newName = "autosave.h2song";
@@ -2087,7 +2038,7 @@ QString MainForm::getAutoSaveFilename()
 void MainForm::onAutoSaveTimer()
 {
 	//INFOLOG( "[onAutoSaveTimer]" );
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	assert( pSong );
 	if ( pSong->getIsModified() ) {
 		QString sOldFilename = pSong->getFilename();
@@ -2327,7 +2278,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	HydrogenApp* pApp = HydrogenApp::get_instance();
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	if ( pObject->inherits( "SongEditorPanel" ) ) {
 			
@@ -2361,7 +2312,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		if ( nCursorColumn > 0 ) {
 			nCursorColumn -= pHydrogen->calculateLookahead( fTickSize ) / fTickSize;
 		}
-		AudioEngine::get_instance()->locate( nCursorColumn * fTickSize );
+		pHydrogen->getAudioEngine()->locate( nCursorColumn * fTickSize );
 	} else {
 		ERRORLOG( QString( "Unknown object class" ) );
 	}

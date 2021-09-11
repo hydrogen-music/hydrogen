@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <song>
- <version>1.0.0</version>
+ <version>1.2.0</version>
  <bpm>120</bpm>
  <volume>0.73</volume>
  <metronomeVolume>0.5</metronomeVolume>
@@ -13,7 +13,10 @@
  <playbackTrackFilename></playbackTrackFilename>
  <playbackTrackEnabled>false</playbackTrackEnabled>
  <playbackTrackVolume>0</playbackTrackVolume>
+ <action_mode>0</action_mode>
  <mode>pattern</mode>
+ <pan_law_type>RATIO_STRAIGHT_POLYGONAL</pan_law_type>
+ <pan_law_k_norm>1.33333</pan_law_k_norm>
  <humanize_time>0</humanize_time>
  <humanize_velocity>0</humanize_velocity>
  <swing_factor>0</swing_factor>
@@ -29,10 +32,11 @@
    <id>0</id>
    <name>Kick</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>1</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>0</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -46,6 +50,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -149,10 +154,11 @@
    <id>1</id>
    <name>Stick</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.99569</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.7</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.3</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -166,6 +172,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -269,10 +276,11 @@
    <id>2</id>
    <name>Snare</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>1.02155</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.7</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.3</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -286,6 +294,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -389,10 +398,11 @@
    <id>3</id>
    <name>Hand Clap</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>1.02155</volume>
    <isMuted>false</isMuted>
-   <pan_L>0.7</pan_L>
-   <pan_R>1</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>0.3</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -406,6 +416,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -441,10 +452,11 @@
    <id>4</id>
    <name>Snare Rimshot</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>1</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.7</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.3</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -458,6 +470,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -561,10 +574,11 @@
    <id>5</id>
    <name>Floor Tom</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>1.04741</volume>
    <isMuted>false</isMuted>
-   <pan_L>0.44</pan_L>
-   <pan_R>1</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>0.56</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -578,6 +592,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -681,10 +696,11 @@
    <id>6</id>
    <name>Hat Closed</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.685345</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.48</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.52</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -698,6 +714,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -801,10 +818,11 @@
    <id>7</id>
    <name>Tom 2</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>1</volume>
    <isMuted>false</isMuted>
-   <pan_L>0.76</pan_L>
-   <pan_R>1</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>0.24</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -818,6 +836,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -921,10 +940,11 @@
    <id>8</id>
    <name>Hat Pedal</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.685345</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.48</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.52</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -938,6 +958,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -1041,10 +1062,11 @@
    <id>9</id>
    <name>Tom 1</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>1</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.8</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.2</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1058,6 +1080,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -1161,10 +1184,11 @@
    <id>10</id>
    <name>Hat Open</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.698276</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.48</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.52</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1178,6 +1202,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -1281,10 +1306,11 @@
    <id>11</id>
    <name>Cowbell</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.568965</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.32</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.68</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1298,6 +1324,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -1401,10 +1428,11 @@
    <id>12</id>
    <name>Ride</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.633621</volume>
    <isMuted>false</isMuted>
-   <pan_L>0.56</pan_L>
-   <pan_R>1</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>0.44</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1418,6 +1446,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -1521,10 +1550,11 @@
    <id>13</id>
    <name>Crash</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.517241</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.74</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.26</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1538,6 +1568,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -1641,10 +1672,11 @@
    <id>14</id>
    <name>Ride 2</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>1</volume>
    <isMuted>false</isMuted>
-   <pan_L>0.5</pan_L>
-   <pan_R>1</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>0.5</pan>
    <gain>0.6</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1658,6 +1690,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -1761,10 +1794,11 @@
    <id>15</id>
    <name>Splash</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.543103</volume>
    <isMuted>false</isMuted>
-   <pan_L>0.98</pan_L>
-   <pan_R>1</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>0.02</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1778,6 +1812,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -1881,10 +1916,11 @@
    <id>16</id>
    <name>Hat Semi-Open</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.69</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.48</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.52</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1898,6 +1934,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -2001,10 +2038,11 @@
    <id>17</id>
    <name>Bell</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.534828</volume>
    <isMuted>false</isMuted>
-   <pan_L>0.56</pan_L>
-   <pan_R>1</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>0.44</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -2018,6 +2056,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -2123,6 +2162,7 @@
    <name>Pattern 1</name>
    <category>not_categorized</category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList/>
   </pattern>
@@ -2130,6 +2170,7 @@
    <name>Pattern 2</name>
    <category>not_categorized</category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList/>
   </pattern>
@@ -2137,6 +2178,7 @@
    <name>Pattern 3</name>
    <category>not_categorized</category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList/>
   </pattern>
@@ -2144,6 +2186,7 @@
    <name>Pattern 4</name>
    <category>not_categorized</category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList/>
   </pattern>
@@ -2151,6 +2194,7 @@
    <name>Pattern 5</name>
    <category>not_categorized</category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList/>
   </pattern>
@@ -2158,6 +2202,7 @@
    <name>Pattern 6</name>
    <category>not_categorized</category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList/>
   </pattern>
@@ -2165,6 +2210,7 @@
    <name>Pattern 7</name>
    <category>not_categorized</category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList/>
   </pattern>
@@ -2172,6 +2218,7 @@
    <name>Pattern 8</name>
    <category>not_categorized</category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList/>
   </pattern>
@@ -2179,6 +2226,7 @@
    <name>Pattern 9</name>
    <category>not_categorized</category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList/>
   </pattern>
@@ -2186,6 +2234,7 @@
    <name>Pattern 10</name>
    <category>not_categorized</category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList/>
   </pattern>

@@ -23,6 +23,8 @@
 #ifndef H2C_NOTE_H
 #define H2C_NOTE_H
 
+#include <memory>
+
 #include <core/Object.h>
 #include <core/Basics/Instrument.h>
 
@@ -63,9 +65,9 @@ struct SelectedLayerInfo {
 /**
  * A note plays an associated instrument with a velocity left and right pan
  */
-class Note : public H2Core::Object
+class Note : public H2Core::Object<Note>
 {
-		H2_OBJECT
+		H2_OBJECT(Note)
 	public:
 		/** possible keys */
 		enum Key { C=KEY_MIN, Cs, D, Ef, E, F, Fs, G, Af, A, Bf, B };
@@ -82,14 +84,14 @@ class Note : public H2Core::Object
 		 * \param length it's length
 		 * \param pitch it's pitch
 		 */
-		Note( Instrument* instrument, int position, float velocity, float pan_l, float pan_r, int length, float pitch );
+		Note( std::shared_ptr<Instrument> instrument, int position, float velocity, float pan, int length, float pitch );
 
 		/**
 		 * copy constructor with an optional parameter
 		 * \param other 
 		 * \param instrument if set will be used as note instrument
 		 */
-		Note( Note* other, Instrument* instrument=nullptr );
+		Note( Note* other, std::shared_ptr<Instrument> instrument=nullptr );
 		/** destructor */
 		~Note();
 
@@ -115,7 +117,7 @@ class Note : public H2Core::Object
 		 */
 		void map_instrument( InstrumentList* instruments );
 		/** #__instrument accessor */
-		Instrument* get_instrument();
+		std::shared_ptr<Instrument> get_instrument();
 		/** return true if #__instrument is set */
 		bool has_instrument() const;
 		/**
@@ -146,20 +148,20 @@ class Note : public H2Core::Object
 		void set_velocity( float value );
 		/** #__velocity accessor */
 		float get_velocity() const;
-		/**
-		 * #__pan_l setter
-		 * \param value the new value
-		 */
-		void set_pan_l( float value );
-		/** #__pan_l accessor */
-		float get_pan_l() const;
-		/**
-		 * #__pan_r setter
-		 * \param value the new value
-		 */
-		void set_pan_r( float value );
-		/** #__pan_r accessor */
-		float get_pan_r() const;
+		
+		/** set pan of the note. assumes the input range in [-1;1]*/
+		void setPan( float val );
+		/** set pan of the note, assuming the input range in [0;1] */
+		void setPanWithRangeFrom0To1( float fVal ) {
+			this->setPan( -1.f + 2.f * fVal ); // scale and translate into [-1;1]
+		};
+		/** get pan of the note. Output pan range: [-1;1] */
+		float getPan() const;
+		/** get pan of the note, scaling and translating the range from [-1;1] to [0;1] */
+		float getPanWithRangeFrom0To1() const {
+			return 0.5f * ( 1.f + m_fPan );
+		}
+
 		/**
 		 * #__lead_lag setter
 		 * \param value the new value
@@ -277,7 +279,7 @@ class Note : public H2Core::Object
 		void set_midi_info( Key key, Octave octave, int msg );
 
 		/** get the ADSR of the note */
-		ADSR* get_adsr() const;
+		std::shared_ptr<ADSR> get_adsr() const;
 		/** call release on adsr */
 		//float release_adsr() const              { return __adsr->release(); }
 		/** call get value on adsr */
@@ -288,7 +290,7 @@ class Note : public H2Core::Object
 		 * \param key the key to match with #__key
 		 * \param octave the octave to match with #__octave
 		 */
-		bool match( Instrument* instrument, Key key, Octave octave ) const;
+		bool match( std::shared_ptr<Instrument> instrument, Key key, Octave octave ) const;
 
 		/** Return true if two notes match in instrument, key and octave. */
 		bool match( const Note *pNote ) const;
@@ -310,18 +312,17 @@ class Note : public H2Core::Object
 		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
-		Instrument*		__instrument;   ///< the instrument to be played by this note
+		std::shared_ptr<Instrument>		__instrument;   ///< the instrument to be played by this note
 		int				__instrument_id;        ///< the id of the instrument played by this note
 		int				__specific_compo_id;    ///< play a specific component, -1 if playing all
 		int				__position;             ///< note position inside the pattern
 		float			__velocity;           ///< velocity (intensity) of the note [0;1]
-		float			__pan_l;              ///< pan of the note (left volume) [0;0.5]
-		float			__pan_r;              ///< pan of the note (right volume) [0;0.5]
+		float			m_fPan;		///< pan of the note, [-1;1] from left to right, as requested by Sampler PanLaws
 		int				__length;               ///< the length of the note
 		float			__pitch;              ///< the frequency of the note
 		Key				__key;                  ///< the key, [0;11]==[C;B]
 		Octave			 __octave;            ///< the octave [-3;3]
-		ADSR*			__adsr;               ///< attack decay sustain release
+		std::shared_ptr<ADSR>			__adsr;               ///< attack decay sustain release
 		float			__lead_lag;           ///< lead or lag offset of the note
 		float			__cut_off;            ///< filter cutoff [0;1]
 		float			__resonance;          ///< filter resonant frequency [0;1]
@@ -341,12 +342,12 @@ class Note : public H2Core::Object
 
 // DEFINITIONS
 
-inline ADSR* Note::get_adsr() const
+inline std::shared_ptr<ADSR> Note::get_adsr() const
 {
 	return __adsr;
 }
 
-inline Instrument* Note::get_instrument()
+inline std::shared_ptr<Instrument> Note::get_instrument()
 {
 	return __instrument;
 }
@@ -391,14 +392,9 @@ inline float Note::get_velocity() const
 	return __velocity;
 }
 
-inline float Note::get_pan_l() const
+inline float Note::getPan() const
 {
-	return __pan_l;
-}
-
-inline float Note::get_pan_r() const
-{
-	return __pan_r;
+	return m_fPan;
 }
 
 inline float Note::get_lead_lag() const
@@ -562,7 +558,7 @@ inline void Note::set_midi_info( Key key, Octave octave, int msg )
 	__midi_msg = msg;
 }
 
-inline bool Note::match( Instrument* instrument, Key key, Octave octave ) const
+inline bool Note::match( std::shared_ptr<Instrument> instrument, Key key, Octave octave ) const
 {
 	return ( ( __instrument==instrument ) && ( __key==key ) && ( __octave==octave ) );
 }

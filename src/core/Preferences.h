@@ -33,6 +33,7 @@
 
 #include <QStringList>
 #include <QDomDocument>
+#include <QColor>
 
 namespace H2Core
 {
@@ -45,9 +46,9 @@ const float FALLOFF_FAST =	1.5f;
 /**
 \ingroup H2CORE
 */
-class WindowProperties : public H2Core::Object
+class WindowProperties : public H2Core::Object<WindowProperties>
 {
-	H2_OBJECT
+	H2_OBJECT(WindowProperties)
 public:
 	int x;
 	int y;
@@ -56,6 +57,7 @@ public:
 	bool visible;
 
 	WindowProperties();
+	WindowProperties(const WindowProperties &other);
 	~WindowProperties();
 
 	void set(int _x, int _y, int _width, int _height, bool _visible) {
@@ -66,69 +68,37 @@ public:
 
 };
 
-
-/**
-\ingroup H2CORE
-*/
-class H2RGBColor : public H2Core::Object
-{
-	H2_OBJECT
-public:
-	H2RGBColor( int r = -1, int g = -1, int b = -1 );
-	H2RGBColor( const QString& sColor );
-	~H2RGBColor();
-
-	QString toStringFmt();
-
-	int getRed() const {
-		return m_red;
-	}
-	int getGreen() const {
-		return m_green;
-	}
-	int getBlue() const {
-		return m_blue;
-	}
-
-private:
-	int m_red;
-	int m_green;
-	int m_blue;
-
-};
-
-
 /**
 \ingroup H2CORE
 \brief	Colors for hydrogen
 */
-class UIStyle : public H2Core::Object
+class UIStyle : public H2Core::Object<UIStyle>
 {
-	H2_OBJECT
+	H2_OBJECT(UIStyle)
 public:
 	UIStyle();
-	H2RGBColor m_songEditor_backgroundColor;
-	H2RGBColor m_songEditor_alternateRowColor;
-	H2RGBColor m_songEditor_selectedRowColor;
-	H2RGBColor m_songEditor_lineColor;
-	H2RGBColor m_songEditor_textColor;
-	H2RGBColor m_songEditor_pattern1Color;
+	QColor m_songEditor_backgroundColor;
+	QColor m_songEditor_alternateRowColor;
+	QColor m_songEditor_selectedRowColor;
+	QColor m_songEditor_lineColor;
+	QColor m_songEditor_textColor;
+	QColor m_songEditor_pattern1Color;
 
-	H2RGBColor m_patternEditor_backgroundColor;
-	H2RGBColor m_patternEditor_alternateRowColor;
-	H2RGBColor m_patternEditor_selectedRowColor;
-	H2RGBColor m_patternEditor_textColor;
-	H2RGBColor m_patternEditor_noteColor;
-	H2RGBColor m_patternEditor_noteoffColor;
-	H2RGBColor m_patternEditor_lineColor;
-	H2RGBColor m_patternEditor_line1Color;
-	H2RGBColor m_patternEditor_line2Color;
-	H2RGBColor m_patternEditor_line3Color;
-	H2RGBColor m_patternEditor_line4Color;
-	H2RGBColor m_patternEditor_line5Color;
+	QColor m_patternEditor_backgroundColor;
+	QColor m_patternEditor_alternateRowColor;
+	QColor m_patternEditor_selectedRowColor;
+	QColor m_patternEditor_textColor;
+	QColor m_patternEditor_noteColor;
+	QColor m_patternEditor_noteoffColor;
+	QColor m_patternEditor_lineColor;
+	QColor m_patternEditor_line1Color;
+	QColor m_patternEditor_line2Color;
+	QColor m_patternEditor_line3Color;
+	QColor m_patternEditor_line4Color;
+	QColor m_patternEditor_line5Color;
 
-	H2RGBColor m_selectionHighlightColor;
-	H2RGBColor m_selectionInactiveColor;
+	QColor m_selectionHighlightColor;
+	QColor m_selectionInactiveColor;
 };
 
 
@@ -137,9 +107,9 @@ public:
 \ingroup H2CORE
 \brief	Manager for User Preferences File (singleton)
 */
-class Preferences : public H2Core::Object
+class Preferences : public H2Core::Object<Preferences>
 {
-	H2_OBJECT
+	H2_OBJECT(Preferences)
 public:
 	enum {
 	      /** 
@@ -174,6 +144,13 @@ public:
 	      NO_JACK_TIME_MASTER = 1,
 	      SET_PLAY_OFF = 1,
 	      BC_OFF = 1
+	};
+
+	/** Enables custom scaling of the font size in the GUI.*/
+	enum class FontSize {
+		Normal = 0,
+		Small = 1,
+		Large = 2
 	};
 
 
@@ -511,16 +488,16 @@ public:
 	const QString&	getQTStyle();
 	void			setQTStyle( const QString& sStyle );
 
-	const QString&	getApplicationFontFamily();
+	const QString&	getApplicationFontFamily() const;
 	void			setApplicationFontFamily( const QString& family );
+	const QString&	getLevel2FontFamily() const;
+	void			setLevel2FontFamily( const QString& family );
+	const QString&	getLevel3FontFamily() const;
+	void			setLevel3FontFamily( const QString& family );
 
-	int				getApplicationFontPointSize();
-	void			setApplicationFontPointSize( int size );
+	FontSize		getFontSize() const;
+	void			setFontSize( FontSize fontSize );
 
-	QString			getMixerFontFamily();
-	void			setMixerFontFamily( const QString& family );
-	int				getMixerFontPointSize();
-	void			setMixerFontPointSize( int size );
 	float			getMixerFalloffSpeed();
 	void			setMixerFalloffSpeed( float value );
 	bool			showInstrumentPeaks();
@@ -550,11 +527,15 @@ public:
 	unsigned		getSongEditorGridWidth();
 	void			setSongEditorGridWidth( unsigned value );
 
-	void			setColoringMethodAuxValue( int value );
-	int				getColoringMethodAuxValue() const;
-
-	void			setColoringMethod( int value );
+	void			setColoringMethod( int nValue );
 	int				getColoringMethod() const;
+
+	void			setPatternColors( std::vector<QColor> patternColors );
+	std::vector<QColor> getPatternColors() const;
+	void			setMaxPatternColors( int nValue );
+	int				getMaxPatternColors() const;
+	void			setVisiblePatternColors( int nValue );
+	int				getVisiblePatternColors() const;
 
 	WindowProperties	getMainFormProperties();
 	void				setMainFormProperties( const WindowProperties& prop );
@@ -773,10 +754,10 @@ private:
 	int						m_nUIScalingPolicy;
 	bool					m_bShowPlaybackTrack;
 
-	QString					applicationFontFamily;
-	int						applicationFontPointSize;
-	QString					mixerFontFamily;
-	int						mixerFontPointSize;
+	QString					m_sApplicationFontFamily;
+	QString					m_sLevel2FontFamily;
+	QString					m_sLevel3FontFamily;
+	FontSize				m_fontSize;
 	float					mixerFalloffSpeed;
 	int						m_nPatternEditorGridResolution;
 	bool					m_bPatternEditorUsingTriplets;
@@ -801,7 +782,10 @@ private:
 
 	//Appearance: SongEditor coloring
 	int						m_nColoringMethod;
-	int						m_nColoringMethodAuxValue;
+	std::vector<QColor> m_patternColors;
+	int						m_nVisiblePatternColors;
+	/** Not read from/written to disk */
+	int						m_nMaxPatternColors;
 
 	//Export dialog
 	QString					m_sExportDirectory;
@@ -1076,32 +1060,34 @@ inline void Preferences::setQTStyle( const QString& sStyle ) {
 }
 
 
-inline const QString& Preferences::getApplicationFontFamily() {
-	return applicationFontFamily;
+inline const QString& Preferences::getApplicationFontFamily() const {
+	return m_sApplicationFontFamily;
 }
 inline void Preferences::setApplicationFontFamily( const QString& family ) {
-	applicationFontFamily = family;
+	m_sApplicationFontFamily = family;
 }
 
-inline int Preferences::getApplicationFontPointSize() {
-	return applicationFontPointSize;
+inline const QString& Preferences::getLevel2FontFamily() const {
+	return m_sLevel2FontFamily;
 }
-inline void Preferences::setApplicationFontPointSize( int size ) {
-	applicationFontPointSize = size;
+inline void Preferences::setLevel2FontFamily( const QString& family ) {
+	m_sLevel2FontFamily = family;
 }
 
-inline QString Preferences::getMixerFontFamily() {
-	return mixerFontFamily;
+inline const QString& Preferences::getLevel3FontFamily() const {
+	return m_sLevel3FontFamily;
 }
-inline void Preferences::setMixerFontFamily( const QString& family ) {
-	mixerFontFamily = family;
+inline void Preferences::setLevel3FontFamily( const QString& family ) {
+	m_sLevel3FontFamily = family;
 }
-inline int Preferences::getMixerFontPointSize() {
-	return mixerFontPointSize;
+
+inline Preferences::FontSize Preferences::getFontSize() const {
+	return m_fontSize;
 }
-inline void Preferences::setMixerFontPointSize( int size ) {
-	mixerFontPointSize = size;
+inline void Preferences::setFontSize( FontSize fontSize ) {
+	m_fontSize = fontSize;
 }
+
 inline float Preferences::getMixerFalloffSpeed() {
 	return mixerFalloffSpeed;
 }
@@ -1170,12 +1156,23 @@ inline void Preferences::setPatternEditorGridWidth( unsigned value ) {
 	m_nPatternEditorGridWidth = value;
 }
 
-inline void Preferences::setColoringMethodAuxValue( int value ){
-	m_nColoringMethodAuxValue = value;
+inline void	Preferences::setPatternColors( std::vector<QColor> patternColors ) {
+	m_patternColors = patternColors;
 }
-
-inline int Preferences::getColoringMethodAuxValue() const{
-	return m_nColoringMethodAuxValue;
+inline std::vector<QColor> Preferences::getPatternColors() const {
+	return m_patternColors;
+}
+inline void	Preferences::setVisiblePatternColors( int nValue ) {
+	m_nVisiblePatternColors = nValue;
+}
+inline int Preferences::getVisiblePatternColors() const {
+	return m_nVisiblePatternColors;
+}
+inline void	Preferences::setMaxPatternColors( int nValue ) {
+	m_nMaxPatternColors = nValue;
+}
+inline int Preferences::getMaxPatternColors() const {
+	return m_nMaxPatternColors;
 }
 
 inline void Preferences::setColoringMethod( int value ){

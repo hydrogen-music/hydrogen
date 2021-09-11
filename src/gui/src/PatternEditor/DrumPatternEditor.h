@@ -27,8 +27,10 @@
 #include "../EventListener.h"
 #include "../Selection.h"
 #include "PatternEditor.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include <core/Helpers/Filesystem.h>
 
 #include <QtGui>
@@ -39,9 +41,9 @@ class PatternEditorInstrumentList;
 ///
 /// Drum pattern editor
 ///
-class DrumPatternEditor : public PatternEditor
+class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>
 {
-    H2_OBJECT
+    H2_OBJECT(DrumPatternEditor)
 	Q_OBJECT
 
 	public:
@@ -59,8 +61,7 @@ class DrumPatternEditor : public PatternEditor
 										int selectedPatternNumber,
 										int oldLength,
 										float oldVelocity,
-										float oldPan_L,
-										float oldPan_R,
+										float fOldPan,
 										float oldLeadLag,
 										int oldNoteKeyVal,
 										int oldOctaveKeyVal,
@@ -84,8 +85,7 @@ class DrumPatternEditor : public PatternEditor
 								int nSelectedPatternNumber,
 								int nSelectedInstrument,
 								float velocity,
-								float pan_L,
-								float pan_R,
+								float pan,
 								float leadLag,
 								float probability,
 								int noteKeyVal,
@@ -129,6 +129,7 @@ class DrumPatternEditor : public PatternEditor
 		virtual void selectAll() override;
 		virtual void deleteSelection() override;
 		virtual void paste() override;
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
 		void __draw_note( H2Core::Note* note, QPainter& painter );
@@ -151,6 +152,10 @@ class DrumPatternEditor : public PatternEditor
 		int __nColumn;
 		int __row;
 		int __oldLength;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

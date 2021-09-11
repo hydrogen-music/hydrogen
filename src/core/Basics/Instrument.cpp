@@ -24,6 +24,7 @@
 
 #include <cassert>
 
+#include <core/Hydrogen.h>
 #include <core/AudioEngine.h>
 
 #include <core/Helpers/Xml.h>
@@ -35,20 +36,17 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Sampler/Sampler.h>
 
 namespace H2Core
 {
 
-const char* Instrument::__class_name = "Instrument";
-
-Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
-	: Object( __class_name )
-	, __id( id )
+Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR> adsr )
+	: __id( id )
 	, __name( name )
 	, __gain( 1.0 )
 	, __volume( 1.0 )
-	, __pan_l( 1.0 )
-	, __pan_r( 1.0 )
+	, m_fPan( 0.f )
 	, __peak_l( 0.0 )
 	, __peak_r( 0.0 )
 	, __adsr( adsr )
@@ -77,7 +75,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, m_bHasMissingSamples( false )
 {
 	if ( __adsr == nullptr ) {
-		__adsr = new ADSR();
+		__adsr = std::make_shared<ADSR>();
 	}
 
     if( __midi_out_note < MIDI_OUT_NOTE_MIN ){
@@ -91,20 +89,18 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	for ( int i=0; i<MAX_FX; i++ ) {
 		__fx_level[i] = 0.0;
 	}
-	__components = new std::vector<InstrumentComponent*> ();
+	__components = new std::vector<std::shared_ptr<InstrumentComponent>>();
 }
 
-Instrument::Instrument( Instrument* other )
-	: Object( __class_name )
-	, __id( other->get_id() )
+Instrument::Instrument( std::shared_ptr<Instrument> other )
+	: __id( other->get_id() )
 	, __name( other->get_name() )
 	, __gain( other->__gain )
 	, __volume( other->get_volume() )
-	, __pan_l( other->get_pan_l() )
-	, __pan_r( other->get_pan_r() )
+	, m_fPan( other->getPan() )
 	, __peak_l( other->get_peak_l() )
 	, __peak_r( other->get_peak_r() )
-	, __adsr( new ADSR( *( other->get_adsr() ) ) )
+	, __adsr( std::make_shared<ADSR>( *( other->get_adsr() ) ) )
 	, __filter_active( other->is_filter_active() )
 	, __filter_cutoff( other->get_filter_cutoff() )
 	, __filter_resonance( other->get_filter_resonance() )
@@ -132,68 +128,57 @@ Instrument::Instrument( Instrument* other )
 		__fx_level[i] = other->get_fx_level( i );
 	}
 
-	__components = new std::vector<InstrumentComponent*> ();
-	for (auto it = other->get_components()->begin(); it != other->get_components()->end(); ++it) {
-		__components->push_back(new InstrumentComponent(*it));
+	__components = new std::vector<std::shared_ptr<InstrumentComponent>>();
+	for ( auto& pComponent : *other->get_components() ) {
+		__components->push_back( std::make_shared<InstrumentComponent>( pComponent ) );
 	}
 }
 
 Instrument::~Instrument()
 {
-	for(auto& pComponent : *this->get_components()){
-		delete pComponent;
-	}	
-
 	delete __components;
-
-	delete __adsr;
-	__adsr = nullptr;
 }
 
-Instrument* Instrument::load_instrument( const QString& drumkit_name, const QString& instrument_name, Filesystem::Lookup lookup )
+std::shared_ptr<Instrument> Instrument::load_instrument( const QString& drumkit_name, const QString& instrument_name, Filesystem::Lookup lookup )
 {
-	Instrument* pInstrument = new Instrument();
+	auto pInstrument = std::make_shared<Instrument>();
 	pInstrument->load_from( drumkit_name, instrument_name, false, lookup );
 	return pInstrument;
 }
 
-void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_live )
+void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInstrument, bool is_live )
 {
+	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+
 	if ( is_live ) {
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
-	}
-	
-	for(auto& pComponent : *this->get_components()){
-		delete pComponent;
+		pAudioEngine->lock( RIGHT_HERE );
 	}
 	
 	this->get_components()->clear();
 	
 	if ( is_live ) {
-		AudioEngine::get_instance()->unlock();
+		pAudioEngine->unlock();
 	}
 
 	set_missing_samples( false );
 
-	for (std::vector<InstrumentComponent*>::iterator it = pInstrument->get_components()->begin() ; it != pInstrument->get_components()->end(); ++it) {
-		InstrumentComponent* pSrcComponent = *it;
-
-		InstrumentComponent* pMyComponent = new InstrumentComponent( pSrcComponent->get_drumkit_componentID() );
+	for ( const auto& pSrcComponent : *pInstrument->get_components() ) {
+		auto pMyComponent = std::make_shared<InstrumentComponent>( pSrcComponent->get_drumkit_componentID() );
 		pMyComponent->set_gain( pSrcComponent->get_gain() );
 
 		this->get_components()->push_back( pMyComponent );
 
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			InstrumentLayer* src_layer = pSrcComponent->get_layer( i );
-			InstrumentLayer* my_layer = pMyComponent->get_layer( i );
+			auto src_layer = pSrcComponent->get_layer( i );
+			auto my_layer = pMyComponent->get_layer( i );
 
 			if( src_layer == nullptr ) {
 				if ( is_live ) {
-					AudioEngine::get_instance()->lock( RIGHT_HERE );
+					pAudioEngine->lock( RIGHT_HERE );
 				}
 				pMyComponent->set_layer( nullptr, i );
 				if ( is_live ) {
-					AudioEngine::get_instance()->unlock();
+					pAudioEngine->unlock();
 				}
 			} else {
 				QString sample_path =  pDrumkit->get_path() + "/" + src_layer->get_sample()->get_filename();
@@ -202,28 +187,28 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 					_ERRORLOG( QString( "Error loading sample %1. Creating a new empty layer." ).arg( sample_path ) );
 					set_missing_samples( true );
 					if ( is_live ) {
-						AudioEngine::get_instance()->lock( RIGHT_HERE );
+						pAudioEngine->lock( RIGHT_HERE );
 					}
 					pMyComponent->set_layer( nullptr, i );
 					
 					if ( is_live ) {
-						AudioEngine::get_instance()->unlock();
+						pAudioEngine->unlock();
 					}
 				} else {
 					if ( is_live ) {
-						AudioEngine::get_instance()->lock( RIGHT_HERE );
+						pAudioEngine->lock( RIGHT_HERE );
 					}
-					pMyComponent->set_layer( new InstrumentLayer( src_layer, pSample ), i );
+					pMyComponent->set_layer( std::make_shared<InstrumentLayer>( src_layer, pSample ), i );
 					if ( is_live ) {
-						AudioEngine::get_instance()->unlock();
+						pAudioEngine->unlock();
 					}
 				}
 			}
-			delete my_layer;
+			my_layer = nullptr;
 		}
 	}
 	if ( is_live ) {
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		pAudioEngine->lock( RIGHT_HERE );
 	}
 
 	this->set_id( pInstrument->get_id() );
@@ -231,9 +216,8 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 	this->set_drumkit_name( pDrumkit->get_name() );
 	this->set_gain( pInstrument->get_gain() );
 	this->set_volume( pInstrument->get_volume() );
-	this->set_pan_l( pInstrument->get_pan_l() );
-	this->set_pan_r( pInstrument->get_pan_r() );
-	this->set_adsr( new ADSR( *( pInstrument->get_adsr() ) ) );
+	this->setPan( pInstrument->getPan() );
+	this->set_adsr( std::make_shared<ADSR>( *( pInstrument->get_adsr() ) ) );
 	this->set_filter_active( pInstrument->is_filter_active() );
 	this->set_filter_cutoff( pInstrument->get_filter_cutoff() );
 	this->set_filter_resonance( pInstrument->get_filter_resonance() );
@@ -251,7 +235,7 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 	this->set_apply_velocity ( pInstrument->get_apply_velocity() );
 	
 	if ( is_live ) {
-		AudioEngine::get_instance()->unlock();
+		pAudioEngine->unlock();
 	}
 }
 
@@ -264,7 +248,7 @@ void Instrument::load_from( const QString& dk_name, const QString& instrument_na
 
 	assert( pDrumkit );
 
-	Instrument* pInstrument = pDrumkit->get_instruments()->find( instrument_name );
+	auto pInstrument = pDrumkit->get_instruments()->find( instrument_name );
 	if ( pInstrument!=nullptr ) {
 		load_from( pDrumkit, pInstrument, is_live );
 	}
@@ -272,19 +256,29 @@ void Instrument::load_from( const QString& dk_name, const QString& instrument_na
 	delete pDrumkit;
 }
 
-Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const QString& dk_name )
+std::shared_ptr<Instrument> Instrument::load_from( XMLNode* node, const QString& dk_path, const QString& dk_name )
 {
 	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
 	if ( id == EMPTY_INSTR_ID ) {
 		return nullptr;
 	}
 
-	Instrument* pInstrument = new Instrument( id, node->read_string( "name", "" ), nullptr );
+	auto pInstrument = std::make_shared<Instrument>( id, node->read_string( "name", "" ), nullptr );
 	pInstrument->set_drumkit_name( dk_name );
 	pInstrument->set_volume( node->read_float( "volume", 1.0f ) );
 	pInstrument->set_muted( node->read_bool( "isMuted", false ) );
-	pInstrument->set_pan_l( node->read_float( "pan_L", 1.0f ) );
-	pInstrument->set_pan_r( node->read_float( "pan_R", 1.0f ) );
+	bool bFound, bFound2;
+	float fPan = node->read_float( "pan", 0.f, &bFound );
+	if ( !bFound ) {
+		// check if pan is expressed in the old fashion (version <= 1.1 ) with the pair (pan_L, pan_R)
+		float fPanL = node->read_float( "pan_L", 1.f, &bFound );
+		float fPanR = node->read_float( "pan_R", 1.f, &bFound2 );
+		if ( bFound == true && bFound2 == true ) { // found nodes pan_L and pan_R
+			fPan = Sampler::getRatioPan( fPanL, fPanR );  // convert to single pan parameter
+		}
+	}
+	pInstrument->setPan( fPan );
+	
 	// may not exist, but can't be empty
 	pInstrument->set_apply_velocity( node->read_bool( "applyVelocity", true, false ) );
 	pInstrument->set_filter_active( node->read_bool( "filterActive", true, false ) );
@@ -296,7 +290,7 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	float decay = node->read_float( "Decay", 0.0f, true, false  );
 	float sustain = node->read_float( "Sustain", 1.0f, true, false );
 	float release = node->read_float( "Release", 1000.0f, true, false );
-	pInstrument->set_adsr( new ADSR( attack, decay, sustain, release ) );
+	pInstrument->set_adsr( std::make_shared<ADSR>( attack, decay, sustain, release ) );
 	pInstrument->set_gain( node->read_float( "gain", 1.0f, true, false ) );
 	pInstrument->set_mute_group( node->read_int( "muteGroup", -1, true, false ) );
 	pInstrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1, true, false ) );
@@ -332,10 +326,9 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 
 void Instrument::load_samples()
 {
-	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
-		InstrumentComponent* pComponent = *it;
+	for ( auto& pComponent : *get_components() ) {
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			InstrumentLayer* pLayer = pComponent->get_layer( i );
+			auto pLayer = pComponent->get_layer( i );
 			if( pLayer ) {
 				pLayer->load_sample();
 			}
@@ -345,10 +338,9 @@ void Instrument::load_samples()
 
 void Instrument::unload_samples()
 {
-	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
-		InstrumentComponent* pComponent = *it;
+	for ( auto& pComponent : *get_components() ) {
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			InstrumentLayer* pLayer = pComponent->get_layer( i );
+			auto pLayer = pComponent->get_layer( i );
 			if( pLayer ){
 				pLayer->unload_sample();
 			}
@@ -364,8 +356,7 @@ void Instrument::save_to( XMLNode* node, int component_id )
 	InstrumentNode.write_float( "volume", __volume );
 	InstrumentNode.write_bool( "isMuted", __muted );
 	InstrumentNode.write_bool( "isSoloed", __soloed );
-	InstrumentNode.write_float( "pan_L", __pan_l );
-	InstrumentNode.write_float( "pan_R", __pan_r );
+	InstrumentNode.write_float( "pan", m_fPan );
 	InstrumentNode.write_float( "pitchOffset", __pitch_offset );
 	InstrumentNode.write_float( "randomPitchFactor", __random_pitch_factor );
 	InstrumentNode.write_float( "gain", __gain );
@@ -401,27 +392,23 @@ void Instrument::save_to( XMLNode* node, int component_id )
 	for ( int i=0; i<MAX_FX; i++ ) {
 		InstrumentNode.write_float( QString( "FX%1Level" ).arg( i+1 ), __fx_level[i] );
 	}
-	for (std::vector<InstrumentComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-		InstrumentComponent* pComponent = *it;
+	for ( auto& pComponent : *__components ) {
 		if( component_id == -1 || pComponent->get_drumkit_componentID() == component_id ) {
 			pComponent->save_to( &InstrumentNode, component_id );
 		}
 	}
 }
 
-void Instrument::set_adsr( ADSR* adsr )
+void Instrument::set_adsr( std::shared_ptr<ADSR> adsr )
 {
-	if( __adsr ) {
-		delete __adsr;
-	}
 	__adsr = adsr;
 }
 
-InstrumentComponent* Instrument::get_component( int DrumkitComponentID )
+std::shared_ptr<InstrumentComponent> Instrument::get_component( int DrumkitComponentID )
 {
-	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
-		if( (*it)->get_drumkit_componentID() == DrumkitComponentID ) {
-			return *it;
+	for ( const auto& pComponent : *get_components() ) {
+		if( pComponent->get_drumkit_componentID() == DrumkitComponentID ) {
+			return pComponent;
 		}
 	}
 
@@ -429,7 +416,7 @@ InstrumentComponent* Instrument::get_component( int DrumkitComponentID )
 }
 
 QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Instrument]\n" ).arg( sPrefix )
@@ -438,8 +425,7 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2drumkit_name: %3\n" ).arg( sPrefix ).arg( s ).arg( __drumkit_name ) )
 			.append( QString( "%1%2gain: %3\n" ).arg( sPrefix ).arg( s ).arg( __gain ) )
 			.append( QString( "%1%2volume: %3\n" ).arg( sPrefix ).arg( s ).arg( __volume ) )
-			.append( QString( "%1%2pan_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __pan_l ) )
-			.append( QString( "%1%2pan_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __pan_r ) )
+			.append( QString( "%1%2pan: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPan ) )
 			.append( QString( "%1%2peak_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __peak_l ) )
 			.append( QString( "%1%2peak_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __peak_r ) )
 			.append( QString( "%1" ).arg( __adsr->toQString( sPrefix + s, bShort ) ) )
@@ -484,8 +470,7 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", drumkit_name: %1" ).arg( __drumkit_name ) )
 			.append( QString( ", gain: %1" ).arg( __gain ) )
 			.append( QString( ", volume: %1" ).arg( __volume ) )
-			.append( QString( ", pan_l: %1" ).arg( __pan_l ) )
-			.append( QString( ", pan_r: %1" ).arg( __pan_r ) )
+			.append( QString( ", pan: %1" ).arg( m_fPan ) )
 			.append( QString( ", peak_l: %1" ).arg( __peak_l ) )
 			.append( QString( ", peak_r: %1" ).arg( __peak_r ) )
 			.append( QString( ", [%1" ).arg( __adsr->toQString( sPrefix + s, bShort ).replace( "\n", "]" ) ) )

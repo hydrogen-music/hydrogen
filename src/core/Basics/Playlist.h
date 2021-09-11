@@ -31,10 +31,10 @@ namespace H2Core
 /**
  * Drumkit info
 */
-class Playlist : public H2Core::Object
+class Playlist : public H2Core::Object<Playlist>
 
 {
-		H2_OBJECT
+		H2_OBJECT(Playlist)
 
 	public:
 		struct Entry
@@ -85,6 +85,15 @@ class Playlist : public H2Core::Object
 		static Playlist* load( const QString& filename, bool useRelativePaths );
 		static Playlist* load_file( const QString& pl_path, bool useRelativePaths );
 		bool save_file( const QString& pl_path, const QString& name, bool overwrite, bool useRelativePaths );
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \param bShort Instead of the whole content of all classes
+		 * stored as members just a single unique identifier will be
+		 * displayed without line breaks.
+		 *
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
 		/**

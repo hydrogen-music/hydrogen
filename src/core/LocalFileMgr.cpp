@@ -58,10 +58,9 @@
 namespace H2Core
 {
 
-const char* LocalFileMng::__class_name = "LocalFileMng";
 
 LocalFileMng::LocalFileMng()
-	: Object( __class_name )
+	: Object()
 {
 	//	infoLog("INIT");
 }
@@ -96,8 +95,9 @@ QString LocalFileMng::processNode( QDomNode node, const QString& nodeName, bool 
 {
 	QDomElement element = node.firstChildElement( nodeName );
 
+	QString text;
 	if ( !node.isNull() && !element.isNull() ) {
-		QString text = element.text();
+		text = element.text();
 		if( !text.isEmpty() ) {
 			return text;
 		} else {
@@ -110,13 +110,13 @@ QString LocalFileMng::processNode( QDomNode node, const QString& nodeName, bool 
 			_WARNINGLOG( "node '" + nodeName + "' is not found" );
 		}
 	}
-	return nullptr;
+	return text;
 }
 
 QString LocalFileMng::readXmlString( QDomNode node , const QString& nodeName, const QString& defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
-	if ( text == nullptr ) {
+	if ( text.isEmpty() ) {
 		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ) );
 		return defaultValue;
 	} else {
@@ -124,10 +124,31 @@ QString LocalFileMng::readXmlString( QDomNode node , const QString& nodeName, co
 	}
 }
 
+QColor LocalFileMng::readXmlColor( QDomNode node , const QString& nodeName, const QColor& defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
+{
+	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
+	if ( text.isEmpty() ) {
+		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue.name() ).arg( nodeName ) );
+		return defaultValue;
+	} else {
+		QStringList textList = text.split( QLatin1Char( ',' ) );
+		if ( textList.size() != 3 ) {
+			_WARNINGLOG( QString( "\tInvalid color format : '%1' for node '%2'" ).arg( defaultValue.name() ).arg( nodeName ) );
+			return defaultValue;
+		}
+		QColor color( textList[ 0 ].toInt(), textList[ 1 ].toInt(), textList[ 2 ].toInt() );
+		if ( ! color.isValid() ) {
+			_WARNINGLOG( QString( "\tInvalid color values : '%1' for node '%2'" ).arg( defaultValue.name() ).arg( nodeName ) );
+			return defaultValue;
+		}
+		return color;
+	}
+}
+
 float LocalFileMng::readXmlFloat( QDomNode node , const QString& nodeName, float defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
-	if ( text == nullptr ) {
+	if ( text.isEmpty() ) {
 		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ));
 		return defaultValue;
 	} else {
@@ -135,10 +156,24 @@ float LocalFileMng::readXmlFloat( QDomNode node , const QString& nodeName, float
 	}
 }
 
-int LocalFileMng::readXmlInt( QDomNode node , const QString& nodeName, int defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
+float LocalFileMng::readXmlFloat( QDomNode node, const QString& nodeName, float defaultValue, bool *pFound,
+														 bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode )
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
 	if ( text == nullptr ) {
+		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ));
+		*pFound = false;
+		return defaultValue;
+	} else {
+		*pFound = true;
+		return QLocale::c().toFloat( text );
+	}
+}
+
+int LocalFileMng::readXmlInt( QDomNode node , const QString& nodeName, int defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
+{
+	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
+	if ( text.isEmpty() ) {
 		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ));
 		return defaultValue;
 	} else {
@@ -149,7 +184,7 @@ int LocalFileMng::readXmlInt( QDomNode node , const QString& nodeName, int defau
 bool LocalFileMng::readXmlBool( QDomNode node , const QString& nodeName, bool defaultValue, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bShouldExists, bShouldExists );
-	if ( text == nullptr ) {
+	if ( text.isEmpty() ) {
 		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ? "true" : "false" ).arg( nodeName ) );
 		return defaultValue;
 	} else {
@@ -167,6 +202,16 @@ void LocalFileMng::writeXmlString( QDomNode parent, const QString& name, const Q
 	QDomDocument doc;
 	QDomElement elem = doc.createElement( name );
 	QDomText t = doc.createTextNode( text );
+	elem.appendChild( t );
+	parent.appendChild( elem );
+}
+
+void LocalFileMng::writeXmlColor( QDomNode parent, const QString& name, const QColor& color )
+{
+	QDomDocument doc;
+	QDomElement elem = doc.createElement( name );
+	QDomText t = doc.createTextNode( QString( "%1,%2,%3" ).arg( color.red() )
+									 .arg( color.green() ).arg( color.blue() ) );
 	elem.appendChild( t );
 	parent.appendChild( elem );
 }
@@ -311,10 +356,7 @@ QDomDocument LocalFileMng::openXmlDocument( const QString& filename )
 //	Implementation of SongWriter class
 //-----------------------------------------------------------------------------
 
-const char* SongWriter::__class_name = "SongWriter";
-
-SongWriter::SongWriter()
-	: Object( __class_name )
+SongWriter::SongWriter() 
 {
 	//	infoLog("init");
 }
@@ -328,7 +370,7 @@ SongWriter::~SongWriter()
 
 
 // Returns 0 on success, passes the TinyXml error code otherwise.
-int SongWriter::writeSong( Song * pSong, const QString& filename )
+int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename )
 {
 	QFileInfo fi( filename );
 	if ( ( Filesystem::file_exists( filename, true ) && ! Filesystem::file_writable( filename, true ) ) ||
@@ -386,7 +428,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 		LocalFileMng::writeXmlString( songNode, "mode", QString( "pattern" ) );
 	}
 
-	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
+	Sampler* pSampler = Hydrogen::get_instance()->getAudioEngine()->getSampler();
 	
 	QString sPanLawType; // prepare the pan law string to write
 	int nPanLawType = pSong->getPanLawType();
@@ -455,7 +497,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 
 	// INSTRUMENT NODE
 	for ( unsigned i = 0; i < nInstrument; i++ ) {
-		Instrument * pInstr = pSong->getInstrumentList()->get( i );
+		auto  pInstr = pSong->getInstrumentList()->get( i );
 		assert( pInstr );
 
 		QDomNode instrumentNode = doc.createElement( "instrument" );
@@ -467,8 +509,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 		LocalFileMng::writeXmlString( instrumentNode, "volume", QString("%1").arg( pInstr->get_volume() ) );
 		LocalFileMng::writeXmlBool( instrumentNode, "isMuted", pInstr->is_muted() );
 		LocalFileMng::writeXmlBool( instrumentNode, "isSoloed", pInstr->is_soloed() );
-		LocalFileMng::writeXmlString( instrumentNode, "pan_L", QString("%1").arg( pInstr->get_pan_l() ) );
-		LocalFileMng::writeXmlString( instrumentNode, "pan_R", QString("%1").arg( pInstr->get_pan_r() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "pan", QString("%1").arg( pInstr->getPan() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "gain", QString("%1").arg( pInstr->get_gain() ) );
 		LocalFileMng::writeXmlBool( instrumentNode, "applyVelocity", pInstr->get_apply_velocity() );
 
@@ -509,8 +550,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 		LocalFileMng::writeXmlString( instrumentNode, "lower_cc", QString("%1").arg( pInstr->get_lower_cc() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "higher_cc", QString("%1").arg( pInstr->get_higher_cc() ) );
 
-		for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
-			InstrumentComponent* pComponent = *it;
+		for ( const auto& pComponent : *pInstr->get_components() ) {
 
 			QDomNode componentNode = doc.createElement( "instrumentComponent" );
 
@@ -518,7 +558,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 			LocalFileMng::writeXmlString( componentNode, "gain", QString("%1").arg( pComponent->get_gain() ) );
 
 			for ( unsigned nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-				InstrumentLayer *pLayer = pComponent->get_layer( nLayer );
+				auto pLayer = pComponent->get_layer( nLayer );
 				if ( pLayer == nullptr ) {
 					continue;
 				}
@@ -555,16 +595,16 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 				Sample::VelocityEnvelope* velocity = pSample->get_velocity_envelope();
 				for (int y = 0; y < velocity->size(); y++){
 					QDomNode volumeNode = doc.createElement( "volume" );
-					LocalFileMng::writeXmlString( volumeNode, "volume-position", QString("%1").arg( velocity->at(y)->frame ) );
-					LocalFileMng::writeXmlString( volumeNode, "volume-value", QString("%1").arg( velocity->at(y)->value ) );
+					LocalFileMng::writeXmlString( volumeNode, "volume-position", QString("%1").arg( velocity->at(y).frame ) );
+					LocalFileMng::writeXmlString( volumeNode, "volume-value", QString("%1").arg( velocity->at(y).value ) );
 					layerNode.appendChild( volumeNode );
 				}
 
 				Sample::PanEnvelope* pan = pSample->get_pan_envelope();
 				for (int y = 0; y < pan->size(); y++){
 					QDomNode panNode = doc.createElement( "pan" );
-					LocalFileMng::writeXmlString( panNode, "pan-position", QString("%1").arg( pan->at(y)->frame ) );
-					LocalFileMng::writeXmlString( panNode, "pan-value", QString("%1").arg( pan->at(y)->value ) );
+					LocalFileMng::writeXmlString( panNode, "pan-position", QString("%1").arg( pan->at(y).frame ) );
+					LocalFileMng::writeXmlString( panNode, "pan-value", QString("%1").arg( pan->at(y).value ) );
 					layerNode.appendChild( panNode );
 				}
 
@@ -603,8 +643,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 			LocalFileMng::writeXmlString( noteNode, "position", QString("%1").arg( pNote->get_position() ) );
 			LocalFileMng::writeXmlString( noteNode, "leadlag", QString("%1").arg( pNote->get_lead_lag() ) );
 			LocalFileMng::writeXmlString( noteNode, "velocity", QString("%1").arg( pNote->get_velocity() ) );
-			LocalFileMng::writeXmlString( noteNode, "pan_L", QString("%1").arg( pNote->get_pan_l() ) );
-			LocalFileMng::writeXmlString( noteNode, "pan_R", QString("%1").arg( pNote->get_pan_r() ) );
+			LocalFileMng::writeXmlString( noteNode, "pan", QString("%1").arg( pNote->getPan() ) );
 			LocalFileMng::writeXmlString( noteNode, "pitch", QString("%1").arg( pNote->get_pitch() ) );
 			LocalFileMng::writeXmlString( noteNode, "probability", QString("%1").arg( pNote->get_probability() ) );
 

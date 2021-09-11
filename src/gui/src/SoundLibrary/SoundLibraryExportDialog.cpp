@@ -49,11 +49,8 @@
 
 using namespace H2Core;
 
-const char* SoundLibraryExportDialog::__class_name = "SoundLibraryExportDialog";
-
 SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,  const QString& sSelectedKit, H2Core::Filesystem::Lookup lookup )
 	: QDialog( pParent )
-	, Object( __class_name )
 	, m_sPreselectedKit( sSelectedKit )
 	, m_preselectedKitLookup( lookup )
 {
@@ -174,11 +171,11 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 				bool bFoundFileInRightComponent = false;
 				for( int j = 0; j < pDrumkit->get_instruments()->size() ; j++){
 					InstrumentList instrList = pDrumkit->get_instruments();
-					Instrument* instr = instrList[j];
+					auto instr = instrList[j];
 					for ( auto pComponent : *( instr->get_components() ) ) {
 						if( pComponent->get_drumkit_componentID() == componentID ){
 							for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
-								InstrumentLayer* layer = pComponent->get_layer( n );
+								auto layer = pComponent->get_layer( n );
 								if( layer ) {
 									 if( layer->get_sample()->get_filename().compare(filesList.at(i)) == 0 ) {
 										 bFoundFileInRightComponent = true;

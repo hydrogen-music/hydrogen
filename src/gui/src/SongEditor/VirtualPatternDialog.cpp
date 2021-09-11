@@ -30,11 +30,8 @@
 
 #include "Skin.h"
 
-const char* VirtualPatternDialog::__class_name = "VirtualPatternDialog";
-
 VirtualPatternDialog::VirtualPatternDialog(QWidget* parent)
     : QDialog(parent)
-    , Object( __class_name )
 {
     setupUi( this );
     setWindowTitle( tr( "Select virtual pattern" ) );

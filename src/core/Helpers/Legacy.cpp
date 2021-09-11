@@ -42,7 +42,6 @@
 
 namespace H2Core {
 
-const char* Legacy::__class_name = "Legacy";
 
 Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 	if ( version_older_than( 0, 9, 8 ) ) {
@@ -87,15 +86,18 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 				ERRORLOG( QString( "instrument count >= %2, stop reading instruments" ).arg( MAX_INSTRUMENTS ) );
 				break;
 			}
-			Instrument* pInstrument = nullptr;
+			std::shared_ptr<Instrument> pInstrument = nullptr;
 			int id = instrument_node.read_int( "id", EMPTY_INSTR_ID, false, false );
 			if ( id!=EMPTY_INSTR_ID ) {
-				pInstrument = new Instrument( id, instrument_node.read_string( "name", "" ), nullptr );
+				pInstrument = std::make_shared<Instrument>( id, instrument_node.read_string( "name", "" ), nullptr );
 				pInstrument->set_drumkit_name( drumkit_name );
 				pInstrument->set_volume( instrument_node.read_float( "volume", 1.0f ) );
 				pInstrument->set_muted( instrument_node.read_bool( "isMuted", false ) );
-				pInstrument->set_pan_l( instrument_node.read_float( "pan_L", 1.0f ) );
-				pInstrument->set_pan_r( instrument_node.read_float( "pan_R", 1.0f ) );
+				float fPanL = instrument_node.read_float( "pan_L", 1.f );
+				float fPanR = instrument_node.read_float( "pan_R", 1.f );
+				float fPan = Sampler::getRatioPan( fPanL, fPanR ); // convert to single pan parameter				
+				pInstrument->setPan( fPan );
+
 				// may not exist, but can't be empty
 				pInstrument->set_apply_velocity( instrument_node.read_bool( "applyVelocity", true, false ) );
 				pInstrument->set_filter_active( instrument_node.read_bool( "filterActive", true, false ) );
@@ -106,7 +108,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 				float decay = instrument_node.read_float( "Decay", 0.0f, true, false  );
 				float sustain = instrument_node.read_float( "Sustain", 1.0f, true, false );
 				float release = instrument_node.read_float( "Release", 1000.0f, true, false );
-				pInstrument->set_adsr( new ADSR( attack, decay, sustain, release ) );
+				pInstrument->set_adsr( std::make_shared<ADSR>( attack, decay, sustain, release ) );
 				pInstrument->set_gain( instrument_node.read_float( "gain", 1.0f, true, false ) );
 				pInstrument->set_mute_group( instrument_node.read_int( "muteGroup", -1, true, false ) );
 				pInstrument->set_midi_out_channel( instrument_node.read_int( "midiOutChannel", -1, true, false ) );
@@ -152,8 +154,8 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 							pDrumkit->get_components()->push_back( pDrumkitCompo );
 						}
 						
-						InstrumentComponent* pComponent = new InstrumentComponent( 0 );
-						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
+						auto pComponent = std::make_shared<InstrumentComponent>( 0 );
+						auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 						pComponent->set_layer( pLayer, 0 );
 						pInstrument->get_components()->push_back( pComponent );
 						
@@ -173,7 +175,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 						DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
 						pDrumkit->get_components()->push_back(pDrumkitComponent);
 					}
-					InstrumentComponent* pComponent = new InstrumentComponent( 0 );
+					auto pComponent = std::make_shared<InstrumentComponent>( 0 );
 
 					XMLNode layer_node = instrument_node.firstChildElement( "layer" );
 					while ( !layer_node.isNull() ) {
@@ -182,7 +184,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 							break;
 						}
 						auto pSample = std::make_shared<Sample>( dk_path+"/"+layer_node.read_string( "filename", "" ) );
-						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
+						auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 						pLayer->set_start_velocity( layer_node.read_float( "min", 0.0 ) );
 						pLayer->set_end_velocity( layer_node.read_float( "max", 1.0 ) );
 						pLayer->set_gain( layer_node.read_float( "gain", 1.0, true, false ) );
@@ -244,8 +246,10 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 			unsigned nPosition = note_node.read_int( "position", 0 );
 			float fLeadLag = note_node.read_float( "leadlag", 0.0 , false , false);
 			float fVelocity = note_node.read_float( "velocity", 0.8f );
-			float fPan_L = note_node.read_float( "pan_L", 0.5 );
-			float fPan_R = note_node.read_float( "pan_R", 0.5 );
+			float fPanL = note_node.read_float( "pan_L", 0.5 );
+			float fPanR = note_node.read_float( "pan_R", 0.5 );
+			float fPan = Sampler::getRatioPan( fPanL, fPanR ); // convert to single pan parameter
+
 			int nLength = note_node.read_int( "length", -1, true );
 			float nPitch = note_node.read_float( "pitch", 0.0, false, false );
 			float fProbability = note_node.read_float( "probability", 1.0 , false , false );
@@ -253,7 +257,7 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 			QString nNoteOff = note_node.read_string( "note_off", "false", false, false );
 			int instrId = note_node.read_int( "instrument", 0, true );
 
-			Instrument *instrRef = instrList->find( instrId );
+			auto instrRef = instrList->find( instrId );
 			if ( !instrRef ) {
 				ERRORLOG( QString( "Instrument with ID: '%1' not found. Note skipped." ).arg( instrId ) );
 				note_node = note_node.nextSiblingElement( "note" );
@@ -266,7 +270,7 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 				noteoff = true;
 			}
 
-			pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch);
+			pNote = new Note( instrRef, nPosition, fVelocity, fPan, nLength, nPitch);
 			pNote->set_key_octave( sKey );
 			pNote->set_lead_lag(fLeadLag);
 			pNote->set_note_off( noteoff );

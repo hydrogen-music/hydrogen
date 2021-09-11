@@ -33,9 +33,9 @@ namespace H2Core
 /**
  * XMLNode is a subclass of QDomNode with read and write values methods
 */
-class XMLNode : public H2Core::Object, public QDomNode
+class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 {
-		H2_OBJECT
+		H2_OBJECT(XMLNode)
 	public:
 		/** basic constructor */
 		XMLNode( );
@@ -73,6 +73,7 @@ class XMLNode : public H2Core::Object, public QDomNode
 		 * \param empty_ok if set to false output a DEBUG log line if the child node is empty
 		 */
 		float read_float( const QString& node, float default_value, bool inexistent_ok=true, bool empty_ok=true );
+		float read_float( const QString& node, float default_value, bool *pFound, bool inexistent_ok=true, bool empty_ok=true );
 		/**
 		 * reads a string stored into a child node
 		 * \param node the name of the child node to read into
@@ -147,9 +148,9 @@ class XMLNode : public H2Core::Object, public QDomNode
 /**
  * XMLDoc is a subclass of QDomDocument with read and write methods
 */
-class XMLDoc : public H2Core::Object, public QDomDocument
+class XMLDoc : public H2Core::Object<XMLDoc>, public QDomDocument
 {
-		H2_OBJECT
+		H2_OBJECT(XMLDoc)
 	public:
 		/** basic constructor */
 		XMLDoc( );

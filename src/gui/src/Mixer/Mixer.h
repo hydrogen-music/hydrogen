@@ -40,9 +40,9 @@ class MasterMixerLine;
 class LadspaFXMixerLine;
 class PixmapWidget;
 
-class Mixer : public QWidget, public EventListener, public H2Core::Object
+class Mixer :  public QWidget, public EventListener,  public H2Core::Object<Mixer>
 {
-	H2_OBJECT
+	H2_OBJECT(Mixer)
 	Q_OBJECT
 	public:
 		explicit Mixer(QWidget* parent);
@@ -78,6 +78,7 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 		void ladspaEditBtnClicked( LadspaFXMixerLine *ref );
 		void ladspaVolumeChanged( LadspaFXMixerLine* ref);
 		void closeEvent(QCloseEvent *event) override;
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
 		QHBoxLayout *			m_pFaderHBox;

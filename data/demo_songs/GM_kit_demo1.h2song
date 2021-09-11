@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <song>
- <version>1.0.0-'1a477ffe'</version>
+ <version>1.2.0</version>
  <bpm>115</bpm>
  <volume>0.5</volume>
  <metronomeVolume>0.5</metronomeVolume>
@@ -13,7 +13,10 @@
  <playbackTrackFilename></playbackTrackFilename>
  <playbackTrackEnabled>false</playbackTrackEnabled>
  <playbackTrackVolume>0</playbackTrackVolume>
+ <action_mode>0</action_mode>
  <mode>song</mode>
+ <pan_law_type>RATIO_STRAIGHT_POLYGONAL</pan_law_type>
+ <pan_law_k_norm>1.33333</pan_law_k_norm>
  <humanize_time>0.14</humanize_time>
  <humanize_velocity>0.26</humanize_velocity>
  <swing_factor>0</swing_factor>
@@ -29,10 +32,11 @@
    <id>0</id>
    <name>Kick</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>1</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>0</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -46,6 +50,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -149,10 +154,11 @@
    <id>1</id>
    <name>Stick</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.99569</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.7</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.3</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -166,6 +172,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -269,10 +276,11 @@
    <id>2</id>
    <name>Snare</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>1.02155</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.7</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.3</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -286,6 +294,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -389,10 +398,11 @@
    <id>3</id>
    <name>Hand Clap</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>1.02155</volume>
    <isMuted>false</isMuted>
-   <pan_L>0.7</pan_L>
-   <pan_R>1</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>0.3</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -406,6 +416,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -441,10 +452,11 @@
    <id>4</id>
    <name>Snare Rimshot</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>1</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.7</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.3</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -458,6 +470,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -561,10 +574,11 @@
    <id>5</id>
    <name>Floor Tom</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>1.04741</volume>
    <isMuted>false</isMuted>
-   <pan_L>0.44</pan_L>
-   <pan_R>1</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>0.56</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -578,6 +592,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -681,10 +696,11 @@
    <id>6</id>
    <name>Hat Closed</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.685345</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.48</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.52</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -698,6 +714,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -801,10 +818,11 @@
    <id>7</id>
    <name>Tom 2</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>1</volume>
    <isMuted>false</isMuted>
-   <pan_L>0.76</pan_L>
-   <pan_R>1</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>0.24</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -818,6 +836,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -921,10 +940,11 @@
    <id>8</id>
    <name>Hat Pedal</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.685345</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.48</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.52</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -938,6 +958,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -1041,10 +1062,11 @@
    <id>9</id>
    <name>Tom 1</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>1</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.8</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.2</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1058,6 +1080,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -1161,10 +1184,11 @@
    <id>10</id>
    <name>Hat Open</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.698276</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.48</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.52</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1178,6 +1202,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -1281,10 +1306,11 @@
    <id>11</id>
    <name>Cowbell</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.568965</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.32</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.68</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1298,6 +1324,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -1401,10 +1428,11 @@
    <id>12</id>
    <name>Ride</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.633621</volume>
    <isMuted>false</isMuted>
-   <pan_L>0.56</pan_L>
-   <pan_R>1</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>0.44</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1418,6 +1446,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -1521,10 +1550,11 @@
    <id>13</id>
    <name>Crash</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.517241</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.74</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.26</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1538,6 +1568,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -1641,10 +1672,11 @@
    <id>14</id>
    <name>Ride 2</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>1</volume>
    <isMuted>false</isMuted>
-   <pan_L>0.5</pan_L>
-   <pan_R>1</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>0.5</pan>
    <gain>0.6</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1658,6 +1690,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -1761,10 +1794,11 @@
    <id>15</id>
    <name>Splash</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.543103</volume>
    <isMuted>false</isMuted>
-   <pan_L>0.98</pan_L>
-   <pan_R>1</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>0.02</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1778,6 +1812,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -1881,10 +1916,11 @@
    <id>16</id>
    <name>Hat Semi-Open</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.69</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.48</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>-0.52</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1898,6 +1934,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -1916,10 +1953,11 @@
    <id>17</id>
    <name>Bell</name>
    <drumkit>GMRockKit</drumkit>
+   <drumkitLookup>2</drumkitLookup>
    <volume>0.534828</volume>
    <isMuted>false</isMuted>
-   <pan_L>0.56</pan_L>
-   <pan_R>1</pan_R>
+   <isSoloed>false</isSoloed>
+   <pan>0.44</pan>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -1933,6 +1971,7 @@
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>1000</Release>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
    <isStopNote>false</isStopNote>
@@ -1953,14 +1992,14 @@
    <name>main 1-1</name>
    <category></category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList>
     <note>
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -1972,8 +2011,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.36</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -1985,8 +2023,7 @@
      <position>24</position>
      <leadlag>0</leadlag>
      <velocity>0.16</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -1998,8 +2035,7 @@
      <position>36</position>
      <leadlag>0</leadlag>
      <velocity>0.42</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2011,8 +2047,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2024,8 +2059,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.22</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2037,8 +2071,7 @@
      <position>60</position>
      <leadlag>0</leadlag>
      <velocity>0.44</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2050,8 +2083,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2063,8 +2095,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.22</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2076,8 +2107,7 @@
      <position>84</position>
      <leadlag>0</leadlag>
      <velocity>0.4</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2089,8 +2119,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2102,8 +2131,7 @@
      <position>108</position>
      <leadlag>0</leadlag>
      <velocity>0.42</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2115,8 +2143,7 @@
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.34</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2128,8 +2155,7 @@
      <position>132</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2141,8 +2167,7 @@
      <position>156</position>
      <leadlag>0</leadlag>
      <velocity>0.32</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2154,8 +2179,7 @@
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2167,8 +2191,7 @@
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.24</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2180,8 +2203,7 @@
      <position>180</position>
      <leadlag>0</leadlag>
      <velocity>0.56</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2195,14 +2217,14 @@
    <name>main 1-2</name>
    <category></category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList>
     <note>
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2214,8 +2236,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.36</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2227,8 +2248,7 @@
      <position>24</position>
      <leadlag>0</leadlag>
      <velocity>0.16</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2240,8 +2260,7 @@
      <position>36</position>
      <leadlag>0</leadlag>
      <velocity>0.42</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2253,8 +2272,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2266,8 +2284,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.22</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2279,8 +2296,7 @@
      <position>60</position>
      <leadlag>0</leadlag>
      <velocity>0.44</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2292,8 +2308,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2305,8 +2320,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.22</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2318,8 +2332,7 @@
      <position>84</position>
      <leadlag>0</leadlag>
      <velocity>0.4</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2331,8 +2344,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2344,8 +2356,7 @@
      <position>108</position>
      <leadlag>0</leadlag>
      <velocity>0.42</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2357,8 +2368,7 @@
      <position>132</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2370,8 +2380,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.7</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2383,8 +2392,7 @@
      <position>156</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2396,8 +2404,7 @@
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2409,8 +2416,7 @@
      <position>180</position>
      <leadlag>0</leadlag>
      <velocity>0.2</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2424,14 +2430,14 @@
    <name>main 2-1</name>
    <category></category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList>
     <note>
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2443,8 +2449,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.24</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2456,8 +2461,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2469,8 +2473,7 @@
      <position>24</position>
      <leadlag>0</leadlag>
      <velocity>0.28</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2482,8 +2485,7 @@
      <position>24</position>
      <leadlag>0</leadlag>
      <velocity>0.38</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2495,8 +2497,7 @@
      <position>36</position>
      <leadlag>0</leadlag>
      <velocity>0.4</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2508,8 +2509,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2521,8 +2521,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.22</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2534,8 +2533,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.22</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2547,8 +2545,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.36</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2560,8 +2557,7 @@
      <position>84</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2573,8 +2569,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2586,8 +2581,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.3</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2599,8 +2593,7 @@
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2612,8 +2605,7 @@
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.08</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2625,8 +2617,7 @@
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.4</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2638,8 +2629,7 @@
      <position>132</position>
      <leadlag>0</leadlag>
      <velocity>0.36</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2651,8 +2641,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2664,8 +2653,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.6</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2677,8 +2665,7 @@
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.24</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2690,8 +2677,7 @@
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.68</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2703,8 +2689,7 @@
      <position>180</position>
      <leadlag>0</leadlag>
      <velocity>0.56</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2718,14 +2703,14 @@
    <name>main 2-2</name>
    <category></category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList>
     <note>
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2737,8 +2722,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.24</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2750,8 +2734,7 @@
      <position>24</position>
      <leadlag>0</leadlag>
      <velocity>0.28</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2763,8 +2746,7 @@
      <position>24</position>
      <leadlag>0</leadlag>
      <velocity>0.38</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2776,8 +2758,7 @@
      <position>36</position>
      <leadlag>0</leadlag>
      <velocity>0.4</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2789,8 +2770,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2802,8 +2782,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.22</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2815,8 +2794,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.22</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2828,8 +2806,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.36</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2841,8 +2818,7 @@
      <position>84</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2854,8 +2830,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2867,8 +2842,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.3</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2880,8 +2854,7 @@
      <position>108</position>
      <leadlag>0</leadlag>
      <velocity>0.26</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2893,8 +2866,7 @@
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2906,8 +2878,7 @@
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.08</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2919,8 +2890,7 @@
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.4</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2932,8 +2902,7 @@
      <position>132</position>
      <leadlag>0</leadlag>
      <velocity>0.36</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2945,8 +2914,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2958,8 +2926,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.6</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2971,8 +2938,7 @@
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.24</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2984,8 +2950,7 @@
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.68</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -2997,8 +2962,7 @@
      <position>180</position>
      <leadlag>0</leadlag>
      <velocity>0.5</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3010,8 +2974,7 @@
      <position>180</position>
      <leadlag>0</leadlag>
      <velocity>0.56</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3025,14 +2988,14 @@
    <name>main 2-3</name>
    <category></category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList>
     <note>
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3044,8 +3007,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.24</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3057,8 +3019,7 @@
      <position>24</position>
      <leadlag>0</leadlag>
      <velocity>0.28</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3070,8 +3031,7 @@
      <position>24</position>
      <leadlag>0</leadlag>
      <velocity>0.38</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3083,8 +3043,7 @@
      <position>36</position>
      <leadlag>0</leadlag>
      <velocity>0.4</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3096,8 +3055,7 @@
      <position>45</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3109,8 +3067,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3122,8 +3079,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.22</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3135,8 +3091,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.22</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3148,8 +3103,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.36</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3161,8 +3115,7 @@
      <position>84</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3174,8 +3127,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3187,8 +3139,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.3</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3200,8 +3151,7 @@
      <position>108</position>
      <leadlag>0</leadlag>
      <velocity>0.26</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3213,8 +3163,7 @@
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3226,8 +3175,7 @@
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.08</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3239,8 +3187,7 @@
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.4</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3252,8 +3199,7 @@
      <position>132</position>
      <leadlag>0</leadlag>
      <velocity>0.36</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3265,8 +3211,7 @@
      <position>141</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3278,8 +3223,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3291,8 +3235,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.6</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3304,8 +3247,7 @@
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.18</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3317,8 +3259,7 @@
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.24</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3330,8 +3271,7 @@
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.68</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3343,8 +3283,7 @@
      <position>180</position>
      <leadlag>0</leadlag>
      <velocity>0.5</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3356,8 +3295,7 @@
      <position>180</position>
      <leadlag>0</leadlag>
      <velocity>0.56</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3371,14 +3309,14 @@
    <name>main 2-4</name>
    <category></category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList>
     <note>
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3390,8 +3328,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.24</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3403,8 +3340,7 @@
      <position>24</position>
      <leadlag>0</leadlag>
      <velocity>0.28</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3416,8 +3352,7 @@
      <position>24</position>
      <leadlag>0</leadlag>
      <velocity>0.38</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3429,8 +3364,7 @@
      <position>36</position>
      <leadlag>0</leadlag>
      <velocity>0.4</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3442,8 +3376,7 @@
      <position>45</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3455,8 +3388,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3468,8 +3400,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.22</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3481,8 +3412,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.46</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3494,8 +3424,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.22</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3507,8 +3436,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.36</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3520,8 +3448,7 @@
      <position>84</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3533,8 +3460,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.3</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3546,8 +3472,7 @@
      <position>108</position>
      <leadlag>0</leadlag>
      <velocity>0.26</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3559,8 +3484,7 @@
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3572,8 +3496,7 @@
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.08</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3585,8 +3508,7 @@
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.24</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3598,8 +3520,7 @@
      <position>132</position>
      <leadlag>0</leadlag>
      <velocity>0.36</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3611,8 +3532,7 @@
      <position>141</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3624,8 +3544,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3637,8 +3556,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.6</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3650,8 +3568,7 @@
      <position>156</position>
      <leadlag>0</leadlag>
      <velocity>0.1</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3663,8 +3580,7 @@
      <position>156</position>
      <leadlag>0</leadlag>
      <velocity>0.1</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3676,8 +3592,7 @@
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.1</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3689,8 +3604,7 @@
      <position>180</position>
      <leadlag>0</leadlag>
      <velocity>0.4</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3704,14 +3618,14 @@
    <name>main 3-1</name>
    <category></category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList>
     <note>
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3723,8 +3637,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.14</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3736,8 +3649,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3749,8 +3661,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.66</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3762,8 +3673,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.52</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3775,8 +3685,7 @@
      <position>24</position>
      <leadlag>0</leadlag>
      <velocity>0.34</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3788,8 +3697,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3801,8 +3709,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.24</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3814,8 +3721,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3827,8 +3733,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3840,8 +3745,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.42</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3853,8 +3757,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.26</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3866,8 +3769,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.18</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3879,8 +3781,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3892,8 +3793,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.32</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3905,8 +3805,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3918,8 +3817,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3931,8 +3829,7 @@
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.46</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3944,8 +3841,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3957,8 +3853,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.28</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3970,8 +3865,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3983,8 +3877,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -3996,8 +3889,7 @@
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.26</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4009,8 +3901,7 @@
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.2</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4022,8 +3913,7 @@
      <position>180</position>
      <leadlag>0</leadlag>
      <velocity>0.24</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4035,8 +3925,7 @@
      <position>180</position>
      <leadlag>0</leadlag>
      <velocity>0.34</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4050,14 +3939,14 @@
    <name>main 3-2</name>
    <category></category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList>
     <note>
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4069,8 +3958,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.14</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4082,8 +3970,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4095,8 +3982,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4108,8 +3994,7 @@
      <position>24</position>
      <leadlag>0</leadlag>
      <velocity>0.56</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4121,8 +4006,7 @@
      <position>24</position>
      <leadlag>0</leadlag>
      <velocity>0.34</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4134,8 +4018,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4147,8 +4030,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.24</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4160,8 +4042,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4173,8 +4054,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4186,8 +4066,7 @@
      <position>60</position>
      <leadlag>0</leadlag>
      <velocity>0.56</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4199,8 +4078,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.26</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4212,8 +4090,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.18</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4225,8 +4102,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4238,8 +4114,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.32</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4251,8 +4126,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4264,8 +4138,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4277,8 +4150,7 @@
      <position>108</position>
      <leadlag>0</leadlag>
      <velocity>0.36</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4290,8 +4162,7 @@
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.46</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4303,8 +4174,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4316,8 +4186,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.28</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4329,8 +4198,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4342,8 +4210,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4355,8 +4222,7 @@
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.26</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4368,8 +4234,7 @@
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.2</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4381,8 +4246,7 @@
      <position>180</position>
      <leadlag>0</leadlag>
      <velocity>0.24</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4394,8 +4258,7 @@
      <position>180</position>
      <leadlag>0</leadlag>
      <velocity>0.14</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4407,8 +4270,7 @@
      <position>180</position>
      <leadlag>0</leadlag>
      <velocity>0.34</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4420,8 +4282,7 @@
      <position>186</position>
      <leadlag>0</leadlag>
      <velocity>0.34</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4435,14 +4296,14 @@
    <name>main 3-3</name>
    <category></category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList>
     <note>
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4454,8 +4315,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.14</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4467,8 +4327,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4480,8 +4339,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4493,8 +4351,7 @@
      <position>12</position>
      <leadlag>0</leadlag>
      <velocity>0.22</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4506,8 +4363,7 @@
      <position>24</position>
      <leadlag>0</leadlag>
      <velocity>0.34</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4519,8 +4375,7 @@
      <position>36</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4532,8 +4387,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4545,8 +4399,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4558,8 +4411,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4571,8 +4423,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4584,8 +4435,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.42</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4597,8 +4447,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.26</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4610,8 +4459,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.18</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4623,8 +4471,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4636,8 +4483,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.32</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4649,8 +4495,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4662,8 +4507,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4675,8 +4519,7 @@
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.46</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4688,8 +4531,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4701,8 +4543,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4714,8 +4555,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4727,8 +4567,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4740,8 +4579,7 @@
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.26</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4753,8 +4591,7 @@
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.2</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4766,8 +4603,7 @@
      <position>180</position>
      <leadlag>0</leadlag>
      <velocity>0.24</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4779,8 +4615,7 @@
      <position>180</position>
      <leadlag>0</leadlag>
      <velocity>0.34</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4794,14 +4629,14 @@
    <name>main 3-4</name>
    <category></category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList>
     <note>
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4813,8 +4648,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.14</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4826,8 +4660,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4839,8 +4672,7 @@
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4852,8 +4684,7 @@
      <position>12</position>
      <leadlag>0</leadlag>
      <velocity>0.22</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4865,8 +4696,7 @@
      <position>24</position>
      <leadlag>0</leadlag>
      <velocity>0.34</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4878,8 +4708,7 @@
      <position>36</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4891,8 +4720,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4904,8 +4732,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4917,8 +4744,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4930,8 +4756,7 @@
      <position>48</position>
      <leadlag>0</leadlag>
      <velocity>0.32</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4943,8 +4768,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.42</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4956,8 +4780,7 @@
      <position>72</position>
      <leadlag>0</leadlag>
      <velocity>0.26</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4969,8 +4792,7 @@
      <position>84</position>
      <leadlag>0</leadlag>
      <velocity>0.18</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4982,8 +4804,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -4995,8 +4816,7 @@
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.16</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -5008,8 +4828,7 @@
      <position>108</position>
      <leadlag>0</leadlag>
      <velocity>0.24</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -5021,8 +4840,7 @@
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.52</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -5034,8 +4852,7 @@
      <position>132</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -5047,8 +4864,7 @@
      <position>144</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -5060,8 +4876,7 @@
      <position>156</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -5073,8 +4888,7 @@
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -5086,8 +4900,7 @@
      <position>180</position>
      <leadlag>0</leadlag>
      <velocity>0.12</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -5099,8 +4912,7 @@
      <position>186</position>
      <leadlag>0</leadlag>
      <velocity>0.36</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>
@@ -5114,14 +4926,14 @@
    <name>end</name>
    <category></category>
    <size>192</size>
+   <denominator>4</denominator>
    <info></info>
    <noteList>
     <note>
      <position>0</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
-     <pan_L>0.5</pan_L>
-     <pan_R>0.5</pan_R>
+     <pan>0</pan>
      <pitch>0</pitch>
      <probability>1</probability>
      <key>C0</key>

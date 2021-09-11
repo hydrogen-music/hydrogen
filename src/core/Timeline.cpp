@@ -26,9 +26,8 @@
 
 namespace H2Core
 {
-	const char* Timeline::__class_name = "Timeline";
 
-	Timeline::Timeline() : Object( __class_name )
+	Timeline::Timeline() : Object( )
 	{
 	}
 
@@ -147,6 +146,44 @@ namespace H2Core
 		//sort the timeline vector to beats a < b
 		sort(m_tags.begin(), m_tags.end(), TagComparator());
 	}
+
+QString Timeline::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[Timeline]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_tempoMarkers:\n" ).arg( sPrefix ).arg( s ) );
+		for ( auto const& tt : m_tempoMarkers ) {
+			if ( tt != nullptr ) {
+				sOutput.append( QString( "%1[bar: %2 , bpm: %3]\n" ).arg( sPrefix + s + s ).arg( tt->nBar ).arg( tt->fBpm ) );
+			}
+		}
+		sOutput.append( QString( "%1%2m_tags:\n" ).arg( sPrefix ).arg( s ) );
+		for ( auto const& tt : m_tags ) {
+			if ( tt != nullptr ) {
+				sOutput.append( QString( "%1[bar: %2 , tag: %3]\n" ).arg( sPrefix + s + s ).arg( tt->nBar ).arg( tt->sTag ) );
+			}
+		}
+	} else {
+		
+		sOutput = QString( "%1[Timeline] " ).arg( sPrefix )
+			.append( QString( "m_tempoMarkers: [" ) );
+		for ( auto const& tt : m_tempoMarkers ) {
+			if ( tt != nullptr ) {
+				sOutput.append( QString( " [bar: %1 , bpm: %2]" ).arg( tt->nBar ).arg( tt->fBpm ) );
+			}
+		}
+		sOutput.append( QString( "], m_tags: [" ) );
+		for ( auto const& tt : m_tags ) {
+			if ( tt != nullptr ) {
+				sOutput.append( QString( " [bar: %1 , tag: %2]" ).arg( tt->nBar ).arg( tt->sTag ) );
+			}
+		}
+		sOutput.append(" ]");
+	}
+		
+	return sOutput;
+}
 
 };
 

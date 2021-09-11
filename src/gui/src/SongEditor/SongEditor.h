@@ -32,9 +32,16 @@
 #include <QList>
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include "../EventListener.h"
 #include "PatternFillDialog.h"
 #include "../Selection.h"
+#include "../Widgets/WidgetWithScalableFont.h"
+
+namespace H2Core {
+	class Hydrogen;
+	class AudioEngine;
+}
 
 class Button;
 class ToggleButton;
@@ -56,9 +63,9 @@ static const uint SONG_EDITOR_MAX_GRID_WIDTH = 16;
 //! multiple pattern+timeslot cells using a 2-dimensional visual representation, with copy, paste, move,
 //! delete, duplicate etc.
 //!
-class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget<QPoint>
+class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public SelectionWidget<QPoint>
 {
-    H2_OBJECT
+    H2_OBJECT(SongEditor)
 	Q_OBJECT
 
 		struct GridCell {
@@ -101,27 +108,33 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		void copy();
 		void paste();
 		void cut();
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
 
 		Selection<QPoint> m_selection;
 
-		QScrollArea *m_pScrollView;
-		SongEditorPanel *m_pSongEditorPanel;
+		QScrollArea *			m_pScrollView;
+		SongEditorPanel *		m_pSongEditorPanel;
 
-		QMenu *m_pPopupMenu;
+		H2Core::Hydrogen* 		m_pHydrogen;
+		H2Core::AudioEngine* 	m_pAudioEngine;
 
-		unsigned m_nGridHeight;
-		unsigned m_nGridWidth;
-		unsigned m_nMaxPatternSequence;
-		bool m_bCopyNotMove;
-
-		//! Pattern sequence or selection has changed, so must be redrawn.
-		bool m_bSequenceChanged;
+		unsigned 				m_nGridHeight;
+		unsigned 				m_nGridWidth;
+		unsigned 				m_nMaxPatternSequence;
+		bool					m_bIsMoving;
+		bool					m_bCopyNotMove;
 
 		//! In "draw" mode, whether we're activating pattern cells ("drawing") or deactivating ("erasing") is
 		//! set at the start of the draw gesture.
-		bool m_bDrawingActiveCell;
+		bool 					m_bDrawingActiveCell;
+
+		//! Pattern sequence or selection has changed, so must be redrawn.
+		bool 					m_bSequenceChanged;
+
+		QMenu *					m_pPopupMenu;
+
 
 		//! @name Background pixmap caching
 		//!
@@ -131,8 +144,8 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		//!       * the cached grid background pixmap is used when repainting the pattern
 		//!   * selections and moving cells are painted on top of the cached sequence pixmap
 		//! @{
-		QPixmap *m_pBackgroundPixmap;
-		QPixmap *m_pSequencePixmap;
+		QPixmap *				m_pBackgroundPixmap;
+		QPixmap *				m_pSequencePixmap;
 		//! @}
 
 		const int m_nMargin = 10;
@@ -187,6 +200,10 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 
 		std::map< QPoint, GridCell > m_gridCells;
 		void updateGridCells();
+		std::vector<QColor> m_lastUsedPatternColors;
+		int m_nLastUsedVisiblePatternColors;
+		int m_nMaxPatternColors;
+		int m_nLastUsedColoringMethod;
 public:
 
 		//! @name Selection interfaces
@@ -221,9 +238,9 @@ inline int SongEditor::getCursorColumn() const {
 ///
 /// Song editor pattern list
 ///
-class SongEditorPatternList : public QWidget, public H2Core::Object, public EventListener
+class SongEditorPatternList :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>,  public H2Core::Object<SongEditorPatternList>, public EventListener
 {
-    H2_OBJECT
+    H2_OBJECT(SongEditorPatternList)
 	Q_OBJECT
 
 	public:
@@ -260,11 +277,14 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
 		virtual void timelineUpdateEvent( int nValue ) override;
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
-		uint m_nGridHeight;
-		uint m_nWidth;
-		static const uint m_nInitialHeight = 10;
+		H2Core::Hydrogen* 		m_pHydrogen;
+		H2Core::AudioEngine* 	m_pAudioEngine;
+		uint 				m_nGridHeight;
+		uint 				m_nWidth;
+		static const uint 	m_nInitialHeight = 10;
 
 		QPixmap *			m_pBackgroundPixmap;
 							
@@ -291,6 +311,10 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		virtual void patternChangedEvent() override;
 		void mouseMoveEvent(QMouseEvent *event) override;
 		QPoint __drag_start_position;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 };
 
@@ -300,9 +324,9 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 // }
 //
 
-class SongEditorPositionRuler : public QWidget, public H2Core::Object
+class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>,  public H2Core::Object<SongEditorPositionRuler>
 {
-    H2_OBJECT
+    H2_OBJECT(SongEditorPositionRuler)
 	Q_OBJECT
 
 	public:
@@ -322,8 +346,11 @@ class SongEditorPositionRuler : public QWidget, public H2Core::Object
 		void updatePosition();
 		void showTagWidget( int nColumn );
 		void showBpmWidget( int nColumn );
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
+		H2Core::Hydrogen* 		m_pHydrogen;
+		H2Core::AudioEngine* 	m_pAudioEngine;
 		QTimer *			m_pTimer;
 		uint				m_nGridWidth;
 		uint				m_nMaxPatternSequence;
@@ -334,11 +361,15 @@ class SongEditorPositionRuler : public QWidget, public H2Core::Object
 		QPixmap *			m_pBackgroundPixmap;
 		QPixmap				m_tickPositionPixmap;
 		bool				m_bRightBtnPressed;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
 		
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent( QMouseEvent *ev );
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		virtual void paintEvent( QPaintEvent *ev );
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 };
 

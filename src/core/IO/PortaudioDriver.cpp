@@ -51,13 +51,11 @@ int portAudioCallback(
 }
 
 
-const char* PortAudioDriver::__class_name = "PortAudioDriver";
-
 bool PortAudioDriver::m_bInitialised = false;
 
 
 PortAudioDriver::PortAudioDriver( audioProcessCallback processCallback )
-		: AudioOutput( __class_name )
+		: AudioOutput()
 		, m_processCallback( processCallback )
 		, m_pOut_L( nullptr )
 		, m_pOut_R( nullptr )

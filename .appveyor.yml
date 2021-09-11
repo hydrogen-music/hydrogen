@@ -56,7 +56,10 @@ for:
 
     build_script: |-
       git submodule init && git submodule update
-      mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
+
+      CPUS=$(nproc)
+      echo "Building with $CPUS cpus"
+      mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make -j $CPUS
 
     test_script: |-
       TMPDIR=/tmp src/tests/tests --appveyor
@@ -85,7 +88,10 @@ for:
       sed -i '' 's/, int register,/, int,/g' /opt/local/include/jack/types.h
 
       git submodule init && git submodule update
-      mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
+      CPUS=$(sysctl -n hw.ncpu)
+      echo "Building with $CPUS cpus"
+      mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make -j $CPUS
+
       PATH="$(brew --prefix qt5)/bin:$PATH"
       ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
 
@@ -155,20 +161,20 @@ for:
           7z a %APPVEYOR_BUILD_FOLDER%\testresults.zip %TEMP%\hydrogen || cmd /c "exit  /b 0"
           if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\testresults.zip
 
-          mkdir %APPVEYOR_BUILD_FOLDER%\windows\extralibs
+          mkdir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
 
           REM *** Deploy Qt ***
-          %QTDIR%\bin\windeployqt.exe -xmlpatterns --no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\windows\extralibs src/gui/hydrogen.exe
+          %QTDIR%\bin\windeployqt.exe -xmlpatterns --no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs src/gui/hydrogen.exe
 
           REM *** Deploy other libraries ***
           set PYTHON=C:\Python38\python
           %PYTHON% -m pip install -r %APPVEYOR_BUILD_FOLDER%\windows\ci\requirements.txt
-          %PYTHON% %APPVEYOR_BUILD_FOLDER%\windows\ci\copy_thirdparty_dlls.py --no-overwrite -V debug -L %MSYS%\bin -d %APPVEYOR_BUILD_FOLDER%\windows\extralibs src/gui/hydrogen.exe src/core/libhydrogen-core-1.1.0.dll
+          %PYTHON% %APPVEYOR_BUILD_FOLDER%\windows\ci\copy_thirdparty_dlls.py --no-overwrite -V info -L %MSYS%\bin -d %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs src/gui/hydrogen.exe src/core/libhydrogen-core-1.1.0.dll
 
           REM Chocolatey installs JACK dlls in c:\Windows, so
           REM copy_third_party_libs.py thinks it's a system lib and
           REM won't copy it.
-          copy c:\Windows\%LIBJACK% %APPVEYOR_BUILD_FOLDER%\windows\extralibs
+          copy c:\Windows\%LIBJACK% %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
 
           REM *** Build installer ***
           cpack -G NSIS -v

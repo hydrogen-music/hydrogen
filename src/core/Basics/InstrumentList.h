@@ -35,9 +35,9 @@ class Instrument;
 /**
  * InstrumentList is a collection of instruments used within a song, a drumkit, ...
 */
-class InstrumentList : public H2Core::Object
+class InstrumentList : public H2Core::Object<InstrumentList>
 {
-		H2_OBJECT
+		H2_OBJECT(InstrumentList)
 	public:
 		/** constructor */
 		InstrumentList();
@@ -55,23 +55,23 @@ class InstrumentList : public H2Core::Object
 		 * add an instrument to the list
 		 * \param instrument a pointer to the instrument to add
 		 */
-		void operator<<( Instrument* instrument );
+		void operator<<( std::shared_ptr<Instrument> instrument );
 		/**
 		 * get an instrument from  the list
 		 * \param idx the index to get the instrument from
 		 */
-		Instrument* operator[]( int idx );
+		std::shared_ptr<Instrument> operator[]( int idx );
 		/**
 		 * add an instrument to the list
 		 * \param instrument a pointer to the instrument to add
 		 */
-		void add( Instrument* instrument );
+		void add( std::shared_ptr<Instrument> instrument );
 		/**
 		 * insert an instrument into the list
 		 * \param idx the index to insert the instrument at
 		 * \param instrument a pointer to the instrument to add
 		 */
-		void insert( int idx, Instrument* instrument );
+		void insert( int idx, std::shared_ptr<Instrument> instrument );
 		
 		/**
 		 * check if there is a idx is a valid index for this list
@@ -83,43 +83,43 @@ class InstrumentList : public H2Core::Object
 		 * get an instrument from  the list
 		 * \param idx the index to get the instrument from
 		 */
-		Instrument* get( int idx );
+		std::shared_ptr<Instrument> get( int idx );
 		/**
 		 * remove the instrument at a given index, does not delete it
 		 * \param idx the index
 		 * \return a pointer to the removed instrument
 		 */
-		Instrument* del( int idx );
+		std::shared_ptr<Instrument> del( int idx );
 		/**
 		 * remove an instrument from the list, does not delete it
 		 * \param instrument the instrument to be removed
 		 * \return a pointer to the removed instrument, 0 if not found
 		 */
-		Instrument* del( Instrument* instrument );
+		std::shared_ptr<Instrument> del( std::shared_ptr<Instrument> instrument );
 		/**
 		 * get the index of an instrument within the instruments
 		 * \param instrument a pointer to the instrument to find
 		 * \return -1 if not found
 		 */
-		int index( Instrument* instrument );
+		int index( std::shared_ptr<Instrument> instrument );
 		/**
 		 * find an instrument within the instruments
 		 * \param i the id of the instrument to find
 		 * \return 0 if not found
 		 */
-		Instrument* find( const int i );
+		std::shared_ptr<Instrument> find( const int i );
 		/**
 		 * find an instrument within the instruments
 		 * \param name the name of the instrument to find
 		 * \return 0 if not found
 		 */
-		Instrument* find( const QString& name );
+		std::shared_ptr<Instrument> find( const QString& name );
 		/**
 		 * find an instrument which play the given midi note
 		 * \param note the Midi note of the instrument to find
 		 * \return 0 if not found
 		 */
-		Instrument* findMidiNote( const int note );
+		std::shared_ptr<Instrument> findMidiNote( const int note );
 		/**
 		 * swap the instruments of two different indexes
 		 * \param idx_a the first index
@@ -190,7 +190,7 @@ class InstrumentList : public H2Core::Object
 		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
-		std::vector<Instrument*> __instruments;            ///< the list of instruments
+		std::vector<std::shared_ptr<Instrument>> __instruments;            ///< the list of instruments
 };
 
 // DEFINITIONS

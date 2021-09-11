@@ -27,11 +27,12 @@
 
 #include <core/Object.h>
 #include <core/Globals.h>
+#include <core/Preferences.h>
 
 class Fader;
 class MasterFader;
 class PanFader;
-class Knob;
+//class Knob;
 class Button;
 class ToggleButton;
 class InstrumentPropertiesDialog;
@@ -40,11 +41,11 @@ class LCDDisplay;
 class Rotary;
 
 #include "../Widgets/PixmapWidget.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
-
-class InstrumentNameWidget : public PixmapWidget
+class InstrumentNameWidget : public PixmapWidget, public H2Core::Object<InstrumentNameWidget>, protected WidgetWithScalableFont<8, 10, 12>
 {
-	H2_OBJECT
+	H2_OBJECT(InstrumentNameWidget)
 	Q_OBJECT
 	public:
 		explicit InstrumentNameWidget(QWidget* parent);
@@ -56,6 +57,9 @@ class InstrumentNameWidget : public PixmapWidget
 		void	mousePressEvent( QMouseEvent * e ) override;
 		void	mouseDoubleClickEvent( QMouseEvent * e ) override;
 
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
+	
 	signals:
 		void	clicked();
 		void	doubleClicked();
@@ -67,7 +71,10 @@ class InstrumentNameWidget : public PixmapWidget
 		int			m_nWidgetWidth;
 		int			m_nWidgetHeight;
 		QString		m_sInstrName;
-		QFont		m_mixerFont;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 
@@ -76,9 +83,9 @@ class InstrumentNameWidget : public PixmapWidget
 ///
 /// A mixer strip
 ///
-class MixerLine: public PixmapWidget
+class MixerLine: public PixmapWidget, public H2Core::Object<MixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(MixerLine)
 	Q_OBJECT
 	public:
 		MixerLine(QWidget* parent, int nInstr);
@@ -133,7 +140,7 @@ class MixerLine: public PixmapWidget
 		void	rightClick(Button *ref);
 		void	faderChanged(Fader *ref);
 		void	panChanged(Rotary *ref);
-		void	knobChanged(Knob *ref);
+		void	knobChanged(Rotary *ref);
 		void	nameClicked();
 		void	nameSelected();
 
@@ -154,14 +161,14 @@ class MixerLine: public PixmapWidget
 		ToggleButton *			m_pSoloBtn;
 		Button *				m_pPlaySampleBtn;
 		Button *				m_pTriggerSampleLED;
-		Knob *					m_pKnob[MAX_FX];
+		Rotary *				m_pFxRotary[MAX_FX];
 
 		LCDDisplay *			m_pPeakLCD;
 };
 
-class ComponentMixerLine: public PixmapWidget
+class ComponentMixerLine: public PixmapWidget, public H2Core::Object<ComponentMixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(ComponentMixerLine)
 	Q_OBJECT
 	public:
 		ComponentMixerLine(QWidget* parent, int CompoID);
@@ -222,9 +229,9 @@ class ComponentMixerLine: public PixmapWidget
 
 
 
-class MasterMixerLine: public PixmapWidget
+class MasterMixerLine: public PixmapWidget, public H2Core::Object<MasterMixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(MasterMixerLine)
 	Q_OBJECT
 	public:
 		explicit MasterMixerLine(QWidget* parent);
@@ -277,9 +284,9 @@ class MasterMixerLine: public PixmapWidget
 ///
 /// Mixer strip for FX
 ///
-class FxMixerLine: public PixmapWidget
+class FxMixerLine: public PixmapWidget, public H2Core::Object<FxMixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(FxMixerLine)
 	Q_OBJECT
 	public:
 		explicit FxMixerLine(QWidget* parent);
@@ -323,9 +330,9 @@ class FxMixerLine: public PixmapWidget
 
 
 
-class LadspaFXMixerLine : public PixmapWidget
+class LadspaFXMixerLine : public PixmapWidget, public H2Core::Object<LadspaFXMixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(LadspaFXMixerLine)
 	Q_OBJECT
 	public:
 		explicit LadspaFXMixerLine(QWidget* parent);

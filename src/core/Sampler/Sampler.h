@@ -32,8 +32,6 @@
 #include <vector>
 #include <memory>
 
-
-
 namespace H2Core
 {
 
@@ -49,15 +47,14 @@ class AudioOutput;
 ///
 /// Waveform based sampler.
 ///
-class Sampler : public H2Core::Object
+class Sampler : public H2Core::Object<Sampler>
 {
-	H2_OBJECT
+	H2_OBJECT(Sampler)
 public:
 
    /** PAN LAWS
 	* The following pan law functions return pan_L (==L, which is the gain for Left channel).
-	* They assume a fPan argument domain in [-1;1], and this always happens
-	* thanks to the previously called getRatioPan().
+	* They assume the fPan argument domain = [-1;1], which is used in Note and Instrument classes.
 	*----------------------------
 	* For the right channel use: R(p) == pan_R(p) = pan_L(-p) == L(-p)
 	* thanks to the Left-Right symmetry.
@@ -99,6 +96,10 @@ public:
 	*		one gain is constant while the other varies.
 	*		It's ideal as BALANCE law of DUAL-channel track,
 	*		has 0 dB center compensation.
+	*------------------------------------------------
+	* Some pan laws use expensive math functions like pow() and sqrt().
+	* Pan laws can be approximated by polynomials, e.g. with degree = 2, to adjust the center compensation,
+	* but then you cannot control the interpretation of the fPan argument exactly.
 	*/
 	enum PAN_LAW_TYPES {
 		RATIO_STRAIGHT_POLYGONAL = 0,
@@ -143,14 +144,20 @@ public:
 	static float polarConstKNormPanLaw( float fPan, float k );
 	static float ratioConstKNormPanLaw( float fPan, float k );
 	static float quadraticConstKNormPanLaw( float fPan, float k );
-	
 
-	/** This necessary function
-	 * returns the single pan parameter in [-1,1] from the L,R gains
-	 * as it was input from the GUI (up to scale and translation, which is arbitrary)
-	 */
+   /** This function is used to load old version files (v<=1.1).
+	* It returns the single pan parameter in [-1,1] from the L,R gains
+	* as it was input from the GUI (up to scale and translation, which is arbitrary).
+	* Default output is 0 (=central pan) if arguments are invalid.
+	*-----Historical Note-----
+	* Originally (version <= 1.0) pan_L,pan_R were actually gains for each channel;
+	*	"instrument" and "note" pans were multiplied as in a gain CHAIN in each separate channel,
+	*	so the chain killed the signal if instrument and note pans were hard-sided to opposites sides!
+	* In v1.1, pan_L and pan_R were still the members of Note/Instrument representing the pan knob position,
+	*	still using the ratioStraightPolygonalPanLaw() for the correspondence (up to constant multiplication),
+	*	but pan_L,pan_R were reconverted to single parameter in the Sampler, and fPan was used in the selected pan law.
+	*/
 	static float getRatioPan( float fPan_L, float fPan_R );
-
 	
 
 	float* m_pMainOut_L;	///< sampler main out (left channel)
@@ -160,12 +167,12 @@ public:
 	 * Constructor of the Sampler.
 	 *
 	 * It is called by AudioEngine::AudioEngine() and stored in
-	 * AudioEngine::__sampler.
+	 * AudioEngine::m_pSampler.
 	 */
 	Sampler();
 	~Sampler();
 
-	void process( uint32_t nFrames, Song* pSong );
+	void process( uint32_t nFrames, std::shared_ptr<Song> pSong );
 
 	/// Start playing a note
 	void noteOn( Note * pNote );
@@ -174,27 +181,27 @@ public:
 	void noteOff( Note *pNote );
 	void midiKeyboardNoteOff( int key );
 
-	void stopPlayingNotes( Instrument* pInstr = nullptr );
+	void stopPlayingNotes( std::shared_ptr<Instrument> pInstr = nullptr );
 
 	int getPlayingNotesNumber() {
 		return m_playingNotesQueue.size();
 	}
 
 	void preview_sample( std::shared_ptr<Sample> pSample, int length );
-	void preview_instrument( Instrument* pInstr );
+	void preview_instrument( std::shared_ptr<Instrument> pInstr );
 
-	void setPlayingNotelength( Instrument* pInstrument, unsigned long ticks, unsigned long noteOnTick );
-	bool isInstrumentPlaying( Instrument* pInstr );
+	void setPlayingNotelength( std::shared_ptr<Instrument> pInstrument, unsigned long ticks, unsigned long noteOnTick );
+	bool isInstrumentPlaying( std::shared_ptr<Instrument> pInstr );
 
 	void setInterpolateMode( Interpolation::InterpolateMode mode ){
 			 m_interpolateMode = mode;
 	}
 	
-	Instrument* getPreviewInstrument() const {
+	std::shared_ptr<Instrument> getPreviewInstrument() const {
 		return m_pPreviewInstrument;
 	}
 	
-	Instrument* getPlaybackTrackInstrument() const {
+	std::shared_ptr<Instrument> getPlaybackTrackInstrument() const {
 		return m_pPlaybackTrackInstrument;
 	}
 
@@ -216,10 +223,10 @@ private:
 	std::vector<Note*> m_queuedNoteOffs;
 	
 	/// Instrument used for the playback track feature.
-	Instrument* m_pPlaybackTrackInstrument;
+	std::shared_ptr<Instrument> m_pPlaybackTrackInstrument;
 
 	/// Instrument used for the preview feature.
-	Instrument* m_pPreviewInstrument;
+	std::shared_ptr<Instrument> m_pPreviewInstrument;
 
 	/** Maximum number of layers to be used in the Instrument
 	    editor. It will be inferred from
@@ -232,7 +239,7 @@ private:
 	
 	/** function to direct the computation to the selected pan law function
 	 */
-	float panLaw( float fPan, Song* pSong );
+	float panLaw( float fPan, std::shared_ptr<Song> pSong );
 
 
 
@@ -240,7 +247,7 @@ private:
 	
 	bool isAnyInstrumentSoloed() const;
 	
-	bool renderNote( Note* pNote, unsigned nBufferSize, Song* pSong );
+	bool renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Song> pSong );
 
 	Interpolation::InterpolateMode m_interpolateMode;
 
@@ -248,7 +255,7 @@ private:
 		std::shared_ptr<Sample> pSample,
 		Note *pNote,
 		SelectedLayerInfo *pSelectedLayerInfo,
-		InstrumentComponent *pCompo,
+		std::shared_ptr<InstrumentComponent> pCompo,
 		DrumkitComponent *pDrumCompo,
 		int nBufferSize,
 		int nInitialSilence,
@@ -256,14 +263,14 @@ private:
 		float cost_R,
 		float cost_track_L,
 		float cost_track_R,
-		Song* pSong
+		std::shared_ptr<Song> pSong
 	);
 
 	bool renderNoteResample(
 		std::shared_ptr<Sample> pSample,
 		Note *pNote,
 		SelectedLayerInfo *pSelectedLayerInfo,
-		InstrumentComponent *pCompo,
+		std::shared_ptr<InstrumentComponent> pCompo,
 		DrumkitComponent *pDrumCompo,
 		int nBufferSize,
 		int nInitialSilence,
@@ -272,7 +279,7 @@ private:
 		float cost_track_L,
 		float cost_track_R,
 		float fLayerPitch,
-		Song* pSong
+		std::shared_ptr<Song> pSong
 	);
 };
 

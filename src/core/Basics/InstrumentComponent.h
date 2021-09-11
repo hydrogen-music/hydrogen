@@ -26,6 +26,8 @@
 #include <cassert>
 #include <vector>
 #include <core/Object.h>
+#include <memory>
+
 
 namespace H2Core
 {
@@ -36,20 +38,20 @@ class Drumkit;
 class InstrumentLayer;
 class DrumkitComponent;
 
-class InstrumentComponent : public H2Core::Object
+class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 {
-		H2_OBJECT
+		H2_OBJECT(InstrumentComponent)
 	public:
 		InstrumentComponent( int related_drumkit_componentID );
-		InstrumentComponent( InstrumentComponent* other );
+		InstrumentComponent( std::shared_ptr<InstrumentComponent> other );
 		~InstrumentComponent();
 
 		void				save_to( XMLNode* node, int component_id );
-		static InstrumentComponent* 	load_from( XMLNode* node, const QString& dk_path );
+		static std::shared_ptr<InstrumentComponent> 	load_from( XMLNode* node, const QString& dk_path );
 
-		InstrumentLayer*	operator[]( int ix );
-		InstrumentLayer*	get_layer( int idx );
-		void				set_layer( InstrumentLayer* layer, int idx );
+		std::shared_ptr<InstrumentLayer>	operator[]( int ix );
+		std::shared_ptr<InstrumentLayer>	get_layer( int idx );
+		void				set_layer( std::shared_ptr<InstrumentLayer> layer, int idx );
 
 		void				set_drumkit_componentID( int related_drumkit_componentID );
 		int					get_drumkit_componentID();
@@ -86,7 +88,7 @@ class InstrumentComponent : public H2Core::Object
 		 * Preferences::m_nMaxLayers. Default value assigned in
 		 * Preferences::Preferences(): 16. */
 		static int			m_nMaxLayers;
-		std::vector<InstrumentLayer*>	__layers;
+		std::vector<std::shared_ptr<InstrumentLayer>>	__layers;
 };
 
 // DEFINITIONS
@@ -113,13 +115,13 @@ inline float InstrumentComponent::get_gain() const
 	return __gain;
 }
 
-inline InstrumentLayer* InstrumentComponent::operator[]( int idx )
+inline std::shared_ptr<InstrumentLayer> InstrumentComponent::operator[]( int idx )
 {
 	assert( idx >= 0 && idx < m_nMaxLayers );
 	return __layers[ idx ];
 }
 
-inline InstrumentLayer* InstrumentComponent::get_layer( int idx )
+inline std::shared_ptr<InstrumentLayer> InstrumentComponent::get_layer( int idx )
 {
 	assert( idx >= 0 && idx < m_nMaxLayers );
 	return __layers[ idx ];

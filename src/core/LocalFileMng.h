@@ -30,6 +30,7 @@
 
 #include <core/Object.h>
 
+#include <QColor>
 #include <QDomDocument>
 
 
@@ -47,9 +48,9 @@ class Drumkit;
 /**
  *
  */
-class LocalFileMng : public H2Core::Object
+class LocalFileMng : public H2Core::Object<LocalFileMng>
 {
-	H2_OBJECT
+	H2_OBJECT(LocalFileMng)
 public:
 	LocalFileMng();
 	~LocalFileMng();
@@ -57,16 +58,20 @@ public:
 	QString getDrumkitNameForPattern( const QString& patternDir );
 
 	static void writeXmlString( QDomNode parent, const QString& name, const QString& text );
+	static void writeXmlColor( QDomNode parent, const QString& name, const QColor& color );
 	static void writeXmlBool( QDomNode parent, const QString& name, bool value );
 
 	static QString	readXmlString( QDomNode , const QString& nodeName, const QString& defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
+	static QColor	readXmlColor( QDomNode , const QString& nodeName, const QColor& defaultValue = QColor( 97, 167, 251 ), bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
 	static float	readXmlFloat( QDomNode , const QString& nodeName, float defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
+	static float	readXmlFloat( QDomNode, const QString& nodeName, float defaultValue, bool *pFound,
+								 bool bCanBeEmpty = false, bool bShouldExists = true, bool tinyXmlCompatMode = false );	
 	static int		readXmlInt( QDomNode , const QString& nodeName, int defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
 	static bool		readXmlBool( QDomNode , const QString& nodeName, bool defaultValue, bool bShouldExists = true , bool tinyXmlCompatMode = false );
 	static void		convertFromTinyXMLString( QByteArray* str );
 	static bool		checkTinyXMLCompatMode( const QString& filename );
 	static QDomDocument openXmlDocument( const QString& filename );
-
+	
 private:
 	static QString processNode( QDomNode node, const QString& nodeName, bool bCanBeEmpty, bool bShouldExists );
 };
@@ -76,15 +81,15 @@ private:
 /**
  * Write XML file of a song
  */
-class SongWriter : public H2Core::Object
+class SongWriter : public H2Core::Object<SongWriter>
 {
-	H2_OBJECT
+	H2_OBJECT(SongWriter)
 public:
 	SongWriter();
 	~SongWriter();
 
 	// Returns 0 on success.
-	int writeSong( Song *song, const QString& filename );
+	int writeSong( std::shared_ptr<Song> song, const QString& filename );
 };
 
 };
