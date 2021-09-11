@@ -24,11 +24,13 @@
 #define NOTE_PROPERTIES_RULER_H
 
 #include "../EventListener.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 #include <QtGui>
 #include <QtWidgets>
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include <map>
 
 #include "PatternEditor.h"
@@ -41,9 +43,9 @@ namespace H2Core
 
 class PatternEditorPanel;
 
-class NotePropertiesRuler : public PatternEditor
+class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>
 {
-    H2_OBJECT
+    H2_OBJECT(NotePropertiesRuler)
 	Q_OBJECT
 	public:
 		//! NotePropertiesEditor is (currently) a single class instantiated in different "modes" to select
@@ -93,6 +95,7 @@ class NotePropertiesRuler : public PatternEditor
 		virtual void copy() override {}
 		virtual void paste() override {}
 		virtual void cut() override {}
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
 
@@ -137,6 +140,10 @@ class NotePropertiesRuler : public PatternEditor
 		void adjustNotePropertyDelta( H2Core::Note *pNote, float fDelta, bool bMessage = false );
 
 		int m_nDragPreviousColumn;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

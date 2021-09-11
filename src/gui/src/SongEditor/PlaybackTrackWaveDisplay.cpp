@@ -39,8 +39,6 @@ using namespace H2Core;
 #include "SongEditor.h"
 #include "SongEditorPanel.h"
 
-const char* PlaybackTrackWaveDisplay::__class_name = "PlaybackTrackWaveDisplay";
-
 PlaybackTrackWaveDisplay::PlaybackTrackWaveDisplay(QWidget* pParent)
  : WaveDisplay( pParent )
 {
@@ -80,7 +78,7 @@ void PlaybackTrackWaveDisplay::dragMoveEvent(QDragMoveEvent *event)
 	event->accept();
 }
 
-void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
+void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer )
 {
 	HydrogenApp* pH2App = HydrogenApp::get_instance();
 	Preferences* pPref = Preferences::get_instance();
@@ -105,7 +103,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 	memset( m_pPeakData, 0, currentWidth * sizeof(m_pPeakData[0]) );	
 	
 	if ( pLayer && pLayer->get_sample() ) {
-		Song* pSong = Hydrogen::get_instance()->getSong();
+		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 		
 		m_pLayer = pLayer;
 		m_sSampleName = m_pLayer->get_sample()->get_filename();
@@ -150,7 +148,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 			//No pattern found in this column, use default size (Size: 8)
 			if(maxPatternSize == 0) maxPatternSize = 192;
 			
-			//length (in seconds) of one pattern is: (nPatternSize/24) / ((pEngine->getSong()->__bpm * 2) / 60)
+			//length (in seconds) of one pattern is: (nPatternSize/24) / ((ppSong->getBpm() * 2) / 60)
 			float fLengthOfCurrentPatternInSecs = (maxPatternSize/24) / ((pSong->getBpm() * 2) / 60);
 			
 			if( fRemainingLengthOfPlaybackTrack >= fLengthOfCurrentPatternInSecs ) {

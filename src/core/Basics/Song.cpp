@@ -62,11 +62,8 @@ namespace
 namespace H2Core
 {
 
-const char* Song::__class_name = "Song";
-
 Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume )
-	: Object( __class_name )
-	, m_bIsMuted( false )
+	: m_bIsMuted( false )
 	, m_resolution( 48 )
 	, m_fBpm( fBpm )
 	, m_sName( sName )
@@ -130,7 +127,7 @@ Song::~Song()
 	INFOLOG( QString( "DESTROY '%1'" ).arg( m_sName ) );
 }
 
-void Song::purgeInstrument( Instrument* pInstr )
+void Song::purgeInstrument( std::shared_ptr<Instrument> pInstr )
 {
 	for ( int nPattern = 0; nPattern < ( int )m_pPatternList->size(); ++nPattern ) {
 		m_pPatternList->get( nPattern )->purge_instrument( pInstr );
@@ -181,7 +178,7 @@ int Song::lengthInTicks() const {
 
 	
 ///Load a song from file
-Song* Song::load( const QString& sFilename )
+std::shared_ptr<Song> Song::load( const QString& sFilename )
 {
 	SongReader reader;
 	return reader.readSong( sFilename );
@@ -192,7 +189,7 @@ bool Song::save( const QString& sFilename )
 {
 	SongWriter writer;
 	int err;
-	err = writer.writeSong( this, sFilename );
+	err = writer.writeSong( shared_from_this(), sFilename );
 
 	if( err ) {
 		return false;
@@ -202,9 +199,9 @@ bool Song::save( const QString& sFilename )
 
 
 /// Create default song
-Song* Song::getDefaultSong()
+std::shared_ptr<Song> Song::getDefaultSong()
 {
-	Song* pSong = new Song( "empty", "hydrogen", 120, 0.5 );
+	std::shared_ptr<Song> pSong = std::make_shared<Song>( "empty", "hydrogen", 120, 0.5 );
 
 	pSong->setMetronomeVolume( 0.5 );
 	pSong->setNotes( "..." );
@@ -216,7 +213,7 @@ Song* Song::getDefaultSong()
 	pSong->setSwingFactor( 0.0 );
 
 	InstrumentList* pInstrList = new InstrumentList();
-	Instrument* pNewInstr = new Instrument( EMPTY_INSTR_ID, "New instrument" );
+	auto pNewInstr = std::make_shared<Instrument>( EMPTY_INSTR_ID, "New instrument" );
 	pInstrList->add( pNewInstr );
 	pSong->setInstrumentList( pInstrList );
 
@@ -246,9 +243,9 @@ Song* Song::getDefaultSong()
 }
 
 /// Return an empty song
-Song* Song::getEmptySong()
+std::shared_ptr<Song> Song::getEmptySong()
 {
-	Song* pSong = Song::load( Filesystem::empty_song_path() );
+	std::shared_ptr<Song> pSong = Song::load( Filesystem::empty_song_path() );
 
 	/* 
 	 * If file DefaultSong.h2song is not accessible,
@@ -447,7 +444,7 @@ bool Song::writeTempPatternList( const QString& sFilename )
 
 QString Song::copyInstrumentLineToString( int nSelectedPattern, int nSelectedInstrument )
 {
-	Instrument *pInstr = getInstrumentList()->get( nSelectedInstrument );
+	auto pInstr = getInstrumentList()->get( nSelectedInstrument );
 	assert( pInstr );
 
 	QDomDocument doc;
@@ -522,7 +519,7 @@ bool Song::pasteInstrumentLineFromString( const QString& sSerialized, int nSelec
 	}
 
 	// Get current instrument
-	Instrument *pInstr = getInstrumentList()->get( nSelectedInstrument );
+	auto pInstr = getInstrumentList()->get( nSelectedInstrument );
 	assert( pInstr );
 
 	// Get pattern list
@@ -627,10 +624,7 @@ bool Song::pasteInstrumentLineFromString( const QString& sSerialized, int nSelec
 //	Implementation of SongReader class
 //-----------------------------------------------------------------------------
 
-const char* SongReader::__class_name = "SongReader";
-
 SongReader::SongReader()
-	: Object( __class_name )
 {
 //	infoLog("init");
 }
@@ -674,7 +668,7 @@ void Song::setPanLawKNorm( float fKNorm ) {
 }
  
 QString Song::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Song]\n" ).arg( sPrefix )
@@ -686,7 +680,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_fVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fVolume ) )
 			.append( QString( "%1%2m_fMetronomeVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fMetronomeVolume ) )
 			.append( QString( "%1%2m_sNotes: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sNotes ) )
-			.append( QString( "%1" ).arg( m_pPatternList->toQString( sPrefix + s ) ) )
+			.append( QString( "%1" ).arg( m_pPatternList->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_pPatternGroupSequence:\n" ).arg( sPrefix ).arg( s ) );
 		for ( auto pp : *m_pPatternGroupSequence ) {
 			if ( pp != nullptr ) {
@@ -762,7 +756,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_sPlaybackTrackFilename: %1" ).arg( m_sPlaybackTrackFilename ) )
 			.append( QString( ", m_bPlaybackTrackEnabled: %1" ).arg( m_bPlaybackTrackEnabled ) )
 			.append( QString( ", m_fPlaybackTrackVolume: %1" ).arg( m_fPlaybackTrackVolume ) )
-			.append( QString( "%1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix + s ) ) )
+			.append( QString( ", m_pVelocityAutomationPath: %1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix ) ) )
 			.append( QString( ", m_sLicense: %1" ).arg( m_sLicense ) );
 		if ( m_actionMode == ActionMode::selectMode ) {
 			sOutput.append( QString( ", m_actionMode: 0" ) );
@@ -780,7 +774,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 /// Reads a song.
 /// return nullptr = error reading song file.
 ///
-Song* SongReader::readSong( const QString& sFileName )
+std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 {
 	QString sFilename = getPath( sFileName );
 	if ( sFilename.isEmpty() ) {
@@ -788,7 +782,7 @@ Song* SongReader::readSong( const QString& sFileName )
 	}
 
 	INFOLOG( "Reading " + sFilename );
-	Song* pSong = nullptr;
+	std::shared_ptr<Song> pSong = nullptr;
 
 	QDomDocument doc = LocalFileMng::openXmlDocument( sFilename );
 	QDomNodeList nodeList = doc.elementsByTagName( "song" );
@@ -843,7 +837,7 @@ Song* SongReader::readSong( const QString& sFileName )
 	float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
 	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
 
-	pSong = new Song( sName, sAuthor, fBpm, fVolume );
+	pSong = std::make_shared<Song>( sName, sAuthor, fBpm, fVolume );
 	pSong->setMetronomeVolume( fMetronomeVolume );
 	pSong->setNotes( sNotes );
 	pSong->setLicense( sLicense );
@@ -961,8 +955,18 @@ Song* SongReader::readSong( const QString& sFileName )
 			float fVolume = LocalFileMng::readXmlFloat( instrumentNode, "volume", 1.0 );	// volume
 			bool bIsMuted = LocalFileMng::readXmlBool( instrumentNode, "isMuted", false );	// is muted
 			bool bIsSoloed = LocalFileMng::readXmlBool( instrumentNode, "isSoloed", false );	// is soloed
-			float fPan_L = LocalFileMng::readXmlFloat( instrumentNode, "pan_L", 0.5 );	// pan L
-			float fPan_R = LocalFileMng::readXmlFloat( instrumentNode, "pan_R", 0.5 );	// pan R
+			
+			bool bFound, bFound2;
+			float fPan = LocalFileMng::readXmlFloat( instrumentNode, "pan", 0.f, &bFound );
+			if ( !bFound ) {
+				// check if pan is expressed in the old fashion (version <= 1.1 ) with the pair (pan_L, pan_R)
+				float fPanL = LocalFileMng::readXmlFloat( instrumentNode, "pan_L", 1.f, &bFound );
+				float fPanR = LocalFileMng::readXmlFloat( instrumentNode, "pan_R", 1.f, &bFound2 );
+				if ( bFound == true && bFound2 == true ) { // found nodes pan_L and pan_R
+					fPan = Sampler::getRatioPan( fPanL, fPanR );  // convert to single pan parameter
+				}
+			}
+
 			float fFX1Level = LocalFileMng::readXmlFloat( instrumentNode, "FX1Level", 0.0 );	// FX level
 			float fFX2Level = LocalFileMng::readXmlFloat( instrumentNode, "FX2Level", 0.0 );	// FX level
 			float fFX3Level = LocalFileMng::readXmlFloat( instrumentNode, "FX3Level", 0.0 );	// FX level
@@ -1002,12 +1006,11 @@ Song* SongReader::readSong( const QString& sFileName )
 			int iHigherCC = LocalFileMng::readXmlInt( instrumentNode, "higher_cc", 127, true );
 
 			// create a new instrument
-			Instrument* pInstrument = new Instrument( id, sName, new ADSR( fAttack, fDecay, fSustain, fRelease ) );
+			auto pInstrument = std::make_shared<Instrument>( id, sName, std::make_shared<ADSR>( fAttack, fDecay, fSustain, fRelease ) );
 			pInstrument->set_volume( fVolume );
 			pInstrument->set_muted( bIsMuted );
 			pInstrument->set_soloed( bIsSoloed );
-			pInstrument->set_pan_l( fPan_L );
-			pInstrument->set_pan_r( fPan_R );
+			pInstrument->setPan( fPan );
 			pInstrument->set_drumkit_name( sDrumkit );
 			pInstrument->set_apply_velocity( bApplyVelocity );
 			pInstrument->set_fx_level( fFX1Level, 0 );
@@ -1066,8 +1069,8 @@ Song* SongReader::readSong( const QString& sFileName )
 					pInstrument->set_muted( true );
 					pInstrument->set_missing_samples( true );
 				}
-				InstrumentComponent* pCompo = new InstrumentComponent ( 0 );
-				InstrumentLayer* pLayer = new InstrumentLayer( pSample );
+				auto pCompo = std::make_shared<InstrumentComponent>( 0 );
+				auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 				pCompo->set_layer( pLayer, 0 );
 				pInstrument->get_components()->push_back( pCompo );
 			}
@@ -1078,7 +1081,7 @@ Song* SongReader::readSong( const QString& sFileName )
 				while (  ! componentNode.isNull()  ) {
 					bFoundAtLeastOneComponent = true;
 					int id = LocalFileMng::readXmlInt( componentNode, "component_id", 0 );
-					InstrumentComponent* pCompo = new InstrumentComponent( id );
+					auto pCompo = std::make_shared<InstrumentComponent>( id );
 					float fGainCompo = LocalFileMng::readXmlFloat( componentNode, "gain", 1.0 );
 					pCompo->set_gain( fGainCompo );
 
@@ -1123,16 +1126,15 @@ Song* SongReader::readSong( const QString& sFileName )
 						if ( !sIsModified ) {
 							pSample = Sample::load( sFilename );
 						} else {
+							// FIXME, kill EnvelopePoint, create Envelope class
 							EnvelopePoint pt;
-							int Frame = 0;
-							int Value = 0;
 
 							Sample::VelocityEnvelope velocity;
 							QDomNode volumeNode = layerNode.firstChildElement( "volume" );
 							while (  ! volumeNode.isNull()  ) {
-								Frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
-								Value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
-								velocity.push_back( std::make_unique<EnvelopePoint>(Frame, Value) );
+								pt.frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
+								pt.value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
+								velocity.push_back( pt );
 								volumeNode = volumeNode.nextSiblingElement( "volume" );
 								//ERRORLOG( QString("volume-posi %1").arg(LocalFileMng::readXmlInt( volumeNode, "volume-position", 0)) );
 							}
@@ -1140,9 +1142,9 @@ Song* SongReader::readSong( const QString& sFileName )
 							Sample::VelocityEnvelope pan;
 							QDomNode  panNode = layerNode.firstChildElement( "pan" );
 							while (  ! panNode.isNull()  ) {
-								Frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
-								Value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
-								pan.push_back( std::make_unique<EnvelopePoint>(Frame, Value) );
+								pt.frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
+								pt.value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
+								pan.push_back( pt );
 								panNode = panNode.nextSiblingElement( "pan" );
 							}
 
@@ -1153,7 +1155,7 @@ Song* SongReader::readSong( const QString& sFileName )
 							pInstrument->set_muted( true );
 							pInstrument->set_missing_samples( true );
 						}
-						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
+						auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 						pLayer->set_start_velocity( fMin );
 						pLayer->set_end_velocity( fMax );
 						pLayer->set_gain( fGain );
@@ -1168,7 +1170,7 @@ Song* SongReader::readSong( const QString& sFileName )
 					componentNode = ( QDomNode ) componentNode.nextSiblingElement( "instrumentComponent" );
 				}
 				if(!bFoundAtLeastOneComponent) {
-					InstrumentComponent* pCompo = new InstrumentComponent( 0 );
+					auto pCompo = std::make_shared<InstrumentComponent>( 0 );
 					float fGainCompo = LocalFileMng::readXmlFloat( componentNode, "gain", 1.0 );
 					pCompo->set_gain( fGainCompo );
 
@@ -1212,15 +1214,14 @@ Song* SongReader::readSong( const QString& sFileName )
 						if ( !sIsModified ) {
 							pSample = Sample::load( sFilename );
 						} else {
-							int Frame = 0;
-							int Value = 0;
+							EnvelopePoint pt;
 
 							Sample::VelocityEnvelope velocity;
 							QDomNode volumeNode = layerNode.firstChildElement( "volume" );
 							while (  ! volumeNode.isNull()  ) {
-								Frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
-								Value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
-								velocity.push_back( std::make_unique<EnvelopePoint>(Frame, Value) );
+								pt.frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
+								pt.value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
+								velocity.push_back( pt );
 								volumeNode = volumeNode.nextSiblingElement( "volume" );
 								//ERRORLOG( QString("volume-posi %1").arg(LocalFileMng::readXmlInt( volumeNode, "volume-position", 0)) );
 							}
@@ -1228,9 +1229,9 @@ Song* SongReader::readSong( const QString& sFileName )
 							Sample::VelocityEnvelope pan;
 							QDomNode  panNode = layerNode.firstChildElement( "pan" );
 							while (  ! panNode.isNull()  ) {
-								Frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
-								Value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
-								pan.push_back( std::make_unique<EnvelopePoint>(Frame, Value) );
+								pt.frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
+								pt.value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
+								pan.push_back( pt );
 								panNode = panNode.nextSiblingElement( "pan" );
 							}
 
@@ -1241,7 +1242,7 @@ Song* SongReader::readSong( const QString& sFileName )
 							pInstrument->set_muted( true );
 							pInstrument->set_missing_samples( true );
 						}
-						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
+						auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 						pLayer->set_start_velocity( fMin );
 						pLayer->set_end_velocity( fMax );
 						pLayer->set_gain( fGain );
@@ -1264,7 +1265,6 @@ Song* SongReader::readSong( const QString& sFileName )
 		pSong->setInstrumentList( pInstrList );
 	} else {
 		ERRORLOG( "Error reading song: instrumentList node not found" );
-		delete pSong;
 		delete pInstrList;
 		return nullptr;
 	}
@@ -1284,7 +1284,6 @@ Song* SongReader::readSong( const QString& sFileName )
 		} else {
 			ERRORLOG( "Error loading pattern" );
 			delete pPatternList;
-			delete pSong;
 			return nullptr;
 		}
 		patternNode = ( QDomNode ) patternNode.nextSiblingElement( "pattern" );
@@ -1551,8 +1550,18 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* pInstrList )
 			unsigned nPosition = LocalFileMng::readXmlInt( noteNode, "position", 0 );
 			float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0, false, false );
 			float fVelocity = LocalFileMng::readXmlFloat( noteNode, "velocity", 0.8f );
-			float fPan_L = LocalFileMng::readXmlFloat( noteNode, "pan_L", 0.5 );
-			float fPan_R = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 );
+			
+			bool bFound, bFound2;
+			float fPan = LocalFileMng::readXmlFloat( noteNode, "pan", 0.f, &bFound );
+			if ( !bFound ) {
+				// check if pan is expressed in the old fashion (version <= 1.1 ) with the couple (pan_L, pan_R)
+				float fPanL = LocalFileMng::readXmlFloat( noteNode, "pan_L", 1.f, &bFound );
+				float fPanR = LocalFileMng::readXmlFloat( noteNode, "pan_R", 1.f, &bFound2 );
+				if ( bFound == true && bFound2 == true ) { // found nodes pan_L and pan_R
+					fPan = Sampler::getRatioPan( fPanL, fPanR );  // convert to single pan parameter
+				}
+			}
+			
 			int nLength = LocalFileMng::readXmlInt( noteNode, "length", -1, true );
 			float nPitch = LocalFileMng::readXmlFloat( noteNode, "pitch", 0.0, false, false );
 			float fProbability = LocalFileMng::readXmlFloat( noteNode, "probability", 1.0, false, false );
@@ -1561,7 +1570,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* pInstrList )
 
 			int instrId = LocalFileMng::readXmlInt( noteNode, "instrument", -1 );
 
-			Instrument* pInstrumentRef = nullptr;
+			std::shared_ptr<Instrument> pInstrumentRef = nullptr;
 			// search instrument by ref
 			pInstrumentRef = pInstrList->find( instrId );
 			if ( !pInstrumentRef ) {
@@ -1575,7 +1584,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* pInstrList )
 				noteoff = true;
 			}
 
-			pNote = new Note( pInstrumentRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch );
+			pNote = new Note( pInstrumentRef, nPosition, fVelocity, fPan, nLength, nPitch );
 			pNote->set_key_octave( sKey );
 			pNote->set_lead_lag( fLeadLag );
 			pNote->set_note_off( noteoff );
@@ -1596,23 +1605,23 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* pInstrList )
 			QDomNode noteListNode = sequenceNode.firstChildElement( "noteList" );
 			QDomNode noteNode = noteListNode.firstChildElement( "note" );
 			while (  !noteNode.isNull() ) {
-
 				Note* pNote = nullptr;
 
 				unsigned nPosition = LocalFileMng::readXmlInt( noteNode, "position", 0 );
 				float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0, false, false );
 				float fVelocity = LocalFileMng::readXmlFloat( noteNode, "velocity", 0.8f );
-				float fPan_L = LocalFileMng::readXmlFloat( noteNode, "pan_L", 0.5 );
-				float fPan_R = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 );
+				float fPanL = LocalFileMng::readXmlFloat( noteNode, "pan_L", 0.5 );
+				float fPanR = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 );
+				float fPan = Sampler::getRatioPan( fPanL, fPanR ); // convert to single pan parameter
 				int nLength = LocalFileMng::readXmlInt( noteNode, "length", -1, true );
 				float nPitch = LocalFileMng::readXmlFloat( noteNode, "pitch", 0.0, false, false );
 
 				int instrId = LocalFileMng::readXmlInt( noteNode, "instrument", -1 );
 
-				Instrument* instrRef = pInstrList->find( instrId );
+				auto instrRef = pInstrList->find( instrId );
 				assert( instrRef );
 
-				pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch );
+				pNote = new Note( instrRef, nPosition, fVelocity, fPan, nLength, nPitch );
 				pNote->set_lead_lag( fLeadLag );
 
 				//infoLog( "new note!! pos: " + toString( pNote->m_nPosition ) + "\t instr: " + instrId );

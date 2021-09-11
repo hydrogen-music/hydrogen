@@ -514,8 +514,7 @@ public:
 							   int selectedPatternNumber,
 							   int oldLength,
 							   float oldVelocity,
-							   float oldPan_L,
-							   float oldPan_R,
+							   float fOldPan,
 							   float oldLeadLag,
 							   int oldNoteKeyVal,
 							   int oldOctaveKeyVal,
@@ -536,8 +535,7 @@ public:
 		__selectedPatternNumber = selectedPatternNumber;
 		__oldLength = oldLength;
 		__oldVelocity = oldVelocity;
-		__oldPan_L = oldPan_L;
-		__oldPan_R = oldPan_R;
+		m_fOldPan = fOldPan;
 		__oldLeadLag = oldLeadLag;
 		__oldNoteKeyVal = oldNoteKeyVal;
 		__oldOctaveKeyVal = oldOctaveKeyVal;
@@ -558,8 +556,7 @@ public:
 												__selectedPatternNumber,
 												__oldLength,
 												__oldVelocity,
-												__oldPan_L,
-												__oldPan_R,
+												m_fOldPan,
 												__oldLeadLag,
 												__oldNoteKeyVal,
 												__oldOctaveKeyVal,
@@ -579,8 +576,7 @@ public:
 												__selectedPatternNumber,
 												__oldLength,
 												__oldVelocity,
-												__oldPan_L,
-												__oldPan_R,
+												m_fOldPan,
 												__oldLeadLag,
 												__oldNoteKeyVal,
 												__oldOctaveKeyVal,
@@ -597,8 +593,7 @@ private:
 	int __selectedPatternNumber;
 	int __oldLength;
 	float __oldVelocity;
-	float __oldPan_L;
-	float __oldPan_R;
+	float m_fOldPan;
 	float __oldLeadLag;
 	int __oldNoteKeyVal;
 	int __oldOctaveKeyVal;
@@ -662,12 +657,12 @@ public:
 	virtual void undo()
 	{
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0, 1.0f, false, false, false, true, !__isDelete ) ;
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.f, 0.0, 0, 0, 1.0f, false, false, false, true, !__isDelete ) ;
 	}
 	virtual void redo()
 	{
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0, 1.0f, false, false, false, true, __isDelete );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.f, 0.0, 0, 0, 1.0f, false, false, false, true, __isDelete );
 	}
 private:
 	int __nColumn;
@@ -1057,8 +1052,7 @@ public:
 									   int nSelectedInstrumentnumber,
 									   int oldLength,
 									   float oldVelocity,
-									   float oldPan_L,
-									   float oldPan_R,
+									   float fOldPan,
 									   float oldLeadLag,
 									   int oldNoteKeyVal,
 									   int oldOctaveKeyVal,
@@ -1071,8 +1065,7 @@ public:
 		__nSelectedInstrumentnumber = nSelectedInstrumentnumber;
 		__oldLength = oldLength;
 		__oldVelocity = oldVelocity;
-		__oldPan_L = oldPan_L;
-		__oldPan_R = oldPan_R;
+		m_fOldPan = fOldPan;
 		__oldLeadLag = oldLeadLag;
 		__oldNoteKeyVal = oldNoteKeyVal;
 		__oldOctaveKeyVal = oldOctaveKeyVal;
@@ -1090,8 +1083,7 @@ public:
 																					 __nSelectedInstrumentnumber,
 																					 __oldLength,
 																					 __oldVelocity,
-																					 __oldPan_L,
-																					 __oldPan_R,
+																					 m_fOldPan,
 																					 __oldLeadLag,
 																					 __oldNoteKeyVal,
 																					 __oldOctaveKeyVal,
@@ -1109,8 +1101,7 @@ public:
 																					 __nSelectedInstrumentnumber,
 																					 __oldLength,
 																					 __oldVelocity,
-																					 __oldPan_L,
-																					 __oldPan_R,
+																					 m_fOldPan,
 																					 __oldLeadLag,
 																					 __oldNoteKeyVal,
 																					 __oldOctaveKeyVal,
@@ -1125,8 +1116,7 @@ private:
 	int __nSelectedInstrumentnumber;
 	int __oldLength;
 	float __oldVelocity;
-	float __oldPan_L;
-	float __oldPan_R;
+	float m_fOldPan;
 	float __oldLeadLag;
 	int __oldNoteKeyVal;
 	int __oldOctaveKeyVal;
@@ -1148,13 +1138,13 @@ public:
 	{
 		//qDebug() << "Add off note Note Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn, __pressedLine, __selectedPatternNumber,  __nSelectedInstrumentnumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0 , 1.0f, true, true );
+		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn, __pressedLine, __selectedPatternNumber,  __nSelectedInstrumentnumber, -1, 0.8f, 0.f, 0.0, 0, 0 , 1.0f, true, true );
 	}
 	virtual void redo()
 	{
 		//qDebug() << "Add off note Note Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn, __pressedLine, __selectedPatternNumber,  __nSelectedInstrumentnumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0, 1.0f, true, false );
+		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn, __pressedLine, __selectedPatternNumber,  __nSelectedInstrumentnumber, -1, 0.8f, 0.f, 0.0, 0, 0, 1.0f, true, false );
 
 	}
 private:
@@ -1214,10 +1204,8 @@ public:
 						int selectedInstrumentnumber,
 						float velocity,
 						float oldVelocity,
-						float pan_L,
-						float oldPan_L,
-						float pan_R,
-						float oldPan_R,
+						float fPan,
+						float fOldPan,
 						float leadLag,
 						float oldLeadLag,
 						int pressedLine ){
@@ -1228,10 +1216,8 @@ public:
 		__nSelectedInstrumentnumber = selectedInstrumentnumber;
 		__velocity = velocity;
 		__oldVelocity = oldVelocity;
-		__pan_L = pan_L;
-		__oldPan_L = oldPan_L;
-		__pan_R = pan_R;
-		__oldPan_R = oldPan_R;
+		m_fPan = fPan;
+		m_fOldPan = fOldPan;
 		__leadLag = leadLag;
 		__oldLeadLag = oldLeadLag;
 		__pressedLine = pressedLine;
@@ -1245,8 +1231,7 @@ public:
 												__selectedPatternNumber,
 												__nSelectedInstrumentnumber,
 												__oldVelocity,
-												__oldPan_L,
-												__oldPan_R,
+												m_fOldPan,
 												__oldLeadLag,
 												__pressedLine );
 	}
@@ -1259,8 +1244,7 @@ public:
 												__selectedPatternNumber,
 												__nSelectedInstrumentnumber,
 												__velocity,
-												__pan_L,
-												__pan_R,
+												m_fPan,
 												__leadLag,
 												__pressedLine );
 	}
@@ -1272,10 +1256,8 @@ private:
 	int __nSelectedInstrumentnumber;
 	float __velocity;
 	float __oldVelocity;
-	float __pan_L;
-	float __oldPan_L;
-	float __pan_R;
-	float __oldPan_R;
+	float m_fPan;
+	float m_fOldPan;
 	float __leadLag;
 	float __oldLeadLag;
 	int __pressedLine;
@@ -1343,10 +1325,8 @@ public:
 					   int nSelectedInstrument,
 					   float velocity,
 					   float oldVelocity,
-					   float pan_L,
-					   float oldPan_L,
-					   float pan_R,
-					   float oldPan_R,
+					   float pan,
+					   float oldPan,
 					   float leadLag,
 					   float oldLeadLag,
 					   float probability,
@@ -1365,10 +1345,8 @@ public:
 		__nSelectedInstrument = nSelectedInstrument;
 		__velocity = velocity;
 		__oldVelocity = oldVelocity;
-		__pan_L = pan_L;
-		__oldPan_L = oldPan_L;
-		__pan_R = pan_R;
-		__oldPan_R = oldPan_R;
+		m_fPan = pan;
+		m_fOldPan = oldPan;
 		__leadLag = leadLag;
 		__oldLeadLag = oldLeadLag;
 		__probability = probability;
@@ -1389,8 +1367,7 @@ public:
 											__nSelectedPatternNumber,
 											__nSelectedInstrument,
 											__oldVelocity,
-											__oldPan_L,
-											__oldPan_R,
+											m_fOldPan,
 											__oldLeadLag,
 											__oldProbability,
 											__oldNoteKeyVal,
@@ -1405,8 +1382,7 @@ public:
 											__nSelectedPatternNumber,
 											__nSelectedInstrument,
 											__velocity,
-											__pan_L,
-											__pan_R,
+											m_fPan,
 											__leadLag,
 											__probability,
 											__noteKeyVal,
@@ -1421,10 +1397,8 @@ private:
 	int __nSelectedInstrument;
 	float __velocity;
 	float __oldVelocity;
-	float __pan_L;
-	float __oldPan_L;
-	float __pan_R;
-	float __oldPan_R;
+	float m_fPan;
+	float m_fOldPan;
 	float __leadLag;
 	float __oldLeadLag;
 	float __probability;

@@ -28,6 +28,8 @@
 
 #include "EventListener.h"
 #include <core/Object.h>
+#include <core/Preferences.h>
+#include "Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {
@@ -45,9 +47,9 @@ class PixmapWidget;
 ///
 ///
 ///
-class MetronomeWidget : public QWidget,public EventListener, public H2Core::Object
+class MetronomeWidget :  public QWidget,public EventListener,  public H2Core::Object<MetronomeWidget>
 {
-    H2_OBJECT
+    H2_OBJECT(MetronomeWidget)
 	Q_OBJECT
 	public:
 		explicit MetronomeWidget(QWidget *pParent);
@@ -81,9 +83,9 @@ class MetronomeWidget : public QWidget,public EventListener, public H2Core::Obje
 ///
 /// Player control panel
 ///
-class PlayerControl : public QLabel, public EventListener, public H2Core::Object
+class PlayerControl :  public QLabel, protected WidgetWithScalableFont<5, 6, 7>, public EventListener,  public H2Core::Object<PlayerControl>
 {
-    H2_OBJECT
+    H2_OBJECT(PlayerControl)
 	Q_OBJECT
 	public:
 		explicit PlayerControl(QWidget *parent);
@@ -104,7 +106,9 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		 * Song mode will be activated instead.
 		 */
 		void songModeActivationEvent( int nValue ) override;
-													
+
+public slots:
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private slots:
 		void recBtnClicked(Button* ref);
@@ -146,7 +150,7 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		 * @param nValue If 0, loop mode will be deactivate.
 		 */
 		void loopModeActivationEvent( int nValue ) override;
-		H2Core::Hydrogen *m_pEngine;
+		H2Core::Hydrogen *m_pHydrogen;
 		QPixmap m_background;
 
 		Button *m_pRwdBtn;
@@ -212,6 +216,8 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		QTimer *m_pStatusTimer;
 		QTimer *m_pScrollTimer;
 		QString m_pScrollMessage;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

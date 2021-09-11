@@ -35,9 +35,9 @@
 /**
  * Audio Engine information form
  */
-class AudioEngineInfoForm : public QWidget, public Ui_AudioEngineInfoForm_UI, public EventListener, public H2Core::Object
+class AudioEngineInfoForm :  public QWidget, public Ui_AudioEngineInfoForm_UI, public EventListener,  public H2Core::Object<AudioEngineInfoForm>
 {
-    H2_OBJECT
+    H2_OBJECT(AudioEngineInfoForm)
 	Q_OBJECT
 	private:
 		QTimer* m_pTimer;

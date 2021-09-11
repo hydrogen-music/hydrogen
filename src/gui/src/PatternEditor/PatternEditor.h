@@ -34,6 +34,7 @@
 
 namespace H2Core
 {
+	class AudioEngine;
 	class Note;
 	class Pattern;
 	class Instrument;
@@ -53,14 +54,14 @@ class PatternEditorPanel;
 //!
 class PatternEditor : public QWidget,
 					  public EventListener,
-					  public H2Core::Object,
+					  public H2Core::Object<PatternEditor>,
 					  public SelectionWidget<H2Core::Note *>
 {
-	H2_OBJECT
+	H2_OBJECT(PatternEditor)
 	Q_OBJECT
 
 public:
-	PatternEditor( QWidget *pParent, const char *sClassName,
+	PatternEditor( QWidget *pParent,
 				   PatternEditorPanel *panel );
 
 
@@ -178,6 +179,8 @@ protected:
 
 	bool m_bSelectNewNotes;
 	H2Core::Note *m_pDraggedNote;
+	
+	H2Core::AudioEngine* m_pAudioEngine;
 
 	PatternEditorPanel *m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;

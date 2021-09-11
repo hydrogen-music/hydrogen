@@ -28,9 +28,7 @@
 namespace H2Core
 {
 
-const char* InstrumentLayer::__class_name = "InstrumentLayer";
-
-InstrumentLayer::InstrumentLayer( std::shared_ptr<Sample> sample ) : Object( __class_name ),
+InstrumentLayer::InstrumentLayer( std::shared_ptr<Sample> sample ) :
 	__start_velocity( 0.0 ),
 	__end_velocity( 1.0 ),
 	__pitch( 0.0 ),
@@ -39,7 +37,7 @@ InstrumentLayer::InstrumentLayer( std::shared_ptr<Sample> sample ) : Object( __c
 {
 }
 
-InstrumentLayer::InstrumentLayer( InstrumentLayer* other ) : Object( __class_name ),
+InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> other ) : Object( *other ),
 	__start_velocity( other->get_start_velocity() ),
 	__end_velocity( other->get_end_velocity() ),
 	__pitch( other->get_pitch() ),
@@ -48,7 +46,7 @@ InstrumentLayer::InstrumentLayer( InstrumentLayer* other ) : Object( __class_nam
 {
 }
 
-InstrumentLayer::InstrumentLayer( InstrumentLayer* other, std::shared_ptr<Sample> sample ) : Object( __class_name ),
+InstrumentLayer::InstrumentLayer( std::shared_ptr<InstrumentLayer> other, std::shared_ptr<Sample> sample ) : Object( *other ),
 	__start_velocity( other->get_start_velocity() ),
 	__end_velocity( other->get_end_velocity() ),
 	__pitch( other->get_pitch() ),
@@ -80,15 +78,15 @@ void InstrumentLayer::unload_sample()
 	}
 }
 
-InstrumentLayer* InstrumentLayer::load_from( XMLNode* node, const QString& dk_path )
+std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* node, const QString& dk_path )
 {
 	auto pSample = std::make_shared<Sample>( dk_path+"/"+node->read_string( "filename", "" ) );
-	InstrumentLayer* layer = new InstrumentLayer( pSample );
-	layer->set_start_velocity( node->read_float( "min", 0.0 ) );
-	layer->set_end_velocity( node->read_float( "max", 1.0 ) );
-	layer->set_gain( node->read_float( "gain", 1.0, true, false ) );
-	layer->set_pitch( node->read_float( "pitch", 0.0, true, false ) );
-	return layer;
+	auto pLayer = std::make_shared<InstrumentLayer>( pSample );
+	pLayer->set_start_velocity( node->read_float( "min", 0.0 ) );
+	pLayer->set_end_velocity( node->read_float( "max", 1.0 ) );
+	pLayer->set_gain( node->read_float( "gain", 1.0, true, false ) );
+	pLayer->set_pitch( node->read_float( "pitch", 0.0, true, false ) );
+	return pLayer;
 }
 
 void InstrumentLayer::save_to( XMLNode* node )
@@ -102,7 +100,7 @@ void InstrumentLayer::save_to( XMLNode* node )
 }
 
 QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[InstrumentLayer]\n" ).arg( sPrefix )

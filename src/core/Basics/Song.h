@@ -28,6 +28,7 @@
 #include <QDomNode>
 #include <vector>
 #include <map>
+#include <memory>
 
 #include <core/Object.h>
 
@@ -51,9 +52,9 @@ class AutomationPath;
 \ingroup H2CORE
 \brief	Song class
 */
-class Song : public H2Core::Object
+class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<Song>
 {
-		H2_OBJECT
+		H2_OBJECT(Song)
 	public:
 		enum SongMode {
 			PATTERN_MODE,
@@ -63,8 +64,8 @@ class Song : public H2Core::Object
 		Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume );
 		~Song();
 
-		static Song* getEmptySong();
-		static Song* getDefaultSong();
+		static std::shared_ptr<Song> getEmptySong();
+		static std::shared_ptr<Song> getDefaultSong();
 
 		bool getIsMuted() const;
 		void setIsMuted( bool bIsMuted );
@@ -105,14 +106,14 @@ class Song : public H2Core::Object
 		/** get the length of the song, in tick units */
 		int lengthInTicks() const;
 
-		static Song* 	load( const QString& sFilename );
+		static std::shared_ptr<Song> 	load( const QString& sFilename );
 		bool 			save( const QString& sFilename );
 
 		/**
 		  Remove all the notes in the song that play on instrument I.
 		  The function is real-time safe (it locks the audio data while deleting notes)
 		*/
-		void purgeInstrument( Instrument* pInstr );
+		void purgeInstrument( std::shared_ptr<Instrument> pInstr );
 
 
 		InstrumentList*		getInstrumentList() const;
@@ -553,14 +554,14 @@ inline float Song::getPanLawKNorm() const {
 \ingroup H2CORE
 \brief	Read XML file of a song
 */
-class SongReader : public H2Core::Object
+class SongReader : public H2Core::Object<SongReader>
 {
-		H2_OBJECT
+		H2_OBJECT(SongReader)
 	public:
 		SongReader();
 		~SongReader();
 		const QString getPath( const QString& filename ) const;
-		Song* readSong( const QString& filename );
+		std::shared_ptr<Song> readSong( const QString& filename );
 
 	private:
 		QString m_sSongVersion;

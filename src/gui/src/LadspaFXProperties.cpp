@@ -40,11 +40,9 @@
 
 using namespace H2Core;
 
-const char* LadspaFXProperties::__class_name = "LadspaFXProperties";
-
 LadspaFXProperties::LadspaFXProperties(QWidget* parent, uint nLadspaFX)
  : QWidget( parent )
- , Object( __class_name )
+ , Object()
 {
 //	INFOLOG( "INIT" );
 
@@ -136,7 +134,7 @@ void LadspaFXProperties::faderChanged( Fader * ref )
 	ref->setPeak_L( ref->getValue() );
 	ref->setPeak_R( ref->getValue() );
 
-	Song *pSong = (Hydrogen::get_instance() )->getSong();
+	std::shared_ptr<Song> pSong = (Hydrogen::get_instance() )->getSong();
 
 #ifdef H2CORE_HAVE_LADSPA
 	LadspaFX *pFX = Effects::get_instance()->getLadspaFX( m_nLadspaFX );
@@ -363,12 +361,11 @@ void LadspaFXProperties::selectFXBtnClicked()
 					break;
 				}
 			}
-			Song *pSong = (Hydrogen::get_instance() )->getSong();
+			std::shared_ptr<Song> pSong = (Hydrogen::get_instance() )->getSong();
 			pSong->setIsModified(true);
 
 			Effects::get_instance()->setLadspaFX( pFX, m_nLadspaFX );
 
-			//AudioEngine::get_instance()->unlock();
 			Hydrogen::get_instance()->restartLadspaFX();
 			updateControls();
 		}
@@ -383,7 +380,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 void LadspaFXProperties::removeFXBtnClicked()
 {
 #ifdef H2CORE_HAVE_LADSPA
-	Song *pSong = (Hydrogen::get_instance() )->getSong();
+	std::shared_ptr<Song> pSong = (Hydrogen::get_instance() )->getSong();
 	pSong->setIsModified( true );
 	Effects::get_instance()->setLadspaFX( nullptr, m_nLadspaFX );
 	Hydrogen::get_instance()->restartLadspaFX();
@@ -397,7 +394,7 @@ void LadspaFXProperties::updateOutputControls()
 #ifdef H2CORE_HAVE_LADSPA
 
 //	INFOLOG( "[updateOutputControls]" );
-//	Song *pSong = (Hydrogen::get_instance() )->getSong();
+//	std::shared_ptr<Song> pSong = (Hydrogen::get_instance() )->getSong();
 	LadspaFX *pFX = Effects::get_instance()->getLadspaFX(m_nLadspaFX);
 
 	if (pFX) {
@@ -442,12 +439,11 @@ void LadspaFXProperties::updateOutputControls()
 void LadspaFXProperties::activateBtnClicked()
 {
 #ifdef H2CORE_HAVE_LADSPA
-//	Song *pSong = (Hydrogen::get_instance() )->getSong();
 	LadspaFX *pFX = Effects::get_instance()->getLadspaFX(m_nLadspaFX);
 	if (pFX) {
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 		pFX->setEnabled( !pFX->isEnabled() );
-		AudioEngine::get_instance()->unlock();
+		Hydrogen::get_instance()->getAudioEngine()->unlock();
 	}
 #endif
 }

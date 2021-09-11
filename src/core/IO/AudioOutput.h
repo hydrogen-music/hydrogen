@@ -30,18 +30,19 @@
 namespace H2Core
 {
 
+typedef int  ( *audioProcessCallback )( uint32_t, void * );
+
 ///
 /// Base abstract class for audio output classes.
 ///
-class AudioOutput : public H2Core::Object
+class AudioOutput : public H2Core::Object<AudioOutput>
 {
+	H2_OBJECT(AudioOutput)
 public:
 	/** Local instance of the TransportInfo. */
 	TransportInfo m_transport;
 
-	AudioOutput( const char* class_name )
-			: Object( class_name ) { }
-
+	AudioOutput() = default;
 	virtual ~AudioOutput() { }
 
 	virtual int init( unsigned nBufferSize ) = 0;

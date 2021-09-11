@@ -44,12 +44,10 @@
 
 #include <memory>
 
-const char* SoundLibraryImportDialog::__class_name = "SoundLibraryImportDialog";
 const int max_redirects = 30;
 
 SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent, bool bOnlineImport )
  : QDialog( pParent )
- , Object( __class_name )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );
@@ -143,7 +141,7 @@ void SoundLibraryImportDialog::clearImageCache()
 	// Note: After a kit is installed the list refreshes and this gets called to
 	// clear the image cache - maybe we want to keep the cache in this case?
 	QString cacheDir = H2Core::Filesystem::repositories_cache_dir() ;
-	INFOLOG("Deleting cached image files from " + cacheDir.toLocal8Bit() );
+	INFOLOG("Deleting cached image files from " + cacheDir );
 
 	QDir dir( cacheDir );
 	dir.setNameFilters(QStringList() << "*.png");
@@ -536,7 +534,7 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 						{
 							// get the image from the local filesystem
 							QPixmap pixmap ( drumkitInfo->get_path() + "/" + drumkitInfo->get_image() );
-							INFOLOG("Loaded image " + drumkitInfo->get_image().toLocal8Bit() + " from local filesystem");
+							INFOLOG("Loaded image " + drumkitInfo->get_image() + " from local filesystem");
 							showImage( pixmap );
 						}
 						else
@@ -554,7 +552,7 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 						{
 							QPixmap pixmap ( cachedFile );
 							showImage( pixmap );
-							INFOLOG( "Loaded image " + info.getImage().toLocal8Bit() + " from cache (" + cachedFile + ")" );
+							INFOLOG( "Loaded image " + info.getImage() + " from cache (" + cachedFile + ")" );
 						}
 						else
 						{

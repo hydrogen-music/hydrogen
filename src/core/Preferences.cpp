@@ -57,10 +57,7 @@ void Preferences::create_instance()
 	}
 }
 
-const char* Preferences::__class_name = "Preferences";
-
 Preferences::Preferences()
-		: Object( __class_name )
 {
 	__instance = this;
 	INFOLOG( "INIT" );
@@ -199,10 +196,10 @@ Preferences::Preferences()
 
 	//___ GUI properties ___
 	m_sQTStyle = "Fusion";
-	applicationFontFamily = "Lucida Grande";
-	applicationFontPointSize = 10;
-	mixerFontFamily = "Lucida Grande";
-	mixerFontPointSize = 11;
+	m_sApplicationFontFamily = "Lucida Grande";
+	m_sLevel2FontFamily = "Lucida Grande";
+	m_sLevel3FontFamily = "Lucida Grande";
+	m_fontSize = FontSize::Normal;
 	mixerFalloffSpeed = 1.1;
 	m_nPatternEditorGridResolution = 8;
 	m_bPatternEditorUsingTriplets = false;
@@ -228,29 +225,33 @@ Preferences::Preferences()
 	m_nMaxLayers = 16;
 
 	m_nColoringMethod = 2;
-	m_nColoringMethodAuxValue = 213;
-
+	m_nMaxPatternColors = 50;
+	std::vector<QColor> m_patternColors( m_nMaxPatternColors );
+	for ( int ii = 0; ii < m_nMaxPatternColors; ii++ ) {
+		m_patternColors[ ii ] = QColor( 97, 167, 251 );
+	}
+	m_nVisiblePatternColors = 1;
 
 	UIStyle* uis = m_pDefaultUIStyle;
-	uis->m_songEditor_backgroundColor = H2RGBColor(95, 101, 117);
-	uis->m_songEditor_alternateRowColor = H2RGBColor(128, 134, 152);
-	uis->m_songEditor_selectedRowColor = H2RGBColor(128, 134, 152);
-	uis->m_songEditor_lineColor = H2RGBColor(72, 76, 88);
-	uis->m_songEditor_textColor = H2RGBColor(196, 201, 214);
-	uis->m_songEditor_pattern1Color = H2RGBColor(97, 167, 251);
-	uis->m_patternEditor_backgroundColor = H2RGBColor(167, 168, 163);
-	uis->m_patternEditor_alternateRowColor = H2RGBColor(167, 168, 163);
-	uis->m_patternEditor_selectedRowColor = H2RGBColor(207, 208, 200);
-	uis->m_patternEditor_textColor = H2RGBColor(40, 40, 40);
-	uis->m_patternEditor_noteColor = H2RGBColor(40, 40, 40);
-	uis->m_patternEditor_lineColor = H2RGBColor(65, 65, 65);
-	uis->m_patternEditor_line1Color = H2RGBColor(75, 75, 75);
-	uis->m_patternEditor_line2Color = H2RGBColor(95, 95, 95);
-	uis->m_patternEditor_line3Color = H2RGBColor(115, 115, 115);
-	uis->m_patternEditor_line4Color = H2RGBColor(125, 125, 125);
-	uis->m_patternEditor_line5Color = H2RGBColor(135, 135, 135);
-	uis->m_selectionHighlightColor = H2RGBColor(0, 0, 255);
-	uis->m_selectionInactiveColor = H2RGBColor(85, 85, 85);
+	uis->m_songEditor_backgroundColor = QColor(95, 101, 117);
+	uis->m_songEditor_alternateRowColor = QColor(128, 134, 152);
+	uis->m_songEditor_selectedRowColor = QColor(128, 134, 152);
+	uis->m_songEditor_lineColor = QColor(72, 76, 88);
+	uis->m_songEditor_textColor = QColor(196, 201, 214);
+	uis->m_songEditor_pattern1Color = QColor(97, 167, 251);
+	uis->m_patternEditor_backgroundColor = QColor(167, 168, 163);
+	uis->m_patternEditor_alternateRowColor = QColor(167, 168, 163);
+	uis->m_patternEditor_selectedRowColor = QColor(207, 208, 200);
+	uis->m_patternEditor_textColor = QColor(40, 40, 40);
+	uis->m_patternEditor_noteColor = QColor(40, 40, 40);
+	uis->m_patternEditor_lineColor = QColor(65, 65, 65);
+	uis->m_patternEditor_line1Color = QColor(75, 75, 75);
+	uis->m_patternEditor_line2Color = QColor(95, 95, 95);
+	uis->m_patternEditor_line3Color = QColor(115, 115, 115);
+	uis->m_patternEditor_line4Color = QColor(125, 125, 125);
+	uis->m_patternEditor_line5Color = QColor(135, 135, 135);
+	uis->m_selectionHighlightColor = QColor(0, 0, 255);
+	uis->m_selectionInactiveColor = QColor(85, 85, 85);
 
 	/////////////////////////////////////////////////////////////////////////
 	//////////////// END OF DEFAULT SETTINGS ////////////////////////////////
@@ -567,17 +568,13 @@ void Preferences::loadPreferences( bool bGlobal )
 					m_sQTStyle = "Fusion";
 				}
 
-				// Application font family
-				applicationFontFamily = LocalFileMng::readXmlString( guiNode, "application_font_family", applicationFontFamily );
-
-				// Application font pointSize
-				applicationFontPointSize = LocalFileMng::readXmlInt( guiNode, "application_font_pointsize", applicationFontPointSize );
-
-				// mixer font family
-				mixerFontFamily = LocalFileMng::readXmlString( guiNode, "mixer_font_family", mixerFontFamily );
-
-				// mixer font pointSize
-				mixerFontPointSize = LocalFileMng::readXmlInt( guiNode, "mixer_font_pointsize", mixerFontPointSize );
+				// Font fun
+				m_sApplicationFontFamily = LocalFileMng::readXmlString( guiNode, "application_font_family", m_sApplicationFontFamily );
+				// The value defaults to m_sApplicationFontFamily on
+				// purpose to provide backward compatibility.
+				m_sLevel2FontFamily = LocalFileMng::readXmlString( guiNode, "level2_font_family", m_sApplicationFontFamily );
+				m_sLevel3FontFamily = LocalFileMng::readXmlString( guiNode, "level3_font_family", m_sApplicationFontFamily );
+				m_fontSize = static_cast<FontSize>( LocalFileMng::readXmlInt( guiNode, "font_size", 0 ) );
 
 				// Mixer falloff speed
 				mixerFalloffSpeed = LocalFileMng::readXmlFloat( guiNode, "mixer_falloff_speed", 1.1f );
@@ -660,9 +657,23 @@ void Preferences::loadPreferences( bool bGlobal )
 				}
 
 				//SongEditor coloring
-				m_nColoringMethod = LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethod", 2 );
-				m_nColoringMethodAuxValue = LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethodAuxValue", 213 );
-
+				m_nColoringMethod = LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethod", 1 );
+				if ( m_nColoringMethod > 1 ) {
+					m_nColoringMethod = 1;
+				} else if ( m_nColoringMethod < 0 ) {
+					m_nColoringMethod = 0;
+				}
+				std::vector<QColor> colors( m_nMaxPatternColors );
+				for ( int ii = 0; ii < m_nMaxPatternColors; ii++ ) {
+					colors[ ii ] = LocalFileMng::readXmlColor( guiNode, QString( "SongEditor_pattern_color_%1" ).arg( ii ), QColor( 97, 167, 251 ) );
+				}
+				m_patternColors = colors;
+				m_nVisiblePatternColors = LocalFileMng::readXmlInt( guiNode, "SongEditor_visible_pattern_colors", 1 );
+				if ( m_nVisiblePatternColors > 50 ) {
+					m_nVisiblePatternColors = 50;
+				} else if ( m_nVisiblePatternColors < 0 ) {
+					m_nVisiblePatternColors = 0;
+				}
 			}
 
 			/////////////// FILES //////////////
@@ -1033,10 +1044,10 @@ void Preferences::savePreferences()
 	QDomNode guiNode = doc.createElement( "gui" );
 	{
 		LocalFileMng::writeXmlString( guiNode, "QTStyle", m_sQTStyle );
-		LocalFileMng::writeXmlString( guiNode, "application_font_family", applicationFontFamily );
-		LocalFileMng::writeXmlString( guiNode, "application_font_pointsize", QString("%1").arg( applicationFontPointSize ) );
-		LocalFileMng::writeXmlString( guiNode, "mixer_font_family", mixerFontFamily );
-		LocalFileMng::writeXmlString( guiNode, "mixer_font_pointsize", QString("%1").arg( mixerFontPointSize ) );
+		LocalFileMng::writeXmlString( guiNode, "application_font_family", m_sApplicationFontFamily );
+		LocalFileMng::writeXmlString( guiNode, "level2_font_family", m_sLevel2FontFamily );
+		LocalFileMng::writeXmlString( guiNode, "level3_font_family", m_sLevel3FontFamily );
+		LocalFileMng::writeXmlString( guiNode, "font_size", QString::number( static_cast<int>(m_fontSize) ) );
 		LocalFileMng::writeXmlString( guiNode, "mixer_falloff_speed", QString("%1").arg( mixerFalloffSpeed ) );
 		LocalFileMng::writeXmlString( guiNode, "patternEditorGridResolution", QString("%1").arg( m_nPatternEditorGridResolution ) );
 		LocalFileMng::writeXmlString( guiNode, "patternEditorGridHeight", QString("%1").arg( m_nPatternEditorGridHeight ) );
@@ -1107,8 +1118,10 @@ void Preferences::savePreferences()
 
 		//SongEditor coloring method
 		LocalFileMng::writeXmlString( guiNode, "SongEditor_ColoringMethod", QString::number( m_nColoringMethod ) );
-		LocalFileMng::writeXmlString( guiNode, "SongEditor_ColoringMethodAuxValue", QString::number( m_nColoringMethodAuxValue ) );
-
+		for ( int ii = 0; ii < m_nMaxPatternColors; ii++ ) {
+			LocalFileMng::writeXmlColor( guiNode, QString( "SongEditor_pattern_color_%1" ).arg( ii ), m_patternColors[ ii ] );
+		}
+		LocalFileMng::writeXmlString( guiNode, "SongEditor_visible_pattern_colors", QString::number( m_nVisiblePatternColors ) );
 	}
 	rootNode.appendChild( guiNode );
 
@@ -1287,38 +1300,34 @@ void Preferences::writeUIStyle( QDomNode parent )
 
 	// SONG EDITOR
 	QDomNode songEditorNode = doc.createElement( "songEditor" );
-	LocalFileMng::writeXmlString( songEditorNode, "backgroundColor", m_pDefaultUIStyle->m_songEditor_backgroundColor.toStringFmt() );
-	LocalFileMng::writeXmlString( songEditorNode, "alternateRowColor", m_pDefaultUIStyle->m_songEditor_alternateRowColor.toStringFmt() );
-	LocalFileMng::writeXmlString( songEditorNode, "selectedRowColor", m_pDefaultUIStyle->m_songEditor_selectedRowColor.toStringFmt() );
-	LocalFileMng::writeXmlString( songEditorNode, "lineColor", m_pDefaultUIStyle->m_songEditor_lineColor.toStringFmt() );
-	LocalFileMng::writeXmlString( songEditorNode, "textColor", m_pDefaultUIStyle->m_songEditor_textColor.toStringFmt() );
-	LocalFileMng::writeXmlString( songEditorNode, "pattern1Color", m_pDefaultUIStyle->m_songEditor_pattern1Color.toStringFmt() );
+	LocalFileMng::writeXmlColor( songEditorNode, "backgroundColor", m_pDefaultUIStyle->m_songEditor_backgroundColor );
+	LocalFileMng::writeXmlColor( songEditorNode, "alternateRowColor", m_pDefaultUIStyle->m_songEditor_alternateRowColor );
+	LocalFileMng::writeXmlColor( songEditorNode, "selectedRowColor", m_pDefaultUIStyle->m_songEditor_selectedRowColor );
+	LocalFileMng::writeXmlColor( songEditorNode, "lineColor", m_pDefaultUIStyle->m_songEditor_lineColor );
+	LocalFileMng::writeXmlColor( songEditorNode, "textColor", m_pDefaultUIStyle->m_songEditor_textColor );
+	LocalFileMng::writeXmlColor( songEditorNode, "pattern1Color", m_pDefaultUIStyle->m_songEditor_pattern1Color );
 	node.appendChild( songEditorNode );
 
 	// PATTERN EDITOR
 	QDomNode patternEditorNode = doc.createElement( "patternEditor" );
-	LocalFileMng::writeXmlString( patternEditorNode, "backgroundColor", m_pDefaultUIStyle->m_patternEditor_backgroundColor.toStringFmt() );
-	LocalFileMng::writeXmlString( patternEditorNode, "alternateRowColor", m_pDefaultUIStyle->m_patternEditor_alternateRowColor.toStringFmt() );
-	LocalFileMng::writeXmlString( patternEditorNode, "selectedRowColor", m_pDefaultUIStyle->m_patternEditor_selectedRowColor.toStringFmt() );
-	LocalFileMng::writeXmlString( patternEditorNode, "textColor", m_pDefaultUIStyle->m_patternEditor_textColor.toStringFmt() );
-	LocalFileMng::writeXmlString( patternEditorNode, "noteColor", m_pDefaultUIStyle->m_patternEditor_noteColor.toStringFmt() );
+	LocalFileMng::writeXmlColor( patternEditorNode, "backgroundColor", m_pDefaultUIStyle->m_patternEditor_backgroundColor );
+	LocalFileMng::writeXmlColor( patternEditorNode, "alternateRowColor", m_pDefaultUIStyle->m_patternEditor_alternateRowColor );
+	LocalFileMng::writeXmlColor( patternEditorNode, "selectedRowColor", m_pDefaultUIStyle->m_patternEditor_selectedRowColor );
+	LocalFileMng::writeXmlColor( patternEditorNode, "textColor", m_pDefaultUIStyle->m_patternEditor_textColor );
+	LocalFileMng::writeXmlColor( patternEditorNode, "noteColor", m_pDefaultUIStyle->m_patternEditor_noteColor );
+	LocalFileMng::writeXmlColor( patternEditorNode, "noteoffColor", m_pDefaultUIStyle->m_patternEditor_noteoffColor );
 
-	if (m_pDefaultUIStyle->m_patternEditor_noteoffColor.toStringFmt() == "-1,-1,-1" ){
-		m_pDefaultUIStyle->m_patternEditor_noteoffColor = H2RGBColor( "100, 100, 200" );
-	}
-	LocalFileMng::writeXmlString( patternEditorNode, "noteoffColor", m_pDefaultUIStyle->m_patternEditor_noteoffColor.toStringFmt() );
-
-	LocalFileMng::writeXmlString( patternEditorNode, "lineColor", m_pDefaultUIStyle->m_patternEditor_lineColor.toStringFmt() );
-	LocalFileMng::writeXmlString( patternEditorNode, "line1Color", m_pDefaultUIStyle->m_patternEditor_line1Color.toStringFmt() );
-	LocalFileMng::writeXmlString( patternEditorNode, "line2Color", m_pDefaultUIStyle->m_patternEditor_line2Color.toStringFmt() );
-	LocalFileMng::writeXmlString( patternEditorNode, "line3Color", m_pDefaultUIStyle->m_patternEditor_line3Color.toStringFmt() );
-	LocalFileMng::writeXmlString( patternEditorNode, "line4Color", m_pDefaultUIStyle->m_patternEditor_line4Color.toStringFmt() );
-	LocalFileMng::writeXmlString( patternEditorNode, "line5Color", m_pDefaultUIStyle->m_patternEditor_line5Color.toStringFmt() );
+	LocalFileMng::writeXmlColor( patternEditorNode, "lineColor", m_pDefaultUIStyle->m_patternEditor_lineColor );
+	LocalFileMng::writeXmlColor( patternEditorNode, "line1Color", m_pDefaultUIStyle->m_patternEditor_line1Color );
+	LocalFileMng::writeXmlColor( patternEditorNode, "line2Color", m_pDefaultUIStyle->m_patternEditor_line2Color );
+	LocalFileMng::writeXmlColor( patternEditorNode, "line3Color", m_pDefaultUIStyle->m_patternEditor_line3Color );
+	LocalFileMng::writeXmlColor( patternEditorNode, "line4Color", m_pDefaultUIStyle->m_patternEditor_line4Color );
+	LocalFileMng::writeXmlColor( patternEditorNode, "line5Color", m_pDefaultUIStyle->m_patternEditor_line5Color );
 	node.appendChild( patternEditorNode );
 
 	QDomNode selectionNode = doc.createElement( "selection" );
-	LocalFileMng::writeXmlString( selectionNode, "highlightColor", m_pDefaultUIStyle->m_selectionHighlightColor.toStringFmt() );
-	LocalFileMng::writeXmlString( selectionNode, "inactiveColor", m_pDefaultUIStyle->m_selectionInactiveColor.toStringFmt() );
+	LocalFileMng::writeXmlColor( selectionNode, "highlightColor", m_pDefaultUIStyle->m_selectionHighlightColor );
+	LocalFileMng::writeXmlColor( selectionNode, "inactiveColor", m_pDefaultUIStyle->m_selectionInactiveColor );
 	node.appendChild( selectionNode );
 
 	parent.appendChild( node );
@@ -1331,12 +1340,12 @@ void Preferences::readUIStyle( QDomNode parent )
 	// SONG EDITOR
 	QDomNode pSongEditorNode = parent.firstChildElement( "songEditor" );
 	if ( !pSongEditorNode.isNull() ) {
-		m_pDefaultUIStyle->m_songEditor_backgroundColor = H2RGBColor( LocalFileMng::readXmlString( pSongEditorNode, "backgroundColor", m_pDefaultUIStyle->m_songEditor_backgroundColor.toStringFmt() ) );
-		m_pDefaultUIStyle->m_songEditor_alternateRowColor = H2RGBColor( LocalFileMng::readXmlString( pSongEditorNode, "alternateRowColor", m_pDefaultUIStyle->m_songEditor_alternateRowColor.toStringFmt() ) );
-		m_pDefaultUIStyle->m_songEditor_selectedRowColor = H2RGBColor( LocalFileMng::readXmlString( pSongEditorNode, "selectedRowColor", m_pDefaultUIStyle->m_songEditor_selectedRowColor.toStringFmt() ) );
-		m_pDefaultUIStyle->m_songEditor_lineColor = H2RGBColor( LocalFileMng::readXmlString( pSongEditorNode, "lineColor", m_pDefaultUIStyle->m_songEditor_lineColor.toStringFmt() ) );
-		m_pDefaultUIStyle->m_songEditor_textColor = H2RGBColor( LocalFileMng::readXmlString( pSongEditorNode, "textColor", m_pDefaultUIStyle->m_songEditor_textColor.toStringFmt() ) );
-		m_pDefaultUIStyle->m_songEditor_pattern1Color = H2RGBColor( LocalFileMng::readXmlString( pSongEditorNode, "pattern1Color", m_pDefaultUIStyle->m_songEditor_pattern1Color.toStringFmt() ) );
+		m_pDefaultUIStyle->m_songEditor_backgroundColor = LocalFileMng::readXmlColor( pSongEditorNode, "backgroundColor", m_pDefaultUIStyle->m_songEditor_backgroundColor );
+		m_pDefaultUIStyle->m_songEditor_alternateRowColor = LocalFileMng::readXmlColor( pSongEditorNode, "alternateRowColor", m_pDefaultUIStyle->m_songEditor_alternateRowColor );
+		m_pDefaultUIStyle->m_songEditor_selectedRowColor = LocalFileMng::readXmlColor( pSongEditorNode, "selectedRowColor", m_pDefaultUIStyle->m_songEditor_selectedRowColor );
+		m_pDefaultUIStyle->m_songEditor_lineColor = LocalFileMng::readXmlColor( pSongEditorNode, "lineColor", m_pDefaultUIStyle->m_songEditor_lineColor );
+		m_pDefaultUIStyle->m_songEditor_textColor = LocalFileMng::readXmlColor( pSongEditorNode, "textColor", m_pDefaultUIStyle->m_songEditor_textColor );
+		m_pDefaultUIStyle->m_songEditor_pattern1Color = LocalFileMng::readXmlColor( pSongEditorNode, "pattern1Color", m_pDefaultUIStyle->m_songEditor_pattern1Color );
 	} else {
 		WARNINGLOG( "songEditor node not found" );
 	}
@@ -1344,26 +1353,26 @@ void Preferences::readUIStyle( QDomNode parent )
 	// PATTERN EDITOR
 	QDomNode pPatternEditorNode = parent.firstChildElement( "patternEditor" );
 	if ( !pPatternEditorNode.isNull() ) {
-		m_pDefaultUIStyle->m_patternEditor_backgroundColor = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "backgroundColor", m_pDefaultUIStyle->m_patternEditor_backgroundColor.toStringFmt() ) );
-		m_pDefaultUIStyle->m_patternEditor_alternateRowColor = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "alternateRowColor", m_pDefaultUIStyle->m_patternEditor_alternateRowColor.toStringFmt() ) );
-		m_pDefaultUIStyle->m_patternEditor_selectedRowColor = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "selectedRowColor", m_pDefaultUIStyle->m_patternEditor_selectedRowColor.toStringFmt() ) );
-		m_pDefaultUIStyle->m_patternEditor_textColor = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "textColor", m_pDefaultUIStyle->m_patternEditor_textColor.toStringFmt() ) );
-		m_pDefaultUIStyle->m_patternEditor_noteColor = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "noteColor", m_pDefaultUIStyle->m_patternEditor_noteColor.toStringFmt() ) );
-		m_pDefaultUIStyle->m_patternEditor_noteoffColor = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "noteoffColor", m_pDefaultUIStyle->m_patternEditor_noteoffColor.toStringFmt() ) );
-		m_pDefaultUIStyle->m_patternEditor_lineColor = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "lineColor", m_pDefaultUIStyle->m_patternEditor_lineColor.toStringFmt() ) );
-		m_pDefaultUIStyle->m_patternEditor_line1Color = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "line1Color", m_pDefaultUIStyle->m_patternEditor_line1Color.toStringFmt() ) );
-		m_pDefaultUIStyle->m_patternEditor_line2Color = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "line2Color", m_pDefaultUIStyle->m_patternEditor_line2Color.toStringFmt() ) );
-		m_pDefaultUIStyle->m_patternEditor_line3Color = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "line3Color", m_pDefaultUIStyle->m_patternEditor_line3Color.toStringFmt() ) );
-		m_pDefaultUIStyle->m_patternEditor_line4Color = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "line4Color", m_pDefaultUIStyle->m_patternEditor_line4Color.toStringFmt() ) );
-		m_pDefaultUIStyle->m_patternEditor_line5Color = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "line5Color", m_pDefaultUIStyle->m_patternEditor_line5Color.toStringFmt() ) );
+		m_pDefaultUIStyle->m_patternEditor_backgroundColor = LocalFileMng::readXmlColor( pPatternEditorNode, "backgroundColor", m_pDefaultUIStyle->m_patternEditor_backgroundColor );
+		m_pDefaultUIStyle->m_patternEditor_alternateRowColor = LocalFileMng::readXmlColor( pPatternEditorNode, "alternateRowColor", m_pDefaultUIStyle->m_patternEditor_alternateRowColor );
+		m_pDefaultUIStyle->m_patternEditor_selectedRowColor = LocalFileMng::readXmlColor( pPatternEditorNode, "selectedRowColor", m_pDefaultUIStyle->m_patternEditor_selectedRowColor );
+		m_pDefaultUIStyle->m_patternEditor_textColor = LocalFileMng::readXmlColor( pPatternEditorNode, "textColor", m_pDefaultUIStyle->m_patternEditor_textColor );
+		m_pDefaultUIStyle->m_patternEditor_noteColor = LocalFileMng::readXmlColor( pPatternEditorNode, "noteColor", m_pDefaultUIStyle->m_patternEditor_noteColor );
+		m_pDefaultUIStyle->m_patternEditor_noteoffColor = LocalFileMng::readXmlColor( pPatternEditorNode, "noteoffColor", m_pDefaultUIStyle->m_patternEditor_noteoffColor );
+		m_pDefaultUIStyle->m_patternEditor_lineColor = LocalFileMng::readXmlColor( pPatternEditorNode, "lineColor", m_pDefaultUIStyle->m_patternEditor_lineColor );
+		m_pDefaultUIStyle->m_patternEditor_line1Color = LocalFileMng::readXmlColor( pPatternEditorNode, "line1Color", m_pDefaultUIStyle->m_patternEditor_line1Color );
+		m_pDefaultUIStyle->m_patternEditor_line2Color = LocalFileMng::readXmlColor( pPatternEditorNode, "line2Color", m_pDefaultUIStyle->m_patternEditor_line2Color );
+		m_pDefaultUIStyle->m_patternEditor_line3Color = LocalFileMng::readXmlColor( pPatternEditorNode, "line3Color", m_pDefaultUIStyle->m_patternEditor_line3Color );
+		m_pDefaultUIStyle->m_patternEditor_line4Color = LocalFileMng::readXmlColor( pPatternEditorNode, "line4Color", m_pDefaultUIStyle->m_patternEditor_line4Color );
+		m_pDefaultUIStyle->m_patternEditor_line5Color = LocalFileMng::readXmlColor( pPatternEditorNode, "line5Color", m_pDefaultUIStyle->m_patternEditor_line5Color );
 	} else {
 		WARNINGLOG( "patternEditor node not found" );
 	}
 
 	QDomNode pSelectionNode = parent.firstChildElement( "selection" );
 	if ( !pSelectionNode.isNull() ) {
-		m_pDefaultUIStyle->m_selectionHighlightColor = H2RGBColor( LocalFileMng::readXmlString( pSelectionNode, "highlightColor", m_pDefaultUIStyle->m_selectionHighlightColor.toStringFmt() ) );
-		m_pDefaultUIStyle->m_selectionInactiveColor = H2RGBColor( LocalFileMng::readXmlString( pSelectionNode, "inactiveColor", m_pDefaultUIStyle->m_selectionInactiveColor.toStringFmt() ) );
+		m_pDefaultUIStyle->m_selectionHighlightColor = LocalFileMng::readXmlColor( pSelectionNode, "highlightColor", m_pDefaultUIStyle->m_selectionHighlightColor );
+		m_pDefaultUIStyle->m_selectionInactiveColor = LocalFileMng::readXmlColor( pSelectionNode, "inactiveColor", m_pDefaultUIStyle->m_selectionInactiveColor );
 	} else {
 		WARNINGLOG( "selection node not found" );
 	}
@@ -1374,10 +1383,7 @@ void Preferences::readUIStyle( QDomNode parent )
 
 
 
-const char* WindowProperties::__class_name = "WindowProperties";
-
 WindowProperties::WindowProperties()
-		: Object( __class_name )
 {
 //	infoLog( "INIT" );
 	x = 0;
@@ -1385,6 +1391,17 @@ WindowProperties::WindowProperties()
 	width = 0;
 	height = 0;
 	visible = true;
+}
+
+
+WindowProperties::WindowProperties(const WindowProperties & other)
+		: x(other.x),
+		y(other.y),
+		width(other.width),
+		height(other.height),
+		visible(other.visible)
+{
+//	infoLog( "INIT" );
 }
 
 
@@ -1400,65 +1417,9 @@ WindowProperties::~WindowProperties()
 // :::::::::::::::::::::::::::::::
 
 
-const char* UIStyle::__class_name = "UIStyle";
-
 UIStyle::UIStyle()
-		: Object( __class_name )
+		: Object()
 {
 //	infoLog( "INIT" );
 }
-
-
-
-// ::::::::::::::::::::::::::::::::::::::
-
-
-const char* H2RGBColor::__class_name = "H2RGBColor";
-
-H2RGBColor::H2RGBColor( int r, int g, int b )
-		: Object( __class_name )
-		, m_red( r )
-		, m_green( g )
-		, m_blue( b )
-{
-//	infoLog( "INIT" );
-	m_red %= 256;
-	m_green %= 256;
-	m_blue %= 256;
-}
-
-
-
-H2RGBColor::~H2RGBColor()
-{
-//	infoLog( "DESTROY" );
-}
-
-
-H2RGBColor::H2RGBColor( const QString& sColor )
-		: Object( __class_name )
-{
-//	infoLog( "INIT " + sColor );
-	QString temp = sColor;
-
-	QStringList list = temp.split(",");
-	m_red = list[0].toInt();
-	m_green = list[1].toInt();
-	m_blue = list[2].toInt();
-
-	m_red %= 256;
-	m_green %= 256;
-	m_blue %= 256;
-}
-
-
-
-QString H2RGBColor::toStringFmt()
-{
-	char tmp[255];
-	sprintf( tmp, "%d,%d,%d", m_red, m_green, m_blue );
-
-	return QString( tmp );
-}
-
 };

@@ -31,9 +31,9 @@
 
 #include <vector>
 
-class LCDDigit : public QWidget, public H2Core::Object
+class LCDDigit :  public QWidget,  public H2Core::Object<LCDDigit>
 {
-    H2_OBJECT
+    H2_OBJECT(LCDDigit)
 	Q_OBJECT
 	public:
 		enum LCDType {
@@ -70,9 +70,9 @@ class LCDDigit : public QWidget, public H2Core::Object
 
 
 
-class LCDDisplay : public QWidget, public H2Core::Object
+class LCDDisplay :  public QWidget,  public H2Core::Object<LCDDisplay>
 {
-    H2_OBJECT
+    H2_OBJECT(LCDDisplay)
 	Q_OBJECT
 	public:
 		LCDDisplay( QWidget * pParent, LCDDigit::LCDType type, int nDigits, bool leftAlign = false );
@@ -97,9 +97,9 @@ class LCDDisplay : public QWidget, public H2Core::Object
 };
 
 
-class LCDSpinBox : public QWidget, public H2Core::Object
+class LCDSpinBox :  public QWidget,  public H2Core::Object<LCDSpinBox>
 {
-    H2_OBJECT
+    H2_OBJECT(LCDSpinBox)
 	Q_OBJECT
 	public:
 		enum LCDSpinBoxType {

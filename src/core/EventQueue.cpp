@@ -34,11 +34,9 @@ void EventQueue::create_instance()
 	}
 }
 
-const char* EventQueue::__class_name = "EventQueue";
 
 EventQueue::EventQueue()
-		: Object( __class_name )
-		, __read_index( 0 )
+		: __read_index( 0 )
 		, __write_index( 0 )
 {
 	__instance = this;

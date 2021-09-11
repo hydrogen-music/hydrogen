@@ -98,10 +98,8 @@ static void midiProc ( const MIDIPacketList * pktlist,
 }
 
 
-const char* CoreMidiDriver::__class_name = "CoreMidiDriver";
-
 CoreMidiDriver::CoreMidiDriver()
-		: MidiInput( __class_name ) ,MidiOutput( __class_name ), Object( __class_name )
+		: MidiInput() ,MidiOutput(), Object<CoreMidiDriver>()
 		, m_bRunning( false )
 {
 	INFOLOG( "INIT" );
@@ -336,7 +334,7 @@ void CoreMidiDriver::handleQueueAllNoteOff()
 
 	unsigned int numInstruments = instList->size();
 	for (int index = 0; index < numInstruments; ++index) {
-		Instrument *curInst = instList->get(index);
+		auto curInst = instList->get(index);
 
 		int channel = curInst->get_midi_out_channel();
 		if (channel < 0) {

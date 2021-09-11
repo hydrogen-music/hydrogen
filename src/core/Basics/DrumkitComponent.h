@@ -35,9 +35,9 @@ class ADSR;
 class Drumkit;
 class InstrumentLayer;
 
-class DrumkitComponent : public H2Core::Object
+class DrumkitComponent : public H2Core::Object<DrumkitComponent>
 {
-		H2_OBJECT
+		H2_OBJECT(DrumkitComponent)
 	public:
 		DrumkitComponent( const int id, const QString& name );
 		DrumkitComponent( DrumkitComponent* other );

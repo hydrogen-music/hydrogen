@@ -127,12 +127,10 @@ enum EventType {
 	 * or and OSC command.
 	 *
 	 * If the value of the event is 
-	 * - 0 - Hydrogen::m_pNextSong will be loaded.
-	 * - 1 - Hydrogen::m_pNextSong will be loaded and the audio
-	 *       drivers will be restarted via Hydrogen::restartDrivers()
-	 * - 2 - triggered whenever the Song was saved via the core part
+	 * - 0 - update the GUI to represent the song loaded by the core.
+	 * - 1 - triggered whenever the Song was saved via the core part
 	 *       (updated the title and status bar).
-	 * - 3 - Song is not writable (inform the user via a QMessageBox)
+	 * - 2 - Song is not writable (inform the user via a QMessageBox)
 	 */
 	EVENT_UPDATE_SONG,
 	/**
@@ -185,9 +183,9 @@ public:
  * will be invoked to respond to the condition of the engine. For
  * details about the mapping of EventTypes to functions please see the
  * documentation of HydrogenApp::onEventQueueTimer().*/
-class EventQueue : public H2Core::Object
+class EventQueue : public H2Core::Object<EventQueue>
 {
-	H2_OBJECT
+	H2_OBJECT(EventQueue)
 public:/**
 	* If #__instance equals 0, a new EventQueue singleton will be
 	 * created and stored in it.
@@ -243,8 +241,7 @@ public:/**
 		int m_pattern;      // pattern number
 		int m_length;
 		float f_velocity;
-		float f_pan_L;
-		float f_pan_R;
+		float f_pan;
 		Note::Key nk_noteKeyVal;
 		Note::Octave no_octaveKeyVal;
 		bool b_isMidi;

@@ -31,8 +31,10 @@
 #include <QtWidgets>
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include "../Widgets/PixmapWidget.h"
 #include "../Selection.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {
@@ -43,9 +45,9 @@ class PatternEditorPanel;
 class ToggleButton;
 class Button;
 
-class InstrumentLine : public PixmapWidget
+class InstrumentLine : public PixmapWidget, protected WidgetWithScalableFont<8, 10, 12>
 {
-    H2_OBJECT
+    H2_OBJECT(InstrumentLine)
 	Q_OBJECT
 
 	public:
@@ -57,6 +59,9 @@ class InstrumentLine : public PixmapWidget
 		void setMuted(bool isMuted);
 		void setSoloed( bool soloed );
 		void setSamplesMissing( bool bSamplesMissing );
+
+public slots:
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private slots:
 		void functionClearNotes();
@@ -98,11 +103,13 @@ class InstrumentLine : public PixmapWidget
 
 		virtual void mousePressEvent(QMouseEvent *ev);
 		H2Core::Pattern* getCurrentPattern();
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 
-class PatternEditorInstrumentList : public QWidget, public H2Core::Object {
-	H2_OBJECT
+class PatternEditorInstrumentList :  public QWidget,  public H2Core::Object<PatternEditorInstrumentList> {
+	H2_OBJECT(PatternEditorInstrumentList)
 	Q_OBJECT
 
 	public:

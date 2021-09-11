@@ -25,11 +25,13 @@
 #define PATTERN_EDITOR_PANEL_H
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 
 #include "PianoRollEditor.h"
 #include "../EventListener.h"
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/LCD.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 class Button;
 class ToggleButton;
@@ -52,9 +54,9 @@ namespace H2Core
 ///
 /// Pattern Editor Panel
 ///
-class PatternEditorPanel : public QWidget, public EventListener, public H2Core::Object
+class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public EventListener,  public H2Core::Object<PatternEditorPanel>
 {
-	H2_OBJECT
+	H2_OBJECT(PatternEditorPanel)
 	Q_OBJECT
 
 	public:
@@ -69,6 +71,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		NotePropertiesRuler* getProbabilityEditor() {	return m_pNoteProbabilityEditor;	}
 		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
 		PianoRollEditor* getPianoRollEditor() {		return m_pPianoRollEditor;	}
+		PatternEditorRuler* getPatternEditorRuler() {		return m_pPatternEditorRuler;  }
 		int getPropertiesComboValue(){ return __pPropertiesCombo->selected(); }
 
 		void updateSLnameLabel();
@@ -92,6 +95,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 	public slots:
 		void showDrumEditor();
 		void showPianoRollEditor();
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private slots:
 		void gridResolutionChanged( int nSelected );
@@ -122,7 +126,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 	private:
 		H2Core::Pattern *	m_pPattern;
 		QPixmap				m_backgroundPixmap;
-		QLabel *			pSLlabel;
+		QLabel *			m_pSLlabel;
 
 		// Editor top
 		LCDDisplay *			__pattern_size_LCD;
@@ -194,6 +198,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 
 		virtual void resizeEvent(QResizeEvent *ev) override;
 		virtual void showEvent(QShowEvent *ev) override;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

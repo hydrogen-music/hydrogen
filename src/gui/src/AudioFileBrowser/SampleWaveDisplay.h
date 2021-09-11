@@ -29,9 +29,9 @@
 
 
 
-class SampleWaveDisplay : public QWidget, public H2Core::Object
+class SampleWaveDisplay :  public QWidget,  public H2Core::Object<SampleWaveDisplay>
 {
-	H2_OBJECT
+	H2_OBJECT(SampleWaveDisplay)
 	Q_OBJECT
 
 	public:

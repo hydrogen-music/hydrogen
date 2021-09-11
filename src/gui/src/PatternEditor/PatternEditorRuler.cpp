@@ -20,7 +20,6 @@
  *
  */
 
-#include <core/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/AudioEngine.h>
 #include <core/Basics/Pattern.h>
@@ -39,20 +38,18 @@ using namespace H2Core;
 #include "../Skin.h"
 
 
-const char* PatternEditorRuler::__class_name = "PatternEditorRuler";
-
 PatternEditorRuler::PatternEditorRuler( QWidget* parent )
  : QWidget( parent )
- , Object( __class_name )
-{
+ {
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//infoLog( "INIT" );
 
 	Preferences *pPref = Preferences::get_instance();
+	m_lastUsedFontSize = pPref->getFontSize();
 
 	UIStyle *pStyle = pPref->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
 
 
 	m_pPattern = nullptr;
@@ -75,6 +72,8 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateEditor()));
 
 	HydrogenApp::get_instance()->addEventListener( this );
+	
+	m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
 }
 
 
@@ -117,16 +116,16 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 {
 	static int oldNTicks = 0;
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	//Do not redraw anything if Export is active.
 	//https://github.com/hydrogen-music/hydrogen/issues/857	
-	if( pEngine->getIsExportSessionActive() ) {
+	if( pHydrogen->getIsExportSessionActive() ) {
 		return;
 	}
 	
-	PatternList *pPatternList = pEngine->getSong()->getPatternList();
-	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
+	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
+	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() )  ) {
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 	}
@@ -141,9 +140,9 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 	 * Lock audio engine to make sure pattern list does not get
 	 * modified / cleared during iteration 
 	 */
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-	PatternList *pList = pEngine->getCurrentPatternList();
+	PatternList *pList = pHydrogen->getCurrentPatternList();
 	for (uint i = 0; i < pList->size(); i++) {
 		if ( m_pPattern == pList->get(i) ) {
 			bActive = true;
@@ -151,12 +150,12 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 		}
 	}
 
-	AudioEngine::get_instance()->unlock();
+	pHydrogen->getAudioEngine()->unlock();
 
 
-	int state = pEngine->getState();
+	int state = pHydrogen->getState();
 	if ( ( state == STATE_PLAYING ) && (bActive) ) {
-		m_nTicks = pEngine->getTickPosition();
+		m_nTicks = pHydrogen->getTickPosition();
 	}
 	else {
 		m_nTicks = -1;	// hide the tickPosition
@@ -200,9 +199,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 	QColor lineColor( 170, 170, 170 );
 
 	Preferences *pref = Preferences::get_instance();
-	QString family = pref->getApplicationFontFamily();
-	int size = pref->getApplicationFontPointSize();
-	QFont font( family, size );
+	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 	painter.setFont(font);
 	painter.drawLine( 0, 0, m_nRulerWidth, 0 );
 	painter.drawLine( 0, m_nRulerHeight - 1, m_nRulerWidth - 1, m_nRulerHeight - 1);
@@ -246,7 +243,7 @@ void PatternEditorRuler::zoomIn()
 	delete m_pBackground;
 	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
 	m_pBackground->fill( backgroundColor );
 	update();
 }
@@ -266,7 +263,7 @@ void PatternEditorRuler::zoomOut()
 	delete m_pBackground;
 	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
 	m_pBackground->fill( backgroundColor );
 	update();
 	}
@@ -276,4 +273,15 @@ void PatternEditorRuler::zoomOut()
 void PatternEditorRuler::selectedPatternChangedEvent()
 {
 	updateEditor( true );
+}
+
+void PatternEditorRuler::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		update( 0, 0, width(), height() );
+	}
 }

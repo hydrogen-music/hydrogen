@@ -33,10 +33,7 @@ namespace H2Core
 
 Playlist* Playlist::__instance = nullptr;
 
-const char* Playlist::__class_name = "Playlist";
-
 Playlist::Playlist()
-	: Object( __class_name )
 {
 	__filename = "";
 	m_nSelectedSongNumber = -1;
@@ -220,4 +217,44 @@ void Playlist::execScript( int index)
 	return;
 }
 
+QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[Playlist]\n" ).arg( sPrefix )
+			.append( QString( "%1%2filename: %3\n" ).arg( sPrefix ).arg( s ).arg( __filename ) )
+			.append( QString( "%1%2m_nSelectedSongNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nSelectedSongNumber ) )
+			.append( QString( "%1%2m_nActiveSongNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nActiveSongNumber ) )
+			.append( QString( "%1%2entries:\n" ).arg( sPrefix ).arg( s ) );
+		if ( size() > 0 ) {
+			for ( auto ii : __entries ) {
+				sOutput.append( QString( "%1%2Entry:\n" ).arg( sPrefix ).arg( s + s ) )
+					.append( QString( "%1%2filePath: %3\n" ).arg( sPrefix ).arg( s + s + s ).arg( ii->filePath ) )
+					.append( QString( "%1%2fileExists: %3\n" ).arg( sPrefix ).arg( s + s + s ).arg( ii->fileExists ) )
+					.append( QString( "%1%2scriptPath: %3\n" ).arg( sPrefix ).arg( s + s + s ).arg( ii->scriptPath ) )
+					.append( QString( "%1%2scriptEnabled: %3\n" ).arg( sPrefix ).arg( s + s + s ).arg( ii->scriptEnabled ) );
+			}
+		}
+		sOutput.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsModified ) );
+	} else {
+		sOutput = QString( "[Playlist]" )
+			.append( QString( " filename: %1" ).arg( __filename ) )
+			.append( QString( ", m_nSelectedSongNumber: %1" ).arg( m_nSelectedSongNumber ) )
+			.append( QString( ", m_nActiveSongNumber: %1" ).arg( m_nActiveSongNumber ) )
+			.append( ", entries: {" );
+		if ( size() > 0 ) {
+			for ( auto ii : __entries ) {
+				sOutput.append( QString( "[filePath: %1" ).arg( ii->filePath ) )
+					.append( QString( ", fileExists: %1" ).arg( ii->fileExists ) )
+					.append( QString( ", scriptPath: %1" ).arg( ii->scriptPath ) )
+					.append( QString( ", scriptEnabled: %1] " ).arg( ii->scriptEnabled ) );
+										
+										
+			}
+		}
+		sOutput.append( QString( "}, m_bIsModified: %1\n" ).arg( m_bIsModified ) );
+	}
+	
+	return sOutput;
+}
 };

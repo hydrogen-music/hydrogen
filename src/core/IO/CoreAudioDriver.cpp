@@ -59,8 +59,6 @@ static OSStatus renderProc(
 namespace H2Core
 {
 
-const char* CoreAudioDriver::__class_name = "CoreAudioDriver";
-
 QString CoreAudioDriver::deviceName( AudioDeviceID deviceID )
 {
 	OSStatus err;
@@ -273,7 +271,8 @@ void CoreAudioDriver::printStreamInfo(void)
 
 
 CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
-		: H2Core::AudioOutput( __class_name )
+		: H2Core::AudioOutput()
+		, H2Core::Object<CoreAudioDriver>()
 		, m_bIsRunning( false )
 		, mProcessCallback( processCallback )
 		, m_pOut_L( NULL )

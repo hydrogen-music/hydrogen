@@ -24,22 +24,22 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include <memory>
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include <core/Basics/Instrument.h>
 #include "../EventListener.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {
 class InstrumentLayer;
 }
 
-using H2Core::InstrumentLayer;
-
-
-class LayerPreview : public QWidget, public H2Core::Object, public EventListener
+class LayerPreview :  public QWidget, protected WidgetWithScalableFont<5, 6, 7>,  public H2Core::Object<LayerPreview>, public EventListener
 {
-    H2_OBJECT
+    H2_OBJECT(LayerPreview)
 	Q_OBJECT
 
 	public:
@@ -55,10 +55,13 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 
 		void set_selected_component( int SelectedComponent );
 
+public slots:
+		void onPreferencesChanged( bool bAppearanceOnly );
+	
 	private:
 		static const int		m_nLayerHeight = 10;
 		QPixmap					m_speakerPixmap;
-		H2Core::Instrument *	m_pInstrument;
+		std::shared_ptr<H2Core::Instrument>	m_pInstrument;
 		int						m_nSelectedLayer;
 		int						m_nSelectedComponent;
 		bool					m_bMouseGrab;
@@ -79,7 +82,7 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 		 * @param pLayer    The layer
 		 * @param pEvent    The event carrying mouse position
 		 */
-		void showLayerStartVelocity( const InstrumentLayer* pLayer, const QMouseEvent* pEvent );
+		void showLayerStartVelocity( const std::shared_ptr<H2Core::InstrumentLayer> pLayer, const QMouseEvent* pEvent );
 
 		/**
 		 * display a layer's end velocity in a tooltip
@@ -87,9 +90,16 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 		 * @param pLayer    The layer
 		 * @param pEvent    The event carrying mouse position
 		 */
-		void showLayerEndVelocity( const InstrumentLayer* pLayer, const QMouseEvent* pEvent );
+		void showLayerEndVelocity( const std::shared_ptr<H2Core::InstrumentLayer> pLayer, const QMouseEvent* pEvent );
 
 		virtual void selectedInstrumentChangedEvent() override;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
+		/** Converts #m_lastUsedFontSize into a point size used for
+			the widget's font.*/
+		int getPointSizeButton() const;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

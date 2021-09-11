@@ -42,11 +42,8 @@
 namespace H2Core
 {
 
-const char* CoreActionController::__class_name = "CoreActionController";
 
-
-CoreActionController::CoreActionController() : Object( __class_name ),
-												m_nDefaultMidiFeedbackChannel(0)
+CoreActionController::CoreActionController() : m_nDefaultMidiFeedbackChannel(0)
 {
 	//nothing
 }
@@ -81,10 +78,10 @@ void CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 	
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
-	Instrument *pInstr = pInstrList->get( nStrip );
+	auto pInstr = pInstrList->get( nStrip );
 	pInstr->set_volume( fVolumeValue );
 	
 #ifdef H2CORE_HAVE_OSC
@@ -142,12 +139,12 @@ void CoreActionController::setMasterIsMuted( bool isMuted )
 void CoreActionController::toggleStripIsMuted(int nStrip)
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if( pInstrList->is_valid_index( nStrip ))
 	{
-		Instrument* pInstr = pInstrList->get( nStrip );
+		auto pInstr = pInstrList->get( nStrip );
 		
 		if( pInstr ) {
 			setStripIsMuted( nStrip , !pInstr->is_muted() );
@@ -158,10 +155,10 @@ void CoreActionController::toggleStripIsMuted(int nStrip)
 void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
-	Instrument *pInstr = pInstrList->get( nStrip );
+	auto pInstr = pInstrList->get( nStrip );
 	pInstr->set_muted( isMuted );
 	
 #ifdef H2CORE_HAVE_OSC
@@ -182,12 +179,12 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 void CoreActionController::toggleStripIsSoloed( int nStrip )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if( pInstrList->is_valid_index( nStrip ))
 	{
-		Instrument* pInstr = pInstrList->get( nStrip );
+		auto pInstr = pInstrList->get( nStrip );
 	
 		if( pInstr ) {
 			setStripIsSoloed( nStrip , !pInstr->is_soloed() );
@@ -198,10 +195,10 @@ void CoreActionController::toggleStripIsSoloed( int nStrip )
 void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
-	Instrument* pInstr = pInstrList->get( nStrip );
+	auto pInstr = pInstrList->get( nStrip );
 	pInstr->set_soloed( isSoloed );
 	
 #ifdef H2CORE_HAVE_OSC
@@ -221,46 +218,59 @@ void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 
 
 
-void CoreActionController::setStripPan( int nStrip, float fPanValue, bool bSelectStrip )
+void CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectStrip )
 {
-	float	fPan_L;
-	float	fPan_R;
-
-	if ( fPanValue >= 0.5 ) {
-		fPan_L = (1.0 - fPanValue) * 2;
-		fPan_R = 1.0;
-	}
-	else {
-		fPan_L = 1.0;
-		fPan_R = fPanValue * 2;
-	}
-
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	if ( bSelectStrip ) {
 		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 	
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
-	Instrument *pInstr = pInstrList->get( nStrip );
-	pInstr->set_pan_l( fPan_L );
-	pInstr->set_pan_r( fPan_R );
-	
+	auto pInstr = pInstrList->get( nStrip );
+	pInstr->setPanWithRangeFrom0To1( fValue );
+
 #ifdef H2CORE_HAVE_OSC
 	Action FeedbackAction( "PAN_ABSOLUTE" );
 	
 	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
-	FeedbackAction.setParameter2( QString("%1").arg( fPanValue ) );
+	FeedbackAction.setParameter2( QString("%1").arg( fValue ) );
 	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
-	
 
-	handleOutgoingControlChange( ccParamValue, fPanValue * 127 );
+	handleOutgoingControlChange( ccParamValue, fValue * 127 );
+}
+
+void CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelectStrip )
+{
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	if ( bSelectStrip ) {
+		pHydrogen->setSelectedInstrumentNumber( nStrip );
+	}
+	
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
+
+	auto pInstr = pInstrList->get( nStrip );
+	pInstr->setPan( fValue );
+
+#ifdef H2CORE_HAVE_OSC
+	Action FeedbackAction( "PAN_ABSOLUTE_SYM" );
+	
+	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
+	FeedbackAction.setParameter2( QString("%1").arg( fValue ) );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
+#endif
+	
+	MidiMap*	pMidiMap = MidiMap::get_instance();
+	
+	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
+	handleOutgoingControlChange( ccParamValue, pInstr->getPanWithRangeFrom0To1() * 127 );
 }
 
 void CoreActionController::handleOutgoingControlChange(int param, int value)
@@ -284,7 +294,7 @@ void CoreActionController::initExternalControlInterfaces()
 	
 	//MASTER_VOLUME_ABSOLUTE
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	setMasterVolume( pSong->getVolume() );
 	
 	//PER-INSTRUMENT/STRIP STATES
@@ -292,22 +302,12 @@ void CoreActionController::initExternalControlInterfaces()
 	for(int i=0; i < pInstrList->size(); i++){
 		
 			//STRIP_VOLUME_ABSOLUTE
-			Instrument *pInstr = pInstrList->get( i );
+			auto pInstr = pInstrList->get( i );
 			setStripVolume( i, pInstr->get_volume(), false );
-			
-			float fPan_L = pInstr->get_pan_l();
-			float fPan_R = pInstr->get_pan_r();
 
 			//PAN_ABSOLUTE
-			float fPanValue = 0.0;
-			if (fPan_R == 1.0) {
-				fPanValue = 1.0 - (fPan_L / 2.0);
-			}
-			else {
-				fPanValue = fPan_R / 2.0;
-			}
-		
-			setStripPan( i, fPanValue, false );
+			float fValue = pInstr->getPanWithRangeFrom0To1();
+			setStripPan( i, fValue, false );
 			
 			//STRIP_MUTE_TOGGLE
 			setStripIsMuted( i, pInstr->is_muted() );
@@ -335,9 +335,6 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 		pHydrogen->sequencer_stop();
 	}
 	
-	// Remove all BPM tags on the Timeline.
-	pHydrogen->getTimeline()->deleteAllTempoMarkers();
-	
 	// Create an empty Song.
 	auto pSong = Song::getEmptySong();
 	
@@ -347,26 +344,21 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 
 		return false;
 	}
-	
+
+	// Remove all BPM tags on the Timeline.
+	pHydrogen->getTimeline()->deleteAllTempoMarkers();
+	pHydrogen->getTimeline()->deleteAllTags();
+
+	if ( pHydrogen->isUnderSessionManagement() ) {
+		pHydrogen->restartDrivers();
+	}		
+
 	pSong->setFilename( sSongPath );
+
+	pHydrogen->setSong( pSong );
 	
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
-		
-		// Store the prepared Song for the GUI to access after the
-		// EVENT_UPDATE_SONG event was triggered.
-		pHydrogen->setNextSong( pSong );
-		
-		// If the GUI is active, the Song *must not* be set by the
-		// core part itself.
-		// Triggers an update of the Qt5 GUI and tells it to update
-		// the song itself.
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
-		
-	} else {
-
-		// Update the Song.
-		pHydrogen->setSong( pSong );
-		
 	}
 	
 	return true;
@@ -400,7 +392,7 @@ bool CoreActionController::openSong( const QString& sSongPath ) {
 	return setSong( pSong );
 }
 
-bool CoreActionController::openSong( Song* pSong ) {
+bool CoreActionController::openSong( std::shared_ptr<Song> pSong ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
  
@@ -418,39 +410,28 @@ bool CoreActionController::openSong( Song* pSong ) {
 	return setSong( pSong );
 }
 
-bool CoreActionController::setSong( Song* pSong ) {
+bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	// Remove all BPM tags on the Timeline.
+	// Remove all BPM markers and tags on the Timeline.
 	pHydrogen->getTimeline()->deleteAllTempoMarkers();
+	pHydrogen->getTimeline()->deleteAllTags();
+
+	// Update the Song.
+	pHydrogen->setSong( pSong );
+		
+	if ( pHydrogen->isUnderSessionManagement() ) {
+		pHydrogen->restartDrivers();
+	} else {
+		// Add the new loaded song in the "last used song" vector.
+		// This behavior is prohibited under session management. Only
+		// songs open during normal runs will be listed.
+		Preferences::get_instance()->insertRecentFile( pSong->getFilename() );
+	}
 
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
-		
-		// Store the prepared Song for the GUI to access after the
-		// EVENT_UPDATE_SONG event was triggered.
-		pHydrogen->setNextSong( pSong );
-		
-		int nRestartAudioDriver = 0;
-
-		if ( pHydrogen->isUnderSessionManagement() ) {
-			nRestartAudioDriver = 1;
-		}
-		
-		// If the GUI is active, the Song *must not* be set by the
-		// core part itself.
-		// Triggers an update of the Qt5 GUI and tells it to update
-		// the song itself.
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, nRestartAudioDriver );
-		
-	} else {
-
-		// Update the Song.
-		pHydrogen->setSong( pSong );
-		
-		if ( pHydrogen->isUnderSessionManagement() ) {
-			pHydrogen->restartDrivers();
-		}
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
 	}
 	
 	return true;
@@ -481,7 +462,7 @@ bool CoreActionController::saveSong() {
 	
 	// Update the status bar.
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
 	}
 	
 	return true;
@@ -515,7 +496,7 @@ bool CoreActionController::saveSongAs( const QString& sSongPath ) {
 	
 	// Update the status bar.
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
 	}
 	
 	return true;
@@ -568,7 +549,7 @@ bool CoreActionController::isSongPathValid( const QString& sSongPath ) {
 		if ( !songFileInfo.isWritable() ) {
 			WARNINGLOG( QString( "You don't have permissions to write to the Song found in path [%1]. It will be opened as read-only (no autosave)." )
 						.arg( sSongPath.toLocal8Bit().data() ));
-			EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 3 );
+			EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
 		}
 	}
 	
@@ -627,13 +608,13 @@ bool CoreActionController::activateJackTransport( bool bActivate ) {
 		return false;
 	}
 	
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 	if ( bActivate ) {
 		Preferences::get_instance()->m_bJackTransportMode = Preferences::USE_JACK_TRANSPORT;
 	} else {
 		Preferences::get_instance()->m_bJackTransportMode = Preferences::NO_JACK_TRANSPORT;
 	}
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	
 	EventQueue::get_instance()->push_event( EVENT_JACK_TRANSPORT_ACTIVATION, static_cast<int>( bActivate ) );
 	
@@ -652,7 +633,7 @@ bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
 		return false;
 	}
 	
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 	if ( bActivate ) {
 		Preferences::get_instance()->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER;
 		Hydrogen::get_instance()->onJackMaster();
@@ -660,7 +641,7 @@ bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
 		Preferences::get_instance()->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
 		Hydrogen::get_instance()->offJackMaster();
 	}
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	
 	EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_ACTIVATION, static_cast<int>( bActivate ) );
 	
