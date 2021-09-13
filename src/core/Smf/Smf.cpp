@@ -32,11 +32,8 @@
 namespace H2Core
 {
 
-const char* SMFHeader::__class_name = "SMFHeader";
-
 SMFHeader::SMFHeader( int nFormat, int nTracks, int nTPQN )
-		: Object( __class_name )
-		, m_nFormat( nFormat )
+		: m_nFormat( nFormat )
 		, m_nTracks( nTracks )
 		, m_nTPQN( nTPQN )
 {
@@ -70,12 +67,8 @@ std::vector<char> SMFHeader::getBuffer()
 
 // :::::::::::::::
 
-
-const char* SMFTrack::__class_name = "SMFTrack";
-
-//SMFTrack::SMFTrack( const QString& sTrackName )
 SMFTrack::SMFTrack()
-		: Object( __class_name )
+		: Object()
 {
 	INFOLOG( "INIT" );
 }
@@ -143,10 +136,7 @@ void SMFTrack::addEvent( SMFEvent *pEvent )
 
 // ::::::::::::::::::::::
 
-const char* SMF::__class_name = "SMF";
-
 SMF::SMF(int nFormat, int nTPQN )
-		: Object( __class_name )
 {
 	INFOLOG( "INIT" );
 
@@ -207,10 +197,7 @@ constexpr unsigned int TPQN = 192;
 constexpr unsigned int DRUM_CHANNEL = 9;
 constexpr unsigned int NOTE_LENGTH = 12;
 
-const char* SMFWriter::__class_name = "SMFWriter";
-
-SMFWriter::SMFWriter( const char* sWriterName )
-		: Object( sWriterName )
+SMFWriter::SMFWriter()
 {
 	INFOLOG( "INIT" );
 }
@@ -364,10 +351,8 @@ void SMFWriter::saveSMF( const QString& sFilename, SMF*  pSmf )
 
 // SMF1Writer - base class for two smf1 writers
 
-const char* SMF1Writer::__class_name = "SMF1Writer";
-
-SMF1Writer::SMF1Writer( const char* sWriterName )
-		: SMFWriter( sWriterName )
+SMF1Writer::SMF1Writer()
+		: SMFWriter()
 {
 }
 
@@ -393,10 +378,8 @@ SMF* SMF1Writer::createSMF( std::shared_ptr<Song> pSong ){
 // SMF1 MIDI SINGLE EXPROT
 
 
-const char* SMF1WriterSingle::__class_name = "SMFWriterSingle";
-
 SMF1WriterSingle::SMF1WriterSingle()
-		: SMF1Writer( __class_name ),
+		: SMF1Writer(),
 		 m_eventList()
 {
 }
@@ -448,10 +431,8 @@ void SMF1WriterSingle::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 
 // SMF1 MIDI MULTI EXPORT
 
-const char* SMF1WriterMulti::__class_name = "SMFWriterMulti";
-
 SMF1WriterMulti::SMF1WriterMulti()
-		: SMF1Writer( __class_name ),
+		: SMF1Writer(),
 		 m_eventLists()
 {
 }
@@ -516,10 +497,8 @@ void SMF1WriterMulti::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 
 // SMF0 MIDI  EXPORT
 
-const char* SMF0Writer::__class_name = "SMF0Writer";
-
 SMF0Writer::SMF0Writer()
-		: SMFWriter( __class_name ),
+		: SMFWriter(),
 		  m_pTrack( nullptr ),
 		 m_eventList()
 {

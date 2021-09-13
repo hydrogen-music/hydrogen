@@ -54,7 +54,7 @@ static int alsa_xrun_recovery( snd_pcm_t *handle, int err )
 
 void* alsaAudioDriver_processCaller( void* param )
 {
-	Object *__object = (Object*)param;
+	Base *__object = (Base*)param;
 	AlsaAudioDriver *pDriver = ( AlsaAudioDriver* )param;
 
 	// stolen from amSynth
@@ -111,10 +111,40 @@ void* alsaAudioDriver_processCaller( void* param )
 }
 
 
-const char* AlsaAudioDriver::__class_name = "AlsaAudioDriver";
+/// Use the name hints to build a list of potential device names.
+QStringList AlsaAudioDriver::getDevices()
+{
+	QStringList result;
+	void **pHints, **pHint;
+
+	if ( snd_device_name_hint( -1, "pcm", &pHints) < 0) {
+		ERRORLOG( "Couldn't get device hints" );
+		return result;
+	}
+
+	for ( pHint = pHints; *pHint != nullptr; pHint++) {
+		const char *sName = snd_device_name_get_hint( *pHint, "NAME"),
+			*sIOID = snd_device_name_get_hint( *pHint, "IOID");
+
+		if ( sIOID && QString( sIOID ) != "Output") {
+			continue;
+		}
+
+		QString sDev = QString( sName );
+		if ( sName ) {
+			free( (void *)sName );
+		}
+		if ( sIOID ) {
+			free( (void *)sIOID );
+		}
+		result.push_back( sDev );
+	}
+	snd_device_name_free_hint( pHints );
+	return result;
+}
 
 AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
-		: AudioOutput( __class_name )
+		: AudioOutput()
 		, m_bIsRunning( false )
 		, m_pOut_L( nullptr )
 		, m_pOut_R( nullptr )

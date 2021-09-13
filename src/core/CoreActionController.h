@@ -29,8 +29,8 @@
 namespace H2Core
 {
 
-class CoreActionController : public H2Core::Object {
-	H2_OBJECT
+class CoreActionController : public H2Core::Object<CoreActionController> {
+	H2_OBJECT(CoreActionController)
 	
 	public:
 		CoreActionController();

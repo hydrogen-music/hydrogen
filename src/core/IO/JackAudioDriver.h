@@ -112,9 +112,9 @@ class InstrumentComponent;
  * during the configuration and the user enables the support of the
  * JACK server.
  */
-class JackAudioDriver : public AudioOutput
+class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput
 {
-	H2_OBJECT
+	H2_OBJECT(JackAudioDriver)
 public:
 	/**
 	 * Whether Hydrogen or another program is Jack timebase master.
@@ -896,7 +896,7 @@ private:
 
 namespace H2Core {
 class JackAudioDriver : public NullDriver {
-	H2_OBJECT
+	H2_OBJECT(JackAudioDriver)
 public:
 	/**
 	 * Whether Hydrogen or another program is Jack timebase master.

@@ -41,11 +41,9 @@
 namespace H2Core
 {
 
-const char* DrumkitComponent::__class_name = "DrumkitComponent";
 
 DrumkitComponent::DrumkitComponent( const int id, const QString& name )
-	: Object( __class_name )
-	, __id( id )
+	: __id( id )
 	, __name( name )
 	, __volume( 1.0 )
 	, __muted( false )
@@ -60,8 +58,7 @@ DrumkitComponent::DrumkitComponent( const int id, const QString& name )
 }
 
 DrumkitComponent::DrumkitComponent( DrumkitComponent* other )
-	: Object( __class_name )
-	, __id( other->get_id() )
+	: __id( other->get_id() )
 	, __name( other->get_name() )
 	, __volume( other->__volume )
 	, __muted( other->__muted )
@@ -143,7 +140,7 @@ void DrumkitComponent::save_to( XMLNode* node )
 }
 
 QString DrumkitComponent::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[DrumkitComponent]\n" ).arg( sPrefix )

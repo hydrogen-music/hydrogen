@@ -47,12 +47,9 @@ using namespace std;
 using namespace H2Core;
 
 
-const char* PatternEditor::__class_name = "PatternEditor";
-
-
-PatternEditor::PatternEditor( QWidget *pParent, const char *sClassName,
+PatternEditor::PatternEditor( QWidget *pParent,
 							  PatternEditorPanel *panel )
-	: Object ( sClassName ), QWidget( pParent ), m_selection( this ) {
+	: Object (), QWidget( pParent ), m_selection( this ) {
 	m_nResolution = 8;
 	m_bUseTriplets = false;
 	m_pDraggedNote = nullptr;

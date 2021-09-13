@@ -40,6 +40,7 @@
 
 #include <core/Preferences.h>
 #include <inttypes.h>
+#include <vector>
 
 
 namespace H2Core
@@ -47,9 +48,9 @@ namespace H2Core
 
 #if defined(H2CORE_HAVE_COREAUDIO) || _DOXYGEN_
 
-class CoreAudioDriver : public AudioOutput
+class CoreAudioDriver : public Object<CoreAudioDriver>, public AudioOutput
 {
-	H2_OBJECT
+	H2_OBJECT(CoreAudioDriver)
 public:
 
 	audioProcessCallback mProcessCallback;
@@ -76,11 +77,19 @@ public:
 	float* getOut_R();
 
 
+	static QStringList getDevices();
 private:
-	void retrieveDefaultDevice(void);
+	AudioDeviceID defaultOutputDevice(void);
 	void retrieveBufferSize(void);
 	void printStreamInfo(void);
 
+	// Find the name of a given audio device
+	static QString deviceName( AudioDeviceID deviceID );
+
+	// Find suitable audio output devices
+	static std::vector< AudioDeviceID > outputDeviceIDs();
+
+	AudioDeviceID preferredOutputDevice();
 
 	bool m_bIsRunning;
 	unsigned m_nSampleRate;
@@ -89,9 +98,9 @@ private:
 
 #else
 
-class CoreAudioDriver : public NullDriver
+class CoreAudioDriver : public Object<CoreAudioDriver>, public NullDriver
 {
-	H2_OBJECT
+	H2_OBJECT(CoreAudioDriver)
 public:
 	CoreAudioDriver( audioProcessCallback processCallback ) : NullDriver ( processCallback ) {}
 

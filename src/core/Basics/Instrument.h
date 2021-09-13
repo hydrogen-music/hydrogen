@@ -49,9 +49,9 @@ class InstrumentComponent;
 /**
 Instrument class
 */
-class Instrument : public H2Core::Object
+class Instrument : public H2Core::Object<Instrument>
 {
-		H2_OBJECT
+		H2_OBJECT(Instrument)
 	public:
 		enum SampleSelectionAlgo {
 			VELOCITY,

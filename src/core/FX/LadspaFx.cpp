@@ -35,10 +35,7 @@
 namespace H2Core
 {
 
-const char* LadspaFXGroup::__class_name = "LadspaFXGroup";
-
 LadspaFXGroup::LadspaFXGroup( const QString& sName )
-		: Object( __class_name )
 {
 //	infoLog( "INIT - " + sName );
 	m_sName = sName;
@@ -82,10 +79,8 @@ void LadspaFXGroup::sort()
 
 ////////////////
 
-const char* LadspaFXInfo::__class_name = "LadspaFXInfo";
 
 LadspaFXInfo::LadspaFXInfo( const QString& sName )
-		: Object( __class_name )
 {
 //	infoLog( "INIT - " + sName );
 	m_sFilename = "";
@@ -112,13 +107,10 @@ bool LadspaFXInfo::alphabeticOrder( LadspaFXInfo* a, LadspaFXInfo* b )
 ///////////////////
 
 
-const char* LadspaFX::__class_name = "LadspaFX";
-
 // ctor
 LadspaFX::LadspaFX( const QString& sLibraryPath, const QString& sPluginLabel )
-		: Object( __class_name )
 //, m_nBufferSize( 0 )
-		, m_pBuffer_L( nullptr )
+		: m_pBuffer_L( nullptr )
 		, m_pBuffer_R( nullptr )
 		, m_pluginType( UNDEFINED )
 		, m_bEnabled( false )

@@ -36,9 +36,9 @@ namespace H2Core {
 ///
 /// Dialog for exporting song to midi
 ///
-class ExportMidiDialog : public QDialog, public Ui_ExportMidiDialog_UI, public H2Core::Object
+class ExportMidiDialog :  public QDialog, public Ui_ExportMidiDialog_UI,  public H2Core::Object<ExportMidiDialog>
 {
-	H2_OBJECT
+	H2_OBJECT(ExportMidiDialog)
 	Q_OBJECT
 
 	public:

@@ -40,13 +40,10 @@
 namespace H2Core
 {
 
-const char* InstrumentComponent::__class_name = "InstrumentComponent";
-
 int InstrumentComponent::m_nMaxLayers;
 
 InstrumentComponent::InstrumentComponent( int related_drumkit_componentID )
-	: Object( __class_name )
-	, __related_drumkit_componentID( related_drumkit_componentID )
+	: __related_drumkit_componentID( related_drumkit_componentID )
 	, __gain( 1.0 )
 {
 	__layers.resize( m_nMaxLayers );
@@ -56,8 +53,7 @@ InstrumentComponent::InstrumentComponent( int related_drumkit_componentID )
 }
 
 InstrumentComponent::InstrumentComponent( std::shared_ptr<InstrumentComponent> other )
-	: Object( __class_name )
-	, __related_drumkit_componentID( other->__related_drumkit_componentID )
+	: __related_drumkit_componentID( other->__related_drumkit_componentID )
 	, __gain( other->__gain )
 {
 	__layers.resize( m_nMaxLayers );
@@ -138,7 +134,7 @@ void InstrumentComponent::save_to( XMLNode* node, int component_id )
 }
 
 QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[InstrumentComponent]\n" ).arg( sPrefix )
