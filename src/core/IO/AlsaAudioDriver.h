@@ -56,7 +56,9 @@ public:
 	virtual unsigned getSampleRate();
 	virtual float* getOut_L();
 	virtual float* getOut_R();
-
+	
+	static QStringList getDevices();
+	
 private:
 
 	unsigned int m_nSampleRate;

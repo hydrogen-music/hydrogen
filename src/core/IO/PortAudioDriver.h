@@ -56,6 +56,10 @@ public:
 	virtual float* getOut_L();
 	virtual float* getOut_R();
 
+	static QStringList getDevices();
+	static QStringList getDevices( QString HostAPI );
+	static QStringList getHostAPIs();
+
 private:
 	PaStream *m_pStream;
 	unsigned m_nSampleRate;
