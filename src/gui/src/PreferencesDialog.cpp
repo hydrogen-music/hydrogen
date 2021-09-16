@@ -764,9 +764,13 @@ void PreferencesDialog::on_okBtn_clicked()
 			QApplication::setOverrideCursor( Qt::WaitCursor );
 			Hydrogen::get_instance()->restartDrivers();
 			QApplication::restoreOverrideCursor();
-			pPref->savePreferences();
+		} else {
+			// Don't save the Preferences and don't close the PreferencesDialog
+			return;
 		}
 	}
+	
+	pPref->savePreferences();
 	accept();
 }
 
