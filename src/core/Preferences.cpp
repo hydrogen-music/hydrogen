@@ -769,7 +769,7 @@ void Preferences::savePreferences()
 	} else {
 		sPreferencesFilename = sPreferencesOverwritePath;
 	}
-	
+
 	INFOLOG( QString( "Saving preferences file %1" ).arg( sPreferencesFilename ) );
 
 	QDomDocument doc;

@@ -288,6 +288,9 @@ void HydrogenApp::setupSinglePanedInterface()
 	// MIXER
 	m_pMixer = new Mixer(nullptr);
 	WindowProperties mixerProp = pPref->getMixerProperties();
+	if ( uiLayout != Preferences::UI_LAYOUT_SINGLE_PANE ) {
+		mixerProp.visible = false;
+	}
 	setWindowProperties( m_pMixer, mixerProp );
 
 	if( uiLayout == Preferences::UI_LAYOUT_TABBED){
@@ -296,12 +299,6 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	m_pMixer->updateMixer();
 
-	if ( mixerProp.visible && uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE ) {
-		m_pMixer->show();
-	}
-	else {
-		m_pMixer->hide();
-	}
 
 
 #ifdef H2CORE_HAVE_LADSPA
@@ -311,12 +308,6 @@ void HydrogenApp::setupSinglePanedInterface()
 		m_pLadspaFXProperties[nFX]->hide();
 		WindowProperties prop = pPref->getLadspaProperties(nFX);
 		setWindowProperties( m_pLadspaFXProperties[ nFX ], prop, /*bResize=*/ false );
-		if ( prop.visible ) {
-			m_pLadspaFXProperties[nFX]->show();
-		}
-		else {
-			m_pLadspaFXProperties[nFX]->hide();
-		}
 	}
 #endif
 
@@ -763,12 +754,6 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 
 		WindowProperties audioEngineInfoProp = pPref->getAudioEngineInfoProperties();
 		setWindowProperties( m_pAudioEngineInfoForm, audioEngineInfoProp );
-		if ( audioEngineInfoProp.visible ) {
-			m_pAudioEngineInfoForm->show();
-		}
-		else {
-			m_pAudioEngineInfoForm->hide();
-		}
 
 		// MAINFORM
 		WindowProperties mainFormProp = pPref->getMainFormProperties();
@@ -789,16 +774,12 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		m_pInstrumentRack->setHidden( !instrumentRackProp.visible );
 
 		WindowProperties mixerProp = pPref->getMixerProperties();
+		if ( uiLayout != Preferences::UI_LAYOUT_SINGLE_PANE ) {
+			mixerProp.visible = false;
+		}
 		setWindowProperties( m_pMixer, mixerProp );
 
 		m_pMixer->updateMixer();
-
-		if ( mixerProp.visible && uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE ) {
-			m_pMixer->show();
-		}
-		else {
-			m_pMixer->hide();
-		}
 		
 #ifdef H2CORE_HAVE_LADSPA
 		// LADSPA FX
@@ -806,12 +787,6 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 			m_pLadspaFXProperties[nFX]->hide();
 			WindowProperties prop = pPref->getLadspaProperties(nFX);
 			setWindowProperties( m_pLadspaFXProperties[ nFX ], prop, /*bResize=*/false );
-			if ( prop.visible ) {
-				m_pLadspaFXProperties[nFX]->show();
-			}
-			else {
-				m_pLadspaFXProperties[nFX]->hide();
-			}
 		}
 #endif
 
