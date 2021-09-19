@@ -105,13 +105,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	// restore audio engine form properties
 	m_pAudioEngineInfoForm = new AudioEngineInfoForm( nullptr );
 	WindowProperties audioEngineInfoProp = pPref->getAudioEngineInfoProperties();
-	m_pAudioEngineInfoForm->move( audioEngineInfoProp.x, audioEngineInfoProp.y );
-	if ( audioEngineInfoProp.visible ) {
-		m_pAudioEngineInfoForm->show();
-	}
-	else {
-		m_pAudioEngineInfoForm->hide();
-	}
+	setWindowProperties( m_pAudioEngineInfoForm, audioEngineInfoProp, /*bResize=*/false );
 	
 	m_pFilesystemInfoForm = new FilesystemInfoForm( nullptr );
 
@@ -127,6 +121,37 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	addEventListener( this );
 }
 
+void HydrogenApp::setWindowProperties( QWidget *pWindow, WindowProperties &prop, bool bResize ) {
+	if ( prop.visible) {
+		pWindow->show();
+	} else {
+		pWindow->hide();
+	}
+	if ( prop.m_geometry.size() == 0 ) {
+		// No geometry saved in preferences. Most likely an old preferences file. Set the size and shape
+		if ( bResize ) {
+			pWindow->resize( prop.width, prop.height );
+		}
+		pWindow->move( prop.x, prop.y );
+		prop.m_geometry = pWindow->saveGeometry();
+	}
+
+	// restore geometry will also ensure things are visible if screen geometry has changed.
+	pWindow->restoreGeometry( prop.m_geometry );
+}
+
+
+WindowProperties HydrogenApp::getWindowProperties( QWidget *pWindow ) {
+	WindowProperties prop;
+	prop.x = pWindow->x();
+	prop.y = pWindow->y();
+	prop.height = pWindow->height();
+	prop.width = pWindow->width();
+	prop.visible = pWindow->isVisible();
+	prop.m_geometry = pWindow->saveGeometry();
+
+	return prop;
+}
 
 
 HydrogenApp::~HydrogenApp()
@@ -183,8 +208,7 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// MAINFORM
 	WindowProperties mainFormProp = pPref->getMainFormProperties();
-	m_pMainForm->resize( mainFormProp.width, mainFormProp.height );
-	m_pMainForm->move( mainFormProp.x, mainFormProp.y );
+	setWindowProperties( m_pMainForm, mainFormProp );
 
 	m_pSplitter = new QSplitter( nullptr );
 	m_pSplitter->setOrientation( Qt::Vertical );
@@ -201,7 +225,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	}
 
 	WindowProperties songEditorProp = pPref->getSongEditorProperties();
-	m_pSongEditorPanel->resize( songEditorProp.width, songEditorProp.height );
+	setWindowProperties( m_pSongEditorPanel, songEditorProp );
 
 	if( uiLayout == Preferences::UI_LAYOUT_TABBED) {
 		m_pTab->addTab( m_pSongEditorPanel, tr("Song Editor") );
@@ -229,7 +253,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	// PATTERN EDITOR
 	m_pPatternEditorPanel = new PatternEditorPanel( nullptr );
 	WindowProperties patternEditorProp = pPref->getPatternEditorProperties();
-	m_pPatternEditorPanel->resize( patternEditorProp.width, patternEditorProp.height );
+	setWindowProperties( m_pPatternEditorPanel, patternEditorProp );
 
 	pEditorHBox->addWidget( m_pPatternEditorPanel );
 	pEditorHBox->addWidget( m_pInstrumentRack );
@@ -264,9 +288,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	// MIXER
 	m_pMixer = new Mixer(nullptr);
 	WindowProperties mixerProp = pPref->getMixerProperties();
-
-	m_pMixer->resize( mixerProp.width, mixerProp.height );
-	m_pMixer->move( mixerProp.x, mixerProp.y );
+	setWindowProperties( m_pMixer, mixerProp );
 
 	if( uiLayout == Preferences::UI_LAYOUT_TABBED){
 		m_pTab->addTab(m_pMixer,tr("Mixer"));
@@ -288,7 +310,7 @@ void HydrogenApp::setupSinglePanedInterface()
 		m_pLadspaFXProperties[nFX] = new LadspaFXProperties( nullptr, nFX );
 		m_pLadspaFXProperties[nFX]->hide();
 		WindowProperties prop = pPref->getLadspaProperties(nFX);
-		m_pLadspaFXProperties[nFX]->move( prop.x, prop.y );
+		setWindowProperties( m_pLadspaFXProperties[ nFX ], prop, /*bResize=*/ false );
 		if ( prop.visible ) {
 			m_pLadspaFXProperties[nFX]->show();
 		}
@@ -740,7 +762,7 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		int uiLayout = pPref->getDefaultUILayout();
 
 		WindowProperties audioEngineInfoProp = pPref->getAudioEngineInfoProperties();
-		m_pAudioEngineInfoForm->move( audioEngineInfoProp.x, audioEngineInfoProp.y );
+		setWindowProperties( m_pAudioEngineInfoForm, audioEngineInfoProp );
 		if ( audioEngineInfoProp.visible ) {
 			m_pAudioEngineInfoForm->show();
 		}
@@ -750,27 +772,24 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 
 		// MAINFORM
 		WindowProperties mainFormProp = pPref->getMainFormProperties();
-		m_pMainForm->resize( mainFormProp.width, mainFormProp.height );
-		m_pMainForm->move( mainFormProp.x, mainFormProp.y );
+		setWindowProperties( m_pMainForm, mainFormProp );
 
 		m_pSplitter->setOrientation( Qt::Vertical );
 		m_pSplitter->setOpaqueResize( true );
 
 		// SONG EDITOR
 		WindowProperties songEditorProp = pPref->getSongEditorProperties();
-		m_pSongEditorPanel->resize( songEditorProp.width, songEditorProp.height );
+		setWindowProperties( m_pSongEditorPanel, songEditorProp );
 
 		// PATTERN EDITOR
 		WindowProperties patternEditorProp = pPref->getPatternEditorProperties();
-		m_pPatternEditorPanel->resize( patternEditorProp.width, patternEditorProp.height );
+		setWindowProperties( m_pPatternEditorPanel, patternEditorProp );
 		
 		WindowProperties instrumentRackProp = pPref->getInstrumentRackProperties();
 		m_pInstrumentRack->setHidden( !instrumentRackProp.visible );
 
 		WindowProperties mixerProp = pPref->getMixerProperties();
-
-		m_pMixer->resize( mixerProp.width, mixerProp.height );
-		m_pMixer->move( mixerProp.x, mixerProp.y );
+		setWindowProperties( m_pMixer, mixerProp );
 
 		m_pMixer->updateMixer();
 
@@ -786,7 +805,7 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 			m_pLadspaFXProperties[nFX]->hide();
 			WindowProperties prop = pPref->getLadspaProperties(nFX);
-			m_pLadspaFXProperties[nFX]->move( prop.x, prop.y );
+			setWindowProperties( m_pLadspaFXProperties[ nFX ], prop, /*bResize=*/false );
 			if ( prop.visible ) {
 				m_pLadspaFXProperties[nFX]->show();
 			}

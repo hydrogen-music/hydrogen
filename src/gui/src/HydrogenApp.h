@@ -130,6 +130,9 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 
 		void cleanupTemporaryFiles();
 
+		void setWindowProperties( QWidget *pWindow, H2Core::WindowProperties &prop, bool bResize = true );
+		H2Core::WindowProperties getWindowProperties( QWidget *pWindow );
+
 	public slots:
 		/**
 		 * Function called every #QUEUE_TIMER_PERIOD

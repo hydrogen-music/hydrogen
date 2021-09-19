@@ -1253,6 +1253,9 @@ WindowProperties Preferences::readWindowProperties( QDomNode parent, const QStri
 		prop.y = LocalFileMng::readXmlInt( windowPropNode, "y", prop.y );
 		prop.width = LocalFileMng::readXmlInt( windowPropNode, "width", prop.width );
 		prop.height = LocalFileMng::readXmlInt( windowPropNode, "height", prop.height );
+		prop.m_geometry = QByteArray::fromBase64( LocalFileMng::readXmlString( windowPropNode, "geometry",
+																			   prop.m_geometry.toBase64() )
+												  .toUtf8() );
 	}
 
 	return prop;
@@ -1275,6 +1278,8 @@ void Preferences::writeWindowProperties( QDomNode parent, const QString& windowN
 	LocalFileMng::writeXmlString( windowPropNode, "y", QString("%1").arg( prop.y ) );
 	LocalFileMng::writeXmlString( windowPropNode, "width", QString("%1").arg( prop.width ) );
 	LocalFileMng::writeXmlString( windowPropNode, "height", QString("%1").arg( prop.height ) );
+	LocalFileMng::writeXmlString( windowPropNode, "geometry", QString( prop.m_geometry.toBase64() ) );
+
 	parent.appendChild( windowPropNode );
 }
 
