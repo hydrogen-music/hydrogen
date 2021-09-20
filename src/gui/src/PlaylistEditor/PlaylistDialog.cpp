@@ -52,25 +52,30 @@
 
 using namespace H2Core;
 
-const char* PlaylistDialog::__class_name = "PlaylistDialog";
 
 PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 		: QDialog ( pParent )
-		, Object ( __class_name )
+		, Object ()
 {
 
 	setupUi ( this );
 	INFOLOG ( "INIT" );
+
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();	
+	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+	setFont( font );
+	m_pPlaylistTree->setFont( font );
+	
 	setWindowTitle ( tr ( "Playlist Browser" ) + QString(" - ") + Playlist::get_instance()->getFilename() );
 	setFixedSize ( width(), height() );
 
 	installEventFilter( this );
 
 	// menubar
-	QMenuBar *m_pMenubar = new QMenuBar( this );
+	m_pMenubar = new QMenuBar( this );
 
 	// Playlist menu
-	QMenu *m_pPlaylistMenu = m_pMenubar->addMenu( tr( "&Playlist" ) );
+	m_pPlaylistMenu = m_pMenubar->addMenu( tr( "&Playlist" ) );
 
 	m_pPlaylistMenu->addAction( tr( "Add song to Play&list" ), this, SLOT( addSong() ), QKeySequence( "Ctrl+A" ) );
 	m_pPlaylistMenu->addAction( tr( "Add &current song to Playlist" ), this, SLOT( addCurrentSong() ), QKeySequence( "Ctrl+Alt+A" ) );
@@ -82,12 +87,13 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	m_pPlaylistMenu->addSeparator();
 	m_pPlaylistMenu->addAction( tr( "&Save Playlist" ), this, SLOT( saveList() ), QKeySequence( "Ctrl+S" ) );
 	m_pPlaylistMenu->addAction( tr( "Save Playlist &as" ), this, SLOT( saveListAs() ), QKeySequence( "Ctrl+Shift+S" ) );
+	m_pPlaylistMenu->setFont( font );
 
 #ifdef WIN32
 	//no scripts under windows
 #else
 	// Script menu
-	QMenu *m_pScriptMenu = m_pMenubar->addMenu( tr( "&Scripts" ) );
+	m_pScriptMenu = m_pMenubar->addMenu( tr( "&Scripts" ) );
 
 	m_pScriptMenu->addAction( tr( "&Add Script to selected song" ), this, SLOT( loadScript() ), QKeySequence( "" ) );
 	m_pScriptMenu->addAction( tr( "&Edit selected Script" ), this, SLOT( editScript() ), QKeySequence( "" ) );
@@ -95,6 +101,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	m_pScriptMenu->addAction( tr( "&Remove selected Script" ), this, SLOT( removeScript() ), QKeySequence( "" ) );
 	m_pScriptMenu->addSeparator();
 	m_pScriptMenu->addAction( tr( "&Create a new Script" ), this, SLOT( newScript() ), QKeySequence( "" ) );
+	m_pScriptMenu->setFont( font );
 #endif
 
 	// CONTROLS
@@ -158,6 +165,9 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	QTreeWidgetItem* header = new QTreeWidgetItem ( headers );
 	m_pPlaylistTree->setHeaderItem ( header );
 	m_pPlaylistTree->setAlternatingRowColors( true );
+	for ( int ii = 0; ii < m_pPlaylistTree->headerItem()->columnCount(); ii++ ) {
+		m_pPlaylistTree->headerItem()->setFont( ii, font );
+	}
 
 		/*addSongBTN->setEnabled ( true );
 	loadListBTN->setEnabled ( true );
@@ -184,7 +194,9 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	m_pPlaylistTree->header()->resizeSection ( 1, 405 );
 	m_pPlaylistTree->header()->resizeSection ( 2, 15 );
 	m_pPlaylistTree->setAlternatingRowColors( true );
-
+	for ( int ii = 0; ii < m_pPlaylistTree->headerItem()->columnCount(); ii++ ) {
+		m_pPlaylistTree->headerItem()->setFont( ii, font );
+	}
 
 	QVBoxLayout *pSideBarLayout = new QVBoxLayout(sideBarWidget);
 	pSideBarLayout->setSpacing(0);
@@ -200,7 +212,6 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 			QSize(18, 13)
 	);
 
-	pUpBtn->setFontSize(7);
 	pUpBtn->setToolTip( tr( "sort" ) );
 	connect(pUpBtn, SIGNAL(clicked(Button*)), this, SLOT(o_upBClicked()) );
 	pSideBarLayout->addWidget(pUpBtn);
@@ -214,7 +225,6 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 			QSize(18, 13)
 	);
 
-	pDownBtn->setFontSize(7);
 	pDownBtn->setToolTip( tr( "sort" ) );
 	connect(pDownBtn, SIGNAL(clicked(Button*)), this, SLOT(o_downBClicked()));
 	pSideBarLayout->addWidget(pDownBtn);
@@ -256,6 +266,8 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	timer = new QTimer( this );
 	connect(timer, SIGNAL(timeout() ), this, SLOT( updateActiveSongNumber() ) );
 	timer->start( 1000 );	// update player control at 1 fps
+
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &PlaylistDialog::onPreferencesChanged );
 }
 
 PlaylistDialog::~PlaylistDialog()
@@ -294,7 +306,7 @@ void PlaylistDialog::addSong()
 
 void PlaylistDialog::addCurrentSong()
 {
-	Song *	pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> 	pSong = Hydrogen::get_instance()->getSong();
 	QString filename = 	pSong->getFilename();
 
 	if (filename == "") {
@@ -733,7 +745,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemClicked ( QTreeWidgetItem * item, in
 
 void PlaylistDialog::nodePlayBTN( Button* ref )
 {
-	Hydrogen *		pEngine = Hydrogen::get_instance();
+	Hydrogen *		pHydrogen = Hydrogen::get_instance();
 	HydrogenApp *	pH2App = HydrogenApp::get_instance();
 
 	if (ref->isPressed()) {
@@ -746,8 +758,8 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 		QString sFilename = "";
 		sFilename = m_pPlaylistItem->text ( 0 );
 
-		if( sFilename == pEngine->getSong()->getFilename()){
-			pEngine->sequencer_play();
+		if( sFilename == pHydrogen->getSong()->getFilename()){
+			pHydrogen->sequencer_play();
 			return;
 		}
 
@@ -759,10 +771,10 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 			m_pPlayBtn->setPressed(false);
 		}
 
-		pEngine->sequencer_play();
+		pHydrogen->sequencer_play();
 	}else
 	{
-		pEngine->sequencer_stop();
+		pHydrogen->sequencer_stop();
 		pH2App->setStatusBarMessage(tr("Pause."), 5000);
 	}
 }
@@ -956,4 +968,39 @@ bool PlaylistDialog::loadListByFileName( QString filename )
 	}
 
 	return true;
+}
+
+void PlaylistDialog::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+
+	if ( font() != pPref->getApplicationFontFamily() ||
+		 ( m_pPlaylistTree->topLevelItem( 0 ) != nullptr &&
+		   m_pPlaylistTree->topLevelItem( 0 )->font( 0 ) != pPref->getLevel2FontFamily() ) ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		
+		QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+		QFont childFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize( m_lastUsedFontSize ) );
+		setFont( font );
+		m_pMenubar->setFont( font );
+		m_pPlaylistMenu->setFont( font );
+		m_pScriptMenu->setFont( font );
+
+		int ii;
+		
+		for ( ii = 0; ii < m_pPlaylistTree->headerItem()->columnCount(); ii++ ) {
+			m_pPlaylistTree->headerItem()->setFont( ii, font );
+		}
+
+		QTreeWidgetItem* pNode = m_pPlaylistTree->topLevelItem( 0 );
+
+		while ( pNode != nullptr ) {
+			for ( ii = 0; ii < pNode->columnCount(); ii++ ) {
+				pNode->setFont( ii, childFont );
+			}
+			pNode = m_pPlaylistTree->itemBelow( pNode );
+		}
+		
+	}
 }

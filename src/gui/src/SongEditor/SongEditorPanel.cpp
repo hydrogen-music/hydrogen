@@ -49,20 +49,17 @@
 #endif
 using namespace H2Core;
 
-const char* SongEditorPanel::__class_name = "SongEditorPanel";
-
 
 SongEditorPanel::SongEditorPanel(QWidget *pParent)
  : QWidget( pParent )
- , Object( __class_name )
-{
+ {
 	m_nInitialWidth = 600;
 	m_nInitialHeight = 250;
 	
 	Preferences *pPref = Preferences::get_instance();
 
-	Hydrogen*	pEngine = Hydrogen::get_instance();
-	Song*		pSong = pEngine->getSong();
+	Hydrogen*	pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> 		pSong = pHydrogen->getSong();
 
 	setWindowTitle( tr( "Song Editor" ) );
 
@@ -87,7 +84,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	connect( m_pTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( timeLineBtnPressed(Button* ) ) );
 	
 	if ( pPref->getUseTimelineBpm() &&
-		 pEngine->getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
+		 pHydrogen->getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
 		m_pTimeLineToggleBtn->setPressed( true );
 		m_pTimeLineToggleBtn->setToolTip( tr( "Enable time line edit") );
 
@@ -306,6 +303,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPatternList->setFocusPolicy( Qt::ClickFocus );
 	m_pPatternListScrollView->setFocusPolicy( Qt::ClickFocus );
 	m_pPatternListScrollView->setWidget( m_pPatternList );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, m_pPatternList, &SongEditorPatternList::onPreferencesChanged );
 
 	// EDITOR
 	m_pEditorScrollView = new WidgetScrollArea( nullptr );
@@ -335,6 +333,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPositionRulerScrollView->setWidget( m_pPositionRuler );
 	m_pPositionRulerScrollView->setFixedHeight( 50 );
 	connect( m_pPositionRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( hScrollTo(int) ) );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, m_pPositionRuler, &SongEditorPositionRuler::onPreferencesChanged );
+
 	m_pPositionRuler->setFocusPolicy( Qt::ClickFocus );
 	m_pPositionRuler->setFocusProxy( m_pSongEditor );
 	
@@ -343,7 +343,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPlaybackTrackScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPlaybackTrackScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	
-	InstrumentComponent* pCompo = AudioEngine::get_instance()->get_sampler()->getPlaybackTrackInstrument()->get_components()->front();
+	auto pCompo = Hydrogen::get_instance()->getAudioEngine()->getSampler()->getPlaybackTrackInstrument()->get_components()->front();
 	assert(pCompo);
 
 	m_pPlaybackTrackWaveDisplay = new PlaybackTrackWaveDisplay( m_pPlaybackTrackScrollView->viewport() );
@@ -434,7 +434,7 @@ SongEditorPanel::~SongEditorPanel()
 
 void SongEditorPanel::updatePlayHeadPosition()
 {
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 
 	if ( Preferences::get_instance()->m_bFollowPlayhead && pSong->getMode() == Song::SONG_MODE) {
 		if ( Hydrogen::get_instance()->getState() != STATE_PLAYING ) {
@@ -459,9 +459,9 @@ void SongEditorPanel::updatePlayHeadPosition()
 
 void SongEditorPanel::updatePlaybackFaderPeaks()
 {
-	Sampler*		pSampler = AudioEngine::get_instance()->get_sampler();
+	Sampler*		pSampler = Hydrogen::get_instance()->getAudioEngine()->getSampler();
 	Preferences *	pPref = Preferences::get_instance();
-	Instrument*		pInstrument = pSampler->getPlaybackTrackInstrument();
+	auto		pInstrument = pSampler->getPlaybackTrackInstrument();
 
 	
 	bool bShowPeaks = pPref->showInstrumentPeaks();
@@ -527,8 +527,8 @@ void SongEditorPanel::hScrollTo( int value )
 ///
 void SongEditorPanel::updateAll()
 {
-	Hydrogen *	pEngine = Hydrogen::get_instance();
-	Song *		pSong = pEngine->getSong();
+	Hydrogen *	pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> 		pSong = pHydrogen->getSong();
 	
 	updatePlaybackTrackIfNecessary();
 
@@ -551,7 +551,7 @@ void SongEditorPanel::updateAll()
 void SongEditorPanel::updatePlaybackTrackIfNecessary()
 {
 	if( Preferences::get_instance()->getShowPlaybackTrack() ) {
-		InstrumentComponent *pCompo = AudioEngine::get_instance()->get_sampler()->getPlaybackTrackInstrument()->get_components()->front();
+		auto pCompo = Hydrogen::get_instance()->getAudioEngine()->getSampler()->getPlaybackTrackInstrument()->get_components()->front();
 		m_pPlaybackTrackWaveDisplay->updateDisplay( pCompo->get_layer(0) );
 	}
 }
@@ -568,15 +568,15 @@ void SongEditorPanel::updatePositionRuler()
 void SongEditorPanel::newPatBtnClicked( Button* btn )
 {
 	UNUSED( btn );
-	Hydrogen	*pEngine = Hydrogen::get_instance();
-	Song		*pSong = pEngine->getSong();
+	Hydrogen	*pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 	Pattern		*pNewPattern = new Pattern( tr("Pattern %1").arg(pPatternList->size()+1));
 	PatternPropertiesDialog *pDialog = new PatternPropertiesDialog( this, pNewPattern, 0, true );
 
 	if ( pDialog->exec() == QDialog::Accepted ) {
 		SE_insertPatternAction* pAction =
-				new SE_insertPatternAction( pEngine->getSelectedPatternNumber() + 1, new Pattern( pNewPattern->get_name() , pNewPattern->get_info(), pNewPattern->get_category() ) );
+				new SE_insertPatternAction( pHydrogen->getSelectedPatternNumber() + 1, new Pattern( pNewPattern->get_name() , pNewPattern->get_info(), pNewPattern->get_category() ) );
 		HydrogenApp::get_instance()->m_pUndoStack->push(  pAction );
 	}
 
@@ -587,25 +587,25 @@ void SongEditorPanel::newPatBtnClicked( Button* btn )
 
 void SongEditorPanel::insertPattern( int idx, Pattern* pPattern )
 {
-	Hydrogen	*pEngine = Hydrogen::get_instance();
-	Song		*pSong = pEngine->getSong();
+	Hydrogen	*pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 
 	pPatternList->insert( idx, pPattern );
-	pEngine->setSelectedPatternNumber( idx );
+	pHydrogen->setSelectedPatternNumber( idx );
 	pSong->setIsModified( true );
 	updateAll();
 }
 
 void SongEditorPanel::deletePattern( int idx )
 {
-	Hydrogen	*pEngine = Hydrogen::get_instance();
-	Song		*pSong = 	pEngine->getSong();
+	Hydrogen	*pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = 	pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 	H2Core::Pattern *pPattern = pPatternList->get( idx );
 	
-	if( idx == 	pEngine->getSelectedPatternNumber() ) {
-		pEngine->setSelectedPatternNumber( idx -1 );
+	if( idx == 	pHydrogen->getSelectedPatternNumber() ) {
+		pHydrogen->setSelectedPatternNumber( idx -1 );
 	}
 	
 	pPatternList->del( pPattern );
@@ -620,10 +620,10 @@ void SongEditorPanel::deletePattern( int idx )
 void SongEditorPanel::upBtnClicked( Button* btn )
 {
 	UNUSED( btn );
-	Hydrogen *pEngine = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
-	if( pEngine->getSelectedPatternNumber() < 0 || !pEngine->getSelectedPatternNumber() ) return;
-	int nSelectedPatternPos = pEngine->getSelectedPatternNumber();
+	if( pHydrogen->getSelectedPatternNumber() < 0 || !pHydrogen->getSelectedPatternNumber() ) return;
+	int nSelectedPatternPos = pHydrogen->getSelectedPatternNumber();
 
 	SE_movePatternListItemAction *pAction = new SE_movePatternListItemAction( nSelectedPatternPos, nSelectedPatternPos -1 ) ;
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
@@ -637,15 +637,15 @@ void SongEditorPanel::upBtnClicked( Button* btn )
 void SongEditorPanel::downBtnClicked( Button* btn )
 {
 	UNUSED( btn );
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 
-	if( pEngine->getSelectedPatternNumber() +1 >=  pPatternList->size() ) { 
+	if( pHydrogen->getSelectedPatternNumber() +1 >=  pPatternList->size() ) { 
 		return;
 	}
 	
-	int nSelectedPatternPos = pEngine->getSelectedPatternNumber();
+	int nSelectedPatternPos = pHydrogen->getSelectedPatternNumber();
 
 	SE_movePatternListItemAction *pAction = new SE_movePatternListItemAction( nSelectedPatternPos, nSelectedPatternPos +1 ) ;
 	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
@@ -833,10 +833,10 @@ void SongEditorPanel::viewPlaybackTrackBtnPressed( Button* pBtn )
 
 void SongEditorPanel::mutePlaybackTrackBtnPressed( Button* pBtn )
 {
-	Hydrogen* pEngine = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
 
 	bool state = !pBtn->isPressed();
-	state = pEngine->setPlaybackTrackState( state );
+	state = pHydrogen->setPlaybackTrackState( state );
 	m_pMutePlaybackToggleBtn->setPressed( !state );
 }
 
@@ -928,7 +928,7 @@ void SongEditorPanel::faderChanged(Fader *pFader)
 	UNUSED( pFader );
 	
 	Hydrogen *	pHydrogen = Hydrogen::get_instance();
-	Song*		pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> 		pSong = pHydrogen->getSong();
 	
 	if( pSong ){
 		pSong->setPlaybackTrackVolume( pFader->getValue() );
@@ -945,8 +945,8 @@ void SongEditorPanel::selectedPatternChangedEvent()
 
 void SongEditorPanel::automationPathChanged()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	pSong->setIsModified(true);
 }
 

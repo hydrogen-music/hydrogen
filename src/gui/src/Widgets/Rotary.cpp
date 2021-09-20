@@ -62,12 +62,10 @@ RotaryTooltip::~RotaryTooltip()
 
 QPixmap* Rotary::m_background_normal = nullptr;
 QPixmap* Rotary::m_background_center = nullptr;
-
-const char* Rotary::__class_name = "Rotary";
+QPixmap* Rotary::m_background_small = nullptr;
 
 Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseIntSteps, bool bUseValueTip, float fMin, float fMax )
  : QWidget( parent )
- , Object( __class_name )
  , m_bUseIntSteps( bUseIntSteps )
  , m_type( type )
  , m_fMin( fMin )
@@ -81,9 +79,14 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseInt
 	setToolTip( sToolTip );
 
 	m_pValueToolTip = new RotaryTooltip( mapToGlobal( QPoint( 0, 0 ) ) );
-
-	m_nWidgetWidth = 28;
-	m_nWidgetHeight = 26;
+	
+	if ( type == TYPE_SMALL ) {
+		m_nWidgetWidth = 18;
+		m_nWidgetHeight = 18;
+	} else {
+		m_nWidgetWidth = 28;
+		m_nWidgetHeight = 26;
+	}
 
 	if (bUseIntSteps) {
 		m_fDefaultValue = (int) ( type == TYPE_CENTER ? ( m_fMin + ( m_fMax - m_fMin ) / 2.0 ) : m_fMin );
@@ -94,19 +97,22 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseInt
 
 	m_fValue = m_fDefaultValue;
 
-	if ( m_background_normal == nullptr ) {
+	if ( type == TYPE_NORMAL && m_background_normal == nullptr ) {
 		m_background_normal = new QPixmap();
 		if ( m_background_normal->load( Skin::getImagePath() + "/mixerPanel/rotary_images.png" ) == false ){
 			ERRORLOG( "Error loading pixmap" );
 		}
-	}
-	if ( m_background_center == nullptr ) {
+	} else if ( type == TYPE_CENTER && m_background_center == nullptr ) {
 		m_background_center = new QPixmap();
 		if ( m_background_center->load( Skin::getImagePath() + "/mixerPanel/rotary_center_images.png" ) == false ){
 			ERRORLOG( "Error loading pixmap" );
 		}
+	} else if ( type == TYPE_SMALL && m_background_small == nullptr ) {
+		m_background_small = new QPixmap();
+		if ( m_background_small->load( Skin::getImagePath() + "/mixerPanel/knob_images.png" ) == false ){ //TODO rename png?
+			ERRORLOG( "Error loading pixmap" );
+		}
 	}
-
 	resize( m_nWidgetWidth, m_nWidgetHeight );
 //	m_temp.resize( m_nWidgetWidth, m_nWidgetHeight );
 }
@@ -125,34 +131,36 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	UNUSED( ev );
 	QPainter painter(this);
 
-	float fRange = fabs( m_fMax ) + fabs( m_fMin );
-	float fValue = fabs( m_fMin ) + m_fValue;
+	float fRange = m_fMax - m_fMin;
 
-	int nFrame;
-	if ( m_bUseIntSteps ) {
-		nFrame = (int)( 63.0 * ( (int)fValue / fRange ) );
+	int nFrame, nEndFrame;
+	if ( m_type == TYPE_NORMAL ) {
+		nEndFrame = 63; // there are 64 frames, indices from 0 to 63
+	} else if ( m_type == TYPE_CENTER ) {
+		nEndFrame = 62;
+	} else if ( m_type == TYPE_SMALL ) {
+		nEndFrame = 31;	
+	} else { // undefined RotaryType
+		ERRORLOG( "Error: undefined RotaryType" );
 	}
-	else {
-		nFrame = (int)( 63.0 * ( fValue / fRange ) );
+	
+	if ( m_bUseIntSteps ) {
+		nFrame = (int)( nEndFrame * floor( m_fValue - m_fMin ) / fRange );
+	} else {
+		nFrame = (int)( nEndFrame * ( m_fValue - m_fMin ) / fRange );
 	}
 
 //	INFOLOG( "\nrange: " + toString( fRange ) );
 //	INFOLOG( "norm value: " + toString( fValue ) );
 //	INFOLOG( "frame: " + toString( nFrame ) );
 
+	int xPos = m_nWidgetWidth * nFrame;
 	if ( m_type == TYPE_NORMAL ) {
-
-		int xPos = m_nWidgetWidth * nFrame;
 		painter.drawPixmap( rect(), *m_background_normal, QRect( xPos, 0, m_nWidgetWidth, m_nWidgetHeight ) );
-	}
-	else {
-		// the image is broken...
-		if ( nFrame > 62 ) {
-			nFrame = 62;
-		}
-		int xPos = m_nWidgetWidth * nFrame;
+	} else if ( m_type == TYPE_CENTER ) {
 		painter.drawPixmap( rect(), *m_background_center, QRect( xPos, 0, m_nWidgetWidth, m_nWidgetHeight ) );
-
+	} else if ( m_type == TYPE_SMALL ) {
+		painter.drawPixmap( rect(), *m_background_small, QRect( xPos, 0, m_nWidgetWidth, m_nWidgetHeight ) );
 	}
 }
 
@@ -224,7 +232,7 @@ void Rotary::wheelEvent ( QWheelEvent *ev )
 {
 	ev->accept();
 
-	float stepfactor = 5.0; // course adjustment
+	float stepfactor = 5.0; // coarse adjustment
 	float delta = 1.0;
 
 	// Control Modifier = fine adjustment
@@ -232,25 +240,36 @@ void Rotary::wheelEvent ( QWheelEvent *ev )
 		stepfactor = 1.0;
 	}
 	if ( !m_bUseIntSteps ) {
-		float fRange = fabs( m_fMax ) + fabs( m_fMin );
+		float fRange = m_fMax - m_fMin;
 		delta = fRange / 100.0;
 	}
 	if ( ev->angleDelta().y() < 0 ) {
-		delta = delta * -1.0;
+		delta *= -1.;
 	}
 	setValue( getValue() + (delta * stepfactor) );
 	emit valueChanged(this);
+	
+	if ( m_bShowValueToolTip ) {
+		char tmp[20];
+		sprintf( tmp, "%#.2f", m_fValue );
+		
+		// Problem: ValueToolTip remains visible after wheel event
+		//m_pValueToolTip->showTip( mapToGlobal( QPoint( -38, 1 ) ), QString( tmp ) );
+		
+		// useful but graphically incoeherent
+		QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
+	}
 }
 
 
 
- void Rotary::mouseMoveEvent( QMouseEvent *ev )
- {
+void Rotary::mouseMoveEvent( QMouseEvent *ev )
+{
 	if ( m_bIgnoreMouseMove ) {
 		return;
 	}
 
-	float fRange = fabs( m_fMax ) + fabs( m_fMin );
+	float fRange = m_fMax - m_fMin;
 
 	float deltaY = ev->y() - m_fMousePressY;
 	float fNewValue = ( m_fMousePressValue - ( deltaY / 100.0 * fRange ) );

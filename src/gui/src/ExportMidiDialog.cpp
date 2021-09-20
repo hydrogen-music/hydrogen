@@ -34,8 +34,6 @@
 
 using namespace H2Core;
 
-const char* ExportMidiDialog::__class_name = "ExportMidiDialog";
-
 enum ExportModes { EXPORT_SMF1_SINGLE, EXPORT_SMF1_MULTI, EXPORT_SMF0 };
 
 // Here we are going to store export filename 
@@ -43,8 +41,8 @@ QString ExportMidiDialog::sLastFilename = "";
 
 ExportMidiDialog::ExportMidiDialog( QWidget* parent )
 	: QDialog( parent )
-	, Object( __class_name )
-	, m_pEngine( Hydrogen::get_instance() )
+	, Object()
+	, m_pHydrogen( Hydrogen::get_instance() )
 	, m_pPreferences( Preferences::get_instance() )
 	, m_bFileSelected( false )
 	, m_sExtension( ".mid" )
@@ -86,10 +84,10 @@ void ExportMidiDialog::saveSettingsToPreferences()
 
 QString ExportMidiDialog::createDefaultFilename()
 {
-	QString sDefaultFilename = m_pEngine->getSong()->getFilename();
+	QString sDefaultFilename = m_pHydrogen->getSong()->getFilename();
 
 	if( sDefaultFilename.isEmpty() ){
-		sDefaultFilename = m_pEngine->getSong()->getName();
+		sDefaultFilename = m_pHydrogen->getSong()->getName();
 	} else {
 		// extracting filename from full path
 		QFileInfo qDefaultFile( sDefaultFilename ); 
@@ -179,7 +177,7 @@ void ExportMidiDialog::on_okBtn_clicked()
 	
 	saveSettingsToPreferences();
 
-	Song *pSong = m_pEngine->getSong();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	
 	QString sFilename = exportNameTxt->text();
 	QFileInfo qFile( sFilename );

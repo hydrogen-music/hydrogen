@@ -33,11 +33,9 @@
 namespace H2Core
 {
 
-typedef int  ( *audioProcessCallback )( uint32_t, void * );
-
-class AlsaAudioDriver : public AudioOutput
+class AlsaAudioDriver : public Object<AlsaAudioDriver>, public AudioOutput
 {
-	H2_OBJECT
+	H2_OBJECT(AlsaAudioDriver)
 public:
 	snd_pcm_t *m_pPlayback_handle;
 	bool m_bIsRunning;
@@ -65,6 +63,8 @@ public:
 	virtual void locate( unsigned long nFrame );
 	virtual void setBpm( float fBPM );
 
+	static QStringList getDevices();
+
 private:
 
 	unsigned int m_nSampleRate;
@@ -76,7 +76,7 @@ namespace H2Core {
 
 class AlsaAudioDriver : public NullDriver
 {
-	H2_OBJECT
+	H2_OBJECT(AlsaAudioDriver)
 public:
 	AlsaAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
 

@@ -26,8 +26,8 @@
 #include <string>
 #include <cassert>
 
-class Action : public H2Core::Object {
-	H2_OBJECT
+class Action : public H2Core::Object<Action> {
+	H2_OBJECT(Action)
 	public:
 		Action( QString );
 
@@ -62,9 +62,9 @@ namespace H2Core
 	class Hydrogen;
 }
 
-class MidiActionManager : public H2Core::Object
+class MidiActionManager : public H2Core::Object<MidiActionManager>
 {
-	H2_OBJECT
+	H2_OBJECT(MidiActionManager)
 	private:
 		/**
 		 * Object holding the current MidiActionManager

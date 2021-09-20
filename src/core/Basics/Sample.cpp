@@ -39,9 +39,6 @@
 namespace H2Core
 {
 
-const char* Sample::__class_name = "Sample";
-const char* EnvelopePoint::__class_name = "EnvolopePoint";
-
 const std::vector<QString> Sample::__loop_modes = { "forward", "reverse", "pingpong" };
 
 #if defined(H2CORE_HAVE_RUBBERBAND) || _DOXYGEN_
@@ -51,24 +48,22 @@ static RubberBand::RubberBandStretcher::Options compute_rubberband_options( cons
 
 
 /* EnvelopePoint */
-EnvelopePoint::EnvelopePoint() : Object( EnvelopePoint::__class_name ), frame( 0 ), value( 0 ) 
+EnvelopePoint::EnvelopePoint() : frame( 0 ), value( 0 )
 {
 }
 
-EnvelopePoint::EnvelopePoint( int f, int v ) : Object( EnvelopePoint::__class_name ), frame( f ), value( v ) 
+EnvelopePoint::EnvelopePoint( int f, int v ) : frame( f ), value( v )
 {
 }
 
-EnvelopePoint::EnvelopePoint( EnvelopePoint* other ) : Object( EnvelopePoint::__class_name )
+EnvelopePoint::EnvelopePoint( const EnvelopePoint& other ) : Object(other), frame ( other.frame ), value ( other.value )
 {
-	frame = other->frame;
-	value = other->value;
 }
 /* EnvelopePoint */
 
 
-Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* data_l, float* data_r ) : Object( Sample::__class_name ),
-	__filepath( filepath ),
+Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* data_l, float* data_r ) 
+  : __filepath( filepath ),
 	__frames( frames ),
 	__sample_rate( sample_rate ),
 	__data_l( data_l ),
@@ -78,7 +73,7 @@ Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* da
 	assert( filepath.lastIndexOf( "/" ) >0 );
 }
 
-Sample::Sample( std::shared_ptr<Sample> pOther ): Object( __class_name ),
+Sample::Sample( std::shared_ptr<Sample> pOther ): Object( *pOther ),
 	__filepath( pOther->get_filepath() ),
 	__frames( pOther->get_frames() ),
 	__sample_rate( pOther->get_sample_rate() ),
@@ -101,12 +96,12 @@ Sample::Sample( std::shared_ptr<Sample> pOther ): Object( __class_name ),
 	
 	PanEnvelope* pPan = pOther->get_pan_envelope();
 	for( int i=0; i<pPan->size(); i++ ) {
-		__pan_envelope.push_back( std::make_unique<EnvelopePoint>( pPan->at(i).get() ) );
+		__pan_envelope.push_back( pPan->at(i) );
 	}
 
 	PanEnvelope* pVelocity = pOther->get_velocity_envelope();
 	for( int i=0; i<pVelocity->size(); i++ ) {
-		__velocity_envelope.push_back( std::make_unique<EnvelopePoint>( pVelocity->at(i).get() ) );
+		__velocity_envelope.push_back( pVelocity->at(i) );
 	}
 }
 
@@ -355,10 +350,10 @@ void Sample::apply_velocity( const VelocityEnvelope& v )
 	if ( v.size() > 0 ) {
 		float inv_resolution = __frames / 841.0F;
 		for ( int i = 1; i < v.size(); i++ ) {
-			float y = ( 91 - v[i - 1]->value ) / 91.0F;
-			float k = ( 91 - v[i]->value ) / 91.0F;
-			int start_frame = v[i - 1]->frame * inv_resolution;
-			int end_frame = v[i]->frame * inv_resolution;
+			float y = ( 91 - v[i - 1].value ) / 91.0F;
+			float k = ( 91 - v[i].value ) / 91.0F;
+			int start_frame = v[i - 1].frame * inv_resolution;
+			int end_frame = v[i].frame * inv_resolution;
 			if ( i == v.size() -1 ) {
 				end_frame = __frames;
 			}
@@ -371,8 +366,8 @@ void Sample::apply_velocity( const VelocityEnvelope& v )
 			}
 		}
 		
-		for(auto& pEnvPtr : v){
-			__velocity_envelope.emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr.get() ) );
+		for(auto& pEnvPt : v){
+			__velocity_envelope.emplace_back( pEnvPt );
 		}
 	}
 	__is_modified = true;
@@ -390,10 +385,10 @@ void Sample::apply_pan( const PanEnvelope& p )
 	if ( p.size() > 0 ) {
 		float inv_resolution = __frames / 841.0F;
 		for ( int i = 1; i < p.size(); i++ ) {
-			float y = ( 45 - p[i - 1]->value ) / 45.0F;
-			float k = ( 45 - p[i]->value ) / 45.0F;
-			int start_frame = p[i - 1]->frame * inv_resolution;
-			int end_frame = p[i]->frame * inv_resolution;
+			float y = ( 45 - p[i - 1].value ) / 45.0F;
+			float k = ( 45 - p[i].value ) / 45.0F;
+			int start_frame = p[i - 1].frame * inv_resolution;
+			int end_frame = p[i].frame * inv_resolution;
 			if ( i == p.size() -1 ) {
 				end_frame = __frames;
 			}
@@ -417,8 +412,8 @@ void Sample::apply_pan( const PanEnvelope& p )
 			}
 		}
 		
-		for(auto& pEnvPtr : p){
-			__pan_envelope.emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr.get() ) );
+		for(auto& pEnvPt : p){
+			__pan_envelope.emplace_back( pEnvPt );
 		}
 	}
 	__is_modified = true;
@@ -739,7 +734,7 @@ bool Sample::write( const QString& path, int format )
 }
 
 QString Sample::Loops::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Loops]\n" ).arg( sPrefix )
@@ -761,7 +756,7 @@ QString Sample::Loops::toQString( const QString& sPrefix, bool bShort ) const {
 }
 
 QString Sample::Rubberband::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Rubberband]\n" ).arg( sPrefix )
@@ -780,7 +775,7 @@ QString Sample::Rubberband::toQString( const QString& sPrefix, bool bShort ) con
 }
 
 QString Sample::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Sample]\n" ).arg( sPrefix )

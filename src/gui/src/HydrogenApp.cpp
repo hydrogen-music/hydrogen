@@ -40,6 +40,10 @@
 #include "Director.h"
 
 #include "PatternEditor/PatternEditorPanel.h"
+#include "PatternEditor/PatternEditorRuler.h"
+#include "PatternEditor/NotePropertiesRuler.h"
+#include "PatternEditor/PianoRollEditor.h"
+#include "PatternEditor/DrumPatternEditor.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
@@ -64,11 +68,9 @@ using namespace H2Core;
 
 
 HydrogenApp* HydrogenApp::m_pInstance = nullptr;
-const char* HydrogenApp::__class_name = "HydrogenApp";
 
-HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
- : Object( __class_name )
- , m_pMainForm( pMainForm )
+HydrogenApp::HydrogenApp( MainForm *pMainForm )
+ : m_pMainForm( pMainForm )
  , m_pMixer( nullptr )
  , m_pPatternEditorPanel( nullptr )
  , m_pAudioEngineInfoForm( nullptr )
@@ -85,12 +87,6 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	connect( m_pEventQueueTimer, SIGNAL( timeout() ), this, SLOT( onEventQueueTimer() ) );
 	m_pEventQueueTimer->start( QUEUE_TIMER_PERIOD );
 
-	if ( ! Hydrogen::get_instance()->isUnderSessionManagement() ) {
-		// When under Non Session Management the new Song will be
-		// loaded by the corresponding NSM client instance.
-		Hydrogen::get_instance()->setSong( pFirstSong );
-	} 
-	
 	SoundLibraryDatabase::create_instance();
 
 	//setup the undo stack
@@ -125,6 +121,9 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	// Events as well, it should be registered as an Eventlistener
 	// itself.
 	addEventListener( this );
+
+	connect( this, &HydrogenApp::preferencesChanged,
+			 m_pMainForm, &MainForm::onPreferencesChanged );
 }
 
 
@@ -147,12 +146,10 @@ HydrogenApp::~HydrogenApp()
 
 	delete SoundLibraryDatabase::get_instance();
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	if (pEngine) {
-		H2Core::Song * pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	if (pHydrogen) {
 		// Hydrogen calls removeSong on from its destructor, so here we just delete the objects:
-		delete pEngine;
-		delete pSong;
+		delete pHydrogen;
 	}
 
 	#ifdef H2CORE_HAVE_LADSPA
@@ -338,7 +335,7 @@ bool HydrogenApp::openSong( const QString sFilename ) {
 	return true;
 }
 
-bool HydrogenApp::openSong( H2Core::Song* pSong ) {
+bool HydrogenApp::openSong( std::shared_ptr<H2Core::Song> pSong ) {
 
 	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
 	if ( ! pCoreActionController->openSong( pSong ) ) {
@@ -408,7 +405,7 @@ void HydrogenApp::setStatusBarMessage( const QString& msg, int msec )
 
 void HydrogenApp::updateWindowTitle()
 {
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	assert(pSong);
 
 	QString title;
@@ -633,8 +630,8 @@ void HydrogenApp::onEventQueueTimer()
 
 	// midi notes
 	while( !pQueue->m_addMidiNoteVector.empty() ){
-		Song *pSong = Hydrogen::get_instance()->getSong();
-		Instrument *pInstrument = pSong->getInstrumentList()->get( pQueue->m_addMidiNoteVector[0].m_row );
+		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+		auto pInstrument = pSong->getInstrumentList()->get( pQueue->m_addMidiNoteVector[0].m_row );
 		// find if a (pitch matching) note is already present
 		Note *pOldNote = pSong->getPatternList()->get( pQueue->m_addMidiNoteVector[0].m_pattern )
 														->find_note( pQueue->m_addMidiNoteVector[0].m_column,
@@ -650,8 +647,7 @@ void HydrogenApp::onEventQueueTimer()
 																	 pQueue->m_addMidiNoteVector[0].m_pattern,
 																	 pOldNote->get_length(),
 																	 pOldNote->get_velocity(),
-																	 pOldNote->get_pan_l(),
-																	 pOldNote->get_pan_r(),
+																	 pOldNote->getPan(),
 																	 pOldNote->get_lead_lag(),
 																	 pOldNote->get_key(),
 																	 pOldNote->get_octave(),
@@ -669,8 +665,7 @@ void HydrogenApp::onEventQueueTimer()
 																	 pQueue->m_addMidiNoteVector[0].m_pattern,
 																	 pQueue->m_addMidiNoteVector[0].m_length,
 																	 pQueue->m_addMidiNoteVector[0].f_velocity,
-																	 pQueue->m_addMidiNoteVector[0].f_pan_L,
-																	 pQueue->m_addMidiNoteVector[0].f_pan_R,
+																	 pQueue->m_addMidiNoteVector[0].f_pan,
 																	 0.0,
 																	 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
 																	 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
@@ -813,35 +808,17 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();	
 	
-	if ( nValue == 0 || nValue == 1 ) {
-
-		// Set a Song prepared by the core part.
-		Song* pNextSong = pHydrogen->getNextSong();
-
-		if ( ! pHydrogen->getNextSongPath().isEmpty() ) {
-			pNextSong->setFilename( pHydrogen->getNextSongPath() );
-		}
-		
-		pHydrogen->setSong( pNextSong );
-
+	if ( nValue == 0 ) {
 		// Cleanup
 		closeFXProperties();
 		m_pUndoStack->clear();
 		
-		// Add the new loaded song in the "last used song" vector.
-		// This behavior is prohibited under session management. Only
-		// songs open during normal runs will be listed.
-		if ( ! pHydrogen->isUnderSessionManagement() ) {
-			Preferences::get_instance()->insertRecentFile( pNextSong->getFilename() );
-		}
-
 		// Update GUI components
 		m_pSongEditorPanel->updateAll();
 		m_pPatternEditorPanel->updateSLnameLabel();
 		updateWindowTitle();
 		getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 		getSongEditorPanel()->updatePositionRuler();
-		pHydrogen->getTimeline()->deleteAllTags();
 	
 		// Trigger a reset of the Director and MetronomeWidget.
 		EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
@@ -851,11 +828,7 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		m_pPatternEditorPanel->updateSLnameLabel();
 		updateWindowTitle();
 		
-		if ( nValue == 1 ) {	
-			pHydrogen->restartDrivers();
-		}
-		
-	} else if ( nValue == 2 ) {
+	} else if ( nValue == 1 ) {
 		
 		QString filename = pHydrogen->getSong()->getFilename();
 		
@@ -864,7 +837,7 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		updateWindowTitle();
 		EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 		
-	} else if ( nValue == 3 ) {
+	} else if ( nValue == 2 ) {
 
 		// The event was triggered before the Song was fully loaded by
 		// the core. It's most likely to be present by now, but it's
@@ -878,4 +851,8 @@ void HydrogenApp::quitEvent( int nValue ) {
 
 	m_pMainForm->closeAll();
 	
+}
+
+void HydrogenApp::changePreferences( bool bAppearanceOnly ) {
+	emit preferencesChanged( bAppearanceOnly );
 }

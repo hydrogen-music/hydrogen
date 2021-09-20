@@ -37,17 +37,17 @@ namespace H2Core
  */
 
 /** an envelope point within a frame */
-class EnvelopePoint : public H2Core::Object
+class EnvelopePoint : public H2Core::Object<EnvelopePoint>
 {
-		H2_OBJECT
+		H2_OBJECT(EnvelopePoint)
 	public:
 		int frame;  ///< frame index
 		int value;  ///< value
 		/** to be able to sort velocity points vectors */
 		struct Comparator {
-			bool operator()( std::unique_ptr<EnvelopePoint>& a, std::unique_ptr<EnvelopePoint>& b )
+			bool operator()( const EnvelopePoint& a, const EnvelopePoint& b )
 			{
-				return a->frame < b->frame;
+				return a.frame < b.frame;
 			}
 		};
 		/** default constructor */
@@ -59,18 +59,18 @@ class EnvelopePoint : public H2Core::Object
 		 */
 		EnvelopePoint( int f, int v );
 		/** copy constructor */
-		EnvelopePoint( EnvelopePoint* other );
+		EnvelopePoint( const EnvelopePoint& other );
 };
 
-class Sample : public H2Core::Object
+class Sample : public H2Core::Object<Sample>
 {
-		H2_OBJECT
+		H2_OBJECT(Sample)
 	public:
 
 		/** define the type used to store pan envelope points */
-		using PanEnvelope = std::vector<std::unique_ptr<EnvelopePoint>>;
+		using PanEnvelope = std::vector<EnvelopePoint>;
 		/** define the type used to store velocity envelope points */
-		using VelocityEnvelope = std::vector<std::unique_ptr<EnvelopePoint>>;
+		using VelocityEnvelope = std::vector<EnvelopePoint>;
 		/** set of loop configuration flags */
 		class Loops
 		{
@@ -363,7 +363,7 @@ inline void Sample::unload()
 
 inline bool Sample::is_empty() const
 {
-	return ( __data_l==__data_r==0 );
+	return ( __data_l == 0 && __data_r == 0 );
 }
 
 inline const QString Sample::get_filepath() const

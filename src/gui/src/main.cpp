@@ -61,7 +61,9 @@
 #include <iostream>
 #include <map>
 #include <set>
-
+namespace H2Core {
+	void init_gui_object_map();
+};
 //
 // Set the palette used in the application
 //
@@ -127,8 +129,9 @@ static void handleFatalSignal( int nSignal )
 
 	// Allow logger to complete
 	H2Core::Logger* pLogger = H2Core::Logger::get_instance();
-	if ( pLogger )
+	if ( pLogger ) {
 		delete pLogger;
+	}
 
 	raise( nSignal );
 }
@@ -240,7 +243,7 @@ int main(int argc, char *argv[])
 		QCommandLineOption systemDataPathOption( QStringList() << "P" << "data", "Use an alternate system data path", "Path" );
 		QCommandLineOption songFileOption( QStringList() << "s" << "song", "Load a song (*.h2song) at startup", "File" );
 		QCommandLineOption kitOption( QStringList() << "k" << "kit", "Load a drumkit at startup", "DrumkitName" );
-		QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH","Level");
+		QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug, Constructors or 0xHHHH", "Level" );
 		QCommandLineOption shotListOption( QStringList() << "t" << "shotlist", "Shot list of widgets to grab", "ShotList" );
 		QCommandLineOption uiLayoutOption( QStringList() << "layout", "UI layout ('tabbed' or 'single')", "Layout" );
 		
@@ -316,7 +319,7 @@ int main(int argc, char *argv[])
 		H2Core::Logger::create_instance();
 		H2Core::Logger::set_bit_mask( logLevelOpt );
 		H2Core::Logger* pLogger = H2Core::Logger::get_instance();
-		H2Core::Object::bootstrap( pLogger, pLogger->should_log(H2Core::Logger::Debug) );
+		H2Core::Base::bootstrap( pLogger, pLogger->should_log(H2Core::Logger::Debug) );
 		
 		if( sSysDataPath.length() == 0 ) {
 			H2Core::Filesystem::bootstrap( pLogger );
@@ -395,7 +398,7 @@ int main(int argc, char *argv[])
 		pQApp->processEvents();
 
 		QString family = pPref->getApplicationFontFamily();
-		pQApp->setFont( QFont( family, pPref->getApplicationFontPointSize() ) );
+		pQApp->setFont( QFont( family, 10 ) );
 
 		QTranslator qttor( nullptr );
 		QTranslator tor( nullptr );
@@ -510,20 +513,31 @@ int main(int argc, char *argv[])
 		// Tell Hydrogen it was started via the QT5 GUI.
 		H2Core::Hydrogen::get_instance()->setGUIState( H2Core::Hydrogen::GUIState::notReady );
 		
-		// Whether or not to load a default song or supplied one when
-		// constructing the MainForm object.
-		bool bLoadSong = true;
-
 		H2Core::Hydrogen::get_instance()->startNsmClient();
-		
-		if ( H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ){
-			
-			// When using the Non Session Management system, the new
-			// Song will be loaded by the NSM client singleton itself
-			// and not by the MainForm. The latter will just access
-			// the already loaded Song.
-			bLoadSong = false;
-			
+
+		// When using the Non Session Management system, the new Song
+		// will be loaded by the NSM client singleton itself and not
+		// by the MainForm. The latter will just access the already
+		// loaded Song.
+		if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ){
+			std::shared_ptr<H2Core::Song>pSong = nullptr;
+
+			if ( sSongFilename.isEmpty() ) {
+				if ( pPref->isRestoreLastSongEnabled() ) {
+					sSongFilename = pPref->getLastSongFilename();
+				}
+			}
+
+			if ( !sSongFilename.isEmpty() ) {
+				pSong = H2Core::Song::load( sSongFilename );
+			}
+
+			if ( pSong == nullptr ) {
+				pSong = H2Core::Song::getEmptySong();
+				pSong->setFilename( sSongFilename );
+			}
+
+			H2Core::Hydrogen::get_instance()->getCoreActionController()->openSong( pSong );
 		}
 
 		// If the NSM_URL variable is present, Hydrogen will not
@@ -533,10 +547,14 @@ int main(int argc, char *argv[])
 		// variable does not guarantee for a session management and if
 		// no audio driver is initialized yet, we will do it here. 
 		if ( H2Core::Hydrogen::get_instance()->getAudioOutput() == nullptr ) {
+			// Starting drivers can take some time, so show the wait cursor to let the user know that, yes,
+			// we're definitely busy.
+			QApplication::setOverrideCursor( Qt::WaitCursor );
 			H2Core::Hydrogen::get_instance()->restartDrivers();
+			QApplication::restoreOverrideCursor();
 		}
 
-		MainForm *pMainForm = new MainForm( pQApp, sSongFilename, bLoadSong );
+		MainForm *pMainForm = new MainForm( pQApp );
 		pMainForm->show();
 		
 		pSplash->finish( pMainForm );
@@ -583,7 +601,6 @@ int main(int argc, char *argv[])
 		delete pQApp;
 		delete pPref;
 		delete H2Core::EventQueue::get_instance();
-		delete H2Core::AudioEngine::get_instance();
 
 		delete MidiMap::get_instance();
 		delete MidiActionManager::get_instance();
@@ -592,8 +609,8 @@ int main(int argc, char *argv[])
 		std::cout << "\nBye..." << std::endl;
 		delete H2Core::Logger::get_instance();
 
-		if (H2Core::Object::count_active()) {
-			H2Core::Object::write_objects_map_to_cerr();
+		if (H2Core::Base::count_active()) {
+			H2Core::Base::write_objects_map_to_cerr();
 		}
 
 	}

@@ -24,17 +24,19 @@
 #define PIANO_ROLL_EDITOR_H
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 #include <core/Basics/Note.h>
 #include "../EventListener.h"
 #include "../Selection.h"
 #include "PatternEditor.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
 #include <QtGui>
 #include <QtWidgets>
 
-class PianoRollEditor: public PatternEditor
+class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>, public H2Core::Object<PianoRollEditor>
 {
-    H2_OBJECT
+    H2_OBJECT(PianoRollEditor)
     Q_OBJECT
 	public:
 		PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
@@ -76,8 +78,7 @@ class PianoRollEditor: public PatternEditor
 									int selectedinstrument,
 									int oldLength,
 									float oldVelocity,
-									float oldPan_L,
-									float oldPan_R,
+									float fOldPan,
 									float oldLeadLag,
 									int oldNoteKeyVal,
 									int oldOctaveKeyVal,
@@ -99,8 +100,7 @@ class PianoRollEditor: public PatternEditor
 						int selectedPatternNumber,
 						int selectedInstrumentnumber,
 						float velocity,
-						float pan_L,
-						float pan_R,
+						float fPan,
 						float leadLag,
 						int pressedLine );
 		void editNoteLengthAction( int nColumn,  int nRealColumn, int length, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedLine );
@@ -123,8 +123,10 @@ class PianoRollEditor: public PatternEditor
 		virtual void selectAll() override;
 		virtual void deleteSelection() override;
 		virtual void paste() override;
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
+		H2Core::AudioEngine* m_pAudioEngine;
 
 		bool m_bNeedsUpdate;
 		bool m_bNeedsBackgroundUpdate;
@@ -163,12 +165,14 @@ class PianoRollEditor: public PatternEditor
 		
 		float __velocity;
 		float __oldVelocity;
-		float __pan_L;
-		float __oldPan_L;
-		float __pan_R;
-		float __oldPan_R;
+		float m_fPan;
+		float m_fOldPan;
 		float __leadLag;
 		float __oldLeadLag;		
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 #endif

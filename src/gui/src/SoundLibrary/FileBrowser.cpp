@@ -33,11 +33,8 @@
 #include <core/AudioEngine.h>
 using namespace H2Core;
 
-const char* FileBrowser::__class_name = "FileBrowser";
-
 FileBrowser::FileBrowser( QWidget* pParent )
  : QWidget( pParent )
- , Object( __class_name )
 {
 	INFOLOG( "[FileBrowser]" );
 
@@ -236,7 +233,7 @@ void FileBrowser::on_fileList_ItemActivated( QListWidgetItem* item )
 				auto pNewSample = Sample::load( fileInfo.absoluteFilePath() );
 				if ( pNewSample != nullptr ) {
 					updateFileInfo( fileInfo.absoluteFilePath(), pNewSample->get_sample_rate(), pNewSample->get_size() );
-					AudioEngine::get_instance()->get_sampler()->preview_sample(pNewSample, 192);
+					Hydrogen::get_instance()->getAudioEngine()->getSampler()->preview_sample(pNewSample, 192);
 				}
 			}
 		}

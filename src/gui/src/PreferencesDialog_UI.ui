@@ -29,7 +29,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="GeneralTab">
       <attribute name="title">
@@ -247,74 +247,8 @@
           <layout class="QHBoxLayout" name="horizontalLayout"/>
          </item>
          <item>
-          <layout class="QGridLayout">
-           <item row="7" column="1">
-            <widget class="QComboBox" name="trackOutputComboBox">
-             <property name="currentIndex">
-              <number>0</number>
-             </property>
-             <item>
-              <property name="text">
-               <string>Post-Fader</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Pre-Fader</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="4" column="1">
-            <widget class="QLineEdit" name="m_pAudioDeviceTxt">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="sampleRateLbl">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Sample rate</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="buffer_sizeLbl">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Buffer size</string>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="0">
-            <widget class="QLabel" name="trackOutputLbl">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Track output</string>
-             </property>
-            </widget>
-           </item>
-           <item row="8" column="0">
+          <layout class="QGridLayout" columnstretch="1,2">
+           <item row="9" column="0">
             <widget class="QLabel" name="jackBBTSyncLbl">
              <property name="minimumSize">
               <size>
@@ -330,37 +264,7 @@
              </property>
             </widget>
            </item>
-           <item row="8" column="1">
-            <widget class="QComboBox" name="jackBBTSyncComboBox">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="toolTip">
-              <string>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</string>
-             </property>
-             <item>
-              <property name="text">
-               <string>constant measure</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>matching bars</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="audioDeviceLbl">
-             <property name="text">
-              <string>Device</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1">
+           <item row="6" column="1">
             <widget class="QSpinBox" name="bufferSizeSpinBox">
              <property name="minimumSize">
               <size>
@@ -382,7 +286,7 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="1">
+           <item row="7" column="1">
             <widget class="QComboBox" name="sampleRateComboBox">
              <property name="currentIndex">
               <number>0</number>
@@ -409,8 +313,12 @@
              </item>
             </widget>
            </item>
-           <item row="3" column="1">
-            <widget class="QComboBox" name="driverComboBox"/>
+           <item row="5" column="0">
+            <widget class="QLabel" name="audioDeviceLbl">
+             <property name="text">
+              <string>Device</string>
+             </property>
+            </widget>
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="label_6">
@@ -418,6 +326,111 @@
               <string>Audio System</string>
              </property>
             </widget>
+           </item>
+           <item row="8" column="0">
+            <widget class="QLabel" name="trackOutputLbl">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Track output</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QComboBox" name="driverComboBox"/>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="buffer_sizeLbl">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Buffer size</string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="1">
+            <widget class="QComboBox" name="jackBBTSyncComboBox">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>constant measure</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>matching bars</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="DeviceComboBox" name="m_pAudioDeviceTxt">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="sampleRateLbl">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Sample rate</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="1">
+            <widget class="QComboBox" name="trackOutputComboBox">
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>Post-Fader</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Pre-Fader</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="portaudioHostAPILabel">
+             <property name="text">
+              <string>Host API</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="HostAPIComboBox" name="portaudioHostAPIComboBox"/>
            </item>
           </layout>
          </item>
@@ -990,7 +1003,20 @@
       <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
         <layout class="QGridLayout">
-         <item row="0" column="0">
+         <item row="0" column="1">
+          <widget class="QFontComboBox" name="applicationFontComboBox"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="fontSizeLabel">
+           <property name="text">
+            <string>Font size</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QFontComboBox" name="level2FontComboBox"/>
+         </item>
+         <item row="0" column="0" alignment="Qt::AlignLeft">
           <widget class="QLabel" name="applicationFontLbl">
            <property name="minimumSize">
             <size>
@@ -998,8 +1024,11 @@
              <height>22</height>
             </size>
            </property>
+           <property name="toolTip">
+            <string>Font used for most of the GUI including menus, headings, and the grids of the Song and Pattern Editor.</string>
+           </property>
            <property name="frameShape">
-            <enum>QFrame::Box</enum>
+            <enum>QFrame::NoFrame</enum>
            </property>
            <property name="text">
             <string>Application font</string>
@@ -1009,26 +1038,55 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="textLabel1_4">
+         <item row="4" column="1">
+          <widget class="QComboBox" name="styleComboBox"/>
+         </item>
+         <item row="2" column="1">
+          <widget class="QFontComboBox" name="level3FontComboBox"/>
+         </item>
+         <item row="3" column="1">
+          <widget class="QComboBox" name="fontSizeComboBox">
+           <item>
+            <property name="text">
+             <string>Small</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Normal</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Large</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="level3FontLabel">
+           <property name="toolTip">
+            <string>Font used for larger buttons.</string>
+           </property>
            <property name="text">
-            <string>Style</string>
+            <string>Widget font</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
-          <widget class="QComboBox" name="styleComboBox"/>
-         </item>
-         <item row="0" column="1">
-          <widget class="QPushButton" name="selectApplicationFontBtn">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
+         <item row="1" column="0">
+          <widget class="QLabel" name="level2FontLabel">
+           <property name="toolTip">
+            <string>Font used within listings, like for the names of the available Pattern and Instruments.</string>
            </property>
            <property name="text">
-            <string>Select font</string>
+            <string>Item font</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="textLabel1_4">
+           <property name="text">
+            <string>Style</string>
            </property>
           </widget>
          </item>
@@ -1036,19 +1094,6 @@
        </item>
        <item>
         <layout class="QGridLayout">
-         <item row="0" column="1">
-          <widget class="QPushButton" name="selectMixerFontBtn">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Select font</string>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="0">
           <widget class="QLabel" name="textLabel1">
            <property name="minimumSize">
@@ -1085,31 +1130,6 @@
              <string>Fast</string>
             </property>
            </item>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="mixerFontLbl">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::Box</enum>
-           </property>
-           <property name="midLineWidth">
-            <number>0</number>
-           </property>
-           <property name="text">
-            <string>Mixer font</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
           </widget>
          </item>
         </layout>
@@ -1194,10 +1214,20 @@
        </item>
        <item>
         <layout class="QGridLayout" name="gridLayout_2">
+         <item row="3" column="0" alignment="Qt::AlignTop">
+          <widget class="QLabel" name="colorSelectionLabel">
+           <property name="text">
+            <string>Selected colors</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+          </widget>
+         </item>
          <item row="2" column="0">
           <widget class="QLabel" name="coloringMethodAuxLabel">
            <property name="text">
-            <string>TextLabel</string>
+            <string>Number of colors</string>
            </property>
           </widget>
          </item>
@@ -1206,20 +1236,50 @@
          </item>
          <item row="0" column="0">
           <widget class="QLabel" name="label_2">
+           <property name="minimumSize">
+            <size>
+             <width>308</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="text">
             <string>Coloring method for Song Editor elements</string>
            </property>
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QSpinBox" name="coloringMethodAuxSpinBox"/>
+          <widget class="QSpinBox" name="coloringMethodAuxSpinBox">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>50</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <layout class="QGridLayout" name="colorSelectionGrid">
+           <item row="0" column="0">
+            <spacer name="horizontalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>30</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>
        <item>
-        <widget class="QLabel" name="textLabel3">
+        <widget class="QLabel" name="UIChangeWarningLabel">
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;After changing a font or the interface layout the application must be restarted.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -1337,6 +1397,16 @@
    <class>MidiTable</class>
    <extends>QTableWidget</extends>
    <header location="global">../src/Widgets/MidiTable.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DeviceComboBox</class>
+   <extends>QComboBox</extends>
+   <header>PreferencesDialog.h</header>
+  </customwidget>
+  <customwidget>
+   <class>HostAPIComboBox</class>
+   <extends>QComboBox</extends>
+   <header>PreferencesDialog.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

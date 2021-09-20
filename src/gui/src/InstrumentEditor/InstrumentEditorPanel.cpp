@@ -33,7 +33,6 @@
 
 
 InstrumentEditorPanel* InstrumentEditorPanel::m_pInstance = nullptr;
-const char* InstrumentEditorPanel::__class_name = "InstrumentEditorPanel";
 
 InstrumentEditorPanel* InstrumentEditorPanel::get_instance()
 {
@@ -46,7 +45,6 @@ InstrumentEditorPanel* InstrumentEditorPanel::get_instance()
 
 
 InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent )
- : Object( __class_name )
 {
 	UNUSED( pParent );
 
@@ -54,6 +52,8 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent )
 
 	m_pInstance = this;
 	m_pInstrumentEditor = new InstrumentEditor( nullptr );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 m_pInstrumentEditor, &InstrumentEditor::onPreferencesChanged );
 
 	// LAYOUT
 	QGridLayout *vbox = new QGridLayout();
@@ -94,6 +94,9 @@ void InstrumentEditorPanel::selectLayer( int nLayer )
 	m_nLayer = nLayer;
 }
 
-
+void InstrumentEditorPanel::updateWaveDisplay()
+{
+	selectLayer ( m_nLayer ); // trigger a redisplay of wave preview
+}
 
 

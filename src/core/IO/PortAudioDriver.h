@@ -36,11 +36,9 @@
 namespace H2Core
 {
 
-typedef int  ( *audioProcessCallback )( uint32_t, void * );
-
-class PortAudioDriver : public AudioOutput
+class PortAudioDriver : public Object<PortAudioDriver>, public AudioOutput
 {
-	H2_OBJECT
+	H2_OBJECT(PortAudioDriver)
 public:
 	audioProcessCallback m_processCallback;
 	float* m_pOut_L;
@@ -64,9 +62,16 @@ public:
 	virtual void locate( unsigned long nFrame );
 	virtual void setBpm( float fBPM );
 
+	static QStringList getDevices();
+	static QStringList getDevices( QString HostAPI );
+	static QStringList getHostAPIs();
+
 private:
 	PaStream *m_pStream;
 	unsigned m_nSampleRate;
+	QString m_sDevice;
+
+	static bool m_bInitialised;
 
 };
 
@@ -79,10 +84,9 @@ namespace H2Core
 
 class PortAudioDriver : public NullDriver
 {
-	H2_OBJECT
+	H2_OBJECT(PortAudioDriver)
 public:
 	PortAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
-
 };
 
 };

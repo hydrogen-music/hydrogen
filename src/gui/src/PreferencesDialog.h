@@ -23,17 +23,52 @@
 #ifndef PREFERENCES_DIALOG_H
 #define PREFERENCES_DIALOG_H
 
+#include <vector>
+
+#include "Widgets/ColorSelectionButton.h"
+#include <core/Preferences.h>
+#include <core/Object.h>
+#include <QtWidgets>
+
+///
+/// Combo box showing a list of available devices for a given driver.
+/// List is calculated lazily when needed.
+///
+class DeviceComboBox : public QComboBox {
+
+	bool m_bHasDevices;
+	QString m_sDriver;
+	QString m_sHostAPI;
+
+public:
+	DeviceComboBox( QWidget *pParent );
+
+	/// Set the driver name to use
+	void setDriver( QString sDriver ) { m_sDriver = sDriver; }
+	void setHostAPI( QString sHostAPI ) { m_sHostAPI = sHostAPI; }
+
+	virtual void showPopup();
+};
+
+///
+/// Combo box showing a list of HostAPIs.
+///
+class HostAPIComboBox : public QComboBox {
+
+public:
+	HostAPIComboBox( QWidget *pParent );
+	void setValue( QString sHostAPI );
+	virtual void showPopup();
+};
 
 #include "ui_PreferencesDialog_UI.h"
-
-#include <core/Object.h>
 
 ///
 /// Preferences Dialog
 ///
-class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, public H2Core::Object
+class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  public H2Core::Object<PreferencesDialog>
 {
-	H2_OBJECT
+	H2_OBJECT(PreferencesDialog)
 	Q_OBJECT
 	public:
 		explicit PreferencesDialog( QWidget* parent );
@@ -43,10 +78,9 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 	private slots:
 		void on_okBtn_clicked();
 		void on_cancelBtn_clicked();
-		void on_selectApplicationFontBtn_clicked();
-		void on_selectMixerFontBtn_clicked();
 		void on_restartDriverBtn_clicked();
 		void on_driverComboBox_activated( int index );
+		void on_portaudioHostAPIComboBox_activated( int index );
 		void on_bufferSizeSpinBox_valueChanged( int i );
 		void on_resampleComboBox_currentIndexChanged ( int index );
 		void on_sampleRateComboBox_editTextChanged( const QString& text );
@@ -55,19 +89,42 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void on_styleComboBox_activated( int index );
 		void on_useLashCheckbox_clicked();
 		void onMidiDriverComboBoxIndexChanged( int index );
+		void on_m_pAudioDeviceTxt_currentTextChanged( QString );
 		void toggleTrackOutsCheckBox(bool toggled);
 		void toggleOscCheckBox(bool toggled);
-		void coloringMethodCombo_currentIndexChanged (int index);
+	void onRejected();
+	void onApplicationFontChanged(const QFont& font);
+	void onLevel2FontChanged( const QFont& font );
+	void onLevel3FontChanged( const QFont& font );
+	void onFontSizeChanged( int nIndex );
+	void onUILayoutChanged( int nIndex );
+	void onColorNumberChanged( int nIndex );
+	void onColorSelectionClicked();
+	void onColoringMethodChanged( int nIndex );
 
+private:
 
-	private:
-		bool m_bNeedDriverRestart;
-		QString m_sInitialLanguage;
+	void updateDriverInfo();
+	void updateDriverPreferences();
+	
 
-		void updateDriverInfo();
+	bool m_bNeedDriverRestart;
+	QString m_sInitialLanguage;
 
-		void updateDriverPreferences();
+	/** Caching the corresponding variable in Preferences in case the
+		QFontDialog will be cancelled.*/
+	QString m_sPreviousApplicationFontFamily;
+	QString m_sPreviousLevel2FontFamily;
+	QString m_sPreviousLevel3FontFamily;
+	H2Core::Preferences::FontSize m_previousFontSize;
+	int m_nPreviousVisiblePatternColors;
+	std::vector<QColor> m_previousPatternColors;
+
+	QStringList m_fontFamilies;
+	std::vector<ColorSelectionButton*> m_colorSelectionButtons;
+
 };
+
 
 #endif
 

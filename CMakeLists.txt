@@ -2,7 +2,7 @@
 # CMAKE SETUP
 #
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.8)
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 # The CMake Policy mechanism is designed to help keep existing projects building as new versions of CMake introduce changes in behavior.
 # http://www.cmake.org/cmake/help/cmake2.6docs.html#command:cmake_policy
@@ -18,7 +18,7 @@ PROJECT(hydrogen)
 SET(VERSION_MAJOR "1")
 SET(VERSION_MINOR "1")
 SET(VERSION_PATCH "0")
-#SET(VERSION_SUFFIX "rc1")
+# SET(VERSION_SUFFIX "dev")
 
 SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
@@ -80,9 +80,9 @@ IF(APPLE)
 ENDIF()
 
 OPTION(WANT_CPPUNIT         "Include CppUnit test suite" ON)
-OPTION(FIXME_DISABLE_OPTIMIZATIONS "Fix broken builds by turning off optimizations" OFF)
 
 include(Sanitizers)
+INCLUDE(StatusSupportOptions)
 
 IF(WANT_DEBUG)
     SET(CMAKE_BUILD_TYPE Debug)
@@ -92,15 +92,21 @@ ELSE()
     SET(H2CORE_HAVE_DEBUG FALSE)
 ENDIF()
 
-OPTION(WANT_CLANG_TIDY "Use clang-tidy to check the sourcecode" OFF)
-IF(WANT_CLANG_TIDY)
-	find_program(CLANG_TIDY_CMD NAMES clang-tidy)
-	IF(CLANG_TIDY_CMD)
-		#use config from .clang-tidy
-		SET(CMAKE_CXX_CLANG_TIDY clang-tidy)
-	ENDIF()
-ENDIF()
 
+OPTION(WANT_CLANG_TIDY "Use clang-tidy to check the sourcecode" OFF)
+find_program(CLANG_TIDY_CMD NAMES clang-tidy)
+IF(CLANG_TIDY_CMD)
+  #use config from .clang-tidy
+  SET(CLANG_TIDY_LIBRARIES ${CLANG_TIDY_CMD}) # Required for summary
+  SET(CLANG_TIDY_FOUND TRUE) # Required for summary
+ELSE()
+  SET(CLANG_TIDY_FOUND FALSE) # Required for summary
+ENDIF()
+IF(CLANG_TIDY_CMD AND WANT_CLANG_TIDY)
+  #use config from .clang-tidy
+  SET(CMAKE_CXX_CLANG_TIDY clang-tidy)
+ENDIF()
+COMPUTE_PKGS_FLAGS(CLANG_TIDY) # Required for summary
 
 IF(WANT_BUNDLE)
     SET(H2CORE_HAVE_BUNDLE TRUE)
@@ -128,17 +134,9 @@ SET(CMAKE_CXX_FLAGS_RELEASE "")
 
 SET(CMAKE_CXX_FLAGS_DEBUG "-g ")#-Winline")
 
-IF(FIXME_DISABLE_OPTIMIZATIONS)
-    string(REGEX REPLACE "-O[0123s]" "-O0" CMAKE_CXX_FLAGS                "${CMAKE_CXX_FLAGS}")
-    string(REGEX REPLACE "-O[0123s]" "-O0" CMAKE_CXX_FLAGS_RELEASE        "${CMAKE_CXX_FLAGS_RELEASE}")
-    string(REGEX REPLACE "-O[0123s]" "-O0" CMAKE_CXX_FLAGS_DEBUG          "${CMAKE_CXX_FLAGS_DEBUG}")
-    string(REGEX REPLACE "-O[0123s]" "-O0" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
-ENDIF()
-
 #
 # MANDATORY PKGS AND DEFAULT OPTIONS
 #
-INCLUDE(StatusSupportOptions)
 MANDATORY_PKG(Threads)
 MANDATORY_PKG(LIBSNDFILE)
 
@@ -198,6 +196,7 @@ COMPILE_HELPER(RTCLOCK ${CMAKE_SOURCE_DIR}/cmake/rtclock rtclock )
 CHECK_INCLUDE_FILES(sys/types.h HAVE_SYS_TYPES_H)
 CHECK_INCLUDE_FILES(sys/stat.h HAVE_SYS_STAT_H)
 CHECK_INCLUDE_FILES(libtar.h HAVE_LIBTAR_H)
+CHECK_INCLUDE_FILES(execinfo.h HAVE_EXECINFO_H)
 CHECK_LIBRARY_EXISTS(tar tar_open "" HAVE_LIBTAR_OPEN)
 CHECK_LIBRARY_EXISTS(tar tar_close "" HAVE_LIBTAR_CLOSE)
 CHECK_LIBRARY_EXISTS(tar tar_extract_all "" HAVE_LIBTAR_EXTRACT_ALL)
@@ -287,6 +286,10 @@ SET(LIBRUBBERBAND_MSG "The use of librubberband2 is marked as experimental.
 *				 If rubberband-cli is installed, the hydrogen rubberband-function
 *				 will work properly as expected.")
 
+IF(WIN32)
+    SET(CMAKE_COLOR_MAKEFILE OFF)
+ENDIF()
+
 #
 # CONFIG PROCESS SUMMARY
 #
@@ -344,7 +347,8 @@ IF(WANT_DEBUG)
 -----------------------------------------
 * realtime clock               : ${HAVE_RTCLOCK}
 * working sscanf               : ${HAVE_SSCANF}
-* unit tests                   : ${CPPUNIT_STATUS}\n"
+* unit tests                   : ${CPPUNIT_STATUS}
+* clang tidy                   : ${CLANG_TIDY_STATUS}\n"
     )
 ENDIF()
 
@@ -425,7 +429,7 @@ IF(MINGW)
     #Program Files for Hydrogen
     SET(WINDOWS_DIR "windows")
     #Install files from the extralibs dir
-    INSTALL(DIRECTORY ${WINDOWS_DIR}/extralibs/ DESTINATION ./)
+    INSTALL(DIRECTORY ${CMAKE_BINARY_DIR}/${WINDOWS_DIR}/extralibs/ DESTINATION ./)
 
 	IF(WANT_FAT_BUILD)
 		INSTALL(DIRECTORY windows/jack_installer DESTINATION ./)
@@ -434,6 +438,11 @@ IF(MINGW)
 
     SET(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data\\\\img\\\\h2-icon.bmp")
     #Begin NSIS Customizations
+
+    IF(H2CORE_HAVE_DEBUG)
+        SET(DEBUG_SUFFIX "_dbg")
+    ENDIF()
+
     # Installers for 32- vs. 64-bit CMake:
     #  - Root install directory (displayed to end user at installer-run time)
     #  - "NSIS package/display name" (text used in the installer GUI)
@@ -446,7 +455,7 @@ IF(MINGW)
     ELSE()
 		SET(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
 		SET(CPACK_NSIS_PACKAGE_NAME "Hydrogen - ${DISPLAY_VERSION}")
-		SET(CPACK_PACKAGE_FILE_NAME "Hydrogen-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-win32")
+		SET(CPACK_PACKAGE_FILE_NAME "Hydrogen-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-win32${DEBUG_SUFFIX}")
 		#SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME}${CPACK_PACKAGE_VERSION}")
     ENDIF()
 

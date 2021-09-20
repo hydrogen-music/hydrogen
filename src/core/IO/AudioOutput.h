@@ -30,18 +30,19 @@
 namespace H2Core
 {
 
+typedef int  ( *audioProcessCallback )( uint32_t, void * );
+
 ///
 /// Base abstract class for audio output classes.
 ///
-class AudioOutput : public H2Core::Object
+class AudioOutput : public H2Core::Object<AudioOutput>
 {
+	H2_OBJECT(AudioOutput)
 public:
 	/** Local instance of the TransportInfo. */
 	TransportInfo m_transport;
 
-	AudioOutput( const char* class_name )
-			: Object( class_name ) { }
-
+	AudioOutput() = default;
 	virtual ~AudioOutput() { }
 
 	virtual int init( unsigned nBufferSize ) = 0;
@@ -57,6 +58,9 @@ public:
 	virtual void stop() = 0;
 	virtual void locate( unsigned long nFrame ) = 0;
 	virtual void setBpm( float fBPM ) = 0;
+
+	static QStringList getDevices() { return QStringList(); }
+
 };
 
 };

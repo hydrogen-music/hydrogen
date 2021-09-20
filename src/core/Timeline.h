@@ -37,9 +37,9 @@ namespace H2Core
 	 * m_tempoMarkers or m_tags. To alter one of them, one has to
 	 * delete it and add a new, altered version.
 	 */
-	class Timeline : public H2Core::Object
+	class Timeline : public H2Core::Object<Timeline>
 	{
-		H2_OBJECT
+		H2_OBJECT(Timeline)
 
 		public:
 			Timeline();
@@ -136,6 +136,16 @@ namespace H2Core
 			 * Provides read-only access to m_tags.
 			 */
 			const std::vector<std::shared_ptr<const Tag>> getAllTags() const;
+	
+	/** Formatted string version for debugging purposes.
+	 * \param sPrefix String prefix which will be added in front of
+	 * every new line
+	 * \param bShort Instead of the whole content of all classes
+	 * stored as members just a single unique identifier will be
+	 * displayed without line breaks.
+	 *
+	 * \return String presentation of current object.*/
+	QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 		private:
 			void		sortTempoMarkers();
 			void		sortTags();

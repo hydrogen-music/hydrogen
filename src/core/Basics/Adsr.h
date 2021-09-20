@@ -25,15 +25,17 @@
 
 #include <core/Object.h>
 
+#include <memory>
+
 namespace H2Core
 {
 
 /**
  * Attack Decay Sustain Release envelope.
  */
-class ADSR : public Object
+class ADSR : public Object<ADSR>
 {
-		H2_OBJECT
+		H2_OBJECT(ADSR)
 	public:
 
 		/**
@@ -46,7 +48,7 @@ class ADSR : public Object
 		ADSR ( unsigned int attack = 0, unsigned int decay = 0, float sustain = 1.0, unsigned int release = 1000 );
 
 		/** copy constructor */
-		ADSR( const ADSR* other );
+		ADSR( const std::shared_ptr<ADSR> other );
 
 		/** destructor */
 		~ADSR();

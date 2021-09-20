@@ -27,7 +27,6 @@
 namespace H2Core
 {
 
-const char* ADSR::__class_name = "ADSR";
 
 inline static float linear_interpolation( float fVal_A, float fVal_B, double fVal )
 {
@@ -64,7 +63,7 @@ void ADSR::normalise()
 	}
 }
 
-ADSR::ADSR( unsigned int attack, unsigned int decay, float sustain, unsigned int release ) : Object( __class_name ),
+ADSR::ADSR( unsigned int attack, unsigned int decay, float sustain, unsigned int release ) :
 	__attack( attack ),
 	__decay( decay ),
 	__sustain( sustain ),
@@ -77,7 +76,7 @@ ADSR::ADSR( unsigned int attack, unsigned int decay, float sustain, unsigned int
 	normalise();
 }
 
-ADSR::ADSR( const ADSR* other ) : Object( __class_name ),
+ADSR::ADSR( const std::shared_ptr<ADSR> other ) :
 	__attack( other->__attack ),
 	__decay( other->__decay ),
 	__sustain( other->__sustain ),
@@ -165,7 +164,7 @@ float ADSR::release()
 }
 
 QString ADSR::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[ADSR]\n" ).arg( sPrefix )

@@ -30,9 +30,11 @@
 #include <unistd.h>
 
 #include "EventListener.h"
+#include "Widgets/WidgetWithScalableFont.h"
 
 #include <core/config.h>
 #include <core/Object.h>
+#include <core/Preferences.h>
 
 class HydrogenApp;
 class QUndoView;///debug only
@@ -40,15 +42,15 @@ class QUndoView;///debug only
 ///
 /// Main window
 ///
-class MainForm : public QMainWindow, public EventListener, public H2Core::Object
+class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12>, public EventListener,  public H2Core::Object<MainForm>
 {
-		H2_OBJECT
+		H2_OBJECT(MainForm)
 	Q_OBJECT
 
 	public:
 		QApplication* m_pQApp;
 
-		MainForm( QApplication * pQApplication, const QString& songFilename, const bool bLoadSong );
+		MainForm( QApplication * pQApplication );
 		~MainForm();
 
 		void updateRecentUsedSongList();
@@ -218,6 +220,8 @@ public slots:
 		void setMainWindowSize( int w, int h ) {
 			setFixedSize( w, h );
 		}
+	void onPreferencesChanged( bool bAppearanceOnly );
+
 
 	private slots:
 		void onAutoSaveTimer();
@@ -294,6 +298,17 @@ public slots:
 		 * application.
 		 */
 		void startPlaybackAtCursor( QObject* pObject );
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
+
+		QMenu* m_pFileMenu;
+		QMenu* m_pUndoMenu;
+		QMenu* m_pDrumkitsMenu;
+		QMenu* m_pInstrumentsMenu;
+		QMenu* m_pViewMenu;
+		QMenu* m_pOptionsMenu;
+		QMenu* m_pDebugMenu;
+		QMenu* m_pInfoMenu;
 };
 
 #endif

@@ -27,22 +27,24 @@
 #include <QtWidgets>
 
 #include <core/Object.h>
+#include <core/Preferences.h>
+#include "../Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {
 	class InstrumentLayer;
 }
 
-class WaveDisplay : public QWidget, public H2Core::Object
+class WaveDisplay :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>,  public H2Core::Object<WaveDisplay>
 {
-    H2_OBJECT
+    H2_OBJECT(WaveDisplay)
 	Q_OBJECT
 
 	public:
 		explicit WaveDisplay(QWidget* pParent);
 		~WaveDisplay();
 
-		virtual void	updateDisplay( H2Core::InstrumentLayer *pLayer );
+		virtual void	updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 
 		void			paintEvent( QPaintEvent *ev );
 		void			resizeEvent( QResizeEvent * event );
@@ -50,6 +52,9 @@ class WaveDisplay : public QWidget, public H2Core::Object
 		
 		void			setSampleNameAlignment(Qt::AlignmentFlag flag);
 
+public slots:
+		void onPreferencesChanged( bool bAppearanceOnly );
+	
 	signals:
 		void doubleClicked(QWidget *pWidget);
 
@@ -65,7 +70,11 @@ class WaveDisplay : public QWidget, public H2Core::Object
 		
 		int							m_nCurrentWidth;
 		
-		H2Core::InstrumentLayer *	m_pLayer;
+		std::shared_ptr<H2Core::InstrumentLayer>	m_pLayer;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 inline void WaveDisplay::setSampleNameAlignment(Qt::AlignmentFlag flag)

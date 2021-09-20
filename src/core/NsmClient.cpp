@@ -39,13 +39,11 @@
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 
 NsmClient * NsmClient::__instance = nullptr;
-const char* NsmClient::__class_name = "NsmClient";
 bool NsmClient::bNsmShutdown = false;
 
 
 NsmClient::NsmClient()
-	: Object( __class_name ),
-	  m_pNsm( nullptr ),
+	: m_pNsm( nullptr ),
 	  m_bUnderSessionManagement( false ),
 	  m_NsmThread( 0 ),
 	  m_sSessionFolderPath( "" )
@@ -69,7 +67,7 @@ int NsmClient::OpenCallback( const char *name,
 							 const char *clientID,
 							 char **outMsg,
 							 void *userData ) {
-	
+
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pPref = H2Core::Preferences::get_instance();
 	auto pController = pHydrogen->getCoreActionController();
@@ -94,11 +92,9 @@ int NsmClient::OpenCallback( const char *name,
 			NsmClient::printError( "Folder could not created." );
 		}
 	}
-	
-	// At this point the GUI can be assumed to have to be fully
-	// initialized.
+
 	NsmClient::copyPreferences( name );
-	
+
 	NsmClient::get_instance()->m_sSessionFolderPath = name;
 	
 	const QFileInfo sessionPath( name );
@@ -109,7 +105,7 @@ int NsmClient::OpenCallback( const char *name,
 	
 	const QFileInfo songFileInfo = QFileInfo( sSongPath );
 
-	// When restarting the JACK client (later in this function) the
+	// When restarting the JACK client (during song loading) the
 	// clientID will be used as the name of the freshly created
 	// instance.
 	if ( pPref != nullptr ){
@@ -125,7 +121,7 @@ int NsmClient::OpenCallback( const char *name,
 		return ERR_NOT_NOW;
 	}
 	
-	H2Core::Song* pSong = nullptr;
+	std::shared_ptr<H2Core::Song> pSong = nullptr;
 	if ( songFileInfo.exists() ) {
 
 		pSong = H2Core::Song::load( sSongPath );
@@ -145,82 +141,13 @@ int NsmClient::OpenCallback( const char *name,
 		pSong->setFilename( sSongPath );
 	}
 
-	// When starting Hydrogen with its Qt5 GUI activated, the chosen
-	// Song will be set via the GUI. But since it is constructed after
-	// the NSM client, using the corresponding OSC message to open a
-	// Song won't work in this scenario (since this would set the Song
-	// asynchronously using the EventQueue and it is require during
-	// the construction of MainForm).
-	//
-	// Two different scenarios are considered in here:
-	// 1. notReady && unavailable:
-	//    There is no GUI or there will be a GUI but it is not
-	//    initialized yet.
-	// 2. > ready:
-	//    There is a GUI present and it is fully loaded.
-	//
-	// Scenario 2. is active when switching between sessions.
-	//
-	// Loading the Song is a little bit tricky in the first
-	// scenario. The much more slim setInitialSong() function is used
-	// since setSong() requires the audio driver to be already present
-	// which would keep external tools from rewiring the per track
-	// outputs of the JACK client. In 2. the Song _must_ the loaded by
-	// the GUI or Hydrogen will get out of sync and freeze. The Song
-	// will be stored using setNextSong() and an event will be created
-	// to tell the GUI to load the Song itself.
-	if ( pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::notReady ||
-		 pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::unavailable ) {
-		
-		// No GUI. Just load the requested Song and restart the audio
-		// driver.
-		pHydrogen->setInitialSong( pSong );
-		pHydrogen->restartDrivers();
-		pHydrogen->restartLadspaFX();
-		H2Core::AudioEngine::get_instance()->get_sampler()->reinitializePlaybackTrack();
-
-		// If there will be a GUI but it is not ready yet, wait until
-		// the Song was set (asynchronously by the GUI) and the GUI is
-		// fully loaded.
-		if ( pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::notReady ) {
-			const int nNumberOfChecks = 20;
-			int nCheck = 0;
-			while ( true ) {
-				if ( ( ( pSong == pHydrogen->getSong() ) &&
-					   ( pHydrogen->getGUIState() != H2Core::Hydrogen::GUIState::notReady ) ) ||
-					 ( nCheck > nNumberOfChecks ) ) {
-					break;
-				}
-				nCheck++;
-				sleep(1);
-			}
-		}
-		
-	} else {
-
-		// The opening of the Song will be done asynchronously.
-		pHydrogen->setNextSong( pSong );
-		pHydrogen->setNextSongPath( sSongPath );
-		
-		bool bSuccess;
-		if ( songFileInfo.exists() ) {
-			// Open the existing file.
-			bSuccess = pController->openSong( sSongPath );
-		} else {
-			// Create a new file and save it as using the provided path.
-			bSuccess = pController->newSong( sSongPath );
-		}
-
-		if ( !bSuccess ) {
+	if ( ! pController->openSong( pSong ) ) {
 			NsmClient::printError( "Unable to handle opening action!" );
 			return ERR_LAUNCH_FAILED;
-		}
 	}
 	
 	NsmClient::printMessage( "Song loaded!" );
-	
-	NsmClient::linkDrumkit( name, true );
-			
+
 	return ERR_OK;
 }
 
@@ -270,7 +197,7 @@ void NsmClient::copyPreferences( const char* name ) {
 	NsmClient::printMessage( "Preferences loaded!" );
 }
 
-void NsmClient::linkDrumkit( const char* name, bool bCheckLinkage ) {	
+void NsmClient::linkDrumkit( const QString& sName, bool bCheckLinkage ) {	
 	
 	const auto pHydrogen = H2Core::Hydrogen::get_instance();
 	
@@ -279,7 +206,7 @@ void NsmClient::linkDrumkit( const char* name, bool bCheckLinkage ) {
 	const QString sDrumkitName = pHydrogen->getCurrentDrumkitName();
 	
 	const QString sLinkedDrumkitPath = QString( "%1/%2" )
-		.arg( name ).arg( "drumkit" );
+		.arg( sName ).arg( "drumkit" );
 	const QFileInfo linkedDrumkitPathInfo( sLinkedDrumkitPath );
 
 	if ( bCheckLinkage ) {
@@ -340,7 +267,7 @@ void NsmClient::linkDrumkit( const char* name, bool bCheckLinkage ) {
 				// renamed to 'drumkit' manually again.
 				QDir oldDrumkitFolder( sLinkedDrumkitPath );
 				if ( ! oldDrumkitFolder.rename( sLinkedDrumkitPath,
-												QString( "%1/drumkit_old" ).arg( name ) ) ) {
+												QString( "%1/drumkit_old" ).arg( sName ) ) ) {
 					NsmClient::printError( QString( "Unable to rename drumkit folder [%1]." )
 										   .arg( sLinkedDrumkitPath ) );
 					return;
@@ -470,9 +397,9 @@ void NsmClient::createInitialClient()
 				// H2 is under session management, the variable will
 				// be set here.
 				m_bUnderSessionManagement = true;
-				
+
 				nsm_send_announce( pNsm, "Hydrogen", ":dirty:switch:", byteArray.data() );
-						
+
 				if ( pthread_create( &m_NsmThread, nullptr, NsmClient::ProcessEvent, pNsm ) ) {
 					___ERRORLOG("Error creating NSM thread\n	");
 					m_bUnderSessionManagement = false;
@@ -487,7 +414,7 @@ void NsmClient::createInitialClient()
 				int nCheck = 0;
 				
 				while ( true ) {
-					if ( pHydrogen->getAudioOutput() != nullptr ) {
+					if ( pHydrogen->getSong() != nullptr ) {
 						break;
 					}
 					// Don't wait indefinitely.
@@ -495,7 +422,7 @@ void NsmClient::createInitialClient()
 						break;
 				   }
 					nCheck++;
-					sleep(1);
+					sleep( 1 );
 				}			
 
 			} else {

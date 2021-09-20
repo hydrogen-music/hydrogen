@@ -26,8 +26,10 @@
 #include "../EventListener.h"
 #include <QtGui>
 #include <QtWidgets>
+#include "../Widgets/WidgetWithScalableFont.h"
 
 #include <core/Object.h>
+#include <core/Preferences.h>
 
 class PatternEditorPanel;
 
@@ -36,9 +38,9 @@ namespace H2Core
 	class Pattern;
 }
 
-class PatternEditorRuler : public QWidget, public H2Core::Object, public EventListener
+class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>,  public H2Core::Object<PatternEditorRuler>, public EventListener
 {
-    H2_OBJECT
+    H2_OBJECT(PatternEditorRuler)
 	Q_OBJECT
 
 	public:
@@ -62,6 +64,7 @@ class PatternEditorRuler : public QWidget, public H2Core::Object, public EventLi
 
 	public slots:
 		void updateEditor( bool bRedrawAll = false );
+		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
 		uint m_nRulerWidth;
@@ -75,6 +78,10 @@ class PatternEditorRuler : public QWidget, public H2Core::Object, public EventLi
 		int m_nTicks;
 		PatternEditorPanel *m_pPatternEditorPanel;
 		H2Core::Pattern *m_pPattern;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;

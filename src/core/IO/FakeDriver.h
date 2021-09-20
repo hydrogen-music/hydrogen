@@ -28,15 +28,12 @@
 
 namespace H2Core
 {
-
-typedef int  ( *audioProcessCallback )( uint32_t, void * );
-
 /**
  * Fake audio driver. Used only for profiling.
  */
-class FakeDriver : public AudioOutput
+class FakeDriver : Object<FakeDriver>, public AudioOutput
 {
-	H2_OBJECT
+	H2_OBJECT(FakeDriver)
 public:
 	FakeDriver( audioProcessCallback processCallback );
 	~FakeDriver();

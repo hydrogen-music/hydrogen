@@ -22,9 +22,7 @@
 #ifndef HYDROGEN_H
 #define HYDROGEN_H
 
-#include <stdint.h> // for uint32_t et al
 #include <core/config.h>
-#include <core/MidiAction.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Sample.h>
 #include <core/Object.h>
@@ -35,45 +33,26 @@
 #include <core/IO/JackAudioDriver.h>
 #include <core/Basics/Drumkit.h>
 #include <core/CoreActionController.h>
-#include <cassert>
 #include <core/Timehelper.h>
-// Engine states  (It's ok to use ==, <, and > when testing)
-/**
- * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Not even the
- * constructors have been called.
- */
-#define STATE_UNINITIALIZED	1
-/**
- * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Not ready,
- * but most pointers are now valid or NULL.
- */
-#define STATE_INITIALIZED	2
-/**
- * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Drivers are
- * set up, but not ready to process audio.
- */
-#define STATE_PREPARED		3
-/**
- * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Ready to
- * process audio.
- */
-#define STATE_READY		4
-/**
- * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Currently
- * playing a sequence.
- */
-#define STATE_PLAYING		5
+#include <core/AudioEngine.h>
+
+#include <stdint.h> // for uint32_t et al
+#include <cassert>
+#include <memory>
+
 inline int randomValue( int max );
 
 namespace H2Core
 {
+	class CoreActionController;
 ///
 /// Hydrogen Audio Engine.
 ///
-class Hydrogen : public H2Core::Object
+class Hydrogen : public H2Core::Object<Hydrogen>
 {
-	H2_OBJECT
+	H2_OBJECT(Hydrogen)
 public:
+	
 	/**
 	 * Creates all the instances used within Hydrogen in the right
 	 * order. 
@@ -104,6 +83,11 @@ public:
 	 * Returns the current Hydrogen instance #__instance.
 	 */
 	static Hydrogen*	get_instance(){ assert(__instance); return __instance; };
+
+	/*
+	 * return central instance of the audio engine
+	 */
+	AudioEngine*		getAudioEngine() const;
 
 	/**
 	 * Destructor taking care of most of the clean up.
@@ -190,32 +174,23 @@ public:
 		 * Get the current song.
 		 * \return #__song
 		 */ 	
-		Song*			getSong() const{ return __song; }
+		std::shared_ptr<Song>			getSong() const{ return __song; }
 		/**
 		 * Sets the current song #__song to @a newSong.
 		 * \param newSong Pointer to the new Song object.
 		 */
-		void			setSong	( Song *newSong );
+		void			setSong	( std::shared_ptr<Song> newSong );
 
 		void			removeSong();
 
 		void			addRealtimeNote ( int instrument,
 							  float velocity,
-							  float pan_L=1.0,
-							  float pan_R=1.0,
+							  float fPan = 0.0f,
 							  float pitch=0.0,
 							  bool noteoff=false,
 							  bool forcePlay=false,
 							  int msg1=0 );
 
-		float			getMasterPeak_L();
-		void			setMasterPeak_L( float value );
-
-		float			getMasterPeak_R();
-		void			setMasterPeak_R( float value );
-
-		void			getLadspaFXPeak( int nFX, float *fL, float *fR );
-		void			setLadspaFXPeak( int nFX, float fL, float fR );
 	/** \return #m_nPatternTickPosition */
 	unsigned long		getTickPosition();
 	/** Keep track of the tick position in realtime.
@@ -334,9 +309,6 @@ public:
 		 * \return #m_audioEngineState*/
 		int			getState() const;
 
-		float			getProcessTime() const;
-		float			getMaxProcessTime() const;
-
 		/** Wrapper around loadDrumkit( Drumkit, bool ) with the
 			conditional argument set to true.
 		 *
@@ -365,7 +337,7 @@ public:
 
 		/** Test if an Instrument has some Note in the Pattern (used to
 		    test before deleting an Instrument)*/
-		bool 			instrumentHasNotes( Instrument *pInst );
+		bool 			instrumentHasNotes( std::shared_ptr<Instrument> pInst );
 
 		/** Delete an Instrument. If @a conditional is true, and there
 		    are some Pattern that are using this Instrument, it's not
@@ -385,7 +357,7 @@ public:
 
 
 void			previewSample( Sample *pSample );
-	void			previewInstrument( Instrument *pInstr );
+	void			previewInstrument( std::shared_ptr<Instrument> pInstr );
 
 	enum ErrorMessages {
 		/**
@@ -477,7 +449,7 @@ void			previewSample( Sample *pSample );
 	 * Preferences::m_bJackTrackOuts is set to true.
 	 * \param pSong Handed to audioEngine_renameJackPorts().
 	 */
-	void			renameJackPorts(Song* pSong);
+	void			renameJackPorts(std::shared_ptr<Song> pSong);
 #endif
 
 	/** Starts/stops the OSC server
@@ -530,8 +502,6 @@ void			previewSample( Sample *pSample );
 	void			setNewBpmJTM( float bpmJTM);
 
 	void			__panic();
-	unsigned int	__getMidiRealtimeNoteTickPosition() const;
-
 	/**
 	 * Updates Song::m_fBpm, TransportInfo::m_fBPM, and #m_fNewBpmJTM
 	 * to the local speed.
@@ -625,13 +595,6 @@ void			previewSample( Sample *pSample );
 	   #m_GUIState.*/
 	void			setGUIState( const GUIState state );
 	
-	/**\return #m_pNextSong*/
-	Song*			getNextSong() const;
-	/**\param pNextSong Sets #m_pNextSong. Song which is about to be
-	   loaded by the GUI.*/
-	void			setNextSong( Song* pNextSong );
-	void			setNextSongPath( const QString sSongPath );
-	QString			getNextSongPath();
 	/** Calculates the lookahead for a specific tick size.
 	 *
 	 * During the humanization the onset of a Note will be moved
@@ -685,20 +648,6 @@ void			previewSample( Sample *pSample );
 	/** \return NsmClient::m_bUnderSessionManagement if NSM is
 		supported.*/
 	bool			isUnderSessionManagement() const;
-	/** Sets the first Song to be loaded under session management.
-	 *
-	 * Enables the creation of a JACK client with all per track output
-	 * ports present right from the start. This is necessary to ensure
-	 * their connection can be properly restored by external tools.
-	 *
-	 * The function will only work if no audio driver is present
-	 * (since this is the intended use case and the function will be
-	 * harmful if used otherwise. Use setSong() instead.) and fails if
-	 * there is already a Song present.
-	 *
-	 * \param pSong Song to be loaded.
-	 */
-	void			setInitialSong( Song* pSong );
 
 	///midi lookuptable
 	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
@@ -709,6 +658,16 @@ void			previewSample( Sample *pSample );
 	 * Required to calculateLookahead(). Set to 2000.
 	 */
 	int 			m_nMaxTimeHumanize;
+	
+	/** Formatted string version for debugging purposes.
+	 * \param sPrefix String prefix which will be added in front of
+	 * every new line
+	 * \param bShort Instead of the whole content of all classes
+	 * stored as members just a single unique identifier will be
+	 * displayed without line breaks.
+	 *
+	 * \return String presentation of current object.*/
+	QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 private:
 	/**
@@ -725,7 +684,7 @@ private:
 	 * the Hydrogen() constructor, set via setSong(), and accessed
 	 * via getSong().
 	 */
-	Song*			__song;
+	std::shared_ptr<Song>			__song;
 
 	/**
 	 * Auxiliary function setting a bunch of global variables.
@@ -762,26 +721,13 @@ private:
 	 * Specifies whether the Qt5 GUI is active.
 	 *
 	 * When a new Song is set via the core part of Hydrogen, e.g. in
-	 * the context of session management, the Song *must* be set via
+	 * the context of session management, the std::shared_ptr<Song> must* be set via
 	 * the GUI if active. Else the GUI will freeze.
 	 *
 	 * Set by setGUIState() and accessed via getGUIState().
 	 */
 	GUIState		m_GUIState;
 	
-	/**
-	 * Stores a new Song which is about of the loaded by the GUI.
-	 *
-	 * If #m_GUIState is true, the core part of must not load a new
-	 * Song itself. Instead, the new Song is prepared and stored in
-	 * this object to be loaded by HydrogenApp::updateSongEvent() if
-	 * H2Core::EVENT_UPDATE_SONG is pushed with a '1'.
-	 *
-	 * Set by setNextSong() and accessed via getNextSong().
-	 */
-	Song*			m_pNextSong;
-	QString			m_sNextSongPath;
-
 	/**
 	 * Local instance of the Timeline object.
 	 */
@@ -798,7 +744,33 @@ private:
 	Filesystem::Lookup	m_currentDrumkitLookup;
 	
 	/// Deleting instruments too soon leads to potential crashes.
-	std::list<Instrument*> 	__instrument_death_row; 
+	std::list<std::shared_ptr<Instrument>> 	__instrument_death_row; 
+	
+	/**
+	 * Fallback speed in beats per minute.
+	 *
+	 * It is set by Hydrogen::setNewBpmJTM() and accessed via
+	 * Hydrogen::getNewBpmJTM().
+	 */
+	float				m_fNewBpmJTM;
+
+	/**
+	 * Instrument currently focused/selected in the GUI. 
+	 *
+	 * Within the core it is relevant for the MIDI input. Using
+	 * Preferences::__playselectedinstrument incoming MIDI signals can be
+	 * used to play back only the selected instrument or the whole
+	 * drumkit.
+	 *
+	 * Queried using Hydrogen::getSelectedInstrumentNumber() and set by
+	 * Hydrogen::setSelectedInstrumentNumber().
+	 */
+	int				m_nSelectedInstrumentNumber;
+
+	/*
+	 * Central instance of the audio engine. 
+	 */
+	AudioEngine*	m_pAudioEngine;
 
 	/** 
 	 * Constructor, entry point, and initialization of the
@@ -811,22 +783,6 @@ private:
 	 * Only one Hydrogen object is allowed to exist. If the
 	 * #__instance object is present, the constructor will throw
 	 * an error.
-	 *
-	 * - Sets the current #__song to NULL
-	 * - Sets #m_bExportSessionIsActive to false
-	 * - Creates a new Timeline #m_pTimeline 
-	 * - Creates a new CoreActionController
-	 *   #m_pCoreActionController, 
-	 * - Calls initBeatcounter(), audioEngine_init(), and
-	 *   audioEngine_startAudioDrivers() 
-	 * - Sets InstrumentComponent::m_nMaxLayers to
-	 *   Preferences::m_nMaxLayers via
-	 *   InstrumentComponent::setMaxLayers() and
-	 *   Preferences::getMaxLayers() 
-	 * - Starts the OscServer using OscServer::start() if
-	 *   #H2CORE_HAVE_OSC was set during compilation.
-	 * - Fills #m_nInstrumentLookupTable with the corresponding
-	 *   index of each element.
 	 */
 	Hydrogen();
 
@@ -871,9 +827,13 @@ inline bool Hydrogen::getIsExportSessionActive() const
 	return m_bExportSessionIsActive;
 }
 
+inline AudioEngine* Hydrogen::getAudioEngine() const {
+	return m_pAudioEngine;
+}
+
 inline bool Hydrogen::getPlaybackTrackState() const
 {
-	Song* pSong = getSong();
+	std::shared_ptr<Song> pSong = getSong();
 	bool  bState;
 
 	if(!pSong){
@@ -887,20 +847,19 @@ inline bool Hydrogen::getPlaybackTrackState() const
 inline Hydrogen::GUIState Hydrogen::getGUIState() const {
 	return m_GUIState;
 }
+
 inline void Hydrogen::setGUIState( const Hydrogen::GUIState state ) {
 	m_GUIState = state;
 }
-inline Song* Hydrogen::getNextSong() const {
-	return m_pNextSong;
+
+inline PatternList* Hydrogen::getCurrentPatternList()
+{
+	return m_pAudioEngine->getPlayingPatterns();
 }
-inline void Hydrogen::setNextSong( Song* pNextSong ) {
-	m_pNextSong = pNextSong;
-}
-inline QString Hydrogen::getNextSongPath() {
-	return m_sNextSongPath;
-}
-inline void Hydrogen::setNextSongPath( const QString sSongPath ) {
-	m_sNextSongPath = sSongPath;
+
+inline PatternList * Hydrogen::getNextPatterns()
+{
+	return m_pAudioEngine->getNextPatterns();
 }
 };
 

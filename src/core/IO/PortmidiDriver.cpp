@@ -49,7 +49,7 @@ pthread_t PortMidiDriverThread;
 
 void* PortMidiDriver_thread( void* param )
 {
-	Object *__object = (Object*)param;
+	Base *__object = (Base *)param;
 	PortMidiDriver *instance = ( PortMidiDriver* )param;
 	__INFOLOG( "PortMidiDriver_thread starting" );
 
@@ -118,10 +118,8 @@ void* PortMidiDriver_thread( void* param )
 	return nullptr;
 }
 
-const char* PortMidiDriver::__class_name = "PortMidiDriver";
-
 PortMidiDriver::PortMidiDriver()
-		: MidiInput( __class_name ), MidiOutput( __class_name ), Object( __class_name )
+		: MidiInput(), MidiOutput(), Object<PortMidiDriver>()
 		, m_bRunning( false )
 		, m_pMidiIn( nullptr )
 		, m_pMidiOut( nullptr )
@@ -348,7 +346,7 @@ void PortMidiDriver::handleQueueAllNoteOff()
 
 	unsigned int numInstruments = instList->size();
 	for (int index = 0; index < numInstruments; ++index) {
-		Instrument *pCurInst = instList->get(index);
+		auto pCurInst = instList->get(index);
 
 		int channel = pCurInst->get_midi_out_channel();
 		if (channel < 0) {

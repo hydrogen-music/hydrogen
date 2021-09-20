@@ -31,7 +31,6 @@ class PatternTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
-		virtual void setUp();
 		void testPurgeInstrument();
 };
 

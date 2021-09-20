@@ -28,18 +28,19 @@ using namespace H2Core;
 
 #include "WaveDisplay.h"
 #include "../Skin.h"
-
-const char* WaveDisplay::__class_name = "WaveDisplay";
+#include "../HydrogenApp.h"
 
 WaveDisplay::WaveDisplay(QWidget* pParent)
  : QWidget( pParent )
- , Object( __class_name )
  , m_nCurrentWidth( 0 )
  , m_sSampleName( "-" )
  , m_pLayer( nullptr )
  , m_SampleNameAlignment( Qt::AlignCenter )
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);
+
+	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
 
 	//INFOLOG( "INIT" );
 
@@ -50,6 +51,8 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
 
 	m_pPeakData = new int[ width() ];
 	memset( m_pPeakData, 0, width() * sizeof( m_pPeakData[0] ) );
+	
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &WaveDisplay::onPreferencesChanged );
 }
 
 
@@ -84,7 +87,7 @@ void WaveDisplay::paintEvent( QPaintEvent *ev )
 		
 	}
 	
-	QFont font;
+	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
 	font.setWeight( 63 );
 	painter.setFont( font );
 	painter.setPen( QColor( 255 , 255, 255, 200 ) );
@@ -107,7 +110,7 @@ void WaveDisplay::resizeEvent( QResizeEvent * event )
 
 
 
-void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
+void WaveDisplay::updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer )
 {
 	int currentWidth = width();
 	
@@ -172,4 +175,15 @@ void WaveDisplay::mouseDoubleClickEvent(QMouseEvent *ev)
 	if (ev->button() == Qt::LeftButton) {
 	    emit doubleClicked(this);
 	}	
+}
+
+void WaveDisplay::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
+		update();
+	}
 }

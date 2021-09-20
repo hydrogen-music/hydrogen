@@ -42,9 +42,9 @@ class	DetailWaveDisplay;
 ///
 /// This dialog is used to preview audiofiles
 ///
-class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::Object
+class SampleEditor :  public QDialog, public Ui_SampleEditor_UI,  public H2Core::Object<SampleEditor>
 {
-	H2_OBJECT
+	H2_OBJECT(SampleEditor)
 	Q_OBJECT
 	public:
 		
@@ -55,9 +55,8 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		bool getCloseQuestion();
 		bool returnAllMainWaveDisplayValues();
 		void returnAllTargetDisplayValues();
-		void setTrue();
-		
-		bool m_bSampleEditorStatus;
+		void setUnclean();
+		void setClean();
 
 		//this values come from the real sample to restore a frm song loaded sample
 		bool m_bSampleIsModified;	///< true if sample is modified
@@ -115,6 +114,8 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		bool m_bOnewayLoop;
 		bool m_bOnewayEnd;
 		bool m_bPlayButton;
+		bool m_bAdjusting;
+		bool m_bSampleEditorClean;
 		
 		unsigned long m_nRealtimeFrameEnd;
 		unsigned long m_nRealtimeFrameEndForTarget;

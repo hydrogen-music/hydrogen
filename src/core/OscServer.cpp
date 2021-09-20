@@ -42,7 +42,6 @@
 #include "core/MidiAction.h"
 
 OscServer * OscServer::__instance = nullptr;
-const char* OscServer::__class_name = "OscServer";
 
 
 QString OscServer::qPrettyPrint(lo_type type,void * data)
@@ -192,6 +191,17 @@ int OscServer::generic_handler(const char *	path,
 			}
 		}
 	}
+
+	QRegExp rxStripPanAbsSym( "/Hydrogen/PAN_ABSOLUTE_SYM/(\\d+)" );
+	pos = rxStripPanAbsSym.indexIn( oscPath );
+	if ( pos > -1 ) {
+		if( argc == 1 ){
+			int nStrip = rxStripPanAbsSym.cap(1).toInt() - 1;
+			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
+				pController->setStripPanSym( nStrip, argv[0]->f, false );
+			}
+		}
+	}
 	
 	QRegExp rxStripPanRel( "/Hydrogen/PAN_RELATIVE/(\\d+)" );
 	pos = rxStripPanRel.indexIn( oscPath );
@@ -250,8 +260,7 @@ int OscServer::generic_handler(const char *	path,
 
 
 
-OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name ),
-															m_bInitialized( false )
+OscServer::OscServer( H2Core::Preferences* pPreferences ) : m_bInitialized( false )
 {
 	m_pPreferences = pPreferences;
 	
@@ -444,8 +453,8 @@ void OscServer::BPM_DECR_Handler(lo_arg **argv,int i)
 
 void OscServer::MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv,int i)
 {
-	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
-	H2Core::CoreActionController* pController = pEngine->getCoreActionController();
+	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
+	H2Core::CoreActionController* pController = pHydrogen->getCoreActionController();
 
 	pController->setMasterVolume( argv[0]->f );
 }
@@ -461,8 +470,8 @@ void OscServer::MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
 
 void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
 {
-	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
-	H2Core::CoreActionController* pController = pEngine->getCoreActionController();
+	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
+	H2Core::CoreActionController* pController = pHydrogen->getCoreActionController();
 
 	pController->setStripVolume( param1, param2, false );
 }
@@ -498,6 +507,16 @@ void OscServer::SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv,int i)
 void OscServer::PAN_ABSOLUTE_Handler(QString param1, QString param2)
 {
 	Action currentAction("PAN_ABSOLUTE");
+	currentAction.setParameter1( param1 );
+	currentAction.setParameter2( param2 );
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	pActionManager->handleAction( &currentAction );
+}
+
+void OscServer::PAN_ABSOLUTE_SYM_Handler(QString param1, QString param2)
+{
+	Action currentAction("PAN_ABSOLUTE_SYM");
 	currentAction.setParameter1( param1 );
 	currentAction.setParameter2( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
@@ -843,6 +862,21 @@ void OscServer::handleAction( Action* pAction )
 		
 		lo_message_free( reply );
 	}
+
+	if( pAction->getType() == "PAN_ABSOLUTE_SYM"){
+		bool ok;
+		float param2 = pAction->getParameter2().toFloat(&ok);
+
+		lo_message reply = lo_message_new();
+		lo_message_add_float(reply, param2);
+
+		QByteArray ba = QString("/Hydrogen/PAN_ABSOLUTE_SYM/%1").arg(pAction->getParameter1()).toLatin1();
+		const char *c_str2 = ba.data();
+
+		broadcastMessage( c_str2, reply);
+		
+		lo_message_free( reply );
+	}
 }
 
 bool OscServer::init()
@@ -875,8 +909,8 @@ bool OscServer::init()
 																						lo_address_get_port( a ) );
 										m_pClientRegistry.push_back( newAddr );
 										
-										H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
-										H2Core::CoreActionController* pController = pEngine->getCoreActionController();
+										H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
+										H2Core::CoreActionController* pController = pHydrogen->getCoreActionController();
 										
 										pController->initExternalControlInterfaces();
 									}

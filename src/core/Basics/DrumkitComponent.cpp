@@ -23,7 +23,9 @@
 #include <core/Basics/DrumkitComponent.h>
 
 #include <cassert>
+#include <memory>
 
+#include <core/Hydrogen.h>
 #include <core/AudioEngine.h>
 
 #include <core/Helpers/Xml.h>
@@ -39,11 +41,9 @@
 namespace H2Core
 {
 
-const char* DrumkitComponent::__class_name = "DrumkitComponent";
 
 DrumkitComponent::DrumkitComponent( const int id, const QString& name )
-	: Object( __class_name )
-	, __id( id )
+	: __id( id )
 	, __name( name )
 	, __volume( 1.0 )
 	, __muted( false )
@@ -58,8 +58,7 @@ DrumkitComponent::DrumkitComponent( const int id, const QString& name )
 }
 
 DrumkitComponent::DrumkitComponent( DrumkitComponent* other )
-	: Object( __class_name )
-	, __id( other->get_id() )
+	: __id( other->get_id() )
 	, __name( other->get_name() )
 	, __volume( other->__volume )
 	, __muted( other->__muted )
@@ -103,8 +102,10 @@ float DrumkitComponent::get_out_R( int nBufferPos )
 
 void DrumkitComponent::load_from( DrumkitComponent* component, bool is_live )
 {
+	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+
 	if ( is_live ) {
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		pAudioEngine->lock( RIGHT_HERE );
 	}
 
 	this->set_id( component->get_id() );
@@ -113,7 +114,7 @@ void DrumkitComponent::load_from( DrumkitComponent* component, bool is_live )
 	this->set_volume( component->get_volume() );
 
 	if ( is_live ) {
-		AudioEngine::get_instance()->unlock();
+		pAudioEngine->unlock();
 	}
 }
 
@@ -139,7 +140,7 @@ void DrumkitComponent::save_to( XMLNode* node )
 }
 
 QString DrumkitComponent::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[DrumkitComponent]\n" ).arg( sPrefix )

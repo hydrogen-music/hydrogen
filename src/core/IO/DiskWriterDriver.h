@@ -33,14 +33,12 @@
 namespace H2Core
 {
 
-typedef int  ( *audioProcessCallback )( uint32_t, void * );
-
 ///
 /// Driver for export audio to disk
 ///
-class DiskWriterDriver : public AudioOutput
+class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 {
-	H2_OBJECT
+	H2_OBJECT(DiskWriterDriver)
 	public:
 
 		unsigned				m_nSampleRate;

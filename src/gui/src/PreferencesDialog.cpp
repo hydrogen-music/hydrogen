@@ -31,12 +31,11 @@
 #include "qstylefactory.h"
 
 #include <QPixmap>
-#include <QFontDialog>
+#include <QFontDatabase>
 #include "Widgets/MidiTable.h"
 
 #include <core/MidiMap.h>
 #include <core/Hydrogen.h>
-#include <core/Preferences.h>
 #include <core/IO/MidiInput.h>
 #include <core/Lash/LashClient.h>
 #include <core/AudioEngine.h>
@@ -45,22 +44,90 @@
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 
+#include <core/IO/PortAudioDriver.h>
+#include <core/IO/CoreAudioDriver.h>
+#include <core/IO/AlsaAudioDriver.h>
+
 
 using namespace H2Core;
 
-const char* PreferencesDialog::__class_name = "PreferencesDialog";
+
+DeviceComboBox::DeviceComboBox( QWidget *pParent )
+	: QComboBox( pParent)
+{
+	m_sDriver = "";
+}
+
+void DeviceComboBox::showPopup()
+{
+	clear();
+	QApplication::setOverrideCursor( Qt::WaitCursor );
+	if ( m_sDriver == "PortAudio" ) {
+#ifdef H2CORE_HAVE_PORTAUDIO
+		// Get device list for PortAudio based on current value of the API combo box
+		for ( QString s : PortAudioDriver::getDevices( m_sHostAPI ) ) {
+			addItem( s );
+		}
+#endif
+	} else if ( m_sDriver == "CoreAudio" ) {
+#ifdef H2CORE_HAVE_COREAUDIO
+		for ( QString s : CoreAudioDriver::getDevices() ) {
+			addItem( s );
+		}
+#endif
+	} else if ( m_sDriver == "ALSA" ) {
+#ifdef H2CORE_HAVE_ALSA
+		for ( QString s : AlsaAudioDriver::getDevices() ) {
+			addItem( s );
+		}
+#endif
+	}
+	QApplication::restoreOverrideCursor();
+	QComboBox::showPopup();
+}
+
+
+HostAPIComboBox::HostAPIComboBox( QWidget *pParent )
+	: QComboBox( pParent )
+{
+}
+
+void HostAPIComboBox::setValue( QString sHostAPI ) {
+	// The ComboBox doesn't have any item strings until it's actually opened,
+	// so we must add the item to it temporarily
+	clear();
+	addItem( sHostAPI );
+	setCurrentText( sHostAPI );
+}
+
+void HostAPIComboBox::showPopup()
+{
+	clear();
+#ifdef H2CORE_HAVE_PORTAUDIO
+	QApplication::setOverrideCursor( Qt::WaitCursor );
+	for ( QString s : PortAudioDriver::getHostAPIs() ) {
+		addItem( s );
+	}
+	QApplication::restoreOverrideCursor();
+#endif
+
+	QComboBox::showPopup();
+}
+
 
 QString PreferencesDialog::m_sColorRed = "#ca0003";
 
+
 PreferencesDialog::PreferencesDialog(QWidget* parent)
  : QDialog( parent )
- , Object( __class_name )
 {
 	setupUi( this );
 
 	setWindowTitle( tr( "Preferences" ) );
 
 	setMinimumSize( width(), height() );
+
+	connect( this, &PreferencesDialog::rejected, this, &PreferencesDialog::onRejected );
 
 	Preferences *pPref = Preferences::get_instance();
 	pPref->loadPreferences( false );	// reload user's preferences
@@ -85,6 +152,11 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 #ifdef H2CORE_HAVE_PULSEAUDIO
 	driverComboBox->addItem( "PulseAudio" );
 #endif
+
+	// Set the PortAudio HostAPI combo box to the current selected value.
+	portaudioHostAPIComboBox->setValue( pPref->m_sPortAudioHostAPI );
+	m_pAudioDeviceTxt->setHostAPI( pPref->m_sPortAudioHostAPI );
+
 
 	// Language selection menu
 	for ( QString sLang : Translations::availableTranslations( "hydrogen" ) ) {
@@ -112,8 +184,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	else
 	{
 		driverInfoLbl->setText( tr("Select your Audio Driver" ));
-		ERRORLOG( "Unknown MIDI input from preferences [" + pPref->m_sAudioDriver + "]" );
+		ERRORLOG( "Unknown audio driver from preferences [" + pPref->m_sAudioDriver + "]" );
 	}
+
 
 
 	m_pMidiDriverComboBox->clear();
@@ -206,22 +279,39 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		ERRORLOG( QString("Wrong samplerate: %1").arg( pPref->m_nSampleRate ) );
 	}
 
-	resampleComboBox->setCurrentIndex( (int) AudioEngine::get_instance()->get_sampler()->getInterpolateMode() );
+	resampleComboBox->setCurrentIndex( (int) Hydrogen::get_instance()->getAudioEngine()->getSampler()->getInterpolateMode() );
 
+	QFontDatabase fontDB;
+	m_fontFamilies = fontDB.families();
+	
 	// Appearance tab
-	QString applicationFamily = pPref->getApplicationFontFamily();
-	int applicationPointSize = pPref->getApplicationFontPointSize();
+	m_sPreviousApplicationFontFamily = pPref->getApplicationFontFamily();
+	m_sPreviousLevel2FontFamily = pPref->getLevel2FontFamily();
+	m_sPreviousLevel3FontFamily = pPref->getLevel3FontFamily();
+	applicationFontComboBox->setCurrentFont( QFont( m_sPreviousApplicationFontFamily ) );
+	level2FontComboBox->setCurrentFont( QFont( m_sPreviousLevel2FontFamily ) );
+	level3FontComboBox->setCurrentFont( QFont( m_sPreviousLevel3FontFamily ) );
+	connect( applicationFontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onApplicationFontChanged );
+	connect( level2FontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onLevel2FontChanged );
+	connect( level3FontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onLevel3FontChanged );
 
-	QFont applicationFont( applicationFamily, applicationPointSize );
-	applicationFontLbl->setFont( applicationFont );
-	applicationFontLbl->setText( applicationFamily + QString("  %1").arg( applicationPointSize ) );
-
-	QString mixerFamily = pPref->getMixerFontFamily();
-	int mixerPointSize = pPref->getMixerFontPointSize();
-	QFont mixerFont( mixerFamily, mixerPointSize );
-	mixerFontLbl->setFont( mixerFont );
-	mixerFontLbl->setText( mixerFamily + QString("  %1").arg( mixerPointSize ) );
-
+	m_previousFontSize = pPref->getFontSize();
+	switch( m_previousFontSize ) {
+	case Preferences::FontSize::Small:
+		fontSizeComboBox->setCurrentIndex( 0 );
+		break;
+	case Preferences::FontSize::Normal:
+		fontSizeComboBox->setCurrentIndex( 1 );
+		break;
+	case Preferences::FontSize::Large:
+		fontSizeComboBox->setCurrentIndex( 2 );
+		break;
+	default:
+		ERRORLOG( QString( "Unknown font size: %1" )
+				  .arg( static_cast<int>( m_previousFontSize ) ) );
+	}
+	connect( fontSizeComboBox, SIGNAL( currentIndexChanged(int) ),
+			 this, SLOT( onFontSizeChanged(int) ) );
 
 	float falloffSpeed = pPref->getMixerFalloffSpeed();
 	if (falloffSpeed == FALLOFF_SLOW) {
@@ -236,8 +326,16 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	else {
 		ERRORLOG( QString("PreferencesDialog: wrong mixerFalloff value = %1").arg(falloffSpeed) );
 	}
-
+	
+	UIChangeWarningLabel->hide();
+	UIChangeWarningLabel->setText( QString( "<b><i><font color=" )
+								   .append( m_sColorRed )
+								   .append( ">" )
+								   .append( tr( "For changes of the interface layout to take effect Hydrogen must be restarted." ) )
+								   .append( "</font></i></b>" ) );
 	uiLayoutComboBox->setCurrentIndex(  pPref->getDefaultUILayout() );
+	connect( uiLayoutComboBox, SIGNAL( currentIndexChanged(int) ), this, SLOT( onUILayoutChanged(int) ) );
+	
 
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
 	uiScalingPolicyComboBox->setCurrentIndex( pPref->getUIScalingPolicy() );
@@ -262,22 +360,51 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	//SongEditor coloring
 	int coloringMethod = pPref->getColoringMethod();
-	int coloringMethodAuxValue = pPref->getColoringMethodAuxValue();
+	m_nPreviousVisiblePatternColors = pPref->getVisiblePatternColors();
 
+	if ( coloringMethod == 0 ) {
+		coloringMethodAuxSpinBox->hide();
+		colorSelectionLabel->hide();
+	} else {
+		coloringMethodAuxSpinBox->show();
+		colorSelectionLabel->show();
+	}
 	coloringMethodCombo->clear();
 	coloringMethodCombo->addItem(tr("Automatic"));
-	coloringMethodCombo->addItem(tr("Steps"));
-	coloringMethodCombo->addItem(tr("Fixed"));
-
-	coloringMethodAuxSpinBox->setMaximum(300);
+	coloringMethodCombo->addItem(tr("Custom"));
 
 	coloringMethodCombo->setCurrentIndex( coloringMethod );
-	coloringMethodAuxSpinBox->setValue( coloringMethodAuxValue );
+	coloringMethodAuxSpinBox->setValue( m_nPreviousVisiblePatternColors );
+	QSize size( uiScalingPolicyComboBox->width(), coloringMethodAuxSpinBox->height() );
+	coloringMethodAuxSpinBox->setFixedSize( size );
+	coloringMethodAuxSpinBox->resize( size );
 
-	coloringMethodCombo_currentIndexChanged( coloringMethod );
+	m_previousPatternColors = pPref->getPatternColors();
 
-	connect(coloringMethodCombo, SIGNAL(currentIndexChanged(int)), this, SLOT( coloringMethodCombo_currentIndexChanged(int) ));
+	int nMaxPatternColors = pPref->getMaxPatternColors();
+	m_colorSelectionButtons = std::vector<ColorSelectionButton*>( nMaxPatternColors );
+	int nButtonSize = coloringMethodAuxSpinBox->height();
+	int nButtonsPerLine = std::floor( static_cast<float>(coloringMethodAuxSpinBox->width()) /
+									  static_cast<float>(nButtonSize + 4) );
+	colorSelectionGrid->setHorizontalSpacing( 4 );
+	for ( int ii = 0; ii < nMaxPatternColors; ii++ ) {
+		ColorSelectionButton* bbutton = new ColorSelectionButton( this, m_previousPatternColors[ ii ], nButtonSize );
+		bbutton->hide();
+		connect( bbutton, &ColorSelectionButton::clicked, this, &PreferencesDialog::onColorSelectionClicked );
+		colorSelectionGrid->addWidget( bbutton,
+									   std::floor( static_cast<float>( ii ) /
+												   static_cast<float>( nButtonsPerLine ) ),
+									   (ii % nButtonsPerLine) + 1); //+1 to take the hspace into account.
+		m_colorSelectionButtons[ ii ] = bbutton;
+	}
 
+	if ( coloringMethod != 0 ) {
+		for ( int ii = 0; ii < m_nPreviousVisiblePatternColors; ii++ ) {
+			m_colorSelectionButtons[ ii ]->show();
+		}
+	}
+	connect( coloringMethodAuxSpinBox, SIGNAL( valueChanged(int)), this, SLOT( onColorNumberChanged( int ) ) );
+	connect( coloringMethodCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( onColoringMethodChanged(int) ) );
 
 	// midi tab
 	midiPortChannelComboBox->setEnabled( false );
@@ -395,9 +522,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	connect(m_pMidiDriverComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT( onMidiDriverComboBoxIndexChanged(int) ));
 }
 
-
-
-
 PreferencesDialog::~PreferencesDialog()
 {
 	INFOLOG("~PREFERENCES_DIALOG");
@@ -422,6 +546,11 @@ void PreferencesDialog::on_cancelBtn_clicked()
 	reject();
 }
 
+void PreferencesDialog::on_m_pAudioDeviceTxt_currentTextChanged( QString str )
+{
+	m_bNeedDriverRestart = true;
+}
+
 void PreferencesDialog::updateDriverPreferences() {
 	Preferences *pPref = Preferences::get_instance();
 
@@ -434,17 +563,20 @@ void PreferencesDialog::updateDriverPreferences() {
 	}
 	else if (driverComboBox->currentText() == "ALSA" ) {
 		pPref->m_sAudioDriver = "ALSA";
-		pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->text();
+		pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
 	}
 	else if (driverComboBox->currentText() == "OSS" ) {
 		pPref->m_sAudioDriver = "OSS";
-		pPref->m_sOSSDevice = m_pAudioDeviceTxt->text();
+		pPref->m_sOSSDevice = m_pAudioDeviceTxt->lineEdit()->text();
 	}
 	else if (driverComboBox->currentText() == "PortAudio" ) {
 		pPref->m_sAudioDriver = "PortAudio";
+		pPref->m_sPortAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
+		pPref->m_sPortAudioHostAPI = portaudioHostAPIComboBox->currentText();
 	}
 	else if (driverComboBox->currentText() == "CoreAudio" ) {
 		pPref->m_sAudioDriver = "CoreAudio";
+		pPref->m_sCoreAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
 	}
 	else if (driverComboBox->currentText() == "PulseAudio" ) {
 		pPref->m_sAudioDriver = "PulseAudio";
@@ -615,25 +747,6 @@ void PreferencesDialog::on_okBtn_clicked()
 	pPref->setUIScalingPolicy( uiScalingPolicyComboBox->currentIndex() );
 #endif
 
-
-	int coloringMethod = coloringMethodCombo->currentIndex();
-
-	pPref->setColoringMethod( coloringMethod );
-
-	switch( coloringMethod )
-	{
-		case 0:
-			//Automatic
-			pPref->setColoringMethodAuxValue(0);
-			break;
-		case 1:
-			pPref->setColoringMethodAuxValue( coloringMethodAuxSpinBox->value() );
-			break;
-		case 2:
-			pPref->setColoringMethodAuxValue( coloringMethodAuxSpinBox->value() );
-			break;
-	}
-
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
 	SongEditorPanel* pSongEditorPanel = pH2App->getSongEditorPanel();
 	SongEditor * pSongEditor = pSongEditorPanel->getSongEditor();
@@ -645,15 +758,19 @@ void PreferencesDialog::on_okBtn_clicked()
 		pPref->setPreferredLanguage( sPreferredLanguage );
 	}
 
-	pPref->savePreferences();
-
-
 	if (m_bNeedDriverRestart) {
 		int res = QMessageBox::information( this, "Hydrogen", tr( "Driver restart required.\n Restart driver?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
 		if ( res == 0 ) {
+			QApplication::setOverrideCursor( Qt::WaitCursor );
 			Hydrogen::get_instance()->restartDrivers();
+			QApplication::restoreOverrideCursor();
+		} else {
+			// Don't save the Preferences and don't close the PreferencesDialog
+			return;
 		}
 	}
+	
+	pPref->savePreferences();
 	accept();
 }
 
@@ -661,11 +778,16 @@ void PreferencesDialog::on_okBtn_clicked()
 void PreferencesDialog::on_driverComboBox_activated( int index )
 {
 	UNUSED( index );
-	QString selectedDriver = driverComboBox->currentText();
 	updateDriverInfo();
 	m_bNeedDriverRestart = true;
 }
 
+void PreferencesDialog::on_portaudioHostAPIComboBox_activated( int index )
+{
+	m_pAudioDeviceTxt->setHostAPI( portaudioHostAPIComboBox->currentText() );
+	updateDriverInfo();
+	m_bNeedDriverRestart = true;
+}
 
 void PreferencesDialog::updateDriverInfo()
 {
@@ -702,6 +824,7 @@ void PreferencesDialog::updateDriverInfo()
 	bPulseAudio_support = true;
 #endif
 
+	m_pAudioDeviceTxt->setDriver( driverComboBox->currentText() );
 	if ( driverComboBox->currentText() == "Auto" ) {
 		info += tr("Automatic driver selection");
 		
@@ -712,7 +835,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( "</b> " ).append( tr( "selected") );
 		}
 		m_pAudioDeviceTxt->setEnabled( true );
-		m_pAudioDeviceTxt->setText( "" );
+		m_pAudioDeviceTxt->lineEdit()->setText( "" );
 		bufferSizeSpinBox->setEnabled( true );
 		sampleRateComboBox->setEnabled( true );
 		trackOutputComboBox->setEnabled( false );
@@ -721,7 +844,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutsCheckBox->setEnabled( false );
 		jackBBTSyncComboBox->setEnabled( false );
 		jackBBTSyncLbl->setEnabled( false );
-
+		portaudioHostAPIComboBox->hide();
+		portaudioHostAPILabel->hide();
 		if ( std::strcmp( H2Core::Hydrogen::get_instance()->getAudioOutput()->class_name(),
 						  "JackAudioDriver" ) == 0 ) {
 			trackOutputComboBox->setEnabled( true );
@@ -763,7 +887,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setEnabled(true);
-		m_pAudioDeviceTxt->setText( pPref->m_sOSSDevice );
+		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sOSSDevice );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
@@ -773,6 +897,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
+		portaudioHostAPIComboBox->hide();
+		portaudioHostAPILabel->hide();
 	}
 	else if ( driverComboBox->currentText() == "JACK" ) {	// JACK
 		info.append( "<b>" )
@@ -786,7 +912,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setEnabled(false);
-		m_pAudioDeviceTxt->setText( "" );
+		m_pAudioDeviceTxt->lineEdit()->setText( "" );
 		bufferSizeSpinBox->setEnabled(false);
 		sampleRateComboBox->setEnabled(false);
 		trackOutputComboBox->setEnabled( true );
@@ -800,6 +926,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutsCheckBox->show();
 		jackBBTSyncComboBox->show();
 		jackBBTSyncLbl->show();
+		portaudioHostAPIComboBox->hide();
+		portaudioHostAPILabel->hide();
 	}
 	else if ( driverComboBox->currentText() == "ALSA" ) {	// ALSA
 		info.append( "<b>" ).append( tr( "ALSA Driver" ) )
@@ -811,7 +939,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setEnabled(true);
-		m_pAudioDeviceTxt->setText( pPref->m_sAlsaAudioDevice );
+		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sAlsaAudioDevice );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
@@ -821,6 +949,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
+		portaudioHostAPIComboBox->hide();
+		portaudioHostAPILabel->hide();
 	}
 	else if ( driverComboBox->currentText() == "PortAudio" ) {
 		info.append( "<b>" ).append( tr( "PortAudio Driver" ) )
@@ -831,8 +961,8 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setEnabled(false);
-		m_pAudioDeviceTxt->setText( "" );
+		m_pAudioDeviceTxt->setEnabled( true );
+		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sPortAudioDevice );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
@@ -842,6 +972,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
+		portaudioHostAPIComboBox->show();
+		portaudioHostAPILabel->show();
 	}
 	else if ( driverComboBox->currentText() == "CoreAudio" ) {
 		info.append( "<b>" ).append( tr( "CoreAudio Driver" ) )
@@ -852,8 +984,8 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setEnabled(false);
-		m_pAudioDeviceTxt->setText( "" );
+		m_pAudioDeviceTxt->setEnabled( true );
+		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sCoreAudioDevice );
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
@@ -863,6 +995,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
+		portaudioHostAPIComboBox->hide();
+		portaudioHostAPILabel->hide();
 	}
 	else if ( driverComboBox->currentText() == "PulseAudio" ) {
 		info.append( "<b>" ).append( tr( "PulseAudio Driver" ) )
@@ -874,7 +1008,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setEnabled(false);
-		m_pAudioDeviceTxt->setText("");
+		m_pAudioDeviceTxt->lineEdit()->setText("");
 		bufferSizeSpinBox->setEnabled(true);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
@@ -884,6 +1018,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
+		portaudioHostAPIComboBox->hide();
+		portaudioHostAPILabel->hide();
 	}
 	else {
 		QString selectedDriver = driverComboBox->currentText();
@@ -896,36 +1032,110 @@ void PreferencesDialog::updateDriverInfo()
 	driverInfoLbl->setText(info);
 }
 
+void PreferencesDialog::onApplicationFontChanged( const QFont& font ) {
+	auto pPref = Preferences::get_instance();
+	
+	pPref->setApplicationFontFamily( font.family() );
 
-
-void PreferencesDialog::on_selectApplicationFontBtn_clicked()
-{
-	Preferences *preferencesMng = Preferences::get_instance();
-
-	QString family = preferencesMng->getApplicationFontFamily();
-	int pointSize = preferencesMng->getApplicationFontPointSize();
-
-	bool ok;
-	QFont font = QFontDialog::getFont( &ok, QFont( family, pointSize ), this );
-	if ( ok ) {
-		// font is set to the font the user selected
-		family = font.family();
-		pointSize = font.pointSize();
-		QString familyStr = family;
-		preferencesMng->setApplicationFontFamily(familyStr);
-		preferencesMng->setApplicationFontPointSize(pointSize);
-	} else {
-		// the user cancelled the dialog; font is set to the initial
-		// value, in this case Times, 12.
-	}
-
-	QFont newFont(family, pointSize);
-	applicationFontLbl->setFont(newFont);
-	applicationFontLbl->setText(family + QString("  %1").arg(pointSize));
+	HydrogenApp::get_instance()->changePreferences( true );
 }
 
+void PreferencesDialog::onLevel2FontChanged( const QFont& font ) {
+	auto pPref = Preferences::get_instance();
+	
+	pPref->setLevel2FontFamily( font.family() );
 
+	HydrogenApp::get_instance()->changePreferences( true );
+}
 
+void PreferencesDialog::onLevel3FontChanged( const QFont& font ) {
+	auto pPref = Preferences::get_instance();
+	
+	pPref->setLevel3FontFamily( font.family() );
+
+	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onRejected() {
+	auto pPref = Preferences::get_instance();
+	
+	pPref->setApplicationFontFamily( m_sPreviousApplicationFontFamily );
+	pPref->setLevel2FontFamily( m_sPreviousLevel2FontFamily );
+	pPref->setLevel3FontFamily( m_sPreviousLevel3FontFamily );
+	pPref->setFontSize( m_previousFontSize );
+	pPref->setPatternColors( m_previousPatternColors );
+	pPref->setVisiblePatternColors( m_nPreviousVisiblePatternColors );
+
+	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onFontSizeChanged( int nIndex ) {
+	auto pPref = Preferences::get_instance();
+
+	switch ( nIndex ) {
+	case 0:
+		pPref->setFontSize( Preferences::FontSize::Small );
+		break;
+	case 1:
+		pPref->setFontSize( Preferences::FontSize::Normal );
+		break;
+	case 2:
+		pPref->setFontSize( Preferences::FontSize::Large );
+		break;
+	default:
+		ERRORLOG( QString( "Unknown font size: %1" ).arg( nIndex ) );
+	}
+	
+	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onUILayoutChanged( int nIndex ) {
+	UIChangeWarningLabel->show();
+}
+
+void PreferencesDialog::onColorNumberChanged( int nIndex ) {
+	Preferences::get_instance()->setVisiblePatternColors( nIndex );
+	for ( int ii = 0; ii < Preferences::get_instance()->getMaxPatternColors(); ii++ ) {
+		if ( ii < nIndex ) {
+			m_colorSelectionButtons[ ii ]->show();
+		} else {
+			m_colorSelectionButtons[ ii ]->hide();
+		}
+	}
+	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onColorSelectionClicked() {
+	int nMaxPatternColors = Preferences::get_instance()->getMaxPatternColors();
+	std::vector<QColor> colors( nMaxPatternColors );
+	for ( int ii = 0; ii < nMaxPatternColors; ii++ ) {
+		colors[ ii ] = m_colorSelectionButtons[ ii ]->getColor();
+	}
+
+	Preferences::get_instance()->setPatternColors( colors );
+	HydrogenApp::get_instance()->changePreferences( true );
+}
+
+void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
+	Preferences::get_instance()->setColoringMethod( nIndex );
+
+	if ( nIndex == 0 ) {
+		coloringMethodAuxSpinBox->hide();
+		coloringMethodAuxLabel->hide();
+		colorSelectionLabel->hide();
+		for ( int ii = 0; ii < Preferences::get_instance()->getMaxPatternColors(); ii++ ) {
+			m_colorSelectionButtons[ ii ]->hide();
+		}
+	} else {
+		coloringMethodAuxSpinBox->show();
+		coloringMethodAuxLabel->show();
+		colorSelectionLabel->show();
+		for ( int ii = 0; ii < m_nPreviousVisiblePatternColors; ii++ ) {
+			m_colorSelectionButtons[ ii ]->show();
+		}
+	}
+	HydrogenApp::get_instance()->changePreferences( true );
+}
 
 void PreferencesDialog::on_bufferSizeSpinBox_valueChanged( int i )
 {
@@ -947,33 +1157,9 @@ void PreferencesDialog::on_restartDriverBtn_clicked()
 {
 	updateDriverPreferences();
 	Preferences *pPref = Preferences::get_instance();
-	pPref->savePreferences();
 	Hydrogen::get_instance()->restartDrivers();
+	pPref->savePreferences();
 	m_bNeedDriverRestart = false;
-}
-
-
-
-void PreferencesDialog::on_selectMixerFontBtn_clicked()
-{
-	Preferences *preferencesMng = Preferences::get_instance();
-
-	QString family = preferencesMng->getMixerFontFamily();
-	int pointSize = preferencesMng->getMixerFontPointSize();
-
-	bool ok;
-	QFont font = QFontDialog::getFont( &ok, QFont( family, pointSize ), this );
-	if ( ok ) {
-		// font is set to the font the user selected
-		family = font.family();
-		pointSize = font.pointSize();
-		QString familyStr = family;
-		preferencesMng->setMixerFontFamily(familyStr);
-		preferencesMng->setMixerFontPointSize(pointSize);
-	}
-	QFont newFont(family, pointSize);
-	mixerFontLbl->setFont(newFont);
-	mixerFontLbl->setText(family + QString("  %1").arg(pointSize));
 }
 
 void PreferencesDialog::on_midiPortComboBox_activated( int index )
@@ -1013,44 +1199,23 @@ void PreferencesDialog::on_useLashCheckbox_clicked()
 	QMessageBox::information ( this, "Hydrogen", tr ( "Please restart hydrogen to enable/disable LASH support" ) );
 }
 
-void PreferencesDialog::coloringMethodCombo_currentIndexChanged (int index)
-{
-	switch(index)
-	{
-		case 0:
-			coloringMethodAuxLabel->setText( "" );
-			coloringMethodAuxSpinBox->hide();
-			break;
-		case 1:
-			coloringMethodAuxLabel->setText( tr("Number of steps") );
-			coloringMethodAuxSpinBox->setMinimum(1);
-			coloringMethodAuxSpinBox->show();
-			break;
-		case 2:
-			coloringMethodAuxLabel->setText( tr("Color (Hue value)") );
-			coloringMethodAuxSpinBox->setMinimum(0);
-			coloringMethodAuxSpinBox->show();
-			break;
-	}
-}
-
 void PreferencesDialog::on_resampleComboBox_currentIndexChanged ( int index )
 {
 	switch ( index ){
 	case 0:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
+		Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
 		break;
 	case 1:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
+		Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
 		break;
 	case 2:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
+		Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
 		break;
 	case 3:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
+		Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
 		break;
 	case 4:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
+		Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
 		break;
 	}
 

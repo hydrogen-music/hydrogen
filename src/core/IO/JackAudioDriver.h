@@ -31,6 +31,7 @@
 // JACK support es enabled.
 
 #include <map>
+#include <memory>
 #include <pthread.h>
 #include <jack/jack.h>
 
@@ -111,9 +112,9 @@ class InstrumentComponent;
  * during the configuration and the user enables the support of the
  * JACK server.
  */
-class JackAudioDriver : public AudioOutput
+class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput
 {
-	H2_OBJECT
+	H2_OBJECT(JackAudioDriver)
 public:
 	/**
 	 * Whether Hydrogen or another program is Jack timebase master.
@@ -238,7 +239,7 @@ public:
 	 * The function will only perform its tasks if the
 	 * Preferences::m_bJackTrackOuts is set to true.
 	 */
-	void makeTrackOutputs( Song* pSong );
+	void makeTrackOutputs( std::shared_ptr<Song> pSong );
 
 	/** \param flag Sets #m_bConnectDefaults*/
 	void setConnectDefaults( bool flag ) {
@@ -313,7 +314,7 @@ public:
 	 * \return Pointer to buffer content of type
 	 * _jack_default_audio_sample_t*_ (jack/types.h)
 	 */
-	float* getTrackOut_L( Instrument* instr, InstrumentComponent* pCompo );
+	float* getTrackOut_L( std::shared_ptr<Instrument> instr, std::shared_ptr<InstrumentComponent> pCompo );
 	/** 
 	 * Convenience function looking up the track number of a component
 	 * of an instrument using in #m_trackMap using their IDs
@@ -328,7 +329,7 @@ public:
 	 * \return Pointer to buffer content of type
 	 * _jack_default_audio_sample_t*_ (jack/types.h)
 	 */
-	float* getTrackOut_R( Instrument* instr, InstrumentComponent* pCompo );
+	float* getTrackOut_R( std::shared_ptr<Instrument> instr, std::shared_ptr<InstrumentComponent> pCompo );
 
 	/**
 	 * Initializes the JACK audio driver.
@@ -728,7 +729,7 @@ private:
 	 *   InstrumentComponent.
 	 * \param pSong Pointer to the corresponding Song.
 	 */
-	void setTrackOutput( int n, Instrument* instr, InstrumentComponent* pCompo, Song* pSong );
+	void setTrackOutput( int n, std::shared_ptr<Instrument> instr, std::shared_ptr<InstrumentComponent> pCompo, std::shared_ptr<Song> pSong );
 	/**
 	 * Constant offset between the internal transport position in
 	 * TransportInfo::m_nFrames and the external one.
@@ -941,7 +942,7 @@ private:
 
 namespace H2Core {
 class JackAudioDriver : public NullDriver {
-	H2_OBJECT
+	H2_OBJECT(JackAudioDriver)
 public:
 	/**
 	 * Whether Hydrogen or another program is Jack timebase master.

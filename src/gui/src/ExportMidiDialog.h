@@ -36,9 +36,9 @@ namespace H2Core {
 ///
 /// Dialog for exporting song to midi
 ///
-class ExportMidiDialog : public QDialog, public Ui_ExportMidiDialog_UI, public H2Core::Object
+class ExportMidiDialog :  public QDialog, public Ui_ExportMidiDialog_UI,  public H2Core::Object<ExportMidiDialog>
 {
-	H2_OBJECT
+	H2_OBJECT(ExportMidiDialog)
 	Q_OBJECT
 
 	public:
@@ -58,7 +58,7 @@ class ExportMidiDialog : public QDialog, public Ui_ExportMidiDialog_UI, public H
 		QString	 	createDefaultFilename();
 		bool	 	validateUserInput();
 		
-		H2Core::Hydrogen* 		m_pEngine;
+		H2Core::Hydrogen* 		m_pHydrogen;
 		H2Core::Preferences* 	m_pPreferences;
 		bool 					m_bFileSelected;
 		QString 				m_sExtension;

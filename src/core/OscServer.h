@@ -85,9 +85,9 @@ namespace H2Core
 * @author Sebastian Moors
 *
 */
-class OscServer : public H2Core::Object
+class OscServer : public H2Core::Object<OscServer>
 {
-	H2_OBJECT
+	H2_OBJECT(OscServer)
 	public:
 		/**
 		 * Object holding the current OscServer singleton. It is
@@ -473,7 +473,7 @@ class OscServer : public H2Core::Object
 		 * Action.*/
 		static void PAN_RELATIVE_Handler(QString param1, QString param2);
 		/**
-		 * Creates an Action of type @b PAN_ABSOLTUE and
+		 * Creates an Action of type @b PAN_ABSOLUTE and
 		 * passes its references to MidiActionManager::handleAction().
 		 *
 		 * \param param1 Sets Action::parameter1 of the newly created
@@ -481,6 +481,15 @@ class OscServer : public H2Core::Object
 		 * \param param2 Sets Action::parameter2 of the newly created
 		 * Action.*/
 		static void PAN_ABSOLUTE_Handler(QString param1, QString param2);
+		/**
+		 * Creates an Action of type @b PAN_ABSOLUTE_SYM and
+		 * passes its references to MidiActionManager::handleAction().
+		 *
+		 * \param param1 Sets Action::parameter1 of the newly created
+		 * Action.
+		 * \param param2 Sets Action::parameter2 of the newly created
+		 * Action.*/
+		static void PAN_ABSOLUTE_SYM_Handler(QString param1, QString param2);
 		/**
 		 * Creates an Action of type @b FILTER_CUTOFF_LEVEL_ABSOLUTE
 		 * and passes its references to

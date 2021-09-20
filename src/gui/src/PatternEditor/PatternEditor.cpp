@@ -47,12 +47,9 @@ using namespace std;
 using namespace H2Core;
 
 
-const char* PatternEditor::__class_name = "PatternEditor";
-
-
-PatternEditor::PatternEditor( QWidget *pParent, const char *sClassName,
+PatternEditor::PatternEditor( QWidget *pParent,
 							  PatternEditorPanel *panel )
-	: Object ( sClassName ), QWidget( pParent ), m_selection( this ) {
+	: Object (), QWidget( pParent ), m_selection( this ) {
 	m_nResolution = 8;
 	m_bUseTriplets = false;
 	m_pDraggedNote = nullptr;
@@ -68,6 +65,8 @@ PatternEditor::PatternEditor( QWidget *pParent, const char *sClassName,
 	setFocusPolicy(Qt::StrongFocus);
 
 	HydrogenApp::get_instance()->addEventListener( this );
+	
+	m_pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
 	// Popup context menu
 	m_pPopupMenu = new QMenu( this );
@@ -146,8 +145,8 @@ QColor PatternEditor::computeNoteColor( float velocity ) {
 void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote ) const
 {
 	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	static const QColor noteColor( pStyle->m_patternEditor_noteColor.getRed(), pStyle->m_patternEditor_noteColor.getGreen(), pStyle->m_patternEditor_noteColor.getBlue() );
-	static const QColor noteoffColor( pStyle->m_patternEditor_noteoffColor.getRed(), pStyle->m_patternEditor_noteoffColor.getGreen(), pStyle->m_patternEditor_noteoffColor.getBlue() );
+	static const QColor noteColor( pStyle->m_patternEditor_noteColor );
+	static const QColor noteoffColor( pStyle->m_patternEditor_noteoffColor );
 
 	p.setRenderHint( QPainter::Antialiasing );
 
@@ -321,7 +320,7 @@ void PatternEditor::cut()
 void PatternEditor::selectInstrumentNotes( int nInstrument )
 {
 	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
-	Instrument *pInstrument = pInstrumentList->get( nInstrument );
+	auto pInstrument = pInstrumentList->get( nInstrument );
 
 	m_selection.clearSelection();
 	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {
@@ -391,8 +390,7 @@ bool PatternEditor::notesMatchExactly( Note *pNoteA, Note *pNoteB ) const {
 	return ( pNoteA->match( pNoteB->get_instrument(), pNoteB->get_key(), pNoteB->get_octave() )
 			 && pNoteA->get_position() == pNoteB->get_position()
 			 && pNoteA->get_velocity() == pNoteB->get_velocity()
-			 && pNoteA->get_pan_r() == pNoteB->get_pan_r()
-			 && pNoteA->get_pan_l() == pNoteB->get_pan_l()
+			 && pNoteA->getPan() == pNoteB->getPan()
 			 && pNoteA->get_lead_lag() == pNoteB->get_lead_lag()
 			 && pNoteA->get_probability() == pNoteB->get_probability() );
 }
@@ -456,7 +454,7 @@ void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &sel
 {
 	// Iterate over all the notes in 'selected' and 'overwrite' by erasing any *other* notes occupying the
 	// same position.
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	m_pAudioEngine->lock( RIGHT_HERE );
 	Pattern::notes_t *pNotes = const_cast< Pattern::notes_t *>( m_pPattern->get_notes() );
 	for ( auto pSelectedNote : selected ) {
 		m_selection.removeFromSelection( pSelectedNote, /* bCheck=*/false );
@@ -478,7 +476,7 @@ void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &sel
 		}
 	}
 	Hydrogen::get_instance()->getSong()->setIsModified( true );
-	AudioEngine::get_instance()->unlock();
+	m_pAudioEngine->unlock();
 }
 
 
@@ -487,7 +485,7 @@ void PatternEditor::undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> 
 {
 	// Restore previously-overwritten notes, and select notes that were selected before.
 	m_selection.clearSelection( /* bCheck=*/false );
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	m_pAudioEngine->lock( RIGHT_HERE );
 	for ( auto pNote : overwritten ) {
 		Note *pNewNote = new Note( pNote );
 		m_pPattern->insert_note( pNewNote );
@@ -502,14 +500,14 @@ void PatternEditor::undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> 
 		}
 	}
 	Hydrogen::get_instance()->getSong()->setIsModified( true );
-	AudioEngine::get_instance()->unlock();
+	m_pAudioEngine->unlock();
 	m_pPatternEditorPanel->updateEditors();
 }
 
 
 void PatternEditor::updatePatternInfo() {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	m_pPattern = nullptr;
 	m_nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
@@ -550,21 +548,11 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 {
 	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	static const QColor res[5] = {
-		QColor( pStyle->m_patternEditor_line1Color.getRed(),
-				pStyle->m_patternEditor_line1Color.getGreen(),
-				pStyle->m_patternEditor_line1Color.getBlue() ),
-		QColor( pStyle->m_patternEditor_line2Color.getRed(),
-				pStyle->m_patternEditor_line2Color.getGreen(),
-				pStyle->m_patternEditor_line2Color.getBlue() ),
-		QColor( pStyle->m_patternEditor_line3Color.getRed(),
-				pStyle->m_patternEditor_line3Color.getGreen(),
-				pStyle->m_patternEditor_line3Color.getBlue() ),
-		QColor( pStyle->m_patternEditor_line4Color.getRed(),
-				pStyle->m_patternEditor_line4Color.getGreen(),
-				pStyle->m_patternEditor_line4Color.getBlue() ),
-		QColor( pStyle->m_patternEditor_line5Color.getRed(),
-				pStyle->m_patternEditor_line5Color.getGreen(),
-				pStyle->m_patternEditor_line5Color.getBlue() ),
+		QColor( pStyle->m_patternEditor_line1Color ),
+		QColor( pStyle->m_patternEditor_line2Color ),
+		QColor( pStyle->m_patternEditor_line3Color ),
+		QColor( pStyle->m_patternEditor_line4Color ),
+		QColor( pStyle->m_patternEditor_line5Color ),
 	};
 
 	int nGranularity = granularity() * m_nResolution;
@@ -635,14 +623,10 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 
 QColor PatternEditor::selectedNoteColor( const UIStyle *pStyle ) const {
 	if ( hasFocus() ) {
-		static const QColor selectHilightColor( pStyle->m_selectionHighlightColor.getRed(),
-												pStyle->m_selectionHighlightColor.getGreen(),
-												pStyle->m_selectionHighlightColor.getBlue() );
+		static const QColor selectHilightColor( pStyle->m_selectionHighlightColor );
 		return selectHilightColor;
 	} else {
-		static const QColor selectInactiveColor( pStyle->m_selectionInactiveColor.getRed(),
-												 pStyle->m_selectionInactiveColor.getGreen(),
-												 pStyle->m_selectionInactiveColor.getBlue() );
+		static const QColor selectInactiveColor( pStyle->m_selectionInactiveColor );
 		return selectInactiveColor;
 	}
 }

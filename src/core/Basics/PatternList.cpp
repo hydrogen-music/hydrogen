@@ -31,13 +31,12 @@
 namespace H2Core
 {
 
-const char* PatternList::__class_name = "PatternList";
 
-PatternList::PatternList() : Object( __class_name )
+PatternList::PatternList()
 {
 }
 
-PatternList::PatternList( PatternList* other ) : Object( __class_name )
+PatternList::PatternList( PatternList* other ) : Object( *other )
 {
 	assert( __patterns.size() == 0 );
 	for ( int i=0; i<other->size(); i++ ) {
@@ -252,7 +251,7 @@ int PatternList::longest_pattern_length() {
 }
 
 QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[PatternList]\n" ).arg( sPrefix );

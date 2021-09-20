@@ -73,7 +73,10 @@ void H2Test::checkAudioFilesEqual(const QString &expected, const QString &actual
 		if ( read2 != toRead ) throw CppUnit::Exception( CppUnit::Message( "Short read or read error" ), sourceLine );
 
 		for ( sf_count_t i = 0; i < toRead; ++i ) {
-			if ( buf1[i] != buf2[i] ) {
+			// Bit-precise floating point on all platforms is unneeded, and arbitrarily small differences can
+			// create rounding differences. Allow results to differ by 1 either way to account for this.
+			int delta = (int)buf1[i] - (int)buf2[i];
+			if ( delta < -1 || delta > 1 ) {
 				auto diffLocation = offset + i + 1;
 				CppUnit::Message msg(
 					std::string("Files differ at sample ") + std::to_string(diffLocation),

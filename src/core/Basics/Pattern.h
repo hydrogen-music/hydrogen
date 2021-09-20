@@ -24,6 +24,7 @@
 #define H2C_PATTERN_H
 
 #include <set>
+#include <memory>
 #include <core/Object.h>
 #include <core/Basics/Note.h>
 
@@ -38,9 +39,9 @@ class PatternList;
 /**
 Pattern class is a Note container
 */
-class Pattern : public H2Core::Object
+class Pattern : public H2Core::Object<Pattern>
 {
-		H2_OBJECT
+		H2_OBJECT(Pattern)
 	public:
 		///< multimap note type
 		typedef std::multimap <int, Note*> notes_t;
@@ -125,7 +126,7 @@ class Pattern : public H2Core::Object
 		 * \param strict if set to false, will search for a note around the given idx
 		 * \return the note if found, 0 otherwise
 		 */
-		Note* find_note( int idx_a, int idx_b, Instrument* instrument, bool strict=true ) const;
+		Note* find_note( int idx_a, int idx_b, std::shared_ptr<Instrument> instrument, bool strict=true ) const;
 		/**
 		 * search for a note at a given index within __notes which correspond to the given arguments
 		 * \param idx_a the first __notes index to search in
@@ -136,7 +137,7 @@ class Pattern : public H2Core::Object
 		 * \param strict if set to false, will search for a note around the given idx
 		 * \return the note if found, 0 otherwise
 		 */
-		Note* find_note( int idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict=true) const;
+		Note* find_note( int idx_a, int idx_b, std::shared_ptr<Instrument> instrument, Note::Key key, Note::Octave octave, bool strict=true) const;
 		/**
 		 * removes a given note from __notes, it's not deleted
 		 * \param note the note to be removed
@@ -147,13 +148,13 @@ class Pattern : public H2Core::Object
 		 * check if this pattern contains a note referencing the given instrument
 		 * \param instr the instrument
 		*/
-		bool references( Instrument* instr );
+		bool references( std::shared_ptr<Instrument> instr );
 		/**
 		 * delete the notes referencing the given instrument
 		 * The function is thread safe (it locks the audio data while deleting notes)
 		 * \param instr the instrument
 		*/
-		void purge_instrument( Instrument* instr );
+		void purge_instrument( std::shared_ptr<Instrument> instr );
 		/**
 		 * mark all notes as old
 		 */
@@ -191,7 +192,7 @@ class Pattern : public H2Core::Object
 		 * \param node the XMLNode to feed
 		 * \param instrumentOnly export only the notes of that instrument if given
 		 */
-		void save_to( XMLNode* node, const Instrument* instrumentOnly = nullptr ) const;
+		void save_to( XMLNode* node, const std::shared_ptr<Instrument> instrumentOnly = nullptr ) const;
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line

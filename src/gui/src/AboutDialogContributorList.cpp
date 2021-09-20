@@ -3,7 +3,6 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -23,24 +22,23 @@
  */
 #include "AboutDialogContributorList.h"
 
-const char* AboutDialogContributorList::__class_name = "AboutDialogContributorList";
-
-AboutDialogContributorList::AboutDialogContributorList() : H2Core::Object( __class_name ) {
+AboutDialogContributorList::AboutDialogContributorList() {
 
 	std::vector<QString> v{
 "theGreatWhiteShark"
-,"Sebastian Moors"
 ,"Colin McEwan"
+,"Sebastian Moors"
 ,"oddtime"
+,"Varik Valefor"
 ,"Olivier Humbert"
 ,"Clara Hobbs"
 ,"Przemysław Sitek"
 ,"Charbel Jacquin"
+,"freddii"
+,"daryl"
 ,"Jérémy Zurcher"
 ,"Guocheng"
-,"freddii"
 ,"David Runge"
-,"daryl"
 ,"Darío Hereñú"
 ,"Aaron"
 };
