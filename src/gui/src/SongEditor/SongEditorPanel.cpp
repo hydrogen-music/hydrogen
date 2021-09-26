@@ -337,7 +337,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	m_pPositionRuler->setFocusPolicy( Qt::ClickFocus );
 	m_pPositionRuler->setFocusProxy( m_pSongEditor );
-	
+
 	m_pPlaybackTrackScrollView = new WidgetScrollArea( m_pWidgetStack );
 	m_pPlaybackTrackScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPlaybackTrackScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -441,18 +441,33 @@ void SongEditorPanel::updatePlayHeadPosition()
 			return;
 		}
 
+		int nWidth;
+		if ( m_pViewPlaybackToggleBtn->isPressed() ) {
+			nWidth = m_pPlaybackTrackScrollView->viewport()->width();
+		} else {
+			nWidth = m_pPositionRulerScrollView->viewport()->width();
+		}
+
 		QPoint pos = m_pPositionRuler->pos();
 		int x = -pos.x();
-		int w = m_pPositionRulerScrollView->viewport()->width();
 
 		int nPlayHeadPosition = Hydrogen::get_instance()->getPatternPos() * m_pSongEditor->getGridWidth();
 
 		int value = m_pEditorScrollView->horizontalScrollBar()->value();
-		if ( nPlayHeadPosition > ( x + w - 50 ) ) {
-			hScrollTo( value + 100 );
+
+		// Distance the grid will be moved left or right.
+		int nIncrement = 100;
+		if ( nIncrement > std::round( static_cast<float>(nWidth) / 3 ) ) {
+			nIncrement = std::round( static_cast<float>(nWidth) / 3 );
+		} else if ( nIncrement < 2 * m_pPositionRuler->getPlayheadWidth() ) {
+			nIncrement = 2 * m_pPositionRuler->getPlayheadWidth();
+		}
+		
+		if ( nPlayHeadPosition > ( x + nWidth - std::floor( static_cast<float>( nIncrement ) / 2 ) ) ) {
+			hScrollTo( value + nIncrement );
 		}
 		else if ( nPlayHeadPosition < x ) {
-			hScrollTo( value - 100 );
+			hScrollTo( value - nIncrement );
 		}
 	}
 }
@@ -760,7 +775,6 @@ void SongEditorPanel::updateTimelineUsage() {
 
 void SongEditorPanel::timeLineBtnPressed( Button* pBtn )
 {
-	
 	auto pHydrogen = Hydrogen::get_instance();
 	
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {

@@ -2105,6 +2105,8 @@ void SongEditorPatternList::onPreferencesChanged( bool bAppearanceOnly ) {
 SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
  : QWidget( parent )
  , m_bRightBtnPressed( false )
+ , m_nPlayheadWidth( 11 )
+ , m_nPlayheadHeight( 8 )
 {
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
@@ -2119,6 +2121,13 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	m_nMaxPatternSequence = pPref->getMaxBars();
 
 	m_nInitialWidth = m_nMaxPatternSequence * 16;
+
+	// Offset position of the shaft of the arrow head indicating the
+	// playback position.
+	m_nXShaft = std::floor( static_cast<float>( m_nPlayheadWidth ) / 2 );
+	if ( m_nPlayheadWidth % 2 != 0 ) {
+		m_nXShaft++;
+	}
 
 	resize( m_nInitialWidth, m_nHeight );
 	setFixedHeight( m_nHeight );
@@ -2375,10 +2384,12 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, srcRect );
 
 	if (fPos != -1) {
-		uint x = (int)( m_nMargin + fPos * m_nGridWidth - 11 / 2 );
-		painter.drawPixmap( QRect( x, height() / 2, 11, 8), m_tickPositionPixmap, QRect(0, 0, 11, 8) );
+		uint x = (int)( m_nMargin + fPos * m_nGridWidth - m_nPlayheadWidth / 2 );
+		painter.drawPixmap( QRect( x, height() / 2, m_nPlayheadWidth, m_nPlayheadHeight ),
+							m_tickPositionPixmap,
+							QRect( 0, 0, m_nPlayheadWidth, m_nPlayheadHeight ) );
 		painter.setPen( QColor(35, 39, 51) );
-		painter.drawLine( x + 5 , 8, x +5 , 24 );
+		painter.drawLine( x + m_nXShaft, m_nPlayheadHeight, x + m_nXShaft, 24 );
 	}
 
 	if ( pIPos <= pOPos ) {
