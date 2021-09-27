@@ -932,7 +932,7 @@ void PreferencesDialog::updateDriverInfo()
 		}
 		m_pAudioDeviceTxt->setEnabled( true );
 		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sPortAudioDevice );
-		bufferSizeSpinBox->setEnabled(true);
+		bufferSizeSpinBox->setEnabled(false);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
 		trackOutputLbl->hide();
