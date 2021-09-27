@@ -35,17 +35,20 @@ int portAudioCallback(
 	unsigned long framesPerBuffer,
 	const PaStreamCallbackTimeInfo* timeInfo,
 	PaStreamCallbackFlags statusFlags,
-	void *userData
-)
+	void *userData )
 {
-	PortAudioDriver *pDriver = ( PortAudioDriver* )userData;
-	pDriver->m_processCallback( pDriver->m_nBufferSize, nullptr );
-
 	float *out = ( float* )outputBuffer;
+	PortAudioDriver *pDriver = ( PortAudioDriver* )userData;
 
-	for ( unsigned i = 0; i < framesPerBuffer; i++ ) {
-		*out++ = pDriver->m_pOut_L[ i ];
-		*out++ = pDriver->m_pOut_R[ i ];
+	while ( framesPerBuffer > 0 ) {
+		unsigned long nFrames = std::min( (unsigned long) MAX_BUFFER_SIZE, framesPerBuffer );
+		pDriver->m_processCallback( nFrames, nullptr );
+
+		for ( unsigned i = 0; i < nFrames; i++ ) {
+			*out++ = pDriver->m_pOut_L[ i ];
+			*out++ = pDriver->m_pOut_R[ i ];
+		}
+		framesPerBuffer -= nFrames;
 	}
 	return 0;
 }
@@ -64,7 +67,6 @@ PortAudioDriver::PortAudioDriver( audioProcessCallback processCallback )
 		, m_pStream( nullptr )
 {
 	INFOLOG( "INIT" );
-	m_nBufferSize = Preferences::get_instance()->m_nBufferSize;
 	m_nSampleRate = Preferences::get_instance()->m_nSampleRate;
 	m_sDevice = Preferences::get_instance()->m_sPortAudioDevice;
 }
@@ -145,8 +147,8 @@ int PortAudioDriver::connect()
 	Preferences *pPreferences = Preferences::get_instance();
 	INFOLOG( "[connect]" );
 
-	m_pOut_L = new float[ m_nBufferSize ];
-	m_pOut_R = new float[ m_nBufferSize ];
+	m_pOut_L = new float[ MAX_BUFFER_SIZE ];
+	m_pOut_R = new float[ MAX_BUFFER_SIZE ];
 
 	int err;
 	if ( ! m_bInitialised ) {
@@ -192,7 +194,7 @@ int PortAudioDriver::connect()
 				err = Pa_OpenStream( &m_pStream,
 									 nullptr, /* No input stream */
 									 &outputParameters,
-									 m_nSampleRate, m_nBufferSize, paNoFlag,
+									 m_nSampleRate, paFramesPerBufferUnspecified, paNoFlag,
 									 portAudioCallback, this );
 				if ( err != paNoError ) {
 					ERRORLOG( QString( "Found but can't open device '%1' (max %3 in, %4 out): %2" )
@@ -219,7 +221,7 @@ int PortAudioDriver::connect()
 					2,              /* stereo output */
 					paFloat32,      /* 32 bit floating point output */
 					m_nSampleRate,          // sample rate
-					m_nBufferSize,            // frames per buffer
+					paFramesPerBufferUnspecified, // frames per buffer
 					portAudioCallback, /* specify our custom callback */
 					this );        /* pass our data through to callback */
 	}
@@ -234,6 +236,7 @@ int PortAudioDriver::connect()
 		ERRORLOG( QString( "Couldn't get sample rate %d, using %d instead" ).arg( m_nSampleRate ).arg( pStreamInfo->sampleRate ) );
 		m_nSampleRate = (unsigned) pStreamInfo->sampleRate;
 	}
+	INFOLOG( QString( "PortAudio outpot latency: %1 s" ).arg( pStreamInfo->outputLatency ) );
 
 	err = Pa_StartStream( m_pStream );
 
@@ -273,12 +276,18 @@ void PortAudioDriver::disconnect()
 
 unsigned PortAudioDriver::getBufferSize()
 {
-	return m_nBufferSize;
+	return MAX_BUFFER_SIZE;
 }
 
 unsigned PortAudioDriver::getSampleRate()
 {
 	return m_nSampleRate;
+}
+
+float PortAudioDriver::getLatency()
+{
+	const PaStreamInfo *pStreamInfo = Pa_GetStreamInfo( m_pStream );
+	return pStreamInfo->outputLatency;
 }
 
 float* PortAudioDriver::getOut_L()
