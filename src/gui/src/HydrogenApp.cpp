@@ -230,7 +230,7 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// MAINFORM
 	WindowProperties mainFormProp = pPref->getMainFormProperties();
-	setWindowProperties( m_pMainForm, mainFormProp );
+	setWindowProperties( m_pMainForm, mainFormProp, SetDefault & ~SetVisible );
 
 	m_pSplitter = new QSplitter( nullptr );
 	m_pSplitter->setOrientation( Qt::Vertical );
