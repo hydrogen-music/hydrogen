@@ -190,6 +190,7 @@ int PortAudioDriver::connect()
 				// latency. This should probably be an option.
 				outputParameters.suggestedLatency =
 					Pa_GetDeviceInfo( nDevice )->defaultHighInputLatency;
+				outputParameters.suggestedLatency = pPreferences->m_nLatencyTarget * 1.0 / getSampleRate();
 
 				err = Pa_OpenStream( &m_pStream,
 									 nullptr, /* No input stream */
@@ -284,10 +285,10 @@ unsigned PortAudioDriver::getSampleRate()
 	return m_nSampleRate;
 }
 
-float PortAudioDriver::getLatency()
+int PortAudioDriver::getLatency()
 {
 	const PaStreamInfo *pStreamInfo = Pa_GetStreamInfo( m_pStream );
-	return pStreamInfo->outputLatency;
+	return (int)( pStreamInfo->outputLatency * getSampleRate() );
 }
 
 float* PortAudioDriver::getOut_L()

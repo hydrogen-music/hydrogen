@@ -53,7 +53,7 @@ public:
 	virtual int connect();
 	virtual void disconnect();
 	virtual unsigned getBufferSize();
-	virtual float getLatency();
+	virtual int getLatency();
 	virtual unsigned getSampleRate();
 	virtual float* getOut_L();
 	virtual float* getOut_R();

@@ -144,7 +144,7 @@ void AudioEngineInfoForm::updateInfo()
 		bufferSizeLbl->setText(QString(tmp));
 
 		// Audio latency estimate
-		latencyLbl->setText( QString( "%1s" ).arg( driver->getLatency() ) );
+		latencyLbl->setText( QString( "%1 frames" ).arg( driver->getLatency() ) );
 
 		// Audio driver sampleRate
 		sprintf(tmp, "%d", driver->getSampleRate());
