@@ -13,6 +13,9 @@
 	* InstrumentEditor UX improvements:
 		- rework start/end/loop frame slider selection and motion.
 		- rework velocity/pan envelope editing
+	* Bugfixes
+		- fix dithering of SongEditor when viewing the playback track
+		  and resizing the application or for very small size (#1379).
 
 2021-09-04 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.1
