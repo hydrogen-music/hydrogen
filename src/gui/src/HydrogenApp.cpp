@@ -157,6 +157,13 @@ void HydrogenApp::setWindowProperties( QWidget *pWindow, WindowProperties &prop,
 		newGeometry.setHeight( oldGeometry.height() );
 	}
 
+	// If a window is fixed-size, don't restore it full-screen (macOS sometimes does this, annoyingly)
+	if ( pWindow->minimumSize() == pWindow->maximumSize() ) {
+		if ( pWindow->isFullScreen()) {
+			pWindow->showNormal();
+		}
+	}
+
 	if ( oldGeometry != newGeometry ) {
 		pWindow->setGeometry( newGeometry );
 	}
