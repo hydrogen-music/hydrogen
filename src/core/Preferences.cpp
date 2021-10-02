@@ -264,8 +264,6 @@ Preferences::Preferences()
 
 Preferences::~Preferences()
 {
-	savePreferences();
-
 	INFOLOG( "DESTROY" );
 	__instance = nullptr;
 	delete m_pDefaultUIStyle;
