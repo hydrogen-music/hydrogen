@@ -97,7 +97,7 @@ int main(int argc, char** argv){
 				delete pSong;
 				delete H2Core::EventQueue::get_instance();
 				delete H2Core::AudioEngine::get_instance();
-                                preferences->savePreferences();
+				preferences->savePreferences();
 				delete preferences;
 				delete H2Core::Logger::get_instance();
 
