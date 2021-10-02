@@ -90,6 +90,8 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_actionMode( ActionMode::selectMode )
 	, m_nPanLawType ( Sampler::RATIO_STRAIGHT_POLYGONAL )
 	, m_fPanLawKNorm ( Sampler::K_NORM_DEFAULT )
+	, m_fFillValue( 0.5 )
+	, m_fFillRandomize( 0 )
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( sName ) );
 
@@ -836,6 +838,8 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	float fHumanizeTimeValue = LocalFileMng::readXmlFloat( songNode, "humanize_time", 0.0 );
 	float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
 	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
+	float fFillValue = LocalFileMng::readXmlFloat( songNode, "fillValue", 0.5 );
+	float fFillRandomize = LocalFileMng::readXmlFloat( songNode, "fillRandomize", 1.0 );
 
 	pSong = std::make_shared<Song>( sName, sAuthor, fBpm, fVolume );
 	pSong->setMetronomeVolume( fMetronomeVolume );
@@ -849,6 +853,8 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	pSong->setPlaybackTrackFilename( sPlaybackTrack );
 	pSong->setPlaybackTrackEnabled( bPlaybackTrackEnabled );
 	pSong->setPlaybackTrackVolume( fPlaybackTrackVolume );
+	pSong->setFillValue( fFillValue );
+	pSong->setFillRandomize( fFillRandomize );
 	pSong->setActionMode( actionMode );
 	
 	// pan law
@@ -1635,4 +1641,16 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* pInstrList )
 
 	return pPattern;
 }
+
+
+float Song::getThreshold() const
+{
+	float w = getFillRandomize();
+	float k = 1.0f - w;
+	float lower = getFillValue() * k;
+	float upper = lower + w;
+	float rnd = (float)rand()/(float)RAND_MAX;
+	return 1.0f - (lower + rnd * (upper-lower));
+}
+
 };

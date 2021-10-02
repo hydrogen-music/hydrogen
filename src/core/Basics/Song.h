@@ -184,6 +184,13 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		/** \param volume Sets #m_fPlaybackTrackVolume. */
 		void			setPlaybackTrackVolume( const float fVolume );
 
+		float getFillValue() const;
+		void setFillValue( float fFillValue );
+		float getFillRandomize() const;
+		void setFillRandomize( float fFillRandomize );
+
+		float getThreshold() const;
+
 		/** Defines the type of user interaction experienced in the 
 			SongEditor.*/
 		enum class ActionMode {
@@ -291,6 +298,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 		/** Stores the type of interaction with the SongEditor. */
 		ActionMode		m_actionMode;
+
+		float m_fFillValue;
+		float m_fFillRandomize;
 		
 		int m_nPanLawType;
 		// k such that L^k+R^k = 1. Used in constant k-Norm pan law
@@ -548,6 +558,26 @@ inline int Song::getPanLawType() const {
 
 inline float Song::getPanLawKNorm() const {
 	return m_fPanLawKNorm;
+}
+
+inline float Song::getFillValue() const
+{
+	return m_fFillValue;
+}
+
+inline void Song::setFillValue( float fFillValue )
+{
+	m_fFillValue = fFillValue;
+}
+
+inline float Song::getFillRandomize() const
+{
+	return m_fFillRandomize;
+}
+
+inline void Song::setFillRandomize( float fFillRandomize )
+{
+	m_fFillRandomize = fFillRandomize;
 }
 
 /**

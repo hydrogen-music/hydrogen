@@ -256,8 +256,8 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 				FOREACH_NOTE_CST_IT_BOUND(notes,it,nNote) {
 					Note *pNote = it->second;
 					if ( pNote ) {
-						float rnd = (float)rand()/(float)RAND_MAX;
-						if ( pNote->get_probability() < rnd ) {
+                        float fThreshold = pSong->getThreshold();
+                        if ( pNote->get_probability() < fThreshold ) {
 							continue;
 						}
 

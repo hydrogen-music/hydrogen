@@ -120,7 +120,13 @@ MidiActionManager::MidiActionManager() {
 	actionMap.insert(std::make_pair("MASTER_VOLUME_ABSOLUTE", std::make_pair(&MidiActionManager::master_volume_absolute, empty)));
 	actionMap.insert(std::make_pair("STRIP_VOLUME_RELATIVE", std::make_pair(&MidiActionManager::strip_volume_relative, empty)));
 	actionMap.insert(std::make_pair("STRIP_VOLUME_ABSOLUTE", std::make_pair(&MidiActionManager::strip_volume_absolute, empty)));
-	
+
+	actionMap.insert(std::make_pair("HUMANIZE_VELOCITY_ABSOLUTE", std::make_pair(&MidiActionManager::humanize_velocity_absolute, empty)));
+	actionMap.insert(std::make_pair("HUMANIZE_TIME_ABSOLUTE", std::make_pair(&MidiActionManager::humanize_time_absolute, empty)));
+	actionMap.insert(std::make_pair("SWING_ABSOLUTE", std::make_pair(&MidiActionManager::swing_absolute, empty)));
+	actionMap.insert(std::make_pair("FILL_VALUE_ABSOLUTE", std::make_pair(&MidiActionManager::fill_value_absolute, empty)));
+	actionMap.insert(std::make_pair("FILL_RANDOMIZE_ABSOLUTE", std::make_pair(&MidiActionManager::fill_randomize_absolute, empty)));
+
 	for(int i = 0; i < MAX_FX; ++i) {
 		targeted_element effect = {i,0};
 		std::ostringstream toChar;
@@ -802,6 +808,56 @@ bool MidiActionManager::bpm_fine_cc_relative(Action * pAction, Hydrogen* pHydrog
 	m_nLastBpmChangeCCParameter = cc_param;
 
 	pHydrogen->getAudioEngine()->unlock();
+
+	return true;
+}
+
+bool MidiActionManager::humanize_velocity_absolute(Action * pAction, Hydrogen* pHydrogen , targeted_element ) {
+	bool ok;
+	int value = pAction->getParameter2().toInt(&ok,10);
+
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	pSong->setHumanizeVelocityValue( value / 127.0 );
+
+	return true;
+}
+
+bool MidiActionManager::humanize_time_absolute(Action *pAction , Hydrogen* pHydrogen , targeted_element ) {
+	bool ok;
+	int value = pAction->getParameter2().toInt(&ok,10);
+
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	pSong->setHumanizeTimeValue( value / 127.0 );
+
+	return true;
+}
+
+bool MidiActionManager::swing_absolute(Action *pAction , Hydrogen* pHydrogen , targeted_element ) {
+	bool ok;
+	int value = pAction->getParameter2().toInt(&ok,10);
+
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	pSong->setSwingFactor( value / 127.0 );
+
+	return true;
+}
+
+bool MidiActionManager::fill_value_absolute(Action *pAction , Hydrogen* pHydrogen , targeted_element ) {
+	bool ok;
+	int value = pAction->getParameter2().toInt(&ok,10);
+
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	pSong->setFillValue( value / 127.0 );
+
+	return true;
+}
+
+bool MidiActionManager::fill_randomize_absolute(Action *pAction , Hydrogen* pHydrogen , targeted_element ) {
+	bool ok;
+	int value = pAction->getParameter2().toInt(&ok,10);
+
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	pSong->setFillRandomize( value / 127.0 );
 
 	return true;
 }

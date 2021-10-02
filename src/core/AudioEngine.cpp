@@ -940,7 +940,8 @@ inline void AudioEngine::processPlayNotes( unsigned long nframes )
 			 */
 			float fNoteProbability = pNote->get_probability();
 			if ( fNoteProbability != 1. ) {
-				if ( fNoteProbability < (float) rand() / (float) RAND_MAX ) {
+				float fThreshold = pSong->getThreshold();
+				if ( fNoteProbability < fThreshold ) {
 					m_songNoteQueue.pop();
 					pNote->get_instrument()->dequeue();
 					continue;

@@ -475,6 +475,8 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 	LocalFileMng::writeXmlString( songNode, "humanize_time", QString("%1").arg( pSong->getHumanizeTimeValue() ) );
 	LocalFileMng::writeXmlString( songNode, "humanize_velocity", QString("%1").arg( pSong->getHumanizeVelocityValue() ) );
 	LocalFileMng::writeXmlString( songNode, "swing_factor", QString("%1").arg( pSong->getSwingFactor() ) );
+	LocalFileMng::writeXmlString( songNode, "fillValue", QString("%1").arg( pSong->getFillValue() ) );
+	LocalFileMng::writeXmlString( songNode, "fillRandomize", QString("%1").arg( pSong->getFillRandomize() ) );
 
 	// component List
 	QDomNode componentListNode = doc.createElement( "componentList" );

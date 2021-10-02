@@ -275,6 +275,9 @@ class MasterMixerLine: public PixmapWidget, public H2Core::Object<MasterMixerLin
 		Rotary *		m_pHumanizeTimeRotary;
 		Rotary *		m_pHumanizeVelocityRotary;
 
+		Rotary *        m_pFillValueRotary;
+		Rotary *        m_pFillRandomizeRotary;
+
 		ToggleButton *	m_pMuteBtn;
 };
 

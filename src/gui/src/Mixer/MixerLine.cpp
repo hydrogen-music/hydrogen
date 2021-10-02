@@ -671,16 +671,29 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pPeakLCD->setPalette( lcdPalette );
 
 	m_pHumanizeVelocityRotary = new Rotary( this, Rotary::TYPE_NORMAL, tr( "Humanize velocity" ), false, true );
-	m_pHumanizeVelocityRotary->move( 74, 88 );
+	m_pHumanizeVelocityRotary->move( 74, 43 );
 	connect( m_pHumanizeVelocityRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
+	m_pHumanizeVelocityRotary->setAction( new Action("HUMANIZE_VELOCITY_ABSOLUTE") );
 
 	m_pHumanizeTimeRotary = new Rotary( this, Rotary::TYPE_NORMAL, tr( "Humanize time" ), false, true );
-	m_pHumanizeTimeRotary->move( 74, 125 );
+	m_pHumanizeTimeRotary->move( 74, 80 );
 	connect( m_pHumanizeTimeRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
+	m_pHumanizeTimeRotary->setAction( new Action("HUMANIZE_TIME_ABSOLUTE") );
 
 	m_pSwingRotary = new Rotary( this,  Rotary::TYPE_NORMAL, tr( "16th-note Swing" ), false, true );
-	m_pSwingRotary->move( 74, 162 );
+	m_pSwingRotary->move( 74, 117 );
 	connect( m_pSwingRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
+	m_pSwingRotary->setAction( new Action("SWING_ABSOLUTE") );
+
+	m_pFillValueRotary = new Rotary( this,  Rotary::TYPE_NORMAL, tr( "Fill" ), false, false );
+	m_pFillValueRotary->move( 74, 172 );
+	connect( m_pFillValueRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
+	m_pFillValueRotary->setAction( new Action("FILL_VALUE_ABSOLUTE") );
+
+	m_pFillRandomizeRotary = new Rotary( this,  Rotary::TYPE_NORMAL, tr( "Randomize" ), false, false );
+	m_pFillRandomizeRotary->move( 74, 209 );
+	connect( m_pFillRandomizeRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
+	m_pFillRandomizeRotary->setAction( new Action("FILL_RANDOMIZE_ABSOLUTE") );
 
 	// Mute btn
 	m_pMuteBtn = new ToggleButton(
@@ -811,6 +824,8 @@ void MasterMixerLine::updateMixerLine()
 		m_pHumanizeTimeRotary->setValue( pSong->getHumanizeTimeValue() );
 		m_pHumanizeVelocityRotary->setValue( pSong->getHumanizeVelocityValue() );
 		m_pSwingRotary->setValue( pSong->getSwingFactor() );
+		m_pFillValueRotary->setValue( pSong->getFillValue() );
+		m_pFillRandomizeRotary->setValue( pSong->getFillRandomize() );
 		m_pMuteBtn->setPressed( pSong->getIsMuted() );
 	}
 	else {
@@ -837,6 +852,14 @@ void MasterMixerLine::rotaryChanged( Rotary *pRef )
 	else if ( pRef == m_pSwingRotary ) {
 		pHydrogen->getSong()->setSwingFactor( fVal );
 		sMsg = tr( "Set swing factor [%1]").arg( fVal, 0, 'f', 2 );
+	}
+	else if ( pRef == m_pFillValueRotary ) {
+		pHydrogen->getSong()->setFillValue( fVal );
+		sMsg = trUtf8( "Set fill value [%1]").arg( fVal, 0, 'f', 2 );
+	}
+	else if ( pRef == m_pFillRandomizeRotary ) {
+		pHydrogen->getSong()->setFillRandomize( fVal );
+		sMsg = trUtf8( "Set fill randomize [%1]").arg( fVal, 0, 'f', 2 );
 	}
 	else {
 		ERRORLOG( "[knobChanged] Unhandled knob" );
