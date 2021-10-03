@@ -114,6 +114,18 @@ void setPalette( QApplication *pQApp )
 	// A text color that contrasts with Highlight.
 	defaultPalette.setColor( QPalette::HighlightedText, QColor( 255, 255, 255 ) );
 
+
+	// Desaturate disabled widgets by blending with the alternate colour
+	for ( QPalette::ColorRole role : { QPalette::Window, QPalette::Base, QPalette::AlternateBase, QPalette::Dark,
+									  QPalette::Light, QPalette::Midlight, QPalette::Mid, QPalette::Shadow,
+									  QPalette::Text } ) {
+		QColor normalColor = defaultPalette.color( QPalette::Normal, role );
+		QColor disabledColor = QColor( ( normalColor.red() + 138 ) / 2,
+									   ( normalColor.green() + 144 ) / 2,
+									   ( normalColor.blue() + 162 ) / 2);
+		defaultPalette.setColor( QPalette::Disabled, role, disabledColor );
+	}
+
 	pQApp->setPalette( defaultPalette );
 	pQApp->setStyleSheet("QToolTip {padding: 1px; border: 1px solid rgb(199, 202, 204); background-color: rgb(227, 243, 252); color: rgb(64, 64, 66);}");
 }
