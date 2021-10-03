@@ -105,7 +105,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	// restore audio engine form properties
 	m_pAudioEngineInfoForm = new AudioEngineInfoForm( nullptr );
 	WindowProperties audioEngineInfoProp = pPref->getAudioEngineInfoProperties();
-	setWindowProperties( m_pAudioEngineInfoForm, audioEngineInfoProp, /*bResize=*/false );
+	setWindowProperties( m_pAudioEngineInfoForm, audioEngineInfoProp, SetX + SetY );
 	
 	m_pFilesystemInfoForm = new FilesystemInfoForm( nullptr );
 
@@ -121,23 +121,52 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	addEventListener( this );
 }
 
-void HydrogenApp::setWindowProperties( QWidget *pWindow, WindowProperties &prop, bool bResize ) {
-	if ( prop.visible) {
-		pWindow->show();
-	} else {
-		pWindow->hide();
+void HydrogenApp::setWindowProperties( QWidget *pWindow, WindowProperties &prop, unsigned flags ) {
+	if ( flags & SetVisible ) {
+		if ( prop.visible) {
+			pWindow->show();
+		} else {
+			pWindow->hide();
+		}
 	}
+
+	// Preserve the current values of anything we're not setting.
+	QRect oldGeometry = pWindow->geometry();
 	if ( prop.m_geometry.size() == 0 ) {
 		// No geometry saved in preferences. Most likely an old preferences file. Set the size and shape
-		if ( bResize ) {
-			pWindow->resize( prop.width, prop.height );
-		}
+		pWindow->resize( prop.width, prop.height );
 		pWindow->move( prop.x, prop.y );
 		prop.m_geometry = pWindow->saveGeometry();
 	}
 
 	// restore geometry will also ensure things are visible if screen geometry has changed.
 	pWindow->restoreGeometry( prop.m_geometry );
+
+	// For anything that we're not setting, restore the previous values.
+	QRect newGeometry = pWindow->geometry();
+	if ( !( flags & SetX ) ) {
+		newGeometry.setX( oldGeometry.x() );
+	}
+	if ( !( flags & SetY ) ) {
+		newGeometry.setY( oldGeometry.y() );
+	}
+	if ( !( flags & SetWidth ) ) {
+		newGeometry.setWidth( oldGeometry.width() );
+	}
+	if ( !( flags & SetHeight ) ) {
+		newGeometry.setHeight( oldGeometry.height() );
+	}
+
+	// If a window is fixed-size, don't restore it full-screen (macOS sometimes does this, annoyingly)
+	if ( pWindow->minimumSize() == pWindow->maximumSize() ) {
+		if ( pWindow->isFullScreen()) {
+			pWindow->showNormal();
+		}
+	}
+
+	if ( oldGeometry != newGeometry ) {
+		pWindow->setGeometry( newGeometry );
+	}
 }
 
 
@@ -208,7 +237,7 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// MAINFORM
 	WindowProperties mainFormProp = pPref->getMainFormProperties();
-	setWindowProperties( m_pMainForm, mainFormProp );
+	setWindowProperties( m_pMainForm, mainFormProp, SetDefault & ~SetVisible );
 
 	m_pSplitter = new QSplitter( nullptr );
 	m_pSplitter->setOrientation( Qt::Vertical );
@@ -225,7 +254,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	}
 
 	WindowProperties songEditorProp = pPref->getSongEditorProperties();
-	setWindowProperties( m_pSongEditorPanel, songEditorProp );
+	setWindowProperties( m_pSongEditorPanel, songEditorProp, SetWidth + SetHeight );
 
 	if( uiLayout == Preferences::UI_LAYOUT_TABBED) {
 		m_pTab->addTab( m_pSongEditorPanel, tr("Song Editor") );
@@ -253,7 +282,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	// PATTERN EDITOR
 	m_pPatternEditorPanel = new PatternEditorPanel( nullptr );
 	WindowProperties patternEditorProp = pPref->getPatternEditorProperties();
-	setWindowProperties( m_pPatternEditorPanel, patternEditorProp );
+	setWindowProperties( m_pPatternEditorPanel, patternEditorProp, SetWidth + SetHeight );
 
 	pEditorHBox->addWidget( m_pPatternEditorPanel );
 	pEditorHBox->addWidget( m_pInstrumentRack );
@@ -307,7 +336,7 @@ void HydrogenApp::setupSinglePanedInterface()
 		m_pLadspaFXProperties[nFX] = new LadspaFXProperties( nullptr, nFX );
 		m_pLadspaFXProperties[nFX]->hide();
 		WindowProperties prop = pPref->getLadspaProperties(nFX);
-		setWindowProperties( m_pLadspaFXProperties[ nFX ], prop, /*bResize=*/ false );
+		setWindowProperties( m_pLadspaFXProperties[ nFX ], prop, SetWidth + SetHeight );
 	}
 #endif
 
@@ -753,7 +782,7 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		int uiLayout = pPref->getDefaultUILayout();
 
 		WindowProperties audioEngineInfoProp = pPref->getAudioEngineInfoProperties();
-		setWindowProperties( m_pAudioEngineInfoForm, audioEngineInfoProp );
+		setWindowProperties( m_pAudioEngineInfoForm, audioEngineInfoProp, SetWidth + SetHeight );
 
 		// MAINFORM
 		WindowProperties mainFormProp = pPref->getMainFormProperties();
@@ -764,11 +793,11 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 
 		// SONG EDITOR
 		WindowProperties songEditorProp = pPref->getSongEditorProperties();
-		setWindowProperties( m_pSongEditorPanel, songEditorProp );
+		setWindowProperties( m_pSongEditorPanel, songEditorProp, SetWidth + SetHeight );
 
 		// PATTERN EDITOR
 		WindowProperties patternEditorProp = pPref->getPatternEditorProperties();
-		setWindowProperties( m_pPatternEditorPanel, patternEditorProp );
+		setWindowProperties( m_pPatternEditorPanel, patternEditorProp, SetWidth + SetHeight );
 		
 		WindowProperties instrumentRackProp = pPref->getInstrumentRackProperties();
 		m_pInstrumentRack->setHidden( !instrumentRackProp.visible );
@@ -786,7 +815,7 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 			m_pLadspaFXProperties[nFX]->hide();
 			WindowProperties prop = pPref->getLadspaProperties(nFX);
-			setWindowProperties( m_pLadspaFXProperties[ nFX ], prop, /*bResize=*/false );
+			setWindowProperties( m_pLadspaFXProperties[ nFX ], prop, SetX + SetY );
 		}
 #endif
 
