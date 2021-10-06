@@ -444,9 +444,6 @@
              <property name="maximum">
               <number>48000</number>
              </property>
-             <property name="stepType">
-              <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
-             </property>
              <property name="value">
               <number>100</number>
              </property>
