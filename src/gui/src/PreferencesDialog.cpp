@@ -808,7 +808,7 @@ void PreferencesDialog::updateDriverInfo()
 		}
 		m_pAudioDeviceTxt->setEnabled( true );
 		m_pAudioDeviceTxt->lineEdit()->setText( "" );
-		bufferSizeSpinBox->setEnabled( true );
+		bufferSizeSpinBox->setEnabled( false );
 		sampleRateComboBox->setEnabled( true );
 		trackOutputComboBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled( false );
@@ -968,7 +968,7 @@ void PreferencesDialog::updateDriverInfo()
 		}
 		m_pAudioDeviceTxt->setEnabled( true );
 		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sCoreAudioDevice );
-		bufferSizeSpinBox->setEnabled(true);
+		bufferSizeSpinBox->setEnabled( false );
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
 		trackOutputLbl->hide();
