@@ -126,8 +126,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
-		H2Core::AudioEngine* m_pAudioEngine;
-
 		bool m_bNeedsUpdate;
 		bool m_bNeedsBackgroundUpdate;
 
