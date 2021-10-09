@@ -17,6 +17,8 @@
 		- fix dithering of SongEditor when viewing the playback track
 		  and resizing the application or for very small size (#1379).
 		- fix segfault when entering note in PianoRollEditor (#1386).
+		- fix rewinding to beginning of pattern in pattern mode with no
+		  pattern inserted in SongEditor (#932)
 
 2021-09-04 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.1
