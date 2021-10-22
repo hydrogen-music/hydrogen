@@ -212,8 +212,8 @@ public:
 	 */
 	QString				m_sAudioDriver;
 	/** If set to true, samples of the metronome will be added to
-	 * #m_songNoteQueue in audioEngine_updateNoteQueue() and thus
-	 * played back on a regular basis.*/
+	 * #H2Core::AudioEngine::m_songNoteQueue and thus played back on a
+	 * regular basis.*/
 	bool				m_bUseMetronome;
 	/// Metronome volume FIXME: remove this volume!!
 	float				m_fMetronomeVolume;

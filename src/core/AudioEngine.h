@@ -53,27 +53,27 @@
 
 // Audio Engine states  (It's ok to use ==, <, and > when testing)
 /**
- * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Not even the
+ * State of the H2Core::AudioEngine H2Core::m_State. Not even the
  * constructors have been called.
  */
 #define STATE_UNINITIALIZED	1
 /**
- * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Not ready,
+ * State of the H2Core::AudioEngine H2Core::m_State. Not ready,
  * but most pointers are now valid or NULL.
  */
 #define STATE_INITIALIZED	2
 /**
- * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Drivers are
+ * State of the H2Core::AudioEngine H2Core::m_State. Drivers are
  * set up, but not ready to process audio.
  */
 #define STATE_PREPARED		3
 /**
- * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Ready to
+ * State of the H2Core::AudioEngine H2Core::m_State. Ready to
  * process audio.
  */
 #define STATE_READY		4
 /**
- * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Currently
+ * State of the H2Core::AudioEngine H2Core::m_State. Currently
  * playing a sequence.
  */
 #define STATE_PLAYING		5
@@ -93,7 +93,7 @@ namespace H2Core
  *
  * It serves as a container for the Sampler and Synth stored in the
  * #m_pSampler and #m_pSynth member objects and provides a mutex
- * #__engine_mutex enabling the user to synchronize the access of the
+ * #m_EngineMutex enabling the user to synchronize the access of the
  * Song object and the AudioEngine itself. lock() and try_lock() can
  * be called by a thread to lock the engine and unlock() to make it
  * accessible for other threads once again.
@@ -104,26 +104,10 @@ class AudioEngine : public H2Core::Object<AudioEngine>
 public:
 
 	/**
-	* Initialization of the H2Core::AudioEngine (concstructed in Hydrogen::Hydrogen()).
+	* Initialization of the H2Core::AudioEngine (concstructed in
+	* Hydrogen::Hydrogen()).
 	*
-	* -# It creates two new instances of the H2Core::PatternList and stores them 
-	* in #m_pPlayingPatterns and #m_pNextPatterns.
-	* -# It sets #m_nSongPos = -1.
-	* -# It sets #m_nSelectedPatternNumber, #m_nSelectedInstrumentNumber,
-	*	and #m_nPatternTickPosition to 0.
-	* -# It sets #m_pMetronomeInstrument, #m_pAudioDriver to NULL.
-	* -# It uses the current time to a random seed via std::srand(). This
-	*	way the states of the pseudo-random number generator are not
-	*	cross-correlated between different runs of Hydrogen.
-	* -# It initializes the metronome with the sound stored in
-	*	H2Core::Filesystem::click_file_path() by creating a new
-	*	Instrument with #METRONOME_INSTR_ID as first argument.
-	* -# It sets the H2Core::AudioEngine state #m_audioEngineState to
-	*	#STATE_INITIALIZED.
-	* -# It calls H2Core::Effects::create_instance() (if the
-	*	#H2CORE_HAVE_LADSPA is set),
-	*
-	* If the current state of the H2Core::AudioEngine #m_audioEngineState is not
+	* If the current state of the H2Core::AudioEngine #m_State is not
 	* ::STATE_UNINITIALIZED, it will thrown an error and
 	* H2Core::AudioEngine::unlock() it.
 	*/
@@ -131,7 +115,7 @@ public:
 	/**
 	 * Constructor of the AudioEngine.
 	 *
-	 * - Initializes the Mutex of the AudioEngine #__engine_mutex
+	 * - Initializes the Mutex of the AudioEngine #m_EngineMutex
 	 *   by calling _pthread_mutex_init()_ (pthread.h) on its
 	 *   address.
 	 * - Assigns a new instance of the Sampler to #m_pSampler and of
@@ -240,13 +224,13 @@ public:
 	void			destroy();
 
 	/**
-	 * If the audio engine is in state #m_audioEngineState #STATE_READY,
+	 * If the audio engine is in state #m_State #STATE_READY,
 	 * this function will
 	 * - sets #m_fMasterPeak_L and #m_fMasterPeak_R to 0.0f
 	 * - sets TransportInfo::m_nFrames to @a nTotalFrames
 	 * - sets m_nSongPos and m_nPatternStartTick to -1
 	 * - m_nPatternTickPosition to 0
-	 * - sets #m_audioEngineState to #STATE_PLAYING
+	 * - sets #m_State to #STATE_PLAYING
 	 * - pushes the #EVENT_STATE #STATE_PLAYING using EventQueue::push_event()
 	 *
 	 * \param bLockEngine Whether or not to lock the audio engine before
@@ -259,10 +243,10 @@ public:
 	int				start( bool bLockEngine = false, unsigned nTotalFrames = 0 );
 	
 	/**
-	 * If the audio engine is in state #m_audioEngineState #STATE_PLAYING,
+	 * If the audio engine is in state #m_State #STATE_PLAYING,
 	 * this function will
 	 * - sets #m_fMasterPeak_L and #m_fMasterPeak_R to 0.0f
-	 * - sets #m_audioEngineState to #STATE_READY
+	 * - sets #m_State to #STATE_READY
 	 * - sets #m_nPatternStartTick to -1
 	 * - deletes all copied Note in song notes queue #m_songNoteQueue and
 	 *   MIDI notes queue #m_midiNoteQueue
@@ -337,7 +321,7 @@ public:
 	 * this function is called during the next cycle, the transport is
 	 * already in the correct position.
 	 *
-	 * If the H2Core::m_audioEngineState is neither in #STATE_READY nor
+	 * If the H2Core::m_State is neither in #STATE_READY nor
 	 * #STATE_PLAYING or the locking of the AudioEngine failed, the
 	 * function will return 0 without performing any actions.
 	 *
@@ -358,25 +342,12 @@ public:
 	/**
 	 * Updating the TransportInfo of the audio driver.
 	 *
-	 * Firstly, it calls AudioOutput::updateTransportInfo() and then
-	 * updates the state of the audio engine #m_audioEngineState depending
-	 * on the status of the audio driver.  E.g. if the JACK transport was
-	 * started by another client, the audio engine has to be started as
-	 * well. If TransportInfo::m_status is TransportInfo::ROLLING,
-	 * audioEngine_start() is called with
-	 * TransportInfo::m_nFrames as argument if the engine is in
-	 * #STATE_READY. If #m_audioEngineState is then still not in
-	 * #STATE_PLAYING, the function will return. Otherwise, the current
-	 * speed is getting updated by calling Hydrogen::setBPM using
-	 * TransportInfo::m_fBPM and #m_nRealtimeFrames is set to
-	 * TransportInfo::m_nFrames.
-	 *
 	 * If the status is TransportInfo::STOPPED but the engine is still
 	 * running, audioEngine_stop() will be called. In any case,
-	 * #m_nRealtimeFrames will be incremented by #nFrames to support
+	 * #m_nRealtimeFrames will be incremented by @a nFrames to support
 	 * realtime keyboard and MIDI event timing.
 	 *
-	 * If the H2Core::m_audioEngineState is neither in #STATE_READY nor
+	 * If the H2Core::m_State is neither in #STATE_READY nor
 	 * #STATE_PLAYING the function will immediately return.
 	 */
 	inline void			processTransport( unsigned nFrames );
@@ -529,7 +500,7 @@ public:
 	 * #EVENT_RECALCULATERUBBERBAND and -1 as arguments.
 	 *
 	 * Called in audioEngine_process() and audioEngine_setSong(). The
-	 * function will only perform actions if #m_audioEngineState is in
+	 * function will only perform actions if #m_State is in
 	 * either #STATE_READY or #STATE_PLAYING.
 	 */
 	void			processCheckBPMChanged(std::shared_ptr<Song>pSong);
@@ -544,7 +515,7 @@ public:
 	
 	/** Clear all audio buffers.
 	 *
-	 * It locks the audio output buffer using #mutex_OutputPointer, gets
+	 * It locks the audio output buffer using #m_MutexOutputPointer, gets
 	 * pointers to the output buffers using AudioOutput::getOut_L() and
 	 * AudioOutput::getOut_R() of the current instance of the audio driver
 	 * #m_pAudioDriver, and overwrites their memory with
@@ -604,7 +575,7 @@ public:
 	 * driver and calls their open() and setActive( true ) functions.
 	 *
 	 * If a Song is already present, the state of the AudioEngine
-	 * #m_audioEngineState will be set to #STATE_READY, the bpm of the
+	 * #m_State will be set to #STATE_READY, the bpm of the
 	 * #m_pAudioDriver will be set to the tempo of the Song Song::__bpm
 	 * using AudioOutput::setBpm(), and #STATE_READY is pushed on the
 	 * EventQueue. If no Song is present, the state will be
@@ -612,7 +583,7 @@ public:
 	 *
 	 * All the actions mentioned so far will be performed after locking
 	 * both the AudioEngine using AudioEngine::lock() and the mutex of the
-	 * audio output buffer #mutex_OutputPointer. When they are completed
+	 * audio output buffer #m_MutexOutputPointer. When they are completed
 	 * both mutex are unlocked and the audio driver is connected via
 	 * AudioOutput::connect(). If this is not successful, the audio driver
 	 * will be overwritten with the NullDriver and this one is connected
@@ -621,7 +592,7 @@ public:
 	 * Finally, audioEngine_renameJackPorts() (if #H2CORE_HAVE_JACK is set)
 	 * and audioEngine_setupLadspaFX() are called.
 	 *
-	 * The state of the AudioEngine #m_audioEngineState must not be in
+	 * The state of the AudioEngine #m_State must not be in
 	 * #STATE_INITIALIZED or the function will just unlock both mutex and
 	 * returns.
 	 */
@@ -631,12 +602,12 @@ public:
 	 * Stops all audio and MIDI drivers.
 	 *
 	 * Uses audioEngine_stop() if the AudioEngine is still in state
-	 * #m_audioEngineState #STATE_PLAYING, sets its state to
+	 * #m_State #STATE_PLAYING, sets its state to
 	 * #STATE_INITIALIZED, locks the AudioEngine using
 	 * AudioEngine::lock(), deletes #m_pMidiDriver and #m_pAudioDriver and
 	 * reinitializes them to NULL. 
 	 *
-	 * If #m_audioEngineState is neither in #STATE_PREPARED or
+	 * If #m_State is neither in #STATE_PREPARED or
 	 * #STATE_READY, the function returns before deleting anything.
 	 */
 	void			stopAudioDrivers();
@@ -804,11 +775,11 @@ private:
 	 * (e.g. JACK server), calculateElapsedTime() will be used to
 	 * determine the time anew.
 	 *
-	 * If loop transport is enabled #Song::__is_loop_enabled, the
-	 * elapsed time will increase constantly. However, if relocation
-	 * did happen, only the time relative to the beginning of the Song
-	 * will be calculated irrespective of the number of loops played
-	 * so far. 
+	 * If loop transport is enabled #H2Core::Song::m_bIsLoopEnabled,
+	 * the elapsed time will increase constantly. However, if
+	 * relocation did happen, only the time relative to the beginning
+	 * of the Song will be calculated irrespective of the number of
+	 * loops played so far.
 	 *
 	 * Retrieved using getElapsedTime().
 	 */

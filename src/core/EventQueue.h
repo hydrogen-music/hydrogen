@@ -64,7 +64,7 @@ enum EventType {
 	EVENT_NOTEON,
 	EVENT_ERROR,
 	/** Event indicating the triggering of the
-	 * #m_pMetronomeInstrument.
+	 * #H2Core::AudioEngine::m_pMetronomeInstrument.
 	 *
 	 * In audioEngine_updateNoteQueue() the pushing of this Event is
 	 * decoupled from the creation and queuing of the corresponding

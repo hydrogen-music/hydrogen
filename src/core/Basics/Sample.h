@@ -376,7 +376,7 @@ inline const QString Sample::get_filename() const
 	return __filepath.section( "/", -1 );
 }
 
-inline void Sample::Sample::set_frames( int frames )
+inline void Sample::set_frames( int frames )
 {
 	__frames = frames;
 }

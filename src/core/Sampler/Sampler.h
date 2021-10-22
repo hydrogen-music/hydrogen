@@ -210,11 +210,10 @@ public:
 	/**
 	 * Loading of the playback track.
 	 *
-	 * The playback track is added to
-	 * #__playback_instrument as a new InstrumentLayer
-	 * containing the loaded Sample. If
-	 * Song::__playback_track_filename is empty, the
-	 * layer will be loaded with a nullptr instead.
+	 * The playback track is added to #m_pPlaybackTrackInstrument as a
+	 * new InstrumentLayer containing the loaded Sample. If
+	 * Song::__playback_track_filename is empty, the layer will be
+	 * loaded with a nullptr instead.
 	 */
 	void reinitializePlaybackTrack();
 	

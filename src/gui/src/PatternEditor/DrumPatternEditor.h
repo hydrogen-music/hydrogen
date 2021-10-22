@@ -98,6 +98,10 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		void functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument );
 		void functionDropInstrumentUndoAction( int nTargetInstrument, std::vector<int>* AddedComponents );
 		/**
+		 * \param sDrumkitName
+		 * \param sInstrumentName
+		 * \param nTargetInstrument
+		 * \param AddedComponents
 		 * \param lookup Where to search (system/user folder or both)
 		 * for the drumkit.
 		 */

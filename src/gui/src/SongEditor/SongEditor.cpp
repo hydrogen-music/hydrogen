@@ -267,10 +267,10 @@ void SongEditor::deleteSelection() {
 
 //! Copy a selection of cells to an XML representation in the clipboard
 //!
-//! * <patternSelection>
-//!    * <sourcePosition>
-//! * <cellList>
-//!    * <cell>
+//! * \<patternSelection\>
+//!    * \<sourcePosition\>
+//! * \<cellList\>
+//!    * \<cell\>
 //!    * ...
 void SongEditor::copy() {
 	XMLDoc doc;
