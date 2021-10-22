@@ -37,6 +37,7 @@ namespace H2Core
 ///
 /// Translations manager
 ///
+/** \ingroup docCore*/
 class Translations : public Object<Translations>
 {
 

@@ -31,6 +31,7 @@
 namespace H2Core
 {
 
+/** \ingroup docCore docAutomation */
 class AutomationPathSerializer : private Object<AutomationPathSerializer>
 {
 	H2_OBJECT(AutomationPathSerializer)

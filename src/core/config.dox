@@ -1,4 +1,7 @@
-/*! \file config.h.in
+/** \addtogroup docConfiguration
+ * @{
+ */
+ /*! \file config.h.in
  * Documentation for the macros defined in the config.h.in file (which
    is not properly read by Doxygen).
 */
@@ -150,5 +153,6 @@
     could be found in the rubberband library. */
 #define H2CORE_HAVE_RUBBERBAND
 
-
-
+/**
+*@}
+*/

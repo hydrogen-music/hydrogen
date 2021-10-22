@@ -36,6 +36,7 @@ class Song;
 /**
  * Files is in charge of writing and reading Patterns, Drumkits, Songs to the filesystem
  */
+/** \ingroup docCore*/
 class Files : public H2Core::Object<Files>
 {
 		H2_OBJECT(Files)

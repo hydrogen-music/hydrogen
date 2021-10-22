@@ -44,6 +44,7 @@
 /// By naming widgets appropriately and exposing their functionality as slots, it should be possible for the
 /// application to allow a lot of flexibility in how screenshots are set up in shot lists.
 ///
+/** \ingroup docGUI*/
 class ShotList : public QObject {
 
 	/// Find a widget which inherits the named class

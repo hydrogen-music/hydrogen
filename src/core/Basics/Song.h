@@ -52,6 +52,7 @@ class AutomationPath;
 \ingroup H2CORE
 \brief	Song class
 */
+/** \ingroup docCore docDataStructure */
 class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<Song>
 {
 		H2_OBJECT(Song)
@@ -554,6 +555,7 @@ inline float Song::getPanLawKNorm() const {
 \ingroup H2CORE
 \brief	Read XML file of a song
 */
+/** \ingroup docCore*/
 class SongReader : public H2Core::Object<SongReader>
 {
 		H2_OBJECT(SongReader)

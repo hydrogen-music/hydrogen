@@ -37,6 +37,7 @@ namespace H2Core
  */
 
 /** an envelope point within a frame */
+/** \ingroup docCore docAudioDriver */
 class EnvelopePoint : public H2Core::Object<EnvelopePoint>
 {
 		H2_OBJECT(EnvelopePoint)

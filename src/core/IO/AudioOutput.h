@@ -35,6 +35,7 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 ///
 /// Base abstract class for audio output classes.
 ///
+/** \ingroup docCore docAudioDriver */
 class AudioOutput : public H2Core::Object<AudioOutput>
 {
 	H2_OBJECT(AudioOutput)

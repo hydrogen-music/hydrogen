@@ -36,6 +36,7 @@
 namespace H2Core
 {
 
+/** \ingroup docCore docAudioDriver */
 class PortAudioDriver : public Object<PortAudioDriver>, public AudioOutput
 {
 	H2_OBJECT(PortAudioDriver)

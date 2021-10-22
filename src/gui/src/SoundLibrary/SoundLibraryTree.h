@@ -28,6 +28,7 @@
 
 #include <core/Object.h>
 
+/** \ingroup docGUI*/
 class SoundLibraryTree : public QTreeWidget, private H2Core::Object<SoundLibraryTree>
 {
     H2_OBJECT(SoundLibraryTree)

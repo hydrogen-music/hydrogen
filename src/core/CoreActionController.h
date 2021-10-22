@@ -29,6 +29,7 @@
 namespace H2Core
 {
 
+/** \ingroup docCore docAutomation */
 class CoreActionController : public H2Core::Object<CoreActionController> {
 	H2_OBJECT(CoreActionController)
 	

@@ -60,6 +60,7 @@ namespace H2Core
 ///
 /// OSS Audio Driver
 ///
+/** \ingroup docCore docAudioDriver */
 class OssDriver : public Object<OssDriver>, public AudioOutput
 {
 	H2_OBJECT(OssDriver)

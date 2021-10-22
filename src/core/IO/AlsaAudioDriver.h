@@ -33,6 +33,7 @@
 namespace H2Core
 {
 
+/** \ingroup docCore docAudioDriver */
 class AlsaAudioDriver : public Object<AlsaAudioDriver>, public AudioOutput
 {
 	H2_OBJECT(AlsaAudioDriver)
@@ -74,6 +75,7 @@ private:
 
 namespace H2Core {
 
+/** \ingroup docCore docAudioDriver */
 class AlsaAudioDriver : public NullDriver
 {
 	H2_OBJECT(AlsaAudioDriver)

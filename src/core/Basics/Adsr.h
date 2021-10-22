@@ -33,6 +33,7 @@ namespace H2Core
 /**
  * Attack Decay Sustain Release envelope.
  */
+/** \ingroup docCore docDataStructure */
 class ADSR : public Object<ADSR>
 {
 		H2_OBJECT(ADSR)

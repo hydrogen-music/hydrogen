@@ -98,6 +98,7 @@ namespace H2Core
  * be called by a thread to lock the engine and unlock() to make it
  * accessible for other threads once again.
  */ 
+/** \ingroup docCore docAudioEngine*/
 class AudioEngine : public H2Core::Object<AudioEngine>
 {
 	H2_OBJECT(AudioEngine)

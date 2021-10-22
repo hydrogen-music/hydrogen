@@ -37,6 +37,7 @@ namespace H2Core
 	 * m_tempoMarkers or m_tags. To alter one of them, one has to
 	 * delete it and add a new, altered version.
 	 */
+	/** \ingroup docCore*/
 	class Timeline : public H2Core::Object<Timeline>
 	{
 		H2_OBJECT(Timeline)

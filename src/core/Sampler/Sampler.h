@@ -47,6 +47,7 @@ class AudioOutput;
 ///
 /// Waveform based sampler.
 ///
+/** \ingroup docCore docAudioEngine*/
 class Sampler : public H2Core::Object<Sampler>
 {
 	H2_OBJECT(Sampler)

@@ -35,6 +35,7 @@ namespace H2Core
 	class InstrumentLayer;
 }
 
+/** \ingroup docGUI*/
 class PlaybackTrackWaveDisplay : public WaveDisplay
 {
     H2_OBJECT(PlaybackTrackWaveDisplay)

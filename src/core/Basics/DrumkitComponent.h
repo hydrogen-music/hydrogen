@@ -35,6 +35,7 @@ class ADSR;
 class Drumkit;
 class InstrumentLayer;
 
+/** \ingroup docCore docDataStructure */
 class DrumkitComponent : public H2Core::Object<DrumkitComponent>
 {
 		H2_OBJECT(DrumkitComponent)

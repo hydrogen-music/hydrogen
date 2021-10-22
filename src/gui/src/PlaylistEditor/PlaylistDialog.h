@@ -40,6 +40,7 @@ class PixmapWidget;
 ///
 /// This dialog is used to use the H2PlayList
 ///
+/** \ingroup docGUI*/
 class PlaylistDialog :  public QDialog, protected WidgetWithScalableFont<8, 10, 12>, public Ui_PlaylistDialog_UI,  public H2Core::Object<PlaylistDialog>
 
 {

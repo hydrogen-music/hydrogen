@@ -28,6 +28,7 @@
 
 #include <core/Object.h>
 
+/** \ingroup docGUI docWidgets*/
 class PixmapWidget :   public H2Core::Object<PixmapWidget>, public QWidget
 {
     H2_OBJECT(PixmapWidget)

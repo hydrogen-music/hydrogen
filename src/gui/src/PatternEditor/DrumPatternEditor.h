@@ -41,6 +41,7 @@ class PatternEditorInstrumentList;
 ///
 /// Drum pattern editor
 ///
+/** \ingroup docGUI*/
 class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>
 {
     H2_OBJECT(DrumPatternEditor)

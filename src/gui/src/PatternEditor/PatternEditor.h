@@ -52,6 +52,7 @@ class PatternEditorPanel;
 //! This covers common elements such as some selection handling,
 //! timebase functions, and drawing grid lines.
 //!
+/** \ingroup docGUI*/
 class PatternEditor : public QWidget,
 					  public EventListener,
 					  public H2Core::Object<PatternEditor>,

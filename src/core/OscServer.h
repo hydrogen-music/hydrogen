@@ -85,6 +85,7 @@ namespace H2Core
 * @author Sebastian Moors
 *
 */
+/** \ingroup docCore docDebugging*/
 class OscServer : public H2Core::Object<OscServer>
 {
 	H2_OBJECT(OscServer)

@@ -36,6 +36,7 @@ namespace H2Core
 ///
 /// Driver for export audio to disk
 ///
+/** \ingroup docCore docAudioDriver */
 class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 {
 	H2_OBJECT(DiskWriterDriver)

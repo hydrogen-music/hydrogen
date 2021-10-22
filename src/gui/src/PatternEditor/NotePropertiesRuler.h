@@ -43,6 +43,7 @@ namespace H2Core
 
 class PatternEditorPanel;
 
+/** \ingroup docGUI*/
 class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>
 {
     H2_OBJECT(NotePropertiesRuler)

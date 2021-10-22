@@ -41,6 +41,7 @@ class SoundLibraryInfo;
 
 typedef std::vector<SoundLibraryInfo*> soundLibraryInfoVector;
 
+/** \ingroup docGUI*/
 class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 {
 	H2_OBJECT(SoundLibraryDatabase)
@@ -83,6 +84,7 @@ class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 *
 */
 
+/** \ingroup docGUI*/
 class SoundLibraryInfo :    public H2Core::Object<SoundLibraryInfo>
 {
 	H2_OBJECT(SoundLibraryInfo)

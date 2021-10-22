@@ -159,6 +159,7 @@ enum EventType {
 /** Basic building block for the communication between the core of
  * Hydrogen and its GUI.  The individual Events will be enlisted in
  * the EventQueue singleton.*/
+/** \ingroup docCore docEvent */
 class Event
 {
 public:
@@ -183,6 +184,7 @@ public:
  * will be invoked to respond to the condition of the engine. For
  * details about the mapping of EventTypes to functions please see the
  * documentation of HydrogenApp::onEventQueueTimer().*/
+/** \ingroup docCore docEvent */
 class EventQueue : public H2Core::Object<EventQueue>
 {
 	H2_OBJECT(EventQueue)

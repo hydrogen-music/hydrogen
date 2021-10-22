@@ -31,6 +31,7 @@
 
 #include <vector>
 
+/** \ingroup docGUI docWidgets*/
 class LCDDigit :  public QWidget,  public H2Core::Object<LCDDigit>
 {
     H2_OBJECT(LCDDigit)
@@ -70,6 +71,7 @@ class LCDDigit :  public QWidget,  public H2Core::Object<LCDDigit>
 
 
 
+/** \ingroup docGUI docWidgets*/
 class LCDDisplay :  public QWidget,  public H2Core::Object<LCDDisplay>
 {
     H2_OBJECT(LCDDisplay)
@@ -97,6 +99,7 @@ class LCDDisplay :  public QWidget,  public H2Core::Object<LCDDisplay>
 };
 
 
+/** \ingroup docGUI docWidgets*/
 class LCDSpinBox :  public QWidget,  public H2Core::Object<LCDSpinBox>
 {
     H2_OBJECT(LCDSpinBox)

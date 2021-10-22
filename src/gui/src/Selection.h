@@ -40,6 +40,7 @@
 //! implemented by any widget which uses the Selection class.
 //!
 
+/** \ingroup docGUI*/
 template <class Elem>
 class SelectionWidget {
 public:
@@ -120,6 +121,7 @@ public:
 //!
 //! Scrolling is timer-driven to keep a predictable and uniform scroll rate, which increases the further out
 //! of bounds the user moves the cursor.
+/** \ingroup docGUI*/
 class DragScroller : public QObject {
 	Q_OBJECT
 	QTimer *m_pTimer;
@@ -183,6 +185,7 @@ public slots:
 //! Selections can be shared between multiple widgets providing different views of the same underlying model,
 //! so long as they share the same element type.
 
+/** \ingroup docGUI*/
 template<class Elem>
 class Selection {
 

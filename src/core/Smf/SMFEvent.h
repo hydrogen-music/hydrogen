@@ -29,6 +29,7 @@
 namespace H2Core
 {
 
+/** \ingroup docCore docMIDI */
 class SMFBuffer : public H2Core::Object<SMFBuffer>
 {
 	H2_OBJECT(SMFBuffer)
@@ -73,6 +74,7 @@ enum SMFMetaEventType {
 };
 
 
+/** \ingroup docCore docMIDI */
 class SMFBase
 {
 public:
@@ -82,6 +84,7 @@ public:
 
 
 
+/** \ingroup docCore docMIDI */
 class SMFEvent : public SMFBase, public H2Core::Object<SMFEvent>
 {
 	H2_OBJECT(SMFEvent)
@@ -95,6 +98,7 @@ public:
 
 
 
+/** \ingroup docCore docMIDI */
 class SMFTrackNameMetaEvent : public SMFEvent, public H2Core::Object<SMFTrackNameMetaEvent>
 {
 	H2_OBJECT(SMFTrackNameMetaEvent)
@@ -109,6 +113,7 @@ private:
 
 
 
+/** \ingroup docCore docMIDI */
 class SMFSetTempoMetaEvent : public SMFEvent, public H2Core::Object<SMFSetTempoMetaEvent>
 {
 	H2_OBJECT(SMFSetTempoMetaEvent)
@@ -123,6 +128,7 @@ private:
 
 
 
+/** \ingroup docCore docMIDI */
 class SMFCopyRightNoticeMetaEvent : public SMFEvent, public H2Core::Object<SMFCopyRightNoticeMetaEvent>
 {
 	H2_OBJECT(SMFCopyRightNoticeMetaEvent)
@@ -137,6 +143,7 @@ private:
 
 
 
+/** \ingroup docCore docMIDI */
 class SMFTimeSignatureMetaEvent : public SMFEvent, public H2Core::Object<SMFTimeSignatureMetaEvent>
 {
 	H2_OBJECT(SMFTimeSignatureMetaEvent)
@@ -151,6 +158,7 @@ private:
 
 
 
+/** \ingroup docCore docMIDI */
 class SMFNoteOnEvent : public SMFEvent, public H2Core::Object<SMFNoteOnEvent>
 {
 	H2_OBJECT(SMFNoteOnEvent)
@@ -167,6 +175,7 @@ protected:
 
 
 
+/** \ingroup docCore docMIDI */
 class SMFNoteOffEvent : public SMFEvent, public H2Core::Object<SMFNoteOffEvent>
 {
 	H2_OBJECT(SMFNoteOffEvent)

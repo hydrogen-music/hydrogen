@@ -34,6 +34,7 @@ class Fader;
 class LCDDisplay;
 class InstrumentNameWidget;
 
+/** \ingroup docGUI*/
 class LadspaFXProperties :  public QWidget,  public H2Core::Object<LadspaFXProperties> {
     H2_OBJECT(LadspaFXProperties)
 	Q_OBJECT

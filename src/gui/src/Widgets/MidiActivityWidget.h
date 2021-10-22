@@ -31,6 +31,7 @@
 #include "../EventListener.h"
 #include <core/Object.h>
 
+/** \ingroup docGUI docWidgets*/
 class MidiActivityWidget :  public QWidget, public EventListener,  public H2Core::Object<MidiActivityWidget>
 {
     H2_OBJECT(MidiActivityWidget)

@@ -53,7 +53,7 @@
 * @author Sebastian Moors
 *
 */
-
+/** \ingroup docCore docAutomation*/
 class NsmClient : public H2Core::Object<NsmClient>
 {
 	H2_OBJECT(NsmClient)
