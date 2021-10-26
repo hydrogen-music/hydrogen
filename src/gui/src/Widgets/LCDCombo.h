@@ -32,9 +32,10 @@
 class Button;
 class LCDDisplay;
 
-class LCDCombo : public QWidget, public H2Core::Object
+/** \ingroup docGUI docWidgets*/
+class LCDCombo :  public QWidget,  public H2Core::Object<LCDCombo>
 {
-		H2_OBJECT
+		H2_OBJECT(LCDCombo)
 		Q_OBJECT
 	public:
 		explicit LCDCombo( QWidget *pParent, int digits = 5, bool bAllowMenuOverflow = false );

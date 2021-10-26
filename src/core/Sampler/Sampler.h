@@ -47,9 +47,10 @@ class AudioOutput;
 ///
 /// Waveform based sampler.
 ///
-class Sampler : public H2Core::Object
+/** \ingroup docCore docAudioEngine*/
+class Sampler : public H2Core::Object<Sampler>
 {
-	H2_OBJECT
+	H2_OBJECT(Sampler)
 public:
 
    /** PAN LAWS
@@ -210,11 +211,10 @@ public:
 	/**
 	 * Loading of the playback track.
 	 *
-	 * The playback track is added to
-	 * #__playback_instrument as a new InstrumentLayer
-	 * containing the loaded Sample. If
-	 * Song::__playback_track_filename is empty, the
-	 * layer will be loaded with a nullptr instead.
+	 * The playback track is added to #m_pPlaybackTrackInstrument as a
+	 * new InstrumentLayer containing the loaded Sample. If
+	 * Song::__playback_track_filename is empty, the layer will be
+	 * loaded with a nullptr instead.
 	 */
 	void reinitializePlaybackTrack();
 	

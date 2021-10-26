@@ -52,9 +52,10 @@ class AutomationPath;
 \ingroup H2CORE
 \brief	Song class
 */
-class Song : public H2Core::Object, public std::enable_shared_from_this<Song>
+/** \ingroup docCore docDataStructure */
+class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<Song>
 {
-		H2_OBJECT
+		H2_OBJECT(Song)
 	public:
 		enum SongMode {
 			PATTERN_MODE,
@@ -165,7 +166,7 @@ class Song : public H2Core::Object, public std::enable_shared_from_this<Song>
 		void			setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin );
 		/** \return #m_sPlaybackTrackFilename */
 		const QString&		getPlaybackTrackFilename() const;
-		/** \param filename Sets #m_sPlaybackTrackFilename. */
+		/** \param sFilename Sets #m_sPlaybackTrackFilename. */
 		void			setPlaybackTrackFilename( const QString sFilename );
 							
 		/** \return #m_bPlaybackTrackEnabled */
@@ -174,14 +175,14 @@ class Song : public H2Core::Object, public std::enable_shared_from_this<Song>
 		 *
 		 * If #m_sPlaybackTrackFilename is set to nullptr,
 		 * #m_bPlaybackTrackEnabled will be set to false
-		 * regardless of the choice in @a enabled.
+		 * regardless of the choice in @a bEnabled.
 		 *
-		 * \param enabled Sets #m_bPlaybackTrackEnabled. */
+		 * \param bEnabled Sets #m_bPlaybackTrackEnabled. */
 		bool			setPlaybackTrackEnabled( const bool bEnabled );
 							
 		/** \return #m_fPlaybackTrackVolume */
 		float			getPlaybackTrackVolume() const;
-		/** \param volume Sets #m_fPlaybackTrackVolume. */
+		/** \param fVolume Sets #m_fPlaybackTrackVolume. */
 		void			setPlaybackTrackVolume( const float fVolume );
 
 		/** Defines the type of user interaction experienced in the 
@@ -554,9 +555,10 @@ inline float Song::getPanLawKNorm() const {
 \ingroup H2CORE
 \brief	Read XML file of a song
 */
-class SongReader : public H2Core::Object
+/** \ingroup docCore*/
+class SongReader : public H2Core::Object<SongReader>
 {
-		H2_OBJECT
+		H2_OBJECT(SongReader)
 	public:
 		SongReader();
 		~SongReader();

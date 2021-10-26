@@ -38,9 +38,10 @@ namespace H2Core
 	class Pattern;
 }
 
-class PatternEditorRuler : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public H2Core::Object, public EventListener
+/** \ingroup docGUI*/
+class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>,  public H2Core::Object<PatternEditorRuler>, public EventListener
 {
-    H2_OBJECT
+    H2_OBJECT(PatternEditorRuler)
 	Q_OBJECT
 
 	public:

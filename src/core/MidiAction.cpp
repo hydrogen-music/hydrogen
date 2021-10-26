@@ -67,9 +67,7 @@ using namespace H2Core;
 *
 */
 
-const char* Action::__class_name = "MidiAction";
-
-Action::Action( QString typeString ) : Object( __class_name ) {
+Action::Action( QString typeString ) {
 	m_sType = typeString;
 	m_sParameter1 = "0";
 	m_sParameter2 = "0";
@@ -89,9 +87,8 @@ Action::Action( QString typeString ) : Object( __class_name ) {
 *
 */
 MidiActionManager* MidiActionManager::__instance = nullptr;
-const char* MidiActionManager::__class_name = "ActionManager";
 
-MidiActionManager::MidiActionManager() : Object( __class_name ) {
+MidiActionManager::MidiActionManager() {
 	__instance = this;
 
 	m_nLastBpmChangeCCParameter = -1;

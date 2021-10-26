@@ -42,14 +42,11 @@
 */
 
 MidiMap * MidiMap::__instance = nullptr;
-const char* MidiMap::__class_name = "MidiMap";
 
 MidiMap::MidiMap()
-	: Object( __class_name )
 {
 	__instance = this;
 	QMutexLocker mx(&__mutex);
-
 	//constructor
 	for(int note = 0; note < 128; note++ ) {
 		__note_array[ note ] = new Action("NOTHING");

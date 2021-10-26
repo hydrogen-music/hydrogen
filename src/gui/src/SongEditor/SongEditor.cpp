@@ -64,8 +64,6 @@ using namespace H2Core;
 #include <windows.h>
 #endif
 
-const char* SongEditor::__class_name = "SongEditor";
-
 struct PatternDisplayInfo {
 	bool bActive;
 	bool bNext;
@@ -75,7 +73,6 @@ struct PatternDisplayInfo {
 
 SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPanel *pSongEditorPanel )
  : QWidget( parent )
- , Object( __class_name )
  , m_bSequenceChanged( true )
  , m_pScrollView( pScrollView )
  , m_pSongEditorPanel( pSongEditorPanel )
@@ -270,10 +267,10 @@ void SongEditor::deleteSelection() {
 
 //! Copy a selection of cells to an XML representation in the clipboard
 //!
-//! * <patternSelection>
-//!    * <sourcePosition>
-//! * <cellList>
-//!    * <cell>
+//! * \<patternSelection\>
+//!    * \<sourcePosition\>
+//! * \<cellList\>
+//!    * \<cell\>
 //!    * ...
 void SongEditor::copy() {
 	XMLDoc doc;
@@ -1157,11 +1154,8 @@ void SongEditor::onPreferencesChanged( bool bAppearanceOnly ) {
 // :::::::::::::::::::
 
 
-const char* SongEditorPatternList::__class_name = "SongEditorPatternList";
-
 SongEditorPatternList::SongEditorPatternList( QWidget *parent )
  : QWidget( parent )
- , Object( __class_name )
  , EventListener()
  , m_pBackgroundPixmap( nullptr )
 {
@@ -1241,7 +1235,7 @@ void SongEditorPatternList::patternChangedEvent()
 	// lines of code the GUI, instead, just sets the speed to 0 BPM.
 	auto pDriver = pHydrogen->getAudioOutput();
 	if ( pDriver != nullptr ) {
-		if ( DiskWriterDriver::class_name() == pDriver->class_name() ) {
+		if ( DiskWriterDriver::_class_name() == pDriver->class_name() ) {
 			return;
 		}
 	}
@@ -2106,12 +2100,11 @@ void SongEditorPatternList::onPreferencesChanged( bool bAppearanceOnly ) {
 
 // ::::::::::::::::::::::::::
 
-const char* SongEditorPositionRuler::__class_name = "SongEditorPositionRuler";
-
 SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
  : QWidget( parent )
- , Object( __class_name )
  , m_bRightBtnPressed( false )
+ , m_nPlayheadWidth( 11 )
+ , m_nPlayheadHeight( 8 )
 {
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
@@ -2126,6 +2119,13 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	m_nMaxPatternSequence = pPref->getMaxBars();
 
 	m_nInitialWidth = m_nMaxPatternSequence * 16;
+
+	// Offset position of the shaft of the arrow head indicating the
+	// playback position.
+	m_nXShaft = std::floor( static_cast<float>( m_nPlayheadWidth ) / 2 );
+	if ( m_nPlayheadWidth % 2 != 0 ) {
+		m_nXShaft++;
+	}
 
 	resize( m_nInitialWidth, m_nHeight );
 	setFixedHeight( m_nHeight );
@@ -2382,10 +2382,12 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, srcRect );
 
 	if (fPos != -1) {
-		uint x = (int)( m_nMargin + fPos * m_nGridWidth - 11 / 2 );
-		painter.drawPixmap( QRect( x, height() / 2, 11, 8), m_tickPositionPixmap, QRect(0, 0, 11, 8) );
+		uint x = (int)( m_nMargin + fPos * m_nGridWidth - m_nPlayheadWidth / 2 );
+		painter.drawPixmap( QRect( x, height() / 2, m_nPlayheadWidth, m_nPlayheadHeight ),
+							m_tickPositionPixmap,
+							QRect( 0, 0, m_nPlayheadWidth, m_nPlayheadHeight ) );
 		painter.setPen( QColor(35, 39, 51) );
-		painter.drawLine( x + 5 , 8, x +5 , 24 );
+		painter.drawLine( x + m_nXShaft, m_nPlayheadHeight, x + m_nXShaft, 24 );
 	}
 
 	if ( pIPos <= pOPos ) {

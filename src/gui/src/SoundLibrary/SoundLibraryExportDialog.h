@@ -35,9 +35,10 @@
 ///
 ///
 ///
-class SoundLibraryExportDialog : public QDialog, public Ui_SoundLibraryExportDialog_UI, public H2Core::Object
+/** \ingroup docGUI*/
+class SoundLibraryExportDialog :  public QDialog, public Ui_SoundLibraryExportDialog_UI,  public H2Core::Object<SoundLibraryExportDialog>
 {
-	H2_OBJECT
+	H2_OBJECT(SoundLibraryExportDialog)
 	Q_OBJECT
 	public:
 		SoundLibraryExportDialog( QWidget* pParent, const QString& sSelectedKit, H2Core::Filesystem::Lookup lookup );

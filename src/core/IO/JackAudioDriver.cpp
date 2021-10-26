@@ -60,9 +60,9 @@ namespace H2Core {
 
 int JackAudioDriver::jackDriverSampleRate( jack_nframes_t nframes, void* param ){
 	// Used for logging.
-	Object* __object = ( Object* )param;
+	Base * __object = ( Base * )param;
 	QString msg = QString("Jack SampleRate changed: the sample rate is now %1/sec").arg( QString::number( static_cast<int>(nframes) ) );
-	// The __INFOLOG macro uses the Object *__object and not the
+	// The __INFOLOG macro uses the Base *__object and not the
 	// Object instance as INFOLOG does. It will call
 	// __object->logger()->log( H2Core::Logger::Info, ..., msg )
 	// (see object.h).
@@ -86,14 +86,13 @@ void JackAudioDriver::jackDriverShutdown( void* arg )
 }
 
 
-const char* JackAudioDriver::__class_name = "JackAudioDriver";
 unsigned long JackAudioDriver::jackServerSampleRate = 0;
 jack_nframes_t JackAudioDriver::jackServerBufferSize = 0;
 JackAudioDriver* JackAudioDriver::pJackDriverInstance = nullptr;
 int JackAudioDriver::nWaits = 0;
 
 JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
-	: AudioOutput( __class_name ),
+	: AudioOutput(),
 	  m_frameOffset( 0 ),
 	  m_nTrackPortCount( 0 ),
 	  m_pClient( nullptr ),

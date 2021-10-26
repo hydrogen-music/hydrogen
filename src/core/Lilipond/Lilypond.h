@@ -36,6 +36,7 @@ class PatternList;
 class Song;
 
 /// A class to convert a Hydrogen song to LilyPond format
+/** \ingroup docCore*/
 class LilyPond {
 public:
 	LilyPond();

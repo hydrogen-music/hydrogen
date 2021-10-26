@@ -26,6 +26,7 @@
 #include <core/Object.h>
 #include <core/Preferences.h>
 
+/** \ingroup docGUI docWidgets*/
 template < int nSmall, int nNormal, int nLarge >
 class WidgetWithScalableFont {
 protected:

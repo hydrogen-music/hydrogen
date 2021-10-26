@@ -61,7 +61,9 @@
 #include <iostream>
 #include <map>
 #include <set>
-
+namespace H2Core {
+	void init_gui_object_map();
+};
 //
 // Set the palette used in the application
 //
@@ -241,7 +243,7 @@ int main(int argc, char *argv[])
 		QCommandLineOption systemDataPathOption( QStringList() << "P" << "data", "Use an alternate system data path", "Path" );
 		QCommandLineOption songFileOption( QStringList() << "s" << "song", "Load a song (*.h2song) at startup", "File" );
 		QCommandLineOption kitOption( QStringList() << "k" << "kit", "Load a drumkit at startup", "DrumkitName" );
-		QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH","Level");
+		QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug, Constructors or 0xHHHH", "Level" );
 		QCommandLineOption shotListOption( QStringList() << "t" << "shotlist", "Shot list of widgets to grab", "ShotList" );
 		QCommandLineOption uiLayoutOption( QStringList() << "layout", "UI layout ('tabbed' or 'single')", "Layout" );
 		
@@ -317,7 +319,7 @@ int main(int argc, char *argv[])
 		H2Core::Logger::create_instance();
 		H2Core::Logger::set_bit_mask( logLevelOpt );
 		H2Core::Logger* pLogger = H2Core::Logger::get_instance();
-		H2Core::Object::bootstrap( pLogger, pLogger->should_log(H2Core::Logger::Debug) );
+		H2Core::Base::bootstrap( pLogger, pLogger->should_log(H2Core::Logger::Debug) );
 		
 		if( sSysDataPath.length() == 0 ) {
 			H2Core::Filesystem::bootstrap( pLogger );
@@ -545,7 +547,11 @@ int main(int argc, char *argv[])
 		// variable does not guarantee for a session management and if
 		// no audio driver is initialized yet, we will do it here. 
 		if ( H2Core::Hydrogen::get_instance()->getAudioOutput() == nullptr ) {
+			// Starting drivers can take some time, so show the wait cursor to let the user know that, yes,
+			// we're definitely busy.
+			QApplication::setOverrideCursor( Qt::WaitCursor );
 			H2Core::Hydrogen::get_instance()->restartDrivers();
+			QApplication::restoreOverrideCursor();
 		}
 
 		MainForm *pMainForm = new MainForm( pQApp );
@@ -603,8 +609,8 @@ int main(int argc, char *argv[])
 		std::cout << "\nBye..." << std::endl;
 		delete H2Core::Logger::get_instance();
 
-		if (H2Core::Object::count_active()) {
-			H2Core::Object::write_objects_map_to_cerr();
+		if (H2Core::Base::count_active()) {
+			H2Core::Base::write_objects_map_to_cerr();
 		}
 
 	}

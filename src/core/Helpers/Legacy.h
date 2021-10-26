@@ -35,8 +35,9 @@ class InstrumentList;
 /**
  * Legacy is a container for legacy code which should be once removed
  */
-class Legacy : public H2Core::Object {
-		H2_OBJECT
+/** \ingroup docCore*/
+class Legacy : public H2Core::Object<Legacy> {
+		H2_OBJECT(Legacy)
 	public:
 		/**
 		 * load drumkit information from a file

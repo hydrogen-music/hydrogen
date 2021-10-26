@@ -39,9 +39,10 @@ class PatternList;
 /**
 Pattern class is a Note container
 */
-class Pattern : public H2Core::Object
+/** \ingroup docCore docDataStructure */
+class Pattern : public H2Core::Object<Pattern>
 {
-		H2_OBJECT
+		H2_OBJECT(Pattern)
 	public:
 		///< multimap note type
 		typedef std::multimap <int, Note*> notes_t;

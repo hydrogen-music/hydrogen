@@ -26,6 +26,7 @@
 #include <QtGui>
 #include <QtWidgets>
 
+/** \ingroup docGUI docWidgets*/
 class ClickableLabel : public QLabel
 {
 	Q_OBJECT

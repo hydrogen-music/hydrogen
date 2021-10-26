@@ -69,9 +69,10 @@ class SampleEditor;
 class Director;
 class InfoBar;
 
-class HydrogenApp : public QObject, public EventListener, public H2Core::Object
+/** \ingroup docGUI*/
+class HydrogenApp :  public QObject, public EventListener,  public H2Core::Object<HydrogenApp>
 {
-		H2_OBJECT
+		H2_OBJECT(HydrogenApp)
 	Q_OBJECT
 	public:
 		HydrogenApp( MainForm* pMainForm );

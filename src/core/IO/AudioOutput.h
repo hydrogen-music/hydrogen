@@ -34,12 +34,12 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 ///
 /// Base abstract class for audio output classes.
 ///
-class AudioOutput : public H2Core::Object
+/** \ingroup docCore docAudioDriver */
+class AudioOutput : public H2Core::Object<AudioOutput>
 {
+	H2_OBJECT(AudioOutput)
 public:
-	AudioOutput( const char* class_name )
-			: Object( class_name ) { }
-
+	AudioOutput() = default;
 	virtual ~AudioOutput() { }
 
 	virtual int init( unsigned nBufferSize ) = 0;
@@ -49,6 +49,8 @@ public:
 	virtual unsigned getSampleRate() = 0;
 	virtual float* getOut_L() = 0;
 	virtual float* getOut_R() = 0;
+
+	static QStringList getDevices() { return QStringList(); }
 };
 
 };

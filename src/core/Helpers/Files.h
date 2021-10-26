@@ -36,9 +36,10 @@ class Song;
 /**
  * Files is in charge of writing and reading Patterns, Drumkits, Songs to the filesystem
  */
-class Files : public H2Core::Object
+/** \ingroup docCore*/
+class Files : public H2Core::Object<Files>
 {
-		H2_OBJECT
+		H2_OBJECT(Files)
 	public:
 		enum SaveMode {
 			SAVE_NEW,				// construct regular path, do not overwrite

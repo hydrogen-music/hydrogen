@@ -38,12 +38,9 @@ using namespace H2Core;
 #include "../Skin.h"
 
 
-const char* PatternEditorRuler::__class_name = "PatternEditorRuler";
-
 PatternEditorRuler::PatternEditorRuler( QWidget* parent )
  : QWidget( parent )
- , Object( __class_name )
-{
+ {
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//infoLog( "INIT" );

@@ -25,18 +25,53 @@
 
 #include <vector>
 
-#include "ui_PreferencesDialog_UI.h"
 #include "Widgets/ColorSelectionButton.h"
-
-#include <core/Object.h>
 #include <core/Preferences.h>
+#include <core/Object.h>
+#include <QtWidgets>
+
+///
+/// Combo box showing a list of available devices for a given driver.
+/// List is calculated lazily when needed.
+///
+/** \ingroup docGUI docConfiguration*/
+class DeviceComboBox : public QComboBox {
+
+	bool m_bHasDevices;
+	QString m_sDriver;
+	QString m_sHostAPI;
+
+public:
+	DeviceComboBox( QWidget *pParent );
+
+	/// Set the driver name to use
+	void setDriver( QString sDriver ) { m_sDriver = sDriver; }
+	void setHostAPI( QString sHostAPI ) { m_sHostAPI = sHostAPI; }
+
+	virtual void showPopup();
+};
+
+///
+/// Combo box showing a list of HostAPIs.
+///
+/** \ingroup docGUI docConfiguration*/
+class HostAPIComboBox : public QComboBox {
+
+public:
+	HostAPIComboBox( QWidget *pParent );
+	void setValue( QString sHostAPI );
+	virtual void showPopup();
+};
+
+#include "ui_PreferencesDialog_UI.h"
 
 ///
 /// Preferences Dialog
 ///
-class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, public H2Core::Object
+/** \ingroup docGUI docConfiguration*/
+class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  public H2Core::Object<PreferencesDialog>
 {
-	H2_OBJECT
+	H2_OBJECT(PreferencesDialog)
 	Q_OBJECT
 	public:
 		explicit PreferencesDialog( QWidget* parent );
@@ -48,6 +83,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void on_cancelBtn_clicked();
 		void on_restartDriverBtn_clicked();
 		void on_driverComboBox_activated( int index );
+		void on_portaudioHostAPIComboBox_activated( int index );
 		void on_bufferSizeSpinBox_valueChanged( int i );
 		void on_resampleComboBox_currentIndexChanged ( int index );
 		void on_sampleRateComboBox_editTextChanged( const QString& text );
@@ -56,6 +92,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void on_styleComboBox_activated( int index );
 		void on_useLashCheckbox_clicked();
 		void onMidiDriverComboBoxIndexChanged( int index );
+		void on_m_pAudioDeviceTxt_currentTextChanged( QString );
 		void toggleTrackOutsCheckBox(bool toggled);
 		void toggleOscCheckBox(bool toggled);
 	void onRejected();
@@ -90,6 +127,7 @@ private:
 	std::vector<ColorSelectionButton*> m_colorSelectionButtons;
 
 };
+
 
 #endif
 

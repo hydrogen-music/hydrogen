@@ -28,9 +28,10 @@
 
 #include <core/Object.h>
 
-class PixmapWidget : public H2Core::Object, public QWidget
+/** \ingroup docGUI docWidgets*/
+class PixmapWidget :   public H2Core::Object<PixmapWidget>, public QWidget
 {
-    H2_OBJECT
+    H2_OBJECT(PixmapWidget)
 	public:
 		PixmapWidget( QWidget *pParent, const char* = "PixmapWidget" );
 		~PixmapWidget();

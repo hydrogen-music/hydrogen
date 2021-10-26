@@ -29,9 +29,10 @@
 #include <core/Object.h>
 #include <core/MidiAction.h>
 
-class MidiSenseWidget : public QDialog ,public H2Core::Object
+/** \ingroup docGUI docWidgets docMIDI*/
+class MidiSenseWidget :  public QDialog , public H2Core::Object<MidiSenseWidget>
 	{
-	H2_OBJECT
+	H2_OBJECT(MidiSenseWidget)
 	Q_OBJECT
 
 	public:

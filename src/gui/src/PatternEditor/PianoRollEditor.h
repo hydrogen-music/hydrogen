@@ -34,9 +34,10 @@
 #include <QtGui>
 #include <QtWidgets>
 
-class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>
+/** \ingroup docGUI*/
+class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>, public H2Core::Object<PianoRollEditor>
 {
-    H2_OBJECT
+    H2_OBJECT(PianoRollEditor)
     Q_OBJECT
 	public:
 		PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
@@ -126,8 +127,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		void onPreferencesChanged( bool bAppearanceOnly );
 
 	private:
-		H2Core::AudioEngine* m_pAudioEngine;
-
 		bool m_bNeedsUpdate;
 		bool m_bNeedsBackgroundUpdate;
 

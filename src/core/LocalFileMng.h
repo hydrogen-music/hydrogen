@@ -45,12 +45,10 @@ class Pattern;
 class Song;
 class Drumkit;
 
-/**
- *
- */
-class LocalFileMng : public H2Core::Object
+/** \ingroup docCore*/
+class LocalFileMng : public H2Core::Object<LocalFileMng>
 {
-	H2_OBJECT
+	H2_OBJECT(LocalFileMng)
 public:
 	LocalFileMng();
 	~LocalFileMng();
@@ -76,14 +74,10 @@ private:
 	static QString processNode( QDomNode node, const QString& nodeName, bool bCanBeEmpty, bool bShouldExists );
 };
 
-
-
-/**
- * Write XML file of a song
- */
-class SongWriter : public H2Core::Object
+/** \ingroup docCore*/
+class SongWriter : public H2Core::Object<SongWriter>
 {
-	H2_OBJECT
+	H2_OBJECT(SongWriter)
 public:
 	SongWriter();
 	~SongWriter();

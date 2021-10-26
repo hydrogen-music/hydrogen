@@ -74,14 +74,16 @@ namespace H2Core
  *
  * It serves as a container for the Sampler and Synth stored in the
  * #m_pSampler and #m_pSynth member objects and provides a mutex
- * #__engine_mutex enabling the user to synchronize the access of the
+ * #m_EngineMutex enabling the user to synchronize the access of the
  * Song object and the AudioEngine itself. lock() and try_lock() can
  * be called by a thread to lock the engine and unlock() to make it
  * accessible for other threads once again.
+ *
+ * \ingroup docCore docAudioEngine
  */ 
-class AudioEngine : public H2Core::TransportInfo
+class AudioEngine : public H2Core::TransportInfo, public H2Core::Object<AudioEngine>
 {
-	H2_OBJECT
+	H2_OBJECT(AudioEngine)
 public:
 
 	/** Audio Engine states  (It's ok to use ==, <, and > when testing)*/
@@ -211,7 +213,6 @@ public:
 	 * AudioEngine lock.
 	 */
 	void			assertLocked( );
-
 	void			noteOn( Note *note );
 	
 	/**
@@ -234,7 +235,6 @@ public:
 	 * - __0__ : else
 	 */
 	static int			audioEngine_process( uint32_t nframes, void *arg );
-
 	/**
 	 * Find a PatternList/column corresponding to the supplied tick
 	 * position @a nTick.
@@ -662,11 +662,11 @@ private:
 	 * (e.g. JACK server), calculateElapsedTime() will be used to
 	 * determine the time anew.
 	 *
-	 * If loop transport is enabled #Song::__is_loop_enabled, the
-	 * elapsed time will increase constantly. However, if relocation
-	 * did happen, only the time relative to the beginning of the Song
-	 * will be calculated irrespective of the number of loops played
-	 * so far. 
+	 * If loop transport is enabled #H2Core::Song::m_bIsLoopEnabled,
+	 * the elapsed time will increase constantly. However, if
+	 * relocation did happen, only the time relative to the beginning
+	 * of the Song will be calculated irrespective of the number of
+	 * loops played so far.
 	 *
 	 * Retrieved using getElapsedTime().
 	 */

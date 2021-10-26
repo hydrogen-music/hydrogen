@@ -40,11 +40,10 @@ using namespace H2Core;
 
 #include "Skin.h"
 
-const char* AudioEngineInfoForm::__class_name = "AudioEngineInfoForm";
 
 AudioEngineInfoForm::AudioEngineInfoForm(QWidget* parent)
  : QWidget( parent )
- , Object( __class_name )
+ , Object()
 {
 	setupUi( this );
 	adjustSize();

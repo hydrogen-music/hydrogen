@@ -36,10 +36,12 @@ class Note;
 /**
  * MIDI input base class
  */
-class MidiOutput : public virtual Object
+/** \ingroup docCore docMIDI */
+class MidiOutput : public virtual Object<MidiOutput>
 {
+	H2_OBJECT(MidiOutput)
 public:
-	MidiOutput( const char* class_name );
+	MidiOutput();
 	virtual ~MidiOutput();
 	
 	virtual std::vector<QString> getInputPortList() = 0;

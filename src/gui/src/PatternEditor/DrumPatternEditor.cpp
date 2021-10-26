@@ -51,10 +51,8 @@
 
 using namespace H2Core;
 
-const char* DrumPatternEditor::__class_name = "DrumPatternEditor";
-
 DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
- : PatternEditor( parent, __class_name, panel )
+ : PatternEditor( parent, panel )
 {
 	m_nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
 	m_nEditorHeight = m_nGridHeight * MAX_INSTRUMENTS;

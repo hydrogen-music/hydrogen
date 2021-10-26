@@ -39,9 +39,6 @@
 namespace H2Core
 {
 
-const char* Sample::__class_name = "Sample";
-const char* EnvelopePoint::__class_name = "EnvolopePoint";
-
 const std::vector<QString> Sample::__loop_modes = { "forward", "reverse", "pingpong" };
 
 #if defined(H2CORE_HAVE_RUBBERBAND) || _DOXYGEN_
@@ -51,24 +48,22 @@ static RubberBand::RubberBandStretcher::Options compute_rubberband_options( cons
 
 
 /* EnvelopePoint */
-EnvelopePoint::EnvelopePoint() : Object( EnvelopePoint::__class_name ), frame( 0 ), value( 0 ) 
+EnvelopePoint::EnvelopePoint() : frame( 0 ), value( 0 )
 {
 }
 
-EnvelopePoint::EnvelopePoint( int f, int v ) : Object( EnvelopePoint::__class_name ), frame( f ), value( v ) 
+EnvelopePoint::EnvelopePoint( int f, int v ) : frame( f ), value( v )
 {
 }
 
-EnvelopePoint::EnvelopePoint( const EnvelopePoint & other ) : Object( EnvelopePoint::__class_name )
+EnvelopePoint::EnvelopePoint( const EnvelopePoint& other ) : Object(other), frame ( other.frame ), value ( other.value )
 {
-	frame = other.frame;
-	value = other.value;
 }
 /* EnvelopePoint */
 
 
-Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* data_l, float* data_r ) : Object( Sample::__class_name ),
-	__filepath( filepath ),
+Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* data_l, float* data_r ) 
+  : __filepath( filepath ),
 	__frames( frames ),
 	__sample_rate( sample_rate ),
 	__data_l( data_l ),
@@ -78,7 +73,7 @@ Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* da
 	assert( filepath.lastIndexOf( "/" ) >0 );
 }
 
-Sample::Sample( std::shared_ptr<Sample> pOther ): Object( __class_name ),
+Sample::Sample( std::shared_ptr<Sample> pOther ): Object( *pOther ),
 	__filepath( pOther->get_filepath() ),
 	__frames( pOther->get_frames() ),
 	__sample_rate( pOther->get_sample_rate() ),
@@ -739,7 +734,7 @@ bool Sample::write( const QString& path, int format )
 }
 
 QString Sample::Loops::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Loops]\n" ).arg( sPrefix )
@@ -761,7 +756,7 @@ QString Sample::Loops::toQString( const QString& sPrefix, bool bShort ) const {
 }
 
 QString Sample::Rubberband::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Rubberband]\n" ).arg( sPrefix )
@@ -780,7 +775,7 @@ QString Sample::Rubberband::toQString( const QString& sPrefix, bool bShort ) con
 }
 
 QString Sample::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Sample]\n" ).arg( sPrefix )

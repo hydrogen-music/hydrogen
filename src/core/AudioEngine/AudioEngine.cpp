@@ -97,10 +97,8 @@ inline timeval currentTime2()
 	return now;
 }
 
-const char* AudioEngine::__class_name = "AudioEngine";
-
 AudioEngine::AudioEngine()
-		: TransportInfo( __class_name )
+		: TransportInfo()
 		, m_pSampler( nullptr )
 		, m_pSynth( nullptr )
 		, m_fElapsedTime( 0 )
@@ -463,13 +461,13 @@ AudioOutput* AudioEngine::createDriver( const QString& sDriver )
 
 	if ( sDriver == "OSS" ) {
 		pDriver = new OssDriver( m_AudioProcessCallback );
-		if ( pDriver->class_name() == NullDriver::class_name() ) {
+		if ( pDriver->class_name() == NullDriver::_class_name() ) {
 			delete pDriver;
 			pDriver = nullptr;
 		}
 	} else if ( sDriver == "JACK" ) {
 		pDriver = new JackAudioDriver( m_AudioProcessCallback );
-		if ( pDriver->class_name() == NullDriver::class_name() ) {
+		if ( pDriver->class_name() == NullDriver::_class_name() ) {
 			delete pDriver;
 			pDriver = nullptr;
 		} else {
@@ -481,13 +479,13 @@ AudioOutput* AudioEngine::createDriver( const QString& sDriver )
 		}
 	} else if ( sDriver == "ALSA" ) {
 		pDriver = new AlsaAudioDriver( m_AudioProcessCallback );
-		if ( pDriver->class_name() == NullDriver::class_name() ) {
+		if ( pDriver->class_name() == NullDriver::_class_name() ) {
 			delete pDriver;
 			pDriver = nullptr;
 		}
 	} else if ( sDriver == "PortAudio" ) {
 		pDriver = new PortAudioDriver( m_AudioProcessCallback );
-		if ( pDriver->class_name() == NullDriver::class_name() ) {
+		if ( pDriver->class_name() == NullDriver::_class_name() ) {
 			delete pDriver;
 			pDriver = nullptr;
 		}
@@ -496,7 +494,7 @@ AudioOutput* AudioEngine::createDriver( const QString& sDriver )
 	else if ( sDriver == "CoreAudio" ) {
 		___INFOLOG( "Creating CoreAudioDriver" );
 		pDriver = new CoreAudioDriver( m_AudioProcessCallback );
-		if ( pDriver->class_name() == NullDriver::class_name() ) {
+		if ( pDriver->class_name() == NullDriver::_class_name() ) {
 			delete pDriver;
 			pDriver = nullptr;
 		}
@@ -504,7 +502,7 @@ AudioOutput* AudioEngine::createDriver( const QString& sDriver )
 	//#endif
 	else if ( sDriver == "PulseAudio" ) {
 		pDriver = new PulseAudioDriver( m_AudioProcessCallback );
-		if ( pDriver->class_name() == NullDriver::class_name() ) {
+		if ( pDriver->class_name() == NullDriver::_class_name() ) {
 			delete pDriver;
 			pDriver = nullptr;
 		}
@@ -1054,7 +1052,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 							  RIGHT_HERE ) ) {
 		___ERRORLOG( QString( "Failed to lock audioEngine in allowed %1 ms, missed buffer" ).arg( fSlackTime ) );
 
-		if ( pAudioEngine->m_pAudioDriver->class_name() == DiskWriterDriver::class_name() ) {
+		if ( pAudioEngine->m_pAudioDriver->class_name() == DiskWriterDriver::_class_name() ) {
 			return 2;	// inform the caller that we could not aquire the lock
 		}
 
@@ -1093,8 +1091,8 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		pAudioEngine->stop();
 		pAudioEngine->locate( 0 ); // locate 0, reposition from start of the song
 
-		if ( (pAudioEngine->m_pAudioDriver->class_name() == DiskWriterDriver::class_name() )
-			 || ( pAudioEngine->m_pAudioDriver->class_name() == FakeDriver::class_name() )
+		if ( (pAudioEngine->m_pAudioDriver->class_name() == DiskWriterDriver::_class_name() )
+			 || ( pAudioEngine->m_pAudioDriver->class_name() == FakeDriver::_class_name() )
 			 ) {
 			___INFOLOG( "End of song." );
 			

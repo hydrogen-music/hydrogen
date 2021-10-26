@@ -33,9 +33,10 @@
 namespace H2Core
 {
 
-class AutomationPath : public Object
+/** \ingroup docCore docDataStructure docAutomation*/
+class AutomationPath : public Object<AutomationPath>
 {
-	H2_OBJECT
+	H2_OBJECT(AutomationPath)
 
 	public:
 	typedef std::map<float,float>::iterator iterator;

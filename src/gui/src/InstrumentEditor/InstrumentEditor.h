@@ -49,9 +49,10 @@ class LayerPreview;
 ///
 /// Instrument Editor
 ///
-class InstrumentEditor : public QWidget, protected WidgetWithScalableFont<10, 12, 14>, public H2Core::Object, public EventListener
+/** \ingroup docGUI*/
+class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 12, 14>,  public H2Core::Object<InstrumentEditor>, public EventListener
 {
-	H2_OBJECT
+	H2_OBJECT(InstrumentEditor)
 	Q_OBJECT
 
 	public:

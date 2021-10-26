@@ -64,7 +64,7 @@ enum EventType {
 	EVENT_NOTEON,
 	EVENT_ERROR,
 	/** Event indicating the triggering of the
-	 * #m_pMetronomeInstrument.
+	 * #H2Core::AudioEngine::m_pMetronomeInstrument.
 	 *
 	 * In audioEngine_updateNoteQueue() the pushing of this Event is
 	 * decoupled from the creation and queuing of the corresponding
@@ -157,6 +157,7 @@ enum EventType {
 /** Basic building block for the communication between the core of
  * Hydrogen and its GUI.  The individual Events will be enlisted in
  * the EventQueue singleton.*/
+/** \ingroup docCore docEvent */
 class Event
 {
 public:
@@ -181,9 +182,10 @@ public:
  * will be invoked to respond to the condition of the engine. For
  * details about the mapping of EventTypes to functions please see the
  * documentation of HydrogenApp::onEventQueueTimer().*/
-class EventQueue : public H2Core::Object
+/** \ingroup docCore docEvent */
+class EventQueue : public H2Core::Object<EventQueue>
 {
-	H2_OBJECT
+	H2_OBJECT(EventQueue)
 public:/**
 	* If #__instance equals 0, a new EventQueue singleton will be
 	 * created and stored in it.

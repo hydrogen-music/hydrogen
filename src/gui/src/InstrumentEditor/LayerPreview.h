@@ -37,9 +37,10 @@ namespace H2Core
 class InstrumentLayer;
 }
 
-class LayerPreview : public QWidget, protected WidgetWithScalableFont<5, 6, 7>, public H2Core::Object, public EventListener
+/** \ingroup docGUI*/
+class LayerPreview :  public QWidget, protected WidgetWithScalableFont<5, 6, 7>,  public H2Core::Object<LayerPreview>, public EventListener
 {
-    H2_OBJECT
+    H2_OBJECT(LayerPreview)
 	Q_OBJECT
 
 	public:

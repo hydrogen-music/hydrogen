@@ -41,9 +41,10 @@ class PixmapWidget;
 /**
  * Generic Button with pixmaps and text.
  */
-class Button : public QWidget, protected WidgetWithScalableFont<6, 8, 10>, public H2Core::Object, public MidiLearnable
+/** \ingroup docGUI docWidgets*/
+class Button :  public QWidget, protected WidgetWithScalableFont<6, 8, 10>,  public H2Core::Object<Button>, public MidiLearnable
 {
-    H2_OBJECT
+    H2_OBJECT(Button)
 	Q_OBJECT
 
 	public:
@@ -113,6 +114,7 @@ public slots:
 /**
  * A ToggleButton (On/Off).
  */
+/** \ingroup docGUI docWidgets*/
 class ToggleButton : public Button
 {
 	Q_OBJECT

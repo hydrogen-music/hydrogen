@@ -38,9 +38,10 @@
 namespace H2Core
 {
 
-class CoreMidiDriver : public virtual MidiInput, public virtual MidiOutput
+/** \ingroup docCore docMIDI */
+class CoreMidiDriver : public Object<CoreMidiDriver>, public virtual MidiInput, public virtual MidiOutput
 {
-	H2_OBJECT
+	H2_OBJECT(CoreMidiDriver)
 public:
 	CoreMidiDriver();
 	~CoreMidiDriver();

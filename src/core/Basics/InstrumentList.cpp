@@ -30,13 +30,11 @@
 namespace H2Core
 {
 
-const char* InstrumentList::__class_name = "InstrumentList";
-
-InstrumentList::InstrumentList() : Object( __class_name )
+InstrumentList::InstrumentList()
 {
 }
 
-InstrumentList::InstrumentList( InstrumentList* other ) : Object( __class_name )
+InstrumentList::InstrumentList( InstrumentList* other ) : Object( *other )
 {
 	assert( other );
 	assert( __instruments.size() == 0 );
@@ -255,7 +253,7 @@ void InstrumentList::set_default_midi_out_notes()
 }
 
 QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[InstrumentList]\n" ).arg( sPrefix );

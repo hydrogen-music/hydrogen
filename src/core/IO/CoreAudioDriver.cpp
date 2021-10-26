@@ -59,13 +59,136 @@ static OSStatus renderProc(
 namespace H2Core
 {
 
-const char* CoreAudioDriver::__class_name = "CoreAudioDriver";
-
-
-void CoreAudioDriver::retrieveDefaultDevice(void)
+QString CoreAudioDriver::deviceName( AudioDeviceID deviceID )
 {
+	OSStatus err;
+	CFStringRef deviceNameRef;
+	UInt32 size = sizeof( deviceNameRef );
+	AudioObjectPropertyAddress propertyAddress = {
+		kAudioDevicePropertyDeviceNameCFString,
+		kAudioDevicePropertyScopeOutput,
+		0
+	};
+	err = AudioObjectGetPropertyData( deviceID, &propertyAddress, 0, NULL, &size, &deviceNameRef );
+	if ( err != noErr ) {
+		ERRORLOG( QString( "Coudn't get name for device %1" ).arg( deviceID ) );
+		return QString();
+	}
+	UInt32 nBufferSize = CFStringGetMaximumSizeForEncoding( CFStringGetLength( deviceNameRef ), kCFStringEncodingUTF8 );
+	char buffer[ nBufferSize + 1 ];
+	CFStringGetCString( deviceNameRef, buffer, nBufferSize + 1, kCFStringEncodingUTF8 );
+	CFRelease( deviceNameRef );
+
+	return QString( buffer );
+
+}
+
+std::vector< AudioDeviceID > CoreAudioDriver::outputDeviceIDs()
+{
+	std::vector< AudioDeviceID > outputDeviceIDs;
+	QStringList res;
+	UInt32 dataSize;
+	OSStatus err;
+
+	// Read the 'Devices' system property
+
+	AudioObjectPropertyAddress propertyAddress = {
+		kAudioHardwarePropertyDevices,
+		kAudioObjectPropertyScopeGlobal,
+		kAudioObjectPropertyElementMaster
+	};
+
+	err = AudioObjectGetPropertyDataSize( kAudioObjectSystemObject,
+										  &propertyAddress, 0, NULL, &dataSize );
+	if ( err != noErr ) {
+		ERRORLOG( "Couldn't get size for devices list" );
+		return outputDeviceIDs;
+	}
+
+	int nDevices = dataSize / sizeof( AudioDeviceID );
+	AudioDeviceID deviceIDs[ nDevices ];
+
+	err = AudioObjectGetPropertyData( kAudioObjectSystemObject,
+									  &propertyAddress, 0, NULL, &dataSize, deviceIDs );
+	if ( err != noErr ) {
+		ERRORLOG( "Couldn't read device IDs" );
+		return outputDeviceIDs;
+	}
+
+	// Find suitable output devices
+
+	for ( int i = 0; i < nDevices; i++ ) {
+		UInt32 nBufferListSize = 0;
+		AudioObjectPropertyAddress propertyAddress = {
+			kAudioDevicePropertyStreamConfiguration,
+			kAudioDevicePropertyScopeOutput,
+			0
+		};
+		err = AudioObjectGetPropertyDataSize( deviceIDs[ i ], &propertyAddress, 0, NULL, &nBufferListSize );
+		if ( err != noErr ) {
+			ERRORLOG( "Couldn't get device config size" );
+			continue;
+		}
+		AudioBufferList *pBufferList = (AudioBufferList *) alloca( nBufferListSize );
+		err = AudioObjectGetPropertyData( deviceIDs[ i ], &propertyAddress, 0, NULL, &nBufferListSize, pBufferList );
+
+		int nChannels = 0;
+		for ( int nBuffer = 0; nBuffer < pBufferList->mNumberBuffers; nBuffer++ ) {
+			nChannels += pBufferList->mBuffers[i].mNumberChannels;
+		}
+		if ( nChannels < 2 ) {
+			// Skip input devices and any mono outputs
+			if ( nChannels == 1 ) {
+				INFOLOG( QString( "Skipping mono output device %1" ).arg( deviceIDs[ i ] ) );
+			}
+			continue;
+		}
+
+		outputDeviceIDs.push_back( deviceIDs[ i ] );
+	}
+
+	return outputDeviceIDs;
+}
+
+
+QStringList CoreAudioDriver::getDevices()
+{
+	QStringList res;
+	res.push_back( "default" );
+	for ( AudioDeviceID device : outputDeviceIDs() ) {
+		res.push_back( deviceName( device ) );
+	}
+	return res;
+}
+
+AudioDeviceID CoreAudioDriver::preferredOutputDevice()
+{
+	QString sPreferredDeviceName = Preferences::get_instance()->m_sCoreAudioDevice;
+
+	if ( sPreferredDeviceName.isNull()
+		 || QString::compare( sPreferredDeviceName, "default", Qt::CaseInsensitive ) == 0 ) {
+		INFOLOG( "Using default device" );
+		return defaultOutputDevice();
+	}
+	for ( AudioDeviceID device : outputDeviceIDs() ) {
+		QString sDeviceName = deviceName( device );
+		if ( QString::compare( sDeviceName, sPreferredDeviceName, Qt::CaseInsensitive ) == 0 ) {
+			// Found it.
+			INFOLOG( QString( "Found device '%1' (%2) for preference '%3'" )
+					 .arg( sDeviceName ).arg( (int)device ).arg( sPreferredDeviceName ) );
+			return device;
+		}
+	}
+	ERRORLOG( QString( "Couldn't find device '%1', falling back to default" ).arg( sPreferredDeviceName ) );
+	return defaultOutputDevice();
+}
+
+AudioDeviceID CoreAudioDriver::defaultOutputDevice(void)
+{
+	getDevices();
 	UInt32 dataSize = 0;
 	OSStatus err = 0;
+	AudioDeviceID device;
 
 	AudioObjectPropertyAddress propertyAddress = {
 		kAudioHardwarePropertyDefaultOutputDevice,
@@ -79,11 +202,12 @@ void CoreAudioDriver::retrieveDefaultDevice(void)
 											0,
 											NULL,
 											&dataSize,
-											&m_outputDevice);
+											&device);
 
 	if ( err != noErr ) {
 		ERRORLOG( "Could not get Default Output Device" );
 	}
+	return device;
 }
 
 void CoreAudioDriver::retrieveBufferSize(void)
@@ -147,7 +271,8 @@ void CoreAudioDriver::printStreamInfo(void)
 
 
 CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
-		: H2Core::AudioOutput( __class_name )
+		: H2Core::AudioOutput()
+		, H2Core::Object<CoreAudioDriver>()
 		, m_bIsRunning( false )
 		, mProcessCallback( processCallback )
 		, m_pOut_L( NULL )
@@ -156,7 +281,7 @@ CoreAudioDriver::CoreAudioDriver( audioProcessCallback processCallback )
 	m_nSampleRate = Preferences::get_instance()->m_nSampleRate;
 
 	//Get the default playback device and store it in m_outputDevice
-	retrieveDefaultDevice();
+	m_outputDevice = preferredOutputDevice();
 
 	//Get the buffer size of the previously detected device and store it in m_nBufferSize
 	retrieveBufferSize();
@@ -200,7 +325,7 @@ int CoreAudioDriver::init( unsigned bufferSize )
 	}
 
 	// Get Current Output Device
-	retrieveDefaultDevice();
+	m_outputDevice = preferredOutputDevice();
 
 	// Set AUHAL to Current Device
 	err = AudioUnitSetProperty(

@@ -26,9 +26,8 @@
 
 namespace H2Core
 {
-	const char* Timeline::__class_name = "Timeline";
 
-	Timeline::Timeline() : Object( __class_name )
+	Timeline::Timeline() : Object( )
 	{
 	}
 
@@ -149,7 +148,7 @@ namespace H2Core
 	}
 
 QString Timeline::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Timeline]\n" ).arg( sPrefix )

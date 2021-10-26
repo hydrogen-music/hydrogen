@@ -32,18 +32,19 @@
 ///
 /// Commands are word-oriented
 ///
-///  - grab <WidgetName|WidgetClass>   -- grab widget named "WidgetName" or of any class inheriting from "WidgetClass"
-///     + [ size <w> <h> ]             -- size of area to grab. 0 or (-)ve mean widget's entire width or height
-///     + [ ofset <x> <y> ]            -- offset from the widget's origin for beginning of grab
-///     + [ as <filename> ]            -- filename to save as, including file type extension
-///  - slot <widget> <slot> [<arg>...] -- invoke a slot method on widget.
-///  - dump                            -- dump object tree(s)
-///  - # <text>                        -- commentary (note that the space is needed!)
-///  - fin                             -- quit Hydrogen
+///  - grab \<WidgetName|WidgetClass\>       -- grab widget named "WidgetName" or of any class inheriting from "WidgetClass"
+///     + [ size \<w\> \<h\> ]               -- size of area to grab. 0 or (-)ve mean widget's entire width or height
+///     + [ ofset \<x\> \<y\> ]              -- offset from the widget's origin for beginning of grab
+///     + [ as \<filename\> ]                -- filename to save as, including file type extension
+///  - slot \<widget\> \<slot\> [\<arg\>...] -- invoke a slot method on widget.
+///  - dump                                  -- dump object tree(s)
+///  - # \<text\>                            -- commentary (note that the space is needed!)
+///  - fin                                   -- quit Hydrogen
 ///
 /// By naming widgets appropriately and exposing their functionality as slots, it should be possible for the
 /// application to allow a lot of flexibility in how screenshots are set up in shot lists.
 ///
+/** \ingroup docGUI*/
 class ShotList : public QObject {
 
 	/// Find a widget which inherits the named class

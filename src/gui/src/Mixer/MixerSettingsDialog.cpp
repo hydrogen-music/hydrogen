@@ -45,12 +45,9 @@
 
 using namespace H2Core;
 
-const char* MixerSettingsDialog::__class_name = "MixerSettingsDialog";
-
 MixerSettingsDialog::MixerSettingsDialog(QWidget* parent)
  : QDialog( parent )
- , Object( __class_name )
-{
+ {
 	setupUi( this );
 
 	setWindowTitle( tr( "Mixer Settings" ) );

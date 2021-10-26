@@ -41,9 +41,10 @@ class PatternEditorInstrumentList;
 ///
 /// Drum pattern editor
 ///
+/** \ingroup docGUI*/
 class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>
 {
-    H2_OBJECT
+    H2_OBJECT(DrumPatternEditor)
 	Q_OBJECT
 
 	public:
@@ -98,6 +99,10 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		void functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument );
 		void functionDropInstrumentUndoAction( int nTargetInstrument, std::vector<int>* AddedComponents );
 		/**
+		 * \param sDrumkitName
+		 * \param sInstrumentName
+		 * \param nTargetInstrument
+		 * \param AddedComponents
 		 * \param lookup Where to search (system/user folder or both)
 		 * for the drumkit.
 		 */

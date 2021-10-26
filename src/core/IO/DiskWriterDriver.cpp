@@ -54,7 +54,7 @@ pthread_t diskWriterDriverThread;
 
 void* diskWriterDriver_thread( void* param )
 {
-	Object* __object = ( Object* )param;	
+	Base * __object = ( Base * )param;
 	DiskWriterDriver *pDriver = ( DiskWriterDriver* )param;
 
 	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 0 );
@@ -280,10 +280,8 @@ void* diskWriterDriver_thread( void* param )
 
 
 
-const char* DiskWriterDriver::__class_name = "DiskWriterDriver";
-
 DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, int nSampleDepth )
-		: AudioOutput( __class_name )
+		: AudioOutput()
 		, m_nSampleRate( nSamplerate )
 		, m_nSampleDepth ( nSampleDepth )
 		, m_processCallback( processCallback )

@@ -29,8 +29,9 @@
 namespace H2Core
 {
 
-class CoreActionController : public H2Core::Object {
-	H2_OBJECT
+/** \ingroup docCore docAutomation */
+class CoreActionController : public H2Core::Object<CoreActionController> {
+	H2_OBJECT(CoreActionController)
 	
 	public:
 		CoreActionController();
@@ -40,21 +41,21 @@ class CoreActionController : public H2Core::Object {
 		/**
 		 * \param nStrip Instrument which to set the volume for.
 		 * \param fVolumeValue New volume.
-		 * \param bSelectedStrip Whether the corresponding instrument
+		 * \param bSelectStrip Whether the corresponding instrument
 		 * should be selected.
 		 */
 		void setStripVolume( int nStrip, float fVolumeValue, bool bSelectStrip );
 		/**
 		 * \param nStrip Instrument which to set the pan for.
-		 * \param fPanValue New pan.
-		 * \param bSelectedStrip Whether the corresponding instrument
+		 * \param fValue New pan.
+		 * \param bSelectStrip Whether the corresponding instrument
 		 * should be selected.
 		 */
 		void setStripPan( int nStrip, float fValue, bool bSelectStrip );
 		/**
 		 * \param nStrip Instrument which to set the pan for.
-		 * \param fPanValue New pan. range in [-1;1] => symmetric respect to 0
-		 * \param bSelectedStrip Whether the corresponding instrument
+		 * \param fValue New pan. range in [-1;1] => symmetric respect to 0
+		 * \param bSelectStrip Whether the corresponding instrument
 		 * should be selected.
 		 */
 		void setStripPanSym( int nStrip, float fValue, bool bSelectStrip );
@@ -74,10 +75,10 @@ class CoreActionController : public H2Core::Object {
 		// Actions required for session management.
 		
 		/**
-		 * Create an empty #Song, which will be stored in @a songPath.
+		 * Create an empty #H2Core::Song, which will be stored in @a songPath.
 		 *
 		 * This will be done immediately and without saving
-		 * the current #Song. All unsaved changes will be lost! In
+		 * the current #H2Core::Song. All unsaved changes will be lost! In
 		 * addition, the new song won't be saved by this function. You
 		 * can do so using saveSong().
 		 *
@@ -93,10 +94,10 @@ class CoreActionController : public H2Core::Object {
 		 */
 		bool newSong( const QString& songPath );
 		/**
-		 * Opens the #Song specified in @a songPath.
+		 * Opens the #H2Core::Song specified in @a songPath.
 		 *
 		 * This will be done immediately and without saving
-		 * the current #Song. All unsaved changes will be lost!
+		 * the current #H2Core::Song. All unsaved changes will be lost!
 		 *
 		 * The intended use of this function for session
 		 * management. Therefore, the function will *not* store the
@@ -110,14 +111,14 @@ class CoreActionController : public H2Core::Object {
 		 */
 		bool openSong( const QString& songPath );
 		/**
-		 * Opens the #Song specified in @a songPath.
+		 * Opens the #H2Core::Song specified in @a songPath.
 		 *
 		 * This will be done immediately and without saving
-		 * the current #Song. All unsaved changes will be lost!
+		 * the current #H2Core::Song. All unsaved changes will be lost!
 		 *
 		 * The intended use of this function for session
 		 * management. Therefore, the function will *not* store the
-		 * provided @pSong in Preferences::m_lastSongFilename and
+		 * provided @a pSong in Preferences::m_lastSongFilename and
 		 * Hydrogen won't resume with the corresponding song on
 		 * restarting.
 		 *
@@ -126,27 +127,27 @@ class CoreActionController : public H2Core::Object {
 		 */
 		bool openSong( std::shared_ptr<Song> pSong );
 		/**
-		 * Saves the current #Song.
+		 * Saves the current #H2Core::Song.
 		 *
 		 * \return true on success
 		 */
 		bool saveSong();
 		/**
-		 * Saves the current #Song to the path provided in @a songPath.
+		 * Saves the current #H2Core::Song to the path provided in @a songPath.
 		 *
 		 * The intended use of this function for session
 		 * management. Therefore, the function will *not* store the
-		 * provided @a songPath in Preferences::m_lastSongFilename and
-		 * Hydrogen won't resume with the corresponding song on
-		 * restarting.
+		 * provided @a songPath in
+		 * #H2Core::Preferences::m_lastSongFilename and Hydrogen won't
+		 * resume with the corresponding song on restarting.
 		 *
 		 * \param songPath Absolute path to the file to store the
-		 *   current #Song in.
+		 *   current #H2Core::Song in.
 		 * \return true on success
 		 */
 		bool saveSongAs( const QString& songPath );
 		/**
-		 * Saves the current state of the #Preferences.
+		 * Saves the current state of the #H2Core::Preferences.
 		 *
 		 * \return true on success
 		 */
@@ -155,7 +156,7 @@ class CoreActionController : public H2Core::Object {
 		 * Triggers the shutdown of Hydrogen.
 		 *
 		 * This will be done immediately and without saving the
-		 * current #Song. All unsaved changes will be lost!
+		 * current #H2Core::Song. All unsaved changes will be lost!
 		 *
 		 * The shutdown will be triggered in both the CLI and the GUI
 		 * via the #H2Core::EVENT_QUIT event.
@@ -284,15 +285,15 @@ class CoreActionController : public H2Core::Object {
 	private:
 		
 		/**
-		 * Sets a #Song to be used by Hydrogen.
+		 * Sets a #H2Core::Song to be used by Hydrogen.
 		 *
 		 * This will be done immediately and without saving the
-		 * current #Song. All unsaved changes will be lost!
+		 * current #H2Core::Song. All unsaved changes will be lost!
 		 *
 		 * The intended use of this function for session
 		 * management.
 		 *
-		 * \param pSong Pointer to the #Song to set.
+		 * \param pSong Pointer to the #H2Core::Song to set.
 		 * \return true on success
 		 */
 		bool setSong( std::shared_ptr<Song> pSong );

@@ -54,8 +54,6 @@
 
 using namespace H2Core;
 
-const char* ExportSongDialog::__class_name = "ExportSongDialog";
-
 enum ExportModes { EXPORT_TO_SINGLE_TRACK, EXPORT_TO_SEPARATE_TRACKS, EXPORT_TO_BOTH };
 
 static int interpolateModeToComboBoxIndex(Interpolation::InterpolateMode interpolateMode)
@@ -88,7 +86,6 @@ QString ExportSongDialog::sLastFilename = "";
 
 ExportSongDialog::ExportSongDialog(QWidget* parent)
 	: QDialog(parent)
-	, Object( __class_name )
 	, m_bExporting( false )
 	, m_pHydrogen( Hydrogen::get_instance() )
 	, m_pPreferences( Preferences::get_instance() )

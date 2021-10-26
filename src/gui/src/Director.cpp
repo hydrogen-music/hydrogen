@@ -66,7 +66,7 @@ using namespace H2Core;
 
 Director::Director ( QWidget* pParent )
 		: QDialog ( pParent )
-		, Object ( "Director" )
+		, Object ()
 {
 
 	HydrogenApp::get_instance()->addEventListener( this );

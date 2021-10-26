@@ -33,10 +33,7 @@ namespace H2Core
 
 Playlist* Playlist::__instance = nullptr;
 
-const char* Playlist::__class_name = "Playlist";
-
 Playlist::Playlist()
-	: Object( __class_name )
 {
 	__filename = "";
 	m_nSelectedSongNumber = -1;
@@ -221,7 +218,7 @@ void Playlist::execScript( int index)
 }
 
 QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Playlist]\n" ).arg( sPrefix )

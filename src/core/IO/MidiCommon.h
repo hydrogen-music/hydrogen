@@ -31,6 +31,7 @@
 namespace H2Core
 {
 
+/** \ingroup docCore docMIDI */
 class MidiMessage
 {
 public:
@@ -66,6 +67,7 @@ public:
 };
 
 
+/** \ingroup docCore docMIDI */
 class MidiPortInfo
 {
 public:
