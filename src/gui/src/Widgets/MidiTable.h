@@ -28,6 +28,7 @@
 #include <QtGui>
 #include <QtWidgets>
 
+/** \ingroup docGUI docWidgets docMIDI*/
 class MidiTable :  public QTableWidget,  public H2Core::Object<MidiTable>
 {
     H2_OBJECT(MidiTable)

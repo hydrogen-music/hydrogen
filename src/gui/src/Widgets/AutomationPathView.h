@@ -29,6 +29,7 @@
 #include <QtGui>
 #include <QtWidgets>
 
+/** \ingroup docGUI docAutomation docWidgets*/
 class AutomationPathView :  public QWidget,  public H2Core::Object<AutomationPathView>
 {
 	Q_OBJECT

@@ -35,6 +35,7 @@
 ///
 /// Shows CPU load
 ///
+/** \ingroup docGUI docWidgets*/
 class CpuLoadWidget :  public QWidget, public EventListener,  public H2Core::Object<CpuLoadWidget>
 {
     H2_OBJECT(CpuLoadWidget)

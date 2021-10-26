@@ -65,6 +65,7 @@ struct SelectedLayerInfo {
 /**
  * A note plays an associated instrument with a velocity left and right pan
  */
+/** \ingroup docCore docDataStructure */
 class Note : public H2Core::Object<Note>
 {
 		H2_OBJECT(Note)
@@ -79,8 +80,7 @@ class Note : public H2Core::Object<Note>
 		 * \param instrument the instrument played by this note
 		 * \param position the position of the note within the pattern
 		 * \param velocity it's velocity
-		 * \param pan_l left pan
-		 * \param pan_r right pan
+		 * \param pan pan
 		 * \param length it's length
 		 * \param pitch it's pitch
 		 */

@@ -49,6 +49,7 @@
 
 //=====================================================================================================================================
 //song editor commands
+/** \ingroup docGUI*/
 class SE_addPatternAction : public QUndoCommand
 {
 public:
@@ -76,6 +77,7 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_deletePatternAction : public QUndoCommand
 {
 public:
@@ -103,6 +105,7 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_movePatternListItemAction : public QUndoCommand
 {
 public:
@@ -129,6 +132,7 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_deletePatternSequenceAction : public QUndoCommand
 {
 public:
@@ -153,6 +157,7 @@ private:
 	QString __pFilename;
 };
 
+/** \ingroup docGUI*/
 class SE_deletePatternFromListAction : public QUndoCommand
 {
 public:
@@ -183,6 +188,7 @@ private:
 	int __patternPosition;
 };
 
+/** \ingroup docGUI*/
 class SE_modifyPatternPropertiesAction : public QUndoCommand
 {
 public:
@@ -221,6 +227,7 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_duplicatePatternAction : public QUndoCommand
 {
 public:
@@ -247,6 +254,7 @@ private:
 	int __patternPosition;
 };
 
+/** \ingroup docGUI*/
 class SE_insertPatternAction : public QUndoCommand
 {
 public:
@@ -278,6 +286,7 @@ private:
 	int __patternPosition;
 };
 
+/** \ingroup docGUI*/
 class SE_loadPatternAction : public QUndoCommand
 {
 public:
@@ -322,6 +331,7 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_fillRangePatternAction : public QUndoCommand
 {
 public:
@@ -368,6 +378,7 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_modifyPatternCellsAction : public QUndoCommand
 {
 public:
@@ -395,6 +406,7 @@ private:
 	std::vector< QPoint > m_mergeCells;
 };
 
+/** \ingroup docGUI*/
 class SE_editTimeLineAction : public QUndoCommand
 {
 public:
@@ -433,6 +445,7 @@ private:
 //=====================================================================================================================================
 //time line commands
 
+/** \ingroup docGUI*/
 class SE_deleteTimeLineAction : public QUndoCommand
 {
 public:
@@ -462,6 +475,7 @@ private:
 	float __newBpm;
 };
 
+/** \ingroup docGUI*/
 class SE_editTagAction : public QUndoCommand
 {
 public:
@@ -506,6 +520,7 @@ private:
 //=====================================================================================================================================
 //pattern editor commands
 
+/** \ingroup docGUI*/
 class SE_addOrDeleteNoteAction : public QUndoCommand
 {
 public:
@@ -606,6 +621,7 @@ private:
 };
 
 // Deselect some notes and overwrite them
+/** \ingroup docGUI*/
 class SE_deselectAndOverwriteNotesAction : public QUndoCommand
 {
 public:
@@ -644,6 +660,7 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_addNoteOffAction : public QUndoCommand
 {
 public:
@@ -671,6 +688,7 @@ private:
 	bool __isDelete;
 };
 
+/** \ingroup docGUI*/
 class SE_moveNoteAction : public QUndoCommand
 {
 public:
@@ -713,6 +731,7 @@ private:
 	H2Core::Note *m_pNote;
 };
 
+/** \ingroup docGUI*/
 class SE_editNoteLenghtAction : public QUndoCommand
 {
 public:
@@ -747,6 +766,7 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_clearNotesPatternEditorAction : public QUndoCommand
 {
 public:
@@ -792,6 +812,7 @@ private:
 	int __selectedPatternNumber;
 };
 
+/** \ingroup docGUI*/
 class SE_pasteNotesPatternEditorAction : public QUndoCommand
 {
 public:
@@ -844,6 +865,7 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_fillNotesRightClickAction : public QUndoCommand
 {
 public:
@@ -872,6 +894,7 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_randomVelocityRightClickAction : public QUndoCommand
 {
 public:
@@ -903,6 +926,7 @@ private:
 
 
 
+/** \ingroup docGUI*/
 class SE_moveInstrumentAction : public QUndoCommand
 {
 public:
@@ -928,6 +952,7 @@ private:
 	int __nTargetInstrument;
 };
 
+/** \ingroup docGUI*/
 class SE_dragInstrumentAction : public QUndoCommand
 {
 public:
@@ -968,6 +993,7 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_deleteInstrumentAction : public QUndoCommand
 {
 public:
@@ -1017,6 +1043,7 @@ private:
 
 
 
+/** \ingroup docGUI*/
 class SE_mainMenuAddInstrumentAction : public QUndoCommand
 {
 public:
@@ -1043,6 +1070,7 @@ private:
 //piano roll editor commands
 
 
+/** \ingroup docGUI*/
 class SE_addOrDeleteNotePianoRollAction : public QUndoCommand
 {
 public:
@@ -1124,6 +1152,7 @@ private:
 	bool __isDelete;
 };
 
+/** \ingroup docGUI*/
 class SE_addPianoRollNoteOffAction : public QUndoCommand
 {
 public:
@@ -1155,6 +1184,7 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_editPianoRollNoteLengthAction : public QUndoCommand
 {
 public:
@@ -1195,6 +1225,7 @@ private:
 	int __pressedLine;
 };
 
+/** \ingroup docGUI*/
 class SE_editNotePropertiesPianoRollAction : public QUndoCommand
 {
 public:
@@ -1263,6 +1294,7 @@ private:
 	int __pressedLine;
 };
 
+/** \ingroup docGUI*/
 class SE_moveNotePianoRollAction : public QUndoCommand
 {
 	public:
@@ -1315,6 +1347,7 @@ class SE_moveNotePianoRollAction : public QUndoCommand
 //=====================================================================================================================================
 //Note Properties Ruler commands
 
+/** \ingroup docGUI*/
 class SE_editNotePropertiesVolumeAction : public QUndoCommand
 {
 public:
@@ -1416,6 +1449,7 @@ private:
 
 
 
+/** \ingroup docGUI*/
 class SE_automationPathAddPointAction : public QUndoCommand
 {
 public:
@@ -1449,6 +1483,7 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_automationPathRemovePointAction : public QUndoCommand
 {
 public:
@@ -1482,6 +1517,7 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_automationPathMovePointAction : public QUndoCommand
 {
 public:

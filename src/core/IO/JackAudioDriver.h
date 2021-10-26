@@ -112,6 +112,7 @@ class InstrumentComponent;
  * during the configuration and the user enables the support of the
  * JACK server.
  */
+/** \ingroup docCore docAudioDriver */
 class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput
 {
 	H2_OBJECT(JackAudioDriver)
@@ -941,6 +942,7 @@ private:
 // JACK is disabled
 
 namespace H2Core {
+/** \ingroup docCore docAudioDriver */
 class JackAudioDriver : public NullDriver {
 	H2_OBJECT(JackAudioDriver)
 public:

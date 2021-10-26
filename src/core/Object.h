@@ -56,6 +56,7 @@ typedef std::map<const char*, const atomic_obj_cpt_t*> object_internal_map_t;
 /**
  * Base class.
  */
+/** \ingroup docCore docDebugging*/
 class Base {
 	public:
 		Base() {

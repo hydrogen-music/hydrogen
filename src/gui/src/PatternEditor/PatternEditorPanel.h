@@ -54,6 +54,7 @@ namespace H2Core
 ///
 /// Pattern Editor Panel
 ///
+/** \ingroup docGUI*/
 class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public EventListener,  public H2Core::Object<PatternEditorPanel>
 {
 	H2_OBJECT(PatternEditorPanel)

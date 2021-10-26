@@ -34,6 +34,7 @@ namespace H2Core
 /**
  * MIDI input base class
  */
+/** \ingroup docCore docMIDI */
 class MidiInput : public virtual Object<MidiInput>
 {
 	H2_OBJECT(MidiInput);

@@ -36,6 +36,7 @@ class Note;
 /**
  * MIDI input base class
  */
+/** \ingroup docCore docMIDI */
 class MidiOutput : public virtual Object<MidiOutput>
 {
 	H2_OBJECT(MidiOutput)

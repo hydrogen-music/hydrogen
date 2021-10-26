@@ -32,6 +32,7 @@
 #include <QPushButton>
 #include <QColor>
 
+/** \ingroup docGUI docWidgets*/
 class ColorSelectionButton :  public QPushButton,  public H2Core::Object<ColorSelectionButton>
 {
     H2_OBJECT(ColorSelectionButton)

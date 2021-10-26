@@ -36,6 +36,7 @@ namespace H2Core
 class Song;
 class Instrument;
 
+/** \ingroup docCore docMIDI */
 class SMFHeader : public Object<SMFHeader>, public SMFBase
 {
 	H2_OBJECT(SMFHeader)
@@ -54,6 +55,7 @@ private:
 
 
 
+/** \ingroup docCore docMIDI */
 class SMFTrack : public Object<SMFTrack>, public SMFBase
 {
 	H2_OBJECT(SMFTrack)
@@ -72,6 +74,7 @@ private:
 
 
 
+/** \ingroup docCore docMIDI */
 class SMF : public Object<SMF>, public SMFBase
 {
 	H2_OBJECT(SMF)
@@ -93,6 +96,7 @@ private:
 typedef std::vector<SMFEvent*> EventList;
 
 
+/** \ingroup docCore docMIDI */
 class SMFWriter : public H2Core::Object<SMFWriter>
 {
 	H2_OBJECT(SMFWriter)
@@ -117,6 +121,7 @@ private:
 
 //-------
 
+/** \ingroup docCore docMIDI */
 class SMF1Writer : public Object<SMF1Writer>, public SMFWriter
 {
     H2_OBJECT(SMF1Writer)
@@ -128,6 +133,7 @@ protected:
 };
 
 
+/** \ingroup docCore docMIDI */
 class SMF1WriterSingle : public Object<SMF1WriterSingle>, public SMF1Writer
 {
     H2_OBJECT(SMF1WriterSingle)
@@ -143,6 +149,7 @@ private:
 };
 
 
+/** \ingroup docCore docMIDI */
 class SMF1WriterMulti : public Object<SMF1WriterMulti>, public SMF1Writer
 {
     H2_OBJECT(SMF1WriterMulti)
@@ -161,6 +168,7 @@ private:
 
 //-------
 
+/** \ingroup docCore docMIDI */
 class SMF0Writer : public Object<SMF0Writer>, public SMFWriter
 {
     H2_OBJECT(SMF0Writer)

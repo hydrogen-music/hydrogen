@@ -335,7 +335,7 @@ bool HydrogenApp::openSong( const QString sFilename ) {
 	return true;
 }
 
-bool HydrogenApp::openSong( std::shared_ptr<H2Core::Song> pSong ) {
+bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 
 	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
 	if ( ! pCoreActionController->openSong( pSong ) ) {

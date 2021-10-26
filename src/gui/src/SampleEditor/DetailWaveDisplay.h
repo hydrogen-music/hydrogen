@@ -33,6 +33,7 @@ namespace H2Core
 	class Sample;
 }
 
+/** \ingroup docGUI*/
 class DetailWaveDisplay :  public QWidget,  public H2Core::Object<DetailWaveDisplay>
 {
     H2_OBJECT(DetailWaveDisplay)

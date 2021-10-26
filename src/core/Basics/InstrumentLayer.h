@@ -40,6 +40,7 @@ namespace H2Core
 	 * <br><b>start velocity</b> and <b>end velocity</b> which allows you to chose between a layer or another within an instrument
 	 * by changing the velocity of the played note. so the only layer of an instrument should start at 0.0 and end at 1.0.
 	 */
+	/** \ingroup docCore docDataStructure */
 	class InstrumentLayer : public H2Core::Object<InstrumentLayer>
 	{
 		H2_OBJECT(InstrumentLayer)

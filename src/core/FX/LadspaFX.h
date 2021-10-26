@@ -35,6 +35,7 @@
 namespace H2Core
 {
 
+/** \ingroup docCore docAudioEngine */
 class LadspaFXInfo : public H2Core::Object<LadspaFXInfo>
 {
 	H2_OBJECT(LadspaFXInfo)
@@ -57,6 +58,7 @@ public:
 
 
 
+/** \ingroup docCore docAudioEngine */
 class LadspaFXGroup : public H2Core::Object<LadspaFXGroup>
 {
 	H2_OBJECT(LadspaFXGroup)
@@ -95,6 +97,7 @@ private:
 
 
 
+/** \ingroup docCore docAudioEngine */
 class LadspaControlPort : public H2Core::Object<LadspaControlPort>
 {
 	H2_OBJECT(LadspaControlPort)
@@ -112,6 +115,7 @@ public:
 
 
 
+/** \ingroup docCore docAudioEngine */
 class LadspaFX : public H2Core::Object<LadspaFX>
 {
 	H2_OBJECT(LadspaFX)

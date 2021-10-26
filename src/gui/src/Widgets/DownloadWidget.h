@@ -32,6 +32,7 @@
 class QNetworkAccessManager;
 class QNetworkReply;
 
+/** \ingroup docGUI docWidgets*/
 class Download :  public QDialog,  public H2Core::Object<Download>
 {
 	H2_OBJECT(Download)

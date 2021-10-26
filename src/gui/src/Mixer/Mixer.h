@@ -40,6 +40,7 @@ class MasterMixerLine;
 class LadspaFXMixerLine;
 class PixmapWidget;
 
+/** \ingroup docGUI*/
 class Mixer :  public QWidget, public EventListener,  public H2Core::Object<Mixer>
 {
 	H2_OBJECT(Mixer)

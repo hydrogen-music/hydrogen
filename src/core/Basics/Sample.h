@@ -37,6 +37,7 @@ namespace H2Core
  */
 
 /** an envelope point within a frame */
+/** \ingroup docCore docAudioDriver */
 class EnvelopePoint : public H2Core::Object<EnvelopePoint>
 {
 		H2_OBJECT(EnvelopePoint)
@@ -376,7 +377,7 @@ inline const QString Sample::get_filename() const
 	return __filepath.section( "/", -1 );
 }
 
-inline void Sample::Sample::set_frames( int frames )
+inline void Sample::set_frames( int frames )
 {
 	__frames = frames;
 }

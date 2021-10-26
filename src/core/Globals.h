@@ -22,6 +22,11 @@
 #ifndef H2C_GLOBALS_H
 #define H2C_GLOBALS_H
 
+/** \addtogroup docConfiguration
+ * \addtogroup docCore
+ * @{
+ */
+
 #define MIDI_OUT_NOTE_MIN       0
 #define MIDI_OUT_NOTE_MAX       127
 #define MIDI_OUT_CHANNEL_MIN    -1
@@ -41,5 +46,6 @@
 #define                         US_DIVIDER .000001
 // ~m_nBeatCounter
 
+/** @} */
 
 #endif // H2C_GLOBALS_H
