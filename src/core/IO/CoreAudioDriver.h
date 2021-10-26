@@ -78,7 +78,6 @@ public:
 	float* getOut_R();
 
 	static QStringList getDevices();
-
 private:
 	AudioDeviceID defaultOutputDevice(void);
 	void retrieveBufferSize(void);

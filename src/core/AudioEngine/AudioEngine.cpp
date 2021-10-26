@@ -818,7 +818,7 @@ void AudioEngine::raiseError( unsigned nErrorCode )
 	m_pEventQueue->push_event( EVENT_ERROR, nErrorCode );
 }
 
-inline void AudioEngine::processPlayNotes( unsigned long nframes )
+void AudioEngine::processPlayNotes( unsigned long nframes )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
@@ -940,7 +940,7 @@ inline void AudioEngine::processPlayNotes( unsigned long nframes )
 	}
 }
 
-inline void AudioEngine::processTransport( unsigned nFrames )
+void AudioEngine::processTransport( unsigned nFrames )
 {
 	assert( m_pAudioDriver );
 	
@@ -1303,7 +1303,7 @@ void AudioEngine::removeSong()
 	m_pEventQueue->push_event( EVENT_STATE, static_cast<int>( getState() ) );
 }
 
-inline int AudioEngine::updateNoteQueue( unsigned nFrames )
+int AudioEngine::updateNoteQueue( unsigned nFrames )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
@@ -1625,7 +1625,7 @@ inline int AudioEngine::updateNoteQueue( unsigned nFrames )
 	return 0;
 }
 
-inline int AudioEngine::getColumnForTick( int nTick, bool bLoopMode, int* pPatternStartTick ) const
+int AudioEngine::getColumnForTick( int nTick, bool bLoopMode, int* pPatternStartTick ) const
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
