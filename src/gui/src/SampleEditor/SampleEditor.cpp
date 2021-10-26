@@ -38,7 +38,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Helpers/Filesystem.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
 
 #include <QModelIndex>
@@ -538,6 +538,7 @@ void SampleEditor::valueChangedEndFrameSpinBox( int )
 void SampleEditor::on_PlayPushButton_clicked()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	if (PlayPushButton->text() == "Stop" ){
 		testpTimer();
@@ -572,11 +573,11 @@ void SampleEditor::on_PlayPushButton_clicked()
 	}
 
 
-	m_nRealtimeFrameEnd = pHydrogen->getRealtimeFrames() + m_nSlframes;
+	m_nRealtimeFrameEnd = pAudioEngine->getRealtimeFrames() + m_nSlframes;
 
 	//calculate the new rubberband sample length
 	if( __rubberband.use ){
-		m_nRealtimeFrameEndForTarget = pHydrogen->getRealtimeFrames() + (m_nSlframes * m_fRatio + 0.1);
+		m_nRealtimeFrameEndForTarget = pAudioEngine->getRealtimeFrames() + (m_nSlframes * m_fRatio + 0.1);
 	}else
 	{
 		m_nRealtimeFrameEndForTarget = m_nRealtimeFrameEnd;
@@ -614,13 +615,13 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	m_pMainSampleWaveDisplay->paintLocatorEvent( StartFrameSpinBox->value() / m_divider + 24 , true);
 	m_pSampleAdjustView->setDetailSamplePosition( __loops.start_frame, m_fZoomfactor , nullptr);
 	m_pTimer->start(40);	// update ruler at 25 fps
-	m_nRealtimeFrameEnd = Hydrogen::get_instance()->getRealtimeFrames() + m_nSlframes;
+	m_nRealtimeFrameEnd = Hydrogen::get_instance()->getAudioEngine()->getRealtimeFrames() + m_nSlframes;
 	PlayOrigPushButton->setText( QString( "Stop") );
 }
 
 void SampleEditor::updateMainsamplePositionRuler()
 {
-	unsigned long realpos = Hydrogen::get_instance()->getRealtimeFrames();
+	unsigned long realpos = Hydrogen::get_instance()->getAudioEngine()->getRealtimeFrames();
 	if ( realpos < m_nRealtimeFrameEnd ){
 		unsigned frame = m_nSlframes - ( m_nRealtimeFrameEnd  - realpos );
 		if ( m_bPlayButton == true ){
@@ -643,7 +644,7 @@ void SampleEditor::updateMainsamplePositionRuler()
 
 void SampleEditor::updateTargetsamplePositionRuler()
 {
-	unsigned long realpos = Hydrogen::get_instance()->getRealtimeFrames();
+	unsigned long realpos = Hydrogen::get_instance()->getAudioEngine()->getRealtimeFrames();
 	unsigned targetSampleLength;
 	if( __rubberband.use ){
 		targetSampleLength =  m_nSlframes * m_fRatio + 0.1;

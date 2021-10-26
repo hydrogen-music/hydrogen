@@ -77,15 +77,7 @@ public:
 	float* getOut_L();
 	float* getOut_R();
 
-
-	virtual void play();
-	virtual void stop();
-	virtual void locate( unsigned long nFrame );
-	virtual void updateTransportInfo();
-	virtual void setBpm( float fBPM );
-
 	static QStringList getDevices();
-
 private:
 	AudioDeviceID defaultOutputDevice(void);
 	void retrieveBufferSize(void);

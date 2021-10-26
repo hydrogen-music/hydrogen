@@ -34,7 +34,6 @@
 #include <core/Basics/Drumkit.h>
 #include <core/CoreActionController.h>
 #include <core/Timehelper.h>
-#include <core/AudioEngine.h>
 
 #include <stdint.h> // for uint32_t et al
 #include <cassert>
@@ -45,6 +44,7 @@ inline int randomValue( int max );
 namespace H2Core
 {
 	class CoreActionController;
+	class AudioEngine;
 ///
 /// Hydrogen Audio Engine.
 ///
@@ -168,7 +168,7 @@ public:
 	 * negated. If the latter was true before calling this function,
 	 * #H2Core::AudioEngine::m_pPlayingPatterns will be cleared and
 	 * replaced by the Pattern indexed with
-	 * #H2Core::AudioEngine::m_nSelectedPatternNumber.
+	 * #m_nSelectedPatternNumber.
 	 *
 	 * This function will be called either by MainForm::eventFilter()
 	 * when pressing Qt::Key_L or by
@@ -197,125 +197,11 @@ public:
 							  bool forcePlay=false,
 							  int msg1=0 );
 
-	/** \return #H2Core::AudioEngine::m_nPatternTickPosition */
-	unsigned long		getTickPosition();
-	/** Keep track of the tick position in realtime.
-	 *
-	 * Firstly, it gets the current transport position in frames
-	 * #H2Core::AudioEngine::m_nRealtimeFrames and converts it into
-	 * ticks using TransportInfo::m_fTickSize. Afterwards, it accesses
-	 * how much time passed since the last update of
-	 * #H2Core::AudioEngine::m_currentTickTime, converts the time
-	 * difference + AudioOutput::getBufferSize()/
-	 * AudioOutput::getSampleRate() in frames, and adds the result to
-	 * the first value to support keyboard and MIDI events as well.
-	 *
-	 * \return Current position in ticks.
-	 */
-	unsigned long		getRealtimeTickPosition();
-	unsigned long		getTotalFrames();
-
-	/** Sets #H2Core::AudioEngine::m_nRealtimeFrames
-	 * \param frames Current transport realtime position*/
-	void			setRealtimeFrames( unsigned long frames );
-	/** Returns the current realtime transport position
-	 * TransportInfo::m_nFrames.
-	 * \return #H2Core::AudioEngine::m_nRealtimeFrames */
-	unsigned long		getRealtimeFrames();
-	/** \return #H2Core::AudioEngine::m_pPlayingPatterns*/
-	PatternList *		getCurrentPatternList();
-	/** 
-	 * Sets #H2Core::AudioEngine::m_pPlayingPatterns.
-	 *
-	 * Before setting the variable it first locks the AudioEngine. In
-	 * addition, it also pushes the Event #EVENT_PATTERN_CHANGED with
-	 * the value -1 to the EventQueue.
-	 *
-	 * \param pPatternList Sets #H2Core::AudioEngine::m_pPlayingPatterns.*/
-	void			setCurrentPatternList( PatternList * pPatternList );
-
-	/** \return #H2Core::AudioEngine::m_pNextPatterns*/
-	PatternList *		getNextPatterns();
-	/** Get the position of the current Pattern in the Song.
-	 * \return #H2Core::AudioEngine::m_nSongPos */
-	int			getPatternPos();
-	/**
-	 * Relocate the position to another Pattern in the Song.
-	 *
-	 * The position of a Pattern in frames (see
-	 * TransportInfo::m_nFrames for details) will be determined by
-	 * retrieving the tick number the Pattern is located at using
-	 * getTickForPosition() and multiplying it with
-	 * TransportInfo::m_fTickSize. The resulting value will be
-	 * used by the AudioOutput::locate() function of your audio
-	 * driver to relocate the playback position.
-	 *
-	 * If #H2Core::AudioEngine::m_State is not #STATE_PLAYING, the
-	 * variables #H2Core::AudioEngine::m_nSongPos and
-	 * #H2Core::AudioEngine::m_nPatternTickPosition will be set to @a
-	 * pos and 0 right away.
-	 *
-	 * \param pos Position of the Pattern to relocate at. All
-	 *   values smaller than -1 will be set to -1, which marks the
-	 *   beginning of the Song.
-	 */
-	void			setPatternPos( int pos );
-	/** Returns the pattern number corresponding to the tick
-	 * position @a TickPos.
-	 *
-	 * Wrapper around function findPatternInTick() (globally defined
-	 * in hydrogen.cpp).
-	 *
-	 * \param TickPos Position in ticks.
-	 * \param nPatternStartTick Pointer to an int the starting
-	 * position (in ticks) of the corresponding pattern will be
-	 * written to.
-	 *
-	 * \return 
-	 * - __0__ : if the Song isn't specified yet.
-	 * - the output of the findPatternInTick() function called
-	 *   with @a TickPos and Song::getIsLoopEnabled() as input
-	 *   arguments.
-	 */
-	int			getPosForTick( unsigned long TickPos, int* nPatternStartTick );
-	/** Move playback in Pattern mode to the beginning of the pattern.
-	 *
-	 * Resetting the global variable
-	 * #H2Core::AudioEngine::m_nPatternStartTick to -1 if the current
-	 * Song mode is Song::PATTERN_MODE.
-	 */
-	void			resetPatternStartTick();
-	
-		/**
-		 * Get the total number of ticks passed up to a Pattern at
-		 * position @a pos.
-		 *
-		 * The function will loop over all and sums up their
-		 * Pattern::__length. If one of the Pattern is NULL or no
-		 * Pattern is present one of the PatternList, #MAX_NOTES will
-		 * be added instead.
-		 *
-		 * The driver should be LOCKED when calling this!
-		 *
-		 * \param pos Position of the Pattern in the
-		 *   Song::__pattern_group_sequence.
-		 * \return
-		 *  - -1 : if @a pos is bigger than the number of patterns in
-		 *   the Song and Song::getIsLoopEnabled() is set to false or
-		 *   no Patterns could be found at all.
-		 *  - >= 0 : the total number of ticks passed.
-		 */
-		long			getTickForPosition( int pos );
-
 		void			restartDrivers();
 
 		AudioOutput*		getAudioOutput() const;
 		MidiInput*		getMidiInput() const;
 		MidiOutput*		getMidiOutput() const;
-
-		/** Returns the current state of the audio engine.
-		 * \return #H2Core::AudioEngine::m_State*/
-		int			getState() const;
 
 		/** Wrapper around loadDrumkit( Drumkit, bool ) with the
 			conditional argument set to true.
@@ -429,23 +315,23 @@ void			previewSample( Sample *pSample );
 	void			setBPM( float fBPM );
 
 	void			restartLadspaFX();
-	/** \return #H2Core::AudioEngine::m_nSelectedPatternNumber*/
-	int				getSelectedPatternNumber();
+	/** \return #m_nSelectedPatternNumber*/
+	int				getSelectedPatternNumber() const;
 	/**
-	 * Sets #H2Core::AudioEngine::m_nSelectedPatternNumber.
+	 * Sets #m_nSelectedPatternNumber.
 	 *
 	 * If Preferences::m_pPatternModePlaysSelected is set to true, the
 	 * AudioEngine is locked before @a nPat will be assigned. But in
 	 * any case the function will push the
 	 * #EVENT_SELECTED_PATTERN_CHANGED Event to the EventQueue.
 	 *
-	 * If @a nPat is equal to #H2Core::AudioEngine::m_nSelectedPatternNumber, the function
+	 * If @a nPat is equal to #m_nSelectedPatternNumber, the function
 	 * will return right away.
 	 *
-	 *\param nPat Sets #H2Core::AudioEngine::m_nSelectedPatternNumber*/
+	 *\param nPat Sets #m_nSelectedPatternNumber*/
 	void			setSelectedPatternNumber( int nPat );
 
-	int				getSelectedInstrumentNumber();
+	int				getSelectedInstrumentNumber() const;
 	void			setSelectedInstrumentNumber( int nInstrument );
 
 
@@ -483,25 +369,6 @@ void			previewSample( Sample *pSample );
 	/** Calling JackAudioDriver::initTimebaseMaster() directly from
 	    the GUI*/
 	void			onJackMaster();
-	/**
-	 * Get the length (in ticks) of the @a nPattern th pattern.
-	 *
-	 * Access the length of the first Pattern found in the
-	 * PatternList at @a nPattern - 1.
-	 *
-	 * This function should also work if the loop mode is enabled
-	 * in Song::getIsLoopEnabled().
-	 *
-	 * \param nPattern Position + 1 of the desired PatternList.
-	 * \return 
-	 * - __-1__ : if not Song was initialized yet.
-	 * - #MAX_NOTES : if @a nPattern was smaller than 1, larger
-	 * than the length of the vector of the PatternList in
-	 * Song::m_pPatternGroupSequence or no Pattern could be found
-	 * in the PatternList at @a nPattern - 1.
-	 * - __else__ : length of first Pattern found at @a nPattern.
-	 */
-	long			getPatternLength( int nPattern );
 	/** Returns the fallback speed.
 	 * \return #m_fNewBpmJTM */
 	float			getNewBpmJTM() const;
@@ -513,12 +380,6 @@ void			previewSample( Sample *pSample );
 	/**
 	 * Updates Song::m_fBpm, TransportInfo::m_fBPM, and #m_fNewBpmJTM
 	 * to the local speed.
-	 *
-	 * The local speed will be obtained by calling getTimelineBpm()
-	 * with getPatternPos() as input argument and set for the current
-	 * song and transport. For setting the
-	 * fallback speed #m_fNewBpmJTM, getRealtimeTickPosition() will be
-	 * used instead.
 	 *
 	 * If Preferences::__useTimelineBpm is set to false or Hydrogen
 	 * uses JACK transport in the presence of an external timebase
@@ -602,39 +463,6 @@ void			previewSample( Sample *pSample );
 	/**\param state Specifies whether the Qt5 GUI is active. Sets
 	   #m_GUIState.*/
 	void			setGUIState( const GUIState state );
-	
-	/** Calculates the lookahead for a specific tick size.
-	 *
-	 * During the humanization the onset of a Note will be moved
-	 * Note::__lead_lag times the value calculated by this function.
-	 *
-	 * Since the size of a tick is tempo dependent, @a fTickSize
-	 * allows you to calculate the lead-lag factor for an arbitrary
-	 * position on the Timeline.
-	 *
-	 * \param fTickSize Number of frames that make up one tick.
-	 *
-	 * \return Five times the current size of a tick
-	 * (TransportInfo::m_fTickSize) (in frames)
-	 */
-	int 			calculateLeadLagFactor( float fTickSize );
-	/** Calculates time offset (in frames) used to determine the notes
-	 * process by the audio engine.
-	 *
-	 * Due to the humanization there might be negative offset in the
-	 * position of a particular note. To be able to still render it
-	 * appropriately, we have to look into and handle notes from the
-	 * future.
-	 *
-	 * The Lookahead is the sum of the #m_nMaxTimeHumanize and
-	 * calculateLeadLagFactor() plus one (since it has to be larger
-	 * than that).
-	 *
-	 * \param fTickSize Number of frames that make up one tick. Passed
-	 * to calculateLeadLagFactor().
-	 *
-	 * \return Frame offset*/
-	int 			calculateLookahead( float fTickSize );
 	/**
 	 * \return Whether JackAudioDriver is used as current audio
 	 * driver.
@@ -659,13 +487,6 @@ void			previewSample( Sample *pSample );
 
 	///midi lookuptable
 	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
-	/**
-	 * Maximum time (in frames) a note's position can be off due to
-	 * the humanization (lead-lag).
-	 *
-	 * Required to calculateLookahead(). Set to 2000.
-	 */
-	int 			m_nMaxTimeHumanize;
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -769,11 +590,13 @@ private:
 	 * Preferences::__playselectedinstrument incoming MIDI signals can be
 	 * used to play back only the selected instrument or the whole
 	 * drumkit.
-	 *
-	 * Queried using Hydrogen::getSelectedInstrumentNumber() and set by
-	 * Hydrogen::setSelectedInstrumentNumber().
 	 */
 	int				m_nSelectedInstrumentNumber;
+	/**
+	 * Index of the pattern selected in the GUI or by a MIDI event.
+	 */
+	int				m_nSelectedPatternNumber;
+
 
 	/*
 	 * Central instance of the audio engine. 
@@ -859,15 +682,13 @@ inline Hydrogen::GUIState Hydrogen::getGUIState() const {
 inline void Hydrogen::setGUIState( const Hydrogen::GUIState state ) {
 	m_GUIState = state;
 }
-
-inline PatternList* Hydrogen::getCurrentPatternList()
+inline int Hydrogen::getSelectedPatternNumber() const
 {
-	return m_pAudioEngine->getPlayingPatterns();
+	return m_nSelectedPatternNumber;
 }
-
-inline PatternList * Hydrogen::getNextPatterns()
+inline int Hydrogen::getSelectedInstrumentNumber() const
 {
-	return m_pAudioEngine->getNextPatterns();
+	return m_nSelectedInstrumentNumber;
 }
 };
 

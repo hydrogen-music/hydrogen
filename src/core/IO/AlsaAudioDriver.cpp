@@ -153,7 +153,6 @@ AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
 		, m_pPlayback_handle( nullptr )
 		, m_processCallback( processCallback )
 {
-	INFOLOG( "INIT" );
 	m_nSampleRate = Preferences::get_instance()->m_nSampleRate;
 	m_sAlsaAudioDevice = Preferences::get_instance()->m_sAlsaAudioDevice;
 }
@@ -163,13 +162,11 @@ AlsaAudioDriver::~AlsaAudioDriver()
 	if ( m_nXRuns > 0 ) {
 		WARNINGLOG( QString( "%1 xruns" ).arg( m_nXRuns ) );
 	}
-	INFOLOG( "DESTROY" );
 }
 
 
 int AlsaAudioDriver::init( unsigned nBufferSize )
 {
-	INFOLOG( "init" );
 	m_nBufferSize = nBufferSize;
 
 	return 0;	// ok
@@ -322,37 +319,6 @@ float* AlsaAudioDriver::getOut_L()
 float* AlsaAudioDriver::getOut_R()
 {
 	return m_pOut_R;
-}
-
-
-void AlsaAudioDriver::updateTransportInfo()
-{
-	//errorLog( "[updateTransportInfo] not implemented yet" );
-}
-
-void AlsaAudioDriver::play()
-{
-	INFOLOG( "play" );
-	m_transport.m_status = TransportInfo::ROLLING;
-}
-
-void AlsaAudioDriver::stop()
-{
-	INFOLOG( "stop" );
-	m_transport.m_status = TransportInfo::STOPPED;
-}
-
-void AlsaAudioDriver::locate( unsigned long nFrame )
-{
-//	infoLog( "[locate] " + to_string( nFrame ) );
-	m_transport.m_nFrames = nFrame;
-//	m_transport.printInfo();
-}
-
-void AlsaAudioDriver::setBpm( float fBPM )
-{
-//	warningLog( "[setBpm] " + to_string(fBPM) );
-	m_transport.m_fBPM = fBPM;
 }
 
 };

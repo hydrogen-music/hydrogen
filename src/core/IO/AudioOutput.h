@@ -25,7 +25,6 @@
 
 #include <core/config.h>
 #include <core/Object.h>
-#include <core/IO/TransportInfo.h>
 
 namespace H2Core
 {
@@ -40,9 +39,6 @@ class AudioOutput : public H2Core::Object<AudioOutput>
 {
 	H2_OBJECT(AudioOutput)
 public:
-	/** Local instance of the TransportInfo. */
-	TransportInfo m_transport;
-
 	AudioOutput() = default;
 	virtual ~AudioOutput() { }
 
@@ -54,14 +50,7 @@ public:
 	virtual float* getOut_L() = 0;
 	virtual float* getOut_R() = 0;
 
-	virtual void updateTransportInfo() = 0;
-	virtual void play() = 0;
-	virtual void stop() = 0;
-	virtual void locate( unsigned long nFrame ) = 0;
-	virtual void setBpm( float fBPM ) = 0;
-
 	static QStringList getDevices() { return QStringList(); }
-
 };
 
 };

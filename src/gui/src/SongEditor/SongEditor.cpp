@@ -28,7 +28,7 @@
 #include <core/Hydrogen.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/Files.h>
 #include <core/Basics/Instrument.h>
@@ -1227,11 +1227,9 @@ void SongEditorPatternList::patternChangedEvent()
 	
 	///here we check the timeline  && m_pSong->getMode() == Song::SONG_MODE
 	
-#ifdef H2CORE_HAVE_JACK
 	if ( m_pHydrogen->haveJackTransport() ) {
 		return;
 	}
-#endif
 
 	// The disk writer runs at it's own pace. Due to the following
 	// lines of code the GUI, instead, just sets the speed to 0 BPM.
@@ -1246,7 +1244,7 @@ void SongEditorPatternList::patternChangedEvent()
 	if ( ( Preferences::get_instance()->getUseTimelineBpm() ) &&
 		 ( m_pHydrogen->getSong()->getMode() == Song::SONG_MODE ) ){
 
-		float fTimelineBpm = pTimeline->getTempoAtBar( pHydrogen->getPatternPos(), false );
+		float fTimelineBpm = pTimeline->getTempoAtBar( pHydrogen->getAudioEngine()->getColumn(), false );
 
 		if ( fTimelineBpm != 0 && pHydrogen->getNewBpmJTM() != fTimelineBpm ) {
 			/* TODO: For now the function returns 0 if the bar is
@@ -1427,7 +1425,7 @@ void SongEditorPatternList::createBackground()
 	std::unique_ptr<PatternDisplayInfo[]> PatternArray{new PatternDisplayInfo[nPatterns]};
 
 	m_pAudioEngine->lock( RIGHT_HERE );
-	PatternList *pCurrentPatternList = m_pHydrogen->getCurrentPatternList();
+	PatternList *pCurrentPatternList = m_pAudioEngine->getPlayingPatterns();
 	
 	//assemble the data..
 	for ( int i = 0; i < nPatterns; i++ ) {
@@ -1439,7 +1437,7 @@ void SongEditorPatternList::createBackground()
 			PatternArray[i].bActive = false;
 		}
 
-		if ( m_pHydrogen->getNextPatterns()->index( pPattern ) != -1 ) {
+		if ( m_pAudioEngine->getNextPatterns()->index( pPattern ) != -1 ) {
 			PatternArray[i].bNext = true;
 		} else {
 			PatternArray[i].bNext = false;
@@ -1735,7 +1733,7 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 	//Lock because PatternList will be modified
 	m_pAudioEngine->lock( RIGHT_HERE );
 
-	PatternList *list = m_pHydrogen->getCurrentPatternList();
+	PatternList *list = m_pAudioEngine->getPlayingPatterns();
 	list->del( pattern );
 	// se esiste, seleziono il primo pattern
 	if ( pSongPatternList->size() > 0 ) {
@@ -2303,11 +2301,11 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 			return;
 		}
 
-		int nPatternPos = m_pHydrogen->getPatternPos();
+		int nPatternPos = m_pHydrogen->getAudioEngine()->getColumn();
 		if ( nPatternPos != column ) {
 			WARNINGLOG( "relocate via mouse click" );
 			
-			m_pHydrogen->getCoreActionController()->relocate( column );
+			m_pHydrogen->getCoreActionController()->locateToColumn( column );
 			update();
 		}
 		
@@ -2350,19 +2348,19 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		return;
 	}
 
-	float fPos = m_pHydrogen->getPatternPos();
+	float fPos = m_pHydrogen->getAudioEngine()->getColumn();
 	int pIPos = Preferences::get_instance()->getPunchInPos();
 	int pOPos = Preferences::get_instance()->getPunchOutPos();
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 
-	if ( m_pHydrogen->getCurrentPatternList()->size() != 0 ) {
-		int nLength = m_pHydrogen->getCurrentPatternList()->longest_pattern_length();
-		fPos += (float)m_pHydrogen->getTickPosition() / (float)nLength;
+	if ( m_pAudioEngine->getPlayingPatterns()->size() != 0 ) {
+		int nLength = m_pAudioEngine->getPlayingPatterns()->longest_pattern_length();
+		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)nLength;
 	}
 	else {
 		// nessun pattern, uso la grandezza di default
-		fPos += (float)m_pHydrogen->getTickPosition() / (float)MAX_NOTES;
+		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)MAX_NOTES;
 	}
 
 	if ( m_pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {

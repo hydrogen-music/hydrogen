@@ -25,7 +25,7 @@
 
 #include <vector>
 #include <core/Object.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 
 namespace H2Core
 {

@@ -23,12 +23,13 @@
 #include <core/IO/MidiInput.h>
 #include <core/EventQueue.h>
 #include <core/Preferences.h>
+#include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
 #include <core/MidiAction.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/MidiMap.h>
 
 namespace H2Core
@@ -86,6 +87,7 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		}
 
 		Hydrogen* pHydrogen = Hydrogen::get_instance();
+		auto pAudioEngine = pHydrogen->getAudioEngine();
 		if ( ! pHydrogen->getSong() ) {
 			ERRORLOG( "No song loaded, skipping note" );
 			return;
@@ -139,8 +141,8 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 
 		case MidiMessage::START: /* Start from position 0 */
 				INFOLOG( "START event" );
-				if ( pHydrogen->getState() != STATE_PLAYING ) {
-					pHydrogen->setPatternPos( 0 );
+				if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
+					pHydrogen->getCoreActionController()->locateToColumn( 0 );
 					pHydrogen->setTimelineBpm();
 					pHydrogen->sequencer_play();
 				}
@@ -148,14 +150,14 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 
 		case MidiMessage::CONTINUE: /* Just start */
 				ERRORLOG( "CONTINUE event" );
-				if ( pHydrogen->getState() != STATE_PLAYING ) {
+				if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
 					pHydrogen->sequencer_play();
 				}
 				break;
 
 		case MidiMessage::STOP: /* Stop in current position i.e. Pause */
 				INFOLOG( "STOP event" );
-				if ( pHydrogen->getState() == STATE_PLAYING ) {
+				if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
 					pHydrogen->sequencer_stop();
 				}
 				break;
@@ -332,7 +334,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	InstrumentList* pInstrList = pHydrogen->getSong()->getInstrumentList();
 
-	__noteOffTick = pHydrogen->getTickPosition();
+	__noteOffTick = pHydrogen->getAudioEngine()->getPatternTickPosition();
 	unsigned long notelength = computeDeltaNoteOnOfftime();
 
 	int nNote = msg.m_nData1;

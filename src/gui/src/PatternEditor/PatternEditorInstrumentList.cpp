@@ -22,7 +22,7 @@
 
 #include "PatternEditorInstrumentList.h"
 
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Instrument.h>

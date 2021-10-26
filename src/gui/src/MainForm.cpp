@@ -23,7 +23,7 @@
 #include <core/EventQueue.h>
 #include <core/Version.h>
 #include <core/Hydrogen.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Smf/SMF.h>
 #include <core/Timeline.h>
 #include <core/Helpers/Files.h>
@@ -189,7 +189,7 @@ MainForm::~MainForm()
 	//if a playlist is used, we save the last playlist-path to hydrogen.conf
 	Preferences::get_instance()->setLastPlaylistFilename( Playlist::get_instance()->getFilename() );
 
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+	if ( (Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
@@ -536,7 +536,7 @@ void MainForm::action_file_new()
 	const bool bUnderSessionManagement = H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
 	
 	Hydrogen * pHydrogen = Hydrogen::get_instance();
-	if ( (pHydrogen->getState() == STATE_PLAYING) ) {
+	if ( pHydrogen->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 		pHydrogen->sequencer_stop();
 	}
 
@@ -586,7 +586,7 @@ void MainForm::action_file_save_as()
 		
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
+	if ( pHydrogen->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 			pHydrogen->sequencer_stop();
 	}
 
@@ -765,11 +765,12 @@ void MainForm::showUserManual()
 
 void MainForm::action_file_export_pattern_as()
 {
-	if ( ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) ) {
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+		
+	if ( ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	Pattern *pPattern = pSong->getPatternList()->get( pHydrogen->getSelectedPatternNumber() );
 
@@ -816,7 +817,7 @@ void MainForm::action_file_export_pattern_as()
 
 void MainForm::action_file_open() {
 		
-	if ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) {
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
@@ -899,7 +900,7 @@ void MainForm::action_file_openPattern()
 /// \todo parametrizzare il metodo action_file_open ed eliminare il seguente...
 void MainForm::action_file_openDemo()
 {
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
@@ -1284,7 +1285,7 @@ void MainForm::closeEvent( QCloseEvent* ev )
 
 void MainForm::action_file_export()
 {
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
@@ -1435,13 +1436,12 @@ void MainForm::onPreferencesChanged( bool bAppearanceOnly ) {
 
 void MainForm::onPlayStopAccelEvent()
 {
-	int nState = Hydrogen::get_instance()->getState();
-	switch (nState) {
-	case STATE_READY:
+	switch ( Hydrogen::get_instance()->getAudioEngine()->getState() ) {
+	case H2Core::AudioEngine::State::Ready:
 		Hydrogen::get_instance()->sequencer_play();
 		break;
 
-	case STATE_PLAYING:
+	case H2Core::AudioEngine::State::Playing:
 		Hydrogen::get_instance()->sequencer_stop();
 		break;
 
@@ -1455,7 +1455,7 @@ void MainForm::onPlayStopAccelEvent()
 void MainForm::onRestartAccelEvent()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->relocate( 0 );
+	pHydrogen->getCoreActionController()->locateToColumn( 0 );
 }
 
 
@@ -1803,12 +1803,12 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			break;
 
 		case  Qt::Key_F9 : // Qt::Key_Left do not work. Some ideas ?
-			pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() - 1 );
+			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() - 1 );
 			return true;
 			break;
 
 		case  Qt::Key_F10 : // Qt::Key_Right do not work. Some ideas ?
-			pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() + 1 );
+			pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() + 1 );
 			return true;
 			break;
 		}
@@ -1854,7 +1854,7 @@ void MainForm::action_debug_printObjects()
 
 void MainForm::action_file_export_midi()
 {
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
@@ -1868,7 +1868,7 @@ void MainForm::action_file_export_midi()
 
 void MainForm::action_file_export_lilypond()
 {
-	if ( ( ( Hydrogen::get_instance() )->getState() == STATE_PLAYING ) ) {
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
@@ -2278,31 +2278,33 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	HydrogenApp* pApp = HydrogenApp::get_instance();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	if ( pObject->inherits( "SongEditorPanel" ) ) {
 			
 		if ( pSong->getMode() != Song::SONG_MODE ) {
-			pHydrogen->getCoreActionController()->activateSongMode( true, false );
+			pCoreActionController->activateSongMode( true, false );
 			pApp->getPlayerControl()->songModeActivationEvent( 1 );
 		}
 
 		int nCursorColumn = pApp->getSongEditorPanel()->getSongEditor()->getCursorColumn();
-		pHydrogen->getCoreActionController()->relocate( nCursorColumn );
+		pCoreActionController->locateToColumn( nCursorColumn );
 			
 	} else if ( pObject->inherits( "PatternEditorPanel" ) ) {
 		// Covers both the PatternEditor and the
 		// NotePropertiesRuler.
 			
 		if ( pSong->getMode() != Song::PATTERN_MODE ) {
-			pHydrogen->getCoreActionController()->activateSongMode( false, false );
+			pCoreActionController->activateSongMode( false, false );
 			pApp->getPlayerControl()->songModeActivationEvent( 0 );
 		}
 
 		// To provide a similar behaviour as when pressing
 		// [backspace], transport is relocated to the beginning of
 		// the song.
-		float fTickSize = pHydrogen->getAudioOutput()->m_transport.m_fTickSize;
+		float fTickSize = pAudioEngine->getTickSize();
 		int nCursorColumn = pApp->getPatternEditorPanel()->getCursorPosition();
 
 		// While updating the note queue the audio engine does add
@@ -2310,16 +2312,15 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// notes twice. This has to be taken into account or the
 		// note we start the playback at will be omitted.
 		if ( nCursorColumn > 0 ) {
-			nCursorColumn -= pHydrogen->calculateLookahead( fTickSize ) / fTickSize;
+			nCursorColumn -= pAudioEngine->calculateLookahead( fTickSize ) / fTickSize;
 		}
-		pHydrogen->getAudioEngine()->locate( nCursorColumn * fTickSize );
+		pCoreActionController->locateToFrame( static_cast<unsigned long>( nCursorColumn * fTickSize ) );
 	} else {
 		ERRORLOG( QString( "Unknown object class" ) );
 	}
 
-	int nState = pHydrogen->getState();
-	if ( nState == STATE_READY ) {
+	if ( pAudioEngine->getState() == H2Core::AudioEngine::State::Ready ) {
 		pHydrogen->sequencer_play();
-		HydrogenApp::get_instance()->setStatusBarMessage(tr("Playing."), 5000);
+		pApp->setStatusBarMessage(tr("Playing."), 5000);
 	}
 }

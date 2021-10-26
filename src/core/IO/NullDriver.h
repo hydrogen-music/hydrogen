@@ -50,12 +50,6 @@ public:
 	float* getOut_L();
 	float* getOut_R();
 
-	virtual void play();
-	virtual void stop();
-	virtual void locate( unsigned long nFrame );
-	virtual void updateTransportInfo();
-	virtual void setBpm( float fBPM );
-
 };
 
 };

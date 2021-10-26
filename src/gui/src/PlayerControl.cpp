@@ -38,7 +38,7 @@
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 
 #include <core/Hydrogen.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/EventQueue.h>
 using namespace H2Core;
@@ -521,8 +521,7 @@ void PlayerControl::updatePlayerControl()
 	m_pShowMixerBtn->setPressed( pH2App->getMixer()->isVisible() );
 	m_pShowInstrumentRackBtn->setPressed( pH2App->getInstrumentRack()->isVisible() );
 
-	int state = m_pHydrogen->getState();
-	if (state == STATE_PLAYING ) {
+	if ( m_pHydrogen->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 		m_pPlayBtn->setPressed(true);
 	}
 	else {
@@ -688,7 +687,7 @@ void PlayerControl::updatePlayerControl()
 
 /// Toggle record mode
 void PlayerControl::recBtnClicked(Button* ref) {
-	if ( m_pHydrogen->getState() != STATE_PLAYING ) {
+	if ( m_pHydrogen->getAudioEngine()->getState() != H2Core::AudioEngine::State::Playing ) {
 		if (ref->isPressed()) {
 			Preferences::get_instance()->setRecordEvents(true);
 			(HydrogenApp::get_instance())->setScrollStatusBarMessage(tr("Record midi events = On" ), 2000 );
@@ -723,7 +722,7 @@ void PlayerControl::stopBtnClicked(Button* ref)
 	auto pHydrogen = Hydrogen::get_instance();
 	m_pPlayBtn->setPressed(false);
 	pHydrogen->sequencer_stop();
-	pHydrogen->getCoreActionController()->relocate( 0 );
+	pHydrogen->getCoreActionController()->locateToColumn( 0 );
 	(HydrogenApp::get_instance())->setStatusBarMessage(tr("Stopped."), 5000);
 }
 
@@ -981,7 +980,7 @@ void PlayerControl::FFWDBtnClicked( Button* )
 	WARNINGLOG( "relocate via button press" );
 
 	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() + 1 );
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() + 1 );
 }
 
 
@@ -991,7 +990,7 @@ void PlayerControl::RewindBtnClicked( Button* )
 	WARNINGLOG( "relocate via button press" );
 	
 	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() - 1 );
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() - 1 );
 }
 
 

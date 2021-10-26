@@ -58,6 +58,7 @@
 
 #include <core/Preferences.h>
 #include <core/Hydrogen.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Timeline.h>
 #include <core/Helpers/Filesystem.h>
 
@@ -127,7 +128,7 @@ void Director::metronomeEvent( int nValue )
 	//bpm
 	m_fBpm = Hydrogen::get_instance()->getSong()->getBpm();
 	//bar
-	m_nBar = Hydrogen::get_instance()->getPatternPos() + 1;
+	m_nBar = Hydrogen::get_instance()->getAudioEngine()->getColumn() + 1;
 
 	if ( m_nBar <= 0 ){
 		m_nBar = 1;

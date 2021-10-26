@@ -250,14 +250,21 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 */
 		bool activateLoopMode( bool bActivate, bool bTriggerEvent );
 		/** Relocates transport to the beginning of a particular
-		 * Pattern.
+		 * column/Pattern group.
 		 * 
 		 * @param nPatternGroup Position of the Song provided as the
 		 * index of a particular pattern group (starting at zero).
 		 *
 		 * @return bool true on success
 		 */
-		bool relocate( int nPatternGroup );
+		bool locateToColumn( int nPatternGroup );
+		/** Relocates transport to a particular frame.
+		 * 
+		 * @param nFrame Destination
+		 *
+		 * @return bool true on success
+		 */
+		bool locateToFrame( unsigned long nFrame );
 		
 		// -----------------------------------------------------------
 		// Helper functions
