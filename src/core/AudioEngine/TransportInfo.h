@@ -41,14 +41,15 @@ namespace H2Core
  * "externalFrames" to indicate that it's not used within Hydrogen but
  * to sync it with other apps.
  */
-class TransportInfo : public H2Core::Object
+class TransportInfo : public H2Core::Object<TransportInfo>
 {
+	H2_OBJECT(TransportInfo)
 public:
 
 	/**
 	 * Constructor of TransportInfo
 	 */
-	TransportInfo( const char* __class_name );
+	TransportInfo();
 	/** Destructor of TransportInfo */
 	~TransportInfo();
 

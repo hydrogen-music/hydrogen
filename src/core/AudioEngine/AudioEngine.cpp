@@ -1770,7 +1770,7 @@ void AudioEngine::play() {
 
 	setNextState( State::Playing );
 
-	if ( m_pAudioDriver->class_name() == FakeDriver::class_name() ) {
+	if ( m_pAudioDriver->class_name() == FakeDriver::_class_name() ) {
 		static_cast<FakeDriver*>( m_pAudioDriver )->processCallback();
 	}
 }

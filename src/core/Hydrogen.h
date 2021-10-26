@@ -168,7 +168,7 @@ public:
 	 * negated. If the latter was true before calling this function,
 	 * #H2Core::AudioEngine::m_pPlayingPatterns will be cleared and
 	 * replaced by the Pattern indexed with
-	 * #H2Core::AudioEngine::m_nSelectedPatternNumber.
+	 * #m_nSelectedPatternNumber.
 	 *
 	 * This function will be called either by MainForm::eventFilter()
 	 * when pressing Qt::Key_L or by
@@ -318,17 +318,17 @@ void			previewSample( Sample *pSample );
 	/** \return #m_nSelectedPatternNumber*/
 	int				getSelectedPatternNumber() const;
 	/**
-	 * Sets #H2Core::AudioEngine::m_nSelectedPatternNumber.
+	 * Sets #m_nSelectedPatternNumber.
 	 *
 	 * If Preferences::m_pPatternModePlaysSelected is set to true, the
 	 * AudioEngine is locked before @a nPat will be assigned. But in
 	 * any case the function will push the
 	 * #EVENT_SELECTED_PATTERN_CHANGED Event to the EventQueue.
 	 *
-	 * If @a nPat is equal to #H2Core::AudioEngine::m_nSelectedPatternNumber, the function
+	 * If @a nPat is equal to #m_nSelectedPatternNumber, the function
 	 * will return right away.
 	 *
-	 *\param nPat Sets #H2Core::AudioEngine::m_nSelectedPatternNumber*/
+	 *\param nPat Sets #m_nSelectedPatternNumber*/
 	void			setSelectedPatternNumber( int nPat );
 
 	int				getSelectedInstrumentNumber() const;
