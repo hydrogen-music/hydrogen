@@ -32,6 +32,7 @@ namespace H2Core
 	/**
 	 * Filesystem is a thin layer over QDir, QFile and QFileInfo
 	 */
+	/** \ingroup docCore*/
 	class Filesystem : public H2Core::Object<Filesystem>
 	{
 		H2_OBJECT(Filesystem)

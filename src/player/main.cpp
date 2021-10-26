@@ -29,7 +29,7 @@
 #include <core/Preferences.h>
 #include <core/FX/Effects.h>
 #include <core/EventQueue.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/MidiMap.h>
 
@@ -114,11 +114,11 @@ int main(int argc, char** argv){
 				break;
 
 			case 'b':
-				hydrogen->setPatternPos( 0 );
+				hydrogen->getCoreActionController()->locateToColumn( 0 );
 				break;
 
 			case 'f':
-				cout << "Frames = " << hydrogen->getTotalFrames() << endl;
+				cout << "Frames = " << hydrogen->getAudioEngine()->getFrames() << endl;
 				break;
 
 			case 'd':

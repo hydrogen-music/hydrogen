@@ -40,6 +40,7 @@
  *
  * This class overrides this behaviour.
  */
+/** \ingroup docGUI*/
 class WidgetScrollArea : public QScrollArea
 {
 public:

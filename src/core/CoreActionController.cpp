@@ -20,7 +20,7 @@
  *
  */
 
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
@@ -329,7 +329,7 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
 
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
 		// Stops recording, all queued MIDI notes, and the playback of
 		// the audio driver.
 		pHydrogen->sequencer_stop();
@@ -368,7 +368,7 @@ bool CoreActionController::openSong( const QString& sSongPath ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
  
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
 		// Stops recording, all queued MIDI notes, and the playback of
 		// the audio driver.
 		pHydrogen->sequencer_stop();
@@ -396,7 +396,7 @@ bool CoreActionController::openSong( std::shared_ptr<Song> pSong ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
  
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
 		// Stops recording, all queued MIDI notes, and the playback of
 		// the audio driver.
 		pHydrogen->sequencer_stop();
@@ -657,7 +657,7 @@ bool CoreActionController::activateSongMode( bool bActivate, bool bTriggerEvent 
 	auto pHydrogen = Hydrogen::get_instance();
 	pHydrogen->sequencer_stop();
 	if ( bActivate ) {
-		pHydrogen->setPatternPos( 0 );
+		locateToColumn( 0 );
 		pHydrogen->getSong()->setMode( Song::SONG_MODE );
 	} else {
 		pHydrogen->getSong()->setMode( Song::PATTERN_MODE );
@@ -683,20 +683,63 @@ bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent 
 	return true;
 }
 
-bool CoreActionController::relocate( int nPatternGroup ) {
+bool CoreActionController::locateToColumn( int nPatternGroup ) {
 
+	if ( nPatternGroup < -1 ) {
+		ERRORLOG( QString( "Provided column [%1] too low. Assigning -1 (indicating the beginning of a song without showing a cursor in the SongEditorPositionRuler) instead." )
+				  .arg( nPatternGroup ) );
+		nPatternGroup = -1;
+	}
+	
 	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->setPatternPos( nPatternGroup );
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
+	long nTotalTick = pAudioEngine->getTickForColumn( nPatternGroup );
+	if ( nTotalTick < 0 ) {
+		// TODO: why not locating to the beginning in here?
+		DEBUGLOG( QString( "Obtained ticks [%1] are smaller than zero. No relocation done." )
+				  .arg( nTotalTick ) );
+		return false;
+	}
+
+	locateToFrame( static_cast<unsigned long>( nTotalTick * pAudioEngine->getTickSize() ) );
+
 	pHydrogen->setTimelineBpm();
 	
-#ifdef H2CORE_HAVE_JACK
+	return true;
+}
+
+bool CoreActionController::locateToFrame( unsigned long nFrame ) {
+
+	const auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pDriver = pHydrogen->getAudioOutput();
 
+	pAudioEngine->lock( RIGHT_HERE );
+	
+	if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
+		// Required to move the playhead when clicking e.g. fast
+		// forward or the song editor ruler. The variables set in here
+		// do not interfere with the realtime audio (playback of MIDI
+		// events of virtual keyboard) and all other position
+		// variables in the AudioEngine will be set properly with
+		// respect to them by then.
+
+		int nTotalTick = static_cast<int>(nFrame / pAudioEngine->getTickSize());
+		int nPatternStartTick;
+		int nColumn = pAudioEngine->getColumnForTick( nTotalTick, pHydrogen->getSong()->getIsLoopEnabled(), &nPatternStartTick );
+
+		pAudioEngine->setColumn( nColumn );
+		pAudioEngine->setPatternTickPosition( nTotalTick - nPatternStartTick );
+	}
+	pAudioEngine->locate( nFrame );
+	pAudioEngine->unlock();
+
+#ifdef H2CORE_HAVE_JACK
 	if ( pHydrogen->haveJackTransport() &&
-		 pDriver->m_transport.m_status != TransportInfo::ROLLING ) {
-	long totalTick = pHydrogen->getTickForPosition( nPatternGroup );
-	static_cast<JackAudioDriver*>(pDriver)->m_currentPos = 
-		totalTick * pDriver->m_transport.m_fTickSize;
+		 pAudioEngine->getState() != AudioEngine::State::Playing ) {
+		static_cast<JackAudioDriver*>(pDriver)->m_currentPos = nFrame;
 	}
 #endif
 	return true;

@@ -32,6 +32,7 @@
 class Button;
 class LCDDisplay;
 
+/** \ingroup docGUI docWidgets*/
 class LCDCombo :  public QWidget,  public H2Core::Object<LCDCombo>
 {
 		H2_OBJECT(LCDCombo)

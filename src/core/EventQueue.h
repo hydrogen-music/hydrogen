@@ -64,7 +64,7 @@ enum EventType {
 	EVENT_NOTEON,
 	EVENT_ERROR,
 	/** Event indicating the triggering of the
-	 * #m_pMetronomeInstrument.
+	 * #H2Core::AudioEngine::m_pMetronomeInstrument.
 	 *
 	 * In audioEngine_updateNoteQueue() the pushing of this Event is
 	 * decoupled from the creation and queuing of the corresponding
@@ -84,9 +84,7 @@ enum EventType {
 	 *      MetronomeWidget::updateWidget().
 	 * - 1: Beat in the remainder of a Pattern in
 	 *      audioEngine_updateNoteQueue(). The corresponding Note will
-	 *      be created with a pitch of 0 and velocity of 0.8. In
-	 *      addition, it will be also pushed by
-	 *      Hydrogen::setPatternPos() without creating a Note.
+	 *      be created with a pitch of 0 and velocity of 0.8.
 	 *      Sets MetronomeWidget::m_state to
 	 *      MetronomeWidget::METRO_FIRST and triggers
 	 *      MetronomeWidget::updateWidget().
@@ -159,6 +157,7 @@ enum EventType {
 /** Basic building block for the communication between the core of
  * Hydrogen and its GUI.  The individual Events will be enlisted in
  * the EventQueue singleton.*/
+/** \ingroup docCore docEvent */
 class Event
 {
 public:
@@ -183,6 +182,7 @@ public:
  * will be invoked to respond to the condition of the engine. For
  * details about the mapping of EventTypes to functions please see the
  * documentation of HydrogenApp::onEventQueueTimer().*/
+/** \ingroup docCore docEvent */
 class EventQueue : public H2Core::Object<EventQueue>
 {
 	H2_OBJECT(EventQueue)

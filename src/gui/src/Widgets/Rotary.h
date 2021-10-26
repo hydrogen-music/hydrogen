@@ -33,6 +33,7 @@ class LCDDisplay;
 
 #include <core/Object.h>
 
+/** \ingroup docGUI docWidgets*/
 class RotaryTooltip : public QWidget
 {
 	public:
@@ -46,6 +47,7 @@ class RotaryTooltip : public QWidget
 
 
 
+/** \ingroup docGUI docWidgets*/
 class Rotary :  public QWidget,  public H2Core::Object<Rotary>, public MidiLearnable
 {
     H2_OBJECT(Rotary)

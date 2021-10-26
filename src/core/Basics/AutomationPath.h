@@ -33,6 +33,7 @@
 namespace H2Core
 {
 
+/** \ingroup docCore docDataStructure docAutomation*/
 class AutomationPath : public Object<AutomationPath>
 {
 	H2_OBJECT(AutomationPath)

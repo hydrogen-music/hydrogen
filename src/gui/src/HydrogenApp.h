@@ -69,6 +69,7 @@ class SampleEditor;
 class Director;
 class InfoBar;
 
+/** \ingroup docGUI*/
 class HydrogenApp :  public QObject, public EventListener,  public H2Core::Object<HydrogenApp>
 {
 		H2_OBJECT(HydrogenApp)

@@ -30,6 +30,7 @@
 
 #include <core/Object.h>
 
+/** \ingroup docGUI*/
 class SplashScreen :  public QSplashScreen,  public H2Core::Object<SplashScreen>
 {
     H2_OBJECT(SplashScreen)

@@ -53,7 +53,7 @@
 * @author Sebastian Moors
 *
 */
-
+/** \ingroup docCore docAutomation*/
 class NsmClient : public H2Core::Object<NsmClient>
 {
 	H2_OBJECT(NsmClient)
@@ -120,7 +120,7 @@ class NsmClient : public H2Core::Object<NsmClient>
 
 		/** Causes the NSM client to not process events anymore.
 		 *
-		 * Sets #NsmShutdown to true.*/
+		 * Sets #bNsmShutdown to true.*/
 		void shutdown();
 	/**
 	 * Responsible for linking and loading of the drumkit samples.

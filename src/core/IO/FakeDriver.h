@@ -31,6 +31,8 @@ namespace H2Core
 /**
  * Fake audio driver. Used only for profiling.
  */
+/** \ingroup docCore docAudioDriver */
+/** \ingroup docCore docMIDI */
 class FakeDriver : Object<FakeDriver>, public AudioOutput
 {
 	H2_OBJECT(FakeDriver)
@@ -49,11 +51,7 @@ public:
 	float* getOut_L();
 	float* getOut_R();
 
-	virtual void play();
-	virtual void stop();
-	virtual void locate( unsigned long nFrame );
-	virtual void updateTransportInfo();
-	virtual void setBpm( float fBPM );
+	void processCallback();
 
 private:
 	audioProcessCallback m_processCallback;

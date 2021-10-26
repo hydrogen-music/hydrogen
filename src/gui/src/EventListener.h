@@ -23,6 +23,7 @@
 #define EVENT_LISTENER
 
 #include <core/Globals.h>
+/** \ingroup docGUI docEvent*/
 class EventListener
 {
 	public:

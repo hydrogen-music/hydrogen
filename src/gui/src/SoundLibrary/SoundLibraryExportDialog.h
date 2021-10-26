@@ -35,6 +35,7 @@
 ///
 ///
 ///
+/** \ingroup docGUI*/
 class SoundLibraryExportDialog :  public QDialog, public Ui_SoundLibraryExportDialog_UI,  public H2Core::Object<SoundLibraryExportDialog>
 {
 	H2_OBJECT(SoundLibraryExportDialog)

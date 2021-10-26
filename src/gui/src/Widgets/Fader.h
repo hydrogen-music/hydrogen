@@ -34,6 +34,7 @@
 ///
 /// Fader and VuMeter widget
 ///
+/** \ingroup docGUI docWidgets*/
 class Fader :  public QWidget,  public H2Core::Object<Fader>, public MidiLearnable
 {
     H2_OBJECT(Fader)
@@ -93,6 +94,7 @@ class Fader :  public QWidget,  public H2Core::Object<Fader>, public MidiLearnab
 		QPixmap m_knob;
 };
 
+/** \ingroup docGUI docWidgets*/
 class VerticalFader : public Fader
 {
 	Q_OBJECT
@@ -106,6 +108,7 @@ public:
 };
 
 
+/** \ingroup docGUI docWidgets*/
 class MasterFader :  public QWidget,  public H2Core::Object<MasterFader>, public MidiLearnable
 {
     H2_OBJECT(MasterFader)

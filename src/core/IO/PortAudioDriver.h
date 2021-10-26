@@ -36,6 +36,7 @@
 namespace H2Core
 {
 
+/** \ingroup docCore docAudioDriver */
 class PortAudioDriver : public Object<PortAudioDriver>, public AudioOutput
 {
 	H2_OBJECT(PortAudioDriver)
@@ -55,12 +56,6 @@ public:
 	virtual unsigned getSampleRate();
 	virtual float* getOut_L();
 	virtual float* getOut_R();
-
-	virtual void updateTransportInfo();
-	virtual void play();
-	virtual void stop();
-	virtual void locate( unsigned long nFrame );
-	virtual void setBpm( float fBPM );
 
 	static QStringList getDevices();
 	static QStringList getDevices( QString HostAPI );

@@ -42,7 +42,7 @@
 #include <core/Preferences.h>
 #include <core/Timeline.h>
 #include <core/IO/AudioOutput.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Sampler/Sampler.h>
 #include <core/EventQueue.h>
 
@@ -336,7 +336,6 @@ void ExportSongDialog::on_okBtn_clicked()
 
 		m_pHydrogen->startExportSession( sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt());
 		m_pHydrogen->startExportSong( filename );
-
 		return;
 	}
 

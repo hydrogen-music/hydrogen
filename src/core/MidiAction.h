@@ -26,6 +26,7 @@
 #include <string>
 #include <cassert>
 
+/** \ingroup docCore docMIDI */
 class Action : public H2Core::Object<Action> {
 	H2_OBJECT(Action)
 	public:
@@ -62,6 +63,7 @@ namespace H2Core
 	class Hydrogen;
 }
 
+/** \ingroup docCore docMIDI */
 class MidiActionManager : public H2Core::Object<MidiActionManager>
 {
 	H2_OBJECT(MidiActionManager)

@@ -39,6 +39,7 @@ namespace H2Core
 /// Alsa Midi Driver
 /// Based on Matthias Nagorni alsa sequencer example
 ///
+/** \ingroup docCore docMIDI */
 class AlsaMidiDriver : public Object<AlsaMidiDriver>, public virtual MidiInput, public virtual MidiOutput
 {
 	H2_OBJECT(AlsaMidiDriver)

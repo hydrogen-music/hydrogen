@@ -25,7 +25,7 @@
 
 #include <vector>
 #include <core/Object.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 
 namespace H2Core
 {
@@ -36,6 +36,7 @@ class AudioEngineLocking;
 /**
  * PatternList is a collection of patterns
 */
+/** \ingroup docCore docDataStructure */
   class PatternList : public H2Core::Object<PatternList>, public H2Core::AudioEngineLocking
 {
 		H2_OBJECT(PatternList)

@@ -48,6 +48,7 @@ namespace H2Core
 
 #if defined(H2CORE_HAVE_COREAUDIO) || _DOXYGEN_
 
+/** \ingroup docCore docAudioDriver */
 class CoreAudioDriver : public Object<CoreAudioDriver>, public AudioOutput
 {
 	H2_OBJECT(CoreAudioDriver)
@@ -76,15 +77,7 @@ public:
 	float* getOut_L();
 	float* getOut_R();
 
-
-	virtual void play();
-	virtual void stop();
-	virtual void locate( unsigned long nFrame );
-	virtual void updateTransportInfo();
-	virtual void setBpm( float fBPM );
-
 	static QStringList getDevices();
-
 private:
 	AudioDeviceID defaultOutputDevice(void);
 	void retrieveBufferSize(void);
@@ -105,6 +98,7 @@ private:
 
 #else
 
+/** \ingroup docCore docAudioDriver */
 class CoreAudioDriver : public Object<CoreAudioDriver>, public NullDriver
 {
 	H2_OBJECT(CoreAudioDriver)

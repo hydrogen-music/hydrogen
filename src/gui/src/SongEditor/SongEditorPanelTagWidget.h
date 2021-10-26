@@ -33,6 +33,7 @@ namespace H2Core
 {
 
 
+/** \ingroup docGUI*/
 class SongEditorPanelTagWidget :  public QDialog, public Ui_SongEditorPanelTagWidget_UI,  public H2Core::Object<SongEditorPanelTagWidget>
 {
     H2_OBJECT(SongEditorPanelTagWidget)

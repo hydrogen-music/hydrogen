@@ -33,6 +33,7 @@
 namespace H2Core
 {
 
+/** \ingroup docCore docAudioDriver */
 class AlsaAudioDriver : public Object<AlsaAudioDriver>, public AudioOutput
 {
 	H2_OBJECT(AlsaAudioDriver)
@@ -56,15 +57,7 @@ public:
 	virtual unsigned getSampleRate();
 	virtual float* getOut_L();
 	virtual float* getOut_R();
-
-	virtual void updateTransportInfo();
-	virtual void play();
-	virtual void stop();
-	virtual void locate( unsigned long nFrame );
-	virtual void setBpm( float fBPM );
-
 	static QStringList getDevices();
-
 private:
 
 	unsigned int m_nSampleRate;
@@ -74,6 +67,7 @@ private:
 
 namespace H2Core {
 
+/** \ingroup docCore docAudioDriver */
 class AlsaAudioDriver : public NullDriver
 {
 	H2_OBJECT(AlsaAudioDriver)

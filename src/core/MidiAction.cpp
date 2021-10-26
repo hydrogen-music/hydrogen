@@ -21,8 +21,9 @@
  */
 #include <QObject>
 
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
+#include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 
 #include <core/Basics/Instrument.h>
@@ -210,8 +211,7 @@ void MidiActionManager::create_instance() {
 }
 
 bool MidiActionManager::play(Action * , Hydrogen* pHydrogen, targeted_element ) {
-	int nState = pHydrogen->getState();
-	if ( nState == STATE_READY ) {
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Ready ) {
 		pHydrogen->sequencer_play();
 	}
 	return true;
@@ -224,26 +224,23 @@ bool MidiActionManager::pause(Action * , Hydrogen* pHydrogen, targeted_element )
 
 bool MidiActionManager::stop(Action * , Hydrogen* pHydrogen, targeted_element ) {
 	pHydrogen->sequencer_stop();
-	pHydrogen->setPatternPos( 0 );
-	pHydrogen->setTimelineBpm();
+	pHydrogen->getCoreActionController()->locateToColumn( 0 );
 	return true;
 }
 
 bool MidiActionManager::play_stop_pause_toggle(Action * pAction, Hydrogen* pHydrogen, targeted_element ) {
 	QString sActionString = pAction->getType();
-	int nState = pHydrogen->getState();
-	switch ( nState )
+	switch ( pHydrogen->getAudioEngine()->getState() )
 	{
-	case STATE_READY:
+	case AudioEngine::State::Ready:
 		pHydrogen->sequencer_play();
 		break;
 
-	case STATE_PLAYING:
+	case AudioEngine::State::Playing:
 		if( sActionString == "PLAY/STOP_TOGGLE" ) {
-			pHydrogen->setPatternPos( 0 );
+			pHydrogen->getCoreActionController()->locateToColumn( 0 );
 		}
 		pHydrogen->sequencer_stop();
-		pHydrogen->setTimelineBpm();
 		break;
 
 	default:
@@ -401,8 +398,7 @@ bool MidiActionManager::select_and_play_pattern(Action * pAction, Hydrogen* pHyd
 		return false;
 	}
 
-	int nState = pHydrogen->getState();
-	if ( nState == STATE_READY ) {
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Ready ) {
 		pHydrogen->sequencer_play();
 	}
 
@@ -839,15 +835,13 @@ bool MidiActionManager::bpm_decrease(Action * pAction, Hydrogen* pHydrogen, targ
 }
 
 bool MidiActionManager::next_bar(Action * , Hydrogen* pHydrogen, targeted_element ) {
-	pHydrogen->setPatternPos(pHydrogen->getPatternPos() +1 );
-	pHydrogen->setTimelineBpm();
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() +1 );
 	return true;
 }
 
 
 bool MidiActionManager::previous_bar(Action * , Hydrogen* pHydrogen, targeted_element ) {
-	pHydrogen->setPatternPos(pHydrogen->getPatternPos() -1 );
-	pHydrogen->setTimelineBpm();
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() -1 );
 	return true;
 }
 
@@ -876,7 +870,7 @@ bool MidiActionManager::playlist_previous_song(Action * pAction, Hydrogen* pHydr
 }
 
 bool MidiActionManager::record_ready(Action * pAction, Hydrogen* pHydrogen, targeted_element ) {
-	if ( pHydrogen->getState() != STATE_PLAYING ) {
+	if ( pHydrogen->getAudioEngine()->getState() != AudioEngine::State::Playing ) {
 		if (!Preferences::get_instance()->getRecordEvents()) {
 			Preferences::get_instance()->setRecordEvents(true);
 		}

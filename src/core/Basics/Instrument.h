@@ -49,6 +49,7 @@ class InstrumentComponent;
 /**
 Instrument class
 */
+/** \ingroup docCore docDataStructure */
 class Instrument : public H2Core::Object<Instrument>
 {
 		H2_OBJECT(Instrument)

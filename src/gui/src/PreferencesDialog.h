@@ -34,6 +34,7 @@
 /// Combo box showing a list of available devices for a given driver.
 /// List is calculated lazily when needed.
 ///
+/** \ingroup docGUI docConfiguration*/
 class DeviceComboBox : public QComboBox {
 
 	bool m_bHasDevices;
@@ -53,6 +54,7 @@ public:
 ///
 /// Combo box showing a list of HostAPIs.
 ///
+/** \ingroup docGUI docConfiguration*/
 class HostAPIComboBox : public QComboBox {
 
 public:
@@ -66,6 +68,7 @@ public:
 ///
 /// Preferences Dialog
 ///
+/** \ingroup docGUI docConfiguration*/
 class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  public H2Core::Object<PreferencesDialog>
 {
 	H2_OBJECT(PreferencesDialog)

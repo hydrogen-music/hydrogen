@@ -29,6 +29,7 @@
 ///
 ///
 ///
+/** \ingroup docGUI*/
 class SoundLibraryRepositoryDialog :  public QDialog, public Ui_SoundLibraryRepositoryDialog_UI,  public H2Core::Object<SoundLibraryRepositoryDialog>
 {
 	H2_OBJECT(SoundLibraryRepositoryDialog)

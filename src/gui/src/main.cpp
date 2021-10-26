@@ -43,7 +43,7 @@
 #endif
 
 #include <core/MidiMap.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
 #include <core/Globals.h>
 #include <core/EventQueue.h>

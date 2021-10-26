@@ -30,6 +30,7 @@ namespace Ui {
 class FilesystemInfoForm;
 }
 
+/** \ingroup docGUI docDebugging*/
 class FilesystemInfoForm :  public QWidget,  public H2Core::Object<FilesystemInfoForm>
 {
 	H2_OBJECT(FilesystemInfoForm)

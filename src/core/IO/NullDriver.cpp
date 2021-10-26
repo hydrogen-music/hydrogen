@@ -87,32 +87,4 @@ float* NullDriver::getOut_R()
 	return nullptr;
 }
 
-
-void NullDriver::play()
-{
-	INFOLOG( "not implemented" );
-}
-
-void NullDriver::stop()
-{
-	INFOLOG( "not implemented" );
-}
-
-void NullDriver::locate( unsigned long nFrame )
-{
-	UNUSED( nFrame );
-	INFOLOG( "not implemented" );
-}
-
-void NullDriver::updateTransportInfo()
-{
-	INFOLOG( "not implemented" );
-}
-
-void NullDriver::setBpm( float fBPM )
-{
-	UNUSED( fBPM );
-	ERRORLOG( "not implemented yet" );
-}
-
 };

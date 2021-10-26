@@ -38,6 +38,7 @@ class AudioOutput;
 ///
 /// A simple synthetizer...
 ///
+/** \ingroup docCore docAudioEngine*/
 class Synth : public H2Core::Object<Synth>
 {
 	H2_OBJECT(Synth)

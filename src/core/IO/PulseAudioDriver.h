@@ -38,6 +38,7 @@ namespace H2Core
 ///
 /// PulseAudio driver.
 ///
+/** \ingroup docCore docAudioDriver */
 class PulseAudioDriver : public Object<PulseAudioDriver>, public AudioOutput
 {
 	H2_OBJECT(PulseAudioDriver)
@@ -52,12 +53,6 @@ public:
 	virtual unsigned getSampleRate();
 	virtual float* getOut_L();
 	virtual float* getOut_R();
-
-	virtual void updateTransportInfo();
-	virtual void play();
-	virtual void stop();
-	virtual void locate( unsigned long nFrame );
-	virtual void setBpm( float fBPM );
 
 private:
 	pthread_t				m_thread;
@@ -92,6 +87,7 @@ private:
 #include <core/IO/NullDriver.h>
 
 namespace H2Core {
+/** \ingroup docCore docAudioDriver */
 	class PulseAudioDriver : public NullDriver
 	{
 		H2_OBJECT(PulseAudioDriver)

@@ -38,6 +38,7 @@ class Drumkit;
 class InstrumentLayer;
 class DrumkitComponent;
 
+/** \ingroup docCore docDataStructure */
 class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 {
 		H2_OBJECT(InstrumentComponent)

@@ -47,6 +47,7 @@ class PixmapWidget;
 ///
 ///
 ///
+/** \ingroup docGUI*/
 class MetronomeWidget :  public QWidget,public EventListener,  public H2Core::Object<MetronomeWidget>
 {
     H2_OBJECT(MetronomeWidget)
@@ -83,6 +84,7 @@ class MetronomeWidget :  public QWidget,public EventListener,  public H2Core::Ob
 ///
 /// Player control panel
 ///
+/** \ingroup docGUI*/
 class PlayerControl :  public QLabel, protected WidgetWithScalableFont<5, 6, 7>, public EventListener,  public H2Core::Object<PlayerControl>
 {
     H2_OBJECT(PlayerControl)

@@ -32,7 +32,7 @@
 
 #include <core/Basics/Song.h>
 #include <core/MidiMap.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Instrument.h>
@@ -435,7 +435,7 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		if ( pHydrogen->getState() == STATE_PLAYING ) {
+		if ( pHydrogen->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 			pHydrogen->sequencer_stop();
 		}
 

@@ -61,16 +61,13 @@ PortAudioDriver::PortAudioDriver( audioProcessCallback processCallback )
 		, m_pOut_R( nullptr )
 		, m_pStream( nullptr )
 {
-	INFOLOG( "INIT" );
 	m_nBufferSize = Preferences::get_instance()->m_nBufferSize;
 	m_nSampleRate = Preferences::get_instance()->m_nSampleRate;
 	m_sDevice = Preferences::get_instance()->m_sPortAudioDevice;
 }
 
 
-PortAudioDriver::~PortAudioDriver()
-{
-	INFOLOG( "DESTROY" );
+PortAudioDriver::~PortAudioDriver() {
 }
 
 int PortAudioDriver::init( unsigned nBufferSize )
@@ -287,30 +284,6 @@ float* PortAudioDriver::getOut_L()
 float* PortAudioDriver::getOut_R()
 {
 	return m_pOut_R;
-}
-
-void PortAudioDriver::updateTransportInfo()
-{
-}
-
-void PortAudioDriver::play()
-{
-	m_transport.m_status = TransportInfo::ROLLING;
-}
-
-void PortAudioDriver::stop()
-{
-	m_transport.m_status = TransportInfo::STOPPED;
-}
-
-void PortAudioDriver::locate( unsigned long nFrame )
-{
-	m_transport.m_nFrames = nFrame;
-}
-
-void PortAudioDriver::setBpm( float fBPM )
-{
-	m_transport.m_fBPM = fBPM;
 }
 
 };

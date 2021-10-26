@@ -33,9 +33,11 @@
 namespace H2Core
 {
 
+	void* diskWriterDriver_thread( void *param );
 ///
 /// Driver for export audio to disk
 ///
+/** \ingroup docCore docAudioDriver */
 class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 {
 	H2_OBJECT(DiskWriterDriver)
@@ -77,15 +79,6 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 		void  setFileName( const QString& sFilename ){
 			m_sFilename = sFilename;
 		}
-
-		virtual void play();
-		virtual void stop();
-		virtual void locate( unsigned long nFrame );
-		virtual void updateTransportInfo();
-		virtual void setBpm( float fBPM );
-		
-
-		
 
 	private:
 

@@ -25,7 +25,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
 using namespace H2Core;
 
@@ -953,8 +953,8 @@ void PatternEditorPanel::denominatorWarningClicked()
 
 void PatternEditorPanel::patternSizeLCDClicked()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	if ( pEngine->getState() != STATE_READY ) {	
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen->getAudioEngine()->getState() != H2Core::AudioEngine::State::Ready ) {	
 		QMessageBox::information( this, "Hydrogen", tr( "Is not possible to change the pattern size when playing." ) );
 		return;
 	} // TODO is it really impossible to change the pattern size when playing?

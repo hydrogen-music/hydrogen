@@ -39,6 +39,7 @@ class PatternList;
 /**
 Pattern class is a Note container
 */
+/** \ingroup docCore docDataStructure */
 class Pattern : public H2Core::Object<Pattern>
 {
 		H2_OBJECT(Pattern)
