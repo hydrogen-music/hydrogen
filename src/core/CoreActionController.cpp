@@ -697,10 +697,16 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
 	long nTotalTick = pAudioEngine->getTickForColumn( nPatternGroup );
 	if ( nTotalTick < 0 ) {
-		// TODO: why not locating to the beginning in here?
-		DEBUGLOG( QString( "Obtained ticks [%1] are smaller than zero. No relocation done." )
-				  .arg( nTotalTick ) );
-		return false;
+		// There is no pattern inserted in the SongEditor.
+		if ( pHydrogen->getSong()->getMode() == Song::SONG_MODE ) {
+			DEBUGLOG( QString( "Obtained ticks [%1] are smaller than zero. No relocation done." )
+					  .arg( nTotalTick ) );
+			return false;
+		} else {
+			// In case of Pattern mode this is not a problem and we
+			// will treat this case as the beginning of the song.
+			nTotalTick = 0;
+		}
 	}
 
 	locateToFrame( static_cast<unsigned long>( nTotalTick * pAudioEngine->getTickSize() ) );
