@@ -143,7 +143,19 @@ Preferences::Preferences()
 	m_sOSSDevice = QString("/dev/dsp");
 
 	//___ MIDI Driver properties
+#if defined(H2CORE_HAVE_ALSA)
 	m_sMidiDriver = QString("ALSA");
+#elif defined(H2CORE_HAVE_PORTMIDI)
+	m_sMidiDriver = QString("PortMidi");
+#elif defined(H2CORE_HAVE_COREMIDI)
+	m_sMidiDriver = QString("CoreMIDI");
+#elif defined(H2CORE_HAVE_JACK)
+	m_sMidiDriver = QString("JACK-MIDI");
+#else
+	// Set ALSA as fallback if none of the above options are available
+	// (although MIDI won't work in this case).
+	m_sMidiDriver = QString( "ALSA" );
+#endif
 	m_sMidiPortName = QString("None");
 	m_sMidiOutputPortName = QString("None");
 	m_nMidiChannelFilter = -1;
