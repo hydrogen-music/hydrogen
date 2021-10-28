@@ -413,10 +413,6 @@ bool CoreActionController::openSong( std::shared_ptr<Song> pSong ) {
 bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
-	
-	// Remove all BPM markers and tags on the Timeline.
-	pHydrogen->getTimeline()->deleteAllTempoMarkers();
-	pHydrogen->getTimeline()->deleteAllTags();
 
 	// Update the Song.
 	pHydrogen->setSong( pSong );
