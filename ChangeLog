@@ -1,5 +1,6 @@
 20xx-xx-xx the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2
+	* Remembering paths in all export/import/save/open dialogs.
 	* PreferencesDialog > Appearance tab overhaul
 	  	- Drop previous font options in favor for three different
 		  levels of font (without exposing their point sizes)

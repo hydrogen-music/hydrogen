@@ -1533,10 +1533,15 @@ void SongEditorPatternList::patternPopup_load()
 	std::shared_ptr<Song> song = engine->getSong();
 	Pattern *pattern = song->getPatternList()->get( nSelectedPattern );
 
+	QString sPath = Preferences::get_instance()->getLastOpenPatternDirectory();
+	if ( ! Filesystem::dir_readable( sPath, false ) ){
+		sPath = Filesystem::patterns_dir();
+	}
+
 	QFileDialog fd(this);
 	fd.setFileMode( QFileDialog::ExistingFile );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
-	fd.setDirectory( Filesystem::patterns_dir() );
+	fd.setDirectory( sPath );
 	fd.setWindowTitle( tr( "Open Pattern" ) );
 
 	if (fd.exec() != QDialog::Accepted) {
@@ -1555,6 +1560,7 @@ void SongEditorPatternList::patternPopup_load()
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
 		return;
 	}
+	Preferences::get_instance()->setLastOpenPatternDirectory( fd.directory().absolutePath() );
 
 	SE_loadPatternAction *action = new SE_loadPatternAction( patternPath, prevPatternPath, sequencePath, nSelectedPattern, false );
 	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();

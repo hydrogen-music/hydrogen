@@ -177,8 +177,7 @@ void ExportSongDialog::saveSettingsToPreferences()
 	
 	// saving filename for this session	
 	sLastFilename = info.fileName();
-	QString sSelectedDirname = dir.absolutePath();
-	m_pPreferences->setExportDirectory( sSelectedDirname );
+	Preferences::get_instance()->setLastExportSongDirectory( dir.absolutePath() );
 	
 	// saving other options
 	m_pPreferences->setExportModeIdx( exportTypeCombo->currentIndex() );
@@ -196,7 +195,7 @@ void ExportSongDialog::restoreSettingsFromPreferences()
 		sLastFilename = createDefaultFilename();
 	}
 
-	QString sDirPath = m_pPreferences->getExportDirectory();
+	QString sDirPath = m_pPreferences->getLastExportSongDirectory();
 	QDir qd = QDir( sDirPath );
 	
 	// joining filepath with dirname
@@ -225,17 +224,25 @@ void ExportSongDialog::restoreSettingsFromPreferences()
 
 void ExportSongDialog::on_browseBtn_clicked()
 {
-	QString sPrevDir = m_pPreferences->getExportDirectory();
+	QString sPath = Preferences::get_instance()->getLastExportSongDirectory();
+	if ( ! Filesystem::dir_writable( sPath, false ) ){
+		sPath = QDir::homePath();
+	}
 
 	QFileDialog fd(this);
 	fd.setFileMode(QFileDialog::AnyFile);
 
-	if( templateCombo->currentIndex() <= 4 ) fd.setNameFilter("Microsoft WAV (*.wav *.WAV)");
-	if( templateCombo->currentIndex() > 4 && templateCombo->currentIndex() < 8  ) fd.setNameFilter( "Apple AIFF (*.aiff *.AIFF)");
-	if( templateCombo->currentIndex() == 8) fd.setNameFilter( "Lossless  Flac (*.flac *.FLAC)");
-	if( templateCombo->currentIndex() == 9) fd.setNameFilter( "Compressed Ogg (*.ogg *.OGG)");
+	if( templateCombo->currentIndex() <= 4 ) {
+		fd.setNameFilter("Microsoft WAV (*.wav *.WAV)");
+	} else if ( templateCombo->currentIndex() > 4 && templateCombo->currentIndex() < 8  ) {
+		fd.setNameFilter( "Apple AIFF (*.aiff *.AIFF)");
+	} else if ( templateCombo->currentIndex() == 8 ) {
+		fd.setNameFilter( "Lossless  Flac (*.flac *.FLAC)");
+	} else if ( templateCombo->currentIndex() == 9 ) {
+		fd.setNameFilter( "Compressed Ogg (*.ogg *.OGG)");
+	}
 
-	fd.setDirectory( sPrevDir );
+	fd.setDirectory( sPath );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 	fd.setWindowTitle( tr( "Export song" ) );
 

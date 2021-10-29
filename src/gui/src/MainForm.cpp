@@ -590,11 +590,17 @@ void MainForm::action_file_save_as()
 			pHydrogen->sequencer_stop();
 	}
 
+	QString sPath = Preferences::get_instance()->getLastSaveSongAsDirectory();
+	if ( ! Filesystem::dir_writable( sPath, false ) ){
+		sPath = Filesystem::songs_dir();
+	}
+
 	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	QFileDialog fd(this);
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( Filesystem::songs_filter_name );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
+	fd.setDirectory( sPath );
 
 	if ( bUnderSessionManagement ) {	
 		fd.setWindowTitle( tr( "Export song from Session" ) );
@@ -610,11 +616,12 @@ void MainForm::action_file_save_as()
 
 	if ( lastFilename.isEmpty() ) {
 		defaultFilename = pHydrogen->getSong()->getName();
-		defaultFilename += Filesystem::songs_ext;
 	}
 	else {
-		defaultFilename = lastFilename;
+		QFileInfo fileInfo( lastFilename );
+		defaultFilename = fileInfo.baseName();
 	}
+	defaultFilename += Filesystem::songs_ext;
 
 	fd.selectFile( defaultFilename );
 
@@ -624,6 +631,8 @@ void MainForm::action_file_save_as()
 	}
 
 	if ( !filename.isEmpty() ) {
+		Preferences::get_instance()->setLastSaveSongAsDirectory( fd.directory().absolutePath( ) );
+
 		QString sNewFilename = filename;
 		if ( sNewFilename.endsWith( Filesystem::songs_ext ) == false ) {
 			filename += Filesystem::songs_ext;
@@ -774,12 +783,15 @@ void MainForm::action_file_export_pattern_as()
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	Pattern *pPattern = pSong->getPatternList()->get( pHydrogen->getSelectedPatternNumber() );
 
-	QDir dir = Preferences::get_instance()->__lastspatternDirectory;
+	QString sPath = Preferences::get_instance()->getLastExportPatternAsDirectory();
+	if ( ! Filesystem::dir_writable( sPath, false ) ){
+		sPath = Filesystem::patterns_dir();
+	}
 
 	QString title = tr( "Save Pattern as ..." );
 	QFileDialog fd(this);
 	fd.setWindowTitle( title );
-	fd.setDirectory( dir );
+	fd.setDirectory( sPath );
 	fd.selectFile( pPattern->get_name() );
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
@@ -792,7 +804,7 @@ void MainForm::action_file_export_pattern_as()
 	}
 
 	QFileInfo fileInfo = fd.selectedFiles().first();
-	Preferences::get_instance()->__lastspatternDirectory =  fileInfo.path();
+	Preferences::get_instance()->setLastExportPatternAsDirectory( fileInfo.path() );
 	QString filePath = fileInfo.absoluteFilePath();
 
 	QString originalName = pPattern->get_name();
@@ -826,11 +838,14 @@ void MainForm::action_file_open() {
 		return;
 	}
 
-	static QString sLastUsedDir = Filesystem::songs_dir();
+	QString sPath = Preferences::get_instance()->getLastOpenSongDirectory();
+	if ( ! Filesystem::dir_readable( sPath, false ) ){
+		sPath = Filesystem::songs_dir();
+	}
 
 	QFileDialog fd(this);
 	fd.setFileMode( QFileDialog::ExistingFile );
-	fd.setDirectory( sLastUsedDir );
+	fd.setDirectory( sPath );
 	fd.setNameFilter( Filesystem::songs_filter_name );
 
 	if ( H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
@@ -841,8 +856,8 @@ void MainForm::action_file_open() {
 
 	QString sFilename;
 	if ( fd.exec() == QDialog::Accepted ) {
+		Preferences::get_instance()->setLastOpenSongDirectory( fd.directory().absolutePath() );
 		sFilename = fd.selectedFiles().first();
-		sLastUsedDir = fd.directory().absolutePath();
 	}
 
 	if ( !sFilename.isEmpty() ) {
@@ -863,9 +878,14 @@ void MainForm::action_file_openPattern()
 	auto pInstrument = pSong->getInstrumentList()->get ( 0 );
 	assert ( pInstrument );
 
+	QString sPath = Preferences::get_instance()->getLastOpenPatternDirectory();
+	if ( ! Filesystem::dir_readable( sPath, false ) ){
+		sPath = Filesystem::patterns_dir();
+	}
+
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::ExistingFile );
-	fd.setDirectory ( Filesystem::patterns_dir() );
+	fd.setDirectory ( sPath );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
 
 	fd.setWindowTitle ( tr ( "Open Pattern" ) );
@@ -874,6 +894,7 @@ void MainForm::action_file_openPattern()
 	QString filename;
 	if ( fd.exec() == QDialog::Accepted )
 	{
+		Preferences::get_instance()->setLastOpenPatternDirectory( fd.directory().absolutePath() );
 		filename = fd.selectedFiles().first();
 	}
 	QString patternname = filename;
@@ -1878,17 +1899,23 @@ void MainForm::action_file_export_lilypond()
 		tr( "\nThe LilyPond export is an experimental feature.\n"
 		"It should work like a charm provided that you use the "
 		"GMRockKit, and that you do not use triplet.\n" ),
-		QMessageBox::Ok ); 
+		QMessageBox::Ok );
+
+	QString sPath = Preferences::get_instance()->getLastExportLilypondDirectory();
+	if ( ! Filesystem::dir_writable( sPath, false ) ){
+		sPath = Filesystem::usr_data_path();
+	}
 
 	QFileDialog fd( this );
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( tr( "LilyPond file (*.ly)" ) );
-	fd.setDirectory( QDir::homePath() );
+	fd.setDirectory( sPath );
 	fd.setWindowTitle( tr( "Export LilyPond file" ) );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 
 	QString sFilename;
 	if ( fd.exec() == QDialog::Accepted ) {
+		Preferences::get_instance()->setLastExportLilypondDirectory( fd.directory().absolutePath() );
 		sFilename = fd.selectedFiles().first();
 	}
 

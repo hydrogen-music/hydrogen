@@ -78,8 +78,7 @@ void ExportMidiDialog::saveSettingsToPreferences()
 	}
 	
 	sLastFilename = info.fileName();
-	QString sSelectedDirname = dir.absolutePath();
-	m_pPreferences->setMidiExportDirectory( sSelectedDirname );
+	Preferences::get_instance()->setLastExportMidiDirectory( dir.absolutePath() );
 }
 
 QString ExportMidiDialog::createDefaultFilename()
@@ -108,7 +107,7 @@ void ExportMidiDialog::restoreSettingsFromPreferences()
 		sLastFilename = createDefaultFilename();
 	}
 
-	QString sDirPath = m_pPreferences->getMidiExportDirectory();
+	QString sDirPath = m_pPreferences->getLastExportMidiDirectory();
 	QDir qd = QDir( sDirPath );
 	
 	// joining filepath with dirname
@@ -122,12 +121,16 @@ void ExportMidiDialog::restoreSettingsFromPreferences()
 
 void ExportMidiDialog::on_browseBtn_clicked()
 {
+	QString sPath = Preferences::get_instance()->getLastExportMidiDirectory();
+	if ( ! Filesystem::dir_writable( sPath, false ) ){
+		sPath = Filesystem::usr_data_path();
+	}
+	
 	QFileDialog fd( this );
-	QString sPrevDir = m_pPreferences->getMidiExportDirectory();
 
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( tr("Midi file (*%1)").arg( m_sExtension ) );
-	fd.setDirectory( sPrevDir );
+	fd.setDirectory( sPath );
 	fd.setWindowTitle( tr( "Export MIDI file" ) );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 
