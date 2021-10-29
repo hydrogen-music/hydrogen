@@ -801,7 +801,7 @@ void MasterMixerLine::rotaryChanged( WidgetWithInput *pRef )
 ////////////////////////////////
 
 InstrumentNameWidget::InstrumentNameWidget(QWidget* parent)
- : PixmapWidget( parent, "InstrumentNameWidget" )
+ : PixmapWidget( parent )
 {
 //	infoLog( "INIT" );
 	m_nWidgetWidth = 17;
@@ -874,7 +874,7 @@ void InstrumentNameWidget::onPreferencesChanged( H2Core::Preferences::Changes ch
 
 
 LadspaFXMixerLine::LadspaFXMixerLine(QWidget* parent)
- : PixmapWidget( parent, "LadspaFXMixerLine" )
+ : PixmapWidget( parent )
 {
 	resize( 194, 43 );
 	setMinimumSize( width(), height() );

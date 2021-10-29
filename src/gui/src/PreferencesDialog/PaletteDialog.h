@@ -28,9 +28,9 @@
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/ColorSelectionButton.h"
 
-class PaletteDialog : public QDialog, private H2Core::Object
+class PaletteDialog : public QDialog, private H2Core::Object<PaletteDialog>
 {
-	H2_OBJECT
+	H2_OBJECT(PaletteDialog)
 	Q_OBJECT
 
 public:

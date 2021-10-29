@@ -511,7 +511,7 @@ void HydrogenApp::onEventQueueTimer()
 
 			switch ( event.type ) {
 			case EVENT_STATE:
-				pListener->stateChangedEvent( event.value );
+				pListener->stateChangedEvent( static_cast<H2Core::AudioEngine::State>(event.value) );
 				break;
 
 			case EVENT_PATTERN_CHANGED:

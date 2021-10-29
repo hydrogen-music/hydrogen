@@ -35,7 +35,6 @@
 
 Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize, QString sBaseTooltip, bool bColorful )
 	: QPushButton( pParent )
-	, Object( __class_name )
 	, m_size( size )
 	, m_iconSize( iconSize )
 	, m_sBaseTooltip( sBaseTooltip )

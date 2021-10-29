@@ -1419,14 +1419,14 @@
    <header location="global">../src/Widgets/MidiTable.h</header>
   </customwidget>
   <customwidget>
+   <header location="global">../src/PreferencesDialog/PreferencesDialog.h</header>
    <class>DeviceComboBox</class>
    <extends>QComboBox</extends>
-   <header>PreferencesDialog.h</header>
   </customwidget>
   <customwidget>
    <class>HostAPIComboBox</class>
    <extends>QComboBox</extends>
-   <header>PreferencesDialog.h</header>
+   <header location="global">../src/PreferencesDialog/PreferencesDialog.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -27,11 +27,8 @@
 #include <core/Globals.h>
 #include <core/Preferences.h>
 
-const char* LED::__class_name = "LED";
-
 LED::LED( QWidget *pParent, QSize size )
  : QWidget( pParent )
- , Object( __class_name )
  , m_bActivated( false )
 {
 	setAttribute( Qt::WA_OpaquePaintEvent );
@@ -81,8 +78,6 @@ void LED::paintEvent( QPaintEvent* ev )
 }
 
 //////////////////////////////////////////////////////////////////////
-
-const char* MetronomeLED::__class_name = "MetronomeLED";
 
 MetronomeLED::MetronomeLED( QWidget *pParent, QSize size )
 	: LED( pParent, size )

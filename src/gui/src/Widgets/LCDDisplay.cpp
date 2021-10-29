@@ -25,11 +25,8 @@
 
 #include <core/Globals.h>
 
-const char* LCDDisplay::__class_name = "LCDDisplay";
-
 LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont )
  : QLineEdit( pParent )
- , Object( __class_name )
  , m_size( size )
  , m_bFixedFont( bFixedFont )
  , m_bUseRedFont( false )

@@ -28,11 +28,8 @@
 
 #include <core/Globals.h>
 
-const char* ClickableLabel::__class_name = "ClickableLabel";
-
 ClickableLabel::ClickableLabel( QWidget *pParent, QSize size, QString sText, Color color  )
 	: QLabel( pParent )
-	, Object( __class_name )
 	, m_size( size )
 	, m_color( color )
 {

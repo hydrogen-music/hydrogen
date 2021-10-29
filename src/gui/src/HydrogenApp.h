@@ -206,10 +206,6 @@ signals:
 	 *
 	 * Triggered by the PreferencesDialog upon a change of the
 	 * underlying options in the Preferences class.
-	 *
-	 * @param bAppearanceOnly Whether all options or only those
-	 * associated with the Appearance tab of the PreferencesDialog
-	 * should be updated.
 	 */
 	void changePreferences( H2Core::Preferences::Changes changes );
 

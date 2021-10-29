@@ -30,6 +30,7 @@
 #include <core/MidiAction.h>
 
 #include "MidiLearnable.h"
+#include "WidgetWithScalableFont.h"
 
 #include <QtGui>
 #include <QPushButton>
@@ -74,6 +75,14 @@ public:
 	 * text. If the text should be used instead, @a sIcon must the
 	 * an empty string.
 	 *
+	 * \param pParent
+	 * \param size
+	 * \param type
+	 * \param sIcon
+	 * \param sText
+	 * \param bUseRedBackground
+	 * \param iconSize
+	 * \param sBaseTooltip
 	 * \param bColorful If set to false, the icon @a sIcon is expected
 	 * to exist in both subfolders "black" and "white" in the "icons"
 	 * folder. If the button is not checked, the black version is used

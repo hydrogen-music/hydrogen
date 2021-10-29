@@ -31,8 +31,6 @@
 
 #include <core/Globals.h>
 
-const char* Rotary::__class_name = "Rotary";
-
 Rotary::Rotary( QWidget* parent, Type type, QString sBaseTooltip, bool bUseIntSteps, float fMin, float fMax )
 	: WidgetWithInput( parent,
 					   bUseIntSteps,
@@ -41,7 +39,6 @@ Rotary::Rotary( QWidget* parent, Type type, QString sBaseTooltip, bool bUseIntSt
 					   5, // nScrollSpeedFast,
 					   fMin,
 					   fMax )
-	, Object( __class_name )
 	, m_type( type ) {
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Rotary::onPreferencesChanged );

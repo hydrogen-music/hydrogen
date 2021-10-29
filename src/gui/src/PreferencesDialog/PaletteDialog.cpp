@@ -31,11 +31,8 @@
 
 #include <core/Preferences.h>
 
-const char* PaletteDialog::__class_name = "PaletteDialog";
-
 PaletteDialog::PaletteDialog( QWidget* pParent )
 	: QDialog( pParent )
-	, Object( __class_name )
 	, m_previousStyle( H2Core::UIStyle( H2Core::Preferences::get_instance()->getDefaultUIStyle() ) )
 	, m_currentStyle( H2Core::UIStyle( H2Core::Preferences::get_instance()->getDefaultUIStyle() ) )
 {

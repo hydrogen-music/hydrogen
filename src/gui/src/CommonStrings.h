@@ -32,9 +32,12 @@
 
 	Initially I wanted the whole thing as well as the getter methods
 	to be static. But Qt requires the class to be initialized for the
-	translation engine to take effect.*/
-class CommonStrings : public H2Core::Object {
-	H2_OBJECT
+	translation engine to take effect.
+	
+	\ingroup docGUI
+*/
+class CommonStrings : public H2Core::Object<CommonStrings> {
+	H2_OBJECT(CommonStrings)
 	Q_DECLARE_TR_FUNCTIONS(CommonStrings)
 	
 public:

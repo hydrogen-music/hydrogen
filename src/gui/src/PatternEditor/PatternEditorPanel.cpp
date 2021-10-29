@@ -25,7 +25,6 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
 using namespace H2Core;
 
@@ -591,9 +590,9 @@ PatternEditorPanel::~PatternEditorPanel()
 {
 }
 
-void PatternEditorPanel::stateChangedEvent( int nState ) {
+void PatternEditorPanel::stateChangedEvent( H2Core::AudioEngine::State state ) {
 	// Deactivate the pattern size widgets while playback is rolling.
-	if ( nState == STATE_PLAYING ) {
+	if ( state == H2Core::AudioEngine::State::Playing ) {
 		m_pLCDSpinBoxNumerator->setEnabled( false );
 		m_pLCDSpinBoxNumerator->setToolTip( HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeDisabledTooltip() );
 		m_pLCDSpinBoxDenominator->setEnabled( false );

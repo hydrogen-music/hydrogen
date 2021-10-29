@@ -30,6 +30,7 @@
 #include "EventListener.h"
 #include <core/Object.h>
 #include <core/Preferences.h>
+#include "Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core
 {
@@ -46,7 +47,7 @@ class MetronomeLED;
 class ClickableLabel;
 
 /** \ingroup docGUI*/
-class PlayerControl :  public QLabel, protected WidgetWithScalableFont<5, 6, 7>, public EventListener,  public H2Core::Object<PlayerControl>
+class PlayerControl :  public QLabel, protected WidgetWithScalableFont<5, 6, 7>, public EventListener,  public H2Core::Object<PlayerControl> {
     H2_OBJECT(PlayerControl)
 	Q_OBJECT
 public:

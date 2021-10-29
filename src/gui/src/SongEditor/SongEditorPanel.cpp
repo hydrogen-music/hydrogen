@@ -354,7 +354,7 @@ void SongEditorPanel::updatePlayHeadPosition()
 		}
 
 		int nWidth;
-		if ( m_pViewPlaybackToggleBtn->isPressed() ) {
+		if ( m_pViewPlaybackBtn->isChecked() ) {
 			nWidth = m_pPlaybackTrackScrollView->viewport()->width();
 		} else {
 			nWidth = m_pPositionRulerScrollView->viewport()->width();

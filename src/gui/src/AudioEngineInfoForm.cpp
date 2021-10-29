@@ -242,8 +242,9 @@ void AudioEngineInfoForm::updateAudioEngineState() {
 }
 
 
-void AudioEngineInfoForm::stateChangedEvent( int )
+void AudioEngineInfoForm::stateChangedEvent( H2Core::AudioEngine::State state )
 {
+	UNUSED( state );
 	updateAudioEngineState();
 }
 

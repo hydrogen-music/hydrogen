@@ -25,12 +25,9 @@
 #include <core/Globals.h>
 #include <core/Preferences.h>
 
-const char* LCDSpinBox::__class_name = "LCDSpinBox";
-
 // used in PlayerControl
 LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, double fMax )
  : QDoubleSpinBox( pParent )
- , Object( __class_name )
  , m_size( size )
  , m_type( type )
  , m_bEntered( false )

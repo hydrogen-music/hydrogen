@@ -25,7 +25,6 @@
 
 #include <vector>
 
-#include "ui_PreferencesDialog_UI.h"
 #include "../Widgets/ColorSelectionButton.h"
 
 #include <core/Object.h>
@@ -67,7 +66,6 @@ public:
 };
 
 #include "ui_PreferencesDialog_UI.h"
-
 ///
 /// Preferences Dialog
 ///

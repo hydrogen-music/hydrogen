@@ -22,9 +22,7 @@
 
 #include "CommonStrings.h"
 
-const char* CommonStrings::__class_name = "CommonStrings";
-
-CommonStrings::CommonStrings() : Object( __class_name ) {
+CommonStrings::CommonStrings(){
 	/*: Text displayed on the button to show the Playback track. Its size
 	  is designed to hold a single character.*/
 	m_sPlaybackTrackButton = tr( "P" );

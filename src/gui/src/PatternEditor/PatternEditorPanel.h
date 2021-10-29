@@ -26,6 +26,7 @@
 
 #include <core/Object.h>
 #include <core/Preferences.h>
+#include <core/AudioEngine/AudioEngine.h>
 
 #include "PianoRollEditor.h"
 #include "../EventListener.h"
@@ -91,7 +92,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
 		virtual void selectedInstrumentChangedEvent() override;
-		virtual void stateChangedEvent( int nState ) override;
+	virtual void stateChangedEvent( H2Core::AudioEngine::State state ) override;
 		//~ Implements EventListener interface
 
 		void ensureCursorVisible();
