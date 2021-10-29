@@ -19,7 +19,6 @@
 	* Bugfixes
 		- fix dithering of SongEditor when viewing the playback track
 		  and resizing the application or for very small size (#1379).
-		- fix segfault when entering note in PianoRollEditor (#1386).
 		- fix rewinding to beginning of pattern in pattern mode with no
 		  pattern inserted in SongEditor (#932)
 		- fix display of tags and tempo marker while loading a song
