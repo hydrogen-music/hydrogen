@@ -884,37 +884,32 @@ void MainForm::action_file_openPattern()
 	}
 
 	QFileDialog fd(this);
-	fd.setFileMode ( QFileDialog::ExistingFile );
+	fd.setFileMode ( QFileDialog::ExistingFiles );
 	fd.setDirectory ( sPath );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
 
 	fd.setWindowTitle ( tr ( "Open Pattern" ) );
 
-
-	QString filename;
-	if ( fd.exec() == QDialog::Accepted )
-	{
+	if ( fd.exec() == QDialog::Accepted ) {
 		Preferences::get_instance()->setLastOpenPatternDirectory( fd.directory().absolutePath() );
-		filename = fd.selectedFiles().first();
-	}
-	QString patternname = filename;
 
-	Pattern* err = Pattern::load_file( patternname, pSong->getInstrumentList() );
-	if ( err == nullptr )
-	{
-		_ERRORLOG( "Error loading the pattern" );
-		_ERRORLOG( patternname );
-	}
-	else
-	{
-		H2Core::Pattern *pNewPattern = err;
+		for ( auto& ssFilename : fd.selectedFiles() ) {
 
-		if(!pPatternList->check_name( pNewPattern->get_name() ) ){
-			pNewPattern->set_name( pPatternList->find_unused_pattern_name( pNewPattern->get_name() ) );
+			Pattern* err = Pattern::load_file( ssFilename, pSong->getInstrumentList() );
+			if ( err == nullptr ) {
+					_ERRORLOG( "Error loading the pattern" );
+					_ERRORLOG( ssFilename );
+			} else {
+					H2Core::Pattern *pNewPattern = err;
+
+					if ( !pPatternList->check_name( pNewPattern->get_name() ) ){
+						pNewPattern->set_name( pPatternList->find_unused_pattern_name( pNewPattern->get_name() ) );
+					}
+					SE_insertPatternAction* pAction =
+						new SE_insertPatternAction( selectedPatternPosition + 1, pNewPattern );
+					HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+			}
 		}
-		SE_insertPatternAction* pAction =
-				new SE_insertPatternAction( selectedPatternPosition + 1, pNewPattern );
-		HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 	}
 }
 
