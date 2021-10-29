@@ -1,5 +1,6 @@
 environment:
   GENERATOR: "MinGW Makefiles"
+  ARTIFACT_BRANCH: master-artifacts
   matrix:
 
     - job_name: 'Ubuntu 20.04'
@@ -10,17 +11,35 @@ environment:
       job_group: 'Mac OS X'
       appveyor_build_worker_image: macos
 
-    - job_name: 'WindowsDebug64'
+    - job_name: 'Windows64'
       job_group: 'Windows'
       MSYS: 'C:\msys64\mingw64'
       MSYS_REPO: 'mingw64/mingw-w64-x86_64'
-      BUILD_TYPE: "Debug"
-      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=ON -DWIN64:BOOL=ON"
+      BUILD_TYPE: "Release"
+      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON"
       appveyor_build_worker_image: Visual Studio 2019
+      LIBJACK: libjack64.dll
+      CHOCO_ARCH:
+      PROGRAM_FILES: "Program Files"
 
+    - job_name: 'Windows32'
+      job_group: 'Windows'
+      MSYS: 'C:\msys64\mingw32'
+      MSYS_REPO: 'mingw-w64-i686'
+      BUILD_TYPE: "Release"
+      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=OFF"
+      appveyor_build_worker_image: Visual Studio 2019
+      LIBJACK: libjack.dll
+      CHOCO_ARCH:  --x86
+      PROGRAM_FILES: "Program Files (x86)"
 
 build:
   verbosity: detailed
+
+matrix:
+  exclude:
+    - job_name: Windows32
+      branches: "master"
 
 for:
   - 
@@ -37,7 +56,10 @@ for:
 
     build_script: |-
       git submodule init && git submodule update
-      mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
+
+      CPUS=$(nproc)
+      echo "Building with $CPUS cpus"
+      mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make -j $CPUS
 
     test_script: |-
       TMPDIR=/tmp src/tests/tests --appveyor
@@ -66,12 +88,15 @@ for:
       sed -i '' 's/, int register,/, int,/g' /opt/local/include/jack/types.h
 
       git submodule init && git submodule update
-      mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
+      CPUS=$(sysctl -n hw.ncpu)
+      echo "Building with $CPUS cpus"
+      mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make -j $CPUS
+
       PATH="$(brew --prefix qt5)/bin:$PATH"
       ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
 
-      #deploy dmg only on branch appveyor-build-with-artifacts
-      if [ "$APPVEYOR_REPO_BRANCH" = appveyor-build-with-artifacts ]; then appveyor PushArtifact Hydrogen*.dmg -DeploymentName Installer; fi
+      #deploy dmg only on branch $ARTIFACT_BRANCH
+      if [ "$APPVEYOR_REPO_BRANCH" = "$ARTIFACT_BRANCH" ]; then appveyor PushArtifact Hydrogen*.dmg -DeploymentName Installer; fi
 
     test_script: |-
       TMPDIR=/tmp src/tests/tests --appveyor || true
@@ -83,6 +108,9 @@ for:
 
     before_build:
       cmd: |-
+
+          if not %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% if %job_name%==Windows32 appveyor exit
+
           set QTDIR=%MSYS%
           set CMAKE_PREFIX_PATH=%QTDIR%
           set PATH=%MSYS%\bin;%PATH%
@@ -90,6 +118,10 @@ for:
 
           cmake --version
           g++ --version
+          choco install %CHOCO_ARCH% -y jack
+
+          dir "c:\%PROGRAM_FILES%\JACK2"
+          dir "c:\%PROGRAM_FILES%\JACK2\lib"
 
           REM *** Install dependencies ***
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libarchive
@@ -109,11 +141,14 @@ for:
           rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
           mkdir build
           cd build
-          cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %CMAKE_FLAGS% ..
+          cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %CMAKE_FLAGS% -DJACK_INCLUDE_DIRS="c:/%PROGRAM_FILES%/JACK2/include" -DJACK_LIBRARIES="c:/%PROGRAM_FILES%/JACK2/lib/%LIBJACK%.a" ..
 
     build_script:
       - cmd: |-
+          if not %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% if %job_name%==Windows32 exit
+
           REM *** Build ***
+          set VERBOSE=1
           cmake --build . -j %NUMBER_OF_PROCESSORS%
 
           REM *** Run tests and report results ***
@@ -123,8 +158,8 @@ for:
           echo %CORE_PATH%
           set PATH=%CORE_PATH%;%PATH%
           src\tests\tests.exe --appveyor || cmd /c "exit /b 0"
-          7z a %APPVEYOR_BUILD_FOLDER%\testresults.zip %TEMP%\hydrogen
-          if %APPVEYOR_REPO_BRANCH%==appveyor-build-with-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\testresults.zip
+          7z a %APPVEYOR_BUILD_FOLDER%\testresults.zip %TEMP%\hydrogen || cmd /c "exit  /b 0"
+          if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\testresults.zip
 
           mkdir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
 
@@ -136,6 +171,11 @@ for:
           %PYTHON% -m pip install -r %APPVEYOR_BUILD_FOLDER%\windows\ci\requirements.txt
           %PYTHON% %APPVEYOR_BUILD_FOLDER%\windows\ci\copy_thirdparty_dlls.py --no-overwrite -V info -L %MSYS%\bin -d %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs src/gui/hydrogen.exe src/core/libhydrogen-core-1.1.0.dll
 
+          REM Chocolatey installs JACK dlls in c:\Windows, so
+          REM copy_third_party_libs.py thinks it's a system lib and
+          REM won't copy it.
+          copy c:\Windows\%LIBJACK% %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
+
           REM *** Build installer ***
           cpack -G NSIS -v
 
@@ -146,10 +186,12 @@ for:
           %PYTHON% -m pytest %APPVEYOR_BUILD_FOLDER%\windows\ci\test_installation.py --junitxml=test_installation.xml
 
 on_finish:
-  - cmd: if %APPVEYOR_REPO_BRANCH%==appveyor-build-with-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeCache.txt
-  - cmd: if %APPVEYOR_REPO_BRANCH%==appveyor-build-with-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeOutput.log
-  - cmd: if %APPVEYOR_REPO_BRANCH%==appveyor-build-with-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeError.log
-  - cmd: if %APPVEYOR_REPO_BRANCH%==appveyor-build-with-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.0-win64.exe
+  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeCache.txt
+  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeOutput.log
+  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeError.log
+  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.0-win64.exe || cmd /c "exit /b 0"
+  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.0-win32.exe || cmd /c "exit /b 0"
+
 
   - cmd: |
-      if %APPVEYOR_REPO_BRANCH%==appveyor-build-with-artifacts curl -F file=@%APPVEYOR_BUILD_FOLDER%\build\test_installation.xml https://ci.appveyor.com/api/testresults/junit/%APPVEYOR_JOB_ID%
+      if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% curl -F file=@%APPVEYOR_BUILD_FOLDER%\build\test_installation.xml https://ci.appveyor.com/api/testresults/junit/%APPVEYOR_JOB_ID%

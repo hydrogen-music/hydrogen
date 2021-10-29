@@ -29,9 +29,10 @@
 ///
 ///
 ///
-class SoundLibrarySaveDialog : public QDialog, public Ui_SoundLibrarySaveDialog_UI, public H2Core::Object
+/** \ingroup docGUI*/
+class SoundLibrarySaveDialog :  public QDialog, public Ui_SoundLibrarySaveDialog_UI,  public H2Core::Object<SoundLibrarySaveDialog>
 {
-	H2_OBJECT
+	H2_OBJECT(SoundLibrarySaveDialog)
 	Q_OBJECT
 	public:
 		explicit SoundLibrarySaveDialog( QWidget* pParent );

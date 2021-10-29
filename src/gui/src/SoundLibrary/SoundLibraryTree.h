@@ -28,9 +28,10 @@
 
 #include <core/Object.h>
 
-class SoundLibraryTree : public QTreeWidget, private H2Core::Object
+/** \ingroup docGUI*/
+class SoundLibraryTree : public QTreeWidget, private H2Core::Object<SoundLibraryTree>
 {
-    H2_OBJECT
+    H2_OBJECT(SoundLibraryTree)
 	Q_OBJECT
 	public:
 		explicit SoundLibraryTree( QWidget *pParent );

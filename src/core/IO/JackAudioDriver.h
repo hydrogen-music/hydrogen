@@ -112,9 +112,10 @@ class InstrumentComponent;
  * during the configuration and the user enables the support of the
  * JACK server.
  */
-class JackAudioDriver : public AudioOutput
+/** \ingroup docCore docAudioDriver */
+class JackAudioDriver : public Object<JackAudioDriver>, public AudioOutput
 {
-	H2_OBJECT
+	H2_OBJECT(JackAudioDriver)
 public:
 	/**
 	 * Whether Hydrogen or another program is Jack timebase master.
@@ -239,7 +240,7 @@ public:
 	 * The function will only perform its tasks if the
 	 * Preferences::m_bJackTrackOuts is set to true.
 	 */
-	void makeTrackOutputs( Song* pSong );
+	void makeTrackOutputs( std::shared_ptr<Song> pSong );
 
 	/** \param flag Sets #m_bConnectDefaults*/
 	void setConnectDefaults( bool flag ) {
@@ -397,36 +398,15 @@ public:
 	int init( unsigned bufferSize );
 
 	/**
-	 * Starts the JACK transport.
-	 *
-	 * If the JACK transport was activated in the GUI by clicking
-	 * either the "J.TRANS" or "J.MASTER" button, the
-	 * _jack_transport_start()_ (jack/transport.h) function will be
-	 * called to start the JACK transport. Else, the internal
-	 * TransportInfo::m_status will be set to TransportInfo::ROLLING
-	 * instead.
+	 * Tells the JACK server to start transport.
 	 */
-	virtual void play();
+	void startTransport();
 	/**
-	 * Stops the JACK transport.
-	 *
-	 * If the JACK transport was activated in the GUI by clicking
-	 * either the "J.TRANS" or "J.MASTER" button, the
-	 * _jack_transport_stop()_ (jack/transport.h) function will be
-	 * called to stop the JACK transport. Else, the internal
-	 * TransportInfo::m_status will be set to TransportInfo::STOPPED
-	 * instead.
+	 * Tells the JACK server to stop transport.
 	 */
-	virtual void stop();
+	void stopTransport();
 	/**
 	 * Re-positions the transport position to @a nFrame.
-	 *
-	 * If the Preferences::USE_JACK_TRANSPORT mode is chosen in
-	 * Preferences::m_bJackTransportMode, the
-	 * _jack_transport_locate()_ (jack/transport.h) function will be
-	 * used to request the new transport position. If not, @a nFrame
-	 * will be assigned to TransportInfo::m_nFrames of the local
-	 * instance of the TransportInfo AudioOutput::m_transport.
 	 *
 	 * The new position takes effect in two process cycles during
 	 * which JACK's state will be in JackTransportStarting and the
@@ -434,45 +414,20 @@ public:
 	 *   
 	 * \param nFrame Requested new transport position.
 	 */
-	virtual void locate( unsigned long nFrame );
+	void locateTransport( unsigned long nFrame );
 	/**
-	 * Updating the local instance of the TransportInfo
-	 * AudioOutput::m_transport.
-	 *
 	 * The function queries the transport position and additional
 	 * information from the JACK server, writes them to
 	 * #m_JackTransportPos and in #m_JackTransportState, and updates
 	 * the information stored in AudioOutput::m_transport in case of a
 	 * mismatch.
 	 *
-	 * If #m_JackTransportState is either _JackTransportStopped_ or
-     * _JackTransportStarting_, transport will be (temporarily)
-     * stopped - TransportInfo::m_status will be set to
-     * TransportInfo::STOPPED. If it's _JackTransportRolling_,
-     * transport will be started - TransportInfo::m_status will be set
-     * to TransportInfo::ROLLING.
-	 *
      * The function will check whether a relocation took place by the
 	 * JACK server and whether the current tempo did
 	 * change with respect to the last transport cycle and updates the
 	 * transport information accordingly.
-	 *
-	 * If Preferences::USE_JACK_TRANSPORT was not selected in
-	 * Preferences::m_bJackTransportMode, the function will return
-	 * without performing any action.
 	 */
-	virtual void updateTransportInfo();
-	/** Set the tempo stored TransportInfo::m_fBPM of the local
-	 * instance of the TransportInfo AudioOutput::m_transport.
-	 *
-	 * Only sets the tempo to @a fBPM if its value is at least
-	 * 1. Sometime (especially during the first cycle after locating
-	 * with transport stopped) the JACK server sends some artifacts
-	 * (6.95334e-310) which should not be assigned.
-	 * 
-	 * \param fBPM new tempo. 
-	 */
-	virtual void setBpm( float fBPM );
+	void updateTransportInfo();
 	/**
 	 * Calculates the difference between the true transport position
 	 * and the internal one.
@@ -731,7 +686,7 @@ private:
 	 *   InstrumentComponent.
 	 * \param pSong Pointer to the corresponding Song.
 	 */
-	void setTrackOutput( int n, std::shared_ptr<Instrument> instr, std::shared_ptr<InstrumentComponent> pCompo, Song* pSong );
+	void setTrackOutput( int n, std::shared_ptr<Instrument> instr, std::shared_ptr<InstrumentComponent> pCompo, std::shared_ptr<Song> pSong );
 	/**
 	 * Constant offset between the internal transport position in
 	 * TransportInfo::m_nFrames and the external one.
@@ -943,8 +898,9 @@ private:
 // JACK is disabled
 
 namespace H2Core {
+/** \ingroup docCore docAudioDriver */
 class JackAudioDriver : public NullDriver {
-	H2_OBJECT
+	H2_OBJECT(JackAudioDriver)
 public:
 	/**
 	 * Whether Hydrogen or another program is Jack timebase master.
@@ -967,6 +923,9 @@ public:
 	 */
 	JackAudioDriver( audioProcessCallback m_processCallback ) : NullDriver( m_processCallback ) {}
 
+	// Required since this function is a friend of AudioEngine which
+	// needs to be build even if no JACK support is desired.
+	void updateTransportInfo() {}
 };
 
 }; // H2Core namespace

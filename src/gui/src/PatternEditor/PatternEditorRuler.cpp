@@ -21,7 +21,7 @@
  */
 
 #include <core/Hydrogen.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 
@@ -38,12 +38,9 @@ using namespace H2Core;
 #include "../Skin.h"
 
 
-const char* PatternEditorRuler::__class_name = "PatternEditorRuler";
-
 PatternEditorRuler::PatternEditorRuler( QWidget* parent )
  : QWidget( parent )
- , Object( __class_name )
-{
+ {
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//infoLog( "INIT" );
@@ -115,6 +112,7 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 	static int oldNTicks = 0;
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	//Do not redraw anything if Export is active.
 	//https://github.com/hydrogen-music/hydrogen/issues/857	
@@ -138,9 +136,9 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 	 * Lock audio engine to make sure pattern list does not get
 	 * modified / cleared during iteration 
 	 */
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+	pAudioEngine->lock( RIGHT_HERE );
 
-	PatternList *pList = pHydrogen->getCurrentPatternList();
+	PatternList *pList = pAudioEngine->getPlayingPatterns();
 	for (uint i = 0; i < pList->size(); i++) {
 		if ( m_pPattern == pList->get(i) ) {
 			bActive = true;
@@ -148,12 +146,10 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 		}
 	}
 
-	pHydrogen->getAudioEngine()->unlock();
+	pAudioEngine->unlock();
 
-
-	int state = pHydrogen->getState();
-	if ( ( state == STATE_PLAYING ) && (bActive) ) {
-		m_nTicks = pHydrogen->getTickPosition();
+	if ( ( pAudioEngine->getState() == H2Core::AudioEngine::State::Playing ) && bActive ) {
+		m_nTicks = pAudioEngine->getPatternTickPosition();
 	}
 	else {
 		m_nTicks = -1;	// hide the tickPosition

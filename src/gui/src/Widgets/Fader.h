@@ -39,10 +39,11 @@
  * the bars indicating the current value will be painted by Qt.
  *
  */
-class Fader : public WidgetWithInput, public H2Core::Object
+/** \ingroup docGUI docWidgets*/
+class Fader : public WidgetWithInput, public H2Core::Object<Fader>
 {
-    H2_OBJECT
-
+    H2_OBJECT(Fader)
+	
 public:
 	enum class Type {
 		Normal,

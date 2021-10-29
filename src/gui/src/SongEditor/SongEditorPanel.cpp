@@ -39,7 +39,7 @@
 
 #include <core/Hydrogen.h>
 #include <core/Preferences.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/PatternList.h>
 #include <core/IO/JackAudioDriver.h>
@@ -49,20 +49,17 @@
 #endif
 using namespace H2Core;
 
-const char* SongEditorPanel::__class_name = "SongEditorPanel";
-
 
 SongEditorPanel::SongEditorPanel(QWidget *pParent)
  : QWidget( pParent )
- , Object( __class_name )
-{
+ {
 	m_nInitialWidth = 600;
 	m_nInitialHeight = 250;
 	
 	Preferences *pPref = Preferences::get_instance();
 
 	Hydrogen*	pHydrogen = Hydrogen::get_instance();
-	Song*		pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> 		pSong = pHydrogen->getSong();
 
 	setWindowTitle( tr( "Song Editor" ) );
 
@@ -250,7 +247,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	m_pPositionRuler->setFocusPolicy( Qt::ClickFocus );
 	m_pPositionRuler->setFocusProxy( m_pSongEditor );
-	
+
 	m_pPlaybackTrackScrollView = new WidgetScrollArea( m_pWidgetStack );
 	m_pPlaybackTrackScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPlaybackTrackScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -347,25 +344,43 @@ SongEditorPanel::~SongEditorPanel()
 
 void SongEditorPanel::updatePlayHeadPosition()
 {
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	if ( Preferences::get_instance()->m_bFollowPlayhead && pSong->getMode() == Song::SONG_MODE) {
-		if ( Hydrogen::get_instance()->getState() != STATE_PLAYING ) {
+		if ( pAudioEngine->getState() != H2Core::AudioEngine::State::Playing ) {
 			return;
+		}
+
+		int nWidth;
+		if ( m_pViewPlaybackToggleBtn->isPressed() ) {
+			nWidth = m_pPlaybackTrackScrollView->viewport()->width();
+		} else {
+			nWidth = m_pPositionRulerScrollView->viewport()->width();
 		}
 
 		QPoint pos = m_pPositionRuler->pos();
 		int x = -pos.x();
-		int w = m_pPositionRulerScrollView->viewport()->width();
 
-		int nPlayHeadPosition = Hydrogen::get_instance()->getPatternPos() * m_pSongEditor->getGridWidth();
+		int nPlayHeadPosition = pAudioEngine->getColumn() *
+			m_pSongEditor->getGridWidth();
 
 		int value = m_pEditorScrollView->horizontalScrollBar()->value();
-		if ( nPlayHeadPosition > ( x + w - 50 ) ) {
-			hScrollTo( value + 100 );
+
+		// Distance the grid will be moved left or right.
+		int nIncrement = 100;
+		if ( nIncrement > std::round( static_cast<float>(nWidth) / 3 ) ) {
+			nIncrement = std::round( static_cast<float>(nWidth) / 3 );
+		} else if ( nIncrement < 2 * m_pPositionRuler->getPlayheadWidth() ) {
+			nIncrement = 2 * m_pPositionRuler->getPlayheadWidth();
+		}
+		
+		if ( nPlayHeadPosition > ( x + nWidth - std::floor( static_cast<float>( nIncrement ) / 2 ) ) ) {
+			hScrollTo( value + nIncrement );
 		}
 		else if ( nPlayHeadPosition < x ) {
-			hScrollTo( value - 100 );
+			hScrollTo( value - nIncrement );
 		}
 	}
 }
@@ -441,7 +456,7 @@ void SongEditorPanel::hScrollTo( int value )
 void SongEditorPanel::updateAll()
 {
 	Hydrogen *	pHydrogen = Hydrogen::get_instance();
-	Song *		pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> 		pSong = pHydrogen->getSong();
 	
 	updatePlaybackTrackIfNecessary();
 
@@ -483,7 +498,7 @@ void SongEditorPanel::updatePositionRuler()
 void SongEditorPanel::newPatBtnClicked()
 {
 	Hydrogen	*pHydrogen = Hydrogen::get_instance();
-	Song		*pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 	Pattern		*pNewPattern = new Pattern( tr("Pattern %1").arg(pPatternList->size()+1));
 	PatternPropertiesDialog *pDialog = new PatternPropertiesDialog( this, pNewPattern, 0, true );
@@ -502,7 +517,7 @@ void SongEditorPanel::newPatBtnClicked()
 void SongEditorPanel::insertPattern( int idx, Pattern* pPattern )
 {
 	Hydrogen	*pHydrogen = Hydrogen::get_instance();
-	Song		*pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 
 	pPatternList->insert( idx, pPattern );
@@ -514,7 +529,7 @@ void SongEditorPanel::insertPattern( int idx, Pattern* pPattern )
 void SongEditorPanel::deletePattern( int idx )
 {
 	Hydrogen	*pHydrogen = Hydrogen::get_instance();
-	Song		*pSong = 	pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = 	pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 	H2Core::Pattern *pPattern = pPatternList->get( idx );
 	
@@ -552,7 +567,7 @@ void SongEditorPanel::upBtnClicked()
 void SongEditorPanel::downBtnClicked()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 
 	if( pHydrogen->getSelectedPatternNumber() +1 >=  pPatternList->size() ) { 
@@ -684,7 +699,6 @@ void SongEditorPanel::updateTimelineUsage() {
 
 void SongEditorPanel::timeLineBtnPressed()
 {
-	
 	auto pHydrogen = Hydrogen::get_instance();
 	
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
@@ -771,7 +785,7 @@ void SongEditorPanel::mutePlaybackTrackBtnPressed()
 
 void SongEditorPanel::editPlaybackTrackBtnPressed()
 {
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 	
@@ -855,9 +869,8 @@ void SongEditorPanel::zoomOutBtnPressed()
 void SongEditorPanel::faderChanged( WidgetWithInput *pRef )
 {
 	Hydrogen *	pHydrogen = Hydrogen::get_instance();
-	Song*		pSong = pHydrogen->getSong();
-
 	Fader* pFader = dynamic_cast<Fader*>( pRef );
+	std::shared_ptr<Song> 		pSong = pHydrogen->getSong();
 	
 	if( pSong ){
 		pSong->setPlaybackTrackVolume( pFader->getValue() );
@@ -875,7 +888,7 @@ void SongEditorPanel::selectedPatternChangedEvent()
 void SongEditorPanel::automationPathChanged()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	pSong->setIsModified(true);
 }
 

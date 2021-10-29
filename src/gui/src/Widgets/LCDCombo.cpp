@@ -26,11 +26,9 @@
 
 #include <core/Globals.h>
 
-const char* LCDCombo::__class_name = "LCDCombo";
 
 LCDCombo::LCDCombo( QWidget *pParent, QSize size )
 	: QComboBox( pParent )
-	, Object( __class_name )
 	, m_size( size )
 	, m_bEntered( false )
 {

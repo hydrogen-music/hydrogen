@@ -33,11 +33,8 @@
 namespace H2Core
 {
 
-const char* SoundLibraryPropertiesDialog::__class_name = "SoundLibraryPropertiesDialog";
-
 SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Drumkit *pDrumkitInfo, Drumkit *pPreDrumkit )
  : QDialog( pParent )
- , Object( __class_name )
  , m_pDrumkitInfo( pDrumkitInfo )
  , m_pPreDrumkitInfo( pPreDrumkit )
 {

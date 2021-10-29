@@ -21,8 +21,9 @@
  */
 #include <QObject>
 
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
+#include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 
 #include <core/Basics/Instrument.h>
@@ -66,9 +67,7 @@ using namespace H2Core;
 *
 */
 
-const char* Action::__class_name = "MidiAction";
-
-Action::Action( QString typeString ) : Object( __class_name ) {
+Action::Action( QString typeString ) {
 	m_sType = typeString;
 	m_sParameter1 = "0";
 	m_sParameter2 = "0";
@@ -88,9 +87,8 @@ Action::Action( QString typeString ) : Object( __class_name ) {
 *
 */
 MidiActionManager* MidiActionManager::__instance = nullptr;
-const char* MidiActionManager::__class_name = "ActionManager";
 
-MidiActionManager::MidiActionManager() : Object( __class_name ) {
+MidiActionManager::MidiActionManager() {
 	__instance = this;
 
 	m_nLastBpmChangeCCParameter = -1;
@@ -213,8 +211,7 @@ void MidiActionManager::create_instance() {
 }
 
 bool MidiActionManager::play(Action * , Hydrogen* pHydrogen, targeted_element ) {
-	int nState = pHydrogen->getState();
-	if ( nState == STATE_READY ) {
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Ready ) {
 		pHydrogen->sequencer_play();
 	}
 	return true;
@@ -227,26 +224,23 @@ bool MidiActionManager::pause(Action * , Hydrogen* pHydrogen, targeted_element )
 
 bool MidiActionManager::stop(Action * , Hydrogen* pHydrogen, targeted_element ) {
 	pHydrogen->sequencer_stop();
-	pHydrogen->setPatternPos( 0 );
-	pHydrogen->setTimelineBpm();
+	pHydrogen->getCoreActionController()->locateToColumn( 0 );
 	return true;
 }
 
 bool MidiActionManager::play_stop_pause_toggle(Action * pAction, Hydrogen* pHydrogen, targeted_element ) {
 	QString sActionString = pAction->getType();
-	int nState = pHydrogen->getState();
-	switch ( nState )
+	switch ( pHydrogen->getAudioEngine()->getState() )
 	{
-	case STATE_READY:
+	case AudioEngine::State::Ready:
 		pHydrogen->sequencer_play();
 		break;
 
-	case STATE_PLAYING:
+	case AudioEngine::State::Playing:
 		if( sActionString == "PLAY/STOP_TOGGLE" ) {
-			pHydrogen->setPatternPos( 0 );
+			pHydrogen->getCoreActionController()->locateToColumn( 0 );
 		}
 		pHydrogen->sequencer_stop();
-		pHydrogen->setTimelineBpm();
 		break;
 
 	default:
@@ -280,7 +274,7 @@ bool MidiActionManager::strip_mute_toggle(Action * pAction, Hydrogen* pHydrogen,
 	
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if ( pInstrList->is_valid_index( nLine ) ) {
@@ -305,7 +299,7 @@ bool MidiActionManager::strip_solo_toggle(Action * pAction, Hydrogen* pHydrogen,
 	
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	if ( pInstrList->is_valid_index( nLine ) ) {
@@ -404,8 +398,7 @@ bool MidiActionManager::select_and_play_pattern(Action * pAction, Hydrogen* pHyd
 		return false;
 	}
 
-	int nState = pHydrogen->getState();
-	if ( nState == STATE_READY ) {
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Ready ) {
 		pHydrogen->sequencer_play();
 	}
 
@@ -433,7 +426,7 @@ bool MidiActionManager::effect_level_absolute(Action * pAction, Hydrogen* pHydro
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int fx_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if ( pInstrList->is_valid_index( nLine) )
@@ -468,7 +461,7 @@ bool MidiActionManager::master_volume_absolute(Action * pAction, Hydrogen* pHydr
 	bool ok;
 	int vol_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *song = pHydrogen->getSong();
+	std::shared_ptr<Song> song = pHydrogen->getSong();
 
 	if( vol_param != 0 ){
 		song->setVolume( 1.5* ( (float) (vol_param / 127.0 ) ));
@@ -485,7 +478,7 @@ bool MidiActionManager::master_volume_relative(Action * pAction, Hydrogen* pHydr
 	bool ok;
 	int vol_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *song = pHydrogen->getSong();
+	std::shared_ptr<Song> song = pHydrogen->getSong();
 
 	if( vol_param != 0 ) {
 		if ( vol_param == 1 && song->getVolume() < 1.5 ) {
@@ -509,7 +502,7 @@ bool MidiActionManager::strip_volume_absolute(Action * pAction, Hydrogen* pHydro
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int vol_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if ( pInstrList->is_valid_index( nLine) )
@@ -539,7 +532,7 @@ bool MidiActionManager::strip_volume_relative(Action * pAction, Hydrogen* pHydro
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int vol_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	if ( pInstrList->is_valid_index( nLine) )
@@ -575,7 +568,7 @@ bool MidiActionManager::pan_absolute(Action * pAction, Hydrogen* pHydrogen, targ
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pan_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if( pInstrList->is_valid_index( nLine ) ) {
@@ -603,7 +596,7 @@ bool MidiActionManager::pan_relative(Action * pAction, Hydrogen* pHydrogen, targ
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pan_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if( pInstrList->is_valid_index( nLine ) ) {	
@@ -634,7 +627,7 @@ bool MidiActionManager::gain_level_absolute(Action * pAction, Hydrogen* pHydroge
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int gain_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if( pInstrList->is_valid_index( nLine ) )
@@ -673,7 +666,7 @@ bool MidiActionManager::pitch_level_absolute(Action * pAction, Hydrogen* pHydrog
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pitch_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	if( pInstrList->is_valid_index( nLine ) )
@@ -712,7 +705,7 @@ bool MidiActionManager::filter_cutoff_level_absolute(Action * pAction, Hydrogen*
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int filter_cutoff_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	if( pInstrList->is_valid_index( nLine ) )
@@ -757,7 +750,7 @@ bool MidiActionManager::bpm_cc_relative(Action * pAction, Hydrogen* pHydrogen, t
 		m_nLastBpmChangeCCParameter = cc_param;
 	}
 
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	if ( m_nLastBpmChangeCCParameter >= cc_param && pSong->getBpm()  < 300) {
 		pHydrogen->setBPM( pSong->getBpm() - 1*mult );
@@ -792,7 +785,7 @@ bool MidiActionManager::bpm_fine_cc_relative(Action * pAction, Hydrogen* pHydrog
 		m_nLastBpmChangeCCParameter = cc_param;
 	}
 
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	if ( m_nLastBpmChangeCCParameter >= cc_param && pSong->getBpm()  < 300) {
 		pHydrogen->setBPM( pSong->getBpm() - 0.01*mult );
@@ -815,7 +808,7 @@ bool MidiActionManager::bpm_increase(Action * pAction, Hydrogen* pHydrogen, targ
 	bool ok;
 	int mult = pAction->getParameter1().toInt(&ok,10);
 
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	pHydrogen->setBPM( pSong->getBpm() + 1*mult );
 
 	pHydrogen->getAudioEngine()->unlock();
@@ -831,7 +824,7 @@ bool MidiActionManager::bpm_decrease(Action * pAction, Hydrogen* pHydrogen, targ
 	bool ok;
 	int mult = pAction->getParameter1().toInt(&ok,10);
 
-	Song* pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	pHydrogen->setBPM( pSong->getBpm() - 1*mult );
 	
 	pHydrogen->getAudioEngine()->unlock();
@@ -842,15 +835,13 @@ bool MidiActionManager::bpm_decrease(Action * pAction, Hydrogen* pHydrogen, targ
 }
 
 bool MidiActionManager::next_bar(Action * , Hydrogen* pHydrogen, targeted_element ) {
-	pHydrogen->setPatternPos(pHydrogen->getPatternPos() +1 );
-	pHydrogen->setTimelineBpm();
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() +1 );
 	return true;
 }
 
 
 bool MidiActionManager::previous_bar(Action * , Hydrogen* pHydrogen, targeted_element ) {
-	pHydrogen->setPatternPos(pHydrogen->getPatternPos() -1 );
-	pHydrogen->setTimelineBpm();
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() -1 );
 	return true;
 }
 
@@ -879,7 +870,7 @@ bool MidiActionManager::playlist_previous_song(Action * pAction, Hydrogen* pHydr
 }
 
 bool MidiActionManager::record_ready(Action * pAction, Hydrogen* pHydrogen, targeted_element ) {
-	if ( pHydrogen->getState() != STATE_PLAYING ) {
+	if ( pHydrogen->getAudioEngine()->getState() != AudioEngine::State::Playing ) {
 		if (!Preferences::get_instance()->getRecordEvents()) {
 			Preferences::get_instance()->setRecordEvents(true);
 		}

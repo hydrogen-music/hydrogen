@@ -62,7 +62,7 @@ void exportSong( const QString &songFile, const QString &fileName )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	EventQueue *pQueue = EventQueue::get_instance();
 
-	Song *pSong = Song::load( songFile );
+	std::shared_ptr<Song> pSong = Song::load( songFile );
 	CPPUNIT_ASSERT( pSong != nullptr );
 	
 	if( !pSong ) {
@@ -106,10 +106,10 @@ void exportMIDI( const QString &songFile, const QString &fileName, SMFWriter& wr
 {
 	auto t0 = std::chrono::high_resolution_clock::now();
 
-	std::unique_ptr<Song> pSong { Song::load( songFile ) };
+	std::shared_ptr<Song> pSong = Song::load( songFile );
 	CPPUNIT_ASSERT( pSong != nullptr );
 
-	writer.save( fileName, pSong.get() );
+	writer.save( fileName, pSong );
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	double t = std::chrono::duration<double>( t1 - t0 ).count();

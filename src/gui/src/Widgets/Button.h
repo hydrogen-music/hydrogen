@@ -53,9 +53,10 @@
  * a MIDI action. If done, the action (and the binding) will show up
  * in the tooltip.
  */
-class Button : public QPushButton, public H2Core::Object, public MidiLearnable
+/** \ingroup docGUI docWidgets*/
+class Button : public QPushButton, protected WidgetWithScalableFont<6, 8, 10>,  public H2Core::Object<Button>, public MidiLearnable
 {
-    H2_OBJECT
+    H2_OBJECT(Button)
 	Q_OBJECT
 
 public:

@@ -34,7 +34,7 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Note.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Helpers/Xml.h>
 
 #include "../HydrogenApp.h"
@@ -47,12 +47,9 @@ using namespace std;
 using namespace H2Core;
 
 
-const char* PatternEditor::__class_name = "PatternEditor";
-
-
-PatternEditor::PatternEditor( QWidget *pParent, const char *sClassName,
+PatternEditor::PatternEditor( QWidget *pParent,
 							  PatternEditorPanel *panel )
-	: Object ( sClassName )
+	: Object()
 	, QWidget( pParent )
 	, m_selection( this )
 	, m_bEntered( false )
@@ -526,7 +523,7 @@ void PatternEditor::undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> 
 
 void PatternEditor::updatePatternInfo() {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	m_pPattern = nullptr;
 	m_nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();

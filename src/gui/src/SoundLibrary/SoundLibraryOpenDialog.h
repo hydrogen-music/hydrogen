@@ -30,9 +30,10 @@
 
 class SoundLibraryPanel;
 
-class SoundLibraryOpenDialog : public QDialog, public H2Core::Object
+/** \ingroup docGUI*/
+class SoundLibraryOpenDialog :  public QDialog,  public H2Core::Object<SoundLibraryOpenDialog>
 {
-	H2_OBJECT
+	H2_OBJECT(SoundLibraryOpenDialog)
 	Q_OBJECT
 	public:
 		explicit SoundLibraryOpenDialog( QWidget* pParent );

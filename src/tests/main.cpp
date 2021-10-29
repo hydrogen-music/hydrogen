@@ -27,12 +27,20 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Preferences.h>
 #include <core/Hydrogen.h>
+#include <core/config.h>
 
 #include <QCoreApplication>
 
 #include "TestHelper.h"
 #include "utils/AppveyorTestListener.h"
 #include "utils/AppveyorRestClient.h"
+
+#ifdef HAVE_EXECINFO_H
+#include <execinfo.h>
+#include <signal.h>
+#include <string.h>
+#endif
+
 
 void setupEnvironment(unsigned log_level)
 {
@@ -41,8 +49,8 @@ void setupEnvironment(unsigned log_level)
 	/* Test helper */
 	TestHelper::createInstance();
 	TestHelper* test_helper = TestHelper::get_instance();
-	/* Object */
-	H2Core::Object::bootstrap( logger, true );
+	/* Base */
+	H2Core::Base::bootstrap( logger, true );
 	/* Filesystem */
 	H2Core::Filesystem::bootstrap( logger, test_helper->getDataDir() );
 	H2Core::Filesystem::info();
@@ -55,6 +63,19 @@ void setupEnvironment(unsigned log_level)
 	H2Core::Hydrogen::create_instance();
 }
 
+#ifdef HAVE_EXECINFO_H
+void fatal_signal( int sig )
+{
+	void *frames[ BUFSIZ ];
+	signal( sig, SIG_DFL );
+
+	fprintf( stderr, "Caught fatal signal (%s)\n", strsignal( sig ) );
+	int nFrames = backtrace( frames, BUFSIZ );
+	backtrace_symbols_fd( frames, nFrames, fileno( stderr ) );
+
+	exit(1);
+}
+#endif
 
 int main( int argc, char **argv)
 {
@@ -79,6 +100,14 @@ int main( int argc, char **argv)
 	}
 
 	setupEnvironment(logLevelOpt);
+
+#ifdef HAVE_EXECINFO_H
+	signal(SIGSEGV, fatal_signal);
+	signal(SIGILL, fatal_signal);
+	signal(SIGABRT, fatal_signal);
+	signal(SIGFPE, fatal_signal);
+	signal(SIGBUS, fatal_signal);
+#endif
 
 	CppUnit::TextUi::TestRunner runner;
 	CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry();

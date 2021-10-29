@@ -33,6 +33,7 @@
 #include <core/H2Exception.h>
 #include <core/Preferences.h>
 #include <core/Hydrogen.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Timeline.h>
 #include <core/EventQueue.h>
 #include <core/Basics/Playlist.h>
@@ -52,11 +53,10 @@
 
 using namespace H2Core;
 
-const char* PlaylistDialog::__class_name = "PlaylistDialog";
 
 PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 		: QDialog ( pParent )
-		, Object ( __class_name )
+		, Object ()
 {
 
 	setupUi ( this );
@@ -272,7 +272,7 @@ void PlaylistDialog::addSong()
 
 void PlaylistDialog::addCurrentSong()
 {
-	Song *	pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> 	pSong = Hydrogen::get_instance()->getSong();
 	QString filename = 	pSong->getFilename();
 
 	if (filename == "") {
@@ -749,19 +749,19 @@ void PlaylistDialog::nodeStopBTN()
 {
 	m_pPlayBtn->setChecked(false);
 	Hydrogen::get_instance()->sequencer_stop();
-	Hydrogen::get_instance()->getCoreActionController()->relocate( 0 );
+	Hydrogen::get_instance()->getCoreActionController()->locateToColumn( 0 );
 }
 
 void PlaylistDialog::ffWDBtnClicked()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() + 1 );
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() + 1 );
 }
 
 void PlaylistDialog::rewindBtnClicked()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() - 1 );
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() - 1 );
 }
 
 void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()

@@ -26,7 +26,7 @@
 
 #include <core/Basics/Note.h>
 #include <core/Basics/PatternList.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
 
 #include <core/Helpers/Xml.h>
@@ -36,11 +36,8 @@
 namespace H2Core
 {
 
-const char* Pattern::__class_name = "Pattern";
-
 Pattern::Pattern( const QString& name, const QString& info, const QString& category, int length, int denominator )
-	: Object( __class_name )
-	, __length( length )
+	: __length( length )
 	, __denominator( denominator)
 	, __name( name )
 	, __info( info )
@@ -49,8 +46,7 @@ Pattern::Pattern( const QString& name, const QString& info, const QString& categ
 }
 
 Pattern::Pattern( Pattern* other )
-	: Object( __class_name )
-	, __length( other->get_length() )
+	: __length( other->get_length() )
 	, __denominator( other->get_denominator() )
 	, __name( other->get_name() )
 	, __info( other->get_info() )
@@ -286,7 +282,7 @@ void Pattern::extand_with_flattened_virtual_patterns( PatternList* patterns )
 }
 
 QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Pattern]\n" ).arg( sPrefix )

@@ -42,11 +42,8 @@ using namespace H2Core;
 
 static TargetWaveDisplay::EnvelopeEditMode getEnvelopeEditMode();
 
-const char* TargetWaveDisplay::__class_name = "TargetWaveDisplay";
-
 TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
  : QWidget( pParent )
- , Object( __class_name )
  , m_sSampleName( "" )
 {
 //	setAttribute(Qt::WA_OpaquePaintEvent);
@@ -91,25 +88,25 @@ static void paintEnvelope(Sample::VelocityEnvelope &envelope, QPainter &painter,
 		return;
 	for ( int i = 0; i < static_cast<int>(envelope.size()) -1; i++){
 		painter.setPen( QPen(lineColor, 1 , Qt::SolidLine) );
-		painter.drawLine( envelope[i]->frame, envelope[i]->value, envelope[i + 1]->frame, envelope[i +1]->value );
+		painter.drawLine( envelope[i].frame, envelope[i].value, envelope[i + 1].frame, envelope[i +1].value );
 		if ( i == selected )
 			painter.setBrush( selectedColor );
 		else
 			painter.setBrush( handleColor );
-		painter.drawEllipse ( envelope[i]->frame - 6/2, envelope[i]->value  - 6/2, 6, 6 );
+		painter.drawEllipse ( envelope[i].frame - 6/2, envelope[i].value  - 6/2, 6, 6 );
 	}
 	// draw first and last points as squares
 	if ( 0 == selected )
 		painter.setBrush( selectedColor );
 	else
 		painter.setBrush( handleColor );
-	painter.drawRect ( envelope[0]->frame - 12/2, envelope[0]->value  - 6/2, 12, 6 );
+	painter.drawRect ( envelope[0].frame - 12/2, envelope[0].value  - 6/2, 12, 6 );
 
 	if ( envelope.size() - 1 == selected )
 		painter.setBrush( selectedColor );
 	else
 		painter.setBrush( handleColor );
-	painter.drawRect ( envelope[envelope.size() -1]->frame - 12/2, envelope[envelope.size() -1]->value  - 6/2, 12, 6 );
+	painter.drawRect ( envelope[envelope.size() -1].frame - 12/2, envelope[envelope.size() -1].value  - 6/2, 12, 6 );
 }
 
 void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
@@ -262,8 +259,8 @@ void TargetWaveDisplay::updateMouseSelection(QMouseEvent *ev)
 		int selection = -1;
 		int min_distance = 1000000;
 		for ( int i = 0; i < static_cast<int>(envelope.size()); i++){
-			if ( envelope[i]->frame >= m_nX - m_nSnapRadius && envelope[i]->frame <= m_nX + m_nSnapRadius ) {
-				QPoint envelopePoint(envelope[i]->frame, envelope[i]->value);
+			if ( envelope[i].frame >= m_nX - m_nSnapRadius && envelope[i].frame <= m_nX + m_nSnapRadius ) {
+				QPoint envelopePoint(envelope[i].frame, envelope[i].value);
 				int delta = (mousePoint - envelopePoint).manhattanLength();
 				if (delta < min_distance) {
 					min_distance = delta;
@@ -276,7 +273,7 @@ void TargetWaveDisplay::updateMouseSelection(QMouseEvent *ev)
 	if (m_nSelectedEnvelopePoint == -1)
 		m_sInfo = "";
 	else {
-		float info = (UI_HEIGHT - envelope[m_nSelectedEnvelopePoint]->value) / (float)UI_HEIGHT;
+		float info = (UI_HEIGHT - envelope[m_nSelectedEnvelopePoint].value) / (float)UI_HEIGHT;
 		m_sInfo.setNum( info, 'g', 2 );
 	}
 }
@@ -294,10 +291,10 @@ void TargetWaveDisplay::updateEnvelope()
 	} else if ( m_nSelectedEnvelopePoint == static_cast<int>(envelope.size()) ) {
 		m_nX = UI_WIDTH;
 	}
-	envelope.push_back( std::make_unique<EnvelopePoint>( m_nX, m_nY ) );
+	envelope.push_back(  EnvelopePoint(  m_nX, m_nY  )  );
 	sort( envelope.begin(), envelope.end(), EnvelopePoint::Comparator() );
 	for (int i = 0; i < envelope.size() - 1; ++i) {
-		if (envelope[i]->frame == envelope[i+1]->frame) {
+		if (envelope[i].frame == envelope[i+1].frame) {
 			envelope.erase( envelope.begin() + i);
 			if (i + 1 == m_nSelectedEnvelopePoint) {
 				m_nSelectedEnvelopePoint = i;
@@ -340,10 +337,10 @@ void TargetWaveDisplay::mousePressEvent(QMouseEvent *ev)
 
 		if (NewPoint){
 			if (envelope.empty()) {
-				envelope.push_back( std::make_unique<EnvelopePoint>(0, m_nY) );
-				envelope.push_back( std::make_unique<EnvelopePoint>(UI_WIDTH, m_nY));
+				envelope.push_back(  EnvelopePoint( 0, m_nY )  );
+				envelope.push_back(  EnvelopePoint( UI_WIDTH, m_nY ) );
 			} else {
-				envelope.push_back( std::make_unique<EnvelopePoint>( m_nX, m_nY ) );
+				envelope.push_back(  EnvelopePoint(  m_nX, m_nY  )  );
 			}
 			sort( envelope.begin(), envelope.end(), EnvelopePoint::Comparator() );
 		} else {

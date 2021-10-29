@@ -35,8 +35,9 @@ class LCDDisplay;
 class InstrumentNameWidget;
 class WidgetWithInput;
 
-class LadspaFXProperties : public QWidget, public H2Core::Object {
-    H2_OBJECT
+/** \ingroup docGUI*/
+class LadspaFXProperties :  public QWidget,  public H2Core::Object<LadspaFXProperties> {
+    H2_OBJECT(LadspaFXProperties)
 	Q_OBJECT
 
 	public:

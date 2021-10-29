@@ -85,9 +85,10 @@ namespace H2Core
 * @author Sebastian Moors
 *
 */
-class OscServer : public H2Core::Object
+/** \ingroup docCore docDebugging*/
+class OscServer : public H2Core::Object<OscServer>
 {
-	H2_OBJECT
+	H2_OBJECT(OscServer)
 	public:
 		/**
 		 * Object holding the current OscServer singleton. It is
@@ -709,8 +710,6 @@ class OscServer : public H2Core::Object
 		 * message.*/
 		static void LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::relocateToPattern().
-		 *
 		 * \param argv The "i" field does contain the desired
 		 * position / number of the pattern group (starting with
 		 * 0).
@@ -745,7 +744,7 @@ class OscServer : public H2Core::Object
 		 * \return 1 - means that the message has not been fully
 		 * handled and the server should try other methods */
 		static int  generic_handler(const char *path, const char *types, lo_arg ** argv,
-								int argc, void *data, void *user_data);
+								int argc, lo_message data, void *user_data);
 
 	private:
 		/**

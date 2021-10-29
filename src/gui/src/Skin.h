@@ -29,6 +29,7 @@
 ///
 /// Skin support
 ///
+/** \ingroup docGUI*/
 class Skin
 {
 public:

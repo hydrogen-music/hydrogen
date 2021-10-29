@@ -71,9 +71,7 @@ cat > AboutDialogContributorList.cpp <<"EOF"
  */
 #include "AboutDialogContributorList.h"
 
-const char* AboutDialogContributorList::__class_name = "AboutDialogContributorList";
-
-AboutDialogContributorList::AboutDialogContributorList() : H2Core::Object( __class_name ) {
+AboutDialogContributorList::AboutDialogContributorList() : H2Core::Object() {
 
 	std::vector<QString> v{
 EOF

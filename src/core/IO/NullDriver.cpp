@@ -27,10 +27,8 @@
 namespace H2Core
 {
 
-const char* NullDriver::__class_name = "NullDriver";
-
 NullDriver::NullDriver( audioProcessCallback processCallback )
-		: AudioOutput( __class_name )
+		: AudioOutput()
 {
 	UNUSED( processCallback );
 //	INFOLOG( "INIT" );
@@ -87,34 +85,6 @@ float* NullDriver::getOut_R()
 {
 	INFOLOG( "not implemented yet" );
 	return nullptr;
-}
-
-
-void NullDriver::play()
-{
-	INFOLOG( "not implemented" );
-}
-
-void NullDriver::stop()
-{
-	INFOLOG( "not implemented" );
-}
-
-void NullDriver::locate( unsigned long nFrame )
-{
-	UNUSED( nFrame );
-	INFOLOG( "not implemented" );
-}
-
-void NullDriver::updateTransportInfo()
-{
-	INFOLOG( "not implemented" );
-}
-
-void NullDriver::setBpm( float fBPM )
-{
-	UNUSED( fBPM );
-	ERRORLOG( "not implemented yet" );
 }
 
 };

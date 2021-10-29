@@ -38,9 +38,10 @@
 /**
  * LED identicating a user selection.
  */
-class LED : public QWidget, public H2Core::Object
+/** \ingroup docGUI docWidgets*/
+class LED : public QWidget, public H2Core::Object<LED>
 {
-    H2_OBJECT
+    H2_OBJECT(LED)
 	Q_OBJECT
 
 public:
@@ -66,9 +67,10 @@ inline bool LED::getActivated() const {
 }
 
 /** Custom LED that comes with its own timer.*/
-class MetronomeLED : public LED, public EventListener
+/** \ingroup docGUI docWidgets*/
+class MetronomeLED : public LED, public EventListener, public H2Core::Object<MetronomeLED>
 {
-    H2_OBJECT
+    H2_OBJECT(MetronomeLED)
 	Q_OBJECT
 
 public:

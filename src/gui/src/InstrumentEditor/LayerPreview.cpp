@@ -30,7 +30,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/Note.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Sampler/Sampler.h>
 using namespace H2Core;
 
@@ -39,11 +39,8 @@ using namespace H2Core;
 #include "InstrumentEditorPanel.h"
 #include "LayerPreview.h"
 
-const char* LayerPreview::__class_name = "LayerPreview";
-
 LayerPreview::LayerPreview( QWidget* pParent )
  : QWidget( pParent )
- , Object( __class_name )
  , m_pInstrument( nullptr )
  , m_nSelectedComponent( 0 )
  , m_nSelectedLayer( 0 )
@@ -178,7 +175,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 void LayerPreview::selectedInstrumentChangedEvent()
 {
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	if (pSong != nullptr) {
 		InstrumentList *pInstrList = pSong->getInstrumentList();
 		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();

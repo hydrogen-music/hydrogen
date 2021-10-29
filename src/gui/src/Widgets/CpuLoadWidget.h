@@ -45,9 +45,10 @@
  * In case an XRun event is reported by the JACK server, the outlines
  * of he widget will be painted in red for 1.5 seconds.
  */
-class CpuLoadWidget : public QWidget, public EventListener, public H2Core::Object
+/** \ingroup docGUI docWidgets*/
+class CpuLoadWidget : public QWidget, public EventListener, public H2Core::Object<CpuLoadWidget>
 {
-    H2_OBJECT
+    H2_OBJECT(CpuLoadWidget)
 	Q_OBJECT
 
 public:

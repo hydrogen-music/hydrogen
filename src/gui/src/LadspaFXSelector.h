@@ -40,9 +40,10 @@ namespace H2Core {
 	class LadspaFXGroup;
 }
 
-class LadspaFXSelector : public QDialog, public Ui_LadspaFXSelector_UI, public H2Core::Object
+/** \ingroup docGUI*/
+class LadspaFXSelector :  public QDialog, public Ui_LadspaFXSelector_UI,  public H2Core::Object<LadspaFXSelector>
 {
-    H2_OBJECT
+    H2_OBJECT(LadspaFXSelector)
 	Q_OBJECT
 
 	public:

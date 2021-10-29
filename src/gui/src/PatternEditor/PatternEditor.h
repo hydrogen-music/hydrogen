@@ -52,16 +52,17 @@ class PatternEditorPanel;
 //! This covers common elements such as some selection handling,
 //! timebase functions, and drawing grid lines.
 //!
+/** \ingroup docGUI*/
 class PatternEditor : public QWidget,
 					  public EventListener,
-					  public H2Core::Object,
+					  public H2Core::Object<PatternEditor>,
 					  public SelectionWidget<H2Core::Note *>
 {
-	H2_OBJECT
+	H2_OBJECT(PatternEditor)
 	Q_OBJECT
 
 public:
-	PatternEditor( QWidget *pParent, const char *sClassName,
+	PatternEditor( QWidget *pParent,
 				   PatternEditorPanel *panel );
 
 

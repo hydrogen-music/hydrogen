@@ -33,9 +33,10 @@ namespace H2Core
 
 typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
-class NullDriver : public AudioOutput
+/** \ingroup docCore docAudioDriver */
+class NullDriver : public Object<NullDriver>, public AudioOutput
 {
-	H2_OBJECT
+	H2_OBJECT(NullDriver)
 public:
 	NullDriver( audioProcessCallback processCallback );
 	~NullDriver();
@@ -48,12 +49,6 @@ public:
 
 	float* getOut_L();
 	float* getOut_R();
-
-	virtual void play();
-	virtual void stop();
-	virtual void locate( unsigned long nFrame );
-	virtual void updateTransportInfo();
-	virtual void setBpm( float fBPM );
 
 };
 

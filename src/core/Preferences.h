@@ -46,9 +46,10 @@ const float FALLOFF_FAST =	1.5f;
 /**
 \ingroup H2CORE
 */
-class WindowProperties : public H2Core::Object
+/** \ingroup docCore docConfiguration*/
+class WindowProperties : public H2Core::Object<WindowProperties>
 {
-	H2_OBJECT
+	H2_OBJECT(WindowProperties)
 public:
 	int x;
 	int y;
@@ -57,6 +58,7 @@ public:
 	bool visible;
 
 	WindowProperties();
+	WindowProperties(const WindowProperties &other);
 	~WindowProperties();
 
 	void set(int _x, int _y, int _width, int _height, bool _visible) {
@@ -71,9 +73,10 @@ public:
 \ingroup H2CORE
 \brief	Colors for hydrogen
 */
-class UIStyle : public H2Core::Object
+/** \ingroup docCore docConfiguration*/
+class UIStyle : public H2Core::Object<UIStyle>
 {
-	H2_OBJECT
+	H2_OBJECT(UIStyle)
 public:
 	UIStyle();
 	UIStyle( const UIStyle* pOther );
@@ -151,9 +154,10 @@ public:
 \ingroup H2CORE
 \brief	Manager for User Preferences File (singleton)
 */
-class Preferences : public H2Core::Object
+/** \ingroup docCore docConfiguration*/
+class Preferences : public H2Core::Object<Preferences>
 {
-	H2_OBJECT
+	H2_OBJECT(Preferences)
 public:
 	enum {
 	      /** 
@@ -276,8 +280,8 @@ public:
 	 */
 	QString				m_sAudioDriver;
 	/** If set to true, samples of the metronome will be added to
-	 * #m_songNoteQueue in audioEngine_updateNoteQueue() and thus
-	 * played back on a regular basis.*/
+	 * #H2Core::AudioEngine::m_songNoteQueue and thus played back on a
+	 * regular basis.*/
 	bool				m_bUseMetronome;
 	/// Metronome volume FIXME: remove this volume!!
 	float				m_fMetronomeVolume;
@@ -369,6 +373,13 @@ public:
 
 	//	alsa audio driver properties ___
 	QString				m_sAlsaAudioDevice;
+
+	// PortAudio properties
+	QString				m_sPortAudioDevice;
+	QString				m_sPortAudioHostAPI;
+
+	// CoreAudio properties
+	QString				m_sCoreAudioDevice;
 
 	//	jack driver properties ___
 	QString				m_sJackPortName1;

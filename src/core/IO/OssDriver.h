@@ -60,9 +60,10 @@ namespace H2Core
 ///
 /// OSS Audio Driver
 ///
-class OssDriver : public AudioOutput
+/** \ingroup docCore docAudioDriver */
+class OssDriver : public Object<OssDriver>, public AudioOutput
 {
-	H2_OBJECT
+	H2_OBJECT(OssDriver)
 public:
 	OssDriver( audioProcessCallback processCallback );
 	~OssDriver();
@@ -76,12 +77,6 @@ public:
 	unsigned getSampleRate();
 	float* getOut_L();
 	float* getOut_R();
-
-	virtual void play();
-	virtual void stop();
-	virtual void locate( unsigned long nFrame );
-	virtual void updateTransportInfo();
-	virtual void setBpm( float fBPM );
 
 private:
 	/** file descriptor, for writing to /dev/dsp */
@@ -100,9 +95,9 @@ private:
 
 namespace H2Core {
 
-class OssDriver : public NullDriver
+class OssDriver : public Object<OssDriver>, public NullDriver
 {
-	H2_OBJECT
+	H2_OBJECT(OssDriver)
 public:
 	OssDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
 

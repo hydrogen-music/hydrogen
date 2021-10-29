@@ -33,8 +33,6 @@
 
 using namespace H2Core;
 
-const char* ExportMidiDialog::__class_name = "ExportMidiDialog";
-
 enum ExportModes { EXPORT_SMF1_SINGLE, EXPORT_SMF1_MULTI, EXPORT_SMF0 };
 
 // Here we are going to store export filename 
@@ -42,7 +40,7 @@ QString ExportMidiDialog::sLastFilename = "";
 
 ExportMidiDialog::ExportMidiDialog( QWidget* parent )
 	: QDialog( parent )
-	, Object( __class_name )
+	, Object()
 	, m_pHydrogen( Hydrogen::get_instance() )
 	, m_pPreferences( Preferences::get_instance() )
 	, m_bFileSelected( false )
@@ -178,7 +176,7 @@ void ExportMidiDialog::on_okBtn_clicked()
 	
 	saveSettingsToPreferences();
 
-	Song *pSong = m_pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	
 	QString sFilename = exportNameTxt->text();
 	QFileInfo qFile( sFilename );

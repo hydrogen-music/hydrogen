@@ -42,7 +42,6 @@
 #include "core/MidiAction.h"
 
 OscServer * OscServer::__instance = nullptr;
-const char* OscServer::__class_name = "OscServer";
 
 
 QString OscServer::qPrettyPrint(lo_type type,void * data)
@@ -151,7 +150,7 @@ int OscServer::generic_handler(const char *	path,
 							   const char *	types,
 							   lo_arg **	argv,
 							   int			argc,
-							   void *		data,
+							   lo_message	data,
 							   void *		user_data)
 {
 	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
@@ -261,8 +260,7 @@ int OscServer::generic_handler(const char *	path,
 
 
 
-OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name ),
-															m_bInitialized( false )
+OscServer::OscServer( H2Core::Preferences* pPreferences ) : m_bInitialized( false )
 {
 	m_pPreferences = pPreferences;
 	
@@ -728,7 +726,7 @@ void OscServer::LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 
 void OscServer::RELOCATE_Handler(lo_arg **argv, int argc) {
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->relocate( static_cast<int>(std::round( argv[0]->f ) ) );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( static_cast<int>(std::round( argv[0]->f ) ) );
 }
 
 // -------------------------------------------------------------------

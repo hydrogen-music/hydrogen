@@ -41,7 +41,7 @@
 #include <core/Preferences.h>
 #include <core/Timeline.h>
 #include <core/IO/AudioOutput.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Sampler/Sampler.h>
 #include <core/EventQueue.h>
 
@@ -52,8 +52,6 @@
 #endif
 
 using namespace H2Core;
-
-const char* ExportSongDialog::__class_name = "ExportSongDialog";
 
 enum ExportModes { EXPORT_TO_SINGLE_TRACK, EXPORT_TO_SEPARATE_TRACKS, EXPORT_TO_BOTH };
 
@@ -87,7 +85,6 @@ QString ExportSongDialog::sLastFilename = "";
 
 ExportSongDialog::ExportSongDialog(QWidget* parent)
 	: QDialog(parent)
-	, Object( __class_name )
 	, m_bExporting( false )
 	, m_pHydrogen( Hydrogen::get_instance() )
 	, m_pPreferences( Preferences::get_instance() )
@@ -300,7 +297,7 @@ void ExportSongDialog::on_okBtn_clicked()
 	
 	saveSettingsToPreferences();
 	
-	Song *pSong = m_pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 
 	m_bOverwriteFiles = false;
@@ -338,7 +335,6 @@ void ExportSongDialog::on_okBtn_clicked()
 
 		m_pHydrogen->startExportSession( sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt());
 		m_pHydrogen->startExportSong( filename );
-
 		return;
 	}
 
@@ -353,7 +349,7 @@ void ExportSongDialog::on_okBtn_clicked()
 
 bool ExportSongDialog::currentInstrumentHasNotes()
 {
-	Song *pSong = m_pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	unsigned nPatterns = pSong->getPatternList()->size();
 	
 	bool bInstrumentHasNotes = false;
@@ -377,7 +373,7 @@ bool ExportSongDialog::currentInstrumentHasNotes()
 
 QString ExportSongDialog::findUniqueExportFilenameForInstrument( std::shared_ptr<Instrument> pInstrument )
 {
-	Song *pSong = m_pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	QString uniqueInstrumentName;
 	
 	int instrumentOccurence = 0;
@@ -398,7 +394,7 @@ QString ExportSongDialog::findUniqueExportFilenameForInstrument( std::shared_ptr
 
 void ExportSongDialog::exportTracks()
 {
-	Song *pSong = m_pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 	
 	if( m_nInstrument < pInstrumentList->size() ){
@@ -730,7 +726,7 @@ void ExportSongDialog::calculateRubberbandTime()
 	m_pHydrogen->setBPM(lowBPM);
 	time_t sTime = time(nullptr);
 
-	Song *pSong = m_pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	assert(pSong);
 	
 	if(pSong){
@@ -784,7 +780,7 @@ void ExportSongDialog::calculateRubberbandTime()
 
 bool ExportSongDialog::checkUseOfRubberband()
 {
-	Song *pSong = m_pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	assert(pSong);
 	
 	if(pSong){

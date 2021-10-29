@@ -38,7 +38,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
 using namespace H2Core;
 
@@ -57,11 +57,8 @@ using namespace H2Core;
 #include "LayerPreview.h"
 #include "AudioFileBrowser/AudioFileBrowser.h"
 
-const char* InstrumentEditor::__class_name = "InstrumentEditor";
-
 InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	: QWidget( pParent )
-	, Object( __class_name )
 	, m_pInstrument( nullptr )
 	, m_nSelectedLayer( 0 )
 	, m_fPreviousMidiOutChannel( -1.0 )
@@ -494,7 +491,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	
 	if ( pSong != nullptr ) {
 		InstrumentList *pInstrList = pSong->getInstrumentList();
@@ -900,7 +897,7 @@ void InstrumentEditor::loadLayerBtnClicked()
 	int firstSelection = selectedLayer;
 
 	// Ensure instrument pointer is current
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong ) {
 		InstrumentList *pInstrList = pSong->getInstrumentList();
 		m_pInstrument = pInstrList->get( pHydrogen->getSelectedInstrumentNumber() );
@@ -1007,7 +1004,7 @@ void InstrumentEditor::setAutoVelocity()
 void InstrumentEditor::labelCompoClicked( ClickableLabel* pRef )
 {
 	UNUSED( pRef );
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -1344,7 +1341,7 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 	}
 	//	INFOLOG( "Tempo change: Recomputing rubberband samples." );
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *song = pHydrogen->getSong();
+	std::shared_ptr<Song> song = pHydrogen->getSong();
 	assert(song);
 	if(song){
 		InstrumentList *pSongInstrList = song->getInstrumentList();

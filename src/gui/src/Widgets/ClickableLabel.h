@@ -36,9 +36,10 @@
  * make the text overflow - until the text fits.
  *
  */
-class ClickableLabel : public QLabel, public H2Core::Object
+/** \ingroup docGUI docWidgets*/
+class ClickableLabel : public QLabel, public H2Core::Object<ClickableLabel>
 {
-	H2_OBJECT
+	H2_OBJECT(ClickableLabel)
 	Q_OBJECT
 
 public:

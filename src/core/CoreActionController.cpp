@@ -20,7 +20,7 @@
  *
  */
 
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
@@ -42,11 +42,8 @@
 namespace H2Core
 {
 
-const char* CoreActionController::__class_name = "CoreActionController";
 
-
-CoreActionController::CoreActionController() : Object( __class_name ),
-												m_nDefaultMidiFeedbackChannel(0)
+CoreActionController::CoreActionController() : m_nDefaultMidiFeedbackChannel(0)
 {
 	//nothing
 }
@@ -81,7 +78,7 @@ void CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 	
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	auto pInstr = pInstrList->get( nStrip );
@@ -142,7 +139,7 @@ void CoreActionController::setMasterIsMuted( bool isMuted )
 void CoreActionController::toggleStripIsMuted(int nStrip)
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if( pInstrList->is_valid_index( nStrip ))
@@ -158,7 +155,7 @@ void CoreActionController::toggleStripIsMuted(int nStrip)
 void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	auto pInstr = pInstrList->get( nStrip );
@@ -182,7 +179,7 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 void CoreActionController::toggleStripIsSoloed( int nStrip )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if( pInstrList->is_valid_index( nStrip ))
@@ -198,7 +195,7 @@ void CoreActionController::toggleStripIsSoloed( int nStrip )
 void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	auto pInstr = pInstrList->get( nStrip );
@@ -228,7 +225,7 @@ void CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectSt
 		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 	
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	auto pInstr = pInstrList->get( nStrip );
@@ -256,7 +253,7 @@ void CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelec
 		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
 	
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	auto pInstr = pInstrList->get( nStrip );
@@ -297,7 +294,7 @@ void CoreActionController::initExternalControlInterfaces()
 	
 	//MASTER_VOLUME_ABSOLUTE
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	setMasterVolume( pSong->getVolume() );
 	
 	//PER-INSTRUMENT/STRIP STATES
@@ -332,7 +329,7 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
 
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
 		// Stops recording, all queued MIDI notes, and the playback of
 		// the audio driver.
 		pHydrogen->sequencer_stop();
@@ -371,7 +368,7 @@ bool CoreActionController::openSong( const QString& sSongPath ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
  
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
 		// Stops recording, all queued MIDI notes, and the playback of
 		// the audio driver.
 		pHydrogen->sequencer_stop();
@@ -395,11 +392,11 @@ bool CoreActionController::openSong( const QString& sSongPath ) {
 	return setSong( pSong );
 }
 
-bool CoreActionController::openSong( Song* pSong ) {
+bool CoreActionController::openSong( std::shared_ptr<Song> pSong ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
  
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
+	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
 		// Stops recording, all queued MIDI notes, and the playback of
 		// the audio driver.
 		pHydrogen->sequencer_stop();
@@ -413,13 +410,9 @@ bool CoreActionController::openSong( Song* pSong ) {
 	return setSong( pSong );
 }
 
-bool CoreActionController::setSong( Song* pSong ) {
+bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
-	
-	// Remove all BPM markers and tags on the Timeline.
-	pHydrogen->getTimeline()->deleteAllTempoMarkers();
-	pHydrogen->getTimeline()->deleteAllTags();
 
 	// Update the Song.
 	pHydrogen->setSong( pSong );
@@ -660,7 +653,7 @@ bool CoreActionController::activateSongMode( bool bActivate, bool bTriggerEvent 
 	auto pHydrogen = Hydrogen::get_instance();
 	pHydrogen->sequencer_stop();
 	if ( bActivate ) {
-		pHydrogen->setPatternPos( 0 );
+		locateToColumn( 0 );
 		pHydrogen->getSong()->setMode( Song::SONG_MODE );
 	} else {
 		pHydrogen->getSong()->setMode( Song::PATTERN_MODE );
@@ -686,20 +679,69 @@ bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent 
 	return true;
 }
 
-bool CoreActionController::relocate( int nPatternGroup ) {
+bool CoreActionController::locateToColumn( int nPatternGroup ) {
 
+	if ( nPatternGroup < -1 ) {
+		ERRORLOG( QString( "Provided column [%1] too low. Assigning -1 (indicating the beginning of a song without showing a cursor in the SongEditorPositionRuler) instead." )
+				  .arg( nPatternGroup ) );
+		nPatternGroup = -1;
+	}
+	
 	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->setPatternPos( nPatternGroup );
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
+	long nTotalTick = pAudioEngine->getTickForColumn( nPatternGroup );
+	if ( nTotalTick < 0 ) {
+		// There is no pattern inserted in the SongEditor.
+		if ( pHydrogen->getSong()->getMode() == Song::SONG_MODE ) {
+			DEBUGLOG( QString( "Obtained ticks [%1] are smaller than zero. No relocation done." )
+					  .arg( nTotalTick ) );
+			return false;
+		} else {
+			// In case of Pattern mode this is not a problem and we
+			// will treat this case as the beginning of the song.
+			nTotalTick = 0;
+		}
+	}
+
+	locateToFrame( static_cast<unsigned long>( nTotalTick * pAudioEngine->getTickSize() ) );
+
 	pHydrogen->setTimelineBpm();
 	
-#ifdef H2CORE_HAVE_JACK
+	return true;
+}
+
+bool CoreActionController::locateToFrame( unsigned long nFrame ) {
+
+	const auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pDriver = pHydrogen->getAudioOutput();
 
+	pAudioEngine->lock( RIGHT_HERE );
+	
+	if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
+		// Required to move the playhead when clicking e.g. fast
+		// forward or the song editor ruler. The variables set in here
+		// do not interfere with the realtime audio (playback of MIDI
+		// events of virtual keyboard) and all other position
+		// variables in the AudioEngine will be set properly with
+		// respect to them by then.
+
+		int nTotalTick = static_cast<int>(nFrame / pAudioEngine->getTickSize());
+		int nPatternStartTick;
+		int nColumn = pAudioEngine->getColumnForTick( nTotalTick, pHydrogen->getSong()->getIsLoopEnabled(), &nPatternStartTick );
+
+		pAudioEngine->setColumn( nColumn );
+		pAudioEngine->setPatternTickPosition( nTotalTick - nPatternStartTick );
+	}
+	pAudioEngine->locate( nFrame );
+	pAudioEngine->unlock();
+
+#ifdef H2CORE_HAVE_JACK
 	if ( pHydrogen->haveJackTransport() &&
-		 pDriver->m_transport.m_status != TransportInfo::ROLLING ) {
-	long totalTick = pHydrogen->getTickForPosition( nPatternGroup );
-	static_cast<JackAudioDriver*>(pDriver)->m_currentPos = 
-		totalTick * pDriver->m_transport.m_fTickSize;
+		 pAudioEngine->getState() != AudioEngine::State::Playing ) {
+		static_cast<JackAudioDriver*>(pDriver)->m_currentPos = nFrame;
 	}
 #endif
 	return true;

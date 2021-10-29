@@ -26,7 +26,7 @@
 #include "core/EventQueue.h"
 #include "core/Hydrogen.h"
 #include "core/Basics/Song.h"
-#include "core/AudioEngine.h"
+#include "core/AudioEngine/AudioEngine.h"
 #include "core/NsmClient.h"
 
 #include <QDir>
@@ -39,13 +39,11 @@
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 
 NsmClient * NsmClient::__instance = nullptr;
-const char* NsmClient::__class_name = "NsmClient";
 bool NsmClient::bNsmShutdown = false;
 
 
 NsmClient::NsmClient()
-	: Object( __class_name ),
-	  m_pNsm( nullptr ),
+	: m_pNsm( nullptr ),
 	  m_bUnderSessionManagement( false ),
 	  m_NsmThread( 0 ),
 	  m_sSessionFolderPath( "" )
@@ -123,7 +121,7 @@ int NsmClient::OpenCallback( const char *name,
 		return ERR_NOT_NOW;
 	}
 	
-	H2Core::Song* pSong = nullptr;
+	std::shared_ptr<H2Core::Song> pSong = nullptr;
 	if ( songFileInfo.exists() ) {
 
 		pSong = H2Core::Song::load( sSongPath );

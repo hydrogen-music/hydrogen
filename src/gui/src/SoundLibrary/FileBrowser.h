@@ -29,9 +29,10 @@
 #include <QtGui>
 #include <QtWidgets>
 
-class FileBrowser : public QWidget, private H2Core::Object
+/** \ingroup docGUI*/
+class FileBrowser : public QWidget, private H2Core::Object<FileBrowser>
 {
-    H2_OBJECT
+    H2_OBJECT(FileBrowser)
 	Q_OBJECT
 	public:
 		explicit FileBrowser( QWidget* pParent );

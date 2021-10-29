@@ -32,7 +32,7 @@
 
 #include <core/Basics/Song.h>
 #include <core/MidiMap.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Instrument.h>
@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
 
 		// Man your battle stations... this is not a drill.
 		Logger* logger = Logger::bootstrap( Logger::parse_log_level( logLevelOpt ) );
-		Object::bootstrap( logger, logger->should_log( Logger::Debug ) );
+		Base::bootstrap( logger, logger->should_log( Logger::Debug ) );
 		Filesystem::bootstrap( logger );
 		MidiMap::create_instance();
 		Preferences::create_instance();
@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
 #endif
 		Hydrogen::create_instance();
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
-		Song *pSong = nullptr;
+		std::shared_ptr<Song> pSong = nullptr;
 		Playlist *pPlaylist = nullptr;
 
 		// Load playlist
@@ -435,11 +435,12 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		if ( pHydrogen->getState() == STATE_PLAYING ) {
+		if ( pHydrogen->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 			pHydrogen->sequencer_stop();
 		}
 
-		delete pSong;
+		//delete pSong;
+		pSong = nullptr;
 		delete pPlaylist;
 
 		delete pQueue;
@@ -452,10 +453,10 @@ int main(int argc, char *argv[])
 		___INFOLOG( "Quitting..." );
 		delete Logger::get_instance();
 
-		int nObj = Object::objects_count();
+		int nObj = Base::objects_count();
 		if (nObj != 0) {
 			std::cerr << "\n\n\n " << nObj << " alive objects\n\n" << std::endl << std::endl;
-			Object::write_objects_map_to_cerr();
+			Base::write_objects_map_to_cerr();
 		}
 	}
 	catch ( const H2Exception& ex ) {
@@ -474,7 +475,7 @@ void showInfo()
 	std::cout << "\nHydrogen " + get_version() + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << std::endl;
 	std::cout << "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2021 The hydrogen development team" << std::endl;
 
-	if ( Object::count_active() ) {
+	if ( Base::count_active() ) {
 		std::cout << "\nObject counting active" << std::endl;
 	}
 

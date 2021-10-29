@@ -30,11 +30,9 @@
 
 #include <QGridLayout>
 
-const char* InstrumentRack::__class_name = "InstrumentRack";
-
 InstrumentRack::InstrumentRack( QWidget *pParent )
  : QWidget( pParent )
- , Object( __class_name )
+ , Object()
 {
 	INFOLOG( "INIT" );
 

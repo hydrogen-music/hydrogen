@@ -35,11 +35,8 @@
 namespace H2Core
 {
 
-const char* SongEditorPanelTagWidget::__class_name = "SongEditorPanelTagWidget";
-
 SongEditorPanelTagWidget::SongEditorPanelTagWidget( QWidget* pParent, int beat )
 	: QDialog( pParent )
-	, Object( __class_name )
 	, m_stimelineposition ( beat )
 {
 	setupUi( this );

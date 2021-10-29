@@ -30,6 +30,7 @@
 #include <core/Preferences.h>
 #include <core/Basics/Sample.h>
 #include <core/Hydrogen.h>
+#include <core/AudioEngine/AudioEngine.h>
 
 #include <QFileSystemModel>
 #include <QModelIndex>
@@ -38,11 +39,9 @@
 
 using namespace H2Core;
 
-const char* AudioFileBrowser::__class_name = "AudioFileBrowser";
-
 AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect, bool bShowInstrumentManipulationControls)
 		: QDialog ( pParent )
-		, Object ( __class_name )
+		, Object ()
 {
 	setupUi ( this );
 	INFOLOG ( "INIT" );

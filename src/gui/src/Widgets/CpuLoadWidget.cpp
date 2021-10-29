@@ -23,15 +23,12 @@
 #include "CpuLoadWidget.h"
 
 #include <core/Hydrogen.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 
 #include "../HydrogenApp.h"
 
-const char* CpuLoadWidget::__class_name = "CpuLoadWidget";
-
 CpuLoadWidget::CpuLoadWidget( QWidget *pParent )
  : QWidget( pParent )
- , Object( __class_name )
  , m_fValue( 0 )
  , m_nXRunValue( 0 )
  , m_size( QSize( 96, 10 ) )

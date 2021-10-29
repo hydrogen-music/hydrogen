@@ -46,9 +46,10 @@
 namespace H2Core
 {
 
-class JackMidiDriver : public virtual MidiInput, public virtual MidiOutput
+/** \ingroup docCore docMIDI */
+class JackMidiDriver : public Object<JackMidiDriver>, public virtual MidiInput, public virtual MidiOutput
 {
-	H2_OBJECT
+	H2_OBJECT(JackMidiDriver)
 public:
 	JackMidiDriver();
 	virtual ~JackMidiDriver();

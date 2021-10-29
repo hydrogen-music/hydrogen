@@ -35,9 +35,10 @@
 namespace H2Core
 {
 
-class LadspaFXInfo : public H2Core::Object
+/** \ingroup docCore docAudioEngine */
+class LadspaFXInfo : public H2Core::Object<LadspaFXInfo>
 {
-	H2_OBJECT
+	H2_OBJECT(LadspaFXInfo)
 public:
 	LadspaFXInfo( const QString& sName );
 	~LadspaFXInfo();
@@ -57,9 +58,10 @@ public:
 
 
 
-class LadspaFXGroup : public H2Core::Object
+/** \ingroup docCore docAudioEngine */
+class LadspaFXGroup : public H2Core::Object<LadspaFXGroup>
 {
-	H2_OBJECT
+	H2_OBJECT(LadspaFXGroup)
 public:
 	LadspaFXGroup( const QString& sName );
 	~LadspaFXGroup();
@@ -95,9 +97,10 @@ private:
 
 
 
-class LadspaControlPort : public H2Core::Object
+/** \ingroup docCore docAudioEngine */
+class LadspaControlPort : public H2Core::Object<LadspaControlPort>
 {
-	H2_OBJECT
+	H2_OBJECT(LadspaControlPort)
 public:
 	QString sName;
 	bool isToggle;
@@ -107,14 +110,15 @@ public:
 	LADSPA_Data fLowerBound;
 	LADSPA_Data fUpperBound;
 
-	LadspaControlPort() : Object( "LadspaControlPort" ) { }
+	LadspaControlPort() : Object( ) { }
 };
 
 
 
-class LadspaFX : public H2Core::Object
+/** \ingroup docCore docAudioEngine */
+class LadspaFX : public H2Core::Object<LadspaFX>
 {
-	H2_OBJECT
+	H2_OBJECT(LadspaFX)
 public:
 	enum {
 		MONO_FX,

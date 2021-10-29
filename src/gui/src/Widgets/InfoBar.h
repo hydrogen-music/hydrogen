@@ -26,13 +26,18 @@
 #include <QWidget>
 #include <vector>
 #include <core/Preferences.h>
+#include <core/Object.h>
 
 class QHBoxLayout;
 class QLabel;
 class QPushButton;
 
-class InfoBar : public QWidget
+/** \ingroup docGUI docWidgets*/
+class InfoBar : public QWidget, public H2Core::Object<InfoBar>
 {
+	H2_OBJECT(InfoBar)
+	Q_OBJECT
+	
 	QHBoxLayout *m_pLayout;
 	QLabel *m_pLabel;
 

@@ -25,7 +25,7 @@
 #include <cassert>
 
 #include <core/Hydrogen.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 
 #include <core/Helpers/Xml.h>
 
@@ -41,11 +41,8 @@
 namespace H2Core
 {
 
-const char* Instrument::__class_name = "Instrument";
-
 Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR> adsr )
-	: Object( __class_name )
-	, __id( id )
+	: __id( id )
 	, __name( name )
 	, __gain( 1.0 )
 	, __volume( 1.0 )
@@ -96,8 +93,7 @@ Instrument::Instrument( const int id, const QString& name, std::shared_ptr<ADSR>
 }
 
 Instrument::Instrument( std::shared_ptr<Instrument> other )
-	: Object( __class_name )
-	, __id( other->get_id() )
+	: __id( other->get_id() )
 	, __name( other->get_name() )
 	, __gain( other->__gain )
 	, __volume( other->get_volume() )
@@ -420,7 +416,7 @@ std::shared_ptr<InstrumentComponent> Instrument::get_component( int DrumkitCompo
 }
 
 QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Object::sPrintIndention;
+	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Instrument]\n" ).arg( sPrefix )

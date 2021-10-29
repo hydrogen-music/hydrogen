@@ -47,9 +47,10 @@ class AudioOutput;
 ///
 /// Waveform based sampler.
 ///
-class Sampler : public H2Core::Object
+/** \ingroup docCore docAudioEngine*/
+class Sampler : public H2Core::Object<Sampler>
 {
-	H2_OBJECT
+	H2_OBJECT(Sampler)
 public:
 
    /** PAN LAWS
@@ -172,7 +173,7 @@ public:
 	Sampler();
 	~Sampler();
 
-	void process( uint32_t nFrames, Song* pSong );
+	void process( uint32_t nFrames, std::shared_ptr<Song> pSong );
 
 	/// Start playing a note
 	void noteOn( Note * pNote );
@@ -210,11 +211,10 @@ public:
 	/**
 	 * Loading of the playback track.
 	 *
-	 * The playback track is added to
-	 * #__playback_instrument as a new InstrumentLayer
-	 * containing the loaded Sample. If
-	 * Song::__playback_track_filename is empty, the
-	 * layer will be loaded with a nullptr instead.
+	 * The playback track is added to #m_pPlaybackTrackInstrument as a
+	 * new InstrumentLayer containing the loaded Sample. If
+	 * Song::__playback_track_filename is empty, the layer will be
+	 * loaded with a nullptr instead.
 	 */
 	void reinitializePlaybackTrack();
 	
@@ -239,7 +239,7 @@ private:
 	
 	/** function to direct the computation to the selected pan law function
 	 */
-	float panLaw( float fPan, Song* pSong );
+	float panLaw( float fPan, std::shared_ptr<Song> pSong );
 
 
 
@@ -247,7 +247,7 @@ private:
 	
 	bool isAnyInstrumentSoloed() const;
 	
-	bool renderNote( Note* pNote, unsigned nBufferSize, Song* pSong );
+	bool renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Song> pSong );
 
 	Interpolation::InterpolateMode m_interpolateMode;
 
@@ -263,7 +263,7 @@ private:
 		float cost_R,
 		float cost_track_L,
 		float cost_track_R,
-		Song* pSong
+		std::shared_ptr<Song> pSong
 	);
 
 	bool renderNoteResample(
@@ -279,7 +279,7 @@ private:
 		float cost_track_L,
 		float cost_track_R,
 		float fLayerPitch,
-		Song* pSong
+		std::shared_ptr<Song> pSong
 	);
 };
 

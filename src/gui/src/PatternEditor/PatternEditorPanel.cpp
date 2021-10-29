@@ -25,7 +25,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
 using namespace H2Core;
 
@@ -63,12 +63,9 @@ void PatternEditorPanel::updateSLnameLabel( )
 	m_pSLlabel->setText( Hydrogen::get_instance()->getCurrentDrumkitName() );
 }
 
-const char* PatternEditorPanel::__class_name = "PatternEditorPanel";
-
 
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
  : QWidget( pParent )
- , Object( __class_name )
  , m_pPattern( nullptr )
  , m_bArmPatternSizeSpinBoxes( true )
 {

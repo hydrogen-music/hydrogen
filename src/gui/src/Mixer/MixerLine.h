@@ -44,9 +44,10 @@ class ClickableLabel;
 #include "../Widgets/PixmapWidget.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
-class InstrumentNameWidget : public PixmapWidget, protected WidgetWithScalableFont<8, 10, 12>
+/** \ingroup docGUI*/
+class InstrumentNameWidget : public PixmapWidget, public H2Core::Object<InstrumentNameWidget>, protected WidgetWithScalableFont<8, 10, 12>
 {
-	H2_OBJECT
+	H2_OBJECT(InstrumentNameWidget)
 	Q_OBJECT
 
 public:
@@ -78,9 +79,10 @@ private:
 ///
 /// A mixer strip
 ///
-class MixerLine: public PixmapWidget
+/** \ingroup docGUI*/
+class MixerLine: public PixmapWidget, public H2Core::Object<MixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(MixerLine)
 	Q_OBJECT
 
 public:
@@ -164,9 +166,10 @@ private:
 	LCDDisplay *			m_pPeakLCD;
 };
 
-class ComponentMixerLine: public PixmapWidget
+/** \ingroup docGUI*/
+class ComponentMixerLine: public PixmapWidget, public H2Core::Object<ComponentMixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(ComponentMixerLine)
 	Q_OBJECT
 
 public:
@@ -225,9 +228,10 @@ private:
 	LCDDisplay *			m_pPeakLCD;
 };
 
-class MasterMixerLine: public PixmapWidget
+/** \ingroup docGUI*/
+class MasterMixerLine: public PixmapWidget, public H2Core::Object<MasterMixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(MasterMixerLine)
 	Q_OBJECT
 
 public:
@@ -248,7 +252,6 @@ public:
 
 signals:
 	void	volumeChanged(MasterMixerLine *ref);
-
 
 public slots:
 	void	faderChanged( WidgetWithInput* pRef);
@@ -281,9 +284,10 @@ private:
 	Button *	m_pMuteBtn;
 };
 
-class LadspaFXMixerLine : public PixmapWidget
+/** \ingroup docGUI*/
+class LadspaFXMixerLine : public PixmapWidget, public H2Core::Object<LadspaFXMixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(LadspaFXMixerLine)
 	Q_OBJECT
 
 public:

@@ -34,8 +34,6 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences.h>
 
-const char* Fader::__class_name = "Fader";
-
 Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSteps, bool bWithoutKnob, float fMin, float fMax )
 	: WidgetWithInput( pParent,
 					   bUseIntSteps,
@@ -44,7 +42,6 @@ Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSte
 					   5, // nScrollSpeedFast
 					   fMin,
 					   fMax  )
-	, Object( __class_name )
 	, m_type( type )
 	, m_bWithoutKnob( bWithoutKnob )
 	, m_fPeakValue_L( 0.01f )
@@ -396,6 +393,7 @@ void Fader::setMaxPeak( float fMax )
 
 		if ( m_fPeakValue_L > fMax ) {
 			setPeak_L( fMax );
+
 		}
 		if ( m_fPeakValue_R > fMax ) {
 			setPeak_R( fMax );

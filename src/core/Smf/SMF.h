@@ -36,9 +36,10 @@ namespace H2Core
 class Song;
 class Instrument;
 
-class SMFHeader : public SMFBase, public H2Core::Object
+/** \ingroup docCore docMIDI */
+class SMFHeader : public Object<SMFHeader>, public SMFBase
 {
-	H2_OBJECT
+	H2_OBJECT(SMFHeader)
 public:
 	SMFHeader( int nFormat, int nTracks, int nTPQN );
 	~SMFHeader();
@@ -54,9 +55,10 @@ private:
 
 
 
-class SMFTrack : public SMFBase, public H2Core::Object
+/** \ingroup docCore docMIDI */
+class SMFTrack : public Object<SMFTrack>, public SMFBase
 {
-	H2_OBJECT
+	H2_OBJECT(SMFTrack)
 public:
 
 	SMFTrack();
@@ -72,9 +74,10 @@ private:
 
 
 
-class SMF : public SMFBase, public H2Core::Object
+/** \ingroup docCore docMIDI */
+class SMF : public Object<SMF>, public SMFBase
 {
-	H2_OBJECT
+	H2_OBJECT(SMF)
 public:
 	SMF( int nFormat, int nTPQN );
 	~SMF();
@@ -93,22 +96,23 @@ private:
 typedef std::vector<SMFEvent*> EventList;
 
 
-class SMFWriter : public H2Core::Object
+/** \ingroup docCore docMIDI */
+class SMFWriter : public H2Core::Object<SMFWriter>
 {
-	H2_OBJECT
+	H2_OBJECT(SMFWriter)
 public:
-	SMFWriter( const char* sWriterName );
+	SMFWriter();
 	virtual ~SMFWriter();
-	void save( const QString& sFilename, Song *pSong );
+	void save( const QString& sFilename, std::shared_ptr<Song> pSong );
 
 protected:
 	void sortEvents( EventList* pEventList );
-	SMFTrack* createTrack0( Song* pSong );
+	SMFTrack* createTrack0( std::shared_ptr<Song> pSong );
 	
-	virtual SMF* createSMF( Song* pSong )=0;
-	virtual void prepareEvents( Song* pSong, SMF* pSmf )=0;
-	virtual EventList* getEvents( Song* pSong, std::shared_ptr<Instrument> pInstr ) = 0;
-	virtual void  packEvents( Song* pSong, SMF* pSmf ) = 0;
+	virtual SMF* createSMF( std::shared_ptr<Song> pSong )=0;
+	virtual void prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf )=0;
+	virtual EventList* getEvents( std::shared_ptr<Song> pSong, std::shared_ptr<Instrument> pInstr ) = 0;
+	virtual void  packEvents( std::shared_ptr<Song> pSong, SMF* pSmf ) = 0;
 	
 private:
 	void saveSMF( const QString& sFilename, SMF* pSmf );
@@ -117,42 +121,45 @@ private:
 
 //-------
 
-class SMF1Writer : public SMFWriter
+/** \ingroup docCore docMIDI */
+class SMF1Writer : public Object<SMF1Writer>, public SMFWriter
 {
-    H2_OBJECT
+    H2_OBJECT(SMF1Writer)
 public:
-    SMF1Writer( const char* sWriterName );
+    SMF1Writer();
 	virtual ~SMF1Writer();
 protected:
-	virtual SMF* createSMF( Song* pSong );
+	virtual SMF* createSMF( std::shared_ptr<Song> pSong );
 };
 
 
-class SMF1WriterSingle : public SMF1Writer
+/** \ingroup docCore docMIDI */
+class SMF1WriterSingle : public Object<SMF1WriterSingle>, public SMF1Writer
 {
-    H2_OBJECT
+    H2_OBJECT(SMF1WriterSingle)
 public:
     SMF1WriterSingle();
 	virtual ~SMF1WriterSingle();
 protected:
-	virtual void prepareEvents( Song* pSong, SMF* pSmf );
-	virtual void  packEvents( Song* pSong, SMF* pSmf );
-	virtual EventList* getEvents( Song* pSong, std::shared_ptr<Instrument> pInstr );
+	virtual void prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf );
+	virtual void  packEvents( std::shared_ptr<Song> pSong, SMF* pSmf );
+	virtual EventList* getEvents( std::shared_ptr<Song> pSong, std::shared_ptr<Instrument> pInstr );
 private:
 	EventList m_eventList;
 };
 
 
-class SMF1WriterMulti : public SMF1Writer
+/** \ingroup docCore docMIDI */
+class SMF1WriterMulti : public Object<SMF1WriterMulti>, public SMF1Writer
 {
-    H2_OBJECT
+    H2_OBJECT(SMF1WriterMulti)
 public:
     SMF1WriterMulti();
 	virtual ~SMF1WriterMulti();
 protected:
-	virtual void prepareEvents( Song* pSong, SMF* pSmf );
-	virtual void  packEvents( Song* pSong, SMF* pSmf );
-	virtual EventList* getEvents( Song* pSong, std::shared_ptr<Instrument> pInstr );
+	virtual void prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf );
+	virtual void  packEvents( std::shared_ptr<Song> pSong, SMF* pSmf );
+	virtual EventList* getEvents( std::shared_ptr<Song> pSong, std::shared_ptr<Instrument> pInstr );
 private:
 	// contains events for each instrument in separate vector
 	std::vector<EventList*> m_eventLists;
@@ -161,17 +168,18 @@ private:
 
 //-------
 
-class SMF0Writer : public SMFWriter
+/** \ingroup docCore docMIDI */
+class SMF0Writer : public Object<SMF0Writer>, public SMFWriter
 {
-    H2_OBJECT
+    H2_OBJECT(SMF0Writer)
 public:
     SMF0Writer();
 	virtual ~SMF0Writer();
 protected:
-	virtual SMF* createSMF( Song* pSong );
-	virtual void prepareEvents( Song* pSong, SMF* pSmf );
-	virtual void  packEvents( Song* pSong, SMF* pSmf );
-	virtual EventList* getEvents( Song* pSong, std::shared_ptr<Instrument> pInstr );
+	virtual SMF* createSMF( std::shared_ptr<Song> pSong );
+	virtual void prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf );
+	virtual void  packEvents( std::shared_ptr<Song> pSong, SMF* pSmf );
+	virtual EventList* getEvents( std::shared_ptr<Song> pSong, std::shared_ptr<Instrument> pInstr );
 private:
 	SMFTrack* m_pTrack;
 	EventList m_eventList;

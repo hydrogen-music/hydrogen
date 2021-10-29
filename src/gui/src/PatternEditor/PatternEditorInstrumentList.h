@@ -44,9 +44,10 @@ namespace H2Core
 class PatternEditorPanel;
 class Button;
 
+/** \ingroup docGUI*/
 class InstrumentLine : public PixmapWidget, protected WidgetWithScalableFont<8, 10, 12>
 {
-    H2_OBJECT
+    H2_OBJECT(InstrumentLine)
 	Q_OBJECT
 
 	public:
@@ -105,8 +106,9 @@ public slots:
 };
 
 
-class PatternEditorInstrumentList : public QWidget, public H2Core::Object {
-	H2_OBJECT
+/** \ingroup docGUI*/
+class PatternEditorInstrumentList :  public QWidget,  public H2Core::Object<PatternEditorInstrumentList> {
+	H2_OBJECT(PatternEditorInstrumentList)
 	Q_OBJECT
 
 	public:

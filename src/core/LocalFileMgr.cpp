@@ -58,10 +58,9 @@
 namespace H2Core
 {
 
-const char* LocalFileMng::__class_name = "LocalFileMng";
 
 LocalFileMng::LocalFileMng()
-	: Object( __class_name )
+	: Object()
 {
 	//	infoLog("INIT");
 }
@@ -357,10 +356,7 @@ QDomDocument LocalFileMng::openXmlDocument( const QString& filename )
 //	Implementation of SongWriter class
 //-----------------------------------------------------------------------------
 
-const char* SongWriter::__class_name = "SongWriter";
-
-SongWriter::SongWriter()
-	: Object( __class_name )
+SongWriter::SongWriter() 
 {
 	//	infoLog("init");
 }
@@ -374,7 +370,7 @@ SongWriter::~SongWriter()
 
 
 // Returns 0 on success, passes the TinyXml error code otherwise.
-int SongWriter::writeSong( Song * pSong, const QString& filename )
+int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename )
 {
 	QFileInfo fi( filename );
 	if ( ( Filesystem::file_exists( filename, true ) && ! Filesystem::file_writable( filename, true ) ) ||
@@ -599,16 +595,16 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 				Sample::VelocityEnvelope* velocity = pSample->get_velocity_envelope();
 				for (int y = 0; y < velocity->size(); y++){
 					QDomNode volumeNode = doc.createElement( "volume" );
-					LocalFileMng::writeXmlString( volumeNode, "volume-position", QString("%1").arg( velocity->at(y)->frame ) );
-					LocalFileMng::writeXmlString( volumeNode, "volume-value", QString("%1").arg( velocity->at(y)->value ) );
+					LocalFileMng::writeXmlString( volumeNode, "volume-position", QString("%1").arg( velocity->at(y).frame ) );
+					LocalFileMng::writeXmlString( volumeNode, "volume-value", QString("%1").arg( velocity->at(y).value ) );
 					layerNode.appendChild( volumeNode );
 				}
 
 				Sample::PanEnvelope* pan = pSample->get_pan_envelope();
 				for (int y = 0; y < pan->size(); y++){
 					QDomNode panNode = doc.createElement( "pan" );
-					LocalFileMng::writeXmlString( panNode, "pan-position", QString("%1").arg( pan->at(y)->frame ) );
-					LocalFileMng::writeXmlString( panNode, "pan-value", QString("%1").arg( pan->at(y)->value ) );
+					LocalFileMng::writeXmlString( panNode, "pan-position", QString("%1").arg( pan->at(y).frame ) );
+					LocalFileMng::writeXmlString( panNode, "pan-value", QString("%1").arg( pan->at(y).value ) );
 					layerNode.appendChild( panNode );
 				}
 

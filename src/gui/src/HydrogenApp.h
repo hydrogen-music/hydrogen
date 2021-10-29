@@ -71,9 +71,10 @@ class Director;
 class InfoBar;
 class CommonStrings;
 
-class HydrogenApp : public QObject, public EventListener, public H2Core::Object
+/** \ingroup docGUI*/
+class HydrogenApp :  public QObject, public EventListener,  public H2Core::Object<HydrogenApp>
 {
-		H2_OBJECT
+		H2_OBJECT(HydrogenApp)
 	Q_OBJECT
 	public:
 		HydrogenApp( MainForm* pMainForm );
@@ -88,7 +89,7 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		 * \return bool true on success
 		 */
 		bool openSong( const QString sFilename );
-		bool openSong( H2Core::Song* pSong );
+		bool openSong( std::shared_ptr<H2Core::Song> pSong );
 
 		void showPreferencesDialog();
 		void updateMixerCheckbox();

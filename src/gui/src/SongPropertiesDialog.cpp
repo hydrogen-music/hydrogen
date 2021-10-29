@@ -39,7 +39,7 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 
 	setWindowTitle( tr( "Song properties" ) );
 
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	songNameTxt->setText( pSong->getName() );
 
 	authorTxt->setText( pSong->getAuthor() );
@@ -61,7 +61,7 @@ void SongPropertiesDialog::on_cancelBtn_clicked()
 
 void SongPropertiesDialog::on_okBtn_clicked()
 {
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 
 	pSong->setName( songNameTxt->text() );
 	pSong->setAuthor( authorTxt->text() );

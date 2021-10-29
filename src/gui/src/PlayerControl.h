@@ -45,11 +45,10 @@ class LED;
 class MetronomeLED;
 class ClickableLabel;
 
-class PlayerControl : public QLabel, public EventListener, public H2Core::Object
-{
-    H2_OBJECT
+/** \ingroup docGUI*/
+class PlayerControl :  public QLabel, protected WidgetWithScalableFont<5, 6, 7>, public EventListener,  public H2Core::Object<PlayerControl>
+    H2_OBJECT(PlayerControl)
 	Q_OBJECT
-
 public:
 	explicit PlayerControl(QWidget *parent);
 	~PlayerControl();

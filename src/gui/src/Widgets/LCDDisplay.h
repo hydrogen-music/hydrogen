@@ -35,9 +35,10 @@
 
 /** Non-interactive display used for both numerical values and the
 	status display.*/
-class LCDDisplay : public QLineEdit, public H2Core::Object
+/** \ingroup docGUI docWidgets*/
+class LCDDisplay : public QLineEdit, public H2Core::Object<LCDDisplay>
 {
-    H2_OBJECT
+    H2_OBJECT(LCDDisplay)
 	Q_OBJECT
 
 public:

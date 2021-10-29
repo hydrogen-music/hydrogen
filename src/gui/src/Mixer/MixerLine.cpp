@@ -37,7 +37,7 @@
 #include "../Widgets/WidgetWithInput.h"
 
 #include <core/Hydrogen.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/MidiAction.h>
 using namespace H2Core;
 
@@ -52,10 +52,8 @@ using namespace H2Core;
 
 using namespace H2Core;
 
-const char* MixerLine::__class_name = "MixerLine";
-
 MixerLine::MixerLine(QWidget* parent, int nInstr)
- : PixmapWidget( parent, __class_name )
+ : PixmapWidget( parent )
 {
 //	INFOLOG( "INIT" );
 
@@ -213,7 +211,7 @@ void MixerLine::faderChanged( WidgetWithInput *pRef ) {
 
 	assert( pRef );
 	
-	Song *pSong = (Hydrogen::get_instance())->getSong();
+	std::shared_ptr<Song> pSong = (Hydrogen::get_instance())->getSong();
 	pSong->setIsModified( true );
 	emit volumeChanged(this);
 
@@ -310,7 +308,7 @@ void MixerLine::nameSelected() {
 
 void MixerLine::panChanged(WidgetWithInput *ref)
 {
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	pSong->setIsModified( true );
 	emit panChanged( this );
 	/** Do not update tooltip nor print status message in the old fashion panL and panL style
@@ -383,10 +381,8 @@ void MixerLine::setSelected( bool bIsSelected )
 // ::::::::::::::::::::::::::::
 
 
-const char* ComponentMixerLine::__class_name = "ComponentMixerLine";
-
 ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
- : PixmapWidget( parent, __class_name )
+ : PixmapWidget( parent )
 {
 //	INFOLOG( "INIT" );
 
@@ -490,7 +486,7 @@ void ComponentMixerLine::faderChanged( WidgetWithInput *pRef ) {
 
 	assert( pRef );
 	
-	Song *pSong = (Hydrogen::get_instance())->getSong();
+	std::shared_ptr<Song> pSong = (Hydrogen::get_instance())->getSong();
 	pSong->setIsModified( true );
 	emit volumeChanged(this);
 
@@ -578,10 +574,9 @@ float ComponentMixerLine::getPeak_R() {
 
 
 // ::::::::::::::::::::::::::::
-const char* MasterMixerLine::__class_name = "MasterMixerLine";
 
 MasterMixerLine::MasterMixerLine(QWidget* parent)
- : PixmapWidget( parent, __class_name )
+ : PixmapWidget( parent )
 {
 	m_nWidth = MASTERMIXERLINE_WIDTH;
 	m_nHeight = MASTERMIXERLINE_HEIGHT;
@@ -669,7 +664,7 @@ void MasterMixerLine::faderChanged( WidgetWithInput *pRef )
 
 	emit volumeChanged(this);
 
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	pSong->setIsModified( true );
 
 	double value = (double) pFader->getValue();
@@ -755,7 +750,7 @@ void MasterMixerLine::updateMixerLine()
 	}
 	m_nPeakTimer++;
 
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong ) {
 		m_pHumanizeTimeRotary->setValue( pSong->getHumanizeTimeValue() );
 		m_pHumanizeVelocityRotary->setValue( pSong->getHumanizeVelocityValue() );
@@ -801,6 +796,7 @@ void MasterMixerLine::rotaryChanged( WidgetWithInput *pRef )
 
 	( HydrogenApp::get_instance() )->setStatusBarMessage( sMsg, 2000 );
 }
+
 
 ////////////////////////////////
 
@@ -951,7 +947,7 @@ void LadspaFXMixerLine::rotaryChanged( WidgetWithInput *ref)
 	UNUSED( ref );
 	m_fMaxPeak = 0.0;
 
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	pSong->setIsModified( true );
 	emit volumeChanged(this);
 	

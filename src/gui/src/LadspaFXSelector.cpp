@@ -31,11 +31,8 @@
 
 using namespace H2Core;
 
-const char* LadspaFXSelector::__class_name = "LadspaFXSelector";
-
 LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
  : QDialog( nullptr )
- , Object( __class_name )
  , m_pCurrentItem( nullptr )
 {
 	//INFOLOG( "INIT" );
@@ -60,7 +57,7 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 	m_pGroupsListView->setHeaderLabels( QStringList( tr( "Groups" ) ) );
 
 #ifdef H2CORE_HAVE_LADSPA
-	//Song *pSong = Hydrogen::get_instance()->getSong();
+	//std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	LadspaFX *pFX = Effects::get_instance()->getLadspaFX(nLadspaFX);
 	if (pFX) {
 		m_sSelectedPluginName = pFX->getPluginName();

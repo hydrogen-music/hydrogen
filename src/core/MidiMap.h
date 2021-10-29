@@ -31,9 +31,10 @@
 
 class Action;
 
-class MidiMap : public H2Core::Object
+/** \ingroup docCore docMIDI */
+class MidiMap : public H2Core::Object<MidiMap>
 {
-	H2_OBJECT
+	H2_OBJECT(MidiMap)
 	public:
 		typedef std::map< QString, Action* > map_t;
 		/**

@@ -40,9 +40,10 @@
  * Qt.
  *
  */
-class Rotary : public WidgetWithInput, H2Core::Object
+/** \ingroup docGUI docWidgets*/
+class Rotary : public WidgetWithInput, public H2Core::Object<Rotary>
 {
-    H2_OBJECT
+    H2_OBJECT(Rotary)
 	
 public:
 	enum class Type {

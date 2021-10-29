@@ -54,7 +54,7 @@ static int alsa_xrun_recovery( snd_pcm_t *handle, int err )
 
 void* alsaAudioDriver_processCaller( void* param )
 {
-	Object *__object = (Object*)param;
+	Base *__object = (Base*)param;
 	AlsaAudioDriver *pDriver = ( AlsaAudioDriver* )param;
 
 	// stolen from amSynth
@@ -111,10 +111,40 @@ void* alsaAudioDriver_processCaller( void* param )
 }
 
 
-const char* AlsaAudioDriver::__class_name = "AlsaAudioDriver";
+/// Use the name hints to build a list of potential device names.
+QStringList AlsaAudioDriver::getDevices()
+{
+	QStringList result;
+	void **pHints, **pHint;
+
+	if ( snd_device_name_hint( -1, "pcm", &pHints) < 0) {
+		ERRORLOG( "Couldn't get device hints" );
+		return result;
+	}
+
+	for ( pHint = pHints; *pHint != nullptr; pHint++) {
+		const char *sName = snd_device_name_get_hint( *pHint, "NAME"),
+			*sIOID = snd_device_name_get_hint( *pHint, "IOID");
+
+		if ( sIOID && QString( sIOID ) != "Output") {
+			continue;
+		}
+
+		QString sDev = QString( sName );
+		if ( sName ) {
+			free( (void *)sName );
+		}
+		if ( sIOID ) {
+			free( (void *)sIOID );
+		}
+		result.push_back( sDev );
+	}
+	snd_device_name_free_hint( pHints );
+	return result;
+}
 
 AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
-		: AudioOutput( __class_name )
+		: AudioOutput()
 		, m_bIsRunning( false )
 		, m_pOut_L( nullptr )
 		, m_pOut_R( nullptr )
@@ -123,7 +153,6 @@ AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
 		, m_pPlayback_handle( nullptr )
 		, m_processCallback( processCallback )
 {
-	INFOLOG( "INIT" );
 	m_nSampleRate = Preferences::get_instance()->m_nSampleRate;
 	m_sAlsaAudioDevice = Preferences::get_instance()->m_sAlsaAudioDevice;
 }
@@ -133,13 +162,11 @@ AlsaAudioDriver::~AlsaAudioDriver()
 	if ( m_nXRuns > 0 ) {
 		WARNINGLOG( QString( "%1 xruns" ).arg( m_nXRuns ) );
 	}
-	INFOLOG( "DESTROY" );
 }
 
 
 int AlsaAudioDriver::init( unsigned nBufferSize )
 {
-	INFOLOG( "init" );
 	m_nBufferSize = nBufferSize;
 
 	return 0;	// ok
@@ -292,37 +319,6 @@ float* AlsaAudioDriver::getOut_L()
 float* AlsaAudioDriver::getOut_R()
 {
 	return m_pOut_R;
-}
-
-
-void AlsaAudioDriver::updateTransportInfo()
-{
-	//errorLog( "[updateTransportInfo] not implemented yet" );
-}
-
-void AlsaAudioDriver::play()
-{
-	INFOLOG( "play" );
-	m_transport.m_status = TransportInfo::ROLLING;
-}
-
-void AlsaAudioDriver::stop()
-{
-	INFOLOG( "stop" );
-	m_transport.m_status = TransportInfo::STOPPED;
-}
-
-void AlsaAudioDriver::locate( unsigned long nFrame )
-{
-//	infoLog( "[locate] " + to_string( nFrame ) );
-	m_transport.m_nFrames = nFrame;
-//	m_transport.printInfo();
-}
-
-void AlsaAudioDriver::setBpm( float fBPM )
-{
-//	warningLog( "[setBpm] " + to_string(fBPM) );
-	m_transport.m_fBPM = fBPM;
 }
 
 };

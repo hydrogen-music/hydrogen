@@ -65,9 +65,10 @@ struct SelectedLayerInfo {
 /**
  * A note plays an associated instrument with a velocity left and right pan
  */
-class Note : public H2Core::Object
+/** \ingroup docCore docDataStructure */
+class Note : public H2Core::Object<Note>
 {
-		H2_OBJECT
+		H2_OBJECT(Note)
 	public:
 		/** possible keys */
 		enum Key { C=KEY_MIN, Cs, D, Ef, E, F, Fs, G, Af, A, Bf, B };
@@ -79,8 +80,7 @@ class Note : public H2Core::Object
 		 * \param instrument the instrument played by this note
 		 * \param position the position of the note within the pattern
 		 * \param velocity it's velocity
-		 * \param pan_l left pan
-		 * \param pan_r right pan
+		 * \param pan pan
 		 * \param length it's length
 		 * \param pitch it's pitch
 		 */

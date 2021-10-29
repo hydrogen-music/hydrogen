@@ -36,9 +36,10 @@ class Song;
 /**
  * Files is in charge of writing and reading Patterns, Drumkits, Songs to the filesystem
  */
-class Files : public H2Core::Object
+/** \ingroup docCore*/
+class Files : public H2Core::Object<Files>
 {
-		H2_OBJECT
+		H2_OBJECT(Files)
 	public:
 		enum SaveMode {
 			SAVE_NEW,				// construct regular path, do not overwrite
@@ -56,7 +57,7 @@ class Files : public H2Core::Object
 		 * \param drumkitName to build filePath from and to access name info
 		 * \return filePath on success, NULL on failure
 		 */
-		static inline QString savePatternNew( const QString& fileName, Pattern* pattern, Song* song, const QString& drumkitName )
+		static inline QString savePatternNew( const QString& fileName, Pattern* pattern, std::shared_ptr<Song> song, const QString& drumkitName )
 		{
 			return savePattern( SAVE_NEW, fileName, pattern, song, drumkitName );
 		}
@@ -70,7 +71,7 @@ class Files : public H2Core::Object
 		 * \param drumkitName to build filePath from and to access name info
 		 * \return filePath on success, NULL on failure
 		 */
-		static inline QString savePatternOver( const QString& fileName, Pattern* pattern, Song* song, const QString& drumkitName )
+		static inline QString savePatternOver( const QString& fileName, Pattern* pattern, std::shared_ptr<Song> song, const QString& drumkitName )
 		{
 			return savePattern( SAVE_OVERWRITE, fileName, pattern, song, drumkitName );
 		}
@@ -84,7 +85,7 @@ class Files : public H2Core::Object
 		 * \param drumkitName to access name info
 		 * \return @a filePath on success, NULL on failure
 		 */
-		static inline QString savePatternPath( const QString& filePath, Pattern* pattern, Song* song, const QString& drumkitName )
+		static inline QString savePatternPath( const QString& filePath, Pattern* pattern, std::shared_ptr<Song> song, const QString& drumkitName )
 		{
 			return savePattern( SAVE_PATH, filePath, pattern, song, drumkitName );
 		}
@@ -98,7 +99,7 @@ class Files : public H2Core::Object
 		 * \param drumkitName to access name info
 		 * \return filePath on success, NULL on failure
 		 */
-		static inline QString savePatternTmp( const QString& fileName, Pattern* pattern, Song* song, const QString& drumkitName )
+		static inline QString savePatternTmp( const QString& fileName, Pattern* pattern, std::shared_ptr<Song> song, const QString& drumkitName )
 		{
 			return savePattern( SAVE_TMP, fileName, pattern, song, drumkitName );
 		}
@@ -117,7 +118,7 @@ class Files : public H2Core::Object
 		}
 
 	private:
-		static QString savePattern( SaveMode mode, const QString& fileName, const Pattern* pattern, Song* song, const QString& drumkitName );
+		static QString savePattern( SaveMode mode, const QString& fileName, const Pattern* pattern, std::shared_ptr<Song> song, const QString& drumkitName );
 		static QString savePlaylist( SaveMode mode, const QString& fileName, Playlist* playlist, bool relativePaths );
 };
 

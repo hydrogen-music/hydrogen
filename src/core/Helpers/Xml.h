@@ -33,9 +33,10 @@ namespace H2Core
 /**
  * XMLNode is a subclass of QDomNode with read and write values methods
 */
-class XMLNode : public H2Core::Object, public QDomNode
+/** \ingroup docCore*/
+class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 {
-		H2_OBJECT
+		H2_OBJECT(XMLNode)
 	public:
 		/** basic constructor */
 		XMLNode( );
@@ -148,9 +149,10 @@ class XMLNode : public H2Core::Object, public QDomNode
 /**
  * XMLDoc is a subclass of QDomDocument with read and write methods
 */
-class XMLDoc : public H2Core::Object, public QDomDocument
+/** \ingroup docCore*/
+class XMLDoc : public H2Core::Object<XMLDoc>, public QDomDocument
 {
-		H2_OBJECT
+		H2_OBJECT(XMLDoc)
 	public:
 		/** basic constructor */
 		XMLDoc( );

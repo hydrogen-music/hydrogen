@@ -32,11 +32,8 @@
 namespace H2Core
 {
 
-const char* SMFHeader::__class_name = "SMFHeader";
-
 SMFHeader::SMFHeader( int nFormat, int nTracks, int nTPQN )
-		: Object( __class_name )
-		, m_nFormat( nFormat )
+		: m_nFormat( nFormat )
 		, m_nTracks( nTracks )
 		, m_nTPQN( nTPQN )
 {
@@ -70,12 +67,8 @@ std::vector<char> SMFHeader::getBuffer()
 
 // :::::::::::::::
 
-
-const char* SMFTrack::__class_name = "SMFTrack";
-
-//SMFTrack::SMFTrack( const QString& sTrackName )
 SMFTrack::SMFTrack()
-		: Object( __class_name )
+		: Object()
 {
 	INFOLOG( "INIT" );
 }
@@ -143,10 +136,7 @@ void SMFTrack::addEvent( SMFEvent *pEvent )
 
 // ::::::::::::::::::::::
 
-const char* SMF::__class_name = "SMF";
-
 SMF::SMF(int nFormat, int nTPQN )
-		: Object( __class_name )
 {
 	INFOLOG( "INIT" );
 
@@ -207,10 +197,7 @@ constexpr unsigned int TPQN = 192;
 constexpr unsigned int DRUM_CHANNEL = 9;
 constexpr unsigned int NOTE_LENGTH = 12;
 
-const char* SMFWriter::__class_name = "SMFWriter";
-
-SMFWriter::SMFWriter( const char* sWriterName )
-		: Object( sWriterName )
+SMFWriter::SMFWriter()
 {
 	INFOLOG( "INIT" );
 }
@@ -222,7 +209,7 @@ SMFWriter::~SMFWriter()
 }
 
 
-SMFTrack* SMFWriter::createTrack0( Song* pSong ) {
+SMFTrack* SMFWriter::createTrack0( std::shared_ptr<Song> pSong ) {
 	SMFTrack *pTrack0 = new SMFTrack();
 	pTrack0->addEvent( new SMFCopyRightNoticeMetaEvent( pSong->getAuthor() , 0 ) );
 	pTrack0->addEvent( new SMFTrackNameMetaEvent( pSong->getName() , 0 ) );
@@ -232,7 +219,7 @@ SMFTrack* SMFWriter::createTrack0( Song* pSong ) {
 }
 
 
-void SMFWriter::save( const QString& sFilename, Song *pSong )
+void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 {
 	INFOLOG( "save" );
 
@@ -364,10 +351,8 @@ void SMFWriter::saveSMF( const QString& sFilename, SMF*  pSmf )
 
 // SMF1Writer - base class for two smf1 writers
 
-const char* SMF1Writer::__class_name = "SMF1Writer";
-
-SMF1Writer::SMF1Writer( const char* sWriterName )
-		: SMFWriter( sWriterName )
+SMF1Writer::SMF1Writer()
+		: SMFWriter()
 {
 }
 
@@ -377,7 +362,7 @@ SMF1Writer::~SMF1Writer()
 }
 
 
-SMF* SMF1Writer::createSMF( Song* pSong ){
+SMF* SMF1Writer::createSMF( std::shared_ptr<Song> pSong ){
 	SMF* pSmf =  new SMF( 1, TPQN );	
 	// Standard MIDI format 1 files should have the first track being the tempo map
 	// which is a track that contains global meta events only.
@@ -393,10 +378,8 @@ SMF* SMF1Writer::createSMF( Song* pSong ){
 // SMF1 MIDI SINGLE EXPROT
 
 
-const char* SMF1WriterSingle::__class_name = "SMFWriterSingle";
-
 SMF1WriterSingle::SMF1WriterSingle()
-		: SMF1Writer( __class_name ),
+		: SMF1Writer(),
 		 m_eventList()
 {
 }
@@ -409,21 +392,21 @@ SMF1WriterSingle::~SMF1WriterSingle()
 
 
 
-EventList* SMF1WriterSingle::getEvents( Song* pSong, std::shared_ptr<Instrument> pInstr )
+EventList* SMF1WriterSingle::getEvents( std::shared_ptr<Song> pSong, std::shared_ptr<Instrument> pInstr )
 {
 	return &m_eventList;
 }
 
 
 
-void SMF1WriterSingle::prepareEvents( Song *pSong, SMF* pSmf )
+void SMF1WriterSingle::prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 {
    m_eventList.clear();
 }
 
 
 
-void SMF1WriterSingle::packEvents( Song *pSong, SMF* pSmf )
+void SMF1WriterSingle::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 {
 	sortEvents( &m_eventList );
 
@@ -448,10 +431,8 @@ void SMF1WriterSingle::packEvents( Song *pSong, SMF* pSmf )
 
 // SMF1 MIDI MULTI EXPORT
 
-const char* SMF1WriterMulti::__class_name = "SMFWriterMulti";
-
 SMF1WriterMulti::SMF1WriterMulti()
-		: SMF1Writer( __class_name ),
+		: SMF1Writer(),
 		 m_eventLists()
 {
 }
@@ -462,7 +443,7 @@ SMF1WriterMulti::~SMF1WriterMulti()
 }
 
 
-void SMF1WriterMulti::prepareEvents( Song *pSong, SMF* pSmf )
+void SMF1WriterMulti::prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 {
 	InstrumentList* pInstrumentList = pSong->getInstrumentList();
 	m_eventLists.clear();
@@ -472,7 +453,7 @@ void SMF1WriterMulti::prepareEvents( Song *pSong, SMF* pSmf )
 }
 
 
-EventList* SMF1WriterMulti::getEvents( Song* pSong,  std::shared_ptr<Instrument> pInstr )
+EventList* SMF1WriterMulti::getEvents( std::shared_ptr<Song> pSong,  std::shared_ptr<Instrument> pInstr )
 {
 	int nInstr = pSong->getInstrumentList()->index(pInstr);
 	EventList* pEventList = m_eventLists.at( nInstr );
@@ -481,7 +462,7 @@ EventList* SMF1WriterMulti::getEvents( Song* pSong,  std::shared_ptr<Instrument>
 }
 
 
-void SMF1WriterMulti::packEvents( Song *pSong, SMF* pSmf )
+void SMF1WriterMulti::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 {
 	InstrumentList* pInstrumentList = pSong->getInstrumentList();
 	for ( unsigned nTrack = 0; nTrack < m_eventLists.size(); nTrack++ ) {
@@ -516,10 +497,8 @@ void SMF1WriterMulti::packEvents( Song *pSong, SMF* pSmf )
 
 // SMF0 MIDI  EXPORT
 
-const char* SMF0Writer::__class_name = "SMF0Writer";
-
 SMF0Writer::SMF0Writer()
-		: SMFWriter( __class_name ),
+		: SMFWriter(),
 		  m_pTrack( nullptr ),
 		 m_eventList()
 {
@@ -531,7 +510,7 @@ SMF0Writer::~SMF0Writer()
 }
 
 
-SMF* SMF0Writer::createSMF( Song* pSong ){
+SMF* SMF0Writer::createSMF( std::shared_ptr<Song> pSong ){
 	// MIDI files format 0 have all their events in one track
 	SMF* pSmf =  new SMF( 0, TPQN );	
 	m_pTrack = createTrack0( pSong );
@@ -540,19 +519,19 @@ SMF* SMF0Writer::createSMF( Song* pSong ){
 }
 
 
-EventList* SMF0Writer::getEvents( Song* pSong,  std::shared_ptr<Instrument> pInstr )
+EventList* SMF0Writer::getEvents( std::shared_ptr<Song> pSong,  std::shared_ptr<Instrument> pInstr )
 {
 	return &m_eventList;
 }
 
 
-void SMF0Writer::prepareEvents( Song *pSong, SMF* pSmf )
+void SMF0Writer::prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 {
    m_eventList.clear();
 }
 
 
-void SMF0Writer::packEvents( Song *pSong, SMF* pSmf )
+void SMF0Writer::packEvents( std::shared_ptr<Song> pSong, SMF* pSmf )
 {
 	sortEvents( &m_eventList );
 

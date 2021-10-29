@@ -31,9 +31,10 @@
 #include <core/Object.h>
 #include <core/Preferences.h>
 
-class LCDCombo : public QComboBox, protected WidgetWithScalableFont<6, 8, 9>, public H2Core::Object
+/** \ingroup docGUI docWidgets*/
+class LCDCombo : public QComboBox, protected WidgetWithScalableFont<6, 8, 9>, public H2Core::Object<LCDCombo>
 {
-	H2_OBJECT
+	H2_OBJECT(LCDCombo)
 	Q_OBJECT
 
 public:

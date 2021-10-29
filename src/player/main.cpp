@@ -29,7 +29,7 @@
 #include <core/Preferences.h>
 #include <core/FX/Effects.h>
 #include <core/EventQueue.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/MidiMap.h>
 
@@ -50,7 +50,7 @@ int main(int argc, char** argv){
 	H2Core::Logger::create_instance();
 	H2Core::Logger::set_bit_mask( logLevelOpt );
 	H2Core::Logger* logger = H2Core::Logger::get_instance();
-	H2Core::Object::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
+	H2Core::Base::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
 
 	QCoreApplication a(argc, argv);
 
@@ -68,7 +68,7 @@ int main(int argc, char** argv){
 	H2Core::Hydrogen::create_instance();
 	H2Core::Preferences *preferences = H2Core::Preferences::get_instance();
 
-	H2Core::Song *pSong = H2Core::Song::load( filename );
+	std::shared_ptr<H2Core::Song>pSong = H2Core::Song::load( filename );
 	if (pSong == nullptr) {
 		cout << "Error loading song!" << endl;
 		exit(2);
@@ -93,14 +93,14 @@ int main(int argc, char** argv){
 				cout << endl << "HydrogenPlayer shutdown..." << endl;
 				hydrogen->sequencer_stop();
 
+				pSong = nullptr;
 				delete hydrogen;
-				delete pSong;
 				delete H2Core::EventQueue::get_instance();
 				delete preferences;
 				delete H2Core::Logger::get_instance();
 
-				std::cout << std::endl << std::endl << H2Core::Object::objects_count() << " alive objects" << std::endl << std::endl;
-				H2Core::Object::write_objects_map_to_cerr();
+				std::cout << std::endl << std::endl << H2Core::Base::objects_count() << " alive objects" << std::endl << std::endl;
+				H2Core::Base::write_objects_map_to_cerr();
 
 				exit(0);
 				break;
@@ -114,17 +114,17 @@ int main(int argc, char** argv){
 				break;
 
 			case 'b':
-				hydrogen->setPatternPos( 0 );
+				hydrogen->getCoreActionController()->locateToColumn( 0 );
 				break;
 
 			case 'f':
-				cout << "Frames = " << hydrogen->getTotalFrames() << endl;
+				cout << "Frames = " << hydrogen->getAudioEngine()->getFrames() << endl;
 				break;
 
 			case 'd':
 				cout << "DEBUG" << endl;
-				H2Core::Object::write_objects_map_to_cerr();
-				int nObj = H2Core::Object::objects_count();
+				H2Core::Base::write_objects_map_to_cerr();
+				int nObj = H2Core::Base::objects_count();
 				std::cout << std::endl << std::endl << nObj << " alive objects" << std::endl << std::endl;
 				break;
 		}

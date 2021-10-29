@@ -41,7 +41,7 @@
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 
 #include <core/Hydrogen.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/EventQueue.h>
 using namespace H2Core;
@@ -51,11 +51,8 @@ using namespace H2Core;
 int bcDisplaystatus = 0;
 //~ beatcounter
 
-const char* PlayerControl::__class_name = "PlayerControl";
-
 PlayerControl::PlayerControl(QWidget *parent)
  : QLabel(parent)
- , Object( __class_name )
  , m_midiActivityTimeout( 250 )
 {
 	setObjectName( "PlayerControl" );
@@ -428,8 +425,7 @@ void PlayerControl::updatePlayerControl()
 		 ! m_pFfwdBtn->isDown() && ! m_pRwdBtn->isDown() ) {
 		if (state == STATE_PLAYING ) {
 			m_pPlayBtn->setChecked(true);
-		}
-		else {
+		} else {
 			m_pPlayBtn->setChecked(false);
 		}
 	}
@@ -437,13 +433,12 @@ void PlayerControl::updatePlayerControl()
 	if ( ! m_pRecBtn->isDown() ) {
 		if (pPref->getRecordEvents()) {
 			m_pRecBtn->setChecked(true);
-		}
-		else {
+		} else {
 			m_pRecBtn->setChecked(false);
 		}
 	}
 
-	Song *song = m_pHydrogen->getSong();
+	std::shared_ptr<Song> song = m_pHydrogen->getSong();
 
 	if ( ! m_pSongLoopBtn->isDown() ) {
 		m_pSongLoopBtn->setChecked( song->getIsLoopEnabled() );
@@ -480,8 +475,7 @@ void PlayerControl::updatePlayerControl()
 		if ( ! m_pBCOnOffBtn->isDown() ) {
 			m_pBCOnOffBtn->setChecked(false);
 		}
-	}else
-	{
+	} else {
 		m_pControlsBCPanel->show();
 		if ( ! m_pBCOnOffBtn->isDown() ) {
 			m_pBCOnOffBtn->setChecked(true);
@@ -491,15 +485,11 @@ void PlayerControl::updatePlayerControl()
 	if ( ! m_pBCSetPlayBtn->isDown() ) {
 		if ( pPref->m_mmcsetplay ==  Preferences::SET_PLAY_OFF) {
 			m_pBCSetPlayBtn->setChecked(false);
-		}else
-			{
-				m_pBCSetPlayBtn->setChecked(true);
-			}
+		} else {
+			m_pBCSetPlayBtn->setChecked(true);
+		}
 	}
 	//~ beatcounter
-
-
-
 
 	if ( m_pHydrogen->haveJackAudioDriver() ) {
 		m_pJackTransportBtn->show();
@@ -618,7 +608,7 @@ void PlayerControl::updatePlayerControl()
 
 /// Toggle record mode
 void PlayerControl::recBtnClicked() {
-	if ( m_pHydrogen->getState() != STATE_PLAYING ) {
+	if ( m_pHydrogen->getAudioEngine()->getState() != H2Core::AudioEngine::State::Playing ) {
 		if ( ! m_pRecBtn->isChecked() ) {
 			Preferences::get_instance()->setRecordEvents(true);
 			(HydrogenApp::get_instance())->setScrollStatusBarMessage(tr("Record midi events = On" ), 2000 );
@@ -650,7 +640,7 @@ void PlayerControl::stopBtnClicked()
 		m_pPlayBtn->setChecked(false);
 	}
 	pHydrogen->sequencer_stop();
-	pHydrogen->getCoreActionController()->relocate( 0 );
+	pHydrogen->getCoreActionController()->locateToColumn( 0 );
 	(HydrogenApp::get_instance())->setStatusBarMessage(tr("Stopped."), 5000);
 }
 
@@ -882,7 +872,7 @@ void PlayerControl::fastForwardBtnClicked()
 	DEBUGLOG( "relocate via button press" );
 
 	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() + 1 );
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() + 1 );
 }
 
 
@@ -892,7 +882,7 @@ void PlayerControl::rewindBtnClicked()
 	DEBUGLOG( "relocate via button press" );
 	
 	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() - 1 );
+	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() - 1 );
 }
 
 

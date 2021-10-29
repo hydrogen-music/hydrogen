@@ -30,6 +30,7 @@
 
 #include "ui_about_dialog.h"
 
+/** \ingroup docGUI*/
 class AboutDialog : public QDialog, public Ui_AboutDialog_UI
 {
 Q_OBJECT

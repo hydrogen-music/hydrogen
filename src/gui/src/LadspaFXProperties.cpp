@@ -21,7 +21,7 @@
  */
 
 #include <core/Hydrogen.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Song.h>
 #include <core/FX/Effects.h>
 #include <core/Preferences.h>
@@ -40,11 +40,9 @@
 
 using namespace H2Core;
 
-const char* LadspaFXProperties::__class_name = "LadspaFXProperties";
-
 LadspaFXProperties::LadspaFXProperties(QWidget* parent, uint nLadspaFX)
  : QWidget( parent )
- , Object( __class_name )
+ , Object()
 {
 //	INFOLOG( "INIT" );
 
@@ -137,7 +135,7 @@ void LadspaFXProperties::faderChanged( WidgetWithInput * pRef )
 	pFader->setPeak_L( pFader->getValue() );
 	pFader->setPeak_R( pFader->getValue() );
 
-	Song *pSong = (Hydrogen::get_instance() )->getSong();
+	std::shared_ptr<Song> pSong = (Hydrogen::get_instance() )->getSong();
 
 #ifdef H2CORE_HAVE_LADSPA
 	LadspaFX *pFX = Effects::get_instance()->getLadspaFX( m_nLadspaFX );
@@ -354,7 +352,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 					break;
 				}
 			}
-			Song *pSong = (Hydrogen::get_instance() )->getSong();
+			std::shared_ptr<Song> pSong = (Hydrogen::get_instance() )->getSong();
 			pSong->setIsModified(true);
 
 			Effects::get_instance()->setLadspaFX( pFX, m_nLadspaFX );
@@ -373,7 +371,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 void LadspaFXProperties::removeFXBtnClicked()
 {
 #ifdef H2CORE_HAVE_LADSPA
-	Song *pSong = (Hydrogen::get_instance() )->getSong();
+	std::shared_ptr<Song> pSong = (Hydrogen::get_instance() )->getSong();
 	pSong->setIsModified( true );
 	Effects::get_instance()->setLadspaFX( nullptr, m_nLadspaFX );
 	Hydrogen::get_instance()->restartLadspaFX();
@@ -387,7 +385,7 @@ void LadspaFXProperties::updateOutputControls()
 #ifdef H2CORE_HAVE_LADSPA
 
 //	INFOLOG( "[updateOutputControls]" );
-//	Song *pSong = (Hydrogen::get_instance() )->getSong();
+//	std::shared_ptr<Song> pSong = (Hydrogen::get_instance() )->getSong();
 	LadspaFX *pFX = Effects::get_instance()->getLadspaFX(m_nLadspaFX);
 
 	if (pFX) {

@@ -33,8 +33,6 @@
 #include <core/Preferences.h>
 #include <core/Hydrogen.h>
 
-const char* Button::__class_name = "Button";
-
 Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize, QString sBaseTooltip, bool bColorful )
 	: QPushButton( pParent )
 	, Object( __class_name )

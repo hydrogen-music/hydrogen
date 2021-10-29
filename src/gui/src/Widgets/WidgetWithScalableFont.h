@@ -34,6 +34,7 @@
  * H2Core::Preferences::FontSize::Normal, and
  * H2Core::Preferences::FontSize::Large, are available.
  */
+/** \ingroup docGUI docWidgets*/
 template < int nSmall, int nNormal, int nLarge >
 class WidgetWithScalableFont {
 protected:

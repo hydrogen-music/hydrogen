@@ -32,9 +32,10 @@
 class QNetworkAccessManager;
 class QNetworkReply;
 
-class Download : public QDialog, public H2Core::Object
+/** \ingroup docGUI docWidgets*/
+class Download :  public QDialog,  public H2Core::Object<Download>
 {
-	H2_OBJECT
+	H2_OBJECT(Download)
 	Q_OBJECT
 
 public:
@@ -74,7 +75,7 @@ protected:
 
 class DownloadWidget : public Download
 {
-	H2_OBJECT
+	H2_OBJECT(DownloadWidget)
 	Q_OBJECT
 
 public:

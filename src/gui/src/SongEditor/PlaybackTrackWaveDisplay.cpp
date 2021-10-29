@@ -38,8 +38,6 @@ using namespace H2Core;
 #include "SongEditor.h"
 #include "SongEditorPanel.h"
 
-const char* PlaybackTrackWaveDisplay::__class_name = "PlaybackTrackWaveDisplay";
-
 PlaybackTrackWaveDisplay::PlaybackTrackWaveDisplay(QWidget* pParent)
  : WaveDisplay( pParent )
 {
@@ -104,7 +102,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 	memset( m_pPeakData, 0, currentWidth * sizeof(m_pPeakData[0]) );	
 	
 	if ( pLayer && pLayer->get_sample() ) {
-		Song* pSong = Hydrogen::get_instance()->getSong();
+		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 		
 		m_pLayer = pLayer;
 		m_sSampleName = m_pLayer->get_sample()->get_filename();

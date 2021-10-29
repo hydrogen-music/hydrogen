@@ -23,8 +23,9 @@
 
 
 #include <core/Preferences.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
+#include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/Timeline.h>
 #include <core/Basics/Pattern.h>
@@ -53,19 +54,22 @@ pthread_t diskWriterDriverThread;
 
 void* diskWriterDriver_thread( void* param )
 {
-	Object* __object = ( Object* )param;	
+	Base * __object = ( Base * )param;
 	DiskWriterDriver *pDriver = ( DiskWriterDriver* )param;
 
 	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 0 );
-	
-	pDriver->setBpm( Hydrogen::get_instance()->getSong()->getBpm() );
+
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+
+	// TODO: this most probably won't make a difference and can be
+	// removed.
+	pAudioEngine->setBpm( Hydrogen::get_instance()->getSong()->getBpm() );
 	pDriver->audioEngine_process_checkBPMChanged();
 	
 	__INFOLOG( "DiskWriterDriver thread start" );
 
 	// always rolling, no user interaction
-	pDriver->m_transport.m_status = TransportInfo::ROLLING;
-
+	pAudioEngine->setState( AudioEngine::State::Playing );
 	SF_INFO soundInfo;
 	soundInfo.samplerate = pDriver->m_nSampleRate;
 //	soundInfo.frames = -1;//getNFrames();		///\todo: da terminare
@@ -104,7 +108,6 @@ void* diskWriterDriver_thread( void* param )
 	if( pDriver->m_sFilename.endsWith( ".ogg" ) | pDriver->m_sFilename.endsWith( ".OGG" ) ) {
 		soundInfo.format = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
 	}
-
 //	#endif
 
 
@@ -163,7 +166,6 @@ void* diskWriterDriver_thread( void* param )
 	int validBpm = pHydrogen->getSong()->getBpm();
 	float oldBPM = 0;
 	float fTicksize = 0;
-	
 	for ( int patternPosition = 0; patternPosition < nColumns; ++patternPosition ) {
 		PatternList *pColumn = ( *pPatternColumns )[ patternPosition ];
 		if ( pColumn->size() != 0 ) {
@@ -184,12 +186,12 @@ void* diskWriterDriver_thread( void* param )
 				validBpm = fTimelineBpm;
 			}
 			
-			pDriver->setBpm(validBpm);
+			pAudioEngine->setBpm(validBpm);
 			fTicksize = AudioEngine::computeTickSize(   pDriver->m_nSampleRate,
 														validBpm,
 														pSong->getResolution() );
 			pDriver->audioEngine_process_checkBPMChanged();
-			pHydrogen->setPatternPos(patternPosition);
+			pHydrogen->getCoreActionController()->locateToColumn( patternPosition );
 			
 			// delay needed time to calculate all rubberband samples
 			if( Preferences::get_instance()->getRubberBandBatchMode() && validBpm != oldBPM ){
@@ -265,7 +267,6 @@ void* diskWriterDriver_thread( void* param )
 		float fPercent = ( float )(patternPosition +1) / ( float )nColumns * 100.0;
 		EventQueue::get_instance()->push_event( EVENT_PROGRESS, ( int )fPercent );
 	}
-
 	delete[] pData;
 	pData = nullptr;
 
@@ -274,31 +275,24 @@ void* diskWriterDriver_thread( void* param )
 	__INFOLOG( "DiskWriterDriver thread end" );
 
 	pthread_exit( nullptr );
-
 	return nullptr;
 }
 
 
 
-const char* DiskWriterDriver::__class_name = "DiskWriterDriver";
-
 DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, int nSampleDepth )
-		: AudioOutput( __class_name )
+		: AudioOutput()
 		, m_nSampleRate( nSamplerate )
 		, m_nSampleDepth ( nSampleDepth )
 		, m_processCallback( processCallback )
 		, m_nBufferSize( 0 )
 		, m_pOut_L( nullptr )
-		, m_pOut_R( nullptr )
-{
-	INFOLOG( "INIT" );
+		, m_pOut_R( nullptr ) {
 }
 
 
 
-DiskWriterDriver::~DiskWriterDriver()
-{
-	INFOLOG( "DESTROY" );
+DiskWriterDriver::~DiskWriterDriver() {
 }
 
 
@@ -351,67 +345,29 @@ unsigned DiskWriterDriver::getSampleRate()
 	return m_nSampleRate;
 }
 
-
-
-void DiskWriterDriver::play()
-{
-	m_transport.m_status = TransportInfo::ROLLING;
-}
-
-
-
-void DiskWriterDriver::stop()
-{
-	m_transport.m_status = TransportInfo::STOPPED;
-}
-
-
-
-void DiskWriterDriver::locate( unsigned long nFrame )
-{
-	INFOLOG( QString( "Locate: %1" ).arg( nFrame ) );
-	m_transport.m_nFrames = nFrame;
-}
-
-
-
-void DiskWriterDriver::updateTransportInfo()
-{
-//	errorLog( "[updateTransportInfo] not implemented yet" );
-}
-
-
-
-void DiskWriterDriver::setBpm( float fBPM )
-{
-	INFOLOG( QString( "SetBpm: %1" ).arg( fBPM ) );
-	m_transport.m_fBPM = fBPM;
-}
-
+// TODO 
 void DiskWriterDriver::audioEngine_process_checkBPMChanged()
 {
 	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	float fNewTickSize = AudioEngine::computeTickSize( getSampleRate(),
-														 pSong->getBpm(),
+														 pAudioEngine->getBpm(),
 														 pSong->getResolution() );
 
-	if ( fNewTickSize != m_transport.m_fTickSize ) {
+	if ( fNewTickSize != pAudioEngine->getTickSize() ) {
 		// cerco di convertire ...
 		float fTickNumber =
-			( float )m_transport.m_nFrames
-			/ ( float )m_transport.m_fTickSize;
+			static_cast<float>( pAudioEngine->getFrames() )
+			/ static_cast<float>( pAudioEngine->getTickSize () );
 
-		m_transport.m_fTickSize = fNewTickSize;
-
-		if ( m_transport.m_fTickSize == 0 ) {
+		if ( fNewTickSize == 0 ) {
 			return;
 		}
 
-		// update frame position
-		m_transport.m_nFrames = ( long long )( fTickNumber * fNewTickSize );
+		pAudioEngine->setTickSize( fNewTickSize );
 
-		// currently unuseble here
-		//EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
+		// update frame position
+		pAudioEngine->setFrames( static_cast<long long>( fTickNumber * fNewTickSize ) );
 	}
 }
 

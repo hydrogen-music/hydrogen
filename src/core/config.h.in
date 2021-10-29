@@ -32,6 +32,7 @@
 #cmakedefine HAVE_SSCANF
 #cmakedefine HAVE_RTCLOCK
 #cmakedefine HAVE_JACK_PORT_RENAME
+#cmakedefine HAVE_EXECINFO_H
 
 #ifndef H2CORE_HAVE_DEBUG
 #cmakedefine H2CORE_HAVE_DEBUG

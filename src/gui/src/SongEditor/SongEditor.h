@@ -61,9 +61,10 @@ static const uint SONG_EDITOR_MAX_GRID_WIDTH = 16;
 //! multiple pattern+timeslot cells using a 2-dimensional visual representation, with copy, paste, move,
 //! delete, duplicate etc.
 //!
-class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget<QPoint>
+/** \ingroup docGUI*/
+class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public SelectionWidget<QPoint>
 {
-    H2_OBJECT
+    H2_OBJECT(SongEditor)
 	Q_OBJECT
 
 		struct GridCell {
@@ -240,9 +241,10 @@ inline int SongEditor::getCursorColumn() const {
 ///
 /// Song editor pattern list
 ///
-class SongEditorPatternList : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public H2Core::Object, public EventListener
+/** \ingroup docGUI*/
+class SongEditorPatternList :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>,  public H2Core::Object<SongEditorPatternList>, public EventListener
 {
-    H2_OBJECT
+    H2_OBJECT(SongEditorPatternList)
 	Q_OBJECT
 
 	public:
@@ -322,9 +324,10 @@ class SongEditorPatternList : public QWidget, protected WidgetWithScalableFont<8
 // }
 //
 
-class SongEditorPositionRuler : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public H2Core::Object
+/** \ingroup docGUI*/
+class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>,  public H2Core::Object<SongEditorPositionRuler>
 {
-    H2_OBJECT
+    H2_OBJECT(SongEditorPositionRuler)
 	Q_OBJECT
 
 	public:
@@ -339,6 +342,8 @@ class SongEditorPositionRuler : public QWidget, protected WidgetWithScalableFont
 		void deleteTimeLinePosition( int position );
 		void editTagAction( QString text, int position, QString textToReplace );
 		void deleteTagAction( QString text, int position );
+
+	int getPlayheadWidth() const;
 
 	public slots:
 		void updatePosition();
@@ -356,6 +361,14 @@ class SongEditorPositionRuler : public QWidget, protected WidgetWithScalableFont
 		static const uint	m_nHeight = 50;
 		const int m_nMargin = 10;
 
+	/** Width of the playhead pixmap in pixel.*/
+	int m_nPlayheadWidth;
+	/** Height of the playhead pixmap in pixel.*/
+	int m_nPlayheadHeight;
+	/** Horizontal offset of the line used to represent the base of
+		the playhead.*/
+	int m_nXShaft;
+
 		QPixmap *			m_pBackgroundPixmap;
 		QPixmap				m_tickPositionPixmap;
 		bool				m_bRightBtnPressed;
@@ -367,5 +380,8 @@ class SongEditorPositionRuler : public QWidget, protected WidgetWithScalableFont
 
 };
 
+inline int SongEditorPositionRuler::getPlayheadWidth() const {
+	return m_nPlayheadWidth;
+}
 
 #endif

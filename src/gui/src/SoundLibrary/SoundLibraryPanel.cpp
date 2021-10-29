@@ -45,7 +45,7 @@
 
 #include <core/LocalFileMng.h>
 #include <core/Basics/Adsr.h>
-#include <core/AudioEngine.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/H2Exception.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Instrument.h>
@@ -60,11 +60,8 @@ using namespace H2Core;
 
 #include <cassert>
 
-const char* SoundLibraryPanel::__class_name = "SoundLibraryPanel";
-
 SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  : QWidget( pParent )
- , Object( __class_name )
  , __sound_library_tree( nullptr )
  , __drumkit_menu( nullptr )
  , __instrument_menu( nullptr )
@@ -820,7 +817,7 @@ void SoundLibraryPanel::on_patternLoadAction()
 	LocalFileMng mng;
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 	QString patternName = __sound_library_tree->currentItem()->text( 0 );
 	QString drumkitName = __sound_library_tree->currentItem()->toolTip ( 0 );

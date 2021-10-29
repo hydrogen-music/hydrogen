@@ -44,9 +44,10 @@
  * changing the font size (both via setFont()) yields erratic
  * results.
  */
-class LCDSpinBox : public QDoubleSpinBox, public H2Core::Object
+/** \ingroup docGUI docWidgets*/
+class LCDSpinBox : public QDoubleSpinBox, public H2Core::Object<LCDSpinBox>
 {
-    H2_OBJECT
+    H2_OBJECT(LCDSpinBox)
 	Q_OBJECT
 
 public:

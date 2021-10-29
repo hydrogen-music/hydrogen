@@ -28,9 +28,10 @@
 #include <QString>
 #include <core/Object.h>
 
-class AboutDialogContributorList : public H2Core::Object
+/** \ingroup docGUI*/
+class AboutDialogContributorList :   public H2Core::Object<AboutDialogContributorList>
 {
-H2_OBJECT
+H2_OBJECT(AboutDialogContributorList)
 public:
 	AboutDialogContributorList();
 	~AboutDialogContributorList();

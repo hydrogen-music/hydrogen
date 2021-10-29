@@ -32,6 +32,7 @@
   Every widget which supports MidiLearn should derive from this Class.
 */
 
+/** \ingroup docGUI docWidgets docMIDI*/
 class MidiLearnable
 {
 public:

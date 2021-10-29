@@ -26,6 +26,7 @@
 
 #include <core/Preferences.h>
 #include <core/Hydrogen.h>
+#include <core/AudioEngine/AudioEngine.h>
 
 #include <core/Globals.h>
 #include <core/EventQueue.h>
@@ -56,7 +57,7 @@ int outPortId;
 
 void* alsaMidiDriver_thread( void* param )
 {
-	Object* __object = ( Object* )param;
+	Base * __object = ( Base * )param;
 	AlsaMidiDriver *pDriver = ( AlsaMidiDriver* )param;
 	__INFOLOG( "starting" );
 
@@ -197,10 +198,8 @@ void* alsaMidiDriver_thread( void* param )
 
 
 
-const char* AlsaMidiDriver::__class_name = "AlsaMidiDriver";
-
 AlsaMidiDriver::AlsaMidiDriver()
-		: MidiInput( __class_name ), MidiOutput( __class_name ), Object( __class_name )
+		: MidiInput(), MidiOutput(), Object<AlsaMidiDriver>()
 {
 //	infoLog("INIT");
 }
@@ -240,10 +239,10 @@ void AlsaMidiDriver::close()
 
 void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle )
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	int nState = engine->getState();
-	if ( ( nState != STATE_READY ) && ( nState != STATE_PLAYING ) ) {
-// 		ERRORLOG( "Skipping midi event! Audio engine not ready." );
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	if ( ( pAudioEngine->getState() != AudioEngine::State::Ready ) &&
+		 ( pAudioEngine->getState() != AudioEngine::State::Playing ) ) {
+// 		ERRORLOG( "Skipping midi event! Audio Engine not ready." );
 		return;
 	}
 

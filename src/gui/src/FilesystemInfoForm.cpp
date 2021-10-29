@@ -29,11 +29,9 @@
 #include "core/Helpers/Filesystem.h"
 #include "core/Preferences.h"
 
-const char* FilesystemInfoForm::__class_name = "FilesystemInfoForm";
-
 FilesystemInfoForm::FilesystemInfoForm( QWidget *parent ) :
 	QWidget( parent ),
-	H2Core::Object( __class_name ),
+	H2Core::Object<FilesystemInfoForm>(),
 	ui(new Ui::FilesystemInfoForm)
 {
 	ui->setupUi(this);

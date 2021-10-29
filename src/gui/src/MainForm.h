@@ -42,9 +42,10 @@ class QUndoView;///debug only
 ///
 /// Main window
 ///
-class MainForm : public QMainWindow, protected WidgetWithScalableFont<8, 10, 12>, public EventListener, public H2Core::Object
+/** \ingroup docGUI*/
+class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12>, public EventListener,  public H2Core::Object<MainForm>
 {
-		H2_OBJECT
+		H2_OBJECT(MainForm)
 	Q_OBJECT
 
 	public:

@@ -30,9 +30,9 @@
 /**
  * Song Properties Dialog
  */
+/** \ingroup docGUI*/
 class SongPropertiesDialog : public QDialog, private Ui_SongPropertiesDialog_UI
 {
-    H2_OBJECT
 	Q_OBJECT
 
 	public:
