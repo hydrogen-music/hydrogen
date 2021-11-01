@@ -43,7 +43,7 @@ class ColorSelectionButton : public QPushButton, public H2Core::Object<ColorSele
 	Q_OBJECT
 
 public:
-	ColorSelectionButton( QWidget *pParent, QColor sInitialColor, int nSize = 0 );
+	ColorSelectionButton( QWidget *pParent, QColor sInitialColor = Qt::black, int nSize = 0 );
 	~ColorSelectionButton();
 
 	QColor getColor() const;

@@ -31,6 +31,7 @@
 #include <core/Preferences.h>
 #include <core/Object.h>
 #include <QtWidgets>
+#include <QButtonGroup>
 
 ///
 /// Combo box showing a list of available devices for a given driver.
@@ -63,6 +64,21 @@ public:
 	HostAPIComboBox( QWidget *pParent );
 	void setValue( QString sHostAPI );
 	virtual void showPopup();
+};
+
+/** Node in the Color tree of the appearance tab.
+ *
+ * \ingroup docGUI docConfiguration
+ */
+class ColorTreeItem : public QTreeWidgetItem {
+
+public:
+	ColorTreeItem( int nId, QTreeWidgetItem* pParent, QString sLabel );
+	ColorTreeItem( int nId, QTreeWidget* pParent, QString sLabel );
+	int getId() const;
+	
+private:
+	int m_nId;
 };
 
 #include "ui_PreferencesDialog_UI.h"
@@ -105,13 +121,19 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 	void onColorNumberChanged( int nIndex );
 	void onColorSelectionClicked();
 	void onColoringMethodChanged( int nIndex );
-	void onCustomizePaletteClicked();
+	// void onCustomizePaletteClicked();
 
 private:
 
 	void updateDriverInfo();
 	void updateDriverPreferences();
-	
+
+	void setColorTreeItemDirty( ColorTreeItem* pItem );
+	QColor* getColorFromId( int nId, H2Core::UIStyle* uiStyle ) const;
+	void updateColorTree();
+	H2Core::UIStyle m_currentColors;
+	H2Core::UIStyle m_previousColors;
+	QButtonGroup* m_pPalette;
 
 	bool m_bNeedDriverRestart;
 	QString m_sInitialLanguage;

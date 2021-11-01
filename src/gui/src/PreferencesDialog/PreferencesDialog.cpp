@@ -31,8 +31,8 @@
 
 #include <QPixmap>
 #include <QFontDatabase>
+#include <QTreeWidgetItemIterator>
 #include "../Widgets/MidiTable.h"
-#include "PaletteDialog.h"
 
 #include <core/MidiMap.h>
 #include <core/Hydrogen.h>
@@ -115,11 +115,25 @@ void HostAPIComboBox::showPopup()
 }
 
 
+ColorTreeItem::ColorTreeItem( int nId, QTreeWidgetItem* pParent, QString sLabel )
+    : QTreeWidgetItem( pParent, QStringList( sLabel ) ) {
+	m_nId = nId;
+}
+ColorTreeItem::ColorTreeItem( int nId, QTreeWidget* pParent, QString sLabel )
+    : QTreeWidgetItem( pParent, QStringList( sLabel ) ) {
+	m_nId = nId;
+}
+int ColorTreeItem::getId() const {
+	return m_nId;
+}
+
 QString PreferencesDialog::m_sColorRed = "#ca0003";
 
 
 PreferencesDialog::PreferencesDialog(QWidget* parent)
  : QDialog( parent )
+ , m_currentColors( H2Core::UIStyle( H2Core::Preferences::get_instance()->getDefaultUIStyle() ) )
+ , m_previousColors( H2Core::UIStyle( H2Core::Preferences::get_instance()->getDefaultUIStyle() ) )
 {
 	setupUi( this );
 
@@ -285,6 +299,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	m_fontFamilies = fontDB.families();
 	
 	// Appearance tab
+	// Appearance tab - Fonts
 	m_sPreviousApplicationFontFamily = pPref->getApplicationFontFamily();
 	m_sPreviousLevel2FontFamily = pPref->getLevel2FontFamily();
 	m_sPreviousLevel3FontFamily = pPref->getLevel3FontFamily();
@@ -312,7 +327,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	}
 	connect( fontSizeComboBox, SIGNAL( currentIndexChanged(int) ),
 			 this, SLOT( onFontSizeChanged(int) ) );
-
+	
+	// Appearance tab - Interface
 	float falloffSpeed = pPref->getMixerFalloffSpeed();
 	if (falloffSpeed == FALLOFF_SLOW) {
 		mixerFalloffComboBox->setCurrentIndex(0);
@@ -376,8 +392,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	coloringMethodCombo->setCurrentIndex( coloringMethod );
 	coloringMethodAuxSpinBox->setValue( m_nPreviousVisiblePatternColors );
 	QSize size( uiScalingPolicyComboBox->width(), coloringMethodAuxSpinBox->height() );
-	// coloringMethodAuxSpinBox->setFixedSize( size );
-	// coloringMethodAuxSpinBox->resize( size );
 
 	m_previousPatternColors = pPref->getPatternColors();
 
@@ -388,7 +402,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	// Using a fixed one size resizing of the widget seems to happen
 	// after the constructor is called.
 	float fLineWidth = 308;
-	int nButtonsPerLine = std::floor( fLineWidth / static_cast<float>(nButtonSize + 4) );
+	int nButtonsPerLine = std::floor( fLineWidth / static_cast<float>(nButtonSize + 6) );
 
 	colorSelectionGrid->setHorizontalSpacing( 4 );
 	for ( int ii = 0; ii < nMaxPatternColors; ii++ ) {
@@ -409,8 +423,111 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	}
 	connect( coloringMethodAuxSpinBox, SIGNAL( valueChanged(int)), this, SLOT( onColorNumberChanged( int ) ) );
 	connect( coloringMethodCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( onColoringMethodChanged(int) ) );
-	connect( customizePalette, SIGNAL( clicked() ), this, SLOT( onCustomizePaletteClicked() ) );
 
+	// Appearance tab - Colors
+	colorwidget->setAutoFillBackground(true);
+	  
+	m_pPalette = new QButtonGroup( paletteBox );
+	m_pPalette->addButton( palette0, 0 );
+	m_pPalette->addButton( palette1, 1 );
+	m_pPalette->addButton( palette2, 2 );
+	m_pPalette->addButton( palette3, 3 );
+	m_pPalette->addButton( palette4, 4 );
+	m_pPalette->addButton( palette5, 5 );
+	m_pPalette->addButton( palette6, 6 );
+	m_pPalette->addButton( palette7, 7 );
+	m_pPalette->addButton( palette8, 8 );
+	m_pPalette->addButton( palette9, 9 );
+	m_pPalette->addButton( palette10, 10 );
+	m_pPalette->addButton( palette11, 11 );
+	m_pPalette->addButton( palette12, 12 );
+	m_pPalette->addButton( palette13, 13 );
+	m_pPalette->addButton( palette14, 14 );
+	m_pPalette->addButton( palette15, 15 );
+	m_pPalette->setExclusive( true );
+	
+	ColorTreeItem* pTopLevelItem;
+	colorTree->clear();
+	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, "General" );
+	new ColorTreeItem( 0x100, pTopLevelItem, "Window" );
+	new ColorTreeItem( 0x101, pTopLevelItem, "Window Text" );
+	new ColorTreeItem( 0x102, pTopLevelItem, "Base" );
+	new ColorTreeItem( 0x103, pTopLevelItem, "Alternate Base" );
+	new ColorTreeItem( 0x104, pTopLevelItem, "Text" );
+	new ColorTreeItem( 0x105, pTopLevelItem, "Button" );
+	new ColorTreeItem( 0x106, pTopLevelItem, "Button Text" );
+	new ColorTreeItem( 0x107, pTopLevelItem, "Light" );
+	new ColorTreeItem( 0x108, pTopLevelItem, "Mid Light" );
+	new ColorTreeItem( 0x109, pTopLevelItem, "Mid" );
+	new ColorTreeItem( 0x10a, pTopLevelItem, "Dark" );
+	new ColorTreeItem( 0x10b, pTopLevelItem, "Shadow Text" );
+	new ColorTreeItem( 0x10c, pTopLevelItem, "Highlight" );
+	new ColorTreeItem( 0x10d, pTopLevelItem, "Highlight Text" );
+	new ColorTreeItem( 0x10e, pTopLevelItem, "Selection Highlight" );
+	new ColorTreeItem( 0x10f, pTopLevelItem, "Selection Inactive" );
+	new ColorTreeItem( 0x110, pTopLevelItem, "Tool Tip Base" );
+	new ColorTreeItem( 0x111, pTopLevelItem, "Tool Tip Text" );
+	
+	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, "Widgets" );
+	new ColorTreeItem( 0x200, pTopLevelItem, "Widget" );
+	new ColorTreeItem( 0x201, pTopLevelItem, "Widget Text" );
+	new ColorTreeItem( 0x202, pTopLevelItem, "Accent" );
+	new ColorTreeItem( 0x203, pTopLevelItem, "Accent Text" );
+	new ColorTreeItem( 0x204, pTopLevelItem, "Button Red" );
+	new ColorTreeItem( 0x205, pTopLevelItem, "Button Red Text" );
+	new ColorTreeItem( 0x206, pTopLevelItem, "Spin Box Selection" );
+	new ColorTreeItem( 0x207, pTopLevelItem, "Spin Box Selection Text" );
+	new ColorTreeItem( 0x208, pTopLevelItem, "Automation" );
+	new ColorTreeItem( 0x209, pTopLevelItem, "Automation Circle" );
+	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, "Song Editor" );
+	new ColorTreeItem( 0x300, pTopLevelItem, "Background" );
+	new ColorTreeItem( 0x301, pTopLevelItem, "Alternate Row" );
+	new ColorTreeItem( 0x302, pTopLevelItem, "Selected Row" );
+	new ColorTreeItem( 0x303, pTopLevelItem, "Line" );
+	new ColorTreeItem( 0x304, pTopLevelItem, "Text" );
+	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, "Pattern Editor" );
+	new ColorTreeItem( 0x400, pTopLevelItem, "Background" );
+	new ColorTreeItem( 0x401, pTopLevelItem, "Alternate Row" );
+	new ColorTreeItem( 0x402, pTopLevelItem, "Selected Row" );
+	new ColorTreeItem( 0x403, pTopLevelItem, "Text" );
+	new ColorTreeItem( 0x404, pTopLevelItem, "Note" );
+	new ColorTreeItem( 0x405, pTopLevelItem, "Note Off" );
+	new ColorTreeItem( 0x406, pTopLevelItem, "Line" );
+	new ColorTreeItem( 0x407, pTopLevelItem, "Line 1" );
+	new ColorTreeItem( 0x408, pTopLevelItem, "Line 2" );
+	new ColorTreeItem( 0x409, pTopLevelItem, "Line 3" );
+	new ColorTreeItem( 0x40a, pTopLevelItem, "Line 4" );
+	new ColorTreeItem( 0x40b, pTopLevelItem, "Line 5" );
+
+	colorNameLineEdit->setEnabled(false);
+
+	// connect(loadColorsButton, SIGNAL(clicked(bool)), SLOT(loadColors()));
+	// connect(saveColorsButton, SIGNAL(clicked(bool)), SLOT(saveColors()));
+	// connect(pickColorButton, SIGNAL(clicked(bool)), SLOT(chooseColorClicked()));
+	// connect(colorwidget,     SIGNAL(clicked()),     SLOT(chooseColorClicked()));
+      
+	// connect(colorNameLineEdit, SIGNAL(editingFinished()), SLOT(colorNameEditFinished()));
+	// connect(colorTree, SIGNAL(itemSelectionChanged()), SLOT(colorItemSelectionChanged()));
+	// connect(aPalette, SIGNAL(buttonClicked(int)), SLOT(paletteClicked(int)));
+	// connect(globalAlphaSlider, SIGNAL(valueChanged(int)), SLOT(asliderChanged(int)));
+	// connect(rslider, SIGNAL(valueChanged(int)), SLOT(rsliderChanged(int)));
+	// connect(gslider, SIGNAL(valueChanged(int)), SLOT(gsliderChanged(int)));
+	// connect(bslider, SIGNAL(valueChanged(int)), SLOT(bsliderChanged(int)));
+	// connect(hslider, SIGNAL(valueChanged(int)), SLOT(hsliderChanged(int)));
+	// connect(sslider, SIGNAL(valueChanged(int)), SLOT(ssliderChanged(int)));
+	// connect(vslider, SIGNAL(valueChanged(int)), SLOT(vsliderChanged(int)));
+
+	// connect(globalAlphaVal, SIGNAL(valueChanged(int)), SLOT(aValChanged(int)));
+	// connect(rval, SIGNAL(valueChanged(int)), SLOT(rsliderChanged(int)));
+	// connect(gval, SIGNAL(valueChanged(int)), SLOT(gsliderChanged(int)));
+	// connect(bval, SIGNAL(valueChanged(int)), SLOT(bsliderChanged(int)));
+	// connect(hval, SIGNAL(valueChanged(int)), SLOT(hsliderChanged(int)));
+	// connect(sval, SIGNAL(valueChanged(int)), SLOT(ssliderChanged(int)));
+	// connect(vval, SIGNAL(valueChanged(int)), SLOT(vsliderChanged(int)));
+
+	// connect(addToPalette, SIGNAL(clicked()), SLOT(addToPaletteClicked()));
+	updateColorTree();
+	
 	// midi tab
 	midiPortChannelComboBox->setEnabled( false );
 	midiPortComboBox->setEnabled( false );
@@ -1144,13 +1261,13 @@ void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
-void PreferencesDialog::onCustomizePaletteClicked() {
+// void PreferencesDialog::onCustomizePaletteClicked() {
 
-	PaletteDialog* pPaletteDialog = new PaletteDialog( nullptr );
+// 	PaletteDialog* pPaletteDialog = new PaletteDialog( nullptr );
 
-	pPaletteDialog->exec();
-	delete pPaletteDialog;
-}
+// 	pPaletteDialog->exec();
+// 	delete pPaletteDialog;
+// }
 
 void PreferencesDialog::on_bufferSizeSpinBox_valueChanged( int i )
 {
@@ -1263,5 +1380,100 @@ void PreferencesDialog::toggleOscCheckBox(bool toggled)
 		incomingOscPortLabel->hide();
 		oscTemporaryPortLabel->hide();
 		oscTemporaryPort->hide();
+	}
+}
+
+QColor* PreferencesDialog::getColorFromId( int nId, H2Core::UIStyle* uiStyle ) const {
+	switch( nId ) {
+	case 0x100: return &uiStyle->m_windowColor;
+	case 0x101: return &uiStyle->m_windowTextColor;
+	case 0x102: return &uiStyle->m_baseColor;
+	case 0x103: return &uiStyle->m_alternateBaseColor;
+	case 0x104: return &uiStyle->m_textColor;
+	case 0x105: return &uiStyle->m_buttonColor;
+	case 0x106: return &uiStyle->m_buttonTextColor;
+	case 0x107: return &uiStyle->m_lightColor;
+	case 0x108: return &uiStyle->m_midLightColor;
+	case 0x109: return &uiStyle->m_midColor;
+	case 0x10a: return &uiStyle->m_darkColor;
+	case 0x10b: return &uiStyle->m_shadowTextColor;
+	case 0x10c: return &uiStyle->m_highlightColor;
+	case 0x10d: return &uiStyle->m_highlightedTextColor;
+	case 0x10e: return &uiStyle->m_selectionHighlightColor;
+	case 0x10f: return &uiStyle->m_selectionInactiveColor;
+	case 0x110: return &uiStyle->m_toolTipBaseColor;
+	case 0x111: return &uiStyle->m_toolTipTextColor;
+	case 0x200: return &uiStyle->m_widgetColor;
+	case 0x201: return &uiStyle->m_widgetTextColor;
+	case 0x202: return &uiStyle->m_accentColor;
+	case 0x203: return &uiStyle->m_accentTextColor;
+	case 0x204: return &uiStyle->m_buttonRedColor;
+	case 0x205: return &uiStyle->m_buttonRedTextColor;
+	case 0x206: return &uiStyle->m_spinBoxSelectionColor;
+	case 0x207: return &uiStyle->m_spinBoxSelectionTextColor;
+	case 0x208: return &uiStyle->m_automationColor;
+	case 0x209: return &uiStyle->m_automationCircleColor;
+	case 0x300: return &uiStyle->m_songEditor_backgroundColor;
+	case 0x301: return &uiStyle->m_songEditor_alternateRowColor;
+	case 0x302: return &uiStyle->m_songEditor_selectedRowColor;
+	case 0x303: return &uiStyle->m_songEditor_lineColor;
+	case 0x304: return &uiStyle->m_songEditor_textColor;
+	case 0x400: return &uiStyle->m_patternEditor_backgroundColor;
+	case 0x401: return &uiStyle->m_patternEditor_alternateRowColor;
+	case 0x402: return &uiStyle->m_patternEditor_selectedRowColor;
+	case 0x403: return &uiStyle->m_patternEditor_textColor;
+	case 0x404: return &uiStyle->m_patternEditor_noteColor;
+	case 0x405: return &uiStyle->m_patternEditor_noteoffColor;
+	case 0x406: return &uiStyle->m_patternEditor_lineColor;
+	case 0x407: return &uiStyle->m_patternEditor_line1Color;
+	case 0x408: return &uiStyle->m_patternEditor_line2Color;
+	case 0x409: return &uiStyle->m_patternEditor_line3Color;
+	case 0x40a: return &uiStyle->m_patternEditor_line4Color;
+	case 0x40b: return &uiStyle->m_patternEditor_line5Color;
+	default: return nullptr;
+	}
+
+	return nullptr;
+}
+
+void PreferencesDialog::setColorTreeItemDirty( ColorTreeItem* pItem) {
+	if( pItem == nullptr) {
+		DEBUGLOG( "NULL item" );
+		return;
+	}
+	
+	int nId = pItem->getId();
+	DEBUGLOG( nId );
+	if( nId == 0 ) {
+		// Node without a color used as a heading.
+		return;
+	}
+
+	QColor* pCurrentColor = getColorFromId( nId, &m_currentColors );
+	if ( pCurrentColor == nullptr ) {
+		ERRORLOG( QString( "Unable to get current color for id [%1]" ).arg( nId ) );
+		return;
+	}
+	QColor* pPreviousColor = getColorFromId( nId, &m_previousColors );
+	if ( pPreviousColor == nullptr ) {
+		ERRORLOG( QString( "Unable to get previous color for id [%1]" ).arg( nId ) );
+		return;
+	}
+
+	const QColor& currentColor = *pCurrentColor;
+	const QColor& previousColor = *pPreviousColor;
+  
+	QFont font = pItem->font( 0 );
+	font.setWeight( currentColor != previousColor ? QFont::Black : QFont::Normal );
+	font.setItalic( currentColor != previousColor );
+	pItem->setFont( 0, font );
+	pItem->setData( 0, Qt::DecorationRole, currentColor );
+}
+
+void PreferencesDialog::updateColorTree() {
+	QTreeWidgetItemIterator it( colorTree );
+	while ( *it ) {
+		setColorTreeItemDirty( static_cast<ColorTreeItem*>( *it ) );
+		++it;
 	}
 }
