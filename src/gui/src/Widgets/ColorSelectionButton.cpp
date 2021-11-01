@@ -44,12 +44,15 @@ ColorSelectionButton::~ColorSelectionButton() {
 
 void ColorSelectionButton::mousePressEvent(QMouseEvent*ev) {
 
-	QColor newColor = QColorDialog::getColor( m_sColor, this, tr( "Pick a pattern color" ) );
+	if ( isEnabled() ) {
 
-	if ( m_sColor != newColor ) {
-		m_sColor = newColor;
-		update();
-		emit clicked();
+		QColor newColor = QColorDialog::getColor( m_sColor, this, tr( "Pick a pattern color" ) );
+
+		if ( m_sColor != newColor && newColor.isValid() ) {
+			m_sColor = newColor;
+			update();
+			emit colorChanged();
+		}
 	}
 }
 
@@ -60,6 +63,10 @@ void ColorSelectionButton::enterEvent(QEvent *ev) {
 }
 
 
+void ColorSelectionButton::setColor( const QColor& color) {
+	m_sColor = color;
+	update();
+}
 
 void ColorSelectionButton::leaveEvent(QEvent *ev) {
 	UNUSED( ev );

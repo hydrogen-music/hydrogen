@@ -134,6 +134,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
  : QDialog( parent )
  , m_currentColors( H2Core::UIStyle( H2Core::Preferences::get_instance()->getDefaultUIStyle() ) )
  , m_previousColors( H2Core::UIStyle( H2Core::Preferences::get_instance()->getDefaultUIStyle() ) )
+ , m_pCurrentColor( nullptr )
+ , m_nCurrentId( 0 )
 {
 	setupUi( this );
 
@@ -408,7 +410,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	for ( int ii = 0; ii < nMaxPatternColors; ii++ ) {
 		ColorSelectionButton* bbutton = new ColorSelectionButton( this, m_previousPatternColors[ ii ], nButtonSize );
 		bbutton->hide();
-		connect( bbutton, &ColorSelectionButton::clicked, this, &PreferencesDialog::onColorSelectionClicked );
+		connect( bbutton, &ColorSelectionButton::colorChanged, this, &PreferencesDialog::onColorSelectionClicked );
 		colorSelectionGrid->addWidget( bbutton,
 									   std::floor( static_cast<float>( ii ) /
 												   static_cast<float>( nButtonsPerLine ) ),
@@ -425,27 +427,11 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	connect( coloringMethodCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( onColoringMethodChanged(int) ) );
 
 	// Appearance tab - Colors
-	colorwidget->setAutoFillBackground(true);
-	  
-	m_pPalette = new QButtonGroup( paletteBox );
-	m_pPalette->addButton( palette0, 0 );
-	m_pPalette->addButton( palette1, 1 );
-	m_pPalette->addButton( palette2, 2 );
-	m_pPalette->addButton( palette3, 3 );
-	m_pPalette->addButton( palette4, 4 );
-	m_pPalette->addButton( palette5, 5 );
-	m_pPalette->addButton( palette6, 6 );
-	m_pPalette->addButton( palette7, 7 );
-	m_pPalette->addButton( palette8, 8 );
-	m_pPalette->addButton( palette9, 9 );
-	m_pPalette->addButton( palette10, 10 );
-	m_pPalette->addButton( palette11, 11 );
-	m_pPalette->addButton( palette12, 12 );
-	m_pPalette->addButton( palette13, 13 );
-	m_pPalette->addButton( palette14, 14 );
-	m_pPalette->addButton( palette15, 15 );
-	m_pPalette->setExclusive( true );
-	
+	colorButton->setAutoFillBackground(true);
+	m_pColorSliderTimer = new QTimer( this );
+	m_pColorSliderTimer->setSingleShot( true );
+	connect( m_pColorSliderTimer, SIGNAL(timeout()), this, SLOT(updateColors()) );
+	  	
 	ColorTreeItem* pTopLevelItem;
 	colorTree->clear();
 	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, "General" );
@@ -499,33 +485,29 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	new ColorTreeItem( 0x40a, pTopLevelItem, "Line 4" );
 	new ColorTreeItem( 0x40b, pTopLevelItem, "Line 5" );
 
-	colorNameLineEdit->setEnabled(false);
+	colorButton->setEnabled( false );
 
 	// connect(loadColorsButton, SIGNAL(clicked(bool)), SLOT(loadColors()));
 	// connect(saveColorsButton, SIGNAL(clicked(bool)), SLOT(saveColors()));
-	// connect(pickColorButton, SIGNAL(clicked(bool)), SLOT(chooseColorClicked()));
-	// connect(colorwidget,     SIGNAL(clicked()),     SLOT(chooseColorClicked()));
-      
-	// connect(colorNameLineEdit, SIGNAL(editingFinished()), SLOT(colorNameEditFinished()));
-	// connect(colorTree, SIGNAL(itemSelectionChanged()), SLOT(colorItemSelectionChanged()));
-	// connect(aPalette, SIGNAL(buttonClicked(int)), SLOT(paletteClicked(int)));
-	// connect(globalAlphaSlider, SIGNAL(valueChanged(int)), SLOT(asliderChanged(int)));
-	// connect(rslider, SIGNAL(valueChanged(int)), SLOT(rsliderChanged(int)));
-	// connect(gslider, SIGNAL(valueChanged(int)), SLOT(gsliderChanged(int)));
-	// connect(bslider, SIGNAL(valueChanged(int)), SLOT(bsliderChanged(int)));
-	// connect(hslider, SIGNAL(valueChanged(int)), SLOT(hsliderChanged(int)));
-	// connect(sslider, SIGNAL(valueChanged(int)), SLOT(ssliderChanged(int)));
-	// connect(vslider, SIGNAL(valueChanged(int)), SLOT(vsliderChanged(int)));
+	connect( resetColorsButton, SIGNAL(clicked(bool)), this, SLOT(resetColors()));
+	connect( colorTree, SIGNAL(itemSelectionChanged()),
+			 this, SLOT(colorTreeSelectionChanged()) );
+	connect( colorButton, SIGNAL(colorChanged()),
+			 this, SLOT(colorButtonChanged()) );
+	connect(rslider, SIGNAL(valueChanged(int)), SLOT(rsliderChanged(int)));
+	connect(gslider, SIGNAL(valueChanged(int)), SLOT(gsliderChanged(int)));
+	connect(bslider, SIGNAL(valueChanged(int)), SLOT(bsliderChanged(int)));
+	connect(hslider, SIGNAL(valueChanged(int)), SLOT(hsliderChanged(int)));
+	connect(sslider, SIGNAL(valueChanged(int)), SLOT(ssliderChanged(int)));
+	connect(vslider, SIGNAL(valueChanged(int)), SLOT(vsliderChanged(int)));
 
-	// connect(globalAlphaVal, SIGNAL(valueChanged(int)), SLOT(aValChanged(int)));
-	// connect(rval, SIGNAL(valueChanged(int)), SLOT(rsliderChanged(int)));
-	// connect(gval, SIGNAL(valueChanged(int)), SLOT(gsliderChanged(int)));
-	// connect(bval, SIGNAL(valueChanged(int)), SLOT(bsliderChanged(int)));
-	// connect(hval, SIGNAL(valueChanged(int)), SLOT(hsliderChanged(int)));
-	// connect(sval, SIGNAL(valueChanged(int)), SLOT(ssliderChanged(int)));
-	// connect(vval, SIGNAL(valueChanged(int)), SLOT(vsliderChanged(int)));
+	connect(rval, SIGNAL(valueChanged(int)), SLOT(rsliderChanged(int)));
+	connect(gval, SIGNAL(valueChanged(int)), SLOT(gsliderChanged(int)));
+	connect(bval, SIGNAL(valueChanged(int)), SLOT(bsliderChanged(int)));
+	connect(hval, SIGNAL(valueChanged(int)), SLOT(hsliderChanged(int)));
+	connect(sval, SIGNAL(valueChanged(int)), SLOT(ssliderChanged(int)));
+	connect(vval, SIGNAL(valueChanged(int)), SLOT(vsliderChanged(int)));
 
-	// connect(addToPalette, SIGNAL(clicked()), SLOT(addToPaletteClicked()));
 	updateColorTree();
 	
 	// midi tab
@@ -664,6 +646,9 @@ void PreferencesDialog::on_cancelBtn_clicked()
 		}
 
 	}
+	
+	H2Core::Preferences::get_instance()->setDefaultUIStyle( &m_previousColors );
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
 
 	reject();
 }
@@ -1383,7 +1368,7 @@ void PreferencesDialog::toggleOscCheckBox(bool toggled)
 	}
 }
 
-QColor* PreferencesDialog::getColorFromId( int nId, H2Core::UIStyle* uiStyle ) const {
+QColor* PreferencesDialog::getColorById( int nId, H2Core::UIStyle* uiStyle ) const {
 	switch( nId ) {
 	case 0x100: return &uiStyle->m_windowColor;
 	case 0x101: return &uiStyle->m_windowTextColor;
@@ -1436,25 +1421,121 @@ QColor* PreferencesDialog::getColorFromId( int nId, H2Core::UIStyle* uiStyle ) c
 	return nullptr;
 }
 
+void PreferencesDialog::setColorById( int nId, const QColor& color,
+									  H2Core::UIStyle* uiStyle ) {
+	switch( nId ) {
+	case 0x100:  uiStyle->m_windowColor = color;
+		break;
+	case 0x101:  uiStyle->m_windowTextColor = color;
+		break;
+	case 0x102:  uiStyle->m_baseColor = color;
+		break;
+	case 0x103:  uiStyle->m_alternateBaseColor = color;
+		break;
+	case 0x104:  uiStyle->m_textColor = color;
+		break;
+	case 0x105:  uiStyle->m_buttonColor = color;
+		break;
+	case 0x106:  uiStyle->m_buttonTextColor = color;
+		break;
+	case 0x107:  uiStyle->m_lightColor = color;
+		break;
+	case 0x108:  uiStyle->m_midLightColor = color;
+		break;
+	case 0x109:  uiStyle->m_midColor = color;
+		break;
+	case 0x10a:  uiStyle->m_darkColor = color;
+		break;
+	case 0x10b:  uiStyle->m_shadowTextColor = color;
+		break;
+	case 0x10c:  uiStyle->m_highlightColor = color;
+		break;
+	case 0x10d:  uiStyle->m_highlightedTextColor = color;
+		break;
+	case 0x10e:  uiStyle->m_selectionHighlightColor = color;
+		break;
+	case 0x10f:  uiStyle->m_selectionInactiveColor = color;
+		break;
+	case 0x110:  uiStyle->m_toolTipBaseColor = color;
+		break;
+	case 0x111:  uiStyle->m_toolTipTextColor = color;
+		break;
+	case 0x200:  uiStyle->m_widgetColor = color;
+		break;
+	case 0x201:  uiStyle->m_widgetTextColor = color;
+		break;
+	case 0x202:  uiStyle->m_accentColor = color;
+		break;
+	case 0x203:  uiStyle->m_accentTextColor = color;
+		break;
+	case 0x204:  uiStyle->m_buttonRedColor = color;
+		break;
+	case 0x205:  uiStyle->m_buttonRedTextColor = color;
+		break;
+	case 0x206:  uiStyle->m_spinBoxSelectionColor = color;
+		break;
+	case 0x207:  uiStyle->m_spinBoxSelectionTextColor = color;
+		break;
+	case 0x208:  uiStyle->m_automationColor = color;
+		break;
+	case 0x209:  uiStyle->m_automationCircleColor = color;
+		break;
+	case 0x300:  uiStyle->m_songEditor_backgroundColor = color;
+		break;
+	case 0x301:  uiStyle->m_songEditor_alternateRowColor = color;
+		break;
+	case 0x302:  uiStyle->m_songEditor_selectedRowColor = color;
+		break;
+	case 0x303:  uiStyle->m_songEditor_lineColor = color;
+		break;
+	case 0x304:  uiStyle->m_songEditor_textColor = color;
+		break;
+	case 0x400:  uiStyle->m_patternEditor_backgroundColor = color;
+		break;
+	case 0x401:  uiStyle->m_patternEditor_alternateRowColor = color;
+		break;
+	case 0x402:  uiStyle->m_patternEditor_selectedRowColor = color;
+		break;
+	case 0x403:  uiStyle->m_patternEditor_textColor = color;
+		break;
+	case 0x404:  uiStyle->m_patternEditor_noteColor = color;
+		break;
+	case 0x405:  uiStyle->m_patternEditor_noteoffColor = color;
+		break;
+	case 0x406:  uiStyle->m_patternEditor_lineColor = color;
+		break;
+	case 0x407:  uiStyle->m_patternEditor_line1Color = color;
+		break;
+	case 0x408:  uiStyle->m_patternEditor_line2Color = color;
+		break;
+	case 0x409:  uiStyle->m_patternEditor_line3Color = color;
+		break;
+	case 0x40a:  uiStyle->m_patternEditor_line4Color = color;
+		break;
+	case 0x40b:  uiStyle->m_patternEditor_line5Color = color;
+		break;
+	default: DEBUGLOG( "Unknown ID" );
+	}
+}
+
 void PreferencesDialog::setColorTreeItemDirty( ColorTreeItem* pItem) {
 	if( pItem == nullptr) {
-		DEBUGLOG( "NULL item" );
+		ERRORLOG( "NULL item" );
 		return;
 	}
 	
 	int nId = pItem->getId();
-	DEBUGLOG( nId );
 	if( nId == 0 ) {
 		// Node without a color used as a heading.
 		return;
 	}
 
-	QColor* pCurrentColor = getColorFromId( nId, &m_currentColors );
+	QColor* pCurrentColor = getColorById( nId, &m_currentColors );
 	if ( pCurrentColor == nullptr ) {
 		ERRORLOG( QString( "Unable to get current color for id [%1]" ).arg( nId ) );
 		return;
 	}
-	QColor* pPreviousColor = getColorFromId( nId, &m_previousColors );
+	QColor* pPreviousColor = getColorById( nId, &m_previousColors );
 	if ( pPreviousColor == nullptr ) {
 		ERRORLOG( QString( "Unable to get previous color for id [%1]" ).arg( nId ) );
 		return;
@@ -1476,4 +1557,175 @@ void PreferencesDialog::updateColorTree() {
 		setColorTreeItemDirty( static_cast<ColorTreeItem*>( *it ) );
 		++it;
 	}
+}
+
+void PreferencesDialog::colorTreeSelectionChanged() {
+	ColorTreeItem* pItem = static_cast<ColorTreeItem*>(colorTree->selectedItems()[0]);
+	
+	if( pItem == nullptr ) {
+		// Unset title
+		m_pCurrentColor = nullptr;
+        updateColors();
+        return;
+	}
+      
+	int nId = static_cast<ColorTreeItem*>(pItem)->getId();
+	m_nCurrentId = nId;
+
+	if ( nId == 0x000 ) {
+		// A text node without color was clicked.
+		m_pCurrentColor = nullptr;
+	} else {
+		m_pCurrentColor = getColorById( nId, &m_currentColors );
+	}
+	updateColors();
+}
+
+void PreferencesDialog::colorButtonChanged() {
+	setColorById( m_nCurrentId, colorButton->getColor(), &m_currentColors );
+	m_pCurrentColor = getColorById( m_nCurrentId, &m_currentColors );
+	updateColors();
+}
+
+void PreferencesDialog::resetColors() {
+	m_currentColors = H2Core::UIStyle( m_previousColors );
+	m_pCurrentColor = getColorById( m_nCurrentId, &m_currentColors );
+	updateColors();
+	updateColorTree();
+	H2Core::Preferences::get_instance()->setDefaultUIStyle( &m_currentColors );
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
+}
+
+void PreferencesDialog::updateColors() {
+      int r, g, b, h, s, v;
+
+	  // If m_pCurrentColor is nullptr, it will be converted to false.
+      rslider->setEnabled( static_cast<bool>(m_pCurrentColor) );
+      gslider->setEnabled( static_cast<bool>(m_pCurrentColor) );
+      bslider->setEnabled( static_cast<bool>(m_pCurrentColor) );
+      hslider->setEnabled( static_cast<bool>(m_pCurrentColor) );
+      sslider->setEnabled( static_cast<bool>(m_pCurrentColor) );
+      vslider->setEnabled( static_cast<bool>(m_pCurrentColor) );
+      rval->setEnabled( static_cast<bool>(m_pCurrentColor) );
+      gval->setEnabled( static_cast<bool>(m_pCurrentColor) );
+      bval->setEnabled( static_cast<bool>(m_pCurrentColor) );
+      hval->setEnabled( static_cast<bool>(m_pCurrentColor) );
+      sval->setEnabled( static_cast<bool>(m_pCurrentColor) );
+      vval->setEnabled( static_cast<bool>(m_pCurrentColor) );
+      colorButton->setEnabled( static_cast<bool>(m_pCurrentColor) );
+      if ( m_pCurrentColor ==  nullptr ) {
+		  DEBUGLOG( "No current color yet" );
+		  return;
+	  }
+
+      QColor currentColor(*m_pCurrentColor);
+      
+      colorButton->setColor( currentColor );
+
+      m_pCurrentColor->getRgb(&r, &g, &b);
+      m_pCurrentColor->getHsv(&h, &s, &v);
+
+      rslider->blockSignals(true);
+      gslider->blockSignals(true);
+      bslider->blockSignals(true);
+      hslider->blockSignals(true);
+      sslider->blockSignals(true);
+      vslider->blockSignals(true);
+      rval->blockSignals(true);
+      gval->blockSignals(true);
+      bval->blockSignals(true);
+      hval->blockSignals(true);
+      sval->blockSignals(true);
+      vval->blockSignals(true);
+
+      rslider->setValue(r);
+      gslider->setValue(g);
+      bslider->setValue(b);
+      hslider->setValue(h);
+      sslider->setValue(s);
+      vslider->setValue(v);
+      rval->setValue(r);
+      gval->setValue(g);
+      bval->setValue(b);
+      hval->setValue(h);
+      sval->setValue(s);
+      vval->setValue(v);
+
+      rslider->blockSignals(false);
+      gslider->blockSignals(false);
+      bslider->blockSignals(false);
+      hslider->blockSignals(false);
+      sslider->blockSignals(false);
+      vslider->blockSignals(false);
+      rval->blockSignals(false);
+      gval->blockSignals(false);
+      bval->blockSignals(false);
+      hval->blockSignals(false);
+      sval->blockSignals(false);
+      vval->blockSignals(false);
+
+	  updateColorTree();
+	  H2Core::Preferences::get_instance()->setDefaultUIStyle( &m_currentColors );
+	  HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
+}
+
+void PreferencesDialog::triggerColorSliderTimer() {
+	if ( m_pColorSliderTimer->isActive() ) {
+		m_pColorSliderTimer->stop();
+	}
+	m_pColorSliderTimer->start( 25 );
+}
+
+void PreferencesDialog::rsliderChanged( int nValue ) {
+	int r, g, b;
+	if ( m_pCurrentColor != nullptr ) {
+		m_pCurrentColor->getRgb( &r, &g, &b );
+		m_pCurrentColor->setRgb( nValue, g, b );
+	}
+	triggerColorSliderTimer();
+}
+
+void PreferencesDialog::gsliderChanged( int nValue ) {
+	int r, g, b;
+	if ( m_pCurrentColor != nullptr ) {
+		m_pCurrentColor->getRgb( &r, &g, &b );
+		m_pCurrentColor->setRgb( r, nValue, b );
+	}
+	triggerColorSliderTimer();
+}
+
+void PreferencesDialog::bsliderChanged( int nValue ) {
+	int r, g, b;
+	if ( m_pCurrentColor != nullptr ) {
+		m_pCurrentColor->getRgb( &r, &g, &b );
+		m_pCurrentColor->setRgb( r, g, nValue );
+	}
+	triggerColorSliderTimer();
+}
+
+void PreferencesDialog::hsliderChanged( int nValue ) {
+	int h, s, v;
+	if ( m_pCurrentColor != nullptr ) {
+		m_pCurrentColor->getHsv( &h, &s, &v );
+		m_pCurrentColor->setHsv( nValue, s, v );
+	}
+	triggerColorSliderTimer();
+}
+
+void PreferencesDialog::ssliderChanged( int nValue ) {
+	int h, s, v;
+	if ( m_pCurrentColor != nullptr ) {
+		m_pCurrentColor->getHsv( &h, &s, &v );
+		m_pCurrentColor->setHsv( h, nValue, v );
+	}
+	triggerColorSliderTimer();
+}
+
+void PreferencesDialog::vsliderChanged( int nValue ) {
+	int h, s, v;
+	if ( m_pCurrentColor != nullptr ) {
+		m_pCurrentColor->getHsv( &h, &s, &v );
+		m_pCurrentColor->setHsv( h, s, nValue );
+	}
+	triggerColorSliderTimer();
 }

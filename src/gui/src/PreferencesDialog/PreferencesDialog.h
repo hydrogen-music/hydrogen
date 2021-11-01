@@ -31,7 +31,7 @@
 #include <core/Preferences.h>
 #include <core/Object.h>
 #include <QtWidgets>
-#include <QButtonGroup>
+#include <QColorDialog>
 
 ///
 /// Combo box showing a list of available devices for a given driver.
@@ -122,6 +122,16 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 	void onColorSelectionClicked();
 	void onColoringMethodChanged( int nIndex );
 	// void onCustomizePaletteClicked();
+	void colorTreeSelectionChanged();
+	void colorButtonChanged();
+	void rsliderChanged(int);
+	void gsliderChanged(int);
+	void bsliderChanged(int);
+	void hsliderChanged(int);
+	void ssliderChanged(int);
+	void vsliderChanged(int);
+	void updateColors();
+	void resetColors();
 
 private:
 
@@ -129,11 +139,20 @@ private:
 	void updateDriverPreferences();
 
 	void setColorTreeItemDirty( ColorTreeItem* pItem );
-	QColor* getColorFromId( int nId, H2Core::UIStyle* uiStyle ) const;
+	QColor* getColorById( int nId, H2Core::UIStyle* uiStyle ) const;
+	void setColorById( int nId, const QColor& color, H2Core::UIStyle* uiStyle );
 	void updateColorTree();
+	/**
+	 * Introduce a temporal smoothing. Otherwise, moving the slider
+	 * would draw to heavy on the GUI thread with every change
+	 * triggering a recoloring of the whole GUI.
+	 */
+	void triggerColorSliderTimer();
 	H2Core::UIStyle m_currentColors;
 	H2Core::UIStyle m_previousColors;
-	QButtonGroup* m_pPalette;
+	QColor* m_pCurrentColor;
+	int m_nCurrentId;
+	QTimer* m_pColorSliderTimer;
 
 	bool m_bNeedDriverRestart;
 	QString m_sInitialLanguage;

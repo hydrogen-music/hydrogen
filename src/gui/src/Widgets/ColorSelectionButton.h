@@ -47,7 +47,8 @@ public:
 	~ColorSelectionButton();
 
 	QColor getColor() const;
-
+	void setColor( const QColor& color );
+	
 signals:
 	void colorChanged();
 
@@ -60,7 +61,6 @@ private:
 	void paintEvent( QPaintEvent* ev);
 
 	QColor m_sColor;
-
 };
 
 inline QColor ColorSelectionButton::getColor() const {
