@@ -104,12 +104,12 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	QColor colorArcCenterSet;
 	QColor colorArcCenterUnset;
 	if ( m_bIsActive ) {
-		colorHighlightActive = pPref->getDefaultUIStyle()->m_highlightColor;
+		colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
 		colorArc = Qt::red;
 		colorArcCenterSet = Qt::green;
 		colorArcCenterUnset = Qt::gray;
 	} else {
-		colorHighlightActive = pPref->getDefaultUIStyle()->m_lightColor;
+		colorHighlightActive = pPref->getColorTheme()->m_lightColor;
 		colorArc = Qt::darkGray;
 		colorArcCenterSet = Qt::darkGray;
 		colorArcCenterUnset = Qt::lightGray;

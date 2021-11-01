@@ -60,7 +60,7 @@ QComboBox { \
 QComboBox QAbstractItemView { \
     background-color: #babfcf; \
 }")
-				   .arg( pPref->getDefaultUIStyle()->m_widgetColor.name() )
+				   .arg( pPref->getColorTheme()->m_widgetColor.name() )
 				   .arg( pPref->getLevel3FontFamily() )
 				   .arg( getPointSize( pPref->getFontSize() ) ) );
 }
@@ -84,7 +84,7 @@ void LCDCombo::paintEvent( QPaintEvent *ev ) {
 	if ( m_bEntered || hasFocus() ) {
 		QPainter painter(this);
 	
-		QColor colorHighlightActive = pPref->getDefaultUIStyle()->m_highlightColor;
+		QColor colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
 
 		// If the mouse is placed on the widget but the user hasn't
 		// clicked it yet, the highlight will be done more transparent to

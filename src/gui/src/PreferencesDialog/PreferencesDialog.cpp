@@ -132,8 +132,8 @@ QString PreferencesDialog::m_sColorRed = "#ca0003";
 
 PreferencesDialog::PreferencesDialog(QWidget* parent)
  : QDialog( parent )
- , m_currentColors( H2Core::UIStyle( H2Core::Preferences::get_instance()->getDefaultUIStyle() ) )
- , m_previousColors( H2Core::UIStyle( H2Core::Preferences::get_instance()->getDefaultUIStyle() ) )
+ , m_currentColors( H2Core::ColorTheme( H2Core::Preferences::get_instance()->getColorTheme() ) )
+ , m_previousColors( H2Core::ColorTheme( H2Core::Preferences::get_instance()->getColorTheme() ) )
  , m_pCurrentColor( nullptr )
  , m_nCurrentId( 0 )
 {
@@ -647,7 +647,7 @@ void PreferencesDialog::on_cancelBtn_clicked()
 
 	}
 	
-	H2Core::Preferences::get_instance()->setDefaultUIStyle( &m_previousColors );
+	H2Core::Preferences::get_instance()->setColorTheme( &m_previousColors );
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
 
 	reject();
@@ -1368,7 +1368,7 @@ void PreferencesDialog::toggleOscCheckBox(bool toggled)
 	}
 }
 
-QColor* PreferencesDialog::getColorById( int nId, H2Core::UIStyle* uiStyle ) const {
+QColor* PreferencesDialog::getColorById( int nId, H2Core::ColorTheme* uiStyle ) const {
 	switch( nId ) {
 	case 0x100: return &uiStyle->m_windowColor;
 	case 0x101: return &uiStyle->m_windowTextColor;
@@ -1422,7 +1422,7 @@ QColor* PreferencesDialog::getColorById( int nId, H2Core::UIStyle* uiStyle ) con
 }
 
 void PreferencesDialog::setColorById( int nId, const QColor& color,
-									  H2Core::UIStyle* uiStyle ) {
+									  H2Core::ColorTheme* uiStyle ) {
 	switch( nId ) {
 	case 0x100:  uiStyle->m_windowColor = color;
 		break;
@@ -1588,11 +1588,11 @@ void PreferencesDialog::colorButtonChanged() {
 }
 
 void PreferencesDialog::resetColors() {
-	m_currentColors = H2Core::UIStyle( m_previousColors );
+	m_currentColors = H2Core::ColorTheme( m_previousColors );
 	m_pCurrentColor = getColorById( m_nCurrentId, &m_currentColors );
 	updateColors();
 	updateColorTree();
-	H2Core::Preferences::get_instance()->setDefaultUIStyle( &m_currentColors );
+	H2Core::Preferences::get_instance()->setColorTheme( &m_currentColors );
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
 }
 
@@ -1665,7 +1665,7 @@ void PreferencesDialog::updateColors() {
       vval->blockSignals(false);
 
 	  updateColorTree();
-	  H2Core::Preferences::get_instance()->setDefaultUIStyle( &m_currentColors );
+	  H2Core::Preferences::get_instance()->setColorTheme( &m_currentColors );
 	  HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
 }
 

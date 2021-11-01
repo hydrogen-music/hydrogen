@@ -161,8 +161,8 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	static const QColor noteColor( pPref->getDefaultUIStyle()->m_patternEditor_noteColor );
-	static const QColor noteoffColor( pPref->getDefaultUIStyle()->m_patternEditor_noteoffColor );
+	static const QColor noteColor( pPref->getColorTheme()->m_patternEditor_noteColor );
+	static const QColor noteoffColor( pPref->getColorTheme()->m_patternEditor_noteoffColor );
 
 	p.setRenderHint( QPainter::Antialiasing );
 
@@ -564,11 +564,11 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	static const QColor res[5] = {
-		QColor( pPref->getDefaultUIStyle()->m_patternEditor_line1Color ),
-		QColor( pPref->getDefaultUIStyle()->m_patternEditor_line2Color ),
-		QColor( pPref->getDefaultUIStyle()->m_patternEditor_line3Color ),
-		QColor( pPref->getDefaultUIStyle()->m_patternEditor_line4Color ),
-		QColor( pPref->getDefaultUIStyle()->m_patternEditor_line5Color ),
+		QColor( pPref->getColorTheme()->m_patternEditor_line1Color ),
+		QColor( pPref->getColorTheme()->m_patternEditor_line2Color ),
+		QColor( pPref->getColorTheme()->m_patternEditor_line3Color ),
+		QColor( pPref->getColorTheme()->m_patternEditor_line4Color ),
+		QColor( pPref->getColorTheme()->m_patternEditor_line5Color ),
 	};
 
 	int nGranularity = granularity() * m_nResolution;
@@ -642,10 +642,10 @@ QColor PatternEditor::selectedNoteColor() const {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( hasFocus() ) {
-		static const QColor selectHilightColor( pPref->getDefaultUIStyle()->m_selectionHighlightColor );
+		static const QColor selectHilightColor( pPref->getColorTheme()->m_selectionHighlightColor );
 		return selectHilightColor;
 	} else {
-		static const QColor selectInactiveColor( pPref->getDefaultUIStyle()->m_selectionInactiveColor );
+		static const QColor selectInactiveColor( pPref->getColorTheme()->m_selectionInactiveColor );
 		return selectInactiveColor;
 	}
 }

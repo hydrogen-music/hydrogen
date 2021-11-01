@@ -134,7 +134,7 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 	painter.setRenderHint(QPainter::Antialiasing);
 
 	QPen rulerPen(Qt::DotLine);
-	rulerPen.setColor( pPref->getDefaultUIStyle()->m_lightColor );
+	rulerPen.setColor( pPref->getColorTheme()->m_lightColor );
 	painter.setPen(rulerPen);
 
 	/* Paint min, max  */
@@ -149,7 +149,7 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 	QPoint def = translatePoint(0, _path->get_default());
 	painter.drawLine(0, def.y(), width(), def.y());
 
-	QPen linePen( pPref->getDefaultUIStyle()->m_automationColor );
+	QPen linePen( pPref->getColorTheme()->m_automationColor );
 	linePen.setWidth(2);
 	painter.setPen(linePen);
 
@@ -172,10 +172,10 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 	}
 
 
-	QPen circlePen( pPref->getDefaultUIStyle()->m_automationCircleColor );
+	QPen circlePen( pPref->getColorTheme()->m_automationCircleColor );
 	circlePen.setWidth(1);
 	painter.setPen(circlePen);
-	painter.setBrush(QBrush( pPref->getDefaultUIStyle()->m_windowColor ));
+	painter.setBrush(QBrush( pPref->getColorTheme()->m_windowColor ));
 
 	for (auto point : *_path) {
 

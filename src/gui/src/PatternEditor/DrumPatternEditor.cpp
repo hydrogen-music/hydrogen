@@ -989,7 +989,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	const QColor selectedRowColor( pPref->getDefaultUIStyle()->m_patternEditor_selectedRowColor );
+	const QColor selectedRowColor( pPref->getColorTheme()->m_patternEditor_selectedRowColor );
 
 	__create_background( painter );
 
@@ -1145,8 +1145,8 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 	}
 	
 	// fill the first half of the rect with a solid color
-	const QColor backgroundColor( pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor );
-	const QColor selectedRowColor( pPref->getDefaultUIStyle()->m_patternEditor_selectedRowColor );
+	const QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
+	const QColor selectedRowColor( pPref->getColorTheme()->m_patternEditor_selectedRowColor );
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	int nInstruments = pSong->getInstrumentList()->size();
@@ -1168,9 +1168,9 @@ void DrumPatternEditor::__create_background( QPainter& p)
 	
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	const QColor backgroundColor( pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor );
-	const QColor alternateRowColor( pPref->getDefaultUIStyle()->m_patternEditor_alternateRowColor );
-	const QColor lineColor( pPref->getDefaultUIStyle()->m_patternEditor_lineColor );
+	const QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
+	const QColor alternateRowColor( pPref->getColorTheme()->m_patternEditor_alternateRowColor );
+	const QColor lineColor( pPref->getColorTheme()->m_patternEditor_lineColor );
 
 	int nNotes = MAX_NOTES;
 	if ( m_pPattern ) {
@@ -1224,7 +1224,7 @@ void DrumPatternEditor::drawFocus( QPainter& painter ) {
 	
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	QColor color = pPref->getDefaultUIStyle()->m_highlightColor;
+	QColor color = pPref->getColorTheme()->m_highlightColor;
 
 	// If the mouse is placed on the widget but the user hasn't
 	// clicked it yet, the highlight will be done more transparent to

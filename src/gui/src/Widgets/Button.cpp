@@ -95,25 +95,25 @@ void Button::updateStyleSheet() {
 	int nFactorGradient = 120;
 	int nHover = 10;
 	
-	QColor backgroundLight = pPref->getDefaultUIStyle()->m_widgetColor.lighter( nFactorGradient );
-	QColor backgroundDark = pPref->getDefaultUIStyle()->m_widgetColor.darker( nFactorGradient );
-	QColor backgroundLightHover = pPref->getDefaultUIStyle()->m_widgetColor.lighter( nFactorGradient + nHover );
-	QColor backgroundDarkHover = pPref->getDefaultUIStyle()->m_widgetColor.darker( nFactorGradient + nHover );
+	QColor backgroundLight = pPref->getColorTheme()->m_widgetColor.lighter( nFactorGradient );
+	QColor backgroundDark = pPref->getColorTheme()->m_widgetColor.darker( nFactorGradient );
+	QColor backgroundLightHover = pPref->getColorTheme()->m_widgetColor.lighter( nFactorGradient + nHover );
+	QColor backgroundDarkHover = pPref->getColorTheme()->m_widgetColor.darker( nFactorGradient + nHover );
 
 	QColor backgroundCheckedLight, backgroundCheckedDark, backgroundCheckedLightHover,
 		backgroundCheckedDarkHover, textChecked;
 	if ( ! m_bUseRedBackground ) {
-		backgroundCheckedLight = pPref->getDefaultUIStyle()->m_accentColor.lighter( nFactorGradient );
-		backgroundCheckedDark = pPref->getDefaultUIStyle()->m_accentColor.darker( nFactorGradient );
-		backgroundCheckedLightHover = pPref->getDefaultUIStyle()->m_accentColor.lighter( nFactorGradient + nHover );
-		backgroundCheckedDarkHover = pPref->getDefaultUIStyle()->m_accentColor.darker( nFactorGradient + nHover );
-		textChecked = pPref->getDefaultUIStyle()->m_accentTextColor;
+		backgroundCheckedLight = pPref->getColorTheme()->m_accentColor.lighter( nFactorGradient );
+		backgroundCheckedDark = pPref->getColorTheme()->m_accentColor.darker( nFactorGradient );
+		backgroundCheckedLightHover = pPref->getColorTheme()->m_accentColor.lighter( nFactorGradient + nHover );
+		backgroundCheckedDarkHover = pPref->getColorTheme()->m_accentColor.darker( nFactorGradient + nHover );
+		textChecked = pPref->getColorTheme()->m_accentTextColor;
 	} else {
-		backgroundCheckedLight = pPref->getDefaultUIStyle()->m_buttonRedColor.lighter( nFactorGradient );
-		backgroundCheckedDark = pPref->getDefaultUIStyle()->m_buttonRedColor.darker( nFactorGradient );
-		backgroundCheckedLightHover = pPref->getDefaultUIStyle()->m_buttonRedColor.lighter( nFactorGradient + nHover );
-		backgroundCheckedDarkHover = pPref->getDefaultUIStyle()->m_buttonRedColor.darker( nFactorGradient + nHover );
-		textChecked = pPref->getDefaultUIStyle()->m_buttonRedTextColor;
+		backgroundCheckedLight = pPref->getColorTheme()->m_buttonRedColor.lighter( nFactorGradient );
+		backgroundCheckedDark = pPref->getColorTheme()->m_buttonRedColor.darker( nFactorGradient );
+		backgroundCheckedLightHover = pPref->getColorTheme()->m_buttonRedColor.lighter( nFactorGradient + nHover );
+		backgroundCheckedDarkHover = pPref->getColorTheme()->m_buttonRedColor.darker( nFactorGradient + nHover );
+		textChecked = pPref->getColorTheme()->m_buttonRedTextColor;
 	}
 	
 	setStyleSheet( QString( "QPushButton { \
@@ -141,7 +141,7 @@ QPushButton:checked:hover { \
                                       stop: 0 %10, stop: 1 %11); \
 }"
 							)
-				   .arg( pPref->getDefaultUIStyle()->m_widgetTextColor.name() )
+				   .arg( pPref->getColorTheme()->m_widgetTextColor.name() )
 				   .arg( m_sBorderRadius )
 				   .arg( backgroundLight.name() ).arg( backgroundDark.name() )
 				   .arg( backgroundLightHover.name() ).arg( backgroundDarkHover.name() )

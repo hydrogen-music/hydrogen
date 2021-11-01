@@ -74,12 +74,12 @@ public:
 \brief	Colors for hydrogen
 */
 /** \ingroup docCore docConfiguration*/
-class UIStyle : public H2Core::Object<UIStyle>
+class ColorTheme : public H2Core::Object<ColorTheme>
 {
-	H2_OBJECT(UIStyle)
+	H2_OBJECT(ColorTheme)
 public:
-	UIStyle();
-	UIStyle( const UIStyle* pOther );
+	ColorTheme();
+	ColorTheme( const ColorTheme* pOther );
 	
 	QColor m_songEditor_backgroundColor;
 	QColor m_songEditor_alternateRowColor;
@@ -626,8 +626,8 @@ public:
 	WindowProperties	getLadspaProperties( unsigned nFX );
 	void			setLadspaProperties( unsigned nFX, const WindowProperties& prop );
 
-	const UIStyle*	getDefaultUIStyle() const;
-	void			setDefaultUIStyle( UIStyle* pNewUIStyle );
+	const ColorTheme*	getColorTheme() const;
+	void			setColorTheme( ColorTheme* pNewColorTheme );
 
 	/** \return #m_bPatternModePlaysSelected*/
 	bool			patternModePlaysSelected();
@@ -846,7 +846,7 @@ private:
 	WindowProperties		audioEngineInfoProperties;
 	WindowProperties		m_ladspaProperties[MAX_FX];
 
-	UIStyle*				m_pDefaultUIStyle;
+	ColorTheme*				m_pColorTheme;
 	QString					m_sPreferredLanguage;
 
 	//Appearance: SongEditor coloring
@@ -890,8 +890,8 @@ private:
 	WindowProperties readWindowProperties( QDomNode parent, const QString& windowName, WindowProperties defaultProp );
 	void writeWindowProperties( QDomNode parent, const QString& windowName, const WindowProperties& prop );
 
-	void writeUIStyle( QDomNode parent );
-	void readUIStyle( QDomNode parent );
+	void writeColorTheme( QDomNode parent );
+	void readColorTheme( QDomNode parent );
 };
 
 inline QString Preferences::getMidiExportDirectory() const
@@ -1302,12 +1302,12 @@ inline void Preferences::setLadspaProperties( unsigned nFX, const WindowProperti
 	m_ladspaProperties[nFX] = prop;
 }
 
-inline const UIStyle* Preferences::getDefaultUIStyle() const {
-	return m_pDefaultUIStyle;
+inline const ColorTheme* Preferences::getColorTheme() const {
+	return m_pColorTheme;
 }
-inline void Preferences::setDefaultUIStyle( UIStyle* pNewUIStyle ) {
-	delete m_pDefaultUIStyle;
-	m_pDefaultUIStyle = new UIStyle( pNewUIStyle );
+inline void Preferences::setColorTheme( ColorTheme* pNewColorTheme ) {
+	delete m_pColorTheme;
+	m_pColorTheme = new ColorTheme( pNewColorTheme );
 }
 
 inline bool Preferences::patternModePlaysSelected() {

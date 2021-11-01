@@ -36,8 +36,8 @@ FilesystemInfoForm::FilesystemInfoForm( QWidget *parent ) :
 {
 	ui->setupUi(this);
 
-	QColor windowColor = H2Core::Preferences::get_instance()->getDefaultUIStyle()->m_windowColor;
-	QColor windowTextColor = H2Core::Preferences::get_instance()->getDefaultUIStyle()->m_windowTextColor;
+	QColor windowColor = H2Core::Preferences::get_instance()->getColorTheme()->m_windowColor;
+	QColor windowTextColor = H2Core::Preferences::get_instance()->getColorTheme()->m_windowTextColor;
 
 	ui->tmpDirWarningButton->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/warning.svg" ) );
 	ui->tmpDirWarningButton->setStyleSheet( Skin::getWarningButtonStyleSheet( 16 ) );

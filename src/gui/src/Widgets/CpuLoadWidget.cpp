@@ -87,7 +87,7 @@ void CpuLoadWidget::paintEvent( QPaintEvent*)
 	gradient.setColorAt( 0.92, colorGradientRed );
 
 	painter.fillRect( QRect( 0, 0, m_size.width(), m_size.height() ),
-					  H2Core::Preferences::get_instance()->getDefaultUIStyle()->m_midLightColor );
+					  H2Core::Preferences::get_instance()->getColorTheme()->m_midLightColor );
 	painter.fillRect( QRectF( fBorderWidth / 2, fBorderWidth / 2, fPeak, m_size.height() - fBorderWidth ), QBrush( gradient ) );
 		
 	QPen pen;

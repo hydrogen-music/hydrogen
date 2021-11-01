@@ -37,7 +37,7 @@
  * keyboard. For the latter the widget has to be clicked first, in
  * order for it to aquire focus. The derived class must indicate the
  * presence of the focus in its paintEvent() using the
- * H2Core::UIStyle::m_highlightColor.
+ * H2Core::ColorTheme::m_highlightColor.
  *
  * The widget will be reset to its default value of Ctrl-clicking
  * it. It's MIDI learnable and the MIDI action - added by the parent -

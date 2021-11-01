@@ -187,9 +187,9 @@ void Fader::paintEvent( QPaintEvent *ev)
 	
 	QColor colorHighlightActive;
 	if ( m_bIsActive ) {
-		colorHighlightActive = pPref->getDefaultUIStyle()->m_highlightColor;
+		colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
 	} else {
-		colorHighlightActive = pPref->getDefaultUIStyle()->m_lightColor;
+		colorHighlightActive = pPref->getColorTheme()->m_lightColor;
 	}
 	QColor colorGradientNormal( Qt::green );
 	QColor colorGradientWarning( Qt::yellow );

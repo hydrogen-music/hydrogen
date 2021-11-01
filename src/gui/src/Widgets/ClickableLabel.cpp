@@ -56,9 +56,9 @@ void ClickableLabel::updateStyleSheet() {
 	
 	QColor text;
 	if ( m_color == Color::Bright ) {
-		text = pPref->getDefaultUIStyle()->m_windowTextColor;
+		text = pPref->getColorTheme()->m_windowTextColor;
 	} else {
-		text = pPref->getDefaultUIStyle()->m_widgetTextColor;
+		text = pPref->getColorTheme()->m_widgetTextColor;
 	}
 
 	setStyleSheet( QString( "color: %1" ).arg( text.name() ) );

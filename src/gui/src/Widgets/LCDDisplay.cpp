@@ -105,9 +105,9 @@ void LCDDisplay::updateStyleSheet() {
 	
 	QColor textColor;
 	if ( m_bUseRedFont ) {
-		textColor = pPref->getDefaultUIStyle()->m_buttonRedColor;
+		textColor = pPref->getColorTheme()->m_buttonRedColor;
 	} else {
-		textColor = pPref->getDefaultUIStyle()->m_windowTextColor;
+		textColor = pPref->getColorTheme()->m_windowTextColor;
 	}
 
 	QString sStyleSheet = QString( "\
@@ -115,7 +115,7 @@ QLineEdit { \
     color: %1; \
     background-color: %2;" )
 		.arg( textColor.name() )
-		.arg( pPref->getDefaultUIStyle()->m_windowColor.name() );
+		.arg( pPref->getColorTheme()->m_windowColor.name() );
 
 	// For fixed font displays we have to add the current font
 	// parameters as well to avoid any inherited changes.

@@ -29,16 +29,16 @@ QString Skin::getGlobalStyleSheet() {
 	int nFactorGradient = 120;
 	int nHover = 10;
 	
-	QColor buttonBackgroundLight = pPref->getDefaultUIStyle()->m_widgetColor.lighter( nFactorGradient );
-	QColor buttonBackgroundDark = pPref->getDefaultUIStyle()->m_widgetColor.darker( nFactorGradient );
-	QColor buttonBackgroundLightHover = pPref->getDefaultUIStyle()->m_widgetColor.lighter( nFactorGradient + nHover );
-	QColor buttonBackgroundDarkHover = pPref->getDefaultUIStyle()->m_widgetColor.darker( nFactorGradient + nHover );
+	QColor buttonBackgroundLight = pPref->getColorTheme()->m_widgetColor.lighter( nFactorGradient );
+	QColor buttonBackgroundDark = pPref->getColorTheme()->m_widgetColor.darker( nFactorGradient );
+	QColor buttonBackgroundLightHover = pPref->getColorTheme()->m_widgetColor.lighter( nFactorGradient + nHover );
+	QColor buttonBackgroundDarkHover = pPref->getColorTheme()->m_widgetColor.darker( nFactorGradient + nHover );
 
-	QColor buttonBackgroundCheckedLight = pPref->getDefaultUIStyle()->m_accentColor.lighter( nFactorGradient );
-	QColor buttonBackgroundCheckedDark = pPref->getDefaultUIStyle()->m_accentColor.darker( nFactorGradient );
-	QColor buttonBackgroundCheckedLightHover = pPref->getDefaultUIStyle()->m_accentColor.lighter( nFactorGradient + nHover );
-	QColor buttonBackgroundCheckedDarkHover = pPref->getDefaultUIStyle()->m_accentColor.darker( nFactorGradient + nHover );
-	QColor buttonTextChecked = pPref->getDefaultUIStyle()->m_accentTextColor;
+	QColor buttonBackgroundCheckedLight = pPref->getColorTheme()->m_accentColor.lighter( nFactorGradient );
+	QColor buttonBackgroundCheckedDark = pPref->getColorTheme()->m_accentColor.darker( nFactorGradient );
+	QColor buttonBackgroundCheckedLightHover = pPref->getColorTheme()->m_accentColor.lighter( nFactorGradient + nHover );
+	QColor buttonBackgroundCheckedDarkHover = pPref->getColorTheme()->m_accentColor.darker( nFactorGradient + nHover );
+	QColor buttonTextChecked = pPref->getColorTheme()->m_accentTextColor;
 	
 	return QString( "\
 QToolTip { \
@@ -86,21 +86,21 @@ QDoubleSpinBox, QSpinBox { \
     selection-background-color: %19; \
 }"
 					)
-		.arg( pPref->getDefaultUIStyle()->m_toolTipTextColor.name() )
-		.arg( pPref->getDefaultUIStyle()->m_toolTipBaseColor.name() )
+		.arg( pPref->getColorTheme()->m_toolTipTextColor.name() )
+		.arg( pPref->getColorTheme()->m_toolTipBaseColor.name() )
 		.arg( buttonTextChecked.name() )
 		.arg( buttonBackgroundLight.name() ).arg( buttonBackgroundDark.name() )
 		.arg( buttonBackgroundLightHover.name() ).arg( buttonBackgroundDarkHover.name() )
 		.arg( buttonBackgroundCheckedLight.name() ).arg( buttonBackgroundCheckedDark.name() )
 		.arg( buttonBackgroundCheckedLightHover.name() ).arg( buttonBackgroundCheckedDarkHover.name() )
-		.arg( pPref->getDefaultUIStyle()->m_widgetTextColor.name() )
-		.arg( pPref->getDefaultUIStyle()->m_widgetColor.name() )
-		.arg( pPref->getDefaultUIStyle()->m_windowTextColor.name() )
-		.arg( pPref->getDefaultUIStyle()->m_windowColor.name() )
-		.arg( pPref->getDefaultUIStyle()->m_accentTextColor.name() )
-		.arg( pPref->getDefaultUIStyle()->m_accentColor.name() )
-		.arg( pPref->getDefaultUIStyle()->m_spinBoxSelectionTextColor.name() )
-		.arg( pPref->getDefaultUIStyle()->m_spinBoxSelectionColor.name() );
+		.arg( pPref->getColorTheme()->m_widgetTextColor.name() )
+		.arg( pPref->getColorTheme()->m_widgetColor.name() )
+		.arg( pPref->getColorTheme()->m_windowTextColor.name() )
+		.arg( pPref->getColorTheme()->m_windowColor.name() )
+		.arg( pPref->getColorTheme()->m_accentTextColor.name() )
+		.arg( pPref->getColorTheme()->m_accentColor.name() )
+		.arg( pPref->getColorTheme()->m_spinBoxSelectionTextColor.name() )
+		.arg( pPref->getColorTheme()->m_spinBoxSelectionColor.name() );
 }
 
 void Skin::setPalette( QApplication *pQApp ) {
@@ -109,22 +109,22 @@ void Skin::setPalette( QApplication *pQApp ) {
 	// create the default palette
 	QPalette defaultPalette;
 
-	defaultPalette.setColor( QPalette::Window, pPref->getDefaultUIStyle()->m_windowColor );
-	defaultPalette.setColor( QPalette::WindowText, pPref->getDefaultUIStyle()->m_windowTextColor );
-	defaultPalette.setColor( QPalette::Base, pPref->getDefaultUIStyle()->m_baseColor );
-	defaultPalette.setColor( QPalette::AlternateBase, pPref->getDefaultUIStyle()->m_alternateBaseColor );
-	defaultPalette.setColor( QPalette::Text, pPref->getDefaultUIStyle()->m_textColor );
-	defaultPalette.setColor( QPalette::Button, pPref->getDefaultUIStyle()->m_buttonColor );
-	defaultPalette.setColor( QPalette::ButtonText, pPref->getDefaultUIStyle()->m_buttonTextColor );
-	defaultPalette.setColor( QPalette::Light, pPref->getDefaultUIStyle()->m_lightColor );
-	defaultPalette.setColor( QPalette::Midlight, pPref->getDefaultUIStyle()->m_midLightColor );
-	defaultPalette.setColor( QPalette::Dark, pPref->getDefaultUIStyle()->m_darkColor );
-	defaultPalette.setColor( QPalette::Mid, pPref->getDefaultUIStyle()->m_midColor );
-	defaultPalette.setColor( QPalette::Shadow, pPref->getDefaultUIStyle()->m_shadowTextColor );
-	defaultPalette.setColor( QPalette::Highlight, pPref->getDefaultUIStyle()->m_highlightColor );
-	defaultPalette.setColor( QPalette::HighlightedText, pPref->getDefaultUIStyle()->m_highlightedTextColor );
-	defaultPalette.setColor( QPalette::ToolTipBase, pPref->getDefaultUIStyle()->m_toolTipBaseColor );
-	defaultPalette.setColor( QPalette::ToolTipText, pPref->getDefaultUIStyle()->m_toolTipTextColor );
+	defaultPalette.setColor( QPalette::Window, pPref->getColorTheme()->m_windowColor );
+	defaultPalette.setColor( QPalette::WindowText, pPref->getColorTheme()->m_windowTextColor );
+	defaultPalette.setColor( QPalette::Base, pPref->getColorTheme()->m_baseColor );
+	defaultPalette.setColor( QPalette::AlternateBase, pPref->getColorTheme()->m_alternateBaseColor );
+	defaultPalette.setColor( QPalette::Text, pPref->getColorTheme()->m_textColor );
+	defaultPalette.setColor( QPalette::Button, pPref->getColorTheme()->m_buttonColor );
+	defaultPalette.setColor( QPalette::ButtonText, pPref->getColorTheme()->m_buttonTextColor );
+	defaultPalette.setColor( QPalette::Light, pPref->getColorTheme()->m_lightColor );
+	defaultPalette.setColor( QPalette::Midlight, pPref->getColorTheme()->m_midLightColor );
+	defaultPalette.setColor( QPalette::Dark, pPref->getColorTheme()->m_darkColor );
+	defaultPalette.setColor( QPalette::Mid, pPref->getColorTheme()->m_midColor );
+	defaultPalette.setColor( QPalette::Shadow, pPref->getColorTheme()->m_shadowTextColor );
+	defaultPalette.setColor( QPalette::Highlight, pPref->getColorTheme()->m_highlightColor );
+	defaultPalette.setColor( QPalette::HighlightedText, pPref->getColorTheme()->m_highlightedTextColor );
+	defaultPalette.setColor( QPalette::ToolTipBase, pPref->getColorTheme()->m_toolTipBaseColor );
+	defaultPalette.setColor( QPalette::ToolTipText, pPref->getColorTheme()->m_toolTipTextColor );
 
 	pQApp->setPalette( defaultPalette );
 	pQApp->setStyleSheet( getGlobalStyleSheet() );
@@ -140,6 +140,6 @@ color: %2; \
 background-color: %3; \
 border-color: %3;" )
 		.arg( nSize )
-		.arg( pPref->getDefaultUIStyle()->m_windowTextColor.name() )
-		.arg( pPref->getDefaultUIStyle()->m_windowColor.name() );
+		.arg( pPref->getColorTheme()->m_windowTextColor.name() )
+		.arg( pPref->getColorTheme()->m_windowColor.name() );
 }

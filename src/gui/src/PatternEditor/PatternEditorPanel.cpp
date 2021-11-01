@@ -1155,8 +1155,8 @@ void PatternEditorPanel::updateStyleSheet() {
 	auto pPref = H2Core::Preferences::get_instance();
 	int nFactorTop = 112;
 	
-	QColor topColorLight = pPref->getDefaultUIStyle()->m_midColor.lighter( nFactorTop );
-	QColor topColorDark = pPref->getDefaultUIStyle()->m_midColor.darker( nFactorTop );
+	QColor topColorLight = pPref->getColorTheme()->m_midColor.lighter( nFactorTop );
+	QColor topColorDark = pPref->getColorTheme()->m_midColor.darker( nFactorTop );
 
 	QString sEditorTopStyleSheet = QString( "\
 QWidget {\
@@ -1168,7 +1168,7 @@ QWidget {\
 QWidget {\
     background-color: %1;\
 }" )
-		.arg( pPref->getDefaultUIStyle()->m_midLightColor.name() );
+		.arg( pPref->getColorTheme()->m_midLightColor.name() );
 
 	m_pEditorTop1->setStyleSheet( sEditorTopStyleSheet );
 	m_pEditorTop2->setStyleSheet( sEditorTopStyleSheet );

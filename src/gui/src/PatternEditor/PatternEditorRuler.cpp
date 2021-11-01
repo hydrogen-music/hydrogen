@@ -47,7 +47,7 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	Preferences *pPref = Preferences::get_instance();
 
-	QColor backgroundColor( pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor );
+	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
 
 	m_pPattern = nullptr;
 	m_fGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
@@ -180,7 +180,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 	QPainter painter(this);
 
-	QColor backgroundColor( pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor );
+	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
 	m_pBackground->fill( backgroundColor );
 
 	painter.drawPixmap( ev->rect(), *m_pBackground, ev->rect() );
@@ -243,7 +243,7 @@ void PatternEditorRuler::zoomIn()
 	resize(  QSize(m_nRulerWidth, m_nRulerHeight ));
 	delete m_pBackground;
 	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
-	QColor backgroundColor( pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor );
+	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
 	m_pBackground->fill( backgroundColor );
 	update();
 }
@@ -264,7 +264,7 @@ void PatternEditorRuler::zoomOut()
 		resize( QSize(m_nRulerWidth, m_nRulerHeight) );
 		delete m_pBackground;
 		m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
-		QColor backgroundColor( pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor );
+		QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
 		m_pBackground->fill( backgroundColor );
 		update();
 	}

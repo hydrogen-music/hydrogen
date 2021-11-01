@@ -253,7 +253,7 @@ void LCDSpinBox::paintEvent( QPaintEvent *ev ) {
 	if ( m_bEntered || hasFocus() ) {
 		QPainter painter(this);
 	
-		QColor colorHighlightActive = pPref->getDefaultUIStyle()->m_highlightColor;
+		QColor colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
 
 		// If the mouse is placed on the widget but the user hasn't
 		// clicked it yet, the highlight will be done more transparent to
@@ -291,10 +291,10 @@ QDoubleSpinBox, QSpinBox { \
     selection-color: %3; \
     selection-background-color: %4; \
 }" )
-				   .arg( pPref->getDefaultUIStyle()->m_accentTextColor.name() )
-				   .arg( pPref->getDefaultUIStyle()->m_accentColor.name() )
-				   .arg( pPref->getDefaultUIStyle()->m_spinBoxSelectionTextColor.name() )
-				   .arg( pPref->getDefaultUIStyle()->m_spinBoxSelectionColor.name() ) );
+				   .arg( pPref->getColorTheme()->m_accentTextColor.name() )
+				   .arg( pPref->getColorTheme()->m_accentColor.name() )
+				   .arg( pPref->getColorTheme()->m_spinBoxSelectionTextColor.name() )
+				   .arg( pPref->getColorTheme()->m_spinBoxSelectionColor.name() ) );
 }
 
 void LCDSpinBox::onPreferencesChanged( H2Core::Preferences::Changes changes ) {

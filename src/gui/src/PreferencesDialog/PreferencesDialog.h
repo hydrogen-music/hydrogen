@@ -139,8 +139,8 @@ private:
 	void updateDriverPreferences();
 
 	void setColorTreeItemDirty( ColorTreeItem* pItem );
-	QColor* getColorById( int nId, H2Core::UIStyle* uiStyle ) const;
-	void setColorById( int nId, const QColor& color, H2Core::UIStyle* uiStyle );
+	QColor* getColorById( int nId, H2Core::ColorTheme* uiStyle ) const;
+	void setColorById( int nId, const QColor& color, H2Core::ColorTheme* uiStyle );
 	void updateColorTree();
 	/**
 	 * Introduce a temporal smoothing. Otherwise, moving the slider
@@ -148,8 +148,8 @@ private:
 	 * triggering a recoloring of the whole GUI.
 	 */
 	void triggerColorSliderTimer();
-	H2Core::UIStyle m_currentColors;
-	H2Core::UIStyle m_previousColors;
+	H2Core::ColorTheme m_currentColors;
+	H2Core::ColorTheme m_previousColors;
 	QColor* m_pCurrentColor;
 	int m_nCurrentId;
 	QTimer* m_pColorSliderTimer;

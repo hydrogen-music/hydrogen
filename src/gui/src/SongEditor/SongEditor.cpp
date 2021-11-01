@@ -885,7 +885,7 @@ void SongEditor::drawFocus( QPainter& painter ) {
 		return;
 	}
 	
-	QColor color = H2Core::Preferences::get_instance()->getDefaultUIStyle()->m_highlightColor;
+	QColor color = H2Core::Preferences::get_instance()->getColorTheme()->m_highlightColor;
 
 	// If the mouse is placed on the widget but the user hasn't
 	// clicked it yet, the highlight will be done more transparent to
@@ -947,10 +947,10 @@ void SongEditor::createBackground()
 		this->resize( QSize( width(), nNewHeight ) );
 	}
 
-	m_pBackgroundPixmap->fill( pPref->getDefaultUIStyle()->m_songEditor_alternateRowColor );
+	m_pBackgroundPixmap->fill( pPref->getColorTheme()->m_songEditor_alternateRowColor );
 
 	QPainter p( m_pBackgroundPixmap );
-	p.setPen( pPref->getDefaultUIStyle()->m_songEditor_lineColor );
+	p.setPen( pPref->getColorTheme()->m_songEditor_lineColor );
 
 	// vertical lines
 	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
@@ -962,7 +962,7 @@ void SongEditor::createBackground()
 		p.drawLine( x2, 0, x2, m_nGridHeight * nPatterns );
 	}
 
-	p.setPen( pPref->getDefaultUIStyle()->m_songEditor_lineColor );
+	p.setPen( pPref->getColorTheme()->m_songEditor_lineColor );
 	// horizontal lines
 	for (uint i = 0; i < nPatterns; i++) {
 		uint y = m_nGridHeight * i;
@@ -975,12 +975,12 @@ void SongEditor::createBackground()
 	}
 
 
-	p.setPen( pPref->getDefaultUIStyle()->m_songEditor_backgroundColor );
+	p.setPen( pPref->getColorTheme()->m_songEditor_backgroundColor );
 	// horizontal lines (erase..)
 	for (uint i = 0; i < nPatterns + 1; i++) {
 		uint y = m_nGridHeight * i;
 
-		p.fillRect( 0, y, m_nMaxPatternSequence * m_nGridWidth, 2, pPref->getDefaultUIStyle()->m_songEditor_backgroundColor );
+		p.fillRect( 0, y, m_nMaxPatternSequence * m_nGridWidth, 2, pPref->getColorTheme()->m_songEditor_backgroundColor );
 		p.drawLine( 0, y + m_nGridHeight - 1, m_nMaxPatternSequence * m_nGridWidth, y + m_nGridHeight - 1 );
 	}
 
@@ -1473,7 +1473,7 @@ void SongEditorPatternList::createBackground()
 			p.setPen( QColor( 0,0,0 ) );
 		}
 		else {
-			p.setPen( pPref->getDefaultUIStyle()->m_songEditor_textColor );
+			p.setPen( pPref->getColorTheme()->m_songEditor_textColor );
 		}
 
 		uint text_y = i * m_nGridHeight;
@@ -2196,10 +2196,10 @@ void SongEditorPositionRuler::createBackground()
 	auto tagVector = pTimeline->getAllTags();
 	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 	
-	QColor textColorAlpha( pPref->getDefaultUIStyle()->m_songEditor_textColor );
+	QColor textColorAlpha( pPref->getColorTheme()->m_songEditor_textColor );
 	textColorAlpha.setAlpha( 45 );
 
-	m_pBackgroundPixmap->fill( pPref->getDefaultUIStyle()->m_songEditor_backgroundColor );
+	m_pBackgroundPixmap->fill( pPref->getColorTheme()->m_songEditor_backgroundColor );
 
 	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 
@@ -2218,12 +2218,12 @@ void SongEditorPositionRuler::createBackground()
 		}
 
 		if ( (i % 4) == 0 ) {
-			p.setPen( pPref->getDefaultUIStyle()->m_songEditor_textColor );
+			p.setPen( pPref->getColorTheme()->m_songEditor_textColor );
 			sprintf( tmp, "%d", i + 1 );
 			p.drawText( x - m_nGridWidth, 12, m_nGridWidth * 2, height(), Qt::AlignCenter, tmp );
 		}
 		else {
-			p.setPen( pPref->getDefaultUIStyle()->m_songEditor_textColor );
+			p.setPen( pPref->getColorTheme()->m_songEditor_textColor );
 			p.drawLine( x, 32, x, 40 );
 		}
 	}
@@ -2231,7 +2231,7 @@ void SongEditorPositionRuler::createBackground()
 
 	//draw tempo content
 	if(pPref->getUseTimelineBpm()){
-		p.setPen( pPref->getDefaultUIStyle()->m_songEditor_textColor );
+		p.setPen( pPref->getColorTheme()->m_songEditor_textColor );
 	}else
 	{
 		p.setPen( textColorAlpha );
@@ -2253,7 +2253,7 @@ void SongEditorPositionRuler::createBackground()
 	p.drawLine( 0, 0, width(), 0 );
 
 	p.fillRect ( 0, height() - 27, width(), 1, QColor(35, 39, 51) );
-	p.fillRect ( 0, height() - 3, width(), 2, pPref->getDefaultUIStyle()->m_songEditor_alternateRowColor );
+	p.fillRect ( 0, height() - 3, width(), 2, pPref->getColorTheme()->m_songEditor_alternateRowColor );
 
 }
 

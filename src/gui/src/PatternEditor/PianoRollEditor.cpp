@@ -157,7 +157,7 @@ void PianoRollEditor::drawFocus( QPainter& painter ) {
 		return;
 	}
 	
-	QColor color = pPref->getDefaultUIStyle()->m_highlightColor;
+	QColor color = pPref->getColorTheme()->m_highlightColor;
 
 	// If the mouse is placed on the widget but the user hasn't
 	// clicked it yet, the highlight will be done more transparent to

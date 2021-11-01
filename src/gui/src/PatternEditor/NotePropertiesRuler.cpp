@@ -789,7 +789,7 @@ void NotePropertiesRuler::drawFocus( QPainter& painter ) {
 	
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	QColor color = pPref->getDefaultUIStyle()->m_highlightColor;
+	QColor color = pPref->getColorTheme()->m_highlightColor;
 
 	// If the mouse is placed on the widget but the user hasn't
 	// clicked it yet, the highlight will be done more transparent to
@@ -875,9 +875,9 @@ void NotePropertiesRuler::leaveEvent( QEvent *ev ) {
 void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 {
 	auto pPref = H2Core::Preferences::get_instance();
-	QColor res_1( pPref->getDefaultUIStyle()->m_patternEditor_line1Color );
+	QColor res_1( pPref->getColorTheme()->m_patternEditor_line1Color );
 
-	QColor backgroundColor( pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor );
+	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
 
 	QColor horizLinesColor( backgroundColor.red() - 20,
 							backgroundColor.green() - 20,
@@ -959,13 +959,13 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	QColor backgroundColor( pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor );
+	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
 
 	QColor horizLinesColor( backgroundColor.red() - 20,
 							backgroundColor.green() - 20,
 							backgroundColor.blue() - 20 );
 
-	QColor res_1( pPref->getDefaultUIStyle()->m_patternEditor_line1Color );
+	QColor res_1( pPref->getColorTheme()->m_patternEditor_line1Color );
 
 	QPainter p( pixmap );
 
@@ -1043,13 +1043,13 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	QColor backgroundColor( pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor );
+	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
 
 	QColor horizLinesColor( backgroundColor.red() - 20,
 							backgroundColor.green() - 20,
 							backgroundColor.blue() - 20 );
 
-	QColor res_1( pPref->getDefaultUIStyle()->m_patternEditor_line1Color );
+	QColor res_1( pPref->getColorTheme()->m_patternEditor_line1Color );
 
 	QPainter p( pixmap );
 
@@ -1148,9 +1148,9 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	QColor res_1( pPref->getDefaultUIStyle()->m_patternEditor_line1Color );
+	QColor res_1( pPref->getColorTheme()->m_patternEditor_line1Color );
 
-	QColor backgroundColor( pPref->getDefaultUIStyle()->m_patternEditor_backgroundColor );
+	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
 
 	QColor horizLinesColor( backgroundColor.red() - 100,
 							backgroundColor.green() - 100,
