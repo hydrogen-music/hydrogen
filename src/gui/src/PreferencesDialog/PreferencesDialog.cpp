@@ -301,6 +301,11 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	m_fontFamilies = fontDB.families();
 	
 	// Appearance tab
+	
+	// connect(loadColorsButton, SIGNAL(clicked(bool)), SLOT(loadColors()));
+	// connect(saveColorsButton, SIGNAL(clicked(bool)), SLOT(saveColors()));
+	connect( resetThemeButton, SIGNAL(clicked(bool)), this, SLOT(resetColors()));
+	
 	// Appearance tab - Fonts
 	m_sPreviousApplicationFontFamily = pPref->getApplicationFontFamily();
 	m_sPreviousLevel2FontFamily = pPref->getLevel2FontFamily();
@@ -487,9 +492,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	colorButton->setEnabled( false );
 
-	// connect(loadColorsButton, SIGNAL(clicked(bool)), SLOT(loadColors()));
-	// connect(saveColorsButton, SIGNAL(clicked(bool)), SLOT(saveColors()));
-	connect( resetColorsButton, SIGNAL(clicked(bool)), this, SLOT(resetColors()));
 	connect( colorTree, SIGNAL(itemSelectionChanged()),
 			 this, SLOT(colorTreeSelectionChanged()) );
 	connect( colorButton, SIGNAL(colorChanged()),
