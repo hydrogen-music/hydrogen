@@ -79,7 +79,11 @@ void ColorSelectionButton::paintEvent( QPaintEvent* ev) {
 	QColor color( m_sColor );
 	QColor backgroundColor( "#333" );
 	if ( m_bMouseOver ) {
-		backgroundColor = QColor( "#BBB" );
+		if ( isEnabled() ) {
+			backgroundColor = H2Core::Preferences::get_instance()->getColorTheme()->m_highlightColor;
+		} else {
+			backgroundColor = H2Core::Preferences::get_instance()->getColorTheme()->m_lightColor;
+		}
 	}
 	
 	painter.setPen( backgroundColor );
