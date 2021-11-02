@@ -28,7 +28,7 @@
 #include <QPushButton>
 #include <QStyle>
 
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 #include "../HydrogenApp.h"
 

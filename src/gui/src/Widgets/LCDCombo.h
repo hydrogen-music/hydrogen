@@ -29,7 +29,7 @@
 #include "WidgetWithScalableFont.h"
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 /** \ingroup docGUI docWidgets*/
 class LCDCombo : public QComboBox, protected WidgetWithScalableFont<6, 8, 9>, public H2Core::Object<LCDCombo>

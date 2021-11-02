@@ -26,6 +26,7 @@
 
 #include <core/config.h>
 #include <core/Version.h>
+#include <core/Preferences/Theme.h>
 #include <getopt.h>
 
 #include "ShotList.h"
@@ -47,7 +48,7 @@
 #include <core/Hydrogen.h>
 #include <core/Globals.h>
 #include <core/EventQueue.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/H2Exception.h>
 #include <core/Basics/Playlist.h>
 #include <core/Helpers/Filesystem.h>
@@ -287,13 +288,13 @@ int main(int argc, char *argv[])
 		Qt::HighDpiScaleFactorRoundingPolicy policy;
 
 		switch ( pPref->getUIScalingPolicy() ) {
-		case H2Core::Preferences::UI_SCALING_SMALLER:
+		case H2Core::InterfaceTheme::ScalingPolicy::Smaller:
 			policy = Qt::HighDpiScaleFactorRoundingPolicy::RoundPreferFloor;
 			break;
-		case H2Core::Preferences::UI_SCALING_SYSTEM:
+		case H2Core::InterfaceTheme::ScalingPolicy::System:
 			policy = Qt::HighDpiScaleFactorRoundingPolicy::PassThrough;
 			break;
-		case H2Core::Preferences::UI_SCALING_LARGER:
+		case H2Core::InterfaceTheme::ScalingPolicy::Larger:
 			policy = Qt::HighDpiScaleFactorRoundingPolicy::Ceil;
 			break;
 		}
@@ -303,9 +304,9 @@ int main(int argc, char *argv[])
 		// Force layout
 		if ( !sUiLayout.isEmpty() ) {
 			if ( sUiLayout == "tabbed" ) {
-				pPref->setDefaultUILayout( 1 );
+				pPref->setDefaultUILayout( H2Core::InterfaceTheme::Layout::Tabbed );
 			} else {
-				pPref->setDefaultUILayout( 0 );
+				pPref->setDefaultUILayout( H2Core::InterfaceTheme::Layout::SinglePane );
 			}
 		}
 

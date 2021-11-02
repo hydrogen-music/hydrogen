@@ -24,7 +24,7 @@
 
 #if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
 
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/FX/LadspaFX.h>
 #include <core/Hydrogen.h>
 #include <core/Helpers/Filesystem.h>

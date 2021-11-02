@@ -38,7 +38,7 @@
 #include <AudioUnit/AudioComponent.h>
 #endif
 
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <inttypes.h>
 #include <vector>
 

@@ -26,7 +26,7 @@
 
 #include <pthread.h>
 #include <iostream>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 namespace H2Core
 {

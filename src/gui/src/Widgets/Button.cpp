@@ -30,7 +30,8 @@
 #include <qglobal.h>	// for QT_VERSION
 
 #include <core/Globals.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
 #include <core/Hydrogen.h>
 
 Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize, QString sBaseTooltip, bool bColorful )
@@ -212,13 +213,13 @@ void Button::updateFont() {
 	
 	float fScalingFactor = 1.0;
     switch ( pPref->getFontSize() ) {
-    case H2Core::Preferences::FontSize::Small:
+    case H2Core::FontTheme::FontSize::Small:
 		fScalingFactor = 1.2;
 		break;
-    case H2Core::Preferences::FontSize::Normal:
+    case H2Core::FontTheme::FontSize::Normal:
 		fScalingFactor = 1.0;
 		break;
-    case H2Core::Preferences::FontSize::Large:
+    case H2Core::FontTheme::FontSize::Large:
 		fScalingFactor = 0.75;
 		break;
 	}

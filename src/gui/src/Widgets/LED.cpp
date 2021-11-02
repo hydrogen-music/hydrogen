@@ -25,7 +25,7 @@
 
 #include "../HydrogenApp.h"
 #include <core/Globals.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 LED::LED( QWidget *pParent, QSize size )
  : QWidget( pParent )

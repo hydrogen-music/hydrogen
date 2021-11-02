@@ -24,6 +24,7 @@
 #include "../HydrogenApp.h"
 
 #include <core/Globals.h>
+#include <core/Preferences/Theme.h>
 
 LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont )
  : QLineEdit( pParent )
@@ -46,10 +47,10 @@ LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont )
 
 	m_fontPointSizes.resize( 3 );
 	switch ( pPref->getFontSize() ) {
-    case H2Core::Preferences::FontSize::Small:
+    case H2Core::FontTheme::FontSize::Small:
 		m_fontPointSizes[ 0 ] = currentFont.pointSize();
 		break;
-    case H2Core::Preferences::FontSize::Large:
+    case H2Core::FontTheme::FontSize::Large:
 		m_fontPointSizes[ 0 ] = currentFont.pointSize() - 2 * nStepSize;
 		break;
     default:
@@ -87,9 +88,9 @@ void LCDDisplay::updateFont() {
 	auto pPref = H2Core::Preferences::get_instance();
 
 	int nIndex = 1;
-	if ( pPref->getFontSize() == H2Core::Preferences::FontSize::Small ) {
+	if ( pPref->getFontSize() == H2Core::FontTheme::FontSize::Small ) {
 		nIndex = 0;
-	} else if ( pPref->getFontSize() == H2Core::Preferences::FontSize::Large ) {
+	} else if ( pPref->getFontSize() == H2Core::FontTheme::FontSize::Large ) {
 		nIndex = 2;
 	}
 

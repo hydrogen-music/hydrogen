@@ -32,7 +32,7 @@
 
 #include <core/Globals.h>
 #include <core/Hydrogen.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSteps, bool bWithoutKnob, float fMin, float fMax )
 	: WidgetWithInput( pParent,

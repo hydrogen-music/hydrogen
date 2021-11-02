@@ -24,7 +24,7 @@
 
 #include <core/Hydrogen.h>
 #include <core/Helpers/Filesystem.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/H2Exception.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Sample.h>

@@ -30,7 +30,7 @@
 #include <QtWidgets>
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <map>
 
 #include "PatternEditor.h"

@@ -28,7 +28,7 @@
 #include "../Widgets/ColorSelectionButton.h"
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Object.h>
 #include <QtWidgets>
 #include <QColorDialog>
@@ -162,7 +162,7 @@ private:
 	QString m_sPreviousApplicationFontFamily;
 	QString m_sPreviousLevel2FontFamily;
 	QString m_sPreviousLevel3FontFamily;
-	H2Core::Preferences::FontSize m_previousFontSize;
+	H2Core::FontTheme::FontSize m_previousFontSize;
 	int m_nPreviousVisiblePatternColors;
 	std::vector<QColor> m_previousPatternColors;
 

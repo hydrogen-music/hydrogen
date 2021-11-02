@@ -26,7 +26,7 @@
 #include <core/config.h>
 #include <core/Object.h>
 #include <core/Globals.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 #include "EventListener.h"
 

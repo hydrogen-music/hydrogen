@@ -28,7 +28,7 @@
 #include <QDialog>
 #include "ui_PlaylistDialog_UI.h"
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Playlist.h>
 #include "../Widgets/WidgetWithScalableFont.h"

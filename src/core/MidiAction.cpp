@@ -34,7 +34,7 @@
 #include <core/Basics/Song.h>
 #include <core/Basics/PatternList.h>
 
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/MidiAction.h>
 
 #include <core/Basics/Drumkit.h>

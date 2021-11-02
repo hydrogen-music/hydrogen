@@ -24,7 +24,7 @@
 #define AUTOMATION_PATH_VIEW_H
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Basics/AutomationPath.h>
 
 #include <QtGui>

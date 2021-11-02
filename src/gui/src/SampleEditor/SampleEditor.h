@@ -28,7 +28,7 @@
 
 #include <QDialog>
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Instrument.h>

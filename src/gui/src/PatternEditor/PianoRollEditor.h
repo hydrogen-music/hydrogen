@@ -24,7 +24,7 @@
 #define PIANO_ROLL_EDITOR_H
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Basics/Note.h>
 #include "../EventListener.h"
 #include "../Selection.h"

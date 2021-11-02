@@ -27,7 +27,7 @@
 #include <memory>
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Basics/Instrument.h>
 #include "../EventListener.h"
 #include "../Widgets/WidgetWithScalableFont.h"

@@ -34,7 +34,7 @@
 
 #include <core/config.h>
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 class HydrogenApp;
 class QUndoView;///debug only

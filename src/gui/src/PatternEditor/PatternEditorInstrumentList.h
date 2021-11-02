@@ -31,7 +31,7 @@
 #include <QtWidgets>
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include "../Widgets/PixmapWidget.h"
 #include "../Selection.h"
 #include "../Widgets/WidgetWithScalableFont.h"

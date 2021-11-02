@@ -24,7 +24,7 @@
 #include <core/Globals.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/EventQueue.h>
 #include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Instrument.h>

@@ -25,7 +25,7 @@
 
 #include <QWidget>
 #include <vector>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Object.h>
 
 class QHBoxLayout;

@@ -25,7 +25,7 @@
 #include <core/Hydrogen.h>
 #include <core/EventQueue.h>
 #include <core/FX/LadspaFX.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Helpers/Filesystem.h>
 
 #include "HydrogenApp.h"
@@ -177,7 +177,7 @@ HydrogenApp* HydrogenApp::get_instance() {
 void HydrogenApp::setupSinglePanedInterface()
 {
 	Preferences *pPref = Preferences::get_instance();
-	int uiLayout = pPref->getDefaultUILayout();
+	InterfaceTheme::Layout layout = pPref->getDefaultUILayout();
 
 	// MAINFORM
 	WindowProperties mainFormProp = pPref->getMainFormProperties();
@@ -192,7 +192,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pTab->setObjectName( "TabbedInterface" );
 
 	// SONG EDITOR
-	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE) {
+	if( layout == InterfaceTheme::Layout::SinglePane ) {
 		m_pSongEditorPanel = new SongEditorPanel( m_pSplitter );
 	} else {
 		m_pSongEditorPanel = new SongEditorPanel( m_pTab );
@@ -201,7 +201,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	WindowProperties songEditorProp = pPref->getSongEditorProperties();
 	m_pSongEditorPanel->resize( songEditorProp.width, songEditorProp.height );
 
-	if( uiLayout == Preferences::UI_LAYOUT_TABBED) {
+	if( layout == InterfaceTheme::Layout::Tabbed ) {
 		m_pTab->addTab( m_pSongEditorPanel, tr("Song Editor") );
 	}
 
@@ -218,7 +218,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	WindowProperties instrumentRackProp = pPref->getInstrumentRackProperties();
 	m_pInstrumentRack->setHidden( !instrumentRackProp.visible );
 
-	if( uiLayout == Preferences::UI_LAYOUT_TABBED ){
+	if( layout == InterfaceTheme::Layout::Tabbed ){
 		m_pTab->setMovable( false );
 		m_pTab->setTabsClosable( false );
 		m_pTab->addTab( pSouthPanel, tr( "Instrument + Pattern") );
@@ -247,7 +247,7 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	m_pMainVBox->addSpacing( 3 );
 
-	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE) {
+	if( layout == InterfaceTheme::Layout::SinglePane ) {
 		m_pMainVBox->addWidget( m_pSplitter );
 	} else {
 		m_pMainVBox->addWidget( m_pTab );
@@ -266,13 +266,13 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pMixer->resize( mixerProp.width, mixerProp.height );
 	m_pMixer->move( mixerProp.x, mixerProp.y );
 
-	if( uiLayout == Preferences::UI_LAYOUT_TABBED){
+	if( layout == InterfaceTheme::Layout::Tabbed ){
 		m_pTab->addTab(m_pMixer,tr("Mixer"));
 	}
 
 	m_pMixer->updateMixer();
 
-	if ( mixerProp.visible && uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE ) {
+	if ( mixerProp.visible && layout == InterfaceTheme::Layout::SinglePane ) {
 		m_pMixer->show();
 	}
 	else {
@@ -296,7 +296,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	}
 #endif
 
-	if( uiLayout == Preferences::UI_LAYOUT_TABBED){
+	if( layout == InterfaceTheme::Layout::Tabbed ){
 		m_pTab->setCurrentIndex( Preferences::get_instance()->getLastOpenTab() );
 		QObject::connect(m_pTab, SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));
 	}
@@ -354,11 +354,9 @@ void HydrogenApp::showMixer(bool show)
 		 *   otherwise open mixer window
 		 */
 
-	Preferences *pPref = Preferences::get_instance();
-	int uiLayout = pPref->getDefaultUILayout();
+	InterfaceTheme::Layout layout = Preferences::get_instance()->getDefaultUILayout();
 
-	if( uiLayout == Preferences::UI_LAYOUT_TABBED )
-	{
+	if ( layout == InterfaceTheme::Layout::Tabbed ) {
 		m_pTab->setCurrentIndex( 2 );
 	} else {
 		m_pMixer->setVisible( show );
@@ -374,17 +372,15 @@ void HydrogenApp::showInstrumentPanel(bool show)
 		 *   otherwise hide instrument panel
 		 */
 
-	Preferences *pPref = Preferences::get_instance();
-	int uiLayout = pPref->getDefaultUILayout();
+	InterfaceTheme::Layout layout = Preferences::get_instance()->getDefaultUILayout();
 
-	if( uiLayout == Preferences::UI_LAYOUT_TABBED )
-	{
+	if ( layout == InterfaceTheme::Layout::Tabbed ) {
 		m_pTab->setCurrentIndex( 1 );
 		getInstrumentRack()->setHidden( show );
 	} else {
 		getInstrumentRack()->setHidden( show );
 	}
-		m_pMainForm->update_instrument_checkbox( !show );
+	m_pMainForm->update_instrument_checkbox( !show );
 }
 
 
@@ -733,7 +729,7 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		// selections etc.
 		// But we won't change the layout!
 		Preferences *pPref = Preferences::get_instance();
-		int uiLayout = pPref->getDefaultUILayout();
+		InterfaceTheme::Layout layout = pPref->getDefaultUILayout();
 
 		WindowProperties audioEngineInfoProp = pPref->getAudioEngineInfoProperties();
 		m_pAudioEngineInfoForm->move( audioEngineInfoProp.x, audioEngineInfoProp.y );
@@ -770,7 +766,7 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 
 		m_pMixer->updateMixer();
 
-		if ( mixerProp.visible && uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE ) {
+		if ( mixerProp.visible && layout == InterfaceTheme::Layout::SinglePane ) {
 			m_pMixer->show();
 		}
 		else {

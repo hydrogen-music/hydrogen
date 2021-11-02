@@ -32,7 +32,7 @@
 #include <QList>
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include "../EventListener.h"
 #include "PatternFillDialog.h"
 #include "../Selection.h"

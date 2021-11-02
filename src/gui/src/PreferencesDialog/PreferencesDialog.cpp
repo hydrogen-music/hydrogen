@@ -319,13 +319,13 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	m_previousFontSize = pPref->getFontSize();
 	switch( m_previousFontSize ) {
-	case Preferences::FontSize::Small:
+	case FontTheme::FontSize::Small:
 		fontSizeComboBox->setCurrentIndex( 0 );
 		break;
-	case Preferences::FontSize::Normal:
+	case FontTheme::FontSize::Normal:
 		fontSizeComboBox->setCurrentIndex( 1 );
 		break;
-	case Preferences::FontSize::Large:
+	case FontTheme::FontSize::Large:
 		fontSizeComboBox->setCurrentIndex( 2 );
 		break;
 	default:
@@ -356,12 +356,12 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 								   .append( ">" )
 								   .append( tr( "For changes of the interface layout to take effect Hydrogen must be restarted." ) )
 								   .append( "</font></i></b>" ) );
-	uiLayoutComboBox->setCurrentIndex(  pPref->getDefaultUILayout() );
+	uiLayoutComboBox->setCurrentIndex( static_cast<int>(pPref->getDefaultUILayout()) );
 	connect( uiLayoutComboBox, SIGNAL( currentIndexChanged(int) ), this, SLOT( onUILayoutChanged(int) ) );
 	
 
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
-	uiScalingPolicyComboBox->setCurrentIndex( pPref->getUIScalingPolicy() );
+	uiScalingPolicyComboBox->setCurrentIndex( static_cast<int>(pPref->getUIScalingPolicy()) );
 #else
 	uiScalingPolicyComboBox->setEnabled( false );
         uiScalingPolicyLabel->setEnabled( false );
@@ -851,9 +851,9 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	Hydrogen::get_instance()->setBcOffsetAdjust();
 
-	pPref->setDefaultUILayout( uiLayoutComboBox->currentIndex() );
+	pPref->setDefaultUILayout( static_cast<InterfaceTheme::Layout>(uiLayoutComboBox->currentIndex()) );
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
-	pPref->setUIScalingPolicy( uiScalingPolicyComboBox->currentIndex() );
+	pPref->setUIScalingPolicy( static_cast<InterfaceTheme::ScalingPolicy>(uiScalingPolicyComboBox->currentIndex()) );
 #endif
 
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
@@ -1185,13 +1185,13 @@ void PreferencesDialog::onFontSizeChanged( int nIndex ) {
 
 	switch ( nIndex ) {
 	case 0:
-		pPref->setFontSize( Preferences::FontSize::Small );
+		pPref->setFontSize( FontTheme::FontSize::Small );
 		break;
 	case 1:
-		pPref->setFontSize( Preferences::FontSize::Normal );
+		pPref->setFontSize( FontTheme::FontSize::Normal );
 		break;
 	case 2:
-		pPref->setFontSize( Preferences::FontSize::Large );
+		pPref->setFontSize( FontTheme::FontSize::Large );
 		break;
 	default:
 		ERRORLOG( QString( "Unknown font size: %1" ).arg( nIndex ) );

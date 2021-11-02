@@ -24,27 +24,27 @@
 #define WIDGET_WITH_SCALABLE_FONT_H
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 /** Widget is affected by the "Font size" settings in the
  *	PreferencesDialog.
  *
  * To improve accessibility, three different font sizes,
- * H2Core::Preferences::FontSize::Small,
- * H2Core::Preferences::FontSize::Normal, and
- * H2Core::Preferences::FontSize::Large, are available.
+ * H2Core::FontTheme::FontSize::Small,
+ * H2Core::FontTheme::FontSize::Normal, and
+ * H2Core::FontTheme::FontSize::Large, are available.
  */
 /** \ingroup docGUI docWidgets*/
 template < int nSmall, int nNormal, int nLarge >
 class WidgetWithScalableFont {
 protected:
-  constexpr int getPointSize( H2Core::Preferences::FontSize fontSize ) const {
+  constexpr int getPointSize( H2Core::FontTheme::FontSize fontSize ) const {
     switch ( fontSize ) {
-    case H2Core::Preferences::FontSize::Small:
+    case H2Core::FontTheme::FontSize::Small:
       return nSmall;
-    case H2Core::Preferences::FontSize::Normal:
+    case H2Core::FontTheme::FontSize::Normal:
       return nNormal;
-    case H2Core::Preferences::FontSize::Large:
+    case H2Core::FontTheme::FontSize::Large:
       return nLarge;
     default:
       ___ERRORLOG( QString( "Unknown font size: %1" ).arg( static_cast<int>( fontSize ) ) );

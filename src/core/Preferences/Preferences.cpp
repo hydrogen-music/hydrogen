@@ -21,7 +21,7 @@
  */
 
 #include <stdlib.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 #include <core/LocalFileMng.h>
 
@@ -60,7 +60,7 @@ void Preferences::create_instance()
 Preferences::Preferences()
 {
 	__instance = this;
-	INFOLOG( "INIT" );
+	m_pTheme = new Theme();
 	
 	// switch to enable / disable lash, only on h2 startup
 	m_brestartLash = false;
@@ -88,10 +88,6 @@ Preferences::Preferences()
 	}
 
 	m_sPreferredLanguage = QString();
-
-	m_pColorTheme = new ColorTheme();
-	m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
-	m_nUIScalingPolicy = UI_SCALING_SMALLER;
 
 	__lastspatternDirectory = QDir::homePath();
 	__lastsampleDirectory = QDir::homePath(); //audio file browser
@@ -195,12 +191,6 @@ Preferences::Preferences()
 	m_bHideKeyboardCursor = false;
 
 	//___ GUI properties ___
-	m_sQTStyle = "Fusion";
-	m_sApplicationFontFamily = "Lucida Grande";
-	m_sLevel2FontFamily = "Lucida Grande";
-	m_sLevel3FontFamily = "Lucida Grande";
-	m_fontSize = FontSize::Normal;
-	mixerFalloffSpeed = 1.1;
 	m_nPatternEditorGridResolution = 8;
 	m_bPatternEditorUsingTriplets = false;
 	m_bShowInstrumentPeaks = true;
@@ -224,16 +214,6 @@ Preferences::Preferences()
 	m_nMaxBars = 400;
 	m_nMaxLayers = 16;
 
-	ColorTheme uis = m_pColorTheme;
-
-	m_nColoringMethod = 2;
-	m_nMaxPatternColors = 50;
-	std::vector<QColor> m_patternColors( m_nMaxPatternColors );
-	for ( int ii = 0; ii < m_nMaxPatternColors; ii++ ) {
-		m_patternColors[ ii ] = uis.m_accentColor;
-	}
-	m_nVisiblePatternColors = 1;
-
 	/////////////////////////////////////////////////////////////////////////
 	//////////////// END OF DEFAULT SETTINGS ////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////
@@ -250,7 +230,7 @@ Preferences::~Preferences()
 
 	INFOLOG( "DESTROY" );
 	__instance = nullptr;
-	delete m_pColorTheme;
+	delete m_pTheme;
 }
 
 
@@ -310,8 +290,9 @@ void Preferences::loadPreferences( bool bGlobal )
 			__useTimelineBpm = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __useTimelineBpm );
 			m_nMaxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
 			m_nMaxLayers = LocalFileMng::readXmlInt( rootNode, "maxLayers", 16 );
-			m_nDefaultUILayout =  LocalFileMng::readXmlInt( rootNode, "defaultUILayout", UI_LAYOUT_SINGLE_PANE );
-			m_nUIScalingPolicy = LocalFileMng::readXmlInt( rootNode, "uiScalingPolicy", UI_SCALING_SMALLER );
+			setDefaultUILayout( static_cast<InterfaceTheme::Layout>(LocalFileMng::readXmlInt( rootNode, "defaultUILayout",
+																							  static_cast<int>(InterfaceTheme::Layout::SinglePane) )) );
+			setUIScalingPolicy( static_cast<InterfaceTheme::ScalingPolicy>(LocalFileMng::readXmlInt( rootNode, "uiScalingPolicy", static_cast<int>(InterfaceTheme::ScalingPolicy::Smaller) )) );
 			m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
 			m_bUseRelativeFilenamesForPlaylists = LocalFileMng::readXmlBool( rootNode, "useRelativeFilenamesForPlaylists", false );
 			m_bHideKeyboardCursor = LocalFileMng::readXmlBool( rootNode, "hideKeyboardCursorWhenUnused", false );
@@ -543,22 +524,24 @@ void Preferences::loadPreferences( bool bGlobal )
 				recreate = true;
 			} else {
 				// QT Style
-				m_sQTStyle = LocalFileMng::readXmlString( guiNode, "QTStyle", m_sQTStyle, true );
+				setQTStyle( LocalFileMng::readXmlString( guiNode, "QTStyle", "Fusion", true ) );
 
-				if(m_sQTStyle == "Plastique"){
-					m_sQTStyle = "Fusion";
+				if ( getQTStyle() == "Plastique" ){
+					setQTStyle( "Fusion" );
 				}
 
 				// Font fun
-				m_sApplicationFontFamily = LocalFileMng::readXmlString( guiNode, "application_font_family", m_sApplicationFontFamily );
+				setApplicationFontFamily( LocalFileMng::readXmlString( guiNode, "application_font_family", getApplicationFontFamily() ) );
 				// The value defaults to m_sApplicationFontFamily on
 				// purpose to provide backward compatibility.
-				m_sLevel2FontFamily = LocalFileMng::readXmlString( guiNode, "level2_font_family", m_sApplicationFontFamily );
-				m_sLevel3FontFamily = LocalFileMng::readXmlString( guiNode, "level3_font_family", m_sApplicationFontFamily );
-				m_fontSize = static_cast<FontSize>( LocalFileMng::readXmlInt( guiNode, "font_size", 0 ) );
+				setLevel2FontFamily( LocalFileMng::readXmlString( guiNode, "level2_font_family", getLevel2FontFamily() ) );
+				setLevel3FontFamily( LocalFileMng::readXmlString( guiNode, "level3_font_family", getLevel3FontFamily() ) );
+				setFontSize( static_cast<FontTheme::FontSize>( LocalFileMng::readXmlInt( guiNode, "font_size",
+																			  static_cast<int>(FontTheme::FontSize::Normal) ) ) );
 
 				// Mixer falloff speed
-				mixerFalloffSpeed = LocalFileMng::readXmlFloat( guiNode, "mixer_falloff_speed", 1.1f );
+				setMixerFalloffSpeed( LocalFileMng::readXmlFloat( guiNode, "mixer_falloff_speed",
+																  InterfaceTheme::FALLOFF_NORMAL ) );
 
 				// pattern editor grid resolution
 				m_nPatternEditorGridResolution = LocalFileMng::readXmlInt( guiNode, "patternEditorGridResolution", m_nPatternEditorGridResolution );
@@ -629,31 +612,32 @@ void Preferences::loadPreferences( bool bGlobal )
 					setLadspaProperties( nFX, readWindowProperties( guiNode, sNodeName, m_ladspaProperties[nFX] ) );
 				}
 
-				QDomNode pColorTheme = guiNode.firstChildElement( "UI_Style" );
-				if ( !pColorTheme.isNull() ) {
-					readColorTheme( pColorTheme );
+				QDomNode pColorThemeNode = guiNode.firstChildElement( "colorTheme" );
+				if ( !pColorThemeNode.isNull() ) {
+					readColorTheme( pColorThemeNode );
 				} else {
-					WARNINGLOG( "UI_Style node not found" );
+					WARNINGLOG( "colorTheme node not found" );
 					recreate = true;
 				}
 
 				//SongEditor coloring
-				m_nColoringMethod = LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethod", 1 );
-				if ( m_nColoringMethod > 1 ) {
-					m_nColoringMethod = 1;
-				} else if ( m_nColoringMethod < 0 ) {
-					m_nColoringMethod = 0;
+				setColoringMethod( LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethod", 1 ) );
+				if ( getColoringMethod() > 1 ) {
+					setColoringMethod( 1 );
+				} else if ( getColoringMethod() < 0 ) {
+					setColoringMethod( 0 );
 				}
-				std::vector<QColor> colors( m_nMaxPatternColors );
-				for ( int ii = 0; ii < m_nMaxPatternColors; ii++ ) {
-					colors[ ii ] = LocalFileMng::readXmlColor( guiNode, QString( "SongEditor_pattern_color_%1" ).arg( ii ), m_pColorTheme->m_accentColor );
+				std::vector<QColor> colors( getMaxPatternColors() );
+				for ( int ii = 0; ii < getMaxPatternColors(); ii++ ) {
+					colors[ ii ] = LocalFileMng::readXmlColor( guiNode, QString( "SongEditor_pattern_color_%1" ).arg( ii ),
+															   m_pTheme->getColorTheme()->m_accentColor );
 				}
-				m_patternColors = colors;
-				m_nVisiblePatternColors = LocalFileMng::readXmlInt( guiNode, "SongEditor_visible_pattern_colors", 1 );
-				if ( m_nVisiblePatternColors > 50 ) {
-					m_nVisiblePatternColors = 50;
-				} else if ( m_nVisiblePatternColors < 0 ) {
-					m_nVisiblePatternColors = 0;
+				setPatternColors( colors );
+				setVisiblePatternColors( LocalFileMng::readXmlInt( guiNode, "SongEditor_visible_pattern_colors", 1 ) );
+				if ( getVisiblePatternColors() > 50 ) {
+					setVisiblePatternColors( 50 );
+				} else if ( getVisiblePatternColors() < 0 ) {
+					setVisiblePatternColors( 0 );
 				}
 			}
 
@@ -786,8 +770,8 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "maxBars", QString::number( m_nMaxBars ) );
 	LocalFileMng::writeXmlString( rootNode, "maxLayers", QString::number( m_nMaxLayers ) );
 
-	LocalFileMng::writeXmlString( rootNode, "defaultUILayout", QString::number( m_nDefaultUILayout ) );
-	LocalFileMng::writeXmlString( rootNode, "uiScalingPolicy", QString::number( m_nUIScalingPolicy ) );
+	LocalFileMng::writeXmlString( rootNode, "defaultUILayout", QString::number( static_cast<int>(getDefaultUILayout()) ) );
+	LocalFileMng::writeXmlString( rootNode, "uiScalingPolicy", QString::number( static_cast<int>(getUIScalingPolicy()) ) );
 	LocalFileMng::writeXmlString( rootNode, "lastOpenTab", QString::number( m_nLastOpenTab ) );
 
 	LocalFileMng::writeXmlString( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent ? "true": "false" );
@@ -1024,12 +1008,12 @@ void Preferences::savePreferences()
 	//---- GUI ----
 	QDomNode guiNode = doc.createElement( "gui" );
 	{
-		LocalFileMng::writeXmlString( guiNode, "QTStyle", m_sQTStyle );
-		LocalFileMng::writeXmlString( guiNode, "application_font_family", m_sApplicationFontFamily );
-		LocalFileMng::writeXmlString( guiNode, "level2_font_family", m_sLevel2FontFamily );
-		LocalFileMng::writeXmlString( guiNode, "level3_font_family", m_sLevel3FontFamily );
-		LocalFileMng::writeXmlString( guiNode, "font_size", QString::number( static_cast<int>(m_fontSize) ) );
-		LocalFileMng::writeXmlString( guiNode, "mixer_falloff_speed", QString("%1").arg( mixerFalloffSpeed ) );
+		LocalFileMng::writeXmlString( guiNode, "QTStyle", getQTStyle() );
+		LocalFileMng::writeXmlString( guiNode, "application_font_family", getApplicationFontFamily() );
+		LocalFileMng::writeXmlString( guiNode, "level2_font_family", getLevel2FontFamily() );
+		LocalFileMng::writeXmlString( guiNode, "level3_font_family", getLevel3FontFamily() );
+		LocalFileMng::writeXmlString( guiNode, "font_size", QString::number( static_cast<int>(getFontSize()) ) );
+		LocalFileMng::writeXmlString( guiNode, "mixer_falloff_speed", QString("%1").arg( getMixerFalloffSpeed() ) );
 		LocalFileMng::writeXmlString( guiNode, "patternEditorGridResolution", QString("%1").arg( m_nPatternEditorGridResolution ) );
 		LocalFileMng::writeXmlString( guiNode, "patternEditorGridHeight", QString("%1").arg( m_nPatternEditorGridHeight ) );
 		LocalFileMng::writeXmlString( guiNode, "patternEditorGridWidth", QString("%1").arg( m_nPatternEditorGridWidth ) );
@@ -1098,11 +1082,11 @@ void Preferences::savePreferences()
 		writeColorTheme( guiNode );
 
 		//SongEditor coloring method
-		LocalFileMng::writeXmlString( guiNode, "SongEditor_ColoringMethod", QString::number( m_nColoringMethod ) );
-		for ( int ii = 0; ii < m_nMaxPatternColors; ii++ ) {
-			LocalFileMng::writeXmlColor( guiNode, QString( "SongEditor_pattern_color_%1" ).arg( ii ), m_patternColors[ ii ] );
+		LocalFileMng::writeXmlString( guiNode, "SongEditor_ColoringMethod", QString::number( getColoringMethod() ) );
+		for ( int ii = 0; ii < getMaxPatternColors(); ii++ ) {
+			LocalFileMng::writeXmlColor( guiNode, QString( "SongEditor_pattern_color_%1" ).arg( ii ), getPatternColors()[ ii ] );
 		}
-		LocalFileMng::writeXmlString( guiNode, "SongEditor_visible_pattern_colors", QString::number( m_nVisiblePatternColors ) );
+		LocalFileMng::writeXmlString( guiNode, "SongEditor_visible_pattern_colors", QString::number( getVisiblePatternColors() ) );
 	}
 	rootNode.appendChild( guiNode );
 
@@ -1277,69 +1261,69 @@ void Preferences::writeWindowProperties( QDomNode parent, const QString& windowN
 void Preferences::writeColorTheme( QDomNode parent )
 {
 	QDomDocument doc;
-	QDomNode node = doc.createElement( "UI_Style" );
+	QDomNode node = doc.createElement( "colorTheme" );
 
 	// SONG EDITOR
 	QDomNode songEditorNode = doc.createElement( "songEditor" );
-	LocalFileMng::writeXmlColor( songEditorNode, "backgroundColor", m_pColorTheme->m_songEditor_backgroundColor );
-	LocalFileMng::writeXmlColor( songEditorNode, "alternateRowColor", m_pColorTheme->m_songEditor_alternateRowColor );
-	LocalFileMng::writeXmlColor( songEditorNode, "selectedRowColor", m_pColorTheme->m_songEditor_selectedRowColor );
-	LocalFileMng::writeXmlColor( songEditorNode, "lineColor", m_pColorTheme->m_songEditor_lineColor );
-	LocalFileMng::writeXmlColor( songEditorNode, "textColor", m_pColorTheme->m_songEditor_textColor );
+	LocalFileMng::writeXmlColor( songEditorNode, "backgroundColor", m_pTheme->getColorTheme()->m_songEditor_backgroundColor );
+	LocalFileMng::writeXmlColor( songEditorNode, "alternateRowColor", m_pTheme->getColorTheme()->m_songEditor_alternateRowColor );
+	LocalFileMng::writeXmlColor( songEditorNode, "selectedRowColor", m_pTheme->getColorTheme()->m_songEditor_selectedRowColor );
+	LocalFileMng::writeXmlColor( songEditorNode, "lineColor", m_pTheme->getColorTheme()->m_songEditor_lineColor );
+	LocalFileMng::writeXmlColor( songEditorNode, "textColor", m_pTheme->getColorTheme()->m_songEditor_textColor );
 	node.appendChild( songEditorNode );
 
 	// PATTERN EDITOR
 	QDomNode patternEditorNode = doc.createElement( "patternEditor" );
-	LocalFileMng::writeXmlColor( patternEditorNode, "backgroundColor", m_pColorTheme->m_patternEditor_backgroundColor );
-	LocalFileMng::writeXmlColor( patternEditorNode, "alternateRowColor", m_pColorTheme->m_patternEditor_alternateRowColor );
-	LocalFileMng::writeXmlColor( patternEditorNode, "selectedRowColor", m_pColorTheme->m_patternEditor_selectedRowColor );
-	LocalFileMng::writeXmlColor( patternEditorNode, "textColor", m_pColorTheme->m_patternEditor_textColor );
-	LocalFileMng::writeXmlColor( patternEditorNode, "noteColor", m_pColorTheme->m_patternEditor_noteColor );
-	LocalFileMng::writeXmlColor( patternEditorNode, "noteoffColor", m_pColorTheme->m_patternEditor_noteoffColor );
+	LocalFileMng::writeXmlColor( patternEditorNode, "backgroundColor", m_pTheme->getColorTheme()->m_patternEditor_backgroundColor );
+	LocalFileMng::writeXmlColor( patternEditorNode, "alternateRowColor", m_pTheme->getColorTheme()->m_patternEditor_alternateRowColor );
+	LocalFileMng::writeXmlColor( patternEditorNode, "selectedRowColor", m_pTheme->getColorTheme()->m_patternEditor_selectedRowColor );
+	LocalFileMng::writeXmlColor( patternEditorNode, "textColor", m_pTheme->getColorTheme()->m_patternEditor_textColor );
+	LocalFileMng::writeXmlColor( patternEditorNode, "noteColor", m_pTheme->getColorTheme()->m_patternEditor_noteColor );
+	LocalFileMng::writeXmlColor( patternEditorNode, "noteoffColor", m_pTheme->getColorTheme()->m_patternEditor_noteoffColor );
 
-	LocalFileMng::writeXmlColor( patternEditorNode, "lineColor", m_pColorTheme->m_patternEditor_lineColor );
-	LocalFileMng::writeXmlColor( patternEditorNode, "line1Color", m_pColorTheme->m_patternEditor_line1Color );
-	LocalFileMng::writeXmlColor( patternEditorNode, "line2Color", m_pColorTheme->m_patternEditor_line2Color );
-	LocalFileMng::writeXmlColor( patternEditorNode, "line3Color", m_pColorTheme->m_patternEditor_line3Color );
-	LocalFileMng::writeXmlColor( patternEditorNode, "line4Color", m_pColorTheme->m_patternEditor_line4Color );
-	LocalFileMng::writeXmlColor( patternEditorNode, "line5Color", m_pColorTheme->m_patternEditor_line5Color );
+	LocalFileMng::writeXmlColor( patternEditorNode, "lineColor", m_pTheme->getColorTheme()->m_patternEditor_lineColor );
+	LocalFileMng::writeXmlColor( patternEditorNode, "line1Color", m_pTheme->getColorTheme()->m_patternEditor_line1Color );
+	LocalFileMng::writeXmlColor( patternEditorNode, "line2Color", m_pTheme->getColorTheme()->m_patternEditor_line2Color );
+	LocalFileMng::writeXmlColor( patternEditorNode, "line3Color", m_pTheme->getColorTheme()->m_patternEditor_line3Color );
+	LocalFileMng::writeXmlColor( patternEditorNode, "line4Color", m_pTheme->getColorTheme()->m_patternEditor_line4Color );
+	LocalFileMng::writeXmlColor( patternEditorNode, "line5Color", m_pTheme->getColorTheme()->m_patternEditor_line5Color );
 	node.appendChild( patternEditorNode );
 
 	QDomNode selectionNode = doc.createElement( "selection" );
-	LocalFileMng::writeXmlColor( selectionNode, "highlightColor", m_pColorTheme->m_selectionHighlightColor );
-	LocalFileMng::writeXmlColor( selectionNode, "inactiveColor", m_pColorTheme->m_selectionInactiveColor );
+	LocalFileMng::writeXmlColor( selectionNode, "highlightColor", m_pTheme->getColorTheme()->m_selectionHighlightColor );
+	LocalFileMng::writeXmlColor( selectionNode, "inactiveColor", m_pTheme->getColorTheme()->m_selectionInactiveColor );
 	node.appendChild( selectionNode );
 	
 	QDomNode paletteNode = doc.createElement( "palette" );
-	LocalFileMng::writeXmlColor( paletteNode, "windowColor", m_pColorTheme->m_windowColor );
-	LocalFileMng::writeXmlColor( paletteNode, "windowTextColor", m_pColorTheme->m_windowTextColor );
-	LocalFileMng::writeXmlColor( paletteNode, "baseColor", m_pColorTheme->m_baseColor );
-	LocalFileMng::writeXmlColor( paletteNode, "alternateBaseColor", m_pColorTheme->m_alternateBaseColor );
-	LocalFileMng::writeXmlColor( paletteNode, "textColor", m_pColorTheme->m_textColor );
-	LocalFileMng::writeXmlColor( paletteNode, "buttonColor", m_pColorTheme->m_buttonColor );
-	LocalFileMng::writeXmlColor( paletteNode, "buttonTextColor", m_pColorTheme->m_buttonTextColor );
-	LocalFileMng::writeXmlColor( paletteNode, "lightColor", m_pColorTheme->m_lightColor );
-	LocalFileMng::writeXmlColor( paletteNode, "midLightColor", m_pColorTheme->m_midLightColor );
-	LocalFileMng::writeXmlColor( paletteNode, "midColor", m_pColorTheme->m_midColor );
-	LocalFileMng::writeXmlColor( paletteNode, "darkColor", m_pColorTheme->m_darkColor );
-	LocalFileMng::writeXmlColor( paletteNode, "shadowTextColor", m_pColorTheme->m_shadowTextColor );
-	LocalFileMng::writeXmlColor( paletteNode, "highlightColor", m_pColorTheme->m_highlightColor );
-	LocalFileMng::writeXmlColor( paletteNode, "highlightedTextColor", m_pColorTheme->m_highlightedTextColor );
-	LocalFileMng::writeXmlColor( paletteNode, "toolTipBaseColor", m_pColorTheme->m_toolTipBaseColor );
-	LocalFileMng::writeXmlColor( paletteNode, "toolTipTextColor", m_pColorTheme->m_toolTipTextColor );
+	LocalFileMng::writeXmlColor( paletteNode, "windowColor", m_pTheme->getColorTheme()->m_windowColor );
+	LocalFileMng::writeXmlColor( paletteNode, "windowTextColor", m_pTheme->getColorTheme()->m_windowTextColor );
+	LocalFileMng::writeXmlColor( paletteNode, "baseColor", m_pTheme->getColorTheme()->m_baseColor );
+	LocalFileMng::writeXmlColor( paletteNode, "alternateBaseColor", m_pTheme->getColorTheme()->m_alternateBaseColor );
+	LocalFileMng::writeXmlColor( paletteNode, "textColor", m_pTheme->getColorTheme()->m_textColor );
+	LocalFileMng::writeXmlColor( paletteNode, "buttonColor", m_pTheme->getColorTheme()->m_buttonColor );
+	LocalFileMng::writeXmlColor( paletteNode, "buttonTextColor", m_pTheme->getColorTheme()->m_buttonTextColor );
+	LocalFileMng::writeXmlColor( paletteNode, "lightColor", m_pTheme->getColorTheme()->m_lightColor );
+	LocalFileMng::writeXmlColor( paletteNode, "midLightColor", m_pTheme->getColorTheme()->m_midLightColor );
+	LocalFileMng::writeXmlColor( paletteNode, "midColor", m_pTheme->getColorTheme()->m_midColor );
+	LocalFileMng::writeXmlColor( paletteNode, "darkColor", m_pTheme->getColorTheme()->m_darkColor );
+	LocalFileMng::writeXmlColor( paletteNode, "shadowTextColor", m_pTheme->getColorTheme()->m_shadowTextColor );
+	LocalFileMng::writeXmlColor( paletteNode, "highlightColor", m_pTheme->getColorTheme()->m_highlightColor );
+	LocalFileMng::writeXmlColor( paletteNode, "highlightedTextColor", m_pTheme->getColorTheme()->m_highlightedTextColor );
+	LocalFileMng::writeXmlColor( paletteNode, "toolTipBaseColor", m_pTheme->getColorTheme()->m_toolTipBaseColor );
+	LocalFileMng::writeXmlColor( paletteNode, "toolTipTextColor", m_pTheme->getColorTheme()->m_toolTipTextColor );
 	node.appendChild( paletteNode );
 	
 	QDomNode widgetNode = doc.createElement( "widget" );
-	LocalFileMng::writeXmlColor( widgetNode, "accentColor", m_pColorTheme->m_accentColor );
-	LocalFileMng::writeXmlColor( widgetNode, "accentTextColor", m_pColorTheme->m_accentTextColor );
-	LocalFileMng::writeXmlColor( widgetNode, "widgetColor", m_pColorTheme->m_widgetColor );
-	LocalFileMng::writeXmlColor( widgetNode, "widgetTextColor", m_pColorTheme->m_widgetTextColor );
-	LocalFileMng::writeXmlColor( widgetNode, "buttonRedColor", m_pColorTheme->m_buttonRedColor );
-	LocalFileMng::writeXmlColor( widgetNode, "buttonRedTextColor", m_pColorTheme->m_buttonRedTextColor );
-	LocalFileMng::writeXmlColor( widgetNode, "spinBoxSelectionColor", m_pColorTheme->m_spinBoxSelectionColor );
-	LocalFileMng::writeXmlColor( widgetNode, "spinBoxSelectionTextColor", m_pColorTheme->m_spinBoxSelectionTextColor );
-	LocalFileMng::writeXmlColor( widgetNode, "automationColor", m_pColorTheme->m_automationColor );
-	LocalFileMng::writeXmlColor( widgetNode, "automationCircleColor", m_pColorTheme->m_automationCircleColor );
+	LocalFileMng::writeXmlColor( widgetNode, "accentColor", m_pTheme->getColorTheme()->m_accentColor );
+	LocalFileMng::writeXmlColor( widgetNode, "accentTextColor", m_pTheme->getColorTheme()->m_accentTextColor );
+	LocalFileMng::writeXmlColor( widgetNode, "widgetColor", m_pTheme->getColorTheme()->m_widgetColor );
+	LocalFileMng::writeXmlColor( widgetNode, "widgetTextColor", m_pTheme->getColorTheme()->m_widgetTextColor );
+	LocalFileMng::writeXmlColor( widgetNode, "buttonRedColor", m_pTheme->getColorTheme()->m_buttonRedColor );
+	LocalFileMng::writeXmlColor( widgetNode, "buttonRedTextColor", m_pTheme->getColorTheme()->m_buttonRedTextColor );
+	LocalFileMng::writeXmlColor( widgetNode, "spinBoxSelectionColor", m_pTheme->getColorTheme()->m_spinBoxSelectionColor );
+	LocalFileMng::writeXmlColor( widgetNode, "spinBoxSelectionTextColor", m_pTheme->getColorTheme()->m_spinBoxSelectionTextColor );
+	LocalFileMng::writeXmlColor( widgetNode, "automationColor", m_pTheme->getColorTheme()->m_automationColor );
+	LocalFileMng::writeXmlColor( widgetNode, "automationCircleColor", m_pTheme->getColorTheme()->m_automationCircleColor );
 	node.appendChild( widgetNode );
 	
 	parent.appendChild( node );
@@ -1351,14 +1335,15 @@ void Preferences::writeColorTheme( QDomNode parent )
 
 void Preferences::readColorTheme( QDomNode parent )
 {
+	ColorTheme* pColorTheme = new ColorTheme;
 	// SONG EDITOR
 	QDomNode pSongEditorNode = parent.firstChildElement( "songEditor" );
 	if ( !pSongEditorNode.isNull() ) {
-		m_pColorTheme->m_songEditor_backgroundColor = LocalFileMng::readXmlColor( pSongEditorNode, "backgroundColor", m_pColorTheme->m_songEditor_backgroundColor );
-		m_pColorTheme->m_songEditor_alternateRowColor = LocalFileMng::readXmlColor( pSongEditorNode, "alternateRowColor", m_pColorTheme->m_songEditor_alternateRowColor );
-		m_pColorTheme->m_songEditor_selectedRowColor = LocalFileMng::readXmlColor( pSongEditorNode, "selectedRowColor", m_pColorTheme->m_songEditor_selectedRowColor );
-		m_pColorTheme->m_songEditor_lineColor = LocalFileMng::readXmlColor( pSongEditorNode, "lineColor", m_pColorTheme->m_songEditor_lineColor );
-		m_pColorTheme->m_songEditor_textColor = LocalFileMng::readXmlColor( pSongEditorNode, "textColor", m_pColorTheme->m_songEditor_textColor );
+		pColorTheme->m_songEditor_backgroundColor = LocalFileMng::readXmlColor( pSongEditorNode, "backgroundColor", m_pTheme->getColorTheme()->m_songEditor_backgroundColor );
+		pColorTheme->m_songEditor_alternateRowColor = LocalFileMng::readXmlColor( pSongEditorNode, "alternateRowColor", m_pTheme->getColorTheme()->m_songEditor_alternateRowColor );
+		pColorTheme->m_songEditor_selectedRowColor = LocalFileMng::readXmlColor( pSongEditorNode, "selectedRowColor", m_pTheme->getColorTheme()->m_songEditor_selectedRowColor );
+		pColorTheme->m_songEditor_lineColor = LocalFileMng::readXmlColor( pSongEditorNode, "lineColor", m_pTheme->getColorTheme()->m_songEditor_lineColor );
+		pColorTheme->m_songEditor_textColor = LocalFileMng::readXmlColor( pSongEditorNode, "textColor", m_pTheme->getColorTheme()->m_songEditor_textColor );
 	} else {
 		WARNINGLOG( "songEditor node not found" );
 	}
@@ -1366,67 +1351,70 @@ void Preferences::readColorTheme( QDomNode parent )
 	// PATTERN EDITOR
 	QDomNode pPatternEditorNode = parent.firstChildElement( "patternEditor" );
 	if ( !pPatternEditorNode.isNull() ) {
-		m_pColorTheme->m_patternEditor_backgroundColor = LocalFileMng::readXmlColor( pPatternEditorNode, "backgroundColor", m_pColorTheme->m_patternEditor_backgroundColor );
-		m_pColorTheme->m_patternEditor_alternateRowColor = LocalFileMng::readXmlColor( pPatternEditorNode, "alternateRowColor", m_pColorTheme->m_patternEditor_alternateRowColor );
-		m_pColorTheme->m_patternEditor_selectedRowColor = LocalFileMng::readXmlColor( pPatternEditorNode, "selectedRowColor", m_pColorTheme->m_patternEditor_selectedRowColor );
-		m_pColorTheme->m_patternEditor_textColor = LocalFileMng::readXmlColor( pPatternEditorNode, "textColor", m_pColorTheme->m_patternEditor_textColor );
-		m_pColorTheme->m_patternEditor_noteColor = LocalFileMng::readXmlColor( pPatternEditorNode, "noteColor", m_pColorTheme->m_patternEditor_noteColor );
-		m_pColorTheme->m_patternEditor_noteoffColor = LocalFileMng::readXmlColor( pPatternEditorNode, "noteoffColor", m_pColorTheme->m_patternEditor_noteoffColor );
-		m_pColorTheme->m_patternEditor_lineColor = LocalFileMng::readXmlColor( pPatternEditorNode, "lineColor", m_pColorTheme->m_patternEditor_lineColor );
-		m_pColorTheme->m_patternEditor_line1Color = LocalFileMng::readXmlColor( pPatternEditorNode, "line1Color", m_pColorTheme->m_patternEditor_line1Color );
-		m_pColorTheme->m_patternEditor_line2Color = LocalFileMng::readXmlColor( pPatternEditorNode, "line2Color", m_pColorTheme->m_patternEditor_line2Color );
-		m_pColorTheme->m_patternEditor_line3Color = LocalFileMng::readXmlColor( pPatternEditorNode, "line3Color", m_pColorTheme->m_patternEditor_line3Color );
-		m_pColorTheme->m_patternEditor_line4Color = LocalFileMng::readXmlColor( pPatternEditorNode, "line4Color", m_pColorTheme->m_patternEditor_line4Color );
-		m_pColorTheme->m_patternEditor_line5Color = LocalFileMng::readXmlColor( pPatternEditorNode, "line5Color", m_pColorTheme->m_patternEditor_line5Color );
+		pColorTheme->m_patternEditor_backgroundColor = LocalFileMng::readXmlColor( pPatternEditorNode, "backgroundColor", m_pTheme->getColorTheme()->m_patternEditor_backgroundColor );
+		pColorTheme->m_patternEditor_alternateRowColor = LocalFileMng::readXmlColor( pPatternEditorNode, "alternateRowColor", m_pTheme->getColorTheme()->m_patternEditor_alternateRowColor );
+		pColorTheme->m_patternEditor_selectedRowColor = LocalFileMng::readXmlColor( pPatternEditorNode, "selectedRowColor", m_pTheme->getColorTheme()->m_patternEditor_selectedRowColor );
+		pColorTheme->m_patternEditor_textColor = LocalFileMng::readXmlColor( pPatternEditorNode, "textColor", m_pTheme->getColorTheme()->m_patternEditor_textColor );
+		pColorTheme->m_patternEditor_noteColor = LocalFileMng::readXmlColor( pPatternEditorNode, "noteColor", m_pTheme->getColorTheme()->m_patternEditor_noteColor );
+		pColorTheme->m_patternEditor_noteoffColor = LocalFileMng::readXmlColor( pPatternEditorNode, "noteoffColor", m_pTheme->getColorTheme()->m_patternEditor_noteoffColor );
+		pColorTheme->m_patternEditor_lineColor = LocalFileMng::readXmlColor( pPatternEditorNode, "lineColor", m_pTheme->getColorTheme()->m_patternEditor_lineColor );
+		pColorTheme->m_patternEditor_line1Color = LocalFileMng::readXmlColor( pPatternEditorNode, "line1Color", m_pTheme->getColorTheme()->m_patternEditor_line1Color );
+		pColorTheme->m_patternEditor_line2Color = LocalFileMng::readXmlColor( pPatternEditorNode, "line2Color", m_pTheme->getColorTheme()->m_patternEditor_line2Color );
+		pColorTheme->m_patternEditor_line3Color = LocalFileMng::readXmlColor( pPatternEditorNode, "line3Color", m_pTheme->getColorTheme()->m_patternEditor_line3Color );
+		pColorTheme->m_patternEditor_line4Color = LocalFileMng::readXmlColor( pPatternEditorNode, "line4Color", m_pTheme->getColorTheme()->m_patternEditor_line4Color );
+		pColorTheme->m_patternEditor_line5Color = LocalFileMng::readXmlColor( pPatternEditorNode, "line5Color", m_pTheme->getColorTheme()->m_patternEditor_line5Color );
 	} else {
 		WARNINGLOG( "patternEditor node not found" );
 	}
 
 	QDomNode pSelectionNode = parent.firstChildElement( "selection" );
 	if ( !pSelectionNode.isNull() ) {
-		m_pColorTheme->m_selectionHighlightColor = LocalFileMng::readXmlColor( pSelectionNode, "highlightColor", m_pColorTheme->m_selectionHighlightColor );
-		m_pColorTheme->m_selectionInactiveColor = LocalFileMng::readXmlColor( pSelectionNode, "inactiveColor", m_pColorTheme->m_selectionInactiveColor );
+		pColorTheme->m_selectionHighlightColor = LocalFileMng::readXmlColor( pSelectionNode, "highlightColor", m_pTheme->getColorTheme()->m_selectionHighlightColor );
+		pColorTheme->m_selectionInactiveColor = LocalFileMng::readXmlColor( pSelectionNode, "inactiveColor", m_pTheme->getColorTheme()->m_selectionInactiveColor );
 	} else {
 		WARNINGLOG( "selection node not found" );
 	}
 
 	QDomNode pPaletteNode = parent.firstChildElement( "palette" );
 	if ( !pPaletteNode.isNull() ) {
-		m_pColorTheme->m_windowColor = LocalFileMng::readXmlColor( pPaletteNode, "windowColor", m_pColorTheme->m_windowColor );
-		m_pColorTheme->m_windowTextColor = LocalFileMng::readXmlColor( pPaletteNode, "windowTextColor", m_pColorTheme->m_windowTextColor );
-		m_pColorTheme->m_baseColor = LocalFileMng::readXmlColor( pPaletteNode, "baseColor", m_pColorTheme->m_baseColor );
-		m_pColorTheme->m_alternateBaseColor = LocalFileMng::readXmlColor( pPaletteNode, "alternateBaseColor", m_pColorTheme->m_alternateBaseColor );
-		m_pColorTheme->m_textColor = LocalFileMng::readXmlColor( pPaletteNode, "textColor", m_pColorTheme->m_textColor );
-		m_pColorTheme->m_buttonColor = LocalFileMng::readXmlColor( pPaletteNode, "buttonColor", m_pColorTheme->m_buttonColor );
-		m_pColorTheme->m_buttonTextColor = LocalFileMng::readXmlColor( pPaletteNode, "buttonTextColor", m_pColorTheme->m_buttonTextColor );
-		m_pColorTheme->m_lightColor = LocalFileMng::readXmlColor( pPaletteNode, "lightColor", m_pColorTheme->m_lightColor );
-		m_pColorTheme->m_midLightColor = LocalFileMng::readXmlColor( pPaletteNode, "midLightColor", m_pColorTheme->m_midLightColor );
-		m_pColorTheme->m_midColor = LocalFileMng::readXmlColor( pPaletteNode, "midColor", m_pColorTheme->m_midColor );
-		m_pColorTheme->m_darkColor = LocalFileMng::readXmlColor( pPaletteNode, "darkColor", m_pColorTheme->m_darkColor );
-		m_pColorTheme->m_shadowTextColor = LocalFileMng::readXmlColor( pPaletteNode, "shadowTextColor", m_pColorTheme->m_shadowTextColor );
-		m_pColorTheme->m_highlightColor = LocalFileMng::readXmlColor( pPaletteNode, "highlightColor", m_pColorTheme->m_highlightColor );
-		m_pColorTheme->m_highlightedTextColor = LocalFileMng::readXmlColor( pPaletteNode, "highlightedTextColor", m_pColorTheme->m_highlightedTextColor );
-		m_pColorTheme->m_toolTipBaseColor = LocalFileMng::readXmlColor( pPaletteNode, "toolTipBaseColor", m_pColorTheme->m_toolTipBaseColor );
-		m_pColorTheme->m_toolTipTextColor = LocalFileMng::readXmlColor( pPaletteNode, "toolTipTextColor", m_pColorTheme->m_toolTipTextColor );
+		pColorTheme->m_windowColor = LocalFileMng::readXmlColor( pPaletteNode, "windowColor", m_pTheme->getColorTheme()->m_windowColor );
+		pColorTheme->m_windowTextColor = LocalFileMng::readXmlColor( pPaletteNode, "windowTextColor", m_pTheme->getColorTheme()->m_windowTextColor );
+		pColorTheme->m_baseColor = LocalFileMng::readXmlColor( pPaletteNode, "baseColor", m_pTheme->getColorTheme()->m_baseColor );
+		pColorTheme->m_alternateBaseColor = LocalFileMng::readXmlColor( pPaletteNode, "alternateBaseColor", m_pTheme->getColorTheme()->m_alternateBaseColor );
+		pColorTheme->m_textColor = LocalFileMng::readXmlColor( pPaletteNode, "textColor", m_pTheme->getColorTheme()->m_textColor );
+		pColorTheme->m_buttonColor = LocalFileMng::readXmlColor( pPaletteNode, "buttonColor", m_pTheme->getColorTheme()->m_buttonColor );
+		pColorTheme->m_buttonTextColor = LocalFileMng::readXmlColor( pPaletteNode, "buttonTextColor", m_pTheme->getColorTheme()->m_buttonTextColor );
+		pColorTheme->m_lightColor = LocalFileMng::readXmlColor( pPaletteNode, "lightColor", m_pTheme->getColorTheme()->m_lightColor );
+		pColorTheme->m_midLightColor = LocalFileMng::readXmlColor( pPaletteNode, "midLightColor", m_pTheme->getColorTheme()->m_midLightColor );
+		pColorTheme->m_midColor = LocalFileMng::readXmlColor( pPaletteNode, "midColor", m_pTheme->getColorTheme()->m_midColor );
+		pColorTheme->m_darkColor = LocalFileMng::readXmlColor( pPaletteNode, "darkColor", m_pTheme->getColorTheme()->m_darkColor );
+		pColorTheme->m_shadowTextColor = LocalFileMng::readXmlColor( pPaletteNode, "shadowTextColor", m_pTheme->getColorTheme()->m_shadowTextColor );
+		pColorTheme->m_highlightColor = LocalFileMng::readXmlColor( pPaletteNode, "highlightColor", m_pTheme->getColorTheme()->m_highlightColor );
+		pColorTheme->m_highlightedTextColor = LocalFileMng::readXmlColor( pPaletteNode, "highlightedTextColor", m_pTheme->getColorTheme()->m_highlightedTextColor );
+		pColorTheme->m_toolTipBaseColor = LocalFileMng::readXmlColor( pPaletteNode, "toolTipBaseColor", m_pTheme->getColorTheme()->m_toolTipBaseColor );
+		pColorTheme->m_toolTipTextColor = LocalFileMng::readXmlColor( pPaletteNode, "toolTipTextColor", m_pTheme->getColorTheme()->m_toolTipTextColor );
 	} else {
 		WARNINGLOG( "palette node not found" );
 	}
 
 	QDomNode pWidgetNode = parent.firstChildElement( "widget" );
 	if ( !pWidgetNode.isNull() ) {
-		m_pColorTheme->m_accentColor = LocalFileMng::readXmlColor( pWidgetNode, "accentColor", m_pColorTheme->m_accentColor );
-		m_pColorTheme->m_accentTextColor = LocalFileMng::readXmlColor( pWidgetNode, "accentTextColor", m_pColorTheme->m_accentTextColor );
-		m_pColorTheme->m_widgetColor = LocalFileMng::readXmlColor( pWidgetNode, "widgetColor", m_pColorTheme->m_widgetColor );
-		m_pColorTheme->m_widgetTextColor = LocalFileMng::readXmlColor( pWidgetNode, "widgetTextColor", m_pColorTheme->m_widgetTextColor );
-		m_pColorTheme->m_buttonRedColor = LocalFileMng::readXmlColor( pWidgetNode, "buttonRedColor", m_pColorTheme->m_buttonRedColor );
-		m_pColorTheme->m_buttonRedTextColor = LocalFileMng::readXmlColor( pWidgetNode, "buttonRedTextColor", m_pColorTheme->m_buttonRedTextColor );
-		m_pColorTheme->m_spinBoxSelectionColor = LocalFileMng::readXmlColor( pWidgetNode, "spinBoxSelectionColor", m_pColorTheme->m_spinBoxSelectionColor );
-		m_pColorTheme->m_spinBoxSelectionTextColor = LocalFileMng::readXmlColor( pWidgetNode, "spinBoxSelectionTextColor", m_pColorTheme->m_spinBoxSelectionTextColor );
-		m_pColorTheme->m_automationColor = LocalFileMng::readXmlColor( pWidgetNode, "automationColor", m_pColorTheme->m_automationColor );
-		m_pColorTheme->m_automationCircleColor = LocalFileMng::readXmlColor( pWidgetNode, "automationCircleColor", m_pColorTheme->m_automationCircleColor );
+		pColorTheme->m_accentColor = LocalFileMng::readXmlColor( pWidgetNode, "accentColor", m_pTheme->getColorTheme()->m_accentColor );
+		pColorTheme->m_accentTextColor = LocalFileMng::readXmlColor( pWidgetNode, "accentTextColor", m_pTheme->getColorTheme()->m_accentTextColor );
+		pColorTheme->m_widgetColor = LocalFileMng::readXmlColor( pWidgetNode, "widgetColor", m_pTheme->getColorTheme()->m_widgetColor );
+		pColorTheme->m_widgetTextColor = LocalFileMng::readXmlColor( pWidgetNode, "widgetTextColor", m_pTheme->getColorTheme()->m_widgetTextColor );
+		pColorTheme->m_buttonRedColor = LocalFileMng::readXmlColor( pWidgetNode, "buttonRedColor", m_pTheme->getColorTheme()->m_buttonRedColor );
+		pColorTheme->m_buttonRedTextColor = LocalFileMng::readXmlColor( pWidgetNode, "buttonRedTextColor", m_pTheme->getColorTheme()->m_buttonRedTextColor );
+		pColorTheme->m_spinBoxSelectionColor = LocalFileMng::readXmlColor( pWidgetNode, "spinBoxSelectionColor", m_pTheme->getColorTheme()->m_spinBoxSelectionColor );
+		pColorTheme->m_spinBoxSelectionTextColor = LocalFileMng::readXmlColor( pWidgetNode, "spinBoxSelectionTextColor", m_pTheme->getColorTheme()->m_spinBoxSelectionTextColor );
+		pColorTheme->m_automationColor = LocalFileMng::readXmlColor( pWidgetNode, "automationColor", m_pTheme->getColorTheme()->m_automationColor );
+		pColorTheme->m_automationCircleColor = LocalFileMng::readXmlColor( pWidgetNode, "automationCircleColor", m_pTheme->getColorTheme()->m_automationCircleColor );
 	} else {
 		WARNINGLOG( "widget node not found" );
 	}
+
+	setColorTheme( pColorTheme );
+	delete pColorTheme;
 }
 
 
@@ -1462,106 +1450,4 @@ WindowProperties::~WindowProperties()
 //	infoLog( "DESTROY" );
 }
 
-
-
-
-// :::::::::::::::::::::::::::::::
-
-
-ColorTheme::ColorTheme()
-	: m_songEditor_backgroundColor( QColor(95, 101, 117) )
-	, m_songEditor_alternateRowColor( QColor(128, 134, 152) )
-	, m_songEditor_selectedRowColor( QColor(128, 134, 152) )
-	, m_songEditor_lineColor( QColor(72, 76, 88) )
-	, m_songEditor_textColor( QColor(196, 201, 214) )
-	, m_patternEditor_backgroundColor( QColor(167, 168, 163) )
-	, m_patternEditor_alternateRowColor( QColor(167, 168, 163) )
-	, m_patternEditor_selectedRowColor( QColor(207, 208, 200) )
-	, m_patternEditor_textColor( QColor(40, 40, 40) )
-	, m_patternEditor_noteColor( QColor(40, 40, 40) )
-	, m_patternEditor_lineColor( QColor(65, 65, 65) )
-	, m_patternEditor_line1Color( QColor(75, 75, 75) )
-	, m_patternEditor_line2Color( QColor(95, 95, 95) )
-	, m_patternEditor_line3Color( QColor(115, 115, 115) )
-	, m_patternEditor_line4Color( QColor(125, 125, 125) )
-	, m_patternEditor_line5Color( QColor(135, 135, 135) )
-	, m_selectionHighlightColor( QColor(0, 0, 255) )
-	, m_selectionInactiveColor( QColor(85, 85, 85) )
-	, m_windowColor( QColor( 58, 62, 72 ) )
-	, m_windowTextColor( QColor( 255, 255, 255 ) )
-	, m_baseColor( QColor( 88, 94, 112 ) )
-	, m_alternateBaseColor( QColor( 138, 144, 162 ) )
-	, m_textColor( QColor( 255, 255, 255 ) )
-	, m_buttonColor( QColor( 88, 94, 112 ) )
-	, m_buttonTextColor( QColor( 255, 255, 255 ) )
-	, m_lightColor( QColor( 138, 144, 162 ) )
-	, m_midLightColor( QColor( 128, 134, 152 ) )
-	, m_midColor( QColor( 58, 62, 72 ) )
-	, m_darkColor( QColor( 81, 86, 99 ) )
-	, m_shadowTextColor( QColor( 255, 255, 255 ) )
-	, m_highlightColor( QColor( 206, 150, 30 ) )
-	, m_highlightedTextColor( QColor( 255, 255, 255 ) )
-	, m_toolTipBaseColor( QColor( 227, 243, 252 ) )
-	, m_toolTipTextColor( QColor( 64, 64, 66 ) )
-	, m_widgetColor( QColor( 164, 170, 190 ) )
-	, m_widgetTextColor( QColor( 10, 10, 10 ) )
-	, m_buttonRedColor( QColor( 247, 100, 100 ) )
-	, m_buttonRedTextColor( QColor( 10, 10, 10 ) )
-	, m_spinBoxSelectionColor( QColor( 51, 74 , 100 ) )
-	, m_spinBoxSelectionTextColor( QColor( 240, 240, 240 ) )
-	, m_automationColor( QColor( 67, 96, 131 ) )
-	, m_automationCircleColor( QColor( 255, 255, 255 ) )
-	, m_accentColor( QColor( 67, 96, 131 ) )
-	, m_accentTextColor( QColor( 255, 255, 255 ) )
-{
-}
-
-ColorTheme::ColorTheme( const ColorTheme* pOther )
-	: m_songEditor_backgroundColor( pOther->m_songEditor_backgroundColor )
-	, m_songEditor_alternateRowColor( pOther->m_songEditor_alternateRowColor )
-	, m_songEditor_selectedRowColor( pOther->m_songEditor_selectedRowColor )
-	, m_songEditor_lineColor( pOther->m_songEditor_lineColor )
-	, m_songEditor_textColor( pOther->m_songEditor_textColor )
-	, m_patternEditor_backgroundColor( pOther->m_patternEditor_backgroundColor )
-	, m_patternEditor_alternateRowColor( pOther->m_patternEditor_alternateRowColor )
-	, m_patternEditor_selectedRowColor( pOther->m_patternEditor_selectedRowColor )
-	, m_patternEditor_textColor( pOther->m_patternEditor_textColor )
-	, m_patternEditor_noteColor( pOther->m_patternEditor_noteColor )
-	, m_patternEditor_noteoffColor( pOther->m_patternEditor_noteoffColor )
-	, m_patternEditor_lineColor( pOther->m_patternEditor_lineColor )
-	, m_patternEditor_line1Color( pOther->m_patternEditor_line1Color )
-	, m_patternEditor_line2Color( pOther->m_patternEditor_line2Color )
-	, m_patternEditor_line3Color( pOther->m_patternEditor_line3Color )
-	, m_patternEditor_line4Color( pOther->m_patternEditor_line4Color )
-	, m_patternEditor_line5Color( pOther->m_patternEditor_line5Color )
-	, m_selectionHighlightColor( pOther->m_selectionHighlightColor )
-	, m_selectionInactiveColor( pOther->m_selectionInactiveColor )
-	, m_windowColor( pOther->m_windowColor )
-	, m_windowTextColor( pOther->m_windowTextColor )
-	, m_baseColor( pOther->m_baseColor )
-	, m_alternateBaseColor( pOther->m_alternateBaseColor )
-	, m_textColor( pOther->m_textColor )
-	, m_buttonColor( pOther->m_buttonColor )
-	, m_buttonTextColor( pOther->m_buttonTextColor )
-	, m_lightColor( pOther->m_lightColor )
-	, m_midLightColor( pOther->m_midLightColor )
-	, m_midColor( pOther->m_midColor )
-	, m_darkColor( pOther->m_darkColor )
-	, m_shadowTextColor( pOther->m_shadowTextColor )
-	, m_highlightColor( pOther->m_highlightColor )
-	, m_highlightedTextColor( pOther->m_highlightedTextColor )
-	, m_toolTipBaseColor( pOther->m_toolTipBaseColor )
-	, m_toolTipTextColor( pOther->m_toolTipTextColor )
-	, m_accentColor( pOther->m_accentColor )
-	, m_accentTextColor( pOther->m_accentTextColor )
-	, m_widgetColor( pOther->m_widgetColor )
-	, m_widgetTextColor( pOther->m_widgetTextColor )
-	, m_buttonRedColor( pOther->m_buttonRedColor )
-	, m_buttonRedTextColor( pOther->m_buttonRedTextColor )
-	, m_spinBoxSelectionColor( pOther->m_spinBoxSelectionColor )
-	, m_spinBoxSelectionTextColor( pOther->m_spinBoxSelectionTextColor )
-	, m_automationColor( pOther->m_automationColor )
-	, m_automationCircleColor( pOther->m_automationCircleColor )
-{
-}
 };

@@ -29,7 +29,7 @@
 #include <QLineEdit>
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 #include <vector>
 

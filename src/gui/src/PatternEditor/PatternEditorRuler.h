@@ -29,7 +29,7 @@
 #include "../Widgets/WidgetWithScalableFont.h"
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 class PatternEditorPanel;
 

@@ -29,7 +29,7 @@
 
 #include "EventListener.h"
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include "Widgets/WidgetWithScalableFont.h"
 
 namespace H2Core

@@ -26,7 +26,7 @@
 #include <memory>
 
 #include <core/Hydrogen.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Basics/Sample.h>
 

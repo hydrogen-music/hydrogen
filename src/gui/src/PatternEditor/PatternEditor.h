@@ -26,7 +26,7 @@
 #include "../Selection.h"
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 #include <QtGui>
 #if QT_VERSION >= 0x050000

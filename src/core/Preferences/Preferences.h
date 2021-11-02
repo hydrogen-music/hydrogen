@@ -27,6 +27,7 @@
 #include <vector>
 #include <cassert>
 
+#include "Theme.h"
 #include <core/MidiAction.h>
 #include <core/Globals.h>
 #include <core/Object.h>
@@ -37,10 +38,6 @@
 
 namespace H2Core
 {
-
-const float FALLOFF_SLOW = 	1.08f;
-const float FALLOFF_NORMAL=	1.1f;
-const float FALLOFF_FAST =	1.5f;
 
 
 /**
@@ -68,87 +65,6 @@ public:
 	}
 
 };
-
-/**
-\ingroup H2CORE
-\brief	Colors for hydrogen
-*/
-/** \ingroup docCore docConfiguration*/
-class ColorTheme : public H2Core::Object<ColorTheme>
-{
-	H2_OBJECT(ColorTheme)
-public:
-	ColorTheme();
-	ColorTheme( const ColorTheme* pOther );
-	
-	QColor m_songEditor_backgroundColor;
-	QColor m_songEditor_alternateRowColor;
-	QColor m_songEditor_selectedRowColor;
-	QColor m_songEditor_lineColor;
-	QColor m_songEditor_textColor;
-
-	QColor m_patternEditor_backgroundColor;
-	QColor m_patternEditor_alternateRowColor;
-	QColor m_patternEditor_selectedRowColor;
-	QColor m_patternEditor_textColor;
-	QColor m_patternEditor_noteColor;
-	QColor m_patternEditor_noteoffColor;
-	QColor m_patternEditor_lineColor;
-	QColor m_patternEditor_line1Color;
-	QColor m_patternEditor_line2Color;
-	QColor m_patternEditor_line3Color;
-	QColor m_patternEditor_line4Color;
-	QColor m_patternEditor_line5Color;
-
-	QColor m_selectionHighlightColor;
-	QColor m_selectionInactiveColor;
-
-	// QWidget palette stuff
-	/** A general background color.*/
-	QColor m_windowColor;
-	/** A general foreground color.*/
-	QColor m_windowTextColor;
-	/** Used as the background color for text entry widgets; usually white or another light color.*/
-	QColor m_baseColor;
-	/** Used as the alternate background color in views with alternating row colors.*/
-	QColor m_alternateBaseColor;
-	/** The foreground color used with Base. This is usually the same as the Foreground, in which case it must provide good contrast with Background and Base.*/
-	QColor m_textColor;
-	/** The general button background color. This background can be different from Background as some styles require a different background color for buttons.*/
-	QColor m_buttonColor;
-	/** A foreground color used with the Button color.*/
-	QColor m_buttonTextColor;
-	/** Lighter than Button color.*/
-	QColor m_lightColor;
-	/** Between Button and Light.*/
-	QColor m_midLightColor;
-	/** Darker than Button.*/
-	QColor m_midColor;
-	/** Between Button and Dark.*/
-	QColor m_darkColor;
-	/** A very dark color. By default, the shadow color is Qt::black.*/
-	QColor m_shadowTextColor;
-	/** A color to indicate a selected item or the current item.*/
-	QColor m_highlightColor;
-	/** A text color that contrasts with Highlight.*/
-	QColor m_highlightedTextColor;
-	QColor m_toolTipBaseColor;
-	QColor m_toolTipTextColor;
-
-	// General widget stuff
-	QColor m_accentColor;
-	QColor m_accentTextColor;
-	QColor m_widgetColor;
-	QColor m_widgetTextColor;
-	QColor m_buttonRedColor;
-	QColor m_buttonRedTextColor;
-	QColor m_spinBoxSelectionColor;
-	QColor m_spinBoxSelectionTextColor;
-	QColor m_automationColor;
-	QColor m_automationCircleColor;
-};
-
-
 
 /**
 \ingroup H2CORE
@@ -194,13 +110,6 @@ public:
 	      BC_OFF = 1
 	};
 
-	/** Enables custom scaling of the font size in the GUI.*/
-	enum class FontSize {
-		Normal = 0,
-		Small = 1,
-		Large = 2
-	};
-
 	/** Bitwise or-able options showing which part of the Preferences
 	 * were altered using the PreferencesDialog.*/ 
 	enum Changes {
@@ -220,17 +129,6 @@ public:
 		MidiTab = 0x020,
 		/** Any option in the OSC tab appeared.*/
 		OscTab = 0x040
-	};
-
-	enum UI_LAYOUT_TYPES {
-			UI_LAYOUT_SINGLE_PANE,
-			UI_LAYOUT_TABBED
-	};
-
-	enum UI_SCALING_POLICY {
-		UI_SCALING_SMALLER,
-		UI_SCALING_SYSTEM,
-		UI_SCALING_LARGER
 	};
 
 	QString				__lastspatternDirectory;
@@ -496,11 +394,11 @@ public:
 	const QString&	getDefaultEditor();
 	void			setDefaultEditor( QString editor);
 
-	int				getDefaultUILayout();
-	void			setDefaultUILayout( int layout);
+	InterfaceTheme::Layout	getDefaultUILayout();
+	void			setDefaultUILayout( InterfaceTheme::Layout layout);
 
-	int				getUIScalingPolicy();
-	void			setUIScalingPolicy( int nPolicy );
+	InterfaceTheme::ScalingPolicy getUIScalingPolicy();
+	void			setUIScalingPolicy( InterfaceTheme::ScalingPolicy policy );
 
 	// General
 	const QString&	getPreferredLanguage();
@@ -563,8 +461,8 @@ public:
 	const QString&	getLevel3FontFamily() const;
 	void			setLevel3FontFamily( const QString& family );
 
-	FontSize		getFontSize() const;
-	void			setFontSize( FontSize fontSize );
+	FontTheme::FontSize		getFontSize() const;
+	void			setFontSize( FontTheme::FontSize fontSize );
 
 	float			getMixerFalloffSpeed();
 	void			setMixerFalloffSpeed( float value );
@@ -627,7 +525,7 @@ public:
 	void			setLadspaProperties( unsigned nFX, const WindowProperties& prop );
 
 	const ColorTheme*	getColorTheme() const;
-	void			setColorTheme( ColorTheme* pNewColorTheme );
+	void			setColorTheme( const ColorTheme* pNewColorTheme );
 
 	/** \return #m_bPatternModePlaysSelected*/
 	bool			patternModePlaysSelected();
@@ -740,6 +638,8 @@ private:
 	 * accessed with get_instance().
 	 */
 	static Preferences *		__instance;
+
+	Theme*				m_pTheme;
 	
 	//___ General properties ___
 	QString				m_sH2ProcessName; //Name of hydrogen's main process
@@ -817,17 +717,9 @@ private:
 	bool					__useTimelineBpm;
 
 	//___ GUI properties ___
-	QString					m_sQTStyle;
 	int						m_nLastOpenTab;
-	int						m_nDefaultUILayout;
-	int						m_nUIScalingPolicy;
 	bool					m_bShowPlaybackTrack;
 
-	QString					m_sApplicationFontFamily;
-	QString					m_sLevel2FontFamily;
-	QString					m_sLevel3FontFamily;
-	FontSize				m_fontSize;
-	float					mixerFalloffSpeed;
 	int						m_nPatternEditorGridResolution;
 	bool					m_bPatternEditorUsingTriplets;
 	bool					m_bShowInstrumentPeaks;
@@ -846,15 +738,7 @@ private:
 	WindowProperties		audioEngineInfoProperties;
 	WindowProperties		m_ladspaProperties[MAX_FX];
 
-	ColorTheme*				m_pColorTheme;
 	QString					m_sPreferredLanguage;
-
-	//Appearance: SongEditor coloring
-	int						m_nColoringMethod;
-	std::vector<QColor> m_patternColors;
-	int						m_nVisiblePatternColors;
-	/** Not read from/written to disk */
-	int						m_nMaxPatternColors;
 
 	//Export dialog
 	QString					m_sExportDirectory;
@@ -972,23 +856,21 @@ inline void Preferences::setDefaultEditor( QString editor){
 	m_sDefaultEditor = editor;
 }
 
-inline int Preferences::getDefaultUILayout(){
-	return m_nDefaultUILayout;
+inline InterfaceTheme::Layout Preferences::getDefaultUILayout(){
+	return m_pTheme->getInterfaceTheme()->m_layout;
 }
 
-inline void Preferences::setDefaultUILayout( int layout){
-	m_nDefaultUILayout = layout;
+inline void Preferences::setDefaultUILayout( InterfaceTheme::Layout layout){
+	m_pTheme->getInterfaceTheme()->m_layout = layout;
 }
 
-inline int Preferences::getUIScalingPolicy() {
-	return m_nUIScalingPolicy;
+inline InterfaceTheme::ScalingPolicy Preferences::getUIScalingPolicy(){
+	return m_pTheme->getInterfaceTheme()->m_scalingPolicy;
 }
 
-inline void Preferences::setUIScalingPolicy( int nPolicy ) {
-	m_nUIScalingPolicy = nPolicy;
+inline void Preferences::setUIScalingPolicy( InterfaceTheme::ScalingPolicy scalingPolicy){
+	m_pTheme->getInterfaceTheme()->m_scalingPolicy = scalingPolicy;
 }
-
-
 
 // General
 inline const QString& Preferences::getPreferredLanguage() {
@@ -1122,46 +1004,44 @@ inline QStringList Preferences::getRecentFX() {
 
 // GUI Properties
 inline const QString& Preferences::getQTStyle() {
-	return m_sQTStyle;
+	return m_pTheme->getInterfaceTheme()->m_sQTStyle;
 }
 inline void Preferences::setQTStyle( const QString& sStyle ) {
-	m_sQTStyle = sStyle;
+	m_pTheme->getInterfaceTheme()->m_sQTStyle = sStyle;
 }
-
-
 inline const QString& Preferences::getApplicationFontFamily() const {
-	return m_sApplicationFontFamily;
+	return m_pTheme->getFontTheme()->m_sApplicationFontFamily;
 }
 inline void Preferences::setApplicationFontFamily( const QString& family ) {
-	m_sApplicationFontFamily = family;
+	m_pTheme->getFontTheme()->m_sApplicationFontFamily = family;
 }
 
 inline const QString& Preferences::getLevel2FontFamily() const {
-	return m_sLevel2FontFamily;
+	return m_pTheme->getFontTheme()->m_sLevel2FontFamily;
 }
 inline void Preferences::setLevel2FontFamily( const QString& family ) {
-	m_sLevel2FontFamily = family;
+	m_pTheme->getFontTheme()->m_sLevel2FontFamily = family;
 }
 
 inline const QString& Preferences::getLevel3FontFamily() const {
-	return m_sLevel3FontFamily;
+	return m_pTheme->getFontTheme()->m_sLevel3FontFamily;
 }
 inline void Preferences::setLevel3FontFamily( const QString& family ) {
-	m_sLevel3FontFamily = family;
+	m_pTheme->getFontTheme()->m_sLevel3FontFamily = family;
 }
 
-inline Preferences::FontSize Preferences::getFontSize() const {
-	return m_fontSize;
+inline FontTheme::FontSize Preferences::getFontSize() const {
+	return m_pTheme->getFontTheme()->m_fontSize;
 }
-inline void Preferences::setFontSize( FontSize fontSize ) {
-	m_fontSize = fontSize;
+inline void Preferences::setFontSize( FontTheme::FontSize fontSize ) {
+	m_pTheme->getFontTheme()->m_fontSize = fontSize;
 }
 
 inline float Preferences::getMixerFalloffSpeed() {
-	return mixerFalloffSpeed;
+	return m_pTheme->getInterfaceTheme()->m_fMixerFalloffSpeed;
 }
 inline void Preferences::setMixerFalloffSpeed( float value ) {
-	mixerFalloffSpeed = value;
+	m_pTheme->getInterfaceTheme()->m_fMixerFalloffSpeed = value;
 }
 inline bool Preferences::showInstrumentPeaks() {
 	return m_bShowInstrumentPeaks;
@@ -1226,30 +1106,30 @@ inline void Preferences::setPatternEditorGridWidth( unsigned value ) {
 }
 
 inline void	Preferences::setPatternColors( std::vector<QColor> patternColors ) {
-	m_patternColors = patternColors;
+	m_pTheme->getInterfaceTheme()->m_patternColors = patternColors;
 }
 inline std::vector<QColor> Preferences::getPatternColors() const {
-	return m_patternColors;
+	return m_pTheme->getInterfaceTheme()->m_patternColors;
 }
 inline void	Preferences::setVisiblePatternColors( int nValue ) {
-	m_nVisiblePatternColors = nValue;
+	m_pTheme->getInterfaceTheme()->m_nVisiblePatternColors = nValue;
 }
 inline int Preferences::getVisiblePatternColors() const {
-	return m_nVisiblePatternColors;
+	return m_pTheme->getInterfaceTheme()->m_nVisiblePatternColors;
 }
 inline void	Preferences::setMaxPatternColors( int nValue ) {
-	m_nMaxPatternColors = nValue;
+	m_pTheme->getInterfaceTheme()->m_nMaxPatternColors = nValue;
 }
 inline int Preferences::getMaxPatternColors() const {
-	return m_nMaxPatternColors;
+	return m_pTheme->getInterfaceTheme()->m_nMaxPatternColors;
 }
 
 inline void Preferences::setColoringMethod( int value ){
-	m_nColoringMethod = value;
+	m_pTheme->getInterfaceTheme()->m_nColoringMethod = value;
 }
 
 inline int Preferences::getColoringMethod() const{
-	return m_nColoringMethod;
+	return m_pTheme->getInterfaceTheme()->m_nColoringMethod;
 }
 
 inline WindowProperties Preferences::getMainFormProperties() {
@@ -1303,11 +1183,10 @@ inline void Preferences::setLadspaProperties( unsigned nFX, const WindowProperti
 }
 
 inline const ColorTheme* Preferences::getColorTheme() const {
-	return m_pColorTheme;
+	return m_pTheme->getColorTheme();
 }
-inline void Preferences::setColorTheme( ColorTheme* pNewColorTheme ) {
-	delete m_pColorTheme;
-	m_pColorTheme = new ColorTheme( pNewColorTheme );
+inline void Preferences::setColorTheme( const ColorTheme* pNewColorTheme ) {
+	m_pTheme->setColorTheme( pNewColorTheme );
 }
 
 inline bool Preferences::patternModePlaysSelected() {

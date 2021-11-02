@@ -31,7 +31,7 @@
 #include <core/Basics/Note.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/IO/CoreMidiDriver.h>
 
 #if defined(H2CORE_HAVE_COREMIDI) || _DOXYGEN_

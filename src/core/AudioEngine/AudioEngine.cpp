@@ -61,7 +61,7 @@
 #include <core/IO/PulseAudioDriver.h>
 
 #include <core/Hydrogen.h>	// TODO: remove this line as soon as possible
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <cassert>
 
 namespace H2Core

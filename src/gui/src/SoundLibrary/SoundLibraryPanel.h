@@ -30,7 +30,7 @@
 #include <vector>
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 #include "../Widgets/WidgetWithScalableFont.h"
 

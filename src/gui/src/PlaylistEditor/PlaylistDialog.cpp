@@ -31,7 +31,7 @@
 #include <core/Helpers/Files.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/H2Exception.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Timeline.h>

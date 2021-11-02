@@ -23,7 +23,7 @@
 #include "LCDSpinBox.h"
 #include "../HydrogenApp.h"
 #include <core/Globals.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 // used in PlayerControl
 LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, double fMax )

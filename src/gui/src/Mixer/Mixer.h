@@ -28,7 +28,7 @@
 #include <QtWidgets>
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Globals.h>
 #include "../EventListener.h"
 

@@ -28,7 +28,7 @@
 
 #if defined(H2CORE_HAVE_JACK) || _DOXYGEN_
 
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/Globals.h>
 #include <core/EventQueue.h>

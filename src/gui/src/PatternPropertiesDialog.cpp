@@ -27,7 +27,7 @@
 #include <core/Hydrogen.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 using namespace H2Core;
 

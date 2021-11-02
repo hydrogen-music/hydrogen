@@ -25,7 +25,7 @@
 #if defined(H2CORE_HAVE_PULSEAUDIO) || _DOXYGEN_
 
 #include <fcntl.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 
 namespace H2Core

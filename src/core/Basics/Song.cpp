@@ -26,7 +26,7 @@
 #include <memory>
 
 #include <core/LocalFileMng.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/EventQueue.h>
 #include <core/FX/Effects.h>
 #include <core/Globals.h>

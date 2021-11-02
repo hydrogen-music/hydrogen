@@ -27,7 +27,7 @@
 
 #include <core/Object.h>
 #include <core/Globals.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 class Fader;
 class MasterFader;

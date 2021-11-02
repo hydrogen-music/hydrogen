@@ -25,7 +25,7 @@
 #define PATTERN_EDITOR_PANEL_H
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/AudioEngine/AudioEngine.h>
 
 #include "PianoRollEditor.h"

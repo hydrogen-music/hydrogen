@@ -34,7 +34,7 @@
 
 #include <core/MidiMap.h>
 #include <core/Hydrogen.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Lash/LashClient.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Helpers/Translations.h>

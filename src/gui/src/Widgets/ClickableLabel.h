@@ -24,7 +24,8 @@
 #define CLICKABLE_LABEL_H
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
 
 #include <QtGui>
 #include <QtWidgets>
@@ -62,7 +63,7 @@ signals:
 
 private:
 	void updateStyleSheet();
-	void updateFont( QString sFontFamily, H2Core::Preferences::FontSize fontSize );
+	void updateFont( QString sFontFamily, H2Core::FontTheme::FontSize fontSize );
 
 	QSize m_size;
 	Color m_color;

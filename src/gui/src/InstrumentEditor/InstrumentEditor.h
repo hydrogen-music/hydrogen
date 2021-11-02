@@ -29,7 +29,7 @@
 
 #include <core/Basics/Instrument.h>
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 #include "../EventListener.h"
 #include "../Widgets/PixmapWidget.h"

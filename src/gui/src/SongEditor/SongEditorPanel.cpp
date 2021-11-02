@@ -38,7 +38,7 @@
 #include "CommonStrings.h"
 
 #include <core/Hydrogen.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/PatternList.h>

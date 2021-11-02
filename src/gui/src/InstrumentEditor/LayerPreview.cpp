@@ -32,6 +32,8 @@
 #include <core/Basics/Note.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Sampler/Sampler.h>
+#include <core/Preferences/Theme.h>
+
 using namespace H2Core;
 
 #include "../Skin.h"
@@ -452,13 +454,13 @@ int LayerPreview::getPointSizeButton() const {
 	int nPointSize;
 	
 	switch( pPref->getFontSize() ) {
-	case H2Core::Preferences::FontSize::Small:
+	case H2Core::FontTheme::FontSize::Small:
 		nPointSize = 6;
 		break;
-	case H2Core::Preferences::FontSize::Normal:
+	case H2Core::FontTheme::FontSize::Normal:
 		nPointSize = 8;
 		break;
-	case H2Core::Preferences::FontSize::Large:
+	case H2Core::FontTheme::FontSize::Large:
 		nPointSize = 12;
 		break;
 	}

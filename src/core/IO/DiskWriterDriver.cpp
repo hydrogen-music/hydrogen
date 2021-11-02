@@ -22,7 +22,7 @@
 #include <unistd.h>
 
 
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
 #include <core/CoreActionController.h>

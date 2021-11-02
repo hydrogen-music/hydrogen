@@ -22,7 +22,7 @@
 
 
 #include "core/Helpers/Filesystem.h"
-#include "core/Preferences.h"
+#include "core/Preferences/Preferences.h"
 
 #include <pthread.h>
 #include <unistd.h>
