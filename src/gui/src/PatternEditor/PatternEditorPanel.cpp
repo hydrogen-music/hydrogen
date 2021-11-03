@@ -172,7 +172,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pEditorTop1_hbox_2->addWidget( m_pRec );
 
 	// Hear notes btn
-	m_pHearNotesBtn = new Button( m_pRec, QSize( 21, 18 ), Button::Type::Toggle, "speaker.svg", "", false, QSize( 17, 15 ), tr( "Hear new notes" ) );
+	m_pHearNotesBtn = new Button( m_pRec, QSize( 21, 18 ), Button::Type::Toggle, "speaker.svg", "", false, QSize( 15, 13 ), tr( "Hear new notes" ) );
 	m_pHearNotesBtn->move( 42, 1 );
 	connect( m_pHearNotesBtn, SIGNAL( pressed() ), this, SLOT( hearNotesBtnClick() ) );
 	m_pHearNotesBtn->setChecked( pPref->getHearNewNotes() );
@@ -183,7 +183,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 	// quantize
-	m_pQuantizeEventsBtn = new Button( m_pRec, QSize( 21, 18 ), Button::Type::Toggle, "quantization.svg", "", false, QSize( 17, 15 ), tr( "Quantize keyboard/midi events to grid" ) );
+	m_pQuantizeEventsBtn = new Button( m_pRec, QSize( 21, 18 ), Button::Type::Toggle, "quantization.svg", "", false, QSize( 15, 14 ), tr( "Quantize keyboard/midi events to grid" ) );
 	m_pQuantizeEventsBtn->move( 111, 1 );
 	m_pQuantizeEventsBtn->setChecked( pPref->getQuantizeEvents() );
 	m_pQuantizeEventsBtn->setObjectName( "QuantizeEventsBtn" );
@@ -193,7 +193,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pQuantizeEventsLbl->move( 64, 4 );
 
 	// Editor mode
-	__show_drum_btn = new Button( m_pRec, QSize( 25, 18 ), Button::Type::Push, "drum.svg", "", false, QSize( 19, 15 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
+	__show_drum_btn = new Button( m_pRec, QSize( 25, 18 ), Button::Type::Push, "drum.svg", "", false, QSize( 17, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
 	__show_drum_btn->move( 178, 1 );
 	__show_drum_btn->setObjectName( "ShowDrumBtn" );
 	connect( __show_drum_btn, SIGNAL( pressed() ), this, SLOT( showDrumEditorBtnClick() ) );

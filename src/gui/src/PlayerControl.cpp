@@ -141,7 +141,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	// Loop song button button
 	m_pSongLoopBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Toggle,
-								 "loop.svg", "", false, QSize( 19, 15 ), tr("Loop song") );
+								 "loop.svg", "", false, QSize( 17, 13 ), tr("Loop song") );
 	m_pSongLoopBtn->move( 308, 15);
 	connect( m_pSongLoopBtn, SIGNAL( pressed() ), this, SLOT( songLoopBtnClicked() ) );
 
@@ -218,22 +218,22 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pBCDisplayB->setText( "04" );
 
 	m_pBCTUpBtn = new Button( m_pControlsBCPanel, QSize( 19, 12 ), Button::Type::Push,
-							  "plus.svg", "", false, QSize( 10, 10 ) );
+							  "plus.svg", "", false, QSize( 8, 8 ) );
 	m_pBCTUpBtn->move( 2, 3 );
 	connect( m_pBCTUpBtn, SIGNAL( pressed() ), this, SLOT( bctUpButtonClicked() ) );
 
 	m_pBCTDownBtn = new Button( m_pControlsBCPanel, QSize( 19, 12 ), Button::Type::Push,
-								"minus.svg", "", false, QSize( 10, 10 ) );
+								"minus.svg", "", false, QSize( 8, 8 ) );
 	m_pBCTDownBtn->move( 2, 14 );
 	connect( m_pBCTDownBtn, SIGNAL( pressed() ), this, SLOT( bctDownButtonClicked() ) );
 
 	m_pBCBUpBtn = new Button( m_pControlsBCPanel, QSize( 19, 12 ), Button::Type::Push,
-							  "plus.svg", "", false, QSize( 10, 10 ) );
+							  "plus.svg", "", false, QSize( 8, 8 ) );
 	m_pBCBUpBtn->move( 64, 3 );
 	connect( m_pBCBUpBtn, SIGNAL( pressed() ), this, SLOT( bcbUpButtonClicked() ) );
 
 	m_pBCBDownBtn = new Button( m_pControlsBCPanel, QSize( 19, 12 ), Button::Type::Push,
-								"minus.svg", "", false, QSize( 10, 10 ) );
+								"minus.svg", "", false, QSize( 8, 8 ) );
 	m_pBCBDownBtn->move( 64, 14 );
 	connect( m_pBCBDownBtn, SIGNAL( pressed() ), this, SLOT( bcbDownButtonClicked() ) );
 
@@ -281,7 +281,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pMetronomeLED->move( 7, 32 );
 
 	m_pMetronomeBtn = new Button( pBPMPanel, QSize( 24, 28 ), Button::Type::Toggle,
-								  "metronome.svg", "", false, QSize( 24, 24 ),
+								  "metronome.svg", "", false, QSize( 20, 20 ),
 								  tr("Switch metronome on/off") );
 	m_pMetronomeBtn->move( 6, 2 );
 	connect( m_pMetronomeBtn, SIGNAL( pressed() ), this, SLOT( metronomeButtonClicked() ) );
