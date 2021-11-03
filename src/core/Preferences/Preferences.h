@@ -26,6 +26,7 @@
 #include <list>
 #include <vector>
 #include <cassert>
+#include <memory>
 
 #include "Theme.h"
 #include <core/MidiAction.h>
@@ -524,8 +525,8 @@ public:
 	WindowProperties	getLadspaProperties( unsigned nFX );
 	void			setLadspaProperties( unsigned nFX, const WindowProperties& prop );
 
-	const ColorTheme*	getColorTheme() const;
-	void			setColorTheme( const ColorTheme* pNewColorTheme );
+	const std::shared_ptr<ColorTheme>	getColorTheme() const;
+	void			setColorTheme( const std::shared_ptr<ColorTheme> pNewColorTheme );
 
 	/** \return #m_bPatternModePlaysSelected*/
 	bool			patternModePlaysSelected();
@@ -630,6 +631,9 @@ public:
 	/** Setting #m_sPreferencesOverwritePath.
 	 * \param newPath Path to a local preferences file.*/
 	void			setPreferencesOverwritePath( const QString& newPath );
+
+	const std::shared_ptr<Theme> getTheme() const;
+	void setTheme( const std::shared_ptr<Theme> pTheme );
 	
 private:
 	/**
@@ -639,7 +643,7 @@ private:
 	 */
 	static Preferences *		__instance;
 
-	Theme*				m_pTheme;
+	std::shared_ptr<Theme>		m_pTheme;
 	
 	//___ General properties ___
 	QString				m_sH2ProcessName; //Name of hydrogen's main process
@@ -773,9 +777,6 @@ private:
 
 	WindowProperties readWindowProperties( QDomNode parent, const QString& windowName, WindowProperties defaultProp );
 	void writeWindowProperties( QDomNode parent, const QString& windowName, const WindowProperties& prop );
-
-	void writeColorTheme( QDomNode parent );
-	void readColorTheme( QDomNode parent );
 };
 
 inline QString Preferences::getMidiExportDirectory() const
@@ -1182,10 +1183,10 @@ inline void Preferences::setLadspaProperties( unsigned nFX, const WindowProperti
 	m_ladspaProperties[nFX] = prop;
 }
 
-inline const ColorTheme* Preferences::getColorTheme() const {
+inline const std::shared_ptr<ColorTheme> Preferences::getColorTheme() const {
 	return m_pTheme->getColorTheme();
 }
-inline void Preferences::setColorTheme( const ColorTheme* pNewColorTheme ) {
+inline void Preferences::setColorTheme( const std::shared_ptr<ColorTheme> pNewColorTheme ) {
 	m_pTheme->setColorTheme( pNewColorTheme );
 }
 
@@ -1329,7 +1330,12 @@ inline void Preferences::setH2ProcessName(const QString& processName){
 inline QString Preferences::getH2ProcessName() {
 	return m_sH2ProcessName;
 }
-
+inline void Preferences::setTheme( const std::shared_ptr<Theme> pTheme ) {
+	m_pTheme->setTheme( pTheme );
+}
+inline const std::shared_ptr<Theme> Preferences::getTheme() const {
+	return m_pTheme;
+}
 };
 
 #endif

@@ -24,6 +24,7 @@
 #define PREFERENCES_DIALOG_H
 
 #include <vector>
+#include <memory>
 
 #include "../Widgets/ColorSelectionButton.h"
 
@@ -131,7 +132,9 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 	void ssliderChanged(int);
 	void vsliderChanged(int);
 	void updateColors();
-	void resetColors();
+	void exportTheme();
+	void importTheme();
+	void resetTheme();
 
 private:
 
@@ -139,8 +142,8 @@ private:
 	void updateDriverPreferences();
 
 	void setColorTreeItemDirty( ColorTreeItem* pItem );
-	QColor* getColorById( int nId, H2Core::ColorTheme* uiStyle ) const;
-	void setColorById( int nId, const QColor& color, H2Core::ColorTheme* uiStyle );
+	QColor* getColorById( int nId, std::shared_ptr<H2Core::ColorTheme> uiStyle ) const;
+	void setColorById( int nId, const QColor& color, std::shared_ptr<H2Core::ColorTheme> uiStyle );
 	void updateColorTree();
 	/**
 	 * Introduce a temporal smoothing. Otherwise, moving the slider
@@ -148,8 +151,8 @@ private:
 	 * triggering a recoloring of the whole GUI.
 	 */
 	void triggerColorSliderTimer();
-	H2Core::ColorTheme m_currentColors;
-	H2Core::ColorTheme m_previousColors;
+	std::shared_ptr<H2Core::Theme> m_pCurrentTheme;
+	std::shared_ptr<H2Core::Theme> m_pPreviousTheme;
 	QColor* m_pCurrentColor;
 	int m_nCurrentId;
 	QTimer* m_pColorSliderTimer;

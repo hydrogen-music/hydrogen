@@ -1635,23 +1635,23 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_61">
           <item>
-           <widget class="QPushButton" name="saveThemeButton">
+           <widget class="QPushButton" name="exportThemeButton">
             <property name="text">
-             <string>Save Theme</string>
+             <string>Export Theme</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="loadThemeButton">
+           <widget class="QPushButton" name="importThemeButton">
             <property name="text">
-             <string>Load Theme</string>
+             <string>Import Theme</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="resetThemeButton">
             <property name="text">
-             <string>Reset</string>
+             <string>Reset Appearance Tab</string>
             </property>
            </widget>
           </item>

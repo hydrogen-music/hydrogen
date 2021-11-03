@@ -23,19 +23,16 @@
 #define THEME_H
 
 #include <vector>
+#include <memory>
 
 #include <core/Object.h>
 
 #include <QString>
 #include <QColor>
+#include <QDomDocument>
 
 namespace H2Core
 {
-
-const float FALLOFF_SLOW = 	1.08f;
-const float FALLOFF_NORMAL=	1.1f;
-const float FALLOFF_FAST =	1.5f;
-
 
 /**
 \ingroup H2CORE
@@ -47,7 +44,7 @@ class ColorTheme : public H2Core::Object<ColorTheme>
 	H2_OBJECT(ColorTheme)
 public:
 	ColorTheme();
-	ColorTheme( const ColorTheme* pOther );
+	ColorTheme( const std::shared_ptr<ColorTheme> pOther );
 	
 	QColor m_songEditor_backgroundColor;
 	QColor m_songEditor_alternateRowColor;
@@ -123,7 +120,7 @@ class InterfaceTheme : public H2Core::Object<InterfaceTheme>
 	H2_OBJECT(InterfaceTheme)
 public:
 	InterfaceTheme();
-	InterfaceTheme( const InterfaceTheme* pOther );
+	InterfaceTheme( const std::shared_ptr<InterfaceTheme> pOther );
 
 	static float FALLOFF_SLOW;
 	static float FALLOFF_NORMAL;
@@ -157,7 +154,7 @@ class FontTheme : public H2Core::Object<FontTheme>
 	H2_OBJECT(FontTheme)
 public:
 	FontTheme();
-	FontTheme( const FontTheme* pOther );
+	FontTheme( const std::shared_ptr<FontTheme> pOther );
 
 	/** Enables custom scaling of the font size in the GUI.*/
 	enum class FontSize {
@@ -177,42 +174,45 @@ class Theme : public H2Core::Object<Theme> {
 	H2_OBJECT(Theme)
 public:
 	Theme();
-	Theme( const Theme* pOther );
-	~Theme();
+	Theme( const std::shared_ptr<Theme> pOther );
 
-	ColorTheme* getColorTheme() const;
-	void setColorTheme( const ColorTheme* pNewColorTheme );
-	InterfaceTheme* getInterfaceTheme() const;
-	void setInterfaceTheme( const InterfaceTheme* pNewInterfaceTheme );
-	FontTheme* getFontTheme() const;
-	void setFontTheme( const FontTheme* pNewFontTheme );
+	void setTheme( const std::shared_ptr<Theme> pOther );
+
+	const std::shared_ptr<ColorTheme> getColorTheme() const;
+	void setColorTheme( const std::shared_ptr<ColorTheme> pNewColorTheme );
+	const std::shared_ptr<InterfaceTheme> getInterfaceTheme() const;
+	void setInterfaceTheme( const std::shared_ptr<InterfaceTheme> pNewInterfaceTheme );
+	const std::shared_ptr<FontTheme> getFontTheme() const;
+	void setFontTheme( const std::shared_ptr<FontTheme> pNewFontTheme );
+
+	static void writeColorTheme( QDomNode* parent, std::shared_ptr<Theme> pTheme );
+	static void readColorTheme( QDomNode parent, std::shared_ptr<Theme> pTheme );
+	static std::shared_ptr<Theme> importTheme( const QString& sPath );
+	static void exportTheme( const QString& sPath, const std::shared_ptr<Theme> pTheme );
 
 private:
-	ColorTheme* m_pColorTheme;
-	InterfaceTheme* m_pInterfaceTheme;
-	FontTheme* m_pFontTheme;
+	std::shared_ptr<ColorTheme> m_pColorTheme;
+	std::shared_ptr<InterfaceTheme> m_pInterfaceTheme;
+	std::shared_ptr<FontTheme> m_pFontTheme;
 };
 
-inline ColorTheme* Theme::getColorTheme() const {
+inline const std::shared_ptr<ColorTheme> Theme::getColorTheme() const {
 	return m_pColorTheme;
 }
-inline void Theme::setColorTheme( const ColorTheme* pNewColorTheme ) {
-	delete m_pColorTheme;
-	m_pColorTheme = new ColorTheme( pNewColorTheme );
+inline void Theme::setColorTheme( const std::shared_ptr<ColorTheme> pNewColorTheme ) {
+	m_pColorTheme = pNewColorTheme;
 }
-inline InterfaceTheme* Theme::getInterfaceTheme() const {
+inline const std::shared_ptr<InterfaceTheme> Theme::getInterfaceTheme() const {
 	return m_pInterfaceTheme;
 }
-inline void Theme::setInterfaceTheme( const InterfaceTheme* pNewInterfaceTheme ) {
-	delete m_pInterfaceTheme;
-	m_pInterfaceTheme = new InterfaceTheme( pNewInterfaceTheme );
+inline void Theme::setInterfaceTheme( const std::shared_ptr<InterfaceTheme> pNewInterfaceTheme ) {
+	m_pInterfaceTheme = pNewInterfaceTheme;
 }
-inline FontTheme* Theme::getFontTheme() const {
+inline const std::shared_ptr<FontTheme> Theme::getFontTheme() const {
 	return m_pFontTheme;
 }
-inline void Theme::setFontTheme( const FontTheme* pNewFontTheme ) {
-	delete m_pFontTheme;
-	m_pFontTheme = new FontTheme( pNewFontTheme );
+inline void Theme::setFontTheme( const std::shared_ptr<FontTheme> pNewFontTheme ) {
+	m_pFontTheme = pNewFontTheme;
 }
 
 };

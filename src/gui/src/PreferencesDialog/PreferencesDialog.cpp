@@ -132,11 +132,11 @@ QString PreferencesDialog::m_sColorRed = "#ca0003";
 
 PreferencesDialog::PreferencesDialog(QWidget* parent)
  : QDialog( parent )
- , m_currentColors( H2Core::ColorTheme( H2Core::Preferences::get_instance()->getColorTheme() ) )
- , m_previousColors( H2Core::ColorTheme( H2Core::Preferences::get_instance()->getColorTheme() ) )
  , m_pCurrentColor( nullptr )
- , m_nCurrentId( 0 )
-{
+ , m_nCurrentId( 0 ) {
+	
+	m_pCurrentTheme = std::make_shared<H2Core::Theme>( H2Core::Preferences::get_instance()->getTheme() );
+	m_pPreviousTheme = std::make_shared<H2Core::Theme>( H2Core::Preferences::get_instance()->getTheme() );
 	setupUi( this );
 
 	setWindowTitle( tr( "Preferences" ) );
@@ -302,9 +302,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	
 	// Appearance tab
 	
-	// connect(loadColorsButton, SIGNAL(clicked(bool)), SLOT(loadColors()));
-	// connect(saveColorsButton, SIGNAL(clicked(bool)), SLOT(saveColors()));
-	connect( resetThemeButton, SIGNAL(clicked(bool)), this, SLOT(resetColors()));
+	connect( importThemeButton, SIGNAL(clicked(bool)), SLOT(importTheme()));
+	connect( exportThemeButton, SIGNAL(clicked(bool)), SLOT(exportTheme()));
+	connect( resetThemeButton, SIGNAL(clicked(bool)), this, SLOT(resetTheme()));
 	
 	// Appearance tab - Fonts
 	m_sPreviousApplicationFontFamily = pPref->getApplicationFontFamily();
@@ -337,13 +337,13 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	
 	// Appearance tab - Interface
 	float falloffSpeed = pPref->getMixerFalloffSpeed();
-	if (falloffSpeed == FALLOFF_SLOW) {
+	if (falloffSpeed == InterfaceTheme::FALLOFF_SLOW) {
 		mixerFalloffComboBox->setCurrentIndex(0);
 	}
-	else if (falloffSpeed == FALLOFF_NORMAL) {
+	else if (falloffSpeed == InterfaceTheme::FALLOFF_NORMAL) {
 		mixerFalloffComboBox->setCurrentIndex(1);
 	}
-	else if (falloffSpeed == FALLOFF_FAST) {
+	else if (falloffSpeed == InterfaceTheme::FALLOFF_FAST) {
 		mixerFalloffComboBox->setCurrentIndex(2);
 	}
 	else {
@@ -649,7 +649,7 @@ void PreferencesDialog::on_cancelBtn_clicked()
 
 	}
 	
-	H2Core::Preferences::get_instance()->setColorTheme( &m_previousColors );
+	H2Core::Preferences::get_instance()->setColorTheme( m_pPreviousTheme->getColorTheme() );
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
 
 	reject();
@@ -780,13 +780,13 @@ void PreferencesDialog::on_okBtn_clicked()
 	// Mixer falloff
 	switch ( mixerFalloffComboBox->currentIndex() ) {
 	case 0:
-		pPref->setMixerFalloffSpeed(FALLOFF_SLOW);
+		pPref->setMixerFalloffSpeed(InterfaceTheme::FALLOFF_SLOW);
 		break;
 	case 1:
-		pPref->setMixerFalloffSpeed(FALLOFF_NORMAL);
+		pPref->setMixerFalloffSpeed(InterfaceTheme::FALLOFF_NORMAL);
 		break;
 	case 2:
-		pPref->setMixerFalloffSpeed(FALLOFF_FAST);
+		pPref->setMixerFalloffSpeed(InterfaceTheme::FALLOFF_FAST);
 		break;
 	default:
 		ERRORLOG( "[okBtnClicked] Unknown mixerFallOffSpeed: " + mixerFalloffComboBox->currentText() );
@@ -1370,53 +1370,53 @@ void PreferencesDialog::toggleOscCheckBox(bool toggled)
 	}
 }
 
-QColor* PreferencesDialog::getColorById( int nId, H2Core::ColorTheme* uiStyle ) const {
+QColor* PreferencesDialog::getColorById( int nId, std::shared_ptr<H2Core::ColorTheme> pColorTheme ) const {
 	switch( nId ) {
-	case 0x100: return &uiStyle->m_windowColor;
-	case 0x101: return &uiStyle->m_windowTextColor;
-	case 0x102: return &uiStyle->m_baseColor;
-	case 0x103: return &uiStyle->m_alternateBaseColor;
-	case 0x104: return &uiStyle->m_textColor;
-	case 0x105: return &uiStyle->m_buttonColor;
-	case 0x106: return &uiStyle->m_buttonTextColor;
-	case 0x107: return &uiStyle->m_lightColor;
-	case 0x108: return &uiStyle->m_midLightColor;
-	case 0x109: return &uiStyle->m_midColor;
-	case 0x10a: return &uiStyle->m_darkColor;
-	case 0x10b: return &uiStyle->m_shadowTextColor;
-	case 0x10c: return &uiStyle->m_highlightColor;
-	case 0x10d: return &uiStyle->m_highlightedTextColor;
-	case 0x10e: return &uiStyle->m_selectionHighlightColor;
-	case 0x10f: return &uiStyle->m_selectionInactiveColor;
-	case 0x110: return &uiStyle->m_toolTipBaseColor;
-	case 0x111: return &uiStyle->m_toolTipTextColor;
-	case 0x200: return &uiStyle->m_widgetColor;
-	case 0x201: return &uiStyle->m_widgetTextColor;
-	case 0x202: return &uiStyle->m_accentColor;
-	case 0x203: return &uiStyle->m_accentTextColor;
-	case 0x204: return &uiStyle->m_buttonRedColor;
-	case 0x205: return &uiStyle->m_buttonRedTextColor;
-	case 0x206: return &uiStyle->m_spinBoxSelectionColor;
-	case 0x207: return &uiStyle->m_spinBoxSelectionTextColor;
-	case 0x208: return &uiStyle->m_automationColor;
-	case 0x209: return &uiStyle->m_automationCircleColor;
-	case 0x300: return &uiStyle->m_songEditor_backgroundColor;
-	case 0x301: return &uiStyle->m_songEditor_alternateRowColor;
-	case 0x302: return &uiStyle->m_songEditor_selectedRowColor;
-	case 0x303: return &uiStyle->m_songEditor_lineColor;
-	case 0x304: return &uiStyle->m_songEditor_textColor;
-	case 0x400: return &uiStyle->m_patternEditor_backgroundColor;
-	case 0x401: return &uiStyle->m_patternEditor_alternateRowColor;
-	case 0x402: return &uiStyle->m_patternEditor_selectedRowColor;
-	case 0x403: return &uiStyle->m_patternEditor_textColor;
-	case 0x404: return &uiStyle->m_patternEditor_noteColor;
-	case 0x405: return &uiStyle->m_patternEditor_noteoffColor;
-	case 0x406: return &uiStyle->m_patternEditor_lineColor;
-	case 0x407: return &uiStyle->m_patternEditor_line1Color;
-	case 0x408: return &uiStyle->m_patternEditor_line2Color;
-	case 0x409: return &uiStyle->m_patternEditor_line3Color;
-	case 0x40a: return &uiStyle->m_patternEditor_line4Color;
-	case 0x40b: return &uiStyle->m_patternEditor_line5Color;
+	case 0x100: return &pColorTheme->m_windowColor;
+	case 0x101: return &pColorTheme->m_windowTextColor;
+	case 0x102: return &pColorTheme->m_baseColor;
+	case 0x103: return &pColorTheme->m_alternateBaseColor;
+	case 0x104: return &pColorTheme->m_textColor;
+	case 0x105: return &pColorTheme->m_buttonColor;
+	case 0x106: return &pColorTheme->m_buttonTextColor;
+	case 0x107: return &pColorTheme->m_lightColor;
+	case 0x108: return &pColorTheme->m_midLightColor;
+	case 0x109: return &pColorTheme->m_midColor;
+	case 0x10a: return &pColorTheme->m_darkColor;
+	case 0x10b: return &pColorTheme->m_shadowTextColor;
+	case 0x10c: return &pColorTheme->m_highlightColor;
+	case 0x10d: return &pColorTheme->m_highlightedTextColor;
+	case 0x10e: return &pColorTheme->m_selectionHighlightColor;
+	case 0x10f: return &pColorTheme->m_selectionInactiveColor;
+	case 0x110: return &pColorTheme->m_toolTipBaseColor;
+	case 0x111: return &pColorTheme->m_toolTipTextColor;
+	case 0x200: return &pColorTheme->m_widgetColor;
+	case 0x201: return &pColorTheme->m_widgetTextColor;
+	case 0x202: return &pColorTheme->m_accentColor;
+	case 0x203: return &pColorTheme->m_accentTextColor;
+	case 0x204: return &pColorTheme->m_buttonRedColor;
+	case 0x205: return &pColorTheme->m_buttonRedTextColor;
+	case 0x206: return &pColorTheme->m_spinBoxSelectionColor;
+	case 0x207: return &pColorTheme->m_spinBoxSelectionTextColor;
+	case 0x208: return &pColorTheme->m_automationColor;
+	case 0x209: return &pColorTheme->m_automationCircleColor;
+	case 0x300: return &pColorTheme->m_songEditor_backgroundColor;
+	case 0x301: return &pColorTheme->m_songEditor_alternateRowColor;
+	case 0x302: return &pColorTheme->m_songEditor_selectedRowColor;
+	case 0x303: return &pColorTheme->m_songEditor_lineColor;
+	case 0x304: return &pColorTheme->m_songEditor_textColor;
+	case 0x400: return &pColorTheme->m_patternEditor_backgroundColor;
+	case 0x401: return &pColorTheme->m_patternEditor_alternateRowColor;
+	case 0x402: return &pColorTheme->m_patternEditor_selectedRowColor;
+	case 0x403: return &pColorTheme->m_patternEditor_textColor;
+	case 0x404: return &pColorTheme->m_patternEditor_noteColor;
+	case 0x405: return &pColorTheme->m_patternEditor_noteoffColor;
+	case 0x406: return &pColorTheme->m_patternEditor_lineColor;
+	case 0x407: return &pColorTheme->m_patternEditor_line1Color;
+	case 0x408: return &pColorTheme->m_patternEditor_line2Color;
+	case 0x409: return &pColorTheme->m_patternEditor_line3Color;
+	case 0x40a: return &pColorTheme->m_patternEditor_line4Color;
+	case 0x40b: return &pColorTheme->m_patternEditor_line5Color;
 	default: return nullptr;
 	}
 
@@ -1424,97 +1424,97 @@ QColor* PreferencesDialog::getColorById( int nId, H2Core::ColorTheme* uiStyle ) 
 }
 
 void PreferencesDialog::setColorById( int nId, const QColor& color,
-									  H2Core::ColorTheme* uiStyle ) {
+									  std::shared_ptr<H2Core::ColorTheme> pColorTheme ) {
 	switch( nId ) {
-	case 0x100:  uiStyle->m_windowColor = color;
+	case 0x100:  pColorTheme->m_windowColor = color;
 		break;
-	case 0x101:  uiStyle->m_windowTextColor = color;
+	case 0x101:  pColorTheme->m_windowTextColor = color;
 		break;
-	case 0x102:  uiStyle->m_baseColor = color;
+	case 0x102:  pColorTheme->m_baseColor = color;
 		break;
-	case 0x103:  uiStyle->m_alternateBaseColor = color;
+	case 0x103:  pColorTheme->m_alternateBaseColor = color;
 		break;
-	case 0x104:  uiStyle->m_textColor = color;
+	case 0x104:  pColorTheme->m_textColor = color;
 		break;
-	case 0x105:  uiStyle->m_buttonColor = color;
+	case 0x105:  pColorTheme->m_buttonColor = color;
 		break;
-	case 0x106:  uiStyle->m_buttonTextColor = color;
+	case 0x106:  pColorTheme->m_buttonTextColor = color;
 		break;
-	case 0x107:  uiStyle->m_lightColor = color;
+	case 0x107:  pColorTheme->m_lightColor = color;
 		break;
-	case 0x108:  uiStyle->m_midLightColor = color;
+	case 0x108:  pColorTheme->m_midLightColor = color;
 		break;
-	case 0x109:  uiStyle->m_midColor = color;
+	case 0x109:  pColorTheme->m_midColor = color;
 		break;
-	case 0x10a:  uiStyle->m_darkColor = color;
+	case 0x10a:  pColorTheme->m_darkColor = color;
 		break;
-	case 0x10b:  uiStyle->m_shadowTextColor = color;
+	case 0x10b:  pColorTheme->m_shadowTextColor = color;
 		break;
-	case 0x10c:  uiStyle->m_highlightColor = color;
+	case 0x10c:  pColorTheme->m_highlightColor = color;
 		break;
-	case 0x10d:  uiStyle->m_highlightedTextColor = color;
+	case 0x10d:  pColorTheme->m_highlightedTextColor = color;
 		break;
-	case 0x10e:  uiStyle->m_selectionHighlightColor = color;
+	case 0x10e:  pColorTheme->m_selectionHighlightColor = color;
 		break;
-	case 0x10f:  uiStyle->m_selectionInactiveColor = color;
+	case 0x10f:  pColorTheme->m_selectionInactiveColor = color;
 		break;
-	case 0x110:  uiStyle->m_toolTipBaseColor = color;
+	case 0x110:  pColorTheme->m_toolTipBaseColor = color;
 		break;
-	case 0x111:  uiStyle->m_toolTipTextColor = color;
+	case 0x111:  pColorTheme->m_toolTipTextColor = color;
 		break;
-	case 0x200:  uiStyle->m_widgetColor = color;
+	case 0x200:  pColorTheme->m_widgetColor = color;
 		break;
-	case 0x201:  uiStyle->m_widgetTextColor = color;
+	case 0x201:  pColorTheme->m_widgetTextColor = color;
 		break;
-	case 0x202:  uiStyle->m_accentColor = color;
+	case 0x202:  pColorTheme->m_accentColor = color;
 		break;
-	case 0x203:  uiStyle->m_accentTextColor = color;
+	case 0x203:  pColorTheme->m_accentTextColor = color;
 		break;
-	case 0x204:  uiStyle->m_buttonRedColor = color;
+	case 0x204:  pColorTheme->m_buttonRedColor = color;
 		break;
-	case 0x205:  uiStyle->m_buttonRedTextColor = color;
+	case 0x205:  pColorTheme->m_buttonRedTextColor = color;
 		break;
-	case 0x206:  uiStyle->m_spinBoxSelectionColor = color;
+	case 0x206:  pColorTheme->m_spinBoxSelectionColor = color;
 		break;
-	case 0x207:  uiStyle->m_spinBoxSelectionTextColor = color;
+	case 0x207:  pColorTheme->m_spinBoxSelectionTextColor = color;
 		break;
-	case 0x208:  uiStyle->m_automationColor = color;
+	case 0x208:  pColorTheme->m_automationColor = color;
 		break;
-	case 0x209:  uiStyle->m_automationCircleColor = color;
+	case 0x209:  pColorTheme->m_automationCircleColor = color;
 		break;
-	case 0x300:  uiStyle->m_songEditor_backgroundColor = color;
+	case 0x300:  pColorTheme->m_songEditor_backgroundColor = color;
 		break;
-	case 0x301:  uiStyle->m_songEditor_alternateRowColor = color;
+	case 0x301:  pColorTheme->m_songEditor_alternateRowColor = color;
 		break;
-	case 0x302:  uiStyle->m_songEditor_selectedRowColor = color;
+	case 0x302:  pColorTheme->m_songEditor_selectedRowColor = color;
 		break;
-	case 0x303:  uiStyle->m_songEditor_lineColor = color;
+	case 0x303:  pColorTheme->m_songEditor_lineColor = color;
 		break;
-	case 0x304:  uiStyle->m_songEditor_textColor = color;
+	case 0x304:  pColorTheme->m_songEditor_textColor = color;
 		break;
-	case 0x400:  uiStyle->m_patternEditor_backgroundColor = color;
+	case 0x400:  pColorTheme->m_patternEditor_backgroundColor = color;
 		break;
-	case 0x401:  uiStyle->m_patternEditor_alternateRowColor = color;
+	case 0x401:  pColorTheme->m_patternEditor_alternateRowColor = color;
 		break;
-	case 0x402:  uiStyle->m_patternEditor_selectedRowColor = color;
+	case 0x402:  pColorTheme->m_patternEditor_selectedRowColor = color;
 		break;
-	case 0x403:  uiStyle->m_patternEditor_textColor = color;
+	case 0x403:  pColorTheme->m_patternEditor_textColor = color;
 		break;
-	case 0x404:  uiStyle->m_patternEditor_noteColor = color;
+	case 0x404:  pColorTheme->m_patternEditor_noteColor = color;
 		break;
-	case 0x405:  uiStyle->m_patternEditor_noteoffColor = color;
+	case 0x405:  pColorTheme->m_patternEditor_noteoffColor = color;
 		break;
-	case 0x406:  uiStyle->m_patternEditor_lineColor = color;
+	case 0x406:  pColorTheme->m_patternEditor_lineColor = color;
 		break;
-	case 0x407:  uiStyle->m_patternEditor_line1Color = color;
+	case 0x407:  pColorTheme->m_patternEditor_line1Color = color;
 		break;
-	case 0x408:  uiStyle->m_patternEditor_line2Color = color;
+	case 0x408:  pColorTheme->m_patternEditor_line2Color = color;
 		break;
-	case 0x409:  uiStyle->m_patternEditor_line3Color = color;
+	case 0x409:  pColorTheme->m_patternEditor_line3Color = color;
 		break;
-	case 0x40a:  uiStyle->m_patternEditor_line4Color = color;
+	case 0x40a:  pColorTheme->m_patternEditor_line4Color = color;
 		break;
-	case 0x40b:  uiStyle->m_patternEditor_line5Color = color;
+	case 0x40b:  pColorTheme->m_patternEditor_line5Color = color;
 		break;
 	default: DEBUGLOG( "Unknown ID" );
 	}
@@ -1532,12 +1532,12 @@ void PreferencesDialog::setColorTreeItemDirty( ColorTreeItem* pItem) {
 		return;
 	}
 
-	QColor* pCurrentColor = getColorById( nId, &m_currentColors );
+	QColor* pCurrentColor = getColorById( nId, m_pCurrentTheme->getColorTheme() );
 	if ( pCurrentColor == nullptr ) {
 		ERRORLOG( QString( "Unable to get current color for id [%1]" ).arg( nId ) );
 		return;
 	}
-	QColor* pPreviousColor = getColorById( nId, &m_previousColors );
+	QColor* pPreviousColor = getColorById( nId, m_pPreviousTheme->getColorTheme() );
 	if ( pPreviousColor == nullptr ) {
 		ERRORLOG( QString( "Unable to get previous color for id [%1]" ).arg( nId ) );
 		return;
@@ -1578,24 +1578,15 @@ void PreferencesDialog::colorTreeSelectionChanged() {
 		// A text node without color was clicked.
 		m_pCurrentColor = nullptr;
 	} else {
-		m_pCurrentColor = getColorById( nId, &m_currentColors );
+		m_pCurrentColor = getColorById( nId, m_pCurrentTheme->getColorTheme() );
 	}
 	updateColors();
 }
 
 void PreferencesDialog::colorButtonChanged() {
-	setColorById( m_nCurrentId, colorButton->getColor(), &m_currentColors );
-	m_pCurrentColor = getColorById( m_nCurrentId, &m_currentColors );
+	setColorById( m_nCurrentId, colorButton->getColor(), m_pCurrentTheme->getColorTheme() );
+	m_pCurrentColor = getColorById( m_nCurrentId, m_pCurrentTheme->getColorTheme() );
 	updateColors();
-}
-
-void PreferencesDialog::resetColors() {
-	m_currentColors = H2Core::ColorTheme( m_previousColors );
-	m_pCurrentColor = getColorById( m_nCurrentId, &m_currentColors );
-	updateColors();
-	updateColorTree();
-	H2Core::Preferences::get_instance()->setColorTheme( &m_currentColors );
-	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
 }
 
 void PreferencesDialog::updateColors() {
@@ -1667,7 +1658,7 @@ void PreferencesDialog::updateColors() {
       vval->blockSignals(false);
 
 	  updateColorTree();
-	  H2Core::Preferences::get_instance()->setColorTheme( &m_currentColors );
+	  H2Core::Preferences::get_instance()->setColorTheme( m_pCurrentTheme->getColorTheme() );
 	  HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
 }
 
@@ -1730,4 +1721,86 @@ void PreferencesDialog::vsliderChanged( int nValue ) {
 		m_pCurrentColor->setHsv( h, s, nValue );
 	}
 	triggerColorSliderTimer();
+}
+
+void PreferencesDialog::importTheme() {
+	QString sTitle = tr( "Import Theme" );
+	QFileDialog fd( this );
+	fd.setWindowTitle( sTitle );
+	fd.setDirectory( Filesystem::sys_theme_dir() );
+	fd.setFileMode( QFileDialog::ExistingFile );
+	fd.setNameFilter( Filesystem::themes_filter_name );
+	fd.setAcceptMode( QFileDialog::AcceptOpen );
+	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::sys_theme_dir() ) );
+	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::usr_theme_dir() ) );
+	fd.setDefaultSuffix( Filesystem::themes_ext );
+
+	if ( fd.exec() != QDialog::Accepted ) {
+		return;
+	}
+
+	QFileInfo fileInfo = fd.selectedFiles().first();
+	QString sPath = fileInfo.absoluteFilePath();
+
+	if ( sPath.isEmpty() ) {
+		QMessageBox::warning( this, "Hydrogen", tr("Theme couldn't be found.") );
+		return;
+	}
+
+	auto pTheme = Theme::importTheme( sPath );
+	m_pCurrentTheme = std::make_shared<Theme>( pTheme );
+	H2Core::Preferences::get_instance()->setTheme( m_pCurrentTheme );
+	if ( m_nCurrentId == 0 ) {
+		m_pCurrentColor = nullptr;
+		updateColorTree();
+		H2Core::Preferences::get_instance()->setColorTheme( m_pCurrentTheme->getColorTheme() );
+		HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
+	} else {
+		m_pCurrentColor = getColorById( m_nCurrentId, m_pCurrentTheme->getColorTheme() );
+	}
+	updateColors();
+
+	HydrogenApp::get_instance()->setScrollStatusBarMessage( tr( "Theme imported from " ) + sPath, 2000 );
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
+	
+}
+
+void PreferencesDialog::exportTheme() {
+	QString sTitle = tr( "Export Theme" );
+	QFileDialog fd( this );
+	fd.setWindowTitle( sTitle );
+	fd.setDirectory( Filesystem::sys_theme_dir() );
+	fd.setFileMode( QFileDialog::AnyFile );
+	fd.setNameFilter( Filesystem::themes_filter_name );
+	fd.setAcceptMode( QFileDialog::AcceptSave );
+	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::sys_theme_dir() ) );
+	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::usr_theme_dir() ) );
+	fd.setDefaultSuffix( Filesystem::themes_ext );
+
+	if ( fd.exec() != QDialog::Accepted ) {
+		return;
+	}
+
+	QFileInfo fileInfo = fd.selectedFiles().first();
+	QString sPath = fileInfo.absoluteFilePath();
+
+	if ( sPath.isEmpty() ) {
+		QMessageBox::warning( this, "Hydrogen", tr("Theme can not be exported.") );
+		return;
+	}
+
+	Theme::exportTheme( sPath, m_pCurrentTheme );
+
+	HydrogenApp::get_instance()->setScrollStatusBarMessage( tr( "Theme exported to " ) + sPath, 1200 );
+	
+}
+
+void PreferencesDialog::resetTheme() {
+	m_pCurrentTheme = std::make_shared<Theme>( m_pPreviousTheme );
+	H2Core::Preferences::get_instance()->setTheme( m_pCurrentTheme );
+	m_pCurrentColor = getColorById( m_nCurrentId, m_pCurrentTheme->getColorTheme() );
+	updateColors();
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
+
+	HydrogenApp::get_instance()->setStatusBarMessage( tr( "Theme reseted" ), 10000 );
 }
