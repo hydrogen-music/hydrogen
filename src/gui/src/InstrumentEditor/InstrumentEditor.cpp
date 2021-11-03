@@ -801,8 +801,10 @@ void InstrumentEditor::waveDisplayDoubleClicked( QWidget* pRef )
 
 void InstrumentEditor::showLayers()
 {
-	if ( ! m_pShowLayersBtn->isDown() ) {
+	if ( m_pShowLayersBtn->isDown() && m_pShowLayersBtn->isChecked() ) {
 		m_pShowLayersBtn->setChecked( true );
+		m_pShowLayersBtn->setDown( false );
+		return;
 	}
 	m_pShowInstrumentBtn->setChecked( false );
 	m_pLayerProp->show();
@@ -814,8 +816,10 @@ void InstrumentEditor::showLayers()
 
 void InstrumentEditor::showInstrument()
 {
-	if ( ! m_pShowInstrumentBtn->isDown() ) {
+	if ( m_pShowInstrumentBtn->isDown() && m_pShowInstrumentBtn->isChecked() ) {
 		m_pShowInstrumentBtn->setChecked( true );
+		m_pShowInstrumentBtn->setDown( false );
+		return;
 	}
 	m_pShowLayersBtn->setChecked( false );
 	m_pInstrumentProp->show();

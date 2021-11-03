@@ -57,6 +57,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	m_pShowSoundLibraryBtn = new Button( pTabButtonsPanel,QSize( 145, 24 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSoundLibraryButton(), false, QSize(), tr( "Show sound library" ) );
 	connect( m_pShowSoundLibraryBtn, SIGNAL( pressed() ), this, SLOT( on_showSoundLibraryBtnClicked() ) );
 
+
 	QHBoxLayout *pTabHBox = new QHBoxLayout();
 	pTabHBox->setSpacing( 0 );
 	pTabHBox->setMargin( 0 );
@@ -97,9 +98,13 @@ InstrumentRack::~InstrumentRack()
 
 void InstrumentRack::on_showSoundLibraryBtnClicked()
 {
-	if ( ! m_pShowSoundLibraryBtn->isDown() ) {
+	if ( m_pShowSoundLibraryBtn->isChecked() && m_pShowSoundLibraryBtn->isDown() ) {
+		
 		m_pShowSoundLibraryBtn->setChecked( true );
+		m_pShowSoundLibraryBtn->setDown( false );
+		return;
 	}
+	
 	m_pShowInstrumentEditorBtn->setChecked( false );
 
 	m_pSoundLibraryPanel->show();
@@ -108,9 +113,16 @@ void InstrumentRack::on_showSoundLibraryBtnClicked()
 
 void InstrumentRack::on_showInstrumentEditorBtnClicked()
 {
-	if ( ! m_pShowInstrumentEditorBtn->isDown() ) {
+	if ( m_pShowInstrumentEditorBtn->isChecked() && m_pShowInstrumentEditorBtn->isDown() ) {
+		
+		m_pShowInstrumentEditorBtn->setChecked( true );
+		m_pShowInstrumentEditorBtn->setDown( false );
+		return;
+	} else if ( ! m_pShowInstrumentEditorBtn->isChecked() &&
+				! m_pShowInstrumentEditorBtn->isDown() ) {
 		m_pShowInstrumentEditorBtn->setChecked( true );
 	}
+
 	m_pShowSoundLibraryBtn->setChecked( false );
 
 	InstrumentEditorPanel::get_instance()->show();
