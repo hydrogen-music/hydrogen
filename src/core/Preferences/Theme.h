@@ -107,8 +107,8 @@ public:
 	QColor m_widgetTextColor;
 	QColor m_buttonRedColor;
 	QColor m_buttonRedTextColor;
-	QColor m_spinBoxSelectionColor;
-	QColor m_spinBoxSelectionTextColor;
+	QColor m_spinBoxColor;
+	QColor m_spinBoxTextColor;
 	QColor m_automationColor;
 	QColor m_automationCircleColor;
 };
@@ -137,10 +137,16 @@ public:
 		Larger = 2
 	};
 
+	enum class IconColor {
+		Black = 0,
+		White = 1
+	};
+
 	QString m_sQTStyle;
 	float m_fMixerFalloffSpeed;
 	Layout m_layout;
 	ScalingPolicy m_scalingPolicy;
+	IconColor m_iconColor;
 	int	m_nColoringMethod;
 	std::vector<QColor> m_patternColors;
 	int	m_nVisiblePatternColors;

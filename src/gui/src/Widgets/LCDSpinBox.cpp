@@ -283,18 +283,19 @@ void LCDSpinBox::leaveEvent( QEvent* ev ) {
 void LCDSpinBox::updateStyleSheet() {
 	
 	auto pPref = H2Core::Preferences::get_instance();
+
+	QColor selectionColor = pPref->getColorTheme()->m_spinBoxColor.darker( 120 );
 	
 	setStyleSheet( QString( "\
 QDoubleSpinBox, QSpinBox { \
     color: %1; \
     background-color: %2; \
-    selection-color: %3; \
-    selection-background-color: %4; \
+    selection-color: %1; \
+    selection-background-color: %3; \
 }" )
-				   .arg( pPref->getColorTheme()->m_accentTextColor.name() )
-				   .arg( pPref->getColorTheme()->m_accentColor.name() )
-				   .arg( pPref->getColorTheme()->m_spinBoxSelectionTextColor.name() )
-				   .arg( pPref->getColorTheme()->m_spinBoxSelectionColor.name() ) );
+				   .arg( pPref->getColorTheme()->m_spinBoxTextColor.name() )
+				   .arg( pPref->getColorTheme()->m_spinBoxColor.name() )
+				   .arg( selectionColor.name() ) );
 }
 
 void LCDSpinBox::onPreferencesChanged( H2Core::Preferences::Changes changes ) {

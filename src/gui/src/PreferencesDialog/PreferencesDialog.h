@@ -135,6 +135,7 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 	void exportTheme();
 	void importTheme();
 	void resetTheme();
+	void onIconColorChanged(int);
 
 private:
 
@@ -156,6 +157,7 @@ private:
 	QColor* m_pCurrentColor;
 	int m_nCurrentId;
 	QTimer* m_pColorSliderTimer;
+	H2Core::InterfaceTheme::IconColor m_previousIconColor;
 
 	bool m_bNeedDriverRestart;
 	QString m_sInitialLanguage;

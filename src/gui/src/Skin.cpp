@@ -39,6 +39,7 @@ QString Skin::getGlobalStyleSheet() {
 	QColor buttonBackgroundCheckedLightHover = pPref->getColorTheme()->m_accentColor.lighter( nFactorGradient + nHover );
 	QColor buttonBackgroundCheckedDarkHover = pPref->getColorTheme()->m_accentColor.darker( nFactorGradient + nHover );
 	QColor buttonTextChecked = pPref->getColorTheme()->m_accentTextColor;
+	QColor spinBoxSelection = pPref->getColorTheme()->m_spinBoxColor.darker( 120 );
 	
 	return QString( "\
 QToolTip { \
@@ -82,8 +83,8 @@ QLineEdit { \
 QDoubleSpinBox, QSpinBox { \
     color: %16; \
     background-color: %17; \
-    selection-color: %18; \
-    selection-background-color: %19; \
+    selection-color: %16; \
+    selection-background-color: %18; \
 }"
 					)
 		.arg( pPref->getColorTheme()->m_toolTipTextColor.name() )
@@ -97,10 +98,9 @@ QDoubleSpinBox, QSpinBox { \
 		.arg( pPref->getColorTheme()->m_widgetColor.name() )
 		.arg( pPref->getColorTheme()->m_windowTextColor.name() )
 		.arg( pPref->getColorTheme()->m_windowColor.name() )
-		.arg( pPref->getColorTheme()->m_accentTextColor.name() )
-		.arg( pPref->getColorTheme()->m_accentColor.name() )
-		.arg( pPref->getColorTheme()->m_spinBoxSelectionTextColor.name() )
-		.arg( pPref->getColorTheme()->m_spinBoxSelectionColor.name() );
+		.arg( pPref->getColorTheme()->m_spinBoxTextColor.name() )
+		.arg( pPref->getColorTheme()->m_spinBoxColor.name() )
+		.arg( spinBoxSelection.name() );
 }
 
 void Skin::setPalette( QApplication *pQApp ) {

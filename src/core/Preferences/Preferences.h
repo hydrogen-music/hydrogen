@@ -400,6 +400,8 @@ public:
 
 	InterfaceTheme::ScalingPolicy getUIScalingPolicy();
 	void			setUIScalingPolicy( InterfaceTheme::ScalingPolicy policy );
+	InterfaceTheme::IconColor getIconColor();
+	void			setIconColor( InterfaceTheme::IconColor iconColor );
 
 	// General
 	const QString&	getPreferredLanguage();
@@ -871,6 +873,14 @@ inline InterfaceTheme::ScalingPolicy Preferences::getUIScalingPolicy(){
 
 inline void Preferences::setUIScalingPolicy( InterfaceTheme::ScalingPolicy scalingPolicy){
 	m_pTheme->getInterfaceTheme()->m_scalingPolicy = scalingPolicy;
+}
+
+inline InterfaceTheme::IconColor Preferences::getIconColor(){
+	return m_pTheme->getInterfaceTheme()->m_iconColor;
+}
+
+inline void Preferences::setIconColor( InterfaceTheme::IconColor iconColor){
+	m_pTheme->getInterfaceTheme()->m_iconColor = iconColor;
 }
 
 // General

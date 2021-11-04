@@ -119,6 +119,7 @@ private:
 	void updateStyleSheet();
 	void updateFont();
 	void updateTooltip();
+	void updateIcon();
 
 	bool m_bUseRedBackground;
 	Type m_type;

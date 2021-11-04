@@ -68,8 +68,8 @@ ColorTheme::ColorTheme()
 	, m_widgetTextColor( QColor( 10, 10, 10 ) )
 	, m_buttonRedColor( QColor( 247, 100, 100 ) )
 	, m_buttonRedTextColor( QColor( 10, 10, 10 ) )
-	, m_spinBoxSelectionColor( QColor( 51, 74 , 100 ) )
-	, m_spinBoxSelectionTextColor( QColor( 240, 240, 240 ) )
+	, m_spinBoxColor( QColor( 51, 74 , 100 ) )
+	, m_spinBoxTextColor( QColor( 240, 240, 240 ) )
 	, m_automationColor( QColor( 67, 96, 131 ) )
 	, m_automationCircleColor( QColor( 255, 255, 255 ) )
 	, m_accentColor( QColor( 67, 96, 131 ) )
@@ -119,8 +119,8 @@ ColorTheme::ColorTheme( const std::shared_ptr<ColorTheme> pOther )
 	, m_widgetTextColor( pOther->m_widgetTextColor )
 	, m_buttonRedColor( pOther->m_buttonRedColor )
 	, m_buttonRedTextColor( pOther->m_buttonRedTextColor )
-	, m_spinBoxSelectionColor( pOther->m_spinBoxSelectionColor )
-	, m_spinBoxSelectionTextColor( pOther->m_spinBoxSelectionTextColor )
+	, m_spinBoxColor( pOther->m_spinBoxColor )
+	, m_spinBoxTextColor( pOther->m_spinBoxTextColor )
 	, m_automationColor( pOther->m_automationColor )
 	, m_automationCircleColor( pOther->m_automationCircleColor )
 {
@@ -135,6 +135,7 @@ InterfaceTheme::InterfaceTheme()
 	, m_fMixerFalloffSpeed( InterfaceTheme::FALLOFF_NORMAL )
 	, m_layout( InterfaceTheme::Layout::SinglePane )
 	, m_scalingPolicy( InterfaceTheme::ScalingPolicy::Smaller )
+	, m_iconColor( InterfaceTheme::IconColor::Black )
 	, m_nColoringMethod( 2 )
 	, m_nVisiblePatternColors( 1 )
 	, m_nMaxPatternColors( 50 ) {
@@ -149,6 +150,7 @@ InterfaceTheme::InterfaceTheme( const std::shared_ptr<InterfaceTheme> pOther )
 	, m_fMixerFalloffSpeed( pOther->m_fMixerFalloffSpeed )
 	, m_layout( pOther->m_layout )
 	, m_scalingPolicy( pOther->m_scalingPolicy )
+	, m_iconColor( pOther->m_iconColor )
 	, m_nColoringMethod( pOther->m_nColoringMethod )
 	, m_nVisiblePatternColors( pOther->m_nVisiblePatternColors )
 	, m_nMaxPatternColors( pOther->m_nMaxPatternColors ){
@@ -227,8 +229,8 @@ void Theme::setTheme( const std::shared_ptr<Theme> pOther ) {
 	m_pColorTheme->m_widgetTextColor = pOther->getColorTheme()->m_widgetTextColor;
 	m_pColorTheme->m_buttonRedColor = pOther->getColorTheme()->m_buttonRedColor;
 	m_pColorTheme->m_buttonRedTextColor = pOther->getColorTheme()->m_buttonRedTextColor;
-	m_pColorTheme->m_spinBoxSelectionColor = pOther->getColorTheme()->m_spinBoxSelectionColor;
-	m_pColorTheme->m_spinBoxSelectionTextColor = pOther->getColorTheme()->m_spinBoxSelectionTextColor;
+	m_pColorTheme->m_spinBoxColor = pOther->getColorTheme()->m_spinBoxColor;
+	m_pColorTheme->m_spinBoxTextColor = pOther->getColorTheme()->m_spinBoxTextColor;
 	m_pColorTheme->m_automationColor = pOther->getColorTheme()->m_automationColor;
 	m_pColorTheme->m_automationCircleColor = pOther->getColorTheme()->m_automationCircleColor;
 		
@@ -236,6 +238,7 @@ void Theme::setTheme( const std::shared_ptr<Theme> pOther ) {
 	m_pInterfaceTheme->m_fMixerFalloffSpeed = pOther->getInterfaceTheme()->m_fMixerFalloffSpeed;
 	m_pInterfaceTheme->m_layout = pOther->getInterfaceTheme()->m_layout;
 	m_pInterfaceTheme->m_scalingPolicy = pOther->getInterfaceTheme()->m_scalingPolicy;
+	m_pInterfaceTheme->m_iconColor = pOther->getInterfaceTheme()->m_iconColor;
 	m_pInterfaceTheme->m_nColoringMethod = pOther->getInterfaceTheme()->m_nColoringMethod;
 	m_pInterfaceTheme->m_nVisiblePatternColors = pOther->getInterfaceTheme()->m_nVisiblePatternColors;
 	m_pInterfaceTheme->m_nMaxPatternColors = pOther->getInterfaceTheme()->m_nMaxPatternColors;
@@ -314,8 +317,8 @@ void Theme::writeColorTheme( QDomNode* parent, std::shared_ptr<Theme> pTheme )
 	LocalFileMng::writeXmlColor( widgetNode, "widgetTextColor", pTheme->getColorTheme()->m_widgetTextColor );
 	LocalFileMng::writeXmlColor( widgetNode, "buttonRedColor", pTheme->getColorTheme()->m_buttonRedColor );
 	LocalFileMng::writeXmlColor( widgetNode, "buttonRedTextColor", pTheme->getColorTheme()->m_buttonRedTextColor );
-	LocalFileMng::writeXmlColor( widgetNode, "spinBoxSelectionColor", pTheme->getColorTheme()->m_spinBoxSelectionColor );
-	LocalFileMng::writeXmlColor( widgetNode, "spinBoxSelectionTextColor", pTheme->getColorTheme()->m_spinBoxSelectionTextColor );
+	LocalFileMng::writeXmlColor( widgetNode, "spinBoxColor", pTheme->getColorTheme()->m_spinBoxColor );
+	LocalFileMng::writeXmlColor( widgetNode, "spinBoxTextColor", pTheme->getColorTheme()->m_spinBoxTextColor );
 	LocalFileMng::writeXmlColor( widgetNode, "automationColor", pTheme->getColorTheme()->m_automationColor );
 	LocalFileMng::writeXmlColor( widgetNode, "automationCircleColor", pTheme->getColorTheme()->m_automationCircleColor );
 	node.appendChild( widgetNode );
@@ -394,8 +397,8 @@ void Theme::readColorTheme( QDomNode parent, std::shared_ptr<Theme> pTheme )
 		pTheme->getColorTheme()->m_widgetTextColor = LocalFileMng::readXmlColor( pWidgetNode, "widgetTextColor", pTheme->getColorTheme()->m_widgetTextColor );
 		pTheme->getColorTheme()->m_buttonRedColor = LocalFileMng::readXmlColor( pWidgetNode, "buttonRedColor", pTheme->getColorTheme()->m_buttonRedColor );
 		pTheme->getColorTheme()->m_buttonRedTextColor = LocalFileMng::readXmlColor( pWidgetNode, "buttonRedTextColor", pTheme->getColorTheme()->m_buttonRedTextColor );
-		pTheme->getColorTheme()->m_spinBoxSelectionColor = LocalFileMng::readXmlColor( pWidgetNode, "spinBoxSelectionColor", pTheme->getColorTheme()->m_spinBoxSelectionColor );
-		pTheme->getColorTheme()->m_spinBoxSelectionTextColor = LocalFileMng::readXmlColor( pWidgetNode, "spinBoxSelectionTextColor", pTheme->getColorTheme()->m_spinBoxSelectionTextColor );
+		pTheme->getColorTheme()->m_spinBoxColor = LocalFileMng::readXmlColor( pWidgetNode, "spinBoxColor", pTheme->getColorTheme()->m_spinBoxColor );
+		pTheme->getColorTheme()->m_spinBoxTextColor = LocalFileMng::readXmlColor( pWidgetNode, "spinBoxTextColor", pTheme->getColorTheme()->m_spinBoxTextColor );
 		pTheme->getColorTheme()->m_automationColor = LocalFileMng::readXmlColor( pWidgetNode, "automationColor", pTheme->getColorTheme()->m_automationColor );
 		pTheme->getColorTheme()->m_automationCircleColor = LocalFileMng::readXmlColor( pWidgetNode, "automationCircleColor", pTheme->getColorTheme()->m_automationCircleColor );
 	} else {
@@ -436,6 +439,7 @@ std::shared_ptr<Theme> Theme::importTheme( const QString& sPath ) {
 			if ( pTheme->getInterfaceTheme()->m_sQTStyle == "Plastique" ){
 				pTheme->getInterfaceTheme()->m_sQTStyle = "Fusion";
 			}
+			pTheme->getInterfaceTheme()->m_iconColor = static_cast<InterfaceTheme::IconColor>(LocalFileMng::readXmlInt( interfaceNode, "iconColor", static_cast<int>(InterfaceTheme::IconColor::Black) ));
 
 			// Mixer falloff speed
 			pTheme->getInterfaceTheme()->m_fMixerFalloffSpeed = LocalFileMng::readXmlFloat( interfaceNode, "mixer_falloff_speed",
@@ -509,6 +513,8 @@ void Theme::exportTheme( const QString& sPath, const std::shared_ptr<Theme> pThe
 								  QString::number( static_cast<int>(pTheme->getInterfaceTheme()->m_scalingPolicy) ) );
 	LocalFileMng::writeXmlString( interfaceNode, "QTStyle",
 								  pTheme->getInterfaceTheme()->m_sQTStyle );
+	LocalFileMng::writeXmlString( interfaceNode, "iconColor",
+								  QString::number( static_cast<int>(pTheme->getInterfaceTheme()->m_iconColor) ) );
 	LocalFileMng::writeXmlString( interfaceNode, "mixer_falloff_speed",
 								  QString("%1").arg( pTheme->getInterfaceTheme()->m_fMixerFalloffSpeed ) );
 	LocalFileMng::writeXmlString( interfaceNode, "SongEditor_ColoringMethod",

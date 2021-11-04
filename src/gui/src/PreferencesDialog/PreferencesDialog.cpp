@@ -364,9 +364,14 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	uiScalingPolicyComboBox->setCurrentIndex( static_cast<int>(pPref->getUIScalingPolicy()) );
 #else
 	uiScalingPolicyComboBox->setEnabled( false );
-        uiScalingPolicyLabel->setEnabled( false );
+	uiScalingPolicyLabel->setEnabled( false );
 #endif
 
+	m_previousIconColor = pPref->getIconColor();
+	iconColorComboBox->setCurrentIndex( static_cast<int>(pPref->getIconColor()) );
+	connect( iconColorComboBox, SIGNAL(currentIndexChanged(int)), this,
+			 SLOT( onIconColorChanged(int)) );
+	
 	// Style
 	QStringList list = QStyleFactory::keys();
 	uint i = 0;
@@ -466,8 +471,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	new ColorTreeItem( 0x203, pTopLevelItem, "Accent Text" );
 	new ColorTreeItem( 0x204, pTopLevelItem, "Button Red" );
 	new ColorTreeItem( 0x205, pTopLevelItem, "Button Red Text" );
-	new ColorTreeItem( 0x206, pTopLevelItem, "Spin Box Selection" );
-	new ColorTreeItem( 0x207, pTopLevelItem, "Spin Box Selection Text" );
+	new ColorTreeItem( 0x206, pTopLevelItem, "Spin Box" );
+	new ColorTreeItem( 0x207, pTopLevelItem, "Spin Box Text" );
 	new ColorTreeItem( 0x208, pTopLevelItem, "Automation" );
 	new ColorTreeItem( 0x209, pTopLevelItem, "Automation Circle" );
 	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, "Song Editor" );
@@ -855,6 +860,7 @@ void PreferencesDialog::on_okBtn_clicked()
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
 	pPref->setUIScalingPolicy( static_cast<InterfaceTheme::ScalingPolicy>(uiScalingPolicyComboBox->currentIndex()) );
 #endif
+	pPref->setIconColor( static_cast<InterfaceTheme::IconColor>(iconColorComboBox->currentIndex()) );
 
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
 	SongEditorPanel* pSongEditorPanel = pH2App->getSongEditorPanel();
@@ -1171,6 +1177,7 @@ void PreferencesDialog::onRejected() {
 	pPref->setApplicationFontFamily( m_sPreviousApplicationFontFamily );
 	pPref->setLevel2FontFamily( m_sPreviousLevel2FontFamily );
 	pPref->setLevel3FontFamily( m_sPreviousLevel3FontFamily );
+	pPref->setIconColor( m_previousIconColor );
 	pPref->setFontSize( m_previousFontSize );
 	pPref->setPatternColors( m_previousPatternColors );
 	pPref->setVisiblePatternColors( m_nPreviousVisiblePatternColors );
@@ -1202,6 +1209,11 @@ void PreferencesDialog::onFontSizeChanged( int nIndex ) {
 
 void PreferencesDialog::onUILayoutChanged( int nIndex ) {
 	UIChangeWarningLabel->show();
+}
+void PreferencesDialog::onIconColorChanged( int nIndex ) {
+
+	H2Core::Preferences::get_instance()->setIconColor( static_cast<InterfaceTheme::IconColor>(nIndex ) );
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
 void PreferencesDialog::onColorNumberChanged( int nIndex ) {
@@ -1396,8 +1408,8 @@ QColor* PreferencesDialog::getColorById( int nId, std::shared_ptr<H2Core::ColorT
 	case 0x203: return &pColorTheme->m_accentTextColor;
 	case 0x204: return &pColorTheme->m_buttonRedColor;
 	case 0x205: return &pColorTheme->m_buttonRedTextColor;
-	case 0x206: return &pColorTheme->m_spinBoxSelectionColor;
-	case 0x207: return &pColorTheme->m_spinBoxSelectionTextColor;
+	case 0x206: return &pColorTheme->m_spinBoxColor;
+	case 0x207: return &pColorTheme->m_spinBoxTextColor;
 	case 0x208: return &pColorTheme->m_automationColor;
 	case 0x209: return &pColorTheme->m_automationCircleColor;
 	case 0x300: return &pColorTheme->m_songEditor_backgroundColor;
@@ -1474,9 +1486,9 @@ void PreferencesDialog::setColorById( int nId, const QColor& color,
 		break;
 	case 0x205:  pColorTheme->m_buttonRedTextColor = color;
 		break;
-	case 0x206:  pColorTheme->m_spinBoxSelectionColor = color;
+	case 0x206:  pColorTheme->m_spinBoxColor = color;
 		break;
-	case 0x207:  pColorTheme->m_spinBoxSelectionTextColor = color;
+	case 0x207:  pColorTheme->m_spinBoxTextColor = color;
 		break;
 	case 0x208:  pColorTheme->m_automationColor = color;
 		break;

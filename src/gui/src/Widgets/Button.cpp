@@ -54,13 +54,7 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	resize( size );
 
 	if ( ! sIcon.isEmpty() ) {
-		if ( bColorful ) {
-			setIcon( QIcon( Skin::getSvgImagePath() + "/icons/" + sIcon ) );
-		} else {
-			// Unchecked version
-			setIcon( QIcon( Skin::getSvgImagePath() + "/icons/black/" + sIcon ) );
-		}
-		setIconSize( iconSize );
+		updateIcon();
 	} else {
 		setText( sText );
 	}
@@ -89,6 +83,20 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 Button::~Button() {
 }
 
+void Button::updateIcon() {
+	if ( m_bColorful ) {
+		setIcon( QIcon( Skin::getSvgImagePath() + "/icons/" + m_sIcon ) );
+	} else {
+		if ( H2Core::Preferences::get_instance()->getIconColor() ==
+			 H2Core::InterfaceTheme::IconColor::White ) {
+			setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/" + m_sIcon ) );
+		} else {
+			setIcon( QIcon( Skin::getSvgImagePath() + "/icons/black/" + m_sIcon ) );
+		}
+	}
+	setIconSize( m_iconSize );
+}
+
 void Button::updateStyleSheet() {
 
 	auto pPref = H2Core::Preferences::get_instance();
@@ -100,6 +108,7 @@ void Button::updateStyleSheet() {
 	QColor backgroundDark = pPref->getColorTheme()->m_widgetColor.darker( nFactorGradient );
 	QColor backgroundLightHover = pPref->getColorTheme()->m_widgetColor.lighter( nFactorGradient + nHover );
 	QColor backgroundDarkHover = pPref->getColorTheme()->m_widgetColor.darker( nFactorGradient + nHover );
+	QColor border = Qt::black;
 
 	QColor backgroundCheckedLight, backgroundCheckedDark, backgroundCheckedLightHover,
 		backgroundCheckedDarkHover, textChecked;
@@ -119,7 +128,7 @@ void Button::updateStyleSheet() {
 	
 	setStyleSheet( QString( "QPushButton { \
     color: %1; \
-    border: 1px solid %1; \
+    border: 1px solid %12; \
     border-radius: %2px; \
     padding: 0px; \
     background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
@@ -131,7 +140,7 @@ QPushButton:hover { \
 } \
 QPushButton:checked { \
     color: %7; \
-    border: 1px solid %1; \
+    border: 1px solid %12; \
     border-radius: %2px; \
     padding: 0px; \
     background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
@@ -148,7 +157,8 @@ QPushButton:checked:hover { \
 				   .arg( backgroundLightHover.name() ).arg( backgroundDarkHover.name() )
 				   .arg( textChecked.name() )
 				   .arg( backgroundCheckedLight.name() ).arg( backgroundCheckedDark.name() )
-				   .arg( backgroundCheckedLightHover.name() ).arg( backgroundCheckedDarkHover.name() ) );
+				   .arg( backgroundCheckedLightHover.name() ).arg( backgroundCheckedDarkHover.name() )
+				   .arg( border.name() ) );
 }
 
 void Button::setBaseToolTip( const QString& sNewTip ) {
@@ -262,16 +272,6 @@ void Button::paintEvent( QPaintEvent* ev )
 	QPushButton::paintEvent( ev );
 
 	updateFont();
-
-	if ( ! m_sIcon.isEmpty() && !m_bColorful && isChecked() != m_bLastCheckedState ) {
-		if ( isChecked() ) {
-			setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/" + m_sIcon ) );
-		} else {
-			setIcon( QIcon( Skin::getSvgImagePath() + "/icons/black/" + m_sIcon ) );
-		}
-
-		m_bLastCheckedState = isChecked();
-	}
 }
 
 void Button::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
@@ -282,5 +282,9 @@ void Button::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 
 		updateFont();
 		updateStyleSheet();
+	}
+
+	if ( changes & H2Core::Preferences::Changes::AppearanceTab ) {
+		updateIcon();
 	}
 }

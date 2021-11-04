@@ -46,15 +46,15 @@
    <toolTipTextColor>64,64,66</toolTipTextColor>
   </palette>
   <widget>
-   <accentColor>67,96,131</accentColor>
-   <accentTextColor>255,255,255</accentTextColor>
+   <accentColor>95,143,182</accentColor>
+   <accentTextColor>0,0,0</accentTextColor>
    <widgetColor>164,170,190</widgetColor>
-   <widgetTextColor>10,10,10</widgetTextColor>
+   <widgetTextColor>0,0,0</widgetTextColor>
    <buttonRedColor>247,100,100</buttonRedColor>
    <buttonRedTextColor>10,10,10</buttonRedTextColor>
-   <spinBoxSelectionColor>51,74,100</spinBoxSelectionColor>
-   <spinBoxSelectionTextColor>240,240,240</spinBoxSelectionTextColor>
-   <automationColor>67,96,131</automationColor>
+   <spinBoxColor>51,74,100</spinBoxColor>
+   <spinBoxTextColor>240,240,240</spinBoxTextColor>
+   <automationColor>52,76,100</automationColor>
    <automationCircleColor>255,255,255</automationCircleColor>
   </widget>
  </colorTheme>
@@ -62,6 +62,7 @@
   <defaultUILayout>0</defaultUILayout>
   <uiScalingPolicy>0</uiScalingPolicy>
   <QTStyle>Fusion</QTStyle>
+  <iconColor>0</iconColor>
   <mixer_falloff_speed>1.1</mixer_falloff_speed>
   <SongEditor_ColoringMethod>1</SongEditor_ColoringMethod>
   <SongEditor_pattern_color_0>67,96,131</SongEditor_pattern_color_0>
