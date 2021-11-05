@@ -29,6 +29,7 @@
 #include <core/Preferences.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Basics/Sample.h>
+#include <core/Basics/Note.h>
 
 #if defined(H2CORE_HAVE_RUBBERBAND) || _DOXYGEN_
 #include <rubberband/RubberBandStretcher.h>
@@ -624,14 +625,14 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 
 		QStringList arguments;
 		QString rCs = QString( " %1" ).arg( rb.c_settings );
-		float pitch = pow( 1.0594630943593, ( double )rb.pitch );
-		QString rPs = QString( " %1" ).arg( pitch );
+		float fFrequency = Note::pitchToFrequency( ( double )rb.pitch );
+		QString rFs = QString( " %1" ).arg( fFrequency );
 		QString rubberResultPath = QDir::tempPath() + "/tmp_rb_result_file.wav";
 
 		arguments << "-D" << QString( " %1" ).arg( durationtime ) 	//stretch or squash to make output file X seconds long
 		          << "--threads"					//assume multi-CPU even if only one CPU is identified
 		          << "-P"						//aim for minimal time distortion
-		          << "-f" << rPs					//pitch
+		          << "-f" << rFs					//frequency
 		          << "-c" << rCs					//"crispness" levels
 		          << outfilePath 					//infile
 		          << rubberResultPath;					//outfile
@@ -806,13 +807,7 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const {
 #ifdef H2CORE_HAVE_RUBBERBAND
 static double compute_pitch_scale( const Sample::Rubberband& rb )
 {
-	double pitchshift = rb.pitch;
-	double frequencyshift = 1.0;
-	if ( pitchshift != 0.0 ) {
-		frequencyshift *= pow( 2.0, pitchshift / 12 );
-	}
-	//float pitch = pow( 1.0594630943593, ( double )rb.pitch );
-	return frequencyshift;
+	return Note::pitchToFrequency( rb.pitch );
 }
 
 static RubberBand::RubberBandStretcher::Options compute_rubberband_options( const Sample::Rubberband& rb )

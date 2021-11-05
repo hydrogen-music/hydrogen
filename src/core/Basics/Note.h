@@ -309,6 +309,12 @@ class Note : public H2Core::Object
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
+		/** Convert a logarithmic pitch-space value in semitones to a frequency-domain value */
+		static inline double pitchToFrequency( double fPitch ) {
+			// Equivalent to, but quicker to compute than, pow( 2.0, ( fPitch/12 ) )
+			return pow( 1.0594630943593, fPitch );
+		}
+
 	private:
 		Instrument*		__instrument;   ///< the instrument to be played by this note
 		int				__instrument_id;        ///< the id of the instrument played by this note

@@ -1225,7 +1225,7 @@ bool Sampler::renderNoteResample(
 	}
 	float fNotePitch = pNote->get_total_pitch() + fLayerPitch;
 
-	float fStep = pow( 1.0594630943593, ( double )fNotePitch );
+	float fStep = Note::pitchToFrequency( fNotePitch );
 //	_ERRORLOG( QString("pitch: %1, step: %2" ).arg(fNotePitch).arg( fStep) );
 	fStep *= ( float )pSample->get_sample_rate() / pAudioOutput->getSampleRate(); // Adjust for audio driver sample rate
 
