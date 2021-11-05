@@ -132,8 +132,6 @@ public:
 		OscTab = 0x040
 	};
 
-	QString				__lastspatternDirectory;
-	QString				__lastsampleDirectory; // audio file browser
 	bool				__playsamplesonclicking; // audio file browser
 
 	bool				__playselectedinstrument; // midi keys and keys play instrument or drumset
@@ -606,6 +604,35 @@ public:
 
 	QString			getH2ProcessName();
 
+	QString			getLastExportPatternAsDirectory() const;
+	QString			getLastExportSongDirectory() const;
+	QString			getLastSaveSongAsDirectory() const;
+	QString			getLastOpenSongDirectory() const;
+	QString			getLastOpenPatternDirectory() const;
+	QString			getLastExportLilypondDirectory() const;
+	QString			getLastExportMidiDirectory() const;
+	QString			getLastImportDrumkitDirectory() const;
+	QString			getLastExportDrumkitDirectory() const;
+	QString			getLastOpenLayerDirectory() const;
+	QString			getLastOpenPlaybackTrackDirectory() const;
+	QString			getLastAddSongToPlaylistDirectory() const;
+	QString			getLastPlaylistDirectory() const;
+	QString			getLastPlaylistScriptDirectory() const;
+	void			setLastExportPatternAsDirectory( QString sPath );
+	void			setLastExportSongDirectory( QString sPath );
+	void			setLastSaveSongAsDirectory( QString sPath );
+	void			setLastOpenSongDirectory( QString sPath );
+	void			setLastOpenPatternDirectory( QString sPath );
+	void			setLastExportLilypondDirectory( QString sPath );
+	void			setLastExportMidiDirectory( QString sPath );
+	void			setLastImportDrumkitDirectory( QString sPath );
+	void			setLastExportDrumkitDirectory( QString sPath );
+	void			setLastOpenLayerDirectory( QString sPath );
+	void			setLastOpenPlaybackTrackDirectory( QString sPath );
+	void			setLastAddSongToPlaylistDirectory( QString sPath );
+	void			setLastPlaylistDirectory( QString sPath );
+	void			setLastPlaylistScriptDirectory( QString sPath );
+
 	int				getExportSampleDepthIdx() const;
 	void			setExportSampleDepthIdx( int nExportSampleDepthIdx );
 	
@@ -615,17 +642,11 @@ public:
 	int				getExportModeIdx() const;
 	void			setExportModeIdx(int nExportMode);
 	
-	QString			getExportDirectory() const;
-	void			setExportDirectory( const QString &sExportDirectory );
-	
 	int				getExportTemplateIdx() const;
 	void			setExportTemplateIdx( int nExportTemplateIdx );
 
     int				getMidiExportMode() const;
     void			setMidiExportMode(int nExportMode);
-
-    QString			getMidiExportDirectory() const;
-    void			setMidiExportDirectory( const QString &sExportDirectory );
 
 	/** Returns #m_sPreferencesOverwritePath
 	 * \return #m_sPreferencesOverwritePath */
@@ -746,8 +767,23 @@ private:
 
 	QString					m_sPreferredLanguage;
 
+	// Last directories used in QFileDialogs
+	QString					m_sLastExportPatternAsDirectory;
+	QString					m_sLastExportSongDirectory;
+	QString					m_sLastSaveSongAsDirectory;
+	QString					m_sLastOpenSongDirectory;
+	QString					m_sLastOpenPatternDirectory;
+	QString					m_sLastExportLilypondDirectory;
+	QString					m_sLastExportMidiDirectory;
+	QString					m_sLastImportDrumkitDirectory;
+	QString					m_sLastExportDrumkitDirectory;
+	QString					m_sLastOpenLayerDirectory;
+	QString					m_sLastOpenPlaybackTrackDirectory;
+	QString					m_sLastAddSongToPlaylistDirectory;
+	QString					m_sLastPlaylistDirectory;
+	QString					m_sLastPlaylistScriptDirectory;
+
 	//Export dialog
-	QString					m_sExportDirectory;
 	int						m_nExportModeIdx;
 	int						m_nExportSampleRateIdx;
 	int						m_nExportSampleDepthIdx;
@@ -755,7 +791,6 @@ private:
 	//~ Export dialog
 
     // Export midi dialog
-    QString					m_sMidiExportDirectory;
     int						m_nMidiExportMode;
     //~ Export midi dialog
 	
@@ -781,14 +816,103 @@ private:
 	void writeWindowProperties( QDomNode parent, const QString& windowName, const WindowProperties& prop );
 };
 
-inline QString Preferences::getMidiExportDirectory() const
-{
-	return m_sMidiExportDirectory;
+inline QString			Preferences::getLastExportPatternAsDirectory() const {
+	return m_sLastExportPatternAsDirectory;
 }
-
-inline void Preferences::setMidiExportDirectory(const QString &ExportDirectory)
+inline QString			Preferences::getLastExportSongDirectory() const {
+	return m_sLastExportSongDirectory;
+}
+inline QString			Preferences::getLastSaveSongAsDirectory() const {
+	return m_sLastSaveSongAsDirectory;
+}
+inline QString			Preferences::getLastOpenSongDirectory() const {
+	return m_sLastOpenSongDirectory;
+}
+inline QString			Preferences::getLastOpenPatternDirectory() const {
+	return m_sLastOpenPatternDirectory;
+}
+inline QString			Preferences::getLastExportLilypondDirectory() const {
+	return m_sLastExportLilypondDirectory;
+}
+inline QString			Preferences::getLastExportMidiDirectory() const {
+	return m_sLastExportMidiDirectory;
+}
+inline QString			Preferences::getLastImportDrumkitDirectory() const {
+	return m_sLastImportDrumkitDirectory;
+}
+inline QString			Preferences::getLastExportDrumkitDirectory() const {
+	return m_sLastExportDrumkitDirectory;
+}
+inline QString			Preferences::getLastOpenLayerDirectory() const {
+	return m_sLastOpenLayerDirectory;
+}
+inline QString			Preferences::getLastOpenPlaybackTrackDirectory() const {
+	return m_sLastOpenPlaybackTrackDirectory;
+}
+inline QString			Preferences::getLastAddSongToPlaylistDirectory() const {
+	return m_sLastAddSongToPlaylistDirectory;
+}
+inline QString			Preferences::getLastPlaylistDirectory() const {
+	return m_sLastPlaylistDirectory;
+}
+inline QString			Preferences::getLastPlaylistScriptDirectory() const {
+	return m_sLastPlaylistScriptDirectory;
+}
+inline void Preferences::setLastExportPatternAsDirectory( QString sPath )
 {
-	m_sMidiExportDirectory = ExportDirectory;
+	m_sLastExportPatternAsDirectory = sPath;
+}
+inline void Preferences::setLastExportSongDirectory( QString sPath )
+{
+	m_sLastExportSongDirectory = sPath;
+}
+inline void Preferences::setLastSaveSongAsDirectory( QString sPath )
+{
+	m_sLastSaveSongAsDirectory = sPath;
+}
+inline void Preferences::setLastOpenSongDirectory( QString sPath )
+{
+	m_sLastOpenSongDirectory = sPath;
+}
+inline void Preferences::setLastOpenPatternDirectory( QString sPath )
+{
+	m_sLastOpenPatternDirectory = sPath;
+}
+inline void Preferences::setLastExportLilypondDirectory( QString sPath )
+{
+	m_sLastExportLilypondDirectory = sPath;
+}
+inline void Preferences::setLastExportMidiDirectory( QString sPath )
+{
+	m_sLastExportMidiDirectory = sPath;
+}
+inline void Preferences::setLastImportDrumkitDirectory( QString sPath )
+{
+	m_sLastImportDrumkitDirectory = sPath;
+}
+inline void Preferences::setLastExportDrumkitDirectory( QString sPath )
+{
+	m_sLastExportDrumkitDirectory = sPath;
+}
+inline void Preferences::setLastOpenLayerDirectory( QString sPath )
+{
+	m_sLastOpenLayerDirectory = sPath;
+}
+inline void Preferences::setLastOpenPlaybackTrackDirectory( QString sPath )
+{
+	m_sLastOpenPlaybackTrackDirectory = sPath;
+}
+inline void Preferences::setLastAddSongToPlaylistDirectory( QString sPath )
+{
+	m_sLastAddSongToPlaylistDirectory = sPath;
+}
+inline void Preferences::setLastPlaylistDirectory( QString sPath )
+{
+	m_sLastPlaylistDirectory = sPath;
+}
+inline void Preferences::setLastPlaylistScriptDirectory( QString sPath )
+{
+	m_sLastPlaylistScriptDirectory = sPath;
 }
 
 inline int Preferences::getMidiExportMode() const
@@ -824,16 +948,6 @@ inline int Preferences::getExportModeIdx() const
 inline void Preferences::setExportModeIdx(int ExportModeIdx)
 {
 	m_nExportModeIdx = ExportModeIdx;
-}
-
-inline QString Preferences::getExportDirectory() const
-{
-	return m_sExportDirectory;
-}
-
-inline void Preferences::setExportDirectory(const QString &ExportDirectory)
-{
-	m_sExportDirectory = ExportDirectory;
 }
 
 inline void Preferences::setExportSampleRateIdx(int ExportSampleRate)

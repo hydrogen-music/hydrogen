@@ -691,12 +691,15 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 
 void SoundLibraryImportDialog::on_BrowseBtn_clicked()
 {
-	static QString lastUsedDir = QDir::homePath();
+	QString sPath = H2Core::Preferences::get_instance()->getLastImportDrumkitDirectory();
+	if ( ! H2Core::Filesystem::dir_readable( sPath, false ) ){
+		sPath = QDir::homePath();
+	}
 
 	QFileDialog fd(this);
 	fd.setFileMode(QFileDialog::ExistingFile);
 	fd.setNameFilter( "Hydrogen drumkit (*.h2drumkit)" );
-	fd.setDirectory( lastUsedDir );
+	fd.setDirectory( sPath );
 
 	fd.setWindowTitle( tr( "Import drumkit" ) );
 
@@ -707,7 +710,7 @@ void SoundLibraryImportDialog::on_BrowseBtn_clicked()
 
 	if (filename != "") {
 		SoundLibraryPathTxt->setText( filename );
-		lastUsedDir = fd.directory().absolutePath();
+		H2Core::Preferences::get_instance()->setLastImportDrumkitDirectory( fd.directory().absolutePath() );
 		InstallBtn->setEnabled ( true );
 	}
 }

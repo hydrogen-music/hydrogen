@@ -39,7 +39,7 @@
 
 using namespace H2Core;
 
-AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect, bool bShowInstrumentManipulationControls)
+AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect, bool bShowInstrumentManipulationControls, QString sDefaultPath )
 		: QDialog ( pParent )
 		, Object ()
 {
@@ -48,6 +48,11 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect, b
 	setWindowTitle ( tr ( "Audio File Browser" ) );
 	adjustSize();
 	setFixedSize ( width(), height() );
+
+	if ( sDefaultPath.isEmpty() ) {
+		sDefaultPath = QDir::homePath();
+	}
+	m_sSelectedDirectory = sDefaultPath;
 	
 	m_bAllowMultiSelect = bAllowMultiSelect;
 	m_bShowInstrumentManipulationControls = bShowInstrumentManipulationControls;
@@ -69,9 +74,9 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect, b
 	m_pTree->resize( 799, 310 );
 	m_pTree->header()->resizeSection( 0, 405 );
 	m_pTree->setAlternatingRowColors( true );
-	m_pTree->setRootIndex( m_pDirModel->index( Preferences::get_instance()->__lastsampleDirectory ) );
+	m_pTree->setRootIndex( m_pDirModel->index( sDefaultPath ) );
 	
-	pathLineEdit->setText( Preferences::get_instance()->__lastsampleDirectory );
+	pathLineEdit->setText( sDefaultPath );
 	m_pSampleFilename = "";
 	m_pSelectedFile << "false" << "false";
 
@@ -337,7 +342,7 @@ void AudioFileBrowser::on_m_pStopBtn_clicked()
 
 void AudioFileBrowser::on_cancelBTN_clicked()
 {
-	Preferences::get_instance()->__lastsampleDirectory = pathLineEdit->text();
+	m_sSelectedDirectory = pathLineEdit->text();
 	m_pSelectedFile << "false" << "false" << "";
 	reject();
 }
@@ -365,7 +370,7 @@ void AudioFileBrowser::on_openBTN_clicked()
 		}
 	}
 
-	Preferences::get_instance()->__lastsampleDirectory = pathLineEdit->text();
+	m_sSelectedDirectory = pathLineEdit->text();
 	accept();
 }
 
@@ -389,7 +394,9 @@ QStringList AudioFileBrowser::getSelectedFiles()
 	return m_pSelectedFile;
 }
 
-
+QString AudioFileBrowser::getSelectedDirectory() {
+	return m_sSelectedDirectory;
+}
 
 void AudioFileBrowser::on_m_pPathHometoolButton_clicked()
 {

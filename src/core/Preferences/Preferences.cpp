@@ -88,9 +88,6 @@ Preferences::Preferences()
 	}
 
 	m_sPreferredLanguage = QString();
-
-	__lastspatternDirectory = QDir::homePath();
-	__lastsampleDirectory = QDir::homePath(); //audio file browser
 	__playsamplesonclicking = false; // audio file browser
 	__playselectedinstrument = false; // midi keyboard and keyboard play only selected instrument
 
@@ -102,14 +99,27 @@ Preferences::Preferences()
 	__expandPatternItem = true; //SoundLibraryPanel
 	__useTimelineBpm = false;		// use timeline
 	
+	m_sLastExportPatternAsDirectory = QDir::homePath();
+	m_sLastExportSongDirectory = QDir::homePath();
+	m_sLastSaveSongAsDirectory = QDir::homePath();
+	m_sLastOpenSongDirectory = Filesystem::songs_dir();
+	m_sLastOpenPatternDirectory = Filesystem::patterns_dir();
+	m_sLastExportLilypondDirectory = QDir::homePath();
+	m_sLastExportMidiDirectory = QDir::homePath();
+	m_sLastImportDrumkitDirectory = QDir::homePath();
+	m_sLastExportDrumkitDirectory = QDir::homePath();
+	m_sLastOpenLayerDirectory = QDir::homePath();
+	m_sLastOpenPlaybackTrackDirectory = QDir::homePath();
+	m_sLastAddSongToPlaylistDirectory = Filesystem::songs_dir();
+	m_sLastPlaylistDirectory = Filesystem::playlists_dir();
+	m_sLastPlaylistScriptDirectory = Filesystem::scripts_dir();
+	
 	//export dialog
-	m_sExportDirectory = QDir::homePath();
 	m_nExportModeIdx = 0;
 	m_nExportSampleRateIdx = 0;
 	m_nExportSampleDepthIdx = 0;
 
 	//export midi dialog
-	m_sMidiExportDirectory = QDir::homePath();
 	m_nMidiExportMode = 0;
 	/////////////////////////////////////////////////////////////////////////
 	/////////////////// DEFAULT SETTINGS ////////////////////////////////////
@@ -139,7 +149,19 @@ Preferences::Preferences()
 	m_sOSSDevice = QString("/dev/dsp");
 
 	//___ MIDI Driver properties
+#if defined(H2CORE_HAVE_ALSA)
 	m_sMidiDriver = QString("ALSA");
+#elif defined(H2CORE_HAVE_PORTMIDI)
+	m_sMidiDriver = QString("PortMidi");
+#elif defined(H2CORE_HAVE_COREMIDI)
+	m_sMidiDriver = QString("CoreMIDI");
+#elif defined(H2CORE_HAVE_JACK)
+	m_sMidiDriver = QString("JACK-MIDI");
+#else
+	// Set ALSA as fallback if none of the above options are available
+	// (although MIDI won't work in this case).
+	m_sMidiDriver = QString( "ALSA" );
+#endif
 	m_sMidiPortName = QString("None");
 	m_sMidiOutputPortName = QString("None");
 	m_nMidiChannelFilter = -1;
@@ -568,18 +590,32 @@ void Preferences::loadPreferences( bool bGlobal )
 				setInstrumentRackProperties( readWindowProperties( guiNode, "instrumentRack_properties", instrumentRackProperties ) );
 				setAudioEngineInfoProperties( readWindowProperties( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties ) );
 
+				// last used file dialog folders
+				m_sLastExportPatternAsDirectory = LocalFileMng::readXmlString( guiNode, "lastExportPatternAsDirectory", QDir::homePath() );
+				m_sLastExportSongDirectory = LocalFileMng::readXmlString( guiNode, "lastExportSongDirectory", QDir::homePath() );
+				m_sLastSaveSongAsDirectory = LocalFileMng::readXmlString( guiNode, "lastSaveSongAsDirectory", QDir::homePath() );
+				m_sLastOpenSongDirectory = LocalFileMng::readXmlString( guiNode, "lastOpenSongDirectory", Filesystem::songs_dir() );
+				m_sLastOpenPatternDirectory = LocalFileMng::readXmlString( guiNode, "lastOpenPatternDirectory", Filesystem::patterns_dir() );
+				m_sLastExportLilypondDirectory = LocalFileMng::readXmlString( guiNode, "lastExportLilypondDirectory", QDir::homePath() );
+				m_sLastExportMidiDirectory = LocalFileMng::readXmlString( guiNode, "lastExportMidiDirectory", QDir::homePath() );
+				m_sLastImportDrumkitDirectory = LocalFileMng::readXmlString( guiNode, "lastImportDrumkitDirectory", QDir::homePath() );
+				m_sLastExportDrumkitDirectory = LocalFileMng::readXmlString( guiNode, "lastExportDrumkitDirectory", QDir::homePath() );
+				m_sLastOpenLayerDirectory = LocalFileMng::readXmlString( guiNode, "lastOpenLayerDirectory", QDir::homePath() );
+				m_sLastOpenPlaybackTrackDirectory = LocalFileMng::readXmlString( guiNode, "lastOpenPlaybackTrackDirectory", QDir::homePath() );
+				m_sLastAddSongToPlaylistDirectory = LocalFileMng::readXmlString( guiNode, "lastAddSongToPlaylistDirectory", Filesystem::songs_dir() );
+				m_sLastPlaylistDirectory = LocalFileMng::readXmlString( guiNode, "lastPlaylistDirectory", Filesystem::playlists_dir() );
+				m_sLastPlaylistScriptDirectory = LocalFileMng::readXmlString( guiNode, "lastPlaylistScriptDirectory", Filesystem::scripts_dir() );
+
 				//export dialog properties
 				m_nExportTemplateIdx = LocalFileMng::readXmlInt( guiNode, "exportDialogTemplate", 0 );
 				m_nExportModeIdx = LocalFileMng::readXmlInt( guiNode, "exportDialogMode", 0 );
 				m_nExportSampleRateIdx = LocalFileMng::readXmlInt( guiNode, "exportDialogSampleRate", 0 );
 				m_nExportSampleDepthIdx = LocalFileMng::readXmlInt( guiNode, "exportDialogSampleDepth", 0 );
-				m_sExportDirectory = LocalFileMng::readXmlString( guiNode, "exportDialogDirectory", QDir::homePath(), true );
 					
 				m_bFollowPlayhead = LocalFileMng::readXmlBool( guiNode, "followPlayhead", true );
 
 				// midi export dialog properties
 				m_nMidiExportMode = LocalFileMng::readXmlInt( guiNode, "midiExportDialogMode", 0 );
-				m_sMidiExportDirectory = LocalFileMng::readXmlString( guiNode, "midiExportDialogDirectory", QDir::homePath(), true );
 				
 				//beatcounter
 				QString bcMode = LocalFileMng::readXmlString( guiNode, "bc", "BC_OFF" );
@@ -1036,19 +1072,32 @@ void Preferences::savePreferences()
 			writeWindowProperties( guiNode, sNode, m_ladspaProperties[nFX] );
 		}
 		
-		
+		// last used file dialog folders
+		LocalFileMng::writeXmlString( guiNode, "lastExportPatternAsDirectory", m_sLastExportPatternAsDirectory );
+		LocalFileMng::writeXmlString( guiNode, "lastExportSongDirectory", m_sLastExportSongDirectory );
+		LocalFileMng::writeXmlString( guiNode, "lastSaveSongAsDirectory", m_sLastSaveSongAsDirectory );
+		LocalFileMng::writeXmlString( guiNode, "lastOpenSongDirectory", m_sLastOpenSongDirectory );
+		LocalFileMng::writeXmlString( guiNode, "lastOpenPatternDirectory", m_sLastOpenPatternDirectory );
+		LocalFileMng::writeXmlString( guiNode, "lastExportLilypondDirectory", m_sLastExportLilypondDirectory );
+		LocalFileMng::writeXmlString( guiNode, "lastExportMidiDirectory", m_sLastExportMidiDirectory );
+		LocalFileMng::writeXmlString( guiNode, "lastImportDrumkitDirectory", m_sLastImportDrumkitDirectory );
+		LocalFileMng::writeXmlString( guiNode, "lastExportDrumkitDirectory", m_sLastExportDrumkitDirectory );
+		LocalFileMng::writeXmlString( guiNode, "lastOpenLayerDirectory", m_sLastOpenLayerDirectory );
+		LocalFileMng::writeXmlString( guiNode, "lastOpenPlaybackTrackDirectory", m_sLastOpenPlaybackTrackDirectory );
+		LocalFileMng::writeXmlString( guiNode, "lastAddSongToPlaylistDirectory", m_sLastAddSongToPlaylistDirectory );
+		LocalFileMng::writeXmlString( guiNode, "lastPlaylistDirectory", m_sLastPlaylistDirectory );
+		LocalFileMng::writeXmlString( guiNode, "lastPlaylistScriptDirectory", m_sLastPlaylistScriptDirectory );
+				
 		//ExportSongDialog
 		LocalFileMng::writeXmlString( guiNode, "exportDialogMode", QString("%1").arg( m_nExportModeIdx ) );
 		LocalFileMng::writeXmlString( guiNode, "exportDialogTemplate", QString("%1").arg( m_nExportTemplateIdx ) );
 		LocalFileMng::writeXmlString( guiNode, "exportDialogSampleRate",  QString("%1").arg( m_nExportSampleRateIdx ) );
 		LocalFileMng::writeXmlString( guiNode, "exportDialogSampleDepth", QString("%1").arg( m_nExportSampleDepthIdx ) );
-		LocalFileMng::writeXmlString( guiNode, "exportDialogDirectory", m_sExportDirectory );
 
 		LocalFileMng::writeXmlBool( guiNode, "followPlayhead", m_bFollowPlayhead );
 
 		//ExportMidiDialog
 		LocalFileMng::writeXmlString( guiNode, "midiExportDialogMode", QString("%1").arg( m_nMidiExportMode ) );
-		LocalFileMng::writeXmlString( guiNode, "midiExportDialogDirectory", m_sMidiExportDirectory );
 
 		//beatcounter
 		QString bcMode;

@@ -61,7 +61,7 @@ SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,  const QSt
 	updateDrumkitList();
 	adjustSize();
 	setFixedSize( width(), height() );
-	drumkitPathTxt->setText( QDir::homePath() );
+	drumkitPathTxt->setText( Preferences::get_instance()->getLastExportDrumkitDirectory() );
 }
 
 
@@ -280,15 +280,17 @@ void SoundLibraryExportDialog::on_drumkitPathTxt_textChanged( QString str )
 
 void SoundLibraryExportDialog::on_browseBtn_clicked()
 {
-	static QString lastUsedDir = QDir::homePath();
-	QString filename = QFileDialog::getExistingDirectory (this, tr("Directory"), lastUsedDir);
-	if ( filename.isEmpty() ) {
-		drumkitPathTxt->setText( QDir::homePath() );
+	QString sPath = Preferences::get_instance()->getLastExportDrumkitDirectory();
+	if ( ! Filesystem::dir_writable( sPath, false ) ){
+		sPath = QDir::homePath();
 	}
-	else
-	{
+
+	QString filename = QFileDialog::getExistingDirectory( this, tr("Directory"), sPath );
+	if ( filename.isEmpty() ) {
+		drumkitPathTxt->setText( sPath );
+	} else {
 		drumkitPathTxt->setText( filename );
-		lastUsedDir = filename;
+		Preferences::get_instance()->setLastExportDrumkitDirectory( filename );
 	}
 }
 

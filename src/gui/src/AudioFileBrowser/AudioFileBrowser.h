@@ -45,11 +45,11 @@ class AudioFileBrowser :  public QDialog, public Ui_AudioFileBrowser_UI,  public
 	Q_OBJECT
 	public:
 		
-		AudioFileBrowser( QWidget* pParent, bool bAllowMultiSelect, bool bShowInstrumentManipulationControls);
-		~AudioFileBrowser();
+	AudioFileBrowser( QWidget* pParent, bool bAllowMultiSelect, bool bShowInstrumentManipulationControls, QString sDefaultPath = "" );
+	~AudioFileBrowser();
 	
-		QStringList getSelectedFiles();
-		QString		setDir( QString dir );
+	QStringList getSelectedFiles();
+	QString getSelectedDirectory();
 
 	private slots:
 		void on_cancelBTN_clicked();
@@ -79,6 +79,7 @@ class AudioFileBrowser :  public QDialog, public Ui_AudioFileBrowser_UI,  public
 		
 		QString				m_pSampleFilename;
 		QStringList			m_pSelectedFile;
+		QString				m_sSelectedDirectory;
 
 		bool				m_SingleClick;
 		QFileSystemModel *	m_pDirModel;

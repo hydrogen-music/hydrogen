@@ -880,12 +880,19 @@ void InstrumentEditor::loadLayerBtnClicked()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
-	AudioFileBrowser *pFileBrowser = new AudioFileBrowser( nullptr, true, true);
+	QString sPath = Preferences::get_instance()->getLastOpenLayerDirectory();
+	if ( ! Filesystem::dir_readable( sPath, false ) ){
+		sPath = QDir::homePath();
+	}
+
+
+	AudioFileBrowser *pFileBrowser = new AudioFileBrowser( nullptr, true, true, sPath );
 	QStringList filename;
 	filename << "false" << "false" << "";
 
 	if (pFileBrowser->exec() == QDialog::Accepted) {
 		filename = pFileBrowser->getSelectedFiles();
+		Preferences::get_instance()->setLastOpenLayerDirectory( pFileBrowser->getSelectedDirectory() );
 	}
 
 	delete pFileBrowser;
