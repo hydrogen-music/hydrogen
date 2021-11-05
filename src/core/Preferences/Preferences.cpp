@@ -605,6 +605,8 @@ void Preferences::loadPreferences( bool bGlobal )
 				m_sLastAddSongToPlaylistDirectory = LocalFileMng::readXmlString( guiNode, "lastAddSongToPlaylistDirectory", Filesystem::songs_dir() );
 				m_sLastPlaylistDirectory = LocalFileMng::readXmlString( guiNode, "lastPlaylistDirectory", Filesystem::playlists_dir() );
 				m_sLastPlaylistScriptDirectory = LocalFileMng::readXmlString( guiNode, "lastPlaylistScriptDirectory", Filesystem::scripts_dir() );
+				m_sLastImportThemeDirectory = LocalFileMng::readXmlString( guiNode, "lastImportThemeDirectory", QDir::homePath() );
+				m_sLastExportThemeDirectory = LocalFileMng::readXmlString( guiNode, "lastExportThemeDirectory", QDir::homePath() );
 
 				//export dialog properties
 				m_nExportTemplateIdx = LocalFileMng::readXmlInt( guiNode, "exportDialogTemplate", 0 );
@@ -1087,6 +1089,8 @@ void Preferences::savePreferences()
 		LocalFileMng::writeXmlString( guiNode, "lastAddSongToPlaylistDirectory", m_sLastAddSongToPlaylistDirectory );
 		LocalFileMng::writeXmlString( guiNode, "lastPlaylistDirectory", m_sLastPlaylistDirectory );
 		LocalFileMng::writeXmlString( guiNode, "lastPlaylistScriptDirectory", m_sLastPlaylistScriptDirectory );
+		LocalFileMng::writeXmlString( guiNode, "lastImportThemeDirectory", m_sLastImportThemeDirectory );
+		LocalFileMng::writeXmlString( guiNode, "lastExportThemeDirectory", m_sLastExportThemeDirectory );
 				
 		//ExportSongDialog
 		LocalFileMng::writeXmlString( guiNode, "exportDialogMode", QString("%1").arg( m_nExportModeIdx ) );

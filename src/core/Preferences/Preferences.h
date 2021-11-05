@@ -618,6 +618,8 @@ public:
 	QString			getLastAddSongToPlaylistDirectory() const;
 	QString			getLastPlaylistDirectory() const;
 	QString			getLastPlaylistScriptDirectory() const;
+	QString			getLastImportThemeDirectory() const;
+	QString			getLastExportThemeDirectory() const;
 	void			setLastExportPatternAsDirectory( QString sPath );
 	void			setLastExportSongDirectory( QString sPath );
 	void			setLastSaveSongAsDirectory( QString sPath );
@@ -632,6 +634,8 @@ public:
 	void			setLastAddSongToPlaylistDirectory( QString sPath );
 	void			setLastPlaylistDirectory( QString sPath );
 	void			setLastPlaylistScriptDirectory( QString sPath );
+	void			setLastImportThemeDirectory( QString sPath );
+	void			setLastExportThemeDirectory( QString sPath );
 
 	int				getExportSampleDepthIdx() const;
 	void			setExportSampleDepthIdx( int nExportSampleDepthIdx );
@@ -782,6 +786,8 @@ private:
 	QString					m_sLastAddSongToPlaylistDirectory;
 	QString					m_sLastPlaylistDirectory;
 	QString					m_sLastPlaylistScriptDirectory;
+	QString					m_sLastImportThemeDirectory;
+	QString					m_sLastExportThemeDirectory;
 
 	//Export dialog
 	int						m_nExportModeIdx;
@@ -858,6 +864,12 @@ inline QString			Preferences::getLastPlaylistDirectory() const {
 inline QString			Preferences::getLastPlaylistScriptDirectory() const {
 	return m_sLastPlaylistScriptDirectory;
 }
+inline QString			Preferences::getLastImportThemeDirectory() const {
+	return m_sLastImportThemeDirectory;
+}
+inline QString			Preferences::getLastExportThemeDirectory() const {
+	return m_sLastExportThemeDirectory;
+}
 inline void Preferences::setLastExportPatternAsDirectory( QString sPath )
 {
 	m_sLastExportPatternAsDirectory = sPath;
@@ -913,6 +925,14 @@ inline void Preferences::setLastPlaylistDirectory( QString sPath )
 inline void Preferences::setLastPlaylistScriptDirectory( QString sPath )
 {
 	m_sLastPlaylistScriptDirectory = sPath;
+}
+inline void Preferences::setLastImportThemeDirectory( QString sPath )
+{
+	m_sLastImportThemeDirectory = sPath;
+}
+inline void Preferences::setLastExportThemeDirectory( QString sPath )
+{
+	m_sLastExportThemeDirectory = sPath;
 }
 
 inline int Preferences::getMidiExportMode() const

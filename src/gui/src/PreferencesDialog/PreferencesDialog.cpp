@@ -1736,10 +1736,15 @@ void PreferencesDialog::vsliderChanged( int nValue ) {
 }
 
 void PreferencesDialog::importTheme() {
+	QString sPath = H2Core::Preferences::get_instance()->getLastImportThemeDirectory();
+	if ( ! H2Core::Filesystem::dir_readable( sPath, false ) ){
+		sPath = Filesystem::sys_theme_dir();
+	}
+	
 	QString sTitle = tr( "Import Theme" );
 	QFileDialog fd( this );
 	fd.setWindowTitle( sTitle );
-	fd.setDirectory( Filesystem::sys_theme_dir() );
+	fd.setDirectory( sPath );
 	fd.setFileMode( QFileDialog::ExistingFile );
 	fd.setNameFilter( Filesystem::themes_filter_name );
 	fd.setAcceptMode( QFileDialog::AcceptOpen );
@@ -1752,14 +1757,15 @@ void PreferencesDialog::importTheme() {
 	}
 
 	QFileInfo fileInfo = fd.selectedFiles().first();
-	QString sPath = fileInfo.absoluteFilePath();
+	QString sSelectedPath = fileInfo.absoluteFilePath();
+	H2Core::Preferences::get_instance()->setLastImportThemeDirectory( fd.directory().absolutePath() );
 
-	if ( sPath.isEmpty() ) {
+	if ( sSelectedPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Theme couldn't be found.") );
 		return;
 	}
 
-	auto pTheme = Theme::importTheme( sPath );
+	auto pTheme = Theme::importTheme( sSelectedPath );
 	m_pCurrentTheme = std::make_shared<Theme>( pTheme );
 	H2Core::Preferences::get_instance()->setTheme( m_pCurrentTheme );
 	if ( m_nCurrentId == 0 ) {
@@ -1772,16 +1778,20 @@ void PreferencesDialog::importTheme() {
 	}
 	updateColors();
 
-	HydrogenApp::get_instance()->setScrollStatusBarMessage( tr( "Theme imported from " ) + sPath, 2000 );
+	HydrogenApp::get_instance()->setScrollStatusBarMessage( tr( "Theme imported from " ) + sSelectedPath, 2000 );
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 	
 }
 
 void PreferencesDialog::exportTheme() {
+	QString sPath = H2Core::Preferences::get_instance()->getLastExportThemeDirectory();
+	if ( ! H2Core::Filesystem::dir_writable( sPath, false ) ){
+		sPath = Filesystem::usr_theme_dir();
+	}
 	QString sTitle = tr( "Export Theme" );
 	QFileDialog fd( this );
 	fd.setWindowTitle( sTitle );
-	fd.setDirectory( Filesystem::sys_theme_dir() );
+	fd.setDirectory( sPath );
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( Filesystem::themes_filter_name );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
@@ -1794,16 +1804,17 @@ void PreferencesDialog::exportTheme() {
 	}
 
 	QFileInfo fileInfo = fd.selectedFiles().first();
-	QString sPath = fileInfo.absoluteFilePath();
+	QString sSelectedPath = fileInfo.absoluteFilePath();
 
-	if ( sPath.isEmpty() ) {
+	if ( sSelectedPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Theme can not be exported.") );
 		return;
 	}
 
-	Theme::exportTheme( sPath, m_pCurrentTheme );
+	H2Core::Preferences::get_instance()->setLastExportThemeDirectory( fd.directory().absolutePath() );
+	Theme::exportTheme( sSelectedPath, m_pCurrentTheme );
 
-	HydrogenApp::get_instance()->setScrollStatusBarMessage( tr( "Theme exported to " ) + sPath, 1200 );
+	HydrogenApp::get_instance()->setScrollStatusBarMessage( tr( "Theme exported to " ) + sSelectedPath, 1200 );
 	
 }
 
