@@ -290,15 +290,22 @@ void PlaylistDialog::closeEvent( QCloseEvent* ev )
 
 void PlaylistDialog::addSong()
 {
+	QString sPath = Preferences::get_instance()->getLastAddSongToPlaylistDirectory();
+	if ( ! Filesystem::dir_readable( sPath, false ) ){
+		sPath = Filesystem::songs_dir();
+	}
+
 	QFileDialog fd(this);
 	fd.setWindowTitle( tr( "Add Song to PlayList" ) );
 	fd.setFileMode( QFileDialog::ExistingFiles );
 	fd.setNameFilter( Filesystem::songs_filter_name );
-	fd.setDirectory( Filesystem::songs_dir() );
+	fd.setDirectory( sPath );
 
 	if ( fd.exec() != QDialog::Accepted ) {
 		return;
 	}
+	
+	Preferences::get_instance()->setLastAddSongToPlaylistDirectory( fd.directory().absolutePath() );
 
 	foreach( QString filePath, fd.selectedFiles() ) {
 		updatePlayListNode( filePath );
@@ -403,10 +410,15 @@ void PlaylistDialog::updatePlayListNode ( QString file )
 
 void PlaylistDialog::loadList()
 {
+	QString sPath = Preferences::get_instance()->getLastPlaylistDirectory();
+	if ( ! Filesystem::dir_readable( sPath, false ) ){
+		sPath = Filesystem::playlists_dir();
+	}
+
 	QFileDialog fd(this);
 	fd.setWindowTitle( tr( "Load Playlist" ) );
 	fd.setFileMode( QFileDialog::ExistingFile );
-	fd.setDirectory( Filesystem::playlists_dir() );
+	fd.setDirectory( sPath );
 	fd.setNameFilter( Filesystem::playlists_filter_name );
 
 	if ( fd.exec() != QDialog::Accepted ) {
@@ -414,6 +426,7 @@ void PlaylistDialog::loadList()
 	}
 
 	QString filename = fd.selectedFiles().first();
+	Preferences::get_instance()->setLastPlaylistDirectory( fd.directory().absolutePath() );
 
 	bool relativePaths = Preferences::get_instance()->isPlaylistUsingRelativeFilenames();
 	Playlist* pPlaylist = Playlist::load( filename, relativePaths);
@@ -455,15 +468,19 @@ void PlaylistDialog::loadList()
 
 void PlaylistDialog::newScript()
 {
-
 	Preferences *pPref = Preferences::get_instance();
+
+	QString sPath = Preferences::get_instance()->getLastPlaylistScriptDirectory();
+	if ( ! Filesystem::dir_writable( sPath, false ) ){
+		sPath = Filesystem::scripts_dir();
+	}
 
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::AnyFile );
 	fd.setNameFilter( Filesystem::scripts_filter_name );
 	fd.setAcceptMode ( QFileDialog::AcceptSave );
 	fd.setWindowTitle ( tr ( "New Script" ) );
-	fd.setDirectory( Filesystem::scripts_dir() );
+	fd.setDirectory( sPath );
 
 	QString defaultFilename;
 
@@ -485,6 +502,8 @@ void PlaylistDialog::newScript()
 	if (!chngPerm.open(QIODevice::WriteOnly | QIODevice::Text)) {
 		return;
 	}
+
+	Preferences::get_instance()->setLastPlaylistScriptDirectory( fd.directory().absolutePath() );
 
 	QTextStream out(&chngPerm);
 	out <<  "#!/bin/sh\n\n#have phun";
@@ -522,12 +541,17 @@ void PlaylistDialog::newScript()
 
 void PlaylistDialog::saveListAs()
 {
+	QString sPath = Preferences::get_instance()->getLastPlaylistDirectory();
+	if ( ! Filesystem::dir_writable( sPath, false ) ){
+		sPath = Filesystem::playlists_dir();
+	}
+	
 	QFileDialog fd(this);
 	fd.setWindowTitle( tr( "Save Playlist" ) );
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( Filesystem::playlists_filter_name );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
-	fd.setDirectory( Filesystem::playlists_dir() );
+	fd.setDirectory( sPath );
 	fd.selectFile( Filesystem::untitled_playlist_file_name() );
 	fd.setDefaultSuffix( Filesystem::playlist_ext );
 
@@ -544,6 +568,7 @@ void PlaylistDialog::saveListAs()
 	}
 
 	pPlaylist->setIsModified( false );
+	Preferences::get_instance()->setLastPlaylistDirectory( fd.directory().absolutePath() );
 
 	setWindowTitle( tr( "Playlist Browser" ) + QString(" - %1").arg( filename ) );
 }
@@ -572,11 +597,14 @@ void PlaylistDialog::loadScript()
 		return;
 	}
 
-	static QString lastUsedDir = Filesystem::scripts_dir();
+	QString sPath = Preferences::get_instance()->getLastPlaylistScriptDirectory();
+	if ( ! Filesystem::dir_writable( sPath, false ) ){
+		sPath = Filesystem::scripts_dir();
+	}
 
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::ExistingFile );
-	fd.setDirectory ( lastUsedDir );
+	fd.setDirectory ( sPath );
 	fd.setNameFilter ( tr ( "Hydrogen Playlist (*.sh)" ) );
 	fd.setWindowTitle ( tr ( "Add Script to selected Song" ) );
 
@@ -588,6 +616,7 @@ void PlaylistDialog::loadScript()
 			QMessageBox::information ( this, "Hydrogen", tr ( "Script name or path to the script contains whitespaces.\nIMPORTANT\nThe path to the script and the scriptname must without whitespaces.") );
 			return;
 		}
+		Preferences::get_instance()->setLastPlaylistScriptDirectory( fd.directory().absolutePath() );
 
 		pPlaylistItem->setText ( 1, filename );
 		updatePlayListVector();

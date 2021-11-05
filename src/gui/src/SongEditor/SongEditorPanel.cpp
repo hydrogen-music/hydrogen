@@ -862,13 +862,19 @@ void SongEditorPanel::editPlaybackTrackBtnPressed( Button* pBtn )
 	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
+
+	QString sPath = Preferences::get_instance()->getLastOpenPlaybackTrackDirectory();
+	if ( ! Filesystem::dir_readable( sPath, false ) ){
+		sPath = QDir::homePath();
+	}
 	
 	//use AudioFileBrowser, but don't allow multi-select. Also, hide all no necessary controls.
-	AudioFileBrowser *pFileBrowser = new AudioFileBrowser( nullptr, false, false);
+	AudioFileBrowser *pFileBrowser = new AudioFileBrowser( nullptr, false, false, sPath );
 	
 	QStringList filenameList;
 	
 	if ( pFileBrowser->exec() == QDialog::Accepted ) {
+		Preferences::get_instance()->setLastOpenPlaybackTrackDirectory( pFileBrowser->getSelectedDirectory() );
 		filenameList = pFileBrowser->getSelectedFiles();
 	}
 

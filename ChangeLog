@@ -1,5 +1,9 @@
 20xx-xx-xx the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.2
+	* General behavior
+		- Remembering paths in all export/import/save/open dialogs.
+		- Introducing keyboard shortcut for the Open Pattern dialog.
+		- Allow for opening more than one Pattern at once.
 	* PreferencesDialog > Appearance tab overhaul
 	  	- Drop previous font options in favor for three different
 		  levels of font (without exposing their point sizes)
@@ -16,7 +20,6 @@
 	* Bugfixes
 		- fix dithering of SongEditor when viewing the playback track
 		  and resizing the application or for very small size (#1379).
-		- fix segfault when entering note in PianoRollEditor (#1386).
 		- fix rewinding to beginning of pattern in pattern mode with no
 		  pattern inserted in SongEditor (#932)
 		- fix display of tags and tempo marker while loading a song
