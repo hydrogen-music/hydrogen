@@ -307,108 +307,25 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	connect( resetThemeButton, SIGNAL(clicked(bool)), this, SLOT(resetTheme()));
 	
 	// Appearance tab - Fonts
-	m_sPreviousApplicationFontFamily = pPref->getApplicationFontFamily();
-	m_sPreviousLevel2FontFamily = pPref->getLevel2FontFamily();
-	m_sPreviousLevel3FontFamily = pPref->getLevel3FontFamily();
-	applicationFontComboBox->setCurrentFont( QFont( m_sPreviousApplicationFontFamily ) );
-	level2FontComboBox->setCurrentFont( QFont( m_sPreviousLevel2FontFamily ) );
-	level3FontComboBox->setCurrentFont( QFont( m_sPreviousLevel3FontFamily ) );
 	connect( applicationFontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onApplicationFontChanged );
 	connect( level2FontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onLevel2FontChanged );
 	connect( level3FontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onLevel3FontChanged );
-
-	m_previousFontSize = pPref->getFontSize();
-	switch( m_previousFontSize ) {
-	case FontTheme::FontSize::Small:
-		fontSizeComboBox->setCurrentIndex( 0 );
-		break;
-	case FontTheme::FontSize::Normal:
-		fontSizeComboBox->setCurrentIndex( 1 );
-		break;
-	case FontTheme::FontSize::Large:
-		fontSizeComboBox->setCurrentIndex( 2 );
-		break;
-	default:
-		ERRORLOG( QString( "Unknown font size: %1" )
-				  .arg( static_cast<int>( m_previousFontSize ) ) );
-	}
 	connect( fontSizeComboBox, SIGNAL( currentIndexChanged(int) ),
 			 this, SLOT( onFontSizeChanged(int) ) );
 	
 	// Appearance tab - Interface
-	float falloffSpeed = pPref->getMixerFalloffSpeed();
-	if (falloffSpeed == InterfaceTheme::FALLOFF_SLOW) {
-		mixerFalloffComboBox->setCurrentIndex(0);
-	}
-	else if (falloffSpeed == InterfaceTheme::FALLOFF_NORMAL) {
-		mixerFalloffComboBox->setCurrentIndex(1);
-	}
-	else if (falloffSpeed == InterfaceTheme::FALLOFF_FAST) {
-		mixerFalloffComboBox->setCurrentIndex(2);
-	}
-	else {
-		ERRORLOG( QString("PreferencesDialog: wrong mixerFalloff value = %1").arg(falloffSpeed) );
-	}
-	
 	UIChangeWarningLabel->hide();
 	UIChangeWarningLabel->setText( QString( "<b><i><font color=" )
 								   .append( m_sColorRed )
 								   .append( ">" )
 								   .append( tr( "For changes of the interface layout to take effect Hydrogen must be restarted." ) )
 								   .append( "</font></i></b>" ) );
-	uiLayoutComboBox->setCurrentIndex( static_cast<int>(pPref->getDefaultUILayout()) );
 	connect( uiLayoutComboBox, SIGNAL( currentIndexChanged(int) ), this, SLOT( onUILayoutChanged(int) ) );
-	
-
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
-	uiScalingPolicyComboBox->setCurrentIndex( static_cast<int>(pPref->getUIScalingPolicy()) );
-#else
-	uiScalingPolicyComboBox->setEnabled( false );
-	uiScalingPolicyLabel->setEnabled( false );
-#endif
-
-	m_previousIconColor = pPref->getIconColor();
-	iconColorComboBox->setCurrentIndex( static_cast<int>(pPref->getIconColor()) );
 	connect( iconColorComboBox, SIGNAL(currentIndexChanged(int)), this,
 			 SLOT( onIconColorChanged(int)) );
-	
-	// Style
-	QStringList list = QStyleFactory::keys();
-	uint i = 0;
-	for ( QStringList::Iterator it = list.begin(); it != list.end(); it++) {
-		styleComboBox->addItem( *it );
-		//INFOLOG( "QT Stile: " + *it   );
-		//string sStyle = (*it).latin1();
-		QString sStyle = (*it);
-		if (sStyle == pPref->getQTStyle() ) {
-			styleComboBox->setCurrentIndex( i );
-		}
-		i++;
-	}
+	connect( coloringMethodAuxSpinBox, SIGNAL( valueChanged(int)), this, SLOT( onColorNumberChanged( int ) ) );
 
-	//SongEditor coloring
-	int coloringMethod = pPref->getColoringMethod();
-	m_nPreviousVisiblePatternColors = pPref->getVisiblePatternColors();
-
-	if ( coloringMethod == 0 ) {
-		coloringMethodAuxSpinBox->hide();
-		colorSelectionLabel->hide();
-	} else {
-		coloringMethodAuxSpinBox->show();
-		colorSelectionLabel->show();
-	}
-	coloringMethodCombo->clear();
-	coloringMethodCombo->addItem(tr("Automatic"));
-	coloringMethodCombo->addItem(tr("Custom"));
-
-	coloringMethodCombo->setCurrentIndex( coloringMethod );
-	coloringMethodAuxSpinBox->setValue( m_nPreviousVisiblePatternColors );
-	QSize size( uiScalingPolicyComboBox->width(), coloringMethodAuxSpinBox->height() );
-
-	m_previousPatternColors = pPref->getPatternColors();
-
-	int nMaxPatternColors = pPref->getMaxPatternColors();
-	m_colorSelectionButtons = std::vector<ColorSelectionButton*>( nMaxPatternColors );
+	m_colorSelectionButtons = std::vector<ColorSelectionButton*>( m_pCurrentTheme->getInterfaceTheme()->m_nMaxPatternColors );
 	int nButtonSize = fontSizeComboBox->height();
 	// float fLineWidth = static_cast<float>(fontSizeComboBox->width());
 	// Using a fixed one size resizing of the widget seems to happen
@@ -417,23 +334,23 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	int nButtonsPerLine = std::floor( fLineWidth / static_cast<float>(nButtonSize + 6) );
 
 	colorSelectionGrid->setHorizontalSpacing( 4 );
-	for ( int ii = 0; ii < nMaxPatternColors; ii++ ) {
-		ColorSelectionButton* bbutton = new ColorSelectionButton( this, m_previousPatternColors[ ii ], nButtonSize );
+	for ( int ii = 0; ii < m_pCurrentTheme->getInterfaceTheme()->m_nMaxPatternColors; ii++ ) {
+		ColorSelectionButton* bbutton =
+			new ColorSelectionButton( this, m_pCurrentTheme->getInterfaceTheme()->m_patternColors[ ii ],
+									  nButtonSize );
 		bbutton->hide();
-		connect( bbutton, &ColorSelectionButton::colorChanged, this, &PreferencesDialog::onColorSelectionClicked );
+		connect( bbutton, &ColorSelectionButton::colorChanged, this,
+				 &PreferencesDialog::onColorSelectionClicked );
 		colorSelectionGrid->addWidget( bbutton,
 									   std::floor( static_cast<float>( ii ) /
 												   static_cast<float>( nButtonsPerLine ) ),
 									   (ii % nButtonsPerLine) + 1); //+1 to take the hspace into account.
 		m_colorSelectionButtons[ ii ] = bbutton;
 	}
-
-	if ( coloringMethod != 0 ) {
-		for ( int ii = 0; ii < m_nPreviousVisiblePatternColors; ii++ ) {
-			m_colorSelectionButtons[ ii ]->show();
-		}
-	}
-	connect( coloringMethodAuxSpinBox, SIGNAL( valueChanged(int)), this, SLOT( onColorNumberChanged( int ) ) );
+	
+	coloringMethodCombo->clear();
+	coloringMethodCombo->addItem(tr("Automatic"));
+	coloringMethodCombo->addItem(tr("Custom"));
 	connect( coloringMethodCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( onColoringMethodChanged(int) ) );
 
 	// Appearance tab - Colors
@@ -516,6 +433,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	connect(vval, SIGNAL(valueChanged(int)), SLOT(vsliderChanged(int)));
 
 	updateColorTree();
+	updateAppearanceTab( m_pCurrentTheme );
 	
 	// midi tab
 	midiPortChannelComboBox->setEnabled( false );
@@ -638,8 +556,6 @@ PreferencesDialog::~PreferencesDialog()
 	INFOLOG("~PREFERENCES_DIALOG");
 }
 
-
-
 void PreferencesDialog::on_cancelBtn_clicked()
 {
 	Preferences *preferencesMng = Preferences::get_instance();
@@ -654,7 +570,7 @@ void PreferencesDialog::on_cancelBtn_clicked()
 
 	}
 	
-	H2Core::Preferences::get_instance()->setColorTheme( m_pPreviousTheme->getColorTheme() );
+	H2Core::Preferences::get_instance()->setTheme( m_pPreviousTheme );
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
 
 	reject();
@@ -781,21 +697,6 @@ void PreferencesDialog::on_okBtn_clicked()
 	pPref->m_bMidiFixedMapping = m_pFixedMapping->isChecked();
 	pPref->m_bMidiDiscardNoteAfterAction = m_pDiscardMidiMsgCheckbox->isChecked();
 	pPref->m_bEnableMidiFeedback = m_pEnableMidiFeedbackCheckBox->isChecked();
-			
-	// Mixer falloff
-	switch ( mixerFalloffComboBox->currentIndex() ) {
-	case 0:
-		pPref->setMixerFalloffSpeed(InterfaceTheme::FALLOFF_SLOW);
-		break;
-	case 1:
-		pPref->setMixerFalloffSpeed(InterfaceTheme::FALLOFF_NORMAL);
-		break;
-	case 2:
-		pPref->setMixerFalloffSpeed(InterfaceTheme::FALLOFF_FAST);
-		break;
-	default:
-		ERRORLOG( "[okBtnClicked] Unknown mixerFallOffSpeed: " + mixerFalloffComboBox->currentText() );
-	}
 
 	QString sNewMidiPortName = midiPortComboBox->currentText();
 	if ( midiPortComboBox->currentIndex() == 0 ) {
@@ -856,13 +757,13 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	Hydrogen::get_instance()->setBcOffsetAdjust();
 
-	pPref->setDefaultUILayout( static_cast<InterfaceTheme::Layout>(uiLayoutComboBox->currentIndex()) );
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
-	pPref->setUIScalingPolicy( static_cast<InterfaceTheme::ScalingPolicy>(uiScalingPolicyComboBox->currentIndex()) );
-#endif
-	pPref->setIconColor( static_cast<InterfaceTheme::IconColor>(iconColorComboBox->currentIndex()) );
+	pPref->setTheme( m_pCurrentTheme );
 
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
+	pH2App->changePreferences( static_cast<H2Core::Preferences::Changes>( H2Core::Preferences::Changes::Font |
+																		  H2Core::Preferences::Changes::Colors |
+																		  H2Core::Preferences::Changes::AppearanceTab ) );
+
 	SongEditorPanel* pSongEditorPanel = pH2App->getSongEditorPanel();
 	SongEditor * pSongEditor = pSongEditorPanel->getSongEditor();
 	pSongEditor->updateEditorandSetTrue();
@@ -1149,7 +1050,8 @@ void PreferencesDialog::updateDriverInfo()
 
 void PreferencesDialog::onApplicationFontChanged( const QFont& font ) {
 	auto pPref = Preferences::get_instance();
-	
+
+	m_pCurrentTheme->getFontTheme()->m_sApplicationFontFamily = font.family();
 	pPref->setApplicationFontFamily( font.family() );
 
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Font );
@@ -1157,7 +1059,8 @@ void PreferencesDialog::onApplicationFontChanged( const QFont& font ) {
 
 void PreferencesDialog::onLevel2FontChanged( const QFont& font ) {
 	auto pPref = Preferences::get_instance();
-	
+
+	m_pCurrentTheme->getFontTheme()->m_sLevel2FontFamily = font.family();
 	pPref->setLevel2FontFamily( font.family() );
 
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Font );
@@ -1165,7 +1068,8 @@ void PreferencesDialog::onLevel2FontChanged( const QFont& font ) {
 
 void PreferencesDialog::onLevel3FontChanged( const QFont& font ) {
 	auto pPref = Preferences::get_instance();
-	
+
+	m_pCurrentTheme->getFontTheme()->m_sLevel3FontFamily = font.family();
 	pPref->setLevel3FontFamily( font.family() );
 
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Font );
@@ -1173,14 +1077,8 @@ void PreferencesDialog::onLevel3FontChanged( const QFont& font ) {
 
 void PreferencesDialog::onRejected() {
 	auto pPref = Preferences::get_instance();
-	
-	pPref->setApplicationFontFamily( m_sPreviousApplicationFontFamily );
-	pPref->setLevel2FontFamily( m_sPreviousLevel2FontFamily );
-	pPref->setLevel3FontFamily( m_sPreviousLevel3FontFamily );
-	pPref->setIconColor( m_previousIconColor );
-	pPref->setFontSize( m_previousFontSize );
-	pPref->setPatternColors( m_previousPatternColors );
-	pPref->setVisiblePatternColors( m_nPreviousVisiblePatternColors );
+
+	updateAppearanceTab( m_pPreviousTheme );
 
 	HydrogenApp::get_instance()->changePreferences( static_cast<H2Core::Preferences::Changes>( H2Core::Preferences::Changes::Font |
 																							   H2Core::Preferences::Changes::Colors |
@@ -1193,12 +1091,15 @@ void PreferencesDialog::onFontSizeChanged( int nIndex ) {
 	switch ( nIndex ) {
 	case 0:
 		pPref->setFontSize( FontTheme::FontSize::Small );
+		m_pCurrentTheme->getFontTheme()->m_fontSize = FontTheme::FontSize::Small;
 		break;
 	case 1:
 		pPref->setFontSize( FontTheme::FontSize::Normal );
+		m_pCurrentTheme->getFontTheme()->m_fontSize = FontTheme::FontSize::Normal;
 		break;
 	case 2:
 		pPref->setFontSize( FontTheme::FontSize::Large );
+		m_pCurrentTheme->getFontTheme()->m_fontSize = FontTheme::FontSize::Large;
 		break;
 	default:
 		ERRORLOG( QString( "Unknown font size: %1" ).arg( nIndex ) );
@@ -1209,15 +1110,27 @@ void PreferencesDialog::onFontSizeChanged( int nIndex ) {
 
 void PreferencesDialog::onUILayoutChanged( int nIndex ) {
 	UIChangeWarningLabel->show();
+	m_pCurrentTheme->getInterfaceTheme()->m_layout = static_cast<InterfaceTheme::Layout>(nIndex);
+	Preferences::get_instance()->setDefaultUILayout( static_cast<InterfaceTheme::Layout>(nIndex) );
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
-void PreferencesDialog::onIconColorChanged( int nIndex ) {
 
-	H2Core::Preferences::get_instance()->setIconColor( static_cast<InterfaceTheme::IconColor>(nIndex ) );
+void PreferencesDialog::on_uiScalingPolicyComboBox_currentIndexChanged( int nIndex ) {
+	UIChangeWarningLabel->show();
+	m_pCurrentTheme->getInterfaceTheme()->m_scalingPolicy = static_cast<InterfaceTheme::ScalingPolicy>(nIndex);
+	Preferences::get_instance()->setUIScalingPolicy( static_cast<InterfaceTheme::ScalingPolicy>(nIndex) );
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
+}
+
+void PreferencesDialog::onIconColorChanged( int nIndex ) {
+	m_pCurrentTheme->getInterfaceTheme()->m_iconColor = static_cast<InterfaceTheme::IconColor>(nIndex);
+	H2Core::Preferences::get_instance()->setIconColor( static_cast<InterfaceTheme::IconColor>(nIndex) );
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
 void PreferencesDialog::onColorNumberChanged( int nIndex ) {
 	Preferences::get_instance()->setVisiblePatternColors( nIndex );
+	m_pCurrentTheme->getInterfaceTheme()->m_nVisiblePatternColors = nIndex;
 	for ( int ii = 0; ii < Preferences::get_instance()->getMaxPatternColors(); ii++ ) {
 		if ( ii < nIndex ) {
 			m_colorSelectionButtons[ ii ]->show();
@@ -1234,39 +1147,50 @@ void PreferencesDialog::onColorSelectionClicked() {
 	for ( int ii = 0; ii < nMaxPatternColors; ii++ ) {
 		colors[ ii ] = m_colorSelectionButtons[ ii ]->getColor();
 	}
-
+	m_pCurrentTheme->getInterfaceTheme()->m_patternColors = colors;
 	Preferences::get_instance()->setPatternColors( colors );
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
 void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
-	Preferences::get_instance()->setColoringMethod( nIndex );
+	m_pCurrentTheme->getInterfaceTheme()->m_coloringMethod = static_cast<H2Core::InterfaceTheme::ColoringMethod>(nIndex);
+	Preferences::get_instance()->setColoringMethod( static_cast<H2Core::InterfaceTheme::ColoringMethod>(nIndex) );
 
 	if ( nIndex == 0 ) {
 		coloringMethodAuxSpinBox->hide();
 		coloringMethodAuxLabel->hide();
 		colorSelectionLabel->hide();
-		for ( int ii = 0; ii < Preferences::get_instance()->getMaxPatternColors(); ii++ ) {
+		for ( int ii = 0; ii < m_pCurrentTheme->getInterfaceTheme()->m_nMaxPatternColors; ii++ ) {
 			m_colorSelectionButtons[ ii ]->hide();
 		}
 	} else {
 		coloringMethodAuxSpinBox->show();
 		coloringMethodAuxLabel->show();
 		colorSelectionLabel->show();
-		for ( int ii = 0; ii < m_nPreviousVisiblePatternColors; ii++ ) {
+		for ( int ii = 0; ii < m_pCurrentTheme->getInterfaceTheme()->m_nVisiblePatternColors; ii++ ) {
 			m_colorSelectionButtons[ ii ]->show();
 		}
 	}
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
-// void PreferencesDialog::onCustomizePaletteClicked() {
-
-// 	PaletteDialog* pPaletteDialog = new PaletteDialog( nullptr );
-
-// 	pPaletteDialog->exec();
-// 	delete pPaletteDialog;
-// }
+void PreferencesDialog::on_mixerFalloffComboBox_currentIndexChanged( int nIndex ) {
+	Preferences *pPref = Preferences::get_instance();
+	
+	if ( nIndex == 0 ) {
+		m_pCurrentTheme->getInterfaceTheme()->m_fMixerFalloffSpeed = InterfaceTheme::FALLOFF_SLOW;
+		pPref->setMixerFalloffSpeed( InterfaceTheme::FALLOFF_SLOW );
+	} else if ( nIndex == 1 ) {
+		m_pCurrentTheme->getInterfaceTheme()->m_fMixerFalloffSpeed = InterfaceTheme::FALLOFF_NORMAL;
+		pPref->setMixerFalloffSpeed( InterfaceTheme::FALLOFF_NORMAL );
+	} else if ( nIndex == 2 ) {
+		m_pCurrentTheme->getInterfaceTheme()->m_fMixerFalloffSpeed = InterfaceTheme::FALLOFF_FAST;
+		pPref->setMixerFalloffSpeed( InterfaceTheme::FALLOFF_FAST );
+	} else {
+		ERRORLOG( QString("Wrong mixerFalloff value = %1").arg( nIndex ) );
+	}
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
+}
 
 void PreferencesDialog::on_bufferSizeSpinBox_valueChanged( int i )
 {
@@ -1314,6 +1238,8 @@ void PreferencesDialog::on_styleComboBox_activated( int index )
 
 	Preferences *pPref = Preferences::get_instance();
 	pPref->setQTStyle( sStyle );
+	m_pCurrentTheme->getInterfaceTheme()->m_sQTStyle = sStyle;
+	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
 
@@ -1773,10 +1699,8 @@ void PreferencesDialog::importTheme() {
 		updateColorTree();
 		H2Core::Preferences::get_instance()->setColorTheme( m_pCurrentTheme->getColorTheme() );
 		HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
-	} else {
-		m_pCurrentColor = getColorById( m_nCurrentId, m_pCurrentTheme->getColorTheme() );
 	}
-	updateColors();
+	updateAppearanceTab( m_pCurrentTheme );
 
 	HydrogenApp::get_instance()->setScrollStatusBarMessage( tr( "Theme imported from " ) + sSelectedPath, 2000 );
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
@@ -1821,9 +1745,123 @@ void PreferencesDialog::exportTheme() {
 void PreferencesDialog::resetTheme() {
 	m_pCurrentTheme = std::make_shared<Theme>( m_pPreviousTheme );
 	H2Core::Preferences::get_instance()->setTheme( m_pCurrentTheme );
-	m_pCurrentColor = getColorById( m_nCurrentId, m_pCurrentTheme->getColorTheme() );
-	updateColors();
+	updateAppearanceTab( m_pCurrentTheme );
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 
 	HydrogenApp::get_instance()->setStatusBarMessage( tr( "Theme reseted" ), 10000 );
+}
+
+
+void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme> pTheme ) {
+	
+	// Colors
+	m_pCurrentColor = getColorById( m_nCurrentId, pTheme->getColorTheme() );
+	updateColors();
+
+	// Interface
+	float fFalloffSpeed = pTheme->getInterfaceTheme()->m_fMixerFalloffSpeed;
+	if ( fFalloffSpeed == InterfaceTheme::FALLOFF_SLOW ) {
+		mixerFalloffComboBox->setCurrentIndex( 0 );
+	}
+	else if ( fFalloffSpeed == InterfaceTheme::FALLOFF_NORMAL ) {
+		mixerFalloffComboBox->setCurrentIndex( 1 );
+	}
+	else if ( fFalloffSpeed == InterfaceTheme::FALLOFF_FAST ) {
+		mixerFalloffComboBox->setCurrentIndex( 2 );
+	}
+	else {
+		ERRORLOG( QString("PreferencesDialog: wrong mixerFalloff value = %1").arg( fFalloffSpeed ) );
+	}
+	uiLayoutComboBox->setCurrentIndex( static_cast<int>( pTheme->getInterfaceTheme()->m_layout ) );
+
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
+	uiScalingPolicyComboBox->setCurrentIndex( static_cast<int>( pTheme->getInterfaceTheme()->m_scalingPolicy ) );
+#else
+	uiScalingPolicyComboBox->setEnabled( false );
+	uiScalingPolicyLabel->setEnabled( false );
+#endif
+
+	iconColorComboBox->setCurrentIndex( static_cast<int>( pTheme->getInterfaceTheme()->m_iconColor ) );
+	
+	// Style
+	QStringList list = QStyleFactory::keys();
+	uint i = 0;
+	styleComboBox->clear();
+	for ( QStringList::Iterator it = list.begin(); it != list.end(); it++) {
+		styleComboBox->addItem( *it );
+		QString sStyle = (*it);
+		if (sStyle == pTheme->getInterfaceTheme()->m_sQTStyle ) {
+			styleComboBox->setCurrentIndex( i );
+			HydrogenApp::get_instance()->getMainForm()->m_pQApp->setStyle( sStyle );
+		}
+		i++;
+	}
+
+	//SongEditor coloring
+	int nColoringMethod = static_cast<int>(pTheme->getInterfaceTheme()->m_coloringMethod);
+	if ( nColoringMethod == 0 ) {
+		// "Automatic" selected 
+		coloringMethodAuxSpinBox->hide();
+		colorSelectionLabel->hide();
+	} else {
+		coloringMethodAuxSpinBox->show();
+		colorSelectionLabel->show();
+	}
+
+	coloringMethodCombo->setCurrentIndex( nColoringMethod );
+	coloringMethodAuxSpinBox->setValue( pTheme->getInterfaceTheme()->m_nVisiblePatternColors );
+	QSize size( uiScalingPolicyComboBox->width(), coloringMethodAuxSpinBox->height() );
+
+	if ( m_colorSelectionButtons.size() !=
+		 pTheme->getInterfaceTheme()->m_nMaxPatternColors ) {
+	
+		m_colorSelectionButtons.resize( pTheme->getInterfaceTheme()->m_nMaxPatternColors );
+		m_colorSelectionButtons.clear();
+		int nButtonSize = fontSizeComboBox->height();
+		// float fLineWidth = static_cast<float>(fontSizeComboBox->width());
+		// Using a fixed one size resizing of the widget seems to happen
+		// after the constructor is called.
+		float fLineWidth = 308;
+		int nButtonsPerLine = std::floor( fLineWidth / static_cast<float>(nButtonSize + 6) );
+
+		colorSelectionGrid->setHorizontalSpacing( 4 );
+		for ( int ii = 0; ii < pTheme->getInterfaceTheme()->m_nMaxPatternColors; ii++ ) {
+			ColorSelectionButton* bbutton =
+				new ColorSelectionButton( this, pTheme->getInterfaceTheme()->m_patternColors[ ii ],
+										  nButtonSize );
+			bbutton->hide();
+			connect( bbutton, &ColorSelectionButton::colorChanged, this,
+					 &PreferencesDialog::onColorSelectionClicked );
+			colorSelectionGrid->addWidget( bbutton,
+										   std::floor( static_cast<float>( ii ) /
+													   static_cast<float>( nButtonsPerLine ) ),
+										   (ii % nButtonsPerLine) + 1); //+1 to take the hspace into account.
+			m_colorSelectionButtons[ ii ] = bbutton;
+		}
+	}
+
+	if ( nColoringMethod != 0 ) {
+		for ( int ii = 0; ii < pTheme->getInterfaceTheme()->m_nVisiblePatternColors; ii++ ) {
+			m_colorSelectionButtons[ ii ]->show();
+		}
+	}
+
+	// Fonts
+	applicationFontComboBox->setCurrentFont( QFont( pTheme->getFontTheme()->m_sApplicationFontFamily ) );
+	level2FontComboBox->setCurrentFont( QFont( pTheme->getFontTheme()->m_sLevel2FontFamily ) );
+	level3FontComboBox->setCurrentFont( QFont( pTheme->getFontTheme()->m_sLevel3FontFamily ) );
+	switch( pTheme->getFontTheme()->m_fontSize ) {
+	case FontTheme::FontSize::Small:
+		fontSizeComboBox->setCurrentIndex( 0 );
+		break;
+	case FontTheme::FontSize::Normal:
+		fontSizeComboBox->setCurrentIndex( 1 );
+		break;
+	case FontTheme::FontSize::Large:
+		fontSizeComboBox->setCurrentIndex( 2 );
+		break;
+	default:
+		ERRORLOG( QString( "Unknown font size: %1" )
+				  .arg( static_cast<int>( pTheme->getFontTheme()->m_fontSize ) ) );
+	}
 }

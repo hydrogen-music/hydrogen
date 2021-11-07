@@ -142,12 +142,17 @@ public:
 		White = 1
 	};
 
+	enum class ColoringMethod {
+		Automatic = 0,
+		Custom = 1
+	};
+
 	QString m_sQTStyle;
 	float m_fMixerFalloffSpeed;
 	Layout m_layout;
 	ScalingPolicy m_scalingPolicy;
 	IconColor m_iconColor;
-	int	m_nColoringMethod;
+	ColoringMethod m_coloringMethod;
 	std::vector<QColor> m_patternColors;
 	int	m_nVisiblePatternColors;
 	/** Not read from/written to disk */

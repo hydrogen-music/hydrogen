@@ -658,12 +658,9 @@ void Preferences::loadPreferences( bool bGlobal )
 				}
 
 				//SongEditor coloring
-				setColoringMethod( LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethod", 1 ) );
-				if ( getColoringMethod() > 1 ) {
-					setColoringMethod( 1 );
-				} else if ( getColoringMethod() < 0 ) {
-					setColoringMethod( 0 );
-				}
+				setColoringMethod( static_cast<InterfaceTheme::ColoringMethod>(LocalFileMng::readXmlInt( guiNode,
+																										 "SongEditor_ColoringMethod",
+																										 static_cast<int>(InterfaceTheme::ColoringMethod::Custom) )) );
 				std::vector<QColor> colors( getMaxPatternColors() );
 				for ( int ii = 0; ii < getMaxPatternColors(); ii++ ) {
 					colors[ ii ] = LocalFileMng::readXmlColor( guiNode, QString( "SongEditor_pattern_color_%1" ).arg( ii ),
@@ -1134,7 +1131,7 @@ void Preferences::savePreferences()
 		Theme::writeColorTheme( &guiNode, m_pTheme );
 
 		//SongEditor coloring method
-		LocalFileMng::writeXmlString( guiNode, "SongEditor_ColoringMethod", QString::number( getColoringMethod() ) );
+		LocalFileMng::writeXmlString( guiNode, "SongEditor_ColoringMethod", QString::number( static_cast<int>(getColoringMethod()) ) );
 		for ( int ii = 0; ii < getMaxPatternColors(); ii++ ) {
 			LocalFileMng::writeXmlColor( guiNode, QString( "SongEditor_pattern_color_%1" ).arg( ii ), getPatternColors()[ ii ] );
 		}

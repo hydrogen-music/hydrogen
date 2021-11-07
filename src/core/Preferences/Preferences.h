@@ -494,8 +494,8 @@ public:
 	unsigned		getSongEditorGridWidth();
 	void			setSongEditorGridWidth( unsigned value );
 
-	void			setColoringMethod( int nValue );
-	int				getColoringMethod() const;
+	void			setColoringMethod( InterfaceTheme::ColoringMethod coloringMethod );
+	InterfaceTheme::ColoringMethod	getColoringMethod() const;
 
 	void			setPatternColors( std::vector<QColor> patternColors );
 	std::vector<QColor> getPatternColors() const;
@@ -1269,12 +1269,12 @@ inline int Preferences::getMaxPatternColors() const {
 	return m_pTheme->getInterfaceTheme()->m_nMaxPatternColors;
 }
 
-inline void Preferences::setColoringMethod( int value ){
-	m_pTheme->getInterfaceTheme()->m_nColoringMethod = value;
+inline void Preferences::setColoringMethod( InterfaceTheme::ColoringMethod coloringMethod ){
+	m_pTheme->getInterfaceTheme()->m_coloringMethod = coloringMethod;
 }
 
-inline int Preferences::getColoringMethod() const{
-	return m_pTheme->getInterfaceTheme()->m_nColoringMethod;
+inline InterfaceTheme::ColoringMethod Preferences::getColoringMethod() const {
+	return m_pTheme->getInterfaceTheme()->m_coloringMethod;
 }
 
 inline WindowProperties Preferences::getMainFormProperties() {

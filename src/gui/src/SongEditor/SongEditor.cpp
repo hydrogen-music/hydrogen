@@ -1076,13 +1076,12 @@ void SongEditor::drawPattern( int nPos, int nNumber, bool bInvertColour, double 
 	/*
 	 * The following color modes are available:
 	 *
-	 * Automatic (0): Steps = Number of pattern in song and colors will be
+	 * Automatic: Steps = Number of pattern in song and colors will be
 	 *            chosen internally.
 	 * Custom: Number of steps as well as the colors used are defined
 	 *            by the user.
 	 */
-	if ( pPref->getColoringMethod() == 0 ) {
-		//Automatic
+	if ( pPref->getColoringMethod() == H2Core::InterfaceTheme::ColoringMethod::Automatic ) {
 		int nSteps = pPatternList->size();
 
 		if( nSteps == 0 ) {

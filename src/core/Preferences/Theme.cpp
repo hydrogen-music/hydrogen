@@ -136,7 +136,7 @@ InterfaceTheme::InterfaceTheme()
 	, m_layout( InterfaceTheme::Layout::SinglePane )
 	, m_scalingPolicy( InterfaceTheme::ScalingPolicy::Smaller )
 	, m_iconColor( InterfaceTheme::IconColor::Black )
-	, m_nColoringMethod( 2 )
+	, m_coloringMethod( InterfaceTheme::ColoringMethod::Custom )
 	, m_nVisiblePatternColors( 1 )
 	, m_nMaxPatternColors( 50 ) {
 	std::vector<QColor> m_patternColors( m_nMaxPatternColors );
@@ -151,7 +151,7 @@ InterfaceTheme::InterfaceTheme( const std::shared_ptr<InterfaceTheme> pOther )
 	, m_layout( pOther->m_layout )
 	, m_scalingPolicy( pOther->m_scalingPolicy )
 	, m_iconColor( pOther->m_iconColor )
-	, m_nColoringMethod( pOther->m_nColoringMethod )
+	, m_coloringMethod( pOther->m_coloringMethod )
 	, m_nVisiblePatternColors( pOther->m_nVisiblePatternColors )
 	, m_nMaxPatternColors( pOther->m_nMaxPatternColors ){
 	m_patternColors.resize( pOther->m_nMaxPatternColors );
@@ -239,7 +239,7 @@ void Theme::setTheme( const std::shared_ptr<Theme> pOther ) {
 	m_pInterfaceTheme->m_layout = pOther->getInterfaceTheme()->m_layout;
 	m_pInterfaceTheme->m_scalingPolicy = pOther->getInterfaceTheme()->m_scalingPolicy;
 	m_pInterfaceTheme->m_iconColor = pOther->getInterfaceTheme()->m_iconColor;
-	m_pInterfaceTheme->m_nColoringMethod = pOther->getInterfaceTheme()->m_nColoringMethod;
+	m_pInterfaceTheme->m_coloringMethod = pOther->getInterfaceTheme()->m_coloringMethod;
 	m_pInterfaceTheme->m_nVisiblePatternColors = pOther->getInterfaceTheme()->m_nVisiblePatternColors;
 	m_pInterfaceTheme->m_nMaxPatternColors = pOther->getInterfaceTheme()->m_nMaxPatternColors;
 	std::vector<QColor> patternColors( pOther->getInterfaceTheme()->m_nMaxPatternColors );
@@ -446,12 +446,10 @@ std::shared_ptr<Theme> Theme::importTheme( const QString& sPath ) {
 																							InterfaceTheme::FALLOFF_NORMAL );
 
 			//SongEditor coloring
-			pTheme->getInterfaceTheme()->m_nColoringMethod = LocalFileMng::readXmlInt( interfaceNode, "SongEditor_ColoringMethod", 1 );
-			if ( pTheme->getInterfaceTheme()->m_nColoringMethod > 1 ) {
-				pTheme->getInterfaceTheme()->m_nColoringMethod = 1;
-			} else if ( pTheme->getInterfaceTheme()->m_nColoringMethod < 0 ) {
-				pTheme->getInterfaceTheme()->m_nColoringMethod = 0;
-			}
+			pTheme->getInterfaceTheme()->m_coloringMethod =
+				static_cast<InterfaceTheme::ColoringMethod>(LocalFileMng::readXmlInt( interfaceNode,
+																					  "SongEditor_ColoringMethod",
+																					  static_cast<int>(InterfaceTheme::ColoringMethod::Custom) ));
 			std::vector<QColor> colors( pTheme->getInterfaceTheme()->m_nMaxPatternColors );
 			for ( int ii = 0; ii < pTheme->getInterfaceTheme()->m_nMaxPatternColors; ii++ ) {
 				colors[ ii ] = LocalFileMng::readXmlColor( interfaceNode, QString( "SongEditor_pattern_color_%1" ).arg( ii ),
@@ -518,7 +516,7 @@ void Theme::exportTheme( const QString& sPath, const std::shared_ptr<Theme> pThe
 	LocalFileMng::writeXmlString( interfaceNode, "mixer_falloff_speed",
 								  QString("%1").arg( pTheme->getInterfaceTheme()->m_fMixerFalloffSpeed ) );
 	LocalFileMng::writeXmlString( interfaceNode, "SongEditor_ColoringMethod",
-								  QString::number( pTheme->getInterfaceTheme()->m_nColoringMethod ) );
+								  QString::number( static_cast<int>(pTheme->getInterfaceTheme()->m_coloringMethod) ) );
 	for ( int ii = 0; ii < pTheme->getInterfaceTheme()->m_nMaxPatternColors; ii++ ) {
 		LocalFileMng::writeXmlColor( interfaceNode,
 									 QString( "SongEditor_pattern_color_%1" ).arg( ii ),

@@ -136,11 +136,14 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 	void importTheme();
 	void resetTheme();
 	void onIconColorChanged(int);
+	void on_mixerFalloffComboBox_currentIndexChanged(int);
+	void on_uiScalingPolicyComboBox_currentIndexChanged(int);
 
 private:
 
 	void updateDriverInfo();
 	void updateDriverPreferences();
+	void updateAppearanceTab( const std::shared_ptr<H2Core::Theme> pTheme );
 
 	void setColorTreeItemDirty( ColorTreeItem* pItem );
 	QColor* getColorById( int nId, std::shared_ptr<H2Core::ColorTheme> uiStyle ) const;
@@ -157,19 +160,9 @@ private:
 	QColor* m_pCurrentColor;
 	int m_nCurrentId;
 	QTimer* m_pColorSliderTimer;
-	H2Core::InterfaceTheme::IconColor m_previousIconColor;
 
 	bool m_bNeedDriverRestart;
 	QString m_sInitialLanguage;
-
-	/** Caching the corresponding variable in Preferences in case the
-		QFontDialog will be cancelled.*/
-	QString m_sPreviousApplicationFontFamily;
-	QString m_sPreviousLevel2FontFamily;
-	QString m_sPreviousLevel3FontFamily;
-	H2Core::FontTheme::FontSize m_previousFontSize;
-	int m_nPreviousVisiblePatternColors;
-	std::vector<QColor> m_previousPatternColors;
 
 	QStringList m_fontFamilies;
 	std::vector<ColorSelectionButton*> m_colorSelectionButtons;
