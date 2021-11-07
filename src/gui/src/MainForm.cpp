@@ -1448,7 +1448,7 @@ void MainForm::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		Skin::setPalette( m_pQApp );
-	}	
+	}
 }
 	
 

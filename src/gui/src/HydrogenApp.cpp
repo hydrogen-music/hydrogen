@@ -79,13 +79,21 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
  , m_pPlaylistDialog( nullptr )
  , m_pSampleEditor( nullptr )
  , m_pDirector( nullptr )
-
+ , m_nPreferencesUpdateTimeout( 100 )
+ , m_bufferedChanges( H2Core::Preferences::Changes::None )
 {
 	m_pInstance = this;
 
 	m_pEventQueueTimer = new QTimer(this);
 	connect( m_pEventQueueTimer, SIGNAL( timeout() ), this, SLOT( onEventQueueTimer() ) );
 	m_pEventQueueTimer->start( QUEUE_TIMER_PERIOD );
+
+	// Wait for m_nPreferenceUpdateTimeout milliseconds of no update
+	// signal before propagating the update. Else importing/reseting a
+	// theme will slow down the GUI significantly.
+	m_pPreferencesUpdateTimer = new QTimer( this );
+	m_pPreferencesUpdateTimer->setSingleShot( true );
+	connect( m_pPreferencesUpdateTimer, SIGNAL(timeout()), this, SLOT(propagatePreferences()) );
 
 	SoundLibraryDatabase::create_instance();
 	m_pCommonStrings = std::make_shared<CommonStrings>();
@@ -851,5 +859,18 @@ void HydrogenApp::quitEvent( int nValue ) {
 }
 
 void HydrogenApp::changePreferences( H2Core::Preferences::Changes changes ) {
-	emit preferencesChanged( changes );
+	if ( m_pPreferencesUpdateTimer->isActive() ) {
+		m_pPreferencesUpdateTimer->stop();
+	}
+	m_pPreferencesUpdateTimer->start( m_nPreferencesUpdateTimeout );
+	// Ensure the provided changes will be propagated too.
+
+	if ( ! ( m_bufferedChanges | changes ) ) {
+		m_bufferedChanges = static_cast<H2Core::Preferences::Changes>(m_bufferedChanges | changes);
+	}
+}
+
+void HydrogenApp::propagatePreferences() {
+	emit preferencesChanged( m_bufferedChanges );
+	m_bufferedChanges = H2Core::Preferences::Changes::None;
 }

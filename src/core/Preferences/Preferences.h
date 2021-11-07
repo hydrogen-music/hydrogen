@@ -114,6 +114,7 @@ public:
 	/** Bitwise or-able options showing which part of the Preferences
 	 * were altered using the PreferencesDialog.*/ 
 	enum Changes {
+		None = 0x000,
 		/** Either the font size or font family have changed.*/
 		Font = 0x001,
 		/** At least one of the colors has changed.*/

@@ -1109,14 +1109,32 @@ void PreferencesDialog::onFontSizeChanged( int nIndex ) {
 }
 
 void PreferencesDialog::onUILayoutChanged( int nIndex ) {
-	UIChangeWarningLabel->show();
+	if ( static_cast<InterfaceTheme::Layout>(nIndex) !=
+		 m_pPreviousTheme->getInterfaceTheme()->m_layout ||
+		 m_pCurrentTheme->getInterfaceTheme()->m_scalingPolicy !=
+		 m_pPreviousTheme->getInterfaceTheme()->m_scalingPolicy ) {
+		UIChangeWarningLabel->show();
+		INFOLOG( "hosw" );
+	} else {
+		INFOLOG( "hide" );
+		UIChangeWarningLabel->hide();
+	}
 	m_pCurrentTheme->getInterfaceTheme()->m_layout = static_cast<InterfaceTheme::Layout>(nIndex);
 	Preferences::get_instance()->setDefaultUILayout( static_cast<InterfaceTheme::Layout>(nIndex) );
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
 void PreferencesDialog::on_uiScalingPolicyComboBox_currentIndexChanged( int nIndex ) {
-	UIChangeWarningLabel->show();
+	if ( static_cast<InterfaceTheme::ScalingPolicy>(nIndex) !=
+		 m_pPreviousTheme->getInterfaceTheme()->m_scalingPolicy ||
+		 m_pCurrentTheme->getInterfaceTheme()->m_layout !=
+		 m_pPreviousTheme->getInterfaceTheme()->m_layout ) {
+		UIChangeWarningLabel->show();
+		INFOLOG( "hosw" );
+	} else {
+		INFOLOG( "hide" );
+		UIChangeWarningLabel->hide();
+	}
 	m_pCurrentTheme->getInterfaceTheme()->m_scalingPolicy = static_cast<InterfaceTheme::ScalingPolicy>(nIndex);
 	Preferences::get_instance()->setUIScalingPolicy( static_cast<InterfaceTheme::ScalingPolicy>(nIndex) );
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );

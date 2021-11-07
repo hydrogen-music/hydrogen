@@ -209,6 +209,9 @@ signals:
 	 */
 	void changePreferences( H2Core::Preferences::Changes changes );
 
+private slots:
+	void propagatePreferences();
+
 	private:
 		static HydrogenApp *		m_pInstance;	///< HydrogenApp instance
 
@@ -235,6 +238,9 @@ signals:
 	std::shared_ptr<CommonStrings>				m_pCommonStrings;
 
 		bool						m_bHideKeyboardCursor;
+		QTimer *					m_pPreferencesUpdateTimer;
+		int						    m_nPreferencesUpdateTimeout;
+	H2Core::Preferences::Changes m_bufferedChanges;  
 
 		// implement EngineListener interface
 		void engineError(uint nErrorCode);
