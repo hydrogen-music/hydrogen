@@ -1098,7 +1098,6 @@ bool Sampler::renderNoteNoResample(
 	float fVal_L;
 	float fVal_R;
 
-
 #ifdef H2CORE_HAVE_JACK
 	float *		pTrackOutL = nullptr;
 	float *		pTrackOutR = nullptr;
@@ -1195,8 +1194,6 @@ bool Sampler::renderNoteNoResample(
 	return retValue;
 }
 
-
-
 bool Sampler::renderNoteResample(
 	std::shared_ptr<Sample> pSample,
 	Note *pNote,
@@ -1272,6 +1269,9 @@ bool Sampler::renderNoteResample(
 	}
 #endif
 
+	float buffer_L[MAX_BUFFER_SIZE];
+	float buffer_R[MAX_BUFFER_SIZE];
+
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pSelectedLayerInfo->SamplePosition ) ) {
 						if ( pNote->get_adsr()->release() == 0 ) {
@@ -1334,7 +1334,17 @@ bool Sampler::renderNoteResample(
 			pNote->compute_lr_values( &fVal_L, &fVal_R );
 		}
 
+		buffer_L[nBufferPos] = fVal_L;
+		buffer_R[nBufferPos] = fVal_R;
 
+		fSamplePos += fStep;
+	}
+
+	// Mix rendered sample buffer to track and mixer output
+	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
+
+		fVal_L = buffer_L[nBufferPos];
+		fVal_R = buffer_R[nBufferPos];
 
 #ifdef H2CORE_HAVE_JACK
 		if( 		pTrackOutL ) {
@@ -1362,7 +1372,6 @@ bool Sampler::renderNoteResample(
 		m_pMainOut_L[nBufferPos] += fVal_L;
 		m_pMainOut_R[nBufferPos] += fVal_R;
 
-		fSamplePos += fStep;
 	}
 	pSelectedLayerInfo->SamplePosition += nAvail_bytes * fStep;
 	pNote->get_instrument()->set_peak_l( fInstrPeak_L );
@@ -1384,63 +1393,17 @@ bool Sampler::renderNoteResample(
 			float *pBuf_L = pFX->m_pBuffer_L;
 			float *pBuf_R = pFX->m_pBuffer_R;
 
-//			float fFXCost_L = cost_L * fLevel;
-//			float fFXCost_R = cost_R * fLevel;
 			float fFXCost_L = fLevel * masterVol;
 			float fFXCost_R = fLevel * masterVol;
 
 			int nBufferPos = nInitialBufferPos;
-			float fSamplePos = pSelectedLayerInfo->SamplePosition;
 			for ( int i = 0; i < nAvail_bytes; ++i ) {
-				int nSamplePos = ( int )fSamplePos;
-				double fDiff = fSamplePos - nSamplePos;
 
-				if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
-					//we reach the last audioframe.
-					//set this last frame to zero do nothing wrong.
-					fVal_L = 0.0;
-					fVal_R = 0.0;
-				} else {
-					// some interpolation methods need 4 frames data.
-					float last_l;
-					float last_r;
-					if ( ( nSamplePos + 2 ) >= nSampleFrames ) {
-						last_l = 0.0;
-						last_r = 0.0;
-					}else
-					{
-						last_l =  pSample_data_L[nSamplePos + 2];
-						last_r =  pSample_data_R[nSamplePos + 2];
-					}
-
-					switch( m_interpolateMode ){
-
-					case Interpolation::InterpolateMode::Linear:
-						fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
-						fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
-						break;
-					case Interpolation::InterpolateMode::Cosine:
-						fVal_L = Interpolation::cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
-						fVal_R = Interpolation::cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
-						break;
-					case Interpolation::InterpolateMode::Third:
-						fVal_L = Interpolation::third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-						fVal_R = Interpolation::third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-						break;
-					case Interpolation::InterpolateMode::Cubic:
-						fVal_L = Interpolation::cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-						fVal_R = Interpolation::cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-						break;
-					case Interpolation::InterpolateMode::Hermite:
-						fVal_L = Interpolation::hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-						fVal_R = Interpolation::hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-						break;
-					}
-				}
+				fVal_L = buffer_L[nBufferPos];
+				fVal_R = buffer_R[nBufferPos];
 
 				pBuf_L[ nBufferPos ] += fVal_L * fFXCost_L;
-								pBuf_R[ nBufferPos ] += fVal_R * fFXCost_R;
-				fSamplePos += fStep;
+				pBuf_R[ nBufferPos ] += fVal_R * fFXCost_R;
 				++nBufferPos;
 			}
 		}
