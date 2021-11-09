@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layer>
+  <filename>crash.wav</filename>
+  <min>0.5</min>
+  <max>1</max>
+  <gain>1</gain>
+  <pitch>0</pitch>
+</layer>

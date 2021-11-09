@@ -1,0 +1,193 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+#ifndef ACTION_H
+#define ACTION_H
+#include <core/Object.h>
+#include <map>
+#include <string>
+#include <cassert>
+
+/** \ingroup docCore docMIDI */
+class Action : public H2Core::Object<Action> {
+	H2_OBJECT(Action)
+	public:
+		Action( QString );
+
+		void setParameter1( QString text ){
+			m_sParameter1 = text;
+		}
+
+		void setParameter2( QString text ){
+			m_sParameter2 = text;
+		}
+
+		void setParameter3( QString text ){
+			m_sParameter3 = text;
+		}
+
+		void setValue( QString text ){
+			m_sValue = text;
+		}
+
+		QString getParameter1() const {
+			return m_sParameter1;
+		}
+
+		QString getParameter2() const {
+			return m_sParameter2;
+		}
+
+		QString getParameter3() const {
+			return m_sParameter3;
+		}
+
+		QString getValue() const {
+			return m_sValue;
+		}
+
+		QString getType() const {
+			return m_sType;
+		}
+
+	private:
+		QString m_sType;
+		QString m_sParameter1;
+		QString m_sParameter2;
+		QString m_sParameter3;
+		QString m_sValue;
+};
+
+namespace H2Core
+{
+	class Hydrogen;
+}
+
+/** \ingroup docCore docMIDI */
+class MidiActionManager : public H2Core::Object<MidiActionManager>
+{
+	H2_OBJECT(MidiActionManager)
+	private:
+		/**
+		 * Object holding the current MidiActionManager
+		 * singleton. It is initialized with NULL, set with
+		 * create_instance(), and accessed with
+		 * get_instance().
+		 */
+		static MidiActionManager *__instance;
+
+		/**
+		 * Holds the names of all Action identfiers which Hydrogen is
+		 * able to interpret.
+		 */
+		QStringList actionList;
+
+		typedef bool (MidiActionManager::*action_f)(Action * , H2Core::Hydrogen * );
+		/**
+		 * Holds all Action identifiers which Hydrogen is able to
+		 * interpret.  
+		 *
+		 * It holds pointer to member function.
+		 */
+	std::map<std::string, action_f> actionMap;
+		bool play(Action * , H2Core::Hydrogen * );
+		bool play_stop_pause_toggle(Action * , H2Core::Hydrogen * );
+		bool stop(Action * , H2Core::Hydrogen * );
+		bool pause(Action * , H2Core::Hydrogen * );
+		bool record_ready(Action * , H2Core::Hydrogen * );
+		bool record_strobe_toggle(Action * , H2Core::Hydrogen * );
+		bool record_strobe(Action * , H2Core::Hydrogen * );
+		bool record_exit(Action * , H2Core::Hydrogen * );
+		bool mute(Action * , H2Core::Hydrogen * );
+		bool unmute(Action * , H2Core::Hydrogen * );
+		bool mute_toggle(Action * , H2Core::Hydrogen * );
+		bool strip_mute_toggle(Action * , H2Core::Hydrogen * );
+		bool strip_solo_toggle(Action * , H2Core::Hydrogen * );
+		bool next_bar(Action * , H2Core::Hydrogen * );
+		bool previous_bar(Action * , H2Core::Hydrogen * );
+		bool bpm_increase(Action * , H2Core::Hydrogen * );
+		bool bpm_decrease(Action * , H2Core::Hydrogen * );
+		bool bpm_cc_relative(Action * , H2Core::Hydrogen * );
+		bool bpm_fine_cc_relative(Action * , H2Core::Hydrogen * );
+		bool master_volume_relative(Action * , H2Core::Hydrogen *);
+		bool master_volume_absolute(Action * , H2Core::Hydrogen * );
+		bool strip_volume_relative(Action * , H2Core::Hydrogen * );
+		bool strip_volume_absolute(Action * , H2Core::Hydrogen * );
+		bool effect_level_relative(Action * , H2Core::Hydrogen * );
+		bool effect_level_absolute(Action * , H2Core::Hydrogen * );
+		bool select_next_pattern(Action * , H2Core::Hydrogen * );
+	bool select_only_next_pattern(Action * , H2Core::Hydrogen * );
+		bool select_next_pattern_cc_absolute(Action * , H2Core::Hydrogen * );
+		bool select_next_pattern_promptly(Action * , H2Core::Hydrogen * );
+		bool select_next_pattern_relative(Action * , H2Core::Hydrogen * );
+		bool select_and_play_pattern(Action * , H2Core::Hydrogen * );
+		bool pan_relative(Action * , H2Core::Hydrogen * );
+		bool pan_absolute(Action * , H2Core::Hydrogen * );
+		bool filter_cutoff_level_absolute(Action * , H2Core::Hydrogen * );
+		bool beatcounter(Action * , H2Core::Hydrogen * );
+		bool tap_tempo(Action * , H2Core::Hydrogen * );
+		bool playlist_song(Action * , H2Core::Hydrogen * );
+		bool playlist_next_song(Action * , H2Core::Hydrogen * );
+		bool playlist_previous_song(Action * , H2Core::Hydrogen * );
+		bool toggle_metronome(Action * , H2Core::Hydrogen * );
+		bool select_instrument(Action * , H2Core::Hydrogen * );
+		bool undo_action(Action * , H2Core::Hydrogen * );
+		bool redo_action(Action * , H2Core::Hydrogen * );
+		bool gain_level_absolute(Action * , H2Core::Hydrogen * );
+		bool pitch_level_absolute(Action * , H2Core::Hydrogen * );
+
+		QStringList eventList;
+
+		int m_nLastBpmChangeCCParameter;
+
+	public:
+
+		/**
+		 * The handleAction method is the heart of the
+		 * MidiActionManager class. It executes the operations that
+		 * are needed to carry the desired action.
+		 */
+		bool handleAction( Action * );
+		/**
+		 * If #__instance equals 0, a new MidiActionManager
+		 * singleton will be created and stored in it.
+		 *
+		 * It is called in H2Core::Hydrogen::create_instance().
+		 */
+		static void create_instance();
+		/**
+		 * Returns a pointer to the current MidiActionManager
+		 * singleton stored in #__instance.
+		 */
+		static MidiActionManager* get_instance() { assert(__instance); return __instance; }
+
+		QStringList getActionList(){
+			return actionList;
+		}
+
+		QStringList getEventList(){
+			return eventList;
+		}
+
+		MidiActionManager();
+		~MidiActionManager();
+};
+#endif

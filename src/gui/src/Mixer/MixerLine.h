@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,26 +16,23 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 #ifndef MIXERLINE_H
 #define MIXERLINE_H
 
-
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
-#include <hydrogen/object.h>
-#include <hydrogen/globals.h>
+#include <core/Object.h>
+#include <core/Globals.h>
+#include <core/Preferences.h>
 
 class Fader;
 class MasterFader;
 class PanFader;
-class Knob;
+//class Knob;
 class Button;
 class ToggleButton;
 class InstrumentPropertiesDialog;
@@ -42,35 +40,42 @@ class InstrumentNameWidget;
 class LCDDisplay;
 class Rotary;
 
-#include "../widgets/PixmapWidget.h"
+#include "../Widgets/PixmapWidget.h"
+#include "../Widgets/WidgetWithScalableFont.h"
 
-
-class InstrumentNameWidget : public PixmapWidget
+/** \ingroup docGUI*/
+class InstrumentNameWidget : public PixmapWidget, public H2Core::Object<InstrumentNameWidget>, protected WidgetWithScalableFont<8, 10, 12>
 {
-	H2_OBJECT
+	H2_OBJECT(InstrumentNameWidget)
 	Q_OBJECT
 	public:
-		InstrumentNameWidget(QWidget* parent);
+		explicit InstrumentNameWidget(QWidget* parent);
 		~InstrumentNameWidget();
 
 		void	setText(QString text);
 		QString text();
 
-		void	mousePressEvent( QMouseEvent * e );
-		void	mouseDoubleClickEvent( QMouseEvent * e );
+		void	mousePressEvent( QMouseEvent * e ) override;
+		void	mouseDoubleClickEvent( QMouseEvent * e ) override;
 
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
+	
 	signals:
 		void	clicked();
 		void	doubleClicked();
 
 	protected:
-		virtual void paintEvent(QPaintEvent *ev);
+		virtual void paintEvent(QPaintEvent *ev) override;
 
 	private:
 		int			m_nWidgetWidth;
 		int			m_nWidgetHeight;
 		QString		m_sInstrName;
-		QFont		m_mixerFont;
+		/** Used to detect changed in the font*/
+		QString m_sLastUsedFontFamily;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 
@@ -79,9 +84,10 @@ class InstrumentNameWidget : public PixmapWidget
 ///
 /// A mixer strip
 ///
-class MixerLine: public PixmapWidget
+/** \ingroup docGUI*/
+class MixerLine: public PixmapWidget, public H2Core::Object<MixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(MixerLine)
 	Q_OBJECT
 	public:
 		MixerLine(QWidget* parent, int nInstr);
@@ -136,7 +142,7 @@ class MixerLine: public PixmapWidget
 		void	rightClick(Button *ref);
 		void	faderChanged(Fader *ref);
 		void	panChanged(Rotary *ref);
-		void	knobChanged(Knob *ref);
+		void	knobChanged(Rotary *ref);
 		void	nameClicked();
 		void	nameSelected();
 
@@ -157,14 +163,15 @@ class MixerLine: public PixmapWidget
 		ToggleButton *			m_pSoloBtn;
 		Button *				m_pPlaySampleBtn;
 		Button *				m_pTriggerSampleLED;
-		Knob *					m_pKnob[MAX_FX];
+		Rotary *				m_pFxRotary[MAX_FX];
 
 		LCDDisplay *			m_pPeakLCD;
 };
 
-class ComponentMixerLine: public PixmapWidget
+/** \ingroup docGUI*/
+class ComponentMixerLine: public PixmapWidget, public H2Core::Object<ComponentMixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(ComponentMixerLine)
 	Q_OBJECT
 	public:
 		ComponentMixerLine(QWidget* parent, int CompoID);
@@ -190,7 +197,7 @@ class ComponentMixerLine: public PixmapWidget
 		void	setName(QString name) {     m_pNameWidget->setText( name );        }
 		QString getName() {      return m_pNameWidget->text();        }
 
-		int		getCompoID(){ return __compoID; }
+		int		getComponentID(){ return m_nComponentID; }
 
 	signals:
 		void	muteBtnClicked(ComponentMixerLine *ref);
@@ -203,7 +210,7 @@ class ComponentMixerLine: public PixmapWidget
 
 
 	private:
-		int		__compoID;
+		int		m_nComponentID;
 		uint	m_nWidth;
 		uint	m_nHeight;
 		bool	m_bIsSelected;
@@ -225,12 +232,13 @@ class ComponentMixerLine: public PixmapWidget
 
 
 
-class MasterMixerLine: public PixmapWidget
+/** \ingroup docGUI*/
+class MasterMixerLine: public PixmapWidget, public H2Core::Object<MasterMixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(MasterMixerLine)
 	Q_OBJECT
 	public:
-		MasterMixerLine(QWidget* parent);
+		explicit MasterMixerLine(QWidget* parent);
 		~MasterMixerLine();
 
 		void	updateMixerLine();
@@ -280,12 +288,13 @@ class MasterMixerLine: public PixmapWidget
 ///
 /// Mixer strip for FX
 ///
-class FxMixerLine: public PixmapWidget
+/** \ingroup docGUI*/
+class FxMixerLine: public PixmapWidget, public H2Core::Object<FxMixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(FxMixerLine)
 	Q_OBJECT
 	public:
-		FxMixerLine(QWidget* parent);
+		explicit FxMixerLine(QWidget* parent);
 		~FxMixerLine();
 
 		float	getVolume();
@@ -326,12 +335,13 @@ class FxMixerLine: public PixmapWidget
 
 
 
-class LadspaFXMixerLine : public PixmapWidget
+/** \ingroup docGUI*/
+class LadspaFXMixerLine : public PixmapWidget, public H2Core::Object<LadspaFXMixerLine>
 {
-	H2_OBJECT
+	H2_OBJECT(LadspaFXMixerLine)
 	Q_OBJECT
 	public:
-		LadspaFXMixerLine(QWidget* parent);
+		explicit LadspaFXMixerLine(QWidget* parent);
 		~LadspaFXMixerLine();
 
 		bool	isFxActive();

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,30 +16,25 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
 #include "LadspaFXSelector.h"
 #include "HydrogenApp.h"
-#include <hydrogen/hydrogen.h>
 #include "Skin.h"
-#include <hydrogen/basics/song.h>
-#include <hydrogen/Preferences.h>
 
-#include <hydrogen/fx/Effects.h>
-#include <hydrogen/fx/LadspaFX.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Song.h>
+#include <core/Preferences.h>
+#include <core/FX/Effects.h>
+#include <core/FX/LadspaFX.h>
 
-using namespace std;
 using namespace H2Core;
 
-const char* LadspaFXSelector::__class_name = "LadspaFXSelector";
-
 LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
- : QDialog( NULL )
- , Object( __class_name )
- , m_pCurrentItem( NULL )
+ : QDialog( nullptr )
+ , m_pCurrentItem( nullptr )
 {
 	//INFOLOG( "INIT" );
 
@@ -46,7 +42,7 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 
 	setFixedSize( width(), height() );
 
-	setWindowTitle( trUtf8( "Select LADSPA FX" ) );
+	setWindowTitle( tr( "Select LADSPA FX" ) );
 
 	m_sSelectedPluginName = "";
 
@@ -59,17 +55,17 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 	m_pPluginsListBox->clear();
 	m_pOkBtn->setEnabled(false);
 
-	m_pGroupsListView->setHeaderLabels( QStringList( trUtf8( "Groups" ) ) );
+	m_pGroupsListView->setHeaderLabels( QStringList( tr( "Groups" ) ) );
 
 #ifdef H2CORE_HAVE_LADSPA
-	//Song *pSong = Hydrogen::get_instance()->getSong();
+	//std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	LadspaFX *pFX = Effects::get_instance()->getLadspaFX(nLadspaFX);
 	if (pFX) {
 		m_sSelectedPluginName = pFX->getPluginName();
 	}
 	buildLadspaGroups();
 
-	m_pGroupsListView->setItemHidden( m_pGroupsListView->headerItem(), true );
+	m_pGroupsListView->headerItem()->setHidden( true );
 
 
 //	LadspaFXGroup* pFXGroup = LadspaFX::getLadspaFXGroup();
@@ -136,13 +132,13 @@ void LadspaFXSelector::buildGroup( QTreeWidgetItem *pNewItem, H2Core::LadspaFXGr
 {
 	QString sGroupName = pGroup->getName();
 	if (sGroupName == QString("Uncategorized")) {
-		sGroupName = trUtf8("Alphabetic List");
+		sGroupName = tr("Alphabetic List");
 	}
 	else if (sGroupName == QString("Categorized(LRDF)")) {
-		sGroupName = trUtf8("Categorized");
+		sGroupName = tr("Categorized");
 	}
 	else if (sGroupName == QString("Recently Used")) {
-		sGroupName = trUtf8("Recently Used");
+		sGroupName = tr("Recently Used");
 	}
 	pNewItem->setText( 0, sGroupName );
 
@@ -175,7 +171,7 @@ void LadspaFXSelector::pluginSelected()
 #ifdef H2CORE_HAVE_LADSPA
 	//INFOLOG( "[pluginSelected]" );
 	//
-        
+
 	if ( m_pPluginsListBox->selectedItems().isEmpty() ) return;
 
 	QString sSelected = m_pPluginsListBox->currentItem()->text();
@@ -191,14 +187,14 @@ void LadspaFXSelector::pluginSelected()
 			m_labelLbl->setText( pFXInfo->m_sLabel );
 
 			if ( ( pFXInfo->m_nIAPorts == 2 ) && ( pFXInfo->m_nOAPorts == 2 ) ) {		// Stereo plugin
-				m_typeLbl->setText( trUtf8("Stereo") );
+				m_typeLbl->setText( tr("Stereo") );
 			}
 			else if ( ( pFXInfo->m_nIAPorts == 1 ) && ( pFXInfo->m_nOAPorts == 1 ) ) {	// Mono plugin
-				m_typeLbl->setText( trUtf8("Mono") );
+				m_typeLbl->setText( tr("Mono") );
 			}
 			else {
 				// not supported
-				m_typeLbl->setText( trUtf8("Not supported") );
+				m_typeLbl->setText( tr("Not supported") );
 			}
 
 			m_pIDLbl->setText( pFXInfo->m_sID );
@@ -229,7 +225,7 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem 
 	m_pCopyrightLbl->setText( QString("") );
 
 	// nothing was selected
-	if ( currentItem == NULL ) {
+	if ( currentItem == nullptr ) {
 		return;
 	}
 	
@@ -253,8 +249,9 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem 
 			selectedIndex = i;
 		}
 	}
-	if ( selectedIndex >= 0 )
+	if ( selectedIndex >= 0 ) {
 		m_pPluginsListBox->setCurrentRow( selectedIndex );
+	}
 #endif
 }
 
@@ -263,7 +260,7 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem 
 std::vector<H2Core::LadspaFXInfo*> LadspaFXSelector::findPluginsInGroup( const QString& sSelectedGroup, H2Core::LadspaFXGroup *pGroup )
 {
 	//INFOLOG( "group: " + sSelectedGroup );
-	vector<H2Core::LadspaFXInfo*> list;
+	std::vector<H2Core::LadspaFXInfo*> list;
 
 	if ( pGroup->getName() == sSelectedGroup ) {
 		//INFOLOG( "found..." );

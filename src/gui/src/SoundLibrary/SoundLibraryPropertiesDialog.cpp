@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,15 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include "../HydrogenApp.h"
 #include "../Skin.h"
@@ -31,66 +29,43 @@
 #include "SoundLibraryPropertiesDialog.h"
 #include "../InstrumentRack.h"
 #include "SoundLibraryPanel.h"
-#include <hydrogen/hydrogen.h>
+#include <core/Hydrogen.h>
 
 namespace H2Core
 {
 
-//globals
-Drumkit *drumkitinfo = NULL ;
-Drumkit *predrumkit = NULL;
-QString oldName;
-
-const char* SoundLibraryPropertiesDialog::__class_name = "SoundLibraryPropertiesDialog";
-
-SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Drumkit *drumkitInfo, Drumkit *preDrumKit )
+SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Drumkit *pDrumkitInfo, Drumkit *pPreDrumkit )
  : QDialog( pParent )
- , Object( __class_name )
+ , m_pDrumkitInfo( pDrumkitInfo )
+ , m_pPreDrumkitInfo( pPreDrumkit )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );
-	setWindowTitle( trUtf8( "SoundLibrary Properties" ) );
-	setFixedSize( width(), height() );
-	predrumkit = preDrumKit;
+	setWindowTitle( tr( "SoundLibrary Properties" ) );
+	adjustSize();
+	setMinimumSize( width(), height() );
 
 	//display the current drumkit infos into the qlineedit
-	if ( drumkitInfo != NULL ){
-		drumkitinfo = drumkitInfo;
-		nameTxt->setText( QString( drumkitInfo->get_name() ) );
-		oldName = drumkitInfo->get_name();
-		authorTxt->setText( QString( drumkitInfo->get_author() ) );
-		infoTxt->append( QString( drumkitInfo->get_info() ) );
-		licenseTxt->setText( QString( drumkitInfo->get_license() ) );
-		imageText->setText( QString ( drumkitInfo->get_image() ) );
-		imageLicenseText->setText( QString ( drumkitInfo->get_image_license() ) );
+	if ( pDrumkitInfo != nullptr ){
+		nameTxt->setText( QString( pDrumkitInfo->get_name() ) );
+		authorTxt->setText( QString( pDrumkitInfo->get_author() ) );
+		infoTxt->append( QString( pDrumkitInfo->get_info() ) );
+		licenseTxt->setText( QString( pDrumkitInfo->get_license() ) );
+		imageText->setText( QString ( pDrumkitInfo->get_image() ) );
+		imageLicenseText->setText( QString ( pDrumkitInfo->get_image_license() ) );
 		// Licence with attribution is often too long...
-		imageLicenseText->setToolTip( QString( drumkitInfo->get_image_license() ) );
-
-		QPixmap *pixmap = new QPixmap (drumkitInfo->get_path() + "/" + drumkitInfo->get_image());
-		// scale the image down to fit if required
-		int x = (int) drumkitImageLabel->size().width();
-		int y = drumkitImageLabel->size().height();
-		float labelAspect = (float) x / y;
-		float imageAspect = (float) pixmap->width() / pixmap->height();
-
-		if ( ( x < pixmap->width() ) || ( y < pixmap->height() ) )
-		{
-			if ( labelAspect >= imageAspect )
-			{
-				// image is taller or the same as label frame
-				*pixmap = pixmap->scaledToHeight( y );
-			}
-			else
-			{
-				// image is wider than label frame
-				*pixmap = pixmap->scaledToWidth( x );
-			}
-		}
-		drumkitImageLabel->setPixmap(*pixmap);
-		drumkitImageLabel->show();
-
+		imageLicenseText->setToolTip( QString( pDrumkitInfo->get_image_license() ) );
 	}
 
+}
+
+/// On showing the dialog (after layout sizes have been applied), load the drumkit image if any.
+void SoundLibraryPropertiesDialog::showEvent( QShowEvent *e )
+{
+	if ( m_pDrumkitInfo != nullptr ) {
+		QString sImage = m_pDrumkitInfo->get_path() + "/" + m_pDrumkitInfo->get_image();
+		updateImage( sImage );
+	}
 }
 
 
@@ -102,27 +77,27 @@ SoundLibraryPropertiesDialog::~SoundLibraryPropertiesDialog()
 
 void SoundLibraryPropertiesDialog::updateImage( QString& filename )
 {
-	QPixmap *pixmap = new QPixmap ( filename );
+	QPixmap *pPixmap = new QPixmap ( filename );
 	// scale the image down to fit if required
 	int x = (int) drumkitImageLabel->size().width();
 	int y = drumkitImageLabel->size().height();
 	float labelAspect = (float) x / y;
-	float imageAspect = (float) pixmap->width() / pixmap->height();
+	float imageAspect = (float) pPixmap->width() / pPixmap->height();
 
-	if ( ( x < pixmap->width() ) || ( y < pixmap->height() ) )
+	if ( ( x < pPixmap->width() ) || ( y < pPixmap->height() ) )
 	{
 		if ( labelAspect >= imageAspect )
 		{
 			// image is taller or the same as label frame
-			*pixmap = pixmap->scaledToHeight( y );
+			*pPixmap = pPixmap->scaledToHeight( y );
 		}
 		else
 		{
 			// image is wider than label frame
-			*pixmap = pixmap->scaledToWidth( x );
+			*pPixmap = pPixmap->scaledToWidth( x );
 		}
 	}
-	drumkitImageLabel->setPixmap(*pixmap);
+	drumkitImageLabel->setPixmap(*pPixmap);
 	drumkitImageLabel->show();
 
 }
@@ -130,12 +105,12 @@ void SoundLibraryPropertiesDialog::updateImage( QString& filename )
 void SoundLibraryPropertiesDialog::on_imageBrowsePushButton_clicked()
 {
 	// Try to get the drumkit directory and open file browser
-	QString drumkitDir = Filesystem::drumkit_dir_search( nameTxt->text() ) + "/" + nameTxt->text();
+	QString drumkitDir = m_pDrumkitInfo->get_path();
 
-	QString fileName = QFileDialog::getOpenFileName(this, trUtf8("Open Image"), drumkitDir, trUtf8("Image Files (*.png *.jpg *.jpeg)"));
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), drumkitDir, tr("Image Files (*.png *.jpg *.jpeg)"));
 
 	// If cancel was clicked just abort
-	if ( fileName == NULL )
+	if ( fileName == nullptr )
 	{
 		return;
 	}
@@ -156,7 +131,7 @@ void SoundLibraryPropertiesDialog::on_imageBrowsePushButton_clicked()
 	}
 	QString filename(fileInfo.fileName());
 	imageText->setText( filename );
-	drumkitinfo->set_image( filename );
+	m_pDrumkitInfo->set_image( filename );
 	updateImage( fileName );
 }
 
@@ -167,8 +142,9 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 
 	if ( saveChanges_checkBox->isChecked() ){
 		//test if the drumkit is loaded
-		if ( Hydrogen::get_instance()->getCurrentDrumkitname() != drumkitinfo->get_name() ){
-			QMessageBox::information( this, "Hydrogen", trUtf8 ( "This is not possible, you can only save changes inside instruments to the current loaded sound library"));
+		if ( m_pDrumkitInfo->get_name() != m_pPreDrumkitInfo->get_name() ||
+			 m_pDrumkitInfo->isUserDrumkit() != m_pPreDrumkitInfo->isUserDrumkit() ){
+			QMessageBox::information( this, "Hydrogen", tr ( "This is not possible, you can only save changes inside instruments to the current loaded sound library"));
 			saveChanges_checkBox->setChecked( false );
 			return;
 		}
@@ -176,16 +152,17 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	}
 
 	//load the selected drumkit to save it correct.... later the old drumkit will be reloaded
-	if ( drumkitinfo != NULL && ( !saveChanges_checkBox->isChecked() ) ){
-		if ( Hydrogen::get_instance()->getCurrentDrumkitname() != drumkitinfo->get_name() ){
-			Hydrogen::get_instance()->loadDrumkit( drumkitinfo );
-			Hydrogen::get_instance()->getSong()->set_is_modified( true );
+	if ( m_pDrumkitInfo != nullptr && ( !saveChanges_checkBox->isChecked() ) ){
+		if ( m_pPreDrumkitInfo->get_name() != m_pDrumkitInfo->get_name() ||
+			 m_pPreDrumkitInfo->isUserDrumkit() != m_pDrumkitInfo->isUserDrumkit() ){
+			Hydrogen::get_instance()->loadDrumkit( m_pDrumkitInfo );
+			Hydrogen::get_instance()->getSong()->setIsModified( true );
 		}
 	}
 
-	//check the drumkit name. if the name is a new one, one qmessagebox with question "are you sure" will displayed.
-	if ( nameTxt->text() != oldName  ){
-		int res = QMessageBox::information( this, "Hydrogen", tr( "Warning! Changing the drumkit name will result in creating a new drumkit with this name.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+	// Check the drumkit name. if the name is a new one, one qmessagebox with question "are you sure" will displayed.
+	if ( nameTxt->text() != m_pDrumkitInfo->get_name()  ){
+		int res = QMessageBox::information( this, "Hydrogen", tr( "Warning! Changing the drumkit name will result in creating a new drumkit with this name.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
 		if ( res == 1 ) {
 			return;
 		}
@@ -196,28 +173,37 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	}
 	
 	//check the name and set the drumkitinfo to current drumkit
-	if ( drumkitinfo != NULL && !nameTxt->text().isEmpty() ){
-		drumkitinfo->set_name( nameTxt->text() );
-		drumkitinfo->set_author( authorTxt->text() );
-		drumkitinfo->set_info( infoTxt->toHtml() );
-		drumkitinfo->set_license( licenseTxt->text() );
-		drumkitinfo->set_image( imageText->text() );
-		drumkitinfo->set_image_license( imageLicenseText->text() );
+	if ( m_pDrumkitInfo != nullptr && !nameTxt->text().isEmpty() ){
+		m_pDrumkitInfo->set_name( nameTxt->text() );
+		m_pDrumkitInfo->set_author( authorTxt->text() );
+		m_pDrumkitInfo->set_info( infoTxt->toHtml() );
+		m_pDrumkitInfo->set_license( licenseTxt->text() );
+		m_pDrumkitInfo->set_image( imageText->text() );
+		m_pDrumkitInfo->set_image_license( imageLicenseText->text() );
 	}
 
 	//save the drumkit
 	// Note: The full path of the image is passed to make copying to a new drumkit easy
-	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), drumkitinfo->get_path() + "/" + drumkitinfo->get_image(), drumkitinfo->get_image_license(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), true ) ) 
-	{
-		QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this drumkit failed."));
+	if( m_pDrumkitInfo != nullptr ) {
+		if( !H2Core::Drumkit::save( nameTxt->text(),
+									authorTxt->text(),
+									infoTxt->toHtml(),
+									licenseTxt->text(),
+									m_pDrumkitInfo->get_path() + "/" + m_pDrumkitInfo->get_image(),
+									m_pDrumkitInfo->get_image_license(),
+									H2Core::Hydrogen::get_instance()->getSong()->getInstrumentList(),
+									H2Core::Hydrogen::get_instance()->getSong()->getComponents(),
+									true ) ) {
+			QMessageBox::information( this, "Hydrogen", tr ( "Saving of this drumkit failed."));
+		}
 	}
 
-
 	//check pre loaded drumkit name  and reload the old drumkit
-	if ( predrumkit != NULL ){
-		if ( predrumkit->get_name() !=  Hydrogen::get_instance()->getCurrentDrumkitname() ){
-			Hydrogen::get_instance()->loadDrumkit( predrumkit );
-			Hydrogen::get_instance()->getSong()->set_is_modified( true );
+	if ( m_pPreDrumkitInfo != nullptr ){
+		if ( m_pPreDrumkitInfo->get_name() != Hydrogen::get_instance()->getCurrentDrumkitName() ||
+			 m_pPreDrumkitInfo->isUserDrumkit() != m_pDrumkitInfo->isUserDrumkit() ) {
+			Hydrogen::get_instance()->loadDrumkit( m_pPreDrumkitInfo );
+			Hydrogen::get_instance()->getSong()->setIsModified( true );
 		}
 	}
 

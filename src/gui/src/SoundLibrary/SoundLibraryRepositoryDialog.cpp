@@ -1,6 +1,7 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2007 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,29 +16,26 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
 #include "SoundLibraryRepositoryDialog.h"
 
-#include <hydrogen/Preferences.h>
+#include <core/Preferences.h>
 
 #include <QList>
 #include <QInputDialog>
 #include <QListWidgetItem>
 
-const char* SoundLibraryRepositoryDialog::__class_name = "SoundLibraryRepositoryDialog";
-
 SoundLibraryRepositoryDialog::SoundLibraryRepositoryDialog( QWidget* pParent )
  : QDialog( pParent )
- , Object( __class_name )
-{
+ {
 	setupUi( this );
 	INFOLOG( "INIT" );
-	setWindowTitle( trUtf8( "Edit repository settings" ) );
-	setFixedSize( width(), height() );
+	setWindowTitle( tr( "Edit repository settings" ) );
+	adjustSize();
+	setMinimumSize( width(), height() );
 
 	updateDialog();
 
@@ -73,7 +71,7 @@ void SoundLibraryRepositoryDialog::on_AddBtn_clicked()
 	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 	bool ok;
 
-	QString text = QInputDialog::getText(this, trUtf8("Edit server list"), trUtf8("URL"), QLineEdit::Normal,QString(""), &ok);
+	QString text = QInputDialog::getText(this, tr("Edit server list"), tr("URL"), QLineEdit::Normal,QString(""), &ok);
 	
 	if( ok && !text.isEmpty() ){
 		pPref->sServerList.push_back( text );
@@ -103,6 +101,11 @@ void SoundLibraryRepositoryDialog::on_DeleteBtn_clicked()
 
 	}
 	updateDialog();
+}
+
+void SoundLibraryRepositoryDialog::on_CloseBtn_clicked()
+{
+	accept();
 }
 
 SoundLibraryRepositoryDialog::~SoundLibraryRepositoryDialog()

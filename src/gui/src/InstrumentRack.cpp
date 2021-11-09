@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,24 +16,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
 #include "InstrumentRack.h"
 #include "Skin.h"
-#include "widgets/Button.h"
+#include "Widgets/Button.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
+#include "HydrogenApp.h"
 
 #include <QGridLayout>
 
-const char* InstrumentRack::__class_name = "InstrumentRack";
-
 InstrumentRack::InstrumentRack( QWidget *pParent )
  : QWidget( pParent )
- , Object( __class_name )
+ , Object()
 {
 	INFOLOG( "INIT" );
 
@@ -40,34 +39,40 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	setMinimumSize( width(), height() );
 	setFixedWidth( width() );
 
+	m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
+	QFont fontButtons( H2Core::Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
 
 // TAB buttons
-	QWidget *pTabButtonsPanel = new QWidget( NULL );
+	QWidget *pTabButtonsPanel = new QWidget( nullptr );
 	pTabButtonsPanel->setFixedHeight( 24 );
 	pTabButtonsPanel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
 	// instrument editor button
 	m_pShowInstrumentEditorBtn = new ToggleButton(
 			pTabButtonsPanel,
-			"/instrumentEditor/instrument_show_on.png",
-			"/instrumentEditor/instrument_show_off.png",
-			"/instrumentEditor/instrument_show_off.png",
-			QSize( 130, 24 )
-	);
-	m_pShowInstrumentEditorBtn->setToolTip( trUtf8( "Show Instrument editor" ) );
-	m_pShowInstrumentEditorBtn->setText( trUtf8( "Instrument" ) );
+			"/skin_btn_on.png",
+			"/skin_btn_off.png",
+			"/skin_btn_over.png",
+			QSize( 130, 17 ), 
+			true );
+
+	m_pShowInstrumentEditorBtn->setToolTip( tr( "Show Instrument editor" ) );
+	m_pShowInstrumentEditorBtn->setText( tr( "Instrument" ) );
+	m_pShowInstrumentEditorBtn->setFont( fontButtons );
 	connect( m_pShowInstrumentEditorBtn, SIGNAL( clicked( Button* ) ), this, SLOT( on_showInstrumentEditorBtnClicked() ) );
 
 	// show sound library button
 	m_pShowSoundLibraryBtn = new ToggleButton(
 			pTabButtonsPanel,
-			"/instrumentEditor/library_show_on.png",
-			"/instrumentEditor/library_show_off.png",
-			"/instrumentEditor/library_show_off.png",
-			QSize( 150, 24 )
-	);
-	m_pShowSoundLibraryBtn->setToolTip( trUtf8( "Show sound library" ) );
-	m_pShowSoundLibraryBtn->setText( trUtf8( "Sound library" ) );
+			"/skin_btn_on.png",
+			"/skin_btn_off.png",
+			"/skin_btn_over.png",
+			QSize( 150, 17 ), 
+			true );
+
+	m_pShowSoundLibraryBtn->setToolTip( tr( "Show sound library" ) );
+	m_pShowSoundLibraryBtn->setText( tr( "Sound library" ) );
+	m_pShowSoundLibraryBtn->setFont( fontButtons );
 	connect( m_pShowSoundLibraryBtn, SIGNAL( clicked( Button* ) ), this, SLOT( on_showSoundLibraryBtnClicked() ) );
 
 	QHBoxLayout *pTabHBox = new QHBoxLayout();
@@ -83,7 +88,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 
 	InstrumentEditorPanel::get_instance()->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
-	m_pSoundLibraryPanel = new SoundLibraryPanel( NULL, false );
+	m_pSoundLibraryPanel = new SoundLibraryPanel( nullptr, false );
 
 	// LAYOUT
 	QGridLayout *pGrid = new QGridLayout();
@@ -95,7 +100,9 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	pGrid->addWidget( m_pSoundLibraryPanel, 2, 1 );
 
 	this->setLayout( pGrid );
-
+	
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &InstrumentRack::onPreferencesChanged );
+	
 	on_showInstrumentEditorBtnClicked();	// show the instrument editor as default
 }
 
@@ -128,3 +135,15 @@ void InstrumentRack::on_showInstrumentEditorBtnClicked()
 	m_pSoundLibraryPanel->hide();
 }
 
+void InstrumentRack::onPreferencesChanged( bool bAppearanceOnly ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_pShowInstrumentEditorBtn->font().family() != pPref->getApplicationFontFamily() ||
+		 m_lastUsedFontSize != pPref->getFontSize() ) {
+		m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
+		
+		QFont fontButtons( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+		m_pShowInstrumentEditorBtn->setFont( fontButtons );
+		m_pShowSoundLibraryBtn->setFont( fontButtons );
+	}
+}

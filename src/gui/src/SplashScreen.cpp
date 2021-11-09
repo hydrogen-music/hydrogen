@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,26 +16,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
-#include <hydrogen/version.h>
+#include <core/Version.h>
 #include "SplashScreen.h"
 
 #include <QPainter>
-#include <QLabel>
 #include <QApplication>
-#include <QDesktopWidget>
+#include <QScreen>
 
 #include "Skin.h"
 
-const char* SplashScreen::__class_name = "SplashScreen";
-
 SplashScreen::SplashScreen()
- : QSplashScreen( NULL )
- , Object( __class_name )
+ : QSplashScreen()
+ , Object()
 {
 	//INFOLOG( "SplashScreen" );
 
@@ -58,9 +55,8 @@ SplashScreen::SplashScreen()
 
 	setPixmap( *m_pBackground );
 
-
 	// Center on screeen
-	QRect rect( QApplication::desktop()->screenGeometry() );
+	QRect rect( QGuiApplication::screens().first()->geometry() );
 	move( rect.center() - this->rect().center() );
 
 	QTimer::singleShot( 5000, this, SLOT( onCloseTimer() ) );

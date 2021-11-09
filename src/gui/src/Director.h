@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -26,24 +26,30 @@
 
 #include <QDialog>
 #include "ui_Director_UI.h"
-#include <hydrogen/object.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/timeline.h>
+#include <core/Object.h>
+#include <core/Preferences.h>
+#include <core/Hydrogen.h>
+#include <core/Timeline.h>
 #include "EventListener.h"
 
 
-class Director : public QDialog, public Ui_Director_UI, public H2Core::Object, public EventListener
-
+/** \ingroup docGUI*/
+class Director :  public QDialog, public Ui_Director_UI,  public H2Core::Object<Director>, public EventListener
 {
+	H2_OBJECT(Director)
 	Q_OBJECT
 public:
 
-	Director( QWidget* pParent );
+	explicit Director( QWidget* pParent );
 	~Director();
+	
+	Director(const Director&) = delete;
+	Director& operator=( const Director& rhs ) = delete;
 
 	virtual void metronomeEvent( int nValue );
 	virtual void paintEvent( QPaintEvent*);
+	void keyPressEvent( QKeyEvent* ev );
+	void closeEvent( QCloseEvent* ev );
 
 private slots:
 	void updateMetronomBackground();
@@ -52,20 +58,19 @@ private slots:
 private:
 	QTimer				*m_pTimer;
 	H2Core::Timeline	*m_pTimeline;
-	QColor				__color;
-	QPalette			__blinkerPalette;
+	QColor				m_Color;
+	QPalette			m_BlinkerPalette;
 	int					m_nCounter;
 	int					m_nFadeAlpha;
 	float				m_fBpm;
 	int					m_nBar;
 	int					m_nFlashingArea;
-	QString				__TAG;
-	QString				__TAG2;
-	QString				__songName;
+	QString				m_sTAG;
+	QString				m_sTAG2;
+	QString				m_sSongName;
 	int					m_nTagbeat;
 
 };
 
 
 #endif
-

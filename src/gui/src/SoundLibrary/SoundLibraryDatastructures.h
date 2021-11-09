@@ -1,7 +1,29 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+
 #ifndef SOUNDLIBRARYDATASTRUCTURES_H
 #define SOUNDLIBRARYDATASTRUCTURES_H
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 #include <vector>
 
 class SoundLibraryInfo;
@@ -9,7 +31,7 @@ class SoundLibraryInfo;
 /**
 * @class SoundLibraryDatabase
 *
-* @brief This class holds informations about all installed soundlibrary items.
+* @brief This class holds information about all installed soundlibrary items.
 *
 * This class organizes the metadata of all locally installed soundlibrary items.
 *
@@ -19,9 +41,10 @@ class SoundLibraryInfo;
 
 typedef std::vector<SoundLibraryInfo*> soundLibraryInfoVector;
 
-class SoundLibraryDatabase:  public H2Core::Object
+/** \ingroup docGUI*/
+class SoundLibraryDatabase :    public H2Core::Object<SoundLibraryDatabase>
 {
-	H2_OBJECT
+	H2_OBJECT(SoundLibraryDatabase)
 	public:
 		SoundLibraryDatabase();
 		~SoundLibraryDatabase();
@@ -35,7 +58,7 @@ class SoundLibraryDatabase:  public H2Core::Object
 		void update();
 		void updatePatterns();
 		void printPatterns();
-		int getPatternFromDirectory(const QString& path, soundLibraryInfoVector* );
+		void getPatternFromDirectory(const QString& path, soundLibraryInfoVector* );
 		bool isPatternInstalled( const QString& patternName);
 
 		static void create_instance();
@@ -52,7 +75,7 @@ class SoundLibraryDatabase:  public H2Core::Object
 /**
 * @class SoundLibraryInfo
 *
-* @brief This class holds informations about a soundlibrary..
+* @brief This class holds information about a soundlibrary.
 *
 * This class is used to represent soundlibrary items. It contains
 * the metadata for songs, pattern and drumkits.
@@ -61,12 +84,13 @@ class SoundLibraryDatabase:  public H2Core::Object
 *
 */
 
-class SoundLibraryInfo :  public H2Core::Object
+/** \ingroup docGUI*/
+class SoundLibraryInfo :    public H2Core::Object<SoundLibraryInfo>
 {
-	H2_OBJECT
+	H2_OBJECT(SoundLibraryInfo)
 	public:
 		SoundLibraryInfo();
-		SoundLibraryInfo( const QString& path);
+		explicit SoundLibraryInfo( const QString& path);
 		~SoundLibraryInfo();
 
 		QString getName() const {

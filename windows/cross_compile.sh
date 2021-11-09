@@ -101,39 +101,39 @@ mxe_files(){
 	    gccdir="/opt/mxe/usr/lib/gcc/i686-w64-mingw32.shared"
 	fi
 	if [ -d windows ]; then
-            hydrogendir=`pwd`"/windows"
-        else
-            hydrogendir=`pwd`
-        fi
+		hydrogendir=`pwd`"/windows"
+	else
+		hydrogendir=`pwd`
+	fi
 	extralibs="$hydrogendir/extralibs"
-	
-        mkdir $extralibs
-	
+
+	mkdir $extralibs
+
 	#Make arrays for the filenames to loop through.
-	declare -a libs=("liblzo2-2" "libgnurx" "libsndfile" "libFLAC" "libogg" "libvorbis" "libvorbisenc" "zlib1" "libwinpthread" "libeay32" "ssleay32" "libarchive" "libbz2" "liblzma" "libnettle" "libxml2" "libpng16" "libportmidi" "libportaudio" "libiconv" "libiconv" "jack")
+	declare -a libs=("liblzo2-2" "libgnurx" "libsndfile" "libFLAC" "libogg" "libvorbis" "libvorbisenc" "zlib1" "libwinpthread"  "libarchive" "libbz2" "liblzma" "libnettle" "libxml2" "libpng16" "libportmidi" "libportaudio" "libiconv" "libiconv"  "liblo" "jack" "libzstd" "libssp" "libopus-0")
 	declare -a gcclibs=("libgcc" "libstdc++")
-	
-    #special stuff for qt5 handling
-    declare -a qtlibs=("Qt5Core" "Qt5Xml." "Qt5XmlPatterns" "Qt5Network" "Qt5Gui" "Qt5Widgets")
-    libs+=("libpcre-1" "libpcre16-0" "libharfbuzz-0" "libfreetype-6" "libglib-2" "libintl-8")
-    qtdir="$mxedir/../qt5/bin"
-    platforms="$extralibs/platforms"
+
+	#special stuff for qt5 handling
+	declare -a qtlibs=("Qt5Core" "Qt5Xml." "Qt5XmlPatterns" "Qt5Network." "Qt5Gui" "Qt5Widgets")
+	libs+=("libpcre-1" "libharfbuzz-0" "libfreetype-6" "libglib-2" "libintl-8" "libpcre2-16" "libcrypto" "libssl")
+	qtdir="$mxedir/../qt5/bin"
+	platforms="$extralibs/platforms"
 	mkdir -p $platforms
-    cp "$qtdir/../plugins/platforms/qwindows.dll" "$platforms/"
-    
+	cp "$qtdir/../plugins/platforms/qwindows.dll" "$platforms/"
+
 	#loop through the libs, and put them into a text file.
 	cd $mxedir
 	for mylibs in "${libs[@]}"
 	do
 		cp `ls -v $mylibs*dll| tail -n 1` $extralibs
 	done
-        #loop through the qt files and put them into a text file
-        cd $qtdir
-        for myqtlibs in "${qtlibs[@]}"
-        do
-            cp `ls -v $myqtlibs*dll| tail -n 1` $extralibs
-            spa=" "
-        done
+	#loop through the qt files and put them into a text file
+	cd $qtdir
+	for myqtlibs in "${qtlibs[@]}"
+	do
+		cp `ls -v $myqtlibs*dll| tail -n 1` $extralibs
+		spa=" "
+	done
 	#find the latest gcc dir from mxe
 	cd $gccdir
 	echo `ls -v | tail -n 1` > $hydrogendir/../gccversion.txt
@@ -144,31 +144,31 @@ mxe_files(){
             cp `ls -v $mygcclibs*dll| tail -n 1` $extralibs
 	done
 }
+
 setqt5(){
-    if [ "$1" == "64" ]; then
-        qt5dir="/opt/mxe/usr/x86_64-w64-mingw32.shared/qt5/lib/cmake"
-    else
-        qt5dir="/opt/mxe/usr/i686-w64-mingw32.shared/qt5/lib/cmake"
-    fi
-    if [ $OLDBUILD != true ]; then
-        qtprefix="-DCMAKE_PREFIX_PATH=$qt5dir"
-    fi
+	if [ "$1" == "64" ]; then
+		qt5dir="/opt/mxe/usr/x86_64-w64-mingw32.shared/qt5/lib/cmake"
+	else
+		qt5dir="/opt/mxe/usr/i686-w64-mingw32.shared/qt5/lib/cmake"
+	fi
+
+	qtprefix="-DCMAKE_PREFIX_PATH=$qt5dir"
 }
 
 cleanbuild(){
-    if [ -d windows ]; then
-        cd windows
-    fi
-    if [ -f CMakeCache.txt ]; then
-        rm -rf _CPack_Packages CMakeFiles try src extralibs
-        rm -f CMakeCache.txt CPackConfig.cmake cmake_install.cmake CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile uninstall.cmake
-    fi
+	if [ -d windows ]; then
+		cd windows
+	fi
+	if [ -f CMakeCache.txt ]; then
+		rm -rf _CPack_Packages CMakeFiles try src extralibs
+		rm -f CMakeCache.txt CPackConfig.cmake cmake_install.cmake CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile uninstall.cmake
+	fi
 }
 
 build_hydrogen(){
 	# Passes either i686 or x86_64 for 32 or 64 bit respectively.
 	if [ -z "$HYDROGEN" ] || [ ! -d $HYDROGEN ]; then
-		echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction after the intial questions."
+		echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction after the initial questions."
 		if [ -z ${CLONEPATH%/*} ]; then
 			read -e -p "Enter the path to the Hydrogen download (with a trailing /): " -i "$HOME/build/hydrogen/" CLONEPATH
 		fi
@@ -205,8 +205,16 @@ build_hydrogen(){
 		rm -f CMakeCache.txt CPackConfig.cmake cmake_install.cmake CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile uninstall.cmake
 	fi
 
-	cmake $4 ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2 $3 -DWANT_FAT_BUILD:BOOL=$FATBUILD -DWANT_DEBUG:BOOL=OFF -DWANT_OLD_BUILD:BOOL=$OLDBUILD
+	PATH=/opt/mxe/usr/bin:$PATH;
+
+	if [ "$1" == "x86_64" ]; then
+	    MXE_CMAKE_BIN=/opt/mxe/usr/bin/x86_64-w64-mingw32.shared-cmake 
+	else
+	    MXE_CMAKE_BIN=/opt/mxe/usr/bin/i686-w64-mingw32.shared-cmake 
+	fi
 	
+	$MXE_CMAKE_BIN $4 ../ $2 $3 -DWANT_FAT_BUILD:BOOL=$FATBUILD -DWANT_DEBUG:BOOL=OFF
+
 	export HYDROGEN
 	export HYDROGEN_BUILD
 	export MXE
@@ -271,50 +279,52 @@ usage(){
 fatbuild=false
 
 while getopts "d:fob:icr" o; do
-    case "${o}" in
-	d)
-            HYDROGEN=${OPTARG}
-            if [ ! -d $HYDROGEN ]; then
-		echo "Hydrogen source not found in $HYDROGEN."
-		exit
-            fi
-            ;;
-	f)
-            FATBUILD=true
-            ;;
-	b)
-            arch=${OPTARG}
+	case "${o}" in
+		d)
+			HYDROGEN=${OPTARG}
+			if [ ! -d $HYDROGEN ]; then
+				echo "Hydrogen source not found in $HYDROGEN."
+				exit
+			fi
+			;;
+		f)
+			FATBUILD=true
+			;;
+		b)
+			arch=${OPTARG}
 
-            if [ "$arch" != "x86_64" ]; then
-                mxe_files 32
-                setqt5
-		build_32bit
-            else
-		mxe_files 64
-                setqt5
-                build_64bit
-            fi
-            ;;
-        i)
-            show_interactive_menu
-            ;;
-        c)
-            cleanbuild
-            ;;
-        r)
-            cleanbuild
-            mxe_files 32
-            setqt5
-            build_32bit
-            cleanbuild
-            mxe_files 64
-            setqt5
-            build_64bit
-            ;;
-        *)
-            usage
-            ;;
-    esac
+			if [ "$arch" != "x86_64" ]; then
+				cleanbuild
+				mxe_files 32
+				setqt5
+				build_32bit
+			else
+				cleanbuild
+				mxe_files 64
+				setqt5
+				build_64bit
+			fi
+			;;
+		i)
+			show_interactive_menu
+			;;
+		c)
+			cleanbuild
+			;;
+		r)
+			cleanbuild
+			mxe_files 32
+			setqt5
+			build_32bit
+			cleanbuild
+			mxe_files 64
+			setqt5
+			build_64bit
+			;;
+		*)
+			usage
+			;;
+	esac
 done
 if [ $OPTIND -eq 1 ]; then usage; fi
 shift $((OPTIND-1))

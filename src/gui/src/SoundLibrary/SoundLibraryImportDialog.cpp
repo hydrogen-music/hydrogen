@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -25,15 +25,14 @@
 #include "SoundLibraryRepositoryDialog.h"
 #include "SoundLibraryPanel.h"
 
-#include "../widgets/DownloadWidget.h"
+#include "../Widgets/DownloadWidget.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
 
-#include <hydrogen/LocalFileMng.h>
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/drumkit.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/H2Exception.h>
+#include <core/Preferences.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Helpers/Filesystem.h>
 
 
 #include <QTreeWidget>
@@ -45,19 +44,17 @@
 
 #include <memory>
 
-const char* SoundLibraryImportDialog::__class_name = "SoundLibraryImportDialog";
+const int max_redirects = 30;
 
 SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent, bool bOnlineImport )
  : QDialog( pParent )
- , Object( __class_name )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );
-	setWindowTitle( trUtf8( "Sound Library import" ) );
-	setFixedSize( width(), height() );
+	setWindowTitle( tr( "Sound Library import" ) );
 
 	QStringList headers;
-	headers << trUtf8( "Sound library" ) << trUtf8( "Status" );
+	headers << tr( "Sound library" ) << tr( "Status" );
 	QTreeWidgetItem* header = new QTreeWidgetItem( headers );
 	m_pDrumkitTree->setHeaderItem( header );
 	m_pDrumkitTree->header()->resizeSection( 0, 200 );
@@ -72,6 +69,9 @@ SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent, bool bOnli
 	InstallBtn->setEnabled (false );
 
 	updateRepositoryCombo();
+
+	adjustSize();
+	setFixedSize( width(), height() );
 
 	if( bOnlineImport){
 		 tabWidget->setCurrentIndex( 0 );
@@ -99,7 +99,7 @@ void SoundLibraryImportDialog::updateRepositoryCombo()
 	*/
 
 	if( pref->sServerList.size() == 0 ) {
-		pref->sServerList.push_back( "http://www.hydrogen-music.org/feeds/drumkit_list.php" );
+		pref->sServerList.push_back( "http://hydrogen-music.org/feeds/drumkit_list.php" );
 	}
 
 	repositoryCombo->clear();
@@ -138,10 +138,10 @@ void SoundLibraryImportDialog::on_EditListBtn_clicked()
 
 void SoundLibraryImportDialog::clearImageCache()
 {
-	// Note: After a kit is installed the list refreshes and this gets called to 
+	// Note: After a kit is installed the list refreshes and this gets called to
 	// clear the image cache - maybe we want to keep the cache in this case?
 	QString cacheDir = H2Core::Filesystem::repositories_cache_dir() ;
-	INFOLOG("Deleting cached image files from " + cacheDir.toLocal8Bit() );
+	INFOLOG("Deleting cached image files from " + cacheDir );
 
 	QDir dir( cacheDir );
 	dir.setNameFilters(QStringList() << "*.png");
@@ -182,7 +182,7 @@ void SoundLibraryImportDialog::writeCachedData(const QString& fileName, const QS
 	QFile outFile( fileName );
 	if( !outFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
 	{
-		ERRORLOG( "Failed to open file for writing repository cache." );
+		ERRORLOG( QString("Failed to open file for writing repository cache: %1").arg( fileName ) );
 		return;
 	}
 
@@ -199,7 +199,7 @@ void SoundLibraryImportDialog::writeCachedImage( const QString& imageFile, QPixm
 	QFile outFile( cacheFile );
 	if( !outFile.open( QIODevice::WriteOnly ) )
 	{
-		ERRORLOG( "Failed to open file for writing repository image cache." );
+		ERRORLOG( QString("Failed to open file for writing repository image cache: %1").arg( imageFile ) );
 		return;
 	}
 	
@@ -214,7 +214,7 @@ QString SoundLibraryImportDialog::readCachedData(const QString& fileName)
 	QFile inFile( fileName );
 	if( !inFile.open( QIODevice::ReadOnly | QIODevice::Text ) )
 	{
-		ERRORLOG( "Failed to open file for reading." );
+		ERRORLOG( QString("Failed to open file for reading: %1").arg( fileName ) );
 		return content;
 	}
 
@@ -237,10 +237,10 @@ QString SoundLibraryImportDialog::readCachedImage( const QString& imageFile )
 
 	QFile file( cacheFile );
 	if( !file.exists() )
-	{       
+	{
 		// no image in cache, just return NULL
-		return NULL; 
-	}       
+		return nullptr;
+	}
 	
 	return cacheFile;
 }
@@ -330,11 +330,28 @@ void SoundLibraryImportDialog::reloadRepositoryData()
 void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
 {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
-	DownloadWidget drumkitList( this, trUtf8( "Updating SoundLibrary list..." ), repositoryCombo->currentText() );
-	drumkitList.exec();
+	QString downloadUrl = repositoryCombo->currentText();
+	QString sDrumkitXML;
 
-	QString sDrumkitXML = drumkitList.get_xml_content();
+	for (int ii=1; ii <= max_redirects; ii++) {
+		DownloadWidget drumkitList( this, tr( "Updating SoundLibrary list..." ), downloadUrl);
+		drumkitList.exec();
 
+		if (!drumkitList.get_redirect_url().isEmpty()) {
+			downloadUrl = drumkitList.get_redirect_url().toEncoded();
+		} else if (drumkitList.get_error().isEmpty()) {
+			sDrumkitXML = drumkitList.get_xml_content();
+			break;
+		}
+
+		// Only show a popup with the error messages once after
+		// attempting all redirects. We assume in here that the error
+		// does stay the same for all redirects.
+		if ( ii == max_redirects ) {
+			QMessageBox::warning( this, "Hydrogen", drumkitList.get_error() );
+		}
+			
+	}
 
 	/*
 	 * Hydrogen creates the following cache hierarchy to cache
@@ -364,42 +381,40 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 	m_pDrumkitTree->clear();
 
 	m_pDrumkitsItem = new QTreeWidgetItem( m_pDrumkitTree );
-	m_pDrumkitsItem->setText( 0, trUtf8( "Drumkits" ) );
-	m_pDrumkitTree->setItemExpanded( m_pDrumkitsItem, true );
+	m_pDrumkitsItem->setText( 0, tr( "Drumkits" ) );
+	m_pDrumkitsItem->setExpanded( true );
 
 
 	m_pSongItem = new QTreeWidgetItem( m_pDrumkitTree );
-	m_pSongItem->setText( 0, trUtf8( "Songs" ) );
-	m_pDrumkitTree->setItemExpanded( m_pSongItem, true );
+	m_pSongItem->setText( 0, tr( "Songs" ) );
+	m_pSongItem->setExpanded( true );
 
 	m_pPatternItem = new QTreeWidgetItem( m_pDrumkitTree );
-	m_pPatternItem->setText( 0, trUtf8( "Patterns" ) );
-	m_pDrumkitTree->setItemExpanded( m_pPatternItem, true );
+	m_pPatternItem->setText( 0, tr( "Patterns" ) );
+	m_pPatternItem->setExpanded( true );
 
 	for ( uint i = 0; i < m_soundLibraryList.size(); ++i ) {
 		QString sLibraryName = m_soundLibraryList[ i ].getName();
 
-		QTreeWidgetItem* pDrumkitItem = NULL;
+		QTreeWidgetItem* pDrumkitItem = nullptr;
 
 		if ( m_soundLibraryList[ i ].getType() == "song" ) {
-			pDrumkitItem = new QTreeWidgetItem(  m_pSongItem );
+			pDrumkitItem = new QTreeWidgetItem( m_pSongItem );
+		} else if ( m_soundLibraryList[ i ].getType() == "drumkit" ) {
+			pDrumkitItem = new QTreeWidgetItem( m_pDrumkitsItem );
+		} else if ( m_soundLibraryList[ i ].getType() == "pattern" ) {
+			pDrumkitItem = new QTreeWidgetItem( m_pPatternItem );
 		}
 
-		if ( m_soundLibraryList[ i ].getType() == "drumkit" ) {
-			pDrumkitItem = new QTreeWidgetItem(  m_pDrumkitsItem );
-		}
-
-		if ( m_soundLibraryList[ i ].getType() == "pattern" ) {
-			pDrumkitItem = new QTreeWidgetItem(  m_pPatternItem );
-		}
-
-		if ( isSoundLibraryItemAlreadyInstalled( m_soundLibraryList[ i ]  ) ) {
-			pDrumkitItem->setText( 0, sLibraryName );
-			pDrumkitItem->setText( 1, trUtf8( "Installed" ) );
-		}
-		else {
-			pDrumkitItem->setText( 0, sLibraryName );
-			pDrumkitItem->setText( 1, trUtf8( "New" ) );
+		if( pDrumkitItem ) {
+			if ( isSoundLibraryItemAlreadyInstalled( m_soundLibraryList[ i ]  ) ) {
+				pDrumkitItem->setText( 0, sLibraryName );
+				pDrumkitItem->setText( 1, tr( "Installed" ) );
+			}
+			else {
+				pDrumkitItem->setText( 0, sLibraryName );
+				pDrumkitItem->setText( 1, tr( "New" ) );
+			}
 		}
 	}
 
@@ -414,7 +429,7 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 /// Is the SoundLibrary already installed?
 bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryInfo sInfo )
 {
-	// check if the filename matchs with an already installed soundlibrary directory.
+	// check if the filename matches with an already installed soundlibrary directory.
 	// The filename used in the Soundlibrary URL must be the same of the unpacked directory.
 	// E.g: V-Synth_VariBreaks.h2drumkit must contain the V-Synth_VariBreaks directory once unpacked.
 	// Many drumkit are broken now (wrong filenames) and MUST be fixed!
@@ -423,8 +438,9 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	sName = sName.left( sName.lastIndexOf( "." ) );
 
 	if ( sInfo.getType() == "drumkit" ) {
-		if ( H2Core::Filesystem::drumkit_exists(sName) )
+		if ( H2Core::Filesystem::drumkit_exists(sName) ) {
 			return true;
+		}
 	}
 
 	if ( sInfo.getType() == "pattern" ) {
@@ -432,8 +448,9 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	}
 
 	if ( sInfo.getType() == "song" ) {
-		if ( H2Core::Filesystem::song_exists(sName) )
+		if ( H2Core::Filesystem::song_exists(sName) ) {
 			return true;
+		}
 	}
 
 	return false;
@@ -493,11 +510,11 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 					SoundLibraryInfoLbl->setText( info.getInfo() );
 				}
 
-				AuthorLbl->setText( trUtf8( "Author: %1" ).arg( info.getAuthor() ) );
+				AuthorLbl->setText( tr( "Author: %1" ).arg( info.getAuthor() ) );
 
-				LicenseLbl->setText( trUtf8( "Drumkit License: %1" ).arg( info.getLicense()) );
+				LicenseLbl->setText( tr( "Drumkit License: %1" ).arg( info.getLicense()) );
 
-				ImageLicenseLbl->setText( trUtf8("Image License: %1" ).arg( info.getImageLicense() ) );
+				ImageLicenseLbl->setText( tr("Image License: %1" ).arg( info.getImageLicense() ) );
 
 				// Load the drumkit image
 				// Clear any image first
@@ -513,14 +530,14 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 						sName = sName.left( sName.lastIndexOf( "." ) );
 
 						H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load_by_name( sName, false );
-						if ( drumkitInfo ) 
+						if ( drumkitInfo )
 						{
 							// get the image from the local filesystem
 							QPixmap pixmap ( drumkitInfo->get_path() + "/" + drumkitInfo->get_image() );
-							INFOLOG("Loaded image " + drumkitInfo->get_image().toLocal8Bit() + " from local filesystem");
+							INFOLOG("Loaded image " + drumkitInfo->get_image() + " from local filesystem");
 							showImage( pixmap );
-						} 
-						else 
+						}
+						else
 						{
 							___ERRORLOG ( "Error loading the drumkit" );
 						}
@@ -535,26 +552,25 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 						{
 							QPixmap pixmap ( cachedFile );
 							showImage( pixmap );
-							INFOLOG( "Loaded image " + info.getImage().toLocal8Bit() + " from cache (" + cachedFile + ")" );
+							INFOLOG( "Loaded image " + info.getImage() + " from cache (" + cachedFile + ")" );
 						}
 						else
 						{
 							// Get the drumkit's directory name from URL
 							//
-							// Example: if the server repo URL is: http://www.hydrogen-music.org/feeds/drumkit_list.php 
+							// Example: if the server repo URL is: http://www.hydrogen-music.org/feeds/drumkit_list.php
 							// and the image name from the XML is Roland_TR-808_drum_machine.jpg
 							// the URL for the image will be: http://www.hydrogen-music.org/feeds/images/Roland_TR-808_drum_machine.jpg
 
 							if ( info.getImage().length() > 0 )
 							{
-								int lastSlash = info.getUrl().lastIndexOf( QString( "/" ));
-
-								QString imageUrl;
+								QString sImageUrl;
 								QString sLocalFile;
-								imageUrl = repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) + 1 ) + info.getImage() ;
-								sLocalFile = QDir::tempPath() + "/" + QFileInfo( imageUrl ).fileName();
+								
+								sImageUrl = repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) + 1 ) + info.getImage() ;
+								sLocalFile = QDir::tempPath() + "/" + QFileInfo( sImageUrl ).fileName();
 
-								DownloadWidget dl( this, trUtf8( "" ), imageUrl, sLocalFile );
+								DownloadWidget dl( this, tr( "" ), sImageUrl, sLocalFile );
 								dl.exec();
 
 								loadImage( sLocalFile );
@@ -596,36 +612,33 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 			QString sType = m_soundLibraryList[ i ].getType();
 			QString sLocalFile;
 
-			QString dataDir = H2Core::Preferences::get_instance()->getDataDirectory();
-
 			if( sType == "drumkit") {
 				sLocalFile = QDir::tempPath() + "/" + QFileInfo( sURL ).fileName();
 			}
 
 			if( sType == "song") {
-				sLocalFile = dataDir + "songs/" + QFileInfo( sURL ).fileName();
+				sLocalFile = H2Core::Filesystem::songs_dir() + QFileInfo( sURL ).fileName();
 			}
 
 			if( sType == "pattern") {
-				sLocalFile = dataDir + "patterns/" + QFileInfo( sURL ).fileName();
+				sLocalFile = H2Core::Filesystem::patterns_dir() + QFileInfo( sURL ).fileName();
 			}
 
 			bool Error = false;
 
-			for ( int i = 0; i < 30; ++i ) {
-				DownloadWidget dl( this, trUtf8( "Downloading SoundLibrary..." ), sURL, sLocalFile );
+			for ( int i = 0; i < max_redirects; ++i ) {
+				DownloadWidget dl( this, tr( "Downloading SoundLibrary..." ), sURL, sLocalFile );
 				dl.exec();
-
 
 				QUrl redirect_url = dl.get_redirect_url();
 				if (redirect_url.isEmpty() ) {
 					// ok, we have all data
-					Error = dl.get_error();
+					Error = !dl.get_error().isEmpty();
 					break;
 				}
 				else {
 					sURL = redirect_url.toEncoded();
-					Error = dl.get_error();
+					Error = !dl.get_error().isEmpty();
 				}
 			}
 
@@ -638,7 +651,7 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 					if ( sType == "drumkit" ) {
 						H2Core::Drumkit::install( sLocalFile );
 						QApplication::restoreOverrideCursor();
-						QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ) ).arg( dataDir ) );
+						QMessageBox::information( this, "Hydrogen", QString( tr( "SoundLibrary imported in %1" ) ).arg( H2Core::Filesystem::usr_data_path() ) );
 					}
 
 					if ( sType == "song" || sType == "pattern") {
@@ -647,7 +660,7 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 				}
 				catch( H2Core::H2Exception ex ) {
 					QApplication::restoreOverrideCursor();
-					QMessageBox::warning( this, "Hydrogen", trUtf8( "An error occurred importing the SoundLibrary."  ) );
+					QMessageBox::warning( this, "Hydrogen", tr( "An error occurred importing the SoundLibrary."  ) );
 				}
 			}
 			else
@@ -678,14 +691,17 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 
 void SoundLibraryImportDialog::on_BrowseBtn_clicked()
 {
-	static QString lastUsedDir = QDir::homePath();
+	QString sPath = H2Core::Preferences::get_instance()->getLastImportDrumkitDirectory();
+	if ( ! H2Core::Filesystem::dir_readable( sPath, false ) ){
+		sPath = QDir::homePath();
+	}
 
 	QFileDialog fd(this);
 	fd.setFileMode(QFileDialog::ExistingFile);
 	fd.setNameFilter( "Hydrogen drumkit (*.h2drumkit)" );
-	fd.setDirectory( lastUsedDir );
+	fd.setDirectory( sPath );
 
-	fd.setWindowTitle( trUtf8( "Import drumkit" ) );
+	fd.setWindowTitle( tr( "Import drumkit" ) );
 
 	QString filename = "";
 	if (fd.exec() == QDialog::Accepted) {
@@ -694,7 +710,7 @@ void SoundLibraryImportDialog::on_BrowseBtn_clicked()
 
 	if (filename != "") {
 		SoundLibraryPathTxt->setText( filename );
-		lastUsedDir = fd.directory().absolutePath();
+		H2Core::Preferences::get_instance()->setLastImportDrumkitDirectory( fd.directory().absolutePath() );
 		InstallBtn->setEnabled ( true );
 	}
 }
@@ -706,10 +722,9 @@ void SoundLibraryImportDialog::on_InstallBtn_clicked()
 {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	QString dataDir = H2Core::Preferences::get_instance()->getDataDirectory();
 	try {
 		H2Core::Drumkit::install( SoundLibraryPathTxt->text() );
-		QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ).arg( dataDir )  ) );
+		QMessageBox::information( this, "Hydrogen", QString( tr( "SoundLibrary imported in %1" ).arg( H2Core::Filesystem::usr_data_path() )  ) );
 		// update the drumkit list
 		SoundLibraryDatabase::get_instance()->update();
 		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
@@ -718,7 +733,7 @@ void SoundLibraryImportDialog::on_InstallBtn_clicked()
 	}
 	catch( H2Core::H2Exception ex ) {
 		QApplication::restoreOverrideCursor();
-		QMessageBox::warning( this, "Hydrogen", trUtf8( "An error occurred importing the SoundLibrary."  ) );
+		QMessageBox::warning( this, "Hydrogen", tr( "An error occurred importing the SoundLibrary."  ) );
 	}
 }
 

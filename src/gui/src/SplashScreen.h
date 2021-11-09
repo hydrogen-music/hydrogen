@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -24,21 +24,16 @@
 #ifndef SPLASH_SCREEN_H
 #define SPLASH_SCREEN_H
 
-#include <QLabel>
 #include <QSplashScreen>
 #include <QTimer>
 #include <QPixmap>
 
-#include "HydrogenApp.h"
+#include <core/Object.h>
 
-#include <hydrogen/object.h>
-
-/**
- * Fader and VuMeter widget
- */
-class SplashScreen : public QSplashScreen, public H2Core::Object
+/** \ingroup docGUI*/
+class SplashScreen :  public QSplashScreen,  public H2Core::Object<SplashScreen>
 {
-    H2_OBJECT
+    H2_OBJECT(SplashScreen)
 	Q_OBJECT
 	public:
 		SplashScreen();
@@ -46,14 +41,11 @@ class SplashScreen : public QSplashScreen, public H2Core::Object
 
 	private slots:
 		void onCloseTimer();
-//		virtual void drawContents ( QPainter * painter );
 
 	private:
-		QPixmap *m_pBackground;
-		static const uint width = 400;
-		static const uint height = 300;
-		//QTimer m_closeTimer;
-
+		QPixmap *			m_pBackground;
+		static const uint	width = 400;
+		static const uint	height = 300;
 };
 
 

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -24,34 +24,41 @@
 #define TARGET_WAVE_DISPLAY
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
-#include <hydrogen/object.h>
-#include <hydrogen/basics/sample.h>
+#include <QtWidgets>
+
+#include <core/Object.h>
+#include <core/Basics/Sample.h>
+#include <memory>
 
 class SampleEditor;
 
 namespace H2Core
 {
 	class InstrumentLayer;
+	class EnvelopePoint;
 }
 
-class TargetWaveDisplay : public QWidget, public H2Core::Object
+/** \ingroup docGUI*/
+class TargetWaveDisplay :  public QWidget,  public H2Core::Object<TargetWaveDisplay>
 {
-	H2_OBJECT
+	H2_OBJECT(TargetWaveDisplay)
 	Q_OBJECT
 
 	public:
-		TargetWaveDisplay(QWidget* pParent);
+		explicit TargetWaveDisplay(QWidget* pParent);
 		~TargetWaveDisplay();
 
-		void updateDisplay( H2Core::InstrumentLayer *pLayer );
+		enum EnvelopeEditMode {
+			VELOCITY = 0,
+			PAN = 1
+		};
+
+		void updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 		void updateDisplayPointer();
 		void paintLocatorEventTargetDisplay( int pos, bool last_event);
 		void paintEvent(QPaintEvent *ev);
-		H2Core::Sample::PanEnvelope* get_pan() { return &__pan; }
-		H2Core::Sample::VelocityEnvelope* get_velocity() { return &__velocity; }
+		H2Core::Sample::PanEnvelope* get_pan() { return &m_PanEnvelope; }
+		H2Core::Sample::VelocityEnvelope* get_velocity() { return &m_VelocityEnvelope; }
 
 	private:
 		QPixmap m_Background;
@@ -68,16 +75,22 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 
 		unsigned m_nSampleLength;
 
-		bool m_VMove;
 		bool m_UpdatePosition;
+		EnvelopeEditMode m_EditMode;
+
+		int m_nSnapRadius;
 
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 
-		H2Core::Sample::PanEnvelope __pan;
-		H2Core::Sample::VelocityEnvelope __velocity;
-};
+		virtual void updateMouseSelection(QMouseEvent *ev);
+		virtual void updateEnvelope();
 
+		H2Core::Sample::PanEnvelope m_PanEnvelope;
+		H2Core::Sample::VelocityEnvelope m_VelocityEnvelope;
+
+		int m_nSelectedEnvelopePoint;
+};
 
 #endif

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -25,15 +25,14 @@
 
 
 #include "../EventListener.h"
-#include <hydrogen/object.h>
-#include "../InstrumentEditor/WaveDisplay.h"
+#include <core/Object.h>
+#include <core/Basics/Pattern.h>
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
-class Button;
+#include "Widgets/Button.h"
+
 class SongEditor;
 class SongEditorPatternList;
 class SongEditorPositionRuler;
@@ -41,21 +40,16 @@ class ToggleButton;
 class Fader;
 class AutomationPathView;
 class LCDCombo;
+class PlaybackTrackWaveDisplay;
 
-enum SongEditorActionMode
+/** \ingroup docGUI*/
+class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::Object<SongEditorPanel>
 {
-	SELECT_ACTION,
-	DRAW_ACTION
-};
-
-
-class SongEditorPanel : public QWidget, public EventListener, public H2Core::Object
-{
-	H2_OBJECT
+	H2_OBJECT(SongEditorPanel)
 	Q_OBJECT
 
 	public:
-		SongEditorPanel( QWidget *parent );
+		explicit SongEditorPanel( QWidget *parent );
 		~SongEditorPanel();
 
 		SongEditor* getSongEditor(){ return m_pSongEditor; }
@@ -65,23 +59,44 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 
 		void updateAll();
 		void updatePositionRuler();
-		void setModeActionBtn( bool mode );
-		SongEditorActionMode getActionMode() {	return m_actionMode;	}
 		void toggleAutomationAreaVisibility();
 		
+		void showTimeline();
+		void showPlaybackTrack();
+		void updatePlaybackTrackIfNecessary();
+		
 		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent();
+		virtual void selectedPatternChangedEvent() override;
 		void restoreGroupVector( QString filename );
 		//~ Implements EventListener interface	
 		///< an empty new pattern will be added to pattern list at idx
-		void addEmptyPattern( QString newPatternName, QString newPatternInfo, QString newPatternCategory, int idx  );
+		void insertPattern( int idx, H2Core::Pattern* pPattern );
 		///< pattern at idx within pattern list will be destroyed
-		void revertaddEmptyPattern( int idx );
+		void deletePattern( int idx );
+
+		/** Disables and deactivates the Timeline when an external
+		 * JACK timebase master is detected and enables it when it's
+		 * gone or Hydrogen itself becomes the timebase master.
+		 */
+		void updateTimelineUsage();
+		virtual void timelineActivationEvent( int nValue ) override;
+		/** Updates the associated buttons if the action mode was
+		 * changed within the core.
+		 *
+		 * \param nValue 0 - select mode and 1 - draw mode.
+		 */
+		void actionModeChangeEvent( int nValue ) override;
+
+	public slots:
+		void setModeActionBtn( bool mode );
+		void showHideTimeLine( bool bPressed ) {
+			m_pTimeLineToggleBtn->setPressed( bPressed );
+			timeLineBtnPressed( m_pTimeLineToggleBtn );
+		}
 
 	private slots:
-		void on_patternListScroll();
-		void on_EditorScroll();
-		void syncToExternalScrollBar();
+		void vScrollTo( int value );
+		void hScrollTo( int value );
 
 		void newPatBtnClicked( Button* );
 		void upBtnClicked( Button* );
@@ -111,8 +126,6 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void automationPathPointMoved(float ox, float oy, float tx, float ty);
 
 	private:
-		SongEditorActionMode	m_actionMode;
-
 		uint					m_nInitialWidth;
 		uint					m_nInitialHeight;
 
@@ -121,6 +134,8 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		QScrollArea*			m_pEditorScrollView;
 		QScrollArea*			m_pPatternListScrollView;
 		QScrollArea*			m_pPositionRulerScrollView;
+		QScrollArea*			m_pPlaybackTrackScrollView;
+		
 		QScrollBar *			m_pVScrollBar;
 		QScrollBar *			m_pHScrollBar;
 		
@@ -131,7 +146,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		SongEditor*				m_pSongEditor;
 		SongEditorPatternList *	m_pPatternList;
 		SongEditorPositionRuler *m_pPositionRuler;
-		WaveDisplay*			 m_pWaveDisplay;
+		PlaybackTrackWaveDisplay*	 m_pPlaybackTrackWaveDisplay;
 
 
 		Button *				m_pUpBtn;
@@ -143,6 +158,10 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		ToggleButton *			m_pTagbarToggleBtn;
 		
 		Fader*					m_pPlaybackTrackFader;
+
+		/** Store the tool tip of the Timeline since it gets
+			overwritten during deactivation.*/
+		QString					m_sTimelineToolTip;
 		ToggleButton *			m_pTimeLineToggleBtn;
 		ToggleButton *			m_pPlaybackToggleBtn;
 		ToggleButton *			m_pViewTimeLineToggleBtn;
@@ -156,7 +175,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		LCDCombo*				m_pAutomationCombo;
 
 
-		virtual void resizeEvent( QResizeEvent *ev );
+		virtual void resizeEvent( QResizeEvent *ev ) override;
 		void resyncExternalScrollBar();
 };
 

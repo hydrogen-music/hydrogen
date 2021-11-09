@@ -1,0 +1,120 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+
+#ifndef ROTARY_H
+#define ROTARY_H
+
+#include "MidiLearnable.h"
+#include "MidiSenseWidget.h"
+
+#include <QtGui>
+#include <QtWidgets>
+
+class LCDDisplay;
+
+#include <core/Object.h>
+
+/** \ingroup docGUI docWidgets*/
+class RotaryTooltip : public QWidget
+{
+	public:
+		explicit RotaryTooltip( QPoint pos );
+		~RotaryTooltip();
+		void showTip( QPoint pos, QString sText );
+
+	private:
+		LCDDisplay *m_pDisplay;
+};
+
+
+
+/** \ingroup docGUI docWidgets*/
+class Rotary :  public QWidget,  public H2Core::Object<Rotary>, public MidiLearnable
+{
+    H2_OBJECT(Rotary)
+	Q_OBJECT
+	public:
+		enum RotaryType {
+			TYPE_NORMAL,
+			TYPE_CENTER,
+			TYPE_SMALL
+		};
+
+		Rotary(const Rotary&) = delete;
+		Rotary& operator=( const Rotary& rhs ) = delete;
+	
+		Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseIntSteps, bool bUseValueTip, float fMin = 0.0, float fMax = 1.0 );
+		~Rotary();
+
+		void setMin( float fMin );
+		float getMin();
+
+		void setMax( float fMax );
+		float getMax();
+
+		void setValue( float fValue );
+		float getValue() {
+			if ( m_bUseIntSteps ) {
+				int val = (int)m_fValue;
+				return val;
+			}
+			else
+				return m_fValue;
+		}
+
+		void setDefaultValue( float fDefaultValue );
+		float getDefaultValue();
+		void resetValueToDefault();
+
+	signals:
+		void valueChanged(Rotary *ref);
+
+	private:
+		bool m_bUseIntSteps;
+		bool m_bIgnoreMouseMove;
+
+		RotaryType m_type;
+		static QPixmap* m_background_normal;
+		static QPixmap* m_background_center;
+		static QPixmap* m_background_small;
+
+		int m_nWidgetWidth;
+		int m_nWidgetHeight;
+
+		float m_fMin;
+		float m_fMax;
+		float m_fValue;
+		float m_fDefaultValue;
+
+		float m_fMousePressValue;
+		float m_fMousePressY;
+
+		RotaryTooltip *m_pValueToolTip;
+		bool m_bShowValueToolTip;
+
+		virtual void paintEvent(QPaintEvent *ev);
+		virtual void mousePressEvent(QMouseEvent *ev);
+		virtual void mouseReleaseEvent( QMouseEvent *ev );
+		virtual void mouseMoveEvent(QMouseEvent *ev);
+		virtual void wheelEvent( QWheelEvent *ev );
+};
+#endif

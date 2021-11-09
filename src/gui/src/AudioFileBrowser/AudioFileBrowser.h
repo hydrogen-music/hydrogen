@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -27,8 +27,8 @@
 #include "InstrumentEditor/InstrumentEditor.h"
 
 #include <QDialog>
-#include <hydrogen/object.h>
-#include <hydrogen/Preferences.h>
+#include <core/Object.h>
+#include <core/Preferences.h>
 
 
 class Button;
@@ -37,19 +37,19 @@ class SampleWaveDisplay;
 ///
 /// This dialog is used to preview audiofiles
 ///
-class AudioFileBrowser : public QDialog, public Ui_AudioFileBrowser_UI, public H2Core::Object
+/** \ingroup docGUI*/
+class AudioFileBrowser :  public QDialog, public Ui_AudioFileBrowser_UI,  public H2Core::Object<AudioFileBrowser>
 
 {
-	H2_OBJECT
+	H2_OBJECT(AudioFileBrowser)
 	Q_OBJECT
 	public:
 		
-		AudioFileBrowser( QWidget* pParent );
-		~AudioFileBrowser();
-		QStringList selectedFile();
-		QString setDir( QString dir );
-
-
+	AudioFileBrowser( QWidget* pParent, bool bAllowMultiSelect, bool bShowInstrumentManipulationControls, QString sDefaultPath = "" );
+	~AudioFileBrowser();
+	
+	QStringList getSelectedFiles();
+	QString getSelectedDirectory();
 
 	private slots:
 		void on_cancelBTN_clicked();
@@ -69,26 +69,29 @@ class AudioFileBrowser : public QDialog, public Ui_AudioFileBrowser_UI, public H
 
 
 	private:
-		InstrumentEditor* m_pInstrumentEditor;
-		QString m_pSampleFilename;
-		QStringList m_pSelectedFile;
-
 		void browseTree( const QModelIndex& index );
 
 		void getEnvironment();
 		bool isFileSupported( QString filename );
-
-		bool		m_SingleClick;
-		QDirModel *	m_pDirModel;
-		QTreeView *	m_pTree;
-
-		QModelIndex m_ModelIndex;
-
-
+		
+		InstrumentEditor*	m_pInstrumentEditor;
 		SampleWaveDisplay *	m_pSampleWaveDisplay;
+		
+		QString				m_pSampleFilename;
+		QStringList			m_pSelectedFile;
+		QString				m_sSelectedDirectory;
+
+		bool				m_SingleClick;
+		QFileSystemModel *	m_pDirModel;
+		QTreeView *			m_pTree;
+
+		QModelIndex			m_ModelIndex;
+		
 		QString				m_sEmptySampleFilename;
 		QStringList			m_Filters;
-
+		
+		bool				m_bAllowMultiSelect;
+		bool				m_bShowInstrumentManipulationControls;
 
 
 };

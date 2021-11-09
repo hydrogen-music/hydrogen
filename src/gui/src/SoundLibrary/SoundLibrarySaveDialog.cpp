@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,28 +16,25 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
 #include "SoundLibrarySaveDialog.h"
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/drumkit.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Drumkit.h>
 #include <QMessageBox>
 
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
-const char* SoundLibrarySaveDialog::__class_name = "SoundLibrarySaveDialog";
-
 SoundLibrarySaveDialog::SoundLibrarySaveDialog( QWidget* pParent )
  : QDialog( pParent )
- , Object( __class_name )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );
-	setWindowTitle( trUtf8( "Save Sound Library" ) );
+	setWindowTitle( tr( "Save Sound Library" ) );
+	adjustSize();
 	setFixedSize( width(), height() );
 }
 
@@ -78,7 +76,7 @@ void SoundLibrarySaveDialog::on_imageBrowsePushButton_clicked()
 {
 	// Try to get the drumkit directory and open file browser
 	QString drumkitDir = H2Core::Filesystem::usr_drumkits_dir() + "/" + nameTxt->text();
-	QString fileName = QFileDialog::getOpenFileName(this, trUtf8("Open Image"), drumkitDir, trUtf8("Image Files (*.png *.jpg *.jpeg)"));
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), drumkitDir, tr("Image Files (*.png *.jpg *.jpeg)"));
 
 	// If this file is in different directory copy it here
 
@@ -109,7 +107,7 @@ void SoundLibrarySaveDialog::on_imageBrowsePushButton_clicked()
 void SoundLibrarySaveDialog::on_saveBtn_clicked()
 {
 	if( nameTxt->text().isEmpty() ){
-		QMessageBox::information( this, "Hydrogen", trUtf8 ( "Please supply at least a valid name"));
+		QMessageBox::information( this, "Hydrogen", tr ( "Please supply at least a valid name"));
 		return;
 	}
 
@@ -117,7 +115,7 @@ void SoundLibrarySaveDialog::on_saveBtn_clicked()
 
 	if(H2Core::Drumkit::user_drumkit_exists( nameTxt->text() )){
 		QMessageBox msgBox;
-		msgBox.setText(trUtf8("A library with the same name already exists. Do you want to overwrite the existing library?"));
+		msgBox.setText(tr("A library with the same name already exists. Do you want to overwrite the existing library?"));
 		msgBox.setIcon(QMessageBox::Warning);
 		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 		msgBox.setDefaultButton(QMessageBox::No);
@@ -138,10 +136,10 @@ void SoundLibrarySaveDialog::on_saveBtn_clicked()
 								licenseTxt->text(),
 								H2Core::Filesystem::usr_drumkits_dir() + "/" + nameTxt->text() + "/" + imageText->text(),
 								imageLicenseText->text(),
-								H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(),
-								H2Core::Hydrogen::get_instance()->getSong()->get_components(),
+								H2Core::Hydrogen::get_instance()->getSong()->getInstrumentList(),
+								H2Core::Hydrogen::get_instance()->getSong()->getComponents(),
 								Overwrite ) ) {
-		QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this library failed."));
+		QMessageBox::information( this, "Hydrogen", tr ( "Saving of this library failed."));
 		return;
 	}
 

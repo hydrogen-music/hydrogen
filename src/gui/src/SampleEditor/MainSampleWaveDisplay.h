@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -24,20 +24,28 @@
 #define MAIN_SAMPLE_WAVE_DISPLAY
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
-#include <hydrogen/object.h>
+#include <QtWidgets>
+
+#include <core/Object.h>
 #include "SampleEditor.h"
 class SampleEditor;
 
-class MainSampleWaveDisplay : public QWidget, public H2Core::Object
+/** \ingroup docGUI*/
+class MainSampleWaveDisplay :  public QWidget,  public H2Core::Object<MainSampleWaveDisplay>
 {
-    H2_OBJECT
+    H2_OBJECT(MainSampleWaveDisplay)
 	Q_OBJECT
 
 	public:
-		MainSampleWaveDisplay(QWidget* pParent);
+
+		enum Slider {
+			NONE,
+			START,
+			LOOP,
+			END
+		};
+
+		explicit MainSampleWaveDisplay(QWidget* pParent);
 		~MainSampleWaveDisplay();
 
 		void updateDisplay( const QString& filename );
@@ -45,27 +53,36 @@ class MainSampleWaveDisplay : public QWidget, public H2Core::Object
 
 		void paintLocatorEvent( int pos, bool last_event);
 		void paintEvent(QPaintEvent *ev);
-		int m_pStartFramePosition;
-		int m_pLoopFramePosition;
-		int m_pEndFramePosition;
-		bool m_pmove;
+		
 		void testPositionFromSampleeditor();
-		bool __startsliderismoved;
-		bool __loopsliderismoved;
-		bool __endsliderismoved;
+		
+		int		m_nStartFramePosition;
+		int		m_nLoopFramePosition;
+		int		m_nEndFramePosition;
+
+		bool	m_bStartSliderIsMoved;
+		bool	m_bLoopSliderIsMoved;
+		bool	m_bEndSliderIsmoved;
+
+		Slider  m_SelectedSlider;
 
 
 	private:
-		QPixmap m_background;
-		int *m_pPeakDatal;
-		int *m_pPeakDatar;
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		void testPosition( QMouseEvent *ev );
-		int m_pSampleLength;
-		int m_plocator;
-		bool m_pupdateposi;
+		void chooseSlider( QMouseEvent *ev );
+		void mouseUpdateDone();
+		
+		QPixmap m_background;
+		int*	m_pPeakDatal;
+		int*	m_pPeakDatar;
+		
+		int		m_nSampleLength;
+		int		m_nLocator;
+		bool	m_bUpdatePosition;
+
 
 };
 

@@ -1,31 +1,51 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+
 #include "SoundLibraryImportDialog.h"
 #include "SoundLibraryRepositoryDialog.h"
 #include "SoundLibraryPanel.h"
 
-#include "../widgets/DownloadWidget.h"
+#include "../Widgets/DownloadWidget.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
 
-#include <hydrogen/LocalFileMng.h>
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/drumkit.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/LocalFileMng.h>
+#include <core/H2Exception.h>
+#include <core/Preferences.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Helpers/Filesystem.h>
 
 #include "SoundLibraryDatastructures.h"
 
-#include <hydrogen/object.h>
-#include <hydrogen/LocalFileMng.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/drumkit.h>
+#include <core/Object.h>
+#include <core/LocalFileMng.h>
+#include <core/Preferences.h>
+#include <core/Basics/Drumkit.h>
 
 using namespace H2Core;
 
-SoundLibraryDatabase* SoundLibraryDatabase::__instance = NULL;
+SoundLibraryDatabase* SoundLibraryDatabase::__instance = nullptr;
 
-const char* SoundLibraryDatabase::__class_name = "SoundLibraryDatabase";
-
-SoundLibraryDatabase::SoundLibraryDatabase() : Object( __class_name )
+SoundLibraryDatabase::SoundLibraryDatabase()
 {
 	INFOLOG( "INIT" );
 	patternVector = new soundLibraryInfoVector();
@@ -46,7 +66,7 @@ SoundLibraryDatabase::~SoundLibraryDatabase()
 
 void SoundLibraryDatabase::create_instance()
 {
-	if ( __instance == 0 ) {
+	if ( __instance == nullptr ) {
 		__instance = new SoundLibraryDatabase;
 	}
 }
@@ -83,49 +103,27 @@ void SoundLibraryDatabase::update()
 
 void SoundLibraryDatabase::updatePatterns()
 {
-	//Clear the current pattern informations, then start to fill it again..
 	patternVector->clear();
 	patternCategories = QStringList();
 
-	/* First location to store patterns: inside .hydrogen/data/patterns/GMkit etc.
-	 * each subdir builds a relationship between the pattern and the drumkit
-	 */
-
-	std::vector<QString> perDrumkitPatternDirectories = LocalFileMng::getDrumkitsFromDirectory( Preferences::get_instance()->getDataDirectory() + "patterns" );
-	std::vector<QString>::iterator drumkitIterator;
-
-	for( drumkitIterator = perDrumkitPatternDirectories.begin(); drumkitIterator != perDrumkitPatternDirectories.end(); drumkitIterator++ )
-	{
-		getPatternFromDirectory( *drumkitIterator, patternVector);
+	// search drumkit subdirectories within patterns user directory
+	foreach ( const QString& drumkit, Filesystem::pattern_drumkits() ) {
+		getPatternFromDirectory( Filesystem::patterns_dir( drumkit ), patternVector);
 	}
-
-	//2. This is the general location for patterns which do not belong to a certain drumkit.
-	QString userPatternDirectory = Preferences::get_instance()->getDataDirectory() + "patterns";
-	getPatternFromDirectory( userPatternDirectory, patternVector);
+	// search patterns user directory
+	getPatternFromDirectory( Filesystem::patterns_dir(), patternVector);
 }
 
-int SoundLibraryDatabase::getPatternFromDirectory( const QString& sPatternDir, std::vector<SoundLibraryInfo*>* patternVector )
+void SoundLibraryDatabase::getPatternFromDirectory( const QString& sPatternDir, std::vector<SoundLibraryInfo*>* patternVector )
 {
-	QDir dir( sPatternDir );
-
-	if ( !dir.exists() ) {
-		ERRORLOG( QString( "[getPatternList] Directory %1 not found" ).arg( sPatternDir ) );
-	} else {
-		dir.setFilter( QDir::Files );
-		QFileInfoList fileList = dir.entryInfoList();
-
-		for ( int i = 0; i < fileList.size(); ++i ) {
-			QString sFile = sPatternDir + "/" + fileList.at( i ).fileName();
-
-			if( sFile.endsWith(".h2pattern") ){
-				SoundLibraryInfo* slInfo = new SoundLibraryInfo( sFile );
-				patternVector->push_back( slInfo );
-
-				if(! patternCategories.contains( slInfo->getCategory() ) ) patternCategories << slInfo->getCategory();
-			}
+	foreach ( const QString& fName, Filesystem::pattern_list( sPatternDir ) ) {
+		QString sFile = sPatternDir + fName;
+		SoundLibraryInfo* slInfo = new SoundLibraryInfo( sFile );
+		patternVector->push_back( slInfo );
+		if ( !patternCategories.contains( slInfo->getCategory() ) ) {
+			patternCategories << slInfo->getCategory();
 		}
 	}
-	return 0;
 }
 
 
@@ -137,14 +135,12 @@ soundLibraryInfoVector* SoundLibraryDatabase::getAllPatterns() const
 
 
 
-
-const char* SoundLibraryInfo::__class_name = "SoundLibraryInfo";
-SoundLibraryInfo::SoundLibraryInfo() : Object( __class_name )
+SoundLibraryInfo::SoundLibraryInfo()
 {
 	//default constructor
 }
 
-SoundLibraryInfo::SoundLibraryInfo(const QString &path) : Object( __class_name )
+SoundLibraryInfo::SoundLibraryInfo(const QString &path)
 {
 	/*
 	 *Use the provided file instantiate this object with the corresponding meta
@@ -163,6 +159,9 @@ SoundLibraryInfo::SoundLibraryInfo(const QString &path) : Object( __class_name )
 
 		QDomNode patternNode = rootNode.firstChildElement( "pattern" );
 		setName( LocalFileMng::readXmlString( patternNode,"pattern_name", "" ) );
+		if ( getName().isEmpty() ) {
+			setName( LocalFileMng::readXmlString( patternNode,"name", "" ) );
+		}
 		setInfo( LocalFileMng::readXmlString( patternNode,"info", "No information available." ) );
 		setCategory( LocalFileMng::readXmlString( patternNode,"category", "" ) );
 	}

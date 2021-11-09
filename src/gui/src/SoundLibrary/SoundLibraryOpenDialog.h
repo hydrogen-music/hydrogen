@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -24,20 +24,19 @@
 #define SOUND_LIBRARY_OPEN_DIALOG_H
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-	#include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include "SoundLibraryDatastructures.h"
 
 class SoundLibraryPanel;
 
-class SoundLibraryOpenDialog : public QDialog, public H2Core::Object
+/** \ingroup docGUI*/
+class SoundLibraryOpenDialog :  public QDialog,  public H2Core::Object<SoundLibraryOpenDialog>
 {
-	H2_OBJECT
+	H2_OBJECT(SoundLibraryOpenDialog)
 	Q_OBJECT
 	public:
-		SoundLibraryOpenDialog( QWidget* pParent );
+		explicit SoundLibraryOpenDialog( QWidget* pParent );
 		~SoundLibraryOpenDialog();
 
 	private slots:
@@ -47,9 +46,9 @@ class SoundLibraryOpenDialog : public QDialog, public H2Core::Object
 		void on_open_btn_clicked();
 
 	private:
-		SoundLibraryPanel* p_soundLib;
-		QPushButton* p_btnOk;
-		QPushButton* p_btnCancel;
+		SoundLibraryPanel*	m_pSoundLibraryPanel;
+		QPushButton*		m_pOkBtn;
+		QPushButton*		m_pCancelBtn;
 };
 
 #endif

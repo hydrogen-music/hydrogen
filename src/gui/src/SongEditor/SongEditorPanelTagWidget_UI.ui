@@ -17,7 +17,10 @@
    <item>
     <widget class="QTableWidget" name="tagTableWidget">
      <property name="dragDropMode">
-      <enum>QAbstractItemView::InternalMove</enum>
+      <enum>QAbstractItemView::DragDrop</enum>
+     </property>
+     <property name="defaultDropAction">
+      <enum>Qt::CopyAction</enum>
      </property>
      <attribute name="horizontalHeaderDefaultSectionSize">
       <number>100</number>

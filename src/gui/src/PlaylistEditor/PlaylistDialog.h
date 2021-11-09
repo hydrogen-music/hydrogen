@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -24,13 +24,14 @@
 #define PLAYLIST_DIALOG_H
 
 
+#include <QMenuBar>
 #include <QDialog>
 #include "ui_PlaylistDialog_UI.h"
-#include <hydrogen/object.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/playlist.h>
-
+#include <core/Object.h>
+#include <core/Preferences.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Playlist.h>
+#include "../Widgets/WidgetWithScalableFont.h"
 
 class Button;
 class ToggleButton;
@@ -39,20 +40,25 @@ class PixmapWidget;
 ///
 /// This dialog is used to use the H2PlayList
 ///
-class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public H2Core::Object
+/** \ingroup docGUI*/
+class PlaylistDialog :  public QDialog, protected WidgetWithScalableFont<8, 10, 12>, public Ui_PlaylistDialog_UI,  public H2Core::Object<PlaylistDialog>
 
 {
-    H2_OBJECT
+		H2_OBJECT(PlaylistDialog)
 	Q_OBJECT
 	public:
-		
-		PlaylistDialog( QWidget* pParent );
+
+		explicit PlaylistDialog( QWidget* pParent );
 		~PlaylistDialog();
 
-		bool loadListByFileName( QString filename);	
+		bool loadListByFileName( QString filename);
 
+public slots:
+	void onPreferencesChanged( bool bAppearanceOnly );
 
 	private slots:
+		void keyPressEvent( QKeyEvent* ev );
+		void closeEvent( QCloseEvent* ev );
 		void addSong();
 		void addCurrentSong();
 		void removeFromList();
@@ -83,11 +89,16 @@ class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public H2Cor
 		void setFirstItemCurrent();
 		Button *zoom_in_btn;
 		QTimer *timer;
+		QMenuBar *m_pMenubar;
+		QMenu *m_pPlaylistMenu;
+		QMenu *m_pScriptMenu;
 
 		Button *m_pRwdBtn;
 		ToggleButton *m_pPlayBtn;
 		Button *m_pStopBtn;
 		Button *m_pFfwdBtn;
+		/** Used to detect changed in the font*/
+		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -25,18 +25,19 @@
 
 
 #include "ui_SoundLibraryImportDialog_UI.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
 #include <QNetworkReply>
 
-#include <hydrogen/Preferences.h>
+#include <core/Preferences.h>
 #include "SoundLibraryDatastructures.h"
 
 ///
 /// This dialog is used to import a SoundLibrary file from a local file or via HTTP.
 ///
-class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDialog_UI, public H2Core::Object
+/** \ingroup docGUI*/
+class SoundLibraryImportDialog :  public QDialog, public Ui_SoundLibraryImportDialog_UI,  public H2Core::Object<SoundLibraryImportDialog>
 {
-    H2_OBJECT
+    H2_OBJECT(SoundLibraryImportDialog)
 	Q_OBJECT
 	public:
 		SoundLibraryImportDialog( QWidget* pParent, bool bOnlineImport );

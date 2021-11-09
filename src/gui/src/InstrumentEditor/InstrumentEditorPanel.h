@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -24,42 +24,53 @@
 #define INSTRUMENT_EDITOR_PANEL_H
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
-#include <hydrogen/object.h>
+#include <QtWidgets>
+
+#include <core/Object.h>
 #include "InstrumentEditor.h"
 #include "../EventListener.h"
 
 ///
 /// Container for the Instrument Editor (Singleton).
 ///
-class InstrumentEditorPanel : public QWidget, private H2Core::Object, public EventListener
+/** \ingroup docGUI*/
+class InstrumentEditorPanel : public QWidget, private H2Core::Object<InstrumentEditorPanel>, public EventListener
 {
-    H2_OBJECT
+    H2_OBJECT(InstrumentEditorPanel)
 	Q_OBJECT
 	public:
 		static InstrumentEditorPanel* get_instance();
 		~InstrumentEditorPanel();
+	
+		explicit InstrumentEditorPanel(const InstrumentEditorPanel&) = delete;
+		InstrumentEditorPanel& operator=( const InstrumentEditorPanel& rhs ) = delete;
 
-		virtual void parametersInstrumentChangedEvent();
+		virtual void parametersInstrumentChangedEvent() override;
+		
+		InstrumentEditor* getInstrumentEditor() const;
 
 		void selectLayer( int nLayer );
 		
 		int getSelectedLayer() {
-			return m_pLayer;
+			return m_nLayer;
 		}
+
+		void updateWaveDisplay();
 
 	public slots:
 		void notifyOfDrumkitChange();
 
 	private:
-		static InstrumentEditorPanel* m_pInstance;
-		InstrumentEditor* m_pInstrumentEditor;
+		static InstrumentEditorPanel*	m_pInstance;
+		InstrumentEditor*				m_pInstrumentEditor;
+		int								m_nLayer;
 
-		InstrumentEditorPanel( QWidget *pParent );
-		int m_pLayer;
+		explicit InstrumentEditorPanel( QWidget *pParent );
+
 };
 
+inline 	InstrumentEditor* InstrumentEditorPanel::getInstrumentEditor() const {
+	return m_pInstrumentEditor;
+}
 #endif
 

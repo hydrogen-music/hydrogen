@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -28,25 +28,22 @@
 #include "math.h"
 #include "string.h"
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/audio_engine.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Sample.h>
+#include <core/AudioEngine/AudioEngine.h>
 using namespace H2Core;
-
-const char* FileBrowser::__class_name = "FileBrowser";
 
 FileBrowser::FileBrowser( QWidget* pParent )
  : QWidget( pParent )
- , Object( __class_name )
 {
 	INFOLOG( "[FileBrowser]" );
 
-	m_pDirectoryLabel = new QLabel( NULL );
-	m_pUpBtn = new QPushButton( "..", NULL );
+	m_pDirectoryLabel = new QLabel( nullptr );
+	m_pUpBtn = new QPushButton( "..", nullptr );
 	m_pUpBtn->setMaximumWidth( 30 );
 	connect( m_pUpBtn, SIGNAL( clicked() ), this, SLOT( on_upBtnClicked() ) );
 
-	QWidget *pDirectoryPanel = new QWidget( NULL );
+	QWidget *pDirectoryPanel = new QWidget( nullptr );
 	QHBoxLayout *hbox = new QHBoxLayout();
 	hbox->setSpacing( 0 );
 	hbox->setMargin( 0 );
@@ -54,9 +51,9 @@ FileBrowser::FileBrowser( QWidget* pParent )
 	hbox->addWidget( m_pUpBtn );
 	pDirectoryPanel->setLayout( hbox );
 
-	QWidget *pInfoPanel = new QWidget( NULL );
-	m_pFileInfo = new QLabel( NULL );
-	QPushButton *pPlayBtn = new QPushButton( "Play", NULL );
+	QWidget *pInfoPanel = new QWidget( nullptr );
+	m_pFileInfo = new QLabel( nullptr );
+	QPushButton *pPlayBtn = new QPushButton( "Play", nullptr );
 	connect( pPlayBtn, SIGNAL( clicked() ), this, SLOT( on_playBtnClicked() ) );
 	pPlayBtn->setMaximumWidth( 40 );
 	QHBoxLayout *pInfoHBox = new QHBoxLayout();
@@ -64,8 +61,8 @@ FileBrowser::FileBrowser( QWidget* pParent )
 	pInfoHBox->addWidget( pPlayBtn );
 	pInfoPanel->setLayout( pInfoHBox );
 
-	m_pDirList = new QListWidget( NULL );
-	m_pFileList = new QListWidget( NULL );
+	m_pDirList = new QListWidget( nullptr );
+	m_pFileList = new QListWidget( nullptr );
 
 	connect( m_pFileList, SIGNAL( currentItemChanged( QListWidgetItem*, QListWidgetItem*) ), this, SLOT( on_fileList_ItemChanged( QListWidgetItem*, QListWidgetItem* ) ) );
 	connect( m_pFileList, SIGNAL( itemActivated( QListWidgetItem* ) ), this, SLOT( on_fileList_ItemActivated( QListWidgetItem* ) ) );
@@ -114,11 +111,14 @@ void FileBrowser::loadDirectoryTree( const QString& sBasedir )
 		QListWidgetItem *pItem = new QListWidgetItem();
 		if ( fileInfo.isDir() ) {
 			if ( fileInfo.fileName().startsWith( "." ) ) {
+				delete pItem;
 				continue;
 			}
 
 			pItem->setText( fileInfo.fileName() );
 			m_pDirList->insertItem( 0, pItem);
+		} else {
+			delete pItem;
 		}
 	}
 	m_pDirList->sortItems( Qt::AscendingOrder );
@@ -146,7 +146,11 @@ void FileBrowser::loadDirectoryTree( const QString& sBasedir )
 			if ( bOk ) {
 				pItem->setText( fileInfo.fileName() );
 				m_pFileList->insertItem( 0, pItem);
+			} else {
+				delete pItem;
 			}
+		} else {
+			delete pItem;
 		}
 	}
 	m_pFileList->sortItems( Qt::AscendingOrder );
@@ -183,7 +187,7 @@ void FileBrowser::updateFileInfo( QString sFilename, unsigned nSampleRate, unsig
 
 	}
 
-	m_pFileInfo->setText( QString( trUtf8( "%1<br>%2 KHz<br>%3 %4" ) )
+	m_pFileInfo->setText( QString( tr( "%1<br>%2 KHz<br>%3 %4" ) )
 			      .arg( sFilename )
 			      .arg( nSampleRate )
 			      .arg( sFileSize )
@@ -217,8 +221,7 @@ void FileBrowser::on_fileList_ItemActivated( QListWidgetItem* item )
 	if ( !item ) {
 		return;
 	}
-	QString sFileName = m_directory.absolutePath() + "/" + ( item->text() );
-
+	
 	QFileInfoList list = m_directory.entryInfoList();
 	for (int i = 0; i < list.size(); ++i) {
 		QFileInfo fileInfo = list.at(i);
@@ -227,10 +230,10 @@ void FileBrowser::on_fileList_ItemActivated( QListWidgetItem* item )
 			if ( !fileInfo.isDir() ) {
 
 				// FIXME: evitare di caricare il sample, visualizzare solo le info del file
-				Sample *pNewSample = Sample::load( fileInfo.absoluteFilePath() );
-				if (pNewSample) {
+				auto pNewSample = Sample::load( fileInfo.absoluteFilePath() );
+				if ( pNewSample != nullptr ) {
 					updateFileInfo( fileInfo.absoluteFilePath(), pNewSample->get_sample_rate(), pNewSample->get_size() );
-					AudioEngine::get_instance()->get_sampler()->preview_sample(pNewSample, 192);
+					Hydrogen::get_instance()->getAudioEngine()->getSampler()->preview_sample(pNewSample, 192);
 				}
 			}
 		}
@@ -246,7 +249,6 @@ void FileBrowser::on_dirList_ItemActivated( QListWidgetItem* pItem )
 	if ( !pItem ) {
 		return;
 	}
-	QString sFileName = m_directory.absolutePath() + "/" + ( pItem->text() );
 
 	QFileInfoList list = m_directory.entryInfoList();
 	for (int i = 0; i < list.size(); ++i) {

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -29,22 +29,22 @@
 #include "HydrogenApp.h"
 #include "Mixer/Mixer.h"
 
-#include <hydrogen/basics/note.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/timeline.h>
-#include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/sampler/Sampler.h>
-#include <hydrogen/event_queue.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/Timeline.h>
+#include <core/IO/AudioOutput.h>
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/Sampler/Sampler.h>
+#include <core/EventQueue.h>
 
 #include <memory>
 
@@ -54,112 +54,197 @@
 
 using namespace H2Core;
 
-const char* ExportSongDialog::__class_name = "ExportSongDialog";
+enum ExportModes { EXPORT_TO_SINGLE_TRACK, EXPORT_TO_SEPARATE_TRACKS, EXPORT_TO_BOTH };
 
-enum ExportModes { EXPORT_TO_SINGLE_TRACK, EXPORT_TO_SEPARATE_TRACKS, EXPORT_TO_BOTH};
+static int interpolateModeToComboBoxIndex(Interpolation::InterpolateMode interpolateMode)
+{
+	int Index = 0;
+	
+	switch ( interpolateMode ) {
+		case Interpolation::InterpolateMode::Linear:
+			Index = 0;
+			break;
+		case Interpolation::InterpolateMode::Cosine:
+			Index = 1;
+			break;
+		case Interpolation::InterpolateMode::Third:
+			Index = 2;
+			break;
+		case Interpolation::InterpolateMode::Cubic:
+			Index = 3;
+			break;
+		case Interpolation::InterpolateMode::Hermite:
+			Index = 4;
+			break;
+	}
+	
+	return Index;
+}
+
+// Here we are going to store export filename 
+QString ExportSongDialog::sLastFilename = "";
 
 ExportSongDialog::ExportSongDialog(QWidget* parent)
 	: QDialog(parent)
-	, Object( __class_name )
 	, m_bExporting( false )
+	, m_pHydrogen( Hydrogen::get_instance() )
+	, m_pPreferences( Preferences::get_instance() )
 {
 	setupUi( this );
 	setModal( true );
-	setWindowTitle( trUtf8( "Export song" ) );
+	setWindowTitle( tr( "Export song" ) );
 
-	exportTypeCombo->addItem(trUtf8("Export to a single track"));
-	exportTypeCombo->addItem(trUtf8("Export to separate tracks"));
-	exportTypeCombo->addItem(trUtf8("Both"));
+	exportTypeCombo->addItem(tr("Export to a single track"));
+	exportTypeCombo->addItem(tr("Export to separate tracks"));
+	exportTypeCombo->addItem(tr("Both"));
 
 	HydrogenApp::get_instance()->addEventListener( this );
-	Hydrogen * pHydrogen = Hydrogen::get_instance();
-	Preferences *pPref = Preferences::get_instance();
 
 	m_pProgressBar->setValue( 0 );
-	sampleRateCombo->setCurrentIndex(1);
-	sampleDepthCombo->setCurrentIndex(1);
-
-	QString defaultFilename( pHydrogen->getSong()->get_filename() );
 	
-	if( pHydrogen->getSong()->get_filename().isEmpty() ){
-		defaultFilename = pHydrogen->getSong()->__name;
-	}
-	
-	defaultFilename.replace( '*', "_" );
-	defaultFilename.replace( ".h2song", "" );
-	defaultFilename += ".wav";
-	
-	exportNameTxt->setText(defaultFilename);
-	b_QfileDialog = false;
+	m_bQfileDialog = false;
 	m_bExportTrackouts = false;
 	m_nInstrument = 0;
 	m_sExtension = ".wav";
 	m_bOverwriteFiles = false;
 
 	// use of rubberband batch
-	if(checkUseOfRubberband()){
-		b_oldRubberbandBatchMode = pPref->getRubberBandBatchMode();
-		toggleRubberbandCheckBox->setChecked(pPref->getRubberBandBatchMode());
+	if( checkUseOfRubberband() ) {
+		m_bOldRubberbandBatchMode = m_pPreferences->getRubberBandBatchMode();
+		toggleRubberbandCheckBox->setChecked(m_pPreferences->getRubberBandBatchMode());
 		connect(toggleRubberbandCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleRubberbandBatchMode( bool )));
-	}else
-	{
-		b_oldRubberbandBatchMode = pPref->getRubberBandBatchMode();
+	} else {
+		m_bOldRubberbandBatchMode = m_pPreferences->getRubberBandBatchMode();
 		toggleRubberbandCheckBox->setEnabled( false );
 	}
 
-
 	// use of timeline
-	if( pHydrogen->getTimeline()->m_timelinevector.size() > 0 ){
-		toggleTimeLineBPMCheckBox->setChecked(pPref->getUseTimelineBpm());
-		b_oldTimeLineBPMMode = pPref->getUseTimelineBpm();
-		connect(toggleTimeLineBPMCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleTimeLineBPMMode( bool )));
-	}else
-	{
-		b_oldTimeLineBPMMode = pPref->getUseTimelineBpm();
-		toggleTimeLineBPMCheckBox->setEnabled( false );
-	}
-
+	toggleTimeLineBPMCheckBox->setChecked(m_pPreferences->getUseTimelineBpm());
+	m_bOldTimeLineBPMMode = m_pPreferences->getUseTimelineBpm();
+	connect(toggleTimeLineBPMCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleTimeLineBPMMode( bool )));
 
 	// use of interpolation mode
-	m_oldInterpolation = AudioEngine::get_instance()->get_sampler()->getInterpolateMode();
-	resampleComboBox->setCurrentIndex( m_oldInterpolation );
+	m_OldInterpolationMode = m_pHydrogen->getAudioEngine()->getSampler()->getInterpolateMode();
+	resampleComboBox->setCurrentIndex( interpolateModeToComboBoxIndex( m_OldInterpolationMode ) );
 	connect(resampleComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(resampleComboBoIndexChanged(int)));
 
 	// if rubberbandBatch calculate time needed by lib rubberband to resample samples
-	if(b_oldRubberbandBatchMode){
+	if( m_bOldRubberbandBatchMode ) {
 		calculateRubberbandTime();
 	}
+	
+	//Load the other settings..
+	restoreSettingsFromPreferences();
 
 	// Have the dialog find the best size
 	adjustSize();
 }
-
-
 
 ExportSongDialog::~ExportSongDialog()
 {
 	HydrogenApp::get_instance()->removeEventListener( this );
 }
 
+QString ExportSongDialog::createDefaultFilename()
+{
+	QString sDefaultFilename = m_pHydrogen->getSong()->getFilename();
+
+	// If song is not saved then use song name otherwise use the song filename
+	if( sDefaultFilename.isEmpty() ){
+		sDefaultFilename = m_pHydrogen->getSong()->getName();
+	} else {
+		// extracting filename from full path
+		QFileInfo qDefaultFile( sDefaultFilename ); 
+		sDefaultFilename = qDefaultFile.fileName();
+	}
+
+	sDefaultFilename.replace( '*', "_" );
+	sDefaultFilename.replace( Filesystem::songs_ext, "" );
+	sDefaultFilename += m_sExtension;
+	return sDefaultFilename;
+}
+
+void ExportSongDialog::saveSettingsToPreferences()
+{
+	// extracting dirname from export box	
+	QString sFilename = exportNameTxt->text();
+	QFileInfo info( sFilename );
+	QDir dir = info.absoluteDir();
+	if ( !dir.exists() ) {
+		// very strange if it happens but better to check for it anyway
+		return;
+	}
+	
+	// saving filename for this session	
+	sLastFilename = info.fileName();
+	Preferences::get_instance()->setLastExportSongDirectory( dir.absolutePath() );
+	
+	// saving other options
+	m_pPreferences->setExportModeIdx( exportTypeCombo->currentIndex() );
+	m_pPreferences->setExportTemplateIdx( templateCombo->currentIndex() );
+	m_pPreferences->setExportSampleRateIdx( sampleRateCombo->currentIndex() );
+	m_pPreferences->setExportSampleDepthIdx( sampleDepthCombo->currentIndex() );
+}
+
+void ExportSongDialog::restoreSettingsFromPreferences()
+{
+	// loading previous directory and filling filename text field
+	
+	// loading default filename on a first run and storing it in static field
+	if( sLastFilename.isEmpty() ) {
+		sLastFilename = createDefaultFilename();
+	}
+
+	QString sDirPath = m_pPreferences->getLastExportSongDirectory();
+	QDir qd = QDir( sDirPath );
+	
+	// joining filepath with dirname
+	QString sFullPath = qd.absoluteFilePath( sLastFilename );
+	exportNameTxt->setText( sFullPath );
+	
+	// loading rest of the options
+	templateCombo->setCurrentIndex( m_pPreferences->getExportTemplateIdx() );
+	exportTypeCombo->setCurrentIndex( m_pPreferences->getExportModeIdx() );
+	
+	int nExportSampleRateIdx = m_pPreferences->getExportSampleRateIdx();
+	if( nExportSampleRateIdx > 0 ) {
+		sampleRateCombo->setCurrentIndex( nExportSampleRateIdx );
+	} else {
+		sampleRateCombo->setCurrentIndex( 0 );
+	}
+	
+	
+	int nExportBithDepthIdx = m_pPreferences->getExportSampleDepthIdx();
+	if( nExportBithDepthIdx > 0 ) {
+		sampleDepthCombo->setCurrentIndex( nExportBithDepthIdx );
+	} else {
+		sampleDepthCombo->setCurrentIndex( 0 );
+	}
+}
 
 void ExportSongDialog::on_browseBtn_clicked()
 {
-	static QString lastUsedDir = QDir::homePath();
-
+	QString sPath = Preferences::get_instance()->getLastExportSongDirectory();
+	if ( ! Filesystem::dir_writable( sPath, false ) ){
+		sPath = QDir::homePath();
+	}
 
 	QFileDialog fd(this);
 	fd.setFileMode(QFileDialog::AnyFile);
 
+	if( templateCombo->currentIndex() <= 4 ) {
+		fd.setNameFilter("Microsoft WAV (*.wav *.WAV)");
+	} else if ( templateCombo->currentIndex() > 4 && templateCombo->currentIndex() < 8  ) {
+		fd.setNameFilter( "Apple AIFF (*.aiff *.AIFF)");
+	} else if ( templateCombo->currentIndex() == 8 ) {
+		fd.setNameFilter( "Lossless  Flac (*.flac *.FLAC)");
+	} else if ( templateCombo->currentIndex() == 9 ) {
+		fd.setNameFilter( "Compressed Ogg (*.ogg *.OGG)");
+	}
 
-	if( templateCombo->currentIndex() <= 4 ) fd.setNameFilter("Microsoft WAV (*.wav *.WAV)");
-	if( templateCombo->currentIndex() > 4 && templateCombo->currentIndex() < 8  ) fd.setNameFilter( "Apple AIFF (*.aiff *.AIFF)");
-	if( templateCombo->currentIndex() == 8) fd.setNameFilter( "Lossless  Flac (*.flac *.FLAC)");
-	if( templateCombo->currentIndex() == 9) fd.setNameFilter( "Compressed Ogg (*.ogg *.OGG)");
-
-	fd.setDirectory( lastUsedDir );
+	fd.setDirectory( sPath );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
-	fd.setWindowTitle( trUtf8( "Export song" ) );
-
+	fd.setWindowTitle( tr( "Export song" ) );
 
 	QString defaultFilename = exportNameTxt->text();
 
@@ -168,12 +253,10 @@ void ExportSongDialog::on_browseBtn_clicked()
 	QString filename = "";
 	if (fd.exec()) {
 		filename = fd.selectedFiles().first();
-		b_QfileDialog = true;
+		m_bQfileDialog = true;
 	}
 
-	if ( ! filename.isEmpty() ) {
-		lastUsedDir = fd.directory().absolutePath();
-
+	if ( !filename.isEmpty() ) {
 		//this second extension check is mostly important if you leave a dot
 		//without a regular extionsion in a filename
 		if( !filename.endsWith( m_sExtension ) ){
@@ -192,7 +275,23 @@ void ExportSongDialog::on_browseBtn_clicked()
 
 }
 
-
+bool ExportSongDialog::validateUserInput() 
+{
+    // check if directory exists otherwise error
+	QString filename = exportNameTxt->text();
+	QFileInfo file( filename );
+	QDir dir = file.dir();
+	if( !dir.exists() ) {
+		QMessageBox::warning(
+			this, "Hydrogen",
+			tr( "Directory %1 does not exist").arg( dir.absolutePath() ),
+			QMessageBox::Ok
+		);
+		return false;
+	}
+	
+	return true;
+}
 
 void ExportSongDialog::on_okBtn_clicked()
 {
@@ -200,9 +299,14 @@ void ExportSongDialog::on_okBtn_clicked()
 		return;
 	}
 	
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	InstrumentList *pInstrumentList = pSong->get_instrument_list();
+	if( !validateUserInput() ) {
+		return;
+	}
+	
+	saveSettingsToPreferences();
+	
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
+	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 
 	m_bOverwriteFiles = false;
 
@@ -210,7 +314,7 @@ void ExportSongDialog::on_okBtn_clicked()
 		m_bExportTrackouts = false;
 
 		QString filename = exportNameTxt->text();
-		if ( QFile( filename ).exists() == true && b_QfileDialog == false ) {
+		if ( QFileInfo( filename ).exists() == true && m_bQfileDialog == false ) {
 
 			int res;
 			if( exportTypeCombo->currentIndex() == EXPORT_TO_SINGLE_TRACK ){
@@ -236,16 +340,15 @@ void ExportSongDialog::on_okBtn_clicked()
 		for (auto i = 0; i < pInstrumentList->size(); i++) {
 			pInstrumentList->get(i)->set_currently_exported( true );
 		}
-		
-		pEngine->startExportSession( sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt());
-		pEngine->startExportSong( filename );
 
+		m_pHydrogen->startExportSession( sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt());
+		m_pHydrogen->startExportSong( filename );
 		return;
 	}
 
 	if( exportTypeCombo->currentIndex() == EXPORT_TO_SEPARATE_TRACKS ){
 		m_bExportTrackouts = true;
-		pEngine->startExportSession(sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt());
+		m_pHydrogen->startExportSession(sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt());
 		exportTracks();
 		return;
 	}
@@ -254,20 +357,19 @@ void ExportSongDialog::on_okBtn_clicked()
 
 bool ExportSongDialog::currentInstrumentHasNotes()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	unsigned nPatterns = pSong->get_pattern_list()->size();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
+	unsigned nPatterns = pSong->getPatternList()->size();
 	
 	bool bInstrumentHasNotes = false;
 	
 	for ( unsigned i = 0; i < nPatterns; i++ ) {
-		Pattern *pPattern = pSong->get_pattern_list()->get( i );
+		Pattern *pPattern = pSong->getPatternList()->get( i );
 		const Pattern::notes_t* notes = pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
 			assert( pNote );
 
-			if( pNote->get_instrument()->get_id() == pSong->get_instrument_list()->get(m_nInstrument)->get_id() ){
+			if( pNote->get_instrument()->get_id() == pSong->getInstrumentList()->get(m_nInstrument)->get_id() ){
 				bInstrumentHasNotes = true;
 				break;
 			}
@@ -277,15 +379,14 @@ bool ExportSongDialog::currentInstrumentHasNotes()
 	return bInstrumentHasNotes;
 }
 
-QString ExportSongDialog::findUniqueExportFilenameForInstrument(Instrument* pInstrument)
+QString ExportSongDialog::findUniqueExportFilenameForInstrument( std::shared_ptr<Instrument> pInstrument )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	QString uniqueInstrumentName;
 	
 	int instrumentOccurence = 0;
-	for(int i=0; i  < pSong->get_instrument_list()->size(); i++ ){
-		if( pSong->get_instrument_list()->get(m_nInstrument)->get_name() == pInstrument->get_name()){
+	for(int i=0; i  < pSong->getInstrumentList()->size(); i++ ){
+		if( pSong->getInstrumentList()->get(m_nInstrument)->get_name() == pInstrument->get_name()){
 			instrumentOccurence++;
 		}
 	}
@@ -301,9 +402,8 @@ QString ExportSongDialog::findUniqueExportFilenameForInstrument(Instrument* pIns
 
 void ExportSongDialog::exportTracks()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	InstrumentList *pInstrumentList = pSong->get_instrument_list();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
+	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 	
 	if( m_nInstrument < pInstrumentList->size() ){
 		
@@ -332,14 +432,14 @@ void ExportSongDialog::exportTracks()
 
 		QString filename = newItem.append( m_sExtension );
 
-		if ( QFile( filename ).exists() == true && b_QfileDialog == false && !m_bOverwriteFiles) {
+		if ( QFile( filename ).exists() == true && m_bQfileDialog == false && !m_bOverwriteFiles) {
 			int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll );
 			if (res == QMessageBox::No ) return;
 			if (res == QMessageBox::YesToAll ) m_bOverwriteFiles = true;
 		}
 		
 		if( m_nInstrument > 0 ){
-			pEngine->stopExportSong();
+			m_pHydrogen->stopExportSong();
 			m_bExporting = false;
 		}
 		
@@ -347,33 +447,40 @@ void ExportSongDialog::exportTracks()
 			pInstrumentList->get(i)->set_currently_exported( false );
 		}
 		
-		pSong->get_instrument_list()->get(m_nInstrument)->set_currently_exported( true );
+		pSong->getInstrumentList()->get(m_nInstrument)->set_currently_exported( true );
 		
-		pEngine->startExportSong( filename );
+		m_pHydrogen->startExportSong( filename );
 
 		if(! (m_nInstrument == pInstrumentList->size()) ){
 			m_nInstrument++;
 		}
 	}
-
+    
 }
 
+void ExportSongDialog::closeEvent( QCloseEvent *event ) {
+	UNUSED( event );
+	closeExport();
+}
 void ExportSongDialog::on_closeBtn_clicked()
 {
+	closeExport();
+}
+void ExportSongDialog::closeExport() {
 	
-	Hydrogen::get_instance()->stopExportSong();
-	Hydrogen::get_instance()->stopExportSession();
+	m_pHydrogen->stopExportSong();
+	m_pHydrogen->stopExportSession();
 	
 	m_bExporting = false;
 	
-	if(Preferences::get_instance()->getRubberBandBatchMode()){
+	if(m_pPreferences->getRubberBandBatchMode()){
 		EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
 	}
-	Preferences::get_instance()->setRubberBandBatchMode( b_oldRubberbandBatchMode );
-	Preferences::get_instance()->setUseTimelineBpm( b_oldTimeLineBPMMode );
-	setResamplerMode(m_oldInterpolation);
+	m_pPreferences->setRubberBandBatchMode( m_bOldRubberbandBatchMode );
+	m_pPreferences->setUseTimelineBpm( m_bOldTimeLineBPMMode );
+	
+	m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( m_OldInterpolationMode );
 	accept();
-
 }
 
 
@@ -436,7 +543,7 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 	case 4:
 		sampleRateCombo->show();
 		sampleDepthCombo->show();
-		sampleRateCombo->setCurrentIndex ( 3 ); //96000hz
+		sampleRateCombo->setCurrentIndex ( 4 ); //96000hz
 		sampleDepthCombo->setCurrentIndex ( 3 ); //32bit
 		filename += ".wav";
 		m_sExtension = ".wav";
@@ -542,7 +649,7 @@ void ExportSongDialog::progressEvent( int nValue )
 
 		m_bExporting = false;
 
-		if( m_nInstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->size()){
+		if( m_nInstrument == Hydrogen::get_instance()->getSong()->getInstrumentList()->size()){
 			m_nInstrument = 0;
 			m_bExportTrackouts = false;
 		}
@@ -565,7 +672,7 @@ void ExportSongDialog::progressEvent( int nValue )
 
 void ExportSongDialog::toggleRubberbandBatchMode(bool toggled)
 {
-	Preferences::get_instance()->setRubberBandBatchMode(toggled);
+	m_pPreferences->setRubberBandBatchMode(toggled);
 	if(toggled){
 		calculateRubberbandTime();
 	}
@@ -573,7 +680,7 @@ void ExportSongDialog::toggleRubberbandBatchMode(bool toggled)
 
 void ExportSongDialog::toggleTimeLineBPMMode(bool toggled)
 {
-	Preferences::get_instance()->setUseTimelineBpm(toggled);
+	m_pPreferences->setUseTimelineBpm(toggled);
 }
 
 void ExportSongDialog::resampleComboBoIndexChanged(int index )
@@ -585,23 +692,22 @@ void ExportSongDialog::setResamplerMode(int index)
 {
 	switch ( index ){
 	case 0:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::LINEAR );
+		m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
 		break;
 	case 1:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::COSINE );
+		m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
 		break;
 	case 2:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::THIRD );
+		m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
 		break;
 	case 3:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::CUBIC );
+		m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
 		break;
 	case 4:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::HERMITE );
+		m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
 		break;
 	}
 }
-
 
 void ExportSongDialog::calculateRubberbandTime()
 {
@@ -610,57 +716,56 @@ void ExportSongDialog::calculateRubberbandTime()
 	resampleComboBox->setEnabled(false);
 	okBtn->setEnabled(false);
 	
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Timeline* pTimeline = pEngine->getTimeline();
+	Timeline* pTimeline = m_pHydrogen->getTimeline();
+	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 
-	float oldBPM = pEngine->getSong()->__bpm;
+	float oldBPM = m_pHydrogen->getSong()->getBpm();
 	float lowBPM = oldBPM;
 
-	if( pTimeline->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
-			if(pTimeline->m_timelinevector[t].m_htimelinebpm < lowBPM){
-				lowBPM =  pTimeline->m_timelinevector[t].m_htimelinebpm;
+	if ( tempoMarkerVector.size() >= 1 ){
+		for ( int t = 0; t < tempoMarkerVector.size(); t++){
+			if(tempoMarkerVector[t]->fBpm < lowBPM){
+				lowBPM =  tempoMarkerVector[t]->fBpm;
 			}
 
 		}
 	}
 
-	pEngine->setBPM(lowBPM);
-	time_t sTime = time(NULL);
+	m_pHydrogen->setBPM(lowBPM);
+	time_t sTime = time(nullptr);
 
-	Song *pSong = pEngine->getSong();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	assert(pSong);
 	
 	if(pSong){
-		InstrumentList *songInstrList = pSong->get_instrument_list();
+		InstrumentList *songInstrList = pSong->getInstrumentList();
 		assert(songInstrList);
 		for ( unsigned nInstr = 0; nInstr < songInstrList->size(); ++nInstr ) {
-			Instrument *pInstr = songInstrList->get( nInstr );
+			auto pInstr = songInstrList->get( nInstr );
 			assert( pInstr );
 			if ( pInstr ){
-				for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
-					InstrumentComponent* pCompo = *it;
-					for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
-						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+				for ( auto& pCompo : *pInstr->get_components() ) {
+					for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
+						auto pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer ) {
-							Sample *pSample = pLayer->get_sample();
-							if ( pSample ) {
+							auto pSample = pLayer->get_sample();
+							if ( pSample != nullptr ) {
 								if( pSample->get_rubberband().use ) {
-									Sample *pNewSample = Sample::load(
+									auto pNewSample = Sample::load(
 												pSample->get_filepath(),
 												pSample->get_loops(),
 												pSample->get_rubberband(),
 												*pSample->get_velocity_envelope(),
 												*pSample->get_pan_envelope()
 												);
-									if( !pNewSample ){
+									if( pNewSample == nullptr ){
 										continue;
 									}
-									delete pSample;
+	
 									// insert new sample from newInstrument
-									AudioEngine::get_instance()->lock( RIGHT_HERE );
+									m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 									pLayer->set_sample( pNewSample );
-									AudioEngine::get_instance()->unlock();
+									m_pHydrogen->getAudioEngine()->unlock();
 									
 								}
 							}
@@ -671,9 +776,9 @@ void ExportSongDialog::calculateRubberbandTime()
 		}
 	}
 	
-	Preferences::get_instance()->setRubberBandCalcTime(time(NULL) - sTime);
+	Preferences::get_instance()->setRubberBandCalcTime(time(nullptr) - sTime);
 	
-	pEngine->setBPM(oldBPM);
+	m_pHydrogen->setBPM(oldBPM);
 	
 	closeBtn->setEnabled(true);
 	resampleComboBox->setEnabled(true);
@@ -683,24 +788,22 @@ void ExportSongDialog::calculateRubberbandTime()
 
 bool ExportSongDialog::checkUseOfRubberband()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	assert(pSong);
 	
 	if(pSong){
-		InstrumentList *pSongInstrList = pSong->get_instrument_list();
+		InstrumentList *pSongInstrList = pSong->getInstrumentList();
 		assert(pSongInstrList);
 		for ( unsigned nInstr = 0; nInstr < pSongInstrList->size(); ++nInstr ) {
-			Instrument *pInstr = pSongInstrList->get( nInstr );
+			auto pInstr = pSongInstrList->get( nInstr );
 			assert( pInstr );
 			if ( pInstr ){
-				for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
-					InstrumentComponent* pCompo = *it;
-					for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
-						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+				for ( const auto& pCompo : *pInstr->get_components() ) {
+					for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
+						auto pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer ) {
-							Sample *pSample = pLayer->get_sample();
-							if ( pSample ) {
+							auto pSample = pLayer->get_sample();
+							if ( pSample != nullptr ) {
 								if( pSample->get_rubberband().use ) {
 									return true;
 								}

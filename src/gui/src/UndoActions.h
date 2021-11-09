@@ -1,45 +1,68 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+
 #ifndef UNDOACTIONS_H
 #define UNDOACTIONS_H
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 #include <QDebug>
 #include <QUndoCommand>
 #include <QPoint>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/automation_path.h>
+#include <vector>
+
+#include <core/Basics/Note.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/AutomationPath.h>
+#include <core/Helpers/Filesystem.h>
 
 #include "HydrogenApp.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
-#include "PatternFillDialog.h"
+#include "SongEditor/PatternFillDialog.h"
 
 #include "PatternEditor/NotePropertiesRuler.h"
 #include "PatternEditor/DrumPatternEditor.h"
 #include "PatternEditor/PatternEditorPanel.h"
 #include "PatternEditor/NotePropertiesRuler.h"
-#include "widgets/AutomationPathView.h"
+#include "Widgets/AutomationPathView.h"
 
 
 //=====================================================================================================================================
 //song editor commands
+/** \ingroup docGUI*/
 class SE_addPatternAction : public QUndoCommand
 {
 public:
-	SE_addPatternAction( int nColumn, int nRow, unsigned nColumnIndex ){
-		setText( QString( "Add Pattern ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
+	SE_addPatternAction( int nColumn, int nRow ){
+		setText( QObject::tr( "Add Pattern ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
 		__nColumn = nColumn;
 		__nRow = nRow;
-		__nColumnIndex = nColumnIndex;
 	}
 	virtual void undo()
 	{
 		//qDebug() << "add Pattern Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditor()->deletePattern( __nColumn, __nRow , __nColumnIndex );
+		h2app->getSongEditorPanel()->getSongEditor()->deletePattern( __nColumn, __nRow );
 	}
 	virtual void redo()
 	{
@@ -54,14 +77,14 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_deletePatternAction : public QUndoCommand
 {
 public:
-	SE_deletePatternAction( int nColumn, int nRow, unsigned nColumnIndex ){
-		setText( QString( "Delete Pattern ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
+	SE_deletePatternAction( int nColumn, int nRow ){
+		setText( QObject::tr( "Delete Pattern ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
 		__nColumn = nColumn;
 		__nRow = nRow;
-		__nColumnIndex = nColumnIndex;
 	}
 	virtual void undo()
 	{
@@ -73,7 +96,7 @@ public:
 	{
 		//qDebug() << "Delete pattern Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditor()->deletePattern( __nColumn, __nRow, __nColumnIndex );
+		h2app->getSongEditorPanel()->getSongEditor()->deletePattern( __nColumn, __nRow );
 	}
 private:
 	int __nColumn;
@@ -82,11 +105,12 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_movePatternListItemAction : public QUndoCommand
 {
 public:
 	SE_movePatternListItemAction(  int nSourcePattern , int nTargetPattern ){
-		setText( QString( "Move pattern list item ( %1, %2 )" ).arg( nSourcePattern ).arg( nTargetPattern ) );
+		setText( QObject::tr( "Move pattern list item ( %1, %2 )" ).arg( nSourcePattern ).arg( nTargetPattern ) );
 		__nSourcePattern = nSourcePattern;
 		__nTargetPattern = nTargetPattern;
 	}
@@ -108,11 +132,12 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_deletePatternSequenceAction : public QUndoCommand
 {
 public:
-	SE_deletePatternSequenceAction(  QString pFilename ){
-		setText( QString( "Delete complete pattern-sequence" ) );
+	explicit SE_deletePatternSequenceAction(  QString pFilename ){
+		setText( QObject::tr( "Delete complete pattern-sequence" ) );
 		__pFilename = pFilename ;
 	}
 	virtual void undo()
@@ -126,17 +151,18 @@ public:
 	{
 		//qDebug() << "Delete complete pattern-sequence redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditor()->clearThePatternSequenseVector( __pFilename );
+		h2app->getSongEditorPanel()->getSongEditor()->clearThePatternSequenceVector( __pFilename );
 	}
 private:
 	QString __pFilename;
 };
 
+/** \ingroup docGUI*/
 class SE_deletePatternFromListAction : public QUndoCommand
 {
 public:
 	SE_deletePatternFromListAction(  QString patternFilename , QString sequenceFileName, int patternPosition ){
-		setText( QString( "Delete pattern from list" ) );
+		setText( QObject::tr( "Delete pattern from list" ) );
 		__patternFilename =  patternFilename;
 		__sequenceFileName = sequenceFileName;
 		__patternPosition = patternPosition;
@@ -162,11 +188,12 @@ private:
 	int __patternPosition;
 };
 
+/** \ingroup docGUI*/
 class SE_modifyPatternPropertiesAction : public QUndoCommand
 {
 public:
 	SE_modifyPatternPropertiesAction( QString oldPatternName ,QString oldPatternInfo, QString oldPatternCategory, QString newPatternName , QString newPatternInfo, QString newPatternCategory, int patternNr ){
-		setText( QString( "Modify pattern properties" ) );
+		setText( QObject::tr( "Modify pattern properties" ) );
 		__oldPatternName =  oldPatternName;
 		__oldPatternCategory = oldPatternCategory;
 		__oldPatternInfo = oldPatternInfo;
@@ -200,11 +227,12 @@ private:
 };
 
 
-class SE_copyPatternAction : public QUndoCommand
+/** \ingroup docGUI*/
+class SE_duplicatePatternAction : public QUndoCommand
 {
 public:
-	SE_copyPatternAction( QString patternFilename, int patternPosition ){
-		setText( QString( "Copy pattern" ) );
+	SE_duplicatePatternAction( QString patternFilename, int patternPosition ){
+		setText( QObject::tr( "Duplicate pattern" ) );
 		__patternFilename = patternFilename;
 		__patternPosition = patternPosition;
 	}
@@ -212,56 +240,58 @@ public:
 	{
 		//qDebug() << "copy pattern undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->revertaddEmptyPattern( __patternPosition );
+		h2app->getSongEditorPanel()->deletePattern( __patternPosition );
 	}
 
 	virtual void redo()
 	{
 		//qDebug() << "copy pattern redo" ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditorPatternList()->patternPopup_copyAction( __patternFilename, __patternPosition );
+		h2app->getSongEditorPanel()->getSongEditorPatternList()->patternPopup_duplicateAction( __patternFilename, __patternPosition );
 	}
 private:
 	QString __patternFilename;
 	int __patternPosition;
 };
 
-class SE_addEmptyPatternAction : public QUndoCommand
+/** \ingroup docGUI*/
+class SE_insertPatternAction : public QUndoCommand
 {
 public:
-	SE_addEmptyPatternAction( QString newPatternName, QString newPatternInfo, QString newPatternCategory, int patternPosition )
+	SE_insertPatternAction( int patternPosition, H2Core::Pattern* pPattern )
 	{
-		setText( QString( "Add pattern" ) );
-		__newPatternName =  newPatternName;
-		__newPatternCategory = newPatternCategory;
-		__newPatternInfo = newPatternInfo;
+		setText( QObject::tr( "Add pattern" ) );
 		__patternPosition = patternPosition;
+		__newPattern =  pPattern;
+	}
+	~SE_insertPatternAction()
+	{
+		delete __newPattern;
 	}
 	virtual void undo()
 	{
 		//qDebug() << "Add pattern undo";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->revertaddEmptyPattern( __patternPosition );
+		h2app->getSongEditorPanel()->deletePattern( __patternPosition );
 	}
 	virtual void redo()
 	{
 		//qDebug() << "Add pattern redo" ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->addEmptyPattern( __newPatternName , __newPatternInfo,__newPatternCategory, __patternPosition );
+		h2app->getSongEditorPanel()->insertPattern( __patternPosition, new H2Core::Pattern( __newPattern ) );
 	}
 private:
-	QString __newPatternName;
-	QString __newPatternCategory;
-	QString __newPatternInfo;
+	H2Core::Pattern* __newPattern;
 
 	int __patternPosition;
 };
 
+/** \ingroup docGUI*/
 class SE_loadPatternAction : public QUndoCommand
 {
 public:
 	SE_loadPatternAction(  QString patternName, QString oldPatternName, QString sequenceFileName, int patternPosition, bool dragFromList){
-		setText( QString( "Load/drag pattern" ) );
+		setText( QObject::tr( "Load/drag pattern" ) );
 		__patternName =  patternName;
 		__oldPatternName = oldPatternName;
 		__sequenceFileName = sequenceFileName;
@@ -277,7 +307,7 @@ public:
 		}else
 		{
 			h2app->getSongEditorPanel()->getSongEditorPatternList()->restoreDeletedPatternsFromList( __oldPatternName, __sequenceFileName, __patternPosition );
-			h2app->getSongEditorPanel()->revertaddEmptyPattern( __patternPosition +1 );
+			h2app->getSongEditorPanel()->deletePattern( __patternPosition +1 );
 		}
 		h2app->getSongEditorPanel()->restoreGroupVector( __sequenceFileName );
 		h2app->getSongEditorPanel()->getSongEditor()->updateEditorandSetTrue();
@@ -301,11 +331,12 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_fillRangePatternAction : public QUndoCommand
 {
 public:
 	SE_fillRangePatternAction( FillRange* pRange, int nPattern ){
-		setText( QString( "Fill/remove range of pattern" ) );
+		setText( QObject::tr( "Fill/remove range of pattern" ) );
 		__pRange = pRange;
 		__from = pRange->fromVal;
 		__to = pRange->toVal;
@@ -346,42 +377,41 @@ private:
 	int __nPattern;
 };
 
-class SE_movePatternCellAction : public QUndoCommand
+
+/** \ingroup docGUI*/
+class SE_modifyPatternCellsAction : public QUndoCommand
 {
 public:
-	SE_movePatternCellAction( std::vector<QPoint> movingCells, std::vector<QPoint> selectedCells, std::vector<QPoint> existingCells, bool bIsCtrlPressed ){
-		setText( QString( "Move/copy selected cells" ) );
-		__selectedCells = selectedCells;
-		__movingCells = movingCells;
-		__existingCells = existingCells;
-		__bIsCtrlPressed = bIsCtrlPressed;
-
+	SE_modifyPatternCellsAction( std::vector< QPoint > & addCells, std::vector< QPoint > & deleteCells,
+								 std::vector< QPoint > & mergeCells, QString sText ) {
+		setText( sText );
+		m_addCells = addCells;
+		m_deleteCells = deleteCells;
+		m_mergeCells = mergeCells;
+	}
+	virtual void redo()
+	{
+		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()
+			->modifyPatternCellsAction( m_addCells, m_deleteCells, m_mergeCells );
 	}
 	virtual void undo()
 	{
-		//qDebug() <<  "move/copy selected cells undo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditor()->movePatternCellAction( __selectedCells, __movingCells, __existingCells, __bIsCtrlPressed, true );
-	}
-
-	virtual void redo()
-	{
-		//qDebug() <<  "move/copy selected cells redo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditor()->movePatternCellAction( __movingCells, __selectedCells, __existingCells, __bIsCtrlPressed, false );
+		std::vector< QPoint > selectCells;
+		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()
+			->modifyPatternCellsAction( m_deleteCells, m_addCells, selectCells );
 	}
 private:
-	std::vector<QPoint> __selectedCells;
-	std::vector<QPoint> __movingCells;
-	std::vector<QPoint> __existingCells;
-	bool __bIsCtrlPressed;
+	std::vector< QPoint > m_addCells;
+	std::vector< QPoint > m_deleteCells;
+	std::vector< QPoint > m_mergeCells;
 };
 
+/** \ingroup docGUI*/
 class SE_editTimeLineAction : public QUndoCommand
 {
 public:
 	SE_editTimeLineAction( int newPosition, float oldBpm, float newBpm ){
-		setText( QString( "Edit timeline tempo" ) );
+		setText( QObject::tr( "Edit timeline tempo" ) );
 		__newPosition = newPosition;
 		__oldBpm = oldBpm;
 		__newBpm = newBpm;
@@ -415,11 +445,12 @@ private:
 //=====================================================================================================================================
 //time line commands
 
+/** \ingroup docGUI*/
 class SE_deleteTimeLineAction : public QUndoCommand
 {
 public:
 	SE_deleteTimeLineAction( int newPosition, float oldBpm ){
-		setText( QString( "Delete timeline tempo" ) );
+		setText( QObject::tr( "Delete timeline tempo" ) );
 		__newPosition = newPosition;
 		__oldBpm = oldBpm;
 
@@ -444,11 +475,12 @@ private:
 	float __newBpm;
 };
 
+/** \ingroup docGUI*/
 class SE_editTagAction : public QUndoCommand
 {
 public:
 	SE_editTagAction( QString text, QString oldText, int position ){
-		setText( "Edit timeline tag" );
+		setText( QObject::tr( "Edit timeline tag" ) );
 		__text = text;
 		__oldText = oldText;
 		__position = position;
@@ -488,42 +520,46 @@ private:
 //=====================================================================================================================================
 //pattern editor commands
 
-class SE_addNoteAction : public QUndoCommand
+/** \ingroup docGUI*/
+class SE_addOrDeleteNoteAction : public QUndoCommand
 {
 public:
-	SE_addNoteAction(  int nColumn,
-			   int nRow,
-			   int selectedPatternNumber,
-			   int oldLength,
-			   float oldVelocity,
-			   float oldPan_L,
-			   float oldPan_R,
-			   float oldLeadLag,
-			   int oldNoteKeyVal,
-			   int oldOctaveKeyVal,
-			   bool noteExisted,
-			   bool listen,
-			   bool isMidi,
-			   bool isInstrumentMode){
+	SE_addOrDeleteNoteAction(  int nColumn,
+							   int nRow,
+							   int selectedPatternNumber,
+							   int oldLength,
+							   float oldVelocity,
+							   float fOldPan,
+							   float oldLeadLag,
+							   int oldNoteKeyVal,
+							   int oldOctaveKeyVal,
+							   float probability,
+							   bool isDelete,
+							   bool listen,
+							   bool isMidi,
+							   bool isInstrumentMode,
+							   bool isNoteOff ){
 
-		if( noteExisted ){
-			setText( QString( "Delete note ( %1, %2)" ).arg( nColumn ).arg( nRow ) );
+		if( isDelete ){
+			setText( QObject::tr( "Delete note ( %1, %2)" ).arg( nColumn ).arg( nRow ) );
 		} else {
-			setText( QString( "Add note ( %1, %2)" ).arg( nColumn ).arg( nRow ) );
+			setText( QObject::tr( "Add note ( %1, %2)" ).arg( nColumn ).arg( nRow ) );
 		}
 		__nColumn = nColumn;
 		__nRow = nRow;
 		__selectedPatternNumber = selectedPatternNumber;
 		__oldLength = oldLength;
 		__oldVelocity = oldVelocity;
-		__oldPan_L = oldPan_L;
-		__oldPan_R = oldPan_R;
+		m_fOldPan = fOldPan;
 		__oldLeadLag = oldLeadLag;
 		__oldNoteKeyVal = oldNoteKeyVal;
 		__oldOctaveKeyVal = oldOctaveKeyVal;
+		__probability = probability;
 		__listen = listen;
 		__isMidi = isMidi;
 		__isInstrumentMode = isInstrumentMode;
+		__isDelete = isDelete;
+		__isNoteOff = isNoteOff;
 	}
 	virtual void undo()
 	{
@@ -535,15 +571,16 @@ public:
 												__selectedPatternNumber,
 												__oldLength,
 												__oldVelocity,
-												__oldPan_L,
-												__oldPan_R,
+												m_fOldPan,
 												__oldLeadLag,
 												__oldNoteKeyVal,
 												__oldOctaveKeyVal,
+												__probability,
 												__listen,
 												__isMidi,
 												__isInstrumentMode,
-												false  );
+												__isNoteOff,
+												!__isDelete );
 	}
 	virtual void redo()
 	{
@@ -554,15 +591,16 @@ public:
 												__selectedPatternNumber,
 												__oldLength,
 												__oldVelocity,
-												__oldPan_L,
-												__oldPan_R,
+												m_fOldPan,
 												__oldLeadLag,
 												__oldNoteKeyVal,
 												__oldOctaveKeyVal,
+												__probability,
 												__listen,
 												__isMidi,
 												__isInstrumentMode,
-												false  );
+												__isNoteOff,
+												__isDelete );
 	}
 private:
 	int __nColumn;
@@ -570,49 +608,135 @@ private:
 	int __selectedPatternNumber;
 	int __oldLength;
 	float __oldVelocity;
-	float __oldPan_L;
-	float __oldPan_R;
+	float m_fOldPan;
 	float __oldLeadLag;
 	int __oldNoteKeyVal;
 	int __oldOctaveKeyVal;
+	float __probability;
 	bool __listen;
 	bool __isMidi;
 	bool __isInstrumentMode;
+	bool __isDelete;
+	bool __isNoteOff;
+};
+
+// Deselect some notes and overwrite them
+/** \ingroup docGUI*/
+class SE_deselectAndOverwriteNotesAction : public QUndoCommand
+{
+public:
+	SE_deselectAndOverwriteNotesAction( std::vector< H2Core::Note *> &selected, std::vector< H2Core::Note *> &overwritten ) {
+		setText( QObject::tr( "Overwrite %1 notes" ).arg( overwritten.size() ) );
+		for ( auto pNote : selected ) {
+			m_selected.push_back( new H2Core::Note ( pNote ) );
+		}
+		for ( auto pNote : overwritten ) {
+			m_overwritten.push_back( new H2Core::Note ( pNote ) );
+		}
+	}
+
+	~SE_deselectAndOverwriteNotesAction() {
+		for ( auto pNote : m_selected ) {
+			delete pNote;
+		}
+		for ( auto pNote : m_overwritten ) {
+			delete pNote;
+		}
+	}
+
+	virtual void undo() {
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()
+			->undoDeselectAndOverwriteNotes( m_selected, m_overwritten );
+	}
+
+	virtual void redo() {
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()
+			->deselectAndOverwriteNotes( m_selected, m_overwritten );
+	}
+
+private:
+	std::vector< H2Core::Note *> m_selected;
+	std::vector< H2Core::Note *> m_overwritten;
 };
 
 
-class SE_addNoteRightClickAction : public QUndoCommand
+/** \ingroup docGUI*/
+class SE_addNoteOffAction : public QUndoCommand
 {
 public:
-	SE_addNoteRightClickAction( int nColumn, int nRow, int selectedPatternNumber ){
-		setText( QString( "Add pattern editor NOTE_OFF note ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
+	SE_addNoteOffAction( int nColumn, int nRow, int selectedPatternNumber, bool isDelete ){
+		setText( QObject::tr( "Add NOTE_OFF note ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
 		__nColumn = nColumn;
 		__nRow = nRow;
 		__selectedPatternNumber = selectedPatternNumber;
+		__isDelete = isDelete;
 	}
 	virtual void undo()
 	{
-		//qDebug() << "Add off note Note Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0, false, false, false, true);
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.f, 0.0, 0, 0, 1.0f, false, false, false, true, !__isDelete ) ;
 	}
 	virtual void redo()
 	{
-		//qDebug() << "Add off note Note Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0, false, false, false, true);
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.f, 0.0, 0, 0, 1.0f, false, false, false, true, __isDelete );
 	}
 private:
 	int __nColumn;
 	int __nRow;
 	int __selectedPatternNumber;
+	bool __isDelete;
 };
 
+/** \ingroup docGUI*/
+class SE_moveNoteAction : public QUndoCommand
+{
+public:
+	SE_moveNoteAction( int nOldPosition, int nOldInstrument, int nPattern, int nNewPosition, int nNewInstrument,
+					   H2Core::Note *pNote )
+	{
+		m_nOldPosition = nOldPosition;
+		m_nOldInstrument = nOldInstrument;
+		m_nPattern = nPattern;
+		m_nNewPosition = nNewPosition;
+		m_nNewInstrument = nNewInstrument;
+		m_pNote = new H2Core::Note( pNote );
+	}
+
+	~SE_moveNoteAction()
+	{
+		delete m_pNote;
+	}
+
+	virtual void undo()
+	{
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()
+			->moveNoteAction( m_nNewPosition, m_nNewInstrument, m_nPattern,
+							  m_nOldPosition, m_nOldInstrument, m_pNote );
+	}
+
+	virtual void redo()
+	{
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()
+			->moveNoteAction( m_nOldPosition, m_nOldInstrument, m_nPattern,
+							  m_nNewPosition, m_nNewInstrument, m_pNote );
+	}
+
+private:
+	int m_nOldPosition;
+	int m_nOldInstrument;
+	int m_nPattern;
+	int m_nNewPosition;
+	int m_nNewInstrument;
+	H2Core::Note *m_pNote;
+};
+
+/** \ingroup docGUI*/
 class SE_editNoteLenghtAction : public QUndoCommand
 {
 public:
 	SE_editNoteLenghtAction( int nColumn, int nRealColumn, int row, int length, int oldLength, int selectedPatternNumber ){
-		setText( QString( "Change note length" ) );
+		setText( QObject::tr( "Change note length" ) );
 		__nColumn = nColumn;
 		__nRealColumn = nRealColumn;
 		__row = row;
@@ -642,11 +766,12 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_clearNotesPatternEditorAction : public QUndoCommand
 {
 public:
 	SE_clearNotesPatternEditorAction(  std::list<  H2Core::Note* > noteList, int nSelectedInstrument, int selectedPatternNumber ){
-		setText( QString( "Clear notes" ) );
+		setText( QObject::tr( "Clear notes" ) );
 
 		std::list < H2Core::Note *>::iterator pos;
 		for ( pos = noteList.begin(); pos != noteList.end(); ++pos){
@@ -671,13 +796,13 @@ public:
 
 	virtual void undo()
 	{
-		//qDebug() << "clear note sequense Undo ";
+		//qDebug() << "clear note sequence Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionClearNotesUndoAction( __noteList, __nSelectedInstrument, __selectedPatternNumber );
 	}
 	virtual void redo()
 	{
-		//qDebug() << "clear note sequense Redo " ;
+		//qDebug() << "clear note sequence Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionClearNotesRedoAction( __nSelectedInstrument, __selectedPatternNumber );
 	}
@@ -687,13 +812,14 @@ private:
 	int __selectedPatternNumber;
 };
 
+/** \ingroup docGUI*/
 class SE_pasteNotesPatternEditorAction : public QUndoCommand
 {
 public:
-	SE_pasteNotesPatternEditorAction(const std::list<H2Core::Pattern*> & patternList)
+	explicit SE_pasteNotesPatternEditorAction(const std::list<H2Core::Pattern*> & patternList)
 	{
 		//qDebug() << "paste note sequence Create ";
-		setText( QString( "Paste instrument notes" ) );
+		setText( QObject::tr( "Paste instrument notes" ) );
 
 		std::list < H2Core::Pattern *>::const_iterator pos;
 		for ( pos = patternList.begin(); pos != patternList.end(); ++pos)
@@ -739,11 +865,12 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_fillNotesRightClickAction : public QUndoCommand
 {
 public:
 	SE_fillNotesRightClickAction( QStringList notePositions, int nSelectedInstrument, int selectedPatternNumber  ){
-		setText( QString( "Fill notes" ) );
+		setText( QObject::tr( "Fill notes" ) );
 		__notePositions = notePositions;
 		__nSelectedInstrument= nSelectedInstrument;
 		__selectedPatternNumber = selectedPatternNumber;
@@ -767,11 +894,12 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_randomVelocityRightClickAction : public QUndoCommand
 {
 public:
 	SE_randomVelocityRightClickAction( QStringList noteVeloValue, QStringList oldNoteVeloValue, int nSelectedInstrument, int selectedPatternNumber  ){
-		setText( QString( "Random velocity" ) );
+		setText( QObject::tr( "Random velocity" ) );
 		__noteVeloValue = noteVeloValue;
 		__oldNoteVeloValue = oldNoteVeloValue;
 		__nSelectedInstrument= nSelectedInstrument;
@@ -798,11 +926,12 @@ private:
 
 
 
+/** \ingroup docGUI*/
 class SE_moveInstrumentAction : public QUndoCommand
 {
 public:
 	SE_moveInstrumentAction(  int nSourceInstrument, int nTargetInstrument  ){
-		setText( QString( "Move instrument" ) );
+		setText( QObject::tr( "Move instrument" ) );
 		__nSourceInstrument = nSourceInstrument;
 		__nTargetInstrument = nTargetInstrument;
 	}
@@ -823,41 +952,53 @@ private:
 	int __nTargetInstrument;
 };
 
+/** \ingroup docGUI*/
 class SE_dragInstrumentAction : public QUndoCommand
 {
 public:
-	SE_dragInstrumentAction(  QString sDrumkitName, QString sInstrumentName, int nTargetInstrument){
-		setText( QString( "Drop instrument" ) );
+	SE_dragInstrumentAction(  QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, H2Core::Filesystem::Lookup lookup ){
+		setText( QObject::tr( "Drop instrument" ) );
 		__sDrumkitName = sDrumkitName;
 		__sInstrumentName = sInstrumentName;
 		__nTargetInstrument = nTargetInstrument;
 		__addedComponents = new std::vector<int>();
+		m_lookup = lookup;
 	}
+
+	~SE_dragInstrumentAction()
+	{
+		delete __addedComponents;
+	}
+
 	virtual void undo()
 	{
 		//qDebug() << "drop Instrument Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nTargetInstrument, __addedComponents );
 	}
+
 	virtual void redo()
 	{
 		//qDebug() << "drop Instrument Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentRedoAction( __sDrumkitName, __sInstrumentName, __nTargetInstrument, __addedComponents );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentRedoAction( __sDrumkitName, __sInstrumentName, __nTargetInstrument, __addedComponents, m_lookup );
 	}
+
 private:
 	QString __sDrumkitName;
 	QString __sInstrumentName;
 	int __nTargetInstrument;
 	std::vector<int>* __addedComponents;
+	H2Core::Filesystem::Lookup m_lookup;
 };
 
 
+/** \ingroup docGUI*/
 class SE_deleteInstrumentAction : public QUndoCommand
 {
 public:
-	SE_deleteInstrumentAction(  std::list<  H2Core::Note* > noteList, QString drumkitName, QString instrumentName, int nSelectedInstrument ){
-		setText( QString( "Delete instrument " ) );
+	SE_deleteInstrumentAction(  std::list<  H2Core::Note* > noteList, QString sDrumkitName, QString sInstrumentName, int nSelectedInstrument ){
+		setText( QObject::tr( "Delete instrument " ) );
 
 		std::list < H2Core::Note *>::iterator pos;
 		for ( pos = noteList.begin(); pos != noteList.end(); ++pos){
@@ -866,8 +1007,8 @@ public:
 			assert( pNote );
 			__noteList.push_back( pNote );
 		}
-		__drumkitName = drumkitName;
-		__instrumentName = instrumentName;
+		__drumkitName = sDrumkitName;
+		__instrumentName = sInstrumentName;
 		__nSelectedInstrument = nSelectedInstrument;
 	}
 
@@ -902,11 +1043,12 @@ private:
 
 
 
+/** \ingroup docGUI*/
 class SE_mainMenuAddInstrumentAction : public QUndoCommand
 {
 public:
 	SE_mainMenuAddInstrumentAction(){
-		setText( QString( "Drop instrument" ) );
+		setText( QObject::tr( "Drop instrument" ) );
 	}
 	virtual void undo()
 	{
@@ -928,32 +1070,35 @@ private:
 //piano roll editor commands
 
 
-class SE_addNotePianoRollAction : public QUndoCommand
+/** \ingroup docGUI*/
+class SE_addOrDeleteNotePianoRollAction : public QUndoCommand
 {
 public:
-	SE_addNotePianoRollAction( int nColumn,
-				   int pressedLine,
-				   int selectedPatternNumber,
-				   int nSelectedInstrumentnumber,
-				   int oldLength,
-				   float oldVelocity,
-				   float oldPan_L,
-				   float oldPan_R,
-				   float oldLeadLag,
-				   int oldNoteKeyVal,
-				   int oldOctaveKeyVal ){
-		setText( QString( "Add piano roll note ( %1, %2 )" ).arg( nColumn ).arg( pressedLine ) );
+	SE_addOrDeleteNotePianoRollAction( int nColumn,
+									   int pressedLine,
+									   int selectedPatternNumber,
+									   int nSelectedInstrumentnumber,
+									   int oldLength,
+									   float oldVelocity,
+									   float fOldPan,
+									   float oldLeadLag,
+									   int oldNoteKeyVal,
+									   int oldOctaveKeyVal,
+									   float fProbability,
+									   bool isDelete ) {
+		setText( QObject::tr( "Add piano roll note ( %1, %2 )" ).arg( nColumn ).arg( pressedLine ) );
 		__nColumn = nColumn;
 		__pressedLine = pressedLine;
 		__selectedPatternNumber = selectedPatternNumber;
 		__nSelectedInstrumentnumber = nSelectedInstrumentnumber;
 		__oldLength = oldLength;
 		__oldVelocity = oldVelocity;
-		__oldPan_L = oldPan_L;
-		__oldPan_R = oldPan_R;
+		m_fOldPan = fOldPan;
 		__oldLeadLag = oldLeadLag;
 		__oldNoteKeyVal = oldNoteKeyVal;
 		__oldOctaveKeyVal = oldOctaveKeyVal;
+		__probability = fProbability;
+		__isDelete = isDelete;
 
 	}
 	virtual void undo()
@@ -961,34 +1106,36 @@ public:
 		//qDebug() << "Add Piano Roll note Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn,
-											     __pressedLine,
-											     __selectedPatternNumber,
-											     __nSelectedInstrumentnumber,
-											     __oldLength,
-											     __oldVelocity,
-											     __oldPan_L,
-											     __oldPan_R,
-											     __oldLeadLag,
-											     __oldNoteKeyVal,
-											     __oldOctaveKeyVal,
-											     false );
+																					 __pressedLine,
+																					 __selectedPatternNumber,
+																					 __nSelectedInstrumentnumber,
+																					 __oldLength,
+																					 __oldVelocity,
+																					 m_fOldPan,
+																					 __oldLeadLag,
+																					 __oldNoteKeyVal,
+																					 __oldOctaveKeyVal,
+																					 __probability,
+																					 false,
+																					 !__isDelete );
 	}
 	virtual void redo()
 	{
 		//qDebug() << "Add Piano Roll Note Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn,
-											     __pressedLine,
-											     __selectedPatternNumber,
-											     __nSelectedInstrumentnumber,
-											     __oldLength,
-											     __oldVelocity,
-											     __oldPan_L,
-											     __oldPan_R,
-											     __oldLeadLag,
-											     __oldNoteKeyVal,
-											     __oldOctaveKeyVal,
-											     false );
+																					 __pressedLine,
+																					 __selectedPatternNumber,
+																					 __nSelectedInstrumentnumber,
+																					 __oldLength,
+																					 __oldVelocity,
+																					 m_fOldPan,
+																					 __oldLeadLag,
+																					 __oldNoteKeyVal,
+																					 __oldOctaveKeyVal,
+																					 __probability,
+																					 false,
+																					 __isDelete );
 	}
 private:
 	int __nColumn;
@@ -997,18 +1144,20 @@ private:
 	int __nSelectedInstrumentnumber;
 	int __oldLength;
 	float __oldVelocity;
-	float __oldPan_L;
-	float __oldPan_R;
+	float m_fOldPan;
 	float __oldLeadLag;
 	int __oldNoteKeyVal;
 	int __oldOctaveKeyVal;
+	float __probability;
+	bool __isDelete;
 };
 
+/** \ingroup docGUI*/
 class SE_addPianoRollNoteOffAction : public QUndoCommand
 {
 public:
 	SE_addPianoRollNoteOffAction( int nColumn, int pressedLine, int selectedPatternNumber, int nSelectedInstrumentnumber ){
-		setText( QString( "Add  piano roll NOTE_OFF note ( %1, %2 )" ).arg( nColumn ).arg( pressedLine ) );
+		setText( QObject::tr( "Add  piano roll NOTE_OFF note ( %1, %2 )" ).arg( nColumn ).arg( pressedLine ) );
 		__nColumn = nColumn;
 		__pressedLine = pressedLine;
 		__selectedPatternNumber = selectedPatternNumber;
@@ -1018,13 +1167,13 @@ public:
 	{
 		//qDebug() << "Add off note Note Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn, __pressedLine, __selectedPatternNumber,  __nSelectedInstrumentnumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0 , true);
+		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn, __pressedLine, __selectedPatternNumber,  __nSelectedInstrumentnumber, -1, 0.8f, 0.f, 0.0, 0, 0 , 1.0f, true, true );
 	}
 	virtual void redo()
 	{
 		//qDebug() << "Add off note Note Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn, __pressedLine, __selectedPatternNumber,  __nSelectedInstrumentnumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0, true);
+		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn, __pressedLine, __selectedPatternNumber,  __nSelectedInstrumentnumber, -1, 0.8f, 0.f, 0.0, 0, 0, 1.0f, true, false );
 
 	}
 private:
@@ -1035,11 +1184,12 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_editPianoRollNoteLengthAction : public QUndoCommand
 {
 public:
 	SE_editPianoRollNoteLengthAction( int nColumn, int nRealColumn, int length, int oldLength, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedLine){
-		setText( QString( "Change piano roll note length " ) );
+		setText( QObject::tr( "Change piano roll note length " ) );
 		__nColumn = nColumn;
 		__nRealColumn = nRealColumn;
 		__length = length;
@@ -1075,6 +1225,7 @@ private:
 	int __pressedLine;
 };
 
+/** \ingroup docGUI*/
 class SE_editNotePropertiesPianoRollAction : public QUndoCommand
 {
 public:
@@ -1084,24 +1235,20 @@ public:
 						int selectedInstrumentnumber,
 						float velocity,
 						float oldVelocity,
-						float pan_L,
-						float oldPan_L,
-						float pan_R,
-						float oldPan_R,
+						float fPan,
+						float fOldPan,
 						float leadLag,
 						float oldLeadLag,
 						int pressedLine ){
-		setText( QString( "Change note properties piano roll" ) );
+		setText( QObject::tr( "Change note properties piano roll" ) );
 		__nColumn = nColumn;
 		__nRealColumn = nRealColumn;
 		__selectedPatternNumber = selectedPatternNumber;
 		__nSelectedInstrumentnumber = selectedInstrumentnumber;
 		__velocity = velocity;
 		__oldVelocity = oldVelocity;
-		__pan_L = pan_L;
-		__oldPan_L = oldPan_L;
-		__pan_R = pan_R;
-		__oldPan_R = oldPan_R;
+		m_fPan = fPan;
+		m_fOldPan = fOldPan;
 		__leadLag = leadLag;
 		__oldLeadLag = oldLeadLag;
 		__pressedLine = pressedLine;
@@ -1115,8 +1262,7 @@ public:
 												__selectedPatternNumber,
 												__nSelectedInstrumentnumber,
 												__oldVelocity,
-												__oldPan_L,
-												__oldPan_R,
+												m_fOldPan,
 												__oldLeadLag,
 												__pressedLine );
 	}
@@ -1129,8 +1275,7 @@ public:
 												__selectedPatternNumber,
 												__nSelectedInstrumentnumber,
 												__velocity,
-												__pan_L,
-												__pan_R,
+												m_fPan,
 												__leadLag,
 												__pressedLine );
 	}
@@ -1142,19 +1287,67 @@ private:
 	int __nSelectedInstrumentnumber;
 	float __velocity;
 	float __oldVelocity;
-	float __pan_L;
-	float __oldPan_L;
-	float __pan_R;
-	float __oldPan_R;
+	float m_fPan;
+	float m_fOldPan;
 	float __leadLag;
 	float __oldLeadLag;
 	int __pressedLine;
+};
+
+/** \ingroup docGUI*/
+class SE_moveNotePianoRollAction : public QUndoCommand
+{
+	public:
+	SE_moveNotePianoRollAction( int nOldPosition, H2Core::Note::Octave oldOctave, H2Core::Note::Key oldKey, int nPattern,
+								int nNewPosition, H2Core::Note::Octave newOctave, H2Core::Note::Key newKey,
+								H2Core::Note *pNote )
+	{
+		m_nOldPosition = nOldPosition;
+		m_oldOctave = oldOctave;
+		m_oldKey = oldKey;
+		m_nPattern = nPattern;
+		m_nNewPosition = nNewPosition;
+		m_newOctave = newOctave;
+		m_newKey = newKey;
+		m_pNote = new H2Core::Note( pNote );
+	}
+
+	private:
+	int m_nOldPosition;
+	H2Core::Note::Octave m_oldOctave;
+	H2Core::Note::Key m_oldKey;
+	int m_nPattern;
+	int m_nNewPosition;
+	H2Core::Note::Octave m_newOctave;
+	H2Core::Note::Key m_newKey;
+	H2Core::Note *m_pNote;
+
+	~SE_moveNotePianoRollAction()
+	{
+		delete m_pNote;
+	}
+
+	virtual void undo()
+	{
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditor()
+		->moveNoteAction( m_nNewPosition, m_newOctave, m_newKey, m_nPattern,
+						  m_nOldPosition, m_oldOctave, m_oldKey, m_pNote );
+	}
+
+	virtual void redo()
+	{
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditor()
+		->moveNoteAction( m_nOldPosition, m_oldOctave, m_oldKey, m_nPattern,
+						  m_nNewPosition, m_newOctave, m_newKey, m_pNote );
+	}
+
 };
 
 //~piano roll editor commands
 //=====================================================================================================================================
 //Note Properties Ruler commands
 
+/** \ingroup docGUI*/
 class SE_editNotePropertiesVolumeAction : public QUndoCommand
 {
 public:
@@ -1165,10 +1358,8 @@ public:
 					   int nSelectedInstrument,
 					   float velocity,
 					   float oldVelocity,
-					   float pan_L,
-					   float oldPan_L,
-					   float pan_R,
-					   float oldPan_R,
+					   float pan,
+					   float oldPan,
 					   float leadLag,
 					   float oldLeadLag,
 					   float probability,
@@ -1180,17 +1371,15 @@ public:
 	{
 
 
-		setText( QString( "Edit note property " + mode.toLower() ) );
+		setText( QObject::tr( "Edit note property %1" ).arg( mode.toLower() ) );
 		__undoColumn = undoColumn;
 		__mode = mode;
 		__nSelectedPatternNumber = nSelectedPatternNumber;
 		__nSelectedInstrument = nSelectedInstrument;
 		__velocity = velocity;
 		__oldVelocity = oldVelocity;
-		__pan_L = pan_L;
-		__oldPan_L = oldPan_L;
-		__pan_R = pan_R;
-		__oldPan_R = oldPan_R;
+		m_fPan = pan;
+		m_fOldPan = oldPan;
 		__leadLag = leadLag;
 		__oldLeadLag = oldLeadLag;
 		__probability = probability;
@@ -1211,8 +1400,7 @@ public:
 											__nSelectedPatternNumber,
 											__nSelectedInstrument,
 											__oldVelocity,
-											__oldPan_L,
-											__oldPan_R,
+											m_fOldPan,
 											__oldLeadLag,
 											__oldProbability,
 											__oldNoteKeyVal,
@@ -1227,8 +1415,7 @@ public:
 											__nSelectedPatternNumber,
 											__nSelectedInstrument,
 											__velocity,
-											__pan_L,
-											__pan_R,
+											m_fPan,
 											__leadLag,
 											__probability,
 											__noteKeyVal,
@@ -1243,10 +1430,8 @@ private:
 	int __nSelectedInstrument;
 	float __velocity;
 	float __oldVelocity;
-	float __pan_L;
-	float __oldPan_L;
-	float __pan_R;
-	float __oldPan_R;
+	float m_fPan;
+	float m_fOldPan;
 	float __leadLag;
 	float __oldLeadLag;
 	float __probability;
@@ -1264,12 +1449,13 @@ private:
 
 
 
+/** \ingroup docGUI*/
 class SE_automationPathAddPointAction : public QUndoCommand
 {
 public:
 	SE_automationPathAddPointAction( H2Core::AutomationPath *path, float x, float y)
 	{
-		setText( QString( "Add point" ) );
+		setText( QObject::tr( "Add point" ) );
 		__path = path;
 		__x = x;
 		__y = y;
@@ -1297,12 +1483,13 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_automationPathRemovePointAction : public QUndoCommand
 {
 public:
 	SE_automationPathRemovePointAction( H2Core::AutomationPath *path, float x, float y)
 	{
-		setText( QString( "Remove point" ) );
+		setText( QObject::tr( "Remove point" ) );
 		__path = path;
 		__x = x;
 		__y = y;
@@ -1330,12 +1517,13 @@ private:
 };
 
 
+/** \ingroup docGUI*/
 class SE_automationPathMovePointAction : public QUndoCommand
 {
 public:
 	SE_automationPathMovePointAction( H2Core::AutomationPath *path, float ox, float oy, float tx, float ty)
 	{
-		setText( QString( "Move point" ) );
+		setText( QObject::tr( "Move point" ) );
 		__path = path;
 		__ox = ox;
 		__oy = oy;

@@ -1,0 +1,59 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+#ifndef H2_AUDIO_OUTPUT_H
+#define H2_AUDIO_OUTPUT_H
+
+
+#include <core/config.h>
+#include <core/Object.h>
+
+namespace H2Core
+{
+
+typedef int  ( *audioProcessCallback )( uint32_t, void * );
+
+///
+/// Base abstract class for audio output classes.
+///
+/** \ingroup docCore docAudioDriver */
+class AudioOutput : public H2Core::Object<AudioOutput>
+{
+	H2_OBJECT(AudioOutput)
+public:
+	AudioOutput() = default;
+	virtual ~AudioOutput() { }
+
+	virtual int init( unsigned nBufferSize ) = 0;
+	virtual int connect() = 0;
+	virtual void disconnect() = 0;
+	virtual unsigned getBufferSize() = 0;
+	virtual unsigned getSampleRate() = 0;
+	virtual float* getOut_L() = 0;
+	virtual float* getOut_R() = 0;
+
+	static QStringList getDevices() { return QStringList(); }
+};
+
+};
+
+#endif
+

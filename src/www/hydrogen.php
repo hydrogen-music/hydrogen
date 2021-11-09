@@ -1,25 +1,25 @@
 <?php
-	/*
-	* Hydrogen Web Toolkit
-	* Copyright(c) 2008 by Sebastian Moors [mauser@smoors.de]
-	*
-	* http://www.hydrogen-music.org
-	*
-	* This program is free software; you can redistribute it and/or modify
-	* it under the terms of the GNU General Public License as published by
-	* the Free Software Foundation; either version 2 of the License, or
-	* (at your option) any later version.
-	*
-	* This program is distributed in the hope that it will be useful,
-	* but WITHOUT ANY WARRANTY, without even the implied warranty of
-	* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-	* GNU General Public License for more details.
-	*
-	* You should have received a copy of the GNU General Public License
-	* along with this program; if not, write to the Free Software
-	* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-	*
-	*/
+/*
+ * Hydrogen
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
 
 
 	/*
@@ -27,22 +27,22 @@
 		drumkits with other people. It generates a xml-file which can be used
 		with the hydrogen soundlibrary.
 
-		Just place this script in one directory with all your drumkits, songs 
+		Just place this script in one directory with all your drumkits, songs
 		and patterns and make it available via a webserver.
 
 		Songs and patterns could be parsed in place. Since drumkits are archives,
-		we cannot parse the files at runtime. Therefore, just the name and the url of the drumkit will be used. 
-		If you want additional informations ( such as author / info ) take a look
+		we cannot parse the files at runtime. Therefore, just the name and the url of the drumkit will be used.
+		If you want additional information ( such as author / info ) take a look
 		at the metaInfo.inc file (the file has to be in the same directory as this script).
 		
 	*/
 
 
 	/*
-		metaInfo.inc holds meta informations about the drumkits, namely:
+		metaInfo.inc holds meta information about the drumkits, namely:
 		
 		- url
-		- author 
+		- author
 		- info
 		- name
 
@@ -58,7 +58,7 @@
 		preg_match( "/". $tag . "(.*)</" , $xml , $found );
 		if( ISSET( $found[1] ) ) {
 			return $found[1];
-		} 
+		}
 	}
 
 
@@ -158,11 +158,11 @@
 				// Possible method: Have image filename same as basename of drumkit file.
 				// ie: for DeathMetal.h2drumkit, image file would be DeathMetal.jpeg
 				//     and allow for .png as well (non-case sensitive extension)
-				//	The drumkit filenames need to be unique, and this would force the 
-				//     images to be unique names but be consistant.
+				//	The drumkit filenames need to be unique, and this would force the
+				//     images to be unique names but be consistent.
 				//     use regex like: /.*\.(?:jpeg|jpg|png)/i
 				//
-				//	Go through all files in image directory named $basename.* and 
+				//	Go through all files in image directory named $basename.* and
 				//	see if there's a regex match, if so use that image file
 				if ( $hasImages )
 				{

@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,14 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/basics/instrument.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Instrument.h>
 #include "HydrogenApp.h"
 #include "SampleEditor.h"
 using namespace H2Core;
@@ -30,13 +30,10 @@ using namespace H2Core;
 #include "MainSampleWaveDisplay.h"
 #include "../Skin.h"
 
-const char* MainSampleWaveDisplay::__class_name = "MainSampleWaveDisplay";
-
 MainSampleWaveDisplay::MainSampleWaveDisplay(QWidget* pParent)
  : QWidget( pParent )
- , Object( __class_name )
-{
-//	setAttribute(Qt::WA_NoBackground);
+ {
+//	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//INFOLOG( "INIT" );
 	int w = 624;
@@ -51,16 +48,19 @@ MainSampleWaveDisplay::MainSampleWaveDisplay(QWidget* pParent)
 	m_pPeakDatal = new int[ w ];
 	m_pPeakDatar = new int[ w ];
 
-	m_pStartFramePosition = 25;
-	m_pLoopFramePosition = 25;
-	m_pEndFramePosition = width() -25;
-	m_pmove = false;
-	m_plocator = -1;
-	m_pupdateposi = false;
+	m_nStartFramePosition = 25;
+	m_nLoopFramePosition = 25;
+	m_nEndFramePosition = width() -25;
+	m_nLocator = -1;
+	m_bUpdatePosition = false;
+	m_nSampleLength = 0;
 
-	__startsliderismoved = false;
-	__loopsliderismoved = false;
-	__endsliderismoved = false;
+	m_bStartSliderIsMoved = false;
+	m_bLoopSliderIsMoved = false;
+	m_bEndSliderIsmoved = false;
+
+	m_SelectedSlider = NONE;
+	setMouseTracking(true);
 }
 
 
@@ -76,20 +76,33 @@ MainSampleWaveDisplay::~MainSampleWaveDisplay()
 
 void MainSampleWaveDisplay::paintLocatorEvent( int pos, bool updateposi)
 {
-	m_pupdateposi = updateposi;
+	m_bUpdatePosition = updateposi;
 	if ( !updateposi ){
-		m_plocator = -1;
+		m_nLocator = -1;
 	}else
 	{
-		m_plocator = pos;
+		m_nLocator = pos;
 	}
 	update();
+}
+
+static void set_paint_color(QPainter & painter, const QColor & color, bool selected, MainSampleWaveDisplay::Slider which)
+{
+	if (!selected) {
+		painter.setPen( color );
+	} else {
+		QColor highlight = QColor(std::min(255, color.red() + 20 + 20 * (which == MainSampleWaveDisplay::END)),
+				std::min(255, color.green() + 20 + 20 * (which == MainSampleWaveDisplay::START)),
+				std::min(255, color.blue() + 20 + 20 * (which == MainSampleWaveDisplay::LOOP)));
+
+		painter.setPen ( highlight );
+	}
 }
 
 void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
-	painter.setRenderHint( QPainter::HighQualityAntialiasing );
+	painter.setRenderHint( QPainter::Antialiasing );
 
 	bool issmaller = false;
 
@@ -98,10 +111,10 @@ void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 	int VCenterl = height() / 4;
 	int VCenterr = height() / 4 + height() / 2;
 
-	if ( width() >= m_pSampleLength  ) issmaller = true;
+	if ( width() >= m_nSampleLength  ) issmaller = true;
 
 	for ( int x = 25; x < width() -25; x++ ) {
-		if ( !issmaller || x <= m_pSampleLength){ 
+		if ( !issmaller || x <= m_nSampleLength){
 			painter.drawLine( x, -m_pPeakDatal[x -25] +VCenterl, x, -m_pPeakDatal[x -24] +VCenterl  );
 			painter.drawLine( x, -m_pPeakDatar[x -25] +VCenterr, x, -m_pPeakDatar[x -24] +VCenterr  );	
 		}else
@@ -119,25 +132,29 @@ void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 	painter.drawLine( 23, 4, 23, height() -4 );
 	painter.drawLine( width() -23, 4,width() -23, height() -4 );
 	painter.setPen( QPen( QColor( 255, 255, 255 ), 1, Qt::SolidLine ) );
-	painter.drawLine( m_plocator, 4, m_plocator, height() -4);
+	painter.drawLine( m_nLocator, 4, m_nLocator, height() -4);
 	painter.drawLine( 0, VCenterl, width(),VCenterl );
 	painter.drawLine( 0, VCenterr, width(),VCenterr );
 
 	QFont font;
+
+	QColor startColor = QColor( 32, 173, 0, 200 );
+	QColor endColor = QColor( 217, 68, 0, 200 );
+	QColor loopColor =  QColor( 93, 170, 254, 200 );
 	font.setWeight( 63 );
 	painter.setFont( font );
 //start frame pointer
-	painter.setPen( QColor( 32, 173, 0, 200 ) );
-	painter.drawLine( m_pStartFramePosition, 4, m_pStartFramePosition, height() -4 );	
-	painter.drawText( m_pStartFramePosition -10, 250, 10,20, Qt::AlignRight, "S" );
+	set_paint_color(painter, startColor, m_SelectedSlider == START, m_SelectedSlider);
+	painter.drawLine( m_nStartFramePosition, 4, m_nStartFramePosition, height() -4 );	
+	painter.drawText( m_nStartFramePosition -10, 250, 10,20, Qt::AlignRight, "S" );
 //endframe pointer
-	painter.setPen( QColor( 217, 68, 0, 200 ) );
-	painter.drawLine( m_pEndFramePosition, 4, m_pEndFramePosition, height() -4 );
-	painter.drawText( m_pEndFramePosition -10, 123, 10, 20, Qt::AlignRight, "E" );
+	set_paint_color(painter, endColor, m_SelectedSlider == END, m_SelectedSlider);
+	painter.drawLine( m_nEndFramePosition, 4, m_nEndFramePosition, height() -4 );
+	painter.drawText( m_nEndFramePosition -10, 123, 10, 20, Qt::AlignRight, "E" );
 //loopframe pointer
-	painter.setPen( QColor( 93, 170, 254, 200 ) );
-	painter.drawLine( m_pLoopFramePosition, 4, m_pLoopFramePosition, height() -4 );
-	painter.drawText( m_pLoopFramePosition , 0, 10, 20, Qt::AlignLeft, "L" );
+	set_paint_color(painter, loopColor, m_SelectedSlider == LOOP, m_SelectedSlider);
+	painter.drawLine( m_nLoopFramePosition, 4, m_nLoopFramePosition, height() -4 );
+	painter.drawText( m_nLoopFramePosition , 0, 10, 20, Qt::AlignLeft, "L" );
 
 
 }
@@ -154,21 +171,21 @@ void MainSampleWaveDisplay::updateDisplayPointer()
 void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 {
 
-	Sample *pNewSample = Sample::load( filename );
+	auto pNewSample = Sample::load( filename );
 	
 	if ( pNewSample ) {
 
 		int nSampleLength = pNewSample->get_frames();
-		m_pSampleLength = nSampleLength;
+		m_nSampleLength = nSampleLength;
 		float nScaleFactor = nSampleLength / (width() -50);
-		if ( nScaleFactor < 1 ){ 
+		if ( nScaleFactor < 1 ){
 			nScaleFactor = 1;
 		}
 
 		float fGain = height() / 4.0 * 1.0;
 
-		float *pSampleDatal = pNewSample->get_data_l();
-		float *pSampleDatar = pNewSample->get_data_r();
+		auto pSampleDatal = pNewSample->get_data_l();
+		auto pSampleDatar = pNewSample->get_data_r();
 
 		unsigned nSamplePos = 0;
 		int nVall = 0;
@@ -195,103 +212,105 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 			m_pPeakDatar[ i ] = nValr;
 		}
 	}
-	delete pNewSample;
-	pNewSample = NULL;
 	update();
 
 }
-
-
-
-void MainSampleWaveDisplay::testPositionFromSampleeditor()
-{
-	testPosition( NULL );
-	update();
+void MainSampleWaveDisplay::mouseUpdateDone() {
+	HydrogenApp::get_instance()->getSampleEditor()->returnAllMainWaveDisplayValues();
+	m_bStartSliderIsMoved = false;
+	m_bLoopSliderIsMoved = false;
+	m_bEndSliderIsmoved = false;
 }
-
 
 
 void MainSampleWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
-	testPosition( ev );
+	if (ev->buttons() && Qt::LeftButton) {
+		testPosition( ev );
+	} else {
+		chooseSlider( ev );
+	}
 	update();
+	mouseUpdateDone();
 }
-
-
 
 void MainSampleWaveDisplay::mousePressEvent(QMouseEvent *ev)
 {
+	chooseSlider( ev );
 	testPosition( ev );
 	update();
+	mouseUpdateDone();
 }
-
 
 void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 {
+	assert(ev);
 //startframepointer
-	if  (ev->y()>=200 ) {
-		m_pStartFramePosition = ev->x() ;
-		__startsliderismoved = true;
-		if ( m_pStartFramePosition > m_pLoopFramePosition ){ 
-			m_pLoopFramePosition = m_pStartFramePosition;
-			__loopsliderismoved = true;
+	int x = std::min(width() - 25, std::max(25, ev->x()));
+
+	if  ( m_SelectedSlider == START ) {
+		m_nStartFramePosition = x;
+		m_bStartSliderIsMoved = true;
+		if ( m_nStartFramePosition > m_nLoopFramePosition ){
+			m_nLoopFramePosition = m_nStartFramePosition;
+			m_bLoopSliderIsMoved = true;
 		}
-		if ( m_pStartFramePosition > m_pEndFramePosition ){
-			m_pEndFramePosition = m_pStartFramePosition;
-			__endsliderismoved = true;
+		if ( m_nStartFramePosition > m_nEndFramePosition ){
+			m_nEndFramePosition = m_nStartFramePosition;
+			m_bEndSliderIsmoved = true;
 		}
-//		update();
 	}
 
 //loopframeposition
-	else if  (ev->y()<=65 ) {
-		m_pLoopFramePosition = ev->x() ;
-		__loopsliderismoved = true;		
-		if ( m_pLoopFramePosition < m_pStartFramePosition ){
-			m_pStartFramePosition = m_pLoopFramePosition;
-			__startsliderismoved = true;
+	else if  ( m_SelectedSlider == LOOP ) {
+		if (x >= m_nStartFramePosition && x <= m_nEndFramePosition ) {
+			m_nLoopFramePosition = x ;
+			m_bLoopSliderIsMoved = true;
 		}
-		if ( m_pLoopFramePosition > m_pEndFramePosition ){
-			m_pEndFramePosition = m_pLoopFramePosition;
-			__endsliderismoved = true;
-		}
-//		update();
 	}
 //endframeposition
-	else if  ( ev->y() >= 86 && ev->y() <= 179  ) {
-		m_pEndFramePosition = ev->x() ;
-		__endsliderismoved = true;
-		if ( m_pEndFramePosition <  m_pLoopFramePosition ){
-			m_pLoopFramePosition = m_pEndFramePosition;
-			__loopsliderismoved = true;
+	else if  ( m_SelectedSlider == END) {
+		if (x >= m_nStartFramePosition) {
+			m_nEndFramePosition = x ;
+			m_bEndSliderIsmoved = true;
 		}
-		if ( m_pEndFramePosition <  m_pStartFramePosition ){
-			m_pStartFramePosition = m_pEndFramePosition;
-			__startsliderismoved = true;
+		if ( m_nEndFramePosition <  m_nLoopFramePosition ){
+			m_nLoopFramePosition = m_nEndFramePosition;
+			m_bLoopSliderIsMoved = true;
 		}
-//		update();
 	}
-
-	if ( ( m_pStartFramePosition ) >= width() -25 ) m_pStartFramePosition =width() -25;
-	if ( ( m_pLoopFramePosition ) >= width() -25 ) m_pLoopFramePosition =width() -25;
-	if ( ( m_pEndFramePosition ) >= width() -25 ) m_pEndFramePosition =width() -25;
-	if ( ( m_pStartFramePosition ) <= 25 ) m_pStartFramePosition = 25;
-	if ( ( m_pLoopFramePosition ) <= 25 ) m_pLoopFramePosition = 25;
-	if ( ( m_pEndFramePosition ) <= 25 ) m_pEndFramePosition = 25;
 }
 
 
 void MainSampleWaveDisplay::mouseReleaseEvent(QMouseEvent *ev)
 {
+	m_SelectedSlider = NONE;
 	update();
-	bool test = HydrogenApp::get_instance()->getSampleEditor()->returnAllMainWaveDisplayValues();
-
-	if (test){
-		__startsliderismoved = false;
-		__loopsliderismoved = false;
-		__endsliderismoved = false;
-	}
+	mouseUpdateDone();
 }
 
 
+
+
+void MainSampleWaveDisplay::chooseSlider(QMouseEvent * ev)
+{
+	assert(ev);
+
+	QPoint start = QPoint(m_nStartFramePosition, height());
+	QPoint end = QPoint(m_nEndFramePosition, height() / 2);
+	QPoint loop = QPoint(m_nLoopFramePosition, 0);
+
+	int ds = (ev->pos() - start).manhattanLength();
+	int de = (ev->pos() - end).manhattanLength();
+	int dl = (ev->pos() - loop).manhattanLength();
+	m_SelectedSlider = NONE;
+
+	if (ds <= de && ds <= dl) {
+		m_SelectedSlider = START;
+	} else if (de < ds && de <= dl) {
+		m_SelectedSlider = END;
+	} else if (dl < ds && dl < de) {
+		m_SelectedSlider = LOOP;
+	}
+}
 

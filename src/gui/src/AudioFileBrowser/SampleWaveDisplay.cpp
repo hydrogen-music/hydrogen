@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,27 +16,23 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/basics/instrument.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Instrument.h>
 using namespace H2Core;
 
 #include "SampleWaveDisplay.h"
 #include "../Skin.h"
 
-const char* SampleWaveDisplay::__class_name = "SampleWaveDisplay";
-
 SampleWaveDisplay::SampleWaveDisplay(QWidget* pParent)
  : QWidget( pParent )
- , Object( __class_name )
  , m_sSampleName( "" )
 {
-//	setAttribute(Qt::WA_NoBackground);
+//	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//INFOLOG( "INIT" );
 	int w = 445;
@@ -88,9 +85,9 @@ void SampleWaveDisplay::paintEvent(QPaintEvent *ev)
 void SampleWaveDisplay::updateDisplay( QString filename )
 {
 
-	Sample *pNewSample = Sample::load( filename );
+	auto pNewSample = Sample::load( filename );
 
-	if ( pNewSample ) {
+	if ( pNewSample != nullptr ) {
 		// Extract the filename from the complete path
 		QString sName = filename;
 		int nPos = sName.lastIndexOf( "/" );
@@ -109,7 +106,7 @@ void SampleWaveDisplay::updateDisplay( QString filename )
 
 		float fGain = height() / 2.0 * 1.0;
 
-		float *pSampleData = pNewSample->get_data_l();
+		auto pSampleData = pNewSample->get_data_l();
 
 		int nSamplePos =0;
 		int nVal;
@@ -128,7 +125,6 @@ void SampleWaveDisplay::updateDisplay( QString filename )
 		}
 	}
 
-	delete pNewSample;
 	update();
 
 }

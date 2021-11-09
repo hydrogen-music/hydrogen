@@ -1,6 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -15,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
 
@@ -24,15 +24,14 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include <hydrogen/object.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/LocalFileMng.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/fx/Effects.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/midi_map.h>
+#include <core/Object.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/FX/Effects.h>
+#include <core/EventQueue.h>
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/MidiMap.h>
 
 using std::cout;
 using std::endl;
@@ -51,7 +50,7 @@ int main(int argc, char** argv){
 	H2Core::Logger::create_instance();
 	H2Core::Logger::set_bit_mask( logLevelOpt );
 	H2Core::Logger* logger = H2Core::Logger::get_instance();
-	H2Core::Object::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
+	H2Core::Base::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
 
 	QCoreApplication a(argc, argv);
 
@@ -69,8 +68,8 @@ int main(int argc, char** argv){
 	H2Core::Hydrogen::create_instance();
 	H2Core::Preferences *preferences = H2Core::Preferences::get_instance();
 
-	H2Core::Song *pSong = H2Core::Song::load( filename );
-	if (pSong == NULL) {
+	std::shared_ptr<H2Core::Song>pSong = H2Core::Song::load( filename );
+	if (pSong == nullptr) {
 		cout << "Error loading song!" << endl;
 		exit(2);
 	}
@@ -94,15 +93,14 @@ int main(int argc, char** argv){
 				cout << endl << "HydrogenPlayer shutdown..." << endl;
 				hydrogen->sequencer_stop();
 
+				pSong = nullptr;
 				delete hydrogen;
-				delete pSong;
 				delete H2Core::EventQueue::get_instance();
-				delete H2Core::AudioEngine::get_instance();
 				delete preferences;
 				delete H2Core::Logger::get_instance();
 
-				std::cout << std::endl << std::endl << H2Core::Object::objects_count() << " alive objects" << std::endl << std::endl;
-				H2Core::Object::write_objects_map_to_cerr();
+				std::cout << std::endl << std::endl << H2Core::Base::objects_count() << " alive objects" << std::endl << std::endl;
+				H2Core::Base::write_objects_map_to_cerr();
 
 				exit(0);
 				break;
@@ -116,17 +114,17 @@ int main(int argc, char** argv){
 				break;
 
 			case 'b':
-				hydrogen->setPatternPos( 0 );
+				hydrogen->getCoreActionController()->locateToColumn( 0 );
 				break;
 
 			case 'f':
-				cout << "Frames = " << hydrogen->getTotalFrames() << endl;
+				cout << "Frames = " << hydrogen->getAudioEngine()->getFrames() << endl;
 				break;
 
 			case 'd':
 				cout << "DEBUG" << endl;
-				H2Core::Object::write_objects_map_to_cerr();
-				int nObj = H2Core::Object::objects_count();
+				H2Core::Base::write_objects_map_to_cerr();
+				int nObj = H2Core::Base::objects_count();
 				std::cout << std::endl << std::endl << nObj << " alive objects" << std::endl << std::endl;
 				break;
 		}
