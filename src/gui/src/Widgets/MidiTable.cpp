@@ -186,9 +186,8 @@ void MidiTable::setupMidiTable()
 	MidiMap *pMidiMap = MidiMap::get_instance();
 
 	QStringList items;
-	QString sParam = tr( "Param.");
-	items << "" << tr("Incoming Event")  << tr("MIDI note")
-		  << tr("Action") <<  sParam << sParam << sParam;
+	items << "" << tr("Incoming Event")  << tr("E. Param.")
+		  << tr("Action") <<  tr("A. Param.") << tr("Layer") << tr("Comp.");
 
 	setRowCount( 0 );
 	setColumnCount( 7 );
@@ -203,8 +202,8 @@ void MidiTable::setupMidiTable()
 	setColumnWidth( 2, 73 );
 	setColumnWidth( 3, 175 );
 	setColumnWidth( 4 , 73 );
-	setColumnWidth( 5 , 73 );
-	setColumnWidth( 6 , 73 );
+	setColumnWidth( 5 , 53 );
+	setColumnWidth( 6 , 53 );
 
 	for( const auto& it : pMidiMap->getMMCMap() ) {
 		insertNewRow( it.second, it.first, 0 );
