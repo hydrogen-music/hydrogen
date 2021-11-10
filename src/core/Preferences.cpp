@@ -738,9 +738,13 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString event = pMidiEventNode.firstChildElement("mmcEvent").text();
 						QString sAction = pMidiEventNode.firstChildElement("action").text();
 						QString sParam = pMidiEventNode.firstChildElement("parameter").text();
+						QString sParam2 = pMidiEventNode.firstChildElement("parameter2").text();
+						QString sParam3 = pMidiEventNode.firstChildElement("parameter3").text();
 
 						std::shared_ptr<Action> pAction = std::make_shared<Action>( sAction );
 						pAction->setParameter1( sParam );
+						pAction->setParameter2( sParam2 );
+						pAction->setParameter3( sParam3 );
 						mM->registerMMCEvent(event, pAction);
 					}
 
@@ -748,9 +752,13 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString event = pMidiEventNode.firstChildElement("noteEvent").text();
 						QString sAction = pMidiEventNode.firstChildElement("action").text();
 						QString sParam = pMidiEventNode.firstChildElement("parameter").text();
+						QString sParam2 = pMidiEventNode.firstChildElement("parameter2").text();
+						QString sParam3 = pMidiEventNode.firstChildElement("parameter3").text();
 						QString s_eventParameter = pMidiEventNode.firstChildElement("eventParameter").text();
 						std::shared_ptr<Action> pAction = std::make_shared<Action>( sAction );
 						pAction->setParameter1( sParam );
+						pAction->setParameter2( sParam2 );
+						pAction->setParameter3( sParam3 );
 						mM->registerNoteEvent(s_eventParameter.toInt(), pAction);
 					}
 
@@ -758,9 +766,13 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString event = pMidiEventNode.firstChildElement("ccEvent").text();
 						QString sAction = pMidiEventNode.firstChildElement("action").text();
 						QString sParam = pMidiEventNode.firstChildElement("parameter").text();
+						QString sParam2 = pMidiEventNode.firstChildElement("parameter2").text();
+						QString sParam3 = pMidiEventNode.firstChildElement("parameter3").text();
 						QString s_eventParameter = pMidiEventNode.firstChildElement("eventParameter").text();
 						std::shared_ptr<Action> pAction = std::make_shared<Action>( sAction );
 						pAction->setParameter1( sParam );
+						pAction->setParameter2( sParam2 );
+						pAction->setParameter3( sParam3 );
 						mM->registerCCEvent( s_eventParameter.toInt(), pAction );
 					}
 
@@ -768,8 +780,12 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString event = pMidiEventNode.firstChildElement("pcEvent").text();
 						QString sAction = pMidiEventNode.firstChildElement("action").text();
 						QString sParam = pMidiEventNode.firstChildElement("parameter").text();
+						QString sParam2 = pMidiEventNode.firstChildElement("parameter2").text();
+						QString sParam3 = pMidiEventNode.firstChildElement("parameter3").text();
 						std::shared_ptr<Action> pAction = std::make_shared<Action>( sAction );
 						pAction->setParameter1( sParam );
+						pAction->setParameter2( sParam2 );
+						pAction->setParameter3( sParam3 );
 						mM->registerPCEvent( pAction );
 					}
 
@@ -1201,6 +1217,8 @@ void Preferences::savePreferences()
 			LocalFileMng::writeXmlString( midiEventNode, "mmcEvent" , event );
 			LocalFileMng::writeXmlString( midiEventNode, "action" , pAction->getType());
 			LocalFileMng::writeXmlString( midiEventNode, "parameter" , pAction->getParameter1() );
+			LocalFileMng::writeXmlString( midiEventNode, "parameter2" , pAction->getParameter2() );
+			LocalFileMng::writeXmlString( midiEventNode, "parameter3" , pAction->getParameter3() );
 
 			midiEventMapNode.appendChild( midiEventNode );
 		}
@@ -1215,6 +1233,8 @@ void Preferences::savePreferences()
 			LocalFileMng::writeXmlString( midiEventNode, "eventParameter" , QString::number( note ) );
 			LocalFileMng::writeXmlString( midiEventNode, "action" , pAction->getType() );
 			LocalFileMng::writeXmlString( midiEventNode, "parameter" , pAction->getParameter1() );
+			LocalFileMng::writeXmlString( midiEventNode, "parameter2" , pAction->getParameter2() );
+			LocalFileMng::writeXmlString( midiEventNode, "parameter3" , pAction->getParameter3() );
 			midiEventMapNode.appendChild( midiEventNode );
 		}
 	}
@@ -1228,6 +1248,8 @@ void Preferences::savePreferences()
 			LocalFileMng::writeXmlString( midiEventNode, "eventParameter" , QString::number( parameter ) );
 			LocalFileMng::writeXmlString( midiEventNode, "action" , pAction->getType() );
 			LocalFileMng::writeXmlString( midiEventNode, "parameter" , pAction->getParameter1() );
+			LocalFileMng::writeXmlString( midiEventNode, "parameter2" , pAction->getParameter2() );
+			LocalFileMng::writeXmlString( midiEventNode, "parameter3" , pAction->getParameter3() );
 			midiEventMapNode.appendChild( midiEventNode );
 		}
 	}
@@ -1240,6 +1262,8 @@ void Preferences::savePreferences()
 			LocalFileMng::writeXmlString( midiEventNode, "pcEvent" , QString("PROGRAM_CHANGE") );
 			LocalFileMng::writeXmlString( midiEventNode, "action" , pAction->getType() );
 			LocalFileMng::writeXmlString( midiEventNode, "parameter" , pAction->getParameter1() );
+			LocalFileMng::writeXmlString( midiEventNode, "parameter2" , pAction->getParameter2() );
+			LocalFileMng::writeXmlString( midiEventNode, "parameter3" , pAction->getParameter3() );
 			midiEventMapNode.appendChild( midiEventNode );
 		}
 	}
