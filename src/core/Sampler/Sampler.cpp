@@ -1223,7 +1223,6 @@ bool Sampler::renderNoteResample(
 	float fNotePitch = pNote->get_total_pitch() + fLayerPitch;
 
 	float fStep = Note::pitchToFrequency( fNotePitch );
-//	_ERRORLOG( QString("pitch: %1, step: %2" ).arg(fNotePitch).arg( fStep) );
 	fStep *= ( float )pSample->get_sample_rate() / pAudioOutput->getSampleRate(); // Adjust for audio driver sample rate
 
 	// verifico il numero di frame disponibili ancora da eseguire
@@ -1284,45 +1283,45 @@ bool Sampler::renderNoteResample(
 		if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
 			//we reach the last audioframe.
 			//set this last frame to zero do nothing wrong.
-						fVal_L = 0.0;
-						fVal_R = 0.0;
+			fVal_L = 0.0;
+			fVal_R = 0.0;
 		} else {
 			// some interpolation methods need 4 frames data.
-				float last_l;
-				float last_r;
-				if ( ( nSamplePos + 2 ) >= nSampleFrames ) {
-					last_l = 0.0;
-					last_r = 0.0;
-				} else {
-					last_l =  pSample_data_L[nSamplePos + 2];
-					last_r =  pSample_data_R[nSamplePos + 2];
-				}
+			float last_l;
+			float last_r;
+			if ( ( nSamplePos + 2 ) >= nSampleFrames ) {
+				last_l = 0.0;
+				last_r = 0.0;
+			} else {
+				last_l =  pSample_data_L[nSamplePos + 2];
+				last_r =  pSample_data_R[nSamplePos + 2];
+			}
 
-				switch( m_interpolateMode ){
+			switch( m_interpolateMode ){
 
-						case Interpolation::InterpolateMode::Linear:
-								fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
-								fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
-								//fVal_L = linear_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
-								//fVal_R = linear_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
-								break;
-						case Interpolation::InterpolateMode::Cosine:
-								fVal_L = Interpolation::cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
-								fVal_R = Interpolation::cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
-								break;
-						case Interpolation::InterpolateMode::Third:
-								fVal_L = Interpolation::third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-								fVal_R = Interpolation::third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-								break;
-						case Interpolation::InterpolateMode::Cubic:
-								fVal_L = Interpolation::cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-								fVal_R = Interpolation::cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-								break;
-						case Interpolation::InterpolateMode::Hermite:
-								fVal_L = Interpolation::hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-								fVal_R = Interpolation::hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-								break;
-				}
+			case Interpolation::InterpolateMode::Linear:
+				fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
+				fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
+				//fVal_L = linear_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
+				//fVal_R = linear_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
+				break;
+			case Interpolation::InterpolateMode::Cosine:
+				fVal_L = Interpolation::cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
+				fVal_R = Interpolation::cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
+				break;
+			case Interpolation::InterpolateMode::Third:
+				fVal_L = Interpolation::third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+				fVal_R = Interpolation::third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+				break;
+			case Interpolation::InterpolateMode::Cubic:
+				fVal_L = Interpolation::cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+				fVal_R = Interpolation::cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+				break;
+			case Interpolation::InterpolateMode::Hermite:
+				fVal_L = Interpolation::hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+				fVal_R = Interpolation::hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+				break;
+			}
 		}
 
 		// ADSR envelope
@@ -1373,6 +1372,7 @@ bool Sampler::renderNoteResample(
 		m_pMainOut_R[nBufferPos] += fVal_R;
 
 	}
+
 	pSelectedLayerInfo->SamplePosition += nAvail_bytes * fStep;
 	pNote->get_instrument()->set_peak_l( fInstrPeak_L );
 	pNote->get_instrument()->set_peak_r( fInstrPeak_R );
