@@ -24,6 +24,7 @@
 #define MIDI_TABLE_H
 
 #include <core/Object.h>
+#include <core/MidiAction.h>
 
 #include <QtGui>
 #include <QtWidgets>
@@ -39,16 +40,18 @@ class MidiTable :  public QTableWidget,  public H2Core::Object<MidiTable>
 
 		void setupMidiTable();
 		void saveMidiTable();
-		void insertNewRow(QString, QString, int, int, int, int);
 
 	private slots:
 		void updateTable();
 		void midiSensePressed( int );
 	
-	private:
-		int __row_count;
-		int currentMidiAutosenseRow;
-		QSignalMapper *signalMapper;
+private:
+	void insertNewRow( Action* pAction, QString eventString, int eventParameter );
+	void updateRow( int nRow );
+	virtual void paintEvent( QPaintEvent* ev ) override;
+	
+		int m_nRowCount;
+		int m_nCurrentMidiAutosenseRow;
 		QTimer* m_pUpdateTimer;
 
 };

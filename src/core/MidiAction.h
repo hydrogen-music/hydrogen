@@ -30,7 +30,7 @@
 class Action : public H2Core::Object<Action> {
 	H2_OBJECT(Action)
 	public:
-		Action( QString );
+	Action( QString sType = QString() );
 
 		void setParameter1( QString text ){
 			m_sParameter1 = text;
@@ -68,6 +68,16 @@ class Action : public H2Core::Object<Action> {
 			return m_sType;
 		}
 
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \param bShort Instead of the whole content of all classes
+		 * stored as members just a single unique identifier will be
+		 * displayed without line breaks.
+		 *
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+
 	private:
 		QString m_sType;
 		QString m_sParameter1;
@@ -98,16 +108,18 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		 * Holds the names of all Action identfiers which Hydrogen is
 		 * able to interpret.
 		 */
-		QStringList actionList;
+	QStringList m_actionList;
 
 		typedef bool (MidiActionManager::*action_f)(Action * , H2Core::Hydrogen * );
 		/**
 		 * Holds all Action identifiers which Hydrogen is able to
 		 * interpret.  
 		 *
-		 * It holds pointer to member function.
+		 * It holds a pair consisting of a pointer to member function
+		 * performing the desired action and an integer specifying how
+		 * many additional Action parameters are required to do so.
 		 */
-	std::map<std::string, action_f> actionMap;
+	std::map<QString, std::pair<action_f,int>> m_actionMap;
 		bool play(Action * , H2Core::Hydrogen * );
 		bool play_stop_pause_toggle(Action * , H2Core::Hydrogen * );
 		bool stop(Action * , H2Core::Hydrogen * );
@@ -154,7 +166,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool gain_level_absolute(Action * , H2Core::Hydrogen * );
 		bool pitch_level_absolute(Action * , H2Core::Hydrogen * );
 
-		QStringList eventList;
+		QStringList m_eventList;
 
 		int m_nLastBpmChangeCCParameter;
 
@@ -180,12 +192,16 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		static MidiActionManager* get_instance() { assert(__instance); return __instance; }
 
 		QStringList getActionList(){
-			return actionList;
+			return m_actionList;
 		}
 
 		QStringList getEventList(){
-			return eventList;
+			return m_eventList;
 		}
+	/**
+	 * \return -1 in case the @a couldn't be found.
+	 */
+	int getParameterNumber( const QString& sActionType ) const;
 
 		MidiActionManager();
 		~MidiActionManager();

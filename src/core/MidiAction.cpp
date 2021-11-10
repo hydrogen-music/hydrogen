@@ -67,12 +67,34 @@ using namespace H2Core;
 *
 */
 
-Action::Action( QString typeString ) {
-	m_sType = typeString;
-	m_sParameter1 = "0";
-	m_sParameter2 = "0";
-	m_sParameter3 = "0";
-	m_sValue = "0";
+Action::Action( QString sType ) {
+	m_sType = sType;
+	m_sParameter1 = QString();
+	m_sParameter2 = QString();
+	m_sParameter3 = QString();
+	m_sValue = QString();
+}
+
+QString Action::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[Action]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_sType: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sType ) )
+			.append( QString( "%1%2m_sValue: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sValue ) )
+			.append( QString( "%1%2m_sParameter1: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sParameter1 ) )
+			.append( QString( "%1%2m_sParameter2: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sParameter2 ) )
+			.append( QString( "%1%2m_sParameter3: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sParameter3 ) );
+	} else {
+		sOutput = QString( "[Action]" )
+			.append( QString( "m_sType: %1\n" ).arg( m_sType ) )
+			.append( QString( "m_sValue: %1\n" ).arg( m_sValue ) )
+			.append( QString( "m_sParameter1: %1\n" ).arg( m_sParameter1 ) )
+			.append( QString( "m_sParameter2: %1\n" ).arg( m_sParameter2 ) )
+			.append( QString( "m_sParameter3: %1\n" ).arg( m_sParameter3 ) );
+	}
+	
+	return sOutput;
 }
 
 /**
@@ -95,65 +117,63 @@ MidiActionManager::MidiActionManager() {
 
 	m_nLastBpmChangeCCParameter = -1;
 	/*
-		the actionMap holds all Action identifiers which hydrogen is able to interpret.
+		the m_actionMap holds all Action identifiers which hydrogen is able to interpret.
 		it holds pointer to member function
 	*/
-	actionMap.insert(std::make_pair("PLAY", &MidiActionManager::play ));
-	actionMap.insert(std::make_pair("PLAY/STOP_TOGGLE", &MidiActionManager::play_stop_pause_toggle ));
-	actionMap.insert(std::make_pair("PLAY/PAUSE_TOGGLE", &MidiActionManager::play_stop_pause_toggle ));
-	actionMap.insert(std::make_pair("STOP", &MidiActionManager::stop ));
-	actionMap.insert(std::make_pair("PAUSE", &MidiActionManager::pause ));
-	actionMap.insert(std::make_pair("RECORD_READY", &MidiActionManager::record_ready ));
-	actionMap.insert(std::make_pair("RECORD/STROBE_TOGGLE", &MidiActionManager::record_strobe_toggle ));
-	actionMap.insert(std::make_pair("RECORD_STROBE", &MidiActionManager::record_strobe ));
-	actionMap.insert(std::make_pair("RECORD_EXIT", &MidiActionManager::record_exit ));
-	actionMap.insert(std::make_pair("MUTE", &MidiActionManager::mute ));
-	actionMap.insert(std::make_pair("UNMUTE", &MidiActionManager::unmute ));
-	actionMap.insert(std::make_pair("MUTE_TOGGLE", &MidiActionManager::mute_toggle ));
-	actionMap.insert(std::make_pair("STRIP_MUTE_TOGGLE", &MidiActionManager::strip_mute_toggle ));
-	actionMap.insert(std::make_pair("STRIP_SOLO_TOGGLE", &MidiActionManager::strip_solo_toggle ));	
-	actionMap.insert(std::make_pair(">>_NEXT_BAR", &MidiActionManager::next_bar ));
-	actionMap.insert(std::make_pair("<<_PREVIOUS_BAR", &MidiActionManager::previous_bar ));
-	actionMap.insert(std::make_pair("BPM_INCR", &MidiActionManager::bpm_increase ));
-	actionMap.insert(std::make_pair("BPM_DECR", &MidiActionManager::bpm_decrease ));
-	actionMap.insert(std::make_pair("BPM_CC_RELATIVE", &MidiActionManager::bpm_cc_relative ));
-	actionMap.insert(std::make_pair("BPM_FINE_CC_RELATIVE", &MidiActionManager::bpm_fine_cc_relative ));
-	actionMap.insert(std::make_pair("MASTER_VOLUME_RELATIVE", &MidiActionManager::master_volume_relative ));
-	actionMap.insert(std::make_pair("MASTER_VOLUME_ABSOLUTE", &MidiActionManager::master_volume_absolute ));
-	actionMap.insert(std::make_pair("STRIP_VOLUME_RELATIVE", &MidiActionManager::strip_volume_relative ));
-	actionMap.insert(std::make_pair("STRIP_VOLUME_ABSOLUTE", &MidiActionManager::strip_volume_absolute ));
-	actionMap.insert(std::make_pair("EFFECT_LEVEL_ABSOLUTE", &MidiActionManager::effect_level_absolute ));
-	actionMap.insert(std::make_pair("EFFECT_LEVEL_RELATIVE", &MidiActionManager::effect_level_relative ));
-	actionMap.insert(std::make_pair("GAIN_LEVEL_ABSOLUTE", &MidiActionManager::gain_level_absolute ));
-	actionMap.insert(std::make_pair("PITCH_LEVEL_ABSOLUTE", &MidiActionManager::pitch_level_absolute ));
-	actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN", &MidiActionManager::select_next_pattern ));
-	actionMap.insert(std::make_pair("SELECT_ONLY_NEXT_PATTERN", &MidiActionManager::select_only_next_pattern ));
-	actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN_CC_ABSOLUTE", &MidiActionManager::select_next_pattern_cc_absolute ));
-	actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN_RELATIVE", &MidiActionManager::select_next_pattern_relative ));
-	actionMap.insert(std::make_pair("SELECT_AND_PLAY_PATTERN", &MidiActionManager::select_and_play_pattern ));
-	actionMap.insert(std::make_pair("PAN_RELATIVE", &MidiActionManager::pan_relative ));
-	actionMap.insert(std::make_pair("PAN_ABSOLUTE", &MidiActionManager::pan_absolute ));
-	actionMap.insert(std::make_pair("FILTER_CUTOFF_LEVEL_ABSOLUTE", &MidiActionManager::filter_cutoff_level_absolute ));
-	actionMap.insert(std::make_pair("BEATCOUNTER", &MidiActionManager::beatcounter ));
-	actionMap.insert(std::make_pair("TAP_TEMPO", &MidiActionManager::tap_tempo ));
-	actionMap.insert(std::make_pair("PLAYLIST_SONG", &MidiActionManager::playlist_song ));
-	actionMap.insert(std::make_pair("PLAYLIST_NEXT_SONG", &MidiActionManager::playlist_next_song ));
-	actionMap.insert(std::make_pair("PLAYLIST_PREV_SONG", &MidiActionManager::playlist_previous_song ));
-	actionMap.insert(std::make_pair("TOGGLE_METRONOME", &MidiActionManager::toggle_metronome ));
-	actionMap.insert(std::make_pair("SELECT_INSTRUMENT", &MidiActionManager::select_instrument ));
-	actionMap.insert(std::make_pair("UNDO_ACTION", &MidiActionManager::undo_action ));
-	actionMap.insert(std::make_pair("REDO_ACTION", &MidiActionManager::redo_action ));
+	m_actionMap.insert(std::make_pair("PLAY", std::make_pair( &MidiActionManager::play, 0 ) ));
+	m_actionMap.insert(std::make_pair("PLAY/STOP_TOGGLE", std::make_pair( &MidiActionManager::play_stop_pause_toggle, 0 ) ));
+	m_actionMap.insert(std::make_pair("PLAY/PAUSE_TOGGLE", std::make_pair( &MidiActionManager::play_stop_pause_toggle, 0 ) ));
+	m_actionMap.insert(std::make_pair("STOP", std::make_pair( &MidiActionManager::stop, 0 ) ));
+	m_actionMap.insert(std::make_pair("PAUSE", std::make_pair( &MidiActionManager::pause, 0 ) ));
+	m_actionMap.insert(std::make_pair("RECORD_READY", std::make_pair( &MidiActionManager::record_ready, 0 ) ));
+	m_actionMap.insert(std::make_pair("RECORD/STROBE_TOGGLE", std::make_pair( &MidiActionManager::record_strobe_toggle, 0 ) ));
+	m_actionMap.insert(std::make_pair("RECORD_STROBE", std::make_pair( &MidiActionManager::record_strobe, 0 ) ));
+	m_actionMap.insert(std::make_pair("RECORD_EXIT", std::make_pair( &MidiActionManager::record_exit, 0 ) ));
+	m_actionMap.insert(std::make_pair("MUTE", std::make_pair( &MidiActionManager::mute, 0 ) ));
+	m_actionMap.insert(std::make_pair("UNMUTE", std::make_pair( &MidiActionManager::unmute, 0 ) ));
+	m_actionMap.insert(std::make_pair("MUTE_TOGGLE", std::make_pair( &MidiActionManager::mute_toggle, 0 ) ));
+	m_actionMap.insert(std::make_pair("STRIP_MUTE_TOGGLE", std::make_pair( &MidiActionManager::strip_mute_toggle, 1 ) ));
+	m_actionMap.insert(std::make_pair("STRIP_SOLO_TOGGLE", std::make_pair( &MidiActionManager::strip_solo_toggle, 1 ) ));	
+	m_actionMap.insert(std::make_pair("_NEXT_BAR", std::make_pair( &MidiActionManager::next_bar, 0 ) ));
+	m_actionMap.insert(std::make_pair("<<_PREVIOUS_BAR", std::make_pair( &MidiActionManager::previous_bar, 0 ) ));
+	m_actionMap.insert(std::make_pair("BPM_INCR", std::make_pair( &MidiActionManager::bpm_increase, 1 ) ));
+	m_actionMap.insert(std::make_pair("BPM_DECR", std::make_pair( &MidiActionManager::bpm_decrease, 1 ) ));
+	m_actionMap.insert(std::make_pair("BPM_CC_RELATIVE", std::make_pair( &MidiActionManager::bpm_cc_relative, 1 ) ));
+	m_actionMap.insert(std::make_pair("BPM_FINE_CC_RELATIVE", std::make_pair( &MidiActionManager::bpm_fine_cc_relative, 1 ) ));
+	m_actionMap.insert(std::make_pair("MASTER_VOLUME_RELATIVE", std::make_pair( &MidiActionManager::master_volume_relative, 0 ) ));
+	m_actionMap.insert(std::make_pair("MASTER_VOLUME_ABSOLUTE", std::make_pair( &MidiActionManager::master_volume_absolute, 0 ) ));
+	m_actionMap.insert(std::make_pair("STRIP_VOLUME_RELATIVE", std::make_pair( &MidiActionManager::strip_volume_relative, 1 ) ));
+	m_actionMap.insert(std::make_pair("STRIP_VOLUME_ABSOLUTE", std::make_pair( &MidiActionManager::strip_volume_absolute, 1 ) ));
+	m_actionMap.insert(std::make_pair("EFFECT_LEVEL_ABSOLUTE", std::make_pair( &MidiActionManager::effect_level_absolute, 2 ) ));
+	m_actionMap.insert(std::make_pair("EFFECT_LEVEL_RELATIVE", std::make_pair( &MidiActionManager::effect_level_relative, 2 ) ));
+	m_actionMap.insert(std::make_pair("GAIN_LEVEL_ABSOLUTE", std::make_pair( &MidiActionManager::gain_level_absolute, 3 ) ));
+	m_actionMap.insert(std::make_pair("PITCH_LEVEL_ABSOLUTE", std::make_pair( &MidiActionManager::pitch_level_absolute, 3 ) ));
+	m_actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN", std::make_pair( &MidiActionManager::select_next_pattern, 1 ) ));
+	m_actionMap.insert(std::make_pair("SELECT_ONLY_NEXT_PATTERN", std::make_pair( &MidiActionManager::select_only_next_pattern, 1 ) ));
+	m_actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN_CC_ABSOLUTE", std::make_pair( &MidiActionManager::select_next_pattern_cc_absolute, 0 ) ));
+	m_actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN_RELATIVE", std::make_pair( &MidiActionManager::select_next_pattern_relative, 1 ) ));
+	m_actionMap.insert(std::make_pair("SELECT_AND_PLAY_PATTERN", std::make_pair( &MidiActionManager::select_and_play_pattern, 1 ) ));
+	m_actionMap.insert(std::make_pair("PAN_RELATIVE", std::make_pair( &MidiActionManager::pan_relative, 1 ) ));
+	m_actionMap.insert(std::make_pair("PAN_ABSOLUTE", std::make_pair( &MidiActionManager::pan_absolute, 1 ) ));
+	m_actionMap.insert(std::make_pair("FILTER_CUTOFF_LEVEL_ABSOLUTE", std::make_pair( &MidiActionManager::filter_cutoff_level_absolute, 1 ) ));
+	m_actionMap.insert(std::make_pair("BEATCOUNTER", std::make_pair( &MidiActionManager::beatcounter, 0 ) ));
+	m_actionMap.insert(std::make_pair("TAP_TEMPO", std::make_pair( &MidiActionManager::tap_tempo, 0 ) ));
+	m_actionMap.insert(std::make_pair("PLAYLIST_SONG", std::make_pair( &MidiActionManager::playlist_song, 1 ) ));
+	m_actionMap.insert(std::make_pair("PLAYLIST_NEXT_SONG", std::make_pair( &MidiActionManager::playlist_next_song, 0 ) ));
+	m_actionMap.insert(std::make_pair("PLAYLIST_PREV_SONG", std::make_pair( &MidiActionManager::playlist_previous_song, 0 ) ));
+	m_actionMap.insert(std::make_pair("TOGGLE_METRONOME", std::make_pair( &MidiActionManager::toggle_metronome, 0 ) ));
+	m_actionMap.insert(std::make_pair("SELECT_INSTRUMENT", std::make_pair( &MidiActionManager::select_instrument, 0 ) ));
+	m_actionMap.insert(std::make_pair("UNDO_ACTION", std::make_pair( &MidiActionManager::undo_action, 0 ) ));
+	m_actionMap.insert(std::make_pair("REDO_ACTION", std::make_pair( &MidiActionManager::redo_action, 0 ) ));
 	/*
-	  the actionList holds all Action identfiers which hydrogen is able to interpret.
+	  the m_actionList holds all Action identfiers which hydrogen is able to interpret.
 	*/
-	actionList <<"";
-	for(std::map<std::string, action_f>::const_iterator actionIterator = actionMap.begin();
-	    actionIterator != actionMap.end();
-	    ++actionIterator) {
-		actionList << actionIterator->first.c_str();
+	m_actionList <<"";
+	for ( const auto& ppAction : m_actionMap ) {
+		m_actionList << ppAction.first;
 	}
 
-	eventList << ""
+	m_eventList << ""
 			  << "MMC_PLAY"
 			  << "MMC_DEFERRED_PLAY"
 			  << "MMC_STOP"
@@ -895,6 +915,14 @@ bool MidiActionManager::redo_action(Action * , Hydrogen* ) {
 	return true;
 }
 
+int MidiActionManager::getParameterNumber( const QString& sActionType ) const {
+	auto foundActionPair = m_actionMap.find( sActionType );
+	if( foundActionPair != m_actionMap.end() ) {
+		return foundActionPair->second.second;
+	}
+	return -1;
+}
+
 bool MidiActionManager::handleAction( Action * pAction ) {
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
@@ -908,9 +936,9 @@ bool MidiActionManager::handleAction( Action * pAction ) {
 
 	QString sActionString = pAction->getType();
 
-	std::map<std::string,action_f>::const_iterator foundAction = actionMap.find(sActionString.toStdString());
-	if( foundAction != actionMap.end() ) {
-		action_f action = foundAction->second;
+	auto foundActionPair = m_actionMap.find( sActionString );
+	if( foundActionPair != m_actionMap.end() ) {
+		action_f action = foundActionPair->second.first;
 		return (this->*action)(pAction, pHydrogen);
 	}
 
