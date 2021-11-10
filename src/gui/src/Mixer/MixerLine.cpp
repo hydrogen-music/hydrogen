@@ -60,7 +60,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_bIsSelected = false;
 	m_nPeakTimer = 0;
 
-	Action* pAction;
+	std::shared_ptr<Action> pAction;
 
 	resize( m_nWidth, m_nHeight );
 	setFixedSize( m_nWidth, m_nHeight );
@@ -123,7 +123,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pPanRotary = new Rotary( this, Rotary::TYPE_CENTER, tr( "Pan" ), false, true, -1., 1.);
 	m_pPanRotary->move( 14, 32 );
 	connect( m_pPanRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( panChanged(Rotary*) ) );
-	pAction = new Action("PAN_ABSOLUTE_SYM");
+	pAction = std::make_shared<Action>("PAN_ABSOLUTE_SYM");
 	pAction->setParameter1( QString::number(nInstr ));
 	pAction->setValue( QString::number( 0 ));
 	m_pPanRotary->setAction(pAction);
@@ -132,7 +132,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	uint y = 0;
 	for (uint i = 0; i < MAX_FX; i++) {
 		m_pFxRotary[i] = new Rotary( this, Rotary::TYPE_SMALL, tr( "FX %1 send" ).arg( i + 1 ), false, true );
-		pAction = new Action(QString( "EFFECT_LEVEL_ABSOLUTE" ));
+		pAction = std::make_shared<Action>( "EFFECT_LEVEL_ABSOLUTE" );
 		pAction->setParameter1( QString::number( nInstr ) );
 		pAction->setParameter2( QString::number(i+1) );
 		m_pFxRotary[i]->setAction( pAction );
@@ -171,7 +171,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pFader->setMaxValue( 1.5 );
 	connect( m_pFader, SIGNAL( valueChanged(Fader*) ), this, SLOT( faderChanged(Fader*) ) );
 
-	pAction = new Action("STRIP_VOLUME_ABSOLUTE");
+	pAction = std::make_shared<Action>("STRIP_VOLUME_ABSOLUTE");
 	pAction->setParameter1( QString::number(nInstr) );
 	m_pFader->setAction( pAction );
 
@@ -479,12 +479,7 @@ ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
 	m_pFader->setMinValue( 0.0 );
 	m_pFader->setMaxValue( 1.5 );
 	connect( m_pFader, SIGNAL( valueChanged(Fader*) ), this, SLOT( faderChanged(Fader*) ) );
-
-	//pAction = new MidiAction("STRIP_VOLUME_ABSOLUTE");
-	//pAction->setParameter1( QString::number(nInstr) );
-	//m_pFader->setAction( pAction );
-
-
+	
 	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 4 );
 	m_pPeakLCD->move( 10, 106 );
 	m_pPeakLCD->setText( "0.00" );
@@ -660,7 +655,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pMasterFader->move( 24, MASTERMIXERLINE_FADER_H );
 	connect( m_pMasterFader, SIGNAL( valueChanged(MasterFader*) ), this, SLOT( faderChanged(MasterFader*) ) );
 
-	Action* pAction = new Action("MASTER_VOLUME_ABSOLUTE");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("MASTER_VOLUME_ABSOLUTE");
 	m_pMasterFader->setAction( pAction );
 
 	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 4 );
@@ -693,7 +688,8 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	);
 	m_pMuteBtn->move( 20, 32 );
 	connect( m_pMuteBtn, SIGNAL( clicked(Button*) ), this, SLOT( muteClicked(Button*) ) );
-	m_pMuteBtn->setAction( new Action("MUTE_TOGGLE"));
+	pAction = std::make_shared<Action>("MUTE_TOGGLE");
+	m_pMuteBtn->setAction( pAction );
 }
 
 MasterMixerLine::~MasterMixerLine()

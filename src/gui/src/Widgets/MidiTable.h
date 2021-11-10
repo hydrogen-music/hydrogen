@@ -23,6 +23,8 @@
 #ifndef MIDI_TABLE_H
 #define MIDI_TABLE_H
 
+#include <memory>
+
 #include <core/Object.h>
 #include <core/MidiAction.h>
 
@@ -46,7 +48,7 @@ class MidiTable :  public QTableWidget,  public H2Core::Object<MidiTable>
 		void midiSensePressed( int );
 	
 private:
-	void insertNewRow( Action* pAction, QString eventString, int eventParameter );
+	void insertNewRow( std::shared_ptr<Action> pAction, QString eventString, int eventParameter );
 	void updateRow( int nRow );
 	virtual void paintEvent( QPaintEvent* ev ) override;
 	

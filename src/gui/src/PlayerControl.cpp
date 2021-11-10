@@ -116,7 +116,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pRecBtn->setToolTip( tr("Record") );
 	connect(m_pRecBtn, SIGNAL(clicked(Button*)), this, SLOT(recBtnClicked(Button*)));
 
-	Action* pAction = new Action("RECORD_READY");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("RECORD_READY");
 	m_pRecBtn->setAction( pAction );
 
 	// Play button
@@ -132,7 +132,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pPlayBtn->setToolTip( tr("Play/ Pause") );
 	connect(m_pPlayBtn, SIGNAL(clicked(Button*)), this, SLOT(playBtnClicked(Button*)));
 
-	pAction = new Action("PLAY");
+	pAction = std::make_shared<Action>("PLAY");
 	m_pPlayBtn->setAction( pAction );
 
 
@@ -147,7 +147,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pStopBtn->move(254, 17);
 	m_pStopBtn->setToolTip( tr("Stop") );
 	connect(m_pStopBtn, SIGNAL(clicked(Button*)), this, SLOT(stopBtnClicked(Button*)));
-	pAction = new Action("STOP");
+	pAction = std::make_shared<Action>("STOP");
 	m_pStopBtn->setAction( pAction );
 
 	// Fast forward button
@@ -374,7 +374,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pMetronomeBtn->move( 10, 26 );
 	m_pMetronomeBtn->setToolTip( tr("Switch metronome on/off") );
 	connect( m_pMetronomeBtn, SIGNAL( clicked( Button* ) ), this, SLOT(metronomeButtonClicked( Button* ) ) );
-		pAction = new Action("TOGGLE_METRONOME");
+		pAction = std::make_shared<Action>("TOGGLE_METRONOME");
 		m_pMetronomeBtn->setAction( pAction );
 
 //~ BPM

@@ -37,6 +37,7 @@
 #include <cstdio>
 #include <list>
 #include <algorithm>
+#include <memory>
 
 #include "MidiMap.h"
 #include "Version.h"
@@ -735,40 +736,40 @@ void Preferences::loadPreferences( bool bGlobal )
 				while ( !pMidiEventNode.isNull() ) {
 					if( pMidiEventNode.firstChildElement().nodeName() == QString("mmcEvent")){
 						QString event = pMidiEventNode.firstChildElement("mmcEvent").text();
-						QString s_action = pMidiEventNode.firstChildElement("action").text();
-						QString s_param = pMidiEventNode.firstChildElement("parameter").text();
+						QString sAction = pMidiEventNode.firstChildElement("action").text();
+						QString sParam = pMidiEventNode.firstChildElement("parameter").text();
 
-						Action* pAction = new Action( s_action );
-						pAction->setParameter1( s_param );
+						std::shared_ptr<Action> pAction = std::make_shared<Action>( sAction );
+						pAction->setParameter1( sParam );
 						mM->registerMMCEvent(event, pAction);
 					}
 
 					if( pMidiEventNode.firstChildElement().nodeName() == QString("noteEvent")){
 						QString event = pMidiEventNode.firstChildElement("noteEvent").text();
-						QString s_action = pMidiEventNode.firstChildElement("action").text();
-						QString s_param = pMidiEventNode.firstChildElement("parameter").text();
+						QString sAction = pMidiEventNode.firstChildElement("action").text();
+						QString sParam = pMidiEventNode.firstChildElement("parameter").text();
 						QString s_eventParameter = pMidiEventNode.firstChildElement("eventParameter").text();
-						Action* pAction = new Action( s_action );
-						pAction->setParameter1( s_param );
+						std::shared_ptr<Action> pAction = std::make_shared<Action>( sAction );
+						pAction->setParameter1( sParam );
 						mM->registerNoteEvent(s_eventParameter.toInt(), pAction);
 					}
 
 					if( pMidiEventNode.firstChildElement().nodeName() == QString("ccEvent") ){
 						QString event = pMidiEventNode.firstChildElement("ccEvent").text();
-						QString s_action = pMidiEventNode.firstChildElement("action").text();
-						QString s_param = pMidiEventNode.firstChildElement("parameter").text();
+						QString sAction = pMidiEventNode.firstChildElement("action").text();
+						QString sParam = pMidiEventNode.firstChildElement("parameter").text();
 						QString s_eventParameter = pMidiEventNode.firstChildElement("eventParameter").text();
-						Action * pAction = new Action( s_action );
-						pAction->setParameter1( s_param );
+						std::shared_ptr<Action> pAction = std::make_shared<Action>( sAction );
+						pAction->setParameter1( sParam );
 						mM->registerCCEvent( s_eventParameter.toInt(), pAction );
 					}
 
 					if( pMidiEventNode.firstChildElement().nodeName() == QString("pcEvent") ){
 						QString event = pMidiEventNode.firstChildElement("pcEvent").text();
-						QString s_action = pMidiEventNode.firstChildElement("action").text();
-						QString s_param = pMidiEventNode.firstChildElement("parameter").text();
-						Action * pAction = new Action( s_action );
-						pAction->setParameter1( s_param );
+						QString sAction = pMidiEventNode.firstChildElement("action").text();
+						QString sParam = pMidiEventNode.firstChildElement("parameter").text();
+						std::shared_ptr<Action> pAction = std::make_shared<Action>( sAction );
+						pAction->setParameter1( sParam );
 						mM->registerPCEvent( pAction );
 					}
 
@@ -1186,15 +1187,14 @@ void Preferences::savePreferences()
 	rootNode.appendChild( filesNode );
 
 	MidiMap * mM = MidiMap::get_instance();
-	std::map< QString, Action* > mmcMap = mM->getMMCMap();
+	auto mmcMap = mM->getMMCMap();
 
 	//---- MidiMap ----
 	QDomNode midiEventMapNode = doc.createElement( "midiEventMap" );
 
-		std::map< QString, Action* >::iterator dIter( mmcMap.begin() );
-	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ ){
-		QString event = dIter->first;
-		Action * pAction = dIter->second;
+	for( const auto& it : mmcMap ){
+		QString event = it.first;
+		auto pAction = it.second;
 		if ( pAction->getType() != "NOTHING" ){
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
@@ -1207,7 +1207,7 @@ void Preferences::savePreferences()
 	}
 
 	for( int note=0; note < 128; note++ ){
-		Action * pAction = mM->getNoteAction( note );
+		auto pAction = mM->getNoteAction( note );
 		if( pAction != nullptr && pAction->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
@@ -1220,7 +1220,7 @@ void Preferences::savePreferences()
 	}
 
 	for( int parameter=0; parameter < 128; parameter++ ){
-		Action * pAction = mM->getCCAction( parameter );
+		auto pAction = mM->getCCAction( parameter );
 		if( pAction != nullptr && pAction->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
@@ -1233,7 +1233,7 @@ void Preferences::savePreferences()
 	}
 
 	{
-		Action * pAction = mM->getPCAction();
+		auto pAction = mM->getPCAction();
 		if( pAction != nullptr && pAction->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 

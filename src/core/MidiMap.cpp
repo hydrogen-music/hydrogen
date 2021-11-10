@@ -47,29 +47,21 @@ MidiMap::MidiMap()
 {
 	__instance = this;
 	QMutexLocker mx(&__mutex);
+
+	m_noteVector.resize( 128 );
+	m_ccVector.resize( 128 );
+	
 	//constructor
 	for(int note = 0; note < 128; note++ ) {
-		__note_array[ note ] = new Action("NOTHING");
-		__cc_array[ note ] = new Action("NOTHING");
+		m_noteVector[ note ] = std::make_shared<Action>("NOTHING");
+		m_ccVector[ note ] = std::make_shared<Action>("NOTHING");
 	}
-	__pc_action = new Action("NOTHING");
+	m_pPcAction = std::make_shared<Action>("NOTHING");
 }
 
 MidiMap::~MidiMap()
 {
 	QMutexLocker mx(&__mutex);
-
-	map_t::iterator dIter( mmcMap.begin() );
-
-	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ ) {
-		delete dIter->second;
-	}
-
-	for( int i = 0; i < 128; i++ ) {
-		delete __note_array[ i ];
-		delete __cc_array[ i ];
-	}
-	delete __pc_action;
 
 	__instance = nullptr;
 }
@@ -96,26 +88,22 @@ void MidiMap::reset()
 {
 	QMutexLocker mx(&__mutex);
 
-	map_t::iterator iter;
-	for( iter = mmcMap.begin() ; iter != mmcMap.end() ; ++iter ) {
-		delete iter->second;
-	}
 	mmcMap.clear();
 
-	int i;
-	for( i = 0 ; i < 128 ; ++i ) {
-		delete __note_array[ i ];
-		delete __cc_array[ i ];
-		__note_array[ i ] = new Action("NOTHING");
-		__cc_array[ i ] = new Action("NOTHING");
+	m_noteVector.clear();
+	m_ccVector.clear();
+	m_noteVector.resize( 128 );
+	m_ccVector.resize( 128 );
+	for( int ii = 0 ; ii < 128 ; ++ii ) {
+		m_noteVector[ ii ] = std::make_shared<Action>("NOTHING");
+		m_ccVector[ ii ] = std::make_shared<Action>("NOTHING");
 	}
 
-	delete __pc_action;
-	__pc_action = new Action("NOTHING");
+	m_pPcAction = std::make_shared<Action>("NOTHING");
 }
 
 
-std::map< QString, Action* > MidiMap::getMMCMap()
+std::map< QString, std::shared_ptr<Action>> MidiMap::getMMCMap()
 {
 	return mmcMap;
 }
@@ -124,13 +112,9 @@ std::map< QString, Action* > MidiMap::getMMCMap()
 /**
  * Sets up the relation between a mmc event and an action
  */
-void MidiMap::registerMMCEvent( QString eventString , Action* pAction )
+void MidiMap::registerMMCEvent( QString eventString, std::shared_ptr<Action> pAction )
 {
 	QMutexLocker mx(&__mutex);
-
-	if( mmcMap[ eventString ] != nullptr){
-		delete mmcMap[ eventString ];
-	}
 	mmcMap[ eventString ] = pAction;
 }
 
@@ -138,12 +122,11 @@ void MidiMap::registerMMCEvent( QString eventString , Action* pAction )
 /**
  * Sets up the relation between a note event and an action
  */
-void MidiMap::registerNoteEvent( int note, Action* pAction )
+void MidiMap::registerNoteEvent( int note, std::shared_ptr<Action> pAction )
 {
 	QMutexLocker mx(&__mutex);
 	if( note >= 0 && note < 128 ) {
-		delete __note_array[ note ];
-		__note_array[ note ] = pAction;
+		m_noteVector[ note ] = pAction;
 	}
 }
 
@@ -151,12 +134,10 @@ void MidiMap::registerNoteEvent( int note, Action* pAction )
 /**
  * Sets up the relation between a cc event and an action
  */
-void MidiMap::registerCCEvent( int parameter , Action * pAction ){
+void MidiMap::registerCCEvent( int parameter, std::shared_ptr<Action> pAction ){
 	QMutexLocker mx(&__mutex);
-	if( parameter >= 0 and parameter < 128 )
-	{
-		delete __cc_array[ parameter ];
-		__cc_array[ parameter ] = pAction;
+	if( parameter >= 0 && parameter < 128 ) {
+		m_ccVector[ parameter ] = pAction;
 	}
 }
 
@@ -166,7 +147,7 @@ int MidiMap::findCCValueByActionParam1 ( QString actionType, QString param1 ) co
 
 	for(int i=0; i < 128; i++)
 	{
-		Action* pTmpAction = __cc_array[i];
+		std::shared_ptr<Action> pTmpAction = m_ccVector[i];
 		
 		if(    pTmpAction->getType() == actionType
 			&& pTmpAction->getParameter1() == param1 ){
@@ -183,7 +164,7 @@ int MidiMap::findCCValueByActionType( QString actionType ) const
 
 	for(int i=0; i < 128; i++)
 	{
-		Action* pTmpAction = __cc_array[i];
+		std::shared_ptr<Action> pTmpAction = m_ccVector[i];
 		
 		if( pTmpAction->getType() == actionType ){
 			nParam = i;
@@ -196,19 +177,18 @@ int MidiMap::findCCValueByActionType( QString actionType ) const
 /**
  * Sets up the relation between a program change and an action
  */
-void MidiMap::registerPCEvent( Action * pAction ){
+void MidiMap::registerPCEvent( std::shared_ptr<Action> pAction ){
 	QMutexLocker mx(&__mutex);
-	delete __pc_action;
-	__pc_action = pAction;
+	m_pPcAction = pAction;
 }
 
 /**
  * Returns the mmc action which was linked to the given event.
  */
-Action* MidiMap::getMMCAction( QString eventString )
+std::shared_ptr<Action> MidiMap::getMMCAction( QString eventString )
 {
 	QMutexLocker mx(&__mutex);
-	std::map< QString, Action *>::iterator dIter = mmcMap.find( eventString );
+	std::map< QString, std::shared_ptr<Action>>::iterator dIter = mmcMap.find( eventString );
 	if ( dIter == mmcMap.end() ){
 		return nullptr;
 	}
@@ -219,27 +199,27 @@ Action* MidiMap::getMMCAction( QString eventString )
 /**
  * Returns the note action which was linked to the given event.
  */
-Action* MidiMap::getNoteAction( int note )
+std::shared_ptr<Action> MidiMap::getNoteAction( int note )
 {
 	QMutexLocker mx(&__mutex);
-	return __note_array[ note ];
+	return m_noteVector[ note ];
 }
 
 /**
  * Returns the cc action which was linked to the given event.
  */
-Action * MidiMap::getCCAction( int parameter )
+std::shared_ptr<Action> MidiMap::getCCAction( int parameter )
 {
 	QMutexLocker mx(&__mutex);
-	return __cc_array[ parameter ];
+	return m_ccVector[ parameter ];
 }
 
 /**
  * Returns the pc action which was linked to the given event.
  */
-Action * MidiMap::getPCAction()
+std::shared_ptr<Action> MidiMap::getPCAction()
 {
 	QMutexLocker mx(&__mutex);
-	return __pc_action;
+	return m_pPcAction;
 }
 

@@ -24,6 +24,7 @@
 #ifndef MIDILEARNABLE_H
 #define MIDILEARNABLE_H
 
+#include <memory>
 #include <core/MidiAction.h>
 
 
@@ -37,24 +38,20 @@ class MidiLearnable
 {
 public:
     MidiLearnable(){
-	m_action = nullptr;
+		m_pAction = nullptr;
+	}
+
+    void setAction( std::shared_ptr<Action> pAction ){
+		m_pAction = pAction;
     }
 
-    ~MidiLearnable(){
-	if( m_action != nullptr) delete m_action;
-    }
-
-    void setAction( Action *action ){
-	m_action = action;
-    }
-
-    Action* getAction(){
-	return m_action;
+    std::shared_ptr<Action> getAction(){
+		return m_pAction;
     }
 
 
 private:
-    Action *m_action;
+    std::shared_ptr<Action> m_pAction;
 };
 
 #endif // MIDILEARNABLE_H

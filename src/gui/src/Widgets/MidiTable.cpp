@@ -92,9 +92,8 @@ void MidiTable::updateTable() {
 		}
 
 		if( ! pActionCombo->currentText().isEmpty() && ! pEventCombo->currentText().isEmpty() ) {
-			Action* pAction = new Action();
+			std::shared_ptr<Action> pAction = std::make_shared<Action>();
 			insertNewRow( pAction, "", 0 );
-			delete pAction;
 		}
 
 		// Ensure that all other empty rows are removed and that the
@@ -108,7 +107,7 @@ void MidiTable::updateTable() {
 }
 
 
-void MidiTable::insertNewRow(Action* pAction, QString eventString, int eventParameter)
+void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventString, int eventParameter)
 {
 	MidiActionManager *pActionHandler = MidiActionManager::get_instance();
 
@@ -212,7 +211,7 @@ void MidiTable::setupMidiTable()
 	}
 
 	for( int note = 0; note < 128; note++ ) {
-		Action * pAction = pMidiMap->getNoteAction( note );
+		std::shared_ptr<Action> pAction = pMidiMap->getNoteAction( note );
 
 		if ( pAction->getType() == "NOTHING" ){
 			continue;
@@ -222,7 +221,7 @@ void MidiTable::setupMidiTable()
 	}
 
 	for( int parameter = 0; parameter < 128; parameter++ ){
-		Action * pAction = pMidiMap->getCCAction( parameter );
+		std::shared_ptr<Action> pAction = pMidiMap->getCCAction( parameter );
 
 		if ( pAction->getType() == "NOTHING" ){
 			continue;
@@ -232,16 +231,15 @@ void MidiTable::setupMidiTable()
 	}
 
 	{
-		Action * pAction = pMidiMap->getPCAction();
+		std::shared_ptr<Action> pAction = pMidiMap->getPCAction();
 		if ( pAction->getType() != "NOTHING" ) {
 
 			insertNewRow( pAction, "PROGRAM_CHANGE", 0 );
 		}
 	}
 
-	Action* pAction = new Action();
+	std::shared_ptr<Action> pAction = std::make_shared<Action>();
 	insertNewRow( pAction, "", 0 );
-	delete pAction;
 }
 
 
@@ -266,7 +264,7 @@ void MidiTable::saveMidiTable()
 
 			actionString = actionCombo->currentText();
 		
-			Action* pAction = new Action( actionString );
+			std::shared_ptr<Action> pAction = std::make_shared<Action>( actionString );
 
 			if( actionSpinner1->cleanText() != ""){
 				pAction->setParameter1( actionSpinner1->cleanText() );
@@ -286,8 +284,6 @@ void MidiTable::saveMidiTable()
 				mM->registerNoteEvent( eventSpinner->cleanText().toInt() , pAction );
 			} else if( eventString.left(14) == "PROGRAM_CHANGE" ){
 				mM->registerPCEvent( pAction );
-			} else {
-				delete pAction;
 			}
 		}
 	}
