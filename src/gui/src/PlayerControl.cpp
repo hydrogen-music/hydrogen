@@ -53,7 +53,7 @@ int bcDisplaystatus = 0;
 
 PlayerControl::PlayerControl(QWidget *parent)
  : QLabel(parent)
- , m_midiActivityTimeout( 250 )
+ , m_midiActivityTimeout( 125 )
 {
 	setObjectName( "PlayerControl" );
 	HydrogenApp::get_instance()->addEventListener( this );
