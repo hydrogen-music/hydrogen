@@ -127,6 +127,9 @@ void MidiMap::registerNoteEvent( int note, std::shared_ptr<Action> pAction )
 	QMutexLocker mx(&__mutex);
 	if( note >= 0 && note < 128 ) {
 		m_noteVector[ note ] = pAction;
+	} else {
+		ERRORLOG( QString( "Unable to register MIDI action [%1]: Provided note [%2] out of bound [0,128)" )
+				  .arg( pAction->getType() ).arg( note ) );
 	}
 }
 
@@ -138,6 +141,9 @@ void MidiMap::registerCCEvent( int parameter, std::shared_ptr<Action> pAction ){
 	QMutexLocker mx(&__mutex);
 	if( parameter >= 0 && parameter < 128 ) {
 		m_ccVector[ parameter ] = pAction;
+	} else {
+		ERRORLOG( QString( "Unable to register MIDI action [%1]: Provided parameter [%2] out of bound [0,128)" )
+				  .arg( pAction->getType() ).arg( parameter ) );
 	}
 }
 
