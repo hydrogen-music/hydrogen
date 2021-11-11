@@ -153,31 +153,19 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 	QSpinBox *actionParameterSpinner1 = new QSpinBox();
 	setCellWidget( oldRowCount , 4, actionParameterSpinner1 );
 	actionParameterSpinner1->setMaximum( 999 );
-	if ( ! pAction->getParameter1().isEmpty() ) {
-		actionParameterSpinner1->setValue( pAction->getParameter1().toInt(&ok,10) );
-	} else {
-		actionParameterSpinner1->setValue( 0 );
-	}
+	actionParameterSpinner1->setValue( pAction->getParameter1().toInt(&ok,10) );
 	actionParameterSpinner1->hide();
 
 	QSpinBox *actionParameterSpinner2 = new QSpinBox();
 	setCellWidget( oldRowCount , 5, actionParameterSpinner2 );
 	actionParameterSpinner2->setMaximum( std::max(MAX_FX, MAX_COMPONENTS) );
-	if ( ! pAction->getParameter2().isEmpty() ) {
-		actionParameterSpinner2->setValue( pAction->getParameter2().toInt(&ok,10) );
-	} else {
-		actionParameterSpinner2->setValue( 0 );
-	}
+	actionParameterSpinner2->setValue( pAction->getParameter2().toInt(&ok,10) );
 	actionParameterSpinner2->hide();
 
 	QSpinBox *actionParameterSpinner3 = new QSpinBox();
 	setCellWidget( oldRowCount , 6, actionParameterSpinner3 );
 	actionParameterSpinner3->setMaximum( H2Core::InstrumentComponent::getMaxLayers() );
-	if ( ! pAction->getParameter3().isEmpty() ) {
-		actionParameterSpinner3->setValue( pAction->getParameter3().toInt(&ok,10) );
-	} else {
-		actionParameterSpinner3->setValue( 0 );
-	}
+	actionParameterSpinner3->setValue( pAction->getParameter3().toInt(&ok,10) );
 	actionParameterSpinner3->hide();
 }
 
@@ -308,7 +296,7 @@ void MidiTable::updateRow( int nRow ) {
 	QSpinBox* pActionSpinner1 = dynamic_cast<QSpinBox*>( cellWidget( nRow, 4 ) );
 	QSpinBox* pActionSpinner2 = dynamic_cast<QSpinBox*>( cellWidget( nRow, 5 ) );
 	QSpinBox* pActionSpinner3 = dynamic_cast<QSpinBox*>( cellWidget( nRow, 6 ) );
-	if ( sActionType.isEmpty() ) {
+	if ( sActionType == "NOTHING" || sActionType.isEmpty() ) {
 		pActionSpinner1->hide();
 		pActionSpinner2->hide();
 		pActionSpinner3->hide();

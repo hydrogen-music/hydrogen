@@ -31,7 +31,7 @@
 class Action : public H2Core::Object<Action> {
 	H2_OBJECT(Action)
 	public:
-	Action( QString sType = QString() );
+	Action( QString sType = "NOTHING" );
 
 		void setParameter1( QString text ){
 			m_sParameter1 = text;

@@ -69,10 +69,10 @@ using namespace H2Core;
 
 Action::Action( QString sType ) {
 	m_sType = sType;
-	m_sParameter1 = QString();
-	m_sParameter2 = QString();
-	m_sParameter3 = QString();
-	m_sValue = QString();
+	m_sParameter1 = "0";
+	m_sParameter2 = "0";
+	m_sParameter3 = "0";
+	m_sValue = "0";
 }
 
 QString Action::toQString( const QString& sPrefix, bool bShort ) const {
