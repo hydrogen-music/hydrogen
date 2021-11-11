@@ -4,6 +4,7 @@
 		- Remembering paths in all export/import/save/open dialogs.
 		- Introducing keyboard shortcut for the Open Pattern dialog.
 		- Allow for opening more than one Pattern at once.
+		- Implement missing EFFECT_LEVEL_RELATIVE MIDI action
 	* PreferencesDialog > Appearance tab overhaul
 	  	- Drop previous font options in favor for three different
 		  levels of font (without exposing their point sizes)
@@ -14,6 +15,13 @@
 		  "Custom".
 		- Via a colored button the particular line color can now be
 		  adjusted using a QColorDialog
+		- Overhauled MIDI Table
+		  - Per effect or layer setting are now done in dedicated spin
+		    boxes instead of providing individual actions for each.
+		  - Only spin boxes for parameters required for a particular
+		    action are shown.
+		  - Rows can be removed by unsetting both the Event and Action
+		    combo box.
 	* InstrumentEditor UX improvements:
 		- rework start/end/loop frame slider selection and motion.
 		- rework velocity/pan envelope editing
