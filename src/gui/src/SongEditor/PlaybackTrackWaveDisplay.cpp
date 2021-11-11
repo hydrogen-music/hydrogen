@@ -23,7 +23,7 @@
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/PatternList.h>
@@ -31,7 +31,6 @@
 using namespace H2Core;
 
 
-#include "../Skin.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentEditor/WaveDisplay.h"
 

@@ -30,7 +30,7 @@
 #include <vector>
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 #include "../Widgets/WidgetWithScalableFont.h"
 
@@ -75,7 +75,7 @@ private slots:
 	void on_songLoadAction();
 	void on_patternLoadAction();
 	void on_patternDeleteAction();
-	void onPreferencesChanged( bool bAppearanceOnly );
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 signals:
 	void item_changed(bool bDrumkitSelected);
@@ -110,8 +110,6 @@ private:
 	bool m_bInItsOwnDialog;
 
 	QString m_sMessageFailedPreDrumkitLoad;
-	/** Used to detect changed in the font*/
-	H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 inline const QString& SoundLibraryPanel::getMessageFailedPreDrumkitLoad() const {

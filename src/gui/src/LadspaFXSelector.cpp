@@ -22,11 +22,10 @@
 
 #include "LadspaFXSelector.h"
 #include "HydrogenApp.h"
-#include "Skin.h"
 
 #include <core/Hydrogen.h>
 #include <core/Basics/Song.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/FX/Effects.h>
 #include <core/FX/LadspaFX.h>
 

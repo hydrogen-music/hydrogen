@@ -38,7 +38,7 @@
 #include <core/Basics/Instrument.h>
 #include <core/Globals.h>
 #include <core/EventQueue.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/H2Exception.h>
 #include <core/Basics/Playlist.h>
 #include <core/Sampler/Interpolation.h>

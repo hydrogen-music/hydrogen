@@ -26,6 +26,7 @@
 
 #include <core/config.h>
 #include <core/Version.h>
+#include <core/Preferences/Theme.h>
 #include <getopt.h>
 
 #include "ShotList.h"
@@ -47,7 +48,7 @@
 #include <core/Hydrogen.h>
 #include <core/Globals.h>
 #include <core/EventQueue.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/H2Exception.h>
 #include <core/Basics/Playlist.h>
 #include <core/Helpers/Filesystem.h>
@@ -64,61 +65,6 @@
 namespace H2Core {
 	void init_gui_object_map();
 };
-//
-// Set the palette used in the application
-//
-void setPalette( QApplication *pQApp )
-{
-	// create the default palette
-	QPalette defaultPalette;
-
-	// A general background color.
-	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
-
-	// A general foreground color.
-	defaultPalette.setColor( QPalette::WindowText, QColor( 255, 255, 255 ) );
-
-	// Used as the background color for text entry widgets; usually white or another light color.
-	defaultPalette.setColor( QPalette::Base, QColor( 88, 94, 112 ) );
-
-	// Used as the alternate background color in views with alternating row colors
-	defaultPalette.setColor( QPalette::AlternateBase, QColor( 138, 144, 162 ) );
-
-	// The foreground color used with Base. This is usually the same as the Foreground, in which case it must provide good contrast with Background and Base.
-	defaultPalette.setColor( QPalette::Text, QColor( 255, 255, 255 ) );
-
-	// The general button background color. This background can be different from Background as some styles require a different background color for buttons.
-	defaultPalette.setColor( QPalette::Button, QColor( 88, 94, 112 ) );
-
-	// A foreground color used with the Button color.
-	defaultPalette.setColor( QPalette::ButtonText, QColor( 255, 255, 255 ) );
-
-
-	// Lighter than Button color.
-	defaultPalette.setColor( QPalette::Light, QColor( 138, 144, 162 ) );
-
-	// Between Button and Light.
-	defaultPalette.setColor( QPalette::Midlight, QColor( 128, 134, 152 ) );
-
-	// Darker than Button.
-	defaultPalette.setColor( QPalette::Dark, QColor( 58, 62, 72 ) );
-
-	// Between Button and Dark.
-	defaultPalette.setColor( QPalette::Mid, QColor( 81, 86, 99 ) );
-
-	// A very dark color. By default, the shadow color is Qt::black.
-	defaultPalette.setColor( QPalette::Shadow, QColor( 255, 255, 255 ) );
-
-
-	// A color to indicate a selected item or the current item.
-	defaultPalette.setColor( QPalette::Highlight, QColor( 116, 124, 149 ) );
-
-	// A text color that contrasts with Highlight.
-	defaultPalette.setColor( QPalette::HighlightedText, QColor( 255, 255, 255 ) );
-
-	pQApp->setPalette( defaultPalette );
-	pQApp->setStyleSheet("QToolTip {padding: 1px; border: 1px solid rgb(199, 202, 204); background-color: rgb(227, 243, 252); color: rgb(64, 64, 66);}");
-}
 
 // Handle a fatal signal, allowing the logger to complete any outstanding messages before re-raising the
 // signal to allow normal termination.
@@ -221,6 +167,7 @@ int main(int argc, char *argv[])
 	try {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
 		QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+		QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
 
 		// Create bootstrap QApplication to get H2 Core set up with correct Filesystem paths before starting GUI application.
@@ -341,13 +288,13 @@ int main(int argc, char *argv[])
 		Qt::HighDpiScaleFactorRoundingPolicy policy;
 
 		switch ( pPref->getUIScalingPolicy() ) {
-		case H2Core::Preferences::UI_SCALING_SMALLER:
+		case H2Core::InterfaceTheme::ScalingPolicy::Smaller:
 			policy = Qt::HighDpiScaleFactorRoundingPolicy::RoundPreferFloor;
 			break;
-		case H2Core::Preferences::UI_SCALING_SYSTEM:
+		case H2Core::InterfaceTheme::ScalingPolicy::System:
 			policy = Qt::HighDpiScaleFactorRoundingPolicy::PassThrough;
 			break;
-		case H2Core::Preferences::UI_SCALING_LARGER:
+		case H2Core::InterfaceTheme::ScalingPolicy::Larger:
 			policy = Qt::HighDpiScaleFactorRoundingPolicy::Ceil;
 			break;
 		}
@@ -357,9 +304,9 @@ int main(int argc, char *argv[])
 		// Force layout
 		if ( !sUiLayout.isEmpty() ) {
 			if ( sUiLayout == "tabbed" ) {
-				pPref->setDefaultUILayout( 1 );
+				pPref->setDefaultUILayout( H2Core::InterfaceTheme::Layout::Tabbed );
 			} else {
-				pPref->setDefaultUILayout( 0 );
+				pPref->setDefaultUILayout( H2Core::InterfaceTheme::Layout::SinglePane );
 			}
 		}
 
@@ -436,7 +383,7 @@ int main(int argc, char *argv[])
 			pQApp->setStyle( sStyle );
 		}
 
-		setPalette( pQApp );
+		Skin::setPalette( pQApp );
 		setApplicationIcon(pQApp);
 
 		SplashScreen *pSplash = new SplashScreen();

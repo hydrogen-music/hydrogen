@@ -28,14 +28,13 @@
 #include <QtWidgets>
 
 #include <core/Object.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Globals.h>
 #include "../EventListener.h"
 
 class Button;
-class ToggleButton;
 class MixerLine;
 class ComponentMixerLine;
-class FxMixerLine;
 class MasterMixerLine;
 class LadspaFXMixerLine;
 class PixmapWidget;
@@ -72,22 +71,22 @@ class Mixer :  public QWidget, public EventListener,  public H2Core::Object<Mixe
 		void nameClicked(MixerLine* ref);
 		void nameSelected(MixerLine* ref);
 		void updateMixer();
-		void showFXPanelClicked(Button* ref);
-		void showPeaksBtnClicked(Button* ref);
+		void showFXPanelClicked();
+		void showPeaksBtnClicked();
 		void openMixerSettingsDialog();
 		void ladspaActiveBtnClicked( LadspaFXMixerLine* ref );
 		void ladspaEditBtnClicked( LadspaFXMixerLine *ref );
 		void ladspaVolumeChanged( LadspaFXMixerLine* ref);
 		void closeEvent(QCloseEvent *event) override;
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private:
 		QHBoxLayout *			m_pFaderHBox;
 		LadspaFXMixerLine *		m_pLadspaFXLine[MAX_FX];
 
 		QScrollArea*			m_pFaderScrollArea;
-		ToggleButton *			m_pShowFXPanelBtn;
-		ToggleButton *			m_pShowPeaksBtn;
+		Button *			m_pShowFXPanelBtn;
+		Button *			m_pShowPeaksBtn;
 		Button *				m_pOpenMixerSettingsBtn;
 		MasterMixerLine *		m_pMasterLine;
 

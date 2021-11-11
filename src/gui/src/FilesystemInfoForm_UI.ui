@@ -32,10 +32,23 @@
     </widget>
    </item>
    <item row="0" column="2">
-    <widget class="QLabel" name="tmpDirWarningLabel">
-     <property name="text">
-      <string/>
-     </property>
+    <widget class="QPushButton" name="tmpDirWarningButton">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">width: 18px;
+height: 18px;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
     </widget>
    </item>
    <item row="0" column="3">
@@ -63,10 +76,17 @@
     </widget>
    </item>
    <item row="1" column="2">
-    <widget class="QLabel" name="usrDataDirWarningLabel">
-     <property name="text">
-      <string/>
-     </property>
+     <widget class="QPushButton" name="usrDataDirWarningButton">
+      <property name="styleSheet">
+       <string notr="true">width: 16px;
+height: 16px</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
     </widget>
    </item>
    <item row="1" column="3">

@@ -32,7 +32,7 @@
 #include <QList>
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include "../EventListener.h"
 #include "PatternFillDialog.h"
 #include "../Selection.h"
@@ -43,8 +43,6 @@ namespace H2Core {
 	class AudioEngine;
 }
 
-class Button;
-class ToggleButton;
 class SongEditor;
 class SongEditorPatternList;
 class SongEditorPositionRuler;
@@ -109,7 +107,8 @@ class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public S
 		void copy();
 		void paste();
 		void cut();
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+		void scrolled( int );
 
 	private:
 
@@ -126,6 +125,9 @@ class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public S
 		unsigned 				m_nMaxPatternSequence;
 		bool					m_bIsMoving;
 		bool					m_bCopyNotMove;
+
+		int m_nMaxPatternColors;
+
 
 		//! In "draw" mode, whether we're activating pattern cells ("drawing") or deactivating ("erasing") is
 		//! set at the start of the draw gesture.
@@ -190,6 +192,8 @@ class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public S
 		virtual void keyReleaseEvent (QKeyEvent *ev) override;
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void focusInEvent( QFocusEvent *ev ) override;
+		virtual void enterEvent( QEvent *ev ) override;
+		virtual void leaveEvent( QEvent *ev ) override;
 		//! @}
 
 		bool togglePatternActive( int nColumn, int nRow );
@@ -198,13 +202,11 @@ class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public S
 		void drawSequence();
   
 		void drawPattern( int pos, int number, bool invertColour, double width );
+		void drawFocus( QPainter& painter );
 
 		std::map< QPoint, GridCell > m_gridCells;
 		void updateGridCells();
-		std::vector<QColor> m_lastUsedPatternColors;
-		int m_nLastUsedVisiblePatternColors;
-		int m_nMaxPatternColors;
-		int m_nLastUsedColoringMethod;
+		bool m_bEntered;
 public:
 
 		//! @name Selection interfaces
@@ -279,7 +281,7 @@ class SongEditorPatternList :  public QWidget, protected WidgetWithScalableFont<
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
 		virtual void timelineUpdateEvent( int nValue ) override;
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private:
 		H2Core::Hydrogen* 		m_pHydrogen;
@@ -313,10 +315,6 @@ class SongEditorPatternList :  public QWidget, protected WidgetWithScalableFont<
 		virtual void patternChangedEvent() override;
 		void mouseMoveEvent(QMouseEvent *event) override;
 		QPoint __drag_start_position;
-		/** Used to detect changed in the font*/
-		QString m_sLastUsedFontFamily;
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 };
 
@@ -351,7 +349,7 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		void updatePosition();
 		void showTagWidget( int nColumn );
 		void showBpmWidget( int nColumn );
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private:
 		H2Core::Hydrogen* 		m_pHydrogen;
@@ -374,15 +372,11 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		QPixmap *			m_pBackgroundPixmap;
 		QPixmap				m_tickPositionPixmap;
 		bool				m_bRightBtnPressed;
-		/** Used to detect changed in the font*/
-		QString m_sLastUsedFontFamily;
 		
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent( QMouseEvent *ev );
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		virtual void paintEvent( QPaintEvent *ev );
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 };
 

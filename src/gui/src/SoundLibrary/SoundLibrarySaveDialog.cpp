@@ -26,7 +26,6 @@
 #include <QMessageBox>
 
 #include "../HydrogenApp.h"
-#include "../Skin.h"
 
 SoundLibrarySaveDialog::SoundLibrarySaveDialog( QWidget* pParent )
  : QDialog( pParent )

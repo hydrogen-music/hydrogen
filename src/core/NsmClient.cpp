@@ -22,7 +22,7 @@
 
 #include "core/LocalFileMng.h"
 #include "core/Helpers/Filesystem.h"
-#include "core/Preferences.h"
+#include "core/Preferences/Preferences.h"
 #include "core/EventQueue.h"
 #include "core/Hydrogen.h"
 #include "core/Basics/Song.h"

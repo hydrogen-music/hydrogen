@@ -23,13 +23,17 @@
 #include "core/MidiMap.h"
 #include "MidiSenseWidget.h"
 #include <core/Hydrogen.h>
+#include "../HydrogenApp.h"
+#include "../CommonStrings.h"
 
 MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, Action* pAction): QDialog( pParent )
 {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	
 	m_DirectWrite = directWr;
 	m_pAction = pAction;
 
-	setWindowTitle( "Waiting.." );
+	setWindowTitle( pCommonStrings->getMidiSenseWindowTitle() );
 	setFixedSize( 280, 100 );
 
 	bool midiOperable = false;
@@ -38,7 +42,7 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, Action* pActio
 	m_pURLLabel->setAlignment( Qt::AlignCenter );
 
 	if(m_pAction != nullptr){
-		m_pURLLabel->setText( "Waiting for midi input..." );
+		m_pURLLabel->setText( pCommonStrings->getMidiSenseInput() );
 		midiOperable = true;
 	} else {
 
@@ -48,10 +52,10 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, Action* pActio
 		 */
 
 		if(m_DirectWrite){
-			m_pURLLabel->setText( tr("This element is not midi operable.") );
+			m_pURLLabel->setText( pCommonStrings->getMidiSenseUnavailable() );
 			midiOperable = false;
 		} else {
-			m_pURLLabel->setText( tr("Waiting for midi input...") );
+			m_pURLLabel->setText( pCommonStrings->getMidiSenseInput() );
 			midiOperable = true;
 		}
 	}

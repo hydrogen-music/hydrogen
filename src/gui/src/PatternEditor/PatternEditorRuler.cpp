@@ -46,11 +46,8 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	//infoLog( "INIT" );
 
 	Preferences *pPref = Preferences::get_instance();
-	m_lastUsedFontSize = pPref->getFontSize();
 
-	UIStyle *pStyle = pPref->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
-
+	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
 
 	m_pPattern = nullptr;
 	m_fGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
@@ -72,8 +69,6 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateEditor()));
 
 	HydrogenApp::get_instance()->addEventListener( this );
-	
-	m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
 }
 
 
@@ -176,12 +171,17 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 
 void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 {
+
+	auto pPref = H2Core::Preferences::get_instance();
+
 	if (!isVisible()) {
 		return;
 	}
 
 	QPainter painter(this);
 
+	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
+	m_pBackground->fill( backgroundColor );
 
 	painter.drawPixmap( ev->rect(), *m_pBackground, ev->rect() );
 
@@ -198,7 +198,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 	QColor lineColor( 170, 170, 170 );
 
 	Preferences *pref = Preferences::get_instance();
-	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
+	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	painter.setFont(font);
 	painter.drawLine( 0, 0, m_nRulerWidth, 0 );
 	painter.drawLine( 0, m_nRulerHeight - 1, m_nRulerWidth - 1, m_nRulerHeight - 1);
@@ -231,18 +231,19 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 void PatternEditorRuler::zoomIn()
 {
-	if (m_fGridWidth >= 3){
+	
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_fGridWidth >= 3 ){
 		m_fGridWidth *= 2;
-	}else
-	{
+	} else {
 		m_fGridWidth *= 1.5;
 	}
 	m_nRulerWidth = 20 + m_fGridWidth * ( MAX_NOTES * 4 );
 	resize(  QSize(m_nRulerWidth, m_nRulerHeight ));
 	delete m_pBackground;
 	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
-	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
+	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
 	m_pBackground->fill( backgroundColor );
 	update();
 }
@@ -250,21 +251,22 @@ void PatternEditorRuler::zoomIn()
 
 void PatternEditorRuler::zoomOut()
 {
+	
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	if ( m_fGridWidth > 1.5 ) {
-		if (m_fGridWidth > 3){
+		if ( m_fGridWidth > 3 ){
 			m_fGridWidth /= 2;
-		}else
-		{
+		} else {
 			m_fGridWidth /= 1.5;
 		}
-	m_nRulerWidth = 20 + m_fGridWidth * ( MAX_NOTES * 4 );
-	resize( QSize(m_nRulerWidth, m_nRulerHeight) );
-	delete m_pBackground;
-	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
-	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor );
-	m_pBackground->fill( backgroundColor );
-	update();
+		m_nRulerWidth = 20 + m_fGridWidth * ( MAX_NOTES * 4 );
+		resize( QSize(m_nRulerWidth, m_nRulerHeight) );
+		delete m_pBackground;
+		m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
+		QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
+		m_pBackground->fill( backgroundColor );
+		update();
 	}
 }
 
@@ -274,13 +276,11 @@ void PatternEditorRuler::selectedPatternChangedEvent()
 	updateEditor( true );
 }
 
-void PatternEditorRuler::onPreferencesChanged( bool bAppearanceOnly ) {
+void PatternEditorRuler::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_sLastUsedFontFamily = pPref->getApplicationFontFamily();
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+	if ( changes & ( H2Core::Preferences::Changes::Colors |
+					 H2Core::Preferences::Changes::Font ) ) {
 		update( 0, 0, width(), height() );
 	}
 }

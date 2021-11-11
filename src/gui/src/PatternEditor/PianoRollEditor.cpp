@@ -45,9 +45,6 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 	, m_pScrollView( pScrollView )
 {
 	INFOLOG( "INIT" );
-
-	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-	m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
 		
 	m_nGridHeight = 10;
 	m_nOctaves = 7;
@@ -146,13 +143,48 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 		finishUpdateEditor();
 	}
 	painter.drawPixmap( ev->rect(), *m_pTemp, ev->rect() );
+
+	drawFocus( painter );
+	
 	m_selection.paintSelection( &painter );
 }
 
+void PianoRollEditor::drawFocus( QPainter& painter ) {
 
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( ! m_bEntered && ! hasFocus() ) {
+		return;
+	}
+	
+	QColor color = pPref->getColorTheme()->m_highlightColor;
+
+	// If the mouse is placed on the widget but the user hasn't
+	// clicked it yet, the highlight will be done more transparent to
+	// indicate that keyboard inputs are not accepted yet.
+	if ( ! hasFocus() ) {
+		color.setAlpha( 125 );
+	}
+
+	int nStartY = HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditorScrollArea()->verticalScrollBar()->value();
+	int nStartX = HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditorScrollArea()->horizontalScrollBar()->value();
+	int nEndY = nStartY + HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditorScrollArea()->viewport()->size().height();
+	int nEndX = std::min( nStartX + HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditorScrollArea()->viewport()->size().width(), width() );
+
+	QPen pen( color );
+	pen.setWidth( 4 );
+	painter.setPen( pen );
+	painter.drawLine( QPoint( nStartX, nStartY ), QPoint( nEndX, nStartY ) );
+	painter.drawLine( QPoint( nStartX, nStartY ), QPoint( nStartX, nEndY ) );
+	painter.drawLine( QPoint( nEndX, nStartY ), QPoint( nEndX, nEndY ) );
+	painter.drawLine( QPoint( nEndX, nEndY ), QPoint( nStartX, nEndY ) );
+}
 
 void PianoRollEditor::createBackground()
 {
+	
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	//INFOLOG( "(re)creating the background" );
 
 	QColor backgroundColor( 250, 250, 250 );
@@ -237,7 +269,7 @@ void PianoRollEditor::createBackground()
 	}
 
 	//draw text
-	QFont font( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
+	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	//	font.setWeight( 63 );
 	p.setFont( font );
 	p.setPen( QColor(10, 10, 10 ) );
@@ -1322,13 +1354,12 @@ QRect PianoRollEditor::getKeyboardCursorRect() {
 				  m_fGridWidth*6, m_nGridHeight+3 );
 }
 
-void PianoRollEditor::onPreferencesChanged( bool bAppearanceOnly ) {
+void PianoRollEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getApplicationFontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_sLastUsedFontFamily = Preferences::get_instance()->getApplicationFontFamily();
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+	if ( changes & ( H2Core::Preferences::Changes::Colors |
+					 H2Core::Preferences::Changes::Font ) ) {
 		createBackground();
+		update();
 	}
 }

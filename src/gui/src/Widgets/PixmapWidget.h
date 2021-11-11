@@ -33,7 +33,7 @@ class PixmapWidget :   public H2Core::Object<PixmapWidget>, public QWidget
 {
     H2_OBJECT(PixmapWidget)
 	public:
-		PixmapWidget( QWidget *pParent, const char* = "PixmapWidget" );
+		PixmapWidget( QWidget *pParent );
 		~PixmapWidget();
 
 		void setPixmap( QString sPixmapPath, bool expand_horiz = false );

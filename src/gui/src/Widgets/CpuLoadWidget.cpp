@@ -20,131 +20,123 @@
  *
  */
 
-
 #include "CpuLoadWidget.h"
+
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
 
-#include "../Skin.h"
 #include "../HydrogenApp.h"
-
-#include <QTimer>
-#include <QMouseEvent>
-#include <QPaintEvent>
-#include <QPainter>
 
 CpuLoadWidget::CpuLoadWidget( QWidget *pParent )
  : QWidget( pParent )
  , m_fValue( 0 )
+ , m_nXRunValue( 0 )
+ , m_size( QSize( 96, 10 ) )
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
-	static const uint WIDTH = 92;
-	static const uint HEIGHT = 8;
+	adjustSize();
+	setFixedSize( m_size.width(), m_size.height() );
 
-	resize( WIDTH, HEIGHT );
-	setMinimumSize( width(), height() );
-	setMaximumSize( width(), height() );
-
-	m_nXRunValue = 0;
-
-	// Background image
-	QString background_path = Skin::getImagePath().append( "/playerControlPanel/cpuLoad_back.png" );
-	bool ok = m_back.load( background_path );
-	if( !ok ) {
-		ERRORLOG( "Error loading pixmap " + background_path );
+	m_recentValues.resize( 5 );
+	for ( auto ii : m_recentValues ) {
+		ii = 0;
 	}
 
-	// Leds image
-	QString leds_path = Skin::getImagePath().append( "/playerControlPanel/cpuLoad_leds.png" );
-	ok = m_leds.load( leds_path );
-	if( !ok ) {
-		ERRORLOG( "Error loading pixmap " + leds_path );
-	}
-
-	QTimer *timer = new QTimer(this);
-	connect( timer, SIGNAL( timeout() ), this, SLOT( updateCpuLoadWidget() ) );
-	timer->start(200);	// update player control at 5 fps
+	QTimer* pTimer = new QTimer(this);
+	connect( pTimer, SIGNAL( timeout() ), this, SLOT( updateCpuLoadWidget() ) );
+	pTimer->start( 100 );	// update player control at 10 fps
 
 	HydrogenApp::get_instance()->addEventListener( this );
+
+	resize( m_size.width(), m_size.height() );
 }
 
 
 
-CpuLoadWidget::~CpuLoadWidget()
-{
+CpuLoadWidget::~CpuLoadWidget(){
 }
-
-
-
-void CpuLoadWidget::mousePressEvent(QMouseEvent *ev)
-{
-	UNUSED( ev );
-}
-
-
-
-void CpuLoadWidget::setValue(float newValue)
-{
-	if ( newValue > 1.0 ) {
-		newValue = 1.0;
-	}
-	else if (newValue < 0.0) {
-		newValue = 0.0;
-	}
-
-	if (m_fValue != newValue) {
-		m_fValue = newValue;
-	}
-}
-
-
-
-float CpuLoadWidget::getValue()
-{
-	return m_fValue;
-}
-
-
 
 void CpuLoadWidget::paintEvent( QPaintEvent*)
 {
-	if (!isVisible()) {
+	if ( !isVisible() ) {
 		return;
 	}
 
 	QPainter painter(this);
 
-	// background
-//	bitBlt( &m_temp, 0, 0, &m_back, 0, 0, width(), height(), CopyROP );
-	painter.drawPixmap( rect(), m_back, QRect( 0, 0, width(), height() ) );
+	float fSum = 0;
+	for ( auto ii : m_recentValues ) {
+		fSum += ii;
+	}
+	float fPeak = static_cast<float>( m_size.width() ) * fSum / static_cast<float>( m_recentValues.size() );
+	float fBorderWidth = 2;
 
-	// leds
-	int pos = (int)( 3 + m_fValue * ( width() - 3 * 2 ) );
-//	bitBlt( &m_temp, 0, 0, &m_leds, 0, 0, pos, height(), CopyROP );
-	painter.drawPixmap( QRect( 0, 0, pos, height() ), m_leds, QRect( 0, 0, pos, height() ) );
+	QColor colorGradientGreen( Qt::green );
+	QColor colorGradientLightGreen( 175, 255, 0 );
+	QColor colorGradientYellow( Qt::yellow );
+	QColor colorGradientOrange( 255, 125, 0 );
+	QColor colorGradientRed( Qt::red );
+	QColor colorBorder( QColor( 0, 0, 0 ) );
+		
+	QLinearGradient gradient = QLinearGradient( 0, 0, m_size.width(), m_size.height() );	
+	gradient.setColorAt( 0.0, colorGradientGreen );
+	gradient.setColorAt( 0.5, colorGradientLightGreen );
+	gradient.setColorAt( 0.7, colorGradientYellow );
+	gradient.setColorAt( 0.8, colorGradientOrange );
+	gradient.setColorAt( 0.92, colorGradientRed );
 
-	if (m_nXRunValue > 0) {
-		// xrun led
-//		bitBlt( &m_temp, 90, 0, &m_leds, 90, 0, width(), height(), CopyROP );
-		painter.drawPixmap( QRect( 90, 0, width(), height() ), m_leds, QRect( 90, 0, width(), height() ) );
+	painter.fillRect( QRect( 0, 0, m_size.width(), m_size.height() ),
+					  H2Core::Preferences::get_instance()->getColorTheme()->m_midLightColor );
+	painter.fillRect( QRectF( fBorderWidth / 2, fBorderWidth / 2, fPeak, m_size.height() - fBorderWidth ), QBrush( gradient ) );
+		
+	QPen pen;
+	if ( m_nXRunValue > 0 ) {
+		pen.setColor( colorGradientRed );
+	} else {
+		pen.setColor( colorBorder );
+	}
+	pen.setWidth( fBorderWidth );
+	painter.setPen( pen );
+
+	// Border
+	painter.drawRoundedRect( QRect( fBorderWidth / 2, fBorderWidth / 2, m_size.width() - fBorderWidth,
+									m_size.height() - fBorderWidth ), 1, 1 );
+
+	// Grid lines
+	float fDistance = 5;
+		
+	pen.setWidth( 1 );
+	painter.setPen( pen );
+	float fXX = fDistance;
+	while ( fXX < m_size.width() - fBorderWidth ) {
+		painter.drawLine( fXX, fBorderWidth, fXX, m_size.height() - fBorderWidth );
+		fXX += fDistance;
 	}
 }
-
-
 
 void CpuLoadWidget::updateCpuLoadWidget()
 {
 	// Process time
 	H2Core::AudioEngine *pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
-	int perc = 0;
+	float fPercentage = 0;
 	if ( pAudioEngine->getMaxProcessTime() != 0.0 ) {
-		perc = (int)( pAudioEngine->getProcessTime() / ( pAudioEngine->getMaxProcessTime() / 100.0 ) );
+		fPercentage = ( pAudioEngine->getProcessTime() / pAudioEngine->getMaxProcessTime() );
 	}
-	setValue( perc / 100.0 );
 
-	if (m_nXRunValue > 0) {
-		m_nXRunValue -= 5;
+	if ( fPercentage > 1.0 ) {
+		fPercentage = 1.0;
+	} else if ( fPercentage < 0.0 ) {
+		fPercentage = 0.0;
+	}
+
+	for ( int ii = ( m_recentValues.size() - 1 ) ; ii > 0; ii-- ) {
+		m_recentValues[ ii ] = m_recentValues[ ii - 1 ];
+	}
+	m_recentValues[ 0 ] = fPercentage;
+
+	if ( m_nXRunValue > 0 ){
+		m_nXRunValue--;
 	}
 
 	update();
@@ -154,8 +146,8 @@ void CpuLoadWidget::updateCpuLoadWidget()
 
 void CpuLoadWidget::XRunEvent()
 {
-	INFOLOG( "[xRunEvent]" );
-	m_nXRunValue = 100;
+	m_nXRunValue = 31;
+
 	update();
 }
 

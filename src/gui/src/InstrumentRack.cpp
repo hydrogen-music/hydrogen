@@ -21,7 +21,8 @@
  */
 
 #include "InstrumentRack.h"
-#include "Skin.h"
+#include "HydrogenApp.h"
+#include "CommonStrings.h"
 #include "Widgets/Button.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
@@ -35,12 +36,13 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 {
 	INFOLOG( "INIT" );
 
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	resize( 290, 405 );
 	setMinimumSize( width(), height() );
 	setFixedWidth( width() );
 
-	m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
-	QFont fontButtons( H2Core::Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+	QFont fontButtons( H2Core::Preferences::get_instance()->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 
 // TAB buttons
 	QWidget *pTabButtonsPanel = new QWidget( nullptr );
@@ -48,32 +50,13 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	pTabButtonsPanel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
 	// instrument editor button
-	m_pShowInstrumentEditorBtn = new ToggleButton(
-			pTabButtonsPanel,
-			"/skin_btn_on.png",
-			"/skin_btn_off.png",
-			"/skin_btn_over.png",
-			QSize( 130, 17 ), 
-			true );
-
-	m_pShowInstrumentEditorBtn->setToolTip( tr( "Show Instrument editor" ) );
-	m_pShowInstrumentEditorBtn->setText( tr( "Instrument" ) );
-	m_pShowInstrumentEditorBtn->setFont( fontButtons );
-	connect( m_pShowInstrumentEditorBtn, SIGNAL( clicked( Button* ) ), this, SLOT( on_showInstrumentEditorBtnClicked() ) );
+	m_pShowInstrumentEditorBtn = new Button( pTabButtonsPanel, QSize( 145, 24 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getInstrumentButton(), false, QSize(), tr( "Show Instrument editor" ) );
+	connect( m_pShowInstrumentEditorBtn, SIGNAL( pressed() ), this, SLOT( on_showInstrumentEditorBtnClicked() ) );
 
 	// show sound library button
-	m_pShowSoundLibraryBtn = new ToggleButton(
-			pTabButtonsPanel,
-			"/skin_btn_on.png",
-			"/skin_btn_off.png",
-			"/skin_btn_over.png",
-			QSize( 150, 17 ), 
-			true );
+	m_pShowSoundLibraryBtn = new Button( pTabButtonsPanel,QSize( 145, 24 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSoundLibraryButton(), false, QSize(), tr( "Show sound library" ) );
+	connect( m_pShowSoundLibraryBtn, SIGNAL( pressed() ), this, SLOT( on_showSoundLibraryBtnClicked() ) );
 
-	m_pShowSoundLibraryBtn->setToolTip( tr( "Show sound library" ) );
-	m_pShowSoundLibraryBtn->setText( tr( "Sound library" ) );
-	m_pShowSoundLibraryBtn->setFont( fontButtons );
-	connect( m_pShowSoundLibraryBtn, SIGNAL( clicked( Button* ) ), this, SLOT( on_showSoundLibraryBtnClicked() ) );
 
 	QHBoxLayout *pTabHBox = new QHBoxLayout();
 	pTabHBox->setSpacing( 0 );
@@ -113,36 +96,44 @@ InstrumentRack::~InstrumentRack()
 	INFOLOG( "DESTROY" );
 }
 
-
-
 void InstrumentRack::on_showSoundLibraryBtnClicked()
 {
-	m_pShowSoundLibraryBtn->setPressed( true );
-	m_pShowInstrumentEditorBtn->setPressed( false );
+	if ( m_pShowSoundLibraryBtn->isChecked() && m_pShowSoundLibraryBtn->isDown() ) {
+		
+		m_pShowSoundLibraryBtn->setChecked( true );
+		m_pShowSoundLibraryBtn->setDown( false );
+		return;
+	}
+	
+	m_pShowInstrumentEditorBtn->setChecked( false );
 
 	m_pSoundLibraryPanel->show();
 	InstrumentEditorPanel::get_instance()->hide();
 }
 
-
-
 void InstrumentRack::on_showInstrumentEditorBtnClicked()
 {
-	m_pShowInstrumentEditorBtn->setPressed( true );
-	m_pShowSoundLibraryBtn->setPressed( false );
+	if ( m_pShowInstrumentEditorBtn->isChecked() && m_pShowInstrumentEditorBtn->isDown() ) {
+		
+		m_pShowInstrumentEditorBtn->setChecked( true );
+		m_pShowInstrumentEditorBtn->setDown( false );
+		return;
+	} else if ( ! m_pShowInstrumentEditorBtn->isChecked() &&
+				! m_pShowInstrumentEditorBtn->isDown() ) {
+		m_pShowInstrumentEditorBtn->setChecked( true );
+	}
+
+	m_pShowSoundLibraryBtn->setChecked( false );
 
 	InstrumentEditorPanel::get_instance()->show();
 	m_pSoundLibraryPanel->hide();
 }
 
-void InstrumentRack::onPreferencesChanged( bool bAppearanceOnly ) {
+void InstrumentRack::onPreferencesChanged(  H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_pShowInstrumentEditorBtn->font().family() != pPref->getApplicationFontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_lastUsedFontSize = H2Core::Preferences::get_instance()->getFontSize();
-		
-		QFont fontButtons( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+	if ( changes & H2Core::Preferences::Changes::Font ) {
+		QFont fontButtons( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 		m_pShowInstrumentEditorBtn->setFont( fontButtons );
 		m_pShowSoundLibraryBtn->setFont( fontButtons );
 	}

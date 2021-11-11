@@ -25,7 +25,7 @@
 #include <cppunit/TestResult.h>
 
 #include <core/Helpers/Filesystem.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/config.h>
 

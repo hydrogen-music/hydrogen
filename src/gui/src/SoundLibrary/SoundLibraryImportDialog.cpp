@@ -30,7 +30,7 @@
 #include "../InstrumentRack.h"
 
 #include <core/H2Exception.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Helpers/Filesystem.h>
 

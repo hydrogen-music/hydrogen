@@ -24,6 +24,7 @@
 #define AUTOMATION_PATH_VIEW_H
 
 #include <core/Object.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Basics/AutomationPath.h>
 
 #include <QtGui>
@@ -70,6 +71,9 @@ protected:
 	std::pair<const float, float> locate(QMouseEvent *) const;
 
 	void autoResize();
+
+public slots:
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 signals:
 	void valueChanged();

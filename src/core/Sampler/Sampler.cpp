@@ -37,7 +37,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/Note.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Pattern.h>

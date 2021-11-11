@@ -29,7 +29,7 @@
 #include "../Widgets/WidgetWithScalableFont.h"
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 class PatternEditorPanel;
 
@@ -65,7 +65,7 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 
 	public slots:
 		void updateEditor( bool bRedrawAll = false );
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private:
 		uint m_nRulerWidth;
@@ -79,10 +79,6 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 		int m_nTicks;
 		PatternEditorPanel *m_pPatternEditorPanel;
 		H2Core::Pattern *m_pPattern;
-		/** Used to detect changed in the font*/
-		QString m_sLastUsedFontFamily;
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;

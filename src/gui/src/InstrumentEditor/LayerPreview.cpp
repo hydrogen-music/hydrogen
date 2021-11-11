@@ -32,6 +32,8 @@
 #include <core/Basics/Note.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Sampler/Sampler.h>
+#include <core/Preferences/Theme.h>
+
 using namespace H2Core;
 
 #include "../Skin.h"
@@ -47,8 +49,6 @@ LayerPreview::LayerPreview( QWidget* pParent )
  , m_bMouseGrab( false )
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);
-	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-	m_sLastUsedFontFamily = Preferences::get_instance()->getLevel2FontFamily();
 
 	//INFOLOG( "INIT" );
 
@@ -62,7 +62,7 @@ LayerPreview::LayerPreview( QWidget* pParent )
 	int h = 20 + m_nLayerHeight * InstrumentComponent::getMaxLayers();
 	resize( w, h );
 
-	m_speakerPixmap.load( Skin::getImagePath() + "/instrumentEditor/speaker.png" );
+	m_speakerPixmap.load( Skin::getSvgImagePath() + "/icons/white/speaker.svg" );
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
@@ -87,9 +87,11 @@ void LayerPreview::set_selected_component( int SelectedComponent )
 void LayerPreview::paintEvent(QPaintEvent *ev)
 {
 	QPainter p( this );
+	
+	auto pPref = H2Core::Preferences::get_instance();
 
-	QFont fontText( m_sLastUsedFontFamily, getPointSize( m_lastUsedFontSize ) );
-	QFont fontButton( m_sLastUsedFontFamily, getPointSizeButton() );
+	QFont fontText( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
+	QFont fontButton( pPref->getLevel2FontFamily(), getPointSizeButton() );
 	
 	p.fillRect( ev->rect(), QColor( 58, 62, 72 ) );
 
@@ -446,16 +448,19 @@ void LayerPreview::showLayerEndVelocity( const std::shared_ptr<InstrumentLayer> 
 }
 
 int LayerPreview::getPointSizeButton() const {
+	
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	int nPointSize;
 	
-	switch( m_lastUsedFontSize ) {
-	case H2Core::Preferences::FontSize::Small:
+	switch( pPref->getFontSize() ) {
+	case H2Core::FontTheme::FontSize::Small:
 		nPointSize = 6;
 		break;
-	case H2Core::Preferences::FontSize::Normal:
+	case H2Core::FontTheme::FontSize::Normal:
 		nPointSize = 8;
 		break;
-	case H2Core::Preferences::FontSize::Large:
+	case H2Core::FontTheme::FontSize::Large:
 		nPointSize = 12;
 		break;
 	}
@@ -463,13 +468,10 @@ int LayerPreview::getPointSizeButton() const {
 	return nPointSize;
 }
 
-void LayerPreview::onPreferencesChanged( bool bAppearanceOnly ) {
+void LayerPreview::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( m_sLastUsedFontFamily != pPref->getLevel2FontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-		m_sLastUsedFontFamily = Preferences::get_instance()->getLevel2FontFamily();
+	if ( changes & H2Core::Preferences::Changes::Font ) {
 		update();
 	}
 }

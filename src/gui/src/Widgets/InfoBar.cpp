@@ -21,33 +21,47 @@
  */
 
 #include "InfoBar.h"
+#include "../Skin.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QStyle>
 
-#include "../Skin.h"
+#include <core/Preferences/Preferences.h>
+
+#include "../HydrogenApp.h"
 
 InfoBar::InfoBar( QWidget *parent )
 	: QWidget( parent )
 {
-	setBackgroundColor();
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	setAutoFillBackground( true );
+	
 	createLayout();
 	createIcon();
 	createLabel();
 	createCloseButton();
+	
+	updateStyleSheet();
+	
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &InfoBar::onPreferencesChanged );
 }
 
-
-void InfoBar::setBackgroundColor()
-{
-	QPalette pal = palette();
-	pal.setColor( QPalette::Window, QColor( 97, 165, 249 ) );
-	setAutoFillBackground( true );
-	setPalette( pal );
+void InfoBar::updateStyleSheet(){
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	setStyleSheet( QString( "background: %1;" ).arg( pPref->getColorTheme()->m_highlightColor.name() ) );
 }
 
+void InfoBar::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
+		updateStyleSheet();
+	}
+}
 
 void InfoBar::createLayout()
 {

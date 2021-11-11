@@ -4,16 +4,37 @@
 		- Remembering paths in all export/import/save/open dialogs.
 		- Introducing keyboard shortcut for the Open Pattern dialog.
 		- Allow for opening more than one Pattern at once.
+	* Interface
+		- Improved scalability (most PNG images were replaced by SVGs,
+		  hardcoded PNG labels are now directly drawn by Qt, and spin boxes,
+		  buttons, and combo boxes are now based on native Qt widgets)
+		- Improved internationalization (all labels are translatable now
+		  and support UTF-8)
+		- Improved accessibility (widgets were increased to fill available
+		  space, preference option to (de- and) increase font size)
+		- All colors can be altered via the preferences
+		- Input widgets (rotary, fader, combo box, spin box, button) do
+		  support both mouse and keyboard input (e.g. setting numerical values)
+		- Input widgets are faintly highlighted when hovered and more
+		  strongly highlighted when clicked (focuses). Only the focused
+		  widget can receive keyboard input
+		- MIDI-learnable widgets now show their corresponding MIDI action
+		  and it's binding in the tooltip
 	* PreferencesDialog > Appearance tab overhaul
 	  	- Drop previous font options in favor for three different
 		  levels of font (without exposing their point sizes)
 		- Ability to decrease or increase the overall font size
-		- Font and coloring updates take effect immediately (no
-		  restart required anymore)
+		- All settings in the Appearance tab - except the overall layout
+		  and the scaling policy - take effect immediately (no restart
+		  required anymore)
 		- Drop the "fixed" coloring methods and rename "steps" to
 		  "Custom".
-		- Via a colored button the particular line color can now be
-		  adjusted using a QColorDialog
+		- Via a colored button the particular line color in the Song
+		  Editor can now be adjusted using a color dialog.
+		- Custom color tab to alter all colors in the GUI (big thanks to
+		  the Muse4 team for the original code).
+		- All options set in the Appearance tab can be imported and
+		  exported into and shared via dedicated .h2theme files.
 	* InstrumentEditor UX improvements:
 		- rework start/end/loop frame slider selection and motion.
 		- rework velocity/pan envelope editing

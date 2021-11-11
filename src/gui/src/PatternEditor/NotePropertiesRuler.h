@@ -30,7 +30,7 @@
 #include <QtWidgets>
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <map>
 
 #include "PatternEditor.h"
@@ -96,12 +96,14 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		virtual void copy() override {}
 		virtual void paste() override {}
 		virtual void cut() override {}
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+		void scrolled( int );
 
 	private:
 
 		bool m_bNeedsUpdate;
 		void finishUpdateEditor();
+		void drawFocus( QPainter& painter );
 
 		NotePropertiesMode m_Mode;
 
@@ -122,6 +124,8 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		void focusOutEvent( QFocusEvent *ev ) override;
 		void addUndoAction();
 		void prepareUndoAction( int x );
+		void enterEvent( QEvent *ev ) override;
+		void leaveEvent( QEvent *ev ) override;
 
 		virtual void mouseMoveEvent( QMouseEvent *ev ) override;
 
@@ -141,10 +145,7 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		void adjustNotePropertyDelta( H2Core::Note *pNote, float fDelta, bool bMessage = false );
 
 		int m_nDragPreviousColumn;
-		/** Used to detect changed in the font*/
-		QString m_sLastUsedFontFamily;
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
+		bool m_bEntered;
 };
 
 

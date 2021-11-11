@@ -77,6 +77,7 @@ endif()
 TARGET_LINK_LIBRARIES(hydrogen
 	hydrogen-core-${VERSION}
 	Qt5::Widgets
+	Qt5::Svg
 )
 
 # Precompiled headers for Qt and std::vector. These dramatically reduce GUI build times

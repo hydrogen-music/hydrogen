@@ -25,7 +25,7 @@
 #include "MidiTable.h"
 
 #include <core/MidiMap.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Globals.h>
 #include <core/MidiAction.h>
 #include <core/Hydrogen.h>
@@ -98,7 +98,8 @@ void MidiTable::insertNewRow(QString actionString , QString eventString, int eve
 	
 
 	QPushButton *midiSenseButton = new QPushButton(this);
-	midiSenseButton->setIcon(QIcon(Skin::getImagePath() + "/preferencesDialog/rec.png"));
+	midiSenseButton->setIcon(QIcon(Skin::getSvgImagePath() + "/icons/record.svg"));
+	midiSenseButton->setIconSize( QSize( 13, 13 ) );
 	midiSenseButton->setToolTip( tr("press button to record midi event") );
 
 	QSignalMapper *signalMapper = new QSignalMapper(this);

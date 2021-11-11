@@ -49,6 +49,7 @@
 #define REPOSITORIES    "repositories/"
 #define SCRIPTS         "scripts/"
 #define SONGS           "songs/"
+#define THEMES          "themes/"
 #define TMP             "hydrogen/"
 #define XSD             "xsd/"
 
@@ -75,6 +76,7 @@
 #define PATTERN_FILTER  "*.h2pattern"
 #define PLAYLIST_FILTER "*.h2playlist"
 #define SONG_FILTER     "*.h2song"
+#define THEME_FILTER     "*.h2theme"
 
 namespace H2Core
 {
@@ -83,11 +85,13 @@ Logger* Filesystem::__logger = nullptr;
 
 const QString Filesystem::scripts_ext = ".sh";
 const QString Filesystem::songs_ext = ".h2song";
+const QString Filesystem::themes_ext = ".h2theme";
 const QString Filesystem::patterns_ext = ".h2pattern";
 const QString Filesystem::playlist_ext = ".h2playlist";
 const QString Filesystem::drumkit_ext = ".h2drumkit";
 const QString Filesystem::scripts_filter_name = "Hydrogen Scripts (*.sh)";
 const QString Filesystem::songs_filter_name = "Hydrogen Songs (*.h2song)";
+const QString Filesystem::themes_filter_name = "Hydrogen Theme (*.h2theme)";
 const QString Filesystem::patterns_filter_name = "Hydrogen Patterns (*.h2pattern)";
 const QString Filesystem::playlists_filter_name = "Hydrogen Playlists (*.h2playlist)";
 
@@ -369,6 +373,7 @@ bool Filesystem::check_sys_paths()
 	if( !file_readable( sys_config_path() ) ) ret = false;
 	if(  !dir_readable( i18n_dir() ) ) ret = false;
 	if(  !dir_readable( img_dir() ) ) ret = false;
+	if(  !dir_readable( sys_theme_dir() ) ) ret = false;
 	if(  !dir_readable( xsd_dir() ) ) ret = false;
 	if( !file_readable( pattern_xsd_path() ) ) ret = false;
 	if( !file_readable( drumkit_xsd_path() ) ) ret = false;
@@ -392,6 +397,7 @@ bool Filesystem::check_usr_paths()
 	if( !path_usable( plugins_dir() ) ) ret = false;
 	if( !path_usable( scripts_dir() ) ) ret = false;
 	if( !path_usable( songs_dir() ) ) ret = false;
+	if( !path_usable( usr_theme_dir() ) ) ret = false;
 	if( !file_writable( usr_config_path() ) ) ret = false;
 
 	if ( ret ) INFOLOG( QString( "user path %1 is usable." ).arg( __usr_data_path ) );
@@ -483,6 +489,14 @@ QString Filesystem::scripts_dir()
 QString Filesystem::songs_dir()
 {
 	return __usr_data_path + SONGS;
+}
+QString Filesystem::usr_theme_dir()
+{
+	return __usr_data_path + THEMES;
+}
+QString Filesystem::sys_theme_dir()
+{
+	return __sys_data_path + THEMES;
 }
 QString Filesystem::song_path( const QString& sg_name )
 {
@@ -768,6 +782,12 @@ QStringList Filesystem::song_list_cleared( )
 bool Filesystem::song_exists( const QString& sg_name )
 {
 	return QDir( songs_dir() ).exists( sg_name );
+}
+
+QStringList Filesystem::theme_list( )
+{
+	return QDir( sys_theme_dir() ).entryList( QStringList( THEME_FILTER ), QDir::Files | QDir::Readable | QDir::NoDotAndDotDot ) +
+		QDir( usr_theme_dir() ).entryList( QStringList( THEME_FILTER ), QDir::Files | QDir::Readable | QDir::NoDotAndDotDot );
 }
 
 // PLAYLISTS

@@ -20,7 +20,7 @@
  *
  */
 
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Playlist.h>
 #include <core/Helpers/Filesystem.h>

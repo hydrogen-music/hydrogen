@@ -25,7 +25,6 @@
 #include <QLabel>
 
 #include "ExportSongDialog.h"
-#include "Skin.h"
 #include "HydrogenApp.h"
 #include "Mixer/Mixer.h"
 
@@ -39,7 +38,7 @@
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Timeline.h>
 #include <core/IO/AudioOutput.h>
 #include <core/AudioEngine/AudioEngine.h>

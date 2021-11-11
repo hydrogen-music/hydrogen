@@ -28,8 +28,6 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 
-#include "Skin.h"
-
 VirtualPatternDialog::VirtualPatternDialog(QWidget* parent)
     : QDialog(parent)
 {

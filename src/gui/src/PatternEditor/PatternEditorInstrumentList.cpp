@@ -34,6 +34,7 @@
 #include <core/LocalFileMng.h>
 using namespace H2Core;
 
+#include "CommonStrings.h"
 #include "UndoActions.h"
 #include "PatternEditorPanel.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
@@ -54,11 +55,13 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	: PixmapWidget(pParent)
 	, m_bIsSelected(false)
 {
-	int h = Preferences::get_instance()->getPatternEditorGridHeight();
+
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	int h = pPref->getPatternEditorGridHeight();
 	setFixedSize(181, h);
 
-	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();	
-	QFont nameFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize( m_lastUsedFontSize ) );
+	QFont nameFont( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
 	nameFont.setBold( true );
 
 	m_pNameLbl = new QLabel(this);
@@ -66,42 +69,26 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pNameLbl->move( 10, 1 );
 	m_pNameLbl->setFont(nameFont);
 
-	m_pMuteBtn = new ToggleButton(
-			this,
-			"/mixerPanel/btn_mute_on.png",
-			"/mixerPanel/btn_mute_off.png",
-			"/mixerPanel/btn_mute_off.png",
-			QSize( 18, 13 )
-	);
-	m_pMuteBtn->move( 145, 5 );
-	m_pMuteBtn->setPressed(false);
-	m_pMuteBtn->setToolTip( tr("Mute instrument") );
+	/*: Text displayed on the button for muting an instrument. Its
+	  size is designed for a single character.*/
+	m_pMuteBtn = new Button( this, QSize( 18, height() - 1 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true, QSize(), tr("Mute instrument") );
+	m_pMuteBtn->move( 145, 0 );
+	m_pMuteBtn->setChecked(false);
 	m_pMuteBtn->setObjectName( "MuteButton" );
-	connect(m_pMuteBtn, SIGNAL(clicked(Button*)), this, SLOT(muteClicked()));
+	connect(m_pMuteBtn, SIGNAL( pressed() ), this, SLOT( muteClicked() ));
 
-	m_pSoloBtn = new ToggleButton(
-			this,
-			"/mixerPanel/btn_solo_on.png",
-			"/mixerPanel/btn_solo_off.png",
-			"/mixerPanel/btn_solo_off.png",
-			QSize( 18, 13 )
-	);
-	m_pSoloBtn->move( 163, 5 );
-	m_pSoloBtn->setPressed(false);
-	m_pSoloBtn->setToolTip( tr("Solo") );
+	/*: Text displayed on the button for soloing an instrument. Its
+	  size is designed for a single character.*/
+	m_pSoloBtn = new Button( this, QSize( 18, height() - 1 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton(), false, QSize(), tr("Solo") );
+	m_pSoloBtn->move( 163, 0 );
+	m_pSoloBtn->setChecked(false);
 	m_pSoloBtn->setObjectName( "SoloButton" );
-	connect(m_pSoloBtn, SIGNAL(clicked(Button*)), this, SLOT(soloClicked()));
+	connect(m_pSoloBtn, SIGNAL( pressed() ), this, SLOT(soloClicked()));
 
-	m_pSampleWarning = new Button(
-			this,
-			"/patternEditor/icn_warning.png",
-			"/patternEditor/icn_warning.png",
-			"/patternEditor/icn_warning.png",
-			QSize( 15, 13 ) );
+	m_pSampleWarning = new Button( this, QSize( 15, 13 ), Button::Type::Push, "warning.svg", "", false, QSize(), tr( "Some samples for this instrument failed to load." ), true );
 	m_pSampleWarning->move( 128, 5 );
 	m_pSampleWarning->hide();
-	m_pSampleWarning->setToolTip( tr( "Some samples for this instrument failed to load." ) );
-	connect(m_pSampleWarning, SIGNAL(clicked(Button*)), this, SLOT(sampleWarningClicked()));
+	connect(m_pSampleWarning, SIGNAL( pressed() ), this, SLOT( sampleWarningClicked() ));
 
 
 	// Popup menu
@@ -171,13 +158,17 @@ void InstrumentLine::setNumber(int nIndex)
 
 void InstrumentLine::setMuted(bool isMuted)
 {
-	m_pMuteBtn->setPressed(isMuted);
+	if ( ! m_pMuteBtn->isDown() ) {
+		m_pMuteBtn->setChecked(isMuted);
+	}
 }
 
 
 void InstrumentLine::setSoloed( bool soloed )
 {
-	m_pSoloBtn->setPressed( soloed );
+	if ( ! m_pSoloBtn->isDown() ) {
+		m_pSoloBtn->setChecked( soloed );
+	}
 }
 
 
@@ -543,13 +534,12 @@ void InstrumentLine::functionDeleteInstrument()
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
-void InstrumentLine::onPreferencesChanged( bool bAppearanceOnly ) {
+void InstrumentLine::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( m_pNameLbl->font().family() != pPref->getLevel2FontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-		m_pNameLbl->setFont( QFont( pPref->getLevel2FontFamily(), getPointSize( m_lastUsedFontSize ) ) );
+	if ( changes & H2Core::Preferences::Changes::Font ) {
+		
+		m_pNameLbl->setFont( QFont( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) ) );
 	}
 }
 

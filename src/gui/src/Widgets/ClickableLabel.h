@@ -23,20 +23,50 @@
 #ifndef CLICKABLE_LABEL_H
 #define CLICKABLE_LABEL_H
 
+#include <core/Object.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
+
 #include <QtGui>
 #include <QtWidgets>
 
+/** Custom QLabel that emits a signal when clicked.
+ *
+ * The label tries to be smart when choosing the font size. It knows
+ * its own size and decreases the font size - if the original would
+ * make the text overflow - until the text fits.
+ *
+ */
 /** \ingroup docGUI docWidgets*/
-class ClickableLabel : public QLabel
+class ClickableLabel : public QLabel, public H2Core::Object<ClickableLabel>
 {
+	H2_OBJECT(ClickableLabel)
 	Q_OBJECT
 
-	public:
-		explicit ClickableLabel( QWidget *pParent );
-		void mousePressEvent( QMouseEvent * e );
+public:
+	/** The individual colors of the text won't be exposed but are up
+		to the palette/application-wide settings.*/
+	enum class Color {
+		Bright,
+		Dark
+	};
+	
+	explicit ClickableLabel( QWidget *pParent, QSize size = QSize( 0, 0 ), QString sText = "", Color color = Color::Bright );
+	void mousePressEvent( QMouseEvent * e );
 
-	signals:
-		void labelClicked( ClickableLabel* pLabel );
+public slots:
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void setText( const QString& sNewText );
+
+signals:
+	void labelClicked( ClickableLabel* pLabel );
+
+private:
+	void updateStyleSheet();
+	void updateFont( QString sFontFamily, H2Core::FontTheme::FontSize fontSize );
+
+	QSize m_size;
+	Color m_color;
 };
 
 

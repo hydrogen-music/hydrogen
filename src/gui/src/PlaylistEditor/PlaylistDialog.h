@@ -28,13 +28,12 @@
 #include <QDialog>
 #include "ui_PlaylistDialog_UI.h"
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/Basics/Playlist.h>
 #include "../Widgets/WidgetWithScalableFont.h"
 
 class Button;
-class ToggleButton;
 class PixmapWidget;
 
 ///
@@ -54,7 +53,7 @@ class PlaylistDialog :  public QDialog, protected WidgetWithScalableFont<8, 10, 
 		bool loadListByFileName( QString filename);
 
 public slots:
-	void onPreferencesChanged( bool bAppearanceOnly );
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private slots:
 		void keyPressEvent( QKeyEvent* ev );
@@ -68,10 +67,10 @@ public slots:
 		void saveListAs();
 		void saveList();
 		void loadScript();
-		void ffWDBtnClicked(Button* ref);
-		void nodePlayBTN( Button* ref );
-		void nodeStopBTN( Button* ref );
-		void rewindBtnClicked(Button *ref);
+		void ffWDBtnClicked();
+		void nodePlayBTN();
+		void nodeStopBTN();
+		void rewindBtnClicked();
 		void editScript();
 		void newScript();
 		void on_m_pPlaylistTree_itemClicked ( QTreeWidgetItem * item, int column );
@@ -94,11 +93,9 @@ public slots:
 		QMenu *m_pScriptMenu;
 
 		Button *m_pRwdBtn;
-		ToggleButton *m_pPlayBtn;
+		Button *m_pPlayBtn;
 		Button *m_pStopBtn;
 		Button *m_pFfwdBtn;
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

@@ -23,6 +23,7 @@
 #define H2_SKIN_H
 
 #include <QString>
+#include <QtGui>
 #include <core/Helpers/Filesystem.h>
 
 ///
@@ -31,12 +32,41 @@
 /** \ingroup docGUI*/
 class Skin
 {
-	public:
-		static QString getImagePath()
-		{
-			return H2Core::Filesystem::img_dir().append( "/gray" );
-		}
+public:
+	static QString getImagePath()
+	{
+		return H2Core::Filesystem::img_dir().append( "/gray" );
+	}
+	static QString getSvgImagePath()
+	{
+		return H2Core::Filesystem::img_dir().append( "/scalable" );
+	}
+	/** Top-level stylesheet for Hydrogen.
 
+		This one affects all widgets within Hydrogen (including
+		popups, file browser etc) and will get the most recent color
+		values from the #H2Core::Preferences.
+		
+		\return String version of the stylesheet.*/
+	static QString getGlobalStyleSheet();
+	/** Function used to update the global palette of the
+	QApplication.
+	
+	It will get the most recent color values from the #H2Core::Preferences.*/
+	static void setPalette( QApplication *pQApp );
+
+	/** Get the style sheet used for warning icons. 
+	 *
+	 * In addition, the icon of the warning button has to be set to
+	 * Skin::getSvgImagePath() + "/icons/warning.svg".
+	 *
+	 * \param nSize Size in pixel (value will be used as both width
+	 * and height).
+	 *
+	 * \return Argument used of the setStyleSheet() method of the
+	 * warning button.
+	 */
+	static QString getWarningButtonStyleSheet( int nSize );
 };
 
 

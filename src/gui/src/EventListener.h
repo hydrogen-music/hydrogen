@@ -23,11 +23,12 @@
 #define EVENT_LISTENER
 
 #include <core/Globals.h>
+#include <core/AudioEngine/AudioEngine.h>
 /** \ingroup docGUI docEvent*/
 class EventListener
 {
 	public:
-		virtual void stateChangedEvent(int nState) { UNUSED( nState ); }
+	virtual void stateChangedEvent( H2Core::AudioEngine::State state) { UNUSED( state ); }
 		virtual void patternChangedEvent() {}
 		virtual void patternModifiedEvent() {}
 		virtual void songModifiedEvent() {}

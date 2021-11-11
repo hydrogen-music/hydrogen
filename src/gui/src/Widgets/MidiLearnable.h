@@ -48,12 +48,12 @@ public:
 	m_action = action;
     }
 
-    Action* getAction(){
-	return m_action;
+    Action* getAction() const {
+		return m_action;
     }
 
 
-private:
+protected:
     Action *m_action;
 };
 

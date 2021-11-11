@@ -26,13 +26,14 @@
 #include <core/config.h>
 #include <core/Object.h>
 #include <core/Globals.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 #include "EventListener.h"
 
 #include <iostream>
 #include <cstdint>
 #include <vector>
+#include <memory>
 
 #include <QtGui>
 #include <QtWidgets>
@@ -68,6 +69,7 @@ class PlaylistDialog;
 class SampleEditor;
 class Director;
 class InfoBar;
+class CommonStrings;
 
 /** \ingroup docGUI*/
 class HydrogenApp :  public QObject, public EventListener,  public H2Core::Object<HydrogenApp>
@@ -112,6 +114,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		PatternEditorPanel*		getPatternEditorPanel();
 		PlayerControl*			getPlayerControl();
 		InstrumentRack*			getInstrumentRack();
+	std::shared_ptr<CommonStrings>			getCommonStrings();
 		InfoBar *			addInfoBar();
 
 		QUndoStack*			m_pUndoStack;
@@ -137,10 +140,9 @@ signals:
 	 * Triggered by the PreferencesDialog upon a change of the
 	 * underlying options in the Preferences class.
 	 *
-	 * @param bAppearanceOnly Whether all options or only those
-	 * associated with the Appearance tab of the PreferencesDialog
-	 * should be updated.*/
-	void preferencesChanged( bool bAppearanceOnly );
+	 * @param changes Or-able options indicating which part of the
+	 * Preferences did change.*/
+	void preferencesChanged( H2Core::Preferences::Changes changes );
 
 	public slots:
 		/**
@@ -204,12 +206,11 @@ signals:
 	 *
 	 * Triggered by the PreferencesDialog upon a change of the
 	 * underlying options in the Preferences class.
-	 *
-	 * @param bAppearanceOnly Whether all options or only those
-	 * associated with the Appearance tab of the PreferencesDialog
-	 * should be updated.
 	 */
-	void changePreferences( bool bAppearanceOnly );
+	void changePreferences( H2Core::Preferences::Changes changes );
+
+private slots:
+	void propagatePreferences();
 
 	private:
 		static HydrogenApp *		m_pInstance;	///< HydrogenApp instance
@@ -234,8 +235,12 @@ signals:
 		QTabWidget *				m_pTab;
 		QSplitter *					m_pSplitter;
 		QVBoxLayout *				m_pMainVBox;
+	std::shared_ptr<CommonStrings>				m_pCommonStrings;
 
 		bool						m_bHideKeyboardCursor;
+		QTimer *					m_pPreferencesUpdateTimer;
+		int						    m_nPreferencesUpdateTimeout;
+	H2Core::Preferences::Changes m_bufferedChanges;  
 
 		// implement EngineListener interface
 		void engineError(uint nErrorCode);
@@ -330,6 +335,11 @@ inline PlayerControl* HydrogenApp::getPlayerControl()
 inline InstrumentRack* HydrogenApp::getInstrumentRack()
 {
 	return m_pInstrumentRack;
+}
+
+inline std::shared_ptr<CommonStrings> HydrogenApp::getCommonStrings()
+{
+	return m_pCommonStrings;
 }
 
 inline bool HydrogenApp::hideKeyboardCursor()

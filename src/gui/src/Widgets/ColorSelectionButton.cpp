@@ -31,9 +31,12 @@ ColorSelectionButton::ColorSelectionButton( QWidget* pParent, QColor sInitialCol
  , m_bMouseOver( false )
 {
 	setFlat( true );
-	QSize size( nSize, nSize );
-	setFixedSize( size );
-	resize( size );
+
+	if ( nSize != 0 ) {
+		QSize size( nSize, nSize );
+		setFixedSize( size );
+		resize( size );
+	}
 }
 
 ColorSelectionButton::~ColorSelectionButton() {
@@ -41,12 +44,15 @@ ColorSelectionButton::~ColorSelectionButton() {
 
 void ColorSelectionButton::mousePressEvent(QMouseEvent*ev) {
 
-	QColor newColor = QColorDialog::getColor( m_sColor, this, tr( "Pick a pattern color" ) );
+	if ( isEnabled() ) {
 
-	if ( m_sColor != newColor ) {
-		m_sColor = newColor;
-		update();
-		emit clicked();
+		QColor newColor = QColorDialog::getColor( m_sColor, this, tr( "Pick a pattern color" ) );
+
+		if ( m_sColor != newColor && newColor.isValid() ) {
+			m_sColor = newColor;
+			update();
+			emit colorChanged();
+		}
 	}
 }
 
@@ -57,6 +63,10 @@ void ColorSelectionButton::enterEvent(QEvent *ev) {
 }
 
 
+void ColorSelectionButton::setColor( const QColor& color) {
+	m_sColor = color;
+	update();
+}
 
 void ColorSelectionButton::leaveEvent(QEvent *ev) {
 	UNUSED( ev );
@@ -69,7 +79,11 @@ void ColorSelectionButton::paintEvent( QPaintEvent* ev) {
 	QColor color( m_sColor );
 	QColor backgroundColor( "#333" );
 	if ( m_bMouseOver ) {
-		backgroundColor = QColor( "#BBB" );
+		if ( isEnabled() ) {
+			backgroundColor = H2Core::Preferences::get_instance()->getColorTheme()->m_highlightColor;
+		} else {
+			backgroundColor = H2Core::Preferences::get_instance()->getColorTheme()->m_lightColor;
+		}
 	}
 	
 	painter.setPen( backgroundColor );
