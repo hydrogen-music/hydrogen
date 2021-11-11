@@ -420,7 +420,6 @@ bool MidiActionManager::select_instrument( std::shared_ptr<Action> pAction, Hydr
 
 bool MidiActionManager::effect_level_absolute( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen) {
 	bool ok;
-	bool bSuccess = true;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int fx_param = pAction->getValue().toInt(&ok,10);
 	int fx_id = pAction->getParameter2().toInt(&ok,10);
@@ -441,17 +440,46 @@ bool MidiActionManager::effect_level_absolute( std::shared_ptr<Action> pAction, 
 			pHydrogen->setSelectedInstrumentNumber( nLine );			
 		} else {
 			ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
-			bSuccess = false;
+			return false;
 		}
 	} else {
 		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
+		return false;
 	}
 
-	return bSuccess;
+	return true;
 }
 
-bool MidiActionManager::effect_level_relative( std::shared_ptr<Action> , Hydrogen* ) {
-	//empty ?
+bool MidiActionManager::effect_level_relative( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	bool ok;
+	int nLine = pAction->getParameter1().toInt(&ok,10);
+	int fx_param = pAction->getValue().toInt(&ok,10);
+	int fx_id = pAction->getParameter2().toInt(&ok,10);
+
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
+	
+	if ( pInstrList->is_valid_index( nLine) ) {
+		auto pInstr = pInstrList->get( nLine );
+		
+		if ( pInstr ) {
+			if( fx_param != 0 ) {
+				if ( fx_param == 1 && pInstr->get_fx_level( fx_id ) <= 0.95 ) {
+					pInstr->set_fx_level( pInstr->get_fx_level( fx_id ) + 0.05, fx_id );
+				} else if ( pInstr->get_fx_level( fx_id ) >= 0.05 ) {
+					pInstr->set_fx_level( pInstr->get_fx_level( fx_id ) - 0.05, fx_id );
+				}
+			}
+			
+			pHydrogen->setSelectedInstrumentNumber( nLine );			
+		} else {
+			ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
+			return false;
+		}
+	} else {
+		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
+		return false;
+	}
 	return true;
 }
 
