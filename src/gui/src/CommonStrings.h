@@ -126,6 +126,8 @@ public:
 	const QString& getMidiSenseWindowTitle() const { return m_sMidiSenseWindowTitle; }
 	const QString& getMidiSenseInput() const { return m_sMidiSenseInput; }
 	const QString& getMidiSenseUnavailable() const { return m_sMidiSenseUnavailable; }
+	
+	const QString& getPatternLoadError() const { return m_sPatternLoadError; }
 
 private:
 	QString m_sSmallSoloButton;
@@ -210,6 +212,8 @@ private:
 	QString m_sMidiSenseWindowTitle;
 	QString m_sMidiSenseInput;
 	QString m_sMidiSenseUnavailable;
+
+	QString m_sPatternLoadError;
 	
 };
 #endif

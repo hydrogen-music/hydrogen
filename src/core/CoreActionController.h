@@ -165,6 +165,9 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 */
 		bool quit();
 
+		// -----------------------------------------------------------
+		// Further OSC commands
+
 		/**
 		 * (De)activates the usage of the Timeline.
 		 *
@@ -265,6 +268,47 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
 		bool locateToFrame( unsigned long nFrame );
+
+	    /** Creates an empty pattern and adds it to the pattern list.
+		 *
+		 * @param sPath Name for the created pattern.
+		 *
+		 * @return bool true on success
+		 */
+    	bool newPattern( const QString& sPatternName );
+	    /** Opens a pattern from disk and adds it to the pattern list.
+		 *
+		 * @param sPath Absolute path to an existing .h2pattern file.
+		 * @param nPatternNumber Row the pattern will be added to. If
+		 * set to -1, the pattern will be appended at the end of the
+		 * pattern list.
+		 *
+		 * @return bool true on success
+		 */
+    	bool openPattern( const QString& sPath, int nPatternNumber = -1 );
+        /** Opens a pattern to the current pattern list.
+		 *
+		 * @param pPattern pattern to be added.
+		 * @param nPatternNumber Row the pattern will be added to.
+		 *
+		 * @return bool true on success
+		 */
+		bool setPattern( Pattern* pPattern, int nPatternNumber );
+	    /** Removes a pattern from the pattern list.
+		 *
+		 * @param nPatternNumber Specifies the position/row of the pattern.
+		 *
+		 * @return bool true on success
+		 */
+    	bool removePattern( int nPatternNumber );
+	    /** Fills or clears a specific grid cell in the SongEditor.
+		 *
+		 * @param nColumn column of the pattern.
+		 * @param nRow row of the pattern.
+		 *
+		 * @return bool true on success
+		 */
+    	bool toggleGridCell( int nColumn, int nRow );
 		
 		// -----------------------------------------------------------
 		// Helper functions

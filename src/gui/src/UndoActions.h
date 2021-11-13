@@ -50,60 +50,24 @@
 //=====================================================================================================================================
 //song editor commands
 /** \ingroup docGUI*/
-class SE_addPatternAction : public QUndoCommand
+class SE_togglePatternAction : public QUndoCommand
 {
 public:
-	SE_addPatternAction( int nColumn, int nRow ){
-		setText( QObject::tr( "Add Pattern ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
-		__nColumn = nColumn;
-		__nRow = nRow;
+	SE_togglePatternAction( int nColumn, int nRow ){
+		setText( QObject::tr( "Toggle Pattern ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
+		m_nColumn = nColumn;
+		m_nRow = nRow;
 	}
-	virtual void undo()
-	{
-		//qDebug() << "add Pattern Undo ";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditor()->deletePattern( __nColumn, __nRow );
+	virtual void undo() {
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->toggleGridCell( m_nColumn, m_nRow );
 	}
-	virtual void redo()
-	{
-		//qDebug() << "add Pattern Redo " ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditor()->addPattern( __nColumn, __nRow );
+	virtual void redo() {
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->toggleGridCell( m_nColumn, m_nRow );
 	}
 private:
-	int __nColumn;
-	int __nRow;
-	unsigned __nColumnIndex;
+	int m_nColumn;
+	int m_nRow;
 };
-
-
-/** \ingroup docGUI*/
-class SE_deletePatternAction : public QUndoCommand
-{
-public:
-	SE_deletePatternAction( int nColumn, int nRow ){
-		setText( QObject::tr( "Delete Pattern ( %1, %2 )" ).arg( nColumn ).arg( nRow ) );
-		__nColumn = nColumn;
-		__nRow = nRow;
-	}
-	virtual void undo()
-	{
-		//qDebug() << "Delete pattern Undo ";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditor()->addPattern( __nColumn, __nRow );
-	}
-	virtual void redo()
-	{
-		//qDebug() << "Delete pattern Redo " ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditor()->deletePattern( __nColumn, __nRow );
-	}
-private:
-	int __nColumn;
-	int __nRow;
-	unsigned __nColumnIndex;
-};
-
 
 /** \ingroup docGUI*/
 class SE_movePatternListItemAction : public QUndoCommand
@@ -233,25 +197,19 @@ class SE_duplicatePatternAction : public QUndoCommand
 public:
 	SE_duplicatePatternAction( QString patternFilename, int patternPosition ){
 		setText( QObject::tr( "Duplicate pattern" ) );
-		__patternFilename = patternFilename;
-		__patternPosition = patternPosition;
+		m_sPatternFilename = patternFilename;
+		m_nPatternPosition = patternPosition;
 	}
-	virtual void undo()
-	{
-		//qDebug() << "copy pattern undo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->deletePattern( __patternPosition );
+	virtual void undo() {
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->removePattern( m_nPatternPosition );
 	}
 
-	virtual void redo()
-	{
-		//qDebug() << "copy pattern redo" ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditorPatternList()->patternPopup_duplicateAction( __patternFilename, __patternPosition );
+	virtual void redo() {
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->openPattern( m_sPatternFilename, m_nPatternPosition );
 	}
 private:
-	QString __patternFilename;
-	int __patternPosition;
+	QString m_sPatternFilename;
+	int m_nPatternPosition;
 };
 
 /** \ingroup docGUI*/
@@ -261,36 +219,31 @@ public:
 	SE_insertPatternAction( int patternPosition, H2Core::Pattern* pPattern )
 	{
 		setText( QObject::tr( "Add pattern" ) );
-		__patternPosition = patternPosition;
-		__newPattern =  pPattern;
+		m_nPatternPosition = patternPosition;
+		m_pNewPattern =  pPattern;
 	}
 	~SE_insertPatternAction()
 	{
-		delete __newPattern;
+		delete m_pNewPattern;
 	}
-	virtual void undo()
-	{
-		//qDebug() << "Add pattern undo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->deletePattern( __patternPosition );
+	virtual void undo() {
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->removePattern( m_nPatternPosition );
 	}
-	virtual void redo()
-	{
-		//qDebug() << "Add pattern redo" ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->insertPattern( __patternPosition, new H2Core::Pattern( __newPattern ) );
+	virtual void redo() {
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->setPattern( m_pNewPattern,
+																				 m_nPatternPosition );
 	}
 private:
-	H2Core::Pattern* __newPattern;
+	H2Core::Pattern* m_pNewPattern;
 
-	int __patternPosition;
+	int m_nPatternPosition;
 };
 
 /** \ingroup docGUI*/
 class SE_loadPatternAction : public QUndoCommand
 {
 public:
-	SE_loadPatternAction(  QString patternName, QString oldPatternName, QString sequenceFileName, int patternPosition, bool dragFromList){
+	SE_loadPatternAction( QString patternName, QString oldPatternName, QString sequenceFileName, int patternPosition, bool dragFromList){
 		setText( QObject::tr( "Load/drag pattern" ) );
 		__patternName =  patternName;
 		__oldPatternName = oldPatternName;
@@ -307,7 +260,7 @@ public:
 		}else
 		{
 			h2app->getSongEditorPanel()->getSongEditorPatternList()->restoreDeletedPatternsFromList( __oldPatternName, __sequenceFileName, __patternPosition );
-			h2app->getSongEditorPanel()->deletePattern( __patternPosition +1 );
+			H2Core::Hydrogen::get_instance()->getCoreActionController()->removePattern( __patternPosition );
 		}
 		h2app->getSongEditorPanel()->restoreGroupVector( __sequenceFileName );
 		h2app->getSongEditorPanel()->getSongEditor()->updateEditorandSetTrue();
@@ -320,7 +273,7 @@ public:
 		if(!__dragFromList){
 			h2app->getSongEditorPanel()->getSongEditorPatternList()->deletePatternFromList( __oldPatternName, __sequenceFileName, __patternPosition );
 		}
-		h2app->getSongEditorPanel()->getSongEditorPatternList()->loadPatternAction( __patternName, __patternPosition  );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->openPattern( __patternName, __patternPosition );
 	}
 private:
 	QString __patternName;

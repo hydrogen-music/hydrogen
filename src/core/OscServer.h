@@ -595,19 +595,17 @@ class OscServer : public H2Core::Object<OscServer>
 		 * a .h2song file. If another file already exists with the
 		 * same name, it will be overwritten.
 		 *
-		 * \param argv Unused pointer to a vector of arguments passed
-		 * by the OSC message.
+		 * \param argv The "s" field does contain the absolute path.
 		 * \param argc Number of arguments passed by the OSC message.
 		 */
 		static void NEW_SONG_Handler(lo_arg **argv, int argc);
 		/**
 		 * Triggers CoreActionController::openSong().
 		 *
-		 * The handler expects the user to provide an absolute path to
+		 * The handler expects the user to provide an absolute path for
 		 * a .h2song file.
 		 *
-		 * \param argv Unused pointer to a vector of arguments passed
-		 * by the OSC message.
+		 * \param argv The "s" field does contain the absolute path.
 		 * \param argc Number of arguments passed by the OSC message.
 		 */
 		static void OPEN_SONG_Handler(lo_arg **argv, int argc);
@@ -626,8 +624,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * a .h2song file. If another file already exists with the
 		 * same name, it will be overwritten.
 		 *
-		 * \param argv Unused pointer to a vector of arguments passed
-		 * by the OSC message.
+		 * \param argv The "s" field does contain the absolute path.
 		 * \param argc Number of arguments passed by the OSC
 		 * message.*/
 		static void SAVE_SONG_AS_Handler(lo_arg **argv, int argc);
@@ -650,7 +647,7 @@ class OscServer : public H2Core::Object<OscServer>
 		/**
 		 * Triggers CoreActionController::activateTimeline().
 		 *
-		 * \param argv The "i" field does contain the value supplied
+		 * \param argv The "f" field does contain the value supplied
 		 * by the user. If it is 0, the Timeline will be
 		 * deactivated. Else, it will be activated instead.
 		 * \param argc Unused number of arguments passed by the OSC
@@ -659,7 +656,7 @@ class OscServer : public H2Core::Object<OscServer>
 		/**
 		 * Triggers CoreActionController::addTempoMarker().
 		 *
-		 * \param argv The first field "i" does contain the bar at
+		 * \param argv The first field "f" does contain the bar at
 		 * which to place the new Timeline::TempoMarker while the
 		 * second one "f" specifies its tempo in bpm.
 		 * \param argc Unused number of arguments passed by the OSC
@@ -668,7 +665,7 @@ class OscServer : public H2Core::Object<OscServer>
 		/**
 		 * Triggers CoreActionController::deleteTempoMarker().
 		 *
-		 * \param argv The first field "i" does contain the bar at
+		 * \param argv The first field "f" does contain the bar at
 		 * which to delete a Timeline::TempoMarker.
 		 * \param argc Unused number of arguments passed by the OSC
 		 * message.*/
@@ -676,7 +673,7 @@ class OscServer : public H2Core::Object<OscServer>
 		/**
 		 * Triggers CoreActionController::activatedJackTransport().
 		 *
-		 * \param argv The "i" field does contain the value supplied
+		 * \param argv The "f" field does contain the value supplied
 		 * by the user. If it is 0, the Jack transport will be
 		 * deactivated. Else, it will be activated instead.
 		 * \param argc Unused number of arguments passed by the OSC
@@ -685,7 +682,7 @@ class OscServer : public H2Core::Object<OscServer>
 		/**
 		 * Triggers CoreActionController::activateJackTimebaseMaster().
 		 *
-		 * \param argv The "i" field does contain the value supplied
+		 * \param argv The "f" field does contain the value supplied
 		 * by the user. If it is 0, the Jack timebase master will be
 		 * deactivated. Else, it will be activated instead.
 		 * \param argc Unused number of arguments passed by the OSC
@@ -694,7 +691,7 @@ class OscServer : public H2Core::Object<OscServer>
 		/**
 		 * Triggers CoreActionController::activateSongMode().
 		 *
-		 * \param argv The "i" field does contain the value supplied
+		 * \param argv The "f" field does contain the value supplied
 		 * by the user. If it is 0, Pattern mode of the playback will
 		 * be activated. Else, Song mode will be activated instead.
 		 * \param argc Unused number of arguments passed by the OSC
@@ -703,19 +700,63 @@ class OscServer : public H2Core::Object<OscServer>
 	/**
 		 * Triggers CoreActionController::activateLoopMode().
 		 *
-		 * \param argv The "i" field does contain the value supplied
+		 * \param argv The "f" field does contain the value supplied
 		 * by the user. If it is 0, loop mode will
 		 * be deactivated. Else, it will be activated instead.
 		 * \param argc Unused number of arguments passed by the OSC
 		 * message.*/
 		static void LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc);
 		/**
-		 * \param argv The "i" field does contain the desired
+		 * \param argv The "f" field does contain the desired
 		 * position / number of the pattern group (starting with
 		 * 0).
 		 * \param argc Unused number of arguments passed by the OSC
 		 * message.*/
 		static void RELOCATE_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::newSong().
+		 *
+		 * The handler expects the user to provide an absolute path for
+		 * a .h2pattern file. If another file already exists with the
+		 * same name, it will be overwritten.
+		 *
+		 * \param argv The "s" field does contain the name for the new
+		 * pattern.
+		 * \param argc Number of arguments passed by the OSC message.
+		 */
+		static void NEW_PATTERN_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::openPattern().
+		 *
+		 * The handler expects the user to provide an absolute path to
+		 * a .h2pattern file.
+		 *
+		 * \param argv The "s" field does contain the absolute path.
+		 * \param argc Number of arguments passed by the OSC message.
+		 */
+		static void OPEN_PATTERN_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::removePattern().
+		 *
+		 * The handler expects the user to provide the pattern number
+		 * (row the pattern resides in within the SongEditor).
+		 *
+		 * \param argv The "f" field does contain the pattern number
+		 * (caution: it starts at 0).
+		 * \param argc Number of arguments passed by the OSC message.
+		 */
+		static void REMOVE_PATTERN_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::songEditorToggleGridCell().
+		 *
+		 * The handler expects the user to provide the pattern number
+		 * (row the pattern resides in within the SongEditor).
+		 *
+		 * \param argv The first two "f" fields do contain the column
+		 * and row number of the particular grid cell.
+		 * \param argc Number of arguments passed by the OSC message.
+		 */
+		static void SONG_EDITOR_TOGGLE_GRID_CELL_Handler(lo_arg **argv, int argc);
 		/** 
 		 * Catches any incoming messages and display them. 
 		 *

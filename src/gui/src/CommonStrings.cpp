@@ -322,6 +322,8 @@ CommonStrings::CommonStrings(){
 	  capabilities of  Hydrogen. Indicating  that there is  not Action
 	  which could be associated to a MIDI event.*/
 	m_sMidiSenseUnavailable = tr( "This element is not MIDI operable." );
+
+	m_sPatternLoadError = tr( "Unable to load pattern" );
 }
 
 CommonStrings::~CommonStrings(){
