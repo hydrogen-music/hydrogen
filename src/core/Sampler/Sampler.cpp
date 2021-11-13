@@ -1078,8 +1078,10 @@ bool Sampler::renderNoteNoResample(
 		// imposto il numero dei bytes disponibili uguale al buffersize
 		nAvail_bytes = nBufferSize - nInitialSilence;
 		retValue = false; // the note is not ended yet
+	} else if ( pNote->get_instrument()->is_filter_active() && pNote->filter_sustain() ) {
+		// If filter is causing note to ring, process more samples.
+		nAvail_bytes = nBufferSize - nInitialSilence;
 	}
-
 
 	//ADSR *pADSR = pNote->m_pADSR;
 
@@ -1155,6 +1157,11 @@ bool Sampler::renderNoteNoResample(
 
 		++nSamplePos;
 	}
+	if ( pNote->get_instrument()->is_filter_active() && pNote->filter_sustain() ) {
+		// Note is still ringing, do not end.
+		retValue = false;
+	}
+
 	pSelectedLayerInfo->SamplePosition += nAvail_bytes;
 	pNote->get_instrument()->set_peak_l( fInstrPeak_L );
 	pNote->get_instrument()->set_peak_r( fInstrPeak_R );
@@ -1234,6 +1241,9 @@ bool Sampler::renderNoteResample(
 		// imposto il numero dei bytes disponibili uguale al buffersize
 		nAvail_bytes = nBufferSize - nInitialSilence;
 		retValue = false; // the note is not ended yet
+	} else if ( pNote->get_instrument()->is_filter_active() && pNote->filter_sustain() ) {
+		// If filter is causing note to ring, process more samples.
+		nAvail_bytes = nBufferSize - nInitialSilence;
 	}
 
 	//	ADSR *pADSR = pNote->m_pADSR;
@@ -1280,8 +1290,10 @@ bool Sampler::renderNoteResample(
 	//
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pSelectedLayerInfo->SamplePosition ) ) {
-						if ( pNote->get_adsr()->release() == 0 ) {
-				retValue = 1;	// the note is ended
+			if ( pNote->get_adsr()->release() == 0 ) {
+				if (!retValue) {
+					retValue = 1;	// the note is ended
+				}
 			}
 		}
 
@@ -1366,6 +1378,10 @@ bool Sampler::renderNoteResample(
 
 		fSamplePos += fStep;
 	}
+	if ( pNote->get_instrument()->is_filter_active() && pNote->filter_sustain() ) {
+		// Note is still ringing, do not end.
+		retValue = false;
+	}
 
 	// Mix rendered sample buffer to track and mixer output
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
@@ -1438,7 +1454,6 @@ bool Sampler::renderNoteResample(
 		}
 	}
 #endif
-
 	return retValue;
 }
 

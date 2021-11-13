@@ -233,6 +233,8 @@ class Note : public H2Core::Object
 		float get_lpfb_l() const;
 		/** #__lpfb_r accessor */
 		float get_lpfb_r() const;
+		/** Filter output is sustaining note */
+		bool filter_sustain() const;
 		/** #__key accessor */
 		Key get_key();
 		/** #__octave accessor */
@@ -520,6 +522,13 @@ inline float Note::get_lpfb_l() const
 inline float Note::get_lpfb_r() const
 {
 	return __lpfb_r;
+}
+
+inline bool Note::filter_sustain() const
+{
+	const double fLimit = 0.001;
+	return ( fabs( __lpfb_l ) > fLimit || fabs( __lpfb_r ) > fLimit ||
+			 fabs( __bpfb_l ) > fLimit || fabs( __bpfb_r ) > fLimit );
 }
 
 inline Note::Key Note::get_key()
