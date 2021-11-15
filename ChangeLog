@@ -4,6 +4,7 @@
 		- Remembering paths in all export/import/save/open dialogs.
 		- Introducing keyboard shortcut for the Open Pattern dialog.
 		- Allow for opening more than one Pattern at once.
+		- All available audio drivers can now be chosen via CLI.
 	* Interface
 		- Improved scalability (most PNG images were replaced by SVGs,
 		  hardcoded PNG labels are now directly drawn by Qt, and spin boxes,

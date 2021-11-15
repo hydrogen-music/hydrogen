@@ -182,8 +182,32 @@ int main(int argc, char *argv[])
 		QString( "\nHydrogen comes with ABSOLUTELY NO WARRANTY\nThis is free software, and you are welcome to redistribute it under certain conditions. See the file COPYING for details.\n" );
 		
 		parser.setApplicationDescription( aboutText );
+
+		QStringList availableAudioDrivers;
+#ifdef H2CORE_HAVE_JACK
+		availableAudioDrivers << "jack";
+#endif
+#ifdef H2CORE_HAVE_ALSA
+		availableAudioDrivers << "alsa";
+#endif
+#ifdef H2CORE_HAVE_OSS
+		availableAudioDrivers << "oss";
+#endif
+#ifdef H2CORE_HAVE_PULSEAUDIO
+		availableAudioDrivers << "pulseaudio";
+#endif
+#ifdef H2CORE_HAVE_PORTAUDIO
+		availableAudioDrivers << "portaudio";
+#endif
+#ifdef H2CORE_HAVE_COREAUDIO
+		availableAudioDrivers << "coreaudio";
+#endif
+		availableAudioDrivers << "auto";
 		
-		QCommandLineOption audioDriverOption( QStringList() << "d" << "driver", "Use the selected audio driver (jack, alsa, oss)", "Audiodriver");
+		QCommandLineOption audioDriverOption( QStringList() << "d" << "driver",
+											  QString( "Use the selected audio driver (%1)" )
+											  .arg( availableAudioDrivers.join( ", " ) ),
+											  "Audiodriver");
 		QCommandLineOption installDrumkitOption( QStringList() << "i" << "install", "Install a drumkit (*.h2drumkit)" , "File");
 		QCommandLineOption noSplashScreenOption( QStringList() << "n" << "nosplash", "Hide splash screen" );
 		QCommandLineOption playlistFileNameOption( QStringList() << "p" << "playlist", "Load a playlist (*.h2playlist) at startup", "File" );
@@ -321,18 +345,26 @@ int main(int argc, char *argv[])
 			exit(0);
 		}
 		
-		if (sSelectedDriver == "auto") {
+		if ( sSelectedDriver == "auto" ) {
+			pPref->m_sAudioDriver = "Auto";
+		} else if ( sSelectedDriver == "jack" ) {
+			pPref->m_sAudioDriver = "JACK";
+		} else if ( sSelectedDriver == "oss" ) {
+			pPref->m_sAudioDriver = "OSS";
+		} else if ( sSelectedDriver == "alsa" ) {
+			pPref->m_sAudioDriver = "ALSA";
+		} else if ( sSelectedDriver == "pulseaudio" ) {
+			pPref->m_sAudioDriver = "PulseAudio";
+		} else if ( sSelectedDriver == "coreaudio" ) {
+			pPref->m_sAudioDriver = "CoreAudio";
+		} else if ( sSelectedDriver == "portaudio" ) {
+			pPref->m_sAudioDriver = "PortAudio";
+		} else if ( ! sSelectedDriver.isEmpty() ) {
+			___WARNINGLOG( QString( "Unknown driver [%1]. The 'auto' driver will be used instead" )
+						.arg( sSelectedDriver ) );
 			pPref->m_sAudioDriver = "Auto";
 		}
-		else if (sSelectedDriver == "jack") {
-			pPref->m_sAudioDriver = "JACK";
-		}
-		else if ( sSelectedDriver == "oss" ) {
-			pPref->m_sAudioDriver = "OSS";
-		}
-		else if ( sSelectedDriver == "alsa" ) {
-			pPref->m_sAudioDriver = "ALSA";
-		}
+				
 
 		// Bootstrap is complete, start GUI
 		delete pBootStrApp;
@@ -525,6 +557,10 @@ int main(int argc, char *argv[])
 			}
 			delete pDrumkitInfo;
 		}
+
+		// Write the changes in the Preferences to disk to make them
+		// accessible in the PreferencesDialog.
+		pPref->savePreferences();
 
 		pQApp->setMainForm( pMainForm );
 
