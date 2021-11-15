@@ -322,7 +322,7 @@ void WidgetWithInput::setMin( float fMin )
 	if ( fMin == m_fMin ) {
 		return;
 	}
-	if ( m_bUseIntSteps && std::fmod( fMin, 1.0 ) != 0.0 ) {
+	if ( m_bUseIntSteps && std::fmod( fMin, 1.0 ) != 0.0 && ! std::isinf( fMin ) ) {
 		___WARNINGLOG( QString( "As widget is set to use integer values only the supply minimal value [%1] will be rounded to [%2] " )
 					.arg( fMin )
 					.arg( std::round( fMin ) ) );
@@ -350,7 +350,7 @@ void WidgetWithInput::setMax( float fMax )
 	if ( fMax == m_fMax ) {
 		return;
 	}
-	if ( m_bUseIntSteps && std::fmod( fMax, 1.0 ) != 0.0 ) {
+	if ( m_bUseIntSteps && std::fmod( fMax, 1.0 ) != 0.0 && ! std::isinf( fMax ) ) {
 		___WARNINGLOG( QString( "As widget is set to use integer values only the supply maximal value [%1] will be rounded to [%2] " )
 					.arg( fMax )
 					.arg( std::round( fMax ) ) );
@@ -380,7 +380,7 @@ void WidgetWithInput::setDefaultValue( float fDefaultValue )
 		return;
 	}
 
-	if ( m_bUseIntSteps && std::fmod( fDefaultValue, 1.0 ) != 0.0 ) {
+	if ( m_bUseIntSteps && std::fmod( fDefaultValue, 1.0 ) != 0.0 && ! std::isinf( fDefaultValue ) ) {
 		___WARNINGLOG( QString( "As widget is set to use integer values only the supply default value [%1] will be rounded to [%2] " )
 					.arg( fDefaultValue )
 					.arg( std::round( fDefaultValue ) ) );
