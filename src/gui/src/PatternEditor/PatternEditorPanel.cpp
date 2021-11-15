@@ -25,7 +25,6 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
 using namespace H2Core;
 
@@ -40,13 +39,14 @@ using namespace H2Core;
 
 #include "../MainForm.h"
 #include "../Widgets/Button.h"
+#include "../Widgets/ClickableLabel.h"
 #include "../Widgets/Fader.h"
 #include "../Widgets/PixmapWidget.h"
 #include "../Widgets/LCDCombo.h"
-#include "../Widgets/LCD.h"
+#include "../Widgets/LCDSpinBox.h"
 #include "../WidgetScrollArea.h"
 
-#include "../Skin.h"
+#include "../CommonStrings.h"
 #include "../SongEditor/SongEditorPanel.h"
 
 #include <cmath>
@@ -54,7 +54,9 @@ using namespace H2Core;
 
 void PatternEditorPanel::updateSLnameLabel( )
 {
-	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	font.setBold( true );
 	m_pSLlabel->setFont( font );
 	m_pSLlabel->setText( Hydrogen::get_instance()->getCurrentDrumkitName() );
@@ -64,35 +66,36 @@ void PatternEditorPanel::updateSLnameLabel( )
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
  : QWidget( pParent )
  , m_pPattern( nullptr )
+ , m_bArmPatternSizeSpinBoxes( true )
 {
 	setAcceptDrops(true);
 
 	Preferences *pPref = Preferences::get_instance();
-	m_lastUsedFontSize = pPref->getFontSize();	
-	QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+	
+	QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	boldFont.setBold( true );
 
 	m_nCursorPosition = 0;
 	m_nCursorIncrement = 0;
 
 // Editor TOP
-	PixmapWidget *editor_top = new PixmapWidget( nullptr );
-	editor_top->setPixmap( "/patternEditor/editor_top.png", true );
-	editor_top->setFixedHeight(24);
+	
+	m_pEditorTop1 = new QWidget( nullptr );
+	m_pEditorTop1->setFixedHeight(24);
+	
 
-	PixmapWidget *editor_top_2 = new PixmapWidget( nullptr );
-	editor_top_2->setPixmap( "/patternEditor/editor_top.png", true );
-	editor_top_2->setFixedHeight( 24 );
+	m_pEditorTop2 = new QWidget( nullptr );
+	m_pEditorTop2->setFixedHeight( 24 );
 
-	QHBoxLayout *editor_top_hbox = new QHBoxLayout( editor_top );
-	editor_top_hbox->setSpacing( 0 );
-	editor_top_hbox->setMargin( 0 );
-	editor_top_hbox->setAlignment( Qt::AlignLeft );
+	QHBoxLayout *m_pEditorTop1_hbox = new QHBoxLayout( m_pEditorTop1 );
+	m_pEditorTop1_hbox->setSpacing( 0 );
+	m_pEditorTop1_hbox->setMargin( 0 );
+	m_pEditorTop1_hbox->setAlignment( Qt::AlignLeft );
 
-	QHBoxLayout *editor_top_hbox_2 = new QHBoxLayout( editor_top_2 );
-	editor_top_hbox_2->setSpacing( 0 );
-	editor_top_hbox_2->setMargin( 0 );
-	editor_top_hbox_2->setAlignment( Qt::AlignLeft );
+	QHBoxLayout *m_pEditorTop1_hbox_2 = new QHBoxLayout( m_pEditorTop2 );
+	m_pEditorTop1_hbox_2->setSpacing( 2 );
+	m_pEditorTop1_hbox_2->setMargin( 0 );
+	m_pEditorTop1_hbox_2->setAlignment( Qt::AlignLeft );
 
 
 	//soundlibrary name
@@ -102,136 +105,121 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pSLlabel->setFixedSize( 170, 20 );
 	m_pSLlabel->move( 10, 3 );
 	m_pSLlabel->setToolTip( tr( "Loaded Soundlibrary" ) );
-	editor_top_hbox->addWidget( m_pSLlabel );
+	m_pEditorTop1_hbox->addWidget( m_pSLlabel );
 
 //wolke some background images back_size_res
-	PixmapWidget *pSizeResol = new PixmapWidget( nullptr );
-	pSizeResol->setFixedSize( 216, 20 );
-	pSizeResol->setPixmap( "/patternEditor/background_res-new.png" );
-	pSizeResol->move( 0, 3 );
-	editor_top_hbox_2->addWidget( pSizeResol );
+	m_pSizeResol = new QWidget( nullptr );
+	m_pSizeResol->setFixedSize( 406, 20 );
+	m_pSizeResol->move( 0, 3 );
+	m_pEditorTop1_hbox_2->addWidget( m_pSizeResol );
 
 	// PATTERN size
-	__pattern_size_LCD = new LCDDisplay( pSizeResol, LCDDigit::SMALL_BLUE, 10 );
-	__pattern_size_LCD->move( 31, 2 );
-	__pattern_size_LCD->setToolTip( tr( "Select pattern size" ) );
-
-	connect( __pattern_size_LCD, SIGNAL( displayClicked( LCDDisplay* ) ), this, SLOT( patternSizeLCDClicked() ) );
-	
-	m_pDenominatorWarning = new Button(
-			pSizeResol,
-			"/patternEditor/icn_warning.png",
-			"/patternEditor/icn_warning.png",
-			"/patternEditor/icn_warning.png",
-			QSize( 15, 13 ) );
-	m_pDenominatorWarning->move( 114, 2 );
-	m_pDenominatorWarning->hide();
-	m_pDenominatorWarning->setToolTip( tr( "Unsupported note denominator. Click for more information." ) );
-	connect( m_pDenominatorWarning, SIGNAL( clicked( Button* ) ), this, SLOT( denominatorWarningClicked() ) );
+	m_pLCDSpinBoxNumerator = new LCDSpinBox( m_pSizeResol, QSize( 62, 20 ), LCDSpinBox::Type::Double, 0.1, 16.0 );
+	m_pLCDSpinBoxNumerator->setKind( LCDSpinBox::Kind::PatternSizeNumerator );
+	m_pLCDSpinBoxNumerator->setDecimals( 16 );
+	connect( m_pLCDSpinBoxNumerator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
+	m_pLCDSpinBoxDenominator = new LCDSpinBox( m_pSizeResol, QSize( 48, 20 ), LCDSpinBox::Type::Int, 1, 192 );
+	m_pLCDSpinBoxDenominator->setKind( LCDSpinBox::Kind::PatternSizeDenominator );
+	connect( m_pLCDSpinBoxDenominator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
+	m_pLCDSpinBoxNumerator->move( 36, 0 );
+	m_pLCDSpinBoxDenominator->move( 106, 0 );
+			
+	QLabel* label1 = new ClickableLabel( m_pSizeResol, QSize( 4, 13 ), "/", ClickableLabel::Color::Dark );
+	label1->resize( QSize( 20, 17 ) );
+	label1->move( 100, 4 );
+	label1->setText( "/" );
+	label1->setFont( boldFont );
+	label1->setStyleSheet( "color: #191919;" );
+	label1->setToolTip( tr( "You can use the '/' inside the pattern size spin boxes to switch back and forth." ) );
+	m_pPatternSizeLbl = new ClickableLabel( m_pSizeResol, QSize( 30, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeLabel(), ClickableLabel::Color::Dark );
+	m_pPatternSizeLbl->move( 2, 4 );
 	
 	// GRID resolution
-	__resolution_combo = new LCDCombo( pSizeResol , 5, true );
-	__resolution_combo->setToolTip(tr( "Select grid resolution" ));
-	__resolution_combo->addItem( QString( "  1/4   - " )
+	m_pResolutionCombo = new LCDCombo( m_pSizeResol, QSize( 209, 19 ) );
+	// m_pResolutionCombo->setToolTip(tr( "Select grid resolution" ));
+	m_pResolutionCombo->insertItem( 0, QString( "1/4 - " )
 								 .append( tr( "quarter" ) ) );
-	__resolution_combo->addItem( QString( "  1/8   - " )
+	m_pResolutionCombo->insertItem( 1, QString( "1/8 - " )
 								 .append( tr( "eighth" ) ) );
-	__resolution_combo->addItem( QString( " 1/16  - " )
+	m_pResolutionCombo->insertItem( 2, QString( "1/16 - " )
 								 .append( tr( "sixteenth" ) ) );
-	__resolution_combo->addItem( QString( " 1/32  - " )
+	m_pResolutionCombo->insertItem( 3, QString( "1/32 - " )
 								 .append( tr( "thirty-second" ) ) );
-	__resolution_combo->addItem( QString( " 1/64  - " )
+	m_pResolutionCombo->insertItem( 4, QString( "1/64 - " )
 								 .append( tr( "sixty-fourth" ) ) );
-	__resolution_combo->addSeparator();
-	__resolution_combo->addItem( QString( " 1/4T  - " )
+	m_pResolutionCombo->insertSeparator( 5 );
+	m_pResolutionCombo->insertItem( 6, QString( "1/4T - " )
 								 .append( tr( "quarter triplet" ) ) );
-	__resolution_combo->addItem( QString( " 1/8T  - " )
+	m_pResolutionCombo->insertItem( 7, QString( "1/8T - " )
 								 .append( tr( "eighth triplet" ) ) );
-	__resolution_combo->addItem( QString( "1/16T - " )
+	m_pResolutionCombo->insertItem( 8, QString( "1/16T - " )
 								 .append( tr( "sixteenth triplet" ) ) );
-	__resolution_combo->addItem( QString( "1/32T - " )
+	m_pResolutionCombo->insertItem( 9, QString( "1/32T - " )
 								 .append( tr( "thirty-second triplet" ) ) );
-	__resolution_combo->addSeparator();
-	__resolution_combo->addItem( tr( "off" ) );
-	__resolution_combo->move( 154, 2 );
+	m_pResolutionCombo->insertSeparator( 10 );
+	m_pResolutionCombo->insertItem( 11, tr( "off" ) );
+	m_pResolutionCombo->move( 190, 1 );
 	// is triggered from inside PatternEditorPanel()
-	connect( __resolution_combo, SIGNAL( valueChanged( int ) ), this, SLOT( gridResolutionChanged( int ) ) );
+	connect( m_pResolutionCombo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( gridResolutionChanged( int ) ) );
+	m_pResolutionLbl = new ClickableLabel( m_pSizeResol, QSize( 28, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getResolutionLabel(), ClickableLabel::Color::Dark );
+	m_pResolutionLbl->setAlignment( Qt::AlignRight );
+	m_pResolutionLbl->move( 155, 4 );
 
 
-	PixmapWidget *pRec = new PixmapWidget( nullptr );
-	pRec->setFixedSize( 300, 20 );
-	pRec->setPixmap( "/patternEditor/background_rec-new.png" );
-	pRec->move( 0, 3 );
-	editor_top_hbox_2->addWidget( pRec );
-
+	m_pRec = new QGroupBox( nullptr );
+	m_pRec->setFixedSize( 210, 20 );
+	m_pRec->move( 0, 3 );
+	m_pEditorTop1_hbox_2->addWidget( m_pRec );
 
 	// Hear notes btn
-	ToggleButton *hearNotesBtn = new ToggleButton(
-			pRec,
-			"/patternEditor/btn_hear_on.png",
-			"/patternEditor/btn_hear_off.png",
-			"/patternEditor/btn_hear_off.png",
-			QSize( 15, 13 )
-	);
-	hearNotesBtn->move( 34, 3 );
-	hearNotesBtn->setToolTip( tr( "Hear new notes" ) );
-	connect( hearNotesBtn, SIGNAL( clicked( Button* ) ), this, SLOT( hearNotesBtnClick( Button* ) ) );
-	hearNotesBtn->setPressed( pPref->getHearNewNotes() );
-	hearNotesBtn->setObjectName( "HearNotesBtn" );
+	m_pHearNotesBtn = new Button( m_pRec, QSize( 21, 18 ), Button::Type::Toggle, "speaker.svg", "", false, QSize( 15, 13 ), tr( "Hear new notes" ) );
+	m_pHearNotesBtn->move( 42, 1 );
+	connect( m_pHearNotesBtn, SIGNAL( pressed() ), this, SLOT( hearNotesBtnClick() ) );
+	m_pHearNotesBtn->setChecked( pPref->getHearNewNotes() );
+	m_pHearNotesBtn->setObjectName( "HearNotesBtn" );
+	m_pHearNotesLbl = new ClickableLabel( m_pRec, QSize( 36, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getHearNotesLabel(), ClickableLabel::Color::Dark );
+	m_pHearNotesLbl->setAlignment( Qt::AlignRight );
+	m_pHearNotesLbl->move( 3, 4 );
 
 
 	// quantize
-	ToggleButton* quantizeEventsBtn = new ToggleButton(
-			pRec,
-			"/patternEditor/btn_quant_on.png",
-			"/patternEditor/btn_quant_off.png",
-			"/patternEditor/btn_quant_off.png",
-			QSize(15, 13)
-	);
-	quantizeEventsBtn->move( 90, 3 );
-	quantizeEventsBtn->setPressed( pPref->getQuantizeEvents() );
-	quantizeEventsBtn->setToolTip( tr( "Quantize keyboard/midi events to grid" ) );
-	quantizeEventsBtn->setObjectName( "QuantizeEventsBtn" );
-	connect( quantizeEventsBtn, SIGNAL( clicked( Button* ) ), this, SLOT( quantizeEventsBtnClick( Button* ) ) );
+	m_pQuantizeEventsBtn = new Button( m_pRec, QSize( 21, 18 ), Button::Type::Toggle, "quantization.svg", "", false, QSize( 15, 14 ), tr( "Quantize keyboard/midi events to grid" ) );
+	m_pQuantizeEventsBtn->move( 111, 1 );
+	m_pQuantizeEventsBtn->setChecked( pPref->getQuantizeEvents() );
+	m_pQuantizeEventsBtn->setObjectName( "QuantizeEventsBtn" );
+	connect( m_pQuantizeEventsBtn, SIGNAL( pressed() ), this, SLOT( quantizeEventsBtnClick() ) );
+	m_pQuantizeEventsLbl = new ClickableLabel( m_pRec, QSize( 44, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getQuantizeEventsLabel(), ClickableLabel::Color::Dark );
+	m_pQuantizeEventsLbl->setAlignment( Qt::AlignRight );
+	m_pQuantizeEventsLbl->move( 64, 4 );
 
 	// Editor mode
-	__show_drum_btn = new ToggleButton(
-				pRec,
-				"/patternEditor/btn_drum_piano_on.png",
-				"/patternEditor/btn_drum_piano_off.png",
-				"/patternEditor/btn_drum_piano_off.png",
-				QSize(17, 13)
-				);
-	__show_drum_btn->move( 137, 3 );
-	__show_drum_btn->setPressed( false );
-	__show_drum_btn->setToolTip( tr( "Show piano roll editor" ) );
+	__show_drum_btn = new Button( m_pRec, QSize( 25, 18 ), Button::Type::Push, "drum.svg", "", false, QSize( 17, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
+	__show_drum_btn->move( 178, 1 );
 	__show_drum_btn->setObjectName( "ShowDrumBtn" );
-	connect( __show_drum_btn, SIGNAL( clicked( Button* ) ), this, SLOT( showDrumEditorBtnClick( Button* ) ) );
+	connect( __show_drum_btn, SIGNAL( pressed() ), this, SLOT( showDrumEditorBtnClick() ) );
+	// Since the button to activate the piano roll is shown
+	// initially, both buttons get the same tooltip. Actually only the
+	// last one does need a tooltip since it will be shown regardless
+	// of whether it is hidden or not. But since this behavior might
+	// change in future versions of Qt the tooltip will be assigned to
+	// both of them.
+	__show_piano_btn = new Button( m_pRec, QSize( 25, 18 ), Button::Type::Push, "piano.svg", "", false, QSize( 19, 15 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
+	__show_piano_btn->move( 178, 1 );
+	__show_piano_btn->setObjectName( "ShowDrumBtn" );
+	__show_piano_btn->hide();
+	connect( __show_piano_btn, SIGNAL( pressed() ), this, SLOT( showDrumEditorBtnClick() ) );
+	m_pShowPianoLbl = new ClickableLabel( m_pRec, QSize( 40, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoLabel(), ClickableLabel::Color::Dark );
+	m_pShowPianoLbl->setAlignment( Qt::AlignRight );
+	m_pShowPianoLbl->move( 135, 4 );
 
 	// zoom-in btn
-	Button *zoom_in_btn = new Button(
-			nullptr,
-			"/songEditor/btn_new_on.png",
-			"/songEditor/btn_new_off.png",
-			"/songEditor/btn_new_over.png",
-			QSize( 19, 13 )
-	);
-	zoom_in_btn->setToolTip( tr( "Zoom in" ) );
-	connect( zoom_in_btn, SIGNAL( clicked( Button* ) ), this, SLOT( zoomInBtnClicked( Button* ) ) );
+	Button *zoom_in_btn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Push, "plus.svg", "", false, QSize( 9, 9 ), tr( "Zoom in" ) );
+	connect( zoom_in_btn, SIGNAL( pressed() ), this, SLOT( zoomInBtnClicked() ) );
 
 
 	// zoom-out btn
-	Button *zoom_out_btn = new Button(
-			nullptr,
-			"/songEditor/btn_minus_on.png",
-			"/songEditor/btn_minus_off.png",
-			"/songEditor/btn_minus_over.png",
-			QSize(19, 13)
-	);
-	zoom_out_btn->setToolTip( tr( "Zoom out" ) );
-	connect( zoom_out_btn, SIGNAL( clicked( Button* ) ), this, SLOT( zoomOutBtnClicked(Button*) ) );
-
-
+	Button *zoom_out_btn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Push, "minus.svg", "", false, QSize( 9, 9 ), tr( "Zoom out" ) );
+	connect( zoom_out_btn, SIGNAL( pressed() ), this, SLOT( zoomOutBtnClicked() ) );
 // End Editor TOP
 
 
@@ -294,6 +282,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport(), this, m_pPianoRollScrollView );
 	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
 	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pPianoRollScrollView->verticalScrollBar(), SIGNAL( valueChanged( int ) ),
+			 m_pPianoRollEditor, SLOT( scrolled( int ) ) );
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 m_pPianoRollEditor, &PianoRollEditor::onPreferencesChanged );
 
@@ -345,6 +335,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteVelocityScrollView->setWidget( m_pNoteVelocityEditor );
 	m_pNoteVelocityScrollView->setFixedHeight( 100 );
 	connect( m_pNoteVelocityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pNoteVelocityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 m_pNoteVelocityEditor, SLOT( scrolled( int ) ) );
 
 	m_pNoteVelocityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
@@ -364,6 +356,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	connect( m_pNotePanScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
 			 this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pNotePanScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 m_pNotePanEditor, SLOT( scrolled( int ) ) );
 
 	m_pNotePanEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
@@ -384,6 +378,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	connect( m_pNoteLeadLagScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
 			 this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pNoteLeadLagScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 m_pNoteLeadLagEditor, SLOT( scrolled( int ) ) );
 
 	m_pNoteLeadLagEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
@@ -403,8 +399,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 																						NotePropertiesRuler::NOTEKEY );
 	m_pNoteNoteKeyScrollView->setWidget( m_pNoteNoteKeyEditor );
 	m_pNoteNoteKeyScrollView->setFixedHeight( 210 );
-	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ), this,
-																			SLOT( on_patternEditorHScroll( int ) ) );
+	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
+			 this, SLOT( on_patternEditorHScroll( int ) ) );
+	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
+			 m_pNoteNoteKeyEditor, SLOT( scrolled( int ) ) );
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 m_pNoteNoteKeyEditor, &NotePropertiesRuler::onPreferencesChanged );
 	
@@ -425,6 +423,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteProbabilityScrollView->setFixedHeight( 100 );
 	connect( m_pNoteProbabilityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
 			 this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pNoteProbabilityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 m_pNoteProbabilityEditor, SLOT( scrolled( int ) ) );
 	
 	m_pNoteProbabilityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
@@ -443,7 +443,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPatternEditorVScrollBar->setObjectName( "PatternEditorVScrollBar" );
 	connect( m_pPatternEditorVScrollBar, SIGNAL(valueChanged( int)), this,
 																	SLOT( syncToExternalHorizontalScrollbar(int) ) );
-
+	connect( m_pPatternEditorVScrollBar, SIGNAL( valueChanged( int ) ),
+			 m_pDrumPatternEditor, SLOT( scrolled( int ) ) );
+	connect( m_pPatternEditorHScrollBar, SIGNAL( valueChanged( int ) ),
+			 m_pDrumPatternEditor, SLOT( scrolled( int ) ) );
+	
 	QHBoxLayout *pPatternEditorHScrollBarLayout = new QHBoxLayout();
 	pPatternEditorHScrollBarLayout->setSpacing( 0 );
 	pPatternEditorHScrollBarLayout->setMargin( 0 );
@@ -480,20 +484,20 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pPropertiesVBox->setMargin( 0 );
 
 
-	__pPropertiesCombo = new LCDCombo( nullptr, 20 );
-	__pPropertiesCombo->setToolTip( tr( "Select note properties" ) );
-	__pPropertiesCombo->addItem( tr("Velocity") );
-	__pPropertiesCombo->addItem( tr("Pan") );
-	__pPropertiesCombo->addItem( tr("Lead and Lag") );
-	__pPropertiesCombo->addItem( tr("NoteKey") );
-	__pPropertiesCombo->addItem( tr("Probability") );
-	/* __pPropertiesCombo->addItem( tr("Cutoff") ); */
-	/* __pPropertiesCombo->addItem( tr("Resonance") ); */
+	m_pPropertiesCombo = new LCDCombo( nullptr, QSize( m_pInstrumentList->width(), 18 ) );
+	m_pPropertiesCombo->setToolTip( tr( "Select note properties" ) );
+	m_pPropertiesCombo->addItem( tr("Velocity") );
+	m_pPropertiesCombo->addItem( tr("Pan") );
+	m_pPropertiesCombo->addItem( tr("Lead and Lag") );
+	m_pPropertiesCombo->addItem( tr("NoteKey") );
+	m_pPropertiesCombo->addItem( tr("Probability") );
+	/* m_pPropertiesCombo->addItem( tr("Cutoff") ); */
+	/* m_pPropertiesCombo->addItem( tr("Resonance") ); */
 	// is triggered here below
-	__pPropertiesCombo->setObjectName( "PropertiesCombo" );
-	connect( __pPropertiesCombo, SIGNAL( valueChanged( int ) ), this, SLOT( propertiesComboChanged( int ) ) );
+	m_pPropertiesCombo->setObjectName( "PropertiesCombo" );
+	connect( m_pPropertiesCombo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( propertiesComboChanged( int ) ) );
 
-	pPropertiesVBox->addWidget( __pPropertiesCombo );
+	pPropertiesVBox->addWidget( m_pPropertiesCombo );
 
 //~ NOTE_PROPERTIES BUTTONS
 
@@ -505,8 +509,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pGrid->setSpacing( 0 );
 	pGrid->setMargin( 0 );
 
-	pGrid->addWidget( editor_top, 0, 0 );
-	pGrid->addWidget( editor_top_2, 0, 1, 1, 3 );
+	pGrid->addWidget( m_pEditorTop1, 0, 0 );
+	pGrid->addWidget( m_pEditorTop2, 0, 1, 1, 3 );
 	pGrid->addWidget( m_pPatternNameLbl, 1, 0 );
 	pGrid->addWidget( m_pRulerScrollView, 1, 1 );
 
@@ -555,7 +559,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
 		}
 	}
-	__resolution_combo->select( nIndex );
+	m_pResolutionCombo->setCurrentIndex( nIndex );
 
 	// LAYOUT
 	QVBoxLayout *pVBox = new QVBoxLayout();
@@ -570,8 +574,13 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &PatternEditorPanel::onPreferencesChanged );
 
 	// update
-	__pPropertiesCombo->select( 0 );
+	m_pPropertiesCombo->setCurrentIndex( 0 );
+	propertiesComboChanged( 0 );
 	selectedPatternChangedEvent();
+	updateStyleSheet();
+
+	connect( m_pLCDSpinBoxNumerator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
+	connect( m_pLCDSpinBoxDenominator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
 }
 
 
@@ -581,7 +590,20 @@ PatternEditorPanel::~PatternEditorPanel()
 {
 }
 
-
+void PatternEditorPanel::stateChangedEvent( H2Core::AudioEngine::State state ) {
+	// Deactivate the pattern size widgets while playback is rolling.
+	if ( state == H2Core::AudioEngine::State::Playing ) {
+		m_pLCDSpinBoxNumerator->setEnabled( false );
+		m_pLCDSpinBoxNumerator->setToolTip( HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeDisabledTooltip() );
+		m_pLCDSpinBoxDenominator->setEnabled( false );
+		m_pLCDSpinBoxDenominator->setToolTip( HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeDisabledTooltip() );
+	} else {
+		m_pLCDSpinBoxNumerator->setEnabled( true );
+		m_pLCDSpinBoxNumerator->setToolTip( "" );
+		m_pLCDSpinBoxDenominator->setEnabled( true );
+		m_pLCDSpinBoxDenominator->setToolTip( "" );
+	}
+}
 
 void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
 {
@@ -671,6 +693,7 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 
 void PatternEditorPanel::selectedPatternChangedEvent()
 {
+
 	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
 	int nSelectedPatternNumber = Hydrogen::get_instance()->getSelectedPatternNumber();
 
@@ -695,34 +718,27 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 	resizeEvent( nullptr ); // force an update of the scrollbars
 }
 
-
-
-void PatternEditorPanel::hearNotesBtnClick(Button *ref)
+void PatternEditorPanel::hearNotesBtnClick()
 {
 	Preferences *pref = ( Preferences::get_instance() );
-	pref->setHearNewNotes( ref->isPressed() );
+	pref->setHearNewNotes( ! m_pHearNotesBtn->isChecked() );
 
-	if (ref->isPressed() ) {
+	if ( ! m_pHearNotesBtn->isChecked() ) {
 		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Hear new notes = On" ), 2000 );
-	}
-	else {
+	} else {
 		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Hear new notes = Off" ), 2000 );
 	}
-
 }
 
-void PatternEditorPanel::quantizeEventsBtnClick( Button *ref )
+void PatternEditorPanel::quantizeEventsBtnClick()
 {
 	Preferences *pref = ( Preferences::get_instance() );
-	pref->setQuantizeEvents( ref->isPressed() );
+	pref->setQuantizeEvents( ! m_pQuantizeEventsBtn->isChecked() );
 
-	if (ref->isPressed() ) {
-		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Quantize incoming keyboard/midi events = On" ),
-																												2000 );
-	}
-	else {
-		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Quantize incoming keyboard/midi events = Off" ),
-																												2000 );
+	if ( ! m_pQuantizeEventsBtn->isChecked() ) {
+		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Quantize incoming keyboard/midi events = On" ),	2000 );
+	} else {
+		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Quantize incoming keyboard/midi events = Off" ), 2000 );
 	}
 }
 
@@ -773,7 +789,7 @@ void PatternEditorPanel::selectedInstrumentChangedEvent()
 
 void PatternEditorPanel::selectInstrumentNotes( int nInstrument )
 {
-	if ( __show_drum_btn->isPressed() ) {
+	if ( __show_drum_btn->isChecked() ) {
 		m_pPianoRollEditor->selectInstrumentNotes( nInstrument );
 	} else {
 		m_pDrumPatternEditor->selectInstrumentNotes( nInstrument );
@@ -783,7 +799,7 @@ void PatternEditorPanel::selectInstrumentNotes( int nInstrument )
 void PatternEditorPanel::showDrumEditor()
 {
 	__show_drum_btn->setToolTip( tr( "Show piano roll editor" ) );
-	__show_drum_btn->setPressed( false );
+	__show_drum_btn->setChecked( false );
 	m_pPianoRollScrollView->hide();
 	m_pEditorScrollView->show();
 	m_pInstrListScrollView->show();
@@ -805,7 +821,7 @@ void PatternEditorPanel::showDrumEditor()
 void PatternEditorPanel::showPianoRollEditor()
 {
 	__show_drum_btn->setToolTip( tr( "Show drum editor" ) );
-	__show_drum_btn->setPressed( true );
+	__show_drum_btn->setChecked( true );
 	m_pPianoRollScrollView->show();
 	m_pPianoRollScrollView->verticalScrollBar()->setValue( 250 );
 	m_pEditorScrollView->hide();
@@ -824,25 +840,30 @@ void PatternEditorPanel::showPianoRollEditor()
 	resizeEvent( nullptr );
 }
 
-void PatternEditorPanel::showDrumEditorBtnClick( Button *ref )
+void PatternEditorPanel::showDrumEditorBtnClick()
 {
-	UNUSED( ref );
-	if ( !__show_drum_btn->isPressed() ){
-		showDrumEditor();
-	}
-	else
-	{
+	if ( __show_drum_btn->isVisible() ){
 		showPianoRollEditor();
+		__show_drum_btn->hide();
+		__show_piano_btn->show();
+		__show_drum_btn->setBaseToolTip( HydrogenApp::get_instance()->getCommonStrings()->getShowDrumkitEditorTooltip() );
+		__show_piano_btn->setBaseToolTip( HydrogenApp::get_instance()->getCommonStrings()->getShowDrumkitEditorTooltip() );
+	} else {
+		showDrumEditor();
+		__show_drum_btn->show();
+		__show_piano_btn->hide();
+		__show_drum_btn->setBaseToolTip( HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
+		__show_piano_btn->setBaseToolTip( HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
 	}
 }
 
 
-void PatternEditorPanel::zoomInBtnClicked( Button *ref )
+void PatternEditorPanel::zoomInBtnClicked()
 {
 	if( m_pPatternEditorRuler->getGridWidth() >= 24 ){
 		return;
 	}
-	UNUSED( ref );
+
 	m_pPatternEditorRuler->zoomIn();
 	m_pDrumPatternEditor->zoomIn();
 	m_pNoteVelocityEditor->zoomIn();
@@ -858,11 +879,8 @@ void PatternEditorPanel::zoomInBtnClicked( Button *ref )
 	resizeEvent( nullptr );
 }
 
-
-
-void PatternEditorPanel::zoomOutBtnClicked( Button *ref )
+void PatternEditorPanel::zoomOutBtnClicked()
 {
-	UNUSED( ref );
 	m_pPatternEditorRuler->zoomOut();
 	m_pDrumPatternEditor->zoomOut();
 	m_pNoteVelocityEditor->zoomOut();
@@ -903,193 +921,94 @@ void PatternEditorPanel::patternLengthChanged()
 		return;
 	}
 
-	updatePatternSizeLCD();
-
 	updateEditors();
 	resizeEvent( nullptr );
 
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 }
 
-void PatternEditorPanel::updatePatternSizeLCD(){
-	// update pattern size
-	int nPatternSize = m_pPattern->get_length(); // in ticks
-	int nDen = m_pPattern->get_denominator();
-	QString qtmp;
-	
-	// Note: numerator = ( nPatternSize * nDen ) / MAX_NOTES
-	if ( ( nPatternSize * nDen ) % MAX_NOTES == 0 ) { // numerator is integer. Print with no decimal digits.
-		qtmp = QString( "%1/%2" ).arg(( nPatternSize * nDen ) / MAX_NOTES ).arg( nDen );
-	} 
-	else { // numerator is not integer
-				/* Note: print numerator using 3 decimal digits: enough for the resolution = 192 ticks/whole note.
-					In fact the minimum representable note value is 1/192 of a whole note = 0.00520333 whole notes 
-					or alternatively 1/48 of a quarter note = 0.02083333 quarter notes. */
-		QLocale loc = QLocale::system(); // to use locale decimal separator
-		qtmp = QString( "%1/%2" ).arg( loc.toString( ( nPatternSize * nDen ) / (float) MAX_NOTES, 'f', 3 ) ).arg( nDen );
-	}
-	__pattern_size_LCD->setText( qtmp );
-
-	// hide or show warning icon if denominator doesn't divide MAX_NOTES
-		/* Note: warning even if ( nPatternSize * nDen ) % MAX_NOTES == 0 . In that case the displayed numerator is
-			integer and correct (e.g. size = 5/5), but the user may think that denominator is fully supported. */
-	if( MAX_NOTES % nDen != 0 )	{
-		m_pDenominatorWarning->show();
-	}
-	else {
-		m_pDenominatorWarning->hide();
-	}
-}
-
-void PatternEditorPanel::denominatorWarningClicked()
-{
-	QMessageBox::information( this, "Hydrogen",
-							  tr( "Hydrogen can only represent notes as small as 1/%1 of a whole note, "
-							  	  "so note values must be multiple of this.\nSupported values are: "
-							  	  "1/1, 1/2, 1/3, 1/4, 1/6, 1/8, 1/12, 1/16, 1/24, 1/32, 1/48, 1/64, 1/96, 1/192" 
-							  	  ).arg( MAX_NOTES ) );
-							  	  // Note: the previous values are valid if and only if MAX_NOTES = 192
-}
-
-void PatternEditorPanel::patternSizeLCDClicked()
-{
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getAudioEngine()->getState() != H2Core::AudioEngine::State::Ready ) {	
-		QMessageBox::information( this, "Hydrogen", tr( "Is not possible to change the pattern size when playing." ) );
+void PatternEditorPanel::updatePatternSizeLCD() {
+	if ( m_pPattern == nullptr ) {
 		return;
-	} // TODO is it really impossible to change the pattern size when playing?
+	}
 
-	bool bIsOkPressed;
-	int denominator;
+	m_bArmPatternSizeSpinBoxes = false;
+
+	bool bTurnOffAgain = false;
+
+	if ( ! m_pLCDSpinBoxNumerator->isEnabled() ) {
+		// Both spin boxes are deactivated since playback is rolling
+		// and the pattern size changed due to the user selecting a
+		// different pattern via mouse. We have to take care not to
+		// trigger a patternSizeChanged() in here.
+		m_pLCDSpinBoxNumerator->setEnabled( true );
+		m_pLCDSpinBoxDenominator->setEnabled( true );
+
+		bTurnOffAgain = true;
+	}
+
+	bool bChanged = false;
+
+	double fNewDenominator = static_cast<double>( m_pPattern->get_denominator() );
+	if ( fNewDenominator != m_pLCDSpinBoxDenominator->value() &&
+		 ! m_pLCDSpinBoxDenominator->hasFocus() ) {
+		m_pLCDSpinBoxDenominator->setValue( fNewDenominator );
+		bool bChanged = true;
+
+		// Update numerator to allow only for a maximum pattern length of
+		// four measures.
+		m_pLCDSpinBoxNumerator->setMaximum( 4 * m_pLCDSpinBoxDenominator->value() );
+	}
+
+	double fNewNumerator = static_cast<double>( m_pPattern->get_length() * m_pPattern->get_denominator() ) / static_cast<double>( MAX_NOTES );
+	if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() && ! m_pLCDSpinBoxNumerator->hasFocus() ) {
+		m_pLCDSpinBoxNumerator->setValue( fNewNumerator );
+		bChanged = true;
+	}
+
+	if ( bTurnOffAgain ) {
+		m_pLCDSpinBoxNumerator->setEnabled( false );
+		m_pLCDSpinBoxDenominator->setEnabled( false );
+	}
 	
-	QString qtmp = QInputDialog::getText( this, "Hydrogen", tr( "New Pattern length (beats/note value)" ),
-													QLineEdit::Normal, __pattern_size_LCD->getText(), &bIsOkPressed );
-													//Note: actually is (beats * note value) but looks less clear
-	
-	if ( bIsOkPressed ) {
-	    if	(__pattern_size_LCD->getText() == qtmp ) { // text unchanged
-	    	return;
-	    }
-	    
-		QStringList parts = qtmp.split( '/' );
-		parts[0].replace( ",", "." ); // allowing both point or comma decimal separator
-		int nDenominator;
-		if ( parts.size() == 1 || parts.size() == 2 ) { // must reject if parts.size > 2 or null
-		    bool bOk;
-		    double fNumerator = parts[0].toDouble( &bOk );
-		    if ( bOk && parts.size() == 2 ) { // user entered both numerator and denominator
-				nDenominator = parts[1].toInt( &bOk );
-				if ( bOk && ( nDenominator <= 0 || nDenominator > MAX_NOTES ) ) {
-			   		QMessageBox::information( this, "Hydrogen", tr( "Denominator value rejected.\nLimits: (0, %1]"
-			   														 ).arg(MAX_NOTES) );
-			   		return;
-				}
-		    }
-		    else { // user entered numerator only. keep the current pattern denominator
-		    	nDenominator = m_pPattern->get_denominator();
-		    } 
-		    if ( bOk && fNumerator > 0 ) {
-				if ( fNumerator / nDenominator > 4. ) { 
-					 // pattern size is limited because the pattern editor ruler goes up to 16/4. Limit might be extended
-					QMessageBox::information( this, "Hydrogen", tr( "Pattern size too big.\nMaximum = 16/4" ) );
-					return;
-				}
-				else {	 
-					if ( MAX_NOTES % nDenominator != 0 ) {
-						QMessageBox::information( this, "Hydrogen", tr( "Pattern length in 1/%1 notes is not supported. "
-																	"Length may be approximated.").arg( nDenominator ) );
-						/* Note: such denominators are not rejected even if not supported:
-						in fact user can input a non integer numerator and this feature is very powerful
-						because it allows to set really any possible pattern size (in ticks) using ANY arbitrary denominator.
-						e.g. pattern size of 38 ticks will result from both inputs 1/5 (quintuplet) and 0.79/4 of a whole note,
-						since both are rounded and BOTH are UNSUPPORTED, but the first notation looks more meaningful */
-					}
+	m_bArmPatternSizeSpinBoxes = true;
 
-					int nLength = round( MAX_NOTES / (double) nDenominator * fNumerator );
-
-					// set length and denominator				
-					m_pPattern->set_length( nLength);
-					m_pPattern->set_denominator( nDenominator );
-					patternLengthChanged();
-
-					/* Message to tell the user why the pattern display won't respect the input value. 
-					Note: constant = 1000 since the displayed numerator has 3 decimal digits*/
-					int displayedNum_x1000 = round( (double) nLength / MAX_NOTES * nDenominator * 1000 );
-					int roundInputNum_x1000 = round( fNumerator * 1000);
-					if ( displayedNum_x1000 != roundInputNum_x1000 ) {
-						QMessageBox::information( this, "Hydrogen",
-							tr( "Pattern size was approximated.\n(resolution = %1 ticks/quarter note)" ).arg( MAX_NOTES / 4 ));
-					}
-				}
-		    }
-		    else { // user entered invalid text
-		    	QMessageBox::information( this, "Hydrogen", tr( "Text rejected" ) );
-		    	return;
-		    }
-		}
-		else { // last case: user entered more than 2 slashes
-		    	QMessageBox::information( this, "Hydrogen", tr( "Text rejected" ) );
-		    	return;
-		}
-	}
-}
-
-
-void PatternEditorPanel::moveUpBtnClicked( Button * )
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
-
-	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
-
-	pAudioEngine->lock( RIGHT_HERE );
-
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	InstrumentList *pInstrumentList = pSong->getInstrumentList();
-
-	if ( ( nSelectedInstrument - 1 ) >= 0 ) {
-		pInstrumentList->swap( nSelectedInstrument -1, nSelectedInstrument );
-
-		pAudioEngine->unlock();
-		pHydrogen->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
-
-		pSong->setIsModified( true );
-	}
-	else {
-		pAudioEngine->unlock();
-	}
-}
-
-
-
-void PatternEditorPanel::moveDownBtnClicked( Button * )
-{
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
-
-	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
-
-	pAudioEngine->lock( RIGHT_HERE );
-
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	InstrumentList *pInstrumentList = pSong->getInstrumentList();
-
-	if ( ( nSelectedInstrument + 1 ) < (int)pInstrumentList->size() ) {
-		pInstrumentList->swap( nSelectedInstrument, nSelectedInstrument + 1 );
-
-		pAudioEngine->unlock();
-		pHydrogen->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
-
-		pSong->setIsModified( true );
-	}
-	else {
-		pAudioEngine->unlock();
+	if ( bChanged ) {
+		patternLengthChanged();
 	}
 
 }
 
+void PatternEditorPanel::patternSizeChanged( double fValue ){
 
+	if ( ! m_bArmPatternSizeSpinBoxes ) {
+		// Don't execute this function if the values of the spin boxes
+		// have been set by Hydrogen instead of by the user.
+		return;
+	}
 
+	// Update numerator to allow only for a maximum pattern length of
+	// four measures.
+	m_pLCDSpinBoxNumerator->setMaximum( 4 * m_pLCDSpinBoxDenominator->value() );
+
+	double fNumerator = m_pLCDSpinBoxNumerator->value();
+	double fDenominator = m_pLCDSpinBoxDenominator->value();
+
+	/* Note: user can input a non integer numerator and this feature
+	   is very powerful because it allows to set really any possible
+	   pattern size (in ticks) using ANY arbitrary denominator.
+	   e.g. pattern size of 38 ticks will result from both inputs 1/5
+	   (quintuplet) and 0.79/4 of a whole note, since both are rounded
+	   and BOTH are UNSUPPORTED, but the first notation looks more
+	   meaningful */
+
+	int nLength = std::round( static_cast<double>( MAX_NOTES ) / fDenominator * fNumerator );
+
+	// set length and denominator				
+	m_pPattern->set_length( nLength );
+	m_pPattern->set_denominator( static_cast<int>( fDenominator ) );
+	patternLengthChanged();
+}
 
 void PatternEditorPanel::dragEnterEvent( QDragEnterEvent *event )
 {
@@ -1211,17 +1130,58 @@ int PatternEditorPanel::moveCursorRight( int n )
 	return m_nCursorPosition;
 }
 
-void PatternEditorPanel::onPreferencesChanged( bool bAppearanceOnly ) {
+void PatternEditorPanel::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( m_pSLlabel->font().family() != pPref->getApplicationFontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
+	if ( changes & H2Core::Preferences::Changes::Font ) {
+		
 		// It's sufficient to check the properties of just one label
 		// because they will always carry the same.
-		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+		QFont boldFont( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 		boldFont.setBold( true );
 		m_pSLlabel->setFont( boldFont );
 		m_pPatternNameLbl->setFont( boldFont );
+
+		updateStyleSheet();
+	}
+
+	if ( changes & ( H2Core::Preferences::Changes::Colors ) ) {
+		updateStyleSheet();
+	}
+}
+
+void PatternEditorPanel::updateStyleSheet() {
+
+	auto pPref = H2Core::Preferences::get_instance();
+	int nFactorTop = 112;
+	
+	QColor topColorLight = pPref->getColorTheme()->m_midColor.lighter( nFactorTop );
+	QColor topColorDark = pPref->getColorTheme()->m_midColor.darker( nFactorTop );
+
+	QString sEditorTopStyleSheet = QString( "\
+QWidget {\
+     background-color: qlineargradient(x1: 0.5, y1: 0.1, x2: 0.5, y2: 0.9, \
+                                      stop: 0 %1, stop: 1 %2); \
+}")
+		.arg( topColorLight.name() ).arg( topColorDark.name() );
+	QString sWidgetTopStyleSheet = QString( "\
+QWidget {\
+    background-color: %1;\
+}" )
+		.arg( pPref->getColorTheme()->m_midLightColor.name() );
+
+	m_pEditorTop1->setStyleSheet( sEditorTopStyleSheet );
+	m_pEditorTop2->setStyleSheet( sEditorTopStyleSheet );
+		
+	m_pSizeResol->setStyleSheet( sWidgetTopStyleSheet );
+	m_pRec->setStyleSheet( sWidgetTopStyleSheet );
+									
+}
+
+void PatternEditorPanel::switchPatternSizeFocus() {
+	if ( ! m_pLCDSpinBoxDenominator->hasFocus() ) {
+		m_pLCDSpinBoxDenominator->setFocus();
+	} else {
+		m_pLCDSpinBoxNumerator->setFocus();
 	}
 }

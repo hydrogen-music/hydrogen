@@ -23,8 +23,8 @@
 #ifndef CPU_LOAD_WIDGET_H
 #define CPU_LOAD_WIDGET_H
 
-
-#include <iostream>
+#include <chrono>
+#include <vector>
 
 #include "../EventListener.h"
 #include <core/Object.h>
@@ -32,36 +32,42 @@
 #include <QtGui>
 #include <QtWidgets>
 
-///
-/// Shows CPU load
-///
+/**
+ * Shows the current CPU load using a meter similar to the one used in
+ * #Fader.
+ *
+ * All aspects of the widgets are directly drawn.
+ *
+ * In order to not annoy and to give a better view on the overall CPU
+ * load, the widget measures the load at five consecutive points in
+ * time and displays the average.
+ *
+ * In case an XRun event is reported by the JACK server, the outlines
+ * of he widget will be painted in red for 1.5 seconds.
+ */
 /** \ingroup docGUI docWidgets*/
-class CpuLoadWidget :  public QWidget, public EventListener,  public H2Core::Object<CpuLoadWidget>
+class CpuLoadWidget : public QWidget, public EventListener, public H2Core::Object<CpuLoadWidget>
 {
     H2_OBJECT(CpuLoadWidget)
 	Q_OBJECT
 
-	public:
-		explicit CpuLoadWidget(QWidget *pParent );
-		~CpuLoadWidget();
+public:
+	explicit CpuLoadWidget( QWidget *pParent );
+	~CpuLoadWidget();
 
-		void setValue( float newValue );
-		float getValue();
+private slots:
+	void updateCpuLoadWidget();
 
-		void mousePressEvent(QMouseEvent *ev);
-		void paintEvent(QPaintEvent *ev);
+private:
+	std::vector<float> m_recentValues;
+	float m_fValue;
+	uint m_nXRunValue;
+	QSize m_size;
+	
+	virtual void paintEvent( QPaintEvent *ev ) override;
 
-		void XRunEvent();
+	void XRunEvent();
 
-	public slots:
-		void updateCpuLoadWidget();
-
-	private:
-		float m_fValue;
-		uint m_nXRunValue;
-
-		QPixmap m_back;
-		QPixmap m_leds;
 };
 
 

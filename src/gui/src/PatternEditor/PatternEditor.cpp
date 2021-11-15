@@ -24,7 +24,7 @@
 #include <core/Globals.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/EventQueue.h>
 #include <core/Basics/DrumkitComponent.h>
 #include <core/Basics/Instrument.h>
@@ -49,22 +49,28 @@ using namespace H2Core;
 
 PatternEditor::PatternEditor( QWidget *pParent,
 							  PatternEditorPanel *panel )
-	: Object (), QWidget( pParent ), m_selection( this ) {
-	m_nResolution = 8;
-	m_bUseTriplets = false;
-	m_pDraggedNote = nullptr;
-	m_pPatternEditorPanel = panel;
-	m_pPattern = nullptr;
-	m_bSelectNewNotes = false;
-	m_bFineGrained = false;
-	m_bCopyNotMove = false;
+	: Object()
+	, QWidget( pParent )
+	, m_selection( this )
+	, m_bEntered( false )
+	, m_nResolution( 8 )
+	, m_bUseTriplets( false )
+	, m_pDraggedNote( nullptr )
+	, m_pPatternEditorPanel( panel )
+	, m_pPattern( nullptr )
+	, m_bSelectNewNotes( false )
+	, m_bFineGrained( false )
+	, m_bCopyNotMove( false ) {
 
-	m_fGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	m_fGridWidth = pPref->getPatternEditorGridWidth();
 	m_nEditorWidth = m_nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
 
 	setFocusPolicy(Qt::StrongFocus);
 
 	HydrogenApp::get_instance()->addEventListener( this );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &PatternEditor::onPreferencesChanged );
 	
 	m_pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
@@ -80,6 +86,15 @@ PatternEditor::PatternEditor( QWidget *pParent,
 
 }
 
+void PatternEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+	auto pPref = H2Core::Preferences::get_instance();
+
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
+		
+		update( 0, 0, width(), height() );
+		m_pPatternEditorPanel->updateEditors();
+	}
+}
 
 void PatternEditor::setResolution(uint res, bool bUseTriplets)
 {
@@ -144,9 +159,10 @@ QColor PatternEditor::computeNoteColor( float velocity ) {
 
 void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote ) const
 {
-	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	static const QColor noteColor( pStyle->m_patternEditor_noteColor );
-	static const QColor noteoffColor( pStyle->m_patternEditor_noteoffColor );
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	static const QColor noteColor( pPref->getColorTheme()->m_patternEditor_noteColor );
+	static const QColor noteoffColor( pPref->getColorTheme()->m_patternEditor_noteoffColor );
 
 	p.setRenderHint( QPainter::Antialiasing );
 
@@ -159,7 +175,7 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 	bool bSelected = m_selection.isSelected( pNote );
 
 	if ( bSelected ) {
-		QPen selectedPen( selectedNoteColor( pStyle ) );
+		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
 		p.setPen( selectedPen );
 		p.setBrush( Qt::NoBrush );
@@ -546,13 +562,13 @@ QPoint PatternEditor::movingGridOffset( ) const {
 //! Draw lines for note grid.
 void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 {
-	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
+	auto pPref = H2Core::Preferences::get_instance();
 	static const QColor res[5] = {
-		QColor( pStyle->m_patternEditor_line1Color ),
-		QColor( pStyle->m_patternEditor_line2Color ),
-		QColor( pStyle->m_patternEditor_line3Color ),
-		QColor( pStyle->m_patternEditor_line4Color ),
-		QColor( pStyle->m_patternEditor_line5Color ),
+		QColor( pPref->getColorTheme()->m_patternEditor_line1Color ),
+		QColor( pPref->getColorTheme()->m_patternEditor_line2Color ),
+		QColor( pPref->getColorTheme()->m_patternEditor_line3Color ),
+		QColor( pPref->getColorTheme()->m_patternEditor_line4Color ),
+		QColor( pPref->getColorTheme()->m_patternEditor_line5Color ),
 	};
 
 	int nGranularity = granularity() * m_nResolution;
@@ -621,12 +637,15 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 }
 
 
-QColor PatternEditor::selectedNoteColor( const UIStyle *pStyle ) const {
+QColor PatternEditor::selectedNoteColor() const {
+	
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	if ( hasFocus() ) {
-		static const QColor selectHilightColor( pStyle->m_selectionHighlightColor );
+		static const QColor selectHilightColor( pPref->getColorTheme()->m_selectionHighlightColor );
 		return selectHilightColor;
 	} else {
-		static const QColor selectInactiveColor( pStyle->m_selectionInactiveColor );
+		static const QColor selectInactiveColor( pPref->getColorTheme()->m_selectionInactiveColor );
 		return selectInactiveColor;
 	}
 }
@@ -655,4 +674,21 @@ void PatternEditor::validateSelection()
 	for ( auto i : invalidated ) {
 		m_selection.removeFromSelection( i, /* bCheck=*/false );
 	}
+}
+
+void PatternEditor::scrolled( int nValue ) {
+	UNUSED( nValue );
+	update();
+}
+
+void PatternEditor::enterEvent( QEvent *ev ) {
+	UNUSED( ev );
+	m_bEntered = true;
+	update();
+}
+
+void PatternEditor::leaveEvent( QEvent *ev ) {
+	UNUSED( ev );
+	m_bEntered = false;
+	update();
 }

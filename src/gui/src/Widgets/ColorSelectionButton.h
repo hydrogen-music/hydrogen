@@ -26,24 +26,29 @@
 
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 #include <QtGui>
 #include <QPushButton>
 #include <QColor>
 
+/** QPushButton opening a QColorDialog when clicked and displaying the
+ * selected color as background - with neither text nor an icon present.
+ * 
+ */
 /** \ingroup docGUI docWidgets*/
-class ColorSelectionButton :  public QPushButton,  public H2Core::Object<ColorSelectionButton>
+class ColorSelectionButton : public QPushButton, public H2Core::Object<ColorSelectionButton>
 {
     H2_OBJECT(ColorSelectionButton)
 	Q_OBJECT
 
 public:
-	ColorSelectionButton( QWidget *pParent, QColor sInitialColor, int nSize );
+	ColorSelectionButton( QWidget *pParent, QColor sInitialColor = Qt::black, int nSize = 0 );
 	~ColorSelectionButton();
 
 	QColor getColor() const;
-
+	void setColor( const QColor& color );
+	
 signals:
 	void colorChanged();
 
@@ -56,7 +61,6 @@ private:
 	void paintEvent( QPaintEvent* ev);
 
 	QColor m_sColor;
-
 };
 
 inline QColor ColorSelectionButton::getColor() const {

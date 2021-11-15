@@ -70,7 +70,9 @@ namespace H2Core
 		static const QString patterns_ext;
 		static const QString playlist_ext;
 		static const QString drumkit_ext;
+		static const QString themes_ext;
 		static const QString songs_filter_name;
+		static const QString themes_filter_name;
 		static const QString scripts_filter_name;
 		static const QString patterns_filter_name;
 		static const QString playlists_filter_name;
@@ -158,6 +160,8 @@ namespace H2Core
 		static QString xsd_dir();
 		/** returns temp path */
 		static QString tmp_dir();
+		static QString usr_theme_dir();
+		static QString sys_theme_dir();
 		/**
 		 * touch a temporary file under tmp_dir() and return it's path.
 		 * if base has a suffix it will be preserved, spaces will be replaced by underscores.
@@ -262,6 +266,8 @@ namespace H2Core
 		 * \param sg_name the song name
 		 */
 		static bool song_exists( const QString& sg_name );
+
+		static QStringList theme_list();
 
 		/** send current settings information to logger with INFO severity */
 		static void info();

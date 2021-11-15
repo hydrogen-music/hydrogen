@@ -25,14 +25,19 @@
 
 #include <QWidget>
 #include <vector>
+#include <core/Preferences/Preferences.h>
+#include <core/Object.h>
 
 class QHBoxLayout;
 class QLabel;
 class QPushButton;
 
 /** \ingroup docGUI docWidgets*/
-class InfoBar : public QWidget
+class InfoBar : public QWidget, public H2Core::Object<InfoBar>
 {
+	H2_OBJECT(InfoBar)
+	Q_OBJECT
+	
 	QHBoxLayout *m_pLayout;
 	QLabel *m_pLabel;
 
@@ -48,8 +53,12 @@ class InfoBar : public QWidget
 	QPushButton *addButton( const QString &label );
 	void reset();
 
+public slots:
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+
+
 	private:
-	void setBackgroundColor();
+	void updateStyleSheet();
 	void createLayout();
 	void createIcon();
 	void createLabel();

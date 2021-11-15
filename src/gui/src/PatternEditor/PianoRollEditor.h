@@ -24,7 +24,7 @@
 #define PIANO_ROLL_EDITOR_H
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Basics/Note.h>
 #include "../EventListener.h"
 #include "../Selection.h"
@@ -124,7 +124,7 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		virtual void selectAll() override;
 		virtual void deleteSelection() override;
 		virtual void paste() override;
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private:
 		bool m_bNeedsUpdate;
@@ -147,6 +147,7 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		void createBackground();
 		void drawPattern();
 		void drawNote( H2Core::Note *pNote, QPainter *pPainter );
+		void drawFocus( QPainter& painter );
 
 		void addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 							  int nNotekey, int nOctave,
@@ -168,10 +169,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		float m_fOldPan;
 		float __leadLag;
 		float __oldLeadLag;		
-		/** Used to detect changed in the font*/
-		QString m_sLastUsedFontFamily;
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 #endif

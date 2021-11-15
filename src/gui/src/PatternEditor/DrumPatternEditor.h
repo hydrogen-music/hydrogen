@@ -30,7 +30,7 @@
 #include "../Widgets/WidgetWithScalableFont.h"
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Helpers/Filesystem.h>
 
 #include <QtGui>
@@ -128,19 +128,19 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 
 		virtual QRect getKeyboardCursorRect() override;
 
-
 	public slots:
 		virtual void updateEditor( bool bPatternOnly = false ) override;
 		virtual void selectAll() override;
 		virtual void deleteSelection() override;
 		virtual void paste() override;
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private:
 		void __draw_note( H2Core::Note* note, QPainter& painter );
 		void __draw_pattern( QPainter& painter );
 		void __draw_grid( QPainter& painter );
 		void __create_background( QPainter& pointer );
+		void drawFocus( QPainter& painter );
 
 		virtual void keyPressEvent (QKeyEvent *ev) override;
 		virtual void keyReleaseEvent (QKeyEvent *ev) override;
@@ -157,10 +157,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		int __nColumn;
 		int __row;
 		int __oldLength;
-		/** Used to detect changed in the font*/
-		QString m_sLastUsedFontFamily;
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

@@ -24,12 +24,11 @@
 #include <QLabel>
 
 #include "ExportMidiDialog.h"
-#include "Skin.h"
 #include "HydrogenApp.h"
 
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Smf/SMF.h>
 
 using namespace H2Core;

@@ -34,7 +34,7 @@
 
 #include <core/config.h>
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 class HydrogenApp;
 class QUndoView;///debug only
@@ -221,7 +221,7 @@ public slots:
 		void setMainWindowSize( int w, int h ) {
 			setFixedSize( w, h );
 		}
-	void onPreferencesChanged( bool bAppearanceOnly );
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 
 	private slots:
@@ -299,8 +299,6 @@ public slots:
 		 * application.
 		 */
 		void startPlaybackAtCursor( QObject* pObject );
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 
 		QMenu* m_pFileMenu;
 		QMenu* m_pUndoMenu;

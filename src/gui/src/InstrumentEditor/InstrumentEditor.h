@@ -29,7 +29,7 @@
 
 #include <core/Basics/Instrument.h>
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 #include "../EventListener.h"
 #include "../Widgets/PixmapWidget.h"
@@ -37,14 +37,14 @@
 
 class Fader;
 class LCDDisplay;
+class LCDSpinBox;
 class Button;
-class ToggleButton;
 class ClickableLabel;
 class Rotary;
 class LCDCombo;
 class WaveDisplay;
 class LayerPreview;
-
+class WidgetWithInput;
 
 ///
 /// Instrument Editor
@@ -76,28 +76,28 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		void showLayers();
 		void showInstrument();
 		void showSampleEditor();
-	void onPreferencesChanged( bool bAppearanceOnly );
 
 	private slots:
-		void rotaryChanged(Rotary *ref);
-		void filterActiveBtnClicked(Button *ref);
-		void buttonClicked(Button*);
+		void rotaryChanged(WidgetWithInput *ref);
+		void loadLayerBtnClicked();
+		void filterActiveBtnClicked();
+		void removeLayerButtonClicked();
 		void labelClicked( ClickableLabel* pRef );
 		void labelCompoClicked( ClickableLabel* pRef );
 		void compoChangeAddDelete(QAction*);
-		void onClick(Button*);
+		void onDropDownCompoClicked();
 
-		void muteGroupBtnClicked(Button *pRef);
+		void muteGroupChanged( double fValue );
 		void onIsStopNoteCheckBoxClicked( bool on );
 		void onIsApplyVelocityCheckBoxClicked( bool on);
-		void midiOutChannelBtnClicked(Button *pRef);
-		void midiOutNoteBtnClicked(Button *pRef);
+		void midiOutChannelChanged( double fValue );
+		void midiOutNoteChanged( double fValue );
 
-		void hihatGroupClicked(Button *pRef);
-		void hihatMinRangeBtnClicked(Button *pRef);
-		void hihatMaxRangeBtnClicked(Button *pRef);
+		void hihatGroupChanged( double fValue );
+		void hihatMinRangeChanged( double fValue );
+		void hihatMaxRangeChanged( double fValue );
 
-		void pSampleSelectionChanged( int );
+		void sampleSelectionChanged( int );
 
 		void waveDisplayDoubleClicked( QWidget *pRef );
 
@@ -106,8 +106,8 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		int m_nSelectedLayer;
 		int m_nSelectedComponent;
 
-		ToggleButton *m_pShowInstrumentBtn;
-		ToggleButton *m_pShowLayersBtn;
+		Button *m_pShowInstrumentBtn;
+		Button *m_pShowLayersBtn;
 
 		// Instrument properties
 		PixmapWidget *m_pInstrumentProp;
@@ -119,52 +119,61 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		Rotary *m_pDecayRotary;
 		Rotary *m_pSustainRotary;
 		Rotary *m_pReleaseRotary;
+		ClickableLabel* m_pAttackLbl;
+		ClickableLabel* m_pDecayLbl;
+		ClickableLabel* m_pSustainLbl;
+		ClickableLabel* m_pReleaseLbl;
 
 		// Instrument pitch
 		Rotary *m_pPitchCoarseRotary;
 		Rotary *m_pPitchFineRotary;
 		Rotary *m_pRandomPitchRotary;
 		LCDDisplay *m_pPitchLCD;
+		ClickableLabel* m_pPitchLbl;
+		ClickableLabel* m_pPitchCoarseLbl;
+		ClickableLabel* m_pPitchFineLbl;
+		ClickableLabel* m_pPitchRandomLbl;
 
 		// Low pass filter
-		ToggleButton *m_pFilterBypassBtn;
+		Button *m_pFilterBypassBtn;
 		Rotary *m_pCutoffRotary;
 		Rotary *m_pResonanceRotary;
+		ClickableLabel* m_pCutoffLbl;
+		ClickableLabel* m_pResonanceLbl;
 
 		// Instrument gain
 		LCDDisplay *m_pInstrumentGainLCD;
 		Rotary *m_pInstrumentGain;
+		ClickableLabel *m_pGainLbl;
 
 		QCheckBox *m_pApplyVelocity;
+		ClickableLabel *m_pApplyVelocityLbl;
+		ClickableLabel *m_pIsStopNoteLbl;
 
 		// Instrument mute group
-		LCDDisplay *m_pMuteGroupLCD;
-		Button *m_pAddMuteGroupBtn;
-		Button *m_pDelMuteGroupBtn;
+		LCDSpinBox *m_pMuteGroupLCD;
+		ClickableLabel *m_pMuteGroupLbl;
 
 		// Instrument midi out
-		LCDDisplay *m_pMidiOutChannelLCD;
-		Button *m_pAddMidiOutChannelBtn;
-		Button *m_pDelMidiOutChannelBtn;
+		LCDSpinBox *m_pMidiOutChannelLCD;
+		ClickableLabel* m_pMidiOutChannelLbl;
+	/** In order to allow for enumerations starting at 1 while using
+		-1 to turn off the LCD.*/
+	double m_fPreviousMidiOutChannel;
 
-		LCDDisplay *m_pMidiOutNoteLCD;
-		Button *m_pAddMidiOutNoteBtn;
-		Button *m_pDelMidiOutNoteBtn;
+		LCDSpinBox *m_pMidiOutNoteLCD;
+		ClickableLabel* m_pMidiOutNoteLbl;
 
 		// Instrument hihat
 
-		LCDDisplay *m_pHihatGroupLCD;
-		Button *m_pAddHihatGroupBtn;
-		Button *m_pDelHihatGroupBtn;
+		LCDSpinBox *m_pHihatGroupLCD;
+		ClickableLabel* m_pHihatGroupLbl;
 
-		LCDDisplay *m_pHihatMinRangeLCD;
-		Button *m_pAddHihatMinRangeBtn;
-		Button *m_pDelHihatMinRangeBtn;
+		LCDSpinBox *m_pHihatMinRangeLCD;
+		ClickableLabel* m_pHihatMinRangeLbl;
 
-		LCDDisplay *m_pHihatMaxRangeLCD;
-		Button *m_pAddHihatMaxRangeBtn;
-		Button *m_pDelHihatMaxRangeBtn;
-
+		LCDSpinBox *m_pHihatMaxRangeLCD;
+		ClickableLabel* m_pHihatMaxRangeLbl;
 
 		//~ Instrument properties
 
@@ -176,6 +185,11 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		PixmapWidget *m_pLayerProp;
 		Rotary *m_pLayerGainRotary;
 		LCDDisplay *m_pLayerGainLCD;
+		ClickableLabel* m_pLayerGainLbl;
+		ClickableLabel* m_pCompoGainLbl;
+		ClickableLabel* m_pLayerPitchLbl;
+		ClickableLabel* m_pLayerPitchCoarseLbl;
+		ClickableLabel* m_pLayerPitchFineLbl;
 
 		Rotary *m_pLayerPitchCoarseRotary;
 		Rotary *m_pLayerPitchFineRotary;
@@ -185,6 +199,7 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 
 		//LCDCombo *__pattern_size_combo;
 		LCDCombo *m_sampleSelectionAlg;
+		ClickableLabel* m_pSampleSelectionLbl;
 
 		WaveDisplay *m_pWaveDisplay;
 
@@ -205,13 +220,7 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		LCDDisplay *m_pCompoGainLCD;
 		//~ Component
 
-		void loadLayer();
 		void setAutoVelocity();
-		/** Converts #m_lastUsedFontSize into a point size used for
-			the widget's font.*/
-		int getPointSizeButton() const;
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

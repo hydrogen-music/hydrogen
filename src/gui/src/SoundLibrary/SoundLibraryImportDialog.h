@@ -28,7 +28,7 @@
 #include <core/Object.h>
 #include <QNetworkReply>
 
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include "SoundLibraryDatastructures.h"
 
 ///

@@ -24,14 +24,13 @@
 #include "../HydrogenApp.h"
 #include "../InstrumentEditor/InstrumentEditor.h"
 #include "../InstrumentEditor/InstrumentEditorPanel.h"
-#include "../Widgets/Button.h"
 
 #include "MainSampleWaveDisplay.h"
 #include "DetailWaveDisplay.h"
 #include "TargetWaveDisplay.h"
 
 #include <core/H2Exception.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/InstrumentComponent.h>
@@ -103,6 +102,9 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	EndFrameSpinBox->setValue( slframes );
 	rubberbandCsettingscomboBox->setCurrentIndex( 4 );
 	rubberComboBox->setCurrentIndex( 0 );
+
+	// Make things consistent with the LCDDisplay and LCDSpinBox classes.
+	pitchdoubleSpinBox->setLocale( QLocale( QLocale::C, QLocale::AnyCountry ) );
 
 	__rubberband.use = false;
 	__rubberband.divider = 1.0;

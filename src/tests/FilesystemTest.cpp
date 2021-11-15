@@ -21,7 +21,7 @@
  */
 
 #include "FilesystemTest.h"
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 #include <QTest>
 

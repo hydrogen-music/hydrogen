@@ -23,7 +23,7 @@
 #include "Mixer.h"
 #include "MixerLine.h"
 
-#include "../Skin.h"
+#include "../CommonStrings.h"
 #include "../HydrogenApp.h"
 #include "../LadspaFXProperties.h"
 #include "../InstrumentEditor/InstrumentEditorPanel.h"
@@ -38,7 +38,6 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Song.h>
-#include <core/Preferences.h>
 #include <core/Basics/Note.h>
 #include <core/FX/Effects.h>
 using namespace H2Core;
@@ -106,46 +105,25 @@ Mixer::Mixer( QWidget* pParent )
 	m_pMasterLine->move( 0, 0 );
 	connect( m_pMasterLine, SIGNAL( volumeChanged(MasterMixerLine*) ), this, SLOT( masterVolumeChanged(MasterMixerLine*) ) );
 	
-	m_pOpenMixerSettingsBtn = new Button(
-			m_pMasterLine,
-			"/mixerPanel/openMixerSettings_over.png",
-			"/mixerPanel/openMixerSettings_off.png",
-			"/mixerPanel/openMixerSettings_over.png",
-			QSize(17, 17)
-	);
+	m_pOpenMixerSettingsBtn = new Button( m_pMasterLine, QSize( 17, 17 ), Button::Type::Push, "cog.svg", "", false, QSize( 13, 13 ), tr( "Mixer Settings" ) );
 	m_pOpenMixerSettingsBtn->move( 96, 6 );
-	m_pOpenMixerSettingsBtn->setToolTip( tr( "Mixer Settings" ) );
-	connect( m_pOpenMixerSettingsBtn, SIGNAL( clicked( Button* ) ), this, SLOT( openMixerSettingsDialog() ) );
+	connect( m_pOpenMixerSettingsBtn, SIGNAL( pressed() ), this, SLOT( openMixerSettingsDialog() ) );
 
 
-	m_pShowFXPanelBtn = new ToggleButton(
-			m_pMasterLine,
-			"/mixerPanel/showFX_on.png",
-			"/mixerPanel/showFX_off.png",
-			"/mixerPanel/showFX_over.png",
-			QSize(42, 13)
-	);
-	m_pShowFXPanelBtn->move( 67, 242 );
-	m_pShowFXPanelBtn->setPressed(false);
-	m_pShowFXPanelBtn->setToolTip( tr( "Show FX panel" ) );
-	connect( m_pShowFXPanelBtn, SIGNAL(clicked(Button*)), this, SLOT( showFXPanelClicked(Button*)));
-	m_pShowFXPanelBtn->setPressed( Preferences::get_instance()->isFXTabVisible() );
+	m_pShowFXPanelBtn = new Button( m_pMasterLine, QSize( 49, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getFXButton(), false, QSize(), tr( "Show FX panel" ) );
+	m_pShowFXPanelBtn->move( 63, 243 );
+	m_pShowFXPanelBtn->setChecked(false);
+	connect( m_pShowFXPanelBtn, SIGNAL( pressed() ), this, SLOT( showFXPanelClicked() ));
+	m_pShowFXPanelBtn->setChecked( Preferences::get_instance()->isFXTabVisible() );
 
 #ifndef H2CORE_HAVE_LADSPA
 	m_pShowFXPanelBtn->hide();
 #endif
 
-	m_pShowPeaksBtn = new ToggleButton(
-			m_pMasterLine,
-			"/mixerPanel/showPeaks_on.png",
-			"/mixerPanel/showPeaks_off.png",
-			"/mixerPanel/showPeaks_over.png",
-			QSize(42, 13)
-	);
-	m_pShowPeaksBtn->move( 67, 258 );
-	m_pShowPeaksBtn->setPressed( (Preferences::get_instance())->showInstrumentPeaks() );
-	m_pShowPeaksBtn->setToolTip( tr( "Show instrument peaks" ) );
-	connect( m_pShowPeaksBtn, SIGNAL(clicked(Button*)), this, SLOT( showPeaksBtnClicked(Button*)));
+	m_pShowPeaksBtn = new Button( m_pMasterLine, QSize( 49, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getPeakButton(), false, QSize(), tr( "Show instrument peaks" ) );
+	m_pShowPeaksBtn->move( 63, 259 );
+	m_pShowPeaksBtn->setChecked( (Preferences::get_instance())->showInstrumentPeaks() );
+	connect( m_pShowPeaksBtn, SIGNAL( pressed() ), this, SLOT( showPeaksBtnClicked() ));
 //~ Master frame
 
 
@@ -728,15 +706,12 @@ void Mixer::resizeEvent ( QResizeEvent *ev )
 	UNUSED( ev );
 }
 
-
-
-void Mixer::showFXPanelClicked(Button* ref)
+void Mixer::showFXPanelClicked()
 {
-	if ( ref->isPressed() ) {
+	if ( ! m_pShowFXPanelBtn->isChecked() ) {
 		m_pFXFrame->show();
 		Preferences::get_instance()->setFXTabVisible( true );
-	}
-	else {
+	} else {
 		m_pFXFrame->hide();
 		Preferences::get_instance()->setFXTabVisible( false );
 	}
@@ -744,17 +719,14 @@ void Mixer::showFXPanelClicked(Button* ref)
 	resizeEvent( nullptr ); 	// force an update
 }
 
-
-
-void Mixer::showPeaksBtnClicked(Button* ref)
+void Mixer::showPeaksBtnClicked()
 {
 	Preferences *pPref = Preferences::get_instance();
 
-	if ( ref->isPressed() ) {
+	if ( ! m_pShowPeaksBtn->isChecked() ) {
 		pPref->setInstrumentPeaks( true );
 		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Show instrument peaks = On"), 2000 );
-	}
-	else {
+	} else {
 		pPref->setInstrumentPeaks( false );
 		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Show instrument peaks = Off"), 2000 );
 	}
@@ -841,10 +813,10 @@ void Mixer::openMixerSettingsDialog() {
 }
 
 
-void Mixer::onPreferencesChanged( bool bAppearanceOnly ) {
+void Mixer::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( font() != pPref->getApplicationFontFamily() ) {
-		setFont( QFont( Preferences::get_instance()->getApplicationFontFamily(), 10 ) );
+	if ( changes & H2Core::Preferences::Changes::Font ) {
+		setFont( QFont( pPref->getApplicationFontFamily(), 10 ) );
 	}
 }

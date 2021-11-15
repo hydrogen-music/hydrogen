@@ -25,7 +25,7 @@
 // check if OSS support is enabled
 #if defined(H2CORE_HAVE_OSS) || _DOXYGEN_
 
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 
 #include <pthread.h>
 

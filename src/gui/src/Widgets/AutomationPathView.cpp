@@ -21,8 +21,8 @@
  */
 
 #include "AutomationPathView.h"
-#include <core/Preferences.h>
 #include "../SongEditor/SongEditor.h"
+#include "../HydrogenApp.h"
 
 using namespace H2Core;
 
@@ -35,11 +35,21 @@ AutomationPathView::AutomationPathView(QWidget *parent)
 	  m_bIsHolding(false)
 {
 	setFocusPolicy( Qt::ClickFocus );
-	Preferences *pref = Preferences::get_instance();
-	m_nMaxPatternSequence = pref->getMaxBars();
+	Preferences *pPref = Preferences::get_instance();
+	m_nMaxPatternSequence = pPref->getMaxBars();
 
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &AutomationPathView::onPreferencesChanged );
+	
 	_path = nullptr;
 	autoResize();
+}
+
+void AutomationPathView::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+	auto pPref = H2Core::Preferences::get_instance();
+
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
+		update();
+	}
 }
 
 
@@ -117,11 +127,14 @@ std::pair<const float, float> AutomationPathView::locate(QMouseEvent *event) con
  **/
 void AutomationPathView::paintEvent(QPaintEvent *event)
 {
+
+	auto pPref = H2Core::Preferences::get_instance();
+
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing);
 
 	QPen rulerPen(Qt::DotLine);
-	rulerPen.setColor(QColor(127, 133, 153));
+	rulerPen.setColor( pPref->getColorTheme()->m_lightColor );
 	painter.setPen(rulerPen);
 
 	/* Paint min, max  */
@@ -136,7 +149,7 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 	QPoint def = translatePoint(0, _path->get_default());
 	painter.drawLine(0, def.y(), width(), def.y());
 
-	QPen linePen(QColor(99, 165, 255));
+	QPen linePen( pPref->getColorTheme()->m_automationColor );
 	linePen.setWidth(2);
 	painter.setPen(linePen);
 
@@ -159,10 +172,10 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 	}
 
 
-	QPen circlePen(QColor(99, 165, 255));
+	QPen circlePen( pPref->getColorTheme()->m_automationCircleColor );
 	circlePen.setWidth(1);
 	painter.setPen(circlePen);
-	painter.setBrush(QBrush(QColor(58,62,72)));
+	painter.setBrush(QBrush( pPref->getColorTheme()->m_windowColor ));
 
 	for (auto point : *_path) {
 

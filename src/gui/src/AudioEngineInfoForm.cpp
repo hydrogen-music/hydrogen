@@ -30,16 +30,13 @@
 
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/IO/MidiInput.h>
 #include <core/IO/AudioOutput.h>
 #include <core/Sampler/Sampler.h>
 #include <core/AudioEngine/AudioEngine.h>
 using namespace H2Core;
-
-#include "Skin.h"
-
 
 AudioEngineInfoForm::AudioEngineInfoForm(QWidget* parent)
  : QWidget( parent )
@@ -245,8 +242,9 @@ void AudioEngineInfoForm::updateAudioEngineState() {
 }
 
 
-void AudioEngineInfoForm::stateChangedEvent( int )
+void AudioEngineInfoForm::stateChangedEvent( H2Core::AudioEngine::State state )
 {
+	UNUSED( state );
 	updateAudioEngineState();
 }
 

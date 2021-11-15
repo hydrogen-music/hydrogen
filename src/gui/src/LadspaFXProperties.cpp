@@ -24,7 +24,7 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Song.h>
 #include <core/FX/Effects.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/IO/AudioOutput.h>
 
 
@@ -33,7 +33,7 @@
 #include "LadspaFXSelector.h"
 #include "Skin.h"
 #include "Widgets/Fader.h"
-#include "Widgets/LCD.h"
+#include "Widgets/LCDDisplay.h"
 
 #include "Mixer/Mixer.h"
 #include "Mixer/MixerLine.h"
@@ -129,10 +129,11 @@ void LadspaFXProperties::closeEvent( QCloseEvent *ev )
 }
 
 
-void LadspaFXProperties::faderChanged( Fader * ref )
+void LadspaFXProperties::faderChanged( WidgetWithInput * pRef )
 {
-	ref->setPeak_L( ref->getValue() );
-	ref->setPeak_R( ref->getValue() );
+	Fader* pFader = dynamic_cast<Fader*>( pRef );
+	pFader->setPeak_L( pFader->getValue() );
+	pFader->setPeak_R( pFader->getValue() );
 
 	std::shared_ptr<Song> pSong = (Hydrogen::get_instance() )->getSong();
 
@@ -140,10 +141,10 @@ void LadspaFXProperties::faderChanged( Fader * ref )
 	LadspaFX *pFX = Effects::get_instance()->getLadspaFX( m_nLadspaFX );
 
 	for ( uint i = 0; i < m_pInputControlFaders.size(); i++ ) {
-		if (ref == m_pInputControlFaders[ i ] ) {
+		if (pFader == m_pInputControlFaders[ i ] ) {
 			LadspaControlPort *pControl = pFX->inputControlPorts[ i ];
 
-			pControl->fControlValue = ref->getValue();
+			pControl->fControlValue = pFader->getValue();
 			//float fInterval = pControl->fUpperBound - pControl->fLowerBound;
 			//pControl->fControlValue = pControl->fLowerBound + fValue * fInterval;
 
@@ -254,7 +255,7 @@ void LadspaFXProperties::updateControls()
 				sValue = QString("%1").arg( pControlPort->fControlValue, 0, 'f', 0);
 			}
 
-			LCDDisplay *pLCD = new LCDDisplay( m_pFrame, LCDDigit::SMALL_BLUE, 4 );
+			LCDDisplay *pLCD = new LCDDisplay( m_pFrame, QSize( 32, 11 ) );
 			pLCD->move( nInputControl_X, 40 );
 			pLCD->setText( sValue );
 			pLCD->show();
@@ -273,25 +274,17 @@ void LadspaFXProperties::updateControls()
 
 
 			// fader
-			Fader *pFader = new Fader( m_pFrame, pControlPort->m_bIsInteger, false );
-			connect( pFader, SIGNAL( valueChanged(Fader*) ), this, SLOT( faderChanged(Fader*) ) );
+			Fader *pFader = new Fader( m_pFrame, Fader::Type::Normal, tr( "Input control param. value" ), pControlPort->m_bIsInteger, false, pControlPort->fLowerBound, pControlPort->fUpperBound );
+			connect( pFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( faderChanged( WidgetWithInput* ) ) );
 			m_pInputControlFaders.push_back( pFader );
 			pFader->move( nInputControl_X + 20, 60 );
 			pFader->show();
-			pFader->setMaxValue( pControlPort->fUpperBound );
-			pFader->setMinValue( pControlPort->fLowerBound );
 			pFader->setMaxPeak( pControlPort->fUpperBound );
 			pFader->setMinPeak( pControlPort->fLowerBound );
 			pFader->setValue( pControlPort->fControlValue );
 			pFader->setPeak_L( pControlPort->fControlValue );
 			pFader->setPeak_R( pControlPort->fControlValue );
 			pFader->setDefaultValue( pControlPort->fDefaultValue );
-
-			//float fInterval = pControlPort->fUpperBound - pControlPort->fLowerBound;
-			//float fValue = ( pControlPort->fControlValue - pControlPort->fLowerBound ) / fInterval;
-			//pFader->setValue( fValue );
-			//pFader->setPeak_L( fValue );
-			//pFader->setPeak_R( fValue );
 
 			faderChanged( pFader );
 
@@ -312,13 +305,11 @@ void LadspaFXProperties::updateControls()
 			pName->setToolTip( pName->text() );
 
 			// fader
-			Fader *pFader = new Fader( m_pFrame, true, true );	// without knob!
+			Fader *pFader = new Fader( m_pFrame, Fader::Type::Normal, tr( "Output control param. value" ), true, true, pControl->fLowerBound, pControl->fUpperBound );
 			pFader->move( xPos + 20, 60 );
 			//float fInterval = pControl->fUpperBound - pControl->fLowerBound;
 			//float fValue = pControl->fControlValue / fInterval;
 			pFader->show();
-			pFader->setMaxValue( pControl->fUpperBound );
-			pFader->setMinValue( pControl->fLowerBound );
 			pFader->setMaxPeak( pControl->fUpperBound );
 			pFader->setMinPeak( pControl->fLowerBound );
 			pFader->setValue( pControl->fControlValue );

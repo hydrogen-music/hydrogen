@@ -27,6 +27,7 @@
 #include "Skin.h"
 
 #include "core/Helpers/Filesystem.h"
+#include "core/Preferences/Preferences.h"
 
 FilesystemInfoForm::FilesystemInfoForm( QWidget *parent ) :
 	QWidget( parent ),
@@ -34,6 +35,24 @@ FilesystemInfoForm::FilesystemInfoForm( QWidget *parent ) :
 	ui(new Ui::FilesystemInfoForm)
 {
 	ui->setupUi(this);
+
+	QColor windowColor = H2Core::Preferences::get_instance()->getColorTheme()->m_windowColor;
+	QColor windowTextColor = H2Core::Preferences::get_instance()->getColorTheme()->m_windowTextColor;
+
+	ui->tmpDirWarningButton->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/warning.svg" ) );
+	ui->tmpDirWarningButton->setStyleSheet( Skin::getWarningButtonStyleSheet( 16 ) );
+	ui->tmpDirWarningButton->setToolTip( tr( "Filesystem is not writable!" ) );
+	ui->tmpDirWarningButton->setFlat( true );
+	
+	ui->tmpDirLineEdit->setReadOnly( true );
+	
+	ui->usrDataDirWarningButton->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/warning.svg" ) );
+	ui->usrDataDirWarningButton->setStyleSheet( Skin::getWarningButtonStyleSheet( 16 ) );
+	ui->usrDataDirWarningButton->setToolTip( tr( "User data folder is not writable!" ) );
+	ui->usrDataDirWarningButton->setFlat( true );
+	
+	ui->usrDataDirLineEdit->setReadOnly( true );
+	ui->sysDataDirLineEdit->setReadOnly( true );
 	
 	updateInfo();
 }
@@ -57,22 +76,18 @@ void FilesystemInfoForm::updateInfo()
 	ui->tmpDirLineEdit->setToolTip( tmpDir );
 	
 	if(!H2Core::Filesystem::dir_writable( tmpDir, true)) {
-		QPixmap warningIcon (Skin::getImagePath() + "/patternEditor/icn_warning.png" );
-		ui->tmpDirWarningLabel->setPixmap(warningIcon);
-		ui->tmpDirWarningLabel->setToolTip("Temporary directory is not writable");
+		ui->tmpDirWarningButton->show();
 	} else {
-		ui->tmpDirWarningLabel->setText("");
+		ui->tmpDirWarningButton->hide();
 	}
 	
 	ui->usrDataDirLineEdit->setText( usrDataDir );
 	ui->usrDataDirLineEdit->setToolTip( usrDataDir );
 	
 	if(!H2Core::Filesystem::dir_writable( usrDataDir, true)) {
-		QPixmap warningIcon (Skin::getImagePath() + "/patternEditor/icn_warning.png" );
-		ui->usrDataDirWarningLabel->setPixmap(warningIcon);
-		ui->usrDataDirWarningLabel->setToolTip("User data directory is not writable");
+		ui->usrDataDirWarningButton->show();
 	} else {
-		ui->usrDataDirWarningLabel->setText("");
+		ui->usrDataDirWarningButton->hide();
 	}
 	
 	ui->sysDataDirLineEdit->setText( sysDataDir );

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="26"
+   height="26"
+   viewBox="0 0 6.8791663 6.8791667"
+   version="1.1"
+   id="svg1410"
+   sodipodi:docname="rotary.svg"
+   inkscape:version="1.0.2 (e86c870879, 2021-01-15)">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1916"
+     inkscape:window-height="1041"
+     id="namedview19"
+     showgrid="true"
+     inkscape:object-nodes="true"
+     inkscape:snap-object-midpoints="true"
+     inkscape:snap-grids="true"
+     inkscape:object-paths="true"
+     inkscape:snap-intersection-paths="true"
+     inkscape:zoom="16"
+     inkscape:cx="-5.5133986"
+     inkscape:cy="15.528287"
+     inkscape:window-x="0"
+     inkscape:window-y="18"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer2"
+     units="px"
+     inkscape:snap-midpoints="false"
+     inkscape:document-rotation="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid23"
+       originx="0"
+       originy="0" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1404">
+    <linearGradient
+       id="linearGradient1053">
+      <stop
+         style="stop-color:#e2e2e9;stop-opacity:1"
+         offset="0"
+         id="stop1049" />
+      <stop
+         style="stop-color:#262626;stop-opacity:1"
+         offset="1"
+         id="stop1051" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4048">
+      <stop
+         style="stop-color:#f4f4f6;stop-opacity:1"
+         offset="0"
+         id="stop4044" />
+      <stop
+         style="stop-color:#3a3a3b;stop-opacity:1"
+         offset="1"
+         id="stop4046" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3984"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#2200b1;stop-opacity:1;"
+         offset="0"
+         id="stop3982" />
+    </linearGradient>
+    <radialGradient
+       xlink:href="#linearGradient4048"
+       id="radialGradient4052"
+       cx="88.802475"
+       cy="90.475395"
+       fx="88.802475"
+       fy="90.475395"
+       r="2.0543394"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.00609564,1.9191538,-1.7162867,-0.00545118,244.07365,-78.881358)" />
+    <radialGradient
+       xlink:href="#linearGradient1053"
+       id="radialGradient4066"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.06246742,2.2181712,-2.5373766,0.07145708,312.29275,-112.41786)"
+       cx="88.825943"
+       cy="90.525177"
+       fx="88.825943"
+       fy="90.525177"
+       r="2.0543394" />
+  </defs>
+  <metadata
+     id="metadata1407">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+        <cc:license
+           rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/publicdomain/zero/1.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="knob"
+     style="display:inline">
+    <g
+       id="layer1"
+       transform="matrix(1.6748471,0,0,1.6748471,-146.43444,-151.09383)">
+      <circle
+         style="fill:#a1a1a4;fill-opacity:1;stroke:#000000;stroke-width:0.019;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path1099"
+         cx="0"
+         cy="0"
+         r="0" />
+      <circle
+         style="fill:url(#radialGradient4052);fill-opacity:1;stroke:#2b2e30;stroke-width:0.079375;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path1091"
+         cx="89.485199"
+         cy="92.267174"
+         r="2.014652" />
+      <circle
+         style="fill:#a4aabe;fill-opacity:1;fill-rule:evenodd;stroke:#2b2e30;stroke-width:0.079375;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path249"
+         cx="89.485199"
+         cy="92.267174"
+         r="1.3924197" />
+    </g>
+    <path
+       style="fill:#17e4af;fill-opacity:1;stroke:#000000;stroke-width:0.00044799;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 4.6180224,0.33151045 c -5.964e-4,-9.645e-4 -4.13e-4,-0.002426 4.091e-4,-0.003247 9.983e-4,-9.954e-4 0.00185,-9.087e-4 0.00257,2.6021e-4 5.962e-4,9.6451e-4 4.128e-4,0.002426 -4.09e-4,0.003247 -9.984e-4,9.954e-4 -0.00185,9.0868e-4 -0.00257,-2.6021e-4 z"
+       id="path907" />
+    <rect
+       style="fill:none;stroke:none;stroke-width:0.598582;stroke-linecap:square"
+       id="rect868"
+       width="1.7957447"
+       height="0.3866756"
+       x="1.9469005"
+       y="6.6706228" />
+    <rect
+       style="fill:none;fill-opacity:0;stroke:none;stroke-width:0.598582;stroke-linecap:square"
+       id="rect954"
+       width="0.025411582"
+       height="0.0099201798"
+       x="3.4922159"
+       y="6.840663" />
+  </g>
+  <path
+     style="fill:#17e4af;fill-opacity:1;stroke:#000000;stroke-width:0.00031006;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d=""
+     id="path905" />
+  <path
+     style="fill:#17e4af;fill-opacity:1;stroke:#000000;stroke-width:0.000438489;stroke-linecap:square;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d=""
+     id="path913" />
+</svg>

@@ -36,8 +36,9 @@
 class SongEditor;
 class SongEditorPatternList;
 class SongEditorPositionRuler;
-class ToggleButton;
+class Button;
 class Fader;
+class WidgetWithInput;
 class AutomationPathView;
 class LCDCombo;
 class PlaybackTrackWaveDisplay;
@@ -90,35 +91,35 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 	public slots:
 		void setModeActionBtn( bool mode );
 		void showHideTimeLine( bool bPressed ) {
-			m_pTimeLineToggleBtn->setPressed( bPressed );
-			timeLineBtnPressed( m_pTimeLineToggleBtn );
+			m_pTimeLineBtn->setChecked( bPressed );
+			timeLineBtnPressed();
 		}
 
 	private slots:
 		void vScrollTo( int value );
 		void hScrollTo( int value );
 
-		void newPatBtnClicked( Button* );
-		void upBtnClicked( Button* );
-		void downBtnClicked( Button* );
-		void clearSequence( Button* );
+		void newPatBtnClicked();
+		void upBtnClicked();
+		void downBtnClicked();
+		void clearSequence();
 		
 		void updatePlaybackFaderPeaks();
 		void updatePlayHeadPosition();
 
-		void pointerActionBtnPressed( Button* pBtn );
-		void drawActionBtnPressed( Button* pBtn );
-		void timeLineBtnPressed( Button* pBtn );
-		void viewTimeLineBtnPressed( Button* pBtn );
-		void viewPlaybackTrackBtnPressed( Button* pBtn );
-		void mutePlaybackTrackBtnPressed( Button* pBtn );
-		void editPlaybackTrackBtnPressed( Button* pBtn );
+		void selectionModeBtnPressed();
+		void drawModeBtnPressed();
+		void timeLineBtnPressed();
+		void viewTimeLineBtnPressed();
+		void viewPlaybackTrackBtnPressed();
+		void mutePlaybackTrackBtnPressed();
+		void editPlaybackTrackBtnPressed();
 		void modeActionBtnPressed( );
 
-		void zoomInBtnPressed( Button* pBtn );
-		void zoomOutBtnPressed( Button* pBtn );
+		void zoomInBtnPressed();
+		void zoomOutBtnPressed();
 		
-		void faderChanged(Fader* pFader);
+		void faderChanged( WidgetWithInput* pRef );
 
 		void automationPathChanged();
 		void automationPathPointAdded(float x, float y);
@@ -152,21 +153,22 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		Button *				m_pUpBtn;
 		Button *				m_pDownBtn;
 		Button *				m_pClearPatternSeqBtn;
-		ToggleButton *			m_pPointerActionBtn;
-		ToggleButton *			m_pModeActionBtn;
-		ToggleButton *			m_pDrawActionBtn;
-		ToggleButton *			m_pTagbarToggleBtn;
+		Button *			m_pSelectionModeBtn;
+		Button *			m_pModeActionSingleBtn;
+		Button *			m_pModeActionMultipleBtn;
+		Button *			m_pDrawModeBtn;
+		Button *			m_pTagbarBtn;
 		
 		Fader*					m_pPlaybackTrackFader;
 
 		/** Store the tool tip of the Timeline since it gets
 			overwritten during deactivation.*/
 		QString					m_sTimelineToolTip;
-		ToggleButton *			m_pTimeLineToggleBtn;
-		ToggleButton *			m_pPlaybackToggleBtn;
-		ToggleButton *			m_pViewTimeLineToggleBtn;
-		ToggleButton *			m_pViewPlaybackToggleBtn;
-		ToggleButton *			m_pMutePlaybackToggleBtn;
+		Button *			m_pTimeLineBtn;
+		Button *			m_pPlaybackBtn;
+		Button *			m_pViewTimeLineBtn;
+		Button *			m_pViewPlaybackBtn;
+		Button *			m_pMutePlaybackBtn;
 		Button *				m_pEditPlaybackBtn;
 
 		QTimer*					m_pTimer;

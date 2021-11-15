@@ -31,7 +31,7 @@
 #include <QtWidgets>
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include "../Widgets/PixmapWidget.h"
 #include "../Selection.h"
 #include "../Widgets/WidgetWithScalableFont.h"
@@ -42,7 +42,6 @@ namespace H2Core
 }
 
 class PatternEditorPanel;
-class ToggleButton;
 class Button;
 
 /** \ingroup docGUI*/
@@ -62,7 +61,7 @@ class InstrumentLine : public PixmapWidget, protected WidgetWithScalableFont<8, 
 		void setSamplesMissing( bool bSamplesMissing );
 
 public slots:
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private slots:
 		void functionClearNotes();
@@ -98,14 +97,12 @@ public slots:
 		QLabel *m_pNameLbl;
 		bool m_bIsSelected;
 		int m_nInstrumentNumber;	///< The related instrument number
-		ToggleButton *m_pMuteBtn;
-		ToggleButton *m_pSoloBtn;
+		Button *m_pMuteBtn;
+		Button *m_pSoloBtn;
 		Button *m_pSampleWarning;
 
 		virtual void mousePressEvent(QMouseEvent *ev);
 		H2Core::Pattern* getCurrentPattern();
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

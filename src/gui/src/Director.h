@@ -27,7 +27,7 @@
 #include <QDialog>
 #include "ui_Director_UI.h"
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/Timeline.h>
 #include "EventListener.h"

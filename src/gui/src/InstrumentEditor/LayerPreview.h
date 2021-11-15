@@ -27,7 +27,7 @@
 #include <memory>
 
 #include <core/Object.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Basics/Instrument.h>
 #include "../EventListener.h"
 #include "../Widgets/WidgetWithScalableFont.h"
@@ -57,7 +57,7 @@ class LayerPreview :  public QWidget, protected WidgetWithScalableFont<5, 6, 7>,
 		void set_selected_component( int SelectedComponent );
 
 public slots:
-		void onPreferencesChanged( bool bAppearanceOnly );
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 	
 	private:
 		static const int		m_nLayerHeight = 10;
@@ -95,12 +95,7 @@ public slots:
 
 		virtual void selectedInstrumentChangedEvent() override;
 		/** Used to detect changed in the font*/
-		QString m_sLastUsedFontFamily;
-		/** Converts #m_lastUsedFontSize into a point size used for
-			the widget's font.*/
 		int getPointSizeButton() const;
-		/** Used to detect changed in the font*/
-		H2Core::Preferences::FontSize m_lastUsedFontSize;
 };
 
 

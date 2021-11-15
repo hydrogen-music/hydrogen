@@ -44,7 +44,7 @@
 #include <core/Basics/Song.h>
 #include <core/Helpers/Files.h>
 #include <core/Helpers/Filesystem.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Globals.h>
 #include <core/EventQueue.h>
 
@@ -84,7 +84,11 @@ void JackAudioDriver::jackDriverShutdown( void* arg )
 	JackAudioDriver::pJackDriverInstance->m_pClient = nullptr;
 	Hydrogen::get_instance()->raiseError( Hydrogen::JACK_SERVER_SHUTDOWN );
 }
-
+int JackAudioDriver::jackXRunCallback( void *arg ) {
+	UNUSED( arg );
+	EventQueue::get_instance()->push_event( EVENT_XRUN, 0 );
+	return 0;
+}
 
 unsigned long JackAudioDriver::jackServerSampleRate = 0;
 jack_nframes_t JackAudioDriver::jackServerBufferSize = 0;
@@ -866,6 +870,9 @@ int JackAudioDriver::init( unsigned bufferSize )
 	   (frames per process cycle) changes.
 	*/
 	jack_set_buffer_size_callback( m_pClient, jackDriverBufferSize, nullptr );
+
+	/* display an XRun event in the GUI.*/
+	jack_set_xrun_callback( m_pClient, jackXRunCallback, nullptr );
 
 	/* tell the JACK server to call `jack_shutdown()' if
 	   it ever shuts down, either entirely, or if it

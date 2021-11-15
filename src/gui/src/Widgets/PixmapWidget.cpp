@@ -26,7 +26,7 @@
 
 #include <core/Object.h>
 
-PixmapWidget::PixmapWidget( QWidget *pParent, const char* sClassName )
+PixmapWidget::PixmapWidget( QWidget *pParent )
  : QWidget( pParent )
  , m_sPixmapPath( "" )
  , __expand_horiz(false)

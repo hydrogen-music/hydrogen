@@ -31,7 +31,7 @@
 #include <core/Helpers/Files.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/H2Exception.h>
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Timeline.h>
@@ -62,8 +62,9 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	setupUi ( this );
 	INFOLOG ( "INIT" );
 
-	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();	
-	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	setFont( font );
 	m_pPlaylistTree->setFont( font );
 	
@@ -112,53 +113,33 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	vboxLayout->addWidget( pControlsPanel );
 
 	// Rewind button
-	m_pRwdBtn = new Button(
-			pControlsPanel,
-			"/playerControlPanel/btn_rwd_on.png",
-			"/playerControlPanel/btn_rwd_off.png",
-			"/playerControlPanel/btn_rwd_over.png",
-			QSize(21, 15)
-	);
-	m_pRwdBtn->move(6, 6);
-	m_pRwdBtn->setToolTip( tr("Rewind") );
-	connect(m_pRwdBtn, SIGNAL(clicked(Button*)), this, SLOT(rewindBtnClicked(Button*)));
+	m_pRwdBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "rewind.svg", "", false, QSize( 13, 13 ), tr("Rewind") );
+	m_pRwdBtn->move( 4, 4 );
+	connect(m_pRwdBtn, SIGNAL( pressed() ), this, SLOT( rewindBtnClicked() ));
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAYLIST_PREV_SONG");
+	m_pRwdBtn->setAction( pAction );
 
 	// Play button
-	m_pPlayBtn = new ToggleButton(
-			pControlsPanel,
-			"/playerControlPanel/btn_play_on.png",
-			"/playerControlPanel/btn_play_off.png",
-			"/playerControlPanel/btn_play_over.png",
-			QSize(33, 17)
-	);
-	m_pPlayBtn->move(33, 6);
-	m_pPlayBtn->setPressed(false);
-	m_pPlayBtn->setToolTip( tr("Play/ Pause/ Load selected song") );
-	connect(m_pPlayBtn, SIGNAL(clicked(Button*)), this, SLOT(nodePlayBTN(Button*)));
+	m_pPlayBtn = new Button( pControlsPanel, QSize( 30, 21 ), Button::Type::Toggle, "play.svg", "", false, QSize( 13, 13 ), tr("Play/ Pause/ Load selected song") );
+	m_pPlayBtn->move( 31, 4 );
+	m_pPlayBtn->setChecked(false);
+	connect(m_pPlayBtn, SIGNAL( pressed() ), this, SLOT( nodePlayBTN() ));
+	pAction = std::make_shared<Action>("PLAY/PAUSE_TOGGLE");
+	m_pPlayBtn->setAction( pAction );
 
 	// Stop button
-	m_pStopBtn = new Button(
-			pControlsPanel,
-			"/playerControlPanel/btn_stop_on.png",
-			"/playerControlPanel/btn_stop_off.png",
-			"/playerControlPanel/btn_stop_over.png",
-			QSize(21, 15)
-	);
-	m_pStopBtn->move(65, 6);
-	m_pStopBtn->setToolTip( tr("Stop") );
-	connect(m_pStopBtn, SIGNAL(clicked(Button*)), this, SLOT(nodeStopBTN(Button*)));
+	m_pStopBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "stop.svg", "", false, QSize( 11, 11 ), tr("Stop") );
+	m_pStopBtn->move( 63, 4 );
+	connect(m_pStopBtn, SIGNAL( pressed() ), this, SLOT( nodeStopBTN() ));
+	pAction = std::make_shared<Action>("STOP");
+	m_pStopBtn->setAction( pAction );
 
 	// Fast forward button
-	m_pFfwdBtn = new Button(
-			pControlsPanel,
-			"/playerControlPanel/btn_ffwd_on.png",
-			"/playerControlPanel/btn_ffwd_off.png",
-			"/playerControlPanel/btn_ffwd_over.png",
-			QSize(21, 15)
-	);
-	m_pFfwdBtn->move(92, 6);
-	m_pFfwdBtn->setToolTip( tr("Fast Forward") );
-	connect(m_pFfwdBtn, SIGNAL(clicked(Button*)), this, SLOT(ffWDBtnClicked(Button*)));
+	m_pFfwdBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "fast_forward.svg", "", false, QSize( 13, 13 ), tr("Fast Forward") );
+	m_pFfwdBtn->move( 90, 4 );
+	connect(m_pFfwdBtn, SIGNAL( pressed() ), this, SLOT( ffWDBtnClicked() ));
+	pAction = std::make_shared<Action>("PLAYLIST_NEXT_SONG");
+	m_pFfwdBtn->setAction( pAction );
 
 #ifdef WIN32
 	QStringList headers;
@@ -205,29 +186,13 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 #endif
 
 	// zoom-in btn
-	Button *pUpBtn = new Button(
-			nullptr,
-			"/songEditor/btn_up_on.png",
-			"/songEditor/btn_up_off.png",
-			"/songEditor/btn_up_over.png",
-			QSize(18, 13)
-	);
-
-	pUpBtn->setToolTip( tr( "sort" ) );
-	connect(pUpBtn, SIGNAL(clicked(Button*)), this, SLOT(o_upBClicked()) );
+	Button *pUpBtn = new Button( nullptr, QSize( 16, 16 ), Button::Type::Push, "up.svg", "", false, QSize( 9, 9 ), tr( "sort" ) );
+	connect(pUpBtn, SIGNAL( pressed() ), this, SLOT(o_upBClicked()) );
 	pSideBarLayout->addWidget(pUpBtn);
 
 	// zoom-in btn
-	Button *pDownBtn = new Button(
-			nullptr,
-			"/songEditor/btn_down_on.png",
-			"/songEditor/btn_down_off.png",
-			"/songEditor/btn_down_over.png",
-			QSize(18, 13)
-	);
-
-	pDownBtn->setToolTip( tr( "sort" ) );
-	connect(pDownBtn, SIGNAL(clicked(Button*)), this, SLOT(o_downBClicked()));
+	Button *pDownBtn = new Button( nullptr, QSize( 16, 16 ), Button::Type::Push, "down.svg", "", false, QSize( 9, 9 ), tr( "sort" ) );
+	connect(pDownBtn, SIGNAL( pressed() ), this, SLOT(o_downBClicked()));
 	pSideBarLayout->addWidget(pDownBtn);
 
 	//restore the playlist
@@ -773,16 +738,16 @@ void PlaylistDialog::on_m_pPlaylistTree_itemClicked ( QTreeWidgetItem * item, in
 	return;
 }
 
-void PlaylistDialog::nodePlayBTN( Button* ref )
+void PlaylistDialog::nodePlayBTN()
 {
 	Hydrogen *		pHydrogen = Hydrogen::get_instance();
 	HydrogenApp *	pH2App = HydrogenApp::get_instance();
 
-	if (ref->isPressed()) {
+	if ( ! m_pPlayBtn->isChecked() ) {
 		QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->currentItem();
 		if ( m_pPlaylistItem == nullptr ){
 			QMessageBox::information ( this, "Hydrogen", tr ( "No valid song selected!" ) );
-			m_pPlayBtn->setPressed(false);
+			m_pPlayBtn->setChecked(false);
 			return;
 		}
 		QString sFilename = "";
@@ -798,7 +763,7 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 		Playlist::get_instance()->setActiveSongNumber( index );
 
 		if ( ! pH2App->openSong( sFilename ) ) {
-			m_pPlayBtn->setPressed(false);
+			m_pPlayBtn->setChecked(false);
 		}
 
 		pHydrogen->sequencer_play();
@@ -809,24 +774,21 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 	}
 }
 
-void PlaylistDialog::nodeStopBTN( Button* ref )
+void PlaylistDialog::nodeStopBTN()
 {
-	UNUSED( ref );
-	m_pPlayBtn->setPressed(false);
+	m_pPlayBtn->setChecked(false);
 	Hydrogen::get_instance()->sequencer_stop();
 	Hydrogen::get_instance()->getCoreActionController()->locateToColumn( 0 );
 }
 
-void PlaylistDialog::ffWDBtnClicked( Button* ref)
+void PlaylistDialog::ffWDBtnClicked()
 {
-	UNUSED( ref );
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() + 1 );
 }
 
-void PlaylistDialog::rewindBtnClicked( Button* ref )
+void PlaylistDialog::rewindBtnClicked()
 {
-	UNUSED( ref );
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() - 1 );
 }
@@ -848,7 +810,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
 
-	m_pPlayBtn->setPressed(false);
+	m_pPlayBtn->setChecked(false);
 
 	pH2App->openSong( sFilename );
 
@@ -1000,18 +962,13 @@ bool PlaylistDialog::loadListByFileName( QString filename )
 	return true;
 }
 
-void PlaylistDialog::onPreferencesChanged( bool bAppearanceOnly ) {
+void PlaylistDialog::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( font() != pPref->getApplicationFontFamily() ||
-		 ( m_pPlaylistTree->topLevelItem( 0 ) != nullptr &&
-		   m_pPlaylistTree->topLevelItem( 0 )->font( 0 ) != pPref->getLevel2FontFamily() ) ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
+	if ( changes & H2Core::Preferences::Changes::Font ) {
 		
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-		
-		QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
-		QFont childFont( Preferences::get_instance()->getLevel2FontFamily(), getPointSize( m_lastUsedFontSize ) );
+		QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
+		QFont childFont( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
 		setFont( font );
 		m_pMenubar->setFont( font );
 		m_pPlaylistMenu->setFont( font );

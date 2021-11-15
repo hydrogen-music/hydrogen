@@ -26,6 +26,7 @@
 #include "../Selection.h"
 
 #include <core/Object.h>
+#include <core/Preferences/Preferences.h>
 
 #include <QtGui>
 #if QT_VERSION >= 0x050000
@@ -38,7 +39,6 @@ namespace H2Core
 	class Note;
 	class Pattern;
 	class Instrument;
-	class UIStyle;
 }
 
 class PatternEditorPanel;
@@ -147,6 +147,8 @@ public slots:
 	virtual void cut();
 	virtual void selectInstrumentNotes( int nInstrument );
 	void setCurrentInstrument( int nInstrument );
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void scrolled( int nValue );
 
 protected:
 
@@ -193,13 +195,18 @@ protected:
 	void drawGridLines( QPainter &p, Qt::PenStyle style = Qt::SolidLine ) const;
 
 	//! Colour to use for outlining selected notes
-	QColor selectedNoteColor( const H2Core::UIStyle *pStyle ) const;
+	QColor selectedNoteColor() const;
 
 	//! Draw a note
 	void drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote ) const;
 
 	//! Update current pattern information
 	void updatePatternInfo();
+
+	/** Indicates whether the mouse pointer entered the widget.*/
+	bool m_bEntered;
+	virtual void enterEvent( QEvent *ev ) override;
+	virtual void leaveEvent( QEvent *ev ) override;
 
 };
 

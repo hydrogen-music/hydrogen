@@ -45,12 +45,12 @@ public:
 		m_pAction = pAction;
     }
 
-    std::shared_ptr<Action> getAction(){
+    std::shared_ptr<Action> getAction() const {
 		return m_pAction;
     }
 
 
-private:
+protected:
     std::shared_ptr<Action> m_pAction;
 };
 

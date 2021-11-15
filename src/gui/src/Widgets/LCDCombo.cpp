@@ -22,114 +22,87 @@
 
 #include "LCDCombo.h"
 
-#include "../Skin.h"
-#include "LCD.h"
-#include "Button.h"
+#include "../HydrogenApp.h"
 
 #include <core/Globals.h>
 
 
-LCDCombo::LCDCombo( QWidget *pParent, int digits, bool bAllowMenuOverflow )
-	: QWidget(pParent)
-	, m_bAllowMenuOverflow( bAllowMenuOverflow )
+LCDCombo::LCDCombo( QWidget *pParent, QSize size )
+	: QComboBox( pParent )
+	, m_size( size )
+	, m_bEntered( false )
 {
-	INFOLOG( "INIT" );
+	setFocusPolicy( Qt::ClickFocus );
 
-	display = new LCDDisplay( this, LCDDigit::SMALL_BLUE, digits, false );
-	button = new Button( this,
-	                     "/patternEditor/btn_dropdown_on.png",
-	                     "/patternEditor/btn_dropdown_off.png",
-	                     "/patternEditor/btn_dropdown_over.png",
-	                     QSize(13, 13)
-	                   );
-	pop = new QMenu( this );
-
-	size = digits;
-	active = -1;
-
-	button->move( ( digits * 8 ) + 5, 1 );
-	setFixedSize( ( digits * 8 ) + 17, display->height() );
-
-	connect( button, SIGNAL( clicked( Button* ) ), this, SLOT( onClick( Button* ) ) );
-	connect( pop, SIGNAL( triggered(QAction*) ), this, SLOT( changeText(QAction*) ) );
-}
-
-LCDCombo::~LCDCombo()
-{
-}
-
-void LCDCombo::changeText( QAction* pAction )
-{
-	select( actions.indexOf(pAction) );
-}
-
-void LCDCombo::onClick( Button* )
-{
-	pop->popup( display->mapToGlobal( QPoint( 1, display->height() + 2 ) ) );
-}
-
-bool LCDCombo::addItem( const QString &text )
-{
-	//INFOLOG( "add item" );
-	if ( text.size() <= size || m_bAllowMenuOverflow ) {
-		actions.append( pop->addAction( text ) );
-		return true;
-	} else {
-		WARNINGLOG(QString( "'%1' is > %2").arg( text ).arg( size ) );
-		return false;
+	if ( ! size.isNull() ) {
+		adjustSize();
+		setFixedSize( size );
 	}
+
+	updateStyleSheet();
+
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &LCDCombo::onPreferencesChanged );
 }
 
-void LCDCombo::addSeparator()
-{
-	actions.append( pop->addSeparator() );
+LCDCombo::~LCDCombo() {
 }
 
-void LCDCombo::mousePressEvent( QMouseEvent *ev )
-{
-	UNUSED( ev );
-	pop->popup( display->mapToGlobal( QPoint( 1, display->height() + 2 ) ) );
-}
+void LCDCombo::updateStyleSheet() {
 
-void LCDCombo::wheelEvent( QWheelEvent * ev )
-{
-	ev->ignore();
-	const int n = actions.size();
-	const int d = ( ev->angleDelta().y() > 0 ) ? -1: 1;
-	int next = ( n + active + d ) % n;
-	if ( actions.at( next )->isSeparator() ) {
-		next = ( n + next + d ) % n;
-	}
+	auto pPref = H2Core::Preferences::get_instance();
 	
-	select( next );
+	setStyleSheet( QString( "\
+QComboBox { \
+    background-color: %1; \
+    font-family: %2; \
+    font-size: %3; \
+} \
+QComboBox QAbstractItemView { \
+    background-color: #babfcf; \
+}")
+				   .arg( pPref->getColorTheme()->m_widgetColor.name() )
+				   .arg( pPref->getLevel3FontFamily() )
+				   .arg( getPointSize( pPref->getFontSize() ) ) );
 }
 
-int LCDCombo::selected()
-{
-	return active;
-}
+void LCDCombo::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 
-bool LCDCombo::select( int idx )
-{
-	return select(idx, true);
-}
-
-bool LCDCombo::select( int idx, bool emitValueChanged )
-{
-	if (active == idx) {
-		return false;
-	}
-
-	if (idx < 0 || idx >= actions.size()) {
-		WARNINGLOG(QString("out of index %1 >= %2").arg(idx).arg(actions.size()));
-		return false;
-	}
-
-	active = idx;
-	display->setText( actions.at( idx )->text() );
-	if ( emitValueChanged ) {
-		emit valueChanged( idx );
-	}
+	auto pPref = H2Core::Preferences::get_instance();
 	
-	return true;
+	if ( changes & ( H2Core::Preferences::Changes::Colors |
+					 H2Core::Preferences::Changes::Font ) ) {
+		updateStyleSheet();
+	}
+}
+
+void LCDCombo::paintEvent( QPaintEvent *ev ) {
+
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	QComboBox::paintEvent( ev );
+
+	if ( m_bEntered || hasFocus() ) {
+		QPainter painter(this);
+	
+		QColor colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+
+		// If the mouse is placed on the widget but the user hasn't
+		// clicked it yet, the highlight will be done more transparent to
+		// indicate that keyboard inputs are not accepted yet.
+		if ( ! hasFocus() ) {
+			colorHighlightActive.setAlpha( 150 );
+		}
+	
+		painter.fillRect( 0, m_size.height() - 2, m_size.width(), 2, colorHighlightActive );
+	}
+}
+
+void LCDCombo::enterEvent( QEvent* ev ) {
+	QComboBox::enterEvent( ev );
+	m_bEntered = true;
+}
+
+void LCDCombo::leaveEvent( QEvent* ev ) {
+	QComboBox::leaveEvent( ev );
+	m_bEntered = false;
 }

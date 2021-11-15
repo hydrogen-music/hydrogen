@@ -65,7 +65,7 @@
 #include <core/FX/LadspaFX.h>
 #include <core/FX/Effects.h>
 
-#include <core/Preferences.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 #include "MidiMap.h"
 #include <core/Timeline.h>

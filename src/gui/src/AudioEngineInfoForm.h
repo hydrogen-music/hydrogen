@@ -25,6 +25,7 @@
 #define AUDIO_ENGINE_INFO_FORM_H
 
 #include <core/Object.h>
+#include <core/AudioEngine/AudioEngine.h>
 
 #include "EventListener.h"
 #include "ui_AudioEngineInfoForm_UI.h"
@@ -44,7 +45,7 @@ class AudioEngineInfoForm :  public QWidget, public Ui_AudioEngineInfoForm_UI, p
 		QTimer* m_pTimer;
 
 		// EventListener implementation
-		virtual void stateChangedEvent(int nState) override;
+	virtual void stateChangedEvent( H2Core::AudioEngine::State state) override;
 		virtual void patternChangedEvent() override;
 		//~ EventListener implementation
 

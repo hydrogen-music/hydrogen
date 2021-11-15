@@ -40,8 +40,8 @@
 #include "ExportSongDialog.h"
 #include "ExportMidiDialog.h"
 #include "HydrogenApp.h"
-#include "InstrumentRack.h"
 #include "Skin.h"
+#include "InstrumentRack.h"
 #include "MainForm.h"
 #include "PlayerControl.h"
 #include "LadspaFXProperties.h"
@@ -86,6 +86,8 @@ int MainForm::sigusr1Fd[2];
 MainForm::MainForm( QApplication * pQApplication )
 	: QMainWindow( nullptr )
 {
+	auto pPref = H2Core::Preferences::get_instance();
+	
 	setObjectName( "MainForm" );
 	setMinimumSize( QSize( 1000, 500 ) );
 
@@ -101,8 +103,7 @@ MainForm::MainForm( QApplication * pQApplication )
 
 	m_pQApp->processEvents();
 
-	m_lastUsedFontSize = Preferences::get_instance()->getFontSize();	
-	QFont font( Preferences::get_instance()->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	setFont( font );
 	m_pQApp->setFont( font );
 
@@ -135,14 +136,13 @@ MainForm::MainForm( QApplication * pQApplication )
 
 #ifdef H2CORE_HAVE_LASH
 
-	if ( Preferences::get_instance()->useLash() ){
+	if ( pPref->useLash() ){
 		LashClient* lashClient = LashClient::get_instance();
 		if (lashClient->isConnected())
 		{
 			// send alsa client id now since it can only be sent
 			// after the audio engine has been started.
-			Preferences *pref = Preferences::get_instance();
-			if ( pref->m_sMidiDriver == "ALSA" ) {
+			if ( pPref->m_sMidiDriver == "ALSA" ) {
 				//			infoLog("[LASH] Sending alsa seq id to LASH server");
 				lashClient->sendAlsaClientId();
 			}
@@ -170,9 +170,9 @@ MainForm::MainForm( QApplication * pQApplication )
 	m_pUndoView->setWindowTitle(tr("Undo history"));
 
 	//restore last playlist
-	if(		Preferences::get_instance()->isRestoreLastPlaylistEnabled()
-		&& !Preferences::get_instance()->getLastPlaylistFilename().isEmpty() ){
-		bool loadlist = h2app->getPlayListDialog()->loadListByFileName( Preferences::get_instance()->getLastPlaylistFilename() );
+	if(	pPref->isRestoreLastPlaylistEnabled()
+		&& ! pPref->getLastPlaylistFilename().isEmpty() ){
+		bool loadlist = h2app->getPlayListDialog()->loadListByFileName( pPref->getLastPlaylistFilename() );
 		if( !loadlist ){
 			_ERRORLOG ( "Error loading the playlist" );
 		}
@@ -1423,13 +1423,12 @@ void MainForm::closeAll(){
 }
 
 
-void MainForm::onPreferencesChanged( bool bAppearanceOnly ) {
+void MainForm::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( m_pQApp->font().family() != pPref->getApplicationFontFamily() ||
-		 m_lastUsedFontSize != pPref->getFontSize() ) {
-		m_lastUsedFontSize = Preferences::get_instance()->getFontSize();
-		QFont font( pPref->getApplicationFontFamily(), getPointSize( m_lastUsedFontSize ) );
+	if ( changes & H2Core::Preferences::Changes::Font ) {
+		
+		QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 		m_pQApp->setFont( font );
 		menuBar()->setFont( font );
 
@@ -1444,9 +1443,14 @@ void MainForm::onPreferencesChanged( bool bAppearanceOnly ) {
 		}
 		m_pInfoMenu->setFont( font );
 
+		Skin::setPalette( m_pQApp );
+	}
+
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
+		Skin::setPalette( m_pQApp );
 	}
 }
-
+	
 
 // keybindings..
 
