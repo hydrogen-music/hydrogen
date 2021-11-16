@@ -697,7 +697,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		float fNotePitch = m_pDraggedNote->get_notekey_pitch();
 		float fStep = 0;
 		if(nLen > -1){
-			fStep = pow( 1.0594630943593, ( double )fNotePitch );
+			fStep = Note::pitchToFrequency( ( double )fNotePitch );
 		} else {
 			fStep = 1.0;
 		}

@@ -188,7 +188,7 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 		// Draw tail
 		if ( pNote->get_length() != -1 ) {
 			float fNotePitch = pNote->get_octave() * 12 + pNote->get_key();
-			float fStep = pow( 1.0594630943593, ( double )fNotePitch );
+			float fStep = Note::pitchToFrequency( ( double )fNotePitch );
 			width = m_fGridWidth * pNote->get_length() / fStep;
 			width = width - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
