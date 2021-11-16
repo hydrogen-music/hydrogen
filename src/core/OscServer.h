@@ -249,7 +249,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * \param pAction Action to be sent to all registered
 		 * clients. 
 		 */
-		void handleAction(Action* pAction);
+		void handleAction(std::shared_ptr<Action> pAction);
 
 		/**
 		 * Creates an Action of type @b PLAY and passes its

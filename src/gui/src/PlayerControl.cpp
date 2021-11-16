@@ -101,7 +101,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 							"rewind.svg", "", false, QSize( 13, 13 ), tr("Rewind") );
 	m_pRwdBtn->move( 166, 15 );
 	connect(m_pRwdBtn, SIGNAL( pressed() ), this, SLOT( rewindBtnClicked() ));
-	Action* pAction = new Action("<<_PREVIOUS_BAR");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("<<_PREVIOUS_BAR");
 	m_pRwdBtn->setAction( pAction );
 
 	// Record button
@@ -111,7 +111,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pRecBtn->setChecked(false);
 	m_pRecBtn->setHidden(false);
 	connect(m_pRecBtn, SIGNAL( pressed() ), this, SLOT( recBtnClicked() ));
-	pAction = new Action("RECORD_READY");
+	pAction = std::make_shared<Action>("RECORD_READY");
 	m_pRecBtn->setAction( pAction );
 
 	// Play button
@@ -120,7 +120,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pPlayBtn->move( 220, 15 );
 	m_pPlayBtn->setChecked(false);
 	connect(m_pPlayBtn, SIGNAL( pressed() ), this, SLOT( playBtnClicked() ));
-	pAction = new Action("PLAY/PAUSE_TOGGLE");
+	pAction = std::make_shared<Action>("PLAY/PAUSE_TOGGLE");
 	m_pPlayBtn->setAction( pAction );
 
 	// Stop button
@@ -128,7 +128,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 							 "stop.svg", "", false, QSize( 11, 11 ), tr("Stop") );
 	m_pStopBtn->move( 252, 15 );
 	connect(m_pStopBtn, SIGNAL( pressed() ), this, SLOT( stopBtnClicked() ));
-	pAction = new Action("STOP");
+	pAction = std::make_shared<Action>("STOP");
 	m_pStopBtn->setAction( pAction );
 
 	// Fast forward button
@@ -136,7 +136,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 							 "fast_forward.svg", "", false, QSize( 13, 13 ), tr("Fast Forward") );
 	m_pFfwdBtn->move( 279, 15 );
 	connect(m_pFfwdBtn, SIGNAL( pressed() ), this, SLOT( fastForwardBtnClicked() ));
-	pAction = new Action(">>_NEXT_BAR");
+	pAction = std::make_shared<Action>(">>_NEXT_BAR");
 	m_pFfwdBtn->setAction( pAction );
 
 	// Loop song button button
@@ -181,7 +181,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pBCOnOffBtn->move(0, 0);
 	m_pBCOnOffBtn->setChecked(false);
 	connect(m_pBCOnOffBtn, SIGNAL( pressed() ), this, SLOT( bcOnOffBtnClicked() ));
-	pAction = new Action("BEATCOUNTER");
+	pAction = std::make_shared<Action>("BEATCOUNTER");
 	m_pBCOnOffBtn->setAction( pAction );
 //~  BC on off
 
@@ -285,8 +285,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 								  tr("Switch metronome on/off") );
 	m_pMetronomeBtn->move( 6, 2 );
 	connect( m_pMetronomeBtn, SIGNAL( pressed() ), this, SLOT( metronomeButtonClicked() ) );
-		pAction = new Action("TOGGLE_METRONOME");
-		m_pMetronomeBtn->setAction( pAction );
+	pAction = std::make_shared<Action>("TOGGLE_METRONOME");
+	m_pMetronomeBtn->setAction( pAction );
 
 //~ BPM
 

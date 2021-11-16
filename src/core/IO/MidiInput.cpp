@@ -187,8 +187,8 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 	MidiActionManager *pMidiActionManager = MidiActionManager::get_instance();
 	MidiMap *pMidiMap = MidiMap::get_instance();
 
-	Action *pAction = pMidiMap->getCCAction( msg.m_nData1 );
-	pAction->setParameter2( QString::number( msg.m_nData2 ) );
+	std::shared_ptr<Action> pAction = pMidiMap->getCCAction( msg.m_nData1 );
+	pAction->setValue( QString::number( msg.m_nData2 ) );
 
 	pMidiActionManager->handleAction( pAction );
 
@@ -206,8 +206,8 @@ void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 	MidiActionManager *pMidiActionManager = MidiActionManager::get_instance();
 	MidiMap *pMidiMap = MidiMap::get_instance();
 
-	Action *pAction = pMidiMap->getPCAction();
-	pAction->setParameter2( QString::number( msg.m_nData1 ) );
+	std::shared_ptr<Action> pAction = pMidiMap->getPCAction();
+	pAction->setValue( QString::number( msg.m_nData1 ) );
 
 	pMidiActionManager->handleAction( pAction );
 

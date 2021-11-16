@@ -23,6 +23,8 @@
 #ifndef WIDGET_WITH_INPUT_H
 #define WIDGET_WITH_INPUT_H
 
+#include <memory>
+
 #include <QtGui>
 #include <QtWidgets>
 
@@ -89,7 +91,7 @@ public:
 	int getScrollSpeedFast() const;
 	void setScrollSpeedFast( int nScrollSpeedFast ) const;
 
-	void setAction( Action* pAction );
+	void setAction( std::shared_ptr<Action> pAction );
 
 signals:
 	void valueChanged(WidgetWithInput *ref);	
