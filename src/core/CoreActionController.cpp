@@ -60,9 +60,9 @@ void CoreActionController::setMasterVolume( float masterVolumeValue )
 	pHydrogen->getSong()->setVolume( masterVolumeValue );
 	
 #ifdef H2CORE_HAVE_OSC
-	Action FeedbackAction( "MASTER_VOLUME_ABSOLUTE" );
-	FeedbackAction.setParameter2( QString("%1").arg( masterVolumeValue ) );
-	OscServer::get_instance()->handleAction( &FeedbackAction );
+	std::shared_ptr<Action> pFeedbackAction = std::make_shared<Action>( "MASTER_VOLUME_ABSOLUTE" );
+	pFeedbackAction->setParameter2( QString("%1").arg( masterVolumeValue ) );
+	OscServer::get_instance()->handleAction( pFeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -87,11 +87,11 @@ void CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 	pInstr->set_volume( fVolumeValue );
 	
 #ifdef H2CORE_HAVE_OSC
-	Action FeedbackAction( "STRIP_VOLUME_ABSOLUTE" );
+	std::shared_ptr<Action> pFeedbackAction = std::make_shared<Action>( "STRIP_VOLUME_ABSOLUTE" );
 	
-	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
-	FeedbackAction.setParameter2( QString("%1").arg( fVolumeValue ) );
-	OscServer::get_instance()->handleAction( &FeedbackAction );
+	pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
+	pFeedbackAction->setParameter2( QString("%1").arg( fVolumeValue ) );
+	OscServer::get_instance()->handleAction( pFeedbackAction );
 #endif
 
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -106,10 +106,10 @@ void CoreActionController::setMetronomeIsActive( bool isActive )
 	Preferences::get_instance()->m_bUseMetronome = isActive;
 	
 #ifdef H2CORE_HAVE_OSC
-	Action FeedbackAction( "TOGGLE_METRONOME" );
+	std::shared_ptr<Action> pFeedbackAction = std::make_shared<Action>( "TOGGLE_METRONOME" );
 	
-	FeedbackAction.setParameter1( QString("%1").arg( (int) isActive ) );
-	OscServer::get_instance()->handleAction( &FeedbackAction );
+	pFeedbackAction->setParameter1( QString("%1").arg( (int) isActive ) );
+	OscServer::get_instance()->handleAction( pFeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -125,10 +125,10 @@ void CoreActionController::setMasterIsMuted( bool isMuted )
 	pHydrogen->getSong()->setIsMuted( isMuted );
 	
 #ifdef H2CORE_HAVE_OSC
-	Action FeedbackAction( "MUTE_TOGGLE" );
+	std::shared_ptr<Action> pFeedbackAction = std::make_shared<Action>( "MUTE_TOGGLE" );
 	
-	FeedbackAction.setParameter1( QString("%1").arg( (int) isMuted ) );
-	OscServer::get_instance()->handleAction( &FeedbackAction );
+	pFeedbackAction->setParameter1( QString("%1").arg( (int) isMuted ) );
+	OscServer::get_instance()->handleAction( pFeedbackAction );
 #endif
 
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -164,11 +164,11 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 	pInstr->set_muted( isMuted );
 	
 #ifdef H2CORE_HAVE_OSC
-	Action FeedbackAction( "STRIP_MUTE_TOGGLE" );
+	std::shared_ptr<Action> pFeedbackAction = std::make_shared<Action>( "STRIP_MUTE_TOGGLE" );
 	
-	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
-	FeedbackAction.setParameter2( QString("%1").arg( (int) isMuted ) );
-	OscServer::get_instance()->handleAction( &FeedbackAction );
+	pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
+	pFeedbackAction->setParameter2( QString("%1").arg( (int) isMuted ) );
+	OscServer::get_instance()->handleAction( pFeedbackAction );
 #endif
 
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -204,11 +204,11 @@ void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 	pInstr->set_soloed( isSoloed );
 	
 #ifdef H2CORE_HAVE_OSC
-	Action FeedbackAction( "STRIP_SOLO_TOGGLE" );
+	std::shared_ptr<Action> pFeedbackAction = std::make_shared<Action>( "STRIP_SOLO_TOGGLE" );
 	
-	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
-	FeedbackAction.setParameter2( QString("%1").arg( (int) isSoloed ) );
-	OscServer::get_instance()->handleAction( &FeedbackAction );
+	pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
+	pFeedbackAction->setParameter2( QString("%1").arg( (int) isSoloed ) );
+	OscServer::get_instance()->handleAction( pFeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -234,11 +234,11 @@ void CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectSt
 	pInstr->setPanWithRangeFrom0To1( fValue );
 
 #ifdef H2CORE_HAVE_OSC
-	Action FeedbackAction( "PAN_ABSOLUTE" );
+	std::shared_ptr<Action> pFeedbackAction = std::make_shared<Action>( "PAN_ABSOLUTE" );
 	
-	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
-	FeedbackAction.setParameter2( QString("%1").arg( fValue ) );
-	OscServer::get_instance()->handleAction( &FeedbackAction );
+	pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
+	pFeedbackAction->setParameter2( QString("%1").arg( fValue ) );
+	OscServer::get_instance()->handleAction( pFeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -262,11 +262,11 @@ void CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelec
 	pInstr->setPan( fValue );
 
 #ifdef H2CORE_HAVE_OSC
-	Action FeedbackAction( "PAN_ABSOLUTE_SYM" );
+	std::shared_ptr<Action> pFeedbackAction = std::make_shared<Action>( "PAN_ABSOLUTE_SYM" );
 	
-	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
-	FeedbackAction.setParameter2( QString("%1").arg( fValue ) );
-	OscServer::get_instance()->handleAction( &FeedbackAction );
+	pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
+	pFeedbackAction->setParameter2( QString("%1").arg( fValue ) );
+	OscServer::get_instance()->handleAction( pFeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();

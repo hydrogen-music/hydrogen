@@ -64,7 +64,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_bIsSelected = false;
 	m_nPeakTimer = 0;
 
-	Action* pAction;
+	std::shared_ptr<Action> pAction;
 
 	resize( m_nWidth, m_nHeight );
 	setFixedSize( m_nWidth, m_nHeight );
@@ -93,7 +93,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pMuteBtn->move( 5, 16 );
 	m_pMuteBtn->setObjectName( "MixerMuteButton" );
 	connect(m_pMuteBtn, SIGNAL( pressed() ), this, SLOT( muteBtnClicked() ));
-	pAction = new Action("STRIP_MUTE_TOGGLE");
+	pAction = std::make_shared<Action>("STRIP_MUTE_TOGGLE");
 	pAction->setParameter1( QString::number(nInstr ));
 	m_pMuteBtn->setAction(pAction);
 
@@ -102,7 +102,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pSoloBtn->move( 28, 16 );
 	m_pSoloBtn->setObjectName( "MixerSoloButton" );
 	connect(m_pSoloBtn, SIGNAL( pressed() ), this, SLOT( soloBtnClicked() ));
-	pAction = new Action("STRIP_SOLO_TOGGLE");
+	pAction = std::make_shared<Action>("STRIP_SOLO_TOGGLE");
 	pAction->setParameter1( QString::number(nInstr ));
 	m_pSoloBtn->setAction(pAction);
 
@@ -110,17 +110,18 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pPanRotary = new Rotary( this, Rotary::Type::Center, tr( "Pan" ), false, -1.0, 1.0 );
 	m_pPanRotary->move( 6, 32 );
 	connect( m_pPanRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( panChanged( WidgetWithInput* ) ) );
-	pAction = new Action("PAN_ABSOLUTE_SYM");
+	pAction = std::make_shared<Action>("PAN_ABSOLUTE_SYM");
 	pAction->setParameter1( QString::number(nInstr ));
-	pAction->setParameter2( QString::number( 0 ));
+	pAction->setValue( QString::number( 0 ));
 	m_pPanRotary->setAction(pAction);
 
 	// FX send
 	uint y = 0;
 	for ( uint i = 0; i < MAX_FX; i++ ) {
 		m_pFxRotary[i] = new Rotary( this, Rotary::Type::Small, tr( "FX %1 send" ).arg( i + 1 ), false );
-		pAction = new Action(QString( "EFFECT%1_LEVEL_ABSOLUTE" ).arg( QString::number( i + 1 ) ) );
+		pAction = std::make_shared<Action>(QString( "EFFECT%1_LEVEL_ABSOLUTE" ).arg( QString::number( i + 1 ) ) );
 		pAction->setParameter1( QString::number( nInstr ) );
+		pAction->setParameter2( QString::number(i+1) );
 		m_pFxRotary[i]->setAction( pAction );
 		if ( (i % 2) == 0 ) {
 			m_pFxRotary[i]->move( 9, 63 + (20 * y) );
@@ -155,7 +156,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pFader->move( 23, 128 );
 	connect( m_pFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( faderChanged( WidgetWithInput* ) ) );
 
-	pAction = new Action("STRIP_VOLUME_ABSOLUTE");
+	pAction = std::make_shared<Action>("STRIP_VOLUME_ABSOLUTE");
 	pAction->setParameter1( QString::number(nInstr) );
 	m_pFader->setAction( pAction );
 
@@ -603,7 +604,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pMasterFader->move( 24, MASTERMIXERLINE_FADER_H );
 	connect( m_pMasterFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( faderChanged( WidgetWithInput* ) ) );
 
-	Action* pAction = new Action("MASTER_VOLUME_ABSOLUTE");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("MASTER_VOLUME_ABSOLUTE");
 	m_pMasterFader->setAction( pAction );
 
 	m_pPeakLCD = new LCDDisplay( this, QSize( 38, 18 ) );
@@ -630,7 +631,8 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pMuteBtn = new Button( this, QSize( 42, 17 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBigMuteButton(), true );
 	m_pMuteBtn->move( 20, 31 );
 	connect( m_pMuteBtn, SIGNAL( pressed() ), this, SLOT( muteClicked() ) );
-	m_pMuteBtn->setAction( new Action("MUTE_TOGGLE"));
+	pAction = std::make_shared<Action>("MUTE_TOGGLE");
+	m_pMuteBtn->setAction( pAction );
 
 	m_pMasterLbl = new ClickableLabel( this, QSize( 55, 15 ), HydrogenApp::get_instance()->getCommonStrings()->getMasterLabel(), ClickableLabel::Color::Dark );
 	m_pMasterLbl->move( 14, 8 );
@@ -642,7 +644,6 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pTimingLbl->move( 62, 153 );
 	m_pVelocityLbl = new ClickableLabel( this, QSize( 51, 9 ), HydrogenApp::get_instance()->getCommonStrings()->getSwingLabel(), ClickableLabel::Color::Dark );
 	m_pVelocityLbl->move( 62, 190 );
-
 }
 
 MasterMixerLine::~MasterMixerLine()

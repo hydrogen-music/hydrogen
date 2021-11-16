@@ -321,134 +321,134 @@ void OscServer::create_instance( H2Core::Preferences* pPreferences )
 
 void OscServer::PLAY_Handler(lo_arg **argv,int i)
 {
-	Action  currentAction("PLAY");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAY");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::PLAY_STOP_TOGGLE_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("PLAY/STOP_TOGGLE");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAY/STOP_TOGGLE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::PLAY_PAUSE_TOGGLE_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("PLAY/PAUSE_TOGGLE");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAY/PAUSE_TOGGLE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::STOP_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("STOP");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("STOP");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::PAUSE_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("PAUSE");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("PAUSE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::RECORD_READY_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("RECORD_READY");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("RECORD_READY");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::RECORD_STROBE_TOGGLE_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("RECORD/STROBE_TOGGLE");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("RECORD/STROBE_TOGGLE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::RECORD_STROBE_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("RECORD_STROBE");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("RECORD_STROBE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::RECORD_EXIT_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("RECORD_EXIT");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("RECORD_EXIT");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::MUTE_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("MUTE");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("MUTE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::UNMUTE_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("UNMUTE");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("UNMUTE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::MUTE_TOGGLE_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("MUTE_TOGGLE");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("MUTE_TOGGLE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::NEXT_BAR_Handler(lo_arg **argv,int i)
 {
-	Action currentAction(">>_NEXT_BAR");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>(">>_NEXT_BAR");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::PREVIOUS_BAR_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("<<_PREVIOUS_BAR");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("<<_PREVIOUS_BAR");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::BPM_INCR_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("BPM_INCR");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("BPM_INCR");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 	
-	currentAction.setParameter1( QString::number( argv[0]->f, 'f', 0 ));
+	pAction->setParameter1( QString::number( argv[0]->f, 'f', 0 ));
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::BPM_DECR_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("BPM_DECR");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("BPM_DECR");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	currentAction.setParameter1( QString::number( argv[0]->f, 'f', 0 ));
+	pAction->setParameter1( QString::number( argv[0]->f, 'f', 0 ));
 	
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv,int i)
@@ -461,11 +461,11 @@ void OscServer::MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv,int i)
 
 void OscServer::MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("MASTER_VOLUME_RELATIVE");
-	currentAction.setParameter2( QString::number( argv[0]->f, 'f', 0 ));
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("MASTER_VOLUME_RELATIVE");
+	pAction->setParameter2( QString::number( argv[0]->f, 'f', 0 ));
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
@@ -478,146 +478,146 @@ void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
 
 void OscServer::STRIP_VOLUME_RELATIVE_Handler(QString param1, QString param2)
 {
-	Action currentAction("STRIP_VOLUME_RELATIVE");
-	currentAction.setParameter1( param1 );
-	currentAction.setParameter2( param2 );
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("STRIP_VOLUME_RELATIVE");
+	pAction->setParameter1( param1 );
+	pAction->setParameter2( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::SELECT_NEXT_PATTERN_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("SELECT_NEXT_PATTERN");
-	currentAction.setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("SELECT_NEXT_PATTERN");
+	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("SELECT_AND_PLAY_PATTERN");
-	currentAction.setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("SELECT_AND_PLAY_PATTERN");
+	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::PAN_ABSOLUTE_Handler(QString param1, QString param2)
 {
-	Action currentAction("PAN_ABSOLUTE");
-	currentAction.setParameter1( param1 );
-	currentAction.setParameter2( param2 );
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("PAN_ABSOLUTE");
+	pAction->setParameter1( param1 );
+	pAction->setParameter2( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::PAN_ABSOLUTE_SYM_Handler(QString param1, QString param2)
 {
-	Action currentAction("PAN_ABSOLUTE_SYM");
-	currentAction.setParameter1( param1 );
-	currentAction.setParameter2( param2 );
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("PAN_ABSOLUTE_SYM");
+	pAction->setParameter1( param1 );
+	pAction->setParameter2( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::PAN_RELATIVE_Handler(QString param1, QString param2)
 {
-	Action currentAction("PAN_RELATIVE");
-	currentAction.setParameter1( param1 );
-	currentAction.setParameter2( param2 );
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("PAN_RELATIVE");
+	pAction->setParameter1( param1 );
+	pAction->setParameter2( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler(QString param1, QString param2)
 {
-	Action currentAction("FILTER_CUTOFF_LEVEL_ABSOLUTE");
-	currentAction.setParameter1( param1 );
-	currentAction.setParameter2( param2 );
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("FILTER_CUTOFF_LEVEL_ABSOLUTE");
+	pAction->setParameter1( param1 );
+	pAction->setParameter2( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::BEATCOUNTER_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("BEATCOUNTER");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("BEATCOUNTER");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::TAP_TEMPO_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("TAP_TEMPO");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("TAP_TEMPO");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::PLAYLIST_SONG_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("PLAYLIST_SONG");
-	currentAction.setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAYLIST_SONG");
+	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
 
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();	
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::PLAYLIST_NEXT_SONG_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("PLAYLIST_NEXT_SONG");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAYLIST_NEXT_SONG");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::PLAYLIST_PREV_SONG_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("PLAYLIST_PREV_SONG");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAYLIST_PREV_SONG");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::TOGGLE_METRONOME_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("TOGGLE_METRONOME");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("TOGGLE_METRONOME");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::SELECT_INSTRUMENT_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("SELECT_INSTRUMENT");
-	currentAction.setParameter2(  QString::number( argv[0]->f, 'f', 0 ) );
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("SELECT_INSTRUMENT");
+	pAction->setParameter2(  QString::number( argv[0]->f, 'f', 0 ) );
 
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();	
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::UNDO_ACTION_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("UNDO_ACTION");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("UNDO_ACTION");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 void OscServer::REDO_ACTION_Handler(lo_arg **argv,int i)
 {
-	Action currentAction("REDO_ACTION");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("REDO_ACTION");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction( &currentAction );
+	pActionManager->handleAction( pAction );
 }
 
 // -------------------------------------------------------------------
@@ -786,7 +786,7 @@ void OscServer::broadcastMessage( const char* msgText, lo_message message ) {
 // -------------------------------------------------------------------
 // Main action handler
 
-void OscServer::handleAction( Action* pAction )
+void OscServer::handleAction( std::shared_ptr<Action> pAction )
 {
 	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 	

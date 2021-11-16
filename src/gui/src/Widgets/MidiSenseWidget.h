@@ -26,6 +26,7 @@
 #include <QtGui>
 #include <QtWidgets>
 
+#include <memory>
 #include <core/Object.h>
 #include <core/MidiAction.h>
 
@@ -36,7 +37,7 @@ class MidiSenseWidget :  public QDialog , public H2Core::Object<MidiSenseWidget>
 	Q_OBJECT
 
 	public:
-		explicit MidiSenseWidget(QWidget*,bool m_DirectWrite = false , Action* m_pAction = nullptr);
+		explicit MidiSenseWidget(QWidget*,bool bDirectWrite = false , std::shared_ptr<Action> pAction = nullptr);
 		~MidiSenseWidget();
 
 		QString		m_sLastMidiEvent;
@@ -48,8 +49,8 @@ class MidiSenseWidget :  public QDialog , public H2Core::Object<MidiSenseWidget>
 	private:
 		QTimer*		m_pUpdateTimer;
 		QLabel*		m_pURLLabel;
-		Action*		m_pAction;
-		bool		m_DirectWrite;
+		std::shared_ptr<Action>		m_pAction;
+		bool		m_bDirectWrite;
 };
 
 #endif

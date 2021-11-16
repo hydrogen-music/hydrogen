@@ -24,6 +24,7 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
+#include <memory>
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -105,7 +106,7 @@ public:
 	Button& operator=( const Button& rhs ) = delete;
 
 	void setBaseToolTip( const QString& sNewTip );
-	void setAction( Action* pAction );
+	void setAction( std::shared_ptr<Action> pAction );
 
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );

@@ -4,6 +4,7 @@
 		- Remembering paths in all export/import/save/open dialogs.
 		- Introducing keyboard shortcut for the Open Pattern dialog.
 		- Allow for opening more than one Pattern at once.
+		- Implement missing EFFECT_LEVEL_RELATIVE MIDI action
 	* Interface
 		- Improved scalability (most PNG images were replaced by SVGs,
 		  hardcoded PNG labels are now directly drawn by Qt, and spin boxes,
@@ -29,12 +30,19 @@
 		  required anymore)
 		- Drop the "fixed" coloring methods and rename "steps" to
 		  "Custom".
-		- Via a colored button the particular line color in the Song
-		  Editor can now be adjusted using a color dialog.
+		- Via a colored button the particular line color can now be
+		  adjusted using a QColorDialog
 		- Custom color tab to alter all colors in the GUI (big thanks to
 		  the Muse4 team for the original code).
 		- All options set in the Appearance tab can be imported and
 		  exported into and shared via dedicated .h2theme files.
+		- Overhauled MIDI Table
+		  - Per effect or layer setting are now done in dedicated spin
+		    boxes instead of providing individual actions for each.
+		  - Only spin boxes for parameters required for a particular
+		    action are shown.
+		  - Rows can be removed by unsetting both the Event and Action
+		    combo box.
 	* InstrumentEditor UX improvements:
 		- rework start/end/loop frame slider selection and motion.
 		- rework velocity/pan envelope editing

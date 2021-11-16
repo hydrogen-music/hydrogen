@@ -166,8 +166,8 @@ void Button::setBaseToolTip( const QString& sNewTip ) {
 	updateTooltip();
 }
 
-void Button::setAction( Action *pAction ) {
-	m_action = pAction;
+void Button::setAction( std::shared_ptr<Action> pAction ) {
+	m_pAction = pAction;
 	updateTooltip();
 }
 
@@ -203,9 +203,9 @@ void Button::updateTooltip() {
 	QString sTip = QString("%1" ).arg( m_sBaseTooltip );
 
 	// Add the associated MIDI action.
-	if ( m_action != nullptr ) {
+	if ( m_pAction != nullptr ) {
 		sTip.append( QString( "\n%1: %2 " ).arg( pCommonStrings->getMidiTooltipHeading() )
-					 .arg( m_action->getType() ) );
+					 .arg( m_pAction->getType() ) );
 		if ( ! m_sRegisteredMidiEvent.isEmpty() ) {
 			sTip.append( QString( "%1 [%2 : %3]" ).arg( pCommonStrings->getMidiTooltipBound() )
 						 .arg( m_sRegisteredMidiEvent ).arg( m_nRegisteredMidiParameter ) );

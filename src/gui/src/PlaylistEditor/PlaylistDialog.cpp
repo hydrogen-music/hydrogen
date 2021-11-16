@@ -116,7 +116,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	m_pRwdBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "rewind.svg", "", false, QSize( 13, 13 ), tr("Rewind") );
 	m_pRwdBtn->move( 4, 4 );
 	connect(m_pRwdBtn, SIGNAL( pressed() ), this, SLOT( rewindBtnClicked() ));
-	Action* pAction = new Action("PLAYLIST_PREV_SONG");
+	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAYLIST_PREV_SONG");
 	m_pRwdBtn->setAction( pAction );
 
 	// Play button
@@ -124,21 +124,21 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	m_pPlayBtn->move( 31, 4 );
 	m_pPlayBtn->setChecked(false);
 	connect(m_pPlayBtn, SIGNAL( pressed() ), this, SLOT( nodePlayBTN() ));
-	pAction = new Action("PLAY/PAUSE_TOGGLE");
+	pAction = std::make_shared<Action>("PLAY/PAUSE_TOGGLE");
 	m_pPlayBtn->setAction( pAction );
 
 	// Stop button
 	m_pStopBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "stop.svg", "", false, QSize( 11, 11 ), tr("Stop") );
 	m_pStopBtn->move( 63, 4 );
 	connect(m_pStopBtn, SIGNAL( pressed() ), this, SLOT( nodeStopBTN() ));
-	pAction = new Action("STOP");
+	pAction = std::make_shared<Action>("STOP");
 	m_pStopBtn->setAction( pAction );
 
 	// Fast forward button
 	m_pFfwdBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push, "fast_forward.svg", "", false, QSize( 13, 13 ), tr("Fast Forward") );
 	m_pFfwdBtn->move( 90, 4 );
 	connect(m_pFfwdBtn, SIGNAL( pressed() ), this, SLOT( ffWDBtnClicked() ));
-	pAction = new Action("PLAYLIST_NEXT_SONG");
+	pAction = std::make_shared<Action>("PLAYLIST_NEXT_SONG");
 	m_pFfwdBtn->setAction( pAction );
 
 #ifdef WIN32
