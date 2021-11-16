@@ -26,11 +26,10 @@
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
 
-MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, Action* pAction): QDialog( pParent )
+MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool bDirectWrite, std::shared_ptr<Action> pAction): QDialog( pParent )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	
-	m_DirectWrite = directWr;
+	m_bDirectWrite = bDirectWrite;
 	m_pAction = pAction;
 
 	setWindowTitle( pCommonStrings->getMidiSenseWindowTitle() );
@@ -51,7 +50,7 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, Action* pActio
 		 *   window(directWrite=false) or by clicking on a midiLearn-capable gui item(directWrite=true)
 		 */
 
-		if(m_DirectWrite){
+		if(m_bDirectWrite){
 			m_pURLLabel->setText( pCommonStrings->getMidiSenseUnavailable() );
 			midiOperable = false;
 		} else {
@@ -96,13 +95,13 @@ void MidiSenseWidget::updateMidi(){
 		m_LastMidiEventParameter = pHydrogen->lastMidiEventParameter;
 
 
-		if( m_DirectWrite ){
+		if( m_bDirectWrite ){
 			//write the action / parameter combination to the midiMap
 			MidiMap *pMidiMap = MidiMap::get_instance();
 
 			assert(m_pAction);
 
-			Action* pAction = new Action( m_pAction->getType() );
+			std::shared_ptr<Action> pAction = std::make_shared<Action>( m_pAction->getType() );
 
 			pAction->setParameter1( m_pAction->getParameter1() );
 
@@ -116,8 +115,6 @@ void MidiSenseWidget::updateMidi(){
 				pMidiMap->registerPCEvent( pAction );
 			} else {
 				/* In all other cases, the midiMap cares for deleting the pointer */
-
-				delete pAction;
 			}
 		}
 

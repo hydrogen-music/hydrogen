@@ -22,7 +22,8 @@
 #ifndef MIDIMAP_H
 #define MIDIMAP_H
 
-
+#include <memory>
+#include <vector>
 #include <map>
 #include <cassert>
 #include <core/Object.h>
@@ -36,7 +37,7 @@ class MidiMap : public H2Core::Object<MidiMap>
 {
 	H2_OBJECT(MidiMap)
 	public:
-		typedef std::map< QString, Action* > map_t;
+	typedef std::map< QString, std::shared_ptr<Action>> map_t;
 		/**
 		 * Object holding the current MidiMap singleton. It is
 		 * initialized with NULL, set with create_instance(),
@@ -65,17 +66,17 @@ class MidiMap : public H2Core::Object<MidiMap>
 
 		void reset();  ///< Reinitializes the object.
 
-		void registerMMCEvent( QString, Action* );
-		void registerNoteEvent( int , Action* );
-		void registerCCEvent( int , Action* );
-		void registerPCEvent( Action* );
+		void registerMMCEvent( QString, std::shared_ptr<Action> );
+		void registerNoteEvent( int , std::shared_ptr<Action> );
+		void registerCCEvent( int , std::shared_ptr<Action> );
+		void registerPCEvent( std::shared_ptr<Action> );
 
 		map_t getMMCMap();
 
-		Action* getMMCAction( QString );
-		Action* getNoteAction( int note );
-		Action* getCCAction( int parameter );
-		Action* getPCAction();
+		std::shared_ptr<Action> getMMCAction( QString );
+		std::shared_ptr<Action> getNoteAction( int note );
+		std::shared_ptr<Action> getCCAction( int parameter );
+		std::shared_ptr<Action> getPCAction();
 		
 		int findCCValueByActionParam1( QString actionType, QString param1 ) const;
 		int findCCValueByActionType( QString actionType ) const;
@@ -84,9 +85,9 @@ class MidiMap : public H2Core::Object<MidiMap>
 	private:
 		MidiMap();
 
-		Action* __note_array[ 128 ];
-		Action* __cc_array[ 128 ];
-		Action* __pc_action;
+	std::vector<std::shared_ptr<Action>> m_noteVector;
+	std::vector<std::shared_ptr<Action>> m_ccVector;
+		std::shared_ptr<Action> m_pPcAction;
 
 		map_t mmcMap;
 		QMutex __mutex;

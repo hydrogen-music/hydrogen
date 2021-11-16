@@ -73,9 +73,9 @@ void WidgetWithInput::updateTooltip() {
 		.arg( m_fMin, 0, 'f', 2 ).arg( m_fMax, 0, 'f', 2 );
 
 	// Add the associated MIDI action.
-	if ( m_action != nullptr ) {
+	if ( m_pAction != nullptr ) {
 		sTip.append( QString( "\n%1: %2 " ).arg( pCommonStrings->getMidiTooltipHeading() )
-					 .arg( m_action->getType() ) );
+					 .arg( m_pAction->getType() ) );
 		if ( ! m_sRegisteredMidiEvent.isEmpty() ) {
 			sTip.append( QString( "%1 [%2 : %3]" ).arg( pCommonStrings->getMidiTooltipBound() )
 						 .arg( m_sRegisteredMidiEvent ).arg( m_nRegisteredMidiParameter ) );
@@ -133,7 +133,7 @@ void WidgetWithInput::mousePressEvent(QMouseEvent *ev)
 		m_bIgnoreMouseMove = true;
 	}
 	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
-		MidiSenseWidget midiSense( this, true, this->m_action );
+		MidiSenseWidget midiSense( this, true, this->m_pAction );
 		midiSense.exec();
 
 		// Store the registered MIDI event and parameter in order to
@@ -404,7 +404,7 @@ void WidgetWithInput::resetValueToDefault()
 	setValue( m_fDefaultValue );
 }
 
-void WidgetWithInput::setAction( Action* pAction ) {
-	m_action = pAction;
+void WidgetWithInput::setAction( std::shared_ptr<Action> pAction ) {
+	m_pAction = pAction;
 	updateTooltip();
 }
