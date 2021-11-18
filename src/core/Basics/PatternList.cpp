@@ -62,14 +62,17 @@ void PatternList::add( Pattern* pattern )
 	__patterns.push_back( pattern );
 }
 
-void PatternList::insert( int idx, Pattern* pattern )
+void PatternList::insert( int nIdx, Pattern* pPattern )
 {
 	assertAudioEngineLocked();
 	// do nothing if already in __patterns
-	if ( index( pattern) != -1 ) {
+	if ( index( pPattern ) != -1 ) {
 		return;
 	}
-	__patterns.insert( __patterns.begin() + idx, pattern );
+	if ( nIdx > __patterns.size() ) {
+		__patterns.resize( nIdx );
+	}
+	__patterns.insert( __patterns.begin() + nIdx, pPattern );
 }
 
 Pattern* PatternList::get( int idx )
@@ -105,10 +108,12 @@ int PatternList::index( const Pattern* pattern )
 Pattern* PatternList::del( int idx )
 {
 	assertAudioEngineLocked();
-	assert( idx >= 0 && idx < __patterns.size() );
-	Pattern* pattern = __patterns[idx];
-	__patterns.erase( __patterns.begin() + idx );
-	return pattern;
+	if ( idx >= 0 && idx < __patterns.size() ) {
+		Pattern* pattern = __patterns[idx];
+		__patterns.erase( __patterns.begin() + idx );
+		return pattern;
+	}
+	return nullptr;
 }
 
 Pattern* PatternList::del( Pattern* pattern )

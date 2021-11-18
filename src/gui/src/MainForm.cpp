@@ -37,6 +37,7 @@
 
 #include "AboutDialog.h"
 #include "AudioEngineInfoForm.h"
+#include "CommonStrings.h"
 #include "ExportSongDialog.h"
 #include "ExportMidiDialog.h"
 #include "HydrogenApp.h"
@@ -872,11 +873,6 @@ void MainForm::action_file_openPattern()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	PatternList *pPatternList = pSong->getPatternList();
-	int selectedPatternPosition = pHydrogen->getSelectedPatternNumber();
-
-	auto pInstrument = pSong->getInstrumentList()->get ( 0 );
-	assert ( pInstrument );
 
 	QString sPath = Preferences::get_instance()->getLastOpenPatternDirectory();
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
@@ -895,19 +891,13 @@ void MainForm::action_file_openPattern()
 
 		for ( auto& ssFilename : fd.selectedFiles() ) {
 
-			Pattern* err = Pattern::load_file( ssFilename, pSong->getInstrumentList() );
-			if ( err == nullptr ) {
-					_ERRORLOG( "Error loading the pattern" );
-					_ERRORLOG( ssFilename );
+			auto pNewPattern = Pattern::load_file( ssFilename, pSong->getInstrumentList() );
+			if ( pNewPattern == nullptr ) {
+				QMessageBox::critical( this, "Hydrogen", HydrogenApp::get_instance()->getCommonStrings()->getPatternLoadError() );
 			} else {
-					H2Core::Pattern *pNewPattern = err;
-
-					if ( !pPatternList->check_name( pNewPattern->get_name() ) ){
-						pNewPattern->set_name( pPatternList->find_unused_pattern_name( pNewPattern->get_name() ) );
-					}
-					SE_insertPatternAction* pAction =
-						new SE_insertPatternAction( selectedPatternPosition + 1, pNewPattern );
-					HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
+				SE_insertPatternAction* pAction =
+					new SE_insertPatternAction( pHydrogen->getSelectedPatternNumber() + 1, pNewPattern );
+				HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 			}
 		}
 	}
