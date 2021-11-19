@@ -118,7 +118,9 @@ void  Effects::setLadspaFX( LadspaFX* pFX, int nFX )
 
 
 	Hydrogen::get_instance()->getAudioEngine()->unlock();
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	if ( Hydrogen::get_instance()->getSong() != nullptr ) {
+		Hydrogen::get_instance()->getSong()->setIsModified( true );
+	}
 }
 
 

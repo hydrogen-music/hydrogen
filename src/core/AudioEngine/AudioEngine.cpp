@@ -625,8 +625,15 @@ void AudioEngine::startAudioDrivers()
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong ) {
+		float fBpm;
+		if ( Preferences::get_instance()->getUseTimelineBpm() &&
+			 pSong->getMode() == Song::SONG_MODE ) {
+			fBpm = pHydrogen->getTimeline()->getTempoAtBar( getColumn(), true );
+		} else {
+			fBpm = pSong->getBpm();
+		}
 		m_state = State::Ready;
-		setBpm( pSong->getBpm() );
+		setBpm( fBpm );
 	} else {
 		m_state = State::Prepared;
 	}
@@ -716,13 +723,13 @@ void AudioEngine::restartAudioDrivers()
 	startAudioDrivers();
 }
 
-void AudioEngine::processCheckBPMChanged(std::shared_ptr<Song> pSong)
-{
+void AudioEngine::processCheckBPMChanged() {
 	if ( m_state != State::Playing ) {
 		return;
 	}
 
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	
 	if ( DiskWriterDriver::_class_name() == m_pAudioDriver->class_name() ) {
 		DEBUGLOG( "DiskWriter is entering as well" );
@@ -744,7 +751,7 @@ void AudioEngine::processCheckBPMChanged(std::shared_ptr<Song> pSong)
 
 	// Check for a change in the current BPM.
 	if ( Preferences::get_instance()->getUseTimelineBpm() &&
-		 pHydrogen->getSong()->getMode() == Song::SONG_MODE ) {
+		 pSong->getMode() == Song::SONG_MODE ) {
 
 		// TODO: if a relocation took place, the second argument
 		// should be true. In all other cases the more efficient one
@@ -804,11 +811,10 @@ void AudioEngine::processCheckBPMChanged(std::shared_ptr<Song> pSong)
 	// update frame position in transport class
 	setFrames( ceil(fTickNumber) * fNewTickSize );
 #ifdef H2CORE_HAVE_JACK
-	if ( Hydrogen::get_instance()->haveJackTransport() ) {
+	if ( pHydrogen->haveJackTransport() ) {
 		static_cast< JackAudioDriver* >( m_pAudioDriver )->calculateFrameOffset(oldFrame);
 	}
 #endif
-	EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
 }
 
 void AudioEngine::setupLadspaFX()
@@ -1091,7 +1097,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	
 
 	// Check whether the tick size has changed.
-	pAudioEngine->processCheckBPMChanged(pSong);
+	pAudioEngine->processCheckBPMChanged();
 
 	bool bSendPatternChange = false;
 	// always update note queue.. could come from pattern or realtime input
@@ -1258,8 +1264,11 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 		setupLadspaFX();
 	}
 
-	// update tick size
-	processCheckBPMChanged( pNewSong );
+	locate( 0 );
+
+	// update tick size and tempo
+	setNextBpm( pNewSong->getBpm() );
+	processCheckBPMChanged();
 
 	// find the first pattern and set as current
 	if ( pNewSong->getPatternList()->size() > 0 ) {
@@ -1269,17 +1278,10 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 #ifdef H2CORE_HAVE_JACK
 	Hydrogen::get_instance()->renameJackPorts( pNewSong );
 #endif
-
-	setBpm( pNewSong->getBpm() );
-	setTickSize( AudioEngine::computeTickSize( static_cast<int>(m_pAudioDriver->getSampleRate()),
-											   pNewSong->getBpm(),
-											   static_cast<int>(pNewSong->getResolution()) ) );
 	m_nSongSizeInTicks = pNewSong->lengthInTicks();
 
 	// change the current audio engine state
 	setState( State::Ready );
-
-	locate( 0 );
 
 	this->unlock();
 

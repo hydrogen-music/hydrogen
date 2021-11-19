@@ -1342,63 +1342,6 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 	}
 }
 
-// TODO: move this into H2Core
-void InstrumentEditor::rubberbandbpmchangeEvent()
-{
-	if( !Preferences::get_instance()->getRubberBandBatchMode() /*&& Preferences::get_instance()->__usetimeline */){
-		//we return also if time-line is activated. this wont work.
-		//		INFOLOG( "Tempo change: Recomputing rubberband samples is disabled" );
-		return;
-	}
-	//	INFOLOG( "Tempo change: Recomputing rubberband samples." );
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> song = pHydrogen->getSong();
-	assert(song);
-	if(song){
-		InstrumentList *pSongInstrList = song->getInstrumentList();
-		assert(pSongInstrList);
-		for ( unsigned nInstr = 0; nInstr < pSongInstrList->size(); ++nInstr ) {
-			auto pInstr = pSongInstrList->get( nInstr );
-			assert( pInstr );
-			if ( pInstr ){
-				auto pInstrumentComponent = pInstr->get_component(m_nSelectedComponent);
-				if (!pInstrumentComponent) {
-					continue; // regular case when you have a new component empty
-				}
-				
-				for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-					auto pLayer = pInstrumentComponent->get_layer( nLayer );
-					if ( pLayer ) {
-						auto pSample = pLayer->get_sample();
-						if ( pSample ) {
-							if( pSample->get_rubberband().use ) {
-								//INFOLOG( QString("Instrument %1 Layer %2" ).arg(nInstr).arg(nLayer));
-								auto pNewSample = Sample::load(
-														pSample->get_filepath(),
-														pSample->get_loops(),
-														pSample->get_rubberband(),
-														*pSample->get_velocity_envelope(),
-														*pSample->get_pan_envelope()
-														);
-								if( !pNewSample  ){
-									continue;
-								}
-								
-								// insert new sample from newInstrument
-								Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
-								pLayer->set_sample( pNewSample );
-								Hydrogen::get_instance()->getAudioEngine()->unlock();
-
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-}
-
 void InstrumentEditor::sampleSelectionChanged( int selected )
 {
 	assert( m_pInstrument );

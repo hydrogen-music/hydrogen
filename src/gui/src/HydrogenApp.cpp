@@ -562,10 +562,6 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->metronomeEvent( event.value );
 				break;
 
-			case EVENT_RECALCULATERUBBERBAND:
-				pListener->rubberbandbpmchangeEvent();
-				break;
-
 			case EVENT_PROGRESS:
 				pListener->progressEvent( event.value );
 				break;

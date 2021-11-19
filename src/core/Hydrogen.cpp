@@ -1393,6 +1393,62 @@ void Hydrogen::startNsmClient()
 #endif
 }
 
+
+void Hydrogen::recalculateRubberband( float fBpm ) {
+	DEBUGLOG( fBpm );
+	if ( getSong() != nullptr ) {
+		auto pInstrumentList = getSong()->getInstrumentList();
+		if ( pInstrumentList != nullptr ) {
+	
+			for ( unsigned nnInstr = 0; pInstrumentList->size(); ++nnInstr ) {
+				auto pInstr = pInstrumentList->get( nnInstr );
+				assert( pInstr );
+				if ( pInstr != nullptr ){
+					for ( int nnComponent = 0; nnComponent < pInstr->get_components()->size();
+						  ++nnComponent ) {
+						auto pInstrumentComponent = pInstr->get_component( nnComponent );
+						if ( pInstrumentComponent == nullptr ) {
+							continue; // regular case when you have a new component empty
+						}
+				
+						for ( int nnLayer = 0; nnLayer < InstrumentComponent::getMaxLayers(); nnLayer++ ) {
+							auto pLayer = pInstrumentComponent->get_layer( nnLayer );
+							if ( pLayer != nullptr ) {
+								auto pSample = pLayer->get_sample();
+								if ( pSample != nullptr ) {
+									if( pSample->get_rubberband().use ) {
+										auto pNewSample = Sample::load(
+																	   pSample->get_filepath(),
+																	   pSample->get_loops(),
+																	   pSample->get_rubberband(),
+																	   *pSample->get_velocity_envelope(),
+																	   *pSample->get_pan_envelope(),
+																	   fBpm
+																	   );
+										if( pNewSample == nullptr ){
+											continue;
+										}
+								
+										// insert new sample from newInstrument
+										m_pAudioEngine->lock( RIGHT_HERE );
+										pLayer->set_sample( pNewSample );
+										m_pAudioEngine->unlock();
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			getSong()->setIsModified( true );
+		} else {
+			ERRORLOG( "No InstrumentList present" );
+		}
+	} else {
+		ERRORLOG( "No song set" );
+	}
+}
+
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 
 	QString s = Base::sPrintIndention;

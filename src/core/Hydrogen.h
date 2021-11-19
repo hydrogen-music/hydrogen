@@ -253,6 +253,11 @@ public:
 void			previewSample( Sample *pSample );
 	void			previewInstrument( std::shared_ptr<Instrument> pInstr );
 
+	/** Recalculates all Samples using RubberBand for a specific
+		tempo @a fBpm.
+	*/ 
+	void recalculateRubberband( float fBpm );
+
 	enum ErrorMessages {
 		/**
 		 * The provided input string in createDriver() does

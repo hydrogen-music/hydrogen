@@ -126,11 +126,6 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	m_OldInterpolationMode = m_pHydrogen->getAudioEngine()->getSampler()->getInterpolateMode();
 	resampleComboBox->setCurrentIndex( interpolateModeToComboBoxIndex( m_OldInterpolationMode ) );
 	connect(resampleComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(resampleComboBoIndexChanged(int)));
-
-	// if rubberbandBatch calculate time needed by lib rubberband to resample samples
-	if( m_bOldRubberbandBatchMode ) {
-		calculateRubberbandTime();
-	}
 	
 	//Load the other settings..
 	restoreSettingsFromPreferences();
@@ -472,8 +467,8 @@ void ExportSongDialog::closeExport() {
 	
 	m_bExporting = false;
 	
-	if(m_pPreferences->getRubberBandBatchMode()){
-		EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
+	if( m_pPreferences->getRubberBandBatchMode() ){
+		m_pHydrogen->recalculateRubberband( m_pHydrogen->getAudioEngine()->getBpm() );
 	}
 	m_pPreferences->setRubberBandBatchMode( m_bOldRubberbandBatchMode );
 	m_pPreferences->setUseTimelineBpm( m_bOldTimeLineBPMMode );
@@ -672,9 +667,6 @@ void ExportSongDialog::progressEvent( int nValue )
 void ExportSongDialog::toggleRubberbandBatchMode(bool toggled)
 {
 	m_pPreferences->setRubberBandBatchMode(toggled);
-	if(toggled){
-		calculateRubberbandTime();
-	}
 }
 
 void ExportSongDialog::toggleTimeLineBPMMode(bool toggled)
@@ -706,83 +698,6 @@ void ExportSongDialog::setResamplerMode(int index)
 		m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
 		break;
 	}
-}
-
-void ExportSongDialog::calculateRubberbandTime()
-{
-	QApplication::setOverrideCursor(Qt::WaitCursor);
-	closeBtn->setEnabled(false);
-	resampleComboBox->setEnabled(false);
-	okBtn->setEnabled(false);
-	
-	Timeline* pTimeline = m_pHydrogen->getTimeline();
-	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
-
-	float oldBPM = m_pHydrogen->getSong()->getBpm();
-	float lowBPM = oldBPM;
-
-	if ( tempoMarkerVector.size() >= 1 ){
-		for ( int t = 0; t < tempoMarkerVector.size(); t++){
-			if(tempoMarkerVector[t]->fBpm < lowBPM){
-				lowBPM =  tempoMarkerVector[t]->fBpm;
-			}
-
-		}
-	}
-
-	m_pHydrogen->getAudioEngine()->setBpm(lowBPM);
-	time_t sTime = time(nullptr);
-
-	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
-	assert(pSong);
-	
-	if(pSong){
-		InstrumentList *songInstrList = pSong->getInstrumentList();
-		assert(songInstrList);
-		for ( unsigned nInstr = 0; nInstr < songInstrList->size(); ++nInstr ) {
-			auto pInstr = songInstrList->get( nInstr );
-			assert( pInstr );
-			if ( pInstr ){
-				for ( auto& pCompo : *pInstr->get_components() ) {
-					for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-						auto pLayer = pCompo->get_layer( nLayer );
-						if ( pLayer ) {
-							auto pSample = pLayer->get_sample();
-							if ( pSample != nullptr ) {
-								if( pSample->get_rubberband().use ) {
-									auto pNewSample = Sample::load(
-												pSample->get_filepath(),
-												pSample->get_loops(),
-												pSample->get_rubberband(),
-												*pSample->get_velocity_envelope(),
-												*pSample->get_pan_envelope()
-												);
-									if( pNewSample == nullptr ){
-										continue;
-									}
-	
-									// insert new sample from newInstrument
-									m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-									pLayer->set_sample( pNewSample );
-									m_pHydrogen->getAudioEngine()->unlock();
-									
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	Preferences::get_instance()->setRubberBandCalcTime(time(nullptr) - sTime);
-	
-	m_pHydrogen->getAudioEngine()->setBpm(oldBPM);
-	
-	closeBtn->setEnabled(true);
-	resampleComboBox->setEnabled(true);
-	okBtn->setEnabled(true);
-	QApplication::restoreOverrideCursor();
 }
 
 bool ExportSongDialog::checkUseOfRubberband()

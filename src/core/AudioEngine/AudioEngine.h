@@ -460,9 +460,6 @@ public:
 	/** Is allowed to set m_nextState via setNextState() according to
 		what the JACK server reports.*/
 	friend void JackAudioDriver::updateTransportInfo();
-	/* Is allowed to set m_fBpm via setBpm() when loading a new song
-	   into Hydrogen.*/
-	friend std::shared_ptr<Song> SongReader::readSong( const QString& sFileName );
 private:
 	
 	inline void			processPlayNotes( unsigned long nframes );
@@ -527,23 +524,7 @@ private:
 	 * frames per second.
 	 */
 	void			updateElapsedTime( unsigned bufferSize, unsigned sampleRate );
-	/**
-	 * Update the tick size based on the current tempo without affecting
-	 * the current transport position.
-	 *
-	 * The new transport position gets calculated by 
-	 * \code{.cpp}
-	 * ceil( m_pAudioDriver->m_transport.m_nFrames/
-	 *       m_pAudioDriver->m_transport.m_fTickSize ) *
-	 * m_pAudioDriver->getSampleRate() * 60.0 / Song::__bpm / Song::__resolution 
-	 * \endcode
-	 *
-	 * If the JackAudioDriver is used and the audio engine is playing, a
-	 * potential mismatch in the transport position is determined by
-	 * JackAudioDriver::calculateFrameOffset() and covered by
-	 * JackAudioDriver::updateTransportInfo() in the next cycle.
-	 */
-	void			processCheckBPMChanged(std::shared_ptr<Song>pSong);
+	void			processCheckBPMChanged();
 	
 	void			setPatternStartTick( int tick );
 	void			setPatternTickPosition( int tick );

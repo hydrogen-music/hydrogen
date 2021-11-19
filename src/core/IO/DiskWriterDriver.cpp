@@ -195,18 +195,11 @@ void* diskWriterDriver_thread( void* param )
 			
 			// delay needed time to calculate all rubberband samples
 			if( Preferences::get_instance()->getRubberBandBatchMode() && validBpm != oldBPM ){
-
-				// TODO: move recalculating of the samples using
-				// rubber band into the core.
-				EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
-				int sleepTime = Preferences::get_instance()->getRubberBandCalcTime()+1;
-				while ((sleepTime = sleep(sleepTime)) > 0);
+				pHydrogen->recalculateRubberband( validBpm );
 			}
 			oldBPM = validBpm;
 			
-		}
-		else
-		{
+		} else {
 			fTicksize = AudioEngine::computeTickSize(   pDriver->m_nSampleRate,
 														pSong->getBpm(),
 														pSong->getResolution() );

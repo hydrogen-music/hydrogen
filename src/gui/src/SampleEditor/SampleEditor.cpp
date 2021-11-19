@@ -371,19 +371,25 @@ void SampleEditor::createNewLayer()
 {
 	if ( !m_bSampleEditorClean ){
 
-		auto pEditSample = Sample::load( m_sSampleName, __loops, __rubberband, *m_pTargetSampleView->get_velocity(), *m_pTargetSampleView->get_pan() );
+		auto pHydrogen = H2Core::Hydrogen::get_instance();
+		auto pEditSample = Sample::load( m_sSampleName,
+										 __loops,
+										 __rubberband,
+										 *m_pTargetSampleView->get_velocity(),
+										 *m_pTargetSampleView->get_pan(),
+										 pHydrogen->getAudioEngine()->getBpm() );
 
 		if( pEditSample == nullptr ){
 			return;
 		}
 
-		Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
+		pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 		std::shared_ptr<H2Core::Instrument> pInstrument = nullptr;
-		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-		if (pSong != nullptr) {
+		auto pSong = pHydrogen->getSong();
+		if ( pSong != nullptr ) {
 			InstrumentList *pInstrList = pSong->getInstrumentList();
-			int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+			int nInstr = pHydrogen->getSelectedInstrumentNumber();
 			if ( nInstr >= static_cast<int>(pInstrList->size()) ) {
 				nInstr = -1;
 			}
@@ -404,7 +410,7 @@ void SampleEditor::createNewLayer()
 			pLayer->set_sample( pEditSample );
 		}
 
-		Hydrogen::get_instance()->getAudioEngine()->unlock();
+		pHydrogen->getAudioEngine()->unlock();
 
 		if( pLayer ) {
 			m_pTargetSampleView->updateDisplay( pLayer );

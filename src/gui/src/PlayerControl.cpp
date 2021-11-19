@@ -741,8 +741,12 @@ void PlayerControl::bcSetPlayBtnClicked()
 void PlayerControl::rubberbandButtonToggle()
 {
 	Preferences *pPref = Preferences::get_instance();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	if ( ! m_pRubberBPMChange->isChecked() ) {
-		EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
+		// Recalculate all samples ones just to be safe since the
+		// recalculation is just triggered if there is a tempo change
+		// in the audio engine.
+		pHydrogen->recalculateRubberband( pHydrogen->getAudioEngine()->getBpm() );
 		pPref->setRubberBandBatchMode(true);
 		(HydrogenApp::get_instance())->setScrollStatusBarMessage(tr("Recalculate all samples using Rubberband ON"), 2000);
 	}

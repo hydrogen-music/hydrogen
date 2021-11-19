@@ -826,8 +826,6 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	}
 
 	float fBpm = LocalFileMng::readXmlFloat( songNode, "bpm", 120 );
-	Hydrogen::get_instance()->getAudioEngine()->setBpm( fBpm );
-	Hydrogen::get_instance()->getAudioEngine()->setNextBpm( fBpm );
 	float fVolume = LocalFileMng::readXmlFloat( songNode, "volume", 0.5 );
 	float fMetronomeVolume = LocalFileMng::readXmlFloat( songNode, "metronomeVolume", 0.5 );
 	QString sName( LocalFileMng::readXmlString( songNode, "name", "Untitled Song" ) );
@@ -1173,7 +1171,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 								panNode = panNode.nextSiblingElement( "pan" );
 							}
 
-							pSample = Sample::load( sFilename, lo, ro, velocity, pan );
+							pSample = Sample::load( sFilename, lo, ro, velocity, pan, fBpm );
 						}
 						if ( pSample == nullptr ) {
 							ERRORLOG( "Error loading sample: " + sFilename + " not found" );
@@ -1260,7 +1258,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 								panNode = panNode.nextSiblingElement( "pan" );
 							}
 
-							pSample = Sample::load( sFilename, lo, ro, velocity, pan );
+							pSample = Sample::load( sFilename, lo, ro, velocity, pan, fBpm );
 						}
 						if ( pSample == nullptr ) {
 							ERRORLOG( "Error loading sample: " + sFilename + " not found" );

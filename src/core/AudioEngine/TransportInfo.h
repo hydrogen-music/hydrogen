@@ -65,7 +65,7 @@ public:
 	void setTickSize( float fNewTickSize );
 	// TODO: make this protected
 	void setFrames( long long nNewFrames );
-	
+	// TODO: make this protected
 	void setBpm( float fNewBpm );
 
 protected:

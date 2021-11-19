@@ -192,11 +192,17 @@ LadspaFX::~LadspaFX()
 
 void LadspaFX::setPluginName( const QString& sName ) {
 	m_sName = sName;
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	
+	if ( Hydrogen::get_instance()->getSong() != nullptr ) {
+		Hydrogen::get_instance()->getSong()->setIsModified( true );
+	}
 }
 void LadspaFX::setEnabled( bool value ) {
 	m_bEnabled = value;
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	
+	if ( Hydrogen::get_instance()->getSong() != nullptr ) {
+		Hydrogen::get_instance()->getSong()->setIsModified( true );
+	}
 }
 
 
@@ -378,7 +384,10 @@ LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLab
 			_ERRORLOG( "unknown port" );
 		}
 	}
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	
+	if ( Hydrogen::get_instance()->getSong() != nullptr ) {
+		Hydrogen::get_instance()->getSong()->setIsModified( true );
+	}
 
 	return pFX;
 }
@@ -463,7 +472,10 @@ void LadspaFX::setVolume( float fValue )
 		fValue = 0.0;
 	}
 	m_fVolume = fValue;
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+
+	if ( Hydrogen::get_instance()->getSong() != nullptr ) {
+		Hydrogen::get_instance()->getSong()->setIsModified( true );
+	}
 }
 
 

@@ -592,9 +592,6 @@ public:
 	void			setShowPlaybackTrack( bool val);
 	bool			getShowPlaybackTrack() const;
 
-	int				getRubberBandCalcTime();
-	void			setRubberBandCalcTime( int val );
-
 	int				getRubberBandBatchMode();
 	void			setRubberBandBatchMode( int val );
 
@@ -675,7 +672,6 @@ private:
 	
 	//___ General properties ___
 	QString				m_sH2ProcessName; //Name of hydrogen's main process
-	int					__rubberBandCalcTime;
 	 ///rubberband bpm change queue
 	bool				m_useTheRubberbandBpmChangeEvent;
 	/**
@@ -1445,13 +1441,6 @@ inline void Preferences::setShowPlaybackTrack( bool val ) {
 }
 inline bool Preferences::getShowPlaybackTrack() const {
 	return m_bShowPlaybackTrack;
-}
-
-inline int Preferences::getRubberBandCalcTime(){
-	return __rubberBandCalcTime;
-}
-inline void Preferences::setRubberBandCalcTime( int val ){
-	__rubberBandCalcTime = val;
 }
 
 inline int Preferences::getRubberBandBatchMode(){

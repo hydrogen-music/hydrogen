@@ -99,7 +99,6 @@ enum EventType {
 	 * Handled by EventListener::metronomeEvent().
 	 */
 	EVENT_METRONOME,
-	EVENT_RECALCULATERUBBERBAND,
 	EVENT_PROGRESS,
 	EVENT_JACK_SESSION,
 	EVENT_PLAYLIST_LOADSONG,
