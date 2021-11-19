@@ -257,6 +257,9 @@ void			previewSample( Sample *pSample );
 		tempo @a fBpm.
 	*/ 
 	void recalculateRubberband( float fBpm );
+	/** Wrapper around Song::setIsModified() that checks whether a
+		song is set.*/
+	void setIsModified( bool bIsModified );
 
 	enum ErrorMessages {
 		/**

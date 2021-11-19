@@ -214,7 +214,7 @@ void Mixer::muteClicked(ComponentMixerLine* ref)
 	DrumkitComponent *pCompo = pSong->getComponent( ref->getComponentID() );
 
 	pCompo->set_muted( isMuteClicked );
-	pSong->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 }
 
 void Mixer::soloClicked(ComponentMixerLine* ref)
@@ -225,7 +225,7 @@ void Mixer::soloClicked(ComponentMixerLine* ref)
 	ComponentMixerLine* pComponentMixerLine = m_pComponentMixerLine[nLine];
 	
 	pComponentMixerLine->setSoloClicked( isSoloClicked );
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 }
 
 void Mixer::volumeChanged(ComponentMixerLine* ref)
@@ -236,7 +236,7 @@ void Mixer::volumeChanged(ComponentMixerLine* ref)
 	DrumkitComponent *pCompo = pSong->getComponent( ref->getComponentID() );
 
 	pCompo->set_volume( newVolume );
-	pSong->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 }
 
 void Mixer::soloClicked(MixerLine* ref)
@@ -692,9 +692,9 @@ void Mixer::knobChanged(MixerLine* ref, int nKnob) {
 	QString sInfo = tr( "Set FX %1 level ").arg( nKnob + 1 );
 	( HydrogenApp::get_instance() )->setStatusBarMessage( sInfo+ QString( "[%1]" ).arg( ref->getFXLevel(nKnob), 0, 'f', 2 ), 2000 );
 
-	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+	pHydrogen->setSelectedInstrumentNumber(nLine);
 
-	pSong->setIsModified( true );
+	pHydrogen->setIsModified( true );
 }
 
 
@@ -772,7 +772,7 @@ void Mixer::ladspaEditBtnClicked( LadspaFXMixerLine *ref )
 			HydrogenApp::get_instance()->getLadspaFXProperties(nFX)->show();
 		}
 	}
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 #else
 	QMessageBox::critical( this, "Hydrogen", tr("LADSPA effects are not available in this version of Hydrogen.") );
 #endif

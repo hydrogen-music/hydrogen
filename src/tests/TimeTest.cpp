@@ -84,15 +84,15 @@ void TimeTest::testElapsedTime(){
 	pCoreActionController->addTempoMarker( 7, 200 );
 
 	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 0 ) - 0 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 1 ) - 1.98958 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 2 ) - 3.98958 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 3 ) - 5.98958 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 4 ) - 8.3875 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 5 ) - 10.7875 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 6 ) - 16.7687 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 7 ) - 22.7687 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 8 ) - 23.9937 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 1 ) - 1.98958 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 5 ) - 10.7875 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 2 ) - 3.98958 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 1 ) - 2 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 2 ) - 4 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 3 ) - 6 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 4 ) - 8.4 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 5 ) - 10.8 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 6 ) - 16.8 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 7 ) - 22.8 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 8 ) - 24 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 1 ) - 2 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 5 ) - 10.8 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 2 ) - 4 ) < 0.0001 );
 }

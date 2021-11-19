@@ -825,7 +825,7 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	pAudioEngine->unlock();
 #endif
 
-	getSong()->setIsModified( true );
+	setIsModified( true );
 
 	pAudioEngine->setState( oldAudioEngineState );
 	
@@ -912,7 +912,7 @@ void Hydrogen::removeInstrument( int instrumentNumber, bool conditional )
 	// delete the instrument from the instruments list
 	m_pAudioEngine->lock( RIGHT_HERE );
 	getSong()->getInstrumentList()->del( instrumentNumber );
-	getSong()->setIsModified( true );
+	setIsModified( true );
 	m_pAudioEngine->unlock();
 
 	// At this point the instrument has been removed from both the
@@ -1440,12 +1440,18 @@ void Hydrogen::recalculateRubberband( float fBpm ) {
 					}
 				}
 			}
-			getSong()->setIsModified( true );
+			setIsModified( true );
 		} else {
 			ERRORLOG( "No InstrumentList present" );
 		}
 	} else {
 		ERRORLOG( "No song set" );
+	}
+}
+
+void Hydrogen::setIsModified( bool bIsModified ) {
+	if ( getSong() != nullptr ) {
+		getSong()->setIsModified( true );
 	}
 }
 

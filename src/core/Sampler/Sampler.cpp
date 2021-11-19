@@ -1546,7 +1546,7 @@ void Sampler::setPlayingNotelength( std::shared_ptr<Instrument> pInstrument, uns
 										ticks = patternsize - noteOnTick;
 									}
 									pNote->set_length( ticks );
-									Hydrogen::get_instance()->getSong()->setIsModified( true );
+									Hydrogen::get_instance()->setIsModified( true );
 									pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 								}
 							}else
@@ -1558,7 +1558,7 @@ void Sampler::setPlayingNotelength( std::shared_ptr<Instrument> pInstrument, uns
 										ticks = patternsize - noteOnTick;
 									}
 									pNote->set_length( ticks );
-									pHydrogen->getSong()->setIsModified( true );
+									pHydrogen->setIsModified( true );
 									pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 								}
 							}

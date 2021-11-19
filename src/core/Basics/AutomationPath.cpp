@@ -80,7 +80,7 @@ float AutomationPath::get_value(float x) const noexcept
 void AutomationPath::add_point(float x, float y)
 {
 	_points[x] = y;
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 }
 
 
@@ -177,7 +177,7 @@ AutomationPath::iterator AutomationPath::move(iterator &in, float x, float y)
 {
 	_points.erase(in);
 	auto rv = _points.insert(std::make_pair(x,y));
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 	return rv.first;
 }
 
@@ -192,7 +192,7 @@ void AutomationPath::remove_point(float x)
 	if (it != _points.end()) {
 		_points.erase(it);
 	}
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 }
 
 } //namespace H2Core

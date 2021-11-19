@@ -1579,11 +1579,14 @@ void MainForm::checkNecessaryDirectories()
 void MainForm::onFixMidiSetup()
 {
 	INFOLOG( "Fixing MIDI setup" );
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	pSong->getInstrumentList()->set_default_midi_out_notes();
-	pSong->setIsModified( true );
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong != nullptr ) {
+		pSong->getInstrumentList()->set_default_midi_out_notes();
+		pHydrogen->setIsModified( true );
 
-	m_pMidiSetupInfoBar->hide();
+		m_pMidiSetupInfoBar->hide();
+	}
 }
 
 
@@ -1988,7 +1991,7 @@ void MainForm::action_file_songProperties()
 {
 	SongPropertiesDialog *pDialog = new SongPropertiesDialog( this );
 	if ( pDialog->exec() == QDialog::Accepted ) {
-		Hydrogen::get_instance()->getSong()->setIsModified( true );
+		Hydrogen::get_instance()->setIsModified( true );
 	}
 	delete pDialog;
 }
@@ -2044,14 +2047,15 @@ QString MainForm::getAutoSaveFilename()
 void MainForm::onAutoSaveTimer()
 {
 	//INFOLOG( "[onAutoSaveTimer]" );
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+	auto pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	assert( pSong );
 	if ( pSong->getIsModified() ) {
 		QString sOldFilename = pSong->getFilename();
 		pSong->save( getAutoSaveFilename() );
 
 		pSong->setFilename( sOldFilename );
-		pSong->setIsModified( true );
+		pHydrogen->setIsModified( true );
 	}
 }
 

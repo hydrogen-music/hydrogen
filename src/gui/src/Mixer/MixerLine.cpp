@@ -199,12 +199,12 @@ void MixerLine::playSampleBtnClicked() {
 }
 
 void MixerLine::muteBtnClicked() {
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 	emit muteBtnClicked(this);
 }
 
 void MixerLine::soloBtnClicked() {
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 	emit soloBtnClicked(this);
 }
 
@@ -212,18 +212,19 @@ void MixerLine::faderChanged( WidgetWithInput *pRef ) {
 
 	assert( pRef );
 	
-	std::shared_ptr<Song> pSong = (Hydrogen::get_instance())->getSong();
-	pSong->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 	emit volumeChanged(this);
 
 	WidgetWithInput* pFader = static_cast<Fader*>( pRef );
 	
 	double value = (double) pFader->getValue();
-	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set instrument volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
+	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set instrument volume [%1]" )
+														  .arg( value, 0, 'f', 2 ), 2000 );
 }
 
 bool MixerLine::isMuteClicked() {
-	return ( ( m_pMuteBtn->isChecked() && ! m_pMuteBtn->isDown() ) || ( ! m_pMuteBtn->isChecked() && m_pMuteBtn->isDown() ) );
+	return ( ( m_pMuteBtn->isChecked() && ! m_pMuteBtn->isDown() ) ||
+			 ( ! m_pMuteBtn->isChecked() && m_pMuteBtn->isDown() ) );
 }
 
 void MixerLine::setMuteClicked(bool isClicked) {
@@ -484,17 +485,18 @@ void ComponentMixerLine::faderChanged( WidgetWithInput *pRef ) {
 
 	assert( pRef );
 	
-	std::shared_ptr<Song> pSong = (Hydrogen::get_instance())->getSong();
-	pSong->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 	emit volumeChanged(this);
 
 	WidgetWithInput* pFader = static_cast<Fader*>( pRef );
 	double value = (double) pFader->getValue();
-	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set main volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
+	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set main volume [%1]" )
+														  .arg( value, 0, 'f', 2 ), 2000 );
 }
 
 bool ComponentMixerLine::isMuteClicked() {
-	return ( ( m_pMuteBtn->isChecked() && ! m_pMuteBtn->isDown() ) || ( ! m_pMuteBtn->isChecked() && m_pMuteBtn->isDown() ) );
+	return ( ( m_pMuteBtn->isChecked() && ! m_pMuteBtn->isDown() ) ||
+			 ( ! m_pMuteBtn->isChecked() && m_pMuteBtn->isDown() ) );
 }
 
 void ComponentMixerLine::setMuteClicked(bool isClicked) {
@@ -662,11 +664,11 @@ void MasterMixerLine::faderChanged( WidgetWithInput *pRef )
 
 	emit volumeChanged(this);
 
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	pSong->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 
 	double value = (double) pFader->getValue();
-	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set master volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
+	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set master volume [%1]" )
+														  .arg( value, 0, 'f', 2 ), 2000 );
 }
 
 float MasterMixerLine::getVolume()
@@ -929,7 +931,8 @@ void LadspaFXMixerLine::editBtnClicked() {
 
 bool LadspaFXMixerLine::isFxActive()
 {
-	return ( ( m_pActiveBtn->isChecked() && ! m_pActiveBtn->isDown() ) || ( ! m_pActiveBtn->isChecked() && m_pActiveBtn->isDown() ) );
+	return ( ( m_pActiveBtn->isChecked() && ! m_pActiveBtn->isDown() ) ||
+			 ( ! m_pActiveBtn->isChecked() && m_pActiveBtn->isDown() ) );
 }
 
 void LadspaFXMixerLine::setFxActive( bool active )
@@ -945,12 +948,12 @@ void LadspaFXMixerLine::rotaryChanged( WidgetWithInput *ref)
 	UNUSED( ref );
 	m_fMaxPeak = 0.0;
 
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	pSong->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 	emit volumeChanged(this);
 	
 	double value = (double) ref->getValue();
-	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set FX volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
+	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set FX volume [%1]" )
+														  .arg( value, 0, 'f', 2 ), 2000 );
 }
 
 void LadspaFXMixerLine::setPeaks( float fPeak_L, float fPeak_R )

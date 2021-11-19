@@ -58,20 +58,20 @@ LadspaFXGroup::~LadspaFXGroup()
 void LadspaFXGroup::clear() {
 	m_childGroups.clear();
 	m_ladspaList.clear();
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 }
 
 void LadspaFXGroup::addLadspaInfo( LadspaFXInfo *pInfo )
 {
 	m_ladspaList.push_back( pInfo );
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 }
 
 
 void LadspaFXGroup::addChild( LadspaFXGroup *pChild )
 {
 	m_childGroups.push_back( pChild );
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 }
 
 bool LadspaFXGroup::alphabeticOrder( LadspaFXGroup* a, LadspaFXGroup* b )
@@ -83,7 +83,7 @@ void LadspaFXGroup::sort()
 {
 	std::sort( m_ladspaList.begin(), m_ladspaList.end(), LadspaFXInfo::alphabeticOrder );
 	std::sort( m_childGroups.begin(), m_childGroups.end(), LadspaFXGroup::alphabeticOrder );
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 }
 
 
@@ -194,14 +194,14 @@ void LadspaFX::setPluginName( const QString& sName ) {
 	m_sName = sName;
 	
 	if ( Hydrogen::get_instance()->getSong() != nullptr ) {
-		Hydrogen::get_instance()->getSong()->setIsModified( true );
+		Hydrogen::get_instance()->setIsModified( true );
 	}
 }
 void LadspaFX::setEnabled( bool value ) {
 	m_bEnabled = value;
 	
 	if ( Hydrogen::get_instance()->getSong() != nullptr ) {
-		Hydrogen::get_instance()->getSong()->setIsModified( true );
+		Hydrogen::get_instance()->setIsModified( true );
 	}
 }
 
@@ -386,7 +386,7 @@ LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLab
 	}
 	
 	if ( Hydrogen::get_instance()->getSong() != nullptr ) {
-		Hydrogen::get_instance()->getSong()->setIsModified( true );
+		Hydrogen::get_instance()->setIsModified( true );
 	}
 
 	return pFX;
@@ -448,7 +448,7 @@ void LadspaFX::activate()
 		INFOLOG( "activate " + getPluginName() );
 		m_bActivated = true;
 		m_d->activate( m_handle );
-		Hydrogen::get_instance()->getSong()->setIsModified( true );
+		Hydrogen::get_instance()->setIsModified( true );
 	}
 }
 
@@ -459,7 +459,7 @@ void LadspaFX::deactivate()
 		INFOLOG( "deactivate " + getPluginName() );
 		m_bActivated = false;
 		m_d->deactivate( m_handle );
-		Hydrogen::get_instance()->getSong()->setIsModified( true );
+		Hydrogen::get_instance()->setIsModified( true );
 	}
 }
 
@@ -474,7 +474,7 @@ void LadspaFX::setVolume( float fValue )
 	m_fVolume = fValue;
 
 	if ( Hydrogen::get_instance()->getSong() != nullptr ) {
-		Hydrogen::get_instance()->getSong()->setIsModified( true );
+		Hydrogen::get_instance()->setIsModified( true );
 	}
 }
 

@@ -119,7 +119,7 @@ void  Effects::setLadspaFX( LadspaFX* pFX, int nFX )
 
 	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	if ( Hydrogen::get_instance()->getSong() != nullptr ) {
-		Hydrogen::get_instance()->getSong()->setIsModified( true );
+		Hydrogen::get_instance()->setIsModified( true );
 	}
 }
 
@@ -287,7 +287,7 @@ void Effects::updateRecentGroup()
 			}
 		}
 	}
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 }
 
 #ifdef H2CORE_HAVE_LRDF

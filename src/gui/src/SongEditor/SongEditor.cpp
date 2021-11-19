@@ -1017,16 +1017,16 @@ QRect SongEditor::getKeyboardCursorRect() {
 
 void SongEditor::clearThePatternSequenceVector( QString filename )
 {
-	Hydrogen *engine = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 
-	std::shared_ptr<Song> song = engine->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	//before deleting the sequence, write a temp sequence file to disk
-	song->writeTempPatternList( filename );
+	pSong->writeTempPatternList( filename );
 
-	std::vector<PatternList*> *pPatternGroupsVect = song->getPatternGroupVector();
+	std::vector<PatternList*> *pPatternGroupsVect = pSong->getPatternGroupVector();
 	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
 		PatternList *pPatternList = (*pPatternGroupsVect)[i];
 		pPatternList->clear();
@@ -1034,7 +1034,7 @@ void SongEditor::clearThePatternSequenceVector( QString filename )
 	}
 	pPatternGroupsVect->clear();
 
-	song->setIsModified( true );
+	pHydrogen->setIsModified( true );
 	m_pAudioEngine->unlock();
 	m_bSequenceChanged = true;
 	update();
@@ -1497,14 +1497,14 @@ void SongEditorPatternList::patternPopup_properties()
 
 void SongEditorPatternList::acceptPatternPropertiesDialogSettings(QString newPatternName, QString newPatternInfo, QString newPatternCategory, int patternNr)
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	std::shared_ptr<Song> song = engine->getSong();
-	PatternList *patternList = song->getPatternList();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	PatternList *patternList = pSong->getPatternList();
 	H2Core::Pattern *pattern = patternList->get( patternNr );
 	pattern->set_name( newPatternName );
 	pattern->set_info( newPatternInfo );
 	pattern->set_category( newPatternCategory );
-	song->setIsModified( true );
+	pHydrogen->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 	createBackground();
 	update();
@@ -1513,13 +1513,13 @@ void SongEditorPatternList::acceptPatternPropertiesDialogSettings(QString newPat
 
 void SongEditorPatternList::revertPatternPropertiesDialogSettings(QString oldPatternName, QString oldPatternInfo, QString oldPatternCategory, int patternNr)
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	std::shared_ptr<Song> song = engine->getSong();
-	PatternList *patternList = song->getPatternList();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	PatternList *patternList = pSong->getPatternList();
 	H2Core::Pattern *pattern = patternList->get( patternNr );
 	pattern->set_name( oldPatternName );
 	pattern->set_category( oldPatternCategory );
-	song->setIsModified( true );
+	pHydrogen->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 	createBackground();
 	update();
@@ -1616,15 +1616,15 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 	pSongPatternList->flattened_virtual_patterns_compute();
 
 	delete pattern;
-	song->setIsModified( true );
+	m_pHydrogen->setIsModified( true );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 
 }
 
 void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilename, QString sequenceFileName, int patternPosition )
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = engine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 
 	Pattern* pattern = Pattern::load_file( patternFilename, pSong->getInstrumentList() );
@@ -1634,9 +1634,9 @@ void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilen
 
 	pPatternList->insert( patternPosition, pattern );
 
-	pSong->setIsModified( true );
+	pHydrogen->setIsModified( true );
 	createBackground();
-	engine->setSelectedPatternNumber( patternPosition );
+	pHydrogen->setSelectedPatternNumber( patternPosition );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 }
@@ -1750,7 +1750,7 @@ void SongEditorPatternList::fillRangeWithPattern( FillRange* pRange, int nPatter
 
 
 	// Update
-	pSong->setIsModified( true );
+	m_pHydrogen->setIsModified( true );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 }
 
@@ -1853,9 +1853,9 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 
 void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPattern )
 {
-		Hydrogen *engine = Hydrogen::get_instance();
+		Hydrogen *pHydrogen = Hydrogen::get_instance();
 
-		std::shared_ptr<Song> pSong = engine->getSong();
+		std::shared_ptr<Song> pSong = pHydrogen->getSong();
 		PatternList *pPatternList = pSong->getPatternList();
 
 
@@ -1876,9 +1876,9 @@ void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPat
 			}
 			pPatternList->replace( nTargetPattern, pSourcePattern );
 		}
-		engine->setSelectedPatternNumber( nTargetPattern );
+		pHydrogen->setSelectedPatternNumber( nTargetPattern );
 		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
-		pSong->setIsModified( true );
+		pHydrogen->setIsModified( true );
 }
 
 
