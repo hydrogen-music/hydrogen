@@ -1470,26 +1470,16 @@ void MainForm::onRestartAccelEvent()
 
 
 
-void MainForm::onBPMPlusAccelEvent()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	pHydrogen->setBPM( pSong->getBpm() + 0.1 );
-	pHydrogen->getAudioEngine()->unlock();
+void MainForm::onBPMPlusAccelEvent() {
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	pAudioEngine->setNextBpm( pAudioEngine->getBpm() + 0.1 );
 }
 
 
 
-void MainForm::onBPMMinusAccelEvent()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	pHydrogen->setBPM( pSong->getBpm() - 0.1 );
-	pHydrogen->getAudioEngine()->unlock();
+void MainForm::onBPMMinusAccelEvent() {
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	pAudioEngine->setNextBpm( pAudioEngine->getBpm() - 0.1 );
 }
 
 

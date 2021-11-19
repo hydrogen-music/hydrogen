@@ -106,15 +106,15 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	m_nInstrument = 0;
 	m_sExtension = ".wav";
 	m_bOverwriteFiles = false;
+	m_bOldRubberbandBatchMode = m_pPreferences->getRubberBandBatchMode();
 
 	// use of rubberband batch
 	if( checkUseOfRubberband() ) {
-		m_bOldRubberbandBatchMode = m_pPreferences->getRubberBandBatchMode();
-		toggleRubberbandCheckBox->setChecked(m_pPreferences->getRubberBandBatchMode());
+		toggleRubberbandCheckBox->setChecked( m_bOldRubberbandBatchMode );
 		connect(toggleRubberbandCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleRubberbandBatchMode( bool )));
 	} else {
-		m_bOldRubberbandBatchMode = m_pPreferences->getRubberBandBatchMode();
 		toggleRubberbandCheckBox->setEnabled( false );
+		toggleRubberbandCheckBox->setToolTip( tr( "No sample in the current song uses Rubberband" ) );
 	}
 
 	// use of timeline
@@ -730,7 +730,7 @@ void ExportSongDialog::calculateRubberbandTime()
 		}
 	}
 
-	m_pHydrogen->setBPM(lowBPM);
+	m_pHydrogen->getAudioEngine()->setBpm(lowBPM);
 	time_t sTime = time(nullptr);
 
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
@@ -777,7 +777,7 @@ void ExportSongDialog::calculateRubberbandTime()
 	
 	Preferences::get_instance()->setRubberBandCalcTime(time(nullptr) - sTime);
 	
-	m_pHydrogen->setBPM(oldBPM);
+	m_pHydrogen->getAudioEngine()->setBpm(oldBPM);
 	
 	closeBtn->setEnabled(true);
 	resampleComboBox->setEnabled(true);

@@ -302,17 +302,6 @@ void			previewSample( Sample *pSample );
 
 	void			onTapTempoAccelEvent();
 	void			setTapTempo( float fInterval );
-	/** 
-	 * Updates the speed.
-	 *
-	 * It calls AudioOutput::setBpm() and setNewBpmJTM() with @a
-	 * fBPM as input argument and sets Song::m_fBpm to @a fBPM.
-	 *
-	 * This function will be called with the AudioEngine in LOCKED
-	 * state.
-	 * \param fBPM New speed in beats per minute.
-	 */
-	void			setBPM( float fBPM );
 
 	void			restartLadspaFX();
 	/** \return #m_nSelectedPatternNumber*/
@@ -369,42 +358,8 @@ void			previewSample( Sample *pSample );
 	/** Calling JackAudioDriver::initTimebaseMaster() directly from
 	    the GUI*/
 	void			onJackMaster();
-	/** Returns the fallback speed.
-	 * \return #m_fNewBpmJTM */
-	float			getNewBpmJTM() const;
-	/** Set the fallback speed #m_fNewBpmJTM.
-	 * \param bpmJTM New default tempo. */ 
-	void			setNewBpmJTM( float bpmJTM);
 
 	void			__panic();
-	/**
-	 * Updates Song::m_fBpm, TransportInfo::m_fBPM, and #m_fNewBpmJTM
-	 * to the local speed.
-	 *
-	 * If Preferences::__useTimelineBpm is set to false or Hydrogen
-	 * uses JACK transport in the presence of an external timebase
-	 * master, the function will return without performing any
-	 * actions.
-	 */
-	void			setTimelineBpm();
-	/**
-	 * Returns the local speed at a specific @a nBar in the
-	 * Timeline.
-	 *
-	 * If Hydrogen is in Song::PATTERN_MODE or
-	 * Preferences::__useTimelineBpm is set to false, the global
-	 * speed of the current Song Song::m_fBpm or, if no Song is
-	 * present yet, the result of getNewBpmJTM() will be
-	 * returned. 
-	 *
-	 * Its counterpart is setTimelineBpm().
-	 *
-	 * \param nBar Position (in whole patterns) along the Timeline to
-	 *   access the tempo at.
-	 *
-	 * \return Speed in beats per minute.
-	 */
-	float			getTimelineBpm( int nBar );
 	Timeline*		getTimeline() const;
 	
 	//export management
@@ -575,14 +530,6 @@ private:
 	/// Deleting instruments too soon leads to potential crashes.
 	std::list<std::shared_ptr<Instrument>> 	__instrument_death_row; 
 	
-	/**
-	 * Fallback speed in beats per minute.
-	 *
-	 * It is set by Hydrogen::setNewBpmJTM() and accessed via
-	 * Hydrogen::getNewBpmJTM().
-	 */
-	float				m_fNewBpmJTM;
-
 	/**
 	 * Instrument currently focused/selected in the GUI. 
 	 *

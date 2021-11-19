@@ -570,11 +570,12 @@ bool CoreActionController::activateTimeline( bool bActivate ) {
 	
 	Preferences::get_instance()->setUseTimelineBpm( bActivate );
 
-	if ( bActivate && !pHydrogen->haveJackTransport() ) {
-		// In case another driver than Jack is used, we have to update
-		// the tempo explicitly.
-		pHydrogen->setTimelineBpm();
-	}
+	// TODO: this should be removed.
+	// if ( bActivate && !pHydrogen->haveJackTransport() ) {
+	// 	// In case another driver than Jack is used, we have to update
+	// 	// the tempo explicitly.
+	// 	pHydrogen->setTimelineBpm();
+	// }
 	
 	EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION, static_cast<int>( bActivate ) );
 	
@@ -709,7 +710,9 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 
 	locateToFrame( static_cast<unsigned long>( nTotalTick * pAudioEngine->getTickSize() ) );
 
-	pHydrogen->setTimelineBpm();
+	// TODO: replace this by a boolian indicating a relocation in the
+	// current cycle of the audio engine.
+	// pHydrogen->setTimelineBpm();
 	
 	return true;
 }

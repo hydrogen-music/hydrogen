@@ -228,10 +228,8 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		/**
 		 * Current speed in beats per minutes.
 		 *
-		 * One of its purposes is an intermediate storage of the
-		 * tempo at the current transport position in
-		 * Hydrogen::setTimelineBpm() in order to detect local changes
-		 * in speed (set by the user). Bounded by [#MIN_BPM,#MAX_BPM].
+		 * See TransportInfo::m_fBpm for how the handling of the
+		 * different tempo instances work.
 		 */
 		float m_fBpm;
 		

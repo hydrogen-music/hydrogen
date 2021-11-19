@@ -146,6 +146,7 @@ void Song::setBpm( float fBpm ) {
 	} else {
 		m_fBpm = fBpm;
 	}
+	setIsModified( true );
 }
 
 void Song::setActionMode( Song::ActionMode actionMode ) {
@@ -821,7 +822,8 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	}
 
 	float fBpm = LocalFileMng::readXmlFloat( songNode, "bpm", 120 );
-	Hydrogen::get_instance()->setNewBpmJTM( fBpm );
+	Hydrogen::get_instance()->getAudioEngine()->setBpm( fBpm );
+	Hydrogen::get_instance()->getAudioEngine()->setNextBpm( fBpm );
 	float fVolume = LocalFileMng::readXmlFloat( songNode, "volume", 0.5 );
 	float fMetronomeVolume = LocalFileMng::readXmlFloat( songNode, "metronomeVolume", 0.5 );
 	QString sName( LocalFileMng::readXmlString( songNode, "name", "Untitled Song" ) );

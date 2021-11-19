@@ -16,7 +16,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see https://www.gnu.org/licenses
+ * along with this program. If not, see 
+https://www.gnu.org/licenses
  *
  */
 
@@ -41,6 +42,7 @@
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 
 #include <core/Hydrogen.h>
+#include <core/Basics/Song.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/IO/JackAudioDriver.h>
 #include <core/EventQueue.h>
@@ -697,11 +699,10 @@ void PlayerControl::songModeActivationEvent( int nValue )
 }
 
 void PlayerControl::bpmChanged( double fNewBpmValue ) {
-	m_pHydrogen->getSong()->setIsModified( true );
-
-	m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-	m_pHydrogen->setBPM( static_cast<float>( fNewBpmValue ) );
-	m_pHydrogen->getAudioEngine()->unlock();
+	// Store it's value in the .h2song file.
+	m_pHydrogen->getSong()->setBpm( static_cast<float>( fNewBpmValue ) );
+	// Use tempo in the next process cycle of the audio engine.
+	m_pHydrogen->getAudioEngine()->setNextBpm( static_cast<float>( fNewBpmValue ) );
 }
 
 
@@ -1006,8 +1007,16 @@ void PlayerControl::tempoChangedEvent( int nValue )
 	 * Just update the GUI using the current tempo
 	 * of the song.
 	 */
-	
 	m_pLCDBPMSpinbox->setValue( m_pHydrogen->getSong()->getBpm() );
+
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( H2Core::Preferences::get_instance()->getUseTimelineBpm() &&
+		 pHydrogen->getSong()->getMode() == H2Core::Song::SONG_MODE ) {
+		QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI or OSC was detected. It will only take effect when deactivating the Timeline.") );
+	}
+	if ( pHydrogen->getJackTimebaseState() == H2Core::JackAudioDriver::Timebase::Slave ) {
+		QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI or OSC was detected. It will only take effect when deactivating JACK BBT transport or making Hydrogen the Timebase master.") );
+	}
 }
 
 void PlayerControl::jackTransportActivationEvent( int nValue ) {

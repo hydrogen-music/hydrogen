@@ -438,6 +438,11 @@ public:
 	 */
 	void stop();
 
+	/** Stores the new speed into a separate variable which will be
+	 * adopted next time the processCheckBpmChanged() is entered.*/
+	void setNextBpm( float fNextBpm );
+	float getNextBpm() const;
+
 	/** Is allowed to call setSong().*/
 	friend void Hydrogen::setSong( std::shared_ptr<Song> pSong );
 	/** Is allowed to call removeSong().*/
@@ -455,6 +460,9 @@ public:
 	/** Is allowed to set m_nextState via setNextState() according to
 		what the JACK server reports.*/
 	friend void JackAudioDriver::updateTransportInfo();
+	/* Is allowed to set m_fBpm via setBpm() when loading a new song
+	   into Hydrogen.*/
+	friend std::shared_ptr<Song> SongReader::readSong( const QString& sFileName );
 private:
 	
 	inline void			processPlayNotes( unsigned long nframes );
@@ -759,6 +767,8 @@ private:
 	 * Required to calculateLookahead(). Set to 2000.
 	 */
 	int 			m_nMaxTimeHumanize;
+
+	float 			m_fNextBpm;
 };
 
 
@@ -912,7 +922,13 @@ inline unsigned int AudioEngine::getAddRealtimeNoteTickPosition() const {
 inline void AudioEngine::setAddRealtimeNoteTickPosition( unsigned int tickPosition) {
 	m_nAddRealtimeNoteTickPosition = tickPosition;
 }
-
+inline void AudioEngine::setNextBpm( float fNextBpm ) {
+	m_fNextBpm = fNextBpm;
+}
+inline float AudioEngine::getNextBpm() const {
+	return m_fNextBpm;
+}
+	
 };
 
 #endif

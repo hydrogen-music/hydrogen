@@ -882,7 +882,8 @@ void SampleEditor::valueChangedrubberComboBox( const QString  )
 void SampleEditor::checkRatioSettings()
 {
 	//calculate ratio
-	double durationtime = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * __rubberband.divider;
+	double durationtime = 60.0 / Hydrogen::get_instance()->getAudioEngine()->getBpm()
+		* __rubberband.divider;
 	double induration = (double) m_nSlframes / (double) m_nSamplerate;
 	if (induration != 0.0) m_fRatio = durationtime / induration;
 

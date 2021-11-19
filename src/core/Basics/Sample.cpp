@@ -29,6 +29,7 @@
 #include <core/Preferences/Preferences.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Basics/Sample.h>
+#include <core/AudioEngine/AudioEngine.h>
 
 #if defined(H2CORE_HAVE_RUBBERBAND) || _DOXYGEN_
 #include <rubberband/RubberBandStretcher.h>
@@ -427,7 +428,8 @@ void Sample::apply_rubberband( const Rubberband& rb )
 		return;
 	}
 	// compute rubberband options
-	double output_duration = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * rb.divider;
+	double output_duration = 60.0 / Hydrogen::get_instance()->getAudioEngine()->getBpm() *
+		rb.divider;
 	double time_ratio = output_duration / get_sample_duration();
 	RubberBand::RubberBandStretcher::Options options = compute_rubberband_options( rb );
 	double pitch_scale = compute_pitch_scale( rb );
@@ -605,7 +607,8 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 
 		unsigned rubberoutframes = 0;
 		double ratio = 1.0;
-		double durationtime = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * rb.divider/*beats*/;
+		double durationtime = 60.0 / Hydrogen::get_instance()->getAudioEngine()->getBpm() *
+			rb.divider/*beats*/;
 		double induration = get_sample_duration();
 		if ( induration != 0.0 ) {
 			ratio = durationtime / induration;

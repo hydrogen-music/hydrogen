@@ -60,13 +60,13 @@ public:
 	/** Returns transport position in frames that would be used if
 		Hydrogen would be frame- instead of tick-based.*/
 	long long getExternalFrames() const;
-	
-	void setBpm( float fNewBpm );
 
 	// TODO: make this protected
 	void setTickSize( float fNewTickSize );
 	// TODO: make this protected
 	void setFrames( long long nNewFrames );
+	
+	void setBpm( float fNewBpm );
 
 protected:
 	/** All classes other than the AudioEngine should use
@@ -108,7 +108,31 @@ private:
 	 * between two of them.
 	 */
 	float m_fTickSize;
-	/** Current tempo in beats per minute. */
+	/** Current tempo in beats per minute.
+	 *
+	 * The tempo hold by the #TransportInfo (and thus the
+	 * #AudioEngine) is the one currently used throughout Hydrogen. It
+	 * can be set through three different mechanisms and the
+	 * corresponding values are stored in different places.
+	 *
+	 * The most fundamental one is stored in Song::m_fBpm and can be
+	 * set using the BPM widget in the PlayerControl or via MIDI and
+	 * OSC commands. Writing the value to the current #Song is done by
+	 * the latter commands and widget and not within the AudioEngine.
+	 *
+	 * It is superseded by the tempo markers as soon as the #Timeline
+	 * is activated. The current speed during Timeline-based transport
+	 * will not override Song::m_fBpm and is stored using the tempo
+	 * markers in the .h2song file instead. With just the first tempo
+	 * marker at bar 0 present, its value defaults to Song::m_fBpm
+	 * once the Timeline is activated.
+	 *
+	 * Both Song and Timeline tempo are superseded by the BPM
+	 * broadcasted by the JACK timebase master application once
+	 * Hydrogen acts as timebase slave. The corresponding value
+	 * depends entirely on the external application and will not be
+	 * stored by Hydrogen.
+	 */
 	float m_fBpm;
 };
 

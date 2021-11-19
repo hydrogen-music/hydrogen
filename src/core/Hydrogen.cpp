@@ -106,7 +106,6 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 					 , m_nSelectedPatternNumber( 0 )
 					 , m_bExportSessionIsActive( false )
 					 , m_GUIState( GUIState::unavailable )
-					 , m_fNewBpmJTM( 120 )
 {
 	if ( __instance ) {
 		ERRORLOG( "Hydrogen audio engine is already running" );
@@ -636,8 +635,7 @@ void Hydrogen::stopExportSession()
 		ERRORLOG( "pAudioEngine->getAudioDriver() = nullptr" );
 	}
 
-	pAudioEngine->setBpm( pSong->getBpm() );
-	
+	pAudioEngine->setNextBpm( pSong->getBpm() );
 }
 
 /// Export a song to a wav file
@@ -1005,39 +1003,7 @@ void Hydrogen::setTapTempo( float fInterval )
 	fOldBpm2 = fOldBpm1;
 	fOldBpm1 = fBPM;
 
-	m_pAudioEngine->lock( RIGHT_HERE );
-
-	setBPM( fBPM );
-
-	m_pAudioEngine->unlock();
-}
-
-void Hydrogen::setBPM( float fBPM )
-{
-	AudioEngine* pAudioEngine = m_pAudioEngine;	
-	std::shared_ptr<Song> pSong = getSong();
-	if ( ! pAudioEngine->getAudioDriver() || ! pSong ){
-		return;
-	}
-	
-	if ( fBPM > MAX_BPM ) {
-		fBPM = MAX_BPM;
-		WARNINGLOG( QString( "Provided bpm %1 is too high. Assigning upper bound %2 instead" )
-					.arg( fBPM ).arg( MAX_BPM ) );
-	} else if ( fBPM < MIN_BPM ) {
-		fBPM = MIN_BPM;
-		WARNINGLOG( QString( "Provided bpm %1 is too low. Assigning lower bound %2 instead" )
-					.arg( fBPM ).arg( MIN_BPM ) );
-	}
-
-	if ( getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
-		ERRORLOG( "Unable to change tempo directly in the presence of an external JACK timebase master. Press 'J.MASTER' get tempo control." );
-		return;
-	}
-	
-	pAudioEngine->setBpm( fBPM );
-	pSong->setBpm( fBPM );
-	setNewBpmJTM( fBPM );
+	m_pAudioEngine->setNextBpm( fBPM );
 }
 
 void Hydrogen::restartLadspaFX()
@@ -1204,9 +1170,7 @@ void Hydrogen::handleBeatCounter()
 					(float) ((int) (60 / nBeatDiffAverage * 100))
 					/ 100;
 			
-			m_pAudioEngine->lock( RIGHT_HERE );
-			setBPM( fBeatCountBpm );
-			m_pAudioEngine->unlock();
+			m_pAudioEngine->setNextBpm( fBeatCountBpm );
 			
 			if (Preferences::get_instance()->m_mmcsetplay
 					== Preferences::SET_PLAY_OFF) {
@@ -1275,17 +1239,6 @@ void Hydrogen::onJackMaster()
 }
 #endif
 
-
-float Hydrogen::getNewBpmJTM() const
-{
-	return m_fNewBpmJTM;
-}
-
-void Hydrogen::setNewBpmJTM( float bpmJTM )
-{
-	m_fNewBpmJTM = bpmJTM;
-}
-
 void Hydrogen::togglePlaysSelected()
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;	
@@ -1341,71 +1294,6 @@ void Hydrogen::__panic()
 {
 	sequencer_stop();
 	m_pAudioEngine->getSampler()->stopPlayingNotes();
-}
-
-float Hydrogen::getTimelineBpm( int nBar )
-{
-	std::shared_ptr<Song> pSong = getSong();
-
-	// We need return something
-	if ( pSong == nullptr ) {
-		return getNewBpmJTM();
-	}
-
-	float fBPM = pSong->getBpm();
-
-	// Pattern mode don't use timeline and will have a constant
-	// speed.
-	if ( pSong->getMode() == Song::PATTERN_MODE ) {
-		return fBPM;
-	}
-
-	// Check whether the user wants Hydrogen to determine the
-	// speed by local setting along the timeline or whether she
-	// wants to use a global speed instead.
-	if ( ! Preferences::get_instance()->getUseTimelineBpm() ) {
-		return fBPM;
-	}
-
-	// Determine the speed at the supplied beat.
-	float fTimelineBpm = m_pTimeline->getTempoAtBar( nBar, true );
-	if ( fTimelineBpm != 0 ) {
-		/* TODO: For now the function returns 0 if the bar is
-		 * positioned _before_ the first tempo marker. This will be
-		 * taken care of with #854. */
-		fBPM = fTimelineBpm;
-	}
-
-	return fBPM;
-}
-
-void Hydrogen::setTimelineBpm()
-{
-	auto pAudioEngine = getAudioEngine();
-	if ( ! Preferences::get_instance()->getUseTimelineBpm() ||
-		 getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
-		return;
-	}
-
-	std::shared_ptr<Song> pSong = getSong();
-	// Obtain the local speed specified for the current Pattern.
-	float fBPM = getTimelineBpm( pAudioEngine->getColumn() );
-
-	if ( fBPM != pSong->getBpm() ) {
-		setBPM( fBPM );
-	}
-
-	// Get the realtime pattern position. This also covers
-	// keyboard and MIDI input events in case the audio engine is
-	// not playing.
-	unsigned long PlayTick = pAudioEngine->getRealtimeTickPosition();
-	int nStartPos;
-	int nRealtimePatternPos = pAudioEngine->getColumnForTick( PlayTick, pSong->getIsLoopEnabled(), &nStartPos );
-	float fRealtimeBPM = getTimelineBpm( nRealtimePatternPos );
-
-	// FIXME: this was already done in setBPM but for "engine" time
-	//        so this is actually forcibly overwritten here
-	setNewBpmJTM( fRealtimeBPM );
 }
 
 bool Hydrogen::haveJackAudioDriver() const {
@@ -1547,8 +1435,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "nullptr\n" ) );
 			}
 		}
-		sOutput.append( QString( "%1%2m_fNewBpmJTM: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fNewBpmJTM ) )
-			.append( QString( "%1%2m_nSelectedInstrumentNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nSelectedInstrumentNumber ) )
+		sOutput.append( QString( "%1%2m_nSelectedInstrumentNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nSelectedInstrumentNumber ) )
 			.append( QString( "%1%2m_pAudioEngine: \n" ).arg( sPrefix ).arg( s ) )//.arg( m_pAudioEngine ) )
 			.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s ).arg( lastMidiEvent ) )
 			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s ).arg( lastMidiEventParameter ) )
@@ -1595,8 +1482,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( " nullptr" ) );
 			}
 		}
-		sOutput.append( QString( "] , m_fNewBpmJTM: %1" ).arg( m_fNewBpmJTM ) )
-			.append( QString( ", m_nSelectedInstrumentNumber: %1" ).arg( m_nSelectedInstrumentNumber ) )
+		sOutput.append( QString( ", m_nSelectedInstrumentNumber: %1" ).arg( m_nSelectedInstrumentNumber ) )
 			.append( QString( ", m_pAudioEngine: " ) )// .arg( m_pAudioEngine ) )
 			.append( QString( ", lastMidiEvent: %1" ).arg( lastMidiEvent ) )
 			.append( QString( ", lastMidiEventParameter: %1" ).arg( lastMidiEventParameter ) )

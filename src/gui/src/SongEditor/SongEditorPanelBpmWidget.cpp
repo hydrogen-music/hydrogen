@@ -45,8 +45,8 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 	lineEditBeat->setText(QString("%1").arg( m_stimelineposition + 1) );
 	deleteBtn->setEnabled ( false );
 
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Timeline* pTimeline = pHydrogen->getTimeline();
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	Timeline* pTimeline = Hydrogen::get_instance()->getTimeline();
 	auto tempoMarkers = pTimeline->getAllTempoMarkers();
 	adjustSize();
 	setFixedSize( width(), height() );
@@ -59,15 +59,12 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 				lineEditBpm->setText( QString("%1").arg( tempoMarkers[t]->fBpm ) );
 				deleteBtn->setEnabled ( true );
 				return;
-			}
-			else
-			{
-				lineEditBpm->setText( QString("%1").arg( pHydrogen->getNewBpmJTM()) );
+			} else {
+				lineEditBpm->setText( QString("%1").arg( pAudioEngine->getBpm()) );
 			}
 		}
-	}else
-	{
-		lineEditBpm->setText( QString("%1").arg( pHydrogen->getNewBpmJTM() ) );
+	} else {
+		lineEditBpm->setText( QString("%1").arg( pAudioEngine->getBpm() ) );
 	}
 }
 

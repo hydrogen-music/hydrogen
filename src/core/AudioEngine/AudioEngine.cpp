@@ -119,6 +119,7 @@ AudioEngine::AudioEngine()
 		, m_nextState( State::Ready )
 		, m_fProcessTime( 0.0f )
 		, m_fMaxProcessTime( 0.0f )
+		, m_fNextBpm( 120 )
 {
 
 	m_pSampler = new Sampler;
@@ -717,24 +718,71 @@ void AudioEngine::restartAudioDrivers()
 
 void AudioEngine::processCheckBPMChanged(std::shared_ptr<Song> pSong)
 {
-	if ( m_state != State::Ready && m_state != State::Playing ) {
+	if ( m_state != State::Playing ) {
 		return;
+	}
+
+	auto pHydrogen = Hydrogen::get_instance();
+	
+	if ( DiskWriterDriver::_class_name() == m_pAudioDriver->class_name() ) {
+		DEBUGLOG( "DiskWriter is entering as well" );
+		// return;
 	}
 
 	long long oldFrame;
 #ifdef H2CORE_HAVE_JACK
-	if ( Hydrogen::get_instance()->haveJackTransport() && 
-		 m_state != State::Playing ) {
-		oldFrame = static_cast< JackAudioDriver* >( m_pAudioDriver )->m_currentPos;
+	// if ( Hydrogen::get_instance()->haveJackTransport() && 
+	// 	 m_state != State::Playing ) {
+	// 	oldFrame = static_cast< JackAudioDriver* >( m_pAudioDriver )->m_currentPos;
 			
-	} else {
+	// } else {
 		oldFrame = getFrames();
-	}
+	// }
 #else
 	oldFrame = getFrames();
 #endif
+
+	// Check for a change in the current BPM.
+	if ( Preferences::get_instance()->getUseTimelineBpm() &&
+		 pHydrogen->getSong()->getMode() == Song::SONG_MODE ) {
+
+		// TODO: if a relocation took place, the second argument
+		// should be true. In all other cases the more efficient one
+		// corresponding to false should be used.
+		float fTimelineBpm = pHydrogen->getTimeline()->getTempoAtBar( pHydrogen->getAudioEngine()->getColumn(), true );
+		if ( fTimelineBpm != getBpm() && fTimelineBpm != 0 ) {
+			/* TODO: For now the function returns 0 if the bar is
+			 * positioned _before_ the first tempo marker. This will be
+			 * taken care of with #854. */
+			DEBUGLOG( QString( "Set tempo to timeline value [%1]").arg( fTimelineBpm ) );
+			setBpm( fTimelineBpm );
+		}
+
+	} else {
+		if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
+			// Hydrogen is using the BPM broadcast by the JACK
+			// server. This one does solely depend on external
+			// applications and will NOT be stored in the Song.
+			float fJackMasterBpm = static_cast<JackAudioDriver*>(m_pAudioDriver)->getMasterBpm();
+			if ( ! std::isnan( fJackMasterBpm) && getBpm() != fJackMasterBpm ) {
+				setBpm( fJackMasterBpm );
+				DEBUGLOG( QString( "Tempo update by the JACK server [%1]").arg( fJackMasterBpm ) );
+			}
+		} else {
+			// Change in speed due to user interaction with the BPM widget
+			// or corresponding MIDI or OSC events.
+			if ( m_fNextBpm != getBpm() ) {
+				DEBUGLOG( QString( "BPM changed via Widget, OSC, or MIDI from [%1] to [%2]." )
+						  .arg( getBpm() ).arg( m_fNextBpm ) );
+
+				setBpm( m_fNextBpm );
+			}
+		}
+	}
+
 	float fOldTickSize = getTickSize();
-	float fNewTickSize = AudioEngine::computeTickSize( m_pAudioDriver->getSampleRate(), pSong->getBpm(), pSong->getResolution() );
+	float fNewTickSize = AudioEngine::computeTickSize( static_cast<float>(m_pAudioDriver->getSampleRate()),
+													   getBpm(), pSong->getResolution() );
 
 	// Nothing changed - avoid recomputing
 	if ( fNewTickSize == fOldTickSize ) {
@@ -742,18 +790,19 @@ void AudioEngine::processCheckBPMChanged(std::shared_ptr<Song> pSong)
 	}
 	setTickSize( fNewTickSize );
 
+	// TODO: shouldn't this be checked before setting the ticksize?
 	if ( fNewTickSize == 0 || fOldTickSize == 0 ) {
 		return;
 	}
+	
 
 	float fTickNumber = (float)oldFrame / fOldTickSize;
+	DEBUGLOG( QString( "Tempo change: Recomputing ticksize and frame position. Old TS: %1, new TS: %2, old pos: %3, new pos: %4" )
+			  .arg( fOldTickSize ).arg( fNewTickSize )
+			  .arg( getFrames() ).arg( ceil(fTickNumber) * fNewTickSize ) );
 
 	// update frame position in transport class
 	setFrames( ceil(fTickNumber) * fNewTickSize );
-	
-	___WARNINGLOG( QString( "Tempo change: Recomputing ticksize and frame position. Old TS: %1, new TS: %2, new pos: %3" )
-		.arg( fOldTickSize ).arg( fNewTickSize )
-				   .arg( getFrames() ) );
 #ifdef H2CORE_HAVE_JACK
 	if ( Hydrogen::get_instance()->haveJackTransport() ) {
 		static_cast< JackAudioDriver* >( m_pAudioDriver )->calculateFrameOffset(oldFrame);
@@ -947,20 +996,6 @@ void AudioEngine::processTransport( unsigned nFrames )
 		if ( getState() == State::Ready ) {
 			startPlayback();
 		}
-
-		/* Now we're playing. Update BPM */
-	
-		if ( pSong->getBpm() != getBpm() ) {
-			___INFOLOG( QString( "Mismatch of BPM used in AudioEngine [%1] and Song [%2]. Update the second with the first one." )
-				.arg( pSong->getBpm() )
-						.arg( getBpm() )
-			);
-
-			pHydrogen->setBPM( getBpm() );
-		}
-		setTickSize( AudioEngine::computeTickSize( static_cast<float>(m_pAudioDriver->getSampleRate()),
-												   getBpm(), pSong->getResolution() ) );
-
 
 		// Update the variable m_nRealtimeFrames keeping track
 		// of the current transport position.

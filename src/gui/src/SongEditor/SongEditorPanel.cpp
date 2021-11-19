@@ -678,15 +678,7 @@ void SongEditorPanel::timeLineBtnPressed()
 		m_pTimeLineBtn->setToolTip( tr( "Enable time line edit") );
 	}
 
-	if ( ! m_pTimeLineBtn->isChecked() ){
-		Preferences::get_instance()->setUseTimelineBpm( true );
-		
-		if ( !pHydrogen->haveJackTransport() ) {
-			pHydrogen->setTimelineBpm();
-		}
-	} else {
-		Preferences::get_instance()->setUseTimelineBpm( false );
-	}
+	Preferences::get_instance()->setUseTimelineBpm( ! m_pTimeLineBtn->isChecked() );
 	
 	m_pPositionRuler->createBackground();
 }

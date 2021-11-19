@@ -1342,7 +1342,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 	}
 }
 
-
+// TODO: move this into H2Core
 void InstrumentEditor::rubberbandbpmchangeEvent()
 {
 	if( !Preferences::get_instance()->getRubberBandBatchMode() /*&& Preferences::get_instance()->__usetimeline */){

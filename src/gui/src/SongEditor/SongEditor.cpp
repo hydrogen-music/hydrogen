@@ -1121,41 +1121,9 @@ SongEditorPatternList::~SongEditorPatternList()
 }
 
 
-void SongEditorPatternList::patternChangedEvent() 
-{
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-
+void SongEditorPatternList::patternChangedEvent() {
 	createBackground();
 	update();
-	
-	///here we check the timeline  && m_pSong->getMode() == Song::SONG_MODE
-	
-	if ( m_pHydrogen->haveJackTransport() ) {
-		return;
-	}
-
-	// The disk writer runs at it's own pace. Due to the following
-	// lines of code the GUI, instead, just sets the speed to 0 BPM.
-	auto pDriver = pHydrogen->getAudioOutput();
-	if ( pDriver != nullptr ) {
-		if ( DiskWriterDriver::_class_name() == pDriver->class_name() ) {
-			return;
-		}
-	}
-	
-	Timeline* pTimeline = m_pHydrogen->getTimeline();
-	if ( ( Preferences::get_instance()->getUseTimelineBpm() ) &&
-		 ( m_pHydrogen->getSong()->getMode() == Song::SONG_MODE ) ){
-
-		float fTimelineBpm = pTimeline->getTempoAtBar( pHydrogen->getAudioEngine()->getColumn(), false );
-
-		if ( fTimelineBpm != 0 && pHydrogen->getNewBpmJTM() != fTimelineBpm ) {
-			/* TODO: For now the function returns 0 if the bar is
-			 * positioned _before_ the first tempo marker. This will be
-			 * taken care of with #854. */
-			m_pHydrogen->setBPM( fTimelineBpm );
-		}
-	}
 }
 
 

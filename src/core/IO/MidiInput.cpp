@@ -143,7 +143,6 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 				INFOLOG( "START event" );
 				if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
 					pHydrogen->getCoreActionController()->locateToColumn( 0 );
-					pHydrogen->setTimelineBpm();
 					pHydrogen->sequencer_play();
 				}
 				break;
