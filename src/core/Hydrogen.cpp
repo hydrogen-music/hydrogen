@@ -3302,8 +3302,15 @@ void Hydrogen::setPatternPos( int nPatternNumber )
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
 	long totalTick = getTickForPosition( nPatternNumber );
 	if ( totalTick < 0 ) {
-		pAudioEngine->unlock();
-		return;
+		// There is no pattern inserted in the SongEditor.
+		if ( getSong()->getMode() == Song::SONG_MODE ) {
+			pAudioEngine->unlock();
+			return;
+		} else {
+			// In case of Pattern mode this is not a problem and we
+			// will treat this case as the beginning of the song.
+			totalTick = 0;
+		}
 	}
 
 	if ( getState() != STATE_PLAYING ) {

@@ -422,9 +422,6 @@ bool CoreActionController::setSong( Song* pSong ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	// Remove all BPM tags on the Timeline.
-	pHydrogen->getTimeline()->deleteAllTempoMarkers();
-
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
 		
 		// Store the prepared Song for the GUI to access after the
