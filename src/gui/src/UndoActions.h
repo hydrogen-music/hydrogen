@@ -137,7 +137,6 @@ public:
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditorPatternList()->restoreDeletedPatternsFromList( __patternFilename, __sequenceFileName, __patternPosition );
 		h2app->getSongEditorPanel()->restoreGroupVector( __sequenceFileName );
-		h2app->getSongEditorPanel()->getSongEditor()->updateEditorandSetTrue();
 	}
 
 	virtual void redo()
@@ -263,7 +262,6 @@ public:
 			H2Core::Hydrogen::get_instance()->getCoreActionController()->removePattern( __patternPosition );
 		}
 		h2app->getSongEditorPanel()->restoreGroupVector( __sequenceFileName );
-		h2app->getSongEditorPanel()->getSongEditor()->updateEditorandSetTrue();
 	}
 
 	virtual void redo()

@@ -117,7 +117,6 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		
 		void faderChanged( WidgetWithInput* pRef );
 
-		void automationPathChanged();
 		void automationPathPointAdded(float x, float y);
 		void automationPathPointRemoved(float x, float y);
 		void automationPathPointMoved(float ox, float oy, float tx, float ty);

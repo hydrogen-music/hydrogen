@@ -1042,7 +1042,6 @@ void SongEditor::clearThePatternSequenceVector( QString filename )
 
 void SongEditor::updateEditorandSetTrue()
 {
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
 	m_bSequenceChanged = true;
 	update();
 }
@@ -1912,7 +1911,6 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 
 void SongEditorPatternList::timelineUpdateEvent( int nEvent ){
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
 }
 
 void SongEditorPatternList::onPreferencesChanged( H2Core::Preferences::Changes changes ) {

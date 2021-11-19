@@ -271,7 +271,6 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pAutomationPathView = new AutomationPathView( m_pAutomationPathScrollView->viewport() );
 	m_pAutomationPathScrollView->setWidget( m_pAutomationPathView );
 	m_pAutomationPathScrollView->setFixedHeight( 64 );
-	connect( m_pAutomationPathView, SIGNAL( valueChanged() ), this, SLOT( automationPathChanged() ) );
 	connect( m_pAutomationPathView, SIGNAL( pointAdded(float, float) ), this, SLOT( automationPathPointAdded(float,float) ) );
 	connect( m_pAutomationPathView, SIGNAL( pointRemoved(float, float) ), this, SLOT( automationPathPointRemoved(float,float) ) );
 	connect( m_pAutomationPathView, SIGNAL( pointMoved(float, float, float, float) ), this, SLOT( automationPathPointMoved(float,float, float, float) ) );
@@ -851,15 +850,6 @@ void SongEditorPanel::selectedPatternChangedEvent()
 	setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
 	updateAll();
 }
-
-
-void SongEditorPanel::automationPathChanged()
-{
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	pSong->setIsModified(true);
-}
-
 
 void SongEditorPanel::automationPathPointAdded(float x, float y)
 {

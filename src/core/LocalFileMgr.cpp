@@ -805,14 +805,14 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 
 	file.close();
 
+	pSong->setFilename( filename );
+
 	if( rv ) {
 		WARNINGLOG("File save reported an error.");
 	} else {
 		pSong->setIsModified( false );
 		INFOLOG("Save was successful.");
 	}
-
-	pSong->setFilename( filename );
 
 	return rv;
 }

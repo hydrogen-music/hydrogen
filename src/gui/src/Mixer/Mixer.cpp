@@ -208,11 +208,13 @@ void Mixer::muteClicked(MixerLine* ref)
 
 void Mixer::muteClicked(ComponentMixerLine* ref)
 {
+	auto pSong = Hydrogen::get_instance()->getSong();
 	bool isMuteClicked = ref->isMuteClicked();
 
-	DrumkitComponent *pCompo = Hydrogen::get_instance()->getSong()->getComponent( ref->getComponentID() );
+	DrumkitComponent *pCompo = pSong->getComponent( ref->getComponentID() );
 
 	pCompo->set_muted( isMuteClicked );
+	pSong->setIsModified( true );
 }
 
 void Mixer::soloClicked(ComponentMixerLine* ref)
@@ -223,15 +225,18 @@ void Mixer::soloClicked(ComponentMixerLine* ref)
 	ComponentMixerLine* pComponentMixerLine = m_pComponentMixerLine[nLine];
 	
 	pComponentMixerLine->setSoloClicked( isSoloClicked );
+	Hydrogen::get_instance()->getSong()->setIsModified( true );
 }
 
 void Mixer::volumeChanged(ComponentMixerLine* ref)
 {
+	auto pSong = Hydrogen::get_instance()->getSong();
 	float newVolume = ref->getVolume();
 
-	DrumkitComponent *pCompo = Hydrogen::get_instance()->getSong()->getComponent( ref->getComponentID() );
+	DrumkitComponent *pCompo = pSong->getComponent( ref->getComponentID() );
 
 	pCompo->set_volume( newVolume );
+	pSong->setIsModified( true );
 }
 
 void Mixer::soloClicked(MixerLine* ref)
@@ -688,6 +693,8 @@ void Mixer::knobChanged(MixerLine* ref, int nKnob) {
 	( HydrogenApp::get_instance() )->setStatusBarMessage( sInfo+ QString( "[%1]" ).arg( ref->getFXLevel(nKnob), 0, 'f', 2 ), 2000 );
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+
+	pSong->setIsModified( true );
 }
 
 
@@ -776,9 +783,6 @@ void Mixer::ladspaEditBtnClicked( LadspaFXMixerLine *ref )
 void Mixer::ladspaVolumeChanged( LadspaFXMixerLine* ref)
 {
 #ifdef H2CORE_HAVE_LADSPA
-	std::shared_ptr<Song> pSong = (Hydrogen::get_instance() )->getSong();
-	pSong->setIsModified( true );
-
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		if (ref == m_pLadspaFXLine[ nFX ] ) {
 			LadspaFX *pFX = Effects::get_instance()->getLadspaFX(nFX);

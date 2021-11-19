@@ -159,6 +159,7 @@ void Song::setActionMode( Song::ActionMode actionMode ) {
 	} else {
 		ERRORLOG( QString( "Unknown actionMode" ) );
 	}
+	setIsModified( true );
 }
 
 int Song::lengthInTicks() const {
@@ -255,8 +256,8 @@ std::shared_ptr<Song> Song::getDefaultSong()
 	patternSequence->add( pEmptyPattern );
 	pPatternGroupVector->push_back( patternSequence );
 	pSong->setPatternGroupVector( pPatternGroupVector );
-	pSong->setIsModified( false );
 	pSong->setFilename( "empty_song" );
+	pSong->setIsModified( false );
 
 	return pSong;
 
@@ -299,6 +300,7 @@ void Song::setSwingFactor( float factor )
 	}
 
 	m_fSwingFactor = factor;
+	setIsModified( true );
 }
 
 void Song::setIsModified( bool bIsModified )
@@ -430,6 +432,7 @@ void Song::readTempPatternList( const QString& sFilename )
 	} else {
 		WARNINGLOG( "no sequence node not found" );
 	}
+	setIsModified( true );
 }
 
 bool Song::writeTempPatternList( const QString& sFilename )
@@ -640,43 +643,6 @@ bool Song::pasteInstrumentLineFromString( const QString& sSerialized, int nSelec
 	return true;
 }
 
-//-----------------------------------------------------------------------------
-//	Implementation of SongReader class
-//-----------------------------------------------------------------------------
-
-SongReader::SongReader()
-{
-//	infoLog("init");
-}
-
-SongReader::~SongReader()
-{
-//	infoLog("destroy");
-}
-
-
-const QString SongReader::getPath ( const QString& sFilename ) const
-{
-	/* Try direct path */
-	if ( QFile( sFilename ).exists() ) {
-		return QFileInfo ( sFilename ).absoluteFilePath();
-	}
-
-	/* Try search in Session Directory */
-	char* sesdir = getenv ( "SESSION_DIR" );
-	if ( sesdir ) {
-		INFOLOG ( "Try SessionDirectory " + QString( sesdir ) );
-		QDir SesDir( sesdir );
-		QString BaseFileName = QFileInfo( sFilename ).fileName();
-		QString SesFileName = SesDir.filePath( BaseFileName );
-		if ( QFile( SesFileName ).exists() ) {
-			return QFileInfo( SesFileName ).absoluteFilePath();
-		}
-	}
-
-	ERRORLOG( "Song file " + sFilename + " not found." );
-	return nullptr;
-}
 
 void Song::setPanLawKNorm( float fKNorm ) {
 	if ( fKNorm >= 0. ) {
@@ -788,6 +754,44 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 	}
 	
 	return sOutput;
+}
+
+//-----------------------------------------------------------------------------
+//	Implementation of SongReader class
+//-----------------------------------------------------------------------------
+
+SongReader::SongReader()
+{
+//	infoLog("init");
+}
+
+SongReader::~SongReader()
+{
+//	infoLog("destroy");
+}
+
+
+const QString SongReader::getPath ( const QString& sFilename ) const
+{
+	/* Try direct path */
+	if ( QFile( sFilename ).exists() ) {
+		return QFileInfo ( sFilename ).absoluteFilePath();
+	}
+
+	/* Try search in Session Directory */
+	char* sesdir = getenv ( "SESSION_DIR" );
+	if ( sesdir ) {
+		INFOLOG ( "Try SessionDirectory " + QString( sesdir ) );
+		QDir SesDir( sesdir );
+		QString BaseFileName = QFileInfo( sFilename ).fileName();
+		QString SesFileName = SesDir.filePath( BaseFileName );
+		if ( QFile( SesFileName ).exists() ) {
+			return QFileInfo( SesFileName ).absoluteFilePath();
+		}
+	}
+
+	ERRORLOG( "Song file " + sFilename + " not found." );
+	return nullptr;
 }
 
 ///
@@ -1536,8 +1540,8 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 		}
 	}
 
-	pSong->setIsModified( false );
 	pSong->setFilename( sFilename );
+	pSong->setIsModified( false );
 
 	return pSong;
 }

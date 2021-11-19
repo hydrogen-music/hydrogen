@@ -66,24 +66,21 @@ public:
 	LadspaFXGroup( const QString& sName );
 	~LadspaFXGroup();
 
-	const QString& getName() {
+	const QString& getName() const {
 		return m_sName;
 	}
 
 	void addLadspaInfo( LadspaFXInfo *pInfo );
-	std::vector<LadspaFXInfo*> getLadspaInfo() {
+	std::vector<LadspaFXInfo*> getLadspaInfo() const {
 		return m_ladspaList;
 	}
 
 	void addChild( LadspaFXGroup *pChild );
-	std::vector<LadspaFXGroup*> getChildList() {
+	std::vector<LadspaFXGroup*> getChildList() const {
 		return m_childGroups;
 	}
 
-	void clear() {
-		m_childGroups.clear();
-		m_ladspaList.clear();
-	}
+	void clear();
 
 	static bool alphabeticOrder( LadspaFXGroup*, LadspaFXGroup* );
 	void sort();
@@ -142,38 +139,34 @@ public:
 	void processFX( unsigned nFrames );
 
 
-	const QString& getPluginLabel() {
+	const QString& getPluginLabel() const {
 		return m_sLabel;
 	}
 
-	const QString& getPluginName() {
+	const QString& getPluginName() const {
 		return m_sName;
 	}
-	void setPluginName( const QString& sName ) {
-		m_sName = sName;
-	}
+	void setPluginName( const QString& sName );
 
-	const QString& getLibraryPath() {
+	const QString& getLibraryPath() const {
 		return m_sLibraryPath;
 	}
 
-	bool isEnabled() {
+	bool isEnabled() const {
 		return m_bEnabled;
 	}
-	void setEnabled( bool value ) {
-		m_bEnabled = value;
-	}
+	void setEnabled( bool bEnabled );
 
 	static LadspaFX* load( const QString& sLibraryPath, const QString& sPluginLabel, long nSampleRate );
 
-	int getPluginType() {
+	int getPluginType() const {
 		return m_pluginType;
 	}
 
-	void setVolume( float fValue );
-	float getVolume() {
+	float getVolume() const {
 		return m_fVolume;
 	}
+	void setVolume( float fVolume );
 
 
 private:

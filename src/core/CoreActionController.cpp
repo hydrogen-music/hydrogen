@@ -99,6 +99,7 @@ void CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_VOLUME_ABSOLUTE"), QString("%1").arg( nStrip ) );
 	
 	handleOutgoingControlChange( ccParamValue, (fVolumeValue / 1.5) * 127 );
+	pHydrogen->getSong()->setIsModified( true );
 }
 
 void CoreActionController::setMetronomeIsActive( bool isActive )
@@ -176,6 +177,7 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_MUTE_TOGGLE"), QString("%1").arg( nStrip ) );
 	
 	handleOutgoingControlChange( ccParamValue, ((int) isMuted) * 127 );
+	pSong->setIsModified( true );
 }
 
 void CoreActionController::toggleStripIsSoloed( int nStrip )
@@ -216,6 +218,7 @@ void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_SOLO_TOGGLE"), QString("%1").arg( nStrip ) );
 	
 	handleOutgoingControlChange( ccParamValue, ((int) isSoloed) * 127 );
+	pSong->setIsModified( true );
 }
 
 
@@ -246,6 +249,7 @@ void CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectSt
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
 
 	handleOutgoingControlChange( ccParamValue, fValue * 127 );
+	pSong->setIsModified( true );
 }
 
 void CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelectStrip )
@@ -273,6 +277,7 @@ void CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelec
 	
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
 	handleOutgoingControlChange( ccParamValue, pInstr->getPanWithRangeFrom0To1() * 127 );
+	pSong->setIsModified( true );
 }
 
 void CoreActionController::handleOutgoingControlChange(int param, int value)
@@ -586,6 +591,7 @@ bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
 	auto pTimeline = Hydrogen::get_instance()->getTimeline();
 	pTimeline->deleteTempoMarker( nPosition );
 	pTimeline->addTempoMarker( nPosition, fBpm );
+	Hydrogen::get_instance()->getSong()->setIsModified( true );
 
 	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
 
@@ -594,6 +600,7 @@ bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
 
 bool CoreActionController::deleteTempoMarker( int nPosition ) {
 	Hydrogen::get_instance()->getTimeline()->deleteTempoMarker( nPosition );
+	Hydrogen::get_instance()->getSong()->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
 
 	return true;
@@ -673,7 +680,6 @@ bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent 
 
 	auto pSong = Hydrogen::get_instance()->getSong();
 	pSong->setIsLoopEnabled( bActivate );
-	pSong->setIsModified( true );
 	
 	if ( bTriggerEvent ) {
 		EventQueue::get_instance()->push_event( EVENT_LOOP_MODE_ACTIVATION, static_cast<int>( bActivate ) );

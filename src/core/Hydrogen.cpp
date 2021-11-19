@@ -825,6 +825,8 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	pAudioEngine->unlock();
 #endif
 
+	getSong()->setIsModified( true );
+
 	pAudioEngine->setState( oldAudioEngineState );
 	
 	m_pCoreActionController->initExternalControlInterfaces();

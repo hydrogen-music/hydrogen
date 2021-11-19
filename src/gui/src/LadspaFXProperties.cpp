@@ -352,9 +352,6 @@ void LadspaFXProperties::selectFXBtnClicked()
 					break;
 				}
 			}
-			std::shared_ptr<Song> pSong = (Hydrogen::get_instance() )->getSong();
-			pSong->setIsModified(true);
-
 			Effects::get_instance()->setLadspaFX( pFX, m_nLadspaFX );
 
 			Hydrogen::get_instance()->restartLadspaFX();

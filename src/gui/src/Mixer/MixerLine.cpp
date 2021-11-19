@@ -310,7 +310,6 @@ void MixerLine::nameSelected() {
 void MixerLine::panChanged(WidgetWithInput *ref)
 {
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	pSong->setIsModified( true );
 	emit panChanged( this );
 	/** Do not update tooltip nor print status message in the old fashion panL and panL style
 	 *	since inconsistent with new pan implementation. The resultant pan depends also on note pan.
@@ -474,12 +473,10 @@ void ComponentMixerLine::updateMixerLine()
 }
 
 void ComponentMixerLine::muteBtnClicked() {
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
 	emit muteBtnClicked(this);
 }
 
 void ComponentMixerLine::soloBtnClicked() {
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
 	emit soloBtnClicked(this);
 }
 

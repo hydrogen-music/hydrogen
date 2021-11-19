@@ -155,7 +155,6 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 		if ( m_pPreDrumkitInfo->get_name() != m_pDrumkitInfo->get_name() ||
 			 m_pPreDrumkitInfo->isUserDrumkit() != m_pDrumkitInfo->isUserDrumkit() ){
 			Hydrogen::get_instance()->loadDrumkit( m_pDrumkitInfo );
-			Hydrogen::get_instance()->getSong()->setIsModified( true );
 		}
 	}
 
@@ -202,7 +201,6 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 		if ( m_pPreDrumkitInfo->get_name() != Hydrogen::get_instance()->getCurrentDrumkitName() ||
 			 m_pPreDrumkitInfo->isUserDrumkit() != m_pDrumkitInfo->isUserDrumkit() ) {
 			Hydrogen::get_instance()->loadDrumkit( m_pPreDrumkitInfo );
-			Hydrogen::get_instance()->getSong()->setIsModified( true );
 		}
 	}
 
