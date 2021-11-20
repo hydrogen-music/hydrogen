@@ -1273,7 +1273,6 @@ void SongEditorPatternList::createBackground()
 
 	QPainter p( m_pBackgroundPixmap );
 	p.setFont( boldTextFont );
-
 	for ( int i = 0; i < nPatterns; i++ ) {
 		uint y = m_nGridHeight * i;
 		if ( i == nSelectedPattern ) {
@@ -1293,7 +1292,7 @@ void SongEditorPatternList::createBackground()
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 	PatternList *pCurrentPatternList = m_pAudioEngine->getPlayingPatterns();
-	
+
 	//assemble the data..
 	for ( int i = 0; i < nPatterns; i++ ) {
 		H2Core::Pattern *pPattern = pSong->getPatternList()->get(i);

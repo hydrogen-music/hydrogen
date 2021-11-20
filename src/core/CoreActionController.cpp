@@ -723,7 +723,7 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 	return true;
 }
 
-bool CoreActionController::locateToFrame( unsigned long nFrame ) {
+bool CoreActionController::locateToFrame( unsigned long nFrame, bool bWithJackBroadcast ) {
 
 	const auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
@@ -746,7 +746,7 @@ bool CoreActionController::locateToFrame( unsigned long nFrame ) {
 		pAudioEngine->setColumn( nColumn );
 		pAudioEngine->setPatternTickPosition( nTotalTick - nPatternStartTick );
 	}
-	pAudioEngine->locate( nFrame );
+	pAudioEngine->locate( nFrame, bWithJackBroadcast );
 	pAudioEngine->unlock();
 
 #ifdef H2CORE_HAVE_JACK

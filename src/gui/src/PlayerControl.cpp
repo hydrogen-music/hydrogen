@@ -447,7 +447,7 @@ void PlayerControl::updatePlayerControl()
 	}
 
 	if ( ! m_pLCDBPMSpinbox->hasFocus() ) {
-		m_pLCDBPMSpinbox->setValue( song->getBpm() );
+		m_pLCDBPMSpinbox->setValue( m_pHydrogen->getAudioEngine()->getBpm() );
 	}
 
 	if ( song->getMode() == Song::PATTERN_MODE ) {
@@ -1011,15 +1011,17 @@ void PlayerControl::tempoChangedEvent( int nValue )
 	 * Just update the GUI using the current tempo
 	 * of the song.
 	 */
-	m_pLCDBPMSpinbox->setValue( m_pHydrogen->getSong()->getBpm() );
+	m_pLCDBPMSpinbox->setValue( m_pHydrogen->getAudioEngine()->getBpm() );
 
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( H2Core::Preferences::get_instance()->getUseTimelineBpm() &&
-		 pHydrogen->getSong()->getMode() == H2Core::Song::SONG_MODE ) {
-		QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI or OSC was detected. It will only take effect when deactivating the Timeline.") );
-	}
-	if ( pHydrogen->getJackTimebaseState() == H2Core::JackAudioDriver::Timebase::Slave ) {
-		QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI or OSC was detected. It will only take effect when deactivating JACK BBT transport or making Hydrogen the Timebase master.") );
+	if ( nValue == -1 ) {
+		auto pHydrogen = H2Core::Hydrogen::get_instance();
+		if ( H2Core::Preferences::get_instance()->getUseTimelineBpm() &&
+			 pHydrogen->getSong()->getMode() == H2Core::Song::SONG_MODE ) {
+			QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI or OSC was detected. It will only take effect when deactivating the Timeline.") );
+		}
+		if ( pHydrogen->getJackTimebaseState() == H2Core::JackAudioDriver::Timebase::Slave ) {
+			QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI or OSC was detected. It will only take effect when deactivating JACK BBT transport or making Hydrogen the Timebase master.") );
+		}
 	}
 }
 

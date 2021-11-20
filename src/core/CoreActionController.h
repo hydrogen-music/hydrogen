@@ -264,10 +264,12 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		/** Relocates transport to a particular frame.
 		 * 
 		 * @param nFrame Destination
+		 * \param bWithJackBroadcast Relocate not using the AudioEngine
+		 * directly but using the JACK server.
 		 *
 		 * @return bool true on success
 		 */
-		bool locateToFrame( unsigned long nFrame );
+		bool locateToFrame( unsigned long nFrame, bool bWithJackBroadcast = true );
 
 	    /** Creates an empty pattern and adds it to the pattern list.
 		 *

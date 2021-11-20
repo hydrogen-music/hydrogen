@@ -65,10 +65,9 @@ public:
 	void setTickSize( float fNewTickSize );
 	// TODO: make this protected
 	void setFrames( long long nNewFrames );
-	// TODO: make this protected
-	void setBpm( float fNewBpm );
 
 protected:
+	void setBpm( float fNewBpm );
 	/** All classes other than the AudioEngine should use
 		AudioEngine::locate().
 	*/

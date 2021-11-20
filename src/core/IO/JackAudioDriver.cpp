@@ -934,11 +934,6 @@ int JackAudioDriver::init( unsigned bufferSize )
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong != nullptr ) {
 		makeTrackOutputs( pSong );
-		// Caution: this one is called while the AudioEngine is still
-		// locked when exporting a song and closing the dialog. As
-		// long as CoreActionController::locateTo* still lock it, they
-		// mustn't be used.
-		pHydrogen->getAudioEngine()->setFrames( 0 );
 	}
 	
 	return 0;

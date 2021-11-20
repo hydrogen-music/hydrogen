@@ -372,7 +372,8 @@ void			previewSample( Sample *pSample );
 	
 	//export management
 	bool			getIsExportSessionActive() const;
-	void			startExportSession( int rate, int depth );
+	/** \return true on success.*/
+	bool			startExportSession( int rate, int depth );
 	void			stopExportSession();
 	void			startExportSong( const QString& filename );
 	void			stopExportSong();

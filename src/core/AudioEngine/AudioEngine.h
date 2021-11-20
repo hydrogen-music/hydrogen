@@ -310,7 +310,9 @@ public:
 	 * Hydrogen::Hydrogen().
 	 */
 	void			startAudioDrivers();
-	
+	/**
+	 * Assign an INITIATED audio driver.*/
+	void			setAudioDrivers( AudioOutput* pAudioDriver );
 	/**
 	 * Stops all audio and MIDI drivers.
 	 */
@@ -443,6 +445,8 @@ public:
 	void setNextBpm( float fNextBpm );
 	float getNextBpm() const;
 
+	static float 	getBpmAtColumn( int nColumn, bool bRelocated );
+
 	/** Is allowed to call setSong().*/
 	friend void Hydrogen::setSong( std::shared_ptr<Song> pSong );
 	/** Is allowed to call removeSong().*/
@@ -451,12 +455,11 @@ public:
 		frames as well as to used setColumn and setPatternTickPos to
 		move the arrow in the SongEditorPositionRuler even when
 		playback is stopped.*/
-	friend bool CoreActionController::locateToFrame( unsigned long nFrame );
+	friend bool CoreActionController::locateToFrame( unsigned long nFrame, bool );
 	/** Is allowed to set m_state to State::Prepared via setState()*/
 	friend int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional );
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
-	friend void* H2Core::diskWriterDriver_thread( void *param);
 	/** Is allowed to set m_nextState via setNextState() according to
 		what the JACK server reports.*/
 	friend void JackAudioDriver::updateTransportInfo();
@@ -561,8 +564,10 @@ private:
 	 * #m_fElapsedTime.
 	 *
 	 * \param nFrame Next transport position in frames.
+	 * \param bWithJackBroadcast Relocate not using the AudioEngine
+	 * directly but using the JACK server.
 	 */
-	void			locate( unsigned long nFrame );
+	void			locate( unsigned long nFrame, bool bWithJackBroadcast = true );
 	/** Local instance of the Sampler. */
 	Sampler* 			m_pSampler;
 	/** Local instance of the Synth. */
@@ -750,6 +755,11 @@ private:
 	int 			m_nMaxTimeHumanize;
 
 	float 			m_fNextBpm;
+	/** TODO: this should be set false at the end of the process loop
+		(after relocation is always done at a certain point of the
+		loop. 
+	*/ 
+	bool 			m_bRelocated;
 };
 
 
@@ -842,10 +852,6 @@ inline void AudioEngine::setState( AudioEngine::State state) {
 }
 inline void AudioEngine::setNextState( AudioEngine::State state) {
 	m_nextState = state;
-}
-
-inline void AudioEngine::setAudioDriver( AudioOutput* pAudioDriver ) {
-	m_pAudioDriver = pAudioDriver;
 }
 
 inline AudioOutput*	AudioEngine::getAudioDriver() const {

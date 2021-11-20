@@ -120,6 +120,7 @@ AudioEngine::AudioEngine()
 		, m_fProcessTime( 0.0f )
 		, m_fMaxProcessTime( 0.0f )
 		, m_fNextBpm( 120 )
+		, m_bRelocated( false )
 {
 
 	m_pSampler = new Sampler;
@@ -231,7 +232,7 @@ bool AudioEngine::tryLockFor( std::chrono::microseconds duration, const char* fi
 	bool res = m_EngineMutex.try_lock_for( duration );
 	if ( !res ) {
 		// Lock not obtained
-		WARNINGLOG( QString( "Lock timeout: lock timeout %1:%2%3, lock held by %4:%5:%6" )
+		WARNINGLOG( QString( "Lock timeout: lock timeout %1:%2:%3, lock held by %4:%5:%6" )
 					.arg( file ).arg( function ).arg( line )
 					.arg( __locker.file ).arg( __locker.function ).arg( __locker.line ));
 		return false;
@@ -390,13 +391,12 @@ void AudioEngine::updateElapsedTime( const unsigned bufferSize, const unsigned s
 	m_fElapsedTime += static_cast<float>(bufferSize) / static_cast<float>(sampleRate);
 }
 
-void AudioEngine::locate( const unsigned long nFrame ) {
-	
+void AudioEngine::locate( const unsigned long nFrame, bool bWithJackBroadcast ) {
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pDriver = pHydrogen->getAudioOutput();
 
 #ifdef H2CORE_HAVE_JACK
-	if ( pHydrogen->haveJackTransport() ) {
+	if ( pHydrogen->haveJackTransport() && bWithJackBroadcast ) {
 		// Tell all other JACK clients to relocate as well and wait for
 		// the JACK server to give the signal.
 		static_cast<JackAudioDriver*>( m_pAudioDriver )->locateTransport( nFrame );
@@ -409,7 +409,7 @@ void AudioEngine::locate( const unsigned long nFrame ) {
 	calculateElapsedTime( pDriver->getSampleRate(),
 						  nFrame,
 						  pHydrogen->getSong()->getResolution() );
-
+	m_bRelocated = true;
 }
 
 void AudioEngine::clearAudioBuffers( uint32_t nFrames )
@@ -566,24 +566,15 @@ void AudioEngine::startAudioDrivers()
 		drivers.removeAll( sAudioDriver );
 		drivers.prepend( sAudioDriver );
 	}
+	AudioOutput* pAudioDriver;
 	for ( QString sDriver : drivers ) {
-		if ( ( m_pAudioDriver = createDriver( sDriver ) ) != nullptr ) {
+		if ( ( pAudioDriver = createDriver( sDriver ) ) != nullptr ) {
 			if ( sDriver != sAudioDriver && sAudioDriver != "Auto" ) {
 				___ERRORLOG( QString( "Couldn't start preferred driver %1, falling back to %2" )
 							 .arg( sAudioDriver ).arg( sDriver ) );
 			}
 			break;
 		}
-	}
-
-	if ( m_pAudioDriver == nullptr ) {
-		raiseError( Hydrogen::ERROR_STARTING_DRIVER );
-		___ERRORLOG( "Error starting audio driver" );
-		___ERRORLOG( "Using the NULL output audio driver" );
-
-		// use the NULL output driver
-		m_pAudioDriver = new NullDriver( audioEngine_process );
-		m_pAudioDriver->init( 0 );
 	}
 	
 	if ( preferencesMng->m_sMidiDriver == "ALSA" ) {
@@ -620,20 +611,34 @@ void AudioEngine::startAudioDrivers()
 		m_pMidiDriver->setActive( true );
 #endif
 	}
+	
+	mx.unlock();
+	this->unlock();
+
+	setAudioDriver( pAudioDriver );
+}
+	
+void AudioEngine::setAudioDriver( AudioOutput* pAudioDriver ) {
+	INFOLOG( "" );
+	if ( pAudioDriver == nullptr ) {
+		raiseError( Hydrogen::ERROR_STARTING_DRIVER );
+		ERRORLOG( "Error starting audio driver. Using the NULL output audio driver instead." );
+
+		// use the NULL output driver
+		pAudioDriver = new NullDriver( audioEngine_process );
+		pAudioDriver->init( 0 );
+	}
+	
+	this->lock( RIGHT_HERE );
+	QMutexLocker mx(&m_MutexOutputPointer);
+
+	m_pAudioDriver = pAudioDriver;
 
 	// change the current audio engine state
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong ) {
-		float fBpm;
-		if ( Preferences::get_instance()->getUseTimelineBpm() &&
-			 pSong->getMode() == Song::SONG_MODE ) {
-			fBpm = pHydrogen->getTimeline()->getTempoAtBar( getColumn(), true );
-		} else {
-			fBpm = pSong->getBpm();
-		}
 		m_state = State::Ready;
-		setBpm( fBpm );
 	} else {
 		m_state = State::Prepared;
 	}
@@ -643,13 +648,14 @@ void AudioEngine::startAudioDrivers()
 	// are fully initialized.
 	mx.unlock();
 	this->unlock();
-
-	if ( m_pAudioDriver ) {
+	
+	if ( m_pAudioDriver != nullptr &&
+		 m_pAudioDriver->class_name() != DiskWriterDriver::_class_name() ) {
 		int res = m_pAudioDriver->connect();
 		if ( res != 0 ) {
 			raiseError( Hydrogen::ERROR_STARTING_DRIVER );
-			___ERRORLOG( "Error starting audio driver [audioDriver::connect()]" );
-			___ERRORLOG( "Using the NULL output audio driver" );
+			ERRORLOG( "Error starting audio driver [audioDriver::connect()]" );
+			ERRORLOG( "Using the NULL output audio driver" );
 
 			mx.relock();
 			delete m_pAudioDriver;
@@ -661,7 +667,7 @@ void AudioEngine::startAudioDrivers()
 
 #ifdef H2CORE_HAVE_JACK
 		if ( pSong != nullptr ) {
-		pHydrogen->renameJackPorts( pSong );
+			pHydrogen->renameJackPorts( pSong );
 		}
 #endif
 		
@@ -671,7 +677,7 @@ void AudioEngine::startAudioDrivers()
 
 void AudioEngine::stopAudioDrivers()
 {
-	___INFOLOG( "[audioEngine_stopAudioDrivers]" );
+	INFOLOG( "" );
 
 	// check current state
 	if ( m_state == State::Playing ) {
@@ -680,19 +686,19 @@ void AudioEngine::stopAudioDrivers()
 
 	if ( ( m_state != State::Prepared )
 		 && ( m_state != State::Ready ) ) {
-		___ERRORLOG( QString( "Audio engine is not in State::Prepared or State::Ready but [%1]" )
-					 .arg( static_cast<int>(m_state) ) );
+		ERRORLOG( QString( "Audio engine is not in State::Prepared or State::Ready but [%1]" )
+				  .arg( static_cast<int>(m_state) ) );
 		return;
 	}
+
+	this->lock( RIGHT_HERE );
 
 	// change the current audio engine state
 	m_state = State::Initialized;
 	m_pEventQueue->push_event( EVENT_STATE, static_cast<int>(State::Initialized) );
 
-	this->lock( RIGHT_HERE );
-
 	// delete MIDI driver
-	if ( m_pMidiDriver ) {
+	if ( m_pMidiDriver != nullptr ) {
 		m_pMidiDriver->close();
 		delete m_pMidiDriver;
 		m_pMidiDriver = nullptr;
@@ -700,7 +706,7 @@ void AudioEngine::stopAudioDrivers()
 	}
 
 	// delete audio driver
-	if ( m_pAudioDriver ) {
+	if ( m_pAudioDriver != nullptr ) {
 		m_pAudioDriver->disconnect();
 		QMutexLocker mx( &m_MutexOutputPointer );
 		delete m_pAudioDriver;
@@ -723,18 +729,58 @@ void AudioEngine::restartAudioDrivers()
 	startAudioDrivers();
 }
 
+float AudioEngine::getBpmAtColumn( int nColumn, bool bRelocated ) {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pSong = pHydrogen->getSong();
+
+	float fBpm = pAudioEngine->getBpm();
+
+	// Check for a change in the current BPM.
+	if ( Preferences::get_instance()->getUseTimelineBpm() &&
+		 pSong->getMode() == Song::SONG_MODE ) {
+
+		float fTimelineBpm = pHydrogen->getTimeline()->getTempoAtBar( nColumn, bRelocated );
+		if ( fTimelineBpm != fBpm && fTimelineBpm != 0 ) {
+			/* TODO: For now the function returns 0 if the bar is
+			 * positioned _before_ the first tempo marker. This will be
+			 * taken care of with #854. */
+			DEBUGLOG( QString( "Set tempo to timeline value [%1]").arg( fTimelineBpm ) );
+			fBpm = fTimelineBpm;
+		}
+
+	} else {
+		if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
+			// Hydrogen is using the BPM broadcast by the JACK
+			// server. This one does solely depend on external
+			// applications and will NOT be stored in the Song.
+			float fJackMasterBpm = static_cast<JackAudioDriver*>(pAudioEngine->getAudioDriver())->getMasterBpm();
+			if ( ! std::isnan( fJackMasterBpm ) && fBpm != fJackMasterBpm ) {
+				fBpm = fJackMasterBpm;
+				DEBUGLOG( QString( "Tempo update by the JACK server [%1]").arg( fJackMasterBpm ) );
+			}
+		} else {
+			// Change in speed due to user interaction with the BPM widget
+			// or corresponding MIDI or OSC events.
+			if ( pAudioEngine->getNextBpm() != fBpm ) {
+				DEBUGLOG( QString( "BPM changed via Widget, OSC, or MIDI from [%1] to [%2]." )
+						  .arg( fBpm ).arg( pAudioEngine->getNextBpm() ) );
+
+				fBpm = pAudioEngine->getNextBpm();
+			}
+		}
+	}
+	return fBpm;
+}
+
 void AudioEngine::processCheckBPMChanged() {
-	if ( m_state != State::Playing ) {
+	if ( m_state != State::Playing && m_state != State::Ready ) {
 		return;
 	}
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	
-	if ( DiskWriterDriver::_class_name() == m_pAudioDriver->class_name() ) {
-		DEBUGLOG( "DiskWriter is entering as well" );
-		// return;
-	}
 
 	long long oldFrame;
 #ifdef H2CORE_HAVE_JACK
@@ -749,44 +795,13 @@ void AudioEngine::processCheckBPMChanged() {
 	oldFrame = getFrames();
 #endif
 
-	// Check for a change in the current BPM.
-	if ( Preferences::get_instance()->getUseTimelineBpm() &&
-		 pSong->getMode() == Song::SONG_MODE ) {
-
-		// TODO: if a relocation took place, the second argument
-		// should be true. In all other cases the more efficient one
-		// corresponding to false should be used.
-		float fTimelineBpm = pHydrogen->getTimeline()->getTempoAtBar( pHydrogen->getAudioEngine()->getColumn(), true );
-		if ( fTimelineBpm != getBpm() && fTimelineBpm != 0 ) {
-			/* TODO: For now the function returns 0 if the bar is
-			 * positioned _before_ the first tempo marker. This will be
-			 * taken care of with #854. */
-			DEBUGLOG( QString( "Set tempo to timeline value [%1]").arg( fTimelineBpm ) );
-			setBpm( fTimelineBpm );
-		}
-
-	} else {
-		if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
-			// Hydrogen is using the BPM broadcast by the JACK
-			// server. This one does solely depend on external
-			// applications and will NOT be stored in the Song.
-			float fJackMasterBpm = static_cast<JackAudioDriver*>(m_pAudioDriver)->getMasterBpm();
-			if ( ! std::isnan( fJackMasterBpm) && getBpm() != fJackMasterBpm ) {
-				setBpm( fJackMasterBpm );
-				DEBUGLOG( QString( "Tempo update by the JACK server [%1]").arg( fJackMasterBpm ) );
-			}
-		} else {
-			// Change in speed due to user interaction with the BPM widget
-			// or corresponding MIDI or OSC events.
-			if ( m_fNextBpm != getBpm() ) {
-				DEBUGLOG( QString( "BPM changed via Widget, OSC, or MIDI from [%1] to [%2]." )
-						  .arg( getBpm() ).arg( m_fNextBpm ) );
-
-				setBpm( m_fNextBpm );
-			}
-		}
+	float fNewBpm = getBpmAtColumn( pHydrogen->getAudioEngine()->getColumn(), m_bRelocated );
+	m_bRelocated = false;
+	if ( fNewBpm != getBpm() ) {
+		setBpm( fNewBpm );
+		EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, 0 );
 	}
-
+	
 	float fOldTickSize = getTickSize();
 	float fNewTickSize = AudioEngine::computeTickSize( static_cast<float>(m_pAudioDriver->getSampleRate()),
 													   getBpm(), pSong->getResolution() );
@@ -801,10 +816,9 @@ void AudioEngine::processCheckBPMChanged() {
 	if ( fNewTickSize == 0 || fOldTickSize == 0 ) {
 		return;
 	}
-	
 
 	float fTickNumber = (float)oldFrame / fOldTickSize;
-	DEBUGLOG( QString( "Tempo change: Recomputing ticksize and frame position. Old TS: %1, new TS: %2, old pos: %3, new pos: %4" )
+	DEBUGLOG( QString( "Recomputing ticksize and frame position. Old TS: %1, new TS: %2, old pos: %3, new pos: %4" )
 			  .arg( fOldTickSize ).arg( fNewTickSize )
 			  .arg( getFrames() ).arg( ceil(fTickNumber) * fNewTickSize ) );
 
@@ -1002,6 +1016,9 @@ void AudioEngine::processTransport( unsigned nFrames )
 		if ( getState() == State::Ready ) {
 			startPlayback();
 		}
+
+		setTickSize( AudioEngine::computeTickSize( static_cast<float>(m_pAudioDriver->getSampleRate()),
+												   getBpm(), pSong->getResolution() ) );
 
 		// Update the variable m_nRealtimeFrames keeping track
 		// of the current transport position.
@@ -1264,12 +1281,6 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 		setupLadspaFX();
 	}
 
-	locate( 0 );
-
-	// update tick size and tempo
-	setNextBpm( pNewSong->getBpm() );
-	processCheckBPMChanged();
-
 	// find the first pattern and set as current
 	if ( pNewSong->getPatternList()->size() > 0 ) {
 		m_pPlayingPatterns->add( pNewSong->getPatternList()->get( 0 ) );
@@ -1282,6 +1293,12 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 
 	// change the current audio engine state
 	setState( State::Ready );
+
+	locate( 0 );
+
+	// update tick size and tempo
+	setNextBpm( pNewSong->getBpm() );
+	processCheckBPMChanged();
 
 	this->unlock();
 

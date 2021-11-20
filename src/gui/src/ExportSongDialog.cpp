@@ -335,7 +335,11 @@ void ExportSongDialog::on_okBtn_clicked()
 			pInstrumentList->get(i)->set_currently_exported( true );
 		}
 
-		m_pHydrogen->startExportSession( sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt());
+		if ( ! m_pHydrogen->startExportSession( sampleRateCombo->currentText().toInt(),
+												sampleDepthCombo->currentText().toInt()) ) {
+			QMessageBox::critical( this, "Hydrogen", tr( "Unable to export song" ) );
+			return;
+		}
 		m_pHydrogen->startExportSong( filename );
 		return;
 	}
