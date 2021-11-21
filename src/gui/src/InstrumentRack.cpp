@@ -34,7 +34,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
  : QWidget( pParent )
  , Object()
 {
-	INFOLOG( "INIT" );
+	
 
 	auto pPref = H2Core::Preferences::get_instance();
 	

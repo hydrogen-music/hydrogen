@@ -72,7 +72,7 @@ Sampler::Sampler()
 		, m_pPreviewInstrument( nullptr )
 		, m_interpolateMode( Interpolation::InterpolateMode::Linear )
 {
-	INFOLOG( "INIT" );
+	
 	
 	m_pMainOut_L = new float[ MAX_BUFFER_SIZE ];
 	m_pMainOut_R = new float[ MAX_BUFFER_SIZE ];

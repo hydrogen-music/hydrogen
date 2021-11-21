@@ -102,7 +102,7 @@ CoreMidiDriver::CoreMidiDriver()
 		: MidiInput() ,MidiOutput(), Object<CoreMidiDriver>()
 		, m_bRunning( false )
 {
-	INFOLOG( "INIT" );
+	
 	OSStatus err = noErr;
 
 	QString sMidiPortName = Preferences::get_instance()->m_sMidiPortName;

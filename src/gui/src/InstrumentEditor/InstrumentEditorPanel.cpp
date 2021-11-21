@@ -47,7 +47,7 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent )
 {
 	UNUSED( pParent );
 
-	INFOLOG( "INIT" );
+	
 
 	m_pInstance = this;
 	m_pInstrumentEditor = new InstrumentEditor( nullptr );

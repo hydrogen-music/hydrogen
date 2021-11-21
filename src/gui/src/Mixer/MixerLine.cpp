@@ -55,7 +55,7 @@ using namespace H2Core;
 MixerLine::MixerLine(QWidget* parent, int nInstr)
  : PixmapWidget( parent )
 {
-//	INFOLOG( "INIT" );
+//	
 
 	m_nWidth = MIXERLINE_WIDTH;
 	m_nHeight = MIXERLINE_HEIGHT;
@@ -385,7 +385,7 @@ void MixerLine::setSelected( bool bIsSelected )
 ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
  : PixmapWidget( parent )
 {
-//	INFOLOG( "INIT" );
+//	
 
 	m_nComponentID = CompoID;
 

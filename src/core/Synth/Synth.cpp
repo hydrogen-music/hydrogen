@@ -34,7 +34,7 @@ namespace H2Core
 Synth::Synth()
 		: Object()
 {
-	INFOLOG( "INIT" );
+	
 
 	m_pOut_L = new float[ MAX_BUFFER_SIZE ];
 	m_pOut_R = new float[ MAX_BUFFER_SIZE ];
