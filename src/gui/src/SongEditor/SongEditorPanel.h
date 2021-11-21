@@ -69,12 +69,7 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
 		void restoreGroupVector( QString filename );
-		//~ Implements EventListener interface	
-		///< an empty new pattern will be added to pattern list at idx
-		void insertPattern( int idx, H2Core::Pattern* pPattern );
-		///< pattern at idx within pattern list will be destroyed
-		void deletePattern( int idx );
-
+		//~ Implements EventListener interface
 		/** Disables and deactivates the Timeline when an external
 		 * JACK timebase master is detected and enables it when it's
 		 * gone or Hydrogen itself becomes the timebase master.
@@ -87,6 +82,7 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		 * \param nValue 0 - select mode and 1 - draw mode.
 		 */
 		void actionModeChangeEvent( int nValue ) override;
+		void updateSongEditorEvent( int nValue ) override;
 
 	public slots:
 		void setModeActionBtn( bool mode );

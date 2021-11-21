@@ -176,6 +176,25 @@ int Song::lengthInTicks() const {
     return nSongLength;
 }
 
+bool Song::isPatternActive( int nColumn, int nRow ) const {
+	if ( nRow < 0 || nRow > m_pPatternList->size() ) {
+		return false;
+	}
+	
+	auto pPattern = m_pPatternList->get( nRow );
+	if ( pPattern == nullptr ) {
+		return false;
+	}
+	if ( nColumn < 0 || nColumn >= m_pPatternGroupSequence->size() ) {
+		return false;
+	}
+	auto pColumn = ( *m_pPatternGroupSequence )[ nColumn ];
+	if ( pColumn->index( pPattern ) == -1 ) {
+		return false;
+	}
+
+	return true;
+}
 	
 ///Load a song from file
 std::shared_ptr<Song> Song::load( const QString& sFilename )

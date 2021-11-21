@@ -207,6 +207,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		int getPanLawType() const;
 		void setPanLawKNorm( float fKNorm );
 		float getPanLawKNorm() const;
+
+		bool isPatternActive( int nColumn, int nRow ) const;
+	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line

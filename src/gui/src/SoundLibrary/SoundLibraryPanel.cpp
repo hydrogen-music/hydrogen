@@ -812,26 +812,12 @@ void SoundLibraryPanel::on_songLoadAction()
 
 
 
-void SoundLibraryPanel::on_patternLoadAction()
-{
-	LocalFileMng mng;
+void SoundLibraryPanel::on_patternLoadAction() {
 
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	PatternList *pPatternList = pSong->getPatternList();
-	QString patternName = __sound_library_tree->currentItem()->text( 0 );
-	QString drumkitName = __sound_library_tree->currentItem()->toolTip ( 0 );
-	
-	// FIXME : file path should come from the selected item
-	Pattern* pErr = Pattern::load_file( Filesystem::pattern_path( drumkitName, patternName ), pSong->getInstrumentList() );
-
-	if ( pErr == nullptr ) {
-		ERRORLOG( "Error loading the pattern" );
-		return;
-	}
-	pPatternList->add ( pErr );
-	pSong->setIsModified( true );
-	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
+	QString sPatternName = __sound_library_tree->currentItem()->text( 0 );
+	QString sDrumkitName = __sound_library_tree->currentItem()->toolTip ( 0 );
+	Hydrogen::get_instance()->getCoreActionController()->openPattern( Filesystem::pattern_path( sDrumkitName,
+																								sPatternName ) );
 }
 
 
