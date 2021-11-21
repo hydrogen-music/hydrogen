@@ -2157,12 +2157,8 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		}
 
 		int nPatternPos = m_pHydrogen->getAudioEngine()->getColumn();
-		if ( nPatternPos != column ) {
-			WARNINGLOG( "relocate via mouse click" );
-			
-			m_pHydrogen->getCoreActionController()->locateToColumn( column );
-			update();
-		}
+		m_pHydrogen->getCoreActionController()->locateToColumn( column );
+		update();
 		
 	} else if (ev->button() == Qt::MiddleButton && ev->y() >= 26) {
 		showTagWidget( ev->x() / m_nGridWidth );
