@@ -74,7 +74,7 @@ class Mixer :  public QWidget, public EventListener,  public H2Core::Object<Mixe
 		void showFXPanelClicked();
 		void showPeaksBtnClicked();
 		void openMixerSettingsDialog();
-		void ladspaActiveBtnClicked( LadspaFXMixerLine* ref );
+		void ladspaBypassBtnClicked( LadspaFXMixerLine* ref );
 		void ladspaEditBtnClicked( LadspaFXMixerLine *ref );
 		void ladspaVolumeChanged( LadspaFXMixerLine* ref);
 		void closeEvent(QCloseEvent *event) override;
