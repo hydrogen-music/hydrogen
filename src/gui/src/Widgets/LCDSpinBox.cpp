@@ -32,6 +32,7 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, do
  , m_type( type )
  , m_bEntered( false )
  , m_kind( Kind::Default )
+ , m_bIsActive( true )
 {
 	setFocusPolicy( Qt::ClickFocus );
 	setLocale( QLocale( QLocale::C, QLocale::AnyCountry ) );
@@ -51,6 +52,15 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, do
 }
 
 LCDSpinBox::~LCDSpinBox() {
+}
+
+void LCDSpinBox::setIsActive( bool bIsActive ) {
+	m_bIsActive = bIsActive;
+	
+	updateStyleSheet();
+	update();
+	
+	setReadOnly( ! bIsActive );
 }
 
 void LCDSpinBox::wheelEvent( QWheelEvent *ev ) {
@@ -253,7 +263,13 @@ void LCDSpinBox::paintEvent( QPaintEvent *ev ) {
 	if ( m_bEntered || hasFocus() ) {
 		QPainter painter(this);
 	
-		QColor colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+
+		QColor colorHighlightActive;
+		if ( m_bIsActive ) {
+			colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+		} else {
+			colorHighlightActive = pPref->getColorTheme()->m_lightColor;
+		}
 
 		// If the mouse is placed on the widget but the user hasn't
 		// clicked it yet, the highlight will be done more transparent to
@@ -284,7 +300,16 @@ void LCDSpinBox::updateStyleSheet() {
 	
 	auto pPref = H2Core::Preferences::get_instance();
 
-	QColor selectionColor = pPref->getColorTheme()->m_spinBoxColor.darker( 120 );
+	QColor spinBoxColor;
+	QColor spinBoxTextColor;
+	if ( m_bIsActive ) {
+		spinBoxColor = pPref->getColorTheme()->m_spinBoxColor;
+		spinBoxTextColor = pPref->getColorTheme()->m_spinBoxTextColor;
+	} else {
+		spinBoxColor = pPref->getColorTheme()->m_windowColor;
+		spinBoxTextColor = pPref->getColorTheme()->m_windowTextColor;
+	}
+	QColor selectionColor = spinBoxColor.darker( 120 );
 	
 	setStyleSheet( QString( "\
 QDoubleSpinBox, QSpinBox { \
@@ -293,8 +318,8 @@ QDoubleSpinBox, QSpinBox { \
     selection-color: %1; \
     selection-background-color: %3; \
 }" )
-				   .arg( pPref->getColorTheme()->m_spinBoxTextColor.name() )
-				   .arg( pPref->getColorTheme()->m_spinBoxColor.name() )
+				   .arg( spinBoxTextColor.name() )
+				   .arg( spinBoxColor.name() )
 				   .arg( selectionColor.name() ) );
 }
 

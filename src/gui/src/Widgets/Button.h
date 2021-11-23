@@ -107,6 +107,9 @@ public:
 
 	void setBaseToolTip( const QString& sNewTip );
 	void setAction( std::shared_ptr<Action> pAction );
+	
+	bool getIsActive() const;
+	void setIsActive( bool bIsActive );
 
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
@@ -136,9 +139,14 @@ private:
 	bool m_bColorful;
 	bool m_bLastCheckedState;
 
+	bool m_bIsActive;
+
 	void mousePressEvent(QMouseEvent *ev);
 	void paintEvent( QPaintEvent* ev);
 
 };
+inline bool Button::getIsActive() const {
+	return m_bIsActive;
+}
 
 #endif

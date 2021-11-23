@@ -74,6 +74,9 @@ public:
 
 	void setKind( Kind kind );
 	QValidator::State validate( QString &text, int &pos ) const;
+	
+	bool getIsActive() const;
+	void setIsActive( bool bIsActive );
 
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
@@ -89,6 +92,7 @@ private:
 	Kind m_kind;
 	
 	bool m_bEntered;
+	bool m_bIsActive;
 
 	virtual QString textFromValue( double fValue ) const override;
 	virtual double valueFromText( const QString& sText ) const override;	
@@ -102,5 +106,8 @@ private:
 
 inline void LCDSpinBox::setKind( Kind kind ) {
 	m_kind = kind;
+}
+inline bool LCDSpinBox::getIsActive() const {
+	return m_bIsActive;
 }
 #endif

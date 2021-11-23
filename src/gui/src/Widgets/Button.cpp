@@ -44,6 +44,7 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	, m_bColorful( bColorful )
 	, m_bLastCheckedState( false )
 	, m_sIcon( sIcon )
+	, m_bIsActive( true )
 	, m_bUseRedBackground( bUseRedBackground )
 {
 	setAttribute( Qt::WA_OpaquePaintEvent );
@@ -82,6 +83,16 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 
 Button::~Button() {
 }
+
+void Button::setIsActive( bool bIsActive ) {
+	m_bIsActive = bIsActive;
+	
+	updateStyleSheet();
+	update();
+	
+	setEnabled( bIsActive );
+}
+
 
 void Button::updateIcon() {
 	if ( m_bColorful ) {
@@ -125,6 +136,13 @@ void Button::updateStyleSheet() {
 		backgroundCheckedDarkHover = pPref->getColorTheme()->m_buttonRedColor.darker( nFactorGradient + nHover );
 		textChecked = pPref->getColorTheme()->m_buttonRedTextColor;
 	}
+
+	QColor textColor;
+	if ( m_bIsActive ) {
+		textColor = pPref->getColorTheme()->m_widgetTextColor;
+	} else {
+		textColor = pPref->getColorTheme()->m_baseColor;
+	}
 	
 	setStyleSheet( QString( "QPushButton { \
     color: %1; \
@@ -151,7 +169,7 @@ QPushButton:checked:hover { \
                                       stop: 0 %10, stop: 1 %11); \
 }"
 							)
-				   .arg( pPref->getColorTheme()->m_widgetTextColor.name() )
+				   .arg( textColor.name() )
 				   .arg( m_sBorderRadius )
 				   .arg( backgroundLight.name() ).arg( backgroundDark.name() )
 				   .arg( backgroundLightHover.name() ).arg( backgroundDarkHover.name() )
