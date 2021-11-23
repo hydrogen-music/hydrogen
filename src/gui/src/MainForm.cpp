@@ -1471,15 +1471,19 @@ void MainForm::onRestartAccelEvent()
 
 
 void MainForm::onBPMPlusAccelEvent() {
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	pAudioEngine->setNextBpm( pAudioEngine->getBpm() + 0.1 );
+	pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() + 0.1 );
 }
 
 
 
 void MainForm::onBPMMinusAccelEvent() {
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	pAudioEngine->setNextBpm( pAudioEngine->getBpm() - 0.1 );
+	pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() - 0.1 );
 }
 
 

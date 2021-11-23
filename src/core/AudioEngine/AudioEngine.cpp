@@ -394,6 +394,7 @@ void AudioEngine::updateElapsedTime( const unsigned bufferSize, const unsigned s
 void AudioEngine::locate( const unsigned long nFrame, bool bWithJackBroadcast ) {
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pDriver = pHydrogen->getAudioOutput();
+	m_bRelocated = true;
 
 #ifdef H2CORE_HAVE_JACK
 	if ( pHydrogen->haveJackTransport() && bWithJackBroadcast ) {
@@ -409,7 +410,6 @@ void AudioEngine::locate( const unsigned long nFrame, bool bWithJackBroadcast ) 
 	calculateElapsedTime( pDriver->getSampleRate(),
 						  nFrame,
 						  pHydrogen->getSong()->getResolution() );
-	m_bRelocated = true;
 }
 
 void AudioEngine::clearAudioBuffers( uint32_t nFrames )

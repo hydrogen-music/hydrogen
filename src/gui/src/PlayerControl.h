@@ -60,7 +60,7 @@ public:
 
 	virtual void tempoChangedEvent( int nValue ) override;
 	virtual void jackTransportActivationEvent( int nValue ) override;
-	virtual void jackTimebaseActivationEvent( int nValue ) override;
+	virtual void jackTimebaseStateChangedEvent( int nValue ) override;
 	/**
 	 * Shared GUI update when activating Song or Pattern mode via
 	 * button click or via OSC command.
@@ -72,6 +72,10 @@ public:
 
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void updateBPMWidget();
+
+signals:
+	void songModeChanged();
 
 private slots:
 	void recBtnClicked();
@@ -82,8 +86,7 @@ private slots:
 	void patternModeBtnClicked();
 	void jackTransportBtnClicked();
 	//jack time master
-	void jackMasterBtnClicked();
-	//~ jack time master
+	void jackMasterBtnClicked();	//~ jack time master
 	void bpmChanged( double );
 	void fastForwardBtnClicked();
 	void rewindBtnClicked();
@@ -191,7 +194,9 @@ private:
 		incoming MIDI event after #m_midiActivityTimeout
 		milliseconds.*/ 
 	QTimer *m_pMidiActivityTimer;
-	std::chrono::milliseconds m_midiActivityTimeout; 
+	std::chrono::milliseconds m_midiActivityTimeout;
+
+	bool m_bLastUseTimelineBpm;
 };
 
 

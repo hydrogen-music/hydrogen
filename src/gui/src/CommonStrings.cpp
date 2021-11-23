@@ -324,6 +324,19 @@ CommonStrings::CommonStrings(){
 	m_sMidiSenseUnavailable = tr( "This element is not MIDI operable." );
 
 	m_sPatternLoadError = tr( "Unable to load pattern" );
+
+	/*: Displayed within a status message when activating a widget.*/
+	m_sStatusOn = tr( "on" );
+	/*: Displayed within a status message when deactivating a widget.*/
+	m_sStatusOff = tr( "off" );
+	/*: Displayed within a status message when enabling a widget.*/
+	m_sStatusEnabled = tr( "enabled" );
+	/*: Displayed within a status message when disabling a widget.*/
+	m_sStatusDisabled = tr( "disabled" );
+		
+	m_sTimelineEnabled = tr( "Enable the Timeline for custom tempo changes" );
+	m_sTimelineDisabledPatternMode = tr( "The Timeline is only available in Song Mode" );
+	m_sTimelineDisabledTimebaseSlave = tr( "In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen" );
 }
 
 CommonStrings::~CommonStrings(){

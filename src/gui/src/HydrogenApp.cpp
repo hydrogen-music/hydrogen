@@ -404,8 +404,11 @@ void HydrogenApp::showPreferencesDialog()
 
 void HydrogenApp::setStatusBarMessage( const QString& msg, int msec )
 {
-	getPlayerControl()->resetStatusLabel();
-	getPlayerControl()->showMessage( msg, msec );
+	auto pPlayerControl = getPlayerControl();
+	if ( pPlayerControl != nullptr ) {
+		pPlayerControl->resetStatusLabel();
+		pPlayerControl->showMessage( msg, msec );
+	}
 }
 
 void HydrogenApp::updateWindowTitle()
@@ -606,8 +609,8 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->jackTransportActivationEvent( event.value );
 				break;
 
-			case EVENT_JACK_TIMEBASE_ACTIVATION:
-				pListener->jackTimebaseActivationEvent( event.value );
+			case EVENT_JACK_TIMEBASE_STATE_CHANGED:
+				pListener->jackTimebaseStateChangedEvent( event.value );
 				break;
 				
 			case EVENT_SONG_MODE_ACTIVATION:

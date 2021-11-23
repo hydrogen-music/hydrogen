@@ -507,6 +507,8 @@ void JackAudioDriver::updateTransportInfo()
 				// JackTimebaseCallback not called anymore -> timebase client
 				m_nTimebaseTracking = 0;
 				m_timebaseState = Timebase::Slave;
+				EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
+														static_cast<int>(Timebase::Slave) );
 			}
 		}
 		if ( m_nTimebaseTracking == 0 && 
@@ -514,11 +516,15 @@ void JackAudioDriver::updateTransportInfo()
 			// No external timebase master anymore -> regular client
 			m_nTimebaseTracking = -1;
 			m_timebaseState = Timebase::None;
+			EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
+													static_cast<int>(Timebase::None) );
 		} else if ( m_nTimebaseTracking < 0 && 
 					( m_JackTransportPos.valid & JackPositionBBT ) ) {
 			// External timebase master detected -> timebase client
 			m_nTimebaseTracking = 0;
 			m_timebaseState = Timebase::Slave;
+			EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
+													static_cast<int>(Timebase::Slave) );
 		}
 	}
 	
@@ -1214,6 +1220,8 @@ void JackAudioDriver::initTimebaseMaster()
 		} else {
 			m_nTimebaseTracking = 2;
 			m_timebaseState = Timebase::Master;
+			EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
+													static_cast<int>(Timebase::Master) );
 		}
 	} else {
 	    releaseTimebaseMaster();
@@ -1237,9 +1245,13 @@ void JackAudioDriver::releaseTimebaseMaster()
 	if ( m_JackTransportPos.valid & JackPositionBBT ) {
 		m_nTimebaseTracking = 0;
 		m_timebaseState = Timebase::Slave;
+		EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
+												static_cast<int>(Timebase::Slave) );
 	} else {
 		m_nTimebaseTracking = -1;
 		m_timebaseState = Timebase::None;
+		EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
+												static_cast<int>(Timebase::None) );
 	}
 }
 

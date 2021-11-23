@@ -574,14 +574,6 @@ bool CoreActionController::activateTimeline( bool bActivate ) {
 	}
 	
 	Preferences::get_instance()->setUseTimelineBpm( bActivate );
-
-	// TODO: this should be removed.
-	// if ( bActivate && !pHydrogen->haveJackTransport() ) {
-	// 	// In case another driver than Jack is used, we have to update
-	// 	// the tempo explicitly.
-	// 	pHydrogen->setTimelineBpm();
-	// }
-	
 	EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION, static_cast<int>( bActivate ) );
 	
 	return true;
@@ -632,24 +624,26 @@ bool CoreActionController::activateJackTransport( bool bActivate ) {
 }
 
 bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
-
+	auto pHydrogen = Hydrogen::get_instance();
+	
 #ifdef H2CORE_HAVE_JACK
-	if ( !Hydrogen::get_instance()->haveJackAudioDriver() ) {
+	if ( !pHydrogen->haveJackAudioDriver() ) {
 		ERRORLOG( "Unable to (de)activate Jack timebase master. Please select the Jack driver first." );
 		return false;
 	}
 	
-	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 	if ( bActivate ) {
 		Preferences::get_instance()->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER;
-		Hydrogen::get_instance()->onJackMaster();
+		pHydrogen->onJackMaster();
 	} else {
 		Preferences::get_instance()->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
-		Hydrogen::get_instance()->offJackMaster();
+		pHydrogen->offJackMaster();
 	}
-	Hydrogen::get_instance()->getAudioEngine()->unlock();
+	pHydrogen->getAudioEngine()->unlock();
 	
-	EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_ACTIVATION, static_cast<int>( bActivate ) );
+	EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
+											static_cast<int>(pHydrogen->getJackTimebaseState()) );
 	
 	return true;
 #else
