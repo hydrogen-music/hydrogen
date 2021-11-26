@@ -132,7 +132,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	addEventListener( this );
 
 	connect( this, &HydrogenApp::preferencesChanged,
-			 m_pMainForm, &MainForm::onPreferencesChanged );
+			 m_pMainForm, &MainForm::onPreferencesChanged );	
 }
 
 

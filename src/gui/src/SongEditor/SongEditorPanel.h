@@ -95,9 +95,9 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 
 	public slots:
 		void setModeActionBtn( bool mode );
-		void showHideTimeLine( bool bPressed ) {
-			m_pTimeLineBtn->setChecked( bPressed );
-			timeLineBtnPressed();
+		void showHideTimeline( bool bPressed ) {
+			m_pTimelineBtn->setChecked( bPressed );
+			timelineBtnPressed();
 		}
 	void onSongModeChanged();
 
@@ -118,8 +118,8 @@ signals:
 
 		void selectionModeBtnPressed();
 		void drawModeBtnPressed();
-		void timeLineBtnPressed();
-		void viewTimeLineBtnPressed();
+		void timelineBtnPressed();
+		void viewTimelineBtnPressed();
 		void viewPlaybackTrackBtnPressed();
 		void mutePlaybackTrackBtnPressed();
 		void editPlaybackTrackBtnPressed();
@@ -169,9 +169,9 @@ signals:
 		
 		Fader*					m_pPlaybackTrackFader;
 
-		Button *			m_pTimeLineBtn;
+		Button *			m_pTimelineBtn;
 		Button *			m_pPlaybackBtn;
-		Button *			m_pViewTimeLineBtn;
+		Button *			m_pViewTimelineBtn;
 		Button *			m_pViewPlaybackBtn;
 		Button *			m_pMutePlaybackBtn;
 		Button *				m_pEditPlaybackBtn;

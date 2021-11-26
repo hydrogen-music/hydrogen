@@ -438,6 +438,15 @@ void			previewSample( Sample *pSample );
 	 * (#H2Core::Preferences::m_bJackTransportMode).
 	 */
 	bool			haveJackTransport() const;
+
+	/**
+	 * Convenience function checking whether using the Timeline tempo
+	 * is set in the Preferences, Song::SONG_MODE is set, and there is
+	 * a JACK timebase master present.
+	 *
+	 * \return Whether the Timeline is used to determine the current speed.
+	 */
+	bool isTimelineEnabled() const;
 	/**
 	 * \return Whether we haveJackTransport() and there is an external
 	 * JACK timebase master broadcasting us tempo information and

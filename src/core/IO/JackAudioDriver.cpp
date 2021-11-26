@@ -1343,7 +1343,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 		// pJackPosition. In Hydrogen is guaranteed to be constant within
 		// a block.
 		pJackPosition->beats_per_minute = 
-			static_cast<double>(pHydrogen->getTimeline()->getTempoAtBar( nNextPatternInternal, true ));
+			static_cast<double>(pHydrogen->getTimeline()->getTempoAtBar( nNextPatternInternal ));
 	} else {
 		pJackPosition->beats_per_minute = static_cast<double>(pAudioEngine->getBpm());
 	}

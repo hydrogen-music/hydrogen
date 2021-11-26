@@ -120,11 +120,10 @@ private:
 	 * the latter commands and widget and not within the AudioEngine.
 	 *
 	 * It is superseded by the tempo markers as soon as the #Timeline
-	 * is activated. The current speed during Timeline-based transport
-	 * will not override Song::m_fBpm and is stored using the tempo
-	 * markers in the .h2song file instead. With just the first tempo
-	 * marker at bar 0 present, its value defaults to Song::m_fBpm
-	 * once the Timeline is activated.
+	 * is activated and at least one TempoMarker is set. The current
+	 * speed during Timeline-based transport will not override
+	 * Song::m_fBpm and is stored using the tempo markers in the
+	 * .h2song file instead. (see #Timeline for details)
 	 *
 	 * Both Song and Timeline tempo are superseded by the BPM
 	 * broadcasted by the JACK timebase master application once

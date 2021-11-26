@@ -445,7 +445,7 @@ public:
 	void setNextBpm( float fNextBpm );
 	float getNextBpm() const;
 
-	static float 	getBpmAtColumn( int nColumn, bool bRelocated );
+	static float 	getBpmAtColumn( int nColumn );
 
 	/** Is allowed to call setSong().*/
 	friend void Hydrogen::setSong( std::shared_ptr<Song> pSong );
@@ -755,11 +755,6 @@ private:
 	int 			m_nMaxTimeHumanize;
 
 	float 			m_fNextBpm;
-	/** TODO: this should be set false at the end of the process loop
-		(after relocation is always done at a certain point of the
-		loop. 
-	*/ 
-	bool 			m_bRelocated;
 };
 
 

@@ -319,7 +319,7 @@ class SongEditorPatternList :  public QWidget, protected WidgetWithScalableFont<
 //
 
 /** \ingroup docGUI*/
-class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>,  public H2Core::Object<SongEditorPositionRuler>
+class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public EventListener, public H2Core::Object<SongEditorPositionRuler>
 {
     H2_OBJECT(SongEditorPositionRuler)
 	Q_OBJECT
@@ -332,12 +332,14 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 
 		uint getGridWidth();
 		void setGridWidth (uint width);
-		void editTimeLineAction( int newPosition, float newBpm );
-		void deleteTimeLinePosition( int position );
+		void editTimelineAction( int newPosition, float newBpm );
+		void deleteTimelinePosition( int position );
 		void editTagAction( QString text, int position, QString textToReplace );
 		void deleteTagAction( QString text, int position );
 
 	int getPlayheadWidth() const;
+	void tempoChangedEvent( int ) override;
+
 
 	public slots:
 		void updatePosition();

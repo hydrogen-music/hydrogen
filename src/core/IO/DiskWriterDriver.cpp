@@ -27,7 +27,6 @@
 #include <core/EventQueue.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
-#include <core/Timeline.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/IO/DiskWriterDriver.h>
@@ -170,7 +169,7 @@ void* diskWriterDriver_thread( void* param )
 			nPatternSize = MAX_NOTES;
 		}
 
-		fBpm = AudioEngine::getBpmAtColumn( patternPosition, false );
+		fBpm = AudioEngine::getBpmAtColumn( patternPosition );
 		fTicksize = AudioEngine::computeTickSize( pDriver->m_nSampleRate, fBpm,
 												  pSong->getResolution() );
 		

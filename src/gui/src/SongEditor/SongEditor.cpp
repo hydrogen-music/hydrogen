@@ -1934,6 +1934,8 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 
 	auto pPref = H2Core::Preferences::get_instance();
 
+	HydrogenApp::get_instance()->addEventListener( this );
+
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
 
@@ -1998,9 +2000,9 @@ void SongEditorPositionRuler::setGridWidth( uint width )
 void SongEditorPositionRuler::createBackground()
 {
 	Preferences *pPref = Preferences::get_instance();
-	Timeline * pTimeline = Hydrogen::get_instance()->getTimeline();
+	auto pHydrogen = Hydrogen::get_instance();
+	Timeline * pTimeline = pHydrogen->getTimeline();
 	auto tagVector = pTimeline->getAllTags();
-	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 	
 	QColor textColorAlpha( pPref->getColorTheme()->m_songEditor_textColor );
 	textColorAlpha.setAlpha( 45 );
@@ -2035,22 +2037,32 @@ void SongEditorPositionRuler::createBackground()
 	}
 
 
-	//draw tempo content
-	if(pPref->getUseTimelineBpm()){
-		p.setPen( pPref->getColorTheme()->m_songEditor_textColor );
-	}else
-	{
-		p.setPen( textColorAlpha );
+	// draw tempo content
+	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
+
+	QColor tempoMarkerColor;
+	if ( pHydrogen->isTimelineEnabled() ) {
+		tempoMarkerColor = pPref->getColorTheme()->m_songEditor_textColor;
+	} else {
+		tempoMarkerColor = textColorAlpha;
 	}
+	p.setPen( tempoMarkerColor );
 	char tempo[10];
-	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
-		uint x = m_nMargin + i * m_nGridWidth;
+	for (uint ii = 0; ii < m_nMaxPatternSequence + 1; ii++) {
+		uint x = m_nMargin + ii * m_nGridWidth;
 		p.drawLine( x, 2, x, 5 );
 		p.drawLine( x, 19, x, 20 );
-		for ( int t = 0; t < static_cast<int>(tempoMarkerVector.size()); t++){
-			if ( tempoMarkerVector[t]->nBar == i ) {
-				sprintf( tempo, "%d",  ((int)tempoMarkerVector[t]->fBpm) );
-				p.drawText( x - m_nGridWidth, 3, m_nGridWidth * 2, height() / 2 - 5, Qt::AlignCenter, tempo );
+		for ( int tt = 0; tt < static_cast<int>(tempoMarkerVector.size()); tt++){
+			if ( tempoMarkerVector[tt]->nBar == ii ) {
+				if ( ii == 0 && pTimeline->isFirstTempoMarkerSpecial() ) {
+					p.setPen( tempoMarkerColor.darker( 150 ) );
+				}
+				sprintf( tempo, "%d",  ((int)tempoMarkerVector[tt]->fBpm) );
+				p.drawText( x - m_nGridWidth, 3, m_nGridWidth * 2,
+							height() / 2 - 5, Qt::AlignCenter, tempo );
+				if ( ii == 0 && pTimeline->isFirstTempoMarkerSpecial() ) {
+					p.setPen( tempoMarkerColor );
+				}
 			}
 		}
 	}
@@ -2063,7 +2075,22 @@ void SongEditorPositionRuler::createBackground()
 
 }
 
+void SongEditorPositionRuler::tempoChangedEvent( int ) {
+	INFOLOG( Hydrogen::get_instance()->getAudioEngine()->getBpm() );
+	auto pTimeline = Hydrogen::get_instance()->getTimeline();
+	if ( ! pTimeline->isFirstTempoMarkerSpecial() ) {
+		return;
+	}
 
+	// There is just the special tempo marker -> no tempo markers set
+	// by the user. In this case the special marker isn't drawn and
+	// doesn't need to be update.
+	if ( pTimeline->getAllTempoMarkers().size() == 1 ) {
+		return;
+	}
+
+	createBackground();
+}
 
 void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 {
@@ -2229,14 +2256,14 @@ void SongEditorPositionRuler::updatePosition()
 }
 
 
-void SongEditorPositionRuler::editTimeLineAction( int nNewPosition, float fNewBpm )
+void SongEditorPositionRuler::editTimelineAction( int nNewPosition, float fNewBpm )
 {
 	m_pHydrogen->getTimeline()->deleteTempoMarker( nNewPosition - 1 );
 	m_pHydrogen->getTimeline()->addTempoMarker( nNewPosition - 1, fNewBpm );
 	createBackground();
 }
 
-void SongEditorPositionRuler::deleteTimeLinePosition( int nPosition )
+void SongEditorPositionRuler::deleteTimelinePosition( int nPosition )
 {
 	m_pHydrogen->getTimeline()->deleteTempoMarker( nPosition - 1 );
 	createBackground();

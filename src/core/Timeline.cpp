@@ -23,129 +23,170 @@
 
 #include <algorithm>
 #include <core/Timeline.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Song.h>
 
 namespace H2Core
 {
 
-	Timeline::Timeline() : Object( )
-	{
-	}
+Timeline::Timeline() : Object( )
+{
+}
 
-	Timeline::~Timeline() {
-		m_tempoMarkers.clear();
-		m_tags.clear();
-	}
+Timeline::~Timeline() {
+	m_tempoMarkers.clear();
+	m_tags.clear();
+}
 
-	void Timeline::addTempoMarker( int nBar, float fBpm ) {
+void Timeline::addTempoMarker( int nBar, float fBpm ) {
 		
-		if ( fBpm < MIN_BPM ) {
-			fBpm = MIN_BPM;
-			WARNINGLOG( QString( "Provided bpm %1 is too low. Assigning lower bound %2 instead" )
-						.arg( fBpm ).arg( MIN_BPM ) );
-		} else if ( fBpm > MAX_BPM ) {
-			fBpm = MAX_BPM;
-			WARNINGLOG( QString( "Provided bpm %1 is too high. Assigning upper bound %2 instead" )
-						.arg( fBpm ).arg( MAX_BPM ) );
-		}
-
-		std::shared_ptr<TempoMarker> pTempoMarker( new TempoMarker );
-		pTempoMarker->nBar = nBar;
-		pTempoMarker->fBpm = fBpm;
-
-		m_tempoMarkers.push_back( pTempoMarker );
-		sortTempoMarkers();
+	if ( fBpm < MIN_BPM ) {
+		fBpm = MIN_BPM;
+		WARNINGLOG( QString( "Provided bpm %1 is too low. Assigning lower bound %2 instead" )
+					.arg( fBpm ).arg( MIN_BPM ) );
+	} else if ( fBpm > MAX_BPM ) {
+		fBpm = MAX_BPM;
+		WARNINGLOG( QString( "Provided bpm %1 is too high. Assigning upper bound %2 instead" )
+					.arg( fBpm ).arg( MAX_BPM ) );
 	}
 
-	void Timeline::deleteTempoMarker( int nBar ) {
+	std::shared_ptr<TempoMarker> pTempoMarker = std::make_shared<TempoMarker>();
+	pTempoMarker->nBar = nBar;
+	pTempoMarker->fBpm = fBpm;
 
-		// Erase the value to set the new value
-		if ( m_tempoMarkers.size() >= 1 ){
-			for ( int t = 0; t < m_tempoMarkers.size(); t++ ){
-				if ( m_tempoMarkers[t]->nBar == nBar ) {
-					m_tempoMarkers.erase( m_tempoMarkers.begin() +  t);
-				}
+	m_tempoMarkers.push_back( pTempoMarker );
+	sortTempoMarkers();
+}
+
+void Timeline::deleteTempoMarker( int nBar ) {
+
+	// Erase the value to set the new value
+	if ( m_tempoMarkers.size() >= 1 ){
+		for ( int t = 0; t < m_tempoMarkers.size(); t++ ){
+			if ( m_tempoMarkers[t]->nBar == nBar ) {
+				m_tempoMarkers.erase( m_tempoMarkers.begin() +  t);
 			}
 		}
 	}
 
-	float Timeline::getTempoAtBar( int nBar, bool bSticky ) const {
-		float fBpm = 0;
+	sortTempoMarkers();
+}
 
-		if ( bSticky ) {
-			for ( int i = 0; i < static_cast<int>(m_tempoMarkers.size()); i++) {
-				if ( m_tempoMarkers[i]->nBar > nBar ) {
-					break;
-				}
-				fBpm = m_tempoMarkers[i]->fBpm;
-			}
-		} else {
-			for ( int t = 0; t < static_cast<int>(m_tempoMarkers.size()); t++ ){
-				if ( m_tempoMarkers[t]->nBar == nBar ){
-					fBpm = m_tempoMarkers[t]->fBpm;
-				}
-			}
-		}
-
-		return fBpm;
-	}
-
-	void Timeline::addTag( int nBar, QString sTag ) {
+float Timeline::getTempoAtBar( int nBar ) const {
+	auto pHydrogen = Hydrogen::get_instance();
 		
-		std::shared_ptr<Tag> pTag( new Tag );
-		pTag->nBar = nBar;
-		pTag->sTag = sTag;
-
-		m_tags.push_back( std::move( pTag ) );
-		sortTags();
+	if ( m_tempoMarkers.size() == 0 ) {
+		return pHydrogen->getSong()->getBpm();
 	}
 
-	void Timeline::deleteTag( int nBar ) {
+	float fBpm;
+	// When transport is stopped nBar is set to -1 by the
+	// AudioEngine.
+	if ( nBar == -1 ) {
+		nBar = 0;
+	}
+	if ( isFirstTempoMarkerSpecial() && nBar < m_tempoMarkers[ 0 ]->nBar ) {
+		fBpm = pHydrogen->getSong()->getBpm();
+	} else {
+		for ( int ii = 0; ii < static_cast<int>(m_tempoMarkers.size()); ii++) {
+			if ( m_tempoMarkers[ ii ]->nBar > nBar ) {
+				break;
+			}
+			fBpm = m_tempoMarkers[ ii ]->fBpm;
+		}
+	}
+	return fBpm;
+}
 
-		// Erase the value to set the new value
-		if ( m_tags.size() >= 1 ){
-			for ( int t = 0; t < m_tags.size(); t++ ){
-				if ( m_tags[t]->nBar == nBar ) {
-					m_tags.erase( m_tags.begin() +  t);
-				}
+bool Timeline::isFirstTempoMarkerSpecial() const {
+	if ( m_tempoMarkers.size() == 0 ) {
+		return true;
+	}
+
+	return m_tempoMarkers[ 0 ]->nBar != 0;
+}
+
+const std::vector<std::shared_ptr<const Timeline::TempoMarker>> Timeline::getAllTempoMarkers() const {
+	if ( isFirstTempoMarkerSpecial() ) {
+
+		std::shared_ptr<TempoMarker> pTempoMarker = std::make_shared<TempoMarker>();
+		pTempoMarker->nBar = 0;
+		pTempoMarker->fBpm = Hydrogen::get_instance()->getSong()->getBpm();
+
+		int nNumberOfTempoMarkers = m_tempoMarkers.size();
+		std::vector<std::shared_ptr<const TempoMarker>> tmpVector;
+		tmpVector.resize( nNumberOfTempoMarkers + 1 );
+		tmpVector[ 0 ] = pTempoMarker;
+
+		if ( nNumberOfTempoMarkers != 0 ) {
+			for ( int ii = 0; ii < nNumberOfTempoMarkers; ++ii ) {
+				// Since the returned vector is const, there is no
+				// need to make a deep copy.
+				tmpVector[ ii + 1 ] = m_tempoMarkers[ ii ];
 			}
 		}
+		return tmpVector;
+	}
+
+	return m_tempoMarkers;
+}
 		
-		sortTags();
-	}
+void Timeline::sortTempoMarkers() {
+	sort( m_tempoMarkers.begin(), m_tempoMarkers.end(),
+		  TempoMarkerComparator() );
+}
 
-	const QString Timeline::getTagAtBar( int nBar, bool bSticky ) const {
+void Timeline::addTag( int nBar, QString sTag ) {
+		
+	std::shared_ptr<Tag> pTag( new Tag );
+	pTag->nBar = nBar;
+	pTag->sTag = sTag;
 
-		QString sCurrentTag("");
+	m_tags.push_back( std::move( pTag ) );
+	sortTags();
+}
 
-		if ( bSticky ) {
-			for ( int t = 0; t < static_cast<int>(m_tags.size()); t++ ){
-				if ( m_tags[t]->nBar > nBar ){
-					break;
-				}
-				sCurrentTag = m_tags[t]->sTag;
-			}
-		} else {
-			for ( int t = 0; t < static_cast<int>(m_tags.size()); t++ ){
-				if ( m_tags[t]->nBar == nBar ){
-					sCurrentTag =  m_tags[t]->sTag;
-				}
+void Timeline::deleteTag( int nBar ) {
+
+	// Erase the value to set the new value
+	if ( m_tags.size() >= 1 ){
+		for ( int t = 0; t < m_tags.size(); t++ ){
+			if ( m_tags[t]->nBar == nBar ) {
+				m_tags.erase( m_tags.begin() +  t);
 			}
 		}
+	}
+		
+	sortTags();
+}
 
-		return sCurrentTag;
-	}
-	
-	void Timeline::sortTempoMarkers()
-	{
-		//sort the timeline vector to beats a < b
-		sort(m_tempoMarkers.begin(), m_tempoMarkers.end(), TempoMarkerComparator());
+const QString Timeline::getTagAtBar( int nBar, bool bSticky ) const {
+
+	QString sCurrentTag("");
+
+	if ( bSticky ) {
+		for ( int t = 0; t < static_cast<int>(m_tags.size()); t++ ){
+			if ( m_tags[t]->nBar > nBar ){
+				break;
+			}
+			sCurrentTag = m_tags[t]->sTag;
+		}
+	} else {
+		for ( int t = 0; t < static_cast<int>(m_tags.size()); t++ ){
+			if ( m_tags[t]->nBar == nBar ){
+				sCurrentTag =  m_tags[t]->sTag;
+			}
+		}
 	}
 
-	void Timeline::sortTags()
-	{
-		//sort the timeline vector to beats a < b
-		sort(m_tags.begin(), m_tags.end(), TagComparator());
-	}
+	return sCurrentTag;
+}
+
+void Timeline::sortTags()
+{
+	//sort the timeline vector to beats a < b
+	sort(m_tags.begin(), m_tags.end(), TagComparator());
+}
 
 QString Timeline::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;

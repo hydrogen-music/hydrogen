@@ -753,10 +753,13 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 	
 	if ( tempoMarkerVector.size() >= 1 ){
-		for ( int t = 0; t < static_cast<int>(tempoMarkerVector.size()); t++){
+		for ( int tt = 0; tt < static_cast<int>(tempoMarkerVector.size()); tt++){
+			if ( tt == 0 && pTimeline->isFirstTempoMarkerSpecial() ) {
+				continue;
+			}
 			QDomNode newBPMNode = doc.createElement( "newBPM" );
-			LocalFileMng::writeXmlString( newBPMNode, "BAR",QString("%1").arg( tempoMarkerVector[t]->nBar ));
-			LocalFileMng::writeXmlString( newBPMNode, "BPM", QString("%1").arg( tempoMarkerVector[t]->fBpm  ) );
+			LocalFileMng::writeXmlString( newBPMNode, "BAR",QString("%1").arg( tempoMarkerVector[tt]->nBar ));
+			LocalFileMng::writeXmlString( newBPMNode, "BPM", QString("%1").arg( tempoMarkerVector[tt]->fBpm  ) );
 			bpmTimeLine.appendChild( newBPMNode );
 		}
 	}

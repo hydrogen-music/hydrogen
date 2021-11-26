@@ -71,21 +71,21 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	pBackPanel->setPixmap( "/songEditor/bg_topPanel.png" );
 
 	// time line toggle button
-	m_pTimeLineBtn = new Button( pBackPanel, QSize( 98, 17 ), Button::Type::Toggle, "",
+	m_pTimelineBtn = new Button( pBackPanel, QSize( 98, 17 ), Button::Type::Toggle, "",
 								 pCommonStrings->getTimelineBigButton(), false, QSize(),
 								 pCommonStrings->getTimelineEnabled() );
-	m_pTimeLineBtn->move( 94, 4 );
-	m_pTimeLineBtn->setObjectName( "TimeLineBtn" );
-	connect( m_pTimeLineBtn, SIGNAL( pressed() ), this, SLOT( timeLineBtnPressed() ) );
+	m_pTimelineBtn->move( 94, 4 );
+	m_pTimelineBtn->setObjectName( "TimelineBtn" );
+	connect( m_pTimelineBtn, SIGNAL( pressed() ), this, SLOT( timelineBtnPressed() ) );
 	m_bLastUseTimelineBpm = pPref->getUseTimelineBpm();
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
-		m_pTimeLineBtn->setToolTip( pCommonStrings->getTimelineDisabledTimebaseSlave() );
-		m_pTimeLineBtn->setIsActive( false );
+		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledTimebaseSlave() );
+		m_pTimelineBtn->setIsActive( false );
 	} else if ( pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {
-		m_pTimeLineBtn->setToolTip( pCommonStrings->getTimelineDisabledPatternMode() );
-		m_pTimeLineBtn->setIsActive( false );
+		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledPatternMode() );
+		m_pTimelineBtn->setIsActive( false );
 	} else {
-		m_pTimeLineBtn->setChecked( m_bLastUseTimelineBpm );
+		m_pTimelineBtn->setChecked( m_bLastUseTimelineBpm );
 	}
 
 	// clear sequence button
@@ -183,16 +183,16 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pEditPlaybackBtn->setChecked( false );
 
 	// timeline view toggle button
-	m_pViewTimeLineBtn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Toggle, "", pCommonStrings->getTimelineButton(), false, QSize(), tr( "View timeline" ) );
-	connect( m_pViewTimeLineBtn, SIGNAL( pressed() ), this, SLOT( viewTimeLineBtnPressed() ) );
-	m_pViewTimeLineBtn->setChecked( true );
+	m_pViewTimelineBtn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Toggle, "", pCommonStrings->getTimelineButton(), false, QSize(), tr( "View timeline" ) );
+	connect( m_pViewTimelineBtn, SIGNAL( pressed() ), this, SLOT( viewTimelineBtnPressed() ) );
+	m_pViewTimelineBtn->setChecked( true );
 	
 	
 	QHBoxLayout *pHZoomLayout = new QHBoxLayout();
 	pHZoomLayout->setSpacing( 0 );
 	pHZoomLayout->setMargin( 0 );
 	pHZoomLayout->addWidget( m_pViewPlaybackBtn );
-	pHZoomLayout->addWidget( m_pViewTimeLineBtn );
+	pHZoomLayout->addWidget( m_pViewTimelineBtn );
 	pHZoomLayout->addWidget( m_pHScrollBar );
 	pHZoomLayout->addWidget( pZoomInBtn );
 	pHZoomLayout->addWidget( pZoomOutBtn );
@@ -650,22 +650,23 @@ void SongEditorPanel::drawModeBtnPressed()
 }
 
 
-void SongEditorPanel::timeLineBtnPressed() {
-	setTimelineActive( ! m_pTimeLineBtn->isChecked() );
+void SongEditorPanel::timelineBtnPressed() {
+	DEBUGLOG(! m_pTimelineBtn->isChecked());
+	setTimelineActive( ! m_pTimelineBtn->isChecked() );
 }
 
 void SongEditorPanel::showTimeline()
 {
 	m_pWidgetStack->setCurrentWidget( m_pPositionRulerScrollView );
-	m_pTimeLineBtn->show();
+	m_pTimelineBtn->show();
 	m_pMutePlaybackBtn->hide();
 	m_pEditPlaybackBtn->hide();
 	m_pPlaybackTrackFader->hide();
 	if ( ! m_pViewPlaybackBtn->isDown() ) {
 		m_pViewPlaybackBtn->setChecked( false );
 	}
-	if ( ! m_pViewTimeLineBtn->isDown() ) {
-		m_pViewTimeLineBtn->setChecked( true );
+	if ( ! m_pViewTimelineBtn->isDown() ) {
+		m_pViewTimelineBtn->setChecked( true );
 	}
 	Preferences::get_instance()->setShowPlaybackTrack( false );
 }
@@ -674,12 +675,12 @@ void SongEditorPanel::showTimeline()
 void SongEditorPanel::showPlaybackTrack()
 {
 	m_pWidgetStack->setCurrentWidget( m_pPlaybackTrackScrollView );
-	m_pTimeLineBtn->hide();
+	m_pTimelineBtn->hide();
 	m_pMutePlaybackBtn->show();
 	m_pEditPlaybackBtn->show();
 	m_pPlaybackTrackFader->show();
-	if ( ! m_pViewTimeLineBtn->isDown() ) {
-		m_pViewTimeLineBtn->setChecked( false );
+	if ( ! m_pViewTimelineBtn->isDown() ) {
+		m_pViewTimelineBtn->setChecked( false );
 	}
 	if ( ! m_pViewPlaybackBtn->isDown() ) {
 		m_pViewPlaybackBtn->setChecked( true );
@@ -687,9 +688,9 @@ void SongEditorPanel::showPlaybackTrack()
 	Preferences::get_instance()->setShowPlaybackTrack( true );
 }
 
-void SongEditorPanel::viewTimeLineBtnPressed()
+void SongEditorPanel::viewTimelineBtnPressed()
 {
-	if ( ! m_pViewTimeLineBtn->isChecked() ){
+	if ( ! m_pViewTimelineBtn->isChecked() ){
 		showTimeline();
 	} else {
 		showPlaybackTrack();
@@ -868,42 +869,45 @@ void SongEditorPanel::jackTimebaseStateChangedEvent( int ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		setTimelineEnabled( false );
-		m_pTimeLineBtn->setToolTip( pCommonStrings->getTimelineDisabledTimebaseSlave() );
-	} else {
+		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledTimebaseSlave() );
+	} else if ( pHydrogen->getSong()->getMode() != Song::PATTERN_MODE ) {
 		setTimelineEnabled( true );
-		m_pTimeLineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
+		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
 	}
 }
 
 void SongEditorPanel::onSongModeChanged() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong->getMode() == Song::SONG_MODE ) {
-		setTimelineEnabled( true );
-		m_pTimeLineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
-	} else {
+	if ( pSong->getMode() == Song::PATTERN_MODE ) {
 		setTimelineEnabled( false );
-		m_pTimeLineBtn->setToolTip( pCommonStrings->getTimelineDisabledPatternMode() );
+		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledPatternMode() );
+	} else if ( pHydrogen->getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
+		setTimelineEnabled( true );
+		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
 	}
 }
 
-void SongEditorPanel::timelineActivationEvent( int nEvent ){
-	if ( nEvent == 0 && m_pTimeLineBtn->isChecked() ) {
+void SongEditorPanel::timelineActivationEvent( int ){
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( ! pHydrogen->isTimelineEnabled() && m_pTimelineBtn->isChecked() ) {
 		setTimelineActive( false );
-	} else if ( nEvent != 0 && !m_pTimeLineBtn->isChecked() ) {
+	} else if ( pHydrogen->isTimelineEnabled() && ! m_pTimelineBtn->isChecked() ) {
 		setTimelineActive( true );
 	}
 }
 
 bool SongEditorPanel::getTimelineActive() const {
-	return m_pTimeLineBtn->isChecked();
+	return m_pTimelineBtn->isChecked();
 }
 
 void SongEditorPanel::setTimelineActive( bool bActive ){
+	DEBUGLOG( bActive );
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	if ( ! m_pTimeLineBtn->isDown() ) {
-		m_pTimeLineBtn->setChecked( bActive );
+	if ( ! m_pTimelineBtn->isDown() ) {
+		m_pTimelineBtn->setChecked( bActive );
 	}
 	
 	Preferences::get_instance()->setUseTimelineBpm( bActive );
@@ -918,21 +922,22 @@ void SongEditorPanel::setTimelineActive( bool bActive ){
 }
 
 bool SongEditorPanel::getTimelineEnabled() const {
-	return m_pTimeLineBtn->getIsActive();
+	return m_pTimelineBtn->getIsActive();
 }
 
 void SongEditorPanel::setTimelineEnabled( bool bEnabled ) {
+	DEBUGLOG( bEnabled );
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
 	if ( bEnabled ) {
-		m_pTimeLineBtn->setIsActive( true );
+		m_pTimelineBtn->setIsActive( true );
 		setTimelineActive( m_bLastUseTimelineBpm );
 	} else {
 		m_bLastUseTimelineBpm = Preferences::get_instance()->getUseTimelineBpm();
-		if ( m_pTimeLineBtn->isChecked() ) {
+		if ( m_pTimelineBtn->isChecked() ) {
 			setTimelineActive( false );
 		}
-		m_pTimeLineBtn->setIsActive( false );
+		m_pTimelineBtn->setIsActive( false );
 	}
 
 	QString sMessage = QString( "%1 = %2" )

@@ -120,7 +120,6 @@ AudioEngine::AudioEngine()
 		, m_fProcessTime( 0.0f )
 		, m_fMaxProcessTime( 0.0f )
 		, m_fNextBpm( 120 )
-		, m_bRelocated( false )
 {
 
 	m_pSampler = new Sampler;
@@ -324,10 +323,7 @@ void AudioEngine::calculateElapsedTime( const unsigned sampleRate, const unsigne
 	
 	const unsigned long currentTick = static_cast<unsigned long>(static_cast<float>(nFrame) / fTickSize );
 
-	const auto tempoMarkers = pHydrogen->getTimeline()->getAllTempoMarkers();
-	
-	if ( !Preferences::get_instance()->getUseTimelineBpm() ||
-		 tempoMarkers.size() == 0 ){
+	if ( ! pHydrogen->isTimelineEnabled() ){
 		
 		int nPatternStartInTicks;
 		const int nCurrentPatternNumber = getColumnForTick( currentTick, pSong->getIsLoopEnabled(),
@@ -343,6 +339,8 @@ void AudioEngine::calculateElapsedTime( const unsigned sampleRate, const unsigne
 			static_cast<float>(sampleRate);
 	} else {
 
+		const auto tempoMarkers = pHydrogen->getTimeline()->getAllTempoMarkers();
+
 		m_fElapsedTime = 0;
 
 		int nPatternStartInTicks;
@@ -350,7 +348,6 @@ void AudioEngine::calculateElapsedTime( const unsigned sampleRate, const unsigne
 		long previousTicks = 0;
 		float fPreviousTickSize;
 
-		// TODO: how to handle the BPM before the first marker?
 		fPreviousTickSize = computeTickSize( static_cast<int>(sampleRate), 
 											   tempoMarkers[0]->fBpm, nResolution );
 		
@@ -394,7 +391,6 @@ void AudioEngine::updateElapsedTime( const unsigned bufferSize, const unsigned s
 void AudioEngine::locate( const unsigned long nFrame, bool bWithJackBroadcast ) {
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pDriver = pHydrogen->getAudioOutput();
-	m_bRelocated = true;
 
 #ifdef H2CORE_HAVE_JACK
 	if ( pHydrogen->haveJackTransport() && bWithJackBroadcast ) {
@@ -729,7 +725,7 @@ void AudioEngine::restartAudioDrivers()
 	startAudioDrivers();
 }
 
-float AudioEngine::getBpmAtColumn( int nColumn, bool bRelocated ) {
+float AudioEngine::getBpmAtColumn( int nColumn ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
@@ -741,11 +737,8 @@ float AudioEngine::getBpmAtColumn( int nColumn, bool bRelocated ) {
 	if ( Preferences::get_instance()->getUseTimelineBpm() &&
 		 pSong->getMode() == Song::SONG_MODE ) {
 
-		float fTimelineBpm = pHydrogen->getTimeline()->getTempoAtBar( nColumn, bRelocated );
-		if ( fTimelineBpm != fBpm && fTimelineBpm != 0 ) {
-			/* TODO: For now the function returns 0 if the bar is
-			 * positioned _before_ the first tempo marker. This will be
-			 * taken care of with #854. */
+		float fTimelineBpm = pHydrogen->getTimeline()->getTempoAtBar( nColumn );
+		if ( fTimelineBpm != fBpm ) {
 			DEBUGLOG( QString( "Set tempo to timeline value [%1]").arg( fTimelineBpm ) );
 			fBpm = fTimelineBpm;
 		}
@@ -795,8 +788,7 @@ void AudioEngine::processCheckBPMChanged() {
 	oldFrame = getFrames();
 #endif
 
-	float fNewBpm = getBpmAtColumn( pHydrogen->getAudioEngine()->getColumn(), m_bRelocated );
-	m_bRelocated = false;
+	float fNewBpm = getBpmAtColumn( pHydrogen->getAudioEngine()->getColumn() );
 	if ( fNewBpm != getBpm() ) {
 		setBpm( fNewBpm );
 		EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, 0 );

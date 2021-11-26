@@ -29,114 +29,138 @@
 
 namespace H2Core
 {
+
+/**
+ * Timeline class storing and handling all TempoMarkers and Tags.
+ *
+ * The design of the Timeline is a little bit involved and needs a
+ * couple of words to explain it. As soon as the Timeline is
+ * activated, it is required to yield a tempo for each bar which
+ * solely depends on the TempoMarkers set by the user. Since a
+ * TempoMarker determines the tempo for all columns equal or
+ * bigger its own, there always needs a be one present at the very
+ * beginning of the Song.
+ *
+ * For a more convenient UX the user shouldn't bother about the first
+ * one too much as a TempoMarker is usually put after the first bar to
+ * indicate a _change_ in tempo. Therefore, when a TempoMarker is
+ * added to an empty Timeline (to any location but the first column),
+ * the Timeline pretends to have a tempo marker in the beginning
+ * holding the current Song::m_fBpm (the tempo set via the BPM
+ * widget). This special first marker can only be "removed" by the
+ * user by adding a TempoMarker to the first column. Also, the special
+ * marker is responding to changes of the song tempo (using the BPM
+ * widget or MIDI/OSC commands) and is prepended in the
+ * getAllTempoMarkers() functions.
+ *
+ * The calling function will not notice any difference between the
+ * provided TempoMarkers and has to use
+ * isFirstTempoMarkerSpecial() instead.
+ *
+ * All methods altering the TempoMarker and Tag are members of
+ * this class and the former are added as const structs to
+ * m_tempoMarkers or m_tags. To alter one of them, one has to
+ * delete it and add a new, altered version.
+ */
+/** \ingroup docCore*/
+class Timeline : public H2Core::Object<Timeline>
+{
+	H2_OBJECT(Timeline)
+
+public:
+	Timeline();
+	~Timeline();
+
 	/**
-	 * Timeline class storing and handling all TempoMarkers and Tags.
-	 *
-	 * All methods altering the TempoMarker and Tag are members of
-	 * this class and the former are added as const structs to
-	 * m_tempoMarkers or m_tags. To alter one of them, one has to
-	 * delete it and add a new, altered version.
+	 * TempoMarker specifies a change in speed during the
+	 * Song.
 	 */
-	/** \ingroup docCore*/
-	class Timeline : public H2Core::Object<Timeline>
+	struct TempoMarker
 	{
-		H2_OBJECT(Timeline)
+		int		nBar;		// beat position in timeline
+		float	fBpm;		// tempo in beats per minute
+	};
 
-		public:
-			Timeline();
-			~Timeline();
-
-			/**
-			 * TempoMarker specifies a change in speed during the
-			 * Song.
-			 */
-			struct TempoMarker
-			{
-				int		nBar;		// beat position in timeline
-				float	fBpm;		// tempo in beats per minute
-			};
-
-			/** 
-			 * Tag specifies a note added to a certain position in the
-			Song.
-			*/
-			struct Tag
-			{
-				int		nBar;		// beat position in timeline
-				QString sTag;		// tag
-			};
+	/** 
+	 * Tag specifies a note added to a certain position in the
+	 Song.
+	*/
+	struct Tag
+	{
+		int		nBar;		// beat position in timeline
+		QString sTag;		// tag
+	};
 
 
-			/**
-			 * @param nBar Position of the Timeline to query for a 
-			 *   tempo marker.
-			 * @param fBpm New tempo in beats per minute. All values
-			 *   below 30 and above 500 will be cut.
-			 */
-			void		addTempoMarker( int nBar, float fBpm );
-			/**
-			 * @param nBar Position of the Timeline to delete the
-			 * tempo marker at (if one is present).
-			 */
-			void		deleteTempoMarker( int nBar );
-			void		deleteAllTempoMarkers();
-			/**
-			 * Returns the tempo of the Song at a given bar.
-			 *
-			 * @param nBar Position of the Timeline to query for a 
-			 *   tempo marker.
-			 * @param bSticky If set to true either the tempo marker
-			 *   at `nBar` or - if none is present - the nearest
-			 *   previous tempo marker is returned. If set to false,
-			 *   only the precise position `nBar` is taken into
-			 *   account.
-			 *
-			 * TODO: For now the function returns 0 if the bar is
-			 * positioned _before_ the first tempo marker. The calling
-			 * routine Hydrogen::getTimelineBpm() will take care of
-			 * this and replaces it with pSong->__bpm. This will be
-			 * taken care of with #854.
-			 */
-			float		getTempoAtBar( int nBar, bool bSticky ) const;
+	/**
+	 * @param nBar Position of the Timeline to query for a 
+	 *   tempo marker.
+	 * @param fBpm New tempo in beats per minute. All values
+	 *   below 30 and above 500 will be cut.
+	 */
+	void		addTempoMarker( int nBar, float fBpm );
+	/** Delete all tempo markers except for the first one and
+	 * mark the tempo of the Timeline m_bUnset.
+	 *
+	 * @param nBar Position of the Timeline to delete the
+	 * tempo marker at (if one is present).
+	 */
+	void		deleteTempoMarker( int nBar );
+	/** Deletes all TempoMarkers set by the user. But not the
+		special one.*/
+	void		deleteAllTempoMarkers();
+	/**
+	 * Returns the tempo of the Song at a given bar.
+	 *
+	 * @param nBar Position of the Timeline to query for a 
+	 *   tempo marker.
+	 */
+	float		getTempoAtBar( int nBar ) const;
 
-			/**
-			 * @return std::vector<std::shared_ptr<const TempoMarker>>
-			 * Provides read-only access to m_tempoMarker.
-			 */
-			const std::vector<std::shared_ptr<const TempoMarker>> getAllTempoMarkers() const;
+	/**
+	 * @return std::vector<std::shared_ptr<const TempoMarker>>
+	 * Provides read-only access to m_tempoMarker.
+	 */
+	const std::vector<std::shared_ptr<const TempoMarker>> getAllTempoMarkers() const;
 
-			/**
-			 * @param nBar Position of the Timeline to query for a 
-			 *   tag.
-			 * @param sTag New tag in beats per minute.
-			 */
-			void		addTag( int nBar, QString sTag );
-			/**
-			 * @param nBar Position of the Timeline to delete the tag
-			 * at (if one is present).
-			 */
-			void		deleteTag( int nBar );
-			void 		deleteAllTags();
-			/**
-			 * Returns the tag of the Song at a given bar.
-			 *
-			 * @param nBar Position of the Timeline to query for a 
-			 *   tag.
-			 * @param bSticky If set to true either the tag at `nBar`
-			 *   or - if none is present - the nearest previous tag is
-			 *   returned. If set to false, only the precise position
-			 *   `nBar` is taken into account.
-			 * 
-			 * The function returns "" if the bar is positioned
-			 * _before_ the first tag or none is present at all.
-			 */
+	/** Whether there is a TempoMarker introduced by the user at the
+		first bar. If not, the Timeline pretends that there is one by
+		returning the current Song's tempo. The latter is referred to
+		by "special tempo marker".*/
+	bool isFirstTempoMarkerSpecial() const;
 
-			const QString getTagAtBar( int nBar, bool bSticky ) const;
-			/**
-			 * @return std::vector<std::shared_ptr<const Tag>>
-			 * Provides read-only access to m_tags.
-			 */
-			const std::vector<std::shared_ptr<const Tag>> getAllTags() const;
+	/**
+	 * @param nBar Position of the Timeline to query for a 
+	 *   tag.
+	 * @param sTag New tag in beats per minute.
+	 */
+	void		addTag( int nBar, QString sTag );
+	/**
+	 * @param nBar Position of the Timeline to delete the tag
+	 * at (if one is present).
+	 */
+	void		deleteTag( int nBar );
+	void 		deleteAllTags();
+	/**
+	 * Returns the tag of the Song at a given bar.
+	 *
+	 * @param nBar Position of the Timeline to query for a 
+	 *   tag.
+	 * @param bSticky If set to true either the tag at `nBar`
+	 *   or - if none is present - the nearest previous tag is
+	 *   returned. If set to false, only the precise position
+	 *   `nBar` is taken into account.
+	 * 
+	 * The function returns "" if the bar is positioned
+	 * _before_ the first tag or none is present at all.
+	 */
+
+	const QString getTagAtBar( int nBar, bool bSticky ) const;
+	/**
+	 * @return std::vector<std::shared_ptr<const Tag>>
+	 * Provides read-only access to m_tags.
+	 */
+	const std::vector<std::shared_ptr<const Tag>> getAllTags() const;
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -147,36 +171,34 @@ namespace H2Core
 	 *
 	 * \return String presentation of current object.*/
 	QString toQString( const QString& sPrefix, bool bShort = true ) const override;
-		private:
-			void		sortTempoMarkers();
-			void		sortTags();
+private:
+	void		sortTempoMarkers();
+	void		sortTags();
 
-			std::vector<std::shared_ptr<const TempoMarker>> m_tempoMarkers;
-			std::vector<std::shared_ptr<const Tag>> m_tags;
-
-			struct TempoMarkerComparator
-			{
-				bool operator()( const std::shared_ptr<const TempoMarker> lhs, const std::shared_ptr<const TempoMarker> rhs)
-				{
-					return lhs->nBar < rhs->nBar;
-				}
-			};
-			struct TagComparator
-			{
-				bool operator()( const std::shared_ptr<const Tag> lhs, const std::shared_ptr<const Tag> rhs)
-				{
-					return lhs->nBar < rhs->nBar;
-				}
-			};
+	std::vector<std::shared_ptr<const TempoMarker>> m_tempoMarkers;
+	std::vector<std::shared_ptr<const Tag>> m_tags;
+	
+	struct TempoMarkerComparator
+	{
+		bool operator()( const std::shared_ptr<const TempoMarker> lhs, const std::shared_ptr<const TempoMarker> rhs)
+		{
+			return lhs->nBar < rhs->nBar;
+		}
 	};
+	struct TagComparator
+	{
+		bool operator()( const std::shared_ptr<const Tag> lhs, const std::shared_ptr<const Tag> rhs)
+		{
+			return lhs->nBar < rhs->nBar;
+		}
+	};
+};
+	
 inline void Timeline::deleteAllTempoMarkers() {
-	m_tempoMarkers.clear();
+		m_tempoMarkers.clear();
 }
 inline void Timeline::deleteAllTags() {
 	m_tags.clear();
-}
-inline const std::vector<std::shared_ptr<const Timeline::TempoMarker>> Timeline::getAllTempoMarkers() const {
-	return m_tempoMarkers;
 }
 inline const std::vector<std::shared_ptr<const Timeline::Tag>> Timeline::getAllTags() const {
 	return m_tags;

@@ -68,10 +68,10 @@ class InstrumentComponent;
  * information.
  *
  * Such a relocation request is also triggered when clicking on the
- * timeline or the player control buttons of Hydrogen. Internally,
- * audioEngine_stop() is called during the cycle in which the JACK
+ * position ruler or the player control buttons of Hydrogen. Internally,
+ * AudioEngine::stop() is called during the cycle in which the JACK
  * transport status is _JackTransportStarting_ and started again by
- * audioEngine_start() when in _JackTransportRolling_ in the next
+ * AudioEngine::start() when in _JackTransportRolling_ in the next
  * cycle. Note that if there are slow synchronizing client in JACK's
  * connection graph, it can take multiple cycles until the JACK
  * transport is rolling again.
