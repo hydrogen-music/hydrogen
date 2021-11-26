@@ -628,6 +628,10 @@ void HydrogenApp::onEventQueueTimer()
 			case EVENT_UPDATE_SONG_EDITOR:
 				pListener->updateSongEditorEvent( event.value );
 				break;
+
+			case EVENT_COLUMN_CHANGED:
+				pListener->columnChangedEvent( event.value );
+				break;
 				
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );

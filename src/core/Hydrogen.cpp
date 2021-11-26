@@ -1349,10 +1349,8 @@ bool Hydrogen::isTimelineEnabled() const {
 	if ( Preferences::get_instance()->getUseTimelineBpm() &&
 		 getSong()->getMode() == Song::SONG_MODE &&
 		 getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
-		DEBUGLOG("true")
 		return true;
 	}
-	DEBUGLOG("false")
 
 	return false;
 }

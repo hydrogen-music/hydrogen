@@ -692,6 +692,7 @@ private:
 	 * A value of -1 corresponds to "pattern list could not be found".
 	 */
 	int					m_nColumn;
+	int					m_nOldColumn;
 
 	/** Set to the total number of ticks in a Song in findPatternInTick()
 		if Song::SONG_MODE is chosen and playback is at least in the

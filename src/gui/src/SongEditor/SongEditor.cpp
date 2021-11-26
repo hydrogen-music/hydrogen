@@ -2018,12 +2018,6 @@ void SongEditorPositionRuler::createBackground()
 	char tmp[10];
 	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
 		uint x = m_nMargin + i * m_nGridWidth;
-		for ( int t = 0; t < static_cast<int>(tagVector.size()); t++){
-			if ( tagVector[t]->nBar == i ) {
-				p.setPen( Qt::cyan );
-				p.drawText( x - m_nGridWidth / 2 , 12, m_nGridWidth * 2, height() , Qt::AlignCenter, "T");
-			}
-		}
 
 		if ( (i % 4) == 0 ) {
 			p.setPen( pPref->getColorTheme()->m_songEditor_textColor );
@@ -2033,6 +2027,25 @@ void SongEditorPositionRuler::createBackground()
 		else {
 			p.setPen( pPref->getColorTheme()->m_songEditor_textColor );
 			p.drawLine( x, 32, x, 40 );
+		}
+	}
+	
+	int nPaintedTags = 0;
+	// draw tags
+	for ( uint ii = 0; ii < m_nMaxPatternSequence + 1; ii++) {
+		uint x = m_nMargin + ii * m_nGridWidth;
+		for ( int tt = 0; tt < static_cast<int>(tagVector.size()); tt++){
+			if ( tagVector[tt]->nBar == ii ) {
+				p.setPen( Qt::cyan );
+				p.drawText( x - m_nGridWidth / 2 , 12, m_nGridWidth * 2, height() , Qt::AlignCenter, "T");
+
+				++nPaintedTags;
+			}
+		}
+		
+		// Let's be more efficient and finish as soon as we are done.
+		if ( nPaintedTags == tagVector.size() ) {
+			break;
 		}
 	}
 
@@ -2047,6 +2060,30 @@ void SongEditorPositionRuler::createBackground()
 		tempoMarkerColor = textColorAlpha;
 	}
 	p.setPen( tempoMarkerColor );
+
+	int nCurrentColumn = pHydrogen->getAudioEngine()->getColumn();
+	int nPaintedTempoMarkers = 0;
+
+	// Which tempo marker is the currently used one?
+	int nCurrentTempoMarkerIndex = -1;
+	for ( int tt = 0; tt < static_cast<int>(tempoMarkerVector.size()); tt++){
+		if ( tempoMarkerVector[tt]->nBar > nCurrentColumn ) {
+			nCurrentTempoMarkerIndex = std::max( tt - 1, 0 );
+			break;
+		}
+	}
+	if ( nCurrentTempoMarkerIndex == -1 ) {
+		nCurrentTempoMarkerIndex = tempoMarkerVector.size() - 1;
+	}
+	
+	// Draw tempo marker grid
+	for (uint ii = 0; ii < m_nMaxPatternSequence + 1; ii++) {
+		uint x = m_nMargin + ii * m_nGridWidth;
+		p.drawLine( x, 2, x, 5 );
+		p.drawLine( x, 19, x, 20 );
+	}
+
+	// Draw tempo markers
 	char tempo[10];
 	for (uint ii = 0; ii < m_nMaxPatternSequence + 1; ii++) {
 		uint x = m_nMargin + ii * m_nGridWidth;
@@ -2055,16 +2092,42 @@ void SongEditorPositionRuler::createBackground()
 		for ( int tt = 0; tt < static_cast<int>(tempoMarkerVector.size()); tt++){
 			if ( tempoMarkerVector[tt]->nBar == ii ) {
 				if ( ii == 0 && pTimeline->isFirstTempoMarkerSpecial() ) {
+					if ( ! pHydrogen->isTimelineEnabled() ) {
+						// Omit the special tempo marker.
+						continue;
+					}
 					p.setPen( tempoMarkerColor.darker( 150 ) );
 				}
+				
+				// Highlight the currently used tempo marker by
+				// drawing it bold.
+				if ( tt == nCurrentTempoMarkerIndex ) {
+					font.setBold( true );
+					p.setFont( font );
+				}
+					
 				sprintf( tempo, "%d",  ((int)tempoMarkerVector[tt]->fBpm) );
 				p.drawText( x - m_nGridWidth, 3, m_nGridWidth * 2,
 							height() / 2 - 5, Qt::AlignCenter, tempo );
+
+				++nPaintedTempoMarkers;
+
+				// Reset painter
 				if ( ii == 0 && pTimeline->isFirstTempoMarkerSpecial() ) {
 					p.setPen( tempoMarkerColor );
 				}
+				if ( tt == nCurrentTempoMarkerIndex ) {
+					font.setBold( false );
+					p.setFont( font );
+				}
 			}
 		}
+
+		// Let's be more efficient and finish as soon as we are done.
+		if ( nPaintedTempoMarkers == tempoMarkerVector.size() ){
+			break;
+		}
+																
 	}
 
 	p.setPen( QColor(35, 39, 51) );
@@ -2076,7 +2139,6 @@ void SongEditorPositionRuler::createBackground()
 }
 
 void SongEditorPositionRuler::tempoChangedEvent( int ) {
-	INFOLOG( Hydrogen::get_instance()->getAudioEngine()->getBpm() );
 	auto pTimeline = Hydrogen::get_instance()->getTimeline();
 	if ( ! pTimeline->isFirstTempoMarkerSpecial() ) {
 		return;
@@ -2089,6 +2151,10 @@ void SongEditorPositionRuler::tempoChangedEvent( int ) {
 		return;
 	}
 
+	createBackground();
+}
+
+void SongEditorPositionRuler::columnChangedEvent( int ) {
 	createBackground();
 }
 
@@ -2112,6 +2178,23 @@ void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 		}
 		pPref->setPunchOutPos(column-1);
 		update();
+	}
+}
+
+bool SongEditorPositionRuler::event( QEvent* ev ) {
+	if ( ev->type() == QEvent::ToolTip ) {
+		showToolTip( dynamic_cast<QHelpEvent*>(ev) );
+		return 0;
+	}
+
+	return QWidget::event( ev );
+}
+
+void SongEditorPositionRuler::showToolTip( QHelpEvent* ev ) {
+	if ( Hydrogen::get_instance()->isTimelineEnabled() &&
+		 Hydrogen::get_instance()->getTimeline()->isFirstTempoMarkerSpecial() &&
+		 ev->x() < m_nMargin + m_nGridWidth ) {
+		QToolTip::showText( ev->globalPos(), tr( "The tempo set in the BPM widget will be used as a default for the beginning of the song. Left-click to overwrite it." ), this );
 	}
 }
 

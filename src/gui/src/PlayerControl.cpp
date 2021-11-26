@@ -1019,7 +1019,6 @@ void PlayerControl::updateBPMWidget() {
 
 void PlayerControl::tempoChangedEvent( int nValue )
 {
-	INFOLOG( nValue );
 	// Also update value if the BPM widget is disabled
 	bool bIsReadOnly = m_pLCDBPMSpinbox->isReadOnly();
 

@@ -115,6 +115,7 @@ AudioEngine::AudioEngine()
 		, m_fMasterPeak_L( 0.0f )
 		, m_fMasterPeak_R( 0.0f )
 		, m_nColumn( -1 )
+		, m_nOldColumn( -1 )
 		, m_nMaxTimeHumanize( 2000 )
 		, m_nextState( State::Ready )
 		, m_fProcessTime( 0.0f )
@@ -1395,6 +1396,10 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 			}
 	
 			m_nColumn = getColumnForTick( tick, pSong->getIsLoopEnabled(), &m_nPatternStartTick );
+			if ( m_nColumn != m_nOldColumn ) {
+				m_nOldColumn = m_nColumn;
+				EventQueue::get_instance()->push_event( EVENT_COLUMN_CHANGED, 0 );
+			}
 
 			if ( tick > m_nSongSizeInTicks && m_nSongSizeInTicks != 0 ) {
 				// When using the JACK audio driver the overall
@@ -1427,6 +1432,10 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 					// and was already invoked with
 					// `pSong->is_loop_enabled()` as second argument.
 					m_nColumn = getColumnForTick( 0, true, &m_nPatternStartTick );
+					if ( m_nColumn != m_nOldColumn ) {
+						m_nOldColumn = m_nColumn;
+						EventQueue::get_instance()->push_event( EVENT_COLUMN_CHANGED, 0 );
+					}
 				} else {
 
 					___INFOLOG( "End of Song" );

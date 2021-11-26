@@ -339,6 +339,7 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 
 	int getPlayheadWidth() const;
 	void tempoChangedEvent( int ) override;
+	void columnChangedEvent( int ) override;
 
 
 	public slots:
@@ -369,10 +370,13 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		QPixmap				m_tickPositionPixmap;
 		bool				m_bRightBtnPressed;
 		
-		virtual void mouseMoveEvent(QMouseEvent *ev);
-		virtual void mousePressEvent( QMouseEvent *ev );
-		virtual void mouseReleaseEvent(QMouseEvent *ev);
-		virtual void paintEvent( QPaintEvent *ev );
+		virtual void mouseMoveEvent(QMouseEvent *ev) override;
+		virtual void mousePressEvent( QMouseEvent *ev ) override;
+		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
+		virtual void paintEvent( QPaintEvent *ev ) override;
+	virtual bool event( QEvent* ev ) override;
+
+	void showToolTip( QHelpEvent* ev );
 
 };
 
