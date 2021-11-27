@@ -163,52 +163,53 @@ int PortAudioDriver::connect()
 	}
 
 
-	if ( ! m_sDevice.isNull() && m_sDevice != "" ) {
-
-		// Find device to use
-		int nDevices = Pa_GetDeviceCount();
-		const PaDeviceInfo *pDeviceInfo;
-		for ( int nDevice = 0; nDevice < nDevices; nDevice++ ) {
-			pDeviceInfo = Pa_GetDeviceInfo( nDevice );
-			// Filter by HostAPI
-			if ( ! pPreferences->m_sPortAudioHostAPI.isNull() || pPreferences->m_sPortAudioHostAPI != "" ) {
-				if ( Pa_GetHostApiInfo( pDeviceInfo->hostApi )->name != pPreferences->m_sPortAudioHostAPI ) {
-					continue;
-				}
-			}
-
-			if ( pDeviceInfo->maxOutputChannels >= 2
-				 && QString::compare( m_sDevice,  pDeviceInfo->name, Qt::CaseInsensitive ) == 0 ) {
-				PaStreamParameters outputParameters;
-				memset( &outputParameters, '\0', sizeof( outputParameters ) );
-				outputParameters.channelCount = 2;
-				outputParameters.device = nDevice;
-				outputParameters.hostApiSpecificStreamInfo = NULL;
-				outputParameters.sampleFormat = paFloat32;
-
-				// Use the same latency setting as Pa_OpenDefaultStream() -- defaulting to the high suggested
-				// latency. This should probably be an option.
-				outputParameters.suggestedLatency =
-					Pa_GetDeviceInfo( nDevice )->defaultHighInputLatency;
-				outputParameters.suggestedLatency = pPreferences->m_nLatencyTarget * 1.0 / getSampleRate();
-
-				err = Pa_OpenStream( &m_pStream,
-									 nullptr, /* No input stream */
-									 &outputParameters,
-									 m_nSampleRate, paFramesPerBufferUnspecified, paNoFlag,
-									 portAudioCallback, this );
-				if ( err != paNoError ) {
-					ERRORLOG( QString( "Found but can't open device '%1' (max %3 in, %4 out): %2" )
-							  .arg( m_sDevice ).arg( Pa_GetErrorText( err ) )
-							  .arg( pDeviceInfo->maxInputChannels ).arg( pDeviceInfo->maxOutputChannels ) );
-					// Use the default stream
-					break;
-				}
-				INFOLOG( QString( "Opened device '%1'" ).arg( m_sDevice ) );
-				bUseDefaultStream = false;
-				break;
+	// Find device to use
+	int nDevices = Pa_GetDeviceCount();
+	const PaDeviceInfo *pDeviceInfo;
+	for ( int nDevice = 0; nDevice < nDevices; nDevice++ ) {
+		pDeviceInfo = Pa_GetDeviceInfo( nDevice );
+		// Filter by HostAPI
+		if ( ! pPreferences->m_sPortAudioHostAPI.isNull() || pPreferences->m_sPortAudioHostAPI != "" ) {
+			if ( Pa_GetHostApiInfo( pDeviceInfo->hostApi )->name != pPreferences->m_sPortAudioHostAPI ) {
+				continue;
 			}
 		}
+
+		if ( pDeviceInfo->maxOutputChannels >= 2
+			 && ( QString::compare( m_sDevice,  pDeviceInfo->name, Qt::CaseInsensitive ) == 0 ||
+			      m_sDevice.isNull() || m_sDevice == "" ) ) {
+			PaStreamParameters outputParameters;
+			memset( &outputParameters, '\0', sizeof( outputParameters ) );
+			outputParameters.channelCount = 2;
+			outputParameters.device = nDevice;
+			outputParameters.hostApiSpecificStreamInfo = NULL;
+			outputParameters.sampleFormat = paFloat32;
+
+			// Use the same latency setting as Pa_OpenDefaultStream() -- defaulting to the high suggested
+			// latency. This should probably be an option.
+			outputParameters.suggestedLatency =
+				Pa_GetDeviceInfo( nDevice )->defaultHighInputLatency;
+			if ( pPreferences->m_nLatencyTarget > 0 ) {
+				outputParameters.suggestedLatency = pPreferences->m_nLatencyTarget * 1.0 / getSampleRate();
+			}
+
+			err = Pa_OpenStream( &m_pStream,
+								 nullptr, /* No input stream */
+								 &outputParameters,
+								 m_nSampleRate, paFramesPerBufferUnspecified, paNoFlag,
+								 portAudioCallback, this );
+			if ( err != paNoError ) {
+				ERRORLOG( QString( "Found but can't open device '%1' (max %3 in, %4 out): %2" )
+						  .arg( m_sDevice ).arg( Pa_GetErrorText( err ) )
+						  .arg( pDeviceInfo->maxInputChannels ).arg( pDeviceInfo->maxOutputChannels ) );
+				// Use the default stream
+				break;
+			}
+			INFOLOG( QString( "Opened device '%1'" ).arg( m_sDevice ) );
+			bUseDefaultStream = false;
+			break;
+		}
+
 		if ( bUseDefaultStream ) {
 			ERRORLOG( QString( "Can't use device '%1', using default stream" )
 					  .arg( m_sDevice ) );
@@ -216,6 +217,8 @@ int PortAudioDriver::connect()
 	}
 
 	if ( bUseDefaultStream ) {
+		// Failed to open the request device. Use the default device.
+		// Less than desirably, this will also use the default latency settings.
 		err = Pa_OpenDefaultStream(
 					&m_pStream,        /* passes back stream pointer */
 					0,              /* no input channels */

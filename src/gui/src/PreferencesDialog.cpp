@@ -820,6 +820,7 @@ void PreferencesDialog::updateDriverInfo()
 		portaudioHostAPILabel->hide();
 		latencyTargetLabel->hide();
 		latencyTargetSpinBox->hide();
+		latencyValueLabel->hide();
 		if ( std::strcmp( H2Core::Hydrogen::get_instance()->getAudioOutput()->class_name(),
 						  "JackAudioDriver" ) == 0 ) {
 			trackOutputComboBox->setEnabled( true );
@@ -875,6 +876,7 @@ void PreferencesDialog::updateDriverInfo()
 		portaudioHostAPILabel->hide();
 		latencyTargetLabel->hide();
 		latencyTargetSpinBox->hide();
+		latencyValueLabel->hide();
 	}
 	else if ( driverComboBox->currentText() == "JACK" ) {	// JACK
 		info.append( "<b>" )
@@ -906,6 +908,7 @@ void PreferencesDialog::updateDriverInfo()
 		portaudioHostAPILabel->hide();
 		latencyTargetLabel->hide();
 		latencyTargetSpinBox->hide();
+		latencyValueLabel->hide();
 	}
 	else if ( driverComboBox->currentText() == "ALSA" ) {	// ALSA
 		info.append( "<b>" ).append( tr( "ALSA Driver" ) )
@@ -931,6 +934,7 @@ void PreferencesDialog::updateDriverInfo()
 		portaudioHostAPILabel->hide();
 		latencyTargetLabel->hide();
 		latencyTargetSpinBox->hide();
+		latencyValueLabel->hide();
 	}
 	else if ( driverComboBox->currentText() == "PortAudio" ) {
 		info.append( "<b>" ).append( tr( "PortAudio Driver" ) )
@@ -956,6 +960,9 @@ void PreferencesDialog::updateDriverInfo()
 		portaudioHostAPILabel->show();
 		latencyTargetLabel->show();
 		latencyTargetSpinBox->show();
+		latencyValueLabel->show();
+		latencyValueLabel->setText( QString("Current: %1 frames").arg( H2Core::Hydrogen::get_instance()->getAudioOutput()->getLatency() ) );
+
 	}
 	else if ( driverComboBox->currentText() == "CoreAudio" ) {
 		info.append( "<b>" ).append( tr( "CoreAudio Driver" ) )
@@ -981,6 +988,7 @@ void PreferencesDialog::updateDriverInfo()
 		portaudioHostAPILabel->hide();
 		latencyTargetLabel->hide();
 		latencyTargetSpinBox->hide();
+		latencyValueLabel->hide();
 	}
 	else if ( driverComboBox->currentText() == "PulseAudio" ) {
 		info.append( "<b>" ).append( tr( "PulseAudio Driver" ) )
@@ -1006,6 +1014,7 @@ void PreferencesDialog::updateDriverInfo()
 		portaudioHostAPILabel->hide();
 		latencyTargetLabel->hide();
 		latencyTargetSpinBox->hide();
+		latencyValueLabel->hide();
 	}
 	else {
 		QString selectedDriver = driverComboBox->currentText();
@@ -1077,6 +1086,7 @@ void PreferencesDialog::on_restartDriverBtn_clicked()
 	Hydrogen::get_instance()->restartDrivers();
 	pPref->savePreferences();
 	m_bNeedDriverRestart = false;
+	updateDriverInfo();
 }
 
 
