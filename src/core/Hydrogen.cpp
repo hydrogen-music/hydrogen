@@ -1395,6 +1395,11 @@ void Hydrogen::startNsmClient()
 
 void Hydrogen::recalculateRubberband( float fBpm ) {
 	DEBUGLOG( fBpm );
+
+	if ( !Preferences::get_instance()->getRubberBandBatchMode() ) {
+		return;
+	}
+	
 	if ( getSong() != nullptr ) {
 		auto pInstrumentList = getSong()->getInstrumentList();
 		if ( pInstrumentList != nullptr ) {
