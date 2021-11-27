@@ -848,11 +848,16 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 			pColumn->add( pNewPattern );
 		} else {
 			// There was already a pattern present and we removed it.
-			// If there is no pattern left in this column, we remove
-			// it too.
-			if ( pColumn->size() == 0 ) {
-				pColumns->erase( pColumns->begin() + nColumn );
-				delete pColumn;
+			// Ensure that there are no empty columns at the end of
+			// the song.
+			for ( int ii = pColumns->size() - 1; ii >= 0; ii-- ) {
+				PatternList *pColumn = ( *pColumns )[ ii ];
+				if ( pColumn->size() == 0 ) {
+					pColumns->erase( pColumns->begin() + ii );
+					delete pColumn;
+				} else {
+					break;
+				}
 			}
 		}
 	} else if ( nColumn >= pColumns->size() ) {
