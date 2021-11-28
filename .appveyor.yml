@@ -1,6 +1,6 @@
 environment:
   GENERATOR: "MinGW Makefiles"
-  ARTIFACT_BRANCH: release/1.1-artifacts
+  ARTIFACT_BRANCH: releases/1.1-artifacts
   matrix:
 
     - job_name: 'Ubuntu 20.04'
