@@ -533,6 +533,7 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 			// Start of a drawing gesture. Pick up whether we are painting Active or Inactive cells.
 			QPoint p = xyToColumnRow( ev->pos() );
 			m_bDrawingActiveCell = Hydrogen::get_instance()->getSong()->isPatternActive( p.x(), p.y() );
+			setPatternActive( p.x(), p.y(), ! m_bDrawingActiveCell );
 			m_pSongEditorPanel->updatePlaybackTrackIfNecessary();
 
 		} else if ( ev->button() == Qt::RightButton ) {
@@ -589,7 +590,7 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 		HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
 		// Drawing mode: continue drawing over other cells
-		setPatternActive( p.x(), p.y(), m_bDrawingActiveCell );
+		setPatternActive( p.x(), p.y(), ! m_bDrawingActiveCell );
 	}
 }
 
