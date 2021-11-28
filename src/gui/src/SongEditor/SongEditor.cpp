@@ -1930,6 +1930,10 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
  , m_bRightBtnPressed( false )
  , m_nPlayheadWidth( 11 )
  , m_nPlayheadHeight( 8 )
+ , m_nActiveBpmWidgetColumn( -1 )
+ , m_nHoveredColumn( -1 )
+ , m_nHoveredRow( -1 )
+ , m_bHighlightHoveredColumn( false )
 {
 
 	auto pPref = H2Core::Preferences::get_instance();
@@ -1940,6 +1944,7 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
 
 	setAttribute(Qt::WA_OpaquePaintEvent);
+	setMouseTracking( true );
 
 	m_nGridWidth = pPref->getSongEditorGridWidth();
 	m_nMaxPatternSequence = pPref->getMaxBars();
@@ -2001,42 +2006,59 @@ void SongEditorPositionRuler::createBackground()
 {
 	Preferences *pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	Timeline * pTimeline = pHydrogen->getTimeline();
 	auto tagVector = pTimeline->getAllTags();
 	
-	QColor textColorAlpha( pPref->getColorTheme()->m_songEditor_textColor );
+	QColor textColor( pPref->getColorTheme()->m_songEditor_textColor );
+	QColor textColorAlpha( textColor );
 	textColorAlpha.setAlpha( 45 );
 
-	m_pBackgroundPixmap->fill( pPref->getColorTheme()->m_songEditor_backgroundColor );
+	QColor backgroundColor = pPref->getColorTheme()->m_songEditor_backgroundColor;
+	QColor backgroundColorTempoMarkers = backgroundColor.darker( 120 );
+
+	QColor colorHighlight = pPref->getColorTheme()->m_highlightColor;
+
+	m_pBackgroundPixmap->fill( backgroundColor );
 
 	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 
 	QPainter p( m_pBackgroundPixmap );
 	p.setFont( font );
 
-	p.fillRect( 0, 0, width(), 24, QColor( 67, 72, 83, 105) );
+	p.fillRect( 0, 0, width(), 24, backgroundColorTempoMarkers );
 	char tmp[10];
+	
+	if ( pSong->getMode() == Song::PATTERN_MODE ) {
+		p.setPen( textColorAlpha );
+	} else {
+		p.setPen( textColor );
+	}
 	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
 		uint x = m_nMargin + i * m_nGridWidth;
 
 		if ( (i % 4) == 0 ) {
-			p.setPen( pPref->getColorTheme()->m_songEditor_textColor );
 			sprintf( tmp, "%d", i + 1 );
 			p.drawText( x - m_nGridWidth, 12, m_nGridWidth * 2, height(), Qt::AlignCenter, tmp );
 		}
 		else {
-			p.setPen( pPref->getColorTheme()->m_songEditor_textColor );
 			p.drawLine( x, 32, x, 40 );
 		}
 	}
 	
 	int nPaintedTags = 0;
 	// draw tags
+	if ( pSong->getMode() == Song::PATTERN_MODE ) {
+		QColor colorHiglightAlpha( colorHighlight.lighter( 120 ) );
+		colorHiglightAlpha.setAlpha( 45 );
+		p.setPen( colorHiglightAlpha );
+	} else {
+		p.setPen( colorHighlight.lighter( 120 ) );
+	}
 	for ( uint ii = 0; ii < m_nMaxPatternSequence + 1; ii++) {
 		uint x = m_nMargin + ii * m_nGridWidth;
 		for ( int tt = 0; tt < static_cast<int>(tagVector.size()); tt++){
-			if ( tagVector[tt]->nBar == ii ) {
-				p.setPen( Qt::cyan );
+			if ( tagVector[tt]->nColumn == ii ) {
 				p.drawText( x - m_nGridWidth / 2 , 12, m_nGridWidth * 2, height() , Qt::AlignCenter, "T");
 
 				++nPaintedTags;
@@ -2067,7 +2089,7 @@ void SongEditorPositionRuler::createBackground()
 	// Which tempo marker is the currently used one?
 	int nCurrentTempoMarkerIndex = -1;
 	for ( int tt = 0; tt < static_cast<int>(tempoMarkerVector.size()); tt++){
-		if ( tempoMarkerVector[tt]->nBar > nCurrentColumn ) {
+		if ( tempoMarkerVector[tt]->nColumn > nCurrentColumn ) {
 			nCurrentTempoMarkerIndex = std::max( tt - 1, 0 );
 			break;
 		}
@@ -2086,11 +2108,8 @@ void SongEditorPositionRuler::createBackground()
 	// Draw tempo markers
 	char tempo[10];
 	for (uint ii = 0; ii < m_nMaxPatternSequence + 1; ii++) {
-		uint x = m_nMargin + ii * m_nGridWidth;
-		p.drawLine( x, 2, x, 5 );
-		p.drawLine( x, 19, x, 20 );
 		for ( int tt = 0; tt < static_cast<int>(tempoMarkerVector.size()); tt++){
-			if ( tempoMarkerVector[tt]->nBar == ii ) {
+			if ( tempoMarkerVector[tt]->nColumn == ii ) {
 				if ( ii == 0 && pTimeline->isFirstTempoMarkerSpecial() ) {
 					if ( ! pHydrogen->isTimelineEnabled() ) {
 						// Omit the special tempo marker.
@@ -2105,10 +2124,12 @@ void SongEditorPositionRuler::createBackground()
 					font.setBold( true );
 					p.setFont( font );
 				}
-					
+				QRect rect( m_nMargin - SONG_EDITOR_MAX_GRID_WIDTH +
+							ii * m_nGridWidth,
+							7, 2 * SONG_EDITOR_MAX_GRID_WIDTH, 12 );
+				
 				sprintf( tempo, "%d",  ((int)tempoMarkerVector[tt]->fBpm) );
-				p.drawText( x - m_nGridWidth, 3, m_nGridWidth * 2,
-							height() / 2 - 5, Qt::AlignCenter, tempo );
+				p.drawText( rect, Qt::AlignCenter, tempo );
 
 				++nPaintedTempoMarkers;
 
@@ -2128,6 +2149,69 @@ void SongEditorPositionRuler::createBackground()
 			break;
 		}
 																
+	}
+	// Draw a slight highlight around the tempo marker hovered using
+	// mouse or touch events. This will also redraw the
+	// tempo marker to ensure it's visible (they can overlap with
+	// neighboring ones and be hardly readable).
+	if ( m_bHighlightHoveredColumn ) {
+		QRect rect( m_nMargin - SONG_EDITOR_MAX_GRID_WIDTH +
+					m_nHoveredColumn * m_nGridWidth,
+					7, 2 * SONG_EDITOR_MAX_GRID_WIDTH, 12 );
+		p.fillRect( rect, backgroundColorTempoMarkers );
+		
+		for ( int tt = 0; tt < static_cast<int>(tempoMarkerVector.size()); tt++){
+			if ( tempoMarkerVector[tt]->nColumn == m_nHoveredColumn ) {
+				if ( tt == nCurrentTempoMarkerIndex ) {
+					font.setBold( true );
+					p.setFont( font );
+				}
+					
+				sprintf( tempo, "%d",  ((int)tempoMarkerVector[tt]->fBpm) );
+				p.drawText( rect, Qt::AlignCenter, tempo );
+
+				if ( tt == nCurrentTempoMarkerIndex ) {
+					font.setBold( false );
+					p.setFont( font );
+				}
+				break;
+			}
+		}
+		QColor colorHovered( colorHighlight );
+		colorHovered.setAlpha( 150 );
+		p.setPen( colorHovered );
+		p.drawRect( rect );
+	}
+	
+	// Draw a highlight in case the BPM widget was opened by
+	// left-clicking one of the markers. This will also redraw the
+	// tempo marker to ensure it's visible (they can overlap with
+	// neighboring ones and be hardly readable).
+	if ( m_nActiveBpmWidgetColumn != -1 ) {
+		QRect rect( m_nMargin - SONG_EDITOR_MAX_GRID_WIDTH +
+					m_nActiveBpmWidgetColumn * m_nGridWidth,
+					7, 2 * SONG_EDITOR_MAX_GRID_WIDTH, 12 );
+		p.fillRect( rect, backgroundColorTempoMarkers );
+		
+		for ( int tt = 0; tt < static_cast<int>(tempoMarkerVector.size()); tt++){
+			if ( tempoMarkerVector[tt]->nColumn == m_nActiveBpmWidgetColumn ) {
+				if ( tt == nCurrentTempoMarkerIndex ) {
+					font.setBold( true );
+					p.setFont( font );
+				}
+					
+				sprintf( tempo, "%d",  ((int)tempoMarkerVector[tt]->fBpm) );
+				p.drawText(rect, Qt::AlignCenter, tempo );
+
+				if ( tt == nCurrentTempoMarkerIndex ) {
+					font.setBold( false );
+					p.setFont( font );
+				}
+				break;
+			}
+		}
+		p.setPen( colorHighlight );
+		p.drawRect( rect );
 	}
 
 	p.setPen( QColor(35, 39, 51) );
@@ -2158,25 +2242,56 @@ void SongEditorPositionRuler::columnChangedEvent( int ) {
 	createBackground();
 }
 
+void SongEditorPositionRuler::leaveEvent( QEvent* ev ){
+	m_nHoveredColumn = -1;
+	m_nHoveredRow = -1;
+	if ( m_bHighlightHoveredColumn ) {
+		m_bHighlightHoveredColumn = false;
+		createBackground();
+	}
+
+	QWidget::leaveEvent( ev );
+}
+
 void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 {
-	if ( !m_bRightBtnPressed ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	
+	int nColumn = ev->x() / m_nGridWidth;
+	int nRow = ev->y() <= 21 ? 0 : 1;
+	if ( nColumn != m_nHoveredColumn ||
+		 nRow != m_nHoveredRow ) {
+		// Cursor has moved into a region where the above caching
+		// became invalid.
+		if ( pHydrogen->getTimeline()->hasColumnTempoMarker( nColumn ) ) {
+			m_bHighlightHoveredColumn = true;
+		} else {
+			m_bHighlightHoveredColumn = false;
+		}
+		if ( nRow != 0 ) {
+			m_bHighlightHoveredColumn = false;
+		}
+		m_nHoveredRow = nRow;
+		m_nHoveredColumn = nColumn;
+		 
+		createBackground();
+	}
+	
+	if ( !m_bRightBtnPressed && ev->buttons() & Qt::LeftButton ) {
 		// Click+drag triggers same action as clicking at new position
 		mousePressEvent( ev );
-	}
-	else {
+	} else if ( ev->buttons() & Qt::RightButton ) {
 		// Right-click+drag
-		int column = (ev->x() / m_nGridWidth);
 		Preferences* pPref = Preferences::get_instance();
 		
-		if ( column > (int)Hydrogen::get_instance()->getSong()->getPatternGroupVector()->size() ) {
+		if ( nColumn > (int)Hydrogen::get_instance()->getSong()->getPatternGroupVector()->size() ) {
 			pPref->setPunchOutPos(-1);
 			return;
 		}
 		if ( Hydrogen::get_instance()->getSong()->getMode() == Song::PATTERN_MODE ) {
 			return;
 		}
-		pPref->setPunchOutPos(column-1);
+		pPref->setPunchOutPos( nColumn - 1 );
 		update();
 	}
 }
@@ -2188,6 +2303,10 @@ bool SongEditorPositionRuler::event( QEvent* ev ) {
 	}
 
 	return QWidget::event( ev );
+}
+
+void SongEditorPositionRuler::songModeActivationEvent( int ) {
+	createBackground();
 }
 
 void SongEditorPositionRuler::showToolTip( QHelpEvent* ev ) {
@@ -2209,9 +2328,18 @@ void SongEditorPositionRuler::showTagWidget( int nColumn )
 
 void SongEditorPositionRuler::showBpmWidget( int nColumn )
 {
-	SongEditorPanelBpmWidget dialog( this , nColumn );
-	if (dialog.exec() == QDialog::Accepted) {
-		//createBackground();
+	bool bTempoMarkerPresent = Hydrogen::get_instance()->getTimeline()->hasColumnTempoMarker( nColumn );
+	if ( bTempoMarkerPresent ) {
+		m_nActiveBpmWidgetColumn = nColumn;
+		createBackground();
+	}
+	
+	SongEditorPanelBpmWidget dialog( this , nColumn, bTempoMarkerPresent );
+	dialog.exec();
+	
+	if ( bTempoMarkerPresent ) {
+		m_nActiveBpmWidgetColumn = -1;
+		createBackground();
 	}
 }
 
@@ -2334,26 +2462,11 @@ void SongEditorPositionRuler::updatePosition()
 	update();
 }
 
-
-void SongEditorPositionRuler::editTimelineAction( int nNewPosition, float fNewBpm )
-{
-	m_pHydrogen->getTimeline()->deleteTempoMarker( nNewPosition - 1 );
-	m_pHydrogen->getTimeline()->addTempoMarker( nNewPosition - 1, fNewBpm );
-	createBackground();
-}
-
-void SongEditorPositionRuler::deleteTimelinePosition( int nPosition )
-{
-	m_pHydrogen->getTimeline()->deleteTempoMarker( nPosition - 1 );
-	createBackground();
-}
-
-
 void SongEditorPositionRuler::editTagAction( QString text, int position, QString textToReplace)
 {
 	Timeline* pTimeline = m_pHydrogen->getTimeline();
 
-	const QString sTag = pTimeline->getTagAtBar( position, false );
+	const QString sTag = pTimeline->getTagAtColumn( position, false );
 	if ( sTag == textToReplace ) {
 		pTimeline->deleteTag( position );
 		pTimeline->addTag( position, text );
@@ -2366,7 +2479,7 @@ void SongEditorPositionRuler::deleteTagAction( QString text, int position )
 {
 	Timeline* pTimeline = m_pHydrogen->getTimeline();
 
-	const QString sTag = pTimeline->getTagAtBar( position, false );
+	const QString sTag = pTimeline->getTagAtColumn( position, false );
 	if ( sTag == text ) {
 		pTimeline->deleteTag( position );
 	}

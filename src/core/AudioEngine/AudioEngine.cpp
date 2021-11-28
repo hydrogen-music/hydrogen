@@ -356,7 +356,7 @@ void AudioEngine::calculateElapsedTime( const unsigned sampleRate, const unsigne
 		// of ticks since the previous marker/beginning and convert
 		// them into time using tick size corresponding to the tempo.
 		for ( auto const& mmarker: tempoMarkers ){
-			totalTicks = getTickForColumn( mmarker->nBar );
+			totalTicks = getTickForColumn( mmarker->nColumn );
 			    
 			if ( totalTicks < currentTick ) {
 				m_fElapsedTime += static_cast<float>(totalTicks - previousTicks) * 
@@ -738,7 +738,7 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 	if ( Preferences::get_instance()->getUseTimelineBpm() &&
 		 pSong->getMode() == Song::SONG_MODE ) {
 
-		float fTimelineBpm = pHydrogen->getTimeline()->getTempoAtBar( nColumn );
+		float fTimelineBpm = pHydrogen->getTimeline()->getTempoAtColumn( nColumn );
 		if ( fTimelineBpm != fBpm ) {
 			DEBUGLOG( QString( "Set tempo to timeline value [%1]").arg( fTimelineBpm ) );
 			fBpm = fTimelineBpm;

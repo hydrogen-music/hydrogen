@@ -161,8 +161,8 @@ void Director::metronomeEvent( int nValue )
 	}
 
 	// get tags
-	m_sTAG = m_pTimeline->getTagAtBar( m_nBar, false );
-	m_sTAG2 = m_pTimeline->getTagAtBar( m_nBar - 1, true );
+	m_sTAG = m_pTimeline->getTagAtColumn( m_nBar, false );
+	m_sTAG2 = m_pTimeline->getTagAtColumn( m_nBar - 1, true );
 	update();
 }
 

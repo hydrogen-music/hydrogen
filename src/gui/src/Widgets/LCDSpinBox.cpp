@@ -37,10 +37,11 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, do
 	setFocusPolicy( Qt::ClickFocus );
 	setLocale( QLocale( QLocale::C, QLocale::AnyCountry ) );
 	
-	if ( ! size.isNull() ) {
-		adjustSize();
-		setFixedSize( size );
+	if ( size.isNull() || size.isEmpty() ) {
+		m_size = sizeHint();
 	}
+	adjustSize();
+	setFixedSize( m_size );
 
 	updateStyleSheet();
 		
@@ -52,6 +53,13 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, do
 }
 
 LCDSpinBox::~LCDSpinBox() {
+}
+
+void LCDSpinBox::setSize( QSize size ) {
+	m_size = size;
+	
+	setFixedSize( size );
+	adjustSize();
 }
 
 void LCDSpinBox::setIsActive( bool bIsActive ) {

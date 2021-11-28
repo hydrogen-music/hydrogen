@@ -69,7 +69,7 @@ public:
 		PatternSizeDenominator
 	};
 
-	LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin = 0.0, double fMax = 1.0 );
+	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int, double fMin = 0.0, double fMax = 1.0 );
 	~LCDSpinBox();
 
 	void setKind( Kind kind );
@@ -78,6 +78,7 @@ public:
 	bool getIsActive() const;
 	void setIsActive( bool bIsActive );
 
+	void setSize( QSize size );
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 

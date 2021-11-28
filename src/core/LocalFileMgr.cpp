@@ -758,7 +758,7 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 				continue;
 			}
 			QDomNode newBPMNode = doc.createElement( "newBPM" );
-			LocalFileMng::writeXmlString( newBPMNode, "BAR",QString("%1").arg( tempoMarkerVector[tt]->nBar ));
+			LocalFileMng::writeXmlString( newBPMNode, "BAR",QString("%1").arg( tempoMarkerVector[tt]->nColumn ));
 			LocalFileMng::writeXmlString( newBPMNode, "BPM", QString("%1").arg( tempoMarkerVector[tt]->fBpm  ) );
 			bpmTimeLine.appendChild( newBPMNode );
 		}
@@ -773,7 +773,7 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 	if ( tagVector.size() >= 1 ){
 		for ( int t = 0; t < static_cast<int>(tagVector.size()); t++){
 			QDomNode newTAGNode = doc.createElement( "newTAG" );
-			LocalFileMng::writeXmlString( newTAGNode, "BAR",QString("%1").arg( tagVector[t]->nBar ));
+			LocalFileMng::writeXmlString( newTAGNode, "BAR",QString("%1").arg( tagVector[t]->nColumn ));
 			LocalFileMng::writeXmlString( newTAGNode, "TAG", QString("%1").arg( tagVector[t]->sTag ) );
 			timeLineTag.appendChild( newTAGNode );
 		}

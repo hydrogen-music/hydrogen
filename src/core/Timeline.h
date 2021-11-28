@@ -35,15 +35,15 @@ namespace H2Core
  *
  * The design of the Timeline is a little bit involved and needs a
  * couple of words to explain it. As soon as the Timeline is
- * activated, it is required to yield a tempo for each bar which
+ * activated, it is required to yield a tempo for each column which
  * solely depends on the TempoMarkers set by the user. Since a
  * TempoMarker determines the tempo for all columns equal or
  * bigger its own, there always needs a be one present at the very
  * beginning of the Song.
  *
  * For a more convenient UX the user shouldn't bother about the first
- * one too much as a TempoMarker is usually put after the first bar to
- * indicate a _change_ in tempo. Therefore, when a TempoMarker is
+ * one too much as a TempoMarker is usually put after the first column
+ * to indicate a _change_ in tempo. Therefore, when a TempoMarker is
  * added to an empty Timeline (to any location but the first column),
  * the Timeline pretends to have a tempo marker in the beginning
  * holding the current Song::m_fBpm (the tempo set via the BPM
@@ -77,7 +77,7 @@ public:
 	 */
 	struct TempoMarker
 	{
-		int		nBar;		// beat position in timeline
+		int		nColumn;		// beat position in timeline
 		float	fBpm;		// tempo in beats per minute
 	};
 
@@ -87,36 +87,41 @@ public:
 	*/
 	struct Tag
 	{
-		int		nBar;		// beat position in timeline
+		int		nColumn;		// beat position in timeline
 		QString sTag;		// tag
 	};
 
 
 	/**
-	 * @param nBar Position of the Timeline to query for a 
+	 * @param nColumn Position of the Timeline to query for a 
 	 *   tempo marker.
 	 * @param fBpm New tempo in beats per minute. All values
 	 *   below 30 and above 500 will be cut.
 	 */
-	void		addTempoMarker( int nBar, float fBpm );
+	void		addTempoMarker( int nColumn, float fBpm );
 	/** Delete all tempo markers except for the first one and
 	 * mark the tempo of the Timeline m_bUnset.
 	 *
-	 * @param nBar Position of the Timeline to delete the
+	 * @param nColumn Position of the Timeline to delete the
 	 * tempo marker at (if one is present).
 	 */
-	void		deleteTempoMarker( int nBar );
+	void		deleteTempoMarker( int nColumn );
 	/** Deletes all TempoMarkers set by the user. But not the
 		special one.*/
 	void		deleteAllTempoMarkers();
 	/**
-	 * Returns the tempo of the Song at a given bar.
+	 * Returns the tempo of the Song at a given column.
 	 *
-	 * @param nBar Position of the Timeline to query for a 
+	 * There does not have to be a TempoMarker present at @a nColumn
+	 * as the function takes all preceeding ones into account as well.
+	 *
+	 * @param nColumn Position of the Timeline to query for a 
 	 *   tempo marker.
 	 */
-	float		getTempoAtBar( int nBar ) const;
+	float		getTempoAtColumn( int nColumn ) const;
 
+	bool hasColumnTempoMarker( int nColumn ) const;
+	std::shared_ptr<const Timeline::TempoMarker> getTempoMarkerAtColumn( int nColumn ) const;
 	/**
 	 * @return std::vector<std::shared_ptr<const TempoMarker>>
 	 * Provides read-only access to m_tempoMarker.
@@ -124,38 +129,38 @@ public:
 	const std::vector<std::shared_ptr<const TempoMarker>> getAllTempoMarkers() const;
 
 	/** Whether there is a TempoMarker introduced by the user at the
-		first bar. If not, the Timeline pretends that there is one by
+		first column. If not, the Timeline pretends that there is one by
 		returning the current Song's tempo. The latter is referred to
 		by "special tempo marker".*/
 	bool isFirstTempoMarkerSpecial() const;
 
 	/**
-	 * @param nBar Position of the Timeline to query for a 
+	 * @param nColumn Position of the Timeline to query for a 
 	 *   tag.
 	 * @param sTag New tag in beats per minute.
 	 */
-	void		addTag( int nBar, QString sTag );
+	void		addTag( int nColumn, QString sTag );
 	/**
-	 * @param nBar Position of the Timeline to delete the tag
+	 * @param nColumn Position of the Timeline to delete the tag
 	 * at (if one is present).
 	 */
-	void		deleteTag( int nBar );
+	void		deleteTag( int nColumn );
 	void 		deleteAllTags();
 	/**
-	 * Returns the tag of the Song at a given bar.
+	 * Returns the tag of the Song at a given column.
 	 *
-	 * @param nBar Position of the Timeline to query for a 
+	 * @param nColumn Position of the Timeline to query for a 
 	 *   tag.
-	 * @param bSticky If set to true either the tag at `nBar`
+	 * @param bSticky If set to true either the tag at `nColumn`
 	 *   or - if none is present - the nearest previous tag is
 	 *   returned. If set to false, only the precise position
-	 *   `nBar` is taken into account.
+	 *   `nColumn` is taken into account.
 	 * 
-	 * The function returns "" if the bar is positioned
+	 * The function returns "" if the column is positioned
 	 * _before_ the first tag or none is present at all.
 	 */
 
-	const QString getTagAtBar( int nBar, bool bSticky ) const;
+	const QString getTagAtColumn( int nColumn, bool bSticky ) const;
 	/**
 	 * @return std::vector<std::shared_ptr<const Tag>>
 	 * Provides read-only access to m_tags.
@@ -182,14 +187,14 @@ private:
 	{
 		bool operator()( const std::shared_ptr<const TempoMarker> lhs, const std::shared_ptr<const TempoMarker> rhs)
 		{
-			return lhs->nBar < rhs->nBar;
+			return lhs->nColumn < rhs->nColumn;
 		}
 	};
 	struct TagComparator
 	{
 		bool operator()( const std::shared_ptr<const Tag> lhs, const std::shared_ptr<const Tag> rhs)
 		{
-			return lhs->nBar < rhs->nBar;
+			return lhs->nColumn < rhs->nColumn;
 		}
 	};
 };
