@@ -81,7 +81,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledTimebaseSlave() );
 		m_pTimelineBtn->setIsActive( false );
-	} else if ( pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {
+	} else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledPatternMode() );
 		m_pTimelineBtn->setIsActive( false );
 	} else {
@@ -350,7 +350,8 @@ void SongEditorPanel::updatePlayHeadPosition()
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
-	if ( Preferences::get_instance()->m_bFollowPlayhead && pSong->getMode() == Song::SONG_MODE) {
+	if ( Preferences::get_instance()->m_bFollowPlayhead &&
+		 pHydrogen->getMode() == Song::Mode::Song ) {
 		if ( pAudioEngine->getState() != H2Core::AudioEngine::State::Playing ) {
 			return;
 		}
@@ -870,17 +871,16 @@ void SongEditorPanel::jackTimebaseStateChangedEvent( int ) {
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		setTimelineEnabled( false );
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledTimebaseSlave() );
-	} else if ( pHydrogen->getSong()->getMode() != Song::PATTERN_MODE ) {
+	} else if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
 		setTimelineEnabled( true );
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
 	}
 }
 
-void SongEditorPanel::onSongModeChanged() {
+void SongEditorPanel::songModeActivationEvent( int ) {
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	if ( pSong->getMode() == Song::PATTERN_MODE ) {
+	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 		setTimelineEnabled( false );
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledPatternMode() );
 	} else if ( pHydrogen->getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {

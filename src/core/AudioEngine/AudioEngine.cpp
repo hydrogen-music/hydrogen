@@ -730,13 +730,12 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pSong = pHydrogen->getSong();
 
 	float fBpm = pAudioEngine->getBpm();
 
 	// Check for a change in the current BPM.
 	if ( Preferences::get_instance()->getUseTimelineBpm() &&
-		 pSong->getMode() == Song::SONG_MODE ) {
+		 pHydrogen->getMode() == Song::Mode::Song ) {
 
 		float fTimelineBpm = pHydrogen->getTimeline()->getTempoAtColumn( nColumn );
 		if ( fTimelineBpm != fBpm ) {
@@ -879,7 +878,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 		Note *pNote = m_songNoteQueue.top();
 
 		float velocity_adjustment = 1.0f;
-		if ( pSong->getMode() == Song::SONG_MODE ) {
+		if ( pHydrogen->getMode() == Song::Mode::Song ) {
 			float fPos = m_nColumn + (pNote->get_position()%192) / 192.f;
 			velocity_adjustment = vp->get_value(fPos);
 		}
@@ -1352,7 +1351,7 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 	int tickNumber_start = 0;
 	if ( framepos == 0
 		 || ( getState() == State::Playing
-			  && pSong->getMode() == Song::SONG_MODE
+			  && pHydrogen->getMode() == Song::Mode::Song
 			  && m_nColumn == -1 )
 	) {
 		tickNumber_start = framepos / fTickSize;
@@ -1387,7 +1386,7 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 		
 		//////////////////////////////////////////////////////////////
 		// SONG MODE
-		if ( pSong->getMode() == Song::SONG_MODE ) {
+		if ( pHydrogen->getMode() == Song::Mode::Song ) {
 			if ( pSong->getPatternGroupVector()->size() == 0 ) {
 				// there's no song!!
 				___ERRORLOG( "no patterns in song." );
@@ -1464,7 +1463,7 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 		
 		//////////////////////////////////////////////////////////////
 		// PATTERN MODE
-		else if ( pSong->getMode() == Song::PATTERN_MODE )	{
+		else if ( pHydrogen->getMode() == Song::Mode::Pattern )	{
 
 			int nPatternSize = MAX_NOTES;
 

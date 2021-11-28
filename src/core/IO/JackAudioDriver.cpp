@@ -329,7 +329,7 @@ void JackAudioDriver::relocateUsingBBT()
 	long barTicks = 0;
 	float fAdditionalTicks = 0;
 	float fNumberOfBarsPassed = 0;
-	if ( pSong->getMode() == Song::SONG_MODE ) {
+	if ( pHydrogen->getMode() == Song::Mode::Song ) {
  
 		if ( Preferences::get_instance()->m_JackBBTSync ==
 			 Preferences::JackBBTSyncMethod::identicalBars ) {
@@ -534,7 +534,7 @@ void JackAudioDriver::updateTransportInfo()
 	if ( pAudioEngine->getFrames() + m_frameOffset != m_JackTransportPos.frame ) {
 		// Reset playback to the beginning of the pattern if Hydrogen
 		// is in pattern mode.
-		if ( pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {
+		if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 			pAudioEngine->reset();
 		}
 

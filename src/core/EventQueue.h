@@ -146,7 +146,6 @@ enum EventType {
 	/** Toggles the button indicating the usage Jack timebase master
 		and informs the GUI about a state change.*/
 	EVENT_JACK_TIMEBASE_STATE_CHANGED,
-	/** Activates either Pattern mode (0) or Song mode (else) of the playback.*/
 	EVENT_SONG_MODE_ACTIVATION,
 	/** Toggles the button indicating the usage loop mode.*/
 	EVENT_LOOP_MODE_ACTIVATION,

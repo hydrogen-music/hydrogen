@@ -350,7 +350,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	float fTickSize = pAudioEngine->getTickSize();
 	unsigned int lookaheadTicks = pAudioEngine->calculateLookahead( fTickSize ) / fTickSize;
 	bool doRecord = pPreferences->getRecordEvents();
-	if ( pSong->getMode() == Song::SONG_MODE && doRecord &&
+	if ( getMode() == Song::Mode::Song && doRecord &&
 		 pAudioEngine->getState() == AudioEngine::State::Playing )
 	{
 
@@ -521,7 +521,7 @@ void Hydrogen::sequencer_setNextPattern( int pos )
 	
 	pAudioEngine->lock( RIGHT_HERE );
 	std::shared_ptr<Song> pSong = getSong();
-	if ( pSong && pSong->getMode() == Song::PATTERN_MODE ) {
+	if ( pSong != nullptr && getMode() == Song::Mode::Pattern ) {
 		PatternList* pPatternList = pSong->getPatternList();
 		
 		// Check whether `pos` is in range of the pattern list.
@@ -555,7 +555,7 @@ void Hydrogen::sequencer_setOnlyNextPattern( int pos )
 	pAudioEngine->lock( RIGHT_HERE );
 	
 	std::shared_ptr<Song> pSong = getSong();
-	if ( pSong && pSong->getMode() == Song::PATTERN_MODE ) {
+	if ( pSong != nullptr && getMode() == Song::Mode::Pattern ) {
 		PatternList* pPatternList = pSong->getPatternList();
 		
 		// Clear the list of all patterns scheduled to be processed
@@ -595,10 +595,10 @@ bool Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 
 	std::shared_ptr<Song> pSong = getSong();
 	
-	m_oldEngineMode = pSong->getMode();
+	m_oldEngineMode = getMode();
 	m_bOldLoopEnabled = pSong->getIsLoopEnabled();
 
-	pSong->setMode( Song::SONG_MODE );
+	pSong->setMode( Song::Mode::Song );
 	pSong->setIsLoopEnabled( true );
 	
 	/*
@@ -1235,7 +1235,7 @@ void Hydrogen::togglePlaysSelected()
 	AudioEngine* pAudioEngine = m_pAudioEngine;	
 	std::shared_ptr<Song> pSong = getSong();
 
-	if ( pSong->getMode() != Song::PATTERN_MODE ) {
+	if ( getMode() != Song::Mode::Pattern ) {
 		return;
 	}
 
@@ -1347,7 +1347,7 @@ bool Hydrogen::isUnderSessionManagement() const {
 
 bool Hydrogen::isTimelineEnabled() const {
 	if ( Preferences::get_instance()->getUseTimelineBpm() &&
-		 getSong()->getMode() == Song::SONG_MODE &&
+		 getMode() == Song::Mode::Song &&
 		 getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
 		return true;
 	}
@@ -1459,6 +1459,13 @@ void Hydrogen::setIsModified( bool bIsModified ) {
 	}
 }
 
+void Hydrogen::setMode( Song::Mode mode ) {
+	if ( getSong() != nullptr ) {
+		getSong()->setMode( mode );
+	}
+	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, 0 );
+}
+
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 
 	QString s = Base::sPrintIndention;
@@ -1483,7 +1490,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput.append( QString( "]\n%1%2m_CurrentTime: %3" ).arg( sPrefix ).arg( s ).arg( static_cast<long>(m_CurrentTime.tv_sec ) ) )
 			.append( QString( "%1%2m_nCoutOffset: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nCoutOffset ) )
 			.append( QString( "%1%2m_nStartOffset: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nStartOffset ) )
-			.append( QString( "%1%2m_oldEngineMode: %3\n" ).arg( sPrefix ).arg( s ).arg( m_oldEngineMode ) )
+			.append( QString( "%1%2m_oldEngineMode: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( static_cast<int>(m_oldEngineMode) ) )
 			.append( QString( "%1%2m_bOldLoopEnabled: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bOldLoopEnabled ) )
 			.append( QString( "%1%2m_bExportSessionIsActive: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bExportSessionIsActive ) )
 			.append( QString( "%1%2m_GUIState: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>( m_GUIState ) ) )
@@ -1530,7 +1538,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput.append( QString( "], m_CurrentTime: %1" ).arg( static_cast<long>( m_CurrentTime.tv_sec ) ) )
 			.append( QString( ", m_nCoutOffset: %1" ).arg( m_nCoutOffset ) )
 			.append( QString( ", m_nStartOffset: %1" ).arg( m_nStartOffset ) )
-			.append( QString( ", m_oldEngineMode: %1" ).arg( m_oldEngineMode ) )
+			.append( QString( ", m_oldEngineMode: %1" )
+					 .arg( static_cast<int>(m_oldEngineMode) ) )
 			.append( QString( ", m_bOldLoopEnabled: %1" ).arg( m_bOldLoopEnabled ) )
 			.append( QString( ", m_bExportSessionIsActive: %1" ).arg( m_bExportSessionIsActive ) )
 			.append( QString( ", m_GUIState: %1" ).arg( static_cast<int>( m_GUIState ) ) );

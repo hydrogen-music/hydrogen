@@ -57,9 +57,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 {
 		H2_OBJECT(Song)
 	public:
-		enum SongMode {
-			PATTERN_MODE,
-			SONG_MODE
+		enum class Mode {
+			Pattern = 0,
+			Song = 1
 		};
 
 		Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume );
@@ -143,14 +143,14 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 							
 		float			getSwingFactor() const;
 		void			setSwingFactor( float fFactor );
-							
-		SongMode		getMode() const;
-		void			setMode( SongMode mode );
-							
-		void			setIsModified( bool bIsModified);
-		bool			getIsModified() const;
 
-		std::vector<DrumkitComponent*>* getComponents() const;
+		Mode			getMode() const;
+		void			setMode( Mode mode );
+							
+		bool			getIsModified() const;
+		void			setIsModified( bool bIsModified);
+
+	std::vector<DrumkitComponent*>* getComponents() const;
 
 		AutomationPath *	getVelocityAutomationPath() const;
 
@@ -221,7 +221,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
-
+							
 		bool m_bIsMuted;
 		///< Resolution of the song (number of ticks per quarter)
 		unsigned m_resolution;
@@ -258,10 +258,10 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		float			m_fSwingFactor;
 		bool			m_bIsModified;
 		std::map< float, int> 	m_latestRoundRobins;
-		SongMode		m_songMode;
+		Mode			m_mode;
 		
 		/** Name of the file to be loaded as playback track.
-		 *
+		*
 		 * It is set by setPlaybackTrackFilename() and
 		 * queried by getPlaybackTrackFilename().
 		 *
@@ -481,14 +481,14 @@ inline float Song::getSwingFactor() const
 	return m_fSwingFactor;
 }
 
-inline Song::SongMode Song::getMode() const
+inline Song::Mode Song::getMode() const
 {
-	return m_songMode;
+	return m_mode;
 }
 
-inline void Song::setMode( Song::SongMode mode )
+inline void Song::setMode( Song::Mode mode )
 {
-	m_songMode = mode;
+	m_mode = mode;
 	setIsModified( true );
 }
 

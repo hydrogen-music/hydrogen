@@ -2298,8 +2298,8 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 	if ( pObject->inherits( "SongEditorPanel" ) ) {
 			
-		if ( pSong->getMode() != Song::SONG_MODE ) {
-			pCoreActionController->activateSongMode( true, false );
+		if ( pHydrogen->getMode() != Song::Mode::Song ) {
+			pCoreActionController->activateSongMode( true );
 			pApp->getPlayerControl()->songModeActivationEvent( 1 );
 		}
 
@@ -2310,8 +2310,8 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// Covers both the PatternEditor and the
 		// NotePropertiesRuler.
 			
-		if ( pSong->getMode() != Song::PATTERN_MODE ) {
-			pCoreActionController->activateSongMode( false, false );
+		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
+			pCoreActionController->activateSongMode( false );
 			pApp->getPlayerControl()->songModeActivationEvent( 0 );
 		}
 

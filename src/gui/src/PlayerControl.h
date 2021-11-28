@@ -74,9 +74,6 @@ public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 	void updateBPMWidget();
 
-signals:
-	void songModeChanged();
-
 private slots:
 	void recBtnClicked();
 	void playBtnClicked();

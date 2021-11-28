@@ -422,7 +422,7 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 	LocalFileMng::writeXmlString( songNode, "action_mode",
 								  QString::number( nActionMode ) );
 	
-	if ( pSong->getMode() == Song::SONG_MODE ) {
+	if ( pSong->getMode() == Song::Mode::Song ) {
 		LocalFileMng::writeXmlString( songNode, "mode", QString( "song" ) );
 	} else {
 		LocalFileMng::writeXmlString( songNode, "mode", QString( "pattern" ) );

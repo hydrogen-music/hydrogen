@@ -1552,7 +1552,7 @@ void SongEditorPatternList::patternPopup_delete()
 
 void SongEditorPatternList::deletePatternFromList( QString patternFilename, QString sequenceFileName, int patternPosition )
 {
-	if ( m_pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {
+	if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
 		m_pHydrogen->sequencer_setNextPattern( -1 );
 	}
 
@@ -2029,7 +2029,7 @@ void SongEditorPositionRuler::createBackground()
 	p.fillRect( 0, 0, width(), 24, backgroundColorTempoMarkers );
 	char tmp[10];
 	
-	if ( pSong->getMode() == Song::PATTERN_MODE ) {
+	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 		p.setPen( textColorAlpha );
 	} else {
 		p.setPen( textColor );
@@ -2048,7 +2048,7 @@ void SongEditorPositionRuler::createBackground()
 	
 	int nPaintedTags = 0;
 	// draw tags
-	if ( pSong->getMode() == Song::PATTERN_MODE ) {
+	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 		QColor colorHiglightAlpha( colorHighlight.lighter( 120 ) );
 		colorHiglightAlpha.setAlpha( 45 );
 		p.setPen( colorHiglightAlpha );
@@ -2288,7 +2288,7 @@ void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 			pPref->setPunchOutPos(-1);
 			return;
 		}
-		if ( Hydrogen::get_instance()->getSong()->getMode() == Song::PATTERN_MODE ) {
+		if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
 			return;
 		}
 		pPref->setPunchOutPos( nColumn - 1 );
@@ -2355,7 +2355,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		}
 
 		// disabling son relocates while in pattern mode as it causes weird behaviour. (jakob lund)
-		if ( m_pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {
+		if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
 			return;
 		}
 
@@ -2372,7 +2372,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 			pPref->unsetPunchArea();
 			return;
 		}
-		if ( m_pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {
+		if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
 			return;
 		}
 		m_bRightBtnPressed = true;
@@ -2417,7 +2417,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)MAX_NOTES;
 	}
 
-	if ( m_pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {
+	if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
 		fPos = -1;
 		pIPos = 0;
 		pOPos = -1;

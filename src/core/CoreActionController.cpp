@@ -573,7 +573,7 @@ bool CoreActionController::activateTimeline( bool bActivate ) {
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as there is still an external JACK timebase master." )
 					.arg( bActivate ? "enabled" : "disabled" ) );
-	} else if ( pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {
+	} else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as Pattern Mode is still activated." )
 					.arg( bActivate ? "enabled" : "disabled" ) );
 	}
@@ -655,19 +655,15 @@ bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
 #endif
 }
 
-bool CoreActionController::activateSongMode( bool bActivate, bool bTriggerEvent ) {
+bool CoreActionController::activateSongMode( bool bActivate ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	pHydrogen->sequencer_stop();
-	if ( bActivate ) {
+	if ( bActivate && pHydrogen->getMode() != Song::Mode::Song ) {
 		locateToColumn( 0 );
-		pHydrogen->getSong()->setMode( Song::SONG_MODE );
-	} else {
-		pHydrogen->getSong()->setMode( Song::PATTERN_MODE );
-	}
-	
-	if ( bTriggerEvent ) {
-		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, static_cast<int>( bActivate ) );
+		pHydrogen->setMode( Song::Mode::Song );
+	} else if ( ! bActivate && pHydrogen->getMode() != Song::Mode::Pattern ) {
+		pHydrogen->setMode( Song::Mode::Pattern );
 	}
 	
 	return true;
@@ -700,7 +696,7 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 	long nTotalTick = pAudioEngine->getTickForColumn( nPatternGroup );
 	if ( nTotalTick < 0 ) {
 		// There is no pattern inserted in the SongEditor.
-		if ( pHydrogen->getSong()->getMode() == Song::SONG_MODE ) {
+		if ( pHydrogen->getMode() == Song::Mode::Song ) {
 			DEBUGLOG( QString( "Obtained ticks [%1] are smaller than zero. No relocation done." )
 					  .arg( nTotalTick ) );
 			return false;

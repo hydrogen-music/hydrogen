@@ -400,8 +400,6 @@ transport control.*/
 	updateStatusLabel();
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 this, &PlayerControl::onPreferencesChanged );
-	connect(this, SIGNAL(songModeChanged()),
-			HydrogenApp::get_instance()->getSongEditorPanel(), SLOT(onSongModeChanged()));
 	connect(HydrogenApp::get_instance()->getSongEditorPanel(), SIGNAL(timelineStateChanged()),
 			this, SLOT(updateBPMWidget()));
 }
@@ -456,7 +454,7 @@ void PlayerControl::updatePlayerControl()
 		m_pLCDBPMSpinbox->setValue( m_pHydrogen->getAudioEngine()->getBpm() );
 	}
 
-	if ( song->getMode() == Song::PATTERN_MODE ) {
+	if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
 		if ( ! m_pPatternModeBtn->isDown() ) {
 			m_pPatternModeBtn->setChecked( true );
 		}
@@ -667,16 +665,14 @@ void PlayerControl::deactivateMidiActivityLED() {
 /// Set Song mode
 void PlayerControl::songModeBtnClicked()
 {
-	Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true, false );
-	songModeActivationEvent( 1 );
+	Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true );
 }
 
 
 ///Set Live mode
 void PlayerControl::patternModeBtnClicked()
 {
-	Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false, false );
-	songModeActivationEvent( 0 );
+	Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false );
 }
 
 void PlayerControl::songModeActivationEvent( int nValue )
@@ -684,7 +680,7 @@ void PlayerControl::songModeActivationEvent( int nValue )
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();
 	
-	if ( nValue != 0 ) {
+	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
 		// Song mode
 		m_pPatternModeLED->setActivated( false );
 		m_pSongModeLED->setActivated( true );
@@ -708,8 +704,6 @@ void PlayerControl::songModeActivationEvent( int nValue )
 		
 		pHydrogenApp->setStatusBarMessage(tr("Pattern mode selected."), 5000);
 	}
-			
-	emit songModeChanged();
 
 	updateBPMWidget();
 }
@@ -1009,8 +1003,7 @@ void PlayerControl::resetStatusLabel()
 void PlayerControl::updateBPMWidget() {
 	auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getSong()->getMode() ==
-		 Song::SONG_MODE ) {
+	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 		m_pLCDBPMSpinbox->setIsActive( ! pPref->getUseTimelineBpm() );
 	} else {
 		m_pLCDBPMSpinbox->setIsActive( true );
@@ -1043,7 +1036,7 @@ void PlayerControl::tempoChangedEvent( int nValue )
 		// AudioEngine.
 		auto pHydrogen = H2Core::Hydrogen::get_instance();
 		if ( H2Core::Preferences::get_instance()->getUseTimelineBpm() &&
-			 pHydrogen->getSong()->getMode() == H2Core::Song::SONG_MODE ) {
+			 pHydrogen->getMode() == H2Core::Song::Mode::Song ) {
 			QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI or OSC was detected. It will only take effect when deactivating the Timeline.") );
 		}
 		if ( pHydrogen->getJackTimebaseState() == H2Core::JackAudioDriver::Timebase::Slave ) {

@@ -89,6 +89,7 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		 */
 		void actionModeChangeEvent( int nValue ) override;
 		void updateSongEditorEvent( int nValue ) override;
+	void songModeActivationEvent( int ) override;
 
 	void jackTimebaseStateChangedEvent( int );
 
@@ -99,7 +100,6 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 			m_pTimelineBtn->setChecked( bPressed );
 			timelineBtnPressed();
 		}
-	void onSongModeChanged();
 
 signals:
 	void timelineStateChanged();

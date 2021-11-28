@@ -187,6 +187,13 @@ public:
 		 */
 		void			setSong	( std::shared_ptr<Song> newSong );
 
+	Song::Mode getMode() const;
+	/** Wrapper around Song::setMode() which also triggers
+	EVENT_SONG_MODE_ACTIVATION and should be used by all parts of the
+	code except for song reading/setting.*/
+	void setMode( Song::Mode mode );
+		
+
 		void			removeSong();
 
 		void			addRealtimeNote ( int instrument,
@@ -515,7 +522,7 @@ private:
 
 
 	// used for song export
-	Song::SongMode		m_oldEngineMode;
+	Song::Mode		m_oldEngineMode;
 	bool			m_bOldLoopEnabled;
 	bool			m_bExportSessionIsActive;
 	
@@ -654,6 +661,9 @@ inline int Hydrogen::getSelectedPatternNumber() const
 inline int Hydrogen::getSelectedInstrumentNumber() const
 {
 	return m_nSelectedInstrumentNumber;
+}
+inline Song::Mode Hydrogen::getMode() const {
+	return getSong()->getMode();
 }
 };
 
