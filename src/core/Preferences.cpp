@@ -157,6 +157,7 @@ Preferences::Preferences()
 	// PortAudio properties
 	m_sPortAudioDevice = QString();
 	m_sPortAudioHostAPI = QString();
+	m_nLatencyTarget = 0;
 
 	// CoreAudio
 	m_sCoreAudioDevice = QString();
@@ -440,6 +441,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				} else {
 					m_sPortAudioDevice = LocalFileMng::readXmlString( portAudioDriverNode, "portAudioDevice", m_sPortAudioDevice );
 					m_sPortAudioHostAPI = LocalFileMng::readXmlString( portAudioDriverNode, "portAudioHostAPI", m_sPortAudioHostAPI );
+					m_nLatencyTarget = LocalFileMng::readXmlInt( portAudioDriverNode, "latencyTarget", m_nLatencyTarget );
 				}
 
 				//// COREAUDIO DRIVER ////
@@ -892,6 +894,7 @@ void Preferences::savePreferences()
 		{
 			LocalFileMng::writeXmlString( portAudioDriverNode, "portAudioDevice", m_sPortAudioDevice );
 			LocalFileMng::writeXmlString( portAudioDriverNode, "portAudioHostAPI", m_sPortAudioHostAPI );
+			LocalFileMng::writeXmlString( portAudioDriverNode, "latencyTarget", QString("%1").arg( m_nLatencyTarget ) );
 		}
 		audioEngineNode.appendChild( portAudioDriverNode );
 

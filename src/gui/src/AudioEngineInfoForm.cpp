@@ -143,6 +143,9 @@ void AudioEngineInfoForm::updateInfo()
 		sprintf(tmp, "%d", driver->getBufferSize());
 		bufferSizeLbl->setText(QString(tmp));
 
+		// Audio latency estimate
+		latencyLbl->setText( QString( "%1 frames" ).arg( driver->getLatency() ) );
+
 		// Audio driver sampleRate
 		sprintf(tmp, "%d", driver->getSampleRate());
 		sampleRateLbl->setText(QString(tmp));
@@ -154,6 +157,7 @@ void AudioEngineInfoForm::updateInfo()
 	else {
 		driverLbl->setText( "NULL driver" );
 		bufferSizeLbl->setText( "N/A" );
+		latencyLbl->setText( "N/A" );
 		sampleRateLbl->setText( "N/A" );
 		nFramesLbl->setText( "N/A" );
 	}

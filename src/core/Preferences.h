@@ -334,6 +334,7 @@ public:
 	// PortAudio properties
 	QString				m_sPortAudioDevice;
 	QString				m_sPortAudioHostAPI;
+	int					m_nLatencyTarget;
 
 	// CoreAudio properties
 	QString				m_sCoreAudioDevice;
