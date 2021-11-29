@@ -49,6 +49,12 @@ void Timeline::addTempoMarker( int nColumn, float fBpm ) {
 					.arg( fBpm ).arg( MAX_BPM ) );
 	}
 
+	if ( hasColumnTempoMarker( nColumn ) ) {
+		ERRORLOG( QString( "There is already a tempo marker present in column %1. Please remove it first." )
+				  .arg( nColumn ) );
+		return;
+	}
+
 	std::shared_ptr<TempoMarker> pTempoMarker = std::make_shared<TempoMarker>();
 	pTempoMarker->nColumn = nColumn;
 	pTempoMarker->fBpm = fBpm;
@@ -154,6 +160,12 @@ void Timeline::sortTempoMarkers() {
 
 void Timeline::addTag( int nColumn, QString sTag ) {
 		
+	if ( hasColumnTag( nColumn ) ) {
+		ERRORLOG( QString( "There is already a tag present in column %1. Please remove it first." )
+				  .arg( nColumn ) );
+		return;
+	}
+	
 	std::shared_ptr<Tag> pTag( new Tag );
 	pTag->nColumn = nColumn;
 	pTag->sTag = sTag;
@@ -176,26 +188,27 @@ void Timeline::deleteTag( int nColumn ) {
 	sortTags();
 }
 
-const QString Timeline::getTagAtColumn( int nColumn, bool bSticky ) const {
+const QString Timeline::getTagAtColumn( int nColumn ) const {
 
 	QString sCurrentTag("");
 
-	if ( bSticky ) {
-		for ( int t = 0; t < static_cast<int>(m_tags.size()); t++ ){
-			if ( m_tags[t]->nColumn > nColumn ){
-				break;
-			}
-			sCurrentTag = m_tags[t]->sTag;
+	for ( int t = 0; t < static_cast<int>(m_tags.size()); t++ ){
+		if ( m_tags[t]->nColumn > nColumn ){
+			break;
 		}
-	} else {
-		for ( int t = 0; t < static_cast<int>(m_tags.size()); t++ ){
-			if ( m_tags[t]->nColumn == nColumn ){
-				sCurrentTag =  m_tags[t]->sTag;
-			}
-		}
+		sCurrentTag = m_tags[t]->sTag;
 	}
 
 	return sCurrentTag;
+}
+
+bool Timeline::hasColumnTag( int nColumn ) const {
+	for ( const auto& tt : m_tags ){
+		if ( tt->nColumn == nColumn ) {
+			return true;
+		}
+	}
+	return false;
 }
 
 void Timeline::sortTags()

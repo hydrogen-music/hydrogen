@@ -2310,10 +2310,22 @@ void SongEditorPositionRuler::songModeActivationEvent( int ) {
 }
 
 void SongEditorPositionRuler::showToolTip( QHelpEvent* ev ) {
-	if ( Hydrogen::get_instance()->isTimelineEnabled() &&
-		 Hydrogen::get_instance()->getTimeline()->isFirstTempoMarkerSpecial() &&
-		 ev->x() < m_nMargin + m_nGridWidth ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pTimeline = pHydrogen->getTimeline();
+	
+	if ( pHydrogen->isTimelineEnabled() &&
+		 pTimeline->isFirstTempoMarkerSpecial() &&
+		 ev->y() <= 21 && // First row containing tempo markers
+		 ev->x() < m_nMargin + m_nGridWidth ) { // first tempo marker 
 		QToolTip::showText( ev->globalPos(), tr( "The tempo set in the BPM widget will be used as a default for the beginning of the song. Left-click to overwrite it." ), this );
+		
+	} else if ( ev->y() > 21 ) {
+		// Row containing the tags
+		int nColumn = ev->x() / m_nGridWidth;
+		if ( pTimeline->hasColumnTag( nColumn - 1 ) ) {
+			QToolTip::showText( ev->globalPos(),
+								pTimeline->getTagAtColumn( nColumn - 1 ), this );
+		}
 	}
 }
 
@@ -2466,11 +2478,9 @@ void SongEditorPositionRuler::editTagAction( QString text, int position, QString
 {
 	Timeline* pTimeline = m_pHydrogen->getTimeline();
 
-	const QString sTag = pTimeline->getTagAtColumn( position, false );
-	if ( sTag == textToReplace ) {
-		pTimeline->deleteTag( position );
-		pTimeline->addTag( position, text );
-	}
+	const QString sTag = pTimeline->getTagAtColumn( position );
+	pTimeline->deleteTag( position );
+	pTimeline->addTag( position, text );
 	
 	createBackground();
 }
@@ -2479,10 +2489,8 @@ void SongEditorPositionRuler::deleteTagAction( QString text, int position )
 {
 	Timeline* pTimeline = m_pHydrogen->getTimeline();
 
-	const QString sTag = pTimeline->getTagAtColumn( position, false );
-	if ( sTag == text ) {
-		pTimeline->deleteTag( position );
-	}
+	const QString sTag = pTimeline->getTagAtColumn( position );
+	pTimeline->deleteTag( position );
 	
 	createBackground();
 }

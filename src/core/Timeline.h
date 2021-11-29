@@ -92,7 +92,10 @@ public:
 	};
 
 
-	/**
+	/** Adds a TempoMarker to the Timeline.
+	 *
+	 * Fails if there is already a #TempoMarker present at @a nColumn.
+	 *
 	 * @param nColumn Position of the Timeline to query for a 
 	 *   tempo marker.
 	 * @param fBpm New tempo in beats per minute. All values
@@ -134,7 +137,10 @@ public:
 		by "special tempo marker".*/
 	bool isFirstTempoMarkerSpecial() const;
 
-	/**
+	/** Adds a Tag to the Timeline.
+	 *
+	 * Fails if there is already a #Tag present at @a nColumn.
+	 *
 	 * @param nColumn Position of the Timeline to query for a 
 	 *   tag.
 	 * @param sTag New tag in beats per minute.
@@ -151,21 +157,18 @@ public:
 	 *
 	 * @param nColumn Position of the Timeline to query for a 
 	 *   tag.
-	 * @param bSticky If set to true either the tag at `nColumn`
-	 *   or - if none is present - the nearest previous tag is
-	 *   returned. If set to false, only the precise position
-	 *   `nColumn` is taken into account.
 	 * 
 	 * The function returns "" if the column is positioned
 	 * _before_ the first tag or none is present at all.
 	 */
 
-	const QString getTagAtColumn( int nColumn, bool bSticky ) const;
+	const QString getTagAtColumn( int nColumn ) const;
 	/**
 	 * @return std::vector<std::shared_ptr<const Tag>>
 	 * Provides read-only access to m_tags.
 	 */
 	const std::vector<std::shared_ptr<const Tag>> getAllTags() const;
+	bool hasColumnTag( int nColumn ) const;
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of

@@ -63,10 +63,9 @@ void SongEditorPanelTagWidget::createTheTagTableWidget()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Timeline* pTimeline = pHydrogen->getTimeline();
-	int nPatternGroupVectorSize;
-	nPatternGroupVectorSize = pHydrogen->getSong()->getPatternGroupVector()->size();
+	int nMaxColumns = Preferences::get_instance()->getMaxBars();
 	
-	for( int i = 0; i < nPatternGroupVectorSize; i++ )
+	for( int i = 0; i < nMaxColumns; i++ )
 	{
 		tagTableWidget->insertRow( i );
 	}
@@ -126,14 +125,12 @@ void SongEditorPanelTagWidget::on_okBtn_clicked()
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Timeline* pTimeline = pHydrogen->getTimeline();
 	auto tagVector = pTimeline->getAllTags();
-
-	int nPatternGroupVectorSize;
-	nPatternGroupVectorSize = pHydrogen->getSong()->getPatternGroupVector()->size();
+	int nMaxColumns = Preferences::get_instance()->getMaxBars();
 
 	//oldText list contains all old item values. we need them for undo an item
 	QStringList sOldText;
 	if(tagVector.size() > 0){
-		for (int i = 0; i < nPatternGroupVectorSize; i++){
+		for (int i = 0; i < nMaxColumns; i++){
 			sOldText << "";
 		}
 		for(int i = 0; i < tagVector.size(); ++i){
