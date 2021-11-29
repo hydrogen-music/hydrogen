@@ -910,15 +910,12 @@ void SongEditorPanel::setTimelineActive( bool bActive ){
 		m_pTimelineBtn->setChecked( bActive );
 	}
 	
-	Preferences::get_instance()->setUseTimelineBpm( bActive );
+	Hydrogen::get_instance()->setUseTimelineBpm( bActive );
 
 	QString sMessage = QString( "%1 = %2" )
 		.arg( pCommonStrings->getTimelineBigButton() )
 		.arg( bActive ? pCommonStrings->getStatusOn() : pCommonStrings->getStatusOff() );
 	HydrogenApp::get_instance()->setStatusBarMessage( sMessage, 5000);
-	
-	m_pPositionRuler->createBackground();
-	emit timelineStateChanged();
 }
 
 bool SongEditorPanel::getTimelineEnabled() const {

@@ -101,9 +101,6 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 			timelineBtnPressed();
 		}
 
-signals:
-	void timelineStateChanged();
-
 	private slots:
 		void vScrollTo( int value );
 		void hScrollTo( int value );

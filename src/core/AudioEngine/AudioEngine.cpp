@@ -734,8 +734,18 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 	float fBpm = pAudioEngine->getBpm();
 
 	// Check for a change in the current BPM.
-	if ( Preferences::get_instance()->getUseTimelineBpm() &&
+	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave &&
 		 pHydrogen->getMode() == Song::Mode::Song ) {
+		// Hydrogen is using the BPM broadcast by the JACK
+		// server. This one does solely depend on external
+		// applications and will NOT be stored in the Song.
+		float fJackMasterBpm = static_cast<JackAudioDriver*>(pAudioEngine->getAudioDriver())->getMasterBpm();
+		if ( ! std::isnan( fJackMasterBpm ) && fBpm != fJackMasterBpm ) {
+			fBpm = fJackMasterBpm;
+			DEBUGLOG( QString( "Tempo update by the JACK server [%1]").arg( fJackMasterBpm ) );
+		}
+	} else if ( Preferences::get_instance()->getUseTimelineBpm() &&
+				pHydrogen->getMode() == Song::Mode::Song ) {
 
 		float fTimelineBpm = pHydrogen->getTimeline()->getTempoAtColumn( nColumn );
 		if ( fTimelineBpm != fBpm ) {
@@ -744,24 +754,13 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 		}
 
 	} else {
-		if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
-			// Hydrogen is using the BPM broadcast by the JACK
-			// server. This one does solely depend on external
-			// applications and will NOT be stored in the Song.
-			float fJackMasterBpm = static_cast<JackAudioDriver*>(pAudioEngine->getAudioDriver())->getMasterBpm();
-			if ( ! std::isnan( fJackMasterBpm ) && fBpm != fJackMasterBpm ) {
-				fBpm = fJackMasterBpm;
-				DEBUGLOG( QString( "Tempo update by the JACK server [%1]").arg( fJackMasterBpm ) );
-			}
-		} else {
-			// Change in speed due to user interaction with the BPM widget
-			// or corresponding MIDI or OSC events.
-			if ( pAudioEngine->getNextBpm() != fBpm ) {
-				DEBUGLOG( QString( "BPM changed via Widget, OSC, or MIDI from [%1] to [%2]." )
-						  .arg( fBpm ).arg( pAudioEngine->getNextBpm() ) );
+		// Change in speed due to user interaction with the BPM widget
+		// or corresponding MIDI or OSC events.
+		if ( pAudioEngine->getNextBpm() != fBpm ) {
+			DEBUGLOG( QString( "BPM changed via Widget, OSC, or MIDI from [%1] to [%2]." )
+					  .arg( fBpm ).arg( pAudioEngine->getNextBpm() ) );
 
-				fBpm = pAudioEngine->getNextBpm();
-			}
+			fBpm = pAudioEngine->getNextBpm();
 		}
 	}
 	return fBpm;

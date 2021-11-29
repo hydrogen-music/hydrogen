@@ -995,6 +995,10 @@ void Hydrogen::setTapTempo( float fInterval )
 	fOldBpm1 = fBPM;
 
 	m_pAudioEngine->setNextBpm( fBPM );
+	// Store it's value in the .h2song file.
+	getSong()->setBpm( fBPM );
+	
+	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 }
 
 void Hydrogen::restartLadspaFX()
@@ -1162,12 +1166,15 @@ void Hydrogen::handleBeatCounter()
 					/ 100;
 			
 			m_pAudioEngine->setNextBpm( fBeatCountBpm );
+			getSong()->setBpm( fBeatCountBpm );
+	
+			EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 			
 			if (Preferences::get_instance()->m_mmcsetplay
 					== Preferences::SET_PLAY_OFF) {
 				m_nBeatCount = 1;
 				m_nEventCount = 1;
-			}else{
+			} else {
 				if ( pAudioEngine->getState() != AudioEngine::State::Playing ){
 					unsigned bcsamplerate =
 							pAudioEngine->getAudioDriver()->getSampleRate();
@@ -1465,6 +1472,16 @@ void Hydrogen::setMode( Song::Mode mode ) {
 	}
 	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, 0 );
 }
+
+void Hydrogen::setUseTimelineBpm( bool bEnabled ) {
+	auto pPref = Preferences::get_instance();
+
+	if ( bEnabled != pPref->getUseTimelineBpm() ) {
+		pPref->setUseTimelineBpm( bEnabled );
+
+		EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION, static_cast<int>( bEnabled ) );
+	}
+}	
 
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 

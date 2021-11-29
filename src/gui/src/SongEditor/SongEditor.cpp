@@ -2154,7 +2154,8 @@ void SongEditorPositionRuler::createBackground()
 	// mouse or touch events. This will also redraw the
 	// tempo marker to ensure it's visible (they can overlap with
 	// neighboring ones and be hardly readable).
-	if ( m_bHighlightHoveredColumn ) {
+	if ( pHydrogen->isTimelineEnabled() &&
+		 m_bHighlightHoveredColumn ) {
 		QRect rect( m_nMargin - SONG_EDITOR_MAX_GRID_WIDTH +
 					m_nHoveredColumn * m_nGridWidth,
 					7, 2 * SONG_EDITOR_MAX_GRID_WIDTH, 12 );
@@ -2306,6 +2307,14 @@ bool SongEditorPositionRuler::event( QEvent* ev ) {
 }
 
 void SongEditorPositionRuler::songModeActivationEvent( int ) {
+	createBackground();
+}
+
+void SongEditorPositionRuler::timelineActivationEvent( int ) {
+	createBackground();
+}
+
+void SongEditorPositionRuler::jackTimebaseStateChangedEvent( int ) {
 	createBackground();
 }
 

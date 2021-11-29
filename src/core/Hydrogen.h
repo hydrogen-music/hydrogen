@@ -192,9 +192,12 @@ public:
 	EVENT_SONG_MODE_ACTIVATION and should be used by all parts of the
 	code except for song reading/setting.*/
 	void setMode( Song::Mode mode );
-		
 
-		void			removeSong();
+	/** Wrapper around Preferences::setUseTimelinebpm() which also
+	triggers EVENT_TIMELINE_ACTIVATION.*/
+	void setUseTimelineBpm( bool bEnabled );
+
+	void			removeSong();
 
 		void			addRealtimeNote ( int instrument,
 							  float velocity,

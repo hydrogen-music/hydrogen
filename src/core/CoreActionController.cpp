@@ -568,7 +568,7 @@ bool CoreActionController::isSongPathValid( const QString& sSongPath ) {
 bool CoreActionController::activateTimeline( bool bActivate ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	Preferences::get_instance()->setUseTimelineBpm( bActivate );
+	pHydrogen->setUseTimelineBpm( bActivate );
 	
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as there is still an external JACK timebase master." )
@@ -577,7 +577,6 @@ bool CoreActionController::activateTimeline( bool bActivate ) {
 		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as Pattern Mode is still activated." )
 					.arg( bActivate ? "enabled" : "disabled" ) );
 	}
-	EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION, static_cast<int>( bActivate ) );
 	
 	return true;
 }
