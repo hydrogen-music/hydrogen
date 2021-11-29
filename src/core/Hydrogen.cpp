@@ -1362,6 +1362,18 @@ bool Hydrogen::isTimelineEnabled() const {
 	return false;
 }
 
+Hydrogen::Tempo Hydrogen::getTempoSource() const {
+	if ( getMode() == Song::Mode::Song ) {
+		if ( getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
+			return Tempo::Jack;
+		} else if ( Preferences::get_instance()->getUseTimelineBpm() ) {
+			return Tempo::Timeline;
+		}
+	}
+
+	return Tempo::Song;
+}
+
 void Hydrogen::toggleOscServer( bool bEnable ) {
 #ifdef H2CORE_HAVE_OSC
 	if ( bEnable ) {

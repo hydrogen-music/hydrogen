@@ -189,9 +189,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	} else {
 		m_bLastBCOnOffBtnState = false;
 	}
-	if ( pHydrogen->isTimelineEnabled() ||
-		 pHydrogen->getJackTimebaseState() ==
-		 H2Core::JackAudioDriver::Timebase::Slave ) {
+	if ( pHydrogen->getTempoSource() != H2Core::Hydrogen::Tempo::Song ) {
 		m_pBCOnOffBtn->setChecked( false );
 		m_pBCOnOffBtn->setIsActive( false );
 	} else {
@@ -287,13 +285,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	connect( m_pLCDBPMSpinbox, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( bpmChanged( double ) ) );
 	// initialize BPM widget
-	if ( pHydrogen->getMode() == Song::Mode::Song ) {
-		m_pLCDBPMSpinbox->setIsActive( ! pPref->getUseTimelineBpm() &&
-									   pHydrogen->getJackTimebaseState() !=
-									   H2Core::JackAudioDriver::Timebase::Slave );
-	} else {
-		m_pLCDBPMSpinbox->setIsActive( true );
-	}
+	m_pLCDBPMSpinbox->setIsActive( pHydrogen->getTempoSource() ==
+								   H2Core::Hydrogen::Tempo::Song );
 	updateBPMSpinboxToolTip();
 
 	m_pRubberBPMChange = new Button( pBPMPanel, QSize( 13, 42 ), Button::Type::Toggle,
@@ -1016,28 +1009,21 @@ void PlayerControl::updateBPMSpinbox() {
 	auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 
-	if ( pHydrogen->getMode() == Song::Mode::Song ) {
-		m_pLCDBPMSpinbox->setIsActive( !pHydrogen->isTimelineEnabled() &&
-									   pHydrogen->getJackTimebaseState() !=
-									   H2Core::JackAudioDriver::Timebase::Slave );
-	} else {
-		m_pLCDBPMSpinbox->setIsActive( true );
-	}
+	m_pLCDBPMSpinbox->setIsActive( pHydrogen->getTempoSource() ==
+								   H2Core::Hydrogen::Tempo::Song );
 	updateBPMSpinboxToolTip();
 }
 
 void PlayerControl::updateBPMSpinboxToolTip() {
 	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getMode() == Song::Mode::Song ) {
-		if ( pHydrogen->getJackTimebaseState() ==
-			 H2Core::JackAudioDriver::Timebase::Slave ) {
-			m_pLCDBPMSpinbox->setToolTip( m_sLCDBPMSpinboxJackTimebaseToolTip );
-		} else if ( pHydrogen->isTimelineEnabled() ) {
-			m_pLCDBPMSpinbox->setToolTip( m_sLCDBPMSpinboxTimelineToolTip );
-		} else {
-			m_pLCDBPMSpinbox->setToolTip( m_sLCDBPMSpinboxToolTip );
-		}
-	} else {
+	switch ( pHydrogen->getTempoSource() ) {
+	case H2Core::Hydrogen::Tempo::Jack:
+		m_pLCDBPMSpinbox->setToolTip( m_sLCDBPMSpinboxJackTimebaseToolTip );
+		break;
+	case H2Core::Hydrogen::Tempo::Timeline:
+		m_pLCDBPMSpinbox->setToolTip( m_sLCDBPMSpinboxTimelineToolTip );
+		break;
+	default:
 		m_pLCDBPMSpinbox->setToolTip( m_sLCDBPMSpinboxToolTip );
 	}
 }
@@ -1046,9 +1032,7 @@ void PlayerControl::updateBeatCounter() {
 	auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 
-	if ( ! pHydrogen->isTimelineEnabled() &&
-		 pHydrogen->getJackTimebaseState() !=
-		 H2Core::JackAudioDriver::Timebase::Slave &&
+	if ( pHydrogen->getTempoSource() == H2Core::Hydrogen::Tempo::Song &&
 		 ! m_pBCOnOffBtn->getIsActive() ) {
 		m_pBCOnOffBtn->setIsActive( true );
 		if ( m_bLastBCOnOffBtnState ) {
@@ -1057,9 +1041,8 @@ void PlayerControl::updateBeatCounter() {
 			m_pControlsBCPanel->show();
 		}
 		
-	} else if ( ( pHydrogen->isTimelineEnabled() ||
-				  pHydrogen->getJackTimebaseState() ==
-				  H2Core::JackAudioDriver::Timebase::Slave ) &&
+	} else if ( pHydrogen->getTempoSource() !=
+				H2Core::Hydrogen::Tempo::Song &&
 				m_pBCOnOffBtn->getIsActive() ) {
 		pPref->m_bbc = Preferences::BC_OFF;
 		m_pControlsBCPanel->hide();
@@ -1073,12 +1056,14 @@ void PlayerControl::updateBeatCounter() {
 
 void PlayerControl::updateBeatCounterToolTip() {
 	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getJackTimebaseState() ==
-		 H2Core::JackAudioDriver::Timebase::Slave ) {
+	switch ( pHydrogen->getTempoSource() ) {
+	case H2Core::Hydrogen::Tempo::Jack:
 		m_pBCOnOffBtn->setToolTip( m_sBCOnOffBtnJackTimebaseToolTip );
-	} else if ( pHydrogen->isTimelineEnabled() ) {
+		break;
+	case H2Core::Hydrogen::Tempo::Timeline:
 		m_pBCOnOffBtn->setToolTip( m_sBCOnOffBtnTimelineToolTip );
-	} else {
+		break;
+	default:
 		m_pBCOnOffBtn->setToolTip( m_sBCOnOffBtnToolTip );
 	}
 }
@@ -1108,11 +1093,10 @@ void PlayerControl::tempoChangedEvent( int nValue )
 		// Value was changed via API commands and not by the
 		// AudioEngine.
 		auto pHydrogen = H2Core::Hydrogen::get_instance();
-		if ( H2Core::Preferences::get_instance()->getUseTimelineBpm() &&
-			 pHydrogen->getMode() == H2Core::Song::Mode::Song ) {
+		if ( pHydrogen->getTempoSource() == H2Core::Hydrogen::Tempo::Timeline ) {
 			QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used left of the first Tempo Marker and takes full effect when deactivating the Timeline.") );
-		}
-		if ( pHydrogen->getJackTimebaseState() == H2Core::JackAudioDriver::Timebase::Slave ) {
+		} else if ( pHydrogen->getTempoSource() ==
+					H2Core::Hydrogen::Tempo::Jack ) {
 			QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK BBT transport or making Hydrogen the Timebase master.") );
 		}
 	}

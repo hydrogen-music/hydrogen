@@ -2401,7 +2401,8 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		pPref->setPunchInPos(column);
 		pPref->setPunchOutPos(-1);
 		update();
-	} else if( ( ev->button() == Qt::LeftButton || ev->button() == Qt::RightButton ) && ev->y() <= 25 && Preferences::get_instance()->getUseTimelineBpm() ){
+	} else if( ( ev->button() == Qt::LeftButton || ev->button() == Qt::RightButton )
+			   && ev->y() <= 25 && m_pHydrogen->isTimelineEnabled() ){
 		showBpmWidget( ev->x() / m_nGridWidth );
 	}
 

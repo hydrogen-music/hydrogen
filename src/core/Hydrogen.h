@@ -54,6 +54,13 @@ class Hydrogen : public H2Core::Object<Hydrogen>
 	H2_OBJECT(Hydrogen)
 public:
 	
+	/** Specifies where the #AudioEngine does get its current tempo
+		updates from*/
+	enum class Tempo {
+		Song = 0,
+		Timeline = 1,
+		Jack = 2
+	};
 	/**
 	 * Creates all the instances used within Hydrogen in the right
 	 * order. 
@@ -457,6 +464,9 @@ void			previewSample( Sample *pSample );
 	 * \return Whether the Timeline is used to determine the current speed.
 	 */
 	bool isTimelineEnabled() const;
+
+	Tempo getTempoSource() const;
+	
 	/**
 	 * \return Whether we haveJackTransport() and there is an external
 	 * JACK timebase master broadcasting us tempo information and
