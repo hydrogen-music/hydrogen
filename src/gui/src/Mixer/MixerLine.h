@@ -294,8 +294,8 @@ public:
 	explicit LadspaFXMixerLine(QWidget* parent);
 	~LadspaFXMixerLine();
 
-	bool	isFxActive();
-	void	setFxActive( bool active );
+	bool	isFxBypassed();
+	void	setFxBypassed( bool active );
 		
 	void	setPeaks( float fPeak_L, float fPeak_R );
 	void	getPeaks( float *fPeak_L, float *fPeak_R );
@@ -305,18 +305,18 @@ public:
 	void	setVolume( float value );
 
 public slots:
-	void activeBtnClicked();
+	void bypassBtnClicked();
 	void editBtnClicked();
 	void rotaryChanged( WidgetWithInput* ref);
 
 signals:
-	void activeBtnClicked( LadspaFXMixerLine *ref );
+	void bypassBtnClicked( LadspaFXMixerLine *ref );
 	void editBtnClicked( LadspaFXMixerLine *ref );
 	void volumeChanged( LadspaFXMixerLine *ref);
 
 private:
 	float			m_fMaxPeak;
-	Button *	m_pActiveBtn;
+	Button *	m_pBypassBtn;
 	Button *		m_pEditBtn;
 	Rotary *		m_pRotary;
 	LCDDisplay *	m_pNameLCD;

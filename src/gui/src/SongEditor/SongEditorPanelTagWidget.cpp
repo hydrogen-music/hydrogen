@@ -40,7 +40,7 @@ SongEditorPanelTagWidget::SongEditorPanelTagWidget( QWidget* pParent, int beat )
 	, m_stimelineposition ( beat )
 {
 	setupUi( this );
-	INFOLOG( "INIT" );
+	
 	setWindowTitle( tr( "Tag" ) );
 	createTheTagTableWidget();
 

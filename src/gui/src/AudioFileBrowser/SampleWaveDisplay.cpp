@@ -34,7 +34,7 @@ SampleWaveDisplay::SampleWaveDisplay(QWidget* pParent)
 {
 //	setAttribute(Qt::WA_OpaquePaintEvent);
 
-	//INFOLOG( "INIT" );
+	//
 	int w = 445;
 	int h = 85;
 	resize( w, h );

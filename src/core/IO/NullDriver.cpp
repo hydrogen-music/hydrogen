@@ -31,7 +31,7 @@ NullDriver::NullDriver( audioProcessCallback processCallback )
 		: AudioOutput()
 {
 	UNUSED( processCallback );
-//	INFOLOG( "INIT" );
+//	
 }
 
 

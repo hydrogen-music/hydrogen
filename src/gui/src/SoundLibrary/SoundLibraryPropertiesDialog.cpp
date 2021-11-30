@@ -39,7 +39,7 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
  , m_pPreDrumkitInfo( pPreDrumkit )
 {
 	setupUi( this );
-	INFOLOG( "INIT" );
+	
 	setWindowTitle( tr( "SoundLibrary Properties" ) );
 	adjustSize();
 	setMinimumSize( width(), height() );

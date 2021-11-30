@@ -41,7 +41,7 @@ MidiInput::MidiInput()
 		, __noteOffTick( 0 )
 		, __noteOnTick( 0 )
 {
-	//INFOLOG( "INIT" );
+	//
 
 }
 

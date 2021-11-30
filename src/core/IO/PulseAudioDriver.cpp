@@ -70,10 +70,12 @@ int PulseAudioDriver::init( unsigned nBufferSize )
 int PulseAudioDriver::connect()
 {
 	if (m_connected) {
+		ERRORLOG( "already connected" );
 		return 1;
 	}
 
 	if (pipe(m_pipe)) {
+		ERRORLOG( "unable to open pipe." );
 		return 1;
 	}
 
@@ -84,6 +86,7 @@ int PulseAudioDriver::connect()
 	{
 		close(m_pipe[0]);
 		close(m_pipe[1]);
+		ERRORLOG( "unable to start thread." );
 		return 1;
 	}
 
@@ -98,6 +101,7 @@ int PulseAudioDriver::connect()
 		pthread_join(m_thread, nullptr);
 		close(m_pipe[0]);
 		close(m_pipe[1]);
+		ERRORLOG( QString( "unable to run driver. Main loop returned %1" ).arg( m_ready ) );
 		return 1;
 	}
 

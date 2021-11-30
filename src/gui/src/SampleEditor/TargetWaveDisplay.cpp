@@ -48,7 +48,7 @@ TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
 {
 //	setAttribute(Qt::WA_OpaquePaintEvent);
 
-	//INFOLOG( "INIT" );
+	//
 	int w = UI_WIDTH;
 	int h = UI_HEIGHT;
 	resize( w, h );

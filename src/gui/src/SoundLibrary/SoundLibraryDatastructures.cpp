@@ -47,7 +47,7 @@ SoundLibraryDatabase* SoundLibraryDatabase::__instance = nullptr;
 
 SoundLibraryDatabase::SoundLibraryDatabase()
 {
-	INFOLOG( "INIT" );
+	
 	patternVector = new soundLibraryInfoVector();
 	updatePatterns();
 }

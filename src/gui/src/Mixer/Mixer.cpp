@@ -80,13 +80,20 @@ Mixer::Mixer( QWidget* pParent )
 
 
 // fX frame
+	auto pEffects = Effects::get_instance();
 	m_pFXFrame = new PixmapWidget( nullptr );
 	m_pFXFrame->setFixedSize( 213, height() );
 	m_pFXFrame->setPixmap( "/mixerPanel/background_FX.png" );
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		m_pLadspaFXLine[nFX] = new LadspaFXMixerLine( m_pFXFrame );
 		m_pLadspaFXLine[nFX]->move( 13, 43 * nFX + 84 );
-		connect( m_pLadspaFXLine[nFX], SIGNAL( activeBtnClicked(LadspaFXMixerLine*) ), this, SLOT( ladspaActiveBtnClicked( LadspaFXMixerLine*) ) );
+		if ( pEffects != nullptr ) {
+			auto pFx = pEffects->getLadspaFX( nFX );
+			if ( pFx != nullptr ) {
+				m_pLadspaFXLine[nFX]->setFxBypassed( pEffects->getLadspaFX( nFX )->isEnabled() );
+			}
+		}
+		connect( m_pLadspaFXLine[nFX], SIGNAL( bypassBtnClicked(LadspaFXMixerLine*) ), this, SLOT( ladspaBypassBtnClicked( LadspaFXMixerLine*) ) );
 		connect( m_pLadspaFXLine[nFX], SIGNAL( editBtnClicked(LadspaFXMixerLine*) ), this, SLOT( ladspaEditBtnClicked( LadspaFXMixerLine*) ) );
 		connect( m_pLadspaFXLine[nFX], SIGNAL( volumeChanged(LadspaFXMixerLine*) ), this, SLOT( ladspaVolumeChanged( LadspaFXMixerLine*) ) );
 	}
@@ -615,12 +622,12 @@ void Mixer::updateMixer()
 			if (fNewPeak_L < fOldPeak_L)	fNewPeak_L = fOldPeak_L / fallOff;
 			if (fNewPeak_R < fOldPeak_R)	fNewPeak_R = fOldPeak_R / fallOff;
 			m_pLadspaFXLine[nFX]->setPeaks( fNewPeak_L, fNewPeak_R );
-			m_pLadspaFXLine[nFX]->setFxActive( pFX->isEnabled() );
+			m_pLadspaFXLine[nFX]->setFxBypassed( ! pFX->isEnabled() );
 			m_pLadspaFXLine[nFX]->setVolume( pFX->getVolume() );
 		}
 		else {
 			m_pLadspaFXLine[nFX]->setName( "No plugin" );
-			m_pLadspaFXLine[nFX]->setFxActive( false );
+			m_pLadspaFXLine[nFX]->setFxBypassed( true );
 			m_pLadspaFXLine[nFX]->setVolume( 0.0 );
 		}
 	}
@@ -734,10 +741,10 @@ void Mixer::showPeaksBtnClicked()
 
 
 
-void Mixer::ladspaActiveBtnClicked( LadspaFXMixerLine* ref )
+void Mixer::ladspaBypassBtnClicked( LadspaFXMixerLine* ref )
 {
 #ifdef H2CORE_HAVE_LADSPA
-	bool bActive = ref->isFxActive();
+	bool bActive = ! ref->isFxBypassed();
 
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		if (ref == m_pLadspaFXLine[ nFX ] ) {
