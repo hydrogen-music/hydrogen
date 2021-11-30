@@ -511,36 +511,6 @@ void SongEditorPanel::newPatBtnClicked()
 	delete pDialog;
 }
 
-
-void SongEditorPanel::insertPattern( int idx, Pattern* pPattern )
-{
-	Hydrogen	*pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	PatternList *pPatternList = pSong->getPatternList();
-
-	pPatternList->insert( idx, pPattern );
-	pHydrogen->setSelectedPatternNumber( idx );
-	pSong->setIsModified( true );
-	updateAll();
-}
-
-void SongEditorPanel::deletePattern( int idx )
-{
-	Hydrogen	*pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = 	pHydrogen->getSong();
-	PatternList *pPatternList = pSong->getPatternList();
-	H2Core::Pattern *pPattern = pPatternList->get( idx );
-	
-	if( idx == 	pHydrogen->getSelectedPatternNumber() ) {
-		pHydrogen->setSelectedPatternNumber( idx -1 );
-	}
-	
-	pPatternList->del( pPattern );
-	delete pPattern;
-	pSong->setIsModified( true );
-	updateAll();
-}
-
 ///
 /// Move up a pattern in the patternList
 ///
@@ -947,4 +917,8 @@ void SongEditorPanel::timelineActivationEvent( int nEvent ){
 	}
 	
 	m_pPositionRuler->createBackground();
+}
+
+void SongEditorPanel::updateSongEditorEvent( int ) {
+	updateAll();
 }

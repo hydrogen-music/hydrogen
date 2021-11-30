@@ -88,10 +88,6 @@ class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public S
 		int getCursorRow() const;
 		int getCursorColumn() const;
 
-		//! Add or delete pattern in the sequence grid.
-		void addPattern( int nColumn, int nRow);
-		void deletePattern( int nColumn, int nRow );
-
 		//! Modify many pattern cells at once, for use in a single efficient undo/redo action
 		void modifyPatternCellsAction( std::vector<QPoint> & addCells, std::vector<QPoint> & deleteCells,
 									   std::vector<QPoint> & selectCells );
@@ -196,8 +192,8 @@ class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public S
 		virtual void leaveEvent( QEvent *ev ) override;
 		//! @}
 
-		bool togglePatternActive( int nColumn, int nRow );
-		void setPatternActive( int nColumn, int nRow, bool value );
+    	void togglePatternActive( int nColumn, int nRow );
+		void setPatternActive( int nColumn, int nRow, bool bActivate );
 
 		void drawSequence();
   
@@ -261,9 +257,7 @@ class SongEditorPatternList :  public QWidget, protected WidgetWithScalableFont<
 		void restoreDeletedPatternsFromList( QString patternFilename, QString sequenceFileName, int patternPosition );
 		void acceptPatternPropertiesDialogSettings( QString newPatternName, QString newPatternInfo, QString newPatternCategory, int patternNr );
 		void revertPatternPropertiesDialogSettings(QString oldPatternName, QString oldPatternInfo, QString oldPatternCategory, int patternNr);
-		void loadPatternAction( QString filename, int position);
 		void fillRangeWithPattern(FillRange* r, int nPattern);
-		void patternPopup_duplicateAction( QString patternFilename, int patternposition );
 		int getGridHeight() { return m_nGridHeight; }
 
 	public slots:

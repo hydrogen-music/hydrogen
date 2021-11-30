@@ -27,6 +27,8 @@
 #include <core/Preferences/Preferences.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Instrument.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Pattern.h>
 #include "core/OscServer.h"
 #include <core/MidiAction.h>
 #include "core/MidiMap.h"
@@ -746,4 +748,137 @@ bool CoreActionController::locateToFrame( unsigned long nFrame ) {
 #endif
 	return true;
 }
+
+bool CoreActionController::newPattern( const QString& sPatternName ) {
+	auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
+	Pattern* pPattern = new Pattern( sPatternName );
+	
+	return setPattern( pPattern, pPatternList->size() );
+}
+bool CoreActionController::openPattern( const QString& sPath, int nPatternPosition ) {
+	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pPatternList = pSong->getPatternList();
+	Pattern* pNewPattern = Pattern::load_file( sPath, pSong->getInstrumentList() );
+
+	if ( pNewPattern == nullptr ) {
+		ERRORLOG( QString( "Unable to loading the pattern [%1]" ).arg( sPath ) );
+		return false;
+	}
+
+	if ( nPatternPosition == -1 ) {
+		nPatternPosition = pPatternList->size();
+	}
+
+	return setPattern( pNewPattern, nPatternPosition );
+}
+
+bool CoreActionController::setPattern( Pattern* pPattern, int nPatternPosition ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pPatternList = pHydrogen->getSong()->getPatternList();
+
+	// Check whether the name of the new pattern is unique.
+	if ( !pPatternList->check_name( pPattern->get_name() ) ){
+		pPattern->set_name( pPatternList->find_unused_pattern_name( pPattern->get_name() ) );
+	}
+
+	pPatternList->insert( nPatternPosition, pPattern );
+	pHydrogen->setSelectedPatternNumber( nPatternPosition );
+	pHydrogen->getSong()->setIsModified( true );
+	
+	// Update the SongEditor.
+	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG_EDITOR, 0 );
+	}
+	return true;
+}
+
+bool CoreActionController::removePattern( int nPatternNumber ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
+	int nPreviousPatternNumber = pHydrogen->getSelectedPatternNumber();
+	auto pPattern = pPatternList->get( nPatternNumber );
+
+	if ( nPatternNumber == nPreviousPatternNumber ) {
+		pHydrogen->setSelectedPatternNumber( std::max( 0, nPatternNumber - 1 ) );
+	}
+
+	pPatternList->del( pPattern );
+	delete pPattern;
+	pHydrogen->getSong()->setIsModified( true );
+
+	// Update the SongEditor.
+	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG_EDITOR, 0 );
+	}
+	return true;
+}
+
+bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pPatternList = pSong->getPatternList();
+	std::vector<PatternList*>* pColumns = pSong->getPatternGroupVector();
+
+	if ( nRow < 0 || nRow > pPatternList->size() ) {
+		ERRORLOG( QString( "Provided row [%1] is out of bound [0,%2]" )
+				  .arg( nRow ).arg( pPatternList->size() ) );
+		return false;
+	}
+	
+	auto pNewPattern = pPatternList->get( nRow );
+	if ( pNewPattern == nullptr ) {
+		ERRORLOG( QString( "Unable to obtain Pattern in row [%1]." )
+				  .arg( nRow ) );
+
+		return false;
+	}
+
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+	if ( nColumn >= 0 && nColumn < pColumns->size() ) {
+		PatternList *pColumn = ( *pColumns )[ nColumn ];
+		auto pPattern = pColumn->del( pNewPattern );
+		if ( pPattern == nullptr ) {
+			// No pattern in this row. Let's add it.
+			pColumn->add( pNewPattern );
+		} else {
+			// There was already a pattern present and we removed it.
+			// Ensure that there are no empty columns at the end of
+			// the song.
+			for ( int ii = pColumns->size() - 1; ii >= 0; ii-- ) {
+				PatternList *pColumn = ( *pColumns )[ ii ];
+				if ( pColumn->size() == 0 ) {
+					pColumns->erase( pColumns->begin() + ii );
+					delete pColumn;
+				} else {
+					break;
+				}
+			}
+		}
+	} else if ( nColumn >= pColumns->size() ) {
+		// We need to add some new columns..
+		PatternList *pColumn;
+
+		for ( int ii = 0; nColumn - pColumns->size() + 1; ii++ ) {
+			pColumn = new PatternList();
+			pColumns->push_back( pColumn );
+		}
+		pColumn->add( pNewPattern );
+	} else {
+		// nColumn < 0
+		ERRORLOG( QString( "Provided column [%1] is out of bound [0,%2]" )
+				  .arg( nColumn ).arg( pColumns->size() ) );
+		return false;
+	}
+	
+	pSong->setIsModified( true );
+	pHydrogen->getAudioEngine()->unlock();
+
+	// Update the SongEditor.
+	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG_EDITOR, 0 );
+	}
+
+	return true;
+}
+
 }

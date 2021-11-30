@@ -22,6 +22,8 @@
 		  widget can receive keyboard input
 		- MIDI-learnable widgets now show their corresponding MIDI action
 		  and it's binding in the tooltip
+		- It's now possible to jump to the beginning of the currently
+		  playing pattern by clicking its position on the ruler.
 	* PreferencesDialog > Appearance tab overhaul
 	  	- Drop previous font options in favor for three different
 		  levels of font (without exposing their point sizes)
