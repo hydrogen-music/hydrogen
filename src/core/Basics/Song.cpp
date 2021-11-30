@@ -743,8 +743,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_fPlaybackTrackVolume: %1" ).arg( m_fPlaybackTrackVolume ) )
 			.append( QString( ", m_pVelocityAutomationPath: %1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix ) ) )
 			.append( QString( ", m_sLicense: %1" ).arg( m_sLicense ) )
-			.append( QString( ", m_actionMode: %1" )
-					 .arg( static_cast<int>(m_actionMode) ) )
+			.append( QString( ", m_actionMode: %1" ).arg( static_cast<int>(m_actionMode) ) )
 			.append( QString( ", m_nPanLawType: %1" ).arg( m_nPanLawType ) )
 			.append( QString( ", m_fPanLawKNorm: %1" ).arg( m_fPanLawKNorm ) );
 	}
@@ -840,18 +839,8 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	bool bPlaybackTrackEnabled = LocalFileMng::readXmlBool( songNode, "playbackTrackEnabled", false );
 	float fPlaybackTrackVolume = LocalFileMng::readXmlFloat( songNode, "playbackTrackVolume", 0.0 );
 
-	Song::ActionMode actionMode;
- 	int nActionMode = LocalFileMng::readXmlInt( songNode, "action_mode", 0 );
-	if ( nActionMode == 0 ){
-		actionMode = Song::ActionMode::selectMode;
-	} else if ( nActionMode == 1 ) {
-		actionMode = Song::ActionMode::drawMode;
-	} else {
-		WARNINGLOG( QString( "Unknown action_mode value [%1]. Using Song::ActionMode::selectMode instead." )
-					.arg( nActionMode ) );
-		actionMode = Song::ActionMode::selectMode;
-	}
-
+	Song::ActionMode actionMode = static_cast<Song::ActionMode>( LocalFileMng::readXmlInt( songNode, "action_mode",
+																						   static_cast<int>( Song::ActionMode::selectMode ) ) );
 	float fHumanizeTimeValue = LocalFileMng::readXmlFloat( songNode, "humanize_time", 0.0 );
 	float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
 	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );

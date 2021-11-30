@@ -35,7 +35,7 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
  : QDialog( nullptr )
  , m_pCurrentItem( nullptr )
 {
-	//INFOLOG( "INIT" );
+	//
 
 	setupUi( this );
 

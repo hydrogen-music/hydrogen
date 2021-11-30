@@ -412,15 +412,8 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 	LocalFileMng::writeXmlString( songNode, "playbackTrackFilename", QString("%1").arg( pSong->getPlaybackTrackFilename() ) );
 	LocalFileMng::writeXmlBool( songNode, "playbackTrackEnabled", pSong->getPlaybackTrackEnabled() );
 	LocalFileMng::writeXmlString( songNode, "playbackTrackVolume", QString("%1").arg( pSong->getPlaybackTrackVolume() ) );
-
-	int nActionMode = 0;
-	if ( pSong->getActionMode() == Song::ActionMode::selectMode ) {
-		nActionMode = 0;
-	} else if ( pSong->getActionMode() == Song::ActionMode::drawMode ) {
-		nActionMode = 1;
-	}
 	LocalFileMng::writeXmlString( songNode, "action_mode",
-								  QString::number( nActionMode ) );
+								  QString::number( static_cast<int>( pSong->getActionMode() ) ) );
 	
 	if ( pSong->getMode() == Song::Mode::Song ) {
 		LocalFileMng::writeXmlString( songNode, "mode", QString( "song" ) );

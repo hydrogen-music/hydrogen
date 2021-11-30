@@ -31,7 +31,7 @@ SoundLibrarySaveDialog::SoundLibrarySaveDialog( QWidget* pParent )
  : QDialog( pParent )
 {
 	setupUi( this );
-	INFOLOG( "INIT" );
+	
 	setWindowTitle( tr( "Save Sound Library" ) );
 	adjustSize();
 	setFixedSize( width(), height() );

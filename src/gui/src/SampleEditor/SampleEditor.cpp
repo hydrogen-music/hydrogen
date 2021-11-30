@@ -54,7 +54,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 		, Object ()
 {
 	setupUi ( this );
-	INFOLOG ( "INIT" );
+	
 
 	m_pTimer = new QTimer(this);
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateMainsamplePositionRuler()));

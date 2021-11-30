@@ -55,7 +55,7 @@ using namespace H2Core;
 MixerLine::MixerLine(QWidget* parent, int nInstr)
  : PixmapWidget( parent )
 {
-//	INFOLOG( "INIT" );
+//	
 
 	m_nWidth = MIXERLINE_WIDTH;
 	m_nHeight = MIXERLINE_HEIGHT;
@@ -385,7 +385,7 @@ void MixerLine::setSelected( bool bIsSelected )
 ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
  : PixmapWidget( parent )
 {
-//	INFOLOG( "INIT" );
+//	
 
 	m_nComponentID = CompoID;
 
@@ -883,9 +883,10 @@ LadspaFXMixerLine::LadspaFXMixerLine(QWidget* parent)
 	setPixmap( "/mixerPanel/fxline_background.png" );
 
 	// active button
-	m_pActiveBtn = new Button( this, QSize( 34, 14 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBypassButton(), true, QSize(), tr( "FX bypass") );
-	m_pActiveBtn->move( 52, 25 );
-	connect( m_pActiveBtn, SIGNAL( pressed() ), this, SLOT( activeBtnClicked() ) );
+	m_pBypassBtn = new Button( this, QSize( 34, 14 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getBypassButton(), true, QSize(), tr( "FX bypass") );
+	m_pBypassBtn->move( 52, 25 );
+	connect( m_pBypassBtn, SIGNAL( pressed() ), this, SLOT( bypassBtnClicked() ) );
+	
 
 	// edit button
 	m_pEditBtn = new Button( this, QSize( 34, 14 ), Button::Type::Push, "", HydrogenApp::get_instance()->getCommonStrings()->getEditButton(), false, QSize(), tr( "Edit FX parameters") );
@@ -922,25 +923,25 @@ void LadspaFXMixerLine::setName(QString name)
 }
 
 
-void LadspaFXMixerLine::activeBtnClicked() {
-	emit activeBtnClicked( this );
+void LadspaFXMixerLine::bypassBtnClicked() {
+	emit bypassBtnClicked( this );
 }
 void LadspaFXMixerLine::editBtnClicked() {
 	emit editBtnClicked( this );
 }
 
-bool LadspaFXMixerLine::isFxActive()
+bool LadspaFXMixerLine::isFxBypassed()
 {
-	return ( ( m_pActiveBtn->isChecked() && ! m_pActiveBtn->isDown() ) ||
-			 ( ! m_pActiveBtn->isChecked() && m_pActiveBtn->isDown() ) );
+	return ( ( m_pBypassBtn->isChecked() && ! m_pBypassBtn->isDown() ) ||
+			 ( ! m_pBypassBtn->isChecked() && m_pBypassBtn->isDown() ) );
 }
 
-void LadspaFXMixerLine::setFxActive( bool active )
+void LadspaFXMixerLine::setFxBypassed( bool bBypassed )
 {
-	if ( ! m_pActiveBtn->isDown() ) {
-		m_pActiveBtn->setChecked( active );
+	if ( ! m_pBypassBtn->isDown() ) {
+		m_pBypassBtn->setChecked( bBypassed );
 	}
-	m_pRotary->setIsActive( active );
+	m_pRotary->setIsActive( ! bBypassed );
 }
 
 void LadspaFXMixerLine::rotaryChanged( WidgetWithInput *ref)

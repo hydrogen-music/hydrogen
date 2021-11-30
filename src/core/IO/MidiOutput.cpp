@@ -27,7 +27,7 @@ namespace H2Core
 
 MidiOutput::MidiOutput()
 {
-	//INFOLOG( "INIT" );
+	//
 }
 
 

@@ -41,7 +41,7 @@ using namespace H2Core;
 PlaybackTrackWaveDisplay::PlaybackTrackWaveDisplay(QWidget* pParent)
  : WaveDisplay( pParent )
 {
-	INFOLOG( "INIT" );
+	
 	
 	setAcceptDrops(true);
 }

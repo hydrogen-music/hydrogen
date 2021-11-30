@@ -317,8 +317,6 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 	this->setPalette( defaultPalette );
 
-	Hydrogen::get_instance()->getSong()->setActionMode( H2Core::Song::ActionMode::selectMode );
-
 	show();
 
 	updateAll();

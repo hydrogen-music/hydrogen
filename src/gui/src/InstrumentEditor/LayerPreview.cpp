@@ -50,7 +50,7 @@ LayerPreview::LayerPreview( QWidget* pParent )
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
-	//INFOLOG( "INIT" );
+	//
 
 	setMouseTracking( true );
 

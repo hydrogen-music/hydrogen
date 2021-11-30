@@ -44,7 +44,7 @@ LadspaFXProperties::LadspaFXProperties(QWidget* parent, uint nLadspaFX)
  : QWidget( parent )
  , Object()
 {
-//	INFOLOG( "INIT" );
+//	
 
 	m_nLadspaFX = nLadspaFX;
 

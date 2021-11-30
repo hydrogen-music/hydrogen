@@ -206,6 +206,13 @@ Synth* AudioEngine::getSynth() const
 
 void AudioEngine::lock( const char* file, unsigned int line, const char* function )
 {
+	#ifdef H2CORE_HAVE_DEBUG
+	if ( __logger->should_log( Logger::Locks ) ) {
+		__logger->log( Logger::Locks, _class_name(), __FUNCTION__,
+					   QString( "by %1 : %2 : %3" ).arg( function ).arg( line ).arg( file ) );
+	}
+	#endif
+
 	m_EngineMutex.lock();
 	__locker.file = file;
 	__locker.line = line;
@@ -215,6 +222,12 @@ void AudioEngine::lock( const char* file, unsigned int line, const char* functio
 
 bool AudioEngine::tryLock( const char* file, unsigned int line, const char* function )
 {
+	#ifdef H2CORE_HAVE_DEBUG
+	if ( __logger->should_log( Logger::Locks ) ) {
+		__logger->log( Logger::Locks, _class_name(), __FUNCTION__,
+					   QString( "by %1 : %2 : %3" ).arg( function ).arg( line ).arg( file ) );
+	}
+	#endif
 	bool res = m_EngineMutex.try_lock();
 	if ( !res ) {
 		// Lock not obtained
@@ -224,11 +237,22 @@ bool AudioEngine::tryLock( const char* file, unsigned int line, const char* func
 	__locker.line = line;
 	__locker.function = function;
 	m_LockingThread = std::this_thread::get_id();
+	#ifdef H2CORE_HAVE_DEBUG
+	if ( __logger->should_log( Logger::Locks ) ) {
+		__logger->log( Logger::Locks, _class_name(), __FUNCTION__, QString( "locked" ) );
+	}
+	#endif
 	return true;
 }
 
 bool AudioEngine::tryLockFor( std::chrono::microseconds duration, const char* file, unsigned int line, const char* function )
 {
+	#ifdef H2CORE_HAVE_DEBUG
+	if ( __logger->should_log( Logger::Locks ) ) {
+		__logger->log( Logger::Locks, _class_name(), __FUNCTION__,
+					   QString( "by %1 : %2 : %3" ).arg( function ).arg( line ).arg( file ) );
+	}
+	#endif
 	bool res = m_EngineMutex.try_lock_for( duration );
 	if ( !res ) {
 		// Lock not obtained
@@ -241,6 +265,12 @@ bool AudioEngine::tryLockFor( std::chrono::microseconds duration, const char* fi
 	__locker.line = line;
 	__locker.function = function;
 	m_LockingThread = std::this_thread::get_id();
+	
+	#ifdef H2CORE_HAVE_DEBUG
+	if ( __logger->should_log( Logger::Locks ) ) {
+		__logger->log( Logger::Locks, _class_name(), __FUNCTION__, QString( "locked" ) );
+	}
+	#endif
 	return true;
 }
 
@@ -249,6 +279,11 @@ void AudioEngine::unlock()
 	// Leave "__locker" dirty.
 	m_LockingThread = std::thread::id();
 	m_EngineMutex.unlock();
+	#ifdef H2CORE_HAVE_DEBUG
+	if ( __logger->should_log( Logger::Locks ) ) {
+		__logger->log( Logger::Locks, _class_name(), __FUNCTION__, QString( "" ) );
+	}
+	#endif
 }
 
 void AudioEngine::startPlayback()

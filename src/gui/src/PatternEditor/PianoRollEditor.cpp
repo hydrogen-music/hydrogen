@@ -44,7 +44,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 	: PatternEditor( pParent, panel )
 	, m_pScrollView( pScrollView )
 {
-	INFOLOG( "INIT" );
+	
 		
 	m_nGridHeight = 10;
 	m_nOctaves = 7;

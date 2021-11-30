@@ -627,19 +627,11 @@ private:
 	 */
 	std::thread::id 	m_LockingThread;
 
-	/**
-	 * This struct is most probably intended to be used for
-	 * logging the locking of the AudioEngine. But neither it nor
-	 * the Logger::AELockTracing state is ever used.
-	 */
 	struct _locker_struct {
 		const char* file;
 		unsigned int line;
 		const char* function;
-	} __locker; ///< This struct is most probably intended to be
-		    ///< used for logging the locking of the
-		    ///< AudioEngine. But neither it nor the
-		    ///< Logger::AELockTracing state is ever used.
+	} __locker;
 	
 	/** Time in seconds since the beginning of the Song.
 	 *

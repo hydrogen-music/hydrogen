@@ -60,7 +60,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 {
 
 	setupUi ( this );
-	INFOLOG ( "INIT" );
+	
 
 	auto pPref = H2Core::Preferences::get_instance();
 	

@@ -4,6 +4,7 @@
 		- Remembering paths in all export/import/save/open dialogs.
 		- Introducing keyboard shortcut for the Open Pattern dialog.
 		- Allow for opening more than one Pattern at once.
+		- All available audio drivers can now be chosen via CLI.
 		- Implement missing EFFECT_LEVEL_RELATIVE MIDI action
 		- If the Timeline is activated, the tempo set using the BPM
 		  widget, BeatCounter, Tap Tempo, or MIDI/OSC commands is used left

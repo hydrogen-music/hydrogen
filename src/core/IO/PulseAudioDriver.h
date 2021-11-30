@@ -58,6 +58,8 @@ private:
 	pthread_t				m_thread;
 	pthread_mutex_t			m_mutex;
 	pthread_cond_t			m_cond;
+	/** File descriptors used to write data to (m_pipe[1]) and read
+		data from (m_pipe[0]) the pipe.*/
 	int						m_pipe[2];
 	audioProcessCallback	m_callback;
 	pa_mainloop*			m_main_loop;
