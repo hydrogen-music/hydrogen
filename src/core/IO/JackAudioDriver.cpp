@@ -432,6 +432,10 @@ void JackAudioDriver::relocateUsingBBT()
 	
 	pAudioEngine->setTickSize( fNewTickSize );
 	pAudioEngine->setFrames( nNewFrames );
+
+	pAudioEngine->calculateElapsedTime( getSampleRate(), nNewFrames,
+										pSong->getResolution() );
+	
 	m_frameOffset = m_JackTransportPos.frame - nNewFrames;
 
 	float fBPM = static_cast<float>(m_JackTransportPos.beats_per_minute);
@@ -536,6 +540,10 @@ void JackAudioDriver::updateTransportInfo()
 
 		if ( !bTimebaseEnabled || m_timebaseState != Timebase::Slave ) {
 			pAudioEngine->setFrames( m_JackTransportPos.frame );
+
+			pAudioEngine->calculateElapsedTime( getSampleRate(),
+												m_JackTransportPos.frame,
+												pHydrogen->getSong()->getResolution() );
 		
 			// There maybe was an offset introduced when passing a
 			// tempo marker.
@@ -1056,11 +1064,21 @@ void JackAudioDriver::stopTransport()
 
 void JackAudioDriver::locateTransport( unsigned long frame )
 {
+	auto pHydrogen = Hydrogen::get_instance();
+	
 	if ( m_pClient != nullptr ) {
 		// jack_transport_locate() (jack/transport.h )
 		// re-positions the transport to a new frame number. May
 		// be called at any time by any client.
 		jack_transport_locate( m_pClient, frame );
+
+		// Update the time display since recalculation in
+		// updateTransportInfo() is only triggered when playback is
+		// rolling.
+		pHydrogen->getAudioEngine()->calculateElapsedTime( pHydrogen->getAudioOutput()->getSampleRate(),
+														   frame,
+														   pHydrogen->getSong()->getResolution() );
+
 	} else {
 		ERRORLOG( "No client registered" );
 	}
