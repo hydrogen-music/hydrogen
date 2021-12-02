@@ -28,7 +28,6 @@ namespace H2Core {
 
 TransportInfo::TransportInfo()
 	: m_nFrames( 0 )
-	, m_nExternalFrames( 0 )
 	, m_fTickSize( 1 )
 	, m_fBpm( 120 ) {
 }
@@ -73,10 +72,6 @@ void TransportInfo::setTickSize( float fNewTickSize ) {
 	}
 
 	m_fTickSize = fNewTickSize;
-}
-	 
-void TransportInfo::setExternalFrames( long long nNewExternalFrames ) {
-	m_nExternalFrames = nNewExternalFrames;
-}
+}	 
 
 };

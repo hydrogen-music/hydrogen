@@ -333,7 +333,7 @@ void JackAudioDriver::relocateUsingBBT()
  
 		if ( Preferences::get_instance()->m_JackBBTSync ==
 			 Preferences::JackBBTSyncMethod::identicalBars ) {
-			barTicks = pAudioEngine->getTickForColumn( m_JackTransportPos.bar - 1 );
+			barTicks = pHydrogen->getTickForColumn( m_JackTransportPos.bar - 1 );
 
 			if ( barTicks < 0 ) {
 				barTicks = 0;
@@ -384,7 +384,7 @@ void JackAudioDriver::relocateUsingBBT()
 			}
 
 			// Position of the resulting pattern in ticks.
-			barTicks = pAudioEngine->getTickForColumn( nNumberOfPatternsPassed );
+			barTicks = pHydrogen->getTickForColumn( nNumberOfPatternsPassed );
 			if ( barTicks < 0 ) {
 				barTicks = 0;
 			} else if ( fNextIncrement > 1 &&
@@ -424,24 +424,26 @@ void JackAudioDriver::relocateUsingBBT()
 	}
 
 	int nPatternStart;
-	int nPattern = pHydrogen->getAudioEngine()->getColumnForTick( fNewTick, pSong->getIsLoopEnabled(), &nPatternStart );
+	int nPattern = pHydrogen->getColumnForTick( fNewTick,
+											   pSong->getIsLoopEnabled(),
+											   &nPatternStart );
 
 	// NOTE this prevents audioEngine_process_checkBPMChanged
 	// in Hydrogen.cpp from recalculating things.
 	long long nNewFrames = static_cast<long long>( fNewTick * fNewTickSize );
-	
-	pAudioEngine->setTickSize( fNewTickSize );
-	pAudioEngine->setFrames( nNewFrames );
+		
+	pAudioEngine->relocateTransport( nNewFrames );
+	// pAudioEngine->setFrames( nNewFrames );
 
-	pAudioEngine->calculateElapsedTime( getSampleRate(), nNewFrames,
-										pSong->getResolution() );
+	// pAudioEngine->calculateElapsedTime( getSampleRate(), nNewFrames,
+	// 									pSong->getResolution() );
 	
-	m_frameOffset = m_JackTransportPos.frame - nNewFrames;
+	// m_frameOffset = m_JackTransportPos.frame - nNewFrames;
 
-	float fBPM = static_cast<float>(m_JackTransportPos.beats_per_minute);
-	if ( pAudioEngine->getBpm() != fBPM ) {
-		pAudioEngine->setNextBpm( fBPM );
-	}
+	// float fBPM = static_cast<float>(m_JackTransportPos.beats_per_minute);
+	// if ( pAudioEngine->getBpm() != fBPM ) {
+	// 	pAudioEngine->setNextBpm( fBPM );
+	// }
 }
 
 void JackAudioDriver::updateTransportInfo()
@@ -543,11 +545,7 @@ void JackAudioDriver::updateTransportInfo()
 		}
 
 		if ( !bTimebaseEnabled || m_timebaseState != Timebase::Slave ) {
-			pAudioEngine->setFrames( m_JackTransportPos.frame );
-
-			pAudioEngine->calculateElapsedTime( getSampleRate(),
-												m_JackTransportPos.frame,
-												pHydrogen->getSong()->getResolution() );
+			pAudioEngine->relocateTransport( m_JackTransportPos.frame );
 		
 			// There maybe was an offset introduced when passing a
 			// tempo marker.
@@ -1321,7 +1319,8 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	
 	int nNextPatternStartTick;
 	int nNextPattern = 
-		pAudioEngine->getColumnForTick( nextTick, pSong->getIsLoopEnabled(), &nNextPatternStartTick );
+		pHydrogen->getColumnForTick( nextTick, pSong->getIsLoopEnabled(),
+									&nNextPatternStartTick );
 
 	// In order to determine the tempo, which will be set by Hydrogen
 	// during the next transport cycle, we have to look at the last
@@ -1329,15 +1328,17 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	// cycle and after the updateTransportInfo() returns.
 	unsigned long nextTickInternal = 
 		floor(( pJackPosition->frame - pDriver->m_frameOffset + 
-				pAudioEngine->calculateLookahead( fTickSize ) ) / 
+				AudioEngine::calculateLookahead( fTickSize ) ) / 
 			  fTickSize) - 1;
 	int nNextPatternStartTickInternal;
 	int nNextPatternInternal = 
-		pAudioEngine->getColumnForTick( nextTickInternal, pSong->getIsLoopEnabled(), &nNextPatternStartTickInternal );
+		pHydrogen->getColumnForTick( nextTickInternal,
+									pSong->getIsLoopEnabled(),
+									&nNextPatternStartTickInternal );
 
 	// Calculate the length of the next pattern in ticks == number
 	// of ticks in the next bar.
-	long ticksPerBar = pAudioEngine->getPatternLength( nNextPattern );
+	long ticksPerBar = pHydrogen->getPatternLength( nNextPattern );
 	if ( ticksPerBar < 1 ) {
 		return;
 	}

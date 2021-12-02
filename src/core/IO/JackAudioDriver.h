@@ -572,7 +572,20 @@ public:
 	/** \return the BPM reported by the timebase master or NAN if there
 		is no external timebase master.*/
 	float getMasterBpm() const;
-protected:
+
+	/** 
+	 * Uses the bar-beat-tick information to relocate the transport
+	 * position.
+	 *
+	 * This type of operation is triggered whenever the transport
+	 * position gets relocated or the tempo is changed using Jack in
+	 * the presence of an external timebase master. In addition, the
+	 * function also updates the current tick size to prevent
+	 * the audioEngine_checkBPMUpdate() function from doing so.*/
+	void relocateUsingBBT();
+
+private:
+	
 	/**
 	 * Callback function registered to the JACK server in
 	 * initTimebaseMaster() if Hydrogen is set as JACK timebase master.
@@ -640,8 +653,6 @@ protected:
 
 	static void printJackTransportPos( const jack_position_t* pPos );
 
-private:
-
 	/** Show debugging information.*/
 	void printState() const;
 
@@ -653,17 +664,6 @@ private:
 	 * #m_previousJackTransportPos.
 	 */
 	bool compareAdjacentBBT() const;
-
-	/** 
-	 * Uses the bar-beat-tick information to relocate the transport
-	 * position.
-	 *
-	 * This type of operation is triggered whenever the transport
-	 * position gets relocated or the tempo is changed using Jack in
-	 * the presence of an external timebase master. In addition, the
-	 * function also updates the current tick size to prevent
-	 * the audioEngine_checkBPMUpdate() function from doing so.*/
-	void relocateUsingBBT();
 
 	/**
 	 * Renames the @a n 'th port of JACK client and creates it if

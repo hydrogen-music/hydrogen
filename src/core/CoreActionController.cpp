@@ -692,7 +692,7 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
-	long nTotalTick = pAudioEngine->getTickForColumn( nPatternGroup );
+	long nTotalTick = pHydrogen->getTickForColumn( nPatternGroup );
 	if ( nTotalTick < 0 ) {
 		// There is no pattern inserted in the SongEditor.
 		if ( pHydrogen->getMode() == Song::Mode::Song ) {
@@ -733,7 +733,9 @@ bool CoreActionController::locateToFrame( unsigned long nFrame, bool bWithJackBr
 
 		int nTotalTick = static_cast<int>(nFrame / pAudioEngine->getTickSize());
 		int nPatternStartTick;
-		int nColumn = pAudioEngine->getColumnForTick( nTotalTick, pHydrogen->getSong()->getIsLoopEnabled(), &nPatternStartTick );
+		int nColumn = pHydrogen->getColumnForTick( nTotalTick,
+												  pHydrogen->getSong()->getIsLoopEnabled(),
+												  &nPatternStartTick );
 
 		pAudioEngine->setColumn( nColumn );
 		pAudioEngine->setPatternTickPosition( nTotalTick - nPatternStartTick );

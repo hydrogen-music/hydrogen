@@ -214,7 +214,7 @@ public:
 	 */
 	void			assertLocked( );
 	void			noteOn( Note *note );
-	
+
 	/**
 	 * Main audio processing function called by the audio drivers whenever
 	 * there is work to do.
@@ -234,39 +234,8 @@ public:
 	 * is reached (audioEngine_updateNoteQueue() returned -1 ). 
 	 * - __0__ : else
 	 */
-	static int			audioEngine_process( uint32_t nframes, void *arg );
-	/**
-	 * Find a PatternList/column corresponding to the supplied tick
-	 * position @a nTick.
-	 *
-	 * Adds up the lengths of all pattern columns until @a nTick lies in
-	 * between the bounds of a Pattern.
-	 *
-	 * \param nTick Position in ticks.
-	 * \param bLoopMode Whether looping is enabled in the Song, see
-	 *   Song::is_loop_enabled(). If true, @a nTick is allowed to be
-	 *   larger than the total length of the Song.
-	 * \param pPatternStartTick Pointer to an integer the beginning of the
-	 *   found pattern list will be stored in (in ticks).
-	 * \return
-	 *   - -1 : pattern list couldn't be found.
-	 *   - >=0 : PatternList index in Song::__pattern_group_sequence.
-	 */
-	int				getColumnForTick( int nTick, bool bLoopMode, int* pPatternStartTick ) const;
-	/**
-	 * Get the total number of ticks passed up to a @a nColumn /
-	 * pattern group.
-	 *
-	 * The driver should be LOCKED when calling this!
-	 *
-	 * \param nColumn pattern group.
-	 * \return
-	 *  - -1 : if @a nColumn is bigger than the number of patterns in
-	 *   the Song and Song::getIsLoopEnabled() is set to false or
-	 *   no Patterns could be found at all.
-	 *  - >= 0 : the total number of ticks passed.
-	 */
-	long			getTickForColumn( int nColumn ) const;
+	static int                      audioEngine_process( uint32_t nframes, void *arg );
+
 	/** Keep track of the tick position in realtime.
 	 *
 	 * \return Current position in ticks.
@@ -368,25 +337,6 @@ public:
 	unsigned int	getAddRealtimeNoteTickPosition() const; 
 
 	const struct timeval& 	getCurrentTickTime() const;
-	/**
-	 * Get the length (in ticks) of the @a nPattern th pattern.
-	 *
-	 * Access the length of the first Pattern found in the
-	 * PatternList in column @a nPattern - 1.
-	 *
-	 * This function should also work if the loop mode is enabled
-	 * in Song::getIsLoopEnabled().
-	 *
-	 * \param nPattern Position + 1 of the desired PatternList.
-	 * \return 
-	 * - __-1__ : if not Song was initialized yet.
-	 * - #MAX_NOTES : if @a nPattern was smaller than 1, larger
-	 * than the length of the vector of the PatternList in
-	 * Song::m_pPatternGroupSequence or no Pattern could be found
-	 * in the PatternList at @a nPattern - 1.
-	 * - __else__ : length of first Pattern found at @a nPattern.
-	 */
-	long			getPatternLength( int nPattern ) const;
 	
 	/** Calculates the lookahead for a specific tick size.
 	 *
@@ -402,7 +352,7 @@ public:
 	 * \return Five times the current size of a tick
 	 * (TransportInfo::m_fTickSize) (in frames)
 	 */
-	int 			calculateLeadLagFactor( float fTickSize ) const;
+	static int		calculateLeadLagFactor( float fTickSize );
 	/** Calculates time offset (in frames) used to determine the notes
 	 * process by the audio engine.
 	 *
@@ -419,7 +369,7 @@ public:
 	 * to calculateLeadLagFactor().
 	 *
 	 * \return Frame offset*/
-	int 			calculateLookahead( float fTickSize ) const;
+	static int		calculateLookahead( float fTickSize );
 
 	/**
 	 * Sets m_nextState to State::Playing. This will start the audio
@@ -461,8 +411,10 @@ public:
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
 	/** Is allowed to set m_nextState via setNextState() according to
-		what the JACK server reports.*/
+		what the JACK server reports and to call relocateTransport().*/
 	friend void JackAudioDriver::updateTransportInfo();
+	/** Is allowed to call relocateTransport().*/
+	friend void JackAudioDriver::relocateUsingBBT();
 private:
 	
 	inline void			processPlayNotes( unsigned long nframes );
@@ -529,7 +481,6 @@ private:
 	void			updateElapsedTime( unsigned bufferSize, unsigned sampleRate );
 	void			processCheckBPMChanged();
 	
-	void			setPatternStartTick( int tick );
 	void			setPatternTickPosition( int tick );
 	void			setColumn( int nColumn );
 	void			setRealtimeFrames( unsigned long nFrames );
@@ -560,14 +511,14 @@ private:
 	 */
 	void			stopPlayback();
 	
-	/** Relocate using the audio driver and update the
-	 * #m_fElapsedTime.
+	/** Relocate using the audio driver.
 	 *
 	 * \param nFrame Next transport position in frames.
 	 * \param bWithJackBroadcast Relocate not using the AudioEngine
 	 * directly but using the JACK server.
 	 */
 	void			locate( unsigned long nFrame, bool bWithJackBroadcast = true );
+	void			relocateTransport( unsigned long nFrame );
 	/** Local instance of the Sampler. */
 	Sampler* 			m_pSampler;
 	/** Local instance of the Synth. */
@@ -745,7 +696,7 @@ private:
 	 *
 	 * Required to calculateLookahead(). Set to 2000.
 	 */
-	int 			m_nMaxTimeHumanize;
+	static const int		nMaxTimeHumanize;
 
 	float 			m_fNextBpm;
 };
@@ -852,10 +803,6 @@ inline 	MidiInput*	AudioEngine::getMidiDriver() const {
 
 inline MidiOutput*	AudioEngine::getMidiOutDriver() const {
 	return m_pMidiDriverOut;
-}
-
-inline void AudioEngine::setPatternStartTick(int tick) {
-	m_nPatternStartTick = tick;
 }
 
 inline void AudioEngine::setPatternTickPosition(int tick) {

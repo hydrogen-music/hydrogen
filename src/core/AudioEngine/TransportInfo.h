@@ -57,10 +57,6 @@ public:
 	float getTickSize() const;
 	float getBpm() const;
 
-	/** Returns transport position in frames that would be used if
-		Hydrogen would be frame- instead of tick-based.*/
-	long long getExternalFrames() const;
-
 	// TODO: make this protected
 	void setTickSize( float fNewTickSize );
 	// TODO: make this protected
@@ -71,7 +67,6 @@ protected:
 	/** All classes other than the AudioEngine should use
 		AudioEngine::locate().
 	*/
-	void setExternalFrames( long long nNewExternalFrames );
 
 private:
 
@@ -87,15 +82,6 @@ private:
 	 * on float precision ticks. (#m_nFrames / #m_fTickSize).
 	 */
 	long long m_nFrames;
-
-	/**
-	 * Current transport position if Hydrogen would have a frame-based
-	 * transport system.
-	 *
-	 * This is required to ensure compatibility with frame-based audio
-	 * drivers, like JACK. But it is not used within Hydrogen itself.
-	 */
-	long long m_nExternalFrames;
 	
 	/** 
 	 * Number of frames that make up one tick.
@@ -136,9 +122,6 @@ private:
 
 inline long long TransportInfo::getFrames() const {
 	return m_nFrames;
-}
-inline long long TransportInfo::getExternalFrames() const {
-	return m_nExternalFrames;
 }
 inline float TransportInfo::getTickSize() const {
 	return m_fTickSize;

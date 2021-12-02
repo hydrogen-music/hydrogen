@@ -193,6 +193,72 @@ public:
 		 * \param newSong Pointer to the new Song object.
 		 */
 		void			setSong	( std::shared_ptr<Song> newSong );
+	
+	/**
+	 * Main audio processing function called by the audio drivers whenever
+	 * there is work to do.
+	 *
+	 * In short, it resets the audio buffers, checks the current transport
+	 * position and configuration, updates the queue of notes, which are
+	 * about to be played, plays those notes and writes their output to
+	 * the audio buffers, and, finally, increment the transport position
+	 * in order to move forward in time.
+	 *
+	 * \param nframes Buffersize.
+	 * \param arg Unused.
+	 * \return
+	 * - __2__ : Failed to aquire the audio engine lock, no processing took place.
+	 * - __1__ : kill the audio driver thread. This will be used if either
+	 * the DiskWriterDriver or FakeDriver are used and the end of the Song
+	 * is reached (audioEngine_updateNoteQueue() returned -1 ). 
+	 * - __0__ : else
+	 */
+	static int			audioEngine_process( uint32_t nframes, void *arg );
+	/**
+	 * Find a PatternList/column corresponding to the supplied tick
+	 * position @a nTick.
+	 *
+	 * Adds up the lengths of all pattern columns until @a nTick lies in
+	 * between the bounds of a Pattern.
+	 *
+	 * \param nTick Position in ticks.
+	 * \param bLoopMode Whether looping is enabled in the Song, see
+	 *   Song::is_loop_enabled(). If true, @a nTick is allowed to be
+	 *   larger than the total length of the Song.
+	 * \param pPatternStartTick Pointer to an integer the beginning of the
+	 *   found pattern list will be stored in (in ticks).
+	 * \return
+	 *   - -1 : pattern list couldn't be found.
+	 *   - >=0 : PatternList index in Song::__pattern_group_sequence.
+	 */
+	int			getColumnForTick( int nTick, bool bLoopMode, int* pPatternStartTick ) const;
+	/**
+	 * Get the total number of ticks passed up to a @a nColumn /
+	 * pattern group.
+	 *
+	 * The AudioEngine should be LOCKED when calling this!
+	 *
+	 * \param nColumn pattern group.
+	 * \return
+	 *  - -1 : if @a nColumn is bigger than the number of patterns in
+	 *   the Song and Song::getIsLoopEnabled() is set to false or
+	 *   no Patterns could be found at all.
+	 *  - >= 0 : the total number of ticks passed.
+	 */
+	long			getTickForColumn( int nColumn ) const;
+	/**
+	 * Get the length (in ticks) of the @a nPattern th pattern.
+	 *
+	 * \param nPattern Position + 1 of the desired PatternList.
+	 * \return 
+	 * - __-1__ : if not Song was initialized yet.
+	 * - #MAX_NOTES : if @a nPattern was smaller than 1, larger
+	 * than the length of the vector of the PatternList in
+	 * Song::m_pPatternGroupSequence or no Pattern could be found
+	 * in the PatternList at @a nPattern - 1.
+	 * - __else__ : length of first Pattern found at @a nPattern.
+	 */
+	long			getPatternLength( int nPattern ) const;
 
 	Song::Mode getMode() const;
 	/** Wrapper around Song::setMode() which also triggers
@@ -272,6 +338,9 @@ void			previewSample( Sample *pSample );
 
 	/** Recalculates all Samples using RubberBand for a specific
 		tempo @a fBpm.
+	*
+	* This function requires the calling function to lock the
+	* #AudioEngine first.
 	*/ 
 	void recalculateRubberband( float fBpm );
 	/** Wrapper around Song::setIsModified() that checks whether a

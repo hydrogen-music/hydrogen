@@ -348,7 +348,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	const Pattern* currentPattern = nullptr;
 	unsigned int column = 0;
 	float fTickSize = pAudioEngine->getTickSize();
-	unsigned int lookaheadTicks = pAudioEngine->calculateLookahead( fTickSize ) / fTickSize;
+	unsigned int lookaheadTicks = AudioEngine::calculateLookahead( fTickSize ) / fTickSize;
 	bool doRecord = pPreferences->getRecordEvents();
 	if ( getMode() == Song::Mode::Song && doRecord &&
 		 pAudioEngine->getState() == AudioEngine::State::Playing )
@@ -1494,6 +1494,143 @@ void Hydrogen::setUseTimelineBpm( bool bEnabled ) {
 		EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION, static_cast<int>( bEnabled ) );
 	}
 }	
+
+int Hydrogen::getColumnForTick( int nTick, bool bLoopMode, int* pPatternStartTick ) const
+{
+	std::shared_ptr<Song> pSong = getSong();
+	assert( pSong );
+
+	int nTotalTick = 0;
+
+	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
+	int nColumns = pPatternColumns->size();
+
+	// Sum the lengths of all pattern columns and use the macro
+	// MAX_NOTES in case some of them are of size zero. If the
+	// supplied value nTick is bigger than this and doesn't belong to
+	// the next pattern column, we just found the pattern list we were
+	// searching for.
+	int nPatternSize;
+	for ( int i = 0; i < nColumns; ++i ) {
+		PatternList *pColumn = ( *pPatternColumns )[ i ];
+		if ( pColumn->size() != 0 ) {
+			nPatternSize = pColumn->longest_pattern_length();
+		} else {
+			nPatternSize = MAX_NOTES;
+		}
+
+		if ( ( nTick >= nTotalTick ) && ( nTick < nTotalTick + nPatternSize ) ) {
+			( *pPatternStartTick ) = nTotalTick;
+			return i;
+		}
+		nTotalTick += nPatternSize;
+	}
+
+	// If the song is played in loop mode, the tick numbers of the
+	// second turn are added on top of maximum tick number of the
+	// song. Therefore, we will introduced periodic boundary
+	// conditions and start the search again.
+	if ( bLoopMode ) {
+		int nLoopTick = 0;
+		// nTotalTicks is now the same as m_nSongSizeInTicks
+		if ( nTotalTick != 0 ) {
+			nLoopTick = nTick % nTotalTick;
+		}
+		nTotalTick = 0;
+		for ( int i = 0; i < nColumns; ++i ) {
+			PatternList *pColumn = ( *pPatternColumns )[ i ];
+			if ( pColumn->size() != 0 ) {
+				nPatternSize = pColumn->longest_pattern_length();
+			} else {
+				nPatternSize = MAX_NOTES;
+			}
+
+			if ( ( nLoopTick >= nTotalTick )
+				 && ( nLoopTick < nTotalTick + nPatternSize ) ) {
+				( *pPatternStartTick ) = nTotalTick;
+				return i;
+			}
+			nTotalTick += nPatternSize;
+		}
+	}
+
+	return -1;
+}
+
+long Hydrogen::getTickForColumn( int nColumn ) const
+{
+	auto pSong = getSong();
+	assert( pSong );
+
+	const int nPatternGroups = pSong->getPatternGroupVector()->size();
+	if ( nPatternGroups == 0 ) {
+		return -1;
+	}
+
+	if ( nColumn >= nPatternGroups ) {
+		// The position is beyond the end of the Song, we
+		// set periodic boundary conditions or return the
+		// beginning of the Song as a fallback.
+		if ( pSong->getIsLoopEnabled() ) {
+			nColumn = nColumn % nPatternGroups;
+		} else {
+			WARNINGLOG( QString( "Provided column [%1] is larger than the available number [%2]")
+						.arg( nColumn ) .arg(  nPatternGroups )
+						);
+			return -1;
+		}
+	}
+
+	std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
+	long totalTick = 0;
+	int nPatternSize;
+	Pattern *pPattern = nullptr;
+	
+	for ( int i = 0; i < nColumn; ++i ) {
+		PatternList *pColumn = ( *pColumns )[ i ];
+		
+		if( pColumn->size() > 0)
+		{
+			nPatternSize = pColumn->longest_pattern_length();
+		} else {
+			nPatternSize = MAX_NOTES;
+		}
+		totalTick += nPatternSize;
+	}
+	
+	return totalTick;
+}
+
+long Hydrogen::getPatternLength( int nPattern ) const
+{
+	std::shared_ptr<Song> pSong = getSong();
+	
+	if ( pSong == nullptr ){
+		return -1;
+	}
+
+	std::vector< PatternList* > *pColumns = pSong->getPatternGroupVector();
+
+	int nPatternGroups = pColumns->size();
+	if ( nPattern >= nPatternGroups ) {
+		if ( pSong->getIsLoopEnabled() ) {
+			nPattern = nPattern % nPatternGroups;
+		} else {
+			return MAX_NOTES;
+		}
+	}
+
+	if ( nPattern < 1 ){
+		return MAX_NOTES;
+	}
+
+	PatternList* pPatternList = pColumns->at( nPattern - 1 );
+	if ( pPatternList->size() > 0 ) {
+		return pPatternList->longest_pattern_length();
+	} else {
+		return MAX_NOTES;
+	}
+}
 
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 

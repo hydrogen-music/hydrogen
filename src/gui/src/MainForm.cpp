@@ -2326,7 +2326,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// notes twice. This has to be taken into account or the
 		// note we start the playback at will be omitted.
 		if ( nCursorColumn > 0 ) {
-			nCursorColumn -= pAudioEngine->calculateLookahead( fTickSize ) / fTickSize;
+			nCursorColumn -= AudioEngine::calculateLookahead( fTickSize ) / fTickSize;
 		}
 		pCoreActionController->locateToFrame( static_cast<unsigned long>( nCursorColumn * fTickSize ) );
 	} else {

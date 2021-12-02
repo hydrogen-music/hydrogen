@@ -64,7 +64,7 @@ float TimeTest::locateAndLookupTime( int nPatternPos ){
 	pCoreActionController->locateToColumn( nPatternPos );
 
 	pAudioEngine->lock( RIGHT_HERE );
-	long nTick = pAudioEngine->getTickForColumn( nPatternPos );
+	long nTick = pHydrogen->getTickForColumn( nPatternPos );
 	pAudioEngine->unlock();
 	
 	pAudioEngine->calculateElapsedTime( pAudioDriver->getSampleRate(),
