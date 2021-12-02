@@ -87,6 +87,8 @@ public:
 
 	static QStringList getDevices();
 
+	virtual int getLatency();
+
 private:
 	AudioDeviceID defaultOutputDevice(void);
 	void retrieveBufferSize(void);

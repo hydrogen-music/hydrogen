@@ -61,6 +61,52 @@ namespace H2Core
 
 const char* CoreAudioDriver::__class_name = "CoreAudioDriver";
 
+int CoreAudioDriver::getLatency() {
+	// Calculate the overall latency as the device latency + the stream latency.
+	OSStatus err;
+	UInt32 nSize;
+
+	AudioObjectPropertyAddress propertyAddress = {
+		kAudioDevicePropertyLatency,
+		kAudioDevicePropertyScopeInput,
+		0
+	};
+	UInt32 nDeviceLatency;
+	nSize = sizeof( nDeviceLatency );
+	err = AudioObjectGetPropertyData( m_outputDevice, &propertyAddress, 0, NULL, &nSize, &nDeviceLatency );
+	if ( err != noErr ) {
+		ERRORLOG( "Couldn't get device latency" );
+		return -1;
+	}
+
+	// Find the stream ID for the output stream, then find the latency
+	AudioStreamID streamID;
+	nSize = sizeof( streamID );
+	propertyAddress = {
+		kAudioDevicePropertyStreams,
+		kAudioDevicePropertyScopeOutput,
+		0
+	};
+	err = AudioObjectGetPropertyData( m_outputDevice, &propertyAddress, 0, NULL, &nSize, &streamID );
+	if ( err != noErr ) {
+		ERRORLOG( "Couldn't get stream for output device" );
+	}
+
+	UInt32 nStreamLatency;
+	nSize = sizeof(nStreamLatency);
+	propertyAddress = {
+		kAudioStreamPropertyLatency,
+		kAudioObjectPropertyScopeOutput,
+		0
+	};
+	err = AudioObjectGetPropertyData( streamID, &propertyAddress, 0, NULL, &nSize, &nStreamLatency );
+	if ( err != noErr ) {
+		ERRORLOG( QString("Couldn't get stream latency") );
+	}
+
+	return nDeviceLatency + nStreamLatency;
+}
+
 QString CoreAudioDriver::deviceName( AudioDeviceID deviceID )
 {
 	OSStatus err;
@@ -353,8 +399,6 @@ int CoreAudioDriver::init( unsigned bufferSize )
 	asbdesc.mChannelsPerFrame = 2;	// comix: was set to 1
 	asbdesc.mBitsPerChannel = 32;
 
-
-
 	err = AudioUnitSetProperty(
 				m_outputUnit,
 				kAudioUnitProperty_StreamFormat,
@@ -364,7 +408,7 @@ int CoreAudioDriver::init( unsigned bufferSize )
 				sizeof( AudioStreamBasicDescription )
 			);
 
-// Set Render Callback
+	// Set Render Callback
 	AURenderCallbackStruct out;
 	out.inputProc = renderProc;
 	out.inputProcRefCon = ( void * )this;
