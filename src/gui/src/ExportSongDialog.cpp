@@ -472,7 +472,9 @@ void ExportSongDialog::closeExport() {
 	m_bExporting = false;
 	
 	if( m_pPreferences->getRubberBandBatchMode() ){
+		m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 		m_pHydrogen->recalculateRubberband( m_pHydrogen->getAudioEngine()->getBpm() );
+		m_pHydrogen->getAudioEngine()->unlock();
 	}
 	m_pPreferences->setRubberBandBatchMode( m_bOldRubberbandBatchMode );
 	m_pPreferences->setUseTimelineBpm( m_bOldTimeLineBPMMode );

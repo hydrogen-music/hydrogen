@@ -1422,9 +1422,11 @@ void Hydrogen::recalculateRubberband( float fBpm ) {
 	if ( getSong() != nullptr ) {
 		auto pInstrumentList = getSong()->getInstrumentList();
 		if ( pInstrumentList != nullptr ) {
-	
-			for ( unsigned nnInstr = 0; pInstrumentList->size(); ++nnInstr ) {
+			for ( unsigned nnInstr = 0; nnInstr < pInstrumentList->size(); ++nnInstr ) {
 				auto pInstr = pInstrumentList->get( nnInstr );
+				if ( pInstr == nullptr ) {
+					return;
+				}
 				assert( pInstr );
 				if ( pInstr != nullptr ){
 					for ( int nnComponent = 0; nnComponent < pInstr->get_components()->size();
@@ -1453,9 +1455,7 @@ void Hydrogen::recalculateRubberband( float fBpm ) {
 										}
 								
 										// insert new sample from newInstrument
-										m_pAudioEngine->lock( RIGHT_HERE );
 										pLayer->set_sample( pNewSample );
-										m_pAudioEngine->unlock();
 									}
 								}
 							}

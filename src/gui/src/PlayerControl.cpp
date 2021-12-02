@@ -758,7 +758,9 @@ void PlayerControl::rubberbandButtonToggle()
 		// Recalculate all samples ones just to be safe since the
 		// recalculation is just triggered if there is a tempo change
 		// in the audio engine.
+		pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 		pHydrogen->recalculateRubberband( pHydrogen->getAudioEngine()->getBpm() );
+		pHydrogen->getAudioEngine()->unlock();
 		pPref->setRubberBandBatchMode(true);
 		(HydrogenApp::get_instance())->setScrollStatusBarMessage(tr("Recalculate all samples using Rubberband ON"), 2000);
 	}
