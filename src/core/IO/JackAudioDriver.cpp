@@ -275,12 +275,16 @@ void JackAudioDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
 
 void JackAudioDriver::calculateFrameOffset(long long oldFrame)
 {
-	long long nFrames = Hydrogen::get_instance()->getAudioEngine()->getFrames();
-	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
-		m_frameOffset = m_JackTransportPos.frame - nFrames;
-	} else {
-		m_frameOffset = oldFrame - nFrames;
-	}
+	
+	long long frameOffset = m_frameOffset + oldFrame -
+		Hydrogen::get_instance()->getAudioEngine()->getFrames();
+	
+	DEBUGLOG(QString( "current offset: %1, new offset: %2, old: %3, new: %4, JACK: %5" )
+			 .arg( m_frameOffset ).arg(frameOffset).arg( oldFrame )
+			 .arg(Hydrogen::get_instance()->getAudioEngine()->getFrames() )
+			 .arg( m_JackTransportPos.frame ) );
+
+	m_frameOffset = frameOffset;
 }
 
 void JackAudioDriver::relocateUsingBBT()
@@ -423,27 +427,9 @@ void JackAudioDriver::relocateUsingBBT()
 		return;
 	}
 
-	int nPatternStart;
-	int nPattern = pHydrogen->getColumnForTick( fNewTick,
-											   pSong->getIsLoopEnabled(),
-											   &nPatternStart );
-
-	// NOTE this prevents audioEngine_process_checkBPMChanged
-	// in Hydrogen.cpp from recalculating things.
-	long long nNewFrames = static_cast<long long>( fNewTick * fNewTickSize );
+	long long nNewFrames = AudioEngine::computeFrame( fNewTick, fNewTickSize );
 		
-	pAudioEngine->relocateTransport( nNewFrames );
-	// pAudioEngine->setFrames( nNewFrames );
-
-	// pAudioEngine->calculateElapsedTime( getSampleRate(), nNewFrames,
-	// 									pSong->getResolution() );
-	
-	// m_frameOffset = m_JackTransportPos.frame - nNewFrames;
-
-	// float fBPM = static_cast<float>(m_JackTransportPos.beats_per_minute);
-	// if ( pAudioEngine->getBpm() != fBPM ) {
-	// 	pAudioEngine->setNextBpm( fBPM );
-	// }
+	pAudioEngine->relocateTransport( nNewFrames, false );
 }
 
 void JackAudioDriver::updateTransportInfo()
@@ -501,8 +487,6 @@ void JackAudioDriver::updateTransportInfo()
 	}
 
 	// printState();
-	
-	m_currentPos = m_JackTransportPos.frame;
 
 	if ( bTimebaseEnabled ) {
 		// Update the status regrading JACK timebase master.
@@ -538,6 +522,9 @@ void JackAudioDriver::updateTransportInfo()
 	// (e.g. clicking the forward button or clicking somewhere on the
 	// timeline) or by a different JACK client.
 	if ( pAudioEngine->getFrames() + m_frameOffset != m_JackTransportPos.frame ) {
+		INFOLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3" )
+				 .arg( pAudioEngine->getFrames() ).arg( m_frameOffset )
+				 .arg( m_JackTransportPos.frame ) );
 		// Reset playback to the beginning of the pattern if Hydrogen
 		// is in pattern mode.
 		if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
@@ -545,11 +532,11 @@ void JackAudioDriver::updateTransportInfo()
 		}
 
 		if ( !bTimebaseEnabled || m_timebaseState != Timebase::Slave ) {
-			pAudioEngine->relocateTransport( m_JackTransportPos.frame );
+			pAudioEngine->relocateTransport( m_JackTransportPos.frame - m_frameOffset, false );
 		
 			// There maybe was an offset introduced when passing a
 			// tempo marker.
-			m_frameOffset = 0;
+			// m_frameOffset = 0;
 		} else {
 			relocateUsingBBT();
 		}
@@ -559,8 +546,8 @@ void JackAudioDriver::updateTransportInfo()
 		// There is a JACK timebase master and it's not us. If it
 		// provides a tempo that differs from the local one, we will
 		// use the former instead.
-		if ( pAudioEngine->getBpm() !=
-			 static_cast<float>(m_JackTransportPos.beats_per_minute ) ||
+		if ( m_previousJackTransportPos.beats_per_minute !=
+			 m_JackTransportPos.beats_per_minute ||
 			 !compareAdjacentBBT() ) {
 			relocateUsingBBT();
 		}
@@ -1068,14 +1055,7 @@ void JackAudioDriver::locateTransport( unsigned long frame )
 		// re-positions the transport to a new frame number. May
 		// be called at any time by any client.
 		jack_transport_locate( m_pClient, frame );
-
-		// Update the time display since recalculation in
-		// updateTransportInfo() is only triggered when playback is
-		// rolling.
-		pHydrogen->getAudioEngine()->calculateElapsedTime( pHydrogen->getAudioOutput()->getSampleRate(),
-														   frame,
-														   pHydrogen->getSong()->getResolution() );
-
+		DEBUGLOG( frame );
 	} else {
 		ERRORLOG( "No client registered" );
 	}
@@ -1425,7 +1405,6 @@ void JackAudioDriver::printState() const {
 			  << ", m_frameOffset: " << m_frameOffset
 			  << ", m_JackTransportState: " << m_JackTransportState
 			  << ", m_timebaseState: " << static_cast<int>(m_timebaseState)
-			  << ", m_currentPos: " << m_currentPos
 			  << ", current pattern column: " << pHydrogen->getAudioEngine()->getColumn()
 			  << "\33[0m" << std::endl;
 }

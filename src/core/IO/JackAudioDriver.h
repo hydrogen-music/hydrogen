@@ -432,12 +432,12 @@ public:
 	 * Calculates the difference between the true transport position
 	 * and the internal one.
 	 *
-	 * The internal transport position used in most parts of Hydrogen
-	 * is given in ticks. But since the size of a tick is
-	 * tempo-dependent, passing a tempo marker in the Timeline will
-	 * cause the corresponding internal transport position in frames
-	 * to diverge from the external one by a constant offset. This
-	 * function will calculate and store it in #m_frameOffset.
+	 * The internal transport position used in Hydrogen is given in
+	 * ticks. But since the size of a tick is tempo-dependent, passing
+	 * a tempo marker in the Timeline will cause the corresponding
+	 * internal transport position in frames to diverge from the
+	 * external one by a constant offset. This function will calculate
+	 * and store it in #m_frameOffset.
 	 *
 	 * \param oldFrame Provides the previous transport position in
 	 * frames prior to the change in tick size. This is required if
@@ -446,6 +446,9 @@ public:
 	 * providing these information.
 	 */
 	void calculateFrameOffset(long long oldFrame);
+
+	/** Required after relocating transport.*/
+	void resetFrameOffset();
 
 	/**
 	 * Registers Hydrogen as JACK timebase master.
@@ -471,22 +474,6 @@ public:
 	 * \return #m_timebaseState
 	 */
 	Timebase getTimebaseState() const;
-	
-	/** Stores the latest transport position (for both rolling and
-	 * stopped transport).
-	 *
-	 * In case the user is clicking on a different location
-	 * SongEditorPositionRuler::mousePressEvent() will trigger both a
-	 * relocation and a (possible) change in speed. The change in
-	 * speed causes the audioEngine_checkBPMChange() function to
-	 * update the ticksize in case playhead got moved into a region of
-	 * different tempo and triggers the calculateFrameOffset()
-	 * function. But the latter can only work properly if transport is
-	 * rolling since it has to know the frame position prior to the
-	 * change in tick size and there is no up-to-date JACK query
-	 * providing this information.
-	 */
-	int m_currentPos;
 	
 	/**
 	 * Sample rate of the JACK audio server.
@@ -893,7 +880,9 @@ private:
 
 };
 
-
+inline void JackAudioDriver::resetFrameOffset() {
+	m_frameOffset = 0;
+}
 
 }; // H2Core namespace
 

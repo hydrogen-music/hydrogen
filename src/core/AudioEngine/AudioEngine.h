@@ -243,8 +243,15 @@ public:
 	unsigned long		getRealtimeTickPosition() const;
 	
 	static float	computeTickSize( const int nSampleRate, const float fBpm, const int nResolution);
+	static long long computeFrame( int Tick, float fTickSize );
+	static int computeTick( long long nFrame, float fTickSize );
 
-	/** Resets a number of member variables to their initial state.*/
+
+	/** Resets a number of member variables to their initial state.
+	 *\
+	 * This is used to allow a smooth transition between the Song and
+	 * Pattern Mode.
+	 */
 	void reset();
 
 	/** \return #m_pSampler */
@@ -391,11 +398,21 @@ public:
 	void stop();
 
 	/** Stores the new speed into a separate variable which will be
-	 * adopted next time the processCheckBpmChanged() is entered.*/
+	 * adopted next time the checkBpmChanged() is entered.*/
 	void setNextBpm( float fNextBpm );
 	float getNextBpm() const;
 
 	static float 	getBpmAtColumn( int nColumn );
+	
+	/** Formatted string version for debugging purposes.
+	 * \param sPrefix String prefix which will be added in front of
+	 * every new line
+	 * \param bShort Instead of the whole content of all classes
+	 * stored as members just a single unique identifier will be
+	 * displayed without line breaks.
+	 *
+	 * \return String presentation of current object.*/
+	QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	/** Is allowed to call setSong().*/
 	friend void Hydrogen::setSong( std::shared_ptr<Song> pSong );
@@ -418,10 +435,6 @@ public:
 private:
 	
 	inline void			processPlayNotes( unsigned long nframes );
-	/**
-	 * Updating the TransportInfo of the audio driver.
-	 */
-	inline void			processTransport( unsigned nFrames );
 
 	void			clearNoteQueue();
 	/** Clear all audio buffers.
@@ -479,7 +492,7 @@ private:
 	 * frames per second.
 	 */
 	void			updateElapsedTime( unsigned bufferSize, unsigned sampleRate );
-	void			processCheckBPMChanged();
+	void			updateBpmAndTickSize();
 	
 	void			setPatternTickPosition( int tick );
 	void			setColumn( int nColumn );
@@ -498,6 +511,7 @@ private:
 	void			removeSong();
 	void 			setState( State state );
 	void 			setNextState( State state );
+	State 			getNextState() const;
 
 	/**
 	 * Resets a number of member variables and sets m_state to
@@ -518,7 +532,7 @@ private:
 	 * directly but using the JACK server.
 	 */
 	void			locate( unsigned long nFrame, bool bWithJackBroadcast = true );
-	void			relocateTransport( unsigned long nFrame );
+	void			relocateTransport( unsigned long nFrame, bool bUseLoopMode );
 	/** Local instance of the Sampler. */
 	Sampler* 			m_pSampler;
 	/** Local instance of the Synth. */
@@ -635,7 +649,6 @@ private:
 	 * A value of -1 corresponds to "pattern list could not be found".
 	 */
 	int					m_nColumn;
-	int					m_nOldColumn;
 
 	/** Set to the total number of ticks in a Song in findPatternInTick()
 		if Song::SONG_MODE is chosen and playback is at least in the
@@ -788,6 +801,9 @@ inline AudioEngine::State AudioEngine::getState() const {
 
 inline void AudioEngine::setState( AudioEngine::State state) {
 	m_state = state;
+}
+inline AudioEngine::State AudioEngine::getNextState() const {
+	return m_nextState;
 }
 inline void AudioEngine::setNextState( AudioEngine::State state) {
 	m_nextState = state;

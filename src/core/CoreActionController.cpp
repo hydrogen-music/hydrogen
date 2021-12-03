@@ -723,32 +723,25 @@ bool CoreActionController::locateToFrame( unsigned long nFrame, bool bWithJackBr
 
 	pAudioEngine->lock( RIGHT_HERE );
 	
-	if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
-		// Required to move the playhead when clicking e.g. fast
-		// forward or the song editor ruler. The variables set in here
-		// do not interfere with the realtime audio (playback of MIDI
-		// events of virtual keyboard) and all other position
-		// variables in the AudioEngine will be set properly with
-		// respect to them by then.
+	// if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
+	// 	// Required to move the playhead when clicking e.g. fast
+	// 	// forward or the song editor ruler. The variables set in here
+	// 	// do not interfere with the realtime audio (playback of MIDI
+	// 	// events of virtual keyboard) and all other position
+	// 	// variables in the AudioEngine will be set properly with
+	// 	// respect to them by then.
 
-		int nTotalTick = static_cast<int>(nFrame / pAudioEngine->getTickSize());
-		int nPatternStartTick;
-		int nColumn = pHydrogen->getColumnForTick( nTotalTick,
-												  pHydrogen->getSong()->getIsLoopEnabled(),
-												  &nPatternStartTick );
+	// 	int nTotalTick = static_cast<int>(nFrame / pAudioEngine->getTickSize());
+	// 	int nPatternStartTick;
+	// 	int nColumn = pHydrogen->getColumnForTick( nTotalTick,
+	// 											  pHydrogen->getSong()->getIsLoopEnabled(),
+	// 											  &nPatternStartTick );
 
-		pAudioEngine->setColumn( nColumn );
-		pAudioEngine->setPatternTickPosition( nTotalTick - nPatternStartTick );
-	}
+	// 	pAudioEngine->setColumn( nColumn );
+	// 	pAudioEngine->setPatternTickPosition( nTotalTick - nPatternStartTick );
+	// }
 	pAudioEngine->locate( nFrame, bWithJackBroadcast );
 	pAudioEngine->unlock();
-
-#ifdef H2CORE_HAVE_JACK
-	if ( pHydrogen->haveJackTransport() &&
-		 pAudioEngine->getState() != AudioEngine::State::Playing ) {
-		static_cast<JackAudioDriver*>(pDriver)->m_currentPos = nFrame;
-	}
-#endif
 	return true;
 }
 
