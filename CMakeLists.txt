@@ -18,7 +18,6 @@ PROJECT(hydrogen)
 SET(VERSION_MAJOR "1")
 SET(VERSION_MINOR "1")
 SET(VERSION_PATCH "1")
-SET(VERSION_SUFFIX "dev")
 
 SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
@@ -31,7 +30,7 @@ ELSE()
 ENDIF(VERSION_SUFFIX)
 
 # Consider any tagged commit as a release build
-EXECUTE_PROCESS(COMMAND git describe --exact-match OUTPUT_VARIABLE GIT_TAG)
+EXECUTE_PROCESS(COMMAND git describe --exact-match --tags OUTPUT_VARIABLE GIT_TAG)
 IF(GIT_TAG)
         SET(IS_DEVEL_BUILD "false")
 ELSE()
