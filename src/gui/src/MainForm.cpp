@@ -2004,7 +2004,7 @@ void MainForm::showDevelWarning()
 	bool isDevelWarningEnabled = pPreferences->getShowDevelWarning();
 
 	//set this to 'false' for the case that you want to make a release..
-	if ( false ) {
+	if ( H2CORE_IS_DEVEL_BUILD ) {
 		if(isDevelWarningEnabled) {
 
 			QString msg = tr( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
