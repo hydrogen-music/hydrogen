@@ -30,6 +30,14 @@ ELSE()
 	SET(DISPLAY_VERSION "${VERSION}-${GIT_REVISION}")
 ENDIF(VERSION_SUFFIX)
 
+# Consider any tagged commit as a release build
+EXECUTE_PROCESS(COMMAND git describe --exact-match OUTPUT_VARIABLE GIT_TAG)
+IF(GIT_TAG)
+        SET(IS_DEVEL_BUILD "false")
+ELSE()
+        SET(IS_DEVEL_BUILD "true")
+ENDIF()
+
 
 SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 

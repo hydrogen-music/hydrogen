@@ -2000,10 +2000,11 @@ void MainForm::action_window_showPatternEditor()
 
 void MainForm::showDevelWarning()
 {
+	Preferences *pPreferences = Preferences::get_instance();
+	bool isDevelWarningEnabled = pPreferences->getShowDevelWarning();
+
 	//set this to 'false' for the case that you want to make a release..
-	if ( false ) {
-		Preferences *pPreferences = Preferences::get_instance();
-		bool isDevelWarningEnabled = pPreferences->getShowDevelWarning();
+	if ( H2CORE_IS_DEVEL_BUILD ) {
 		if(isDevelWarningEnabled) {
 
 			QString msg = tr( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
@@ -2016,6 +2017,15 @@ void MainForm::showDevelWarning()
 				//don't show warning again
 				pPreferences->setShowDevelWarning( false );
 			}
+		}
+	} else {
+		// Release builds
+		if ( !isDevelWarningEnabled ) {
+			// Running a release build, we should re-enable the development-build warning if it's been
+			// disabled, since the user might have tried a release build at some time in the past, then
+			// continued working happily with a release build. They will still benefit from knowing that a
+			// *new* release build they're trying is in fact a release build.
+			pPreferences->setShowDevelWarning( true );
 		}
 	}
 }
