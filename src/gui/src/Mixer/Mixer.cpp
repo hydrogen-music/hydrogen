@@ -80,19 +80,23 @@ Mixer::Mixer( QWidget* pParent )
 
 
 // fX frame
+#ifdef H2CORE_HAVE_LADSPA
 	auto pEffects = Effects::get_instance();
+#endif
 	m_pFXFrame = new PixmapWidget( nullptr );
 	m_pFXFrame->setFixedSize( 213, height() );
 	m_pFXFrame->setPixmap( "/mixerPanel/background_FX.png" );
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		m_pLadspaFXLine[nFX] = new LadspaFXMixerLine( m_pFXFrame );
 		m_pLadspaFXLine[nFX]->move( 13, 43 * nFX + 84 );
+#ifdef H2CORE_HAVE_LADSPA
 		if ( pEffects != nullptr ) {
 			auto pFx = pEffects->getLadspaFX( nFX );
 			if ( pFx != nullptr ) {
 				m_pLadspaFXLine[nFX]->setFxBypassed( pEffects->getLadspaFX( nFX )->isEnabled() );
 			}
 		}
+#endif
 		connect( m_pLadspaFXLine[nFX], SIGNAL( bypassBtnClicked(LadspaFXMixerLine*) ), this, SLOT( ladspaBypassBtnClicked( LadspaFXMixerLine*) ) );
 		connect( m_pLadspaFXLine[nFX], SIGNAL( editBtnClicked(LadspaFXMixerLine*) ), this, SLOT( ladspaEditBtnClicked( LadspaFXMixerLine*) ) );
 		connect( m_pLadspaFXLine[nFX], SIGNAL( volumeChanged(LadspaFXMixerLine*) ), this, SLOT( ladspaVolumeChanged( LadspaFXMixerLine*) ) );
