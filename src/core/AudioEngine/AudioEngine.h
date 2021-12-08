@@ -235,16 +235,42 @@ public:
 	 * - __0__ : else
 	 */
 	static int                      audioEngine_process( uint32_t nframes, void *arg );
-
-	/** Keep track of the tick position in realtime.
-	 *
-	 * \return Current position in ticks.
-	 */
-	unsigned long		getRealtimeTickPosition() const;
 	
 	static float	computeTickSize( const int nSampleRate, const float fBpm, const int nResolution);
-	static long long computeFrame( int Tick, float fTickSize );
-	static int computeTick( long long nFrame, float fTickSize );
+	static long long computeFrame( long Tick, float fTickSize );
+	static long computeTick( long long nFrame, float fTickSize );
+	static int computeRemainingFramesInTick( long long nFrame, float fTickSize );
+	/**
+	 * In contrast to computeTick() this function does not assume that
+	 * the tick size is constant throughout the whole song.
+	 */
+	long computeTickFromFrame( long long nFrame, int* nRemainingFramesInTick ) const;
+
+	/**
+	 * Calculates the true frame equivalent to @a nFrame.
+	 *
+	 * The true frame takes all passed tempo markers into account and
+	 * does only depend on the current sample rate.
+	 *
+	 * @param nFrame Internally used frame, which depends on the
+	 * current speed as well and is rescaled as soon as a tempo marker
+	 * is passed
+	 * @param fTickSize Tick size used at @a nFrame.
+	 *
+	 * @return true frame
+	 */
+	long long computeFrameFromTick( long nTick );
+	/**
+	 * Calculates the internal equivalent of @a nTrueFrame.
+	 *
+	 * @param nTrueFrame frame version depending only on the current
+	 * sample rate.
+	 *
+	 * @return Frame AudioEngine::getFrames() would return after
+	 * letting playback roll for @a nTrueFrame frames. This will take
+	 * all rescalings into account in case tempo markers are passed.
+	 */
+	long long trueFrameToFrame( long long nTrueFrame ) const;
 
 
 	/** Resets a number of member variables to their initial state.
@@ -259,27 +285,8 @@ public:
 	/** \return #m_pSynth */
 	Synth*			getSynth() const;
 
-	/** \return #m_fElapsedTime */
+	/** \return Time passed since the beginning of the song*/
 	float			getElapsedTime() const;	
-	/** Calculates the elapsed time for an arbitrary position.
-	 *
-	 * After locating the transport position to @a nFrame the function
-	 * calculates the amount of time required to reach the position
-	 * during playback. If the Timeline is activated, it will take all
-	 * markers and the resulting tempo changes into account.
-	 *
-	 * Right now the tempo in the region before the first marker
-	 * is undefined. In order to make reproducible estimates of the
-	 * elapsed time, this function assume it to have the same BPM as
-	 * the first marker.
-	 *
-	 * \param sampleRate Temporal resolution used by the sound card in
-	 * frames per second.
-	 * \param nFrame Next transport position in frames.
-	 * \param nResolution Resolution of the Song (number of ticks per 
-	 *   quarter).
-	 */
-	void			calculateElapsedTime( unsigned sampleRate, unsigned long nFrame, int nResolution );
 
 	/** 
 	 * Creation and initialization of all audio and MIDI drivers called in
@@ -422,16 +429,14 @@ public:
 		frames as well as to used setColumn and setPatternTickPos to
 		move the arrow in the SongEditorPositionRuler even when
 		playback is stopped.*/
-	friend bool CoreActionController::locateToFrame( unsigned long nFrame, bool );
+	friend bool CoreActionController::locateToTick( long nTick, bool );
 	/** Is allowed to set m_state to State::Prepared via setState()*/
 	friend int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional );
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
 	/** Is allowed to set m_nextState via setNextState() according to
-		what the JACK server reports and to call relocateTransport().*/
+		what the JACK server reports and to call locateToFrame().*/
 	friend void JackAudioDriver::updateTransportInfo();
-	/** Is allowed to call relocateTransport().*/
-	friend void JackAudioDriver::relocateUsingBBT();
 private:
 	
 	inline void			processPlayNotes( unsigned long nframes );
@@ -527,12 +532,22 @@ private:
 	
 	/** Relocate using the audio driver.
 	 *
-	 * \param nFrame Next transport position in frames.
+	 * \param nTick Next transport position in ticks.
 	 * \param bWithJackBroadcast Relocate not using the AudioEngine
 	 * directly but using the JACK server.
 	 */
-	void			locate( unsigned long nFrame, bool bWithJackBroadcast = true );
-	void			relocateTransport( unsigned long nFrame, bool bUseLoopMode );
+	void			locate( const long nTick, bool bWithJackBroadcast = true );
+	/**
+	 * Version of the locate() function intended to be directly used
+	 * by frame-based audio drivers / servers.
+	 *
+	 * @param nFrame Next position in frames. If the provided number
+	 * is larger than the song length and loop mode is enabled,
+	 * computeTickFromFrame() will wrap it.
+	 */
+	void			locateToFrame( const long long nFrame );
+	void			incrementTransportPosition( uint32_t nFrames );
+	void			updateTransportPosition( long nTick, bool bUseLoopMode );
 	/** Local instance of the Sampler. */
 	Sampler* 			m_pSampler;
 	/** Local instance of the Synth. */
@@ -597,31 +612,6 @@ private:
 		unsigned int line;
 		const char* function;
 	} __locker;
-	
-	/** Time in seconds since the beginning of the Song.
-	 *
-	 * In Hydrogen the current transport position is not measured in
-	 * time but in past ticks. Whenever transport is passing a BPM
-	 * marker on the Timeline, the tick size and effectively also time
-	 * will be rescaled. To nevertheless show the correct time elapsed
-	 * since the beginning of the Song, this variable will be used.
-	 *
-	 * At the end of each transport cycle updateElapsedTime() will be
-	 * used to increment it (its smallest resolution is thus
-	 * controlled by the buffer size). If, instead, a relocation was
-	 * triggered by the user or an external transport control
-	 * (e.g. JACK server), calculateElapsedTime() will be used to
-	 * determine the time anew.
-	 *
-	 * If loop transport is enabled #H2Core::Song::m_bIsLoopEnabled,
-	 * the elapsed time will increase constantly. However, if
-	 * relocation did happen, only the time relative to the beginning
-	 * of the Song will be calculated irrespective of the number of
-	 * loops played so far.
-	 *
-	 * Retrieved using getElapsedTime().
-	 */
-	float				m_fElapsedTime;
 
 	// time used in process function
 	float				m_fProcessTime;
@@ -635,12 +625,12 @@ private:
 	/**
 	 * Beginning of the current pattern in ticks.
 	 */
-	int					m_nPatternStartTick;
+	long					m_nPatternStartTick;
 
 	/**
 	 * Ticks passed since the beginning of the current pattern.
 	 */
-	unsigned int		m_nPatternTickPosition;
+	long					m_nPatternTickPosition;
 
 	/**
 	 * Index of the current PatternList/column in the
@@ -653,7 +643,7 @@ private:
 	/** Set to the total number of ticks in a Song in findPatternInTick()
 		if Song::SONG_MODE is chosen and playback is at least in the
 		second loop.*/
-	int					m_nSongSizeInTicks;
+	long				m_nSongSizeInTicks;
 
 		/**
 	 * Patterns to be played next in Song::PATTERN_MODE.
@@ -712,6 +702,7 @@ private:
 	static const int		nMaxTimeHumanize;
 
 	float 			m_fNextBpm;
+	int m_nRemainingFramesInTick;
 };
 
 
@@ -756,10 +747,6 @@ public:
 	}
 };
 
-
-inline float AudioEngine::getElapsedTime() const {
-	return m_fElapsedTime;
-}
 
 inline void AudioEngine::assertLocked( ) {
 #ifndef NDEBUG

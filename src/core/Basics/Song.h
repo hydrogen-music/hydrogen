@@ -105,7 +105,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		void setPatternGroupVector( std::vector<PatternList*>* pGroupVect );
 
 		/** get the length of the song, in tick units */
-		int lengthInTicks() const;
+		long lengthInTicks() const;
 
 		static std::shared_ptr<Song> 	load( const QString& sFilename );
 		bool 			save( const QString& sFilename );

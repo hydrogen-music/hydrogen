@@ -162,8 +162,8 @@ void Song::setActionMode( Song::ActionMode actionMode ) {
 	setIsModified( true );
 }
 
-int Song::lengthInTicks() const {
-	int nSongLength = 0;
+long Song::lengthInTicks() const {
+	long nSongLength = 0;
 	int nColumns = m_pPatternGroupSequence->size();
 	// Sum the lengths of all pattern columns and use the macro
 	// MAX_NOTES in case some of them are of size zero.

@@ -28,7 +28,8 @@ namespace H2Core {
 
 TransportInfo::TransportInfo()
 	: m_nFrames( 0 )
-	, m_fTickSize( 1 )
+	, m_nTick( 0 )
+	, m_fTickSize( 400 )
 	, m_fBpm( 120 ) {
 }
 
@@ -63,7 +64,17 @@ void TransportInfo::setFrames( long long nNewFrames ) {
 	
 	m_nFrames = nNewFrames;
 }
+
+void TransportInfo::setTick( long nNewTick ) {
+	if ( nNewTick < 0 ) {
+		ERRORLOG( QString( "Provided tick [%1] is negative. Setting frame 0 instead." )
+				  .arg( nNewTick ) );
+		nNewTick = 0;
+	}
 	
+	m_nTick = nNewTick;
+}
+
 void TransportInfo::setTickSize( float fNewTickSize ) {
 	if ( fNewTickSize <= 0 ) {
 		ERRORLOG( QString( "Provided tick size [%1] is too small. Using 400 as a fallback instead." )

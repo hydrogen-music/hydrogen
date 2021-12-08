@@ -628,7 +628,7 @@ void Hydrogen::startExportSong( const QString& filename)
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	pAudioEngine->reset();
 	pAudioEngine->play();
-	getCoreActionController()->locateToFrame( 0 );
+	getCoreActionController()->locateToTick( 0 );
 	pAudioEngine->getSampler()->stopPlayingNotes();
 
 	DiskWriterDriver* pDiskWriterDriver = static_cast<DiskWriterDriver*>(pAudioEngine->getAudioDriver());
@@ -1495,12 +1495,12 @@ void Hydrogen::setUseTimelineBpm( bool bEnabled ) {
 	}
 }	
 
-int Hydrogen::getColumnForTick( int nTick, bool bLoopMode, int* pPatternStartTick ) const
+int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartTick ) const
 {
 	std::shared_ptr<Song> pSong = getSong();
 	assert( pSong );
 
-	int nTotalTick = 0;
+	long nTotalTick = 0;
 
 	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
 	int nColumns = pPatternColumns->size();
@@ -1531,7 +1531,7 @@ int Hydrogen::getColumnForTick( int nTick, bool bLoopMode, int* pPatternStartTic
 	// song. Therefore, we will introduced periodic boundary
 	// conditions and start the search again.
 	if ( bLoopMode ) {
-		int nLoopTick = 0;
+		long nLoopTick = 0;
 		// nTotalTicks is now the same as m_nSongSizeInTicks
 		if ( nTotalTick != 0 ) {
 			nLoopTick = nTick % nTotalTick;

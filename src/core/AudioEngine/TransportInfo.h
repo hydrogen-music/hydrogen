@@ -54,16 +54,15 @@ public:
 	~TransportInfo();
 
 	long long getFrames() const;
+	long getTick() const;
 	float getTickSize() const;
 	float getBpm() const;
 
-	// TODO: make this protected
-	void setTickSize( float fNewTickSize );
-	// TODO: make this protected
-	void setFrames( long long nNewFrames );
-
 protected:
+	void setFrames( long long nNewFrames );
+	void setTick( long nNewTick );
 	void setBpm( float fNewBpm );
+	void setTickSize( float fNewTickSize );
 	/** All classes other than the AudioEngine should use
 		AudioEngine::locate().
 	*/
@@ -79,18 +78,33 @@ private:
 	 * second and, with a _buffer size_ = 1024, 1024 consecutive
 	 * frames will be accumulated before they are handed over to the
 	 * audio engine for processing. Internally, the transport is based
-	 * on float precision ticks. (#m_nFrames / #m_fTickSize).
+	 * on float precision ticks. (#m_nFrames / #m_fTickSize) Caution:
+	 * when using the Timeline the ticksize does change throughout the
+	 * song. This requires #m_nFrames to be recalculate with
+	 * AudioEngine::updateFrames() each time the transport position is
+	 * relocated (possibly crossing some tempo markers).
 	 */
 	long long m_nFrames;
+	
+	/**
+	 * Smallest temporal unit used for transport navigation within
+	 * Hydrogen and is calculated using AudioEngine::computeTick(),
+	 * #m_nFrames, and #m_fTickSize.
+	 *
+	 * Note that the smallest unit for positioning a #Note is a frame
+	 * due to the humanization capatibilities.
+	 */
+	long m_nTick;
 	
 	/** 
 	 * Number of frames that make up one tick.
 	 *
-	 * A tick is the most fine-grained time scale handled by the
-	 * AudioEngine. The notes won't be processed frame by frame but,
-	 * instead, tick by tick. Therefore, #m_fTickSize represents the
-	 * minimum duration of a Note as well as the minimum distance
-	 * between two of them.
+	 * The notes won't be processed frame by frame but, instead, tick
+	 * by tick. Therefore, #m_fTickSize represents the minimum
+	 * duration of a Note as well as the minimum distance between two
+	 * of them.
+	 *
+	 * Calculated using AudioEngine::computeTickSize().
 	 */
 	float m_fTickSize;
 	/** Current tempo in beats per minute.
@@ -122,6 +136,9 @@ private:
 
 inline long long TransportInfo::getFrames() const {
 	return m_nFrames;
+}
+inline long TransportInfo::getTick() const {
+	return m_nTick;
 }
 inline float TransportInfo::getTickSize() const {
 	return m_fTickSize;

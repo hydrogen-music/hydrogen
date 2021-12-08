@@ -256,15 +256,15 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
 		bool locateToColumn( int nPatternGroup );
-		/** Relocates transport to a particular frame.
+		/** Relocates transport to a particular tick.
 		 * 
-		 * @param nFrame Destination
+		 * @param nTick Destination
 		 * \param bWithJackBroadcast Relocate not using the AudioEngine
 		 * directly but using the JACK server.
 		 *
 		 * @return bool true on success
 		 */
-		bool locateToFrame( unsigned long nFrame, bool bWithJackBroadcast = true );
+		bool locateToTick( long nTick, bool bWithJackBroadcast = true );
 
 	    /** Creates an empty pattern and adds it to the pattern list.
 		 *

@@ -413,15 +413,15 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 	//infoLog( "[renderNote] instr: " + pNote->getInstrument()->m_sName );
 	assert( pSong );
 
-	unsigned int nFramepos;
+	long long nFrames;
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pAudioDriver = pHydrogen->getAudioOutput();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
-		nFramepos = pAudioEngine->getFrames();
+		nFrames = pAudioEngine->getFrames();
 	} else {
 		// use this to support realtime events when not playing
-		nFramepos = pAudioEngine->getRealtimeFrames();
+		nFrames = pAudioEngine->getRealtimeFrames();
 	}
 
 	auto pInstr = pNote->get_instrument();
@@ -750,23 +750,29 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 			continue;
 		}
 
-		int noteStartInFrames = ( int ) ( pNote->get_position() * pAudioEngine->getTickSize() ) + pNote->get_humanize_delay();
+		long long nNoteStartInFrames, nNoteStartInFramesNoHumanize;
+		nNoteStartInFrames = pNote->getNoteStart();
+		nNoteStartInFramesNoHumanize = nNoteStartInFrames;
+		nNoteStartInFrames += pNote->get_humanize_delay();
 
-		int nInitialSilence = 0;
-		if ( noteStartInFrames > ( int ) nFramepos ) {	// scrivo silenzio prima dell'inizio della nota
-			nInitialSilence = noteStartInFrames - nFramepos;
-			int nFrames = nBufferSize - nInitialSilence;
-			if ( nFrames < 0 ) {
-				int noteStartInFramesNoHumanize = ( int )pNote->get_position() * pAudioEngine->getTickSize();
-				if ( noteStartInFramesNoHumanize > ( int )( nFramepos + nBufferSize ) ) {
+		// DEBUGLOG(QString( "framepos: %1, note pos: %2, ticksize: %3, curr tick: %4, curr frame: %5")
+		// 		 .arg( nFrames).arg( pNote->get_position() ).arg( pAudioEngine->getTickSize() )
+		// 		 .arg( pAudioEngine->getTick() ).arg( pAudioEngine->getFrames() ) );
+
+		long long nInitialSilence = 0;
+		if ( nNoteStartInFrames > nFrames ) {	// scrivo silenzio prima dell'inizio della nota
+			nInitialSilence = nNoteStartInFrames - nFrames;
+			long long nPlayingFrames = nBufferSize - nInitialSilence;
+			if ( nPlayingFrames < 0 ) {
+				if ( nNoteStartInFramesNoHumanize > nFrames + nBufferSize ) {
 					// this note is not valid. it's in the future...let's skip it....
-					ERRORLOG( QString( "Note pos in the future?? Current frames: %1, note frame pos: %2" ).arg( nFramepos ).arg(noteStartInFramesNoHumanize ) );
+					ERRORLOG( QString( "Note pos in the future?? Current frames: %1, note frame pos: %2" ).arg( nFrames ).arg(nNoteStartInFramesNoHumanize ) );
 					//pNote->dumpInfo();
 					nReturnValues[nReturnValueIndex] = true;
 					continue;
 				}
 				// delay note execution
-				//INFOLOG( "Delaying note execution. noteStartInFrames: " + to_string( noteStartInFrames ) + ", nFramePos: " + to_string( nFramepos ) );
+				//INFOLOG( "Delaying note execution. nNoteStartInFrames: " + to_string( nNoteStartInFrames ) + ", nFramePos: " + to_string( nFramepos ) );
 				//return 0;
 				continue;
 			}
@@ -908,7 +914,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		//No resampling	
 		m_nPlayBackSamplePosition = pAudioEngine->getFrames();
 	
-		nAvail_bytes = pSample->get_frames() - ( int )m_nPlayBackSamplePosition;
+		nAvail_bytes = pSample->get_frames() - m_nPlayBackSamplePosition;
 		
 		if ( nAvail_bytes > nBufferSize ) {
 			nAvail_bytes = nBufferSize;
@@ -1055,7 +1061,7 @@ bool Sampler::renderNoteNoResample(
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
-		nNoteLength = ( int )( pNote->get_length() * pAudioEngine->getTickSize() );
+		nNoteLength = AudioEngine::computeFrame( pNote->get_length(), pAudioEngine->getTickSize() );
 	}
 
 	int nAvail_bytes = pSample->get_frames() - ( int )pSelectedLayerInfo->SamplePosition;	// verifico il numero di frame disponibili ancora da eseguire

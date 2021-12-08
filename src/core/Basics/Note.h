@@ -301,6 +301,10 @@ class Note : public H2Core::Object<Note>
 		 * \param val_r the right channel value
 		 */
 		void compute_lr_values( float* val_l, float* val_r );
+
+	void setNoteStart( long long nNoteStart );
+	long long getNoteStart() const;
+	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -315,7 +319,8 @@ class Note : public H2Core::Object<Note>
 		std::shared_ptr<Instrument>		__instrument;   ///< the instrument to be played by this note
 		int				__instrument_id;        ///< the id of the instrument played by this note
 		int				__specific_compo_id;    ///< play a specific component, -1 if playing all
-		int				__position;             ///< note position inside the pattern
+		int				__position;             ///< note position in
+												///ticks inside the pattern
 		float			__velocity;           ///< velocity (intensity) of the note [0;1]
 		float			m_fPan;		///< pan of the note, [-1;1] from left to right, as requested by Sampler PanLaws
 		int				__length;               ///< the length of the note
@@ -325,8 +330,10 @@ class Note : public H2Core::Object<Note>
 		std::shared_ptr<ADSR>			__adsr;               ///< attack decay sustain release
 		float			__lead_lag;           ///< lead or lag offset of the note
 		float			__cut_off;            ///< filter cutoff [0;1]
-		float			__resonance;          ///< filter resonant frequency [0;1]
-		int				__humanize_delay;       ///< used in "humanize" function
+		float			__resonance;          ///< filter resonant
+											  ///frequency [0;1]
+		/** Offset of the note start in frames*/
+		int				__humanize_delay;
 		std::map< int, SelectedLayerInfo* > __layers_selected;
 		float			__bpfb_l;             ///< left band pass filter buffer
 		float			__bpfb_r;             ///< right band pass filter buffer
@@ -337,7 +344,15 @@ class Note : public H2Core::Object<Note>
 		bool			__note_off;            ///< note type on|off
 		bool			__just_recorded;       ///< used in record+delete
 		float			__probability;        ///< note probability
-		static const char* __key_str[]; ///< used to build QString from #__key an #__octave
+		static const char* __key_str[]; ///< used to build QString
+										///from #__key an #__octave
+	/**
+	 * Onset of the note in frames.
+	 *
+	 * This member is only by the #AudioEngine during processing and
+	 * not written to disk.
+	*/
+	long long m_nNoteStart;
 };
 
 // DEFINITIONS
@@ -587,6 +602,12 @@ inline void Note::compute_lr_values( float* val_l, float* val_r )
 	*val_r = __lpfb_r;
 }
 
+inline long long Note::getNoteStart() const {
+	return m_nNoteStart;
+}
+inline void Note::setNoteStart( long long nNoteStart ) {
+	m_nNoteStart = nNoteStart;
+}
 };
 
 #endif // H2C_NOTE_H

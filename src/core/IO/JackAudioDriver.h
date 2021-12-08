@@ -335,55 +335,6 @@ public:
 	/**
 	 * Initializes the JACK audio driver.
 	 *
-	 * Firstly, it determines the destination ports
-	 * #m_sOutputPortName1 and #m_sOutputPortName2 the output ports of
-	 * Hydrogen will be connected to in connect() from
-	 * Preferences::m_sJackPortName1 and
-	 * Preferences::m_sJackPortName2. The name of the JACK client is
-	 * either set to "Hydrogen" or, if #H2CORE_HAVE_OSC was defined
-	 * during compilation and OSC support is enabled, to
-	 * Preferences::m_sNsmClientId via Preferences::getNsmClientId().
-	 *
-	 * Next, the function attempts to open an external client session
-	 * with the JACK server using _jack_client_open()_ (jack/jack.h)
-	 * and saves it to the pointer #m_pClient. In case this didn't
-	 * work properly, it will start two more attempts. Sometime JACK
-	 * doesn't stop and start fast enough. If the compiler flag
-	 * #H2CORE_HAVE_JACKSESSION was set and the user enabled the usage
-	 * of JACK session, the client will be opened using the
-	 * corresponding option and the sessionID Token
-	 * Preferences::jackSessionUUID, obtained via
-	 * Preferences::getJackSessionUUID(), will be provided so the
-	 * sessionmanager can identify the client again.
-	 *
-	 * If the client was opened properly, the function will get its
-	 * sample rate using _jack_get_sample_rate()_ and buffer size
-	 * using _jack_get_buffer_size()_ (both jack/jack.h) and stores
-	 * them in #jackServerSampleRate, Preferences::m_nSampleRate,
-	 * #jackServerBufferSize, and Preferences::m_nBufferSize. In
-	 * addition, it also registers JackAudioDriver::m_processCallback,
-	 * jackDriverSampleRate, jackDriverBufferSize, and
-	 * jackDriverShutdown using _jack_set_process_callback()_,
-	 * _jack_set_sample_rate_callback()_,
-	 * _jack_set_buffer_size_callback()_, and _jack_on_shutdown()_
-	 * (all in jack/jack.h).
-	 *
-	 * Next, two output ports called "out_L" and "out_R" are
-	 * registered for the client #m_pClient using
-	 * _jack_port_register()_.
-	 *
-	 * If everything worked properly, LASH is used
-	 * (Preferences::useLash()) by the user, and the LashClient is
-	 * LashClient::isConnected() the name of the client will be stored
-	 * in LashClient::jackClientName using
-	 * LashClient::setJackClientName. If JACK session was enabled, the
-	 * jack_session_callback() will be registered using
-	 * _jack_set_session_callback()_ (jack/session.h).
-	 *
-	 * Finally, the function will check whether Hydrogen should be the
-	 * JACK timebase master or not via Preferences::m_bJackMasterMode
-	 * and calls initTimebaseMaster() if its indeed the case.
-	 *
 	 * \param bufferSize Unused and only present to assure
 	 * compatibility with the JACK API.
 	 *
@@ -414,41 +365,15 @@ public:
 	 *   
 	 * \param nFrame Requested new transport position.
 	 */
-	void locateTransport( unsigned long nFrame );
+	void locateTransport( long long nFrame );
 	/**
 	 * The function queries the transport position and additional
 	 * information from the JACK server, writes them to
 	 * #m_JackTransportPos and in #m_JackTransportState, and updates
-	 * the information stored in AudioOutput::m_transport in case of a
-	 * mismatch.
-	 *
-     * The function will check whether a relocation took place by the
-	 * JACK server and whether the current tempo did
-	 * change with respect to the last transport cycle and updates the
-	 * transport information accordingly.
+	 * the AudioEngine in case of a mismatch.
 	 */
 	void updateTransportInfo();
-	/**
-	 * Calculates the difference between the true transport position
-	 * and the internal one.
-	 *
-	 * The internal transport position used in Hydrogen is given in
-	 * ticks. But since the size of a tick is tempo-dependent, passing
-	 * a tempo marker in the Timeline will cause the corresponding
-	 * internal transport position in frames to diverge from the
-	 * external one by a constant offset. This function will calculate
-	 * and store it in #m_frameOffset.
-	 *
-	 * \param oldFrame Provides the previous transport position in
-	 * frames prior to the change in tick size. This is required if
-	 * transport is not rolling during the relocation into a region of
-	 * different speed since there is no up-to-date JACK query
-	 * providing these information.
-	 */
-	void calculateFrameOffset(long long oldFrame);
 
-	/** Required after relocating transport.*/
-	void resetFrameOffset();
 
 	/**
 	 * Registers Hydrogen as JACK timebase master.
@@ -560,17 +485,6 @@ public:
 		is no external timebase master.*/
 	float getMasterBpm() const;
 
-	/** 
-	 * Uses the bar-beat-tick information to relocate the transport
-	 * position.
-	 *
-	 * This type of operation is triggered whenever the transport
-	 * position gets relocated or the tempo is changed using Jack in
-	 * the presence of an external timebase master. In addition, the
-	 * function also updates the current tick size to prevent
-	 * the audioEngine_checkBPMUpdate() function from doing so.*/
-	void relocateUsingBBT();
-
 private:
 	
 	/**
@@ -643,15 +557,6 @@ private:
 	/** Show debugging information.*/
 	void printState() const;
 
-	/** Compares the BBT information stored in #m_JackTransportPos and
-	 * #m_previousJackTransportPos with respect to the tempo and the
-	 * transport position in bars, beats, and ticks.
-	 *
-	 * @return true If #m_JackTransportPos is expected to follow
-	 * #m_previousJackTransportPos.
-	 */
-	bool compareAdjacentBBT() const;
-
 	/**
 	 * Renames the @a n 'th port of JACK client and creates it if
 	 * it's not already present. 
@@ -678,29 +583,6 @@ private:
 	 * \param pSong Pointer to the corresponding Song.
 	 */
 	void setTrackOutput( int n, std::shared_ptr<Instrument> instr, std::shared_ptr<InstrumentComponent> pCompo, std::shared_ptr<Song> pSong );
-	/**
-	 * Constant offset between the internal transport position in
-	 * TransportInfo::m_nFrames and the external one.
-	 *
-	 * Imagine the following setting: During the playback you decide
-	 * to change the speed of the song. This would cause a lot of
-	 * position information within Hydrogen, which are given in ticks,
-	 * to be off since the tick size depends on the speed and just got
-	 * changed too. Instead, TransportInfo::m_nFrames will scaled to
-	 * reflect the changes and everything will be still in place with
-	 * the user to not note a single thing. Unfortunately, now the
-	 * transport position in frames of the audio engine and of the
-	 * JACK server are off by a constant offset. To nevertheless be
-	 * able to identify relocation in updateTransportInfo(), this
-	 * constant offset is stored in this variable and used in
-	 * updateTransportInfo() to determine whether a relocation did
-	 * happen.
-	 *
-	 * Positive values correspond to a position ahead of the current
-	 * transport information. The variable is initialized with 0 in
-	 * JackAudioDriver() and updated in calculateFrameOffset().
-	 */
-	long long			m_frameOffset;
 	/**
 	 * Function the JACK server will call whenever there is work to
 	 * do.
@@ -829,11 +711,6 @@ private:
 	 * about its different members.
 	 */
 	jack_position_t			m_JackTransportPos;
-	/** Used for detecting changes in the BBT transport information
-	 * with external timebase master application, which do not
-	 * propagate these changes on time.
-	 */
-	jack_position_t			m_previousJackTransportPos;
 
 	/**
 	 * Specifies whether the default left and right (master) audio
@@ -879,10 +756,6 @@ private:
 	Timebase m_timebaseState;
 
 };
-
-inline void JackAudioDriver::resetFrameOffset() {
-	m_frameOffset = 0;
-}
 
 }; // H2Core namespace
 

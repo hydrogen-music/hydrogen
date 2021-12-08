@@ -706,41 +706,21 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 		}
 	}
 
-	locateToFrame( static_cast<unsigned long>( nTotalTick * pAudioEngine->getTickSize() ) );
-
-	// TODO: replace this by a boolian indicating a relocation in the
-	// current cycle of the audio engine.
-	// pHydrogen->setTimelineBpm();
+	locateToTick( nTotalTick );
 	
 	return true;
 }
 
-bool CoreActionController::locateToFrame( unsigned long nFrame, bool bWithJackBroadcast ) {
+bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
 
 	const auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pDriver = pHydrogen->getAudioOutput();
 
 	pAudioEngine->lock( RIGHT_HERE );
+    
+	pAudioEngine->locate( nTick, bWithJackBroadcast );
 	
-	// if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
-	// 	// Required to move the playhead when clicking e.g. fast
-	// 	// forward or the song editor ruler. The variables set in here
-	// 	// do not interfere with the realtime audio (playback of MIDI
-	// 	// events of virtual keyboard) and all other position
-	// 	// variables in the AudioEngine will be set properly with
-	// 	// respect to them by then.
-
-	// 	int nTotalTick = static_cast<int>(nFrame / pAudioEngine->getTickSize());
-	// 	int nPatternStartTick;
-	// 	int nColumn = pHydrogen->getColumnForTick( nTotalTick,
-	// 											  pHydrogen->getSong()->getIsLoopEnabled(),
-	// 											  &nPatternStartTick );
-
-	// 	pAudioEngine->setColumn( nColumn );
-	// 	pAudioEngine->setPatternTickPosition( nTotalTick - nPatternStartTick );
-	// }
-	pAudioEngine->locate( nFrame, bWithJackBroadcast );
 	pAudioEngine->unlock();
 	return true;
 }

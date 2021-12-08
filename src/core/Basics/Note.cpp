@@ -60,7 +60,8 @@ Note::Note( std::shared_ptr<Instrument> instrument, int position, float velocity
 	  __midi_msg( -1 ),
 	  __note_off( false ),
 	  __just_recorded( false ),
-	  __probability( 1.0f )
+	  __probability( 1.0f ),
+	  m_nNoteStart( 0 )
 {
 	if ( __instrument != nullptr ) {
 		__adsr = __instrument->copy_adsr();
@@ -104,7 +105,8 @@ Note::Note( Note* other, std::shared_ptr<Instrument> instrument )
 	  __midi_msg( other->get_midi_msg() ),
 	  __note_off( other->get_note_off() ),
 	  __just_recorded( other->get_just_recorded() ),
-	  __probability( other->get_probability() )
+	  __probability( other->get_probability() ),
+	  m_nNoteStart( other->getNoteStart() )
 {
 	if ( instrument != nullptr ) __instrument = instrument;
 	if ( __instrument != nullptr ) {
@@ -247,6 +249,7 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2instrument_id: %3\n" ).arg( sPrefix ).arg( s ).arg( __instrument_id ) )
 			.append( QString( "%1%2specific_compo_id: %3\n" ).arg( sPrefix ).arg( s ).arg( __specific_compo_id ) )
 			.append( QString( "%1%2position: %3\n" ).arg( sPrefix ).arg( s ).arg( __position ) )
+			.append( QString( "%1%2m_nNoteStart: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nNoteStart ) )
 			.append( QString( "%1%2velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __velocity ) )
 			.append( QString( "%1%2pan: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPan ) )
 			.append( QString( "%1%2length: %3\n" ).arg( sPrefix ).arg( s ).arg( __length ) )
@@ -284,6 +287,7 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", instrument_id: %1" ).arg( __instrument_id ) )
 			.append( QString( ", specific_compo_id: %1" ).arg( __specific_compo_id ) )
 			.append( QString( ", position: %1" ).arg( __position ) )
+			.append( QString( ", m_nNoteStart: %1" ).arg( m_nNoteStart ) )
 			.append( QString( ", velocity: %1" ).arg( __velocity ) )
 			.append( QString( ", pan: %1" ).arg( m_fPan ) )
 			.append( QString( ", length: %1" ).arg( __length ) )

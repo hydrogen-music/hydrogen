@@ -231,7 +231,7 @@ public:
 	 *   - -1 : pattern list couldn't be found.
 	 *   - >=0 : PatternList index in Song::__pattern_group_sequence.
 	 */
-	int			getColumnForTick( int nTick, bool bLoopMode, int* pPatternStartTick ) const;
+	int			getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartTick ) const;
 	/**
 	 * Get the total number of ticks passed up to a @a nColumn /
 	 * pattern group.
