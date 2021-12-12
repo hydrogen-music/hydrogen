@@ -37,9 +37,6 @@
 #include <core/Helpers/Xml.h>
 #include "TestHelper.h"
 
-CPPUNIT_TEST_SUITE_REGISTRATION( XmlTest );
-
-
 static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
 {
 	int count = 0;

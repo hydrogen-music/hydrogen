@@ -20,28 +20,26 @@
  *
  */
 
+#include <random>
+
+#include <core/config.h>
+
 #include <cppunit/extensions/HelperMacros.h>
+#include <core/Hydrogen.h>
 
-#include <core/Helpers/Filesystem.h>
-
-class FilesystemTest : public CppUnit::TestFixture {
-	CPPUNIT_TEST_SUITE( FilesystemTest );
-	CPPUNIT_TEST( testPermissions );
+class TransportTest : public CppUnit::TestFixture {
+	CPPUNIT_TEST_SUITE( TransportTest );
+	CPPUNIT_TEST( testFrameToTickConversion );
 	CPPUNIT_TEST_SUITE_END();
 	
+private:
+	QString m_sValidPath;
+	std::default_random_engine m_randomEngine;
+    std::uniform_int_distribution<int> m_randomDist;
 	
 public:
 	void setUp();
 	void tearDown();
 	
-	void testPermissions();
-
-private:
-	QString m_sNotExistingPath;
-	QString m_sNoAccessPath;
-	QString m_sReadOnlyPath;
-	QString m_sFullAccessPath;
-	// To ensure Qt does handle the temporary files consistently.
-	QString m_sTmpPath;
-	QString m_sDemoSongSysPath;
+	void testFrameToTickConversion();
 };

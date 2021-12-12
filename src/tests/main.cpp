@@ -31,6 +31,7 @@
 
 #include <QCoreApplication>
 
+#include "registeredTests.h"
 #include "TestHelper.h"
 #include "utils/AppveyorTestListener.h"
 #include "utils/AppveyorRestClient.h"

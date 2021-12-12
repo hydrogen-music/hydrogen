@@ -29,7 +29,6 @@
 class TimeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( TimeTest );
 	CPPUNIT_TEST( testElapsedTime );
-	CPPUNIT_TEST( testFrameToTickConversion );
 	CPPUNIT_TEST_SUITE_END();
 	
 private:
@@ -52,7 +51,4 @@ public:
 	 * within the song to check the calculation of the elapsed time.
 	 */
 	void testElapsedTime();
-
-	void testFrameToTickConversion();
 };
-CPPUNIT_TEST_SUITE_REGISTRATION( TimeTest );
