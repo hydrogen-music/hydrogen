@@ -57,6 +57,7 @@ namespace H2Core
 								tr( "Set tempo of new tempo marker" ) );
 	// Required for correct focus highlighting.
 	bpmSpinBox->setSize( QSize( 146, 23 ) );
+	bpmSpinBox->setFocus();
 	
 	columnSpinBox->setMinimum( 1 );
 	columnSpinBox->setMaximum( Preferences::get_instance()->getMaxBars() );
