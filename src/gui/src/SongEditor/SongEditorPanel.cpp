@@ -580,6 +580,7 @@ void SongEditorPanel::restoreGroupVector( QString filename )
 	pPatternGroupsVect->clear();
 
 	Hydrogen::get_instance()->getSong()->readTempPatternList( filename );
+	Hydrogen::get_instance()->updateSongSize();
 	m_pSongEditor->updateEditorandSetTrue();
 	updateAll();
 }

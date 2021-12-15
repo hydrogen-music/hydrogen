@@ -346,9 +346,20 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 
 	// Get current partern and column, compensating for "lookahead" if required
 	const Pattern* currentPattern = nullptr;
-	unsigned int column = 0;
-	float fTickSize = pAudioEngine->getTickSize();
-	unsigned int lookaheadTicks = AudioEngine::calculateLookahead( fTickSize ) / fTickSize;
+	long nTickInPattern = 0;
+	int aux;
+	float unused;
+	long long nLookaheadInFrames = m_pAudioEngine->getLookaheadInFrames( m_pAudioEngine->getTick() );
+	long nLookaheadTicks = 
+		m_pAudioEngine->computeTickFromFrame( nLookaheadInFrames, &aux, &unused ) -
+		m_pAudioEngine->getTick();
+
+	DEBUGLOG( QString( "lookahead ticks: [%1] instead of [%2]" )
+			  .arg( nLookaheadTicks )
+			  .arg( ( 5 * m_pAudioEngine->getTickSize() +
+					  2001 ) / m_pAudioEngine->getTickSize() ) );
+			  
+			  
 	bool doRecord = pPreferences->getRecordEvents();
 	if ( getMode() == Song::Mode::Song && doRecord &&
 		 pAudioEngine->getState() == AudioEngine::State::Playing )
@@ -362,9 +373,9 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 			pAudioEngine->unlock(); // unlock the audio engine
 			return;
 		}
-		// Locate column -- may need to jump back in the pattern list
-		column = pAudioEngine->getPatternTickPosition();
-		while ( column < lookaheadTicks ) {
+		// Locate nTickInPattern -- may need to jump back in the pattern list
+		nTickInPattern = pAudioEngine->getPatternTickPosition();
+		while ( nTickInPattern < nLookaheadTicks ) {
 			ipattern -= 1;
 			if ( ipattern < 0 || ipattern >= (int) pPatternList->size() ) {
 				pAudioEngine->unlock(); // unlock the audio engine
@@ -383,13 +394,13 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 					currentPattern = pPattern;
 				}
 			}
-			column = column + (*pColumns)[ipattern]->longest_pattern_length();
+			nTickInPattern += (*pColumns)[ipattern]->longest_pattern_length();
 			// WARNINGLOG( "Undoing lookahead: corrected (" + to_string( ipattern+1 ) +
-			// "," + to_string( (int) ( column - currentPattern->get_length() ) -
+			// "," + to_string( (int) ( nTickInPattern - currentPattern->get_length() ) -
 			// (int) lookaheadTicks ) + ") -> (" + to_string(ipattern) +
-			// "," + to_string( (int) column - (int) lookaheadTicks ) + ")." );
+			// "," + to_string( (int) nTickInPattern - (int) lookaheadTicks ) + ")." );
 		}
-		column -= lookaheadTicks;
+		nTickInPattern -= nLookaheadTicks;
 		// Convert from playlist index to actual pattern index (if not already done above)
 		if ( currentPattern == nullptr ) {
 			std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
@@ -423,29 +434,31 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 			return;
 		}
 
-		// Locate column -- may need to wrap around end of pattern
-		column = pAudioEngine->getPatternTickPosition();
-		if ( column >= lookaheadTicks ) {
-			column -= lookaheadTicks;
+		// Locate nTickInPattern -- may need to wrap around end of pattern
+		nTickInPattern = pAudioEngine->getPatternTickPosition();
+		if ( nTickInPattern >= nLookaheadTicks ) {
+			nTickInPattern -= nLookaheadTicks;
 		} else {
-			lookaheadTicks %= currentPattern->get_length();
-			column = (column + currentPattern->get_length() - lookaheadTicks)
+			nLookaheadTicks %= currentPattern->get_length();
+			nTickInPattern = (nTickInPattern + currentPattern->get_length() - nLookaheadTicks)
 					% currentPattern->get_length();
 		}
 	}
 
 	if ( currentPattern && pPreferences->getQuantizeEvents() ) {
 		// quantize it to scale
-		unsigned qcolumn = ( unsigned )::round( column / ( double )scalar ) * scalar;
+		unsigned qcolumn = ( unsigned )::round( nTickInPattern / ( double )scalar ) * scalar;
 
 		//we have to make sure that no beat is added on the last displayed note in a bar
 		//for example: if the pattern has 4 beats, the editor displays 5 beats, so we should avoid adding beats an note 5.
-		if ( qcolumn == currentPattern->get_length() ) qcolumn = 0;
-		column = qcolumn;
+		if ( qcolumn == currentPattern->get_length() ){
+			qcolumn = 0;
+		}
+		nTickInPattern = qcolumn;
 	}
 
-	unsigned position = column;
-	pAudioEngine->setAddRealtimeNoteTickPosition( column );
+	unsigned position = nTickInPattern;
+	pAudioEngine->setAddRealtimeNoteTickPosition( nTickInPattern );
 
 	std::shared_ptr<Instrument> instrRef = nullptr;
 	if ( pSong ) {
@@ -457,7 +470,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		assert( currentPattern );
 		if ( doRecord ) {
 			EventQueue::AddMidiNoteVector noteAction;
-			noteAction.m_column = column;
+			noteAction.m_column = nTickInPattern;
 			noteAction.m_pattern = currentPatternNumber;
 			noteAction.f_velocity = velocity;
 			noteAction.f_pan = fPan;
@@ -1630,6 +1643,10 @@ long Hydrogen::getPatternLength( int nPattern ) const
 	} else {
 		return MAX_NOTES;
 	}
+}
+
+void Hydrogen::updateSongSize() {
+	getAudioEngine()->updateSongSize();
 }
 
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {

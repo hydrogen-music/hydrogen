@@ -1036,6 +1036,7 @@ void SongEditor::clearThePatternSequenceVector( QString filename )
 	pPatternGroupsVect->clear();
 
 	pHydrogen->setIsModified( true );
+	pHydrogen->updateSongSize();
 	m_pAudioEngine->unlock();
 	m_bSequenceChanged = true;
 	update();
@@ -1617,6 +1618,7 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 
 	delete pattern;
 	m_pHydrogen->setIsModified( true );
+	m_pHydrogen->updateSongSize();
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 
 }
@@ -1635,6 +1637,7 @@ void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilen
 	pPatternList->insert( patternPosition, pattern );
 
 	pHydrogen->setIsModified( true );
+	pHydrogen->updateSongSize();
 	createBackground();
 	pHydrogen->setSelectedPatternNumber( patternPosition );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();

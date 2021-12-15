@@ -239,12 +239,20 @@ public:
 	static float	computeTickSize( const int nSampleRate, const float fBpm, const int nResolution);
 	static long long computeFrame( long Tick, float fTickSize );
 	static long computeTick( long long nFrame, float fTickSize );
-	static int computeRemainingFramesInTick( long long nFrame, float fTickSize );
 	/**
 	 * In contrast to computeTick() this function does not assume that
 	 * the tick size is constant throughout the whole song.
+	 *
+	 * @param nFrame Transport position in frame which should be
+	 * converted into ticks.
+	 * @param nFrameOffset Number of frames @a nFrame is ahead of the
+	 * resulting tick.
+	 * @param fTrueTick Used to store the raw (not yet rounded)
+	 * version of the return value.
+	 * @param nSampleRate If set to 0, the sample rate provided by the
+	 * audio driver will be used.
 	 */
-	long computeTickFromFrame( long long nFrame, int* nRemainingFramesInTick ) const;
+	long computeTickFromFrame( long long nFrame, int* nFrameOffset, float *fTrueTick, int nSampleRate = 0 ) const;
 
 	/**
 	 * Calculates the true frame equivalent to @a nFrame.
@@ -255,22 +263,14 @@ public:
 	 * @param nFrame Internally used frame, which depends on the
 	 * current speed as well and is rescaled as soon as a tempo marker
 	 * is passed
-	 * @param fTickSize Tick size used at @a nFrame.
+	 * @param fTrueFrame Used to store the raw (not yet rounded)
+	 * version of the return value.
+	 * @param nSampleRate If set to 0, the sample rate provided by the
+	 * audio driver will be used.
 	 *
 	 * @return true frame
 	 */
-	long long computeFrameFromTick( long nTick );
-	/**
-	 * Calculates the internal equivalent of @a nTrueFrame.
-	 *
-	 * @param nTrueFrame frame version depending only on the current
-	 * sample rate.
-	 *
-	 * @return Frame AudioEngine::getFrames() would return after
-	 * letting playback roll for @a nTrueFrame frames. This will take
-	 * all rescalings into account in case tempo markers are passed.
-	 */
-	long long trueFrameToFrame( long long nTrueFrame ) const;
+	long long computeFrameFromTick( long nTick, double* fTrueFrame, int nSampleRate = 0 ) const;
 
 
 	/** Resets a number of member variables to their initial state.
@@ -352,38 +352,34 @@ public:
 
 	const struct timeval& 	getCurrentTickTime() const;
 	
-	/** Calculates the lookahead for a specific tick size.
+	/** Maximum lead lag factor in ticks.
 	 *
 	 * During the humanization the onset of a Note will be moved
 	 * Note::__lead_lag times the value calculated by this function.
-	 *
-	 * Since the size of a tick is tempo dependent, @a fTickSize
-	 * allows you to calculate the lead-lag factor for an arbitrary
-	 * position on the Timeline.
-	 *
-	 * \param fTickSize Number of frames that make up one tick.
-	 *
-	 * \return Five times the current size of a tick
-	 * (TransportInfo::m_fTickSize) (in frames)
 	 */
-	static int		calculateLeadLagFactor( float fTickSize );
-	/** Calculates time offset (in frames) used to determine the notes
-	 * process by the audio engine.
+	static long		getLeadLagInTicks();
+	
+	/** Calculates lead lag factor (in frames) relative to the
+	 * transport position @a nTick
+	 *
+	 * During the humanization the onset of a Note will be moved
+	 * Note::__lead_lag times the value calculated by this function.
+	 */
+	long long		getLeadLagInFrames( long nTick );
+	/** Calculates time offset (in frames) the AudioEngine is ahead of
+	 * the transport position @a nTick.
 	 *
 	 * Due to the humanization there might be negative offset in the
 	 * position of a particular note. To be able to still render it
 	 * appropriately, we have to look into and handle notes from the
 	 * future.
 	 *
-	 * The Lookahead is the sum of the #m_nMaxTimeHumanize and
-	 * calculateLeadLagFactor() plus one (since it has to be larger
-	 * than that).
-	 *
-	 * \param fTickSize Number of frames that make up one tick. Passed
-	 * to calculateLeadLagFactor().
+	 * Since the tick size (and thus the lead lag factor in frames)
+	 * can change at an arbitrary point if the Timeline is activated,
+	 * the lookahead will be calculated relative to @a nTick.
 	 *
 	 * \return Frame offset*/
-	static int		calculateLookahead( float fTickSize );
+	long long getLookaheadInFrames( long nTick );
 
 	/**
 	 * Sets m_nextState to State::Playing. This will start the audio
@@ -410,6 +406,49 @@ public:
 	float getNextBpm() const;
 
 	static float 	getBpmAtColumn( int nColumn );
+
+	void updateSongSize();
+
+	/** 
+	 * Unit test checking the incremental update of the transport
+	 * position in audioEngine_process().
+	 *
+	 * Defined in here since it requires access to methods and
+	 * variables private to the #AudioEngine class.
+	 *
+	 * @return true on success.
+	 */
+	bool testTransportProcessing();
+	/** 
+	 * Unit test checking the relocation of the transport
+	 * position in audioEngine_process().
+	 *
+	 * Defined in here since it requires access to methods and
+	 * variables private to the #AudioEngine class.
+	 *
+	 * @return true on success.
+	 */
+	bool testTransportRelocation();
+	/** 
+	 * Unit test checking consistency of tick intervals processed in
+	 * updateNoteQueue() (no overlap and no holes).
+	 *
+	 * Defined in here since it requires access to methods and
+	 * variables private to the #AudioEngine class.
+	 *
+	 * @return true on success.
+	 */
+	bool testComputeTickInterval();
+	/** 
+	 * Unit test checking consistency of tick intervals processed in
+	 * updateNoteQueue() (no overlap and no holes).
+	 *
+	 * Defined in here since it requires access to methods and
+	 * variables private to the #AudioEngine class.
+	 *
+	 * @return true on success.
+	 */
+	bool testUpdateNoteQueue();
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -484,6 +523,7 @@ private:
 	 * cycle.
 	 */
 	int				updateNoteQueue( unsigned nFrames );
+	long long computeTickInterval( long* nTickStart, long* nTickEnd, long long* nFrameStart, long long *nFrameEnd, unsigned nFrames );
 	
 	/** Increments #m_fElapsedTime at the end of a process cycle.
 	 *
@@ -497,7 +537,11 @@ private:
 	 * frames per second.
 	 */
 	void			updateElapsedTime( unsigned bufferSize, unsigned sampleRate );
-	void			updateBpmAndTickSize();
+	/**
+	 * @param bRunInPreparedState Used to enter the body when
+	 * called in the test functions.
+	 */
+	void			updateBpmAndTickSize( bool bRunInPreparedState = false );
 	
 	void			setPatternTickPosition( int tick );
 	void			setColumn( int nColumn );
@@ -696,13 +740,14 @@ private:
 	/**
 	 * Maximum time (in frames) a note's position can be off due to
 	 * the humanization (lead-lag).
-	 *
-	 * Required to calculateLookahead(). Set to 2000.
 	 */
 	static const int		nMaxTimeHumanize;
 
 	float 			m_fNextBpm;
-	int m_nRemainingFramesInTick;
+	/** Number of frames TransportInfo::m_nFrames is ahead of
+		TransportInfo::m_nTick. */
+	int m_nFrameOffset;
+	long long m_nLastTickIntervalEnd;
 };
 
 

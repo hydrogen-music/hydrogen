@@ -1061,7 +1061,22 @@ bool Sampler::renderNoteNoResample(
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
-		nNoteLength = AudioEngine::computeFrame( pNote->get_length(), pAudioEngine->getTickSize() );
+		if ( pNote->getNoteStart() == 0 ) {
+			nNoteLength = AudioEngine::computeFrame( pNote->get_length(), pAudioEngine->getTickSize() );
+		} else {
+			double unused;
+			// Note is not located at the very beginning of the song
+			// and is enqueued by the AudioEngine. Take possible
+			// changes in tempo into account
+			nNoteLength =
+				pAudioEngine->computeFrameFromTick( pNote->get_position() +
+													pNote->get_length(), &unused ) -
+				pNote->getNoteStart();
+
+			DEBUGLOG( QString( "Calculated [%1] instead of [%2]" )
+					  .arg( nNoteLength )
+					  .arg( AudioEngine::computeFrame( pNote->get_length(), pAudioEngine->getTickSize() ) ) );
+		}
 	}
 
 	int nAvail_bytes = pSample->get_frames() - ( int )pSelectedLayerInfo->SamplePosition;	// verifico il numero di frame disponibili ancora da eseguire
@@ -1207,11 +1222,27 @@ bool Sampler::renderNoteResample(
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
-		float resampledTickSize = AudioEngine::computeTickSize( pSample->get_sample_rate(),
-																pAudioEngine->getBpm(),
-																pSong->getResolution() );
+		float fResampledTickSize = AudioEngine::computeTickSize( pSample->get_sample_rate(),
+																 pAudioEngine->getBpm(),
+																 pSong->getResolution() );
 		
-		nNoteLength = ( int )( pNote->get_length() * resampledTickSize);
+		if ( pNote->getNoteStart() == 0 ) {
+			nNoteLength = AudioEngine::computeFrame( pNote->get_length(), fResampledTickSize );
+		} else {
+			double unused;
+			// Note is not located at the very beginning of the song
+			// and is enqueued by the AudioEngine. Take possible
+			// changes in tempo into account
+			nNoteLength =
+				pAudioEngine->computeFrameFromTick( pNote->get_position() +
+													pNote->get_length(), &unused,
+													fResampledTickSize ) -
+				pNote->getNoteStart();
+
+			DEBUGLOG( QString( "Calculated [%1] instead of [%2]" )
+					  .arg( nNoteLength )
+					  .arg( AudioEngine::computeFrame( pNote->get_length(), pAudioEngine->getTickSize() ) ) );
+		}
 	}
 	float fNotePitch = pNote->get_total_pitch() + fLayerPitch;
 

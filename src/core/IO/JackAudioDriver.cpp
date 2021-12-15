@@ -1029,7 +1029,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	// cycle and after the updateTransportInfo() returns.
 	long nextTickInternal = 
 		AudioEngine::computeTick(( pJackPosition->frame + 
-								   AudioEngine::calculateLookahead( fTickSize ) ), 
+								   pAudioEngine->getLookaheadInFrames( pAudioEngine->getTick() ) ), 
 								 fTickSize) - 1;
 	long nNextPatternStartTickInternal;
 	int nNextPatternInternal = 

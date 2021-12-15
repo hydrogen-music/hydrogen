@@ -272,6 +272,8 @@ public:
 
 	void			removeSong();
 
+	void updateSongSize();
+
 		void			addRealtimeNote ( int instrument,
 							  float velocity,
 							  float fPan = 0.0f,
