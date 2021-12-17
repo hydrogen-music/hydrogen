@@ -347,12 +347,10 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	// Get current partern and column, compensating for "lookahead" if required
 	const Pattern* currentPattern = nullptr;
 	long nTickInPattern = 0;
-	int aux;
-	float unused;
 	long long nLookaheadInFrames = m_pAudioEngine->getLookaheadInFrames( m_pAudioEngine->getTick() );
 	long nLookaheadTicks = 
-		m_pAudioEngine->computeTickFromFrame( nLookaheadInFrames, &aux, &unused ) -
-		m_pAudioEngine->getTick();
+		static_cast<long>(std::floor(m_pAudioEngine->computeTickFromFrame( nLookaheadInFrames ) -
+									 m_pAudioEngine->getTick()));
 
 	DEBUGLOG( QString( "lookahead ticks: [%1] instead of [%2]" )
 			  .arg( nLookaheadTicks )

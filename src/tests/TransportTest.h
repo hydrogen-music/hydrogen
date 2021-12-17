@@ -20,8 +20,6 @@
  *
  */
 
-#include <random>
-
 #include <core/config.h>
 
 #include <cppunit/extensions/HelperMacros.h>
@@ -30,16 +28,14 @@
 class TransportTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( TransportTest );
 	CPPUNIT_TEST( testFrameToTickConversion );
-	CPPUNIT_TEST( testTransportRelocation );
 	CPPUNIT_TEST( testTransportProcessing );
-	CPPUNIT_TEST( testUpdateNoteQueue );
+	CPPUNIT_TEST( testTransportRelocation );
 	CPPUNIT_TEST( testComputeTickInterval );
+	CPPUNIT_TEST( testUpdateNoteQueue );
 	CPPUNIT_TEST_SUITE_END();
 	
 private:
 	QString m_sValidPath;
-	std::default_random_engine m_randomEngine;
-    std::uniform_int_distribution<int> m_randomDist;
 	
 public:
 	void setUp();

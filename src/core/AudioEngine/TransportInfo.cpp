@@ -28,7 +28,7 @@ namespace H2Core {
 
 TransportInfo::TransportInfo()
 	: m_nFrames( 0 )
-	, m_nTick( 0 )
+	, m_fTick( 0 )
 	, m_fTickSize( 400 )
 	, m_fBpm( 120 ) {
 }
@@ -65,14 +65,14 @@ void TransportInfo::setFrames( long long nNewFrames ) {
 	m_nFrames = nNewFrames;
 }
 
-void TransportInfo::setTick( long nNewTick ) {
-	if ( nNewTick < 0 ) {
+void TransportInfo::setTick( double fNewTick ) {
+	if ( fNewTick < 0 ) {
 		ERRORLOG( QString( "Provided tick [%1] is negative. Setting frame 0 instead." )
-				  .arg( nNewTick ) );
-		nNewTick = 0;
+				  .arg( fNewTick ) );
+		fNewTick = 0;
 	}
 	
-	m_nTick = nNewTick;
+	m_fTick = fNewTick;
 }
 
 void TransportInfo::setTickSize( float fNewTickSize ) {

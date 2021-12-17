@@ -237,40 +237,36 @@ public:
 	static int                      audioEngine_process( uint32_t nframes, void *arg );
 	
 	static float	computeTickSize( const int nSampleRate, const float fBpm, const int nResolution);
-	static long long computeFrame( long Tick, float fTickSize );
-	static long computeTick( long long nFrame, float fTickSize );
+	static long long computeFrame( double fTick, float fTickSize );
+	static double computeTick( long long nFrame, float fTickSize );
 	/**
 	 * In contrast to computeTick() this function does not assume that
 	 * the tick size is constant throughout the whole song.
 	 *
 	 * @param nFrame Transport position in frame which should be
 	 * converted into ticks.
-	 * @param nFrameOffset Number of frames @a nFrame is ahead of the
-	 * resulting tick.
-	 * @param fTrueTick Used to store the raw (not yet rounded)
-	 * version of the return value.
 	 * @param nSampleRate If set to 0, the sample rate provided by the
 	 * audio driver will be used.
 	 */
-	long computeTickFromFrame( long long nFrame, int* nFrameOffset, float *fTrueTick, int nSampleRate = 0 ) const;
+	double computeTickFromFrame( long long nFrame, int nSampleRate = 0 ) const;
 
 	/**
-	 * Calculates the true frame equivalent to @a nFrame.
+	 * Calculates the frame equivalent to @a fTick.
 	 *
-	 * The true frame takes all passed tempo markers into account and
+	 * The frame takes all passed tempo markers into account and
 	 * does only depend on the current sample rate.
 	 *
-	 * @param nFrame Internally used frame, which depends on the
+	 * @param fTick Internally used frame, which depends on the
 	 * current speed as well and is rescaled as soon as a tempo marker
 	 * is passed
-	 * @param fTrueFrame Used to store the raw (not yet rounded)
+	 * @param fTickOffset Used to store the raw (not yet rounded)
 	 * version of the return value.
 	 * @param nSampleRate If set to 0, the sample rate provided by the
 	 * audio driver will be used.
 	 *
-	 * @return true frame
+	 * @return frame
 	 */
-	long long computeFrameFromTick( long nTick, double* fTrueFrame, int nSampleRate = 0 ) const;
+	long long computeFrameFromTick( double fTick, double* fTickOffset, int nSampleRate = 0 ) const;
 
 
 	/** Resets a number of member variables to their initial state.
@@ -338,14 +334,14 @@ public:
 	float			getProcessTime() const;
 	float			getMaxProcessTime() const;
 
-	int				getPatternTickPosition() const;
+	long			getPatternTickPosition() const;
 
 	int				getColumn() const;
 
 	PatternList*	getNextPatterns() const;
 	PatternList*	getPlayingPatterns() const;
 	
-	unsigned long	getRealtimeFrames() const;
+	long long		getRealtimeFrames() const;
 
 	void			setAddRealtimeNoteTickPosition( unsigned int tickPosition );
 	unsigned int	getAddRealtimeNoteTickPosition() const; 
@@ -357,17 +353,17 @@ public:
 	 * During the humanization the onset of a Note will be moved
 	 * Note::__lead_lag times the value calculated by this function.
 	 */
-	static long		getLeadLagInTicks();
+	static double	getLeadLagInTicks();
 	
 	/** Calculates lead lag factor (in frames) relative to the
-	 * transport position @a nTick
+	 * transport position @a fTick
 	 *
 	 * During the humanization the onset of a Note will be moved
 	 * Note::__lead_lag times the value calculated by this function.
 	 */
-	long long		getLeadLagInFrames( long nTick );
+	long long		getLeadLagInFrames( double fTick );
 	/** Calculates time offset (in frames) the AudioEngine is ahead of
-	 * the transport position @a nTick.
+	 * the transport position @a fTick.
 	 *
 	 * Due to the humanization there might be negative offset in the
 	 * position of a particular note. To be able to still render it
@@ -376,10 +372,10 @@ public:
 	 *
 	 * Since the tick size (and thus the lead lag factor in frames)
 	 * can change at an arbitrary point if the Timeline is activated,
-	 * the lookahead will be calculated relative to @a nTick.
+	 * the lookahead will be calculated relative to @a fTick.
 	 *
 	 * \return Frame offset*/
-	long long getLookaheadInFrames( long nTick );
+	long long getLookaheadInFrames( double fTick );
 
 	/**
 	 * Sets m_nextState to State::Playing. This will start the audio
@@ -404,6 +400,10 @@ public:
 	 * adopted next time the checkBpmChanged() is entered.*/
 	void setNextBpm( float fNextBpm );
 	float getNextBpm() const;
+
+	/** Compatibility layer for external classes pretending that ticks
+		are still integer.*/
+	long getTick() const;
 
 	static float 	getBpmAtColumn( int nColumn );
 
@@ -477,6 +477,8 @@ public:
 		what the JACK server reports and to call locateToFrame().*/
 	friend void JackAudioDriver::updateTransportInfo();
 private:
+
+	double getDoubleTick() const;
 	
 	inline void			processPlayNotes( unsigned long nframes );
 
@@ -523,7 +525,7 @@ private:
 	 * cycle.
 	 */
 	int				updateNoteQueue( unsigned nFrames );
-	long long computeTickInterval( long* nTickStart, long* nTickEnd, long long* nFrameStart, long long *nFrameEnd, unsigned nFrames );
+	long long computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nFrames );
 	
 	/** Increments #m_fElapsedTime at the end of a process cycle.
 	 *
@@ -543,9 +545,9 @@ private:
 	 */
 	void			updateBpmAndTickSize( bool bRunInPreparedState = false );
 	
-	void			setPatternTickPosition( int tick );
+	void			setPatternTickPosition( long nTick );
 	void			setColumn( int nColumn );
-	void			setRealtimeFrames( unsigned long nFrames );
+	void			setRealtimeFrames( long long nFrames );
 	
 	/**
 	 * Updates the global objects of the audioEngine according to new
@@ -576,11 +578,11 @@ private:
 	
 	/** Relocate using the audio driver.
 	 *
-	 * \param nTick Next transport position in ticks.
+	 * \param fTick Next transport position in ticks.
 	 * \param bWithJackBroadcast Relocate not using the AudioEngine
 	 * directly but using the JACK server.
 	 */
-	void			locate( const long nTick, bool bWithJackBroadcast = true );
+	void			locate( const double fTick, bool bWithJackBroadcast = true );
 	/**
 	 * Version of the locate() function intended to be directly used
 	 * by frame-based audio drivers / servers.
@@ -591,7 +593,7 @@ private:
 	 */
 	void			locateToFrame( const long long nFrame );
 	void			incrementTransportPosition( uint32_t nFrames );
-	void			updateTransportPosition( long nTick, bool bUseLoopMode );
+	void			updateTransportPosition( double fTick, bool bUseLoopMode );
 	/** Local instance of the Sampler. */
 	Sampler* 			m_pSampler;
 	/** Local instance of the Synth. */
@@ -669,12 +671,12 @@ private:
 	/**
 	 * Beginning of the current pattern in ticks.
 	 */
-	long					m_nPatternStartTick;
+	long				m_nPatternStartTick;
 
 	/**
 	 * Ticks passed since the beginning of the current pattern.
 	 */
-	long					m_nPatternTickPosition;
+	long				m_nPatternTickPosition;
 
 	/**
 	 * Index of the current PatternList/column in the
@@ -684,10 +686,8 @@ private:
 	 */
 	int					m_nColumn;
 
-	/** Set to the total number of ticks in a Song in findPatternInTick()
-		if Song::SONG_MODE is chosen and playback is at least in the
-		second loop.*/
-	long				m_nSongSizeInTicks;
+	/** Set to the total number of ticks in a Song.*/
+	double				m_fSongSizeInTicks;
 
 		/**
 	 * Patterns to be played next in Song::PATTERN_MODE.
@@ -707,7 +707,7 @@ private:
 	 * of each cycle) to support realtime keyboard and MIDI event
 	 * timing.
 	 */
-	unsigned long		m_nRealtimeFrames;
+	long long		m_nRealtimeFrames;
 	unsigned int		m_nAddRealtimeNoteTickPosition;
 
 	/**
@@ -746,8 +746,8 @@ private:
 	float 			m_fNextBpm;
 	/** Number of frames TransportInfo::m_nFrames is ahead of
 		TransportInfo::m_nTick. */
-	int m_nFrameOffset;
-	long long m_nLastTickIntervalEnd;
+	double m_fTickOffset;
+	double m_fLastTickIntervalEnd;
 };
 
 
@@ -853,11 +853,11 @@ inline MidiOutput*	AudioEngine::getMidiOutDriver() const {
 	return m_pMidiDriverOut;
 }
 
-inline void AudioEngine::setPatternTickPosition(int tick) {
-	m_nPatternTickPosition = tick;
+inline void AudioEngine::setPatternTickPosition( long nTick ) {
+	m_nPatternTickPosition = nTick;
 }
 
-inline int AudioEngine::getPatternTickPosition() const {
+inline long AudioEngine::getPatternTickPosition() const {
 	return m_nPatternTickPosition;
 }
 
@@ -877,11 +877,11 @@ inline PatternList* AudioEngine::getNextPatterns() const {
 	return m_pNextPatterns;
 }
 
-inline unsigned long AudioEngine::getRealtimeFrames() const {
+inline long long AudioEngine::getRealtimeFrames() const {
 	return m_nRealtimeFrames;
 }
 
-inline void AudioEngine::setRealtimeFrames( unsigned long nFrames ) {
+inline void AudioEngine::setRealtimeFrames( long long nFrames ) {
 	m_nRealtimeFrames = nFrames;
 }
 

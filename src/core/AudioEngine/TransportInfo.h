@@ -54,13 +54,13 @@ public:
 	~TransportInfo();
 
 	long long getFrames() const;
-	long getTick() const;
+	double getTick() const;
 	float getTickSize() const;
 	float getBpm() const;
 
 protected:
 	void setFrames( long long nNewFrames );
-	void setTick( long nNewTick );
+	void setTick( double fNewTick );
 	void setBpm( float fNewBpm );
 	void setTickSize( float fNewTickSize );
 	/** All classes other than the AudioEngine should use
@@ -93,8 +93,12 @@ private:
 	 *
 	 * Note that the smallest unit for positioning a #Note is a frame
 	 * due to the humanization capatibilities.
+	 *
+	 * Float is, unfortunately, not enough. When the engine is running
+	 * for a long time the high precision digits after decimal point
+	 * required to keep frames and ticks in sync would be lost.
 	 */
-	long m_nTick;
+	double m_fTick;
 	
 	/** 
 	 * Number of frames that make up one tick.
@@ -137,8 +141,8 @@ private:
 inline long long TransportInfo::getFrames() const {
 	return m_nFrames;
 }
-inline long TransportInfo::getTick() const {
-	return m_nTick;
+inline double TransportInfo::getTick() const {
+	return m_fTick;
 }
 inline float TransportInfo::getTickSize() const {
 	return m_fTickSize;

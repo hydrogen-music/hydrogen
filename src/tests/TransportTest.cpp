@@ -22,6 +22,8 @@
 
 #include <core/config.h>
 
+#include <iostream>
+
 #include "TransportTest.h"
 #include <core/CoreActionController.h>
 #include <core/AudioEngine/AudioEngine.h>
@@ -32,13 +34,6 @@
 using namespace H2Core;
 
 void TransportTest::setUp(){
-
-	// Seed with a real random value, if available
-    std::random_device randomSeed;
- 
-    // Choose a random mean between 1 and 6
-    std::default_random_engine m_randomEngine( randomSeed() );
-    std::uniform_int_distribution<int> m_randomDist(1, 4096);
 	
 	m_sValidPath = QString( "%1/hydrogen_time_test.h2song" )
 		.arg( QDir::tempPath() );
@@ -69,46 +64,78 @@ void TransportTest::testFrameToTickConversion() {
 	pCoreActionController->addTempoMarker( 5, 40 );
 	pCoreActionController->addTempoMarker( 7, 200 );
 
-	int nFrameOffset1, nFrameOffset2, nFrameOffset3;
-
-	long aux;
-	double unused;
-	float unused2;
+	double fFrameOffset1, fFrameOffset2, fFrameOffset3,
+		fFrameOffset4, fFrameOffset5, fFrameOffset6;
 	
 	long long nFrame1 = 342732;
 	long long nFrame2 = 1037223;
 	long long nFrame3 = 453610333722;
-	long nTick1 = pAudioEngine->computeTickFromFrame( nFrame1, &nFrameOffset1, &unused2 );
-	long nTick2 = pAudioEngine->computeTickFromFrame( nFrame2, &nFrameOffset2, &unused2 );
-	long nTick3 = pAudioEngine->computeTickFromFrame( nFrame3, &nFrameOffset3, &unused2 );
-	long long nFrame1Computed = pAudioEngine->computeFrameFromTick( nTick1, &unused ) +
-			static_cast<long long>(nFrameOffset1);
-	long long nFrame2Computed = pAudioEngine->computeFrameFromTick( nTick2, &unused ) +
-			static_cast<long long>(nFrameOffset2);
-	long long nFrame3Computed = pAudioEngine->computeFrameFromTick( nTick3, &unused ) +
-			static_cast<long long>(nFrameOffset3);
-
-	long nTick4 = 552;
-	long nTick5 = 1939;
-	long nTick6 = 534623409;
-	long long nFrame4 = pAudioEngine->computeFrameFromTick( nTick4, &unused );
-	long long nFrame5 = pAudioEngine->computeFrameFromTick( nTick5, &unused );
-	long long nFrame6 = pAudioEngine->computeFrameFromTick( nTick6, &unused );
-	long nTick4Computed = pAudioEngine->computeTickFromFrame( nFrame4, &nFrameOffset1, &unused2 );
-	long nTick5Computed = pAudioEngine->computeTickFromFrame( nFrame5, &nFrameOffset2, &unused2 );
-	long nTick6Computed = pAudioEngine->computeTickFromFrame( nFrame6, &nFrameOffset3, &unused2 );
+	double fTick1 = pAudioEngine->computeTickFromFrame( nFrame1 );
+	double fTick2 = pAudioEngine->computeTickFromFrame( nFrame2 );
+	double fTick3 = pAudioEngine->computeTickFromFrame( nFrame3 );
+	long long nFrame1Computed = pAudioEngine->computeFrameFromTick( fTick1, &fFrameOffset1 );
+	long long nFrame2Computed = pAudioEngine->computeFrameFromTick( fTick2, &fFrameOffset2 );
+	long long nFrame3Computed = pAudioEngine->computeFrameFromTick( fTick3, &fFrameOffset3 );
 	
-	// Due to the rounding error in AudioEngine::computeTick() and
-	// AudioEngine::computeFrame() a small mismatch is allowed.
-	CPPUNIT_ASSERT( abs( nFrame1Computed - nFrame1 ) <= 1 );
-	CPPUNIT_ASSERT( abs( nFrame2Computed - nFrame2 ) <= 1 );
-	CPPUNIT_ASSERT( abs( nFrame3Computed - nFrame3 ) <= 1 );
-	CPPUNIT_ASSERT( abs( nTick4Computed - nTick4 ) <= 1 );
-	CPPUNIT_ASSERT( nFrameOffset1 == 0 );
-	CPPUNIT_ASSERT( abs( nTick5Computed - nTick5 ) <= 1 );
-	CPPUNIT_ASSERT( nFrameOffset2 == 0 );
-	CPPUNIT_ASSERT( abs( nTick6Computed - nTick6 ) <= 1 );
-	CPPUNIT_ASSERT( nFrameOffset3 == 0 );
+	if ( nFrame1Computed != nFrame1 ) {
+		std::cout << QString( "[1] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4" )
+			.arg( nFrame1 ).arg( fTick1, 0, 'f' ).arg( nFrame1Computed )
+			.arg( fFrameOffset1, 0, 'f' ).toLocal8Bit().data() << std::endl;
+	}
+	CPPUNIT_ASSERT( nFrame1Computed == nFrame1 );
+	CPPUNIT_ASSERT( fFrameOffset1 == 0 );
+
+	if ( nFrame2Computed != nFrame2 ) {
+		std::cout << QString( "[2] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4" )
+			.arg( nFrame2 ).arg( fTick2, 0, 'f' ).arg( nFrame2Computed )
+			.arg( fFrameOffset2, 0, 'f' ).toLocal8Bit().data() << std::endl;
+	}
+	CPPUNIT_ASSERT( nFrame2Computed == nFrame2 );
+	CPPUNIT_ASSERT( fFrameOffset2 == 0 );
+	
+	if ( nFrame3Computed != nFrame3 ) {
+		std::cout << QString( "[3] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4" )
+			.arg( nFrame3 ).arg( fTick3, 0, 'f' ).arg( nFrame3Computed )
+			.arg( fFrameOffset3, 0, 'f' ).toLocal8Bit().data() << std::endl;
+	}
+	CPPUNIT_ASSERT( nFrame3Computed == nFrame3 );
+	CPPUNIT_ASSERT( fFrameOffset3 == 0 );
+
+	long aux;
+	double fTick4 = 552;
+	double fTick5 = 1939;
+	double fTick6 = 534623409;
+	long long nFrame4 = pAudioEngine->computeFrameFromTick( fTick4, &fFrameOffset4 );
+	long long nFrame5 = pAudioEngine->computeFrameFromTick( fTick5, &fFrameOffset5 );
+	long long nFrame6 = pAudioEngine->computeFrameFromTick( fTick6, &fFrameOffset6 );
+	double fTick4Computed = pAudioEngine->computeTickFromFrame( nFrame4 ) +
+		fFrameOffset4;
+	double fTick5Computed = pAudioEngine->computeTickFromFrame( nFrame5 ) +
+		fFrameOffset5;
+	double fTick6Computed = pAudioEngine->computeTickFromFrame( nFrame6 ) +
+		fFrameOffset6;
+	
+	
+	if ( abs( fTick4Computed - fTick4 ) > 1e-9 ) {
+		std::cout << QString( "[4] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4" )
+			.arg( nFrame4 ).arg( fTick4, 0, 'f' ).arg( fTick4Computed, 0, 'f' )
+			.arg( fFrameOffset4, 0, 'f' ).toLocal8Bit().data() << std::endl;
+	}
+	CPPUNIT_ASSERT( abs( fTick4Computed - fTick4 ) < 1e-9 );
+
+	if ( abs( fTick5Computed - fTick5 ) > 1e-9 ) {
+		std::cout << QString( "[5] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4" )
+			.arg( nFrame5 ).arg( fTick5, 0, 'f' ).arg( fTick5Computed, 0, 'f' )
+			.arg( fFrameOffset5, 0, 'f' ).toLocal8Bit().data() << std::endl;
+	}
+	CPPUNIT_ASSERT( abs( fTick5Computed - fTick5 ) < 1e-9 );
+
+	if ( abs( fTick6Computed - fTick6 ) > 1e-9 ) {
+		std::cout << QString( "[6] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4" )
+			.arg( nFrame6 ).arg( fTick6, 0, 'f' ).arg( fTick6Computed, 0, 'f' )
+			.arg( fFrameOffset6, 0, 'f' ).toLocal8Bit().data() << std::endl;
+	}
+	CPPUNIT_ASSERT( abs( fTick6Computed - fTick6 ) < 1e-9 );
 }
 
 void TransportTest::testTransportProcessing() {
