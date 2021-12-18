@@ -172,7 +172,12 @@ inline float DrumkitComponent::get_peak_r() const
 	return __peak_r;
 }
 
-};
+inline void DrumkitComponent::set_outs( int nBufferPos, float valL, float valR )
+{
+	__out_L[nBufferPos] += valL;
+	__out_R[nBufferPos] += valR;
+}
 
+};
 
 #endif

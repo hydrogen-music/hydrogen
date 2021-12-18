@@ -368,7 +368,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 		pInstr =  pInstrList->get(nInstrument);
 	}
 
-	float fStep = pow( 1.0594630943593, (nNote) );
+	float fStep = Note::pitchToFrequency( nNote );
 	if ( !Preferences::get_instance()->__playselectedinstrument ) {
 		fStep = 1;
 	}

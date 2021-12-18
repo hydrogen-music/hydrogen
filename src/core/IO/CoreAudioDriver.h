@@ -78,6 +78,9 @@ public:
 	float* getOut_R();
 
 	static QStringList getDevices();
+
+	virtual int getLatency();
+
 private:
 	AudioDeviceID defaultOutputDevice(void);
 	void retrieveBufferSize(void);

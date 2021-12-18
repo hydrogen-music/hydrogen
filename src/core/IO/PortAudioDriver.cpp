@@ -35,17 +35,20 @@ int portAudioCallback(
 	unsigned long framesPerBuffer,
 	const PaStreamCallbackTimeInfo* timeInfo,
 	PaStreamCallbackFlags statusFlags,
-	void *userData
-)
+	void *userData )
 {
-	PortAudioDriver *pDriver = ( PortAudioDriver* )userData;
-	pDriver->m_processCallback( pDriver->m_nBufferSize, nullptr );
-
 	float *out = ( float* )outputBuffer;
+	PortAudioDriver *pDriver = ( PortAudioDriver* )userData;
 
-	for ( unsigned i = 0; i < framesPerBuffer; i++ ) {
-		*out++ = pDriver->m_pOut_L[ i ];
-		*out++ = pDriver->m_pOut_R[ i ];
+	while ( framesPerBuffer > 0 ) {
+		unsigned long nFrames = std::min( (unsigned long) MAX_BUFFER_SIZE, framesPerBuffer );
+		pDriver->m_processCallback( nFrames, nullptr );
+
+		for ( unsigned i = 0; i < nFrames; i++ ) {
+			*out++ = pDriver->m_pOut_L[ i ];
+			*out++ = pDriver->m_pOut_R[ i ];
+		}
+		framesPerBuffer -= nFrames;
 	}
 	return 0;
 }
@@ -61,7 +64,6 @@ PortAudioDriver::PortAudioDriver( audioProcessCallback processCallback )
 		, m_pOut_R( nullptr )
 		, m_pStream( nullptr )
 {
-	m_nBufferSize = Preferences::get_instance()->m_nBufferSize;
 	m_nSampleRate = Preferences::get_instance()->m_nSampleRate;
 	m_sDevice = Preferences::get_instance()->m_sPortAudioDevice;
 }
@@ -140,8 +142,8 @@ int PortAudioDriver::connect()
 	Preferences *pPreferences = Preferences::get_instance();
 	INFOLOG( "[connect]" );
 
-	m_pOut_L = new float[ m_nBufferSize ];
-	m_pOut_R = new float[ m_nBufferSize ];
+	m_pOut_L = new float[ MAX_BUFFER_SIZE ];
+	m_pOut_R = new float[ MAX_BUFFER_SIZE ];
 
 	int err;
 	if ( ! m_bInitialised ) {
@@ -156,51 +158,53 @@ int PortAudioDriver::connect()
 	}
 
 
-	if ( ! m_sDevice.isNull() && m_sDevice != "" ) {
-
-		// Find device to use
-		int nDevices = Pa_GetDeviceCount();
-		const PaDeviceInfo *pDeviceInfo;
-		for ( int nDevice = 0; nDevice < nDevices; nDevice++ ) {
-			pDeviceInfo = Pa_GetDeviceInfo( nDevice );
-			// Filter by HostAPI
-			if ( ! pPreferences->m_sPortAudioHostAPI.isNull() || pPreferences->m_sPortAudioHostAPI != "" ) {
-				if ( Pa_GetHostApiInfo( pDeviceInfo->hostApi )->name != pPreferences->m_sPortAudioHostAPI ) {
-					continue;
-				}
-			}
-
-			if ( pDeviceInfo->maxOutputChannels >= 2
-				 && QString::compare( m_sDevice,  pDeviceInfo->name, Qt::CaseInsensitive ) == 0 ) {
-				PaStreamParameters outputParameters;
-				memset( &outputParameters, '\0', sizeof( outputParameters ) );
-				outputParameters.channelCount = 2;
-				outputParameters.device = nDevice;
-				outputParameters.hostApiSpecificStreamInfo = NULL;
-				outputParameters.sampleFormat = paFloat32;
-
-				// Use the same latency setting as Pa_OpenDefaultStream() -- defaulting to the high suggested
-				// latency. This should probably be an option.
-				outputParameters.suggestedLatency =
-					Pa_GetDeviceInfo( nDevice )->defaultHighInputLatency;
-
-				err = Pa_OpenStream( &m_pStream,
-									 nullptr, /* No input stream */
-									 &outputParameters,
-									 m_nSampleRate, m_nBufferSize, paNoFlag,
-									 portAudioCallback, this );
-				if ( err != paNoError ) {
-					ERRORLOG( QString( "Found but can't open device '%1' (max %3 in, %4 out): %2" )
-							  .arg( m_sDevice ).arg( Pa_GetErrorText( err ) )
-							  .arg( pDeviceInfo->maxInputChannels ).arg( pDeviceInfo->maxOutputChannels ) );
-					// Use the default stream
-					break;
-				}
-				INFOLOG( QString( "Opened device '%1'" ).arg( m_sDevice ) );
-				bUseDefaultStream = false;
-				break;
+	// Find device to use
+	int nDevices = Pa_GetDeviceCount();
+	const PaDeviceInfo *pDeviceInfo;
+	for ( int nDevice = 0; nDevice < nDevices; nDevice++ ) {
+		pDeviceInfo = Pa_GetDeviceInfo( nDevice );
+		// Filter by HostAPI
+		if ( ! pPreferences->m_sPortAudioHostAPI.isNull() || pPreferences->m_sPortAudioHostAPI != "" ) {
+			if ( Pa_GetHostApiInfo( pDeviceInfo->hostApi )->name != pPreferences->m_sPortAudioHostAPI ) {
+				continue;
 			}
 		}
+
+		if ( pDeviceInfo->maxOutputChannels >= 2
+			 && ( QString::compare( m_sDevice,  pDeviceInfo->name, Qt::CaseInsensitive ) == 0 ||
+			      m_sDevice.isNull() || m_sDevice == "" ) ) {
+			PaStreamParameters outputParameters;
+			memset( &outputParameters, '\0', sizeof( outputParameters ) );
+			outputParameters.channelCount = 2;
+			outputParameters.device = nDevice;
+			outputParameters.hostApiSpecificStreamInfo = NULL;
+			outputParameters.sampleFormat = paFloat32;
+
+			// Use the same latency setting as Pa_OpenDefaultStream() -- defaulting to the high suggested
+			// latency. This should probably be an option.
+			outputParameters.suggestedLatency =
+				Pa_GetDeviceInfo( nDevice )->defaultHighInputLatency;
+			if ( pPreferences->m_nLatencyTarget > 0 ) {
+				outputParameters.suggestedLatency = pPreferences->m_nLatencyTarget * 1.0 / getSampleRate();
+			}
+
+			err = Pa_OpenStream( &m_pStream,
+								 nullptr, /* No input stream */
+								 &outputParameters,
+								 m_nSampleRate, paFramesPerBufferUnspecified, paNoFlag,
+								 portAudioCallback, this );
+			if ( err != paNoError ) {
+				ERRORLOG( QString( "Found but can't open device '%1' (max %3 in, %4 out): %2" )
+						  .arg( m_sDevice ).arg( Pa_GetErrorText( err ) )
+						  .arg( pDeviceInfo->maxInputChannels ).arg( pDeviceInfo->maxOutputChannels ) );
+				// Use the default stream
+				break;
+			}
+			INFOLOG( QString( "Opened device '%1'" ).arg( m_sDevice ) );
+			bUseDefaultStream = false;
+			break;
+		}
+
 		if ( bUseDefaultStream ) {
 			ERRORLOG( QString( "Can't use device '%1', using default stream" )
 					  .arg( m_sDevice ) );
@@ -208,13 +212,15 @@ int PortAudioDriver::connect()
 	}
 
 	if ( bUseDefaultStream ) {
+		// Failed to open the request device. Use the default device.
+		// Less than desirably, this will also use the default latency settings.
 		err = Pa_OpenDefaultStream(
 					&m_pStream,        /* passes back stream pointer */
 					0,              /* no input channels */
 					2,              /* stereo output */
 					paFloat32,      /* 32 bit floating point output */
 					m_nSampleRate,          // sample rate
-					m_nBufferSize,            // frames per buffer
+					paFramesPerBufferUnspecified, // frames per buffer
 					portAudioCallback, /* specify our custom callback */
 					this );        /* pass our data through to callback */
 	}
@@ -229,6 +235,7 @@ int PortAudioDriver::connect()
 		ERRORLOG( QString( "Couldn't get sample rate %d, using %d instead" ).arg( m_nSampleRate ).arg( pStreamInfo->sampleRate ) );
 		m_nSampleRate = (unsigned) pStreamInfo->sampleRate;
 	}
+	INFOLOG( QString( "PortAudio outpot latency: %1 s" ).arg( pStreamInfo->outputLatency ) );
 
 	err = Pa_StartStream( m_pStream );
 
@@ -268,12 +275,18 @@ void PortAudioDriver::disconnect()
 
 unsigned PortAudioDriver::getBufferSize()
 {
-	return m_nBufferSize;
+	return MAX_BUFFER_SIZE;
 }
 
 unsigned PortAudioDriver::getSampleRate()
 {
 	return m_nSampleRate;
+}
+
+int PortAudioDriver::getLatency()
+{
+	const PaStreamInfo *pStreamInfo = Pa_GetStreamInfo( m_pStream );
+	return (int)( pStreamInfo->outputLatency * getSampleRate() );
 }
 
 float* PortAudioDriver::getOut_L()

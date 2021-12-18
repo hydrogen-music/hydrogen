@@ -47,6 +47,15 @@ public:
 	virtual void disconnect() = 0;
 	virtual unsigned getBufferSize() = 0;
 	virtual unsigned getSampleRate() = 0;
+
+	/** Approximate audio latency (in frames)
+	 * A reasonable approximation is the buffer time on most audio systems.
+	 * For systems with variable buffer sizes, this isn't very useful though
+	 */
+	virtual int getLatency()
+	{
+		return getBufferSize();
+	}
 	virtual float* getOut_L() = 0;
 	virtual float* getOut_R() = 0;
 

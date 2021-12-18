@@ -579,6 +579,7 @@ int main(int argc, char *argv[])
 
 		pQApp->exec();
 
+		pPref->savePreferences();
 		delete pSplash;
 		delete pMainForm;
 		delete pQApp;

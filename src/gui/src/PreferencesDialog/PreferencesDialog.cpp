@@ -173,6 +173,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	portaudioHostAPIComboBox->setValue( pPref->m_sPortAudioHostAPI );
 	m_pAudioDeviceTxt->setHostAPI( pPref->m_sPortAudioHostAPI );
 
+	latencyTargetSpinBox->setValue( pPref->m_nLatencyTarget );
+
 
 	// Language selection menu
 	for ( QString sLang : Translations::availableTranslations( "hydrogen" ) ) {
@@ -603,6 +605,7 @@ void PreferencesDialog::updateDriverPreferences() {
 		pPref->m_sAudioDriver = "PortAudio";
 		pPref->m_sPortAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
 		pPref->m_sPortAudioHostAPI = portaudioHostAPIComboBox->currentText();
+		pPref->m_nLatencyTarget = latencyTargetSpinBox->value();
 	}
 	else if (driverComboBox->currentText() == "CoreAudio" ) {
 		pPref->m_sAudioDriver = "CoreAudio";
@@ -852,7 +855,7 @@ void PreferencesDialog::updateDriverInfo()
 		}
 		m_pAudioDeviceTxt->setEnabled( true );
 		m_pAudioDeviceTxt->lineEdit()->setText( "" );
-		bufferSizeSpinBox->setEnabled( true );
+		bufferSizeSpinBox->setEnabled( false );
 		sampleRateComboBox->setEnabled( true );
 		trackOutputComboBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled( false );
@@ -862,6 +865,9 @@ void PreferencesDialog::updateDriverInfo()
 		jackBBTSyncLbl->setEnabled( false );
 		portaudioHostAPIComboBox->hide();
 		portaudioHostAPILabel->hide();
+		latencyTargetLabel->hide();
+		latencyTargetSpinBox->hide();
+		latencyValueLabel->hide();
 		if ( std::strcmp( H2Core::Hydrogen::get_instance()->getAudioOutput()->class_name(),
 						  "JackAudioDriver" ) == 0 ) {
 			trackOutputComboBox->setEnabled( true );
@@ -915,6 +921,9 @@ void PreferencesDialog::updateDriverInfo()
 		jackBBTSyncLbl->hide();
 		portaudioHostAPIComboBox->hide();
 		portaudioHostAPILabel->hide();
+		latencyTargetLabel->hide();
+		latencyTargetSpinBox->hide();
+		latencyValueLabel->hide();
 	}
 	else if ( driverComboBox->currentText() == "JACK" ) {	// JACK
 		info.append( "<b>" )
@@ -944,6 +953,9 @@ void PreferencesDialog::updateDriverInfo()
 		jackBBTSyncLbl->show();
 		portaudioHostAPIComboBox->hide();
 		portaudioHostAPILabel->hide();
+		latencyTargetLabel->hide();
+		latencyTargetSpinBox->hide();
+		latencyValueLabel->hide();
 	}
 	else if ( driverComboBox->currentText() == "ALSA" ) {	// ALSA
 		info.append( "<b>" ).append( tr( "ALSA Driver" ) )
@@ -967,6 +979,9 @@ void PreferencesDialog::updateDriverInfo()
 		jackBBTSyncLbl->hide();
 		portaudioHostAPIComboBox->hide();
 		portaudioHostAPILabel->hide();
+		latencyTargetLabel->hide();
+		latencyTargetSpinBox->hide();
+		latencyValueLabel->hide();
 	}
 	else if ( driverComboBox->currentText() == "PortAudio" ) {
 		info.append( "<b>" ).append( tr( "PortAudio Driver" ) )
@@ -979,7 +994,7 @@ void PreferencesDialog::updateDriverInfo()
 		}
 		m_pAudioDeviceTxt->setEnabled( true );
 		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sPortAudioDevice );
-		bufferSizeSpinBox->setEnabled(true);
+		bufferSizeSpinBox->setEnabled(false);
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
 		trackOutputLbl->hide();
@@ -990,6 +1005,11 @@ void PreferencesDialog::updateDriverInfo()
 		jackBBTSyncLbl->hide();
 		portaudioHostAPIComboBox->show();
 		portaudioHostAPILabel->show();
+		latencyTargetLabel->show();
+		latencyTargetSpinBox->show();
+		latencyValueLabel->show();
+		latencyValueLabel->setText( QString("Current: %1 frames").arg( H2Core::Hydrogen::get_instance()->getAudioOutput()->getLatency() ) );
+
 	}
 	else if ( driverComboBox->currentText() == "CoreAudio" ) {
 		info.append( "<b>" ).append( tr( "CoreAudio Driver" ) )
@@ -1002,7 +1022,7 @@ void PreferencesDialog::updateDriverInfo()
 		}
 		m_pAudioDeviceTxt->setEnabled( true );
 		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sCoreAudioDevice );
-		bufferSizeSpinBox->setEnabled(true);
+		bufferSizeSpinBox->setEnabled( false );
 		sampleRateComboBox->setEnabled(true);
 		trackOutputComboBox->hide();
 		trackOutputLbl->hide();
@@ -1013,6 +1033,9 @@ void PreferencesDialog::updateDriverInfo()
 		jackBBTSyncLbl->hide();
 		portaudioHostAPIComboBox->hide();
 		portaudioHostAPILabel->hide();
+		latencyTargetLabel->hide();
+		latencyTargetSpinBox->hide();
+		latencyValueLabel->hide();
 	}
 	else if ( driverComboBox->currentText() == "PulseAudio" ) {
 		info.append( "<b>" ).append( tr( "PulseAudio Driver" ) )
@@ -1036,6 +1059,9 @@ void PreferencesDialog::updateDriverInfo()
 		jackBBTSyncLbl->hide();
 		portaudioHostAPIComboBox->hide();
 		portaudioHostAPILabel->hide();
+		latencyTargetLabel->hide();
+		latencyTargetSpinBox->hide();
+		latencyValueLabel->hide();
 	}
 	else {
 		QString selectedDriver = driverComboBox->currentText();
@@ -1210,6 +1236,12 @@ void PreferencesDialog::on_mixerFalloffComboBox_currentIndexChanged( int nIndex 
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
+void PreferencesDialog::on_latencyTargetSpinBox_valueChanged( int i )
+{
+	UNUSED( i );
+	m_bNeedDriverRestart = true;
+}
+
 void PreferencesDialog::on_bufferSizeSpinBox_valueChanged( int i )
 {
 	UNUSED( i );
@@ -1233,6 +1265,7 @@ void PreferencesDialog::on_restartDriverBtn_clicked()
 	Hydrogen::get_instance()->restartDrivers();
 	pPref->savePreferences();
 	m_bNeedDriverRestart = false;
+	updateDriverInfo();
 }
 
 void PreferencesDialog::on_midiPortComboBox_activated( int index )
