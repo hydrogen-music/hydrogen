@@ -217,6 +217,12 @@ public:
 	 * loaded with a nullptr instead.
 	 */
 	void reinitializePlaybackTrack();
+
+	/** 
+	 * Recalculates all note starts to make them valid again after a
+	 * TempoMarker was added to or deleted from the #Timeline.
+	 */
+	void handleTimelineChange();
 	
 private:
 	std::vector<Note*> m_playingNotesQueue;

@@ -1242,23 +1242,18 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 	while ( !m_songNoteQueue.empty() ) {
 		Note *pNote = m_songNoteQueue.top();
 
-		// Check whether note start is still valid or need to be
-		// refreshed.
-		if ( pHydrogen->isTimelineEnabled() &&
-			 pNote->getUsedTickSize() != -1 ) {
-			double fTickOffset;
-			pNote->setNoteStart( computeFrameFromTick( pNote->get_position(), &fTickOffset ) );
+		// Compute the note start in frames corresponding to nnTick
+		// and the tick sized used to calculate it.
+		double fTickOffset;
+		// verifico se la nota rientra in questo ciclo
+		long long nNoteStartInFrames = computeFrameFromTick( pNote->get_position(), &fTickOffset );
+		pNote->setNoteStart( nNoteStartInFrames );
+		if ( pHydrogen->isTimelineEnabled() ) {
 			pNote->setUsedTickSize( -1 );
-		} else if ( ! pHydrogen->isTimelineEnabled() &&
-					pNote->getUsedTickSize() != getTickSize() ) {
-			double fTickOffset;
-			pNote->setNoteStart( computeFrameFromTick( pNote->get_position(), &fTickOffset ) );
+		} else {
 			pNote->setUsedTickSize( getTickSize() );
 		}
-
-		// verifico se la nota rientra in questo ciclo
-		long long nNoteStartInFrames = pNote->getNoteStart();
-
+		
 		// if there is a negative Humanize delay, take into account so
 		// we don't miss the time slice.  ignore positive delay, or we
 		// might end the queue processing prematurely based on NoteQueue
@@ -1934,20 +1929,6 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 				nPatternTickPosition = nnTick % nPatternSize;
 			}
 		}
-
-		// Compute the note start in frames corresponding to nnTick
-		// and the tick sized used to calculate it.
-		if ( ( nPatternTickPosition % 48 == 0 &&
-			   Preferences::get_instance()->m_bUseMetronome ) ||
-			 m_pPlayingPatterns->size() != 0 ) {
-
-			nNoteStart = computeFrameFromTick( nnTick, &fTickOffset );
-			if ( pHydrogen->isTimelineEnabled() ) {
-				fUsedTickSize = -1;
-			} else {
-				fUsedTickSize = getTickSize();
-			}
-		}
 		
 		//////////////////////////////////////////////////////////////
 		// Metronome
@@ -1983,8 +1964,6 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 												 fPitch
 												 );
 				m_pMetronomeInstrument->enqueue();
-				pMetronomeNote->setNoteStart( nNoteStart );
-				pMetronomeNote->setUsedTickSize( fUsedTickSize );
 				m_songNoteQueue.push( pMetronomeNote );
 			}
 		}
@@ -2078,8 +2057,6 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 						// Why a copy? because it has the new offset (including swing and random timing) in its
 						// humanized delay, and tick position is expressed referring to start time (and not pattern).
 						Note *pCopiedNote = new Note( pNote );
-						pCopiedNote->setNoteStart( nNoteStart );
-						pCopiedNote->setUsedTickSize( fUsedTickSize );
 						pCopiedNote->set_humanize_delay( nOffset );
 
 						// DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nnTick: %3, " )
@@ -2197,6 +2174,7 @@ void AudioEngine::handleTimelineChange() {
 
 	setFrames( computeFrameFromTick( getDoubleTick(), &m_fTickOffset ) );
 	updateBpmAndTickSize();
+	getSampler()->handleTimelineChange();
 	
 #ifdef H2CORE_HAVE_JACK
 	if ( Hydrogen::get_instance()->haveJackTransport() ) {

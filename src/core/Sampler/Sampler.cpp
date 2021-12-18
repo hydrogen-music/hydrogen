@@ -403,6 +403,19 @@ inline float Sampler::panLaw( float fPan, std::shared_ptr<Song> pSong ) {
 	}
 }
 
+void Sampler::handleTimelineChange() {
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	double fTickOffset;
+	
+	for ( const auto& nnote : m_playingNotesQueue ) {
+		if ( ! std::isnan( nnote->getUsedTickSize() ) ) {
+			nnote->setUsedTickSize( -1 );
+			nnote->setNoteStart( pAudioEngine->computeFrameFromTick( nnote->get_position(),
+																	 &fTickOffset ) );
+		}
+	}
+}
+
 //------------------------------------------------------------------
 
 /// Render a note
