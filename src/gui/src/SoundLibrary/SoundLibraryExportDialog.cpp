@@ -55,7 +55,7 @@ SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,  const QSt
 	, m_preselectedKitLookup( lookup )
 {
 	setupUi( this );
-	INFOLOG( "INIT" );
+	
 	setWindowTitle( tr( "Export Sound Library" ) );
 	m_sSysDrumkitSuffix = " (system)";
 	updateDrumkitList();

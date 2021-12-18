@@ -71,7 +71,7 @@ Director::Director ( QWidget* pParent )
 
 	HydrogenApp::get_instance()->addEventListener( this );
 	setupUi ( this );
-	//INFOLOG ( "INIT" );
+	//
 	setWindowTitle ( tr ( "Director" ) );
 
 	m_nCounter = 1;	// to compute the right beat

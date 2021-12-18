@@ -76,7 +76,7 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  , m_bInItsOwnDialog( bInItsOwnDialog )
 {
 	
-	//INFOLOG( "INIT" );
+	//
 	__drumkit_menu = new QMenu( this );
 	__drumkit_menu->addAction( tr( "Load" ), this, SLOT( on_drumkitLoadAction() ) );
 	__drumkit_menu->addAction( tr( "Export" ), this, SLOT( on_drumkitExportAction() ) );

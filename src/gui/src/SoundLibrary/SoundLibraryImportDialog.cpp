@@ -50,7 +50,7 @@ SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent, bool bOnli
  : QDialog( pParent )
 {
 	setupUi( this );
-	INFOLOG( "INIT" );
+	
 	setWindowTitle( tr( "Sound Library import" ) );
 
 	QStringList headers;

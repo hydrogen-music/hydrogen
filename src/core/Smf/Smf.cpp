@@ -37,7 +37,7 @@ SMFHeader::SMFHeader( int nFormat, int nTracks, int nTPQN )
 		, m_nTracks( nTracks )
 		, m_nTPQN( nTPQN )
 {
-	INFOLOG( "INIT" );
+	
 }
 
 
@@ -70,7 +70,7 @@ std::vector<char> SMFHeader::getBuffer()
 SMFTrack::SMFTrack()
 		: Object()
 {
-	INFOLOG( "INIT" );
+	
 }
 
 
@@ -138,7 +138,7 @@ void SMFTrack::addEvent( SMFEvent *pEvent )
 
 SMF::SMF(int nFormat, int nTPQN )
 {
-	INFOLOG( "INIT" );
+	
 
 	m_pHeader = new SMFHeader( nFormat, 0, nTPQN );
 }
@@ -199,7 +199,7 @@ constexpr unsigned int NOTE_LENGTH = 12;
 
 SMFWriter::SMFWriter()
 {
-	INFOLOG( "INIT" );
+	
 }
 
 
