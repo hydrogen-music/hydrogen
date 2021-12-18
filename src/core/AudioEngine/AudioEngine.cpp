@@ -1268,9 +1268,9 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 			nNoteStartInFrames += pNote->get_humanize_delay();
 		}
 
-		// DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nframes: %3, " )
-		// 		  .arg( getDoubleTick() ).arg( getFrames() )
-		// 		  .arg( nframes ).append( pNote->toQString( "", true ) ) );
+		DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nframes: %3, " )
+				  .arg( getDoubleTick() ).arg( getFrames() )
+				  .arg( nframes ).append( pNote->toQString( "", true ) ) );
 
 		if ( nNoteStartInFrames <
 			 nFrames + static_cast<long long>(nframes) ) {
@@ -1457,19 +1457,20 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	int nResNoteQueue = pAudioEngine->updateNoteQueue( nframes );
 	if ( nResNoteQueue == -1 ) {	// end of song
 		___INFOLOG( "End of song received, calling engine_stop()" );
-		pAudioEngine->unlock();
 		pAudioEngine->stop();
+		pAudioEngine->stopPlayback();
 		pAudioEngine->locate( 0 ); // locate 0, reposition from start of the song
 
 		if ( (pAudioEngine->m_pAudioDriver->class_name() == DiskWriterDriver::_class_name() )
 			 || ( pAudioEngine->m_pAudioDriver->class_name() == FakeDriver::_class_name() )
 			 ) {
+			pAudioEngine->unlock();
 			___INFOLOG( "End of song." );
 			
 			return 1;	// kill the audio AudioDriver thread
 		}
 
-		return 0;
+		// return 0;
 	} else if ( nResNoteQueue == 2 ) { // send pattern change
 		bSendPatternChange = true;
 	}
@@ -2082,9 +2083,9 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 						pCopiedNote->setUsedTickSize( fUsedTickSize );
 						pCopiedNote->set_humanize_delay( nOffset );
 
-						// DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nnTick: %3, " )
-						// 		  .arg( getDoubleTick() ).arg( getFrames() ).arg( nnTick )
-						// 		  .append( pCopiedNote->toQString("", true ) ) );
+						DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nnTick: %3, " )
+								  .arg( getDoubleTick() ).arg( getFrames() ).arg( nnTick )
+								  .append( pCopiedNote->toQString("", true ) ) );
 						
 						pCopiedNote->set_position( nnTick );
 						if ( pHydrogen->getMode() == Song::Mode::Song ) {
