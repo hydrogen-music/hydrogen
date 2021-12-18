@@ -1502,9 +1502,15 @@ void Hydrogen::setUseTimelineBpm( bool bEnabled ) {
 	if ( bEnabled != pPref->getUseTimelineBpm() ) {
 		pPref->setUseTimelineBpm( bEnabled );
 
+		if ( bEnabled ) {
+			getTimeline()->activate();
+		} else {
+			getTimeline()->deactivate();
+		}
+
 		EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION, static_cast<int>( bEnabled ) );
 	}
-}	
+}
 
 int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartTick ) const
 {

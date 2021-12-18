@@ -582,10 +582,19 @@ bool CoreActionController::activateTimeline( bool bActivate ) {
 }
 
 bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
-	auto pTimeline = Hydrogen::get_instance()->getTimeline();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pTimeline = pHydrogen->getTimeline();
+
+	pAudioEngine->lock( RIGHT_HERE );
+
 	pTimeline->deleteTempoMarker( nPosition );
 	pTimeline->addTempoMarker( nPosition, fBpm );
-	Hydrogen::get_instance()->setIsModified( true );
+	pHydrogen->getAudioEngine()->handleTimelineChange();
+
+	pAudioEngine->unlock();
+	
+	pHydrogen->setIsModified( true );
 
 	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
 
@@ -593,8 +602,17 @@ bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
 }
 
 bool CoreActionController::deleteTempoMarker( int nPosition ) {
-	Hydrogen::get_instance()->getTimeline()->deleteTempoMarker( nPosition );
-	Hydrogen::get_instance()->setIsModified( true );
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	pAudioEngine->lock( RIGHT_HERE );
+	
+	pHydrogen->getTimeline()->deleteTempoMarker( nPosition );
+	pHydrogen->getAudioEngine()->handleTimelineChange();
+
+	pAudioEngine->unlock();
+	
+	pHydrogen->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
 
 	return true;

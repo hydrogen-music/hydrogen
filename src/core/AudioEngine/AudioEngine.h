@@ -409,6 +409,17 @@ public:
 
 	void updateSongSize();
 
+	/**
+	 * Fixes transport state after adding or deleting a TempoMarker.
+	 *
+	 * If the #Timeline is activated, adding or removing a TempoMarker
+	 * does effectively has the same effects as a relocation with
+	 * respect to the transport position in frames. It's tick
+	 * counterpart, however, is not affected. This function ensures
+	 * they are in sync again.
+	 */
+	void handleTimelineChange();
+
 	/** 
 	 * Unit test checking the incremental update of the transport
 	 * position in audioEngine_process().

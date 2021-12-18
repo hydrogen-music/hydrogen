@@ -1096,7 +1096,7 @@ void PlayerControl::tempoChangedEvent( int nValue )
 		// AudioEngine.
 		auto pHydrogen = H2Core::Hydrogen::get_instance();
 		if ( pHydrogen->getTempoSource() == H2Core::Hydrogen::Tempo::Timeline ) {
-			QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used left of the first Tempo Marker and takes full effect when deactivating the Timeline.") );
+			QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.") );
 		} else if ( pHydrogen->getTempoSource() ==
 					H2Core::Hydrogen::Tempo::Jack ) {
 			QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK BBT transport or making Hydrogen the Timebase master.") );

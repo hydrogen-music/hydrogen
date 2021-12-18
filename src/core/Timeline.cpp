@@ -30,6 +30,7 @@ namespace H2Core
 {
 
 Timeline::Timeline() : Object( )
+					 , m_fDefaultBpm( 120 )
 {
 }
 
@@ -38,6 +39,13 @@ Timeline::~Timeline() {
 	m_tags.clear();
 }
 
+void Timeline::activate() {
+	m_fDefaultBpm = Hydrogen::get_instance()->getSong()->getBpm();
+}
+
+void Timeline::deactivate() {
+}
+	
 void Timeline::addTempoMarker( int nColumn, float fBpm ) {
 	if ( fBpm < MIN_BPM ) {
 		fBpm = MIN_BPM;
@@ -80,7 +88,7 @@ float Timeline::getTempoAtColumn( int nColumn ) const {
 	auto pHydrogen = Hydrogen::get_instance();
 		
 	if ( m_tempoMarkers.size() == 0 ) {
-		return pHydrogen->getSong()->getBpm();
+		return m_fDefaultBpm;
 	}
 
 	float fBpm;
@@ -90,7 +98,7 @@ float Timeline::getTempoAtColumn( int nColumn ) const {
 		nColumn = 0;
 	}
 	if ( isFirstTempoMarkerSpecial() && nColumn < m_tempoMarkers[ 0 ]->nColumn ) {
-		fBpm = pHydrogen->getSong()->getBpm();
+		fBpm = m_fDefaultBpm;
 	} else {
 		for ( int ii = 0; ii < static_cast<int>(m_tempoMarkers.size()); ii++) {
 			if ( m_tempoMarkers[ ii ]->nColumn > nColumn ) {
@@ -133,7 +141,7 @@ const std::vector<std::shared_ptr<const Timeline::TempoMarker>> Timeline::getAll
 
 		std::shared_ptr<TempoMarker> pTempoMarker = std::make_shared<TempoMarker>();
 		pTempoMarker->nColumn = 0;
-		pTempoMarker->fBpm = Hydrogen::get_instance()->getSong()->getBpm();
+		pTempoMarker->fBpm = m_fDefaultBpm;
 
 		int nNumberOfTempoMarkers = m_tempoMarkers.size();
 		std::vector<std::shared_ptr<const TempoMarker>> tmpVector;

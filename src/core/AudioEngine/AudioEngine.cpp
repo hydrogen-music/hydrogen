@@ -378,7 +378,6 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 	const auto pDriver = pHydrogen->getAudioOutput();
 
 	// We relocate transport to the exact position of the tick
-	m_fTickOffset = 0;
 	m_fLastTickIntervalEnd = -1;
 	m_nLastPlayingPatternsColumn = -1;
 
@@ -1268,9 +1267,9 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 			nNoteStartInFrames += pNote->get_humanize_delay();
 		}
 
-		DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nframes: %3, " )
-				  .arg( getDoubleTick() ).arg( getFrames() )
-				  .arg( nframes ).append( pNote->toQString( "", true ) ) );
+		// DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nframes: %3, " )
+		// 		  .arg( getDoubleTick() ).arg( getFrames() )
+		// 		  .arg( nframes ).append( pNote->toQString( "", true ) ) );
 
 		if ( nNoteStartInFrames <
 			 nFrames + static_cast<long long>(nframes) ) {
@@ -2083,9 +2082,9 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 						pCopiedNote->setUsedTickSize( fUsedTickSize );
 						pCopiedNote->set_humanize_delay( nOffset );
 
-						DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nnTick: %3, " )
-								  .arg( getDoubleTick() ).arg( getFrames() ).arg( nnTick )
-								  .append( pCopiedNote->toQString("", true ) ) );
+						// DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nnTick: %3, " )
+						// 		  .arg( getDoubleTick() ).arg( getFrames() ).arg( nnTick )
+						// 		  .append( pCopiedNote->toQString("", true ) ) );
 						
 						pCopiedNote->set_position( nnTick );
 						if ( pHydrogen->getMode() == Song::Mode::Song ) {
@@ -2192,6 +2191,20 @@ double AudioEngine::getDoubleTick() const {
 
 long AudioEngine::getTick() const {
 	return static_cast<long>(std::floor( getDoubleTick() ));
+}
+
+void AudioEngine::handleTimelineChange() {
+
+	setFrames( computeFrameFromTick( getDoubleTick(), &m_fTickOffset ) );
+	updateBpmAndTickSize();
+	
+#ifdef H2CORE_HAVE_JACK
+	if ( Hydrogen::get_instance()->haveJackTransport() ) {
+		// Tell all other JACK clients to relocate as well. This has
+		// to be called after updateFrames().
+		static_cast<JackAudioDriver*>( m_pAudioDriver )->locateTransport( getFrames() );
+	}
+#endif
 }
 
 bool AudioEngine::testTransportProcessing() {
