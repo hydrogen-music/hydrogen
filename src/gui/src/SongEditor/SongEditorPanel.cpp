@@ -172,6 +172,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pMutePlaybackBtn = new Button( pBackPanel, QSize( 34, 17 ), Button::Type::Toggle, "", pCommonStrings->getBigMuteButton(), true, QSize(), tr( "Mute playback track" ) );
 	m_pMutePlaybackBtn->move( 158, 4 );
 	m_pMutePlaybackBtn->hide();
+	m_pMutePlaybackBtn->setChecked( pHydrogen->getPlaybackTrackState() );
 	connect( m_pMutePlaybackBtn, SIGNAL( pressed() ), this, SLOT( mutePlaybackTrackBtnPressed() ) );
 	m_pMutePlaybackBtn->setChecked( !pSong->getPlaybackTrackEnabled() );
 	
@@ -713,8 +714,8 @@ void SongEditorPanel::mutePlaybackTrackBtnPressed()
 
 	bool bState = ! m_pMutePlaybackBtn->isChecked();
 
-	bState = pHydrogen->setPlaybackTrackState( bState );
-	m_pMutePlaybackBtn->setChecked( !bState );
+	bState = pHydrogen->setPlaybackTrackState( ! bState );
+	m_pMutePlaybackBtn->setChecked( bState );
 }
 
 void SongEditorPanel::editPlaybackTrackBtnPressed()
