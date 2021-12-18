@@ -304,6 +304,15 @@ class Note : public H2Core::Object<Note>
 
 	void setNoteStart( long long nNoteStart );
 	long long getNoteStart() const;
+
+	void setUsedTickSize( float fTickSize );
+	float getUsedTickSize() const;
+
+	/** 
+	 * @return true if the #Sampler already started rendering this
+	 * note.
+	 */
+	bool isPartiallyRendered() const;
 	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -353,6 +362,17 @@ class Note : public H2Core::Object<Note>
 	 * not written to disk.
 	*/
 	long long m_nNoteStart;
+	/**
+	 * TransportInfo::m_fTickSize used to calculate #m_nNoteStart.
+	 *
+	 * If #m_nNoteStart was calculated in the presence of an active
+	 * #Timeline, it will be set to -1.
+	 *
+	 * Used to check whether the note start has to be rescaled because
+	 * of a change in speed (which occurs less often and is faster
+	 * than recalculating #m_nNoteStart everywhere it is required.)
+	 */
+	float m_fUsedTickSize;
 };
 
 // DEFINITIONS
@@ -607,6 +627,12 @@ inline long long Note::getNoteStart() const {
 }
 inline void Note::setNoteStart( long long nNoteStart ) {
 	m_nNoteStart = nNoteStart;
+}
+inline float Note::getUsedTickSize() const {
+	return m_fUsedTickSize;
+}
+inline void Note::setUsedTickSize( float fUsedTickSize ) {
+	m_fUsedTickSize = fUsedTickSize;
 }
 };
 

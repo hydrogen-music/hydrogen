@@ -748,6 +748,7 @@ private:
 		TransportInfo::m_nTick. */
 	double m_fTickOffset;
 	double m_fLastTickIntervalEnd;
+	int m_nLastPlayingPatternsColumn;
 };
 
 

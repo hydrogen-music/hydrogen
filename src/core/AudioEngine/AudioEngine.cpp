@@ -123,6 +123,7 @@ AudioEngine::AudioEngine()
 		, m_fNextBpm( 120 )
 		, m_fTickOffset( 0 )
 		, m_fLastTickIntervalEnd( -1 )
+		, m_nLastPlayingPatternsColumn( -1 )
 {
 
 	m_pSampler = new Sampler;
@@ -336,6 +337,7 @@ void AudioEngine::reset() {
 	m_nPatternTickPosition = 0;
 	m_fTickOffset = 0;
 	m_fLastTickIntervalEnd = -1;
+	m_nLastPlayingPatternsColumn = -1;
 
 	updateBpmAndTickSize();
 	
@@ -378,6 +380,7 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 	// We relocate transport to the exact position of the tick
 	m_fTickOffset = 0;
 	m_fLastTickIntervalEnd = -1;
+	m_nLastPlayingPatternsColumn = -1;
 
 	long long nNewFrame = computeFrameFromTick( fTick, &m_fTickOffset );
 	setFrames( nNewFrame );
@@ -400,6 +403,7 @@ void AudioEngine::locateToFrame( const long long nFrame ) {
 	double fNewTick = computeTickFromFrame( nFrame );
 	m_fTickOffset = 0;
 	m_fLastTickIntervalEnd = -1;
+	m_nLastPlayingPatternsColumn = -1;
 	
 	updateTransportPosition( fNewTick, pHydrogen->getSong()->getIsLoopEnabled() );
 }
@@ -1239,6 +1243,20 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 	while ( !m_songNoteQueue.empty() ) {
 		Note *pNote = m_songNoteQueue.top();
 
+		// Check whether note start is still valid or need to be
+		// refreshed.
+		if ( pHydrogen->isTimelineEnabled() &&
+			 pNote->getUsedTickSize() != -1 ) {
+			double fTickOffset;
+			pNote->setNoteStart( computeFrameFromTick( pNote->get_position(), &fTickOffset ) );
+			pNote->setUsedTickSize( -1 );
+		} else if ( ! pHydrogen->isTimelineEnabled() &&
+					pNote->getUsedTickSize() != getTickSize() ) {
+			double fTickOffset;
+			pNote->setNoteStart( computeFrameFromTick( pNote->get_position(), &fTickOffset ) );
+			pNote->setUsedTickSize( getTickSize() );
+		}
+
 		// verifico se la nota rientra in questo ciclo
 		long long nNoteStartInFrames = pNote->getNoteStart();
 
@@ -1250,12 +1268,12 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 			nNoteStartInFrames += pNote->get_humanize_delay();
 		}
 
-		// m_nTotalFrames <= NotePos < m_nTotalFrames + bufferSize
-		bool isNoteStart = ( ( nNoteStartInFrames >= nFrames )
-							 && ( nNoteStartInFrames < ( nFrames + nframes ) ) );
-		bool isOldNote = nNoteStartInFrames < nFrames;
+		// DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nframes: %3, " )
+		// 		  .arg( getDoubleTick() ).arg( getFrames() )
+		// 		  .arg( nframes ).append( pNote->toQString( "", true ) ) );
 
-		if ( isNoteStart || isOldNote ) {
+		if ( nNoteStartInFrames <
+			 nFrames + static_cast<long long>(nframes) ) {
 			/* Check if the current note has probability != 1
 			 * If yes remove call random function to dequeue or not the note
 			 */
@@ -1284,7 +1302,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 
 			// Offset + Random Pitch ;)
 			float fPitch = pNote->get_pitch() + pNote->get_instrument()->get_pitch_offset();
-			/* Check if the current instrument has random picth factor != 0.
+			/* Check if the current instrument has random pitch factor != 0.
 			 * If yes add a gaussian perturbation to the pitch
 			 */
 			float fRandomPitchFactor = pNote->get_instrument()->get_random_pitch_factor();
@@ -1292,7 +1310,6 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 				fPitch += getGaussian( 0.4 ) * fRandomPitchFactor;
 			}
 			pNote->set_pitch( fPitch );
-
 
 			/*
 			 * Check if the current instrument has the property "Stop-Note" set.
@@ -1312,7 +1329,6 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 			}
 
 			m_pSampler->noteOn( pNote );
-			// DEBUGLOG( pNote->toQString("", true ) );
 			m_songNoteQueue.pop(); // rimuovo la nota dalla lista di note
 			pNote->get_instrument()->dequeue();
 			// raise noteOn event
@@ -1558,9 +1574,10 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			( finishTimeval.tv_sec - startTimeval.tv_sec ) * 1000.0
 			+ ( finishTimeval.tv_usec - startTimeval.tv_usec ) / 1000.0;
 
-	if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
-		INFOLOG(pAudioEngine->m_fProcessTime);
-	}
+	// if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
+	// 	INFOLOG(pAudioEngine->m_fProcessTime);
+	// }
+	
 #ifdef CONFIG_DEBUG
 	if ( pAudioEngine->m_fProcessTime > m_fMaxProcessTime ) {
 		___WARNINGLOG( "" );
@@ -1695,39 +1712,43 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 	*fTickStart = computeTickFromFrame( nFrameStart );
 	*fTickEnd = computeTickFromFrame( nFrameEnd );
 
-	// If there was a change in ticksize, account for the last used
-	// lookahead to ensure the tick intervals are aligned.
-	if ( m_fLastTickIntervalEnd != -1 &&
-		 m_fLastTickIntervalEnd != *fTickStart ) {
-		if ( m_fLastTickIntervalEnd > *fTickEnd ) {
-			// The last lookahead was larger than the end of the
-			// current interval would reach. We will remain at the
-			// former interval end until the lookahead was eaten up in
-			// future calls to updateNoteQueue() to not produce
-			// glitches by non-aligned tick intervals.
-			*fTickStart = m_fLastTickIntervalEnd;
-			*fTickEnd = m_fLastTickIntervalEnd;
-		} else {
-			*fTickStart = m_fLastTickIntervalEnd;
+	// Used both in State::Playing with transport is rolling and
+	// State::Prepared during the unit tests.
+	if ( getState() != State::Ready ) {
+		// If there was a change in ticksize, account for the last used
+		// lookahead to ensure the tick intervals are aligned.
+		if ( m_fLastTickIntervalEnd != -1 &&
+			 m_fLastTickIntervalEnd != *fTickStart ) {
+			if ( m_fLastTickIntervalEnd > *fTickEnd ) {
+				// The last lookahead was larger than the end of the
+				// current interval would reach. We will remain at the
+				// former interval end until the lookahead was eaten up in
+				// future calls to updateNoteQueue() to not produce
+				// glitches by non-aligned tick intervals.
+				*fTickStart = m_fLastTickIntervalEnd;
+				*fTickEnd = m_fLastTickIntervalEnd;
+			} else {
+				*fTickStart = m_fLastTickIntervalEnd;
+			}
 		}
-	}
 
-	// DEBUGLOG( QString( "tick: [%1,%2], curr tick: %5, curr frame: %4, nFrames: %3, realtime: %6, m_fTickOffset: %7, ticksize: %8, leadlag: %9, nlookahead: %10, m_fLastTickIntervalEnd: %11" )
-	// 		  .arg( *fTickStart, 0, 'f' )
-	// 		  .arg( *fTickEnd, 0, 'f' )
-	// 		  .arg( nFrames )
-	// 		  .arg( getFrames() )
-	// 		  .arg( getDoubleTick(), 0, 'f' )
-	// 		  .arg( getRealtimeFrames() )
-	// 		  .arg( m_fTickOffset, 0, 'f' )
-	// 		  .arg( getTickSize(), 0, 'f' )
-	// 		  .arg( nLeadLagFactor )
-	// 		  .arg( nLookahead )
-	// 		  .arg( m_fLastTickIntervalEnd, 0, 'f' )
-	// 		  );
+		// DEBUGLOG( QString( "tick: [%1,%2], curr tick: %5, curr frame: %4, nFrames: %3, realtime: %6, m_fTickOffset: %7, ticksize: %8, leadlag: %9, nlookahead: %10, m_fLastTickIntervalEnd: %11" )
+		// 		  .arg( *fTickStart, 0, 'f' )
+		// 		  .arg( *fTickEnd, 0, 'f' )
+		// 		  .arg( nFrames )
+		// 		  .arg( getFrames() )
+		// 		  .arg( getDoubleTick(), 0, 'f' )
+		// 		  .arg( getRealtimeFrames() )
+		// 		  .arg( m_fTickOffset, 0, 'f' )
+		// 		  .arg( getTickSize(), 0, 'f' )
+		// 		  .arg( nLeadLagFactor )
+		// 		  .arg( nLookahead )
+		// 		  .arg( m_fLastTickIntervalEnd, 0, 'f' )
+		// 		  );
 
-	if ( m_fLastTickIntervalEnd < *fTickEnd ) {
-		m_fLastTickIntervalEnd = *fTickEnd;
+		if ( m_fLastTickIntervalEnd < *fTickEnd ) {
+			m_fLastTickIntervalEnd = *fTickEnd;
+		}
 	}
 
 	return nLeadLagFactor;
@@ -1749,6 +1770,26 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 
 	// Get initial timestamp for first tick
 	gettimeofday( &m_currentTickTime, nullptr );
+		
+	// MIDI events now get put into the `m_songNoteQueue` as well,
+	// based on their timestamp (which is given in terms of its
+	// transport position and not in terms of the date-time as above).
+	while ( m_midiNoteQueue.size() > 0 ) {
+		Note *pNote = m_midiNoteQueue[0];
+		if ( pNote->get_position() >
+			 static_cast<long long>(std::floor( fTickEnd )) ) {
+			break;
+		}
+
+		m_midiNoteQueue.pop_front();
+		pNote->get_instrument()->enqueue();
+		m_songNoteQueue.push( pNote );
+	}
+
+	if ( getState() != State::Playing ) {
+		// only keep going if we're playing
+		return 0;
+	}
 
 	// Use local representations of the current transport position in
 	// order for it to not get into a dirty state.
@@ -1756,32 +1797,16 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 	long nPatternStartTick = m_nPatternStartTick;
 	long nPatternTickPosition = m_nPatternTickPosition;
 	long long nNoteStart;
+	float fUsedTickSize;
 
 	double fTickOffset;
 
 	AutomationPath* pAutomationPath = pSong->getVelocityAutomationPath();
 
-	// A tick is the most fine-grained time scale within Hydrogen.
+	// We loop over integer ticks to ensure that all notes encountered
+	// between two cycles belong to the same pattern.
 	for ( long nnTick = static_cast<long>(std::floor(fTickStart));
 		  nnTick < static_cast<long>(std::floor(fTickEnd)); nnTick++ ) {
-		
-		// MIDI events now get put into the `m_songNoteQueue` as well,
-		// based on their timestamp (which is given in terms of its
-		// transport position and not in terms of the date-time as
-		// above).
-		while ( m_midiNoteQueue.size() > 0 ) {
-			Note *pNote = m_midiNoteQueue[0];
-			if ( pNote->get_position() > nnTick ) break;
-
-			m_midiNoteQueue.pop_front();
-			pNote->get_instrument()->enqueue();
-			m_songNoteQueue.push( pNote );
-		}
-
-		if ( getState() != State::Playing ) {
-			// only keep going if we're playing
-			continue;
-		}
 		
 		//////////////////////////////////////////////////////////////
 		// SONG MODE
@@ -1822,38 +1847,26 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 			// function returns indicating that the end of the song is
 			// reached.
 			if ( nColumn == -1 ) {
-				INFOLOG( "song pos = -1" );
-				if ( pSong->getIsLoopEnabled() == true ) {
-					// TODO: This function call should be redundant
-					// since `getColumnForTick()` is deterministic
-					// and was already invoked with
-					// `pSong->is_loop_enabled()` as second argument.
-					nColumn = pHydrogen->getColumnForTick( 0, true,
-														   &nPatternStartTick );
-					DEBUGLOG(nColumn);
-				} else {
+				INFOLOG( "End of Song" );
 
-					INFOLOG( "End of Song" );
-
-					if( pHydrogen->getMidiOutput() != nullptr ){
-						pHydrogen->getMidiOutput()->handleQueueAllNoteOff();
-					}
-
-					return -1;
+				if( pHydrogen->getMidiOutput() != nullptr ){
+					pHydrogen->getMidiOutput()->handleQueueAllNoteOff();
 				}
+
+				return -1;
 			}
-			
-			// Obtain the current PatternList and use it to overwrite
-			// the on in `m_pPlayingPatterns.
-			// TODO: Why overwriting it for each and every tick
-			//       without check if it did changed? This is highly
-			//       inefficient.
-			PatternList *pPatternList = ( *( pSong->getPatternGroupVector() ) )[nColumn];
-			m_pPlayingPatterns->clear();
-			for ( int i=0; i< pPatternList->size(); ++i ) {
-				Pattern* pPattern = pPatternList->get(i);
-				m_pPlayingPatterns->add( pPattern );
-				pPattern->extand_with_flattened_virtual_patterns( m_pPlayingPatterns );
+
+			if ( nColumn != m_nLastPlayingPatternsColumn ) {
+				// Obtain the current PatternList and use it to overwrite
+				// the on in `m_pPlayingPatterns.
+				PatternList *pPatternList = ( *( pSong->getPatternGroupVector() ) )[nColumn];
+				m_pPlayingPatterns->clear();
+				for ( int i=0; i< pPatternList->size(); ++i ) {
+					Pattern* pPattern = pPatternList->get(i);
+					m_pPlayingPatterns->add( pPattern );
+					pPattern->extand_with_flattened_virtual_patterns( m_pPlayingPatterns );
+				}
+				m_nLastPlayingPatternsColumn = nColumn;
 			}
 		}
 		
@@ -1922,11 +1935,18 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 			}
 		}
 
+		// Compute the note start in frames corresponding to nnTick
+		// and the tick sized used to calculate it.
 		if ( ( nPatternTickPosition % 48 == 0 &&
 			   Preferences::get_instance()->m_bUseMetronome ) ||
 			 m_pPlayingPatterns->size() != 0 ) {
 
 			nNoteStart = computeFrameFromTick( nnTick, &fTickOffset );
+			if ( pHydrogen->isTimelineEnabled() ) {
+				fUsedTickSize = -1;
+			} else {
+				fUsedTickSize = getTickSize();
+			}
 		}
 		
 		//////////////////////////////////////////////////////////////
@@ -1964,6 +1984,7 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 												 );
 				m_pMetronomeInstrument->enqueue();
 				pMetronomeNote->setNoteStart( nNoteStart );
+				pMetronomeNote->setUsedTickSize( fUsedTickSize );
 				m_songNoteQueue.push( pMetronomeNote );
 			}
 		}
@@ -1979,9 +2000,9 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 				assert( pPattern != nullptr );
 				Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->get_notes();
 
-				// DEBUGLOG(QString( "patternStart: %1, patternPos: %2")
-				// 		 .arg( nPatternStartTick ).arg( nPatternTickPosition ) );
-
+				// Loop over all notes at tick nPatternTickPosition
+				// (associated tick is determined by Note::__position
+				// at the time of insertion into the Pattern).
 				FOREACH_NOTE_CST_IT_BOUND(notes,it,nPatternTickPosition) {
 					Note *pNote = it->second;
 					if ( pNote ) {
@@ -2037,10 +2058,17 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 						// Add a constant offset to all notes.
 						nOffset += (int) ( pNote->get_lead_lag() * nLeadLagFactor );
 
-						// No note is allowed to start prior to the
-						// beginning of the song.
-						if((nnTick == 0) && (nOffset < 0)) {
-							nOffset = 0;
+						// Lower bound of the offset. No note is
+						// allowed to start prior to the beginning of
+						// the song.
+						if( nNoteStart + nOffset < 0 ){
+							nOffset = -nNoteStart;
+						}
+
+						if ( nOffset > AudioEngine::nMaxTimeHumanize ) {
+							nOffset = AudioEngine::nMaxTimeHumanize;
+						} else if ( nOffset < -1 * AudioEngine::nMaxTimeHumanize ) {
+							nOffset = -AudioEngine::nMaxTimeHumanize;
 						}
 						
 						// Generate a copy of the current note, assign
@@ -2050,18 +2078,21 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 						// Why a copy? because it has the new offset (including swing and random timing) in its
 						// humanized delay, and tick position is expressed referring to start time (and not pattern).
 						Note *pCopiedNote = new Note( pNote );
-						pCopiedNote->set_position( nnTick );
 						pCopiedNote->setNoteStart( nNoteStart );
+						pCopiedNote->setUsedTickSize( fUsedTickSize );
 						pCopiedNote->set_humanize_delay( nOffset );
+
+						// DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nnTick: %3, " )
+						// 		  .arg( getDoubleTick() ).arg( getFrames() ).arg( nnTick )
+						// 		  .append( pCopiedNote->toQString("", true ) ) );
+						
+						pCopiedNote->set_position( nnTick );
 						if ( pHydrogen->getMode() == Song::Mode::Song ) {
 							float fPos = static_cast<float>( nColumn ) +
 								pCopiedNote->get_position() % 192 / 192.f;
 							pCopiedNote->set_velocity( pNote->get_velocity() *
 													   pAutomationPath->get_value( fPos ) );
 						}
-
-						// DEBUGLOG( pCopiedNote->toQString("", true ) );
-						
 						pNote->get_instrument()->enqueue();
 						m_songNoteQueue.push( pCopiedNote );
 					}
@@ -2570,7 +2601,7 @@ bool AudioEngine::testUpdateNoteQueue() {
 
 	return true;
 }
-	
+
 QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
