@@ -159,12 +159,16 @@ static int setup_unix_signal_handlers()
 		return 1;
 	}
 
-	for ( int nSignal : { SIGSEGV, SIGILL, SIGFPE, SIGBUS } ) {
+#endif
+
+	for ( int nSignal : { SIGSEGV, SIGILL, SIGFPE,
+#ifndef WIN32
+						 SIGBUS
+#endif
+		} ) {
 		signal( nSignal, handleFatalSignal );
 	}
 
-#endif
-	
 	return 0;
 }
 
