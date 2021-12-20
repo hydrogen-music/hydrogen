@@ -31,7 +31,6 @@ class TransportTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testTransportProcessing );
 	CPPUNIT_TEST( testTransportRelocation );
 	CPPUNIT_TEST( testComputeTickInterval );
-	CPPUNIT_TEST( testUpdateNoteQueue );
 	CPPUNIT_TEST_SUITE_END();
 	
 private:
@@ -45,6 +44,5 @@ public:
 
 	void testTransportProcessing();
 	void testTransportRelocation();
-	void testUpdateNoteQueue();
 	void testComputeTickInterval();
 };

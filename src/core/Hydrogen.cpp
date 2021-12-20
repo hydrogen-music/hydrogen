@@ -1502,6 +1502,8 @@ void Hydrogen::setUseTimelineBpm( bool bEnabled ) {
 	if ( bEnabled != pPref->getUseTimelineBpm() ) {
 		pPref->setUseTimelineBpm( bEnabled );
 
+		getAudioEngine()->handleTimelineChange();
+
 		if ( bEnabled ) {
 			getTimeline()->activate();
 		} else {

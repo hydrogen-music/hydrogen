@@ -957,7 +957,8 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 
 	if(pSample->get_sample_rate() == pAudioDriver->getSampleRate()){
 		//No resampling	
-		m_nPlayBackSamplePosition = pAudioEngine->getFrames();
+		m_nPlayBackSamplePosition = pAudioEngine->getFrames() -
+			pAudioEngine->getFrameOffset();
 	
 		nAvail_bytes = pSample->get_frames() - m_nPlayBackSamplePosition;
 		
@@ -1008,7 +1009,8 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		if( pAudioEngine->getFrames() == 0){
 			fSamplePos = 0;
 		} else {
-			fSamplePos = ( ( pAudioEngine->getFrames() /nBufferSize) * (nBufferSize * fStep));
+			fSamplePos = ( ( ( pAudioEngine->getFrames() - pAudioEngine->getFrameOffset() )
+							 /nBufferSize) * (nBufferSize * fStep));
 		}
 		
 		nAvail_bytes = ( int )( ( float )( pSample->get_frames() - fSamplePos ) / fStep );
@@ -1111,10 +1113,6 @@ bool Sampler::renderNoteNoResample(
 			pAudioEngine->computeFrameFromTick( pNote->get_position() +
 												pNote->get_length(), &fTickOffset ) -
 			pNote->getNoteStart();
-
-		DEBUGLOG( QString( "Calculated [%1] instead of [%2]" )
-				  .arg( nNoteLength )
-				  .arg( AudioEngine::computeFrame( pNote->get_length(), pAudioEngine->getTickSize() ) ) );
 	}
 
 	int nAvail_bytes = pSample->get_frames() - ( int )pSelectedLayerInfo->SamplePosition;	// verifico il numero di frame disponibili ancora da eseguire
@@ -1272,10 +1270,6 @@ bool Sampler::renderNoteResample(
 												pNote->get_length(), &fTickOffset,
 												fResampledTickSize ) -
 			pNote->getNoteStart();
-
-		DEBUGLOG( QString( "Calculated [%1] instead of [%2]" )
-				  .arg( nNoteLength )
-				  .arg( AudioEngine::computeFrame( pNote->get_length(), pAudioEngine->getTickSize() ) ) );
 	}
 	
 	float fNotePitch = pNote->get_total_pitch() + fLayerPitch;

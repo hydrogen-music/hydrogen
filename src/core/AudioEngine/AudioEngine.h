@@ -268,7 +268,6 @@ public:
 	 */
 	long long computeFrameFromTick( double fTick, double* fTickOffset, int nSampleRate = 0 ) const;
 
-
 	/** Resets a number of member variables to their initial state.
 	 *\
 	 * This is used to allow a smooth transition between the Song and
@@ -337,6 +336,7 @@ public:
 	long			getPatternTickPosition() const;
 
 	int				getColumn() const;
+	long long		getFrameOffset() const;
 
 	PatternList*	getNextPatterns() const;
 	PatternList*	getPlayingPatterns() const;
@@ -421,6 +421,13 @@ public:
 	void handleTimelineChange();
 
 	/** 
+	 * Unit test checking for consistency when converting frames to
+	 * ticks and back.
+	 *
+	 * @return true on success.
+	 */
+	bool testFrameToTickConversion();
+	/** 
 	 * Unit test checking the incremental update of the transport
 	 * position in audioEngine_process().
 	 *
@@ -450,16 +457,6 @@ public:
 	 * @return true on success.
 	 */
 	bool testComputeTickInterval();
-	/** 
-	 * Unit test checking consistency of tick intervals processed in
-	 * updateNoteQueue() (no overlap and no holes).
-	 *
-	 * Defined in here since it requires access to methods and
-	 * variables private to the #AudioEngine class.
-	 *
-	 * @return true on success.
-	 */
-	bool testUpdateNoteQueue();
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -605,6 +602,7 @@ private:
 	void			locateToFrame( const long long nFrame );
 	void			incrementTransportPosition( uint32_t nFrames );
 	void			updateTransportPosition( double fTick, bool bUseLoopMode );
+
 	/** Local instance of the Sampler. */
 	Sampler* 			m_pSampler;
 	/** Local instance of the Synth. */
@@ -758,6 +756,7 @@ private:
 	/** Number of frames TransportInfo::m_nFrames is ahead of
 		TransportInfo::m_nTick. */
 	double m_fTickOffset;
+	long long m_nFrameOffset;
 	double m_fLastTickIntervalEnd;
 	int m_nLastPlayingPatternsColumn;
 };
@@ -910,7 +909,9 @@ inline void AudioEngine::setNextBpm( float fNextBpm ) {
 inline float AudioEngine::getNextBpm() const {
 	return m_fNextBpm;
 }
-	
+inline long long AudioEngine::getFrameOffset() const {
+	return m_nFrameOffset;
+}
 };
 
 #endif
