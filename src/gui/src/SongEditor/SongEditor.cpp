@@ -2434,11 +2434,12 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 
-	if ( m_pAudioEngine->getPlayingPatterns()->size() != 0 ) {
-		int nLength = m_pAudioEngine->getPlayingPatterns()->longest_pattern_length();
+	auto pPatternGroupVector = Hydrogen::get_instance()->getSong()->getPatternGroupVector();
+	int nColumn = m_pAudioEngine->getColumn();
+	if ( pPatternGroupVector->size() >= nColumn ) {
+		int nLength = pPatternGroupVector->at( nColumn )->longest_pattern_length();
 		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)nLength;
-	}
-	else {
+	} else {
 		// nessun pattern, uso la grandezza di default
 		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)MAX_NOTES;
 	}
