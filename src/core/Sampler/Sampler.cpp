@@ -1575,16 +1575,15 @@ void Sampler::setPlayingNotelength( std::shared_ptr<Instrument> pInstrument, uns
 
 
 		if ( pHydrogen->getMode() == Song::Mode::Pattern ||
-			 ( pAudioEngine->getState() != AudioEngine::State::Playing )){
+			 pAudioEngine->getState() != AudioEngine::State::Playing ) {
 			PatternList *pPatternList = pSong->getPatternList();
-			if ( ( nSelectedpattern != -1 )
-			&& ( nSelectedpattern < ( int )pPatternList->size() ) ) {
+			if ( ( nSelectedpattern != -1 ) &&
+				 ( nSelectedpattern < ( int )pPatternList->size() ) ) {
 				pCurrentPattern = pPatternList->get( nSelectedpattern );
 			}
-		}else
-		{
+		} else {
 			std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
-//			Pattern *pPattern = NULL;
+			//			Pattern *pPattern = NULL;
 			int pos = pHydrogen->getAudioEngine()->getColumn() + 1;
 			for ( int i = 0; i < pos; ++i ) {
 				PatternList *pColumn = ( *pColumns )[i];
@@ -1594,45 +1593,50 @@ void Sampler::setPlayingNotelength( std::shared_ptr<Instrument> pInstrument, uns
 
 
 		if ( pCurrentPattern ) {
-				int patternsize = pCurrentPattern->get_length();
+			bool bIsModified = false;
+			
+			int patternsize = pCurrentPattern->get_length();
 
-				for ( unsigned nNote = 0; nNote < pCurrentPattern->get_length(); nNote++ ) {
-					const Pattern::notes_t* notes = pCurrentPattern->get_notes();
-					FOREACH_NOTE_CST_IT_BOUND(notes,it,nNote) {
-						Note *pNote = it->second;
-						if ( pNote!=nullptr ) {
-							if( !Preferences::get_instance()->__playselectedinstrument ){
-								if ( pNote->get_instrument() == pInstrument
-								&& pNote->get_position() == noteOnTick ) {
-									pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+			for ( unsigned nNote = 0; nNote < pCurrentPattern->get_length(); nNote++ ) {
+				const Pattern::notes_t* notes = pCurrentPattern->get_notes();
+				FOREACH_NOTE_CST_IT_BOUND(notes,it,nNote) {
+					Note *pNote = it->second;
+					if ( pNote!=nullptr ) {
+						if( !Preferences::get_instance()->__playselectedinstrument ){
+							if ( pNote->get_instrument() == pInstrument
+								 && pNote->get_position() == noteOnTick ) {
+								pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-									if ( ticks >  patternsize ) {
-										ticks = patternsize - noteOnTick;
-									}
-									pNote->set_length( ticks );
-									Hydrogen::get_instance()->setIsModified( true );
-									pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
+								if ( ticks >  patternsize ) {
+									ticks = patternsize - noteOnTick;
 								}
-							}else
-							{
-								if ( pNote->get_instrument() == pHydrogen->getSong()->getInstrumentList()->get( pHydrogen->getSelectedInstrumentNumber())
-								&& pNote->get_position() == noteOnTick ) {
-									Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
-									if ( ticks >  patternsize ) {
-										ticks = patternsize - noteOnTick;
-									}
-									pNote->set_length( ticks );
-									pHydrogen->setIsModified( true );
-									pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
+								pNote->set_length( ticks );
+								bIsModified = true;
+								pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
+							}
+						} else {
+							if ( pNote->get_instrument() == pHydrogen->getSong()->getInstrumentList()->get( pHydrogen->getSelectedInstrumentNumber())
+								 && pNote->get_position() == noteOnTick ) {
+								pAudioEngine->lock( RIGHT_HERE );
+								if ( ticks >  patternsize ) {
+									ticks = patternsize - noteOnTick;
 								}
+								pNote->set_length( ticks );
+								bIsModified = true;
+								pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 							}
 						}
 					}
 				}
 			}
+
+			if ( bIsModified ) {
+				EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
+				pHydrogen->setIsModified( true );
+			}		
 		}
 
-	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
+	}
 }
 
 bool Sampler::isAnyInstrumentSoloed() const

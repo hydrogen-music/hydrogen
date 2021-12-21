@@ -1817,7 +1817,7 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 	AutomationPath* pAutomationPath = pSong->getVelocityAutomationPath();
 
 	// We loop over integer ticks to ensure that all notes encountered
-	// between two cycles belong to the same pattern.
+	// between two iterations belong to the same pattern.
 	for ( long nnTick = static_cast<long>(std::floor(fTickStart));
 		  nnTick < static_cast<long>(std::floor(fTickEnd)); nnTick++ ) {
 		
@@ -1988,7 +1988,13 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 
 		//////////////////////////////////////////////////////////////
 		// Update the notes queue.
-		// 
+		//
+		// Supporting ticks with float precision:
+		// - make FOREACH_NOTE_CST_IT_BOUND loop over all notes
+		// `(_it)->first >= (_bound) && (_it)->first < (_bound + 1)`
+		// - add remainder of pNote->get_position() % 1 when setting
+		// nnTick as new position.
+		//
 		if ( m_pPlayingPatterns->size() != 0 ) {
 			for ( unsigned nPat = 0 ;
 				  nPat < m_pPlayingPatterns->size() ;
