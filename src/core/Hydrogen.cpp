@@ -607,10 +607,10 @@ bool Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 	std::shared_ptr<Song> pSong = getSong();
 	
 	m_oldEngineMode = getMode();
-	m_bOldLoopEnabled = pSong->getIsLoopEnabled();
+	m_bOldLoopEnabled = pSong->isLoopEnabled();
 
 	pSong->setMode( Song::Mode::Song );
-	pSong->setIsLoopEnabled( false );
+	pSong->setLoopMode( Song::LoopMode::Disabled );
 	
 	/*
 	 * Currently an audio driver is loaded
@@ -668,7 +668,11 @@ void Hydrogen::stopExportSession()
 {
 	std::shared_ptr<Song> pSong = getSong();
 	pSong->setMode( m_oldEngineMode );
-	pSong->setIsLoopEnabled( m_bOldLoopEnabled );
+	if ( m_bOldLoopEnabled ) {
+		pSong->setLoopMode( Song::LoopMode::Enabled );
+	} else {
+		pSong->setLoopMode( Song::LoopMode::Disabled );
+	}
 	
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
@@ -1590,7 +1594,7 @@ long Hydrogen::getTickForColumn( int nColumn ) const
 		// The position is beyond the end of the Song, we
 		// set periodic boundary conditions or return the
 		// beginning of the Song as a fallback.
-		if ( pSong->getIsLoopEnabled() ) {
+		if ( pSong->isLoopEnabled() ) {
 			nColumn = nColumn % nPatternGroups;
 		} else {
 			WARNINGLOG( QString( "Provided column [%1] is larger than the available number [%2]")
@@ -1632,7 +1636,7 @@ long Hydrogen::getPatternLength( int nPattern ) const
 
 	int nPatternGroups = pColumns->size();
 	if ( nPattern >= nPatternGroups ) {
-		if ( pSong->getIsLoopEnabled() ) {
+		if ( pSong->isLoopEnabled() ) {
 			nPattern = nPattern % nPatternGroups;
 		} else {
 			return MAX_NOTES;

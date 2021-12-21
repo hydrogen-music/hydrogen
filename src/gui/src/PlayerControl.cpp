@@ -466,7 +466,11 @@ void PlayerControl::updatePlayerControl()
 	std::shared_ptr<Song> song = m_pHydrogen->getSong();
 
 	if ( ! m_pSongLoopBtn->isDown() ) {
-		m_pSongLoopBtn->setChecked( song->getIsLoopEnabled() );
+		if ( song->getLoopMode() == Song::LoopMode::Enabled ) {
+			m_pSongLoopBtn->setChecked( true );
+		} else {
+			m_pSongLoopBtn->setChecked( false );
+		}
 	}
 
 	if ( ! m_pLCDBPMSpinbox->hasFocus() ) {

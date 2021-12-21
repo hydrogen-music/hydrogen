@@ -688,10 +688,31 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 
 bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent ) {
 
-	auto pSong = Hydrogen::get_instance()->getSong();
-	pSong->setIsLoopEnabled( bActivate );
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	bool bChange = false;
+
+	if ( bActivate &&
+		 pSong->getLoopMode() != Song::LoopMode::Enabled ) {
+		pSong->setLoopMode( Song::LoopMode::Enabled );
+		bChange = true;
+		
+	} else if ( ! bActivate &&
+				pSong->getLoopMode() == Song::LoopMode::Enabled ) {
+		// If the transport was already looped at least once, disabling
+		// loop mode will result in immediate stop. Instead, we want to
+		// stop transport at the end of the song.
+		if ( pSong->lengthInTicks() < pAudioEngine->getTick() ) {
+			pSong->setLoopMode( Song::LoopMode::Finishing );
+		} else {
+			pSong->setLoopMode( Song::LoopMode::Disabled );
+		}
+		bChange = true;
+	}
 	
-	if ( bTriggerEvent ) {
+	if ( bTriggerEvent && bChange ) {
 		EventQueue::get_instance()->push_event( EVENT_LOOP_MODE_ACTIVATION, static_cast<int>( bActivate ) );
 	}
 	

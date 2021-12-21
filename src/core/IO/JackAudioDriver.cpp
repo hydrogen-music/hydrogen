@@ -1020,7 +1020,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	
 	long nNextPatternStartTick;
 	int nNextPattern = 
-		pHydrogen->getColumnForTick( nextTick, pSong->getIsLoopEnabled(),
+		pHydrogen->getColumnForTick( nextTick, pSong->isLoopEnabled(),
 									&nNextPatternStartTick );
 
 	// In order to determine the tempo, which will be set by Hydrogen
@@ -1034,7 +1034,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	long nNextPatternStartTickInternal;
 	int nNextPatternInternal = 
 		pHydrogen->getColumnForTick( nextTickInternal,
-									pSong->getIsLoopEnabled(),
+									pSong->isLoopEnabled(),
 									&nNextPatternStartTickInternal );
 
 	// Calculate the length of the next pattern in ticks == number

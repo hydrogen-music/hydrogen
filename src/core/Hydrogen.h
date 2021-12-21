@@ -241,7 +241,7 @@ public:
 	 * \param nColumn pattern group.
 	 * \return
 	 *  - -1 : if @a nColumn is bigger than the number of patterns in
-	 *   the Song and Song::getIsLoopEnabled() is set to false or
+	 *   the Song and Song::isLoopEnabled() is set to false or
 	 *   no Patterns could be found at all.
 	 *  - >= 0 : the total number of ticks passed.
 	 */

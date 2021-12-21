@@ -416,7 +416,7 @@ void AudioEngine::locateToFrame( const long long nFrame ) {
 	m_fLastTickIntervalEnd = -1;
 	m_nLastPlayingPatternsColumn = -1;
 	
-	updateTransportPosition( fNewTick, pHydrogen->getSong()->getIsLoopEnabled() );
+	updateTransportPosition( fNewTick, pHydrogen->getSong()->isLoopEnabled() );
 }
 
 void AudioEngine::incrementTransportPosition( uint32_t nFrames ) {
@@ -439,7 +439,7 @@ void AudioEngine::incrementTransportPosition( uint32_t nFrames ) {
 	// 		  .arg( fNewTick, 0, 'f' )
 	// 		  .arg( getTickSize(), 0, 'f' ) );
 
-	updateTransportPosition( fNewTick, pSong->getIsLoopEnabled() );
+	updateTransportPosition( fNewTick, pSong->isLoopEnabled() );
 }
 
 void AudioEngine::updateTransportPosition( double fTick, bool bUseLoopMode ) {
@@ -1746,7 +1746,7 @@ void AudioEngine::updateSongSize() {
 	setFrames( nNewFrames );
 	
 	updateTransportPosition( getDoubleTick(),
-							 pSong->getIsLoopEnabled() );
+							 pSong->isLoopEnabled() );
 	getSampler()->handleTimelineChange();
 
 	if ( m_nColumn == -1 ) {
@@ -1912,7 +1912,7 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 			}
 
 			nColumn = pHydrogen->getColumnForTick( nnTick,
-												   pSong->getIsLoopEnabled(),
+												   pSong->isLoopEnabled(),
 												   &nPatternStartTick );
 
 			if ( nnTick > std::floor( m_fSongSizeInTicks ) &&
@@ -1939,7 +1939,9 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 			// the first one if loop mode is activate or the
 			// function returns indicating that the end of the song is
 			// reached.
-			if ( nColumn == -1 ) {
+			if ( nColumn == -1 ||
+				 ( pSong->getLoopMode() == Song::LoopMode::Finishing &&
+				   nColumn < m_nLastPlayingPatternsColumn ) ) {
 				INFOLOG( "End of Song" );
 
 				if( pHydrogen->getMidiOutput() != nullptr ){

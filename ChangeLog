@@ -86,6 +86,8 @@
 		  transport using the position ruler
 		- fix playhead glitches when adding toggling patterns at the end
 		  of the song after transport was loop at least once
+		- deactivating loop mode result stopping transport at the end of
+		  the song even if transport was already looped at least once
 
 2021-09-04 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.1
