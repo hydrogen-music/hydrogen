@@ -175,6 +175,11 @@ public:
 
 	void process( uint32_t nFrames, std::shared_ptr<Song> pSong );
 
+	/**
+	 * @return True, if the #Sampler is still processing notes.
+	 */
+	bool isRenderingNotes() const;
+	
 	/// Start playing a note
 	void noteOn( Note * pNote );
 

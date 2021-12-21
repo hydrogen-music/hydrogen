@@ -610,7 +610,7 @@ bool Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 	m_bOldLoopEnabled = pSong->getIsLoopEnabled();
 
 	pSong->setMode( Song::Mode::Song );
-	pSong->setIsLoopEnabled( true );
+	pSong->setIsLoopEnabled( false );
 	
 	/*
 	 * Currently an audio driver is loaded
@@ -637,7 +637,7 @@ bool Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 void Hydrogen::startExportSong( const QString& filename)
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
-	pAudioEngine->reset();
+	pAudioEngine->reset( false );
 	pAudioEngine->play();
 	getCoreActionController()->locateToTick( 0 );
 	pAudioEngine->getSampler()->stopPlayingNotes();
@@ -661,7 +661,7 @@ void Hydrogen::stopExportSong()
 
 	pAudioEngine->getSampler()->stopPlayingNotes();
 	pAudioEngine->getAudioDriver()->disconnect();
-	pAudioEngine->reset();
+	pAudioEngine->reset( false );
 }
 
 void Hydrogen::stopExportSession()

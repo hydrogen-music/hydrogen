@@ -109,7 +109,6 @@ float const Sampler::K_NORM_DEFAULT = 1.33333333333333;
 
 void Sampler::process( uint32_t nFrames, std::shared_ptr<Song> pSong )
 {
-	//infoLog( "[process]" );
 	AudioOutput* pAudioOutpout = Hydrogen::get_instance()->getAudioOutput();
 	assert( pAudioOutpout );
 
@@ -169,11 +168,12 @@ void Sampler::process( uint32_t nFrames, std::shared_ptr<Song> pSong )
 	processPlaybackTrack(nFrames);
 }
 
-
+bool Sampler::isRenderingNotes() const {
+	return m_playingNotesQueue.size() > 0;
+}
 
 void Sampler::noteOn(Note *pNote )
 {
-	//infoLog( "[noteOn]" );
 	assert( pNote );
 
 	pNote->get_adsr()->attack();
@@ -423,7 +423,6 @@ void Sampler::handleTimelineChange() {
 /// Return true: the note is ended
 bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Song> pSong )
 {
-	//infoLog( "[renderNote] instr: " + pNote->getInstrument()->m_sName );
 	assert( pSong );
 
 	auto pInstr = pNote->get_instrument();

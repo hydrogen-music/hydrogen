@@ -269,11 +269,13 @@ public:
 	long long computeFrameFromTick( double fTick, double* fTickOffset, int nSampleRate = 0 ) const;
 
 	/** Resets a number of member variables to their initial state.
-	 *\
+	 *
 	 * This is used to allow a smooth transition between the Song and
 	 * Pattern Mode.
+	 * \param bWithJackBroadcast Relocate not using the AudioEngine
+	 * directly but using the JACK server.
 	 */
-	void reset();
+	void reset(  bool bWithJackBroadcast = true );
 
 	/** \return #m_pSampler */
 	Sampler*		getSampler() const;

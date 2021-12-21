@@ -323,7 +323,7 @@ void AudioEngine::stopPlayback()
 	m_pEventQueue->push_event( EVENT_STATE, static_cast<int>(State::Ready) );
 }
 
-void AudioEngine::reset() {
+void AudioEngine::reset( bool bWithJackBroadcast ) {
 	// DEBUGLOG("");
 	
 	const auto pHydrogen = Hydrogen::get_instance();
@@ -344,6 +344,15 @@ void AudioEngine::reset() {
 	updateBpmAndTickSize();
 	
 	clearNoteQueue();
+
+	
+#ifdef H2CORE_HAVE_JACK
+	if ( pHydrogen->haveJackTransport() && bWithJackBroadcast ) {
+		// Tell all other JACK clients to relocate as well. This has
+		// to be called after updateFrames().
+		static_cast<JackAudioDriver*>( m_pAudioDriver )->locateTransport( 0 );
+	}
+#endif
 }
 
 float AudioEngine::computeTickSize( const int nSampleRate, const float fBpm, const int nResolution)
@@ -1443,6 +1452,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// was started or stopped by the user.
 	if ( pAudioEngine->getNextState() == State::Playing ) {
 		if ( pAudioEngine->getState() == State::Ready ) {
+			DEBUGLOG("set playing");
 			pAudioEngine->startPlayback();
 		}
 		
@@ -1463,21 +1473,16 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// (midi, keyboard)
 	int nResNoteQueue = pAudioEngine->updateNoteQueue( nframes );
 	if ( nResNoteQueue == -1 ) {	// end of song
-		___INFOLOG( "End of song received, calling engine_stop()" );
+		___INFOLOG( "End of song received" );
 		pAudioEngine->stop();
 		pAudioEngine->stopPlayback();
-		pAudioEngine->locate( 0 ); // locate 0, reposition from start of the song
+		pAudioEngine->reset();
 
-		if ( (pAudioEngine->m_pAudioDriver->class_name() == DiskWriterDriver::_class_name() )
-			 || ( pAudioEngine->m_pAudioDriver->class_name() == FakeDriver::_class_name() )
-			 ) {
-			pAudioEngine->unlock();
-			___INFOLOG( "End of song." );
-			
+		if ( pAudioEngine->m_pAudioDriver->class_name() ==
+			 FakeDriver::_class_name() ) {
 			return 1;	// kill the audio AudioDriver thread
 		}
-
-		// return 0;
+		
 	} else if ( nResNoteQueue == 2 ) { // send pattern change
 		bSendPatternChange = true;
 	}
@@ -2142,7 +2147,6 @@ void AudioEngine::play() {
 }
 
 void AudioEngine::stop() {
-
 	assert( m_pAudioDriver );
 	
 #ifdef H2CORE_HAVE_JACK
@@ -2300,7 +2304,7 @@ bool AudioEngine::testTransportProcessing() {
 
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
-	reset();
+	reset( false );
 
 	setState( AudioEngine::State::Prepared );
 
@@ -2361,7 +2365,7 @@ bool AudioEngine::testTransportProcessing() {
 		}
 	}
 
-	reset();
+	reset( false );
 	nLastFrame = 0;
 
 	float fBpm;
@@ -2483,7 +2487,7 @@ bool AudioEngine::testTransportProcessing() {
 				  .arg( getTickSize(), 0 , 'f' )
 				  .arg( getBpm(), 0 , 'f' ) );
 	}
-	reset();
+	reset( false );
 	
 	nn = 0;
 	nLastFrame = 0;
@@ -2561,7 +2565,7 @@ bool AudioEngine::testTransportProcessing() {
 	}
 
 
-	reset();
+	reset( false );
 
 	setState( AudioEngine::State::Ready );
 
@@ -2586,7 +2590,7 @@ bool AudioEngine::testTransportRelocation() {
 
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
-	reset();
+	reset( false );
 
 	setState( AudioEngine::State::Prepared );
 
@@ -2671,7 +2675,7 @@ bool AudioEngine::testTransportRelocation() {
 		}
 	}
 
-	reset();
+	reset( false );
 	
 	setState( AudioEngine::State::Ready );
 
@@ -2696,7 +2700,7 @@ bool AudioEngine::testComputeTickInterval() {
 
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
-	reset();
+	reset( false );
 
 	setState( AudioEngine::State::Prepared );
 
@@ -2758,7 +2762,7 @@ bool AudioEngine::testComputeTickInterval() {
 		incrementTransportPosition( nFrames );
 	}
 
-	reset();
+	reset( false );
 
 	fLastTickStart = 0;
 	fLastTickEnd = 0;
@@ -2810,7 +2814,7 @@ bool AudioEngine::testComputeTickInterval() {
 		}
 	}
 	
-	reset();
+	reset( false );
 
 	setState( AudioEngine::State::Ready );
 
