@@ -117,12 +117,15 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pLCDSpinBoxNumerator = new LCDSpinBox( m_pSizeResol, QSize( 62, 20 ), LCDSpinBox::Type::Double, 0.1, 16.0 );
 	m_pLCDSpinBoxNumerator->setKind( LCDSpinBox::Kind::PatternSizeNumerator );
 	m_pLCDSpinBoxNumerator->setDecimals( 16 );
+	m_pLCDSpinBoxNumerator->move( 36, 0 );
 	connect( m_pLCDSpinBoxNumerator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
+	connect( m_pLCDSpinBoxNumerator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
+	
 	m_pLCDSpinBoxDenominator = new LCDSpinBox( m_pSizeResol, QSize( 48, 20 ), LCDSpinBox::Type::Int, 1, 192 );
 	m_pLCDSpinBoxDenominator->setKind( LCDSpinBox::Kind::PatternSizeDenominator );
-	connect( m_pLCDSpinBoxDenominator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
-	m_pLCDSpinBoxNumerator->move( 36, 0 );
 	m_pLCDSpinBoxDenominator->move( 106, 0 );
+	connect( m_pLCDSpinBoxDenominator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
+	connect( m_pLCDSpinBoxDenominator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
 			
 	QLabel* label1 = new ClickableLabel( m_pSizeResol, QSize( 4, 13 ), "/", ClickableLabel::Color::Dark );
 	label1->resize( QSize( 20, 17 ) );
@@ -578,9 +581,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	propertiesComboChanged( 0 );
 	selectedPatternChangedEvent();
 	updateStyleSheet();
-
-	connect( m_pLCDSpinBoxNumerator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
-	connect( m_pLCDSpinBoxDenominator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
 }
 
 
@@ -1007,6 +1007,11 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 	// set length and denominator				
 	m_pPattern->set_length( nLength );
 	m_pPattern->set_denominator( static_cast<int>( fDenominator ) );
+
+	auto pHydrogen = Hydrogen::get_instance();
+	pHydrogen->updateSongSize();
+	pHydrogen->setIsModified( true );
+	
 	patternLengthChanged();
 }
 
