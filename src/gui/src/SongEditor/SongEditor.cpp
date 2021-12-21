@@ -2436,7 +2436,9 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 	auto pPatternGroupVector = Hydrogen::get_instance()->getSong()->getPatternGroupVector();
 	int nColumn = m_pAudioEngine->getColumn();
-	if ( pPatternGroupVector->size() >= nColumn ) {
+
+	if ( pPatternGroupVector->size() >= nColumn &&
+		 pPatternGroupVector->at( nColumn )->size() > 0 ) {
 		int nLength = pPatternGroupVector->at( nColumn )->longest_pattern_length();
 		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)nLength;
 	} else {
