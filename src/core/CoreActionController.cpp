@@ -864,10 +864,11 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 		return false;
 	}
 	
-	pHydrogen->setIsModified( true );
-	pHydrogen->updateSongSize();
 	pHydrogen->getAudioEngine()->unlock();
 
+	pHydrogen->setIsModified( true );
+	pHydrogen->updateSongSize();
+	
 	// Update the SongEditor.
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG_EDITOR, 0 );

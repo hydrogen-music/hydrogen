@@ -95,3 +95,10 @@ void TransportTest::testComputeTickInterval() {
 	bool bNoMismatch = pAudioEngine->testComputeTickInterval();
 	CPPUNIT_ASSERT( bNoMismatch );
 }		
+
+void TransportTest::testSongSizeChangeInLoopMode() {
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+
+	bool bNoMismatch = pAudioEngine->testSongSizeChangeInLoopMode();
+	CPPUNIT_ASSERT( bNoMismatch );
+}		

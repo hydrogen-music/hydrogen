@@ -459,6 +459,19 @@ public:
 	 * @return true on success.
 	 */
 	bool testComputeTickInterval();
+	/** 
+	 * Unit test checking consistency of transport position when
+	 * playback was looped at least once and the song size is changed
+	 * by toggling a pattern.
+	 *
+	 * Defined in here since it requires access to methods and
+	 * variables private to the #AudioEngine class.
+	 *
+	 * @return true on success.
+	 */
+	bool testSongSizeChangeInLoopMode();
+	/** Helper function */
+	bool testCheckTransportPosition( const QString& sContext ) const ;
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
