@@ -1342,67 +1342,21 @@ void MainForm::savePreferences() {
 	Preferences *pPreferences = Preferences::get_instance();
 
 	// mainform
-	WindowProperties mainFormProp;
-	mainFormProp.x = x();
-	mainFormProp.y = y();
-	mainFormProp.height = height();
-	mainFormProp.width = width();
-	pPreferences->setMainFormProperties( mainFormProp );
-
+	pPreferences->setMainFormProperties( h2app->getWindowProperties( this ) );
 	// Save mixer properties
-	WindowProperties mixerProp;
-	mixerProp.x = h2app->getMixer()->x();
-	mixerProp.y = h2app->getMixer()->y();
-	mixerProp.width = h2app->getMixer()->width();
-	mixerProp.height = h2app->getMixer()->height();
-	mixerProp.visible = h2app->getMixer()->isVisible();
-	pPreferences->setMixerProperties( mixerProp );
-
+	pPreferences->setMixerProperties( h2app->getWindowProperties( h2app->getMixer() ) );
 	// save pattern editor properties
-	WindowProperties patternEditorProp;
-	patternEditorProp.x = h2app->getPatternEditorPanel()->x();
-	patternEditorProp.y = h2app->getPatternEditorPanel()->y();
-	patternEditorProp.width = h2app->getPatternEditorPanel()->width();
-	patternEditorProp.height = h2app->getPatternEditorPanel()->height();
-	patternEditorProp.visible = h2app->getPatternEditorPanel()->isVisible();
-	pPreferences->setPatternEditorProperties( patternEditorProp );
-
+	pPreferences->setPatternEditorProperties( h2app->getWindowProperties( h2app->getPatternEditorPanel() ) );
 	// save song editor properties
-	WindowProperties songEditorProp;
-	songEditorProp.x = h2app->getSongEditorPanel()->x();
-	songEditorProp.y = h2app->getSongEditorPanel()->y();
-	songEditorProp.width = h2app->getSongEditorPanel()->width();
-	songEditorProp.height = h2app->getSongEditorPanel()->height();
-
-	QSize size = h2app->getSongEditorPanel()->frameSize();
-	songEditorProp.visible = h2app->getSongEditorPanel()->isVisible();
-	pPreferences->setSongEditorProperties( songEditorProp );
-
-
-	WindowProperties instrumentRackProp;
-	instrumentRackProp.x = h2app->getInstrumentRack()->x();
-	instrumentRackProp.y = h2app->getInstrumentRack()->y();
-	instrumentRackProp.width = h2app->getInstrumentRack()->width();
-	instrumentRackProp.height = h2app->getInstrumentRack()->height();
-	instrumentRackProp.visible = h2app->getInstrumentRack()->isVisible();
-	pPreferences->setInstrumentRackProperties( instrumentRackProp );
-
+	pPreferences->setSongEditorProperties( h2app->getWindowProperties( h2app->getSongEditorPanel() ) );
+	pPreferences->setInstrumentRackProperties( h2app->getWindowProperties( h2app->getInstrumentRack() ) );
 	// save audio engine info properties
-	WindowProperties audioEngineInfoProp;
-	audioEngineInfoProp.x = h2app->getAudioEngineInfoForm()->x();
-	audioEngineInfoProp.y = h2app->getAudioEngineInfoForm()->y();
-	audioEngineInfoProp.visible = h2app->getAudioEngineInfoForm()->isVisible();
-	pPreferences->setAudioEngineInfoProperties( audioEngineInfoProp );
-
+	pPreferences->setAudioEngineInfoProperties( h2app->getWindowProperties( h2app->getAudioEngineInfoForm() ) );
 
 #ifdef H2CORE_HAVE_LADSPA
 	// save LADSPA FX window properties
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
-		WindowProperties prop;
-		prop.x = h2app->getLadspaFXProperties(nFX)->x();
-		prop.y = h2app->getLadspaFXProperties(nFX)->y();
-		prop.visible= h2app->getLadspaFXProperties(nFX)->isVisible();
-		pPreferences->setLadspaProperties(nFX, prop);
+		pPreferences->setLadspaProperties( nFX, h2app->getWindowProperties( h2app->getLadspaFXProperties( nFX ) ) );
 	}
 #endif
 }
@@ -2013,10 +1967,11 @@ void MainForm::action_window_showPatternEditor()
 
 void MainForm::showDevelWarning()
 {
+	Preferences *pPreferences = Preferences::get_instance();
+	bool isDevelWarningEnabled = pPreferences->getShowDevelWarning();
+
 	//set this to 'false' for the case that you want to make a release..
-	if ( true ) {
-		Preferences *pPreferences = Preferences::get_instance();
-		bool isDevelWarningEnabled = pPreferences->getShowDevelWarning();
+	if ( H2CORE_IS_DEVEL_BUILD ) {
 		if(isDevelWarningEnabled) {
 
 			QString msg = tr( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
@@ -2029,6 +1984,15 @@ void MainForm::showDevelWarning()
 				//don't show warning again
 				pPreferences->setShowDevelWarning( false );
 			}
+		}
+	} else {
+		// Release builds
+		if ( !isDevelWarningEnabled ) {
+			// Running a release build, we should re-enable the development-build warning if it's been
+			// disabled, since the user might have tried a release build at some time in the past, then
+			// continued working happily with a release build. They will still benefit from knowing that a
+			// *new* release build they're trying is in fact a release build.
+			pPreferences->setShowDevelWarning( true );
 		}
 	}
 }

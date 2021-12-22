@@ -59,6 +59,19 @@
 		- default MIDI driver is now picked with the system's capabilities
 		  in mind
 
+2021-12-05 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+	* Release 1.1.1
+	* Bugfixes
+		- fix preferences dialog "OK" button behaviour (#1375)
+		- fix rewinding to beginning of pattern in pattern mode with no
+		  pattern inserted in SongEditor (#932)
+		- fix display of tempo marker while loading a song
+		  (introduced in 1.1.0) (#1393)
+		- fix LADSPA issues, most audible on PulseAudio (#1403)
+		- fix window placement when screen sizes change (#1369)
+	* Explicitly set latency target for PortAudio (Windows) audio
+	  driver, enabling much lower audio latency on Windows
+
 2021-09-04 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.1
 	* Keyboard cursor-driven pattern, song and note properties editing

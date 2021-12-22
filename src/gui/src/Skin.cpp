@@ -126,6 +126,17 @@ void Skin::setPalette( QApplication *pQApp ) {
 	defaultPalette.setColor( QPalette::ToolTipBase, pPref->getColorTheme()->m_toolTipBaseColor );
 	defaultPalette.setColor( QPalette::ToolTipText, pPref->getColorTheme()->m_toolTipTextColor );
 
+	// Desaturate disabled widgets by blending with the alternate colour
+	for ( QPalette::ColorRole role : { QPalette::Window, QPalette::Base, QPalette::AlternateBase, QPalette::Dark,
+									  QPalette::Light, QPalette::Midlight, QPalette::Mid, QPalette::Shadow,
+									  QPalette::Text } ) {
+		QColor normalColor = defaultPalette.color( QPalette::Normal, role );
+		QColor disabledColor = QColor( ( normalColor.red() + 138 ) / 2,
+									   ( normalColor.green() + 144 ) / 2,
+									   ( normalColor.blue() + 162 ) / 2);
+		defaultPalette.setColor( QPalette::Disabled, role, disabledColor );
+	}
+
 	pQApp->setPalette( defaultPalette );
 	pQApp->setStyleSheet( getGlobalStyleSheet() );
 }
