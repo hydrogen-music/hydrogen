@@ -351,12 +351,6 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	long nLookaheadTicks = 
 		static_cast<long>(std::floor(m_pAudioEngine->computeTickFromFrame( nLookaheadInFrames ) -
 									 m_pAudioEngine->getTick()));
-
-	DEBUGLOG( QString( "lookahead ticks: [%1] instead of [%2]" )
-			  .arg( nLookaheadTicks )
-			  .arg( ( 5 * m_pAudioEngine->getTickSize() +
-					  2001 ) / m_pAudioEngine->getTickSize() ) );
-			  
 			  
 	bool doRecord = pPreferences->getRecordEvents();
 	if ( getMode() == Song::Mode::Song && doRecord &&
@@ -369,6 +363,9 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 												   // or pattern group
 		if ( ipattern < 0 || ipattern >= (int) pPatternList->size() ) {
 			pAudioEngine->unlock(); // unlock the audio engine
+			ERRORLOG( QString( "Provided column [%1] out of bound [%2,%3)" )
+					  .arg( ipattern ).arg( 0 )
+					  .arg( (int) pPatternList->size() ) );
 			return;
 		}
 		// Locate nTickInPattern -- may need to jump back in the pattern list

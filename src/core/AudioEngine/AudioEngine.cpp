@@ -449,10 +449,8 @@ void AudioEngine::updateTransportPosition( double fTick, bool bUseLoopMode ) {
 
 	assert( pSong );
 
-	// WARNINGLOG( QString( "[Before] frame: %1, bpm: %2, tickSize: %3, column: %4, tick: %5, pTickPos: %6, pStartPos: %7" )
-	// 			.arg( getFrames() ).arg( getBpm() )
-	// 			.arg( getTickSize(), 0, 'f' )
-	// 			.arg( m_nColumn ).arg( getDoubleTick(), 0, 'f' )
+	// WARNINGLOG( QString( "[Before] tick: %1, pTickPos: %2, pStartPos: %3" )
+	// 			.arg( getDoubleTick(), 0, 'f' )
 	// 			.arg( m_nPatternTickPosition )
 	// 			.arg( m_nPatternStartTick ) );
 	
@@ -496,27 +494,31 @@ void AudioEngine::updateTransportPosition( double fTick, bool bUseLoopMode ) {
 			nPatternSize = MAX_NOTES;
 		}
 
-		if ( m_nPatternStartTick == -1 && nPatternSize > 0 ) {
-			// Pattern mode was just activated.
-			m_nPatternStartTick =
-				std::floor( fTick ) -
-				( static_cast<int>(std::floor( fTick )) % nPatternSize);
-		} else {
-			m_nPatternStartTick = std::floor( fTick );
+		// Transport went past the end of the pattern or Pattern mode
+		// was just activated.
+		if ( m_nPatternStartTick == -1 ||
+			 fTick >= m_nPatternStartTick + nPatternSize  ) {
+			if ( nPatternSize > 0 ) {
+			m_nPatternStartTick +=
+				std::floor( ( std::floor( fTick ) - m_nPatternStartTick ) /
+							nPatternSize ) * nPatternSize;
+			} else {
+				m_nPatternStartTick = std::floor( fTick );
+			}
 		}
 
-		m_nPatternTickPosition = std::floor( fTick ) - m_nPatternStartTick;
-		if ( m_nPatternTickPosition > nPatternSize && nPatternSize > 0 ) {
-			m_nPatternTickPosition =
-				static_cast<int>(std::floor( fTick )) % nPatternSize;
+		m_nPatternTickPosition = static_cast<long>(std::floor( fTick ))
+			- m_nPatternStartTick;
+		if ( nPatternSize > 0 && m_nPatternTickPosition > nPatternSize ) {
+			m_nPatternTickPosition = ( static_cast<long>(std::floor( fTick ))
+									   - m_nPatternStartTick ) %
+				nPatternSize;
 		}
 	}
 	updateBpmAndTickSize();
 	
-	// WARNINGLOG( QString( "[After] frame: %1, bpm: %2, tickSize: %3, column: %4, tick: %5, pTickPos: %6, pStartPos: %7" )
-	// 			.arg( getFrames() ).arg( getBpm() )
-	// 			.arg( getTickSize(), 0, 'f' )
-	// 			.arg( m_nColumn ).arg( getDoubleTick(), 0, 'f' )
+	// WARNINGLOG( QString( "[After] tick: %1, pTickPos: %2, pStartPos: %3" )
+	// 			.arg( getDoubleTick(), 0, 'f' )
 	// 			.arg( m_nPatternTickPosition )
 	// 			.arg( m_nPatternStartTick ) );
 	
@@ -1865,6 +1867,11 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 	// transport position and not in terms of the date-time as above).
 	while ( m_midiNoteQueue.size() > 0 ) {
 		Note *pNote = m_midiNoteQueue[0];
+
+		// DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, " )
+		// 		  .arg( getDoubleTick() ).arg( getFrames() )
+		// 		  .append( pNote->toQString( "", true ) ) );
+		
 		if ( pNote->get_position() >
 			 static_cast<long long>(std::floor( fTickEnd )) ) {
 			break;
@@ -2576,6 +2583,74 @@ bool AudioEngine::testTransportProcessing() {
 		bNoMismatch = false;
 	}
 
+	reset( false );
+
+	setState( AudioEngine::State::Ready );
+
+	unlock();
+
+	// Check consistency of playback in PatternMode
+	pCoreActionController->activateSongMode( false );
+
+	lock( RIGHT_HERE );
+	setState( AudioEngine::State::Prepared );
+
+	nLastFrame = 0;
+	fLastBpm = 0;
+	nTotalFrames = 0;
+
+	int nDifferentTempos = 10;
+
+	for ( int tt = 0; tt < nDifferentTempos; ++tt ) {
+
+		fBpm = tempoDist( randomEngine );
+
+		nLastFrame = std::round( nLastFrame * fLastBpm / fBpm );
+		
+		setNextBpm( fBpm );
+		updateBpmAndTickSize( true );
+
+		fLastBpm = fBpm;
+		
+		for ( int cc = 0; cc < nCyclesPerTempo; ++cc ) {
+			nFrames = frameDist( randomEngine );
+
+			incrementTransportPosition( nFrames );
+
+			if ( ! testCheckTransportPosition( "pattern mode" ) ) {
+				setState( AudioEngine::State::Ready );
+				unlock();
+				return bNoMismatch;
+			}
+
+			if ( ( cc > 0 && getFrames() - nFrames != nLastFrame ) ||
+				 // errors in the rescaling of nLastFrame are omitted.
+				 ( cc == 0 && abs( getFrames() - nFrames - nLastFrame ) > 1 ) ) {
+				ERRORLOG( QString( "[pattern mode] inconsistent frame update. getFrames(): %1, nFrames: %2, nLastFrame: %3" )
+						  .arg( getFrames() ).arg( nFrames ).arg( nLastFrame ) );
+				bNoMismatch = false;
+				setState( AudioEngine::State::Ready );
+				unlock();
+				return bNoMismatch;
+			}
+			
+			nLastFrame = getFrames();
+
+			// Using the offset Hydrogen can keep track of the actual
+			// number of frames passed since the playback was started
+			// even in case a tempo change was issued by the user.
+			nTotalFrames += nFrames;
+			if ( getFrames() - m_nFrameOffset != nTotalFrames ) {
+				ERRORLOG( QString( "[pattern mode] frame offset incorrect. getFrames(): %1, m_nFrameOffset: %2, nTotalFrames: %3" )
+						  .arg( getFrames() ).arg( m_nFrameOffset ).arg( nTotalFrames ) );
+				bNoMismatch = false;
+				setState( AudioEngine::State::Ready );
+				unlock();
+				return bNoMismatch;
+			}
+		}
+	}
+	
 	reset( false );
 
 	setState( AudioEngine::State::Ready );
