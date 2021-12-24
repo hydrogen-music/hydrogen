@@ -339,6 +339,8 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	if ( !pPreferences->__playselectedinstrument ) {
 		if ( instrument >= ( int ) pSong->getInstrumentList()->size() ) {
 			// unused instrument
+			ERRORLOG( QString( "Provided instrument [%1] not found" )
+					  .arg( instrument ) );
 			pAudioEngine->unlock();
 			return;
 		}
@@ -347,9 +349,10 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	// Get current partern and column, compensating for "lookahead" if required
 	const Pattern* currentPattern = nullptr;
 	long nTickInPattern = 0;
-	long long nLookaheadInFrames = m_pAudioEngine->getLookaheadInFrames( m_pAudioEngine->getTick() );
+	long long nLookaheadInFrames = m_pAudioEngine->getLookaheadInFrames( pAudioEngine->getTick() );
 	long nLookaheadTicks = 
-		static_cast<long>(std::floor(m_pAudioEngine->computeTickFromFrame( nLookaheadInFrames ) -
+		static_cast<long>(std::floor(m_pAudioEngine->computeTickFromFrame( pAudioEngine->getFrames() +
+																		   nLookaheadInFrames ) -
 									 m_pAudioEngine->getTick()));
 			  
 	bool doRecord = pPreferences->getRecordEvents();
@@ -374,6 +377,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 			ipattern -= 1;
 			if ( ipattern < 0 || ipattern >= (int) pPatternList->size() ) {
 				pAudioEngine->unlock(); // unlock the audio engine
+				ERRORLOG( "Unable to locate tick in pattern" );
 				return;
 			}
 
@@ -425,6 +429,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		}
 
 		if ( ! currentPattern ) {
+			ERRORLOG( "Current pattern invalid" );
 			pAudioEngine->unlock(); // unlock the audio engine
 			return;
 		}
@@ -501,9 +506,11 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 			hearnote = true;
 	} /* if .. AudioEngine::State::Playing */
 
+
 	if ( !pPreferences->__playselectedinstrument ) {
 		if ( hearnote && instrRef ) {
 			Note *pNote2 = new Note( instrRef, nRealColumn, velocity, fPan, -1, 0 );
+			
 			midi_noteOn( pNote2 );
 		}
 	} else if ( hearnote  ) {
