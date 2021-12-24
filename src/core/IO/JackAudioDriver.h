@@ -34,11 +34,6 @@
 #include <memory>
 #include <pthread.h>
 #include <jack/jack.h>
-
-#if defined(H2CORE_HAVE_JACKSESSION) || _DOXYGEN_
-#include <jack/session.h>
-#endif
-
 #include <jack/transport.h>
 
 #include <core/Globals.h>
@@ -395,27 +390,6 @@ private:
 	 * \param arg Unused.
 	 */	
 	static void jackDriverShutdown( void* arg );
-
-#if defined(H2CORE_HAVE_JACKSESSION) || _DOXYGEN_
-	/**
-	 * Function to call by the JACK server when a session event is
-	 * to be delivered.
-	 *
-	 * It is registered to the JACK client in init() using
-	 * _jack_set_session_callback()_ (jack/session.h) if
-	 * #H2CORE_HAVE_JACKSESSION was defined during compilation.
-	 *
-	 * Internally it hands the @a event to
-	 * jack_session_callback_impl().
-	 *
-	 * \param event Jack session event (see jack/session.h)
-	 * \param arg Pointer to an instance of the JackAudioDriver.
-	 */
-	static void jack_session_callback( jack_session_event_t* event,
-					   void* arg );
-	
-	void jack_session_callback_impl( jack_session_event_t* event );
-#endif
 
 	static void printJackTransportPos( const jack_position_t* pPos );
 

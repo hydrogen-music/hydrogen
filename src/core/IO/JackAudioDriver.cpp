@@ -52,10 +52,6 @@
 #include <core/Lash/LashClient.h>
 #endif
 
-#ifdef H2CORE_HAVE_JACKSESSION
-#include <jack/session.h>
-#endif
-
 namespace H2Core {
 
 int JackAudioDriver::jackDriverSampleRate( jack_nframes_t nframes, void* param ){
@@ -488,28 +484,10 @@ int JackAudioDriver::init( unsigned bufferSize )
 		// this is NULL, the open operation failed, *status
 		// includes JackFailure and the caller is not a JACK
 		// client.
-#ifdef H2CORE_HAVE_JACKSESSION
-		if ( pPreferences->getJackSessionUUID().isEmpty() ){
-			m_pClient = jack_client_open( sClientName.toLocal8Bit(),
-						      JackNullOption,
-						      &status);
-		} else {
-			// Unique name of the JACK server used within
-			// the JACK session.
-			const QByteArray uuid = pPreferences->getJackSessionUUID().toLocal8Bit();
-			// Using the JackSessionID option and the
-			// supplied SessionID Token the sessionmanager
-			// is able to identify the client again.
-			m_pClient = jack_client_open( sClientName.toLocal8Bit(),
-						      JackSessionID,
-						      &status,
-						      uuid.constData());
-		}
-#else
 		m_pClient = jack_client_open( sClientName.toLocal8Bit(),
 					      JackNullOption,
 					      &status);
-#endif
+
 		// Check what did happen during the opening of the
 		// client. CLIENT_SUCCESS sets the nTries variable
 		// to 0 while CLIENT_FAILURE resets m_pClient to the
@@ -634,10 +612,6 @@ int JackAudioDriver::init( unsigned bufferSize )
 			lashClient->setJackClientName(sClientName.toLocal8Bit().constData());
 		}
 	}
-#endif
-
-#ifdef H2CORE_HAVE_JACKSESSION
-	jack_set_session_callback(m_pClient, jack_session_callback, (void*)this);
 #endif
 
 	if ( pPreferences->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT &&
@@ -781,113 +755,6 @@ void JackAudioDriver::locateTransport( long long nFrame )
 		ERRORLOG( "No client registered" );
 	}
 }
-
-#ifdef H2CORE_HAVE_JACKSESSION
-void JackAudioDriver::jack_session_callback(jack_session_event_t *event, void *arg)
-{
-	JackAudioDriver* pDriver = static_cast<JackAudioDriver*>(arg);
-	if ( pDriver != nullptr ) {
-		pDriver->jack_session_callback_impl( event );
-	}
-}
-
-static QString baseName( QString sPath ) {
-	return QFileInfo( sPath ).fileName();
-}
-
-void JackAudioDriver::jack_session_callback_impl(jack_session_event_t* event)
-{
-	enum session_events{
-		SAVE_SESSION,
-		SAVE_AND_QUIT,
-		SAVE_TEMPLATE
-	};
-
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	Preferences* pPreferences = Preferences::get_instance();
-	EventQueue* pEventQueue = EventQueue::get_instance();
-
-	if ( pSong == nullptr ) {
-		// Expected behavior if Hydrogen is exited while playback is
-		// still running.
-		DEBUGLOG( "No song set." );
-		return;
-	}
-
-	jack_session_event_t* ev = static_cast<jack_session_event_t*>(event);
-
-	QString sJackSessionDirectory = static_cast<QString>(ev->session_dir);
-	QString sRetval = pPreferences->getJackSessionApplicationPath() + 
-		" --jacksessionid " + ev->client_uuid;
-
-	/* Playlist mode */
-	Playlist* pPlaylist = Playlist::get_instance();
-	if ( pPlaylist->size() > 0 ) {
-
-		if ( pPlaylist->getFilename().isEmpty() ) {
-			pPlaylist->setFilename( Filesystem::untitled_playlist_file_name() );
-		}
-
-		QString sFileName = baseName( pPlaylist->getFilename() );
-		sFileName.replace( QString(" "), QString("_") );
-		sRetval += " -p \"${SESSION_DIR}" + sFileName + "\"";
-
-		/* Copy all songs to Session Directory and update playlist */
-		SongReader reader;
-		for ( uint i = 0; i < pPlaylist->size(); ++i ) {
-			QString sBaseName = baseName( pPlaylist->get( i )->filePath );
-			QString sNewName = sJackSessionDirectory + sBaseName;
-			QString sSongPath = reader.getPath( pPlaylist->get( i )->filePath );
-			if ( sSongPath != nullptr && QFile::copy( sSongPath, sNewName ) ) {
-				/* Keep only filename on list for relative read */
-				pPlaylist->get( i )->filePath = sBaseName;
-			} else {
-				/* Note - we leave old path in playlist */
-				ERRORLOG( "Can't copy " + pPlaylist->get( i )->filePath + " to " + sNewName );
-				ev->flags = JackSessionSaveError;
-			}
-		}
-
-		/* Save updated playlist */
-		bool bRelativePaths = Preferences::get_instance()->isPlaylistUsingRelativeFilenames();
-		if ( Files::savePlaylistPath( sJackSessionDirectory + sFileName, 
-									  pPlaylist, bRelativePaths ) == nullptr ) {
-			ev->flags = JackSessionSaveError;
-		}
-		/* Song Mode */
-	} else {
-		/* Valid Song is needed */
-		if ( pSong->getFilename().isEmpty() ) {
-			pSong->setFilename( Filesystem::untitled_song_file_name() );
-		}
-
-		QString sFileName = baseName( pSong->getFilename() );
-		sFileName.replace( QString(" "), QString("_") );
-		pSong->setFilename( sJackSessionDirectory + sFileName);
-
-		/* SongReader will look into SESSION DIR anyway */
-		sRetval += " -s \"" + sFileName + "\"";
-
-		switch (ev->type) {
-			case JackSessionSave:
-				pEventQueue->push_event(EVENT_JACK_SESSION, SAVE_SESSION);
-				break;
-			case JackSessionSaveAndQuit:
-				pEventQueue->push_event(EVENT_JACK_SESSION, SAVE_SESSION);
-				pEventQueue->push_event(EVENT_JACK_SESSION, SAVE_AND_QUIT);
-				break;
-			default:
-				ERRORLOG( "JackSession: Unknown event type" );
-				ev->flags = JackSessionSaveError;
-		}
-	}
-
-	ev->command_line = strdup( sRetval.toUtf8().constData() );
-	jack_session_reply( m_pClient, ev );
-	jack_session_event_free( ev );
-}
-#endif
 
 void JackAudioDriver::initTimebaseMaster()
 {
