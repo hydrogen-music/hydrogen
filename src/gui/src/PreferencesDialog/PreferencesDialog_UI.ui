@@ -29,7 +29,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="GeneralTab">
       <attribute name="title">
@@ -247,136 +247,15 @@
           <layout class="QHBoxLayout" name="horizontalLayout"/>
          </item>
          <item>
-          <layout class="QGridLayout" columnstretch="1,2">
-           <item row="9" column="0">
-            <widget class="QLabel" name="jackBBTSyncLbl">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="toolTip">
-              <string>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</string>
-             </property>
-             <property name="text">
-              <string>BBT sync method</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="1">
-            <widget class="QSpinBox" name="bufferSizeSpinBox">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="minimum">
-              <number>100</number>
-             </property>
-             <property name="maximum">
-              <number>5000</number>
-             </property>
-             <property name="singleStep">
-              <number>100</number>
-             </property>
-             <property name="value">
-              <number>1024</number>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="1">
-            <widget class="QComboBox" name="sampleRateComboBox">
-             <property name="currentIndex">
-              <number>0</number>
-             </property>
-             <item>
-              <property name="text">
-               <string>44100</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>48000</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>88200</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>96000</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="audioDeviceLbl">
-             <property name="text">
-              <string>Device</string>
-             </property>
-            </widget>
+          <layout class="QGridLayout" columnstretch="1,0">
+           <item row="4" column="1">
+            <widget class="HostAPIComboBox" name="portaudioHostAPIComboBox"/>
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="label_6">
              <property name="text">
               <string>Audio System</string>
              </property>
-            </widget>
-           </item>
-           <item row="8" column="0">
-            <widget class="QLabel" name="trackOutputLbl">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Track output</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QComboBox" name="driverComboBox"/>
-           </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="buffer_sizeLbl">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Buffer size</string>
-             </property>
-            </widget>
-           </item>
-           <item row="9" column="1">
-            <widget class="QComboBox" name="jackBBTSyncComboBox">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="toolTip">
-              <string>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</string>
-             </property>
-             <item>
-              <property name="text">
-               <string>constant measure</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>matching bars</string>
-              </property>
-             </item>
             </widget>
            </item>
            <item row="5" column="1">
@@ -389,6 +268,13 @@
              </property>
              <property name="editable">
               <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="audioDeviceLbl">
+             <property name="text">
+              <string>Device</string>
              </property>
             </widget>
            </item>
@@ -422,6 +308,32 @@
              </item>
             </widget>
            </item>
+           <item row="8" column="0">
+            <widget class="QLabel" name="trackOutputLbl">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Track output</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="buffer_sizeLbl">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Buffer size</string>
+             </property>
+            </widget>
+           </item>
            <item row="4" column="0">
             <widget class="QLabel" name="portaudioHostAPILabel">
              <property name="text">
@@ -429,8 +341,57 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
-            <widget class="HostAPIComboBox" name="portaudioHostAPIComboBox"/>
+           <item row="7" column="1">
+            <widget class="QComboBox" name="sampleRateComboBox">
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>44100</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>48000</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>88200</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>96000</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QSpinBox" name="bufferSizeSpinBox">
+             <property name="minimumSize">
+              <size>
+               <width>184</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <number>100</number>
+             </property>
+             <property name="maximum">
+              <number>5000</number>
+             </property>
+             <property name="singleStep">
+              <number>100</number>
+             </property>
+             <property name="value">
+              <number>1024</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QComboBox" name="driverComboBox"/>
            </item>
           </layout>
          </item>
@@ -461,6 +422,9 @@
            </item>
            <item>
             <widget class="QCheckBox" name="enableTimebaseCheckBox">
+             <property name="toolTip">
+              <string>Use tempo provided by the JACK server to overwrite local tempo in Hydrogen</string>
+             </property>
              <property name="text">
               <string>Enable JACK &amp;timebase master support</string>
              </property>

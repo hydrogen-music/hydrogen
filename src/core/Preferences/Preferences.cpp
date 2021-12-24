@@ -188,7 +188,6 @@ Preferences::Preferences()
 	m_bJackTimebaseEnabled = true;
 	m_bJackMasterMode = NO_JACK_TIME_MASTER;
 	m_JackTrackOutputMode = JackTrackOutputMode::postFader;
-	m_JackBBTSync = JackBBTSyncMethod::constMeasure;
 
 	// OSC configuration
 	m_bOscServerEnabled = false;
@@ -461,16 +460,6 @@ void Preferences::loadPreferences( bool bGlobal )
 						m_bJackMasterMode = USE_JACK_TIME_MASTER;
 					}
 
-					int nBBTSync = LocalFileMng::readXmlInt( jackDriverNode, "jack_bbt_sync", 0 );
-					if ( nBBTSync == 0 ){
-						m_JackBBTSync = JackBBTSyncMethod::constMeasure;
-					} else if ( nBBTSync == 1 ) {
-						m_JackBBTSync = JackBBTSyncMethod::identicalBars;
-					} else {
-						WARNINGLOG( QString( "Unknown jack_bbt_sync value [%1]. Using JackBBTSyncMethod::constMeasure instead." )
-								  .arg( nBBTSync ) );
-						m_JackBBTSync = JackBBTSyncMethod::constMeasure;
-					}
 					//~ jack time master
 
 					m_bJackTrackOuts = LocalFileMng::readXmlBool( jackDriverNode, "jack_track_outs", m_bJackTrackOuts );
@@ -955,15 +944,6 @@ void Preferences::savePreferences()
 			}
 			LocalFileMng::writeXmlString( jackDriverNode, "jack_transport_mode_master", tmMode );
 
-			int nBBTSync = 0;
-			if ( m_JackBBTSync == JackBBTSyncMethod::constMeasure ) {
-				nBBTSync = 0;
-			} else if ( m_JackBBTSync == JackBBTSyncMethod::identicalBars ) {
-				nBBTSync = 1;
-			}
-			LocalFileMng::writeXmlString( jackDriverNode, "jack_bbt_sync",
-										  QString::number( nBBTSync ) );
-			
 			//~ jack time master
 
 			// jack default connection

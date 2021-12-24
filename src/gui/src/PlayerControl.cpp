@@ -344,7 +344,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 connected programs can broadcast both speed and measure information to
 all other connected applications in order to have a more fine-grained
 transport control.*/
-	m_sJackMasterModeToolTip = tr("JACK Timebase master on/off");
+	m_sJackMasterModeToolTip = tr("Broadcast tempo and measure to other JACK clients");
 	m_pJackMasterBtn = new Button( pJackPanel, QSize( 53, 16 ), Button::Type::Toggle,
 								   "", pCommonStrings->getJackMasterButton(), false, QSize(),
 								   m_sJackMasterModeToolTip );
