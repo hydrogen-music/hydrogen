@@ -336,6 +336,7 @@ public:
 	float			getMaxProcessTime() const;
 
 	long			getPatternTickPosition() const;
+	long			getPatternStartTick() const;
 
 	int				getColumn() const;
 	long long		getFrameOffset() const;
@@ -879,6 +880,9 @@ inline MidiOutput*	AudioEngine::getMidiOutDriver() const {
 	return m_pMidiDriverOut;
 }
 
+inline long AudioEngine::getPatternStartTick() const {
+	return m_nPatternStartTick;
+}
 inline void AudioEngine::setPatternTickPosition( long nTick ) {
 	m_nPatternTickPosition = nTick;
 }
