@@ -24,4 +24,10 @@ target_link_libraries(tests
 	Qt5::Test
 )
 
+IF(Backtrace_FOUND)
+	target_link_libraries(tests
+		${Backtrace_LIBRARIES}
+	)
+ENDIF()
+
 add_dependencies(tests hydrogen-core-${VERSION})
