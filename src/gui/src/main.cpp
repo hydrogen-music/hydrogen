@@ -52,6 +52,7 @@
 #include <core/Basics/Playlist.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Translations.h>
+#include <core/Logger.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -61,6 +62,10 @@
 #include <iostream>
 #include <map>
 #include <set>
+
+#ifdef HAVE_EXECINFO_H
+#include <execinfo.h>
+#endif
 
 //
 // Set the palette used in the application
@@ -136,6 +141,19 @@ static void handleFatalSignal( int nSignal )
 {
 	// First disable signal handler to allow normal termination
 	signal( nSignal, SIG_DFL );
+
+	___ERRORLOG( strsignal( nSignal ) );
+
+#ifdef HAVE_EXECINFO_H
+	// Print out stack backtrace if we can
+	const int nMaxFrames = 128;
+	void *frames[ nMaxFrames ];
+	int nFrames = backtrace( frames, nMaxFrames );
+	char **symbols = backtrace_symbols( frames, nFrames );
+	for ( int i = 0; i < nFrames; i++ ) {
+		___ERRORLOG( QString("%1").arg( symbols[i] ) );
+	}
+#endif
 
 	// Allow logger to complete
 	H2Core::Logger* pLogger = H2Core::Logger::get_instance();
