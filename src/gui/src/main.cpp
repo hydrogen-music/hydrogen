@@ -79,7 +79,7 @@ static void handleFatalSignal( int nSignal )
 	// First disable signal handler to allow normal termination
 	signal( nSignal, SIG_DFL );
 
-	___ERRORLOG( strsignal( nSignal ) );
+	___ERRORLOG( QString( "Fatal signal %1" ).arg( nSignal ) );
 
 #ifdef HAVE_EXECINFO_H
 	// Print out stack backtrace if we can
