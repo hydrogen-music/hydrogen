@@ -790,7 +790,14 @@ void SongEditorPanel::editPlaybackTrackBtnPressed()
 
 void SongEditorPanel::songModeActivationEvent( int nValue ) {
 	// Disable the stacked mode button in song mode since it does nothing in song mode
-	m_pModeActionMultipleBtn->setDisabled( nValue != 0 );
+	if ( nValue != 0 ) {
+		m_pModeActionMultipleBtn->setDisabled( true );
+		m_pModeActionSingleBtn->setDisabled( true );
+	} else {
+		m_pModeActionMultipleBtn->setDisabled( false );
+		m_pModeActionSingleBtn->setDisabled( false );
+		setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
+	}
 }
 
 void SongEditorPanel::modeActionBtnPressed( )

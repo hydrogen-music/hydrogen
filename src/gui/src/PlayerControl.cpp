@@ -659,7 +659,7 @@ void PlayerControl::deactivateMidiActivityLED() {
 /// Set Song mode
 void PlayerControl::songModeBtnClicked()
 {
-	Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true, false );
+	Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true, true );
 	songModeActivationEvent( 1 );
 }
 
@@ -667,7 +667,7 @@ void PlayerControl::songModeBtnClicked()
 ///Set Live mode
 void PlayerControl::patternModeBtnClicked()
 {
-	Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false, false );
+	Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false, true );
 	songModeActivationEvent( 0 );
 }
 
