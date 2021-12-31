@@ -558,12 +558,16 @@ QString Filesystem::tmp_dir()
 {
 	return QDir::tempPath() + "/" + TMP;
 }
-QString Filesystem::tmp_file_path( const QString& base )
+QString Filesystem::tmp_file_path( const QString &base )
 {
-	QFileInfo f( base );
-	QString templateName(tmp_dir() + "/");
+	// Ensure template base will produce a valid filename
+	QString validBase = base.left( 20 );
+	validBase.remove( QRegExp( "[^a-zA-Z0-9._]" ) );
+
+	QFileInfo f( validBase );
+	QString templateName( tmp_dir() + "/" );
 	if ( f.suffix().isEmpty() ) {
-		templateName += base;
+		templateName += validBase;
 	} else {
 		templateName += f.completeBaseName() + "-XXXXXX." + f.suffix();
 	}
