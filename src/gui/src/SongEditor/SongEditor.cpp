@@ -1381,9 +1381,7 @@ void SongEditorPatternList::createBackground()
 		}
 		else if (PatternArray[i].bActive) {
 			//mark active pattern with triangular
-			if( ! pPref->patternModePlaysSelected() ){
-				p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_on_Pixmap );
-			}
+			p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_on_Pixmap );
 		} else if ( ! pPref->patternModePlaysSelected() && pSong->getMode() == Song::PATTERN_MODE) {
 			p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_empty_Pixmap );
 		}
