@@ -134,6 +134,19 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 
 		void cleanupTemporaryFiles();
 
+		enum SetPropertyFlag {
+			SetX = 1 << 0,
+			SetY = 1 << 1,
+			SetWidth = 1 << 2,
+			SetHeight = 1 << 3,
+			SetVisible = 1 << 4,
+			SetAll = SetX + SetY + SetWidth + SetHeight + SetVisible,
+			SetDefault = SetAll
+		};
+
+		void setWindowProperties( QWidget *pWindow, H2Core::WindowProperties &prop, unsigned flags = SetAll );
+		H2Core::WindowProperties getWindowProperties( QWidget *pWindow );
+
 signals:
 	/** Propagates a change in the Preferences through the GUI.
 	 *
