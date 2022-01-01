@@ -414,6 +414,7 @@ int main(int argc, char *argv[])
 		delete pPlaylist;
 
 		delete pQueue;
+		preferences->savePreferences();
 		delete pHydrogen;
 		delete preferences;
 

@@ -54,15 +54,17 @@ public:
 	int width;
 	int height;
 	bool visible;
+	QByteArray m_geometry;
 
 	WindowProperties();
 	WindowProperties(const WindowProperties &other);
 	~WindowProperties();
 
-	void set(int _x, int _y, int _width, int _height, bool _visible) {
+	void set(int _x, int _y, int _width, int _height, bool _visible, QByteArray geometry = QByteArray() ) {
 		x = _x; y = _y;
 		width = _width; height = _height;
 		visible = _visible;
+		m_geometry = geometry;
 	}
 
 };
@@ -275,6 +277,7 @@ public:
 	// PortAudio properties
 	QString				m_sPortAudioDevice;
 	QString				m_sPortAudioHostAPI;
+	int					m_nLatencyTarget;
 
 	// CoreAudio properties
 	QString				m_sCoreAudioDevice;

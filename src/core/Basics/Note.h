@@ -235,6 +235,8 @@ class Note : public H2Core::Object<Note>
 		float get_lpfb_l() const;
 		/** #__lpfb_r accessor */
 		float get_lpfb_r() const;
+		/** Filter output is sustaining note */
+		bool filter_sustain() const;
 		/** #__key accessor */
 		Key get_key();
 		/** #__octave accessor */
@@ -323,6 +325,12 @@ class Note : public H2Core::Object<Note>
 		 *
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+
+		/** Convert a logarithmic pitch-space value in semitones to a frequency-domain value */
+		static inline double pitchToFrequency( double fPitch ) {
+			// Equivalent to, but quicker to compute than, pow( 2.0, ( fPitch/12 ) )
+			return pow( 1.0594630943593, fPitch );
+		}
 
 	private:
 		std::shared_ptr<Instrument>		__instrument;   ///< the instrument to be played by this note
@@ -545,6 +553,13 @@ inline float Note::get_lpfb_l() const
 inline float Note::get_lpfb_r() const
 {
 	return __lpfb_r;
+}
+
+inline bool Note::filter_sustain() const
+{
+	const double fLimit = 0.001;
+	return ( fabs( __lpfb_l ) > fLimit || fabs( __lpfb_r ) > fLimit ||
+			 fabs( __bpfb_l ) > fLimit || fabs( __bpfb_r ) > fLimit );
 }
 
 inline Note::Key Note::get_key()

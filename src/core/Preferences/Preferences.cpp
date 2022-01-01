@@ -172,6 +172,7 @@ Preferences::Preferences()
 	// PortAudio properties
 	m_sPortAudioDevice = QString();
 	m_sPortAudioHostAPI = QString();
+	m_nLatencyTarget = 0;
 
 	// CoreAudio
 	m_sCoreAudioDevice = QString();
@@ -247,8 +248,6 @@ Preferences::Preferences()
 
 Preferences::~Preferences()
 {
-	savePreferences();
-
 	INFOLOG( "DESTROY" );
 	__instance = nullptr;
 }
@@ -425,6 +424,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				} else {
 					m_sPortAudioDevice = LocalFileMng::readXmlString( portAudioDriverNode, "portAudioDevice", m_sPortAudioDevice );
 					m_sPortAudioHostAPI = LocalFileMng::readXmlString( portAudioDriverNode, "portAudioHostAPI", m_sPortAudioHostAPI );
+					m_nLatencyTarget = LocalFileMng::readXmlInt( portAudioDriverNode, "latencyTarget", m_nLatencyTarget );
 				}
 
 				//// COREAUDIO DRIVER ////
@@ -784,7 +784,7 @@ void Preferences::savePreferences()
 	} else {
 		sPreferencesFilename = sPreferencesOverwritePath;
 	}
-	
+
 	INFOLOG( QString( "Saving preferences file %1" ).arg( sPreferencesFilename ) );
 
 	QDomDocument doc;
@@ -909,6 +909,7 @@ void Preferences::savePreferences()
 		{
 			LocalFileMng::writeXmlString( portAudioDriverNode, "portAudioDevice", m_sPortAudioDevice );
 			LocalFileMng::writeXmlString( portAudioDriverNode, "portAudioHostAPI", m_sPortAudioHostAPI );
+			LocalFileMng::writeXmlString( portAudioDriverNode, "latencyTarget", QString("%1").arg( m_nLatencyTarget ) );
 		}
 		audioEngineNode.appendChild( portAudioDriverNode );
 
@@ -1283,6 +1284,9 @@ WindowProperties Preferences::readWindowProperties( QDomNode parent, const QStri
 		prop.y = LocalFileMng::readXmlInt( windowPropNode, "y", prop.y );
 		prop.width = LocalFileMng::readXmlInt( windowPropNode, "width", prop.width );
 		prop.height = LocalFileMng::readXmlInt( windowPropNode, "height", prop.height );
+		prop.m_geometry = QByteArray::fromBase64( LocalFileMng::readXmlString( windowPropNode, "geometry",
+																			   prop.m_geometry.toBase64() )
+												  .toUtf8() );
 	}
 
 	return prop;
@@ -1305,6 +1309,8 @@ void Preferences::writeWindowProperties( QDomNode parent, const QString& windowN
 	LocalFileMng::writeXmlString( windowPropNode, "y", QString("%1").arg( prop.y ) );
 	LocalFileMng::writeXmlString( windowPropNode, "width", QString("%1").arg( prop.width ) );
 	LocalFileMng::writeXmlString( windowPropNode, "height", QString("%1").arg( prop.height ) );
+	LocalFileMng::writeXmlString( windowPropNode, "geometry", QString( prop.m_geometry.toBase64() ) );
+
 	parent.appendChild( windowPropNode );
 }
 

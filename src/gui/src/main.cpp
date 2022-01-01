@@ -50,6 +50,7 @@
 #include <core/Basics/Playlist.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Translations.h>
+#include <core/Logger.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -59,6 +60,11 @@
 #include <iostream>
 #include <map>
 #include <set>
+
+#ifdef HAVE_EXECINFO_H
+#include <execinfo.h>
+#endif
+
 namespace H2Core {
 	void init_gui_object_map();
 };
@@ -69,6 +75,19 @@ static void handleFatalSignal( int nSignal )
 {
 	// First disable signal handler to allow normal termination
 	signal( nSignal, SIG_DFL );
+
+	___ERRORLOG( QString( "Fatal signal %1" ).arg( nSignal ) );
+
+#ifdef HAVE_EXECINFO_H
+	// Print out stack backtrace if we can
+	const int nMaxFrames = 128;
+	void *frames[ nMaxFrames ];
+	int nFrames = backtrace( frames, nMaxFrames );
+	char **symbols = backtrace_symbols( frames, nFrames );
+	for ( int i = 0; i < nFrames; i++ ) {
+		___ERRORLOG( QString("%1").arg( symbols[i] ) );
+	}
+#endif
 
 	// Allow logger to complete
 	H2Core::Logger* pLogger = H2Core::Logger::get_instance();
@@ -93,12 +112,16 @@ static int setup_unix_signal_handlers()
 		return 1;
 	}
 
-	for ( int nSignal : { SIGSEGV, SIGILL, SIGFPE, SIGBUS } ) {
+#endif
+
+	for ( int nSignal : { SIGSEGV, SIGILL, SIGFPE,
+#ifndef WIN32
+						 SIGBUS
+#endif
+		} ) {
 		signal( nSignal, handleFatalSignal );
 	}
 
-#endif
-	
 	return 0;
 }
 
@@ -541,6 +564,7 @@ int main(int argc, char *argv[])
 
 		pQApp->exec();
 
+		pPref->savePreferences();
 		delete pSplash;
 		delete pMainForm;
 		delete pQApp;
