@@ -604,7 +604,6 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 	Hydrogen::get_instance()->loadDrumkit( pDrumkitInfo, conditionalLoad );
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
 	HydrogenApp::get_instance()->onDrumkitLoad( pDrumkitInfo->get_name() );
 	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
 	HydrogenApp::get_instance()->getPatternEditorPanel()->updatePianorollEditor();

@@ -329,7 +329,7 @@ void JackAudioDriver::relocateUsingBBT()
 	long barTicks = 0;
 	float fAdditionalTicks = 0;
 	float fNumberOfBarsPassed = 0;
-	if ( pSong->getMode() == Song::SONG_MODE ) {
+	if ( pHydrogen->getMode() == Song::Mode::Song ) {
  
 		if ( Preferences::get_instance()->m_JackBBTSync ==
 			 Preferences::JackBBTSyncMethod::identicalBars ) {
@@ -440,9 +440,7 @@ void JackAudioDriver::relocateUsingBBT()
 
 	float fBPM = static_cast<float>(m_JackTransportPos.beats_per_minute);
 	if ( pAudioEngine->getBpm() != fBPM ) {
-		pAudioEngine->setBpm( fBPM );
-		pHydrogen->getSong()->setBpm( fBPM );
-		pHydrogen->setNewBpmJTM( fBPM );
+		pAudioEngine->setNextBpm( fBPM );
 	}
 }
 
@@ -513,6 +511,8 @@ void JackAudioDriver::updateTransportInfo()
 				// JackTimebaseCallback not called anymore -> timebase client
 				m_nTimebaseTracking = 0;
 				m_timebaseState = Timebase::Slave;
+				EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
+														static_cast<int>(Timebase::Slave) );
 			}
 		}
 		if ( m_nTimebaseTracking == 0 && 
@@ -520,11 +520,15 @@ void JackAudioDriver::updateTransportInfo()
 			// No external timebase master anymore -> regular client
 			m_nTimebaseTracking = -1;
 			m_timebaseState = Timebase::None;
+			EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
+													static_cast<int>(Timebase::None) );
 		} else if ( m_nTimebaseTracking < 0 && 
 					( m_JackTransportPos.valid & JackPositionBBT ) ) {
 			// External timebase master detected -> timebase client
 			m_nTimebaseTracking = 0;
 			m_timebaseState = Timebase::Slave;
+			EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
+													static_cast<int>(Timebase::Slave) );
 		}
 	}
 	
@@ -534,7 +538,7 @@ void JackAudioDriver::updateTransportInfo()
 	if ( pAudioEngine->getFrames() + m_frameOffset != m_JackTransportPos.frame ) {
 		// Reset playback to the beginning of the pattern if Hydrogen
 		// is in pattern mode.
-		if ( pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {
+		if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 			pAudioEngine->reset();
 		}
 
@@ -566,7 +570,8 @@ void JackAudioDriver::updateTransportInfo()
 		// Checks for local changes in speed (introduced by the user
 		// using BPM markers on the timeline) and update tempo
 		// accordingly.
-		pHydrogen->setTimelineBpm();
+		// TODO: this shouldn't be required anymore.
+		// pHydrogen->setTimelineBpm();
 	}
 
 	if ( bTimebaseEnabled && m_timebaseState == Timebase::Slave ) {
@@ -943,12 +948,6 @@ int JackAudioDriver::init( unsigned bufferSize )
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong != nullptr ) {
 		makeTrackOutputs( pSong );
-		pHydrogen->getAudioEngine()->setBpm( pSong->getBpm() );
-		// Caution: this one is called while the AudioEngine is still
-		// locked when exporting a song and closing the dialog. As
-		// long as CoreActionController::locateTo* still lock it, they
-		// mustn't be used.
-		pHydrogen->getAudioEngine()->setFrames( 0 );
 	}
 	
 	return 0;
@@ -1239,6 +1238,8 @@ void JackAudioDriver::initTimebaseMaster()
 		} else {
 			m_nTimebaseTracking = 2;
 			m_timebaseState = Timebase::Master;
+			EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
+													static_cast<int>(Timebase::Master) );
 		}
 	} else {
 	    releaseTimebaseMaster();
@@ -1262,9 +1263,13 @@ void JackAudioDriver::releaseTimebaseMaster()
 	if ( m_JackTransportPos.valid & JackPositionBBT ) {
 		m_nTimebaseTracking = 0;
 		m_timebaseState = Timebase::Slave;
+		EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
+												static_cast<int>(Timebase::Slave) );
 	} else {
 		m_nTimebaseTracking = -1;
 		m_timebaseState = Timebase::None;
+		EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,
+												static_cast<int>(Timebase::None) );
 	}
 }
 
@@ -1356,7 +1361,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 		// pJackPosition. In Hydrogen is guaranteed to be constant within
 		// a block.
 		pJackPosition->beats_per_minute = 
-			static_cast<double>(pHydrogen->getTimelineBpm( nNextPatternInternal ));
+			static_cast<double>(pHydrogen->getTimeline()->getTempoAtColumn( nNextPatternInternal ));
 	} else {
 		pJackPosition->beats_per_minute = static_cast<double>(pAudioEngine->getBpm());
 	}
@@ -1400,6 +1405,13 @@ JackAudioDriver::Timebase JackAudioDriver::getTimebaseState() const {
 		return m_timebaseState;
 	}
 	return Timebase::None;
+}
+float JackAudioDriver::getMasterBpm() const {
+	if ( m_timebaseState != Timebase::Slave ) {
+		return std::nan("no tempo, no masters");
+	}
+	
+	return static_cast<float>(m_JackTransportPos.beats_per_minute );
 }
 
 void JackAudioDriver::printState() const {

@@ -20,6 +20,8 @@
  *
  */
 #include <core/AudioEngine/TransportInfo.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
 #include <core/config.h>
 
 namespace H2Core {
@@ -47,6 +49,10 @@ void TransportInfo::setBpm( float fNewBpm ) {
 	}
 	
 	m_fBpm = fNewBpm;
+
+	if ( Preferences::get_instance()->getRubberBandBatchMode() ) {
+		Hydrogen::get_instance()->recalculateRubberband( getBpm() );
+	}
 }
  
 void TransportInfo::setFrames( long long nNewFrames ) {

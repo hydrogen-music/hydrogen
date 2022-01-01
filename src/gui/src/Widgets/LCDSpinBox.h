@@ -69,12 +69,16 @@ public:
 		PatternSizeDenominator
 	};
 
-	LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin = 0.0, double fMax = 1.0 );
+	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int, double fMin = 0.0, double fMax = 1.0 );
 	~LCDSpinBox();
 
 	void setKind( Kind kind );
 	QValidator::State validate( QString &text, int &pos ) const;
+	
+	bool getIsActive() const;
+	void setIsActive( bool bIsActive );
 
+	void setSize( QSize size );
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
@@ -89,6 +93,7 @@ private:
 	Kind m_kind;
 	
 	bool m_bEntered;
+	bool m_bIsActive;
 
 	virtual QString textFromValue( double fValue ) const override;
 	virtual double valueFromText( const QString& sText ) const override;	
@@ -102,5 +107,8 @@ private:
 
 inline void LCDSpinBox::setKind( Kind kind ) {
 	m_kind = kind;
+}
+inline bool LCDSpinBox::getIsActive() const {
+	return m_bIsActive;
 }
 #endif

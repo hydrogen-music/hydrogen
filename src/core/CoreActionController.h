@@ -230,15 +230,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 *
 		 * @param bActivate If true - activates Song mode or if false -
 		 * activates Pattern mode.
-		 * @param bTriggerEvent Setting this variable to true is
-		 * intended for its use as a batch function from within
-		 * Hydrogen's core, which will inform the GUI via an Event
-		 * about the change of mode. When used from the GUI itself,
-		 * this parameter has to be set to false.
 		 *
 		 * @return bool true on success
 		 */
-		bool activateSongMode( bool bActivate, bool bTriggerEvent );
+		bool activateSongMode( bool bActivate );
 	     /**
 		 * Toggle loop mode of playback.
 		 *
@@ -264,10 +259,12 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		/** Relocates transport to a particular frame.
 		 * 
 		 * @param nFrame Destination
+		 * \param bWithJackBroadcast Relocate not using the AudioEngine
+		 * directly but using the JACK server.
 		 *
 		 * @return bool true on success
 		 */
-		bool locateToFrame( unsigned long nFrame );
+		bool locateToFrame( unsigned long nFrame, bool bWithJackBroadcast = true );
 
 	    /** Creates an empty pattern and adds it to the pattern list.
 		 *

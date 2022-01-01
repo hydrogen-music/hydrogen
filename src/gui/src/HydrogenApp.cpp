@@ -126,7 +126,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	addEventListener( this );
 
 	connect( this, &HydrogenApp::preferencesChanged,
-			 m_pMainForm, &MainForm::onPreferencesChanged );
+			 m_pMainForm, &MainForm::onPreferencesChanged );	
 }
 
 void HydrogenApp::setWindowProperties( QWidget *pWindow, WindowProperties &prop, unsigned flags ) {
@@ -445,8 +445,11 @@ void HydrogenApp::showPreferencesDialog()
 
 void HydrogenApp::setStatusBarMessage( const QString& msg, int msec )
 {
-	getPlayerControl()->resetStatusLabel();
-	getPlayerControl()->showMessage( msg, msec );
+	auto pPlayerControl = getPlayerControl();
+	if ( pPlayerControl != nullptr ) {
+		pPlayerControl->resetStatusLabel();
+		pPlayerControl->showMessage( msg, msec );
+	}
 }
 
 void HydrogenApp::updateWindowTitle()
@@ -603,10 +606,6 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->metronomeEvent( event.value );
 				break;
 
-			case EVENT_RECALCULATERUBBERBAND:
-				pListener->rubberbandbpmchangeEvent();
-				break;
-
 			case EVENT_PROGRESS:
 				pListener->progressEvent( event.value );
 				break;
@@ -651,8 +650,8 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->jackTransportActivationEvent( event.value );
 				break;
 
-			case EVENT_JACK_TIMEBASE_ACTIVATION:
-				pListener->jackTimebaseActivationEvent( event.value );
+			case EVENT_JACK_TIMEBASE_STATE_CHANGED:
+				pListener->jackTimebaseStateChangedEvent( event.value );
 				break;
 				
 			case EVENT_SONG_MODE_ACTIVATION:
@@ -669,6 +668,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case EVENT_UPDATE_SONG_EDITOR:
 				pListener->updateSongEditorEvent( event.value );
+				break;
+
+			case EVENT_COLUMN_CHANGED:
+				pListener->columnChangedEvent( event.value );
 				break;
 				
 			default:

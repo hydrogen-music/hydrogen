@@ -881,8 +881,8 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 
 
 	if ( !pSong->getPlaybackTrackEnabled()
-	   || pAudioEngine->getState() != AudioEngine::State::Playing
-	   || pSong->getMode() != Song::SONG_MODE)
+		 || pAudioEngine->getState() != AudioEngine::State::Playing
+		 || pHydrogen->getMode() != Song::Mode::Song )
 	{
 		return false;
 	}
@@ -1519,7 +1519,7 @@ void Sampler::setPlayingNotelength( std::shared_ptr<Instrument> pInstrument, uns
 		Pattern* pCurrentPattern = nullptr;
 
 
-		if ( pSong->getMode() == Song::PATTERN_MODE ||
+		if ( pHydrogen->getMode() == Song::Mode::Pattern ||
 			 ( pAudioEngine->getState() != AudioEngine::State::Playing )){
 			PatternList *pPatternList = pSong->getPatternList();
 			if ( ( nSelectedpattern != -1 )
@@ -1555,7 +1555,7 @@ void Sampler::setPlayingNotelength( std::shared_ptr<Instrument> pInstrument, uns
 										ticks = patternsize - noteOnTick;
 									}
 									pNote->set_length( ticks );
-									Hydrogen::get_instance()->getSong()->setIsModified( true );
+									Hydrogen::get_instance()->setIsModified( true );
 									pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 								}
 							}else
@@ -1567,7 +1567,7 @@ void Sampler::setPlayingNotelength( std::shared_ptr<Instrument> pInstrument, uns
 										ticks = patternsize - noteOnTick;
 									}
 									pNote->set_length( ticks );
-									pHydrogen->getSong()->setIsModified( true );
+									pHydrogen->setIsModified( true );
 									pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
 								}
 							}

@@ -106,7 +106,6 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 					 , m_nSelectedPatternNumber( 0 )
 					 , m_bExportSessionIsActive( false )
 					 , m_GUIState( GUIState::unavailable )
-					 , m_fNewBpmJTM( 120 )
 {
 	if ( __instance ) {
 		ERRORLOG( "Hydrogen audio engine is already running" );
@@ -351,7 +350,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	float fTickSize = pAudioEngine->getTickSize();
 	unsigned int lookaheadTicks = pAudioEngine->calculateLookahead( fTickSize ) / fTickSize;
 	bool doRecord = pPreferences->getRecordEvents();
-	if ( pSong->getMode() == Song::SONG_MODE && doRecord &&
+	if ( getMode() == Song::Mode::Song && doRecord &&
 		 pAudioEngine->getState() == AudioEngine::State::Playing )
 	{
 
@@ -522,7 +521,7 @@ void Hydrogen::sequencer_setNextPattern( int pos )
 	
 	pAudioEngine->lock( RIGHT_HERE );
 	std::shared_ptr<Song> pSong = getSong();
-	if ( pSong && pSong->getMode() == Song::PATTERN_MODE ) {
+	if ( pSong != nullptr && getMode() == Song::Mode::Pattern ) {
 		PatternList* pPatternList = pSong->getPatternList();
 		
 		// Check whether `pos` is in range of the pattern list.
@@ -556,7 +555,7 @@ void Hydrogen::sequencer_setOnlyNextPattern( int pos )
 	pAudioEngine->lock( RIGHT_HERE );
 	
 	std::shared_ptr<Song> pSong = getSong();
-	if ( pSong && pSong->getMode() == Song::PATTERN_MODE ) {
+	if ( pSong != nullptr && getMode() == Song::Mode::Pattern ) {
 		PatternList* pPatternList = pSong->getPatternList();
 		
 		// Clear the list of all patterns scheduled to be processed
@@ -584,7 +583,7 @@ void Hydrogen::restartDrivers()
 	m_pAudioEngine->restartAudioDrivers();
 }
 
-void Hydrogen::startExportSession(int sampleRate, int sampleDepth )
+bool Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
@@ -593,15 +592,13 @@ void Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 	}
 	
 	unsigned nSamplerate = (unsigned) sampleRate;
-	
-	pAudioEngine->getSampler()->stopPlayingNotes();
 
 	std::shared_ptr<Song> pSong = getSong();
 	
-	m_oldEngineMode = pSong->getMode();
+	m_oldEngineMode = getMode();
 	m_bOldLoopEnabled = pSong->getIsLoopEnabled();
 
-	pSong->setMode( Song::SONG_MODE );
+	pSong->setMode( Song::Mode::Song );
 	pSong->setIsLoopEnabled( true );
 	
 	/*
@@ -611,33 +608,18 @@ void Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 	 */
 	pAudioEngine->stopAudioDrivers();
 
-	pAudioEngine->setAudioDriver( new DiskWriterDriver( AudioEngine::audioEngine_process, nSamplerate, sampleDepth ) );
-	
+	DiskWriterDriver* pNewDriver = new DiskWriterDriver( AudioEngine::audioEngine_process, nSamplerate, sampleDepth );
+	int nRes = pNewDriver->init( Preferences::get_instance()->m_nBufferSize );
+	if ( nRes != 0 ) {
+		ERRORLOG( "Unable to initialize disk writer driver." );
+		return false;
+	}
 	m_bExportSessionIsActive = true;
 	
-}
+	pAudioEngine->setAudioDriver( pNewDriver );
+	pAudioEngine->setupLadspaFX();
 
-void Hydrogen::stopExportSession()
-{
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-	
-	m_bExportSessionIsActive = false;
-	
- 	pAudioEngine->stopAudioDrivers();
-
-	delete pAudioEngine->getAudioDriver();
-	pAudioEngine->setAudioDriver( nullptr );
-	std::shared_ptr<Song> pSong = getSong();
-	pSong->setMode( m_oldEngineMode );
-	pSong->setIsLoopEnabled( m_bOldLoopEnabled );
-	
-	pAudioEngine->startAudioDrivers();
-	if ( pAudioEngine->getAudioDriver() == nullptr ) {
-		ERRORLOG( "pAudioEngine->getAudioDriver() = nullptr" );
-	}
-
-	pAudioEngine->setBpm( pSong->getBpm() );
-	
+	return true;
 }
 
 /// Export a song to a wav file
@@ -646,24 +628,13 @@ void Hydrogen::startExportSong( const QString& filename)
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	pAudioEngine->reset();
 	pAudioEngine->play();
-
-	Preferences *pPref = Preferences::get_instance();
-
-	int res = pAudioEngine->getAudioDriver()->init( pPref->m_nBufferSize );
-	if ( res != 0 ) {
-		ERRORLOG( "Error starting disk writer driver [DiskWriterDriver::init()]" );
-	}
-
-	pAudioEngine->setupLadspaFX();
-
 	getCoreActionController()->locateToFrame( 0 );
 	pAudioEngine->getSampler()->stopPlayingNotes();
 
-	DiskWriterDriver* pDiskWriterDriver = (DiskWriterDriver*) pAudioEngine->getAudioDriver();
+	DiskWriterDriver* pDiskWriterDriver = static_cast<DiskWriterDriver*>(pAudioEngine->getAudioDriver());
 	pDiskWriterDriver->setFileName( filename );
 	
-	res = pDiskWriterDriver->connect();
-	if ( res != 0 ) {
+	if ( pDiskWriterDriver->connect() != 0 ) {
 		ERRORLOG( "Error starting disk writer driver [DiskWriterDriver::connect()]" );
 	}
 	
@@ -671,7 +642,6 @@ void Hydrogen::startExportSong( const QString& filename)
 
 void Hydrogen::stopExportSong()
 {
-	
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
 	if ( pAudioEngine->getAudioDriver()->class_name() != DiskWriterDriver::_class_name() ) {
@@ -681,6 +651,23 @@ void Hydrogen::stopExportSong()
 	pAudioEngine->getSampler()->stopPlayingNotes();
 	pAudioEngine->getAudioDriver()->disconnect();
 	pAudioEngine->reset();
+}
+
+void Hydrogen::stopExportSession()
+{
+	std::shared_ptr<Song> pSong = getSong();
+	pSong->setMode( m_oldEngineMode );
+	pSong->setIsLoopEnabled( m_bOldLoopEnabled );
+	
+	AudioEngine* pAudioEngine = m_pAudioEngine;
+	
+ 	pAudioEngine->stopAudioDrivers();
+	
+	pAudioEngine->startAudioDrivers();
+	if ( pAudioEngine->getAudioDriver() == nullptr ) {
+		ERRORLOG( "pAudioEngine->getAudioDriver() = nullptr" );
+	}
+	m_bExportSessionIsActive = false;
 }
 
 /// Used to display audio driver info
@@ -827,6 +814,8 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	pAudioEngine->unlock();
 #endif
 
+	setIsModified( true );
+
 	pAudioEngine->setState( oldAudioEngineState );
 	
 	m_pCoreActionController->initExternalControlInterfaces();
@@ -912,7 +901,7 @@ void Hydrogen::removeInstrument( int instrumentNumber, bool conditional )
 	// delete the instrument from the instruments list
 	m_pAudioEngine->lock( RIGHT_HERE );
 	getSong()->getInstrumentList()->del( instrumentNumber );
-	getSong()->setIsModified( true );
+	setIsModified( true );
 	m_pAudioEngine->unlock();
 
 	// At this point the instrument has been removed from both the
@@ -1005,39 +994,11 @@ void Hydrogen::setTapTempo( float fInterval )
 	fOldBpm2 = fOldBpm1;
 	fOldBpm1 = fBPM;
 
-	m_pAudioEngine->lock( RIGHT_HERE );
-
-	setBPM( fBPM );
-
-	m_pAudioEngine->unlock();
-}
-
-void Hydrogen::setBPM( float fBPM )
-{
-	AudioEngine* pAudioEngine = m_pAudioEngine;	
-	std::shared_ptr<Song> pSong = getSong();
-	if ( ! pAudioEngine->getAudioDriver() || ! pSong ){
-		return;
-	}
+	m_pAudioEngine->setNextBpm( fBPM );
+	// Store it's value in the .h2song file.
+	getSong()->setBpm( fBPM );
 	
-	if ( fBPM > MAX_BPM ) {
-		fBPM = MAX_BPM;
-		WARNINGLOG( QString( "Provided bpm %1 is too high. Assigning upper bound %2 instead" )
-					.arg( fBPM ).arg( MAX_BPM ) );
-	} else if ( fBPM < MIN_BPM ) {
-		fBPM = MIN_BPM;
-		WARNINGLOG( QString( "Provided bpm %1 is too low. Assigning lower bound %2 instead" )
-					.arg( fBPM ).arg( MIN_BPM ) );
-	}
-
-	if ( getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
-		ERRORLOG( "Unable to change tempo directly in the presence of an external JACK timebase master. Press 'J.MASTER' get tempo control." );
-		return;
-	}
-	
-	pAudioEngine->setBpm( fBPM );
-	pSong->setBpm( fBPM );
-	setNewBpmJTM( fBPM );
+	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 }
 
 void Hydrogen::restartLadspaFX()
@@ -1204,15 +1165,16 @@ void Hydrogen::handleBeatCounter()
 					(float) ((int) (60 / nBeatDiffAverage * 100))
 					/ 100;
 			
-			m_pAudioEngine->lock( RIGHT_HERE );
-			setBPM( fBeatCountBpm );
-			m_pAudioEngine->unlock();
+			m_pAudioEngine->setNextBpm( fBeatCountBpm );
+			getSong()->setBpm( fBeatCountBpm );
+	
+			EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 			
 			if (Preferences::get_instance()->m_mmcsetplay
 					== Preferences::SET_PLAY_OFF) {
 				m_nBeatCount = 1;
 				m_nEventCount = 1;
-			}else{
+			} else {
 				if ( pAudioEngine->getState() != AudioEngine::State::Playing ){
 					unsigned bcsamplerate =
 							pAudioEngine->getAudioDriver()->getSampleRate();
@@ -1275,23 +1237,12 @@ void Hydrogen::onJackMaster()
 }
 #endif
 
-
-float Hydrogen::getNewBpmJTM() const
-{
-	return m_fNewBpmJTM;
-}
-
-void Hydrogen::setNewBpmJTM( float bpmJTM )
-{
-	m_fNewBpmJTM = bpmJTM;
-}
-
 void Hydrogen::togglePlaysSelected()
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;	
 	std::shared_ptr<Song> pSong = getSong();
 
-	if ( pSong->getMode() != Song::PATTERN_MODE ) {
+	if ( getMode() != Song::Mode::Pattern ) {
 		return;
 	}
 
@@ -1341,71 +1292,6 @@ void Hydrogen::__panic()
 {
 	sequencer_stop();
 	m_pAudioEngine->getSampler()->stopPlayingNotes();
-}
-
-float Hydrogen::getTimelineBpm( int nBar )
-{
-	std::shared_ptr<Song> pSong = getSong();
-
-	// We need return something
-	if ( pSong == nullptr ) {
-		return getNewBpmJTM();
-	}
-
-	float fBPM = pSong->getBpm();
-
-	// Pattern mode don't use timeline and will have a constant
-	// speed.
-	if ( pSong->getMode() == Song::PATTERN_MODE ) {
-		return fBPM;
-	}
-
-	// Check whether the user wants Hydrogen to determine the
-	// speed by local setting along the timeline or whether she
-	// wants to use a global speed instead.
-	if ( ! Preferences::get_instance()->getUseTimelineBpm() ) {
-		return fBPM;
-	}
-
-	// Determine the speed at the supplied beat.
-	float fTimelineBpm = m_pTimeline->getTempoAtBar( nBar, true );
-	if ( fTimelineBpm != 0 ) {
-		/* TODO: For now the function returns 0 if the bar is
-		 * positioned _before_ the first tempo marker. This will be
-		 * taken care of with #854. */
-		fBPM = fTimelineBpm;
-	}
-
-	return fBPM;
-}
-
-void Hydrogen::setTimelineBpm()
-{
-	auto pAudioEngine = getAudioEngine();
-	if ( ! Preferences::get_instance()->getUseTimelineBpm() ||
-		 getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
-		return;
-	}
-
-	std::shared_ptr<Song> pSong = getSong();
-	// Obtain the local speed specified for the current Pattern.
-	float fBPM = getTimelineBpm( pAudioEngine->getColumn() );
-
-	if ( fBPM != pSong->getBpm() ) {
-		setBPM( fBPM );
-	}
-
-	// Get the realtime pattern position. This also covers
-	// keyboard and MIDI input events in case the audio engine is
-	// not playing.
-	unsigned long PlayTick = pAudioEngine->getRealtimeTickPosition();
-	int nStartPos;
-	int nRealtimePatternPos = pAudioEngine->getColumnForTick( PlayTick, pSong->getIsLoopEnabled(), &nStartPos );
-	float fRealtimeBPM = getTimelineBpm( nRealtimePatternPos );
-
-	// FIXME: this was already done in setBPM but for "engine" time
-	//        so this is actually forcibly overwritten here
-	setNewBpmJTM( fRealtimeBPM );
 }
 
 bool Hydrogen::haveJackAudioDriver() const {
@@ -1464,7 +1350,29 @@ bool Hydrogen::isUnderSessionManagement() const {
 #else
 	return false;
 #endif
-}		
+}
+
+bool Hydrogen::isTimelineEnabled() const {
+	if ( Preferences::get_instance()->getUseTimelineBpm() &&
+		 getMode() == Song::Mode::Song &&
+		 getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
+		return true;
+	}
+
+	return false;
+}
+
+Hydrogen::Tempo Hydrogen::getTempoSource() const {
+	if ( getMode() == Song::Mode::Song ) {
+		if ( getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
+			return Tempo::Jack;
+		} else if ( Preferences::get_instance()->getUseTimelineBpm() ) {
+			return Tempo::Timeline;
+		}
+	}
+
+	return Tempo::Song;
+}
 
 void Hydrogen::toggleOscServer( bool bEnable ) {
 #ifdef H2CORE_HAVE_OSC
@@ -1503,6 +1411,90 @@ void Hydrogen::startNsmClient()
 #endif
 }
 
+
+void Hydrogen::recalculateRubberband( float fBpm ) {
+	DEBUGLOG( fBpm );
+
+	if ( !Preferences::get_instance()->getRubberBandBatchMode() ) {
+		return;
+	}
+	
+	if ( getSong() != nullptr ) {
+		auto pInstrumentList = getSong()->getInstrumentList();
+		if ( pInstrumentList != nullptr ) {
+			for ( unsigned nnInstr = 0; nnInstr < pInstrumentList->size(); ++nnInstr ) {
+				auto pInstr = pInstrumentList->get( nnInstr );
+				if ( pInstr == nullptr ) {
+					return;
+				}
+				assert( pInstr );
+				if ( pInstr != nullptr ){
+					for ( int nnComponent = 0; nnComponent < pInstr->get_components()->size();
+						  ++nnComponent ) {
+						auto pInstrumentComponent = pInstr->get_component( nnComponent );
+						if ( pInstrumentComponent == nullptr ) {
+							continue; // regular case when you have a new component empty
+						}
+				
+						for ( int nnLayer = 0; nnLayer < InstrumentComponent::getMaxLayers(); nnLayer++ ) {
+							auto pLayer = pInstrumentComponent->get_layer( nnLayer );
+							if ( pLayer != nullptr ) {
+								auto pSample = pLayer->get_sample();
+								if ( pSample != nullptr ) {
+									if( pSample->get_rubberband().use ) {
+										auto pNewSample = Sample::load(
+																	   pSample->get_filepath(),
+																	   pSample->get_loops(),
+																	   pSample->get_rubberband(),
+																	   *pSample->get_velocity_envelope(),
+																	   *pSample->get_pan_envelope(),
+																	   fBpm
+																	   );
+										if( pNewSample == nullptr ){
+											continue;
+										}
+								
+										// insert new sample from newInstrument
+										pLayer->set_sample( pNewSample );
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			setIsModified( true );
+		} else {
+			ERRORLOG( "No InstrumentList present" );
+		}
+	} else {
+		ERRORLOG( "No song set" );
+	}
+}
+
+void Hydrogen::setIsModified( bool bIsModified ) {
+	if ( getSong() != nullptr ) {
+		getSong()->setIsModified( true );
+	}
+}
+
+void Hydrogen::setMode( Song::Mode mode ) {
+	if ( getSong() != nullptr ) {
+		getSong()->setMode( mode );
+	}
+	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, 0 );
+}
+
+void Hydrogen::setUseTimelineBpm( bool bEnabled ) {
+	auto pPref = Preferences::get_instance();
+
+	if ( bEnabled != pPref->getUseTimelineBpm() ) {
+		pPref->setUseTimelineBpm( bEnabled );
+
+		EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION, static_cast<int>( bEnabled ) );
+	}
+}	
+
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 
 	QString s = Base::sPrintIndention;
@@ -1527,7 +1519,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput.append( QString( "]\n%1%2m_CurrentTime: %3" ).arg( sPrefix ).arg( s ).arg( static_cast<long>(m_CurrentTime.tv_sec ) ) )
 			.append( QString( "%1%2m_nCoutOffset: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nCoutOffset ) )
 			.append( QString( "%1%2m_nStartOffset: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nStartOffset ) )
-			.append( QString( "%1%2m_oldEngineMode: %3\n" ).arg( sPrefix ).arg( s ).arg( m_oldEngineMode ) )
+			.append( QString( "%1%2m_oldEngineMode: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( static_cast<int>(m_oldEngineMode) ) )
 			.append( QString( "%1%2m_bOldLoopEnabled: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bOldLoopEnabled ) )
 			.append( QString( "%1%2m_bExportSessionIsActive: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bExportSessionIsActive ) )
 			.append( QString( "%1%2m_GUIState: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>( m_GUIState ) ) )
@@ -1547,8 +1540,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( "nullptr\n" ) );
 			}
 		}
-		sOutput.append( QString( "%1%2m_fNewBpmJTM: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fNewBpmJTM ) )
-			.append( QString( "%1%2m_nSelectedInstrumentNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nSelectedInstrumentNumber ) )
+		sOutput.append( QString( "%1%2m_nSelectedInstrumentNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nSelectedInstrumentNumber ) )
 			.append( QString( "%1%2m_pAudioEngine: \n" ).arg( sPrefix ).arg( s ) )//.arg( m_pAudioEngine ) )
 			.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s ).arg( lastMidiEvent ) )
 			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s ).arg( lastMidiEventParameter ) )
@@ -1575,7 +1567,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput.append( QString( "], m_CurrentTime: %1" ).arg( static_cast<long>( m_CurrentTime.tv_sec ) ) )
 			.append( QString( ", m_nCoutOffset: %1" ).arg( m_nCoutOffset ) )
 			.append( QString( ", m_nStartOffset: %1" ).arg( m_nStartOffset ) )
-			.append( QString( ", m_oldEngineMode: %1" ).arg( m_oldEngineMode ) )
+			.append( QString( ", m_oldEngineMode: %1" )
+					 .arg( static_cast<int>(m_oldEngineMode) ) )
 			.append( QString( ", m_bOldLoopEnabled: %1" ).arg( m_bOldLoopEnabled ) )
 			.append( QString( ", m_bExportSessionIsActive: %1" ).arg( m_bExportSessionIsActive ) )
 			.append( QString( ", m_GUIState: %1" ).arg( static_cast<int>( m_GUIState ) ) );
@@ -1595,8 +1588,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 				sOutput.append( QString( " nullptr" ) );
 			}
 		}
-		sOutput.append( QString( "] , m_fNewBpmJTM: %1" ).arg( m_fNewBpmJTM ) )
-			.append( QString( ", m_nSelectedInstrumentNumber: %1" ).arg( m_nSelectedInstrumentNumber ) )
+		sOutput.append( QString( ", m_nSelectedInstrumentNumber: %1" ).arg( m_nSelectedInstrumentNumber ) )
 			.append( QString( ", m_pAudioEngine: " ) )// .arg( m_pAudioEngine ) )
 			.append( QString( ", lastMidiEvent: %1" ).arg( lastMidiEvent ) )
 			.append( QString( ", lastMidiEventParameter: %1" ).arg( lastMidiEventParameter ) )

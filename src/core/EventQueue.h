@@ -99,7 +99,6 @@ enum EventType {
 	 * Handled by EventListener::metronomeEvent().
 	 */
 	EVENT_METRONOME,
-	EVENT_RECALCULATERUBBERBAND,
 	EVENT_PROGRESS,
 	EVENT_JACK_SESSION,
 	EVENT_PLAYLIST_LOADSONG,
@@ -144,16 +143,19 @@ enum EventType {
 	EVENT_TIMELINE_UPDATE,
 	/** Toggles the button indicating the usage Jack transport.*/
 	EVENT_JACK_TRANSPORT_ACTIVATION,
-	/** Toggles the button indicating the usage Jack timebase master.*/
-	EVENT_JACK_TIMEBASE_ACTIVATION,
-	/** Activates either Pattern mode (0) or Song mode (else) of the playback.*/
+	/** Toggles the button indicating the usage Jack timebase master
+		and informs the GUI about a state change.*/
+	EVENT_JACK_TIMEBASE_STATE_CHANGED,
 	EVENT_SONG_MODE_ACTIVATION,
 	/** Toggles the button indicating the usage loop mode.*/
 	EVENT_LOOP_MODE_ACTIVATION,
 	/** Switches between select mode (0) and draw mode (1) in the *SongEditor.*/
 	EVENT_ACTION_MODE_CHANGE,
-	/** Triggers an udpate of the entire SongEditor*/
-	EVENT_UPDATE_SONG_EDITOR
+	/** Triggers an update of the entire SongEditor*/
+	EVENT_UPDATE_SONG_EDITOR,
+	/** Triggered when transport is moved into a different column
+		(either during playback or when relocated by the user)*/
+	EVENT_COLUMN_CHANGED
 };
 
 /** Basic building block for the communication between the core of

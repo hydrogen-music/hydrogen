@@ -137,7 +137,6 @@ public:
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getSongEditorPatternList()->restoreDeletedPatternsFromList( __patternFilename, __sequenceFileName, __patternPosition );
 		h2app->getSongEditorPanel()->restoreGroupVector( __sequenceFileName );
-		h2app->getSongEditorPanel()->getSongEditor()->updateEditorandSetTrue();
 	}
 
 	virtual void redo()
@@ -263,7 +262,6 @@ public:
 			H2Core::Hydrogen::get_instance()->getCoreActionController()->removePattern( __patternPosition );
 		}
 		h2app->getSongEditorPanel()->restoreGroupVector( __sequenceFileName );
-		h2app->getSongEditorPanel()->getSongEditor()->updateEditorandSetTrue();
 	}
 
 	virtual void redo()
@@ -359,73 +357,74 @@ private:
 	std::vector< QPoint > m_mergeCells;
 };
 
-/** \ingroup docGUI*/
-class SE_editTimeLineAction : public QUndoCommand
-{
-public:
-	SE_editTimeLineAction( int newPosition, float oldBpm, float newBpm ){
-		setText( QObject::tr( "Edit timeline tempo" ) );
-		__newPosition = newPosition;
-		__oldBpm = oldBpm;
-		__newBpm = newBpm;
-
-	}
-	virtual void undo()
-	{
-		//qDebug() <<  "edit timeline tempo undo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		if(__oldBpm >-1 ){
-			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->editTimeLineAction( __newPosition, __oldBpm );
-		}else
-		{
-			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->deleteTimeLinePosition( __newPosition );
-		}
-	}
-
-	virtual void redo()
-	{
-		//qDebug() <<  "edit timeline tempo redo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditorPositionRuler()->editTimeLineAction( __newPosition, __newBpm );
-	}
-private:
-	int __newPosition;
-	float __oldBpm;
-	float __newBpm;
-};
-
 //~song editor commands
 //=====================================================================================================================================
 //time line commands
 
 /** \ingroup docGUI*/
-class SE_deleteTimeLineAction : public QUndoCommand
+class SE_editTimelineAction : public QUndoCommand
 {
 public:
-	SE_deleteTimeLineAction( int newPosition, float oldBpm ){
-		setText( QObject::tr( "Delete timeline tempo" ) );
-		__newPosition = newPosition;
-		__oldBpm = oldBpm;
-
+	SE_editTimelineAction( int nOldColumn, int nNewColumn, float fOldBpm, float fNewBpm, bool bTempoMarkerPresent ){
+		setText( QObject::tr( "Edit tempo marker" ) );
+		m_nOldColumn = nOldColumn;
+		m_nNewColumn = nNewColumn;
+		m_fOldBpm = fOldBpm;
+		m_fNewBpm = fNewBpm;
+		m_bTempoMarkerPresent = bTempoMarkerPresent;
 	}
-	virtual void undo()
-	{
-		//qDebug() <<  "delete timeline tempo undo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditorPositionRuler()->editTimeLineAction( __newPosition, __oldBpm );
-
+	virtual void undo() {
+		auto pSongEditorPositionRuler = HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler();
+		auto pTimeline = H2Core::Hydrogen::get_instance()->getTimeline();
+		if( m_bTempoMarkerPresent ){
+			pTimeline->deleteTempoMarker( m_nNewColumn );
+			pTimeline->addTempoMarker( m_nOldColumn, m_fOldBpm );
+		} else {
+			pTimeline->deleteTempoMarker( m_nNewColumn );
+		}
+		pSongEditorPositionRuler->createBackground();
 	}
 
-	virtual void redo()
-	{
-		//qDebug() <<  "delete timeline tempo redo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditorPositionRuler()->deleteTimeLinePosition( __newPosition );
+	virtual void redo() {
+		auto pSongEditorPositionRuler = HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler();
+		auto pTimeline = H2Core::Hydrogen::get_instance()->getTimeline();
+		pTimeline->deleteTempoMarker( m_nOldColumn );
+		pTimeline->addTempoMarker( m_nNewColumn, m_fNewBpm );
+		pSongEditorPositionRuler->createBackground();
 	}
 private:
-	int __newPosition;
-	float __oldBpm;
-	float __newBpm;
+	int m_nOldColumn;
+	int m_nNewColumn;
+	float m_fOldBpm;
+	float m_fNewBpm;
+	bool m_bTempoMarkerPresent;
+};
+
+/** \ingroup docGUI*/
+class SE_deleteTimelineAction : public QUndoCommand
+{
+public:
+	SE_deleteTimelineAction( int nColumn, float fBpm ){
+		setText( QObject::tr( "Delete tempo marker" ) );
+		m_nColumn = nColumn;
+		m_fBpm = fBpm;
+	}
+	virtual void undo() {
+		auto pSongEditorPositionRuler = HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler();
+		auto pTimeline = H2Core::Hydrogen::get_instance()->getTimeline();
+		pTimeline->addTempoMarker( m_nColumn, m_fBpm );
+		pSongEditorPositionRuler->createBackground();
+	}
+
+	virtual void redo() {
+		auto pSongEditorPositionRuler = HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler();
+		auto pTimeline = H2Core::Hydrogen::get_instance()->getTimeline();
+		pTimeline->deleteTempoMarker( m_nColumn );
+		pSongEditorPositionRuler->createBackground();
+	}
+private:
+	int m_nColumn;
+	float m_fBpm;
 };
 
 /** \ingroup docGUI*/

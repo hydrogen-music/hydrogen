@@ -57,9 +57,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 {
 		H2_OBJECT(Song)
 	public:
-		enum SongMode {
-			PATTERN_MODE,
-			SONG_MODE
+		enum class Mode {
+			Pattern = 0,
+			Song = 1
 		};
 
 		Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume );
@@ -143,14 +143,14 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 							
 		float			getSwingFactor() const;
 		void			setSwingFactor( float fFactor );
-							
-		SongMode		getMode() const;
-		void			setMode( SongMode mode );
-							
-		void			setIsModified( bool bIsModified);
-		bool			getIsModified() const;
 
-		std::vector<DrumkitComponent*>* getComponents() const;
+		Mode			getMode() const;
+		void			setMode( Mode mode );
+							
+		bool			getIsModified() const;
+		void			setIsModified( bool bIsModified);
+
+	std::vector<DrumkitComponent*>* getComponents() const;
 
 		AutomationPath *	getVelocityAutomationPath() const;
 
@@ -221,17 +221,15 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
-
+							
 		bool m_bIsMuted;
 		///< Resolution of the song (number of ticks per quarter)
 		unsigned m_resolution;
 		/**
 		 * Current speed in beats per minutes.
 		 *
-		 * One of its purposes is an intermediate storage of the
-		 * tempo at the current transport position in
-		 * Hydrogen::setTimelineBpm() in order to detect local changes
-		 * in speed (set by the user). Bounded by [#MIN_BPM,#MAX_BPM].
+		 * See TransportInfo::m_fBpm for how the handling of the
+		 * different tempo instances work.
 		 */
 		float m_fBpm;
 		
@@ -260,10 +258,10 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		float			m_fSwingFactor;
 		bool			m_bIsModified;
 		std::map< float, int> 	m_latestRoundRobins;
-		SongMode		m_songMode;
+		Mode			m_mode;
 		
 		/** Name of the file to be loaded as playback track.
-		 *
+		*
 		 * It is set by setPlaybackTrackFilename() and
 		 * queried by getPlaybackTrackFilename().
 		 *
@@ -310,6 +308,7 @@ inline bool Song::getIsMuted() const
 inline void Song::setIsMuted( bool bIsMuted )
 {
 	m_bIsMuted = bIsMuted;
+	setIsModified( true );
 }
 
 inline unsigned Song::getResolution() const
@@ -320,6 +319,7 @@ inline unsigned Song::getResolution() const
 inline void Song::setResolution( unsigned resolution )
 {
 	m_resolution = resolution;
+	setIsModified( true );
 }
 
 inline float Song::getBpm() const
@@ -330,6 +330,7 @@ inline float Song::getBpm() const
 inline void Song::setName( const QString& sName )
 {
 	m_sName = sName;
+	setIsModified( true );
 }
 
 inline const QString& Song::getName() const
@@ -345,6 +346,7 @@ inline float Song::getVolume() const
 inline void Song::setVolume( float fValue )
 {
 	m_fVolume = fValue;
+	setIsModified( true );
 }
 
 inline float Song::getMetronomeVolume() const
@@ -355,6 +357,7 @@ inline float Song::getMetronomeVolume() const
 inline void Song::setMetronomeVolume( float fValue )
 {
 	m_fMetronomeVolume = fValue;
+	setIsModified( true );
 }
 
 inline bool Song::getIsModified() const 
@@ -399,6 +402,7 @@ inline void Song::setPatternGroupVector( std::vector<PatternList*>* pGroupVector
 inline void Song::setNotes( const QString& sNotes )
 {
 	m_sNotes = sNotes;
+	setIsModified( true );
 }
 
 inline const QString& Song::getNotes() const
@@ -409,6 +413,7 @@ inline const QString& Song::getNotes() const
 inline void Song::setLicense( const QString& sLicense )
 {
 	m_sLicense = sLicense;
+	setIsModified( true );
 }
 
 inline const QString& Song::getLicense() const
@@ -419,6 +424,7 @@ inline const QString& Song::getLicense() const
 inline void Song::setAuthor( const QString& sAuthor )
 {
 	m_sAuthor = sAuthor;
+	setIsModified( true );
 }
 
 inline const QString& Song::getAuthor() const
@@ -434,6 +440,7 @@ inline const QString& Song::getFilename() const
 inline void Song::setFilename( const QString& sFilename )
 {
 	m_sFilename = sFilename;
+	setIsModified( true );
 }
 
 inline bool Song::getIsLoopEnabled() const
@@ -444,6 +451,7 @@ inline bool Song::getIsLoopEnabled() const
 inline void Song::setIsLoopEnabled( bool bEnabled )
 {
 	m_bIsLoopEnabled = bEnabled;
+	setIsModified( true );
 }
 
 inline float Song::getHumanizeTimeValue() const
@@ -454,6 +462,7 @@ inline float Song::getHumanizeTimeValue() const
 inline void Song::setHumanizeTimeValue( float fValue )
 {
 	m_fHumanizeTimeValue = fValue;
+	setIsModified( true );
 }
 
 inline float Song::getHumanizeVelocityValue() const
@@ -464,6 +473,7 @@ inline float Song::getHumanizeVelocityValue() const
 inline void Song::setHumanizeVelocityValue( float fValue )
 {
 	m_fHumanizeVelocityValue = fValue;
+	setIsModified( true );
 }
 
 inline float Song::getSwingFactor() const
@@ -471,14 +481,15 @@ inline float Song::getSwingFactor() const
 	return m_fSwingFactor;
 }
 
-inline Song::SongMode Song::getMode() const
+inline Song::Mode Song::getMode() const
 {
-	return m_songMode;
+	return m_mode;
 }
 
-inline void Song::setMode( Song::SongMode mode )
+inline void Song::setMode( Song::Mode mode )
 {
-	m_songMode = mode;
+	m_mode = mode;
+	setIsModified( true );
 }
 
 inline std::vector<DrumkitComponent*>* Song::getComponents() const
@@ -493,15 +504,17 @@ inline AutomationPath* Song::getVelocityAutomationPath() const
 
 inline int Song::getLatestRoundRobin( float fStartVelocity )
 {
-	if ( m_latestRoundRobins.find( fStartVelocity ) == m_latestRoundRobins.end() )
+	if ( m_latestRoundRobins.find( fStartVelocity ) == m_latestRoundRobins.end() ) {
 		return 0;
-	else
+	} else {
 		return m_latestRoundRobins[ fStartVelocity ];
+	}
 }
 
 inline void Song::setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin )
 {
 	m_latestRoundRobins[ fStartVelocity ] = nLatestRoundRobin;
+	setIsModified( true );
 }
 
 inline const QString& Song::getPlaybackTrackFilename() const
@@ -512,6 +525,7 @@ inline const QString& Song::getPlaybackTrackFilename() const
 inline void Song::setPlaybackTrackFilename( const QString sFilename )
 {
 	m_sPlaybackTrackFilename = sFilename;
+	setIsModified( true );
 }
 
 inline bool Song::getPlaybackTrackEnabled() const
@@ -525,6 +539,7 @@ inline bool Song::setPlaybackTrackEnabled( const bool bEnabled )
 		return false;
 	}
 	m_bPlaybackTrackEnabled = bEnabled;
+	setIsModified( true );
 	return bEnabled;
 }
 
@@ -536,6 +551,7 @@ inline float Song::getPlaybackTrackVolume() const
 inline void Song::setPlaybackTrackVolume( const float fVolume )
 {
 	m_fPlaybackTrackVolume = fVolume;
+	setIsModified( true );
 }
 
 inline Song::ActionMode Song::getActionMode() const {
@@ -544,6 +560,7 @@ inline Song::ActionMode Song::getActionMode() const {
 
 inline void Song::setPanLawType( int nPanLawType ) {
 	m_nPanLawType = nPanLawType;
+	setIsModified( true );
 }
 
 inline int Song::getPanLawType() const {

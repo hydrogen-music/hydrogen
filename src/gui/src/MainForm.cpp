@@ -1424,26 +1424,20 @@ void MainForm::onRestartAccelEvent()
 
 
 
-void MainForm::onBPMPlusAccelEvent()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	pHydrogen->setBPM( pSong->getBpm() + 0.1 );
-	pHydrogen->getAudioEngine()->unlock();
+void MainForm::onBPMPlusAccelEvent() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	pAudioEngine->setNextBpm( pAudioEngine->getBpm() + 0.1 );
+	pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() + 0.1 );
 }
 
 
 
-void MainForm::onBPMMinusAccelEvent()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	pHydrogen->setBPM( pSong->getBpm() - 0.1 );
-	pHydrogen->getAudioEngine()->unlock();
+void MainForm::onBPMMinusAccelEvent() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	pAudioEngine->setNextBpm( pAudioEngine->getBpm() - 0.1 );
+	pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() - 0.1 );
 }
 
 
@@ -1543,11 +1537,14 @@ void MainForm::checkNecessaryDirectories()
 void MainForm::onFixMidiSetup()
 {
 	INFOLOG( "Fixing MIDI setup" );
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	pSong->getInstrumentList()->set_default_midi_out_notes();
-	pSong->setIsModified( true );
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong != nullptr ) {
+		pSong->getInstrumentList()->set_default_midi_out_notes();
+		pHydrogen->setIsModified( true );
 
-	m_pMidiSetupInfoBar->hide();
+		m_pMidiSetupInfoBar->hide();
+	}
 }
 
 
@@ -1952,7 +1949,7 @@ void MainForm::action_file_songProperties()
 {
 	SongPropertiesDialog *pDialog = new SongPropertiesDialog( this );
 	if ( pDialog->exec() == QDialog::Accepted ) {
-		Hydrogen::get_instance()->getSong()->setIsModified( true );
+		Hydrogen::get_instance()->setIsModified( true );
 	}
 	delete pDialog;
 }
@@ -2018,14 +2015,15 @@ QString MainForm::getAutoSaveFilename()
 void MainForm::onAutoSaveTimer()
 {
 	//INFOLOG( "[onAutoSaveTimer]" );
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+	auto pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	assert( pSong );
 	if ( pSong->getIsModified() ) {
 		QString sOldFilename = pSong->getFilename();
 		pSong->save( getAutoSaveFilename() );
 
 		pSong->setFilename( sOldFilename );
-		pSong->setIsModified( true );
+		pHydrogen->setIsModified( true );
 	}
 }
 
@@ -2264,8 +2262,8 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 	if ( pObject->inherits( "SongEditorPanel" ) ) {
 			
-		if ( pSong->getMode() != Song::SONG_MODE ) {
-			pCoreActionController->activateSongMode( true, false );
+		if ( pHydrogen->getMode() != Song::Mode::Song ) {
+			pCoreActionController->activateSongMode( true );
 			pApp->getPlayerControl()->songModeActivationEvent( 1 );
 		}
 
@@ -2276,8 +2274,8 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// Covers both the PatternEditor and the
 		// NotePropertiesRuler.
 			
-		if ( pSong->getMode() != Song::PATTERN_MODE ) {
-			pCoreActionController->activateSongMode( false, false );
+		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
+			pCoreActionController->activateSongMode( false );
 			pApp->getPlayerControl()->songModeActivationEvent( 0 );
 		}
 

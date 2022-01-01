@@ -790,7 +790,7 @@ bool MidiActionManager::filter_cutoff_level_absolute( std::shared_ptr<Action> pA
  */
 bool MidiActionManager::bpm_cc_relative( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
 
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	//this Action should be triggered only by CC commands
 
@@ -803,19 +803,25 @@ bool MidiActionManager::bpm_cc_relative( std::shared_ptr<Action> pAction, Hydrog
 		m_nLastBpmChangeCCParameter = cc_param;
 	}
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-
-	if ( m_nLastBpmChangeCCParameter >= cc_param && pSong->getBpm()  < 300) {
-		pHydrogen->setBPM( pSong->getBpm() - 1*mult );
+	if ( m_nLastBpmChangeCCParameter >= cc_param &&
+		 pAudioEngine->getBpm() - mult > MIN_BPM ) {
+		// Use tempo in the next process cycle of the audio engine.
+		pAudioEngine->setNextBpm( pAudioEngine->getBpm() - 1*mult );
+		// Store it's value in the .h2song file.
+		pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() - 1*mult );
 	}
 
-	if ( m_nLastBpmChangeCCParameter < cc_param && pSong->getBpm()  > 40 ) {
-		pHydrogen->setBPM( pSong->getBpm() + 1*mult );
+	if ( m_nLastBpmChangeCCParameter < cc_param
+		 && pAudioEngine->getBpm() + mult < MAX_BPM ) {
+		// Use tempo in the next process cycle of the audio engine.
+		pAudioEngine->setNextBpm( pAudioEngine->getBpm() + 1*mult );
+		// Store it's value in the .h2song file.
+		pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() + 1*mult );
 	}
 
 	m_nLastBpmChangeCCParameter = cc_param;
-
-	pHydrogen->getAudioEngine()->unlock();
+	
+	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 
 	return true;
 }
@@ -826,7 +832,7 @@ bool MidiActionManager::bpm_cc_relative( std::shared_ptr<Action> pAction, Hydrog
  */
 bool MidiActionManager::bpm_fine_cc_relative( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
 
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	//this Action should be triggered only by CC commands
 	bool ok;
@@ -838,33 +844,38 @@ bool MidiActionManager::bpm_fine_cc_relative( std::shared_ptr<Action> pAction, H
 		m_nLastBpmChangeCCParameter = cc_param;
 	}
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-
-	if ( m_nLastBpmChangeCCParameter >= cc_param && pSong->getBpm()  < 300) {
-		pHydrogen->setBPM( pSong->getBpm() - 0.01*mult );
+	if ( m_nLastBpmChangeCCParameter >= cc_param &&
+		 pAudioEngine->getBpm() - mult > MIN_BPM ) {
+		// Use tempo in the next process cycle of the audio engine.
+		pAudioEngine->setNextBpm( pAudioEngine->getBpm() - 0.01*mult );
+		// Store it's value in the .h2song file.
+		pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() - 0.01*mult );
 	}
-
-	if ( m_nLastBpmChangeCCParameter < cc_param && pSong->getBpm()  > 40 ) {
-		pHydrogen->setBPM( pSong->getBpm() + 0.01*mult );
+	if ( m_nLastBpmChangeCCParameter < cc_param
+		 && pAudioEngine->getBpm() + mult < MAX_BPM ) {
+		// Use tempo in the next process cycle of the audio engine.
+		pAudioEngine->setNextBpm( pAudioEngine->getBpm() + 0.01*mult );
+		// Store it's value in the .h2song file.
+		pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() + 0.01*mult );
 	}
 
 	m_nLastBpmChangeCCParameter = cc_param;
-
-	pHydrogen->getAudioEngine()->unlock();
+	
+	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 
 	return true;
 }
 
 bool MidiActionManager::bpm_increase( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	bool ok;
 	int mult = pAction->getParameter1().toInt(&ok,10);
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	pHydrogen->setBPM( pSong->getBpm() + 1*mult );
-
-	pHydrogen->getAudioEngine()->unlock();
+	// Use tempo in the next process cycle of the audio engine.
+	pAudioEngine->setNextBpm( pAudioEngine->getBpm() + 1*mult );
+	// Store it's value in the .h2song file.
+	pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() + 1*mult );
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 
@@ -872,15 +883,15 @@ bool MidiActionManager::bpm_increase( std::shared_ptr<Action> pAction, Hydrogen*
 }
 
 bool MidiActionManager::bpm_decrease( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	bool ok;
 	int mult = pAction->getParameter1().toInt(&ok,10);
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	pHydrogen->setBPM( pSong->getBpm() - 1*mult );
-	
-	pHydrogen->getAudioEngine()->unlock();
+	// Use tempo in the next process cycle of the audio engine.
+	pAudioEngine->setNextBpm( pAudioEngine->getBpm() - 1*mult );
+	// Store it's value in the .h2song file.
+	pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() - 1*mult );
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 

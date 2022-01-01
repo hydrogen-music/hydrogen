@@ -91,9 +91,9 @@ public:
 	 */
 	Button(
 		   QWidget *pParent,
-		   QSize size,
-		   Type type,
-		   const QString& sIcon,
+		   QSize size = QSize(),
+		   Type type = Type::Toggle,
+		   const QString& sIcon = "",
 		   const QString& sText = "",
 		   bool bUseRedBackground = false,
 		   QSize iconSize = QSize( 0, 0 ),
@@ -107,6 +107,15 @@ public:
 
 	void setBaseToolTip( const QString& sNewTip );
 	void setAction( std::shared_ptr<Action> pAction );
+	
+	bool getIsActive() const;
+	void setIsActive( bool bIsActive );
+
+	void setSize( QSize size );
+	/**  Overwrites the automatically set value. If @a nPixelSize is
+		 negative, the automatically set value will be used instead.*/
+	void setFixedFontSize( int nPixelSize );
+	int getFixedFontSize() const;
 
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
@@ -130,15 +139,28 @@ private:
 	QString m_sRegisteredMidiEvent;
 	QString m_sIcon;
 	int m_nRegisteredMidiParameter;
+	int m_nFixedFontSize;
 
 	QString m_sBorderRadius;
 
 	bool m_bColorful;
 	bool m_bLastCheckedState;
 
+	bool m_bIsActive;
+
 	void mousePressEvent(QMouseEvent *ev);
 	void paintEvent( QPaintEvent* ev);
 
 };
+inline bool Button::getIsActive() const {
+	return m_bIsActive;
+}
+
+inline void Button::setFixedFontSize( int nPixelSize ) {
+	m_nFixedFontSize = nPixelSize;
+}
+inline int Button::getFixedFontSize() const {
+	return m_nFixedFontSize;
+}
 
 #endif

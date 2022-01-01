@@ -63,10 +63,9 @@ void SongEditorPanelTagWidget::createTheTagTableWidget()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Timeline* pTimeline = pHydrogen->getTimeline();
-	int nPatternGroupVectorSize;
-	nPatternGroupVectorSize = pHydrogen->getSong()->getPatternGroupVector()->size();
+	int nMaxColumns = Preferences::get_instance()->getMaxBars();
 	
-	for( int i = 0; i < nPatternGroupVectorSize; i++ )
+	for( int i = 0; i < nMaxColumns; i++ )
 	{
 		tagTableWidget->insertRow( i );
 	}
@@ -78,7 +77,7 @@ void SongEditorPanelTagWidget::createTheTagTableWidget()
 		for ( unsigned int t = 0; t < tagVector.size(); t++ ){
 			QTableWidgetItem *newTagItem = new QTableWidgetItem();
 			newTagItem->setText( QString( "%1" ).arg( tagVector[t]->sTag ) );
-			tagTableWidget->setItem( tagVector[t]->nBar, 0, newTagItem );
+			tagTableWidget->setItem( tagVector[t]->nColumn, 0, newTagItem );
 			tagTableWidget->setCurrentItem( newTagItem );
 			tagTableWidget->openPersistentEditor( newTagItem );
 		}
@@ -91,7 +90,7 @@ void SongEditorPanelTagWidget::createTheTagTableWidget()
 		QTableWidgetItem *newTagItem2 = new QTableWidgetItem();
 		newTagItem2->setText( QString( "" ) );
 		for ( unsigned int t = 0; t < tagVector.size(); t++ ){
-			if( tagVector[t]->nBar == m_stimelineposition){
+			if( tagVector[t]->nColumn == m_stimelineposition){
 				vpos = t;
 			}
 		}
@@ -126,18 +125,16 @@ void SongEditorPanelTagWidget::on_okBtn_clicked()
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Timeline* pTimeline = pHydrogen->getTimeline();
 	auto tagVector = pTimeline->getAllTags();
-
-	int nPatternGroupVectorSize;
-	nPatternGroupVectorSize = pHydrogen->getSong()->getPatternGroupVector()->size();
+	int nMaxColumns = Preferences::get_instance()->getMaxBars();
 
 	//oldText list contains all old item values. we need them for undo an item
 	QStringList sOldText;
 	if(tagVector.size() > 0){
-		for (int i = 0; i < nPatternGroupVectorSize; i++){
+		for (int i = 0; i < nMaxColumns; i++){
 			sOldText << "";
 		}
 		for(int i = 0; i < tagVector.size(); ++i){
-			sOldText.replace(tagVector[i]->nBar,
+			sOldText.replace(tagVector[i]->nColumn,
 							 tagVector[i]->sTag);
 		}
 	}
