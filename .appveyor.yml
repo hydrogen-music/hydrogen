@@ -99,7 +99,7 @@ for:
       if [ "$APPVEYOR_REPO_BRANCH" = "$ARTIFACT_BRANCH" ]; then appveyor PushArtifact Hydrogen*.dmg -DeploymentName Installer; fi
 
     test_script: |-
-      TMPDIR=/tmp src/tests/tests --appveyor || true
+      TMPDIR=/tmp src/tests/tests --appveyor
 
   -
     matrix:
