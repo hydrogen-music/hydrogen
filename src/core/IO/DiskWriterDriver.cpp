@@ -197,9 +197,13 @@ void* diskWriterDriver_thread( void* param )
 			if( patternPosition < nColumns - 1 &&
 				patternLengthInFrames - frameNumber < pDriver->m_nBufferSize ){
 				lastRun = patternLengthInFrames - frameNumber;
+
+				// ___DEBUGLOG( QString( "overwritting usedBuffer: %1 -> %2" )
+				// 			 .arg( usedBuffer ).arg( lastRun ) );
 				usedBuffer = lastRun;
+
 			};
-			
+
 			frameNumber += usedBuffer;
 
 			int ret = pDriver->m_processCallback( usedBuffer, nullptr );
@@ -218,6 +222,8 @@ void* diskWriterDriver_thread( void* param )
 				// concise.
 				nBufferWriteLength = 0;
 
+				// ___DEBUGLOG( QString( "frameNumber: %1" ).arg( frameNumber ) );
+
 				// We require a number of consecutive frames silence
 				// before considering the rendering to be
 				// finished.
@@ -225,6 +231,9 @@ void* diskWriterDriver_thread( void* param )
 				int nSilentFrames = 0;
 				for ( int ii = 0; ii < usedBuffer; ++ii ) {
 					++nBufferWriteLength;
+
+					// ___DEBUGLOG( QString( "L: %1, R: %2" ).arg( pData_L[ii], 0, 'f' )
+					// 			 .arg( pData_R[ii], 0, 'f' ) );
 					
 					if ( std::abs( pData_L[ii] ) == 0 &&
 						 std::abs( pData_R[ii] ) == 0 ) {
@@ -247,29 +256,30 @@ void* diskWriterDriver_thread( void* param )
 				nBufferWriteLength = usedBuffer;
 			}
 			
-			for ( unsigned i = 0; i < nBufferWriteLength; i++ ) {
-				if(pData_L[i] > 1){
-					pData[i * 2] = 1;
-				}
-				else if(pData_L[i] < -1){
-					pData[i * 2] = -1;
-				}else
-				{
-					pData[i * 2] = pData_L[i];
+			// frameNumber += nBufferWriteLength;
+			
+			for ( unsigned ii = 0; ii < nBufferWriteLength; ii++ ) {
+				if( pData_L[ ii ] > 1 ) {
+					pData[ ii * 2 ] = 1;
+				} else if( pData_L[ ii ] < -1 ) {
+					pData[ ii * 2 ] = -1;
+				} else {
+					pData[ ii * 2 ] = pData_L[ ii ];
 				}
 				
-				if(pData_R[i] > 1){
-					pData[i * 2 + 1] = 1;
-				}
-				else if(pData_R[i] < -1){
-					pData[i * 2 + 1] = -1;
-				}else
-				{
-					pData[i * 2 + 1] = pData_R[i];
+				if( pData_R[ ii ] > 1 ){
+					pData[ ii * 2 + 1 ] = 1;
+				} else if ( pData_R[ ii ] < -1 ) {
+					pData[ ii * 2 + 1 ] = -1;
+				} else {
+					pData[ ii * 2 + 1 ] = pData_R[ ii ];
 				}
 			}
-			int res = sf_writef_float( m_file, pData, usedBuffer );
-			if ( res != ( int )usedBuffer ) {
+
+			// ___DEBUGLOG( QString( "nBufferWriteLength: %1, usedBuffer: %2" )
+			// 			 .arg(nBufferWriteLength).arg( usedBuffer));
+			int res = sf_writef_float( m_file, pData, nBufferWriteLength );
+			if ( res != ( int )nBufferWriteLength ) {
 				__ERRORLOG( "Error during sf_write_float" );
 			}
 		}

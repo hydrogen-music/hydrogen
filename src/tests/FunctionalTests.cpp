@@ -149,7 +149,7 @@ public:
 	}
 
 	void testExportAudio()
-	{
+	{		   	
 		auto songFile = H2TEST_FILE("functional/test.h2song");
 		auto outFile = Filesystem::tmp_file_path("test.wav");
 		auto refFile = H2TEST_FILE("functional/test.ref.flac");
@@ -252,6 +252,7 @@ private:
 	 **/
 	void exportSong( const QString &songFile, const QString &fileName )
 	{
+
 		auto t0 = std::chrono::high_resolution_clock::now();
 
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
