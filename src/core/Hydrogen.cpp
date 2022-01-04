@@ -1237,18 +1237,7 @@ void Hydrogen::onJackMaster()
 }
 #endif
 
-
-float Hydrogen::getNewBpmJTM() const
-{
-	return m_fNewBpmJTM;
-}
-
-void Hydrogen::setNewBpmJTM( float bpmJTM )
-{
-	m_fNewBpmJTM = bpmJTM;
-}
-
-void Hydrogen::togglePlaysSelected()
+void Hydrogen::setPlaysSelected( bool bPlaysSelected )
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;	
 	std::shared_ptr<Song> pSong = getSong();
@@ -1493,7 +1482,7 @@ void Hydrogen::setMode( Song::Mode mode ) {
 	if ( getSong() != nullptr ) {
 		getSong()->setMode( mode );
 	}
-	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, 0 );
+	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
 }
 
 void Hydrogen::setUseTimelineBpm( bool bEnabled ) {

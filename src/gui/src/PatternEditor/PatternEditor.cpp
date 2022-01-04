@@ -712,7 +712,7 @@ std::vector< Pattern *> PatternEditor::getPatternsToShow( void )
 	std::vector<Pattern *> patterns;
 
 	// Add stacked-mode patterns
-	if ( pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {
+	if ( pHydrogen->getSong()->getMode() == Song::Mode::Pattern ) {
 		if ( !Preferences::get_instance()->patternModePlaysSelected() ) {
 			m_pAudioEngine->lock( RIGHT_HERE );
 			std::set< Pattern *> patternSet;

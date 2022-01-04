@@ -139,6 +139,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pModeActionMultipleBtn->hide();
 	m_pModeActionMultipleBtn->setVisible( pPref->patternModePlaysSelected() );
 	connect( m_pModeActionMultipleBtn, SIGNAL( pressed() ), this, SLOT( modeActionBtnPressed() ) );
+	setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
 
 // ZOOM
 	m_pHScrollBar = new QScrollBar( Qt::Horizontal, nullptr );
@@ -753,18 +754,6 @@ void SongEditorPanel::editPlaybackTrackBtnPressed()
 	updateAll();
 }
 
-void SongEditorPanel::songModeActivationEvent( int nValue ) {
-	// Disable the stacked mode button in song mode since it does nothing in song mode
-	if ( nValue != 0 ) {
-		m_pModeActionMultipleBtn->setDisabled( true );
-		m_pModeActionSingleBtn->setDisabled( true );
-	} else {
-		m_pModeActionMultipleBtn->setDisabled( false );
-		m_pModeActionSingleBtn->setDisabled( false );
-		setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
-	}
-}
-
 void SongEditorPanel::modeActionBtnPressed( )
 {
 	bool bWasStacked = m_pModeActionSingleBtn->isVisible();
@@ -788,6 +777,14 @@ void SongEditorPanel::setModeActionBtn( bool mode )
 	} else {
 		m_pModeActionSingleBtn->show();
 		m_pModeActionMultipleBtn->hide();
+	}
+	// Set disabled or enabled
+	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
+		m_pModeActionMultipleBtn->setDisabled( true );
+		m_pModeActionSingleBtn->setDisabled( true );
+	} else {
+		m_pModeActionMultipleBtn->setDisabled( false );
+		m_pModeActionSingleBtn->setDisabled( false );
 	}
 }
 
@@ -900,6 +897,7 @@ void SongEditorPanel::songModeActivationEvent( int ) {
 		setTimelineEnabled( true );
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
 	}
+	setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
 }
 
 void SongEditorPanel::timelineActivationEvent( int ){
