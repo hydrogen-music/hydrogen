@@ -949,3 +949,41 @@ void SongEditorPanel::setTimelineEnabled( bool bEnabled ) {
 void SongEditorPanel::updateSongEditorEvent( int ) {
 	updateAll();
 }
+
+void SongEditorPanel::columnChangedEvent( int ) {
+	// In Song mode, we may do the thing. XXX that thing.
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = Preferences::get_instance();
+	if ( pHydrogen->getMode() == Song::Mode::Song && pPref->patternFollowsSong() ) {
+
+		// Selected pattern follows song.
+		//
+		// If the currently selected pattern is no longer one of those currently playing in the song, then we
+		// select the lowest-numbered currently-playing pattern as the current pattern.
+
+		AudioEngine *pAudioEngine = pHydrogen->getAudioEngine();
+		PatternList *pSongPatterns = pHydrogen->getSong()->getPatternList();
+		int nSelectedPattern = pHydrogen->getSelectedPatternNumber();
+
+		bool bFound = false;
+		int nLowestPattern = pSongPatterns->size();
+		std::vector< Pattern* >patternList;
+		pAudioEngine->lock( RIGHT_HERE );
+		for ( auto pPattern : *pAudioEngine->getPlayingPatterns() ) {
+			patternList.push_back( pPattern );
+		}
+		pAudioEngine->unlock();
+
+		for ( auto pPattern : patternList ) {
+			int nPattern = pSongPatterns->index( pPattern );
+			nLowestPattern = std::min( nLowestPattern, nPattern );
+			if ( nPattern == nSelectedPattern ) {
+				bFound = true;
+				break;
+			}
+		}
+		if ( !bFound && nLowestPattern != pSongPatterns->size() ) {
+			pHydrogen->setSelectedPatternNumber( nLowestPattern );
+		}
+	}
+}
