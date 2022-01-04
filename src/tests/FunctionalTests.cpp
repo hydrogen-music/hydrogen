@@ -252,7 +252,6 @@ private:
 	 **/
 	void exportSong( const QString &songFile, const QString &fileName )
 	{
-
 		auto t0 = std::chrono::high_resolution_clock::now();
 
 		Hydrogen *pHydrogen = Hydrogen::get_instance();

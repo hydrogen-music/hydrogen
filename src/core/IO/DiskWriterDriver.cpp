@@ -160,6 +160,7 @@ void* diskWriterDriver_thread( void* param )
 	int nPatternSize, nBufferWriteLength;
 	float fBpm;
 	float fTicksize = 0;
+	int nMaxNumberOfSilentFrames = 200;
 	for ( int patternPosition = 0; patternPosition < nColumns; ++patternPosition ) {
 		
 		PatternList *pColumn = ( *pPatternColumns )[ patternPosition ];
@@ -174,20 +175,21 @@ void* diskWriterDriver_thread( void* param )
 												  pSong->getResolution() );
 		
 		//here we have the pattern length in frames dependent from bpm and samplerate
-		unsigned patternLengthInFrames = fTicksize * nPatternSize;
-		unsigned frameNumber = 0;
-		int lastRun = 0;
+		int nPatternLengthInFrames = fTicksize * nPatternSize;
+		int nFrameNumber = 0;
+		int nLastRun = 0;
+		int nSuccessiveZeros = 0;
 		while ( ( patternPosition < nColumns - 1 && // render all
 													// frames in
 													// pattern 
-				  frameNumber < patternLengthInFrames ) ||
+				  nFrameNumber < nPatternLengthInFrames ) ||
 				( patternPosition == nColumns - 1 && // render till
 													 // all notes are
 													 // processed
-				  ( frameNumber < patternLengthInFrames ||
+				  ( nFrameNumber < nPatternLengthInFrames ||
 					pSampler->isRenderingNotes() ) ) ) {
 			
-			int usedBuffer = pDriver->m_nBufferSize;
+			int nUsedBuffer = pDriver->m_nBufferSize;
 			
 			// This will calculate the size from -last- (end of
 			// pattern) used frame buffer, which is mostly smaller
@@ -195,68 +197,55 @@ void* diskWriterDriver_thread( void* param )
 			// all patterns except of the last one. The latter we will
 			// let ring until there is no further audio to process.
 			if( patternPosition < nColumns - 1 &&
-				patternLengthInFrames - frameNumber < pDriver->m_nBufferSize ){
-				lastRun = patternLengthInFrames - frameNumber;
-
-				// ___DEBUGLOG( QString( "overwritting usedBuffer: %1 -> %2" )
-				// 			 .arg( usedBuffer ).arg( lastRun ) );
-				usedBuffer = lastRun;
+				nPatternLengthInFrames - nFrameNumber < pDriver->m_nBufferSize ){
+				nLastRun = nPatternLengthInFrames - nFrameNumber;
+				nUsedBuffer = nLastRun;
 
 			};
 
-			frameNumber += usedBuffer;
-
-			int ret = pDriver->m_processCallback( usedBuffer, nullptr );
+			int ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
 			
 			// In case the DiskWriter couldn't aquire the lock of the AudioEngine.
 			while( ret != 0 ) {
-				ret = pDriver->m_processCallback( usedBuffer, nullptr );
+				ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
 			}
 
 			if ( patternPosition == nColumns - 1 &&
-				  ! pSampler->isRenderingNotes() ) {
+				 nPatternLengthInFrames - nFrameNumber < nUsedBuffer ) {
+				// The next buffer at least partially exceeds the song
+				// size in ticks. As soon as it does we start to count
+				// zeros in both audio channels. The moment we
+				// encounter more than X we will stop the audio
+				// export. Just waiting for the Sampler to finish
+				// rendering is not sufficient because the Sample
+				// itself can be zero padded at the end causing the
+				// resulting .wav file to be inconsistent in terms of
+				// length depending on the buffer sized use during
+				// export.
+				//
 				// We are at the last pattern and just waited for the
 				// Sampler to finish rendering all notes (at an
-				// arbitrary point within the buffer). We will cut the
-				// silence at the end of buffer to keep the song
-				// concise.
+				// arbitrary point within the buffer).
 				nBufferWriteLength = 0;
 
-				// ___DEBUGLOG( QString( "frameNumber: %1" ).arg( frameNumber ) );
-
-				// We require a number of consecutive frames silence
-				// before considering the rendering to be
-				// finished.
-				int nMaxNumberOfSilentFrames = 20;
 				int nSilentFrames = 0;
-				for ( int ii = 0; ii < usedBuffer; ++ii ) {
+				for ( int ii = 0; ii < nUsedBuffer; ++ii ) {
 					++nBufferWriteLength;
-
-					// ___DEBUGLOG( QString( "L: %1, R: %2" ).arg( pData_L[ii], 0, 'f' )
-					// 			 .arg( pData_R[ii], 0, 'f' ) );
 					
 					if ( std::abs( pData_L[ii] ) == 0 &&
 						 std::abs( pData_R[ii] ) == 0 ) {
-						++nSilentFrames;
-					} else {
-						nSilentFrames = 0;
+						++nSuccessiveZeros;
 					}
 
-					if ( nSilentFrames == nMaxNumberOfSilentFrames ) {
-						// We could remove the silent frames at the
-						// end to but it doesn't hurt either to keep
-						// them. In fact, maybe it would even be a
-						// good idea to have a fixed zero padding at
-						// the end.
-						// nBufferWriteLength -= nSilentFrames;
+					if ( nSuccessiveZeros == nMaxNumberOfSilentFrames ) {
 						break;
 					}
 				}
 			} else {
-				nBufferWriteLength = usedBuffer;
+				nBufferWriteLength = nUsedBuffer;
 			}
 			
-			// frameNumber += nBufferWriteLength;
+			nFrameNumber += nBufferWriteLength;
 			
 			for ( unsigned ii = 0; ii < nBufferWriteLength; ii++ ) {
 				if( pData_L[ ii ] > 1 ) {
@@ -275,12 +264,17 @@ void* diskWriterDriver_thread( void* param )
 					pData[ ii * 2 + 1 ] = pData_R[ ii ];
 				}
 			}
-
-			// ___DEBUGLOG( QString( "nBufferWriteLength: %1, usedBuffer: %2" )
-			// 			 .arg(nBufferWriteLength).arg( usedBuffer));
+			
 			int res = sf_writef_float( m_file, pData, nBufferWriteLength );
 			if ( res != ( int )nBufferWriteLength ) {
 				__ERRORLOG( "Error during sf_write_float" );
+			}
+
+			// Sampler is still rendering notes put we seem to have
+			// reached the zero padding at the end of the
+			// corresponding samples.
+			if ( nSuccessiveZeros == nMaxNumberOfSilentFrames ) {
+				break;
 			}
 		}
 		
