@@ -43,6 +43,7 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/PatternList.h>
 #include <core/IO/JackAudioDriver.h>
+#include <core/EventQueue.h>
 
 #ifdef WIN32
 #include <time.h>
@@ -138,6 +139,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pModeActionMultipleBtn->hide();
 	m_pModeActionMultipleBtn->setVisible( pPref->patternModePlaysSelected() );
 	connect( m_pModeActionMultipleBtn, SIGNAL( pressed() ), this, SLOT( modeActionBtnPressed() ) );
+	setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
 
 // ZOOM
 	m_pHScrollBar = new QScrollBar( Qt::Horizontal, nullptr );
@@ -752,14 +754,16 @@ void SongEditorPanel::editPlaybackTrackBtnPressed()
 
 void SongEditorPanel::modeActionBtnPressed( )
 {
-	if( m_pModeActionSingleBtn->isVisible() ){
+	bool bWasStacked = m_pModeActionSingleBtn->isVisible();
+	if( bWasStacked ){
 		m_pModeActionSingleBtn->hide();
 		m_pModeActionMultipleBtn->show();
 	} else {
 		m_pModeActionSingleBtn->show();
 		m_pModeActionMultipleBtn->hide();
 	}
-	Hydrogen::get_instance()->togglePlaysSelected();
+	Hydrogen::get_instance()->setPlaysSelected( bWasStacked );
+	EventQueue::get_instance()->push_event( EVENT_STACKED_MODE_ACTIVATION, bWasStacked ? 0 : 1 );
 	updateAll();
 }
 
@@ -771,6 +775,14 @@ void SongEditorPanel::setModeActionBtn( bool mode )
 	} else {
 		m_pModeActionSingleBtn->show();
 		m_pModeActionMultipleBtn->hide();
+	}
+	// Set disabled or enabled
+	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
+		m_pModeActionMultipleBtn->setDisabled( true );
+		m_pModeActionSingleBtn->setDisabled( true );
+	} else {
+		m_pModeActionMultipleBtn->setDisabled( false );
+		m_pModeActionSingleBtn->setDisabled( false );
 	}
 }
 
@@ -889,6 +901,7 @@ void SongEditorPanel::songModeActivationEvent( int ) {
 		setTimelineEnabled( true );
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
 	}
+	setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
 }
 
 void SongEditorPanel::timelineActivationEvent( int ){

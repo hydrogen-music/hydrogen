@@ -293,6 +293,7 @@ class SongEditorPatternList :  public QWidget, protected WidgetWithScalableFont<
 		QPixmap				m_labelBackgroundSelected;
 		QPixmap				m_playingPattern_on_Pixmap;
 		QPixmap				m_playingPattern_off_Pixmap;
+		QPixmap				m_playingPattern_empty_Pixmap;
 							
 		QMenu *				m_pPatternPopup;
 		QLineEdit *			m_pLineEdit;
@@ -309,6 +310,7 @@ class SongEditorPatternList :  public QWidget, protected WidgetWithScalableFont<
 		void togglePattern( int );
 
 		virtual void patternChangedEvent() override;
+		virtual void songModeActivationEvent( int nValue ) override;
 		void mouseMoveEvent(QMouseEvent *event) override;
 		QPoint __drag_start_position;
 

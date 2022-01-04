@@ -657,6 +657,10 @@ void HydrogenApp::onEventQueueTimer()
 			case EVENT_SONG_MODE_ACTIVATION:
 				pListener->songModeActivationEvent( event.value );
 				break;
+
+			case EVENT_STACKED_MODE_ACTIVATION:
+				pListener->stackedModeActivationEvent( event.value );
+				break;
 				
 			case EVENT_LOOP_MODE_ACTIVATION:
 				pListener->loopModeActivationEvent( event.value );

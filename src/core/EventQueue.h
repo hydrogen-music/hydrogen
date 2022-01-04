@@ -147,6 +147,8 @@ enum EventType {
 		and informs the GUI about a state change.*/
 	EVENT_JACK_TIMEBASE_STATE_CHANGED,
 	EVENT_SONG_MODE_ACTIVATION,
+	/** Activate stacked mode (1) or "focus"/"PatternPlaysSelected"/normal mode */
+	EVENT_STACKED_MODE_ACTIVATION,
 	/** Toggles the button indicating the usage loop mode.*/
 	EVENT_LOOP_MODE_ACTIVATION,
 	/** Switches between select mode (0) and draw mode (1) in the *SongEditor.*/
