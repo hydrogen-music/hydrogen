@@ -61,8 +61,6 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 
 		void write( float* buffer_L, float* buffer_R, unsigned int bufferSize );
 
-		void audioEngine_process_checkBPMChanged();
-
 		unsigned getBufferSize() {
 			return m_nBufferSize;
 		}

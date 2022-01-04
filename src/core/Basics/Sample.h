@@ -171,16 +171,12 @@ class Sample : public H2Core::Object<Sample>
 		 * Load a sample from a file and apply the
 		 * transformations to the sample data.
 		 *
-		 * Wrapper around #load(const QString& filepath),
-		 * which calls apply() with @a loops, @a rubber, @a
-		 * velocity, and @a pan as arguments after
-		 * successfully loading the sample.
-		 *
 		 * \param filepath the file to load audio data from
 		 * \param loops transformation parameters
 		 * \param rubber band transformation parameters
 		 * \param velocity envelope points
 		 * \param pan envelope points
+		 * \param fBpm tempo the Rubberband transformation will target
 		 *
 		 * \return Pointer to the newly initialized Sample. If
 		 * the provided @a filepath is not readable, a nullptr
@@ -188,7 +184,7 @@ class Sample : public H2Core::Object<Sample>
 		 *
 		 * \overload load(const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan)
 		 */
-		static std::shared_ptr<Sample> load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan );
+		static std::shared_ptr<Sample> load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan, float fBpm );
 
 		/**
 		 * Load the sample stored in #__filepath into
@@ -237,9 +233,10 @@ class Sample : public H2Core::Object<Sample>
 		 * \param velocity Velocity envelope points handed
 		 * over to apply_velocity().
 		 * \param pan Pan envelope points handed over to
+		 * \param fBpm tempo the Rubberband transformation will target
 		 * apply_pan().
 		 */
-		void apply( const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan );
+		void apply( const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan, float fBpm );
 		/**
 		 * apply loop transformation to the sample
 		 * \param lo loops parameters
@@ -258,13 +255,15 @@ class Sample : public H2Core::Object<Sample>
 		/**
 		 * apply rubberband transformation to the sample
 		 * \param rb rubberband parameters
+		 * \param fBpm tempo the Rubberband transformation will target
 		 */
-		void apply_rubberband( const Rubberband& rb );
+		void apply_rubberband( const Rubberband& rb, float fBpm );
 		/**
 		 * call rubberband cli to modify the sample
 		 * \param rb rubberband parameters
+		 * \param fBpm tempo the Rubberband transformation will target
 		 */
-		bool exec_rubberband_cli( const Rubberband& rb );
+		bool exec_rubberband_cli( const Rubberband& rb, float fBpm );
 
 		/** \return true if both data channels are null pointers */
 		bool is_empty() const;

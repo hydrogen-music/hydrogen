@@ -143,26 +143,26 @@ std::shared_ptr<Sample> Sample::load( const QString& sFilepath )
 	return pSample;
 }
 
-std::shared_ptr<Sample> Sample::load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan )
+std::shared_ptr<Sample> Sample::load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan, float fBpm )
 {
 	auto pSample = Sample::load( filepath );
 	
 	if( pSample ){
-		pSample->apply( loops, rubber, velocity, pan );
+		pSample->apply( loops, rubber, velocity, pan, fBpm );
 	}
 
 	return pSample;
 }
 
-void Sample::apply( const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan )
+void Sample::apply( const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan, float fBpm )
 {
 	apply_loops( loops );
 	apply_velocity( velocity );
 	apply_pan( pan );
 #ifdef H2CORE_HAVE_RUBBERBAND
-	apply_rubberband( rubber );
+	apply_rubberband( rubber, fBpm );
 #else
-	exec_rubberband_cli( rubber );
+	exec_rubberband_cli( rubber, fBpm );
 #endif
 }
 
@@ -420,15 +420,14 @@ void Sample::apply_pan( const PanEnvelope& p )
 	__is_modified = true;
 }
 
-void Sample::apply_rubberband( const Rubberband& rb )
-{
+void Sample::apply_rubberband( const Rubberband& rb, float fBpm ) {
 	// TODO see Rubberband declaration in sample.h
 #ifdef H2CORE_HAVE_RUBBERBAND
 	if( !rb.use ){
 		return;
 	}
 	// compute rubberband options
-	double output_duration = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * rb.divider;
+	double output_duration = 60.0 / fBpm * rb.divider;
 	double time_ratio = output_duration / get_sample_duration();
 	RubberBand::RubberBandStretcher::Options options = compute_rubberband_options( rb );
 	double pitch_scale = compute_pitch_scale( rb );
@@ -587,7 +586,7 @@ void Sample::apply_rubberband( const Rubberband& rb )
 #endif
 }
 
-bool Sample::exec_rubberband_cli( const Rubberband& rb )
+bool Sample::exec_rubberband_cli( const Rubberband& rb, float fBpm )
 {
 	//set the path to rubberband-cli
 	QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
@@ -606,7 +605,7 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 
 		unsigned rubberoutframes = 0;
 		double ratio = 1.0;
-		double durationtime = 60.0 / Hydrogen::get_instance()->getNewBpmJTM() * rb.divider/*beats*/;
+		double durationtime = 60.0 / fBpm * rb.divider/*beats*/;
 		double induration = get_sample_duration();
 		if ( induration != 0.0 ) {
 			ratio = durationtime / induration;

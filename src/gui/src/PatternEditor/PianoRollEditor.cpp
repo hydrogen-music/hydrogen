@@ -624,7 +624,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 			}
 		}
 	}
-	pSong->setIsModified( true );
+	pHydrogen->setIsModified( true );
 	m_pAudioEngine->unlock(); // unlock the audio engine
 
 	m_pPatternEditorPanel->updateEditors( true );
@@ -684,7 +684,7 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 	pPattern->insert_note( pFoundNote );
 	pFoundNote->set_key_octave( newKey, newOctave );
 
-	pSong->setIsModified( true );
+	pHydrogen->setIsModified( true );
 	m_pAudioEngine->unlock();
 
 	m_pPatternEditorPanel->updateEditors( true );
@@ -726,7 +726,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		}
 		m_pDraggedNote->set_length( nLen * fStep);
 
-		Hydrogen::get_instance()->getSong()->setIsModified( true );
+		Hydrogen::get_instance()->setIsModified( true );
 		m_pAudioEngine->unlock(); // unlock the audio engine
 
 		m_pPatternEditorPanel->updateEditors( true );
@@ -756,7 +756,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 
 		__velocity = val;
 
-		Hydrogen::get_instance()->getSong()->setIsModified( true );
+		Hydrogen::get_instance()->setIsModified( true );
 		m_pAudioEngine->unlock(); // unlock the audio engine
 
 		m_pPatternEditorPanel->updateEditors( true );
@@ -775,7 +775,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		m_pDraggedNote->setPanWithRangeFrom0To1( fVal ); // checks the boundaries as well
 		m_fPan = m_pDraggedNote->getPan();
 
-		Hydrogen::get_instance()->getSong()->setIsModified( true );
+		Hydrogen::get_instance()->setIsModified( true );
 		m_pAudioEngine->unlock(); // unlock the audio engine
 
 		m_pPatternEditorPanel->updateEditors();
@@ -816,7 +816,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 			HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
 		}
 
-		Hydrogen::get_instance()->getSong()->setIsModified( true );
+		Hydrogen::get_instance()->setIsModified( true );
 		m_pAudioEngine->unlock(); // unlock the audio engine
 
 		m_pPatternEditorPanel->updateEditors( true );
@@ -1184,7 +1184,7 @@ void PianoRollEditor::editNoteLengthAction( int nColumn,  int nRealColumn,  int 
 		pDraggedNote->set_length( length );
 	}
 
-	pSong->setIsModified( true );
+	pHydrogen->setIsModified( true );
 	m_pAudioEngine->unlock();
 	m_pPatternEditorPanel->updateEditors( true );
 }
@@ -1218,7 +1218,7 @@ void PianoRollEditor::editNotePropertiesAction( int nColumn,
 		pDraggedNote->setPan( fPan );
 		pDraggedNote->set_lead_lag( leadLag );
 	}
-	pSong->setIsModified( true );
+	pHydrogen->setIsModified( true );
 	m_pAudioEngine->unlock();
 	m_pPatternEditorPanel->updateEditors( true );
 }

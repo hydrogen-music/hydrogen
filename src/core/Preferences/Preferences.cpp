@@ -69,7 +69,6 @@ Preferences::Preferences()
 
 	//rubberband bpm change queue
 	m_useTheRubberbandBpmChangeEvent = false;
-	__rubberBandCalcTime = 5;
 
 	QString rubberBandCLIPath = getenv( "PATH" );
 	QStringList rubberBandCLIPathList = rubberBandCLIPath.split(":");//linux use ":" as separator. maybe windows and osx use other separators

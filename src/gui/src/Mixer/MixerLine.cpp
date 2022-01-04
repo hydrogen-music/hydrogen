@@ -199,12 +199,12 @@ void MixerLine::playSampleBtnClicked() {
 }
 
 void MixerLine::muteBtnClicked() {
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 	emit muteBtnClicked(this);
 }
 
 void MixerLine::soloBtnClicked() {
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 	emit soloBtnClicked(this);
 }
 
@@ -212,18 +212,19 @@ void MixerLine::faderChanged( WidgetWithInput *pRef ) {
 
 	assert( pRef );
 	
-	std::shared_ptr<Song> pSong = (Hydrogen::get_instance())->getSong();
-	pSong->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 	emit volumeChanged(this);
 
 	WidgetWithInput* pFader = static_cast<Fader*>( pRef );
 	
 	double value = (double) pFader->getValue();
-	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set instrument volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
+	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set instrument volume [%1]" )
+														  .arg( value, 0, 'f', 2 ), 2000 );
 }
 
 bool MixerLine::isMuteClicked() {
-	return ( ( m_pMuteBtn->isChecked() && ! m_pMuteBtn->isDown() ) || ( ! m_pMuteBtn->isChecked() && m_pMuteBtn->isDown() ) );
+	return ( ( m_pMuteBtn->isChecked() && ! m_pMuteBtn->isDown() ) ||
+			 ( ! m_pMuteBtn->isChecked() && m_pMuteBtn->isDown() ) );
 }
 
 void MixerLine::setMuteClicked(bool isClicked) {
@@ -310,7 +311,6 @@ void MixerLine::nameSelected() {
 void MixerLine::panChanged(WidgetWithInput *ref)
 {
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	pSong->setIsModified( true );
 	emit panChanged( this );
 	/** Do not update tooltip nor print status message in the old fashion panL and panL style
 	 *	since inconsistent with new pan implementation. The resultant pan depends also on note pan.
@@ -474,12 +474,10 @@ void ComponentMixerLine::updateMixerLine()
 }
 
 void ComponentMixerLine::muteBtnClicked() {
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
 	emit muteBtnClicked(this);
 }
 
 void ComponentMixerLine::soloBtnClicked() {
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
 	emit soloBtnClicked(this);
 }
 
@@ -487,17 +485,18 @@ void ComponentMixerLine::faderChanged( WidgetWithInput *pRef ) {
 
 	assert( pRef );
 	
-	std::shared_ptr<Song> pSong = (Hydrogen::get_instance())->getSong();
-	pSong->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 	emit volumeChanged(this);
 
 	WidgetWithInput* pFader = static_cast<Fader*>( pRef );
 	double value = (double) pFader->getValue();
-	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set main volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
+	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set main volume [%1]" )
+														  .arg( value, 0, 'f', 2 ), 2000 );
 }
 
 bool ComponentMixerLine::isMuteClicked() {
-	return ( ( m_pMuteBtn->isChecked() && ! m_pMuteBtn->isDown() ) || ( ! m_pMuteBtn->isChecked() && m_pMuteBtn->isDown() ) );
+	return ( ( m_pMuteBtn->isChecked() && ! m_pMuteBtn->isDown() ) ||
+			 ( ! m_pMuteBtn->isChecked() && m_pMuteBtn->isDown() ) );
 }
 
 void ComponentMixerLine::setMuteClicked(bool isClicked) {
@@ -665,11 +664,11 @@ void MasterMixerLine::faderChanged( WidgetWithInput *pRef )
 
 	emit volumeChanged(this);
 
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	pSong->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 
 	double value = (double) pFader->getValue();
-	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set master volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
+	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set master volume [%1]" )
+														  .arg( value, 0, 'f', 2 ), 2000 );
 }
 
 float MasterMixerLine::getVolume()
@@ -950,12 +949,12 @@ void LadspaFXMixerLine::rotaryChanged( WidgetWithInput *ref)
 	UNUSED( ref );
 	m_fMaxPeak = 0.0;
 
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	pSong->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 	emit volumeChanged(this);
 	
 	double value = (double) ref->getValue();
-	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set FX volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
+	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set FX volume [%1]" )
+														  .arg( value, 0, 'f', 2 ), 2000 );
 }
 
 void LadspaFXMixerLine::setPeaks( float fPeak_L, float fPeak_R )

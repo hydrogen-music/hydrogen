@@ -189,8 +189,6 @@ signals:
 		     EventListener::XRunEvent()
 		 * - H2Core::EVENT_METRONOME -> 
 		     EventListener::metronomeEvent()
-		 * - H2Core::EVENT_RECALCULATERUBBERBAND -> 
-		     EventListener::rubberbandbpmchangeEvent()
 		 * - H2Core::EVENT_PROGRESS -> 
 		     EventListener::progressEvent()
 		 * - H2Core::EVENT_JACK_SESSION -> 

@@ -54,7 +54,7 @@ public:
 	static Effects* get_instance() { assert(__instance); return __instance; }
 	~Effects();
 
-	LadspaFX* getLadspaFX( int nFX );
+	LadspaFX* getLadspaFX( int nFX ) const;
 	void  setLadspaFX( LadspaFX* pFX, int nFX );
 
 	std::vector<LadspaFXInfo*> getPluginList();

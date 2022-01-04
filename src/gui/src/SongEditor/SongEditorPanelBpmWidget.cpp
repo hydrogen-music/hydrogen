@@ -28,47 +28,49 @@
 #include "SongEditorPanelBpmWidget.h"
 #include "SongEditorPanel.h"
 #include "SongEditor.h"
+#include "../Widgets/Button.h"
+
 #include <core/Hydrogen.h>
 #include <core/Timeline.h>
 
 namespace H2Core
 {
 
-SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
+	SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int nColumn, bool bTempoMarkerPresent )
 	: QDialog( pParent )
-	, m_stimelineposition ( beat )
+	, m_nColumn( nColumn )
+	, m_bTempoMarkerPresent( bTempoMarkerPresent )
 {
 	setupUi( this );
-	
-	setWindowTitle( tr( "BPM" ) );
-
-	lineEditBeat->setText(QString("%1").arg( m_stimelineposition + 1) );
-	deleteBtn->setEnabled ( false );
-
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Timeline* pTimeline = pHydrogen->getTimeline();
-	auto tempoMarkers = pTimeline->getAllTempoMarkers();
+	setWindowTitle( bTempoMarkerPresent ? tr( "Edit Tempo Marker" ) :
+					tr( "Create New Tempo Marker" ) );
 	adjustSize();
 	setFixedSize( width(), height() );
 
+	auto pHydrogen = Hydrogen::get_instance();
 
-	//restore the bpm value
-	if( tempoMarkers.size() > 0 ){
-		for ( int t = 0; t < tempoMarkers.size(); t++ ){
-			if ( tempoMarkers[t]->nBar == m_stimelineposition ) {
-				lineEditBpm->setText( QString("%1").arg( tempoMarkers[t]->fBpm ) );
-				deleteBtn->setEnabled ( true );
-				return;
-			}
-			else
-			{
-				lineEditBpm->setText( QString("%1").arg( pHydrogen->getNewBpmJTM()) );
-			}
-		}
-	}else
-	{
-		lineEditBpm->setText( QString("%1").arg( pHydrogen->getNewBpmJTM() ) );
-	}
+	bpmSpinBox->setMinimum( MIN_BPM );
+	bpmSpinBox->setMaximum( MAX_BPM );
+	bpmSpinBox->setValue( pHydrogen->getTimeline()->getTempoAtColumn( m_nColumn ) );
+	bpmSpinBox->setToolTip( bTempoMarkerPresent ?
+								tr( "Alter tempo of selected tempo marker" ) :
+								tr( "Set tempo of new tempo marker" ) );
+	// Required for correct focus highlighting.
+	bpmSpinBox->setSize( QSize( 146, 23 ) );
+	bpmSpinBox->setFocus();
+	
+	columnSpinBox->setMinimum( 1 );
+	columnSpinBox->setMaximum( Preferences::get_instance()->getMaxBars() );
+	columnSpinBox->setValue( m_nColumn + 1 );
+	columnSpinBox->setToolTip( bTempoMarkerPresent ?
+								tr( "Move tempo marker to different column" ) :
+								tr( "Set column of new tempo marker" ) );
+	// Required for correct focus highlighting.
+	columnSpinBox->setSize( QSize( 146, 23 ) );
+
+	deleteBtn->setSize( QSize( 180, 23 ) );
+	deleteBtn->setIsActive( bTempoMarkerPresent );
+	deleteBtn->setFixedFontSize( 12 );
 }
 
 
@@ -76,7 +78,6 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 
 SongEditorPanelBpmWidget::~SongEditorPanelBpmWidget()
 {
-	INFOLOG( "DESTROY" );
 }
 
 
@@ -90,7 +91,7 @@ void SongEditorPanelBpmWidget::on_CancelBtn_clicked()
 
 void SongEditorPanelBpmWidget::on_okBtn_clicked()
 {
-	float fNewBpm = lineEditBpm->text().toFloat( nullptr );
+	float fNewBpm = bpmSpinBox->text().toFloat( nullptr );
 
 	// In case the input text can not be parsed by Qt `fNewBpm' is 0
 	// and also covered by the warning below.
@@ -103,23 +104,20 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 							  tr("&Cancel") );
 		return;
 	}
-	
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Timeline* pTimeline = pHydrogen->getTimeline();
-	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 
-	float fOldBpm = -1.0;
-	//search for an old entry
-	if( tempoMarkerVector.size() >= 1 ){
-		for ( int t = 0; t < tempoMarkerVector.size(); t++){
-			if ( tempoMarkerVector[t]->nBar == ( QString( lineEditBeat->text() ).toInt() ) -1 ) {
-				fOldBpm = tempoMarkerVector[t]->fBpm;
-			}
-		}
+	auto pTimeline = Hydrogen::get_instance()->getTimeline();
+	int nNewColumn = columnSpinBox->text().toInt() - 1;
+	if ( ! ( m_bTempoMarkerPresent && nNewColumn == m_nColumn ) &&
+		 pTimeline->hasColumnTempoMarker( nNewColumn ) ) {
+		QMessageBox::warning( this, "Hydrogen",
+							  QString( tr( "There is already a tempo marker present at this Column. Please use left-click to edit it instead." ) ),
+							  tr("&Cancel") );
+		return;
 	}
+	
+	float fOldBpm = pTimeline->getTempoAtColumn( m_nColumn );
 
-
-	SE_editTimeLineAction *action = new SE_editTimeLineAction( lineEditBeat->text().toInt(), fOldBpm, QString( lineEditBpm->text() ).toFloat() );
+	SE_editTimelineAction *action = new SE_editTimelineAction( m_nColumn, nNewColumn, fOldBpm, QString( bpmSpinBox->text() ).toFloat(), m_bTempoMarkerPresent );
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	accept();
 }
@@ -129,19 +127,10 @@ void SongEditorPanelBpmWidget::on_deleteBtn_clicked()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Timeline* pTimeline = pHydrogen->getTimeline();
-	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 
-	float fOldBpm = -1.0;
-	//search for an old entry
-	if( tempoMarkerVector.size() >= 1 ){
-		for ( int t = 0; t < tempoMarkerVector.size(); t++){
-			if ( tempoMarkerVector[t]->nBar == ( QString( lineEditBeat->text() ).toInt() ) -1 ) {
-				fOldBpm = tempoMarkerVector[t]->fBpm;
-			}
-		}
-	}
+	float fBpm = pTimeline->getTempoAtColumn( m_nColumn );
 
-	SE_deleteTimeLineAction *action = new SE_deleteTimeLineAction( lineEditBeat->text().toInt(), fOldBpm );
+	SE_deleteTimelineAction *action = new SE_deleteTimelineAction( m_nColumn, fBpm );
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	accept();
 }

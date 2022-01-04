@@ -151,7 +151,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		adjustNotePropertyDelta( pNote, fDelta, /* bMessage=*/ true );
 	}
 
-	pSong->setIsModified( true );
+	pHydrogen->setIsModified( true );
 	addUndoAction();
 	updateEditor();
 }
@@ -432,7 +432,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 
 	m_nDragPreviousColumn = nColumn;
 
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 	updateEditor();
 
 	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
@@ -520,7 +520,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 		m_bValueHasBeenSet = true;
 		break;
 	}
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 }
 
 void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )

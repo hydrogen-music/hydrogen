@@ -415,7 +415,7 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 	LocalFileMng::writeXmlString( songNode, "action_mode",
 								  QString::number( static_cast<int>( pSong->getActionMode() ) ) );
 	
-	if ( pSong->getMode() == Song::SONG_MODE ) {
+	if ( pSong->getMode() == Song::Mode::Song ) {
 		LocalFileMng::writeXmlString( songNode, "mode", QString( "song" ) );
 	} else {
 		LocalFileMng::writeXmlString( songNode, "mode", QString( "pattern" ) );
@@ -746,10 +746,13 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 	
 	if ( tempoMarkerVector.size() >= 1 ){
-		for ( int t = 0; t < static_cast<int>(tempoMarkerVector.size()); t++){
+		for ( int tt = 0; tt < static_cast<int>(tempoMarkerVector.size()); tt++){
+			if ( tt == 0 && pTimeline->isFirstTempoMarkerSpecial() ) {
+				continue;
+			}
 			QDomNode newBPMNode = doc.createElement( "newBPM" );
-			LocalFileMng::writeXmlString( newBPMNode, "BAR",QString("%1").arg( tempoMarkerVector[t]->nBar ));
-			LocalFileMng::writeXmlString( newBPMNode, "BPM", QString("%1").arg( tempoMarkerVector[t]->fBpm  ) );
+			LocalFileMng::writeXmlString( newBPMNode, "BAR",QString("%1").arg( tempoMarkerVector[tt]->nColumn ));
+			LocalFileMng::writeXmlString( newBPMNode, "BPM", QString("%1").arg( tempoMarkerVector[tt]->fBpm  ) );
 			bpmTimeLine.appendChild( newBPMNode );
 		}
 	}
@@ -763,7 +766,7 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 	if ( tagVector.size() >= 1 ){
 		for ( int t = 0; t < static_cast<int>(tagVector.size()); t++){
 			QDomNode newTAGNode = doc.createElement( "newTAG" );
-			LocalFileMng::writeXmlString( newTAGNode, "BAR",QString("%1").arg( tagVector[t]->nBar ));
+			LocalFileMng::writeXmlString( newTAGNode, "BAR",QString("%1").arg( tagVector[t]->nColumn ));
 			LocalFileMng::writeXmlString( newTAGNode, "TAG", QString("%1").arg( tagVector[t]->sTag ) );
 			timeLineTag.appendChild( newTAGNode );
 		}
@@ -798,14 +801,14 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 
 	file.close();
 
+	pSong->setFilename( filename );
+
 	if( rv ) {
 		WARNINGLOG("File save reported an error.");
 	} else {
 		pSong->setIsModified( false );
 		INFOLOG("Save was successful.");
 	}
-
-	pSong->setFilename( filename );
 
 	return rv;
 }

@@ -66,7 +66,6 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 
 		// implements EventListener interface
 		virtual void selectedInstrumentChangedEvent() override;
-		virtual void rubberbandbpmchangeEvent() override;
 		//~ implements EventListener interface
 		void update();
 		static int findFreeDrumkitComponentId( int startingPoint = 0 );

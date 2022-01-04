@@ -6,6 +6,13 @@
 		- Allow for opening more than one Pattern at once.
 		- All available audio drivers can now be chosen via CLI.
 		- Implement missing EFFECT_LEVEL_RELATIVE MIDI action
+		- If the Timeline is activated, the tempo set using the BPM
+		  widget, BeatCounter, Tap Tempo, or MIDI/OSC commands is used left
+		  of the first tempo marker.
+		- The tempo provided by an external JACK timebase master
+		  overwrites all internal tempo settings.
+		- The BPM widget switches to read-only mode and displays the
+		  current playback speed when the Timeline is activated.
 	* Interface
 		- Improved scalability (most PNG images were replaced by SVGs,
 		  hardcoded PNG labels are now directly drawn by Qt, and spin boxes,
@@ -49,6 +56,18 @@
 	* InstrumentEditor UX improvements:
 		- rework start/end/loop frame slider selection and motion.
 		- rework velocity/pan envelope editing
+	* SongEditor UX improvements:
+		- Tags can now be inserted at all possible columns
+		- Hovering a Tag displays its content
+		- Changed behavior of the Tempo Marker dialog: When clicking an
+		  existing Tempo Marker it can be moved, edited, or
+		  deleted. Clicking a column with no Tempo Marker present allows
+		  to create a new one at an arbitrary location.
+		- Timeline is deactivated automatically when switching to Pattern
+		  Mode or a JACK timebase master is present
+		- The tempo used left of the first tempo marker is painted in a
+		  darker color.
+		- The currently used Tempo Marker gets highlighted.
 	* Bugfixes
 		- fix dithering of SongEditor when viewing the playback track
 		  and resizing the application or for very small size (#1379).
@@ -57,7 +76,10 @@
 		- fix display of tags and tempo marker while loading a song
 		  (introduced in 1.1.0) (#1393)
 		- default MIDI driver is now picked with the system's capabilities
-		  in mind
+		in mind
+		- remove unwanted samples at the end of the exported song (to
+		  .wav) (#946)
+		- fix undefined tempo before first tempo marker (#416)
 
 2021-12-05 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.1.1
