@@ -383,6 +383,10 @@ void SongEditorPanel::updatePlayHeadPosition()
 		else if ( nPlayHeadPosition < x ) {
 			hScrollTo( value - nIncrement );
 		}
+
+		// Scroll vertically to keep currently playing patterns in view
+		int scroll = m_pSongEditor->yScrollTarget( m_pEditorScrollView );
+		vScrollTo( scroll );
 	}
 }
 
