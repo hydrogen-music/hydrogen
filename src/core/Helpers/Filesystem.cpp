@@ -561,15 +561,15 @@ QString Filesystem::tmp_dir()
 QString Filesystem::tmp_file_path( const QString &base )
 {
 	// Ensure template base will produce a valid filename
-	QString validBase = base.left( 20 );
+	QString validBase = base;
 	validBase.remove( QRegExp( "[^a-zA-Z0-9._]" ) );
 
 	QFileInfo f( validBase );
 	QString templateName( tmp_dir() + "/" );
 	if ( f.suffix().isEmpty() ) {
-		templateName += validBase;
+		templateName += validBase.left( 20 );
 	} else {
-		templateName += f.completeBaseName() + "-XXXXXX." + f.suffix();
+		templateName += f.completeBaseName().left( 20 ) + "-XXXXXX." + f.suffix();
 	}
 	QTemporaryFile file( templateName);
 	file.setAutoRemove( false );
