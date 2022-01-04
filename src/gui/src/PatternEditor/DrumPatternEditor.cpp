@@ -1043,14 +1043,15 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 		-smoors
 	*/
 	updatePatternInfo();
+	validateSelection();
 
-	if( m_pPattern ) {
-		const Pattern::notes_t *pNotes = m_pPattern->get_notes();
+
+	for ( Pattern *pPattern : getPatternsToShow() ) {
+		const Pattern::notes_t *pNotes = pPattern->get_notes();
 		if ( pNotes->size() == 0 ) {
-			return;
+			continue;
 		}
-
-		validateSelection();
+		bool bIsForeground = ( pPattern == m_pPattern );
 
 		std::vector< int > noteCount; // instrument_id -> count
 		std::stack<std::shared_ptr<Instrument>> instruments;
@@ -1075,7 +1076,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 					instruments.push( pNote->get_instrument() );
 				}
 
-				__draw_note( pNote, painter );
+				__draw_note( pNote, painter, bIsForeground );
 				++noteIt;
 			}
 
@@ -1113,7 +1114,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 ///
 /// Draws a note
 ///
-void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
+void DrumPatternEditor::__draw_note( Note *note, QPainter& p, bool bIsForeground )
 {
 	InstrumentList *pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	int nInstrument = pInstrList->index( note->get_instrument() );
@@ -1125,7 +1126,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 	QPoint pos ( m_nMargin + note->get_position() * m_fGridWidth,
 				 ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3 );
 
-	drawNoteSymbol( p, pos, note );
+	drawNoteSymbol( p, pos, note, bIsForeground );
 }
 
 
@@ -1277,7 +1278,6 @@ void DrumPatternEditor::selectedInstrumentChangedEvent()
 {
 	update( 0, 0, width(), height() );
 }
-
 
 /// This method is called from another thread (audio engine)
 void DrumPatternEditor::patternModifiedEvent()

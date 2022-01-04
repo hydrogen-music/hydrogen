@@ -157,7 +157,7 @@ QColor PatternEditor::computeNoteColor( float velocity ) {
 }
 
 
-void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote ) const
+void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote, bool bIsForeground ) const
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
@@ -165,7 +165,6 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 	static const QColor noteoffColor( pPref->getColorTheme()->m_patternEditor_noteoffColor );
 
 	p.setRenderHint( QPainter::Antialiasing );
-
 
 	QColor color = computeNoteColor( pNote->get_velocity() );
 
@@ -196,6 +195,13 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 	if ( pNote->get_note_off() == false ) {	// trigger note
 		int width = w;
 
+		QBrush noteBrush( color );
+		QPen notePen( noteColor );
+		if ( !bIsForeground ) {
+			noteBrush.setStyle( Qt::Dense4Pattern );
+			notePen.setStyle( Qt::DotLine );
+		}
+
 		if ( bSelected ) {
 			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
 		}
@@ -210,15 +216,15 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 			if ( bSelected ) {
 				p.drawRoundedRect( x_pos-2, y_pos, width+4, 3+4, 4, 4 );
 			}
-			p.setPen( noteColor );
-			p.setBrush( color );
+			p.setPen( notePen );
+			p.setBrush( noteBrush );
 			p.fillRect( x_pos, y_pos +2, width, 3, color );	/// \todo: definire questo colore nelle preferenze
 			p.drawRect( x_pos, y_pos +2, width, 3 );
 			p.drawLine( x_pos+width, y_pos, x_pos+width, y_pos + h );
 		}
 
-		p.setPen( noteColor );
-		p.setBrush( color );
+		p.setPen( notePen );
+		p.setBrush( noteBrush );
 		p.drawEllipse( x_pos -4 , y_pos, w, h );
 
 		if ( bMoving ) {
@@ -231,17 +237,21 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 				p.setBrush( Qt::NoBrush );
 				p.drawRoundedRect( movingOffset.x() + x_pos-2, movingOffset.y() + y_pos, width+4, 3+4, 4, 4 );
 			}
-
 		}
-
 	}
 	else if ( pNote->get_length() == 1 && pNote->get_note_off() == true ) {
 
 		if ( bSelected ) {
 			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
 		}
- 		p.setPen( noteoffColor );
-		p.setBrush( QColor( noteoffColor ) );
+
+		QBrush noteOffBrush( noteoffColor );
+		if ( !bIsForeground ) {
+			noteOffBrush.setStyle( Qt::Dense4Pattern );
+		}
+
+		p.setPen( Qt::NoPen );
+		p.setBrush( noteOffBrush );
 		p.drawEllipse( x_pos -4 , y_pos, w, h );
 
 		if ( bMoving ) {
@@ -690,5 +700,56 @@ void PatternEditor::enterEvent( QEvent *ev ) {
 void PatternEditor::leaveEvent( QEvent *ev ) {
 	UNUSED( ev );
 	m_bEntered = false;
+}
+
+
+//! Get notes to show in pattern editor.
+//! This may include "background" notes that are in currently-playing patterns
+//! rather than the current pattern.
+std::vector< Pattern *> PatternEditor::getPatternsToShow( void )
+{
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	std::vector<Pattern *> patterns;
+
+	// Add stacked-mode patterns
+	if ( pHydrogen->getSong()->getMode() == Song::Mode::Pattern ) {
+		if ( !Preferences::get_instance()->patternModePlaysSelected() ) {
+			m_pAudioEngine->lock( RIGHT_HERE );
+			std::set< Pattern *> patternSet;
+			for ( PatternList *pPatternList : { m_pAudioEngine->getPlayingPatterns(),
+						                        m_pAudioEngine->getNextPatterns() } ) {
+				for ( int i = 0; i <  pPatternList->size(); i++) {
+					Pattern *pPattern = pPatternList->get( i );
+					if ( pPattern != m_pPattern ) {
+						patternSet.insert( pPattern );
+					}
+				}
+			}
+			for ( Pattern *pPattern : patternSet ) {
+				patterns.push_back( pPattern );
+			}
+			m_pAudioEngine->unlock();
+		}
+	}
+
+	if ( m_pPattern ) {
+		patterns.push_back( m_pPattern );
+	}
+
+	return patterns;
+}
+
+
+void PatternEditor::songModeActivationEvent( int nValue )
+{
+	UNUSED( nValue );
+	// May need to draw (or hide) other background patterns
+	update();
+}
+
+void PatternEditor::stackedModeActivationEvent( int nValue )
+{
+	UNUSED( nValue );
+	// May need to draw (or hide) other background patterns
 	update();
 }

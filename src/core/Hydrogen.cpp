@@ -1237,7 +1237,7 @@ void Hydrogen::onJackMaster()
 }
 #endif
 
-void Hydrogen::togglePlaysSelected()
+void Hydrogen::setPlaysSelected( bool bPlaysSelected )
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;	
 	std::shared_ptr<Song> pSong = getSong();
@@ -1251,14 +1251,14 @@ void Hydrogen::togglePlaysSelected()
 	Preferences* pPref = Preferences::get_instance();
 	bool isPlaysSelected = pPref->patternModePlaysSelected();
 
-	if (isPlaysSelected) {
+	if ( isPlaysSelected && !bPlaysSelected ) {
 		pAudioEngine->getPlayingPatterns()->clear();
 		Pattern* pSelectedPattern =
 				pSong->getPatternList()->get( getSelectedPatternNumber() );
 		pAudioEngine->getPlayingPatterns()->add( pSelectedPattern );
 	}
 
-	pPref->setPatternModePlaysSelected( !isPlaysSelected );
+	pPref->setPatternModePlaysSelected( bPlaysSelected );
 	pAudioEngine->unlock();
 }
 
@@ -1482,7 +1482,7 @@ void Hydrogen::setMode( Song::Mode mode ) {
 	if ( getSong() != nullptr ) {
 		getSong()->setMode( mode );
 	}
-	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, 0 );
+	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
 }
 
 void Hydrogen::setUseTimelineBpm( bool bEnabled ) {

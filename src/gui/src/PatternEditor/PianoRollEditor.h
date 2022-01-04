@@ -146,8 +146,8 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 
 		void createBackground();
 		void drawPattern();
-		void drawNote( H2Core::Note *pNote, QPainter *pPainter );
 		void drawFocus( QPainter& painter );
+		void drawNote( H2Core::Note *pNote, QPainter *pPainter, bool bIsForeground );
 
 		void addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 							  int nNotekey, int nOctave,
