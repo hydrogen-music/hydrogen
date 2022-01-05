@@ -104,7 +104,7 @@ class SMFTrackNameMetaEvent : public SMFEvent, public H2Core::Object<SMFTrackNam
 	H2_OBJECT(SMFTrackNameMetaEvent)
 public:
 	SMFTrackNameMetaEvent( const QString& sTrackName, unsigned nDeltaTime );
-	virtual std::vector<char> getBuffer();
+	virtual std::vector<char> getBuffer() override;
 
 private:
 	QString m_sTrackName;
@@ -119,7 +119,7 @@ class SMFSetTempoMetaEvent : public SMFEvent, public H2Core::Object<SMFSetTempoM
 	H2_OBJECT(SMFSetTempoMetaEvent)
 public:
 	SMFSetTempoMetaEvent( float fBPM, unsigned nDeltaTime );
-	virtual std::vector<char> getBuffer();
+	virtual std::vector<char> getBuffer() override;
 
 private:
 	unsigned m_fBPM;
@@ -134,7 +134,7 @@ class SMFCopyRightNoticeMetaEvent : public SMFEvent, public H2Core::Object<SMFCo
 	H2_OBJECT(SMFCopyRightNoticeMetaEvent)
 public:
 	SMFCopyRightNoticeMetaEvent( const QString& sAuthor, unsigned nDeltaTime );
-	virtual std::vector<char> getBuffer();
+	virtual std::vector<char> getBuffer() override;
 
 private:
 	QString m_sAuthor;
@@ -149,7 +149,7 @@ class SMFTimeSignatureMetaEvent : public SMFEvent, public H2Core::Object<SMFTime
 	H2_OBJECT(SMFTimeSignatureMetaEvent)
 public:
 	SMFTimeSignatureMetaEvent( unsigned nBeats, unsigned nNote , unsigned nMTPMC , unsigned nTSNP24 , unsigned nTicks );
-	virtual std::vector<char> getBuffer();
+	virtual std::vector<char> getBuffer() override;
 	// MTPMC = MIDI ticks per metronome click
 	// TSNP24 = Thirty Second Notes Per 24 MIDI Ticks.
 private:
@@ -165,7 +165,7 @@ class SMFNoteOnEvent : public SMFEvent, public H2Core::Object<SMFNoteOnEvent>
 public:
 	SMFNoteOnEvent( unsigned nTicks, int nChannel, int nPitch, int nVelocity );
 
-	virtual std::vector<char> getBuffer();
+	virtual std::vector<char> getBuffer() override;
 
 protected:
 	unsigned m_nChannel;
@@ -182,7 +182,7 @@ class SMFNoteOffEvent : public SMFEvent, public H2Core::Object<SMFNoteOffEvent>
 public:
 	SMFNoteOffEvent(  unsigned nTicks, int nChannel, int nPitch, int nVelocity );
 
-	virtual std::vector<char> getBuffer();
+	virtual std::vector<char> getBuffer() override;
 
 protected:
 	unsigned m_nChannel;

@@ -384,6 +384,7 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		virtual void mousePressEvent( QMouseEvent *ev ) override;
 		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
 		virtual void paintEvent( QPaintEvent *ev ) override;
+
 	// virtual void enterEvent( QEvent* ev ) override;
 	virtual void leaveEvent( QEvent* ev ) override;
 	virtual bool event( QEvent* ev ) override;

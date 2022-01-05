@@ -54,23 +54,23 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 		DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, int nSampleDepth );
 		~DiskWriterDriver();
 
-		int init( unsigned nBufferSize );
+		virtual int init( unsigned nBufferSize ) override;
 
-		int connect();
-		void disconnect();
+		virtual int connect() override;
+		virtual void disconnect() override;
 
 		void write( float* buffer_L, float* buffer_R, unsigned int bufferSize );
 
-		unsigned getBufferSize() {
+		virtual unsigned getBufferSize() override {
 			return m_nBufferSize;
 		}
 
-		unsigned getSampleRate();
+		virtual unsigned getSampleRate() override;
 		
-		float* getOut_L() {
+		virtual float* getOut_L() override {
 			return m_pOut_L;
 		}
-		float* getOut_R() {
+		virtual float* getOut_R() override {
 			return m_pOut_R;
 		}
 		

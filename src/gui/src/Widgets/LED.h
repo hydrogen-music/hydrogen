@@ -58,7 +58,7 @@ protected:
 	QSvgRenderer* m_background;
 	
 	bool m_bActivated;
-	void paintEvent( QPaintEvent* ev);
+	virtual void paintEvent( QPaintEvent* ev);
 
 };
 
@@ -88,7 +88,7 @@ private:
 	QTimer* m_pTimer;
 	std::chrono::milliseconds m_activityTimeout;
 	
-	void paintEvent( QPaintEvent* ev);
+	virtual void paintEvent( QPaintEvent* ev) override; 
 };
 
 #endif
