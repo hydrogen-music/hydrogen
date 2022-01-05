@@ -95,7 +95,7 @@ class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public S
 		void clearThePatternSequenceVector( QString filename );
 		void updateEditorandSetTrue();
 
-		int yScrollTarget( QScrollArea *pScrollArea );
+		int yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView );
 
 	public slots:
 

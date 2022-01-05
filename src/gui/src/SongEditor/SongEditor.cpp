@@ -148,15 +148,11 @@ SongEditor::~SongEditor()
 /// (or near-constant) background elements, and the "minimum scrolling" allows the user to hint if we stray
 /// off the path.
 ///
-int SongEditor::yScrollTarget( QScrollArea *pScrollArea ) {
+int SongEditor::yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView )
+{
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	int nScroll = pScrollArea->verticalScrollBar()->value();
-
-	// The whole widget may be visible, in which case no scrolling is needed.
 	int nHeight = pScrollArea->height();
-	if ( nHeight >= height() ) {
-		return nScroll;
-	}
 
 	PatternList *pCurrentPatternList = m_pAudioEngine->getPlayingPatterns();
 
@@ -186,6 +182,9 @@ int SongEditor::yScrollTarget( QScrollArea *pScrollArea ) {
 		if ( r * m_nGridHeight >= nScroll
 			 && (r+1) * m_nGridHeight <= nScroll + nHeight) {
 			// Entirely visible. Our current scroll value is good.
+			if ( pnPatternInView ) {
+				*pnPatternInView = r;
+			}
 			return nScroll;
 		}
 	}
@@ -205,8 +204,8 @@ int SongEditor::yScrollTarget( QScrollArea *pScrollArea ) {
 	std::sort( playingRows.begin(), playingRows.end() );
 
 	int nTopIdx = 0;
-	int nAboveMax = 0, nAbovePattern = -1,
-		nBelowMax = 0, nBelowPattern = -1;
+	int nAboveMax = 0, nAbovePattern = -1, nAboveClosestPattern = -1,
+		nBelowMax = 0, nBelowPattern = -1, nBelowClosestPattern = -1;
 
 	for ( int nBottomIdx = 0; nBottomIdx < playingRows.size(); nBottomIdx++) {
 		int nBottom = playingRows[ nBottomIdx ] * m_nGridHeight;
@@ -222,23 +221,26 @@ int SongEditor::yScrollTarget( QScrollArea *pScrollArea ) {
 				break;
 			}
 		}
+		int nPatternsInViewport = nBottomIdx - nTopIdx +1;
 		if ( nBottom < nScroll ) {
 			// Above the viewport, accept any new maximal group, to find the maximal group closest to the
 			// current viewport.
-			if ( (nBottomIdx - nTopIdx +1) >= nAboveMax ) {
-				nAboveMax = nBottomIdx - nTopIdx +1;
+			if ( nPatternsInViewport >= nAboveMax ) {
+				nAboveMax = nPatternsInViewport;
 				// Above the viewport, we want to move only so far as to get the top pattern into the
 				// viewport. Record the top pattern.
 				nAbovePattern = playingRows[ nTopIdx ];
+				nAboveClosestPattern = playingRows[ nBottomIdx ];
 			}
 		} else {
 			// Below the viewport, only accept a new maximal group if it's greater than the current maximal
 			// group.
-			if ( (nBottomIdx - nTopIdx +1) > nBelowMax ) {
-				nBelowMax = nBottomIdx - nTopIdx +1;
+			if ( nPatternsInViewport > nBelowMax ) {
+				nBelowMax = nPatternsInViewport;
 				// Below the viewport, we want to scroll down to get the bottom pattern into view, so record
 				// the bottom pattern.
 				nBelowPattern = playingRows[ nBottomIdx ];
+				nBelowClosestPattern = playingRows[ nTopIdx ];
 			}
 		}
 	}
@@ -246,25 +248,38 @@ int SongEditor::yScrollTarget( QScrollArea *pScrollArea ) {
 	// Pick between moving up, or moving down.
 	int nAboveY = nAbovePattern * m_nGridHeight;
 	int nBelowY = (nBelowPattern +1) * m_nGridHeight - nHeight;
+	enum { Up, Down } direction = Down;
 	if ( nAboveMax != 0) {
 		if ( nAboveMax > nBelowMax ) {
 			// Move up to capture more active patterns
-			return nAboveY;
+			direction = Up;
 		} else if ( nBelowMax > nAboveMax ) {
 			// Move down to capture more active patterns
-			return nBelowY;
+			direction = Down;
 		} else {
 			// Tie-breaker. Which is closer?
 			assert( nAboveY <= nScroll &&  nScroll <= nBelowY );
 			if ( nScroll - nAboveY < nBelowY - nScroll ) {
-				return nAboveY;
+				direction = Up;
 			} else {
-				return nBelowY;
+				direction = Down;
 			}
 		}
 	} else {
 		assert( nBelowMax != 0 );
 		// Move down
+		direction = Down;
+	}
+
+	if ( direction == Up ) {
+		if ( pnPatternInView ) {
+			*pnPatternInView = nAboveClosestPattern;
+		}
+		return nAboveY;
+	} else {
+		if ( pnPatternInView ) {
+			*pnPatternInView = nBelowClosestPattern;
+		}
 		return nBelowY;
 	}
 }

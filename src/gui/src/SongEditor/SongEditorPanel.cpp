@@ -385,10 +385,6 @@ void SongEditorPanel::updatePlayHeadPosition()
 		else if ( nPlayHeadPosition < x ) {
 			hScrollTo( value - nIncrement );
 		}
-
-		// Scroll vertically to keep currently playing patterns in view
-		int scroll = m_pSongEditor->yScrollTarget( m_pEditorScrollView );
-		vScrollTo( scroll );
 	}
 }
 
@@ -964,39 +960,45 @@ void SongEditorPanel::updateSongEditorEvent( int ) {
 }
 
 void SongEditorPanel::columnChangedEvent( int ) {
-	// In Song mode, we may do the thing. XXX that thing.
+	// In Song mode, we may scroll to change position in the Song Editor.
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pPref = Preferences::get_instance();
-	if ( pHydrogen->getMode() == Song::Mode::Song && pPref->patternFollowsSong() ) {
+	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 
-		// Selected pattern follows song.
-		//
-		// If the currently selected pattern is no longer one of those currently playing in the song, then we
-		// select the lowest-numbered currently-playing pattern as the current pattern.
+		// Scroll vertically to keep currently playing patterns in view
+		int nPatternInView = -1;
+		int scroll = m_pSongEditor->yScrollTarget( m_pEditorScrollView, &nPatternInView );
+		vScrollTo( scroll );
 
-		AudioEngine *pAudioEngine = pHydrogen->getAudioEngine();
-		PatternList *pSongPatterns = pHydrogen->getSong()->getPatternList();
-		int nSelectedPattern = pHydrogen->getSelectedPatternNumber();
+		if ( pPref->patternFollowsSong() ) {
+			// Selected pattern follows song.
+			//
+			// If the currently selected pattern is no longer one of those currently playing in the song, then
+			// we select the suggested pattern from yScrollTarget.
 
-		bool bFound = false;
-		int nLowestPattern = pSongPatterns->size();
-		std::vector< Pattern* >patternList;
-		pAudioEngine->lock( RIGHT_HERE );
-		for ( auto pPattern : *pAudioEngine->getPlayingPatterns() ) {
-			patternList.push_back( pPattern );
-		}
-		pAudioEngine->unlock();
+			AudioEngine *pAudioEngine = pHydrogen->getAudioEngine();
+			PatternList *pSongPatterns = pHydrogen->getSong()->getPatternList();
+			int nSelectedPattern = pHydrogen->getSelectedPatternNumber();
 
-		for ( auto pPattern : patternList ) {
-			int nPattern = pSongPatterns->index( pPattern );
-			nLowestPattern = std::min( nLowestPattern, nPattern );
-			if ( nPattern == nSelectedPattern ) {
-				bFound = true;
-				break;
+			bool bFound = false;
+			std::vector< Pattern* >patternList;
+			pAudioEngine->lock( RIGHT_HERE );
+			for ( auto pPattern : *pAudioEngine->getPlayingPatterns() ) {
+				patternList.push_back( pPattern );
 			}
-		}
-		if ( !bFound && nLowestPattern != pSongPatterns->size() ) {
-			pHydrogen->setSelectedPatternNumber( nLowestPattern );
+			pAudioEngine->unlock();
+
+			for ( auto pPattern : patternList ) {
+				int nPattern = pSongPatterns->index( pPattern );
+				if ( nPattern == nSelectedPattern ) {
+					bFound = true;
+					break;
+				}
+			}
+			if ( !bFound && patternList.size() != 0 ) {
+				assert( nPatternInView != -1 );
+				pHydrogen->setSelectedPatternNumber( nPatternInView );
+			}
 		}
 	}
 }
