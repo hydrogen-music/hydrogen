@@ -61,6 +61,7 @@ void setupEnvironment(unsigned log_level)
 	H2Core::Preferences::create_instance();
 	H2Core::Preferences* preferences = H2Core::Preferences::get_instance();
 	preferences->m_sAudioDriver = "Fake";
+	preferences->m_nBufferSize = 1024;
 	
 	H2Core::Hydrogen::create_instance();
 }
