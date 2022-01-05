@@ -291,6 +291,7 @@ class SongEditorPatternList :  public QWidget, protected WidgetWithScalableFont<
 		QPixmap				m_labelBackgroundSelected;
 		QPixmap				m_playingPattern_on_Pixmap;
 		QPixmap				m_playingPattern_off_Pixmap;
+		QPixmap				m_playingPattern_empty_Pixmap;
 							
 		QMenu *				m_pPatternPopup;
 		QLineEdit *			m_pLineEdit;
@@ -307,6 +308,7 @@ class SongEditorPatternList :  public QWidget, protected WidgetWithScalableFont<
 		void togglePattern( int );
 
 		virtual void patternChangedEvent() override;
+		virtual void songModeActivationEvent( int nValue ) override;
 		void mouseMoveEvent(QMouseEvent *event) override;
 		QPoint __drag_start_position;
 
@@ -319,7 +321,7 @@ class SongEditorPatternList :  public QWidget, protected WidgetWithScalableFont<
 //
 
 /** \ingroup docGUI*/
-class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>,  public H2Core::Object<SongEditorPositionRuler>
+class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>, public EventListener, public H2Core::Object<SongEditorPositionRuler>
 {
     H2_OBJECT(SongEditorPositionRuler)
 	Q_OBJECT
@@ -328,22 +330,25 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		explicit SongEditorPositionRuler( QWidget *parent );
 		~SongEditorPositionRuler();	
 
-		void createBackground();
-
 		uint getGridWidth();
 		void setGridWidth (uint width);
-		void editTimeLineAction( int newPosition, float newBpm );
-		void deleteTimeLinePosition( int position );
 		void editTagAction( QString text, int position, QString textToReplace );
 		void deleteTagAction( QString text, int position );
 
 	int getPlayheadWidth() const;
+	void tempoChangedEvent( int ) override;
+	void columnChangedEvent( int ) override;
+	void songModeActivationEvent( int nValue ) override;
+	void timelineActivationEvent( int nValue ) override;
+	void jackTimebaseStateChangedEvent( int nValue ) override;
+													   
 
 	public slots:
 		void updatePosition();
 		void showTagWidget( int nColumn );
 		void showBpmWidget( int nColumn );
 		void onPreferencesChanged( H2Core::Preferences::Changes changes );
+		void createBackground();
 
 	private:
 		H2Core::Hydrogen* 		m_pHydrogen;
@@ -363,14 +368,27 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		the playhead.*/
 	int m_nXShaft;
 
+	int m_nActiveBpmWidgetColumn;
+	int m_nHoveredColumn;
+	/** 0 if the mouse cursor is located in the top 20 pixels of the
+	widget. 1 for the tags and -1 if uninitilialized. Used for caching
+	(in order to not redraw the Ruler in every mouse move*/
+	bool m_nHoveredRow;
+	bool m_bHighlightHoveredColumn;
+
 		QPixmap *			m_pBackgroundPixmap;
 		QPixmap				m_tickPositionPixmap;
 		bool				m_bRightBtnPressed;
 		
-		virtual void mouseMoveEvent(QMouseEvent *ev);
-		virtual void mousePressEvent( QMouseEvent *ev );
-		virtual void mouseReleaseEvent(QMouseEvent *ev);
-		virtual void paintEvent( QPaintEvent *ev );
+		virtual void mouseMoveEvent(QMouseEvent *ev) override;
+		virtual void mousePressEvent( QMouseEvent *ev ) override;
+		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
+		virtual void paintEvent( QPaintEvent *ev ) override;
+	// virtual void enterEvent( QEvent* ev ) override;
+	virtual void leaveEvent( QEvent* ev ) override;
+	virtual bool event( QEvent* ev ) override;
+
+	void showToolTip( QHelpEvent* ev );
 
 };
 

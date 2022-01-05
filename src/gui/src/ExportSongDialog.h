@@ -69,7 +69,6 @@ private slots:
 private:
 
 	void		setResamplerMode(int index);
-	void		calculateRubberbandTime();
 	bool		checkUseOfRubberband();
 	
 	void		saveSettingsToPreferences();

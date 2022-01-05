@@ -40,8 +40,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	H2_OBJECT(CommonStrings)
 	Q_DECLARE_TR_FUNCTIONS(CommonStrings)
 	
-public:
-	 CommonStrings();
+	public:
+	CommonStrings();
 	~CommonStrings();
  
 	const QString& getSmallSoloButton() const { return m_sSmallSoloButton; }
@@ -129,6 +129,15 @@ public:
 	
 	const QString& getPatternLoadError() const { return m_sPatternLoadError; }
 
+	const QString& getStatusOn() const { return m_sStatusOn; }
+	const QString& getStatusOff() const { return m_sStatusOff; }
+	const QString& getStatusEnabled() const { return m_sStatusEnabled; }
+	const QString& getStatusDisabled() const { return m_sStatusDisabled; }
+		
+	const QString& getTimelineEnabled() const { return m_sTimelineEnabled; }
+	const QString& getTimelineDisabledPatternMode() const { return m_sTimelineDisabledPatternMode; }
+	const QString& getTimelineDisabledTimebaseSlave() const { return m_sTimelineDisabledTimebaseSlave; }
+
 private:
 	QString m_sSmallSoloButton;
 	QString m_sSmallMuteButton;
@@ -214,6 +223,14 @@ private:
 	QString m_sMidiSenseUnavailable;
 
 	QString m_sPatternLoadError;
+	
+	QString m_sStatusOn;
+	QString m_sStatusOff;
+	QString m_sStatusEnabled;
+	QString m_sStatusDisabled;
+	QString m_sTimelineEnabled;
+	QString m_sTimelineDisabledPatternMode;
+	QString m_sTimelineDisabledTimebaseSlave;
 	
 };
 #endif

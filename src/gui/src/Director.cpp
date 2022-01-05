@@ -71,7 +71,7 @@ Director::Director ( QWidget* pParent )
 
 	HydrogenApp::get_instance()->addEventListener( this );
 	setupUi ( this );
-	//INFOLOG ( "INIT" );
+	//
 	setWindowTitle ( tr ( "Director" ) );
 
 	m_nCounter = 1;	// to compute the right beat
@@ -161,8 +161,12 @@ void Director::metronomeEvent( int nValue )
 	}
 
 	// get tags
-	m_sTAG = m_pTimeline->getTagAtBar( m_nBar, false );
-	m_sTAG2 = m_pTimeline->getTagAtBar( m_nBar - 1, true );
+	if ( m_pTimeline->hasColumnTag( m_nBar ) ) {
+		m_sTAG = m_pTimeline->getTagAtColumn( m_nBar );
+	} else {
+		m_sTAG = "";
+	}
+	m_sTAG2 = m_pTimeline->getTagAtColumn( m_nBar - 1 );
 	update();
 }
 

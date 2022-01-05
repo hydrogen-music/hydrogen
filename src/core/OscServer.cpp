@@ -710,9 +710,9 @@ void OscServer::SONG_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 
 	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
 	if ( argv[0]->f != 0 ) {
-		pController->activateSongMode( true, true );
+		pController->activateSongMode( true );
 	} else {
-		pController->activateSongMode( false, true );
+		pController->activateSongMode( false );
 	}
 }
 

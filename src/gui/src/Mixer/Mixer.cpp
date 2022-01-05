@@ -80,13 +80,24 @@ Mixer::Mixer( QWidget* pParent )
 
 
 // fX frame
+#ifdef H2CORE_HAVE_LADSPA
+	auto pEffects = Effects::get_instance();
+#endif
 	m_pFXFrame = new PixmapWidget( nullptr );
 	m_pFXFrame->setFixedSize( 213, height() );
 	m_pFXFrame->setPixmap( "/mixerPanel/background_FX.png" );
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		m_pLadspaFXLine[nFX] = new LadspaFXMixerLine( m_pFXFrame );
 		m_pLadspaFXLine[nFX]->move( 13, 43 * nFX + 84 );
-		connect( m_pLadspaFXLine[nFX], SIGNAL( activeBtnClicked(LadspaFXMixerLine*) ), this, SLOT( ladspaActiveBtnClicked( LadspaFXMixerLine*) ) );
+#ifdef H2CORE_HAVE_LADSPA
+		if ( pEffects != nullptr ) {
+			auto pFx = pEffects->getLadspaFX( nFX );
+			if ( pFx != nullptr ) {
+				m_pLadspaFXLine[nFX]->setFxBypassed( pEffects->getLadspaFX( nFX )->isEnabled() );
+			}
+		}
+#endif
+		connect( m_pLadspaFXLine[nFX], SIGNAL( bypassBtnClicked(LadspaFXMixerLine*) ), this, SLOT( ladspaBypassBtnClicked( LadspaFXMixerLine*) ) );
 		connect( m_pLadspaFXLine[nFX], SIGNAL( editBtnClicked(LadspaFXMixerLine*) ), this, SLOT( ladspaEditBtnClicked( LadspaFXMixerLine*) ) );
 		connect( m_pLadspaFXLine[nFX], SIGNAL( volumeChanged(LadspaFXMixerLine*) ), this, SLOT( ladspaVolumeChanged( LadspaFXMixerLine*) ) );
 	}
@@ -208,11 +219,13 @@ void Mixer::muteClicked(MixerLine* ref)
 
 void Mixer::muteClicked(ComponentMixerLine* ref)
 {
+	auto pSong = Hydrogen::get_instance()->getSong();
 	bool isMuteClicked = ref->isMuteClicked();
 
-	DrumkitComponent *pCompo = Hydrogen::get_instance()->getSong()->getComponent( ref->getComponentID() );
+	DrumkitComponent *pCompo = pSong->getComponent( ref->getComponentID() );
 
 	pCompo->set_muted( isMuteClicked );
+	Hydrogen::get_instance()->setIsModified( true );
 }
 
 void Mixer::soloClicked(ComponentMixerLine* ref)
@@ -223,15 +236,18 @@ void Mixer::soloClicked(ComponentMixerLine* ref)
 	ComponentMixerLine* pComponentMixerLine = m_pComponentMixerLine[nLine];
 	
 	pComponentMixerLine->setSoloClicked( isSoloClicked );
+	Hydrogen::get_instance()->setIsModified( true );
 }
 
 void Mixer::volumeChanged(ComponentMixerLine* ref)
 {
+	auto pSong = Hydrogen::get_instance()->getSong();
 	float newVolume = ref->getVolume();
 
-	DrumkitComponent *pCompo = Hydrogen::get_instance()->getSong()->getComponent( ref->getComponentID() );
+	DrumkitComponent *pCompo = pSong->getComponent( ref->getComponentID() );
 
 	pCompo->set_volume( newVolume );
+	Hydrogen::get_instance()->setIsModified( true );
 }
 
 void Mixer::soloClicked(MixerLine* ref)
@@ -615,12 +631,12 @@ void Mixer::updateMixer()
 			if (fNewPeak_L < fOldPeak_L)	fNewPeak_L = fOldPeak_L / fallOff;
 			if (fNewPeak_R < fOldPeak_R)	fNewPeak_R = fOldPeak_R / fallOff;
 			m_pLadspaFXLine[nFX]->setPeaks( fNewPeak_L, fNewPeak_R );
-			m_pLadspaFXLine[nFX]->setFxActive( pFX->isEnabled() );
+			m_pLadspaFXLine[nFX]->setFxBypassed( ! pFX->isEnabled() );
 			m_pLadspaFXLine[nFX]->setVolume( pFX->getVolume() );
 		}
 		else {
 			m_pLadspaFXLine[nFX]->setName( "No plugin" );
-			m_pLadspaFXLine[nFX]->setFxActive( false );
+			m_pLadspaFXLine[nFX]->setFxBypassed( true );
 			m_pLadspaFXLine[nFX]->setVolume( 0.0 );
 		}
 	}
@@ -687,7 +703,9 @@ void Mixer::knobChanged(MixerLine* ref, int nKnob) {
 	QString sInfo = tr( "Set FX %1 level ").arg( nKnob + 1 );
 	( HydrogenApp::get_instance() )->setStatusBarMessage( sInfo+ QString( "[%1]" ).arg( ref->getFXLevel(nKnob), 0, 'f', 2 ), 2000 );
 
-	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+	pHydrogen->setSelectedInstrumentNumber(nLine);
+
+	pHydrogen->setIsModified( true );
 }
 
 
@@ -734,10 +752,10 @@ void Mixer::showPeaksBtnClicked()
 
 
 
-void Mixer::ladspaActiveBtnClicked( LadspaFXMixerLine* ref )
+void Mixer::ladspaBypassBtnClicked( LadspaFXMixerLine* ref )
 {
 #ifdef H2CORE_HAVE_LADSPA
-	bool bActive = ref->isFxActive();
+	bool bActive = ! ref->isFxBypassed();
 
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		if (ref == m_pLadspaFXLine[ nFX ] ) {
@@ -765,7 +783,7 @@ void Mixer::ladspaEditBtnClicked( LadspaFXMixerLine *ref )
 			HydrogenApp::get_instance()->getLadspaFXProperties(nFX)->show();
 		}
 	}
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
+	Hydrogen::get_instance()->setIsModified( true );
 #else
 	QMessageBox::critical( this, "Hydrogen", tr("LADSPA effects are not available in this version of Hydrogen.") );
 #endif
@@ -776,9 +794,6 @@ void Mixer::ladspaEditBtnClicked( LadspaFXMixerLine *ref )
 void Mixer::ladspaVolumeChanged( LadspaFXMixerLine* ref)
 {
 #ifdef H2CORE_HAVE_LADSPA
-	std::shared_ptr<Song> pSong = (Hydrogen::get_instance() )->getSong();
-	pSong->setIsModified( true );
-
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		if (ref == m_pLadspaFXLine[ nFX ] ) {
 			LadspaFX *pFX = Effects::get_instance()->getLadspaFX(nFX);

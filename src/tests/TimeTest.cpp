@@ -78,7 +78,7 @@ void TimeTest::testElapsedTime(){
 	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
 		
 	pCoreActionController->activateTimeline( true );
-	pCoreActionController->addTempoMarker( 1, 120 );
+	pCoreActionController->addTempoMarker( 0, 120 );
 	pCoreActionController->addTempoMarker( 3, 100 );
 	pCoreActionController->addTempoMarker( 5, 40 );
 	pCoreActionController->addTempoMarker( 7, 200 );

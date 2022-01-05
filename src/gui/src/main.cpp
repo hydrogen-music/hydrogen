@@ -53,6 +53,7 @@
 #include <core/Basics/Playlist.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Translations.h>
+#include <core/Logger.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -62,6 +63,11 @@
 #include <iostream>
 #include <map>
 #include <set>
+
+#ifdef HAVE_EXECINFO_H
+#include <execinfo.h>
+#endif
+
 namespace H2Core {
 	void init_gui_object_map();
 };
@@ -72,6 +78,19 @@ static void handleFatalSignal( int nSignal )
 {
 	// First disable signal handler to allow normal termination
 	signal( nSignal, SIG_DFL );
+
+	___ERRORLOG( QString( "Fatal signal %1" ).arg( nSignal ) );
+
+#ifdef HAVE_EXECINFO_H
+	// Print out stack backtrace if we can
+	const int nMaxFrames = 128;
+	void *frames[ nMaxFrames ];
+	int nFrames = backtrace( frames, nMaxFrames );
+	char **symbols = backtrace_symbols( frames, nFrames );
+	for ( int i = 0; i < nFrames; i++ ) {
+		___ERRORLOG( QString("%1").arg( symbols[i] ) );
+	}
+#endif
 
 	// Allow logger to complete
 	H2Core::Logger* pLogger = H2Core::Logger::get_instance();
@@ -96,12 +115,16 @@ static int setup_unix_signal_handlers()
 		return 1;
 	}
 
-	for ( int nSignal : { SIGSEGV, SIGILL, SIGFPE, SIGBUS } ) {
+#endif
+
+	for ( int nSignal : { SIGSEGV, SIGILL, SIGFPE,
+#ifndef WIN32
+						 SIGBUS
+#endif
+		} ) {
 		signal( nSignal, handleFatalSignal );
 	}
 
-#endif
-	
 	return 0;
 }
 
@@ -182,15 +205,39 @@ int main(int argc, char *argv[])
 		QString( "\nHydrogen comes with ABSOLUTELY NO WARRANTY\nThis is free software, and you are welcome to redistribute it under certain conditions. See the file COPYING for details.\n" );
 		
 		parser.setApplicationDescription( aboutText );
+
+		QStringList availableAudioDrivers;
+#ifdef H2CORE_HAVE_JACK
+		availableAudioDrivers << "jack";
+#endif
+#ifdef H2CORE_HAVE_ALSA
+		availableAudioDrivers << "alsa";
+#endif
+#ifdef H2CORE_HAVE_OSS
+		availableAudioDrivers << "oss";
+#endif
+#ifdef H2CORE_HAVE_PULSEAUDIO
+		availableAudioDrivers << "pulseaudio";
+#endif
+#ifdef H2CORE_HAVE_PORTAUDIO
+		availableAudioDrivers << "portaudio";
+#endif
+#ifdef H2CORE_HAVE_COREAUDIO
+		availableAudioDrivers << "coreaudio";
+#endif
+		availableAudioDrivers << "auto";
 		
-		QCommandLineOption audioDriverOption( QStringList() << "d" << "driver", "Use the selected audio driver (jack, alsa, oss)", "Audiodriver");
+		QCommandLineOption audioDriverOption( QStringList() << "d" << "driver",
+											  QString( "Use the selected audio driver (%1)" )
+											  .arg( availableAudioDrivers.join( ", " ) ),
+											  "Audiodriver");
 		QCommandLineOption installDrumkitOption( QStringList() << "i" << "install", "Install a drumkit (*.h2drumkit)" , "File");
 		QCommandLineOption noSplashScreenOption( QStringList() << "n" << "nosplash", "Hide splash screen" );
 		QCommandLineOption playlistFileNameOption( QStringList() << "p" << "playlist", "Load a playlist (*.h2playlist) at startup", "File" );
 		QCommandLineOption systemDataPathOption( QStringList() << "P" << "data", "Use an alternate system data path", "Path" );
 		QCommandLineOption songFileOption( QStringList() << "s" << "song", "Load a song (*.h2song) at startup", "File" );
 		QCommandLineOption kitOption( QStringList() << "k" << "kit", "Load a drumkit at startup", "DrumkitName" );
-		QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug, Constructors or 0xHHHH", "Level" );
+		QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug, Constructors, Locks, or 0xHHHH", "Level" );
 		QCommandLineOption shotListOption( QStringList() << "t" << "shotlist", "Shot list of widgets to grab", "ShotList" );
 		QCommandLineOption uiLayoutOption( QStringList() << "layout", "UI layout ('tabbed' or 'single')", "Layout" );
 		
@@ -321,18 +368,26 @@ int main(int argc, char *argv[])
 			exit(0);
 		}
 		
-		if (sSelectedDriver == "auto") {
+		if ( sSelectedDriver == "auto" ) {
+			pPref->m_sAudioDriver = "Auto";
+		} else if ( sSelectedDriver == "jack" ) {
+			pPref->m_sAudioDriver = "JACK";
+		} else if ( sSelectedDriver == "oss" ) {
+			pPref->m_sAudioDriver = "OSS";
+		} else if ( sSelectedDriver == "alsa" ) {
+			pPref->m_sAudioDriver = "ALSA";
+		} else if ( sSelectedDriver == "pulseaudio" ) {
+			pPref->m_sAudioDriver = "PulseAudio";
+		} else if ( sSelectedDriver == "coreaudio" ) {
+			pPref->m_sAudioDriver = "CoreAudio";
+		} else if ( sSelectedDriver == "portaudio" ) {
+			pPref->m_sAudioDriver = "PortAudio";
+		} else if ( ! sSelectedDriver.isEmpty() ) {
+			___WARNINGLOG( QString( "Unknown driver [%1]. The 'auto' driver will be used instead" )
+						.arg( sSelectedDriver ) );
 			pPref->m_sAudioDriver = "Auto";
 		}
-		else if (sSelectedDriver == "jack") {
-			pPref->m_sAudioDriver = "JACK";
-		}
-		else if ( sSelectedDriver == "oss" ) {
-			pPref->m_sAudioDriver = "OSS";
-		}
-		else if ( sSelectedDriver == "alsa" ) {
-			pPref->m_sAudioDriver = "ALSA";
-		}
+				
 
 		// Bootstrap is complete, start GUI
 		delete pBootStrApp;
@@ -526,6 +581,10 @@ int main(int argc, char *argv[])
 			delete pDrumkitInfo;
 		}
 
+		// Write the changes in the Preferences to disk to make them
+		// accessible in the PreferencesDialog.
+		pPref->savePreferences();
+
 		pQApp->setMainForm( pMainForm );
 
 		// Tell the core that the GUI is now fully loaded and ready.
@@ -543,6 +602,7 @@ int main(int argc, char *argv[])
 
 		pQApp->exec();
 
+		pPref->savePreferences();
 		delete pSplash;
 		delete pMainForm;
 		delete pQApp;

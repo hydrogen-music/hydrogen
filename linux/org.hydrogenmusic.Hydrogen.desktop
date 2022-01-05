@@ -27,3 +27,4 @@ Terminal=false
 StartupNotify=true
 
 Icon=org.hydrogenmusic.Hydrogen
+X-NSM-Capable=true

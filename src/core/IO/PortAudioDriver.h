@@ -44,7 +44,6 @@ public:
 	audioProcessCallback m_processCallback;
 	float* m_pOut_L;
 	float* m_pOut_R;
-	unsigned m_nBufferSize;
 
 	PortAudioDriver( audioProcessCallback processCallback );
 	virtual ~PortAudioDriver();
@@ -53,6 +52,7 @@ public:
 	virtual int connect();
 	virtual void disconnect();
 	virtual unsigned getBufferSize();
+	virtual int getLatency();
 	virtual unsigned getSampleRate();
 	virtual float* getOut_L();
 	virtual float* getOut_R();

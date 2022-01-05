@@ -27,7 +27,6 @@
 #include <core/EventQueue.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
-#include <core/Timeline.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/IO/DiskWriterDriver.h>
@@ -60,16 +59,11 @@ void* diskWriterDriver_thread( void* param )
 	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 0 );
 
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
-
-	// TODO: this most probably won't make a difference and can be
-	// removed.
-	pAudioEngine->setBpm( Hydrogen::get_instance()->getSong()->getBpm() );
-	pDriver->audioEngine_process_checkBPMChanged();
 	
 	__INFOLOG( "DiskWriterDriver thread start" );
 
 	// always rolling, no user interaction
-	pAudioEngine->setState( AudioEngine::State::Playing );
+	pAudioEngine->play();
 	SF_INFO soundInfo;
 	soundInfo.samplerate = pDriver->m_nSampleRate;
 //	soundInfo.frames = -1;//getNFrames();		///\todo: da terminare
@@ -163,57 +157,24 @@ void* diskWriterDriver_thread( void* param )
 	int nColumns = pPatternColumns->size();
 	
 	int nPatternSize;
-	int validBpm = pHydrogen->getSong()->getBpm();
-	float oldBPM = 0;
+	float fBpm;
 	float fTicksize = 0;
 	for ( int patternPosition = 0; patternPosition < nColumns; ++patternPosition ) {
+
+		
 		PatternList *pColumn = ( *pPatternColumns )[ patternPosition ];
 		if ( pColumn->size() != 0 ) {
 			nPatternSize = pColumn->longest_pattern_length();
 		} else {
 			nPatternSize = MAX_NOTES;
 		}
-		
-		// check pattern bpm if timeline bpm is in use
-		Timeline* pTimeline = pHydrogen->getTimeline();
-		if(Preferences::get_instance()->getUseTimelineBpm() ){
 
-			float fTimelineBpm = pTimeline->getTempoAtBar( patternPosition, true );
-			if ( fTimelineBpm != 0 ) {
-				/* TODO: For now the function returns 0 if the bar is
-				 * positioned _before_ the first tempo marker. This will be
-				 * taken care of with #854. */
-				validBpm = fTimelineBpm;
-			}
-			
-			pAudioEngine->setBpm(validBpm);
-			fTicksize = AudioEngine::computeTickSize(   pDriver->m_nSampleRate,
-														validBpm,
-														pSong->getResolution() );
-			pDriver->audioEngine_process_checkBPMChanged();
-			pHydrogen->getCoreActionController()->locateToColumn( patternPosition );
-			
-			// delay needed time to calculate all rubberband samples
-			if( Preferences::get_instance()->getRubberBandBatchMode() && validBpm != oldBPM ){
-				EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
-				int sleepTime = Preferences::get_instance()->getRubberBandCalcTime()+1;
-				while ((sleepTime = sleep(sleepTime)) > 0);
-			}
-			oldBPM = validBpm;
-			
-		}
-		else
-		{
-			fTicksize = AudioEngine::computeTickSize(   pDriver->m_nSampleRate,
-														pSong->getBpm(),
-														pSong->getResolution() );
-			//pDriver->m_transport.m_fTickSize = ticksize;
-		}
-		
+		fBpm = AudioEngine::getBpmAtColumn( patternPosition );
+		fTicksize = AudioEngine::computeTickSize( pDriver->m_nSampleRate, fBpm,
+												  pSong->getResolution() );
 		
 		//here we have the pattern length in frames dependent from bpm and samplerate
 		unsigned patternLengthInFrames = fTicksize * nPatternSize;
-		
 		unsigned frameNumber = 0;
 		int lastRun = 0;
 		while ( frameNumber < patternLengthInFrames ) {
@@ -299,11 +260,9 @@ DiskWriterDriver::~DiskWriterDriver() {
 
 int DiskWriterDriver::init( unsigned nBufferSize )
 {
-	INFOLOG( QString( "Init, %1 samples" ).arg( nBufferSize ) );
+	INFOLOG( QString( "Init, buffer size: %1" ).arg( nBufferSize ) );
 
 	m_nBufferSize = nBufferSize;
-	m_pOut_L = new float[nBufferSize];
-	m_pOut_R = new float[nBufferSize];
 
 	return 0;
 }
@@ -315,7 +274,10 @@ int DiskWriterDriver::init( unsigned nBufferSize )
 ///
 int DiskWriterDriver::connect()
 {
-	INFOLOG( "[startExport]" );
+	INFOLOG( "" );
+	
+	m_pOut_L = new float[ m_nBufferSize ];
+	m_pOut_R = new float[ m_nBufferSize ];
 	
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
@@ -329,7 +291,7 @@ int DiskWriterDriver::connect()
 /// disconnect
 void DiskWriterDriver::disconnect()
 {
-		INFOLOG( "[disconnect]" );
+	INFOLOG( "" );
 	delete[] m_pOut_L;
 	m_pOut_L = nullptr;
 
@@ -338,37 +300,8 @@ void DiskWriterDriver::disconnect()
 
 }
 
-
-
 unsigned DiskWriterDriver::getSampleRate()
 {
 	return m_nSampleRate;
 }
-
-// TODO 
-void DiskWriterDriver::audioEngine_process_checkBPMChanged()
-{
-	auto pSong = Hydrogen::get_instance()->getSong();
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
-	float fNewTickSize = AudioEngine::computeTickSize( getSampleRate(),
-														 pAudioEngine->getBpm(),
-														 pSong->getResolution() );
-
-	if ( fNewTickSize != pAudioEngine->getTickSize() ) {
-		// cerco di convertire ...
-		float fTickNumber =
-			static_cast<float>( pAudioEngine->getFrames() )
-			/ static_cast<float>( pAudioEngine->getTickSize () );
-
-		if ( fNewTickSize == 0 ) {
-			return;
-		}
-
-		pAudioEngine->setTickSize( fNewTickSize );
-
-		// update frame position
-		pAudioEngine->setFrames( static_cast<long long>( fTickNumber * fNewTickSize ) );
-	}
-}
-
 };

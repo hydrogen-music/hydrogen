@@ -65,6 +65,12 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void showTimeline();
 		void showPlaybackTrack();
 		void updatePlaybackTrackIfNecessary();
+
+	bool getTimelineActive() const;
+	void setTimelineActive( bool bActive );
+	bool getTimelineEnabled() const;
+	void setTimelineEnabled( bool bEnabled );
+	
 		
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
@@ -84,11 +90,16 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void actionModeChangeEvent( int nValue ) override;
 		void updateSongEditorEvent( int nValue ) override;
 
+	void jackTimebaseStateChangedEvent( int );
+
+
+		virtual void songModeActivationEvent( int nValue ) override;
+
 	public slots:
 		void setModeActionBtn( bool mode );
-		void showHideTimeLine( bool bPressed ) {
-			m_pTimeLineBtn->setChecked( bPressed );
-			timeLineBtnPressed();
+		void showHideTimeline( bool bPressed ) {
+			m_pTimelineBtn->setChecked( bPressed );
+			timelineBtnPressed();
 		}
 
 	private slots:
@@ -105,8 +116,8 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 
 		void selectionModeBtnPressed();
 		void drawModeBtnPressed();
-		void timeLineBtnPressed();
-		void viewTimeLineBtnPressed();
+		void timelineBtnPressed();
+		void viewTimelineBtnPressed();
 		void viewPlaybackTrackBtnPressed();
 		void mutePlaybackTrackBtnPressed();
 		void editPlaybackTrackBtnPressed();
@@ -117,7 +128,6 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		
 		void faderChanged( WidgetWithInput* pRef );
 
-		void automationPathChanged();
 		void automationPathPointAdded(float x, float y);
 		void automationPathPointRemoved(float x, float y);
 		void automationPathPointMoved(float ox, float oy, float tx, float ty);
@@ -157,12 +167,9 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		
 		Fader*					m_pPlaybackTrackFader;
 
-		/** Store the tool tip of the Timeline since it gets
-			overwritten during deactivation.*/
-		QString					m_sTimelineToolTip;
-		Button *			m_pTimeLineBtn;
+		Button *			m_pTimelineBtn;
 		Button *			m_pPlaybackBtn;
-		Button *			m_pViewTimeLineBtn;
+		Button *			m_pViewTimelineBtn;
 		Button *			m_pViewPlaybackBtn;
 		Button *			m_pMutePlaybackBtn;
 		Button *				m_pEditPlaybackBtn;
@@ -175,6 +182,8 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 
 		virtual void resizeEvent( QResizeEvent *ev ) override;
 		void resyncExternalScrollBar();
+
+	bool m_bLastUseTimelineBpm;
 };
 
 #endif

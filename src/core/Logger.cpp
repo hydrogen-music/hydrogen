@@ -35,7 +35,7 @@ namespace H2Core {
 
 unsigned Logger::__bit_msk = 0;
 Logger* Logger::__instance=nullptr;
-const char* Logger::__levels[] = { "None", "Error", "Warning", "Info", "Debug", "Constructors" };
+const char* Logger::__levels[] = { "None", "Error", "Warning", "Info", "Debug", "Constructors", "Locks" };
 
 pthread_t loggerThread;
 
@@ -65,6 +65,7 @@ void* loggerThread_func( void* param ) {
 	Logger::queue_t::iterator it, last;
 
 	while ( logger->__running ) {
+		pthread_mutex_lock( &logger->__mutex );
 		pthread_cond_wait( &logger->__messages_available, &logger->__mutex );
 		pthread_mutex_unlock( &logger->__mutex );
 		if( !queue->empty() ) {
@@ -127,11 +128,11 @@ void Logger::log( unsigned level, const QString& class_name, const char* func_na
 		return;
 	}
 
-	const char* prefix[] = { "", "(E) ", "(W) ", "(I) ", "(D) ", "(C) " };
+	const char* prefix[] = { "", "(E) ", "(W) ", "(I) ", "(D) ", "(C)", "(L) " };
 #ifdef WIN32
-	const char* color[] = { "", "", "", "", "", "" };
+	const char* color[] = { "", "", "", "", "", "", "" };
 #else
-	const char* color[] = { "", "\033[31m", "\033[36m", "\033[32m", "\033[35m", "\033[35m" };
+	const char* color[] = { "", "\033[31m", "\033[36m", "\033[32m", "\033[35m", "\033[35;1m", "\033[35;1m" };
 #endif // WIN32
 
 	int i;
@@ -150,6 +151,10 @@ void Logger::log( unsigned level, const QString& class_name, const char* func_na
 		break;
 	case Constructors:
 		i = 5;
+		break;
+	case Locks:
+		i = 6;
+		break;
 	default:
 		i = 0;
 		break;
@@ -182,6 +187,8 @@ unsigned Logger::parse_log_level( const char* level ) {
 		log_level = Logger::Error | Logger::Warning | Logger::Info | Logger::Debug;
 	} else if ( 0 == strncasecmp( level, __levels[5], strlen( __levels[5] ) ) ) {
 		log_level = Logger::Error | Logger::Warning | Logger::Info | Logger::Debug | Logger::Constructors;
+	} else if ( 0 == strncasecmp( level, __levels[6], strlen( __levels[6] ) ) ) {
+		log_level = Logger::Error | Logger::Warning | Logger::Info | Logger::Debug | Logger::Locks;
 	} else {
 #ifdef HAVE_SSCANF
 		int val = sscanf( level,"%x",&log_level );

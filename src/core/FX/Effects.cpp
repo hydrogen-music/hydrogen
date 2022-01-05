@@ -27,6 +27,7 @@
 #include <core/Preferences/Preferences.h>
 #include <core/FX/LadspaFX.h>
 #include <core/Hydrogen.h>
+#include <core/Basics/Song.h>
 #include <core/Helpers/Filesystem.h>
 
 #include <algorithm>
@@ -87,7 +88,7 @@ Effects::~Effects()
 
 
 
-LadspaFX* Effects::getLadspaFX( int nFX )
+LadspaFX* Effects::getLadspaFX( int nFX ) const
 {
 	assert( nFX < MAX_FX );
 	return m_FXList[ nFX ];
@@ -117,6 +118,9 @@ void  Effects::setLadspaFX( LadspaFX* pFX, int nFX )
 
 
 	Hydrogen::get_instance()->getAudioEngine()->unlock();
+	if ( Hydrogen::get_instance()->getSong() != nullptr ) {
+		Hydrogen::get_instance()->setIsModified( true );
+	}
 }
 
 
@@ -283,6 +287,7 @@ void Effects::updateRecentGroup()
 			}
 		}
 	}
+	Hydrogen::get_instance()->setIsModified( true );
 }
 
 #ifdef H2CORE_HAVE_LRDF

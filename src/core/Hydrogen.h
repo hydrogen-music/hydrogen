@@ -54,6 +54,13 @@ class Hydrogen : public H2Core::Object<Hydrogen>
 	H2_OBJECT(Hydrogen)
 public:
 	
+	/** Specifies where the #AudioEngine does get its current tempo
+		updates from*/
+	enum class Tempo {
+		Song = 0,
+		Timeline = 1,
+		Jack = 2
+	};
 	/**
 	 * Creates all the instances used within Hydrogen in the right
 	 * order. 
@@ -163,18 +170,15 @@ public:
 	/**
 	 * Switches playback to focused pattern.
 	 *
+	 * ("Focused pattern" or "PlaysSelected" is the opposite of "Stacked" mode)
+	 *
 	 * If the current Song is in Song::PATTERN_MODE, the AudioEngine
 	 * will be locked and Preferences::m_bPatternModePlaysSelected
-	 * negated. If the latter was true before calling this function,
+	 * set. If the latter was true before calling this function,
 	 * #H2Core::AudioEngine::m_pPlayingPatterns will be cleared and
-	 * replaced by the Pattern indexed with
-	 * #m_nSelectedPatternNumber.
-	 *
-	 * This function will be called either by MainForm::eventFilter()
-	 * when pressing Qt::Key_L or by
-	 * SongEditorPanel::modeActionBtnPressed().
+	 * replaced by the Pattern indexed with #m_nSelectedPatternNumber.
 	 */
-	void			togglePlaysSelected();
+	void			setPlaysSelected( bool bPlaysSelected );
 	
 		/**
 		 * Get the current song.
@@ -187,7 +191,17 @@ public:
 		 */
 		void			setSong	( std::shared_ptr<Song> newSong );
 
-		void			removeSong();
+	Song::Mode getMode() const;
+	/** Wrapper around Song::setMode() which also triggers
+	EVENT_SONG_MODE_ACTIVATION and should be used by all parts of the
+	code except for song reading/setting.*/
+	void setMode( Song::Mode mode );
+
+	/** Wrapper around Preferences::setUseTimelinebpm() which also
+	triggers EVENT_TIMELINE_ACTIVATION.*/
+	void setUseTimelineBpm( bool bEnabled );
+
+	void			removeSong();
 
 		void			addRealtimeNote ( int instrument,
 							  float velocity,
@@ -253,6 +267,14 @@ public:
 void			previewSample( Sample *pSample );
 	void			previewInstrument( std::shared_ptr<Instrument> pInstr );
 
+	/** Recalculates all Samples using RubberBand for a specific
+		tempo @a fBpm.
+	*/ 
+	void recalculateRubberband( float fBpm );
+	/** Wrapper around Song::setIsModified() that checks whether a
+		song is set.*/
+	void setIsModified( bool bIsModified );
+
 	enum ErrorMessages {
 		/**
 		 * The provided input string in createDriver() does
@@ -302,17 +324,6 @@ void			previewSample( Sample *pSample );
 
 	void			onTapTempoAccelEvent();
 	void			setTapTempo( float fInterval );
-	/** 
-	 * Updates the speed.
-	 *
-	 * It calls AudioOutput::setBpm() and setNewBpmJTM() with @a
-	 * fBPM as input argument and sets Song::m_fBpm to @a fBPM.
-	 *
-	 * This function will be called with the AudioEngine in LOCKED
-	 * state.
-	 * \param fBPM New speed in beats per minute.
-	 */
-	void			setBPM( float fBPM );
 
 	void			restartLadspaFX();
 	/** \return #m_nSelectedPatternNumber*/
@@ -369,47 +380,14 @@ void			previewSample( Sample *pSample );
 	/** Calling JackAudioDriver::initTimebaseMaster() directly from
 	    the GUI*/
 	void			onJackMaster();
-	/** Returns the fallback speed.
-	 * \return #m_fNewBpmJTM */
-	float			getNewBpmJTM() const;
-	/** Set the fallback speed #m_fNewBpmJTM.
-	 * \param bpmJTM New default tempo. */ 
-	void			setNewBpmJTM( float bpmJTM);
 
 	void			__panic();
-	/**
-	 * Updates Song::m_fBpm, TransportInfo::m_fBPM, and #m_fNewBpmJTM
-	 * to the local speed.
-	 *
-	 * If Preferences::__useTimelineBpm is set to false or Hydrogen
-	 * uses JACK transport in the presence of an external timebase
-	 * master, the function will return without performing any
-	 * actions.
-	 */
-	void			setTimelineBpm();
-	/**
-	 * Returns the local speed at a specific @a nBar in the
-	 * Timeline.
-	 *
-	 * If Hydrogen is in Song::PATTERN_MODE or
-	 * Preferences::__useTimelineBpm is set to false, the global
-	 * speed of the current Song Song::m_fBpm or, if no Song is
-	 * present yet, the result of getNewBpmJTM() will be
-	 * returned. 
-	 *
-	 * Its counterpart is setTimelineBpm().
-	 *
-	 * \param nBar Position (in whole patterns) along the Timeline to
-	 *   access the tempo at.
-	 *
-	 * \return Speed in beats per minute.
-	 */
-	float			getTimelineBpm( int nBar );
 	Timeline*		getTimeline() const;
 	
 	//export management
 	bool			getIsExportSessionActive() const;
-	void			startExportSession( int rate, int depth );
+	/** \return true on success.*/
+	bool			startExportSession( int rate, int depth );
 	void			stopExportSession();
 	void			startExportSong( const QString& filename );
 	void			stopExportSong();
@@ -474,6 +452,18 @@ void			previewSample( Sample *pSample );
 	 * (#H2Core::Preferences::m_bJackTransportMode).
 	 */
 	bool			haveJackTransport() const;
+
+	/**
+	 * Convenience function checking whether using the Timeline tempo
+	 * is set in the Preferences, Song::SONG_MODE is set, and there is
+	 * a JACK timebase master present.
+	 *
+	 * \return Whether the Timeline is used to determine the current speed.
+	 */
+	bool isTimelineEnabled() const;
+
+	Tempo getTempoSource() const;
+	
 	/**
 	 * \return Whether we haveJackTransport() and there is an external
 	 * JACK timebase master broadcasting us tempo information and
@@ -542,7 +532,7 @@ private:
 
 
 	// used for song export
-	Song::SongMode		m_oldEngineMode;
+	Song::Mode		m_oldEngineMode;
 	bool			m_bOldLoopEnabled;
 	bool			m_bExportSessionIsActive;
 	
@@ -575,14 +565,6 @@ private:
 	/// Deleting instruments too soon leads to potential crashes.
 	std::list<std::shared_ptr<Instrument>> 	__instrument_death_row; 
 	
-	/**
-	 * Fallback speed in beats per minute.
-	 *
-	 * It is set by Hydrogen::setNewBpmJTM() and accessed via
-	 * Hydrogen::getNewBpmJTM().
-	 */
-	float				m_fNewBpmJTM;
-
 	/**
 	 * Instrument currently focused/selected in the GUI. 
 	 *
@@ -689,6 +671,9 @@ inline int Hydrogen::getSelectedPatternNumber() const
 inline int Hydrogen::getSelectedInstrumentNumber() const
 {
 	return m_nSelectedInstrumentNumber;
+}
+inline Song::Mode Hydrogen::getMode() const {
+	return getSong()->getMode();
 }
 };
 

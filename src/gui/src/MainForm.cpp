@@ -1342,67 +1342,21 @@ void MainForm::savePreferences() {
 	Preferences *pPreferences = Preferences::get_instance();
 
 	// mainform
-	WindowProperties mainFormProp;
-	mainFormProp.x = x();
-	mainFormProp.y = y();
-	mainFormProp.height = height();
-	mainFormProp.width = width();
-	pPreferences->setMainFormProperties( mainFormProp );
-
+	pPreferences->setMainFormProperties( h2app->getWindowProperties( this ) );
 	// Save mixer properties
-	WindowProperties mixerProp;
-	mixerProp.x = h2app->getMixer()->x();
-	mixerProp.y = h2app->getMixer()->y();
-	mixerProp.width = h2app->getMixer()->width();
-	mixerProp.height = h2app->getMixer()->height();
-	mixerProp.visible = h2app->getMixer()->isVisible();
-	pPreferences->setMixerProperties( mixerProp );
-
+	pPreferences->setMixerProperties( h2app->getWindowProperties( h2app->getMixer() ) );
 	// save pattern editor properties
-	WindowProperties patternEditorProp;
-	patternEditorProp.x = h2app->getPatternEditorPanel()->x();
-	patternEditorProp.y = h2app->getPatternEditorPanel()->y();
-	patternEditorProp.width = h2app->getPatternEditorPanel()->width();
-	patternEditorProp.height = h2app->getPatternEditorPanel()->height();
-	patternEditorProp.visible = h2app->getPatternEditorPanel()->isVisible();
-	pPreferences->setPatternEditorProperties( patternEditorProp );
-
+	pPreferences->setPatternEditorProperties( h2app->getWindowProperties( h2app->getPatternEditorPanel() ) );
 	// save song editor properties
-	WindowProperties songEditorProp;
-	songEditorProp.x = h2app->getSongEditorPanel()->x();
-	songEditorProp.y = h2app->getSongEditorPanel()->y();
-	songEditorProp.width = h2app->getSongEditorPanel()->width();
-	songEditorProp.height = h2app->getSongEditorPanel()->height();
-
-	QSize size = h2app->getSongEditorPanel()->frameSize();
-	songEditorProp.visible = h2app->getSongEditorPanel()->isVisible();
-	pPreferences->setSongEditorProperties( songEditorProp );
-
-
-	WindowProperties instrumentRackProp;
-	instrumentRackProp.x = h2app->getInstrumentRack()->x();
-	instrumentRackProp.y = h2app->getInstrumentRack()->y();
-	instrumentRackProp.width = h2app->getInstrumentRack()->width();
-	instrumentRackProp.height = h2app->getInstrumentRack()->height();
-	instrumentRackProp.visible = h2app->getInstrumentRack()->isVisible();
-	pPreferences->setInstrumentRackProperties( instrumentRackProp );
-
+	pPreferences->setSongEditorProperties( h2app->getWindowProperties( h2app->getSongEditorPanel() ) );
+	pPreferences->setInstrumentRackProperties( h2app->getWindowProperties( h2app->getInstrumentRack() ) );
 	// save audio engine info properties
-	WindowProperties audioEngineInfoProp;
-	audioEngineInfoProp.x = h2app->getAudioEngineInfoForm()->x();
-	audioEngineInfoProp.y = h2app->getAudioEngineInfoForm()->y();
-	audioEngineInfoProp.visible = h2app->getAudioEngineInfoForm()->isVisible();
-	pPreferences->setAudioEngineInfoProperties( audioEngineInfoProp );
-
+	pPreferences->setAudioEngineInfoProperties( h2app->getWindowProperties( h2app->getAudioEngineInfoForm() ) );
 
 #ifdef H2CORE_HAVE_LADSPA
 	// save LADSPA FX window properties
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
-		WindowProperties prop;
-		prop.x = h2app->getLadspaFXProperties(nFX)->x();
-		prop.y = h2app->getLadspaFXProperties(nFX)->y();
-		prop.visible= h2app->getLadspaFXProperties(nFX)->isVisible();
-		pPreferences->setLadspaProperties(nFX, prop);
+		pPreferences->setLadspaProperties( nFX, h2app->getWindowProperties( h2app->getLadspaFXProperties( nFX ) ) );
 	}
 #endif
 }
@@ -1470,26 +1424,20 @@ void MainForm::onRestartAccelEvent()
 
 
 
-void MainForm::onBPMPlusAccelEvent()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	pHydrogen->setBPM( pSong->getBpm() + 0.1 );
-	pHydrogen->getAudioEngine()->unlock();
+void MainForm::onBPMPlusAccelEvent() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	pAudioEngine->setNextBpm( pAudioEngine->getBpm() + 0.1 );
+	pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() + 0.1 );
 }
 
 
 
-void MainForm::onBPMMinusAccelEvent()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	pHydrogen->setBPM( pSong->getBpm() - 0.1 );
-	pHydrogen->getAudioEngine()->unlock();
+void MainForm::onBPMMinusAccelEvent() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	pAudioEngine->setNextBpm( pAudioEngine->getBpm() - 0.1 );
+	pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() - 0.1 );
 }
 
 
@@ -1589,11 +1537,14 @@ void MainForm::checkNecessaryDirectories()
 void MainForm::onFixMidiSetup()
 {
 	INFOLOG( "Fixing MIDI setup" );
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	pSong->getInstrumentList()->set_default_midi_out_notes();
-	pSong->setIsModified( true );
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong != nullptr ) {
+		pSong->getInstrumentList()->set_default_midi_out_notes();
+		pHydrogen->setIsModified( true );
 
-	m_pMidiSetupInfoBar->hide();
+		m_pMidiSetupInfoBar->hide();
+	}
 }
 
 
@@ -1998,7 +1949,7 @@ void MainForm::action_file_songProperties()
 {
 	SongPropertiesDialog *pDialog = new SongPropertiesDialog( this );
 	if ( pDialog->exec() == QDialog::Accepted ) {
-		Hydrogen::get_instance()->getSong()->setIsModified( true );
+		Hydrogen::get_instance()->setIsModified( true );
 	}
 	delete pDialog;
 }
@@ -2013,10 +1964,11 @@ void MainForm::action_window_showPatternEditor()
 
 void MainForm::showDevelWarning()
 {
+	Preferences *pPreferences = Preferences::get_instance();
+	bool isDevelWarningEnabled = pPreferences->getShowDevelWarning();
+
 	//set this to 'false' for the case that you want to make a release..
-	if ( true ) {
-		Preferences *pPreferences = Preferences::get_instance();
-		bool isDevelWarningEnabled = pPreferences->getShowDevelWarning();
+	if ( H2CORE_IS_DEVEL_BUILD ) {
 		if(isDevelWarningEnabled) {
 
 			QString msg = tr( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
@@ -2029,6 +1981,15 @@ void MainForm::showDevelWarning()
 				//don't show warning again
 				pPreferences->setShowDevelWarning( false );
 			}
+		}
+	} else {
+		// Release builds
+		if ( !isDevelWarningEnabled ) {
+			// Running a release build, we should re-enable the development-build warning if it's been
+			// disabled, since the user might have tried a release build at some time in the past, then
+			// continued working happily with a release build. They will still benefit from knowing that a
+			// *new* release build they're trying is in fact a release build.
+			pPreferences->setShowDevelWarning( true );
 		}
 	}
 }
@@ -2054,14 +2015,15 @@ QString MainForm::getAutoSaveFilename()
 void MainForm::onAutoSaveTimer()
 {
 	//INFOLOG( "[onAutoSaveTimer]" );
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+	auto pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	assert( pSong );
 	if ( pSong->getIsModified() ) {
 		QString sOldFilename = pSong->getFilename();
 		pSong->save( getAutoSaveFilename() );
 
 		pSong->setFilename( sOldFilename );
-		pSong->setIsModified( true );
+		pHydrogen->setIsModified( true );
 	}
 }
 
@@ -2300,8 +2262,8 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 	if ( pObject->inherits( "SongEditorPanel" ) ) {
 			
-		if ( pSong->getMode() != Song::SONG_MODE ) {
-			pCoreActionController->activateSongMode( true, false );
+		if ( pHydrogen->getMode() != Song::Mode::Song ) {
+			pCoreActionController->activateSongMode( true );
 			pApp->getPlayerControl()->songModeActivationEvent( 1 );
 		}
 
@@ -2312,8 +2274,8 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// Covers both the PatternEditor and the
 		// NotePropertiesRuler.
 			
-		if ( pSong->getMode() != Song::PATTERN_MODE ) {
-			pCoreActionController->activateSongMode( false, false );
+		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
+			pCoreActionController->activateSongMode( false );
 			pApp->getPlayerControl()->songModeActivationEvent( 0 );
 		}
 

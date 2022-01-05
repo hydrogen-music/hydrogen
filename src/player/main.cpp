@@ -96,6 +96,7 @@ int main(int argc, char** argv){
 				pSong = nullptr;
 				delete hydrogen;
 				delete H2Core::EventQueue::get_instance();
+				preferences->savePreferences();
 				delete preferences;
 				delete H2Core::Logger::get_instance();
 

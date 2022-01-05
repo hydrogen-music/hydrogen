@@ -310,7 +310,9 @@ public:
 	 * Hydrogen::Hydrogen().
 	 */
 	void			startAudioDrivers();
-	
+	/**
+	 * Assign an INITIATED audio driver.*/
+	void			setAudioDrivers( AudioOutput* pAudioDriver );
 	/**
 	 * Stops all audio and MIDI drivers.
 	 */
@@ -438,6 +440,13 @@ public:
 	 */
 	void stop();
 
+	/** Stores the new speed into a separate variable which will be
+	 * adopted next time the processCheckBpmChanged() is entered.*/
+	void setNextBpm( float fNextBpm );
+	float getNextBpm() const;
+
+	static float 	getBpmAtColumn( int nColumn );
+
 	/** Is allowed to call setSong().*/
 	friend void Hydrogen::setSong( std::shared_ptr<Song> pSong );
 	/** Is allowed to call removeSong().*/
@@ -446,12 +455,11 @@ public:
 		frames as well as to used setColumn and setPatternTickPos to
 		move the arrow in the SongEditorPositionRuler even when
 		playback is stopped.*/
-	friend bool CoreActionController::locateToFrame( unsigned long nFrame );
+	friend bool CoreActionController::locateToFrame( unsigned long nFrame, bool );
 	/** Is allowed to set m_state to State::Prepared via setState()*/
 	friend int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional );
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
-	friend void* H2Core::diskWriterDriver_thread( void *param);
 	/** Is allowed to set m_nextState via setNextState() according to
 		what the JACK server reports.*/
 	friend void JackAudioDriver::updateTransportInfo();
@@ -519,23 +527,7 @@ private:
 	 * frames per second.
 	 */
 	void			updateElapsedTime( unsigned bufferSize, unsigned sampleRate );
-	/**
-	 * Update the tick size based on the current tempo without affecting
-	 * the current transport position.
-	 *
-	 * The new transport position gets calculated by 
-	 * \code{.cpp}
-	 * ceil( m_pAudioDriver->m_transport.m_nFrames/
-	 *       m_pAudioDriver->m_transport.m_fTickSize ) *
-	 * m_pAudioDriver->getSampleRate() * 60.0 / Song::__bpm / Song::__resolution 
-	 * \endcode
-	 *
-	 * If the JackAudioDriver is used and the audio engine is playing, a
-	 * potential mismatch in the transport position is determined by
-	 * JackAudioDriver::calculateFrameOffset() and covered by
-	 * JackAudioDriver::updateTransportInfo() in the next cycle.
-	 */
-	void			processCheckBPMChanged(std::shared_ptr<Song>pSong);
+	void			processCheckBPMChanged();
 	
 	void			setPatternStartTick( int tick );
 	void			setPatternTickPosition( int tick );
@@ -572,8 +564,10 @@ private:
 	 * #m_fElapsedTime.
 	 *
 	 * \param nFrame Next transport position in frames.
+	 * \param bWithJackBroadcast Relocate not using the AudioEngine
+	 * directly but using the JACK server.
 	 */
-	void			locate( unsigned long nFrame );
+	void			locate( unsigned long nFrame, bool bWithJackBroadcast = true );
 	/** Local instance of the Sampler. */
 	Sampler* 			m_pSampler;
 	/** Local instance of the Synth. */
@@ -633,19 +627,11 @@ private:
 	 */
 	std::thread::id 	m_LockingThread;
 
-	/**
-	 * This struct is most probably intended to be used for
-	 * logging the locking of the AudioEngine. But neither it nor
-	 * the Logger::AELockTracing state is ever used.
-	 */
 	struct _locker_struct {
 		const char* file;
 		unsigned int line;
 		const char* function;
-	} __locker; ///< This struct is most probably intended to be
-		    ///< used for logging the locking of the
-		    ///< AudioEngine. But neither it nor the
-		    ///< Logger::AELockTracing state is ever used.
+	} __locker;
 	
 	/** Time in seconds since the beginning of the Song.
 	 *
@@ -698,6 +684,7 @@ private:
 	 * A value of -1 corresponds to "pattern list could not be found".
 	 */
 	int					m_nColumn;
+	int					m_nOldColumn;
 
 	/** Set to the total number of ticks in a Song in findPatternInTick()
 		if Song::SONG_MODE is chosen and playback is at least in the
@@ -759,6 +746,8 @@ private:
 	 * Required to calculateLookahead(). Set to 2000.
 	 */
 	int 			m_nMaxTimeHumanize;
+
+	float 			m_fNextBpm;
 };
 
 
@@ -853,10 +842,6 @@ inline void AudioEngine::setNextState( AudioEngine::State state) {
 	m_nextState = state;
 }
 
-inline void AudioEngine::setAudioDriver( AudioOutput* pAudioDriver ) {
-	m_pAudioDriver = pAudioDriver;
-}
-
 inline AudioOutput*	AudioEngine::getAudioDriver() const {
 	return m_pAudioDriver;
 }
@@ -912,7 +897,13 @@ inline unsigned int AudioEngine::getAddRealtimeNoteTickPosition() const {
 inline void AudioEngine::setAddRealtimeNoteTickPosition( unsigned int tickPosition) {
 	m_nAddRealtimeNoteTickPosition = tickPosition;
 }
-
+inline void AudioEngine::setNextBpm( float fNextBpm ) {
+	m_fNextBpm = fNextBpm;
+}
+inline float AudioEngine::getNextBpm() const {
+	return m_fNextBpm;
+}
+	
 };
 
 #endif

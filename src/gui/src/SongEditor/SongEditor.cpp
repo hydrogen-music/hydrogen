@@ -533,6 +533,7 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 			// Start of a drawing gesture. Pick up whether we are painting Active or Inactive cells.
 			QPoint p = xyToColumnRow( ev->pos() );
 			m_bDrawingActiveCell = Hydrogen::get_instance()->getSong()->isPatternActive( p.x(), p.y() );
+			setPatternActive( p.x(), p.y(), ! m_bDrawingActiveCell );
 			m_pSongEditorPanel->updatePlaybackTrackIfNecessary();
 
 		} else if ( ev->button() == Qt::RightButton ) {
@@ -589,7 +590,7 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 		HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
 		// Drawing mode: continue drawing over other cells
-		setPatternActive( p.x(), p.y(), m_bDrawingActiveCell );
+		setPatternActive( p.x(), p.y(), ! m_bDrawingActiveCell );
 	}
 }
 
@@ -1017,16 +1018,16 @@ QRect SongEditor::getKeyboardCursorRect() {
 
 void SongEditor::clearThePatternSequenceVector( QString filename )
 {
-	Hydrogen *engine = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 
-	std::shared_ptr<Song> song = engine->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	//before deleting the sequence, write a temp sequence file to disk
-	song->writeTempPatternList( filename );
+	pSong->writeTempPatternList( filename );
 
-	std::vector<PatternList*> *pPatternGroupsVect = song->getPatternGroupVector();
+	std::vector<PatternList*> *pPatternGroupsVect = pSong->getPatternGroupVector();
 	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
 		PatternList *pPatternList = (*pPatternGroupsVect)[i];
 		pPatternList->clear();
@@ -1034,7 +1035,7 @@ void SongEditor::clearThePatternSequenceVector( QString filename )
 	}
 	pPatternGroupsVect->clear();
 
-	song->setIsModified( true );
+	pHydrogen->setIsModified( true );
 	m_pAudioEngine->unlock();
 	m_bSequenceChanged = true;
 	update();
@@ -1042,7 +1043,6 @@ void SongEditor::clearThePatternSequenceVector( QString filename )
 
 void SongEditor::updateEditorandSetTrue()
 {
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
 	m_bSequenceChanged = true;
 	update();
 }
@@ -1092,6 +1092,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_labelBackgroundSelected.load( Skin::getImagePath() + "/songEditor/songEditorLabelSBG.png" );
 	m_playingPattern_on_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_on.png" );
 	m_playingPattern_off_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_off.png" );
+	m_playingPattern_empty_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_empty.png" );
 
 	m_pPatternPopup = new QMenu( this );
 	m_pPatternPopup->addAction( tr("Duplicate"),  this, SLOT( patternPopup_duplicate() ) );
@@ -1121,47 +1122,16 @@ SongEditorPatternList::~SongEditorPatternList()
 }
 
 
-void SongEditorPatternList::patternChangedEvent() 
-{
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-
+void SongEditorPatternList::patternChangedEvent() {
 	createBackground();
 	update();
-	
-	///here we check the timeline  && m_pSong->getMode() == Song::SONG_MODE
-	
-	if ( m_pHydrogen->haveJackTransport() ) {
-		return;
-	}
-
-	// The disk writer runs at it's own pace. Due to the following
-	// lines of code the GUI, instead, just sets the speed to 0 BPM.
-	auto pDriver = pHydrogen->getAudioOutput();
-	if ( pDriver != nullptr ) {
-		if ( DiskWriterDriver::_class_name() == pDriver->class_name() ) {
-			return;
-		}
-	}
-	
-	Timeline* pTimeline = m_pHydrogen->getTimeline();
-	if ( ( Preferences::get_instance()->getUseTimelineBpm() ) &&
-		 ( m_pHydrogen->getSong()->getMode() == Song::SONG_MODE ) ){
-
-		float fTimelineBpm = pTimeline->getTempoAtBar( pHydrogen->getAudioEngine()->getColumn(), false );
-
-		if ( fTimelineBpm != 0 && pHydrogen->getNewBpmJTM() != fTimelineBpm ) {
-			/* TODO: For now the function returns 0 if the bar is
-			 * positioned _before_ the first tempo marker. This will be
-			 * taken care of with #854. */
-			m_pHydrogen->setBPM( fTimelineBpm );
-		}
-	}
 }
 
 
 /// Single click, select the next pattern
 void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 {
+	__drag_start_position = ev->pos();
 	int row = (ev->y() / m_nGridHeight);
 
 	std::shared_ptr<Song> song = m_pHydrogen->getSong();
@@ -1171,8 +1141,12 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		return;
 	}
 
-	if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ){
+	if ( (ev->button() == Qt::MiddleButton)
+		 || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton)
+		 || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton)
+		 || ev->pos().x() < 15 ){
 		togglePattern( row );
+		EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 	} else {
 		m_pHydrogen->setSelectedPatternNumber( row );
 		if (ev->button() == Qt::RightButton)  {
@@ -1270,7 +1244,16 @@ void SongEditorPatternList::updateEditor()
 	update();
 }
 
+void SongEditorPatternList::songModeActivationEvent( int nValue ) {
 
+	UNUSED( nValue );
+
+	// Refresh pattern list display if in stacked mode
+	if ( ! Preferences::get_instance()->patternModePlaysSelected() ) {
+		createBackground();
+		update();
+	}
+}
 
 void SongEditorPatternList::createBackground()
 {
@@ -1306,7 +1289,6 @@ void SongEditorPatternList::createBackground()
 
 	QPainter p( m_pBackgroundPixmap );
 	p.setFont( boldTextFont );
-
 	for ( int i = 0; i < nPatterns; i++ ) {
 		uint y = m_nGridHeight * i;
 		if ( i == nSelectedPattern ) {
@@ -1326,7 +1308,7 @@ void SongEditorPatternList::createBackground()
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 	PatternList *pCurrentPatternList = m_pAudioEngine->getPlayingPatterns();
-	
+
 	//assemble the data..
 	for ( int i = 0; i < nPatterns; i++ ) {
 		H2Core::Pattern *pPattern = pSong->getPatternList()->get(i);
@@ -1365,9 +1347,9 @@ void SongEditorPatternList::createBackground()
 		}
 		else if (PatternArray[i].bActive) {
 			//mark active pattern with triangular
-			if( ! pPref->patternModePlaysSelected() ){
-				p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_on_Pixmap );
-			}
+			p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_on_Pixmap );
+		} else if ( ! pPref->patternModePlaysSelected() && pSong->getMode() == Song::Mode::Pattern ) {
+			p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_empty_Pixmap );
 		}
 
 		p.drawText( 25, text_y - 1, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, PatternArray[i].sPatternName);
@@ -1530,14 +1512,14 @@ void SongEditorPatternList::patternPopup_properties()
 
 void SongEditorPatternList::acceptPatternPropertiesDialogSettings(QString newPatternName, QString newPatternInfo, QString newPatternCategory, int patternNr)
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	std::shared_ptr<Song> song = engine->getSong();
-	PatternList *patternList = song->getPatternList();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	PatternList *patternList = pSong->getPatternList();
 	H2Core::Pattern *pattern = patternList->get( patternNr );
 	pattern->set_name( newPatternName );
 	pattern->set_info( newPatternInfo );
 	pattern->set_category( newPatternCategory );
-	song->setIsModified( true );
+	pHydrogen->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 	createBackground();
 	update();
@@ -1546,13 +1528,13 @@ void SongEditorPatternList::acceptPatternPropertiesDialogSettings(QString newPat
 
 void SongEditorPatternList::revertPatternPropertiesDialogSettings(QString oldPatternName, QString oldPatternInfo, QString oldPatternCategory, int patternNr)
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	std::shared_ptr<Song> song = engine->getSong();
-	PatternList *patternList = song->getPatternList();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	PatternList *patternList = pSong->getPatternList();
 	H2Core::Pattern *pattern = patternList->get( patternNr );
 	pattern->set_name( oldPatternName );
 	pattern->set_category( oldPatternCategory );
-	song->setIsModified( true );
+	pHydrogen->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 	createBackground();
 	update();
@@ -1586,7 +1568,7 @@ void SongEditorPatternList::patternPopup_delete()
 
 void SongEditorPatternList::deletePatternFromList( QString patternFilename, QString sequenceFileName, int patternPosition )
 {
-	if ( m_pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {
+	if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
 		m_pHydrogen->sequencer_setNextPattern( -1 );
 	}
 
@@ -1649,15 +1631,15 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 	pSongPatternList->flattened_virtual_patterns_compute();
 
 	delete pattern;
-	song->setIsModified( true );
+	m_pHydrogen->setIsModified( true );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 
 }
 
 void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilename, QString sequenceFileName, int patternPosition )
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = engine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 
 	Pattern* pattern = Pattern::load_file( patternFilename, pSong->getInstrumentList() );
@@ -1667,9 +1649,9 @@ void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilen
 
 	pPatternList->insert( patternPosition, pattern );
 
-	pSong->setIsModified( true );
+	pHydrogen->setIsModified( true );
 	createBackground();
-	engine->setSelectedPatternNumber( patternPosition );
+	pHydrogen->setSelectedPatternNumber( patternPosition );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 }
@@ -1783,7 +1765,7 @@ void SongEditorPatternList::fillRangeWithPattern( FillRange* pRange, int nPatter
 
 
 	// Update
-	pSong->setIsModified( true );
+	m_pHydrogen->setIsModified( true );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 }
 
@@ -1816,7 +1798,13 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 	}
 	
 	if ( sText.startsWith("move pattern:") ) {
-		int nSourcePattern = m_pHydrogen->getSelectedPatternNumber();
+		QStringList tokens = sText.split( ":" );
+		bool bOK = true;
+
+		int nSourcePattern = tokens[1].toInt(&bOK);
+		if ( ! bOK ) {
+			return;
+		}
 
 		if ( nSourcePattern == nTargetPattern ) {
 			event->acceptProposedAction();
@@ -1886,9 +1874,9 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 
 void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPattern )
 {
-		Hydrogen *engine = Hydrogen::get_instance();
+		Hydrogen *pHydrogen = Hydrogen::get_instance();
 
-		std::shared_ptr<Song> pSong = engine->getSong();
+		std::shared_ptr<Song> pSong = pHydrogen->getSong();
 		PatternList *pPatternList = pSong->getPatternList();
 
 
@@ -1909,9 +1897,9 @@ void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPat
 			}
 			pPatternList->replace( nTargetPattern, pSourcePattern );
 		}
-		engine->setSelectedPatternNumber( nTargetPattern );
+		pHydrogen->setSelectedPatternNumber( nTargetPattern );
 		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
-		pSong->setIsModified( true );
+		pHydrogen->setIsModified( true );
 }
 
 
@@ -1920,12 +1908,21 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 	if (!(event->buttons() & Qt::LeftButton)) {
 		return;
 	}
-	if ( abs(event->pos().y() - __drag_start_position.y()) < (int)m_nGridHeight) {
+	if ( (event->pos().y() / m_nGridHeight) == (__drag_start_position.y() / m_nGridHeight) ) {
 		return;
 	}
-
-
-	QString sText = QString("move pattern:%1");
+	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
+	PatternList *pPatternList = pSong->getPatternList();
+	int row = (__drag_start_position.y() / m_nGridHeight);
+	if ( row >= (int)pPatternList->size() ) {
+		return;
+	}
+	Pattern *pPattern = pPatternList->get( row );
+	QString sName = "<unknown>";
+	if ( pPattern ) {
+		sName = pPattern->get_name();
+	}
+	QString sText = QString("move pattern:%1:%2").arg( row ).arg( sName );
 
 	QDrag *pDrag = new QDrag(this);
 	QMimeData *pMimeData = new QMimeData;
@@ -1944,7 +1941,6 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 
 void SongEditorPatternList::timelineUpdateEvent( int nEvent ){
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
-	Hydrogen::get_instance()->getSong()->setIsModified( true );
 }
 
 void SongEditorPatternList::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
@@ -1965,14 +1961,21 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
  , m_bRightBtnPressed( false )
  , m_nPlayheadWidth( 11 )
  , m_nPlayheadHeight( 8 )
+ , m_nActiveBpmWidgetColumn( -1 )
+ , m_nHoveredColumn( -1 )
+ , m_nHoveredRow( -1 )
+ , m_bHighlightHoveredColumn( false )
 {
 
 	auto pPref = H2Core::Preferences::get_instance();
+
+	HydrogenApp::get_instance()->addEventListener( this );
 
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
 
 	setAttribute(Qt::WA_OpaquePaintEvent);
+	setMouseTracking( true );
 
 	m_nGridWidth = pPref->getSongEditorGridWidth();
 	m_nMaxPatternSequence = pPref->getMaxBars();
@@ -2033,61 +2036,214 @@ void SongEditorPositionRuler::setGridWidth( uint width )
 void SongEditorPositionRuler::createBackground()
 {
 	Preferences *pPref = Preferences::get_instance();
-	Timeline * pTimeline = Hydrogen::get_instance()->getTimeline();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	Timeline * pTimeline = pHydrogen->getTimeline();
 	auto tagVector = pTimeline->getAllTags();
-	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 	
-	QColor textColorAlpha( pPref->getColorTheme()->m_songEditor_textColor );
+	QColor textColor( pPref->getColorTheme()->m_songEditor_textColor );
+	QColor textColorAlpha( textColor );
 	textColorAlpha.setAlpha( 45 );
 
-	m_pBackgroundPixmap->fill( pPref->getColorTheme()->m_songEditor_backgroundColor );
+	QColor backgroundColor = pPref->getColorTheme()->m_songEditor_backgroundColor;
+	QColor backgroundColorTempoMarkers = backgroundColor.darker( 120 );
+
+	QColor colorHighlight = pPref->getColorTheme()->m_highlightColor;
+
+	m_pBackgroundPixmap->fill( backgroundColor );
 
 	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 
 	QPainter p( m_pBackgroundPixmap );
 	p.setFont( font );
 
-	p.fillRect( 0, 0, width(), 24, QColor( 67, 72, 83, 105) );
+	p.fillRect( 0, 0, width(), 24, backgroundColorTempoMarkers );
 	char tmp[10];
+	
+	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
+		p.setPen( textColorAlpha );
+	} else {
+		p.setPen( textColor );
+	}
 	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
 		uint x = m_nMargin + i * m_nGridWidth;
-		for ( int t = 0; t < static_cast<int>(tagVector.size()); t++){
-			if ( tagVector[t]->nBar == i ) {
-				p.setPen( Qt::cyan );
-				p.drawText( x - m_nGridWidth / 2 , 12, m_nGridWidth * 2, height() , Qt::AlignCenter, "T");
-			}
-		}
 
 		if ( (i % 4) == 0 ) {
-			p.setPen( pPref->getColorTheme()->m_songEditor_textColor );
 			sprintf( tmp, "%d", i + 1 );
 			p.drawText( x - m_nGridWidth, 12, m_nGridWidth * 2, height(), Qt::AlignCenter, tmp );
 		}
 		else {
-			p.setPen( pPref->getColorTheme()->m_songEditor_textColor );
 			p.drawLine( x, 32, x, 40 );
 		}
 	}
-
-
-	//draw tempo content
-	if(pPref->getUseTimelineBpm()){
-		p.setPen( pPref->getColorTheme()->m_songEditor_textColor );
-	}else
-	{
-		p.setPen( textColorAlpha );
+	
+	int nPaintedTags = 0;
+	// draw tags
+	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
+		QColor colorHiglightAlpha( colorHighlight.lighter( 120 ) );
+		colorHiglightAlpha.setAlpha( 45 );
+		p.setPen( colorHiglightAlpha );
+	} else {
+		p.setPen( colorHighlight.lighter( 120 ) );
 	}
-	char tempo[10];
-	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
-		uint x = m_nMargin + i * m_nGridWidth;
-		p.drawLine( x, 2, x, 5 );
-		p.drawLine( x, 19, x, 20 );
-		for ( int t = 0; t < static_cast<int>(tempoMarkerVector.size()); t++){
-			if ( tempoMarkerVector[t]->nBar == i ) {
-				sprintf( tempo, "%d",  ((int)tempoMarkerVector[t]->fBpm) );
-				p.drawText( x - m_nGridWidth, 3, m_nGridWidth * 2, height() / 2 - 5, Qt::AlignCenter, tempo );
+	for ( uint ii = 0; ii < m_nMaxPatternSequence + 1; ii++) {
+		uint x = m_nMargin + ii * m_nGridWidth;
+		for ( int tt = 0; tt < static_cast<int>(tagVector.size()); tt++){
+			if ( tagVector[tt]->nColumn == ii ) {
+				p.drawText( x - m_nGridWidth / 2 , 12, m_nGridWidth * 2, height() , Qt::AlignCenter, "T");
+
+				++nPaintedTags;
 			}
 		}
+		
+		// Let's be more efficient and finish as soon as we are done.
+		if ( nPaintedTags == tagVector.size() ) {
+			break;
+		}
+	}
+
+
+	// draw tempo content
+	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
+
+	QColor tempoMarkerColor;
+	if ( pHydrogen->isTimelineEnabled() ) {
+		tempoMarkerColor = pPref->getColorTheme()->m_songEditor_textColor;
+	} else {
+		tempoMarkerColor = textColorAlpha;
+	}
+	p.setPen( tempoMarkerColor );
+
+	int nCurrentColumn = pHydrogen->getAudioEngine()->getColumn();
+	int nPaintedTempoMarkers = 0;
+
+	// Which tempo marker is the currently used one?
+	int nCurrentTempoMarkerIndex = -1;
+	for ( int tt = 0; tt < static_cast<int>(tempoMarkerVector.size()); tt++){
+		if ( tempoMarkerVector[tt]->nColumn > nCurrentColumn ) {
+			nCurrentTempoMarkerIndex = std::max( tt - 1, 0 );
+			break;
+		}
+	}
+	if ( nCurrentTempoMarkerIndex == -1 ) {
+		nCurrentTempoMarkerIndex = tempoMarkerVector.size() - 1;
+	}
+	
+	// Draw tempo marker grid
+	for (uint ii = 0; ii < m_nMaxPatternSequence + 1; ii++) {
+		uint x = m_nMargin + ii * m_nGridWidth;
+		p.drawLine( x, 2, x, 5 );
+		p.drawLine( x, 19, x, 20 );
+	}
+
+	// Draw tempo markers
+	char tempo[10];
+	for (uint ii = 0; ii < m_nMaxPatternSequence + 1; ii++) {
+		for ( int tt = 0; tt < static_cast<int>(tempoMarkerVector.size()); tt++){
+			if ( tempoMarkerVector[tt]->nColumn == ii ) {
+				if ( ii == 0 && pTimeline->isFirstTempoMarkerSpecial() ) {
+					if ( ! pHydrogen->isTimelineEnabled() ) {
+						// Omit the special tempo marker.
+						continue;
+					}
+					p.setPen( tempoMarkerColor.darker( 150 ) );
+				}
+				
+				// Highlight the currently used tempo marker by
+				// drawing it bold.
+				if ( tt == nCurrentTempoMarkerIndex ) {
+					font.setBold( true );
+					p.setFont( font );
+				}
+				QRect rect( m_nMargin - SONG_EDITOR_MAX_GRID_WIDTH +
+							ii * m_nGridWidth,
+							7, 2 * SONG_EDITOR_MAX_GRID_WIDTH, 12 );
+				
+				sprintf( tempo, "%d",  ((int)tempoMarkerVector[tt]->fBpm) );
+				p.drawText( rect, Qt::AlignCenter, tempo );
+
+				++nPaintedTempoMarkers;
+
+				// Reset painter
+				if ( ii == 0 && pTimeline->isFirstTempoMarkerSpecial() ) {
+					p.setPen( tempoMarkerColor );
+				}
+				if ( tt == nCurrentTempoMarkerIndex ) {
+					font.setBold( false );
+					p.setFont( font );
+				}
+			}
+		}
+
+		// Let's be more efficient and finish as soon as we are done.
+		if ( nPaintedTempoMarkers == tempoMarkerVector.size() ){
+			break;
+		}
+																
+	}
+	// Draw a slight highlight around the tempo marker hovered using
+	// mouse or touch events. This will also redraw the
+	// tempo marker to ensure it's visible (they can overlap with
+	// neighboring ones and be hardly readable).
+	if ( pHydrogen->isTimelineEnabled() &&
+		 m_bHighlightHoveredColumn ) {
+		QRect rect( m_nMargin - SONG_EDITOR_MAX_GRID_WIDTH +
+					m_nHoveredColumn * m_nGridWidth,
+					7, 2 * SONG_EDITOR_MAX_GRID_WIDTH, 12 );
+		p.fillRect( rect, backgroundColorTempoMarkers );
+		
+		for ( int tt = 0; tt < static_cast<int>(tempoMarkerVector.size()); tt++){
+			if ( tempoMarkerVector[tt]->nColumn == m_nHoveredColumn ) {
+				if ( tt == nCurrentTempoMarkerIndex ) {
+					font.setBold( true );
+					p.setFont( font );
+				}
+					
+				sprintf( tempo, "%d",  ((int)tempoMarkerVector[tt]->fBpm) );
+				p.drawText( rect, Qt::AlignCenter, tempo );
+
+				if ( tt == nCurrentTempoMarkerIndex ) {
+					font.setBold( false );
+					p.setFont( font );
+				}
+				break;
+			}
+		}
+		QColor colorHovered( colorHighlight );
+		colorHovered.setAlpha( 150 );
+		p.setPen( colorHovered );
+		p.drawRect( rect );
+	}
+	
+	// Draw a highlight in case the BPM widget was opened by
+	// left-clicking one of the markers. This will also redraw the
+	// tempo marker to ensure it's visible (they can overlap with
+	// neighboring ones and be hardly readable).
+	if ( m_nActiveBpmWidgetColumn != -1 ) {
+		QRect rect( m_nMargin - SONG_EDITOR_MAX_GRID_WIDTH +
+					m_nActiveBpmWidgetColumn * m_nGridWidth,
+					7, 2 * SONG_EDITOR_MAX_GRID_WIDTH, 12 );
+		p.fillRect( rect, backgroundColorTempoMarkers );
+		
+		for ( int tt = 0; tt < static_cast<int>(tempoMarkerVector.size()); tt++){
+			if ( tempoMarkerVector[tt]->nColumn == m_nActiveBpmWidgetColumn ) {
+				if ( tt == nCurrentTempoMarkerIndex ) {
+					font.setBold( true );
+					p.setFont( font );
+				}
+					
+				sprintf( tempo, "%d",  ((int)tempoMarkerVector[tt]->fBpm) );
+				p.drawText(rect, Qt::AlignCenter, tempo );
+
+				if ( tt == nCurrentTempoMarkerIndex ) {
+					font.setBold( false );
+					p.setFont( font );
+				}
+				break;
+			}
+		}
+		p.setPen( colorHighlight );
+		p.drawRect( rect );
 	}
 
 	p.setPen( QColor(35, 39, 51) );
@@ -2098,28 +2254,118 @@ void SongEditorPositionRuler::createBackground()
 
 }
 
+void SongEditorPositionRuler::tempoChangedEvent( int ) {
+	auto pTimeline = Hydrogen::get_instance()->getTimeline();
+	if ( ! pTimeline->isFirstTempoMarkerSpecial() ) {
+		return;
+	}
 
+	// There is just the special tempo marker -> no tempo markers set
+	// by the user. In this case the special marker isn't drawn and
+	// doesn't need to be update.
+	if ( pTimeline->getAllTempoMarkers().size() == 1 ) {
+		return;
+	}
+
+	createBackground();
+}
+
+void SongEditorPositionRuler::columnChangedEvent( int ) {
+	createBackground();
+}
+
+void SongEditorPositionRuler::leaveEvent( QEvent* ev ){
+	m_nHoveredColumn = -1;
+	m_nHoveredRow = -1;
+	if ( m_bHighlightHoveredColumn ) {
+		m_bHighlightHoveredColumn = false;
+		createBackground();
+	}
+
+	QWidget::leaveEvent( ev );
+}
 
 void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 {
-	if ( !m_bRightBtnPressed ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	
+	int nColumn = ev->x() / m_nGridWidth;
+	int nRow = ev->y() <= 21 ? 0 : 1;
+	if ( nColumn != m_nHoveredColumn ||
+		 nRow != m_nHoveredRow ) {
+		// Cursor has moved into a region where the above caching
+		// became invalid.
+		if ( pHydrogen->getTimeline()->hasColumnTempoMarker( nColumn ) ) {
+			m_bHighlightHoveredColumn = true;
+		} else {
+			m_bHighlightHoveredColumn = false;
+		}
+		if ( nRow != 0 ) {
+			m_bHighlightHoveredColumn = false;
+		}
+		m_nHoveredRow = nRow;
+		m_nHoveredColumn = nColumn;
+		 
+		createBackground();
+	}
+	
+	if ( !m_bRightBtnPressed && ev->buttons() & Qt::LeftButton ) {
 		// Click+drag triggers same action as clicking at new position
 		mousePressEvent( ev );
-	}
-	else {
+	} else if ( ev->buttons() & Qt::RightButton ) {
 		// Right-click+drag
-		int column = (ev->x() / m_nGridWidth);
 		Preferences* pPref = Preferences::get_instance();
 		
-		if ( column > (int)Hydrogen::get_instance()->getSong()->getPatternGroupVector()->size() ) {
+		if ( nColumn > (int)Hydrogen::get_instance()->getSong()->getPatternGroupVector()->size() ) {
 			pPref->setPunchOutPos(-1);
 			return;
 		}
-		if ( Hydrogen::get_instance()->getSong()->getMode() == Song::PATTERN_MODE ) {
+		if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
 			return;
 		}
-		pPref->setPunchOutPos(column-1);
+		pPref->setPunchOutPos( nColumn - 1 );
 		update();
+	}
+}
+
+bool SongEditorPositionRuler::event( QEvent* ev ) {
+	if ( ev->type() == QEvent::ToolTip ) {
+		showToolTip( dynamic_cast<QHelpEvent*>(ev) );
+		return 0;
+	}
+
+	return QWidget::event( ev );
+}
+
+void SongEditorPositionRuler::songModeActivationEvent( int ) {
+	createBackground();
+}
+
+void SongEditorPositionRuler::timelineActivationEvent( int ) {
+	createBackground();
+}
+
+void SongEditorPositionRuler::jackTimebaseStateChangedEvent( int ) {
+	createBackground();
+}
+
+void SongEditorPositionRuler::showToolTip( QHelpEvent* ev ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pTimeline = pHydrogen->getTimeline();
+	
+	if ( pHydrogen->isTimelineEnabled() &&
+		 pTimeline->isFirstTempoMarkerSpecial() &&
+		 ev->y() <= 21 && // First row containing tempo markers
+		 ev->x() < m_nMargin + m_nGridWidth ) { // first tempo marker 
+		QToolTip::showText( ev->globalPos(), tr( "The tempo set in the BPM widget will be used as a default for the beginning of the song. Left-click to overwrite it." ), this );
+		
+	} else if ( ev->y() > 21 ) {
+		// Row containing the tags
+		int nColumn = ev->x() / m_nGridWidth;
+		if ( pTimeline->hasColumnTag( nColumn - 1 ) ) {
+			QToolTip::showText( ev->globalPos(),
+								pTimeline->getTagAtColumn( nColumn - 1 ), this );
+		}
 	}
 }
 
@@ -2134,9 +2380,18 @@ void SongEditorPositionRuler::showTagWidget( int nColumn )
 
 void SongEditorPositionRuler::showBpmWidget( int nColumn )
 {
-	SongEditorPanelBpmWidget dialog( this , nColumn );
-	if (dialog.exec() == QDialog::Accepted) {
-		//createBackground();
+	bool bTempoMarkerPresent = Hydrogen::get_instance()->getTimeline()->hasColumnTempoMarker( nColumn );
+	if ( bTempoMarkerPresent ) {
+		m_nActiveBpmWidgetColumn = nColumn;
+		createBackground();
+	}
+	
+	SongEditorPanelBpmWidget dialog( this , nColumn, bTempoMarkerPresent );
+	dialog.exec();
+	
+	if ( bTempoMarkerPresent ) {
+		m_nActiveBpmWidgetColumn = -1;
+		createBackground();
 	}
 }
 
@@ -2152,7 +2407,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		}
 
 		// disabling son relocates while in pattern mode as it causes weird behaviour. (jakob lund)
-		if ( m_pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {
+		if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
 			return;
 		}
 
@@ -2169,7 +2424,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 			pPref->unsetPunchArea();
 			return;
 		}
-		if ( m_pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {
+		if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
 			return;
 		}
 		m_bRightBtnPressed = true;
@@ -2177,7 +2432,8 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		pPref->setPunchInPos(column);
 		pPref->setPunchOutPos(-1);
 		update();
-	} else if( ( ev->button() == Qt::LeftButton || ev->button() == Qt::RightButton ) && ev->y() <= 25 && Preferences::get_instance()->getUseTimelineBpm() ){
+	} else if( ( ev->button() == Qt::LeftButton || ev->button() == Qt::RightButton )
+			   && ev->y() <= 25 && m_pHydrogen->isTimelineEnabled() ){
 		showBpmWidget( ev->x() / m_nGridWidth );
 	}
 
@@ -2214,7 +2470,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)MAX_NOTES;
 	}
 
-	if ( m_pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {
+	if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
 		fPos = -1;
 		pIPos = 0;
 		pOPos = -1;
@@ -2256,34 +2512,16 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 void SongEditorPositionRuler::updatePosition()
 {
-	HydrogenApp::get_instance()->getSongEditorPanel()->updateTimelineUsage();
 	update();
 }
-
-
-void SongEditorPositionRuler::editTimeLineAction( int nNewPosition, float fNewBpm )
-{
-	m_pHydrogen->getTimeline()->deleteTempoMarker( nNewPosition - 1 );
-	m_pHydrogen->getTimeline()->addTempoMarker( nNewPosition - 1, fNewBpm );
-	createBackground();
-}
-
-void SongEditorPositionRuler::deleteTimeLinePosition( int nPosition )
-{
-	m_pHydrogen->getTimeline()->deleteTempoMarker( nPosition - 1 );
-	createBackground();
-}
-
 
 void SongEditorPositionRuler::editTagAction( QString text, int position, QString textToReplace)
 {
 	Timeline* pTimeline = m_pHydrogen->getTimeline();
 
-	const QString sTag = pTimeline->getTagAtBar( position, false );
-	if ( sTag == textToReplace ) {
-		pTimeline->deleteTag( position );
-		pTimeline->addTag( position, text );
-	}
+	const QString sTag = pTimeline->getTagAtColumn( position );
+	pTimeline->deleteTag( position );
+	pTimeline->addTag( position, text );
 	
 	createBackground();
 }
@@ -2292,10 +2530,8 @@ void SongEditorPositionRuler::deleteTagAction( QString text, int position )
 {
 	Timeline* pTimeline = m_pHydrogen->getTimeline();
 
-	const QString sTag = pTimeline->getTagAtBar( position, false );
-	if ( sTag == text ) {
-		pTimeline->deleteTag( position );
-	}
+	const QString sTag = pTimeline->getTagAtColumn( position );
+	pTimeline->deleteTag( position );
 	
 	createBackground();
 }

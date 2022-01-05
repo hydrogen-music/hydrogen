@@ -132,6 +132,10 @@ public:
 	virtual void mouseMoveEvent( QMouseEvent *ev ) override;
 	virtual void mouseReleaseEvent( QMouseEvent *ev ) override;
 
+
+	virtual void songModeActivationEvent( int nValue ) override;
+	virtual void stackedModeActivationEvent( int nValue ) override;
+
 protected:
 
 	//! The Selection object.
@@ -198,7 +202,12 @@ protected:
 	QColor selectedNoteColor() const;
 
 	//! Draw a note
-	void drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote ) const;
+	void drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote, bool bIsForeground = true ) const;
+
+	//! Get notes to show in pattern editor.
+	//! This may include "background" notes that are in currently-playing patterns
+	//! rather than the current pattern.
+	std::vector< H2Core::Pattern *> getPatternsToShow( void );
 
 	//! Update current pattern information
 	void updatePatternInfo();

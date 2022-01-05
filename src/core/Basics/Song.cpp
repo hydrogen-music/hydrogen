@@ -81,7 +81,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_fHumanizeVelocityValue( 0.0 )
 	, m_fSwingFactor( 0.0 )
 	, m_bIsModified( false )
-	, m_songMode( PATTERN_MODE )
+	, m_mode( Mode::Pattern )
 	, m_sPlaybackTrackFilename( "" )
 	, m_bPlaybackTrackEnabled( false )
 	, m_fPlaybackTrackVolume( 0.0 )
@@ -146,6 +146,7 @@ void Song::setBpm( float fBpm ) {
 	} else {
 		m_fBpm = fBpm;
 	}
+	setIsModified( true );
 }
 
 void Song::setActionMode( Song::ActionMode actionMode ) {
@@ -158,6 +159,7 @@ void Song::setActionMode( Song::ActionMode actionMode ) {
 	} else {
 		ERRORLOG( QString( "Unknown actionMode" ) );
 	}
+	setIsModified( true );
 }
 
 int Song::lengthInTicks() const {
@@ -226,7 +228,7 @@ std::shared_ptr<Song> Song::getDefaultSong()
 	pSong->setNotes( "..." );
 	pSong->setLicense( "" );
 	pSong->setIsLoopEnabled( false );
-	pSong->setMode( Song::PATTERN_MODE );
+	pSong->setMode( Song::Mode::Pattern );
 	pSong->setHumanizeTimeValue( 0.0 );
 	pSong->setHumanizeVelocityValue( 0.0 );
 	pSong->setSwingFactor( 0.0 );
@@ -254,8 +256,8 @@ std::shared_ptr<Song> Song::getDefaultSong()
 	patternSequence->add( pEmptyPattern );
 	pPatternGroupVector->push_back( patternSequence );
 	pSong->setPatternGroupVector( pPatternGroupVector );
-	pSong->setIsModified( false );
 	pSong->setFilename( "empty_song" );
+	pSong->setIsModified( false );
 
 	return pSong;
 
@@ -298,6 +300,7 @@ void Song::setSwingFactor( float factor )
 	}
 
 	m_fSwingFactor = factor;
+	setIsModified( true );
 }
 
 void Song::setIsModified( bool bIsModified )
@@ -429,6 +432,7 @@ void Song::readTempPatternList( const QString& sFilename )
 	} else {
 		WARNINGLOG( "no sequence node not found" );
 	}
+	setIsModified( true );
 }
 
 bool Song::writeTempPatternList( const QString& sFilename )
@@ -639,43 +643,6 @@ bool Song::pasteInstrumentLineFromString( const QString& sSerialized, int nSelec
 	return true;
 }
 
-//-----------------------------------------------------------------------------
-//	Implementation of SongReader class
-//-----------------------------------------------------------------------------
-
-SongReader::SongReader()
-{
-//	infoLog("init");
-}
-
-SongReader::~SongReader()
-{
-//	infoLog("destroy");
-}
-
-
-const QString SongReader::getPath ( const QString& sFilename ) const
-{
-	/* Try direct path */
-	if ( QFile( sFilename ).exists() ) {
-		return QFileInfo ( sFilename ).absoluteFilePath();
-	}
-
-	/* Try search in Session Directory */
-	char* sesdir = getenv ( "SESSION_DIR" );
-	if ( sesdir ) {
-		INFOLOG ( "Try SessionDirectory " + QString( sesdir ) );
-		QDir SesDir( sesdir );
-		QString BaseFileName = QFileInfo( sFilename ).fileName();
-		QString SesFileName = SesDir.filePath( BaseFileName );
-		if ( QFile( SesFileName ).exists() ) {
-			return QFileInfo( SesFileName ).absoluteFilePath();
-		}
-	}
-
-	ERRORLOG( "Song file " + sFilename + " not found." );
-	return nullptr;
-}
 
 void Song::setPanLawKNorm( float fKNorm ) {
 	if ( fKNorm >= 0. ) {
@@ -723,18 +690,16 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		for ( auto mm : m_latestRoundRobins ) {
 			sOutput.append( QString( "%1%2%3 : %4\n" ).arg( sPrefix ).arg( s ).arg( mm.first ).arg( mm.second ) );
 		}
-		sOutput.append( QString( "%1%2m_songMode: %3\n" ).arg( sPrefix ).arg( s ).arg( m_songMode ) )
+		sOutput.append( QString( "%1%2m_songMode: %3\n" ).arg( sPrefix ).arg( s )
+						.arg( static_cast<int>(m_mode )) )
 			.append( QString( "%1%2m_sPlaybackTrackFilename: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sPlaybackTrackFilename ) )
 			.append( QString( "%1%2m_bPlaybackTrackEnabled: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bPlaybackTrackEnabled ) )
 			.append( QString( "%1%2m_fPlaybackTrackVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPlaybackTrackVolume ) )
 			.append( QString( "%1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2m_sLicense: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sLicense ) );
-		if ( m_actionMode == ActionMode::selectMode ) {
-			sOutput.append( QString( "%1%2m_actionMode: 0\n" ).arg( sPrefix ).arg( s ) );
-		} else if ( m_actionMode == ActionMode::drawMode ) {
-			sOutput.append( QString( "%1%2m_actionMode: 1\n" ).arg( sPrefix ).arg( s ) );
-		}
-		sOutput.append( QString( "%1%2m_nPanLawType: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nPanLawType ) )
+			.append( QString( "%1%2m_sLicense: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sLicense ) )
+			.append( QString( "%1%2m_actionMode: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( static_cast<int>(m_actionMode) ) )
+			.append( QString( "%1%2m_nPanLawType: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nPanLawType ) )
 			.append( QString( "%1%2m_fPanLawKNorm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPanLawKNorm ) );
 	} else {
 		
@@ -771,22 +736,57 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		for ( auto mm : m_latestRoundRobins ) {
 			sOutput.append( QString( ", %1 : %4" ).arg( mm.first ).arg( mm.second ) );
 		}
-		sOutput.append( QString( ", m_songMode: %1" ).arg( m_songMode ) )
+		sOutput.append( QString( ", m_mode: %1" )
+						.arg( static_cast<int>(m_mode) ) )
 			.append( QString( ", m_sPlaybackTrackFilename: %1" ).arg( m_sPlaybackTrackFilename ) )
 			.append( QString( ", m_bPlaybackTrackEnabled: %1" ).arg( m_bPlaybackTrackEnabled ) )
 			.append( QString( ", m_fPlaybackTrackVolume: %1" ).arg( m_fPlaybackTrackVolume ) )
 			.append( QString( ", m_pVelocityAutomationPath: %1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix ) ) )
-			.append( QString( ", m_sLicense: %1" ).arg( m_sLicense ) );
-		if ( m_actionMode == ActionMode::selectMode ) {
-			sOutput.append( QString( ", m_actionMode: 0" ) );
-		} else if ( m_actionMode == ActionMode::drawMode ) {
-			sOutput.append( QString( ", m_actionMode: 1" ) );
-		}
-		sOutput.append( QString( ", m_nPanLawType: %1" ).arg( m_nPanLawType ) )
+			.append( QString( ", m_sLicense: %1" ).arg( m_sLicense ) )
+			.append( QString( ", m_actionMode: %1" ).arg( static_cast<int>(m_actionMode) ) )
+			.append( QString( ", m_nPanLawType: %1" ).arg( m_nPanLawType ) )
 			.append( QString( ", m_fPanLawKNorm: %1" ).arg( m_fPanLawKNorm ) );
 	}
 	
 	return sOutput;
+}
+
+//-----------------------------------------------------------------------------
+//	Implementation of SongReader class
+//-----------------------------------------------------------------------------
+
+SongReader::SongReader()
+{
+//	infoLog("init");
+}
+
+SongReader::~SongReader()
+{
+//	infoLog("destroy");
+}
+
+
+const QString SongReader::getPath ( const QString& sFilename ) const
+{
+	/* Try direct path */
+	if ( QFile( sFilename ).exists() ) {
+		return QFileInfo ( sFilename ).absoluteFilePath();
+	}
+
+	/* Try search in Session Directory */
+	char* sesdir = getenv ( "SESSION_DIR" );
+	if ( sesdir ) {
+		INFOLOG ( "Try SessionDirectory " + QString( sesdir ) );
+		QDir SesDir( sesdir );
+		QString BaseFileName = QFileInfo( sFilename ).fileName();
+		QString SesFileName = SesDir.filePath( BaseFileName );
+		if ( QFile( SesFileName ).exists() ) {
+			return QFileInfo( SesFileName ).absoluteFilePath();
+		}
+	}
+
+	ERRORLOG( "Song file " + sFilename + " not found." );
+	return nullptr;
 }
 
 ///
@@ -821,7 +821,6 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	}
 
 	float fBpm = LocalFileMng::readXmlFloat( songNode, "bpm", 120 );
-	Hydrogen::get_instance()->setNewBpmJTM( fBpm );
 	float fVolume = LocalFileMng::readXmlFloat( songNode, "volume", 0.5 );
 	float fMetronomeVolume = LocalFileMng::readXmlFloat( songNode, "metronomeVolume", 0.5 );
 	QString sName( LocalFileMng::readXmlString( songNode, "name", "Untitled Song" ) );
@@ -830,28 +829,18 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	QString sLicense( LocalFileMng::readXmlString( songNode, "license", "Unknown license" ) );
 	bool bLoopEnabled = LocalFileMng::readXmlBool( songNode, "loopEnabled", false );
 	Preferences::get_instance()->setPatternModePlaysSelected( LocalFileMng::readXmlBool( songNode, "patternModeMode", true ) );
-	Song::SongMode nMode = Song::PATTERN_MODE;	// Mode (song/pattern)
+	Song::Mode mode = Song::Mode::Pattern;
 	QString sMode = LocalFileMng::readXmlString( songNode, "mode", "pattern" );
 	if ( sMode == "song" ) {
-		nMode = Song::SONG_MODE;
+		mode = Song::Mode::Song;
 	}
 
 	QString sPlaybackTrack( LocalFileMng::readXmlString( songNode, "playbackTrackFilename", "" ) );
 	bool bPlaybackTrackEnabled = LocalFileMng::readXmlBool( songNode, "playbackTrackEnabled", false );
 	float fPlaybackTrackVolume = LocalFileMng::readXmlFloat( songNode, "playbackTrackVolume", 0.0 );
 
-	Song::ActionMode actionMode;
- 	int nActionMode = LocalFileMng::readXmlInt( songNode, "action_mode", 0 );
-	if ( nActionMode == 0 ){
-		actionMode = Song::ActionMode::selectMode;
-	} else if ( nActionMode == 1 ) {
-		actionMode = Song::ActionMode::drawMode;
-	} else {
-		WARNINGLOG( QString( "Unknown action_mode value [%1]. Using Song::ActionMode::selectMode instead." )
-					.arg( nActionMode ) );
-		actionMode = Song::ActionMode::selectMode;
-	}
-
+	Song::ActionMode actionMode = static_cast<Song::ActionMode>( LocalFileMng::readXmlInt( songNode, "action_mode",
+																						   static_cast<int>( Song::ActionMode::selectMode ) ) );
 	float fHumanizeTimeValue = LocalFileMng::readXmlFloat( songNode, "humanize_time", 0.0 );
 	float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
 	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
@@ -861,7 +850,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	pSong->setNotes( sNotes );
 	pSong->setLicense( sLicense );
 	pSong->setIsLoopEnabled( bLoopEnabled );
-	pSong->setMode( nMode );
+	pSong->setMode( mode );
 	pSong->setHumanizeTimeValue( fHumanizeTimeValue );
 	pSong->setHumanizeVelocityValue( fHumanizeVelocityValue );
 	pSong->setSwingFactor( fSwingFactor );
@@ -1167,7 +1156,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 								panNode = panNode.nextSiblingElement( "pan" );
 							}
 
-							pSample = Sample::load( sFilename, lo, ro, velocity, pan );
+							pSample = Sample::load( sFilename, lo, ro, velocity, pan, fBpm );
 						}
 						if ( pSample == nullptr ) {
 							ERRORLOG( "Error loading sample: " + sFilename + " not found" );
@@ -1254,7 +1243,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 								panNode = panNode.nextSiblingElement( "pan" );
 							}
 
-							pSample = Sample::load( sFilename, lo, ro, velocity, pan );
+							pSample = Sample::load( sFilename, lo, ro, velocity, pan, fBpm );
 						}
 						if ( pSample == nullptr ) {
 							ERRORLOG( "Error loading sample: " + sFilename + " not found" );
@@ -1534,8 +1523,8 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 		}
 	}
 
-	pSong->setIsModified( false );
 	pSong->setFilename( sFilename );
+	pSong->setIsModified( false );
 
 	return pSong;
 }

@@ -44,14 +44,19 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	, m_bColorful( bColorful )
 	, m_bLastCheckedState( false )
 	, m_sIcon( sIcon )
+	, m_bIsActive( true )
 	, m_bUseRedBackground( bUseRedBackground )
+	, m_nFixedFontSize( -1 )
 {
 	setAttribute( Qt::WA_OpaquePaintEvent );
 	setFocusPolicy( Qt::NoFocus );
 	
+	if ( size.isNull() || size.isEmpty() ) {
+		m_size = sizeHint();
+	}
 	adjustSize();
-	setFixedSize( size );
-	resize( size );
+	setFixedSize( m_size );
+	resize( m_size );
 
 	if ( ! sIcon.isEmpty() ) {
 		updateIcon();
@@ -82,6 +87,16 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 
 Button::~Button() {
 }
+
+void Button::setIsActive( bool bIsActive ) {
+	m_bIsActive = bIsActive;
+	
+	updateStyleSheet();
+	update();
+	
+	setEnabled( bIsActive );
+}
+
 
 void Button::updateIcon() {
 	if ( m_bColorful ) {
@@ -125,6 +140,13 @@ void Button::updateStyleSheet() {
 		backgroundCheckedDarkHover = pPref->getColorTheme()->m_buttonRedColor.darker( nFactorGradient + nHover );
 		textChecked = pPref->getColorTheme()->m_buttonRedTextColor;
 	}
+
+	QColor textColor;
+	if ( m_bIsActive ) {
+		textColor = pPref->getColorTheme()->m_widgetTextColor;
+	} else {
+		textColor = pPref->getColorTheme()->m_baseColor;
+	}
 	
 	setStyleSheet( QString( "QPushButton { \
     color: %1; \
@@ -151,7 +173,7 @@ QPushButton:checked:hover { \
                                       stop: 0 %10, stop: 1 %11); \
 }"
 							)
-				   .arg( pPref->getColorTheme()->m_widgetTextColor.name() )
+				   .arg( textColor.name() )
 				   .arg( m_sBorderRadius )
 				   .arg( backgroundLight.name() ).arg( backgroundDark.name() )
 				   .arg( backgroundLightHover.name() ).arg( backgroundDarkHover.name() )
@@ -217,6 +239,18 @@ void Button::updateTooltip() {
 	setToolTip( sTip );
 }
 
+void Button::setSize( QSize size ) {
+	m_size = size;
+	
+	adjustSize();
+	if ( ! size.isNull() ) {
+		setFixedSize( size );
+		resize( size );
+	}
+
+	updateFont();
+}
+
 void Button::updateFont() {
 
 	auto pPref = H2Core::Preferences::get_instance();
@@ -234,21 +268,27 @@ void Button::updateFont() {
 		break;
 	}
 
-	int nMargin, nPixelSize;
-	if ( m_size.width() <= 12 || m_size.height() <= 12 ) {
-		nMargin = 1;
-	} else if ( m_size.width() <= 19 || m_size.height() <= 19 ) {
-		nMargin = 5;
-	} else if ( m_size.width() <= 22 || m_size.height() <= 22 ) {
-		nMargin = 7;
-	} else {
-		nMargin = 9;
-	}
+	int nPixelSize;
+	if ( m_nFixedFontSize < 0 ) {
+
+		int nMargin;
+		if ( m_size.width() <= 12 || m_size.height() <= 12 ) {
+			nMargin = 1;
+		} else if ( m_size.width() <= 19 || m_size.height() <= 19 ) {
+			nMargin = 5;
+		} else if ( m_size.width() <= 22 || m_size.height() <= 22 ) {
+			nMargin = 7;
+		} else {
+			nMargin = 9;
+		}
 	
-	if ( m_size.width() >= m_size.height() ) {
-		nPixelSize = m_size.height() - std::round( fScalingFactor * nMargin );
+		if ( m_size.width() >= m_size.height() ) {
+			nPixelSize = m_size.height() - std::round( fScalingFactor * nMargin );
+		} else {
+			nPixelSize = m_size.width() - std::round( fScalingFactor * nMargin );
+		}
 	} else {
-		nPixelSize = m_size.width() - std::round( fScalingFactor * nMargin );
+		nPixelSize = m_nFixedFontSize;
 	}
 
 	QFont font( pPref->getLevel3FontFamily() );
@@ -272,6 +312,11 @@ void Button::paintEvent( QPaintEvent* ev )
 	QPushButton::paintEvent( ev );
 
 	updateFont();
+
+	// Grey-out the widget if it is not enabled
+	if ( ! isEnabled() ) {
+		QPainter( this ).fillRect( ev->rect(), QColor( 128, 128, 128, 208 ) );
+	}
 }
 
 void Button::onPreferencesChanged( H2Core::Preferences::Changes changes ) {

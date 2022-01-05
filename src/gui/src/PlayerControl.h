@@ -58,9 +58,10 @@ public:
 	void showScrollMessage( const QString& msg, int msec, bool test );
 	void resetStatusLabel();
 
+	virtual void timelineActivationEvent( int ) override;
 	virtual void tempoChangedEvent( int nValue ) override;
 	virtual void jackTransportActivationEvent( int nValue ) override;
-	virtual void jackTimebaseActivationEvent( int nValue ) override;
+	virtual void jackTimebaseStateChangedEvent( int nValue ) override;
 	/**
 	 * Shared GUI update when activating Song or Pattern mode via
 	 * button click or via OSC command.
@@ -82,8 +83,7 @@ private slots:
 	void patternModeBtnClicked();
 	void jackTransportBtnClicked();
 	//jack time master
-	void jackMasterBtnClicked();
-	//~ jack time master
+	void jackMasterBtnClicked();	//~ jack time master
 	void bpmChanged( double );
 	void fastForwardBtnClicked();
 	void rewindBtnClicked();
@@ -135,9 +135,6 @@ private:
 	LED			 *m_pPatternModeLED;
 
 	//beatcounter
-	/** Store the tool tip of the beat counter since it gets
-		overwritten during deactivation.*/
-	QString m_sBCOnOffBtnToolTip;
 	Button *m_pBCOnOffBtn;
 	Button *m_pBCSpaceBtn;
 	Button *m_pBCSetPlayBtn;
@@ -191,7 +188,23 @@ private:
 		incoming MIDI event after #m_midiActivityTimeout
 		milliseconds.*/ 
 	QTimer *m_pMidiActivityTimer;
-	std::chrono::milliseconds m_midiActivityTimeout; 
+	std::chrono::milliseconds m_midiActivityTimeout;
+
+	bool m_bLastUseTimelineBpm;
+	bool m_bLastBCOnOffBtnState;
+	
+	/** Store the tool tip of the beat counter since it gets
+		overwritten during deactivation.*/
+	void updateBPMSpinbox();
+	void updateBeatCounter();
+	void updateBPMSpinboxToolTip();
+	void updateBeatCounterToolTip();
+	QString m_sBCOnOffBtnToolTip;
+	QString m_sBCOnOffBtnTimelineToolTip;
+	QString m_sBCOnOffBtnJackTimebaseToolTip;
+	QString m_sLCDBPMSpinboxToolTip;
+	QString m_sLCDBPMSpinboxTimelineToolTip;
+	QString m_sLCDBPMSpinboxJackTimebaseToolTip;
 };
 
 

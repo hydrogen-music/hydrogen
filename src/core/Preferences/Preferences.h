@@ -54,15 +54,17 @@ public:
 	int width;
 	int height;
 	bool visible;
+	QByteArray m_geometry;
 
 	WindowProperties();
 	WindowProperties(const WindowProperties &other);
 	~WindowProperties();
 
-	void set(int _x, int _y, int _width, int _height, bool _visible) {
+	void set(int _x, int _y, int _width, int _height, bool _visible, QByteArray geometry = QByteArray() ) {
 		x = _x; y = _y;
 		width = _width; height = _height;
 		visible = _visible;
+		m_geometry = geometry;
 	}
 
 };
@@ -275,6 +277,7 @@ public:
 	// PortAudio properties
 	QString				m_sPortAudioDevice;
 	QString				m_sPortAudioHostAPI;
+	int					m_nLatencyTarget;
 
 	// CoreAudio properties
 	QString				m_sCoreAudioDevice;
@@ -592,9 +595,6 @@ public:
 	void			setShowPlaybackTrack( bool val);
 	bool			getShowPlaybackTrack() const;
 
-	int				getRubberBandCalcTime();
-	void			setRubberBandCalcTime( int val );
-
 	int				getRubberBandBatchMode();
 	void			setRubberBandBatchMode( int val );
 
@@ -675,7 +675,6 @@ private:
 	
 	//___ General properties ___
 	QString				m_sH2ProcessName; //Name of hydrogen's main process
-	int					__rubberBandCalcTime;
 	 ///rubberband bpm change queue
 	bool				m_useTheRubberbandBpmChangeEvent;
 	/**
@@ -1445,13 +1444,6 @@ inline void Preferences::setShowPlaybackTrack( bool val ) {
 }
 inline bool Preferences::getShowPlaybackTrack() const {
 	return m_bShowPlaybackTrack;
-}
-
-inline int Preferences::getRubberBandCalcTime(){
-	return __rubberBandCalcTime;
-}
-inline void Preferences::setRubberBandCalcTime( int val ){
-	__rubberBandCalcTime = val;
 }
 
 inline int Preferences::getRubberBandBatchMode(){

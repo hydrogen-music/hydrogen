@@ -41,7 +41,7 @@ MidiInput::MidiInput()
 		, __noteOffTick( 0 )
 		, __noteOnTick( 0 )
 {
-	//INFOLOG( "INIT" );
+	//
 
 }
 
@@ -143,7 +143,6 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 				INFOLOG( "START event" );
 				if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
 					pHydrogen->getCoreActionController()->locateToColumn( 0 );
-					pHydrogen->setTimelineBpm();
 					pHydrogen->sequencer_play();
 				}
 				break;
@@ -368,7 +367,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 		pInstr =  pInstrList->get(nInstrument);
 	}
 
-	float fStep = pow( 1.0594630943593, (nNote) );
+	float fStep = Note::pitchToFrequency( nNote );
 	if ( !Preferences::get_instance()->__playselectedinstrument ) {
 		fStep = 1;
 	}

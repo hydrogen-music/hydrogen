@@ -44,7 +44,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 	: PatternEditor( pParent, panel )
 	, m_pScrollView( pScrollView )
 {
-	INFOLOG( "INIT" );
+	
 		
 	m_nGridHeight = 10;
 	m_nOctaves = 7;
@@ -325,13 +325,14 @@ void PianoRollEditor::drawPattern()
 
 
 	// for each note...
-	const Pattern::notes_t* notes = m_pPattern->get_notes();
-	FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
-		//cout << "note" << endl;
-		//cout << "note n: " << it->first << endl;
-		Note *note = it->second;
-		assert( note );
-		drawNote( note, &p );
+	for ( Pattern *pPattern : getPatternsToShow() ) {
+		bool bIsForeground = ( pPattern == m_pPattern );
+		const Pattern::notes_t* notes = pPattern->get_notes();
+		FOREACH_NOTE_CST_IT_BEGIN_END( notes, it ) {
+			Note *note = it->second;
+			assert( note );
+			drawNote( note, &p, bIsForeground );
+		}
 	}
 
 	// Draw cursor
@@ -350,14 +351,14 @@ void PianoRollEditor::drawPattern()
 }
 
 
-void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
+void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter, bool bIsForeground )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	InstrumentList * pInstrList = pHydrogen->getSong()->getInstrumentList();
 	if ( pInstrList->index( pNote->get_instrument() ) == pHydrogen->getSelectedInstrumentNumber() ) {
 		QPoint pos ( m_nMargin + pNote->get_position() * m_fGridWidth,
 					 m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1);
-		drawNoteSymbol( *pPainter, pos, pNote );
+		drawNoteSymbol( *pPainter, pos, pNote, bIsForeground );
 	}
 }
 
@@ -623,7 +624,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 			}
 		}
 	}
-	pSong->setIsModified( true );
+	pHydrogen->setIsModified( true );
 	m_pAudioEngine->unlock(); // unlock the audio engine
 
 	m_pPatternEditorPanel->updateEditors( true );
@@ -683,7 +684,7 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 	pPattern->insert_note( pFoundNote );
 	pFoundNote->set_key_octave( newKey, newOctave );
 
-	pSong->setIsModified( true );
+	pHydrogen->setIsModified( true );
 	m_pAudioEngine->unlock();
 
 	m_pPatternEditorPanel->updateEditors( true );
@@ -719,13 +720,13 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		float fNotePitch = m_pDraggedNote->get_notekey_pitch();
 		float fStep = 0;
 		if(nLen > -1){
-			fStep = pow( 1.0594630943593, ( double )fNotePitch );
+			fStep = Note::pitchToFrequency( ( double )fNotePitch );
 		} else {
 			fStep = 1.0;
 		}
 		m_pDraggedNote->set_length( nLen * fStep);
 
-		Hydrogen::get_instance()->getSong()->setIsModified( true );
+		Hydrogen::get_instance()->setIsModified( true );
 		m_pAudioEngine->unlock(); // unlock the audio engine
 
 		m_pPatternEditorPanel->updateEditors( true );
@@ -755,7 +756,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 
 		__velocity = val;
 
-		Hydrogen::get_instance()->getSong()->setIsModified( true );
+		Hydrogen::get_instance()->setIsModified( true );
 		m_pAudioEngine->unlock(); // unlock the audio engine
 
 		m_pPatternEditorPanel->updateEditors( true );
@@ -774,7 +775,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		m_pDraggedNote->setPanWithRangeFrom0To1( fVal ); // checks the boundaries as well
 		m_fPan = m_pDraggedNote->getPan();
 
-		Hydrogen::get_instance()->getSong()->setIsModified( true );
+		Hydrogen::get_instance()->setIsModified( true );
 		m_pAudioEngine->unlock(); // unlock the audio engine
 
 		m_pPatternEditorPanel->updateEditors();
@@ -815,7 +816,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 			HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
 		}
 
-		Hydrogen::get_instance()->getSong()->setIsModified( true );
+		Hydrogen::get_instance()->setIsModified( true );
 		m_pAudioEngine->unlock(); // unlock the audio engine
 
 		m_pPatternEditorPanel->updateEditors( true );
@@ -1183,7 +1184,7 @@ void PianoRollEditor::editNoteLengthAction( int nColumn,  int nRealColumn,  int 
 		pDraggedNote->set_length( length );
 	}
 
-	pSong->setIsModified( true );
+	pHydrogen->setIsModified( true );
 	m_pAudioEngine->unlock();
 	m_pPatternEditorPanel->updateEditors( true );
 }
@@ -1217,7 +1218,7 @@ void PianoRollEditor::editNotePropertiesAction( int nColumn,
 		pDraggedNote->setPan( fPan );
 		pDraggedNote->set_lead_lag( leadLag );
 	}
-	pSong->setIsModified( true );
+	pHydrogen->setIsModified( true );
 	m_pAudioEngine->unlock();
 	m_pPatternEditorPanel->updateEditors( true );
 }

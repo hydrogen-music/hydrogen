@@ -17,23 +17,23 @@
    <item>
     <layout class="QGridLayout" name="gridLayout">
      <item row="1" column="2">
-      <widget class="QLineEdit" name="lineEditBpm">
-       <property name="toolTip">
-        <string>Edit the bpm value for current beat</string>
-       </property>
-       <property name="text">
-        <string>500,55</string>
-       </property>
-      </widget>
+       <widget class="LCDSpinBox" name="bpmSpinBox">
+		 <property name="minimumSize">
+		   <size>
+			 <width>146</width>
+			 <height>23</height>
+		   </size>
+		 </property>
+       </widget>
      </item>
      <item row="2" column="2">
-      <widget class="QLineEdit" name="lineEditBeat">
-       <property name="toolTip">
-        <string>Edit beat in timeline</string>
-       </property>
-       <property name="text">
-        <string>500</string>
-       </property>
+      <widget class="LCDSpinBox" name="columnSpinBox">
+		 <property name="minimumSize">
+		   <size>
+			 <width>146</width>
+			 <height>23</height>
+		   </size>
+		 </property>
       </widget>
      </item>
      <item row="2" column="1">
@@ -53,10 +53,16 @@
     </layout>
    </item>
    <item>
-    <widget class="QPushButton" name="deleteBtn">
+    <widget class="Button" name="deleteBtn">
      <property name="toolTip">
       <string>Delete this BPM Marker</string>
      </property>
+	 <property name="minimumSize">
+	   <size>
+		 <width>180</width>
+		 <height>23</height>
+	   </size>
+		 </property>
      <property name="text">
       <string>Delete BPM Marker</string>
      </property>
@@ -89,12 +95,26 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>lineEditBpm</tabstop>
-  <tabstop>lineEditBeat</tabstop>
+  <tabstop>bpmSpinBox</tabstop>
+  <tabstop>columnSpinBox</tabstop>
   <tabstop>deleteBtn</tabstop>
   <tabstop>CancelBtn</tabstop>
   <tabstop>okBtn</tabstop>
  </tabstops>
+ <customwidgets>
+  <customwidget>
+   <class>Button</class>
+   <extends>QPushButton</extends>
+   <header location="global">../src/Widgets/Button.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LCDSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header location="global">../src/Widgets/LCDSpinBox.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
