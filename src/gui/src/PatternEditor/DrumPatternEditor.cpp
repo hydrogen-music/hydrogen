@@ -302,8 +302,8 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 					  && pNote->get_octave() == oldOctaveKeyVal
 					  && pNote->get_velocity() == oldVelocity
 					  && pNote->get_probability() == fProbability ) ) {
-				delete pNote;
 				notes->erase( it );
+				delete pNote;
 				bFound = true;
 				break;
 			}
@@ -860,13 +860,13 @@ void DrumPatternEditor::deleteSelection()
 																 pNote->get_note_off() ) );
 			}
 		}
+		m_selection.clearSelection();
 
 		pUndo->beginMacro("delete notes");
 		for ( QUndoCommand *pAction : actions ) {
 			pUndo->push( pAction );
 		}
 		pUndo->endMacro();
-		m_selection.clearSelection();
 	}
 }
 

@@ -903,12 +903,13 @@ void PianoRollEditor::deleteSelection()
 				}
 			}
 		}
+		m_selection.clearSelection();
+
 		pUndo->beginMacro("delete notes");
 		for ( QUndoCommand * pAction : actions ) {
 			pUndo->push( pAction );
 		}
 		pUndo->endMacro();
-		m_selection.clearSelection();
 	}
 }
 
