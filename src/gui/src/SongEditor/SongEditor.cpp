@@ -129,6 +129,161 @@ SongEditor::~SongEditor()
 }
 
 
+/// Calculate a target Y scroll value for tracking a playing song
+///
+/// Songs with many patterns may not fit in the current viewport of the Song Editor. Depending on how the song
+/// is structured, as the viewport scrolls to show different times, the playing patterns may end up being
+/// off-screen. It would be ideal to be able to follow the progression of the song in a meaningful and useful
+/// way, but since multiple patterns may be active at any one time, it's non-trivial to define a useful
+/// behaviour that captures more than the simple case of a song with one pattern active at a time.
+///
+/// As an attempt to define a useful behaviour which captures what the user might expect to happen, we define
+/// the behaviour as follows:
+///   * If there are no currently playing patterns which are entirely visible:
+///       * Find the position with the smallest amount of scrolling from the current location which:
+///           * Fits the maximum number of currently playing patterns in view at the same time.
+///
+/// This covers the trivial cases where only a single pattern is playing, and gives some intuitive behaviour
+/// for songs containing multiple playing patterns where the general progression is diagonal but with constant
+/// (or near-constant) background elements, and the "minimum scrolling" allows the user to hint if we stray
+/// off the path.
+///
+int SongEditor::yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView )
+{
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	int nScroll = pScrollArea->verticalScrollBar()->value();
+	int nHeight = pScrollArea->height();
+
+	PatternList *pCurrentPatternList = m_pAudioEngine->getPlayingPatterns();
+
+	// If no patterns are playing, no scrolling needed either.
+	if ( pCurrentPatternList->size() == 0 ) {
+		return nScroll;
+	}
+
+	PatternList *pSongPatterns = pHydrogen->getSong()->getPatternList();
+
+	// Duplicate the playing patterns vector before finding the pattern numbers of the playing patterns. This
+	// avoids doing a linear search in the critical section.
+	std::vector<Pattern *> currentPatterns;
+	m_pAudioEngine->lock( RIGHT_HERE );
+	for ( Pattern *pPattern : *pCurrentPatternList ) {
+		currentPatterns.push_back( pPattern );
+	}
+	m_pAudioEngine->unlock();
+
+	std::vector<int> playingRows;
+	for ( Pattern *pPattern : currentPatterns ) {
+		playingRows.push_back( pSongPatterns->index( pPattern ) );
+	}
+
+	// Check if there are any currently playing patterns which are entirely visible.
+	for ( int r : playingRows ) {
+		if ( r * m_nGridHeight >= nScroll
+			 && (r+1) * m_nGridHeight <= nScroll + nHeight) {
+			// Entirely visible. Our current scroll value is good.
+			if ( pnPatternInView ) {
+				*pnPatternInView = r;
+			}
+			return nScroll;
+		}
+	}
+
+	// Find the maximum number of patterns that will fit in the viewport. We do this by sorting the playing
+	// patterns on their row value, and traversing in order, considering each pattern in turn as visible just
+	// at the bottom of the viewport. The pattern visible nearest the top of the viewport is tracked, and the
+	// number of patterns visible in the viewport is given by the difference of the indices in the pattern
+	// array.
+	//
+	// We track the maximum number of patterns visible, and record the patterns to scroll to differently
+	// depending on whether the pattern is above or below the current viewport: for patterns above, we record
+	// the topmost pattern in the maximal group, and for those below, record the bottommost pattern, as these
+	// define the minimum amount of scrolling needed to fit the patterns in and don't want to scroll further
+	// just to expose empty cells.
+
+	std::sort( playingRows.begin(), playingRows.end() );
+
+	int nTopIdx = 0;
+	int nAboveMax = 0, nAbovePattern = -1, nAboveClosestPattern = -1,
+		nBelowMax = 0, nBelowPattern = -1, nBelowClosestPattern = -1;
+
+	for ( int nBottomIdx = 0; nBottomIdx < playingRows.size(); nBottomIdx++) {
+		int nBottom = playingRows[ nBottomIdx ] * m_nGridHeight;
+		int nTop;
+		// Each bottom pattern is further down the list, so update the top pattern to track the top of the
+		// viewport.
+		for (;;) {
+			nTop = ( playingRows[ nTopIdx ] +1 ) * m_nGridHeight -1;
+			if ( nTop < nBottom - nHeight ) {
+				nTopIdx++;
+				assert( nTopIdx <= nBottomIdx && nTopIdx < playingRows.size() );
+			} else {
+				break;
+			}
+		}
+		int nPatternsInViewport = nBottomIdx - nTopIdx +1;
+		if ( nBottom < nScroll ) {
+			// Above the viewport, accept any new maximal group, to find the maximal group closest to the
+			// current viewport.
+			if ( nPatternsInViewport >= nAboveMax ) {
+				nAboveMax = nPatternsInViewport;
+				// Above the viewport, we want to move only so far as to get the top pattern into the
+				// viewport. Record the top pattern.
+				nAbovePattern = playingRows[ nTopIdx ];
+				nAboveClosestPattern = playingRows[ nBottomIdx ];
+			}
+		} else {
+			// Below the viewport, only accept a new maximal group if it's greater than the current maximal
+			// group.
+			if ( nPatternsInViewport > nBelowMax ) {
+				nBelowMax = nPatternsInViewport;
+				// Below the viewport, we want to scroll down to get the bottom pattern into view, so record
+				// the bottom pattern.
+				nBelowPattern = playingRows[ nBottomIdx ];
+				nBelowClosestPattern = playingRows[ nTopIdx ];
+			}
+		}
+	}
+
+	// Pick between moving up, or moving down.
+	int nAboveY = nAbovePattern * m_nGridHeight;
+	int nBelowY = (nBelowPattern +1) * m_nGridHeight - nHeight;
+	enum { Up, Down } direction = Down;
+	if ( nAboveMax != 0) {
+		if ( nAboveMax > nBelowMax ) {
+			// Move up to capture more active patterns
+			direction = Up;
+		} else if ( nBelowMax > nAboveMax ) {
+			// Move down to capture more active patterns
+			direction = Down;
+		} else {
+			// Tie-breaker. Which is closer?
+			assert( nAboveY <= nScroll &&  nScroll <= nBelowY );
+			if ( nScroll - nAboveY < nBelowY - nScroll ) {
+				direction = Up;
+			} else {
+				direction = Down;
+			}
+		}
+	} else {
+		assert( nBelowMax != 0 );
+		// Move down
+		direction = Down;
+	}
+
+	if ( direction == Up ) {
+		if ( pnPatternInView ) {
+			*pnPatternInView = nAboveClosestPattern;
+		}
+		return nAboveY;
+	} else {
+		if ( pnPatternInView ) {
+			*pnPatternInView = nBelowClosestPattern;
+		}
+		return nBelowY;
+	}
+}
+
 
 int SongEditor::getGridWidth ()
 {

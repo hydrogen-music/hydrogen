@@ -542,6 +542,9 @@ public:
 	bool			hideKeyboardCursor();
 	void			setHideKeyboardCursor( bool b );
 
+	bool			patternFollowsSong();
+	void			setPatternFollowsSong( bool b );
+
 	/** @param bars Sets #m_nMaxBars.*/
 	void				setMaxBars( const int bars );
 	/** @return #m_nMaxBars.*/
@@ -703,6 +706,7 @@ private:
 	int					punchInPos;
 	int					punchOutPos;
 	bool				m_bHideKeyboardCursor;
+	bool				m_bPatternFollowsSong;
 	/** Maximum number of bars shown in the Song Editor at
 	 * once. 
 	 *
@@ -1060,6 +1064,14 @@ inline void Preferences::setHideKeyboardCursor( bool value ) {
 
 inline bool Preferences::hideKeyboardCursor() {
 	return m_bHideKeyboardCursor;
+}
+
+inline void Preferences::setPatternFollowsSong( bool value ) {
+	m_bPatternFollowsSong = value;
+}
+
+inline bool Preferences::patternFollowsSong() {
+	return m_bPatternFollowsSong;
 }
 
 inline bool Preferences::isRestoreLastSongEnabled() {

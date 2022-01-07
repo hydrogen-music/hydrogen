@@ -91,6 +91,10 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void updateSongEditorEvent( int nValue ) override;
 
 		virtual void jackTimebaseStateChangedEvent( int ) override;
+
+		virtual void columnChangedEvent( int ) override;
+
+
 		virtual void songModeActivationEvent( int nValue ) override;
 
 	public slots:
