@@ -169,6 +169,10 @@ class AudioEngineLocking;
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
+		/** Iteration */
+		std::vector<Pattern*>::iterator begin();
+		std::vector<Pattern*>::iterator end();
+
 	private:
 		std::vector<Pattern*> __patterns;            ///< the list of patterns
 
