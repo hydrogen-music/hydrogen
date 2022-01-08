@@ -46,13 +46,13 @@ public:
 	PulseAudioDriver(audioProcessCallback processCallback);
 	~PulseAudioDriver();
 
-	virtual int init( unsigned nBufferSize );
-	virtual int connect();
-	virtual void disconnect();
-	virtual unsigned getBufferSize();
-	virtual unsigned getSampleRate();
-	virtual float* getOut_L();
-	virtual float* getOut_R();
+	virtual int init( unsigned nBufferSize ) override;
+	virtual int connect() override;
+	virtual void disconnect() override;
+	virtual unsigned getBufferSize() override;
+	virtual unsigned getSampleRate() override;
+	virtual float* getOut_L() override;
+	virtual float* getOut_R() override;
 
 private:
 	pthread_t				m_thread;

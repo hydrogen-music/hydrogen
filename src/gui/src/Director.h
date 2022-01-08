@@ -46,10 +46,10 @@ public:
 	Director(const Director&) = delete;
 	Director& operator=( const Director& rhs ) = delete;
 
-	virtual void metronomeEvent( int nValue );
-	virtual void paintEvent( QPaintEvent*);
-	void keyPressEvent( QKeyEvent* ev );
-	void closeEvent( QCloseEvent* ev );
+	virtual void metronomeEvent( int nValue ) override;
+	virtual void paintEvent( QPaintEvent*) override;
+	virtual void keyPressEvent( QKeyEvent* ev ) override;
+	virtual void closeEvent( QCloseEvent* ev ) override;
 
 private slots:
 	void updateMetronomBackground();

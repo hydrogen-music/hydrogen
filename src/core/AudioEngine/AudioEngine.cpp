@@ -78,8 +78,8 @@ inline float getGaussian( float z )
 	// gaussian distribution -- dimss
 	float x1, x2, w;
 	do {
-		x1 = 2.0 * ( ( ( float ) rand() ) / RAND_MAX ) - 1.0;
-		x2 = 2.0 * ( ( ( float ) rand() ) / RAND_MAX ) - 1.0;
+		x1 = 2.0 * ( ( ( float ) rand() ) / static_cast<float>(RAND_MAX) ) - 1.0;
+		x2 = 2.0 * ( ( ( float ) rand() ) / static_cast<float>(RAND_MAX) ) - 1.0;
 		w = x1 * x1 + x2 * x2;
 	} while ( w >= 1.0 );
 

@@ -66,7 +66,7 @@ private:
 	
 	virtual void paintEvent( QPaintEvent *ev ) override;
 
-	void XRunEvent();
+	virtual void XRunEvent() override;
 
 };
 

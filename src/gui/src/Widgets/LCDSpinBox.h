@@ -73,7 +73,7 @@ public:
 	~LCDSpinBox();
 
 	void setKind( Kind kind );
-	QValidator::State validate( QString &text, int &pos ) const;
+	virtual QValidator::State validate( QString &text, int &pos ) const override;
 	
 	bool getIsActive() const;
 	void setIsActive( bool bIsActive );

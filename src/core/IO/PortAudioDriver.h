@@ -48,14 +48,14 @@ public:
 	PortAudioDriver( audioProcessCallback processCallback );
 	virtual ~PortAudioDriver();
 
-	virtual int init( unsigned nBufferSize );
-	virtual int connect();
-	virtual void disconnect();
-	virtual unsigned getBufferSize();
-	virtual int getLatency();
-	virtual unsigned getSampleRate();
-	virtual float* getOut_L();
-	virtual float* getOut_R();
+	virtual int init( unsigned nBufferSize ) override;
+	virtual int connect() override;
+	virtual void disconnect() override;
+	virtual unsigned getBufferSize() override;
+	virtual int getLatency() override;
+	virtual unsigned getSampleRate() override;
+	virtual float* getOut_L() override;
+	virtual float* getOut_R() override;
 
 	static QStringList getDevices();
 	static QStringList getDevices( QString HostAPI );

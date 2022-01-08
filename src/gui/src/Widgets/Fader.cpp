@@ -231,7 +231,7 @@ void Fader::paintEvent( QPaintEvent *ev)
 			fFaderTopLeftY_L = 2;
 			fFaderTopLeftX_R = 12;
 			fFaderTopLeftY_R = 2;
-			fFaderWidth = 6,8;
+			fFaderWidth = 6.8;
 			fFaderHeight = 186;
 			fPeak_L = ( m_fPeakValue_L - m_fMinPeak ) / ( m_fMaxPeak - m_fMinPeak ) * fFaderHeight;
 			fPeak_R = ( m_fPeakValue_R - m_fMinPeak ) / ( m_fMaxPeak - m_fMinPeak ) * fFaderHeight;

@@ -50,7 +50,7 @@ private slots:
 	void	on_openUsrButton_clicked();
 	void	on_openSysButton_clicked();
 	
-	void	showEvent ( QShowEvent* );
+	virtual void showEvent ( QShowEvent* ) override;
 };
 
 #endif // FILESYSTEMINFOFORM_H

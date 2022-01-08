@@ -52,7 +52,7 @@ class MainSampleWaveDisplay :  public QWidget,  public H2Core::Object<MainSample
 		void updateDisplayPointer();
 
 		void paintLocatorEvent( int pos, bool last_event);
-		void paintEvent(QPaintEvent *ev);
+		virtual void paintEvent(QPaintEvent *ev) override;
 		
 		void testPositionFromSampleeditor();
 		
@@ -68,9 +68,9 @@ class MainSampleWaveDisplay :  public QWidget,  public H2Core::Object<MainSample
 
 
 	private:
-		virtual void mouseMoveEvent(QMouseEvent *ev);
-		virtual void mousePressEvent(QMouseEvent *ev);
-		virtual void mouseReleaseEvent(QMouseEvent *ev);
+		virtual void mouseMoveEvent(QMouseEvent *ev) override;
+		virtual void mousePressEvent(QMouseEvent *ev) override;
+		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
 		void testPosition( QMouseEvent *ev );
 		void chooseSlider( QMouseEvent *ev );
 		void mouseUpdateDone();
