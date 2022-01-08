@@ -164,6 +164,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pResolutionLbl = new ClickableLabel( m_pSizeResol, QSize( 28, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getResolutionLabel(), ClickableLabel::Color::Dark );
 	m_pResolutionLbl->setAlignment( Qt::AlignRight );
 	m_pResolutionLbl->move( 155, 4 );
+	QString sTip = tr( "<html><p>Resolution of the pattern grid sets how finely notes may be placed.</p>"
+					   "<p>Hold <b>Alt</b> to place or move notes independently of the grid.</p></html>" );
+	m_pResolutionLbl->setToolTip( sTip );
+	m_pResolutionCombo->setToolTip( sTip );
 
 
 	m_pRec = new QGroupBox( nullptr );
