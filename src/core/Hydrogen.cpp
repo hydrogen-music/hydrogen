@@ -1474,7 +1474,7 @@ void Hydrogen::recalculateRubberband( float fBpm ) {
 
 void Hydrogen::setIsModified( bool bIsModified ) {
 	if ( getSong() != nullptr ) {
-		getSong()->setIsModified( true );
+		getSong()->setIsModified( bIsModified );
 	}
 }
 
