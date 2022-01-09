@@ -1324,6 +1324,22 @@ bool Hydrogen::haveJackTransport() const {
 #endif	
 }
 
+float Hydrogen::getMasterBpm() const {
+#ifdef H2CORE_HAVE_JACK
+  if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
+    if ( JackAudioDriver::_class_name() == m_pAudioEngine->getAudioDriver()->class_name() ) {
+      return static_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver())->getMasterBpm();
+    } else {
+      return std::nan("No JACK driver");
+    }
+  } else {
+    return std::nan("No audio driver");
+  }
+#else
+  return std::nan("No JACK support");
+#endif
+}
+
 JackAudioDriver::Timebase Hydrogen::getJackTimebaseState() const {
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
