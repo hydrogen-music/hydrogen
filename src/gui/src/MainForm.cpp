@@ -1775,22 +1775,22 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 		}
 
 		// virtual keyboard handling
-		std::map<int,int>::iterator found = keycodeInstrumentMap.find ( k->key() );
-		if (found != keycodeInstrumentMap.end()) {
-			//			INFOLOG( "[eventFilter] virtual keyboard event" );
-			// insert note at the current column in time
-			// if event recording enabled
-			int row = (*found).second;
+		if  ( k->modifiers() == Qt::NoModifier ) {
+			std::map<int,int>::iterator found = keycodeInstrumentMap.find ( k->key() );
+			if (found != keycodeInstrumentMap.end()) {
+				//			INFOLOG( "[eventFilter] virtual keyboard event" );
+				// insert note at the current column in time
+				// if event recording enabled
+				int row = (*found).second;
 
-			float velocity = 0.8;
+				float velocity = 0.8;
 
-			pHydrogen->addRealtimeNote (row, velocity, 0.f, 0, false, false , row + 36);
+				pHydrogen->addRealtimeNote (row, velocity, 0.f, 0, false, false , row + 36);
 
-			return true; // eat event
+				return true; // eat event
+			}
 		}
-		else {
-			return false; // let it go
-		}
+		return false; // let it go
 	}
 	else {
 		return false; // standard event processing
