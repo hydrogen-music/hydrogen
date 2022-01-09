@@ -45,7 +45,7 @@ public:
 	~SMFHeader();
 	
 	void addTrack();
-	virtual std::vector<char> getBuffer();
+	virtual std::vector<char> getBuffer() override;
 	
 private:
 	int m_nFormat;		///< SMF format
@@ -66,7 +66,7 @@ public:
 
 	void addEvent( SMFEvent *pEvent );
 
-	virtual std::vector<char> getBuffer();
+	virtual std::vector<char> getBuffer() override;
 
 private:
 	std::vector<SMFEvent*> m_eventList;
@@ -83,7 +83,7 @@ public:
 	~SMF();
 
 	void addTrack( SMFTrack *pTrack );
-	virtual std::vector<char> getBuffer();
+	virtual std::vector<char> getBuffer() override;
 
 private:
 	std::vector<SMFTrack*> m_trackList;
@@ -109,7 +109,7 @@ protected:
 	void sortEvents( EventList* pEventList );
 	SMFTrack* createTrack0( std::shared_ptr<Song> pSong );
 	
-	virtual SMF* createSMF( std::shared_ptr<Song> pSong )=0;
+	virtual SMF* createSMF( std::shared_ptr<Song> pSong ) = 0;
 	virtual void prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf )=0;
 	virtual EventList* getEvents( std::shared_ptr<Song> pSong, std::shared_ptr<Instrument> pInstr ) = 0;
 	virtual void  packEvents( std::shared_ptr<Song> pSong, SMF* pSmf ) = 0;
@@ -129,7 +129,7 @@ public:
     SMF1Writer();
 	virtual ~SMF1Writer();
 protected:
-	virtual SMF* createSMF( std::shared_ptr<Song> pSong );
+	virtual SMF* createSMF( std::shared_ptr<Song> pSong ) override;
 };
 
 
@@ -141,9 +141,9 @@ public:
     SMF1WriterSingle();
 	virtual ~SMF1WriterSingle();
 protected:
-	virtual void prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf );
-	virtual void  packEvents( std::shared_ptr<Song> pSong, SMF* pSmf );
-	virtual EventList* getEvents( std::shared_ptr<Song> pSong, std::shared_ptr<Instrument> pInstr );
+	virtual void prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf ) override;
+	virtual void packEvents( std::shared_ptr<Song> pSong, SMF* pSmf ) override;
+	virtual EventList* getEvents( std::shared_ptr<Song> pSong, std::shared_ptr<Instrument> pInstr ) override;
 private:
 	EventList m_eventList;
 };
@@ -157,9 +157,9 @@ public:
     SMF1WriterMulti();
 	virtual ~SMF1WriterMulti();
 protected:
-	virtual void prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf );
-	virtual void  packEvents( std::shared_ptr<Song> pSong, SMF* pSmf );
-	virtual EventList* getEvents( std::shared_ptr<Song> pSong, std::shared_ptr<Instrument> pInstr );
+	virtual void prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf ) override;
+	virtual void  packEvents( std::shared_ptr<Song> pSong, SMF* pSmf ) override;
+	virtual EventList* getEvents( std::shared_ptr<Song> pSong, std::shared_ptr<Instrument> pInstr ) override;
 private:
 	// contains events for each instrument in separate vector
 	std::vector<EventList*> m_eventLists;
@@ -176,10 +176,10 @@ public:
     SMF0Writer();
 	virtual ~SMF0Writer();
 protected:
-	virtual SMF* createSMF( std::shared_ptr<Song> pSong );
-	virtual void prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf );
-	virtual void  packEvents( std::shared_ptr<Song> pSong, SMF* pSmf );
-	virtual EventList* getEvents( std::shared_ptr<Song> pSong, std::shared_ptr<Instrument> pInstr );
+	virtual SMF* createSMF( std::shared_ptr<Song> pSong ) override;
+	virtual void prepareEvents( std::shared_ptr<Song> pSong, SMF* pSmf ) override;
+	virtual void  packEvents( std::shared_ptr<Song> pSong, SMF* pSmf ) override;
+	virtual EventList* getEvents( std::shared_ptr<Song> pSong, std::shared_ptr<Instrument> pInstr ) override;
 private:
 	SMFTrack* m_pTrack;
 	EventList m_eventList;

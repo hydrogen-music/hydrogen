@@ -45,7 +45,7 @@ class PixmapWidget :   public H2Core::Object<PixmapWidget>, public QWidget
 		QPixmap m_pixmap;
 		bool __expand_horiz;
 
-		virtual void paintEvent( QPaintEvent* ev);
+		virtual void paintEvent( QPaintEvent* ev) override;
 };
 
 #endif

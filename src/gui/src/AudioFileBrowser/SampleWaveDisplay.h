@@ -41,7 +41,7 @@ class SampleWaveDisplay :  public QWidget,  public H2Core::Object<SampleWaveDisp
 
 		void updateDisplay( QString filename );
 
-		void paintEvent(QPaintEvent *ev);
+		virtual void paintEvent(QPaintEvent *ev) override;
 
 	private:
 		QPixmap m_Background;

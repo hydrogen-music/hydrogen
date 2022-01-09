@@ -600,6 +600,10 @@ int main(int argc, char *argv[])
 			sl->shoot();
 		}
 
+		// All GUI setup is complete, any spurious widget-driven flagging of song modified state will be
+		// complete, so clear the modification flag.
+		H2Core::Hydrogen::get_instance()->setIsModified( false );
+
 		pQApp->exec();
 
 		pPref->savePreferences();

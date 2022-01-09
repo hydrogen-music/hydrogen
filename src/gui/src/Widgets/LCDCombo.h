@@ -50,9 +50,9 @@ private:
 
 	bool m_bEntered;
 		
-	virtual void paintEvent( QPaintEvent *ev );
-	virtual void enterEvent( QEvent *ev );
-	virtual void leaveEvent( QEvent *ev );
+	virtual void paintEvent( QPaintEvent *ev ) override;
+	virtual void enterEvent( QEvent *ev ) override;
+	virtual void leaveEvent( QEvent *ev ) override;
 };
 
 

@@ -101,7 +101,7 @@ public slots:
 		Button *m_pSoloBtn;
 		Button *m_pSampleWarning;
 
-		virtual void mousePressEvent(QMouseEvent *ev);
+		virtual void mousePressEvent(QMouseEvent *ev) override;
 		H2Core::Pattern* getCurrentPattern();
 };
 
@@ -115,12 +115,12 @@ class PatternEditorInstrumentList :  public QWidget,  public H2Core::Object<Patt
 		PatternEditorInstrumentList( QWidget *parent, PatternEditorPanel *pPatternEditorPanel );
 		~PatternEditorInstrumentList();
 
-		virtual void mousePressEvent(QMouseEvent *event);
-		virtual void mouseMoveEvent(QMouseEvent *event);
+		virtual void mousePressEvent(QMouseEvent *event) override;
+		virtual void mouseMoveEvent(QMouseEvent *event) override;
 
 
-		virtual void dragEnterEvent(QDragEnterEvent *event);
-		virtual void dropEvent(QDropEvent *event);
+		virtual void dragEnterEvent(QDragEnterEvent *event) override;
+		virtual void dropEvent(QDropEvent *event) override;
 
 
 	public slots:
