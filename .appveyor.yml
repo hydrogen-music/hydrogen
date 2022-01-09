@@ -118,7 +118,6 @@ for:
 
           cmake --version
           g++ --version
-          choco update
           choco install %CHOCO_ARCH% -y jack
 
           dir "c:\%PROGRAM_FILES%\JACK2"
