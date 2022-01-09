@@ -93,7 +93,7 @@ if($build)
     $arguments= "-m","pip","install","-r","..\windows\ci\requirements.txt"
     & $python_exe $arguments
 
-    $arguments="..\windows\ci\copy_thirdparty_dlls.py","--no-overwrite", "-V", "debug" ,"-L","$msys\bin","-d","windows\extralibs", "src/gui/hydrogen.exe", "src/core/libhydrogen-core-1.1.0.dll"
+    $arguments="..\windows\ci\copy_thirdparty_dlls.py","--no-overwrite", "-V", "debug" ,"-L","$msys\bin","-d","windows\extralibs", "src/gui/hydrogen.exe", "src/core/libhydrogen-core-*.dll"
     & $python_exe $arguments
     
     cd ../windows
