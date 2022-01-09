@@ -29,7 +29,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="GeneralTab">
       <attribute name="title">
@@ -92,7 +92,7 @@
        <item>
         <widget class="QCheckBox" name="hideKeyboardCursor">
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hide the keyboard input cursor when editing using the mouse&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>Hide the keyboard input cursor when editing using the mouse</string>
          </property>
          <property name="text">
           <string>&amp;Hide keyboard input cursor</string>
@@ -368,7 +368,11 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Audio buffer size (in frames). This generally determines the &lt;span style=&quot; font-weight:700;&quot;&gt;minimum&lt;/span&gt; audio latency the system can achieve. Actual audio latency will be greater.&lt;/p&gt;&lt;p&gt;Selecting a buffer size that is too small may lead to audible glitches, particularly if the system becomes more heavily loaded.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Use with caution.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>Audio buffer size (in frames). This generally determines the minimum audio latency the system can achieve. Actual audio latency will be greater.
+
+Selecting a buffer size that is too small may lead to audible glitches, particularly if the system becomes more heavily loaded.
+
+Use with caution.</string>
              </property>
              <property name="minimum">
               <number>100</number>
@@ -420,7 +424,9 @@
            <item row="7" column="0">
             <widget class="QLabel" name="latencyTargetLabel">
              <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the target latency that the audio system attempts to achieve.&lt;/p&gt;&lt;p&gt;Selecting a latency that is too small may lead to audible glitches, particularly if the system becomes more heavily loaded.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Use with caution.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>Set the target latency that the audio system attempts to achieve.
+Selecting a latency that is too small may lead to audible glitches, particularly if the system becomes more heavily loaded.
+Use with caution.</string>
              </property>
              <property name="text">
               <string>Latency target</string>
@@ -466,7 +472,11 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Audio buffer size (in frames). This generally determines the &lt;span style=&quot; font-weight:700;&quot;&gt;minimum&lt;/span&gt; audio latency the system can achieve. Actual audio latency will be greater.&lt;/p&gt;&lt;p&gt;Selecting a buffer size that is too small may lead to audible glitches, particularly if the system becomes more heavily loaded.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Use with caution.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>Audio buffer size (in frames). This generally determines the minimum audio latency the system can achieve. Actual audio latency will be greater.
+
+Selecting a buffer size that is too small may lead to audible glitches, particularly if the system becomes more heavily loaded.
+
+Use with caution.</string>
              </property>
              <property name="text">
               <string>Buffer size</string>
@@ -494,7 +504,9 @@
              <item>
               <widget class="QSpinBox" name="latencyTargetSpinBox">
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the target latency that the audio system attempts to achieve.&lt;/p&gt;&lt;p&gt;Selecting a latency that is too small may lead to audible glitches, particularly if the system becomes more heavily loaded.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Use with caution.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>Set the target latency that the audio system attempts to achieve.
+Selecting a latency that is too small may lead to audible glitches, particularly if the system becomes more heavily loaded.
+Use with caution.</string>
                </property>
                <property name="maximum">
                 <number>48000</number>
@@ -507,7 +519,9 @@
              <item>
               <widget class="QLabel" name="latencyValueLabel">
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the target latency that the audio system attempts to achieve.&lt;/p&gt;&lt;p&gt;Selecting a latency that is too small may lead to audible glitches, particularly if the system becomes more heavily loaded.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Use with caution.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>Set the target latency that the audio system attempts to achieve.
+Selecting a latency that is too small may lead to audible glitches, particularly if the system becomes more heavily loaded.
+Use with caution.</string>
                </property>
                <property name="text">
                 <string/>
@@ -639,7 +653,9 @@
            <item>
             <widget class="QLabel" name="resapelingLbl">
              <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interpolation method used when rendering samples at different frequencies.&lt;/p&gt;&lt;p&gt;Linear interpolation is fastest and provides reasonable sound quality. Others are higher quality but have higher CPU usage penalties.&lt;/p&gt;&lt;p&gt;The differences will be most noticable where samples are played back at much different frequencies from the audio system sample rate (eg. low quality samples, particularly played at low pitch).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>Interpolation method used when rendering samples at different frequencies.
+Linear interpolation is fastest and provides reasonable sound quality. Others are higher quality but have higher CPU usage penalties.
+The differences will be most noticable where samples are played back at much different frequencies from the audio system sample rate (eg. low quality samples, particularly played at low pitch).</string>
              </property>
              <property name="text">
               <string>Interpolate resampling</string>
@@ -649,7 +665,9 @@
            <item>
             <widget class="QComboBox" name="resampleComboBox">
              <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interpolation method used when rendering samples at different frequencies.&lt;/p&gt;&lt;p&gt;Linear interpolation is fastest and provides reasonable sound quality. Others are higher quality but have higher CPU usage penalties.&lt;/p&gt;&lt;p&gt;The differences will be most noticable where samples are played back at much different frequencies from the audio system sample rate (eg. low quality samples, particularly played at low pitch).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>Interpolation method used when rendering samples at different frequencies.
+Linear interpolation is fastest and provides reasonable sound quality. Others are higher quality but have higher CPU usage penalties.
+The differences will be most noticable where samples are played back at much different frequencies from the audio system sample rate (eg. low quality samples, particularly played at low pitch).</string>
              </property>
              <item>
               <property name="text">
