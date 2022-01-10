@@ -396,8 +396,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 			deleteSelection();
 		} else {
 			// No selection, delete at the current cursor position
-			QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-			pUndo->push( new SE_deletePatternAction( m_nCursorColumn, m_nCursorRow ) );
+			setPatternActive( m_nCursorColumn, m_nCursorRow, false );
 		}
 
 	} else if ( ev->matches( QKeySequence::MoveToNextChar ) || ( bSelectionKey = ev->matches( QKeySequence::SelectNextChar ) ) ) {
