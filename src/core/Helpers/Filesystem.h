@@ -139,7 +139,9 @@ namespace H2Core
 		/** returns user patterns path, add file extension*/
 		static QString pattern_path( const QString& dk_name, const QString& p_name );
 		/** returns user plugins path */
-		static QString plugins_dir();
+		static QString usr_plugins_dir();
+		/** returns system plugins path */
+		static QString sys_plugins_dir();
 		/** returns system drumkits path */
 		static QString sys_drumkits_dir();
 		/** returns user drumkits path */

@@ -175,7 +175,8 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 		__ladspa_paths.removeFirst();
 	}
 	// we want this first
-	__ladspa_paths << Filesystem::plugins_dir();
+	__ladspa_paths << Filesystem::usr_plugins_dir();
+	__ladspa_paths << Filesystem::sys_plugins_dir();
 	__ladspa_paths.removeDuplicates();
 
 	bool ret = check_sys_paths();
@@ -394,7 +395,7 @@ bool Filesystem::check_usr_paths()
 	if( !path_usable( usr_drumkits_dir() ) ) ret = false;
 	if( !path_usable( patterns_dir() ) ) ret = false;
 	if( !path_usable( playlists_dir() ) ) ret = false;
-	if( !path_usable( plugins_dir() ) ) ret = false;
+	if( !path_usable( usr_plugins_dir() ) ) ret = false;
 	if( !path_usable( scripts_dir() ) ) ret = false;
 	if( !path_usable( songs_dir() ) ) ret = false;
 	if( !path_usable( usr_theme_dir() ) ) ret = false;
@@ -518,9 +519,13 @@ QString Filesystem::pattern_path( const QString& dk_name, const QString& p_name 
 		return patterns_dir( dk_name ) + p_name + patterns_ext;
 	}
 }
-QString Filesystem::plugins_dir()
+QString Filesystem::usr_plugins_dir()
 {
 	return __usr_data_path + PLUGINS;
+}
+QString Filesystem::sys_plugins_dir()
+{
+	return __sys_data_path + PLUGINS;
 }
 QString Filesystem::sys_drumkits_dir()
 {
@@ -826,7 +831,8 @@ void Filesystem::info()
 	INFOLOG( QString( "User drumkit dir           : %1" ).arg( usr_drumkits_dir() ) );
 	INFOLOG( QString( "Patterns dir               : %1" ).arg( patterns_dir() ) );
 	INFOLOG( QString( "Playlist dir               : %1" ).arg( playlists_dir() ) );
-	INFOLOG( QString( "Plugins dir                : %1" ).arg( plugins_dir() ) );
+	INFOLOG( QString( "User Plugins dir           : %1" ).arg( usr_plugins_dir() ) );
+	INFOLOG( QString( "System Plugins dir         : %1" ).arg( sys_plugins_dir() ) );
 	INFOLOG( QString( "Scripts dir                : %1" ).arg( scripts_dir() ) );
 	INFOLOG( QString( "Songs dir                  : %1" ).arg( songs_dir() ) );
 }
