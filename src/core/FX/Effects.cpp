@@ -128,13 +128,17 @@ void  Effects::setLadspaFX( LadspaFX* pFX, int nFX )
 ///
 /// Loads only usable plugins
 ///
-std::vector<LadspaFXInfo*> Effects::getPluginList()
+std::vector<LadspaFXInfo*> Effects::getPluginList( QStringList lookupPaths )
 {
 	if ( m_pluginList.size() != 0 ) {
 		return m_pluginList;
 	}
 
-	foreach ( const QString& sPluginDir, Filesystem::ladspa_paths() ) {
+	if ( lookupPaths.size() == 0 ) {
+		lookupPaths = Filesystem::ladspa_paths();
+	}
+
+	foreach ( const QString& sPluginDir, lookupPaths ) {
 		INFOLOG( "*** [getPluginList] reading directory: " + sPluginDir );
 
 		QDir dir( sPluginDir );

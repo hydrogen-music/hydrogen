@@ -57,7 +57,13 @@ public:
 	LadspaFX* getLadspaFX( int nFX ) const;
 	void  setLadspaFX( LadspaFX* pFX, int nFX );
 
-	std::vector<LadspaFXInfo*> getPluginList();
+	/**
+	 * Initializes the list of available LADSPA plugins.
+	 *
+	 * @param lookupPaths If left empty, the default paths provided by
+	 * Filesystem::ladspa_paths() will be used.
+	 */
+	std::vector<LadspaFXInfo*> getPluginList( QStringList lookupPaths = QStringList() );
 	LadspaFXGroup* getLadspaFXGroup();
 
 
