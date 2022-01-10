@@ -113,7 +113,7 @@ for:
 
           set QTDIR=%MSYS%
           set CMAKE_PREFIX_PATH=%QTDIR%
-          set PATH=%MSYS%\bin;%PATH%
+          set PATH=C:\msys64\usr\bin;%MSYS%\bin;%PATH%
           set PKG_CONFIG_PATH=%MSYS%\lib\pkgconfig
 
           cmake --version
@@ -122,6 +122,11 @@ for:
 
           dir "c:\%PROGRAM_FILES%\JACK2"
           dir "c:\%PROGRAM_FILES%\JACK2\lib"
+
+          REM *** Copy prebuilt LADSPA bundle ***
+          cd windows\cmt_src
+          make install
+          cd ..\..
 
           REM *** Install dependencies ***
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libarchive
