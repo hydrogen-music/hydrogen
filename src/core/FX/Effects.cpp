@@ -162,18 +162,23 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 #endif
 #endif
 			if ( pos == -1 ) {
+			  int pos = sPluginName.indexOf( ".so" );
+			  if ( pos == -1 ) {
 				continue;
+			  }
 			}
 			//warningLog( "[getPluginList] Loading: " + sPluginName  );
 
 			QString sAbsPath = QString( "%1/%2" ).arg( sPluginDir ).arg( sPluginName );
 
 			QLibrary lib( sAbsPath );
+			
 			LADSPA_Descriptor_Function desc_func = ( LADSPA_Descriptor_Function )lib.resolve( "ladspa_descriptor" );
 			if ( desc_func == nullptr ) {
 				ERRORLOG( "Error loading the library. (" + sAbsPath + ")" );
 				continue;
 			}
+			
 			const LADSPA_Descriptor * d;
 			if ( desc_func ) {
 				for ( unsigned i = 0; ( d = desc_func ( i ) ) != nullptr; i++ ) {
