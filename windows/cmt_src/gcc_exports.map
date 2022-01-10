@@ -1,0 +1,7 @@
+CMT
+{
+  global: 
+   ladspa_descriptor;
+  local:
+   *;
+};
