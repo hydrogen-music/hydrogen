@@ -774,7 +774,7 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 		// Hydrogen is using the BPM broadcast by the JACK
 		// server. This one does solely depend on external
 		// applications and will NOT be stored in the Song.
-		float fJackMasterBpm = static_cast<JackAudioDriver*>(pAudioEngine->getAudioDriver())->getMasterBpm();
+		float fJackMasterBpm = pHydrogen->getMasterBpm();
 		if ( ! std::isnan( fJackMasterBpm ) && fBpm != fJackMasterBpm ) {
 			fBpm = fJackMasterBpm;
 			DEBUGLOG( QString( "Tempo update by the JACK server [%1]").arg( fJackMasterBpm ) );
