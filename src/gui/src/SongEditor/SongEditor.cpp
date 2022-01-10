@@ -1380,6 +1380,9 @@ void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 {
 	QPainter painter(this);
 	qreal pixelRatio = devicePixelRatio();
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
+		createBackground();
+	}
 	QRectF srcRect(
 			pixelRatio * ev->rect().x(),
 			pixelRatio * ev->rect().y(),
@@ -1430,7 +1433,7 @@ void SongEditorPatternList::createBackground()
 	static int oldHeight = -1;
 	int newHeight = m_nGridHeight * nPatterns;
 
-	if (oldHeight != newHeight) {
+	if ( oldHeight != newHeight || m_pBackgroundPixmap->devicePixelRatio() != devicePixelRatio() ) {
 		if (newHeight == 0) {
 			newHeight = 1;	// the pixmap should not be empty
 		}
@@ -2205,6 +2208,14 @@ void SongEditorPositionRuler::createBackground()
 
 	QColor colorHighlight = pPref->getColorTheme()->m_highlightColor;
 
+	// Resize pixmap if pixel ratio has changed
+	qreal pixelRatio = devicePixelRatio();
+	if ( m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
+		delete m_pBackgroundPixmap;
+		m_pBackgroundPixmap = new QPixmap( width()  * pixelRatio , height() * pixelRatio );
+		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+	}
+
 	m_pBackgroundPixmap->fill( backgroundColor );
 
 	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
@@ -2635,6 +2646,9 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 	QPainter painter(this);
 	qreal pixelRatio = devicePixelRatio();
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
+		createBackground();
+	}
 	QRectF srcRect(
 			pixelRatio * ev->rect().x(),
 			pixelRatio * ev->rect().y(),
