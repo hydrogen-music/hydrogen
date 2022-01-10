@@ -22,7 +22,7 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <ladspa.h>
+#include "ladspa.h"
 
 /*****************************************************************************/
 

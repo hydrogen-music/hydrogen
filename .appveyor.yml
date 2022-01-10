@@ -113,7 +113,9 @@ for:
 
           set QTDIR=%MSYS%
           set CMAKE_PREFIX_PATH=%QTDIR%
-          set PATH=C:\msys64\usr\bin;%MSYS%\bin;%PATH%
+          set PATH=%MSYS%\bin;%PATH%
+          set OLDPATH=%PATH%
+          set PATH=C:\msys64\usr\bin;%PATH%
           set PKG_CONFIG_PATH=%MSYS%\lib\pkgconfig
 
           cmake --version
@@ -127,6 +129,7 @@ for:
           cd windows\cmt_src
           make install
           cd ..\..
+          set PATH=%OLDPATH%
 
           REM *** Install dependencies ***
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libarchive

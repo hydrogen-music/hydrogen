@@ -23,7 +23,7 @@
 
 /*****************************************************************************/
 
-#include <ladspa.h>
+#include "ladspa.h"
 
 /* Compatibility hack for version 1.0. */
 #ifndef LADSPA_VERSION_MAJOR
