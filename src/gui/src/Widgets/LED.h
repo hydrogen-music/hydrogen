@@ -58,7 +58,7 @@ protected:
 	QSvgRenderer* m_background;
 	
 	bool m_bActivated;
-	void paintEvent( QPaintEvent* ev);
+	virtual void paintEvent( QPaintEvent* ev) override;
 
 };
 
@@ -78,7 +78,7 @@ public:
 	virtual ~MetronomeLED();
 
 public slots:
-	void metronomeEvent( int nValue );
+	virtual void metronomeEvent( int nValue ) override;
 						   
 private slots:
 	void turnOff();
@@ -88,7 +88,7 @@ private:
 	QTimer* m_pTimer;
 	std::chrono::milliseconds m_activityTimeout;
 	
-	void paintEvent( QPaintEvent* ev);
+	virtual void paintEvent( QPaintEvent* ev) override; 
 };
 
 #endif

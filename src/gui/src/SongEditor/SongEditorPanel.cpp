@@ -43,6 +43,7 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/PatternList.h>
 #include <core/IO/JackAudioDriver.h>
+#include <core/EventQueue.h>
 
 #ifdef WIN32
 #include <time.h>
@@ -138,6 +139,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pModeActionMultipleBtn->hide();
 	m_pModeActionMultipleBtn->setVisible( pPref->patternModePlaysSelected() );
 	connect( m_pModeActionMultipleBtn, SIGNAL( pressed() ), this, SLOT( modeActionBtnPressed() ) );
+	setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
 
 // ZOOM
 	m_pHScrollBar = new QScrollBar( Qt::Horizontal, nullptr );
@@ -589,7 +591,6 @@ void SongEditorPanel::restoreGroupVector( QString filename )
 
 void SongEditorPanel::resyncExternalScrollBar()
 {
-	int nGridHeight = m_pPatternList->getGridHeight();
 	m_pHScrollBar->setMinimum( m_pEditorScrollView->horizontalScrollBar()->minimum() );
 	m_pHScrollBar->setMaximum( m_pEditorScrollView->horizontalScrollBar()->maximum() );
 	m_pHScrollBar->setSingleStep( m_pEditorScrollView->horizontalScrollBar()->singleStep() );
@@ -601,11 +602,6 @@ void SongEditorPanel::resyncExternalScrollBar()
 	m_pVScrollBar->setSingleStep( m_pEditorScrollView->verticalScrollBar()->singleStep() );
 	m_pVScrollBar->setPageStep( m_pEditorScrollView->verticalScrollBar()->pageStep() );
 	m_pVScrollBar->setValue( m_pEditorScrollView->verticalScrollBar()->value() );
-
-	// Make sure currently selected pattern is visible.
-	m_pPatternListScrollView->ensureVisible( 0, (Hydrogen::get_instance()->getSelectedPatternNumber()
-												 * nGridHeight + nGridHeight/2 ),
-											 0, m_pPatternList->getGridHeight() );
 }
 
 
@@ -756,14 +752,16 @@ void SongEditorPanel::editPlaybackTrackBtnPressed()
 
 void SongEditorPanel::modeActionBtnPressed( )
 {
-	if( m_pModeActionSingleBtn->isVisible() ){
+	bool bWasStacked = m_pModeActionSingleBtn->isVisible();
+	if( bWasStacked ){
 		m_pModeActionSingleBtn->hide();
 		m_pModeActionMultipleBtn->show();
 	} else {
 		m_pModeActionSingleBtn->show();
 		m_pModeActionMultipleBtn->hide();
 	}
-	Hydrogen::get_instance()->togglePlaysSelected();
+	Hydrogen::get_instance()->setPlaysSelected( bWasStacked );
+	EventQueue::get_instance()->push_event( EVENT_STACKED_MODE_ACTIVATION, bWasStacked ? 0 : 1 );
 	updateAll();
 }
 
@@ -775,6 +773,14 @@ void SongEditorPanel::setModeActionBtn( bool mode )
 	} else {
 		m_pModeActionSingleBtn->show();
 		m_pModeActionMultipleBtn->hide();
+	}
+	// Set disabled or enabled
+	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
+		m_pModeActionMultipleBtn->setDisabled( true );
+		m_pModeActionSingleBtn->setDisabled( true );
+	} else {
+		m_pModeActionMultipleBtn->setDisabled( false );
+		m_pModeActionSingleBtn->setDisabled( false );
 	}
 }
 
@@ -823,6 +829,12 @@ void SongEditorPanel::selectedPatternChangedEvent()
 {
 	setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
 	updateAll();
+
+	// Make sure currently selected pattern is visible.
+	int nGridHeight = m_pPatternList->getGridHeight();
+	m_pPatternListScrollView->ensureVisible( 0, (Hydrogen::get_instance()->getSelectedPatternNumber()
+												 * nGridHeight + nGridHeight/2 ),
+											 0, nGridHeight );
 }
 
 void SongEditorPanel::automationPathPointAdded(float x, float y)
@@ -887,6 +899,7 @@ void SongEditorPanel::songModeActivationEvent( int ) {
 		setTimelineEnabled( true );
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
 	}
+	setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
 }
 
 void SongEditorPanel::timelineActivationEvent( int ){
@@ -946,4 +959,48 @@ void SongEditorPanel::setTimelineEnabled( bool bEnabled ) {
 
 void SongEditorPanel::updateSongEditorEvent( int ) {
 	updateAll();
+}
+
+void SongEditorPanel::columnChangedEvent( int ) {
+	// In Song mode, we may scroll to change position in the Song Editor.
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = Preferences::get_instance();
+	if ( pHydrogen->getMode() == Song::Mode::Song ) {
+
+		// Scroll vertically to keep currently playing patterns in view
+		int nPatternInView = -1;
+		int scroll = m_pSongEditor->yScrollTarget( m_pEditorScrollView, &nPatternInView );
+		vScrollTo( scroll );
+
+		if ( pPref->patternFollowsSong() ) {
+			// Selected pattern follows song.
+			//
+			// If the currently selected pattern is no longer one of those currently playing in the song, then
+			// we select the suggested pattern from yScrollTarget.
+
+			AudioEngine *pAudioEngine = pHydrogen->getAudioEngine();
+			PatternList *pSongPatterns = pHydrogen->getSong()->getPatternList();
+			int nSelectedPattern = pHydrogen->getSelectedPatternNumber();
+
+			bool bFound = false;
+			std::vector< Pattern* >patternList;
+			pAudioEngine->lock( RIGHT_HERE );
+			for ( auto pPattern : *pAudioEngine->getPlayingPatterns() ) {
+				patternList.push_back( pPattern );
+			}
+			pAudioEngine->unlock();
+
+			for ( auto pPattern : patternList ) {
+				int nPattern = pSongPatterns->index( pPattern );
+				if ( nPattern == nSelectedPattern ) {
+					bFound = true;
+					break;
+				}
+			}
+			if ( !bFound && patternList.size() != 0 ) {
+				assert( nPatternInView != -1 );
+				pHydrogen->setSelectedPatternNumber( nPatternInView );
+			}
+		}
+	}
 }

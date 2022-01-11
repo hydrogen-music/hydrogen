@@ -80,6 +80,12 @@ TARGET_LINK_LIBRARIES(hydrogen
 	Qt5::Svg
 )
 
+IF(Backtrace_FOUND)
+	TARGET_LINK_LIBRARIES(hydrogen
+		${Backtrace_LIBRARIES}
+	)
+ENDIF()
+
 # Precompiled headers for Qt and std::vector. These dramatically reduce GUI build times
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.16)
 	target_precompile_headers(hydrogen

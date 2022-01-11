@@ -229,7 +229,7 @@ public:
 		H2Core::Hydrogen::get_instance()->getCoreActionController()->removePattern( m_nPatternPosition );
 	}
 	virtual void redo() {
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->setPattern( m_pNewPattern,
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->setPattern( new H2Core::Pattern( m_pNewPattern ),
 																				 m_nPatternPosition );
 	}
 private:

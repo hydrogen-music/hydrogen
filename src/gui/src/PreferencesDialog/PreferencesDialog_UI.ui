@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>669</width>
-    <height>616</height>
+    <height>635</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -100,6 +100,13 @@
         <widget class="QCheckBox" name="useLashCheckbox">
          <property name="text">
           <string extracomment="LASH (acronym for LASH Audio Session Handler) is a protocol allowing for session management in Linux (recalling songs, preferences, and JACK port connections).">Use &amp;LASH</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="patternFollowsSongCheckbox">
+         <property name="text">
+          <string>Selected pattern follows song</string>
          </property>
         </widget>
        </item>

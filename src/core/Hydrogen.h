@@ -170,18 +170,15 @@ public:
 	/**
 	 * Switches playback to focused pattern.
 	 *
+	 * ("Focused pattern" or "PlaysSelected" is the opposite of "Stacked" mode)
+	 *
 	 * If the current Song is in Song::PATTERN_MODE, the AudioEngine
 	 * will be locked and Preferences::m_bPatternModePlaysSelected
-	 * negated. If the latter was true before calling this function,
+	 * set. If the latter was true before calling this function,
 	 * #H2Core::AudioEngine::m_pPlayingPatterns will be cleared and
-	 * replaced by the Pattern indexed with
-	 * #m_nSelectedPatternNumber.
-	 *
-	 * This function will be called either by MainForm::eventFilter()
-	 * when pressing Qt::Key_L or by
-	 * SongEditorPanel::modeActionBtnPressed().
+	 * replaced by the Pattern indexed with #m_nSelectedPatternNumber.
 	 */
-	void			togglePlaysSelected();
+	void			setPlaysSelected( bool bPlaysSelected );
 	
 		/**
 		 * Get the current song.
@@ -526,6 +523,7 @@ void			previewSample( Sample *pSample );
 	 * (#H2Core::Preferences::m_bJackTransportMode).
 	 */
 	bool			haveJackTransport() const;
+        float			getMasterBpm() const;
 
 	/**
 	 * Convenience function checking whether using the Timeline tempo

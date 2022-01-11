@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
 		QCommandLineParser parser;
 		
 		QString aboutText = QString( "\nHydrogen " ) + QString::fromStdString( H2Core::get_version() )  + QString( " [" ) + QString::fromStdString( __DATE__ ) + QString( "]  [http://www.hydrogen-music.org]" ) +
-		QString( "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2021 The hydrogen development team" ) +
+		QString( "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2022 The hydrogen development team" ) +
 		QString( "\nHydrogen comes with ABSOLUTELY NO WARRANTY\nThis is free software, and you are welcome to redistribute it under certain conditions. See the file COPYING for details.\n" );
 		
 		parser.setApplicationDescription( aboutText );
@@ -561,6 +561,10 @@ int main(int argc, char *argv[])
 			ShotList *sl = new ShotList( sShotList );
 			sl->shoot();
 		}
+
+		// All GUI setup is complete, any spurious widget-driven flagging of song modified state will be
+		// complete, so clear the modification flag.
+		H2Core::Hydrogen::get_instance()->setIsModified( false );
 
 		pQApp->exec();
 

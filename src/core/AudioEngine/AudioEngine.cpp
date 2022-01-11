@@ -81,8 +81,8 @@ inline float getGaussian( float z )
 	// gaussian distribution -- dimss
 	float x1, x2, w;
 	do {
-		x1 = 2.0 * ( ( ( float ) rand() ) / RAND_MAX ) - 1.0;
-		x2 = 2.0 * ( ( ( float ) rand() ) / RAND_MAX ) - 1.0;
+		x1 = 2.0 * ( ( ( float ) rand() ) / static_cast<float>(RAND_MAX) ) - 1.0;
+		x2 = 2.0 * ( ( ( float ) rand() ) / static_cast<float>(RAND_MAX) ) - 1.0;
 		w = x1 * x1 + x2 * x2;
 	} while ( w >= 1.0 );
 
@@ -1198,7 +1198,7 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 		// Hydrogen is using the BPM broadcast by the JACK
 		// server. This one does solely depend on external
 		// applications and will NOT be stored in the Song.
-		float fJackMasterBpm = static_cast<JackAudioDriver*>(pAudioEngine->getAudioDriver())->getMasterBpm();
+		float fJackMasterBpm = pHydrogen->getMasterBpm();
 		if ( ! std::isnan( fJackMasterBpm ) && fBpm != fJackMasterBpm ) {
 			fBpm = fJackMasterBpm;
 			// DEBUGLOG( QString( "Tempo update by the JACK server [%1]").arg( fJackMasterBpm ) );

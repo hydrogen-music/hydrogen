@@ -71,6 +71,6 @@ private:
 	QSvgRenderer* m_background;
 	QSvgRenderer* m_knob;
 
-	virtual void paintEvent(QPaintEvent *ev);
+	virtual void paintEvent(QPaintEvent *ev) override;
 };
 #endif

@@ -141,21 +141,21 @@ public:
 	 *       JackPortIsInput flag found or no connection to them could
 	 *       be established.
 	 */
-	int connect();
+	virtual int connect() override;
 	/**
 	 * Disconnects the JACK client of the Hydrogen from the JACK
 	 * server.
 	 */
-	void disconnect();
+	virtual void disconnect() override;
 	/**
 	 * Deactivates the JACK client of Hydrogen and disconnects all
 	 * ports belonging to it.
 	 */
 	void deactivate();
 	/** \return Global variable #jackServerBufferSize. */
-	unsigned getBufferSize();
+	virtual unsigned getBufferSize() override;
 	/** \return Global variable #jackServerSampleRate. */
-	unsigned getSampleRate();
+	virtual unsigned getSampleRate() override;
 
 	/** Resets the buffers contained in #m_pTrackOutputPortsL and
 	 * #m_pTrackOutputPortsR.
@@ -185,14 +185,14 @@ public:
 	 * \return Pointer to buffer content of type
 	 * _jack_default_audio_sample_t*_ (jack/types.h)
 	 */
-	float* getOut_L();
+	virtual float* getOut_L() override;
 	/**
 	 * Get content in the right stereo output port.
 	 *
 	 * \return Pointer to buffer content of type
 	 * _jack_default_audio_sample_t*_ (jack/types.h)
 	 */
-	float* getOut_R();
+	virtual float* getOut_R() override;
 	/**
 	 * Get content of left output port of a specific track.
 	 *
@@ -258,7 +258,7 @@ public:
 	 * output ports for the JACK client using
 	 * _jack_port_register()_ (jack/jack.h).
 	 */
-	int init( unsigned bufferSize );
+	virtual int init( unsigned bufferSize ) override;
 
 	/**
 	 * Tells the JACK server to start transport.

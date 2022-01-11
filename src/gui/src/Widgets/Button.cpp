@@ -312,6 +312,11 @@ void Button::paintEvent( QPaintEvent* ev )
 	QPushButton::paintEvent( ev );
 
 	updateFont();
+
+	// Grey-out the widget if it is not enabled
+	if ( ! isEnabled() ) {
+		QPainter( this ).fillRect( ev->rect(), QColor( 128, 128, 128, 208 ) );
+	}
 }
 
 void Button::onPreferencesChanged( H2Core::Preferences::Changes changes ) {

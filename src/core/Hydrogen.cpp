@@ -1256,7 +1256,7 @@ void Hydrogen::onJackMaster()
 }
 #endif
 
-void Hydrogen::togglePlaysSelected()
+void Hydrogen::setPlaysSelected( bool bPlaysSelected )
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;	
 	std::shared_ptr<Song> pSong = getSong();
@@ -1270,14 +1270,14 @@ void Hydrogen::togglePlaysSelected()
 	Preferences* pPref = Preferences::get_instance();
 	bool isPlaysSelected = pPref->patternModePlaysSelected();
 
-	if (isPlaysSelected) {
+	if ( isPlaysSelected && !bPlaysSelected ) {
 		pAudioEngine->getPlayingPatterns()->clear();
 		Pattern* pSelectedPattern =
 				pSong->getPatternList()->get( getSelectedPatternNumber() );
 		pAudioEngine->getPlayingPatterns()->add( pSelectedPattern );
 	}
 
-	pPref->setPatternModePlaysSelected( !isPlaysSelected );
+	pPref->setPatternModePlaysSelected( bPlaysSelected );
 	pAudioEngine->unlock();
 }
 
@@ -1341,6 +1341,22 @@ bool Hydrogen::haveJackTransport() const {
 #else
 	return false;
 #endif	
+}
+
+float Hydrogen::getMasterBpm() const {
+#ifdef H2CORE_HAVE_JACK
+  if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
+    if ( JackAudioDriver::_class_name() == m_pAudioEngine->getAudioDriver()->class_name() ) {
+      return static_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver())->getMasterBpm();
+    } else {
+      return std::nan("No JACK driver");
+    }
+  } else {
+    return std::nan("No audio driver");
+  }
+#else
+  return std::nan("No JACK support");
+#endif
 }
 
 JackAudioDriver::Timebase Hydrogen::getJackTimebaseState() const {
@@ -1493,7 +1509,7 @@ void Hydrogen::recalculateRubberband( float fBpm ) {
 
 void Hydrogen::setIsModified( bool bIsModified ) {
 	if ( getSong() != nullptr ) {
-		getSong()->setIsModified( true );
+		getSong()->setIsModified( bIsModified );
 	}
 }
 
@@ -1501,7 +1517,7 @@ void Hydrogen::setMode( Song::Mode mode ) {
 	if ( getSong() != nullptr ) {
 		getSong()->setMode( mode );
 	}
-	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, 0 );
+	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
 }
 
 void Hydrogen::setUseTimelineBpm( bool bEnabled ) {
@@ -1713,7 +1729,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s ).arg( lastMidiEvent ) )
 			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s ).arg( lastMidiEventParameter ) )
 			.append( QString( "%1%2m_nInstrumentLookupTable: [ %3 ... %4 ]\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS ] ) );
+					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
 	} else {
 		
 		sOutput = QString( "%1[Hydrogen]" ).arg( sPrefix )
@@ -1761,7 +1777,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", lastMidiEvent: %1" ).arg( lastMidiEvent ) )
 			.append( QString( ", lastMidiEventParameter: %1" ).arg( lastMidiEventParameter ) )
 			.append( QString( ", m_nInstrumentLookupTable: [ %1 ... %2 ]" )
-					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS ] ) );
+					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
 	}
 		
 	return sOutput;

@@ -55,10 +55,10 @@ signals:
 private:
 	bool m_bMouseOver;
 
-	void mousePressEvent(QMouseEvent *ev);
-	void enterEvent(QEvent *ev);
-	void leaveEvent(QEvent *ev);
-	void paintEvent( QPaintEvent* ev);
+	virtual void mousePressEvent(QMouseEvent *ev) override;
+	virtual void enterEvent(QEvent *ev) override;
+	virtual void leaveEvent(QEvent *ev) override;
+	virtual void paintEvent( QPaintEvent* ev) override;
 
 	QColor m_sColor;
 };

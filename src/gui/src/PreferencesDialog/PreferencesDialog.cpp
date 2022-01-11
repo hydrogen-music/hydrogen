@@ -510,6 +510,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	restoreLastUsedPlaylistCheckbox->setChecked( pPref->isRestoreLastPlaylistEnabled() );
 	useRelativePlaylistPathsCheckbox->setChecked( pPref->isPlaylistUsingRelativeFilenames() );
 	hideKeyboardCursor->setChecked( pPref->hideKeyboardCursor() );
+	patternFollowsSongCheckbox->setChecked( pPref->patternFollowsSong() );
 
 	//restore the right m_bsetlash value
 	if ( pPref->m_brestartLash == true ){
@@ -720,6 +721,7 @@ void PreferencesDialog::on_okBtn_clicked()
 	pPref->setUseRelativeFilenamesForPlaylists( useRelativePlaylistPathsCheckbox->isChecked() );
 	pPref->m_bsetLash = useLashCheckbox->isChecked(); //restore m_bsetLash after saving pref.
 	pPref->setHideKeyboardCursor( hideKeyboardCursor->isChecked() );
+	pPref->setPatternFollowsSong( patternFollowsSongCheckbox->isChecked() );
 
 	//path to rubberband
 	pPref-> m_rubberBandCLIexecutable = rubberbandLineEdit->text();

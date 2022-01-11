@@ -444,7 +444,7 @@ int main(int argc, char *argv[])
 void showInfo()
 {
 	std::cout << "\nHydrogen " + get_version() + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << std::endl;
-	std::cout << "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2021 The hydrogen development team" << std::endl;
+	std::cout << "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2022 The hydrogen development team" << std::endl;
 
 	if ( Base::count_active() ) {
 		std::cout << "\nObject counting active" << std::endl;

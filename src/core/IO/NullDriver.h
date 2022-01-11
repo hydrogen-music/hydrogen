@@ -41,14 +41,14 @@ public:
 	NullDriver( audioProcessCallback processCallback );
 	~NullDriver();
 
-	int init( unsigned nBufferSize );
-	int connect();
-	void disconnect();
-	unsigned getBufferSize();
-	unsigned getSampleRate();
+	int init( unsigned nBufferSize ) override; 
+	int connect() override;
+	void disconnect() override;
+	unsigned getBufferSize() override;
+	unsigned getSampleRate() override;
 
-	float* getOut_L();
-	float* getOut_R();
+	float* getOut_L() override;
+	float* getOut_R() override;
 
 };
 

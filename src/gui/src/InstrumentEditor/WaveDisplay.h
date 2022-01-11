@@ -47,9 +47,9 @@ class WaveDisplay :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>
 
 		virtual void	updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 
-		void			paintEvent( QPaintEvent *ev );
-		void			resizeEvent( QResizeEvent * event );
-		void			mouseDoubleClickEvent(QMouseEvent *ev);
+		virtual void	paintEvent( QPaintEvent *ev ) override;
+		virtual void	resizeEvent( QResizeEvent * event ) override;
+		virtual void	mouseDoubleClickEvent(QMouseEvent *ev) override;
 		
 		void			setSampleNameAlignment(Qt::AlignmentFlag flag);
 

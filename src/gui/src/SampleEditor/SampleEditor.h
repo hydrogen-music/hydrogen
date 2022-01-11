@@ -91,10 +91,10 @@ class SampleEditor :  public QDialog, public Ui_SampleEditor_UI,  public H2Core:
 		void setSamplelengthFrames();
 		void createPositionsRulerPath();
 		void testpTimer();
-		void closeEvent(QCloseEvent *event);
 		void checkRatioSettings();
 
-		virtual void mouseReleaseEvent(QMouseEvent *ev);
+		virtual void closeEvent(QCloseEvent *event) override;
+		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
 	
 		MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
 		TargetWaveDisplay *m_pTargetSampleView;

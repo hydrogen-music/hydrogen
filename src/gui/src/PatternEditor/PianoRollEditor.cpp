@@ -325,13 +325,14 @@ void PianoRollEditor::drawPattern()
 
 
 	// for each note...
-	const Pattern::notes_t* notes = m_pPattern->get_notes();
-	FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
-		//cout << "note" << endl;
-		//cout << "note n: " << it->first << endl;
-		Note *note = it->second;
-		assert( note );
-		drawNote( note, &p );
+	for ( Pattern *pPattern : getPatternsToShow() ) {
+		bool bIsForeground = ( pPattern == m_pPattern );
+		const Pattern::notes_t* notes = pPattern->get_notes();
+		FOREACH_NOTE_CST_IT_BEGIN_END( notes, it ) {
+			Note *note = it->second;
+			assert( note );
+			drawNote( note, &p, bIsForeground );
+		}
 	}
 
 	// Draw cursor
@@ -350,14 +351,14 @@ void PianoRollEditor::drawPattern()
 }
 
 
-void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
+void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter, bool bIsForeground )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	InstrumentList * pInstrList = pHydrogen->getSong()->getInstrumentList();
 	if ( pInstrList->index( pNote->get_instrument() ) == pHydrogen->getSelectedInstrumentNumber() ) {
 		QPoint pos ( m_nMargin + pNote->get_position() * m_fGridWidth,
 					 m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1);
-		drawNoteSymbol( *pPainter, pos, pNote );
+		drawNoteSymbol( *pPainter, pos, pNote, bIsForeground );
 	}
 }
 
@@ -902,12 +903,13 @@ void PianoRollEditor::deleteSelection()
 				}
 			}
 		}
+		m_selection.clearSelection();
+
 		pUndo->beginMacro("delete notes");
 		for ( QUndoCommand * pAction : actions ) {
 			pUndo->push( pAction );
 		}
 		pUndo->endMacro();
-		m_selection.clearSelection();
 	}
 }
 

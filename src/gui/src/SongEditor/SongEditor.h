@@ -95,6 +95,8 @@ class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public S
 		void clearThePatternSequenceVector( QString filename );
 		void updateEditorandSetTrue();
 
+		int yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView );
+
 	public slots:
 
 		void selectAll();
@@ -291,6 +293,7 @@ class SongEditorPatternList :  public QWidget, protected WidgetWithScalableFont<
 		QPixmap				m_labelBackgroundSelected;
 		QPixmap				m_playingPattern_on_Pixmap;
 		QPixmap				m_playingPattern_off_Pixmap;
+		QPixmap				m_playingPattern_empty_Pixmap;
 							
 		QMenu *				m_pPatternPopup;
 		QLineEdit *			m_pLineEdit;
@@ -307,6 +310,7 @@ class SongEditorPatternList :  public QWidget, protected WidgetWithScalableFont<
 		void togglePattern( int );
 
 		virtual void patternChangedEvent() override;
+		virtual void songModeActivationEvent( int nValue ) override;
 		void mouseMoveEvent(QMouseEvent *event) override;
 		QPoint __drag_start_position;
 
@@ -382,6 +386,7 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		virtual void mousePressEvent( QMouseEvent *ev ) override;
 		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
 		virtual void paintEvent( QPaintEvent *ev ) override;
+
 	// virtual void enterEvent( QEvent* ev ) override;
 	virtual void leaveEvent( QEvent* ev ) override;
 	virtual bool event( QEvent* ev ) override;

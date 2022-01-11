@@ -211,6 +211,7 @@ Preferences::Preferences()
 	recordEvents = false;
 	m_bUseRelativeFilenamesForPlaylists = false;
 	m_bHideKeyboardCursor = false;
+	m_bPatternFollowsSong = false;
 
 	//___ GUI properties ___
 	m_nPatternEditorGridResolution = 8;
@@ -315,6 +316,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
 			m_bUseRelativeFilenamesForPlaylists = LocalFileMng::readXmlBool( rootNode, "useRelativeFilenamesForPlaylists", false );
 			m_bHideKeyboardCursor = LocalFileMng::readXmlBool( rootNode, "hideKeyboardCursorWhenUnused", false );
+			m_bPatternFollowsSong = LocalFileMng::readXmlBool( rootNode, "patternFollowsSong", false );
 
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
@@ -817,6 +819,7 @@ void Preferences::savePreferences()
 
 	LocalFileMng::writeXmlString( rootNode, "useRelativeFilenamesForPlaylists", m_bUseRelativeFilenamesForPlaylists ? "true": "false" );
 	LocalFileMng::writeXmlBool( rootNode, "hideKeyboardCursorWhenUnused", m_bHideKeyboardCursor );
+	LocalFileMng::writeXmlBool( rootNode, "patternFollowsSong", m_bPatternFollowsSong );
 	
 	// instrument input mode
 	LocalFileMng::writeXmlString( rootNode, "instrumentInputMode", __playselectedinstrument ? "true": "false" );
