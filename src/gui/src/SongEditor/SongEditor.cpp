@@ -502,7 +502,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 			deleteSelection();
 		} else {
 			// No selection, delete at the current cursor position
-			togglePatternActive( m_nCursorColumn, m_nCursorRow );
+			setPatternActive( m_nCursorColumn, m_nCursorRow, false );
 		}
 
 	} else if ( ev->matches( QKeySequence::MoveToNextChar ) || ( bSelectionKey = ev->matches( QKeySequence::SelectNextChar ) ) ) {
