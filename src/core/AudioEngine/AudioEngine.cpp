@@ -494,61 +494,38 @@ AudioOutput* AudioEngine::createDriver( const QString& sDriver )
 
 	if ( sDriver == "OSS" ) {
 		pDriver = new OssDriver( m_AudioProcessCallback );
-		if ( pDriver->class_name() == NullDriver::_class_name() ) {
-			delete pDriver;
-			pDriver = nullptr;
-		}
 	} else if ( sDriver == "JACK" ) {
 		pDriver = new JackAudioDriver( m_AudioProcessCallback );
-		if ( pDriver->class_name() == NullDriver::_class_name() ) {
-			delete pDriver;
-			pDriver = nullptr;
-		} else {
 #ifdef H2CORE_HAVE_JACK
+		if ( dynamic_cast<NullDriver*>(pDriver) == nullptr ) {
 			static_cast<JackAudioDriver*>(pDriver)->setConnectDefaults(
 						Preferences::get_instance()->m_bJackConnectDefaults
 						);
-#endif
 		}
+#endif
 	} else if ( sDriver == "ALSA" ) {
 		pDriver = new AlsaAudioDriver( m_AudioProcessCallback );
-		if ( pDriver->class_name() == NullDriver::_class_name() ) {
-			delete pDriver;
-			pDriver = nullptr;
-		}
 	} else if ( sDriver == "PortAudio" ) {
 		pDriver = new PortAudioDriver( m_AudioProcessCallback );
-		if ( pDriver->class_name() == NullDriver::_class_name() ) {
-			delete pDriver;
-			pDriver = nullptr;
-		}
-	}
-	//#ifdef Q_OS_MACX
-	else if ( sDriver == "CoreAudio" ) {
+	} else if ( sDriver == "CoreAudio" ) {
 		___INFOLOG( "Creating CoreAudioDriver" );
 		pDriver = new CoreAudioDriver( m_AudioProcessCallback );
-		if ( pDriver->class_name() == NullDriver::_class_name() ) {
-			delete pDriver;
-			pDriver = nullptr;
-		}
-	}
-	//#endif
-	else if ( sDriver == "PulseAudio" ) {
+	} else if ( sDriver == "PulseAudio" ) {
 		pDriver = new PulseAudioDriver( m_AudioProcessCallback );
-		if ( pDriver->class_name() == NullDriver::_class_name() ) {
-			delete pDriver;
-			pDriver = nullptr;
-		}
-	}
-	else if ( sDriver == "Fake" ) {
+	} else if ( sDriver == "Fake" ) {
 		___WARNINGLOG( "*** Using FAKE audio driver ***" );
 		pDriver = new FakeDriver( m_AudioProcessCallback );
 	} else {
 		___ERRORLOG( "Unknown driver " + sDriver );
 		raiseError( Hydrogen::UNKNOWN_DRIVER );
 	}
+	
+	if ( dynamic_cast<NullDriver*>(pDriver) != nullptr ) {
+		delete pDriver;
+		pDriver = nullptr;
+	}
 
-	if ( pDriver  ) {
+	if ( pDriver != nullptr ) {
 		// initialize the audio driver
 		int res = pDriver->init( pPref->m_nBufferSize );
 		if ( res != 0 ) {
@@ -682,7 +659,7 @@ void AudioEngine::setAudioDriver( AudioOutput* pAudioDriver ) {
 	this->unlock();
 	
 	if ( m_pAudioDriver != nullptr &&
-		 m_pAudioDriver->class_name() != DiskWriterDriver::_class_name() ) {
+		 dynamic_cast<DiskWriterDriver*>(m_pAudioDriver) == nullptr ) {
 		int res = m_pAudioDriver->connect();
 		if ( res != 0 ) {
 			raiseError( Hydrogen::ERROR_STARTING_DRIVER );
@@ -1113,7 +1090,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 							  RIGHT_HERE ) ) {
 		___ERRORLOG( QString( "Failed to lock audioEngine in allowed %1 ms, missed buffer" ).arg( fSlackTime ) );
 
-		if ( pAudioEngine->m_pAudioDriver->class_name() == DiskWriterDriver::_class_name() ) {
+		if ( dynamic_cast<DiskWriterDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) {
 			return 2;	// inform the caller that we could not aquire the lock
 		}
 
@@ -1152,9 +1129,8 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		pAudioEngine->stop();
 		pAudioEngine->locate( 0 ); // locate 0, reposition from start of the song
 
-		if ( (pAudioEngine->m_pAudioDriver->class_name() == DiskWriterDriver::_class_name() )
-			 || ( pAudioEngine->m_pAudioDriver->class_name() == FakeDriver::_class_name() )
-			 ) {
+		if ( dynamic_cast<DiskWriterDriver*>(pAudioEngine->m_pAudioDriver) != nullptr
+			 || dynamic_cast<FakeDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) {
 			___INFOLOG( "End of song." );
 			
 			return 1;	// kill the audio AudioDriver thread
@@ -1835,7 +1811,7 @@ void AudioEngine::play() {
 
 	setNextState( State::Playing );
 
-	if ( m_pAudioDriver->class_name() == FakeDriver::_class_name() ) {
+	if ( dynamic_cast<FakeDriver*>(m_pAudioDriver) != nullptr ) {
 		static_cast<FakeDriver*>( m_pAudioDriver )->processCallback();
 	}
 }
