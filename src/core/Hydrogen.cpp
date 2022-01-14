@@ -1367,7 +1367,7 @@ bool Hydrogen::isUnderSessionManagement() const {
 }
 
 bool Hydrogen::isTimelineEnabled() const {
-	if ( Preferences::get_instance()->getUseTimelineBpm() &&
+	if ( getSong()->getIsTimelineActivated() &&
 		 getMode() == Song::Mode::Song &&
 		 getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
 		return true;
@@ -1380,7 +1380,7 @@ Hydrogen::Tempo Hydrogen::getTempoSource() const {
 	if ( getMode() == Song::Mode::Song ) {
 		if ( getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 			return Tempo::Jack;
-		} else if ( Preferences::get_instance()->getUseTimelineBpm() ) {
+		} else if ( getSong()->getIsTimelineActivated() ) {
 			return Tempo::Timeline;
 		}
 	}
@@ -1499,11 +1499,12 @@ void Hydrogen::setMode( Song::Mode mode ) {
 	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
 }
 
-void Hydrogen::setUseTimelineBpm( bool bEnabled ) {
+void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
 	auto pPref = Preferences::get_instance();
 
-	if ( bEnabled != pPref->getUseTimelineBpm() ) {
+	if ( bEnabled != getSong()->getIsTimelineActivated() ) {
 		pPref->setUseTimelineBpm( bEnabled );
+		getSong()->setIsTimelineActivated( bEnabled );
 
 		EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION, static_cast<int>( bEnabled ) );
 	}

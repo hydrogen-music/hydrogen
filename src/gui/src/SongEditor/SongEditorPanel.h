@@ -185,7 +185,7 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		virtual void resizeEvent( QResizeEvent *ev ) override;
 		void resyncExternalScrollBar();
 
-	bool m_bLastUseTimelineBpm;
+	bool m_bLastIsTimelineActivated;
 };
 
 #endif

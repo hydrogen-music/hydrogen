@@ -187,9 +187,11 @@ public:
 	code except for song reading/setting.*/
 	void setMode( Song::Mode mode );
 
-	/** Wrapper around Preferences::setUseTimelinebpm() which also
+	/** Wrapper around both Song::setIsTimelineActivated (recent) and
+	Preferences::setUseTimelinebpm() (former place to store the
+	variable but kept to maintain backward compatibility) which also
 	triggers EVENT_TIMELINE_ACTIVATION.*/
-	void setUseTimelineBpm( bool bEnabled );
+	void setIsTimelineActivated( bool bEnabled );
 
 	void			removeSong();
 

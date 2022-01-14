@@ -63,7 +63,8 @@ namespace H2Core
 {
 
 Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume )
-	: m_bIsMuted( false )
+	: m_bIsTimelineActivated( false )
+	, m_bIsMuted( false )
 	, m_resolution( 48 )
 	, m_fBpm( fBpm )
 	, m_sName( sName )
@@ -660,6 +661,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Song]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_bIsTimelineActivated: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsTimelineActivated ) )
 			.append( QString( "%1%2m_bIsMuted: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsMuted ) )
 			.append( QString( "%1%2m_resolution: %3\n" ).arg( sPrefix ).arg( s ).arg( m_resolution ) )
 			.append( QString( "%1%2m_fBpm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fBpm ) )
@@ -712,6 +714,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 	} else {
 		
 		sOutput = QString( "[Song]" )
+			.append( QString( ", m_bIsTimelineActivated: %1" ).arg( m_bIsTimelineActivated ) )
 			.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
 			.append( QString( ", m_resolution: %1" ).arg( m_resolution ) )
 			.append( QString( ", m_fBpm: %1" ).arg( m_fBpm ) )
@@ -814,6 +817,8 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 		return nullptr;
 	}
 
+	auto pPreferences = Preferences::get_instance();
+
 	INFOLOG( "Reading " + sFilename );
 	std::shared_ptr<Song> pSong = nullptr;
 
@@ -842,7 +847,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	QString sNotes( LocalFileMng::readXmlString( songNode, "notes", "..." ) );
 	QString sLicense( LocalFileMng::readXmlString( songNode, "license", "Unknown license" ) );
 	bool bLoopEnabled = LocalFileMng::readXmlBool( songNode, "loopEnabled", false );
-	Preferences::get_instance()->setPatternModePlaysSelected( LocalFileMng::readXmlBool( songNode, "patternModeMode", true ) );
+	pPreferences->setPatternModePlaysSelected( LocalFileMng::readXmlBool( songNode, "patternModeMode", true ) );
 	Song::Mode mode = Song::Mode::Pattern;
 	QString sMode = LocalFileMng::readXmlString( songNode, "mode", "pattern" );
 	if ( sMode == "song" ) {
@@ -858,6 +863,18 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	float fHumanizeTimeValue = LocalFileMng::readXmlFloat( songNode, "humanize_time", 0.0 );
 	float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
 	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
+	bool bContainsIsTimelineActivated;
+	bool bIsTimelineActivated =
+		LocalFileMng::readXmlBool( songNode, "isTimelineActivated", false,
+								   &bContainsIsTimelineActivated );
+	if ( ! bContainsIsTimelineActivated ) {
+		// .h2song file was created in an older version of
+		// Hydrogen. Using the Timeline state in the
+		// Preferences as a fallback.
+		bIsTimelineActivated = pPreferences->getUseTimelineBpm();
+	} else {
+		pPreferences->setUseTimelineBpm( bIsTimelineActivated );
+	}
 
 	pSong = std::make_shared<Song>( sName, sAuthor, fBpm, fVolume );
 	pSong->setMetronomeVolume( fMetronomeVolume );
@@ -872,6 +889,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	pSong->setPlaybackTrackEnabled( bPlaybackTrackEnabled );
 	pSong->setPlaybackTrackVolume( fPlaybackTrackVolume );
 	pSong->setActionMode( actionMode );
+	pSong->setIsTimelineActivated( bIsTimelineActivated );
 	
 	// pan law
 	QString sPanLawType( LocalFileMng::readXmlString( songNode, "pan_law_type", "RATIO_STRAIGHT_POLYGONAL" ) );
@@ -1138,7 +1156,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 							sFilename = drumkitPath + "/" + sFilename;
 						}
 
-						QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
+						QString program = pPreferences->m_rubberBandCLIexecutable;
 						//test the path. if test fails, disable rubberband
 						if ( QFile( program ).exists() == false ) {
 							ro.use = false;
@@ -1226,7 +1244,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 							sFilename = drumkitPath + "/" + sFilename;
 						}
 
-						QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
+						QString program = pPreferences->m_rubberBandCLIexecutable;
 						//test the path. if test fails, disable rubberband
 						if ( QFile( program ).exists() == false ) {
 							ro.use = false;

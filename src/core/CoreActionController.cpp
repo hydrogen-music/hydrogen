@@ -567,8 +567,8 @@ bool CoreActionController::isSongPathValid( const QString& sSongPath ) {
 
 bool CoreActionController::activateTimeline( bool bActivate ) {
 	auto pHydrogen = Hydrogen::get_instance();
-	
-	pHydrogen->setUseTimelineBpm( bActivate );
+
+	pHydrogen->setIsTimelineActivated( bActivate );
 	
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as there is still an external JACK timebase master." )

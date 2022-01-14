@@ -90,6 +90,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		static std::shared_ptr<Song> getEmptySong();
 		static std::shared_ptr<Song> getDefaultSong();
 
+	bool getIsTimelineActivated() const;
+	void setIsTimelineActivated( bool bIsTimelineActivated );
+
 		bool getIsMuted() const;
 		void setIsMuted( bool bIsMuted );
 
@@ -247,6 +250,10 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	friend std::shared_ptr<Song> SongReader::readSong( const QString& filename );
 	
 	private:
+
+	/** Whether the Timeline button was pressed in the GUI or it was
+		activated via an OSC command. */
+	bool m_bIsTimelineActivated;
 							
 		bool m_bIsMuted;
 		///< Resolution of the song (number of ticks per quarter)
@@ -329,6 +336,12 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 };
 
+inline bool Song::getIsTimelineActivated() const {
+	return m_bIsTimelineActivated;
+}
+inline void Song::setIsTimelineActivated( bool bIsTimelineActivated ) {
+	m_bIsTimelineActivated = bIsTimelineActivated;
+}
 inline std::shared_ptr<Timeline> Song::getTimeline() const {
 	return m_pTimeline;
 }
