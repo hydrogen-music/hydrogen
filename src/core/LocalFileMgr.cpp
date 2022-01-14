@@ -739,7 +739,7 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 
 
 	//bpm time line
-	Timeline * pTimeline = Hydrogen::get_instance()->getTimeline();
+	auto pTimeline = Hydrogen::get_instance()->getTimeline();
 
 	QDomNode bpmTimeLine = doc.createElement( "BPMTimeLine" );
 

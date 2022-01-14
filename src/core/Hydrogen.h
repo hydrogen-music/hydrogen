@@ -99,16 +99,6 @@ public:
 
 	/**
 	 * Destructor taking care of most of the clean up.
-	 *
-	 * -# Shuts down the NsmClient using NsmClient::shutdown() and
-              deletes it.
-	 * -# Deletes the OscServer object.
-	 * -# Stops the AudioEngine if playing via audioEngine_stop().
-	 * -# Calls removeSong(), audioEngine_stopAudioDrivers(),
-              audioEngine_destroy(), __kill_instruments()
-         * -# Deletes the #m_pCoreActionController and #m_pTimeline
-              object
-	 * -# Sets #__instance to NULL.
 	 */
 	~Hydrogen();
 
@@ -382,7 +372,7 @@ void			previewSample( Sample *pSample );
 	void			onJackMaster();
 
 	void			__panic();
-	Timeline*		getTimeline() const;
+	std::shared_ptr<Timeline>	getTimeline() const;
 	
 	//export management
 	bool			getIsExportSessionActive() const;
@@ -551,7 +541,7 @@ private:
 	/**
 	 * Local instance of the Timeline object.
 	 */
-	Timeline*		m_pTimeline;
+	std::shared_ptr<Timeline>	m_pTimeline;
 	/**
 	 * Local instance of the CoreActionController object.
 	 */ 
@@ -608,7 +598,7 @@ private:
 /*
  * inline methods
  */
-inline Timeline* Hydrogen::getTimeline() const
+inline std::shared_ptr<Timeline> Hydrogen::getTimeline() const
 {
 	return m_pTimeline;
 }

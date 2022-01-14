@@ -1473,7 +1473,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 		WARNINGLOG( "ladspa node not found" );
 	}
 
-	Timeline* pTimeline = Hydrogen::get_instance()->getTimeline();
+	auto pTimeline = Hydrogen::get_instance()->getTimeline();
 	pTimeline->deleteAllTempoMarkers();
 	QDomNode bpmTimeLine = songNode.firstChildElement( "BPMTimeLine" );
 	if ( !bpmTimeLine.isNull() ) {

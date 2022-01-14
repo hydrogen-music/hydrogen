@@ -68,7 +68,6 @@
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 #include "MidiMap.h"
-#include <core/Timeline.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -116,7 +115,7 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 
 	__song = nullptr;
 
-	m_pTimeline = new Timeline();
+	m_pTimeline = std::make_shared<Timeline>();
 	m_pCoreActionController = new CoreActionController();
 
 	initBeatcounter();
@@ -162,7 +161,6 @@ Hydrogen::~Hydrogen()
 	__kill_instruments();
 
 	delete m_pCoreActionController;
-	delete m_pTimeline;
 	delete m_pAudioEngine;
 
 	__instance = nullptr;
