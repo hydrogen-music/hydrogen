@@ -1326,6 +1326,8 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	setNextBpm( pNewSong->getBpm() );
 	processCheckBPMChanged();
 
+	Hydrogen::get_instance()->setTimeline( pNewSong->getTimeline() );
+
 	this->unlock();
 
 	m_pEventQueue->push_event( EVENT_STATE, static_cast<int>(State::Ready) );

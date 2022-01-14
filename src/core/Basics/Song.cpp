@@ -95,6 +95,8 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 
 	m_pComponents = new std::vector<DrumkitComponent*> ();
 	m_pVelocityAutomationPath = new AutomationPath(0.0f, 1.5f,  1.0f);
+
+	m_pTimeline = std::make_shared<Timeline>();
 }
 
 Song::~Song()
@@ -700,7 +702,13 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_actionMode: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( static_cast<int>(m_actionMode) ) )
 			.append( QString( "%1%2m_nPanLawType: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nPanLawType ) )
-			.append( QString( "%1%2m_fPanLawKNorm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPanLawKNorm ) );
+			.append( QString( "%1%2m_fPanLawKNorm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPanLawKNorm ) )
+			.append( QString( "%1%2m_pTimeline:\n" ).arg( sPrefix ).arg( s ) );
+		if ( m_pTimeline != nullptr ) {
+			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( QString( "nullptr\n" ) );
+		}
 	} else {
 		
 		sOutput = QString( "[Song]" )
@@ -745,7 +753,13 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_sLicense: %1" ).arg( m_sLicense ) )
 			.append( QString( ", m_actionMode: %1" ).arg( static_cast<int>(m_actionMode) ) )
 			.append( QString( ", m_nPanLawType: %1" ).arg( m_nPanLawType ) )
-			.append( QString( ", m_fPanLawKNorm: %1" ).arg( m_fPanLawKNorm ) );
+			.append( QString( ", m_fPanLawKNorm: %1" ).arg( m_fPanLawKNorm ) )
+			.append( QString( ", m_pTimeline: " ) );
+		if ( m_pTimeline != nullptr ) {
+			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix, bShort ) ) );
+		} else {
+			sOutput.append( QString( "nullptr" ) );
+		}
 	}
 	
 	return sOutput;
@@ -1473,8 +1487,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 		WARNINGLOG( "ladspa node not found" );
 	}
 
-	auto pTimeline = Hydrogen::get_instance()->getTimeline();
-	pTimeline->deleteAllTempoMarkers();
+	std::shared_ptr<Timeline> pTimeline = std::make_shared<Timeline>();
 	QDomNode bpmTimeLine = songNode.firstChildElement( "BPMTimeLine" );
 	if ( !bpmTimeLine.isNull() ) {
 		QDomNode newBPMNode = bpmTimeLine.firstChildElement( "newBPM" );
@@ -1487,7 +1500,6 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 		WARNINGLOG( "bpmTimeLine node not found" );
 	}
 
-	pTimeline->deleteAllTags();
 	QDomNode timeLineTag = songNode.firstChildElement( "timeLineTag" );
 	if ( !timeLineTag.isNull() ) {
 		QDomNode newTAGNode = timeLineTag.firstChildElement( "newTAG" );
@@ -1499,6 +1511,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	} else {
 		WARNINGLOG( "TagTimeLine node not found" );
 	}
+	pSong->setTimeline( pTimeline );
 
 	// Automation Paths
 	QDomNode automationPathsNode = songNode.firstChildElement( "automationPaths" );

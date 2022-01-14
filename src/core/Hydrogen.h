@@ -373,6 +373,7 @@ void			previewSample( Sample *pSample );
 
 	void			__panic();
 	std::shared_ptr<Timeline>	getTimeline() const;
+	void			setTimeline( std::shared_ptr<Timeline> );
 	
 	//export management
 	bool			getIsExportSessionActive() const;
@@ -601,6 +602,10 @@ private:
 inline std::shared_ptr<Timeline> Hydrogen::getTimeline() const
 {
 	return m_pTimeline;
+}
+inline void Hydrogen::setTimeline( std::shared_ptr<Timeline> pTimeline )
+{
+	m_pTimeline = pTimeline;
 }
 
 inline CoreActionController* Hydrogen::getCoreActionController() const

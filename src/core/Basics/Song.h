@@ -47,6 +47,28 @@ class Song;
 class DrumkitComponent;
 class PatternList;
 class AutomationPath;
+class Timeline;
+
+/**
+\ingroup H2CORE
+\brief	Read XML file of a song
+*/
+/** \ingroup docCore*/
+class SongReader : public H2Core::Object<SongReader>
+{
+		H2_OBJECT(SongReader)
+	public:
+		SongReader();
+		~SongReader();
+		const QString getPath( const QString& filename ) const;
+		std::shared_ptr<Song> readSong( const QString& filename );
+
+	private:
+		QString m_sSongVersion;
+
+		/// Dato un XmlNode restituisce un oggetto Pattern
+		Pattern* getPattern( QDomNode pattern, InstrumentList* instrList );
+};
 
 /**
 \ingroup H2CORE
@@ -209,6 +231,8 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		float getPanLawKNorm() const;
 
 		bool isPatternActive( int nColumn, int nRow ) const;
+
+	std::shared_ptr<Timeline> getTimeline() const;
 	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -219,7 +243,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		 *
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
-
+	
+	friend std::shared_ptr<Song> SongReader::readSong( const QString& filename );
+	
 	private:
 							
 		bool m_bIsMuted;
@@ -298,7 +324,17 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		// k such that L^k+R^k = 1. Used in constant k-Norm pan law
 		float m_fPanLawKNorm;
 
+	void setTimeline( std::shared_ptr<Timeline> pTimeline );
+	std::shared_ptr<Timeline> m_pTimeline;
+
 };
+
+inline std::shared_ptr<Timeline> Song::getTimeline() const {
+	return m_pTimeline;
+}
+inline void Song::setTimeline( std::shared_ptr<Timeline> pTimeline ) {
+	m_pTimeline = pTimeline;
+}
 
 inline bool Song::getIsMuted() const
 {
@@ -570,27 +606,6 @@ inline int Song::getPanLawType() const {
 inline float Song::getPanLawKNorm() const {
 	return m_fPanLawKNorm;
 }
-
-/**
-\ingroup H2CORE
-\brief	Read XML file of a song
-*/
-/** \ingroup docCore*/
-class SongReader : public H2Core::Object<SongReader>
-{
-		H2_OBJECT(SongReader)
-	public:
-		SongReader();
-		~SongReader();
-		const QString getPath( const QString& filename ) const;
-		std::shared_ptr<Song> readSong( const QString& filename );
-
-	private:
-		QString m_sSongVersion;
-
-		/// Dato un XmlNode restituisce un oggetto Pattern
-		Pattern* getPattern( QDomNode pattern, InstrumentList* instrList );
-};
 
 };
 
