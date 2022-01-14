@@ -127,11 +127,8 @@ for:
           sudo python3 ./treestate.py updates usr.json /usr > updates
           echo $(wc -l updates) updates
           sudo tar cf $cache_tar -T updates
-          du -h $cache_tar
           sudo nice xz -9 -T0 $cache_tar
           du -h $cache
-
-          du -h $cdir
 
         ) 2>&1 | sed 's/^/CACHE: /' &
       fi
@@ -150,7 +147,7 @@ for:
       ccache -s
 
       wait
-      echo "=== Build cache usage is " $( du -h $cache | tail -1 ) "==="
+      echo "=== Build cache usage is " $( du -h $cdir | tail -1 ) "==="
 
 
     test_script: |-
@@ -261,7 +258,7 @@ for:
 
       echo "Waiting for installer creation and cache archiving"
       wait
-      echo "=== Build cache usage is " $( du -h $cache | tail -1 ) "==="
+      echo "=== Build cache usage is " $( du -h $cdir | tail -1 ) "==="
       echo "Done"
 
   -
