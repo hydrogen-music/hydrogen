@@ -59,7 +59,7 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 		virtual int connect() override;
 		virtual void disconnect() override;
 
-		void write( float* buffer_L, float* buffer_R, unsigned int bufferSize );
+		void write();
 
 		virtual unsigned getBufferSize() override {
 			return m_nBufferSize;

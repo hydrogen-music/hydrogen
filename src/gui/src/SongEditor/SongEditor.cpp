@@ -35,7 +35,6 @@
 #include <core/LocalFileMng.h>
 #include <core/Timeline.h>
 #include <core/Helpers/Xml.h>
-#include <core/IO/DiskWriterDriver.h>
 using namespace H2Core;
 
 #include "UndoActions.h"

@@ -460,7 +460,7 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 	
 #ifdef H2CORE_HAVE_JACK
 	if ( Hydrogen::get_instance()->haveJackAudioDriver() ) {
-		JackAudioDriver * pJackAudioDriver = dynamic_cast<JackAudioDriver*>(m_pAudioDriver);
+		JackAudioDriver* pJackAudioDriver = static_cast<JackAudioDriver*>(m_pAudioDriver);
 	
 		if( pJackAudioDriver ) {
 			pJackAudioDriver->clearPerTrackAudioBuffers( nFrames );
@@ -497,10 +497,10 @@ AudioOutput* AudioEngine::createDriver( const QString& sDriver )
 	} else if ( sDriver == "JACK" ) {
 		pDriver = new JackAudioDriver( m_AudioProcessCallback );
 #ifdef H2CORE_HAVE_JACK
-		if ( dynamic_cast<NullDriver*>(pDriver) == nullptr ) {
-			static_cast<JackAudioDriver*>(pDriver)->setConnectDefaults(
-						Preferences::get_instance()->m_bJackConnectDefaults
-						);
+		if ( auto pJackDriver = dynamic_cast<JackAudioDriver*>( pDriver ) ) {
+			pJackDriver->setConnectDefaults(
+				Preferences::get_instance()->m_bJackConnectDefaults
+			);
 		}
 #endif
 	} else if ( sDriver == "ALSA" ) {
@@ -658,8 +658,7 @@ void AudioEngine::setAudioDriver( AudioOutput* pAudioDriver ) {
 	mx.unlock();
 	this->unlock();
 	
-	if ( m_pAudioDriver != nullptr &&
-		 dynamic_cast<DiskWriterDriver*>(m_pAudioDriver) == nullptr ) {
+	if ( m_pAudioDriver != nullptr ) {
 		int res = m_pAudioDriver->connect();
 		if ( res != 0 ) {
 			raiseError( Hydrogen::ERROR_STARTING_DRIVER );
@@ -674,11 +673,9 @@ void AudioEngine::setAudioDriver( AudioOutput* pAudioDriver ) {
 			m_pAudioDriver->connect();
 		}
 
-#ifdef H2CORE_HAVE_JACK
-		if ( pSong != nullptr ) {
+		if ( pSong != nullptr && pHydrogen->haveJackAudioDriver() ) {
 			pHydrogen->renameJackPorts( pSong );
 		}
-#endif
 		
 		setupLadspaFX();
 	}

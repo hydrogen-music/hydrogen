@@ -633,23 +633,13 @@ void Hydrogen::startExportSong( const QString& filename)
 
 	DiskWriterDriver* pDiskWriterDriver = static_cast<DiskWriterDriver*>(pAudioEngine->getAudioDriver());
 	pDiskWriterDriver->setFileName( filename );
-	
-	if ( pDiskWriterDriver->connect() != 0 ) {
-		ERRORLOG( "Error starting disk writer driver [DiskWriterDriver::connect()]" );
-	}
-	
+	pDiskWriterDriver->write();
 }
 
 void Hydrogen::stopExportSong()
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
-	
-	if ( dynamic_cast<DiskWriterDriver*>(pAudioEngine->getAudioDriver()) == nullptr ) {
-		return;
-	}
-
 	pAudioEngine->getSampler()->stopPlayingNotes();
-	pAudioEngine->getAudioDriver()->disconnect();
 	pAudioEngine->reset();
 }
 
@@ -665,7 +655,7 @@ void Hydrogen::stopExportSession()
 	
 	pAudioEngine->startAudioDrivers();
 	if ( pAudioEngine->getAudioDriver() == nullptr ) {
-		ERRORLOG( "pAudioEngine->getAudioDriver() = nullptr" );
+		ERRORLOG( "Unable to restart previous audio driver after exporting song." );
 	}
 	m_bExportSessionIsActive = false;
 }
