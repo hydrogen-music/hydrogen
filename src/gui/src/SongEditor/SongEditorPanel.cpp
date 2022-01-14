@@ -129,19 +129,22 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// Two buttons sharing the same position and either of them is
 	// shown unpressed.
-	m_pModeActionSingleBtn = new Button( pBackPanel, QSize( 23, 19 ), Button::Type::Push, "single_layer.svg", "", false, QSize( 15, 11 ), tr( "single pattern mode") );
+	m_pModeActionSingleBtn = new Button( pBackPanel, QSize( 23, 19 ), Button::Type::Push, "single_layer.svg", "",
+										 false, QSize( 15, 11 ), tr( "Focused single pattern mode") );
 	m_pModeActionSingleBtn->move( 170, 26 );
 	m_pModeActionSingleBtn->setVisible( pPref->patternModePlaysSelected() );
 	connect( m_pModeActionSingleBtn, SIGNAL( pressed() ), this, SLOT( modeActionBtnPressed() ) );
 
-	m_pModeActionMultipleBtn = new Button( pBackPanel, QSize( 23, 19 ), Button::Type::Push, "multiple_layers.svg", "", false, QSize( 19, 15 ), tr( "stacked pattern mode") );
+	m_pModeActionMultipleBtn = new Button( pBackPanel, QSize( 23, 19 ), Button::Type::Push, "multiple_layers.svg", "",
+										   false, QSize( 19, 15 ),
+										   tr( "stacked pattern mode: show and play multiple patterns at a time") );
 	m_pModeActionMultipleBtn->move( 170, 26 );
 	m_pModeActionMultipleBtn->hide();
 	m_pModeActionMultipleBtn->setVisible( pPref->patternModePlaysSelected() );
 	connect( m_pModeActionMultipleBtn, SIGNAL( pressed() ), this, SLOT( modeActionBtnPressed() ) );
 	setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
 
-// ZOOM
+	// ZOOM
 	m_pHScrollBar = new QScrollBar( Qt::Horizontal, nullptr );
 	m_pHScrollBar->setObjectName( "SongEditorPanel HScrollBar" );
 	connect( m_pHScrollBar, SIGNAL(valueChanged(int)), this, SLOT( hScrollTo(int) ) );

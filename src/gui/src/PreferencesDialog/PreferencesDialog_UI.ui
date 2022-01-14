@@ -91,6 +91,9 @@
        </item>
        <item>
         <widget class="QCheckBox" name="hideKeyboardCursor">
+         <property name="toolTip">
+          <string>Hide the keyboard input cursor when editing using the mouse</string>
+         </property>
          <property name="text">
           <string>&amp;Hide keyboard input cursor</string>
          </property>
@@ -98,6 +101,9 @@
        </item>
        <item>
         <widget class="QCheckBox" name="useLashCheckbox">
+         <property name="toolTip">
+          <string>Use the LASH Audio Session Handler</string>
+         </property>
          <property name="text">
           <string extracomment="LASH (acronym for LASH Audio Session Handler) is a protocol allowing for session management in Linux (recalling songs, preferences, and JACK port connections).">Use &amp;LASH</string>
          </property>
@@ -105,6 +111,9 @@
        </item>
        <item>
         <widget class="QCheckBox" name="patternFollowsSongCheckbox">
+         <property name="toolTip">
+          <string>Keep a currently-playing pattern selected when playing in Song Mode</string>
+         </property>
          <property name="text">
           <string>Selected pattern follows song</string>
          </property>
@@ -211,6 +220,9 @@
         <layout class="QGridLayout" name="gridLayout">
          <item row="0" column="0" colspan="2">
           <widget class="QLabel" name="pathToRubberbandExLable">
+           <property name="toolTip">
+            <string>Rubberband is used to time-stretch or compress samples to playback at different pitches.</string>
+           </property>
            <property name="text">
             <string>Path to the Rubberband command-line utility</string>
            </property>
@@ -236,6 +248,9 @@
              <width>181</width>
              <height>0</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string>Rubberband is used to time-stretch or compress samples to playback at different pitches.</string>
            </property>
           </widget>
          </item>
@@ -266,7 +281,11 @@
             <widget class="QComboBox" name="driverComboBox"/>
            </item>
            <item row="4" column="1">
-            <widget class="HostAPIComboBox" name="portaudioHostAPIComboBox"/>
+            <widget class="HostAPIComboBox" name="portaudioHostAPIComboBox">
+             <property name="toolTip">
+              <string>Underlying system API to use</string>
+             </property>
+            </widget>
            </item>
            <item row="9" column="1">
             <widget class="QComboBox" name="trackOutputComboBox">
@@ -293,6 +312,9 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="toolTip">
+              <string>Audio output device to send Hydrogen audio to</string>
+             </property>
              <property name="editable">
               <bool>true</bool>
              </property>
@@ -313,6 +335,9 @@
            </item>
            <item row="4" column="0">
             <widget class="QLabel" name="portaudioHostAPILabel">
+             <property name="toolTip">
+              <string>Underlying system API to use</string>
+             </property>
              <property name="text">
               <string>Host API</string>
              </property>
@@ -341,6 +366,13 @@
                <width>0</width>
                <height>22</height>
               </size>
+             </property>
+             <property name="toolTip">
+              <string>Audio buffer size (in frames). This generally determines the minimum audio latency the system can achieve. Actual audio latency will be greater.
+
+Selecting a buffer size that is too small may lead to audible glitches, particularly if the system becomes more heavily loaded.
+
+Use with caution.</string>
              </property>
              <property name="minimum">
               <number>100</number>
@@ -381,6 +413,9 @@
            </item>
            <item row="5" column="0">
             <widget class="QLabel" name="audioDeviceLbl">
+             <property name="toolTip">
+              <string>Audio output device to send Hydrogen audio to</string>
+             </property>
              <property name="text">
               <string>Device</string>
              </property>
@@ -388,6 +423,11 @@
            </item>
            <item row="7" column="0">
             <widget class="QLabel" name="latencyTargetLabel">
+             <property name="toolTip">
+              <string>Set the target latency that the audio system attempts to achieve.
+Selecting a latency that is too small may lead to audible glitches, particularly if the system becomes more heavily loaded.
+Use with caution.</string>
+             </property>
              <property name="text">
               <string>Latency target</string>
              </property>
@@ -395,6 +435,9 @@
            </item>
            <item row="8" column="1">
             <widget class="QComboBox" name="sampleRateComboBox">
+             <property name="toolTip">
+              <string>Audio sample rate (or frame rate) to use. 44100 frames/second is CD-quality.</string>
+             </property>
              <property name="currentIndex">
               <number>0</number>
              </property>
@@ -428,6 +471,13 @@
                <height>22</height>
               </size>
              </property>
+             <property name="toolTip">
+              <string>Audio buffer size (in frames). This generally determines the minimum audio latency the system can achieve. Actual audio latency will be greater.
+
+Selecting a buffer size that is too small may lead to audible glitches, particularly if the system becomes more heavily loaded.
+
+Use with caution.</string>
+             </property>
              <property name="text">
               <string>Buffer size</string>
              </property>
@@ -441,6 +491,9 @@
                <height>22</height>
               </size>
              </property>
+             <property name="toolTip">
+              <string>Audio sample rate (or frame rate) to use. 44100 frames/second is CD-quality.</string>
+             </property>
              <property name="text">
               <string>Sample rate</string>
              </property>
@@ -450,6 +503,11 @@
             <layout class="QHBoxLayout" name="horizontalLayout_11">
              <item>
               <widget class="QSpinBox" name="latencyTargetSpinBox">
+               <property name="toolTip">
+                <string>Set the target latency that the audio system attempts to achieve.
+Selecting a latency that is too small may lead to audible glitches, particularly if the system becomes more heavily loaded.
+Use with caution.</string>
+               </property>
                <property name="maximum">
                 <number>48000</number>
                </property>
@@ -460,6 +518,11 @@
              </item>
              <item>
               <widget class="QLabel" name="latencyValueLabel">
+               <property name="toolTip">
+                <string>Set the target latency that the audio system attempts to achieve.
+Selecting a latency that is too small may lead to audible glitches, particularly if the system becomes more heavily loaded.
+Use with caution.</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
@@ -505,6 +568,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="restartDriverBtn">
+           <property name="toolTip">
+            <string>Restart audio system to apply currently selected parameters.</string>
+           </property>
            <property name="text">
             <string>Apply and restart output</string>
            </property>
@@ -586,6 +652,11 @@
           <layout class="QHBoxLayout" name="horizontalLayout_31">
            <item>
             <widget class="QLabel" name="resapelingLbl">
+             <property name="toolTip">
+              <string>Interpolation method used when rendering samples at different frequencies.
+Linear interpolation is fastest and provides reasonable sound quality. Others are higher quality but have higher CPU usage penalties.
+The differences will be most noticable where samples are played back at much different frequencies from the audio system sample rate (eg. low quality samples, particularly played at low pitch).</string>
+             </property>
              <property name="text">
               <string>Interpolate resampling</string>
              </property>
@@ -593,6 +664,11 @@
            </item>
            <item>
             <widget class="QComboBox" name="resampleComboBox">
+             <property name="toolTip">
+              <string>Interpolation method used when rendering samples at different frequencies.
+Linear interpolation is fastest and provides reasonable sound quality. Others are higher quality but have higher CPU usage penalties.
+The differences will be most noticable where samples are played back at much different frequencies from the audio system sample rate (eg. low quality samples, particularly played at low pitch).</string>
+             </property>
              <item>
               <property name="text">
                <string>Linear</string>
