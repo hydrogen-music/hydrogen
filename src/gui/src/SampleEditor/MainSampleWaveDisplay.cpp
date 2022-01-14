@@ -225,7 +225,7 @@ void MainSampleWaveDisplay::mouseUpdateDone() {
 
 void MainSampleWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
-	if (ev->buttons() && Qt::LeftButton) {
+	if (ev->buttons() & Qt::LeftButton) {
 		testPosition( ev );
 	} else {
 		chooseSlider( ev );

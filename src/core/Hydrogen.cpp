@@ -1324,6 +1324,22 @@ bool Hydrogen::haveJackTransport() const {
 #endif	
 }
 
+float Hydrogen::getMasterBpm() const {
+#ifdef H2CORE_HAVE_JACK
+  if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
+    if ( JackAudioDriver::_class_name() == m_pAudioEngine->getAudioDriver()->class_name() ) {
+      return static_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver())->getMasterBpm();
+    } else {
+      return std::nan("No JACK driver");
+    }
+  } else {
+    return std::nan("No audio driver");
+  }
+#else
+  return std::nan("No JACK support");
+#endif
+}
+
 JackAudioDriver::Timebase Hydrogen::getJackTimebaseState() const {
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
@@ -1474,7 +1490,7 @@ void Hydrogen::recalculateRubberband( float fBpm ) {
 
 void Hydrogen::setIsModified( bool bIsModified ) {
 	if ( getSong() != nullptr ) {
-		getSong()->setIsModified( true );
+		getSong()->setIsModified( bIsModified );
 	}
 }
 
@@ -1545,7 +1561,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s ).arg( lastMidiEvent ) )
 			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s ).arg( lastMidiEventParameter ) )
 			.append( QString( "%1%2m_nInstrumentLookupTable: [ %3 ... %4 ]\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS ] ) );
+					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
 	} else {
 		
 		sOutput = QString( "%1[Hydrogen]" ).arg( sPrefix )
@@ -1593,7 +1609,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", lastMidiEvent: %1" ).arg( lastMidiEvent ) )
 			.append( QString( ", lastMidiEventParameter: %1" ).arg( lastMidiEventParameter ) )
 			.append( QString( ", m_nInstrumentLookupTable: [ %1 ... %2 ]" )
-					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS ] ) );
+					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
 	}
 		
 	return sOutput;

@@ -452,6 +452,7 @@ void			previewSample( Sample *pSample );
 	 * (#H2Core::Preferences::m_bJackTransportMode).
 	 */
 	bool			haveJackTransport() const;
+        float			getMasterBpm() const;
 
 	/**
 	 * Convenience function checking whether using the Timeline tempo

@@ -52,7 +52,7 @@ public:
 	};
 	
 	explicit ClickableLabel( QWidget *pParent, QSize size = QSize( 0, 0 ), QString sText = "", Color color = Color::Bright );
-	void mousePressEvent( QMouseEvent * e );
+	virtual void mousePressEvent( QMouseEvent * e ) override;
 
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );

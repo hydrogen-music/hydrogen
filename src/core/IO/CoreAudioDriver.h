@@ -66,20 +66,20 @@ public:
 	CoreAudioDriver( audioProcessCallback processCallback );
 	virtual ~CoreAudioDriver();
 
-	int init( unsigned bufferSize );
+	virtual int init( unsigned bufferSize ) override;
 
-	unsigned getSampleRate();
-	unsigned getBufferSize();
+	virtual unsigned getSampleRate() override;
+	virtual unsigned getBufferSize() override;
 
-	int connect();
-	void disconnect();
+	virtual int connect() override;
+	virtual void disconnect() override;
 
-	float* getOut_L();
-	float* getOut_R();
+	virtual float* getOut_L() override;
+	virtual float* getOut_R() override;
 
 	static QStringList getDevices();
 
-	virtual int getLatency();
+	virtual int getLatency() override;
 
 private:
 	AudioDeviceID defaultOutputDevice(void);

@@ -46,8 +46,8 @@ class LadspaFXProperties :  public QWidget,  public H2Core::Object<LadspaFXPrope
 
 		void updateControls();
 
-		void showEvent ( QShowEvent *ev );
-		void closeEvent( QCloseEvent *ev );
+		virtual void showEvent ( QShowEvent *ev ) override;
+		virtual void closeEvent( QCloseEvent *ev ) override;
 
 	public slots:
 		void faderChanged( WidgetWithInput* ref );

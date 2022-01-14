@@ -60,7 +60,7 @@ private:
 
 	std::vector<int> m_fontPointSizes;
 	
-	virtual void paintEvent( QPaintEvent *ev );
+	virtual void paintEvent( QPaintEvent *ev ) override;
 };
 
 #endif

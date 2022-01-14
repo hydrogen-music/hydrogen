@@ -84,28 +84,34 @@ TargetWaveDisplay::~TargetWaveDisplay()
 static void paintEnvelope(Sample::VelocityEnvelope &envelope, QPainter &painter,
 	int selected, const QColor & lineColor, const QColor & handleColor, const QColor & selectedColor)
 {
-	if (envelope.empty())
+	if (envelope.empty()) {
 		return;
+	}
+	
 	for ( int i = 0; i < static_cast<int>(envelope.size()) -1; i++){
 		painter.setPen( QPen(lineColor, 1 , Qt::SolidLine) );
 		painter.drawLine( envelope[i].frame, envelope[i].value, envelope[i + 1].frame, envelope[i +1].value );
-		if ( i == selected )
+		if ( i == selected ) {
 			painter.setBrush( selectedColor );
-		else
+		} else {
 			painter.setBrush( handleColor );
+		}
 		painter.drawEllipse ( envelope[i].frame - 6/2, envelope[i].value  - 6/2, 6, 6 );
 	}
+	
 	// draw first and last points as squares
-	if ( 0 == selected )
+	if ( 0 == selected ) {
 		painter.setBrush( selectedColor );
-	else
+	} else {
 		painter.setBrush( handleColor );
+	}
 	painter.drawRect ( envelope[0].frame - 12/2, envelope[0].value  - 6/2, 12, 6 );
 
-	if ( envelope.size() - 1 == selected )
+	if ( envelope.size() - 1 == selected ) {
 		painter.setBrush( selectedColor );
-	else
+	} else {
 		painter.setBrush( handleColor );
+	}
 	painter.drawRect ( envelope[envelope.size() -1].frame - 12/2, envelope[envelope.size() -1].value  - 6/2, 12, 6 );
 }
 
@@ -270,9 +276,9 @@ void TargetWaveDisplay::updateMouseSelection(QMouseEvent *ev)
 		}
 		m_nSelectedEnvelopePoint = selection;
 	}
-	if (m_nSelectedEnvelopePoint == -1)
+	if (m_nSelectedEnvelopePoint == -1) {
 		m_sInfo = "";
-	else {
+	} else {
 		float info = (UI_HEIGHT - envelope[m_nSelectedEnvelopePoint].value) / (float)UI_HEIGHT;
 		m_sInfo.setNum( info, 'g', 2 );
 	}

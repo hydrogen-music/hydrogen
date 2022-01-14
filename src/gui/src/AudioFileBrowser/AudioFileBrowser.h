@@ -64,8 +64,8 @@ class AudioFileBrowser :  public QDialog, public Ui_AudioFileBrowser_UI,  public
 		void on_playSamplescheckBox_clicked();
 		void on_hiddenCB_clicked();
 
-		virtual void keyPressEvent (QKeyEvent *ev);
-		virtual void keyReleaseEvent (QKeyEvent *ev);
+		virtual void keyPressEvent (QKeyEvent *ev) override;
+		virtual void keyReleaseEvent (QKeyEvent *ev) override;
 
 
 	private:
