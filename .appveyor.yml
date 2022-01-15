@@ -1,3 +1,46 @@
+# Appveyor configuration
+#
+# Cache usage
+# -----------
+#
+# The Appveyor build cache is used for:
+#
+#   - ccache on Linux and Windows
+#   - Howebrew with build prerequisites on macOS
+#   - State of /usr with installed prerequisites on Linux
+#
+# The build cache limit is 1Gb which must be shared amongst all platforms,
+# so we must take care about sizes, so we allocate:
+#
+# Homebrew         256Mb (currently uses about 130Mb)
+# Linux /var       256Mb (currently uses about 170Mb)
+# Linux ccache     256Mb
+# Windows64 ccache 256Mb
+#
+# 32-bit Windows is not cached since it's not regularly built.
+#
+# Caching the macOS Homebrew configuration is the single largest
+# impact on Appveyor build times, since Howebrew on the Appveyor images
+# is very out of date, and some prerequisites require rebuilding.
+#
+# Since the Homebrew installation is much larger than the
+# size of cache that Appveyor allows (1GB per project, shared
+# between all configurations), so we cache only objects that
+# are new or modified relative to the pre-existing 'clean' VM
+# state, using `treestate.py` to compare.
+#
+# For most build jobs, we just unpack the cached Homebrew on top
+# of the existing Homebrew installation.
+#
+# If the cache is cleaned or out of date, we first record the
+# state of the Homebrew installation, then update it and install
+# prerequisites, and build a new archive of the current Homebrew
+# installation.
+#
+# Currently the necessary changes, compressed with xz, occupy
+# about 170Mb of cache space.
+#
+
 environment:
   GENERATOR: "MinGW Makefiles"
   ARTIFACT_BRANCH: master-artifacts
@@ -47,21 +90,68 @@ for:
       only:
         - job_group: 'Linux'
 
+    cache: $HOME/cache_dir
+
     before_build: |-
-      echo 'Linux build script'
-      sudo apt-get update
-      sudo apt-get install -y clang qt5-default qttools5-dev qttools5-dev-tools libqt5xmlpatterns5-dev libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev libqt5svg5-dev
-      sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk
-      sudo rm /usr/local/bin/doxygen
+
+      cache_tag=usr_cache # this can be modified to rebuild deps
+
+      cdir=$HOME/cache_dir
+      cache_tar=$cdir/$cache_tag.tar
+      cache=$cache_tar.xz
+
+      mkdir -p $cdir/ccache
+      ln -s $cdir/ccache $HOME/.ccache
+
+      if [ -d $cdir ] && [ -f $cache ]; then
+        echo "=== Unpacking cached /var $cache ==="
+        (
+          cd /
+          sudo tar xf $cache
+        )
+        echo "done"
+      else
+        echo "=== Building dependencies ==="
+
+        mkdir -p $cdir
+
+        sudo python3 ./treestate.py scan /usr usr.json
+        sudo apt-get update
+        sudo apt-get install -y clang qt5-default qttools5-dev qttools5-dev-tools libqt5xmlpatterns5-dev libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev libqt5svg5-dev
+        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache
+        sudo rm /usr/local/bi/doxygen
+        ccache -M 256M
+        ccache -s
+
+        (
+          sudo python3 ./treestate.py updates usr.json /usr > updates
+          echo $(wc -l updates) updates
+          sudo tar cf $cache_tar -T updates
+          sudo nice xz -9 -T0 $cache_tar
+          du -h $cache
+
+        ) 2>&1 | sed 's/^/CACHE: /' &
+      fi
 
     build_script: |-
       git submodule init && git submodule update
 
       CPUS=$(nproc)
       echo "Building with $CPUS cpus"
-      mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make -j $CPUS
+      mkdir build && cd build && \
+        cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+          && \
+        make -j $CPUS
+
+      ccache -s
+
+      wait
+      echo "=== Build cache usage is " $( du -h $cdir | tail -1 ) "==="
+
 
     test_script: |-
+
       TMPDIR=/tmp src/tests/tests --appveyor
 
   - 
@@ -74,28 +164,6 @@ for:
 
       ###############################################################
       # Set up macOS dependencies
-      # We use the Appveyor build cache to store the installed
-      # prerequisites, since installing and custom-building the
-      # needed macOS components in each build takes far longer than
-      # the Hydrogen build itself.
-      #
-      # However, the Homebrew installation is much larger than the
-      # size of cache that Appveyor allows (1GB per project, shared
-      # between all configurations), so we archive only objects that
-      # are new or modified relative to the pre-existing 'clean' VM
-      # state, using `treestate.py` to compare.
-      #
-      # For most build jobs, we just unpack the cached Homebrew on top
-      # of the existing Homebrew installation.
-      #
-      # If the cache is cleaned or out of date, we first record the
-      # state of the Homebrew installation, then update it and install
-      # prerequisites, and build a new archive of the current Homebrew
-      # installation.
-      #
-      # Currently the necessary changes, compressed with xz, occupy
-      # about 170Mb of cache space.
-      #
 
       export MACOSX_DEPLOYMENT_TARGET=10.12
       sudo ln -s /usr/local /opt/local;
@@ -174,6 +242,7 @@ for:
 
       # Build installation DMG
       (
+        cd build
         PATH="$(brew --prefix qt5)/bin:$PATH"
         ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
 
@@ -189,6 +258,7 @@ for:
 
       echo "Waiting for installer creation and cache archiving"
       wait
+      echo "=== Build cache usage is " $( du -h $cdir | tail -1 ) "==="
       echo "Done"
 
   -
@@ -196,6 +266,7 @@ for:
       only:
         - job_group: 'Windows'
 
+    cache: '%USERPROFILE%\AppData\Roaming\ccache'
     before_build:
       cmd: |-
 
@@ -222,6 +293,10 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libwinpthread-git
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-qt5
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ladspa-sdk
+          c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ccache
+
+          ccache -M 256M
+          ccache -s
 
           REM *** INIT SUBMODULES ***
           git submodule init
@@ -231,7 +306,7 @@ for:
           rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
           mkdir build
           cd build
-          cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %CMAKE_FLAGS% -DJACK_INCLUDE_DIRS="c:/%PROGRAM_FILES%/JACK2/include" -DJACK_LIBRARIES="c:/%PROGRAM_FILES%/JACK2/lib/%LIBJACK%.a" ..
+          cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %CMAKE_FLAGS% -DJACK_INCLUDE_DIRS="c:/%PROGRAM_FILES%/JACK2/include" -DJACK_LIBRARIES="c:/%PROGRAM_FILES%/JACK2/lib/%LIBJACK%.a" -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
 
     build_script:
       - cmd: |-
@@ -274,6 +349,8 @@ for:
           mkdir %INSTDIR%
           FOR %%F IN (Hydrogen-*.exe) DO %%F /S /D=%INSTDIR%
           %PYTHON% -m pytest %APPVEYOR_BUILD_FOLDER%\windows\ci\test_installation.py --junitxml=test_installation.xml
+
+          ccache -s
 
 on_finish:
   - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeCache.txt
