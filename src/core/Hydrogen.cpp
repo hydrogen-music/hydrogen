@@ -298,6 +298,11 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	} else {		
 		Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
 	}
+	
+	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION,
+											( pSong->getMode() == Song::Mode::Song) ? 1 : 0 );
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION,
+											static_cast<int>( pSong->getIsTimelineActivated() ) );
 }
 
 /* Mean: remove current song from memory */
@@ -1495,8 +1500,8 @@ void Hydrogen::setIsModified( bool bIsModified ) {
 void Hydrogen::setMode( Song::Mode mode ) {
 	if ( getSong() != nullptr ) {
 		getSong()->setMode( mode );
+		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
 	}
-	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
 }
 
 void Hydrogen::setIsTimelineActivated( bool bEnabled ) {

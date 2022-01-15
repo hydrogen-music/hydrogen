@@ -934,16 +934,15 @@ bool SongEditorPanel::getTimelineEnabled() const {
 }
 
 void SongEditorPanel::setTimelineEnabled( bool bEnabled ) {
-	DEBUGLOG( bEnabled );
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
 	if ( bEnabled ) {
 		m_pTimelineBtn->setIsActive( true );
-		setTimelineActive( m_bLastIsTimelineActivated );
+		// setTimelineActive( m_bLastIsTimelineActivated );
 	} else {
 		m_bLastIsTimelineActivated = Hydrogen::get_instance()->getSong()->getIsTimelineActivated();
 		if ( m_pTimelineBtn->isChecked() ) {
-			setTimelineActive( false );
+			// setTimelineActive( false );
 		}
 		m_pTimelineBtn->setIsActive( false );
 	}
