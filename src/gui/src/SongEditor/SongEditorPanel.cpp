@@ -78,7 +78,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pTimelineBtn->move( 94, 4 );
 	m_pTimelineBtn->setObjectName( "TimelineBtn" );
 	connect( m_pTimelineBtn, SIGNAL( pressed() ), this, SLOT( timelineBtnPressed() ) );
-	m_bLastUseTimelineBpm = pPref->getUseTimelineBpm();
+	m_bLastIsTimelineActivated = pSong->getIsTimelineActivated();
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledTimebaseSlave() );
 		m_pTimelineBtn->setIsActive( false );
@@ -86,7 +86,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledPatternMode() );
 		m_pTimelineBtn->setIsActive( false );
 	} else {
-		m_pTimelineBtn->setChecked( m_bLastUseTimelineBpm );
+		m_pTimelineBtn->setChecked( m_bLastIsTimelineActivated );
 	}
 
 	// clear sequence button
@@ -921,7 +921,7 @@ void SongEditorPanel::setTimelineActive( bool bActive ){
 		m_pTimelineBtn->setChecked( bActive );
 	}
 	
-	Hydrogen::get_instance()->setUseTimelineBpm( bActive );
+	Hydrogen::get_instance()->setIsTimelineActivated( bActive );
 
 	QString sMessage = QString( "%1 = %2" )
 		.arg( pCommonStrings->getTimelineBigButton() )
@@ -934,16 +934,15 @@ bool SongEditorPanel::getTimelineEnabled() const {
 }
 
 void SongEditorPanel::setTimelineEnabled( bool bEnabled ) {
-	DEBUGLOG( bEnabled );
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
 	if ( bEnabled ) {
 		m_pTimelineBtn->setIsActive( true );
-		setTimelineActive( m_bLastUseTimelineBpm );
+		// setTimelineActive( m_bLastIsTimelineActivated );
 	} else {
-		m_bLastUseTimelineBpm = Preferences::get_instance()->getUseTimelineBpm();
+		m_bLastIsTimelineActivated = Hydrogen::get_instance()->getSong()->getIsTimelineActivated();
 		if ( m_pTimelineBtn->isChecked() ) {
-			setTimelineActive( false );
+			// setTimelineActive( false );
 		}
 		m_pTimelineBtn->setIsActive( false );
 	}

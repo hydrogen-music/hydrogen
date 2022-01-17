@@ -126,7 +126,7 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 void SongEditorPanelBpmWidget::on_deleteBtn_clicked()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Timeline* pTimeline = pHydrogen->getTimeline();
+	auto pTimeline = pHydrogen->getTimeline();
 
 	float fBpm = pTimeline->getTempoAtColumn( m_nColumn );
 
