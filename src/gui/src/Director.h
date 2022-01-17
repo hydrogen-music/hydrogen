@@ -29,7 +29,6 @@
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
-#include <core/Timeline.h>
 #include "EventListener.h"
 
 
@@ -57,7 +56,6 @@ private slots:
 
 private:
 	QTimer				*m_pTimer;
-	H2Core::Timeline	*m_pTimeline;
 	QColor				m_Color;
 	QPalette			m_BlinkerPalette;
 	int					m_nCounter;

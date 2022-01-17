@@ -35,7 +35,6 @@
 #include <core/LocalFileMng.h>
 #include <core/Timeline.h>
 #include <core/Helpers/Xml.h>
-#include <core/IO/DiskWriterDriver.h>
 using namespace H2Core;
 
 #include "UndoActions.h"
@@ -502,7 +501,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 			deleteSelection();
 		} else {
 			// No selection, delete at the current cursor position
-			togglePatternActive( m_nCursorColumn, m_nCursorRow );
+			setPatternActive( m_nCursorColumn, m_nCursorRow, false );
 		}
 
 	} else if ( ev->matches( QKeySequence::MoveToNextChar ) || ( bSelectionKey = ev->matches( QKeySequence::SelectNextChar ) ) ) {
@@ -2201,7 +2200,7 @@ void SongEditorPositionRuler::createBackground()
 	Preferences *pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	Timeline * pTimeline = pHydrogen->getTimeline();
+	auto pTimeline = pHydrogen->getTimeline();
 	auto tagVector = pTimeline->getAllTags();
 	
 	QColor textColor( pPref->getColorTheme()->m_songEditor_textColor );
@@ -2694,7 +2693,7 @@ void SongEditorPositionRuler::updatePosition()
 
 void SongEditorPositionRuler::editTagAction( QString text, int position, QString textToReplace)
 {
-	Timeline* pTimeline = m_pHydrogen->getTimeline();
+	auto pTimeline = m_pHydrogen->getTimeline();
 
 	const QString sTag = pTimeline->getTagAtColumn( position );
 	pTimeline->deleteTag( position );
@@ -2705,7 +2704,7 @@ void SongEditorPositionRuler::editTagAction( QString text, int position, QString
 
 void SongEditorPositionRuler::deleteTagAction( QString text, int position )
 {
-	Timeline* pTimeline = m_pHydrogen->getTimeline();
+	auto pTimeline = m_pHydrogen->getTimeline();
 
 	const QString sTag = pTimeline->getTagAtColumn( position );
 	pTimeline->deleteTag( position );

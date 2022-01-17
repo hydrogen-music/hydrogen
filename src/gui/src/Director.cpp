@@ -80,7 +80,6 @@ Director::Director ( QWidget* pParent )
 	m_nFlashingArea = width() * 5/100;
 
 	m_fBpm = Hydrogen::get_instance()->getSong()->getBpm();
-	m_pTimeline = Hydrogen::get_instance()->getTimeline();
 	m_pTimer = new QTimer( this );
 	connect( m_pTimer, SIGNAL( timeout() ), this, SLOT( updateMetronomBackground() ) );
 }
@@ -106,11 +105,13 @@ void Director::closeEvent( QCloseEvent* ev )
 void Director::metronomeEvent( int nValue )
 {
 
+	auto pHydrogen = Hydrogen::get_instance();
+
 	//load a new song
 	if( nValue == 3 ){
 
 		//update songname
-		QStringList list = Hydrogen::get_instance()->getSong()->getFilename().split("/");
+		QStringList list = pHydrogen->getSong()->getFilename().split("/");
 
 		if ( !list.isEmpty() ){
 			m_sSongName = list.last().replace( Filesystem::songs_ext, "" );
@@ -126,9 +127,9 @@ void Director::metronomeEvent( int nValue )
 	}
 
 	//bpm
-	m_fBpm = Hydrogen::get_instance()->getSong()->getBpm();
+	m_fBpm = pHydrogen->getSong()->getBpm();
 	//bar
-	m_nBar = Hydrogen::get_instance()->getAudioEngine()->getColumn() + 1;
+	m_nBar = pHydrogen->getAudioEngine()->getColumn() + 1;
 
 	if ( m_nBar <= 0 ){
 		m_nBar = 1;
@@ -161,12 +162,14 @@ void Director::metronomeEvent( int nValue )
 	}
 
 	// get tags
-	if ( m_pTimeline->hasColumnTag( m_nBar ) ) {
-		m_sTAG = m_pTimeline->getTagAtColumn( m_nBar );
+	auto pTimeline = pHydrogen->getTimeline();
+
+	if ( pTimeline->hasColumnTag( m_nBar ) ) {
+		m_sTAG = pTimeline->getTagAtColumn( m_nBar );
 	} else {
 		m_sTAG = "";
 	}
-	m_sTAG2 = m_pTimeline->getTagAtColumn( m_nBar - 1 );
+	m_sTAG2 = pTimeline->getTagAtColumn( m_nBar - 1 );
 	update();
 }
 

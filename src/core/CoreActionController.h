@@ -37,39 +37,39 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		CoreActionController();
 		~CoreActionController();
 	
-		void setMasterVolume( float masterVolumeValue );
+		bool setMasterVolume( float masterVolumeValue );
 		/**
 		 * \param nStrip Instrument which to set the volume for.
 		 * \param fVolumeValue New volume.
 		 * \param bSelectStrip Whether the corresponding instrument
 		 * should be selected.
 		 */
-		void setStripVolume( int nStrip, float fVolumeValue, bool bSelectStrip );
+		bool setStripVolume( int nStrip, float fVolumeValue, bool bSelectStrip );
 		/**
 		 * \param nStrip Instrument which to set the pan for.
 		 * \param fValue New pan.
 		 * \param bSelectStrip Whether the corresponding instrument
 		 * should be selected.
 		 */
-		void setStripPan( int nStrip, float fValue, bool bSelectStrip );
+		bool setStripPan( int nStrip, float fValue, bool bSelectStrip );
 		/**
 		 * \param nStrip Instrument which to set the pan for.
 		 * \param fValue New pan. range in [-1;1] => symmetric respect to 0
 		 * \param bSelectStrip Whether the corresponding instrument
 		 * should be selected.
 		 */
-		void setStripPanSym( int nStrip, float fValue, bool bSelectStrip );
-		void setMetronomeIsActive( bool isActive );
-		void setMasterIsMuted( bool isMuted );
+		bool setStripPanSym( int nStrip, float fValue, bool bSelectStrip );
+		bool setMetronomeIsActive( bool isActive );
+		bool setMasterIsMuted( bool isMuted );
 		
-		void setStripIsMuted( int nStrip, bool isMuted );
-		void toggleStripIsMuted( int nStrip );
+		bool setStripIsMuted( int nStrip, bool isMuted );
+		bool toggleStripIsMuted( int nStrip );
 		
-		void setStripIsSoloed( int nStrip, bool isSoloed );
-		void toggleStripIsSoloed( int nStrip );
+		bool setStripIsSoloed( int nStrip, bool isSoloed );
+		bool toggleStripIsSoloed( int nStrip );
 		
-		void initExternalControlInterfaces();
-		void handleOutgoingControlChange( int param, int value);
+		bool initExternalControlInterfaces();
+		bool handleOutgoingControlChange( int param, int value);
 	
 		// -----------------------------------------------------------
 		// Actions required for session management.

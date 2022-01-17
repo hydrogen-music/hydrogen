@@ -118,8 +118,9 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	}
 
 	// use of timeline
-	toggleTimeLineBPMCheckBox->setChecked(m_pPreferences->getUseTimelineBpm());
-	m_bOldTimeLineBPMMode = m_pPreferences->getUseTimelineBpm();
+	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
+	toggleTimeLineBPMCheckBox->setChecked( pSong->getIsTimelineActivated());
+	m_bOldTimeLineBPMMode = pSong->getIsTimelineActivated();
 	connect(toggleTimeLineBPMCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleTimeLineBPMMode( bool )));
 
 	// use of interpolation mode
@@ -477,7 +478,7 @@ void ExportSongDialog::closeExport() {
 		m_pHydrogen->getAudioEngine()->unlock();
 	}
 	m_pPreferences->setRubberBandBatchMode( m_bOldRubberbandBatchMode );
-	m_pPreferences->setUseTimelineBpm( m_bOldTimeLineBPMMode );
+	m_pHydrogen->setIsTimelineActivated( m_bOldTimeLineBPMMode );
 	
 	m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( m_OldInterpolationMode );
 	accept();
@@ -677,7 +678,7 @@ void ExportSongDialog::toggleRubberbandBatchMode(bool toggled)
 
 void ExportSongDialog::toggleTimeLineBPMMode(bool toggled)
 {
-	m_pPreferences->setUseTimelineBpm(toggled);
+	m_pHydrogen->setIsTimelineActivated( toggled );
 }
 
 void ExportSongDialog::resampleComboBoIndexChanged(int index )

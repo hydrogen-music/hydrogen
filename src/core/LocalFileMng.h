@@ -65,6 +65,12 @@ public:
 	static float	readXmlFloat( QDomNode, const QString& nodeName, float defaultValue, bool *pFound,
 								 bool bCanBeEmpty = false, bool bShouldExists = true, bool tinyXmlCompatMode = false );	
 	static int		readXmlInt( QDomNode , const QString& nodeName, int defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
+	static bool		readXmlBool( QDomNode,
+								 const QString& nodeName,
+								 bool defaultValue,
+								 bool *pFound,
+								 bool bShouldExists = true,
+								 bool tinyXmlCompatMode = false );
 	static bool		readXmlBool( QDomNode , const QString& nodeName, bool defaultValue, bool bShouldExists = true , bool tinyXmlCompatMode = false );
 	static void		convertFromTinyXMLString( QByteArray* str );
 	static bool		checkTinyXMLCompatMode( const QString& filename );

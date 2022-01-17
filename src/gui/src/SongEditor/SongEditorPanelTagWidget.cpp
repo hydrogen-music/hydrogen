@@ -62,7 +62,7 @@ void SongEditorPanelTagWidget::a_itemIsChanged(QTableWidgetItem *item)
 void SongEditorPanelTagWidget::createTheTagTableWidget()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Timeline* pTimeline = pHydrogen->getTimeline();
+	auto pTimeline = pHydrogen->getTimeline();
 	int nMaxColumns = Preferences::get_instance()->getMaxBars();
 	
 	for( int i = 0; i < nMaxColumns; i++ )
@@ -123,7 +123,7 @@ void SongEditorPanelTagWidget::on_CancelBtn_clicked()
 void SongEditorPanelTagWidget::on_okBtn_clicked()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Timeline* pTimeline = pHydrogen->getTimeline();
+	auto pTimeline = pHydrogen->getTimeline();
 	auto tagVector = pTimeline->getAllTags();
 	int nMaxColumns = Preferences::get_instance()->getMaxBars();
 
