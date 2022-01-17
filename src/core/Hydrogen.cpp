@@ -636,23 +636,13 @@ void Hydrogen::startExportSong( const QString& filename)
 
 	DiskWriterDriver* pDiskWriterDriver = static_cast<DiskWriterDriver*>(pAudioEngine->getAudioDriver());
 	pDiskWriterDriver->setFileName( filename );
-	
-	if ( pDiskWriterDriver->connect() != 0 ) {
-		ERRORLOG( "Error starting disk writer driver [DiskWriterDriver::connect()]" );
-	}
-	
+	pDiskWriterDriver->write();
 }
 
 void Hydrogen::stopExportSong()
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
-	
-	if ( pAudioEngine->getAudioDriver()->class_name() != DiskWriterDriver::_class_name() ) {
-		return;
-	}
-
 	pAudioEngine->getSampler()->stopPlayingNotes();
-	pAudioEngine->getAudioDriver()->disconnect();
 	pAudioEngine->reset();
 }
 
@@ -668,7 +658,7 @@ void Hydrogen::stopExportSession()
 	
 	pAudioEngine->startAudioDrivers();
 	if ( pAudioEngine->getAudioDriver() == nullptr ) {
-		ERRORLOG( "pAudioEngine->getAudioDriver() = nullptr" );
+		ERRORLOG( "Unable to restart previous audio driver after exporting song." );
 	}
 	m_bExportSessionIsActive = false;
 }
@@ -1301,7 +1291,7 @@ bool Hydrogen::haveJackAudioDriver() const {
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	if ( pAudioEngine->getAudioDriver() != nullptr ) {
-		if ( JackAudioDriver::_class_name() == pAudioEngine->getAudioDriver()->class_name() ){
+		if ( dynamic_cast<JackAudioDriver*>(pAudioEngine->getAudioDriver()) != nullptr ) {
 			return true;
 		}
 	}
@@ -1315,7 +1305,7 @@ bool Hydrogen::haveJackTransport() const {
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	if ( pAudioEngine->getAudioDriver() != nullptr ) {
-		if ( JackAudioDriver::_class_name() == pAudioEngine->getAudioDriver()->class_name() &&
+		if ( dynamic_cast<JackAudioDriver*>(pAudioEngine->getAudioDriver()) != nullptr &&
 			 Preferences::get_instance()->m_bJackTransportMode ==
 			 Preferences::USE_JACK_TRANSPORT ){
 			return true;
@@ -1330,13 +1320,13 @@ bool Hydrogen::haveJackTransport() const {
 float Hydrogen::getMasterBpm() const {
 #ifdef H2CORE_HAVE_JACK
   if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
-    if ( JackAudioDriver::_class_name() == m_pAudioEngine->getAudioDriver()->class_name() ) {
-      return static_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver())->getMasterBpm();
-    } else {
-      return std::nan("No JACK driver");
-    }
+	  if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr ) {
+		  return static_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver())->getMasterBpm();
+	  } else {
+		  return std::nan("No JACK driver");
+	  }
   } else {
-    return std::nan("No audio driver");
+	  return std::nan("No audio driver");
   }
 #else
   return std::nan("No JACK support");
