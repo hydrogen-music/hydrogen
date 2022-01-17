@@ -285,7 +285,7 @@
             <widget class="QComboBox" name="trackOutputComboBox">
              <property name="minimumSize">
               <size>
-               <width>184</width>
+               <width>246</width>
                <height>0</height>
               </size>
              </property>
@@ -319,7 +319,14 @@
             </widget>
            </item>
            <item row="3" column="1">
-            <widget class="QComboBox" name="driverComboBox"/>
+            <widget class="QComboBox" name="driverComboBox">
+             <property name="minimumSize">
+              <size>
+               <width>246</width>
+               <height>0</height>
+              </size>
+             </property>
+            </widget>
            </item>
            <item row="7" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_11">
@@ -346,7 +353,7 @@
             <widget class="QSpinBox" name="bufferSizeSpinBox">
              <property name="minimumSize">
               <size>
-               <width>0</width>
+               <width>246</width>
                <height>22</height>
               </size>
              </property>
@@ -366,6 +373,12 @@
            </item>
            <item row="8" column="1">
             <widget class="QComboBox" name="sampleRateComboBox">
+             <property name="minimumSize">
+              <size>
+               <width>246</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="currentIndex">
               <number>0</number>
              </property>
@@ -399,7 +412,14 @@
             </widget>
            </item>
            <item row="4" column="1">
-            <widget class="HostAPIComboBox" name="portaudioHostAPIComboBox"/>
+            <widget class="HostAPIComboBox" name="portaudioHostAPIComboBox">
+             <property name="minimumSize">
+              <size>
+               <width>246</width>
+               <height>0</height>
+              </size>
+             </property>
+            </widget>
            </item>
            <item row="8" column="0">
             <widget class="QLabel" name="sampleRateLbl">
@@ -428,6 +448,12 @@
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>246</width>
+               <height>0</height>
+              </size>
              </property>
              <property name="editable">
               <bool>true</bool>
