@@ -87,6 +87,8 @@ void TransportTest::testTransportRelocation() {
 	
 	bool bNoMismatch = pAudioEngine->testTransportRelocation();
 	CPPUNIT_ASSERT( bNoMismatch );
+
+	pCoreActionController->activateTimeline( false );
 }		
 
 void TransportTest::testComputeTickInterval() {

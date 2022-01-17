@@ -53,6 +53,8 @@ void TimeTest::setUp(){
 }
 
 void TimeTest::tearDown(){
+
+	Hydrogen::get_instance()->getCoreActionController()->activateTimeline( false );
 	
 	// Delete all temporary files
 	if ( QFile::exists( m_sValidPath ) ) {
