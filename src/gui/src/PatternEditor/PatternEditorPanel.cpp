@@ -590,21 +590,6 @@ PatternEditorPanel::~PatternEditorPanel()
 {
 }
 
-void PatternEditorPanel::stateChangedEvent( H2Core::AudioEngine::State state ) {
-	// Deactivate the pattern size widgets while playback is rolling.
-	if ( state == H2Core::AudioEngine::State::Playing ) {
-		m_pLCDSpinBoxNumerator->setEnabled( false );
-		m_pLCDSpinBoxNumerator->setToolTip( HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeDisabledTooltip() );
-		m_pLCDSpinBoxDenominator->setEnabled( false );
-		m_pLCDSpinBoxDenominator->setToolTip( HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeDisabledTooltip() );
-	} else {
-		m_pLCDSpinBoxNumerator->setEnabled( true );
-		m_pLCDSpinBoxNumerator->setToolTip( "" );
-		m_pLCDSpinBoxDenominator->setEnabled( true );
-		m_pLCDSpinBoxDenominator->setToolTip( "" );
-	}
-}
-
 void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
 {
 	//INFOLOG( "[syncToExternalHorizontalScrollbar]" );
@@ -934,26 +919,13 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 
 	m_bArmPatternSizeSpinBoxes = false;
 
-	bool bTurnOffAgain = false;
-
-	if ( ! m_pLCDSpinBoxNumerator->isEnabled() ) {
-		// Both spin boxes are deactivated since playback is rolling
-		// and the pattern size changed due to the user selecting a
-		// different pattern via mouse. We have to take care not to
-		// trigger a patternSizeChanged() in here.
-		m_pLCDSpinBoxNumerator->setEnabled( true );
-		m_pLCDSpinBoxDenominator->setEnabled( true );
-
-		bTurnOffAgain = true;
-	}
-
 	bool bChanged = false;
 
 	double fNewDenominator = static_cast<double>( m_pPattern->get_denominator() );
 	if ( fNewDenominator != m_pLCDSpinBoxDenominator->value() &&
 		 ! m_pLCDSpinBoxDenominator->hasFocus() ) {
 		m_pLCDSpinBoxDenominator->setValue( fNewDenominator );
-		bool bChanged = true;
+		bChanged = true;
 
 		// Update numerator to allow only for a maximum pattern length of
 		// four measures.
@@ -964,11 +936,6 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 	if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() && ! m_pLCDSpinBoxNumerator->hasFocus() ) {
 		m_pLCDSpinBoxNumerator->setValue( fNewNumerator );
 		bChanged = true;
-	}
-
-	if ( bTurnOffAgain ) {
-		m_pLCDSpinBoxNumerator->setEnabled( false );
-		m_pLCDSpinBoxDenominator->setEnabled( false );
 	}
 	
 	m_bArmPatternSizeSpinBoxes = true;

@@ -1709,12 +1709,12 @@ void AudioEngine::updateSongSize() {
 
 	double fNewSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
 
-	// WARNINGLOG( QString( "[Before] frame: %1, bpm: %2, tickSize: %3, column: %4, tick: %5, pTickPos: %6, pStartPos: %7" )
-	// 			.arg( getFrames() ).arg( getBpm() )
-	// 			.arg( getTickSize(), 0, 'f' )
-	// 			.arg( m_nColumn ).arg( getDoubleTick(), 0, 'f' )
-	// 			.arg( m_nPatternTickPosition )
-	// 			.arg( m_nPatternStartTick ) );
+	WARNINGLOG( QString( "[Before] frame: %1, bpm: %2, tickSize: %3, column: %4, tick: %5, pTickPos: %6, pStartPos: %7" )
+				.arg( getFrames() ).arg( getBpm() )
+				.arg( getTickSize(), 0, 'f' )
+				.arg( m_nColumn ).arg( getDoubleTick(), 0, 'f' )
+				.arg( m_nPatternTickPosition )
+				.arg( m_nPatternStartTick ) );
 
 	// transport position was already looped at least once.
 	if ( getDoubleTick() > m_fSongSizeInTicks ) {
@@ -1727,10 +1727,10 @@ void AudioEngine::updateSongSize() {
 
 		setTick( fNewTick );
 		
-		// DEBUGLOG(QString( "fNewTick: %1, oldS: %2, newS: %3")
-		// 		 .arg( fNewTick ).arg( m_fSongSizeInTicks )
-		// 		 .arg( fNewSongSizeInTicks )
-		// 		 );
+		DEBUGLOG(QString( "fNewTick: %1, oldS: %2, newS: %3")
+				 .arg( fNewTick ).arg( m_fSongSizeInTicks )
+				 .arg( fNewSongSizeInTicks )
+				 );
 	}
 	
 	m_fSongSizeInTicks = fNewSongSizeInTicks;
@@ -1738,10 +1738,10 @@ void AudioEngine::updateSongSize() {
 	// Ensure transport state is consistent
 	long long nNewFrames = computeFrameFromTick( getDoubleTick(), &m_fTickOffset );
 		
-	// DEBUGLOG(QString( "nNewFrame: %1, old frame: %2, offset [pre]: %3")
-	// 		 .arg( nNewFrames ).arg( getFrames() )
-	// 		 .arg( m_nFrameOffset )
-	// 		 );
+	DEBUGLOG(QString( "nNewFrame: %1, old frame: %2, offset [pre]: %3")
+			 .arg( nNewFrames ).arg( getFrames() )
+			 .arg( m_nFrameOffset )
+			 );
 
 	m_nFrameOffset = nNewFrames - getFrames() + m_nFrameOffset;
 
@@ -1755,12 +1755,12 @@ void AudioEngine::updateSongSize() {
 		stop();
 	}
 
-	// WARNINGLOG( QString( "[After] frame: %1, bpm: %2, tickSize: %3, column: %4, tick: %5, pTickPos: %6, pStartPos: %7" )
-	// 			.arg( getFrames() ).arg( getBpm() )
-	// 			.arg( getTickSize(), 0, 'f' )
-	// 			.arg( m_nColumn ).arg( getDoubleTick(), 0, 'f' )
-	// 			.arg( m_nPatternTickPosition )
-	// 			.arg( m_nPatternStartTick ) );
+	WARNINGLOG( QString( "[After] frame: %1, bpm: %2, tickSize: %3, column: %4, tick: %5, pTickPos: %6, pStartPos: %7" )
+				.arg( getFrames() ).arg( getBpm() )
+				.arg( getTickSize(), 0, 'f' )
+				.arg( m_nColumn ).arg( getDoubleTick(), 0, 'f' )
+				.arg( m_nPatternTickPosition )
+				.arg( m_nPatternStartTick ) );
 	
 	unlock();
 }

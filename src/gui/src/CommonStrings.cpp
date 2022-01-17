@@ -300,9 +300,6 @@ CommonStrings::CommonStrings(){
 	  displaying the Action that is not associate to a MIDI event
 	  yet. It's full context is "ACTION not bound".*/
 	m_sMidiTooltipUnbound = tr( "not bound" );
-	/*: Displayed on both LCDSpinBoxes used for the pattern size while
-	  playback is rolling.*/
-	m_sPatternSizeDisabledTooltip = tr( "It's not possible to change the pattern size when playing." );
 
 	/*: Displayed when hovering over the button in the
 	PatternEditorPanel to activate the DrumkitEditor.*/
