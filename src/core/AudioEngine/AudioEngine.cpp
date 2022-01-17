@@ -779,7 +779,7 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 			fBpm = fJackMasterBpm;
 			DEBUGLOG( QString( "Tempo update by the JACK server [%1]").arg( fJackMasterBpm ) );
 		}
-	} else if ( Preferences::get_instance()->getUseTimelineBpm() &&
+	} else if ( pHydrogen->getSong()->getIsTimelineActivated() &&
 				pHydrogen->getMode() == Song::Mode::Song ) {
 
 		float fTimelineBpm = pHydrogen->getTimeline()->getTempoAtColumn( nColumn );
@@ -1325,6 +1325,8 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	// update tick size and tempo
 	setNextBpm( pNewSong->getBpm() );
 	processCheckBPMChanged();
+
+	Hydrogen::get_instance()->setTimeline( pNewSong->getTimeline() );
 
 	this->unlock();
 

@@ -68,7 +68,6 @@
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 #include "MidiMap.h"
-#include <core/Timeline.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -116,7 +115,7 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 
 	__song = nullptr;
 
-	m_pTimeline = new Timeline();
+	m_pTimeline = std::make_shared<Timeline>();
 	m_pCoreActionController = new CoreActionController();
 
 	initBeatcounter();
@@ -162,7 +161,6 @@ Hydrogen::~Hydrogen()
 	__kill_instruments();
 
 	delete m_pCoreActionController;
-	delete m_pTimeline;
 	delete m_pAudioEngine;
 
 	__instance = nullptr;
@@ -300,6 +298,11 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	} else {		
 		Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
 	}
+	
+	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION,
+											( pSong->getMode() == Song::Mode::Song) ? 1 : 0 );
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION,
+											static_cast<int>( pSong->getIsTimelineActivated() ) );
 }
 
 /* Mean: remove current song from memory */
@@ -1369,7 +1372,7 @@ bool Hydrogen::isUnderSessionManagement() const {
 }
 
 bool Hydrogen::isTimelineEnabled() const {
-	if ( Preferences::get_instance()->getUseTimelineBpm() &&
+	if ( getSong()->getIsTimelineActivated() &&
 		 getMode() == Song::Mode::Song &&
 		 getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
 		return true;
@@ -1382,7 +1385,7 @@ Hydrogen::Tempo Hydrogen::getTempoSource() const {
 	if ( getMode() == Song::Mode::Song ) {
 		if ( getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 			return Tempo::Jack;
-		} else if ( Preferences::get_instance()->getUseTimelineBpm() ) {
+		} else if ( getSong()->getIsTimelineActivated() ) {
 			return Tempo::Timeline;
 		}
 	}
@@ -1497,15 +1500,16 @@ void Hydrogen::setIsModified( bool bIsModified ) {
 void Hydrogen::setMode( Song::Mode mode ) {
 	if ( getSong() != nullptr ) {
 		getSong()->setMode( mode );
+		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
 	}
-	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
 }
 
-void Hydrogen::setUseTimelineBpm( bool bEnabled ) {
+void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
 	auto pPref = Preferences::get_instance();
 
-	if ( bEnabled != pPref->getUseTimelineBpm() ) {
+	if ( bEnabled != getSong()->getIsTimelineActivated() ) {
 		pPref->setUseTimelineBpm( bEnabled );
+		getSong()->setIsTimelineActivated( bEnabled );
 
 		EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION, static_cast<int>( bEnabled ) );
 	}

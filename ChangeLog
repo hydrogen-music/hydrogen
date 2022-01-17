@@ -13,6 +13,8 @@
 		  overwrites all internal tempo settings.
 		- The BPM widget switches to read-only mode and displays the
 		  current playback speed when the Timeline is activated.
+		- Activation of the Timeline is now stored in each individual
+		  .h2song file.
 	* Interface
 		- Improved scalability (most PNG images were replaced by SVGs,
 		  hardcoded PNG labels are now directly drawn by Qt, and spin boxes,

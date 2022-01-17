@@ -54,9 +54,15 @@ CoreActionController::~CoreActionController() {
 	//nothing
 }
 
-void CoreActionController::setMasterVolume( float masterVolumeValue )
+bool CoreActionController::setMasterVolume( float masterVolumeValue )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
 	pHydrogen->getSong()->setVolume( masterVolumeValue );
 	
 #ifdef H2CORE_HAVE_OSC
@@ -70,11 +76,18 @@ void CoreActionController::setMasterVolume( float masterVolumeValue )
 	int ccParamValue = pMidiMap->findCCValueByActionType( QString("MASTER_VOLUME_ABSOLUTE"));
 	
 	handleOutgoingControlChange( ccParamValue, (masterVolumeValue / 1.5) * 127 );
+
+	return true;
 }
 
-void CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool bSelectStrip )
+bool CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool bSelectStrip )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
 
 	if ( bSelectStrip ) {
 		pHydrogen->setSelectedInstrumentNumber( nStrip );
@@ -100,9 +113,11 @@ void CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 	
 	handleOutgoingControlChange( ccParamValue, (fVolumeValue / 1.5) * 127 );
 	pHydrogen->setIsModified( true );
+
+	return true;
 }
 
-void CoreActionController::setMetronomeIsActive( bool isActive )
+bool CoreActionController::setMetronomeIsActive( bool isActive )
 {
 	Preferences::get_instance()->m_bUseMetronome = isActive;
 	
@@ -118,11 +133,19 @@ void CoreActionController::setMetronomeIsActive( bool isActive )
 	int ccParamValue = pMidiMap->findCCValueByActionType( QString("TOGGLE_METRONOME"));
 	
 	handleOutgoingControlChange( ccParamValue, (int) isActive * 127 );
+
+	return true;
 }
 
-void CoreActionController::setMasterIsMuted( bool isMuted )
+bool CoreActionController::setMasterIsMuted( bool isMuted )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
 	pHydrogen->getSong()->setIsMuted( isMuted );
 	
 #ifdef H2CORE_HAVE_OSC
@@ -137,11 +160,19 @@ void CoreActionController::setMasterIsMuted( bool isMuted )
 	int ccParamValue = pMidiMap->findCCValueByActionType( QString("MUTE_TOGGLE") );
 
 	handleOutgoingControlChange( ccParamValue, (int) isMuted * 127 );
+
+	return true;
 }
 
-void CoreActionController::toggleStripIsMuted(int nStrip)
+bool CoreActionController::toggleStripIsMuted(int nStrip)
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
@@ -153,11 +184,19 @@ void CoreActionController::toggleStripIsMuted(int nStrip)
 			setStripIsMuted( nStrip , !pInstr->is_muted() );
 		}
 	}
+
+	return true;
 }
 
-void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
+bool CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
@@ -178,11 +217,19 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 	
 	handleOutgoingControlChange( ccParamValue, ((int) isMuted) * 127 );
 	pHydrogen->setIsModified( true );
+
+	return true;
 }
 
-void CoreActionController::toggleStripIsSoloed( int nStrip )
+bool CoreActionController::toggleStripIsSoloed( int nStrip )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
@@ -194,11 +241,19 @@ void CoreActionController::toggleStripIsSoloed( int nStrip )
 			setStripIsSoloed( nStrip , !pInstr->is_soloed() );
 		}
 	}
+
+	return true;
 }
 
-void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
+bool CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
@@ -219,13 +274,21 @@ void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 	
 	handleOutgoingControlChange( ccParamValue, ((int) isSoloed) * 127 );
 	pHydrogen->setIsModified( true );
+
+	return true;
 }
 
 
 
-void CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectStrip )
+bool CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectStrip )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
 	if ( bSelectStrip ) {
 		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
@@ -250,11 +313,19 @@ void CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectSt
 
 	handleOutgoingControlChange( ccParamValue, fValue * 127 );
 	pHydrogen->setIsModified( true );
+
+	return true;
 }
 
-void CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelectStrip )
+bool CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelectStrip )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
 	if ( bSelectStrip ) {
 		pHydrogen->setSelectedInstrumentNumber( nStrip );
 	}
@@ -278,22 +349,31 @@ void CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelec
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
 	handleOutgoingControlChange( ccParamValue, pInstr->getPanWithRangeFrom0To1() * 127 );
 	pHydrogen->setIsModified( true );
+
+	return true;
 }
 
-void CoreActionController::handleOutgoingControlChange(int param, int value)
+bool CoreActionController::handleOutgoingControlChange(int param, int value)
 {
 	Preferences *pPref = Preferences::get_instance();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	MidiOutput *pMidiDriver = pHydrogen->getMidiOutput();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
 	
 	if(	pMidiDriver 
 		&& pPref->m_bEnableMidiFeedback 
 		&& param >= 0 ){
 		pMidiDriver->handleOutgoingControlChange( param, value, m_nDefaultMidiFeedbackChannel );
 	}
+
+	return true;
 }
 
-void CoreActionController::initExternalControlInterfaces()
+bool CoreActionController::initExternalControlInterfaces()
 {
 	/*
 	 * Push the current state of Hydrogen to the attached control interfaces (e.g. OSC clients)
@@ -301,6 +381,12 @@ void CoreActionController::initExternalControlInterfaces()
 	
 	//MASTER_VOLUME_ABSOLUTE
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	setMasterVolume( pSong->getVolume() );
 	
@@ -330,6 +416,8 @@ void CoreActionController::initExternalControlInterfaces()
 	
 	//MUTE_TOGGLE
 	setMasterIsMuted( Hydrogen::get_instance()->getSong()->getIsMuted() );
+
+	return true;
 }
 
 bool CoreActionController::newSong( const QString& sSongPath ) {
@@ -444,6 +532,11 @@ bool CoreActionController::saveSong() {
 	
 	auto pHydrogen = Hydrogen::get_instance();
 
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
 	// Get the current Song which is about to be saved.
 	auto pSong = pHydrogen->getSong();
 	
@@ -474,6 +567,11 @@ bool CoreActionController::saveSong() {
 bool CoreActionController::saveSongAs( const QString& sSongPath ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
 	
 	// Get the current Song which is about to be saved.
 	auto pSong = pHydrogen->getSong();
@@ -567,8 +665,13 @@ bool CoreActionController::isSongPathValid( const QString& sSongPath ) {
 
 bool CoreActionController::activateTimeline( bool bActivate ) {
 	auto pHydrogen = Hydrogen::get_instance();
-	
-	pHydrogen->setUseTimelineBpm( bActivate );
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	pHydrogen->setIsTimelineActivated( bActivate );
 	
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		WARNINGLOG( QString( "Timeline usage was [%1] in the Preferences. But these changes won't have an effect as long as there is still an external JACK timebase master." )
@@ -582,10 +685,17 @@ bool CoreActionController::activateTimeline( bool bActivate ) {
 }
 
 bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
-	auto pTimeline = Hydrogen::get_instance()->getTimeline();
+	auto pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
+	auto pTimeline = pHydrogen->getTimeline();
 	pTimeline->deleteTempoMarker( nPosition );
 	pTimeline->addTempoMarker( nPosition, fBpm );
-	Hydrogen::get_instance()->setIsModified( true );
+	pHydrogen->setIsModified( true );
 
 	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
 
@@ -593,8 +703,15 @@ bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
 }
 
 bool CoreActionController::deleteTempoMarker( int nPosition ) {
-	Hydrogen::get_instance()->getTimeline()->deleteTempoMarker( nPosition );
-	Hydrogen::get_instance()->setIsModified( true );
+	auto pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
+	pHydrogen->getTimeline()->deleteTempoMarker( nPosition );
+	pHydrogen->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
 
 	return true;
@@ -657,6 +774,12 @@ bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
 bool CoreActionController::activateSongMode( bool bActivate ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
 	pHydrogen->sequencer_stop();
 	if ( bActivate && pHydrogen->getMode() != Song::Mode::Song ) {
 		locateToColumn( 0 );
@@ -670,7 +793,14 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 
 bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent ) {
 
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
 	pSong->setIsLoopEnabled( bActivate );
 	
 	if ( bTriggerEvent ) {
@@ -689,6 +819,12 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 	}
 	
 	auto pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
@@ -720,6 +856,11 @@ bool CoreActionController::locateToFrame( unsigned long nFrame, bool bWithJackBr
 	const auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pDriver = pHydrogen->getAudioOutput();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
 
 	pAudioEngine->lock( RIGHT_HERE );
 	
@@ -757,7 +898,14 @@ bool CoreActionController::newPattern( const QString& sPatternName ) {
 	return setPattern( pPattern, pPatternList->size() );
 }
 bool CoreActionController::openPattern( const QString& sPath, int nPatternPosition ) {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
 	auto pPatternList = pSong->getPatternList();
 	Pattern* pNewPattern = Pattern::load_file( sPath, pSong->getInstrumentList() );
 
@@ -775,6 +923,12 @@ bool CoreActionController::openPattern( const QString& sPath, int nPatternPositi
 
 bool CoreActionController::setPattern( Pattern* pPattern, int nPatternPosition ) {
 	auto pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
 	auto pPatternList = pHydrogen->getSong()->getPatternList();
 
 	// Check whether the name of the new pattern is unique.
@@ -795,6 +949,12 @@ bool CoreActionController::setPattern( Pattern* pPattern, int nPatternPosition )
 
 bool CoreActionController::removePattern( int nPatternNumber ) {
 	auto pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
 	auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
 	int nPreviousPatternNumber = pHydrogen->getSelectedPatternNumber();
 	auto pPattern = pPatternList->get( nPatternNumber );
@@ -816,6 +976,12 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 
 bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 	auto pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
 	auto pSong = pHydrogen->getSong();
 	auto pPatternList = pSong->getPatternList();
 	std::vector<PatternList*>* pColumns = pSong->getPatternGroupVector();
