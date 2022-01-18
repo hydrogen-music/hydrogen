@@ -1046,10 +1046,11 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 		return false;
 	}
 	
+	pHydrogen->updateSongSize();
+	
 	pHydrogen->getAudioEngine()->unlock();
 
 	pHydrogen->setIsModified( true );
-	pHydrogen->updateSongSize();
 	
 	// Update the SongEditor.
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {

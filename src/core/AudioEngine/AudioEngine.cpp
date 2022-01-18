@@ -119,12 +119,14 @@ AudioEngine::AudioEngine()
 		, m_nColumn( -1 )
 		, m_nextState( State::Ready )
 		, m_fProcessTime( 0.0f )
+		, m_fLadspaTime( 0.0f )
 		, m_fMaxProcessTime( 0.0f )
 		, m_fNextBpm( 120 )
-		, m_fTickOffset( 0 )
+		, m_fTickMismatch( 0 )
 		, m_fLastTickIntervalEnd( -1 )
 		, m_nLastPlayingPatternsColumn( -1 )
 		, m_nFrameOffset( 0 )
+		, m_fTickOffset( 0 )
 {
 
 	m_pSampler = new Sampler;
@@ -176,8 +178,6 @@ AudioEngine::~AudioEngine()
 
 	// change the current audio engine state
 	setState( State::Uninitialized );
-
-	EventQueue::get_instance()->push_event( EVENT_STATE, static_cast<int>(State::Uninitialized) );
 
 	delete m_pPlayingPatterns;
 	m_pPlayingPatterns = nullptr;
@@ -304,7 +304,6 @@ void AudioEngine::startPlayback()
 
 	// change the current audio engine state
 	setState( State::Playing );
-	m_pEventQueue->push_event( EVENT_STATE, static_cast<int>(State::Playing) );
 }
 
 void AudioEngine::stopPlayback()
@@ -320,7 +319,6 @@ void AudioEngine::stopPlayback()
 
 	// change the current audio engine state
 	setState( State::Ready );
-	m_pEventQueue->push_event( EVENT_STATE, static_cast<int>(State::Ready) );
 }
 
 void AudioEngine::reset( bool bWithJackBroadcast ) {
@@ -335,8 +333,9 @@ void AudioEngine::reset( bool bWithJackBroadcast ) {
 	setColumn( -1 );
 	m_nPatternStartTick = -1;
 	m_nPatternTickPosition = 0;
-	m_fTickOffset = 0;
+	m_fTickMismatch = 0;
 	m_nFrameOffset = 0;
+	m_fTickOffset = 0;
 	m_fLastTickIntervalEnd = -1;
 	m_nLastPlayingPatternsColumn = -1;
 
@@ -391,8 +390,9 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 	m_fLastTickIntervalEnd = -1;
 	m_nLastPlayingPatternsColumn = -1;
 	m_nFrameOffset = 0;
+	m_fTickOffset = 0;
 
-	long long nNewFrame = computeFrameFromTick( fTick, &m_fTickOffset );
+	long long nNewFrame = computeFrameFromTick( fTick, &m_fTickMismatch );
 	setFrames( nNewFrame );
 	updateTransportPosition( fTick, false );
 	
@@ -411,8 +411,9 @@ void AudioEngine::locateToFrame( const long long nFrame ) {
 	setFrames( nFrame );
 
 	double fNewTick = computeTickFromFrame( nFrame );
-	m_fTickOffset = 0;
 	m_nFrameOffset = 0;
+	m_fTickOffset = 0;
+	m_fTickMismatch = 0;
 	m_fLastTickIntervalEnd = -1;
 	m_nLastPlayingPatternsColumn = -1;
 	
@@ -430,7 +431,7 @@ void AudioEngine::incrementTransportPosition( uint32_t nFrames ) {
 	setFrames( getFrames() + nFrames );
 
 	double fNewTick = computeTickFromFrame( getFrames() );
-	m_fTickOffset = 0;
+	m_fTickMismatch = 0;
 		
 	// DEBUGLOG( QString( "nFrames: %1, old frames: %2, getDoubleTick(): %3, newTick: %4, ticksize: %5" )
 	// 		  .arg( nFrames )
@@ -449,10 +450,10 @@ void AudioEngine::updateTransportPosition( double fTick, bool bUseLoopMode ) {
 
 	assert( pSong );
 
-	// WARNINGLOG( QString( "[Before] tick: %1, pTickPos: %2, pStartPos: %3" )
-	// 			.arg( getDoubleTick(), 0, 'f' )
-	// 			.arg( m_nPatternTickPosition )
-	// 			.arg( m_nPatternStartTick ) );
+	WARNINGLOG( QString( "[Before] tick: %1, pTickPos: %2, pStartPos: %3" )
+				.arg( getDoubleTick(), 0, 'f' )
+				.arg( m_nPatternTickPosition )
+				.arg( m_nPatternStartTick ) );
 	
 	setTick( fTick );
 
@@ -517,17 +518,17 @@ void AudioEngine::updateTransportPosition( double fTick, bool bUseLoopMode ) {
 	}
 	updateBpmAndTickSize();
 	
-	// WARNINGLOG( QString( "[After] tick: %1, pTickPos: %2, pStartPos: %3" )
-	// 			.arg( getDoubleTick(), 0, 'f' )
-	// 			.arg( m_nPatternTickPosition )
-	// 			.arg( m_nPatternStartTick ) );
+	WARNINGLOG( QString( "[After] tick: %1, pTickPos: %2, pStartPos: %3" )
+				.arg( getDoubleTick(), 0, 'f' )
+				.arg( m_nPatternTickPosition )
+				.arg( m_nPatternStartTick ) );
 	
 }
 
-void AudioEngine::updateBpmAndTickSize( bool bRunInPreparedState ) {
-	if ( bRunInPreparedState && m_state == State::Prepared ) {
-		// keep running when directly called during testings
-	} else if ( m_state != State::Playing && m_state != State::Ready ) {
+void AudioEngine::updateBpmAndTickSize() {
+	if ( ! ( m_state == State::Playing ||
+			 m_state == State::Ready ||
+			 m_state == State::Testing ) ) {
 		return;
 	}
 
@@ -566,7 +567,7 @@ void AudioEngine::updateBpmAndTickSize( bool bRunInPreparedState ) {
 	// since the beginning of the song are tempo-dependent and have to
 	// be recalculated.
 	if ( ! pHydrogen->isTimelineEnabled() ) {
-		long long nNewFrames = computeFrameFromTick( getDoubleTick(), &m_fTickOffset );
+		long long nNewFrames = computeFrameFromTick( getDoubleTick(), &m_fTickMismatch );
 		m_nFrameOffset = nNewFrames - getFrames() + m_nFrameOffset;
 
 		// DEBUGLOG( QString( "old frame: %1, new frame: %2, tick: %3, old tick size: %4, new tick size: %5" )
@@ -585,7 +586,7 @@ void AudioEngine::updateBpmAndTickSize( bool bRunInPreparedState ) {
 				
 // This function uses the assumption that sample rate and resolution
 // are constant over the whole song.
-long long AudioEngine::computeFrameFromTick( const double fTick, double* fTickOffset, int nSampleRate ) const {
+long long AudioEngine::computeFrameFromTick( const double fTick, double* fTickMismatch, int nSampleRate ) const {
 
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
@@ -603,12 +604,12 @@ long long AudioEngine::computeFrameFromTick( const double fTick, double* fTickOf
 	
 	if ( nSampleRate == 0 || nResolution == 0 ) {
 		ERRORLOG( "Not properly initialized yet" );
-		*fTickOffset = 0;
+		*fTickMismatch = 0;
 		return 0;
 	}
 
 	if ( fTick == 0 ) {
-		*fTickOffset = 0;
+		*fTickMismatch = 0;
 		return 0;
 	}
 		
@@ -667,10 +668,10 @@ long long AudioEngine::computeFrameFromTick( const double fTick, double* fTickOf
 					fNewFrames += fRemainingTicks * fNextTickSize;
 
 					nNewFrames = static_cast<long long>( std::round( fNewFrames ) );
-					*fTickOffset = ( fNewFrames - static_cast<double>( nNewFrames ) ) /
+					*fTickMismatch = ( fNewFrames - static_cast<double>( nNewFrames ) ) /
 						fNextTickSize;
 
-					// DEBUGLOG( QString( "fTick: %1, fNewFrames: %2, nNewFrames: %9, fTickOffset: %10, nNextTick: %3, nRemainingTicks: %4, nPassedTicks: %5, fNextTickSize: %6, col: %7, bpm: %8" )
+					// DEBUGLOG( QString( "fTick: %1, fNewFrames: %2, nNewFrames: %9, fTickMismatch: %10, nNextTick: %3, nRemainingTicks: %4, nPassedTicks: %5, fNextTickSize: %6, col: %7, bpm: %8" )
 					// 		  .arg( fTick, 0, 'f' )
 					// 		  .arg( fNewFrames, 0, 'f' )
 					// 		  .arg( fNextTick, 0, 'f' )
@@ -680,7 +681,7 @@ long long AudioEngine::computeFrameFromTick( const double fTick, double* fTickOf
 					// 		  .arg( tempoMarkers[ ii - 1 ]->nColumn )
 					// 		  .arg( tempoMarkers[ ii - 1 ]->fBpm )
 					// 		  .arg( nNewFrames )
-					// 		  .arg( *fTickOffset, 0, 'f' )
+					// 		  .arg( *fTickMismatch, 0, 'f' )
 					// 		  );
 
 					fRemainingTicks -= fNewTick - fPassedTicks;
@@ -716,12 +717,12 @@ long long AudioEngine::computeFrameFromTick( const double fTick, double* fTickOf
 		double fNewFrames = static_cast<double>(fTick) *
 			static_cast<double>(fTickSize);
 		nNewFrames = static_cast<long long>( std::round( fNewFrames ) );
-		*fTickOffset = ( fNewFrames - static_cast<double>(nNewFrames ) ) /
+		*fTickMismatch = ( fNewFrames - static_cast<double>(nNewFrames ) ) /
 			static_cast<double>(fTickSize);
 
-		// DEBUGLOG(QString("nNewFrames: %1, fTick: %2, fTickSize: %3, fTickOffset: %4" )
+		// DEBUGLOG(QString("nNewFrames: %1, fTick: %2, fTickSize: %3, fTickMismatch: %4" )
 		// 		 .arg( nNewFrames ).arg( fTick, 0, 'f' ).arg( fTickSize, 0, 'f' )
-		// 		 .arg( *fTickOffset, 0, 'f' ));
+		// 		 .arg( *fTickMismatch, 0, 'f' ));
 		
 	}
 	
@@ -895,7 +896,9 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 	mx.unlock();
 
 #ifdef H2CORE_HAVE_LADSPA
-	if ( getState() == State::Ready || getState() == State::Playing ) {
+	if ( getState() == State::Ready ||
+		 getState() == State::Playing ||
+		 getState() == State::Testing ) {
 		Effects* pEffects = Effects::get_instance();
 		for ( unsigned i = 0; i < MAX_FX; ++i ) {	// clear FX buffers
 			LadspaFX* pFX = pEffects->getLadspaFX( i );
@@ -1070,13 +1073,12 @@ void AudioEngine::setAudioDriver( AudioOutput* pAudioDriver ) {
 	// change the current audio engine state
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	if ( pSong ) {
-		m_state = State::Ready;
+	if ( pSong != nullptr ) {
+		setState( State::Ready );
 	} else {
-		m_state = State::Prepared;
+		setState( State::Prepared );
 	}
 
-	m_pEventQueue->push_event( EVENT_STATE, static_cast<int>( getState() ) );
 	// Unlocking earlier might execute the jack process() callback before we
 	// are fully initialized.
 	mx.unlock();
@@ -1124,8 +1126,7 @@ void AudioEngine::stopAudioDrivers()
 	this->lock( RIGHT_HERE );
 
 	// change the current audio engine state
-	m_state = State::Initialized;
-	m_pEventQueue->push_event( EVENT_STATE, static_cast<int>(State::Initialized) );
+	setState( State::Initialized );
 
 	// delete MIDI driver
 	if ( m_pMidiDriver != nullptr ) {
@@ -1237,7 +1238,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	long long nFrames;
-	if ( getState() == State::Playing ) {
+	if ( getState() == State::Playing || getState() == State::Testing ) {
 		// Current transport position.
 		nFrames = getFrames();
 		
@@ -1249,15 +1250,23 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 		nFrames = getRealtimeFrames();
 	}
 
+	// Compensate changes in song size.
+	nFrames -= m_nFrameOffset;
+
 	// reading from m_songNoteQueue
 	while ( !m_songNoteQueue.empty() ) {
 		Note *pNote = m_songNoteQueue.top();
 
 		// Compute the note start in frames corresponding to nnTick
 		// and the tick sized used to calculate it.
-		double fTickOffset;
+		double fTickMismatch;
 		// verifico se la nota rientra in questo ciclo
-		long long nNoteStartInFrames = computeFrameFromTick( pNote->get_position(), &fTickOffset );
+		double fNoteStartInTicks =
+			std::max( pNote->get_position() +
+					  static_cast<long>(std::floor(m_fTickOffset)),
+					  static_cast<long>(0) );
+		long long nNoteStartInFrames =
+			computeFrameFromTick( fNoteStartInTicks, &fTickMismatch );
 		pNote->setNoteStart( nNoteStartInFrames );
 		if ( pHydrogen->isTimelineEnabled() ) {
 			pNote->setUsedTickSize( -1 );
@@ -1273,9 +1282,9 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 			nNoteStartInFrames += pNote->get_humanize_delay();
 		}
 
-		// DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nframes: %3, " )
-		// 		  .arg( getDoubleTick() ).arg( getFrames() )
-		// 		  .arg( nframes ).append( pNote->toQString( "", true ) ) );
+		DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nframes: %3, " )
+				  .arg( getDoubleTick() ).arg( getFrames() )
+				  .arg( nframes ).append( pNote->toQString( "", true ) ) );
 
 		if ( nNoteStartInFrames <
 			 nFrames + static_cast<long long>(nframes) ) {
@@ -1411,8 +1420,8 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		return 0;
 	}
 
-	if ( pAudioEngine->getState() != AudioEngine::State::Ready &&
-		 pAudioEngine->getState() != AudioEngine::State::Playing ) {
+	if ( ! ( pAudioEngine->getState() == AudioEngine::State::Ready ||
+			 pAudioEngine->getState() == AudioEngine::State::Playing ) ) {
 		pAudioEngine->unlock();
 		return 0;
 	}
@@ -1458,6 +1467,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	}
    
 	bool bSendPatternChange = false;
+
 	// always update note queue.. could come from pattern or realtime input
 	// (midi, keyboard)
 	int nResNoteQueue = pAudioEngine->updateNoteQueue( nframes );
@@ -1477,40 +1487,78 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		bSendPatternChange = true;
 	}
 
-	// play all notes
-	pAudioEngine->processPlayNotes( nframes );
+	pAudioEngine->processAudio( nframes );
 
-	float *pBuffer_L = pAudioEngine->m_pAudioDriver->getOut_L(),
-		*pBuffer_R = pAudioEngine->m_pAudioDriver->getOut_R();
+	// increment the transport position
+	if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
+		pAudioEngine->incrementTransportPosition( nframes );
+	}
+
+	timeval finishTimeval = currentTime2();
+	pAudioEngine->m_fProcessTime =
+			( finishTimeval.tv_sec - startTimeval.tv_sec ) * 1000.0
+			+ ( finishTimeval.tv_usec - startTimeval.tv_usec ) / 1000.0;
+	
+#ifdef CONFIG_DEBUG
+	if ( pAudioEngine->m_fProcessTime > pAudioEngine->m_fMaxProcessTime ) {
+		___WARNINGLOG( "" );
+		___WARNINGLOG( "----XRUN----" );
+		___WARNINGLOG( QString( "XRUN of %1 msec (%2 > %3)" )
+					   .arg( ( pAudioEngine->m_fProcessTime - pAudioEngine->m_fMaxProcessTime ) )
+					   .arg( pAudioEngine->m_fProcessTime ).arg( pAudioEngine->m_fMaxProcessTime ) );
+		___WARNINGLOG( QString( "Ladspa process time = %1" ).arg( fLadspaTime ) );
+		___WARNINGLOG( "------------" );
+		___WARNINGLOG( "" );
+		// raise xRun event
+		EventQueue::get_instance()->push_event( EVENT_XRUN, -1 );
+	}
+#endif
+
+	pAudioEngine->unlock();
+
+	if ( bSendPatternChange ) {
+		EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
+	}
+	return 0;
+}
+
+void AudioEngine::processAudio( uint32_t nFrames ) {
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+
+	// play all notes
+	processPlayNotes( nFrames );
+
+	float *pBuffer_L = m_pAudioDriver->getOut_L(),
+		*pBuffer_R = m_pAudioDriver->getOut_R();
 	assert( pBuffer_L != nullptr && pBuffer_R != nullptr );
 
 	// SAMPLER
-	pAudioEngine->getSampler()->process( nframes, pSong );
-	float* out_L = pAudioEngine->getSampler()->m_pMainOut_L;
-	float* out_R = pAudioEngine->getSampler()->m_pMainOut_R;
-	for ( unsigned i = 0; i < nframes; ++i ) {
+	getSampler()->process( nFrames, pSong );
+	float* out_L = getSampler()->m_pMainOut_L;
+	float* out_R = getSampler()->m_pMainOut_R;
+	for ( unsigned i = 0; i < nFrames; ++i ) {
 		pBuffer_L[ i ] += out_L[ i ];
 		pBuffer_R[ i ] += out_R[ i ];
 	}
 
 	// SYNTH
-	pAudioEngine->getSynth()->process( nframes );
-	out_L = pAudioEngine->getSynth()->m_pOut_L;
-	out_R = pAudioEngine->getSynth()->m_pOut_R;
-	for ( unsigned i = 0; i < nframes; ++i ) {
+	getSynth()->process( nFrames );
+	out_L = getSynth()->m_pOut_L;
+	out_R = getSynth()->m_pOut_R;
+	for ( unsigned i = 0; i < nFrames; ++i ) {
 		pBuffer_L[ i ] += out_L[ i ];
 		pBuffer_R[ i ] += out_R[ i ];
 	}
 
-	timeval renderTime_end = currentTime2();
-	timeval ladspaTime_start = renderTime_end;
+	timeval ladspaTime_start = currentTime2();
 
 #ifdef H2CORE_HAVE_LADSPA
 	// Process LADSPA FX
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
 		if ( ( pFX ) && ( pFX->isEnabled() ) ) {
-			pFX->processFX( nframes );
+			pFX->processFX( nFrames );
 
 			float *buf_L, *buf_R;
 			if ( pFX->getPluginType() == LadspaFX::STEREO_FX ) {
@@ -1521,35 +1569,37 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 				buf_R = buf_L;
 			}
 
-			for ( unsigned i = 0; i < nframes; ++i ) {
+			for ( unsigned i = 0; i < nFrames; ++i ) {
 				pBuffer_L[ i ] += buf_L[ i ];
 				pBuffer_R[ i ] += buf_R[ i ];
-				if ( buf_L[ i ] > pAudioEngine->m_fFXPeak_L[nFX] ) {
-					pAudioEngine->m_fFXPeak_L[nFX] = buf_L[ i ];
+				if ( buf_L[ i ] > m_fFXPeak_L[nFX] ) {
+					m_fFXPeak_L[nFX] = buf_L[ i ];
 				}
 
-				if ( buf_R[ i ] > pAudioEngine->m_fFXPeak_R[nFX] ) {
-					pAudioEngine->m_fFXPeak_R[nFX] = buf_R[ i ];
+				if ( buf_R[ i ] > m_fFXPeak_R[nFX] ) {
+					m_fFXPeak_R[nFX] = buf_R[ i ];
 				}
 			}
 		}
 	}
 #endif
 	timeval ladspaTime_end = currentTime2();
-
+	m_fLadspaTime =
+			( ladspaTime_end.tv_sec - ladspaTime_start.tv_sec ) * 1000.0
+			+ ( ladspaTime_end.tv_usec - ladspaTime_start.tv_usec ) / 1000.0;
 
 	// update master peaks
 	float val_L, val_R;
-	for ( unsigned i = 0; i < nframes; ++i ) {
+	for ( unsigned i = 0; i < nFrames; ++i ) {
 		val_L = pBuffer_L[i];
 		val_R = pBuffer_R[i];
 
-		if ( val_L > pAudioEngine->m_fMasterPeak_L ) {
-			pAudioEngine->m_fMasterPeak_L = val_L;
+		if ( val_L > m_fMasterPeak_L ) {
+			m_fMasterPeak_L = val_L;
 		}
 
-		if ( val_R > pAudioEngine->m_fMasterPeak_R ) {
-			pAudioEngine->m_fMasterPeak_R = val_R;
+		if ( val_R > m_fMasterPeak_R ) {
+			m_fMasterPeak_R = val_R;
 		}
 
 		for (std::vector<DrumkitComponent*>::iterator it = pSong->getComponents()->begin() ; it != pSong->getComponents()->end(); ++it) {
@@ -1567,41 +1617,11 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		}
 	}
 
-	// increment the transport position
-	if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
-		pAudioEngine->incrementTransportPosition( nframes );
-	}
+}
 
-	timeval finishTimeval = currentTime2();
-	pAudioEngine->m_fProcessTime =
-			( finishTimeval.tv_sec - startTimeval.tv_sec ) * 1000.0
-			+ ( finishTimeval.tv_usec - startTimeval.tv_usec ) / 1000.0;
-
-	// if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
-	// 	INFOLOG(pAudioEngine->m_fProcessTime);
-	// }
-	
-#ifdef CONFIG_DEBUG
-	if ( pAudioEngine->m_fProcessTime > m_fMaxProcessTime ) {
-		___WARNINGLOG( "" );
-		___WARNINGLOG( "----XRUN----" );
-		___WARNINGLOG( QString( "XRUN of %1 msec (%2 > %3)" )
-					   .arg( ( m_fProcessTime - pAudioEngine->m_fMaxProcessTime ) )
-					   .arg( m_fProcessTime ).arg( pAudioEngine->m_fMaxProcessTime ) );
-		___WARNINGLOG( QString( "Ladspa process time = %1" ).arg( fLadspaTime ) );
-		___WARNINGLOG( "------------" );
-		___WARNINGLOG( "" );
-		// raise xRun event
-		EventQueue::get_instance()->push_event( EVENT_XRUN, -1 );
-	}
-#endif
-
-	pAudioEngine->unlock();
-
-	if ( bSendPatternChange ) {
-		EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
-	}
-	return 0;
+void AudioEngine::setState( AudioEngine::State state ) {
+	m_state = state;
+	EventQueue::get_instance()->push_event( EVENT_STATE, static_cast<int>(state) );
 }
 
 void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
@@ -1641,8 +1661,6 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	Hydrogen::get_instance()->setTimeline( pNewSong->getTimeline() );
 
 	this->unlock();
-
-	m_pEventQueue->push_event( EVENT_STATE, static_cast<int>(State::Ready) );
 }
 
 void AudioEngine::removeSong()
@@ -1670,19 +1688,17 @@ void AudioEngine::removeSong()
 	// change the current audio engine state
 	setState( State::Prepared );
 	this->unlock();
-
-	m_pEventQueue->push_event( EVENT_STATE, static_cast<int>( getState() ) );
 }
 
 void AudioEngine::updateSongSize() {
-
-	auto pSong = Hydrogen::get_instance()->getSong();
+	
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 
 	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
 		return;
 	}
-
-	lock( RIGHT_HERE );
 
 	double fNewSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
 
@@ -1703,6 +1719,8 @@ void AudioEngine::updateSongSize() {
 		m_nLastPlayingPatternsColumn = -1;
 
 		setTick( fNewTick );
+
+		m_fTickOffset = fNewTick - getDoubleTick() + m_fTickOffset;
 		
 		DEBUGLOG(QString( "fNewTick: %1, oldS: %2, newS: %3")
 				 .arg( fNewTick ).arg( m_fSongSizeInTicks )
@@ -1712,21 +1730,53 @@ void AudioEngine::updateSongSize() {
 	
 	m_fSongSizeInTicks = fNewSongSizeInTicks;
 
-	// Ensure transport state is consistent
-	long long nNewFrames = computeFrameFromTick( getDoubleTick(), &m_fTickOffset );
+	// Expected behavior:
+	// - changing any part of the song except of the pattern currently
+	//   play shouldn't affect the transport position
+	// - there shouldn't be a difference in behavior when the song was
+	//   looped at least once
+	// - this internal compensation in the transport position will
+	//   only be propagated to external audio servers, like JACK, once
+	//   a relocation takes place. This temporal loss of sync is done
+	//   to avoid audible glitches when e.g. toggling a pattern or
+	//   scrolling the pattern length spin boxes. A general intuition
+	//   for a loss of synchronization when just changing song parts
+	//   in one application can probably be expected.  
+	// 
+	// We strive for consistency in audio playback and make both the
+	// current column/pattern and the transport position within the
+	// pattern invariant in this transformation.
+
+	double fNewTick = getDoubleTick();
+	long nNewPatternStartTick = pHydrogen->getTickForColumn( getColumn() );
+	if ( nNewPatternStartTick != m_nPatternStartTick ) {
+		DEBUGLOG( QString( "[start tick mismatch] old: %1, new: %2" )
+				  .arg( m_nPatternStartTick )
+				  .arg( nNewPatternStartTick ) );
 		
-	DEBUGLOG(QString( "nNewFrame: %1, old frame: %2, offset [pre]: %3")
-			 .arg( nNewFrames ).arg( getFrames() )
-			 .arg( m_nFrameOffset )
-			 );
+		fNewTick +=
+			static_cast<double>(nNewPatternStartTick - m_nPatternStartTick);
+	}
+	// Ensure transport state is consistent
+	long long nNewFrames = computeFrameFromTick( fNewTick, &m_fTickMismatch );
 
 	m_nFrameOffset = nNewFrames - getFrames() + m_nFrameOffset;
+	m_fTickOffset = fNewTick - getDoubleTick() + m_fTickOffset;
+		
+	DEBUGLOG(QString( "nNewFrame: %1, old frame: %2, frame offset: %3, new tick: %4, old tick: %5, tick offset : %6")
+			 .arg( nNewFrames ).arg( getFrames() )
+			 .arg( m_nFrameOffset ).arg( fNewTick )
+			 .arg( getDoubleTick() ).arg( m_fTickOffset )
+			 );
 
 	setFrames( nNewFrames );
+	setTick( fNewTick );
+
+	m_fLastTickIntervalEnd += m_fTickOffset;
 	
 	updateTransportPosition( getDoubleTick(),
 							 pSong->isLoopEnabled() );
-	getSampler()->handleTimelineChange();
+	getSampler()->handleSongSizeChange();
 
 	if ( m_nColumn == -1 ) {
 		stop();
@@ -1738,8 +1788,6 @@ void AudioEngine::updateSongSize() {
 				.arg( m_nColumn ).arg( getDoubleTick(), 0, 'f' )
 				.arg( m_nPatternTickPosition )
 				.arg( m_nPatternStartTick ) );
-	
-	unlock();
 }
 
 long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nFrames ) {
@@ -1859,7 +1907,7 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 		m_songNoteQueue.push( pNote );
 	}
 
-	if ( getState() != State::Playing ) {
+	if ( getState() != State::Playing && getState() != State::Testing ) {
 		// only keep going if we're playing
 		return 0;
 	}
@@ -1872,13 +1920,13 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 	long long nNoteStart;
 	float fUsedTickSize;
 
-	double fTickOffset;
+	double fTickMismatch;
 
 	AutomationPath* pAutomationPath = pSong->getVelocityAutomationPath();
 
-	// DEBUGLOG( QString( "tick interval: [%1 : %2], curr tick: %3, curr frame: %4")
-	// 		  .arg( fTickStart, 0, 'f' ).arg( fTickEnd, 0, 'f' )
-	// 		  .arg( getDoubleTick(), 0, 'f' ).arg( getFrames() ) );
+	DEBUGLOG( QString( "tick interval: [%1 : %2], curr tick: %3, curr frame: %4")
+			  .arg( fTickStart, 0, 'f' ).arg( fTickEnd, 0, 'f' )
+			  .arg( getDoubleTick(), 0, 'f' ).arg( getFrames() ) );
 
 	// We loop over integer ticks to ensure that all notes encountered
 	// between two iterations belong to the same pattern.
@@ -1952,7 +2000,6 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 		//////////////////////////////////////////////////////////////
 		// PATTERN MODE
 		else if ( pHydrogen->getMode() == Song::Mode::Pattern )	{
-
 			int nPatternSize = MAX_NOTES;
 
 			// If the user chose to playback the pattern she focuses,
@@ -2103,9 +2150,9 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 							// calculated for a particular transport
 							// position and is not generally applicable.
 							nOffset +=
-								computeFrameFromTick( nnTick + MAX_NOTES / 32., &fTickOffset ) *
+								computeFrameFromTick( nnTick + MAX_NOTES / 32., &fTickMismatch ) *
 								pSong->getSwingFactor() -
-								computeFrameFromTick( nnTick, &fTickOffset );
+								computeFrameFromTick( nnTick, &fTickMismatch );
 						}
 
 						/* Humanize - Time parameter //
@@ -2149,9 +2196,9 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 						Note *pCopiedNote = new Note( pNote );
 						pCopiedNote->set_humanize_delay( nOffset );
 
-						// DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nnTick: %3, " )
-						// 		  .arg( getDoubleTick() ).arg( getFrames() ).arg( nnTick )
-						// 		  .append( pCopiedNote->toQString("", true ) ) );
+						DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nnTick: %3, " )
+								  .arg( getDoubleTick() ).arg( getFrames() ).arg( nnTick )
+								  .append( pCopiedNote->toQString("", true ) ) );
 						
 						pCopiedNote->set_position( nnTick );
 						if ( pHydrogen->getMode() == Song::Mode::Song ) {
@@ -2179,8 +2226,10 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 void AudioEngine::noteOn( Note *note )
 {
 	// check current state
-	if ( ( getState() != State::Playing ) && ( getState() != State::Ready ) ) {
-		___ERRORLOG( QString( "Error the audio engine is not in State::Ready or State::Playing but [%1]" )
+	if ( ! ( getState() == State::Playing ||
+			 getState() == State::Ready ||
+			 getState() == State::Testing ) ) {
+		___ERRORLOG( QString( "Error the audio engine is not in State::Ready, State::Playing, or State::Testing but [%1]" )
 					 .arg( static_cast<int>( getState() ) ) );
 		delete note;
 		return;
@@ -2238,10 +2287,10 @@ double AudioEngine::getLeadLagInTicks() {
 }
 
 long long AudioEngine::getLeadLagInFrames( double fTick ) {
-	double fTickOffset;
+	double fTickMismatch;
 	long long nFrameEnd = computeFrameFromTick( fTick + AudioEngine::getLeadLagInTicks(),
-						  &fTickOffset );
-	long long nFrameStart = computeFrameFromTick( fTick, &fTickOffset );
+						  &fTickMismatch );
+	long long nFrameStart = computeFrameFromTick( fTick, &fTickMismatch );
 
 	return nFrameEnd - nFrameStart;
 }
@@ -2261,7 +2310,7 @@ long AudioEngine::getTick() const {
 
 void AudioEngine::handleTimelineChange() {
 
-	setFrames( computeFrameFromTick( getDoubleTick(), &m_fTickOffset ) );
+	setFrames( computeFrameFromTick( getDoubleTick(), &m_fTickMismatch ) );
 	updateBpmAndTickSize();
 	getSampler()->handleTimelineChange();
 	
@@ -2378,7 +2427,7 @@ bool AudioEngine::testTransportProcessing() {
 	// Playing or Ready.
 	reset( false );
 
-	setState( AudioEngine::State::Prepared );
+	setState( AudioEngine::State::Testing );
 
 	// Check consistency of updated frames and ticks while using a
 	// random buffer size (e.g. like PulseAudio does).
@@ -2386,7 +2435,6 @@ bool AudioEngine::testTransportProcessing() {
 	uint32_t nFrames;
 	double fCheckTick;
 	long long nCheckFrame, nLastFrame = 0;
-	double fTickOffset;
 
 	bool bNoMismatch = true;
 
@@ -2440,8 +2488,7 @@ bool AudioEngine::testTransportProcessing() {
 		nLastFrame = std::round( nLastFrame * fLastBpm / fBpm );
 		
 		setNextBpm( fBpm );
-		updateBpmAndTickSize( true );
-
+		updateBpmAndTickSize();
 		fLastBpm = fBpm;
 		
 		for ( int cc = 0; cc < nCyclesPerTempo; ++cc ) {
@@ -2507,7 +2554,7 @@ bool AudioEngine::testTransportProcessing() {
 	pCoreActionController->addTempoMarker( 8, 200.1 );
 
 	lock( RIGHT_HERE );
-	setState( AudioEngine::State::Prepared );
+	setState( AudioEngine::State::Testing );
 
 	// Check consistency after switching on the Timeline
 	if ( ! testCheckTransportPosition( "timeline: off" ) ) {
@@ -2522,7 +2569,6 @@ bool AudioEngine::testTransportProcessing() {
 		nFrames = frameDist( randomEngine );
 
 		incrementTransportPosition( nFrames );
-		updateBpmAndTickSize( true );
 
 		if ( ! testCheckTransportPosition( "timeline" ) ) {
 			bNoMismatch = false;
@@ -2554,7 +2600,7 @@ bool AudioEngine::testTransportProcessing() {
 	pCoreActionController->activateTimeline( false );
 
 	lock( RIGHT_HERE );
-	setState( AudioEngine::State::Prepared );
+	setState( AudioEngine::State::Testing );
 
 	if ( ! testCheckTransportPosition( "timeline: off" ) ) {
 		bNoMismatch = false;
@@ -2570,7 +2616,7 @@ bool AudioEngine::testTransportProcessing() {
 	pCoreActionController->activateSongMode( false );
 
 	lock( RIGHT_HERE );
-	setState( AudioEngine::State::Prepared );
+	setState( AudioEngine::State::Testing );
 
 	nLastFrame = 0;
 	fLastBpm = 0;
@@ -2585,7 +2631,7 @@ bool AudioEngine::testTransportProcessing() {
 		nLastFrame = std::round( nLastFrame * fLastBpm / fBpm );
 		
 		setNextBpm( fBpm );
-		updateBpmAndTickSize( true );
+		updateBpmAndTickSize();
 
 		fLastBpm = fBpm;
 		
@@ -2655,7 +2701,7 @@ bool AudioEngine::testTransportRelocation() {
 	// Playing or Ready.
 	reset( false );
 
-	setState( AudioEngine::State::Prepared );
+	setState( AudioEngine::State::Testing );
 
 	// Check consistency of updated frames and ticks while relocating
 	// transport.
@@ -2675,10 +2721,6 @@ bool AudioEngine::testTransportRelocation() {
 		}
 
 		locate( fNewTick, false );
-		// The version of updateBpmAndTickSize called in locate() does
-		// return immediately because the engine is currently in
-		// State::Prepared.
-		updateBpmAndTickSize( true );
 
 		if ( ! testCheckTransportPosition( "mismatch tick-based" ) ) {
 			bNoMismatch = false;
@@ -2687,12 +2729,7 @@ bool AudioEngine::testTransportRelocation() {
 
 		// Frame-based relocation
 		nNewFrame = frameDist( randomEngine );
-
 		locateToFrame( nNewFrame );
-		// The version of updateBpmAndTickSize called in locate() does
-		// return immediately because the engine is currently in
-		// State::Prepared.
-		updateBpmAndTickSize( true );
 
 		if ( ! testCheckTransportPosition( "mismatch frame-based" ) ) {
 			bNoMismatch = false;
@@ -2727,7 +2764,7 @@ bool AudioEngine::testComputeTickInterval() {
 	// Playing or Ready.
 	reset( false );
 
-	setState( AudioEngine::State::Prepared );
+	setState( AudioEngine::State::Testing );
 
 	// Check consistency of tick intervals processed in
 	// updateNoteQueue() (no overlap and no holes). We pretend to
@@ -2800,7 +2837,6 @@ bool AudioEngine::testComputeTickInterval() {
 
 		fBpm = tempoDist( randomEngine );
 		setNextBpm( fBpm );
-		updateBpmAndTickSize( true );
 		
 		for ( int cc = 0; cc < nProcessCyclesPerTempo; ++cc ) {
 
@@ -2849,6 +2885,108 @@ bool AudioEngine::testComputeTickInterval() {
 	return bNoMismatch;
 }
 
+bool AudioEngine::testSongSizeChange() {
+	
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+	auto pSong = pHydrogen->getSong();
+
+	lock( RIGHT_HERE );
+	reset( false );
+	setState( AudioEngine::State::Testing );
+
+	bool bNoMismatch = true;
+	unsigned long nBufferSize = pHydrogen->getAudioOutput()->getBufferSize();
+
+	// Locate to second half of Song and let transport roll for two
+	// cycles.
+	unlock();
+	pCoreActionController->locateToColumn( 4 );
+	lock( RIGHT_HERE );
+	
+	updateNoteQueue( nBufferSize );
+	processAudio( nBufferSize );
+
+	// Cache some stuff in order to compare it later on.
+	long nOldSongSize = pSong->lengthInTicks();
+
+	std::vector<Note*> oldPlayingNotesQueue;
+	for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
+		oldPlayingNotesQueue.push_back( new Note( ppNote ) );
+	}
+
+	// Toggle a grid cell prior to the current transport position
+	unlock();
+	pCoreActionController->toggleGridCell( 1, 1 );
+	lock( RIGHT_HERE );
+
+	// Check whether there is a change in song size
+	long nNewSongSize = pSong->lengthInTicks();
+	if ( nNewSongSize == nOldSongSize ) {
+		ERRORLOG( "[toggling prior] no change in song size" );
+		setState( AudioEngine::State::Ready );
+		unlock();
+		return false;
+	}
+		
+	if ( ! testCheckTransportPosition( "toggling prior" ) ) {
+		setState( AudioEngine::State::Ready );
+		unlock();
+		return false;
+	}
+
+	// Now we emulate that playback continues without any new notes
+	// being added and expect the rendering of the notes currently
+	// played back by the Sampler to start off precisely where we
+	// stopped before the song size change. New notes might still be
+	// added due to the lookahead, so, we just check for the
+	// processing of notes we already encountered.
+	incrementTransportPosition( nBufferSize );
+	processAudio( nBufferSize );
+	
+	int nNotesFound = 0;
+	for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
+		for ( const auto& ppOldNote : oldPlayingNotesQueue ) {
+			if ( ppNote->match( ppOldNote ) ) {
+				++nNotesFound;
+				
+				INFOLOG( QString( "[toggling prior]. \n Pre: %1 ; \nPost: %2 ; with nBufferSize: %3" )
+						  .arg( ppOldNote->toQString( "", true ) )
+						  .arg( ppNote->toQString( "", true ) )
+						  .arg( nBufferSize ) );
+				
+				for ( int nn = 0; nn < ppNote->get_instrument()->get_components()->size(); nn++ ) {
+					if ( ( ppNote->get_layer_selected( nn )->SamplePosition -
+						   nBufferSize ) !=
+						 ppOldNote->get_layer_selected( nn )->SamplePosition ) {
+						ERRORLOG( QString( "[toggling prior] glitch in audio render. Pre: %1 ; Post: %2 ; with nBufferSize: %3" )
+								  .arg( ppOldNote->toQString( "", true ) )
+								  .arg( ppNote->toQString( "", true ) )
+								  .arg( nBufferSize ) );
+						bNoMismatch = false;
+					}
+				}
+			}
+		}
+	}
+
+	if ( nNotesFound == 0 ) {
+		ERRORLOG( "[toggling prior] bad test design. No notes played back." );
+		bNoMismatch = false;
+	}
+
+	for ( auto ppOldNote : oldPlayingNotesQueue ) {
+		delete ppOldNote;
+	}
+	
+	// Check consistency of transport position, consistency of the
+	// notes in m_songNoteQueue, and notes processed by the sampler
+
+	setState( AudioEngine::State::Ready );
+	unlock();
+
+	return bNoMismatch;
+}
 
 bool AudioEngine::testSongSizeChangeInLoopMode() {
 	auto pHydrogen = Hydrogen::get_instance();
@@ -2873,7 +3011,7 @@ bool AudioEngine::testSongSizeChangeInLoopMode() {
 	// Playing or Ready.
 	reset( false );
 
-	setState( AudioEngine::State::Prepared );
+	setState( AudioEngine::State::Testing );
 
 	uint32_t nFrames = 500;
 	double fInitialSongSize = m_fSongSizeInTicks;
@@ -2893,7 +3031,6 @@ bool AudioEngine::testSongSizeChangeInLoopMode() {
 		}
 
 		incrementTransportPosition( nFrames );
-		updateBpmAndTickSize( true );
 
 		if ( ! testCheckTransportPosition( "first increment" ) ) {
 			bNoMismatch = false;
@@ -2919,7 +3056,6 @@ bool AudioEngine::testSongSizeChangeInLoopMode() {
 		}
 
 		incrementTransportPosition( nFrames );
-		updateBpmAndTickSize( true );
 
 		if ( ! testCheckTransportPosition( "second increment" ) ) {
 			bNoMismatch = false;
@@ -2943,7 +3079,6 @@ bool AudioEngine::testSongSizeChangeInLoopMode() {
 		}
 
 		incrementTransportPosition( nFrames );
-		updateBpmAndTickSize( true );
 
 		if ( ! testCheckTransportPosition( "third increment" ) ) {
 			bNoMismatch = false;
@@ -2960,20 +3095,20 @@ bool AudioEngine::testSongSizeChangeInLoopMode() {
 
 bool AudioEngine::testCheckTransportPosition( const QString& sContext) const {
 
-	double fTickOffset;
+	double fTickMismatch;
 	double fCheckTick = computeTickFromFrame( getFrames() );
-	long long nCheckFrame = computeFrameFromTick( getDoubleTick(), &fTickOffset );
+	long long nCheckFrame = computeFrameFromTick( getDoubleTick(), &fTickMismatch );
 	
-	if ( abs( fCheckTick + fTickOffset - getDoubleTick() ) > 1e-9 ||
-		 abs( fTickOffset - m_fTickOffset ) > 1e-9 ||
+	if ( abs( fCheckTick + fTickMismatch - getDoubleTick() ) > 1e-9 ||
+		 abs( fTickMismatch - m_fTickMismatch ) > 1e-9 ||
 		 nCheckFrame != getFrames() ) {
 		ERRORLOG( QString( "[%9] mismatch. frame: %1, check frame: %2, tick: %3, check tick: %4, offset: %5, check offset: %6, tick size: %7, bpm: %8" )
 				  .arg( getFrames() )
 				  .arg( nCheckFrame )
 				  .arg( getDoubleTick(), 0 , 'f', 9 )
 				  .arg( fCheckTick, 0 , 'f', 9 )
-				  .arg( m_fTickOffset, 0 , 'f', 9 )
-				  .arg( fTickOffset, 0 , 'f', 9 )
+				  .arg( m_fTickMismatch, 0 , 'f', 9 )
+				  .arg( fTickMismatch, 0 , 'f', 9 )
 				  .arg( getTickSize(), 0 , 'f' )
 				  .arg( getBpm(), 0 , 'f' )
 				  .arg( sContext )
@@ -2991,9 +3126,11 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "%1[AudioEngine]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_nFrames: %3\n" ).arg( sPrefix ).arg( s ).arg( getFrames() ) )
 			.append( QString( "%1%2m_fTick: %3\n" ).arg( sPrefix ).arg( s ).arg( getDoubleTick(), 0, 'f' ) )
+			.append( QString( "%1%2m_nFrameOffset: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nFrameOffset ) )
+			.append( QString( "%1%2m_fTickOffset: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fTickOffset, 0, 'f' ) )
 			.append( QString( "%1%2m_fTickSize: %3\n" ).arg( sPrefix ).arg( s ).arg( getTickSize(), 0, 'f' ) )
 			.append( QString( "%1%2m_fBpm: %3\n" ).arg( sPrefix ).arg( s ).arg( getBpm(), 0, 'f' ) )
-			.append( QString( "%1%2m_fNextBpm: %3\n" ).arg( sPrefix ).arg( s ).arg( AudioEngine::m_fNextBpm, 0, 'f' ) )
+			.append( QString( "%1%2m_fNextBpm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fNextBpm, 0, 'f' ) )
 			.append( QString( "%1%2m_state: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>(m_state) ) )
 			.append( QString( "%1%2m_nextState: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>(m_nextState) ) )
 			.append( QString( "%1%2m_currentTickTime: %3 ms\n" ).arg( sPrefix ).arg( s ).arg( m_currentTickTime.tv_sec * 1000 + m_currentTickTime.tv_usec / 1000) )
@@ -3001,7 +3138,7 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_nPatternTickPosition: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nPatternTickPosition ) )
 			.append( QString( "%1%2m_nColumn: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nColumn ) )
 			.append( QString( "%1%2m_fSongSizeInTicks: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fSongSizeInTicks, 0, 'f' ) )
-			.append( QString( "%1%2m_fTickOffset: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fTickOffset, 0, 'f' ) )
+			.append( QString( "%1%2m_fTickMismatch: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fTickMismatch, 0, 'f' ) )
 			.append( QString( "%1%2m_fLastTickIntervalEnd: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fLastTickIntervalEnd ) )
 			.append( QString( "%1%2m_pSampler: \n" ).arg( sPrefix ).arg( s ) )
 			.append( QString( "%1%2m_pSynth: \n" ).arg( sPrefix ).arg( s ) )
@@ -3041,9 +3178,11 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "%1[AudioEngine]" ).arg( sPrefix )
 			.append( QString( ", m_nFrames: %1" ).arg( getFrames() ) )
 			.append( QString( ", m_fTick: %1" ).arg( getDoubleTick(), 0, 'f' ) )
+			.append( QString( ", m_nFrameOffset: %1" ).arg( m_nFrameOffset ) )
+			.append( QString( ", m_fTickOffset: %1" ).arg( m_fTickOffset, 0, 'f' ) )
 			.append( QString( ", m_fTickSize: %1" ).arg( getTickSize(), 0, 'f' ) )
 			.append( QString( ", m_fBpm: %1" ).arg( getBpm(), 0, 'f' ) )
-			.append( QString( ", m_fNextBpm: %1" ).arg( AudioEngine::m_fNextBpm, 0, 'f' ) )
+			.append( QString( ", m_fNextBpm: %1" ).arg( m_fNextBpm, 0, 'f' ) )
 			.append( QString( ", m_state: %1" ).arg( static_cast<int>(m_state) ) )
 			.append( QString( ", m_nextState: %1" ).arg( static_cast<int>(m_nextState) ) )
 			.append( QString( ", m_currentTickTime: %1 ms" ).arg( m_currentTickTime.tv_sec * 1000 + m_currentTickTime.tv_usec / 1000) )
@@ -3051,7 +3190,7 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_nPatternTickPosition: %1" ).arg( m_nPatternTickPosition ) )
 			.append( QString( ", m_nColumn: %1" ).arg( m_nColumn ) )
 			.append( QString( ", m_fSongSizeInTicks: %1" ).arg( m_fSongSizeInTicks, 0, 'f' ) )
-			.append( QString( ", m_fTickOffset: %1" ).arg( m_fTickOffset, 0, 'f' ) )
+			.append( QString( ", m_fTickMismatch: %1" ).arg( m_fTickMismatch, 0, 'f' ) )
 			.append( QString( ", m_fLastTickIntervalEnd: %1" ).arg( m_fLastTickIntervalEnd ) )
 			.append( QString( ", m_pSampler:" ) )
 			.append( QString( ", m_pSynth:" ) )

@@ -58,7 +58,13 @@ class Instrument;
 class InstrumentList;
 
 struct SelectedLayerInfo {
-	int SelectedLayer;		///< selected layer during layer selection
+	/** Selected layer during layer selection
+	 * 
+	 * If set to -1 (during creation), Sampler::renderNote() will
+	 * determine which layer to use and overrides this variable with
+	 * the corresponding value.
+	 */
+	int SelectedLayer;
 	float SamplePosition;	///< place marker for overlapping process() cycles
 };
 
@@ -339,7 +345,14 @@ class Note : public H2Core::Object<Note>
 		int				__position;             ///< note position in
 												///ticks inside the pattern
 		float			__velocity;           ///< velocity (intensity) of the note [0;1]
-		float			m_fPan;		///< pan of the note, [-1;1] from left to right, as requested by Sampler PanLaws
+		float			m_fPan;		///< pan of the note, [-1;1] from
+									///left to right, as requested by
+									///Sampler PanLaws
+	/** Length of the note in frames.
+	 *
+	 * If set to -1, the Note will be rendered till the end of all
+	 * contained Samples is reached.
+	 */
 		int				__length;               ///< the length of the note
 		float			__pitch;              ///< the frequency of the note
 		Key				__key;                  ///< the key, [0;11]==[C;B]

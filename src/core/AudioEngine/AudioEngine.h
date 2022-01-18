@@ -89,30 +89,32 @@ public:
 	/** Audio Engine states  (It's ok to use ==, <, and > when testing)*/
 	enum class State {
 		/**
-		 * State of the H2Core::AudioEngine H2Core::m_state. Not even the
-		 * constructors have been called.
+		 * Not even the constructors have been called.
 		 */
 		Uninitialized =	1,
 		/**
-		 * State of the H2Core::AudioEngine H2Core::m_state. Not ready,
-		 * but most pointers are now valid or NULL.
+		 * Not ready, but most pointers are now valid or NULL.
 		 */
 		Initialized = 2,
 		/**
-		 * State of the H2Core::AudioEngine H2Core::m_state. Drivers are
-		 * set up, but not ready to process audio.
+		 * Drivers are set up, but not ready to process audio.
 		 */
 		Prepared = 3,
 		/**
-		 * State of the H2Core::AudioEngine H2Core::m_state. Ready to
-		 * process audio.
+		 * Ready to process audio.
 		 */
 		Ready = 4,
 		/**
-		 * State of the H2Core::AudioEngine H2Core::m_state. Currently
-		 * playing a sequence.
+		 * Currently playing a sequence.
 		 */
-		Playing = 5
+		Playing = 5,
+		/**
+		 * State used during the unit tests of the
+		 * AudioEngine. Transport is not rolling but when calling a
+		 * function of the process cycle it is ensured all its code
+		 * and subsequent functions will be executed.
+		 */
+		Testing = 6
 	};
 
 	/**
@@ -259,14 +261,14 @@ public:
 	 * @param fTick Internally used frame, which depends on the
 	 * current speed as well and is rescaled as soon as a tempo marker
 	 * is passed
-	 * @param fTickOffset Used to store the raw (not yet rounded)
+	 * @param fTickMismatch Used to store the raw (not yet rounded)
 	 * version of the return value.
 	 * @param nSampleRate If set to 0, the sample rate provided by the
 	 * audio driver will be used.
 	 *
 	 * @return frame
 	 */
-	long long computeFrameFromTick( double fTick, double* fTickOffset, int nSampleRate = 0 ) const;
+	long long computeFrameFromTick( double fTick, double* fTickMismatch, int nSampleRate = 0 ) const;
 
 	/** Resets a number of member variables to their initial state.
 	 *
@@ -340,6 +342,7 @@ public:
 
 	int				getColumn() const;
 	long long		getFrameOffset() const;
+	double  		getTickOffset() const;
 
 	PatternList*	getNextPatterns() const;
 	PatternList*	getPlayingPatterns() const;
@@ -470,6 +473,17 @@ public:
 	 *
 	 * @return true on success.
 	 */
+	bool testSongSizeChange();
+	/** 
+	 * Unit test checking consistency of transport position when
+	 * playback was looped at least once and the song size is changed
+	 * by toggling a pattern.
+	 *
+	 * Defined in here since it requires access to methods and
+	 * variables private to the #AudioEngine class.
+	 *
+	 * @return true on success.
+	 */
 	bool testSongSizeChangeInLoopMode();
 	/** Helper function */
 	bool testCheckTransportPosition( const QString& sContext ) const ;
@@ -549,6 +563,7 @@ private:
 	 * cycle.
 	 */
 	int				updateNoteQueue( unsigned nFrames );
+	void 			processAudio( uint32_t nFrames );
 	long long computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nFrames );
 	
 	/** Increments #m_fElapsedTime at the end of a process cycle.
@@ -563,11 +578,7 @@ private:
 	 * frames per second.
 	 */
 	void			updateElapsedTime( unsigned bufferSize, unsigned sampleRate );
-	/**
-	 * @param bRunInPreparedState Used to enter the body when
-	 * called in the test functions.
-	 */
-	void			updateBpmAndTickSize( bool bRunInPreparedState = false );
+	void			updateBpmAndTickSize();
 	
 	void			setPatternTickPosition( long nTick );
 	void			setColumn( int nColumn );
@@ -690,6 +701,9 @@ private:
 	// max ms usable in process with no xrun
 	float				m_fMaxProcessTime;
 
+	// time used to render audio produced byy LADSPA plugins
+	float				m_fLadspaTime;
+
 	// updated in audioEngine_updateNoteQueue()
 	struct timeval		m_currentTickTime;
 
@@ -771,6 +785,7 @@ private:
 	float 			m_fNextBpm;
 	/** Number of frames TransportInfo::m_nFrames is ahead of
 		TransportInfo::m_nTick. */
+	double m_fTickMismatch;
 	double m_fTickOffset;
 	long long m_nFrameOffset;
 	double m_fLastTickIntervalEnd;
@@ -858,9 +873,6 @@ inline AudioEngine::State AudioEngine::getState() const {
 	return m_state;
 }
 
-inline void AudioEngine::setState( AudioEngine::State state) {
-	m_state = state;
-}
 inline AudioEngine::State AudioEngine::getNextState() const {
 	return m_nextState;
 }
@@ -930,6 +942,9 @@ inline float AudioEngine::getNextBpm() const {
 }
 inline long long AudioEngine::getFrameOffset() const {
 	return m_nFrameOffset;
+}
+inline double AudioEngine::getTickOffset() const {
+	return m_fTickOffset;
 }
 };
 

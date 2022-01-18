@@ -954,6 +954,9 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 		return;
 	}
 
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
 	// Update numerator to allow only for a maximum pattern length of
 	// four measures.
 	m_pLCDSpinBoxNumerator->setMaximum( 4 * m_pLCDSpinBoxDenominator->value() );
@@ -971,12 +974,13 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 
 	int nLength = std::round( static_cast<double>( MAX_NOTES ) / fDenominator * fNumerator );
 
+	pAudioEngine->lock( RIGHT_HERE );
 	// set length and denominator				
 	m_pPattern->set_length( nLength );
 	m_pPattern->set_denominator( static_cast<int>( fDenominator ) );
-
-	auto pHydrogen = Hydrogen::get_instance();
 	pHydrogen->updateSongSize();
+	pAudioEngine->unlock();
+	
 	pHydrogen->setIsModified( true );
 	
 	patternLengthChanged();

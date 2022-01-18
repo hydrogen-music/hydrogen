@@ -115,12 +115,12 @@ Note::Note( Note* other, std::shared_ptr<Instrument> instrument )
 		__adsr = __instrument->copy_adsr();
 		__instrument_id = __instrument->get_id();
 
-		for ( const auto& pCompo : *__instrument->get_components() ) {
-			SelectedLayerInfo *sampleInfo = new SelectedLayerInfo;
-			sampleInfo->SelectedLayer = -1;
-			sampleInfo->SamplePosition = 0;
+		for ( int ii = 0; ii < other->get_instrument()->get_components()->size(); ii++ ) {
+			SelectedLayerInfo* pSampleInfo = new SelectedLayerInfo;
+			pSampleInfo->SelectedLayer = other->get_layer_selected( ii )->SelectedLayer;
+			pSampleInfo->SamplePosition = other->get_layer_selected( ii )->SamplePosition;
 
-			__layers_selected[ pCompo->get_drumkit_componentID() ] = sampleInfo;
+			__layers_selected[ ii ] = pSampleInfo;
 		}
 	}
 }
@@ -291,7 +291,7 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput.append( QString( "%1%2layers_selected:\n" )
 						.arg( sPrefix ).arg( s ) );
 		for ( auto ll : __layers_selected ) {
-			sOutput.append( QString( "%1%2%3 : selected layer: %4, sample position: %5\n" )
+			sOutput.append( QString( "%1%2[component: %3, selected layer: %4, sample position: %5]\n" )
 							.arg( sPrefix ).arg( s + s )
 							.arg( ll.first )
 							.arg( ll.second->SelectedLayer )
@@ -327,9 +327,9 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", just_recorded: %1" ).arg( __just_recorded ) )
 			.append( QString( ", probability: %1" ).arg( __probability ) )
 			.append( QString( ", instrument: %1" ).arg( __instrument->get_name() ) )
-			.append( QString( ", layers_selected:" ) );
+			.append( QString( ", layers_selected: " ) );
 		for ( auto ll : __layers_selected ) {
-			sOutput.append( QString( "%1 : selected layer: %2, sample position: %3" )
+			sOutput.append( QString( "[component: %1, selected layer: %2, sample position: %3] " )
 							.arg( ll.first )
 							.arg( ll.second->SelectedLayer )
 							.arg( ll.second->SamplePosition ) );

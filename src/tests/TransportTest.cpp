@@ -20,42 +20,35 @@
  *
  */
 
-#include <core/config.h>
+#include <core/CoreActionController.h>
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/Hydrogen.h>
+#include <core/Helpers/Filesystem.h>
 
 #include <iostream>
 
 #include "TransportTest.h"
-#include <core/CoreActionController.h>
-#include <core/AudioEngine/AudioEngine.h>
-#include <core/Hydrogen.h>
-#include <core/Basics/Song.h>
-#include <core/Helpers/Filesystem.h>
+#include "TestHelper.h"
 
 using namespace H2Core;
 
 void TransportTest::setUp(){
-	
-	m_sValidPath = QString( "%1/hydrogen_time_test.h2song" )
-		.arg( QDir::tempPath() );
 
 	// We need a song that has at least the maximum pattern group
 	// number provided in testElapsedTime(). An empty one won't do it.
-	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
-	pCoreActionController->openSong( QString( "%1/GM_kit_demo3.h2song" ).arg( Filesystem::demos_dir() ) );
-	pCoreActionController->saveSongAs( m_sValidPath );
-}
+	m_pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" ).arg( Filesystem::demos_dir() ) );
 
-void TransportTest::tearDown(){
-	
-	// Delete all temporary files
-	if ( QFile::exists( m_sValidPath ) ) {
-		QFile::remove( m_sValidPath );
-	}
+	m_pSongSizeChanged = Song::load( QString( H2TEST_FILE( "song/AE_songSizeChanged.h2song" ) ) );
+
+	CPPUNIT_ASSERT( m_pSongDemo != nullptr );
+	CPPUNIT_ASSERT( m_pSongSizeChanged != nullptr );
 }
 
 void TransportTest::testFrameToTickConversion() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
 	
 	bool bNoMismatch = pAudioEngine->testFrameToTickConversion();
 	CPPUNIT_ASSERT( bNoMismatch );
@@ -64,6 +57,8 @@ void TransportTest::testFrameToTickConversion() {
 void TransportTest::testTransportProcessing() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
 	
 	bool bNoMismatch = pAudioEngine->testTransportProcessing();
 	CPPUNIT_ASSERT( bNoMismatch );
@@ -73,6 +68,8 @@ void TransportTest::testTransportRelocation() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
+
+	pCoreActionController->openSong( m_pSongDemo );
 	
 	pCoreActionController->activateTimeline( true );
 	pCoreActionController->addTempoMarker( 0, 120 );
@@ -87,17 +84,35 @@ void TransportTest::testTransportRelocation() {
 	
 	bool bNoMismatch = pAudioEngine->testTransportRelocation();
 	CPPUNIT_ASSERT( bNoMismatch );
+
+	pCoreActionController->activateTimeline( false );
 }		
 
 void TransportTest::testComputeTickInterval() {
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
 
 	bool bNoMismatch = pAudioEngine->testComputeTickInterval();
 	CPPUNIT_ASSERT( bNoMismatch );
 }		
 
+void TransportTest::testSongSizeChange() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	pHydrogen->getCoreActionController()->openSong( m_pSongSizeChanged );
+
+	bool bNoMismatch = pAudioEngine->testSongSizeChange();
+	CPPUNIT_ASSERT( bNoMismatch );
+}		
+
 void TransportTest::testSongSizeChangeInLoopMode() {
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
 
 	bool bNoMismatch = pAudioEngine->testSongSizeChangeInLoopMode();
 	CPPUNIT_ASSERT( bNoMismatch );

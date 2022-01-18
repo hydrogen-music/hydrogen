@@ -228,6 +228,14 @@ public:
 	 * TempoMarker was added to or deleted from the #Timeline.
 	 */
 	void handleTimelineChange();
+	/** 
+	 * Recalculates all note starts and positions to make them valid
+	 * again after the song size changed, e.g. a pattern was inserted
+	 * or it's length was changed.
+	 */
+	void handleSongSizeChange();
+
+	const std::vector<Note*> getPlayingNotesQueue() const;
 	
 private:
 	std::vector<Note*> m_playingNotesQueue;
@@ -294,6 +302,9 @@ private:
 	);
 };
 
+inline const std::vector<Note*> Sampler::getPlayingNotesQueue() const {
+	return m_playingNotesQueue;
+}
 
 } // namespace
 

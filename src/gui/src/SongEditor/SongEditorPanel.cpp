@@ -573,8 +573,10 @@ void SongEditorPanel::clearSequence()
 
 void SongEditorPanel::restoreGroupVector( QString filename )
 {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	//clear the old sequese
-	std::vector<PatternList*> *pPatternGroupsVect = Hydrogen::get_instance()->getSong()->getPatternGroupVector();
+	std::vector<PatternList*> *pPatternGroupsVect = pHydrogen->getSong()->getPatternGroupVector();
 	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
 		PatternList *pPatternList = (*pPatternGroupsVect)[i];
 		pPatternList->clear();
@@ -582,8 +584,11 @@ void SongEditorPanel::restoreGroupVector( QString filename )
 	}
 	pPatternGroupsVect->clear();
 
-	Hydrogen::get_instance()->getSong()->readTempPatternList( filename );
-	Hydrogen::get_instance()->updateSongSize();
+	pAudioEngine->lock( RIGHT_HERE );
+	pHydrogen->getSong()->readTempPatternList( filename );
+	pHydrogen->updateSongSize();
+	pAudioEngine->unlock();
+	
 	m_pSongEditor->updateEditorandSetTrue();
 	updateAll();
 }
