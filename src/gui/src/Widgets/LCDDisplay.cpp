@@ -75,8 +75,10 @@ LCDDisplay::~LCDDisplay() {
 }
 
 void LCDDisplay::setUseRedFont( bool bUseRedFont ) {
-	m_bUseRedFont = bUseRedFont;
-	updateStyleSheet();
+	if ( bUseRedFont != m_bUseRedFont ) {
+		m_bUseRedFont = bUseRedFont;
+		updateStyleSheet();
+	}
 }
 
 void LCDDisplay::updateFont() {
