@@ -124,7 +124,7 @@ void Sampler::process( uint32_t nFrames, std::shared_ptr<Song> pSong )
 	while ( ( int )m_playingNotesQueue.size() > m_nMaxNotes ) {
 		Note * pOldNote = m_playingNotesQueue[ 0 ];
 		m_playingNotesQueue.erase( m_playingNotesQueue.begin() );
-		 pOldNote->get_instrument()->dequeue();
+		pOldNote->get_instrument()->dequeue();
 		delete  pOldNote;	// FIXME: send note-off instead of removing the note from the list?
 	}
 
@@ -456,17 +456,17 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 	float fPan_L = panLaw( fPan, pSong );
 	float fPan_R = panLaw( -fPan, pSong );
 	//---------------------------------------------------------
+	auto components = pInstr->get_components();
+	bool nReturnValues[ components->size() ];
 
-	bool nReturnValues [pInstr->get_components()->size()];
-	
-	for(int i = 0; i < pInstr->get_components()->size(); i++){
+	for(int i = 0; i < components->size(); i++){
 		nReturnValues[i] = false;
 	}
-	
+
 	int nReturnValueIndex = 0;
 	int nAlreadySelectedLayer = -1;
 
-	for (const auto& pCompo : *pInstr->get_components()) {
+	for ( const auto& pCompo : *components ) {
 		nReturnValues[nReturnValueIndex] = false;
 		DrumkitComponent* pMainCompo = nullptr;
 
@@ -864,7 +864,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 
 		nReturnValueIndex++;
 	}
-	for ( unsigned i = 0 ; i < pInstr->get_components()->size() ; i++ ) {
+	for ( unsigned i = 0 ; i < components->size() ; i++ ) {
 		if ( !nReturnValues[i] ) {
 			return false;
 		}
@@ -1051,6 +1051,7 @@ bool Sampler::renderNoteNoResample(
 {
 	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pInstrument = pNote->get_instrument();
 	bool retValue = true; // the note is ended
 
 	int nNoteLength = -1;
@@ -1064,7 +1065,7 @@ bool Sampler::renderNoteNoResample(
 		// imposto il numero dei bytes disponibili uguale al buffersize
 		nAvail_bytes = nBufferSize - nInitialSilence;
 		retValue = false; // the note is not ended yet
-	} else if ( pNote->get_instrument()->is_filter_active() && pNote->filter_sustain() ) {
+	} else if ( pInstrument->is_filter_active() && pNote->filter_sustain() ) {
 		// If filter is causing note to ring, process more samples.
 		nAvail_bytes = nBufferSize - nInitialSilence;
 	}
@@ -1077,9 +1078,10 @@ bool Sampler::renderNoteNoResample(
 	auto pSample_data_L = pSample->get_data_l();
 	auto pSample_data_R = pSample->get_data_r();
 
-	float fInstrPeak_L = pNote->get_instrument()->get_peak_l(); // this value will be reset to 0 by the mixer..
-	float fInstrPeak_R = pNote->get_instrument()->get_peak_r(); // this value will be reset to 0 by the mixer..
+	float fInstrPeak_L = pInstrument->get_peak_l(); // this value will be reset to 0 by the mixer..
+	float fInstrPeak_R = pInstrument->get_peak_r(); // this value will be reset to 0 by the mixer..
 
+	auto pADSR = pNote->get_adsr();
 	float fADSRValue;
 	float fVal_L;
 	float fVal_R;
@@ -1091,25 +1093,25 @@ bool Sampler::renderNoteNoResample(
 	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
 		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>( pAudioDriver );
 		if( pJackAudioDriver ) {
-			pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
-			pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
+			pTrackOutL = pJackAudioDriver->getTrackOut_L( pInstrument, pCompo );
+			pTrackOutR = pJackAudioDriver->getTrackOut_R( pInstrument, pCompo );
 		}
 	}
 #endif
 
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pSelectedLayerInfo->SamplePosition ) ) {
-						if ( pNote->get_adsr()->release() == 0 ) {
+			if ( pADSR->release() == 0 ) {
 				retValue = true;	// the note is ended
 			}
 		}
 
-		fADSRValue = pNote->get_adsr()->get_value( 1 );
+		fADSRValue = pADSR->get_value( 1 );
 		fVal_L = pSample_data_L[ nSamplePos ] * fADSRValue;
 		fVal_R = pSample_data_R[ nSamplePos ] * fADSRValue;
 
 		// Low pass resonant filter
-		if ( pNote->get_instrument()->is_filter_active() ) {
+		if ( pInstrument->is_filter_active() ) {
 			pNote->compute_lr_values( &fVal_L, &fVal_R );
 		}
 
@@ -1141,25 +1143,25 @@ bool Sampler::renderNoteNoResample(
 
 		++nSamplePos;
 	}
-	if ( pNote->get_instrument()->is_filter_active() && pNote->filter_sustain() ) {
+	if ( pInstrument->is_filter_active() && pNote->filter_sustain() ) {
 		// Note is still ringing, do not end.
 		retValue = false;
 	}
 
 	pSelectedLayerInfo->SamplePosition += nAvail_bytes;
-	pNote->get_instrument()->set_peak_l( fInstrPeak_L );
-	pNote->get_instrument()->set_peak_r( fInstrPeak_R );
+	pInstrument->set_peak_l( fInstrPeak_L );
+	pInstrument->set_peak_r( fInstrPeak_R );
 
 
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
 	// change the below return logic if you add code after that ifdef
-	if (pNote->get_instrument()->is_muted() || pSong->getIsMuted() ) return retValue;
+	if (pInstrument->is_muted() || pSong->getIsMuted() ) return retValue;
 	float masterVol =  pSong->getVolume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
 
-		float fLevel = pNote->get_instrument()->get_fx_level( nFX );
+		float fLevel = pInstrument->get_fx_level( nFX );
 
 		if ( ( pFX ) && ( fLevel != 0.0 ) ) {
 			fLevel = fLevel * pFX->getVolume();
@@ -1203,6 +1205,7 @@ bool Sampler::renderNoteResample(
 {
 	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pInstrument = pNote->get_instrument();
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
@@ -1212,10 +1215,10 @@ bool Sampler::renderNoteResample(
 		
 		nNoteLength = ( int )( pNote->get_length() * resampledTickSize);
 	}
-	float fNotePitch = pNote->get_total_pitch() + fLayerPitch;
 
+	float fNotePitch = pNote->get_total_pitch() + fLayerPitch;
 	float fStep = Note::pitchToFrequency( fNotePitch );
-//	_ERRORLOG( QString("pitch: %1, step: %2" ).arg(fNotePitch).arg( fStep) );
+
 	fStep *= ( float )pSample->get_sample_rate() / pAudioDriver->getSampleRate(); // Adjust for audio driver sample rate
 
 	// verifico il numero di frame disponibili ancora da eseguire
@@ -1227,7 +1230,7 @@ bool Sampler::renderNoteResample(
 		// imposto il numero dei bytes disponibili uguale al buffersize
 		nAvail_bytes = nBufferSize - nInitialSilence;
 		retValue = false; // the note is not ended yet
-	} else if ( pNote->get_instrument()->is_filter_active() && pNote->filter_sustain() ) {
+	} else if ( pInstrument->is_filter_active() && pNote->filter_sustain() ) {
 		// If filter is causing note to ring, process more samples.
 		nAvail_bytes = nBufferSize - nInitialSilence;
 	}
@@ -1240,9 +1243,10 @@ bool Sampler::renderNoteResample(
 	auto pSample_data_L = pSample->get_data_l();
 	auto pSample_data_R = pSample->get_data_r();
 
-	float fInstrPeak_L = pNote->get_instrument()->get_peak_l(); // this value will be reset to 0 by the mixer..
-	float fInstrPeak_R = pNote->get_instrument()->get_peak_r(); // this value will be reset to 0 by the mixer..
+	float fInstrPeak_L = pInstrument->get_peak_l(); // this value will be reset to 0 by the mixer..
+	float fInstrPeak_R = pInstrument->get_peak_r(); // this value will be reset to 0 by the mixer..
 
+	auto pADSR = pNote->get_adsr();
 	float fADSRValue = 1.0;
 	float fVal_L;
 	float fVal_R;
@@ -1256,8 +1260,8 @@ bool Sampler::renderNoteResample(
 	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
 		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>( pAudioDriver );
 		if( pJackAudioDriver ) {
-			pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
-			pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
+			pTrackOutL = pJackAudioDriver->getTrackOut_L( pInstrument, pCompo );
+			pTrackOutR = pJackAudioDriver->getTrackOut_R( pInstrument, pCompo );
 		}
 	}
 #endif
@@ -1274,7 +1278,7 @@ bool Sampler::renderNoteResample(
 	//
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pSelectedLayerInfo->SamplePosition ) ) {
-			if ( pNote->get_adsr()->release() == 0 ) {
+			if ( pADSR->release() == 0 ) {
 				if (!retValue) {
 					retValue = 1;	// the note is ended
 				}
@@ -1349,11 +1353,11 @@ bool Sampler::renderNoteResample(
 		}
 
 		// ADSR envelope
-		fADSRValue = pNote->get_adsr()->get_value( fStep );
+		fADSRValue = pADSR->get_value( fStep );
 		fVal_L = fVal_L * fADSRValue;
 		fVal_R = fVal_R * fADSRValue;
 		// Low pass resonant filter
-		if ( pNote->get_instrument()->is_filter_active() ) {
+		if ( pInstrument->is_filter_active() ) {
 			pNote->compute_lr_values( &fVal_L, &fVal_R );
 		}
 
@@ -1362,7 +1366,7 @@ bool Sampler::renderNoteResample(
 
 		fSamplePos += fStep;
 	}
-	if ( pNote->get_instrument()->is_filter_active() && pNote->filter_sustain() ) {
+	if ( pInstrument->is_filter_active() && pNote->filter_sustain() ) {
 		// Note is still ringing, do not end.
 		retValue = false;
 	}
@@ -1402,20 +1406,20 @@ bool Sampler::renderNoteResample(
 	}
 
 	pSelectedLayerInfo->SamplePosition += nAvail_bytes * fStep;
-	pNote->get_instrument()->set_peak_l( fInstrPeak_L );
-	pNote->get_instrument()->set_peak_r( fInstrPeak_R );
+	pInstrument->set_peak_l( fInstrPeak_L );
+	pInstrument->set_peak_r( fInstrPeak_R );
 
 
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
 	// change the below return logic if you add code after that ifdef
-	if ( pNote->get_instrument()->is_muted() || pSong->getIsMuted() ) {
+	if ( pInstrument->is_muted() || pSong->getIsMuted() ) {
 		return retValue;
 	}
 	float masterVol = pSong->getVolume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
-		float fLevel = pNote->get_instrument()->get_fx_level( nFX );
+		float fLevel = pInstrument->get_fx_level( nFX );
 		if ( ( pFX ) && ( fLevel != 0.0 ) ) {
 			fLevel = fLevel * pFX->getVolume();
 
