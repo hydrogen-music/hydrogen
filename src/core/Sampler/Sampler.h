@@ -273,7 +273,7 @@ private:
 	bool renderNoteNoResample(
 		std::shared_ptr<Sample> pSample,
 		Note *pNote,
-		SelectedLayerInfo *pSelectedLayerInfo,
+		std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 		std::shared_ptr<InstrumentComponent> pCompo,
 		DrumkitComponent *pDrumCompo,
 		int nBufferSize,
@@ -288,7 +288,7 @@ private:
 	bool renderNoteResample(
 		std::shared_ptr<Sample> pSample,
 		Note *pNote,
-		SelectedLayerInfo *pSelectedLayerInfo,
+		std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 		std::shared_ptr<InstrumentComponent> pCompo,
 		DrumkitComponent *pDrumCompo,
 		int nBufferSize,

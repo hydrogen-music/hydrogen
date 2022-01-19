@@ -70,7 +70,7 @@ Note::Note( std::shared_ptr<Instrument> instrument, int position, float velocity
 
 		for ( const auto& pCompo : *__instrument->get_components() ) {
 
-			SelectedLayerInfo *sampleInfo = new SelectedLayerInfo;
+			std::shared_ptr<SelectedLayerInfo> sampleInfo = std::make_shared<SelectedLayerInfo>();
 			sampleInfo->SelectedLayer = -1;
 			sampleInfo->SamplePosition = 0;
 
@@ -114,14 +114,14 @@ Note::Note( Note* other, std::shared_ptr<Instrument> instrument )
 	if ( __instrument != nullptr ) {
 		__adsr = __instrument->copy_adsr();
 		__instrument_id = __instrument->get_id();
+	}
 
-		for ( int ii = 0; ii < other->get_instrument()->get_components()->size(); ii++ ) {
-			SelectedLayerInfo* pSampleInfo = new SelectedLayerInfo;
-			pSampleInfo->SelectedLayer = other->get_layer_selected( ii )->SelectedLayer;
-			pSampleInfo->SamplePosition = other->get_layer_selected( ii )->SamplePosition;
-
-			__layers_selected[ ii ] = pSampleInfo;
-		}
+	for ( const auto& mm : other->__layers_selected ) {
+		std::shared_ptr<SelectedLayerInfo> pSampleInfo = std::make_shared<SelectedLayerInfo>();
+		pSampleInfo->SelectedLayer = mm.second->SelectedLayer;
+		pSampleInfo->SamplePosition = mm.second->SamplePosition;
+		
+		__layers_selected[ mm.first ] = pSampleInfo;
 	}
 }
 

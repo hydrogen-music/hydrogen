@@ -317,7 +317,6 @@ void AudioEngine::stopPlayback()
 		return;
 	}
 
-	// change the current audio engine state
 	setState( State::Ready );
 }
 
@@ -386,12 +385,7 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pDriver = pHydrogen->getAudioOutput();
 
-	// We relocate transport to the exact position of the tick
-	m_fLastTickIntervalEnd = -1;
-	m_nLastPlayingPatternsColumn = -1;
-	m_nFrameOffset = 0;
-	m_fTickOffset = 0;
-
+	reset( false );
 	long long nNewFrame = computeFrameFromTick( fTick, &m_fTickMismatch );
 	setFrames( nNewFrame );
 	updateTransportPosition( fTick, false );
@@ -408,14 +402,10 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 void AudioEngine::locateToFrame( const long long nFrame ) {
 	const auto pHydrogen = Hydrogen::get_instance();
 
+	reset( false );
 	setFrames( nFrame );
 
 	double fNewTick = computeTickFromFrame( nFrame );
-	m_nFrameOffset = 0;
-	m_fTickOffset = 0;
-	m_fTickMismatch = 0;
-	m_fLastTickIntervalEnd = -1;
-	m_nLastPlayingPatternsColumn = -1;
 	
 	updateTransportPosition( fNewTick, pHydrogen->getSong()->isLoopEnabled() );
 }
@@ -450,10 +440,10 @@ void AudioEngine::updateTransportPosition( double fTick, bool bUseLoopMode ) {
 
 	assert( pSong );
 
-	WARNINGLOG( QString( "[Before] tick: %1, pTickPos: %2, pStartPos: %3" )
-				.arg( getDoubleTick(), 0, 'f' )
-				.arg( m_nPatternTickPosition )
-				.arg( m_nPatternStartTick ) );
+	// WARNINGLOG( QString( "[Before] tick: %1, pTickPos: %2, pStartPos: %3" )
+	// 			.arg( getDoubleTick(), 0, 'f' )
+	// 			.arg( m_nPatternTickPosition )
+	// 			.arg( m_nPatternStartTick ) );
 	
 	setTick( fTick );
 
@@ -518,10 +508,10 @@ void AudioEngine::updateTransportPosition( double fTick, bool bUseLoopMode ) {
 	}
 	updateBpmAndTickSize();
 	
-	WARNINGLOG( QString( "[After] tick: %1, pTickPos: %2, pStartPos: %3" )
-				.arg( getDoubleTick(), 0, 'f' )
-				.arg( m_nPatternTickPosition )
-				.arg( m_nPatternStartTick ) );
+	// WARNINGLOG( QString( "[After] tick: %1, pTickPos: %2, pStartPos: %3" )
+	// 			.arg( getDoubleTick(), 0, 'f' )
+	// 			.arg( m_nPatternTickPosition )
+	// 			.arg( m_nPatternStartTick ) );
 	
 }
 
@@ -1250,23 +1240,15 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 		nFrames = getRealtimeFrames();
 	}
 
-	// Compensate changes in song size.
-	nFrames -= m_nFrameOffset;
-
 	// reading from m_songNoteQueue
 	while ( !m_songNoteQueue.empty() ) {
 		Note *pNote = m_songNoteQueue.top();
 
-		// Compute the note start in frames corresponding to nnTick
-		// and the tick sized used to calculate it.
+		// Compute the note start in frames corresponding to starting
+		// tick and the tick sized used to calculate it.
 		double fTickMismatch;
-		// verifico se la nota rientra in questo ciclo
-		double fNoteStartInTicks =
-			std::max( pNote->get_position() +
-					  static_cast<long>(std::floor(m_fTickOffset)),
-					  static_cast<long>(0) );
 		long long nNoteStartInFrames =
-			computeFrameFromTick( fNoteStartInTicks, &fTickMismatch );
+			computeFrameFromTick( pNote->get_position(), &fTickMismatch );
 		pNote->setNoteStart( nNoteStartInFrames );
 		if ( pHydrogen->isTimelineEnabled() ) {
 			pNote->setUsedTickSize( -1 );
@@ -1776,6 +1758,7 @@ void AudioEngine::updateSongSize() {
 	
 	updateTransportPosition( getDoubleTick(),
 							 pSong->isLoopEnabled() );
+	handleSongSizeChange();
 	getSampler()->handleSongSizeChange();
 
 	if ( m_nColumn == -1 ) {
@@ -1788,6 +1771,29 @@ void AudioEngine::updateSongSize() {
 				.arg( m_nColumn ).arg( getDoubleTick(), 0, 'f' )
 				.arg( m_nPatternTickPosition )
 				.arg( m_nPatternStartTick ) );
+}
+
+void AudioEngine::handleSongSizeChange() {
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	double fTickMismatch;
+
+	std::vector<Note*> notes;
+	for ( ; ! m_songNoteQueue.empty(); m_songNoteQueue.pop() ) {
+		notes.push_back( m_songNoteQueue.top() );
+	}
+
+	for ( auto nnote : notes ) {
+		double fNoteStartInTicks =
+			std::max( nnote->get_position() +
+					  static_cast<long>(std::floor(getTickOffset())),
+					  static_cast<long>(0) );
+		long long nNoteStartInFrames =
+			computeFrameFromTick( fNoteStartInTicks, &fTickMismatch );
+		nnote->setNoteStart( nNoteStartInFrames );
+		nnote->set_position( nnote->get_position() +
+							 static_cast<long>(std::floor(getTickOffset())));
+		m_songNoteQueue.push( nnote );
+	}
 }
 
 long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nFrames ) {
@@ -2903,19 +2909,24 @@ bool AudioEngine::testSongSizeChange() {
 	unlock();
 	pCoreActionController->locateToColumn( 4 );
 	lock( RIGHT_HERE );
-	
 	updateNoteQueue( nBufferSize );
 	processAudio( nBufferSize );
 
 	// Cache some stuff in order to compare it later on.
 	long nOldSongSize = pSong->lengthInTicks();
+	float fPrevTempo = getBpm();
+	float fPrevTickSize = getTickSize();
+	auto prevNotes = testCopySongNoteQueue();
 
-	std::vector<Note*> oldPlayingNotesQueue;
+	std::vector<std::shared_ptr<Note>> notes1, notes2;
 	for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
-		oldPlayingNotesQueue.push_back( new Note( ppNote ) );
+		notes1.push_back( std::make_shared<Note>( ppNote ) );
 	}
 
+	//////
 	// Toggle a grid cell prior to the current transport position
+	//////
+	
 	unlock();
 	pCoreActionController->toggleGridCell( 1, 1 );
 	lock( RIGHT_HERE );
@@ -2928,8 +2939,21 @@ bool AudioEngine::testSongSizeChange() {
 		unlock();
 		return false;
 	}
-		
+
+	// Check whether current frame and tick information are still
+	// consistent.
 	if ( ! testCheckTransportPosition( "toggling prior" ) ) {
+		setState( AudioEngine::State::Ready );
+		unlock();
+		return false;
+	}
+
+	// Check whether the notes already enqueued into the
+	// m_songNoteQueue have been updated properly.
+	auto afterNotes = testCopySongNoteQueue();
+	if ( ! testCheckAudioConsistency( prevNotes, afterNotes, 
+									  "toggling prior", 0, false,
+									  m_fTickOffset ) ) {
 		setState( AudioEngine::State::Ready );
 		unlock();
 		return false;
@@ -2943,40 +2967,84 @@ bool AudioEngine::testSongSizeChange() {
 	// processing of notes we already encountered.
 	incrementTransportPosition( nBufferSize );
 	processAudio( nBufferSize );
+	incrementTransportPosition( nBufferSize );
+	processAudio( nBufferSize );
+
+	// Check whether tempo and tick size have not changed.
+	if ( fPrevTempo != getBpm() || fPrevTickSize != getTickSize() ) {
+		ERRORLOG( "[toggling prior] tempo and ticksize are affected" );
+		setState( AudioEngine::State::Ready );
+		unlock();
+		return false;
+	}
 	
-	int nNotesFound = 0;
 	for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
-		for ( const auto& ppOldNote : oldPlayingNotesQueue ) {
-			if ( ppNote->match( ppOldNote ) ) {
-				++nNotesFound;
-				
-				INFOLOG( QString( "[toggling prior]. \n Pre: %1 ; \nPost: %2 ; with nBufferSize: %3" )
-						  .arg( ppOldNote->toQString( "", true ) )
-						  .arg( ppNote->toQString( "", true ) )
-						  .arg( nBufferSize ) );
-				
-				for ( int nn = 0; nn < ppNote->get_instrument()->get_components()->size(); nn++ ) {
-					if ( ( ppNote->get_layer_selected( nn )->SamplePosition -
-						   nBufferSize ) !=
-						 ppOldNote->get_layer_selected( nn )->SamplePosition ) {
-						ERRORLOG( QString( "[toggling prior] glitch in audio render. Pre: %1 ; Post: %2 ; with nBufferSize: %3" )
-								  .arg( ppOldNote->toQString( "", true ) )
-								  .arg( ppNote->toQString( "", true ) )
-								  .arg( nBufferSize ) );
-						bNoMismatch = false;
-					}
-				}
-			}
-		}
+		notes2.push_back( std::make_shared<Note>( ppNote ) );
 	}
 
-	if ( nNotesFound == 0 ) {
-		ERRORLOG( "[toggling prior] bad test design. No notes played back." );
-		bNoMismatch = false;
+	if ( ! testCheckAudioConsistency( notes1, notes2, "toggling prior",
+									  nBufferSize * 2 ) ) {
+		setState( AudioEngine::State::Ready );
+		unlock();
+		return false;
+	}
+	
+	//////
+	// Toggle a grid cell after to the current transport position
+	//////
+
+	// The transport position itself should not be affected.
+	long long nFormerFrames = getFrames();
+	
+	unlock();
+	pCoreActionController->toggleGridCell( 6, 6 );
+	lock( RIGHT_HERE );
+
+	if ( nFormerFrames != getFrames() ) {
+		ERRORLOG( "[toggling after] transport position was affected" );
+		setState( AudioEngine::State::Ready );
+		unlock();
+		return false;
 	}
 
-	for ( auto ppOldNote : oldPlayingNotesQueue ) {
-		delete ppOldNote;
+	// Check whether there is a change in song size
+	nNewSongSize = pSong->lengthInTicks();
+	if ( nNewSongSize == nOldSongSize ) {
+		ERRORLOG( "[toggling after] no change in song size" );
+		setState( AudioEngine::State::Ready );
+		unlock();
+		return false;
+	}
+		
+	if ( ! testCheckTransportPosition( "toggling after" ) ) {
+		setState( AudioEngine::State::Ready );
+		unlock();
+		return false;
+	}
+
+	// Now we emulate that playback continues without any new notes
+	// being added and expect the rendering of the notes currently
+	// played back by the Sampler to start off precisely where we
+	// stopped before the song size change. New notes might still be
+	// added due to the lookahead, so, we just check for the
+	// processing of notes we already encountered.
+	incrementTransportPosition( nBufferSize );
+	processAudio( nBufferSize );
+	incrementTransportPosition( nBufferSize );
+	processAudio( nBufferSize );
+	incrementTransportPosition( nBufferSize );
+	processAudio( nBufferSize );
+
+	notes1.clear();
+	for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
+		notes1.push_back( std::make_shared<Note>( ppNote ) );
+	}
+
+	if ( ! testCheckAudioConsistency( notes2, notes1, "toggling after",
+									  nBufferSize * 3 ) ) {
+		setState( AudioEngine::State::Ready );
+		unlock();
+		return false;
 	}
 	
 	// Check consistency of transport position, consistency of the
@@ -3117,6 +3185,76 @@ bool AudioEngine::testCheckTransportPosition( const QString& sContext) const {
 	}
 
 	return true;
+}
+
+bool AudioEngine::testCheckAudioConsistency( const std::vector<std::shared_ptr<Note>> oldNotes,
+											 const std::vector<std::shared_ptr<Note>> newNotes, 
+											 const QString& sContext,
+											 int nPassedFrames, bool bTestAudio,
+											 float fPassedTicks ) const {
+
+	bool bNoMismatch = true;
+	
+	int nNotesFound = 0;
+	for ( const auto& ppNewNote : newNotes ) {
+		for ( const auto& ppOldNote : oldNotes ) {
+			if ( ppNewNote->match( ppOldNote.get() ) ) {
+				++nNotesFound;
+
+				if ( bTestAudio ) {
+					// Check for consistency in the Sample position
+					// advanced by the Sampler upon rendering.
+					for ( int nn = 0; nn < ppNewNote->get_instrument()->get_components()->size(); nn++ ) {
+						if ( ( ppNewNote->get_layer_selected( nn )->SamplePosition -
+							   nPassedFrames ) !=
+							 ppOldNote->get_layer_selected( nn )->SamplePosition ) {
+							ERRORLOG( QString( "[%4] glitch in audio render. Pre: %1 ; Post: %2 ; with passed frames: %3" )
+									  .arg( ppOldNote->toQString( "", true ) )
+									  .arg( ppNewNote->toQString( "", true ) )
+									  .arg( nPassedFrames )
+									  .arg( sContext ) );
+							bNoMismatch = false;
+						}
+					}
+				} else {
+					// Check whether changes in note start position
+					// were properly applied.
+					if ( ppNewNote->get_position() - fPassedTicks !=
+						 ppOldNote->get_position() ) {
+							ERRORLOG( QString( "[%4] glitch in note queue. Pre: %1 ; Post: %2 ; with passed ticks: %3" )
+									  .arg( ppOldNote->toQString( "", true ) )
+									  .arg( ppNewNote->toQString( "", true ) )
+									  .arg( fPassedTicks )
+									  .arg( sContext ) );
+							bNoMismatch = false;
+					}
+				}
+			}
+		}
+	}
+
+	if ( nNotesFound == 0 ) {
+		ERRORLOG( QString( "[%1] bad test design. No notes played back." )
+				  .arg( sContext ) );
+		bNoMismatch = false;
+	}
+
+	return bNoMismatch;
+}
+
+std::vector<std::shared_ptr<Note>> AudioEngine::testCopySongNoteQueue() {
+	std::vector<Note*> rawNotes;
+	std::vector<std::shared_ptr<Note>> notes;
+	for ( ; ! m_songNoteQueue.empty(); m_songNoteQueue.pop() ) {
+		rawNotes.push_back( m_songNoteQueue.top() );
+		notes.push_back( std::make_shared<Note>( m_songNoteQueue.top() ) );
+	}
+
+	for ( auto nnote : rawNotes ) {
+		m_songNoteQueue.push( nnote );
+	}
+
+	return notes;
 }
 
 QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {

@@ -432,13 +432,6 @@ void Sampler::handleSongSizeChange() {
 		long long nNoteStartInFrames =
 			pAudioEngine->computeFrameFromTick( fNoteStartInTicks,
 												&fTickMismatch );
-
-		DEBUGLOG(QString( "pos old: %1, new: %2; start old: %3, new: %4" )
-				 .arg( nnote->get_position() )
-				 .arg( nnote->get_position() +
-					   static_cast<long>(std::floor(pAudioEngine->getTickOffset())) )
-				 .arg( nnote->getNoteStart() )
-				 .arg( nNoteStartInFrames ) );
 		nnote->setNoteStart( nNoteStartInFrames );
 		nnote->set_position( nnote->get_position() +
 							 static_cast<long>(std::floor(pAudioEngine->getTickOffset())));
@@ -501,12 +494,11 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 	long long nNoteStartInFrames =
 		pNote->getNoteStart() + pNote->get_humanize_delay();
 
-	// DEBUG
-	DEBUGLOG(QString( "framepos: %1, note pos: %2, ticksize: %3, curr tick: %4, curr frame: %5, nNoteStartInFrames: %6 ")
-			 .arg( nFrames).arg( pNote->get_position() ).arg( pAudioEngine->getTickSize() )
-			 .arg( pAudioEngine->getTick() ).arg( pAudioEngine->getFrames() )
-			 .arg( nNoteStartInFrames )
-			 .append( pNote->toQString( "", true ) ) );
+	// DEBUGLOG(QString( "framepos: %1, note pos: %2, ticksize: %3, curr tick: %4, curr frame: %5, nNoteStartInFrames: %6 ")
+	// 		 .arg( nFrames).arg( pNote->get_position() ).arg( pAudioEngine->getTickSize() )
+	// 		 .arg( pAudioEngine->getTick() ).arg( pAudioEngine->getFrames() )
+	// 		 .arg( nNoteStartInFrames )
+	// 		 .append( pNote->toQString( "", true ) ) );
 
 	long long nInitialSilence = 0;
 	if ( nNoteStartInFrames > nFrames ) {	// scrivo silenzio prima dell'inizio della nota
@@ -592,7 +584,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 
 		// scelgo il sample da usare in base alla velocity
 		std::shared_ptr<Sample> pSample;
-		SelectedLayerInfo *pSelectedLayer = pNote->get_layer_selected( pCompo->get_drumkit_componentID() );
+		auto pSelectedLayer = pNote->get_layer_selected( pCompo->get_drumkit_componentID() );
 
 		if ( !pSelectedLayer ) {
 			QString dummy = QString( "NULL Layer Information for instrument %1. Component: %2" ).arg( pInstr->get_name() ).arg( pCompo->get_drumkit_componentID() );
@@ -1127,7 +1119,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 bool Sampler::renderNoteNoResample(
 	std::shared_ptr<Sample> pSample,
 	Note *pNote,
-	SelectedLayerInfo *pSelectedLayerInfo,
+	std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 	std::shared_ptr<InstrumentComponent> pCompo,
 	DrumkitComponent *pDrumCompo,
 	int nBufferSize,
@@ -1239,7 +1231,7 @@ bool Sampler::renderNoteNoResample(
 		// Note is still ringing, do not end.
 		retValue = false;
 	}
-
+	
 	pSelectedLayerInfo->SamplePosition += nAvail_bytes;
 	pNote->get_instrument()->set_peak_l( fInstrPeak_L );
 	pNote->get_instrument()->set_peak_r( fInstrPeak_R );
@@ -1282,7 +1274,7 @@ bool Sampler::renderNoteNoResample(
 bool Sampler::renderNoteResample(
 	std::shared_ptr<Sample> pSample,
 	Note *pNote,
-	SelectedLayerInfo *pSelectedLayerInfo,
+	std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 	std::shared_ptr<InstrumentComponent> pCompo,
 	DrumkitComponent *pDrumCompo,
 	int nBufferSize,
@@ -1502,7 +1494,7 @@ bool Sampler::renderNoteResample(
 		m_pMainOut_R[nBufferPos] += fVal_R;
 
 	}
-
+	
 	pSelectedLayerInfo->SamplePosition += nAvail_bytes * fStep;
 	pNote->get_instrument()->set_peak_l( fInstrPeak_L );
 	pNote->get_instrument()->set_peak_r( fInstrPeak_R );

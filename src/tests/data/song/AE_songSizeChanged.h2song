@@ -416,7 +416,7 @@
    <Attack>0</Attack>
    <Decay>0</Decay>
    <Sustain>1</Sustain>
-   <Release>1000</Release>
+   <Release>999</Release>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
@@ -1812,7 +1812,7 @@
    <Attack>0</Attack>
    <Decay>0</Decay>
    <Sustain>1</Sustain>
-   <Release>1000</Release>
+   <Release>999</Release>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
@@ -2344,6 +2344,78 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
+     <note_off>false</note_off>
+    </note>
+    <note>
+     <position>6</position>
+     <leadlag>0</leadlag>
+     <velocity>0.8</velocity>
+     <pan>0</pan>
+     <pitch>0</pitch>
+     <probability>1</probability>
+     <key>C0</key>
+     <length>-1</length>
+     <instrument>3</instrument>
+     <note_off>false</note_off>
+    </note>
+    <note>
+     <position>12</position>
+     <leadlag>0</leadlag>
+     <velocity>0.8</velocity>
+     <pan>0</pan>
+     <pitch>0</pitch>
+     <probability>1</probability>
+     <key>C0</key>
+     <length>-1</length>
+     <instrument>4</instrument>
+     <note_off>false</note_off>
+    </note>
+    <note>
+     <position>18</position>
+     <leadlag>0</leadlag>
+     <velocity>0.8</velocity>
+     <pan>0</pan>
+     <pitch>0</pitch>
+     <probability>1</probability>
+     <key>C0</key>
+     <length>-1</length>
+     <instrument>17</instrument>
+     <note_off>false</note_off>
+    </note>
+    <note>
+     <position>24</position>
+     <leadlag>0</leadlag>
+     <velocity>0.8</velocity>
+     <pan>0</pan>
+     <pitch>0</pitch>
+     <probability>1</probability>
+     <key>C0</key>
+     <length>-1</length>
+     <instrument>15</instrument>
+     <note_off>false</note_off>
+    </note>
+    <note>
+     <position>30</position>
+     <leadlag>0</leadlag>
+     <velocity>0.8</velocity>
+     <pan>0</pan>
+     <pitch>0</pitch>
+     <probability>1</probability>
+     <key>C0</key>
+     <length>-1</length>
+     <instrument>11</instrument>
+     <note_off>false</note_off>
+    </note>
+    <note>
+     <position>36</position>
+     <leadlag>0</leadlag>
+     <velocity>0.8</velocity>
+     <pan>0</pan>
+     <pitch>0</pitch>
+     <probability>1</probability>
+     <key>C0</key>
+     <length>-1</length>
+     <instrument>8</instrument>
      <note_off>false</note_off>
     </note>
     <note>

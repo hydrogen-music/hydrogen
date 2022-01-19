@@ -485,8 +485,6 @@ public:
 	 * @return true on success.
 	 */
 	bool testSongSizeChangeInLoopMode();
-	/** Helper function */
-	bool testCheckTransportPosition( const QString& sContext ) const ;
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -564,7 +562,9 @@ private:
 	 */
 	int				updateNoteQueue( unsigned nFrames );
 	void 			processAudio( uint32_t nFrames );
-	long long computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nFrames );
+	long long 		computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nFrames );
+
+	void 			handleSongSizeChange();
 	
 	/** Increments #m_fElapsedTime at the end of a process cycle.
 	 *
@@ -629,6 +629,22 @@ private:
 	void			locateToFrame( const long long nFrame );
 	void			incrementTransportPosition( uint32_t nFrames );
 	void			updateTransportPosition( double fTick, bool bUseLoopMode );
+	
+	/** Helper function */
+	bool testCheckTransportPosition( const QString& sContext ) const;
+	/**
+	 * Takes two instances of Sampler::m_playingNotesQueue and checkes
+	 * whether matching notes have exactly @a nPassedFrames difference
+	 * in thei SelectedLayerInfo::SamplePosition.
+	 */
+	bool testCheckAudioConsistency( const std::vector<std::shared_ptr<Note>> oldNotes,
+									const std::vector<std::shared_ptr<Note>> newNotes,
+									const QString& sContext,
+									int nPassedFrames,
+									bool bTestAudio = true,
+									float fPassedTicks = 0.0 ) const;
+	
+	std::vector<std::shared_ptr<Note>> testCopySongNoteQueue(); 
 
 	/** Local instance of the Sampler. */
 	Sampler* 			m_pSampler;

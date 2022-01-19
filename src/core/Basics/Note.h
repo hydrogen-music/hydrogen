@@ -216,7 +216,7 @@ class Note : public H2Core::Object<Note>
 		/*
 		 * selected sample
 		 * */
-		SelectedLayerInfo* get_layer_selected( int CompoID );
+	std::shared_ptr<SelectedLayerInfo> get_layer_selected( int CompoID );
 
 
 		void set_probability( float value );
@@ -364,7 +364,7 @@ class Note : public H2Core::Object<Note>
 											  ///frequency [0;1]
 		/** Offset of the note start in frames*/
 		int				__humanize_delay;
-		std::map< int, SelectedLayerInfo* > __layers_selected;
+	std::map< int, std::shared_ptr<SelectedLayerInfo>> __layers_selected;
 		float			__bpfb_l;             ///< left band pass filter buffer
 		float			__bpfb_r;             ///< right band pass filter buffer
 		float			__lpfb_l;             ///< left low pass filter buffer
@@ -523,7 +523,7 @@ inline void Note::set_probability( float value )
 	__probability = value;
 }
 
-inline SelectedLayerInfo* Note::get_layer_selected( int CompoID )
+inline std::shared_ptr<SelectedLayerInfo> Note::get_layer_selected( int CompoID )
 {
 	return __layers_selected[ CompoID ];
 }

@@ -27,12 +27,12 @@
 
 class TransportTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( TransportTest );
-	// CPPUNIT_TEST( testFrameToTickConversion );
-	// CPPUNIT_TEST( testTransportProcessing );
-	// CPPUNIT_TEST( testTransportRelocation );
-	// CPPUNIT_TEST( testComputeTickInterval );
+	CPPUNIT_TEST( testFrameToTickConversion );
+	CPPUNIT_TEST( testTransportProcessing );
+	CPPUNIT_TEST( testTransportRelocation );
+	CPPUNIT_TEST( testComputeTickInterval );
 	CPPUNIT_TEST( testSongSizeChange );
-	// CPPUNIT_TEST( testSongSizeChangeInLoopMode );
+	CPPUNIT_TEST( testSongSizeChangeInLoopMode );
 	CPPUNIT_TEST_SUITE_END();
 	
 private:
