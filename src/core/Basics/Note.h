@@ -114,9 +114,6 @@ class Note : public H2Core::Object<Note>
 		 */
 		static Note* load_from( XMLNode* node, InstrumentList* instruments );
 
-		/** output details through logger with DEBUG severity */
-		void dump();
-
 		/**
 		 * find the corresponding instrument and point to it, or an empty instrument
 		 * \param instruments the list of instrument to look into
@@ -310,10 +307,7 @@ class Note : public H2Core::Object<Note>
 		 */
 		void compute_lr_values( float* val_l, float* val_r );
 
-	void setNoteStart( long long nNoteStart );
 	long long getNoteStart() const;
-
-	void setUsedTickSize( float fTickSize );
 	float getUsedTickSize() const;
 
 	/** 
@@ -321,6 +315,17 @@ class Note : public H2Core::Object<Note>
 	 * note.
 	 */
 	bool isPartiallyRendered() const;
+
+	/**
+	 * Calculates the #m_nNoteStart in frames corresponding to the
+	 * #__position in ticks and storing the used tick size in
+	 * #m_fUsedTickSize.
+	 *
+	 * Whenever the tempo changes and the #Timeline is not
+	 * enabled, the #m_nNoteStart gets invalidated and this function
+	 * needs to be rerun.
+	 */
+	void computeNoteStart();
 	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -362,7 +367,15 @@ class Note : public H2Core::Object<Note>
 		float			__cut_off;            ///< filter cutoff [0;1]
 		float			__resonance;          ///< filter resonant
 											  ///frequency [0;1]
-		/** Offset of the note start in frames*/
+		/** Offset of the note start in frames.
+		 * 
+		 * It includes contributions of the onset humanization, the
+		 * lead lag factor, and the swing. For some of these a random
+		 * value will be drawn but once stored in this variable, the
+		 * delay is fixed and will not change anymore.
+		 *
+		 * It is incorporated in the #m_nNoteStart.
+		 */
 		int				__humanize_delay;
 	std::map< int, std::shared_ptr<SelectedLayerInfo>> __layers_selected;
 		float			__bpfb_l;             ///< left band pass filter buffer
@@ -379,8 +392,8 @@ class Note : public H2Core::Object<Note>
 	/**
 	 * Onset of the note in frames.
 	 *
-	 * This member is only by the #AudioEngine during processing and
-	 * not written to disk.
+	 * This member is only used by the #AudioEngine and #Sampler
+	 * during processing and not written to disk.
 	*/
 	long long m_nNoteStart;
 	/**
@@ -392,6 +405,9 @@ class Note : public H2Core::Object<Note>
 	 * Used to check whether the note start has to be rescaled because
 	 * of a change in speed (which occurs less often and is faster
 	 * than recalculating #m_nNoteStart everywhere it is required.)
+	 *
+	 * This member is only used by the #AudioEngine and #Sampler
+	 * during processing and not written to disk.
 	 */
 	float m_fUsedTickSize;
 };
@@ -653,14 +669,8 @@ inline void Note::compute_lr_values( float* val_l, float* val_r )
 inline long long Note::getNoteStart() const {
 	return m_nNoteStart;
 }
-inline void Note::setNoteStart( long long nNoteStart ) {
-	m_nNoteStart = nNoteStart;
-}
 inline float Note::getUsedTickSize() const {
 	return m_fUsedTickSize;
-}
-inline void Note::setUsedTickSize( float fUsedTickSize ) {
-	m_fUsedTickSize = fUsedTickSize;
 }
 };
 

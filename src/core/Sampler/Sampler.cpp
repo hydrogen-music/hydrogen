@@ -403,38 +403,28 @@ inline float Sampler::panLaw( float fPan, std::shared_ptr<Song> pSong ) {
 	}
 }
 
-void Sampler::handleTimelineChange() {
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
-	double fTickMismatch;
-	
-	for ( const auto& nnote : m_playingNotesQueue ) {
-		if ( ! std::isnan( nnote->getUsedTickSize() ) ) {
-			nnote->setUsedTickSize( -1 );
-			long long nNoteStartInFrames =
-				pAudioEngine->computeFrameFromTick( nnote->get_position() -
-													static_cast<long>(std::floor(pAudioEngine->getTickOffset())),
-													&fTickMismatch );
-			nnote->setNoteStart( nNoteStartInFrames );
-		}
+void Sampler::handleTimelineOrTempoChange() {
+	if ( m_playingNotesQueue.size() == 0 ) {
+		return;
+	}
+
+	for ( auto nnote : m_playingNotesQueue ) {
+		nnote->computeNoteStart();
 	}
 }
 
 void Sampler::handleSongSizeChange() {
+	if ( m_playingNotesQueue.size() == 0 ) {
+		return;
+	}
+
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
-	double fTickMismatch;
 	
-	for ( const auto& nnote : m_playingNotesQueue ) {
-			
-		double fNoteStartInTicks =
-			std::max( nnote->get_position() +
-					  static_cast<long>(std::floor(pAudioEngine->getTickOffset())),
-					  static_cast<long>(0) );
-		long long nNoteStartInFrames =
-			pAudioEngine->computeFrameFromTick( fNoteStartInTicks,
-												&fTickMismatch );
-		nnote->setNoteStart( nNoteStartInFrames );
-		nnote->set_position( nnote->get_position() +
-							 static_cast<long>(std::floor(pAudioEngine->getTickOffset())));
+	for ( auto nnote : m_playingNotesQueue ) {
+		nnote->set_position( std::max( nnote->get_position() +
+									   static_cast<long>(std::floor(pAudioEngine->getTickOffset())),
+									   static_cast<long>(0) ) );
+		nnote->computeNoteStart();
 	}
 }
 
@@ -467,32 +457,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 
 	nFrames -= pAudioEngine->getFrameOffset();
 
-	// Notes not inserted via the audio engine but directly, using
-	// e.g. the GUI, will be insert at position 0 and don't require a
-	// specific start position.
-	if ( ! std::isnan( pNote->getUsedTickSize() ) ) {
-		// Check whether note start is still valid or need to be
-		// refreshed.
-		if ( ( pHydrogen->isTimelineEnabled() &&
-			   pNote->getUsedTickSize() != -1 ) ||
-			( ! pHydrogen->isTimelineEnabled() &&
-			  pNote->getUsedTickSize() != pAudioEngine->getTickSize() ) ) {
-			double fTickMismatch;
-			long long nNoteStartInFrames =
-				pAudioEngine->computeFrameFromTick( pNote->get_position(),
-													&fTickMismatch );
-			
-			pNote->setNoteStart( nNoteStartInFrames );
-			if ( pHydrogen->isTimelineEnabled() ) {
-				pNote->setUsedTickSize( -1 );
-			} else {
-				pNote->setUsedTickSize( pAudioEngine->getTickSize() );
-			}
-		}
-	}
-
-	long long nNoteStartInFrames =
-		pNote->getNoteStart() + pNote->get_humanize_delay();
+	long long nNoteStartInFrames = pNote->getNoteStart();
 
 	// DEBUGLOG(QString( "framepos: %1, note pos: %2, ticksize: %3, curr tick: %4, curr frame: %5, nNoteStartInFrames: %6 ")
 	// 		 .arg( nFrames).arg( pNote->get_position() ).arg( pAudioEngine->getTickSize() )

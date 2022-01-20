@@ -416,13 +416,20 @@ public:
 	void updateSongSize();
 
 	/**
-	 * Fixes transport state after adding or deleting a TempoMarker.
+	 * Updates the transport state and all notes in #m_songNoteQueue
+	 * after adding or deleting a TempoMarker or enabling/disabling
+	 * the #Timeline.
 	 *
 	 * If the #Timeline is activated, adding or removing a TempoMarker
 	 * does effectively has the same effects as a relocation with
 	 * respect to the transport position in frames. It's tick
 	 * counterpart, however, is not affected. This function ensures
 	 * they are in sync again.
+	 *
+	 * Updates all notes in #m_songNoteQueue to be still valid after a
+	 * tempo change.
+	 *
+	 * See handleTimelineChange().
 	 */
 	void handleTimelineChange();
 
@@ -563,8 +570,6 @@ private:
 	int				updateNoteQueue( unsigned nFrames );
 	void 			processAudio( uint32_t nFrames );
 	long long 		computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nFrames );
-
-	void 			handleSongSizeChange();
 	
 	/** Increments #m_fElapsedTime at the end of a process cycle.
 	 *
@@ -629,6 +634,20 @@ private:
 	void			locateToFrame( const long long nFrame );
 	void			incrementTransportPosition( uint32_t nFrames );
 	void			updateTransportPosition( double fTick, bool bUseLoopMode );
+
+	/**
+	 * Updates all notes in #m_songNoteQueue to be still valid after a
+	 * tempo change.
+	 *
+	 * This function will only be used with the #Timeline
+	 * disabled. See handleTimelineChange().
+	 */
+	void handleTempoChange();
+	/**
+	 * Updates all notes in #m_songNoteQueue to be still valid after a
+	 * change in song size.
+	 */
+	void handleSongSizeChange();
 	
 	/** Helper function */
 	bool testCheckTransportPosition( const QString& sContext ) const;

@@ -25,11 +25,12 @@
 #include <cassert>
 
 #include <core/Helpers/Xml.h>
-
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Hydrogen.h>
 #include <core/Sampler/Sampler.h>
 
 namespace H2Core
@@ -199,16 +200,34 @@ bool Note::isPartiallyRendered() const {
 	return bRes;
 }
 
-void Note::dump()
-{
-	INFOLOG( QString( "Note : pos: %1\t humanize offset%2\t instr: %3\t key: %4\t pitch: %5" )
-	         .arg( __position )
-	         .arg( __humanize_delay )
-	         .arg( __instrument->get_name() )
-	         .arg( key_to_string() )
-	         .arg( __pitch )
-	         .arg( __note_off )
-	       );
+void Note::computeNoteStart() {
+	// Notes not inserted via the audio engine but directly, using
+	// e.g. the GUI, will be insert at position 0 and don't require a
+	// specific start position.
+	if ( __position == 0 ) {
+		return;
+	}
+	
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	double fTickMismatch;
+	m_nNoteStart =
+		pAudioEngine->computeFrameFromTick( __position, &fTickMismatch );
+		
+	// If there is a negative Humanize delay, take into account so
+	// we don't miss the time slice.  ignore positive delay, or we
+	// might end the queue processing prematurely based on NoteQueue
+	// placement.  the sampler handles positive delay.
+	if ( __humanize_delay < 0 ) {
+		m_nNoteStart += __humanize_delay;
+	}
+	
+	if ( pHydrogen->isTimelineEnabled() ) {
+		m_fUsedTickSize = -1;
+	} else {
+		m_fUsedTickSize = pAudioEngine->getTickSize();
+	}
 }
 
 void Note::save_to( XMLNode* node )

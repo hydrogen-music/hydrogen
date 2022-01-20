@@ -553,10 +553,10 @@ void AudioEngine::updateBpmAndTickSize() {
 	
 	setTickSize( fNewTickSize ); 
 
-	// If we deal with a single speed for the whole song, the frames
-	// since the beginning of the song are tempo-dependent and have to
-	// be recalculated.
 	if ( ! pHydrogen->isTimelineEnabled() ) {
+		// If we deal with a single speed for the whole song, the frames
+		// since the beginning of the song are tempo-dependent and have to
+		// be recalculated.
 		long long nNewFrames = computeFrameFromTick( getDoubleTick(), &m_fTickMismatch );
 		m_nFrameOffset = nNewFrames - getFrames() + m_nFrameOffset;
 
@@ -565,12 +565,10 @@ void AudioEngine::updateBpmAndTickSize() {
 		// 		  .arg( fOldTickSize, 0, 'f' ).arg( fNewTickSize, 0, 'f' ) );
 		
 		setFrames( nNewFrames );
-	}
 
-	if ( fOldTickSize == 0 ) {
-		ERRORLOG( QString( "Previous tick size was invalid. No rescaling is performed. [oldTS: %1, newTS: %2]." )
-				  .arg( fOldTickSize, 0, 'f' ).arg( fNewTickSize, 0, 'f' ) );
-		return;
+		// In addition, all currently processed notes have to be
+		// updated to be still valid.
+		handleTempoChange();
 	}
 }
 				
@@ -1243,26 +1241,7 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 	// reading from m_songNoteQueue
 	while ( !m_songNoteQueue.empty() ) {
 		Note *pNote = m_songNoteQueue.top();
-
-		// Compute the note start in frames corresponding to starting
-		// tick and the tick sized used to calculate it.
-		double fTickMismatch;
-		long long nNoteStartInFrames =
-			computeFrameFromTick( pNote->get_position(), &fTickMismatch );
-		pNote->setNoteStart( nNoteStartInFrames );
-		if ( pHydrogen->isTimelineEnabled() ) {
-			pNote->setUsedTickSize( -1 );
-		} else {
-			pNote->setUsedTickSize( getTickSize() );
-		}
-		
-		// if there is a negative Humanize delay, take into account so
-		// we don't miss the time slice.  ignore positive delay, or we
-		// might end the queue processing prematurely based on NoteQueue
-		// placement.  the sampler handles positive delay.
-		if (pNote->get_humanize_delay() < 0) {
-			nNoteStartInFrames += pNote->get_humanize_delay();
-		}
+		long long nNoteStartInFrames = pNote->getNoteStart();
 
 		DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nframes: %3, " )
 				  .arg( getDoubleTick() ).arg( getFrames() )
@@ -1755,11 +1734,16 @@ void AudioEngine::updateSongSize() {
 	setTick( fNewTick );
 
 	m_fLastTickIntervalEnd += m_fTickOffset;
-	
+
+	// Moves all notes currently processed by Hydrogen with respect to
+	// the offsets calculated above.
+	handleSongSizeChange();
+
+	// After tick and frame information as well as notes are updated
+	// we will make the remainder of the transport information
+	// consistent.
 	updateTransportPosition( getDoubleTick(),
 							 pSong->isLoopEnabled() );
-	handleSongSizeChange();
-	getSampler()->handleSongSizeChange();
 
 	if ( m_nColumn == -1 ) {
 		stop();
@@ -1773,9 +1757,65 @@ void AudioEngine::updateSongSize() {
 				.arg( m_nPatternStartTick ) );
 }
 
+void AudioEngine::handleTimelineChange() {
+
+	setFrames( computeFrameFromTick( getDoubleTick(), &m_fTickMismatch ) );
+	updateBpmAndTickSize();
+
+	if ( ! Hydrogen::get_instance()->isTimelineEnabled() ) {
+		// In case the Timeline was turned off, the
+		// handleTempoChange() function will take over and update all
+		// notes currently processed.
+		return;
+	}
+
+	// Recalculate the note start in frames for all notes currently
+	// processed by the AudioEngine.
+	if ( m_songNoteQueue.size() > 0 ) {
+		std::vector<Note*> notes;
+		for ( ; ! m_songNoteQueue.empty(); m_songNoteQueue.pop() ) {
+			notes.push_back( m_songNoteQueue.top() );
+		}
+
+		for ( auto nnote : notes ) {
+			nnote->computeNoteStart();
+			m_songNoteQueue.push( nnote );
+		}
+	}
+	
+	getSampler()->handleTimelineOrTempoChange();
+}
+
+void AudioEngine::handleTempoChange() {
+	if ( m_songNoteQueue.size() == 0 ) {
+		return;
+	}
+
+	// All notes share the same ticksize state (or things have gone
+	// wrong at some point).
+	if ( m_songNoteQueue.top()->getUsedTickSize() !=
+		 getTickSize() ) {
+
+		std::vector<Note*> notes;
+		for ( ; ! m_songNoteQueue.empty(); m_songNoteQueue.pop() ) {
+			notes.push_back( m_songNoteQueue.top() );
+		}
+
+		// All notes share the same ticksize state (or things have gone
+		// wrong at some point).
+		for ( auto nnote : notes ) {
+			nnote->computeNoteStart();
+			m_songNoteQueue.push( nnote );
+		}
+	
+		getSampler()->handleTimelineOrTempoChange();
+	}
+}
+
 void AudioEngine::handleSongSizeChange() {
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
-	double fTickMismatch;
+	if ( m_songNoteQueue.size() == 0 ) {
+		return;
+	}
 
 	std::vector<Note*> notes;
 	for ( ; ! m_songNoteQueue.empty(); m_songNoteQueue.pop() ) {
@@ -1783,17 +1823,14 @@ void AudioEngine::handleSongSizeChange() {
 	}
 
 	for ( auto nnote : notes ) {
-		double fNoteStartInTicks =
-			std::max( nnote->get_position() +
-					  static_cast<long>(std::floor(getTickOffset())),
-					  static_cast<long>(0) );
-		long long nNoteStartInFrames =
-			computeFrameFromTick( fNoteStartInTicks, &fTickMismatch );
-		nnote->setNoteStart( nNoteStartInFrames );
-		nnote->set_position( nnote->get_position() +
-							 static_cast<long>(std::floor(getTickOffset())));
+		nnote->set_position( std::max( nnote->get_position() +
+									   static_cast<long>(std::floor(getTickOffset())),
+									   static_cast<long>(0) ) );
+		nnote->computeNoteStart();
 		m_songNoteQueue.push( nnote );
 	}
+	
+	getSampler()->handleSongSizeChange();
 }
 
 long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nFrames ) {
@@ -1910,6 +1947,7 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 
 		m_midiNoteQueue.pop_front();
 		pNote->get_instrument()->enqueue();
+		pNote->computeNoteStart();
 		m_songNoteQueue.push( pNote );
 	}
 
@@ -2101,6 +2139,7 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 												 fPitch
 												 );
 				m_pMetronomeInstrument->enqueue();
+				pMetronomeNote->computeNoteStart();
 				m_songNoteQueue.push( pMetronomeNote );
 			}
 		}
@@ -2197,8 +2236,12 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 						// it the new offset, and push it to the list
 						// of all notes, which are about to be played
 						// back.
-						// Why a copy? because it has the new offset (including swing and random timing) in its
-						// humanized delay, and tick position is expressed referring to start time (and not pattern).
+						//
+						// Why a copy? because it has the new offset
+						// (including swing and random timing) in its
+						// humanized delay, and tick position is
+						// expressed referring to start time (and not
+						// pattern).
 						Note *pCopiedNote = new Note( pNote );
 						pCopiedNote->set_humanize_delay( nOffset );
 
@@ -2207,6 +2250,10 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 								  .append( pCopiedNote->toQString("", true ) ) );
 						
 						pCopiedNote->set_position( nnTick );
+						// Important: this call has to be done _after_
+						// setting the position and the humanize_delay.
+						pCopiedNote->computeNoteStart();
+						
 						if ( pHydrogen->getMode() == Song::Mode::Song ) {
 							float fPos = static_cast<float>( nColumn ) +
 								pCopiedNote->get_position() % 192 / 192.f;
@@ -2313,22 +2360,6 @@ double AudioEngine::getDoubleTick() const {
 long AudioEngine::getTick() const {
 	return static_cast<long>(std::floor( getDoubleTick() ));
 }
-
-void AudioEngine::handleTimelineChange() {
-
-	setFrames( computeFrameFromTick( getDoubleTick(), &m_fTickMismatch ) );
-	updateBpmAndTickSize();
-	getSampler()->handleTimelineChange();
-	
-#ifdef H2CORE_HAVE_JACK
-	if ( Hydrogen::get_instance()->haveJackTransport() ) {
-		// Tell all other JACK clients to relocate as well. This has
-		// to be called after updateFrames().
-		static_cast<JackAudioDriver*>( m_pAudioDriver )->locateTransport( getFrames() );
-	}
-#endif
-}
-
 
 bool AudioEngine::testFrameToTickConversion() {
 	auto pHydrogen = Hydrogen::get_instance();

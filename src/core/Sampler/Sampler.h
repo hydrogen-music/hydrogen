@@ -225,9 +225,10 @@ public:
 
 	/** 
 	 * Recalculates all note starts to make them valid again after a
-	 * TempoMarker was added to or deleted from the #Timeline.
+	 * TempoMarker was added to or deleted from the #Timeline or the
+	 * latter was activated.
 	 */
-	void handleTimelineChange();
+	void handleTimelineOrTempoChange();
 	/** 
 	 * Recalculates all note starts and positions to make them valid
 	 * again after the song size changed, e.g. a pattern was inserted
