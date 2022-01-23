@@ -86,7 +86,7 @@ void exportSong( const QString &songFile, const QString &fileName )
 		if (event.type == EVENT_PROGRESS && event.value == 100) {
 			done = true;
 		}
-		else {
+		else if ( event.type == EVENT_NONE ) {
 			usleep(100 * 1000);
 		}
 	}
