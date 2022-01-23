@@ -89,6 +89,54 @@ static long long exportCurrentSong( const QString &fileName, int nSampleRate )
 	return pHydrogen->getAudioEngine()->getFrames() - nStartFrames;
 }
 
+static void timeExport( int nSampleRate ) {
+	auto outFile = Filesystem::tmp_file_path("test.wav");
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	EventQueue *pQueue = EventQueue::get_instance();
+	int nIterations = 32;
+	std::vector< clock_t > times;
+	long long nFrames = 0, nFramesNew;
+
+	// Run through once to warm caches etc.
+	exportCurrentSong( outFile, 44100 );
+
+	double fTotalTime = 0;
+	for ( int i = 0; i < nIterations; i++ ) {
+
+		nFramesNew = 0;
+		std::clock_t start = std::clock();
+		for ( int j = 0; j < 5; j++) {
+			nFramesNew += exportCurrentSong( outFile, nSampleRate );
+		}
+		std::clock_t end = std::clock();
+
+		CPPUNIT_ASSERT( nFramesNew == nFrames || nFrames == 0 );
+		nFrames = nFramesNew;
+
+		double fSeconds = 1.0 * (end - start) / CLOCKS_PER_SEC;
+		fTotalTime += fSeconds;
+		//		qDebug() << nFramesNew << "frames in" << fSeconds;
+
+		times.push_back( end - start );
+	}
+
+	double fMean = fTotalTime / times.size();
+ 
+	double fTotalError = 0;
+	for ( auto t : times ) {
+		double fSeconds = 1.0 * t / CLOCKS_PER_SEC;
+		double fError = fMean - fSeconds;
+		fTotalError += fError * fError;
+	}
+	double fRMS = sqrt( fTotalError / times.size() );
+
+	qDebug() << "Sample rate " << nSampleRate << " mean time is " << fMean * 1000.0
+			 << "ms +/-" << 100.0 * fRMS / fMean << "%";
+
+	Filesystem::rm( outFile );
+
+}
+
 void AudioBenchmark::audioBenchmark(void)
 {
 	if ( !bEnabled ) {
@@ -98,7 +146,6 @@ void AudioBenchmark::audioBenchmark(void)
 	EventQueue *pQueue = EventQueue::get_instance();
 
 	auto songFile = H2TEST_FILE("functional/test.h2song");
-	auto outFile = Filesystem::tmp_file_path("test.wav");
 
 	/* Load song and prepare */
 	std::shared_ptr<Song> pSong = Song::load( songFile );
@@ -116,48 +163,9 @@ void AudioBenchmark::audioBenchmark(void)
 	}
 
 	qDebug() << "\n=== Audio engine benchmark ===";
-	int nIterations = 10;
-	std::vector< clock_t > times;
-	long long nFrames = 0, nFramesNew;
 
-	// Run through once to warm caches etc.
-	exportCurrentSong( outFile, 44100 );
-	
-	for ( int i = 0; i < nIterations; i++ ) {
+	timeExport( 44100 );
+	timeExport( 48000 );
 
-		nFramesNew = 0;
-		std::clock_t start = std::clock();
-		for ( int j = 0; j < 10; j++) {
-			nFramesNew += exportCurrentSong( outFile, 44100 );
-		}
-		std::clock_t end = std::clock();
-
-		CPPUNIT_ASSERT( nFramesNew == nFrames || nFrames == 0 );
-		nFrames = nFramesNew;
-
-		qDebug() << nFramesNew << "frames in" << ((end - start) * 1.0 / CLOCKS_PER_SEC);
-		times.push_back( end - start );
-	}
-
-	qDebug() << "nFrames = " << nFrames;
-
-	double fTotalTime = 0;
-	for ( auto t : times ) {
-		double fSeconds = 1.0 * t / CLOCKS_PER_SEC;
-		fTotalTime += fSeconds;
-	}
-	double fMean = fTotalTime / times.size();
- 
-	double fTotalError = 0;
-	for ( auto t : times ) {
-		double fSeconds = 1.0 * t / CLOCKS_PER_SEC;
-		double fError = fMean - fSeconds;
-		fTotalError += fError * fError;
-		qDebug() << fTotalError;
-	}
-	double fRMS = sqrt( fTotalError );
-
-	qDebug() << "Mean time is " << fMean << "+/-" << 100.0 * fRMS / fMean << "%";
-
-	Filesystem::rm( outFile );
+	qDebug() << "---";
 }
