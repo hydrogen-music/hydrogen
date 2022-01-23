@@ -25,29 +25,13 @@
 #include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
-#include <core/Basics/Adsr.h>
-#include <core/Basics/AutomationPath.h>
-#include <core/Basics/Drumkit.h>
-#include <core/Basics/DrumkitComponent.h>
-#include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/InstrumentComponent.h>
-#include <core/Basics/Instrument.h>
-#include <core/Basics/Note.h>
-#include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/Basics/Sample.h>
-#include <core/Basics/Song.h>
-#include <core/Basics/Playlist.h>
-#include <core/Smf/SMF.h>
 #include "TestHelper.h"
-#include "assertions/File.h"
-#include "assertions/AudioFile.h"
 #include "AudioBenchmark.h"
 
-#include <chrono>
 #include <memory>
-
 #include <ctime>
 
 using namespace H2Core;
@@ -92,7 +76,6 @@ static long long exportCurrentSong( const QString &fileName, int nSampleRate )
 static void timeExport( int nSampleRate ) {
 	auto outFile = Filesystem::tmp_file_path("test.wav");
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	EventQueue *pQueue = EventQueue::get_instance();
 	int nIterations = 32;
 	std::vector< clock_t > times;
 	long long nFrames = 0, nFramesNew;
@@ -143,7 +126,6 @@ void AudioBenchmark::audioBenchmark(void)
 		return;
 	}
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	EventQueue *pQueue = EventQueue::get_instance();
 
 	auto songFile = H2TEST_FILE("functional/test.h2song");
 
