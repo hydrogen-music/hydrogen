@@ -37,39 +37,46 @@ void ADSRTest::setUp()
 	m_adsr = std::make_shared<ADSR>( 1.0, 2.0, 0.8, 256.0 );
 }
 
+float ADSRTest::getValue( float fStep ) {
+	float fL = 1.0, fR = 1.0;
+	m_adsr->applyADSR( &fL, &fR, 1, fStep );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( fL, fR, delta );
+	return fL;
+}
+
 void ADSRTest::testAttack()
 {
 	m_adsr->attack();
 
 	/* Attack */
-	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, m_adsr->get_value( 0.5 ), delta );
-	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.774681627750397, m_adsr->get_value( 0.5 ), delta );
-	CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, m_adsr->get_value( 0.1 ), delta );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, getValue( 0.5 ), delta );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.774681627750397, getValue( 0.5 ), delta );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, getValue( 0.1 ), delta );
 
 	/* Decay */
-	CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, m_adsr->get_value( 1.0 ), delta );
-	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.830416560173035, m_adsr->get_value( 1.0 ), delta );
-	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.8, m_adsr->get_value( 1.0 ), delta );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, getValue( 1.0 ), delta );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.830416560173035, getValue( 1.0 ), delta );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.8, getValue( 1.0 ), delta );
 
 	/* Sustain */
-	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.8, m_adsr->get_value( 4.0 ), delta );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.8, getValue( 4.0 ), delta );
 }
 
 
 void ADSRTest::testRelease()
 {
-	m_adsr->get_value( 1.1 ); // move past Attack
-	m_adsr->get_value( 2.1 ); // move past Decay
-	m_adsr->get_value( 0.1 ); // calculate and store sustain
+	getValue( 1.1 ); // move past Attack
+	getValue( 2.1 ); // move past Decay
+	getValue( 0.1 ); // calculate and store sustain
 
 	/* Release note, and check if it was on sustain value */
 	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.8, m_adsr->release(), delta );
 
 	/* Release */
-	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.8, m_adsr->get_value( 128.0 ), delta );
-	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.121666193008423, m_adsr->get_value( 128.0 ), delta );
-	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, m_adsr->get_value( 128.0 ), delta );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.8, getValue( 128.0 ), delta );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.121666193008423, getValue( 128.0 ), delta );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, getValue( 128.0 ), delta );
 
 	/* Idle */
-	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, m_adsr->get_value( 2.0 ), delta );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, getValue( 2.0 ), delta );
 }

@@ -147,6 +147,16 @@ float ADSR::get_value( float step )
 	return __value;
 }
 
+void ADSR::applyADSR( float *pLeft, float *pRight, int nFrames, float fStep )
+{
+	int n;
+	for ( n = 0; n < nFrames; n++ ) {
+		float fValue = get_value( fStep );
+		pLeft[ n ] *= fValue;
+		pRight[ n ] *= fValue;
+	}
+}
+
 void ADSR::attack()
 {
 	__state = ATTACK;

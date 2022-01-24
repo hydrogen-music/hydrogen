@@ -38,6 +38,8 @@ class ADSRTest : public CppUnit::TestCase {
 	private:
 	std::shared_ptr<H2Core::ADSR> m_adsr;
 
+	float getValue( float fStep );
+
 	public:
 	virtual void setUp();
 	

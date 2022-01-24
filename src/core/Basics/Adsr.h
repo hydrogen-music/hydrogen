@@ -100,6 +100,16 @@ class ADSR : public Object<ADSR>
 		 * */
 		float release();
 
+		/**
+		 * Compute and apply successive ADSR values to stereo buffers.
+		 * \param pLeft left-channel audio buffer
+		 * \param pRight right-channel audio buffer
+		 * \param nFrames number of frames of audio
+		 * \param fStep the increment to be added to __ticks
+		 */
+
+		void applyADSR( float *pLeft, float *pRight, int nFrames, float fStep );
+
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
