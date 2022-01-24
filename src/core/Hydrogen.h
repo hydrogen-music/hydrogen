@@ -99,16 +99,6 @@ public:
 
 	/**
 	 * Destructor taking care of most of the clean up.
-	 *
-	 * -# Shuts down the NsmClient using NsmClient::shutdown() and
-              deletes it.
-	 * -# Deletes the OscServer object.
-	 * -# Stops the AudioEngine if playing via audioEngine_stop().
-	 * -# Calls removeSong(), audioEngine_stopAudioDrivers(),
-              audioEngine_destroy(), __kill_instruments()
-         * -# Deletes the #m_pCoreActionController and #m_pTimeline
-              object
-	 * -# Sets #__instance to NULL.
 	 */
 	~Hydrogen();
 
@@ -197,9 +187,11 @@ public:
 	code except for song reading/setting.*/
 	void setMode( Song::Mode mode );
 
-	/** Wrapper around Preferences::setUseTimelinebpm() which also
+	/** Wrapper around both Song::setIsTimelineActivated (recent) and
+	Preferences::setUseTimelinebpm() (former place to store the
+	variable but kept to maintain backward compatibility) which also
 	triggers EVENT_TIMELINE_ACTIVATION.*/
-	void setUseTimelineBpm( bool bEnabled );
+	void setIsTimelineActivated( bool bEnabled );
 
 	void			removeSong();
 
@@ -382,7 +374,8 @@ void			previewSample( Sample *pSample );
 	void			onJackMaster();
 
 	void			__panic();
-	Timeline*		getTimeline() const;
+	std::shared_ptr<Timeline>	getTimeline() const;
+	void			setTimeline( std::shared_ptr<Timeline> );
 	
 	//export management
 	bool			getIsExportSessionActive() const;
@@ -551,7 +544,7 @@ private:
 	/**
 	 * Local instance of the Timeline object.
 	 */
-	Timeline*		m_pTimeline;
+	std::shared_ptr<Timeline>	m_pTimeline;
 	/**
 	 * Local instance of the CoreActionController object.
 	 */ 
@@ -608,9 +601,13 @@ private:
 /*
  * inline methods
  */
-inline Timeline* Hydrogen::getTimeline() const
+inline std::shared_ptr<Timeline> Hydrogen::getTimeline() const
 {
 	return m_pTimeline;
+}
+inline void Hydrogen::setTimeline( std::shared_ptr<Timeline> pTimeline )
+{
+	m_pTimeline = pTimeline;
 }
 
 inline CoreActionController* Hydrogen::getCoreActionController() const

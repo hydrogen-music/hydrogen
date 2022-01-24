@@ -68,7 +68,7 @@ void* ossDriver_processCaller( void* param )
 
 
 OssDriver::OssDriver( audioProcessCallback processCallback )
-		: AudioOutput( __class_name )
+		: AudioOutput()
 {
 	audioBuffer = NULL;
 	ossDriver_running = false;

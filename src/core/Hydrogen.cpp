@@ -68,7 +68,6 @@
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 #include "MidiMap.h"
-#include <core/Timeline.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -116,7 +115,7 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 
 	__song = nullptr;
 
-	m_pTimeline = new Timeline();
+	m_pTimeline = std::make_shared<Timeline>();
 	m_pCoreActionController = new CoreActionController();
 
 	initBeatcounter();
@@ -162,7 +161,6 @@ Hydrogen::~Hydrogen()
 	__kill_instruments();
 
 	delete m_pCoreActionController;
-	delete m_pTimeline;
 	delete m_pAudioEngine;
 
 	__instance = nullptr;
@@ -300,6 +298,11 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	} else {		
 		Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
 	}
+	
+	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION,
+											( pSong->getMode() == Song::Mode::Song) ? 1 : 0 );
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION,
+											static_cast<int>( pSong->getIsTimelineActivated() ) );
 }
 
 /* Mean: remove current song from memory */
@@ -633,23 +636,13 @@ void Hydrogen::startExportSong( const QString& filename)
 
 	DiskWriterDriver* pDiskWriterDriver = static_cast<DiskWriterDriver*>(pAudioEngine->getAudioDriver());
 	pDiskWriterDriver->setFileName( filename );
-	
-	if ( pDiskWriterDriver->connect() != 0 ) {
-		ERRORLOG( "Error starting disk writer driver [DiskWriterDriver::connect()]" );
-	}
-	
+	pDiskWriterDriver->write();
 }
 
 void Hydrogen::stopExportSong()
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
-	
-	if ( pAudioEngine->getAudioDriver()->class_name() != DiskWriterDriver::_class_name() ) {
-		return;
-	}
-
 	pAudioEngine->getSampler()->stopPlayingNotes();
-	pAudioEngine->getAudioDriver()->disconnect();
 	pAudioEngine->reset();
 }
 
@@ -665,7 +658,7 @@ void Hydrogen::stopExportSession()
 	
 	pAudioEngine->startAudioDrivers();
 	if ( pAudioEngine->getAudioDriver() == nullptr ) {
-		ERRORLOG( "pAudioEngine->getAudioDriver() = nullptr" );
+		ERRORLOG( "Unable to restart previous audio driver after exporting song." );
 	}
 	m_bExportSessionIsActive = false;
 }
@@ -1298,7 +1291,7 @@ bool Hydrogen::haveJackAudioDriver() const {
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	if ( pAudioEngine->getAudioDriver() != nullptr ) {
-		if ( JackAudioDriver::_class_name() == pAudioEngine->getAudioDriver()->class_name() ){
+		if ( dynamic_cast<JackAudioDriver*>(pAudioEngine->getAudioDriver()) != nullptr ) {
 			return true;
 		}
 	}
@@ -1312,7 +1305,7 @@ bool Hydrogen::haveJackTransport() const {
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	if ( pAudioEngine->getAudioDriver() != nullptr ) {
-		if ( JackAudioDriver::_class_name() == pAudioEngine->getAudioDriver()->class_name() &&
+		if ( dynamic_cast<JackAudioDriver*>(pAudioEngine->getAudioDriver()) != nullptr &&
 			 Preferences::get_instance()->m_bJackTransportMode ==
 			 Preferences::USE_JACK_TRANSPORT ){
 			return true;
@@ -1327,13 +1320,13 @@ bool Hydrogen::haveJackTransport() const {
 float Hydrogen::getMasterBpm() const {
 #ifdef H2CORE_HAVE_JACK
   if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
-    if ( JackAudioDriver::_class_name() == m_pAudioEngine->getAudioDriver()->class_name() ) {
-      return static_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver())->getMasterBpm();
-    } else {
-      return std::nan("No JACK driver");
-    }
+	  if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr ) {
+		  return static_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver())->getMasterBpm();
+	  } else {
+		  return std::nan("No JACK driver");
+	  }
   } else {
-    return std::nan("No audio driver");
+	  return std::nan("No audio driver");
   }
 #else
   return std::nan("No JACK support");
@@ -1369,7 +1362,7 @@ bool Hydrogen::isUnderSessionManagement() const {
 }
 
 bool Hydrogen::isTimelineEnabled() const {
-	if ( Preferences::get_instance()->getUseTimelineBpm() &&
+	if ( getSong()->getIsTimelineActivated() &&
 		 getMode() == Song::Mode::Song &&
 		 getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
 		return true;
@@ -1382,7 +1375,7 @@ Hydrogen::Tempo Hydrogen::getTempoSource() const {
 	if ( getMode() == Song::Mode::Song ) {
 		if ( getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 			return Tempo::Jack;
-		} else if ( Preferences::get_instance()->getUseTimelineBpm() ) {
+		} else if ( getSong()->getIsTimelineActivated() ) {
 			return Tempo::Timeline;
 		}
 	}
@@ -1497,15 +1490,16 @@ void Hydrogen::setIsModified( bool bIsModified ) {
 void Hydrogen::setMode( Song::Mode mode ) {
 	if ( getSong() != nullptr ) {
 		getSong()->setMode( mode );
+		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
 	}
-	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
 }
 
-void Hydrogen::setUseTimelineBpm( bool bEnabled ) {
+void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
 	auto pPref = Preferences::get_instance();
 
-	if ( bEnabled != pPref->getUseTimelineBpm() ) {
+	if ( bEnabled != getSong()->getIsTimelineActivated() ) {
 		pPref->setUseTimelineBpm( bEnabled );
+		getSong()->setIsTimelineActivated( bEnabled );
 
 		EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION, static_cast<int>( bEnabled ) );
 	}

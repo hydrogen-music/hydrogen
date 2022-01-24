@@ -190,7 +190,6 @@ private:
 	QTimer *m_pMidiActivityTimer;
 	std::chrono::milliseconds m_midiActivityTimeout;
 
-	bool m_bLastUseTimelineBpm;
 	bool m_bLastBCOnOffBtnState;
 	
 	/** Store the tool tip of the beat counter since it gets

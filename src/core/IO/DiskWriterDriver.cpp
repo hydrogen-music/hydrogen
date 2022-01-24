@@ -263,30 +263,27 @@ int DiskWriterDriver::init( unsigned nBufferSize )
 	INFOLOG( QString( "Init, buffer size: %1" ).arg( nBufferSize ) );
 
 	m_nBufferSize = nBufferSize;
+	
+	m_pOut_L = new float[ m_nBufferSize ];
+	m_pOut_R = new float[ m_nBufferSize ];
 
 	return 0;
 }
 
-
-///
-/// Connect
-/// return 0: Ok
-///
 int DiskWriterDriver::connect()
 {
+	return 0;
+}
+
+void DiskWriterDriver::write()
+{
 	INFOLOG( "" );
-	
-	m_pOut_L = new float[ m_nBufferSize ];
-	m_pOut_R = new float[ m_nBufferSize ];
 	
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
 
 	pthread_create( &diskWriterDriverThread, &attr, diskWriterDriver_thread, this );
-	
-	return 0;
 }
-
 
 /// disconnect
 void DiskWriterDriver::disconnect()
