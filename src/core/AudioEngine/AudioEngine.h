@@ -270,14 +270,6 @@ public:
 	 */
 	long long computeFrameFromTick( double fTick, double* fTickMismatch, int nSampleRate = 0 ) const;
 
-	/** Resets a number of member variables to their initial state.
-	 *
-	 * This is used to allow a smooth transition between the Song and
-	 * Pattern Mode.
-	 * \param bWithJackBroadcast Relocate not using the AudioEngine
-	 * directly but using the JACK server.
-	 */
-	void reset(  bool bWithJackBroadcast = true );
 
 	/** \return #m_pSampler */
 	Sampler*		getSampler() const;
@@ -520,6 +512,14 @@ public:
 		what the JACK server reports and to call locateToFrame().*/
 	friend void JackAudioDriver::updateTransportInfo();
 private:
+	/** Resets a number of member variables to their initial state.
+	 *
+	 * This is used to allow a smooth transition between the Song and
+	 * Pattern Mode.
+	 * \param bWithJackBroadcast Relocate not using the AudioEngine
+	 * directly but using the JACK server.
+	 */
+	void reset(  bool bWithJackBroadcast = true );
 
 	double getDoubleTick() const;
 	
@@ -662,6 +662,12 @@ private:
 									int nPassedFrames,
 									bool bTestAudio = true,
 									float fPassedTicks = 0.0 ) const;
+	/**
+	 * Toggles the grid cell defined by @a nToggleColumn and @a
+	 * nToggleRow twice and checks whether the transport position and
+	 * the audio processing remains consistent.
+	 */
+	bool testCheckConsistency( int nToggleColumn, int nToggleRow, const QString& sContext );
 	
 	std::vector<std::shared_ptr<Note>> testCopySongNoteQueue(); 
 

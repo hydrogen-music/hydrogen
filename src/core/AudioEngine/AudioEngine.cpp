@@ -321,7 +321,6 @@ void AudioEngine::stopPlayback()
 }
 
 void AudioEngine::reset( bool bWithJackBroadcast ) {
-	
 	const auto pHydrogen = Hydrogen::get_instance();
 	
 	m_fMasterPeak_L = 0.0f;
@@ -434,6 +433,7 @@ void AudioEngine::incrementTransportPosition( uint32_t nFrames ) {
 }
 
 void AudioEngine::updateTransportPosition( double fTick, bool bUseLoopMode ) {
+
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pSong = pHydrogen->getSong();
 	const auto pDriver = pHydrogen->getAudioOutput();
@@ -507,7 +507,6 @@ void AudioEngine::updateTransportPosition( double fTick, bool bUseLoopMode ) {
 		}
 	}
 	updateBpmAndTickSize();
-	
 	// WARNINGLOG( QString( "[After] tick: %1, pTickPos: %2, pStartPos: %3" )
 	// 			.arg( getDoubleTick(), 0, 'f' )
 	// 			.arg( m_nPatternTickPosition )
@@ -521,7 +520,6 @@ void AudioEngine::updateBpmAndTickSize() {
 			 m_state == State::Testing ) ) {
 		return;
 	}
-
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	
@@ -1436,7 +1434,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		___INFOLOG( "End of song received" );
 		pAudioEngine->stop();
 		pAudioEngine->stopPlayback();
-		pAudioEngine->reset();
+		pAudioEngine->locate( 0 );
 
 		if ( dynamic_cast<FakeDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) {
 			___INFOLOG( "End of song." );
@@ -1617,6 +1615,7 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	setState( State::Ready );
 
 	setNextBpm( pNewSong->getBpm() );
+	// Will adapt the audio engine to the song's BPM.
 	locate( 0 );
 
 	Hydrogen::get_instance()->setTimeline( pNewSong->getTimeline() );
@@ -1671,26 +1670,36 @@ void AudioEngine::updateSongSize() {
 				.arg( m_nPatternStartTick )
 				.arg( m_fLastTickIntervalEnd ) );
 
-	// transport position was already looped at least once.
-	if ( getDoubleTick() > m_fSongSizeInTicks ) {
-		double fNewTick = std::fmod( getDoubleTick(), m_fSongSizeInTicks ) +
-			std::floor( getDoubleTick() / m_fSongSizeInTicks ) *
-			fNewSongSizeInTicks;
+	// // transport position was already looped at least once.
+	// if ( getDoubleTick() > m_fSongSizeInTicks &&
+	// 	 pSong->getLoopMode() == Song::LoopMode::Enabled ) {
+	// 	double fNewTick = std::fmod( getDoubleTick(), m_fSongSizeInTicks ) +
+	// 		std::floor( getDoubleTick() / m_fSongSizeInTicks ) *
+	// 		fNewSongSizeInTicks;
 
-		setTick( fNewTick );
+	// 	setTick( fNewTick );
 
-		m_fTickOffset = fNewTick - getDoubleTick();
+	// 	m_fTickOffset = fNewTick - getDoubleTick();
 
-		m_fLastTickIntervalEnd += m_fTickOffset;
-		m_nLastPlayingPatternsColumn = -1;
+	// 	m_fLastTickIntervalEnd += m_fTickOffset;
+	// 	m_nLastPlayingPatternsColumn = -1;
 		
-		DEBUGLOG(QString( "fNewTick: %1, oldS: %2, newS: %3, m_fLastTickIntervalEnd: %4")
-				 .arg( fNewTick ).arg( m_fSongSizeInTicks )
-				 .arg( fNewSongSizeInTicks )
-				 .arg( m_fLastTickIntervalEnd )
-				 );
-	}
+	// 	DEBUGLOG(QString( "fNewTick: %1, oldS: %2, newS: %3, m_fLastTickIntervalEnd: %4")
+	// 			 .arg( fNewTick ).arg( m_fSongSizeInTicks )
+	// 			 .arg( fNewSongSizeInTicks )
+	// 			 .arg( m_fLastTickIntervalEnd )
+	// 			 );
+	// }
 	
+
+	// Strip away all repetitions when in loop mode but keep their
+	// number. m_nPatternStartTick and m_nColumn are only defined
+	// between 0 and m_fSongSizeInTicks.
+	double fNewTick = std::fmod( getDoubleTick(), m_fSongSizeInTicks );
+	double fRepetitions =
+		std::floor( getDoubleTick() / m_fSongSizeInTicks );
+
+	//
 	m_fSongSizeInTicks = fNewSongSizeInTicks;
 
 	// Expected behavior:
@@ -1709,8 +1718,6 @@ void AudioEngine::updateSongSize() {
 	// We strive for consistency in audio playback and make both the
 	// current column/pattern and the transport position within the
 	// pattern invariant in this transformation.
-
-	double fNewTick = getDoubleTick();
 	long nNewPatternStartTick = pHydrogen->getTickForColumn( getColumn() );
 	if ( nNewPatternStartTick != m_nPatternStartTick ) {
 		DEBUGLOG( QString( "[start tick mismatch] old: %1, new: %2" )
@@ -1720,6 +1727,10 @@ void AudioEngine::updateSongSize() {
 		fNewTick +=
 			static_cast<double>(nNewPatternStartTick - m_nPatternStartTick);
 	}
+
+	// Incorporate the looped transport again
+	fNewTick += fRepetitions * fNewSongSizeInTicks;
+	
 	// Ensure transport state is consistent
 	long long nNewFrames = computeFrameFromTick( fNewTick, &m_fTickMismatch );
 
@@ -2935,241 +2946,49 @@ bool AudioEngine::testSongSizeChange() {
 	reset( false );
 	setState( AudioEngine::State::Testing );
 
-	bool bNoMismatch = true;
-	unsigned long nBufferSize = pHydrogen->getAudioOutput()->getBufferSize();
-
-	// Locate to second half of Song and let transport roll for two
-	// cycles.
 	unlock();
 	pCoreActionController->locateToColumn( 4 );
 	lock( RIGHT_HERE );
-	updateNoteQueue( nBufferSize );
-	processAudio( nBufferSize );
 
-	// Cache some stuff in order to compare it later on.
-	long nOldSongSize = pSong->lengthInTicks();
-	float fPrevTempo = getBpm();
-	float fPrevTickSize = getTickSize();
-	auto prevNotes = testCopySongNoteQueue();
-	double fPrevTickStart, fPrevTickEnd;
-	long long nPrevLookahead;
-
-	nPrevLookahead = computeTickInterval( &fPrevTickStart, &fPrevTickEnd, nBufferSize );
-
-	std::vector<std::shared_ptr<Note>> notes1, notes2;
-	for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
-		notes1.push_back( std::make_shared<Note>( ppNote ) );
-	}
-
-	//////
-	// Toggle a grid cell prior to the current transport position
-	//////
-	
-	unlock();
-	pCoreActionController->toggleGridCell( 1, 1 );
-	lock( RIGHT_HERE );
-
-	// Check whether there is a change in song size
-	long nNewSongSize = pSong->lengthInTicks();
-	if ( nNewSongSize == nOldSongSize ) {
-		ERRORLOG( "[first toggling prior] no change in song size" );
-		setState( AudioEngine::State::Ready );
-		unlock();
-		return false;
-	}
-
-	// Check whether current frame and tick information are still
-	// consistent.
-	if ( ! testCheckTransportPosition( "first toggling prior" ) ) {
-		setState( AudioEngine::State::Ready );
-		unlock();
-		return false;
-	}
-
-	// Check whether the notes already enqueued into the
-	// m_songNoteQueue have been updated properly.
-	auto afterNotes = testCopySongNoteQueue();
-	if ( ! testCheckAudioConsistency( prevNotes, afterNotes, 
-									  "first toggling prior", 0, false,
-									  m_fTickOffset ) ) {
-		setState( AudioEngine::State::Ready );
-		unlock();
-		return false;
-	}
-	double fTickStart, fTickEnd;
-	long long nLookahead;
-
-	nLookahead = computeTickInterval( &fTickStart, &fTickEnd, nBufferSize );
-	if ( std::abs( fTickStart - m_fTickOffset - fPrevTickStart ) > 1e-11 ) {
-		ERRORLOG( QString( "[first toggling prior] Mismatch in the start of the tick interval handled by updateNoteQueue new: %1, old: %2, old+offset: %3" )
-				  .arg( fTickStart, 0, 'f' ).arg( fPrevTickStart, 0, 'f' )
-				  .arg( fPrevTickStart + m_fTickOffset, 0, 'f' ) );
-		setState( AudioEngine::State::Ready );
-		unlock();
-		return false;
-	}
-	if ( std::abs( fTickEnd - m_fTickOffset - fPrevTickEnd ) > 1e-11 ) {
-		ERRORLOG( QString( "[first toggling prior] Mismatch in the end of the tick interval handled by updateNoteQueue new: %1, old: %2, old+offset: %3" )
-				  .arg( fTickEnd, 0, 'f' ).arg( fPrevTickEnd, 0, 'f' )
-				  .arg( fPrevTickEnd + m_fTickOffset, 0, 'f' ) );
-		setState( AudioEngine::State::Ready );
-		unlock();
-		return false;
-	}
-
-	//////
-	// Toggle the same grid cell again
-	//////
-
-	fPrevTickStart = fTickStart;
-	fPrevTickEnd = fTickEnd;
-	nOldSongSize = nNewSongSize;
-	
-	unlock();
-	pCoreActionController->toggleGridCell( 1, 1 );
-	lock( RIGHT_HERE );
-
-	// Check whether there is a change in song size
-	nNewSongSize = pSong->lengthInTicks();
-	if ( nNewSongSize == nOldSongSize ) {
-		ERRORLOG( "[second toggling prior] no change in song size" );
-		setState( AudioEngine::State::Ready );
-		unlock();
-		return false;
-	}
-
-	// Check whether current frame and tick information are still
-	// consistent.
-	if ( ! testCheckTransportPosition( "second toggling prior" ) ) {
-		setState( AudioEngine::State::Ready );
-		unlock();
-		return false;
-	}
-
-	// Check whether the notes already enqueued into the
-	// m_songNoteQueue have been updated properly.
-	prevNotes = testCopySongNoteQueue();
-	if ( ! testCheckAudioConsistency( afterNotes, prevNotes, 
-									  "second toggling prior", 0, false,
-									  m_fTickOffset ) ) {
-		setState( AudioEngine::State::Ready );
-		unlock();
-		return false;
-	}
-
-	nLookahead = computeTickInterval( &fTickStart, &fTickEnd, nBufferSize );
-	if ( std::abs( fTickStart - m_fTickOffset - fPrevTickStart ) > 1e-11 ) {
-		ERRORLOG( QString( "[second toggling prior] Mismatch in the start of the tick interval handled by updateNoteQueue new: %1, old: %2, old+offset: %3" )
-				  .arg( fTickStart, 0, 'f' ).arg( fPrevTickStart, 0, 'f' )
-				  .arg( fPrevTickStart + m_fTickOffset, 0, 'f' ) );
-		setState( AudioEngine::State::Ready );
-		unlock();
-		return false;
-	}
-	if ( std::abs( fTickEnd - m_fTickOffset - fPrevTickEnd ) > 1e-11 ) {
-		ERRORLOG( QString( "[second toggling prior] Mismatch in the end of the tick interval handled by updateNoteQueue new: %1, old: %2, old+offset: %3" )
-				  .arg( fTickEnd, 0, 'f' ).arg( fPrevTickEnd, 0, 'f' )
-				  .arg( fPrevTickEnd + m_fTickOffset, 0, 'f' ) );
-		setState( AudioEngine::State::Ready );
-		unlock();
-		return false;
-	}
-
-	// Now we emulate that playback continues without any new notes
-	// being added and expect the rendering of the notes currently
-	// played back by the Sampler to start off precisely where we
-	// stopped before the song size change. New notes might still be
-	// added due to the lookahead, so, we just check for the
-	// processing of notes we already encountered.
-	incrementTransportPosition( nBufferSize );
-	processAudio( nBufferSize );
-	incrementTransportPosition( nBufferSize );
-	processAudio( nBufferSize );
-
-	// Check whether tempo and tick size have not changed.
-	if ( fPrevTempo != getBpm() || fPrevTickSize != getTickSize() ) {
-		ERRORLOG( "[toggling prior] tempo and ticksize are affected" );
-		setState( AudioEngine::State::Ready );
-		unlock();
-		return false;
-	}
-	
-	for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
-		notes2.push_back( std::make_shared<Note>( ppNote ) );
-	}
-
-	if ( ! testCheckAudioConsistency( notes1, notes2, "toggling prior",
-									  nBufferSize * 2 ) ) {
-		setState( AudioEngine::State::Ready );
-		unlock();
-		return false;
-	}
-	
-	//////
-	// Toggle a grid cell after to the current transport position
-	//////
-
-	// The transport position itself should not be affected.
-	long long nFormerFrames = getFrames();
-	
-	unlock();
-	pCoreActionController->toggleGridCell( 6, 6 );
-	lock( RIGHT_HERE );
-
-	if ( nFormerFrames != getFrames() ) {
-		ERRORLOG( "[toggling after] transport position was affected" );
-		setState( AudioEngine::State::Ready );
-		unlock();
-		return false;
-	}
-
-	// Check whether there is a change in song size
-	nNewSongSize = pSong->lengthInTicks();
-	if ( nNewSongSize == nOldSongSize ) {
-		ERRORLOG( "[toggling after] no change in song size" );
+	if ( ! testCheckConsistency( 1, 1, "prior" ) ) {
 		setState( AudioEngine::State::Ready );
 		unlock();
 		return false;
 	}
 		
-	if ( ! testCheckTransportPosition( "toggling after" ) ) {
+	// Toggle a grid cell after to the current transport position
+	if ( ! testCheckConsistency( 6, 6, "after" ) ) {
 		setState( AudioEngine::State::Ready );
 		unlock();
 		return false;
 	}
 
-	// Now we emulate that playback continues without any new notes
-	// being added and expect the rendering of the notes currently
-	// played back by the Sampler to start off precisely where we
-	// stopped before the song size change. New notes might still be
-	// added due to the lookahead, so, we just check for the
-	// processing of notes we already encountered.
-	incrementTransportPosition( nBufferSize );
-	processAudio( nBufferSize );
-	incrementTransportPosition( nBufferSize );
-	processAudio( nBufferSize );
-	incrementTransportPosition( nBufferSize );
-	processAudio( nBufferSize );
-
-	notes1.clear();
-	for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
-		notes1.push_back( std::make_shared<Note>( ppNote ) );
-	}
-
-	if ( ! testCheckAudioConsistency( notes2, notes1, "toggling after",
-									  nBufferSize * 3 ) ) {
-		setState( AudioEngine::State::Ready );
-		unlock();
-		return false;
-	}
+	// Now we head to the "same" position inside the song but with the
+	// transport being looped once.
+	long nNextTick = pHydrogen->getTickForColumn( 4 ) +
+		pSong->lengthInTicks();
 	
-	// Check consistency of transport position, consistency of the
-	// notes in m_songNoteQueue, and notes processed by the sampler
-
-	setState( AudioEngine::State::Ready );
 	unlock();
+	pCoreActionController->activateLoopMode( true, false );
+	pCoreActionController->locateToTick( nNextTick );
+	std::cout << "locate to: " << nNextTick << std::endl;
+	lock( RIGHT_HERE );
+	
+	if ( ! testCheckConsistency( 1, 1, "looped:prior" ) ) {
+		setState( AudioEngine::State::Ready );
+		unlock();
+		return false;
+	}
+		
+	// Toggle a grid cell after to the current transport position
+	if ( ! testCheckConsistency( 6, 6, "looped:after" ) ) {
+		setState( AudioEngine::State::Ready );
+		unlock();
+		return false;
+	}
 
-	return bNoMismatch;
+
+	return true;
 }
 
 bool AudioEngine::testSongSizeChangeInLoopMode() {
@@ -3371,6 +3190,164 @@ std::vector<std::shared_ptr<Note>> AudioEngine::testCopySongNoteQueue() {
 	}
 
 	return notes;
+}
+
+bool AudioEngine::testCheckConsistency( int nToggleColumn, int nToggleRow, const QString& sContext ) {
+	
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+	auto pSong = pHydrogen->getSong();
+	
+	unsigned long nBufferSize = pHydrogen->getAudioOutput()->getBufferSize();
+	
+	updateNoteQueue( nBufferSize );
+	processAudio( nBufferSize );
+
+	// Cache some stuff in order to compare it later on.
+	long nOldSongSize = pSong->lengthInTicks();
+	float fPrevTempo = getBpm();
+	float fPrevTickSize = getTickSize();
+	auto prevNotes = testCopySongNoteQueue();
+	double fPrevTickStart, fPrevTickEnd;
+	long long nPrevLookahead;
+
+	nPrevLookahead = computeTickInterval( &fPrevTickStart, &fPrevTickEnd, nBufferSize );
+
+	std::vector<std::shared_ptr<Note>> notes1, notes2;
+	for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
+		notes1.push_back( std::make_shared<Note>( ppNote ) );
+	}
+
+	//////
+	// Toggle a grid cell prior to the current transport position
+	//////
+	
+	unlock();
+	pCoreActionController->toggleGridCell( nToggleColumn, nToggleRow );
+	lock( RIGHT_HERE );
+
+	QString sFirstContext = QString( "%1 : 1. toggling" ).arg( sContext );
+
+	// Check whether there is a change in song size
+	long nNewSongSize = pSong->lengthInTicks();
+	if ( nNewSongSize == nOldSongSize ) {
+		ERRORLOG( QString( "[%1] no change in song size" )
+				  .arg( sFirstContext ) );
+		return false;
+	}
+
+	// Check whether current frame and tick information are still
+	// consistent.
+	if ( ! testCheckTransportPosition( sFirstContext ) ) {
+		return false;
+	}
+
+	// Check whether the notes already enqueued into the
+	// m_songNoteQueue have been updated properly.
+	auto afterNotes = testCopySongNoteQueue();
+	if ( ! testCheckAudioConsistency( prevNotes, afterNotes, sFirstContext,
+									  0, false, m_fTickOffset ) ) {
+		return false;
+	}
+	double fTickStart, fTickEnd;
+	long long nLookahead;
+
+	nLookahead = computeTickInterval( &fTickStart, &fTickEnd, nBufferSize );
+	if ( std::abs( fTickStart - m_fTickOffset - fPrevTickStart ) > 1e-11 ) {
+		ERRORLOG( QString( "[%4] Mismatch in the start of the tick interval handled by updateNoteQueue new: %1, old: %2, old+offset: %3" )
+				  .arg( fTickStart, 0, 'f' ).arg( fPrevTickStart, 0, 'f' )
+				  .arg( fPrevTickStart + m_fTickOffset, 0, 'f' )
+				  .arg( sFirstContext ) );
+		return false;
+	}
+	if ( std::abs( fTickEnd - m_fTickOffset - fPrevTickEnd ) > 1e-11 ) {
+		ERRORLOG( QString( "[%4] Mismatch in the end of the tick interval handled by updateNoteQueue new: %1, old: %2, old+offset: %3" )
+				  .arg( fTickEnd, 0, 'f' ).arg( fPrevTickEnd, 0, 'f' )
+				  .arg( fPrevTickEnd + m_fTickOffset, 0, 'f' )
+				  .arg( sFirstContext ) );
+		return false;
+	}
+
+	//////
+	// Toggle the same grid cell again
+	//////
+
+	QString sSecondContext = QString( "%1 : 2. toggling" ).arg( sContext );
+
+	fPrevTickStart = fTickStart;
+	fPrevTickEnd = fTickEnd;
+	nOldSongSize = nNewSongSize;
+	
+	unlock();
+	pCoreActionController->toggleGridCell( nToggleColumn, nToggleRow );
+	lock( RIGHT_HERE );
+
+	// Check whether there is a change in song size
+	nNewSongSize = pSong->lengthInTicks();
+	if ( nNewSongSize == nOldSongSize ) {
+		ERRORLOG( QString( "[%1] no change in song size" )
+				  .arg( sSecondContext ) );
+		return false;
+	}
+
+	// Check whether current frame and tick information are still
+	// consistent.
+	if ( ! testCheckTransportPosition( sSecondContext ) ) {
+		return false;
+	}
+
+	// Check whether the notes already enqueued into the
+	// m_songNoteQueue have been updated properly.
+	prevNotes = testCopySongNoteQueue();
+	if ( ! testCheckAudioConsistency( afterNotes, prevNotes, sSecondContext,
+									  0, false, m_fTickOffset ) ) {
+		return false;
+	}
+
+	nLookahead = computeTickInterval( &fTickStart, &fTickEnd, nBufferSize );
+	if ( std::abs( fTickStart - m_fTickOffset - fPrevTickStart ) > 1e-11 ) {
+		ERRORLOG( QString( "[%4] Mismatch in the start of the tick interval handled by updateNoteQueue new: %1, old: %2, old+offset: %3" )
+				  .arg( fTickStart, 0, 'f' ).arg( fPrevTickStart, 0, 'f' )
+				  .arg( fPrevTickStart + m_fTickOffset, 0, 'f' )
+				  .arg( sSecondContext ) );
+		return false;
+	}
+	if ( std::abs( fTickEnd - m_fTickOffset - fPrevTickEnd ) > 1e-11 ) {
+		ERRORLOG( QString( "[%4] Mismatch in the end of the tick interval handled by updateNoteQueue new: %1, old: %2, old+offset: %3" )
+				  .arg( fTickEnd, 0, 'f' ).arg( fPrevTickEnd, 0, 'f' )
+				  .arg( fPrevTickEnd + m_fTickOffset, 0, 'f' )
+				  .arg( sSecondContext )  );
+		return false;
+	}
+
+	// Now we emulate that playback continues without any new notes
+	// being added and expect the rendering of the notes currently
+	// played back by the Sampler to start off precisely where we
+	// stopped before the song size change. New notes might still be
+	// added due to the lookahead, so, we just check for the
+	// processing of notes we already encountered.
+	incrementTransportPosition( nBufferSize );
+	processAudio( nBufferSize );
+	incrementTransportPosition( nBufferSize );
+	processAudio( nBufferSize );
+
+	// Check whether tempo and tick size have not changed.
+	if ( fPrevTempo != getBpm() || fPrevTickSize != getTickSize() ) {
+		ERRORLOG( QString( "[%1] tempo and ticksize are affected" )
+				  .arg( sSecondContext ) );
+		return false;
+	}
+	
+	for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
+		notes2.push_back( std::make_shared<Note>( ppNote ) );
+	}
+
+	if ( ! testCheckAudioConsistency( notes1, notes2, sSecondContext,
+									  nBufferSize * 2 ) ) {
+		return false;
+	}
+
+	return true;
 }
 
 QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {

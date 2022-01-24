@@ -876,16 +876,13 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 		}
 	}
 
-	locateToTick( nTotalTick );
-	
-	return true;
+	return locateToTick( nTotalTick );
 }
 
 bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
 
 	const auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pDriver = pHydrogen->getAudioOutput();
 
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );

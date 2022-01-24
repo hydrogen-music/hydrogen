@@ -644,9 +644,8 @@ bool Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 void Hydrogen::startExportSong( const QString& filename)
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
-	pAudioEngine->reset( false );
-	pAudioEngine->play();
 	getCoreActionController()->locateToTick( 0 );
+	pAudioEngine->play();
 	pAudioEngine->getSampler()->stopPlayingNotes();
 
 	DiskWriterDriver* pDiskWriterDriver = static_cast<DiskWriterDriver*>(pAudioEngine->getAudioDriver());
@@ -658,7 +657,7 @@ void Hydrogen::stopExportSong()
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	pAudioEngine->getSampler()->stopPlayingNotes();
-	pAudioEngine->reset( false );
+	getCoreActionController()->locateToTick( 0 );
 }
 
 void Hydrogen::stopExportSession()
