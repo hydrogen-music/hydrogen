@@ -459,8 +459,7 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 	return true;
 }
 
-bool CoreActionController::openSong( const QString& sSongPath ) {
-	
+bool CoreActionController::openSong( const QString& sSongPath, const QString& sRecoverSongPath ) {
 	auto pHydrogen = Hydrogen::get_instance();
  
 	if ( pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing ) {
@@ -474,9 +473,17 @@ bool CoreActionController::openSong( const QString& sSongPath ) {
 		// isSongPathValid takes care of the error log message.
 		return false;
 	}
-	
-	// Create an empty Song.
-	auto pSong = Song::load( sSongPath );
+
+	std::shared_ptr<Song> pSong;
+	if ( ! sRecoverSongPath.isEmpty() ) {
+		// Use an autosave file to load the song but 
+		pSong = Song::load( sRecoverSongPath );
+		if ( pSong != nullptr ) {
+			pSong->setFilename( sSongPath );
+		}
+	} else {
+		pSong = Song::load( sSongPath );
+	}
 
 	if ( pSong == nullptr ) {
 		ERRORLOG( QString( "Unable to open song [%1]." )

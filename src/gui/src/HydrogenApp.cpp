@@ -374,12 +374,68 @@ void HydrogenApp::closeFXProperties()
 #endif
 }
 
-bool HydrogenApp::openSong( const QString sFilename ) {
+bool HydrogenApp::openSong( QString sFilename ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	
+	// Check whether there is an autosave file next to it
+	// containing newer content.
+	QFileInfo fileInfo( sFilename );
 
-	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
-	if ( ! pCoreActionController->openSong( sFilename ) ) {
-		QMessageBox::information( m_pMainForm, "Hydrogen", tr("Error loading song.") );
+	// In case the user did open a hidden file, the baseName()
+	// will be an empty string.
+	QString sBaseName( fileInfo.completeBaseName() );
+	if ( sBaseName.front() == "." ) {
+		sBaseName.remove( 0, 1 );
+	}
+	
+	// Hidden autosave file (recent version)
+	QFileInfo autoSaveFileRecent( QString( "%1/.%2.autosave.h2song" )
+								  .arg( fileInfo.absoluteDir().absolutePath() )
+								  .arg( sBaseName ) );
+	// Visible autosave file (older version)
+	QFileInfo autoSaveFileOld( QString( "%1/%2.autosave.h2song" )
+							   .arg( fileInfo.absoluteDir().absolutePath() )
+							   .arg( sBaseName ) );
+	QString sRecoverFilename = "";
+	if ( autoSaveFileRecent.exists() &&
+		 autoSaveFileRecent.lastModified() >
+		 fileInfo.lastModified() ) {
+		sRecoverFilename = autoSaveFileRecent.absoluteFilePath();
+	} else if ( autoSaveFileOld.exists() &&
+				autoSaveFileOld.lastModified() >
+				fileInfo.lastModified()  ) {
+		sRecoverFilename = autoSaveFileOld.absoluteFilePath();
+	}
+
+	if ( ! sRecoverFilename.isEmpty() ) {
+		QMessageBox msgBox;
+		msgBox.setText( tr( "There are unsaved changes." ) );
+		msgBox.setInformativeText( tr( "Do you want to recover them?" ) );
+		msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Discard );
+		msgBox.setDefaultButton( QMessageBox::Discard );
+		msgBox.setWindowTitle( "Hydrogen" );
+		msgBox.setIcon( QMessageBox::Question );
+		int nRet = msgBox.exec();
+
+		if ( nRet == QMessageBox::Discard ) {
+			sRecoverFilename = "";
+		}
+	}
+
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+	if ( ! pCoreActionController->openSong( sFilename, sRecoverFilename ) ) {
+		QMessageBox msgBox;
+		msgBox.setText( tr( "Error loading song." ) );
+		msgBox.setWindowTitle( "Hydrogen" );
+		msgBox.setIcon( QMessageBox::Warning );
+		msgBox.exec();
 		return false;
+	}
+
+	// Restore the actual filename in case an autosave file was
+	// recovered.
+	if ( ! sRecoverFilename.isEmpty() ) {
+		pHydrogen->getSong()->setFilename( fileInfo.absoluteFilePath() );
 	}
 
 	return true;
@@ -389,7 +445,11 @@ bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 
 	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
 	if ( ! pCoreActionController->openSong( pSong ) ) {
-		QMessageBox::information( m_pMainForm, "Hydrogen", tr("Error loading song.") );
+		QMessageBox msgBox;
+		msgBox.setText( tr( "Error loading song." ) );
+		msgBox.setWindowTitle( "Hydrogen" );
+		msgBox.setIcon( QMessageBox::Warning );
+		msgBox.exec();
 		return false;
 	}
 

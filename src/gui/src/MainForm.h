@@ -51,7 +51,7 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 	public:
 		QApplication* m_pQApp;
 
-		MainForm( QApplication * pQApplication );
+	MainForm( QApplication * pQApplication, QString sSongFilename );
 		~MainForm();
 
 		void updateRecentUsedSongList();

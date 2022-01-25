@@ -88,8 +88,8 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		 * \param sFilename Absolute path used to load the next Song.
 		 * \return bool true on success
 		 */
-		bool openSong( const QString sFilename );
-		bool openSong( std::shared_ptr<H2Core::Song> pSong );
+		static bool openSong( QString sFilename );
+		static bool openSong( std::shared_ptr<H2Core::Song> pSong );
 
 		void showPreferencesDialog();
 		void updateMixerCheckbox();

@@ -84,7 +84,7 @@ using namespace H2Core;
 
 int MainForm::sigusr1Fd[2];
 
-MainForm::MainForm( QApplication * pQApplication )
+MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 	: QMainWindow( nullptr )
 	, m_sPreviousAutoSaveFilename( "" )
 {
@@ -104,6 +104,30 @@ MainForm::MainForm( QApplication * pQApplication )
 	m_pQApp = pQApplication;
 
 	m_pQApp->processEvents();
+
+	// When using the Non Session Management system, the new Song
+	// will be loaded by the NSM client singleton itself and not
+	// by the MainForm. The latter will just access the already
+	// loaded Song.
+	if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ){
+		std::shared_ptr<H2Core::Song>pSong = nullptr;
+
+		if ( sSongFilename.isEmpty() ) {
+			if ( pPref->isRestoreLastSongEnabled() ) {
+				sSongFilename = pPref->getLastSongFilename();
+			}
+		}
+
+		bool bRet;
+		if ( !sSongFilename.isEmpty() ) {
+			bRet = HydrogenApp::openSong( sSongFilename );
+		}
+
+		if ( sSongFilename.isEmpty() || ! bRet ) {
+			pSong = H2Core::Song::getEmptySong();
+			HydrogenApp::openSong( pSong );
+		}
+	}
 
 	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	setFont( font );
@@ -635,7 +659,7 @@ void MainForm::action_file_save_as()
 	}
 	else {
 		QFileInfo fileInfo( lastFilename );
-		defaultFilename = fileInfo.baseName();
+		defaultFilename = fileInfo.completeBaseName();
 	}
 	defaultFilename += Filesystem::songs_ext;
 
@@ -906,9 +930,10 @@ void MainForm::action_file_openDemo() {
 }
 
 void MainForm::openSongWithDialog( const QString& sWindowTitle, const QString& sPath, bool bIsDemo ) {
-	if ( Hydrogen::get_instance()->getAudioEngine()->getState() ==
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen->getAudioEngine()->getState() ==
 		 H2Core::AudioEngine::State::Playing ) {
-		Hydrogen::get_instance()->sequencer_stop();
+		pHydrogen->sequencer_stop();
 	}
 
 	bool bProceed = handleUnsavedChanges();
@@ -933,8 +958,8 @@ void MainForm::openSongWithDialog( const QString& sWindowTitle, const QString& s
 	if ( !sFilename.isEmpty() ) {
 		HydrogenApp::get_instance()->openSong( sFilename );
 		if ( bIsDemo &&
-			 ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
-			Hydrogen::get_instance()->getSong()->setFilename( "" );
+			 ! pHydrogen->isUnderSessionManagement() ) {
+			pHydrogen->getSong()->setFilename( "" );
 		}
 	}
 
@@ -2008,17 +2033,25 @@ QString MainForm::getAutoSaveFilename()
 	if ( !sOldFilename.isEmpty() ) {
 
 		QFileInfo fileInfo( sOldFilename );
+
+		// In case the user did open a hidden file, the baseName()
+		// will be an empty string.
+		QString sBaseName( fileInfo.completeBaseName() );
+		if ( sBaseName.front() == "." ) {
+			sBaseName.remove( 0, 1 );
+		}
+
 		QString sAbsoluteDir( fileInfo.absoluteDir().absolutePath() );
 		if ( ! Filesystem::file_writable( sOldFilename, true ) ) {
 
 			sNewName = QString( "%1%2.autosave.h2song" )
-				.arg( Filesystem::songs_dir() ).arg( fileInfo.baseName() );
+				.arg( Filesystem::songs_dir() ).arg( sBaseName );
 		
 			WARNINGLOG( QString( "Path of current song [%1] is not writable. Autosave will store the song as [%2] instead." )
 						.arg( sOldFilename ).arg( sNewName ) );
 		} else {
 			sNewName = QString( "%1/.%2.autosave.h2song" )
-				.arg( sAbsoluteDir ).arg( fileInfo.baseName() );
+				.arg( sAbsoluteDir ).arg( sBaseName );
 		}
 	} else {
 		// Store the default autosave file in the user's song data
