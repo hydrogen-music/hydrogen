@@ -135,6 +135,14 @@ MainForm::MainForm( QApplication * pQApplication )
 	connect( &m_AutosaveTimer, SIGNAL(timeout()), this, SLOT(onAutoSaveTimer()));
 	m_AutosaveTimer.start( 60 * 1000 );
 
+	// Get the timeout value from prefs - 0=disable autosave
+	int nAutosavesPerHour = pPref->m_nAutosavesPerHour;
+
+	if ( nAutosavesPerHour > 0 ) {
+		m_AutosaveTimer.start( std::round( 60 * 60 * 1000 /
+										   static_cast<float>(nAutosavesPerHour) ) );
+	}
+
 #ifdef H2CORE_HAVE_LASH
 
 	if ( pPref->useLash() ){
@@ -2017,6 +2025,7 @@ void MainForm::onAutoSaveTimer()
 	//INFOLOG( "[onAutoSaveTimer]" );
 	auto pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+
 	assert( pSong );
 	if ( pSong->getIsModified() ) {
 		QString sOldFilename = pSong->getFilename();

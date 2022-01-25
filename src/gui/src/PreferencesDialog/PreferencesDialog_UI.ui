@@ -127,6 +127,12 @@
         <layout class="QFormLayout" name="formLayout">
          <item row="0" column="0">
           <widget class="QSpinBox" name="sBcountOffset">
+           <property name="minimumSize">
+            <size>
+             <width>58</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="toolTip">
             <string>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</string>
            </property>
@@ -147,6 +153,12 @@
          </item>
          <item row="1" column="0">
           <widget class="QSpinBox" name="sBstartOffset">
+           <property name="minimumSize">
+            <size>
+             <width>58</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="toolTip">
             <string>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </string>
            </property>
@@ -167,6 +179,12 @@
          </item>
          <item row="2" column="0">
           <widget class="QSpinBox" name="sBmaxBars">
+           <property name="minimumSize">
+            <size>
+             <width>58</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="toolTip">
             <string>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </string>
            </property>
@@ -180,6 +198,12 @@
          </item>
          <item row="3" column="0">
           <widget class="QSpinBox" name="sBmaxLayers">
+           <property name="minimumSize">
+            <size>
+             <width>58</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="toolTip">
             <string>Maximum number of instrument layers</string>
            </property>
@@ -202,6 +226,29 @@
           <widget class="QLabel" name="label_3">
            <property name="text">
             <string>Maximum number of bars</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QSpinBox" name="autosaveSpinBox">
+           <property name="minimumSize">
+            <size>
+             <width>58</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximum">
+            <number>360</number>
+           </property>
+           <property name="value">
+            <number>60</number>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLabel" name="autosaveLabel">
+           <property name="text">
+            <string>Numbers of autosaves per hour (set 0 to deactivated)</string>
            </property>
           </widget>
          </item>
