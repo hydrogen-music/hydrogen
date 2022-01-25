@@ -193,13 +193,7 @@ MainForm::~MainForm()
 	if ( (Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
-
-	// remove the autosave file
-	m_AutosaveTimer.stop();
-	QFile autosaveFile( "hydrogen_autosave.h2song" );
-	autosaveFile.remove();
-
-
+	
 	hide();
 
 	if (h2app != nullptr) {
@@ -2021,13 +2015,27 @@ QString MainForm::getAutoSaveFilename()
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	assert( pSong );
 	QString sOldFilename = pSong->getFilename();
-	QString newName = "autosave.h2song";
+	QString sNewName;
 
 	if ( !sOldFilename.isEmpty() ) {
-		newName = sOldFilename.left( sOldFilename.length() - 7 ) + ".autosave.h2song";
+		sNewName = sOldFilename.left( sOldFilename.length() - 7 ) + ".autosave.h2song";
+	} else {
+		// Store the default autosave file in the user's song data
+		// folder to not clutter their working directory.
+		sNewName = QString( "%1autosave.h2song" )
+			.arg( Filesystem::songs_dir() );
 	}
 
-	return newName;
+	QFileInfo fileInfo( sNewName );
+	if ( ! fileInfo.isWritable() ) {
+		sNewName = QString( "%1%2.autosave.h2song" )
+			.arg( Filesystem::songs_dir() ).arg( fileInfo.baseName() );
+		
+		WARNINGLOG( QString( "Path of current song is not writable. Autosave will store the song as [%1] instead." )
+					.arg( sNewName ) );
+	}
+
+	return sNewName;
 }
 
 
