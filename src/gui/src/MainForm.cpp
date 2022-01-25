@@ -186,9 +186,12 @@ MainForm::~MainForm()
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	// remove the autosave file
-	QFile file( getAutoSaveFilename() );
-	file.remove();
+	// Remove the autosave file in case all modifications already have
+	// been written to disk.
+	if ( ! pHydrogen->getSong()->getIsModified() ) {
+		QFile file( getAutoSaveFilename() );
+		file.remove();
+	}
 
 	//if a playlist is used, we save the last playlist-path to hydrogen.conf
 	Preferences::get_instance()->setLastPlaylistFilename( Playlist::get_instance()->getFilename() );
