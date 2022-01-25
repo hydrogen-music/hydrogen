@@ -1099,16 +1099,27 @@ bool Sampler::renderNoteNoResample(
 	}
 #endif
 
-	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
-		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pSelectedLayerInfo->SamplePosition ) ) {
-			if ( pADSR->release() == 0 ) {
-				retValue = true;	// the note is ended
-			}
-		}
+	float buffer_L[ MAX_BUFFER_SIZE ];
+	float buffer_R[ MAX_BUFFER_SIZE ];
+	int nNoteEnd;
+	if ( nNoteLength == -1)
+		nNoteEnd = pSelectedLayerInfo->SamplePosition + nTimes + 1;
+	else {
+		nNoteEnd = nNoteLength - pSelectedLayerInfo->SamplePosition;
+	}
 
-		fADSRValue = pADSR->get_value( 1 );
-		fVal_L = pSample_data_L[ nSamplePos ] * fADSRValue;
-		fVal_R = pSample_data_R[ nSamplePos ] * fADSRValue;
+	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
+		buffer_L[ nBufferPos ] = pSample_data_L[ nSamplePos ];
+		buffer_R[ nBufferPos ] = pSample_data_R[ nSamplePos ];
+		nSamplePos++;
+	}
+
+	retValue = pADSR->applyADSR( buffer_L, buffer_R, nTimes, nNoteEnd, 1 );
+
+	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
+
+		fVal_L = buffer_L[ nBufferPos ];
+		fVal_R = buffer_R[ nBufferPos ];
 
 		// Low pass resonant filter
 		if ( pInstrument->is_filter_active() ) {
@@ -1141,7 +1152,6 @@ bool Sampler::renderNoteNoResample(
 		m_pMainOut_L[nBufferPos] += fVal_L;
 		m_pMainOut_R[nBufferPos] += fVal_R;
 
-		++nSamplePos;
 	}
 	if ( pInstrument->is_filter_active() && pNote->filter_sustain() ) {
 		// Note is still ringing, do not end.
@@ -1251,6 +1261,12 @@ bool Sampler::renderNoteResample(
 	float fVal_L;
 	float fVal_R;
 	int nSampleFrames = pSample->get_frames();
+	int nNoteEnd;
+	if ( nNoteLength == -1)
+		nNoteEnd = nSampleFrames + 1;
+	else {
+		nNoteEnd = nNoteLength - pSelectedLayerInfo->SamplePosition;
+	}
 
 
 #ifdef H2CORE_HAVE_JACK
@@ -1277,13 +1293,6 @@ bool Sampler::renderNoteResample(
 	//   - iterate LP IIR filter coefficients to longer IIR filter to fit vector width
 	//
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
-		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pSelectedLayerInfo->SamplePosition ) ) {
-			if ( pADSR->release() == 0 ) {
-				if (!retValue) {
-					retValue = 1;	// the note is ended
-				}
-			}
-		}
 
 		int nSamplePos = ( int )fSamplePos;
 		double fDiff = fSamplePos - nSamplePos;
@@ -1352,30 +1361,24 @@ bool Sampler::renderNoteResample(
 			}
 		}
 
-		// ADSR envelope
-		fADSRValue = pADSR->get_value( fStep );
-		fVal_L = fVal_L * fADSRValue;
-		fVal_R = fVal_R * fADSRValue;
-		// Low pass resonant filter
-		if ( pInstrument->is_filter_active() ) {
-			pNote->compute_lr_values( &fVal_L, &fVal_R );
-		}
-
 		buffer_L[nBufferPos] = fVal_L;
 		buffer_R[nBufferPos] = fVal_R;
 
 		fSamplePos += fStep;
 	}
-	if ( pInstrument->is_filter_active() && pNote->filter_sustain() ) {
-		// Note is still ringing, do not end.
-		retValue = false;
-	}
+
+	retValue = pADSR->applyADSR( buffer_L, buffer_R, nTimes, nNoteEnd, 1 );
 
 	// Mix rendered sample buffer to track and mixer output
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 
 		fVal_L = buffer_L[nBufferPos];
 		fVal_R = buffer_R[nBufferPos];
+
+		// Low pass resonant filter
+		if ( pInstrument->is_filter_active() ) {
+			pNote->compute_lr_values( &fVal_L, &fVal_R );
+		}
 
 #ifdef H2CORE_HAVE_JACK
 		if ( pTrackOutL ) {
@@ -1403,6 +1406,11 @@ bool Sampler::renderNoteResample(
 		m_pMainOut_L[nBufferPos] += fVal_L;
 		m_pMainOut_R[nBufferPos] += fVal_R;
 
+	}
+
+	if ( pInstrument->is_filter_active() && pNote->filter_sustain() ) {
+		// Note is still ringing, do not end.
+		retValue = false;
 	}
 
 	pSelectedLayerInfo->SamplePosition += nAvail_bytes * fStep;

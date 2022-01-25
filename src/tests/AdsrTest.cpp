@@ -39,7 +39,7 @@ void ADSRTest::setUp()
 
 float ADSRTest::getValue( float fStep ) {
 	float fL = 1.0, fR = 1.0;
-	m_adsr->applyADSR( &fL, &fR, 1, fStep );
+	m_adsr->applyADSR( &fL, &fR, 1, 2, fStep );
 	CPPUNIT_ASSERT_DOUBLES_EQUAL( fL, fR, delta );
 	return fL;
 }
