@@ -309,6 +309,11 @@ public slots:
 		QMenu* m_pOptionsMenu;
 		QMenu* m_pDebugMenu;
 		QMenu* m_pInfoMenu;
+
+	/** Since the filename of the current song does change whenever
+		the users uses "Save As" multiple autosave files would be
+		written unless we take care of them.*/
+	QString m_sPreviousAutoSaveFilename;
 };
 
 #endif

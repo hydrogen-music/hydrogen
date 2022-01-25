@@ -86,6 +86,7 @@ int MainForm::sigusr1Fd[2];
 
 MainForm::MainForm( QApplication * pQApplication )
 	: QMainWindow( nullptr )
+	, m_sPreviousAutoSaveFilename( "" )
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
@@ -183,6 +184,8 @@ MainForm::MainForm( QApplication * pQApplication )
 
 MainForm::~MainForm()
 {
+	auto pHydrogen = Hydrogen::get_instance();
+	
 	// remove the autosave file
 	QFile file( getAutoSaveFilename() );
 	file.remove();
@@ -2026,13 +2029,15 @@ QString MainForm::getAutoSaveFilename()
 			.arg( Filesystem::songs_dir() );
 	}
 
-	QFileInfo fileInfo( sNewName );
-	if ( ! fileInfo.isWritable() ) {
+	if ( ! Filesystem::file_writable( sNewName ) ) {
+		QFileInfo fileInfo( sNewName );
+
+		sOldFilename = sNewName;
 		sNewName = QString( "%1%2.autosave.h2song" )
 			.arg( Filesystem::songs_dir() ).arg( fileInfo.baseName() );
 		
-		WARNINGLOG( QString( "Path of current song is not writable. Autosave will store the song as [%1] instead." )
-					.arg( sNewName ) );
+		WARNINGLOG( QString( "Path of current song [%1] is not writable. Autosave will store the song as [%2] instead." )
+					.arg( sOldFilename ).arg( sNewName ) );
 	}
 
 	return sNewName;
@@ -2042,14 +2047,23 @@ QString MainForm::getAutoSaveFilename()
 
 void MainForm::onAutoSaveTimer()
 {
-	//INFOLOG( "[onAutoSaveTimer]" );
 	auto pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
 	assert( pSong );
 	if ( pSong->getIsModified() ) {
 		QString sOldFilename = pSong->getFilename();
-		pSong->save( getAutoSaveFilename() );
+
+		QString sAutoSaveFilename = getAutoSaveFilename();
+		if ( sAutoSaveFilename != m_sPreviousAutoSaveFilename ) {
+			if ( ! m_sPreviousAutoSaveFilename.isEmpty() ) {
+				QFile file( m_sPreviousAutoSaveFilename );
+				file.remove();
+			}
+			m_sPreviousAutoSaveFilename = sAutoSaveFilename;
+		}
+			
+		pSong->save( sAutoSaveFilename );
 
 		pSong->setFilename( sOldFilename );
 		pHydrogen->setIsModified( true );
