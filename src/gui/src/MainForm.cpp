@@ -2315,6 +2315,13 @@ void MainForm::action_banks_properties()
 	delete pDrumkitInfo;
 }
 
+void MainForm::updateSongEvent( int nValue ) {
+	if ( nValue == 0 ) {
+		// A new song was set.
+		updateRecentUsedSongList();
+	}
+}
+
 void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();

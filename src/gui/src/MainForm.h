@@ -54,11 +54,10 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 	MainForm( QApplication * pQApplication, QString sSongFilename );
 		~MainForm();
 
-		void updateRecentUsedSongList();
-
 		virtual void errorEvent( int nErrorCode ) override;
 		virtual void jacksessionEvent( int nValue) override;
 		virtual void playlistLoadSongEvent(int nIndex) override;
+		virtual void updateSongEvent( int nValue ) override;
 
 		/** Handles the loading and saving of the H2Core::Preferences
 		 * from the core part of H2Core::Hydrogen.
@@ -235,6 +234,8 @@ public slots:
 		bool handleUnsavedChanges();
 
 	private:
+		void updateRecentUsedSongList();
+
 		HydrogenApp*	h2app;
 
 		static int sigusr1Fd[2];
