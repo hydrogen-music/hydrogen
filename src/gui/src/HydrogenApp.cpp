@@ -898,8 +898,9 @@ void HydrogenApp::changePreferences( H2Core::Preferences::Changes changes ) {
 	m_pPreferencesUpdateTimer->start( m_nPreferencesUpdateTimeout );
 	// Ensure the provided changes will be propagated too.
 
-	if ( ! ( m_bufferedChanges | changes ) ) {
+	if ( ! ( m_bufferedChanges & changes ) ) {
 		m_bufferedChanges = static_cast<H2Core::Preferences::Changes>(m_bufferedChanges | changes);
+
 	}
 }
 

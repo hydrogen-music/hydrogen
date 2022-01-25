@@ -264,6 +264,7 @@ public slots:
 
 		QUndoView *	m_pUndoView;///debug only
 
+	void startAutosaveTimer();
 		QTimer		m_AutosaveTimer;
 
 		/** Create the menubar */

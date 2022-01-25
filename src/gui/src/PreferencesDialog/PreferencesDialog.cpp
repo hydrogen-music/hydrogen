@@ -667,6 +667,11 @@ void PreferencesDialog::on_okBtn_clicked()
 {
 	//	m_bNeedDriverRestart = true;
 
+	auto changes =
+		static_cast<H2Core::Preferences::Changes>( H2Core::Preferences::Changes::Font |
+												   H2Core::Preferences::Changes::Colors |
+												   H2Core::Preferences::Changes::AppearanceTab );
+
 	Preferences *pPref = Preferences::get_instance();
 
 	MidiMap *mM = MidiMap::get_instance();
@@ -760,16 +765,20 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	pPref->setMaxBars( sBmaxBars->value() );
 	pPref->setMaxLayers( sBmaxLayers->value() );
-	pPref->m_nAutosavesPerHour = autosaveSpinBox->value();
+
+	if ( pPref->m_nAutosavesPerHour != autosaveSpinBox->value() ) {
+		pPref->m_nAutosavesPerHour = autosaveSpinBox->value();
+		changes =
+			static_cast<H2Core::Preferences::Changes>( changes |
+													   H2Core::Preferences::Changes::GeneralTab );
+	}
 
 	Hydrogen::get_instance()->setBcOffsetAdjust();
 
 	pPref->setTheme( m_pCurrentTheme );
-
+	
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
-	pH2App->changePreferences( static_cast<H2Core::Preferences::Changes>( H2Core::Preferences::Changes::Font |
-																		  H2Core::Preferences::Changes::Colors |
-																		  H2Core::Preferences::Changes::AppearanceTab ) );
+	pH2App->changePreferences( changes );
 
 	SongEditorPanel* pSongEditorPanel = pH2App->getSongEditorPanel();
 	SongEditor * pSongEditor = pSongEditorPanel->getSongEditor();

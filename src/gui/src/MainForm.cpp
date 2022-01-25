@@ -133,15 +133,7 @@ MainForm::MainForm( QApplication * pQApplication )
 	installEventFilter( this );
 
 	connect( &m_AutosaveTimer, SIGNAL(timeout()), this, SLOT(onAutoSaveTimer()));
-	m_AutosaveTimer.start( 60 * 1000 );
-
-	// Get the timeout value from prefs - 0=disable autosave
-	int nAutosavesPerHour = pPref->m_nAutosavesPerHour;
-
-	if ( nAutosavesPerHour > 0 ) {
-		m_AutosaveTimer.start( std::round( 60 * 60 * 1000 /
-										   static_cast<float>(nAutosavesPerHour) ) );
-	}
+	startAutosaveTimer();
 
 #ifdef H2CORE_HAVE_LASH
 
@@ -430,6 +422,22 @@ void MainForm::createMenuBar()
 	m_pInfoMenu->addAction( tr("&Report Bug"), this, SLOT( action_report_bug() ));
 	m_pInfoMenu->addAction( tr("&Donate"), this, SLOT( action_donate() ));
 	//~ INFO menu
+}
+
+void MainForm::startAutosaveTimer() {
+	int nAutosavesPerHour = Preferences::get_instance()->m_nAutosavesPerHour;
+
+	if ( nAutosavesPerHour > 0 ) {
+		if ( nAutosavesPerHour > 360 ) {
+			ERRORLOG( QString( "Too many autosaves per hour set [%1]. Using 360 - once a second - instead." )
+					  .arg( nAutosavesPerHour ) );
+			nAutosavesPerHour = 360;
+		}
+		m_AutosaveTimer.start( std::round( 60 * 60 * 1000 /
+										   static_cast<float>(nAutosavesPerHour) ) );
+	} else {
+		DEBUGLOG( "Autosave disabled" );
+	}
 }
 
 void MainForm::onLashPollTimer()
@@ -1400,6 +1408,10 @@ void MainForm::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		Skin::setPalette( m_pQApp );
+	}
+
+	if ( changes & H2Core::Preferences::Changes::GeneralTab ) {
+		startAutosaveTimer();
 	}
 }
 	
