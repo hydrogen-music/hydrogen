@@ -562,7 +562,6 @@ void MainForm::action_file_new()
 		return;
 	}
 	
-	h2app->m_pUndoStack->clear();
 	pHydrogen->getTimeline()->deleteAllTempoMarkers();
 	pHydrogen->getTimeline()->deleteAllTags();
 	std::shared_ptr<Song> pSong = Song::getEmptySong();
@@ -845,43 +844,19 @@ void MainForm::action_file_export_pattern_as()
 }
 
 void MainForm::action_file_open() {
-		
-	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
-		Hydrogen::get_instance()->sequencer_stop();
-	}
-
-	bool bProceed = handleUnsavedChanges();
-	if( !bProceed ) {
-		return;
-	}
-
 	QString sPath = Preferences::get_instance()->getLastOpenSongDirectory();
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
 		sPath = Filesystem::songs_dir();
 	}
 
-	QFileDialog fd(this);
-	fd.setFileMode( QFileDialog::ExistingFile );
-	fd.setDirectory( sPath );
-	fd.setNameFilter( Filesystem::songs_filter_name );
-
+	QString sWindowTitle;
 	if ( H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
-		fd.setWindowTitle( tr( "Import song into Session" ) );
+		sWindowTitle = tr( "Import song into Session" );
 	} else {
-		fd.setWindowTitle( tr( "Open song" ) );
+		sWindowTitle = tr( "Open song" );
 	}
 
-	QString sFilename;
-	if ( fd.exec() == QDialog::Accepted ) {
-		Preferences::get_instance()->setLastOpenSongDirectory( fd.directory().absolutePath() );
-		sFilename = fd.selectedFiles().first();
-	}
-
-	if ( !sFilename.isEmpty() ) {
-		HydrogenApp::get_instance()->openSong( sFilename );
-	}
-
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+	openSongWithDialog( sWindowTitle, sPath, false );
 }
 
 
@@ -919,45 +894,52 @@ void MainForm::action_file_openPattern()
 	}
 }
 
-/// \todo parametrizzare il metodo action_file_open ed eliminare il seguente...
-void MainForm::action_file_openDemo()
-{
-	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
+void MainForm::action_file_openDemo() {
+	QString sWindowTitle;
+	if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
+		sWindowTitle = tr( "Open Demo Song" );
+	} else {
+		sWindowTitle = tr( "Import Demo Song into Session" );
+	}
+
+	openSongWithDialog( sWindowTitle, Filesystem::demos_dir(), true );
+}
+
+void MainForm::openSongWithDialog( const QString& sWindowTitle, const QString& sPath, bool bIsDemo ) {
+	if ( Hydrogen::get_instance()->getAudioEngine()->getState() ==
+		 H2Core::AudioEngine::State::Playing ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
-	bool proceed = handleUnsavedChanges();
-	if(!proceed) {
+	bool bProceed = handleUnsavedChanges();
+	if( !bProceed ) {
 		return;
 	}
 
-	h2app->m_pUndoStack->clear();
 	QFileDialog fd(this);
-	fd.setFileMode(QFileDialog::ExistingFile);
+	fd.setFileMode( QFileDialog::ExistingFile );
+	fd.setDirectory( sPath );
 	fd.setNameFilter( Filesystem::songs_filter_name );
+	fd.setWindowTitle( sWindowTitle );
 
-	if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
-		fd.setWindowTitle( tr( "Open Demo Song" ) );
-	} else {
-		fd.setWindowTitle( tr( "Import Demo Song into Session" ) );
+	QString sFilename;
+	if ( fd.exec() == QDialog::Accepted ) {
+		if ( ! bIsDemo ) {
+			Preferences::get_instance()->setLastOpenSongDirectory( fd.directory().absolutePath() );
+		}
+		sFilename = fd.selectedFiles().first();
 	}
 
-	fd.setDirectory( Filesystem::demos_dir() );
-
-	QString filename;
-	if (fd.exec() == QDialog::Accepted) {
-		filename = fd.selectedFiles().first();
-	}
-
-	if ( !filename.isEmpty() ) {
-		HydrogenApp::get_instance()->openSong( filename );
-		if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
+	if ( !sFilename.isEmpty() ) {
+		HydrogenApp::get_instance()->openSong( sFilename );
+		if ( bIsDemo &&
+			 ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
 			Hydrogen::get_instance()->getSong()->setFilename( "" );
 		}
 	}
+
+	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 }
-
-
 
 void MainForm::showPreferencesDialog()
 {
@@ -2024,23 +2006,25 @@ QString MainForm::getAutoSaveFilename()
 	QString sNewName;
 
 	if ( !sOldFilename.isEmpty() ) {
-		sNewName = sOldFilename.left( sOldFilename.length() - 7 ) + ".autosave.h2song";
+
+		QFileInfo fileInfo( sOldFilename );
+		QString sAbsoluteDir( fileInfo.absoluteDir().absolutePath() );
+		if ( ! Filesystem::file_writable( sOldFilename, true ) ) {
+
+			sNewName = QString( "%1%2.autosave.h2song" )
+				.arg( Filesystem::songs_dir() ).arg( fileInfo.baseName() );
+		
+			WARNINGLOG( QString( "Path of current song [%1] is not writable. Autosave will store the song as [%2] instead." )
+						.arg( sOldFilename ).arg( sNewName ) );
+		} else {
+			sNewName = QString( "%1/.%2.autosave.h2song" )
+				.arg( sAbsoluteDir ).arg( fileInfo.baseName() );
+		}
 	} else {
 		// Store the default autosave file in the user's song data
 		// folder to not clutter their working directory.
 		sNewName = QString( "%1autosave.h2song" )
 			.arg( Filesystem::songs_dir() );
-	}
-
-	if ( ! Filesystem::file_writable( sNewName ) ) {
-		QFileInfo fileInfo( sNewName );
-
-		sOldFilename = sNewName;
-		sNewName = QString( "%1%2.autosave.h2song" )
-			.arg( Filesystem::songs_dir() ).arg( fileInfo.baseName() );
-		
-		WARNINGLOG( QString( "Path of current song [%1] is not writable. Autosave will store the song as [%2] instead." )
-					.arg( sOldFilename ).arg( sNewName ) );
 	}
 
 	return sNewName;
