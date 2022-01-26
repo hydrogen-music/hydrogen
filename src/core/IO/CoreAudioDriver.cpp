@@ -182,7 +182,7 @@ std::vector< AudioDeviceID > CoreAudioDriver::outputDeviceIDs()
 
 		int nChannels = 0;
 		for ( int nBuffer = 0; nBuffer < pBufferList->mNumberBuffers; nBuffer++ ) {
-			nChannels += pBufferList->mBuffers[i].mNumberChannels;
+			nChannels += pBufferList->mBuffers[ nBuffer ].mNumberChannels;
 		}
 		if ( nChannels < 2 ) {
 			// Skip input devices and any mono outputs
