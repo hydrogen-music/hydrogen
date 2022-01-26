@@ -274,7 +274,7 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 		EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
 		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 	}
-	
+
 	// In order to allow functions like audioEngine_setupLadspaFX() to
 	// load the settings of the new song, like whether the LADSPA FX
 	// are activated, __song has to be set prior to the call of
@@ -807,11 +807,11 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	pAudioEngine->unlock();
 #endif
 
-	setIsModified( true );
-
 	pAudioEngine->setState( oldAudioEngineState );
 	
 	m_pCoreActionController->initExternalControlInterfaces();
+
+	setIsModified( true );
 	
 	// Create a symbolic link in the session folder when under session
 	// management.

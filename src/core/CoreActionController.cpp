@@ -417,6 +417,8 @@ bool CoreActionController::initExternalControlInterfaces()
 	//MUTE_TOGGLE
 	setMasterIsMuted( Hydrogen::get_instance()->getSong()->getIsMuted() );
 
+	pHydrogen->setIsModified( false );
+	
 	return true;
 }
 
