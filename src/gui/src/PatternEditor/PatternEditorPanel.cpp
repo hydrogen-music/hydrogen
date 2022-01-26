@@ -172,7 +172,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pEditorTop1_hbox_2->addWidget( m_pRec );
 
 	// Hear notes btn
-	m_pHearNotesBtn = new Button( m_pRec, QSize( 21, 18 ), Button::Type::Toggle, "speaker.svg", "", false, QSize( 15, 13 ), tr( "Hear new notes" ) );
+	m_pHearNotesBtn = new Button( m_pRec, QSize( 21, 18 ), Button::Type::Toggle,
+								  "speaker.svg", "", false, QSize( 15, 13 ),
+								  tr( "Hear new notes" ), false, true );
 	m_pHearNotesBtn->move( 42, 1 );
 	connect( m_pHearNotesBtn, SIGNAL( pressed() ), this, SLOT( hearNotesBtnClick() ) );
 	m_pHearNotesBtn->setChecked( pPref->getHearNewNotes() );
@@ -183,7 +185,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 	// quantize
-	m_pQuantizeEventsBtn = new Button( m_pRec, QSize( 21, 18 ), Button::Type::Toggle, "quantization.svg", "", false, QSize( 15, 14 ), tr( "Quantize keyboard/midi events to grid" ) );
+	m_pQuantizeEventsBtn = new Button( m_pRec, QSize( 21, 18 ),
+									   Button::Type::Toggle, "quantization.svg",
+									   "", false, QSize( 15, 14 ),
+									   tr( "Quantize keyboard/midi events to grid" ),
+									   false, true );
 	m_pQuantizeEventsBtn->move( 111, 1 );
 	m_pQuantizeEventsBtn->setChecked( pPref->getQuantizeEvents() );
 	m_pQuantizeEventsBtn->setObjectName( "QuantizeEventsBtn" );

@@ -215,6 +215,7 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
 		m_fOriginY = y;
 		m_bPointAdded = false;
 	}
+	H2Core::Hydrogen::get_instance()->setIsModified( true );
 
 	update();
 
@@ -267,6 +268,7 @@ void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
 
 	if(m_bIsHolding) {
 		_selectedPoint = _path->move(_selectedPoint, x, y);
+		H2Core::Hydrogen::get_instance()->setIsModified( true );
 	}
 
 	update();
@@ -286,6 +288,8 @@ void AutomationPathView::keyPressEvent(QKeyEvent *event)
 			float y = _selectedPoint->second;
 			_path->remove_point(_selectedPoint->first);
 			_selectedPoint = _path->end();
+			
+			H2Core::Hydrogen::get_instance()->setIsModified( true );
 
 			emit pointRemoved( x, y );
 			update();
