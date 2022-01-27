@@ -1243,9 +1243,9 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 		Note *pNote = m_songNoteQueue.top();
 		long long nNoteStartInFrames = pNote->getNoteStart();
 
-		DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nframes: %3, " )
-				  .arg( getDoubleTick() ).arg( getFrames() )
-				  .arg( nframes ).append( pNote->toQString( "", true ) ) );
+		// DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nframes: %3, " )
+		// 		  .arg( getDoubleTick() ).arg( getFrames() )
+		// 		  .arg( nframes ).append( pNote->toQString( "", true ) ) );
 
 		if ( nNoteStartInFrames <
 			 nFrames + static_cast<long long>(nframes) ) {
@@ -1664,35 +1664,13 @@ void AudioEngine::updateSongSize() {
 
 	double fNewSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
 
-	WARNINGLOG( QString( "[Before] frame: %1, bpm: %2, tickSize: %3, column: %4, tick: %5, pTickPos: %6, pStartPos: %7, m_fLastTickIntervalEnd: %8" )
-				.arg( getFrames() ).arg( getBpm() )
-				.arg( getTickSize(), 0, 'f' )
-				.arg( m_nColumn ).arg( getDoubleTick(), 0, 'f' )
-				.arg( m_nPatternTickPosition )
-				.arg( m_nPatternStartTick )
-				.arg( m_fLastTickIntervalEnd ) );
-
-	// // transport position was already looped at least once.
-	// if ( getDoubleTick() > m_fSongSizeInTicks &&
-	// 	 pSong->getLoopMode() == Song::LoopMode::Enabled ) {
-	// 	double fNewTick = std::fmod( getDoubleTick(), m_fSongSizeInTicks ) +
-	// 		std::floor( getDoubleTick() / m_fSongSizeInTicks ) *
-	// 		fNewSongSizeInTicks;
-
-	// 	setTick( fNewTick );
-
-	// 	m_fTickOffset = fNewTick - getDoubleTick();
-
-	// 	m_fLastTickIntervalEnd += m_fTickOffset;
-	// 	m_nLastPlayingPatternsColumn = -1;
-		
-	// 	DEBUGLOG(QString( "fNewTick: %1, oldS: %2, newS: %3, m_fLastTickIntervalEnd: %4")
-	// 			 .arg( fNewTick ).arg( m_fSongSizeInTicks )
-	// 			 .arg( fNewSongSizeInTicks )
-	// 			 .arg( m_fLastTickIntervalEnd )
-	// 			 );
-	// }
-	
+	// WARNINGLOG( QString( "[Before] frame: %1, bpm: %2, tickSize: %3, column: %4, tick: %5, pTickPos: %6, pStartPos: %7, m_fLastTickIntervalEnd: %8" )
+	// 			.arg( getFrames() ).arg( getBpm() )
+	// 			.arg( getTickSize(), 0, 'f' )
+	// 			.arg( m_nColumn ).arg( getDoubleTick(), 0, 'f' )
+	// 			.arg( m_nPatternTickPosition )
+	// 			.arg( m_nPatternStartTick )
+	// 			.arg( m_fLastTickIntervalEnd ) );
 
 	// Strip away all repetitions when in loop mode but keep their
 	// number. m_nPatternStartTick and m_nColumn are only defined
@@ -1739,11 +1717,11 @@ void AudioEngine::updateSongSize() {
 	m_nFrameOffset = nNewFrames - getFrames() + m_nFrameOffset;
 	m_fTickOffset = fNewTick - getDoubleTick();
 		
-	DEBUGLOG(QString( "nNewFrame: %1, old frame: %2, frame offset: %3, new tick: %4, old tick: %5, tick offset : %6")
-			 .arg( nNewFrames ).arg( getFrames() )
-			 .arg( m_nFrameOffset ).arg( fNewTick )
-			 .arg( getDoubleTick() ).arg( m_fTickOffset )
-			 );
+	// DEBUGLOG(QString( "nNewFrame: %1, old frame: %2, frame offset: %3, new tick: %4, old tick: %5, tick offset : %6")
+	// 		 .arg( nNewFrames ).arg( getFrames() )
+	// 		 .arg( m_nFrameOffset ).arg( fNewTick )
+	// 		 .arg( getDoubleTick() ).arg( m_fTickOffset )
+	// 		 );
 
 	setFrames( nNewFrames );
 	setTick( fNewTick );
@@ -1764,13 +1742,13 @@ void AudioEngine::updateSongSize() {
 		stop();
 	}
 
-	WARNINGLOG( QString( "[After] frame: %1, bpm: %2, tickSize: %3, column: %4, tick: %5, pTickPos: %6, pStartPos: %7, m_fLastTickIntervalEnd: %8" )
-				.arg( getFrames() ).arg( getBpm() )
-				.arg( getTickSize(), 0, 'f' )
-				.arg( m_nColumn ).arg( getDoubleTick(), 0, 'f' )
-				.arg( m_nPatternTickPosition )
-				.arg( m_nPatternStartTick )
-				.arg( m_fLastTickIntervalEnd ) );
+	// WARNINGLOG( QString( "[After] frame: %1, bpm: %2, tickSize: %3, column: %4, tick: %5, pTickPos: %6, pStartPos: %7, m_fLastTickIntervalEnd: %8" )
+	// 			.arg( getFrames() ).arg( getBpm() )
+	// 			.arg( getTickSize(), 0, 'f' )
+	// 			.arg( m_nColumn ).arg( getDoubleTick(), 0, 'f' )
+	// 			.arg( m_nPatternTickPosition )
+	// 			.arg( m_nPatternStartTick )
+	// 			.arg( m_fLastTickIntervalEnd ) );
 }
 
 void AudioEngine::handleTimelineChange() {
@@ -1986,9 +1964,9 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 
 	AutomationPath* pAutomationPath = pSong->getVelocityAutomationPath();
 
-	DEBUGLOG( QString( "tick interval: [%1 : %2], curr tick: %3, curr frame: %4")
-			  .arg( fTickStart, 0, 'f' ).arg( fTickEnd, 0, 'f' )
-			  .arg( getDoubleTick(), 0, 'f' ).arg( getFrames() ) );
+	// DEBUGLOG( QString( "tick interval: [%1 : %2], curr tick: %3, curr frame: %4")
+	// 		  .arg( fTickStart, 0, 'f' ).arg( fTickEnd, 0, 'f' )
+	// 		  .arg( getDoubleTick(), 0, 'f' ).arg( getFrames() ) );
 
 	// We loop over integer ticks to ensure that all notes encountered
 	// between two iterations belong to the same pattern.
@@ -2009,7 +1987,7 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 												   pSong->isLoopEnabled(),
 												   &nPatternStartTick );
 
-			if ( nnTick > std::floor( m_fSongSizeInTicks ) &&
+			if ( nnTick >= std::floor( m_fSongSizeInTicks ) &&
 				 std::floor( m_fSongSizeInTicks ) != 0 ) {
 				// When using the JACK audio driver the overall
 				// transport position will be managed by an external
@@ -2263,9 +2241,9 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 						Note *pCopiedNote = new Note( pNote );
 						pCopiedNote->set_humanize_delay( nOffset );
 
-						DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nnTick: %3, " )
-								  .arg( getDoubleTick() ).arg( getFrames() ).arg( nnTick )
-								  .append( pCopiedNote->toQString("", true ) ) );
+						// DEBUGLOG( QString( "getDoubleTick(): %1, getFrames(): %2, nnTick: %3, " )
+						// 		  .arg( getDoubleTick() ).arg( getFrames() ).arg( nnTick )
+						// 		  .append( pCopiedNote->toQString("", true ) ) );
 						
 						pCopiedNote->set_position( nnTick );
 						// Important: this call has to be done _after_

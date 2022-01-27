@@ -463,11 +463,11 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 	if ( ! pNote->isPartiallyRendered() ) {
 		long long nNoteStartInFrames = pNote->getNoteStart();
 
-		DEBUGLOG(QString( "framepos: %1, note pos: %2, ticksize: %3, curr tick: %4, curr frame: %5, nNoteStartInFrames: %6 ")
-				 .arg( nFrames).arg( pNote->get_position() ).arg( pAudioEngine->getTickSize() )
-				 .arg( pAudioEngine->getTick() ).arg( pAudioEngine->getFrames() )
-				 .arg( nNoteStartInFrames )
-				 .append( pNote->toQString( "", true ) ) );
+		// DEBUGLOG(QString( "framepos: %1, note pos: %2, ticksize: %3, curr tick: %4, curr frame: %5, nNoteStartInFrames: %6 ")
+		// 		 .arg( nFrames).arg( pNote->get_position() ).arg( pAudioEngine->getTickSize() )
+		// 		 .arg( pAudioEngine->getTick() ).arg( pAudioEngine->getFrames() )
+		// 		 .arg( nNoteStartInFrames )
+		// 		 .append( pNote->toQString( "", true ) ) );
 
 		if ( nNoteStartInFrames > nFrames ) {	// scrivo silenzio prima dell'inizio della nota
 			nInitialSilence = nNoteStartInFrames - nFrames;
