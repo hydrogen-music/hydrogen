@@ -1115,16 +1115,28 @@ bool Sampler::renderNoteNoResample(
 	}
 
 	retValue = pADSR->applyADSR( buffer_L, buffer_R, nTimes, nNoteEnd, 1 );
+	bool bFilterIsActive = pInstrument->is_filter_active();
+	// Low pass resonant filter
+
+	if ( bFilterIsActive ) {
+		for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
+
+			fVal_L = buffer_L[ nBufferPos ];
+			fVal_R = buffer_R[ nBufferPos ];
+
+			pNote->compute_lr_values( &fVal_L, &fVal_R );
+
+			buffer_L[ nBufferPos ] = fVal_L;
+			buffer_R[ nBufferPos ] = fVal_R;
+
+		}
+	}
 
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 
 		fVal_L = buffer_L[ nBufferPos ];
 		fVal_R = buffer_R[ nBufferPos ];
 
-		// Low pass resonant filter
-		if ( pInstrument->is_filter_active() ) {
-			pNote->compute_lr_values( &fVal_L, &fVal_R );
-		}
 
 #ifdef H2CORE_HAVE_JACK
 		if(  pTrackOutL ) {
