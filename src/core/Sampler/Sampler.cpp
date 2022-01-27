@@ -455,30 +455,36 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 		nFrames = pAudioEngine->getRealtimeFrames();
 	}
 
-	long long nNoteStartInFrames = pNote->getNoteStart();
-
-	DEBUGLOG(QString( "framepos: %1, note pos: %2, ticksize: %3, curr tick: %4, curr frame: %5, nNoteStartInFrames: %6 ")
-			 .arg( nFrames).arg( pNote->get_position() ).arg( pAudioEngine->getTickSize() )
-			 .arg( pAudioEngine->getTick() ).arg( pAudioEngine->getFrames() )
-			 .arg( nNoteStartInFrames )
-			 .append( pNote->toQString( "", true ) ) );
-
+	// Only if the Sampler has not started rendering the note yet we
+	// care about its starting position. Else we would encounter
+	// glitches when relocating transport during playback or starting
+	// transport while using realtime playback.
 	long long nInitialSilence = 0;
-	if ( nNoteStartInFrames > nFrames ) {	// scrivo silenzio prima dell'inizio della nota
-		nInitialSilence = nNoteStartInFrames - nFrames;
+	if ( ! pNote->isPartiallyRendered() ) {
+		long long nNoteStartInFrames = pNote->getNoteStart();
+
+		DEBUGLOG(QString( "framepos: %1, note pos: %2, ticksize: %3, curr tick: %4, curr frame: %5, nNoteStartInFrames: %6 ")
+				 .arg( nFrames).arg( pNote->get_position() ).arg( pAudioEngine->getTickSize() )
+				 .arg( pAudioEngine->getTick() ).arg( pAudioEngine->getFrames() )
+				 .arg( nNoteStartInFrames )
+				 .append( pNote->toQString( "", true ) ) );
+
+		if ( nNoteStartInFrames > nFrames ) {	// scrivo silenzio prima dell'inizio della nota
+			nInitialSilence = nNoteStartInFrames - nFrames;
 			
-		if ( nBufferSize < nInitialSilence ) {
+			if ( nBufferSize < nInitialSilence ) {
 
-			if ( ! pNote->isPartiallyRendered() &&
-				 pNote->getNoteStart() > nFrames + nBufferSize ) {
-				// this note is not valid. it's in the future...let's skip it....
-				ERRORLOG( QString( "Note pos in the future?? Current frames: %1, note frame pos: %2" ).arg( nFrames ).arg( pNote->getNoteStart() ) );
+				if ( ! pNote->isPartiallyRendered() &&
+					 pNote->getNoteStart() > nFrames + nBufferSize ) {
+					// this note is not valid. it's in the future...let's skip it....
+					ERRORLOG( QString( "Note pos in the future?? Current frames: %1, note frame pos: %2" ).arg( nFrames ).arg( pNote->getNoteStart() ) );
 
-				return true;
+					return true;
+				}
+				// delay note execution
+				// DEBUGLOG("delayed");
+				return false;
 			}
-			// delay note execution
-			// DEBUGLOG("delayed");
-			return false;
 		}
 	}
 

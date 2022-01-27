@@ -256,13 +256,15 @@ public:
 	 * Calculates the frame equivalent to @a fTick.
 	 *
 	 * The frame takes all passed tempo markers into account and
-	 * does only depend on the current sample rate.
+	 * depends on the sample rate @a nSampleRate.
 	 *
-	 * @param fTick Internally used frame, which depends on the
-	 * current speed as well and is rescaled as soon as a tempo marker
-	 * is passed
-	 * @param fTickMismatch Used to store the raw (not yet rounded)
-	 * version of the return value.
+	 * This function uses the assumption that sample rate and
+	 * resolution are constant over the whole song.
+	 *
+	 * @param fTick Current transport position in ticks.
+	 * @param fTickMismatch Since ticks are stored as doubles and there
+	 * is some loss in precision, this variable is used report how
+	 * much @fTick exceeds/is ahead of the resulting frame.
 	 * @param nSampleRate If set to 0, the sample rate provided by the
 	 * audio driver will be used.
 	 *

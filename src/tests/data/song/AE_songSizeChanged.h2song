@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <song>
  <version>1.1.1-'1867cac7'</version>
- <bpm>120</bpm>
+ <bpm>100</bpm>
  <volume>0.73</volume>
  <metronomeVolume>0.5</metronomeVolume>
  <name>Untitled Song</name>
@@ -18,8 +18,8 @@
  <mode>song</mode>
  <pan_law_type>RATIO_STRAIGHT_POLYGONAL</pan_law_type>
  <pan_law_k_norm>1.33333</pan_law_k_norm>
- <humanize_time>0</humanize_time>
- <humanize_velocity>0</humanize_velocity>
+ <humanize_time>0.07</humanize_time>
+ <humanize_velocity>0.1</humanize_velocity>
  <swing_factor>0</swing_factor>
  <componentList>
   <drumkitComponent>
@@ -172,7 +172,7 @@
    <Attack>0</Attack>
    <Decay>0</Decay>
    <Sustain>1</Sustain>
-   <Release>1000</Release>
+   <Release>999</Release>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>

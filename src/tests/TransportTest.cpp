@@ -106,6 +106,8 @@ void TransportTest::testSongSizeChange() {
 
 	bool bNoMismatch = pAudioEngine->testSongSizeChange();
 	CPPUNIT_ASSERT( bNoMismatch );
+
+	pHydrogen->getCoreActionController()->activateLoopMode( false, false );
 }		
 
 void TransportTest::testSongSizeChangeInLoopMode() {
