@@ -349,10 +349,12 @@ void JackAudioDriver::updateTransportInfo()
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
 	// timeline) or by a different JACK client.
-	if ( pAudioEngine->getFrames() != m_JackTransportPos.frame ) {
-		INFOLOG( QString( "[relocation detected] frames: %1, Jack frames: %3" )
-				 .arg( pAudioEngine->getFrames() )
-				 .arg( m_JackTransportPos.frame ) );
+	if ( pAudioEngine->getFrames() - pAudioEngine->getFrameOffset() !=
+		 m_JackTransportPos.frame ) {
+		// INFOLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3" )
+		// 		 .arg( pAudioEngine->getFrames() )
+		// 		 .arg( pAudioEngine->getFrameOffset() )
+		// 		 .arg( m_JackTransportPos.frame ) );
 		// Reset playback to the beginning of the pattern if Hydrogen
 		// is in pattern mode.
 		if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
