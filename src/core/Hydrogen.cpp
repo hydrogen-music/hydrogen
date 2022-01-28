@@ -1513,21 +1513,32 @@ void Hydrogen::setMode( Song::Mode mode ) {
 }
 
 void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
-	auto pPref = Preferences::get_instance();
+	if ( getSong() != nullptr ) {
+		auto pPref = Preferences::get_instance();
+		auto pAudioEngine = getAudioEngine();
 
-	if ( bEnabled != getSong()->getIsTimelineActivated() ) {
-		pPref->setUseTimelineBpm( bEnabled );
-		getSong()->setIsTimelineActivated( bEnabled );
+		if ( bEnabled != getSong()->getIsTimelineActivated() ) {
+			
+			pAudioEngine->lock( RIGHT_HERE );
+			
+			// DEBUGLOG( QString( "bEnabled: %1, getSong()->getIsTimelineActivated(): %2" )
+			// 		  .arg( bEnabled )
+			// 		  .arg( getSong()->getIsTimelineActivated()) );
+		
+			pPref->setUseTimelineBpm( bEnabled );
+			getSong()->setIsTimelineActivated( bEnabled );
 
-		getAudioEngine()->handleTimelineChange();
+			if ( bEnabled ) {
+				getTimeline()->activate();
+			} else {
+				getTimeline()->deactivate();
+			}
 
-		if ( bEnabled ) {
-			getTimeline()->activate();
-		} else {
-			getTimeline()->deactivate();
+			pAudioEngine->handleTimelineChange();
+			pAudioEngine->unlock();
+
+			EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION, static_cast<int>( bEnabled ) );
 		}
-
-		EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION, static_cast<int>( bEnabled ) );
 	}
 }
 

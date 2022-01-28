@@ -30,8 +30,7 @@ namespace H2Core
 {
 
 Timeline::Timeline() : Object( )
-					 , m_fDefaultBpm( 120 )
-{
+					 , m_fDefaultBpm( 120 ) {
 }
 
 Timeline::~Timeline() {
@@ -138,7 +137,7 @@ std::shared_ptr<const Timeline::TempoMarker> Timeline::getTempoMarkerAtColumn( i
 
 const std::vector<std::shared_ptr<const Timeline::TempoMarker>> Timeline::getAllTempoMarkers() const {
 	if ( isFirstTempoMarkerSpecial() ) {
-
+		
 		std::shared_ptr<TempoMarker> pTempoMarker = std::make_shared<TempoMarker>();
 		pTempoMarker->nColumn = 0;
 		pTempoMarker->fBpm = m_fDefaultBpm;
@@ -230,6 +229,7 @@ QString Timeline::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Timeline]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_fDefaultBpm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fDefaultBpm ) )
 			.append( QString( "%1%2m_tempoMarkers:\n" ).arg( sPrefix ).arg( s ) );
 		for ( auto const& tt : m_tempoMarkers ) {
 			if ( tt != nullptr ) {
@@ -245,6 +245,7 @@ QString Timeline::toQString( const QString& sPrefix, bool bShort ) const {
 	} else {
 		
 		sOutput = QString( "%1[Timeline] " ).arg( sPrefix )
+			.append( QString( "m_fDefaultBpm: %1, " ).arg( m_fDefaultBpm ) )
 			.append( QString( "m_tempoMarkers: [" ) );
 		for ( auto const& tt : m_tempoMarkers ) {
 			if ( tt != nullptr ) {

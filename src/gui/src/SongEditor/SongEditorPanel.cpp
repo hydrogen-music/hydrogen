@@ -653,7 +653,6 @@ void SongEditorPanel::drawModeBtnPressed()
 
 
 void SongEditorPanel::timelineBtnPressed() {
-	DEBUGLOG(! m_pTimelineBtn->isChecked());
 	setTimelineActive( ! m_pTimelineBtn->isChecked() );
 }
 
@@ -921,7 +920,6 @@ bool SongEditorPanel::getTimelineActive() const {
 }
 
 void SongEditorPanel::setTimelineActive( bool bActive ){
-	DEBUGLOG( bActive );
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	if ( ! m_pTimelineBtn->isDown() ) {
