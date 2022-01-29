@@ -710,6 +710,7 @@ void PlayerControl::songModeActivationEvent( int nValue )
 	}
 
 	updateBPMSpinbox();
+	updateBeatCounter();
 }
 
 void PlayerControl::bpmChanged( double fNewBpmValue ) {

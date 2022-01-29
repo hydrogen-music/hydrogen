@@ -63,7 +63,8 @@ namespace H2Core
 {
 
 Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume )
-	: m_bIsMuted( false )
+	: m_bIsTimelineActivated( false )
+	, m_bIsMuted( false )
 	, m_resolution( 48 )
 	, m_fBpm( fBpm )
 	, m_sName( sName )
@@ -95,6 +96,8 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 
 	m_pComponents = new std::vector<DrumkitComponent*> ();
 	m_pVelocityAutomationPath = new AutomationPath(0.0f, 1.5f,  1.0f);
+
+	m_pTimeline = std::make_shared<Timeline>();
 }
 
 Song::~Song()
@@ -658,6 +661,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Song]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_bIsTimelineActivated: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsTimelineActivated ) )
 			.append( QString( "%1%2m_bIsMuted: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsMuted ) )
 			.append( QString( "%1%2m_resolution: %3\n" ).arg( sPrefix ).arg( s ).arg( m_resolution ) )
 			.append( QString( "%1%2m_fBpm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fBpm ) )
@@ -700,10 +704,17 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_actionMode: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( static_cast<int>(m_actionMode) ) )
 			.append( QString( "%1%2m_nPanLawType: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nPanLawType ) )
-			.append( QString( "%1%2m_fPanLawKNorm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPanLawKNorm ) );
+			.append( QString( "%1%2m_fPanLawKNorm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPanLawKNorm ) )
+			.append( QString( "%1%2m_pTimeline:\n" ).arg( sPrefix ).arg( s ) );
+		if ( m_pTimeline != nullptr ) {
+			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( QString( "nullptr\n" ) );
+		}
 	} else {
 		
 		sOutput = QString( "[Song]" )
+			.append( QString( ", m_bIsTimelineActivated: %1" ).arg( m_bIsTimelineActivated ) )
 			.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
 			.append( QString( ", m_resolution: %1" ).arg( m_resolution ) )
 			.append( QString( ", m_fBpm: %1" ).arg( m_fBpm ) )
@@ -745,7 +756,13 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_sLicense: %1" ).arg( m_sLicense ) )
 			.append( QString( ", m_actionMode: %1" ).arg( static_cast<int>(m_actionMode) ) )
 			.append( QString( ", m_nPanLawType: %1" ).arg( m_nPanLawType ) )
-			.append( QString( ", m_fPanLawKNorm: %1" ).arg( m_fPanLawKNorm ) );
+			.append( QString( ", m_fPanLawKNorm: %1" ).arg( m_fPanLawKNorm ) )
+			.append( QString( ", m_pTimeline: " ) );
+		if ( m_pTimeline != nullptr ) {
+			sOutput.append( QString( "%1" ).arg( m_pTimeline->toQString( sPrefix, bShort ) ) );
+		} else {
+			sOutput.append( QString( "nullptr" ) );
+		}
 	}
 	
 	return sOutput;
@@ -800,6 +817,8 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 		return nullptr;
 	}
 
+	auto pPreferences = Preferences::get_instance();
+
 	INFOLOG( "Reading " + sFilename );
 	std::shared_ptr<Song> pSong = nullptr;
 
@@ -828,7 +847,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	QString sNotes( LocalFileMng::readXmlString( songNode, "notes", "..." ) );
 	QString sLicense( LocalFileMng::readXmlString( songNode, "license", "Unknown license" ) );
 	bool bLoopEnabled = LocalFileMng::readXmlBool( songNode, "loopEnabled", false );
-	Preferences::get_instance()->setPatternModePlaysSelected( LocalFileMng::readXmlBool( songNode, "patternModeMode", true ) );
+	pPreferences->setPatternModePlaysSelected( LocalFileMng::readXmlBool( songNode, "patternModeMode", true ) );
 	Song::Mode mode = Song::Mode::Pattern;
 	QString sMode = LocalFileMng::readXmlString( songNode, "mode", "pattern" );
 	if ( sMode == "song" ) {
@@ -844,6 +863,18 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	float fHumanizeTimeValue = LocalFileMng::readXmlFloat( songNode, "humanize_time", 0.0 );
 	float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
 	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
+	bool bContainsIsTimelineActivated;
+	bool bIsTimelineActivated =
+		LocalFileMng::readXmlBool( songNode, "isTimelineActivated", false,
+								   &bContainsIsTimelineActivated );
+	if ( ! bContainsIsTimelineActivated ) {
+		// .h2song file was created in an older version of
+		// Hydrogen. Using the Timeline state in the
+		// Preferences as a fallback.
+		bIsTimelineActivated = pPreferences->getUseTimelineBpm();
+	} else {
+		pPreferences->setUseTimelineBpm( bIsTimelineActivated );
+	}
 
 	pSong = std::make_shared<Song>( sName, sAuthor, fBpm, fVolume );
 	pSong->setMetronomeVolume( fMetronomeVolume );
@@ -858,6 +889,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	pSong->setPlaybackTrackEnabled( bPlaybackTrackEnabled );
 	pSong->setPlaybackTrackVolume( fPlaybackTrackVolume );
 	pSong->setActionMode( actionMode );
+	pSong->setIsTimelineActivated( bIsTimelineActivated );
 	
 	// pan law
 	QString sPanLawType( LocalFileMng::readXmlString( songNode, "pan_law_type", "RATIO_STRAIGHT_POLYGONAL" ) );
@@ -1124,7 +1156,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 							sFilename = drumkitPath + "/" + sFilename;
 						}
 
-						QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
+						QString program = pPreferences->m_rubberBandCLIexecutable;
 						//test the path. if test fails, disable rubberband
 						if ( QFile( program ).exists() == false ) {
 							ro.use = false;
@@ -1212,7 +1244,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 							sFilename = drumkitPath + "/" + sFilename;
 						}
 
-						QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
+						QString program = pPreferences->m_rubberBandCLIexecutable;
 						//test the path. if test fails, disable rubberband
 						if ( QFile( program ).exists() == false ) {
 							ro.use = false;
@@ -1473,8 +1505,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 		WARNINGLOG( "ladspa node not found" );
 	}
 
-	Timeline* pTimeline = Hydrogen::get_instance()->getTimeline();
-	pTimeline->deleteAllTempoMarkers();
+	std::shared_ptr<Timeline> pTimeline = std::make_shared<Timeline>();
 	QDomNode bpmTimeLine = songNode.firstChildElement( "BPMTimeLine" );
 	if ( !bpmTimeLine.isNull() ) {
 		QDomNode newBPMNode = bpmTimeLine.firstChildElement( "newBPM" );
@@ -1487,7 +1518,6 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 		WARNINGLOG( "bpmTimeLine node not found" );
 	}
 
-	pTimeline->deleteAllTags();
 	QDomNode timeLineTag = songNode.firstChildElement( "timeLineTag" );
 	if ( !timeLineTag.isNull() ) {
 		QDomNode newTAGNode = timeLineTag.firstChildElement( "newTAG" );
@@ -1499,6 +1529,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	} else {
 		WARNINGLOG( "TagTimeLine node not found" );
 	}
+	pSong->setTimeline( pTimeline );
 
 	// Automation Paths
 	QDomNode automationPathsNode = songNode.firstChildElement( "automationPaths" );
