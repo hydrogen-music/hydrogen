@@ -128,6 +128,7 @@ void AudioBenchmark::audioBenchmark(void)
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	auto songFile = H2TEST_FILE("functional/test.h2song");
+	auto songADSRFile = H2TEST_FILE("functional/test_adsr.h2song");
 
 	/* Load song and prepare */
 	std::shared_ptr<Song> pSong = Song::load( songFile );
@@ -145,6 +146,25 @@ void AudioBenchmark::audioBenchmark(void)
 	}
 
 	qDebug() << "\n=== Audio engine benchmark ===";
+
+	timeExport( 44100 );
+	timeExport( 48000 );
+
+
+	qDebug() << "Now with ADSR";
+	pSong = Song::load( songADSRFile );
+	CPPUNIT_ASSERT( pSong != nullptr );
+
+	if( !pSong ) {
+		return;
+	}
+
+	pHydrogen->setSong( pSong );
+	pInstrumentList = pSong->getInstrumentList();
+	for (auto i = 0; i < pInstrumentList->size(); i++) {
+		pInstrumentList->get(i)->set_currently_exported( true );
+	}
+
 
 	timeExport( 44100 );
 	timeExport( 48000 );
