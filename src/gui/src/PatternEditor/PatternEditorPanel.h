@@ -93,6 +93,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		virtual void selectedPatternChangedEvent() override;
 		virtual void selectedInstrumentChangedEvent() override;
 	virtual void stateChangedEvent( H2Core::AudioEngine::State state ) override;
+	virtual void drumkitLoadedEvent() override;
 		//~ Implements EventListener interface
 
 		void ensureCursorVisible();

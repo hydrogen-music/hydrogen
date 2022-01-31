@@ -46,6 +46,7 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object<InstrumentE
 		InstrumentEditorPanel& operator=( const InstrumentEditorPanel& rhs ) = delete;
 
 		virtual void parametersInstrumentChangedEvent() override;
+	virtual void drumkitLoadedEvent() override;
 		
 		InstrumentEditor* getInstrumentEditor() const;
 
@@ -56,9 +57,6 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object<InstrumentE
 		}
 
 		void updateWaveDisplay();
-
-	public slots:
-		void notifyOfDrumkitChange();
 
 	private:
 		static InstrumentEditorPanel*	m_pInstance;

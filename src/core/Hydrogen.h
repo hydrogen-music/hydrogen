@@ -226,7 +226,7 @@ public:
 		 * name "drumkit" in the folder
 		 * NsmClient::m_sSessionFolderPath.
 		 *
-		 * \param pDrumkitInfo Full-fledged H2Core::Drumkit to load.
+		 * \param pDrumkit Full-fledged H2Core::Drumkit to load.
 		 * \param bConditional Whether to remove all redundant
 		 * H2Core::Instrument regardless of their content.
 		 *

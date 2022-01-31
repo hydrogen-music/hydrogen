@@ -130,8 +130,6 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		void removeEventListener( EventListener* pListener );
 		void closeFXProperties();
 
-		void onDrumkitLoad( QString name );
-
 		void cleanupTemporaryFiles();
 
 		enum SetPropertyFlag {
@@ -294,6 +292,7 @@ private slots:
 		 * \param nValue unused
 		 */
 		virtual void quitEvent( int nValue ) override;
+	virtual void drumkitLoadedEvent() override;
 	
 };
 

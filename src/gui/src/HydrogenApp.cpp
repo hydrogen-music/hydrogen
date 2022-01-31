@@ -592,9 +592,9 @@ void HydrogenApp::showSampleEditor( QString name, int mSelectedComponemt, int mS
 	QApplication::restoreOverrideCursor();
 }
 
-void HydrogenApp::onDrumkitLoad( QString name ){
-	setStatusBarMessage( tr( "Drumkit loaded: [%1]" ).arg( name ), 2000 );
-	m_pPatternEditorPanel->updateSLnameLabel( );
+void HydrogenApp::drumkitLoadedEvent(){
+	setStatusBarMessage( tr( "Drumkit loaded: [%1]" )
+						 .arg( Hydrogen::get_instance()->getCurrentDrumkitName() ), 2000 );
 }
 
 void HydrogenApp::songModifiedEvent()
@@ -736,6 +736,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case EVENT_COLUMN_CHANGED:
 				pListener->columnChangedEvent( event.value );
+				break;
+			
+			case EVENT_DRUMKIT_LOADED:
+				pListener->drumkitLoadedEvent();
 				break;
 				
 			default:

@@ -157,7 +157,9 @@ enum EventType {
 	EVENT_UPDATE_SONG_EDITOR,
 	/** Triggered when transport is moved into a different column
 		(either during playback or when relocated by the user)*/
-	EVENT_COLUMN_CHANGED
+	EVENT_COLUMN_CHANGED,
+	/** A the current drumkit was replaced by a new one*/
+	EVENT_DRUMKIT_LOADED
 };
 
 /** Basic building block for the communication between the core of

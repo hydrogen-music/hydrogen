@@ -819,6 +819,36 @@ bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent 
 	return true;
 }
 
+bool CoreActionController::loadDrumkit( const QString& sDrumkitName, bool bConditional ) {
+	auto pDrumkit = H2Core::Drumkit::load_by_name( sDrumkitName, true );
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( QString( "Drumkit [%1] could not be loaded" )
+				  .arg( sDrumkitName ) );
+		return false;
+	}
+
+	return loadDrumkit( pDrumkit, bConditional );
+}
+
+bool CoreActionController::loadDrumkit( Drumkit* pDrumkit, bool bConditional ) {
+	bool bReturnValue = true;
+	
+	if ( pDrumkit != nullptr ) {
+		if ( Hydrogen::get_instance()->loadDrumkit( pDrumkit, bConditional ) == 0 ) {
+			EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
+		} else {
+			ERRORLOG( "Unable to load drumkit" );
+			bReturnValue = false;
+		}
+		delete pDrumkit;
+	} else {
+		ERRORLOG( "Provided Drumkit is not valid" );
+		bReturnValue =  false;
+	}
+	
+	return bReturnValue;
+}
+	
 bool CoreActionController::locateToColumn( int nPatternGroup ) {
 
 	if ( nPatternGroup < -1 ) {
