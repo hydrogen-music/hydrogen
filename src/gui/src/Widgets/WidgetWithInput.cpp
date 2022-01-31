@@ -33,7 +33,7 @@
 #    include <sys/time.h>
 #endif
 
-WidgetWithInput::WidgetWithInput( QWidget* parent, bool bUseIntSteps, QString sBaseTooltip, int nScrollSpeed, int nScrollSpeedFast, float fMin, float fMax )
+WidgetWithInput::WidgetWithInput( QWidget* parent, bool bUseIntSteps, QString sBaseTooltip, int nScrollSpeed, int nScrollSpeedFast, float fMin, float fMax, bool bModifyOnChange )
 	: QWidget( parent )
 	, m_bUseIntSteps( bUseIntSteps )
 	, m_sBaseTooltip( sBaseTooltip )
@@ -53,7 +53,8 @@ WidgetWithInput::WidgetWithInput( QWidget* parent, bool bUseIntSteps, QString sB
 	, m_sInputBuffer( "" )
 	, m_inputBufferTimeout( 2.0 )
 	, m_sRegisteredMidiEvent( "" )
-	, m_nRegisteredMidiParameter( 0 ){
+	, m_nRegisteredMidiParameter( 0 )
+	, m_bModifyOnChange( bModifyOnChange ) {
 	
 	setAttribute( Qt::WA_Hover );
 	setFocusPolicy( Qt::ClickFocus );
@@ -118,6 +119,10 @@ void WidgetWithInput::setValue( float fValue )
 		emit valueChanged( this );
 		updateTooltip();
 		update();
+
+		if ( m_bModifyOnChange ) {
+			H2Core::Hydrogen::get_instance()->setIsModified( true );
+		}
 	}
 }
 

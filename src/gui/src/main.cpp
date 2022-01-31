@@ -517,31 +517,6 @@ int main(int argc, char *argv[])
 		
 		H2Core::Hydrogen::get_instance()->startNsmClient();
 
-		// When using the Non Session Management system, the new Song
-		// will be loaded by the NSM client singleton itself and not
-		// by the MainForm. The latter will just access the already
-		// loaded Song.
-		if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ){
-			std::shared_ptr<H2Core::Song>pSong = nullptr;
-
-			if ( sSongFilename.isEmpty() ) {
-				if ( pPref->isRestoreLastSongEnabled() ) {
-					sSongFilename = pPref->getLastSongFilename();
-				}
-			}
-
-			if ( !sSongFilename.isEmpty() ) {
-				pSong = H2Core::Song::load( sSongFilename );
-			}
-
-			if ( pSong == nullptr ) {
-				pSong = H2Core::Song::getEmptySong();
-				pSong->setFilename( sSongFilename );
-			}
-
-			H2Core::Hydrogen::get_instance()->getCoreActionController()->openSong( pSong );
-		}
-
 		// If the NSM_URL variable is present, Hydrogen will not
 		// initialize the audio driver and leaves this to the callback
 		// function nsm_open_cb of the NSM client (which will be
@@ -556,7 +531,7 @@ int main(int argc, char *argv[])
 			QApplication::restoreOverrideCursor();
 		}
 
-		MainForm *pMainForm = new MainForm( pQApp );
+		MainForm *pMainForm = new MainForm( pQApp, sSongFilename );
 		pMainForm->show();
 		
 		pSplash->finish( pMainForm );

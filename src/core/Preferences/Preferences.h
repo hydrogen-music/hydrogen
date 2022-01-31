@@ -367,6 +367,7 @@ public:
 
 	///Default text editor (used by Playlisteditor)
 	QString				m_sDefaultEditor;
+	int				m_nAutosavesPerHour;
 
 	///Rubberband CLI
 	QString				m_rubberBandCLIexecutable;
@@ -750,6 +751,7 @@ private:
 	 * getUseTimelineBpm().
 	 */
 	bool					__useTimelineBpm;
+
 
 	//___ GUI properties ___
 	int						m_nLastOpenTab;

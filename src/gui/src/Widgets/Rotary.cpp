@@ -31,14 +31,15 @@
 
 #include <core/Globals.h>
 
-Rotary::Rotary( QWidget* parent, Type type, QString sBaseTooltip, bool bUseIntSteps, float fMin, float fMax )
+Rotary::Rotary( QWidget* parent, Type type, QString sBaseTooltip, bool bUseIntSteps, float fMin, float fMax, bool bModifyOnChange )
 	: WidgetWithInput( parent,
 					   bUseIntSteps,
 					   sBaseTooltip,
 					   1, //nScrollSpeed,
 					   5, // nScrollSpeedFast,
 					   fMin,
-					   fMax )
+					   fMax,
+					   bModifyOnChange )
 	, m_type( type ) {
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Rotary::onPreferencesChanged );

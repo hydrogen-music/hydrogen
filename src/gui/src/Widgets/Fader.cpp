@@ -34,14 +34,15 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 
-Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSteps, bool bWithoutKnob, float fMin, float fMax )
+Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSteps, bool bWithoutKnob, float fMin, float fMax, bool bModifyOnChange )
 	: WidgetWithInput( pParent,
 					   bUseIntSteps,
 					   sBaseTooltip,
 					   1, // nScrollSpeed
 					   5, // nScrollSpeedFast
 					   fMin,
-					   fMax  )
+					   fMax,
+					   bModifyOnChange )
 	, m_type( type )
 	, m_bWithoutKnob( bWithoutKnob )
 	, m_fPeakValue_L( 0.01f )

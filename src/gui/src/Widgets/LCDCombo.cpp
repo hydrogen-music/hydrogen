@@ -27,10 +27,11 @@
 #include <core/Globals.h>
 
 
-LCDCombo::LCDCombo( QWidget *pParent, QSize size )
+LCDCombo::LCDCombo( QWidget *pParent, QSize size, bool bModifyOnChange )
 	: QComboBox( pParent )
 	, m_size( size )
 	, m_bEntered( false )
+	, m_bModifyOnChange( bModifyOnChange )
 {
 	setFocusPolicy( Qt::ClickFocus );
 
@@ -42,6 +43,8 @@ LCDCombo::LCDCombo( QWidget *pParent, QSize size )
 	updateStyleSheet();
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &LCDCombo::onPreferencesChanged );
+	connect( this, SIGNAL( currentIndexChanged(int) ), this,
+			 SLOT( onCurrentIndexChanged(int) ) );
 }
 
 LCDCombo::~LCDCombo() {
@@ -105,4 +108,10 @@ void LCDCombo::enterEvent( QEvent* ev ) {
 void LCDCombo::leaveEvent( QEvent* ev ) {
 	QComboBox::leaveEvent( ev );
 	m_bEntered = false;
+}
+
+void LCDCombo::onCurrentIndexChanged( int ) {
+	if ( m_bModifyOnChange ) {
+		H2Core::Hydrogen::get_instance()->setIsModified( true );
+	}
 }

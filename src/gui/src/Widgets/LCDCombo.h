@@ -38,17 +38,24 @@ class LCDCombo : public QComboBox, protected WidgetWithScalableFont<6, 8, 9>, pu
 	Q_OBJECT
 
 public:
-	explicit LCDCombo( QWidget *pParent, QSize size = QSize( 0, 0 ) );
+	explicit LCDCombo( QWidget *pParent, QSize size = QSize( 0, 0 ), bool bModifyOnChange = true );
 	~LCDCombo();
 
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+
+private slots:
+	void onCurrentIndexChanged( int );
 
 private:
 	void updateStyleSheet();
 	QSize m_size;
 
 	bool m_bEntered;
+
+	/** Whether Hydrogen::setIsModified() is invoked with `true` as
+		soon as the value of the widget does change.*/
+	bool m_bModifyOnChange;
 		
 	virtual void paintEvent( QPaintEvent *ev ) override;
 	virtual void enterEvent( QEvent *ev ) override;
