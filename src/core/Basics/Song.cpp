@@ -130,13 +130,6 @@ Song::~Song()
 	INFOLOG( QString( "DESTROY '%1'" ).arg( m_sName ) );
 }
 
-void Song::purgeInstrument( std::shared_ptr<Instrument> pInstr )
-{
-	for ( int nPattern = 0; nPattern < ( int )m_pPatternList->size(); ++nPattern ) {
-		m_pPatternList->get( nPattern )->purge_instrument( pInstr );
-	}
-}
-
 void Song::setBpm( float fBpm ) {
 	if ( fBpm > MAX_BPM ) {
 		m_fBpm = MAX_BPM;
@@ -269,6 +262,14 @@ std::shared_ptr<Song> Song::getDefaultSong()
 /// Return an empty song
 std::shared_ptr<Song> Song::getEmptySong()
 {
+	// We start using the default name but ensure it's unique by
+	// adding a suffix when necessary. Since this padding is done in a
+	// reproducible way, the user is able to recover unsaved changes
+	// of the empty song. When opening an empty one and modifying it
+	// without saving produces an autosave file is generated
+	// corresponding to it's name. If Hydrogen e.g. segfaults and the
+	// empty/default song wasn't saved once 
+	
 	std::shared_ptr<Song> pSong = Song::load( Filesystem::empty_song_path() );
 
 	/* 
@@ -654,6 +655,132 @@ void Song::setPanLawKNorm( float fKNorm ) {
 		WARNINGLOG("negative kNorm. Set default" );
 		m_fPanLawKNorm = Sampler::K_NORM_DEFAULT;
 	}
+}
+
+void Song::loadDrumkit( Drumkit *pDrumkit, bool bConditional ) {
+	assert ( pDrumkit );
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+
+	// Load DrumkitComponents 
+	std::vector<DrumkitComponent*>* pDrumkitCompoList = pDrumkit->get_components();
+	
+	for( auto &pComponent : *m_pComponents ){
+		delete pComponent;
+	}
+	m_pComponents->clear();
+	
+	for (std::vector<DrumkitComponent*>::iterator it = pDrumkitCompoList->begin() ; it != pDrumkitCompoList->end(); ++it) {
+		DrumkitComponent* pSrcComponent = *it;
+		DrumkitComponent* pNewComponent = new DrumkitComponent( pSrcComponent->get_id(), pSrcComponent->get_name() );
+		pNewComponent->load_from( pSrcComponent );
+
+		m_pComponents->push_back( pNewComponent );
+	}
+
+	//////
+	// Load InstrumentList
+	/*
+	 * If the old drumkit is bigger then the new drumkit,
+	 * delete all instruments with a bigger pos then
+	 * pDrumkitInstrList->size(). Otherwise the instruments
+	 * from our old instrumentlist with
+	 * pos > pDrumkitInstrList->size() stay in the
+	 * new instrumentlist
+	 */
+	InstrumentList *pDrumkitInstrList = pDrumkit->get_instruments();
+	
+	int nInstrumentDiff = m_pInstrumentList->size() - pDrumkitInstrList->size();
+	int nMaxID = -1;
+	
+	std::shared_ptr<Instrument> pInstr, pNewInstr;
+	for ( int nnInstr = 0; nnInstr < pDrumkitInstrList->size(); ++nnInstr ) {
+		if ( nnInstr < m_pInstrumentList->size() ) {
+			// Instrument exists already
+			pInstr = m_pInstrumentList->get( nnInstr );
+			assert( pInstr );
+		} else {
+			pInstr = std::make_shared<Instrument>();
+			m_pInstrumentList->add( pInstr );
+		}
+
+		pNewInstr = pDrumkitInstrList->get( nnInstr );
+		assert( pNewInstr );
+		INFOLOG( QString( "Loading instrument (%1 of %2) [%3]" )
+				 .arg( nnInstr + 1 )
+				 .arg( pDrumkitInstrList->size() )
+				 .arg( pNewInstr->get_name() ) );
+
+		// Preserve instrument IDs. Where the new drumkit has more
+		// instruments than the song does, new instruments need new
+		// ids.
+		int nID = pInstr->get_id();
+		if ( nID == EMPTY_INSTR_ID ) {
+			nID = nMaxID + 1;
+		}
+		nMaxID = std::max( nID, nMaxID );
+
+		pInstr->load_from( pDrumkit, pNewInstr );
+		pInstr->set_id( nID );
+	}
+
+	// Discard redundant instruments (in case the last drumkit had
+	// more instruments than the new one).
+	if ( nInstrumentDiff >= 0 ) {
+		for ( int i = 0; i < nInstrumentDiff ; i++ ){
+			removeInstrument( m_pInstrumentList->size() - 1,
+							  bConditional );
+		}
+	}
+}
+
+void Song::removeInstrument( int nInstrumentNumber, bool bConditional ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pInstr = m_pInstrumentList->get( nInstrumentNumber );
+	if ( pInstr == nullptr ) {
+		// Error log is already printed by get().
+		return;
+	}
+
+	if ( bConditional ) {
+		// If a note was assigned to this instrument in any pattern,
+		// the instrument will be kept instead of discarded.
+		for ( const auto& pPattern : *m_pPatternList ) {
+			if ( pPattern->references( pInstr ) ) {
+				DEBUGLOG("Keeping instrument #" + QString::number( nInstrumentNumber ) );
+				return;
+			}
+		}
+	} else {
+		for ( const auto& pPattern : *m_pPatternList ) {
+			pPattern->purge_instrument( pInstr, false );
+		}
+	}
+
+	// In case there is just this one instrument left, reset it
+	// instead of removing it.
+	if ( m_pInstrumentList->size() == 1 ){
+		pInstr->set_name( (QString( "Instrument 1" )) );
+		for ( auto& pCompo : *pInstr->get_components() ) {
+			// remove all layers
+			for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
+				pCompo->set_layer( nullptr, nLayer );
+			}
+		}
+		DEBUGLOG("clear last instrument to empty instrument 1 instead delete the last instrument");
+		return;
+	}
+	
+	// delete the instrument from the instruments list
+	m_pInstrumentList->del( nInstrumentNumber );
+
+	// At this point the instrument has been removed from both the
+	// instrument list and every pattern in the song.  Hence there's no way
+	// (NOTE) to play on that instrument, and once all notes have stopped
+	// playing it will be save to delete.
+	// the ugly name is just for debugging...
+	QString xxx_name = QString( "XXX_%1" ).arg( pInstr->get_name() );
+	pInstr->set_name( xxx_name );
+	pHydrogen->addInstrumentToDeathRow( pInstr );
 }
  
 QString Song::toQString( const QString& sPrefix, bool bShort ) const {

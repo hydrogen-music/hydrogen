@@ -209,15 +209,16 @@ public:
 		MidiInput*		getMidiInput() const;
 		MidiOutput*		getMidiOutput() const;
 
-		/** Wrapper around loadDrumkit( Drumkit, bool ) with the
-			conditional argument set to true.
-		 *
-		 * \returns 0 In case something unexpected happens, it will be
-		 *   indicated with #ERRORLOG messages.
-		 */
-		int			loadDrumkit( Drumkit *pDrumkitInfo );
 		/** Loads the H2Core::Drumkit provided in \a pDrumkitInfo into
 		 * the current session.
+		 *
+		 * During loading all H2Core::Instrument of the current
+		 * drumkit will be replaced by the ones in @a pDrumkitInfo top
+		 * to bottom. If the latter contains less instruments, the
+		 * superfluous ones will be stripped from the
+		 * bottom. Depending on the choice of @a bConditional all
+		 * instruments will be strip or just those which do not
+		 * contain any notes.
 		 *
 		 * When under session management (see
 		 * NsmClient::m_bUnderSessionManagement) the function will
@@ -226,23 +227,19 @@ public:
 		 * NsmClient::m_sSessionFolderPath.
 		 *
 		 * \param pDrumkitInfo Full-fledged H2Core::Drumkit to load.
-		 * \param conditional Argument passed on as second input
-		 *   argument to removeInstrument().
+		 * \param bConditional Whether to remove all redundant
+		 * H2Core::Instrument regardless of their content.
 		 *
-		 * \returns 0 In case something unexpected happens, it will be
-		 *   indicated with #ERRORLOG messages.
+		 * \returns 0 on success.
 		 */
-
-		int			loadDrumkit( Drumkit *pDrumkitInfo, bool conditional );
+		int			loadDrumkit( Drumkit* pDrumkit, bool bConditional = true );
 
 		/** Test if an Instrument has some Note in the Pattern (used to
 		    test before deleting an Instrument)*/
 		bool 			instrumentHasNotes( std::shared_ptr<Instrument> pInst );
 
-		/** Delete an Instrument. If @a conditional is true, and there
-		    are some Pattern that are using this Instrument, it's not
-		    deleted anyway.*/
-		void			removeInstrument( int instrumentnumber, bool conditional );
+		/** Delete an #Instrument.*/
+		void			removeInstrument( int nInstrumentNumber );
 
 		/** \return m_sCurrentDrumkitName */
 		const QString&	getCurrentDrumkitName();
@@ -471,6 +468,18 @@ void			previewSample( Sample *pSample );
 
 	///midi lookuptable
 	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
+
+	/**
+	 * Add @a pInstr to __instrument_death_row and triggers
+	 * __kill_instruments().
+	 *
+	 * Since there might still be some notes of @a pInstr left in one
+	 * of the note queues, the instrument can not be deleted right
+	 * away. Instead, this function will add it to a list of
+	 * instruments marked for deletion and it will be dealt with at a
+	 * later time.
+	 */
+	void addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr );
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of

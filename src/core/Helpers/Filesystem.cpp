@@ -365,7 +365,6 @@ bool Filesystem::check_sys_paths()
 	bool ret = true;
 	if(  !dir_readable( __sys_data_path ) ) ret = false;
 	if( !file_readable( click_file_path() ) ) ret = false;
-	if( !file_readable( empty_song_path() ) ) ret = false;
 	if(  !dir_readable( demos_dir() ) ) ret = false;
 	/* if(  !dir_readable( doc_dir() ) ) ret = false; */		// FIXME
 	if(  !dir_readable( sys_drumkits_dir() ) ) ret = false;
@@ -397,6 +396,7 @@ bool Filesystem::check_usr_paths()
 	if( !path_usable( plugins_dir() ) ) ret = false;
 	if( !path_usable( scripts_dir() ) ) ret = false;
 	if( !path_usable( songs_dir() ) ) ret = false;
+	if( !file_writable( empty_song_path() ) ) ret = false;
 	if( !path_usable( usr_theme_dir() ) ) ret = false;
 	if( !file_writable( usr_config_path() ) ) ret = false;
 
@@ -433,7 +433,7 @@ QString Filesystem::empty_sample_path()
 }
 QString Filesystem::empty_song_path()
 {
-	return __sys_data_path + EMPTY_SONG;
+	return __usr_data_path + EMPTY_SONG;
 }
 QString Filesystem::untitled_song_file_name()
 {

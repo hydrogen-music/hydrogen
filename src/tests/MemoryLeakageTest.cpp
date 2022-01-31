@@ -278,7 +278,7 @@ void MemoryLeakageTest::testLoading() {
 	
 	{
 		auto pInstrument = H2Core::Instrument::load_instrument( "GMRockKit", "Kick", H2Core::Filesystem::Lookup::system );
-		pInstrument->load_from( "GMRockKit", "Snare", false, H2Core::Filesystem::Lookup::system );
+		pInstrument->load_from( "GMRockKit", "Snare", H2Core::Filesystem::Lookup::system );
 		CPPUNIT_ASSERT( pInstrument != nullptr );
 		pInstrument = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );

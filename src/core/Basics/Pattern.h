@@ -155,7 +155,7 @@ class Pattern : public H2Core::Object<Pattern>
 		 * The function is thread safe (it locks the audio data while deleting notes)
 		 * \param instr the instrument
 		*/
-		void purge_instrument( std::shared_ptr<Instrument> instr );
+	void purge_instrument( std::shared_ptr<Instrument> instr, bool bRequiredLock = true );
 		/**
 		 * mark all notes as old
 		 */

@@ -44,6 +44,7 @@ class Instrument;
 class InstrumentList;
 class Pattern;
 class Song;
+class Drumkit;
 class DrumkitComponent;
 class PatternList;
 class AutomationPath;
@@ -134,13 +135,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 		static std::shared_ptr<Song> 	load( const QString& sFilename );
 		bool 			save( const QString& sFilename );
-
-		/**
-		  Remove all the notes in the song that play on instrument I.
-		  The function is real-time safe (it locks the audio data while deleting notes)
-		*/
-		void purgeInstrument( std::shared_ptr<Instrument> pInstr );
-
 
 		InstrumentList*		getInstrumentList() const;
 		void			setInstrumentList( InstrumentList* pList );
@@ -236,6 +230,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		bool isPatternActive( int nColumn, int nRow ) const;
 
 	std::shared_ptr<Timeline> getTimeline() const;
+
+	void loadDrumkit( Drumkit* pDrumkit, bool bConditional );
+	void removeInstrument( int nInstrumentNumber, bool bConditional );
 	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -249,7 +246,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	
 	friend std::shared_ptr<Song> SongReader::readSong( const QString& filename );
 	
-	private:
+private:
 
 	/** Whether the Timeline button was pressed in the GUI or it was
 		activated via an OSC command. */

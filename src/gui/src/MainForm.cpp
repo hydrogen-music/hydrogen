@@ -586,8 +586,6 @@ void MainForm::action_file_new()
 		return;
 	}
 	
-	pHydrogen->getTimeline()->deleteAllTempoMarkers();
-	pHydrogen->getTimeline()->deleteAllTags();
 	std::shared_ptr<Song> pSong = Song::getEmptySong();
 
 	if ( bUnderSessionManagement ) {
