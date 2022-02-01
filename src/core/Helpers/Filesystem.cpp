@@ -58,13 +58,15 @@
 /** Sound of metronome beat */
 #define CLICK_SAMPLE    "click.wav"
 #define EMPTY_SAMPLE    "emptySample.wav"
-#define EMPTY_SONG      "DefaultSong.h2song"
+#define DEFAULT_SONG    "DefaultSong.h2song"
+#define EMPTY_SONG_BASE "emptySong"
 #define USR_CONFIG		"hydrogen.conf"
 #define SYS_CONFIG		"hydrogen.default.conf"
 #define LOG_FILE		"hydrogen.log"
 #define DRUMKIT_XML     "drumkit.xml"
 #define DRUMKIT_XSD     "drumkit.xsd"
 #define DRUMPAT_XSD     "drumkit_pattern.xsd"
+#define DRUMKIT_DEFAULT_KIT "GMRockKit"
 #define PLAYLIST_XSD     "playlist.xsd"
 
 #define AUTOSAVE        "autosave"
@@ -397,6 +399,7 @@ bool Filesystem::check_usr_paths()
 	if( !path_usable( scripts_dir() ) ) ret = false;
 	if( !path_usable( songs_dir() ) ) ret = false;
 	if( !file_writable( empty_song_path() ) ) ret = false;
+	if( file_exists( empty_song_path() ) ) ret = false;
 	if( !path_usable( usr_theme_dir() ) ) ret = false;
 	if( !file_writable( usr_config_path() ) ) ret = false;
 
@@ -431,9 +434,28 @@ QString Filesystem::empty_sample_path()
 {
 	return __sys_data_path + EMPTY_SAMPLE;
 }
-QString Filesystem::empty_song_path()
-{
-	return __usr_data_path + EMPTY_SONG;
+
+QString Filesystem::default_song_path() {
+	return __usr_data_path + SONGS + DEFAULT_SONG;
+}
+
+QString Filesystem::empty_song_path() {
+	QString sPathBase( __usr_data_path + EMPTY_SONG_BASE );
+	QString sPath( sPathBase + Filesystem::songs_ext );
+
+	int nIterations = 0;
+	while ( file_exists( sPath, true ) ) {
+		sPath = sPathBase + QString::number( nIterations ) + Filesystem::songs_ext;
+		DEBUGLOG( sPath );
+		++nIterations;
+
+		if ( nIterations > 1000 ) {
+			ERRORLOG( "That's a bit much. Something is wrong in here." );
+			return default_song_path();
+		}
+	}
+
+	return sPath;
 }
 QString Filesystem::untitled_song_file_name()
 {
@@ -591,6 +613,9 @@ QStringList Filesystem::drumkit_list( const QString& path )
 		}
 	}
 	return ok;
+}
+QString Filesystem::drumkit_default_kit() {
+	return DRUMKIT_DEFAULT_KIT;
 }
 QStringList Filesystem::sys_drumkit_list( )
 {

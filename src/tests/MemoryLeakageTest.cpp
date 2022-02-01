@@ -381,7 +381,7 @@ void MemoryLeakageTest::testLoading() {
 	}
 
 	{
-		auto pSong = H2Core::Song::getDefaultSong();
+		auto pSong = H2Core::Song::getEmptySong();
 		CPPUNIT_ASSERT( pSong != nullptr );
 		pSong = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );

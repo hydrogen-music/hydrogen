@@ -214,11 +214,9 @@ bool Song::save( const QString& sFilename )
 	return QFile::exists( sFilename );
 }
 
-
-/// Create default song
-std::shared_ptr<Song> Song::getDefaultSong()
+std::shared_ptr<Song> Song::getEmptySong()
 {
-	std::shared_ptr<Song> pSong = std::make_shared<Song>( "empty", "hydrogen", 120, 0.5 );
+	std::shared_ptr<Song> pSong = std::make_shared<Song>( "Untitled", "hydrogen", 120, 0.5 );
 
 	pSong->setMetronomeVolume( 0.5 );
 	pSong->setNotes( "..." );
@@ -234,53 +232,43 @@ std::shared_ptr<Song> Song::getDefaultSong()
 	pInstrList->add( pNewInstr );
 	pSong->setInstrumentList( pInstrList );
 
-#ifdef H2CORE_HAVE_JACK
-	Hydrogen::get_instance()->renameJackPorts( pSong );
-#endif
-
 	PatternList*	pPatternList = new PatternList();
-	Pattern*		pEmptyPattern = new Pattern();
+	PatternList*    patternSequence = new PatternList();
+
+	for ( int nn = 0; nn < 10; ++nn ) {
+		Pattern*		pEmptyPattern = new Pattern();
 	
-	pEmptyPattern->set_name( QString( "Pattern 1" ) );
-	pEmptyPattern->set_category( QString( "not_categorized" ) );
-	pPatternList->add( pEmptyPattern );
+		pEmptyPattern->set_name( QString( "Pattern %1" ).arg( nn + 1 ) );
+		pEmptyPattern->set_category( QString( "not_categorized" ) );
+		pPatternList->add( pEmptyPattern );
+
+		if ( nn == 0 ) {
+			// Only the first pattern will be activated in the
+			// SongEditor.
+			patternSequence->add( pEmptyPattern );
+		}
+	}
 	pSong->setPatternList( pPatternList );
 	
 	std::vector<PatternList*>* pPatternGroupVector = new std::vector<PatternList*>;
-	PatternList*               patternSequence = new PatternList();
-	
-	patternSequence->add( pEmptyPattern );
 	pPatternGroupVector->push_back( patternSequence );
 	pSong->setPatternGroupVector( pPatternGroupVector );
-	pSong->setFilename( "empty_song" );
+
+	pSong->setFilename( Filesystem::empty_song_path() );
+
+	auto pDrumkit = H2Core::Drumkit::load_by_name( Filesystem::drumkit_default_kit(), true );
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( QString( "Unabled to load default Drumkit [%1]" )
+				  .arg( Filesystem::drumkit_default_kit() ) );
+	} else {
+		pSong->loadDrumkit( pDrumkit, true );
+		delete pDrumkit;
+	}
+	
 	pSong->setIsModified( false );
 
 	return pSong;
 
-}
-
-/// Return an empty song
-std::shared_ptr<Song> Song::getEmptySong()
-{
-	// We start using the default name but ensure it's unique by
-	// adding a suffix when necessary. Since this padding is done in a
-	// reproducible way, the user is able to recover unsaved changes
-	// of the empty song. When opening an empty one and modifying it
-	// without saving produces an autosave file is generated
-	// corresponding to it's name. If Hydrogen e.g. segfaults and the
-	// empty/default song wasn't saved once 
-	
-	std::shared_ptr<Song> pSong = Song::load( Filesystem::empty_song_path() );
-
-	/* 
-	 * If file DefaultSong.h2song is not accessible,
-	 * create a simple default song.
-	 */
-	if( !pSong ) {
-		pSong = Song::getDefaultSong();
-	}
-
-	return pSong;
 }
 
 DrumkitComponent* Song::getComponent( int nID ) const

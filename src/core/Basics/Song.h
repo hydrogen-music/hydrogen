@@ -89,7 +89,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		~Song();
 
 		static std::shared_ptr<Song> getEmptySong();
-		static std::shared_ptr<Song> getDefaultSong();
 
 	bool getIsTimelineActivated() const;
 	void setIsTimelineActivated( bool bIsTimelineActivated );

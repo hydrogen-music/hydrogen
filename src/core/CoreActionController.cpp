@@ -442,10 +442,6 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 		return false;
 	}
 
-	// Remove all BPM tags on the Timeline.
-	pHydrogen->getTimeline()->deleteAllTempoMarkers();
-	pHydrogen->getTimeline()->deleteAllTags();
-
 	if ( pHydrogen->isUnderSessionManagement() ) {
 		pHydrogen->restartDrivers();
 	}		
