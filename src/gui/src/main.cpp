@@ -571,9 +571,18 @@ int main(int argc, char *argv[])
 			sl->shoot();
 		}
 
-		// All GUI setup is complete, any spurious widget-driven flagging of song modified state will be
-		// complete, so clear the modification flag.
-		pHydrogen->setIsModified( false );
+		// TODO: remove this as well as the spurious flagging using
+		// more clean event signal processing.
+		//
+		// All GUI setup is complete, any spurious widget-driven
+		// flagging of song modified state will be complete, so clear
+		// the modification flag. This does not apply in case we are
+		// restoring unsaved changes applied to an empty song during
+		// the previous session.
+		if ( pHydrogen->getSong()->getFilename() !=
+			 H2Core::Filesystem::empty_song_path() ) {
+			pHydrogen->setIsModified( false );
+		}
 
 		pQApp->exec();
 

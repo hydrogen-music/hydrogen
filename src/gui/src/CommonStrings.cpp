@@ -337,6 +337,17 @@ CommonStrings::CommonStrings(){
 	m_sTimelineEnabled = tr( "Enable the Timeline for custom tempo changes" );
 	m_sTimelineDisabledPatternMode = tr( "The Timeline is only available in Song Mode" );
 	m_sTimelineDisabledTimebaseSlave = tr( "In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen" );
+
+	// Not used yet.
+	/*: Displayed in the Open dialog window if the selected song could
+	  not be loaded.*/
+	// m_sDialogSongLoadError = tr( "Error loading song." );
+	/*: Heading displayed in the info box asking the user to recover
+	  unsaved changes from an earlier session.*/
+	// m_sDialogUnsavedChangedH1 = tr( "There are unsaved changes." );
+	/*: Additional text displayed in the info box asking the user to
+	  recover unsaved changes from an earlier session.*/
+	// m_sDialogUnsavedChangedH2 = tr( "Do you want to recover them?" );
 }
 
 CommonStrings::~CommonStrings(){

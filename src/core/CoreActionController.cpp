@@ -474,7 +474,7 @@ bool CoreActionController::openSong( const QString& sSongPath, const QString& sR
 
 	std::shared_ptr<Song> pSong;
 	if ( ! sRecoverSongPath.isEmpty() ) {
-		// Use an autosave file to load the song but 
+		// Use an autosave file to load the song
 		pSong = Song::load( sRecoverSongPath );
 		if ( pSong != nullptr ) {
 			pSong->setFilename( sSongPath );
@@ -519,10 +519,12 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 		
 	if ( pHydrogen->isUnderSessionManagement() ) {
 		pHydrogen->restartDrivers();
-	} else {
+	} else if ( pSong->getFilename() != Filesystem::empty_song_path() ) {
 		// Add the new loaded song in the "last used song" vector.
 		// This behavior is prohibited under session management. Only
-		// songs open during normal runs will be listed.
+		// songs open during normal runs will be listed. In addition,
+		// empty songs - created and set when hitting "New Song" in
+		// the main menu - aren't listed either.
 		Preferences::get_instance()->insertRecentFile( pSong->getFilename() );
 	}
 

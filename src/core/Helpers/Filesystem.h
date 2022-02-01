@@ -125,7 +125,7 @@ namespace H2Core
 		static QString empty_song_path();
 		/** Default option to offer the user when saving an empty song
 			to disk.*/
-		static QString default_song_path();
+		static QString default_song_name();
 		/** returns untitled song file name */
 		static QString untitled_song_file_name();
 		/** Returns a string containing the path to the

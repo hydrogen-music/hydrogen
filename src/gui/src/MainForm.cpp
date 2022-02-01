@@ -120,7 +120,11 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 
 		bool bRet;
 		if ( !sSongFilename.isEmpty() ) {
-			bRet = HydrogenApp::openSong( sSongFilename );
+			if ( sSongFilename == H2Core::Filesystem::empty_song_path() ) {
+				bRet = HydrogenApp::recoverEmptySong();
+			} else {
+				bRet = HydrogenApp::openSong( sSongFilename );
+			}
 		}
 
 		if ( sSongFilename.isEmpty() || ! bRet ) {
@@ -606,6 +610,22 @@ void MainForm::action_file_new()
 		}
 	}
 
+	// Since the user explicitly chooses to open an empty song, we do
+	// not attempt to recover the autosave file generated while last
+	// working on an empty song but, instead, remove the corresponding
+	// autosave file in order to start fresh.
+	QFileInfo fileInfo( Filesystem::empty_song_path() );
+	QString sBaseName( fileInfo.completeBaseName() );
+	if ( sBaseName.front() == "." ) {
+		sBaseName.remove( 0, 1 );
+	}
+	QFileInfo autoSaveFile( QString( "%1/.%2.autosave.h2song" )
+							.arg( fileInfo.absoluteDir().absolutePath() )
+							.arg( sBaseName ) );
+	if ( autoSaveFile.exists() ) {
+		Filesystem::rm( autoSaveFile.absoluteFilePath() );
+	}
+	
 	h2app->openSong( pSong );
 	h2app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 	h2app->getSongEditorPanel()->updatePositionRuler();
@@ -652,10 +672,11 @@ void MainForm::action_file_save_as()
 	QString defaultFilename;
 	QString lastFilename = pSong->getFilename();
 
-	if ( lastFilename.isEmpty() ) {
+	if ( lastFilename == Filesystem::empty_song_path() ) {
+		defaultFilename = Filesystem::default_song_name();
+	} else if ( lastFilename.isEmpty() ) {
 		defaultFilename = pHydrogen->getSong()->getName();
-	}
-	else {
+	} else {
 		QFileInfo fileInfo( lastFilename );
 		defaultFilename = fileInfo.completeBaseName();
 	}
@@ -663,33 +684,32 @@ void MainForm::action_file_save_as()
 
 	fd.selectFile( defaultFilename );
 
-	QString filename;
 	if (fd.exec() == QDialog::Accepted) {
-		filename = fd.selectedFiles().first();
-	}
+		QString filename = fd.selectedFiles().first();
 
-	if ( !filename.isEmpty() ) {
-		Preferences::get_instance()->setLastSaveSongAsDirectory( fd.directory().absolutePath( ) );
+		if ( !filename.isEmpty() ) {
+			Preferences::get_instance()->setLastSaveSongAsDirectory( fd.directory().absolutePath( ) );
 
-		QString sNewFilename = filename;
-		if ( sNewFilename.endsWith( Filesystem::songs_ext ) == false ) {
-			filename += Filesystem::songs_ext;
+			QString sNewFilename = filename;
+			if ( sNewFilename.endsWith( Filesystem::songs_ext ) == false ) {
+				filename += Filesystem::songs_ext;
+			}
+
+			pSong->setFilename(filename);
+			action_file_save();
 		}
-
-		pSong->setFilename(filename);
-		action_file_save();
-	}
 	
-	// When Hydrogen is under session management, the file name
-	// provided by the NSM server has to be preserved.
-	if ( pHydrogen->isUnderSessionManagement() ) {
-		pSong->setFilename( lastFilename );
-		h2app->setScrollStatusBarMessage( tr("Song exported as: ") + defaultFilename, 2000 );
-	} else {
-		h2app->setScrollStatusBarMessage( tr("Song saved as: ") + defaultFilename, 2000 );
-	}
+		// When Hydrogen is under session management, the file name
+		// provided by the NSM server has to be preserved.
+		if ( pHydrogen->isUnderSessionManagement() ) {
+			pSong->setFilename( lastFilename );
+			h2app->setScrollStatusBarMessage( tr("Song exported as: ") + defaultFilename, 2000 );
+		} else {
+			h2app->setScrollStatusBarMessage( tr("Song saved as: ") + defaultFilename, 2000 );
+		}
 	
-	h2app->updateWindowTitle();
+		h2app->updateWindowTitle();
+	}
 }
 
 
@@ -699,8 +719,11 @@ void MainForm::action_file_save()
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	QString filename = pSong->getFilename();
 
-	if ( filename.isEmpty() ) {
-		// just in case!
+	if ( filename.isEmpty() ||
+		 filename == Filesystem::empty_song_path() ) {
+		// The empty song is treated differently in order to allow
+		// recovering changes and unsaved sessions. Therefore the
+		// users are ask to store a new song using a different name.
 		return action_file_save_as();
 	}
 
@@ -727,16 +750,6 @@ void MainForm::action_file_save()
 	if(! saved) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save song.") );
 	} else {
-		Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
-
-		// Add the new loaded song in the "last used song"
-		// vector. 
-		// This behavior is prohibited under session management. Only
-		// songs open during normal runs will be listed.
-		if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
-			Preferences::get_instance()->insertRecentFile( filename );
-			updateRecentUsedSongList();
-		}
 
 		h2app->setScrollStatusBarMessage( tr("Song saved.") + QString(" Into: ") + filename, 2000 );
 		EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
