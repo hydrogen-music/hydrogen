@@ -1456,6 +1456,7 @@ void MainForm::onBPMPlusAccelEvent() {
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	pAudioEngine->setNextBpm( pAudioEngine->getBpm() + 0.1 );
 	pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() + 0.1 );
+	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 }
 
 
@@ -1465,30 +1466,8 @@ void MainForm::onBPMMinusAccelEvent() {
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	pAudioEngine->setNextBpm( pAudioEngine->getBpm() - 0.1 );
 	pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() - 0.1 );
+	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 }
-
-
-
-void MainForm::onSaveAsAccelEvent()
-{
-	action_file_save_as();
-}
-
-
-
-void MainForm::onSaveAccelEvent()
-{
-	action_file_save();
-}
-
-
-
-void MainForm::onOpenAccelEvent()
-{
-	action_file_open();
-}
-
-
 
 void MainForm::updateRecentUsedSongList()
 {
@@ -1765,9 +1744,15 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			return true; // eat event
 			break;
 
-		case  Qt::Key_S | Qt::CTRL:
-			onSaveAccelEvent();
-			return true;
+		case Qt::Key_S:
+			if ( k->modifiers() ==
+				 ( Qt::ControlModifier | Qt::ShiftModifier ) ) {
+				action_file_save_as();
+				return true;
+			} else if ( k->modifiers() == Qt::ControlModifier ) {
+				action_file_save();
+				return true;
+			}
 			break;
 
 		case  Qt::Key_F5 :
