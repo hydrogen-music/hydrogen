@@ -56,18 +56,36 @@ EventQueue::~EventQueue()
 
 void EventQueue::push_event( const EventType type, const int nValue )
 {
+	std::lock_guard< std::mutex > lock( m_mutex );
 	unsigned int nIndex = ++__write_index;
 	nIndex = nIndex % MAX_EVENTS;
 	Event ev;
 	ev.type = type;
 	ev.value = nValue;
 //	INFOLOG( QString( "[pushEvent] %1 : %2 %3" ).arg( nIndex ).arg( ev.type ).arg( ev.value ) );
+
+	/* If the event queue is full, log an error. We could drop the old event, or the new event we're trying to
+	   place. It's preferrable to drop the oldest event in the queue, on the basis that many
+	   change-of-state-events are probably no longer relevant or redundant based on newer events in the queue,
+	   so we keep the new event. However, since the new event has overwritten the oldest event in the queue,
+	   we also adjust the read pointer, otherwise pop_event would return this newest event on the next call,
+	   then subsequent calls would get newer entries. */
+
+	if ( __write_index > __read_index + MAX_EVENTS ) {
+		ERRORLOG( QString( "Event queue full, lost event type %1 value %2" )
+				  .arg( __events_buffer[nIndex].type )
+				  .arg( __events_buffer[nIndex].value ));
+		__read_index++;
+	}
+
 	__events_buffer[ nIndex ] = ev;
+
 }
 
 
 Event EventQueue::pop_event()
 {
+	std::lock_guard< std::mutex > lock( m_mutex );
 	if ( __read_index == __write_index ) {
 		Event ev;
 		ev.type = EVENT_NONE;
