@@ -102,7 +102,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	pMidiOutLbl->move( 22, 281 );
 
 	m_pMidiOutChannelLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-										   LCDSpinBox::Type::Int, -1, 16 );
+										   LCDSpinBox::Type::Int, -1, 16,
+										   true, true );
 	m_pMidiOutChannelLCD->move( 98, 257 );
 	m_pMidiOutChannelLCD->setToolTip(QString(tr("Midi out channel")));
 	connect( m_pMidiOutChannelLCD, SIGNAL( valueChanged( double ) ),
@@ -247,7 +248,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 
 	m_pMuteGroupLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-									  LCDSpinBox::Type::Int, -1, 100 );
+									  LCDSpinBox::Type::Int, -1, 100,
+									  true, true );
 	m_pMuteGroupLCD->move( 160, 101 );
 	connect( m_pMuteGroupLCD, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( muteGroupChanged( double ) ) );
@@ -283,7 +285,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	// HiHat setup
 
 	m_pHihatGroupLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-									   LCDSpinBox::Type::Int, -1, 32 );
+									   LCDSpinBox::Type::Int, -1, 32,
+									   true, true );
 	m_pHihatGroupLCD->move( 28, 303 );
 	connect( m_pHihatGroupLCD, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( hihatGroupChanged( double ) ) );

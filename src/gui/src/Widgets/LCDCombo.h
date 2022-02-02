@@ -41,6 +41,8 @@ public:
 	explicit LCDCombo( QWidget *pParent, QSize size = QSize( 0, 0 ), bool bModifyOnChange = true );
 	~LCDCombo();
 
+	void setSize( QSize size );
+
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
@@ -61,6 +63,4 @@ private:
 	virtual void enterEvent( QEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
 };
-
-
 #endif

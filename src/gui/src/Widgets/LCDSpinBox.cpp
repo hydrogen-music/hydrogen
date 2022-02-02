@@ -26,7 +26,7 @@
 #include <core/Preferences/Preferences.h>
 
 // used in PlayerControl
-LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, double fMax, bool bModifyOnChange )
+LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, double fMax, bool bModifyOnChange, bool bMinusOneAsOff )
  : QDoubleSpinBox( pParent )
  , m_size( size )
  , m_type( type )
@@ -34,6 +34,7 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, do
  , m_kind( Kind::Default )
  , m_bIsActive( true )
  , m_bModifyOnChange( bModifyOnChange )
+ , m_bMinusOneAsOff( bMinusOneAsOff )
 {
 	setFocusPolicy( Qt::ClickFocus );
 	setLocale( QLocale( QLocale::C, QLocale::AnyCountry ) );
@@ -189,7 +190,8 @@ double LCDSpinBox::nextValueInPatternSizeDenominator( bool bUp, bool bAccelerate
 
 QString LCDSpinBox::textFromValue( double fValue ) const {
 	QString result;
-	if ( m_type == Type::Int && fValue == -1.0 ) {
+	if ( m_type == Type::Int && m_bMinusOneAsOff &&
+		 fValue == -1.0 ) {
 		result = "off";
 	} else {
 		if ( m_type == Type::Int ) {
@@ -350,6 +352,11 @@ void LCDSpinBox::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 }
 
 void LCDSpinBox::valueChanged( double fNewValue ) {
+
+	if ( m_type == Type::Int ) {
+		emit valueChanged( static_cast<int>(fNewValue) );
+	}
+	
 	if ( m_bModifyOnChange ) {
 		H2Core::Hydrogen::get_instance()->setIsModified( true );
 	}

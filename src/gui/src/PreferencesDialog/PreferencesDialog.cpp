@@ -43,6 +43,7 @@
 #include <core/Sampler/Sampler.h>
 #include "../SongEditor/SongEditor.h"
 #include "../SongEditor/SongEditorPanel.h"
+#include "../Widgets/LCDSpinBox.h"
 
 #include <core/IO/PortAudioDriver.h>
 #include <core/IO/CoreAudioDriver.h>
@@ -53,7 +54,7 @@ using namespace H2Core;
 
 
 DeviceComboBox::DeviceComboBox( QWidget *pParent )
-	: QComboBox( pParent)
+	: LCDCombo( pParent)
 {
 	m_sDriver = "";
 }
@@ -83,12 +84,12 @@ void DeviceComboBox::showPopup()
 #endif
 	}
 	QApplication::restoreOverrideCursor();
-	QComboBox::showPopup();
+	LCDCombo::showPopup();
 }
 
 
 HostAPIComboBox::HostAPIComboBox( QWidget *pParent )
-	: QComboBox( pParent )
+	: LCDCombo( pParent )
 {
 }
 
@@ -111,7 +112,7 @@ void HostAPIComboBox::showPopup()
 	QApplication::restoreOverrideCursor();
 #endif
 
-	QComboBox::showPopup();
+	LCDCombo::showPopup();
 }
 
 
@@ -148,6 +149,76 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	Preferences *pPref = Preferences::get_instance();
 	pPref->loadPreferences( false );	// reload user's preferences
 
+	///////
+	// General tab
+	QSize generalTabWidgetSize( 60, 24 );
+	
+	restoreLastUsedSongCheckbox->setChecked( pPref->isRestoreLastSongEnabled() );
+	restoreLastUsedPlaylistCheckbox->setChecked( pPref->isRestoreLastPlaylistEnabled() );
+	useRelativePlaylistPathsCheckbox->setChecked( pPref->isPlaylistUsingRelativeFilenames() );
+	hideKeyboardCursor->setChecked( pPref->hideKeyboardCursor() );
+	patternFollowsSongCheckbox->setChecked( pPref->patternFollowsSong() );
+
+	// General tab - restore the right m_bsetlash value
+	if ( pPref->m_brestartLash == true ){
+		if (pPref->m_bsetLash == false ){
+			pPref->m_bsetLash = true ;
+			pPref->m_brestartLash = false;
+		}
+
+	}
+	useLashCheckbox->setChecked( pPref->m_bsetLash );
+
+	sBcountOffset->setSize( generalTabWidgetSize );
+	sBcountOffset->setValue( pPref->m_countOffset );
+	sBstartOffset->setSize( generalTabWidgetSize );
+	sBstartOffset->setValue( pPref->m_startOffset );
+
+	sBmaxBars->setSize( generalTabWidgetSize );
+	sBmaxBars->setValue( pPref->getMaxBars() );
+	sBmaxLayers->setSize( generalTabWidgetSize );
+	sBmaxLayers->setValue( pPref->getMaxLayers() );
+	autosaveSpinBox->setSize( generalTabWidgetSize );
+	autosaveSpinBox->setValue( pPref->m_nAutosavesPerHour );
+
+	QString pathtoRubberband = pPref->m_rubberBandCLIexecutable;
+	rubberbandLineEdit->setText( pathtoRubberband );
+
+#ifdef H2CORE_HAVE_RUBBERBAND
+	pathToRubberbandExLable->hide();
+	rubberbandLineEdit->hide();
+#endif
+
+	// General tab - Language selection menu
+	languageComboBox->setSize( QSize( 310, 24 ) );
+	for ( QString sLang : Translations::availableTranslations( "hydrogen" ) ) {
+		QLocale loc( sLang );
+		QString sLabel = loc.nativeLanguageName() + " (" + loc.nativeCountryName() + ')';
+		languageComboBox->addItem( sLabel, QVariant( sLang ) );
+	}
+	// General tab - Find preferred language and select that in menu
+	QStringList languages;
+	QString sPreferredLanguage = pPref->getPreferredLanguage();
+	if ( !sPreferredLanguage.isNull() ) {
+		languages << sPreferredLanguage;
+	}
+	languages << QLocale::system().uiLanguages();
+	QString sLanguage = Translations::findTranslation( languages, "hydrogen" );
+	m_sInitialLanguage = sLanguage;
+	int nLanguage = languageComboBox->findData( QVariant( sLanguage ) );
+	if ( nLanguage != -1 ) {
+		languageComboBox->setCurrentIndex( nLanguage );
+	}
+
+	//////
+	// Audio tab
+
+	// For everything above the restart button
+	QSize audioTabWidgetSizeTop( 240, 24 );
+	// and everything below
+	QSize audioTabWidgetSizeBottom( 184, 24 );
+
+	driverComboBox->setSize( audioTabWidgetSizeTop );
 	driverComboBox->clear();
 	driverComboBox->addItem( "Auto" );
 #ifdef H2CORE_HAVE_JACK
@@ -169,33 +240,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	driverComboBox->addItem( "PulseAudio" );
 #endif
 
-	// Set the PortAudio HostAPI combo box to the current selected value.
-	portaudioHostAPIComboBox->setValue( pPref->m_sPortAudioHostAPI );
-	m_pAudioDeviceTxt->setHostAPI( pPref->m_sPortAudioHostAPI );
-
-	latencyTargetSpinBox->setValue( pPref->m_nLatencyTarget );
-
-
-	// Language selection menu
-	for ( QString sLang : Translations::availableTranslations( "hydrogen" ) ) {
-		QLocale loc( sLang );
-		QString sLabel = loc.nativeLanguageName() + " (" + loc.nativeCountryName() + ')';
-		languageComboBox->addItem( sLabel, QVariant( sLang ) );
-	}
-	// Find preferred language and select that in menu
-	QStringList languages;
-	QString sPreferredLanguage = pPref->getPreferredLanguage();
-	if ( !sPreferredLanguage.isNull() ) {
-		languages << sPreferredLanguage;
-	}
-	languages << QLocale::system().uiLanguages();
-	QString sLanguage = Translations::findTranslation( languages, "hydrogen" );
-	m_sInitialLanguage = sLanguage;
-	int nLanguage = languageComboBox->findData( QVariant( sLanguage ) );
-	if ( nLanguage != -1 ) {
-		languageComboBox->setCurrentIndex( nLanguage );
-	}
-
 	if( driverComboBox->findText(pPref->m_sAudioDriver) > -1){
 		driverComboBox->setCurrentIndex(driverComboBox->findText(pPref->m_sAudioDriver));
 	}
@@ -204,82 +248,32 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		driverInfoLbl->setText( tr("Select your Audio Driver" ));
 		ERRORLOG( "Unknown audio driver from preferences [" + pPref->m_sAudioDriver + "]" );
 	}
+	connect( driverComboBox, SIGNAL(activated(int)), this,
+			 SLOT(driverComboBoxActivated(int)));
 
+	// Audio tab - Set the PortAudio HostAPI combo box to the current
+	// selected value.
+	portaudioHostAPIComboBox->setSize( audioTabWidgetSizeTop );
+	portaudioHostAPIComboBox->setValue( pPref->m_sPortAudioHostAPI );
+	connect( portaudioHostAPIComboBox, SIGNAL(activated(int)), this,
+			 SLOT(portaudioHostAPIComboBoxActivated(int)));
+	
+	m_pAudioDeviceTxt->setSize( audioTabWidgetSizeTop );
+	m_pAudioDeviceTxt->setHostAPI( pPref->m_sPortAudioHostAPI );
+	connect( m_pAudioDeviceTxt, SIGNAL(currentTextChanged(const QString&)),
+			 this, SLOT( audioDeviceTxtChanged(const QString&)));
 
+	latencyTargetSpinBox->setSize( QSize( 55, 23 ) );
+	latencyTargetSpinBox->setValue( pPref->m_nLatencyTarget );
+	connect( latencyTargetSpinBox, SIGNAL(valueChanged(int)), this,
+			 SLOT(latencyTargetSpinBoxValueChanged(int)));
 
-	m_pMidiDriverComboBox->clear();
-#ifdef H2CORE_HAVE_ALSA
-	m_pMidiDriverComboBox->addItem( "ALSA" );
-#endif
-#ifdef H2CORE_HAVE_PORTMIDI
-	m_pMidiDriverComboBox->addItem( "PortMidi" );
-#endif
-#ifdef H2CORE_HAVE_COREMIDI
-	m_pMidiDriverComboBox->addItem( "CoreMIDI" );
-#endif
-#ifdef H2CORE_HAVE_JACK
-	m_pMidiDriverComboBox->addItem( "JACK-MIDI" );
-#endif
-
-
-	if( m_pMidiDriverComboBox->findText(pPref->m_sMidiDriver) > -1){
-		m_pMidiDriverComboBox->setCurrentIndex(m_pMidiDriverComboBox->findText(pPref->m_sMidiDriver));
-	}
-	else
-	{
-		driverInfoLbl->setText( tr("Select your MIDI Driver" ) );
-		ERRORLOG( "Unknown MIDI input from preferences [" + pPref->m_sMidiDriver + "]" );
-	}
-
-	m_pIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
-	m_pEnableMidiFeedbackCheckBox->setChecked( pPref->m_bEnableMidiFeedback );
-	m_pDiscardMidiMsgCheckbox->setChecked( pPref->m_bMidiDiscardNoteAfterAction );
-	m_pFixedMapping->setChecked( pPref->m_bMidiFixedMapping );
-
-	updateDriverInfo();
-
-
-	// metronome volume
-	uint metronomeVol = (uint)( pPref->m_fMetronomeVolume * 100.0 );
-	metronomeVolumeSpinBox->setValue(metronomeVol);
-
-	// max voices
-	maxVoicesTxt->setValue( pPref->m_nMaxNotes );
-
-	// JACK
-	trackOutsCheckBox->setChecked( pPref->m_bJackTrackOuts );
-	connect(trackOutsCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleTrackOutsCheckBox( bool )));
-
-	connectDefaultsCheckBox->setChecked( pPref->m_bJackConnectDefaults );
-	enableTimebaseCheckBox->setChecked( pPref->m_bJackTimebaseEnabled );
-
-	switch ( pPref->m_JackTrackOutputMode ) {
-	case Preferences::JackTrackOutputMode::postFader:
- 		trackOutputComboBox->setCurrentIndex( 0 );
-		break;
-	case Preferences::JackTrackOutputMode::preFader:
-		trackOutputComboBox->setCurrentIndex( 1 );
-		break;
-	default:
-		ERRORLOG( QString( "Unknown JACK track output mode [%1]" )
-				  .arg( static_cast<int>( pPref->m_JackTrackOutputMode ) ) );
-	}
-
-	switch ( pPref->m_JackBBTSync ) {
-	case Preferences::JackBBTSyncMethod::constMeasure:
-		jackBBTSyncComboBox->setCurrentIndex( 0 );
-		break;
-	case Preferences::JackBBTSyncMethod::identicalBars:
-		jackBBTSyncComboBox->setCurrentIndex( 1 );
-		break;
-	default:
-		ERRORLOG( QString( "Unknown JACK BBT synchronization method [%1]" )
-				  .arg( static_cast<int>(pPref->m_JackBBTSync) ) );
-	}
-	//~ JACK
-
-
+	bufferSizeSpinBox->setSize( audioTabWidgetSizeTop );
 	bufferSizeSpinBox->setValue( pPref->m_nBufferSize );
+	connect( bufferSizeSpinBox, SIGNAL(valueChanged(int)), this,
+			 SLOT(bufferSizeSpinBoxValueChanged(int)));
+
+	sampleRateComboBox->setSize( audioTabWidgetSizeTop );
 	switch ( pPref->m_nSampleRate ) {
 	case 44100:
 		sampleRateComboBox->setCurrentIndex( 0 );
@@ -296,19 +290,188 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	default:
 		ERRORLOG( QString("Wrong samplerate: %1").arg( pPref->m_nSampleRate ) );
 	}
+	connect( sampleRateComboBox, SIGNAL(editTextChanged(const QString&)), this,
+			 SLOT(sampleRateComboBoxEditTextChanged(const QString&)));
 
+	// Audio tab - JACK
+	trackOutsCheckBox->setChecked( pPref->m_bJackTrackOuts );
+	connect(trackOutsCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleTrackOutsCheckBox( bool )));
+
+	connectDefaultsCheckBox->setChecked( pPref->m_bJackConnectDefaults );
+	enableTimebaseCheckBox->setChecked( pPref->m_bJackTimebaseEnabled );
+
+	trackOutputComboBox->setSize( audioTabWidgetSizeTop );
+	switch ( pPref->m_JackTrackOutputMode ) {
+	case Preferences::JackTrackOutputMode::postFader:
+ 		trackOutputComboBox->setCurrentIndex( 0 );
+		break;
+	case Preferences::JackTrackOutputMode::preFader:
+		trackOutputComboBox->setCurrentIndex( 1 );
+		break;
+	default:
+		ERRORLOG( QString( "Unknown JACK track output mode [%1]" )
+				  .arg( static_cast<int>( pPref->m_JackTrackOutputMode ) ) );
+	}
+
+	jackBBTSyncComboBox->setSize( audioTabWidgetSizeTop );
+	switch ( pPref->m_JackBBTSync ) {
+	case Preferences::JackBBTSyncMethod::constMeasure:
+		jackBBTSyncComboBox->setCurrentIndex( 0 );
+		break;
+	case Preferences::JackBBTSyncMethod::identicalBars:
+		jackBBTSyncComboBox->setCurrentIndex( 1 );
+		break;
+	default:
+		ERRORLOG( QString( "Unknown JACK BBT synchronization method [%1]" )
+				  .arg( static_cast<int>(pPref->m_JackBBTSync) ) );
+	}
+	// Audio tab - ~JACK
+
+	// Audio tab - metronome volume
+	metronomeVolumeSpinBox->setSize( audioTabWidgetSizeBottom );
+	uint metronomeVol = (uint)( pPref->m_fMetronomeVolume * 100.0 );
+	metronomeVolumeSpinBox->setValue(metronomeVol);
+
+	// Audio tab - max voices
+	maxVoicesTxt->setSize( audioTabWidgetSizeBottom );
+	maxVoicesTxt->setValue( pPref->m_nMaxNotes );
+
+	resampleComboBox->setSize( audioTabWidgetSizeBottom );
 	resampleComboBox->setCurrentIndex( (int) Hydrogen::get_instance()->getAudioEngine()->getSampler()->getInterpolateMode() );
+	connect( resampleComboBox, SIGNAL(currentIndexChanged(int)), this,
+			 SLOT(resampleComboBoxCurrentIndexChanged(int)));
 
-	QFontDatabase fontDB;
-	m_fontFamilies = fontDB.families();
+	updateDriverInfo();
+
+	/////
+	// MIDI tab
+	QSize midiTabWidgetSize = QSize( 309, 24 );
+	m_pMidiDriverComboBox->setSize( midiTabWidgetSize );
+	m_pMidiDriverComboBox->clear();
+#ifdef H2CORE_HAVE_ALSA
+	m_pMidiDriverComboBox->addItem( "ALSA" );
+#endif
+#ifdef H2CORE_HAVE_PORTMIDI
+	m_pMidiDriverComboBox->addItem( "PortMidi" );
+#endif
+#ifdef H2CORE_HAVE_COREMIDI
+	m_pMidiDriverComboBox->addItem( "CoreMIDI" );
+#endif
+#ifdef H2CORE_HAVE_JACK
+	m_pMidiDriverComboBox->addItem( "JACK-MIDI" );
+#endif
+
+	if ( m_pMidiDriverComboBox->findText(pPref->m_sMidiDriver) > -1 ) {
+		m_pMidiDriverComboBox->setCurrentIndex(m_pMidiDriverComboBox->findText(pPref->m_sMidiDriver));
+	} else {
+		driverInfoLbl->setText( tr("Select your MIDI Driver" ) );
+		ERRORLOG( "Unknown MIDI input from preferences [" + pPref->m_sMidiDriver + "]" );
+	}
+	connect(m_pMidiDriverComboBox, SIGNAL(currentIndexChanged(int)),
+			this, SLOT( onMidiDriverComboBoxIndexChanged(int) ));
 	
+	midiPortChannelComboBox->setSize( midiTabWidgetSize );
+	midiPortChannelComboBox->setEnabled( false );
+	midiPortComboBox->setSize( midiTabWidgetSize );
+	midiPortComboBox->setEnabled( false );
+	connect( midiPortComboBox, SIGNAL(activated(int)), this,
+			 SLOT(midiPortComboBoxActivated(int)));
+	
+	// MIDI tab - list midi input ports
+	midiPortComboBox->clear();
+	midiPortComboBox->addItem( tr( "None" ) );
+	if ( Hydrogen::get_instance()->getMidiInput() ) {
+		std::vector<QString> midiOutList = Hydrogen::get_instance()->getMidiInput()->getOutputPortList();
+
+		if ( midiOutList.size() != 0 ) {
+			midiPortComboBox->setEnabled( true );
+			midiPortChannelComboBox->setEnabled( true );
+		}
+		for (uint i = 0; i < midiOutList.size(); i++) {
+			QString sPortName = midiOutList[i];
+			midiPortComboBox->addItem( sPortName );
+
+			if ( sPortName == pPref->m_sMidiPortName ) {
+				midiPortComboBox->setCurrentIndex( i + 1 );
+			}
+		}
+	}
+	
+	// MIDI tab - list midi output ports
+	midiOutportComboBox->setSize( midiTabWidgetSize );
+	midiOutportComboBox->clear();
+	midiOutportComboBox->addItem( tr( "None" ) );
+	if ( Hydrogen::get_instance()->getMidiOutput() ) {
+		std::vector<QString> midiOutList = Hydrogen::get_instance()->getMidiOutput()->getInputPortList();
+
+		if ( midiOutList.size() != 0 ) {
+			midiOutportComboBox->setEnabled( true );
+			midiPortChannelComboBox->setEnabled( true );
+		}
+		for (uint i = 0; i < midiOutList.size(); i++) {
+			QString sPortName = midiOutList[i];
+			midiOutportComboBox->addItem( sPortName );
+
+			if ( sPortName == pPref->m_sMidiOutputPortName ) {
+				midiOutportComboBox->setCurrentIndex( i + 1 );
+			}
+		}
+	}
+	connect( midiOutportComboBox, SIGNAL(activated(int)), this,
+			 SLOT(midiOutportComboBoxActivated(int)));
+
+	if ( pPref->m_nMidiChannelFilter == -1 ) {
+		midiPortChannelComboBox->setCurrentIndex( 0 );
+	}
+	else {
+		midiPortChannelComboBox->setCurrentIndex( pPref->m_nMidiChannelFilter + 1 );
+	}
+
+	m_pIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
+	m_pEnableMidiFeedbackCheckBox->setChecked( pPref->m_bEnableMidiFeedback );
+	m_pDiscardMidiMsgCheckbox->setChecked( pPref->m_bMidiDiscardNoteAfterAction );
+	m_pFixedMapping->setChecked( pPref->m_bMidiFixedMapping );
+
+	//////
+	// OSC tab
+	enableOscCheckbox->setChecked( pPref->getOscServerEnabled() );
+	enableOscFeedbackCheckbox->setChecked( pPref->getOscFeedbackEnabled() );
+	connect(enableOscCheckbox, SIGNAL(toggled(bool)), this, SLOT(toggleOscCheckBox( bool )));
+	incomingOscPortSpinBox->setSize( QSize( 66, 24 ) );
+	incomingOscPortSpinBox->setValue( pPref->getOscServerPort() );
+
+	if ( pPref->m_nOscTemporaryPort != -1 ) {
+		oscTemporaryPortLabel->show();
+		oscTemporaryPortLabel->setText( QString( "<b><i><font color=" )
+										.append( m_sColorRed )
+										.append( ">" )
+										.append( tr( "The select port is unavailable. This instance uses the following temporary port instead:" ) )
+										.append( "</font></i></b>" ) );
+		oscTemporaryPort->show();
+		oscTemporaryPort->setEnabled( false );
+		oscTemporaryPort->setText( QString::number( pPref->m_nOscTemporaryPort ) );
+	} else {
+		oscTemporaryPortLabel->hide();
+		oscTemporaryPort->hide();
+	}
+	
+	if ( ! pPref->getOscServerEnabled() ) {
+		enableOscFeedbackCheckbox->hide();
+		incomingOscPortSpinBox->hide();
+		incomingOscPortLabel->hide();
+		oscTemporaryPortLabel->hide();
+		oscTemporaryPort->hide();
+	}
+
+	/////
 	// Appearance tab
-	
+	QSize appearanceTabWidgetSize = QSize( 277, 24 );
 	connect( importThemeButton, SIGNAL(clicked(bool)), SLOT(importTheme()));
 	connect( exportThemeButton, SIGNAL(clicked(bool)), SLOT(exportTheme()));
 	connect( resetThemeButton, SIGNAL(clicked(bool)), this, SLOT(resetTheme()));
 	
 	// Appearance tab - Fonts
+	fontSizeComboBox->setSize( appearanceTabWidgetSize );
 	connect( applicationFontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onApplicationFontChanged );
 	connect( level2FontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onLevel2FontChanged );
 	connect( level3FontComboBox, &QFontComboBox::currentFontChanged, this, &PreferencesDialog::onLevel3FontChanged );
@@ -322,7 +485,19 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 								   .append( ">" )
 								   .append( tr( "For changes of the interface layout to take effect Hydrogen must be restarted." ) )
 								   .append( "</font></i></b>" ) );
+
+	styleComboBox->setSize( appearanceTabWidgetSize );
+	mixerFalloffComboBox->setSize( appearanceTabWidgetSize );
+	uiLayoutComboBox->setSize( appearanceTabWidgetSize );
+	uiScalingPolicyComboBox->setSize( appearanceTabWidgetSize );
+	iconColorComboBox->setSize( appearanceTabWidgetSize );
+	coloringMethodAuxSpinBox->setSize( appearanceTabWidgetSize );
+	
 	connect( uiLayoutComboBox, SIGNAL( currentIndexChanged(int) ), this, SLOT( onUILayoutChanged(int) ) );
+	connect( uiScalingPolicyComboBox, SIGNAL( currentIndexChanged(int) ), this,
+			 SLOT( uiScalingPolicyComboBoxCurrentIndexChanged(int) ) );
+	connect( mixerFalloffComboBox, SIGNAL( currentIndexChanged(int) ), this,
+			 SLOT( mixerFalloffComboBoxCurrentIndexChanged(int) ) );
 	connect( iconColorComboBox, SIGNAL(currentIndexChanged(int)), this,
 			 SLOT( onIconColorChanged(int)) );
 	connect( coloringMethodAuxSpinBox, SIGNAL( valueChanged(int)), this, SLOT( onColorNumberChanged( int ) ) );
@@ -350,6 +525,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		m_colorSelectionButtons[ ii ] = bbutton;
 	}
 	
+	coloringMethodCombo->setSize( appearanceTabWidgetSize );
 	coloringMethodCombo->clear();
 	coloringMethodCombo->addItem(tr("Automatic"));
 	coloringMethodCombo->addItem(tr("Custom"));
@@ -436,123 +612,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	updateColorTree();
 	updateAppearanceTab( m_pCurrentTheme );
-	
-	// midi tab
-	midiPortChannelComboBox->setEnabled( false );
-	midiPortComboBox->setEnabled( false );
-	
-	// list midi input ports
-	midiPortComboBox->clear();
-	midiPortComboBox->addItem( tr( "None" ) );
-	if ( Hydrogen::get_instance()->getMidiInput() ) {
-		std::vector<QString> midiOutList = Hydrogen::get_instance()->getMidiInput()->getOutputPortList();
-
-		if ( midiOutList.size() != 0 ) {
-			midiPortComboBox->setEnabled( true );
-			midiPortChannelComboBox->setEnabled( true );
-		}
-		for (uint i = 0; i < midiOutList.size(); i++) {
-			QString sPortName = midiOutList[i];
-			midiPortComboBox->addItem( sPortName );
-
-			if ( sPortName == pPref->m_sMidiPortName ) {
-				midiPortComboBox->setCurrentIndex( i + 1 );
-			}
-		}
-	}
-	
-	// list midi output ports
-	midiOutportComboBox->clear();
-	midiOutportComboBox->addItem( tr( "None" ) );
-	if ( Hydrogen::get_instance()->getMidiOutput() ) {
-		std::vector<QString> midiOutList = Hydrogen::get_instance()->getMidiOutput()->getInputPortList();
-
-		if ( midiOutList.size() != 0 ) {
-			midiOutportComboBox->setEnabled( true );
-			midiPortChannelComboBox->setEnabled( true );
-		}
-		for (uint i = 0; i < midiOutList.size(); i++) {
-			QString sPortName = midiOutList[i];
-			midiOutportComboBox->addItem( sPortName );
-
-			if ( sPortName == pPref->m_sMidiOutputPortName ) {
-				midiOutportComboBox->setCurrentIndex( i + 1 );
-			}
-		}
-	}
-
-	if ( pPref->m_nMidiChannelFilter == -1 ) {
-		midiPortChannelComboBox->setCurrentIndex( 0 );
-	}
-	else {
-		midiPortChannelComboBox->setCurrentIndex( pPref->m_nMidiChannelFilter + 1 );
-	}
-
-	//OSC tab
-	enableOscCheckbox->setChecked( pPref->getOscServerEnabled() );
-	enableOscFeedbackCheckbox->setChecked( pPref->getOscFeedbackEnabled() );
-	connect(enableOscCheckbox, SIGNAL(toggled(bool)), this, SLOT(toggleOscCheckBox( bool )));
-	incomingOscPortSpinBox->setValue( pPref->getOscServerPort() );
-
-	if ( pPref->m_nOscTemporaryPort != -1 ) {
-		oscTemporaryPortLabel->show();
-		oscTemporaryPortLabel->setText( QString( "<b><i><font color=" )
-										.append( m_sColorRed )
-										.append( ">" )
-										.append( tr( "The select port is unavailable. This instance uses the following temporary port instead:" ) )
-										.append( "</font></i></b>" ) );
-		oscTemporaryPort->show();
-		oscTemporaryPort->setEnabled( false );
-		oscTemporaryPort->setText( QString::number( pPref->m_nOscTemporaryPort ) );
-	} else {
-		oscTemporaryPortLabel->hide();
-		oscTemporaryPort->hide();
-	}
-	
-	if ( ! pPref->getOscServerEnabled() ) {
-		enableOscFeedbackCheckbox->hide();
-		incomingOscPortSpinBox->hide();
-		incomingOscPortLabel->hide();
-		oscTemporaryPortLabel->hide();
-		oscTemporaryPort->hide();
-	}
-
-	// General tab
-	restoreLastUsedSongCheckbox->setChecked( pPref->isRestoreLastSongEnabled() );
-	restoreLastUsedPlaylistCheckbox->setChecked( pPref->isRestoreLastPlaylistEnabled() );
-	useRelativePlaylistPathsCheckbox->setChecked( pPref->isPlaylistUsingRelativeFilenames() );
-	hideKeyboardCursor->setChecked( pPref->hideKeyboardCursor() );
-	patternFollowsSongCheckbox->setChecked( pPref->patternFollowsSong() );
-
-	//restore the right m_bsetlash value
-	if ( pPref->m_brestartLash == true ){
-		if (pPref->m_bsetLash == false ){
-			pPref->m_bsetLash = true ;
-			pPref->m_brestartLash = false;
-		}
-
-	}
-	useLashCheckbox->setChecked( pPref->m_bsetLash );
-
-	sBcountOffset->setValue( pPref->m_countOffset );
-	sBstartOffset->setValue( pPref->m_startOffset );
-
-	sBmaxBars->setValue( pPref->getMaxBars() );
-	sBmaxLayers->setValue( pPref->getMaxLayers() );
-	autosaveSpinBox->setValue( pPref->m_nAutosavesPerHour );
-
-	QString pathtoRubberband = pPref->m_rubberBandCLIexecutable;
-
-
-	rubberbandLineEdit->setText( pathtoRubberband );
-
-#ifdef H2CORE_HAVE_RUBBERBAND
-	pathToRubberbandExLable->hide();
-	rubberbandLineEdit->hide();
-#endif
 
 	m_bNeedDriverRestart = false;
-	connect(m_pMidiDriverComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT( onMidiDriverComboBoxIndexChanged(int) ));
 }
 
 PreferencesDialog::~PreferencesDialog()
@@ -580,7 +641,7 @@ void PreferencesDialog::on_cancelBtn_clicked()
 	reject();
 }
 
-void PreferencesDialog::on_m_pAudioDeviceTxt_currentTextChanged( QString str )
+void PreferencesDialog::audioDeviceTxtChanged( const QString& )
 {
 	m_bNeedDriverRestart = true;
 }
@@ -807,14 +868,14 @@ void PreferencesDialog::on_okBtn_clicked()
 }
 
 
-void PreferencesDialog::on_driverComboBox_activated( int index )
+void PreferencesDialog::driverComboBoxActivated( int index )
 {
 	UNUSED( index );
 	updateDriverInfo();
 	m_bNeedDriverRestart = true;
 }
 
-void PreferencesDialog::on_portaudioHostAPIComboBox_activated( int index )
+void PreferencesDialog::portaudioHostAPIComboBoxActivated( int index )
 {
 	m_pAudioDeviceTxt->setHostAPI( portaudioHostAPIComboBox->currentText() );
 	updateDriverInfo();
@@ -1163,7 +1224,7 @@ void PreferencesDialog::onUILayoutChanged( int nIndex ) {
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
-void PreferencesDialog::on_uiScalingPolicyComboBox_currentIndexChanged( int nIndex ) {
+void PreferencesDialog::uiScalingPolicyComboBoxCurrentIndexChanged( int nIndex ) {
 	if ( static_cast<InterfaceTheme::ScalingPolicy>(nIndex) !=
 		 m_pPreviousTheme->getInterfaceTheme()->m_scalingPolicy ||
 		 m_pCurrentTheme->getInterfaceTheme()->m_layout !=
@@ -1231,7 +1292,7 @@ void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
-void PreferencesDialog::on_mixerFalloffComboBox_currentIndexChanged( int nIndex ) {
+void PreferencesDialog::mixerFalloffComboBoxCurrentIndexChanged( int nIndex ) {
 	Preferences *pPref = Preferences::get_instance();
 	
 	if ( nIndex == 0 ) {
@@ -1249,13 +1310,13 @@ void PreferencesDialog::on_mixerFalloffComboBox_currentIndexChanged( int nIndex 
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
-void PreferencesDialog::on_latencyTargetSpinBox_valueChanged( int i )
+void PreferencesDialog::latencyTargetSpinBoxValueChanged( int i )
 {
 	UNUSED( i );
 	m_bNeedDriverRestart = true;
 }
 
-void PreferencesDialog::on_bufferSizeSpinBox_valueChanged( int i )
+void PreferencesDialog::bufferSizeSpinBoxValueChanged( int i )
 {
 	UNUSED( i );
 	m_bNeedDriverRestart = true;
@@ -1264,7 +1325,7 @@ void PreferencesDialog::on_bufferSizeSpinBox_valueChanged( int i )
 
 
 
-void PreferencesDialog::on_sampleRateComboBox_editTextChanged( const QString&  )
+void PreferencesDialog::sampleRateComboBoxEditTextChanged( const QString&  )
 {
 	m_bNeedDriverRestart = true;
 }
@@ -1281,19 +1342,19 @@ void PreferencesDialog::on_restartDriverBtn_clicked()
 	updateDriverInfo();
 }
 
-void PreferencesDialog::on_midiPortComboBox_activated( int index )
+void PreferencesDialog::midiPortComboBoxActivated( int index )
 {
 	UNUSED( index );
 	m_bNeedDriverRestart = true;
 }
 
-void PreferencesDialog::on_midiOutportComboBox_activated( int index )
+void PreferencesDialog::midiOutportComboBoxActivated( int index )
 {
 	UNUSED( index );
 	m_bNeedDriverRestart = true;
 }
 
-void PreferencesDialog::on_styleComboBox_activated( int index )
+void PreferencesDialog::styleComboBoxActivated( int index )
 {
 	UNUSED( index );
 	QApplication *pQApp = (HydrogenApp::get_instance())->getMainForm()->m_pQApp;
@@ -1320,7 +1381,7 @@ void PreferencesDialog::on_useLashCheckbox_clicked()
 	QMessageBox::information ( this, "Hydrogen", tr ( "Please restart hydrogen to enable/disable LASH support" ) );
 }
 
-void PreferencesDialog::on_resampleComboBox_currentIndexChanged ( int index )
+void PreferencesDialog::resampleComboBoxCurrentIndexChanged ( int index )
 {
 	switch ( index ){
 	case 0:

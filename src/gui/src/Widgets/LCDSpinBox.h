@@ -69,7 +69,7 @@ public:
 		PatternSizeDenominator
 	};
 
-	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int, double fMin = 0.0, double fMax = 1.0, bool bModifyOnChange = true );
+	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int, double fMin = 0.0, double fMax = 1.0, bool bModifyOnChange = true, bool bMinusOneAsOff = false );
 	~LCDSpinBox();
 
 	void setKind( Kind kind );
@@ -88,6 +88,7 @@ private slots:
 
 signals:
 	void slashKeyPressed();
+	void valueChanged( int );
 	
 private:
 	void updateStyleSheet();
@@ -98,6 +99,10 @@ private:
 	
 	bool m_bEntered;
 	bool m_bIsActive;
+
+	/** In some widgets the QString "off" will be displayed instead of
+		-1.*/
+	bool m_bMinusOneAsOff;
 
 	/** Whether Hydrogen::setIsModified() is invoked with `true` as
 		soon as the value of the widget does change.*/

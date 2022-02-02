@@ -27,6 +27,7 @@
 #include <memory>
 
 #include "../Widgets/ColorSelectionButton.h"
+#include "../Widgets/LCDCombo.h"
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -39,7 +40,7 @@
 /// List is calculated lazily when needed.
 ///
 /** \ingroup docGUI docConfiguration*/
-class DeviceComboBox : public QComboBox {
+class DeviceComboBox : public LCDCombo {
 
 	bool m_bHasDevices;
 	QString m_sDriver;
@@ -59,7 +60,7 @@ public:
 /// Combo box showing a list of HostAPIs.
 ///
 /** \ingroup docGUI docConfiguration*/
-class HostAPIComboBox : public QComboBox {
+class HostAPIComboBox : public LCDCombo {
 
 public:
 	HostAPIComboBox( QWidget *pParent );
@@ -100,18 +101,18 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 		void on_okBtn_clicked();
 		void on_cancelBtn_clicked();
 		void on_restartDriverBtn_clicked();
-		void on_driverComboBox_activated( int index );
-		void on_portaudioHostAPIComboBox_activated( int index );
-		void on_latencyTargetSpinBox_valueChanged( int i );
-		void on_bufferSizeSpinBox_valueChanged( int i );
-		void on_resampleComboBox_currentIndexChanged ( int index );
-		void on_sampleRateComboBox_editTextChanged( const QString& text );
-		void on_midiPortComboBox_activated( int index );
-		void on_midiOutportComboBox_activated( int index );		
-		void on_styleComboBox_activated( int index );
+		void driverComboBoxActivated( int index );
+		void portaudioHostAPIComboBoxActivated( int index );
+		void latencyTargetSpinBoxValueChanged( int i );
+		void bufferSizeSpinBoxValueChanged( int i );
+		void resampleComboBoxCurrentIndexChanged ( int index );
+		void sampleRateComboBoxEditTextChanged( const QString& text );
+		void midiPortComboBoxActivated( int index );
+		void midiOutportComboBoxActivated( int index );		
+		void styleComboBoxActivated( int index );
 		void on_useLashCheckbox_clicked();
 		void onMidiDriverComboBoxIndexChanged( int index );
-		void on_m_pAudioDeviceTxt_currentTextChanged( QString );
+		void audioDeviceTxtChanged( const QString& );
 		void toggleTrackOutsCheckBox(bool toggled);
 		void toggleOscCheckBox(bool toggled);
 	void onRejected();
@@ -137,8 +138,8 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 	void importTheme();
 	void resetTheme();
 	void onIconColorChanged(int);
-	void on_mixerFalloffComboBox_currentIndexChanged(int);
-	void on_uiScalingPolicyComboBox_currentIndexChanged(int);
+	void mixerFalloffComboBoxCurrentIndexChanged(int);
+	void uiScalingPolicyComboBoxCurrentIndexChanged(int);
 
 private:
 
@@ -164,8 +165,6 @@ private:
 
 	bool m_bNeedDriverRestart;
 	QString m_sInitialLanguage;
-
-	QStringList m_fontFamilies;
 	std::vector<ColorSelectionButton*> m_colorSelectionButtons;
 
 };

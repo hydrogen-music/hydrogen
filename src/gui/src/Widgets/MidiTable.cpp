@@ -21,6 +21,8 @@
  */
 
 #include "../Skin.h"
+#include "LCDCombo.h"
+#include "LCDSpinBox.h"
 #include "MidiSenseWidget.h"
 #include "MidiTable.h"
 
@@ -33,7 +35,15 @@
 #include <QHeaderView>
 
 MidiTable::MidiTable( QWidget *pParent )
- : QTableWidget( pParent )
+	: QTableWidget( pParent )
+	, m_nRowHeight( 29 )
+	, m_nColumn0Width( 25 )
+	, m_nColumn1Width( 155 )
+	, m_nColumn2Width( 76 )
+	, m_nColumn3Width( 175 )
+	, m_nColumn4Width( 60 )
+	, m_nColumn5Width( 60 )
+	, m_nColumn6Width( 65 )
  {
 	m_nRowCount = 0;
 	setupMidiTable();
@@ -62,8 +72,8 @@ void MidiTable::midiSensePressed( int row ){
 	MidiSenseWidget midiSenseWidget( this );
 	midiSenseWidget.exec();
 
-	QComboBox * eventCombo =  dynamic_cast <QComboBox *> ( cellWidget( row, 1 ) );
-	QSpinBox * eventSpinner = dynamic_cast <QSpinBox *> ( cellWidget( row, 2 ) );
+	LCDCombo * eventCombo =  dynamic_cast <LCDCombo *> ( cellWidget( row, 1 ) );
+	LCDSpinBox * eventSpinner = dynamic_cast <LCDSpinBox *> ( cellWidget( row, 2 ) );
 
 
 	eventCombo->setCurrentIndex( eventCombo->findText( midiSenseWidget.m_sLastMidiEvent ) );
@@ -84,8 +94,8 @@ void MidiTable::paintEvent( QPaintEvent* ev ) {
 void MidiTable::updateTable() {
 	if( m_nRowCount > 0 ) {
 		// Ensure that the last row is empty
-		QComboBox* pEventCombo =  dynamic_cast<QComboBox*>( cellWidget( m_nRowCount - 1, 1 ) );
-		QComboBox* pActionCombo = dynamic_cast<QComboBox*>( cellWidget( m_nRowCount - 1, 3 ) );
+		LCDCombo* pEventCombo =  dynamic_cast<LCDCombo*>( cellWidget( m_nRowCount - 1, 1 ) );
+		LCDCombo* pActionCombo = dynamic_cast<LCDCombo*>( cellWidget( m_nRowCount - 1, 3 ) );
 
 		if ( pEventCombo == nullptr || pActionCombo == nullptr ) {
 			return;
@@ -102,7 +112,7 @@ void MidiTable::updateTable() {
 		for ( int ii = 0; ii < m_nRowCount; ii++ ) {
 			updateRow( ii );
 		}
-		QSpinBox* pActionSpinner2 = dynamic_cast<QSpinBox*>( cellWidget( 1, 5 ) );
+		LCDSpinBox* pActionSpinner2 = dynamic_cast<LCDSpinBox*>( cellWidget( 1, 5 ) );
 	}
 }
 
@@ -131,39 +141,45 @@ void MidiTable::insertNewRow(std::shared_ptr<Action> pAction, QString eventStrin
 
 
 
-	QComboBox *eventBox = new QComboBox();
+	LCDCombo *eventBox = new LCDCombo(this);
+	eventBox->setSize( QSize( m_nColumn1Width, m_nRowHeight ) );
 	eventBox->insertItems( oldRowCount , pActionHandler->getEventList() );
 	eventBox->setCurrentIndex( eventBox->findText(eventString) );
 	connect( eventBox , SIGNAL( currentIndexChanged( int ) ) , this , SLOT( updateTable() ) );
 	setCellWidget( oldRowCount, 1, eventBox );
 	
 	
-	QSpinBox *eventParameterSpinner = new QSpinBox();
+	LCDSpinBox *eventParameterSpinner = new LCDSpinBox(this);
+	eventParameterSpinner->setSize( QSize( m_nColumn2Width, m_nRowHeight ) );
 	setCellWidget( oldRowCount , 2, eventParameterSpinner );
 	eventParameterSpinner->setMaximum( 999 );
 	eventParameterSpinner->setValue( eventParameter );
 
 
-	QComboBox *actionBox = new QComboBox();
+	LCDCombo *actionBox = new LCDCombo(this);
+	actionBox->setSize( QSize( m_nColumn3Width, m_nRowHeight ) );
 	actionBox->insertItems( oldRowCount, pActionHandler->getActionList());
 	actionBox->setCurrentIndex ( actionBox->findText( pAction->getType() ) );
 	connect( actionBox , SIGNAL( currentIndexChanged( int ) ) , this , SLOT( updateTable() ) );
 	setCellWidget( oldRowCount , 3, actionBox );
 
 	bool ok;
-	QSpinBox *actionParameterSpinner1 = new QSpinBox();
+	LCDSpinBox *actionParameterSpinner1 = new LCDSpinBox(this);
+	actionParameterSpinner1->setSize( QSize( m_nColumn4Width, m_nRowHeight ) );
 	setCellWidget( oldRowCount , 4, actionParameterSpinner1 );
 	actionParameterSpinner1->setMaximum( 999 );
 	actionParameterSpinner1->setValue( pAction->getParameter1().toInt(&ok,10) );
 	actionParameterSpinner1->hide();
 
-	QSpinBox *actionParameterSpinner2 = new QSpinBox();
+	LCDSpinBox *actionParameterSpinner2 = new LCDSpinBox(this);
+	actionParameterSpinner2->setSize( QSize( m_nColumn5Width, m_nRowHeight ) );
 	setCellWidget( oldRowCount , 5, actionParameterSpinner2 );
 	actionParameterSpinner2->setMaximum( std::max(MAX_FX, MAX_COMPONENTS) );
 	actionParameterSpinner2->setValue( pAction->getParameter2().toInt(&ok,10) );
 	actionParameterSpinner2->hide();
 
-	QSpinBox *actionParameterSpinner3 = new QSpinBox();
+	LCDSpinBox *actionParameterSpinner3 = new LCDSpinBox(this);
+	actionParameterSpinner3->setSize( QSize( m_nColumn6Width, m_nRowHeight ) );
 	setCellWidget( oldRowCount , 6, actionParameterSpinner3 );
 	actionParameterSpinner3->setMaximum( H2Core::InstrumentComponent::getMaxLayers() );
 	actionParameterSpinner3->setValue( pAction->getParameter3().toInt(&ok,10) );
@@ -186,13 +202,13 @@ void MidiTable::setupMidiTable()
 	setHorizontalHeaderLabels( items );
 	horizontalHeader()->setStretchLastSection(true);
 
-	setColumnWidth( 0 , 25 );
-	setColumnWidth( 1 , 155 );
-	setColumnWidth( 2, 76 );
-	setColumnWidth( 3, 175 );
-	setColumnWidth( 4 , 60 );
-	setColumnWidth( 5 , 60 );
-	setColumnWidth( 6 , 60 );
+	setColumnWidth( 0 , m_nColumn0Width );
+	setColumnWidth( 1 , m_nColumn1Width );
+	setColumnWidth( 2, m_nColumn2Width );
+	setColumnWidth( 3, m_nColumn3Width );
+	setColumnWidth( 4 , m_nColumn4Width );
+	setColumnWidth( 5 , m_nColumn5Width );
+	setColumnWidth( 6 , m_nColumn6Width );
 
 	for( const auto& it : pMidiMap->getMMCMap() ) {
 		insertNewRow( it.second, it.first, 0 );
@@ -237,12 +253,12 @@ void MidiTable::saveMidiTable()
 	
 	for ( int row = 0; row < m_nRowCount; row++ ) {
 
-		QComboBox * eventCombo =  dynamic_cast <QComboBox *> ( cellWidget( row, 1 ) );
-		QSpinBox * eventSpinner = dynamic_cast <QSpinBox *> ( cellWidget( row, 2 ) );
-		QComboBox * actionCombo = dynamic_cast <QComboBox *> ( cellWidget( row, 3 ) );
-		QSpinBox * actionSpinner1 = dynamic_cast <QSpinBox *> ( cellWidget( row, 4 ) );
-		QSpinBox * actionSpinner2 = dynamic_cast <QSpinBox *> ( cellWidget( row, 5 ) );
-		QSpinBox * actionSpinner3 = dynamic_cast <QSpinBox *> ( cellWidget( row, 6 ) );
+		LCDCombo * eventCombo =  dynamic_cast <LCDCombo *> ( cellWidget( row, 1 ) );
+		LCDSpinBox * eventSpinner = dynamic_cast <LCDSpinBox *> ( cellWidget( row, 2 ) );
+		LCDCombo * actionCombo = dynamic_cast <LCDCombo *> ( cellWidget( row, 3 ) );
+		LCDSpinBox * actionSpinner1 = dynamic_cast <LCDSpinBox *> ( cellWidget( row, 4 ) );
+		LCDSpinBox * actionSpinner2 = dynamic_cast <LCDSpinBox *> ( cellWidget( row, 5 ) );
+		LCDSpinBox * actionSpinner3 = dynamic_cast <LCDSpinBox *> ( cellWidget( row, 6 ) );
 
 		QString eventString;
 		QString actionString;
@@ -278,8 +294,8 @@ void MidiTable::saveMidiTable()
 }
 
 void MidiTable::updateRow( int nRow ) {
-	QComboBox* pEventCombo =  dynamic_cast <QComboBox*>( cellWidget( nRow, 1 ) );
-	QComboBox* pActionCombo = dynamic_cast <QComboBox*>( cellWidget( nRow, 3 ) );
+	LCDCombo* pEventCombo =  dynamic_cast <LCDCombo*>( cellWidget( nRow, 1 ) );
+	LCDCombo* pActionCombo = dynamic_cast <LCDCombo*>( cellWidget( nRow, 3 ) );
 
 	if ( pEventCombo == nullptr || pActionCombo == nullptr ) {
 		return;
@@ -294,9 +310,9 @@ void MidiTable::updateRow( int nRow ) {
 	}
 
 	QString sActionType = pActionCombo->currentText();
-	QSpinBox* pActionSpinner1 = dynamic_cast<QSpinBox*>( cellWidget( nRow, 4 ) );
-	QSpinBox* pActionSpinner2 = dynamic_cast<QSpinBox*>( cellWidget( nRow, 5 ) );
-	QSpinBox* pActionSpinner3 = dynamic_cast<QSpinBox*>( cellWidget( nRow, 6 ) );
+	LCDSpinBox* pActionSpinner1 = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 4 ) );
+	LCDSpinBox* pActionSpinner2 = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 5 ) );
+	LCDSpinBox* pActionSpinner3 = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 6 ) );
 	if ( sActionType == "NOTHING" || sActionType.isEmpty() ) {
 		pActionSpinner1->hide();
 		pActionSpinner2->hide();

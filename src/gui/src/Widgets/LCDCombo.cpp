@@ -115,3 +115,10 @@ void LCDCombo::onCurrentIndexChanged( int ) {
 		H2Core::Hydrogen::get_instance()->setIsModified( true );
 	}
 }
+
+void LCDCombo::setSize( QSize size ) {
+	m_size = size;
+	
+	setFixedSize( size );
+	adjustSize();
+}
