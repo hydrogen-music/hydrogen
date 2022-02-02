@@ -42,6 +42,8 @@ public:
 	~LCDCombo();
 
 	void setSize( QSize size );
+	virtual void showPopup() override;
+	void addItem(const QString &text, const QVariant &userData = QVariant());
 
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
@@ -58,6 +60,11 @@ private:
 	/** Whether Hydrogen::setIsModified() is invoked with `true` as
 		soon as the value of the widget does change.*/
 	bool m_bModifyOnChange;
+
+	/** Keep track of the text width of the items added. It is used to
+		determine the size of the popup in order to ensure all content
+		fits inside.*/
+	int m_nMaxWidth;
 		
 	virtual void paintEvent( QPaintEvent *ev ) override;
 	virtual void enterEvent( QEvent *ev ) override;

@@ -32,6 +32,7 @@ LCDCombo::LCDCombo( QWidget *pParent, QSize size, bool bModifyOnChange )
 	, m_size( size )
 	, m_bEntered( false )
 	, m_bModifyOnChange( bModifyOnChange )
+	, m_nMaxWidth( 0 )
 {
 	setFocusPolicy( Qt::ClickFocus );
 
@@ -48,6 +49,27 @@ LCDCombo::LCDCombo( QWidget *pParent, QSize size, bool bModifyOnChange )
 }
 
 LCDCombo::~LCDCombo() {
+}
+
+void LCDCombo::addItem( const QString& sText, const QVariant& userData ) {
+	int nWidth =
+		fontMetrics().size( Qt::TextSingleLine, sText ).width() *
+		1.1 + // custom factor to ensure the text does fit
+		view()->autoScrollMargin(); // width of the scrollbar
+
+	if ( nWidth > m_nMaxWidth ) {
+		m_nMaxWidth = nWidth;
+	}
+
+	QComboBox::addItem( sText, userData );
+}
+
+void LCDCombo::showPopup() {
+	if ( m_nMaxWidth > view()->sizeHint().width() ) {
+		view()->setMinimumWidth( m_nMaxWidth );
+	}
+	
+	QComboBox::showPopup();
 }
 
 void LCDCombo::updateStyleSheet() {

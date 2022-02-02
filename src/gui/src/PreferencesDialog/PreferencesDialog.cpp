@@ -106,9 +106,7 @@ void HostAPIComboBox::showPopup()
 	clear();
 #ifdef H2CORE_HAVE_PORTAUDIO
 	QApplication::setOverrideCursor( Qt::WaitCursor );
-	for ( QString s : PortAudioDriver::getHostAPIs() ) {
-		addItem( s );
-	}
+	addItems( PortAudioDriver::getHostAPIs() );
 	QApplication::restoreOverrideCursor();
 #endif
 
