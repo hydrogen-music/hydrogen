@@ -78,13 +78,16 @@ void LCDCombo::updateStyleSheet() {
 	
 	setStyleSheet( QString( "\
 QComboBox { \
-    background-color: %1; \
-    font-family: %2; \
-    font-size: %3; \
+    color: %1; \
+    background-color: %2; \
+    font-family: %3; \
+    font-size: %4; \
 } \
 QComboBox QAbstractItemView { \
+    color: %1; \
     background-color: #babfcf; \
 }")
+				   .arg( pPref->getColorTheme()->m_widgetTextColor.name() )
 				   .arg( pPref->getColorTheme()->m_widgetColor.name() )
 				   .arg( pPref->getLevel3FontFamily() )
 				   .arg( getPointSize( pPref->getFontSize() ) ) );
