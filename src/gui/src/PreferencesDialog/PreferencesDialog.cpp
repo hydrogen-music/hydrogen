@@ -925,15 +925,15 @@ void PreferencesDialog::updateDriverInfo()
 				.append( H2Core::Hydrogen::get_instance()->getAudioOutput()->class_name() )
 				.append( "</b> " ).append( tr( "selected") );
 		}
-		m_pAudioDeviceTxt->setEnabled( true );
+		m_pAudioDeviceTxt->setIsActive( true );
 		m_pAudioDeviceTxt->lineEdit()->setText( "" );
-		bufferSizeSpinBox->setEnabled( false );
-		sampleRateComboBox->setEnabled( true );
-		trackOutputComboBox->setEnabled( false );
+		bufferSizeSpinBox->setIsActive( false );
+		sampleRateComboBox->setIsActive( true );
+		trackOutputComboBox->setIsActive( false );
 		connectDefaultsCheckBox->setEnabled( false );
 		enableTimebaseCheckBox->setEnabled( false );
 		trackOutsCheckBox->setEnabled( false );
-		jackBBTSyncComboBox->setEnabled( false );
+		jackBBTSyncComboBox->setIsActive( false );
 		jackBBTSyncLbl->setEnabled( false );
 		portaudioHostAPIComboBox->hide();
 		portaudioHostAPILabel->hide();
@@ -942,11 +942,11 @@ void PreferencesDialog::updateDriverInfo()
 		latencyValueLabel->hide();
 		if ( std::strcmp( H2Core::Hydrogen::get_instance()->getAudioOutput()->class_name(),
 						  "JackAudioDriver" ) == 0 ) {
-			trackOutputComboBox->setEnabled( true );
+			trackOutputComboBox->setIsActive( true );
 			connectDefaultsCheckBox->setEnabled( true );
 			enableTimebaseCheckBox->setEnabled( true );
 			trackOutsCheckBox->setEnabled( true );
-			jackBBTSyncComboBox->setEnabled( true );
+			jackBBTSyncComboBox->setIsActive( true );
 			jackBBTSyncLbl->setEnabled( true );
 			trackOutputComboBox->show();
 			trackOutputLbl->show();
@@ -956,11 +956,11 @@ void PreferencesDialog::updateDriverInfo()
 			jackBBTSyncComboBox->show();
 			jackBBTSyncLbl->show();
 		} else {
-			trackOutputComboBox->setEnabled( false );
+			trackOutputComboBox->setIsActive( false );
 			connectDefaultsCheckBox->setEnabled( false );
 			enableTimebaseCheckBox->setEnabled( false );
 			trackOutsCheckBox->setEnabled( false );
-			jackBBTSyncComboBox->setEnabled( false );
+			jackBBTSyncComboBox->setIsActive( false );
 			jackBBTSyncLbl->setEnabled( false );
 			trackOutputComboBox->hide();
 			trackOutputLbl->hide();
@@ -980,10 +980,10 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setEnabled(true);
+		m_pAudioDeviceTxt->setIsActive(true);
 		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sOSSDevice );
-		bufferSizeSpinBox->setEnabled(true);
-		sampleRateComboBox->setEnabled(true);
+		bufferSizeSpinBox->setIsActive(true);
+		sampleRateComboBox->setIsActive(true);
 		trackOutputComboBox->hide();
 		trackOutputLbl->hide();
 		connectDefaultsCheckBox->hide();
@@ -1008,14 +1008,16 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setEnabled(false);
+		m_pAudioDeviceTxt->setIsActive(false);
 		m_pAudioDeviceTxt->lineEdit()->setText( "" );
-		bufferSizeSpinBox->setEnabled(false);
-		sampleRateComboBox->setEnabled(false);
-		trackOutputComboBox->setEnabled( true );
+		bufferSizeSpinBox->setIsActive(false);
+		sampleRateComboBox->setIsActive(false);
+		trackOutputComboBox->setIsActive( true );
 		connectDefaultsCheckBox->setEnabled( true );
 		enableTimebaseCheckBox->setEnabled( true );
 		trackOutsCheckBox->setEnabled( true );
+		jackBBTSyncComboBox->setIsActive( true );
+		jackBBTSyncLbl->setEnabled( true );
 		trackOutputComboBox->show();
 		trackOutputLbl->show();
 		connectDefaultsCheckBox->show();
@@ -1038,10 +1040,10 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setEnabled(true);
+		m_pAudioDeviceTxt->setIsActive(true);
 		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sAlsaAudioDevice );
-		bufferSizeSpinBox->setEnabled(true);
-		sampleRateComboBox->setEnabled(true);
+		bufferSizeSpinBox->setIsActive(true);
+		sampleRateComboBox->setIsActive(true);
 		trackOutputComboBox->hide();
 		trackOutputLbl->hide();
 		connectDefaultsCheckBox->hide();
@@ -1064,10 +1066,10 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setEnabled( true );
+		m_pAudioDeviceTxt->setIsActive( true );
 		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sPortAudioDevice );
-		bufferSizeSpinBox->setEnabled(false);
-		sampleRateComboBox->setEnabled(true);
+		bufferSizeSpinBox->setIsActive(false);
+		sampleRateComboBox->setIsActive(true);
 		trackOutputComboBox->hide();
 		trackOutputLbl->hide();
 		connectDefaultsCheckBox->hide();
@@ -1092,10 +1094,10 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setEnabled( true );
+		m_pAudioDeviceTxt->setIsActive( true );
 		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sCoreAudioDevice );
-		bufferSizeSpinBox->setEnabled( false );
-		sampleRateComboBox->setEnabled(true);
+		bufferSizeSpinBox->setIsActive( false );
+		sampleRateComboBox->setIsActive(true);
 		trackOutputComboBox->hide();
 		trackOutputLbl->hide();
 		connectDefaultsCheckBox->hide();
@@ -1118,10 +1120,10 @@ void PreferencesDialog::updateDriverInfo()
 				.append( tr( "Not compiled" ) )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setEnabled(false);
+		m_pAudioDeviceTxt->setIsActive(false);
 		m_pAudioDeviceTxt->lineEdit()->setText("");
-		bufferSizeSpinBox->setEnabled(true);
-		sampleRateComboBox->setEnabled(true);
+		bufferSizeSpinBox->setIsActive(true);
+		sampleRateComboBox->setIsActive(true);
 		trackOutputComboBox->hide();
 		trackOutputLbl->hide();
 		connectDefaultsCheckBox->hide();
