@@ -297,6 +297,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 									   static_cast<double>( MAX_BPM ) );
 	m_pLCDBPMSpinbox->move( 36, 1 );
 	m_pLCDBPMSpinbox->setStyleSheet( "font-size: 16px;" );
+	m_pLCDBPMSpinbox->updateStyleSheet();
 	connect( m_pLCDBPMSpinbox, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( bpmChanged( double ) ) );
 	// initialize BPM widget

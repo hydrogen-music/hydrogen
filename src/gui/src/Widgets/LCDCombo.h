@@ -44,6 +44,9 @@ public:
 	void setSize( QSize size );
 	virtual void showPopup() override;
 	void addItem(const QString &text, const QVariant &userData = QVariant());
+	
+	bool getIsActive() const;
+	void setIsActive( bool bIsActive );
 
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
@@ -56,6 +59,7 @@ private:
 	QSize m_size;
 
 	bool m_bEntered;
+	bool m_bIsActive;
 
 	/** Whether Hydrogen::setIsModified() is invoked with `true` as
 		soon as the value of the widget does change.*/
@@ -70,4 +74,7 @@ private:
 	virtual void enterEvent( QEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
 };
+inline bool LCDCombo::getIsActive() const {
+	return m_bIsActive;
+}
 #endif

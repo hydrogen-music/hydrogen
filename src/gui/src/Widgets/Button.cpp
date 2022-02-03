@@ -98,10 +98,9 @@ Button::~Button() {
 void Button::setIsActive( bool bIsActive ) {
 	m_bIsActive = bIsActive;
 	
-	updateStyleSheet();
-	update();
-	
 	setEnabled( bIsActive );
+
+	update();
 }
 
 
@@ -148,14 +147,24 @@ void Button::updateStyleSheet() {
 		textChecked = pPref->getColorTheme()->m_buttonRedTextColor;
 	}
 
-	QColor textColor;
-	if ( m_bIsActive ) {
-		textColor = pPref->getColorTheme()->m_widgetTextColor;
-	} else {
-		textColor = pPref->getColorTheme()->m_baseColor;
-	}
+	QColor textColor = pPref->getColorTheme()->m_widgetTextColor;
 	
-	setStyleSheet( QString( "QPushButton { \
+	QColor backgroundInactiveLight =
+		Skin::makeWidgetColorInactive( backgroundLight );
+	QColor backgroundInactiveLightHover = backgroundInactiveLight;
+	QColor backgroundInactiveCheckedLight =
+		Skin::makeWidgetColorInactive( backgroundCheckedLight );
+	QColor backgroundInactiveCheckedLightHover = backgroundInactiveCheckedLight;
+	QColor backgroundInactiveDark =
+		Skin::makeWidgetColorInactive( backgroundDark );
+	QColor backgroundInactiveDarkHover = backgroundInactiveDark;
+	QColor backgroundInactiveCheckedDark =
+		Skin::makeWidgetColorInactive( backgroundCheckedDark );
+	QColor backgroundInactiveCheckedDarkHover = backgroundInactiveCheckedDark;
+	QColor textInactiveColor = Skin::makeTextColorInactive( textColor );
+	
+	setStyleSheet( QString( "\
+QPushButton:enabled { \
     color: %1; \
     border: 1px solid %12; \
     border-radius: %2px; \
@@ -163,11 +172,11 @@ void Button::updateStyleSheet() {
     background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
                                       stop: 0 %3, stop: 1 %4); \
 } \
-QPushButton:hover { \
+QPushButton:enabled:hover { \
     background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
                                       stop: 0 %5, stop: 1 %6); \
 } \
-QPushButton:checked { \
+QPushButton:enabled:checked { \
     color: %7; \
     border: 1px solid %12; \
     border-radius: %2px; \
@@ -175,19 +184,57 @@ QPushButton:checked { \
     background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
                                       stop: 0 %8, stop: 1 %9); \
 } \
-QPushButton:checked:hover { \
+QPushButton:enabled:checked:hover { \
     background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
                                       stop: 0 %10, stop: 1 %11); \
+} \
+QPushButton:disabled { \
+    color: %13; \
+    border: 1px solid %12; \
+    border-radius: %2px; \
+    padding: 0px; \
+    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
+                                      stop: 0 %14, stop: 1 %15); \
+} \
+QPushButton:disabled:hover { \
+    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
+                                      stop: 0 %16, stop: 1 %17); \
+} \
+QPushButton:disabled:checked { \
+    color: %18; \
+    border: 1px solid %12; \
+    border-radius: %2px; \
+    padding: 0px; \
+    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
+                                      stop: 0 %19, stop: 1 %20); \
+} \
+QPushButton:disabled:checked:hover { \
+    background-color: qlineargradient(x1: 0.1, y1: 0.1, x2: 1, y2: 1, \
+                                      stop: 0 %21, stop: 1 %22); \
 }"
 							)
 				   .arg( textColor.name() )
 				   .arg( m_sBorderRadius )
-				   .arg( backgroundLight.name() ).arg( backgroundDark.name() )
-				   .arg( backgroundLightHover.name() ).arg( backgroundDarkHover.name() )
+				   .arg( backgroundLight.name() )
+				   .arg( backgroundDark.name() )
+				   .arg( backgroundLightHover.name() )
+				   .arg( backgroundDarkHover.name() )
 				   .arg( textChecked.name() )
-				   .arg( backgroundCheckedLight.name() ).arg( backgroundCheckedDark.name() )
-				   .arg( backgroundCheckedLightHover.name() ).arg( backgroundCheckedDarkHover.name() )
-				   .arg( border.name() ) );
+				   .arg( backgroundCheckedLight.name() )
+				   .arg( backgroundCheckedDark.name() )
+				   .arg( backgroundCheckedLightHover.name() )
+				   .arg( backgroundCheckedDarkHover.name() )
+				   .arg( border.name() )
+				   .arg( textInactiveColor.name() )
+				   .arg( backgroundInactiveLight.name() )
+				   .arg( backgroundInactiveDark.name() )
+				   .arg( backgroundInactiveLightHover.name() )
+				   .arg( backgroundInactiveDarkHover.name() )
+				   .arg( textChecked.name() )
+				   .arg( backgroundInactiveCheckedLight.name() )
+				   .arg( backgroundInactiveCheckedDark.name() )
+				   .arg( backgroundInactiveCheckedLightHover.name() )
+				   .arg( backgroundInactiveCheckedDarkHover.name() ) );
 }
 
 void Button::setBaseToolTip( const QString& sNewTip ) {
@@ -201,7 +248,7 @@ void Button::setAction( std::shared_ptr<Action> pAction ) {
 }
 
 void Button::mousePressEvent(QMouseEvent*ev) {
-	
+
 	/*
 	*  Shift + Left-Click activate the midi learn widget
 	*/
@@ -320,10 +367,11 @@ void Button::paintEvent( QPaintEvent* ev )
 
 	updateFont();
 
-	// Grey-out the widget if it is not enabled
+	// Grey-out the widget some more if it is not enabled
 	if ( ! isEnabled() ) {
-		QPainter( this ).fillRect( ev->rect(), QColor( 128, 128, 128, 208 ) );
+		QPainter( this ).fillRect( ev->rect(), QColor( 128, 128, 128, 48 ) );
 	}
+
 }
 
 void Button::onPreferencesChanged( H2Core::Preferences::Changes changes ) {

@@ -79,6 +79,7 @@ public:
 	void setIsActive( bool bIsActive );
 
 	void setSize( QSize size );
+	void updateStyleSheet();
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 	void setValue( double fValue );
@@ -91,7 +92,6 @@ signals:
 	void valueChanged( int );
 	
 private:
-	void updateStyleSheet();
 	double nextValueInPatternSizeDenominator( bool bUp, bool bAccelerated );
 	QSize m_size;
 	Type m_type;
