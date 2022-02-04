@@ -34,6 +34,7 @@
 #include "SoundLibraryExportDialog.h"
 
 #include "../HydrogenApp.h"
+#include "../CommonStrings.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/PixmapWidget.h"
 #include "../SongEditor/SongEditorPanel.h"
@@ -566,8 +567,8 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 
 		}
 	
-		if ( hasNotes )
-		{
+		if ( hasNotes ) {
+			auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 			QMessageBox msgBox;
 			msgBox.setWindowTitle("Hydrogen");
 			msgBox.setIcon( QMessageBox::Warning );
@@ -575,8 +576,10 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 
 			msgBox.setStandardButtons(QMessageBox::Save);
 			msgBox.setButtonText(QMessageBox::Save, tr("Keep"));
-			msgBox.addButton(QMessageBox::Discard);
-			msgBox.addButton(QMessageBox::Cancel);
+			msgBox.setButtonText(QMessageBox::Discard,
+								 pCommonStrings->getButtonDiscard() );
+			msgBox.setButtonText(QMessageBox::Cancel,
+								 pCommonStrings->getButtonCancel());
 			msgBox.setDefaultButton(QMessageBox::Cancel);
 			
 			switch ( msgBox.exec() )
@@ -664,6 +667,7 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 {
 	QTreeWidgetItem* pItem = __sound_library_tree->currentItem();
 	QString sDrumkitName = pItem->text(0);
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	Filesystem::Lookup lookup;
 	if ( pItem->parent() == __system_drumkits_item ) {
@@ -686,7 +690,11 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 		return;
 	}
 
-	int res = QMessageBox::warning( this, "Hydrogen", tr( "Warning, the \"%1\" drumkit will be deleted from disk.\nAre you sure?").arg(sDrumkitName), "&Ok", "&Cancel", nullptr, 1 );
+	int res = QMessageBox::warning( this, "Hydrogen",
+									tr( "Warning, the \"%1\" drumkit will be deleted from disk.\nAre you sure?").arg(sDrumkitName),
+									pCommonStrings->getButtonOk(),
+									pCommonStrings->getButtonCancel(),
+									nullptr, 1 );
 	if ( res == 1 ) {
 		return;
 	}
@@ -822,9 +830,14 @@ void SoundLibraryPanel::on_patternLoadAction() {
 
 void SoundLibraryPanel::on_patternDeleteAction()
 {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	QString patternPath = __sound_library_tree->currentItem()->text( 1 );
 
-	int res = QMessageBox::information( this, "Hydrogen", tr( "Warning, the selected pattern will be deleted from disk.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
+	int res = QMessageBox::information( this, "Hydrogen",
+										tr( "Warning, the selected pattern will be deleted from disk.\nAre you sure?"),
+										pCommonStrings->getButtonOk(),
+										pCommonStrings->getButtonCancel(),
+										nullptr, 1 );
 	if ( res == 1 ) {
 		return;
 	}

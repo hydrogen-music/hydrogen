@@ -25,6 +25,7 @@
 #include "PreferencesDialog.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
+#include "../CommonStrings.h"
 
 #include "qmessagebox.h"
 #include "qstylefactory.h"
@@ -146,6 +147,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	Preferences *pPref = Preferences::get_instance();
 	pPref->loadPreferences( false );	// reload user's preferences
+	
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	///////
 	// General tab
@@ -377,7 +380,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	
 	// MIDI tab - list midi input ports
 	midiPortComboBox->clear();
-	midiPortComboBox->addItem( tr( "None" ) );
+	midiPortComboBox->addItem( pCommonStrings->getPreferencesNone() );
 	if ( Hydrogen::get_instance()->getMidiInput() ) {
 		std::vector<QString> midiOutList = Hydrogen::get_instance()->getMidiInput()->getOutputPortList();
 
@@ -398,7 +401,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	// MIDI tab - list midi output ports
 	midiOutportComboBox->setSize( midiTabWidgetSize );
 	midiOutportComboBox->clear();
-	midiOutportComboBox->addItem( tr( "None" ) );
+	midiOutportComboBox->addItem( pCommonStrings->getPreferencesNone() );
 	if ( Hydrogen::get_instance()->getMidiOutput() ) {
 		std::vector<QString> midiOutList = Hydrogen::get_instance()->getMidiOutput()->getInputPortList();
 
@@ -836,8 +839,9 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	pPref->setTheme( m_pCurrentTheme );
 	
-	HydrogenApp *pH2App = HydrogenApp::get_instance();
+	auto pH2App = HydrogenApp::get_instance();
 	pH2App->changePreferences( changes );
+	auto pCommonStrings = pH2App->getCommonStrings();
 
 	SongEditorPanel* pSongEditorPanel = pH2App->getSongEditorPanel();
 	SongEditor * pSongEditor = pSongEditorPanel->getSongEditor();
@@ -850,7 +854,11 @@ void PreferencesDialog::on_okBtn_clicked()
 	}
 
 	if (m_bNeedDriverRestart) {
-		int res = QMessageBox::information( this, "Hydrogen", tr( "Driver restart required.\n Restart driver?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
+		int res = QMessageBox::information( this, "Hydrogen",
+											tr( "Driver restart required.\n Restart driver?"),
+											pCommonStrings->getButtonOk(),
+											pCommonStrings->getButtonCancel(),
+											nullptr, 1 );
 		if ( res == 0 ) {
 			QApplication::setOverrideCursor( Qt::WaitCursor );
 			Hydrogen::get_instance()->restartDrivers();
@@ -883,6 +891,7 @@ void PreferencesDialog::portaudioHostAPIComboBoxActivated( int index )
 void PreferencesDialog::updateDriverInfo()
 {
 	Preferences *pPref = Preferences::get_instance();
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	QString info;
 
 	bool bJack_support = false;
@@ -977,7 +986,7 @@ void PreferencesDialog::updateDriverInfo()
 			.append( tr( "Simple audio driver [/dev/dsp]" ) );
 		if ( !bOss_support ) {
 			info.append( "<br><b><font color=\"red\">" )
-				.append( tr( "Not compiled" ) )
+				.append( pCommonStrings->getPreferencesNotCompiled() )
 				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setIsActive(true);
@@ -1005,7 +1014,7 @@ void PreferencesDialog::updateDriverInfo()
 		if ( !bJack_support ) {
 			info += QString("<br><b><font color=")
 				.append( m_sColorRed ).append( ">")
-				.append( tr( "Not compiled" ) )
+				.append( pCommonStrings->getPreferencesNotCompiled() )
 				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setIsActive(false);
@@ -1037,7 +1046,7 @@ void PreferencesDialog::updateDriverInfo()
 		if ( !bAlsa_support ) {
 			info += QString("<br><b><font color=")
 				.append( m_sColorRed ).append( ">")
-				.append( tr( "Not compiled" ) )
+				.append( pCommonStrings->getPreferencesNotCompiled() )
 				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setIsActive(true);
@@ -1063,7 +1072,7 @@ void PreferencesDialog::updateDriverInfo()
 		if ( !bPortAudio_support ) {
 			info += QString("<br><b><font color=")
 				.append( m_sColorRed ).append( ">")
-				.append( tr( "Not compiled" ) )
+				.append( pCommonStrings->getPreferencesNotCompiled() )
 				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setIsActive( true );
@@ -1091,7 +1100,7 @@ void PreferencesDialog::updateDriverInfo()
 		if ( !bCoreAudio_support ) {
 			info += QString("<br><b><font color=")
 				.append( m_sColorRed ).append( ">")
-				.append( tr( "Not compiled" ) )
+				.append( pCommonStrings->getPreferencesNotCompiled() )
 				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setIsActive( true );
@@ -1117,7 +1126,7 @@ void PreferencesDialog::updateDriverInfo()
 		if ( !bPulseAudio_support ) {
 			info += QString("<br><b><font color=")
 				.append( m_sColorRed ).append( ">")
-				.append( tr( "Not compiled" ) )
+				.append( pCommonStrings->getPreferencesNotCompiled() )
 				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setIsActive(false);

@@ -138,6 +138,17 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getTimelineDisabledPatternMode() const { return m_sTimelineDisabledPatternMode; }
 	const QString& getTimelineDisabledTimebaseSlave() const { return m_sTimelineDisabledTimebaseSlave; }
 
+	const QString& getPreferencesNotCompiled() const { return m_sPreferencesNotCompiled; }
+	const QString& getPreferencesNone() const { return m_sPreferencesNone; }
+
+	const QString& getButtonOk() const { return m_sButtonOk; }
+	const QString& getButtonSave() const { return m_sButtonSave; }
+	const QString& getButtonCancel() const { return m_sButtonCancel; }
+	const QString& getButtonDiscard() const { return m_sButtonDiscard; }
+	const QString& getButtonPlay() const { return m_sButtonPlay; }
+	const QString& getButtonPlayOriginalSample() const { return m_sButtonPlayOriginalSample; }
+	const QString& getUnsavedChanges() const { return m_sUnsavedChanges; }
+
 private:
 	QString m_sSmallSoloButton;
 	QString m_sSmallMuteButton;
@@ -231,6 +242,17 @@ private:
 	QString m_sTimelineEnabled;
 	QString m_sTimelineDisabledPatternMode;
 	QString m_sTimelineDisabledTimebaseSlave;
+	
+	QString m_sPreferencesNotCompiled;
+	QString m_sPreferencesNone;
+
+	QString m_sButtonOk;
+	QString m_sButtonSave;
+	QString m_sButtonCancel;
+	QString m_sButtonDiscard;
+	QString m_sButtonPlay;
+	QString m_sButtonPlayOriginalSample;
+	QString m_sUnsavedChanges;
 	
 };
 #endif
