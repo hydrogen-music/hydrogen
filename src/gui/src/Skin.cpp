@@ -158,7 +158,7 @@ border-color: %3;" )
 QColor Skin::makeWidgetColorInactive( QColor color ){
 	int nHue, nSaturation, nValue;
 	color.getHsv( &nHue, &nSaturation, &nValue );
-	nValue = std::max( 0, nValue - 35 );
+	nValue = std::max( 0, nValue - 40 );
 	color.setHsv( nHue, nSaturation, nValue );
 
 	return color;
@@ -169,9 +169,9 @@ QColor Skin::makeTextColorInactive( QColor color ) {
 	color.getHsv( &nHue, &nSaturation, &nValue );
 	if ( nValue >= 130 ) {
 		// TextInactive color is more white than black. Make it darker.
-		nValue -= 50;
+		nValue -= 55;
 	} else {
-		nValue += 50;
+		nValue += 55;
 	}
 	color.setHsv( nHue, nSaturation, nValue );
 

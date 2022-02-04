@@ -84,7 +84,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pTimeDisplay->move( 13, 7 );
 	m_pTimeDisplay->setAlignment( Qt::AlignRight );
 	m_pTimeDisplay->setText( "00:00:00:000" );
-	m_pTimeDisplay->setStyleSheet( "font-size: 19px;" );
+	m_pTimeDisplay->setStyleSheet( m_pTimeDisplay->styleSheet().
+								   append(" QLineEdit { font-size: 19px; }" ) );
 
 	m_pTimeHoursLbl = new ClickableLabel( pControlsPanel, QSize( 33, 9 ),
 										  pCommonStrings->getTimeHoursLabel() );
@@ -296,8 +297,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 									   static_cast<double>( MIN_BPM ),
 									   static_cast<double>( MAX_BPM ) );
 	m_pLCDBPMSpinbox->move( 36, 1 );
-	m_pLCDBPMSpinbox->setStyleSheet( "font-size: 16px;" );
-	m_pLCDBPMSpinbox->updateStyleSheet();
+	m_pLCDBPMSpinbox->setStyleSheet( m_pLCDBPMSpinbox->styleSheet().
+									 append( " QAbstractSpinBox {font-size: 16px;}" ) );
 	connect( m_pLCDBPMSpinbox, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( bpmChanged( double ) ) );
 	// initialize BPM widget

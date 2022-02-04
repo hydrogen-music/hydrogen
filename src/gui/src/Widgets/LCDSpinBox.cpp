@@ -333,13 +333,13 @@ void LCDSpinBox::updateStyleSheet() {
 
 	
 	setStyleSheet( QString( "\
-QDoubleSpinBox:enabled, QSpinBox:enabled { \
+QAbstractSpinBox:enabled { \
     color: %1; \
     background-color: %2; \
     selection-color: %1; \
     selection-background-color: %3; \
 } \
-QDoubleSpinBox:disabled, QSpinBox:disabled { \
+QAbstractSpinBox:disabled { \
     color: %4; \
     background-color: %5; \
     selection-color: %4; \

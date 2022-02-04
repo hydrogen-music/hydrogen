@@ -82,10 +82,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	
 	m_pEditorTop1 = new QWidget( nullptr );
 	m_pEditorTop1->setFixedHeight(24);
-	
+	m_pEditorTop1->setObjectName( "editor1" );
 
 	m_pEditorTop2 = new QWidget( nullptr );
 	m_pEditorTop2->setFixedHeight( 24 );
+	m_pEditorTop2->setObjectName( "editor2" );
 
 	QHBoxLayout *m_pEditorTop1_hbox = new QHBoxLayout( m_pEditorTop1 );
 	m_pEditorTop1_hbox->setSpacing( 0 );
@@ -109,6 +110,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 //wolke some background images back_size_res
 	m_pSizeResol = new QWidget( nullptr );
+	m_pSizeResol->setObjectName( "sizeResol" );
 	m_pSizeResol->setFixedSize( 406, 20 );
 	m_pSizeResol->move( 0, 3 );
 	m_pEditorTop1_hbox_2->addWidget( m_pSizeResol );
@@ -129,7 +131,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	label1->move( 100, 4 );
 	label1->setText( "/" );
 	label1->setFont( boldFont );
-	label1->setStyleSheet( "color: #191919;" );
+	label1->setStyleSheet( label1->styleSheet().
+						   append( " QLabel { color: #191919; }" ) );
 	label1->setToolTip( tr( "You can use the '/' inside the pattern size spin boxes to switch back and forth." ) );
 	m_pPatternSizeLbl = new ClickableLabel( m_pSizeResol, QSize( 30, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeLabel(), ClickableLabel::Color::Dark );
 	m_pPatternSizeLbl->move( 2, 4 );
@@ -168,6 +171,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pRec = new QGroupBox( nullptr );
 	m_pRec->setFixedSize( 210, 20 );
+	m_pRec->setObjectName( "pRec" );
 	m_pRec->move( 0, 3 );
 	m_pEditorTop1_hbox_2->addWidget( m_pRec );
 
@@ -1165,13 +1169,20 @@ void PatternEditorPanel::updateStyleSheet() {
 	QColor topColorDark = pPref->getColorTheme()->m_midColor.darker( nFactorTop );
 
 	QString sEditorTopStyleSheet = QString( "\
-QWidget {\
+QWidget#editor1 {\
+     background-color: qlineargradient(x1: 0.5, y1: 0.1, x2: 0.5, y2: 0.9, \
+                                      stop: 0 %1, stop: 1 %2); \
+} \
+QWidget#editor2 {\
      background-color: qlineargradient(x1: 0.5, y1: 0.1, x2: 0.5, y2: 0.9, \
                                       stop: 0 %1, stop: 1 %2); \
 }")
 		.arg( topColorLight.name() ).arg( topColorDark.name() );
 	QString sWidgetTopStyleSheet = QString( "\
-QWidget {\
+QWidget#sizeResol {\
+    background-color: %1;\
+} \
+QWidget#pRec {\
     background-color: %1;\
 }" )
 		.arg( pPref->getColorTheme()->m_midLightColor.name() );
