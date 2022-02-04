@@ -31,7 +31,13 @@
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
-#include <core/Object.h>
+#include <core/IO/JackAudioDriver.h>
+#include <core/IO/OssDriver.h>
+#include <core/IO/AlsaAudioDriver.h>
+#include <core/IO/PortAudioDriver.h>
+#include <core/IO/CoreAudioDriver.h>
+#include <core/IO/PulseAudioDriver.h>
+
 #include <QtWidgets>
 #include <QColorDialog>
 
@@ -144,6 +150,12 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 private:
 
 	void updateDriverInfo();
+	void setDriverInfoOss();
+	void setDriverInfoAlsa();
+	void setDriverInfoJack();
+	void setDriverInfoCoreAudio();
+	void setDriverInfoPortAudio();
+	void setDriverInfoPulseAudio();
 	void updateDriverPreferences();
 	void updateAppearanceTab( const std::shared_ptr<H2Core::Theme> pTheme );
 

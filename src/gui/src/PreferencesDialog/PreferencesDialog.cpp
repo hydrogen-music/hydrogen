@@ -892,6 +892,7 @@ void PreferencesDialog::updateDriverInfo()
 {
 	Preferences *pPref = Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
 	QString info;
 
 	bool bJack_support = false;
@@ -929,55 +930,49 @@ void PreferencesDialog::updateDriverInfo()
 		info += tr("Automatic driver selection");
 		
 		// Display the selected driver as well.
-		if ( H2Core::Hydrogen::get_instance()->getAudioOutput() != nullptr ) {
+		if ( pAudioDriver != nullptr ) {
 			info.append( "<br><b>" )
-				.append( H2Core::Hydrogen::get_instance()->getAudioOutput()->class_name() )
+				.append( pAudioDriver->class_name() )
 				.append( "</b> " ).append( tr( "selected") );
 		}
-		m_pAudioDeviceTxt->setIsActive( true );
-		m_pAudioDeviceTxt->lineEdit()->setText( "" );
-		bufferSizeSpinBox->setIsActive( false );
-		sampleRateComboBox->setIsActive( true );
-		trackOutputComboBox->setIsActive( false );
-		connectDefaultsCheckBox->setEnabled( false );
-		enableTimebaseCheckBox->setEnabled( false );
-		trackOutsCheckBox->setEnabled( false );
-		jackBBTSyncComboBox->setIsActive( false );
-		jackBBTSyncLbl->setEnabled( false );
-		portaudioHostAPIComboBox->hide();
-		portaudioHostAPILabel->hide();
-		latencyTargetLabel->hide();
-		latencyTargetSpinBox->hide();
-		latencyValueLabel->hide();
-		if ( std::strcmp( H2Core::Hydrogen::get_instance()->getAudioOutput()->class_name(),
-						  "JackAudioDriver" ) == 0 ) {
-			trackOutputComboBox->setIsActive( true );
-			connectDefaultsCheckBox->setEnabled( true );
-			enableTimebaseCheckBox->setEnabled( true );
-			trackOutsCheckBox->setEnabled( true );
-			jackBBTSyncComboBox->setIsActive( true );
-			jackBBTSyncLbl->setEnabled( true );
-			trackOutputComboBox->show();
-			trackOutputLbl->show();
-			connectDefaultsCheckBox->show();
-			trackOutsCheckBox->show();
-			enableTimebaseCheckBox->show();
-			jackBBTSyncComboBox->show();
-			jackBBTSyncLbl->show();
+
+		if ( dynamic_cast<H2Core::JackAudioDriver*>(pAudioDriver) != nullptr ) {
+			setDriverInfoJack();
+		} else if ( dynamic_cast<H2Core::AlsaAudioDriver*>(pAudioDriver) != nullptr ) {
+			setDriverInfoAlsa();
+		} else if ( dynamic_cast<H2Core::PortAudioDriver*>(pAudioDriver) != nullptr ) {
+			setDriverInfoPortAudio();
+		} else if ( dynamic_cast<H2Core::CoreAudioDriver*>(pAudioDriver) != nullptr ) {
+			setDriverInfoCoreAudio();
+		} else if ( dynamic_cast<H2Core::PulseAudioDriver*>(pAudioDriver) != nullptr ) {
+			setDriverInfoPulseAudio();
+		} else if ( dynamic_cast<H2Core::OssDriver*>(pAudioDriver) != nullptr ) {
+			setDriverInfoOss();
 		} else {
+			m_pAudioDeviceTxt->setIsActive( false );
+			m_pAudioDeviceTxt->lineEdit()->setText( "" );
+			bufferSizeSpinBox->setIsActive( false );
+			sampleRateComboBox->setIsActive( false );
+			bufferSizeSpinBox->setToolTip( "" );
+			sampleRateComboBox->setToolTip( "" );
 			trackOutputComboBox->setIsActive( false );
-			connectDefaultsCheckBox->setEnabled( false );
-			enableTimebaseCheckBox->setEnabled( false );
-			trackOutsCheckBox->setEnabled( false );
-			jackBBTSyncComboBox->setIsActive( false );
-			jackBBTSyncLbl->setEnabled( false );
 			trackOutputComboBox->hide();
 			trackOutputLbl->hide();
-			connectDefaultsCheckBox->hide();
-			enableTimebaseCheckBox->hide();
+			trackOutsCheckBox->setEnabled( false );
 			trackOutsCheckBox->hide();
+			connectDefaultsCheckBox->setEnabled( false );
+			connectDefaultsCheckBox->hide();
+			enableTimebaseCheckBox->setEnabled( false );
+			enableTimebaseCheckBox->hide();
+			jackBBTSyncComboBox->setIsActive( false );
+			jackBBTSyncLbl->setEnabled( false );
 			jackBBTSyncComboBox->hide();
 			jackBBTSyncLbl->hide();
+			portaudioHostAPIComboBox->hide();
+			portaudioHostAPILabel->hide();
+			latencyTargetLabel->hide();
+			latencyTargetSpinBox->hide();
+			latencyValueLabel->hide();
 		}
 	}
 	else if ( driverComboBox->currentText() == "OSS" ) {	// OSS
@@ -989,22 +984,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( pCommonStrings->getPreferencesNotCompiled() )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setIsActive(true);
-		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sOSSDevice );
-		bufferSizeSpinBox->setIsActive(true);
-		sampleRateComboBox->setIsActive(true);
-		trackOutputComboBox->hide();
-		trackOutputLbl->hide();
-		connectDefaultsCheckBox->hide();
-		enableTimebaseCheckBox->hide();
-		trackOutsCheckBox->hide();
-		jackBBTSyncComboBox->hide();
-		jackBBTSyncLbl->hide();
-		portaudioHostAPIComboBox->hide();
-		portaudioHostAPILabel->hide();
-		latencyTargetLabel->hide();
-		latencyTargetSpinBox->hide();
-		latencyValueLabel->hide();
+		setDriverInfoOss();
 	}
 	else if ( driverComboBox->currentText() == "JACK" ) {	// JACK
 		info.append( "<b>" )
@@ -1017,28 +997,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( pCommonStrings->getPreferencesNotCompiled() )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setIsActive(false);
-		m_pAudioDeviceTxt->lineEdit()->setText( "" );
-		bufferSizeSpinBox->setIsActive(false);
-		sampleRateComboBox->setIsActive(false);
-		trackOutputComboBox->setIsActive( true );
-		connectDefaultsCheckBox->setEnabled( true );
-		enableTimebaseCheckBox->setEnabled( true );
-		trackOutsCheckBox->setEnabled( true );
-		jackBBTSyncComboBox->setIsActive( true );
-		jackBBTSyncLbl->setEnabled( true );
-		trackOutputComboBox->show();
-		trackOutputLbl->show();
-		connectDefaultsCheckBox->show();
-		enableTimebaseCheckBox->show();
-		trackOutsCheckBox->show();
-		jackBBTSyncComboBox->show();
-		jackBBTSyncLbl->show();
-		portaudioHostAPIComboBox->hide();
-		portaudioHostAPILabel->hide();
-		latencyTargetLabel->hide();
-		latencyTargetSpinBox->hide();
-		latencyValueLabel->hide();
+		setDriverInfoJack();
 	}
 	else if ( driverComboBox->currentText() == "ALSA" ) {	// ALSA
 		info.append( "<b>" ).append( tr( "ALSA Driver" ) )
@@ -1049,22 +1008,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( pCommonStrings->getPreferencesNotCompiled() )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setIsActive(true);
-		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sAlsaAudioDevice );
-		bufferSizeSpinBox->setIsActive(true);
-		sampleRateComboBox->setIsActive(true);
-		trackOutputComboBox->hide();
-		trackOutputLbl->hide();
-		connectDefaultsCheckBox->hide();
-		enableTimebaseCheckBox->hide();
-		trackOutsCheckBox->hide();
-		jackBBTSyncComboBox->hide();
-		jackBBTSyncLbl->hide();
-		portaudioHostAPIComboBox->hide();
-		portaudioHostAPILabel->hide();
-		latencyTargetLabel->hide();
-		latencyTargetSpinBox->hide();
-		latencyValueLabel->hide();
+		setDriverInfoAlsa();
 	}
 	else if ( driverComboBox->currentText() == "PortAudio" ) {
 		info.append( "<b>" ).append( tr( "PortAudio Driver" ) )
@@ -1075,24 +1019,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( pCommonStrings->getPreferencesNotCompiled() )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setIsActive( true );
-		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sPortAudioDevice );
-		bufferSizeSpinBox->setIsActive(false);
-		sampleRateComboBox->setIsActive(true);
-		trackOutputComboBox->hide();
-		trackOutputLbl->hide();
-		connectDefaultsCheckBox->hide();
-		enableTimebaseCheckBox->hide();
-		trackOutsCheckBox->hide();
-		jackBBTSyncComboBox->hide();
-		jackBBTSyncLbl->hide();
-		portaudioHostAPIComboBox->show();
-		portaudioHostAPILabel->show();
-		latencyTargetLabel->show();
-		latencyTargetSpinBox->show();
-		latencyValueLabel->show();
-		latencyValueLabel->setText( QString("Current: %1 frames").arg( H2Core::Hydrogen::get_instance()->getAudioOutput()->getLatency() ) );
-
+		setDriverInfoPortAudio();
 	}
 	else if ( driverComboBox->currentText() == "CoreAudio" ) {
 		info.append( "<b>" ).append( tr( "CoreAudio Driver" ) )
@@ -1103,22 +1030,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( pCommonStrings->getPreferencesNotCompiled() )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setIsActive( true );
-		m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sCoreAudioDevice );
-		bufferSizeSpinBox->setIsActive( false );
-		sampleRateComboBox->setIsActive(true);
-		trackOutputComboBox->hide();
-		trackOutputLbl->hide();
-		connectDefaultsCheckBox->hide();
-		enableTimebaseCheckBox->hide();
-		trackOutsCheckBox->hide();
-		jackBBTSyncComboBox->hide();
-		jackBBTSyncLbl->hide();
-		portaudioHostAPIComboBox->hide();
-		portaudioHostAPILabel->hide();
-		latencyTargetLabel->hide();
-		latencyTargetSpinBox->hide();
-		latencyValueLabel->hide();
+		setDriverInfoCoreAudio();
 	}
 	else if ( driverComboBox->currentText() == "PulseAudio" ) {
 		info.append( "<b>" ).append( tr( "PulseAudio Driver" ) )
@@ -1129,22 +1041,7 @@ void PreferencesDialog::updateDriverInfo()
 				.append( pCommonStrings->getPreferencesNotCompiled() )
 				.append( "</font></b>" );
 		}
-		m_pAudioDeviceTxt->setIsActive(false);
-		m_pAudioDeviceTxt->lineEdit()->setText("");
-		bufferSizeSpinBox->setIsActive(true);
-		sampleRateComboBox->setIsActive(true);
-		trackOutputComboBox->hide();
-		trackOutputLbl->hide();
-		connectDefaultsCheckBox->hide();
-		enableTimebaseCheckBox->hide();
-		trackOutsCheckBox->hide();
-		jackBBTSyncComboBox->hide();
-		jackBBTSyncLbl->hide();
-		portaudioHostAPIComboBox->hide();
-		portaudioHostAPILabel->hide();
-		latencyTargetLabel->hide();
-		latencyTargetSpinBox->hide();
-		latencyValueLabel->hide();
+		setDriverInfoPulseAudio();
 	}
 	else {
 		QString selectedDriver = driverComboBox->currentText();
@@ -1155,6 +1052,155 @@ void PreferencesDialog::updateDriverInfo()
 	bufferSizeSpinBox->setValue( pPref->m_nBufferSize );
 
 	driverInfoLbl->setText(info);
+}
+
+void PreferencesDialog::setDriverInfoOss() {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	m_pAudioDeviceTxt->setIsActive(true);
+	m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sOSSDevice );
+	bufferSizeSpinBox->setIsActive(true);
+	sampleRateComboBox->setIsActive(true);
+	trackOutputComboBox->hide();
+	trackOutputLbl->hide();
+	connectDefaultsCheckBox->hide();
+	enableTimebaseCheckBox->hide();
+	trackOutsCheckBox->hide();
+	jackBBTSyncComboBox->hide();
+	jackBBTSyncLbl->hide();
+	portaudioHostAPIComboBox->hide();
+	portaudioHostAPILabel->hide();
+	latencyTargetLabel->hide();
+	latencyTargetSpinBox->hide();
+	latencyValueLabel->hide();
+
+	bufferSizeSpinBox->setToolTip( "" );
+	sampleRateComboBox->setToolTip( "" );
+}
+
+void PreferencesDialog::setDriverInfoAlsa() {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	m_pAudioDeviceTxt->setIsActive(true);
+	m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sAlsaAudioDevice );
+	bufferSizeSpinBox->setIsActive(true);
+	sampleRateComboBox->setIsActive(true);
+	trackOutputComboBox->hide();
+	trackOutputLbl->hide();
+	connectDefaultsCheckBox->hide();
+	enableTimebaseCheckBox->hide();
+	trackOutsCheckBox->hide();
+	jackBBTSyncComboBox->hide();
+	jackBBTSyncLbl->hide();
+	portaudioHostAPIComboBox->hide();
+	portaudioHostAPILabel->hide();
+	latencyTargetLabel->hide();
+	latencyTargetSpinBox->hide();
+	latencyValueLabel->hide();
+
+	bufferSizeSpinBox->setToolTip( "" );
+	sampleRateComboBox->setToolTip( "" );
+}
+
+void PreferencesDialog::setDriverInfoJack() {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	
+	m_pAudioDeviceTxt->setIsActive(false);
+	m_pAudioDeviceTxt->lineEdit()->setText( "" );
+	bufferSizeSpinBox->setIsActive(false);
+	sampleRateComboBox->setIsActive(false);
+	trackOutputComboBox->setIsActive( true );
+	connectDefaultsCheckBox->setEnabled( true );
+	enableTimebaseCheckBox->setEnabled( true );
+	trackOutsCheckBox->setEnabled( true );
+	jackBBTSyncComboBox->setIsActive( true );
+	jackBBTSyncLbl->setEnabled( true );
+	trackOutputComboBox->show();
+	trackOutputLbl->show();
+	connectDefaultsCheckBox->show();
+	enableTimebaseCheckBox->show();
+	trackOutsCheckBox->show();
+	jackBBTSyncComboBox->show();
+	jackBBTSyncLbl->show();
+	portaudioHostAPIComboBox->hide();
+	portaudioHostAPILabel->hide();
+	latencyTargetLabel->hide();
+	latencyTargetSpinBox->hide();
+	latencyValueLabel->hide();
+
+	bufferSizeSpinBox->setToolTip( pCommonStrings->getPreferencesJackTooltip() );
+	sampleRateComboBox->setToolTip( pCommonStrings->getPreferencesJackTooltip() );
+}
+
+void PreferencesDialog::setDriverInfoCoreAudio() {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	m_pAudioDeviceTxt->setIsActive( true );
+	m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sCoreAudioDevice );
+	bufferSizeSpinBox->setIsActive( false );
+	sampleRateComboBox->setIsActive(true);
+	trackOutputComboBox->hide();
+	trackOutputLbl->hide();
+	connectDefaultsCheckBox->hide();
+	enableTimebaseCheckBox->hide();
+	trackOutsCheckBox->hide();
+	jackBBTSyncComboBox->hide();
+	jackBBTSyncLbl->hide();
+	portaudioHostAPIComboBox->hide();
+	portaudioHostAPILabel->hide();
+	latencyTargetLabel->hide();
+	latencyTargetSpinBox->hide();
+	latencyValueLabel->hide();
+
+	bufferSizeSpinBox->setToolTip( "" );
+	sampleRateComboBox->setToolTip( "" );
+}
+
+void PreferencesDialog::setDriverInfoPortAudio() {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	m_pAudioDeviceTxt->setIsActive( true );
+	m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sPortAudioDevice );
+	bufferSizeSpinBox->setIsActive(false);
+	sampleRateComboBox->setIsActive(true);
+	trackOutputComboBox->hide();
+	trackOutputLbl->hide();
+	connectDefaultsCheckBox->hide();
+	enableTimebaseCheckBox->hide();
+	trackOutsCheckBox->hide();
+	jackBBTSyncComboBox->hide();
+	jackBBTSyncLbl->hide();
+	portaudioHostAPIComboBox->show();
+	portaudioHostAPILabel->show();
+	latencyTargetLabel->show();
+	latencyTargetSpinBox->show();
+	latencyValueLabel->show();
+	latencyValueLabel->setText( QString("Current: %1 frames").arg( H2Core::Hydrogen::get_instance()->getAudioOutput()->getLatency() ) );
+
+	bufferSizeSpinBox->setToolTip( "" );
+	sampleRateComboBox->setToolTip( "" );
+}
+
+void PreferencesDialog::setDriverInfoPulseAudio() {
+	m_pAudioDeviceTxt->setIsActive(false);
+	m_pAudioDeviceTxt->lineEdit()->setText("");
+	bufferSizeSpinBox->setIsActive(true);
+	sampleRateComboBox->setIsActive(true);
+	trackOutputComboBox->hide();
+	trackOutputLbl->hide();
+	connectDefaultsCheckBox->hide();
+	enableTimebaseCheckBox->hide();
+	trackOutsCheckBox->hide();
+	jackBBTSyncComboBox->hide();
+	jackBBTSyncLbl->hide();
+	portaudioHostAPIComboBox->hide();
+	portaudioHostAPILabel->hide();
+	latencyTargetLabel->hide();
+	latencyTargetSpinBox->hide();
+	latencyValueLabel->hide();
+
+	bufferSizeSpinBox->setToolTip( "" );
+	sampleRateComboBox->setToolTip( "" );
 }
 
 void PreferencesDialog::onApplicationFontChanged( const QFont& font ) {

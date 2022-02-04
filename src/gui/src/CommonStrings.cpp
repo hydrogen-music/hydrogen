@@ -345,6 +345,9 @@ CommonStrings::CommonStrings(){
 	/*: Displayed in the Preferences dialog within a driver combobox
 	  in case no driver was selected.*/
 	m_sPreferencesNone = tr( "None" );
+	/*: Displayed in the Preferences dialog as a tooltip for both the
+	  sample rate combobox and buffer size spinbox.*/
+	m_sPreferencesJackTooltip = tr( "Both buffer size and sample rate can only be altered in the configuration of the JACK server itself." );
 
 	/*: Text displayed on a Ok button of a dialog. The character after
 	  the '&' symbol can be used as a hotkey and the '&' symbol itself
