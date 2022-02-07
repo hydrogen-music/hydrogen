@@ -384,23 +384,43 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pDriver = pHydrogen->getAudioOutput();
 
+	long long nNewFrame;
+
+#ifdef H2CORE_HAVE_JACK
+	// In case Hydrogen is using the JACK server to sync transport, it
+	// has to be up to the server to relocate to a different
+	// position. However, if the transport is not rolling, the JACK
+	// server won't broadcast the new position we asked for until the
+	// transport is rolling again. That's why we relocate internally
+	// too - as we do not have to be afraid for transport to get out
+	// of sync as it is not rolling.
+	if ( pHydrogen->haveJackTransport() && bWithJackBroadcast &&
+		 m_state == State::Playing ) {
+		nNewFrame = computeFrameFromTick( fTick, &m_fTickMismatch );
+	} else {
+		reset( false );
+		nNewFrame = computeFrameFromTick( fTick, &m_fTickMismatch );
+	}
+
+	if ( pHydrogen->haveJackTransport() && bWithJackBroadcast ) {
+		static_cast<JackAudioDriver*>( m_pAudioDriver )->locateTransport( nNewFrame );
+
+		if ( m_state == State::Playing ) {
+			return;
+		}
+	}
+#else
 	reset( false );
-	long long nNewFrame = computeFrameFromTick( fTick, &m_fTickMismatch );
+	nNewFrame = computeFrameFromTick( fTick, &m_fTickMismatch );
+#endif
+	
 	setFrames( nNewFrame );
 	updateTransportPosition( fTick, pHydrogen->getSong()->isLoopEnabled() );
-	
-#ifdef H2CORE_HAVE_JACK
-	if ( pHydrogen->haveJackTransport() && bWithJackBroadcast ) {
-		// Tell all other JACK clients to relocate as well. This has
-		// to be called after updateFrames().
-		static_cast<JackAudioDriver*>( m_pAudioDriver )->locateTransport( getFrames() );
-	}
-#endif
 }
 
 void AudioEngine::locateToFrame( const long long nFrame ) {
 	const auto pHydrogen = Hydrogen::get_instance();
-
+	
 	reset( false );
 	setFrames( nFrame );
 
@@ -439,11 +459,12 @@ void AudioEngine::updateTransportPosition( double fTick, bool bUseLoopMode ) {
 
 	assert( pSong );
 
-	// WARNINGLOG( QString( "[Before] tick: %1, pTickPos: %2, pStartPos: %3, column: %4" )
+	// WARNINGLOG( QString( "[Before] frame: %5, tick: %1, pTickPos: %2, pStartPos: %3, column: %4" )
 	// 			.arg( getDoubleTick(), 0, 'f' )
 	// 			.arg( m_nPatternTickPosition )
 	// 			.arg( m_nPatternStartTick )
-	// 			.arg( m_nColumn ) );
+	// 			.arg( m_nColumn )
+	// 			.arg( getFrames() ) );
 	
 	setTick( fTick );
 
@@ -508,11 +529,12 @@ void AudioEngine::updateTransportPosition( double fTick, bool bUseLoopMode ) {
 	}
 	updateBpmAndTickSize();
 	
-	// WARNINGLOG( QString( "[After] tick: %1, pTickPos: %2, pStartPos: %3, column: %4" )
+	// WARNINGLOG( QString( "[After] frame: %5, tick: %1, pTickPos: %2, pStartPos: %3, column: %4" )
 	// 			.arg( getDoubleTick(), 0, 'f' )
 	// 			.arg( m_nPatternTickPosition )
 	// 			.arg( m_nPatternStartTick )
-	// 			.arg( m_nColumn )  );
+	// 			.arg( m_nColumn )
+	// 			.arg( getFrames() ) );
 	
 }
 
