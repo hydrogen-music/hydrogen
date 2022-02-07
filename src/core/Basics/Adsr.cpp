@@ -162,10 +162,9 @@ bool ADSR::applyADSR( float *pLeft, float *pRight, int nFrames, int nReleaseFram
 
 		if ( __state == SUSTAIN && __sustain == 1.0 ) {
 			/* Skip past however many frames of sustain, because applying 1.0 to the value is a no-op */
-			int nSustainFrames = std::min(nFrames, nReleaseFrame);
+			int nSustainFrames = (std::min(nFrames, nReleaseFrame)) - n;
 			n += nSustainFrames;
 			__ticks += nSustainFrames * fStep;
-			break;
 		}
 	}
 	return bDone;
