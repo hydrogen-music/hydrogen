@@ -129,12 +129,21 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// Two buttons sharing the same position and either of them is
 	// shown unpressed.
-	m_pModeActionSingleBtn = new Button( pBackPanel, QSize( 23, 19 ), Button::Type::Push, "single_layer.svg", "", false, QSize( 15, 11 ), tr( "single pattern mode") );
+	m_pModeActionSingleBtn = new Button( pBackPanel, QSize( 23, 19 ),
+										 Button::Type::Push, "single_layer.svg",
+										 "", false, QSize( 15, 11 ),
+										 tr( "single pattern mode"),
+										 false, true );
 	m_pModeActionSingleBtn->move( 170, 26 );
 	m_pModeActionSingleBtn->setVisible( pPref->patternModePlaysSelected() );
 	connect( m_pModeActionSingleBtn, SIGNAL( pressed() ), this, SLOT( modeActionBtnPressed() ) );
 
-	m_pModeActionMultipleBtn = new Button( pBackPanel, QSize( 23, 19 ), Button::Type::Push, "multiple_layers.svg", "", false, QSize( 19, 15 ), tr( "stacked pattern mode") );
+	m_pModeActionMultipleBtn = new Button( pBackPanel, QSize( 23, 19 ),
+										   Button::Type::Push,
+										   "multiple_layers.svg", "", false,
+										   QSize( 19, 15 ),
+										   tr( "stacked pattern mode"),
+										   false, true );
 	m_pModeActionMultipleBtn->move( 170, 26 );
 	m_pModeActionMultipleBtn->hide();
 	m_pModeActionMultipleBtn->setVisible( pPref->patternModePlaysSelected() );
@@ -171,7 +180,11 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	connect( m_pPlaybackTrackFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( faderChanged( WidgetWithInput* ) ) );
 
 	// mute playback track toggle button
-	m_pMutePlaybackBtn = new Button( pBackPanel, QSize( 34, 17 ), Button::Type::Toggle, "", pCommonStrings->getBigMuteButton(), true, QSize(), tr( "Mute playback track" ) );
+	m_pMutePlaybackBtn = new Button( pBackPanel, QSize( 34, 17 ),
+									 Button::Type::Toggle, "",
+									 pCommonStrings->getBigMuteButton(),
+									 true, QSize(), tr( "Mute playback track" ),
+									 false, true );
 	m_pMutePlaybackBtn->move( 158, 4 );
 	m_pMutePlaybackBtn->hide();
 	m_pMutePlaybackBtn->setChecked( pHydrogen->getPlaybackTrackState() );
@@ -765,6 +778,7 @@ void SongEditorPanel::modeActionBtnPressed( )
 		m_pModeActionMultipleBtn->hide();
 	}
 	Hydrogen::get_instance()->setPlaysSelected( bWasStacked );
+	Hydrogen::get_instance()->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_STACKED_MODE_ACTIVATION, bWasStacked ? 0 : 1 );
 	updateAll();
 }

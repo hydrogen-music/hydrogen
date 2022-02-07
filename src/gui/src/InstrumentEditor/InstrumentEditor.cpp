@@ -167,7 +167,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	// Filter
 	m_pFilterBypassBtn = new Button( m_pInstrumentProp, QSize( 36, 15 ), Button::Type::Toggle,
-									 "", pCommonStrings->getBypassButton(), true );
+									 "", pCommonStrings->getBypassButton(), true,
+									 QSize( 0, 0 ), "", false, true );
 	connect( m_pFilterBypassBtn, SIGNAL( pressed() ),
 			 this, SLOT( filterActiveBtnClicked() ) );
 	m_pFilterBypassBtn->move( 67, 169 );

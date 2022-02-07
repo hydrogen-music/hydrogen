@@ -130,6 +130,8 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &SoundLibraryPanel::onPreferencesChanged );
 	
 	updateDrumkitList();
+	
+	HydrogenApp::get_instance()->addEventListener(this);
 }
 
 
@@ -499,6 +501,8 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 
 void SoundLibraryPanel::on_drumkitLoadAction()
 {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
 	// Whether we deal with a system or a user drumkit.
 	QString sDrumkitType = __sound_library_tree->currentItem()->parent()->text(0);
@@ -537,7 +541,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 		return;
 	}
 
-	InstrumentList *pSongInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	InstrumentList *pSongInstrList = pHydrogen->getSong()->getInstrumentList();
 	InstrumentList *pDrumkitInstrList = pDrumkitInfo->get_instruments();
 
 	int oldCount = pSongInstrList->size();
@@ -557,7 +561,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 			{
 				INFOLOG("Checking if Instrument " + QString::number( i ) + " has notes..." );
 
-				if ( Hydrogen::get_instance()->instrumentHasNotes( pSongInstrList->get( i ) ) )
+				if ( pHydrogen->instrumentHasNotes( pSongInstrList->get( i ) ) )
 				{
 					hasNotes = true;
 					INFOLOG("Instrument " + QString::number( i ) + " has notes" );
@@ -598,24 +602,18 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 		}
 	}
 
-
 	assert( pDrumkitInfo );
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	Hydrogen::get_instance()->loadDrumkit( pDrumkitInfo, conditionalLoad );
-	HydrogenApp::get_instance()->onDrumkitLoad( pDrumkitInfo->get_name() );
-	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
-	HydrogenApp::get_instance()->getPatternEditorPanel()->updatePianorollEditor();
-
-	InstrumentEditorPanel::get_instance()->notifyOfDrumkitChange();
+	pHydrogen->getCoreActionController()->loadDrumkit( pDrumkitInfo, conditionalLoad );
 
 	QApplication::restoreOverrideCursor();
-
-	update_background_color();
 }
 
-
+void SoundLibraryPanel::drumkitLoadedEvent() {
+	update_background_color();
+}
 
 void SoundLibraryPanel::update_background_color()
 {

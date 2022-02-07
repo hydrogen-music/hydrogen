@@ -1119,15 +1119,18 @@ bool Sampler::renderNoteNoResample(
 		// imposto il numero dei bytes disponibili uguale al buffersize
 		nAvail_bytes = nBufferSize - nInitialSilence;
 		retValue = false; // the note is not ended yet
-	} else if ( pNote->get_instrument()->is_filter_active() && pNote->filter_sustain() ) {
-		// If filter is causing note to ring, process more samples.
-		nAvail_bytes = nBufferSize - nInitialSilence;
 	}
 
 	int nInitialBufferPos = nInitialSilence;
 	int nInitialSamplePos = ( int )pSelectedLayerInfo->SamplePosition;
 	int nSamplePos = nInitialSamplePos;
 	int nTimes = nInitialBufferPos + nAvail_bytes;
+	int nTimesSample = nTimes;
+
+	if ( pNote->get_instrument()->is_filter_active() && pNote->filter_sustain() ) {
+		// If filter is causing note to ring, process more samples.
+		nTimes = nInitialBufferPos + nBufferSize - nInitialSilence;
+	}
 
 	auto pSample_data_L = pSample->get_data_l();
 	auto pSample_data_R = pSample->get_data_r();
@@ -1159,9 +1162,13 @@ bool Sampler::renderNoteNoResample(
 			}
 		}
 
-		fADSRValue = pNote->get_adsr()->get_value( 1 );
-		fVal_L = pSample_data_L[ nSamplePos ] * fADSRValue;
-		fVal_R = pSample_data_R[ nSamplePos ] * fADSRValue;
+		if ( nBufferPos < nTimesSample ) {
+			fADSRValue = pNote->get_adsr()->get_value( 1 );
+			fVal_L = pSample_data_L[ nSamplePos ] * fADSRValue;
+			fVal_R = pSample_data_R[ nSamplePos ] * fADSRValue;
+		} else {
+			fVal_L = fVal_R = 0.0;
+		}
 
 		// Low pass resonant filter
 		if ( pNote->get_instrument()->is_filter_active() ) {
@@ -1290,9 +1297,6 @@ bool Sampler::renderNoteResample(
 		// imposto il numero dei bytes disponibili uguale al buffersize
 		nAvail_bytes = nBufferSize - nInitialSilence;
 		retValue = false; // the note is not ended yet
-	} else if ( pNote->get_instrument()->is_filter_active() && pNote->filter_sustain() ) {
-		// If filter is causing note to ring, process more samples.
-		nAvail_bytes = nBufferSize - nInitialSilence;
 	}
 
 	int nInitialBufferPos = nInitialSilence;
@@ -1300,6 +1304,10 @@ bool Sampler::renderNoteResample(
 	double fSamplePos = pSelectedLayerInfo->SamplePosition;
 	int nTimes = nInitialBufferPos + nAvail_bytes;
 
+	if ( pNote->get_instrument()->is_filter_active() && pNote->filter_sustain() ) {
+		// If filter is causing note to ring, process more samples.
+		nTimes = nInitialBufferPos + nBufferSize - nInitialSilence;
+	}
 	auto pSample_data_L = pSample->get_data_l();
 	auto pSample_data_R = pSample->get_data_r();
 

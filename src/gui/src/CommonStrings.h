@@ -137,6 +137,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getTimelineDisabledPatternMode() const { return m_sTimelineDisabledPatternMode; }
 	const QString& getTimelineDisabledTimebaseSlave() const { return m_sTimelineDisabledTimebaseSlave; }
 
+	// const QString& getDialogSongLoadError() const { return m_sDialogSongLoadError; }
+	// const QString& getDialogUnsavedChangesH1() const { return m_sDialogUnsavedChangedH1; }
+	// const QString& getDialogUnsavedChangesH2() const { return m_sDialogUnsavedChangedH2; }
+
 private:
 	QString m_sSmallSoloButton;
 	QString m_sSmallMuteButton;
@@ -229,6 +233,12 @@ private:
 	QString m_sTimelineEnabled;
 	QString m_sTimelineDisabledPatternMode;
 	QString m_sTimelineDisabledTimebaseSlave;
-	
+
+	// Not used yet. A redesign of the GUI startup is required first
+	// since these strings are required _before_ HydrogenApp was
+	// created.
+	// QString m_sDialogSongLoadError;
+	// QString m_sDialogUnsavedChangedH1;
+	// QString m_sDialogUnsavedChangedH2;
 };
 #endif

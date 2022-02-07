@@ -15,6 +15,13 @@
 		  current playback speed when the Timeline is activated.
 		- Activation of the Timeline is now stored in each individual
 		  .h2song file.
+		- Autosave files will be hidden. The interval they are stored with
+		  as well whether there is an autosave at all can be set via the
+		  Preferences. Hydrogen will inform the user whether there are
+		  unsaved changes to recover taken from the autosave file.
+		- Hydrogen is now able to recover changes applied to a new and
+		  empty song in case they are discarded or the session end
+		  untimely (using autosave files)
 	* Interface
 		- Improved scalability (most PNG images were replaced by SVGs,
 		  hardcoded PNG labels are now directly drawn by Qt, and spin boxes,

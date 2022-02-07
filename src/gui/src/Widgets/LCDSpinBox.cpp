@@ -26,13 +26,14 @@
 #include <core/Preferences/Preferences.h>
 
 // used in PlayerControl
-LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, double fMax )
+LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, double fMax, bool bModifyOnChange )
  : QDoubleSpinBox( pParent )
  , m_size( size )
  , m_type( type )
  , m_bEntered( false )
  , m_kind( Kind::Default )
  , m_bIsActive( true )
+ , m_bModifyOnChange( bModifyOnChange )
 {
 	setFocusPolicy( Qt::ClickFocus );
 	setLocale( QLocale( QLocale::C, QLocale::AnyCountry ) );
@@ -46,6 +47,8 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, do
 	updateStyleSheet();
 		
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &LCDSpinBox::onPreferencesChanged );
+	connect( this, SIGNAL(valueChanged(double)), this,
+			 SLOT(valueChanged(double)));
 		
 	setMaximum( fMax );
 	setMinimum( fMin );
@@ -103,7 +106,6 @@ void LCDSpinBox::wheelEvent( QWheelEvent *ev ) {
 			setValue( 1 );
 		}
 	} else {
-	
 		QDoubleSpinBox::wheelEvent( ev );
 
 	}
@@ -143,7 +145,6 @@ void LCDSpinBox::keyPressEvent( QKeyEvent *ev ) {
 		}
 		
 	} else {
-	 
 		 QDoubleSpinBox::keyPressEvent( ev );
 	}
 }
@@ -252,6 +253,14 @@ double LCDSpinBox::valueFromText( const QString& sText ) const {
 	return fResult;
 }
 
+void LCDSpinBox::setValue( double fValue ) {
+	if ( value() == fValue ) {
+		return;
+	}
+	
+	QDoubleSpinBox::setValue( fValue );
+}
+
 bool LCDSpinBox::event( QEvent* ev ) {
 
 	if ( ev->type() == QEvent::KeyPress && dynamic_cast<QKeyEvent*>( ev)->key() == Qt::Key_Slash ) {
@@ -337,5 +346,11 @@ void LCDSpinBox::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		updateStyleSheet();
+	}
+}
+
+void LCDSpinBox::valueChanged( double fNewValue ) {
+	if ( m_bModifyOnChange ) {
+		H2Core::Hydrogen::get_instance()->setIsModified( true );
 	}
 }

@@ -98,8 +98,34 @@ namespace H2Core
 		static QString usr_config_path();
 		/** returns system empty sample file path */
 		static QString empty_sample_path();
-		/** returns system empty song file path */
+		/**
+		 * Provides the full path to the current empty song.
+		 *
+		 * The basename consists of a fixed expression and an optional
+		 * suffix ensuring the path does not point to an existing
+		 * file.
+		 *
+		 * Empty songs are handled in Hydrogen as follows: Upon
+		 * creation, the empty song will be assigned a
+		 * Song::m_sFilename identical to the return value of this
+		 * function. This triggers autosave files to be generated
+		 * corresponding to empty song path. If the user attempts to
+		 * save the song from within the GUI, she will be prompted a
+		 * "Save As" dialog and is asked to provide a new name. This
+		 * way a file using the empty song path does normally not
+		 * exists. But since the return value of this function is
+		 * reproducible, Hydrogen is able to recover unsaved
+		 * modifications applied to an empty song. If the user - by
+		 * design or coincidence - picks the empty song path to save a
+		 * file or if the OSC API is used to save the empty song,
+		 * empty_song_path() will use a suffix to return yet again a
+		 * path to a non-existing file and allow for the behavior
+		 * described above.
+		 */
 		static QString empty_song_path();
+		/** Default option to offer the user when saving an empty song
+			to disk.*/
+		static QString default_song_name();
 		/** returns untitled song file name */
 		static QString untitled_song_file_name();
 		/** Returns a string containing the path to the
@@ -190,6 +216,7 @@ namespace H2Core
 		 * \param dk_name the drumkit name
 		 */
 		static QString drumkit_usr_path( const QString& dk_name );
+		static QString drumkit_default_kit();
 		/** Returns the path to a H2Core::Drumkit folder.
 		 *
 		 * The search will first be performed within user-level

@@ -69,7 +69,7 @@ public:
 		PatternSizeDenominator
 	};
 
-	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int, double fMin = 0.0, double fMax = 1.0 );
+	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int, double fMin = 0.0, double fMax = 1.0, bool bModifyOnChange = true );
 	~LCDSpinBox();
 
 	void setKind( Kind kind );
@@ -81,6 +81,10 @@ public:
 	void setSize( QSize size );
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void setValue( double fValue );
+
+private slots:
+	void valueChanged( double fNewValue );
 
 signals:
 	void slashKeyPressed();
@@ -94,6 +98,10 @@ private:
 	
 	bool m_bEntered;
 	bool m_bIsActive;
+
+	/** Whether Hydrogen::setIsModified() is invoked with `true` as
+		soon as the value of the widget does change.*/
+	bool m_bModifyOnChange;
 
 	virtual QString textFromValue( double fValue ) const override;
 	virtual double valueFromText( const QString& sText ) const override;	

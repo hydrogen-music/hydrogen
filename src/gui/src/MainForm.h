@@ -51,14 +51,13 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 	public:
 		QApplication* m_pQApp;
 
-		MainForm( QApplication * pQApplication );
+	MainForm( QApplication * pQApplication, QString sSongFilename );
 		~MainForm();
-
-		void updateRecentUsedSongList();
 
 		virtual void errorEvent( int nErrorCode ) override;
 		virtual void jacksessionEvent( int nValue) override;
 		virtual void playlistLoadSongEvent(int nIndex) override;
+		virtual void updateSongEvent( int nValue ) override;
 
 		/** Handles the loading and saving of the H2Core::Preferences
 		 * from the core part of H2Core::Hydrogen.
@@ -79,7 +78,6 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 		virtual void updatePreferencesEvent( int nValue ) override;
 		virtual void undoRedoActionEvent( int nEvent ) override;
 		static void usr1SignalHandler(int unused);
-
 
 public slots:
 		void showPreferencesDialog();
@@ -190,9 +188,6 @@ public slots:
 		void onRestartAccelEvent();
 		void onBPMPlusAccelEvent();
 		void onBPMMinusAccelEvent();
-		void onSaveAsAccelEvent();
-		void onSaveAccelEvent();
-		void onOpenAccelEvent();
 
 		void action_file_open_recent( QAction *pAction );
 		void showDevelWarning();
@@ -235,6 +230,8 @@ public slots:
 		bool handleUnsavedChanges();
 
 	private:
+		void updateRecentUsedSongList();
+
 		HydrogenApp*	h2app;
 
 		static int sigusr1Fd[2];
@@ -264,6 +261,7 @@ public slots:
 
 		QUndoView *	m_pUndoView;///debug only
 
+	void startAutosaveTimer();
 		QTimer		m_AutosaveTimer;
 
 		/** Create the menubar */
@@ -308,6 +306,13 @@ public slots:
 		QMenu* m_pOptionsMenu;
 		QMenu* m_pDebugMenu;
 		QMenu* m_pInfoMenu;
+
+	void openSongWithDialog( const QString& sWindowTitle, const QString& sPath, bool bIsDemo );
+
+	/** Since the filename of the current song does change whenever
+		the users uses "Save As" multiple autosave files would be
+		written unless we take care of them.*/
+	QString m_sPreviousAutoSaveFilename;
 };
 
 #endif

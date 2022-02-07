@@ -34,7 +34,7 @@
 #include <core/Preferences/Theme.h>
 #include <core/Hydrogen.h>
 
-Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize, QString sBaseTooltip, bool bColorful )
+Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize, QString sBaseTooltip, bool bColorful, bool bModifyOnChange )
 	: QPushButton( pParent )
 	, m_size( size )
 	, m_iconSize( iconSize )
@@ -47,6 +47,7 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	, m_bIsActive( true )
 	, m_bUseRedBackground( bUseRedBackground )
 	, m_nFixedFontSize( -1 )
+	, m_bModifyOnChange( bModifyOnChange )
 {
 	setAttribute( Qt::WA_OpaquePaintEvent );
 	setFocusPolicy( Qt::NoFocus );
@@ -83,6 +84,12 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	updateTooltip();
 	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Button::onPreferencesChanged );
+
+	if ( type == Type::Toggle ) {
+		connect( this, SIGNAL(toggled(bool)), this, SLOT(onToggled(bool)));
+	} else {
+		connect( this, SIGNAL(clicked(bool)), this, SLOT(onToggled(bool)));
+	}
 }
 
 Button::~Button() {
@@ -331,5 +338,11 @@ void Button::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 
 	if ( changes & H2Core::Preferences::Changes::AppearanceTab ) {
 		updateIcon();
+	}
+}
+
+void Button::onToggled( bool bChecked ) {
+	if ( m_bModifyOnChange ) {
+		H2Core::Hydrogen::get_instance()->setIsModified( true );
 	}
 }

@@ -274,7 +274,7 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 		EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
 		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 	}
-	
+
 	// In order to allow functions like audioEngine_setupLadspaFX() to
 	// load the settings of the new song, like whether the LADSPA FX
 	// are activated, __song has to be set prior to the call of
@@ -700,146 +700,53 @@ MidiOutput* Hydrogen::getMidiOutput() const
 	return m_pAudioEngine->getMidiOutDriver();
 }
 
-// Setting conditional to true will keep instruments that have notes if new kit has less instruments than the old one
-int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo )
-{
-	return loadDrumkit( pDrumkitInfo, true );
-}
 
-int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
+int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool bConditional )
 {
-	AudioEngine* pAudioEngine = m_pAudioEngine;
 	assert ( pDrumkitInfo );
+	auto pSong = getSong();
+	int nReturnValue = 0;
+	
+	if ( pSong != nullptr ) {
 
-	AudioEngine::State oldAudioEngineState = pAudioEngine->getState();
-	if( pAudioEngine->getState() == AudioEngine::State::Ready ||
-		pAudioEngine->getState() == AudioEngine::State::Playing ) {
-		pAudioEngine->setState( AudioEngine::State::Prepared );
-	}
-
-	INFOLOG( pDrumkitInfo->get_name() );
-	m_sCurrentDrumkitName = pDrumkitInfo->get_name();
-	if ( pDrumkitInfo->isUserDrumkit() ) {
-		m_currentDrumkitLookup = Filesystem::Lookup::user;
-	} else {
-		m_currentDrumkitLookup = Filesystem::Lookup::system;
-	}
-
-	std::vector<DrumkitComponent*>* pSongCompoList= getSong()->getComponents();
-	std::vector<DrumkitComponent*>* pDrumkitCompoList = pDrumkitInfo->get_components();
-	
-	pAudioEngine->lock( RIGHT_HERE );	
-	for( auto &pComponent : *pSongCompoList ){
-		delete pComponent;
-	}
-	pSongCompoList->clear();
-	pAudioEngine->unlock();
-	
-	for (std::vector<DrumkitComponent*>::iterator it = pDrumkitCompoList->begin() ; it != pDrumkitCompoList->end(); ++it) {
-		DrumkitComponent* pSrcComponent = *it;
-		DrumkitComponent* pNewComponent = new DrumkitComponent( pSrcComponent->get_id(), pSrcComponent->get_name() );
-		pNewComponent->load_from( pSrcComponent );
-
-		pSongCompoList->push_back( pNewComponent );
-	}
-
-	//current instrument list
-	InstrumentList *pSongInstrList = getSong()->getInstrumentList();
-	
-	//new instrument list
-	InstrumentList *pDrumkitInstrList = pDrumkitInfo->get_instruments();
-	
-	/*
-	 * If the old drumkit is bigger then the new drumkit,
-	 * delete all instruments with a bigger pos then
-	 * pDrumkitInstrList->size(). Otherwise the instruments
-	 * from our old instrumentlist with
-	 * pos > pDrumkitInstrList->size() stay in the
-	 * new instrumentlist
-	 *
-	 * wolke: info!
-	 * this has moved to the end of this function
-	 * because we get lost objects in memory
-	 * now:
-	 * 1. the new drumkit will loaded
-	 * 2. all not used instruments will complete deleted
-	 * old function:
-	 * while ( pDrumkitInstrList->size() < songInstrList->size() )
-	 * {
-	 *  songInstrList->del(songInstrList->size() - 1);
-	 * }
-	 */
-	
-	//needed for the new delete function
-	int instrumentDiff =  pSongInstrList->size() - pDrumkitInstrList->size();
-	int nMaxID = -1;
-	
-	for ( unsigned nInstr = 0; nInstr < pDrumkitInstrList->size(); ++nInstr ) {
-		std::shared_ptr<Instrument> pInstr = nullptr;
-		if ( nInstr < pSongInstrList->size() ) {
-			//instrument exists already
-			pInstr = pSongInstrList->get( nInstr );
-			assert( pInstr );
+		INFOLOG( pDrumkitInfo->get_name() );
+		m_sCurrentDrumkitName = pDrumkitInfo->get_name();
+		if ( pDrumkitInfo->isUserDrumkit() ) {
+			m_currentDrumkitLookup = Filesystem::Lookup::user;
 		} else {
-			pInstr = std::make_shared<Instrument>();
-			// The instrument isn't playing yet; no need for locking
-			// :-) - Jakob Lund.  m_pAudioEngine->lock(
-			// "Hydrogen::loadDrumkit" );
-			pSongInstrList->add( pInstr );
-			// m_pAudioEngine->unlock();
+			m_currentDrumkitLookup = Filesystem::Lookup::system;
 		}
 
-		auto pNewInstr = pDrumkitInstrList->get( nInstr );
-		assert( pNewInstr );
-		INFOLOG( QString( "Loading instrument (%1 of %2) [%3]" )
-				 .arg( nInstr + 1 )
-				 .arg( pDrumkitInstrList->size() )
-				 .arg( pNewInstr->get_name() ) );
-
-		// Preserve instrument IDs. Where the new drumkit has more instruments than the song does, new
-		// instruments need new ids.
-		int nID = pInstr->get_id();
-		if ( nID == EMPTY_INSTR_ID ) {
-			nID = nMaxID + 1;
+		m_pAudioEngine->lock( RIGHT_HERE );
+		
+		pSong->loadDrumkit( pDrumkitInfo, bConditional );
+		if ( m_nSelectedInstrumentNumber >=
+			 pSong->getInstrumentList()->size() ) {
+			setSelectedInstrumentNumber( std::max( 0, pSong->getInstrumentList()->size() -1 ) );
 		}
-		nMaxID = std::max( nID, nMaxID );
-
-		// Moved code from here right into the Instrument class - Jakob Lund.
-		pInstr->load_from( pDrumkitInfo, pNewInstr );
-		pInstr->set_id( nID );
-	}
-
-	//wolke: new delete function
-	if ( instrumentDiff >= 0 ) {
-		for ( int i = 0; i < instrumentDiff ; i++ ){
-			removeInstrument(
-						getSong()->getInstrumentList()->size() - 1,
-						conditional
-						);
-		}
-	}
 
 #ifdef H2CORE_HAVE_JACK
-	pAudioEngine->lock( RIGHT_HERE );
-	renameJackPorts( getSong() );
-	pAudioEngine->unlock();
+		renameJackPorts( getSong() );
 #endif
-
-	setIsModified( true );
-
-	pAudioEngine->setState( oldAudioEngineState );
+		m_pAudioEngine->unlock();
 	
-	m_pCoreActionController->initExternalControlInterfaces();
+		m_pCoreActionController->initExternalControlInterfaces();
+
+		setIsModified( true );
 	
-	// Create a symbolic link in the session folder when under session
-	// management.
-	if ( isUnderSessionManagement() ) {
+		// Create a symbolic link in the session folder when under session
+		// management.
+		if ( isUnderSessionManagement() ) {
 #ifdef H2CORE_HAVE_OSC
-		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, false );
+			NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, false );
 #endif
+		}
+	} else {
+		ERRORLOG( "No song loaded yet!" );
+		nReturnValue = -1;
 	}
 
-	return 0;	//ok
+	return nReturnValue;
 }
 
 // This will check if an instrument has any notes
@@ -861,72 +768,24 @@ bool Hydrogen::instrumentHasNotes( std::shared_ptr<Instrument> pInst )
 	return false;
 }
 
-//this is also a new function and will used from the new delete function in
-//Hydrogen::loadDrumkit to delete the instruments by number
-void Hydrogen::removeInstrument( int instrumentNumber, bool conditional )
-{
-	std::shared_ptr<Song> pSong = getSong();
-	auto pInstr = pSong->getInstrumentList()->get( instrumentNumber );
-	PatternList* pPatternList = pSong->getPatternList();
+void Hydrogen::removeInstrument( int nInstrumentNumber ) {
+	auto pSong = getSong();
+	if ( pSong != nullptr ) {
 
-	if ( conditional ) {
-		// new! this check if a pattern has an active note if there is an note
-		//inside the pattern the instrument would not be deleted
-		for ( int nPattern = 0 ;
-			  nPattern < (int)pPatternList->size() ;
-			  ++nPattern ) {
-			if( pPatternList
-					->get( nPattern )
-					->references( pInstr ) ) {
-				DEBUGLOG("Keeping instrument #" + QString::number( instrumentNumber ) );
-				return;
-			}
-		}
-	} else {
-		getSong()->purgeInstrument( pInstr );
-	}
-
-	InstrumentList* pList = pSong->getInstrumentList();
-	if ( pList->size()==1 ){
 		m_pAudioEngine->lock( RIGHT_HERE );
-		auto pInstr = pList->get( 0 );
-		pInstr->set_name( (QString( "Instrument 1" )) );
-		for ( auto& pCompo : *pInstr->get_components() ) {
-			// remove all layers
-			for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-				pCompo->set_layer( nullptr, nLayer );
-			}
+
+		pSong->removeInstrument( nInstrumentNumber, false );
+		
+		if ( nInstrumentNumber == m_nSelectedInstrumentNumber ) {
+			setSelectedInstrumentNumber( std::max( 0, nInstrumentNumber - 1 ) );
+		} else if ( m_nSelectedInstrumentNumber >=
+					pSong->getInstrumentList()->size() ) {
+			setSelectedInstrumentNumber( std::max( 0, pSong->getInstrumentList()->size() - 1 ) );
 		}
 		m_pAudioEngine->unlock();
-		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-		INFOLOG("clear last instrument to empty instrument 1 instead delete the last instrument");
-		return;
+		
+		setIsModified( true );
 	}
-
-	// if the instrument was the last on the instruments list, select the
-	// next-last
-	if ( instrumentNumber >= (int)getSong()->getInstrumentList()->size() - 1 ) {
-		setSelectedInstrumentNumber( std::max(0, instrumentNumber - 1 ) );
-	}
-	//
-	// delete the instrument from the instruments list
-	m_pAudioEngine->lock( RIGHT_HERE );
-	getSong()->getInstrumentList()->del( instrumentNumber );
-	setIsModified( true );
-	m_pAudioEngine->unlock();
-
-	// At this point the instrument has been removed from both the
-	// instrument list and every pattern in the song.  Hence there's no way
-	// (NOTE) to play on that instrument, and once all notes have stopped
-	// playing it will be save to delete.
-	// the ugly name is just for debugging...
-	QString xxx_name = QString( "XXX_%1" ) . arg( pInstr->get_name() );
-	pInstr->set_name( xxx_name );
-	__instrument_death_row.push_back( pInstr );
-	__kill_instruments(); // checks if there are still notes.
-
-	// this will force a GUI update.
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
 void Hydrogen::raiseError( unsigned nErrorCode )
@@ -1273,9 +1132,13 @@ void Hydrogen::setPlaysSelected( bool bPlaysSelected )
 	pAudioEngine->unlock();
 }
 
+void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr ) {
+	__instrument_death_row.push_back( pInstr );
+	__kill_instruments();
+}
+
 void Hydrogen::__kill_instruments()
 {
-	int c = 0;
 	std::shared_ptr<Instrument> pInstr = nullptr;
 	while ( __instrument_death_row.size()
 			&& __instrument_death_row.front()->is_queued() == 0 ) {
@@ -1286,7 +1149,6 @@ void Hydrogen::__kill_instruments()
 				 . arg( pInstr->get_name() )
 				 . arg( __instrument_death_row.size() ) );
 		pInstr = nullptr;
-		c++;
 	}
 	if ( __instrument_death_row.size() ) {
 		pInstr = __instrument_death_row.front();
@@ -1501,7 +1363,9 @@ void Hydrogen::recalculateRubberband( float fBpm ) {
 
 void Hydrogen::setIsModified( bool bIsModified ) {
 	if ( getSong() != nullptr ) {
-		getSong()->setIsModified( bIsModified );
+		if ( getSong()->getIsModified() != bIsModified ) {
+			getSong()->setIsModified( bIsModified );
+		}
 	}
 }
 

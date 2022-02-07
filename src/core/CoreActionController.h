@@ -99,28 +99,22 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * This will be done immediately and without saving
 		 * the current #H2Core::Song. All unsaved changes will be lost!
 		 *
-		 * The intended use of this function for session
-		 * management. Therefore, the function will *not* store the
-		 * provided @a songPath in Preferences::m_lastSongFilename and
-		 * Hydrogen won't resume with the corresponding song on
-		 * restarting.
-		 *
 		 * \param songPath Absolute path to the .h2song file to be
 		 *    opened.
+		 * \param sRecoverSongPath If set to a value other than "",
+		 *    the corresponding path will be used to load the song and
+		 *    the latter is assigned @a songPath as Song::m_sFilename
+		 *    afterwards. Using this mechanism the GUI can use an
+		 *    autosave backup file to load a song without the core
+		 *    having to do some string magic to retrieve the original name.
 		 * \return true on success
 		 */
-		bool openSong( const QString& songPath );
+	bool openSong( const QString& songPath, const QString& sRecoverSongPath = "" );
 		/**
 		 * Opens the #H2Core::Song specified in @a songPath.
 		 *
 		 * This will be done immediately and without saving
 		 * the current #H2Core::Song. All unsaved changes will be lost!
-		 *
-		 * The intended use of this function for session
-		 * management. Therefore, the function will *not* store the
-		 * provided @a pSong in Preferences::m_lastSongFilename and
-		 * Hydrogen won't resume with the corresponding song on
-		 * restarting.
 		 *
 		 * \param pSong New Song.
 		 * \return true on success
@@ -247,6 +241,21 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
 		bool activateLoopMode( bool bActivate, bool bTriggerEvent );
+	/** Wrapper around loadDrumkit() that allows loading drumkits by
+		name. */
+	bool loadDrumkit( const QString& sDrumkitName, bool bConditional = true );
+	/**
+	 * Loads Drumkit @a pDrumkit and stores it unto the current song.
+	 *
+	 * The loading is _not_ performed lazily as it also can be used to
+	 * reset the parameters of the current drumkit to its default
+	 * values.
+	 *
+	 * \param pDrumkit Full-fledged H2Core::Drumkit to load.
+	 * \param bConditional Whether to remove all redundant
+	 * H2Core::Instrument regardless of their content.
+	 */
+	bool loadDrumkit( Drumkit* pDrumkit, bool bConditional = true );
 		/** Relocates transport to the beginning of a particular
 		 * column/Pattern group.
 		 * 
@@ -330,9 +339,6 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 *
 		 * This will be done immediately and without saving the
 		 * current #H2Core::Song. All unsaved changes will be lost!
-		 *
-		 * The intended use of this function for session
-		 * management.
 		 *
 		 * \param pSong Pointer to the #H2Core::Song to set.
 		 * \return true on success
