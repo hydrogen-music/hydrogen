@@ -345,7 +345,27 @@ public:
 		is no external timebase master.*/
 	float getMasterBpm() const;
 
+	/** 
+	 * Uses the bar-beat-tick information to relocate the transport
+	 * position.
+	 *
+	 * This type of operation is triggered whenever the transport
+	 * position gets relocated or the tempo is changed using Jack in
+	 * the presence of an external timebase master. In addition, the
+	 * function also updates the current tick size to prevent
+	 * the audioEngine_checkBPMUpdate() function from doing so.*/
+	void relocateUsingBBT();
+
 private:
+
+	/** Compares the BBT information stored in #m_JackTransportPos and
+	 * #m_previousJackTransportPos with respect to the tempo and the
+	 * transport position in bars, beats, and ticks.
+	 *
+	 * @return true If #m_JackTransportPos is expected to follow
+	 * #m_previousJackTransportPos.
+	 */
+	bool compareAdjacentBBT() const;
 	
 	/**
 	 * Callback function for the JACK server to supply additional
@@ -508,6 +528,11 @@ private:
 	 *   video frame
 	 */
 	jack_position_t			m_JackTransportPos;
+	/** Used for detecting changes in the BBT transport information
+	 * with external timebase master application, which do not
+	 * propagate these changes on time.
+	 */
+	jack_position_t			m_previousJackTransportPos;
 
 	/**
 	 * Specifies whether the default left and right (master) audio

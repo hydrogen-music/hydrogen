@@ -510,9 +510,8 @@ public:
 	friend int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional );
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
-	/** Is allowed to set m_nextState via setNextState() according to
-		what the JACK server reports and to call locateToFrame().*/
 	friend void JackAudioDriver::updateTransportInfo();
+	friend void JackAudioDriver::relocateUsingBBT();
 private:
 	/** Resets a number of member variables to their initial state.
 	 *

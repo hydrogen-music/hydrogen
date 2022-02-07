@@ -186,7 +186,7 @@ Preferences::Preferences()
 	m_bJackTransportMode = true;
 	m_bJackConnectDefaults = true;
 	m_bJackTrackOuts = false;
-	m_bJackTimebaseEnabled = true;
+	m_bJackTimebaseEnabled = false;
 	m_bJackMasterMode = NO_JACK_TIME_MASTER;
 	m_JackTrackOutputMode = JackTrackOutputMode::postFader;
 	m_JackBBTSync = JackBBTSyncMethod::constMeasure;
@@ -455,7 +455,7 @@ void Preferences::loadPreferences( bool bGlobal )
 					}
 
 					//jack time master
-					m_bJackTimebaseEnabled = LocalFileMng::readXmlBool( jackDriverNode, "jack_timebase_enabled", true );
+					m_bJackTimebaseEnabled = LocalFileMng::readXmlBool( jackDriverNode, "jack_timebase_enabled", false );
 					QString tmMode = LocalFileMng::readXmlString( jackDriverNode, "jack_transport_mode_master", "NO_JACK_TIME_MASTER" );
 					if ( tmMode == "NO_JACK_TIME_MASTER" ) {
 						m_bJackMasterMode = NO_JACK_TIME_MASTER;
