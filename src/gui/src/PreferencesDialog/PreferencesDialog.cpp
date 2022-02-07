@@ -264,6 +264,18 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		ERRORLOG( QString( "Unknown JACK track output mode [%1]" )
 				  .arg( static_cast<int>( pPref->m_JackTrackOutputMode ) ) );
 	}
+
+	switch ( pPref->m_JackBBTSync ) {
+	case Preferences::JackBBTSyncMethod::constMeasure:
+		jackBBTSyncComboBox->setCurrentIndex( 0 );
+		break;
+	case Preferences::JackBBTSyncMethod::identicalBars:
+		jackBBTSyncComboBox->setCurrentIndex( 1 );
+		break;
+	default:
+		ERRORLOG( QString( "Unknown JACK BBT synchronization method [%1]" )
+				  .arg( static_cast<int>(pPref->m_JackBBTSync) ) );
+	}
 	//~ JACK
 
 
@@ -621,6 +633,17 @@ void PreferencesDialog::updateDriverPreferences() {
 	default:
 		ERRORLOG( QString( "Unexpected track output value" ) );
 	}
+
+	switch ( jackBBTSyncComboBox->currentIndex() ) {
+	case 0:
+		pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::constMeasure;
+		break;
+	case 1:
+		pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::identicalBars;
+		break;
+	default:
+		ERRORLOG( QString( "Unexpected JACK BBT synchronization value" ) );
+	}
 	//~ JACK
 
 	pPref->m_nBufferSize = bufferSizeSpinBox->value();
@@ -840,6 +863,8 @@ void PreferencesDialog::updateDriverInfo()
 		connectDefaultsCheckBox->setEnabled( false );
 		enableTimebaseCheckBox->setEnabled( false );
 		trackOutsCheckBox->setEnabled( false );
+		jackBBTSyncComboBox->setEnabled( false );
+		jackBBTSyncLbl->setEnabled( false );
 		portaudioHostAPIComboBox->hide();
 		portaudioHostAPILabel->hide();
 		latencyTargetLabel->hide();
@@ -851,21 +876,29 @@ void PreferencesDialog::updateDriverInfo()
 			connectDefaultsCheckBox->setEnabled( true );
 			enableTimebaseCheckBox->setEnabled( true );
 			trackOutsCheckBox->setEnabled( true );
+			jackBBTSyncComboBox->setEnabled( true );
+			jackBBTSyncLbl->setEnabled( true );
 			trackOutputComboBox->show();
 			trackOutputLbl->show();
 			connectDefaultsCheckBox->show();
 			trackOutsCheckBox->show();
 			enableTimebaseCheckBox->show();
+			jackBBTSyncComboBox->show();
+			jackBBTSyncLbl->show();
 		} else {
 			trackOutputComboBox->setEnabled( false );
 			connectDefaultsCheckBox->setEnabled( false );
 			enableTimebaseCheckBox->setEnabled( false );
 			trackOutsCheckBox->setEnabled( false );
+			jackBBTSyncComboBox->setEnabled( false );
+			jackBBTSyncLbl->setEnabled( false );
 			trackOutputComboBox->hide();
 			trackOutputLbl->hide();
 			connectDefaultsCheckBox->hide();
 			enableTimebaseCheckBox->hide();
 			trackOutsCheckBox->hide();
+			jackBBTSyncComboBox->hide();
+			jackBBTSyncLbl->hide();
 		}
 	}
 	else if ( driverComboBox->currentText() == "OSS" ) {	// OSS
@@ -886,6 +919,8 @@ void PreferencesDialog::updateDriverInfo()
 		connectDefaultsCheckBox->hide();
 		enableTimebaseCheckBox->hide();
 		trackOutsCheckBox->hide();
+		jackBBTSyncComboBox->hide();
+		jackBBTSyncLbl->hide();
 		portaudioHostAPIComboBox->hide();
 		portaudioHostAPILabel->hide();
 		latencyTargetLabel->hide();
@@ -916,6 +951,8 @@ void PreferencesDialog::updateDriverInfo()
 		connectDefaultsCheckBox->show();
 		enableTimebaseCheckBox->show();
 		trackOutsCheckBox->show();
+		jackBBTSyncComboBox->show();
+		jackBBTSyncLbl->show();
 		portaudioHostAPIComboBox->hide();
 		portaudioHostAPILabel->hide();
 		latencyTargetLabel->hide();
@@ -940,6 +977,8 @@ void PreferencesDialog::updateDriverInfo()
 		connectDefaultsCheckBox->hide();
 		enableTimebaseCheckBox->hide();
 		trackOutsCheckBox->hide();
+		jackBBTSyncComboBox->hide();
+		jackBBTSyncLbl->hide();
 		portaudioHostAPIComboBox->hide();
 		portaudioHostAPILabel->hide();
 		latencyTargetLabel->hide();
@@ -964,6 +1003,8 @@ void PreferencesDialog::updateDriverInfo()
 		connectDefaultsCheckBox->hide();
 		enableTimebaseCheckBox->hide();
 		trackOutsCheckBox->hide();
+		jackBBTSyncComboBox->hide();
+		jackBBTSyncLbl->hide();
 		portaudioHostAPIComboBox->show();
 		portaudioHostAPILabel->show();
 		latencyTargetLabel->show();
@@ -990,6 +1031,8 @@ void PreferencesDialog::updateDriverInfo()
 		connectDefaultsCheckBox->hide();
 		enableTimebaseCheckBox->hide();
 		trackOutsCheckBox->hide();
+		jackBBTSyncComboBox->hide();
+		jackBBTSyncLbl->hide();
 		portaudioHostAPIComboBox->hide();
 		portaudioHostAPILabel->hide();
 		latencyTargetLabel->hide();
@@ -1014,6 +1057,8 @@ void PreferencesDialog::updateDriverInfo()
 		connectDefaultsCheckBox->hide();
 		enableTimebaseCheckBox->hide();
 		trackOutsCheckBox->hide();
+		jackBBTSyncComboBox->hide();
+		jackBBTSyncLbl->hide();
 		portaudioHostAPIComboBox->hide();
 		portaudioHostAPILabel->hide();
 		latencyTargetLabel->hide();

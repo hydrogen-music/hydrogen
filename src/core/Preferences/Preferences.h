@@ -318,11 +318,42 @@ public:
 	//jack time master
 
 	/**
-	 * Hydrogen will overwrite its local tempo as soon as the JACK
-	 * server broadcasts BBT information. Using this option this
-	 * behavior can be toggled.
+	 * External applications with a faulty JACK timebase master
+	 * implementation can mess up the transport within Hydrogen. To
+	 * guarantee the basic functionality, the user can disable
+	 * timebase support and make Hydrogen only listen to the frame
+	 * number broadcast by the JACK server.
 	 */
 	bool				m_bJackTimebaseEnabled;
+	/**
+	 * Specifies the variable, which has to remain constant in order
+	 * to guarantee a working synchronization and relocation with
+	 * Hydrogen as JACK timebase client.
+	 */
+	enum class JackBBTSyncMethod {
+		/** The measure - could be any - does not change during the
+			song.*/
+		constMeasure = 0,
+		/** The length of each pattern must match the measure of the
+			corresponding bar in the timebase master. This way both
+			the pattern position of Hydrogen and the bar information
+			provided by JACK can be assumed to be identical.*/
+		identicalBars = 1 };
+	/**
+	 * Since Hydrogen uses both fixed pattern lengths and recalculates
+	 * the tick size each time it encounters an alternative tempo, its
+	 * transport is incompatible to the BBT information provided by 
+	 * the JACK server. Only if the length of each pattern corresponds
+	 * to the measure of the respective bar in the timebase master
+	 * application, the bar information provided by JACK can be used
+	 * directly to determine chosen pattern. If this, however, is not
+	 * the case - which can quite easily happen - a complete history 
+	 * of all measure and tempo changes would be required to correctly
+	 * identify the pattern. Since this is not provided by JACK, one
+	 * has to either assume the measure or tempo to be constant or 
+	 * that the user took care of adjusting the lengths properly.
+	 */
+	JackBBTSyncMethod	m_JackBBTSync;
 	/**
 	 * Specifies if Hydrogen should run as JACK time master. It
 	 * has two states: Preferences::USE_JACK_TIME_MASTER and
