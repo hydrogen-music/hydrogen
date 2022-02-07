@@ -1637,7 +1637,7 @@ void DrumPatternEditor::functionMoveInstrumentAction( int nSourceInstrument,  in
 void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument, std::vector<int>* AddedComponents )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	pHydrogen->removeInstrument( nTargetInstrument, false );
+	pHydrogen->removeInstrument( nTargetInstrument );
 
 	std::vector<DrumkitComponent*>* pDrumkitComponents = pHydrogen->getSong()->getComponents();
 
@@ -1864,7 +1864,7 @@ void DrumPatternEditor::functionAddEmptyInstrumentUndo()
 {
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	pHydrogen->removeInstrument( pHydrogen->getSong()->getInstrumentList()->size() -1 , false );
+	pHydrogen->removeInstrument( pHydrogen->getSong()->getInstrumentList()->size() -1 );
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 #ifdef H2CORE_HAVE_JACK

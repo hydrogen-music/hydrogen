@@ -442,10 +442,6 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 		return false;
 	}
 
-	// Remove all BPM tags on the Timeline.
-	pHydrogen->getTimeline()->deleteAllTempoMarkers();
-	pHydrogen->getTimeline()->deleteAllTags();
-
 	if ( pHydrogen->isUnderSessionManagement() ) {
 		pHydrogen->restartDrivers();
 	}		
@@ -478,7 +474,7 @@ bool CoreActionController::openSong( const QString& sSongPath, const QString& sR
 
 	std::shared_ptr<Song> pSong;
 	if ( ! sRecoverSongPath.isEmpty() ) {
-		// Use an autosave file to load the song but 
+		// Use an autosave file to load the song
 		pSong = Song::load( sRecoverSongPath );
 		if ( pSong != nullptr ) {
 			pSong->setFilename( sSongPath );
@@ -523,10 +519,12 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 		
 	if ( pHydrogen->isUnderSessionManagement() ) {
 		pHydrogen->restartDrivers();
-	} else {
+	} else if ( pSong->getFilename() != Filesystem::empty_song_path() ) {
 		// Add the new loaded song in the "last used song" vector.
 		// This behavior is prohibited under session management. Only
-		// songs open during normal runs will be listed.
+		// songs open during normal runs will be listed. In addition,
+		// empty songs - created and set when hitting "New Song" in
+		// the main menu - aren't listed either.
 		Preferences::get_instance()->insertRecentFile( pSong->getFilename() );
 	}
 
@@ -819,6 +817,36 @@ bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent 
 	return true;
 }
 
+bool CoreActionController::loadDrumkit( const QString& sDrumkitName, bool bConditional ) {
+	auto pDrumkit = H2Core::Drumkit::load_by_name( sDrumkitName, true );
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( QString( "Drumkit [%1] could not be loaded" )
+				  .arg( sDrumkitName ) );
+		return false;
+	}
+
+	return loadDrumkit( pDrumkit, bConditional );
+}
+
+bool CoreActionController::loadDrumkit( Drumkit* pDrumkit, bool bConditional ) {
+	bool bReturnValue = true;
+	
+	if ( pDrumkit != nullptr ) {
+		if ( Hydrogen::get_instance()->loadDrumkit( pDrumkit, bConditional ) == 0 ) {
+			EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
+		} else {
+			ERRORLOG( "Unable to load drumkit" );
+			bReturnValue = false;
+		}
+		delete pDrumkit;
+	} else {
+		ERRORLOG( "Provided Drumkit is not valid" );
+		bReturnValue =  false;
+	}
+	
+	return bReturnValue;
+}
+	
 bool CoreActionController::locateToColumn( int nPatternGroup ) {
 
 	if ( nPatternGroup < -1 ) {
