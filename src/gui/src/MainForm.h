@@ -188,9 +188,6 @@ public slots:
 		void onRestartAccelEvent();
 		void onBPMPlusAccelEvent();
 		void onBPMMinusAccelEvent();
-		void onSaveAsAccelEvent();
-		void onSaveAccelEvent();
-		void onOpenAccelEvent();
 
 		void action_file_open_recent( QAction *pAction );
 		void showDevelWarning();
