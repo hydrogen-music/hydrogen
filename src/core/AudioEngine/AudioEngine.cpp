@@ -1700,9 +1700,9 @@ void AudioEngine::updateSongSize() {
 	// pattern invariant in this transformation.
 	long nNewPatternStartTick = pHydrogen->getTickForColumn( getColumn() );
 	if ( nNewPatternStartTick != m_nPatternStartTick ) {
-		DEBUGLOG( QString( "[start tick mismatch] old: %1, new: %2" )
-				  .arg( m_nPatternStartTick )
-				  .arg( nNewPatternStartTick ) );
+		// DEBUGLOG( QString( "[start tick mismatch] old: %1, new: %2" )
+		// 		  .arg( m_nPatternStartTick )
+		// 		  .arg( nNewPatternStartTick ) );
 		
 		fNewTick +=
 			static_cast<double>(nNewPatternStartTick - m_nPatternStartTick);

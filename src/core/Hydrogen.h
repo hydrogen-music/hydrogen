@@ -55,36 +55,25 @@ class Hydrogen : public H2Core::Object<Hydrogen>
 public:
 	
 	/** Specifies where the #AudioEngine does get its current tempo
-		updates from*/
+		updates from.*/
 	enum class Tempo {
+		/** BeatCounter, TapTempo, OSC and MIDI commands as well as
+			the BPM widget in the PlayerControl are used to change the
+			tempo.*/
 		Song = 0,
+		/** Only tempo markers on the Timeline are considered.*/
 		Timeline = 1,
+		/** Hydrogen will disregard all internal tempo settings and
+			uses the ones provided by the JACK server instead. This
+			mode is only used in case the JACK audio driver is used,
+			JACK timebase support is activated in the Preferences, and
+			an external timebase master is registered to the JACK
+			server.*/
 		Jack = 2
 	};
 	/**
 	 * Creates all the instances used within Hydrogen in the right
-	 * order. 
-	 *
-	 * -# H2Core::Logger::create_instance()
-	 * -# MidiMap::create_instance()
-	 * -# Preferences::create_instance()
-	 * -# EventQueue::create_instance()
-	 * -# MidiActionManager::create_instance()
-	 *
-	 * If #H2CORE_HAVE_OSC was set during compilation, the
-	 * following instances will be created as well.
-	 *
-	 * -# NsmClient::create_instance()
-	 * -# OscServer::create_instance() using
-	 *    Preferences::get_instance() as input
-	 *
-	 * If all instances are created and the actual Hydrogen
-	 * instance #__instance is still 0, it will be properly
-	 * constructed via Hydrogen().
-	 *
-	 * The AudioEngine::create_instance(),
-	 * Effects::create_instance(), and Playlist::create_instance()
-	 * functions will be called from within audioEngine_init().
+	 * order.
 	 */
 	static void		create_instance();
 	/**
@@ -122,16 +111,6 @@ public:
 	 * Adding and removing a Pattern from
 	 * #H2Core::AudioEngine::m_pNextPatterns.
 	 *
-	 * After locking the AudioEngine the function retrieves the
-	 * particular pattern @a pos from the Song::m_pPatternList and
-	 * either deletes it from #H2Core::AudioEngine::m_pNextPatterns if
-	 * already present or add it to the same pattern list if not
-	 * present yet.
-	 *
-	 * If the Song is not in Song::PATTERN_MODE or @a pos is not
-	 * within the range of Song::m_pPatternList,
-	 * #H2Core::AudioEngine::m_pNextPatterns will be cleared instead.
-	 *
 	 * \param pos Index of a particular pattern in
 	 * Song::m_pPatternList, which should be added to
 	 * #H2Core::AudioEngine::m_pNextPatterns.
@@ -142,16 +121,6 @@ public:
 	 * Clear #H2Core::AudioEngine::m_pNextPatterns and add one
 	 * Pattern.
 	 *
-	 * After locking the AudioEngine the function clears
-	 * #H2Core::AudioEngine::m_pNextPatterns, fills it with all
-	 * currently played one in
-	 * #H2Core::AudioEngine::m_pPlayingPatterns, and appends the
-	 * particular pattern @a pos from the Song::m_pPatternList.
-	 *
-	 * If the Song is not in Song::PATTERN_MODE or @a pos is not
-	 * within the range of Song::m_pPatternList,
-	 * #H2Core::AudioEngine::m_pNextPatterns will be just cleared.
-	 *
 	 * \param pos Index of a particular pattern in
 	 * Song::m_pPatternList, which should be added to
 	 * #H2Core::AudioEngine::m_pNextPatterns.
@@ -161,12 +130,6 @@ public:
 	 * Switches playback to focused pattern.
 	 *
 	 * ("Focused pattern" or "PlaysSelected" is the opposite of "Stacked" mode)
-	 *
-	 * If the current Song is in Song::PATTERN_MODE, the AudioEngine
-	 * will be locked and Preferences::m_bPatternModePlaysSelected
-	 * set. If the latter was true before calling this function,
-	 * #H2Core::AudioEngine::m_pPlayingPatterns will be cleared and
-	 * replaced by the Pattern indexed with #m_nSelectedPatternNumber.
 	 */
 	void			setPlaysSelected( bool bPlaysSelected );
 	
@@ -180,27 +143,7 @@ public:
 		 * \param newSong Pointer to the new Song object.
 		 */
 		void			setSong	( std::shared_ptr<Song> newSong );
-	
-	/**
-	 * Main audio processing function called by the audio drivers whenever
-	 * there is work to do.
-	 *
-	 * In short, it resets the audio buffers, checks the current transport
-	 * position and configuration, updates the queue of notes, which are
-	 * about to be played, plays those notes and writes their output to
-	 * the audio buffers, and, finally, increment the transport position
-	 * in order to move forward in time.
-	 *
-	 * \param nframes Buffersize.
-	 * \param arg Unused.
-	 * \return
-	 * - __2__ : Failed to aquire the audio engine lock, no processing took place.
-	 * - __1__ : kill the audio driver thread. This will be used if either
-	 * the DiskWriterDriver or FakeDriver are used and the end of the Song
-	 * is reached (audioEngine_updateNoteQueue() returned -1 ). 
-	 * - __0__ : else
-	 */
-	static int			audioEngine_process( uint32_t nframes, void *arg );
+
 	/**
 	 * Find a PatternList/column corresponding to the supplied tick
 	 * position @a nTick.

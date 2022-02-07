@@ -102,7 +102,7 @@ public:
 		/** Hydrogen itself is timebase master.*/
 		Master = 1,
 		/** An external program is timebase master and Hydrogen will
-         * disregard all tempo marker on the Timeline and, instead,
+         * disregard all tempo markers on the Timeline and, instead,
          * only use the BPM provided by JACK.*/
 		Slave = 0,
 		/** Only normal clients registered */
@@ -351,9 +351,7 @@ public:
 	 *
 	 * This type of operation is triggered whenever the transport
 	 * position gets relocated or the tempo is changed using Jack in
-	 * the presence of an external timebase master. In addition, the
-	 * function also updates the current tick size to prevent
-	 * the audioEngine_checkBPMUpdate() function from doing so.*/
+	 * the presence of an external timebase master.*/
 	void relocateUsingBBT();
 
 private:

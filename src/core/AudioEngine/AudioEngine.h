@@ -73,11 +73,12 @@ namespace H2Core
  * Audio Engine main class.
  *
  * It serves as a container for the Sampler and Synth stored in the
- * #m_pSampler and #m_pSynth member objects and provides a mutex
- * #m_EngineMutex enabling the user to synchronize the access of the
- * Song object and the AudioEngine itself. lock() and try_lock() can
- * be called by a thread to lock the engine and unlock() to make it
- * accessible for other threads once again.
+ * #m_pSampler and #m_pSynth member objects, takes care of transport
+ * control and note processing, and provides a mutex #m_EngineMutex
+ * enabling the user to synchronize the access of the Song object and
+ * the AudioEngine itself. lock() and try_lock() can be called by a
+ * thread to lock the engine and unlock() to make it accessible for
+ * other threads once again.
  *
  * \ingroup docCore docAudioEngine
  */ 
@@ -86,7 +87,7 @@ class AudioEngine : public H2Core::TransportInfo, public H2Core::Object<AudioEng
 	H2_OBJECT(AudioEngine)
 public:
 
-	/** Audio Engine states  (It's ok to use ==, <, and > when testing)*/
+	/** Audio Engine states.*/
 	enum class State {
 		/**
 		 * Not even the constructors have been called.
@@ -131,12 +132,6 @@ public:
 	/** Mutex locking of the AudioEngine.
 	 *
 	 * Lock the AudioEngine for exclusive access by this thread.
-	 *
-	 * The documentation below may serve as a guide for future
-	 * implementations. At the moment the logging of the locking
-	 * is __not supported yet__ and the arguments will be just
-	 * stored in the #__locker variable, which itself won't be
-	 * ever used.
 	 *
 	 * Easy usage:  Use the #RIGHT_HERE macro like this...
 	 * \code{.cpp}
@@ -231,19 +226,21 @@ public:
 	 * \param arg Unused.
 	 * \return
 	 * - __2__ : Failed to aquire the audio engine lock, no processing took place.
-	 * - __1__ : kill the audio driver thread. This will be used if either
-	 * the DiskWriterDriver or FakeDriver are used and the end of the Song
-	 * is reached (audioEngine_updateNoteQueue() returned -1 ). 
+	 * - __1__ : kill the audio driver thread.
 	 * - __0__ : else
 	 */
 	static int                      audioEngine_process( uint32_t nframes, void *arg );
-	
-	static float	computeTickSize( const int nSampleRate, const float fBpm, const int nResolution);
-	static long long computeFrame( double fTick, float fTickSize );
-	static double computeTick( long long nFrame, float fTickSize );
+
 	/**
-	 * In contrast to computeTick() this function does not assume that
-	 * the tick size is constant throughout the whole song.
+	 * Calcuates the number of frames that make up a tick.
+	 */
+	static float	computeTickSize( const int nSampleRate, const float fBpm, const int nResolution);
+	/**
+	 * Calculates a tick equivalent to @a nFrame.
+	 *
+	 * The function takes all passed tempo markers into account and
+	 * depends on the sample rate @a nSampleRate. It also assumes that
+	 * sample rate and resolution are constant over the whole song.
 	 *
 	 * @param nFrame Transport position in frame which should be
 	 * converted into ticks.
@@ -255,11 +252,9 @@ public:
 	/**
 	 * Calculates the frame equivalent to @a fTick.
 	 *
-	 * The frame takes all passed tempo markers into account and
-	 * depends on the sample rate @a nSampleRate.
-	 *
-	 * This function uses the assumption that sample rate and
-	 * resolution are constant over the whole song.
+	 * The function takes all passed tempo markers into account and
+	 * depends on the sample rate @a nSampleRate. It also assumes that
+	 * sample rate and resolution are constant over the whole song.
 	 *
 	 * @param fTick Current transport position in ticks.
 	 * @param fTickMismatch Since ticks are stored as doubles and there
@@ -397,7 +392,7 @@ public:
 	void stop();
 
 	/** Stores the new speed into a separate variable which will be
-	 * adopted next time the checkBpmChanged() is entered.*/
+	 * adopted during the next processing cycle.*/
 	void setNextBpm( float fNextBpm );
 	float getNextBpm() const;
 
@@ -407,6 +402,13 @@ public:
 
 	static float 	getBpmAtColumn( int nColumn );
 
+	/**
+	 * Function to be called every time length of the current song
+	 * does change, e.g. by toggling a pattern or altering its length.
+	 *
+	 * It will adjust both the current transport information as well
+	 * as the note queues in order to prevent any glitches.
+	 */
 	void updateSongSize();
 
 	/**
@@ -513,6 +515,27 @@ public:
 	friend void JackAudioDriver::updateTransportInfo();
 	friend void JackAudioDriver::relocateUsingBBT();
 private:
+	/**
+	 * Converts a tick into frames under the assumption of a constant
+	 * @a fTickSize since the beginning of the song (sample rate,
+	 * tempo, and resolution did not change).
+	 *
+	 * As the assumption above usually does not hold,
+	 * computeFrameFromTick() should be used instead while this
+	 * function is only meant for internal use.
+	 */
+	static long long computeFrame( double fTick, float fTickSize );
+	/**
+	 * Converts a frame into ticks under the assumption of a constant
+	 * @a fTickSize since the beginning of the song (sample rate,
+	 * tempo, and resolution did not change).
+	 *
+	 * As the assumption above usually does not hold,
+	 * computeTickFromFrame() should be used instead while this
+	 * function is only meant for internal use.
+	 */
+	static double computeTick( long long nFrame, float fTickSize );
+	
 	/** Resets a number of member variables to their initial state.
 	 *
 	 * This is used to allow a smooth transition between the Song and
