@@ -596,21 +596,6 @@ PatternEditorPanel::~PatternEditorPanel()
 {
 }
 
-void PatternEditorPanel::stateChangedEvent( H2Core::AudioEngine::State state ) {
-	// Deactivate the pattern size widgets while playback is rolling.
-	if ( state == H2Core::AudioEngine::State::Playing ) {
-		m_pLCDSpinBoxNumerator->setEnabled( false );
-		m_pLCDSpinBoxNumerator->setToolTip( HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeDisabledTooltip() );
-		m_pLCDSpinBoxDenominator->setEnabled( false );
-		m_pLCDSpinBoxDenominator->setToolTip( HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeDisabledTooltip() );
-	} else {
-		m_pLCDSpinBoxNumerator->setEnabled( true );
-		m_pLCDSpinBoxNumerator->setToolTip( "" );
-		m_pLCDSpinBoxDenominator->setEnabled( true );
-		m_pLCDSpinBoxDenominator->setToolTip( "" );
-	}
-}
-
 void PatternEditorPanel::drumkitLoadedEvent() {
 	updateSLnameLabel();
 	getDrumPatternEditor()->updateEditor();

@@ -388,6 +388,9 @@ bool CoreActionController::initExternalControlInterfaces()
 	}
 	
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+
+	bool bIsModified = pSong->getIsModified();
+	
 	setMasterVolume( pSong->getVolume() );
 	
 	//PER-INSTRUMENT/STRIP STATES
@@ -417,7 +420,7 @@ bool CoreActionController::initExternalControlInterfaces()
 	//MUTE_TOGGLE
 	setMasterIsMuted( Hydrogen::get_instance()->getSong()->getIsMuted() );
 
-	pHydrogen->setIsModified( false );
+	pHydrogen->setIsModified( bIsModified );
 	
 	return true;
 }

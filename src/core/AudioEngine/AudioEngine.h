@@ -503,9 +503,7 @@ public:
 	friend void Hydrogen::setSong( std::shared_ptr<Song> pSong );
 	/** Is allowed to call removeSong().*/
 	friend void Hydrogen::removeSong();
-	/** Is allowed to set m_state to State::Prepared via setState()*/
-	friend int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional );
-	friend bool CoreActionController::locateToFrame( unsigned long nFrame, bool );
+	friend bool CoreActionController::locateToTick( long nTick, bool );
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
 	friend void JackAudioDriver::updateTransportInfo();

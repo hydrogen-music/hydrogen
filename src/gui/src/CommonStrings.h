@@ -118,6 +118,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getMidiTooltipHeading() const { return m_sMidiTooltipHeading; }
 	const QString& getMidiTooltipBound() const { return m_sMidiTooltipBound; }
 	const QString& getMidiTooltipUnbound() const { return m_sMidiTooltipUnbound; }
+	const QString& getPatternSizeDisabledTooltip() const { return m_sPatternSizeDisabledTooltip; }
 	
 	const QString& getShowDrumkitEditorTooltip() const { return m_sShowDrumkitEditorTooltip; }
 	const QString& getShowPianoRollEditorTooltip() const { return m_sShowPianoRollEditorTooltip; }
@@ -216,6 +217,7 @@ private:
 	QString m_sMidiTooltipHeading;
 	QString m_sMidiTooltipBound;
 	QString m_sMidiTooltipUnbound;
+	QString m_sPatternSizeDisabledTooltip;
 	
 	QString m_sShowDrumkitEditorTooltip;
 	QString m_sShowPianoRollEditorTooltip;
