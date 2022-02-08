@@ -137,6 +137,9 @@ class ADSR : public Object<ADSR>
 		float __ticks;          ///< current tick count
 		float __value;          ///< current value
 		float __release_value;  ///< value when the release state was entered
+
+		double m_fQ;				///< exponential decay state
+
 		void normalise();
 };
 
