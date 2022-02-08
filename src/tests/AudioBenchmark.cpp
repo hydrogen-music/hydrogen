@@ -97,12 +97,12 @@ static QString showTimes( std::vector< clock_t > &times, int nFrames ) {
 		double fError = fMean - fSeconds;
 		fTotalError += fError * fError;
 	}
-	double fRMS = sqrt( fTotalError / times.size() );
+	double fRMS = sqrt( fTotalError ) / times.size();
 
 	return QString( "%1s (%2 frames/sec) +/- %3%" )
 		.arg( showNumber( fMean ) )
 		.arg( showNumber( nFrames * 1.0 / fMean) )
-		.arg( 100.0 * fRMS, 0, 'f', 3 );
+		.arg( 100.0 * fRMS / fMean, 0, 'f', 3 );
 }
 
 static void timeADSR( bool bNew ) {
@@ -111,16 +111,16 @@ static void timeADSR( bool bNew ) {
 	int nIterations = 32;
 	std::vector< clock_t > times;
 
-	for ( int i = 0; i < 10; i++ ) {
+	for ( int i = 0; i < 100; i++ ) {
 		for (int i = 0; i < nFrames; i++) {
 			data_L[i] = data_R[i] = 1.0;
 		}
 
-		ADSR adsr( nFrames / 4, nFrames / 4, 1.0, nFrames / 4 );
+		ADSR adsr( nFrames / 4, nFrames / 4, 0.5, nFrames / 4 );
 
 		std::clock_t start = std::clock();
 		if ( bNew ) {
-			adsr.applyADSR( data_L, data_R, nFrames, 3 * nFrames / 4, 1 );
+			adsr.applyADSR( data_L, data_R, nFrames, 3 * nFrames / 4, 1.0 );
 		} else {
 			for ( int i = 0; i < nFrames; i++ ) {
 				float fAdsr = adsr.get_value( 1.0 );
@@ -191,6 +191,12 @@ void AudioBenchmark::audioBenchmark(void)
 	}
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
+	qDebug() << "\n\nBenchmark old ADSR method:";
+	timeADSR( false );
+	qDebug() << "Benchmark new ADSR method:";
+	timeADSR( true );
+
+	
 	auto songFile = H2TEST_FILE("functional/test.h2song");
 	auto songADSRFile = H2TEST_FILE("functional/test_adsr.h2song");
 
@@ -232,12 +238,6 @@ void AudioBenchmark::audioBenchmark(void)
 
 	timeExport( 44100 );
 	timeExport( 48000 );
-
-	qDebug() << "Benchmark old ADSR method:";
-	timeADSR( false );
-	qDebug() << "Benchmark new ADSR method:";
-	timeADSR( true );
-
 
 	qDebug() << "---";
 }
