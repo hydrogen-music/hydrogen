@@ -431,6 +431,8 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 	LocalFileMng::writeXmlString( songNode, "playbackTrackVolume", QString("%1").arg( pSong->getPlaybackTrackVolume() ) );
 	LocalFileMng::writeXmlString( songNode, "action_mode",
 								  QString::number( static_cast<int>( pSong->getActionMode() ) ) );
+	LocalFileMng::writeXmlBool( songNode, "isPatternEditorLocked",
+								  pSong->getIsPatternEditorLocked() );
 	LocalFileMng::writeXmlBool( songNode, "isTimelineActivated", pSong->getIsTimelineActivated() );
 	
 	if ( pSong->getMode() == Song::Mode::Song ) {

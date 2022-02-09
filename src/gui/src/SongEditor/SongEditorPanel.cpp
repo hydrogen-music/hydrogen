@@ -95,59 +95,81 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	connect( m_pClearPatternSeqBtn, SIGNAL( pressed() ), this, SLOT( clearSequence() ) );
 
 	// new pattern button
-	Button *newPatBtn = new Button( pBackPanel,	QSize( 20, 19 ), Button::Type::Push, "plus.svg", "", false, QSize( 11, 11 ), tr("Create new pattern") );
-	newPatBtn->move( 64, 26 );
+	Button *newPatBtn = new Button( pBackPanel,	QSize( 16, 16 ), Button::Type::Push, "plus.svg", "", false, QSize( 10, 10 ), tr("Create new pattern") );
+	newPatBtn->move( 64, 28 );
 	connect( newPatBtn, SIGNAL( pressed() ), this, SLOT( newPatBtnClicked() ) );
 
 	// down button
-	m_pDownBtn = new Button( pBackPanel, QSize( 20, 19 ), Button::Type::Push, "down.svg", "", false, QSize( 11, 11 ), tr("Move the selected pattern down") );
-	m_pDownBtn->move( 87, 26 );
+	m_pDownBtn = new Button( pBackPanel, QSize( 16, 16 ), Button::Type::Push, "down.svg", "", false, QSize( 10, 10 ), tr("Move the selected pattern down") );
+	m_pDownBtn->move( 82, 28 );
 	connect( m_pDownBtn, SIGNAL( pressed() ), this, SLOT( downBtnClicked() ) );
 
 	// up button
-	m_pUpBtn = new Button( pBackPanel, QSize( 20, 19 ), Button::Type::Push, "up.svg", "", false, QSize( 11, 11 ), tr("Move the selected pattern up") );
-	m_pUpBtn->move( 106, 26 );
+	m_pUpBtn = new Button( pBackPanel, QSize( 16, 16 ), Button::Type::Push, "up.svg", "", false, QSize( 10, 10 ), tr("Move the selected pattern up") );
+	m_pUpBtn->move( 97, 28 );
 	connect( m_pUpBtn, SIGNAL( pressed() ), this, SLOT( upBtnClicked() ) );
 
-	// select toggle button
-	m_pSelectionModeBtn = new Button( pBackPanel, QSize( 20, 19 ), Button::Type::Toggle, "select.svg", "", false, QSize( 15, 12 ), tr( "Select mode" ) );
-	m_pSelectionModeBtn->move( 128, 26 );
+	// Two buttons sharing the same position and either of them is
+	// shown unpressed.
+	m_pSelectionModeBtn = new Button( pBackPanel, QSize( 25, 21 ), Button::Type::Toggle, "select.svg", "", false, QSize( 17, 16 ), tr( "Select mode" ) );
+	m_pSelectionModeBtn->move( 116, 25 );
 	connect( m_pSelectionModeBtn, SIGNAL( pressed() ), this, SLOT( selectionModeBtnPressed() ) );
 
-	// draw toggle button
-	m_pDrawModeBtn = new Button( pBackPanel, QSize( 20, 19 ), Button::Type::Toggle, "draw.svg", "", false, QSize( 15, 12 ), tr( "Draw mode") );
-	m_pDrawModeBtn->move( 147, 26 );
+	m_pDrawModeBtn = new Button( pBackPanel, QSize( 25, 21 ), Button::Type::Toggle, "draw.svg", "", false, QSize( 17, 16 ), tr( "Draw mode") );
+	m_pDrawModeBtn->move( 116, 25 );
 	connect( m_pDrawModeBtn, SIGNAL( pressed() ), this, SLOT( drawModeBtnPressed() ) );
 
-	if ( pSong->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
-		m_pSelectionModeBtn->setChecked( true );
-		m_pDrawModeBtn->setChecked( false );
+	if ( pHydrogen->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
+		m_pDrawModeBtn->hide();
 	} else {
-		m_pSelectionModeBtn->setChecked( false );
-		m_pDrawModeBtn->setChecked( true );
+		m_pSelectionModeBtn->hide();
 	}
 
 	// Two buttons sharing the same position and either of them is
 	// shown unpressed.
-	m_pModeActionSingleBtn = new Button( pBackPanel, QSize( 23, 19 ),
+	m_pPatternEditorLockedBtn = new Button( pBackPanel, QSize( 25, 21 ),
+											Button::Type::Toggle, "lock_closed.svg",
+											"", false, QSize( 21, 17 ),
+											pCommonStrings->getPatternEditorLocked(),
+											false, true );
+	m_pPatternEditorLockedBtn->move( 142, 25 );
+	m_pPatternEditorLockedBtn->setChecked( true );
+	m_pPatternEditorLockedBtn->setVisible( pHydrogen->isPatternEditorLocked() );
+	connect( m_pPatternEditorLockedBtn, &Button::pressed,
+			 [=](){Hydrogen::get_instance()->setIsPatternEditorLocked( false ); } );
+
+	m_pPatternEditorUnlockedBtn = new Button( pBackPanel, QSize( 25, 21 ),
+											  Button::Type::Push,
+											  "lock_open.svg", "", false,
+											  QSize( 21, 17 ),
+											  pCommonStrings->getPatternEditorLocked(),
+											  false, true );
+	m_pPatternEditorUnlockedBtn->move( 142, 25 );
+	m_pPatternEditorUnlockedBtn->setVisible( ! pHydrogen->isPatternEditorLocked() );
+	connect( m_pPatternEditorUnlockedBtn, &Button::pressed,
+			 [=](){Hydrogen::get_instance()->setIsPatternEditorLocked( true ); } );
+
+	// Two buttons sharing the same position and either of them is
+	// shown unpressed.
+	m_pPlaySelectedSingleBtn = new Button( pBackPanel, QSize( 25, 21 ),
 										 Button::Type::Push, "single_layer.svg",
-										 "", false, QSize( 15, 11 ),
+										 "", false, QSize( 17, 13 ),
 										 tr( "single pattern mode"),
 										 false, true );
-	m_pModeActionSingleBtn->move( 170, 26 );
-	m_pModeActionSingleBtn->setVisible( pPref->patternModePlaysSelected() );
-	connect( m_pModeActionSingleBtn, SIGNAL( pressed() ), this, SLOT( modeActionBtnPressed() ) );
+	m_pPlaySelectedSingleBtn->move( 168, 25 );
+	m_pPlaySelectedSingleBtn->setVisible( pPref->patternModePlaysSelected() );
+	connect( m_pPlaySelectedSingleBtn, SIGNAL( pressed() ), this, SLOT( playSelectedBtnPressed() ) );
 
-	m_pModeActionMultipleBtn = new Button( pBackPanel, QSize( 23, 19 ),
+	m_pPlaySelectedMultipleBtn = new Button( pBackPanel, QSize( 25, 21 ),
 										   Button::Type::Push,
 										   "multiple_layers.svg", "", false,
-										   QSize( 19, 15 ),
+										   QSize( 21, 17 ),
 										   tr( "stacked pattern mode"),
 										   false, true );
-	m_pModeActionMultipleBtn->move( 170, 26 );
-	m_pModeActionMultipleBtn->hide();
-	m_pModeActionMultipleBtn->setVisible( pPref->patternModePlaysSelected() );
-	connect( m_pModeActionMultipleBtn, SIGNAL( pressed() ), this, SLOT( modeActionBtnPressed() ) );
+	m_pPlaySelectedMultipleBtn->move( 168, 25 );
+	m_pPlaySelectedMultipleBtn->hide();
+	m_pPlaySelectedMultipleBtn->setVisible( pPref->patternModePlaysSelected() );
+	connect( m_pPlaySelectedMultipleBtn, SIGNAL( pressed() ), this, SLOT( playSelectedBtnPressed() ) );
 	setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
 
 // ZOOM
@@ -622,44 +644,55 @@ void SongEditorPanel::resizeEvent( QResizeEvent *ev )
 	resyncExternalScrollBar();
 }
 
-void SongEditorPanel::actionModeChangeEvent( int nValue ) {
+void SongEditorPanel::updateSongEvent( int ) {
+	patternEditorLockedEvent( 0 );
+	actionModeChangeEvent( 0 );
+}
 
-	if ( nValue == 0 ) {
-		if ( ! m_pSelectionModeBtn->isDown() ) {
-			m_pSelectionModeBtn->setChecked( true );
-		}
-		m_pDrawModeBtn->setChecked( false );
-	} else if ( nValue == 1 ) {
-		m_pSelectionModeBtn->setChecked( false );
-		if ( ! m_pDrawModeBtn->isDown() ) {
-			m_pDrawModeBtn->setChecked( true );
-		}
+void SongEditorPanel::patternEditorLockedEvent( int ) {
+
+	if ( ! m_pPatternEditorLockedBtn->isDown() ) {
+		m_pPatternEditorLockedBtn->setChecked( true );
 	} else {
-		ERRORLOG( QString( "Unknown EVENT_ACTION_MODE_CHANGE value" ) );
+	}
+	m_pPatternEditorUnlockedBtn->setChecked( false );
+
+	if ( Hydrogen::get_instance()->isPatternEditorLocked() ) {
+		m_pPatternEditorLockedBtn->show();
+		m_pPatternEditorUnlockedBtn->hide();
+	} else {
+		m_pPatternEditorLockedBtn->hide();
+		m_pPatternEditorUnlockedBtn->show();
+	}
+}
+
+void SongEditorPanel::actionModeChangeEvent( int ) {
+
+	m_pSelectionModeBtn->setChecked( false );
+	m_pDrawModeBtn->setChecked( false );
+
+	if ( Hydrogen::get_instance()->getActionMode() ==
+		 H2Core::Song::ActionMode::drawMode ) {
+		m_pDrawModeBtn->show();
+		m_pSelectionModeBtn->hide();
+	} else {
+		m_pDrawModeBtn->hide();
+		m_pSelectionModeBtn->show();
 	}
 }
 
 void SongEditorPanel::selectionModeBtnPressed()
 {
-	if ( Hydrogen::get_instance()->getSong()->getActionMode() != H2Core::Song::ActionMode::selectMode ) {
-		Hydrogen::get_instance()->getSong()->setActionMode( H2Core::Song::ActionMode::selectMode );
-	} else {
-		m_pSelectionModeBtn->setChecked( false );
-	}
+	Hydrogen::get_instance()->setActionMode( H2Core::Song::ActionMode::drawMode );
 }
 
 void SongEditorPanel::drawModeBtnPressed()
 {
-	if ( Hydrogen::get_instance()->getSong()->getActionMode() != H2Core::Song::ActionMode::drawMode ) {
-		Hydrogen::get_instance()->getSong()->setActionMode( H2Core::Song::ActionMode::drawMode );
-	} else {
-		m_pDrawModeBtn->setChecked( false );
-	}
+	Hydrogen::get_instance()->setActionMode( H2Core::Song::ActionMode::selectMode );
 }
 
 
 void SongEditorPanel::timelineBtnPressed() {
-	DEBUGLOG(! m_pTimelineBtn->isChecked());
 	setTimelineActive( ! m_pTimelineBtn->isChecked() );
 }
 
@@ -761,15 +794,15 @@ void SongEditorPanel::editPlaybackTrackBtnPressed()
 	updateAll();
 }
 
-void SongEditorPanel::modeActionBtnPressed( )
+void SongEditorPanel::playSelectedBtnPressed( )
 {
-	bool bWasStacked = m_pModeActionSingleBtn->isVisible();
+	bool bWasStacked = m_pPlaySelectedSingleBtn->isVisible();
 	if( bWasStacked ){
-		m_pModeActionSingleBtn->hide();
-		m_pModeActionMultipleBtn->show();
+		m_pPlaySelectedSingleBtn->hide();
+		m_pPlaySelectedMultipleBtn->show();
 	} else {
-		m_pModeActionSingleBtn->show();
-		m_pModeActionMultipleBtn->hide();
+		m_pPlaySelectedSingleBtn->show();
+		m_pPlaySelectedMultipleBtn->hide();
 	}
 	Hydrogen::get_instance()->setPlaysSelected( bWasStacked );
 	Hydrogen::get_instance()->setIsModified( true );
@@ -780,19 +813,23 @@ void SongEditorPanel::modeActionBtnPressed( )
 void SongEditorPanel::setModeActionBtn( bool mode )
 {
 	if( mode ){
-		m_pModeActionSingleBtn->hide();
-		m_pModeActionMultipleBtn->show();
+		m_pPlaySelectedSingleBtn->hide();
+		m_pPlaySelectedMultipleBtn->show();
 	} else {
-		m_pModeActionSingleBtn->show();
-		m_pModeActionMultipleBtn->hide();
+		m_pPlaySelectedSingleBtn->show();
+		m_pPlaySelectedMultipleBtn->hide();
 	}
 	// Set disabled or enabled
 	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
-		m_pModeActionMultipleBtn->setDisabled( true );
-		m_pModeActionSingleBtn->setDisabled( true );
+		m_pPlaySelectedMultipleBtn->setDisabled( true );
+		m_pPlaySelectedSingleBtn->setDisabled( true );
+		m_pPatternEditorLockedBtn->setDisabled( false );
+		m_pPatternEditorUnlockedBtn->setDisabled( false );
 	} else {
-		m_pModeActionMultipleBtn->setDisabled( false );
-		m_pModeActionSingleBtn->setDisabled( false );
+		m_pPlaySelectedMultipleBtn->setDisabled( false );
+		m_pPlaySelectedSingleBtn->setDisabled( false );
+		m_pPatternEditorLockedBtn->setDisabled( true );
+		m_pPatternEditorUnlockedBtn->setDisabled( true );
 	}
 }
 
@@ -928,7 +965,6 @@ bool SongEditorPanel::getTimelineActive() const {
 }
 
 void SongEditorPanel::setTimelineActive( bool bActive ){
-	DEBUGLOG( bActive );
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	if ( ! m_pTimelineBtn->isDown() ) {

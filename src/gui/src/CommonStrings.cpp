@@ -337,6 +337,7 @@ CommonStrings::CommonStrings(){
 	m_sTimelineEnabled = tr( "Enable the Timeline for custom tempo changes" );
 	m_sTimelineDisabledPatternMode = tr( "The Timeline is only available in Song Mode" );
 	m_sTimelineDisabledTimebaseSlave = tr( "In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen" );
+	m_sPatternEditorLocked = tr( "Lock the Pattern Editor to only show and follow the pattern recorded notes will be inserted into while in Song Mode." );
 
 	// Not used yet.
 	/*: Displayed in the Open dialog window if the selected song could

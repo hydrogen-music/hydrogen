@@ -1233,6 +1233,59 @@ bool Hydrogen::isTimelineEnabled() const {
 	return false;
 }
 
+bool Hydrogen::isPatternEditorLocked() const {
+	if ( getMode() == Song::Mode::Song ) {
+		if ( getSong()->getIsPatternEditorLocked() ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void Hydrogen::setIsPatternEditorLocked( bool bValue ) {
+	INFOLOG( bValue );
+	auto pSong = getSong();
+	if ( pSong != nullptr ) {
+		pSong->setIsPatternEditorLocked( bValue );
+			
+		EventQueue::get_instance()->push_event( EVENT_PATTERN_EDITOR_LOCKED,
+												bValue );
+	}
+}
+
+Song::Mode Hydrogen::getMode() const {
+	auto pSong = getSong();
+	if ( pSong != nullptr ) {
+		return pSong->getMode();
+	}
+
+	return Song::Mode::None;
+}
+
+void Hydrogen::setMode( Song::Mode mode ) {
+	if ( getSong() != nullptr ) {
+		getSong()->setMode( mode );
+		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
+	}
+}
+
+Song::ActionMode Hydrogen::getActionMode() const {
+	auto pSong = getSong();
+	if ( pSong != nullptr ) {
+		return pSong->getActionMode();
+	}
+	return Song::ActionMode::None;
+}
+
+void Hydrogen::setActionMode( Song::ActionMode mode ) {
+	if ( getSong() != nullptr ) {
+		getSong()->setActionMode( mode );
+		EventQueue::get_instance()->push_event( EVENT_ACTION_MODE_CHANGE,
+												( mode == Song::ActionMode::drawMode ) ? 1 : 0 );
+	}
+}
+
 Hydrogen::Tempo Hydrogen::getTempoSource() const {
 	if ( getMode() == Song::Mode::Song ) {
 		if ( getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
@@ -1348,13 +1401,6 @@ void Hydrogen::setIsModified( bool bIsModified ) {
 		if ( getSong()->getIsModified() != bIsModified ) {
 			getSong()->setIsModified( bIsModified );
 		}
-	}
-}
-
-void Hydrogen::setMode( Song::Mode mode ) {
-	if ( getSong() != nullptr ) {
-		getSong()->setMode( mode );
-		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
 	}
 }
 

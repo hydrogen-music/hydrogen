@@ -89,6 +89,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_pVelocityAutomationPath( nullptr )
 	, m_sLicense( "" )
 	, m_actionMode( ActionMode::selectMode )
+	, m_bIsPatternEditorLocked( false )
 	, m_nPanLawType ( Sampler::RATIO_STRAIGHT_POLYGONAL )
 	, m_fPanLawKNorm ( Sampler::K_NORM_DEFAULT )
 {
@@ -148,13 +149,6 @@ void Song::setBpm( float fBpm ) {
 void Song::setActionMode( Song::ActionMode actionMode ) {
 	m_actionMode = actionMode;
 
-	if ( actionMode == Song::ActionMode::selectMode ) {
-		EventQueue::get_instance()->push_event( EVENT_ACTION_MODE_CHANGE, 0 );
-	} else if ( actionMode == Song::ActionMode::drawMode ) {
-		EventQueue::get_instance()->push_event( EVENT_ACTION_MODE_CHANGE, 1 );
-	} else {
-		ERRORLOG( QString( "Unknown actionMode" ) );
-	}
 	setIsModified( true );
 }
 
@@ -975,6 +969,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 
 	Song::ActionMode actionMode = static_cast<Song::ActionMode>( LocalFileMng::readXmlInt( songNode, "action_mode",
 																						   static_cast<int>( Song::ActionMode::selectMode ) ) );
+	bool bIsPatternEditorLocked = LocalFileMng::readXmlBool( songNode, "isPatternEditorLocked", false );
 	float fHumanizeTimeValue = LocalFileMng::readXmlFloat( songNode, "humanize_time", 0.0 );
 	float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
 	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
@@ -1004,6 +999,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	pSong->setPlaybackTrackEnabled( bPlaybackTrackEnabled );
 	pSong->setPlaybackTrackVolume( fPlaybackTrackVolume );
 	pSong->setActionMode( actionMode );
+	pSong->setIsPatternEditorLocked( bIsPatternEditorLocked );
 	pSong->setIsTimelineActivated( bIsTimelineActivated );
 	
 	// pan law

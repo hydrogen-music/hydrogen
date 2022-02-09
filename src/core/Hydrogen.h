@@ -186,6 +186,11 @@ public:
 	EVENT_SONG_MODE_ACTIVATION and should be used by all parts of the
 	code except for song reading/setting.*/
 	void setMode( Song::Mode mode );
+	Song::ActionMode getActionMode() const;
+	/** Wrapper around Song::setActionMode() which also triggers
+	EVENT_ACTION_MODE_CHANGE and should be used by all parts of the
+	code except for song reading/setting.*/
+	void setActionMode( Song::ActionMode mode );
 
 	/** Wrapper around both Song::setIsTimelineActivated (recent) and
 	Preferences::setUseTimelinebpm() (former place to store the
@@ -453,6 +458,13 @@ void			previewSample( Sample *pSample );
 	 */
 	bool isTimelineEnabled() const;
 
+	/**
+	 * Convenience function checking whether using the Pattern Editor
+	 * is locked in the song settings and the song is in song mode.
+	 */
+	bool isPatternEditorLocked() const;
+	void setIsPatternEditorLocked( bool bValue );
+
 	Tempo getTempoSource() const;
 	
 	/**
@@ -678,9 +690,6 @@ inline int Hydrogen::getSelectedPatternNumber() const
 inline int Hydrogen::getSelectedInstrumentNumber() const
 {
 	return m_nSelectedInstrumentNumber;
-}
-inline Song::Mode Hydrogen::getMode() const {
-	return getSong()->getMode();
 }
 };
 

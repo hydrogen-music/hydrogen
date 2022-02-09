@@ -481,7 +481,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	bool bIsSelectionKey = false;
 	bool bUnhideCursor = true;
 
-	H2Core::Song::ActionMode actionMode = m_pHydrogen->getSong()->getActionMode();
+	H2Core::Song::ActionMode actionMode = m_pHydrogen->getActionMode();
 		
 	if ( actionMode == H2Core::Song::ActionMode::selectMode ) {
 		bIsSelectionKey = m_selection.keyPressEvent( ev );
@@ -622,7 +622,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 		// If a "select" key movement is used in "draw" mode, it's probably a good idea to go straight into
 		// "select" mode.
 		if ( actionMode == H2Core::Song::ActionMode::drawMode ) {
-			Hydrogen::get_instance()->getSong()->setActionMode( H2Core::Song::ActionMode::selectMode );
+			Hydrogen::get_instance()->setActionMode( H2Core::Song::ActionMode::selectMode );
 		}
 		// Any selection key may need a repaint of the selection
 		m_bSequenceChanged = true;
@@ -679,7 +679,7 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 	m_nCursorRow = p.y();
 	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
-	if ( Hydrogen::get_instance()->getSong()->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
+	if ( Hydrogen::get_instance()->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
 		m_selection.mousePressEvent( ev );
 
 	} else {
@@ -731,7 +731,7 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 	updateModifiers( ev );
 	m_currentMousePosition = ev->pos();
 
-	if ( Hydrogen::get_instance()->getSong()->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
+	if ( Hydrogen::get_instance()->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
 		m_selection.mouseMoveEvent( ev );
 	} else {
 		if ( ev->x() < m_nMargin ) {
@@ -804,7 +804,7 @@ void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 
 void SongEditor::mouseClickEvent( QMouseEvent *ev )
 {
-	assert( m_pHydrogen->getSong()->getActionMode() == H2Core::Song::ActionMode::selectMode );
+	assert( m_pHydrogen->getActionMode() == H2Core::Song::ActionMode::selectMode );
 	if ( ev->button() == Qt::LeftButton ) {
 		QPoint p = xyToColumnRow( ev->pos() );
 
@@ -820,7 +820,7 @@ void SongEditor::mouseClickEvent( QMouseEvent *ev )
 
 void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 {
-	if ( m_pHydrogen->getSong()->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
+	if ( m_pHydrogen->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
 		m_selection.mouseReleaseEvent( ev );
 		return;
 	}

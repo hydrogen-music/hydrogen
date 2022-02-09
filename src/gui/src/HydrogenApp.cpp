@@ -811,6 +811,10 @@ void HydrogenApp::onEventQueueTimer()
 			case EVENT_DRUMKIT_LOADED:
 				pListener->drumkitLoadedEvent();
 				break;
+
+			case EVENT_PATTERN_EDITOR_LOCKED:
+				pListener->patternEditorLockedEvent( event.value );
+				break;
 				
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );

@@ -160,7 +160,9 @@ enum EventType {
 		(either during playback or when relocated by the user)*/
 	EVENT_COLUMN_CHANGED,
 	/** A the current drumkit was replaced by a new one*/
-	EVENT_DRUMKIT_LOADED
+	EVENT_DRUMKIT_LOADED,
+	/** Locks the PatternEditor on the pattern currently played back.*/
+	EVENT_PATTERN_EDITOR_LOCKED
 };
 
 /** Basic building block for the communication between the core of

@@ -94,7 +94,8 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 
 		virtual void columnChangedEvent( int ) override;
 
-
+	virtual void patternEditorLockedEvent( int ) override;
+	virtual void updateSongEvent( int ) override;
 		virtual void songModeActivationEvent( int nValue ) override;
 
 	public slots:
@@ -123,7 +124,7 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void viewPlaybackTrackBtnPressed();
 		void mutePlaybackTrackBtnPressed();
 		void editPlaybackTrackBtnPressed();
-		void modeActionBtnPressed( );
+		void playSelectedBtnPressed( );
 
 		void zoomInBtnPressed();
 		void zoomOutBtnPressed();
@@ -162,10 +163,11 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		Button *				m_pDownBtn;
 		Button *				m_pClearPatternSeqBtn;
 		Button *			m_pSelectionModeBtn;
-		Button *			m_pModeActionSingleBtn;
-		Button *			m_pModeActionMultipleBtn;
+		Button *			m_pPlaySelectedSingleBtn;
+		Button *			m_pPlaySelectedMultipleBtn;
 		Button *			m_pDrawModeBtn;
-		Button *			m_pTagbarBtn;
+		Button *			m_pPatternEditorLockedBtn;
+		Button *			m_pPatternEditorUnlockedBtn;
 		
 		Fader*					m_pPlaybackTrackFader;
 
