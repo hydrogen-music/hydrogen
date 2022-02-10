@@ -866,19 +866,30 @@ void Hydrogen::restartLadspaFX()
 	}
 }
 
+void Hydrogen::updateSelectedPattern() {
+	if ( isPatternEditorLocked() ) {
+		m_pAudioEngine->lock( RIGHT_HERE );
+		m_pAudioEngine->handleSelectedPattern();
+		m_pAudioEngine->unlock();
+	}
+}
 
-void Hydrogen::setSelectedPatternNumber( int nPat )
+void Hydrogen::setSelectedPatternNumber( int nPat, bool bIsLocked )
 {
 	if ( nPat == m_nSelectedPatternNumber ) {
 		return;
 	}
 
 	if ( Preferences::get_instance()->patternModePlaysSelected() ) {
-		getAudioEngine()->lock( RIGHT_HERE );
+		if ( ! bIsLocked ) {
+			getAudioEngine()->lock( RIGHT_HERE );
+		}
 		
 		m_nSelectedPatternNumber = nPat;
 
-		getAudioEngine()->unlock();
+		if ( ! bIsLocked ) {
+			getAudioEngine()->unlock();
+		}
 	} else {
 		m_nSelectedPatternNumber = nPat;
 	}
@@ -1103,7 +1114,8 @@ void Hydrogen::setPlaysSelected( bool bPlaysSelected )
 	Preferences* pPref = Preferences::get_instance();
 	bool isPlaysSelected = pPref->patternModePlaysSelected();
 
-	if ( isPlaysSelected && !bPlaysSelected ) {
+	if ( isPlaysSelected && !bPlaysSelected &&
+		 getSelectedPatternNumber() != -1 ) {
 		pAudioEngine->getPlayingPatterns()->clear();
 		Pattern* pSelectedPattern =
 				pSong->getPatternList()->get( getSelectedPatternNumber() );

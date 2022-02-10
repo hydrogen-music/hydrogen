@@ -823,7 +823,7 @@ void MainForm::showUserManual()
 
 }
 
-void MainForm::action_file_export_pattern_as()
+void MainForm::action_file_export_pattern_as( int nPatternRow )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 		
@@ -831,8 +831,18 @@ void MainForm::action_file_export_pattern_as()
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
+	if ( nPatternRow == -1 ) {
+		nPatternRow = pHydrogen->getSelectedPatternNumber();
+	}
+
+	if ( nPatternRow == -1 ) {
+		QMessageBox::warning( this, "Hydrogen", tr("No pattern selected.") );
+		return;
+	}
+
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	Pattern *pPattern = pSong->getPatternList()->get( pHydrogen->getSelectedPatternNumber() );
+	
+	Pattern *pPattern = pSong->getPatternList()->get( nPatternRow );
 
 	QString sPath = Preferences::get_instance()->getLastExportPatternAsDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
@@ -921,8 +931,15 @@ void MainForm::action_file_openPattern()
 			if ( pNewPattern == nullptr ) {
 				QMessageBox::critical( this, "Hydrogen", HydrogenApp::get_instance()->getCommonStrings()->getPatternLoadError() );
 			} else {
+				int nRow;
+				if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
+					nRow = pSong->getPatternList()->size();
+				} else {
+					nRow = pHydrogen->getSelectedPatternNumber() + 1;
+				}
+				
 				SE_insertPatternAction* pAction =
-					new SE_insertPatternAction( pHydrogen->getSelectedPatternNumber() + 1, pNewPattern );
+					new SE_insertPatternAction( nRow, pNewPattern );
 				HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 			}
 		}

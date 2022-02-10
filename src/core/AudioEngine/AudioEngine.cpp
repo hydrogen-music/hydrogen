@@ -864,6 +864,36 @@ void AudioEngine::raiseError( unsigned nErrorCode )
 	m_pEventQueue->push_event( EVENT_ERROR, nErrorCode );
 }
 
+void AudioEngine::handleSelectedPattern() {
+	// Expects the AudioEngine being locked.
+	
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pHydrogen->isPatternEditorLocked() ) {
+
+		int nColumn = m_nColumn;
+		if ( m_nColumn == -1 ) {
+			nColumn = 0;
+		}
+
+		auto pPatternList = pSong->getPatternList();
+		auto pColumn = ( *pSong->getPatternGroupVector() )[ nColumn ];
+		
+		int nPatternNumber = -1;
+
+		int nIndex;
+		for ( const auto& pattern : *pColumn ) {
+			nIndex = pPatternList->index( pattern );
+
+			if ( nIndex > nPatternNumber ) {
+				nPatternNumber = nIndex;
+			}
+		}
+
+		pHydrogen->setSelectedPatternNumber( nPatternNumber, true );
+	}
+}
+
 void AudioEngine::processPlayNotes( unsigned long nframes )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
@@ -1406,6 +1436,7 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 			m_nColumn = getColumnForTick( tick, pSong->getIsLoopEnabled(), &m_nPatternStartTick );
 			if ( m_nColumn != m_nOldColumn ) {
 				m_nOldColumn = m_nColumn;
+				handleSelectedPattern();
 				EventQueue::get_instance()->push_event( EVENT_COLUMN_CHANGED, 0 );
 			}
 
@@ -1484,8 +1515,10 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 				// would be more efficient.
 				m_pPlayingPatterns->clear();
 				Pattern * pattern = pSong->getPatternList()->get( pHydrogen->getSelectedPatternNumber() );
-				m_pPlayingPatterns->add( pattern );
-				pattern->extand_with_flattened_virtual_patterns( m_pPlayingPatterns );
+				if ( pattern != nullptr ) {
+					m_pPlayingPatterns->add( pattern );
+					pattern->extand_with_flattened_virtual_patterns( m_pPlayingPatterns );
+				}
 			}
 
 			if ( m_pPlayingPatterns->size() != 0 ) {

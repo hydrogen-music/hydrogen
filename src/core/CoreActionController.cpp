@@ -974,7 +974,11 @@ bool CoreActionController::setPattern( Pattern* pPattern, int nPatternPosition )
 	}
 
 	pPatternList->insert( nPatternPosition, pPattern );
-	pHydrogen->setSelectedPatternNumber( nPatternPosition );
+	if ( pHydrogen->isPatternEditorLocked() ) {
+		pHydrogen->updateSelectedPattern();
+	} else  {
+		pHydrogen->setSelectedPatternNumber( nPatternPosition );
+	}
 	pHydrogen->setIsModified( true );
 	
 	// Update the SongEditor.
@@ -996,8 +1000,12 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 	int nPreviousPatternNumber = pHydrogen->getSelectedPatternNumber();
 	auto pPattern = pPatternList->get( nPatternNumber );
 
-	if ( nPatternNumber == nPreviousPatternNumber ) {
-		pHydrogen->setSelectedPatternNumber( std::max( 0, nPatternNumber - 1 ) );
+	if ( pHydrogen->isPatternEditorLocked() ) {
+		pHydrogen->updateSelectedPattern();
+	} else  {
+		if ( nPatternNumber == nPreviousPatternNumber ) {
+			pHydrogen->setSelectedPatternNumber( std::max( 0, nPatternNumber - 1 ) );
+		}
 	}
 
 	pPatternList->del( pPattern );

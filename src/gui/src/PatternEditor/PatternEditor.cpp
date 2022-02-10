@@ -345,6 +345,10 @@ void PatternEditor::cut()
 
 void PatternEditor::selectInstrumentNotes( int nInstrument )
 {
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
+	
 	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	auto pInstrument = pInstrumentList->get( nInstrument );
 
@@ -423,6 +427,10 @@ bool PatternEditor::notesMatchExactly( Note *pNoteA, Note *pNoteB ) const {
 
 bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements )
 {
+	if ( m_pPattern == nullptr ) {
+		return false;
+	}
+	
 	//	Hydrogen *pH = Hydrogen::get_instance();
 	std::set< Note *> duplicates;
 	for ( Note *pNote : elements ) {
@@ -478,6 +486,10 @@ bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements
 void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected,
 											   std::vector< H2Core::Note *> &overwritten )
 {
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
+	
 	// Iterate over all the notes in 'selected' and 'overwrite' by erasing any *other* notes occupying the
 	// same position.
 	m_pAudioEngine->lock( RIGHT_HERE );
@@ -509,6 +521,10 @@ void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &sel
 void PatternEditor::undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected,
 												   std::vector< H2Core::Note *> &overwritten )
 {
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
+	
 	// Restore previously-overwritten notes, and select notes that were selected before.
 	m_selection.clearSelection( /* bCheck=*/false );
 	m_pAudioEngine->lock( RIGHT_HERE );
@@ -538,7 +554,7 @@ void PatternEditor::updatePatternInfo() {
 	m_pPattern = nullptr;
 	m_nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 
-	if ( pSong ) {
+	if ( pSong != nullptr ) {
 		PatternList *pPatternList = pSong->getPatternList();
 		if ( ( m_nSelectedPatternNumber != -1 ) && ( m_nSelectedPatternNumber < pPatternList->size() ) ) {
 			m_pPattern = pPatternList->get( m_nSelectedPatternNumber );
@@ -583,7 +599,7 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 
 	int nGranularity = granularity() * m_nResolution;
 	int nNotes = MAX_NOTES;
-	if ( m_pPattern ) {
+	if ( m_pPattern != nullptr ) {
 		nNotes = m_pPattern->get_length();
 	}
 	int nMaxX = m_fGridWidth * nNotes + m_nMargin;
@@ -666,6 +682,10 @@ QColor PatternEditor::selectedNoteColor() const {
 ///
 void PatternEditor::validateSelection()
 {
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
+	
 	// Rebuild selection from valid notes.
 	std::set<Note *> valid;
 	std::vector< Note *> invalidated;
@@ -732,7 +752,7 @@ std::vector< Pattern *> PatternEditor::getPatternsToShow( void )
 		}
 	}
 
-	if ( m_pPattern ) {
+	if ( m_pPattern != nullptr ) {
 		patterns.push_back( m_pPattern );
 	}
 

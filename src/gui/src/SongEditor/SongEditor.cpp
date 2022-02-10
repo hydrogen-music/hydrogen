@@ -1218,6 +1218,8 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
  : QWidget( parent )
  , EventListener()
  , m_pBackgroundPixmap( nullptr )
+ , m_nRowClicked( 0 )
+ , m_rowSelection( RowSelection::None )
 {
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
@@ -1259,6 +1261,14 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pPatternPopup->addAction( tr("Virtual Pattern"), this, SLOT( patternPopup_virtualPattern() ) );
 	m_pPatternPopup->setObjectName( "PatternListPopup" );
 
+	// Reset the clicked row once the popup is closed by clicking at
+	// any position other than at an action of the popup.
+	connect( m_pPatternPopup, &QMenu::aboutToHide, [=](){
+		if ( m_rowSelection == RowSelection::Popup ) {
+			setRowSelection( RowSelection::None );
+		}
+	});
+
 	HydrogenApp::get_instance()->addEventListener( this );
 
 	QScrollArea *pScrollArea = dynamic_cast< QScrollArea * >( parentWidget()->parentWidget() );
@@ -1281,17 +1291,26 @@ void SongEditorPatternList::patternChangedEvent() {
 	update();
 }
 
+void SongEditorPatternList::setRowSelection( RowSelection rowSelection ) {
+	m_rowSelection = rowSelection;
+	update();
+}
 
 /// Single click, select the next pattern
 void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 {
 	__drag_start_position = ev->pos();
-	int row = (ev->y() / m_nGridHeight);
+	int nRow = (ev->y() / m_nGridHeight);
 
-	std::shared_ptr<Song> song = m_pHydrogen->getSong();
-	PatternList *patternList = song->getPatternList();
+	auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+	
+	auto pPatternList = pSong->getPatternList();
 
-	if ( row >= (int)patternList->size() ) {
+	if ( nRow < 0 || nRow >= (int)pPatternList->size() ) {
+		ERRORLOG( QString( "Row [%1] out of bound" ).arg( nRow ) );
 		return;
 	}
 
@@ -1299,11 +1318,25 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		 || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton)
 		 || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton)
 		 || ev->pos().x() < 15 ){
-		togglePattern( row );
+		togglePattern( nRow );
 		EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 	} else {
-		m_pHydrogen->setSelectedPatternNumber( row );
+		
+		if ( ! m_pHydrogen->isPatternEditorLocked() ) {
+			m_pHydrogen->setSelectedPatternNumber( nRow );
+		}
 		if (ev->button() == Qt::RightButton)  {
+
+			if ( m_rowSelection == RowSelection::Dialog ) {
+				// There is still a dialog window opened from the last
+				// time. It needs to be closed before the popup will
+				// be shown again.
+				ERRORLOG( "A dialog is still opened. It needs to be closed first." );
+				return;
+			}
+			
+			m_nRowClicked = nRow;
+			setRowSelection( RowSelection::Popup );
 			m_pPatternPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
 		}
 	}
@@ -1360,10 +1393,14 @@ void SongEditorPatternList::inlineEditingEntered()
 	
 	QString patternName = pPatternList->find_unused_pattern_name( m_pLineEdit->text(), m_pPatternBeingEdited );
 
-	int nSelectedPattern = m_pHydrogen->getSelectedPatternNumber();
-
-	SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  m_pPatternBeingEdited->get_name() , m_pPatternBeingEdited->get_info(), m_pPatternBeingEdited->get_category(),
-												patternName, m_pPatternBeingEdited->get_info(), m_pPatternBeingEdited->get_category(), nSelectedPattern );
+	SE_modifyPatternPropertiesAction *action =
+		new SE_modifyPatternPropertiesAction( m_pPatternBeingEdited->get_name(),
+											  m_pPatternBeingEdited->get_info(),
+											  m_pPatternBeingEdited->get_category(),
+											  patternName,
+											  m_pPatternBeingEdited->get_info(),
+											  m_pPatternBeingEdited->get_category(),
+											  pPatternList->index( m_pPatternBeingEdited ) );
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
@@ -1377,6 +1414,8 @@ void SongEditorPatternList::inlineEditingFinished()
 
 void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 {
+	auto pPref = Preferences::get_instance();
+	
 	QPainter painter(this);
 	qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
@@ -1389,6 +1428,20 @@ void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 			pixelRatio * ev->rect().height()
 	);
 	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, srcRect );
+
+	// In case a row was right-clicked, highlight it using a border.
+	if ( m_rowSelection != RowSelection::None ) {
+		QColor colorHighlight = pPref->getColorTheme()->m_highlightColor;
+		QPen pen;
+
+		pen.setColor( colorHighlight );
+		pen.setWidth( 1 );
+			
+		colorHighlight.setAlpha( 150 );
+		painter.setPen( pen );
+		painter.drawRoundedRect( QRect( 0, m_nRowClicked * m_nGridHeight,
+										m_nWidth, m_nGridHeight - 1 ), 4, 4 );
+	}
 }
 
 
@@ -1516,15 +1569,16 @@ void SongEditorPatternList::createBackground()
 
 void SongEditorPatternList::patternPopup_virtualPattern()
 {
+	setRowSelection( RowSelection::Dialog );
+	
 	VirtualPatternDialog *dialog = new VirtualPatternDialog( this );
 	SongEditorPanel *pSEPanel = HydrogenApp::get_instance()->getSongEditorPanel();
-	int tmpselectedpatternpos = m_pHydrogen->getSelectedPatternNumber();
 
 	dialog->patternList->setSortingEnabled(1);
 
 	std::shared_ptr<Song> song = m_pHydrogen->getSong();
 	PatternList *pPatternList = song->getPatternList();
-	H2Core::Pattern *selectedPattern = pPatternList->get(tmpselectedpatternpos);
+	auto pPatternClicked = pPatternList->get( m_nRowClicked );
 
 	std::map<QString, Pattern*> patternNameMap;
 
@@ -1533,7 +1587,7 @@ void SongEditorPatternList::patternPopup_virtualPattern()
 		H2Core::Pattern *curPattern = pPatternList->get( index );
 		QString patternName = curPattern->get_name();
 
-		if (patternName == selectedPattern->get_name()) {
+		if (patternName == pPatternClicked->get_name()) {
 			continue;
 		}//if
 
@@ -1542,18 +1596,19 @@ void SongEditorPatternList::patternPopup_virtualPattern()
 		QListWidgetItem *newItem = new QListWidgetItem(patternName, dialog->patternList);
 		dialog->patternList->insertItem(0, newItem );
 
-		if (selectedPattern->get_virtual_patterns()->find(curPattern) != selectedPattern->get_virtual_patterns()->end()) {
+		if (pPatternClicked->get_virtual_patterns()->find(curPattern) !=
+			pPatternClicked->get_virtual_patterns()->end()) {
 			newItem->setSelected( true );
 		}//if
 	}//for
 
 	if ( dialog->exec() == QDialog::Accepted ) {
-		selectedPattern->virtual_patterns_clear();
+		pPatternClicked->virtual_patterns_clear();
 		for (unsigned int index = 0; index < listsize-1; ++index) {
 			QListWidgetItem *listItem = dialog->patternList->item(index);
 			if (listItem->isSelected() == true) {
 				if (patternNameMap.find(listItem->text()) != patternNameMap.end()) {
-					selectedPattern->virtual_patterns_add(patternNameMap[listItem->text()]);
+					pPatternClicked->virtual_patterns_add(patternNameMap[listItem->text()]);
 				}//if
 			}//if
 		}//for
@@ -1564,16 +1619,25 @@ void SongEditorPatternList::patternPopup_virtualPattern()
 	pPatternList->flattened_virtual_patterns_compute();
 
 	delete dialog;
+
+	setRowSelection( RowSelection::None );
 }//patternPopup_virtualPattern
 
 
 
 void SongEditorPatternList::patternPopup_load()
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	int nSelectedPattern = engine->getSelectedPatternNumber();
-	std::shared_ptr<Song> song = engine->getSong();
-	Pattern *pattern = song->getPatternList()->get( nSelectedPattern );
+	setRowSelection( RowSelection::Dialog );
+	
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		setRowSelection( RowSelection::None );
+		return;
+	}
+	
+	Pattern* pPattern = pSong->getPatternList()->get( m_nRowClicked );
 
 	QString sPath = Preferences::get_instance()->getLastOpenPatternDirectory();
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
@@ -1584,61 +1648,83 @@ void SongEditorPatternList::patternPopup_load()
 	fd.setFileMode( QFileDialog::ExistingFile );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
 	fd.setDirectory( sPath );
-	fd.setWindowTitle( tr( "Open Pattern" ) );
+	fd.setWindowTitle( QString( tr( "Open Pattern to Replace " )
+								.append( pPattern->get_name() ) ) );
 
 	if (fd.exec() != QDialog::Accepted) {
+		setRowSelection( RowSelection::None );
 		return;
 	}
 	QString patternPath = fd.selectedFiles().first();
 
-	QString prevPatternPath = Files::savePatternTmp( pattern->get_name(), pattern, song, engine->getCurrentDrumkitName() );
+	QString prevPatternPath =
+		Files::savePatternTmp( pPattern->get_name(), pPattern, pSong,
+							   pHydrogen->getCurrentDrumkitName() );
 	if ( prevPatternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
+		setRowSelection( RowSelection::None );
 		return;
 	}
 	LocalFileMng fileMng;
 	QString sequencePath = Filesystem::tmp_file_path( "SEQ.xml" );
-	if ( !song->writeTempPatternList( sequencePath ) ) {
+	if ( !pSong->writeTempPatternList( sequencePath ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
+		setRowSelection( RowSelection::None );
 		return;
 	}
 	Preferences::get_instance()->setLastOpenPatternDirectory( fd.directory().absolutePath() );
 
-	SE_loadPatternAction *action = new SE_loadPatternAction( patternPath, prevPatternPath, sequencePath, nSelectedPattern, false );
+	SE_loadPatternAction *action =
+		new SE_loadPatternAction( patternPath, prevPatternPath, sequencePath,
+								  m_nRowClicked, false );
 	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
 	hydrogenApp->m_pUndoStack->push( action );
+	
+	setRowSelection( RowSelection::None );
 }
 
 void SongEditorPatternList::patternPopup_export()
 {
-	HydrogenApp::get_instance()->getMainForm()->action_file_export_pattern_as();
+	setRowSelection( RowSelection::Dialog );
+	HydrogenApp::get_instance()->getMainForm()->action_file_export_pattern_as( m_nRowClicked );
+
+	setRowSelection( RowSelection::None );
 	return;
 }
 
 void SongEditorPatternList::patternPopup_save()
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	std::shared_ptr<Song> song = engine->getSong();
-	Pattern *pattern = song->getPatternList()->get( engine->getSelectedPatternNumber() );
+	setRowSelection( RowSelection::Dialog );
+	
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
 
-	QString path = Files::savePatternNew( pattern->get_name(), pattern, song, engine->getCurrentDrumkitName() );
-	if ( path.isEmpty() ) {
+	QString sPath = Files::savePatternNew( pPattern->get_name(), pPattern,
+										   pSong, pHydrogen->getCurrentDrumkitName() );
+	if ( sPath.isEmpty() ) {
 		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 ) != 0 ) {
+			setRowSelection( RowSelection::None );
 			return;
 		}
-		path = Files::savePatternOver( pattern->get_name(), pattern, song, engine->getCurrentDrumkitName() );
+		sPath = Files::savePatternOver( pPattern->get_name(), pPattern,
+										pSong, pHydrogen->getCurrentDrumkitName() );
 	}
 
-	if ( path.isEmpty() ) {
+	if ( sPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
+		setRowSelection( RowSelection::None );
 		return;
 	}
 
-	HydrogenApp::get_instance()->setStatusBarMessage( tr( "Pattern saved." ), 10000 );
+	pHydrogenApp->setStatusBarMessage( tr( "Pattern saved." ), 10000 );
 
 	SoundLibraryDatabase::get_instance()->updatePatterns();
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
+	pHydrogenApp->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
+	pHydrogenApp->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
+	
+	setRowSelection( RowSelection::None );
 }
 
 
@@ -1653,17 +1739,18 @@ void SongEditorPatternList::patternPopup_edit()
 
 void SongEditorPatternList::patternPopup_properties()
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	std::shared_ptr<Song> song = engine->getSong();
-	PatternList *patternList = song->getPatternList();
+	
+	setRowSelection( RowSelection::Dialog );
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pPattern = pHydrogen->getSong()->getPatternList()->get( m_nRowClicked );
 
-	int nSelectedPattern = engine->getSelectedPatternNumber();
-	H2Core::Pattern *pattern = patternList->get( nSelectedPattern );
-
-	PatternPropertiesDialog *dialog = new PatternPropertiesDialog(this, pattern, nSelectedPattern, false);
+	PatternPropertiesDialog *dialog =
+		new PatternPropertiesDialog( this, pPattern, m_nRowClicked, false);
 	dialog->exec();
 	delete dialog;
 	dialog = nullptr;
+
+	setRowSelection( RowSelection::None );
 }
 
 
@@ -1700,26 +1787,34 @@ void SongEditorPatternList::revertPatternPropertiesDialogSettings(QString oldPat
 
 void SongEditorPatternList::patternPopup_delete()
 {
-	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
-	int patternPosition = m_pHydrogen->getSelectedPatternNumber();
-	Pattern *pattern = pSong->getPatternList()->get( patternPosition );
+	setRowSelection( RowSelection::Dialog );
+	
+	auto pSong = m_pHydrogen->getSong();
+	auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
 
-	QString patternPath = Files::savePatternTmp( pattern->get_name(), pattern, pSong, m_pHydrogen->getCurrentDrumkitName() );
+	QString patternPath =
+		Files::savePatternTmp( pPattern->get_name(), pPattern, pSong,
+							   m_pHydrogen->getCurrentDrumkitName() );
 	if ( patternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
+		setRowSelection( RowSelection::None );
 		return;
 	}
 	LocalFileMng fileMng;
 	QString sequencePath = Filesystem::tmp_file_path( "SEQ.xml" );
 	if ( !pSong->writeTempPatternList( sequencePath ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
+		setRowSelection( RowSelection::None );
 		return;
 	}
 
-	SE_deletePatternFromListAction *action = new 	SE_deletePatternFromListAction( patternPath , sequencePath, patternPosition );
+	SE_deletePatternFromListAction *action =
+		new SE_deletePatternFromListAction( patternPath, sequencePath,
+											m_nRowClicked );
 	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
 	hydrogenApp->m_pUndoStack->push( action );
 
+	setRowSelection( RowSelection::None );
 }
 
 
@@ -1772,9 +1867,12 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 	}
 
 	m_pAudioEngine->unlock();
-	
-	m_pHydrogen->setSelectedPatternNumber( -1 );
-	m_pHydrogen->setSelectedPatternNumber( 0 );
+
+	if ( m_pHydrogen->isPatternEditorLocked() ) {
+		m_pHydrogen->updateSelectedPattern();
+	} else  {
+		m_pHydrogen->setSelectedPatternNumber( 0 );
+	}
 
 	for (unsigned int index = 0; index < pSongPatternList->size(); ++index) {
 		H2Core::Pattern *curPattern = pSongPatternList->get(index);
@@ -1808,51 +1906,66 @@ void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilen
 
 	pHydrogen->setIsModified( true );
 	createBackground();
-	pHydrogen->setSelectedPatternNumber( patternPosition );
+
+	
+	if ( pHydrogen->isPatternEditorLocked() ) {
+		pHydrogen->updateSelectedPattern();
+	} else  {
+		pHydrogen->setSelectedPatternNumber( patternPosition );
+	}
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 }
 
 
 void SongEditorPatternList::patternPopup_duplicate()
 {
-	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
+	setRowSelection( RowSelection::Dialog );
+	
+	auto pSong = m_pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
-	int nSelectedPattern = m_pHydrogen->getSelectedPatternNumber();
-	H2Core::Pattern *pPattern = pPatternList->get( nSelectedPattern );
+	auto pPattern = pPatternList->get( m_nRowClicked );
 
 	H2Core::Pattern *pNewPattern = new Pattern( pPattern );
-	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, pNewPattern, nSelectedPattern, true );
+	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, pNewPattern, m_nRowClicked, true );
 
 	if ( dialog->exec() == QDialog::Accepted ) {
-		QString filePath = Files::savePatternTmp( pNewPattern->get_name(), pNewPattern, pSong, m_pHydrogen->getCurrentDrumkitName() );
+		QString filePath = Files::savePatternTmp( pNewPattern->get_name(),
+												  pNewPattern, pSong,
+												  m_pHydrogen->getCurrentDrumkitName() );
 		if ( filePath.isEmpty() ) {
 			QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
+			setRowSelection( RowSelection::None );
 			return;
 		}
-		SE_duplicatePatternAction *action = new SE_duplicatePatternAction( filePath, nSelectedPattern + 1 );
+		SE_duplicatePatternAction *action =
+			new SE_duplicatePatternAction( filePath, m_nRowClicked + 1 );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 
 	delete dialog;
 	delete pNewPattern;
+
+	setRowSelection( RowSelection::None );
 }
 
 void SongEditorPatternList::patternPopup_fill()
 {
-	int nSelectedPattern = m_pHydrogen->getSelectedPatternNumber();
+	setRowSelection( RowSelection::Dialog );
+	
 	FillRange range;
 	PatternFillDialog *dialog = new PatternFillDialog( this, &range );
 
 	// use a PatternFillDialog to get the range and mode data
 	if ( dialog->exec() == QDialog::Accepted ) {
 
-		SE_fillRangePatternAction *action = new SE_fillRangePatternAction( &range, nSelectedPattern );
+		SE_fillRangePatternAction *action =
+			new SE_fillRangePatternAction( &range, m_nRowClicked );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 
 	delete dialog;
 
+	setRowSelection( RowSelection::None );
 }
 
 
@@ -2054,7 +2167,12 @@ void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPat
 			}
 			pPatternList->replace( nTargetPattern, pSourcePattern );
 		}
-		pHydrogen->setSelectedPatternNumber( nTargetPattern );
+
+		if ( pHydrogen->isPatternEditorLocked() ) {
+			pHydrogen->updateSelectedPattern();
+		} else  {
+			pHydrogen->setSelectedPatternNumber( nTargetPattern );
+		}
 		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 		pHydrogen->setIsModified( true );
 }

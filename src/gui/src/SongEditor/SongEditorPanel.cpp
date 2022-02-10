@@ -90,23 +90,27 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	}
 
 	// clear sequence button
-	m_pClearPatternSeqBtn = new Button( pBackPanel,	QSize( 60, 19 ), Button::Type::Push, "", pCommonStrings->getClearButton(), false, QSize(), tr("Clear pattern sequence") );
-	m_pClearPatternSeqBtn->move( 2, 26 );
+	m_pClearPatternSeqBtn = new Button( pBackPanel,	QSize( 61, 21 ), Button::Type::Push, "", pCommonStrings->getClearButton(), false, QSize(), tr("Clear pattern sequence") );
+	m_pClearPatternSeqBtn->move( 2, 25 );
 	connect( m_pClearPatternSeqBtn, SIGNAL( pressed() ), this, SLOT( clearSequence() ) );
 
 	// new pattern button
-	Button *newPatBtn = new Button( pBackPanel,	QSize( 16, 16 ), Button::Type::Push, "plus.svg", "", false, QSize( 10, 10 ), tr("Create new pattern") );
-	newPatBtn->move( 64, 28 );
+	Button *newPatBtn = new Button( pBackPanel,	QSize( 25, 21 ), Button::Type::Push, "plus.svg", "", false, QSize( 15, 15 ), tr("Create new pattern") );
+	newPatBtn->move( 64, 25 );
 	connect( newPatBtn, SIGNAL( pressed() ), this, SLOT( newPatBtnClicked() ) );
 
 	// down button
-	m_pDownBtn = new Button( pBackPanel, QSize( 16, 16 ), Button::Type::Push, "down.svg", "", false, QSize( 10, 10 ), tr("Move the selected pattern down") );
-	m_pDownBtn->move( 82, 28 );
+	m_pDownBtn = new Button( pBackPanel, QSize( 25, 10 ), Button::Type::Push,
+							 "down.svg", "", false, QSize( 7, 7 ),
+							 tr("Move the selected pattern down"), false, true, "2" );
+	m_pDownBtn->move( 90, 36 );
 	connect( m_pDownBtn, SIGNAL( pressed() ), this, SLOT( downBtnClicked() ) );
 
 	// up button
-	m_pUpBtn = new Button( pBackPanel, QSize( 16, 16 ), Button::Type::Push, "up.svg", "", false, QSize( 10, 10 ), tr("Move the selected pattern up") );
-	m_pUpBtn->move( 97, 28 );
+	m_pUpBtn = new Button( pBackPanel, QSize( 25, 10 ), Button::Type::Push,
+						   "up.svg", "", false, QSize( 7, 7 ),
+						   tr("Move the selected pattern up"), false, true, "2" );
+	m_pUpBtn->move( 90, 25 );
 	connect( m_pUpBtn, SIGNAL( pressed() ), this, SLOT( upBtnClicked() ) );
 
 	// Two buttons sharing the same position and either of them is
@@ -541,8 +545,16 @@ void SongEditorPanel::newPatBtnClicked()
 	PatternPropertiesDialog *pDialog = new PatternPropertiesDialog( this, pNewPattern, 0, true );
 
 	if ( pDialog->exec() == QDialog::Accepted ) {
+		int nRow;
+		if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
+			nRow = pPatternList->size();
+		} else {
+			nRow = pHydrogen->getSelectedPatternNumber() + 1;
+		}
 		SE_insertPatternAction* pAction =
-				new SE_insertPatternAction( pHydrogen->getSelectedPatternNumber() + 1, new Pattern( pNewPattern->get_name() , pNewPattern->get_info(), pNewPattern->get_category() ) );
+				new SE_insertPatternAction( nRow, new Pattern( pNewPattern->get_name(),
+															   pNewPattern->get_info(),
+															   pNewPattern->get_category() ) );
 		HydrogenApp::get_instance()->m_pUndoStack->push(  pAction );
 	}
 
@@ -577,7 +589,8 @@ void SongEditorPanel::downBtnClicked()
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->getPatternList();
 
-	if( pHydrogen->getSelectedPatternNumber() +1 >=  pPatternList->size() ) { 
+	if( pHydrogen->getSelectedPatternNumber() < 0 ||
+		pHydrogen->getSelectedPatternNumber() + 1 >= pPatternList->size() ) { 
 		return;
 	}
 	
@@ -823,13 +836,9 @@ void SongEditorPanel::setModeActionBtn( bool mode )
 	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
 		m_pPlaySelectedMultipleBtn->setDisabled( true );
 		m_pPlaySelectedSingleBtn->setDisabled( true );
-		m_pPatternEditorLockedBtn->setDisabled( false );
-		m_pPatternEditorUnlockedBtn->setDisabled( false );
 	} else {
 		m_pPlaySelectedMultipleBtn->setDisabled( false );
 		m_pPlaySelectedSingleBtn->setDisabled( false );
-		m_pPatternEditorLockedBtn->setDisabled( true );
-		m_pPatternEditorUnlockedBtn->setDisabled( true );
 	}
 }
 
@@ -879,9 +888,14 @@ void SongEditorPanel::selectedPatternChangedEvent()
 	setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
 	updateAll();
 
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
+		return;
+	}
+
 	// Make sure currently selected pattern is visible.
 	int nGridHeight = m_pPatternList->getGridHeight();
-	m_pPatternListScrollView->ensureVisible( 0, (Hydrogen::get_instance()->getSelectedPatternNumber()
+	m_pPatternListScrollView->ensureVisible( 0, (pHydrogen->getSelectedPatternNumber()
 												 * nGridHeight + nGridHeight/2 ),
 											 0, nGridHeight );
 }
@@ -1019,7 +1033,8 @@ void SongEditorPanel::columnChangedEvent( int ) {
 		int scroll = m_pSongEditor->yScrollTarget( m_pEditorScrollView, &nPatternInView );
 		vScrollTo( scroll );
 
-		if ( pPref->patternFollowsSong() ) {
+		if ( pPref->patternFollowsSong() &&
+			 ! pHydrogen->isPatternEditorLocked()) {
 			// Selected pattern follows song.
 			//
 			// If the currently selected pattern is no longer one of those currently playing in the song, then
@@ -1046,6 +1061,7 @@ void SongEditorPanel::columnChangedEvent( int ) {
 			}
 			if ( !bFound && patternList.size() != 0 ) {
 				assert( nPatternInView != -1 );
+				
 				pHydrogen->setSelectedPatternNumber( nPatternInView );
 			}
 		}

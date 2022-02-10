@@ -262,6 +262,10 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 
 void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 {
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
+	
 	if ( ev->buttons() == Qt::NoButton ) {
 		int nColumn = getColumn( ev->x() );
 		bool bFound = false;
@@ -525,6 +529,10 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 
 void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 {
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
+	
 	const int nWordSize = 5;
 	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
 	bool bUnhideCursor = true;
@@ -712,6 +720,11 @@ void NotePropertiesRuler::focusOutEvent( QFocusEvent * ev )
 
 void NotePropertiesRuler::addUndoAction()
 {
+	if ( m_nSelectedPatternNumber == -1 ) {
+		// No pattern selected.
+		return;
+	}
+
 	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	int nSize = m_oldNotes.size();
 	if ( nSize != 0 ) {
@@ -884,7 +897,7 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 							backgroundColor.blue() - 20 );
 
 	unsigned nNotes = MAX_NOTES;
-	if ( m_pPattern ) {
+	if ( m_pPattern != nullptr ) {
 		nNotes = m_pPattern->get_length();
 	}
 
@@ -970,7 +983,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 	QPainter p( pixmap );
 
 	unsigned nNotes = MAX_NOTES;
-	if (m_pPattern) {
+	if ( m_pPattern != nullptr ) {
 		nNotes = m_pPattern->get_length();
 	}
 	p.fillRect( 0, 0, m_nMargin + nNotes * m_fGridWidth, height(), backgroundColor );
@@ -982,7 +995,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 	// vertical lines
 	drawGridLines( p, Qt::DotLine );
 
-	if ( m_pPattern ) {
+	if ( m_pPattern != nullptr ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 		QPen selectedPen( selectedNoteColor() );
@@ -1054,7 +1067,7 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 	QPainter p( pixmap );
 
 	unsigned nNotes = MAX_NOTES;
-	if (m_pPattern) {
+	if ( m_pPattern != nullptr ) {
 		nNotes = m_pPattern->get_length();
 	}
 	p.fillRect( 0, 0, m_nMargin + nNotes * m_fGridWidth, height(), backgroundColor );
@@ -1066,7 +1079,7 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 	// vertical lines
 	drawGridLines( p, Qt::DotLine );
 
-	if ( m_pPattern ) {
+	if ( m_pPattern != nullptr ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 		QPen selectedPen( selectedNoteColor() );
@@ -1157,7 +1170,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 							backgroundColor.blue() - 100 );
 
 	unsigned nNotes = MAX_NOTES;
-	if (m_pPattern) {
+	if ( m_pPattern != nullptr ) {
 		nNotes = m_pPattern->get_length();
 	}
 	QPainter p( pixmap );
@@ -1206,7 +1219,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	}
 
 	//paint the octave
-	if ( m_pPattern ) {
+	if ( m_pPattern != nullptr ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 		QPen selectedPen( selectedNoteColor() );
@@ -1230,7 +1243,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	}
 
 	//paint the note
-	if ( m_pPattern ) {
+	if ( m_pPattern != nullptr ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 		QPen selectedPen( selectedNoteColor() );
@@ -1288,7 +1301,7 @@ void NotePropertiesRuler::updateEditor( bool bPatternOnly )
 	m_nSelectedPatternNumber = nSelectedPatternNumber;
 
 	// update editor width
-	if ( m_pPattern ) {
+	if ( m_pPattern != nullptr ) {
 		m_nEditorWidth = m_nMargin + m_pPattern->get_length() * m_fGridWidth;
 	}
 	else {
@@ -1355,6 +1368,10 @@ void NotePropertiesRuler::selectedInstrumentChangedEvent()
 
 std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIntersecting( QRect r ) {
 	std::vector<SelectionIndex> result;
+	if ( m_pPattern == nullptr ) {
+		return std::move( result );
+	}
+	
 	const Pattern::notes_t* notes = m_pPattern->get_notes();
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();

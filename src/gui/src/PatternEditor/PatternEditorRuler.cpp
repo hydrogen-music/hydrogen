@@ -186,7 +186,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 	painter.drawPixmap( ev->rect(), *m_pBackground, ev->rect() );
 
 	// gray background for unusable section of pattern
-	if (m_pPattern) {
+	if ( m_pPattern != nullptr ) {
 		int nXStart = 20 + m_pPattern->get_length() * m_fGridWidth;
 		if ( (m_nRulerWidth - nXStart) != 0 ) {
 			painter.fillRect( nXStart, 0, m_nRulerWidth - nXStart, m_nRulerHeight, QColor(170,170,170) );

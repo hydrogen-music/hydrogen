@@ -259,7 +259,8 @@ H2Core::Pattern* InstrumentLine::getCurrentPattern()
 	assert( pPatternList != nullptr );
 
 	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
-	if ( nSelectedPatternNumber != -1 ) {
+	if ( nSelectedPatternNumber != -1 &&
+		 nSelectedPatternNumber < pPatternList->size() ) {
 		Pattern* pCurrentPattern = pPatternList->get( nSelectedPatternNumber );
 		return pCurrentPattern;
 	}
@@ -275,6 +276,11 @@ void InstrumentLine::functionClearNotes()
 	int selectedPatternNr = pHydrogen->getSelectedPatternNumber();
 	Pattern *pPattern = getCurrentPattern();
 	auto pSelectedInstrument = pHydrogen->getSong()->getInstrumentList()->get( m_nInstrumentNumber );
+
+	if ( selectedPatternNr == -1 ) {
+		// No pattern selected. Nothing to be clear.
+		return;
+	}
 
 	std::list< Note* > noteList;
 	const Pattern::notes_t* notes = pPattern->get_notes();
@@ -379,6 +385,10 @@ void InstrumentLine::functionFillEverySixteenNotes(){ functionFillNotes(16); }
 void InstrumentLine::functionFillNotes( int every )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
+		// No pattern selected. Nothing to be filled.
+		return;
+	}
 
 	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
@@ -432,6 +442,11 @@ void InstrumentLine::functionFillNotes( int every )
 void InstrumentLine::functionRandomizeVelocity()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
+		// No pattern selected. Nothing to be randomized.
+		return;
+	}
 
 	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();

@@ -127,7 +127,7 @@ public slots:
 		 */
 		void action_file_save_as();
 		void action_file_openPattern();
-		void action_file_export_pattern_as();
+		void action_file_export_pattern_as( int nPatternRow = -1 );
 		bool action_file_exit();
 
 		void action_file_export();

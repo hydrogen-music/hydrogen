@@ -930,7 +930,7 @@ void PatternEditorPanel::patternLengthChanged()
 {
 	// INFOLOG( QString("idx %1 -> %2 eighth").arg( nSelected ).arg( ( MAX_NOTES / 8 ) * ( nSelected + 1 ) ) );
 
-	if ( !m_pPattern ) {
+	if ( m_pPattern == nullptr ) {
 		return;
 	}
 
@@ -994,6 +994,10 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 
 void PatternEditorPanel::patternSizeChanged( double fValue ){
 
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
+	
 	if ( ! m_bArmPatternSizeSpinBoxes ) {
 		// Don't execute this function if the values of the spin boxes
 		// have been set by Hydrogen instead of by the user.
@@ -1135,6 +1139,10 @@ int PatternEditorPanel::moveCursorLeft( int n )
 
 int PatternEditorPanel::moveCursorRight( int n )
 {
+	if ( m_pPattern == nullptr ) {
+		return 0;
+	}
+	
 	m_nCursorPosition = std::min( m_nCursorPosition + m_nCursorIncrement * n,
 								  m_pPattern->get_length() - m_nCursorIncrement );
 

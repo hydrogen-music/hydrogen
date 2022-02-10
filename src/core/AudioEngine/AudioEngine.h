@@ -455,6 +455,7 @@ public:
 		frames as well as to used setColumn and setPatternTickPos to
 		move the arrow in the SongEditorPositionRuler even when
 		playback is stopped.*/
+	friend void Hydrogen::updateSelectedPattern();
 	friend bool CoreActionController::locateToFrame( unsigned long nFrame, bool );
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
@@ -462,6 +463,12 @@ public:
 		what the JACK server reports.*/
 	friend void JackAudioDriver::updateTransportInfo();
 private:
+
+	/**
+	 * Sets the Hydrogen::m_nSelectedPatternNumber to the pattern
+	 * recorded notes will be inserted in.
+	 */
+	void handleSelectedPattern();
 	
 	inline void			processPlayNotes( unsigned long nframes );
 	/**
