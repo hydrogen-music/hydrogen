@@ -42,6 +42,7 @@ using namespace H2Core;
 #include "../HydrogenApp.h"
 #include "../Mixer/Mixer.h"
 #include "../Widgets/Button.h"
+#include "../Skin.h"
 
 #include <QtGui>
 #include <QtWidgets>
@@ -53,7 +54,9 @@ using namespace H2Core;
 
 InstrumentLine::InstrumentLine(QWidget* pParent)
 	: PixmapWidget(pParent)
-	, m_bIsSelected(false)
+	, WidgetWithHighlightedList()
+	, m_bIsSelected( false )
+	, m_bEntered( false )
 {
 
 	auto pPref = H2Core::Preferences::get_instance();
@@ -129,10 +132,22 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopup->addAction( tr( "Delete instrument" ), this, SLOT( functionDeleteInstrument() ) );
 	m_pFunctionPopup->setObjectName( "PatternEditorFunctionPopup" );
 
-	m_bIsSelected = true;
-	setSelected(false);
+		// Reset the clicked row once the popup is closed by clicking at
+	// any position other than at an action of the popup.
+	connect( m_pFunctionPopup, &QMenu::aboutToHide, [=](){
+		if ( m_rowSelection == RowSelection::Popup ) {
+			setRowSelection( RowSelection::None );
+		}
+	});
+
+	updateStyleSheet();
 }
 
+
+void InstrumentLine::setRowSelection( RowSelection rowSelection ) {
+	m_rowSelection = rowSelection;
+	update();
+}
 
 
 void InstrumentLine::setName(const QString& sName)
@@ -147,20 +162,83 @@ void InstrumentLine::setSelected(bool bSelected)
 	if (bSelected == m_bIsSelected) {
 		return;
 	}
+	
 	m_bIsSelected = bSelected;
-	if (m_bIsSelected) {
-		setPixmap( "/patternEditor/instrument_line_selected.png");
-	}
-	else {
-		setPixmap( "/patternEditor/instrument_line.png");
-	}
+
+	updateStyleSheet();
+	update();
 }
 
+void InstrumentLine::updateStyleSheet() {
+	
+	auto pPref = H2Core::Preferences::get_instance();
+
+	QColor textColor;
+	if ( m_bIsSelected ) {
+		textColor = QColor( 0, 0, 0 );
+	} else {
+		textColor = pPref->getColorTheme()->m_patternEditor_textColor;
+	}
+
+	m_pNameLbl->setStyleSheet( QString( "QLabel { color: %1; }" ).arg( textColor.name() ) );
+}
+
+void InstrumentLine::enterEvent( QEvent* ev ) {
+	UNUSED( ev );
+	m_bEntered = true;
+	update();
+}
+
+void InstrumentLine::leaveEvent( QEvent* ev ) {
+	UNUSED( ev );
+	m_bEntered = false;
+	update();
+}
+
+void InstrumentLine::paintEvent( QPaintEvent* ev ) {
+	auto pPref = Preferences::get_instance();
+	
+	QPainter painter(this);
+
+	QColor backgroundColor;
+	if ( m_bIsSelected ) {
+		backgroundColor = pPref->getColorTheme()->m_patternEditor_selectedRowColor.darker( 114 );
+	} else {
+		if ( m_nInstrumentNumber == 0 ||
+			 m_nInstrumentNumber % 2 == 0 ) {
+			backgroundColor = pPref->getColorTheme()->m_patternEditor_backgroundColor.darker( 120 );
+		} else {
+			backgroundColor = pPref->getColorTheme()->m_patternEditor_alternateRowColor.darker( 132 );
+		}
+	}
+
+	// Make the background slightly lighter when hovered.
+	bool bHovered = false;
+	if ( m_bEntered && m_rowSelection == RowSelection::None ) {
+		bHovered = true;
+	}
+
+	Skin::drawListBackground( &painter, QRect( 0, 0, width(), height() ),
+							  backgroundColor, bHovered );
+
+	// In case a row was right-clicked, highlight it using a border.
+	if ( m_rowSelection != RowSelection::None ) {
+		QColor colorHighlight = pPref->getColorTheme()->m_highlightColor;
+		QPen pen;
+
+		pen.setColor( colorHighlight );
+		pen.setWidth( 1 );
+		
+		painter.setPen( pen );
+		painter.drawRect( QRect( 0, 0, width() - 1, height() - 1 ) );
+	}
+}
 
 
 void InstrumentLine::setNumber(int nIndex)
 {
 	m_nInstrumentNumber = nIndex;
+	update();
 }
 
 
@@ -241,8 +319,19 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 
 		Note *pNote = new Note( pInstr, 0, velocity, fPan, nLength, fPitch);
 		Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
-	}
-	else if (ev->button() == Qt::RightButton ) {
+		
+	} else if (ev->button() == Qt::RightButton ) {
+
+		if ( m_rowSelection == RowSelection::Dialog ) {
+			// There is still a dialog window opened from the last
+			// time. It needs to be closed before the popup will
+			// be shown again.
+			ERRORLOG( "A dialog is still opened. It needs to be closed first." );
+			return;
+		}
+			
+		setRowSelection( RowSelection::Popup );
+			
 		m_pFunctionPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
 	}
 
@@ -502,6 +591,7 @@ void InstrumentLine::functionRandomizeVelocity()
 
 void InstrumentLine::functionRenameInstrument()
 {
+	setRowSelection( RowSelection::Dialog );
 	// This code is pretty much a duplicate of void InstrumentEditor::labelClicked
 	// in InstrumentEditor.cpp
 	Hydrogen * pHydrogen = Hydrogen::get_instance();
@@ -528,7 +618,8 @@ void InstrumentLine::functionRenameInstrument()
 	{
 		// user entered nothing or pressed Cancel
 	}
-
+	
+	setRowSelection( RowSelection::None );
 }
 
 void InstrumentLine::functionDeleteInstrument()
@@ -564,6 +655,11 @@ void InstrumentLine::onPreferencesChanged( H2Core::Preferences::Changes changes 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		
 		m_pNameLbl->setFont( QFont( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) ) );
+	}
+
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
+		updateStyleSheet();
+		update();
 	}
 }
 

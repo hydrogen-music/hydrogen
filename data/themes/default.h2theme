@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hydrogen_theme>
- <version>1.1.0-'4130cbf4'</version>
+ <version>1.1.1-'d8093987'</version>
  <colorTheme>
   <songEditor>
-   <backgroundColor>95,101,117</backgroundColor>
-   <alternateRowColor>128,134,152</alternateRowColor>
-   <selectedRowColor>128,134,152</selectedRowColor>
-   <lineColor>72,76,88</lineColor>
-   <textColor>196,201,214</textColor>
+   <backgroundColor>128,134,152</backgroundColor>
+   <alternateRowColor>112,117,133</alternateRowColor>
+   <selectedRowColor>149,157,178</selectedRowColor>
+   <lineColor>54,57,67</lineColor>
+   <textColor>206,211,224</textColor>
   </songEditor>
   <patternEditor>
    <backgroundColor>167,168,163</backgroundColor>
-   <alternateRowColor>167,168,163</alternateRowColor>
+   <alternateRowColor>149,150,145</alternateRowColor>
    <selectedRowColor>207,208,200</selectedRowColor>
-   <textColor>40,40,40</textColor>
+   <textColor>255,255,255</textColor>
    <noteColor>40,40,40</noteColor>
    <noteoffColor>0,0,0</noteoffColor>
    <lineColor>65,65,65</lineColor>
@@ -46,15 +46,15 @@
    <toolTipTextColor>64,64,66</toolTipTextColor>
   </palette>
   <widget>
-   <accentColor>95,143,182</accentColor>
-   <accentTextColor>0,0,0</accentTextColor>
+   <accentColor>67,96,131</accentColor>
+   <accentTextColor>255,255,255</accentTextColor>
    <widgetColor>164,170,190</widgetColor>
-   <widgetTextColor>0,0,0</widgetTextColor>
+   <widgetTextColor>10,10,10</widgetTextColor>
    <buttonRedColor>247,100,100</buttonRedColor>
    <buttonRedTextColor>10,10,10</buttonRedTextColor>
    <spinBoxColor>51,74,100</spinBoxColor>
    <spinBoxTextColor>240,240,240</spinBoxTextColor>
-   <automationColor>52,76,100</automationColor>
+   <automationColor>67,96,131</automationColor>
    <automationCircleColor>255,255,255</automationCircleColor>
   </widget>
  </colorTheme>
@@ -66,23 +66,23 @@
   <mixer_falloff_speed>1.1</mixer_falloff_speed>
   <SongEditor_ColoringMethod>1</SongEditor_ColoringMethod>
   <SongEditor_pattern_color_0>67,96,131</SongEditor_pattern_color_0>
-  <SongEditor_pattern_color_1>67,96,131</SongEditor_pattern_color_1>
-  <SongEditor_pattern_color_2>67,96,131</SongEditor_pattern_color_2>
-  <SongEditor_pattern_color_3>67,96,131</SongEditor_pattern_color_3>
-  <SongEditor_pattern_color_4>67,96,131</SongEditor_pattern_color_4>
-  <SongEditor_pattern_color_5>67,96,131</SongEditor_pattern_color_5>
-  <SongEditor_pattern_color_6>67,96,131</SongEditor_pattern_color_6>
-  <SongEditor_pattern_color_7>67,96,131</SongEditor_pattern_color_7>
-  <SongEditor_pattern_color_8>67,96,131</SongEditor_pattern_color_8>
-  <SongEditor_pattern_color_9>67,96,131</SongEditor_pattern_color_9>
-  <SongEditor_pattern_color_10>67,96,131</SongEditor_pattern_color_10>
-  <SongEditor_pattern_color_11>67,96,131</SongEditor_pattern_color_11>
-  <SongEditor_pattern_color_12>67,96,131</SongEditor_pattern_color_12>
-  <SongEditor_pattern_color_13>67,96,131</SongEditor_pattern_color_13>
-  <SongEditor_pattern_color_14>67,96,131</SongEditor_pattern_color_14>
-  <SongEditor_pattern_color_15>67,96,131</SongEditor_pattern_color_15>
-  <SongEditor_pattern_color_16>67,96,131</SongEditor_pattern_color_16>
-  <SongEditor_pattern_color_17>67,96,131</SongEditor_pattern_color_17>
+  <SongEditor_pattern_color_1>67,114,175</SongEditor_pattern_color_1>
+  <SongEditor_pattern_color_2>105,165,189</SongEditor_pattern_color_2>
+  <SongEditor_pattern_color_3>148,189,202</SongEditor_pattern_color_3>
+  <SongEditor_pattern_color_4>193,211,215</SongEditor_pattern_color_4>
+  <SongEditor_pattern_color_5>229,201,130</SongEditor_pattern_color_5>
+  <SongEditor_pattern_color_6>234,160,90</SongEditor_pattern_color_6>
+  <SongEditor_pattern_color_7>218,97,60</SongEditor_pattern_color_7>
+  <SongEditor_pattern_color_8>186,55,50</SongEditor_pattern_color_8>
+  <SongEditor_pattern_color_9>152,22,26</SongEditor_pattern_color_9>
+  <SongEditor_pattern_color_10>186,55,50</SongEditor_pattern_color_10>
+  <SongEditor_pattern_color_11>218,97,60</SongEditor_pattern_color_11>
+  <SongEditor_pattern_color_12>234,160,90</SongEditor_pattern_color_12>
+  <SongEditor_pattern_color_13>229,201,130</SongEditor_pattern_color_13>
+  <SongEditor_pattern_color_14>193,211,215</SongEditor_pattern_color_14>
+  <SongEditor_pattern_color_15>148,189,202</SongEditor_pattern_color_15>
+  <SongEditor_pattern_color_16>105,165,189</SongEditor_pattern_color_16>
+  <SongEditor_pattern_color_17>67,114,175</SongEditor_pattern_color_17>
   <SongEditor_pattern_color_18>67,96,131</SongEditor_pattern_color_18>
   <SongEditor_pattern_color_19>67,96,131</SongEditor_pattern_color_19>
   <SongEditor_pattern_color_20>67,96,131</SongEditor_pattern_color_20>

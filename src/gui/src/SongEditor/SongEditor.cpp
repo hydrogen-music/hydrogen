@@ -968,6 +968,7 @@ void SongEditor::createBackground()
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 
 	uint nPatterns = pSong->getPatternList()->size();
+	int nSelectedPatternNumber = m_pHydrogen->getSelectedPatternNumber();
 
 	static int nOldHeight = -1;
 	int nNewHeight = m_nGridHeight * nPatterns;
@@ -983,9 +984,27 @@ void SongEditor::createBackground()
 		this->resize( QSize( width(), nNewHeight ) );
 	}
 
-	m_pBackgroundPixmap->fill( pPref->getColorTheme()->m_songEditor_alternateRowColor );
+	
+	m_pBackgroundPixmap->fill( pPref->getColorTheme()->m_songEditor_backgroundColor );
 
 	QPainter p( m_pBackgroundPixmap );
+	
+	for ( int ii = 0; ii < nPatterns + 1; ii++) {
+		if ( ( ii % 2 ) == 0 &&
+			 ii != nSelectedPatternNumber ) {
+			continue;
+		}
+		
+		int y = m_nGridHeight * ii;
+		
+		if ( ii == nSelectedPatternNumber ) {
+			p.fillRect( 0, y, m_nMaxPatternSequence * m_nGridWidth, m_nGridHeight,
+						pPref->getColorTheme()->m_songEditor_selectedRowColor );
+		} else {
+			p.fillRect( 0, y, m_nMaxPatternSequence * m_nGridWidth, m_nGridHeight,
+						pPref->getColorTheme()->m_songEditor_alternateRowColor );
+		}
+	}
 	p.setPen( pPref->getColorTheme()->m_songEditor_lineColor );
 
 	// vertical lines
@@ -997,27 +1016,12 @@ void SongEditor::createBackground()
 		p.drawLine( x1, 0, x1, m_nGridHeight * nPatterns );
 		p.drawLine( x2, 0, x2, m_nGridHeight * nPatterns );
 	}
-
-	p.setPen( pPref->getColorTheme()->m_songEditor_lineColor );
+	
 	// horizontal lines
 	for (uint i = 0; i < nPatterns; i++) {
 		uint y = m_nGridHeight * i;
 
-		int y1 = y + 2;
-		int y2 = y + m_nGridHeight - 2;
-
-		p.drawLine( 0, y1, (m_nMaxPatternSequence * m_nGridWidth), y1 );
-		p.drawLine( 0, y2, (m_nMaxPatternSequence * m_nGridWidth), y2 );
-	}
-
-
-	p.setPen( pPref->getColorTheme()->m_songEditor_backgroundColor );
-	// horizontal lines (erase..)
-	for (uint i = 0; i < nPatterns + 1; i++) {
-		uint y = m_nGridHeight * i;
-
-		p.fillRect( 0, y, m_nMaxPatternSequence * m_nGridWidth, 2, pPref->getColorTheme()->m_songEditor_backgroundColor );
-		p.drawLine( 0, y + m_nGridHeight - 1, m_nMaxPatternSequence * m_nGridWidth, y + m_nGridHeight - 1 );
+		p.drawLine( 0, y, (m_nMaxPatternSequence * m_nGridWidth), y );
 	}
 
 	//~ celle
@@ -1145,10 +1149,23 @@ void SongEditor::drawPattern( int nPos, int nNumber, bool bInvertColour, double 
 		patternColor = patternColor.darker( 130 );
 	}
 
+	patternColor.setAlpha( 230 );
+
 	int x = m_nMargin + m_nGridWidth * nPos;
 	int y = m_nGridHeight * nNumber;
 
-	p.fillRect( x + 1, y + 3, fWidth * (m_nGridWidth - 1), m_nGridHeight - 5, patternColor );
+	p.fillRect( x + 1, y + 1, fWidth * (m_nGridWidth - 1), m_nGridHeight - 1, patternColor );
+
+	// To better distinguish between the individual patterns, they
+	// will have a pronounced border.
+	QColor borderColor;
+	if ( bIsSelected ){
+		borderColor = QColor( 255, 255, 255 );
+	} else {
+		borderColor = QColor( 0, 0, 0 );
+	}
+	p.setPen( borderColor );
+	p.drawRect( x, y, fWidth * m_nGridWidth, m_nGridHeight );
 }
 
 std::vector<SongEditor::SelectionIndex> SongEditor::elementsIntersecting( QRect r )
@@ -1217,9 +1234,9 @@ void SongEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 SongEditorPatternList::SongEditorPatternList( QWidget *parent )
  : QWidget( parent )
  , EventListener()
+ , WidgetWithHighlightedList()
  , m_pBackgroundPixmap( nullptr )
- , m_nRowClicked( 0 )
- , m_rowSelection( RowSelection::None )
+ , m_nRowHovered( -1 )
 {
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
@@ -1231,6 +1248,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	setAcceptDrops(true);
+	setMouseTracking( true );
 
 	m_pPatternBeingEdited = nullptr;
 
@@ -1243,9 +1261,6 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 
 	this->resize( m_nWidth, m_nInitialHeight );
 
-	m_labelBackgroundLight.load( Skin::getImagePath() + "/songEditor/songEditorLabelBG.png" );
-	m_labelBackgroundDark.load( Skin::getImagePath() + "/songEditor/songEditorLabelABG.png" );
-	m_labelBackgroundSelected.load( Skin::getImagePath() + "/songEditor/songEditorLabelSBG.png" );
 	m_playingPattern_on_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_on.png" );
 	m_playingPattern_off_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_off.png" );
 	m_playingPattern_empty_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_empty.png" );
@@ -1437,10 +1452,9 @@ void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 		pen.setColor( colorHighlight );
 		pen.setWidth( 1 );
 			
-		colorHighlight.setAlpha( 150 );
 		painter.setPen( pen );
-		painter.drawRoundedRect( QRect( 0, m_nRowClicked * m_nGridHeight,
-										m_nWidth, m_nGridHeight - 1 ), 4, 4 );
+		painter.drawRect( QRect( 0, m_nRowClicked * m_nGridHeight,
+								 m_nWidth - 1, m_nGridHeight - 1 ) );
 	}
 }
 
@@ -1497,19 +1511,26 @@ void SongEditorPatternList::createBackground()
 	}
 	m_pBackgroundPixmap->fill( Qt::black );
 
+	QColor backgroundColor = pPref->getColorTheme()->m_songEditor_backgroundColor.darker( 120 );
+	QColor backgroundColorSelected = pPref->getColorTheme()->m_songEditor_selectedRowColor.darker( 114 );
+	QColor backgroundColorAlternate = pPref->getColorTheme()->m_songEditor_alternateRowColor.darker( 132 );
+
 	QPainter p( m_pBackgroundPixmap );
 	p.setFont( boldTextFont );
-	for ( int i = 0; i < nPatterns; i++ ) {
-		uint y = m_nGridHeight * i;
-		if ( i == nSelectedPattern ) {
-			p.drawPixmap( QPoint( 0, y ), m_labelBackgroundSelected );
-		}
-		else {
-			if ( ( i % 2) == 0 ) {
-				p.drawPixmap( QPoint( 0, y ), m_labelBackgroundDark );
-			}
-			else {
-				p.drawPixmap( QPoint( 0, y ), m_labelBackgroundLight );
+	for ( int ii = 0; ii < nPatterns; ii++ ) {
+		uint y = m_nGridHeight * ii;
+		if ( ii == nSelectedPattern ) {
+			Skin::drawListBackground( &p, QRect( 0, y, width(), m_nGridHeight ),
+									  backgroundColorSelected, false );
+		} else {
+			if ( ( ii % 2 ) == 0 ) {
+				Skin::drawListBackground( &p, QRect( 0, y, width(), m_nGridHeight ),
+										  backgroundColor,
+										  ii == m_nRowHovered );
+			} else {
+				Skin::drawListBackground( &p, QRect( 0, y, width(), m_nGridHeight ),
+										  backgroundColorAlternate,
+										  ii == m_nRowHovered );
 			}
 		}
 	}
@@ -2177,9 +2198,22 @@ void SongEditorPatternList::movePatternLine( int nSourcePattern , int nTargetPat
 		pHydrogen->setIsModified( true );
 }
 
+void SongEditorPatternList::leaveEvent( QEvent* ev ) {
+	UNUSED( ev );
+	m_nRowHovered = -1;
+	createBackground();
+	update();
+}
 
 void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 {
+	// Update the highlighting of the hovered row.
+	if ( event->pos().y() / m_nGridHeight != m_nRowHovered ) {
+		m_nRowHovered = event->pos().y() / m_nGridHeight;
+		createBackground();
+		update();
+	}
+	
 	if (!(event->buttons() & Qt::LeftButton)) {
 		return;
 	}
@@ -2320,7 +2354,7 @@ void SongEditorPositionRuler::createBackground()
 	QColor textColorAlpha( textColor );
 	textColorAlpha.setAlpha( 45 );
 
-	QColor backgroundColor = pPref->getColorTheme()->m_songEditor_backgroundColor;
+	QColor backgroundColor = pPref->getColorTheme()->m_songEditor_alternateRowColor;
 	QColor backgroundColorTempoMarkers = backgroundColor.darker( 120 );
 
 	QColor colorHighlight = pPref->getColorTheme()->m_highlightColor;

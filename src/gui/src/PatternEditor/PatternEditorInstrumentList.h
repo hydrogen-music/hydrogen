@@ -35,6 +35,7 @@
 #include "../Widgets/PixmapWidget.h"
 #include "../Selection.h"
 #include "../Widgets/WidgetWithScalableFont.h"
+#include "../Widgets/WidgetWithHighlightedList.h"
 
 namespace H2Core
 {
@@ -45,7 +46,9 @@ class PatternEditorPanel;
 class Button;
 
 /** \ingroup docGUI*/
-class InstrumentLine : public PixmapWidget, protected WidgetWithScalableFont<8, 10, 12>
+class InstrumentLine : public PixmapWidget
+					 , protected WidgetWithScalableFont<8, 10, 12>
+					 , protected WidgetWithHighlightedList
 {
     H2_OBJECT(InstrumentLine)
 	Q_OBJECT
@@ -102,7 +105,16 @@ public slots:
 		Button *m_pSampleWarning;
 
 		virtual void mousePressEvent(QMouseEvent *ev) override;
+	virtual void enterEvent( QEvent *ev );
+	virtual void leaveEvent( QEvent *ev );
+	virtual void paintEvent( QPaintEvent* ev ) override;
 		H2Core::Pattern* getCurrentPattern();
+
+	void updateStyleSheet();
+	void setRowSelection( RowSelection rowSelection );
+
+	/** Whether the cursor entered the boundary of the widget.*/
+	bool m_bEntered;
 };
 
 

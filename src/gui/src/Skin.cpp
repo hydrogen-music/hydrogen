@@ -154,3 +154,27 @@ border-color: %3;" )
 		.arg( pPref->getColorTheme()->m_windowTextColor.name() )
 		.arg( pPref->getColorTheme()->m_windowColor.name() );
 }
+
+void Skin::drawListBackground( QPainter* p, QRect rect, QColor background,
+							   bool bHovered ) {
+
+	if ( bHovered ) {
+		background = background.lighter( 110 );
+	}
+
+	QColor backgroundLight = background.lighter( 130 );
+	QColor backgroundDark = background.darker( 130 );
+
+	p->fillRect( QRect( rect.x() + 1, rect.y() + 1,
+						rect.width() - 2, rect.height() - 2 ),
+				 background );
+	p->fillRect( QRect( rect.x(), rect.y(), rect.width(), 1 ),
+				 backgroundLight );
+	p->fillRect( QRect( rect.x(), rect.y(), 1, rect.height() ),
+				 backgroundLight );
+	p->fillRect( QRect( rect.x(), rect.height(), rect.width(), 1 ),
+				 backgroundDark );
+	p->fillRect( QRect( rect.width(), rect.y(), 1, rect.height() ),
+				 backgroundDark );
+
+}

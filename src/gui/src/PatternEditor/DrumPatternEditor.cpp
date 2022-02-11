@@ -1188,6 +1188,7 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 	
 	// fill the first half of the rect with a solid color
 	const QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
+	const QColor backgroundColorAlternate( pPref->getColorTheme()->m_patternEditor_alternateRowColor );
 	const QColor selectedRowColor( pPref->getColorTheme()->m_patternEditor_selectedRowColor );
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
@@ -1196,9 +1197,13 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 		uint y = m_nGridHeight * i + 1;
 		if ( i == (uint)nSelectedInstrument ) {
 			p.fillRect( 0, y, (m_nMargin + nNotes * m_fGridWidth), (int)( m_nGridHeight * 0.7 ), selectedRowColor );
-		}
-		else {
-			p.fillRect( 0, y, (m_nMargin + nNotes * m_fGridWidth), (int)( m_nGridHeight * 0.7 ), backgroundColor );
+		} else {
+			if ( ( i % 2 ) == 0 ) {
+				p.fillRect( 0, y, (m_nMargin + nNotes * m_fGridWidth), (int)( m_nGridHeight * 0.7 ), backgroundColor );
+			} else {
+				p.fillRect( 0, y, (m_nMargin + nNotes * m_fGridWidth),
+							(int)( m_nGridHeight * 0.7 ), backgroundColorAlternate );
+			}
 		}
 	}
 
