@@ -90,8 +90,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pInstrumentProp->move(0, 31);
 	m_pInstrumentProp->setPixmap( "/instrumentEditor/instrumentTab.png" );
 
-	m_pNameLbl = new ClickableLabel( m_pInstrumentProp, QSize( 275, 28 ), "" );
-	m_pNameLbl->move( 8, 5 );
+	m_pNameLbl = new ClickableLabel( m_pInstrumentProp, QSize( 279, 27 ), "",
+									 ClickableLabel::Color::Bright, true, true );
+	m_pNameLbl->move( 5, 4 );
 	m_pNameLbl->setScaledContents( true );
 
 	/////////////

@@ -2388,14 +2388,19 @@ void SongEditorPositionRuler::createBackground()
 
 	p.fillRect( 0, 0, width(), 24, backgroundColorTempoMarkers );
 	char tmp[10];
-	
+
 	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
-		p.setPen( textColorAlpha );
-	} else {
-		p.setPen( textColor );
+		textColor = textColorAlpha;
 	}
+	
 	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
 		uint x = m_nMargin + i * m_nGridWidth;
+
+		if ( i == m_nHoveredColumn && m_nHoveredRow == 1 ) {
+			p.setPen( colorHighlight );
+		} else if ( p.pen().color() != textColor ) {
+			p.setPen( textColor );
+		}
 
 		if ( (i % 4) == 0 ) {
 			sprintf( tmp, "%d", i + 1 );
@@ -2459,8 +2464,20 @@ void SongEditorPositionRuler::createBackground()
 	}
 	
 	// Draw tempo marker grid
+	if ( ! pHydrogen->isTimelineEnabled() ) {
+		p.setPen( textColorAlpha );
+	}
 	for (uint ii = 0; ii < m_nMaxPatternSequence + 1; ii++) {
 		uint x = m_nMargin + ii * m_nGridWidth;
+
+		if ( pHydrogen->isTimelineEnabled() ) {
+			if ( ii == m_nHoveredColumn && m_nHoveredRow == 0 ) {
+				p.setPen( colorHighlight );
+			} else if ( p.pen().color() != textColor ) {
+				p.setPen( textColor );
+			}
+		}
+		
 		p.drawLine( x, 2, x, 5 );
 		p.drawLine( x, 19, x, 20 );
 	}
@@ -2604,10 +2621,8 @@ void SongEditorPositionRuler::columnChangedEvent( int ) {
 void SongEditorPositionRuler::leaveEvent( QEvent* ev ){
 	m_nHoveredColumn = -1;
 	m_nHoveredRow = -1;
-	if ( m_bHighlightHoveredColumn ) {
-		m_bHighlightHoveredColumn = false;
-		createBackground();
-	}
+	m_bHighlightHoveredColumn = false;
+	createBackground();
 
 	QWidget::leaveEvent( ev );
 }
