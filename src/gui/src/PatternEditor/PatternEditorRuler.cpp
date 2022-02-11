@@ -132,21 +132,28 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 
 	bool bActive = false;	// is the pattern playing now?
 
-	/* 
-	 * Lock audio engine to make sure pattern list does not get
-	 * modified / cleared during iteration 
-	 */
-	pAudioEngine->lock( RIGHT_HERE );
+	if ( pHydrogen->getMode() == Song::Mode::Song &&
+		 pHydrogen->isPatternEditorLocked() ) {
+		// In case the pattern editor is locked we will always display
+		// the position tick. Even if no pattern is set at all.
+		bActive = true;
+	} else {
+		/* 
+		 * Lock audio engine to make sure pattern list does not get
+		 * modified / cleared during iteration 
+		 */
+		pAudioEngine->lock( RIGHT_HERE );
 
-	PatternList *pList = pAudioEngine->getPlayingPatterns();
-	for (uint i = 0; i < pList->size(); i++) {
-		if ( m_pPattern == pList->get(i) ) {
-			bActive = true;
-			break;
+		PatternList *pList = pAudioEngine->getPlayingPatterns();
+		for (uint i = 0; i < pList->size(); i++) {
+			if ( m_pPattern == pList->get(i) ) {
+				bActive = true;
+				break;
+			}
 		}
-	}
 
-	pAudioEngine->unlock();
+		pAudioEngine->unlock();
+	}
 
 	if ( ( pAudioEngine->getState() == H2Core::AudioEngine::State::Playing ) && bActive ) {
 		m_nTicks = pAudioEngine->getPatternTickPosition();
@@ -180,24 +187,29 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 	QPainter painter(this);
 
-	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
-	m_pBackground->fill( backgroundColor );
+	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_alternateRowColor.darker( 120 ) );
+	QColor textColor = pPref->getColorTheme()->m_patternEditor_textColor;
+	QColor lineColor = pPref->getColorTheme()->m_patternEditor_lineColor;
+	
+	painter.fillRect( QRect( 1, 1, width() - 2, height() - 2 ), backgroundColor );
 
-	painter.drawPixmap( ev->rect(), *m_pBackground, ev->rect() );
+	painter.setPen( QColor( 35, 39, 51 ) );
+	painter.drawLine( 0, 0, width(), 0 );
+	painter.drawLine( 0, height(), width(), height() );
 
 	// gray background for unusable section of pattern
+	int nNotes = MAX_NOTES;
 	if ( m_pPattern != nullptr ) {
-		int nXStart = 20 + m_pPattern->get_length() * m_fGridWidth;
-		if ( (m_nRulerWidth - nXStart) != 0 ) {
-			painter.fillRect( nXStart, 0, m_nRulerWidth - nXStart, m_nRulerHeight, QColor(170,170,170) );
-		}
+		nNotes = m_pPattern->get_length();
+	}
+	int nXStart = 20 + nNotes * m_fGridWidth;
+	if ( (m_nRulerWidth - nXStart) != 0 ) {
+		painter.fillRect( nXStart, 0, m_nRulerWidth - nXStart, m_nRulerHeight,
+						  pPref->getColorTheme()->m_midLightColor );
 	}
 
 	// numbers
-	QColor textColor( 100, 100, 100 );
-	QColor lineColor( 170, 170, 170 );
 
-	Preferences *pref = Preferences::get_instance();
 	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	painter.setFont(font);
 	painter.drawLine( 0, 0, m_nRulerWidth, 0 );
@@ -210,12 +222,10 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 		if ( ( i % 4 ) == 0 ) {
 			painter.setPen( textColor );
 			painter.drawText( nText_x - 30, 0, 60, m_nRulerHeight, Qt::AlignCenter, QString("%1").arg(i / 4 + 1) );
-			//ERRORLOG(QString("nText_x: %1, true, : %2").arg(nText_x).arg(m_nRulerWidth));
 		}
 		else {
 			painter.setPen( QPen( QColor( lineColor ), 1, Qt::SolidLine ) );
 			painter.drawLine( nText_x, ( m_nRulerHeight - 5 ) / 2, nText_x, m_nRulerHeight - ( (m_nRulerHeight - 5 ) / 2 ));
-			//ERRORLOG("PAINT LINE");
 		}
 	}
 

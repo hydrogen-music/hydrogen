@@ -1034,11 +1034,11 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 
 	__create_background( painter );
 
-	if (m_pPattern == nullptr) {
-		return;
+	int nNotes = MAX_NOTES;
+	if ( m_pPattern != nullptr ) {
+		nNotes = m_pPattern->get_length();
 	}
 
-	int nNotes = m_pPattern->get_length();
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 
@@ -1058,10 +1058,14 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 		}
 	}
 
+	// We skip the grid and cursor in case there is no pattern. This
+	// way it may be more obvious that it is not armed and does not
+	// expect user interaction.
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
 
-	// draw the grid
 	__draw_grid( painter );
-
 
 	// Draw cursor
 	if ( hasFocus() && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
@@ -1074,7 +1078,6 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 		painter.setRenderHint( QPainter::Antialiasing );
 		painter.drawRoundedRect( QRect( x-m_fGridWidth*3, y+2, m_fGridWidth*6, m_nGridHeight-3 ), 4, 4 );
 	}
-
 
 	/*
 		BUGFIX
@@ -1212,7 +1215,6 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 
 void DrumPatternEditor::__create_background( QPainter& p)
 {
-	
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	const QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );

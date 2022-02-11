@@ -2366,7 +2366,7 @@ void SongEditorPositionRuler::createBackground()
 	QColor textColorAlpha( textColor );
 	textColorAlpha.setAlpha( 45 );
 
-	QColor backgroundColor = pPref->getColorTheme()->m_songEditor_alternateRowColor;
+	QColor backgroundColor = pPref->getColorTheme()->m_songEditor_alternateRowColor.darker( 120 );
 	QColor backgroundColorTempoMarkers = backgroundColor.darker( 120 );
 
 	QColor colorHighlight = pPref->getColorTheme()->m_highlightColor;
@@ -2577,10 +2577,8 @@ void SongEditorPositionRuler::createBackground()
 
 	p.setPen( QColor(35, 39, 51) );
 	p.drawLine( 0, 0, width(), 0 );
-
-	p.fillRect ( 0, height() - 27, width(), 1, QColor(35, 39, 51) );
-	p.fillRect ( 0, height() - 3, width(), 2, pPref->getColorTheme()->m_songEditor_alternateRowColor );
-
+	p.drawLine( 0, height() - 27, width(), height() - 27 );
+	p.drawLine( 0, height(), width(), height() );
 }
 
 void SongEditorPositionRuler::tempoChangedEvent( int ) {
