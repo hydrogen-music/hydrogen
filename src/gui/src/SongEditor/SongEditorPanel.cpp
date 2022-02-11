@@ -137,7 +137,11 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 											pCommonStrings->getPatternEditorLocked(),
 											false, true );
 	m_pPatternEditorLockedBtn->move( 142, 25 );
-	m_pPatternEditorLockedBtn->setChecked( true );
+	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
+		m_pPatternEditorLockedBtn->setChecked( false );
+	} else {
+		m_pPatternEditorLockedBtn->setChecked( true );
+	}
 	m_pPatternEditorLockedBtn->setVisible( pHydrogen->isPatternEditorLocked() );
 	connect( m_pPatternEditorLockedBtn, &Button::pressed,
 			 [=](){Hydrogen::get_instance()->setIsPatternEditorLocked( false ); } );
@@ -368,8 +372,6 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT( updatePlayHeadPosition() ) );
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT( updatePlaybackFaderPeaks() ) );
-	// connect(HydrogenApp::get_instance()->getPlayerControl(), SIGNAL(songModeChanged()),
-	// 		this, SLOT(onSongModeChanged()));
 	
 	m_pTimer->start(100);
 }
@@ -425,6 +427,10 @@ void SongEditorPanel::updatePlayHeadPosition()
 			hScrollTo( value - nIncrement );
 		}
 	}
+}
+
+void SongEditorPanel::highlightPatternEditorLocked( bool bUseRedBackground ) {
+	m_pPatternEditorLockedBtn->setUseRedBackground( bUseRedBackground );
 }
 
 void SongEditorPanel::updatePlaybackFaderPeaks()
@@ -664,13 +670,18 @@ void SongEditorPanel::updateSongEvent( int ) {
 
 void SongEditorPanel::patternEditorLockedEvent( int ) {
 
-	if ( ! m_pPatternEditorLockedBtn->isDown() ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( ! m_pPatternEditorLockedBtn->isDown() &&
+		 pHydrogen->getMode() == Song::Mode::Song ) {
 		m_pPatternEditorLockedBtn->setChecked( true );
-	} else {
+		
+	} else if ( ! m_pPatternEditorLockedBtn->isDown() &&
+		 pHydrogen->getMode() == Song::Mode::Pattern ) {
+		m_pPatternEditorLockedBtn->setChecked( false );
 	}
 	m_pPatternEditorUnlockedBtn->setChecked( false );
 
-	if ( Hydrogen::get_instance()->isPatternEditorLocked() ) {
+	if ( pHydrogen->getSong()->getIsPatternEditorLocked() ) {
 		m_pPatternEditorLockedBtn->show();
 		m_pPatternEditorUnlockedBtn->hide();
 	} else {
@@ -958,9 +969,19 @@ void SongEditorPanel::songModeActivationEvent( int ) {
 	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 		setTimelineEnabled( false );
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledPatternMode() );
+
+		// Since the recorded notes will always enter the selected
+		// pattern in pattern mode, the behavior doesn't change
+		// regardless of whether the PatternEditor is locked or
+		// not. This redundancy is highlighted by unchecking the button.
+		m_pPatternEditorLockedBtn->setChecked( false );
 	} else if ( pHydrogen->getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
 		setTimelineEnabled( true );
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
+		
+		// We check the locked button to indicate it does take effect
+		// while in song mode.
+		m_pPatternEditorLockedBtn->setChecked( true );
 	}
 	setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
 }

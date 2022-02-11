@@ -70,7 +70,12 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 	void setTimelineActive( bool bActive );
 	bool getTimelineEnabled() const;
 	void setTimelineEnabled( bool bEnabled );
-	
+
+	/**
+	 * Turns the background color of #m_pPatternEditorLockedBtn red to
+	 * signal the user her last action was not permitted.
+	 */
+	void highlightPatternEditorLocked( bool bUseRedBackground );	
 		
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
@@ -186,7 +191,7 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 
 		virtual void resizeEvent( QResizeEvent *ev ) override;
 		void resyncExternalScrollBar();
-
+	
 	bool m_bLastIsTimelineActivated;
 };
 

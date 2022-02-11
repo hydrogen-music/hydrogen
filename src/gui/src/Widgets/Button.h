@@ -124,6 +124,9 @@ public:
 	void setFixedFontSize( int nPixelSize );
 	int getFixedFontSize() const;
 
+	void setUseRedBackground( bool bUseRedBackground );
+	bool getUseRedBackground() const;
+
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
@@ -175,6 +178,9 @@ inline void Button::setFixedFontSize( int nPixelSize ) {
 }
 inline int Button::getFixedFontSize() const {
 	return m_nFixedFontSize;
+}
+inline bool Button::getUseRedBackground() const {
+	return m_bUseRedBackground;
 }
 
 #endif

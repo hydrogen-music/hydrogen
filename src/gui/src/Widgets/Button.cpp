@@ -122,6 +122,13 @@ void Button::updateIcon() {
 	setIconSize( m_iconSize );
 }
 
+void Button::setUseRedBackground( bool bUseRedBackground ) {
+	m_bUseRedBackground	= bUseRedBackground;
+
+	updateStyleSheet();
+	update();
+}
+
 void Button::updateStyleSheet() {
 
 	auto pPref = H2Core::Preferences::get_instance();

@@ -328,6 +328,8 @@ class SongEditorPatternList :  public QWidget
 	 * over. -1 for no cursor.
 	 */
 	int m_nRowHovered;
+
+	QTimer* m_pHighlightLockedTimer;
 };
 
 

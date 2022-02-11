@@ -1256,7 +1256,6 @@ bool Hydrogen::isPatternEditorLocked() const {
 }
 
 void Hydrogen::setIsPatternEditorLocked( bool bValue ) {
-	INFOLOG( bValue );
 	auto pSong = getSong();
 	if ( pSong != nullptr ) {
 		pSong->setIsPatternEditorLocked( bValue );

@@ -1289,6 +1289,11 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	QScrollArea *pScrollArea = dynamic_cast< QScrollArea * >( parentWidget()->parentWidget() );
 	assert( pScrollArea );
 	m_pDragScroller = new DragScroller( pScrollArea );
+	
+	m_pHighlightLockedTimer = new QTimer( this );
+	m_pHighlightLockedTimer->setSingleShot( true );
+	connect(m_pHighlightLockedTimer, &QTimer::timeout,
+			[=](){ HydrogenApp::get_instance()->getSongEditorPanel()->highlightPatternEditorLocked( false ); } );
 
 	createBackground();
 	update();
@@ -1339,7 +1344,14 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		
 		if ( ! m_pHydrogen->isPatternEditorLocked() ) {
 			m_pHydrogen->setSelectedPatternNumber( nRow );
+		} else {
+			// Notify the users why nothing just happened by
+			// highlighting the pattern locked button in the
+			// SongEditorPanel.
+			HydrogenApp::get_instance()->getSongEditorPanel()->highlightPatternEditorLocked( true );
+			m_pHighlightLockedTimer->start( 250 );
 		}
+		
 		if (ev->button() == Qt::RightButton)  {
 
 			if ( m_rowSelection == RowSelection::Dialog ) {
