@@ -728,10 +728,11 @@ void SongEditor::updateModifiers( QInputEvent *ev )
 
 void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 {
+	auto pSong = Hydrogen::get_instance()->getSong();
 	updateModifiers( ev );
 	m_currentMousePosition = ev->pos();
 
-	if ( Hydrogen::get_instance()->getSong()->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
+	if ( pSong->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
 		m_selection.mouseMoveEvent( ev );
 	} else {
 		if ( ev->x() < m_nMargin ) {
@@ -739,9 +740,18 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 		}
 
 		QPoint p = xyToColumnRow( ev->pos() );
+		if ( m_nCursorColumn == p.x() && m_nCursorRow == p.y() ) {
+			// Cursor has not entered a different cell yet.
+			return;
+		}
 		m_nCursorColumn = p.x();
 		m_nCursorRow = p.y();
 		HydrogenApp::get_instance()->setHideKeyboardCursor( true );
+
+		if ( m_nCursorRow >= pSong->getPatternList()->size() ) {
+			// We are below the bottom of the pattern list.
+			return;
+		}
 
 		// Drawing mode: continue drawing over other cells
 		setPatternActive( p.x(), p.y(), ! m_bDrawingActiveCell );
