@@ -241,6 +241,21 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
 		bool activateLoopMode( bool bActivate, bool bTriggerEvent );
+	/** Wrapper around loadDrumkit() that allows loading drumkits by
+		name. */
+	bool loadDrumkit( const QString& sDrumkitName, bool bConditional = true );
+	/**
+	 * Loads Drumkit @a pDrumkit and stores it unto the current song.
+	 *
+	 * The loading is _not_ performed lazily as it also can be used to
+	 * reset the parameters of the current drumkit to its default
+	 * values.
+	 *
+	 * \param pDrumkit Full-fledged H2Core::Drumkit to load.
+	 * \param bConditional Whether to remove all redundant
+	 * H2Core::Instrument regardless of their content.
+	 */
+	bool loadDrumkit( Drumkit* pDrumkit, bool bConditional = true );
 		/** Relocates transport to the beginning of a particular
 		 * column/Pattern group.
 		 * 

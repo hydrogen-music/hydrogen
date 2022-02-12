@@ -343,12 +343,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! drumkitToLoad.isEmpty() ){
-			Drumkit* drumkitInfo = Drumkit::load_by_name( drumkitToLoad, true );
-			if ( drumkitInfo ) {
-				pHydrogen->loadDrumkit( drumkitInfo );
-			} else {
-				___ERRORLOG ( "Error loading the drumkit" );
-			}
+			pHydrogen->getCoreActionController()->loadDrumkit( drumkitToLoad, true );
 		}
 
 		AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();

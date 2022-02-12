@@ -611,6 +611,13 @@ void PatternEditorPanel::stateChangedEvent( H2Core::AudioEngine::State state ) {
 	}
 }
 
+void PatternEditorPanel::drumkitLoadedEvent() {
+	updateSLnameLabel();
+	getDrumPatternEditor()->updateEditor();
+	updatePianorollEditor();
+	
+}
+
 void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
 {
 	//INFOLOG( "[syncToExternalHorizontalScrollbar]" );

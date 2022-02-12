@@ -511,11 +511,12 @@ int main(int argc, char *argv[])
 
 		// Hydrogen here to honor all preferences.
 		H2Core::Hydrogen::create_instance();
+		auto pHydrogen = H2Core::Hydrogen::get_instance();
 		
 		// Tell Hydrogen it was started via the QT5 GUI.
-		H2Core::Hydrogen::get_instance()->setGUIState( H2Core::Hydrogen::GUIState::notReady );
+		pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::notReady );
 		
-		H2Core::Hydrogen::get_instance()->startNsmClient();
+		pHydrogen->startNsmClient();
 
 		// If the NSM_URL variable is present, Hydrogen will not
 		// initialize the audio driver and leaves this to the callback
@@ -523,21 +524,22 @@ int main(int argc, char *argv[])
 		// called by now). However, the presence of the environmental
 		// variable does not guarantee for a session management and if
 		// no audio driver is initialized yet, we will do it here. 
-		if ( H2Core::Hydrogen::get_instance()->getAudioOutput() == nullptr ) {
+		if ( pHydrogen->getAudioOutput() == nullptr ) {
 			// Starting drivers can take some time, so show the wait cursor to let the user know that, yes,
 			// we're definitely busy.
 			QApplication::setOverrideCursor( Qt::WaitCursor );
-			H2Core::Hydrogen::get_instance()->restartDrivers();
+			pHydrogen->restartDrivers();
 			QApplication::restoreOverrideCursor();
 		}
 
 		MainForm *pMainForm = new MainForm( pQApp, sSongFilename );
+		auto pHydrogenApp = HydrogenApp::get_instance();
 		pMainForm->show();
 		
 		pSplash->finish( pMainForm );
 
 		if( ! sPlaylistFilename.isEmpty() ){
-			bool loadlist = HydrogenApp::get_instance()->getPlayListDialog()->loadListByFileName( sPlaylistFilename );
+			bool loadlist = pHydrogenApp->getPlayListDialog()->loadListByFileName( sPlaylistFilename );
 			if ( loadlist ){
 				H2Core::Playlist::get_instance()->setNextSongByNumber( 0 );
 			} else {
@@ -545,15 +547,9 @@ int main(int argc, char *argv[])
 			}
 		}
 
+
 		if( ! sDrumkitToLoad.isEmpty() ) {
-			H2Core::Drumkit* pDrumkitInfo = H2Core::Drumkit::load_by_name( sDrumkitToLoad, true );
-			if ( pDrumkitInfo ) {
-				H2Core::Hydrogen::get_instance()->loadDrumkit( pDrumkitInfo );
-				HydrogenApp::get_instance()->onDrumkitLoad( pDrumkitInfo->get_name() );
-			} else {
-				___ERRORLOG ( "Error loading the drumkit" );
-			}
-			delete pDrumkitInfo;
+			pHydrogen->getCoreActionController()->loadDrumkit( sDrumkitToLoad );
 		}
 
 		// Write the changes in the Preferences to disk to make them
@@ -563,7 +559,7 @@ int main(int argc, char *argv[])
 		pQApp->setMainForm( pMainForm );
 
 		// Tell the core that the GUI is now fully loaded and ready.
-		H2Core::Hydrogen::get_instance()->setGUIState( H2Core::Hydrogen::GUIState::ready );
+		pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::ready );
 #ifdef H2CORE_HAVE_OSC
 		if ( NsmClient::get_instance() != nullptr ) {
 			NsmClient::get_instance()->sendDirtyState( false );
@@ -575,9 +571,18 @@ int main(int argc, char *argv[])
 			sl->shoot();
 		}
 
-		// All GUI setup is complete, any spurious widget-driven flagging of song modified state will be
-		// complete, so clear the modification flag.
-		H2Core::Hydrogen::get_instance()->setIsModified( false );
+		// TODO: remove this as well as the spurious flagging using
+		// more clean event signal processing.
+		//
+		// All GUI setup is complete, any spurious widget-driven
+		// flagging of song modified state will be complete, so clear
+		// the modification flag. This does not apply in case we are
+		// restoring unsaved changes applied to an empty song during
+		// the previous session.
+		if ( pHydrogen->getSong()->getFilename() !=
+			 H2Core::Filesystem::empty_song_path() ) {
+			pHydrogen->setIsModified( false );
+		}
 
 		pQApp->exec();
 

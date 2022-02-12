@@ -456,8 +456,6 @@ public:
 		move the arrow in the SongEditorPositionRuler even when
 		playback is stopped.*/
 	friend bool CoreActionController::locateToFrame( unsigned long nFrame, bool );
-	/** Is allowed to set m_state to State::Prepared via setState()*/
-	friend int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional );
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
 	/** Is allowed to set m_nextState via setNextState() according to
