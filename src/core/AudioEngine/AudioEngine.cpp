@@ -674,7 +674,9 @@ void AudioEngine::setAudioDriver( AudioOutput* pAudioDriver ) {
 		}
 
 		if ( pSong != nullptr && pHydrogen->haveJackAudioDriver() ) {
+#if defined(H2CORE_HAVE_JACK)
 			pHydrogen->renameJackPorts( pSong );
+#endif
 		}
 		
 		setupLadspaFX();
