@@ -337,14 +337,12 @@ void			previewSample( Sample *pSample );
 
 	void			refreshInstrumentParameters( int nInstrument );
 
-#if defined(H2CORE_HAVE_JACK) || _DOXYGEN_
 	/**
 	 * Calls audioEngine_renameJackPorts() if
 	 * Preferences::m_bJackTrackOuts is set to true.
 	 * \param pSong Handed to audioEngine_renameJackPorts().
 	 */
 	void			renameJackPorts(std::shared_ptr<Song> pSong);
-#endif
 
 	/** Starts/stops the OSC server
 	 * \param bEnable `true` = start, `false` = stop.*/

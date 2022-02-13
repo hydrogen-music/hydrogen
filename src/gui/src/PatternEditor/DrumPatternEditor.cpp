@@ -1623,9 +1623,7 @@ void DrumPatternEditor::functionMoveInstrumentAction( int nSourceInstrument,  in
 
 		pInstrumentList->move( nSourceInstrument, nTargetInstrument );
 
-		#ifdef H2CORE_HAVE_JACK
 		pHydrogen->renameJackPorts( pSong );
-		#endif
 
 		m_pAudioEngine->unlock();
 		pHydrogen->setSelectedInstrumentNumber( nTargetInstrument );
@@ -1653,12 +1651,12 @@ void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument
 		}
 	}
 
-	m_pAudioEngine->lock( RIGHT_HERE );
-#ifdef H2CORE_HAVE_JACK
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	pHydrogen->renameJackPorts( pSong );
-#endif
-	m_pAudioEngine->unlock();
+	if ( pHydrogen->haveJackAudioDriver() ) {
+		m_pAudioEngine->lock( RIGHT_HERE );
+		pHydrogen->renameJackPorts( pHydrogen->getSong() );
+		m_pAudioEngine->unlock();
+	}
+	
 	updateEditor();
 }
 
@@ -1737,9 +1735,7 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName,
 
 		pHydrogen->getSong()->getInstrumentList()->add( pNewInstrument );
 
-		#ifdef H2CORE_HAVE_JACK
 		pHydrogen->renameJackPorts( pHydrogen->getSong() );
-		#endif
 
 		pHydrogen->setIsModified( true );
 		m_pAudioEngine->unlock();
@@ -1825,9 +1821,7 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 	m_pAudioEngine->lock( RIGHT_HERE );
 	pHydrogen->getSong()->getInstrumentList()->add( pNewInstrument );
 
-	#ifdef H2CORE_HAVE_JACK
 	pHydrogen->renameJackPorts( pHydrogen->getSong() );
-	#endif
 
 	pHydrogen->setIsModified( true );
 	m_pAudioEngine->unlock();	// unlock the audio engine
@@ -1866,12 +1860,14 @@ void DrumPatternEditor::functionAddEmptyInstrumentUndo()
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	pHydrogen->removeInstrument( pHydrogen->getSong()->getInstrumentList()->size() -1 );
 
-	m_pAudioEngine->lock( RIGHT_HERE );
-#ifdef H2CORE_HAVE_JACK
-	pHydrogen->renameJackPorts( pHydrogen->getSong() );
-#endif
+	if ( pHydrogen->haveJackAudioDriver() ) {
+		m_pAudioEngine->lock( RIGHT_HERE );
+		pHydrogen->renameJackPorts( pHydrogen->getSong() );
+		m_pAudioEngine->unlock();
+	}
+	
 	pHydrogen->setIsModified( true );
-	m_pAudioEngine->unlock();
+	
 	updateEditor();
 }
 
@@ -1896,9 +1892,7 @@ void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 	auto pNewInstr = std::make_shared<Instrument>( nID, "New instrument");
 	pList->add( pNewInstr );
 
-	#ifdef H2CORE_HAVE_JACK
 	pHydrogen->renameJackPorts( pSong );
-	#endif
 
 	pHydrogen->setIsModified( true );
 	m_pAudioEngine->unlock();
