@@ -674,9 +674,7 @@ void AudioEngine::setAudioDriver( AudioOutput* pAudioDriver ) {
 		}
 
 		if ( pSong != nullptr && pHydrogen->haveJackAudioDriver() ) {
-#if defined(H2CORE_HAVE_JACK)
 			pHydrogen->renameJackPorts( pSong );
-#endif
 		}
 		
 		setupLadspaFX();
@@ -786,17 +784,7 @@ void AudioEngine::processCheckBPMChanged() {
 	auto pSong = pHydrogen->getSong();
 
 	long long oldFrame;
-#ifdef H2CORE_HAVE_JACK
-	// if ( Hydrogen::get_instance()->haveJackTransport() && 
-	// 	 m_state != State::Playing ) {
-	// 	oldFrame = static_cast< JackAudioDriver* >( m_pAudioDriver )->m_currentPos;
-			
-	// } else {
-		oldFrame = getFrames();
-	// }
-#else
 	oldFrame = getFrames();
-#endif
 
 	float fNewBpm = getBpmAtColumn( pHydrogen->getAudioEngine()->getColumn() );
 	if ( fNewBpm != getBpm() ) {
@@ -1287,9 +1275,7 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 		m_pPlayingPatterns->add( pNewSong->getPatternList()->get( 0 ) );
 	}
 
-#ifdef H2CORE_HAVE_JACK
 	Hydrogen::get_instance()->renameJackPorts( pNewSong );
-#endif
 	m_nSongSizeInTicks = pNewSong->lengthInTicks();
 
 	// change the current audio engine state

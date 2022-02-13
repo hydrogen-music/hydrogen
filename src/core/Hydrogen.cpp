@@ -707,9 +707,7 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool bConditional )
 			setSelectedInstrumentNumber( std::max( 0, pSong->getInstrumentList()->size() -1 ) );
 		}
 
-#ifdef H2CORE_HAVE_JACK
 		renameJackPorts( getSong() );
-#endif
 		m_pAudioEngine->unlock();
 	
 		m_pCoreActionController->initExternalControlInterfaces();
@@ -901,9 +899,9 @@ void Hydrogen::refreshInstrumentParameters( int nInstrument )
 	EventQueue::get_instance()->push_event( EVENT_PARAMETERS_INSTRUMENT_CHANGED, -1 );
 }
 
-#ifdef H2CORE_HAVE_JACK
 void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 {
+#ifdef H2CORE_HAVE_JACK
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -922,8 +920,8 @@ void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 			static_cast< JackAudioDriver* >( m_pAudioEngine->getAudioDriver() )->makeTrackOutputs( pSong );
 		}
 	}
-}
 #endif
+}
 
 /** Updates #m_nbeatsToCount
  * \param beatstocount New value*/
@@ -1069,25 +1067,27 @@ void Hydrogen::handleBeatCounter()
 }
 //~ m_nBeatCounter
 
-#ifdef H2CORE_HAVE_JACK
 void Hydrogen::offJackMaster()
 {
+#ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
 	if ( haveJackTransport() ) {
 		static_cast< JackAudioDriver* >( pAudioEngine->getAudioDriver() )->releaseTimebaseMaster();
 	}
+#endif
 }
 
 void Hydrogen::onJackMaster()
 {
+#ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
 	if ( haveJackTransport() ) {
 		static_cast< JackAudioDriver* >( pAudioEngine->getAudioDriver() )->initTimebaseMaster();
 	}
-}
 #endif
+}
 
 void Hydrogen::setPlaysSelected( bool bPlaysSelected )
 {
