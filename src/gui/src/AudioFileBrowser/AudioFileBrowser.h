@@ -45,7 +45,10 @@ class AudioFileBrowser :  public QDialog, public Ui_AudioFileBrowser_UI,  public
 	Q_OBJECT
 	public:
 		
-	AudioFileBrowser( QWidget* pParent, bool bAllowMultiSelect, bool bShowInstrumentManipulationControls, QString sDefaultPath = "" );
+	AudioFileBrowser( QWidget* pParent, bool bAllowMultiSelect,
+					  bool bShowInstrumentManipulationControls,
+					  QString sDefaultPath = "",
+					  const QString& sFilename = "" );
 	~AudioFileBrowser();
 	
 	QStringList getSelectedFiles();
@@ -92,7 +95,8 @@ class AudioFileBrowser :  public QDialog, public Ui_AudioFileBrowser_UI,  public
 		
 		bool				m_bAllowMultiSelect;
 		bool				m_bShowInstrumentManipulationControls;
-
+	
+	QString m_sFilename;
 
 };
 

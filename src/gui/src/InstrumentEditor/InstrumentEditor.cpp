@@ -903,12 +903,38 @@ void InstrumentEditor::loadLayerBtnClicked()
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	QString sPath = Preferences::get_instance()->getLastOpenLayerDirectory();
+	QString sFilename = "";
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
 		sPath = QDir::homePath();
 	}
 
+	// In case the button was pressed while a layer was selected, we
+	// try to use path of the associated sample as default one.
+	if ( m_nSelectedLayer > 0 &&
+		 m_pInstrument != nullptr ) {
+		auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
 
-	AudioFileBrowser *pFileBrowser = new AudioFileBrowser( nullptr, true, true, sPath );
+		if ( pComponent != nullptr ) {
+			auto pLayer = pComponent->get_layer( m_nSelectedLayer );
+
+			if ( pLayer != nullptr ) {
+				auto pSample = pLayer->get_sample();
+
+				if ( pSample != nullptr ) {
+					if ( ! pSample->get_filepath().isEmpty() ) {
+						QFileInfo fileInfo( pSample->get_filepath() );
+						sPath = fileInfo.absoluteDir().absolutePath();
+						sFilename = fileInfo.absoluteFilePath();
+					}
+				}
+			}
+		}
+	}
+		
+
+
+	AudioFileBrowser *pFileBrowser =
+		new AudioFileBrowser( nullptr, true, true, sPath, sFilename );
 	QStringList filename;
 	filename << "false" << "false" << "";
 
