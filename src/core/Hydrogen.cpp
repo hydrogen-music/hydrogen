@@ -342,6 +342,8 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	if ( !pPreferences->__playselectedinstrument ) {
 		if ( instrument >= ( int ) pSong->getInstrumentList()->size() ) {
 			// unused instrument
+			ERRORLOG( QString( "Provided instrument [%1] not found" )
+					  .arg( instrument ) );
 			pAudioEngine->unlock();
 			return;
 		}
@@ -349,9 +351,13 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 
 	// Get current partern and column, compensating for "lookahead" if required
 	const Pattern* currentPattern = nullptr;
-	unsigned int column = 0;
-	float fTickSize = pAudioEngine->getTickSize();
-	unsigned int lookaheadTicks = pAudioEngine->calculateLookahead( fTickSize ) / fTickSize;
+	long nTickInPattern = 0;
+	long long nLookaheadInFrames = m_pAudioEngine->getLookaheadInFrames( pAudioEngine->getTick() );
+	long nLookaheadTicks = 
+		static_cast<long>(std::floor(m_pAudioEngine->computeTickFromFrame( pAudioEngine->getFrames() +
+																		   nLookaheadInFrames ) -
+									 m_pAudioEngine->getTick()));
+			  
 	bool doRecord = pPreferences->getRecordEvents();
 	if ( getMode() == Song::Mode::Song && doRecord &&
 		 pAudioEngine->getState() == AudioEngine::State::Playing )
@@ -363,14 +369,18 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 												   // or pattern group
 		if ( ipattern < 0 || ipattern >= (int) pPatternList->size() ) {
 			pAudioEngine->unlock(); // unlock the audio engine
+			ERRORLOG( QString( "Provided column [%1] out of bound [%2,%3)" )
+					  .arg( ipattern ).arg( 0 )
+					  .arg( (int) pPatternList->size() ) );
 			return;
 		}
-		// Locate column -- may need to jump back in the pattern list
-		column = pAudioEngine->getPatternTickPosition();
-		while ( column < lookaheadTicks ) {
+		// Locate nTickInPattern -- may need to jump back in the pattern list
+		nTickInPattern = pAudioEngine->getPatternTickPosition();
+		while ( nTickInPattern < nLookaheadTicks ) {
 			ipattern -= 1;
 			if ( ipattern < 0 || ipattern >= (int) pPatternList->size() ) {
 				pAudioEngine->unlock(); // unlock the audio engine
+				ERRORLOG( "Unable to locate tick in pattern" );
 				return;
 			}
 
@@ -386,13 +396,13 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 					currentPattern = pPattern;
 				}
 			}
-			column = column + (*pColumns)[ipattern]->longest_pattern_length();
+			nTickInPattern += (*pColumns)[ipattern]->longest_pattern_length();
 			// WARNINGLOG( "Undoing lookahead: corrected (" + to_string( ipattern+1 ) +
-			// "," + to_string( (int) ( column - currentPattern->get_length() ) -
+			// "," + to_string( (int) ( nTickInPattern - currentPattern->get_length() ) -
 			// (int) lookaheadTicks ) + ") -> (" + to_string(ipattern) +
-			// "," + to_string( (int) column - (int) lookaheadTicks ) + ")." );
+			// "," + to_string( (int) nTickInPattern - (int) lookaheadTicks ) + ")." );
 		}
-		column -= lookaheadTicks;
+		nTickInPattern -= nLookaheadTicks;
 		// Convert from playlist index to actual pattern index (if not already done above)
 		if ( currentPattern == nullptr ) {
 			std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
@@ -422,33 +432,36 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		}
 
 		if ( ! currentPattern ) {
+			ERRORLOG( "Current pattern invalid" );
 			pAudioEngine->unlock(); // unlock the audio engine
 			return;
 		}
 
-		// Locate column -- may need to wrap around end of pattern
-		column = pAudioEngine->getPatternTickPosition();
-		if ( column >= lookaheadTicks ) {
-			column -= lookaheadTicks;
+		// Locate nTickInPattern -- may need to wrap around end of pattern
+		nTickInPattern = pAudioEngine->getPatternTickPosition();
+		if ( nTickInPattern >= nLookaheadTicks ) {
+			nTickInPattern -= nLookaheadTicks;
 		} else {
-			lookaheadTicks %= currentPattern->get_length();
-			column = (column + currentPattern->get_length() - lookaheadTicks)
+			nLookaheadTicks %= currentPattern->get_length();
+			nTickInPattern = (nTickInPattern + currentPattern->get_length() - nLookaheadTicks)
 					% currentPattern->get_length();
 		}
 	}
 
 	if ( currentPattern && pPreferences->getQuantizeEvents() ) {
 		// quantize it to scale
-		unsigned qcolumn = ( unsigned )::round( column / ( double )scalar ) * scalar;
+		unsigned qcolumn = ( unsigned )::round( nTickInPattern / ( double )scalar ) * scalar;
 
 		//we have to make sure that no beat is added on the last displayed note in a bar
 		//for example: if the pattern has 4 beats, the editor displays 5 beats, so we should avoid adding beats an note 5.
-		if ( qcolumn == currentPattern->get_length() ) qcolumn = 0;
-		column = qcolumn;
+		if ( qcolumn == currentPattern->get_length() ){
+			qcolumn = 0;
+		}
+		nTickInPattern = qcolumn;
 	}
 
-	unsigned position = column;
-	pAudioEngine->setAddRealtimeNoteTickPosition( column );
+	unsigned position = nTickInPattern;
+	pAudioEngine->setAddRealtimeNoteTickPosition( nTickInPattern );
 
 	std::shared_ptr<Instrument> instrRef = nullptr;
 	if ( pSong ) {
@@ -460,7 +473,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		assert( currentPattern );
 		if ( doRecord ) {
 			EventQueue::AddMidiNoteVector noteAction;
-			noteAction.m_column = column;
+			noteAction.m_column = nTickInPattern;
 			noteAction.m_pattern = currentPatternNumber;
 			noteAction.f_velocity = velocity;
 			noteAction.f_pan = fPan;
@@ -496,9 +509,11 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 			hearnote = true;
 	} /* if .. AudioEngine::State::Playing */
 
+
 	if ( !pPreferences->__playselectedinstrument ) {
 		if ( hearnote && instrRef ) {
 			Note *pNote2 = new Note( instrRef, nRealColumn, velocity, fPan, -1, 0 );
+			
 			midi_noteOn( pNote2 );
 		}
 	} else if ( hearnote  ) {
@@ -599,10 +614,10 @@ bool Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 	std::shared_ptr<Song> pSong = getSong();
 	
 	m_oldEngineMode = getMode();
-	m_bOldLoopEnabled = pSong->getIsLoopEnabled();
+	m_bOldLoopEnabled = pSong->isLoopEnabled();
 
 	pSong->setMode( Song::Mode::Song );
-	pSong->setIsLoopEnabled( true );
+	pSong->setLoopMode( Song::LoopMode::Disabled );
 	
 	/*
 	 * Currently an audio driver is loaded
@@ -629,9 +644,8 @@ bool Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 void Hydrogen::startExportSong( const QString& filename)
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
-	pAudioEngine->reset();
+	getCoreActionController()->locateToTick( 0 );
 	pAudioEngine->play();
-	getCoreActionController()->locateToFrame( 0 );
 	pAudioEngine->getSampler()->stopPlayingNotes();
 
 	DiskWriterDriver* pDiskWriterDriver = static_cast<DiskWriterDriver*>(pAudioEngine->getAudioDriver());
@@ -643,14 +657,18 @@ void Hydrogen::stopExportSong()
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	pAudioEngine->getSampler()->stopPlayingNotes();
-	pAudioEngine->reset();
+	getCoreActionController()->locateToTick( 0 );
 }
 
 void Hydrogen::stopExportSession()
 {
 	std::shared_ptr<Song> pSong = getSong();
 	pSong->setMode( m_oldEngineMode );
-	pSong->setIsLoopEnabled( m_bOldLoopEnabled );
+	if ( m_bOldLoopEnabled ) {
+		pSong->setLoopMode( Song::LoopMode::Enabled );
+	} else {
+		pSong->setLoopMode( Song::LoopMode::Disabled );
+	}
 	
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
@@ -682,146 +700,51 @@ MidiOutput* Hydrogen::getMidiOutput() const
 	return m_pAudioEngine->getMidiOutDriver();
 }
 
-// Setting conditional to true will keep instruments that have notes if new kit has less instruments than the old one
-int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo )
-{
-	return loadDrumkit( pDrumkitInfo, true );
-}
 
-int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
+int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool bConditional )
 {
-	AudioEngine* pAudioEngine = m_pAudioEngine;
 	assert ( pDrumkitInfo );
+	auto pSong = getSong();
+	int nReturnValue = 0;
+	
+	if ( pSong != nullptr ) {
 
-	AudioEngine::State oldAudioEngineState = pAudioEngine->getState();
-	if( pAudioEngine->getState() == AudioEngine::State::Ready ||
-		pAudioEngine->getState() == AudioEngine::State::Playing ) {
-		pAudioEngine->setState( AudioEngine::State::Prepared );
-	}
-
-	INFOLOG( pDrumkitInfo->get_name() );
-	m_sCurrentDrumkitName = pDrumkitInfo->get_name();
-	if ( pDrumkitInfo->isUserDrumkit() ) {
-		m_currentDrumkitLookup = Filesystem::Lookup::user;
-	} else {
-		m_currentDrumkitLookup = Filesystem::Lookup::system;
-	}
-
-	std::vector<DrumkitComponent*>* pSongCompoList= getSong()->getComponents();
-	std::vector<DrumkitComponent*>* pDrumkitCompoList = pDrumkitInfo->get_components();
-	
-	pAudioEngine->lock( RIGHT_HERE );	
-	for( auto &pComponent : *pSongCompoList ){
-		delete pComponent;
-	}
-	pSongCompoList->clear();
-	pAudioEngine->unlock();
-	
-	for (std::vector<DrumkitComponent*>::iterator it = pDrumkitCompoList->begin() ; it != pDrumkitCompoList->end(); ++it) {
-		DrumkitComponent* pSrcComponent = *it;
-		DrumkitComponent* pNewComponent = new DrumkitComponent( pSrcComponent->get_id(), pSrcComponent->get_name() );
-		pNewComponent->load_from( pSrcComponent );
-
-		pSongCompoList->push_back( pNewComponent );
-	}
-
-	//current instrument list
-	InstrumentList *pSongInstrList = getSong()->getInstrumentList();
-	
-	//new instrument list
-	InstrumentList *pDrumkitInstrList = pDrumkitInfo->get_instruments();
-	
-	/*
-	 * If the old drumkit is bigger then the new drumkit,
-	 * delete all instruments with a bigger pos then
-	 * pDrumkitInstrList->size(). Otherwise the instruments
-	 * from our old instrumentlist with
-	 * pos > pDrumkitInstrList->size() stay in the
-	 * new instrumentlist
-	 *
-	 * wolke: info!
-	 * this has moved to the end of this function
-	 * because we get lost objects in memory
-	 * now:
-	 * 1. the new drumkit will loaded
-	 * 2. all not used instruments will complete deleted
-	 * old function:
-	 * while ( pDrumkitInstrList->size() < songInstrList->size() )
-	 * {
-	 *  songInstrList->del(songInstrList->size() - 1);
-	 * }
-	 */
-	
-	//needed for the new delete function
-	int instrumentDiff =  pSongInstrList->size() - pDrumkitInstrList->size();
-	int nMaxID = -1;
-	
-	for ( unsigned nInstr = 0; nInstr < pDrumkitInstrList->size(); ++nInstr ) {
-		std::shared_ptr<Instrument> pInstr = nullptr;
-		if ( nInstr < pSongInstrList->size() ) {
-			//instrument exists already
-			pInstr = pSongInstrList->get( nInstr );
-			assert( pInstr );
+		INFOLOG( pDrumkitInfo->get_name() );
+		m_sCurrentDrumkitName = pDrumkitInfo->get_name();
+		if ( pDrumkitInfo->isUserDrumkit() ) {
+			m_currentDrumkitLookup = Filesystem::Lookup::user;
 		} else {
-			pInstr = std::make_shared<Instrument>();
-			// The instrument isn't playing yet; no need for locking
-			// :-) - Jakob Lund.  m_pAudioEngine->lock(
-			// "Hydrogen::loadDrumkit" );
-			pSongInstrList->add( pInstr );
-			// m_pAudioEngine->unlock();
+			m_currentDrumkitLookup = Filesystem::Lookup::system;
 		}
 
-		auto pNewInstr = pDrumkitInstrList->get( nInstr );
-		assert( pNewInstr );
-		INFOLOG( QString( "Loading instrument (%1 of %2) [%3]" )
-				 .arg( nInstr + 1 )
-				 .arg( pDrumkitInstrList->size() )
-				 .arg( pNewInstr->get_name() ) );
-
-		// Preserve instrument IDs. Where the new drumkit has more instruments than the song does, new
-		// instruments need new ids.
-		int nID = pInstr->get_id();
-		if ( nID == EMPTY_INSTR_ID ) {
-			nID = nMaxID + 1;
+		m_pAudioEngine->lock( RIGHT_HERE );
+		
+		pSong->loadDrumkit( pDrumkitInfo, bConditional );
+		if ( m_nSelectedInstrumentNumber >=
+			 pSong->getInstrumentList()->size() ) {
+			setSelectedInstrumentNumber( std::max( 0, pSong->getInstrumentList()->size() -1 ) );
 		}
-		nMaxID = std::max( nID, nMaxID );
 
-		// Moved code from here right into the Instrument class - Jakob Lund.
-		pInstr->load_from( pDrumkitInfo, pNewInstr );
-		pInstr->set_id( nID );
-	}
-
-	//wolke: new delete function
-	if ( instrumentDiff >= 0 ) {
-		for ( int i = 0; i < instrumentDiff ; i++ ){
-			removeInstrument(
-						getSong()->getInstrumentList()->size() - 1,
-						conditional
-						);
-		}
-	}
-
-#ifdef H2CORE_HAVE_JACK
-	pAudioEngine->lock( RIGHT_HERE );
-	renameJackPorts( getSong() );
-	pAudioEngine->unlock();
-#endif
-
-	pAudioEngine->setState( oldAudioEngineState );
+		renameJackPorts( getSong() );
+		m_pAudioEngine->unlock();
 	
-	m_pCoreActionController->initExternalControlInterfaces();
+		m_pCoreActionController->initExternalControlInterfaces();
 
-	setIsModified( true );
+		setIsModified( true );
 	
-	// Create a symbolic link in the session folder when under session
-	// management.
-	if ( isUnderSessionManagement() ) {
+		// Create a symbolic link in the session folder when under session
+		// management.
+		if ( isUnderSessionManagement() ) {
 #ifdef H2CORE_HAVE_OSC
-		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, false );
+			NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, false );
 #endif
+		}
+	} else {
+		ERRORLOG( "No song loaded yet!" );
+		nReturnValue = -1;
 	}
 
-	return 0;	//ok
+	return nReturnValue;
 }
 
 // This will check if an instrument has any notes
@@ -843,72 +766,24 @@ bool Hydrogen::instrumentHasNotes( std::shared_ptr<Instrument> pInst )
 	return false;
 }
 
-//this is also a new function and will used from the new delete function in
-//Hydrogen::loadDrumkit to delete the instruments by number
-void Hydrogen::removeInstrument( int instrumentNumber, bool conditional )
-{
-	std::shared_ptr<Song> pSong = getSong();
-	auto pInstr = pSong->getInstrumentList()->get( instrumentNumber );
-	PatternList* pPatternList = pSong->getPatternList();
+void Hydrogen::removeInstrument( int nInstrumentNumber ) {
+	auto pSong = getSong();
+	if ( pSong != nullptr ) {
 
-	if ( conditional ) {
-		// new! this check if a pattern has an active note if there is an note
-		//inside the pattern the instrument would not be deleted
-		for ( int nPattern = 0 ;
-			  nPattern < (int)pPatternList->size() ;
-			  ++nPattern ) {
-			if( pPatternList
-					->get( nPattern )
-					->references( pInstr ) ) {
-				DEBUGLOG("Keeping instrument #" + QString::number( instrumentNumber ) );
-				return;
-			}
-		}
-	} else {
-		getSong()->purgeInstrument( pInstr );
-	}
-
-	InstrumentList* pList = pSong->getInstrumentList();
-	if ( pList->size()==1 ){
 		m_pAudioEngine->lock( RIGHT_HERE );
-		auto pInstr = pList->get( 0 );
-		pInstr->set_name( (QString( "Instrument 1" )) );
-		for ( auto& pCompo : *pInstr->get_components() ) {
-			// remove all layers
-			for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-				pCompo->set_layer( nullptr, nLayer );
-			}
+
+		pSong->removeInstrument( nInstrumentNumber, false );
+		
+		if ( nInstrumentNumber == m_nSelectedInstrumentNumber ) {
+			setSelectedInstrumentNumber( std::max( 0, nInstrumentNumber - 1 ) );
+		} else if ( m_nSelectedInstrumentNumber >=
+					pSong->getInstrumentList()->size() ) {
+			setSelectedInstrumentNumber( std::max( 0, pSong->getInstrumentList()->size() - 1 ) );
 		}
 		m_pAudioEngine->unlock();
-		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-		INFOLOG("clear last instrument to empty instrument 1 instead delete the last instrument");
-		return;
+		
+		setIsModified( true );
 	}
-
-	// if the instrument was the last on the instruments list, select the
-	// next-last
-	if ( instrumentNumber >= (int)getSong()->getInstrumentList()->size() - 1 ) {
-		setSelectedInstrumentNumber( std::max(0, instrumentNumber - 1 ) );
-	}
-	//
-	// delete the instrument from the instruments list
-	m_pAudioEngine->lock( RIGHT_HERE );
-	getSong()->getInstrumentList()->del( instrumentNumber );
-	setIsModified( true );
-	m_pAudioEngine->unlock();
-
-	// At this point the instrument has been removed from both the
-	// instrument list and every pattern in the song.  Hence there's no way
-	// (NOTE) to play on that instrument, and once all notes have stopped
-	// playing it will be save to delete.
-	// the ugly name is just for debugging...
-	QString xxx_name = QString( "XXX_%1" ) . arg( pInstr->get_name() );
-	pInstr->set_name( xxx_name );
-	__instrument_death_row.push_back( pInstr );
-	__kill_instruments(); // checks if there are still notes.
-
-	// this will force a GUI update.
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
 void Hydrogen::raiseError( unsigned nErrorCode )
@@ -1042,9 +917,9 @@ void Hydrogen::refreshInstrumentParameters( int nInstrument )
 	EventQueue::get_instance()->push_event( EVENT_PARAMETERS_INSTRUMENT_CHANGED, -1 );
 }
 
-#ifdef H2CORE_HAVE_JACK
 void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 {
+#ifdef H2CORE_HAVE_JACK
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -1063,8 +938,8 @@ void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 			static_cast< JackAudioDriver* >( m_pAudioEngine->getAudioDriver() )->makeTrackOutputs( pSong );
 		}
 	}
-}
 #endif
+}
 
 /** Updates #m_nbeatsToCount
  * \param beatstocount New value*/
@@ -1210,25 +1085,27 @@ void Hydrogen::handleBeatCounter()
 }
 //~ m_nBeatCounter
 
-#ifdef H2CORE_HAVE_JACK
 void Hydrogen::offJackMaster()
 {
+#ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
 	if ( haveJackTransport() ) {
 		static_cast< JackAudioDriver* >( pAudioEngine->getAudioDriver() )->releaseTimebaseMaster();
 	}
+#endif
 }
 
 void Hydrogen::onJackMaster()
 {
+#ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
 	if ( haveJackTransport() ) {
 		static_cast< JackAudioDriver* >( pAudioEngine->getAudioDriver() )->initTimebaseMaster();
 	}
-}
 #endif
+}
 
 void Hydrogen::setPlaysSelected( bool bPlaysSelected )
 {
@@ -1255,9 +1132,13 @@ void Hydrogen::setPlaysSelected( bool bPlaysSelected )
 	pAudioEngine->unlock();
 }
 
+void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr ) {
+	__instrument_death_row.push_back( pInstr );
+	__kill_instruments();
+}
+
 void Hydrogen::__kill_instruments()
 {
-	int c = 0;
 	std::shared_ptr<Instrument> pInstr = nullptr;
 	while ( __instrument_death_row.size()
 			&& __instrument_death_row.front()->is_queued() == 0 ) {
@@ -1268,7 +1149,6 @@ void Hydrogen::__kill_instruments()
 				 . arg( pInstr->get_name() )
 				 . arg( __instrument_death_row.size() ) );
 		pInstr = nullptr;
-		c++;
 	}
 	if ( __instrument_death_row.size() ) {
 		pInstr = __instrument_death_row.front();
@@ -1497,15 +1377,175 @@ void Hydrogen::setMode( Song::Mode mode ) {
 }
 
 void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
-	auto pPref = Preferences::get_instance();
+	if ( getSong() != nullptr ) {
+		auto pPref = Preferences::get_instance();
+		auto pAudioEngine = getAudioEngine();
 
-	if ( bEnabled != getSong()->getIsTimelineActivated() ) {
-		pPref->setUseTimelineBpm( bEnabled );
-		getSong()->setIsTimelineActivated( bEnabled );
+		if ( bEnabled != getSong()->getIsTimelineActivated() ) {
+			
+			pAudioEngine->lock( RIGHT_HERE );
+			
+			// DEBUGLOG( QString( "bEnabled: %1, getSong()->getIsTimelineActivated(): %2" )
+			// 		  .arg( bEnabled )
+			// 		  .arg( getSong()->getIsTimelineActivated()) );
+		
+			pPref->setUseTimelineBpm( bEnabled );
+			getSong()->setIsTimelineActivated( bEnabled );
 
-		EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION, static_cast<int>( bEnabled ) );
+			if ( bEnabled ) {
+				getTimeline()->activate();
+			} else {
+				getTimeline()->deactivate();
+			}
+
+			pAudioEngine->handleTimelineChange();
+			pAudioEngine->unlock();
+
+			EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION, static_cast<int>( bEnabled ) );
+		}
 	}
-}	
+}
+
+int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartTick ) const
+{
+	std::shared_ptr<Song> pSong = getSong();
+	assert( pSong );
+
+	long nTotalTick = 0;
+
+	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
+	int nColumns = pPatternColumns->size();
+
+	// Sum the lengths of all pattern columns and use the macro
+	// MAX_NOTES in case some of them are of size zero. If the
+	// supplied value nTick is bigger than this and doesn't belong to
+	// the next pattern column, we just found the pattern list we were
+	// searching for.
+	int nPatternSize;
+	for ( int i = 0; i < nColumns; ++i ) {
+		PatternList *pColumn = ( *pPatternColumns )[ i ];
+		if ( pColumn->size() != 0 ) {
+			nPatternSize = pColumn->longest_pattern_length();
+		} else {
+			nPatternSize = MAX_NOTES;
+		}
+
+		if ( ( nTick >= nTotalTick ) && ( nTick < nTotalTick + nPatternSize ) ) {
+			( *pPatternStartTick ) = nTotalTick;
+			return i;
+		}
+		nTotalTick += nPatternSize;
+	}
+
+	// If the song is played in loop mode, the tick numbers of the
+	// second turn are added on top of maximum tick number of the
+	// song. Therefore, we will introduced periodic boundary
+	// conditions and start the search again.
+	if ( bLoopMode ) {
+		long nLoopTick = 0;
+		// nTotalTicks is now the same as m_nSongSizeInTicks
+		if ( nTotalTick != 0 ) {
+			nLoopTick = nTick % nTotalTick;
+		}
+		nTotalTick = 0;
+		for ( int i = 0; i < nColumns; ++i ) {
+			PatternList *pColumn = ( *pPatternColumns )[ i ];
+			if ( pColumn->size() != 0 ) {
+				nPatternSize = pColumn->longest_pattern_length();
+			} else {
+				nPatternSize = MAX_NOTES;
+			}
+
+			if ( ( nLoopTick >= nTotalTick )
+				 && ( nLoopTick < nTotalTick + nPatternSize ) ) {
+				( *pPatternStartTick ) = nTotalTick;
+				return i;
+			}
+			nTotalTick += nPatternSize;
+		}
+	}
+
+	return -1;
+}
+
+long Hydrogen::getTickForColumn( int nColumn ) const
+{
+	auto pSong = getSong();
+	assert( pSong );
+
+	const int nPatternGroups = pSong->getPatternGroupVector()->size();
+	if ( nPatternGroups == 0 ) {
+		return -1;
+	}
+
+	if ( nColumn >= nPatternGroups ) {
+		// The position is beyond the end of the Song, we
+		// set periodic boundary conditions or return the
+		// beginning of the Song as a fallback.
+		if ( pSong->isLoopEnabled() ) {
+			nColumn = nColumn % nPatternGroups;
+		} else {
+			WARNINGLOG( QString( "Provided column [%1] is larger than the available number [%2]")
+						.arg( nColumn ) .arg(  nPatternGroups )
+						);
+			return -1;
+		}
+	}
+
+	std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
+	long totalTick = 0;
+	int nPatternSize;
+	Pattern *pPattern = nullptr;
+	
+	for ( int i = 0; i < nColumn; ++i ) {
+		PatternList *pColumn = ( *pColumns )[ i ];
+		
+		if( pColumn->size() > 0)
+		{
+			nPatternSize = pColumn->longest_pattern_length();
+		} else {
+			nPatternSize = MAX_NOTES;
+		}
+		totalTick += nPatternSize;
+	}
+	
+	return totalTick;
+}
+
+long Hydrogen::getPatternLength( int nPattern ) const
+{
+	std::shared_ptr<Song> pSong = getSong();
+	
+	if ( pSong == nullptr ){
+		return -1;
+	}
+
+	std::vector< PatternList* > *pColumns = pSong->getPatternGroupVector();
+
+	int nPatternGroups = pColumns->size();
+	if ( nPattern >= nPatternGroups ) {
+		if ( pSong->isLoopEnabled() ) {
+			nPattern = nPattern % nPatternGroups;
+		} else {
+			return MAX_NOTES;
+		}
+	}
+
+	if ( nPattern < 1 ){
+		return MAX_NOTES;
+	}
+
+	PatternList* pPatternList = pColumns->at( nPattern - 1 );
+	if ( pPatternList->size() > 0 ) {
+		return pPatternList->longest_pattern_length();
+	} else {
+		return MAX_NOTES;
+	}
+}
+
+void Hydrogen::updateSongSize() {
+	getAudioEngine()->updateSongSize();
+}
 
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 

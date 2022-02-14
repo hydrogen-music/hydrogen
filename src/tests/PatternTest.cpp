@@ -25,8 +25,6 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Pattern.h>
 
-CPPUNIT_TEST_SUITE_REGISTRATION( PatternTest );
-
 using namespace H2Core;
 
 void PatternTest::testPurgeInstrument()

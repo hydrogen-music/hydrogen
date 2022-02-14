@@ -262,7 +262,7 @@ for:
 
     test_script: |-
       cd build
-      TMPDIR=/tmp src/tests/tests --appveyor || exit 1
+      TMPDIR=/tmp src/tests/tests --appveyor
 
       echo "Waiting for installer creation and cache archiving"
       wait
@@ -287,7 +287,7 @@ for:
 
           cmake --version
           g++ --version
-          choco install %CHOCO_ARCH% -y jack
+          choco install %CHOCO_ARCH% jack --version 1.9.17 -my
 
           dir "c:\%PROGRAM_FILES%\JACK2"
           dir "c:\%PROGRAM_FILES%\JACK2\lib"

@@ -90,6 +90,16 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		 */
 		static bool openSong( QString sFilename );
 		static bool openSong( std::shared_ptr<H2Core::Song> pSong );
+	/**
+	 * Specialized version of openSong( QString sFilename ) trying to
+	 * open the autosave file corresponding to current empty song.
+	 *
+	 * This will be used if the last set in Hydrogen was an empty one.
+	 * If the user either decided to discard the changes or Hydrogen
+	 * was terminated untimely, this function allows to restore all
+	 * changes that would have been lost otherwise.
+	 */
+	static bool recoverEmptySong();
 
 		void showPreferencesDialog();
 		void updateMixerCheckbox();
@@ -129,8 +139,6 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		void addEventListener( EventListener* pListener );
 		void removeEventListener( EventListener* pListener );
 		void closeFXProperties();
-
-		void onDrumkitLoad( QString name );
 
 		void cleanupTemporaryFiles();
 
@@ -294,6 +302,7 @@ private slots:
 		 * \param nValue unused
 		 */
 		virtual void quitEvent( int nValue ) override;
+	virtual void drumkitLoadedEvent() override;
 	
 };
 

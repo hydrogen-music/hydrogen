@@ -24,8 +24,6 @@
 
 #include "TestHelper.h"
 
-CPPUNIT_TEST_SUITE_REGISTRATION( MemoryLeakageTest );
-
 
 void MemoryLeakageTest::testConstructors() {
 	auto mapSnapshot = H2Core::Base::getObjectMap();
@@ -278,7 +276,7 @@ void MemoryLeakageTest::testLoading() {
 	
 	{
 		auto pInstrument = H2Core::Instrument::load_instrument( "GMRockKit", "Kick", H2Core::Filesystem::Lookup::system );
-		pInstrument->load_from( "GMRockKit", "Snare", false, H2Core::Filesystem::Lookup::system );
+		pInstrument->load_from( "GMRockKit", "Snare", H2Core::Filesystem::Lookup::system );
 		CPPUNIT_ASSERT( pInstrument != nullptr );
 		pInstrument = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
@@ -381,7 +379,7 @@ void MemoryLeakageTest::testLoading() {
 	}
 
 	{
-		auto pSong = H2Core::Song::getDefaultSong();
+		auto pSong = H2Core::Song::getEmptySong();
 		CPPUNIT_ASSERT( pSong != nullptr );
 		pSong = nullptr;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );

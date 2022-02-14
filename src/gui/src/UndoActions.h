@@ -375,21 +375,20 @@ public:
 	}
 	virtual void undo() {
 		auto pSongEditorPositionRuler = HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler();
-		auto pTimeline = H2Core::Hydrogen::get_instance()->getTimeline();
+		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
 		if( m_bTempoMarkerPresent ){
-			pTimeline->deleteTempoMarker( m_nNewColumn );
-			pTimeline->addTempoMarker( m_nOldColumn, m_fOldBpm );
+			pCoreActionController->addTempoMarker( m_nOldColumn, m_fOldBpm );
 		} else {
-			pTimeline->deleteTempoMarker( m_nNewColumn );
+			pCoreActionController->deleteTempoMarker( m_nNewColumn );
 		}
 		pSongEditorPositionRuler->createBackground();
 	}
 
 	virtual void redo() {
 		auto pSongEditorPositionRuler = HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler();
-		auto pTimeline = H2Core::Hydrogen::get_instance()->getTimeline();
-		pTimeline->deleteTempoMarker( m_nOldColumn );
-		pTimeline->addTempoMarker( m_nNewColumn, m_fNewBpm );
+		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+		pCoreActionController->deleteTempoMarker( m_nOldColumn );
+		pCoreActionController->addTempoMarker( m_nNewColumn, m_fNewBpm );
 		pSongEditorPositionRuler->createBackground();
 	}
 private:
@@ -411,15 +410,15 @@ public:
 	}
 	virtual void undo() {
 		auto pSongEditorPositionRuler = HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler();
-		auto pTimeline = H2Core::Hydrogen::get_instance()->getTimeline();
-		pTimeline->addTempoMarker( m_nColumn, m_fBpm );
+		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+		pCoreActionController->addTempoMarker( m_nColumn, m_fBpm );
 		pSongEditorPositionRuler->createBackground();
 	}
 
 	virtual void redo() {
 		auto pSongEditorPositionRuler = HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler();
-		auto pTimeline = H2Core::Hydrogen::get_instance()->getTimeline();
-		pTimeline->deleteTempoMarker( m_nColumn );
+		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+		pCoreActionController->deleteTempoMarker( m_nColumn );
 		pSongEditorPositionRuler->createBackground();
 	}
 private:

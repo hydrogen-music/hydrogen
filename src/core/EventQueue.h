@@ -26,6 +26,7 @@
 #include <core/Object.h>
 #include <core/Basics/Note.h>
 #include <cassert>
+#include <mutex>
 
 /** Maximum number of events to be stored in the
     H2Core::EventQueue::__events_buffer.*/
@@ -157,7 +158,9 @@ enum EventType {
 	EVENT_UPDATE_SONG_EDITOR,
 	/** Triggered when transport is moved into a different column
 		(either during playback or when relocated by the user)*/
-	EVENT_COLUMN_CHANGED
+	EVENT_COLUMN_CHANGED,
+	/** A the current drumkit was replaced by a new one*/
+	EVENT_DRUMKIT_LOADED
 };
 
 /** Basic building block for the communication between the core of
@@ -278,14 +281,14 @@ private:
 	 *
 	 * It is incremented with each call to pop_event(). 
 	 */
-	unsigned int __read_index;
+	volatile unsigned int __read_index;
 	/**
 	 * Continuously growing number indexing the event, which has
 	 * been written to the EventQueue most recently.
 	 *
 	 * It is incremented with each call to push_event(). 
 	 */
-	unsigned int __write_index;
+	volatile unsigned int __write_index;
 	/**
 	 * Array of all events contained in the EventQueue.
 	 *
@@ -293,6 +296,11 @@ private:
 	 * with #H2Core::EVENT_NONE in EventQueue().
 	 */
 	Event __events_buffer[ MAX_EVENTS ];
+
+	/**
+	 * Mutex to lock access to queue.
+	 */
+	std::mutex m_mutex;
 };
 
 };

@@ -378,6 +378,17 @@ CommonStrings::CommonStrings(){
 	  a window which still contains unsaved changes. The '\n'
 	  character introduces a linebreak and must not be translated*/
 	m_sUnsavedChanges = tr( "Unsaved changes left. These changes will be lost. \nAre you sure?" );
+
+	// Not used yet.
+	/*: Displayed in the Open dialog window if the selected song could
+	  not be loaded.*/
+	// m_sDialogSongLoadError = tr( "Error loading song." );
+	/*: Heading displayed in the info box asking the user to recover
+	  unsaved changes from an earlier session.*/
+	// m_sDialogUnsavedChangedH1 = tr( "There are unsaved changes." );
+	/*: Additional text displayed in the info box asking the user to
+	  recover unsaved changes from an earlier session.*/
+	// m_sDialogUnsavedChangedH2 = tr( "Do you want to recover them?" );
 }
 
 CommonStrings::~CommonStrings(){

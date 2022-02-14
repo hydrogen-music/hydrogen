@@ -74,6 +74,5 @@ public:
 	 */
 	void testSessionManagement();
 };
-CPPUNIT_TEST_SUITE_REGISTRATION( OscServerTest );
 
 #endif

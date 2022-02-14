@@ -20,28 +20,33 @@
  *
  */
 
+#include <core/config.h>
+
 #include <cppunit/extensions/HelperMacros.h>
+#include <core/Basics/Song.h>
 
-#include <core/Helpers/Filesystem.h>
-
-class FilesystemTest : public CppUnit::TestFixture {
-	CPPUNIT_TEST_SUITE( FilesystemTest );
-	CPPUNIT_TEST( testPermissions );
+class TransportTest : public CppUnit::TestFixture {
+	CPPUNIT_TEST_SUITE( TransportTest );
+	CPPUNIT_TEST( testFrameToTickConversion );
+	CPPUNIT_TEST( testTransportProcessing );
+	CPPUNIT_TEST( testTransportRelocation );
+	CPPUNIT_TEST( testComputeTickInterval );
+	CPPUNIT_TEST( testSongSizeChange );
+	CPPUNIT_TEST( testSongSizeChangeInLoopMode );
 	CPPUNIT_TEST_SUITE_END();
 	
+private:
+	std::shared_ptr<H2Core::Song> m_pSongDemo;
+	std::shared_ptr<H2Core::Song> m_pSongSizeChanged;
 	
 public:
 	void setUp();
-	void tearDown();
 	
-	void testPermissions();
+	void testFrameToTickConversion();
 
-private:
-	QString m_sNotExistingPath;
-	QString m_sNoAccessPath;
-	QString m_sReadOnlyPath;
-	QString m_sFullAccessPath;
-	// To ensure Qt does handle the temporary files consistently.
-	QString m_sTmpPath;
-	QString m_sDemoSongSysPath;
+	void testTransportProcessing();
+	void testTransportRelocation();
+	void testComputeTickInterval();
+	void testSongSizeChange();
+	void testSongSizeChangeInLoopMode();
 };

@@ -559,15 +559,6 @@ public:
 	void			setWaitForSessionHandler(bool value);
 	bool			getWaitForSessionHandler();
 
-#if defined(H2CORE_HAVE_JACKSESSION) || _DOXYGEN_
-	QString			getJackSessionUUID();
-	void			setJackSessionUUID( QString uuid );
-
-	QString			getJackSessionApplicationPath();
-	void			setJackSessionApplicationPath( QString path );
-#endif
-
-
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 	void			setNsmClientId(const QString& nsmClientId);
 	QString			getNsmClientId(void);
@@ -730,11 +721,6 @@ private:
 
 	QStringList			m_recentFX;
 	std::vector<QString> 		m_recentFiles;
-
-#if defined(H2CORE_HAVE_JACKSESSION) || _DOXYGEN_
-		QString			jackSessionUUID;
-		QString			jackSessionApplicationPath;
-#endif
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 		QString			m_sNsmClientId;
@@ -1385,26 +1371,6 @@ inline void Preferences::setWaitForSessionHandler(bool value){
 inline bool Preferences::getWaitForSessionHandler(){
 		return waitingForSessionHandler;
 }
-
-#if defined(H2CORE_HAVE_JACKSESSION) || _DOXYGEN_
-inline QString Preferences::getJackSessionUUID(){
-	return jackSessionUUID;
-}
-
-inline void Preferences::setJackSessionUUID( QString uuid ){
-	jackSessionUUID = uuid;
-}
-
-inline QString Preferences::getJackSessionApplicationPath(){
-	return jackSessionApplicationPath;
-}
-
-inline void Preferences::setJackSessionApplicationPath( QString path ){
-	jackSessionApplicationPath = path;
-}
-
-#endif
-
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 inline void Preferences::setNsmClientId(const QString& nsmClientId){

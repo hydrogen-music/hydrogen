@@ -55,36 +55,25 @@ class Hydrogen : public H2Core::Object<Hydrogen>
 public:
 	
 	/** Specifies where the #AudioEngine does get its current tempo
-		updates from*/
+		updates from.*/
 	enum class Tempo {
+		/** BeatCounter, TapTempo, OSC and MIDI commands as well as
+			the BPM widget in the PlayerControl are used to change the
+			tempo.*/
 		Song = 0,
+		/** Only tempo markers on the Timeline are considered.*/
 		Timeline = 1,
+		/** Hydrogen will disregard all internal tempo settings and
+			uses the ones provided by the JACK server instead. This
+			mode is only used in case the JACK audio driver is used,
+			JACK timebase support is activated in the Preferences, and
+			an external timebase master is registered to the JACK
+			server.*/
 		Jack = 2
 	};
 	/**
 	 * Creates all the instances used within Hydrogen in the right
-	 * order. 
-	 *
-	 * -# H2Core::Logger::create_instance()
-	 * -# MidiMap::create_instance()
-	 * -# Preferences::create_instance()
-	 * -# EventQueue::create_instance()
-	 * -# MidiActionManager::create_instance()
-	 *
-	 * If #H2CORE_HAVE_OSC was set during compilation, the
-	 * following instances will be created as well.
-	 *
-	 * -# NsmClient::create_instance()
-	 * -# OscServer::create_instance() using
-	 *    Preferences::get_instance() as input
-	 *
-	 * If all instances are created and the actual Hydrogen
-	 * instance #__instance is still 0, it will be properly
-	 * constructed via Hydrogen().
-	 *
-	 * The AudioEngine::create_instance(),
-	 * Effects::create_instance(), and Playlist::create_instance()
-	 * functions will be called from within audioEngine_init().
+	 * order.
 	 */
 	static void		create_instance();
 	/**
@@ -122,16 +111,6 @@ public:
 	 * Adding and removing a Pattern from
 	 * #H2Core::AudioEngine::m_pNextPatterns.
 	 *
-	 * After locking the AudioEngine the function retrieves the
-	 * particular pattern @a pos from the Song::m_pPatternList and
-	 * either deletes it from #H2Core::AudioEngine::m_pNextPatterns if
-	 * already present or add it to the same pattern list if not
-	 * present yet.
-	 *
-	 * If the Song is not in Song::PATTERN_MODE or @a pos is not
-	 * within the range of Song::m_pPatternList,
-	 * #H2Core::AudioEngine::m_pNextPatterns will be cleared instead.
-	 *
 	 * \param pos Index of a particular pattern in
 	 * Song::m_pPatternList, which should be added to
 	 * #H2Core::AudioEngine::m_pNextPatterns.
@@ -142,16 +121,6 @@ public:
 	 * Clear #H2Core::AudioEngine::m_pNextPatterns and add one
 	 * Pattern.
 	 *
-	 * After locking the AudioEngine the function clears
-	 * #H2Core::AudioEngine::m_pNextPatterns, fills it with all
-	 * currently played one in
-	 * #H2Core::AudioEngine::m_pPlayingPatterns, and appends the
-	 * particular pattern @a pos from the Song::m_pPatternList.
-	 *
-	 * If the Song is not in Song::PATTERN_MODE or @a pos is not
-	 * within the range of Song::m_pPatternList,
-	 * #H2Core::AudioEngine::m_pNextPatterns will be just cleared.
-	 *
 	 * \param pos Index of a particular pattern in
 	 * Song::m_pPatternList, which should be added to
 	 * #H2Core::AudioEngine::m_pNextPatterns.
@@ -161,12 +130,6 @@ public:
 	 * Switches playback to focused pattern.
 	 *
 	 * ("Focused pattern" or "PlaysSelected" is the opposite of "Stacked" mode)
-	 *
-	 * If the current Song is in Song::PATTERN_MODE, the AudioEngine
-	 * will be locked and Preferences::m_bPatternModePlaysSelected
-	 * set. If the latter was true before calling this function,
-	 * #H2Core::AudioEngine::m_pPlayingPatterns will be cleared and
-	 * replaced by the Pattern indexed with #m_nSelectedPatternNumber.
 	 */
 	void			setPlaysSelected( bool bPlaysSelected );
 	
@@ -180,6 +143,52 @@ public:
 		 * \param newSong Pointer to the new Song object.
 		 */
 		void			setSong	( std::shared_ptr<Song> newSong );
+
+	/**
+	 * Find a PatternList/column corresponding to the supplied tick
+	 * position @a nTick.
+	 *
+	 * Adds up the lengths of all pattern columns until @a nTick lies in
+	 * between the bounds of a Pattern.
+	 *
+	 * \param nTick Position in ticks.
+	 * \param bLoopMode Whether looping is enabled in the Song, see
+	 *   Song::is_loop_enabled(). If true, @a nTick is allowed to be
+	 *   larger than the total length of the Song.
+	 * \param pPatternStartTick Pointer to an integer the beginning of the
+	 *   found pattern list will be stored in (in ticks).
+	 * \return
+	 *   - -1 : pattern list couldn't be found.
+	 *   - >=0 : PatternList index in Song::__pattern_group_sequence.
+	 */
+	int			getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartTick ) const;
+	/**
+	 * Get the total number of ticks passed up to a @a nColumn /
+	 * pattern group.
+	 *
+	 * The AudioEngine should be LOCKED when calling this!
+	 *
+	 * \param nColumn pattern group.
+	 * \return
+	 *  - -1 : if @a nColumn is bigger than the number of patterns in
+	 *   the Song and Song::isLoopEnabled() is set to false or
+	 *   no Patterns could be found at all.
+	 *  - >= 0 : the total number of ticks passed.
+	 */
+	long			getTickForColumn( int nColumn ) const;
+	/**
+	 * Get the length (in ticks) of the @a nPattern th pattern.
+	 *
+	 * \param nPattern Position + 1 of the desired PatternList.
+	 * \return 
+	 * - __-1__ : if not Song was initialized yet.
+	 * - #MAX_NOTES : if @a nPattern was smaller than 1, larger
+	 * than the length of the vector of the PatternList in
+	 * Song::m_pPatternGroupSequence or no Pattern could be found
+	 * in the PatternList at @a nPattern - 1.
+	 * - __else__ : length of first Pattern found at @a nPattern.
+	 */
+	long			getPatternLength( int nPattern ) const;
 
 	Song::Mode getMode() const;
 	/** Wrapper around Song::setMode() which also triggers
@@ -195,6 +204,8 @@ public:
 
 	void			removeSong();
 
+	void updateSongSize();
+
 		void			addRealtimeNote ( int instrument,
 							  float velocity,
 							  float fPan = 0.0f,
@@ -209,15 +220,16 @@ public:
 		MidiInput*		getMidiInput() const;
 		MidiOutput*		getMidiOutput() const;
 
-		/** Wrapper around loadDrumkit( Drumkit, bool ) with the
-			conditional argument set to true.
-		 *
-		 * \returns 0 In case something unexpected happens, it will be
-		 *   indicated with #ERRORLOG messages.
-		 */
-		int			loadDrumkit( Drumkit *pDrumkitInfo );
 		/** Loads the H2Core::Drumkit provided in \a pDrumkitInfo into
 		 * the current session.
+		 *
+		 * During loading all H2Core::Instrument of the current
+		 * drumkit will be replaced by the ones in @a pDrumkitInfo top
+		 * to bottom. If the latter contains less instruments, the
+		 * superfluous ones will be stripped from the
+		 * bottom. Depending on the choice of @a bConditional all
+		 * instruments will be strip or just those which do not
+		 * contain any notes.
 		 *
 		 * When under session management (see
 		 * NsmClient::m_bUnderSessionManagement) the function will
@@ -225,24 +237,20 @@ public:
 		 * name "drumkit" in the folder
 		 * NsmClient::m_sSessionFolderPath.
 		 *
-		 * \param pDrumkitInfo Full-fledged H2Core::Drumkit to load.
-		 * \param conditional Argument passed on as second input
-		 *   argument to removeInstrument().
+		 * \param pDrumkit Full-fledged H2Core::Drumkit to load.
+		 * \param bConditional Whether to remove all redundant
+		 * H2Core::Instrument regardless of their content.
 		 *
-		 * \returns 0 In case something unexpected happens, it will be
-		 *   indicated with #ERRORLOG messages.
+		 * \returns 0 on success.
 		 */
-
-		int			loadDrumkit( Drumkit *pDrumkitInfo, bool conditional );
+		int			loadDrumkit( Drumkit* pDrumkit, bool bConditional = true );
 
 		/** Test if an Instrument has some Note in the Pattern (used to
 		    test before deleting an Instrument)*/
 		bool 			instrumentHasNotes( std::shared_ptr<Instrument> pInst );
 
-		/** Delete an Instrument. If @a conditional is true, and there
-		    are some Pattern that are using this Instrument, it's not
-		    deleted anyway.*/
-		void			removeInstrument( int instrumentnumber, bool conditional );
+		/** Delete an #Instrument.*/
+		void			removeInstrument( int nInstrumentNumber );
 
 		/** \return m_sCurrentDrumkitName */
 		const QString&	getCurrentDrumkitName();
@@ -261,6 +269,9 @@ void			previewSample( Sample *pSample );
 
 	/** Recalculates all Samples using RubberBand for a specific
 		tempo @a fBpm.
+	*
+	* This function requires the calling function to lock the
+	* #AudioEngine first.
 	*/ 
 	void recalculateRubberband( float fBpm );
 	/** Wrapper around Song::setIsModified() that checks whether a
@@ -340,14 +351,12 @@ void			previewSample( Sample *pSample );
 
 	void			refreshInstrumentParameters( int nInstrument );
 
-#if defined(H2CORE_HAVE_JACK) || _DOXYGEN_
 	/**
 	 * Calls audioEngine_renameJackPorts() if
 	 * Preferences::m_bJackTrackOuts is set to true.
 	 * \param pSong Handed to audioEngine_renameJackPorts().
 	 */
 	void			renameJackPorts(std::shared_ptr<Song> pSong);
-#endif
 
 	/** Starts/stops the OSC server
 	 * \param bEnable `true` = start, `false` = stop.*/
@@ -471,6 +480,18 @@ void			previewSample( Sample *pSample );
 
 	///midi lookuptable
 	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
+
+	/**
+	 * Add @a pInstr to __instrument_death_row and triggers
+	 * __kill_instruments().
+	 *
+	 * Since there might still be some notes of @a pInstr left in one
+	 * of the note queues, the instrument can not be deleted right
+	 * away. Instead, this function will add it to a list of
+	 * instruments marked for deletion and it will be dealt with at a
+	 * later time.
+	 */
+	void addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr );
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of

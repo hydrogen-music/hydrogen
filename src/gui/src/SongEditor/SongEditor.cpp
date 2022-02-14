@@ -729,10 +729,11 @@ void SongEditor::updateModifiers( QInputEvent *ev )
 
 void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 {
+	auto pSong = Hydrogen::get_instance()->getSong();
 	updateModifiers( ev );
 	m_currentMousePosition = ev->pos();
 
-	if ( Hydrogen::get_instance()->getSong()->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
+	if ( pSong->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
 		m_selection.mouseMoveEvent( ev );
 	} else {
 		if ( ev->x() < m_nMargin ) {
@@ -740,9 +741,18 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 		}
 
 		QPoint p = xyToColumnRow( ev->pos() );
+		if ( m_nCursorColumn == p.x() && m_nCursorRow == p.y() ) {
+			// Cursor has not entered a different cell yet.
+			return;
+		}
 		m_nCursorColumn = p.x();
 		m_nCursorRow = p.y();
 		HydrogenApp::get_instance()->setHideKeyboardCursor( true );
+
+		if ( m_nCursorRow >= pSong->getPatternList()->size() ) {
+			// We are below the bottom of the pattern list.
+			return;
+		}
 
 		// Drawing mode: continue drawing over other cells
 		setPatternActive( p.x(), p.y(), ! m_bDrawingActiveCell );
@@ -1189,9 +1199,11 @@ void SongEditor::clearThePatternSequenceVector( QString filename )
 		delete pPatternList;
 	}
 	pPatternGroupsVect->clear();
+	pHydrogen->updateSongSize();
+	
+	m_pAudioEngine->unlock();
 
 	pHydrogen->setIsModified( true );
-	m_pAudioEngine->unlock();
 	m_bSequenceChanged = true;
 	update();
 }
@@ -1777,6 +1789,8 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 		pSongPatternList->add( pEmptyPattern );
 	}
 
+	m_pHydrogen->updateSongSize();
+	
 	m_pAudioEngine->unlock();
 	
 	m_pHydrogen->setSelectedPatternNumber( -1 );
@@ -1793,16 +1807,18 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 
 	pSongPatternList->flattened_virtual_patterns_compute();
 
-	delete pattern;
 	m_pHydrogen->setIsModified( true );
+
+	delete pattern;
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 
 }
 
 void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilename, QString sequenceFileName, int patternPosition )
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	PatternList *pPatternList = pSong->getPatternList();
 
 	Pattern* pattern = Pattern::load_file( patternFilename, pSong->getInstrumentList() );
@@ -1810,7 +1826,10 @@ void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilen
 		_ERRORLOG( "Error loading the pattern" );
 	}
 
+	pAudioEngine->lock( RIGHT_HERE );
 	pPatternList->insert( patternPosition, pattern );
+	pHydrogen->updateSongSize();
+	pAudioEngine->unlock();
 
 	pHydrogen->setIsModified( true );
 	createBackground();
@@ -2632,11 +2651,14 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 
-	if ( m_pAudioEngine->getPlayingPatterns()->size() != 0 ) {
-		int nLength = m_pAudioEngine->getPlayingPatterns()->longest_pattern_length();
+	auto pPatternGroupVector = Hydrogen::get_instance()->getSong()->getPatternGroupVector();
+	int nColumn = m_pAudioEngine->getColumn();
+
+	if ( pPatternGroupVector->size() >= nColumn &&
+		 pPatternGroupVector->at( nColumn )->size() > 0 ) {
+		int nLength = pPatternGroupVector->at( nColumn )->longest_pattern_length();
 		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)nLength;
-	}
-	else {
+	} else {
 		// nessun pattern, uso la grandezza di default
 		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)MAX_NOTES;
 	}

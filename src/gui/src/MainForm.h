@@ -79,7 +79,6 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 		virtual void undoRedoActionEvent( int nEvent ) override;
 		static void usr1SignalHandler(int unused);
 
-
 public slots:
 		void showPreferencesDialog();
 		void showUserManual();
@@ -189,9 +188,6 @@ public slots:
 		void onRestartAccelEvent();
 		void onBPMPlusAccelEvent();
 		void onBPMMinusAccelEvent();
-		void onSaveAsAccelEvent();
-		void onSaveAccelEvent();
-		void onOpenAccelEvent();
 
 		void action_file_open_recent( QAction *pAction );
 		void showDevelWarning();
