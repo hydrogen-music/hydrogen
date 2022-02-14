@@ -1109,10 +1109,11 @@ void InstrumentEditor::selectLayer( int nLayer )
 	if(pComponent && nLayer >= 0 ){
 		auto pLayer = pComponent->get_layer( nLayer );
 		m_pWaveDisplay->updateDisplay( pLayer );
-		if (pLayer) {
+		if ( pLayer != nullptr ) {
 			char tmp[20];
 
 			// Layer GAIN
+			m_pLayerGainRotary->setIsActive( true );
 			m_pLayerGainRotary->setValue( pLayer->get_gain() );
 			sprintf( tmp, "%#.2f", pLayer->get_gain() );
 			m_pLayerGainLCD->setText( tmp );
@@ -1120,6 +1121,7 @@ void InstrumentEditor::selectLayer( int nLayer )
 			//Component GAIN
 			char tmp2[20];
 			sprintf( tmp2, "%#.2f", pComponent->get_gain());
+			m_pCompoGainRotary->setIsActive( true );
 			m_pCompoGainRotary->setValue( pComponent->get_gain());
 			m_pCompoGainLCD->setText( tmp2 );
 
@@ -1127,45 +1129,64 @@ void InstrumentEditor::selectLayer( int nLayer )
 			float fCoarsePitch = round( pLayer->get_pitch() );
 			float fFinePitch = pLayer->get_pitch() - fCoarsePitch;
 			//INFOLOG( "fine pitch: " + to_string( fFinePitch ) );
+			m_pLayerPitchCoarseRotary->setIsActive( true );
 			m_pLayerPitchCoarseRotary->setValue( fCoarsePitch );
+			m_pLayerPitchFineRotary->setIsActive( true );
 			m_pLayerPitchFineRotary->setValue( fFinePitch * 100 );
 
 			m_pLayerPitchCoarseLCD->setText( QString( "%1" ).arg( (int) fCoarsePitch ) );
 			m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fFinePitch * 100 ) );
+
+			m_pRemoveLayerBtn->setIsActive( true );
+			m_pSampleEditorBtn->setIsActive( true );
 		}
 		else {
 			// Layer GAIN
+			m_pLayerGainRotary->setIsActive( false );
 			m_pLayerGainRotary->setValue( 1.0 );
 			m_pLayerGainLCD->setText( "" );
 
 			//Component GAIN
+			m_pCompoGainRotary->setIsActive( false );
 			m_pCompoGainRotary->setValue( 1.0 );
 			m_pCompoGainLCD->setText( "" );
 
 			// Layer PITCH
+			m_pLayerPitchCoarseRotary->setIsActive( false );
 			m_pLayerPitchCoarseRotary->setValue( 0.0 );
+			m_pLayerPitchFineRotary->setIsActive( false );
 			m_pLayerPitchFineRotary->setValue( 0.0 );
 
 			m_pLayerPitchCoarseLCD->setText( "" );
 			m_pLayerPitchFineLCD->setText( "" );
+
+			m_pRemoveLayerBtn->setIsActive( false );
+			m_pSampleEditorBtn->setIsActive( false );
 		}
 	}
 	else {
 		m_pWaveDisplay->updateDisplay( nullptr );
 
 		// Layer GAIN
+		m_pLayerGainRotary->setIsActive( false );
 		m_pLayerGainRotary->setValue( 1.0 );
 		m_pLayerGainLCD->setText( "" );
 
+		m_pCompoGainRotary->setIsActive( false );
 		m_pCompoGainRotary->setValue( 1.0 );
 		m_pCompoGainLCD->setText( "" );
 
 		// Layer PITCH
+		m_pLayerPitchCoarseRotary->setIsActive( false );
 		m_pLayerPitchCoarseRotary->setValue( 0.0 );
+		m_pLayerPitchFineRotary->setIsActive( false );
 		m_pLayerPitchFineRotary->setValue( 0.0 );
 
 		m_pLayerPitchCoarseLCD->setText( "" );
 		m_pLayerPitchFineLCD->setText( "" );
+
+		m_pRemoveLayerBtn->setIsActive( false );
+		m_pSampleEditorBtn->setIsActive( false );
 	}
 }
 
