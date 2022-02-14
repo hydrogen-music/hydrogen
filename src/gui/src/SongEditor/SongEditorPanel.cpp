@@ -571,7 +571,12 @@ void SongEditorPanel::downBtnClicked()
 
 void SongEditorPanel::clearSequence()
 {
-	int res = QMessageBox::information( this, "Hydrogen", tr( "Warning, this will erase your pattern sequence.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	int res = QMessageBox::information( this, "Hydrogen",
+										tr( "Warning, this will erase your pattern sequence.\nAre you sure?"),
+										pCommonStrings->getButtonOk(),
+										pCommonStrings->getButtonCancel(),
+										nullptr, 1 );
 	if ( res == 1 ) {
 		return;
 	}

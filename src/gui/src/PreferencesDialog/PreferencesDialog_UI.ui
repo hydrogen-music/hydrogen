@@ -46,7 +46,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="languageComboBox"/>
+          <widget class="LCDCombo" name="languageComboBox"/>
          </item>
         </layout>
        </item>
@@ -126,13 +126,7 @@
        <item>
         <layout class="QFormLayout" name="formLayout">
          <item row="0" column="0">
-          <widget class="QSpinBox" name="sBcountOffset">
-           <property name="minimumSize">
-            <size>
-             <width>58</width>
-             <height>0</height>
-            </size>
-           </property>
+          <widget class="LCDSpinBox" name="sBcountOffset">
            <property name="toolTip">
             <string>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</string>
            </property>
@@ -152,13 +146,7 @@
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QSpinBox" name="sBstartOffset">
-           <property name="minimumSize">
-            <size>
-             <width>58</width>
-             <height>0</height>
-            </size>
-           </property>
+          <widget class="LCDSpinBox" name="sBstartOffset">
            <property name="toolTip">
             <string>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </string>
            </property>
@@ -178,13 +166,7 @@
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QSpinBox" name="sBmaxBars">
-           <property name="minimumSize">
-            <size>
-             <width>58</width>
-             <height>0</height>
-            </size>
-           </property>
+          <widget class="LCDSpinBox" name="sBmaxBars">
            <property name="toolTip">
             <string>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </string>
            </property>
@@ -197,13 +179,7 @@
           </widget>
          </item>
          <item row="3" column="0">
-          <widget class="QSpinBox" name="sBmaxLayers">
-           <property name="minimumSize">
-            <size>
-             <width>58</width>
-             <height>0</height>
-            </size>
-           </property>
+          <widget class="LCDSpinBox" name="sBmaxLayers">
            <property name="toolTip">
             <string>Maximum number of instrument layers</string>
            </property>
@@ -230,13 +206,7 @@
           </widget>
          </item>
          <item row="4" column="0">
-          <widget class="QSpinBox" name="autosaveSpinBox">
-           <property name="minimumSize">
-            <size>
-             <width>58</width>
-             <height>0</height>
-            </size>
-           </property>
+          <widget class="LCDSpinBox" name="autosaveSpinBox">
            <property name="maximum">
             <number>360</number>
            </property>
@@ -310,13 +280,13 @@
             </widget>
            </item>
            <item row="3" column="1">
-            <widget class="QComboBox" name="driverComboBox"/>
+            <widget class="LCDCombo" name="driverComboBox"/>
            </item>
            <item row="4" column="1">
             <widget class="HostAPIComboBox" name="portaudioHostAPIComboBox"/>
            </item>
            <item row="9" column="1">
-            <widget class="QComboBox" name="trackOutputComboBox">
+            <widget class="LCDCombo" name="trackOutputComboBox">
              <property name="currentIndex">
               <number>0</number>
              </property>
@@ -382,13 +352,7 @@
             </widget>
            </item>
            <item row="6" column="1">
-            <widget class="QSpinBox" name="bufferSizeSpinBox">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
+            <widget class="LCDSpinBox" name="bufferSizeSpinBox">
              <property name="minimum">
               <number>100</number>
              </property>
@@ -404,13 +368,7 @@
             </widget>
            </item>
            <item row="10" column="1">
-            <widget class="QComboBox" name="jackBBTSyncComboBox">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
+            <widget class="LCDCombo" name="jackBBTSyncComboBox">
              <property name="toolTip">
               <string>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</string>
              </property>
@@ -441,7 +399,7 @@
             </widget>
            </item>
            <item row="8" column="1">
-            <widget class="QComboBox" name="sampleRateComboBox">
+            <widget class="LCDCombo" name="sampleRateComboBox">
              <property name="currentIndex">
               <number>0</number>
              </property>
@@ -496,7 +454,7 @@
            <item row="7" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_11">
              <item>
-              <widget class="QSpinBox" name="latencyTargetSpinBox">
+              <widget class="LCDSpinBox" name="latencyTargetSpinBox">
                <property name="maximum">
                 <number>48000</number>
                </property>
@@ -573,13 +531,7 @@
          <item>
           <layout class="QGridLayout">
            <item row="0" column="1">
-            <widget class="QSpinBox" name="maxVoicesTxt">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
+            <widget class="LCDSpinBox" name="maxVoicesTxt">
              <property name="minimum">
               <number>1</number>
              </property>
@@ -589,15 +541,9 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QSpinBox" name="metronomeVolumeSpinBox">
+            <widget class="LCDSpinBox" name="metronomeVolumeSpinBox">
              <property name="enabled">
               <bool>false</bool>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
              </property>
              <property name="minimum">
               <number>1</number>
@@ -639,7 +585,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="resampleComboBox">
+            <widget class="LCDCombo" name="resampleComboBox">
              <item>
               <property name="text">
                <string>Linear</string>
@@ -752,7 +698,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="m_pMidiDriverComboBox"/>
+            <widget class="LCDCombo" name="m_pMidiDriverComboBox"/>
            </item>
           </layout>
          </item>
@@ -772,7 +718,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="midiPortComboBox"/>
+            <widget class="LCDCombo" name="midiPortComboBox"/>
            </item>
           </layout>
          </item>
@@ -792,7 +738,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="midiOutportComboBox"/>
+            <widget class="LCDCombo" name="midiOutportComboBox"/>
            </item>
           </layout>
          </item>
@@ -812,13 +758,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="midiPortChannelComboBox">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
+            <widget class="LCDCombo" name="midiPortChannelComboBox">
              <item>
               <property name="text">
                <string>All</string>
@@ -1006,7 +946,7 @@
              </widget>
             </item>
             <item row="0" column="3">
-             <widget class="QSpinBox" name="incomingOscPortSpinBox">
+             <widget class="LCDSpinBox" name="incomingOscPortSpinBox">
               <property name="toolTip">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
@@ -1138,7 +1078,7 @@
              <item>
               <layout class="QGridLayout" name="gridLayout_5">
                <item row="2" column="2">
-                <widget class="QComboBox" name="styleComboBox"/>
+                <widget class="LCDCombo" name="styleComboBox"/>
                </item>
                <item row="2" column="0">
                 <widget class="QLabel" name="textLabel1_6">
@@ -1148,13 +1088,7 @@
                 </widget>
                </item>
                <item row="3" column="2">
-                <widget class="QComboBox" name="mixerFalloffComboBox">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>22</height>
-                  </size>
-                 </property>
+                <widget class="LCDCombo" name="mixerFalloffComboBox">
                  <item>
                   <property name="text">
                    <string>Slow</string>
@@ -1200,23 +1134,11 @@
                 </layout>
                </item>
                <item row="9" column="2">
-                <widget class="QComboBox" name="coloringMethodCombo">
-                 <property name="maximumSize">
-                  <size>
-                   <width>315</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
+                <widget class="LCDCombo" name="coloringMethodCombo">
                 </widget>
                </item>
                <item row="11" column="2">
-                <widget class="QSpinBox" name="coloringMethodAuxSpinBox">
-                 <property name="minimumSize">
-                  <size>
-                   <width>84</width>
-                   <height>0</height>
-                  </size>
-                 </property>
+                <widget class="LCDSpinBox" name="coloringMethodAuxSpinBox">
                  <property name="minimum">
                   <number>1</number>
                  </property>
@@ -1254,7 +1176,7 @@
                 </widget>
                </item>
                <item row="5" column="2">
-                <widget class="QComboBox" name="uiScalingPolicyComboBox">
+                <widget class="LCDCombo" name="uiScalingPolicyComboBox">
                  <item>
                   <property name="text">
                    <string>Prefer smaller</string>
@@ -1316,13 +1238,7 @@
                 </widget>
                </item>
                <item row="4" column="2">
-                <widget class="QComboBox" name="uiLayoutComboBox">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>22</height>
-                  </size>
-                 </property>
+                <widget class="LCDCombo" name="uiLayoutComboBox">
                  <item>
                   <property name="text">
                    <string>Single pane</string>
@@ -1343,7 +1259,7 @@
                 </widget>
                </item>
                <item row="7" column="2">
-                <widget class="QComboBox" name="iconColorComboBox">
+                <widget class="LCDCombo" name="iconColorComboBox">
                  <item>
                   <property name="text">
                    <string>Black</string>
@@ -1424,7 +1340,7 @@
             <item row="1" column="1" colspan="2">
              <layout class="QGridLayout" name="gridLayout_51">
               <item row="0" column="1">
-               <widget class="QSpinBox" name="rval">
+               <widget class="LCDSpinBox" name="rval">
                 <property name="maximum">
                  <number>255</number>
                 </property>
@@ -1480,7 +1396,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QSpinBox" name="bval">
+               <widget class="LCDSpinBox" name="bval">
                 <property name="maximum">
                  <number>255</number>
                 </property>
@@ -1523,7 +1439,7 @@
                </widget>
               </item>
               <item row="4" column="1">
-               <widget class="QSpinBox" name="sval">
+               <widget class="LCDSpinBox" name="sval">
                 <property name="maximum">
                  <number>255</number>
                 </property>
@@ -1560,7 +1476,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QSpinBox" name="gval">
+               <widget class="LCDSpinBox" name="gval">
                 <property name="maximum">
                  <number>255</number>
                 </property>
@@ -1592,14 +1508,14 @@
                </widget>
               </item>
               <item row="5" column="1">
-               <widget class="QSpinBox" name="vval">
+               <widget class="LCDSpinBox" name="vval">
                 <property name="maximum">
                  <number>255</number>
                 </property>
                </widget>
               </item>
               <item row="3" column="1">
-               <widget class="QSpinBox" name="hval">
+               <widget class="LCDSpinBox" name="hval">
                 <property name="maximum">
                  <number>255</number>
                 </property>
@@ -1675,7 +1591,7 @@
                 <widget class="QFontComboBox" name="applicationFontComboBox"/>
                </item>
                <item row="6" column="2">
-                <widget class="QComboBox" name="fontSizeComboBox">
+                <widget class="LCDCombo" name="fontSizeComboBox">
                  <item>
                   <property name="text">
                    <string>Small</string>
@@ -1875,18 +1791,30 @@
   </customwidget>
   <customwidget>
    <class>DeviceComboBox</class>
-   <extends>QComboBox</extends>
+   <extends>LCDCombo</extends>
    <header location="global">../src/PreferencesDialog/PreferencesDialog.h</header>
   </customwidget>
   <customwidget>
    <class>HostAPIComboBox</class>
-   <extends>QComboBox</extends>
+   <extends>LCDCombo</extends>
    <header location="global">../src/PreferencesDialog/PreferencesDialog.h</header>
   </customwidget>
   <customwidget>
    <class>ColorSelectionButton</class>
    <extends>QWidget</extends>
    <header location="global">../src/Widgets/ColorSelectionButton.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LCDCombo</class>
+   <extends>QComboBox</extends>
+   <header location="global">../src/Widgets/LCDCombo.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LCDSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header location="global">../src/Widgets/LCDSpinBox.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

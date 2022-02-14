@@ -22,6 +22,7 @@
 
 #include "SampleEditor.h"
 #include "../HydrogenApp.h"
+#include "../CommonStrings.h"
 #include "../InstrumentEditor/InstrumentEditor.h"
 #include "../InstrumentEditor/InstrumentEditorPanel.h"
 
@@ -153,7 +154,12 @@ SampleEditor::~SampleEditor()
 void SampleEditor::closeEvent(QCloseEvent *event)
 {
 	if ( !m_bSampleEditorClean ) {
-		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. These changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
+		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+		int err = QMessageBox::information( this, "Hydrogen",
+											pCommonStrings->getUnsavedChanges(),
+											pCommonStrings->getButtonOk(),
+											pCommonStrings->getButtonCancel(),
+											nullptr, 1 );
 		if ( err == 0 ) {
 			setClean();
 			accept();
@@ -328,7 +334,12 @@ void SampleEditor::openDisplays()
 void SampleEditor::on_ClosePushButton_clicked()
 {
 	if ( !m_bSampleEditorClean ){
-		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. These changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
+		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+		int err = QMessageBox::information( this, "Hydrogen",
+											pCommonStrings->getUnsavedChanges(),
+											pCommonStrings->getButtonOk(),
+											pCommonStrings->getButtonCancel(),
+											nullptr, 1 );
 		if ( err == 0 ){
 			setClean();
 			accept();
@@ -358,9 +369,17 @@ void SampleEditor::on_PrevChangesPushButton_clicked()
 
 bool SampleEditor::getCloseQuestion()
 {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	
 	bool close = false;
-	int err = QMessageBox::information( this, "Hydrogen", tr( "Close dialog! maybe there is some unsaved work on sample.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
-	if ( err == 0 ) close = true;
+	int err = QMessageBox::information( this, "Hydrogen", 
+										pCommonStrings->getUnsavedChanges(),
+										pCommonStrings->getButtonOk(),
+										pCommonStrings->getButtonCancel(),
+										nullptr, 1 );
+	if ( err == 0 ) {
+		close = true;
+	}
 
 	return close;
 }
@@ -640,12 +659,12 @@ void SampleEditor::updateMainsamplePositionRuler()
 			m_pSampleAdjustView->setDetailSamplePosition( frame, m_fZoomfactor , nullptr);
 		}
 //		ERRORLOG( QString("sampleval: %1").arg(frame) );
-	}else
-	{
+	} else {
+		auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
 		m_pMainSampleWaveDisplay->paintLocatorEvent( -1 , false);
 		m_pTimer->stop();
-		PlayPushButton->setText( QString( tr( "&Play" )) );
-		PlayOrigPushButton->setText( QString( tr( "P&lay original sample" ) ) );
+		PlayPushButton->setText( pCommonString->getButtonPlay() );
+		PlayOrigPushButton->setText( pCommonString->getButtonPlayOriginalSample() );
 		m_bPlayButton = false;
 	}
 }
@@ -654,22 +673,22 @@ void SampleEditor::updateTargetsamplePositionRuler()
 {
 	unsigned long realpos = Hydrogen::get_instance()->getAudioEngine()->getRealtimeFrames();
 	unsigned targetSampleLength;
-	if( __rubberband.use ){
+	if ( __rubberband.use ){
 		targetSampleLength =  m_nSlframes * m_fRatio + 0.1;
-	}else
-	{
+	} else {
 		targetSampleLength =  m_nSlframes;
 	}
+	
 	if ( realpos < m_nRealtimeFrameEndForTarget ){
 		unsigned pos = targetSampleLength - ( m_nRealtimeFrameEndForTarget - realpos );
 		m_pTargetSampleView->paintLocatorEventTargetDisplay( (m_pTargetSampleView->width() * pos /targetSampleLength), true);
 //		ERRORLOG( QString("sampleval: %1").arg(frame) );
-	}else
-	{
+	} else {
+		auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
 		m_pTargetSampleView->paintLocatorEventTargetDisplay( -1 , false);
 		m_pTargetDisplayTimer->stop();
-		PlayPushButton->setText(QString( tr( "&Play" )) );
-		PlayOrigPushButton->setText( QString( tr( "P&lay original sample" ) ) );
+		PlayPushButton->setText( pCommonString->getButtonPlay() );
+		PlayOrigPushButton->setText( pCommonString->getButtonPlayOriginalSample() );
 		m_bPlayButton = false;
 	}
 }
@@ -770,10 +789,9 @@ void SampleEditor::setSamplelengthFrames()
 	unsigned repeatsLength = loopLength * __loops.count;
 	unsigned newLength = 0;
 
-	if (oneSampleLength == loopLength){
+	if ( oneSampleLength == loopLength ){
 		newLength = oneSampleLength + oneSampleLength * __loops.count ;
-	}else
-	{
+	} else {
 		newLength =oneSampleLength + repeatsLength;
 	}
 
@@ -972,11 +990,12 @@ void SampleEditor::testPositionsSpinBoxes()
 void SampleEditor::testpTimer()
 {
 	if ( m_pTimer->isActive() || m_pTargetDisplayTimer->isActive() ){
+		auto pCommonString = HydrogenApp::get_instance()->getCommonStrings();
 		m_pMainSampleWaveDisplay->paintLocatorEvent( -1 , false);
 		m_pTimer->stop();
 		m_pTargetDisplayTimer->stop();
-		PlayPushButton->setText( QString( tr( "&Play" ) ) );
-		PlayOrigPushButton->setText( QString( tr( "P&lay original sample" ) ) );
+		PlayPushButton->setText( pCommonString->getButtonPlay() );
+		PlayOrigPushButton->setText( pCommonString->getButtonPlayOriginalSample() );
 		Hydrogen::get_instance()->getAudioEngine()->getSampler()->stopPlayingNotes();
 		m_bPlayButton = false;
 	}

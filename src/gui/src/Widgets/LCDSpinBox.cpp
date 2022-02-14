@@ -22,11 +22,12 @@
 
 #include "LCDSpinBox.h"
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 #include <core/Globals.h>
 #include <core/Preferences/Preferences.h>
 
 // used in PlayerControl
-LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, double fMax, bool bModifyOnChange )
+LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, double fMax, bool bModifyOnChange, bool bMinusOneAsOff )
  : QDoubleSpinBox( pParent )
  , m_size( size )
  , m_type( type )
@@ -34,6 +35,7 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, do
  , m_kind( Kind::Default )
  , m_bIsActive( true )
  , m_bModifyOnChange( bModifyOnChange )
+ , m_bMinusOneAsOff( bMinusOneAsOff )
 {
 	setFocusPolicy( Qt::ClickFocus );
 	setLocale( QLocale( QLocale::C, QLocale::AnyCountry ) );
@@ -68,9 +70,9 @@ void LCDSpinBox::setSize( QSize size ) {
 void LCDSpinBox::setIsActive( bool bIsActive ) {
 	m_bIsActive = bIsActive;
 	
-	updateStyleSheet();
 	update();
-	
+
+	setEnabled( bIsActive );
 	setReadOnly( ! bIsActive );
 }
 
@@ -189,7 +191,8 @@ double LCDSpinBox::nextValueInPatternSizeDenominator( bool bUp, bool bAccelerate
 
 QString LCDSpinBox::textFromValue( double fValue ) const {
 	QString result;
-	if ( m_type == Type::Int && fValue == -1.0 ) {
+	if ( m_type == Type::Int && m_bMinusOneAsOff &&
+		 fValue == -1.0 ) {
 		result = "off";
 	} else {
 		if ( m_type == Type::Int ) {
@@ -314,30 +317,40 @@ void LCDSpinBox::leaveEvent( QEvent* ev ) {
 }
 
 void LCDSpinBox::updateStyleSheet() {
-	
+
 	auto pPref = H2Core::Preferences::get_instance();
 
-	QColor spinBoxColor;
-	QColor spinBoxTextColor;
-	if ( m_bIsActive ) {
-		spinBoxColor = pPref->getColorTheme()->m_spinBoxColor;
-		spinBoxTextColor = pPref->getColorTheme()->m_spinBoxTextColor;
-	} else {
-		spinBoxColor = pPref->getColorTheme()->m_windowColor;
-		spinBoxTextColor = pPref->getColorTheme()->m_windowTextColor;
-	}
+	QColor spinBoxColor = pPref->getColorTheme()->m_spinBoxColor;
+	QColor spinBoxTextColor = pPref->getColorTheme()->m_spinBoxTextColor;
 	QColor selectionColor = spinBoxColor.darker( 120 );
+
+	QColor spinBoxInactiveColor =
+		Skin::makeWidgetColorInactive( spinBoxColor );
+	QColor spinBoxTextInactiveColor =
+		Skin::makeTextColorInactive( spinBoxTextColor );
+	QColor selectionInactiveColor =
+		Skin::makeWidgetColorInactive( selectionColor );
+
 	
 	setStyleSheet( QString( "\
-QDoubleSpinBox, QSpinBox { \
+QAbstractSpinBox:enabled { \
     color: %1; \
     background-color: %2; \
     selection-color: %1; \
     selection-background-color: %3; \
+} \
+QAbstractSpinBox:disabled { \
+    color: %4; \
+    background-color: %5; \
+    selection-color: %4; \
+    selection-background-color: %6; \
 }" )
 				   .arg( spinBoxTextColor.name() )
 				   .arg( spinBoxColor.name() )
-				   .arg( selectionColor.name() ) );
+				   .arg( selectionColor.name() )
+				   .arg( spinBoxTextInactiveColor.name() )
+				   .arg( spinBoxInactiveColor.name() )
+				   .arg( selectionInactiveColor.name() ) );
 }
 
 void LCDSpinBox::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
@@ -350,6 +363,11 @@ void LCDSpinBox::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 }
 
 void LCDSpinBox::valueChanged( double fNewValue ) {
+
+	if ( m_type == Type::Int ) {
+		emit valueChanged( static_cast<int>(fNewValue) );
+	}
+	
 	if ( m_bModifyOnChange ) {
 		H2Core::Hydrogen::get_instance()->setIsModified( true );
 	}

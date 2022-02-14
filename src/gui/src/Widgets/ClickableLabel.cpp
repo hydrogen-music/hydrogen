@@ -62,7 +62,7 @@ void ClickableLabel::updateStyleSheet() {
 		text = pPref->getColorTheme()->m_widgetTextColor;
 	}
 
-	setStyleSheet( QString( "color: %1" ).arg( text.name() ) );
+	setStyleSheet( QString( "QLabel { color: %1; }" ).arg( text.name() ) );
 }
 
 void ClickableLabel::mousePressEvent( QMouseEvent * e )

@@ -49,6 +49,7 @@ using namespace H2Core;
 #include "SoundLibrary/SoundLibraryDatastructures.h"
 #include "../PatternEditor/PatternEditorPanel.h"
 #include "../HydrogenApp.h"
+#include "../CommonStrings.h"
 #include "../InstrumentRack.h"
 #include "../PatternPropertiesDialog.h"
 #include "../SongPropertiesDialog.h"
@@ -1629,13 +1630,18 @@ void SongEditorPatternList::patternPopup_export()
 
 void SongEditorPatternList::patternPopup_save()
 {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	Hydrogen *engine = Hydrogen::get_instance();
 	std::shared_ptr<Song> song = engine->getSong();
 	Pattern *pattern = song->getPatternList()->get( engine->getSelectedPatternNumber() );
 
 	QString path = Files::savePatternNew( pattern->get_name(), pattern, song, engine->getCurrentDrumkitName() );
 	if ( path.isEmpty() ) {
-		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 ) != 0 ) {
+		if ( QMessageBox::information( this, "Hydrogen",
+									   tr( "The pattern-file exists. \nOverwrite the existing pattern?"),
+									   pCommonStrings->getButtonOk(),
+									   pCommonStrings->getButtonCancel(),
+									   nullptr, 1 ) != 0 ) {
 			return;
 		}
 		path = Files::savePatternOver( pattern->get_name(), pattern, song, engine->getCurrentDrumkitName() );

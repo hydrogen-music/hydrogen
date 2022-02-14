@@ -1993,11 +1993,13 @@ void MainForm::showDevelWarning()
 	//set this to 'false' for the case that you want to make a release..
 	if ( H2CORE_IS_DEVEL_BUILD ) {
 		if(isDevelWarningEnabled) {
+			auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 			QString msg = tr( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
 			QMessageBox develMessageBox( this );
 			develMessageBox.setText( msg );
-			develMessageBox.addButton( tr( "Ok" ), QMessageBox::YesRole );
+			develMessageBox.addButton( pCommonStrings->getButtonOk(),
+									   QMessageBox::YesRole );
 			develMessageBox.addButton( tr( "Don't show this message anymore" ) , QMessageBox::AcceptRole );
 
 			if( develMessageBox.exec() == 1 ){
@@ -2112,6 +2114,7 @@ void MainForm::onPlaylistDisplayTimer()
 // Returns false if not (i.e. Cancel)
 bool MainForm::handleUnsavedChanges()
 {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	bool done = false;
 	bool rv = true;
 	while ( !done && Hydrogen::get_instance()->getSong()->getIsModified() ) {
@@ -2119,9 +2122,11 @@ bool MainForm::handleUnsavedChanges()
 				 QMessageBox::information( this, "Hydrogen",
 										 tr("\nThe document contains unsaved changes.\n"
 												"Do you want to save the changes?\n"),
-										 tr("&Save"), tr("&Discard"), tr("&Cancel"),
-										 0,      // Enter == button 0
-										 2 ) ) { // Escape == button 2
+										   pCommonStrings->getButtonSave(),
+										   pCommonStrings->getButtonDiscard(),
+										   pCommonStrings->getButtonCancel(),
+										   0,      // Enter == button 0
+										   2 ) ) { // Escape == button 2
 		case 0: // Save clicked or Alt+S pressed or Enter pressed.
 			// If the save fails, the __is_modified flag will still be true
 			if ( ! Hydrogen::get_instance()->getSong()->getFilename().isEmpty() ) {
@@ -2144,8 +2149,8 @@ bool MainForm::handleUnsavedChanges()
 		}
 	}
 
-	if(rv != false)
-	{
+	if( rv != false ) {
+		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 		while ( !done && Playlist::get_instance()->getIsModified() ) {
 			switch(
 					QMessageBox::information(
@@ -2153,9 +2158,10 @@ bool MainForm::handleUnsavedChanges()
 								"Hydrogen",
 								tr("\nThe current playlist contains unsaved changes.\n"
 								"Do you want to discard the changes?\n"),
-								tr("&Discard"), tr("&Cancel"),
-								 nullptr,      // Enter == button 0
-								 2 ) ) { // Escape == button 1
+								pCommonStrings->getButtonDiscard(),
+								pCommonStrings->getButtonCancel(),
+								nullptr,      // Enter == button 0
+								2 ) ) { // Escape == button 1
 			case 0: // Discard clicked or Alt+D pressed
 				// don't save but exit
 				done = true;
