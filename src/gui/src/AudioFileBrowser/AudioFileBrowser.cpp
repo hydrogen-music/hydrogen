@@ -191,8 +191,10 @@ void AudioFileBrowser::getEnvironment()
 
 void AudioFileBrowser::keyPressEvent (QKeyEvent *ev)
 {
-	if( ev->modifiers()==Qt::ControlModifier && m_bAllowMultiSelect) {
-		m_pTree->setSelectionMode( QAbstractItemView::MultiSelection );
+	if( ( ev->modifiers()==Qt::ControlModifier ||
+		  ev->modifiers()==Qt::ShiftModifier )
+		&& m_bAllowMultiSelect) {
+		m_pTree->setSelectionMode( QAbstractItemView::ExtendedSelection );
 		openBTN->setEnabled( true );
 	}	
 }
