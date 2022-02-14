@@ -238,6 +238,8 @@ void LayerPreview::selectedInstrumentChangedEvent()
 		}
 	}
 	*/
+
+	bool bSelectedLayerChanged = false;
 	
 	// select the last valid layer
 	if ( m_pInstrument ) {
@@ -246,18 +248,25 @@ void LayerPreview::selectedInstrumentChangedEvent()
 			if ( p_compo ) {
 				if ( p_compo->get_layer( i ) ) {
 					m_nSelectedLayer = i;
+					bSelectedLayerChanged = true;
 					break;
 				}
 			}
 			else {
 				m_nSelectedLayer = 0;
+				bSelectedLayerChanged = true;
 			}
 		}
 	}
 	else {
 		m_nSelectedLayer = 0;
+		bSelectedLayerChanged = true;
 	}
 
+	if ( bSelectedLayerChanged ) {
+		InstrumentEditorPanel::get_instance()->selectLayer( m_nSelectedLayer );
+	}
+		
 	update();
 }
 
