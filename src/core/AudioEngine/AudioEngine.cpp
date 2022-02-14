@@ -1630,10 +1630,8 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 		m_pPlayingPatterns->add( pNewSong->getPatternList()->get( 0 ) );
 	}
 
-#ifdef H2CORE_HAVE_JACK
 	Hydrogen::get_instance()->renameJackPorts( pNewSong );
-#endif
-	m_fSongSizeInTicks = static_cast<float>( pNewSong->lengthInTicks() );
+	m_fSongSizeInTicks = static_cast<double>( pNewSong->lengthInTicks() );
 
 	// change the current audio engine state
 	setState( State::Ready );
