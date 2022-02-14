@@ -93,7 +93,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	QFont fontText( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
 	QFont fontButton( pPref->getLevel2FontFamily(), getPointSizeButton() );
 	
-	p.fillRect( ev->rect(), QColor( 58, 62, 72 ) );
+	p.fillRect( ev->rect(), pPref->getColorTheme()->m_windowColor );
 
 	int nLayers = 0;
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
@@ -101,12 +101,17 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 			auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
 			if(pComponent) {
 				auto pLayer = pComponent->get_layer( i );
-				if ( pLayer ) {
+				if ( pLayer != nullptr ) {
 					nLayers++;
 				}
 			}
 		}
 	}
+	
+	// How much the color of the labels for the individual layers
+	// are allowed to diverge from the general window color.
+	int nColorScalingWidth = 90;
+	int nColorScaling = 100;
 
 	int nLayer = 0;
 	for ( int i = InstrumentComponent::getMaxLayers() - 1; i >= 0; i-- ) {
@@ -126,50 +131,65 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 					
 					int x1 = (int)( pLayer->get_start_velocity() * width() );
 					int x2 = (int)( pLayer->get_end_velocity() * width() );
+
+					// Labels for layers to the left will have a
+					// lighter color as those to the right.
+					nColorScaling =
+						static_cast<int>(std::round( static_cast<float>(nLayer) /
+													 static_cast<float>(nLayers) * 2 *
+													 static_cast<float>(nColorScalingWidth) ) ) -
+						nColorScalingWidth + 100;
+					QColor layerLabelColor =
+						pPref->getColorTheme()->m_windowColor.lighter( nColorScaling );
 					
-					int red = (int)( 128.0 / nLayers * nLayer );
-					int green = (int)( 134.0 / nLayers * nLayer );
-					int blue = (int)( 152.0 / nLayers * nLayer );
-					QColor layerColor( red, green, blue );
-					
-					p.fillRect( x1, 0, x2 - x1, 19, layerColor );
-					p.setPen( QColor( 230, 230, 230 ) );
+					p.fillRect( x1, 0, x2 - x1, 19, layerLabelColor );
+					p.setPen( pPref->getColorTheme()->m_windowTextColor );
 					p.setFont( fontButton );
 					p.drawText( x1, 0, x2 - x1, 20, Qt::AlignCenter, QString("%1").arg( i + 1 ) );
 					
 					if ( m_nSelectedLayer == i ) {
-						p.setPen( QColor( 210, 0, 0 ) );
+						p.setPen( pPref->getColorTheme()->m_highlightColor );
+					} else {
+						p.setPen( pPref->getColorTheme()->m_windowTextColor.darker( 145 ) );
 					}
 					p.drawRect( x1, 1, x2 - x1 - 1, 18 );	// bordino in alto
 					
 					// layer view
-					p.fillRect( 0, y, width(), m_nLayerHeight, QColor( 25, 44, 65 ) );
-					p.fillRect( x1, y, x2 - x1, m_nLayerHeight, QColor( 90, 160, 233 ) );
+					p.fillRect( 0, y, width(), m_nLayerHeight,
+								pPref->getColorTheme()->m_windowColor );
+					p.fillRect( x1, y, x2 - x1, m_nLayerHeight,
+								pPref->getColorTheme()->m_accentColor.lighter( 130 ) );
 					
 					nLayer++;
 				}
 				else {
 					// layer view
-					p.fillRect( 0, y, width(), m_nLayerHeight, QColor( 59, 73, 96 ) );
+					p.fillRect( 0, y, width(), m_nLayerHeight,
+								pPref->getColorTheme()->m_windowColor );
 				}
 			}
 			else {
 				// layer view
-				p.fillRect( 0, y, width(), m_nLayerHeight, QColor( 59, 73, 96 ) );
+				p.fillRect( 0, y, width(), m_nLayerHeight,
+							pPref->getColorTheme()->m_windowColor );
 			}
 		}
 		else {
 			// layer view
-			p.fillRect( 0, y, width(), m_nLayerHeight, QColor( 59, 73, 96 ) );
+			p.fillRect( 0, y, width(), m_nLayerHeight,
+							pPref->getColorTheme()->m_windowColor );
 		}
-		p.setPen( QColor( 255, 255, 255, 200 ) ); //128, 134, 152 ) );
-		p.drawRect( 0, y, width() - 1, m_nLayerHeight );
+		QColor layerTextColor = pPref->getColorTheme()->m_windowTextColor;
+		layerTextColor.setAlpha( 155 );
+		p.setPen( layerTextColor );
 		p.setFont( fontText );
 		p.drawText( 10, y, width() - 10, 20, Qt::AlignLeft, QString( "%1: %2" ).arg( i + 1 ).arg( label ) );
+		p.setPen( layerTextColor.darker( 145 ) );
+		p.drawRect( 0, y, width() - 1, m_nLayerHeight );
 	}
-	
+
 	// selected layer
-	p.setPen( QColor( 210, 0, 0 ) );
+	p.setPen( pPref->getColorTheme()->m_highlightColor );
 	int y = 20 + m_nLayerHeight * m_nSelectedLayer;
 	p.drawRect( 0, y, width() - 1, m_nLayerHeight );
 }
@@ -471,7 +491,8 @@ int LayerPreview::getPointSizeButton() const {
 void LayerPreview::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	if ( changes & H2Core::Preferences::Changes::Font ) {
+	if ( changes & ( H2Core::Preferences::Changes::Font |
+					 H2Core::Preferences::Changes::Colors ) ) {
 		update();
 	}
 }

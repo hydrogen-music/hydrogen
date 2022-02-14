@@ -53,6 +53,7 @@ using namespace H2Core;
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/Fader.h"
 #include "InstrumentEditor.h"
+#include "InstrumentEditorPanel.h"
 #include "WaveDisplay.h"
 #include "LayerPreview.h"
 #include "AudioFileBrowser/AudioFileBrowser.h"
@@ -479,6 +480,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	// this will force an update...
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &InstrumentEditor::onPreferencesChanged );
 }
 
 
@@ -654,7 +657,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pWaveDisplay->updateDisplay( nullptr );
 		m_nSelectedLayer = 0;
 	}
-	
+
 	selectLayer( m_nSelectedLayer );
 }
 
@@ -855,24 +858,39 @@ void InstrumentEditor::removeLayerButtonClicked()
 {
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
-	if ( m_pInstrument ) {
-		auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
-		if( pCompo ) {
+	if ( m_pInstrument != nullptr ) {
+		auto pCompo = m_pInstrument->get_component( m_nSelectedComponent );
+		if( pCompo != nullptr ) {
 			pCompo->set_layer( nullptr, m_nSelectedLayer );
 
+			// Select next loaded layer - if available - in order to
+			// allow for a quick removal of all layers. In case the
+			// last layer was removed, the previous one will be
+			// selected.
+			int nNextLayerIndex = 0;
 			int nCount = 0;
 			for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 				auto pLayer = pCompo->get_layer( n );
-				if( pLayer ){
+				if( pLayer != nullptr ){
 					nCount++;
+
+					if ( nNextLayerIndex <= m_nSelectedLayer &&
+						 n != m_nSelectedLayer ) {
+						nNextLayerIndex = n;
+					}
 				}
 			}
 
 			if( nCount == 0 ){
 				m_pInstrument->get_components()->erase( m_pInstrument->get_components()->begin() + m_nSelectedComponent );
+			} else {
+				m_pLayerPreview->setSelectedLayer( nNextLayerIndex );
+				InstrumentEditorPanel::get_instance()->selectLayer( nNextLayerIndex );
 			}
+				
 		}
 	}
+
 	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	selectedInstrumentChangedEvent();    // update all
 	m_pLayerPreview->updateAll();
@@ -1381,4 +1399,13 @@ void InstrumentEditor::hihatMaxRangeChanged( double fValue )
 	assert( m_pInstrument );
 	m_pInstrument->set_higher_cc( static_cast<int>(fValue) );
 	m_pHihatMinRangeLCD->setMaximum( static_cast<int>(fValue) );
+}
+
+void InstrumentEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
+		setStyleSheet( QString( "QLabel { background: %1 }" )
+					   .arg( pPref->getColorTheme()->m_windowColor.name() ) );
+	}
 }
