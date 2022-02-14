@@ -940,12 +940,21 @@ void InstrumentEditor::loadLayerBtnClicked()
 
 	if (pFileBrowser->exec() == QDialog::Accepted) {
 		filename = pFileBrowser->getSelectedFiles();
-		Preferences::get_instance()->setLastOpenLayerDirectory( pFileBrowser->getSelectedDirectory() );
+		
+		// Only overwrite the default directory if we didn't start
+		// from an existing file or the final directory differs from
+		// the starting one.
+		if ( sFilename.isEmpty() ||
+			 sPath != pFileBrowser->getSelectedDirectory() ) {
+			Preferences::get_instance()->setLastOpenLayerDirectory( pFileBrowser->getSelectedDirectory() );
+		}
 	}
 
 	delete pFileBrowser;
 
-	if ( filename[2].isEmpty() ) return;
+	if ( filename[2].isEmpty() ) {
+		return;
+	}
 
 	bool fnc = false;
 	if ( filename[0] ==  "true" ){
@@ -970,10 +979,13 @@ void InstrumentEditor::loadLayerBtnClicked()
 
 	if (filename.size() > 2) {
 
-		for(int i=2;i < filename.size();++i)
+		for ( int i=2; i < filename.size(); ++i )
 		{
 			selectedLayer = m_nSelectedLayer + i - 2;
-			if( ( i-2 >= InstrumentComponent::getMaxLayers() ) || ( selectedLayer + 1  > InstrumentComponent::getMaxLayers() ) ) break;
+			if ( ( i-2 >= InstrumentComponent::getMaxLayers() ) ||
+				 ( selectedLayer + 1  > InstrumentComponent::getMaxLayers() ) ) {
+				break;
+			}
 
 			auto pNewSample = Sample::load( filename[i] );
 
@@ -1031,31 +1043,30 @@ void InstrumentEditor::setAutoVelocity()
 	if ( pCompo == nullptr ) {
 		return;
 	}
-	std::vector<int> layerInUse( InstrumentComponent::getMaxLayers(), 0 );
+
 	int nLayers = 0;
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
 
 		auto pLayer = pCompo->get_layer( i );
-		if ( pLayer ) {
+		if ( pLayer != nullptr ) {
 			nLayers++;
-			layerInUse[i] = i;
 		}
 	}
 	
-	if( nLayers == 0){
+	if( nLayers == 0 ){
 		nLayers = 1;
 	}
 
 	float velocityrange = 1.0 / nLayers;
 
+	int nLayer = 0;
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
-		if ( layerInUse[i] == i ){
-			nLayers--;
-			auto pLayer = pCompo->get_layer( i );
-			if ( pLayer ) {
-				pLayer->set_start_velocity( nLayers * velocityrange);
-				pLayer->set_end_velocity( nLayers * velocityrange + velocityrange );
-			}
+		auto pLayer = pCompo->get_layer( i );
+		if ( pLayer != nullptr ) {
+			pLayer->set_start_velocity( nLayer * velocityrange);
+			pLayer->set_end_velocity( nLayer * velocityrange + velocityrange );
+			
+			++nLayer;
 		}
 	}
 }

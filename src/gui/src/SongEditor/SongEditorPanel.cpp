@@ -767,7 +767,14 @@ void SongEditorPanel::editPlaybackTrackBtnPressed()
 	QStringList filenameList;
 	
 	if ( pFileBrowser->exec() == QDialog::Accepted ) {
-		Preferences::get_instance()->setLastOpenPlaybackTrackDirectory( pFileBrowser->getSelectedDirectory() );
+
+		// Only overwrite the default directory if we didn't start
+		// from an existing file or the final directory differs from
+		// the starting one.
+		if ( sFilename.isEmpty() ||
+			 sPath != pFileBrowser->getSelectedDirectory() ) {
+			Preferences::get_instance()->setLastOpenPlaybackTrackDirectory( pFileBrowser->getSelectedDirectory() );
+		}
 		filenameList = pFileBrowser->getSelectedFiles();
 	}
 
