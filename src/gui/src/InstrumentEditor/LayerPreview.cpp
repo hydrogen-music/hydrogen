@@ -113,6 +113,8 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	int nColorScalingWidth = 90;
 	int nColorScaling = 100;
 
+	QColor layerLabelColor, layerSegmentColor;
+
 	int nLayer = 0;
 	for ( int i = InstrumentComponent::getMaxLayers() - 1; i >= 0; i-- ) {
 		int y = 20 + m_nLayerHeight * i;
@@ -127,7 +129,13 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 					auto pSample = pLayer->get_sample();
 					if( pSample != nullptr) {
 						label = pSample->get_filename();
+						layerSegmentColor =
+							pPref->getColorTheme()->m_accentColor.lighter( 130 );
+					} else {
+						layerSegmentColor =
+							pPref->getColorTheme()->m_buttonRedColor;
 					}
+						
 					
 					int x1 = (int)( pLayer->get_start_velocity() * width() );
 					int x2 = (int)( pLayer->get_end_velocity() * width() );
@@ -139,7 +147,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 													 static_cast<float>(nLayers) * 2 *
 													 static_cast<float>(nColorScalingWidth) ) ) -
 						nColorScalingWidth + 100;
-					QColor layerLabelColor =
+					layerLabelColor =
 						pPref->getColorTheme()->m_windowColor.lighter( nColorScaling );
 					
 					p.fillRect( x1, 0, x2 - x1, 19, layerLabelColor );
@@ -157,8 +165,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 					// layer view
 					p.fillRect( 0, y, width(), m_nLayerHeight,
 								pPref->getColorTheme()->m_windowColor );
-					p.fillRect( x1, y, x2 - x1, m_nLayerHeight,
-								pPref->getColorTheme()->m_accentColor.lighter( 130 ) );
+					p.fillRect( x1, y, x2 - x1, m_nLayerHeight, layerSegmentColor );
 					
 					nLayer++;
 				}
