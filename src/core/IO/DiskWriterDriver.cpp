@@ -152,15 +152,16 @@ void* diskWriterDriver_thread( void* param )
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
+	auto pSampler = pHydrogen->getAudioEngine()->getSampler();
 
 	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
 	int nColumns = pPatternColumns->size();
 	
-	int nPatternSize;
+	int nPatternSize, nBufferWriteLength;
 	float fBpm;
 	float fTicksize = 0;
+	int nMaxNumberOfSilentFrames = 200;
 	for ( int patternPosition = 0; patternPosition < nColumns; ++patternPosition ) {
-
 		
 		PatternList *pColumn = ( *pPatternColumns )[ patternPosition ];
 		if ( pColumn->size() != 0 ) {
@@ -174,53 +175,106 @@ void* diskWriterDriver_thread( void* param )
 												  pSong->getResolution() );
 		
 		//here we have the pattern length in frames dependent from bpm and samplerate
-		unsigned patternLengthInFrames = fTicksize * nPatternSize;
-		unsigned frameNumber = 0;
-		int lastRun = 0;
-		while ( frameNumber < patternLengthInFrames ) {
+		int nPatternLengthInFrames = fTicksize * nPatternSize;
+		int nFrameNumber = 0;
+		int nLastRun = 0;
+		int nSuccessiveZeros = 0;
+		while ( ( patternPosition < nColumns - 1 && // render all
+													// frames in
+													// pattern 
+				  nFrameNumber < nPatternLengthInFrames ) ||
+				( patternPosition == nColumns - 1 && // render till
+													 // all notes are
+													 // processed
+				  ( nFrameNumber < nPatternLengthInFrames ||
+					pSampler->isRenderingNotes() ) ) ) {
 			
-			int usedBuffer = pDriver->m_nBufferSize;
+			int nUsedBuffer = pDriver->m_nBufferSize;
 			
-			//this will calculate the size from -last- (end of pattern) used frame buffer,
-			//which is mostly smaller than pDriver->m_nBufferSize
-			if( patternLengthInFrames - frameNumber <  pDriver->m_nBufferSize ){
-				lastRun = patternLengthInFrames - frameNumber;
-				usedBuffer = lastRun;
+			// This will calculate the size from -last- (end of
+			// pattern) used frame buffer, which is mostly smaller
+			// than pDriver->m_nBufferSize. But it only applies for
+			// all patterns except of the last one. The latter we will
+			// let ring until there is no further audio to process.
+			if( patternPosition < nColumns - 1 &&
+				nPatternLengthInFrames - nFrameNumber < pDriver->m_nBufferSize ){
+				nLastRun = nPatternLengthInFrames - nFrameNumber;
+				nUsedBuffer = nLastRun;
+
 			};
+
+			int ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
 			
-			frameNumber += usedBuffer;
-			
-			//pDriver->m_transport.m_nFrames = frameNumber;
-			
-			int ret = pDriver->m_processCallback( usedBuffer, nullptr );
-			while( ret != 0) {
-				ret = pDriver->m_processCallback( usedBuffer, nullptr );
+			// In case the DiskWriter couldn't aquire the lock of the AudioEngine.
+			while( ret != 0 ) {
+				ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
+			}
+
+			if ( patternPosition == nColumns - 1 &&
+				 nPatternLengthInFrames - nFrameNumber < nUsedBuffer ) {
+				// The next buffer at least partially exceeds the song
+				// size in ticks. As soon as it does we start to count
+				// zeros in both audio channels. The moment we
+				// encounter more than X we will stop the audio
+				// export. Just waiting for the Sampler to finish
+				// rendering is not sufficient because the Sample
+				// itself can be zero padded at the end causing the
+				// resulting .wav file to be inconsistent in terms of
+				// length depending on the buffer sized use during
+				// export.
+				//
+				// We are at the last pattern and just waited for the
+				// Sampler to finish rendering all notes (at an
+				// arbitrary point within the buffer).
+				nBufferWriteLength = 0;
+
+				int nSilentFrames = 0;
+				for ( int ii = 0; ii < nUsedBuffer; ++ii ) {
+					++nBufferWriteLength;
+					
+					if ( std::abs( pData_L[ii] ) == 0 &&
+						 std::abs( pData_R[ii] ) == 0 ) {
+						++nSuccessiveZeros;
+					}
+
+					if ( nSuccessiveZeros == nMaxNumberOfSilentFrames ) {
+						break;
+					}
+				}
+			} else {
+				nBufferWriteLength = nUsedBuffer;
 			}
 			
-			for ( unsigned i = 0; i < usedBuffer; i++ ) {
-				if(pData_L[i] > 1){
-					pData[i * 2] = 1;
-				}
-				else if(pData_L[i] < -1){
-					pData[i * 2] = -1;
-				}else
-				{
-					pData[i * 2] = pData_L[i];
+			nFrameNumber += nBufferWriteLength;
+			
+			for ( unsigned ii = 0; ii < nBufferWriteLength; ii++ ) {
+				if( pData_L[ ii ] > 1 ) {
+					pData[ ii * 2 ] = 1;
+				} else if( pData_L[ ii ] < -1 ) {
+					pData[ ii * 2 ] = -1;
+				} else {
+					pData[ ii * 2 ] = pData_L[ ii ];
 				}
 				
-				if(pData_R[i] > 1){
-					pData[i * 2 + 1] = 1;
-				}
-				else if(pData_R[i] < -1){
-					pData[i * 2 + 1] = -1;
-				}else
-				{
-					pData[i * 2 + 1] = pData_R[i];
+				if( pData_R[ ii ] > 1 ){
+					pData[ ii * 2 + 1 ] = 1;
+				} else if ( pData_R[ ii ] < -1 ) {
+					pData[ ii * 2 + 1 ] = -1;
+				} else {
+					pData[ ii * 2 + 1 ] = pData_R[ ii ];
 				}
 			}
-			int res = sf_writef_float( m_file, pData, usedBuffer );
-			if ( res != ( int )usedBuffer ) {
+			
+			int res = sf_writef_float( m_file, pData, nBufferWriteLength );
+			if ( res != ( int )nBufferWriteLength ) {
 				__ERRORLOG( "Error during sf_write_float" );
+			}
+
+			// Sampler is still rendering notes put we seem to have
+			// reached the zero padding at the end of the
+			// corresponding samples.
+			if ( nSuccessiveZeros == nMaxNumberOfSilentFrames ) {
+				break;
 			}
 		}
 		

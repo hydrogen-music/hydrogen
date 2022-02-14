@@ -187,6 +187,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 									 false, true );
 	m_pMutePlaybackBtn->move( 158, 4 );
 	m_pMutePlaybackBtn->hide();
+	m_pMutePlaybackBtn->setChecked( pHydrogen->getPlaybackTrackState() );
 	connect( m_pMutePlaybackBtn, SIGNAL( pressed() ), this, SLOT( mutePlaybackTrackBtnPressed() ) );
 	m_pMutePlaybackBtn->setChecked( !pSong->getPlaybackTrackEnabled() );
 	
@@ -585,8 +586,10 @@ void SongEditorPanel::clearSequence()
 
 void SongEditorPanel::restoreGroupVector( QString filename )
 {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	//clear the old sequese
-	std::vector<PatternList*> *pPatternGroupsVect = Hydrogen::get_instance()->getSong()->getPatternGroupVector();
+	std::vector<PatternList*> *pPatternGroupsVect = pHydrogen->getSong()->getPatternGroupVector();
 	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
 		PatternList *pPatternList = (*pPatternGroupsVect)[i];
 		pPatternList->clear();
@@ -594,7 +597,11 @@ void SongEditorPanel::restoreGroupVector( QString filename )
 	}
 	pPatternGroupsVect->clear();
 
-	Hydrogen::get_instance()->getSong()->readTempPatternList( filename );
+	pAudioEngine->lock( RIGHT_HERE );
+	pHydrogen->getSong()->readTempPatternList( filename );
+	pHydrogen->updateSongSize();
+	pAudioEngine->unlock();
+	
 	m_pSongEditor->updateEditorandSetTrue();
 	updateAll();
 }
@@ -659,7 +666,6 @@ void SongEditorPanel::drawModeBtnPressed()
 
 
 void SongEditorPanel::timelineBtnPressed() {
-	DEBUGLOG(! m_pTimelineBtn->isChecked());
 	setTimelineActive( ! m_pTimelineBtn->isChecked() );
 }
 
@@ -721,8 +727,8 @@ void SongEditorPanel::mutePlaybackTrackBtnPressed()
 
 	bool bState = ! m_pMutePlaybackBtn->isChecked();
 
-	bState = pHydrogen->setPlaybackTrackState( bState );
-	m_pMutePlaybackBtn->setChecked( !bState );
+	bState = pHydrogen->setPlaybackTrackState( ! bState );
+	m_pMutePlaybackBtn->setChecked( bState );
 }
 
 void SongEditorPanel::editPlaybackTrackBtnPressed()
@@ -928,7 +934,6 @@ bool SongEditorPanel::getTimelineActive() const {
 }
 
 void SongEditorPanel::setTimelineActive( bool bActive ){
-	DEBUGLOG( bActive );
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	if ( ! m_pTimelineBtn->isDown() ) {

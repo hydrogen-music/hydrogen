@@ -2348,17 +2348,9 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// To provide a similar behaviour as when pressing
 		// [backspace], transport is relocated to the beginning of
 		// the song.
-		float fTickSize = pAudioEngine->getTickSize();
 		int nCursorColumn = pApp->getPatternEditorPanel()->getCursorPosition();
-
-		// While updating the note queue the audio engine does add
-		// a "lookahead" to the position in order to avoid playing
-		// notes twice. This has to be taken into account or the
-		// note we start the playback at will be omitted.
-		if ( nCursorColumn > 0 ) {
-			nCursorColumn -= pAudioEngine->calculateLookahead( fTickSize ) / fTickSize;
-		}
-		pCoreActionController->locateToFrame( static_cast<unsigned long>( nCursorColumn * fTickSize ) );
+		
+		pCoreActionController->locateToTick( nCursorColumn );
 	} else {
 		ERRORLOG( QString( "Unknown object class" ) );
 	}

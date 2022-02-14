@@ -24,8 +24,6 @@
 
 #include "TestHelper.h"
 
-CPPUNIT_TEST_SUITE_REGISTRATION( MemoryLeakageTest );
-
 
 void MemoryLeakageTest::testConstructors() {
 	auto mapSnapshot = H2Core::Base::getObjectMap();

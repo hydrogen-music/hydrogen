@@ -46,5 +46,3 @@ class SampleTest : public CppUnit::TestCase {
 		CPPUNIT_ASSERT(pSample == nullptr);
 	}
 };
-
-CPPUNIT_TEST_SUITE_REGISTRATION( SampleTest );

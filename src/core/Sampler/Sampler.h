@@ -175,6 +175,11 @@ public:
 
 	void process( uint32_t nFrames, std::shared_ptr<Song> pSong );
 
+	/**
+	 * @return True, if the #Sampler is still processing notes.
+	 */
+	bool isRenderingNotes() const;
+	
 	/// Start playing a note
 	void noteOn( Note * pNote );
 
@@ -217,6 +222,21 @@ public:
 	 * loaded with a nullptr instead.
 	 */
 	void reinitializePlaybackTrack();
+
+	/** 
+	 * Recalculates all note starts to make them valid again after a
+	 * TempoMarker was added to or deleted from the #Timeline or the
+	 * latter was activated.
+	 */
+	void handleTimelineOrTempoChange();
+	/** 
+	 * Recalculates all note starts and positions to make them valid
+	 * again after the song size changed, e.g. a pattern was inserted
+	 * or it's length was changed.
+	 */
+	void handleSongSizeChange();
+
+	const std::vector<Note*> getPlayingNotesQueue() const;
 	
 private:
 	std::vector<Note*> m_playingNotesQueue;
@@ -254,7 +274,7 @@ private:
 	bool renderNoteNoResample(
 		std::shared_ptr<Sample> pSample,
 		Note *pNote,
-		SelectedLayerInfo *pSelectedLayerInfo,
+		std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 		std::shared_ptr<InstrumentComponent> pCompo,
 		DrumkitComponent *pDrumCompo,
 		int nBufferSize,
@@ -269,7 +289,7 @@ private:
 	bool renderNoteResample(
 		std::shared_ptr<Sample> pSample,
 		Note *pNote,
-		SelectedLayerInfo *pSelectedLayerInfo,
+		std::shared_ptr<SelectedLayerInfo> pSelectedLayerInfo,
 		std::shared_ptr<InstrumentComponent> pCompo,
 		DrumkitComponent *pDrumCompo,
 		int nBufferSize,
@@ -283,6 +303,9 @@ private:
 	);
 };
 
+inline const std::vector<Note*> Sampler::getPlayingNotesQueue() const {
+	return m_playingNotesQueue;
+}
 
 } // namespace
 

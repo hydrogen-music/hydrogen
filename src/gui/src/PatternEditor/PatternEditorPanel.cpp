@@ -117,12 +117,15 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pLCDSpinBoxNumerator = new LCDSpinBox( m_pSizeResol, QSize( 62, 20 ), LCDSpinBox::Type::Double, 0.1, 16.0 );
 	m_pLCDSpinBoxNumerator->setKind( LCDSpinBox::Kind::PatternSizeNumerator );
 	m_pLCDSpinBoxNumerator->setDecimals( 16 );
+	m_pLCDSpinBoxNumerator->move( 36, 0 );
 	connect( m_pLCDSpinBoxNumerator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
+	connect( m_pLCDSpinBoxNumerator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
+	
 	m_pLCDSpinBoxDenominator = new LCDSpinBox( m_pSizeResol, QSize( 48, 20 ), LCDSpinBox::Type::Int, 1, 192 );
 	m_pLCDSpinBoxDenominator->setKind( LCDSpinBox::Kind::PatternSizeDenominator );
-	connect( m_pLCDSpinBoxDenominator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
-	m_pLCDSpinBoxNumerator->move( 36, 0 );
 	m_pLCDSpinBoxDenominator->move( 106, 0 );
+	connect( m_pLCDSpinBoxDenominator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
+	connect( m_pLCDSpinBoxDenominator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
 			
 	QLabel* label1 = new ClickableLabel( m_pSizeResol, QSize( 4, 13 ), "/", ClickableLabel::Color::Dark );
 	label1->resize( QSize( 20, 17 ) );
@@ -584,9 +587,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	propertiesComboChanged( 0 );
 	selectedPatternChangedEvent();
 	updateStyleSheet();
-
-	connect( m_pLCDSpinBoxNumerator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
-	connect( m_pLCDSpinBoxDenominator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
 }
 
 
@@ -594,21 +594,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 PatternEditorPanel::~PatternEditorPanel()
 {
-}
-
-void PatternEditorPanel::stateChangedEvent( H2Core::AudioEngine::State state ) {
-	// Deactivate the pattern size widgets while playback is rolling.
-	if ( state == H2Core::AudioEngine::State::Playing ) {
-		m_pLCDSpinBoxNumerator->setEnabled( false );
-		m_pLCDSpinBoxNumerator->setToolTip( HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeDisabledTooltip() );
-		m_pLCDSpinBoxDenominator->setEnabled( false );
-		m_pLCDSpinBoxDenominator->setToolTip( HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeDisabledTooltip() );
-	} else {
-		m_pLCDSpinBoxNumerator->setEnabled( true );
-		m_pLCDSpinBoxNumerator->setToolTip( "" );
-		m_pLCDSpinBoxDenominator->setEnabled( true );
-		m_pLCDSpinBoxDenominator->setToolTip( "" );
-	}
 }
 
 void PatternEditorPanel::drumkitLoadedEvent() {
@@ -947,26 +932,13 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 
 	m_bArmPatternSizeSpinBoxes = false;
 
-	bool bTurnOffAgain = false;
-
-	if ( ! m_pLCDSpinBoxNumerator->isEnabled() ) {
-		// Both spin boxes are deactivated since playback is rolling
-		// and the pattern size changed due to the user selecting a
-		// different pattern via mouse. We have to take care not to
-		// trigger a patternSizeChanged() in here.
-		m_pLCDSpinBoxNumerator->setEnabled( true );
-		m_pLCDSpinBoxDenominator->setEnabled( true );
-
-		bTurnOffAgain = true;
-	}
-
 	bool bChanged = false;
 
 	double fNewDenominator = static_cast<double>( m_pPattern->get_denominator() );
 	if ( fNewDenominator != m_pLCDSpinBoxDenominator->value() &&
 		 ! m_pLCDSpinBoxDenominator->hasFocus() ) {
 		m_pLCDSpinBoxDenominator->setValue( fNewDenominator );
-		bool bChanged = true;
+		bChanged = true;
 
 		// Update numerator to allow only for a maximum pattern length of
 		// four measures.
@@ -977,11 +949,6 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 	if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() && ! m_pLCDSpinBoxNumerator->hasFocus() ) {
 		m_pLCDSpinBoxNumerator->setValue( fNewNumerator );
 		bChanged = true;
-	}
-
-	if ( bTurnOffAgain ) {
-		m_pLCDSpinBoxNumerator->setEnabled( false );
-		m_pLCDSpinBoxDenominator->setEnabled( false );
 	}
 	
 	m_bArmPatternSizeSpinBoxes = true;
@@ -1000,6 +967,9 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 		return;
 	}
 
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
 	// Update numerator to allow only for a maximum pattern length of
 	// four measures.
 	m_pLCDSpinBoxNumerator->setMaximum( 4 * m_pLCDSpinBoxDenominator->value() );
@@ -1017,9 +987,15 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 
 	int nLength = std::round( static_cast<double>( MAX_NOTES ) / fDenominator * fNumerator );
 
+	pAudioEngine->lock( RIGHT_HERE );
 	// set length and denominator				
 	m_pPattern->set_length( nLength );
 	m_pPattern->set_denominator( static_cast<int>( fDenominator ) );
+	pHydrogen->updateSongSize();
+	pAudioEngine->unlock();
+	
+	pHydrogen->setIsModified( true );
+	
 	patternLengthChanged();
 }
 

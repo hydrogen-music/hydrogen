@@ -59,9 +59,6 @@
 #ifndef H2CORE_HAVE_LASH
 #cmakedefine H2CORE_HAVE_LASH
 #endif
-#ifndef H2CORE_HAVE_JACKSESSION
-#cmakedefine H2CORE_HAVE_JACKSESSION
-#endif
 #ifndef H2CORE_HAVE_OSC
 #cmakedefine H2CORE_HAVE_OSC
 #endif

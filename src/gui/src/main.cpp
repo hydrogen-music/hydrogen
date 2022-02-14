@@ -39,9 +39,6 @@
 #ifdef H2CORE_HAVE_LASH
 #include <core/Lash/LashClient.h>
 #endif
-#ifdef H2CORE_HAVE_JACKSESSION
-#include <jack/session.h>
-#endif
 
 #include <core/MidiMap.h>
 #include <core/AudioEngine/AudioEngine.h>
@@ -255,12 +252,6 @@ int main(int argc, char *argv[])
 		parser.addOption( uiLayoutOption );
 		parser.addPositionalArgument( "file", "Song, playlist or Drumkit file" );
 		
-		//Conditional options
-		#ifdef H2CORE_HAVE_JACKSESSION
-			QCommandLineOption jackSessionOption(QStringList() << "S" << "jacksessionid", "ID - Start a JackSessionHandler session");
-			parser.addOption(jackSessionOption);
-		#endif
-			
 		// Evaluate the options
 		parser.process( *pBootStrApp );
 		QString sSelectedDriver = parser.value( audioDriverOption );
@@ -300,10 +291,6 @@ int main(int argc, char *argv[])
 				sPlaylistFilename = sArg;
 			}
 		}
-		
-		#ifdef H2CORE_HAVE_JACKSESSION
-				QString sessionId;
-		#endif
 		
 		std::cout << aboutText.toStdString();
 		
@@ -482,31 +469,6 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
-#endif
-
-#ifdef H2CORE_HAVE_JACKSESSION
-		if(!sessionId.isEmpty()){
-			pPref->setJackSessionUUID( sessionId );
-
-			/*
-			 * imo, jack sessions use jack as default audio driver.
-			 * hydrogen remember last used audiodriver.
-			 * here we make it save that hydrogen start in a jacksession case
-			 * every time with jack as audio driver
-			 */
-			pPref->m_sAudioDriver = "JACK";
-
-		}
-
-		/*
-		 * the use of applicationFilePath() make it
-		 * possible to use different executables.
-		 * for example if you start hydrogen from a local
-		 * build directory.
-		 */
-
-		QString path = pQApp->applicationFilePath();
-		pPref->setJackSessionApplicationPath( path );
 #endif
 
 		// Hydrogen here to honor all preferences.

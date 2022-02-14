@@ -262,7 +262,7 @@ for:
 
     test_script: |-
       cd build
-      TMPDIR=/tmp src/tests/tests --appveyor || exit 1
+      TMPDIR=/tmp src/tests/tests --appveyor
 
       echo "Waiting for installer creation and cache archiving"
       wait

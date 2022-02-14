@@ -388,6 +388,9 @@ bool CoreActionController::initExternalControlInterfaces()
 	}
 	
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+
+	bool bIsModified = pSong->getIsModified();
+	
 	setMasterVolume( pSong->getVolume() );
 	
 	//PER-INSTRUMENT/STRIP STATES
@@ -417,7 +420,7 @@ bool CoreActionController::initExternalControlInterfaces()
 	//MUTE_TOGGLE
 	setMasterIsMuted( Hydrogen::get_instance()->getSong()->getIsMuted() );
 
-	pHydrogen->setIsModified( false );
+	pHydrogen->setIsModified( bIsModified );
 	
 	return true;
 }
@@ -693,15 +696,22 @@ bool CoreActionController::activateTimeline( bool bActivate ) {
 
 bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pTimeline = pHydrogen->getTimeline();
 
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
-	
-	auto pTimeline = pHydrogen->getTimeline();
+
+	pAudioEngine->lock( RIGHT_HERE );
+
 	pTimeline->deleteTempoMarker( nPosition );
 	pTimeline->addTempoMarker( nPosition, fBpm );
+	pHydrogen->getAudioEngine()->handleTimelineChange();
+
+	pAudioEngine->unlock();
+
 	pHydrogen->setIsModified( true );
 
 	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
@@ -711,13 +721,20 @@ bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
 
 bool CoreActionController::deleteTempoMarker( int nPosition ) {
 	auto pHydrogen = Hydrogen::get_instance();
-
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
+
+	pAudioEngine->lock( RIGHT_HERE );
 	
 	pHydrogen->getTimeline()->deleteTempoMarker( nPosition );
+	pHydrogen->getAudioEngine()->handleTimelineChange();
+
+	pAudioEngine->unlock();
+	
 	pHydrogen->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
 
@@ -802,15 +819,35 @@ bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent 
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
 	
-	pSong->setIsLoopEnabled( bActivate );
+
+	bool bChange = false;
+
+	if ( bActivate &&
+		 pSong->getLoopMode() != Song::LoopMode::Enabled ) {
+		pSong->setLoopMode( Song::LoopMode::Enabled );
+		bChange = true;
+		
+	} else if ( ! bActivate &&
+				pSong->getLoopMode() == Song::LoopMode::Enabled ) {
+		// If the transport was already looped at least once, disabling
+		// loop mode will result in immediate stop. Instead, we want to
+		// stop transport at the end of the song.
+		if ( pSong->lengthInTicks() < pAudioEngine->getTick() ) {
+			pSong->setLoopMode( Song::LoopMode::Finishing );
+		} else {
+			pSong->setLoopMode( Song::LoopMode::Disabled );
+		}
+		bChange = true;
+	}
 	
-	if ( bTriggerEvent ) {
+	if ( bTriggerEvent && bChange ) {
 		EventQueue::get_instance()->push_event( EVENT_LOOP_MODE_ACTIVATION, static_cast<int>( bActivate ) );
 	}
 	
@@ -865,7 +902,7 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
-	long nTotalTick = pAudioEngine->getTickForColumn( nPatternGroup );
+	long nTotalTick = pHydrogen->getTickForColumn( nPatternGroup );
 	if ( nTotalTick < 0 ) {
 		// There is no pattern inserted in the SongEditor.
 		if ( pHydrogen->getMode() == Song::Mode::Song ) {
@@ -879,20 +916,13 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 		}
 	}
 
-	locateToFrame( static_cast<unsigned long>( nTotalTick * pAudioEngine->getTickSize() ) );
-
-	// TODO: replace this by a boolian indicating a relocation in the
-	// current cycle of the audio engine.
-	// pHydrogen->setTimelineBpm();
-	
-	return true;
+	return locateToTick( nTotalTick );
 }
 
-bool CoreActionController::locateToFrame( unsigned long nFrame, bool bWithJackBroadcast ) {
+bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
 
 	const auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pDriver = pHydrogen->getAudioOutput();
 
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
@@ -900,31 +930,10 @@ bool CoreActionController::locateToFrame( unsigned long nFrame, bool bWithJackBr
 	}
 
 	pAudioEngine->lock( RIGHT_HERE );
+    
+	pAudioEngine->locate( nTick, bWithJackBroadcast );
 	
-	if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
-		// Required to move the playhead when clicking e.g. fast
-		// forward or the song editor ruler. The variables set in here
-		// do not interfere with the realtime audio (playback of MIDI
-		// events of virtual keyboard) and all other position
-		// variables in the AudioEngine will be set properly with
-		// respect to them by then.
-
-		int nTotalTick = static_cast<int>(nFrame / pAudioEngine->getTickSize());
-		int nPatternStartTick;
-		int nColumn = pAudioEngine->getColumnForTick( nTotalTick, pHydrogen->getSong()->getIsLoopEnabled(), &nPatternStartTick );
-
-		pAudioEngine->setColumn( nColumn );
-		pAudioEngine->setPatternTickPosition( nTotalTick - nPatternStartTick );
-	}
-	pAudioEngine->locate( nFrame, bWithJackBroadcast );
 	pAudioEngine->unlock();
-
-#ifdef H2CORE_HAVE_JACK
-	if ( pHydrogen->haveJackTransport() &&
-		 pAudioEngine->getState() != AudioEngine::State::Playing ) {
-		static_cast<JackAudioDriver*>(pDriver)->m_currentPos = nFrame;
-	}
-#endif
 	return true;
 }
 
@@ -1074,9 +1083,12 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 		return false;
 	}
 	
-	pHydrogen->setIsModified( true );
+	pHydrogen->updateSongSize();
+	
 	pHydrogen->getAudioEngine()->unlock();
 
+	pHydrogen->setIsModified( true );
+	
 	// Update the SongEditor.
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG_EDITOR, 0 );
