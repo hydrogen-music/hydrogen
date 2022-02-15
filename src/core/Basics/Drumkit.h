@@ -155,7 +155,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \param component_id to chose the component to save or -1 for all
 		 * \return true on success
 		 */
-		bool save_file( const QString& dk_path, bool overwrite=false, int component_id=-1 );
+		bool save_file( const QString& dk_path, bool overwrite=false, int component_id=-1 ) const;
 		/**
 		 * save a drumkit instruments samples into a directory
 		 * \param dk_dir the directory to save the samples into
@@ -187,11 +187,37 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 */
 		static bool save( const QString& sName, const QString& sAuthor, const QString& sInfo, const QString& sLicense, const QString& sImage, const QString& sImageLicense, InstrumentList* pInstruments, std::vector<DrumkitComponent*>* pComponents, bool bOverwrite=false );
 		/**
-		 * install a drumkit from a filename
-		 * \param path the path to the new drumkit archive
+		 * Extract a .h2drumkit file.
+		 *
+		 * \param sSourcePath Absolute path to the new drumkit archive
+		 * \param sTargetPath Absolute path to where the new drumkit
+		 * should be extracted to. If left empty, the user's drumkit
+		 * folder will be used.
+		 *
 		 * \return true on success
 		 */
-		static bool install( const QString& path );
+	static bool install( const QString& sSourcePath, const QString& sTargetPath = "" );
+
+	/**
+	 * Compresses the drumkit into a .h2drumkit file.
+	 *
+	 * The name of the created file will be a concatenation of #__name
+	 * and Filesystem::drumkit_ext.
+	 *
+	 * exportTo() ? well, export is a protected name within C++. So,
+	 * we needed a less obvious name. 
+	 *
+	 * \param sTargetDir Folder which will contain the resulting
+	 * .h2drumkit file.
+	 * \param sComponentName Name of a particular component used in
+	 * case just a single component should be exported.
+	 * \param bRecentVersion Whether the drumkit format should be
+	 * supported by Hydrogen 0.9.7 or higher (whether it should be
+	 * composed of DrumkitComponents).
+	 *
+	 * \return true on success 
+	 */
+	bool exportTo( const QString& sTargetDir, const QString& sComponentName = "", bool bRecentVersion = true ) const;
 		/**
 		 * remove a drumkit from the disk
 		 * \param dk_name the drumkit name
@@ -272,7 +298,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * save the drumkit within the given XMLNode
 		 * \param node the XMLNode to feed
 		 */
-		void save_to( XMLNode* node, int component_id=-1 );
+		void save_to( XMLNode* node, int component_id=-1 ) const;
 		/**
 		 * load a drumkit from an XMLNode
 		 * \param node the XMLDode to read from
