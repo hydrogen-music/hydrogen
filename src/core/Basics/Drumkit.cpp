@@ -101,17 +101,17 @@ Drumkit* Drumkit::load_by_name( const QString& dk_name, const bool load_samples,
 	return load( dir, load_samples );
 }
 
-Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples )
+	Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUpgrade )
 {
 	INFOLOG( QString( "Load drumkit %1" ).arg( dk_dir ) );
 	if( !Filesystem::drumkit_valid( dk_dir ) ) {
 		ERRORLOG( QString( "%1 is not valid drumkit" ).arg( dk_dir ) );
 		return nullptr;
 	}
-	return load_file( Filesystem::drumkit_file( dk_dir ), load_samples );
+	return load_file( Filesystem::drumkit_file( dk_dir ), load_samples, bUpgrade );
 }
 
-Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples )
+	Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bool bUpgrade )
 {
 	bool bReadingSuccessful = true;
 	
@@ -127,13 +127,16 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples )
 			//No components. That drumkit seems to be quite old. Use legacy code..
 			
 			Drumkit* pDrumkit = Legacy::load_drumkit( dk_path );
-			upgrade_drumkit(pDrumkit, dk_path);
+			if ( bUpgrade ) {
+				upgrade_drumkit(pDrumkit, dk_path);
+			}
 			
 			return pDrumkit;
 		} else {
-			//If the drumkit does not comply witht the current xsd, but has components, it may suffer from
-			// problems with invalid values (for example float ADSR values, see #658). Lets try to load it
-			// with our current drumkit.
+			//If the drumkit does not comply with the current xsd, but
+			// has components, it may suffer from problems with
+			// invalid values (for example float ADSR values, see
+			// #658). Lets try to load it with our current drumkit.
 			bReadingSuccessful = false;
 		}
 	}
@@ -144,7 +147,7 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples )
 	}
 
 	Drumkit* pDrumkit = Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
-	if ( ! bReadingSuccessful ) {
+	if ( ! bReadingSuccessful && bUpgrade ) {
 		upgrade_drumkit( pDrumkit, dk_path );
 	}
 	if( load_samples ){
@@ -223,28 +226,7 @@ void Drumkit::upgrade_drumkit(Drumkit* pDrumkit, const QString& dk_path)
 		}
 		WARNINGLOG( QString( "Upgrading drumkit %1" ).arg( dk_path ) );
 
-		QString sBackupPath = dk_path + ".bak";
-		if ( Filesystem::file_exists( sBackupPath, true ) ) {
-			int nnSuffix = 1;
-
-			while ( true ) {
-				if ( ! Filesystem::file_exists( QString( "%1.%2" ).
-												arg( sBackupPath ).
-												arg( nnSuffix ), true ) ) {
-					sBackupPath = QString( "%1.%2" ).arg( sBackupPath ).arg( nnSuffix );
-					break;
-				} else {
-					++nnSuffix;
-				}
-
-				if ( nnSuffix > 100 ) {
-					ERRORLOG( QString( "More than 100 backups written for a single drumkit [%1]? This sounds like a bug. Please report this issue." )
-							  .arg( dk_path ) );
-					return;
-				}
-			}
-		}
-			
+		QString sBackupPath = Filesystem::drumkit_backup_path( dk_path );
 		Filesystem::file_copy( dk_path, sBackupPath,
 		                       false /* do not overwrite existing files */ );
 		

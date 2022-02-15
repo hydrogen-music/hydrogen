@@ -60,10 +60,15 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * Filesystem::drumkit_dir_search().
 		 * \param load_samples Automatically load sample data
 		 * if set to true.
+		 * \param bUpgrade Whether the loaded drumkit should be
+		 * upgraded using upgrade_drumkit() in case it did not comply
+		 * with the current XSD file.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load( const QString& dk_dir, const bool load_samples = false );
+		static Drumkit* load( const QString& dk_dir,
+							  const bool load_samples = false,
+							  bool bUpgrade = true );
 		/**
 		 * Simple wrapper for load() used with the drumkit's
 		 * name instead of its directory.
@@ -94,11 +99,17 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * is true.
 		 *
 		 * \param dk_path is a path to an xml file
-		 * \param load_samples automatically load sample data if set to true
+		 * \param load_samples automatically load sample data if set
+		 * to true
+		 * \param bUpgrade Whether the loaded drumkit should be
+		 * upgraded using upgrade_drumkit() in case it did not comply
+		 * with the current XSD file.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load_file( const QString& dk_path, const bool load_samples = false );
+		static Drumkit* load_file( const QString& dk_path,
+								   const bool load_samples = false,
+								   bool bUpgrade = true );
 		/** Calls the InstrumentList::load_samples() member
 		 * function of #__instruments.
 		 */

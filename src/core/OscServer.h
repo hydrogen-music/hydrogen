@@ -767,6 +767,17 @@ class OscServer : public H2Core::Object<OscServer>
 		 * contain notes, is optional. The default choice will be true.
 		 */
 	static void LOAD_DRUMKIT_Handler( lo_arg **argv, int argc );
+		/**
+		 * Triggers CoreActionController::upgradeDrumkit().
+		 *
+		 * The handler expects the user to provide the absolute path
+		 * to a folder containing a drumkit as well as another one
+		 * where the upgraded kit will be stored. If the second path
+		 * is missing, the drumkit will be upgraded in place and a
+		 * backup file will be created in order to not overwrite the
+		 * existing state.
+		 */
+	static void UPGRADE_DRUMKIT_Handler( lo_arg **argv, int argc );
 		/** 
 		 * Catches any incoming messages and display them. 
 		 *

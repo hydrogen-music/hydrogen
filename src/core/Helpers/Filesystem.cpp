@@ -29,6 +29,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
+#include <QDateTime>
 #include <QDomDocument>
 
 #ifdef H2CORE_HAVE_OSC
@@ -260,9 +261,11 @@ bool Filesystem::mkdir( const QString& path )
 
 bool Filesystem::path_usable( const QString& path, bool create, bool silent )
 {
-	if( !QDir( path ).exists() ) {
-		if( !silent ) INFOLOG( QString( "create user directory : %1" ).arg( path ) );
-		if( create && !QDir( "/" ).mkpath( path ) ) {
+	if ( !QDir( path ).exists() ) {
+		if ( !silent ) {
+			INFOLOG( QString( "create user directory : %1" ).arg( path ) );
+		}
+		if ( create && !QDir( "/" ).mkpath( path ) ) {
 			if( !silent ) ERRORLOG( QString( "unable to create user directory : %1" ).arg( path ) );
 			return false;
 		}
@@ -772,6 +775,15 @@ bool Filesystem::drumkit_valid( const QString& dk_path )
 QString Filesystem::drumkit_file( const QString& dk_path )
 {
 	return dk_path + "/" + DRUMKIT_XML;
+}
+
+QString Filesystem::drumkit_xml() {
+	return DRUMKIT_XML;
+}
+
+QString Filesystem::drumkit_backup_path( const QString& dk_path ) {
+	return dk_path + "." +
+		QDateTime::currentDateTime().toString( "yyyy-MM-dd_hh-mm-ss" ) + ".bak";
 }
 
 // PATTERNS

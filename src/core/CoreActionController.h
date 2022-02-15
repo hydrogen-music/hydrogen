@@ -256,6 +256,15 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * H2Core::Instrument regardless of their content.
 	 */
 	bool loadDrumkit( Drumkit* pDrumkit, bool bConditional = true );
+	/** 
+	 * Upgrades the drumkit found at absolute path @a sDrumkitPath.
+	 *
+	 * If @a sNewPath is missing, the drumkit will be upgraded in
+	 * place and a backup file will be created in order to not
+	 * overwrite the existing state. 
+	 */
+	bool upgradeDrumkit( const QString& sDrumkitPath, const QString& sNewPath = "" );
+	
 		/** Relocates transport to the beginning of a particular
 		 * column/Pattern group.
 		 * 
