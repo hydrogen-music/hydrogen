@@ -686,6 +686,152 @@ bool CoreActionController::activateSongMode( bool bActivate, bool bTriggerEvent 
 	return true;
 }
 
+bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QString& sNewPath ) {
+
+	if ( sNewPath.isEmpty() ) {
+		INFOLOG( QString( "Upgrading kit at [%1] inplace." )
+				 .arg( sDrumkitPath ) );
+	} else {
+		INFOLOG( QString( "Upgrading kit at [%1] into [%2]." )
+				 .arg( sDrumkitPath ).arg( sNewPath ) );
+	}
+
+	if ( ! sNewPath.isEmpty() ) {
+		// Check whether there is already a file or directory
+		// present. The latter has to be writable. If none is present,
+		// create a folder.
+		if ( ! Filesystem::path_usable( sNewPath, true, false ) ) {
+			return false;
+		}
+	}
+
+	Drumkit* pDrumkit = nullptr;
+
+	QString sDrumkitDir;
+	if ( Filesystem::dir_writable( sDrumkitPath, true ) ||
+		 ( Filesystem::dir_readable( sDrumkitPath, true ) &&
+		   ! sNewPath.isEmpty() ) ) {
+
+		// Providing the folder containing the drumkit
+		pDrumkit = Drumkit::load( sDrumkitPath, false, false );
+		sDrumkitDir = sDrumkitPath;
+	} else {
+		
+		QFileInfo fileInfo;
+		if ( fileInfo.baseName() == Filesystem::drumkit_xml() &&
+			 ( Filesystem::file_writable( sDrumkitPath ) ||
+			   ( Filesystem::file_readable( sDrumkitPath ) &&
+				 ! sNewPath.isEmpty() ) ) ) {
+			pDrumkit = Drumkit::load_file( sDrumkitPath, false, false );
+			sDrumkitDir = fileInfo.dir().absolutePath();
+		} else {
+			ERRORLOG( QString( "Provided source path [%1] does not point to a Hydrogen drumkit" )
+					  .arg( sDrumkitPath ) );
+			return false;
+		}
+	}
+
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( QString( "Unable to load drumkit from source path [%1]" )
+				  .arg( sDrumkitPath ) );
+		return false;
+	}
+
+	// If the drumkit is not updated inplace, we also need to copy
+	// all samples and metadata, like images.
+	QString sPath;
+	if ( ! sNewPath.isEmpty() ) {
+		
+		// Copy content
+		QDir drumkitDir( sDrumkitDir );
+		for ( const auto& ssFile : drumkitDir.entryList( QDir::Files ) ) {
+
+			// We handle the drumkit file later
+			if ( ssFile.contains( ".xml" ) ) {
+				continue;
+			}
+			Filesystem::file_copy( drumkitDir.absolutePath() + "/" + ssFile,
+								   sNewPath + "/" + ssFile, true );
+		}
+		
+		sPath = sNewPath;
+	} else {
+		// Upgrade inplace.
+		// Make a backup of the original file in order to make the
+		// upgrade reversible.
+		QString sBackupPath = Filesystem::drumkit_backup_path( sDrumkitPath +
+															   Filesystem::drumkit_xml() );
+		if ( ! Filesystem::file_copy( Filesystem::drumkit_file( sDrumkitPath ),
+									  sBackupPath, true ) ) {
+			ERRORLOG( QString( "Unable to backup source drumkit XML file from [%1] to [%2]. We abort instead of overwriting things." )
+					  .arg( sDrumkitPath ).arg( sBackupPath ) );
+			delete pDrumkit;
+			return false;
+		}
+
+		sPath = sDrumkitPath;
+	}
+
+	if ( ! pDrumkit->save_file( Filesystem::drumkit_file( sPath ), true, -1 ) ) {
+		ERRORLOG( QString( "Error while saving upgraded kit to [%1]" )
+				  .arg( sPath ) );
+		delete pDrumkit;
+		return false;
+	}
+
+	delete pDrumkit;
+
+	return true;
+}
+	
+bool CoreActionController::locateToColumn( int nPatternGroup ) {
+
+	if ( nPatternGroup < -1 ) {
+		ERRORLOG( QString( "Provided column [%1] too low. Assigning -1 (indicating the beginning of a song without showing a cursor in the SongEditorPositionRuler) instead." )
+				  .arg( nPatternGroup ) );
+		nPatternGroup = -1;
+	}
+	
+	auto pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
+	long nTotalTick = pHydrogen->getTickForColumn( nPatternGroup );
+	if ( nTotalTick < 0 ) {
+		// There is no pattern inserted in the SongEditor.
+		if ( pHydrogen->getMode() == Song::Mode::Song ) {
+			DEBUGLOG( QString( "Obtained ticks [%1] are smaller than zero. No relocation done." )
+					  .arg( nTotalTick ) );
+			return false;
+		} else {
+			// In case of Pattern mode this is not a problem and we
+			// will treat this case as the beginning of the song.
+			nTotalTick = 0;
+		}
+	}
+
+	return locateToTick( nTotalTick );
+}
+
+bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
+
+	const auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	
+	return true;
+}
+
 bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent ) {
 
 	auto pSong = Hydrogen::get_instance()->getSong();

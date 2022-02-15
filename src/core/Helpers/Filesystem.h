@@ -236,6 +236,18 @@ namespace H2Core
 		 */
 		static QString drumkit_file( const QString& dk_path );
 
+		/**
+		 * Returns filename and extention of the expected drumkit file.
+		 */
+		static QString drumkit_xml();
+
+		/**
+		 * Create a backup path from a drumkit path. It will contain
+		 * the current datetime to both make individual backup names
+		 * unique and to make it more easy to handle them.
+		 */
+		static QString drumkit_backup_path( const QString& dk_path );
+
 		/* PATTERNS */
 		/**
 		 * returns a list of existing drumkit sub dir into the patterns directory
