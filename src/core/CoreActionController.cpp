@@ -707,28 +707,60 @@ bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QS
 
 	Drumkit* pDrumkit = nullptr;
 
+	bool bIsCompressed = false;
+
+	QFileInfo fileInfo( sDrumkitPath );
+	// Temporary folder used to extract a compressed drumkit (
+	// .h2drumkit ). It is defined here since the destructor removes
+	// the directory which mustn't be done till the end of this
+	// function.
+	QString sTemplateName( Filesystem::tmp_dir() + "/" +
+						   fileInfo.baseName() + "XXXXXX" );
+	QTemporaryDir tmpDir( sTemplateName );
+	if ( ! tmpDir.isValid() ) {
+		ERRORLOG( QString( "Unable to create temporary folder using template name [%1]" )
+				  .arg( sTemplateName ) );
+		return false;
+	}
+
 	QString sDrumkitDir;
 	if ( Filesystem::dir_writable( sDrumkitPath, true ) ||
 		 ( Filesystem::dir_readable( sDrumkitPath, true ) &&
 		   ! sNewPath.isEmpty() ) ) {
 
+		DEBUGLOG("dir");
+
 		// Providing the folder containing the drumkit
 		pDrumkit = Drumkit::load( sDrumkitPath, false, false );
 		sDrumkitDir = sDrumkitPath;
-	} else {
 		
-		QFileInfo fileInfo;
-		if ( fileInfo.baseName() == Filesystem::drumkit_xml() &&
+	} else if ( fileInfo.baseName() == Filesystem::drumkit_xml() &&
 			 ( Filesystem::file_writable( sDrumkitPath ) ||
 			   ( Filesystem::file_readable( sDrumkitPath ) &&
 				 ! sNewPath.isEmpty() ) ) ) {
-			pDrumkit = Drumkit::load_file( sDrumkitPath, false, false );
-			sDrumkitDir = fileInfo.dir().absolutePath();
-		} else {
-			ERRORLOG( QString( "Provided source path [%1] does not point to a Hydrogen drumkit" )
-					  .arg( sDrumkitPath ) );
-			return false;
-		}
+
+		DEBUGLOG("drumkit.xml");
+		// Providing the path of a drumkit.xml file within a drumkit
+		// folder.
+		pDrumkit = Drumkit::load_file( sDrumkitPath, false, false );
+		sDrumkitDir = fileInfo.dir().absolutePath();
+			
+	} else if ( ( "." + fileInfo.suffix() ) == Filesystem::drumkit_ext &&
+				( Filesystem::dir_writable( fileInfo.dir().absolutePath() ) ||
+			   ( Filesystem::file_readable( sDrumkitPath ) &&
+				 ! sNewPath.isEmpty() ) ) ) {
+
+		DEBUGLOG(".h2drumkit");
+		bIsCompressed = true;
+
+		// Providing the path to a compressed .h2drumkit file. It will
+		// be extracted to a temporary folder and loaded from there.
+		sDrumkitDir = tmpDir.path();
+		pDrumkit = Drumkit::load( sDrumkitDir, false, false );
+	} else {
+		ERRORLOG( QString( "Provided source path [%1] does not point to a Hydrogen drumkit" )
+				  .arg( sDrumkitPath ) );
+		return false;
 	}
 
 	if ( pDrumkit == nullptr ) {
@@ -741,20 +773,27 @@ bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QS
 	// all samples and metadata, like images.
 	QString sPath;
 	if ( ! sNewPath.isEmpty() ) {
-		
-		// Copy content
-		QDir drumkitDir( sDrumkitDir );
-		for ( const auto& ssFile : drumkitDir.entryList( QDir::Files ) ) {
 
-			// We handle the drumkit file later
-			if ( ssFile.contains( ".xml" ) ) {
-				continue;
+		// When dealing with a compressed drumkit, we can just leave
+		// it in the temporary folder and copy the compressed content
+		// to the destination right away.
+		if ( ! bIsCompressed ) {
+			// Copy content
+			QDir drumkitDir( sDrumkitDir );
+			for ( const auto& ssFile : drumkitDir.entryList( QDir::Files ) ) {
+
+				// We handle the drumkit file later
+				if ( ssFile.contains( ".xml" ) ) {
+					continue;
+				}
+				Filesystem::file_copy( drumkitDir.absolutePath() + "/" + ssFile,
+									   sNewPath + "/" + ssFile, true );
 			}
-			Filesystem::file_copy( drumkitDir.absolutePath() + "/" + ssFile,
-								   sNewPath + "/" + ssFile, true );
+			sPath = sNewPath;
+		} else {
+			sPath = sDrumkitPath;
 		}
 		
-		sPath = sNewPath;
 	} else {
 		// Upgrade inplace.
 		// Make a backup of the original file in order to make the
@@ -777,6 +816,17 @@ bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QS
 				  .arg( sPath ) );
 		delete pDrumkit;
 		return false;
+	}
+
+	// Compress the updated drumkit again in order to provide the same
+	// format handed over as input.
+	if ( bIsCompressed ) {
+		if ( ! pDrumkit->exportTo( sPath ) ) {
+			ERRORLOG( QString( "Unable to export upgrade drumkit to [%1]" )
+					  .arg( sPath ) );
+			delete pDrumkit;
+			return false;
+		}
 	}
 
 	delete pDrumkit;
