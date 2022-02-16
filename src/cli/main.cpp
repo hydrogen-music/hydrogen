@@ -65,6 +65,10 @@ static struct option long_opts[] = {
 	{"verbose", optional_argument, nullptr, 'V'},
 	{"help", 0, nullptr, 'h'},
 	{"install", required_argument, nullptr, 'i'},
+	{"check", required_argument, nullptr, 'c'},
+	{"upgrade", required_argument, nullptr, 'u'},
+	{"extract", required_argument, nullptr, 'e'},
+	{"target", required_argument, nullptr, 't'},
 	{"drumkit", required_argument, nullptr, 'k'},
 	{nullptr, 0, nullptr, 0},
 };
@@ -107,6 +111,8 @@ void show_playlist (uint active )
 
 int main(int argc, char *argv[])
 {
+	int nReturnCode = 0;
+	
 	try {
 		// Options...
 		char *cp;
@@ -135,6 +141,13 @@ int main(int argc, char *argv[])
 		bool showHelpOpt = false;
 		QString drumkitName;
 		QString drumkitToLoad;
+		QString sDrumkitToValidate;
+		bool bValidateDrumkit = false;
+		QString sDrumkitToUpgrade;
+		bool bUpgradeDrumkit = false;
+		QString sDrumkitToExtract;
+		bool bExtractDrumkit = false;
+		QString sTarget = "";
 		short bits = 16;
 		int rate = 44100;
 		short interpolation = 0;
@@ -159,6 +172,24 @@ int main(int argc, char *argv[])
 			case 'i':
 				//install h2drumkit
 				drumkitName = QString::fromLocal8Bit(optarg);
+				break;
+			case 'c':
+				//validate h2drumkit
+				sDrumkitToValidate = QString::fromLocal8Bit(optarg);
+				bValidateDrumkit = true;
+				break;
+			case 'u':
+				//upgrade h2drumkit
+				sDrumkitToUpgrade = QString::fromLocal8Bit(optarg);
+				bUpgradeDrumkit = true;
+				break;
+			case 'e':
+				//extract h2drumkit
+				sDrumkitToExtract = QString::fromLocal8Bit(optarg);
+				bExtractDrumkit = true;
+				break;
+			case 't':
+				sTarget = QString::fromLocal8Bit(optarg);
 				break;
 			case 'k':
 				//load Drumkit
@@ -353,50 +384,112 @@ int main(int argc, char *argv[])
 			ExportMode = true;
 		}
 
-		// Interactive mode
-		while ( ! quit ) {
-			/* FIXME: Someday here will be The Real CLI ;-) */
-			Event event = pQueue->pop_event();
-			// if ( event.type > 0) std::cout << "EVENT TYPE: " << event.type << std::endl;
+		auto pCoreActionController = pHydrogen->getCoreActionController();
 
-			/* Event handler */
-			switch ( event.type ) {
-			case EVENT_PROGRESS: /* event used only in export mode */
-				if ( ! ExportMode ) break;
-	
-				if ( event.value < 100 ) {
-					std::cout << "\rExport Progress ... " << event.value << "%";
-				} else {
-					pHydrogen->stopExportSession();
-					std::cout << "\rExport Progress ... DONE" << std::endl;
-					quit = true;
-				}
-				break;
-			case EVENT_PLAYLIST_LOADSONG: /* Load new song on MIDI event */
-				if( pPlaylist ){
-					QString FirstSongFilename;
-					pPlaylist->getSongFilenameByNumber( event.value, FirstSongFilename );
-					pSong = Song::load( FirstSongFilename );
-					
-					if( pSong ) {
-						pHydrogen->setSong( pSong );
-						preferences->setLastSongFilename( songFilename );
-						
-						pPlaylist->activateSong( event.value );
-					}
-				}
-				break;
-			case EVENT_NONE: /* Sleep if there is no more events */
-				Sleeper::msleep ( 100 );
-				break;
+		if ( bValidateDrumkit ) {
+			if ( ! pCoreActionController->validateDrumkit( sDrumkitToValidate ) ) {
+				nReturnCode = -1;
+
+				std::cout << "Provided drumkit [" <<
+					sDrumkitToValidate.toLocal8Bit().data() << "] is INVALID!" << std::endl;
 				
-			case EVENT_QUIT: // Shutdown if indicated by a
-							 // corresponding OSC message.
-				quit = true;
-				break;
-			default:
-				// EVENT_STATE, EVENT_PATTERN_CHANGED, etc are ignored
-				break;
+			} else {
+				std::cout << "Provided drumkit [" <<
+					sDrumkitToValidate.toLocal8Bit().data() << "] is valid" << std::endl;
+			}
+
+		} else if ( bExtractDrumkit ) {
+			if ( ! pCoreActionController->extractDrumkit( sDrumkitToValidate,
+														  sTarget ) ) {
+				nReturnCode = -1;
+
+				if ( sTarget.isEmpty() ) {
+					std::cout << "Unable to install drumkit [" <<
+						sDrumkitToExtract.toLocal8Bit().data() << "]" << std::endl;
+				} else  {
+					std::cout << "Unable to extract drumkit [" <<
+						sDrumkitToExtract.toLocal8Bit().data() << "] to [" <<
+						sTarget.toLocal8Bit().data() << "]" << std::endl;
+				}
+			} else {
+				
+				if ( sTarget.isEmpty() ) {
+					std::cout << "Drumkit [" <<
+						sDrumkitToExtract.toLocal8Bit().data() <<
+						"] successfully installed!" << std::endl;
+				} else  {
+					std::cout << "Drumkit [" <<
+						sDrumkitToExtract.toLocal8Bit().data() <<
+						"] successfully extracted to [" <<
+						sTarget.toLocal8Bit().data() << "]!" << std::endl;
+				}
+			}
+
+		} else if ( bUpgradeDrumkit ) {
+			if ( ! pCoreActionController->upgradeDrumkit( sDrumkitToUpgrade,
+														  sTarget ) ) {
+				nReturnCode = -1;
+
+				std::cout << "Unable to upgrade provided drumkit [" <<
+					sDrumkitToUpgrade.toLocal8Bit().data() << "]!" << std::endl;
+				
+			} else {
+				std::cout << "Provided drumkit [" <<
+					sDrumkitToUpgrade.toLocal8Bit().data() << "] upgraded";
+
+				if ( ! sTarget.isEmpty() ) {
+					std::cout << " into [" << 
+						sTarget.toLocal8Bit().data() << "]";
+				}
+				std::cout << std::endl;
+			}
+		} else {
+
+			// Interactive mode
+			while ( ! quit ) {
+				/* FIXME: Someday here will be The Real CLI ;-) */
+				Event event = pQueue->pop_event();
+				// if ( event.type > 0) std::cout << "EVENT TYPE: " << event.type << std::endl;
+
+				/* Event handler */
+				switch ( event.type ) {
+				case EVENT_PROGRESS: /* event used only in export mode */
+					if ( ! ExportMode ) break;
+	
+					if ( event.value < 100 ) {
+						std::cout << "\rExport Progress ... " << event.value << "%";
+					} else {
+						pHydrogen->stopExportSession();
+						std::cout << "\rExport Progress ... DONE" << std::endl;
+						quit = true;
+					}
+					break;
+				case EVENT_PLAYLIST_LOADSONG: /* Load new song on MIDI event */
+					if( pPlaylist ){
+						QString FirstSongFilename;
+						pPlaylist->getSongFilenameByNumber( event.value, FirstSongFilename );
+						pSong = Song::load( FirstSongFilename );
+					
+						if( pSong ) {
+							pHydrogen->setSong( pSong );
+							preferences->setLastSongFilename( songFilename );
+						
+							pPlaylist->activateSong( event.value );
+						}
+					}
+					break;
+				case EVENT_NONE: /* Sleep if there is no more events */
+					Sleeper::msleep ( 100 );
+					break;
+				
+				case EVENT_QUIT: // Shutdown if indicated by a
+					// corresponding OSC message.
+					quit = true;
+					break;
+				default:
+					// EVENT_STATE, EVENT_PATTERN_CHANGED, etc are ignored
+					break;
+				}
 			}
 		}
 
@@ -432,7 +525,7 @@ int main(int argc, char *argv[])
 		std::cerr << "[main] Unknown exception X-(" << std::endl;
 	}
 
-	return 0;
+	return nReturnCode;
 }
 
 /* Show some information */
@@ -464,6 +557,9 @@ void showUsage()
 	std::cout << "   -b, --bits BITS - Set bits depth while exporting file" << std::endl;
 	std::cout << "   -k, --kit drumkit_name - Load a drumkit at startup" << std::endl;
 	std::cout << "   -i, --install FILE - install a drumkit (*.h2drumkit)" << std::endl;
+	std::cout << "   -c, --check FILE - validates a drumkit (*.h2drumkit)" << std::endl;
+	std::cout << "   -u, --upgrade FILE - upgrades a drumkit (*.h2drumkit). If no target folder was specified using -t the drumkit will be upgraded inplace." << std::endl;
+	std::cout << "   -t, --target FOLDER - target folder for a drumkit upgrade (The particular drumkit name is derived from the kit's metadata) The folder is created if it not exists yet." << std::endl;
 	std::cout << "   -I, --interpolate INT - Interpolation" << std::endl;
 	std::cout << "       (0:linear [default],1:cosine,2:third,3:cubic,4:hermite)" << std::endl;
 
