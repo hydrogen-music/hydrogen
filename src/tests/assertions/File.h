@@ -29,6 +29,8 @@
 namespace H2Test {
 	
 	void checkFilesEqual(const QString &expected, const QString &actual, CppUnit::SourceLine sourceLine);
+	void checkDirsEqual( const QString& sDirExpected, const QString& sDirActual,
+						 CppUnit::SourceLine sourceLine );
 
 }
 
@@ -37,5 +39,7 @@ namespace H2Test {
  **/
 #define H2TEST_ASSERT_FILES_EQUAL(expected, actual) \
 	H2Test::checkFilesEqual(expected, actual, CPPUNIT_SOURCELINE())
+#define H2TEST_ASSERT_DIRS_EQUAL(expected, actual) \
+	H2Test::checkDirsEqual(expected, actual, CPPUNIT_SOURCELINE())
 
 #endif

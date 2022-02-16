@@ -31,10 +31,17 @@
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/Sample.h>
+#include <core/Basics/Playlist.h>
+#include <core/Hydrogen.h>
+#include <core/CoreActionController.h>
+
+#include <QDir>
+#include <QTemporaryDir>
 
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
 #include "TestHelper.h"
+#include "assertions/File.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION( XmlTest );
 
@@ -202,6 +209,114 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 												   H2TEST_FILE( "/drumkits/invAdsrKit/drumkit.xml" ),
 												   true ) );
 	CPPUNIT_ASSERT( H2Core::Filesystem::rm( backupFiles[ 0 ], false ) );
+}
+
+void XmlTest::testDrumkitUpgrade() {
+	// For all drumkits in the legacy folder, check whether there are
+	// invalid. Then, we upgrade them to the most recent version and
+	// check whether there are valid and if a second upgrade is yields
+	// the same result.
+	auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+
+	QDir legacyDir( H2TEST_FILE( "drumkits/legacyKits" ) );
+	QStringList nameFilters;
+	nameFilters << "*" + H2Core::Filesystem::drumkit_ext;
+
+	QString sDrumkitPath;
+
+	for ( const auto& ssFile : legacyDir.entryList( nameFilters, QDir::Files ) ) {
+
+		sDrumkitPath = H2TEST_FILE( "drumkits/legacyKits" ) + "/" + ssFile;
+
+		CPPUNIT_ASSERT( ! pCoreActionController->validateDrumkit( sDrumkitPath ) );
+
+		// The number of files within the drumkit has to be constant.
+		QTemporaryDir contentOriginal( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
+		contentOriginal.setAutoRemove( false );
+		CPPUNIT_ASSERT( pCoreActionController->extractDrumkit( sDrumkitPath,
+															   contentOriginal.path() ) );
+		QDir contentDirOriginal( contentOriginal.path() );
+		int nFilesOriginal =
+			contentDirOriginal.entryList( QDir::AllEntries |
+										  QDir::NoDotAndDotDot ).size();
+
+		// Upgrade the legacy kit and store the result in a temporary
+		// folder (they will be automatically removed by Qt as soon as
+		// the variable gets out of scope)
+		QTemporaryDir firstUpgrade( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
+		firstUpgrade.setAutoRemove( false );
+		CPPUNIT_ASSERT( pCoreActionController->upgradeDrumkit( sDrumkitPath,
+															   firstUpgrade.path() ) );
+		// The upgrade should have yielded a single .h2drumkit file.
+		QDir upgradeFolder( firstUpgrade.path() );
+		CPPUNIT_ASSERT( upgradeFolder.entryList( QDir::AllEntries |
+												 QDir::NoDotAndDotDot ).size() == 1 );
+		
+		QString sUpgradedKit( firstUpgrade.path() + "/" +
+							  upgradeFolder.entryList( QDir::AllEntries |
+													   QDir::NoDotAndDotDot )[ 0 ] );
+		CPPUNIT_ASSERT( pCoreActionController->validateDrumkit( sUpgradedKit ) );
+		
+		QTemporaryDir contentUpgraded( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
+		contentUpgraded.setAutoRemove( false );
+		CPPUNIT_ASSERT( pCoreActionController->extractDrumkit( sUpgradedKit,
+															   contentUpgraded.path() ) );
+		QDir contentDirUpgraded( contentUpgraded.path() );
+		int nFilesUpgraded =
+			contentDirUpgraded.entryList( QDir::AllEntries |
+										  QDir::NoDotAndDotDot ).size();
+		___INFOLOG( nFilesUpgraded );
+		if ( nFilesOriginal != nFilesUpgraded ) {
+			___ERRORLOG( "Mismatching content of original and upgraded drumkit." );
+			___ERRORLOG( QString( "original [%1]:" ).arg( contentOriginal.path() ) );
+			for ( const auto& ssFile : contentDirOriginal.entryList( QDir::AllEntries |
+																	 QDir::NoDotAndDotDot ) ) {
+				___ERRORLOG( "   " + ssFile );
+			}
+			___ERRORLOG( QString( "upgraded [%1]:" ).arg( contentUpgraded.path() ) );
+			for ( const auto& ssFile : contentDirUpgraded.entryList( QDir::AllEntries |
+																	 QDir::NoDotAndDotDot ) ) {
+				___ERRORLOG( "   " + ssFile );
+			}
+		}
+		CPPUNIT_ASSERT( nFilesOriginal == nFilesUpgraded );
+
+		// Now we upgrade the upgraded drumkit again and bit-compare
+		// the results.
+		QTemporaryDir secondUpgrade( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
+		secondUpgrade.setAutoRemove( false );
+		CPPUNIT_ASSERT( pCoreActionController->upgradeDrumkit( sUpgradedKit,
+															   secondUpgrade.path() ) );
+		upgradeFolder = QDir( secondUpgrade.path() );
+		CPPUNIT_ASSERT( upgradeFolder.entryList( QDir::AllEntries |
+												 QDir::NoDotAndDotDot ).size() == 1 );
+		
+		QString sValidationKit( secondUpgrade.path() + "/" +
+								upgradeFolder.entryList( QDir::AllEntries |
+														 QDir::NoDotAndDotDot )[ 0 ] );
+
+		QTemporaryDir contentValidation( H2Core::Filesystem::tmp_dir() + "-XXXXXX" );
+		contentValidation.setAutoRemove( false );
+		CPPUNIT_ASSERT( pCoreActionController->extractDrumkit( sUpgradedKit,
+															   contentValidation.path() ) );
+
+		// Compare the extracted folders. Attention: in the toplevel
+		// temporary folder there is a single directory named
+		// according to the drumkit. These ones have to be compared.
+		H2TEST_ASSERT_DIRS_EQUAL( QDir( contentUpgraded.path() )
+								  .entryList( QDir::Dirs |
+											  QDir::NoDotAndDotDot )[ 0 ],
+								  QDir( contentValidation.path() )
+								  .entryList( QDir::Dirs |
+											  QDir::NoDotAndDotDot )[ 0 ] );
+
+		// Only clean up if all checks passed.
+		H2Core::Filesystem::rm( contentOriginal.path(), true, true );
+		H2Core::Filesystem::rm( contentUpgraded.path(), true, true );
+		H2Core::Filesystem::rm( contentValidation.path(), true, true );
+		H2Core::Filesystem::rm( firstUpgrade.path(), true, true );
+		H2Core::Filesystem::rm( secondUpgrade.path(), true, true );
+	}
 }
 
 void XmlTest::testPattern()
