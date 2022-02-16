@@ -101,32 +101,35 @@ Drumkit* Drumkit::load_by_name( const QString& dk_name, const bool load_samples,
 	return load( dir, load_samples );
 }
 
-	Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUpgrade )
+Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUpgrade, bool bSilent )
 {
-	INFOLOG( QString( "Load drumkit %1" ).arg( dk_dir ) );
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Load drumkit %1" ).arg( dk_dir ) );
+	}
+	
 	if( !Filesystem::drumkit_valid( dk_dir ) ) {
 		ERRORLOG( QString( "%1 is not valid drumkit" ).arg( dk_dir ) );
 		return nullptr;
 	}
-	return load_file( Filesystem::drumkit_file( dk_dir ), load_samples, bUpgrade );
+	return load_file( Filesystem::drumkit_file( dk_dir ), load_samples, bUpgrade, bSilent );
 }
 
-	Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bool bUpgrade )
+Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bool bUpgrade, bool bSilent )
 {
 	bool bReadingSuccessful = true;
 	
 	XMLDoc doc;
-	if( !doc.read( dk_path, Filesystem::drumkit_xsd_path() ) ) {
+	if( !doc.read( dk_path, Filesystem::drumkit_xsd_path(), bSilent ) ) {
 		//Something went wrong. Lets see how old this drumkit is..
 		
 		//Do we have any components? 
-		doc.read( dk_path );
+		doc.read( dk_path, nullptr, bSilent );
 		auto nodeList = doc.elementsByTagName( "instrumentComponent" );
 		if( nodeList.size() == 0 )
 		{
 			//No components. That drumkit seems to be quite old. Use legacy code..
 			
-			Drumkit* pDrumkit = Legacy::load_drumkit( dk_path );
+			Drumkit* pDrumkit = Legacy::load_drumkit( dk_path, bSilent );
 			if ( bUpgrade ) {
 				upgrade_drumkit(pDrumkit, dk_path);
 			}
@@ -212,7 +215,7 @@ void Drumkit::load_samples()
 	}
 }
 
-void Drumkit::upgrade_drumkit(Drumkit* pDrumkit, const QString& dk_path)
+void Drumkit::upgrade_drumkit(Drumkit* pDrumkit, const QString& dk_path, bool bSilent )
 {
 	if( pDrumkit != nullptr ) {
 		if ( ! Filesystem::file_exists( dk_path, true ) ) {
@@ -224,13 +227,17 @@ void Drumkit::upgrade_drumkit(Drumkit* pDrumkit, const QString& dk_path)
 			ERRORLOG( QString( "Drumkit %1 is out of date but can not be upgraded since path is not writable (please copy it to your user's home instead)" ).arg( dk_path ) );
 			return;
 		}
-		WARNINGLOG( QString( "Upgrading drumkit %1" ).arg( dk_path ) );
+		if ( ! bSilent ) {
+			INFOLOG( QString( "Upgrading drumkit %1" ).arg( dk_path ) );
+		}
 
 		QString sBackupPath = Filesystem::drumkit_backup_path( dk_path );
 		Filesystem::file_copy( dk_path, sBackupPath,
-		                       false /* do not overwrite existing files */ );
+		                       false /* do not overwrite existing
+										files */,
+							   bSilent );
 		
-		pDrumkit->save_file( dk_path, true, -1 );
+		pDrumkit->save_file( dk_path, true, -1, bSilent );
 	}
 }
 
@@ -241,6 +248,15 @@ void Drumkit::unload_samples()
 		__instruments->unload_samples();
 		__samples_loaded = false;
 	}
+}
+
+QString Drumkit::getFolderName() const {
+
+	// Ensure the name will be a valid filename
+	QString sValidName = __name;
+	sValidName.remove( QRegExp( "[^a-zA-Z0-9._]" ) );
+
+	return sValidName;
 }
 
 bool Drumkit::save( const QString&					sName,
@@ -306,9 +322,11 @@ bool Drumkit::save( const QString& dk_dir, bool overwrite )
 	return ret;
 }
 
-bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_id ) const
+bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_id, bool bSilent ) const
 {
-	INFOLOG( QString( "Saving drumkit definition into %1" ).arg( dk_path ) );
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Saving drumkit definition into %1" ).arg( dk_path ) );
+	}
 	if( !overwrite && Filesystem::file_exists( dk_path, true ) ) {
 		ERRORLOG( QString( "drumkit %1 already exists" ).arg( dk_path ) );
 		return false;
@@ -499,18 +517,22 @@ bool Drumkit::isUserDrumkit() const {
 	return true;
 }
 	
-bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath )
+bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath, bool bSilent )
 {
 	if ( sTargetPath.isEmpty() ) {
-		_INFOLOG( QString( "Install drumkit [%1]" ).arg( sSourcePath ) );
+		if ( ! bSilent ) {
+			_INFOLOG( QString( "Install drumkit [%1]" ).arg( sSourcePath ) );
+		}
 		
 	} else {
-		if ( Filesystem::path_usable( sTargetPath, true, false ) ) {
+		if ( ! Filesystem::path_usable( sTargetPath, true, false ) ) {
 			return false;
 		}
-				
-		_INFOLOG( QString( "Extract drumkit from [%1] to [%2]" )
-				  .arg( sSourcePath ).arg( sTargetPath ) );
+		
+		if ( ! bSilent ) {		
+			_INFOLOG( QString( "Extract drumkit from [%1] to [%2]" )
+					  .arg( sSourcePath ).arg( sTargetPath ) );
+		}
 	}
 	
 #ifdef H2CORE_HAVE_LIBARCHIVE
@@ -550,7 +572,7 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath )
 
 	QString dk_dir;
 	if ( ! sTargetPath.isEmpty() ) {
-		dk_dir = sTargetPath;
+		dk_dir = sTargetPath + "/";
 	} else {
 		dk_dir = Filesystem::usr_drumkits_dir() + "/";
 	}
@@ -593,6 +615,7 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath )
 #else // H2CORE_HAVE_LIBARCHIVE
 #ifndef WIN32
 	// GUNZIP
+	
 	QString gzd_name = sSourcePath.left( sSourcePath.indexOf( "." ) ) + ".tar";
 	FILE* gzd_file = fopen( gzd_name.toLocal8Bit(), "wb" );
 	gzFile gzip_file = gzopen( sSourcePath.toLocal8Bit(), "rb" );
@@ -623,7 +646,7 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath )
 
 	QString dk_dir;
 	if ( ! sTargetPath.isEmpty() ) {
-		dk_dir = sTargetPath;
+		dk_dir = sTargetPath + "/";
 	} else {
 		dk_dir = Filesystem::usr_drumkits_dir() + "/";
 	}
@@ -647,18 +670,42 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath )
 #endif
 }
 
-bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName, bool bRecentVersion ) const {
+bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName, bool bRecentVersion, bool bSilent ) const {
 
 	if ( ! Filesystem::path_usable( sTargetDir, true, false ) ) {
 		ERRORLOG( QString( "Provided destination folder [%1] is not valid" )
 				  .arg( sTargetDir ) );
 		return false;
 	}
+	
+	if ( ! bSilent ) {
+		QString sMsg( "Export ");
+		
+		if ( ! sComponentName.isEmpty() && bRecentVersion ) {
+			sMsg.append( QString( "component: [%1] " ).arg( sComponentName ) );
+		} else {
+			sMsg.append( "drumkit " );
+		}
 
+		sMsg.append( QString( "to [%1] " )
+					 .arg( sTargetDir + "/" + getFolderName() + Filesystem::drumkit_ext ) );
+
+		if ( bRecentVersion ) {
+			sMsg.append( "using the most recent format" );
+		} else {
+			sMsg.append( "using the legacy format supported by Hydrogen versions <= 0.9.6" );
+		}
+
+		INFOLOG( sMsg );
+	}
+	
 	// Unique temporary folder to save intermediate drumkit.xml and
 	// component files. The uniqueness is required in case several
 	// threads or instances of Hydrogen do export a drumkit at once.
 	QTemporaryDir tmpFolder( Filesystem::tmp_dir() + "/XXXXXX" );
+	
+	// TODO: this is only disabled for debugging purposes.
+	tmpFolder.setAutoRemove( false );
 
 	int nComponentID = -1;
 	if ( bRecentVersion ) {
@@ -669,16 +716,21 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 			}
 		}
 		if ( ! save_file( Filesystem::drumkit_file( tmpFolder.path() ),
-						  true, nComponentID ) ) {
+						  true, nComponentID, bSilent ) ) {
 			ERRORLOG( QString( "Unable to save backup drumkit to [%1] using component ID [%2]" )
 					  .arg( tmpFolder.path() ).arg( nComponentID ) );
 		}
 	}
 
-	QFileInfo drumkitFileInfo( __path );
-	QDir sourceDir( drumkitFileInfo.dir().absolutePath() );
+	if ( ! Filesystem::dir_readable( __path, true ) ) {
+		ERRORLOG( QString( "Unabled to access folder associated with drumkit [%1]" )
+				  .arg( __path ) );
+		return false;
+	}
+	
+	QDir sourceDir( __path );
 
-	QString sTargetName = sTargetDir + "/" + __name +
+	QString sTargetName = sTargetDir + "/" + getFolderName() +
 		Filesystem::drumkit_ext;
 		
 #if defined(H2CORE_HAVE_LIBARCHIVE)
@@ -710,17 +762,14 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 	}
  
 	for ( const auto& ssFile : sourceFilesList ) {
-		QString sFilename = sourceDir.absolutePath() + ssFile;
-		QString sTargetFilename = __name + "/" + ssFile;
-
-		INFOLOG( QString( "sFilename: %1, sTargetFilename: %2" )
-				 .arg( sFilename ).arg( sTargetFilename ) );
+		QString sFilename = sourceDir.absolutePath() + "/" + ssFile;
+		QString sTargetFilename = getFolderName() + "/" + ssFile;
 
 		if( bRecentVersion ) {
 			if( ssFile.compare( Filesystem::drumkit_xml() ) == 0 ) {
 				sFilename = tmpFolder.filePath( Filesystem::drumkit_xml() );
-			}
-			else {
+				
+			} else if ( nComponentID != -1 ) {
 				bool bFoundFileInRightComponent = false;
 				for( int j = 0; j < get_instruments()->size() ; j++){
 					InstrumentList instrList = get_instruments();
@@ -744,6 +793,9 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 				}
 			}
 		}
+
+		// INFOLOG( QString( "sFilename: %1, sTargetFilename: %2" )
+		// 		 .arg( sFilename ).arg( sTargetFilename ) );
 
 		stat( sFilename.toUtf8().constData(), &st );
 		entry = archive_entry_new();
@@ -799,8 +851,8 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 		
 		//3.
 		cmd =  QString( "cd " ) + sourceDir.absolutePath() + ";" +
-			"tar czf \"" + sTargetDir + "/" + __name + Filesystem::drumkit_ext +
-			"\" -- \"" + __name + "\"";
+			"tar czf \"" + sTargetDir + "/" + getFolderName() + Filesystem::drumkit_ext +
+			"\" -- \"" + getFolderName() + "\"";
 		ret = system( cmd.toLocal8Bit() );
 
 		//4.
@@ -810,8 +862,8 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 
 	} else {
 		QString cmd =  QString( "cd " ) + sourceDir.absolutePath() + ";" +
-			"tar czf \"" + sTargetDir + "/" + __name + Filesystem::drumkit_ext +
-			"\" -- \"" + __name + "\"";
+			"tar czf \"" + sTargetDir + "/" + getFolderName() + Filesystem::drumkit_ext +
+			"\" -- \"" + getFolderName() + "\"";
 		int ret = system( cmd.toLocal8Bit() );
 	}
 

@@ -63,12 +63,15 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \param bUpgrade Whether the loaded drumkit should be
 		 * upgraded using upgrade_drumkit() in case it did not comply
 		 * with the current XSD file.
+		 * \param bSilent if set to true, all log messages except of
+		 * errors and warnings are suppressed.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
 		static Drumkit* load( const QString& dk_dir,
 							  const bool load_samples = false,
-							  bool bUpgrade = true );
+							  bool bUpgrade = true,
+							  bool bSilent = false );
 		/**
 		 * Simple wrapper for load() used with the drumkit's
 		 * name instead of its directory.
@@ -104,12 +107,15 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \param bUpgrade Whether the loaded drumkit should be
 		 * upgraded using upgrade_drumkit() in case it did not comply
 		 * with the current XSD file.
+		 * \param bSilent if set to true, all log messages except of
+		 * errors and warnings are suppressed.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
 		static Drumkit* load_file( const QString& dk_path,
 								   const bool load_samples = false,
-								   bool bUpgrade = true );
+								   bool bUpgrade = true,
+								   bool bSilent = true );
 		/** Calls the InstrumentList::load_samples() member
 		 * function of #__instruments.
 		 */
@@ -118,13 +124,23 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * function of #__instruments.
 		 */
 		void unload_samples();
+
+	/**
+	 * Returns a version of #__name stripped of all whitespaces and
+	 * other characters which would prevent its use as a valid
+	 * filename.
+	 *
+	 * Attention: The returned string might be used as the name for
+	 * the associated drumkit folder but it does not have to.
+	 */
+	QString getFolderName() const;
 		
 		/** 
 		 * Saves the current drumkit to dk_path, but makes a backup. 
 		 * This is used when the drumkit did not comply to 
 		 * our xml schema.
 		 */
-		static void upgrade_drumkit( Drumkit* pDrumkit, const QString& dk_path );
+		static void upgrade_drumkit( Drumkit* pDrumkit, const QString& dk_path, bool bSilent = false );
 
 		/**
 		 * check if a user drumkit with the given name
@@ -154,8 +170,10 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \param overwrite allows to write over existing drumkit file
 		 * \param component_id to chose the component to save or -1 for all
 		 * \return true on success
+		 * \param bSilent if set to true, all log messages except of
+		 * errors and warnings are suppressed.
 		 */
-		bool save_file( const QString& dk_path, bool overwrite=false, int component_id=-1 ) const;
+		bool save_file( const QString& dk_path, bool overwrite=false, int component_id=-1, bool bSilent = false ) const;
 		/**
 		 * save a drumkit instruments samples into a directory
 		 * \param dk_dir the directory to save the samples into
@@ -193,10 +211,12 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \param sTargetPath Absolute path to where the new drumkit
 		 * should be extracted to. If left empty, the user's drumkit
 		 * folder will be used.
+		 * \param bSilent Whether debug and info messages should be
+		 * logged.
 		 *
 		 * \return true on success
 		 */
-	static bool install( const QString& sSourcePath, const QString& sTargetPath = "" );
+	static bool install( const QString& sSourcePath, const QString& sTargetPath = "", bool bSilent = false );
 
 	/**
 	 * Compresses the drumkit into a .h2drumkit file.
@@ -214,10 +234,12 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * \param bRecentVersion Whether the drumkit format should be
 	 * supported by Hydrogen 0.9.7 or higher (whether it should be
 	 * composed of DrumkitComponents).
+	 * \param bSilent Whether debug and info messages should be
+	 * logged.
 	 *
 	 * \return true on success 
 	 */
-	bool exportTo( const QString& sTargetDir, const QString& sComponentName = "", bool bRecentVersion = true ) const;
+	bool exportTo( const QString& sTargetDir, const QString& sComponentName = "", bool bRecentVersion = true, bool bSilent = false ) const;
 		/**
 		 * remove a drumkit from the disk
 		 * \param dk_name the drumkit name
