@@ -765,14 +765,41 @@ class OscServer : public H2Core::Object
 		/**
 		 * Triggers CoreActionController::upgradeDrumkit().
 		 *
-		 * The handler expects the user to provide the absolute path
-		 * to a folder containing a drumkit as well as another one
-		 * where the upgraded kit will be stored. If the second path
-		 * is missing, the drumkit will be upgraded in place and a
-		 * backup file will be created in order to not overwrite the
-		 * existing state.
+		 * The handler expects the user to provide as first argument
+		 * the absolute path to a folder containing a drumkit, the
+		 * absolute path to a drumkit file (drumkit.xml) itself, or an
+		 * absolute path to a compressed drumkit ( *.h2drumkit). The
+		 * second argument is optional and contains the absolute path
+		 * to a directory where the upgraded kit will be stored. If
+		 * the second path is missing, the drumkit will be upgraded in
+		 * place and a backup file will be created in order to not
+		 * overwrite the existing state. If a compressed drumkit is
+		 * provided as first argument, the upgraded drumkit will be
+		 * compressed as well.
 		 */
 	static void UPGRADE_DRUMKIT_Handler( lo_arg **argv, int argc );
+		/**
+		 * Triggers CoreActionController::validateDrumkit().
+		 *
+		 * The handler expects the user to provide the absolute path
+		 * to a folder containing a drumkit, the absolute path to a
+		 * drumkit file (drumkit.xml) itself, or an absolute path to a
+		 * compressed drumkit ( *.h2drumkit). The second argument is
+		 * optional and contains the absolute path to a directory
+		 * where the upgraded kit will be stored.
+		 */
+	static void VALIDATE_DRUMKIT_Handler( lo_arg **argv, int argc );
+		/**
+		 * Triggers CoreActionController::extractDrumkit().
+		 *
+		 * The handler expects the user to provide as first argument
+		 * the absolute path to a compressed drumkit ( *.h2drumkit). The
+		 * second argument is optional and contains the absolute path
+		 * to a directory where the kit will be extracted to. If
+		 * the second path is missing, the drumkit will be installed
+		 * in the user's drumkit data folder.
+		 */
+	static void EXTRACT_DRUMKIT_Handler( lo_arg **argv, int argc );
 		/** 
 		 * Catches any incoming messages and display them. 
 		 *
