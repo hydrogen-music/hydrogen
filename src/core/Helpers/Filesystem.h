@@ -335,14 +335,18 @@ namespace H2Core
 		 * \param src source file path
 		 * \param dst destination file path
 		 * \param overwrite allow to overwrite an existing file if set to true
+		 * \param bSilent Whether debug and info messages should be
+		 * logged.
 		 */
-		static bool file_copy( const QString& src, const QString& dst, bool overwrite=false );
+		static bool file_copy( const QString& src, const QString& dst, bool overwrite=false, bool bSilent = false );
 		/**
 		 * remove a path
 		 * \param path the path to be removed
 		 * \param recursive perform recursive removal if set to true
+		 * \param bSilent Whether debug and info messages should be
+		 * logged.
 		 */
-		static bool rm( const QString& path, bool recursive=false );
+		static bool rm( const QString& path, bool recursive=false, bool bSilent = false );
 		/**
 		 * create a path
 		 * \param path the path to the directory to be created
@@ -358,7 +362,7 @@ namespace H2Core
 		static Logger* __logger;                    ///< a pointer to the logger
 		static bool check_sys_paths();              ///< returns true if the system path is consistent
 		static bool check_usr_paths();              ///< returns true if the user path is consistent
-		static bool rm_fr( const QString& path );   ///< recursively remove a path
+		static bool rm_fr( const QString& path, bool bSilent = false );   ///< recursively remove a path
 
 		/**
 		 * If this variable is non-empty, its content will be used as
