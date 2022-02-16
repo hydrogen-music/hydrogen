@@ -290,7 +290,7 @@ bool Filesystem::write_to_file( const QString& dst, const QString& content )
 	return true;
 }
 
-bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwrite )
+bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwrite, bool bSilent )
 {
 	if( !overwrite && file_exists( dst, true ) ) {
 		WARNINGLOG( QString( "do not overwrite %1 with %2 as it already exists" ).arg( dst ).arg( src ) );
@@ -304,19 +304,20 @@ bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwri
 		ERRORLOG( QString( "unable to copy %1 to %2, %2 is not writable" ).arg( src ).arg( dst ) );
 		return false;
 	}
-	INFOLOG( QString( "copy %1 to %2" ).arg( src ).arg( dst ) );
-
+	if ( ! bSilent ) {
+		INFOLOG( QString( "copy %1 to %2" ).arg( src ).arg( dst ) );
+	}
 	
 	// Since QFile::copy does not overwrite, we have to make sure the
 	// destination does not exist.
 	if ( overwrite && file_exists( dst, true ) ) {
-		rm( dst, true );
+		rm( dst, true, bSilent );
 	}
 	
 	return QFile::copy( src, dst );
 }
 
-bool Filesystem::rm( const QString& path, bool recursive )
+bool Filesystem::rm( const QString& path, bool recursive, bool bSilent )
 {
 	if ( check_permissions( path, is_file, true ) ) {
 		QFile file( path );
@@ -338,18 +339,22 @@ bool Filesystem::rm( const QString& path, bool recursive )
 		}
 		return ret;
 	}
-	return rm_fr( path );
+	return rm_fr( path, bSilent );
 }
 
-bool Filesystem::rm_fr( const QString& path )
+bool Filesystem::rm_fr( const QString& path, bool bSilent )
 {
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Removing [%1] recursively" ).arg( path ) );
+	}
+	
 	bool ret = true;
 	QDir dir( path );
 	QFileInfoList entries = dir.entryInfoList( QDir::NoDotAndDotDot | QDir::AllEntries );
 	for ( int idx = 0; ( ( idx < entries.size() ) && ret ); idx++ ) {
 		QFileInfo entryInfo = entries[idx];
 		if ( entryInfo.isDir() && !entryInfo.isSymLink() ) {
-			ret = rm_fr( entryInfo.absoluteFilePath() );
+			ret = rm_fr( entryInfo.absoluteFilePath(), bSilent );
 		} else {
 			QFile file( entryInfo.absoluteFilePath() );
 			if ( !file.remove() ) {
