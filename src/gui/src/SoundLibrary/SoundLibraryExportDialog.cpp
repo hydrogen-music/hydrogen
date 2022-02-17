@@ -87,7 +87,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	bool bRecentVersion = versionList->currentIndex() == 1 ? true : false;
+	bool bRecentVersion = versionList->currentIndex() == 1 ? false : true;
 	
 	Filesystem::Lookup lookup;
 	bool bIsUserDrumkit;
@@ -108,9 +108,9 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 		return;
 	}
 	
-	if ( pDrumkit->exportTo( drumkitPathTxt->text(), // Target folder
-						   componentList->currentText(), // Selected component
-						   bRecentVersion ) ) {
+	if ( ! pDrumkit->exportTo( drumkitPathTxt->text(), // Target folder
+							   componentList->currentText(), // Selected component
+							   bRecentVersion ) ) {
 		QApplication::restoreOverrideCursor();
 		QMessageBox::critical( this, "Hydrogen", tr("Unable to export drumkit") );
 

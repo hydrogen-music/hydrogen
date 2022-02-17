@@ -434,7 +434,7 @@ int main(int argc, char *argv[])
 			}
 
 		} else if ( bExtractDrumkit ) {
-			if ( ! pCoreActionController->extractDrumkit( sDrumkitToValidate,
+			if ( ! pCoreActionController->extractDrumkit( sDrumkitToExtract,
 														  sTarget ) ) {
 				nReturnCode = -1;
 
