@@ -1,5 +1,13 @@
 2021-12-05 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.1.1
+	* OSC API
+		- Add command /Hydrogen/UPGRADE_DRUMKIT
+		- Add command /Hydrogen/VALIDATE_DRUMKIT
+		- Add command /Hydrogen/EXTRACT_DRUMKIT
+	* H2CLI
+		- Add `--upgrade` option to upgrade a drumkit
+		- Add `--check` option to validate a drumkit
+		- Add `--extract` option to extract the content of a drumkit
 	* Bugfixes
 		- fix preferences dialog "OK" button behaviour (#1375)
 		- fix rewinding to beginning of pattern in pattern mode with no
