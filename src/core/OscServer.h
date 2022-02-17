@@ -753,16 +753,6 @@ class OscServer : public H2Core::Object
 		 */
 		static void SONG_EDITOR_TOGGLE_GRID_CELL_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::loadDrumkit().
-		 *
-		 * The handler expects the user to provide the drumkit name. 
-		 * (row the pattern resides in within the SongEditor). The
-		 * second argument, whether or not superfluous instrument
-		 * should be removed even if there is a pattern in which they
-		 * contain notes, is optional. The default choice will be true.
-		 */
-	static void LOAD_DRUMKIT_Handler( lo_arg **argv, int argc );
-		/**
 		 * Triggers CoreActionController::upgradeDrumkit().
 		 *
 		 * The handler expects the user to provide as first argument

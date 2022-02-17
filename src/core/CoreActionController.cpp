@@ -990,54 +990,6 @@ bool CoreActionController::extractDrumkit( const QString& sDrumkitPath, const QS
 
 	return true;
 }
-	
-bool CoreActionController::locateToColumn( int nPatternGroup ) {
-
-	if ( nPatternGroup < -1 ) {
-		ERRORLOG( QString( "Provided column [%1] too low. Assigning -1 (indicating the beginning of a song without showing a cursor in the SongEditorPositionRuler) instead." )
-				  .arg( nPatternGroup ) );
-		nPatternGroup = -1;
-	}
-	
-	auto pHydrogen = Hydrogen::get_instance();
-
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "no song set" );
-		return false;
-	}
-	
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
-	long nTotalTick = pHydrogen->getTickForColumn( nPatternGroup );
-	if ( nTotalTick < 0 ) {
-		// There is no pattern inserted in the SongEditor.
-		if ( pHydrogen->getMode() == Song::Mode::Song ) {
-			DEBUGLOG( QString( "Obtained ticks [%1] are smaller than zero. No relocation done." )
-					  .arg( nTotalTick ) );
-			return false;
-		} else {
-			// In case of Pattern mode this is not a problem and we
-			// will treat this case as the beginning of the song.
-			nTotalTick = 0;
-		}
-	}
-
-	return locateToTick( nTotalTick );
-}
-
-bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
-
-	const auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-
-	if ( pHydrogen->getSong() == nullptr ) {
-		ERRORLOG( "no song set" );
-		return false;
-	}
-	
-	return true;
-}
 
 bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent ) {
 

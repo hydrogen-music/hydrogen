@@ -265,7 +265,6 @@ void XmlTest::testDrumkitUpgrade() {
 		int nFilesUpgraded =
 			contentDirUpgraded.entryList( QDir::AllEntries |
 										  QDir::NoDotAndDotDot ).size();
-		___INFOLOG( nFilesUpgraded );
 		if ( nFilesOriginal != nFilesUpgraded ) {
 			___ERRORLOG( "Mismatching content of original and upgraded drumkit." );
 			___ERRORLOG( QString( "original [%1]:" ).arg( contentOriginal.path() ) );
