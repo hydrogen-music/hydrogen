@@ -90,15 +90,17 @@ int InstrumentComponent::getMaxLayers()
 	return m_nMaxLayers;
 }
 
-std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from( XMLNode* node, const QString& dk_path )
+std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from( XMLNode* node, const QString& dk_path, bool bSilent )
 {
-	int id = node->read_int( "component_id", EMPTY_INSTR_ID, false, false );
+	int id = node->read_int( "component_id", EMPTY_INSTR_ID,
+							 false, false, bSilent );
 	if ( id==EMPTY_INSTR_ID ) {
 		return nullptr;
 	}
 
 	auto pInstrumentComponent = std::make_shared<InstrumentComponent>( id );
-	pInstrumentComponent->set_gain( node->read_float( "gain", 1.0f, true, false ) );
+	pInstrumentComponent->set_gain( node->read_float( "gain", 1.0f,
+													  true, false, bSilent ) );
 	XMLNode layer_node = node->firstChildElement( "layer" );
 	int n = 0;
 	while ( !layer_node.isNull() ) {
@@ -106,7 +108,10 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::load_from( XMLNode* no
 			ERRORLOG( QString( "n (%1) >= m_nMaxLayers (%2)" ).arg( n ).arg( m_nMaxLayers ) );
 			break;
 		}
-		pInstrumentComponent->set_layer( InstrumentLayer::load_from( &layer_node, dk_path ), n );
+		pInstrumentComponent->set_layer( InstrumentLayer::load_from( &layer_node,
+																	 dk_path,
+																	 bSilent ),
+										 n );
 		n++;
 		layer_node = layer_node.nextSiblingElement( "layer" );
 	}
