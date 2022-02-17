@@ -101,9 +101,14 @@ namespace H2Core
 		 * load an instrument layer from an XMLNode
 		 * \param node the XMLDode to read from
 		 * \param dk_path the directory holding the drumkit data
+		 * \param bSilent if set to true, all log messages except of
+		 * errors and warnings are suppressed.
+		 *
 		 * \return a new InstrumentLayer instance
 		 */
-		static InstrumentLayer* load_from( XMLNode* node, const QString& dk_path );
+		static InstrumentLayer*  load_from( XMLNode* node,
+											const QString& dk_path,
+											bool bSilent = false );
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line

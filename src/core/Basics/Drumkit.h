@@ -324,8 +324,10 @@ class Drumkit : public H2Core::Object
 		 * load a drumkit from an XMLNode
 		 * \param node the XMLDode to read from
 		 * \param dk_path the directory holding the drumkit data
+		 * \param bSilent if set to true, all log messages except of
+		 * errors and warnings are suppressed.
 		 */
-		static Drumkit* load_from( XMLNode* node, const QString& dk_path );
+	static Drumkit* load_from( XMLNode* node, const QString& dk_path, bool bSilent = false );
 		std::vector<DrumkitComponent*>* __components;  ///< list of drumkit component
 };
 

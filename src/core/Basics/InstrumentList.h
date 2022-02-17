@@ -154,9 +154,13 @@ class InstrumentList : public H2Core::Object
 		 * \param dk_path the directory holding the drumkit
 		 * data
 		 * \param dk_name
+		 * \param bSilent if set to true, all log messages except of
+		 * errors and warnings are suppressed.
+		 *
 		 * \return a new InstrumentList instance
 		 */
-		static InstrumentList* load_from( XMLNode* node, const QString& dk_path, const QString& dk_name );
+	static InstrumentList* load_from( XMLNode* node, const QString& dk_path,
+									  const QString& dk_name, bool bSilent = false );
 
 		/**
 		 * Fix GitHub issue #307, so called "Hi Bongo fiasco".

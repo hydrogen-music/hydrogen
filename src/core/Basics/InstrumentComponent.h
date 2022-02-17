@@ -45,7 +45,9 @@ class InstrumentComponent : public H2Core::Object
 		~InstrumentComponent();
 
 		void				save_to( XMLNode* node, int component_id );
-		static InstrumentComponent* 	load_from( XMLNode* node, const QString& dk_path );
+		static InstrumentComponent* 	load_from( XMLNode* node,
+												   const QString& dk_path,
+												   bool bSilent = false );
 
 		InstrumentLayer*	operator[]( int ix );
 		InstrumentLayer*	get_layer( int idx );

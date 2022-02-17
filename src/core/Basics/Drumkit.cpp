@@ -144,8 +144,10 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bo
 		ERRORLOG( "drumkit_info node not found" );
 		return nullptr;
 	}
-	
-	Drumkit* pDrumkit = Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
+
+	Drumkit* pDrumkit =
+		Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ),
+							bSilent );
 	if ( ! bReadingSuccessful && bUpgrade ) {
 		upgrade_drumkit( pDrumkit, dk_path );
 	}
@@ -155,9 +157,9 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bo
 	return pDrumkit;
 }
 
-Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
+Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent )
 {
-	QString drumkit_name = node->read_string( "name", "", false, false );
+	QString drumkit_name = node->read_string( "name", "", false, false, bSilent );
 	if ( drumkit_name.isEmpty() ) {
 		ERRORLOG( "Drumkit has no name, abort" );
 		return nullptr;
@@ -166,19 +168,27 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 	Drumkit* pDrumkit = new Drumkit();
 	pDrumkit->__path = dk_path;
 	pDrumkit->__name = drumkit_name;
-	pDrumkit->__author = node->read_string( "author", "undefined author" );
-	pDrumkit->__info = node->read_string( "info", "No information available." );
-	pDrumkit->__license = node->read_string( "license", "undefined license" );
-	pDrumkit->__image = node->read_string( "image", "" );
-	pDrumkit->__imageLicense = node->read_string( "imageLicense", "undefined license" );
+	pDrumkit->__author = node->read_string( "author", "undefined author",
+											true, true, bSilent );
+	pDrumkit->__info = node->read_string( "info", "No information available.",
+										  true, true, bSilent  );
+	pDrumkit->__license = node->read_string( "license", "undefined license",
+											 true, true, bSilent  );
+	pDrumkit->__image = node->read_string( "image", "",
+										   true, true, bSilent  );
+	pDrumkit->__imageLicense = node->read_string( "imageLicense", "undefined license",
+												  true, true, bSilent  );
 
 	XMLNode componentListNode = node->firstChildElement( "componentList" );
 	if ( ! componentListNode.isNull() ) {
 		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
 		while ( ! componentNode.isNull()  ) {
-			int id = componentNode.read_int( "id", -1 );			// instrument id
-			QString sName = componentNode.read_string( "name", "" );		// name
-			float fVolume = componentNode.read_float( "volume", 1.0 );	// volume
+			int id = componentNode.read_int( "id", -1,
+											 true, true, bSilent  );			// instrument id
+			QString sName = componentNode.read_string( "name", "",
+													   true, true, bSilent  );		// name
+			float fVolume = componentNode.read_float( "volume", 1.0,
+													  true, true, bSilent  );	// volume
 			DrumkitComponent* pDrumkitComponent = new DrumkitComponent( id, sName );
 			pDrumkitComponent->set_volume( fVolume );
 
@@ -197,7 +207,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 		WARNINGLOG( "instrumentList node not found" );
 		pDrumkit->set_instruments( new InstrumentList() );
 	} else {
-		pDrumkit->set_instruments( InstrumentList::load_from( &instruments_node, dk_path, drumkit_name ) );
+		pDrumkit->set_instruments( InstrumentList::load_from( &instruments_node, dk_path, drumkit_name, bSilent ) );
 	}
 	return pDrumkit;
 

@@ -122,9 +122,15 @@ class Instrument : public H2Core::Object
 		 * \param node the XMLDode to read from
 		 * \param dk_path the directory holding the drumkit data
 		 * \param dk_name the name of the drumkit
+		 * \param bSilent if set to true, all log messages except of
+		 * errors and warnings are suppressed.
+		 *
 		 * \return a new Instrument instance
 		 */
-		static Instrument* load_from( XMLNode* node, const QString& dk_path, const QString& dk_name );
+		static Instrument* load_from( XMLNode* node,
+									  const QString& dk_path,
+									  const QString& dk_name,
+									  bool bSilent = false );
 
 		///< set the name of the instrument
 		void set_name( const QString& name );

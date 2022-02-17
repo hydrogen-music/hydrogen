@@ -272,38 +272,61 @@ void Instrument::load_from( const QString& dk_name, const QString& instrument_na
 	delete pDrumkit;
 }
 
-Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const QString& dk_name )
+Instrument*  Instrument::load_from( XMLNode* node, const QString& dk_path, const QString& dk_name, bool bSilent )
 {
-	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
+	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false, bSilent );
 	if ( id == EMPTY_INSTR_ID ) {
 		return nullptr;
 	}
 
-	Instrument* pInstrument = new Instrument( id, node->read_string( "name", "" ), nullptr );
+	Instrument* pInstrument =
+		new Instrument( id, node->read_string( "name", "", true, true, bSilent ),
+						nullptr );
 	pInstrument->set_drumkit_name( dk_name );
-	pInstrument->set_volume( node->read_float( "volume", 1.0f ) );
-	pInstrument->set_muted( node->read_bool( "isMuted", false ) );
-	pInstrument->set_pan_l( node->read_float( "pan_L", 1.0f ) );
-	pInstrument->set_pan_r( node->read_float( "pan_R", 1.0f ) );
+	pInstrument->set_volume( node->read_float( "volume", 1.0f,
+											   true, true, bSilent  ) );
+	pInstrument->set_muted( node->read_bool( "isMuted", false,
+											 true, true, bSilent  ) );
+	pInstrument->set_pan_l( node->read_float( "pan_L", 1.0f,
+											 true, true, bSilent ) );
+	pInstrument->set_pan_r( node->read_float( "pan_R", 1.0f,
+											 true, true, bSilent ) );
+	
 	// may not exist, but can't be empty
-	pInstrument->set_apply_velocity( node->read_bool( "applyVelocity", true, false ) );
-	pInstrument->set_filter_active( node->read_bool( "filterActive", true, false ) );
-	pInstrument->set_filter_cutoff( node->read_float( "filterCutoff", 1.0f, true, false ) );
-	pInstrument->set_filter_resonance( node->read_float( "filterResonance", 0.0f, true, false ) );
-	pInstrument->set_pitch_offset( node->read_float( "pitchOffset", 0.0f, true, false ) );
-	pInstrument->set_random_pitch_factor( node->read_float( "randomPitchFactor", 0.0f, true, false ) );
-	float attack = node->read_float( "Attack", 0.0f, true, false );
-	float decay = node->read_float( "Decay", 0.0f, true, false  );
-	float sustain = node->read_float( "Sustain", 1.0f, true, false );
-	float release = node->read_float( "Release", 1000.0f, true, false );
+	pInstrument->set_apply_velocity( node->read_bool( "applyVelocity", true,
+													  false, true, bSilent ) );
+	pInstrument->set_filter_active( node->read_bool( "filterActive", true,
+													 false, true, bSilent ) );
+	pInstrument->set_filter_cutoff( node->read_float( "filterCutoff", 1.0f,
+													  true, false, bSilent ) );
+	pInstrument->set_filter_resonance( node->read_float( "filterResonance", 0.0f,
+														 true, false, bSilent ) );
+	pInstrument->set_pitch_offset( node->read_float( "pitchOffset", 0.0f,
+													 true, false, bSilent ) );
+	pInstrument->set_random_pitch_factor( node->read_float( "randomPitchFactor", 0.0f,
+															true, false, bSilent ) );
+	float attack = node->read_float( "Attack", 0.0f,
+									 true, false, bSilent );
+	float decay = node->read_float( "Decay", 0.0f,
+									true, false, bSilent  );
+	float sustain = node->read_float( "Sustain", 1.0f,
+									  true, false, bSilent );
+	float release = node->read_float( "Release", 1000.0f,
+									  true, false, bSilent );
 	pInstrument->set_adsr( new ADSR( attack, decay, sustain, release ) );
-	pInstrument->set_gain( node->read_float( "gain", 1.0f, true, false ) );
-	pInstrument->set_mute_group( node->read_int( "muteGroup", -1, true, false ) );
-	pInstrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1, true, false ) );
-	pInstrument->set_midi_out_note( node->read_int( "midiOutNote", pInstrument->__midi_out_note, true, false ) );
-	pInstrument->set_stop_notes( node->read_bool( "isStopNote", true,false ) );
+	pInstrument->set_gain( node->read_float( "gain", 1.0f,
+											 true, false, bSilent ) );
+	pInstrument->set_mute_group( node->read_int( "muteGroup", -1,
+												 true, false, bSilent ) );
+	pInstrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1,
+													   true, false, bSilent ) );
+	pInstrument->set_midi_out_note( node->read_int( "midiOutNote", pInstrument->__midi_out_note,
+													true, false, bSilent ) );
+	pInstrument->set_stop_notes( node->read_bool( "isStopNote", true,
+												  false, true, bSilent ) );
 
-	QString sRead_sample_select_algo = node->read_string( "sampleSelectionAlgo", "VELOCITY" );
+	QString sRead_sample_select_algo = node->read_string( "sampleSelectionAlgo", "VELOCITY",
+														  true, true, bSilent  );
 	if ( sRead_sample_select_algo.compare("VELOCITY") == 0 ) {
 		pInstrument->set_sample_selection_alg( VELOCITY );
 	}
@@ -314,17 +337,23 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 		pInstrument->set_sample_selection_alg( RANDOM );
 	}
 
-	pInstrument->set_hihat_grp( node->read_int( "isHihat", -1, true ) );
-	pInstrument->set_lower_cc( node->read_int( "lower_cc", 0, true ) );
-	pInstrument->set_higher_cc( node->read_int( "higher_cc", 127, true ) );
+	pInstrument->set_hihat_grp( node->read_int( "isHihat", -1,
+												true, true, bSilent ) );
+	pInstrument->set_lower_cc( node->read_int( "lower_cc", 0,
+											   true, true, bSilent ) );
+	pInstrument->set_higher_cc( node->read_int( "higher_cc", 127,
+												true, true, bSilent ) );
 
 	for ( int i=0; i<MAX_FX; i++ ) {
-		pInstrument->set_fx_level( node->read_float( QString( "FX%1Level" ).arg( i+1 ), 0.0 ), i );
+		pInstrument->set_fx_level( node->read_float( QString( "FX%1Level" ).arg( i+1 ), 0.0,
+													 true, true, bSilent ), i );
 	}
 
 	XMLNode ComponentNode = node->firstChildElement( "instrumentComponent" );
 	while ( !ComponentNode.isNull() ) {
-		pInstrument->get_components()->push_back( InstrumentComponent::load_from( &ComponentNode, dk_path ) );
+		pInstrument->get_components()->push_back( InstrumentComponent::load_from( &ComponentNode,
+																				  dk_path,
+																				  bSilent ) );
 		ComponentNode = ComponentNode.nextSiblingElement( "instrumentComponent" );
 	}
 	return pInstrument;
