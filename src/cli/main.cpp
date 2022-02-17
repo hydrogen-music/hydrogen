@@ -21,6 +21,7 @@
  */
 
 #include <QLibraryInfo>
+#include <QStringList>
 #include <QThread>
 #include <core/config.h>
 #include <core/Version.h>
@@ -548,20 +549,46 @@ void showInfo()
  */
 void showUsage()
 {
-	std::cout << "Usage: hydrogen [-v] [-h] -s file" << std::endl;
-	std::cout << "   -d, --driver AUDIODRIVER - Use the selected audio driver (jack, alsa, oss)" << std::endl;
+	QStringList availableAudioDrivers;
+#ifdef H2CORE_HAVE_JACK
+	availableAudioDrivers << "jack";
+#endif
+#ifdef H2CORE_HAVE_ALSA
+	availableAudioDrivers << "alsa";
+#endif
+#ifdef H2CORE_HAVE_OSS
+	availableAudioDrivers << "oss";
+#endif
+#ifdef H2CORE_HAVE_PULSEAUDIO
+	availableAudioDrivers << "pulseaudio";
+#endif
+#ifdef H2CORE_HAVE_PORTAUDIO
+	availableAudioDrivers << "portaudio";
+#endif
+#ifdef H2CORE_HAVE_COREAUDIO
+	availableAudioDrivers << "coreaudio";
+#endif
+	availableAudioDrivers << "auto";
+
+		
+	std::cout << "Usage: h2cli OPTION [ARGS]" << std::endl;
+	std::cout << std::endl;
+	std::cout << "The CLI of Hydrogen can be used in two different ways. Either" << std::endl;
+	std::cout << "for exporting a song into an audio file or for checking and" << std::endl;
+	std::cout << "an existing drumkit." << std::endl;
+	std::cout << std::endl;
+	std::cout << "Exporting:" << std::endl;
+	std::cout << "   -d, --driver AUDIODRIVER - Use the selected audio driver" << std::endl;
+	std::cout << QString( "       [%1]" ).arg( availableAudioDrivers.join( ", " ) )
+		.toLocal8Bit().data() << std::endl;
 	std::cout << "   -s, --song FILE - Load a song (*.h2song) at startup" << std::endl;
 	std::cout << "   -p, --playlist FILE - Load a playlist (*.h2playlist) at startup" << std::endl;
 	std::cout << "   -o, --outfile FILE - Output to file (export)" << std::endl;
 	std::cout << "   -r, --rate RATE - Set bitrate while exporting file" << std::endl;
 	std::cout << "   -b, --bits BITS - Set bits depth while exporting file" << std::endl;
 	std::cout << "   -k, --kit drumkit_name - Load a drumkit at startup" << std::endl;
-	std::cout << "   -i, --install FILE - install a drumkit (*.h2drumkit)" << std::endl;
-	std::cout << "   -c, --check FILE - validates a drumkit (*.h2drumkit)" << std::endl;
-	std::cout << "   -u, --upgrade FILE - upgrades a drumkit (*.h2drumkit). If no target folder was specified using -t the drumkit will be upgraded inplace." << std::endl;
-	std::cout << "   -t, --target FOLDER - target folder for a drumkit upgrade (The particular drumkit name is derived from the kit's metadata) The folder is created if it not exists yet." << std::endl;
 	std::cout << "   -I, --interpolate INT - Interpolation" << std::endl;
-	std::cout << "       (0:linear [default],1:cosine,2:third,3:cubic,4:hermite)" << std::endl;
+	std::cout << "       [0:linear (default), 1:cosine, 2:third, 3:cubic, 4:hermite]" << std::endl;
 
 #ifdef H2CORE_HAVE_LASH
 	std::cout << "   --lash-no-start-server - If LASH server not running, don't start" << std::endl
@@ -569,8 +596,37 @@ void showUsage()
 	std::cout << "   --lash-no-autoresume - Tell LASH server not to assume I'm returning" << std::endl
 			  << "                          from a crash." << std::endl;
 #endif
-	std::cout << "   -V[Level], --verbose[=Level] - Print a lot of debugging info" << std::endl;
-	std::cout << "                 Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH" << std::endl;
+	std::cout << std::endl;
+	std::cout << "Example: h2cli -s /usr/share/hydrogen/data/demo_songs/GM_kit_demo1.h2song \\" << std::endl;
+	std::cout << "               -d GMRockKit -d auto -o ./example.wav" << std::endl;
+
+	std::cout << std::endl;
+	std::cout << "Drumkit handling:" << std::endl;
+	std::cout << "   -i, --install FILE - install a drumkit (*.h2drumkit)" << std::endl;
+	std::cout << "   -c, --check FILE - validates a drumkit (*.h2drumkit)" << std::endl;
+	std::cout << "   -u, --upgrade FILE - upgrades a drumkit. FILE can be either" << std::endl;
+	std::cout << "                        an absolute path to a folder containing a" << std::endl;
+	std::cout << "                        drumkit, an absolute path to a drumkit file" << std::endl;
+	std::cout << "                        (drumkit.xml) itself, or an absolute path to" << std::endl;
+	std::cout << "                        a compressed drumkit ( *.h2drumkit). If no" << std::endl;
+	std::cout << "                        target folder was specified using the -t option" << std::endl;
+	std::cout << "                        a backup of the drumkit created and the original" << std::endl;
+	std::cout << "                        one is upgraded in place. If a compressed drumkit" << std::endl;
+	std::cout << "                        is provided as first argument, the upgraded" << std::endl;
+	std::cout << "                        drumkit will be compressed as well." << std::endl;
+	std::cout << "   -e, --extract FILE - extracts the content of a drumkit (.h2drumkit)" << std::endl;
+	std::cout << "                        If no target is specified using the -t option" << std::endl;
+	std::cout << "                        this command behaves like --install." << std::endl;
+	std::cout << "   -t, --target FOLDER - target folder the extracted (-e) or upgraded (-u)" << std::endl;
+	std::cout << "                         drumkit will be stored in. The folder is created" << std::endl;
+	std::cout << "                         if it not exists yet." << std::endl;
+	std::cout << std::endl;
+	std::cout << "Example: h2cli -c /usr/share/hydrogen/data/drumkits/GMRockKit" << std::endl;
+
+	std::cout << std::endl;
+	std::cout << "Miscellaneous:" << std::endl;
+	std::cout << "   -V[Level], --verbose[=Level] - Set verbosity level" << std::endl;
+	std::cout << "       [None, Error, Warning, Info, Debug, Constructor, Locks, 0xHHHH]" << std::endl;
 	std::cout << "   -v, --version - Show version info" << std::endl;
 	std::cout << "   -h, --help - Show this help message" << std::endl;
 }
