@@ -315,23 +315,6 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
     	bool toggleGridCell( int nColumn, int nRow );
-		
-		// -----------------------------------------------------------
-		// Helper functions
-		
-		/**
-		 * Checks the path of the .h2song provided via OSC.
-		 *
-		 * It will be checked whether @a songPath
-		 * - is absolute
-		 * - has the '.h2song' suffix
-		 * - is writable (if it exists)
-		 *
-		 * \param songPath Absolute path to an .h2song file.
-		 * \return true - if valid.
-		 */
-		bool isSongPathValid( const QString& songPath );
-		
 	private:
 		
 		/**
