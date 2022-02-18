@@ -76,15 +76,15 @@ QComboBox { \
 QComboBox QAbstractItemView { \
     background-color: #babfcf; \
 } \
-QLineEdit { \
-    color: %14; \
-    background-color: %15; \
+QLineEdit, QTextEdit { \
+    color: %12; \
+    background-color: %13; \
 } \
 QDoubleSpinBox, QSpinBox { \
-    color: %16; \
-    background-color: %17; \
-    selection-color: %16; \
-    selection-background-color: %18; \
+    color: %14; \
+    background-color: %15; \
+    selection-color: %14; \
+    selection-background-color: %16; \
 }"
 					)
 		.arg( pPref->getColorTheme()->m_toolTipTextColor.name() )
@@ -96,8 +96,6 @@ QDoubleSpinBox, QSpinBox { \
 		.arg( buttonBackgroundCheckedLightHover.name() ).arg( buttonBackgroundCheckedDarkHover.name() )
 		.arg( pPref->getColorTheme()->m_widgetTextColor.name() )
 		.arg( pPref->getColorTheme()->m_widgetColor.name() )
-		.arg( pPref->getColorTheme()->m_windowTextColor.name() )
-		.arg( pPref->getColorTheme()->m_windowColor.name() )
 		.arg( pPref->getColorTheme()->m_spinBoxTextColor.name() )
 		.arg( pPref->getColorTheme()->m_spinBoxColor.name() )
 		.arg( spinBoxSelection.name() );
