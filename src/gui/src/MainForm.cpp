@@ -1967,9 +1967,15 @@ void MainForm::jacksessionEvent( int nEvent )
 
 void MainForm::action_file_songProperties()
 {
+	if ( H2Core::Hydrogen::get_instance()->getSong() == nullptr ) {
+		return;
+	}
+	
 	SongPropertiesDialog *pDialog = new SongPropertiesDialog( this );
-	if ( pDialog->exec() == QDialog::Accepted ) {
-		Hydrogen::get_instance()->setIsModified( true );
+	if ( pDialog->exec() ) {
+		// Ensure the update name is taken into account in the window
+		// title.
+		HydrogenApp::get_instance()->updateWindowTitle();
 	}
 	delete pDialog;
 }
