@@ -738,22 +738,43 @@ void SongEditorPanel::mutePlaybackTrackBtnPressed()
 
 void SongEditorPanel::editPlaybackTrackBtnPressed()
 {
-	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
-		Hydrogen::get_instance()->sequencer_stop();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pHydrogen->getAudioEngine()->getState() ==
+		 H2Core::AudioEngine::State::Playing ) {
+		pHydrogen->sequencer_stop();
 	}
 
-	QString sPath = Preferences::get_instance()->getLastOpenPlaybackTrackDirectory();
+	QString sPath, sFilename;
+
+	if ( ! pSong->getPlaybackTrackFilename().isEmpty() ) {
+		QFileInfo fileInfo( pSong->getPlaybackTrackFilename() );
+		sFilename = pSong->getPlaybackTrackFilename();
+		sPath = fileInfo.absoluteDir().absolutePath();
+	} else {
+		sFilename = "";
+		sPath = Preferences::get_instance()->getLastOpenPlaybackTrackDirectory();
+	}
+	
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
 		sPath = QDir::homePath();
 	}
 	
 	//use AudioFileBrowser, but don't allow multi-select. Also, hide all no necessary controls.
-	AudioFileBrowser *pFileBrowser = new AudioFileBrowser( nullptr, false, false, sPath );
+	AudioFileBrowser *pFileBrowser =
+		new AudioFileBrowser( nullptr, false, false, sPath, sFilename );
 	
 	QStringList filenameList;
 	
 	if ( pFileBrowser->exec() == QDialog::Accepted ) {
-		Preferences::get_instance()->setLastOpenPlaybackTrackDirectory( pFileBrowser->getSelectedDirectory() );
+
+		// Only overwrite the default directory if we didn't start
+		// from an existing file or the final directory differs from
+		// the starting one.
+		if ( sFilename.isEmpty() ||
+			 sPath != pFileBrowser->getSelectedDirectory() ) {
+			Preferences::get_instance()->setLastOpenPlaybackTrackDirectory( pFileBrowser->getSelectedDirectory() );
+		}
 		filenameList = pFileBrowser->getSelectedFiles();
 	}
 
@@ -767,7 +788,7 @@ void SongEditorPanel::editPlaybackTrackBtnPressed()
 		return;
 	}
 
-	Hydrogen::get_instance()->loadPlaybackTrack( filenameList[2] );
+	pHydrogen->loadPlaybackTrack( filenameList[2] );
 	
 	updateAll();
 }
