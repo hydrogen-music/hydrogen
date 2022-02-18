@@ -82,10 +82,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	
 	m_pEditorTop1 = new QWidget( nullptr );
 	m_pEditorTop1->setFixedHeight(24);
-	
+	m_pEditorTop1->setObjectName( "editor1" );
 
 	m_pEditorTop2 = new QWidget( nullptr );
 	m_pEditorTop2->setFixedHeight( 24 );
+	m_pEditorTop2->setObjectName( "editor2" );
 
 	QHBoxLayout *m_pEditorTop1_hbox = new QHBoxLayout( m_pEditorTop1 );
 	m_pEditorTop1_hbox->setSpacing( 0 );
@@ -109,6 +110,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 //wolke some background images back_size_res
 	m_pSizeResol = new QWidget( nullptr );
+	m_pSizeResol->setObjectName( "sizeResol" );
 	m_pSizeResol->setFixedSize( 406, 20 );
 	m_pSizeResol->move( 0, 3 );
 	m_pEditorTop1_hbox_2->addWidget( m_pSizeResol );
@@ -117,19 +119,23 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pLCDSpinBoxNumerator = new LCDSpinBox( m_pSizeResol, QSize( 62, 20 ), LCDSpinBox::Type::Double, 0.1, 16.0 );
 	m_pLCDSpinBoxNumerator->setKind( LCDSpinBox::Kind::PatternSizeNumerator );
 	m_pLCDSpinBoxNumerator->setDecimals( 16 );
+	m_pLCDSpinBoxNumerator->move( 36, 0 );
 	connect( m_pLCDSpinBoxNumerator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
+	connect( m_pLCDSpinBoxNumerator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
+	
 	m_pLCDSpinBoxDenominator = new LCDSpinBox( m_pSizeResol, QSize( 48, 20 ), LCDSpinBox::Type::Int, 1, 192 );
 	m_pLCDSpinBoxDenominator->setKind( LCDSpinBox::Kind::PatternSizeDenominator );
-	connect( m_pLCDSpinBoxDenominator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
-	m_pLCDSpinBoxNumerator->move( 36, 0 );
 	m_pLCDSpinBoxDenominator->move( 106, 0 );
+	connect( m_pLCDSpinBoxDenominator, &LCDSpinBox::slashKeyPressed, this, &PatternEditorPanel::switchPatternSizeFocus );
+	connect( m_pLCDSpinBoxDenominator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
 			
 	QLabel* label1 = new ClickableLabel( m_pSizeResol, QSize( 4, 13 ), "/", ClickableLabel::Color::Dark );
 	label1->resize( QSize( 20, 17 ) );
 	label1->move( 100, 4 );
 	label1->setText( "/" );
 	label1->setFont( boldFont );
-	label1->setStyleSheet( "color: #191919;" );
+	label1->setStyleSheet( label1->styleSheet().
+						   append( " QLabel { color: #191919; }" ) );
 	label1->setToolTip( tr( "You can use the '/' inside the pattern size spin boxes to switch back and forth." ) );
 	m_pPatternSizeLbl = new ClickableLabel( m_pSizeResol, QSize( 30, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeLabel(), ClickableLabel::Color::Dark );
 	m_pPatternSizeLbl->move( 2, 4 );
@@ -168,11 +174,14 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pRec = new QGroupBox( nullptr );
 	m_pRec->setFixedSize( 210, 20 );
+	m_pRec->setObjectName( "pRec" );
 	m_pRec->move( 0, 3 );
 	m_pEditorTop1_hbox_2->addWidget( m_pRec );
 
 	// Hear notes btn
-	m_pHearNotesBtn = new Button( m_pRec, QSize( 21, 18 ), Button::Type::Toggle, "speaker.svg", "", false, QSize( 15, 13 ), tr( "Hear new notes" ) );
+	m_pHearNotesBtn = new Button( m_pRec, QSize( 21, 18 ), Button::Type::Toggle,
+								  "speaker.svg", "", false, QSize( 15, 13 ),
+								  tr( "Hear new notes" ), false, true );
 	m_pHearNotesBtn->move( 42, 1 );
 	connect( m_pHearNotesBtn, SIGNAL( pressed() ), this, SLOT( hearNotesBtnClick() ) );
 	m_pHearNotesBtn->setChecked( pPref->getHearNewNotes() );
@@ -183,7 +192,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 	// quantize
-	m_pQuantizeEventsBtn = new Button( m_pRec, QSize( 21, 18 ), Button::Type::Toggle, "quantization.svg", "", false, QSize( 15, 14 ), tr( "Quantize keyboard/midi events to grid" ) );
+	m_pQuantizeEventsBtn = new Button( m_pRec, QSize( 21, 18 ),
+									   Button::Type::Toggle, "quantization.svg",
+									   "", false, QSize( 15, 14 ),
+									   tr( "Quantize keyboard/midi events to grid" ),
+									   false, true );
 	m_pQuantizeEventsBtn->move( 111, 1 );
 	m_pQuantizeEventsBtn->setChecked( pPref->getQuantizeEvents() );
 	m_pQuantizeEventsBtn->setObjectName( "QuantizeEventsBtn" );
@@ -578,9 +591,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	propertiesComboChanged( 0 );
 	selectedPatternChangedEvent();
 	updateStyleSheet();
-
-	connect( m_pLCDSpinBoxNumerator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
-	connect( m_pLCDSpinBoxDenominator, SIGNAL( valueChanged( double ) ), this, SLOT( patternSizeChanged( double ) ) );
 }
 
 
@@ -590,19 +600,11 @@ PatternEditorPanel::~PatternEditorPanel()
 {
 }
 
-void PatternEditorPanel::stateChangedEvent( H2Core::AudioEngine::State state ) {
-	// Deactivate the pattern size widgets while playback is rolling.
-	if ( state == H2Core::AudioEngine::State::Playing ) {
-		m_pLCDSpinBoxNumerator->setEnabled( false );
-		m_pLCDSpinBoxNumerator->setToolTip( HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeDisabledTooltip() );
-		m_pLCDSpinBoxDenominator->setEnabled( false );
-		m_pLCDSpinBoxDenominator->setToolTip( HydrogenApp::get_instance()->getCommonStrings()->getPatternSizeDisabledTooltip() );
-	} else {
-		m_pLCDSpinBoxNumerator->setEnabled( true );
-		m_pLCDSpinBoxNumerator->setToolTip( "" );
-		m_pLCDSpinBoxDenominator->setEnabled( true );
-		m_pLCDSpinBoxDenominator->setToolTip( "" );
-	}
+void PatternEditorPanel::drumkitLoadedEvent() {
+	updateSLnameLabel();
+	getDrumPatternEditor()->updateEditor();
+	updatePianorollEditor();
+	
 }
 
 void PatternEditorPanel::syncToExternalHorizontalScrollbar( int )
@@ -934,26 +936,13 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 
 	m_bArmPatternSizeSpinBoxes = false;
 
-	bool bTurnOffAgain = false;
-
-	if ( ! m_pLCDSpinBoxNumerator->isEnabled() ) {
-		// Both spin boxes are deactivated since playback is rolling
-		// and the pattern size changed due to the user selecting a
-		// different pattern via mouse. We have to take care not to
-		// trigger a patternSizeChanged() in here.
-		m_pLCDSpinBoxNumerator->setEnabled( true );
-		m_pLCDSpinBoxDenominator->setEnabled( true );
-
-		bTurnOffAgain = true;
-	}
-
 	bool bChanged = false;
 
 	double fNewDenominator = static_cast<double>( m_pPattern->get_denominator() );
 	if ( fNewDenominator != m_pLCDSpinBoxDenominator->value() &&
 		 ! m_pLCDSpinBoxDenominator->hasFocus() ) {
 		m_pLCDSpinBoxDenominator->setValue( fNewDenominator );
-		bool bChanged = true;
+		bChanged = true;
 
 		// Update numerator to allow only for a maximum pattern length of
 		// four measures.
@@ -964,11 +953,6 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 	if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() && ! m_pLCDSpinBoxNumerator->hasFocus() ) {
 		m_pLCDSpinBoxNumerator->setValue( fNewNumerator );
 		bChanged = true;
-	}
-
-	if ( bTurnOffAgain ) {
-		m_pLCDSpinBoxNumerator->setEnabled( false );
-		m_pLCDSpinBoxDenominator->setEnabled( false );
 	}
 	
 	m_bArmPatternSizeSpinBoxes = true;
@@ -987,6 +971,9 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 		return;
 	}
 
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
 	// Update numerator to allow only for a maximum pattern length of
 	// four measures.
 	m_pLCDSpinBoxNumerator->setMaximum( 4 * m_pLCDSpinBoxDenominator->value() );
@@ -1004,9 +991,15 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 
 	int nLength = std::round( static_cast<double>( MAX_NOTES ) / fDenominator * fNumerator );
 
+	pAudioEngine->lock( RIGHT_HERE );
 	// set length and denominator				
 	m_pPattern->set_length( nLength );
 	m_pPattern->set_denominator( static_cast<int>( fDenominator ) );
+	pHydrogen->updateSongSize();
+	pAudioEngine->unlock();
+	
+	pHydrogen->setIsModified( true );
+	
 	patternLengthChanged();
 }
 
@@ -1159,13 +1152,20 @@ void PatternEditorPanel::updateStyleSheet() {
 	QColor topColorDark = pPref->getColorTheme()->m_midColor.darker( nFactorTop );
 
 	QString sEditorTopStyleSheet = QString( "\
-QWidget {\
+QWidget#editor1 {\
+     background-color: qlineargradient(x1: 0.5, y1: 0.1, x2: 0.5, y2: 0.9, \
+                                      stop: 0 %1, stop: 1 %2); \
+} \
+QWidget#editor2 {\
      background-color: qlineargradient(x1: 0.5, y1: 0.1, x2: 0.5, y2: 0.9, \
                                       stop: 0 %1, stop: 1 %2); \
 }")
 		.arg( topColorLight.name() ).arg( topColorDark.name() );
 	QString sWidgetTopStyleSheet = QString( "\
-QWidget {\
+QWidget#sizeResol {\
+    background-color: %1;\
+} \
+QWidget#pRec {\
     background-color: %1;\
 }" )
 		.arg( pPref->getColorTheme()->m_midLightColor.name() );

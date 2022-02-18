@@ -56,8 +56,10 @@ public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private slots:
-		void keyPressEvent( QKeyEvent* ev );
-		void closeEvent( QCloseEvent* ev );
+		virtual void keyPressEvent( QKeyEvent* ev ) override;
+		virtual void closeEvent( QCloseEvent* ev ) override;
+		virtual bool eventFilter ( QObject *o, QEvent *e ) override;
+	
 		void addSong();
 		void addCurrentSong();
 		void removeFromList();
@@ -78,7 +80,6 @@ public slots:
 		void o_downBClicked();
 		void on_m_pPlaylistTree_itemDoubleClicked ();
 		void updateActiveSongNumber();
-		bool eventFilter ( QObject *o, QEvent *e );
 
 
 	private:

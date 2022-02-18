@@ -90,7 +90,9 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void actionModeChangeEvent( int nValue ) override;
 		void updateSongEditorEvent( int nValue ) override;
 
-	void jackTimebaseStateChangedEvent( int );
+		virtual void jackTimebaseStateChangedEvent( int ) override;
+
+		virtual void columnChangedEvent( int ) override;
 
 
 		virtual void songModeActivationEvent( int nValue ) override;
@@ -183,7 +185,7 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		virtual void resizeEvent( QResizeEvent *ev ) override;
 		void resyncExternalScrollBar();
 
-	bool m_bLastUseTimelineBpm;
+	bool m_bLastIsTimelineActivated;
 };
 
 #endif

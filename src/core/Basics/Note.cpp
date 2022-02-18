@@ -25,11 +25,12 @@
 #include <cassert>
 
 #include <core/Helpers/Xml.h>
-
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Hydrogen.h>
 #include <core/Sampler/Sampler.h>
 
 namespace H2Core
@@ -60,7 +61,9 @@ Note::Note( std::shared_ptr<Instrument> instrument, int position, float velocity
 	  __midi_msg( -1 ),
 	  __note_off( false ),
 	  __just_recorded( false ),
-	  __probability( 1.0f )
+	  __probability( 1.0f ),
+	  m_nNoteStart( 0 ),
+	  m_fUsedTickSize( std::nan("") )
 {
 	if ( __instrument != nullptr ) {
 		__adsr = __instrument->copy_adsr();
@@ -68,7 +71,7 @@ Note::Note( std::shared_ptr<Instrument> instrument, int position, float velocity
 
 		for ( const auto& pCompo : *__instrument->get_components() ) {
 
-			SelectedLayerInfo *sampleInfo = new SelectedLayerInfo;
+			std::shared_ptr<SelectedLayerInfo> sampleInfo = std::make_shared<SelectedLayerInfo>();
 			sampleInfo->SelectedLayer = -1;
 			sampleInfo->SamplePosition = 0;
 
@@ -104,20 +107,22 @@ Note::Note( Note* other, std::shared_ptr<Instrument> instrument )
 	  __midi_msg( other->get_midi_msg() ),
 	  __note_off( other->get_note_off() ),
 	  __just_recorded( other->get_just_recorded() ),
-	  __probability( other->get_probability() )
+	  __probability( other->get_probability() ),
+	  m_nNoteStart( other->getNoteStart() ),
+	  m_fUsedTickSize( other->getUsedTickSize() )
 {
 	if ( instrument != nullptr ) __instrument = instrument;
 	if ( __instrument != nullptr ) {
 		__adsr = __instrument->copy_adsr();
 		__instrument_id = __instrument->get_id();
+	}
 
-		for ( const auto& pCompo : *__instrument->get_components() ) {
-			SelectedLayerInfo *sampleInfo = new SelectedLayerInfo;
-			sampleInfo->SelectedLayer = -1;
-			sampleInfo->SamplePosition = 0;
-
-			__layers_selected[ pCompo->get_drumkit_componentID() ] = sampleInfo;
-		}
+	for ( const auto& mm : other->__layers_selected ) {
+		std::shared_ptr<SelectedLayerInfo> pSampleInfo = std::make_shared<SelectedLayerInfo>();
+		pSampleInfo->SelectedLayer = mm.second->SelectedLayer;
+		pSampleInfo->SamplePosition = mm.second->SamplePosition;
+		
+		__layers_selected[ mm.first ] = pSampleInfo;
 	}
 }
 
@@ -182,16 +187,47 @@ void Note::set_key_octave( const QString& str )
 	___ERRORLOG( "Unhandled key: " + s_key );
 }
 
-void Note::dump()
-{
-	INFOLOG( QString( "Note : pos: %1\t humanize offset%2\t instr: %3\t key: %4\t pitch: %5" )
-	         .arg( __position )
-	         .arg( __humanize_delay )
-	         .arg( __instrument->get_name() )
-	         .arg( key_to_string() )
-	         .arg( __pitch )
-	         .arg( __note_off )
-	       );
+bool Note::isPartiallyRendered() const {
+	bool bRes = false;
+
+	for ( auto ll : __layers_selected ) {
+		if ( ll.second->SamplePosition > 0 ) {
+			bRes = true;
+			break;
+		}
+	}
+
+	return bRes;
+}
+
+void Note::computeNoteStart() {
+	// Notes not inserted via the audio engine but directly, using
+	// e.g. the GUI, will be insert at position 0 and don't require a
+	// specific start position.
+	if ( __position == 0 ) {
+		return;
+	}
+	
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	double fTickMismatch;
+	m_nNoteStart =
+		pAudioEngine->computeFrameFromTick( __position, &fTickMismatch );
+		
+	// If there is a negative Humanize delay, take into account so
+	// we don't miss the time slice.  ignore positive delay, or we
+	// might end the queue processing prematurely based on NoteQueue
+	// placement.  the sampler handles positive delay.
+	if ( __humanize_delay < 0 ) {
+		m_nNoteStart += __humanize_delay;
+	}
+	
+	if ( pHydrogen->isTimelineEnabled() ) {
+		m_fUsedTickSize = -1;
+	} else {
+		m_fUsedTickSize = pAudioEngine->getTickSize();
+	}
 }
 
 void Note::save_to( XMLNode* node )
@@ -247,6 +283,8 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2instrument_id: %3\n" ).arg( sPrefix ).arg( s ).arg( __instrument_id ) )
 			.append( QString( "%1%2specific_compo_id: %3\n" ).arg( sPrefix ).arg( s ).arg( __specific_compo_id ) )
 			.append( QString( "%1%2position: %3\n" ).arg( sPrefix ).arg( s ).arg( __position ) )
+			.append( QString( "%1%2m_nNoteStart: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nNoteStart ) )
+			.append( QString( "%1%2m_fUsedTickSize: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fUsedTickSize ) )
 			.append( QString( "%1%2velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __velocity ) )
 			.append( QString( "%1%2pan: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPan ) )
 			.append( QString( "%1%2length: %3\n" ).arg( sPrefix ).arg( s ).arg( __length ) )
@@ -272,7 +310,7 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput.append( QString( "%1%2layers_selected:\n" )
 						.arg( sPrefix ).arg( s ) );
 		for ( auto ll : __layers_selected ) {
-			sOutput.append( QString( "%1%2%3 : selected layer: %4, sample position: %5\n" )
+			sOutput.append( QString( "%1%2[component: %3, selected layer: %4, sample position: %5]\n" )
 							.arg( sPrefix ).arg( s + s )
 							.arg( ll.first )
 							.arg( ll.second->SelectedLayer )
@@ -284,6 +322,8 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", instrument_id: %1" ).arg( __instrument_id ) )
 			.append( QString( ", specific_compo_id: %1" ).arg( __specific_compo_id ) )
 			.append( QString( ", position: %1" ).arg( __position ) )
+			.append( QString( ", m_nNoteStart: %1" ).arg( m_nNoteStart ) )
+			.append( QString( ", m_fUsedTickSize: %1" ).arg( m_fUsedTickSize ) )
 			.append( QString( ", velocity: %1" ).arg( __velocity ) )
 			.append( QString( ", pan: %1" ).arg( m_fPan ) )
 			.append( QString( ", length: %1" ).arg( __length ) )
@@ -306,9 +346,9 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", just_recorded: %1" ).arg( __just_recorded ) )
 			.append( QString( ", probability: %1" ).arg( __probability ) )
 			.append( QString( ", instrument: %1" ).arg( __instrument->get_name() ) )
-			.append( QString( ", layers_selected:" ) );
+			.append( QString( ", layers_selected: " ) );
 		for ( auto ll : __layers_selected ) {
-			sOutput.append( QString( "%1 : selected layer: %2, sample position: %3" )
+			sOutput.append( QString( "[component: %1, selected layer: %2, sample position: %3] " )
 							.arg( ll.first )
 							.arg( ll.second->SelectedLayer )
 							.arg( ll.second->SamplePosition ) );

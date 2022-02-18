@@ -135,6 +135,7 @@ Preferences::Preferences()
 	m_startOffset = 0;  // beatcounter
 
 	sServerList.push_back( QString("http://hydrogen-music.org/feeds/drumkit_list.php") );
+	m_nAutosavesPerHour = 60;
 	m_patternCategories.push_back( QString("not_categorized") );
 
 	//___ audio engine properties ___
@@ -186,7 +187,7 @@ Preferences::Preferences()
 	m_bJackTransportMode = true;
 	m_bJackConnectDefaults = true;
 	m_bJackTrackOuts = false;
-	m_bJackTimebaseEnabled = true;
+	m_bJackTimebaseEnabled = false;
 	m_bJackMasterMode = NO_JACK_TIME_MASTER;
 	m_JackTrackOutputMode = JackTrackOutputMode::postFader;
 	m_JackBBTSync = JackBBTSyncMethod::constMeasure;
@@ -212,6 +213,7 @@ Preferences::Preferences()
 	recordEvents = false;
 	m_bUseRelativeFilenamesForPlaylists = false;
 	m_bHideKeyboardCursor = false;
+	m_bPatternFollowsSong = false;
 
 	//___ GUI properties ___
 	m_nPatternEditorGridResolution = 8;
@@ -316,6 +318,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
 			m_bUseRelativeFilenamesForPlaylists = LocalFileMng::readXmlBool( rootNode, "useRelativeFilenamesForPlaylists", false );
 			m_bHideKeyboardCursor = LocalFileMng::readXmlBool( rootNode, "hideKeyboardCursorWhenUnused", false );
+			m_bPatternFollowsSong = LocalFileMng::readXmlBool( rootNode, "patternFollowsSong", false );
 
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
@@ -453,7 +456,7 @@ void Preferences::loadPreferences( bool bGlobal )
 					}
 
 					//jack time master
-					m_bJackTimebaseEnabled = LocalFileMng::readXmlBool( jackDriverNode, "jack_timebase_enabled", true );
+					m_bJackTimebaseEnabled = LocalFileMng::readXmlBool( jackDriverNode, "jack_timebase_enabled", false );
 					QString tmMode = LocalFileMng::readXmlString( jackDriverNode, "jack_transport_mode_master", "NO_JACK_TIME_MASTER" );
 					if ( tmMode == "NO_JACK_TIME_MASTER" ) {
 						m_bJackMasterMode = NO_JACK_TIME_MASTER;
@@ -640,6 +643,8 @@ void Preferences::loadPreferences( bool bGlobal )
 
 				//~ beatcounter
 
+				m_nAutosavesPerHour = LocalFileMng::readXmlInt( guiNode, "autosavesPerHour", 60 );
+				
 				//SoundLibraryPanel expand items
 				__expandSongItem = LocalFileMng::readXmlBool( guiNode, "expandSongItem", __expandSongItem );
 				__expandPatternItem = LocalFileMng::readXmlBool( guiNode, "expandPatternItem", __expandPatternItem );
@@ -828,6 +833,7 @@ void Preferences::savePreferences()
 
 	LocalFileMng::writeXmlString( rootNode, "useRelativeFilenamesForPlaylists", m_bUseRelativeFilenamesForPlaylists ? "true": "false" );
 	LocalFileMng::writeXmlBool( rootNode, "hideKeyboardCursorWhenUnused", m_bHideKeyboardCursor );
+	LocalFileMng::writeXmlBool( rootNode, "patternFollowsSong", m_bPatternFollowsSong );
 	
 	// instrument input mode
 	LocalFileMng::writeXmlString( rootNode, "instrumentInputMode", __playselectedinstrument ? "true": "false" );
@@ -1139,6 +1145,7 @@ void Preferences::savePreferences()
 		LocalFileMng::writeXmlString( guiNode, "playoffset", QString("%1").arg(m_startOffset) );
 		//~ beatcounter
 
+		LocalFileMng::writeXmlString( guiNode, "autosavesPerHour", QString( "%1" ).arg( m_nAutosavesPerHour ) );
 
 		//SoundLibraryPanel expand items
 		LocalFileMng::writeXmlString( guiNode, "expandSongItem", __expandSongItem ? "true": "false" );

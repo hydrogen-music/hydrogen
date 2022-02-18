@@ -88,6 +88,9 @@ public:
 	 * to exist in both subfolders "black" and "white" in the "icons"
 	 * folder. If the button is not checked, the black version is used
 	 * and if checked, the white one is used instead.
+	 * \param bModifyOnChange Whether Hydrogen::setIsModified() is
+	 * invoked with `true` as soon as the value of the widget does
+	 * change.
 	 */
 	Button(
 		   QWidget *pParent,
@@ -98,7 +101,8 @@ public:
 		   bool bUseRedBackground = false,
 		   QSize iconSize = QSize( 0, 0 ),
 		   QString sBaseTooltip = "",
-		   bool bColorful = false
+		   bool bColorful = false,
+		   bool bModifyOnChange = false
 		   );
 	virtual ~Button();
 	
@@ -119,6 +123,9 @@ public:
 
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+
+private slots:
+	void onToggled( bool );
 
 signals:
 	void clicked(Button *pBtn);
@@ -147,9 +154,13 @@ private:
 	bool m_bLastCheckedState;
 
 	bool m_bIsActive;
+	
+	/** Whether Hydrogen::setIsModified() is invoked with `true` as
+		soon as the value of the widget does change.*/
+	bool m_bModifyOnChange;
 
-	void mousePressEvent(QMouseEvent *ev);
-	void paintEvent( QPaintEvent* ev);
+	virtual void mousePressEvent(QMouseEvent *ev) override;
+	virtual void paintEvent( QPaintEvent* ev) override;
 
 };
 inline bool Button::getIsActive() const {

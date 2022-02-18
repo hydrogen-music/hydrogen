@@ -107,4 +107,3 @@ class AutomationPathSerializerTest : public CppUnit::TestCase {
 	}
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathSerializerTest );

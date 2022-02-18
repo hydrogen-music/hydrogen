@@ -58,7 +58,13 @@ class Instrument;
 class InstrumentList;
 
 struct SelectedLayerInfo {
-	int SelectedLayer;		///< selected layer during layer selection
+	/** Selected layer during layer selection
+	 * 
+	 * If set to -1 (during creation), Sampler::renderNote() will
+	 * determine which layer to use and overrides this variable with
+	 * the corresponding value.
+	 */
+	int SelectedLayer;
 	float SamplePosition;	///< place marker for overlapping process() cycles
 };
 
@@ -107,9 +113,6 @@ class Note : public H2Core::Object<Note>
 		 * \return a new Note instance
 		 */
 		static Note* load_from( XMLNode* node, InstrumentList* instruments );
-
-		/** output details through logger with DEBUG severity */
-		void dump();
 
 		/**
 		 * find the corresponding instrument and point to it, or an empty instrument
@@ -210,7 +213,7 @@ class Note : public H2Core::Object<Note>
 		/*
 		 * selected sample
 		 * */
-		SelectedLayerInfo* get_layer_selected( int CompoID );
+	std::shared_ptr<SelectedLayerInfo> get_layer_selected( int CompoID );
 
 
 		void set_probability( float value );
@@ -303,6 +306,27 @@ class Note : public H2Core::Object<Note>
 		 * \param val_r the right channel value
 		 */
 		void compute_lr_values( float* val_l, float* val_r );
+
+	long long getNoteStart() const;
+	float getUsedTickSize() const;
+
+	/** 
+	 * @return true if the #Sampler already started rendering this
+	 * note.
+	 */
+	bool isPartiallyRendered() const;
+
+	/**
+	 * Calculates the #m_nNoteStart in frames corresponding to the
+	 * #__position in ticks and storing the used tick size in
+	 * #m_fUsedTickSize.
+	 *
+	 * Whenever the tempo changes and the #Timeline is not
+	 * enabled, the #m_nNoteStart gets invalidated and this function
+	 * needs to be rerun.
+	 */
+	void computeNoteStart();
+	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -323,9 +347,17 @@ class Note : public H2Core::Object<Note>
 		std::shared_ptr<Instrument>		__instrument;   ///< the instrument to be played by this note
 		int				__instrument_id;        ///< the id of the instrument played by this note
 		int				__specific_compo_id;    ///< play a specific component, -1 if playing all
-		int				__position;             ///< note position inside the pattern
+		int				__position;             ///< note position in
+												///ticks inside the pattern
 		float			__velocity;           ///< velocity (intensity) of the note [0;1]
-		float			m_fPan;		///< pan of the note, [-1;1] from left to right, as requested by Sampler PanLaws
+		float			m_fPan;		///< pan of the note, [-1;1] from
+									///left to right, as requested by
+									///Sampler PanLaws
+	/** Length of the note in frames.
+	 *
+	 * If set to -1, the Note will be rendered till the end of all
+	 * contained Samples is reached.
+	 */
 		int				__length;               ///< the length of the note
 		float			__pitch;              ///< the frequency of the note
 		Key				__key;                  ///< the key, [0;11]==[C;B]
@@ -333,9 +365,19 @@ class Note : public H2Core::Object<Note>
 		std::shared_ptr<ADSR>			__adsr;               ///< attack decay sustain release
 		float			__lead_lag;           ///< lead or lag offset of the note
 		float			__cut_off;            ///< filter cutoff [0;1]
-		float			__resonance;          ///< filter resonant frequency [0;1]
-		int				__humanize_delay;       ///< used in "humanize" function
-		std::map< int, SelectedLayerInfo* > __layers_selected;
+		float			__resonance;          ///< filter resonant
+											  ///frequency [0;1]
+		/** Offset of the note start in frames.
+		 * 
+		 * It includes contributions of the onset humanization, the
+		 * lead lag factor, and the swing. For some of these a random
+		 * value will be drawn but once stored in this variable, the
+		 * delay is fixed and will not change anymore.
+		 *
+		 * It is incorporated in the #m_nNoteStart.
+		 */
+		int				__humanize_delay;
+	std::map< int, std::shared_ptr<SelectedLayerInfo>> __layers_selected;
 		float			__bpfb_l;             ///< left band pass filter buffer
 		float			__bpfb_r;             ///< right band pass filter buffer
 		float			__lpfb_l;             ///< left low pass filter buffer
@@ -345,7 +387,29 @@ class Note : public H2Core::Object<Note>
 		bool			__note_off;            ///< note type on|off
 		bool			__just_recorded;       ///< used in record+delete
 		float			__probability;        ///< note probability
-		static const char* __key_str[]; ///< used to build QString from #__key an #__octave
+		static const char* __key_str[]; ///< used to build QString
+										///from #__key an #__octave
+	/**
+	 * Onset of the note in frames.
+	 *
+	 * This member is only used by the #AudioEngine and #Sampler
+	 * during processing and not written to disk.
+	*/
+	long long m_nNoteStart;
+	/**
+	 * TransportInfo::m_fTickSize used to calculate #m_nNoteStart.
+	 *
+	 * If #m_nNoteStart was calculated in the presence of an active
+	 * #Timeline, it will be set to -1.
+	 *
+	 * Used to check whether the note start has to be rescaled because
+	 * of a change in speed (which occurs less often and is faster
+	 * than recalculating #m_nNoteStart everywhere it is required.)
+	 *
+	 * This member is only used by the #AudioEngine and #Sampler
+	 * during processing and not written to disk.
+	 */
+	float m_fUsedTickSize;
 };
 
 // DEFINITIONS
@@ -475,7 +539,7 @@ inline void Note::set_probability( float value )
 	__probability = value;
 }
 
-inline SelectedLayerInfo* Note::get_layer_selected( int CompoID )
+inline std::shared_ptr<SelectedLayerInfo> Note::get_layer_selected( int CompoID )
 {
 	return __layers_selected[ CompoID ];
 }
@@ -602,6 +666,12 @@ inline void Note::compute_lr_values( float* val_l, float* val_r )
 	*val_r = __lpfb_r;
 }
 
+inline long long Note::getNoteStart() const {
+	return m_nNoteStart;
+}
+inline float Note::getUsedTickSize() const {
+	return m_fUsedTickSize;
+}
 };
 
 #endif // H2C_NOTE_H

@@ -51,8 +51,8 @@ public:
 		Dark
 	};
 	
-	explicit ClickableLabel( QWidget *pParent, QSize size = QSize( 0, 0 ), QString sText = "", Color color = Color::Bright );
-	void mousePressEvent( QMouseEvent * e );
+	explicit ClickableLabel( QWidget *pParent, QSize size = QSize( 0, 0 ), QString sText = "", Color color = Color::Bright, bool bModifyOnChange = true );
+	virtual void mousePressEvent( QMouseEvent * e ) override;
 
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
@@ -67,6 +67,10 @@ private:
 
 	QSize m_size;
 	Color m_color;
+
+	/** Whether Hydrogen::setIsModified() is invoked with `true` as
+		soon as the value of the widget does change.*/
+	bool m_bModifyOnChange;
 };
 
 

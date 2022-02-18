@@ -337,5 +337,3 @@ class AutomationPathTest : public CppUnit::TestCase {
 
 	}
 };
-
-CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathTest );

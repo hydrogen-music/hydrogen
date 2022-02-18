@@ -142,24 +142,16 @@ Instrument::~Instrument()
 std::shared_ptr<Instrument> Instrument::load_instrument( const QString& drumkit_name, const QString& instrument_name, Filesystem::Lookup lookup )
 {
 	auto pInstrument = std::make_shared<Instrument>();
-	pInstrument->load_from( drumkit_name, instrument_name, false, lookup );
+	pInstrument->load_from( drumkit_name, instrument_name, lookup );
 	return pInstrument;
 }
 
-void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInstrument, bool is_live )
+void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInstrument )
 {
 	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
-	if ( is_live ) {
-		pAudioEngine->lock( RIGHT_HERE );
-	}
-	
 	this->get_components()->clear();
 	
-	if ( is_live ) {
-		pAudioEngine->unlock();
-	}
-
 	set_missing_samples( false );
 
 	for ( const auto& pSrcComponent : *pInstrument->get_components() ) {
@@ -173,42 +165,21 @@ void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInst
 			auto my_layer = pMyComponent->get_layer( i );
 
 			if( src_layer == nullptr ) {
-				if ( is_live ) {
-					pAudioEngine->lock( RIGHT_HERE );
-				}
 				pMyComponent->set_layer( nullptr, i );
-				if ( is_live ) {
-					pAudioEngine->unlock();
-				}
 			} else {
 				QString sample_path =  pDrumkit->get_path() + "/" + src_layer->get_sample()->get_filename();
 				auto pSample = Sample::load( sample_path );
 				if ( pSample == nullptr ) {
 					_ERRORLOG( QString( "Error loading sample %1. Creating a new empty layer." ).arg( sample_path ) );
 					set_missing_samples( true );
-					if ( is_live ) {
-						pAudioEngine->lock( RIGHT_HERE );
-					}
 					pMyComponent->set_layer( nullptr, i );
-					
-					if ( is_live ) {
-						pAudioEngine->unlock();
-					}
+
 				} else {
-					if ( is_live ) {
-						pAudioEngine->lock( RIGHT_HERE );
-					}
 					pMyComponent->set_layer( std::make_shared<InstrumentLayer>( src_layer, pSample ), i );
-					if ( is_live ) {
-						pAudioEngine->unlock();
-					}
 				}
 			}
 			my_layer = nullptr;
 		}
-	}
-	if ( is_live ) {
-		pAudioEngine->lock( RIGHT_HERE );
 	}
 
 	this->set_id( pInstrument->get_id() );
@@ -233,13 +204,9 @@ void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInst
 	this->set_lower_cc( pInstrument->get_lower_cc() );
 	this->set_higher_cc( pInstrument->get_higher_cc() );
 	this->set_apply_velocity ( pInstrument->get_apply_velocity() );
-	
-	if ( is_live ) {
-		pAudioEngine->unlock();
-	}
 }
 
-void Instrument::load_from( const QString& dk_name, const QString& instrument_name, bool is_live, Filesystem::Lookup lookup )
+void Instrument::load_from( const QString& dk_name, const QString& instrument_name, Filesystem::Lookup lookup )
 {
 	Drumkit* pDrumkit = Drumkit::load_by_name( dk_name, false, lookup );
 	if ( !pDrumkit ) {
@@ -250,7 +217,7 @@ void Instrument::load_from( const QString& dk_name, const QString& instrument_na
 
 	auto pInstrument = pDrumkit->get_instruments()->find( instrument_name );
 	if ( pInstrument!=nullptr ) {
-		load_from( pDrumkit, pInstrument, is_live );
+		load_from( pDrumkit, pInstrument );
 	}
 	
 	delete pDrumkit;

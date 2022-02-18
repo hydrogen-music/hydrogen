@@ -29,7 +29,6 @@
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Hydrogen.h>
-#include <core/Timeline.h>
 #include "EventListener.h"
 
 
@@ -46,10 +45,10 @@ public:
 	Director(const Director&) = delete;
 	Director& operator=( const Director& rhs ) = delete;
 
-	virtual void metronomeEvent( int nValue );
-	virtual void paintEvent( QPaintEvent*);
-	void keyPressEvent( QKeyEvent* ev );
-	void closeEvent( QCloseEvent* ev );
+	virtual void metronomeEvent( int nValue ) override;
+	virtual void paintEvent( QPaintEvent*) override;
+	virtual void keyPressEvent( QKeyEvent* ev ) override;
+	virtual void closeEvent( QCloseEvent* ev ) override;
 
 private slots:
 	void updateMetronomBackground();
@@ -57,7 +56,6 @@ private slots:
 
 private:
 	QTimer				*m_pTimer;
-	H2Core::Timeline	*m_pTimeline;
 	QColor				m_Color;
 	QPalette			m_BlinkerPalette;
 	int					m_nCounter;

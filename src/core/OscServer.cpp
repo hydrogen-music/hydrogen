@@ -756,6 +756,19 @@ void OscServer::SONG_EDITOR_TOGGLE_GRID_CELL_Handler(lo_arg **argv, int argc) {
 								 static_cast<int>(std::round( argv[1]->f )) );
 }
 
+void OscServer::LOAD_DRUMKIT_Handler(lo_arg **argv, int argc) {
+	
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+
+	bool bConditionalLoad = true;
+	if ( argc > 1 ) {
+		bConditionalLoad = argv[1]->f == 0 ? false : true;
+	}
+	
+	pController->loadDrumkit( QString::fromUtf8( &argv[0]->s ),
+							  bConditionalLoad );
+}
+
 // -------------------------------------------------------------------
 // Helper functions
 
@@ -1037,6 +1050,8 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/OPEN_PATTERN", "s", OPEN_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/REMOVE_PATTERN", "f", REMOVE_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/SONG_EDITOR_TOGGLE_GRID_CELL", "ff", SONG_EDITOR_TOGGLE_GRID_CELL_Handler);
+	m_pServerThread->add_method("/Hydrogen/LOAD_DRUMKIT", "s", LOAD_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/LOAD_DRUMKIT", "sf", LOAD_DRUMKIT_Handler);
 
 	m_bInitialized = true;
 	

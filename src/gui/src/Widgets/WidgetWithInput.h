@@ -60,7 +60,7 @@ class WidgetWithInput : public QWidget, public MidiLearnable {
 	Q_OBJECT
 
 public:
-	WidgetWithInput( QWidget* parent, bool bUseIntSteps, QString sBaseTooltip, int nScrollSpeed, int nScrollSpeedFast, float fMin, float fMax );
+	WidgetWithInput( QWidget* parent, bool bUseIntSteps, QString sBaseTooltip, int nScrollSpeed, int nScrollSpeedFast, float fMin, float fMax, bool bModifyOnChange );
 	~WidgetWithInput();
 	void setMin( float fMin );
 	float getMin() const;
@@ -114,7 +114,7 @@ protected:
 	int m_nWidgetHeight;
 
 	int m_nScrollSpeed;
-	// Fast version used when the Control modifier is pressed.
+	/** Fast version used when the Control modifier is pressed.*/
 	int m_nScrollSpeedFast;
 
 	float m_fMin;
@@ -129,15 +129,19 @@ protected:
 	float m_fMousePressValue;
 	float m_fMousePressY;
 
-	// All key input will be appended to this string.
+	/** All key input will be appended to this string.*/
 	QString m_sInputBuffer;
 	timeval m_inputBufferTimeval;
-	// Number of seconds before #m_sInputBuffer will be flushed
-	// (happens asynchronically whenever the next key input occurs.)
+	/** Number of seconds before #m_sInputBuffer will be flushed
+		(happens asynchronically whenever the next key input occurs.)*/
 	double m_inputBufferTimeout;
 
 	QString m_sRegisteredMidiEvent;
 	int m_nRegisteredMidiParameter;
+
+	/** Whether Hydrogen::setIsModified() is invoked with `true` as
+		soon as the value of the widget does change.*/
+	bool m_bModifyOnChange;
 };
 
 inline float WidgetWithInput::getValue() const {

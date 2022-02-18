@@ -177,7 +177,7 @@ int PortAudioDriver::connect()
 			memset( &outputParameters, '\0', sizeof( outputParameters ) );
 			outputParameters.channelCount = 2;
 			outputParameters.device = nDevice;
-			outputParameters.hostApiSpecificStreamInfo = NULL;
+			outputParameters.hostApiSpecificStreamInfo = nullptr;
 			outputParameters.sampleFormat = paFloat32;
 
 			// Use the same latency setting as Pa_OpenDefaultStream() -- defaulting to the high suggested

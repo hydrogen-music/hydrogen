@@ -24,6 +24,7 @@
 #include <QtWidgets>
 
 #include "../HydrogenApp.h"
+#include "../CommonStrings.h"
 
 #include "SoundLibraryPropertiesDialog.h"
 #include "../InstrumentRack.h"
@@ -136,6 +137,7 @@ void SoundLibraryPropertiesDialog::on_imageBrowsePushButton_clicked()
 
 void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	bool reload = false;
 
@@ -160,7 +162,11 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 
 	// Check the drumkit name. if the name is a new one, one qmessagebox with question "are you sure" will displayed.
 	if ( nameTxt->text() != m_pDrumkitInfo->get_name()  ){
-		int res = QMessageBox::information( this, "Hydrogen", tr( "Warning! Changing the drumkit name will result in creating a new drumkit with this name.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
+		int res = QMessageBox::information( this, "Hydrogen",
+											tr( "Warning! Changing the drumkit name will result in creating a new drumkit with this name.\nAre you sure?"),
+											pCommonStrings->getButtonOk(),
+											pCommonStrings->getButtonCancel(),
+											nullptr, 1 );
 		if ( res == 1 ) {
 			return;
 		}

@@ -94,22 +94,14 @@ float DrumkitComponent::get_out_R( int nBufferPos )
 	return __out_R[nBufferPos];
 }
 
-void DrumkitComponent::load_from( DrumkitComponent* component, bool is_live )
+void DrumkitComponent::load_from( DrumkitComponent* component )
 {
 	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
-
-	if ( is_live ) {
-		pAudioEngine->lock( RIGHT_HERE );
-	}
 
 	this->set_id( component->get_id() );
 	this->set_name( component->get_name() );
 	this->set_muted( component->is_muted() );
 	this->set_volume( component->get_volume() );
-
-	if ( is_live ) {
-		pAudioEngine->unlock();
-	}
 }
 
 DrumkitComponent* DrumkitComponent::load_from( XMLNode* node, const QString& dk_path )

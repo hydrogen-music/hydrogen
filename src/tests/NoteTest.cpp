@@ -79,4 +79,3 @@ class NoteTest : public CppUnit::TestCase {
 	}
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION( NoteTest );

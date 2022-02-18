@@ -40,16 +40,16 @@ public:
 	FakeDriver( audioProcessCallback processCallback );
 	~FakeDriver();
 
-	int init( unsigned nBufferSize );
-	int connect();
-	void disconnect();
-	unsigned getBufferSize() {
+	virtual int init( unsigned nBufferSize ) override;
+	virtual int connect() override;
+	virtual void disconnect() override;
+	virtual unsigned getBufferSize() override {
 		return m_nBufferSize;
 	}
-	unsigned getSampleRate();
+	virtual unsigned getSampleRate() override;
 
-	float* getOut_L();
-	float* getOut_R();
+	virtual float* getOut_L() override;
+	virtual float* getOut_R() override;
 
 	void processCallback();
 

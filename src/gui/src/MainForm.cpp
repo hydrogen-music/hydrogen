@@ -84,8 +84,9 @@ using namespace H2Core;
 
 int MainForm::sigusr1Fd[2];
 
-MainForm::MainForm( QApplication * pQApplication )
+MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 	: QMainWindow( nullptr )
+	, m_sPreviousAutoSaveFilename( "" )
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
@@ -104,12 +105,40 @@ MainForm::MainForm( QApplication * pQApplication )
 
 	m_pQApp->processEvents();
 
+	// When using the Non Session Management system, the new Song
+	// will be loaded by the NSM client singleton itself and not
+	// by the MainForm. The latter will just access the already
+	// loaded Song.
+	if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ){
+		std::shared_ptr<H2Core::Song>pSong = nullptr;
+
+		if ( sSongFilename.isEmpty() ) {
+			if ( pPref->isRestoreLastSongEnabled() ) {
+				sSongFilename = pPref->getLastSongFilename();
+			}
+		}
+
+		bool bRet;
+		if ( !sSongFilename.isEmpty() ) {
+			if ( sSongFilename == H2Core::Filesystem::empty_song_path() ) {
+				bRet = HydrogenApp::recoverEmptySong();
+			} else {
+				bRet = HydrogenApp::openSong( sSongFilename );
+			}
+		}
+
+		if ( sSongFilename.isEmpty() || ! bRet ) {
+			pSong = H2Core::Song::getEmptySong();
+			HydrogenApp::openSong( pSong );
+		}
+	}
+
 	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	setFont( font );
 	m_pQApp->setFont( font );
 
-	showDevelWarning();
 	h2app = new HydrogenApp( this );
+	showDevelWarning();
 	h2app->addEventListener( this );
 	createMenuBar();
 	checkMidiSetup();
@@ -133,7 +162,7 @@ MainForm::MainForm( QApplication * pQApplication )
 	installEventFilter( this );
 
 	connect( &m_AutosaveTimer, SIGNAL(timeout()), this, SLOT(onAutoSaveTimer()));
-	m_AutosaveTimer.start( 60 * 1000 );
+	startAutosaveTimer();
 
 #ifdef H2CORE_HAVE_LASH
 
@@ -183,9 +212,14 @@ MainForm::MainForm( QApplication * pQApplication )
 
 MainForm::~MainForm()
 {
-	// remove the autosave file
-	QFile file( getAutoSaveFilename() );
-	file.remove();
+	auto pHydrogen = Hydrogen::get_instance();
+	
+	// Remove the autosave file in case all modifications already have
+	// been written to disk.
+	if ( ! pHydrogen->getSong()->getIsModified() ) {
+		QFile file( getAutoSaveFilename() );
+		file.remove();
+	}
 
 	//if a playlist is used, we save the last playlist-path to hydrogen.conf
 	Preferences::get_instance()->setLastPlaylistFilename( Playlist::get_instance()->getFilename() );
@@ -193,13 +227,7 @@ MainForm::~MainForm()
 	if ( (Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
-
-	// remove the autosave file
-	m_AutosaveTimer.stop();
-	QFile autosaveFile( "hydrogen_autosave.h2song" );
-	autosaveFile.remove();
-
-
+	
 	hide();
 
 	if (h2app != nullptr) {
@@ -424,6 +452,22 @@ void MainForm::createMenuBar()
 	//~ INFO menu
 }
 
+void MainForm::startAutosaveTimer() {
+	int nAutosavesPerHour = Preferences::get_instance()->m_nAutosavesPerHour;
+
+	if ( nAutosavesPerHour > 0 ) {
+		if ( nAutosavesPerHour > 360 ) {
+			ERRORLOG( QString( "Too many autosaves per hour set [%1]. Using 360 - once a second - instead." )
+					  .arg( nAutosavesPerHour ) );
+			nAutosavesPerHour = 360;
+		}
+		m_AutosaveTimer.start( std::round( 60 * 60 * 1000 /
+										   static_cast<float>(nAutosavesPerHour) ) );
+	} else {
+		DEBUGLOG( "Autosave disabled" );
+	}
+}
+
 void MainForm::onLashPollTimer()
 {
 #ifdef H2CORE_HAVE_LASH
@@ -546,9 +590,6 @@ void MainForm::action_file_new()
 		return;
 	}
 	
-	h2app->m_pUndoStack->clear();
-	pHydrogen->getTimeline()->deleteAllTempoMarkers();
-	pHydrogen->getTimeline()->deleteAllTags();
 	std::shared_ptr<Song> pSong = Song::getEmptySong();
 
 	if ( bUnderSessionManagement ) {
@@ -569,6 +610,22 @@ void MainForm::action_file_new()
 		}
 	}
 
+	// Since the user explicitly chooses to open an empty song, we do
+	// not attempt to recover the autosave file generated while last
+	// working on an empty song but, instead, remove the corresponding
+	// autosave file in order to start fresh.
+	QFileInfo fileInfo( Filesystem::empty_song_path() );
+	QString sBaseName( fileInfo.completeBaseName() );
+	if ( sBaseName.front() == "." ) {
+		sBaseName.remove( 0, 1 );
+	}
+	QFileInfo autoSaveFile( QString( "%1/.%2.autosave.h2song" )
+							.arg( fileInfo.absoluteDir().absolutePath() )
+							.arg( sBaseName ) );
+	if ( autoSaveFile.exists() ) {
+		Filesystem::rm( autoSaveFile.absoluteFilePath() );
+	}
+	
 	h2app->openSong( pSong );
 	h2app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 	h2app->getSongEditorPanel()->updatePositionRuler();
@@ -615,44 +672,44 @@ void MainForm::action_file_save_as()
 	QString defaultFilename;
 	QString lastFilename = pSong->getFilename();
 
-	if ( lastFilename.isEmpty() ) {
+	if ( lastFilename == Filesystem::empty_song_path() ) {
+		defaultFilename = Filesystem::default_song_name();
+	} else if ( lastFilename.isEmpty() ) {
 		defaultFilename = pHydrogen->getSong()->getName();
-	}
-	else {
+	} else {
 		QFileInfo fileInfo( lastFilename );
-		defaultFilename = fileInfo.baseName();
+		defaultFilename = fileInfo.completeBaseName();
 	}
 	defaultFilename += Filesystem::songs_ext;
 
 	fd.selectFile( defaultFilename );
 
-	QString filename;
 	if (fd.exec() == QDialog::Accepted) {
-		filename = fd.selectedFiles().first();
-	}
+		QString filename = fd.selectedFiles().first();
 
-	if ( !filename.isEmpty() ) {
-		Preferences::get_instance()->setLastSaveSongAsDirectory( fd.directory().absolutePath( ) );
+		if ( !filename.isEmpty() ) {
+			Preferences::get_instance()->setLastSaveSongAsDirectory( fd.directory().absolutePath( ) );
 
-		QString sNewFilename = filename;
-		if ( sNewFilename.endsWith( Filesystem::songs_ext ) == false ) {
-			filename += Filesystem::songs_ext;
+			QString sNewFilename = filename;
+			if ( sNewFilename.endsWith( Filesystem::songs_ext ) == false ) {
+				filename += Filesystem::songs_ext;
+			}
+
+			pSong->setFilename(filename);
+			action_file_save();
 		}
-
-		pSong->setFilename(filename);
-		action_file_save();
-	}
 	
-	// When Hydrogen is under session management, the file name
-	// provided by the NSM server has to be preserved.
-	if ( pHydrogen->isUnderSessionManagement() ) {
-		pSong->setFilename( lastFilename );
-		h2app->setScrollStatusBarMessage( tr("Song exported as: ") + defaultFilename, 2000 );
-	} else {
-		h2app->setScrollStatusBarMessage( tr("Song saved as: ") + defaultFilename, 2000 );
-	}
+		// When Hydrogen is under session management, the file name
+		// provided by the NSM server has to be preserved.
+		if ( pHydrogen->isUnderSessionManagement() ) {
+			pSong->setFilename( lastFilename );
+			h2app->setScrollStatusBarMessage( tr("Song exported as: ") + defaultFilename, 2000 );
+		} else {
+			h2app->setScrollStatusBarMessage( tr("Song saved as: ") + defaultFilename, 2000 );
+		}
 	
-	h2app->updateWindowTitle();
+		h2app->updateWindowTitle();
+	}
 }
 
 
@@ -662,8 +719,11 @@ void MainForm::action_file_save()
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	QString filename = pSong->getFilename();
 
-	if ( filename.isEmpty() ) {
-		// just in case!
+	if ( filename.isEmpty() ||
+		 filename == Filesystem::empty_song_path() ) {
+		// The empty song is treated differently in order to allow
+		// recovering changes and unsaved sessions. Therefore the
+		// users are ask to store a new song using a different name.
 		return action_file_save_as();
 	}
 
@@ -690,16 +750,6 @@ void MainForm::action_file_save()
 	if(! saved) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save song.") );
 	} else {
-		Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
-
-		// Add the new loaded song in the "last used song"
-		// vector. 
-		// This behavior is prohibited under session management. Only
-		// songs open during normal runs will be listed.
-		if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
-			Preferences::get_instance()->insertRecentFile( filename );
-			updateRecentUsedSongList();
-		}
 
 		h2app->setScrollStatusBarMessage( tr("Song saved.") + QString(" Into: ") + filename, 2000 );
 		EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
@@ -829,43 +879,19 @@ void MainForm::action_file_export_pattern_as()
 }
 
 void MainForm::action_file_open() {
-		
-	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
-		Hydrogen::get_instance()->sequencer_stop();
-	}
-
-	bool bProceed = handleUnsavedChanges();
-	if( !bProceed ) {
-		return;
-	}
-
 	QString sPath = Preferences::get_instance()->getLastOpenSongDirectory();
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
 		sPath = Filesystem::songs_dir();
 	}
 
-	QFileDialog fd(this);
-	fd.setFileMode( QFileDialog::ExistingFile );
-	fd.setDirectory( sPath );
-	fd.setNameFilter( Filesystem::songs_filter_name );
-
+	QString sWindowTitle;
 	if ( H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
-		fd.setWindowTitle( tr( "Import song into Session" ) );
+		sWindowTitle = tr( "Import song into Session" );
 	} else {
-		fd.setWindowTitle( tr( "Open song" ) );
+		sWindowTitle = tr( "Open song" );
 	}
 
-	QString sFilename;
-	if ( fd.exec() == QDialog::Accepted ) {
-		Preferences::get_instance()->setLastOpenSongDirectory( fd.directory().absolutePath() );
-		sFilename = fd.selectedFiles().first();
-	}
-
-	if ( !sFilename.isEmpty() ) {
-		HydrogenApp::get_instance()->openSong( sFilename );
-	}
-
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+	openSongWithDialog( sWindowTitle, sPath, false );
 }
 
 
@@ -903,45 +929,53 @@ void MainForm::action_file_openPattern()
 	}
 }
 
-/// \todo parametrizzare il metodo action_file_open ed eliminare il seguente...
-void MainForm::action_file_openDemo()
-{
-	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
-		Hydrogen::get_instance()->sequencer_stop();
+void MainForm::action_file_openDemo() {
+	QString sWindowTitle;
+	if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
+		sWindowTitle = tr( "Open Demo Song" );
+	} else {
+		sWindowTitle = tr( "Import Demo Song into Session" );
 	}
 
-	bool proceed = handleUnsavedChanges();
-	if(!proceed) {
+	openSongWithDialog( sWindowTitle, Filesystem::demos_dir(), true );
+}
+
+void MainForm::openSongWithDialog( const QString& sWindowTitle, const QString& sPath, bool bIsDemo ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen->getAudioEngine()->getState() ==
+		 H2Core::AudioEngine::State::Playing ) {
+		pHydrogen->sequencer_stop();
+	}
+
+	bool bProceed = handleUnsavedChanges();
+	if( !bProceed ) {
 		return;
 	}
 
-	h2app->m_pUndoStack->clear();
 	QFileDialog fd(this);
-	fd.setFileMode(QFileDialog::ExistingFile);
+	fd.setFileMode( QFileDialog::ExistingFile );
+	fd.setDirectory( sPath );
 	fd.setNameFilter( Filesystem::songs_filter_name );
+	fd.setWindowTitle( sWindowTitle );
 
-	if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
-		fd.setWindowTitle( tr( "Open Demo Song" ) );
-	} else {
-		fd.setWindowTitle( tr( "Import Demo Song into Session" ) );
+	QString sFilename;
+	if ( fd.exec() == QDialog::Accepted ) {
+		if ( ! bIsDemo ) {
+			Preferences::get_instance()->setLastOpenSongDirectory( fd.directory().absolutePath() );
+		}
+		sFilename = fd.selectedFiles().first();
 	}
 
-	fd.setDirectory( Filesystem::demos_dir() );
-
-	QString filename;
-	if (fd.exec() == QDialog::Accepted) {
-		filename = fd.selectedFiles().first();
-	}
-
-	if ( !filename.isEmpty() ) {
-		HydrogenApp::get_instance()->openSong( filename );
-		if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
-			Hydrogen::get_instance()->getSong()->setFilename( "" );
+	if ( !sFilename.isEmpty() ) {
+		HydrogenApp::get_instance()->openSong( sFilename );
+		if ( bIsDemo &&
+			 ! pHydrogen->isUnderSessionManagement() ) {
+			pHydrogen->getSong()->setFilename( "" );
 		}
 	}
+
+	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 }
-
-
 
 void MainForm::showPreferencesDialog()
 {
@@ -1393,6 +1427,10 @@ void MainForm::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		Skin::setPalette( m_pQApp );
 	}
+
+	if ( changes & H2Core::Preferences::Changes::GeneralTab ) {
+		startAutosaveTimer();
+	}
 }
 	
 
@@ -1429,6 +1467,7 @@ void MainForm::onBPMPlusAccelEvent() {
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	pAudioEngine->setNextBpm( pAudioEngine->getBpm() + 0.1 );
 	pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() + 0.1 );
+	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 }
 
 
@@ -1438,30 +1477,8 @@ void MainForm::onBPMMinusAccelEvent() {
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	pAudioEngine->setNextBpm( pAudioEngine->getBpm() - 0.1 );
 	pHydrogen->getSong()->setBpm( pAudioEngine->getBpm() - 0.1 );
+	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 }
-
-
-
-void MainForm::onSaveAsAccelEvent()
-{
-	action_file_save_as();
-}
-
-
-
-void MainForm::onSaveAccelEvent()
-{
-	action_file_save();
-}
-
-
-
-void MainForm::onOpenAccelEvent()
-{
-	action_file_open();
-}
-
-
 
 void MainForm::updateRecentUsedSongList()
 {
@@ -1738,9 +1755,15 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			return true; // eat event
 			break;
 
-		case  Qt::Key_S | Qt::CTRL:
-			onSaveAccelEvent();
-			return true;
+		case Qt::Key_S:
+			if ( k->modifiers() ==
+				 ( Qt::ControlModifier | Qt::ShiftModifier ) ) {
+				action_file_save_as();
+				return true;
+			} else if ( k->modifiers() == Qt::ControlModifier ) {
+				action_file_save();
+				return true;
+			}
 			break;
 
 		case  Qt::Key_F5 :
@@ -1775,22 +1798,22 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 		}
 
 		// virtual keyboard handling
-		std::map<int,int>::iterator found = keycodeInstrumentMap.find ( k->key() );
-		if (found != keycodeInstrumentMap.end()) {
-			//			INFOLOG( "[eventFilter] virtual keyboard event" );
-			// insert note at the current column in time
-			// if event recording enabled
-			int row = (*found).second;
+		if  ( k->modifiers() == Qt::NoModifier ) {
+			std::map<int,int>::iterator found = keycodeInstrumentMap.find ( k->key() );
+			if (found != keycodeInstrumentMap.end()) {
+				//			INFOLOG( "[eventFilter] virtual keyboard event" );
+				// insert note at the current column in time
+				// if event recording enabled
+				int row = (*found).second;
 
-			float velocity = 0.8;
+				float velocity = 0.8;
 
-			pHydrogen->addRealtimeNote (row, velocity, 0.f, 0, false, false , row + 36);
+				pHydrogen->addRealtimeNote (row, velocity, 0.f, 0, false, false , row + 36);
 
-			return true; // eat event
+				return true; // eat event
+			}
 		}
-		else {
-			return false; // let it go
-		}
+		return false; // let it go
 	}
 	else {
 		return false; // standard event processing
@@ -1970,11 +1993,13 @@ void MainForm::showDevelWarning()
 	//set this to 'false' for the case that you want to make a release..
 	if ( H2CORE_IS_DEVEL_BUILD ) {
 		if(isDevelWarningEnabled) {
+			auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 			QString msg = tr( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
 			QMessageBox develMessageBox( this );
 			develMessageBox.setText( msg );
-			develMessageBox.addButton( tr( "Ok" ), QMessageBox::YesRole );
+			develMessageBox.addButton( pCommonStrings->getButtonOk(),
+									   QMessageBox::YesRole );
 			develMessageBox.addButton( tr( "Don't show this message anymore" ) , QMessageBox::AcceptRole );
 
 			if( develMessageBox.exec() == 1 ){
@@ -2001,26 +2026,62 @@ QString MainForm::getAutoSaveFilename()
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	assert( pSong );
 	QString sOldFilename = pSong->getFilename();
-	QString newName = "autosave.h2song";
+	QString sNewName;
 
 	if ( !sOldFilename.isEmpty() ) {
-		newName = sOldFilename.left( sOldFilename.length() - 7 ) + ".autosave.h2song";
+
+		QFileInfo fileInfo( sOldFilename );
+
+		// In case the user did open a hidden file, the baseName()
+		// will be an empty string.
+		QString sBaseName( fileInfo.completeBaseName() );
+		if ( sBaseName.front() == "." ) {
+			sBaseName.remove( 0, 1 );
+		}
+
+		QString sAbsoluteDir( fileInfo.absoluteDir().absolutePath() );
+		if ( ! Filesystem::file_writable( sOldFilename, true ) ) {
+
+			sNewName = QString( "%1%2.autosave.h2song" )
+				.arg( Filesystem::songs_dir() ).arg( sBaseName );
+		
+			WARNINGLOG( QString( "Path of current song [%1] is not writable. Autosave will store the song as [%2] instead." )
+						.arg( sOldFilename ).arg( sNewName ) );
+		} else {
+			sNewName = QString( "%1/.%2.autosave.h2song" )
+				.arg( sAbsoluteDir ).arg( sBaseName );
+		}
+	} else {
+		// Store the default autosave file in the user's song data
+		// folder to not clutter their working directory.
+		sNewName = QString( "%1autosave.h2song" )
+			.arg( Filesystem::songs_dir() );
 	}
 
-	return newName;
+	return sNewName;
 }
 
 
 
 void MainForm::onAutoSaveTimer()
 {
-	//INFOLOG( "[onAutoSaveTimer]" );
 	auto pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+
 	assert( pSong );
 	if ( pSong->getIsModified() ) {
 		QString sOldFilename = pSong->getFilename();
-		pSong->save( getAutoSaveFilename() );
+
+		QString sAutoSaveFilename = getAutoSaveFilename();
+		if ( sAutoSaveFilename != m_sPreviousAutoSaveFilename ) {
+			if ( ! m_sPreviousAutoSaveFilename.isEmpty() ) {
+				QFile file( m_sPreviousAutoSaveFilename );
+				file.remove();
+			}
+			m_sPreviousAutoSaveFilename = sAutoSaveFilename;
+		}
+			
+		pSong->save( sAutoSaveFilename );
 
 		pSong->setFilename( sOldFilename );
 		pHydrogen->setIsModified( true );
@@ -2053,6 +2114,7 @@ void MainForm::onPlaylistDisplayTimer()
 // Returns false if not (i.e. Cancel)
 bool MainForm::handleUnsavedChanges()
 {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	bool done = false;
 	bool rv = true;
 	while ( !done && Hydrogen::get_instance()->getSong()->getIsModified() ) {
@@ -2060,9 +2122,11 @@ bool MainForm::handleUnsavedChanges()
 				 QMessageBox::information( this, "Hydrogen",
 										 tr("\nThe document contains unsaved changes.\n"
 												"Do you want to save the changes?\n"),
-										 tr("&Save"), tr("&Discard"), tr("&Cancel"),
-										 0,      // Enter == button 0
-										 2 ) ) { // Escape == button 2
+										   pCommonStrings->getButtonSave(),
+										   pCommonStrings->getButtonDiscard(),
+										   pCommonStrings->getButtonCancel(),
+										   0,      // Enter == button 0
+										   2 ) ) { // Escape == button 2
 		case 0: // Save clicked or Alt+S pressed or Enter pressed.
 			// If the save fails, the __is_modified flag will still be true
 			if ( ! Hydrogen::get_instance()->getSong()->getFilename().isEmpty() ) {
@@ -2085,8 +2149,8 @@ bool MainForm::handleUnsavedChanges()
 		}
 	}
 
-	if(rv != false)
-	{
+	if( rv != false ) {
+		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 		while ( !done && Playlist::get_instance()->getIsModified() ) {
 			switch(
 					QMessageBox::information(
@@ -2094,9 +2158,10 @@ bool MainForm::handleUnsavedChanges()
 								"Hydrogen",
 								tr("\nThe current playlist contains unsaved changes.\n"
 								"Do you want to discard the changes?\n"),
-								tr("&Discard"), tr("&Cancel"),
-								 nullptr,      // Enter == button 0
-								 2 ) ) { // Escape == button 1
+								pCommonStrings->getButtonDiscard(),
+								pCommonStrings->getButtonCancel(),
+								nullptr,      // Enter == button 0
+								2 ) ) { // Escape == button 1
 			case 0: // Discard clicked or Alt+D pressed
 				// don't save but exit
 				done = true;
@@ -2252,6 +2317,13 @@ void MainForm::action_banks_properties()
 	delete pDrumkitInfo;
 }
 
+void MainForm::updateSongEvent( int nValue ) {
+	if ( nValue == 0 ) {
+		// A new song was set.
+		updateRecentUsedSongList();
+	}
+}
+
 void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
@@ -2282,17 +2354,9 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 		// To provide a similar behaviour as when pressing
 		// [backspace], transport is relocated to the beginning of
 		// the song.
-		float fTickSize = pAudioEngine->getTickSize();
 		int nCursorColumn = pApp->getPatternEditorPanel()->getCursorPosition();
-
-		// While updating the note queue the audio engine does add
-		// a "lookahead" to the position in order to avoid playing
-		// notes twice. This has to be taken into account or the
-		// note we start the playback at will be omitted.
-		if ( nCursorColumn > 0 ) {
-			nCursorColumn -= pAudioEngine->calculateLookahead( fTickSize ) / fTickSize;
-		}
-		pCoreActionController->locateToFrame( static_cast<unsigned long>( nCursorColumn * fTickSize ) );
+		
+		pCoreActionController->locateToTick( nCursorColumn );
 	} else {
 		ERRORLOG( QString( "Unknown object class" ) );
 	}

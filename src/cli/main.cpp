@@ -56,9 +56,6 @@ void showUsage();
 static struct option long_opts[] = {
 	{"driver", required_argument, nullptr, 'd'},
 	{"song", required_argument, nullptr, 's'},
-#ifdef H2CORE_HAVE_JACKSESSION
-	{"jacksessionid", required_argument, nullptr, 'S'},
-#endif
 	{"playlist", required_argument, nullptr, 'p'},
 	{"bits", required_argument, nullptr, 'b'},
 	{"rate", required_argument, nullptr, 'r'},
@@ -141,9 +138,6 @@ int main(int argc, char *argv[])
 		short bits = 16;
 		int rate = 44100;
 		short interpolation = 0;
-#ifdef H2CORE_HAVE_JACKSESSION
-		QString sessionId;
-#endif
 		int c;
 		while ( 1 ) {
 			c = getopt_long(argc, argv, opts, long_opts, nullptr);
@@ -182,11 +176,6 @@ int main(int argc, char *argv[])
 			case 'V':
 				logLevelOpt = (optarg) ? optarg : "Warning";
 				break;
-#ifdef H2CORE_HAVE_JACKSESSION
-			case 'S':
-				sessionId = QString::fromLocal8Bit(optarg);
-				break;
-#endif
 			case 'h':
 			case '?':
 				showHelpOpt = true;
@@ -269,25 +258,6 @@ int main(int argc, char *argv[])
 			}
 		}
 #endif
-#ifdef H2CORE_HAVE_JACKSESSION
-		if (!sessionId.isEmpty()) {
-			preferences->setJackSessionUUID ( sessionId );
-			/* imo, jack sessions use jack as default audio driver.
-			 * hydrogen remember last used audiodriver.
-			 * here we make it save that hydrogen start in a jacksession case
-			 * every time with jack as audio driver
-			 */
-			preferences->m_sAudioDriver = "JACK";
-
-		}
-		/* the use of applicationFilePath() make it
-		 * possible to use different executables.
-		 * for example if you start hydrogen from a local
-		 * build directory.
-		 */
-//		QString path = pQApp->applicationFilePath();
-//		preferences->setJackSessionApplicationPath ( path );
-#endif
 		Hydrogen::create_instance();
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
 		std::shared_ptr<Song> pSong = nullptr;
@@ -343,12 +313,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! drumkitToLoad.isEmpty() ){
-			Drumkit* drumkitInfo = Drumkit::load_by_name( drumkitToLoad, true );
-			if ( drumkitInfo ) {
-				pHydrogen->loadDrumkit( drumkitInfo );
-			} else {
-				___ERRORLOG ( "Error loading the drumkit" );
-			}
+			pHydrogen->getCoreActionController()->loadDrumkit( drumkitToLoad, true );
 		}
 
 		AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
@@ -474,7 +439,7 @@ int main(int argc, char *argv[])
 void showInfo()
 {
 	std::cout << "\nHydrogen " + get_version() + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << std::endl;
-	std::cout << "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2021 The hydrogen development team" << std::endl;
+	std::cout << "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2022 The hydrogen development team" << std::endl;
 
 	if ( Base::count_active() ) {
 		std::cout << "\nObject counting active" << std::endl;
@@ -501,10 +466,6 @@ void showUsage()
 	std::cout << "   -i, --install FILE - install a drumkit (*.h2drumkit)" << std::endl;
 	std::cout << "   -I, --interpolate INT - Interpolation" << std::endl;
 	std::cout << "       (0:linear [default],1:cosine,2:third,3:cubic,4:hermite)" << std::endl;
-
-#ifdef H2CORE_HAVE_JACKSESSION
-	std::cout << "   -S, --jacksessionid ID - Start a JackSessionHandler session" << std::endl;
-#endif
 
 #ifdef H2CORE_HAVE_LASH
 	std::cout << "   --lash-no-start-server - If LASH server not running, don't start" << std::endl

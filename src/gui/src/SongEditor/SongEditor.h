@@ -95,6 +95,8 @@ class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public S
 		void clearThePatternSequenceVector( QString filename );
 		void updateEditorandSetTrue();
 
+		int yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView );
+
 	public slots:
 
 		void selectAll();
@@ -384,6 +386,7 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		virtual void mousePressEvent( QMouseEvent *ev ) override;
 		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
 		virtual void paintEvent( QPaintEvent *ev ) override;
+
 	// virtual void enterEvent( QEvent* ev ) override;
 	virtual void leaveEvent( QEvent* ev ) override;
 	virtual bool event( QEvent* ev ) override;

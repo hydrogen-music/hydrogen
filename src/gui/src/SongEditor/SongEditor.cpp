@@ -35,7 +35,6 @@
 #include <core/LocalFileMng.h>
 #include <core/Timeline.h>
 #include <core/Helpers/Xml.h>
-#include <core/IO/DiskWriterDriver.h>
 using namespace H2Core;
 
 #include "UndoActions.h"
@@ -50,6 +49,7 @@ using namespace H2Core;
 #include "SoundLibrary/SoundLibraryDatastructures.h"
 #include "../PatternEditor/PatternEditorPanel.h"
 #include "../HydrogenApp.h"
+#include "../CommonStrings.h"
 #include "../InstrumentRack.h"
 #include "../PatternPropertiesDialog.h"
 #include "../SongPropertiesDialog.h"
@@ -128,6 +128,161 @@ SongEditor::~SongEditor()
 {
 }
 
+
+/// Calculate a target Y scroll value for tracking a playing song
+///
+/// Songs with many patterns may not fit in the current viewport of the Song Editor. Depending on how the song
+/// is structured, as the viewport scrolls to show different times, the playing patterns may end up being
+/// off-screen. It would be ideal to be able to follow the progression of the song in a meaningful and useful
+/// way, but since multiple patterns may be active at any one time, it's non-trivial to define a useful
+/// behaviour that captures more than the simple case of a song with one pattern active at a time.
+///
+/// As an attempt to define a useful behaviour which captures what the user might expect to happen, we define
+/// the behaviour as follows:
+///   * If there are no currently playing patterns which are entirely visible:
+///       * Find the position with the smallest amount of scrolling from the current location which:
+///           * Fits the maximum number of currently playing patterns in view at the same time.
+///
+/// This covers the trivial cases where only a single pattern is playing, and gives some intuitive behaviour
+/// for songs containing multiple playing patterns where the general progression is diagonal but with constant
+/// (or near-constant) background elements, and the "minimum scrolling" allows the user to hint if we stray
+/// off the path.
+///
+int SongEditor::yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView )
+{
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	int nScroll = pScrollArea->verticalScrollBar()->value();
+	int nHeight = pScrollArea->height();
+
+	PatternList *pCurrentPatternList = m_pAudioEngine->getPlayingPatterns();
+
+	// If no patterns are playing, no scrolling needed either.
+	if ( pCurrentPatternList->size() == 0 ) {
+		return nScroll;
+	}
+
+	PatternList *pSongPatterns = pHydrogen->getSong()->getPatternList();
+
+	// Duplicate the playing patterns vector before finding the pattern numbers of the playing patterns. This
+	// avoids doing a linear search in the critical section.
+	std::vector<Pattern *> currentPatterns;
+	m_pAudioEngine->lock( RIGHT_HERE );
+	for ( Pattern *pPattern : *pCurrentPatternList ) {
+		currentPatterns.push_back( pPattern );
+	}
+	m_pAudioEngine->unlock();
+
+	std::vector<int> playingRows;
+	for ( Pattern *pPattern : currentPatterns ) {
+		playingRows.push_back( pSongPatterns->index( pPattern ) );
+	}
+
+	// Check if there are any currently playing patterns which are entirely visible.
+	for ( int r : playingRows ) {
+		if ( r * m_nGridHeight >= nScroll
+			 && (r+1) * m_nGridHeight <= nScroll + nHeight) {
+			// Entirely visible. Our current scroll value is good.
+			if ( pnPatternInView ) {
+				*pnPatternInView = r;
+			}
+			return nScroll;
+		}
+	}
+
+	// Find the maximum number of patterns that will fit in the viewport. We do this by sorting the playing
+	// patterns on their row value, and traversing in order, considering each pattern in turn as visible just
+	// at the bottom of the viewport. The pattern visible nearest the top of the viewport is tracked, and the
+	// number of patterns visible in the viewport is given by the difference of the indices in the pattern
+	// array.
+	//
+	// We track the maximum number of patterns visible, and record the patterns to scroll to differently
+	// depending on whether the pattern is above or below the current viewport: for patterns above, we record
+	// the topmost pattern in the maximal group, and for those below, record the bottommost pattern, as these
+	// define the minimum amount of scrolling needed to fit the patterns in and don't want to scroll further
+	// just to expose empty cells.
+
+	std::sort( playingRows.begin(), playingRows.end() );
+
+	int nTopIdx = 0;
+	int nAboveMax = 0, nAbovePattern = -1, nAboveClosestPattern = -1,
+		nBelowMax = 0, nBelowPattern = -1, nBelowClosestPattern = -1;
+
+	for ( int nBottomIdx = 0; nBottomIdx < playingRows.size(); nBottomIdx++) {
+		int nBottom = playingRows[ nBottomIdx ] * m_nGridHeight;
+		int nTop;
+		// Each bottom pattern is further down the list, so update the top pattern to track the top of the
+		// viewport.
+		for (;;) {
+			nTop = ( playingRows[ nTopIdx ] +1 ) * m_nGridHeight -1;
+			if ( nTop < nBottom - nHeight ) {
+				nTopIdx++;
+				assert( nTopIdx <= nBottomIdx && nTopIdx < playingRows.size() );
+			} else {
+				break;
+			}
+		}
+		int nPatternsInViewport = nBottomIdx - nTopIdx +1;
+		if ( nBottom < nScroll ) {
+			// Above the viewport, accept any new maximal group, to find the maximal group closest to the
+			// current viewport.
+			if ( nPatternsInViewport >= nAboveMax ) {
+				nAboveMax = nPatternsInViewport;
+				// Above the viewport, we want to move only so far as to get the top pattern into the
+				// viewport. Record the top pattern.
+				nAbovePattern = playingRows[ nTopIdx ];
+				nAboveClosestPattern = playingRows[ nBottomIdx ];
+			}
+		} else {
+			// Below the viewport, only accept a new maximal group if it's greater than the current maximal
+			// group.
+			if ( nPatternsInViewport > nBelowMax ) {
+				nBelowMax = nPatternsInViewport;
+				// Below the viewport, we want to scroll down to get the bottom pattern into view, so record
+				// the bottom pattern.
+				nBelowPattern = playingRows[ nBottomIdx ];
+				nBelowClosestPattern = playingRows[ nTopIdx ];
+			}
+		}
+	}
+
+	// Pick between moving up, or moving down.
+	int nAboveY = nAbovePattern * m_nGridHeight;
+	int nBelowY = (nBelowPattern +1) * m_nGridHeight - nHeight;
+	enum { Up, Down } direction = Down;
+	if ( nAboveMax != 0) {
+		if ( nAboveMax > nBelowMax ) {
+			// Move up to capture more active patterns
+			direction = Up;
+		} else if ( nBelowMax > nAboveMax ) {
+			// Move down to capture more active patterns
+			direction = Down;
+		} else {
+			// Tie-breaker. Which is closer?
+			assert( nAboveY <= nScroll &&  nScroll <= nBelowY );
+			if ( nScroll - nAboveY < nBelowY - nScroll ) {
+				direction = Up;
+			} else {
+				direction = Down;
+			}
+		}
+	} else {
+		assert( nBelowMax != 0 );
+		// Move down
+		direction = Down;
+	}
+
+	if ( direction == Up ) {
+		if ( pnPatternInView ) {
+			*pnPatternInView = nAboveClosestPattern;
+		}
+		return nAboveY;
+	} else {
+		if ( pnPatternInView ) {
+			*pnPatternInView = nBelowClosestPattern;
+		}
+		return nBelowY;
+	}
+}
 
 
 int SongEditor::getGridWidth ()
@@ -347,7 +502,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 			deleteSelection();
 		} else {
 			// No selection, delete at the current cursor position
-			togglePatternActive( m_nCursorColumn, m_nCursorRow );
+			setPatternActive( m_nCursorColumn, m_nCursorRow, false );
 		}
 
 	} else if ( ev->matches( QKeySequence::MoveToNextChar ) || ( bSelectionKey = ev->matches( QKeySequence::SelectNextChar ) ) ) {
@@ -574,10 +729,11 @@ void SongEditor::updateModifiers( QInputEvent *ev )
 
 void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 {
+	auto pSong = Hydrogen::get_instance()->getSong();
 	updateModifiers( ev );
 	m_currentMousePosition = ev->pos();
 
-	if ( Hydrogen::get_instance()->getSong()->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
+	if ( pSong->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
 		m_selection.mouseMoveEvent( ev );
 	} else {
 		if ( ev->x() < m_nMargin ) {
@@ -585,9 +741,18 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 		}
 
 		QPoint p = xyToColumnRow( ev->pos() );
+		if ( m_nCursorColumn == p.x() && m_nCursorRow == p.y() ) {
+			// Cursor has not entered a different cell yet.
+			return;
+		}
 		m_nCursorColumn = p.x();
 		m_nCursorRow = p.y();
 		HydrogenApp::get_instance()->setHideKeyboardCursor( true );
+
+		if ( m_nCursorRow >= pSong->getPatternList()->size() ) {
+			// We are below the bottom of the pattern list.
+			return;
+		}
 
 		// Drawing mode: continue drawing over other cells
 		setPatternActive( p.x(), p.y(), ! m_bDrawingActiveCell );
@@ -1034,9 +1199,11 @@ void SongEditor::clearThePatternSequenceVector( QString filename )
 		delete pPatternList;
 	}
 	pPatternGroupsVect->clear();
+	pHydrogen->updateSongSize();
+	
+	m_pAudioEngine->unlock();
 
 	pHydrogen->setIsModified( true );
-	m_pAudioEngine->unlock();
 	m_bSequenceChanged = true;
 	update();
 }
@@ -1225,6 +1392,9 @@ void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 {
 	QPainter painter(this);
 	qreal pixelRatio = devicePixelRatio();
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
+		createBackground();
+	}
 	QRectF srcRect(
 			pixelRatio * ev->rect().x(),
 			pixelRatio * ev->rect().y(),
@@ -1275,7 +1445,7 @@ void SongEditorPatternList::createBackground()
 	static int oldHeight = -1;
 	int newHeight = m_nGridHeight * nPatterns;
 
-	if (oldHeight != newHeight) {
+	if ( oldHeight != newHeight || m_pBackgroundPixmap->devicePixelRatio() != devicePixelRatio() ) {
 		if (newHeight == 0) {
 			newHeight = 1;	// the pixmap should not be empty
 		}
@@ -1460,13 +1630,18 @@ void SongEditorPatternList::patternPopup_export()
 
 void SongEditorPatternList::patternPopup_save()
 {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	Hydrogen *engine = Hydrogen::get_instance();
 	std::shared_ptr<Song> song = engine->getSong();
 	Pattern *pattern = song->getPatternList()->get( engine->getSelectedPatternNumber() );
 
 	QString path = Files::savePatternNew( pattern->get_name(), pattern, song, engine->getCurrentDrumkitName() );
 	if ( path.isEmpty() ) {
-		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 ) != 0 ) {
+		if ( QMessageBox::information( this, "Hydrogen",
+									   tr( "The pattern-file exists. \nOverwrite the existing pattern?"),
+									   pCommonStrings->getButtonOk(),
+									   pCommonStrings->getButtonCancel(),
+									   nullptr, 1 ) != 0 ) {
 			return;
 		}
 		path = Files::savePatternOver( pattern->get_name(), pattern, song, engine->getCurrentDrumkitName() );
@@ -1614,6 +1789,8 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 		pSongPatternList->add( pEmptyPattern );
 	}
 
+	m_pHydrogen->updateSongSize();
+	
 	m_pAudioEngine->unlock();
 	
 	m_pHydrogen->setSelectedPatternNumber( -1 );
@@ -1630,16 +1807,18 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 
 	pSongPatternList->flattened_virtual_patterns_compute();
 
-	delete pattern;
 	m_pHydrogen->setIsModified( true );
+
+	delete pattern;
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 
 }
 
 void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilename, QString sequenceFileName, int patternPosition )
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	PatternList *pPatternList = pSong->getPatternList();
 
 	Pattern* pattern = Pattern::load_file( patternFilename, pSong->getInstrumentList() );
@@ -1647,7 +1826,10 @@ void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilen
 		_ERRORLOG( "Error loading the pattern" );
 	}
 
+	pAudioEngine->lock( RIGHT_HERE );
 	pPatternList->insert( patternPosition, pattern );
+	pHydrogen->updateSongSize();
+	pAudioEngine->unlock();
 
 	pHydrogen->setIsModified( true );
 	createBackground();
@@ -2038,7 +2220,7 @@ void SongEditorPositionRuler::createBackground()
 	Preferences *pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	Timeline * pTimeline = pHydrogen->getTimeline();
+	auto pTimeline = pHydrogen->getTimeline();
 	auto tagVector = pTimeline->getAllTags();
 	
 	QColor textColor( pPref->getColorTheme()->m_songEditor_textColor );
@@ -2049,6 +2231,14 @@ void SongEditorPositionRuler::createBackground()
 	QColor backgroundColorTempoMarkers = backgroundColor.darker( 120 );
 
 	QColor colorHighlight = pPref->getColorTheme()->m_highlightColor;
+
+	// Resize pixmap if pixel ratio has changed
+	qreal pixelRatio = devicePixelRatio();
+	if ( m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
+		delete m_pBackgroundPixmap;
+		m_pBackgroundPixmap = new QPixmap( width()  * pixelRatio , height() * pixelRatio );
+		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+	}
 
 	m_pBackgroundPixmap->fill( backgroundColor );
 
@@ -2461,11 +2651,14 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 
-	if ( m_pAudioEngine->getPlayingPatterns()->size() != 0 ) {
-		int nLength = m_pAudioEngine->getPlayingPatterns()->longest_pattern_length();
+	auto pPatternGroupVector = Hydrogen::get_instance()->getSong()->getPatternGroupVector();
+	int nColumn = m_pAudioEngine->getColumn();
+
+	if ( pPatternGroupVector->size() >= nColumn &&
+		 pPatternGroupVector->at( nColumn )->size() > 0 ) {
+		int nLength = pPatternGroupVector->at( nColumn )->longest_pattern_length();
 		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)nLength;
-	}
-	else {
+	} else {
 		// nessun pattern, uso la grandezza di default
 		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)MAX_NOTES;
 	}
@@ -2480,6 +2673,9 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 	QPainter painter(this);
 	qreal pixelRatio = devicePixelRatio();
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
+		createBackground();
+	}
 	QRectF srcRect(
 			pixelRatio * ev->rect().x(),
 			pixelRatio * ev->rect().y(),
@@ -2517,7 +2713,7 @@ void SongEditorPositionRuler::updatePosition()
 
 void SongEditorPositionRuler::editTagAction( QString text, int position, QString textToReplace)
 {
-	Timeline* pTimeline = m_pHydrogen->getTimeline();
+	auto pTimeline = m_pHydrogen->getTimeline();
 
 	const QString sTag = pTimeline->getTagAtColumn( position );
 	pTimeline->deleteTag( position );
@@ -2528,7 +2724,7 @@ void SongEditorPositionRuler::editTagAction( QString text, int position, QString
 
 void SongEditorPositionRuler::deleteTagAction( QString text, int position )
 {
-	Timeline* pTimeline = m_pHydrogen->getTimeline();
+	auto pTimeline = m_pHydrogen->getTimeline();
 
 	const QString sTag = pTimeline->getTagAtColumn( position );
 	pTimeline->deleteTag( position );

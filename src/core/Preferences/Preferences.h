@@ -367,6 +367,7 @@ public:
 
 	///Default text editor (used by Playlisteditor)
 	QString				m_sDefaultEditor;
+	int				m_nAutosavesPerHour;
 
 	///Rubberband CLI
 	QString				m_rubberBandCLIexecutable;
@@ -542,6 +543,9 @@ public:
 	bool			hideKeyboardCursor();
 	void			setHideKeyboardCursor( bool b );
 
+	bool			patternFollowsSong();
+	void			setPatternFollowsSong( bool b );
+
 	/** @param bars Sets #m_nMaxBars.*/
 	void				setMaxBars( const int bars );
 	/** @return #m_nMaxBars.*/
@@ -554,15 +558,6 @@ public:
 
 	void			setWaitForSessionHandler(bool value);
 	bool			getWaitForSessionHandler();
-
-#if defined(H2CORE_HAVE_JACKSESSION) || _DOXYGEN_
-	QString			getJackSessionUUID();
-	void			setJackSessionUUID( QString uuid );
-
-	QString			getJackSessionApplicationPath();
-	void			setJackSessionApplicationPath( QString path );
-#endif
-
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 	void			setNsmClientId(const QString& nsmClientId);
@@ -703,6 +698,7 @@ private:
 	int					punchInPos;
 	int					punchOutPos;
 	bool				m_bHideKeyboardCursor;
+	bool				m_bPatternFollowsSong;
 	/** Maximum number of bars shown in the Song Editor at
 	 * once. 
 	 *
@@ -726,11 +722,6 @@ private:
 	QStringList			m_recentFX;
 	std::vector<QString> 		m_recentFiles;
 
-#if defined(H2CORE_HAVE_JACKSESSION) || _DOXYGEN_
-		QString			jackSessionUUID;
-		QString			jackSessionApplicationPath;
-#endif
-
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 		QString			m_sNsmClientId;
 		QString			m_sNsmSongName;
@@ -746,6 +737,7 @@ private:
 	 * getUseTimelineBpm().
 	 */
 	bool					__useTimelineBpm;
+
 
 	//___ GUI properties ___
 	int						m_nLastOpenTab;
@@ -1062,6 +1054,14 @@ inline bool Preferences::hideKeyboardCursor() {
 	return m_bHideKeyboardCursor;
 }
 
+inline void Preferences::setPatternFollowsSong( bool value ) {
+	m_bPatternFollowsSong = value;
+}
+
+inline bool Preferences::patternFollowsSong() {
+	return m_bPatternFollowsSong;
+}
+
 inline bool Preferences::isRestoreLastSongEnabled() {
 	return m_brestoreLastSong;
 }
@@ -1371,26 +1371,6 @@ inline void Preferences::setWaitForSessionHandler(bool value){
 inline bool Preferences::getWaitForSessionHandler(){
 		return waitingForSessionHandler;
 }
-
-#if defined(H2CORE_HAVE_JACKSESSION) || _DOXYGEN_
-inline QString Preferences::getJackSessionUUID(){
-	return jackSessionUUID;
-}
-
-inline void Preferences::setJackSessionUUID( QString uuid ){
-	jackSessionUUID = uuid;
-}
-
-inline QString Preferences::getJackSessionApplicationPath(){
-	return jackSessionApplicationPath;
-}
-
-inline void Preferences::setJackSessionApplicationPath( QString path ){
-	jackSessionApplicationPath = path;
-}
-
-#endif
-
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 inline void Preferences::setNsmClientId(const QString& nsmClientId){

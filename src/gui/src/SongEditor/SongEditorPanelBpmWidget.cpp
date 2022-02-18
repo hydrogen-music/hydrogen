@@ -25,6 +25,7 @@
 
 #include "UndoActions.h"
 #include "../HydrogenApp.h"
+#include "../CommonStrings.h"
 #include "SongEditorPanelBpmWidget.h"
 #include "SongEditorPanel.h"
 #include "SongEditor.h"
@@ -91,6 +92,7 @@ void SongEditorPanelBpmWidget::on_CancelBtn_clicked()
 
 void SongEditorPanelBpmWidget::on_okBtn_clicked()
 {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	float fNewBpm = bpmSpinBox->text().toFloat( nullptr );
 
 	// In case the input text can not be parsed by Qt `fNewBpm' is 0
@@ -101,7 +103,7 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 									   .append( QString( "[%1,%2]" )
 												.arg( MIN_BPM )
 												.arg( MAX_BPM ) ) ),
-							  tr("&Cancel") );
+							  pCommonStrings->getButtonCancel() );
 		return;
 	}
 
@@ -111,7 +113,7 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 		 pTimeline->hasColumnTempoMarker( nNewColumn ) ) {
 		QMessageBox::warning( this, "Hydrogen",
 							  QString( tr( "There is already a tempo marker present at this Column. Please use left-click to edit it instead." ) ),
-							  tr("&Cancel") );
+							  pCommonStrings->getButtonCancel() );
 		return;
 	}
 	
@@ -126,7 +128,7 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 void SongEditorPanelBpmWidget::on_deleteBtn_clicked()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Timeline* pTimeline = pHydrogen->getTimeline();
+	auto pTimeline = pHydrogen->getTimeline();
 
 	float fBpm = pTimeline->getTempoAtColumn( m_nColumn );
 

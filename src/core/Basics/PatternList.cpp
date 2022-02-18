@@ -277,6 +277,16 @@ QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
 	
 	return sOutput;
 }
+
+
+std::vector<Pattern*>::iterator PatternList::begin() {
+	assertAudioEngineLocked();
+	return __patterns.begin();
+}
+
+std::vector<Pattern*>::iterator PatternList::end() {
+	return __patterns.end();
+}
  
 }
 

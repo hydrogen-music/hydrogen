@@ -47,8 +47,8 @@ class SoundLibraryTree : public QTreeWidget, private H2Core::Object<SoundLibrary
 
 	protected:
 
-		virtual void mousePressEvent(QMouseEvent *event);
-		virtual void mouseMoveEvent(QMouseEvent *event);
+		virtual void mousePressEvent(QMouseEvent *event) override;
+		virtual void mouseMoveEvent(QMouseEvent *event) override;
 
 
 };

@@ -196,6 +196,23 @@ bool LocalFileMng::readXmlBool( QDomNode node , const QString& nodeName, bool de
 	}
 }
 
+bool LocalFileMng::readXmlBool( QDomNode node , const QString& nodeName, bool defaultValue, bool* pFound, bool bShouldExists, bool tinyXmlCompatMode)
+{
+	QString text = processNode( node, nodeName, bShouldExists, bShouldExists );
+	if ( text.isEmpty() ) {
+		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ? "true" : "false" ).arg( nodeName ) );
+		*pFound = false;
+		return defaultValue;
+	} else {
+		*pFound = true;
+		if ( text == "true") {
+			return true;
+		} else {
+			return false;
+		}
+	}
+}
+
 
 void LocalFileMng::writeXmlString( QDomNode parent, const QString& name, const QString& text )
 {
@@ -406,7 +423,7 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 	LocalFileMng::writeXmlString( songNode, "author", pSong->getAuthor() );
 	LocalFileMng::writeXmlString( songNode, "notes", pSong->getNotes() );
 	LocalFileMng::writeXmlString( songNode, "license", pSong->getLicense() );
-	LocalFileMng::writeXmlBool( songNode, "loopEnabled", pSong->getIsLoopEnabled() );
+	LocalFileMng::writeXmlBool( songNode, "loopEnabled", pSong->isLoopEnabled() );
 	LocalFileMng::writeXmlBool( songNode, "patternModeMode", Preferences::get_instance()->patternModePlaysSelected());
 	
 	LocalFileMng::writeXmlString( songNode, "playbackTrackFilename", QString("%1").arg( pSong->getPlaybackTrackFilename() ) );
@@ -414,6 +431,7 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 	LocalFileMng::writeXmlString( songNode, "playbackTrackVolume", QString("%1").arg( pSong->getPlaybackTrackVolume() ) );
 	LocalFileMng::writeXmlString( songNode, "action_mode",
 								  QString::number( static_cast<int>( pSong->getActionMode() ) ) );
+	LocalFileMng::writeXmlBool( songNode, "isTimelineActivated", pSong->getIsTimelineActivated() );
 	
 	if ( pSong->getMode() == Song::Mode::Song ) {
 		LocalFileMng::writeXmlString( songNode, "mode", QString( "song" ) );
@@ -739,7 +757,7 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 
 
 	//bpm time line
-	Timeline * pTimeline = Hydrogen::get_instance()->getTimeline();
+	auto pTimeline = Hydrogen::get_instance()->getTimeline();
 
 	QDomNode bpmTimeLine = doc.createElement( "BPMTimeLine" );
 

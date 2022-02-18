@@ -337,6 +337,58 @@ CommonStrings::CommonStrings(){
 	m_sTimelineEnabled = tr( "Enable the Timeline for custom tempo changes" );
 	m_sTimelineDisabledPatternMode = tr( "The Timeline is only available in Song Mode" );
 	m_sTimelineDisabledTimebaseSlave = tr( "In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen" );
+	
+	/*: Displayed in the Preferences dialog in the info section for a
+	  particular driver in case it is not properly supported on the
+	  system.*/
+	m_sPreferencesNotCompiled = tr( "Not compiled" );
+	/*: Displayed in the Preferences dialog within a driver combobox
+	  in case no driver was selected.*/
+	m_sPreferencesNone = tr( "None" );
+	/*: Displayed in the Preferences dialog as a tooltip for both the
+	  sample rate combobox and buffer size spinbox.*/
+	m_sPreferencesJackTooltip = tr( "Both buffer size and sample rate can only be altered in the configuration of the JACK server itself." );
+
+	/*: Text displayed on a Ok button of a dialog. The character after
+	  the '&' symbol can be used as a hotkey and the '&' symbol itself
+	  will not be displayed.*/
+	m_sButtonOk = tr( "&Ok" );
+	/*: Text displayed on a Save button of a dialog. The character after
+	  the '&' symbol can be used as a hotkey and the '&' symbol itself
+	  will not be displayed.*/
+	m_sButtonSave = tr( "&Save" );
+	/*: Text displayed on a Cancel button of a dialog. The character
+	  after the '&' symbol can be used as a hotkey and the '&' symbol
+	  itself will not be displayed.*/
+	m_sButtonCancel = tr( "&Cancel" );
+	/*: Text displayed on a Discard button of a dialog. The character
+	  after the '&' symbol can be used as a hotkey and the '&' symbol
+	  itself will not be displayed.*/
+	m_sButtonDiscard = tr( "&Discard" );
+	/*: Text displayed on a Play button which will start playback. The
+	  character after the '&' symbol can be used as a hotkey and the
+	  '&' symbol itself will not be displayed.*/
+	m_sButtonPlay = tr( "&Play" );
+	/*: Text displayed on a Play button in the SampleEditor which will
+	  start playback of the original file. The character after the '&'
+	  symbol can be used as a hotkey and the '&' symbol itself will
+	  not be displayed.*/
+	m_sButtonPlayOriginalSample = tr( "Play &original sample" );
+	/*: Displayed in popup dialogs in case the user attempts to close
+	  a window which still contains unsaved changes. The '\n'
+	  character introduces a linebreak and must not be translated*/
+	m_sUnsavedChanges = tr( "Unsaved changes left. These changes will be lost. \nAre you sure?" );
+
+	// Not used yet.
+	/*: Displayed in the Open dialog window if the selected song could
+	  not be loaded.*/
+	// m_sDialogSongLoadError = tr( "Error loading song." );
+	/*: Heading displayed in the info box asking the user to recover
+	  unsaved changes from an earlier session.*/
+	// m_sDialogUnsavedChangedH1 = tr( "There are unsaved changes." );
+	/*: Additional text displayed in the info box asking the user to
+	  recover unsaved changes from an earlier session.*/
+	// m_sDialogUnsavedChangedH2 = tr( "Do you want to recover them?" );
 }
 
 CommonStrings::~CommonStrings(){

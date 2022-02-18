@@ -52,7 +52,7 @@ public:
 		Master
 	};
 	
-	Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSteps = false, bool bWithoutKnob = false, float fMin = 0.0, float fMax = 1.0 );
+	Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSteps = false, bool bWithoutKnob = false, float fMin = 0.0, float fMax = 1.0, bool bModifyOnChange = true );
 	~Fader();
 
 	void setMaxPeak( float fMax );
@@ -78,8 +78,8 @@ private:
 	float m_fMinPeak;
 	float m_fMaxPeak;
 	
-	virtual void mouseMoveEvent(QMouseEvent *ev);
-	virtual void mousePressEvent(QMouseEvent *ev);
-	virtual void paintEvent(QPaintEvent *ev);
+	virtual void mouseMoveEvent(QMouseEvent *ev) override;
+	virtual void mousePressEvent(QMouseEvent *ev) override;
+	virtual void paintEvent(QPaintEvent *ev) override;
 };
 #endif

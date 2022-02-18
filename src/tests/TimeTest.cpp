@@ -44,9 +44,17 @@ void TimeTest::setUp(){
 	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
 	pCoreActionController->openSong( QString( "%1/GM_kit_demo3.h2song" ).arg( Filesystem::demos_dir() ) );
 	pCoreActionController->saveSongAs( m_sValidPath );
+	
+	pCoreActionController->activateTimeline( true );
+	pCoreActionController->addTempoMarker( 0, 120 );
+	pCoreActionController->addTempoMarker( 3, 100 );
+	pCoreActionController->addTempoMarker( 5, 40 );
+	pCoreActionController->addTempoMarker( 7, 200 );
 }
 
 void TimeTest::tearDown(){
+
+	Hydrogen::get_instance()->getCoreActionController()->activateTimeline( false );
 	
 	// Delete all temporary files
 	if ( QFile::exists( m_sValidPath ) ) {
@@ -56,43 +64,25 @@ void TimeTest::tearDown(){
 
 float TimeTest::locateAndLookupTime( int nPatternPos ){
 	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioDriver = pHydrogen->getAudioOutput();
-	auto pSong = pHydrogen->getSong();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 
 	pCoreActionController->locateToColumn( nPatternPos );
-
-	pAudioEngine->lock( RIGHT_HERE );
-	long nTick = pAudioEngine->getTickForColumn( nPatternPos );
-	pAudioEngine->unlock();
-	
-	pAudioEngine->calculateElapsedTime( pAudioDriver->getSampleRate(),
-										nTick * pAudioEngine->getTickSize(),
-										pSong->getResolution() );
 	return pAudioEngine->getElapsedTime();
 }
 
 void TimeTest::testElapsedTime(){
-	
-	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
-		
-	pCoreActionController->activateTimeline( true );
-	pCoreActionController->addTempoMarker( 0, 120 );
-	pCoreActionController->addTempoMarker( 3, 100 );
-	pCoreActionController->addTempoMarker( 5, 40 );
-	pCoreActionController->addTempoMarker( 7, 200 );
 
 	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 0 ) - 0 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 1 ) - 1.98958 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 2 ) - 3.98958 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 3 ) - 5.98958 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 4 ) - 8.3875 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 5 ) - 10.7875 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 6 ) - 16.7687 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 7 ) - 22.7687 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 8 ) - 23.9937 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 1 ) - 1.98958 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 5 ) - 10.7875 ) < 0.0001 );
-	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 2 ) - 3.98958 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 1 ) - 2 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 2 ) - 4 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 3 ) - 6 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 4 ) - 8.4 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 5 ) - 10.8 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 6 ) - 16.8 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 7 ) - 22.8 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 8 ) - 24 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 1 ) - 2 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 5 ) - 10.8 ) < 0.0001 );
+	CPPUNIT_ASSERT( std::abs( locateAndLookupTime( 2 ) - 4 ) < 0.0001 );
 }
