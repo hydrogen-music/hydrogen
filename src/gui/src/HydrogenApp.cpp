@@ -992,10 +992,6 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 		getSongEditorPanel()->updatePositionRuler();
 	
-		// Trigger a reset of the Director and MetronomeWidget.
-		EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
-		EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
-	
 		m_pSongEditorPanel->updateAll();
 		m_pPatternEditorPanel->updateSLnameLabel();
 		updateWindowTitle();
@@ -1007,7 +1003,6 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		// Song was saved.
 		setScrollStatusBarMessage( tr("Song saved.") + QString(" Into: ") + filename, 2000 );
 		updateWindowTitle();
-		EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 		
 	} else if ( nValue == 2 ) {
 

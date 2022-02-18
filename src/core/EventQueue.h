@@ -67,14 +67,12 @@ enum EventType {
 	/** Event indicating the triggering of the
 	 * #H2Core::AudioEngine::m_pMetronomeInstrument.
 	 *
-	 * In audioEngine_updateNoteQueue() the pushing of this Event is
+	 * In AudioEngine::updateNoteQueue() the pushing of this Event is
 	 * decoupled from the creation and queuing of the corresponding
 	 * Note itself.
 	 *
-	 * In Director it triggers a change in the displayed number,
-	 * color, tag, and triggers Director::update(). In case the
-	 * provided value is 3, instead of performing the changes above,
-	 * the Director loads the metadata a the current Song.
+	 * In Director it triggers a change in the displayed column
+	 * number, tempo, and tag.
 	 *
 	 * The associated values do correspond to the following actions:
 	 * - 0: Beat at the beginning of a Pattern in
@@ -88,13 +86,6 @@ enum EventType {
 	 *      be created with a pitch of 0 and velocity of 0.8.
 	 *      Sets MetronomeWidget::m_state to
 	 *      MetronomeWidget::METRO_FIRST and triggers
-	 *      MetronomeWidget::updateWidget().
-	 * - 2: Signals MetronomeWidget to neither update nor setting
-	 *      MetronomeWidget::m_state.
-	 * - 3: Tells the Director that a new Song was loaded and triggers
-	 *      its Director::update().
-	 *      Sets MetronomeWidget::m_state to
-	 *      MetronomeWidget::METRO_ON and triggers
 	 *      MetronomeWidget::updateWidget().
 	 *
 	 * Handled by EventListener::metronomeEvent().
@@ -139,8 +130,8 @@ enum EventType {
 
 	/** Enables/disables the usage of the Timeline.*/ 
 	EVENT_TIMELINE_ACTIVATION,
-	/** Tells the GUI some parts of the Timeline - currently
-		adding/deleting of tempo markers - were modified.*/
+	/** Tells the GUI some parts of the Timeline (tempo markers or
+		tags) were modified.*/
 	EVENT_TIMELINE_UPDATE,
 	/** Toggles the button indicating the usage Jack transport.*/
 	EVENT_JACK_TRANSPORT_ACTIVATION,

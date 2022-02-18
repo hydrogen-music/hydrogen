@@ -192,9 +192,6 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 
 	//beatcouter
 	Hydrogen::get_instance()->setBcOffsetAdjust();
-	// director
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 
 	m_pUndoView = new QUndoView(h2app->m_pUndoStack);
 	m_pUndoView->setWindowTitle(tr("Undo history"));
@@ -629,11 +626,6 @@ void MainForm::action_file_new()
 	h2app->openSong( pSong );
 	h2app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 	h2app->getSongEditorPanel()->updatePositionRuler();
-
-	// update director tags
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
-	// update director songname
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 }
 
 
@@ -746,13 +738,10 @@ void MainForm::action_file_save()
 	bool saved = false;
 	saved = pSong->save( filename );
 
-
 	if(! saved) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save song.") );
 	} else {
-
 		h2app->setScrollStatusBarMessage( tr("Song saved.") + QString(" Into: ") + filename, 2000 );
-		EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 	}
 }
 
