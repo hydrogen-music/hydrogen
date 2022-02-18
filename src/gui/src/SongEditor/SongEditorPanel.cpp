@@ -978,8 +978,11 @@ void SongEditorPanel::setTimelineEnabled( bool bEnabled ) {
 	HydrogenApp::get_instance()->setStatusBarMessage( sMessage, 5000);
 }
 
-void SongEditorPanel::updateSongEditorEvent( int ) {
-	updateAll();
+void SongEditorPanel::updateSongEditorEvent( int nValue ) {
+	// A new song got loaded
+	if ( nValue == 0 ) {
+		updateAll();
+	}
 }
 
 void SongEditorPanel::columnChangedEvent( int ) {

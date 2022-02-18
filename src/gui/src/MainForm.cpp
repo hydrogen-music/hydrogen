@@ -2321,6 +2321,10 @@ void MainForm::updateSongEvent( int nValue ) {
 	}
 }
 
+void MainForm::quitEvent( int ) {
+	closeAll();
+}
+
 void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();

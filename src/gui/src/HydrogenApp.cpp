@@ -978,7 +978,11 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 
 void HydrogenApp::updateSongEvent( int nValue ) {
 
-	Hydrogen* pHydrogen = Hydrogen::get_instance();	
+	auto pHydrogen = Hydrogen::get_instance();	
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 	
 	if ( nValue == 0 ) {
 		// Cleanup
@@ -986,22 +990,14 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		m_pUndoStack->clear();
 		
 		// Update GUI components
-		m_pSongEditorPanel->updateAll();
-		m_pPatternEditorPanel->updateSLnameLabel();
-		updateWindowTitle();
-		getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
-		getSongEditorPanel()->updatePositionRuler();
-	
-		m_pSongEditorPanel->updateAll();
-		m_pPatternEditorPanel->updateSLnameLabel();
 		updateWindowTitle();
 		
 	} else if ( nValue == 1 ) {
 		
-		QString filename = pHydrogen->getSong()->getFilename();
+		QString sFilename = pSong->getFilename();
 		
 		// Song was saved.
-		setScrollStatusBarMessage( tr("Song saved.") + QString(" Into: ") + filename, 2000 );
+		setScrollStatusBarMessage( tr("Song saved as: ") + sFilename, 2000 );
 		updateWindowTitle();
 		
 	} else if ( nValue == 2 ) {
@@ -1012,12 +1008,6 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		// sure.
 		QMessageBox::information( m_pMainForm, "Hydrogen", tr("Song is read-only.\nUse 'Save as' to enable autosave." ) );
 	}
-}
-
-void HydrogenApp::quitEvent( int nValue ) {
-
-	m_pMainForm->closeAll();
-	
 }
 
 void HydrogenApp::changePreferences( H2Core::Preferences::Changes changes ) {
