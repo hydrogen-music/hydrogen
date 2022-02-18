@@ -137,8 +137,8 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 	setFont( font );
 	m_pQApp->setFont( font );
 
-	showDevelWarning();
 	h2app = new HydrogenApp( this );
+	showDevelWarning();
 	h2app->addEventListener( this );
 	createMenuBar();
 	checkMidiSetup();

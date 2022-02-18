@@ -28,7 +28,7 @@
 
 // check if jack support is disabled
 #if defined(H2CORE_HAVE_JACK) || _DOXYGEN_
-// JACK support es enabled.
+// JACK support is enabled.
 
 #include <map>
 #include <memory>
@@ -605,9 +605,10 @@ public:
 	 */
 	JackAudioDriver( audioProcessCallback m_processCallback ) : NullDriver( m_processCallback ) {}
 
-	// Required since this function is a friend of AudioEngine which
-	// needs to be build even if no JACK support is desired.
+	// Required since these functions are a friend of AudioEngine which
+	// need to be build even if no JACK support is desired.
 	void updateTransportInfo() {}
+	void relocateUsingBBT() {}
 };
 
 }; // H2Core namespace
