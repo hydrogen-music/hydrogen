@@ -709,6 +709,42 @@ bool CoreActionController::deleteTempoMarker( int nPosition ) {
 	return true;
 }
 
+bool CoreActionController::addTag( int nPosition, const QString& sText ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pTimeline = pHydrogen->getTimeline();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	pTimeline->deleteTag( nPosition );
+	pTimeline->addTag( nPosition, sText );
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
+
+	return true;
+}
+
+bool CoreActionController::deleteTag( int nPosition ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	pHydrogen->getTimeline()->deleteTag( nPosition );
+	
+	pHydrogen->setIsModified( true );
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
+
+	return true;
+}
+
 bool CoreActionController::activateJackTransport( bool bActivate ) {
 	
 #ifdef H2CORE_HAVE_JACK

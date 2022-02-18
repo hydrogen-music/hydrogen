@@ -195,6 +195,26 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 */
 		bool deleteTempoMarker( int nPosition );
 		/**
+		 * Adds a tag to the Timeline.
+		 *
+		 * @param nPosition Location of the tag in bars.
+		 * @param sText Message associated with the tag.
+		 *
+		 * @return bool true on success
+		 */
+		bool addTag( int nPosition, const QString& sText );
+		/**
+		 * Delete a tag from the Timeline.
+		 *
+		 * If no tag is present at @a nPosition, the function
+		 * will return true as well.
+		 *
+		 * @param nPosition Location of the tag in bars.
+		 *
+		 * @return bool true on success
+		 */
+		bool deleteTag( int nPosition );
+		/**
 		 * (De)activates the usage of Jack transport.
 		 *
 		 * Note that this function will fail if Jack is not used as
