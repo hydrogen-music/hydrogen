@@ -632,9 +632,13 @@ void MainForm::action_file_new()
 
 void MainForm::action_file_save_as()
 {
-	const bool bUnderSessionManagement = H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
-		
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		return;
+	}
+	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
 
 	if ( pHydrogen->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 			pHydrogen->sequencer_stop();
@@ -660,7 +664,6 @@ void MainForm::action_file_save_as()
 	
 	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::songs_dir() ) );
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	QString defaultFilename;
 	QString lastFilename = pSong->getFilename();
 
@@ -693,7 +696,7 @@ void MainForm::action_file_save_as()
 	
 		// When Hydrogen is under session management, the file name
 		// provided by the NSM server has to be preserved.
-		if ( pHydrogen->isUnderSessionManagement() ) {
+		if ( bUnderSessionManagement ) {
 			pSong->setFilename( lastFilename );
 			h2app->setScrollStatusBarMessage( tr("Song exported as: ") + defaultFilename, 2000 );
 		} else {
@@ -708,7 +711,14 @@ void MainForm::action_file_save_as()
 
 void MainForm::action_file_save()
 {
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		return;
+	}
+	
+	auto pCoreActionController = pHydrogen->getCoreActionController();
 	QString filename = pSong->getFilename();
 
 	if ( filename.isEmpty() ||
@@ -735,10 +745,8 @@ void MainForm::action_file_save()
 	// Clear the pattern editor selection to resolve any duplicates
 	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->clearSelection();
 
-	bool saved = false;
-	saved = pSong->save( filename );
-
-	if(! saved) {
+	bool bSaved = pCoreActionController->saveSongAs( filename );
+	if( ! bSaved ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save song.") );
 	} else {
 		h2app->setScrollStatusBarMessage( tr("Song saved.") + QString(" Into: ") + filename, 2000 );
