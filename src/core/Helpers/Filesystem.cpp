@@ -72,7 +72,7 @@
 
 #define AUTOSAVE        "autosave"
 
-#define UNTITLED_SONG		"untitled.h2song"
+#define UNTITLED_SONG		"Untitled Song"
 #define UNTITLED_PLAYLIST	"untitled.h2playlist"
 
 // filters
@@ -457,7 +457,8 @@ QString Filesystem::empty_song_path() {
 
 	return sPath;
 }
-QString Filesystem::untitled_song_file_name()
+
+QString Filesystem::untitled_song_name()
 {
 	return UNTITLED_SONG;
 }

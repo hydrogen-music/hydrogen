@@ -126,8 +126,8 @@ namespace H2Core
 		/** Default option to offer the user when saving an empty song
 			to disk.*/
 		static QString default_song_name();
-		/** returns untitled song file name */
-		static QString untitled_song_file_name();
+		/** returns untitled song name */
+		static QString untitled_song_name();
 		/** Returns a string containing the path to the
 		    _click.wav_ file used in the metronome. 
 			*

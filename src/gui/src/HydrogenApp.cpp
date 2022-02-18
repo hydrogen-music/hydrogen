@@ -584,25 +584,47 @@ void HydrogenApp::setStatusBarMessage( const QString& msg, int msec )
 
 void HydrogenApp::updateWindowTitle()
 {
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = Hydrogen::get_instance()->getSong();
 	assert(pSong);
 
-	QString title;
+	QString sTitle = Filesystem::untitled_song_name();
 
-	// special handling for initial title
-	QString qsSongName( pSong->getName() );
+	QString sSongName( pSong->getName() );
+	QString sFilePath( pSong->getFilename() );
 
-	if( qsSongName == "Untitled Song" && !pSong->getFilename().isEmpty() ){
-		qsSongName = pSong->getFilename().section( '/', -1 );
-	}
-
-	if(pSong->getIsModified()){
-		title = qsSongName + " (" + QString(tr("modified")) + ")";
+	if ( sFilePath == Filesystem::empty_song_path() ||
+		 sFilePath.isEmpty() ) {
+		// An empty song is _not_ associated with a file. Therefore,
+		// we mustn't show the file name.
+		if ( ! sSongName.isEmpty() ) {
+			sTitle = sSongName;
+		}
 	} else {
-		title = qsSongName;
+		QFileInfo fileInfo( sFilePath );
+
+		if ( sSongName == Filesystem::untitled_song_name() ||
+			 sSongName == fileInfo.completeBaseName() ) {
+			// The user did not alter the default name of the song or
+			// set the song name but also named the corresponding file
+			// accordingly. We'll just show the file name to avoid
+			// duplication.
+			sTitle = fileInfo.fileName();
+
+		} else {
+			// The user did set the song name but used a different
+			// name for the corresponding file. We'll show both to
+			// make this mismatch transparent.
+			sTitle = QString( "%1 [%2]" ).arg( sSongName )
+				.arg( fileInfo.fileName() );
+		}
 	}
 
-	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString( get_version().c_str()) + QString( " - " ) + title ) );
+	if( pSong->getIsModified() ){
+		sTitle.append( " (" + tr( "modified" ) + ")" );
+	}
+
+	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString( get_version().c_str()) +
+								   QString( " - " ) + sTitle ) );
 }
 
 void HydrogenApp::setScrollStatusBarMessage( const QString& msg, int msec, bool test )
