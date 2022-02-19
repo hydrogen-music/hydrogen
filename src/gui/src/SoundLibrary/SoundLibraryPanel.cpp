@@ -919,3 +919,10 @@ void SoundLibraryPanel::onPreferencesChanged( H2Core::Preferences::Changes chang
 		}
 	}
 }
+
+void SoundLibraryPanel::updateSongEvent( int nValue ) {
+	// A new song got loaded
+	if ( nValue == 0 ) {
+		update_background_color();
+	}
+}

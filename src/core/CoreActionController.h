@@ -195,6 +195,26 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 */
 		bool deleteTempoMarker( int nPosition );
 		/**
+		 * Adds a tag to the Timeline.
+		 *
+		 * @param nPosition Location of the tag in bars.
+		 * @param sText Message associated with the tag.
+		 *
+		 * @return bool true on success
+		 */
+		bool addTag( int nPosition, const QString& sText );
+		/**
+		 * Delete a tag from the Timeline.
+		 *
+		 * If no tag is present at @a nPosition, the function
+		 * will return true as well.
+		 *
+		 * @param nPosition Location of the tag in bars.
+		 *
+		 * @return bool true on success
+		 */
+		bool deleteTag( int nPosition );
+		/**
 		 * (De)activates the usage of Jack transport.
 		 *
 		 * Note that this function will fail if Jack is not used as
@@ -315,23 +335,6 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
     	bool toggleGridCell( int nColumn, int nRow );
-		
-		// -----------------------------------------------------------
-		// Helper functions
-		
-		/**
-		 * Checks the path of the .h2song provided via OSC.
-		 *
-		 * It will be checked whether @a songPath
-		 * - is absolute
-		 * - has the '.h2song' suffix
-		 * - is writable (if it exists)
-		 *
-		 * \param songPath Absolute path to an .h2song file.
-		 * \return true - if valid.
-		 */
-		bool isSongPathValid( const QString& songPath );
-		
 	private:
 		
 		/**

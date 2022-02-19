@@ -296,12 +296,6 @@ private slots:
 		 *     opened in read-only mode.
 		 */
 		virtual void updateSongEvent( int nValue ) override;
-		/**
-		 * Calls closeAll() to shutdown Hydrogen.
-		 *
-		 * \param nValue unused
-		 */
-		virtual void quitEvent( int nValue ) override;
 	virtual void drumkitLoadedEvent() override;
 	
 };

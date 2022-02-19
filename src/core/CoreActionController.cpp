@@ -439,8 +439,8 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 	auto pSong = Song::getEmptySong();
 	
 	// Check whether the provided path is valid.
-	if ( !isSongPathValid( sSongPath ) ) {
-		// isSongPathValid takes care of the error log message.
+	if ( !Filesystem::isSongPathValid( sSongPath ) ) {
+		// Filesystem::isSongPathValid takes care of the error log message.
 
 		return false;
 	}
@@ -470,8 +470,8 @@ bool CoreActionController::openSong( const QString& sSongPath, const QString& sR
 	}
 	
 	// Check whether the provided path is valid.
-	if ( !isSongPathValid( sSongPath ) ) {
-		// isSongPathValid takes care of the error log message.
+	if ( !Filesystem::isSongPathValid( sSongPath, true ) ) {
+		// Filesystem::isSongPathValid takes care of the error log message.
 		return false;
 	}
 
@@ -587,8 +587,8 @@ bool CoreActionController::saveSongAs( const QString& sSongPath ) {
 	auto pSong = pHydrogen->getSong();
 	
 	// Check whether the provided path is valid.
-	if ( !isSongPathValid( sSongPath ) ) {
-		// isSongPathValid takes care of the error log message.
+	if ( !Filesystem::isSongPathValid( sSongPath ) ) {
+		// Filesystem::isSongPathValid takes care of the error log message.
 		return false;
 	}
 	
@@ -636,38 +636,6 @@ bool CoreActionController::quit() {
 		ERRORLOG( QString( "Error: Closing the application via the core part is not supported yet!" ) );
 		return false;
 		
-	}
-	
-	return true;
-}
-
-bool CoreActionController::isSongPathValid( const QString& sSongPath ) {
-	
-	QFileInfo songFileInfo = QFileInfo( sSongPath );
-
-	if ( !songFileInfo.isAbsolute() ) {
-		ERRORLOG( QString( "Error: Unable to handle path [%1]. Please provide an absolute file path!" )
-						.arg( sSongPath.toLocal8Bit().data() ));
-		return false;
-	}
-	
-	if ( songFileInfo.exists() ) {
-		if ( !songFileInfo.isReadable() ) {
-			ERRORLOG( QString( "Error: Unable to handle path [%1]. You must have permissions to read the file!" )
-						.arg( sSongPath.toLocal8Bit().data() ));
-			return false;
-		}
-		if ( !songFileInfo.isWritable() ) {
-			WARNINGLOG( QString( "You don't have permissions to write to the Song found in path [%1]. It will be opened as read-only (no autosave)." )
-						.arg( sSongPath.toLocal8Bit().data() ));
-			EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
-		}
-	}
-	
-	if ( songFileInfo.suffix() != "h2song" ) {
-		ERRORLOG( QString( "Error: Unable to handle path [%1]. The provided file must have the suffix '.h2song'!" )
-					.arg( sSongPath.toLocal8Bit().data() ));
-		return false;
 	}
 	
 	return true;
@@ -734,6 +702,42 @@ bool CoreActionController::deleteTempoMarker( int nPosition ) {
 	pHydrogen->getAudioEngine()->handleTimelineChange();
 
 	pAudioEngine->unlock();
+	
+	pHydrogen->setIsModified( true );
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
+
+	return true;
+}
+
+bool CoreActionController::addTag( int nPosition, const QString& sText ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pTimeline = pHydrogen->getTimeline();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	pTimeline->deleteTag( nPosition );
+	pTimeline->addTag( nPosition, sText );
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
+
+	return true;
+}
+
+bool CoreActionController::deleteTag( int nPosition ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	pHydrogen->getTimeline()->deleteTag( nPosition );
 	
 	pHydrogen->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );

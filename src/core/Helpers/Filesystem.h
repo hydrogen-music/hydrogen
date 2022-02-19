@@ -126,8 +126,8 @@ namespace H2Core
 		/** Default option to offer the user when saving an empty song
 			to disk.*/
 		static QString default_song_name();
-		/** returns untitled song file name */
-		static QString untitled_song_file_name();
+		/** returns untitled song name */
+		static QString untitled_song_name();
 		/** Returns a string containing the path to the
 		    _click.wav_ file used in the metronome. 
 			*
@@ -293,6 +293,25 @@ namespace H2Core
 		 * \param sg_name the song name
 		 */
 		static bool song_exists( const QString& sg_name );
+		
+		/**
+		 * Checks the path pointing to a .h2song.
+		 *
+		 * It will be checked whether @a songPath
+		 * - is absolute
+		 * - exists (if @a bCheckExistance is set to true)
+		 * - has the '.h2song' suffix
+		 * - is writable (read-only songs are considered valid as well
+		 * and the function returns true. But it also triggers an
+		 * event informing the GUI to show a read-only warning.)
+		 *
+		 * \param sSongPath Absolute path to an .h2song file.
+		 * \param bCheckExistance Whether the existance of the file is
+		 * checked (should be true for opening and false for creating
+		 * a new song)
+		 * \return true - if valid.
+		 */
+		static bool isSongPathValid( const QString& sSongPath, bool bCheckExistance = false );
 
 		static QStringList theme_list();
 

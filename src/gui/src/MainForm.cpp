@@ -192,9 +192,6 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 
 	//beatcouter
 	Hydrogen::get_instance()->setBcOffsetAdjust();
-	// director
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 
 	m_pUndoView = new QUndoView(h2app->m_pUndoStack);
 	m_pUndoView->setWindowTitle(tr("Undo history"));
@@ -287,7 +284,7 @@ void MainForm::createMenuBar()
 	
 	m_pFileMenu->addAction( sLabelNew, this, SLOT( action_file_new() ), QKeySequence( "Ctrl+N" ) );
 	
-	m_pFileMenu->addAction( tr( "Show &Info" ), this, SLOT( action_file_songProperties() ), QKeySequence( "" ) );
+	m_pFileMenu->addAction( tr( "Song Properties" ), this, SLOT( action_file_songProperties() ), QKeySequence( "" ) );
 	
 	m_pFileMenu->addSeparator();				// -----
 
@@ -629,20 +626,19 @@ void MainForm::action_file_new()
 	h2app->openSong( pSong );
 	h2app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 	h2app->getSongEditorPanel()->updatePositionRuler();
-
-	// update director tags
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
-	// update director songname
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 }
 
 
 
 void MainForm::action_file_save_as()
 {
-	const bool bUnderSessionManagement = H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
-		
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		return;
+	}
+	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
 
 	if ( pHydrogen->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
 			pHydrogen->sequencer_stop();
@@ -668,7 +664,6 @@ void MainForm::action_file_save_as()
 	
 	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::songs_dir() ) );
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	QString defaultFilename;
 	QString lastFilename = pSong->getFilename();
 
@@ -701,7 +696,7 @@ void MainForm::action_file_save_as()
 	
 		// When Hydrogen is under session management, the file name
 		// provided by the NSM server has to be preserved.
-		if ( pHydrogen->isUnderSessionManagement() ) {
+		if ( bUnderSessionManagement ) {
 			pSong->setFilename( lastFilename );
 			h2app->setScrollStatusBarMessage( tr("Song exported as: ") + defaultFilename, 2000 );
 		} else {
@@ -716,7 +711,14 @@ void MainForm::action_file_save_as()
 
 void MainForm::action_file_save()
 {
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		return;
+	}
+	
+	auto pCoreActionController = pHydrogen->getCoreActionController();
 	QString filename = pSong->getFilename();
 
 	if ( filename.isEmpty() ||
@@ -743,16 +745,11 @@ void MainForm::action_file_save()
 	// Clear the pattern editor selection to resolve any duplicates
 	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->clearSelection();
 
-	bool saved = false;
-	saved = pSong->save( filename );
-
-
-	if(! saved) {
+	bool bSaved = pCoreActionController->saveSongAs( filename );
+	if( ! bSaved ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save song.") );
 	} else {
-
 		h2app->setScrollStatusBarMessage( tr("Song saved.") + QString(" Into: ") + filename, 2000 );
-		EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 	}
 }
 
@@ -1970,9 +1967,15 @@ void MainForm::jacksessionEvent( int nEvent )
 
 void MainForm::action_file_songProperties()
 {
+	if ( H2Core::Hydrogen::get_instance()->getSong() == nullptr ) {
+		return;
+	}
+	
 	SongPropertiesDialog *pDialog = new SongPropertiesDialog( this );
-	if ( pDialog->exec() == QDialog::Accepted ) {
-		Hydrogen::get_instance()->setIsModified( true );
+	if ( pDialog->exec() ) {
+		// Ensure the update name is taken into account in the window
+		// title.
+		HydrogenApp::get_instance()->updateWindowTitle();
 	}
 	delete pDialog;
 }
@@ -2322,6 +2325,10 @@ void MainForm::updateSongEvent( int nValue ) {
 		// A new song was set.
 		updateRecentUsedSongList();
 	}
+}
+
+void MainForm::quitEvent( int ) {
+	closeAll();
 }
 
 void MainForm::startPlaybackAtCursor( QObject* pObject ) {

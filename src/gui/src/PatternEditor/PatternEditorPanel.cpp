@@ -1015,7 +1015,12 @@ void PatternEditorPanel::dropEvent( QDropEvent *event )
 	m_pInstrumentList->dropEvent( event );
 }
 
-
+void PatternEditorPanel::updateSongEvent( int nValue ) {
+	// A new song got loaded
+	if ( nValue == 0 ) {
+		updateSLnameLabel();
+	}
+}
 
 void PatternEditorPanel::propertiesComboChanged( int nSelected )
 {

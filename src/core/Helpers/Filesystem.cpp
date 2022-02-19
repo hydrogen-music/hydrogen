@@ -22,6 +22,7 @@
 
 #include <core/LocalFileMng.h>
 #include <core/config.h>
+#include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 
@@ -71,7 +72,7 @@
 
 #define AUTOSAVE        "autosave"
 
-#define UNTITLED_SONG		"untitled.h2song"
+#define UNTITLED_SONG		"Untitled Song"
 #define UNTITLED_PLAYLIST	"untitled.h2playlist"
 
 // filters
@@ -456,7 +457,8 @@ QString Filesystem::empty_song_path() {
 
 	return sPath;
 }
-QString Filesystem::untitled_song_file_name()
+
+QString Filesystem::untitled_song_name()
 {
 	return UNTITLED_SONG;
 }
@@ -810,6 +812,41 @@ QStringList Filesystem::song_list_cleared( )
 bool Filesystem::song_exists( const QString& sg_name )
 {
 	return QDir( songs_dir() ).exists( sg_name );
+}
+
+bool Filesystem::isSongPathValid( const QString& sSongPath, bool bCheckExistance ) {
+	
+	QFileInfo songFileInfo = QFileInfo( sSongPath );
+
+	if ( !songFileInfo.isAbsolute() ) {
+		ERRORLOG( QString( "Error: Unable to handle path [%1]. Please provide an absolute file path!" )
+						.arg( sSongPath.toLocal8Bit().data() ));
+		return false;
+	}
+	
+	if ( songFileInfo.exists() ) {
+		if ( !songFileInfo.isReadable() ) {
+			ERRORLOG( QString( "Unable to handle path [%1]. You must have permissions to read the file!" )
+						.arg( sSongPath.toLocal8Bit().data() ));
+			return false;
+		}
+		if ( !songFileInfo.isWritable() ) {
+			WARNINGLOG( QString( "You don't have permissions to write to the Song found in path [%1]. It will be opened as read-only (no autosave)." )
+						.arg( sSongPath.toLocal8Bit().data() ));
+			EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
+		}
+	} else if ( bCheckExistance ) {
+		ERRORLOG( QString( "Provided song [%1] does not exist" ).arg( sSongPath ) );
+		return false;
+	}
+	
+	if ( songFileInfo.suffix() != "h2song" ) {
+		ERRORLOG( QString( "Unable to handle path [%1]. The provided file must have the suffix '.h2song'!" )
+					.arg( sSongPath.toLocal8Bit().data() ));
+		return false;
+	}
+	
+	return true;
 }
 
 QStringList Filesystem::theme_list( )

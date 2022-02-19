@@ -216,7 +216,9 @@ bool Song::save( const QString& sFilename )
 
 std::shared_ptr<Song> Song::getEmptySong()
 {
-	std::shared_ptr<Song> pSong = std::make_shared<Song>( "Untitled", "hydrogen", 120, 0.5 );
+	std::shared_ptr<Song> pSong =
+		std::make_shared<Song>( Filesystem::untitled_song_name(), "hydrogen",
+								120, 0.5 );
 
 	pSong->setMetronomeVolume( 0.5 );
 	pSong->setNotes( "..." );

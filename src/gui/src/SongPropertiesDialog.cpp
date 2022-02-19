@@ -61,12 +61,30 @@ void SongPropertiesDialog::on_cancelBtn_clicked()
 
 void SongPropertiesDialog::on_okBtn_clicked()
 {
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 
-	pSong->setName( songNameTxt->text() );
-	pSong->setAuthor( authorTxt->text() );
-	pSong->setNotes( notesTxt->toPlainText() );
-	pSong->setLicense( licenseTxt->text() );
+	bool bIsModified = false;
+	if ( songNameTxt->text() != pSong->getName() ) {
+		pSong->setName( songNameTxt->text() );
+		bIsModified = true;
+	}
+	if ( pSong->getAuthor() != authorTxt->text() ) {
+		pSong->setAuthor( authorTxt->text() );
+		bIsModified = true;
+	}
+	if ( pSong->getNotes() != notesTxt->toPlainText() ) {
+		pSong->setNotes( notesTxt->toPlainText() );
+		bIsModified = true;
+	}
+	if ( pSong->getLicense() != licenseTxt->text() ) {
+		pSong->setLicense( licenseTxt->text() );
+		bIsModified = true;
+	}
+
+	if ( bIsModified ) {
+		pHydrogen->setIsModified( true );
+	}
 
 	accept();
 }

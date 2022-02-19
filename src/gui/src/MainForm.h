@@ -58,6 +58,7 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 		virtual void jacksessionEvent( int nValue) override;
 		virtual void playlistLoadSongEvent(int nIndex) override;
 		virtual void updateSongEvent( int nValue ) override;
+	virtual void quitEvent( int ) override;
 
 		/** Handles the loading and saving of the H2Core::Preferences
 		 * from the core part of H2Core::Hydrogen.

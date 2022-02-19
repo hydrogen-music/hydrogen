@@ -58,6 +58,7 @@ public:
 	void test_expandedItems();
 	void update_background_color();
 	virtual void drumkitLoadedEvent() override;
+	virtual void updateSongEvent( int nValue ) override;
 	const QString& getMessageFailedPreDrumkitLoad() const;
 
 public slots:
