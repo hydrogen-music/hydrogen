@@ -291,13 +291,11 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	// like OSC clients.
 	m_pCoreActionController->initExternalControlInterfaces();
 
-	if ( isUnderSessionManagement() ) {
 #ifdef H2CORE_HAVE_OSC
+	if ( isUnderSessionManagement() ) {
 		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, true );
-#endif
-	} else {		
-		Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
 	}
+#endif
 	
 	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION,
 											( pSong->getMode() == Song::Mode::Song) ? 1 : 0 );

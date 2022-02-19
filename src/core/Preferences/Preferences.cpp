@@ -1265,38 +1265,6 @@ void Preferences::setMostRecentFX( QString FX_name )
 	m_recentFX.push_front( FX_name );
 }
 
-void Preferences::insertRecentFile( const QString sFilename ){
-
-	bool bAlreadyContained =
-		std::find( m_recentFiles.begin(), m_recentFiles.end(),
-				   sFilename ) != m_recentFiles.end();
-	
-	m_recentFiles.insert( m_recentFiles.begin(), sFilename );
-
-	if ( bAlreadyContained ) {
-		// Eliminate all duplicates in the list while keeping the one
-		// inserted at the beginning.
-		setRecentFiles( m_recentFiles );
-	}
-}
-
-void Preferences::setRecentFiles( const std::vector<QString> recentFiles )
-{
-	// find single filenames. (skip duplicates)
-	std::vector<QString> sTmpVec;
-	for ( const auto& ssFilename : recentFiles ) {
-		if ( std::find( sTmpVec.begin(), sTmpVec.end(), ssFilename) ==
-			 sTmpVec.end() ) {
-			// Particular file is not contained yet.
-			sTmpVec.push_back( ssFilename );
-		}
-	}
-
-	m_recentFiles = sTmpVec;
-}
-
-
-
 /// Read the xml nodes related to window properties
 WindowProperties Preferences::readWindowProperties( QDomNode parent, const QString& windowName, WindowProperties defaultProp )
 {

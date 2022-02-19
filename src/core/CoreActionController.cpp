@@ -528,7 +528,10 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 		// songs open during normal runs will be listed. In addition,
 		// empty songs - created and set when hitting "New Song" in
 		// the main menu - aren't listed either.
-		Preferences::get_instance()->insertRecentFile( pSong->getFilename() );
+		insertRecentFile( pSong->getFilename() );
+		if ( ! pHydrogen->isUnderSessionManagement() ) {
+			Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
+		}
 	}
 
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
@@ -541,14 +544,12 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 bool CoreActionController::saveSong() {
 	
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
-
-	// Get the current Song which is about to be saved.
-	auto pSong = pHydrogen->getSong();
 	
 	// Extract the path to the associate .h2song file.
 	QString sSongPath = pSong->getFilename();
@@ -559,8 +560,8 @@ bool CoreActionController::saveSong() {
 	}
 	
 	// Actual saving
-	bool saved = pSong->save( sSongPath );
-	if ( !saved ) {
+	bool bSaved = pSong->save( sSongPath );
+	if ( ! bSaved ) {
 		ERRORLOG( QString( "Current song [%1] could not be saved!" )
 				  .arg( sSongPath ) );
 		return false;
@@ -574,40 +575,35 @@ bool CoreActionController::saveSong() {
 	return true;
 }
 
-bool CoreActionController::saveSongAs( const QString& sSongPath ) {
+bool CoreActionController::saveSongAs( const QString& sNewFilename ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
 	
-	// Get the current Song which is about to be saved.
-	auto pSong = pHydrogen->getSong();
-	
 	// Check whether the provided path is valid.
-	if ( !Filesystem::isSongPathValid( sSongPath ) ) {
+	if ( !Filesystem::isSongPathValid( sNewFilename ) ) {
 		// Filesystem::isSongPathValid takes care of the error log message.
 		return false;
 	}
-	
-	if ( sSongPath.isEmpty() ) {
-		ERRORLOG( "Unable to save song. Empty filename!" );
-		return false;
-	}
+
+	QString sPreviousFilename( pSong->getFilename() );
+	pSong->setFilename( sNewFilename );
 	
 	// Actual saving
-	bool bSaved = pSong->save( sSongPath );
-	if ( !bSaved ) {
-		ERRORLOG( QString( "Current song [%1] could not be saved!" )
-				  .arg( sSongPath ) );
+	if ( ! saveSong() ) {
 		return false;
 	}
-	
-	// Update the status bar.
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
+
+	// Update the recentFiles list by replacing the former file name
+	// with the new one.
+	insertRecentFile( sNewFilename );
+	if ( ! pHydrogen->isUnderSessionManagement() ) {
+		Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
 	}
 	
 	return true;
@@ -1101,4 +1097,35 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 	return true;
 }
 
+void CoreActionController::insertRecentFile( const QString sFilename ){
+
+	auto pPref = Preferences::get_instance();
+
+	// The most recent file will always be added on top and possible
+	// duplicates are removed later on.
+	bool bAlreadyContained = false;
+
+	std::vector<QString> recentFiles = pPref->getRecentFiles();
+	
+	recentFiles.insert( recentFiles.begin(), sFilename );
+
+	if ( std::find( recentFiles.begin(), recentFiles.end(),
+					sFilename ) != recentFiles.end() ) {
+		// Eliminate all duplicates in the list while keeping the one
+		// inserted at the beginning. Also, in case the file got renamed,
+		// remove it's previous name from the list.
+		std::vector<QString> sTmpVec;
+		for ( const auto& ssFilename : recentFiles ) {
+			if ( std::find( sTmpVec.begin(), sTmpVec.end(), ssFilename ) ==
+				 sTmpVec.end() ) {
+				// Particular file is not contained yet.
+				sTmpVec.push_back( ssFilename );
+			}
+		}
+
+		recentFiles = sTmpVec;
+	}
+
+	pPref->setRecentFiles( recentFiles );
+}
 }

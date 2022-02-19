@@ -127,19 +127,19 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 */
 		bool saveSong();
 		/**
-		 * Saves the current #H2Core::Song to the path provided in @a songPath.
+		 * Saves the current #H2Core::Song to the path provided in @a sNewFilename.
 		 *
 		 * The intended use of this function for session
 		 * management. Therefore, the function will *not* store the
-		 * provided @a songPath in
+		 * provided @a sNewFilename in
 		 * #H2Core::Preferences::m_lastSongFilename and Hydrogen won't
 		 * resume with the corresponding song on restarting.
 		 *
-		 * \param songPath Absolute path to the file to store the
+		 * \param sNewFilename Absolute path to the file to store the
 		 *   current #H2Core::Song in.
 		 * \return true on success
 		 */
-		bool saveSongAs( const QString& songPath );
+		bool saveSongAs( const QString& sNewFilename );
 		/**
 		 * Saves the current state of the #H2Core::Preferences.
 		 *
@@ -347,6 +347,17 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * \return true on success
 		 */
 		bool setSong( std::shared_ptr<Song> pSong );
+
+	/**
+	 * Add @a sFilename to the list of recent songs in
+	 * Preferences::m_recentFiles.
+	 *
+	 * The function will also take care of removing any duplicates in
+	 * the list in case @a sFilename is already present.
+	 *
+	 * \param sFilename New song to be added on top of the list.
+	 */
+	void insertRecentFile( const QString sFilename );
 		
 		const int m_nDefaultMidiFeedbackChannel;
 };

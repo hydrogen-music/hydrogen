@@ -640,10 +640,6 @@ void MainForm::action_file_save_as()
 	}
 	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
 
-	if ( pHydrogen->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
-			pHydrogen->sequencer_stop();
-	}
-
 	QString sPath = Preferences::get_instance()->getLastSaveSongAsDirectory();
 	if ( ! Filesystem::dir_writable( sPath, false ) ){
 		sPath = Filesystem::songs_dir();
@@ -690,8 +686,11 @@ void MainForm::action_file_save_as()
 				filename += Filesystem::songs_ext;
 			}
 
-			pSong->setFilename(filename);
-			action_file_save();
+			// We do not use the CoreActionController::saveSongAs
+			// function directly since action_file_save as does some
+			// additional checks and prompts the user a warning dialog
+			// if required.
+			action_file_save( sNewFilename );
 		}
 	
 		// When Hydrogen is under session management, the file name
@@ -711,6 +710,10 @@ void MainForm::action_file_save_as()
 
 void MainForm::action_file_save()
 {
+	return action_file_save( "" );
+}
+void MainForm::action_file_save( const QString& sNewFilename )
+{
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 
@@ -719,13 +722,15 @@ void MainForm::action_file_save()
 	}
 	
 	auto pCoreActionController = pHydrogen->getCoreActionController();
-	QString filename = pSong->getFilename();
+	QString sFilename = pSong->getFilename();
 
-	if ( filename.isEmpty() ||
-		 filename == Filesystem::empty_song_path() ) {
+	if ( sNewFilename.isEmpty() &&
+		 ( sFilename.isEmpty() ||
+		   sFilename == Filesystem::empty_song_path() ) ) {
 		// The empty song is treated differently in order to allow
 		// recovering changes and unsaved sessions. Therefore the
-		// users are ask to store a new song using a different name.
+		// users are ask to store a new song using a different file
+		// name.
 		return action_file_save_as();
 	}
 
@@ -745,11 +750,18 @@ void MainForm::action_file_save()
 	// Clear the pattern editor selection to resolve any duplicates
 	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->clearSelection();
 
-	bool bSaved = pCoreActionController->saveSongAs( filename );
+	bool bSaved;
+	if ( sNewFilename.isEmpty() ) {
+		bSaved = pCoreActionController->saveSong();
+	} else {
+		bSaved = pCoreActionController->saveSongAs( sNewFilename );
+	}
+	
 	if( ! bSaved ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save song.") );
 	} else {
-		h2app->setScrollStatusBarMessage( tr("Song saved.") + QString(" Into: ") + filename, 2000 );
+		h2app->setScrollStatusBarMessage( tr("Song saved into") + QString(": ") +
+										  sFilename, 2000 );
 	}
 }
 
@@ -2321,7 +2333,7 @@ void MainForm::action_banks_properties()
 }
 
 void MainForm::updateSongEvent( int nValue ) {
-	if ( nValue == 0 ) {
+	if ( nValue == 0 || nValue == 1 ) {
 		// A new song was set.
 		updateRecentUsedSongList();
 	}

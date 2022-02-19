@@ -113,7 +113,15 @@ public slots:
 		 */
 		void action_file_open();
 		void action_file_openDemo();
-		void action_file_save();
+	/**
+	 * Saves the current song to disk.
+	 *
+	 * As Song::m_sFilename is not set by the GUI but by the core,
+	 * this function serves both the "save as" functionality (with
+	 * sNewFilename being non-empty) and the "save" one.
+	 */
+		void action_file_save( const QString& sNewFilename );
+	void action_file_save();
 		
 		/**
 		 * Project > Save As / Export from Session handling function.
