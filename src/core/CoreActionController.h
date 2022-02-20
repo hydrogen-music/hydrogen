@@ -128,19 +128,19 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 */
 		bool saveSong();
 		/**
-		 * Saves the current #H2Core::Song to the path provided in @a songPath.
+		 * Saves the current #H2Core::Song to the path provided in @a sNewFilename.
 		 *
 		 * The intended use of this function for session
 		 * management. Therefore, the function will *not* store the
-		 * provided @a songPath in
+		 * provided @a sNewFilename in
 		 * #H2Core::Preferences::m_lastSongFilename and Hydrogen won't
 		 * resume with the corresponding song on restarting.
 		 *
-		 * \param songPath Absolute path to the file to store the
+		 * \param sNewFilename Absolute path to the file to store the
 		 *   current #H2Core::Song in.
 		 * \return true on success
 		 */
-		bool saveSongAs( const QString& songPath );
+		bool saveSongAs( const QString& sNewFilename );
 		/**
 		 * Saves the current state of the #H2Core::Preferences.
 		 *
@@ -195,6 +195,26 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
 		bool deleteTempoMarker( int nPosition );
+		/**
+		 * Adds a tag to the Timeline.
+		 *
+		 * @param nPosition Location of the tag in bars.
+		 * @param sText Message associated with the tag.
+		 *
+		 * @return bool true on success
+		 */
+		bool addTag( int nPosition, const QString& sText );
+		/**
+		 * Delete a tag from the Timeline.
+		 *
+		 * If no tag is present at @a nPosition, the function
+		 * will return true as well.
+		 *
+		 * @param nPosition Location of the tag in bars.
+		 *
+		 * @return bool true on success
+		 */
+		bool deleteTag( int nPosition );
 		/**
 		 * (De)activates the usage of Jack transport.
 		 *
@@ -342,23 +362,6 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
     	bool toggleGridCell( int nColumn, int nRow );
-		
-		// -----------------------------------------------------------
-		// Helper functions
-		
-		/**
-		 * Checks the path of the .h2song provided via OSC.
-		 *
-		 * It will be checked whether @a songPath
-		 * - is absolute
-		 * - has the '.h2song' suffix
-		 * - is writable (if it exists)
-		 *
-		 * \param songPath Absolute path to an .h2song file.
-		 * \return true - if valid.
-		 */
-		bool isSongPathValid( const QString& songPath );
-		
 	private:
 		
 		/**
@@ -390,6 +393,16 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 */
 	Drumkit* retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed,
 							  QString* sDrumkitDir, QString* sTemporaryFolder );
+	/**
+	 * Add @a sFilename to the list of recent songs in
+	 * Preferences::m_recentFiles.
+	 *
+	 * The function will also take care of removing any duplicates in
+	 * the list in case @a sFilename is already present.
+	 *
+	 * \param sFilename New song to be added on top of the list.
+	 */
+	void insertRecentFile( const QString sFilename );
 		
 		const int m_nDefaultMidiFeedbackChannel;
 };

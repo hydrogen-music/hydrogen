@@ -201,7 +201,8 @@ void WidgetWithInput::wheelEvent ( QWheelEvent *ev )
 	}
 	setValue( getValue() + ( fDelta * fStepFactor ) );
 	
-	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
+	QToolTip::showText( ev->globalPosition().toPoint(),
+						QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
 }
 
 

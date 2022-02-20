@@ -440,8 +440,8 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 	auto pSong = Song::getEmptySong();
 	
 	// Check whether the provided path is valid.
-	if ( !isSongPathValid( sSongPath ) ) {
-		// isSongPathValid takes care of the error log message.
+	if ( !Filesystem::isSongPathValid( sSongPath ) ) {
+		// Filesystem::isSongPathValid takes care of the error log message.
 
 		return false;
 	}
@@ -471,8 +471,8 @@ bool CoreActionController::openSong( const QString& sSongPath, const QString& sR
 	}
 	
 	// Check whether the provided path is valid.
-	if ( !isSongPathValid( sSongPath ) ) {
-		// isSongPathValid takes care of the error log message.
+	if ( !Filesystem::isSongPathValid( sSongPath, true ) ) {
+		// Filesystem::isSongPathValid takes care of the error log message.
 		return false;
 	}
 
@@ -529,7 +529,10 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 		// songs open during normal runs will be listed. In addition,
 		// empty songs - created and set when hitting "New Song" in
 		// the main menu - aren't listed either.
-		Preferences::get_instance()->insertRecentFile( pSong->getFilename() );
+		insertRecentFile( pSong->getFilename() );
+		if ( ! pHydrogen->isUnderSessionManagement() ) {
+			Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
+		}
 	}
 
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
@@ -542,14 +545,12 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 bool CoreActionController::saveSong() {
 	
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
-
-	// Get the current Song which is about to be saved.
-	auto pSong = pHydrogen->getSong();
 	
 	// Extract the path to the associate .h2song file.
 	QString sSongPath = pSong->getFilename();
@@ -560,8 +561,8 @@ bool CoreActionController::saveSong() {
 	}
 	
 	// Actual saving
-	bool saved = pSong->save( sSongPath );
-	if ( !saved ) {
+	bool bSaved = pSong->save( sSongPath );
+	if ( ! bSaved ) {
 		ERRORLOG( QString( "Current song [%1] could not be saved!" )
 				  .arg( sSongPath ) );
 		return false;
@@ -575,40 +576,35 @@ bool CoreActionController::saveSong() {
 	return true;
 }
 
-bool CoreActionController::saveSongAs( const QString& sSongPath ) {
+bool CoreActionController::saveSongAs( const QString& sNewFilename ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
 	
-	// Get the current Song which is about to be saved.
-	auto pSong = pHydrogen->getSong();
-	
 	// Check whether the provided path is valid.
-	if ( !isSongPathValid( sSongPath ) ) {
-		// isSongPathValid takes care of the error log message.
+	if ( !Filesystem::isSongPathValid( sNewFilename ) ) {
+		// Filesystem::isSongPathValid takes care of the error log message.
 		return false;
 	}
-	
-	if ( sSongPath.isEmpty() ) {
-		ERRORLOG( "Unable to save song. Empty filename!" );
-		return false;
-	}
+
+	QString sPreviousFilename( pSong->getFilename() );
+	pSong->setFilename( sNewFilename );
 	
 	// Actual saving
-	bool bSaved = pSong->save( sSongPath );
-	if ( !bSaved ) {
-		ERRORLOG( QString( "Current song [%1] could not be saved!" )
-				  .arg( sSongPath ) );
+	if ( ! saveSong() ) {
 		return false;
 	}
-	
-	// Update the status bar.
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
+
+	// Update the recentFiles list by replacing the former file name
+	// with the new one.
+	insertRecentFile( sNewFilename );
+	if ( ! pHydrogen->isUnderSessionManagement() ) {
+		Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
 	}
 	
 	return true;
@@ -637,38 +633,6 @@ bool CoreActionController::quit() {
 		ERRORLOG( QString( "Error: Closing the application via the core part is not supported yet!" ) );
 		return false;
 		
-	}
-	
-	return true;
-}
-
-bool CoreActionController::isSongPathValid( const QString& sSongPath ) {
-	
-	QFileInfo songFileInfo = QFileInfo( sSongPath );
-
-	if ( !songFileInfo.isAbsolute() ) {
-		ERRORLOG( QString( "Error: Unable to handle path [%1]. Please provide an absolute file path!" )
-						.arg( sSongPath.toLocal8Bit().data() ));
-		return false;
-	}
-	
-	if ( songFileInfo.exists() ) {
-		if ( !songFileInfo.isReadable() ) {
-			ERRORLOG( QString( "Error: Unable to handle path [%1]. You must have permissions to read the file!" )
-						.arg( sSongPath.toLocal8Bit().data() ));
-			return false;
-		}
-		if ( !songFileInfo.isWritable() ) {
-			WARNINGLOG( QString( "You don't have permissions to write to the Song found in path [%1]. It will be opened as read-only (no autosave)." )
-						.arg( sSongPath.toLocal8Bit().data() ));
-			EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
-		}
-	}
-	
-	if ( songFileInfo.suffix() != "h2song" ) {
-		ERRORLOG( QString( "Error: Unable to handle path [%1]. The provided file must have the suffix '.h2song'!" )
-					.arg( sSongPath.toLocal8Bit().data() ));
-		return false;
 	}
 	
 	return true;
@@ -735,6 +699,42 @@ bool CoreActionController::deleteTempoMarker( int nPosition ) {
 	pHydrogen->getAudioEngine()->handleTimelineChange();
 
 	pAudioEngine->unlock();
+	
+	pHydrogen->setIsModified( true );
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
+
+	return true;
+}
+
+bool CoreActionController::addTag( int nPosition, const QString& sText ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pTimeline = pHydrogen->getTimeline();
+
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	pTimeline->deleteTag( nPosition );
+	pTimeline->addTag( nPosition, sText );
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
+
+	return true;
+}
+
+bool CoreActionController::deleteTag( int nPosition ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	pHydrogen->getTimeline()->deleteTag( nPosition );
 	
 	pHydrogen->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
@@ -1402,4 +1402,35 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 	return true;
 }
 
+void CoreActionController::insertRecentFile( const QString sFilename ){
+
+	auto pPref = Preferences::get_instance();
+
+	// The most recent file will always be added on top and possible
+	// duplicates are removed later on.
+	bool bAlreadyContained = false;
+
+	std::vector<QString> recentFiles = pPref->getRecentFiles();
+	
+	recentFiles.insert( recentFiles.begin(), sFilename );
+
+	if ( std::find( recentFiles.begin(), recentFiles.end(),
+					sFilename ) != recentFiles.end() ) {
+		// Eliminate all duplicates in the list while keeping the one
+		// inserted at the beginning. Also, in case the file got renamed,
+		// remove it's previous name from the list.
+		std::vector<QString> sTmpVec;
+		for ( const auto& ssFilename : recentFiles ) {
+			if ( std::find( sTmpVec.begin(), sTmpVec.end(), ssFilename ) ==
+				 sTmpVec.end() ) {
+				// Particular file is not contained yet.
+				sTmpVec.push_back( ssFilename );
+			}
+		}
+
+		recentFiles = sTmpVec;
+	}
+
+	pPref->setRecentFiles( recentFiles );
+}
 }

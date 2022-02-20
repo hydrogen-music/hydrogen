@@ -39,9 +39,13 @@
 
 using namespace H2Core;
 
-AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect, bool bShowInstrumentManipulationControls, QString sDefaultPath )
+AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect,
+									 bool bShowInstrumentManipulationControls,
+									 QString sDefaultPath,
+									 const QString& sFilename )
 		: QDialog ( pParent )
 		, Object ()
+		, m_sFilename( sFilename )
 {
 	setupUi ( this );
 	
@@ -104,6 +108,23 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect, b
 	if( !m_bShowInstrumentManipulationControls ) {
 		useNameCheckBox->hide();
 		autoVelCheckBox->hide();
+	}
+	
+	if ( ! sFilename.isEmpty() ) {
+		m_pTree->setCurrentIndex( m_pDirModel->index( sFilename ) );
+		browseTree( m_pDirModel->index( sFilename ) );
+
+		// Right now in the constructor of AudioFileBrowser m_pTree is
+		// still busy doing something different or maybe some update
+		// is triggered afterwards. Either way, calling scrollTo()
+		// directly won't cut it. We have to wait a short amount of
+		// time till the dust has settled.
+		//
+		// The 50 is a heuristic that worked on my machine. This might
+		// need a little more tweaking.
+		QTimer::singleShot( 50, [this]{
+			m_pTree->scrollTo( m_pDirModel->index( m_sFilename ),
+							   QAbstractItemView::PositionAtCenter);} );
 	}
 
 	connect( m_pTree, SIGNAL( clicked( const QModelIndex&) ), SLOT( clicked( const QModelIndex& ) ) );
@@ -170,8 +191,10 @@ void AudioFileBrowser::getEnvironment()
 
 void AudioFileBrowser::keyPressEvent (QKeyEvent *ev)
 {
-	if( ev->modifiers()==Qt::ControlModifier && m_bAllowMultiSelect) {
-		m_pTree->setSelectionMode( QAbstractItemView::MultiSelection );
+	if( ( ev->modifiers()==Qt::ControlModifier ||
+		  ev->modifiers()==Qt::ShiftModifier )
+		&& m_bAllowMultiSelect) {
+		m_pTree->setSelectionMode( QAbstractItemView::ExtendedSelection );
 		openBTN->setEnabled( true );
 	}	
 }

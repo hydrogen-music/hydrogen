@@ -2711,24 +2711,7 @@ void SongEditorPositionRuler::updatePosition()
 	update();
 }
 
-void SongEditorPositionRuler::editTagAction( QString text, int position, QString textToReplace)
-{
-	auto pTimeline = m_pHydrogen->getTimeline();
-
-	const QString sTag = pTimeline->getTagAtColumn( position );
-	pTimeline->deleteTag( position );
-	pTimeline->addTag( position, text );
-	
-	createBackground();
-}
-
-void SongEditorPositionRuler::deleteTagAction( QString text, int position )
-{
-	auto pTimeline = m_pHydrogen->getTimeline();
-
-	const QString sTag = pTimeline->getTagAtColumn( position );
-	pTimeline->deleteTag( position );
-	
+void SongEditorPositionRuler::timelineUpdateEvent( int nValue ) {
 	createBackground();
 }
 
