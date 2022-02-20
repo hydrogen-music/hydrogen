@@ -1023,7 +1023,10 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 				delete pNote;
 			}
 
-			EventQueue::get_instance()->push_event( EVENT_NOTEON, nInstrument );
+			// Check whether the instrument could be found.
+			if ( nInstrument != -1 ) {
+				EventQueue::get_instance()->push_event( EVENT_NOTEON, nInstrument );
+			}
 			continue;
 		} else {
 			// this note will not be played
