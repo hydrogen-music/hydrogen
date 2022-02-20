@@ -119,7 +119,7 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bo
 	bool bReadingSuccessful = true;
 	
 	XMLDoc doc;
-	if( !doc.read( dk_path, Filesystem::drumkit_xsd_path(), bSilent ) ) {
+	if( !doc.read( dk_path, Filesystem::drumkit_xsd_path(), true ) ) {
 		//Something went wrong. Lets see how old this drumkit is..
 		
 		//Do we have any components? 
@@ -179,7 +179,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 	pDrumkit->__license = node->read_string( "license", "undefined license",
 											 true, true, bSilent  );
 	pDrumkit->__image = node->read_string( "image", "",
-										   true, true, bSilent  );
+										   true, true, true  );
 	pDrumkit->__imageLicense = node->read_string( "imageLicense", "undefined license",
 												  true, true, bSilent  );
 
