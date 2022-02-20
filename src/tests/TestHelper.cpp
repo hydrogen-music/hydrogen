@@ -23,6 +23,7 @@
 #include "TestHelper.h"
 
 #include "core/Object.h"
+#include "core/Helpers/Filesystem.h"
 
 #include <QProcess>
 #include <QProcessEnvironment>
@@ -115,6 +116,26 @@ QString findRootDir()
 	throw std::runtime_error( "Can't find suitable data directory. Consider setting H2_HOME environment variable" );
 }
 
+QStringList TestHelper::findDrumkitBackupFiles( const QString& sDir ) const {
+
+	QStringList results;
+
+	if ( ! H2Core::Filesystem::dir_readable( m_sTestDataDir + sDir, false ) ){
+		// Error messages handled in dir_reabable.
+		return results;
+	}
+	QDir dir( m_sTestDataDir + sDir );
+
+	QStringList nameFilters;
+	nameFilters << H2Core::Filesystem::drumkit_xml() + "*" + ".bak";
+
+	for ( const auto& ssFile : dir.entryList( nameFilters,
+											  QDir::Files ) ) {
+		results << m_sTestDataDir + sDir + "/" + ssFile;
+	}
+
+	return results;
+}
 
 TestHelper::TestHelper()
 {

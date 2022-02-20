@@ -36,7 +36,8 @@ class TestHelper {
 	
 		QString getDataDir() const;
 		QString getTestDataDir() const;
-		QString getTestFile(const QString& file);
+		QString getTestFile(const QString& file) const;
+	QStringList findDrumkitBackupFiles( const QString& sDir ) const;
 	
 		static void			createInstance();
 		static TestHelper*	get_instance();
@@ -57,7 +58,7 @@ inline QString TestHelper::getTestDataDir() const
 	return m_sTestDataDir;
 }
 
-inline QString TestHelper::getTestFile(const QString& file)
+inline QString TestHelper::getTestFile(const QString& file) const
 {
 	return m_sTestDataDir + "/" + file; 
 }
