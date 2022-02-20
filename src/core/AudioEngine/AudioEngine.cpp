@@ -1334,7 +1334,10 @@ void AudioEngine::processPlayNotes( unsigned long nframes )
 				delete pNote;
 			}
 
-			m_pEventQueue->push_event( EVENT_NOTEON, nInstrument );
+			// Check whether the instrument could be found.
+			if ( nInstrument != -1 ) {
+				m_pEventQueue->push_event( EVENT_NOTEON, nInstrument );
+			}
 			
 			continue;
 		} else {
