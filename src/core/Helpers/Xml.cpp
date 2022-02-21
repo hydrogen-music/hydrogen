@@ -278,6 +278,8 @@ bool XMLDoc::read( const QString& filepath, const QString& schemapath, bool bSil
 			}
 		}
 		file.seek( 0 );
+	} else {
+		WARNINGLOG( "Unable to validate drumkit XML using schema file." );
 	}
 	
 	if( !setContent( &file ) ) {

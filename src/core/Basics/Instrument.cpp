@@ -242,7 +242,7 @@ void Instrument::load_from( const QString& dk_name, const QString& instrument_na
 											 true, true, bSilent  ) );
 	bool bFound, bFound2;
 	float fPan = node->read_float( "pan", 0.f, &bFound,
-								   true, true, bSilent );
+								   true, true, true );
 	if ( !bFound ) {
 		// check if pan is expressed in the old fashion (version <= 1.1 ) with the pair (pan_L, pan_R)
 		float fPanL = node->read_float( "pan_L", 1.f, &bFound,
