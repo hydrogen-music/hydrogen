@@ -1079,7 +1079,7 @@ void InstrumentEditor::labelCompoClicked( ClickableLabel* pRef )
 		return;
 	}
 	DrumkitComponent* pComponent = pSong->getComponent( m_nSelectedComponent );
-	if ( pComponent != nullptr ) {
+	if ( pComponent == nullptr ) {
 		return;
 	}
 	QString sOldName = pComponent->get_name();
