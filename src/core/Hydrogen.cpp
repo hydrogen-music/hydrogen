@@ -219,6 +219,10 @@ void Hydrogen::sequencer_stop()
 
 	m_pAudioEngine->stop();
 	Preferences::get_instance()->setRecordEvents(false);
+
+	// Delete redundant instruments still alive after switching the
+	// drumkit to a smaller one.
+	__kill_instruments();
 }
 
 bool Hydrogen::setPlaybackTrackState( const bool state )
@@ -1137,23 +1141,25 @@ void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr ) {
 
 void Hydrogen::__kill_instruments()
 {
-	std::shared_ptr<Instrument> pInstr = nullptr;
-	while ( __instrument_death_row.size()
-			&& __instrument_death_row.front()->is_queued() == 0 ) {
-		pInstr = __instrument_death_row.front();
-		__instrument_death_row.pop_front();
-		INFOLOG( QString( "Deleting unused instrument (%1). "
-						  "%2 unused remain." )
-				 . arg( pInstr->get_name() )
-				 . arg( __instrument_death_row.size() ) );
-		pInstr = nullptr;
-	}
-	if ( __instrument_death_row.size() ) {
-		pInstr = __instrument_death_row.front();
-		INFOLOG( QString( "Instrument %1 still has %2 active notes. "
-						  "Delaying 'delete instrument' operation." )
-				 . arg( pInstr->get_name() )
-				 . arg( pInstr->is_queued() ) );
+	if ( __instrument_death_row.size() > 0 ) {
+		std::shared_ptr<Instrument> pInstr = nullptr;
+		while ( __instrument_death_row.size()
+				&& __instrument_death_row.front()->is_queued() == 0 ) {
+			pInstr = __instrument_death_row.front();
+			__instrument_death_row.pop_front();
+			INFOLOG( QString( "Deleting unused instrument (%1). "
+							  "%2 unused remain." )
+					 . arg( pInstr->get_name() )
+					 . arg( __instrument_death_row.size() ) );
+			pInstr = nullptr;
+		}
+		if ( __instrument_death_row.size() ) {
+			pInstr = __instrument_death_row.front();
+			INFOLOG( QString( "Instrument %1 still has %2 active notes. "
+							  "Delaying 'delete instrument' operation." )
+					 . arg( pInstr->get_name() )
+					 . arg( pInstr->is_queued() ) );
+		}
 	}
 }
 
