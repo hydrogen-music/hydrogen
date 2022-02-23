@@ -116,8 +116,11 @@ class Instrument : public H2Core::Object<Instrument>
 		 * \param node the XMLNode to feed
 		 * \param component_id Identifier of the corresponding
 		 * component.
+		 * \param bRecentVersion Whether the drumkit format should be
+		 * supported by Hydrogen 0.9.7 or higher (whether it should be
+		 * composed of DrumkitComponents).
 		 */
-		void save_to( XMLNode* node, int component_id );
+		void save_to( XMLNode* node, int component_id, bool bRecentVersion = true );
 		/**
 		 * load an instrument from an XMLNode
 		 * \param node the XMLDode to read from

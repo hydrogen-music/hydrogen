@@ -84,11 +84,11 @@ InstrumentList* InstrumentList::load_from( XMLNode* node, const QString& dk_path
 	return instruments;
 }
 
-void InstrumentList::save_to( XMLNode* node, int component_id )
+	void InstrumentList::save_to( XMLNode* node, int component_id, bool bRecentVersion )
 {
 	XMLNode instruments_node = node->createNode( "instrumentList" );
 	for ( int i = 0; i < size(); i++ ) {
-		( *this )[i]->save_to( &instruments_node, component_id );
+		( *this )[i]->save_to( &instruments_node, component_id, bRecentVersion );
 	}
 }
 

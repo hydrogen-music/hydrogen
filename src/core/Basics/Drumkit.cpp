@@ -332,7 +332,7 @@ bool Drumkit::save( const QString& dk_dir, bool overwrite )
 	return ret;
 }
 
-bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_id, bool bSilent ) const
+bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_id, bool bRecentVersion, bool bSilent ) const
 {
 	if ( ! bSilent ) {
 		INFOLOG( QString( "Saving drumkit definition into %1" ).arg( dk_path ) );
@@ -343,11 +343,11 @@ bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_i
 	}
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
-	save_to( &root, component_id );
+	save_to( &root, component_id, bRecentVersion );
 	return doc.write( dk_path );
 }
 
-void Drumkit::save_to( XMLNode* node, int component_id ) const
+void Drumkit::save_to( XMLNode* node, int component_id, bool bRecentVersion ) const
 {
 	node->write_string( "name", __name );
 	node->write_string( "author", __author );
@@ -356,29 +356,63 @@ void Drumkit::save_to( XMLNode* node, int component_id ) const
 	node->write_string( "image", __image );
 	node->write_string( "imageLicense", __imageLicense );
 
-	if( component_id == -1 ) {
+	// Only drumkits used for Hydrogen v0.9.7 or higher are allowed to
+	// have components. If the user decides to export the kit to
+	// legacy version, the components will be omitted and Instrument
+	// layers corresponding to component_id will be exported.
+	if ( bRecentVersion ) {
 		XMLNode components_node = node->createNode( "componentList" );
-		if ( __components->size() > 0 ) {
-			for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
+		if( component_id == -1 && __components->size() > 0 ) {
+			for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it){
 				DrumkitComponent* pComponent = *it;
 				pComponent->save_to( &components_node );
 			}
 		} else {
-			WARNINGLOG( "Drumkit has no components. Storing an empty one as fallback." );
-			DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
-			pDrumkitComponent->save_to( &components_node );
-			delete pDrumkitComponent;
-		}	
+		
+			bool bComponentFound = false;
+
+			if ( component_id != -1 ) {
+				DrumkitComponent* pComponent;
+				for ( std::vector<DrumkitComponent*>::iterator it = __components->begin();
+					  it != __components->end();
+					  ++it ){
+					pComponent = *it;
+					if ( pComponent != nullptr &&
+						 pComponent->get_id() == component_id ) {
+						bComponentFound = true;
+						pComponent->save_to( &components_node );
+					}
+				}
+			} else {
+				WARNINGLOG( "Drumkit has no components. Storing an empty one as fallback." );
+			}
+
+			if ( ! bComponentFound ) {
+				if ( component_id != -1 ) {
+					ERRORLOG( QString( "Unable to retrieve DrumkitComponent [%1]. Storing an empty one as fallback." )
+							  .arg( component_id ) );
+				}
+				DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
+				pDrumkitComponent->save_to( &components_node );
+				delete pDrumkitComponent;
+			}
+		}
+	} else {
+		// Legacy export
+		if ( component_id == -1 ) {
+			ERRORLOG( "Exporting the full drumkit with all components is allowed when targeting the legacy versions >= 0.9.6" );
+			return;
+		}
 	}
 
 	if ( __instruments != nullptr && __instruments->size() > 0 ) {
-		__instruments->save_to( node, component_id );
+		__instruments->save_to( node, component_id, bRecentVersion );
 	} else {
 		WARNINGLOG( "Drumkit has no instruments. Storing an InstrumentList with a single empty Instrument as fallback." );
 		InstrumentList* pInstrumentList = new InstrumentList();
 		auto pInstrument = std::make_shared<Instrument>();
 		pInstrumentList->insert( 0, pInstrument );
-		pInstrumentList->save_to( node, component_id );
+		pInstrumentList->save_to( node, component_id, bRecentVersion );
 		delete pInstrumentList;
 	}
 }
@@ -687,18 +721,28 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 				  .arg( sTargetDir ) );
 		return false;
 	}
+
+	if ( ! bRecentVersion && sComponentName.isEmpty() ) {
+		ERRORLOG( "A DrumkiComponent name is required to exported a drumkit in a format similar to the one prior to version 0.9.7" );
+		return false;
+	}
+
+	QString sTargetName = sTargetDir + "/" + getFolderName();
+	if ( ! sComponentName.isEmpty() ) {
+		sTargetName.append( "_" + sComponentName );
+	}
+	sTargetName.append( Filesystem::drumkit_ext );
 	
 	if ( ! bSilent ) {
 		QString sMsg( "Export ");
 		
-		if ( ! sComponentName.isEmpty() && bRecentVersion ) {
-			sMsg.append( QString( "component: [%1] " ).arg( sComponentName ) );
-		} else {
+		if ( sComponentName.isEmpty() && bRecentVersion ) {
 			sMsg.append( "drumkit " );
+		} else {
+			sMsg.append( QString( "component: [%1] " ).arg( sComponentName ) );
 		}
 
-		sMsg.append( QString( "to [%1] " )
-					 .arg( sTargetDir + "/" + getFolderName() + Filesystem::drumkit_ext ) );
+		sMsg.append( QString( "to [%1] " ).arg( sTargetName ) );
 
 		if ( bRecentVersion ) {
 			sMsg.append( "using the most recent format" );
@@ -713,20 +757,30 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 	// component files. The uniqueness is required in case several
 	// threads or instances of Hydrogen do export a drumkit at once.
 	QTemporaryDir tmpFolder( Filesystem::tmp_dir() + "/XXXXXX" );
-	
-	// TODO: this is only disabled for debugging purposes.
-	tmpFolder.setAutoRemove( false );
+	if ( ! sComponentName.isEmpty() ) {
+		tmpFolder.setAutoRemove( false );
+	}
 
+	// In case we just export a single component, we store a pruned
+	// version of the drumkit with all other DrumkitComponents removed
+	// from the Instruments in a temporary folder and use this one as
+	// a basis for further compression.
 	int nComponentID = -1;
-	if ( bRecentVersion ) {
+	if ( ! sComponentName.isEmpty() ) {
 		for ( auto pComponent : *__components ) {
 			if( pComponent->get_name().compare( sComponentName ) == 0) {
 				nComponentID = pComponent->get_id();
 				break;
 			}
 		}
+		if ( nComponentID == -1 ) {
+			ERRORLOG( QString( "Component [%1] could not be found in current Drumkit [%2]" )
+					  .arg( sComponentName )
+					  .arg( toQString( "", true ) ) );
+			return false;
+		}
 		if ( ! save_file( Filesystem::drumkit_file( tmpFolder.path() ),
-						  true, nComponentID, bSilent ) ) {
+						  true, nComponentID, bRecentVersion, bSilent ) ) {
 			ERRORLOG( QString( "Unable to save backup drumkit to [%1] using component ID [%2]" )
 					  .arg( tmpFolder.path() ).arg( nComponentID ) );
 		}
@@ -738,11 +792,13 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 		return false;
 	}
 	
-	QDir sourceDir( __path );
+	QDir sourceDir;
+	if ( nComponentID == -1 ) {
+		sourceDir = QDir( __path );
+	} else {
+		sourceDir = QDir( tmpFolder.path() );
+	}
 
-	QString sTargetName = sTargetDir + "/" + getFolderName() +
-		Filesystem::drumkit_ext;
-		
 #if defined(H2CORE_HAVE_LIBARCHIVE)
 
 	QStringList sourceFilesList = sourceDir.entryList( QDir::Files );
@@ -770,29 +826,30 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 			.arg( sTargetName ) );
 		return false;
 	}
- 
+
+	bool bFoundFileInRightComponent;
 	for ( const auto& ssFile : sourceFilesList ) {
 		QString sFilename = sourceDir.absolutePath() + "/" + ssFile;
 		QString sTargetFilename = getFolderName() + "/" + ssFile;
 
-		if( bRecentVersion ) {
+		if ( nComponentID != -1 ) {
 			if( ssFile.compare( Filesystem::drumkit_xml() ) == 0 ) {
 				sFilename = tmpFolder.filePath( Filesystem::drumkit_xml() );
-				
-			} else if ( nComponentID != -1 ) {
-				bool bFoundFileInRightComponent = false;
+			
+			} else {
+				bFoundFileInRightComponent = false;
 				for( int j = 0; j < get_instruments()->size() ; j++){
-					InstrumentList instrList = get_instruments();
-					auto instr = instrList[j];
+					auto pInstrList = get_instruments();
+					auto instr = (*pInstrList)[j];
 					for ( auto pComponent : *( instr->get_components() ) ) {
 						if( pComponent->get_drumkit_componentID() == nComponentID ){
 							for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 								auto layer = pComponent->get_layer( n );
 								if( layer ) {
-									 if( layer->get_sample()->get_filename().compare( ssFile ) == 0 ) {
-										 bFoundFileInRightComponent = true;
-										 break;
-									 }
+									if( layer->get_sample()->get_filename().compare( ssFile ) == 0 ) {
+										bFoundFileInRightComponent = true;
+										break;
+									}
 								}
 							}
 						}
@@ -804,8 +861,14 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 			}
 		}
 
-		// INFOLOG( QString( "sFilename: %1, sTargetFilename: %2" )
-		// 		 .arg( sFilename ).arg( sTargetFilename ) );
+		// Small sanity check since the libarchive code won't fail
+		// gracefully but segfaults if the provided file does not
+		// exist.
+		if ( ! Filesystem::file_readable( sFilename, true ) ) {
+			ERRORLOG( QString( "Unable to export drumkit. File [%1] does not exists or is not readable." )
+					  .arg( sFilename ) );
+			return false;
+		}
 
 		stat( sFilename.toUtf8().constData(), &st );
 		entry = archive_entry_new();
@@ -832,6 +895,11 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 	#endif
 
 	sourceFilesList.clear();
+
+	// Only clean up the temp folder when everything was
+	// working. Else, it's probably worth inspecting its content (and
+	// the system will clean it up anyway).
+	Filesystem::rm( tmpFolder.path(), true, true );
 
 	return true;
 #elif !defined(WIN32)
@@ -876,6 +944,11 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 			"\" -- \"" + getFolderName() + "\"";
 		int ret = system( cmd.toLocal8Bit() );
 	}
+
+	// Only clean up the temp folder when everything was
+	// working. Else, it's probably worth inspecting its content (and
+	// the system will clean it up anyway).
+	Filesystem::rm( tmpFolder.path(), true, true );
 
 	return true;
 #else // WIN32
