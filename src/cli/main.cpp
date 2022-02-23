@@ -71,7 +71,7 @@ static struct option long_opts[] = {
 	{"install", required_argument, nullptr, 'i'},
 	{"check", required_argument, nullptr, 'c'},
 	{"upgrade", required_argument, nullptr, 'u'},
-	{"extract", required_argument, nullptr, 'e'},
+	{"extract", required_argument, nullptr, 'x'},
 	{"target", required_argument, nullptr, 't'},
 	{"drumkit", required_argument, nullptr, 'k'},
 	{nullptr, 0, nullptr, 0},
@@ -109,6 +109,17 @@ void show_playlist (uint active )
 	}
 	
 	std::cout << std::endl;
+}
+
+QString makePathAbsolute( const char* path ) {
+
+	QString sPath = QString::fromLocal8Bit( path );
+	QFileInfo fileInfo( sPath );
+	if ( fileInfo.isRelative() ) {
+		sPath = fileInfo.absoluteFilePath();
+	}
+
+	return sPath;
 }
 
 #define NELEM(a) ( sizeof(a)/sizeof((a)[0]) )
@@ -178,25 +189,25 @@ int main(int argc, char *argv[])
 				break;
 			case 'i':
 				//install h2drumkit
-				drumkitName = QString::fromLocal8Bit(optarg);
+				drumkitName = makePathAbsolute( optarg );
 				break;
 			case 'c':
 				//validate h2drumkit
-				sDrumkitToValidate = QString::fromLocal8Bit(optarg);
+				sDrumkitToValidate = makePathAbsolute( optarg );
 				bValidateDrumkit = true;
 				break;
 			case 'u':
 				//upgrade h2drumkit
-				sDrumkitToUpgrade = QString::fromLocal8Bit(optarg);
+				sDrumkitToUpgrade = makePathAbsolute( optarg );
 				bUpgradeDrumkit = true;
 				break;
-			case 'e':
+			case 'x':
 				//extract h2drumkit
-				sDrumkitToExtract = QString::fromLocal8Bit(optarg);
+				sDrumkitToExtract = makePathAbsolute( optarg );
 				bExtractDrumkit = true;
 				break;
 			case 't':
-				sTarget = QString::fromLocal8Bit(optarg);
+				sTarget = makePathAbsolute( optarg );
 				break;
 			case 'k':
 				//load Drumkit
@@ -367,11 +378,11 @@ int main(int argc, char *argv[])
 			if (! pSong) {
 				___INFOLOG("Starting with empty song");
 				pSong = Song::getEmptySong();
-				pSong->setFilename( "" );
+			} else {
+				preferences->setLastSongFilename( songFilename );
 			}
 
 			pHydrogen->setSong( pSong );
-			preferences->setLastSongFilename( songFilename );
 		}
 
 		if ( ! drumkitToLoad.isEmpty() ){
@@ -653,10 +664,10 @@ void showUsage()
 	std::cout << "                        one is upgraded in place. If a compressed drumkit" << std::endl;
 	std::cout << "                        is provided as first argument, the upgraded" << std::endl;
 	std::cout << "                        drumkit will be compressed as well." << std::endl;
-	std::cout << "   -e, --extract FILE - extracts the content of a drumkit (.h2drumkit)" << std::endl;
+	std::cout << "   -x, --extract FILE - extracts the content of a drumkit (.h2drumkit)" << std::endl;
 	std::cout << "                        If no target is specified using the -t option" << std::endl;
 	std::cout << "                        this command behaves like --install." << std::endl;
-	std::cout << "   -t, --target FOLDER - target folder the extracted (-e) or upgraded (-u)" << std::endl;
+	std::cout << "   -t, --target FOLDER - target folder the extracted (-x) or upgraded (-u)" << std::endl;
 	std::cout << "                         drumkit will be stored in. The folder is created" << std::endl;
 	std::cout << "                         if it not exists yet." << std::endl;
 	std::cout << std::endl;

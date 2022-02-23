@@ -385,7 +385,7 @@ void Instrument::unload_samples()
 	}
 }
 
-void Instrument::save_to( XMLNode* node, int component_id )
+void Instrument::save_to( XMLNode* node, int component_id, bool bRecentVersion )
 {
 	XMLNode InstrumentNode = node->createNode( "instrument" );
 	InstrumentNode.write_int( "id", __id );
@@ -432,8 +432,9 @@ void Instrument::save_to( XMLNode* node, int component_id )
 	}
 	for (std::vector<InstrumentComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
 		InstrumentComponent* pComponent = *it;
-		if( component_id == -1 || pComponent->get_drumkit_componentID() == component_id ) {
-			pComponent->save_to( &InstrumentNode, component_id );
+		if( component_id == -1 ||
+			pComponent->get_drumkit_componentID() == component_id ) {
+			pComponent->save_to( &InstrumentNode, component_id, bRecentVersion );
 		}
 	}
 }
