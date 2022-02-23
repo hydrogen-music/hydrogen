@@ -863,26 +863,27 @@ bool CoreActionController::loadDrumkit( const QString& sDrumkitName, bool bCondi
 		return false;
 	}
 
-	return loadDrumkit( pDrumkit, bConditional );
+	int nRet = loadDrumkit( pDrumkit, bConditional );
+	delete pDrumkit;
+
+	return nRet;
 }
 
 bool CoreActionController::loadDrumkit( Drumkit* pDrumkit, bool bConditional ) {
-	bool bReturnValue = true;
-	
+
 	if ( pDrumkit != nullptr ) {
 		if ( Hydrogen::get_instance()->loadDrumkit( pDrumkit, bConditional ) == 0 ) {
 			EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
 		} else {
 			ERRORLOG( "Unable to load drumkit" );
-			bReturnValue = false;
+			return false;
 		}
-		delete pDrumkit;
 	} else {
 		ERRORLOG( "Provided Drumkit is not valid" );
-		bReturnValue =  false;
+		return false;
 	}
 	
-	return bReturnValue;
+	return true;
 }
 
 bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QString& sNewPath ) {

@@ -578,7 +578,8 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 			msgBox.setIcon( QMessageBox::Warning );
 			msgBox.setText( tr( "The existing kit has %1 instruments but the new one only has %2.\nThe first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.\nWould you like to keep or discard the remaining instruments and notes?\n").arg( QString::number( oldCount ),QString::number( newCount ) ) );
 
-			msgBox.setStandardButtons(QMessageBox::Save);
+			msgBox.setStandardButtons( QMessageBox::Save | QMessageBox::Discard |
+									   QMessageBox::Cancel );
 			msgBox.setButtonText(QMessageBox::Save, tr("Keep"));
 			msgBox.setButtonText(QMessageBox::Discard,
 								 pCommonStrings->getButtonDiscard() );
