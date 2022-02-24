@@ -197,6 +197,10 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
+		/** Iteration */
+	std::vector<std::shared_ptr<Instrument>>::iterator begin();
+	std::vector<std::shared_ptr<Instrument>>::iterator end();
+
 	private:
 		std::vector<std::shared_ptr<Instrument>> __instruments;            ///< the list of instruments
 };
