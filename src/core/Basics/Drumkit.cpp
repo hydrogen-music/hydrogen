@@ -792,16 +792,78 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 		return false;
 	}
 	
-	QDir sourceDir;
-	if ( nComponentID == -1 ) {
-		sourceDir = QDir( __path );
-	} else {
-		sourceDir = QDir( tmpFolder.path() );
+	QDir sourceDir( __path );
+
+	QStringList sourceFilesList = sourceDir.entryList( QDir::Files );
+	// In case just a single component is exported, we only add
+	// samples associated with it to the .h2drumkit file.
+	QStringList filesUsed;
+
+	// List of formats libsndfile is able to import (see
+	// https://libsndfile.github.io/libsndfile/api.html#open).
+	// This list is used to decide what will happen to a file on a
+	// single-component export in case the file is not associated with
+	// a sample of an instrument belonging to the exported
+	// component. If its suffix is contained in this list, the file is
+	// considered to be part of an instrument we like to drop. If not,
+	// it might be a metafile, like LICENSE, README, or the kit's
+	// image.
+	// The list does not have to be comprehensive as a "leakage" of
+	// audio files in the resulting .h2drumkit is not a big problem.
+	QStringList suffixBlacklist;
+	suffixBlacklist << "wav" << "flac" << "aifc" << "aif" << "aiff" << "au"
+					 << "caf" << "w64" << "ogg" << "pcm" << "l16" << "vob"
+					 << "mp1" << "mp2" << "mp3";
+	
+	bool bSampleFound;
+	
+	for ( const auto& ssFile : sourceFilesList ) {
+		if( ssFile.compare( Filesystem::drumkit_xml() ) == 0 &&
+			nComponentID != -1 ) {
+			filesUsed << Filesystem::drumkit_file( tmpFolder.path() );
+		} else {
+
+			bSampleFound = false;
+			for( const auto& pInstr : *( get_instruments() ) ){
+				if( pInstr != nullptr ) {
+					for ( auto const& pComponent : *( pInstr->get_components() ) ) {
+						if ( pComponent != nullptr &&
+							 ( nComponentID == -1 || 
+							   pComponent->get_drumkit_componentID() == nComponentID ) ) {
+							for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
+								const auto pLayer = pComponent->get_layer( n );
+								if( pLayer != nullptr ) {
+									if( pLayer->get_sample()->get_filename().compare( ssFile ) == 0 ) {
+										filesUsed << sourceDir.filePath( ssFile );
+										bSampleFound = true;
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			// Should we drop the file?
+			if ( ! bSampleFound ) {
+				QFileInfo ffileInfo( sourceDir.filePath( ssFile ) );
+				if ( ! suffixBlacklist.contains( ffileInfo.suffix(),
+												 Qt::CaseInsensitive ) ) {
+
+					// We do not want to export any old backups
+					// created during the upgrade process of the
+					// drumkits.
+					if ( ! ( ssFile.contains( Filesystem::drumkit_xml() ) &&
+							 ssFile.contains( ".bak" ) ) ) {
+						filesUsed << sourceDir.filePath( ssFile );
+					}
+				}
+			}
+		}
 	}
 
 #if defined(H2CORE_HAVE_LIBARCHIVE)
-
-	QStringList sourceFilesList = sourceDir.entryList( QDir::Files );
 
 	struct archive *a;
 	struct archive_entry *entry;
@@ -828,38 +890,9 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 	}
 
 	bool bFoundFileInRightComponent;
-	for ( const auto& ssFile : sourceFilesList ) {
-		QString sFilename = sourceDir.absolutePath() + "/" + ssFile;
-		QString sTargetFilename = getFolderName() + "/" + ssFile;
-
-		if ( nComponentID != -1 ) {
-			if( ssFile.compare( Filesystem::drumkit_xml() ) == 0 ) {
-				sFilename = tmpFolder.filePath( Filesystem::drumkit_xml() );
-			
-			} else {
-				bFoundFileInRightComponent = false;
-				for( int j = 0; j < get_instruments()->size() ; j++){
-					auto pInstrList = get_instruments();
-					auto instr = (*pInstrList)[j];
-					for ( auto pComponent : *( instr->get_components() ) ) {
-						if( pComponent->get_drumkit_componentID() == nComponentID ){
-							for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
-								auto layer = pComponent->get_layer( n );
-								if( layer ) {
-									if( layer->get_sample()->get_filename().compare( ssFile ) == 0 ) {
-										bFoundFileInRightComponent = true;
-										break;
-									}
-								}
-							}
-						}
-					}
-				}
-				if( !bFoundFileInRightComponent ) {
-					continue;
-				}
-			}
-		}
+	for ( const auto& sFilename : filesUsed ) {
+		QFileInfo ffileInfo( sFilename );
+		QString sTargetFilename = getFolderName() + "/" + ffileInfo.fileName();
 
 		// Small sanity check since the libarchive code won't fail
 		// gracefully but segfaults if the provided file does not
@@ -904,45 +937,68 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 	return true;
 #elif !defined(WIN32)
 
-	if ( bRecentVersion ) {
-		/*
-		 * If a temporary drumkit.xml has been created:
-		 * 1. move the original drumkit.xml to drumkit_backup.xml
-		 * 2. copy the temporary file to drumkitDir/drumkit.xml
-		 * 3. export the drumkit
-		 * 4. move the drumkit_backup.xml to drumkit.xml
-		 */
+	if ( nComponentID != -1 ) {
 
-		int ret = 0;
-		
-		//1.
-		QString cmd = QString( "cd " ) + sourceDir.absolutePath() + "; " +
-			"cp " + Filesystem::drumkit_xml() + " drumkit_097.xml";
-		ret = system( cmd.toLocal8Bit() );
-		
-		
-		//2.
-		cmd = QString( "cd " ) + sourceDir.absolutePath() + "; " +
-			"mv " + tmpFolder.filePath( Filesystem::drumkit_xml() ) + " " +
-			Filesystem::drumkit_xml();
-		ret = system( cmd.toLocal8Bit() );
-		
-		//3.
-		cmd =  QString( "cd " ) + sourceDir.absolutePath() + ";" +
-			"tar czf \"" + sTargetDir + "/" + getFolderName() + Filesystem::drumkit_ext +
-			"\" -- \"" + getFolderName() + "\"";
-		ret = system( cmd.toLocal8Bit() );
+		// Backup original drumkit.xml file.
+		if ( ! Filesystem::file_copy( sourceDir.filePath( Filesystem::drumkit_xml() ),
+									  sourceDir.filePath( Filesystem::drumkit_xml() ) +
+									  ".original", true, true ) ) {
+			ERRORLOG( QString( "Unable to backup original [%1] file." )
+					  .arg( sourceDir.filePath( Filesystem::drumkit_xml() ) ) );
+			return false;
+		}
 
-		//4.
-		cmd = QString( "cd " ) + sourceDir.absolutePath() + "; " +
-			"mv drumkit_097.xml " + Filesystem::drumkit_xml();
-		ret = system( cmd.toLocal8Bit() );
+		// Copy component-wise one into the source folder.
+		if ( ! Filesystem::file_copy( Filesystem::drumkit_file( tmpFolder.path() ),
+									  sourceDir.filePath( Filesystem::drumkit_xml() ),
+									  true, true ) ) {
+			ERRORLOG( QString( "Unable to copy component-wise [%1] file into source folder [%2]." )
+					  .arg( Filesystem::drumkit_file( tmpFolder.path() ) )
+					  .arg( sourceDir.filePath( Filesystem::drumkit_xml() ) ) );
 
-	} else {
-		QString cmd =  QString( "cd " ) + sourceDir.absolutePath() + ";" +
-			"tar czf \"" + sTargetDir + "/" + getFolderName() + Filesystem::drumkit_ext +
-			"\" -- \"" + getFolderName() + "\"";
-		int ret = system( cmd.toLocal8Bit() );
+			// Restore the original drumkit file
+			Filesystem::file_copy( sourceDir.filePath( Filesystem::drumkit_xml() ) +
+								   ".original",
+								   sourceDir.filePath( Filesystem::drumkit_xml() ),
+								   true, true );
+			Filesystem::rm( sourceDir.filePath( Filesystem::drumkit_xml() ) +
+							".original", false, true );
+			return false;
+		}
+
+		filesUsed = filesUsed.replaceInStrings( tmpFolder.path(),
+												sourceDir.absolutePath() );
+	}
+
+	// Since there is no way to alter the target names of the files
+	// provided to command line `tar` and we want the output to be
+	// identically to the only created used libarchive, we need to do
+	// some string replacement in here. If not, the unpack to
+	// ./home/USER_NAME_RUNNING_THE_EXPORT/.hydrogen/data/drumkits/DRUMKIT_NAME/
+	// but we instead want it to unpack to ./DRUMKIT_NAME/
+	filesUsed = filesUsed.replaceInStrings( sourceDir.absolutePath(),
+											sourceDir.dirName() );
+
+	QString sCmd = QString( "tar czf %1 -C %2 -- \"%3\"" )
+		.arg( sTargetName )
+		.arg( sourceDir.absolutePath().left( sourceDir.absolutePath().lastIndexOf( "/" ) ) )
+		.arg( filesUsed.join( "\" \"" ) );
+	int nRet = std::system( sCmd.toLocal8Bit() );
+
+	if ( nComponentID != -1 ) {
+		// Restore the original drumkit file
+		Filesystem::file_copy( sourceDir.filePath( Filesystem::drumkit_xml() ) +
+							   ".original",
+							   sourceDir.filePath( Filesystem::drumkit_xml() ),
+							   true, true );
+		Filesystem::rm( sourceDir.filePath( Filesystem::drumkit_xml() ) +
+						".original", false, true );
+	}
+
+	if ( nRet != 0 ) {
+		ERRORLOG( QString( "Unable to export drumkit using system command:\n%1" )
+				  .arg( sCmd ) );
+		return false;
 	}
 
 	// Only clean up the temp folder when everything was
