@@ -279,6 +279,15 @@ QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const {
 	return sOutput;
 }
 
+
+std::vector<std::shared_ptr<Instrument>>::iterator InstrumentList::begin() {
+	return __instruments.begin();
+}
+
+std::vector<std::shared_ptr<Instrument>>::iterator InstrumentList::end() {
+	return __instruments.end();
+}
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */
