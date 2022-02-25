@@ -415,7 +415,7 @@ void Drumkit::save_to( XMLNode* node, int component_id, bool bRecentVersion ) co
 	} else {
 		WARNINGLOG( "Drumkit has no instruments. Storing an InstrumentList with a single empty Instrument as fallback." );
 		InstrumentList* pInstrumentList = new InstrumentList();
-		auto pInstrument = std::make_shared<Instrument>();
+		auto pInstrument = new Instrument();
 		pInstrumentList->insert( 0, pInstrument );
 		pInstrumentList->save_to( node, component_id, bRecentVersion );
 		delete pInstrumentList;
@@ -817,12 +817,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 		return false;
 	}
 	
-	QDir sourceDir;
-	if ( nComponentID == -1 ) {
-		sourceDir = QDir( __path );
-	} else {
-		sourceDir = QDir( tmpFolder.path() );
-	}
+	QDir sourceDir = QDir( __path );
 
 	QStringList sourceFilesList = sourceDir.entryList( QDir::Files );
 	// In case just a single component is exported, we only add
