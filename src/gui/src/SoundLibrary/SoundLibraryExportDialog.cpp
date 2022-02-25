@@ -95,18 +95,33 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 	bool bRecentVersion = versionList->currentIndex() == 1 ? false : true;
-	
-	Filesystem::Lookup lookup;
-	bool bIsUserDrumkit;
-	QString	sDrumkitName = drumkitList->currentText();
-	if ( sDrumkitName.contains( m_sSysDrumkitSuffix ) ) {
-		lookup = Filesystem::Lookup::system;
-		sDrumkitName.replace( m_sSysDrumkitSuffix, "" );
-	} else {
-		lookup = Filesystem::Lookup::user;
+
+	// The name of the drumkit is not something well defined within
+	// Hydrogen. Drumkit::load_by_name is expecting the name of the
+	// drumkit folder containing both the samples and drumkit.xml
+	// files. However, the name property stored in the latter, which
+	// is also used as Drumkit::__name can differ (and they actually
+	// do for a number of kits we host at SourceForge). Therefore,
+	// it's important to retrieve the kit from the list of drumkits
+	// used to create the different choices presented in the GUI.
+	Drumkit* pDrumkit = nullptr;
+	for ( const auto& ppKit : m_pDrumkitInfoList ) {
+		if ( ppKit->isUserDrumkit() ) {
+			if ( ppKit->get_name().compare( drumkitList->currentText() ) == 0 ) {
+				pDrumkit = ppKit;
+				break;
+			}
+		} else {
+			QString	sChosenName = drumkitList->currentText();
+			if ( sChosenName.contains( m_sSysDrumkitSuffix ) ) {
+				sChosenName.replace( m_sSysDrumkitSuffix, "" );
+				if ( ppKit->get_name().compare( sChosenName ) == 0 ) {
+					pDrumkit = ppKit;
+					break;
+				}
+			}
+		}
 	}
-	auto pDrumkit = Drumkit::load_by_name( sDrumkitName, false,
-										   lookup );
 
 	if ( pDrumkit == nullptr ) {
 		QApplication::restoreOverrideCursor();
@@ -144,7 +159,6 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 
 		if ( msgBox.exec() == QMessageBox::Cancel ) {
 			QApplication::restoreOverrideCursor();
-			delete pDrumkit;
 			return;
 		}
 	}
@@ -154,15 +168,13 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 							   bRecentVersion ) ) {
 		QApplication::restoreOverrideCursor();
 		QMessageBox::critical( this, "Hydrogen", tr("Unable to export drumkit") );
-
-		delete pDrumkit;
 		return;
 	}
 
 	QApplication::restoreOverrideCursor();
-	QMessageBox::information( this, "Hydrogen", tr("Drumkit exported.") );
-
-	delete pDrumkit;
+	QMessageBox::information( this, "Hydrogen",
+							  tr("Drumkit exported to") + "\n" +
+							  sTargetName );
 }
 
 void SoundLibraryExportDialog::on_drumkitPathTxt_textChanged( QString str )
