@@ -56,11 +56,15 @@ SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,  const QSt
 	, m_sPreselectedKit( sSelectedKit )
 	, m_preselectedKitLookup( lookup )
 {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	// updating the drumkit list might take a while. Therefore, we
 	// show the user that this is expected behavior by showing a wait cursor.
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 	
 	setupUi( this );
+
+	exportBtn->setText( tr( "&Export" ) );
+	cancelBtn->setText( pCommonStrings->getButtonCancel() );
 	
 	setWindowTitle( tr( "Export Sound Library" ) );
 	m_sSysDrumkitSuffix = " (system)";
@@ -90,8 +94,6 @@ SoundLibraryExportDialog::~SoundLibraryExportDialog()
 
 void SoundLibraryExportDialog::on_exportBtn_clicked()
 {
-	QApplication::setOverrideCursor(Qt::WaitCursor);
-
 	bool bRecentVersion = versionList->currentIndex() == 1 ? false : true;
 	
 	Filesystem::Lookup lookup;
@@ -107,7 +109,6 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 										   lookup );
 
 	if ( pDrumkit == nullptr ) {
-		QApplication::restoreOverrideCursor();
 		QMessageBox::critical( this, "Hydrogen",
 							   tr("Unable to retrieve drumkit from sound library" ) );
 		return;
@@ -123,11 +124,10 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 
 	// Check whether the resulting file does already exist and ask the
 	// user if it should be overwritten.
-	QString sTargetName = drumkitPathTxt->text() + "/" + pDrumkit->getFolderName();
-	if ( ! sTargetComponent.isEmpty() ) {
-		sTargetName.append( "_" + sTargetComponent );
-	}
-	sTargetName.append( Filesystem::drumkit_ext );
+	QString sTargetName = drumkitPathTxt->text() + "/" +
+		pDrumkit->getExportName( sTargetComponent, bRecentVersion ) +
+		Filesystem::drumkit_ext;
+	
 	if ( Filesystem::file_exists( sTargetName, true ) ) {
 		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 		QMessageBox msgBox;
@@ -144,11 +144,12 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 		msgBox.setDefaultButton(QMessageBox::Ok);
 
 		if ( msgBox.exec() == QMessageBox::Cancel ) {
-			QApplication::restoreOverrideCursor();
 			delete pDrumkit;
 			return;
 		}
 	}
+	
+	QApplication::setOverrideCursor(Qt::WaitCursor);
 	
 	if ( ! pDrumkit->exportTo( drumkitPathTxt->text(), // Target folder
 							   sTargetComponent, // Selected component
@@ -161,7 +162,9 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	}
 
 	QApplication::restoreOverrideCursor();
-	QMessageBox::information( this, "Hydrogen", tr("Drumkit exported.") );
+	QMessageBox::information( this, "Hydrogen",
+							  tr("Drumkit exported to") + "\n" +
+							  sTargetName );
 
 	delete pDrumkit;
 }
