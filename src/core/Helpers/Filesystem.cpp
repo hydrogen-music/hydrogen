@@ -788,6 +788,16 @@ bool Filesystem::song_exists( const QString& sg_name )
 	return QDir( songs_dir() ).exists( sg_name );
 }
 
+QString Filesystem::validateFilePath( const QString& sPath ) {
+
+	// Ensure the name will be a valid filename
+	QString sValidName( sPath );
+	sValidName.replace( " ", "_" );
+	sValidName.remove( QRegExp( "[^a-zA-Z0-9_-]" ) );
+
+	return sValidName;
+}
+
 // PLAYLISTS
 QStringList Filesystem::playlist_list( )
 {

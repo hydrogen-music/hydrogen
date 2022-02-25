@@ -258,18 +258,14 @@ void Drumkit::unload_samples()
 }
 
 QString Drumkit::getFolderName() const {
-
-	// Ensure the name will be a valid filename
-	QString sValidName = __name;
-	sValidName.remove( QRegExp( "[^a-zA-Z0-9._]" ) );
-
-	return sValidName;
+	return Filesystem::validateFilePath( __name );
 }
 
 QString Drumkit::getExportName( const QString& sComponentName, bool bRecentVersion ) const {
 	QString sExportName = getFolderName();
 	if ( ! sComponentName.isEmpty() ) {
-		sExportName.append( "_" + sComponentName );
+		sExportName.append( "_" +
+							Filesystem::validateFilePath( sComponentName ) );
 		if ( ! bRecentVersion ) {
 			sExportName.append( "_legacy" );
 		}

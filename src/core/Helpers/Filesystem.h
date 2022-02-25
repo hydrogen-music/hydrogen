@@ -274,6 +274,13 @@ namespace H2Core
 		 */
 		static bool song_exists( const QString& sg_name );
 
+		/**
+		 * Takes an arbitrary path, replaces white spaces by
+		 * underscores and removes all characters apart from latin
+		 * characters, arabic numbers, underscores and dashes.
+		 */
+		static QString validateFilePath( const QString& sPath );
+
 		/** send current settings information to logger with INFO severity */
 		static void info();
 
