@@ -266,6 +266,18 @@ QString Drumkit::getFolderName() const {
 	return sValidName;
 }
 
+QString Drumkit::getExportName( const QString& sComponentName, bool bRecentVersion ) const {
+	QString sExportName = getFolderName();
+	if ( ! sComponentName.isEmpty() ) {
+		sExportName.append( "_" + sComponentName );
+		if ( ! bRecentVersion ) {
+			sExportName.append( "_legacy" );
+		}
+	}
+	
+	return sExportName;
+}
+
 bool Drumkit::save( const QString&					sName,
                     const QString&					sAuthor,
                     const QString&					sInfo,
@@ -663,13 +675,38 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath, b
 #endif
 }
 
-bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName, bool bRecentVersion, bool bSilent ) const {
+bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName, bool bRecentVersion, bool bSilent ) {
 
+#ifndef WIN32
 	if ( ! Filesystem::path_usable( sTargetDir, true, false ) ) {
 		ERRORLOG( QString( "Provided destination folder [%1] is not valid" )
 				  .arg( sTargetDir ) );
 		return false;
 	}
+
+	if ( ! bRecentVersion && sComponentName.isEmpty() ) {
+		ERRORLOG( "A DrumkiComponent name is required to exported a drumkit in a format similar to the one prior to version 0.9.7" );
+		return false;
+	}
+
+	// When performing an export of a single component, the resulting
+	// file will be <DRUMKIT_NAME>_<COMPONENT_NAME>.h2drumkit. This
+	// itself is nice because the user can not choose the name of the
+	// resulting file and it would not be possible to store the export
+	// of multiple components in a single folder otherwise. But if all
+	// those different .h2drumkit would be extracted into the same
+	// folder there would be easily confusion or maybe even loss of
+	// data. We thus temporary rename the drumkit within this
+	// function.
+	// If a legacy export is asked for (!bRecentVersion) the suffix
+	// "_legacy" will be appended as well in order to provide unique
+	// filenames for all export options of a drumkit that can be
+	// selected in the GUI.
+	QString sOldDrumkitName = __name;
+	QString sDrumkitName = getExportName( sComponentName, bRecentVersion );
+	
+	QString sTargetName = sTargetDir + "/" + sDrumkitName +
+		Filesystem::drumkit_ext;
 	
 	if ( ! bSilent ) {
 		QString sMsg( "Export ");
@@ -705,8 +742,16 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 		for ( auto pComponent : *__components ) {
 			if( pComponent->get_name().compare( sComponentName ) == 0) {
 				nComponentID = pComponent->get_id();
+				set_name( sDrumkitName );
 				break;
 			}
+		}
+		if ( nComponentID == -1 ) {
+			ERRORLOG( QString( "Component [%1] could not be found in current Drumkit [%2]" )
+					  .arg( sComponentName )
+					  .arg( toQString( "", true ) ) );
+			set_name( sOldDrumkitName );
+			return false;
 		}
 		if ( ! save_file( Filesystem::drumkit_file( tmpFolder.path() ),
 						  true, nComponentID, bSilent ) ) {
@@ -718,6 +763,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 	if ( ! Filesystem::dir_readable( __path, true ) ) {
 		ERRORLOG( QString( "Unabled to access folder associated with drumkit [%1]" )
 				  .arg( __path ) );
+		set_name( sOldDrumkitName );
 		return false;
 	}
 	
@@ -818,16 +864,24 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 	if ( ret != ARCHIVE_OK ) {
 		ERRORLOG( QString("Couldn't create archive [%0]" )
 			.arg( sTargetName ) );
+		set_name( sOldDrumkitName );
 		return false;
 	}
 
 	bool bFoundFileInRightComponent;
 	for ( const auto& sFilename : filesUsed ) {
 		QFileInfo ffileInfo( sFilename );
-		QString sTargetFilename = getFolderName() + "/" + ffileInfo.fileName();
+		QString sTargetFilename = sDrumkitName + "/" + ffileInfo.fileName();
 
-		// INFOLOG( QString( "sFilename: %1, sTargetFilename: %2" )
-		// 		 .arg( sFilename ).arg( sTargetFilename ) );
+		// Small sanity check since the libarchive code won't fail
+		// gracefully but segfaults if the provided file does not
+		// exist.
+		if ( ! Filesystem::file_readable( sFilename, true ) ) {
+			ERRORLOG( QString( "Unable to export drumkit. File [%1] does not exists or is not readable." )
+					  .arg( sFilename ) );
+			set_name( sOldDrumkitName );
+			return false;
+		}
 
 		stat( sFilename.toUtf8().constData(), &st );
 		entry = archive_entry_new();
@@ -855,40 +909,56 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 
 	sourceFilesList.clear();
 
+	// Only clean up the temp folder when everything was
+	// working. Else, it's probably worth inspecting its content (and
+	// the system will clean it up anyway).
+	Filesystem::rm( tmpFolder.path(), true, true );
+	
+	set_name( sOldDrumkitName );
+
 	return true;
-#elif !defined(WIN32)
+#else // No LIBARCHIVE
 
 	if ( nComponentID != -1 ) {
+		// In order to add components name to the folder name we have
+		// to copy _all_ files to a temporary folder holding the same
+		// name. This is unarguably a quite expensive operation. But
+		// exporting is only down sparsely and almost all versions of
+		// Hydrogen should come with libarchive support anyway. On the
+		// other hand, being consistent and prevent confusion and loss
+		// of data beats sparsely excessive copying.
+		QString sDirName = getFolderName();
 
-		// Backup original drumkit.xml file.
-		if ( ! Filesystem::file_copy( sourceDir.filePath( Filesystem::drumkit_xml() ),
-									  sourceDir.filePath( Filesystem::drumkit_xml() ) +
-									  ".original", true, true ) ) {
-			ERRORLOG( QString( "Unable to backup original [%1] file." )
-					  .arg( sourceDir.filePath( Filesystem::drumkit_xml() ) ) );
-			return false;
+		QDir sTmpSourceDir( tmpFolder.path() + "/" + sDirName );
+		if ( sTmpSourceDir.exists() ) {
+			sTmpSourceDir.removeRecursively();
 		}
-
-		// Copy component-wise one into the source folder.
-		if ( ! Filesystem::file_copy( Filesystem::drumkit_file( tmpFolder.path() ),
-									  sourceDir.filePath( Filesystem::drumkit_xml() ),
+		if ( ! Filesystem::path_usable( tmpFolder.path() + "/" + sDirName,
 									  true, true ) ) {
-			ERRORLOG( QString( "Unable to copy component-wise [%1] file into source folder [%2]." )
-					  .arg( Filesystem::drumkit_file( tmpFolder.path() ) )
-					  .arg( sourceDir.filePath( Filesystem::drumkit_xml() ) ) );
-
-			// Restore the original drumkit file
-			Filesystem::file_copy( sourceDir.filePath( Filesystem::drumkit_xml() ) +
-								   ".original",
-								   sourceDir.filePath( Filesystem::drumkit_xml() ),
-								   true, true );
-			Filesystem::rm( sourceDir.filePath( Filesystem::drumkit_xml() ) +
-							".original", false, true );
+			ERRORLOG( QString( "Unable to create tmp folder [%1]" )
+					  .arg( tmpFolder.path() + "/" + sDirName ) );
+			set_name( sOldDrumkitName );
 			return false;
 		}
 
-		filesUsed = filesUsed.replaceInStrings( tmpFolder.path(),
-												sourceDir.absolutePath() );
+		QString sNewFilePath;
+		QStringList copiedFiles;
+		for ( const auto& ssFile : filesUsed ) {
+			QString sNewFilePath( ssFile );
+			sNewFilePath.replace( sNewFilePath.left( sNewFilePath.lastIndexOf( "/" ) ),
+								  tmpFolder.path() + "/" + sDirName );
+			if ( ! Filesystem::file_copy( ssFile, sNewFilePath, true, true ) ) {
+				ERRORLOG( QString( "Unable to copy file [%1] to [%2]." )
+						  .arg( ssFile ).arg( sNewFilePath ) );
+				set_name( sOldDrumkitName );
+				return false;
+			}
+
+			copiedFiles << sNewFilePath;
+		}
+
+		filesUsed = copiedFiles;
+		sourceDir = QDir( tmpFolder.path() + "/" + sDirName );
 	}
 
 	// Since there is no way to alter the target names of the files
@@ -906,25 +976,25 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 		.arg( filesUsed.join( "\" \"" ) );
 	int nRet = std::system( sCmd.toLocal8Bit() );
 
-	if ( nComponentID != -1 ) {
-		// Restore the original drumkit file
-		Filesystem::file_copy( sourceDir.filePath( Filesystem::drumkit_xml() ) +
-							   ".original",
-							   sourceDir.filePath( Filesystem::drumkit_xml() ),
-							   true, true );
-		Filesystem::rm( sourceDir.filePath( Filesystem::drumkit_xml() ) +
-						".original", false, true );
-	}
-
 	if ( nRet != 0 ) {
 		ERRORLOG( QString( "Unable to export drumkit using system command:\n%1" )
 				  .arg( sCmd ) );
+			set_name( sOldDrumkitName );
 		return false;
 	}
 
+	// Only clean up the temp folder when everything was
+	// working. Else, it's probably worth inspecting its content (and
+	// the system will clean it up anyway).
+	Filesystem::rm( tmpFolder.path(), true, true );
+
+	set_name( sOldDrumkitName );
+			
 	return true;
+#endif // LIBARCHIVE
 #else // WIN32
-	ERRORLOG( "Operation not supported" );
+	ERRORLOG( "Operation not supported on Windows" );
+	
 	return false;
 #endif
 

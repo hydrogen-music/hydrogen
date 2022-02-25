@@ -133,6 +133,16 @@ class Drumkit : public H2Core::Object
 	 * the associated drumkit folder but it does not have to.
 	 */
 	QString getFolderName() const;
+	/**
+	 * Returns the base name used when exporting the drumkit.
+	 *
+	 * \param sComponentName Name of a particular component used in
+	 * case just a single component should be exported.
+	 * \param bRecentVersion Whether the drumkit format should be
+	 * supported by Hydrogen 0.9.7 or higher (whether it should be
+	 * composed of DrumkitComponents).
+	 */
+	QString getExportName( const QString& sComponentName, bool bRecentVersion ) const;
 		
 		/** 
 		 * Saves the current drumkit to dk_path, but makes a backup. 
@@ -238,7 +248,7 @@ class Drumkit : public H2Core::Object
 	 *
 	 * \return true on success 
 	 */
-	bool exportTo( const QString& sTargetDir, const QString& sComponentName = "", bool bRecentVersion = true, bool bSilent = false ) const;
+	bool exportTo( const QString& sTargetDir, const QString& sComponentName = "", bool bRecentVersion = true, bool bSilent = false );
 		/**
 		 * remove a drumkit from the disk
 		 * \param dk_name the drumkit name
