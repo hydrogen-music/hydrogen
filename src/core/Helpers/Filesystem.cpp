@@ -866,6 +866,16 @@ bool Filesystem::isSongPathValid( const QString& sSongPath, bool bCheckExistance
 	return true;
 }
 
+QString Filesystem::validateFilePath( const QString& sPath ) {
+
+	// Ensure the name will be a valid filename
+	QString sValidName( sPath );
+	sValidName.replace( " ", "_" );
+	sValidName.remove( QRegExp( "[^a-zA-Z0-9_-]" ) );
+
+	return sValidName;
+}
+
 QStringList Filesystem::theme_list( )
 {
 	return QDir( sys_theme_dir() ).entryList( QStringList( THEME_FILTER ), QDir::Files | QDir::Readable | QDir::NoDotAndDotDot ) +
