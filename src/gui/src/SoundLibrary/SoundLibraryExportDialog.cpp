@@ -140,11 +140,9 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 
 	// Check whether the resulting file does already exist and ask the
 	// user if it should be overwritten.
-	QString sTargetName = drumkitPathTxt->text() + "/" + pDrumkit->getFolderName();
-	if ( ! sTargetComponent.isEmpty() ) {
-		sTargetName.append( "_" + sTargetComponent );
-	}
-	sTargetName.append( Filesystem::drumkit_ext );
+	QString sTargetName = drumkitPathTxt->text() + "/" +
+		pDrumkit->getExportName( sTargetComponent, bRecentVersion ) +
+		Filesystem::drumkit_ext;
 	if ( Filesystem::file_exists( sTargetName, true ) ) {
 		QMessageBox msgBox;
 		msgBox.setWindowTitle("Hydrogen");
