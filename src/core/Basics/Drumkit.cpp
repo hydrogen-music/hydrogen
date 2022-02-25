@@ -837,9 +837,6 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 			}
 		}
 	}
-
-	QString sTargetName = sTargetDir + "/" + getFolderName() +
-		Filesystem::drumkit_ext;
 		
 #if defined(H2CORE_HAVE_LIBARCHIVE)
 

@@ -280,11 +280,11 @@ QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const {
 }
 
 
-std::vector<std::shared_ptr<Instrument>>::iterator InstrumentList::begin() {
+std::vector<Instrument*>::iterator InstrumentList::begin() {
 	return __instruments.begin();
 }
 
-std::vector<std::shared_ptr<Instrument>>::iterator InstrumentList::end() {
+std::vector<Instrument*>::iterator InstrumentList::end() {
 	return __instruments.end();
 }
 

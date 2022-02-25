@@ -22,7 +22,6 @@
 
 #include "SoundLibraryExportDialog.h"
 #include "../HydrogenApp.h"
-#include "../CommonStrings.h"
 
 #include <core/Hydrogen.h>
 #include <core/Helpers/Filesystem.h>
@@ -132,7 +131,6 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	}
 	sTargetName.append( Filesystem::drumkit_ext );
 	if ( Filesystem::file_exists( sTargetName, true ) ) {
-		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 		QMessageBox msgBox;
 		msgBox.setWindowTitle("Hydrogen");
 		msgBox.setIcon( QMessageBox::Warning );
@@ -140,10 +138,8 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 						.arg( sTargetName ) );
 
 		msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Cancel );
-		msgBox.setButtonText(QMessageBox::Ok,
-							 pCommonStrings->getButtonOk() );
-		msgBox.setButtonText(QMessageBox::Cancel,
-							 pCommonStrings->getButtonCancel());
+		msgBox.setButtonText(QMessageBox::Ok, tr( "&Ok" ) );
+		msgBox.setButtonText(QMessageBox::Cancel, tr( "&Cancel" ) );
 		msgBox.setDefaultButton(QMessageBox::Ok);
 
 		if ( msgBox.exec() == QMessageBox::Cancel ) {
