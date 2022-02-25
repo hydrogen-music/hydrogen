@@ -93,12 +93,12 @@ Drumkit::~Drumkit()
 
 Drumkit* Drumkit::load_by_name( const QString& dk_name, const bool load_samples, Filesystem::Lookup lookup )
 {
-	QString dir = Filesystem::drumkit_path_search( dk_name, lookup );
-	if ( dir.isEmpty() ) {
+	QString sDrumkitPath = Filesystem::drumkit_path_search( dk_name, lookup );
+	if ( sDrumkitPath.isEmpty() ) {
 		return nullptr;
 	}
 	
-	return load( dir, load_samples );
+	return load( sDrumkitPath, load_samples );
 }
 
 Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUpgrade, bool bSilent )
