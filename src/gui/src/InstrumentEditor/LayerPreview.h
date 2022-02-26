@@ -55,6 +55,7 @@ class LayerPreview :  public QWidget, protected WidgetWithScalableFont<5, 6, 7>,
 		virtual void mouseMoveEvent ( QMouseEvent *ev ) override;
 
 		void set_selected_component( int SelectedComponent );
+	void setSelectedLayer( int nSelectedLayer );
 
 public slots:
 		void onPreferencesChanged( H2Core::Preferences::Changes changes );
@@ -98,5 +99,10 @@ public slots:
 		int getPointSizeButton() const;
 };
 
+inline void LayerPreview::setSelectedLayer( int nLayer ) {
+	if ( nLayer != m_nSelectedLayer ) {
+		m_nSelectedLayer = nLayer;
+	}
+}
 
 #endif

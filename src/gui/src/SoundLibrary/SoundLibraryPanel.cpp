@@ -34,6 +34,7 @@
 #include "SoundLibraryExportDialog.h"
 
 #include "../HydrogenApp.h"
+#include "../CommonStrings.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/PixmapWidget.h"
 #include "../SongEditor/SongEditorPanel.h"
@@ -130,6 +131,8 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &SoundLibraryPanel::onPreferencesChanged );
 	
 	updateDrumkitList();
+	
+	HydrogenApp::get_instance()->addEventListener(this);
 }
 
 
@@ -499,6 +502,8 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 
 void SoundLibraryPanel::on_drumkitLoadAction()
 {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
 	// Whether we deal with a system or a user drumkit.
 	QString sDrumkitType = __sound_library_tree->currentItem()->parent()->text(0);
@@ -537,7 +542,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 		return;
 	}
 
-	InstrumentList *pSongInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	InstrumentList *pSongInstrList = pHydrogen->getSong()->getInstrumentList();
 	InstrumentList *pDrumkitInstrList = pDrumkitInfo->get_instruments();
 
 	int oldCount = pSongInstrList->size();
@@ -557,7 +562,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 			{
 				INFOLOG("Checking if Instrument " + QString::number( i ) + " has notes..." );
 
-				if ( Hydrogen::get_instance()->instrumentHasNotes( pSongInstrList->get( i ) ) )
+				if ( pHydrogen->instrumentHasNotes( pSongInstrList->get( i ) ) )
 				{
 					hasNotes = true;
 					INFOLOG("Instrument " + QString::number( i ) + " has notes" );
@@ -566,17 +571,20 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 
 		}
 	
-		if ( hasNotes )
-		{
+		if ( hasNotes ) {
+			auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 			QMessageBox msgBox;
 			msgBox.setWindowTitle("Hydrogen");
 			msgBox.setIcon( QMessageBox::Warning );
 			msgBox.setText( tr( "The existing kit has %1 instruments but the new one only has %2.\nThe first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.\nWould you like to keep or discard the remaining instruments and notes?\n").arg( QString::number( oldCount ),QString::number( newCount ) ) );
 
-			msgBox.setStandardButtons(QMessageBox::Save);
+			msgBox.setStandardButtons( QMessageBox::Save | QMessageBox::Discard |
+									   QMessageBox::Cancel );
 			msgBox.setButtonText(QMessageBox::Save, tr("Keep"));
-			msgBox.addButton(QMessageBox::Discard);
-			msgBox.addButton(QMessageBox::Cancel);
+			msgBox.setButtonText(QMessageBox::Discard,
+								 pCommonStrings->getButtonDiscard() );
+			msgBox.setButtonText(QMessageBox::Cancel,
+								 pCommonStrings->getButtonCancel());
 			msgBox.setDefaultButton(QMessageBox::Cancel);
 			
 			switch ( msgBox.exec() )
@@ -598,24 +606,18 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 		}
 	}
 
-
 	assert( pDrumkitInfo );
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	Hydrogen::get_instance()->loadDrumkit( pDrumkitInfo, conditionalLoad );
-	HydrogenApp::get_instance()->onDrumkitLoad( pDrumkitInfo->get_name() );
-	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
-	HydrogenApp::get_instance()->getPatternEditorPanel()->updatePianorollEditor();
-
-	InstrumentEditorPanel::get_instance()->notifyOfDrumkitChange();
+	pHydrogen->getCoreActionController()->loadDrumkit( pDrumkitInfo, conditionalLoad );
 
 	QApplication::restoreOverrideCursor();
-
-	update_background_color();
 }
 
-
+void SoundLibraryPanel::drumkitLoadedEvent() {
+	update_background_color();
+}
 
 void SoundLibraryPanel::update_background_color()
 {
@@ -664,6 +666,7 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 {
 	QTreeWidgetItem* pItem = __sound_library_tree->currentItem();
 	QString sDrumkitName = pItem->text(0);
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	Filesystem::Lookup lookup;
 	if ( pItem->parent() == __system_drumkits_item ) {
@@ -686,7 +689,11 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 		return;
 	}
 
-	int res = QMessageBox::warning( this, "Hydrogen", tr( "Warning, the \"%1\" drumkit will be deleted from disk.\nAre you sure?").arg(sDrumkitName), "&Ok", "&Cancel", nullptr, 1 );
+	int res = QMessageBox::warning( this, "Hydrogen",
+									tr( "Warning, the \"%1\" drumkit will be deleted from disk.\nAre you sure?").arg(sDrumkitName),
+									pCommonStrings->getButtonOk(),
+									pCommonStrings->getButtonCancel(),
+									nullptr, 1 );
 	if ( res == 1 ) {
 		return;
 	}
@@ -822,9 +829,14 @@ void SoundLibraryPanel::on_patternLoadAction() {
 
 void SoundLibraryPanel::on_patternDeleteAction()
 {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	QString patternPath = __sound_library_tree->currentItem()->text( 1 );
 
-	int res = QMessageBox::information( this, "Hydrogen", tr( "Warning, the selected pattern will be deleted from disk.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
+	int res = QMessageBox::information( this, "Hydrogen",
+										tr( "Warning, the selected pattern will be deleted from disk.\nAre you sure?"),
+										pCommonStrings->getButtonOk(),
+										pCommonStrings->getButtonCancel(),
+										nullptr, 1 );
 	if ( res == 1 ) {
 		return;
 	}
@@ -906,5 +918,12 @@ void SoundLibraryPanel::onPreferencesChanged( H2Core::Preferences::Changes chang
 				}
 			}
 		}
+	}
+}
+
+void SoundLibraryPanel::updateSongEvent( int nValue ) {
+	// A new song got loaded
+	if ( nValue == 0 ) {
+		update_background_color();
 	}
 }

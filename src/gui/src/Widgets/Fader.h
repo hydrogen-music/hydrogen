@@ -52,7 +52,7 @@ public:
 		Master
 	};
 	
-	Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSteps = false, bool bWithoutKnob = false, float fMin = 0.0, float fMax = 1.0 );
+	Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSteps = false, bool bWithoutKnob = false, float fMin = 0.0, float fMax = 1.0, bool bModifyOnChange = true );
 	~Fader();
 
 	void setMaxPeak( float fMax );

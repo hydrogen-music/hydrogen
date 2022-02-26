@@ -75,6 +75,7 @@ class InstrumentEditor :  public QWidget, protected WidgetWithScalableFont<10, 1
 		void showLayers();
 		void showInstrument();
 		void showSampleEditor();
+		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private slots:
 		void rotaryChanged(WidgetWithInput *ref);

@@ -77,7 +77,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_pInstrumentList( nullptr )
 	, m_pComponents( nullptr )
 	, m_sFilename( "" )
-	, m_bIsLoopEnabled( false )
+	, m_loopMode( LoopMode::Disabled )
 	, m_fHumanizeTimeValue( 0.0 )
 	, m_fHumanizeVelocityValue( 0.0 )
 	, m_fSwingFactor( 0.0 )
@@ -130,13 +130,6 @@ Song::~Song()
 	INFOLOG( QString( "DESTROY '%1'" ).arg( m_sName ) );
 }
 
-void Song::purgeInstrument( std::shared_ptr<Instrument> pInstr )
-{
-	for ( int nPattern = 0; nPattern < ( int )m_pPatternList->size(); ++nPattern ) {
-		m_pPatternList->get( nPattern )->purge_instrument( pInstr );
-	}
-}
-
 void Song::setBpm( float fBpm ) {
 	if ( fBpm > MAX_BPM ) {
 		m_fBpm = MAX_BPM;
@@ -165,8 +158,8 @@ void Song::setActionMode( Song::ActionMode actionMode ) {
 	setIsModified( true );
 }
 
-int Song::lengthInTicks() const {
-	int nSongLength = 0;
+long Song::lengthInTicks() const {
+	long nSongLength = 0;
 	int nColumns = m_pPatternGroupSequence->size();
 	// Sum the lengths of all pattern columns and use the macro
 	// MAX_NOTES in case some of them are of size zero.
@@ -221,16 +214,16 @@ bool Song::save( const QString& sFilename )
 	return QFile::exists( sFilename );
 }
 
-
-/// Create default song
-std::shared_ptr<Song> Song::getDefaultSong()
+std::shared_ptr<Song> Song::getEmptySong()
 {
-	std::shared_ptr<Song> pSong = std::make_shared<Song>( "empty", "hydrogen", 120, 0.5 );
+	std::shared_ptr<Song> pSong =
+		std::make_shared<Song>( Filesystem::untitled_song_name(), "hydrogen",
+								120, 0.5 );
 
 	pSong->setMetronomeVolume( 0.5 );
 	pSong->setNotes( "..." );
 	pSong->setLicense( "" );
-	pSong->setIsLoopEnabled( false );
+	pSong->setLoopMode( Song::LoopMode::Disabled );
 	pSong->setMode( Song::Mode::Pattern );
 	pSong->setHumanizeTimeValue( 0.0 );
 	pSong->setHumanizeVelocityValue( 0.0 );
@@ -241,45 +234,43 @@ std::shared_ptr<Song> Song::getDefaultSong()
 	pInstrList->add( pNewInstr );
 	pSong->setInstrumentList( pInstrList );
 
-#ifdef H2CORE_HAVE_JACK
-	Hydrogen::get_instance()->renameJackPorts( pSong );
-#endif
-
 	PatternList*	pPatternList = new PatternList();
-	Pattern*		pEmptyPattern = new Pattern();
+	PatternList*    patternSequence = new PatternList();
+
+	for ( int nn = 0; nn < 10; ++nn ) {
+		Pattern*		pEmptyPattern = new Pattern();
 	
-	pEmptyPattern->set_name( QString( "Pattern 1" ) );
-	pEmptyPattern->set_category( QString( "not_categorized" ) );
-	pPatternList->add( pEmptyPattern );
+		pEmptyPattern->set_name( QString( "Pattern %1" ).arg( nn + 1 ) );
+		pEmptyPattern->set_category( QString( "not_categorized" ) );
+		pPatternList->add( pEmptyPattern );
+
+		if ( nn == 0 ) {
+			// Only the first pattern will be activated in the
+			// SongEditor.
+			patternSequence->add( pEmptyPattern );
+		}
+	}
 	pSong->setPatternList( pPatternList );
 	
 	std::vector<PatternList*>* pPatternGroupVector = new std::vector<PatternList*>;
-	PatternList*               patternSequence = new PatternList();
-	
-	patternSequence->add( pEmptyPattern );
 	pPatternGroupVector->push_back( patternSequence );
 	pSong->setPatternGroupVector( pPatternGroupVector );
-	pSong->setFilename( "empty_song" );
+
+	pSong->setFilename( Filesystem::empty_song_path() );
+
+	auto pDrumkit = H2Core::Drumkit::load_by_name( Filesystem::drumkit_default_kit(), true );
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( QString( "Unabled to load default Drumkit [%1]" )
+				  .arg( Filesystem::drumkit_default_kit() ) );
+	} else {
+		pSong->loadDrumkit( pDrumkit, true );
+		delete pDrumkit;
+	}
+	
 	pSong->setIsModified( false );
 
 	return pSong;
 
-}
-
-/// Return an empty song
-std::shared_ptr<Song> Song::getEmptySong()
-{
-	std::shared_ptr<Song> pSong = Song::load( Filesystem::empty_song_path() );
-
-	/* 
-	 * If file DefaultSong.h2song is not accessible,
-	 * create a simple default song.
-	 */
-	if( !pSong ) {
-		pSong = Song::getDefaultSong();
-	}
-
-	return pSong;
 }
 
 DrumkitComponent* Song::getComponent( int nID ) const
@@ -655,6 +646,132 @@ void Song::setPanLawKNorm( float fKNorm ) {
 		m_fPanLawKNorm = Sampler::K_NORM_DEFAULT;
 	}
 }
+
+void Song::loadDrumkit( Drumkit *pDrumkit, bool bConditional ) {
+	assert ( pDrumkit );
+	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+
+	// Load DrumkitComponents 
+	std::vector<DrumkitComponent*>* pDrumkitCompoList = pDrumkit->get_components();
+	
+	for( auto &pComponent : *m_pComponents ){
+		delete pComponent;
+	}
+	m_pComponents->clear();
+	
+	for (std::vector<DrumkitComponent*>::iterator it = pDrumkitCompoList->begin() ; it != pDrumkitCompoList->end(); ++it) {
+		DrumkitComponent* pSrcComponent = *it;
+		DrumkitComponent* pNewComponent = new DrumkitComponent( pSrcComponent->get_id(), pSrcComponent->get_name() );
+		pNewComponent->load_from( pSrcComponent );
+
+		m_pComponents->push_back( pNewComponent );
+	}
+
+	//////
+	// Load InstrumentList
+	/*
+	 * If the old drumkit is bigger then the new drumkit,
+	 * delete all instruments with a bigger pos then
+	 * pDrumkitInstrList->size(). Otherwise the instruments
+	 * from our old instrumentlist with
+	 * pos > pDrumkitInstrList->size() stay in the
+	 * new instrumentlist
+	 */
+	InstrumentList *pDrumkitInstrList = pDrumkit->get_instruments();
+	
+	int nInstrumentDiff = m_pInstrumentList->size() - pDrumkitInstrList->size();
+	int nMaxID = -1;
+	
+	std::shared_ptr<Instrument> pInstr, pNewInstr;
+	for ( int nnInstr = 0; nnInstr < pDrumkitInstrList->size(); ++nnInstr ) {
+		if ( nnInstr < m_pInstrumentList->size() ) {
+			// Instrument exists already
+			pInstr = m_pInstrumentList->get( nnInstr );
+			assert( pInstr );
+		} else {
+			pInstr = std::make_shared<Instrument>();
+			m_pInstrumentList->add( pInstr );
+		}
+
+		pNewInstr = pDrumkitInstrList->get( nnInstr );
+		assert( pNewInstr );
+		INFOLOG( QString( "Loading instrument (%1 of %2) [%3]" )
+				 .arg( nnInstr + 1 )
+				 .arg( pDrumkitInstrList->size() )
+				 .arg( pNewInstr->get_name() ) );
+
+		// Preserve instrument IDs. Where the new drumkit has more
+		// instruments than the song does, new instruments need new
+		// ids.
+		int nID = pInstr->get_id();
+		if ( nID == EMPTY_INSTR_ID ) {
+			nID = nMaxID + 1;
+		}
+		nMaxID = std::max( nID, nMaxID );
+
+		pInstr->load_from( pDrumkit, pNewInstr );
+		pInstr->set_id( nID );
+	}
+
+	// Discard redundant instruments (in case the last drumkit had
+	// more instruments than the new one).
+	if ( nInstrumentDiff >= 0 ) {
+		for ( int i = 0; i < nInstrumentDiff ; i++ ){
+			removeInstrument( m_pInstrumentList->size() - 1,
+							  bConditional );
+		}
+	}
+}
+
+void Song::removeInstrument( int nInstrumentNumber, bool bConditional ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pInstr = m_pInstrumentList->get( nInstrumentNumber );
+	if ( pInstr == nullptr ) {
+		// Error log is already printed by get().
+		return;
+	}
+
+	if ( bConditional ) {
+		// If a note was assigned to this instrument in any pattern,
+		// the instrument will be kept instead of discarded.
+		for ( const auto& pPattern : *m_pPatternList ) {
+			if ( pPattern->references( pInstr ) ) {
+				DEBUGLOG("Keeping instrument #" + QString::number( nInstrumentNumber ) );
+				return;
+			}
+		}
+	} else {
+		for ( const auto& pPattern : *m_pPatternList ) {
+			pPattern->purge_instrument( pInstr, false );
+		}
+	}
+
+	// In case there is just this one instrument left, reset it
+	// instead of removing it.
+	if ( m_pInstrumentList->size() == 1 ){
+		pInstr->set_name( (QString( "Instrument 1" )) );
+		for ( auto& pCompo : *pInstr->get_components() ) {
+			// remove all layers
+			for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
+				pCompo->set_layer( nullptr, nLayer );
+			}
+		}
+		DEBUGLOG("clear last instrument to empty instrument 1 instead delete the last instrument");
+		return;
+	}
+	
+	// delete the instrument from the instruments list
+	m_pInstrumentList->del( nInstrumentNumber );
+
+	// At this point the instrument has been removed from both the
+	// instrument list and every pattern in the song.  Hence there's no way
+	// (NOTE) to play on that instrument, and once all notes have stopped
+	// playing it will be save to delete.
+	// the ugly name is just for debugging...
+	QString xxx_name = QString( "XXX_%1" ).arg( pInstr->get_name() );
+	pInstr->set_name( xxx_name );
+	pHydrogen->addInstrumentToDeathRow( pInstr );
+}
  
 QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
@@ -685,7 +802,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			}
 		}
 		sOutput.append( QString( "%1%2m_sFilename: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sFilename ) )
-			.append( QString( "%1%2m_bIsLoopEnabled: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsLoopEnabled ) )
+			.append( QString( "%1%2m_loopMode: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>(m_loopMode) ) )
 			.append( QString( "%1%2m_fHumanizeTimeValue: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fHumanizeTimeValue ) )
 			.append( QString( "%1%2m_fHumanizeVelocityValue: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fHumanizeVelocityValue ) )
 			.append( QString( "%1%2m_fSwingFactor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fSwingFactor ) )
@@ -731,14 +848,14 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			}
 		}
 		sOutput.append( QString( "%1" ).arg( m_pInstrumentList->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( ", m_pComponents:" ) );
+			.append( QString( ", m_pComponents: [" ) );
 		for ( auto cc : *m_pComponents ) {
 			if ( cc != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s, bShort ) ) );
 			}
 		}
-		sOutput.append( QString( ", m_sFilename: %1" ).arg( m_sFilename ) )
-			.append( QString( ", m_bIsLoopEnabled: %1" ).arg( m_bIsLoopEnabled ) )
+		sOutput.append( QString( "], m_sFilename: %1" ).arg( m_sFilename ) )
+			.append( QString( ", m_loopMode: %1" ).arg( static_cast<int>(m_loopMode) ) )
 			.append( QString( ", m_fHumanizeTimeValue: %1" ).arg( m_fHumanizeTimeValue ) )
 			.append( QString( ", m_fHumanizeVelocityValue: %1" ).arg( m_fHumanizeVelocityValue ) )
 			.append( QString( ", m_fSwingFactor: %1" ).arg( m_fSwingFactor ) )
@@ -880,7 +997,11 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	pSong->setMetronomeVolume( fMetronomeVolume );
 	pSong->setNotes( sNotes );
 	pSong->setLicense( sLicense );
-	pSong->setIsLoopEnabled( bLoopEnabled );
+	if ( bLoopEnabled ) {
+		pSong->setLoopMode( Song::LoopMode::Enabled );
+	} else {
+		pSong->setLoopMode( Song::LoopMode::Disabled );
+	}
 	pSong->setMode( mode );
 	pSong->setHumanizeTimeValue( fHumanizeTimeValue );
 	pSong->setHumanizeVelocityValue( fHumanizeVelocityValue );

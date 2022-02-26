@@ -86,19 +86,17 @@ class Instrument : public H2Core::Object<Instrument>
 		 * loads instrument from a given instrument within a given drumkit into a `live` Instrument object.
 		 * \param drumkit_name the drumkit to search the instrument in
 		 * \param instrument_name the instrument within the drumkit to load samples from
-		 * \param is_live is it performed while playing
 		 * \param lookup Where to search (system/user folder or both)
 		 * for the drumkit.
 		 */
-		void load_from( const QString& drumkit_name, const QString& instrument_name, bool is_live = true, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
+		void load_from( const QString& drumkit_name, const QString& instrument_name, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
 
 		/**
 		 * loads instrument from a given instrument into a `live` Instrument object.
 		 * \param drumkit the drumkit the instrument belongs to
 		 * \param instrument to load samples and members from
-		 * \param is_live is it performed while playing
 		 */
-		void load_from( Drumkit* drumkit, std::shared_ptr<Instrument> instrument, bool is_live = true );
+		void load_from( Drumkit* drumkit, std::shared_ptr<Instrument> instrument );
 
 		/**
 		 * Calls the InstrumentLayer::load_sample() member
@@ -125,9 +123,15 @@ class Instrument : public H2Core::Object<Instrument>
 		 * \param node the XMLDode to read from
 		 * \param dk_path the directory holding the drumkit data
 		 * \param dk_name the name of the drumkit
+		 * \param bSilent if set to true, all log messages except of
+		 * errors and warnings are suppressed.
+		 *
 		 * \return a new Instrument instance
 		 */
-		static std::shared_ptr<Instrument> load_from( XMLNode* node, const QString& dk_path, const QString& dk_name );
+		static std::shared_ptr<Instrument> load_from( XMLNode* node,
+													  const QString& dk_path,
+													  const QString& dk_name,
+													  bool bSilent = false );
 
 		///< set the name of the instrument
 		void set_name( const QString& name );

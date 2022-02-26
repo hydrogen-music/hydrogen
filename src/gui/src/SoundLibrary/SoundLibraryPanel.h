@@ -33,6 +33,7 @@
 #include <core/Preferences/Preferences.h>
 
 #include "../Widgets/WidgetWithScalableFont.h"
+#include "../EventListener.h"
 
 namespace H2Core
 {
@@ -45,7 +46,7 @@ class SoundLibraryTree;
 class ToggleButton;
 
 /** \ingroup docGUI*/
-class SoundLibraryPanel : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, private H2Core::Object<SoundLibraryPanel>
+class SoundLibraryPanel : public QWidget, protected WidgetWithScalableFont<8, 10, 12>, private H2Core::Object<SoundLibraryPanel>, public EventListener
 {
 	H2_OBJECT(SoundLibraryPanel)
 Q_OBJECT
@@ -56,6 +57,8 @@ public:
 	void updateDrumkitList();
 	void test_expandedItems();
 	void update_background_color();
+	virtual void drumkitLoadedEvent() override;
+	virtual void updateSongEvent( int nValue ) override;
 	const QString& getMessageFailedPreDrumkitLoad() const;
 
 public slots:

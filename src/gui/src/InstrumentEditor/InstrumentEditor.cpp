@@ -53,6 +53,7 @@ using namespace H2Core;
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/Fader.h"
 #include "InstrumentEditor.h"
+#include "InstrumentEditorPanel.h"
 #include "WaveDisplay.h"
 #include "LayerPreview.h"
 #include "AudioFileBrowser/AudioFileBrowser.h"
@@ -102,7 +103,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	pMidiOutLbl->move( 22, 281 );
 
 	m_pMidiOutChannelLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-										   LCDSpinBox::Type::Int, -1, 16 );
+										   LCDSpinBox::Type::Int, -1, 16,
+										   true, true );
 	m_pMidiOutChannelLCD->move( 98, 257 );
 	m_pMidiOutChannelLCD->setToolTip(QString(tr("Midi out channel")));
 	connect( m_pMidiOutChannelLCD, SIGNAL( valueChanged( double ) ),
@@ -167,7 +169,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	// Filter
 	m_pFilterBypassBtn = new Button( m_pInstrumentProp, QSize( 36, 15 ), Button::Type::Toggle,
-									 "", pCommonStrings->getBypassButton(), true );
+									 "", pCommonStrings->getBypassButton(), true,
+									 QSize( 0, 0 ), "", false, true );
 	connect( m_pFilterBypassBtn, SIGNAL( pressed() ),
 			 this, SLOT( filterActiveBtnClicked() ) );
 	m_pFilterBypassBtn->move( 67, 169 );
@@ -246,7 +249,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 
 	m_pMuteGroupLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-									  LCDSpinBox::Type::Int, -1, 100 );
+									  LCDSpinBox::Type::Int, -1, 100,
+									  true, true );
 	m_pMuteGroupLCD->move( 160, 101 );
 	connect( m_pMuteGroupLCD, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( muteGroupChanged( double ) ) );
@@ -282,7 +286,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	// HiHat setup
 
 	m_pHihatGroupLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-									   LCDSpinBox::Type::Int, -1, 32 );
+									   LCDSpinBox::Type::Int, -1, 32,
+									   true, true );
 	m_pHihatGroupLCD->move( 28, 303 );
 	connect( m_pHihatGroupLCD, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( hihatGroupChanged( double ) ) );
@@ -475,6 +480,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	// this will force an update...
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &InstrumentEditor::onPreferencesChanged );
 }
 
 
@@ -650,7 +657,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pWaveDisplay->updateDisplay( nullptr );
 		m_nSelectedLayer = 0;
 	}
-	
+
 	selectLayer( m_nSelectedLayer );
 }
 
@@ -851,24 +858,39 @@ void InstrumentEditor::removeLayerButtonClicked()
 {
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
-	if ( m_pInstrument ) {
-		auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
-		if( pCompo ) {
+	if ( m_pInstrument != nullptr ) {
+		auto pCompo = m_pInstrument->get_component( m_nSelectedComponent );
+		if( pCompo != nullptr ) {
 			pCompo->set_layer( nullptr, m_nSelectedLayer );
 
+			// Select next loaded layer - if available - in order to
+			// allow for a quick removal of all layers. In case the
+			// last layer was removed, the previous one will be
+			// selected.
+			int nNextLayerIndex = 0;
 			int nCount = 0;
 			for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 				auto pLayer = pCompo->get_layer( n );
-				if( pLayer ){
+				if( pLayer != nullptr ){
 					nCount++;
+
+					if ( nNextLayerIndex <= m_nSelectedLayer &&
+						 n != m_nSelectedLayer ) {
+						nNextLayerIndex = n;
+					}
 				}
 			}
 
 			if( nCount == 0 ){
 				m_pInstrument->get_components()->erase( m_pInstrument->get_components()->begin() + m_nSelectedComponent );
+			} else {
+				m_pLayerPreview->setSelectedLayer( nNextLayerIndex );
+				InstrumentEditorPanel::get_instance()->selectLayer( nNextLayerIndex );
 			}
+				
 		}
 	}
+
 	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	selectedInstrumentChangedEvent();    // update all
 	m_pLayerPreview->updateAll();
@@ -881,23 +903,58 @@ void InstrumentEditor::loadLayerBtnClicked()
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	QString sPath = Preferences::get_instance()->getLastOpenLayerDirectory();
+	QString sFilename = "";
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
 		sPath = QDir::homePath();
 	}
 
+	// In case the button was pressed while a layer was selected, we
+	// try to use path of the associated sample as default one.
+	if ( m_nSelectedLayer > 0 &&
+		 m_pInstrument != nullptr ) {
+		auto pComponent = m_pInstrument->get_component( m_nSelectedComponent );
 
-	AudioFileBrowser *pFileBrowser = new AudioFileBrowser( nullptr, true, true, sPath );
+		if ( pComponent != nullptr ) {
+			auto pLayer = pComponent->get_layer( m_nSelectedLayer );
+
+			if ( pLayer != nullptr ) {
+				auto pSample = pLayer->get_sample();
+
+				if ( pSample != nullptr ) {
+					if ( ! pSample->get_filepath().isEmpty() ) {
+						QFileInfo fileInfo( pSample->get_filepath() );
+						sPath = fileInfo.absoluteDir().absolutePath();
+						sFilename = fileInfo.absoluteFilePath();
+					}
+				}
+			}
+		}
+	}
+		
+
+
+	AudioFileBrowser *pFileBrowser =
+		new AudioFileBrowser( nullptr, true, true, sPath, sFilename );
 	QStringList filename;
 	filename << "false" << "false" << "";
 
 	if (pFileBrowser->exec() == QDialog::Accepted) {
 		filename = pFileBrowser->getSelectedFiles();
-		Preferences::get_instance()->setLastOpenLayerDirectory( pFileBrowser->getSelectedDirectory() );
+		
+		// Only overwrite the default directory if we didn't start
+		// from an existing file or the final directory differs from
+		// the starting one.
+		if ( sFilename.isEmpty() ||
+			 sPath != pFileBrowser->getSelectedDirectory() ) {
+			Preferences::get_instance()->setLastOpenLayerDirectory( pFileBrowser->getSelectedDirectory() );
+		}
 	}
 
 	delete pFileBrowser;
 
-	if ( filename[2].isEmpty() ) return;
+	if ( filename[2].isEmpty() ) {
+		return;
+	}
 
 	bool fnc = false;
 	if ( filename[0] ==  "true" ){
@@ -922,10 +979,13 @@ void InstrumentEditor::loadLayerBtnClicked()
 
 	if (filename.size() > 2) {
 
-		for(int i=2;i < filename.size();++i)
+		for ( int i=2; i < filename.size(); ++i )
 		{
 			selectedLayer = m_nSelectedLayer + i - 2;
-			if( ( i-2 >= InstrumentComponent::getMaxLayers() ) || ( selectedLayer + 1  > InstrumentComponent::getMaxLayers() ) ) break;
+			if ( ( i-2 >= InstrumentComponent::getMaxLayers() ) ||
+				 ( selectedLayer + 1  > InstrumentComponent::getMaxLayers() ) ) {
+				break;
+			}
 
 			auto pNewSample = Sample::load( filename[i] );
 
@@ -983,31 +1043,30 @@ void InstrumentEditor::setAutoVelocity()
 	if ( pCompo == nullptr ) {
 		return;
 	}
-	std::vector<int> layerInUse( InstrumentComponent::getMaxLayers(), 0 );
+
 	int nLayers = 0;
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
 
 		auto pLayer = pCompo->get_layer( i );
-		if ( pLayer ) {
+		if ( pLayer != nullptr ) {
 			nLayers++;
-			layerInUse[i] = i;
 		}
 	}
 	
-	if( nLayers == 0){
+	if( nLayers == 0 ){
 		nLayers = 1;
 	}
 
 	float velocityrange = 1.0 / nLayers;
 
+	int nLayer = 0;
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
-		if ( layerInUse[i] == i ){
-			nLayers--;
-			auto pLayer = pCompo->get_layer( i );
-			if ( pLayer ) {
-				pLayer->set_start_velocity( nLayers * velocityrange);
-				pLayer->set_end_velocity( nLayers * velocityrange + velocityrange );
-			}
+		auto pLayer = pCompo->get_layer( i );
+		if ( pLayer != nullptr ) {
+			pLayer->set_start_velocity( nLayer * velocityrange);
+			pLayer->set_end_velocity( nLayer * velocityrange + velocityrange );
+			
+			++nLayer;
 		}
 	}
 }
@@ -1020,7 +1079,7 @@ void InstrumentEditor::labelCompoClicked( ClickableLabel* pRef )
 		return;
 	}
 	DrumkitComponent* pComponent = pSong->getComponent( m_nSelectedComponent );
-	if ( pComponent != nullptr ) {
+	if ( pComponent == nullptr ) {
 		return;
 	}
 	QString sOldName = pComponent->get_name();
@@ -1087,10 +1146,11 @@ void InstrumentEditor::selectLayer( int nLayer )
 	if(pComponent && nLayer >= 0 ){
 		auto pLayer = pComponent->get_layer( nLayer );
 		m_pWaveDisplay->updateDisplay( pLayer );
-		if (pLayer) {
+		if ( pLayer != nullptr ) {
 			char tmp[20];
 
 			// Layer GAIN
+			m_pLayerGainRotary->setIsActive( true );
 			m_pLayerGainRotary->setValue( pLayer->get_gain() );
 			sprintf( tmp, "%#.2f", pLayer->get_gain() );
 			m_pLayerGainLCD->setText( tmp );
@@ -1098,6 +1158,7 @@ void InstrumentEditor::selectLayer( int nLayer )
 			//Component GAIN
 			char tmp2[20];
 			sprintf( tmp2, "%#.2f", pComponent->get_gain());
+			m_pCompoGainRotary->setIsActive( true );
 			m_pCompoGainRotary->setValue( pComponent->get_gain());
 			m_pCompoGainLCD->setText( tmp2 );
 
@@ -1105,45 +1166,64 @@ void InstrumentEditor::selectLayer( int nLayer )
 			float fCoarsePitch = round( pLayer->get_pitch() );
 			float fFinePitch = pLayer->get_pitch() - fCoarsePitch;
 			//INFOLOG( "fine pitch: " + to_string( fFinePitch ) );
+			m_pLayerPitchCoarseRotary->setIsActive( true );
 			m_pLayerPitchCoarseRotary->setValue( fCoarsePitch );
+			m_pLayerPitchFineRotary->setIsActive( true );
 			m_pLayerPitchFineRotary->setValue( fFinePitch * 100 );
 
 			m_pLayerPitchCoarseLCD->setText( QString( "%1" ).arg( (int) fCoarsePitch ) );
 			m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fFinePitch * 100 ) );
+
+			m_pRemoveLayerBtn->setIsActive( true );
+			m_pSampleEditorBtn->setIsActive( true );
 		}
 		else {
 			// Layer GAIN
+			m_pLayerGainRotary->setIsActive( false );
 			m_pLayerGainRotary->setValue( 1.0 );
 			m_pLayerGainLCD->setText( "" );
 
 			//Component GAIN
+			m_pCompoGainRotary->setIsActive( false );
 			m_pCompoGainRotary->setValue( 1.0 );
 			m_pCompoGainLCD->setText( "" );
 
 			// Layer PITCH
+			m_pLayerPitchCoarseRotary->setIsActive( false );
 			m_pLayerPitchCoarseRotary->setValue( 0.0 );
+			m_pLayerPitchFineRotary->setIsActive( false );
 			m_pLayerPitchFineRotary->setValue( 0.0 );
 
 			m_pLayerPitchCoarseLCD->setText( "" );
 			m_pLayerPitchFineLCD->setText( "" );
+
+			m_pRemoveLayerBtn->setIsActive( false );
+			m_pSampleEditorBtn->setIsActive( false );
 		}
 	}
 	else {
 		m_pWaveDisplay->updateDisplay( nullptr );
 
 		// Layer GAIN
+		m_pLayerGainRotary->setIsActive( false );
 		m_pLayerGainRotary->setValue( 1.0 );
 		m_pLayerGainLCD->setText( "" );
 
+		m_pCompoGainRotary->setIsActive( false );
 		m_pCompoGainRotary->setValue( 1.0 );
 		m_pCompoGainLCD->setText( "" );
 
 		// Layer PITCH
+		m_pLayerPitchCoarseRotary->setIsActive( false );
 		m_pLayerPitchCoarseRotary->setValue( 0.0 );
+		m_pLayerPitchFineRotary->setIsActive( false );
 		m_pLayerPitchFineRotary->setValue( 0.0 );
 
 		m_pLayerPitchCoarseLCD->setText( "" );
 		m_pLayerPitchFineLCD->setText( "" );
+
+		m_pRemoveLayerBtn->setIsActive( false );
+		m_pSampleEditorBtn->setIsActive( false );
 	}
 }
 
@@ -1272,6 +1352,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		std::vector<DrumkitComponent*>* pDrumkitComponents = pHydrogen->getSong()->getComponents();
 
 		if(pDrumkitComponents->size() == 1){
+			ERRORLOG( "There is just a single component remaining. This one can not be deleted." );
 			return;
 		}
 
@@ -1298,6 +1379,8 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		}
 
 		m_nSelectedComponent = pDrumkitComponents->front()->get_id();
+
+		delete pDrumkitComponent;
 
 		selectedInstrumentChangedEvent();
 		// this will force an update...
@@ -1377,4 +1460,13 @@ void InstrumentEditor::hihatMaxRangeChanged( double fValue )
 	assert( m_pInstrument );
 	m_pInstrument->set_higher_cc( static_cast<int>(fValue) );
 	m_pHihatMinRangeLCD->setMaximum( static_cast<int>(fValue) );
+}
+
+void InstrumentEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
+		setStyleSheet( QString( "QLabel { background: %1 }" )
+					   .arg( pPref->getColorTheme()->m_windowColor.name() ) );
+	}
 }

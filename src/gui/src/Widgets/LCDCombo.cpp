@@ -23,14 +23,18 @@
 #include "LCDCombo.h"
 
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 
 #include <core/Globals.h>
 
 
-LCDCombo::LCDCombo( QWidget *pParent, QSize size )
+LCDCombo::LCDCombo( QWidget *pParent, QSize size, bool bModifyOnChange )
 	: QComboBox( pParent )
 	, m_size( size )
 	, m_bEntered( false )
+	, m_bModifyOnChange( bModifyOnChange )
+	, m_nMaxWidth( 0 )
+	, m_bIsActive( true )
 {
 	setFocusPolicy( Qt::ClickFocus );
 
@@ -42,27 +46,77 @@ LCDCombo::LCDCombo( QWidget *pParent, QSize size )
 	updateStyleSheet();
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &LCDCombo::onPreferencesChanged );
+	connect( this, SIGNAL( currentIndexChanged(int) ), this,
+			 SLOT( onCurrentIndexChanged(int) ) );
 }
 
 LCDCombo::~LCDCombo() {
 }
 
+void LCDCombo::addItem( const QString& sText, const QVariant& userData ) {
+	int nWidth =
+		fontMetrics().size( Qt::TextSingleLine, sText ).width() *
+		1.1 + // custom factor to ensure the text does fit
+		view()->autoScrollMargin(); // width of the scrollbar
+
+	if ( nWidth > m_nMaxWidth ) {
+		m_nMaxWidth = nWidth;
+	}
+
+	QComboBox::addItem( sText, userData );
+}
+
+void LCDCombo::setIsActive( bool bIsActive ) {
+	m_bIsActive = bIsActive;
+	
+	update();
+	
+	setEnabled( bIsActive );
+}
+
+void LCDCombo::showPopup() {
+	if ( m_nMaxWidth > view()->sizeHint().width() ) {
+		view()->setMinimumWidth( m_nMaxWidth );
+	}
+	
+	QComboBox::showPopup();
+}
+
 void LCDCombo::updateStyleSheet() {
 
 	auto pPref = H2Core::Preferences::get_instance();
+
+
+	QColor widgetColor = pPref->getColorTheme()->m_widgetColor;
+	QColor widgetTextColor = pPref->getColorTheme()->m_widgetTextColor;
+	QColor widgetInactiveColor = 
+		Skin::makeWidgetColorInactive( widgetColor );
+	QColor widgetTextInactiveColor =
+		Skin::makeTextColorInactive( widgetTextColor );
 	
 	setStyleSheet( QString( "\
-QComboBox { \
-    background-color: %1; \
-    font-family: %2; \
-    font-size: %3; \
+QComboBox:enabled { \
+    color: %1; \
+    background-color: %2; \
+    font-family: %3; \
+    font-size: %4; \
+} \
+QComboBox:disabled { \
+    color: %5; \
+    background-color: %6; \
+    font-family: %3; \
+    font-size: %4; \
 } \
 QComboBox QAbstractItemView { \
+    color: %1; \
     background-color: #babfcf; \
 }")
-				   .arg( pPref->getColorTheme()->m_widgetColor.name() )
+				   .arg( widgetTextColor.name() )
+				   .arg( widgetColor.name() )
 				   .arg( pPref->getLevel3FontFamily() )
-				   .arg( getPointSize( pPref->getFontSize() ) ) );
+				   .arg( getPointSize( pPref->getFontSize() ) )
+				   .arg( widgetTextInactiveColor.name() )
+				   .arg( widgetInactiveColor.name() ) );
 }
 
 void LCDCombo::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
@@ -84,7 +138,12 @@ void LCDCombo::paintEvent( QPaintEvent *ev ) {
 	if ( m_bEntered || hasFocus() ) {
 		QPainter painter(this);
 	
-		QColor colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+		QColor colorHighlightActive;
+		if ( m_bIsActive ) {
+			colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+		} else {
+			colorHighlightActive = pPref->getColorTheme()->m_lightColor;
+		}
 
 		// If the mouse is placed on the widget but the user hasn't
 		// clicked it yet, the highlight will be done more transparent to
@@ -105,4 +164,17 @@ void LCDCombo::enterEvent( QEvent* ev ) {
 void LCDCombo::leaveEvent( QEvent* ev ) {
 	QComboBox::leaveEvent( ev );
 	m_bEntered = false;
+}
+
+void LCDCombo::onCurrentIndexChanged( int ) {
+	if ( m_bModifyOnChange ) {
+		H2Core::Hydrogen::get_instance()->setIsModified( true );
+	}
+}
+
+void LCDCombo::setSize( QSize size ) {
+	m_size = size;
+	
+	setFixedSize( size );
+	adjustSize();
 }

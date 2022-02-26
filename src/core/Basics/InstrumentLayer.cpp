@@ -78,14 +78,20 @@ void InstrumentLayer::unload_sample()
 	}
 }
 
-std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* node, const QString& dk_path )
+std::shared_ptr<InstrumentLayer> InstrumentLayer::load_from( XMLNode* node, const QString& dk_path, bool bSilent )
 {
-	auto pSample = std::make_shared<Sample>( dk_path+"/"+node->read_string( "filename", "" ) );
+	auto pSample = std::make_shared<Sample>( dk_path + "/" +
+											 node->read_string( "filename", "",
+																true, true, bSilent  ) );
 	auto pLayer = std::make_shared<InstrumentLayer>( pSample );
-	pLayer->set_start_velocity( node->read_float( "min", 0.0 ) );
-	pLayer->set_end_velocity( node->read_float( "max", 1.0 ) );
-	pLayer->set_gain( node->read_float( "gain", 1.0, true, false ) );
-	pLayer->set_pitch( node->read_float( "pitch", 0.0, true, false ) );
+	pLayer->set_start_velocity( node->read_float( "min", 0.0,
+												  true, true, bSilent  ) );
+	pLayer->set_end_velocity( node->read_float( "max", 1.0,
+												true, true, bSilent ) );
+	pLayer->set_gain( node->read_float( "gain", 1.0,
+										true, false, bSilent ) );
+	pLayer->set_pitch( node->read_float( "pitch", 0.0,
+										 true, false, bSilent ) );
 	return pLayer;
 }
 

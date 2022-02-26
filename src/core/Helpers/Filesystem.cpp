@@ -22,6 +22,7 @@
 
 #include <core/LocalFileMng.h>
 #include <core/config.h>
+#include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 
@@ -29,6 +30,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
+#include <QDateTime>
 #include <QDomDocument>
 
 #ifdef H2CORE_HAVE_OSC
@@ -58,18 +60,20 @@
 /** Sound of metronome beat */
 #define CLICK_SAMPLE    "click.wav"
 #define EMPTY_SAMPLE    "emptySample.wav"
-#define EMPTY_SONG      "DefaultSong.h2song"
+#define DEFAULT_SONG    "DefaultSong"
+#define EMPTY_SONG_BASE "emptySong"
 #define USR_CONFIG		"hydrogen.conf"
 #define SYS_CONFIG		"hydrogen.default.conf"
 #define LOG_FILE		"hydrogen.log"
 #define DRUMKIT_XML     "drumkit.xml"
 #define DRUMKIT_XSD     "drumkit.xsd"
 #define DRUMPAT_XSD     "drumkit_pattern.xsd"
+#define DRUMKIT_DEFAULT_KIT "GMRockKit"
 #define PLAYLIST_XSD     "playlist.xsd"
 
 #define AUTOSAVE        "autosave"
 
-#define UNTITLED_SONG		"untitled.h2song"
+#define UNTITLED_SONG		"Untitled Song"
 #define UNTITLED_PLAYLIST	"untitled.h2playlist"
 
 // filters
@@ -258,9 +262,11 @@ bool Filesystem::mkdir( const QString& path )
 
 bool Filesystem::path_usable( const QString& path, bool create, bool silent )
 {
-	if( !QDir( path ).exists() ) {
-		if( !silent ) INFOLOG( QString( "create user directory : %1" ).arg( path ) );
-		if( create && !QDir( "/" ).mkpath( path ) ) {
+	if ( !QDir( path ).exists() ) {
+		if ( !silent ) {
+			INFOLOG( QString( "create user directory : %1" ).arg( path ) );
+		}
+		if ( create && !QDir( "/" ).mkpath( path ) ) {
 			if( !silent ) ERRORLOG( QString( "unable to create user directory : %1" ).arg( path ) );
 			return false;
 		}
@@ -285,7 +291,7 @@ bool Filesystem::write_to_file( const QString& dst, const QString& content )
 	return true;
 }
 
-bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwrite )
+bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwrite, bool bSilent )
 {
 	if( !overwrite && file_exists( dst, true ) ) {
 		WARNINGLOG( QString( "do not overwrite %1 with %2 as it already exists" ).arg( dst ).arg( src ) );
@@ -299,19 +305,20 @@ bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwri
 		ERRORLOG( QString( "unable to copy %1 to %2, %2 is not writable" ).arg( src ).arg( dst ) );
 		return false;
 	}
-	INFOLOG( QString( "copy %1 to %2" ).arg( src ).arg( dst ) );
-
+	if ( ! bSilent ) {
+		INFOLOG( QString( "copy %1 to %2" ).arg( src ).arg( dst ) );
+	}
 	
 	// Since QFile::copy does not overwrite, we have to make sure the
 	// destination does not exist.
 	if ( overwrite && file_exists( dst, true ) ) {
-		rm( dst, true );
+		rm( dst, true, bSilent );
 	}
 	
 	return QFile::copy( src, dst );
 }
 
-bool Filesystem::rm( const QString& path, bool recursive )
+bool Filesystem::rm( const QString& path, bool recursive, bool bSilent )
 {
 	if ( check_permissions( path, is_file, true ) ) {
 		QFile file( path );
@@ -333,18 +340,22 @@ bool Filesystem::rm( const QString& path, bool recursive )
 		}
 		return ret;
 	}
-	return rm_fr( path );
+	return rm_fr( path, bSilent );
 }
 
-bool Filesystem::rm_fr( const QString& path )
+bool Filesystem::rm_fr( const QString& path, bool bSilent )
 {
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Removing [%1] recursively" ).arg( path ) );
+	}
+	
 	bool ret = true;
 	QDir dir( path );
 	QFileInfoList entries = dir.entryInfoList( QDir::NoDotAndDotDot | QDir::AllEntries );
 	for ( int idx = 0; ( ( idx < entries.size() ) && ret ); idx++ ) {
 		QFileInfo entryInfo = entries[idx];
 		if ( entryInfo.isDir() && !entryInfo.isSymLink() ) {
-			ret = rm_fr( entryInfo.absoluteFilePath() );
+			ret = rm_fr( entryInfo.absoluteFilePath(), bSilent );
 		} else {
 			QFile file( entryInfo.absoluteFilePath() );
 			if ( !file.remove() ) {
@@ -365,7 +376,6 @@ bool Filesystem::check_sys_paths()
 	bool ret = true;
 	if(  !dir_readable( __sys_data_path ) ) ret = false;
 	if( !file_readable( click_file_path() ) ) ret = false;
-	if( !file_readable( empty_song_path() ) ) ret = false;
 	if(  !dir_readable( demos_dir() ) ) ret = false;
 	/* if(  !dir_readable( doc_dir() ) ) ret = false; */		// FIXME
 	if(  !dir_readable( sys_drumkits_dir() ) ) ret = false;
@@ -397,6 +407,7 @@ bool Filesystem::check_usr_paths()
 	if( !path_usable( plugins_dir() ) ) ret = false;
 	if( !path_usable( scripts_dir() ) ) ret = false;
 	if( !path_usable( songs_dir() ) ) ret = false;
+	if( file_exists( empty_song_path() ) ) ret = false;
 	if( !path_usable( usr_theme_dir() ) ) ret = false;
 	if( !file_writable( usr_config_path() ) ) ret = false;
 
@@ -431,11 +442,31 @@ QString Filesystem::empty_sample_path()
 {
 	return __sys_data_path + EMPTY_SAMPLE;
 }
-QString Filesystem::empty_song_path()
-{
-	return __sys_data_path + EMPTY_SONG;
+
+QString Filesystem::default_song_name() {
+	return DEFAULT_SONG;
 }
-QString Filesystem::untitled_song_file_name()
+
+QString Filesystem::empty_song_path() {
+	QString sPathBase( __usr_data_path + EMPTY_SONG_BASE );
+	QString sPath( sPathBase + Filesystem::songs_ext );
+
+	int nIterations = 0;
+	while ( file_exists( sPath, true ) ) {
+		sPath = sPathBase + QString::number( nIterations ) + Filesystem::songs_ext;
+		++nIterations;
+
+		if ( nIterations > 1000 ) {
+			ERRORLOG( "That's a bit much. Something is wrong in here." );
+			return __usr_data_path + SONGS + default_song_name() +
+				Filesystem::songs_ext;
+		}
+	}
+
+	return sPath;
+}
+
+QString Filesystem::untitled_song_name()
 {
 	return UNTITLED_SONG;
 }
@@ -591,6 +622,9 @@ QStringList Filesystem::drumkit_list( const QString& path )
 		}
 	}
 	return ok;
+}
+QString Filesystem::drumkit_default_kit() {
+	return DRUMKIT_DEFAULT_KIT;
 }
 QStringList Filesystem::sys_drumkit_list( )
 {
@@ -750,6 +784,15 @@ QString Filesystem::drumkit_file( const QString& dk_path )
 	return dk_path + "/" + DRUMKIT_XML;
 }
 
+QString Filesystem::drumkit_xml() {
+	return DRUMKIT_XML;
+}
+
+QString Filesystem::drumkit_backup_path( const QString& dk_path ) {
+	return dk_path + "." +
+		QDateTime::currentDateTime().toString( "yyyy-MM-dd_hh-mm-ss" ) + ".bak";
+}
+
 // PATTERNS
 QStringList Filesystem::pattern_drumkits()
 {
@@ -786,6 +829,41 @@ QStringList Filesystem::song_list_cleared( )
 bool Filesystem::song_exists( const QString& sg_name )
 {
 	return QDir( songs_dir() ).exists( sg_name );
+}
+
+bool Filesystem::isSongPathValid( const QString& sSongPath, bool bCheckExistance ) {
+	
+	QFileInfo songFileInfo = QFileInfo( sSongPath );
+
+	if ( !songFileInfo.isAbsolute() ) {
+		ERRORLOG( QString( "Error: Unable to handle path [%1]. Please provide an absolute file path!" )
+						.arg( sSongPath.toLocal8Bit().data() ));
+		return false;
+	}
+	
+	if ( songFileInfo.exists() ) {
+		if ( !songFileInfo.isReadable() ) {
+			ERRORLOG( QString( "Unable to handle path [%1]. You must have permissions to read the file!" )
+						.arg( sSongPath.toLocal8Bit().data() ));
+			return false;
+		}
+		if ( !songFileInfo.isWritable() ) {
+			WARNINGLOG( QString( "You don't have permissions to write to the Song found in path [%1]. It will be opened as read-only (no autosave)." )
+						.arg( sSongPath.toLocal8Bit().data() ));
+			EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
+		}
+	} else if ( bCheckExistance ) {
+		ERRORLOG( QString( "Provided song [%1] does not exist" ).arg( sSongPath ) );
+		return false;
+	}
+	
+	if ( songFileInfo.suffix() != "h2song" ) {
+		ERRORLOG( QString( "Unable to handle path [%1]. The provided file must have the suffix '.h2song'!" )
+					.arg( sSongPath.toLocal8Bit().data() ));
+		return false;
+	}
+	
+	return true;
 }
 
 QStringList Filesystem::theme_list( )

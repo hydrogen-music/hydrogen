@@ -26,8 +26,6 @@
 #include <stdio.h>
 #include <memory>
 
-CPPUNIT_TEST_SUITE_REGISTRATION( ADSRTest );
-
 using namespace H2Core;
 
 const double delta = 0.00001;

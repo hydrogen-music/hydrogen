@@ -48,10 +48,11 @@ namespace H2Core
  * the Timeline pretends to have a tempo marker in the beginning
  * holding the current Song::m_fBpm (the tempo set via the BPM
  * widget). This special first marker can only be "removed" by the
- * user by adding a TempoMarker to the first column. Also, the special
- * marker is responding to changes of the song tempo (using the BPM
- * widget or MIDI/OSC commands) and is prepended in the
- * getAllTempoMarkers() functions.
+ * user by adding a TempoMarker to the first column. In addition, it's
+ * tempo get's updated when toggling the Timeline. This, it does not
+ * immediately respond to changes of the song tempo (using the BPM
+ * widget or MIDI/OSC commands). The special tempo marker is prepended
+ * in the getAllTempoMarkers() functions.
  *
  * The calling function will not notice any difference between the
  * provided TempoMarkers and has to use
@@ -91,6 +92,14 @@ public:
 		QString sTag;		// tag
 	};
 
+	/** 
+	 * Registers the current playback tempo to m_fDefaultBpm.
+	 */
+	void activate();
+	/**
+	 * Convencience function in order to create a symmetric pair with activate
+	 */
+	void deactivate();
 
 	/** Adds a TempoMarker to the Timeline.
 	 *
@@ -185,6 +194,14 @@ private:
 
 	std::vector<std::shared_ptr<const TempoMarker>> m_tempoMarkers;
 	std::vector<std::shared_ptr<const Tag>> m_tags;
+
+	/**
+	 * Tempo used for the special tempo marker.
+	 *
+	 * It's the task of the calling function to ensure this is set to
+	 * the last Song::m_fBpm when activating the Timeline.
+	 */
+	float m_fDefaultBpm;
 	
 	struct TempoMarkerComparator
 	{

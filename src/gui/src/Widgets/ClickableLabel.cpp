@@ -28,10 +28,11 @@
 
 #include <core/Globals.h>
 
-ClickableLabel::ClickableLabel( QWidget *pParent, QSize size, QString sText, Color color  )
+ClickableLabel::ClickableLabel( QWidget *pParent, QSize size, QString sText, Color color, bool bModifyOnChange )
 	: QLabel( pParent )
 	, m_size( size )
 	, m_color( color )
+	, m_bModifyOnChange( bModifyOnChange )
 {
 	if ( ! size.isNull() ) {
 		setFixedSize( size );
@@ -61,7 +62,7 @@ void ClickableLabel::updateStyleSheet() {
 		text = pPref->getColorTheme()->m_widgetTextColor;
 	}
 
-	setStyleSheet( QString( "color: %1" ).arg( text.name() ) );
+	setStyleSheet( QString( "QLabel { color: %1; }" ).arg( text.name() ) );
 }
 
 void ClickableLabel::mousePressEvent( QMouseEvent * e )
@@ -133,8 +134,16 @@ void ClickableLabel::onPreferencesChanged( H2Core::Preferences::Changes changes 
 }
 
 void ClickableLabel::setText( const QString& sNewText ) {
+	if ( text() == sNewText ) {
+		return;
+	}
+	
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	QLabel::setText( sNewText );
 	updateFont( pPref->getLevel3FontFamily(), pPref->getFontSize() );
+
+	if ( m_bModifyOnChange ) {
+		H2Core::Hydrogen::get_instance()->setIsModified( true );
+	}
 }

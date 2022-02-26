@@ -42,9 +42,12 @@ class Legacy : public H2Core::Object<Legacy> {
 		/**
 		 * load drumkit information from a file
 		 * \param dk_path is a path to an xml file
+		 * \param bSilent Whether DEBUGLOG messages should be logged
+		 * when anomalies are encountered while reading the XML nodes.
+		 *
 		 * \return a Drumkit on success, 0 otherwise
 		 */
-		static Drumkit* load_drumkit( const QString& dk_path );
+		static Drumkit* load_drumkit( const QString& dk_path, bool bSilent = false );
 		/**
 		 * load pattern from a file
 		 * \param pattern_path is a path to an xml file

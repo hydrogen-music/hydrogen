@@ -103,4 +103,3 @@ public:
 	}
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION( UITranslationTest );

@@ -69,7 +69,7 @@ public:
 		PatternSizeDenominator
 	};
 
-	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int, double fMin = 0.0, double fMax = 1.0 );
+	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int, double fMin = 0.0, double fMax = 1.0, bool bModifyOnChange = true, bool bMinusOneAsOff = false );
 	~LCDSpinBox();
 
 	void setKind( Kind kind );
@@ -79,21 +79,36 @@ public:
 	void setIsActive( bool bIsActive );
 
 	void setSize( QSize size );
+
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
+	void setValue( double fValue );
+
+private slots:
+	void valueChanged( double fNewValue );
 
 signals:
 	void slashKeyPressed();
+	void valueChanged( int );
 	
 private:
-	void updateStyleSheet();
 	double nextValueInPatternSizeDenominator( bool bUp, bool bAccelerated );
+	void updateStyleSheet();
+
 	QSize m_size;
 	Type m_type;
 	Kind m_kind;
 	
 	bool m_bEntered;
 	bool m_bIsActive;
+
+	/** In some widgets the QString "off" will be displayed instead of
+		-1.*/
+	bool m_bMinusOneAsOff;
+
+	/** Whether Hydrogen::setIsModified() is invoked with `true` as
+		soon as the value of the widget does change.*/
+	bool m_bModifyOnChange;
 
 	virtual QString textFromValue( double fValue ) const override;
 	virtual double valueFromText( const QString& sText ) const override;	

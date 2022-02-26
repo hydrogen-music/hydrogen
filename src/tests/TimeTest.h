@@ -52,4 +52,3 @@ public:
 	 */
 	void testElapsedTime();
 };
-CPPUNIT_TEST_SUITE_REGISTRATION( TimeTest );

@@ -45,4 +45,3 @@ private:
 	QString m_sTmpPath;
 	QString m_sDemoSongSysPath;
 };
-CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );

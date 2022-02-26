@@ -222,7 +222,7 @@ bool Pattern::references( std::shared_ptr<Instrument> instr )
 	return false;
 }
 
-void Pattern::purge_instrument( std::shared_ptr<Instrument> instr )
+void Pattern::purge_instrument( std::shared_ptr<Instrument> instr, bool bRequiresLock )
 {
 	bool locked = false;
 	std::list< Note* > slate;
@@ -230,7 +230,7 @@ void Pattern::purge_instrument( std::shared_ptr<Instrument> instr )
 		Note* note = it->second;
 		assert( note );
 		if ( note->get_instrument() == instr ) {
-			if ( !locked ) {
+			if ( !locked && bRequiresLock ) {
 				Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 				locked = true;
 			}
@@ -242,10 +242,10 @@ void Pattern::purge_instrument( std::shared_ptr<Instrument> instr )
 	}
 	if ( locked ) {
 		Hydrogen::get_instance()->getAudioEngine()->unlock();
-		while ( slate.size() ) {
-			delete slate.front();
-			slate.pop_front();
-		}
+	}
+	while ( slate.size() ) {
+		delete slate.front();
+		slate.pop_front();
 	}
 }
 

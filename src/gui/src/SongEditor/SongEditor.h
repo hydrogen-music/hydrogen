@@ -334,14 +334,13 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 
 		uint getGridWidth();
 		void setGridWidth (uint width);
-		void editTagAction( QString text, int position, QString textToReplace );
-		void deleteTagAction( QString text, int position );
-
 	int getPlayheadWidth() const;
 	void tempoChangedEvent( int ) override;
 	void columnChangedEvent( int ) override;
 	void songModeActivationEvent( int nValue ) override;
+	
 	void timelineActivationEvent( int nValue ) override;
+	void timelineUpdateEvent( int nValue ) override;
 	void jackTimebaseStateChangedEvent( int nValue ) override;
 													   
 

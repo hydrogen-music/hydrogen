@@ -153,8 +153,15 @@ int OscServer::generic_handler(const char *	path,
 							   lo_message	data,
 							   void *		user_data)
 {
-	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
-	H2Core::CoreActionController* pController = pHydrogen->getCoreActionController();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pController = pHydrogen->getCoreActionController();
+	auto pSong = pHydrogen->getSong();
+
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return 0;
+	}
+	
 	int nNumberOfStrips = pHydrogen->getSong()->getInstrumentList()->size();
 	
 	//First we're trying to map TouchOSC messages from multi-fader widgets
@@ -324,6 +331,7 @@ void OscServer::PLAY_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAY");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -332,6 +340,7 @@ void OscServer::PLAY_STOP_TOGGLE_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAY/STOP_TOGGLE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -340,6 +349,7 @@ void OscServer::PLAY_PAUSE_TOGGLE_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAY/PAUSE_TOGGLE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -348,6 +358,7 @@ void OscServer::STOP_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("STOP");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -356,6 +367,7 @@ void OscServer::PAUSE_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("PAUSE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -364,6 +376,7 @@ void OscServer::RECORD_READY_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("RECORD_READY");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -372,6 +385,7 @@ void OscServer::RECORD_STROBE_TOGGLE_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("RECORD/STROBE_TOGGLE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -380,6 +394,7 @@ void OscServer::RECORD_STROBE_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("RECORD_STROBE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -388,6 +403,7 @@ void OscServer::RECORD_EXIT_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("RECORD_EXIT");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -396,6 +412,7 @@ void OscServer::MUTE_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("MUTE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -404,6 +421,7 @@ void OscServer::UNMUTE_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("UNMUTE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -412,6 +430,7 @@ void OscServer::MUTE_TOGGLE_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("MUTE_TOGGLE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -420,6 +439,7 @@ void OscServer::NEXT_BAR_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>(">>_NEXT_BAR");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -428,6 +448,7 @@ void OscServer::PREVIOUS_BAR_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("<<_PREVIOUS_BAR");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -438,6 +459,7 @@ void OscServer::BPM_INCR_Handler(lo_arg **argv,int i)
 	
 	pAction->setParameter1( QString::number( argv[0]->f, 'f', 0 ));
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -448,6 +470,7 @@ void OscServer::BPM_DECR_Handler(lo_arg **argv,int i)
 
 	pAction->setParameter1( QString::number( argv[0]->f, 'f', 0 ));
 	
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -456,6 +479,7 @@ void OscServer::MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv,int i)
 	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
 	H2Core::CoreActionController* pController = pHydrogen->getCoreActionController();
 
+	// Null song handling done in MidiActionManager.
 	pController->setMasterVolume( argv[0]->f );
 }
 
@@ -465,6 +489,7 @@ void OscServer::MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
 	pAction->setParameter2( QString::number( argv[0]->f, 'f', 0 ));
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -473,6 +498,7 @@ void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
 	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
 	H2Core::CoreActionController* pController = pHydrogen->getCoreActionController();
 
+	// Null song handling done in MidiActionManager.
 	pController->setStripVolume( param1, param2, false );
 }
 
@@ -483,6 +509,7 @@ void OscServer::STRIP_VOLUME_RELATIVE_Handler(QString param1, QString param2)
 	pAction->setParameter2( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -492,6 +519,7 @@ void OscServer::SELECT_NEXT_PATTERN_Handler(lo_arg **argv,int i)
 	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -501,6 +529,7 @@ void OscServer::SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv,int i)
 	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -511,6 +540,7 @@ void OscServer::PAN_ABSOLUTE_Handler(QString param1, QString param2)
 	pAction->setParameter2( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -521,6 +551,7 @@ void OscServer::PAN_ABSOLUTE_SYM_Handler(QString param1, QString param2)
 	pAction->setParameter2( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -531,6 +562,7 @@ void OscServer::PAN_RELATIVE_Handler(QString param1, QString param2)
 	pAction->setParameter2( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -541,6 +573,7 @@ void OscServer::FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler(QString param1, QString par
 	pAction->setParameter2( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -549,6 +582,7 @@ void OscServer::BEATCOUNTER_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("BEATCOUNTER");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -557,6 +591,7 @@ void OscServer::TAP_TEMPO_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("TAP_TEMPO");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -567,6 +602,7 @@ void OscServer::PLAYLIST_SONG_Handler(lo_arg **argv,int i)
 
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();	
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -575,6 +611,7 @@ void OscServer::PLAYLIST_NEXT_SONG_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAYLIST_NEXT_SONG");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -583,6 +620,7 @@ void OscServer::PLAYLIST_PREV_SONG_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("PLAYLIST_PREV_SONG");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -591,6 +629,7 @@ void OscServer::TOGGLE_METRONOME_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("TOGGLE_METRONOME");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -601,6 +640,7 @@ void OscServer::SELECT_INSTRUMENT_Handler(lo_arg **argv,int i)
 
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();	
 
+	// Null song handling done in MidiActionManager.
 	pActionManager->handleAction( pAction );
 }
 
@@ -609,6 +649,7 @@ void OscServer::UNDO_ACTION_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("UNDO_ACTION");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// This one does also work the current song being nullptr.
 	pActionManager->handleAction( pAction );
 }
 
@@ -617,6 +658,7 @@ void OscServer::REDO_ACTION_Handler(lo_arg **argv,int i)
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("REDO_ACTION");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
+	// This one does also work the current song being nullptr.
 	pActionManager->handleAction( pAction );
 }
 
@@ -624,46 +666,66 @@ void OscServer::REDO_ACTION_Handler(lo_arg **argv,int i)
 // Actions required for session management.
 
 void OscServer::NEW_SONG_Handler(lo_arg **argv, int argc) {
-	
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pController = pHydrogen->getCoreActionController();
 	pController->newSong( QString::fromUtf8( &argv[0]->s ) );
 }
 
 void OscServer::OPEN_SONG_Handler(lo_arg **argv, int argc) {
-
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pController = pHydrogen->getCoreActionController();
 	pController->openSong( QString::fromUtf8( &argv[0]->s ) );
 }
 
 void OscServer::SAVE_SONG_Handler(lo_arg **argv, int argc) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
 
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	auto pController = pHydrogen->getCoreActionController();
 	pController->saveSong();
 }
 
 void OscServer::SAVE_SONG_AS_Handler(lo_arg **argv, int argc) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
 
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	auto pController = pHydrogen->getCoreActionController();
 	pController->saveSongAs( QString::fromUtf8( &argv[0]->s ) );
 }
 
 void OscServer::SAVE_PREFERENCES_Handler(lo_arg **argv, int argc) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
 	
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	auto pController = pHydrogen->getCoreActionController();
 	pController->savePreferences();
 }
 
 void OscServer::QUIT_Handler(lo_arg **argv, int argc) {
-	
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pController = pHydrogen->getCoreActionController();
 	pController->quit();
 }
 
 // -------------------------------------------------------------------
 
 void OscServer::TIMELINE_ACTIVATION_Handler(lo_arg **argv, int argc) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
 
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	auto pController = pHydrogen->getCoreActionController();
 
 	if ( argv[0]->f != 0 ) { 
 		pController->activateTimeline( true );
@@ -673,21 +735,36 @@ void OscServer::TIMELINE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 }
 
 void OscServer::TIMELINE_ADD_MARKER_Handler(lo_arg **argv, int argc) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
 
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	auto pController = pHydrogen->getCoreActionController();
 	pController->addTempoMarker( static_cast<int>(std::round( argv[0]->f )),
 								 argv[1]->f);
 }
 
 void OscServer::TIMELINE_DELETE_MARKER_Handler(lo_arg **argv, int argc) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
 
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	auto pController = pHydrogen->getCoreActionController();
 	pController->deleteTempoMarker( static_cast<int>( std::round( argv[0]->f ) ) );
 }
 
 void OscServer::JACK_TRANSPORT_ACTIVATION_Handler(lo_arg **argv, int argc) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
 	
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	auto pController = pHydrogen->getCoreActionController();
 
 	if ( argv[0]->f != 0 ) {
 		pController->activateJackTransport( true );
@@ -697,8 +774,13 @@ void OscServer::JACK_TRANSPORT_ACTIVATION_Handler(lo_arg **argv, int argc) {
 }
 
 void OscServer::JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
 
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	auto pController = pHydrogen->getCoreActionController();
 	if ( argv[0]->f != 0 ) {
 		pController->activateJackTimebaseMaster( true );
 	} else {
@@ -707,8 +789,13 @@ void OscServer::JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc)
 }
 
 void OscServer::SONG_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
 
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	auto pController = pHydrogen->getCoreActionController();
 	if ( argv[0]->f != 0 ) {
 		pController->activateSongMode( true );
 	} else {
@@ -717,8 +804,13 @@ void OscServer::SONG_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 }
 
 void OscServer::LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
 
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	auto pController = pHydrogen->getCoreActionController();
 	if ( argv[0]->f != 0 ) {
 		pController->activateLoopMode( true, true );
 	} else {
@@ -727,33 +819,107 @@ void OscServer::LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 }
 
 void OscServer::RELOCATE_Handler(lo_arg **argv, int argc) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( static_cast<int>(std::round( argv[0]->f ) ) );
+	pHydrogen->getCoreActionController()->locateToColumn( static_cast<int>(std::round( argv[0]->f ) ) );
 }
 
 void OscServer::NEW_PATTERN_Handler(lo_arg **argv, int argc) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
 	
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	auto pController = pHydrogen->getCoreActionController();
 	pController->newPattern( QString::fromUtf8( &argv[0]->s ) );
 }
 
 void OscServer::OPEN_PATTERN_Handler(lo_arg **argv, int argc) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
 
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	auto pController = pHydrogen->getCoreActionController();
 	pController->openPattern( QString::fromUtf8( &argv[0]->s ) );
 }
 
 void OscServer::REMOVE_PATTERN_Handler(lo_arg **argv, int argc) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
 
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	auto pController = pHydrogen->getCoreActionController();
 	pController->removePattern( static_cast<int>(std::round( argv[0]->f )) );
 }
 
 void OscServer::SONG_EDITOR_TOGGLE_GRID_CELL_Handler(lo_arg **argv, int argc) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
 
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	auto pController = pHydrogen->getCoreActionController();
 	pController->toggleGridCell( static_cast<int>(std::round( argv[0]->f )),
 								 static_cast<int>(std::round( argv[1]->f )) );
+}
+
+void OscServer::LOAD_DRUMKIT_Handler(lo_arg **argv, int argc) {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
+	
+	auto pController = pHydrogen->getCoreActionController();
+
+	bool bConditionalLoad = true;
+	if ( argc > 1 ) {
+		bConditionalLoad = argv[1]->f == 0 ? false : true;
+	}
+	
+	pController->loadDrumkit( QString::fromUtf8( &argv[0]->s ),
+							  bConditionalLoad );
+}
+
+void OscServer::UPGRADE_DRUMKIT_Handler(lo_arg **argv, int argc) {
+	
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+
+	QString sNewPath = "";
+	if ( argc > 1 ) {
+		sNewPath = QString::fromUtf8( &argv[1]->s );
+	}
+	
+	pController->upgradeDrumkit( QString::fromUtf8( &argv[0]->s ),
+								 sNewPath );
+}
+
+void OscServer::VALIDATE_DRUMKIT_Handler(lo_arg **argv, int argc) {
+	
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	pController->validateDrumkit( QString::fromUtf8( &argv[0]->s ) );
+}
+
+void OscServer::EXTRACT_DRUMKIT_Handler(lo_arg **argv, int argc) {
+	
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+
+	QString sTargetDir = "";
+	if ( argc > 1 ) {
+		sTargetDir = QString::fromUtf8( &argv[1]->s );
+	}
+	
+	pController->extractDrumkit( QString::fromUtf8( &argv[0]->s ), sTargetDir );
 }
 
 // -------------------------------------------------------------------
@@ -936,10 +1102,7 @@ bool OscServer::init()
 																						lo_address_get_port( a ) );
 										m_pClientRegistry.push_back( newAddr );
 										
-										H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
-										H2Core::CoreActionController* pController = pHydrogen->getCoreActionController();
-										
-										pController->initExternalControlInterfaces();
+										H2Core::Hydrogen::get_instance()->getCoreActionController()->initExternalControlInterfaces();
 									}
 									
 									// Returning 1 means that the
@@ -1037,6 +1200,13 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/OPEN_PATTERN", "s", OPEN_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/REMOVE_PATTERN", "f", REMOVE_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/SONG_EDITOR_TOGGLE_GRID_CELL", "ff", SONG_EDITOR_TOGGLE_GRID_CELL_Handler);
+	m_pServerThread->add_method("/Hydrogen/LOAD_DRUMKIT", "s", LOAD_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/LOAD_DRUMKIT", "sf", LOAD_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/UPGRADE_DRUMKIT", "s", UPGRADE_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/UPGRADE_DRUMKIT", "ss", UPGRADE_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/VALIDATE_DRUMKIT", "s", VALIDATE_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/EXTRACT_DRUMKIT", "s", EXTRACT_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/EXTRACT_DRUMKIT", "ss", EXTRACT_DRUMKIT_Handler);
 
 	m_bInitialized = true;
 	

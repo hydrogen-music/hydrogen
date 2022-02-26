@@ -367,6 +367,7 @@ public:
 
 	///Default text editor (used by Playlisteditor)
 	QString				m_sDefaultEditor;
+	int				m_nAutosavesPerHour;
 
 	///Rubberband CLI
 	QString				m_rubberBandCLIexecutable;
@@ -447,9 +448,8 @@ public:
 	void			setQuantizeEvents( bool value );
 	bool			getQuantizeEvents();
 
-	const std::vector<QString> 		getRecentFiles();
+	std::vector<QString> 		getRecentFiles() const;
 	void			setRecentFiles( const std::vector<QString> recentFiles );
-	void			insertRecentFile( const QString sFilename ); 
 
 	QStringList		getRecentFX();
 	void			setMostRecentFX( QString );
@@ -557,15 +557,6 @@ public:
 
 	void			setWaitForSessionHandler(bool value);
 	bool			getWaitForSessionHandler();
-
-#if defined(H2CORE_HAVE_JACKSESSION) || _DOXYGEN_
-	QString			getJackSessionUUID();
-	void			setJackSessionUUID( QString uuid );
-
-	QString			getJackSessionApplicationPath();
-	void			setJackSessionApplicationPath( QString path );
-#endif
-
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 	void			setNsmClientId(const QString& nsmClientId);
@@ -730,11 +721,6 @@ private:
 	QStringList			m_recentFX;
 	std::vector<QString> 		m_recentFiles;
 
-#if defined(H2CORE_HAVE_JACKSESSION) || _DOXYGEN_
-		QString			jackSessionUUID;
-		QString			jackSessionApplicationPath;
-#endif
-
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 		QString			m_sNsmClientId;
 		QString			m_sNsmSongName;
@@ -750,6 +736,7 @@ private:
 	 * getUseTimelineBpm().
 	 */
 	bool					__useTimelineBpm;
+
 
 	//___ GUI properties ___
 	int						m_nLastOpenTab;
@@ -1150,7 +1137,10 @@ inline bool Preferences::getQuantizeEvents() {
 	return quantizeEvents;
 }
 
-inline const std::vector<QString> Preferences::getRecentFiles() {
+inline void Preferences::setRecentFiles( const std::vector<QString> recentFiles ) {
+	m_recentFiles = recentFiles;
+}
+inline std::vector<QString> Preferences::getRecentFiles() const {
 	return m_recentFiles;
 }
 
@@ -1383,26 +1373,6 @@ inline void Preferences::setWaitForSessionHandler(bool value){
 inline bool Preferences::getWaitForSessionHandler(){
 		return waitingForSessionHandler;
 }
-
-#if defined(H2CORE_HAVE_JACKSESSION) || _DOXYGEN_
-inline QString Preferences::getJackSessionUUID(){
-	return jackSessionUUID;
-}
-
-inline void Preferences::setJackSessionUUID( QString uuid ){
-	jackSessionUUID = uuid;
-}
-
-inline QString Preferences::getJackSessionApplicationPath(){
-	return jackSessionApplicationPath;
-}
-
-inline void Preferences::setJackSessionApplicationPath( QString path ){
-	jackSessionApplicationPath = path;
-}
-
-#endif
-
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 inline void Preferences::setNsmClientId(const QString& nsmClientId){

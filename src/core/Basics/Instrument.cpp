@@ -142,24 +142,16 @@ Instrument::~Instrument()
 std::shared_ptr<Instrument> Instrument::load_instrument( const QString& drumkit_name, const QString& instrument_name, Filesystem::Lookup lookup )
 {
 	auto pInstrument = std::make_shared<Instrument>();
-	pInstrument->load_from( drumkit_name, instrument_name, false, lookup );
+	pInstrument->load_from( drumkit_name, instrument_name, lookup );
 	return pInstrument;
 }
 
-void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInstrument, bool is_live )
+void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInstrument )
 {
 	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
-	if ( is_live ) {
-		pAudioEngine->lock( RIGHT_HERE );
-	}
-	
 	this->get_components()->clear();
 	
-	if ( is_live ) {
-		pAudioEngine->unlock();
-	}
-
 	set_missing_samples( false );
 
 	for ( const auto& pSrcComponent : *pInstrument->get_components() ) {
@@ -173,42 +165,21 @@ void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInst
 			auto my_layer = pMyComponent->get_layer( i );
 
 			if( src_layer == nullptr ) {
-				if ( is_live ) {
-					pAudioEngine->lock( RIGHT_HERE );
-				}
 				pMyComponent->set_layer( nullptr, i );
-				if ( is_live ) {
-					pAudioEngine->unlock();
-				}
 			} else {
 				QString sample_path =  pDrumkit->get_path() + "/" + src_layer->get_sample()->get_filename();
 				auto pSample = Sample::load( sample_path );
 				if ( pSample == nullptr ) {
 					_ERRORLOG( QString( "Error loading sample %1. Creating a new empty layer." ).arg( sample_path ) );
 					set_missing_samples( true );
-					if ( is_live ) {
-						pAudioEngine->lock( RIGHT_HERE );
-					}
 					pMyComponent->set_layer( nullptr, i );
-					
-					if ( is_live ) {
-						pAudioEngine->unlock();
-					}
+
 				} else {
-					if ( is_live ) {
-						pAudioEngine->lock( RIGHT_HERE );
-					}
 					pMyComponent->set_layer( std::make_shared<InstrumentLayer>( src_layer, pSample ), i );
-					if ( is_live ) {
-						pAudioEngine->unlock();
-					}
 				}
 			}
 			my_layer = nullptr;
 		}
-	}
-	if ( is_live ) {
-		pAudioEngine->lock( RIGHT_HERE );
 	}
 
 	this->set_id( pInstrument->get_id() );
@@ -233,13 +204,9 @@ void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInst
 	this->set_lower_cc( pInstrument->get_lower_cc() );
 	this->set_higher_cc( pInstrument->get_higher_cc() );
 	this->set_apply_velocity ( pInstrument->get_apply_velocity() );
-	
-	if ( is_live ) {
-		pAudioEngine->unlock();
-	}
 }
 
-void Instrument::load_from( const QString& dk_name, const QString& instrument_name, bool is_live, Filesystem::Lookup lookup )
+void Instrument::load_from( const QString& dk_name, const QString& instrument_name, Filesystem::Lookup lookup )
 {
 	Drumkit* pDrumkit = Drumkit::load_by_name( dk_name, false, lookup );
 	if ( !pDrumkit ) {
@@ -250,29 +217,38 @@ void Instrument::load_from( const QString& dk_name, const QString& instrument_na
 
 	auto pInstrument = pDrumkit->get_instruments()->find( instrument_name );
 	if ( pInstrument!=nullptr ) {
-		load_from( pDrumkit, pInstrument, is_live );
+		load_from( pDrumkit, pInstrument );
 	}
 	
 	delete pDrumkit;
 }
 
-std::shared_ptr<Instrument> Instrument::load_from( XMLNode* node, const QString& dk_path, const QString& dk_name )
+	std::shared_ptr<Instrument> Instrument::load_from( XMLNode* node, const QString& dk_path, const QString& dk_name, bool bSilent )
 {
-	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
+	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false, bSilent );
 	if ( id == EMPTY_INSTR_ID ) {
 		return nullptr;
 	}
 
-	auto pInstrument = std::make_shared<Instrument>( id, node->read_string( "name", "" ), nullptr );
+	auto pInstrument =
+		std::make_shared<Instrument>( id,
+									  node->read_string( "name", "", true,
+														 true, bSilent ),
+									  nullptr );
 	pInstrument->set_drumkit_name( dk_name );
-	pInstrument->set_volume( node->read_float( "volume", 1.0f ) );
-	pInstrument->set_muted( node->read_bool( "isMuted", false ) );
+	pInstrument->set_volume( node->read_float( "volume", 1.0f,
+											   true, true, bSilent  ) );
+	pInstrument->set_muted( node->read_bool( "isMuted", false,
+											 true, true, bSilent  ) );
 	bool bFound, bFound2;
-	float fPan = node->read_float( "pan", 0.f, &bFound );
+	float fPan = node->read_float( "pan", 0.f, &bFound,
+								   true, true, true );
 	if ( !bFound ) {
 		// check if pan is expressed in the old fashion (version <= 1.1 ) with the pair (pan_L, pan_R)
-		float fPanL = node->read_float( "pan_L", 1.f, &bFound );
-		float fPanR = node->read_float( "pan_R", 1.f, &bFound2 );
+		float fPanL = node->read_float( "pan_L", 1.f, &bFound,
+										true, true, bSilent );
+		float fPanR = node->read_float( "pan_R", 1.f, &bFound2,
+										true, true, bSilent );
 		if ( bFound == true && bFound2 == true ) { // found nodes pan_L and pan_R
 			fPan = Sampler::getRatioPan( fPanL, fPanR );  // convert to single pan parameter
 		}
@@ -280,24 +256,40 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* node, const QString&
 	pInstrument->setPan( fPan );
 	
 	// may not exist, but can't be empty
-	pInstrument->set_apply_velocity( node->read_bool( "applyVelocity", true, false ) );
-	pInstrument->set_filter_active( node->read_bool( "filterActive", true, false ) );
-	pInstrument->set_filter_cutoff( node->read_float( "filterCutoff", 1.0f, true, false ) );
-	pInstrument->set_filter_resonance( node->read_float( "filterResonance", 0.0f, true, false ) );
-	pInstrument->set_pitch_offset( node->read_float( "pitchOffset", 0.0f, true, false ) );
-	pInstrument->set_random_pitch_factor( node->read_float( "randomPitchFactor", 0.0f, true, false ) );
-	float attack = node->read_float( "Attack", 0.0f, true, false );
-	float decay = node->read_float( "Decay", 0.0f, true, false  );
-	float sustain = node->read_float( "Sustain", 1.0f, true, false );
-	float release = node->read_float( "Release", 1000.0f, true, false );
+	pInstrument->set_apply_velocity( node->read_bool( "applyVelocity", true,
+													  false, true, bSilent ) );
+	pInstrument->set_filter_active( node->read_bool( "filterActive", true,
+													 false, true, bSilent ) );
+	pInstrument->set_filter_cutoff( node->read_float( "filterCutoff", 1.0f,
+													  true, false, bSilent ) );
+	pInstrument->set_filter_resonance( node->read_float( "filterResonance", 0.0f,
+														 true, false, bSilent ) );
+	pInstrument->set_pitch_offset( node->read_float( "pitchOffset", 0.0f,
+													 true, false, bSilent ) );
+	pInstrument->set_random_pitch_factor( node->read_float( "randomPitchFactor", 0.0f,
+															true, false, bSilent ) );
+	float attack = node->read_float( "Attack", 0.0f,
+									 true, false, bSilent );
+	float decay = node->read_float( "Decay", 0.0f,
+									true, false, bSilent  );
+	float sustain = node->read_float( "Sustain", 1.0f,
+									  true, false, bSilent );
+	float release = node->read_float( "Release", 1000.0f,
+									  true, false, bSilent );
 	pInstrument->set_adsr( std::make_shared<ADSR>( attack, decay, sustain, release ) );
-	pInstrument->set_gain( node->read_float( "gain", 1.0f, true, false ) );
-	pInstrument->set_mute_group( node->read_int( "muteGroup", -1, true, false ) );
-	pInstrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1, true, false ) );
-	pInstrument->set_midi_out_note( node->read_int( "midiOutNote", pInstrument->__midi_out_note, true, false ) );
-	pInstrument->set_stop_notes( node->read_bool( "isStopNote", true,false ) );
+	pInstrument->set_gain( node->read_float( "gain", 1.0f,
+											 true, false, bSilent ) );
+	pInstrument->set_mute_group( node->read_int( "muteGroup", -1,
+												 true, false, bSilent ) );
+	pInstrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1,
+													   true, false, bSilent ) );
+	pInstrument->set_midi_out_note( node->read_int( "midiOutNote", pInstrument->__midi_out_note,
+													true, false, bSilent ) );
+	pInstrument->set_stop_notes( node->read_bool( "isStopNote", true,
+												  false, true, bSilent ) );
 
-	QString sRead_sample_select_algo = node->read_string( "sampleSelectionAlgo", "VELOCITY" );
+	QString sRead_sample_select_algo = node->read_string( "sampleSelectionAlgo", "VELOCITY",
+														  true, true, bSilent  );
 	if ( sRead_sample_select_algo.compare("VELOCITY") == 0 ) {
 		pInstrument->set_sample_selection_alg( VELOCITY );
 	}
@@ -308,17 +300,23 @@ std::shared_ptr<Instrument> Instrument::load_from( XMLNode* node, const QString&
 		pInstrument->set_sample_selection_alg( RANDOM );
 	}
 
-	pInstrument->set_hihat_grp( node->read_int( "isHihat", -1, true ) );
-	pInstrument->set_lower_cc( node->read_int( "lower_cc", 0, true ) );
-	pInstrument->set_higher_cc( node->read_int( "higher_cc", 127, true ) );
+	pInstrument->set_hihat_grp( node->read_int( "isHihat", -1,
+												true, true, bSilent ) );
+	pInstrument->set_lower_cc( node->read_int( "lower_cc", 0,
+											   true, true, bSilent ) );
+	pInstrument->set_higher_cc( node->read_int( "higher_cc", 127,
+												true, true, bSilent ) );
 
 	for ( int i=0; i<MAX_FX; i++ ) {
-		pInstrument->set_fx_level( node->read_float( QString( "FX%1Level" ).arg( i+1 ), 0.0 ), i );
+		pInstrument->set_fx_level( node->read_float( QString( "FX%1Level" ).arg( i+1 ), 0.0,
+													 true, true, bSilent ), i );
 	}
 
 	XMLNode ComponentNode = node->firstChildElement( "instrumentComponent" );
 	while ( !ComponentNode.isNull() ) {
-		pInstrument->get_components()->push_back( InstrumentComponent::load_from( &ComponentNode, dk_path ) );
+		pInstrument->get_components()->push_back( InstrumentComponent::load_from( &ComponentNode,
+																				  dk_path,
+																				  bSilent ) );
 		ComponentNode = ComponentNode.nextSiblingElement( "instrumentComponent" );
 	}
 	return pInstrument;

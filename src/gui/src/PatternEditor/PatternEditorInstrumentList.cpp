@@ -57,6 +57,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 {
 
 	auto pPref = H2Core::Preferences::get_instance();
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
 	int h = pPref->getPatternEditorGridHeight();
 	setFixedSize(181, h);
@@ -71,7 +72,11 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 
 	/*: Text displayed on the button for muting an instrument. Its
 	  size is designed for a single character.*/
-	m_pMuteBtn = new Button( this, QSize( 18, height() - 1 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallMuteButton(), true, QSize(), tr("Mute instrument") );
+	m_pMuteBtn = new Button( this, QSize( 18, height() - 1 ),
+							 Button::Type::Toggle, "",
+							 pCommonStrings->getSmallMuteButton(),
+							 true, QSize(), tr("Mute instrument"),
+							 false, true );
 	m_pMuteBtn->move( 145, 0 );
 	m_pMuteBtn->setChecked(false);
 	m_pMuteBtn->setObjectName( "MuteButton" );
@@ -79,7 +84,11 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 
 	/*: Text displayed on the button for soloing an instrument. Its
 	  size is designed for a single character.*/
-	m_pSoloBtn = new Button( this, QSize( 18, height() - 1 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getSmallSoloButton(), false, QSize(), tr("Solo") );
+	m_pSoloBtn = new Button( this, QSize( 18, height() - 1 ),
+							 Button::Type::Toggle, "",
+							 pCommonStrings->getSmallSoloButton(),
+							 false, QSize(), tr("Solo"),
+							 false, true );
 	m_pSoloBtn->move( 163, 0 );
 	m_pSoloBtn->setChecked(false);
 	m_pSoloBtn->setObjectName( "SoloButton" );
@@ -489,12 +498,11 @@ void InstrumentLine::functionRenameInstrument()
 	if ( bIsOkPressed  ) {
 		pSelectedInstrument->set_name( sNewName );
 
-#ifdef H2CORE_HAVE_JACK
-		pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-		Hydrogen *engine = Hydrogen::get_instance();
-		engine->renameJackPorts(engine->getSong());
-		pHydrogen->getAudioEngine()->unlock();
-#endif
+		if ( pHydrogen->haveJackAudioDriver() ) {
+			pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+			pHydrogen->renameJackPorts( pHydrogen->getSong() );
+			pHydrogen->getAudioEngine()->unlock();
+		}
 
 		// this will force an update...
 		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );

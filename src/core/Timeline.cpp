@@ -30,7 +30,7 @@ namespace H2Core
 {
 
 Timeline::Timeline() : Object( )
-{
+					 , m_fDefaultBpm( 120 ) {
 }
 
 Timeline::~Timeline() {
@@ -38,6 +38,13 @@ Timeline::~Timeline() {
 	m_tags.clear();
 }
 
+void Timeline::activate() {
+	m_fDefaultBpm = Hydrogen::get_instance()->getSong()->getBpm();
+}
+
+void Timeline::deactivate() {
+}
+	
 void Timeline::addTempoMarker( int nColumn, float fBpm ) {
 	if ( fBpm < MIN_BPM ) {
 		fBpm = MIN_BPM;
@@ -80,7 +87,7 @@ float Timeline::getTempoAtColumn( int nColumn ) const {
 	auto pHydrogen = Hydrogen::get_instance();
 		
 	if ( m_tempoMarkers.size() == 0 ) {
-		return pHydrogen->getSong()->getBpm();
+		return m_fDefaultBpm;
 	}
 
 	float fBpm;
@@ -90,7 +97,7 @@ float Timeline::getTempoAtColumn( int nColumn ) const {
 		nColumn = 0;
 	}
 	if ( isFirstTempoMarkerSpecial() && nColumn < m_tempoMarkers[ 0 ]->nColumn ) {
-		fBpm = pHydrogen->getSong()->getBpm();
+		fBpm = m_fDefaultBpm;
 	} else {
 		for ( int ii = 0; ii < static_cast<int>(m_tempoMarkers.size()); ii++) {
 			if ( m_tempoMarkers[ ii ]->nColumn > nColumn ) {
@@ -130,10 +137,10 @@ std::shared_ptr<const Timeline::TempoMarker> Timeline::getTempoMarkerAtColumn( i
 
 const std::vector<std::shared_ptr<const Timeline::TempoMarker>> Timeline::getAllTempoMarkers() const {
 	if ( isFirstTempoMarkerSpecial() ) {
-
+		
 		std::shared_ptr<TempoMarker> pTempoMarker = std::make_shared<TempoMarker>();
 		pTempoMarker->nColumn = 0;
-		pTempoMarker->fBpm = Hydrogen::get_instance()->getSong()->getBpm();
+		pTempoMarker->fBpm = m_fDefaultBpm;
 
 		int nNumberOfTempoMarkers = m_tempoMarkers.size();
 		std::vector<std::shared_ptr<const TempoMarker>> tmpVector;
@@ -222,6 +229,7 @@ QString Timeline::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Timeline]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_fDefaultBpm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fDefaultBpm ) )
 			.append( QString( "%1%2m_tempoMarkers:\n" ).arg( sPrefix ).arg( s ) );
 		for ( auto const& tt : m_tempoMarkers ) {
 			if ( tt != nullptr ) {
@@ -237,6 +245,7 @@ QString Timeline::toQString( const QString& sPrefix, bool bShort ) const {
 	} else {
 		
 		sOutput = QString( "%1[Timeline] " ).arg( sPrefix )
+			.append( QString( "m_fDefaultBpm: %1, " ).arg( m_fDefaultBpm ) )
 			.append( QString( "m_tempoMarkers: [" ) );
 		for ( auto const& tt : m_tempoMarkers ) {
 			if ( tt != nullptr ) {

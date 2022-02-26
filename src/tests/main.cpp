@@ -31,10 +31,12 @@
 
 #include <QCoreApplication>
 
+#include "registeredTests.h"
 #include "TestHelper.h"
 #include "utils/AppveyorTestListener.h"
 #include "utils/AppveyorRestClient.h"
 #include "AudioBenchmark.h"
+#include <chrono>
 
 #ifdef HAVE_EXECINFO_H
 #include <execinfo.h>
@@ -60,6 +62,7 @@ void setupEnvironment(unsigned log_level)
 	H2Core::Preferences::create_instance();
 	H2Core::Preferences* preferences = H2Core::Preferences::get_instance();
 	preferences->m_sAudioDriver = "Fake";
+	preferences->m_nBufferSize = 1024;
 	
 	H2Core::Hydrogen::create_instance();
 }
@@ -80,6 +83,8 @@ void fatal_signal( int sig )
 
 int main( int argc, char **argv)
 {
+	auto start = std::chrono::high_resolution_clock::now();
+	
 	QCoreApplication app(argc, argv);
 
 	QCommandLineParser parser;
@@ -130,6 +135,15 @@ int main( int argc, char **argv)
 		runner.eventManager().addListener( avtl.get() );
 	}
 	bool wasSuccessful = runner.run( "", false );
+	
+	auto stop = std::chrono::high_resolution_clock::now();
+	auto durationSeconds = std::chrono::duration_cast<std::chrono::seconds>( stop - start );
+	auto durationMilliSeconds =
+		std::chrono::duration_cast<std::chrono::milliseconds>( stop - start ) -
+		std::chrono::duration_cast<std::chrono::milliseconds>( std::chrono::seconds( durationSeconds.count() ) );
+
+	qDebug().noquote() << QString( "Tests required %1.%2s to complete\n\n" )
+		.arg( durationSeconds.count() ).arg( durationMilliSeconds.count() );
 
 	return wasSuccessful ? 0 : 1;
 }
