@@ -1108,11 +1108,18 @@ bool Sampler::renderNoteNoResample(
 		nNoteEnd = nNoteLength - pSelectedLayerInfo->SamplePosition;
 	}
 
-	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
+	int nSampleFrames = std::min( nTimes,
+								  ( nInitialSilence + pSample->get_frames()
+								    - ( int )pSelectedLayerInfo->SamplePosition ) );
+	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nSampleFrames; ++nBufferPos ) {
 		buffer_L[ nBufferPos ] = pSample_data_L[ nSamplePos ];
 		buffer_R[ nBufferPos ] = pSample_data_R[ nSamplePos ];
 		nSamplePos++;
 	}
+	for ( int nBufferPos = nSampleFrames; nBufferPos < nTimes; ++nBufferPos ) {
+		buffer_L[ nBufferPos ] = buffer_R[ nBufferPos ] = 0.0;
+	}
+
 
 	retValue = pADSR->applyADSR( buffer_L, buffer_R, nTimes, nNoteEnd, 1 );
 	bool bFilterIsActive = pInstrument->is_filter_active();
