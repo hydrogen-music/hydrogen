@@ -260,14 +260,14 @@ for:
         fi
       ) | sed 's/^/DMG: /' &
 
+
     test_script: |-
       cd build
       TMPDIR=/tmp src/tests/tests --appveyor
-
-      echo "Waiting for installer creation and cache archiving"
+      res=$?
       wait
       echo "=== Build cache usage is " $( du -h $cdir | tail -1 ) "==="
-      echo "Done"
+      ( exit $res )
 
   -
     matrix:
