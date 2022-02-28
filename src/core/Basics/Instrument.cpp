@@ -346,7 +346,7 @@ void Instrument::unload_samples()
 	}
 }
 
-void Instrument::save_to( XMLNode* node, int component_id )
+void Instrument::save_to( XMLNode* node, int component_id, bool bRecentVersion )
 {
 	XMLNode InstrumentNode = node->createNode( "instrument" );
 	InstrumentNode.write_int( "id", __id );
@@ -391,8 +391,9 @@ void Instrument::save_to( XMLNode* node, int component_id )
 		InstrumentNode.write_float( QString( "FX%1Level" ).arg( i+1 ), __fx_level[i] );
 	}
 	for ( auto& pComponent : *__components ) {
-		if( component_id == -1 || pComponent->get_drumkit_componentID() == component_id ) {
-			pComponent->save_to( &InstrumentNode, component_id );
+		if( component_id == -1 ||
+			pComponent->get_drumkit_componentID() == component_id ) {
+			pComponent->save_to( &InstrumentNode, component_id, bRecentVersion );
 		}
 	}
 }
