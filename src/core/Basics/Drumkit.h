@@ -134,6 +134,16 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * the associated drumkit folder but it does not have to.
 	 */
 	QString getFolderName() const;
+	/**
+	 * Returns the base name used when exporting the drumkit.
+	 *
+	 * \param sComponentName Name of a particular component used in
+	 * case just a single component should be exported.
+	 * \param bRecentVersion Whether the drumkit format should be
+	 * supported by Hydrogen 0.9.7 or higher (whether it should be
+	 * composed of DrumkitComponents).
+	 */
+	QString getExportName( const QString& sComponentName, bool bRecentVersion ) const;
 		
 		/** 
 		 * Saves the current drumkit to dk_path, but makes a backup. 
@@ -169,11 +179,14 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \param dk_path the path to save the drumkit into
 		 * \param overwrite allows to write over existing drumkit file
 		 * \param component_id to chose the component to save or -1 for all
-		 * \return true on success
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
+		 *
+		 * \return true on success
 		 */
-		bool save_file( const QString& dk_path, bool overwrite=false, int component_id=-1, bool bSilent = false ) const;
+		bool save_file( const QString& dk_path, bool overwrite=false,
+						int component_id=-1, bool bRecentVersion = true,
+						bool bSilent = false ) const;
 		/**
 		 * save a drumkit instruments samples into a directory
 		 * \param dk_dir the directory to save the samples into
@@ -239,7 +252,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 *
 	 * \return true on success 
 	 */
-	bool exportTo( const QString& sTargetDir, const QString& sComponentName = "", bool bRecentVersion = true, bool bSilent = false ) const;
+	bool exportTo( const QString& sTargetDir, const QString& sComponentName = "", bool bRecentVersion = true, bool bSilent = false );
 		/**
 		 * remove a drumkit from the disk
 		 * \param dk_name the drumkit name
@@ -319,8 +332,12 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/*
 		 * save the drumkit within the given XMLNode
 		 * \param node the XMLNode to feed
+		 * \param component_id to chose the component to save or -1 for all
+		 * \param bRecentVersion Whether the drumkit format should be
+		 * supported by Hydrogen 0.9.7 or higher (whether it should be
+		 * composed of DrumkitComponents).
 		 */
-		void save_to( XMLNode* node, int component_id=-1 ) const;
+	void save_to( XMLNode* node, int component_id=-1, bool bRecentVersion = true ) const;
 		/**
 		 * load a drumkit from an XMLNode
 		 * \param node the XMLDode to read from
