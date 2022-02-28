@@ -145,21 +145,25 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 
 
 void InstrumentLine::setRowSelection( RowSelection rowSelection ) {
-	m_rowSelection = rowSelection;
-	update();
+	if ( m_rowSelection != rowSelection ) {
+		m_rowSelection = rowSelection;
+		update();
+	}
 }
 
 
 void InstrumentLine::setName(const QString& sName)
 {
-	m_pNameLbl->setText(sName);
+	if ( m_pNameLbl->text() != sName ){
+		m_pNameLbl->setText(sName);
+	}
 }
 
 
 
-void InstrumentLine::setSelected(bool bSelected)
+void InstrumentLine::setSelected( bool bSelected )
 {
-	if (bSelected == m_bIsSelected) {
+	if ( bSelected == m_bIsSelected ) {
 		return;
 	}
 	
@@ -237,15 +241,18 @@ void InstrumentLine::paintEvent( QPaintEvent* ev ) {
 
 void InstrumentLine::setNumber(int nIndex)
 {
-	m_nInstrumentNumber = nIndex;
-	update();
+	if ( m_nInstrumentNumber != nIndex ) {
+		m_nInstrumentNumber = nIndex;
+		update();
+	}
 }
 
 
 
 void InstrumentLine::setMuted(bool isMuted)
 {
-	if ( ! m_pMuteBtn->isDown() ) {
+	if ( ! m_pMuteBtn->isDown() &&
+		 m_pMuteBtn->isChecked() != isMuted ) {
 		m_pMuteBtn->setChecked(isMuted);
 	}
 }
@@ -253,7 +260,8 @@ void InstrumentLine::setMuted(bool isMuted)
 
 void InstrumentLine::setSoloed( bool soloed )
 {
-	if ( ! m_pSoloBtn->isDown() ) {
+	if ( ! m_pSoloBtn->isDown() &&
+		 m_pSoloBtn->isChecked() != soloed ) {
 		m_pSoloBtn->setChecked( soloed );
 	}
 }
@@ -669,6 +677,9 @@ void InstrumentLine::onPreferencesChanged( H2Core::Preferences::Changes changes 
 PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, PatternEditorPanel *pPatternEditorPanel )
  : QWidget( parent )
  {
+
+	HydrogenApp::get_instance()->addEventListener( this );
+	
 	//INFOLOG("INIT");
 	m_pPattern = nullptr;
 	m_pPatternEditorPanel = pPatternEditorPanel;
@@ -720,7 +731,34 @@ InstrumentLine* PatternEditorInstrumentList::createInstrumentLine()
 	return pLine;
 }
 
+void PatternEditorInstrumentList::updateSongEvent( int nEvent ) {
+	if ( nEvent == 0 || nEvent == 1 ) {
+		updateInstrumentLines();
+	}
+}
 
+void PatternEditorInstrumentList::drumkitLoadedEvent() {
+	updateInstrumentLines();
+}
+
+void PatternEditorInstrumentList::selectedInstrumentChangedEvent() {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
+
+	unsigned nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
+
+	unsigned nInstruments = pInstrList->size();
+	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
+		if ( nInstr < nInstruments &&
+			 m_pInstrumentLine[ nInstr ] != nullptr ) {
+			
+			InstrumentLine *pLine = m_pInstrumentLine[ nInstr ];
+			pLine->setSelected( nInstr == nSelectedInstr );
+		}
+	}
+}
 
 ///
 /// Update every InstrumentLine, create or destroy lines if necessary.
@@ -773,7 +811,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 	}
 
 }
-
+	
 void PatternEditorInstrumentList::dragEnterEvent(QDragEnterEvent *event)
 {
 	event->acceptProposedAction();

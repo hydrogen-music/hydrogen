@@ -23,6 +23,7 @@
 #include "DrumPatternEditor.h"
 #include "PatternEditorPanel.h"
 #include "NotePropertiesRuler.h"
+#include "PatternEditorInstrumentList.h"
 
 #include <core/Globals.h>
 #include <core/Basics/Song.h>
@@ -174,7 +175,6 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	}
 
 	if ( nColumn >= (int)m_pPattern->get_length() ) {
-		update( 0, 0, width(), height() );
 		return;
 	}
 	auto pSelectedInstrument = pSong->getInstrumentList()->get( row );
@@ -227,6 +227,8 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 	update();
+	// Immediate update to prevent visual delay.
+	m_pPatternEditorPanel->getInstrumentList()->selectedInstrumentChangedEvent();
 }
 
 void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
@@ -775,6 +777,8 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	}
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
 	m_pPatternEditorPanel->ensureCursorVisible();
+	// Immediate update to prevent visual delay.
+	m_pPatternEditorPanel->getInstrumentList()->selectedInstrumentChangedEvent();
 	update();
 	ev->accept();
 

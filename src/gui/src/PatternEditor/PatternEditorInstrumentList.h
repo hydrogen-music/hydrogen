@@ -33,6 +33,7 @@
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include "../Widgets/PixmapWidget.h"
+#include "../EventListener.h"
 #include "../Selection.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 #include "../Widgets/WidgetWithHighlightedList.h"
@@ -119,7 +120,9 @@ public slots:
 
 
 /** \ingroup docGUI*/
-class PatternEditorInstrumentList :  public QWidget,  public H2Core::Object<PatternEditorInstrumentList> {
+class PatternEditorInstrumentList :  public QWidget,
+									 public EventListener,
+									 public H2Core::Object<PatternEditorInstrumentList> {
 	H2_OBJECT(PatternEditorInstrumentList)
 	Q_OBJECT
 
@@ -134,7 +137,9 @@ class PatternEditorInstrumentList :  public QWidget,  public H2Core::Object<Patt
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
 
-
+	virtual void selectedInstrumentChangedEvent() override;
+	virtual void updateSongEvent( int nEvent ) override;
+	virtual void drumkitLoadedEvent() override;
 	public slots:
 		void updateInstrumentLines();
 
