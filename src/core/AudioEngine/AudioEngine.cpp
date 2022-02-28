@@ -3147,9 +3147,12 @@ bool AudioEngine::testCheckAudioConsistency( const std::vector<std::shared_ptr<N
 					// Check for consistency in the Sample position
 					// advanced by the Sampler upon rendering.
 					for ( int nn = 0; nn < ppNewNote->get_instrument()->get_components()->size(); nn++ ) {
-						if ( ( ppNewNote->get_layer_selected( nn )->SamplePosition -
-							   nPassedFrames ) !=
-							 ppOldNote->get_layer_selected( nn )->SamplePosition ) {
+						auto pSelectedLayer = ppOldNote->get_layer_selected( nn );
+						int nSampleFrames = ( ppNewNote->get_instrument()->get_component( nn )
+											  ->get_layer( pSelectedLayer->SelectedLayer )->get_sample()->get_frames() );
+						int nExpectedFrames = std::min( ( (int)pSelectedLayer->SamplePosition + nPassedFrames ),
+														nSampleFrames );
+						if ( (int)ppNewNote->get_layer_selected( nn )->SamplePosition != nExpectedFrames ) {
 							ERRORLOG( QString( "[%4] glitch in audio render.\nPre: %1\nPost: %2\nwith passed frames: %3" )
 									  .arg( ppOldNote->toQString( "", true ) )
 									  .arg( ppNewNote->toQString( "", true ) )

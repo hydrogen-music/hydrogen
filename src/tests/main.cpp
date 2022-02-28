@@ -35,6 +35,7 @@
 #include "TestHelper.h"
 #include "utils/AppveyorTestListener.h"
 #include "utils/AppveyorRestClient.h"
+#include "AudioBenchmark.h"
 #include <chrono>
 
 #ifdef HAVE_EXECINFO_H
@@ -89,9 +90,11 @@ int main( int argc, char **argv)
 	QCommandLineParser parser;
 	QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH","Level");
 	QCommandLineOption appveyorOption( QStringList() << "appveyor", "Report test progress to AppVeyor build worker" );
+	QCommandLineOption benchmarkOption( QStringList() << "b" << "benchmark", "Run audio system benchmark" );
 	parser.addHelpOption();
 	parser.addOption( verboseOption );
 	parser.addOption( appveyorOption );
+	parser.addOption( benchmarkOption );
 	parser.process(app);
 	QString sVerbosityString = parser.value( verboseOption );
 	unsigned logLevelOpt = H2Core::Logger::None;
@@ -114,6 +117,11 @@ int main( int argc, char **argv)
 	signal(SIGBUS, fatal_signal);
 #endif
 
+	// Enable the audio benchmark
+	if ( parser.isSet( benchmarkOption ) ) {
+		AudioBenchmark::enable();
+	}
+	
 	CppUnit::TextUi::TestRunner runner;
 	CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry();
 	runner.addTest( registry.makeTest() );

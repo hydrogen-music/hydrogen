@@ -60,8 +60,10 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 		void zoomIn();
 		void zoomOut();
 		float getGridWidth() const {
-		return m_fGridWidth;
+			return m_fGridWidth;
 		};
+
+		void createBackground();
 
 	public slots:
 		void updateEditor( bool bRedrawAll = false );

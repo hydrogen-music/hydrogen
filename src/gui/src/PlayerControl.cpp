@@ -625,7 +625,9 @@ void PlayerControl::updatePlayerControl()
 				bcDisplaystatus = 0;
 			}
 			sprintf(bcstatus, "R");
+			if ( m_pBCDisplayZ->text() != bcstatus ) {
 				m_pBCDisplayZ->setText( QString (bcstatus) );
+			}
 
 			break;
 		default:
@@ -634,7 +636,9 @@ void PlayerControl::updatePlayerControl()
 				bcDisplaystatus = 1;
 			}
 			sprintf(bcstatus, "%02d ", beatstocountondisplay -1);
-			m_pBCDisplayZ->setText( QString (bcstatus) );
+			if ( m_pBCDisplayZ->text() != bcstatus ) {
+				m_pBCDisplayZ->setText( QString (bcstatus) );
+			}
 
 	}
 	//~ beatcounter
