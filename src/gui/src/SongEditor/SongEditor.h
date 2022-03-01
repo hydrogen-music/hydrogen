@@ -191,6 +191,7 @@ class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public S
 		virtual void keyReleaseEvent (QKeyEvent *ev) override;
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void focusInEvent( QFocusEvent *ev ) override;
+	virtual void focusOutEvent( QFocusEvent *ev ) override;
 		virtual void enterEvent( QEvent *ev ) override;
 		virtual void leaveEvent( QEvent *ev ) override;
 		//! @}

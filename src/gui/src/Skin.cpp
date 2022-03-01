@@ -163,7 +163,7 @@ void Skin::drawListBackground( QPainter* p, QRect rect, QColor background,
 	}
 
 	QColor backgroundLight = background.lighter( 130 );
-	QColor backgroundDark = background.darker( 130 );
+	QColor backgroundDark = background.darker( 130 );							 
 
 	p->fillRect( QRect( rect.x() + 1, rect.y() + 1,
 						rect.width() - 2, rect.height() - 2 ),
@@ -172,9 +172,9 @@ void Skin::drawListBackground( QPainter* p, QRect rect, QColor background,
 				 backgroundLight );
 	p->fillRect( QRect( rect.x(), rect.y(), 1, rect.height() ),
 				 backgroundLight );
-	p->fillRect( QRect( rect.x(), rect.height(), rect.width(), 1 ),
+	p->fillRect( QRect( rect.x(), rect.y() + rect.height() - 1, rect.width(), 1 ),
 				 backgroundDark );
-	p->fillRect( QRect( rect.width(), rect.y(), 1, rect.height() ),
+	p->fillRect( QRect( rect.x() + rect.width() - 1, rect.y(), 1, rect.height() ),
 				 backgroundDark );
 
 }

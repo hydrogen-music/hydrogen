@@ -475,19 +475,21 @@ void SongEditor::cut() {
 
 void SongEditor::keyPressEvent( QKeyEvent * ev )
 {
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 	const int nBlockSize = 5, nWordSize = 5;
 	
 	bool bIsSelectionKey = false;
 	bool bUnhideCursor = true;
 
-	H2Core::Song::ActionMode actionMode = m_pHydrogen->getActionMode();
+	H2Core::Song::ActionMode actionMode = pHydrogen->getActionMode();
 		
 	if ( actionMode == H2Core::Song::ActionMode::selectMode ) {
 		bIsSelectionKey = m_selection.keyPressEvent( ev );
 	}
 
-	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
+	PatternList *pPatternList = pSong->getPatternList();
 	const QPoint centre = QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
 	bool bSelectionKey = false;
 
@@ -611,18 +613,18 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 
 	} else {
 		ev->ignore();
-		HydrogenApp::get_instance()->setHideKeyboardCursor( true );
+		pHydrogenApp->setHideKeyboardCursor( true );
 		return;
 	}
 	if ( bUnhideCursor ) {
-		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
+		pHydrogenApp->setHideKeyboardCursor( false );
 	}
 
 	if ( bSelectionKey ) {
 		// If a "select" key movement is used in "draw" mode, it's probably a good idea to go straight into
 		// "select" mode.
 		if ( actionMode == H2Core::Song::ActionMode::drawMode ) {
-			Hydrogen::get_instance()->setActionMode( H2Core::Song::ActionMode::selectMode );
+			pHydrogen->setActionMode( H2Core::Song::ActionMode::selectMode );
 		}
 		// Any selection key may need a repaint of the selection
 		m_bSequenceChanged = true;
@@ -635,6 +637,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	QPoint cursorCentre = columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ) + centre;
 	m_pScrollView->ensureVisible( cursorCentre.x(), cursorCentre.y() );
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
+	pHydrogenApp->getSongEditorPanel()->getSongEditorPatternList()->update();
 	update();
 	ev->accept();
 }
@@ -653,6 +656,15 @@ void SongEditor::focusInEvent( QFocusEvent *ev )
 		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 	}
 	update();
+	HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPatternList()->update();
+}
+
+// Make cursor hidden
+void SongEditor::focusOutEvent( QFocusEvent *ev )
+{
+	UNUSED( ev );
+	update();
+	HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPatternList()->update();
 }
 
 
@@ -812,6 +824,7 @@ void SongEditor::mouseClickEvent( QMouseEvent *ev )
 		togglePatternActive( p.x(), p.y() );
 		m_bSequenceChanged = true;
 		update();
+		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPatternList()->update();
 
 	} else if ( ev->button() == Qt::RightButton ) {
 		m_pPopupMenu->popup( ev->globalPos() );
@@ -1320,7 +1333,10 @@ void SongEditorPatternList::setRowSelection( RowSelection rowSelection ) {
 void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 {
 	__drag_start_position = ev->pos();
-	int nRow = (ev->y() / m_nGridHeight);
+	
+	// -1 to compensate for the 1 pixel offset to align shadows and
+	// -grid lines.
+	int nRow = (( ev->y() - 1 ) / m_nGridHeight);
 
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -1399,7 +1415,7 @@ void SongEditorPatternList::inlineEditPatternName( int row )
 		return;
 	}
 	m_pPatternBeingEdited = pPatternList->get( row );
-	m_pLineEdit->setGeometry( 23, row * m_nGridHeight , m_nWidth - 23, m_nGridHeight  );
+	m_pLineEdit->setGeometry( 23, row * m_nGridHeight + 1 , m_nWidth - 23, m_nGridHeight  );
 	m_pLineEdit->setText( m_pPatternBeingEdited->get_name() );
 	m_pLineEdit->selectAll();
 	m_pLineEdit->show();
@@ -1442,6 +1458,8 @@ void SongEditorPatternList::inlineEditingFinished()
 void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 {
 	auto pPref = Preferences::get_instance();
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pSongEditor = pHydrogenApp->getSongEditorPanel()->getSongEditor();
 	
 	QPainter painter(this);
 	qreal pixelRatio = devicePixelRatio();
@@ -1457,16 +1475,27 @@ void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, srcRect );
 
 	// In case a row was right-clicked, highlight it using a border.
-	if ( m_rowSelection != RowSelection::None ) {
+	if ( ( ! pHydrogenApp->hideKeyboardCursor() &&
+		   pSongEditor->hasFocus() ) ||
+		 m_rowSelection != RowSelection::None ) {
 		QColor colorHighlight = pPref->getColorTheme()->m_highlightColor;
 		QPen pen;
 
-		pen.setColor( colorHighlight );
-		pen.setWidth( 1 );
+		int nStartY;
+		if ( m_rowSelection != RowSelection::None ) {
+			// In case a row was right-clicked, highlight it using a border.
+			pen.setColor( pPref->getColorTheme()->m_highlightColor);
+			nStartY = m_nRowClicked * m_nGridHeight;
+		} else {
+			pen.setColor( Qt::black );
+			nStartY = pSongEditor->getCursorRow() * m_nGridHeight;
+		}
+		pen.setWidth( 2 );
+		painter.setRenderHint( QPainter::Antialiasing );
 			
 		painter.setPen( pen );
-		painter.drawRect( QRect( 0, m_nRowClicked * m_nGridHeight,
-								 m_nWidth - 1, m_nGridHeight - 1 ) );
+		painter.drawRoundedRect( QRect( 1, nStartY + 1, m_nWidth - 2,
+										m_nGridHeight - 1 ), 4, 4 );
 	}
 }
 
@@ -1509,7 +1538,7 @@ void SongEditorPatternList::createBackground()
 	int nSelectedPattern = m_pHydrogen->getSelectedPatternNumber();
 
 	static int oldHeight = -1;
-	int newHeight = m_nGridHeight * nPatterns;
+	int newHeight = m_nGridHeight * nPatterns + 1;
 
 	if ( oldHeight != newHeight || m_pBackgroundPixmap->devicePixelRatio() != devicePixelRatio() ) {
 		if (newHeight == 0) {
@@ -1521,16 +1550,22 @@ void SongEditorPatternList::createBackground()
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 		this->resize( m_nWidth, newHeight );
 	}
-	m_pBackgroundPixmap->fill( Qt::black );
 
 	QColor backgroundColor = pPref->getColorTheme()->m_songEditor_backgroundColor.darker( 120 );
 	QColor backgroundColorSelected = pPref->getColorTheme()->m_songEditor_selectedRowColor.darker( 114 );
 	QColor backgroundColorAlternate = pPref->getColorTheme()->m_songEditor_alternateRowColor.darker( 132 );
 
 	QPainter p( m_pBackgroundPixmap );
+
+
+	// Offset the pattern list by one pixel to align the dark shadows
+	// at the bottom of each row with the grid lines in the song editor.
+	p.fillRect( QRect( 0, 0, width(), 1 ), pPref->getColorTheme()->m_windowColor );
+	
 	p.setFont( boldTextFont );
 	for ( int ii = 0; ii < nPatterns; ii++ ) {
-		uint y = m_nGridHeight * ii;
+		uint y = m_nGridHeight * ii + 1;
+		
 		if ( ii == nSelectedPattern ) {
 			Skin::drawListBackground( &p, QRect( 0, y, width(), m_nGridHeight ),
 									  backgroundColorSelected, false );

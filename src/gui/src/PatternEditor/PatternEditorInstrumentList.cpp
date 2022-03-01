@@ -75,7 +75,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 
 	/*: Text displayed on the button for muting an instrument. Its
 	  size is designed for a single character.*/
-	m_pMuteBtn = new Button( this, QSize( 18, height() - 1 ),
+	m_pMuteBtn = new Button( this, QSize( InstrumentLine::m_nButtonWidth, height() - 1 ),
 							 Button::Type::Toggle, "",
 							 pCommonStrings->getSmallMuteButton(),
 							 true, QSize(), tr("Mute instrument"),
@@ -87,7 +87,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 
 	/*: Text displayed on the button for soloing an instrument. Its
 	  size is designed for a single character.*/
-	m_pSoloBtn = new Button( this, QSize( 18, height() - 1 ),
+	m_pSoloBtn = new Button( this, QSize( InstrumentLine::m_nButtonWidth, height() - 1 ),
 							 Button::Type::Toggle, "",
 							 pCommonStrings->getSmallSoloButton(),
 							 false, QSize(), tr("Solo"),
@@ -201,6 +201,7 @@ void InstrumentLine::leaveEvent( QEvent* ev ) {
 
 void InstrumentLine::paintEvent( QPaintEvent* ev ) {
 	auto pPref = Preferences::get_instance();
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	
 	QPainter painter(this);
 
@@ -225,16 +226,26 @@ void InstrumentLine::paintEvent( QPaintEvent* ev ) {
 	Skin::drawListBackground( &painter, QRect( 0, 0, width(), height() ),
 							  backgroundColor, bHovered );
 
-	// In case a row was right-clicked, highlight it using a border.
-	if ( m_rowSelection != RowSelection::None ) {
-		QColor colorHighlight = pPref->getColorTheme()->m_highlightColor;
+	// Draw border indicating cursor position
+	if ( ( m_bIsSelected &&
+		   pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor()->hasFocus() &&
+		   ! pHydrogenApp->hideKeyboardCursor() ) ||
+		 m_rowSelection != RowSelection::None ) {
+
 		QPen pen;
 
-		pen.setColor( colorHighlight );
-		pen.setWidth( 1 );
+		if ( m_rowSelection != RowSelection::None ) {
+			// In case a row was right-clicked, highlight it using a border.
+			pen.setColor( pPref->getColorTheme()->m_highlightColor);
+		} else {
+			pen.setColor( Qt::black );
+		}
 		
+		pen.setWidth( 2 );
 		painter.setPen( pen );
-		painter.drawRect( QRect( 0, 0, width() - 1, height() - 1 ) );
+		painter.setRenderHint( QPainter::Antialiasing );
+		painter.drawRoundedRect( QRect( 1, 1, width() - 2 * InstrumentLine::m_nButtonWidth - 1,
+										height() - 2 ), 4, 4 );
 	}
 }
 
@@ -687,10 +698,9 @@ PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, Patte
 	m_nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
 
 	m_nEditorWidth = 181;
-	m_nEditorHeight = m_nGridHeight * MAX_INSTRUMENTS;
+	m_nEditorHeight = m_nGridHeight * MAX_INSTRUMENTS + 1;
 
 	resize( m_nEditorWidth, m_nEditorHeight );
-
 
 	setAcceptDrops(true);
 
@@ -780,7 +790,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 				delete m_pInstrumentLine[ nInstr ];
 				m_pInstrumentLine[ nInstr ] = nullptr;
 
-				int newHeight = m_nGridHeight * nInstruments;
+				int newHeight = m_nGridHeight * nInstruments + 1;
 				resize( width(), newHeight );
 
 			}
@@ -790,7 +800,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 			if ( m_pInstrumentLine[ nInstr ] == nullptr ) {
 				// the instrument line doesn't exists..I'll create a new one!
 				m_pInstrumentLine[ nInstr ] = createInstrumentLine();
-				m_pInstrumentLine[nInstr]->move( 0, m_nGridHeight * nInstr );
+				m_pInstrumentLine[nInstr]->move( 0, m_nGridHeight * nInstr + 1 );
 				m_pInstrumentLine[nInstr]->show();
 
 				int newHeight = m_nGridHeight * nInstruments;

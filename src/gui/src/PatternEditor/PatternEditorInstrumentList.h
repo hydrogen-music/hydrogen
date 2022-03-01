@@ -64,6 +64,8 @@ class InstrumentLine : public PixmapWidget
 		void setSoloed( bool soloed );
 		void setSamplesMissing( bool bSamplesMissing );
 
+	static constexpr int m_nButtonWidth = 18;
+
 public slots:
 		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
@@ -158,6 +160,8 @@ class PatternEditorInstrumentList :  public QWidget,
 
 		InstrumentLine* createInstrumentLine();
 
+private:
+	void drawFocus( QPainter& painter );
 };
 
 

@@ -1323,7 +1323,15 @@ void DrumPatternEditor::focusInEvent ( QFocusEvent *ev )
 		m_pPatternEditorPanel->ensureCursorVisible();
 		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 	}
+	m_pPatternEditorPanel->getInstrumentList()->update();
 	updateEditor();
+}
+
+void DrumPatternEditor::focusOutEvent ( QFocusEvent *ev )
+{
+	UNUSED( ev );
+	m_pPatternEditorPanel->getInstrumentList()->update();
+	update( 0, 0, width(), height() );
 }
 
 void DrumPatternEditor::selectedInstrumentChangedEvent()

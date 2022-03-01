@@ -148,6 +148,7 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		virtual void hideEvent ( QHideEvent *ev ) override;
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void focusInEvent( QFocusEvent *ev ) override;
+	virtual void focusOutEvent( QFocusEvent *ev ) override;
 
 		int findFreeCompoID( int startingPoint = 0 );
 		int findExistingCompo( QString SourceName );
