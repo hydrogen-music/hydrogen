@@ -43,7 +43,7 @@
 
 environment:
   GENERATOR: "MinGW Makefiles"
-  ARTIFACT_BRANCH: master-artifacts
+  ARTIFACT_BRANCH: debug-midi
   matrix:
 
     - job_name: 'Ubuntu 20.04'
