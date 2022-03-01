@@ -60,10 +60,12 @@ void* PortMidiDriver_thread( void* param )
 		status = Pm_Poll( instance->m_pMidiIn );
 		if ( status == TRUE ) {
 			length = Pm_Read( instance->m_pMidiIn, buffer, 1 );
+			___DEBUGLOG( QString( "MIDI message length %1" ).arg( length ) );
 			if ( length > 0 ) {
 				MidiMessage msg;
 
 				int nEventType = Pm_MessageStatus( buffer[0].message );
+				___DEBUGLOG( QString( "MIDI message event type %1" ).arg( length ) );
 				if ( ( nEventType >= 128 ) && ( nEventType < 144 ) ) {	// note off
 					msg.m_nChannel = nEventType - 128;
 					msg.m_type = MidiMessage::NOTE_OFF;
@@ -96,6 +98,12 @@ void* PortMidiDriver_thread( void* param )
 					__INFOLOG( QString::number( Pm_MessageData1( buffer[0].message ) ) );
 					__INFOLOG( QString::number( Pm_MessageData2( buffer[0].message ) ) );
 				}
+
+				___DEBUGLOG( QString( "event type %1 channel %2 data %3 %4" )
+							 .arg( msg.m_type)
+							 .arg( msg.m_nChannel )
+							 .arg( msg.m_nData1 )
+							 .arg( msg.m_nData2 ) );
 
 				msg.m_nData1 = Pm_MessageData1( buffer[0].message );
 				msg.m_nData2 = Pm_MessageData2( buffer[0].message );
