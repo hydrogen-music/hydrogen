@@ -720,6 +720,7 @@ void PatternEditor::enterEvent( QEvent *ev ) {
 void PatternEditor::leaveEvent( QEvent *ev ) {
 	UNUSED( ev );
 	m_bEntered = false;
+	update();
 }
 
 

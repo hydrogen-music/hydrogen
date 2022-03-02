@@ -136,6 +136,10 @@ public:
 	virtual void songModeActivationEvent( int nValue ) override;
 	virtual void stackedModeActivationEvent( int nValue ) override;
 
+	int getMargin() const {
+		return m_nMargin;
+	}
+
 protected:
 
 	//! The Selection object.

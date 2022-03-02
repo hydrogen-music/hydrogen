@@ -120,6 +120,14 @@ bool Timeline::hasColumnTempoMarker( int nColumn ) const {
 }
 
 std::shared_ptr<const Timeline::TempoMarker> Timeline::getTempoMarkerAtColumn( int nColumn ) const {
+	if ( isFirstTempoMarkerSpecial() && nColumn == 0 ) {
+
+		std::shared_ptr<TempoMarker> pTempoMarker = std::make_shared<TempoMarker>();
+		pTempoMarker->nColumn = 0;
+		pTempoMarker->fBpm = Hydrogen::get_instance()->getSong()->getBpm();
+		return pTempoMarker;
+	}
+	
 	for ( const auto& tt : m_tempoMarkers ){
 		if ( tt->nColumn == nColumn ) {
 			return tt;

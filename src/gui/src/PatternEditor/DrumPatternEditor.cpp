@@ -23,6 +23,7 @@
 #include "DrumPatternEditor.h"
 #include "PatternEditorPanel.h"
 #include "NotePropertiesRuler.h"
+#include "PatternEditorRuler.h"
 #include "PatternEditorInstrumentList.h"
 
 #include <core/Globals.h>
@@ -227,9 +228,42 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 	update();
-	// Immediate update to prevent visual delay.
-	m_pPatternEditorPanel->getInstrumentList()->selectedInstrumentChangedEvent();
+
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		// Immediate update to prevent visual delay.
+		m_pPatternEditorPanel->getInstrumentList()->selectedInstrumentChangedEvent();
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+	}
 }
+
+void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
+	PatternEditor::mousePressEvent( ev );
+
+	// Update cursor position
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		auto pHydrogen = Hydrogen::get_instance();
+		auto pSong = pHydrogen->getSong();
+		int nInstruments = pSong->getInstrumentList()->size();
+		int nRow = static_cast<int>( ev->y() / static_cast<float>(m_nGridHeight) );
+		if ( nRow >= nInstruments ) {
+			return;
+		}
+		int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
+		if ( ( m_pPattern != nullptr &&
+			   nColumn >= (int)m_pPattern->get_length() ) ||
+			 nColumn >= MAX_INSTRUMENTS ) {
+			return;
+		}
+
+		pHydrogen->setSelectedInstrumentNumber( nRow );
+		m_pPatternEditorPanel->setCursorPosition( nColumn );
+	
+		update();
+		m_pPatternEditorPanel->getInstrumentList()->selectedInstrumentChangedEvent();
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+	}
+}
+	
 
 void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 {
@@ -777,8 +811,12 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	}
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
 	m_pPatternEditorPanel->ensureCursorVisible();
-	// Immediate update to prevent visual delay.
-	m_pPatternEditorPanel->getInstrumentList()->selectedInstrumentChangedEvent();
+
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		// Immediate update to prevent visual delay.
+		m_pPatternEditorPanel->getInstrumentList()->selectedInstrumentChangedEvent();
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+	}
 	update();
 	ev->accept();
 
@@ -1071,18 +1109,6 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 
 	__draw_grid( painter );
 
-	// Draw cursor
-	if ( hasFocus() && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		uint y = nSelectedInstrument * m_nGridHeight;
-		QPen p( Qt::black );
-		p.setWidth( 2 );
-		painter.setPen( p );
-		painter.setRenderHint( QPainter::Antialiasing );
-		painter.drawRoundedRect( QRect( x-m_fGridWidth*3, y+2, m_fGridWidth*6, m_nGridHeight-3 ), 4, 4 );
-	}
-
 	/*
 		BUGFIX
 
@@ -1267,6 +1293,20 @@ void DrumPatternEditor::paintEvent( QPaintEvent* /*ev*/ )
 	drawFocus( painter );
 	
 	m_selection.paintSelection( &painter );
+
+	// Draw cursor
+	if ( hasFocus() && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
+		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		uint y = nSelectedInstrument * m_nGridHeight;
+		QPen p( Qt::black );
+		p.setWidth( 2 );
+		painter.setPen( p );
+		painter.setBrush( Qt::NoBrush );
+		painter.setRenderHint( QPainter::Antialiasing );
+		painter.drawRoundedRect( QRect( x-m_fGridWidth*3, y+2, m_fGridWidth*6, m_nGridHeight-3 ), 4, 4 );
+	}
+
 }
 
 void DrumPatternEditor::drawFocus( QPainter& painter ) {
@@ -1323,14 +1363,20 @@ void DrumPatternEditor::focusInEvent ( QFocusEvent *ev )
 		m_pPatternEditorPanel->ensureCursorVisible();
 		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 	}
-	m_pPatternEditorPanel->getInstrumentList()->update();
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		m_pPatternEditorPanel->getInstrumentList()->update();
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+	}
 	updateEditor();
 }
 
 void DrumPatternEditor::focusOutEvent ( QFocusEvent *ev )
 {
 	UNUSED( ev );
-	m_pPatternEditorPanel->getInstrumentList()->update();
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		m_pPatternEditorPanel->getInstrumentList()->update();
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+	}
 	update( 0, 0, width(), height() );
 }
 

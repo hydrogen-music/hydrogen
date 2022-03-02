@@ -24,6 +24,7 @@
 #define SONG_EDITOR_H
 
 #include <vector>
+#include <memory>
 
 #include <unistd.h>
 
@@ -33,6 +34,7 @@
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Timeline.h>
 #include "../EventListener.h"
 #include "PatternFillDialog.h"
 #include "../Selection.h"
@@ -97,6 +99,10 @@ class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public S
 		void updateEditorandSetTrue();
 
 		int yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView );
+
+	int getMargin() const {
+		return m_nMargin;
+	}
 
 	public slots:
 
@@ -323,7 +329,6 @@ class SongEditorPatternList :  public QWidget
 		QPoint __drag_start_position;
 
 	void setRowSelection( RowSelection rowSelection );
-
 	/**
 	 * Specifies the row the mouse cursor is currently hovered
 	 * over. -1 for no cursor.
@@ -389,11 +394,23 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 
 	int m_nActiveBpmWidgetColumn;
 	int m_nHoveredColumn;
-	/** 0 if the mouse cursor is located in the top 20 pixels of the
-	widget. 1 for the tags and -1 if uninitilialized. Used for caching
-	(in order to not redraw the Ruler in every mouse move*/
-	bool m_nHoveredRow;
-	bool m_bHighlightHoveredColumn;
+
+	/** Indicated the part of the widget the cursor is hovering over.*/
+	enum class HoveredRow {
+		/** Cursor is not hovering the widget.*/
+		None,
+		/** Upper half until the lower end of the tempo marker
+			text. */ 
+		TempoMarker,
+		/** Still part of the upper half, but only the last
+			#m_nTagHeight pixels.*/
+		Tag,
+		/** Lower half*/
+		Ruler
+	};
+	HoveredRow m_hoveredRow;
+
+	int m_nTagHeight;
 
 		QPixmap *			m_pBackgroundPixmap;
 		QPixmap				m_tickPositionPixmap;
@@ -409,6 +426,9 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 	virtual bool event( QEvent* ev ) override;
 
 	void showToolTip( QHelpEvent* ev );
+
+	void drawTempoMarker( std::shared_ptr<const H2Core::Timeline::TempoMarker> tempoMarker,
+						  bool bEmphasize, QPainter& painter );
 
 };
 

@@ -35,6 +35,7 @@ using namespace H2Core;
 #include "UndoActions.h"
 #include "NotePropertiesRuler.h"
 #include "PatternEditorPanel.h"
+#include "PatternEditorRuler.h"
 #include "DrumPatternEditor.h"
 #include "PianoRollEditor.h"
 
@@ -166,6 +167,25 @@ void NotePropertiesRuler::mouseClickEvent( QMouseEvent *ev ) {
 		propertyDragStart( ev );
 		propertyDragUpdate( ev );
 		propertyDragEnd();
+	}
+}
+
+void NotePropertiesRuler::mousePressEvent( QMouseEvent* ev ) {
+	PatternEditor::mousePressEvent( ev );
+
+	// Update cursor position
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
+		if ( ( m_pPattern != nullptr &&
+			   nColumn >= (int)m_pPattern->get_length() ) ||
+			 nColumn >= MAX_INSTRUMENTS ) {
+			return;
+		}
+
+		m_pPatternEditorPanel->setCursorPosition( nColumn );
+	
+		update();
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 	}
 }
 
@@ -696,6 +716,12 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 	if ( bUnhideCursor ) {
 		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 	}
+	
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		// Immediate update to prevent visual delay.
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+	}
+
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
 	updateEditor();
 	ev->accept();
@@ -708,12 +734,20 @@ void NotePropertiesRuler::focusInEvent( QFocusEvent * ev )
 	if ( ev->reason() == Qt::TabFocusReason || ev->reason() == Qt::BacktabFocusReason ) {
 		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 	}
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		// Immediate update to prevent visual delay.
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+	}
 	updateEditor();
 }
 
 
 void NotePropertiesRuler::focusOutEvent( QFocusEvent * ev )
 {
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		// Immediate update to prevent visual delay.
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+	}
 	updateEditor();
 }
 
@@ -791,7 +825,19 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 
 	drawFocus( painter );
 	
-	// m_selection.paintSelection( &painter );
+	m_selection.paintSelection( &painter );
+
+	
+	if ( hasFocus() && ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
+
+		QPen pen( Qt::black );
+		pen.setWidth( 2 );
+		painter.setPen( pen );
+		painter.setBrush( Qt::NoBrush );
+		painter.setRenderHint( QPainter::Antialiasing );
+		painter.drawRoundedRect( QRect( x-m_fGridWidth*3, 0 + 3, m_fGridWidth*6, height() - 6 ), 4, 4 );
+	}
 }
 
 void NotePropertiesRuler::drawFocus( QPainter& painter ) {
@@ -1333,18 +1379,6 @@ void NotePropertiesRuler::finishUpdateEditor()
 	}
 	else if ( m_Mode == NOTEKEY ) {
 		createNoteKeyBackground( m_pBackground );
-	}
-
-	if ( hasFocus() && ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		QPainter p( m_pBackground );
-
-		uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
-
-		QPen pen( Qt::black );
-		pen.setWidth( 2 );
-		p.setPen( pen );
-		p.setRenderHint( QPainter::Antialiasing );
-		p.drawRoundedRect( QRect( x-m_fGridWidth*3, 0 + 3, m_fGridWidth*6, height() - 6 ), 4, 4 );
 	}
 
 	// redraw all

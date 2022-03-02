@@ -22,6 +22,7 @@
 
 #include "PianoRollEditor.h"
 #include "PatternEditorPanel.h"
+#include "PatternEditorRuler.h"
 #include "NotePropertiesRuler.h"
 #include "UndoActions.h"
 #include <cassert>
@@ -147,6 +148,19 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 	drawFocus( painter );
 	
 	m_selection.paintSelection( &painter );
+
+	// Draw cursor
+	if ( hasFocus() && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		QPoint pos = cursorPosition();
+
+		QPen pen( Qt::black );
+		pen.setWidth( 2 );
+		painter.setPen( pen );
+		painter.setBrush( Qt::NoBrush );
+		painter.setRenderHint( QPainter::Antialiasing );
+		painter.drawRoundedRect( QRect( pos.x() - m_fGridWidth*3, pos.y()-2,
+										m_fGridWidth*6, m_nGridHeight+3 ), 4, 4 );
+	}
 }
 
 void PianoRollEditor::drawFocus( QPainter& painter ) {
@@ -335,19 +349,6 @@ void PianoRollEditor::drawPattern()
 		}
 	}
 
-	// Draw cursor
-	if ( hasFocus() && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		QPoint pos = cursorPosition();
-
-		QPen pen( Qt::black );
-		pen.setWidth( 2 );
-		p.setPen( pen );
-		p.setBrush( Qt::NoBrush );
-		p.setRenderHint( QPainter::Antialiasing );
-		p.drawRoundedRect( QRect( pos.x() - m_fGridWidth*3, pos.y()-2,
-								  m_fGridWidth*6, m_nGridHeight+3 ), 4, 4 );
-	}
-
 }
 
 
@@ -456,7 +457,6 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
-
 	std::shared_ptr<Instrument> pSelectedInstrument = nullptr;
 	int nSelectedInstrumentnumber = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
@@ -505,6 +505,31 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 
 	}
 
+}
+
+void PianoRollEditor::mousePressEvent( QMouseEvent* ev ) {
+	PatternEditor::mousePressEvent( ev );
+
+	// Update cursor position
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		int nPressedLine = ((int) ev->y()) / ((int) m_nGridHeight);
+		if ( nPressedLine >= (int) m_nOctaves * 12 ) {
+			return;
+		}
+		m_nCursorPitch = lineToPitch( nPressedLine );	
+
+		int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
+		if ( ( m_pPattern != nullptr &&
+			   nColumn >= (int)m_pPattern->get_length() ) ||
+			 nColumn >= MAX_INSTRUMENTS ) {
+			return;
+		}
+
+		m_pPatternEditorPanel->setCursorPosition( nColumn );
+	
+		update();
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+	}
 }
 
 void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
@@ -1177,6 +1202,12 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 	}
 	m_pScrollView->ensureVisible( pos.x(), pos.y() );
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
+
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		// Immediate update to prevent visual delay.
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+	}
+	
 	updateEditor( true );
 	ev->accept();
 }
@@ -1189,9 +1220,21 @@ void PianoRollEditor::focusInEvent( QFocusEvent * ev )
 		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 		m_pPatternEditorPanel->ensureCursorVisible();
 	}
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		// Immediate update to prevent visual delay.
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+	}
 	updateEditor( true );
 }
 
+void PianoRollEditor::focusOutEvent ( QFocusEvent *ev )
+{
+	UNUSED( ev );
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+	}
+	update( 0, 0, width(), height() );
+}
 
 void PianoRollEditor::editNoteLengthAction( int nColumn,  int nRealColumn,  int length, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedline)
 {

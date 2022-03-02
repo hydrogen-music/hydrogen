@@ -80,6 +80,7 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		//! @{
 		virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) override;
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
+	virtual void mousePressEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragEndEvent( QMouseEvent *ev ) override;

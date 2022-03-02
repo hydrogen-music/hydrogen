@@ -31,9 +31,10 @@ using namespace H2Core;
 #include <QTimer>
 #include <QPainter>
 
-
+#include "DrumPatternEditor.h"
 #include "PatternEditorRuler.h"
 #include "PatternEditorPanel.h"
+#include "NotePropertiesRuler.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
@@ -178,7 +179,8 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 
 void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 {
-
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pDrumPatternEditor = pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor();
 	auto pPref = H2Core::Preferences::get_instance();
 
 	if (!isVisible()) {
@@ -217,16 +219,30 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 	uint nQuarter = 48;
 
-	for ( int i = 0; i < 64 ; i++ ) {
-		int nText_x = 20 + nQuarter / 4 * i * m_fGridWidth;
-		if ( ( i % 4 ) == 0 ) {
-			painter.setPen( textColor );
-			painter.drawText( nText_x - 30, 0, 60, m_nRulerHeight, Qt::AlignCenter, QString("%1").arg(i / 4 + 1) );
-		}
-		else {
-			painter.setPen( QPen( QColor( lineColor ), 1, Qt::SolidLine ) );
-			painter.drawLine( nText_x, ( m_nRulerHeight - 5 ) / 2, nText_x, m_nRulerHeight - ( (m_nRulerHeight - 5 ) / 2 ));
-		}
+	// Draw numbers and quarter ticks
+	for ( int ii = 0; ii < 64 ; ii += 4 ) {
+		int nText_x = pDrumPatternEditor->getMargin() +
+			nQuarter / 4 * ii * m_fGridWidth;
+		painter.setPen( textColor );
+		painter.drawLine( nText_x, height() - 13, nText_x, height() - 1 );
+		painter.drawText( nText_x + 3, 0, 60, m_nRulerHeight,
+						  Qt::AlignVCenter | Qt::AlignLeft,
+						  QString("%1").arg(ii / 4 + 1) );
+	}
+
+	// Draw remaining ticks
+	int nMaxX = m_fGridWidth * nNotes + pDrumPatternEditor->getMargin();
+
+	float fStep;
+	if ( pDrumPatternEditor->isUsingTriplets() ) {
+		fStep = 4 * MAX_NOTES / ( 3 * pDrumPatternEditor->getResolution() )
+			* m_fGridWidth;
+	} else {
+		fStep = 4 * MAX_NOTES / ( 4 * pDrumPatternEditor->getResolution() )
+			* m_fGridWidth;
+	}
+	for ( float xx = pDrumPatternEditor->getMargin(); xx < nMaxX; xx += fStep ) {
+		painter.drawLine( xx, height() - 5, xx, height() - 1 );
 	}
 
 	// draw tickPosition
@@ -235,9 +251,43 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 		painter.drawPixmap( QRect( x, height() / 2, 11, 8 ), m_tickPosition, QRect( 0, 0, 11, 8 ) );
 
 	}
+
+	// draw cursor
+	if ( ( pDrumPatternEditor->hasFocus() ||
+		   pHydrogenApp->getPatternEditorPanel()->getVelocityEditor()->hasFocus() ||
+		   pHydrogenApp->getPatternEditorPanel()->getPanEditor()->hasFocus() ||
+		   pHydrogenApp->getPatternEditorPanel()->getLeadLagEditor()->hasFocus() ||
+		   pHydrogenApp->getPatternEditorPanel()->getNoteKeyEditor()->hasFocus() ||
+		   pHydrogenApp->getPatternEditorPanel()->getProbabilityEditor()->hasFocus() ||
+		   pHydrogenApp->getPatternEditorPanel()->getPianoRollEditor()->hasFocus() ) &&
+		! pHydrogenApp->hideKeyboardCursor() ) {
+
+		int nCursorX = m_fGridWidth *
+			pHydrogenApp->getPatternEditorPanel()->getCursorPosition() +
+			pDrumPatternEditor->getMargin() - 4 -
+			m_fGridWidth * 3;
+
+		// Middle line to indicate the selected tick
+		painter.setPen( Qt::black );
+		painter.drawLine( nCursorX + m_fGridWidth * 3 + 4, height() - 6,
+						  nCursorX + m_fGridWidth * 3 + 4, height() - 13 );
+
+		QPen pen;
+		pen.setWidth( 2 );
+		painter.setPen( pen );
+		painter.setRenderHint( QPainter::Antialiasing );
+		painter.drawLine( nCursorX, 3, nCursorX + m_fGridWidth * 6 + 8, 3 );
+		painter.drawLine( nCursorX, 4, nCursorX, 5 );
+		painter.drawLine( nCursorX + m_fGridWidth * 6 + 8, 4,
+						  nCursorX + m_fGridWidth * 6 + 8, 5 );
+		painter.drawLine( nCursorX, height() - 5,
+						  nCursorX + m_fGridWidth * 6 + 8, height() - 5 );
+		painter.drawLine( nCursorX, height() - 7,
+						  nCursorX, height() - 6 );
+		painter.drawLine( nCursorX + m_fGridWidth * 6 + 8, height() - 6,
+						  nCursorX + m_fGridWidth * 6 + 8, height() - 7 );
+	}
 }
-
-
 
 void PatternEditorRuler::zoomIn()
 {
