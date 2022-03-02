@@ -974,7 +974,9 @@ void PlaylistDialog::onPreferencesChanged( H2Core::Preferences::Changes changes 
 		setFont( font );
 		m_pMenubar->setFont( font );
 		m_pPlaylistMenu->setFont( font );
+#ifndef WIN32
 		m_pScriptMenu->setFont( font );
+#endif
 
 		int ii;
 		

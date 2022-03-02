@@ -91,7 +91,10 @@ public slots:
 		QTimer *timer;
 		QMenuBar *m_pMenubar;
 		QMenu *m_pPlaylistMenu;
+#ifndef WIN32
+	//no scripts under windows
 		QMenu *m_pScriptMenu;
+#endif
 
 		Button *m_pRwdBtn;
 		Button *m_pPlayBtn;
