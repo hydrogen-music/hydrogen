@@ -166,13 +166,13 @@ AudioEngine::~AudioEngine()
 {
 	stopAudioDrivers();
 	if ( getState() != State::Initialized ) {
-		___ERRORLOG( "Error the audio engine is not in State::Initialized" );
+		ERRORLOG( "Error the audio engine is not in State::Initialized" );
 		return;
 	}
 	m_pSampler->stopPlayingNotes();
 
 	this->lock( RIGHT_HERE );
-	___INFOLOG( "*** Hydrogen audio engine shutdown ***" );
+	INFOLOG( "*** Hydrogen audio engine shutdown ***" );
 
 	clearNoteQueue();
 
@@ -294,11 +294,11 @@ void AudioEngine::unlock()
 
 void AudioEngine::startPlayback()
 {
-	___INFOLOG( "" );
+	INFOLOG( "" );
 
 	// check current state
 	if ( getState() != State::Ready ) {
-		___ERRORLOG( "Error the audio engine is not in State::Ready" );
+	   ERRORLOG( "Error the audio engine is not in State::Ready" );
 		return;
 	}
 
@@ -308,12 +308,12 @@ void AudioEngine::startPlayback()
 
 void AudioEngine::stopPlayback()
 {
-	___INFOLOG( "" );
+	INFOLOG( "" );
 
 	// check current state
 	if ( getState() != State::Playing ) {
-		___ERRORLOG( QString( "Error the audio engine is not in State::Playing but [%1]" )
-					 .arg( static_cast<int>( getState() ) ) );
+		ERRORLOG( QString( "Error the audio engine is not in State::Playing but [%1]" )
+				  .arg( static_cast<int>( getState() ) ) );
 		return;
 	}
 
@@ -925,7 +925,7 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 
 AudioOutput* AudioEngine::createDriver( const QString& sDriver )
 {
-	___INFOLOG( QString( "Driver: '%1'" ).arg( sDriver ) );
+	INFOLOG( QString( "Driver: '%1'" ).arg( sDriver ) );
 	Preferences *pPref = Preferences::get_instance();
 	AudioOutput *pDriver = nullptr;
 
@@ -945,18 +945,17 @@ AudioOutput* AudioEngine::createDriver( const QString& sDriver )
 	} else if ( sDriver == "PortAudio" ) {
 		pDriver = new PortAudioDriver( m_AudioProcessCallback );
 	} else if ( sDriver == "CoreAudio" ) {
-		___INFOLOG( "Creating CoreAudioDriver" );
 		pDriver = new CoreAudioDriver( m_AudioProcessCallback );
 	} else if ( sDriver == "PulseAudio" ) {
 		pDriver = new PulseAudioDriver( m_AudioProcessCallback );
 	} else if ( sDriver == "Fake" ) {
-		___WARNINGLOG( "*** Using FAKE audio driver ***" );
+		WARNINGLOG( "*** Using FAKE audio driver ***" );
 		pDriver = new FakeDriver( m_AudioProcessCallback );
 	} else {
-		___ERRORLOG( "Unknown driver " + sDriver );
+		ERRORLOG( QString( "Unknown driver [%1]" ).arg( sDriver ) );
 		raiseError( Hydrogen::UNKNOWN_DRIVER );
 	}
-	
+
 	if ( dynamic_cast<NullDriver*>(pDriver) != nullptr ) {
 		delete pDriver;
 		pDriver = nullptr;
@@ -966,7 +965,8 @@ AudioOutput* AudioEngine::createDriver( const QString& sDriver )
 		// initialize the audio driver
 		int res = pDriver->init( pPref->m_nBufferSize );
 		if ( res != 0 ) {
-			___ERRORLOG( "Error starting audio driver [audioDriver::init()]" );
+			ERRORLOG( QString( "Error initializing audio driver [%1]. Error code: %2" )
+					  .arg( sDriver ).arg( res ) );
 			delete pDriver;
 			pDriver = nullptr;
 		}
@@ -976,27 +976,26 @@ AudioOutput* AudioEngine::createDriver( const QString& sDriver )
 
 void AudioEngine::startAudioDrivers()
 {
+	INFOLOG("");
 	Preferences *preferencesMng = Preferences::get_instance();
 
 	// Lock both the AudioEngine and the audio output buffers.
 	this->lock( RIGHT_HERE );
 	QMutexLocker mx(&m_MutexOutputPointer);
-
-	___INFOLOG( "[audioEngine_startAudioDrivers]" );
 	
 	// check current state
 	if ( getState() != State::Initialized ) {
-		___ERRORLOG( QString( "Audio engine is not in State::Initialized but [%1]" )
-					 .arg( static_cast<int>( getState() ) ) );
+		ERRORLOG( QString( "Audio engine is not in State::Initialized but [%1]" )
+				  .arg( static_cast<int>( getState() ) ) );
 		this->unlock();
 		return;
 	}
 
 	if ( m_pAudioDriver ) {	// check if the audio m_pAudioDriver is still alive
-		___ERRORLOG( "The audio driver is still alive" );
+		ERRORLOG( "The audio driver is still alive" );
 	}
 	if ( m_pMidiDriver ) {	// check if midi driver is still alive
-		___ERRORLOG( "The MIDI driver is still active" );
+		ERRORLOG( "The MIDI driver is still active" );
 	}
 
 	QString sAudioDriver = preferencesMng->m_sAudioDriver;
@@ -1016,8 +1015,8 @@ void AudioEngine::startAudioDrivers()
 	for ( QString sDriver : drivers ) {
 		if ( ( pAudioDriver = createDriver( sDriver ) ) != nullptr ) {
 			if ( sDriver != sAudioDriver && sAudioDriver != "Auto" ) {
-				___ERRORLOG( QString( "Couldn't start preferred driver %1, falling back to %2" )
-							 .arg( sAudioDriver ).arg( sDriver ) );
+				ERRORLOG( QString( "Couldn't start preferred driver [%1], falling back to [%2]" )
+						  .arg( sAudioDriver ).arg( sDriver ) );
 			}
 			break;
 		}
@@ -1098,8 +1097,8 @@ void AudioEngine::setAudioDriver( AudioOutput* pAudioDriver ) {
 		int res = m_pAudioDriver->connect();
 		if ( res != 0 ) {
 			raiseError( Hydrogen::ERROR_STARTING_DRIVER );
-			ERRORLOG( "Error starting audio driver [audioDriver::connect()]" );
-			ERRORLOG( "Using the NULL output audio driver" );
+			ERRORLOG( QString( "Unable to connect audio driver: %1 . Falling back to NullDriver." )
+					  .arg( res ) );
 
 			mx.relock();
 			delete m_pAudioDriver;
@@ -1159,8 +1158,7 @@ void AudioEngine::stopAudioDrivers()
 }
 
 /** 
- * Restart all audio and midi drivers by calling first
- * stopAudioDrivers() and then startAudioDrivers() 
+ * Restart all audio and midi drivers.
  */
 void AudioEngine::restartAudioDrivers()
 {
@@ -1612,15 +1610,15 @@ void AudioEngine::setState( AudioEngine::State state ) {
 
 void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 {
-	___WARNINGLOG( QString( "Set song: %1" ).arg( pNewSong->getName() ) );
+	INFOLOG( QString( "Set song: %1" ).arg( pNewSong->getName() ) );
 	
 	this->lock( RIGHT_HERE );
 
 	// check current state
 	// should be set by removeSong called earlier
 	if ( getState() != State::Prepared ) {
-		___ERRORLOG( QString( "Error the audio engine is not in State::Prepared but [%1]" )
-					 .arg( static_cast<int>( getState() ) ) );
+		ERRORLOG( QString( "Error the audio engine is not in State::Prepared but [%1]" )
+				  .arg( static_cast<int>( getState() ) ) );
 	}
 
 	// setup LADSPA FX
@@ -1659,8 +1657,8 @@ void AudioEngine::removeSong()
 
 	// check current state
 	if ( getState() != State::Ready ) {
-		___ERRORLOG( QString( "Error the audio engine is not in State::Ready but [%1]" )
-					 .arg( static_cast<int>( getState() ) ) );
+		ERRORLOG( QString( "Error the audio engine is not in State::Ready but [%1]" )
+				  .arg( static_cast<int>( getState() ) ) );
 		this->unlock();
 		return;
 	}
@@ -2082,7 +2080,7 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 			}
 
 			if ( nPatternSize == 0 ) {
-				___ERRORLOG( "nPatternSize == 0" );
+				ERRORLOG( "nPatternSize == 0" );
 			}
 
 			// If either the beginning of the current pattern was not
@@ -2301,7 +2299,7 @@ void AudioEngine::noteOn( Note *note )
 	if ( ! ( getState() == State::Playing ||
 			 getState() == State::Ready ||
 			 getState() == State::Testing ) ) {
-		___ERRORLOG( QString( "Error the audio engine is not in State::Ready, State::Playing, or State::Testing but [%1]" )
+		ERRORLOG( QString( "Error the audio engine is not in State::Ready, State::Playing, or State::Testing but [%1]" )
 					 .arg( static_cast<int>( getState() ) ) );
 		delete note;
 		return;
