@@ -86,6 +86,8 @@ public:
 		/** If a widget is marked inactive the value of its text color
 		are reduced by this factor.*/
 	static QColor makeTextColorInactive( QColor color );
+
+	static void drawPlayhead( QPainter* p, QRect rect, bool bHovered );
 };
 
 

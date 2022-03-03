@@ -198,3 +198,24 @@ QColor Skin::makeTextColorInactive( QColor color ) {
 
 	return color;
 }
+
+void Skin::drawPlayhead( QPainter* p, QRect rect, bool bHovered ) {
+	
+	QColor playheadColor( Qt::black );
+	if ( bHovered ) {
+		playheadColor = QColor( 65, 65, 65 );
+	}
+
+	const QPointF points[3] = {
+		QPointF(rect.x(), rect.y()),
+		QPointF(rect.x() + rect.width() - 1, rect.y()),
+		QPointF(rect.x() + std::floor( rect.width() / 2 ),
+				rect.y() + rect.height() ),
+	};
+
+	p->setPen( playheadColor );
+	p->setBrush( playheadColor );
+	p->setRenderHint( QPainter::Antialiasing );
+	p->drawPolygon( points, 3 );
+	p->setBrush( Qt::NoBrush );
+}

@@ -2482,10 +2482,6 @@ void SongEditorPositionRuler::createBackground()
 
 	p.fillRect( 0, 0, width(), 24, backgroundColorTempoMarkers );
 	char tmp[10];
-
-	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
-		textColor = textColorAlpha;
-	}
 	
 	QColor textColorGrid( textColor );
 	textColorGrid.setAlpha( 200 );
@@ -2996,12 +2992,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 			pSongEditor->getCursorColumn() * m_nGridWidth + 2;
 
 		QColor cursorColor = Qt::black;
-		
-		if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
-			cursorColor.setAlpha( 45 );
-		} else {
-			cursorColor.setAlpha( 175 );
-		}
+		cursorColor.setAlpha( 175 );
 
 		QPen p( cursorColor );
 		p.setWidth( 2 );

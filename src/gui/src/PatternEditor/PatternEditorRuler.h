@@ -56,6 +56,8 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		void showEvent( QShowEvent *ev ) override;
 		void hideEvent( QHideEvent *ev ) override;
+	void mouseMoveEvent( QMouseEvent *ev ) override;
+	void leaveEvent( QEvent *ev ) override;
 
 		void zoomIn();
 		void zoomOut();
@@ -81,6 +83,8 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 		int m_nTicks;
 		PatternEditorPanel *m_pPatternEditorPanel;
 		H2Core::Pattern *m_pPattern;
+
+	int m_nHoveredColumn;
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;

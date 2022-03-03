@@ -40,9 +40,11 @@ using namespace H2Core;
 
 
 PatternEditorRuler::PatternEditorRuler( QWidget* parent )
- : QWidget( parent )
+	: QWidget( parent )
+	, m_nHoveredColumn( -1 )
  {
 	setAttribute(Qt::WA_OpaquePaintEvent);
+	setMouseTracking( true );
 
 	//infoLog( "INIT" );
 
@@ -99,6 +101,12 @@ void PatternEditorRuler::showEvent ( QShowEvent *ev )
 }
 
 
+void PatternEditorRuler::leaveEvent( QEvent* ev ){
+	m_nHoveredColumn = -1;
+	update();
+
+	QWidget::leaveEvent( ev );
+}
 
 void PatternEditorRuler::hideEvent ( QHideEvent *ev )
 {
@@ -106,7 +114,48 @@ void PatternEditorRuler::hideEvent ( QHideEvent *ev )
 	updateStart(false);
 }
 
+void PatternEditorRuler::mouseMoveEvent( QMouseEvent* ev ) {
+	
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	DrumPatternEditor* pDrumPatternEditor;
+	if ( pHydrogenApp->getPatternEditorPanel() != nullptr ) {
+		pDrumPatternEditor = pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor();
+	} else {
+		pDrumPatternEditor = nullptr;
+	}
 
+	// Fall back to default values in case the GUI is starting and the
+	// pattern editor is not ready yet.
+	int nMargin;
+	float fResolution;
+	bool bIsUsingTriplets;
+	if ( pDrumPatternEditor != nullptr ) {
+		nMargin = pDrumPatternEditor->getMargin();
+		fResolution = static_cast<float>(pDrumPatternEditor->getResolution());
+		bIsUsingTriplets = pDrumPatternEditor->isUsingTriplets();
+	} else {
+		nMargin = 20;
+		fResolution = 8;
+		bIsUsingTriplets = false;
+	}
+
+	float fTripletFactor;
+	if ( bIsUsingTriplets ) {
+		fTripletFactor = 3;
+	} else {
+		fTripletFactor = 4;
+	}
+	int nHoveredColumn =
+		static_cast<int>(std::floor( static_cast<float>(std::max( ev->x() - nMargin, 0 )) *
+									 fTripletFactor * fResolution /
+									 ( 4 * static_cast<float>(MAX_NOTES) ) /
+									 m_fGridWidth ));
+
+	if ( nHoveredColumn != m_nHoveredColumn ) {
+		m_nHoveredColumn = nHoveredColumn;
+		update();
+	}
+}
 
 void PatternEditorRuler::updateEditor( bool bRedrawAll )
 {
@@ -171,6 +220,7 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 	oldNTicks = m_nTicks;
 
 	if (bRedrawAll) {
+		createBackground();
 		update( 0, 0, width(), height() );
 	}
 }
@@ -268,6 +318,12 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
+	DrumPatternEditor* pDrumPatternEditor;
+	if ( pHydrogenApp->getPatternEditorPanel() != nullptr ) {
+		pDrumPatternEditor = pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor();
+	} else {
+		pDrumPatternEditor = nullptr;
+	}
 
 	if (!isVisible()) {
 		return;
@@ -293,7 +349,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 	// draw cursor
 	if ( pHydrogenApp->getPatternEditorPanel() != nullptr &&
-		 ( pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor()->hasFocus() ||
+		 ( pDrumPatternEditor->hasFocus() ||
 		   pHydrogenApp->getPatternEditorPanel()->getVelocityEditor()->hasFocus() ||
 		   pHydrogenApp->getPatternEditorPanel()->getPanEditor()->hasFocus() ||
 		   pHydrogenApp->getPatternEditorPanel()->getLeadLagEditor()->hasFocus() ||
@@ -304,7 +360,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 		int nCursorX = m_fGridWidth *
 			pHydrogenApp->getPatternEditorPanel()->getCursorPosition() +
-			pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor()->getMargin() - 4 -
+			pDrumPatternEditor->getMargin() - 4 -
 			m_fGridWidth * 5;
 
 		// Middle line to indicate the selected tick
@@ -326,6 +382,46 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 						  nCursorX, height() - 6 );
 		painter.drawLine( nCursorX + m_fGridWidth * 10 + 8, height() - 6,
 						  nCursorX + m_fGridWidth * 10 + 8, height() - 7 );
+	}
+
+	// Fall back to default values in case the GUI is starting and the
+	// pattern editor is not ready yet.
+	int nMargin;
+	float fResolution;
+	bool bIsUsingTriplets;
+	if ( pDrumPatternEditor != nullptr ) {
+		nMargin = pDrumPatternEditor->getMargin();
+		fResolution = static_cast<float>(pDrumPatternEditor->getResolution());
+		bIsUsingTriplets = pDrumPatternEditor->isUsingTriplets();
+	} else {
+		nMargin = 20;
+		fResolution = 8;
+		bIsUsingTriplets = false;
+	}
+
+	// Display playhead on hovering
+	if ( m_nHoveredColumn > -1 ) {
+
+		// Only display the playhead in accessible for transport
+		int nNotes = MAX_NOTES;
+		if ( m_pPattern != nullptr ) {
+			nNotes = m_pPattern->get_length();
+		}
+		int nXMax = 20 + nNotes * m_fGridWidth;
+
+		float fTripletFactor;
+		if ( bIsUsingTriplets ) {
+			fTripletFactor = 3;
+		} else {
+			fTripletFactor = 4;
+		}
+		int x = nMargin +
+			static_cast<int>(m_nHoveredColumn * 4 * static_cast<float>(MAX_NOTES) /
+							 ( fTripletFactor * fResolution ) * m_fGridWidth);
+
+		if ( x < nXMax ) {
+			Skin::drawPlayhead( &painter, QRect( x - 5, height() / 2, 11, 6 ), true );
+		}
 	}
 }
 
