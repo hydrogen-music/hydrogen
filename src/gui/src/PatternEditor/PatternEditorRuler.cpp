@@ -63,8 +63,8 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 		ERRORLOG( "Error loading pixmap " );
 	}
 
-	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
-	m_pBackground->fill( backgroundColor );
+	m_pBackground = nullptr;
+	createBackground();
 
 	m_pTimer = new QTimer(this);
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateEditor()));
@@ -176,28 +176,33 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 }
 
 
-
-void PatternEditorRuler::paintEvent( QPaintEvent *ev)
+void PatternEditorRuler::createBackground()
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pDrumPatternEditor = pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor();
+	DrumPatternEditor* pDrumPatternEditor;
+	if ( pHydrogenApp->getPatternEditorPanel() != nullptr ) {
+		pDrumPatternEditor = pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor();
+	} else {
+		pDrumPatternEditor = nullptr;
+	}
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if (!isVisible()) {
-		return;
+	if ( m_pBackground ) {
+		delete m_pBackground;
 	}
 
-	QPainter painter(this);
+	// Create new background pixmap at native device pixelratio
+	qreal pixelRatio = devicePixelRatio();
+	m_pBackground = new QPixmap( pixelRatio * QSize( m_nRulerWidth, m_nRulerHeight ) );
+	m_pBackground->setDevicePixelRatio( pixelRatio );
 
 	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_alternateRowColor.darker( 120 ) );
 	QColor textColor = pPref->getColorTheme()->m_patternEditor_textColor;
 	QColor lineColor = pPref->getColorTheme()->m_patternEditor_lineColor;
+
+	QPainter painter( m_pBackground );
 	
 	painter.fillRect( QRect( 1, 1, width() - 2, height() - 2 ), backgroundColor );
-
-	painter.setPen( QColor( 35, 39, 51 ) );
-	painter.drawLine( 0, 0, width(), 0 );
-	painter.drawLine( 0, height(), width(), height() );
 
 	// gray background for unusable section of pattern
 	int nNotes = MAX_NOTES;
@@ -219,10 +224,23 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 	uint nQuarter = 48;
 
+	// Fall back to default values in case the GUI is starting and the
+	// pattern editor is not ready yet.
+	int nMargin, nResolution;
+	bool bIsUsingTriplets;
+	if ( pDrumPatternEditor != nullptr ) {
+		nMargin = pDrumPatternEditor->getMargin();
+		nResolution = pDrumPatternEditor->getResolution();
+		bIsUsingTriplets = pDrumPatternEditor->isUsingTriplets();
+	} else {
+		nMargin = 20;
+		nResolution = 8;
+		bIsUsingTriplets = false;
+	}
+	
 	// Draw numbers and quarter ticks
 	for ( int ii = 0; ii < 64 ; ii += 4 ) {
-		int nText_x = pDrumPatternEditor->getMargin() +
-			nQuarter / 4 * ii * m_fGridWidth;
+		int nText_x = nMargin + nQuarter / 4 * ii * m_fGridWidth;
 		painter.setPen( textColor );
 		painter.drawLine( nText_x, height() - 13, nText_x, height() - 1 );
 		painter.drawText( nText_x + 3, 0, 60, m_nRulerHeight,
@@ -231,29 +249,51 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 	}
 
 	// Draw remaining ticks
-	int nMaxX = m_fGridWidth * nNotes + pDrumPatternEditor->getMargin();
+	int nMaxX = m_fGridWidth * nNotes + nMargin;
 
 	float fStep;
-	if ( pDrumPatternEditor->isUsingTriplets() ) {
-		fStep = 4 * MAX_NOTES / ( 3 * pDrumPatternEditor->getResolution() )
-			* m_fGridWidth;
+	if ( bIsUsingTriplets ) {
+		fStep = 4 * MAX_NOTES / ( 3 * nResolution ) * m_fGridWidth;
 	} else {
-		fStep = 4 * MAX_NOTES / ( 4 * pDrumPatternEditor->getResolution() )
-			* m_fGridWidth;
+		fStep = 4 * MAX_NOTES / ( 4 * nResolution ) * m_fGridWidth;
 	}
-	for ( float xx = pDrumPatternEditor->getMargin(); xx < nMaxX; xx += fStep ) {
+	for ( float xx = nMargin; xx < nMaxX; xx += fStep ) {
 		painter.drawLine( xx, height() - 5, xx, height() - 1 );
 	}
+
+}
+
+
+void PatternEditorRuler::paintEvent( QPaintEvent *ev)
+{
+	auto pPref = H2Core::Preferences::get_instance();
+	auto pHydrogenApp = HydrogenApp::get_instance();
+
+	if (!isVisible()) {
+		return;
+	}
+
+	qreal pixelRatio = devicePixelRatio();
+	if ( pixelRatio != m_pBackground->devicePixelRatio() ) {
+		createBackground();
+	}
+
+	QPainter painter(this);
+
+	painter.drawPixmap( ev->rect(), *m_pBackground, QRectF( pixelRatio * ev->rect().x(),
+															pixelRatio * ev->rect().y(),
+															pixelRatio * ev->rect().width(),
+															pixelRatio * ev->rect().height() ) );
 
 	// draw tickPosition
 	if (m_nTicks != -1) {
 		uint x = (uint)( 20 + m_nTicks * m_fGridWidth - 5 - 11 / 2.0 );
 		painter.drawPixmap( QRect( x, height() / 2, 11, 8 ), m_tickPosition, QRect( 0, 0, 11, 8 ) );
-
 	}
 
 	// draw cursor
-	if ( ( pDrumPatternEditor->hasFocus() ||
+	if ( pHydrogenApp->getPatternEditorPanel() != nullptr &&
+		 ( pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor()->hasFocus() ||
 		   pHydrogenApp->getPatternEditorPanel()->getVelocityEditor()->hasFocus() ||
 		   pHydrogenApp->getPatternEditorPanel()->getPanEditor()->hasFocus() ||
 		   pHydrogenApp->getPatternEditorPanel()->getLeadLagEditor()->hasFocus() ||
@@ -264,7 +304,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 		int nCursorX = m_fGridWidth *
 			pHydrogenApp->getPatternEditorPanel()->getCursorPosition() +
-			pDrumPatternEditor->getMargin() - 4 -
+			pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor()->getMargin() - 4 -
 			m_fGridWidth * 5;
 
 		// Middle line to indicate the selected tick
@@ -301,10 +341,7 @@ void PatternEditorRuler::zoomIn()
 	}
 	m_nRulerWidth = 20 + m_fGridWidth * ( MAX_NOTES * 4 );
 	resize(  QSize(m_nRulerWidth, m_nRulerHeight ));
-	delete m_pBackground;
-	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
-	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
-	m_pBackground->fill( backgroundColor );
+	createBackground();
 	update();
 }
 
@@ -322,10 +359,7 @@ void PatternEditorRuler::zoomOut()
 		}
 		m_nRulerWidth = 20 + m_fGridWidth * ( MAX_NOTES * 4 );
 		resize( QSize(m_nRulerWidth, m_nRulerHeight) );
-		delete m_pBackground;
-		m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
-		QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
-		m_pBackground->fill( backgroundColor );
+		createBackground();
 		update();
 	}
 }
@@ -333,6 +367,7 @@ void PatternEditorRuler::zoomOut()
 
 void PatternEditorRuler::selectedPatternChangedEvent()
 {
+	createBackground();
 	updateEditor( true );
 }
 

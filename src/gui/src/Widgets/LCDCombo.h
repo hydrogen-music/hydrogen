@@ -41,6 +41,13 @@ public:
 	explicit LCDCombo( QWidget *pParent, QSize size = QSize( 0, 0 ), bool bModifyOnChange = true );
 	~LCDCombo();
 
+	void setSize( QSize size );
+	virtual void showPopup() override;
+	void addItem(const QString &text, const QVariant &userData = QVariant());
+	
+	bool getIsActive() const;
+	void setIsActive( bool bIsActive );
+
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
@@ -52,15 +59,22 @@ private:
 	QSize m_size;
 
 	bool m_bEntered;
+	bool m_bIsActive;
 
 	/** Whether Hydrogen::setIsModified() is invoked with `true` as
 		soon as the value of the widget does change.*/
 	bool m_bModifyOnChange;
+
+	/** Keep track of the text width of the items added. It is used to
+		determine the size of the popup in order to ensure all content
+		fits inside.*/
+	int m_nMaxWidth;
 		
 	virtual void paintEvent( QPaintEvent *ev ) override;
 	virtual void enterEvent( QEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
 };
-
-
+inline bool LCDCombo::getIsActive() const {
+	return m_bIsActive;
+}
 #endif

@@ -227,7 +227,7 @@ void InstrumentLine::paintEvent( QPaintEvent* ev ) {
 							  backgroundColor, bHovered );
 
 	// Draw border indicating cursor position
-	if ( ( m_bIsSelected &&
+	if ( ( m_bIsSelected && pHydrogenApp->getPatternEditorPanel() != nullptr &&
 		   pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor()->hasFocus() &&
 		   ! pHydrogenApp->hideKeyboardCursor() ) ||
 		 m_rowSelection != RowSelection::None ) {
@@ -622,12 +622,11 @@ void InstrumentLine::functionRenameInstrument()
 	if ( bIsOkPressed  ) {
 		pSelectedInstrument->set_name( sNewName );
 
-#ifdef H2CORE_HAVE_JACK
-		pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-		Hydrogen *engine = Hydrogen::get_instance();
-		engine->renameJackPorts(engine->getSong());
-		pHydrogen->getAudioEngine()->unlock();
-#endif
+		if ( pHydrogen->haveJackAudioDriver() ) {
+			pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+			pHydrogen->renameJackPorts( pHydrogen->getSong() );
+			pHydrogen->getAudioEngine()->unlock();
+		}
 
 		// this will force an update...
 		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );

@@ -48,6 +48,7 @@ using namespace H2Core;
 #include "SoundLibrary/SoundLibraryDatastructures.h"
 #include "../PatternEditor/PatternEditorPanel.h"
 #include "../HydrogenApp.h"
+#include "../CommonStrings.h"
 #include "../InstrumentRack.h"
 #include "../PatternPropertiesDialog.h"
 #include "../SongPropertiesDialog.h"
@@ -754,6 +755,7 @@ void SongEditor::updateModifiers( QInputEvent *ev )
 
 void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 {
+	auto pSong = Hydrogen::get_instance()->getSong();
 	updateModifiers( ev );
 	m_currentMousePosition = ev->pos();
 
@@ -765,9 +767,18 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 		}
 
 		QPoint p = xyToColumnRow( ev->pos() );
+		if ( m_nCursorColumn == p.x() && m_nCursorRow == p.y() ) {
+			// Cursor has not entered a different cell yet.
+			return;
+		}
 		m_nCursorColumn = p.x();
 		m_nCursorRow = p.y();
 		HydrogenApp::get_instance()->setHideKeyboardCursor( true );
+
+		if ( m_nCursorRow >= pSong->getPatternList()->size() ) {
+			// We are below the bottom of the pattern list.
+			return;
+		}
 
 		// Drawing mode: continue drawing over other cells
 		setPatternActive( p.x(), p.y(), ! m_bDrawingActiveCell );
@@ -877,15 +888,17 @@ void SongEditor::modifyPatternCellsAction( std::vector<QPoint> & addCells, std::
 }
 
 void SongEditor::updateWidget() {
-	bool bCellBoundaryCrossed = xyToColumnRow( m_previousMousePosition ) != xyToColumnRow( m_currentMousePosition );
 	// Only update the drawn sequence if necessary. This is only possible when the c
 	if ( m_selection.isMoving() ) {
+		QPoint currentGridOffset = movingGridOffset();
 		// Moving a selection never has to update the sequence (it's drawn on top of the sequence). Update
-		// is only ever needed when moving across a cell boundary.
-		if ( bCellBoundaryCrossed ) {
+		// is only ever needed when the move delta (in grid spaces) changes
+		if ( m_previousGridOffset != currentGridOffset ) {
 			update();
+			m_previousGridOffset = currentGridOffset;
 		}
 	} else if ( m_selection.isLasso() ) {
+		bool bCellBoundaryCrossed = xyToColumnRow( m_previousMousePosition ) != xyToColumnRow( m_currentMousePosition );
 		// Selection must redraw the pattern when a cell boundary is crossed, as the selected cells are
 		// drawn when drawing the pattern.
 		if ( bCellBoundaryCrossed ) {
@@ -1247,9 +1260,11 @@ void SongEditor::clearThePatternSequenceVector( QString filename )
 		delete pPatternList;
 	}
 	pPatternGroupsVect->clear();
+	pHydrogen->updateSongSize();
+	
+	m_pAudioEngine->unlock();
 
 	pHydrogen->setIsModified( true );
-	m_pAudioEngine->unlock();
 	m_bSequenceChanged = true;
 	update();
 }
@@ -1794,6 +1809,7 @@ void SongEditorPatternList::patternPopup_save()
 	setRowSelection( RowSelection::Dialog );
 	
 	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pCommonStrings = pHydrogenApp->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
 	auto pPattern = pSong->getPatternList()->get( m_nRowClicked );
@@ -1801,7 +1817,10 @@ void SongEditorPatternList::patternPopup_save()
 	QString sPath = Files::savePatternNew( pPattern->get_name(), pPattern,
 										   pSong, pHydrogen->getCurrentDrumkitName() );
 	if ( sPath.isEmpty() ) {
-		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 ) != 0 ) {
+		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"),
+									   pCommonStrings->getButtonOk(),
+									   pCommonStrings->getButtonCancel(),
+									   nullptr, 1 ) != 0 ) {
 			setRowSelection( RowSelection::None );
 			return;
 		}
@@ -1963,6 +1982,8 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 		pSongPatternList->add( pEmptyPattern );
 	}
 
+	m_pHydrogen->updateSongSize();
+	
 	m_pAudioEngine->unlock();
 
 	if ( m_pHydrogen->isPatternEditorLocked() ) {
@@ -1982,16 +2003,18 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 
 	pSongPatternList->flattened_virtual_patterns_compute();
 
-	delete pattern;
 	m_pHydrogen->setIsModified( true );
+
+	delete pattern;
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 
 }
 
 void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilename, QString sequenceFileName, int patternPosition )
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	PatternList *pPatternList = pSong->getPatternList();
 
 	Pattern* pattern = Pattern::load_file( patternFilename, pSong->getInstrumentList() );
@@ -1999,7 +2022,10 @@ void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilen
 		_ERRORLOG( "Error loading the pattern" );
 	}
 
+	pAudioEngine->lock( RIGHT_HERE );
 	pPatternList->insert( patternPosition, pattern );
+	pHydrogen->updateSongSize();
+	pAudioEngine->unlock();
 
 	pHydrogen->setIsModified( true );
 	createBackground();
@@ -2754,11 +2780,14 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 
-	if ( m_pAudioEngine->getPlayingPatterns()->size() != 0 ) {
-		int nLength = m_pAudioEngine->getPlayingPatterns()->longest_pattern_length();
+	auto pPatternGroupVector = Hydrogen::get_instance()->getSong()->getPatternGroupVector();
+	int nColumn = m_pAudioEngine->getColumn();
+
+	if ( pPatternGroupVector->size() >= nColumn &&
+		 pPatternGroupVector->at( nColumn )->size() > 0 ) {
+		int nLength = pPatternGroupVector->at( nColumn )->longest_pattern_length();
 		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)nLength;
-	}
-	else {
+	} else {
 		// nessun pattern, uso la grandezza di default
 		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)MAX_NOTES;
 	}
@@ -3063,24 +3092,7 @@ void SongEditorPositionRuler::updatePosition()
 	update();
 }
 
-void SongEditorPositionRuler::editTagAction( QString text, int position, QString textToReplace)
-{
-	auto pTimeline = m_pHydrogen->getTimeline();
-
-	const QString sTag = pTimeline->getTagAtColumn( position );
-	pTimeline->deleteTag( position );
-	pTimeline->addTag( position, text );
-	
-	createBackground();
-}
-
-void SongEditorPositionRuler::deleteTagAction( QString text, int position )
-{
-	auto pTimeline = m_pHydrogen->getTimeline();
-
-	const QString sTag = pTimeline->getTagAtColumn( position );
-	pTimeline->deleteTag( position );
-	
+void SongEditorPositionRuler::timelineUpdateEvent( int nValue ) {
 	createBackground();
 }
 

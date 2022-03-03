@@ -112,7 +112,11 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		return;
 	}
 
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
+	prepareUndoAction( ev->position().x() ); //get all old values
+#else
 	prepareUndoAction( ev->x() ); //get all old values
+#endif
 
 	float fDelta;
 	if ( ev->modifiers() == Qt::ControlModifier || ev->modifiers() == Qt::AltModifier ) {
@@ -124,7 +128,11 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		fDelta = fDelta * -1.0;
 	}
 
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
+	int nColumn = getColumn( ev->position().x() );
+#else
 	int nColumn = getColumn( ev->x() );
+#endif
 
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 	HydrogenApp::get_instance()->setHideKeyboardCursor( true );

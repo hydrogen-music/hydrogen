@@ -23,6 +23,7 @@
 
 #include "PlaylistDialog.h"
 #include "../HydrogenApp.h"
+#include "../CommonStrings.h"
 #include "../InstrumentRack.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "SongEditor/SongEditorPanel.h"
@@ -328,12 +329,13 @@ void PlaylistDialog::clearPlaylist()
 	bool DiscardChanges = false;
 	bool IsModified = Playlist::get_instance()->getIsModified();
 
-	if( IsModified )
-	{
+	if( IsModified ) {
+		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 		switch(QMessageBox::information( this, "Hydrogen",
 										 tr("\nThe current playlist contains unsaved changes.\n"
 												"Do you want to discard the changes?\n"),
-										tr("&Discard"), tr("&Cancel"),
+										 pCommonStrings->getButtonDiscard(),
+										 pCommonStrings->getButtonCancel(),
 										 nullptr,      // Enter == button 0
 										 2 ) ) { // Escape == button 1
 		case 0: // Discard clicked or Alt+D pressed
@@ -972,7 +974,9 @@ void PlaylistDialog::onPreferencesChanged( H2Core::Preferences::Changes changes 
 		setFont( font );
 		m_pMenubar->setFont( font );
 		m_pPlaylistMenu->setFont( font );
+#ifndef WIN32
 		m_pScriptMenu->setFont( font );
+#endif
 
 		int ii;
 		

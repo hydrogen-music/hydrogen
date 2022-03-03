@@ -127,8 +127,8 @@ following command to install all basic and some optional requirements.
 ``` bash
 $ sudo apt-get install cmake qtbase5-dev qtbase5-dev-tools  \
 	qttools5-dev qttools5-dev-tools libqt5xmlpatterns5-dev  \
-	libarchive-dev libsndfile1-dev libasound2-dev liblo-dev \
-	libpulse-dev libcppunit-dev liblrdf-dev                 \
+	libqt5svg5-dev libarchive-dev libsndfile1-dev libasound2-dev  \
+	liblo-dev libpulse-dev libcppunit-dev liblrdf-dev  \
 	liblash-compat-dev librubberband-dev
 ```
 

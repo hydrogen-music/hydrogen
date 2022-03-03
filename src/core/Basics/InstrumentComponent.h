@@ -47,8 +47,10 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		InstrumentComponent( std::shared_ptr<InstrumentComponent> other );
 		~InstrumentComponent();
 
-		void				save_to( XMLNode* node, int component_id );
-		static std::shared_ptr<InstrumentComponent> 	load_from( XMLNode* node, const QString& dk_path );
+		void				save_to( XMLNode* node, int component_id, bool bRecentVersion = true );
+		static std::shared_ptr<InstrumentComponent> 	load_from( XMLNode* node,
+																   const QString& dk_path,
+																   bool bSilent = false );
 
 		std::shared_ptr<InstrumentLayer>	operator[]( int ix );
 		std::shared_ptr<InstrumentLayer>	get_layer( int idx );

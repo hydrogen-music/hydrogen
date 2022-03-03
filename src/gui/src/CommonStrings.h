@@ -139,6 +139,18 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getTimelineDisabledTimebaseSlave() const { return m_sTimelineDisabledTimebaseSlave; }
 	const QString& getPatternEditorLocked() const { return m_sPatternEditorLocked; }
 
+	const QString& getPreferencesNotCompiled() const { return m_sPreferencesNotCompiled; }
+	const QString& getPreferencesNone() const { return m_sPreferencesNone; }
+	const QString& getPreferencesJackTooltip() const { return m_sPreferencesJackTooltip; }
+
+	const QString& getButtonOk() const { return m_sButtonOk; }
+	const QString& getButtonSave() const { return m_sButtonSave; }
+	const QString& getButtonCancel() const { return m_sButtonCancel; }
+	const QString& getButtonDiscard() const { return m_sButtonDiscard; }
+	const QString& getButtonPlay() const { return m_sButtonPlay; }
+	const QString& getButtonPlayOriginalSample() const { return m_sButtonPlayOriginalSample; }
+	const QString& getUnsavedChanges() const { return m_sUnsavedChanges; }
+
 	// const QString& getDialogSongLoadError() const { return m_sDialogSongLoadError; }
 	// const QString& getDialogUnsavedChangesH1() const { return m_sDialogUnsavedChangedH1; }
 	// const QString& getDialogUnsavedChangesH2() const { return m_sDialogUnsavedChangedH2; }
@@ -237,7 +249,19 @@ private:
 	QString m_sTimelineDisabledPatternMode;
 	QString m_sTimelineDisabledTimebaseSlave;
 	QString m_sPatternEditorLocked;
+	
+	QString m_sPreferencesNotCompiled;
+	QString m_sPreferencesNone;
+	QString m_sPreferencesJackTooltip;
 
+	QString m_sButtonOk;
+	QString m_sButtonSave;
+	QString m_sButtonCancel;
+	QString m_sButtonDiscard;
+	QString m_sButtonPlay;
+	QString m_sButtonPlayOriginalSample;
+	QString m_sUnsavedChanges;
+	
 	// Not used yet. A redesign of the GUI startup is required first
 	// since these strings are required _before_ HydrogenApp was
 	// created.

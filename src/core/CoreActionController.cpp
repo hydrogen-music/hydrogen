@@ -32,6 +32,7 @@
 #include "core/OscServer.h"
 #include <core/MidiAction.h>
 #include "core/MidiMap.h"
+#include <core/Helpers/Xml.h>
 
 #include <core/IO/AlsaMidiDriver.h>
 #include <core/IO/MidiOutput.h>
@@ -388,6 +389,9 @@ bool CoreActionController::initExternalControlInterfaces()
 	}
 	
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+
+	bool bIsModified = pSong->getIsModified();
+	
 	setMasterVolume( pSong->getVolume() );
 	
 	//PER-INSTRUMENT/STRIP STATES
@@ -417,7 +421,7 @@ bool CoreActionController::initExternalControlInterfaces()
 	//MUTE_TOGGLE
 	setMasterIsMuted( Hydrogen::get_instance()->getSong()->getIsMuted() );
 
-	pHydrogen->setIsModified( false );
+	pHydrogen->setIsModified( bIsModified );
 	
 	return true;
 }
@@ -436,8 +440,8 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 	auto pSong = Song::getEmptySong();
 	
 	// Check whether the provided path is valid.
-	if ( !isSongPathValid( sSongPath ) ) {
-		// isSongPathValid takes care of the error log message.
+	if ( !Filesystem::isSongPathValid( sSongPath ) ) {
+		// Filesystem::isSongPathValid takes care of the error log message.
 
 		return false;
 	}
@@ -467,8 +471,8 @@ bool CoreActionController::openSong( const QString& sSongPath, const QString& sR
 	}
 	
 	// Check whether the provided path is valid.
-	if ( !isSongPathValid( sSongPath ) ) {
-		// isSongPathValid takes care of the error log message.
+	if ( !Filesystem::isSongPathValid( sSongPath, true ) ) {
+		// Filesystem::isSongPathValid takes care of the error log message.
 		return false;
 	}
 
@@ -525,7 +529,10 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 		// songs open during normal runs will be listed. In addition,
 		// empty songs - created and set when hitting "New Song" in
 		// the main menu - aren't listed either.
-		Preferences::get_instance()->insertRecentFile( pSong->getFilename() );
+		insertRecentFile( pSong->getFilename() );
+		if ( ! pHydrogen->isUnderSessionManagement() ) {
+			Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
+		}
 	}
 
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
@@ -538,14 +545,12 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 bool CoreActionController::saveSong() {
 	
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
-
-	// Get the current Song which is about to be saved.
-	auto pSong = pHydrogen->getSong();
 	
 	// Extract the path to the associate .h2song file.
 	QString sSongPath = pSong->getFilename();
@@ -556,8 +561,8 @@ bool CoreActionController::saveSong() {
 	}
 	
 	// Actual saving
-	bool saved = pSong->save( sSongPath );
-	if ( !saved ) {
+	bool bSaved = pSong->save( sSongPath );
+	if ( ! bSaved ) {
 		ERRORLOG( QString( "Current song [%1] could not be saved!" )
 				  .arg( sSongPath ) );
 		return false;
@@ -571,40 +576,35 @@ bool CoreActionController::saveSong() {
 	return true;
 }
 
-bool CoreActionController::saveSongAs( const QString& sSongPath ) {
+bool CoreActionController::saveSongAs( const QString& sNewFilename ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
 	
-	// Get the current Song which is about to be saved.
-	auto pSong = pHydrogen->getSong();
-	
 	// Check whether the provided path is valid.
-	if ( !isSongPathValid( sSongPath ) ) {
-		// isSongPathValid takes care of the error log message.
+	if ( !Filesystem::isSongPathValid( sNewFilename ) ) {
+		// Filesystem::isSongPathValid takes care of the error log message.
 		return false;
 	}
-	
-	if ( sSongPath.isEmpty() ) {
-		ERRORLOG( "Unable to save song. Empty filename!" );
-		return false;
-	}
+
+	QString sPreviousFilename( pSong->getFilename() );
+	pSong->setFilename( sNewFilename );
 	
 	// Actual saving
-	bool bSaved = pSong->save( sSongPath );
-	if ( !bSaved ) {
-		ERRORLOG( QString( "Current song [%1] could not be saved!" )
-				  .arg( sSongPath ) );
+	if ( ! saveSong() ) {
 		return false;
 	}
-	
-	// Update the status bar.
-	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
+
+	// Update the recentFiles list by replacing the former file name
+	// with the new one.
+	insertRecentFile( sNewFilename );
+	if ( ! pHydrogen->isUnderSessionManagement() ) {
+		Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
 	}
 	
 	return true;
@@ -638,38 +638,6 @@ bool CoreActionController::quit() {
 	return true;
 }
 
-bool CoreActionController::isSongPathValid( const QString& sSongPath ) {
-	
-	QFileInfo songFileInfo = QFileInfo( sSongPath );
-
-	if ( !songFileInfo.isAbsolute() ) {
-		ERRORLOG( QString( "Error: Unable to handle path [%1]. Please provide an absolute file path!" )
-						.arg( sSongPath.toLocal8Bit().data() ));
-		return false;
-	}
-	
-	if ( songFileInfo.exists() ) {
-		if ( !songFileInfo.isReadable() ) {
-			ERRORLOG( QString( "Error: Unable to handle path [%1]. You must have permissions to read the file!" )
-						.arg( sSongPath.toLocal8Bit().data() ));
-			return false;
-		}
-		if ( !songFileInfo.isWritable() ) {
-			WARNINGLOG( QString( "You don't have permissions to write to the Song found in path [%1]. It will be opened as read-only (no autosave)." )
-						.arg( sSongPath.toLocal8Bit().data() ));
-			EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
-		}
-	}
-	
-	if ( songFileInfo.suffix() != "h2song" ) {
-		ERRORLOG( QString( "Error: Unable to handle path [%1]. The provided file must have the suffix '.h2song'!" )
-					.arg( sSongPath.toLocal8Bit().data() ));
-		return false;
-	}
-	
-	return true;
-}
-
 bool CoreActionController::activateTimeline( bool bActivate ) {
 	auto pHydrogen = Hydrogen::get_instance();
 
@@ -693,15 +661,22 @@ bool CoreActionController::activateTimeline( bool bActivate ) {
 
 bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pTimeline = pHydrogen->getTimeline();
 
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
-	
-	auto pTimeline = pHydrogen->getTimeline();
+
+	pAudioEngine->lock( RIGHT_HERE );
+
 	pTimeline->deleteTempoMarker( nPosition );
 	pTimeline->addTempoMarker( nPosition, fBpm );
+	pHydrogen->getAudioEngine()->handleTimelineChange();
+
+	pAudioEngine->unlock();
+
 	pHydrogen->setIsModified( true );
 
 	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
@@ -711,13 +686,56 @@ bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
 
 bool CoreActionController::deleteTempoMarker( int nPosition ) {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	pAudioEngine->lock( RIGHT_HERE );
+	
+	pHydrogen->getTimeline()->deleteTempoMarker( nPosition );
+	pHydrogen->getAudioEngine()->handleTimelineChange();
+
+	pAudioEngine->unlock();
+	
+	pHydrogen->setIsModified( true );
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
+
+	return true;
+}
+
+bool CoreActionController::addTag( int nPosition, const QString& sText ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pTimeline = pHydrogen->getTimeline();
 
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
+
+	pTimeline->deleteTag( nPosition );
+	pTimeline->addTag( nPosition, sText );
+
+	pHydrogen->setIsModified( true );
+
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
+
+	return true;
+}
+
+bool CoreActionController::deleteTag( int nPosition ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	
-	pHydrogen->getTimeline()->deleteTempoMarker( nPosition );
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	pHydrogen->getTimeline()->deleteTag( nPosition );
+	
 	pHydrogen->setIsModified( true );
 	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
 
@@ -802,15 +820,35 @@ bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent 
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
 	
-	pSong->setIsLoopEnabled( bActivate );
+
+	bool bChange = false;
+
+	if ( bActivate &&
+		 pSong->getLoopMode() != Song::LoopMode::Enabled ) {
+		pSong->setLoopMode( Song::LoopMode::Enabled );
+		bChange = true;
+		
+	} else if ( ! bActivate &&
+				pSong->getLoopMode() == Song::LoopMode::Enabled ) {
+		// If the transport was already looped at least once, disabling
+		// loop mode will result in immediate stop. Instead, we want to
+		// stop transport at the end of the song.
+		if ( pSong->lengthInTicks() < pAudioEngine->getTick() ) {
+			pSong->setLoopMode( Song::LoopMode::Finishing );
+		} else {
+			pSong->setLoopMode( Song::LoopMode::Disabled );
+		}
+		bChange = true;
+	}
 	
-	if ( bTriggerEvent ) {
+	if ( bTriggerEvent && bChange ) {
 		EventQueue::get_instance()->push_event( EVENT_LOOP_MODE_ACTIVATION, static_cast<int>( bActivate ) );
 	}
 	
@@ -825,26 +863,331 @@ bool CoreActionController::loadDrumkit( const QString& sDrumkitName, bool bCondi
 		return false;
 	}
 
-	return loadDrumkit( pDrumkit, bConditional );
+	int nRet = loadDrumkit( pDrumkit, bConditional );
+	delete pDrumkit;
+
+	return nRet;
 }
 
 bool CoreActionController::loadDrumkit( Drumkit* pDrumkit, bool bConditional ) {
-	bool bReturnValue = true;
-	
+
 	if ( pDrumkit != nullptr ) {
 		if ( Hydrogen::get_instance()->loadDrumkit( pDrumkit, bConditional ) == 0 ) {
 			EventQueue::get_instance()->push_event( EVENT_DRUMKIT_LOADED, 0 );
 		} else {
 			ERRORLOG( "Unable to load drumkit" );
-			bReturnValue = false;
+			return false;
 		}
-		delete pDrumkit;
 	} else {
 		ERRORLOG( "Provided Drumkit is not valid" );
-		bReturnValue =  false;
+		return false;
 	}
 	
-	return bReturnValue;
+	return true;
+}
+
+bool CoreActionController::upgradeDrumkit( const QString& sDrumkitPath, const QString& sNewPath ) {
+
+	if ( sNewPath.isEmpty() ) {
+		INFOLOG( QString( "Upgrading kit at [%1] inplace." )
+				 .arg( sDrumkitPath ) );
+	} else {
+		INFOLOG( QString( "Upgrading kit at [%1] into [%2]." )
+				 .arg( sDrumkitPath ).arg( sNewPath ) );
+	}
+
+	QFileInfo sourceFileInfo( sDrumkitPath );
+	if ( ! sNewPath.isEmpty() ) {
+		// Check whether there is already a file or directory
+		// present. The latter has to be writable. If none is present,
+		// create a folder.
+		if ( ! Filesystem::path_usable( sNewPath, true, false ) ) {
+			return false;
+		}
+	} else {
+		// We have to assure that the source folder is not just
+		// readable since an inplace upgrade was requested
+		if ( ! Filesystem::dir_writable( sourceFileInfo.dir().absolutePath(),
+										 true ) ) {
+			ERRORLOG( QString( "Unable to upgrade drumkit [%1] in place: Folder is in read-only mode" )
+					  .arg( sDrumkitPath ) );
+			return false;
+		}
+	}
+
+	QString sTemporaryFolder, sDrumkitDir;
+	// Whether the drumkit was provided as compressed .h2drumkit file.
+	bool bIsCompressed;
+	auto pDrumkit = retrieveDrumkit( sDrumkitPath, &bIsCompressed,
+									 &sDrumkitDir, &sTemporaryFolder );
+
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( QString( "Unable to load drumkit from source path [%1]" )
+				  .arg( sDrumkitPath ) );
+		return false;
+	}
+
+	// If the drumkit is not updated inplace, we also need to copy
+	// all samples and metadata, like images.
+	QString sPath;
+	if ( ! sNewPath.isEmpty() ) {
+
+		// When dealing with a compressed drumkit, we can just leave
+		// it in the temporary folder and copy the compressed content
+		// to the destination right away.
+		if ( ! bIsCompressed ) {
+			// Copy content
+			QDir drumkitDir( sDrumkitDir );
+			for ( const auto& ssFile : drumkitDir.entryList( QDir::Files ) ) {
+
+				// We handle the drumkit file later
+				if ( ssFile.contains( ".xml" ) ) {
+					continue;
+				}
+				Filesystem::file_copy( drumkitDir.absolutePath() + "/" + ssFile,
+									   sNewPath + "/" + ssFile, true, true );
+			}
+			sPath = sNewPath;
+		} else {
+			sPath = sDrumkitDir;
+		}
+		
+	} else {
+		// Upgrade inplace.
+
+		if ( ! bIsCompressed ) {
+			// Make a backup of the original file in order to make the
+			// upgrade reversible.
+			QString sBackupPath =
+				Filesystem::drumkit_backup_path( Filesystem::drumkit_file( sDrumkitDir ) );
+			if ( ! Filesystem::file_copy( Filesystem::drumkit_file( sDrumkitDir ),
+										  sBackupPath, true, true ) ) {
+				ERRORLOG( QString( "Unable to backup source drumkit XML file from [%1] to [%2]. We abort instead of overwriting things." )
+						  .arg( Filesystem::drumkit_file( sDrumkitDir ) )
+						  .arg( sBackupPath ) );
+				delete pDrumkit;
+				return false;
+			}
+		} else {
+			QString sBackupPath = Filesystem::drumkit_backup_path( sDrumkitPath );
+			if ( ! Filesystem::file_copy( sDrumkitPath, sBackupPath, true, true ) ) {
+				ERRORLOG( QString( "Unable to backup source .h2drumkit file from [%1] to [%2]. We abort instead of overwriting things." )
+						  .arg( sDrumkitPath ).arg( sBackupPath ) );
+				delete pDrumkit;
+				return false;
+			}
+		}
+
+		sPath = sDrumkitDir;
+	}
+
+	if ( ! pDrumkit->save_file( Filesystem::drumkit_file( sPath ), true, -1, true ) ) {
+		ERRORLOG( QString( "Error while saving upgraded kit to [%1]" )
+				  .arg( sPath ) );
+		delete pDrumkit;
+		return false;
+	}
+
+	// Compress the updated drumkit again in order to provide the same
+	// format handed over as input.
+	if ( bIsCompressed ) {
+		QString sExportPath;
+		if ( ! sNewPath.isEmpty() ) {
+			sExportPath = sNewPath;
+		} else {
+			sExportPath = sourceFileInfo.dir().absolutePath();
+		}
+		
+		if ( ! pDrumkit->exportTo( sExportPath, "", true, false ) ) {
+			ERRORLOG( QString( "Unable to export upgrade drumkit to [%1]" )
+					  .arg( sExportPath ) );
+			delete pDrumkit;
+			return false;
+		}
+
+		INFOLOG( QString( "Upgraded drumkit exported as [%1]" )
+				 .arg( sExportPath + "/" + pDrumkit->get_name() +
+					   Filesystem::drumkit_ext ) );
+	}
+
+	// Upgrade was successful. Cleanup
+	if ( ! sTemporaryFolder.isEmpty() ) {
+		// Filesystem::rm( sTemporaryFolder, true, true );
+	}
+
+	INFOLOG( QString( "Drumkit [%1] successfully upgraded!" )
+			 .arg( sDrumkitPath ) );
+
+	delete pDrumkit;
+
+	return true;
+}
+
+bool CoreActionController::validateDrumkit( const QString& sDrumkitPath ) {
+
+	INFOLOG( QString( "Validating kit [%1]." ).arg( sDrumkitPath ) );
+
+	QString sTemporaryFolder, sDrumkitDir;
+	// Whether the drumkit was provided as compressed .h2drumkit file.
+	bool bIsCompressed;
+	auto pDrumkit = retrieveDrumkit( sDrumkitPath, &bIsCompressed,
+									 &sDrumkitDir, &sTemporaryFolder );
+
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( QString( "Unable to load drumkit from source path [%1]" )
+				  .arg( sDrumkitPath ) );
+		return false;
+	}
+
+	if ( ! Filesystem::drumkit_valid( sDrumkitDir ) ) {
+		ERRORLOG( QString( "Something went wrong in the drumkit retrieval of [%1]. Unable to load from [%2]" )
+				  .arg( sDrumkitPath ).arg( sDrumkitDir ) );
+		delete pDrumkit;
+		return false;
+	}
+
+	XMLDoc doc;
+	if ( !doc.read( Filesystem::drumkit_file( sDrumkitDir ),
+					Filesystem::drumkit_xsd_path(), true ) ) {
+		ERRORLOG( QString( "Drumkit file [%1] does not comply with the current XSD definition" )
+				  .arg( Filesystem::drumkit_file( sDrumkitDir ) ) );
+		delete pDrumkit;
+		return false;
+	}
+	
+	XMLNode root = doc.firstChildElement( "drumkit_info" );
+	if ( root.isNull() ) {
+		ERRORLOG( QString( "Drumkit file [%1] seems bricked: 'drumkit_info' node not found" )
+				  .arg( Filesystem::drumkit_file( sDrumkitDir ) ) );
+		delete pDrumkit;
+		return false;
+	}
+
+	INFOLOG( QString( "Drumkit [%1] is valid!" )
+			 .arg( sDrumkitPath ) );
+	
+	return true;
+}
+
+Drumkit* CoreActionController::retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed, QString *sDrumkitDir, QString* sTemporaryFolder ) {
+
+	Drumkit* pDrumkit = nullptr;
+
+	*bIsCompressed = false;
+	*sTemporaryFolder = "";
+	*sDrumkitDir = "";
+
+	QFileInfo sourceFileInfo( sDrumkitPath );
+
+	if ( Filesystem::dir_readable( sDrumkitPath, true ) ) {
+
+		// Providing the folder containing the drumkit
+		pDrumkit = Drumkit::load( sDrumkitPath, false, false, true );
+		*sDrumkitDir = sDrumkitPath;
+		
+	} else if ( sourceFileInfo.fileName() == Filesystem::drumkit_xml() &&
+				Filesystem::file_readable( sDrumkitPath, true ) ) {
+
+		// Providing the path of a drumkit.xml file within a drumkit
+		// folder.
+		pDrumkit = Drumkit::load_file( sDrumkitPath, false, false, true );
+		*sDrumkitDir = sourceFileInfo.dir().absolutePath();
+			
+	} else if ( ( "." + sourceFileInfo.suffix() ) == Filesystem::drumkit_ext &&
+				Filesystem::file_readable( sDrumkitPath, true ) ) {
+
+		*bIsCompressed = true;
+		
+		// Temporary folder used to extract a compressed drumkit (
+		// .h2drumkit ).
+		QString sTemplateName( Filesystem::tmp_dir() + "/" +
+							   sourceFileInfo.baseName() + "_XXXXXX" );
+		QTemporaryDir tmpDir( sTemplateName );
+		tmpDir.setAutoRemove( false );
+		if ( ! tmpDir.isValid() ) {
+			ERRORLOG( QString( "Unable to create temporary folder using template name [%1]" )
+					  .arg( sTemplateName ) );
+			return nullptr;
+		}
+		
+		*sTemporaryFolder = tmpDir.path();
+
+		// Providing the path to a compressed .h2drumkit file. It will
+		// be extracted to a temporary folder and loaded from there.
+		if ( ! Drumkit::install( sDrumkitPath, tmpDir.path(), true ) ) {
+			ERRORLOG( QString( "Unabled to extract provided drumkit [%1] into [%2]" )
+					  .arg( sDrumkitPath ).arg( tmpDir.path() ) );
+			return nullptr;
+		}
+
+		// INFOLOG( QString( "Extracting drumkit [%1] into [%2]" )
+		// 		 .arg( sDrumkitPath ).arg( tmpDir.path() ) );
+
+		// The extracted folder is expected to contain a single
+		// directory named as the drumkit itself. But some kits
+		// deviate from the latter condition. So, we just use the
+		// former one.
+		QDir extractedDir( tmpDir.path() );
+		QStringList extractedContent =
+			extractedDir.entryList( QDir::AllEntries | QDir::NoDotAndDotDot );
+		QStringList extractedFolders =
+			extractedDir.entryList( QDir::Dirs | QDir::NoDotAndDotDot );
+		if ( ( extractedContent.size() != extractedFolders.size() ) ||
+			 ( extractedFolders.size() != 1 ) ) {
+			ERRORLOG( QString( "Unsupported content of [%1]. Expected a single folder within the archive containing all samples, metadata, as well as the drumkit.xml file. Instead:\n" )
+					  .arg( sDrumkitPath ) );
+			for ( const auto& sFile : extractedContent ) {
+				ERRORLOG( sFile );
+			}
+			return nullptr;
+		}
+
+		*sDrumkitDir = tmpDir.path() + "/" + extractedFolders[0];
+		
+		pDrumkit = Drumkit::load( *sDrumkitDir, false, false, true );
+		
+	} else {
+		ERRORLOG( QString( "Provided source path [%1] does not point to a Hydrogen drumkit" )
+				  .arg( sDrumkitPath ) );
+		return nullptr;
+	}
+
+	return pDrumkit;
+}
+
+bool CoreActionController::extractDrumkit( const QString& sDrumkitPath, const QString& sTargetDir ) {
+
+	QString sTarget;
+	if ( sTargetDir.isEmpty() ) {
+		INFOLOG( QString( "Installing drumkit [%1]" ).arg( sDrumkitPath ) );
+		sTarget = Filesystem::usr_drumkits_dir();
+	} else {
+		INFOLOG( QString( "Extracting drumkit [%1] to [%2]" )
+				 .arg( sDrumkitPath ).arg( sTargetDir ) );
+		sTarget = sTargetDir;
+	}
+
+	if ( ! Filesystem::path_usable( sTarget, true, false ) ) {
+		ERRORLOG( QString( "Target dir [%1] is neither a writable folder nor can it be created." )
+				  .arg( sTarget ) );
+		return false;
+	}
+
+	QFileInfo sKitInfo( sDrumkitPath );
+	if ( ! Filesystem::file_readable( sDrumkitPath, true ) ||
+		 "." + sKitInfo.suffix() != Filesystem::drumkit_ext ) {
+		ERRORLOG( QString( "Invalid drumkit path [%1]. Please provide an absolute path to a .h2drumkit file." )
+				  .arg( sDrumkitPath ) );
+		return false;
+	}
+
+	if ( ! Drumkit::install( sDrumkitPath, sTarget, true ) ) {
+		ERRORLOG( QString( "Unabled to extract provided drumkit [%1] into [%2]" )
+				  .arg( sDrumkitPath ).arg( sTarget ) );
+		return false;
+	}
+
+	return true;
 }
 	
 bool CoreActionController::locateToColumn( int nPatternGroup ) {
@@ -865,7 +1208,7 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
-	long nTotalTick = pAudioEngine->getTickForColumn( nPatternGroup );
+	long nTotalTick = pHydrogen->getTickForColumn( nPatternGroup );
 	if ( nTotalTick < 0 ) {
 		// There is no pattern inserted in the SongEditor.
 		if ( pHydrogen->getMode() == Song::Mode::Song ) {
@@ -879,20 +1222,13 @@ bool CoreActionController::locateToColumn( int nPatternGroup ) {
 		}
 	}
 
-	locateToFrame( static_cast<unsigned long>( nTotalTick * pAudioEngine->getTickSize() ) );
-
-	// TODO: replace this by a boolian indicating a relocation in the
-	// current cycle of the audio engine.
-	// pHydrogen->setTimelineBpm();
-	
-	return true;
+	return locateToTick( nTotalTick );
 }
 
-bool CoreActionController::locateToFrame( unsigned long nFrame, bool bWithJackBroadcast ) {
+bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
 
 	const auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pDriver = pHydrogen->getAudioOutput();
 
 	if ( pHydrogen->getSong() == nullptr ) {
 		ERRORLOG( "no song set" );
@@ -900,31 +1236,10 @@ bool CoreActionController::locateToFrame( unsigned long nFrame, bool bWithJackBr
 	}
 
 	pAudioEngine->lock( RIGHT_HERE );
+    
+	pAudioEngine->locate( nTick, bWithJackBroadcast );
 	
-	if ( pAudioEngine->getState() != AudioEngine::State::Playing ) {
-		// Required to move the playhead when clicking e.g. fast
-		// forward or the song editor ruler. The variables set in here
-		// do not interfere with the realtime audio (playback of MIDI
-		// events of virtual keyboard) and all other position
-		// variables in the AudioEngine will be set properly with
-		// respect to them by then.
-
-		int nTotalTick = static_cast<int>(nFrame / pAudioEngine->getTickSize());
-		int nPatternStartTick;
-		int nColumn = pAudioEngine->getColumnForTick( nTotalTick, pHydrogen->getSong()->getIsLoopEnabled(), &nPatternStartTick );
-
-		pAudioEngine->setColumn( nColumn );
-		pAudioEngine->setPatternTickPosition( nTotalTick - nPatternStartTick );
-	}
-	pAudioEngine->locate( nFrame, bWithJackBroadcast );
 	pAudioEngine->unlock();
-
-#ifdef H2CORE_HAVE_JACK
-	if ( pHydrogen->haveJackTransport() &&
-		 pAudioEngine->getState() != AudioEngine::State::Playing ) {
-		static_cast<JackAudioDriver*>(pDriver)->m_currentPos = nFrame;
-	}
-#endif
 	return true;
 }
 
@@ -1082,9 +1397,12 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 		return false;
 	}
 	
-	pHydrogen->setIsModified( true );
+	pHydrogen->updateSongSize();
+	
 	pHydrogen->getAudioEngine()->unlock();
 
+	pHydrogen->setIsModified( true );
+	
 	// Update the SongEditor.
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG_EDITOR, 0 );
@@ -1093,4 +1411,35 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 	return true;
 }
 
+void CoreActionController::insertRecentFile( const QString sFilename ){
+
+	auto pPref = Preferences::get_instance();
+
+	// The most recent file will always be added on top and possible
+	// duplicates are removed later on.
+	bool bAlreadyContained = false;
+
+	std::vector<QString> recentFiles = pPref->getRecentFiles();
+	
+	recentFiles.insert( recentFiles.begin(), sFilename );
+
+	if ( std::find( recentFiles.begin(), recentFiles.end(),
+					sFilename ) != recentFiles.end() ) {
+		// Eliminate all duplicates in the list while keeping the one
+		// inserted at the beginning. Also, in case the file got renamed,
+		// remove it's previous name from the list.
+		std::vector<QString> sTmpVec;
+		for ( const auto& ssFilename : recentFiles ) {
+			if ( std::find( sTmpVec.begin(), sTmpVec.end(), ssFilename ) ==
+				 sTmpVec.end() ) {
+				// Particular file is not contained yet.
+				sTmpVec.push_back( ssFilename );
+			}
+		}
+
+		recentFiles = sTmpVec;
+	}
+
+	pPref->setRecentFiles( recentFiles );
+}
 }

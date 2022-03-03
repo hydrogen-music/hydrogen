@@ -80,7 +80,12 @@ public:
 	 */
 	static void drawListBackground( QPainter* p, QRect rect, QColor background,
 									bool bHovered );
-
+	/** If a widget is marked inactive the value of its background
+		color are reduced by this factor.*/
+	static QColor makeWidgetColorInactive( QColor color );
+		/** If a widget is marked inactive the value of its text color
+		are reduced by this factor.*/
+	static QColor makeTextColorInactive( QColor color );
 };
 
 

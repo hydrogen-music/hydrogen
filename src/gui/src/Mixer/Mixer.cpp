@@ -256,7 +256,7 @@ void Mixer::soloClicked(MixerLine* ref)
 	CoreActionController* pController = pHydrogen->getCoreActionController();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
-	int nInstruments = pInstrList->size();
+	int nInstruments = std::min( pInstrList->size(), MAX_INSTRUMENTS );
 
 	int nLine = findMixerLineByRef(ref);
 
@@ -276,9 +276,15 @@ void Mixer::soloClicked(MixerLine* ref)
 /// used in PatternEditorInstrumentList
 void Mixer::soloClicked(uint nLine)
 {
+	if ( nLine < 0 || nLine >= MAX_INSTRUMENTS ) {
+		ERRORLOG( QString( "Selected MixerLine [%1] out of bound [0,%2)" )
+				  .arg( nLine ).arg( MAX_INSTRUMENTS ) );
+		return;
+	}
+
 	MixerLine * pMixerLine = m_pMixerLine[ nLine ];
 
-	if( pMixerLine ){
+	if( pMixerLine != nullptr ){
 		pMixerLine->setSoloClicked( !pMixerLine->isSoloClicked() );
 		soloClicked( pMixerLine );
 	}
@@ -286,12 +292,17 @@ void Mixer::soloClicked(uint nLine)
 
 }
 
-bool Mixer::isSoloClicked( uint n )
+bool Mixer::isSoloClicked( uint nLine )
 {
-	if ( n >= MAX_INSTRUMENTS || m_pMixerLine[ n ] == nullptr ) {
+	if ( nLine < 0 || nLine >= MAX_INSTRUMENTS ) {
+		ERRORLOG( QString( "Selected MixerLine [%1] out of bound [0,%2)" )
+				  .arg( nLine ).arg( MAX_INSTRUMENTS ) );
 		return false;
 	}
-	return m_pMixerLine[ n ]->isSoloClicked();
+	if ( m_pMixerLine[ nLine ] == nullptr ) {
+		return false;
+	}
+	return m_pMixerLine[ nLine ]->isSoloClicked();
 }
 
 void Mixer::noteOnClicked( MixerLine* ref )
@@ -374,6 +385,10 @@ void Mixer::masterVolumeChanged(MasterMixerLine* ref)
 
 void Mixer::updateMixer()
 {
+	if ( ! isVisible() ) {
+		// Skip redundant updates if mixer is not visible.
+		return;
+	}
 	Preferences *pPref = Preferences::get_instance();
 	bool bShowPeaks = pPref->showInstrumentPeaks();
 
@@ -712,8 +727,13 @@ void Mixer::knobChanged(MixerLine* ref, int nKnob) {
 
 void Mixer::noteOnEvent( int nInstrument )
 {
-	if ( m_pMixerLine[ nInstrument ] ) {
-		m_pMixerLine[ nInstrument ]->setActivity( 100 );
+	if ( nInstrument >= 0 && nInstrument < MAX_INSTRUMENTS ) {
+		if ( m_pMixerLine[ nInstrument ] != nullptr ) {
+			m_pMixerLine[ nInstrument ]->setActivity( 100 );
+		}
+	} else {
+		ERRORLOG( QString( "Selected MixerLine [%1] out of bound [0,%2)" )
+				  .arg( nInstrument ).arg( MAX_INSTRUMENTS ) );
 	}
 }
 
@@ -812,7 +832,12 @@ void Mixer::ladspaVolumeChanged( LadspaFXMixerLine* ref)
 
 void Mixer::getPeaksInMixerLine( uint nMixerLine, float& fPeak_L, float& fPeak_R )
 {
-	if ( nMixerLine < MAX_INSTRUMENTS ) {
+	if ( nMixerLine < 0 || nMixerLine >= MAX_INSTRUMENTS ) {
+		ERRORLOG( QString( "Selected MixerLine [%1] out of bound [0,%2)" )
+				  .arg( nMixerLine ).arg( MAX_INSTRUMENTS ) );
+		return;
+	}
+	if ( m_pMixerLine[ nMixerLine ] != nullptr ) {
 		fPeak_L = m_pMixerLine[ nMixerLine ]->getPeak_L();
 		fPeak_R = m_pMixerLine[ nMixerLine ]->getPeak_R();
 	}

@@ -58,6 +58,7 @@ class MainForm :  public QMainWindow, protected WidgetWithScalableFont<8, 10, 12
 		virtual void jacksessionEvent( int nValue) override;
 		virtual void playlistLoadSongEvent(int nIndex) override;
 		virtual void updateSongEvent( int nValue ) override;
+	virtual void quitEvent( int ) override;
 
 		/** Handles the loading and saving of the H2Core::Preferences
 		 * from the core part of H2Core::Hydrogen.
@@ -112,7 +113,15 @@ public slots:
 		 */
 		void action_file_open();
 		void action_file_openDemo();
-		void action_file_save();
+	/**
+	 * Saves the current song to disk.
+	 *
+	 * As Song::m_sFilename is not set by the GUI but by the core,
+	 * this function serves both the "save as" functionality (with
+	 * sNewFilename being non-empty) and the "save" one.
+	 */
+		void action_file_save( const QString& sNewFilename );
+	void action_file_save();
 		
 		/**
 		 * Project > Save As / Export from Session handling function.

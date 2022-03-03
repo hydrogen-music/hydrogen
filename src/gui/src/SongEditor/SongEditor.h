@@ -174,7 +174,7 @@ class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public S
 		QPoint movingGridOffset() const;
 
 		//! Mouse position during selection gestures (used to detect crossing cell boundaries)
-		QPoint m_previousMousePosition, m_currentMousePosition;
+		QPoint m_previousMousePosition, m_currentMousePosition, m_previousGridOffset;
 
 		//! @name Change the mouse cursor during mouse gestures
 		//! @{
@@ -356,14 +356,13 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 
 		uint getGridWidth();
 		void setGridWidth (uint width);
-		void editTagAction( QString text, int position, QString textToReplace );
-		void deleteTagAction( QString text, int position );
-
 	int getPlayheadWidth() const;
 	void tempoChangedEvent( int ) override;
 	void columnChangedEvent( int ) override;
 	void songModeActivationEvent( int nValue ) override;
+	
 	void timelineActivationEvent( int nValue ) override;
+	void timelineUpdateEvent( int nValue ) override;
 	void jackTimebaseStateChangedEvent( int nValue ) override;
 													   
 

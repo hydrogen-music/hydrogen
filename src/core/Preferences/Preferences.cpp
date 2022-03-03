@@ -187,7 +187,7 @@ Preferences::Preferences()
 	m_bJackTransportMode = true;
 	m_bJackConnectDefaults = true;
 	m_bJackTrackOuts = false;
-	m_bJackTimebaseEnabled = true;
+	m_bJackTimebaseEnabled = false;
 	m_bJackMasterMode = NO_JACK_TIME_MASTER;
 	m_JackTrackOutputMode = JackTrackOutputMode::postFader;
 	m_JackBBTSync = JackBBTSyncMethod::constMeasure;
@@ -456,7 +456,7 @@ void Preferences::loadPreferences( bool bGlobal )
 					}
 
 					//jack time master
-					m_bJackTimebaseEnabled = LocalFileMng::readXmlBool( jackDriverNode, "jack_timebase_enabled", true );
+					m_bJackTimebaseEnabled = LocalFileMng::readXmlBool( jackDriverNode, "jack_timebase_enabled", false );
 					QString tmMode = LocalFileMng::readXmlString( jackDriverNode, "jack_transport_mode_master", "NO_JACK_TIME_MASTER" );
 					if ( tmMode == "NO_JACK_TIME_MASTER" ) {
 						m_bJackMasterMode = NO_JACK_TIME_MASTER;
@@ -1264,38 +1264,6 @@ void Preferences::setMostRecentFX( QString FX_name )
 
 	m_recentFX.push_front( FX_name );
 }
-
-void Preferences::insertRecentFile( const QString sFilename ){
-
-	bool bAlreadyContained =
-		std::find( m_recentFiles.begin(), m_recentFiles.end(),
-				   sFilename ) != m_recentFiles.end();
-	
-	m_recentFiles.insert( m_recentFiles.begin(), sFilename );
-
-	if ( bAlreadyContained ) {
-		// Eliminate all duplicates in the list while keeping the one
-		// inserted at the beginning.
-		setRecentFiles( m_recentFiles );
-	}
-}
-
-void Preferences::setRecentFiles( const std::vector<QString> recentFiles )
-{
-	// find single filenames. (skip duplicates)
-	std::vector<QString> sTmpVec;
-	for ( const auto& ssFilename : recentFiles ) {
-		if ( std::find( sTmpVec.begin(), sTmpVec.end(), ssFilename) ==
-			 sTmpVec.end() ) {
-			// Particular file is not contained yet.
-			sTmpVec.push_back( ssFilename );
-		}
-	}
-
-	m_recentFiles = sTmpVec;
-}
-
-
 
 /// Read the xml nodes related to window properties
 WindowProperties Preferences::readWindowProperties( QDomNode parent, const QString& windowName, WindowProperties defaultProp )

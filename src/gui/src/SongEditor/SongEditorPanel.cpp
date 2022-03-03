@@ -217,6 +217,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 									 false, true );
 	m_pMutePlaybackBtn->move( 158, 4 );
 	m_pMutePlaybackBtn->hide();
+	m_pMutePlaybackBtn->setChecked( pHydrogen->getPlaybackTrackState() );
 	connect( m_pMutePlaybackBtn, SIGNAL( pressed() ), this, SLOT( mutePlaybackTrackBtnPressed() ) );
 	m_pMutePlaybackBtn->setChecked( !pSong->getPlaybackTrackEnabled() );
 	
@@ -611,7 +612,12 @@ void SongEditorPanel::downBtnClicked()
 
 void SongEditorPanel::clearSequence()
 {
-	int res = QMessageBox::information( this, "Hydrogen", tr( "Warning, this will erase your pattern sequence.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	int res = QMessageBox::information( this, "Hydrogen",
+										tr( "Warning, this will erase your pattern sequence.\nAre you sure?"),
+										pCommonStrings->getButtonOk(),
+										pCommonStrings->getButtonCancel(),
+										nullptr, 1 );
 	if ( res == 1 ) {
 		return;
 	}
@@ -626,8 +632,10 @@ void SongEditorPanel::clearSequence()
 
 void SongEditorPanel::restoreGroupVector( QString filename )
 {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	//clear the old sequese
-	std::vector<PatternList*> *pPatternGroupsVect = Hydrogen::get_instance()->getSong()->getPatternGroupVector();
+	std::vector<PatternList*> *pPatternGroupsVect = pHydrogen->getSong()->getPatternGroupVector();
 	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
 		PatternList *pPatternList = (*pPatternGroupsVect)[i];
 		pPatternList->clear();
@@ -635,7 +643,11 @@ void SongEditorPanel::restoreGroupVector( QString filename )
 	}
 	pPatternGroupsVect->clear();
 
-	Hydrogen::get_instance()->getSong()->readTempPatternList( filename );
+	pAudioEngine->lock( RIGHT_HERE );
+	pHydrogen->getSong()->readTempPatternList( filename );
+	pHydrogen->updateSongSize();
+	pAudioEngine->unlock();
+	
 	m_pSongEditor->updateEditorandSetTrue();
 	updateAll();
 }
@@ -778,28 +790,49 @@ void SongEditorPanel::mutePlaybackTrackBtnPressed()
 
 	bool bState = ! m_pMutePlaybackBtn->isChecked();
 
-	bState = pHydrogen->setPlaybackTrackState( bState );
-	m_pMutePlaybackBtn->setChecked( !bState );
+	bState = pHydrogen->setPlaybackTrackState( ! bState );
+	m_pMutePlaybackBtn->setChecked( bState );
 }
 
 void SongEditorPanel::editPlaybackTrackBtnPressed()
 {
-	if ( Hydrogen::get_instance()->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
-		Hydrogen::get_instance()->sequencer_stop();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pHydrogen->getAudioEngine()->getState() ==
+		 H2Core::AudioEngine::State::Playing ) {
+		pHydrogen->sequencer_stop();
 	}
 
-	QString sPath = Preferences::get_instance()->getLastOpenPlaybackTrackDirectory();
+	QString sPath, sFilename;
+
+	if ( ! pSong->getPlaybackTrackFilename().isEmpty() ) {
+		QFileInfo fileInfo( pSong->getPlaybackTrackFilename() );
+		sFilename = pSong->getPlaybackTrackFilename();
+		sPath = fileInfo.absoluteDir().absolutePath();
+	} else {
+		sFilename = "";
+		sPath = Preferences::get_instance()->getLastOpenPlaybackTrackDirectory();
+	}
+	
 	if ( ! Filesystem::dir_readable( sPath, false ) ){
 		sPath = QDir::homePath();
 	}
 	
 	//use AudioFileBrowser, but don't allow multi-select. Also, hide all no necessary controls.
-	AudioFileBrowser *pFileBrowser = new AudioFileBrowser( nullptr, false, false, sPath );
+	AudioFileBrowser *pFileBrowser =
+		new AudioFileBrowser( nullptr, false, false, sPath, sFilename );
 	
 	QStringList filenameList;
 	
 	if ( pFileBrowser->exec() == QDialog::Accepted ) {
-		Preferences::get_instance()->setLastOpenPlaybackTrackDirectory( pFileBrowser->getSelectedDirectory() );
+
+		// Only overwrite the default directory if we didn't start
+		// from an existing file or the final directory differs from
+		// the starting one.
+		if ( sFilename.isEmpty() ||
+			 sPath != pFileBrowser->getSelectedDirectory() ) {
+			Preferences::get_instance()->setLastOpenPlaybackTrackDirectory( pFileBrowser->getSelectedDirectory() );
+		}
 		filenameList = pFileBrowser->getSelectedFiles();
 	}
 
@@ -813,7 +846,7 @@ void SongEditorPanel::editPlaybackTrackBtnPressed()
 		return;
 	}
 
-	Hydrogen::get_instance()->loadPlaybackTrack( filenameList[2] );
+	pHydrogen->loadPlaybackTrack( filenameList[2] );
 	
 	updateAll();
 }
@@ -1039,8 +1072,11 @@ void SongEditorPanel::setTimelineEnabled( bool bEnabled ) {
 	HydrogenApp::get_instance()->setStatusBarMessage( sMessage, 5000);
 }
 
-void SongEditorPanel::updateSongEditorEvent( int ) {
-	updateAll();
+void SongEditorPanel::updateSongEditorEvent( int nValue ) {
+	// A new song got loaded
+	if ( nValue == 0 ) {
+		updateAll();
+	}
 }
 
 void SongEditorPanel::columnChangedEvent( int ) {

@@ -84,7 +84,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pTimeDisplay->move( 13, 7 );
 	m_pTimeDisplay->setAlignment( Qt::AlignRight );
 	m_pTimeDisplay->setText( "00:00:00:000" );
-	m_pTimeDisplay->setStyleSheet( "font-size: 19px;" );
+	m_pTimeDisplay->setStyleSheet( m_pTimeDisplay->styleSheet().
+								   append(" QLineEdit { font-size: 19px; }" ) );
 
 	m_pTimeHoursLbl = new ClickableLabel( pControlsPanel, QSize( 33, 9 ),
 										  pCommonStrings->getTimeHoursLabel() );
@@ -296,7 +297,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 									   static_cast<double>( MIN_BPM ),
 									   static_cast<double>( MAX_BPM ) );
 	m_pLCDBPMSpinbox->move( 36, 1 );
-	m_pLCDBPMSpinbox->setStyleSheet( "font-size: 16px;" );
+	m_pLCDBPMSpinbox->setStyleSheet( m_pLCDBPMSpinbox->styleSheet().
+									 append( " QAbstractSpinBox {font-size: 16px;}" ) );
 	connect( m_pLCDBPMSpinbox, SIGNAL( valueChanged( double ) ),
 			 this, SLOT( bpmChanged( double ) ) );
 	// initialize BPM widget
@@ -491,7 +493,11 @@ void PlayerControl::updatePlayerControl()
 	std::shared_ptr<Song> song = m_pHydrogen->getSong();
 
 	if ( ! m_pSongLoopBtn->isDown() ) {
-		m_pSongLoopBtn->setChecked( song->getIsLoopEnabled() );
+		if ( song->getLoopMode() == Song::LoopMode::Enabled ) {
+			m_pSongLoopBtn->setChecked( true );
+		} else {
+			m_pSongLoopBtn->setChecked( false );
+		}
 	}
 
 	if ( ! m_pLCDBPMSpinbox->hasFocus() ) {
@@ -619,7 +625,9 @@ void PlayerControl::updatePlayerControl()
 				bcDisplaystatus = 0;
 			}
 			sprintf(bcstatus, "R");
+			if ( m_pBCDisplayZ->text() != bcstatus ) {
 				m_pBCDisplayZ->setText( QString (bcstatus) );
+			}
 
 			break;
 		default:
@@ -628,7 +636,9 @@ void PlayerControl::updatePlayerControl()
 				bcDisplaystatus = 1;
 			}
 			sprintf(bcstatus, "%02d ", beatstocountondisplay -1);
-			m_pBCDisplayZ->setText( QString (bcstatus) );
+			if ( m_pBCDisplayZ->text() != bcstatus ) {
+				m_pBCDisplayZ->setText( QString (bcstatus) );
+			}
 
 	}
 	//~ beatcounter
@@ -1122,7 +1132,7 @@ void PlayerControl::tempoChangedEvent( int nValue )
 		// AudioEngine.
 		auto pHydrogen = H2Core::Hydrogen::get_instance();
 		if ( pHydrogen->getTempoSource() == H2Core::Hydrogen::Tempo::Timeline ) {
-			QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used left of the first Tempo Marker and takes full effect when deactivating the Timeline.") );
+			QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only be used after deactivating the Timeline and left of the first Tempo Marker when activating it again.") );
 		} else if ( pHydrogen->getTempoSource() ==
 					H2Core::Hydrogen::Tempo::Jack ) {
 			QMessageBox::warning( this, "Hydrogen", tr("A tempo change via MIDI, OSC, BeatCounter, or TapTempo was detected. It will only take effect when deactivating JACK BBT transport or making Hydrogen the Timebase master.") );

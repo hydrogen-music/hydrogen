@@ -102,6 +102,17 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 			None = 2
 		};
 
+		enum class LoopMode {
+			Disabled = 0,
+			Enabled = 1,
+			/**
+			 * Transport is still in loop mode (frames and ticks
+			 * larger than song size are allowed) but playback ends
+			 * the next time the end of the song is reached.
+			 */
+			Finishing = 2
+		};
+
 		Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume );
 		~Song();
 
@@ -150,7 +161,7 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		void setPatternGroupVector( std::vector<PatternList*>* pGroupVect );
 
 		/** get the length of the song, in tick units */
-		int lengthInTicks() const;
+		long lengthInTicks() const;
 
 		static std::shared_ptr<Song> 	load( const QString& sFilename );
 		bool 			save( const QString& sFilename );
@@ -170,8 +181,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		const QString&		getFilename() const;
 		void			setFilename( const QString& sFilename );
 							
-		bool			getIsLoopEnabled() const;
-		void			setIsLoopEnabled( bool bEnabled );
+		LoopMode		getLoopMode() const;
+		void			setLoopMode( LoopMode loopMode );
+		bool			isLoopEnabled() const;
 							
 		float			getHumanizeTimeValue() const;
 		void			setHumanizeTimeValue( float fValue );
@@ -290,7 +302,14 @@ private:
 		///< list of drumkit component
 		std::vector<DrumkitComponent*>*	m_pComponents;				
 		QString			m_sFilename;
-		bool			m_bIsLoopEnabled;
+
+		/**
+		 * The three states of this enum is just a way to handle the
+		 * playback within Hydrogen. Not its content but the output of
+		 * isLoopEnabled(), whether enabled or disabled, will be
+		 * written to disk.
+		 */
+		LoopMode		m_loopMode;
 		float			m_fHumanizeTimeValue;
 		float			m_fHumanizeVelocityValue;
 		float			m_fSwingFactor;
@@ -514,14 +533,19 @@ inline void Song::setFilename( const QString& sFilename )
 	setIsModified( true );
 }
 
-inline bool Song::getIsLoopEnabled() const
+inline bool Song::isLoopEnabled() const
 {
-	return m_bIsLoopEnabled;
+	return m_loopMode == LoopMode::Enabled ||
+		m_loopMode == LoopMode::Finishing;
 }
 
-inline void Song::setIsLoopEnabled( bool bEnabled )
+inline Song::LoopMode Song::getLoopMode() const
 {
-	m_bIsLoopEnabled = bEnabled;
+	return m_loopMode;
+}
+inline void Song::setLoopMode( Song::LoopMode loopMode )
+{
+	m_loopMode = loopMode;
 	setIsModified( true );
 }
 

@@ -242,10 +242,10 @@ void Pattern::purge_instrument( std::shared_ptr<Instrument> instr, bool bRequire
 	}
 	if ( locked ) {
 		Hydrogen::get_instance()->getAudioEngine()->unlock();
-		while ( slate.size() ) {
-			delete slate.front();
-			slate.pop_front();
-		}
+	}
+	while ( slate.size() ) {
+		delete slate.front();
+		slate.pop_front();
 	}
 }
 

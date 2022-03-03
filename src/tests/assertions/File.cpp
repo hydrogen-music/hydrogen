@@ -22,6 +22,8 @@
 #include "File.h"
 
 #include <QFile>
+#include <QDir>
+#include <QFileInfo>
 
 static constexpr qint64 BUFFER_SIZE = 4096;
 
@@ -77,5 +79,36 @@ void H2Test::checkFilesEqual(const QString &expected, const QString &actual, Cpp
 
 		offset += r1;
 		remaining -= r1;
+	}
+}
+
+void H2Test::checkDirsEqual( const QString& sDirExpected, const QString& sDirActual, CppUnit::SourceLine sourceLine ) {
+
+	QDir dirExpected( sDirExpected );
+	QDir dirActual( sDirExpected );
+
+	QStringList contentExpected =
+		dirExpected.entryList( QDir::Files | QDir::NoDotAndDotDot );
+	QStringList contentActual =
+		dirActual.entryList( QDir::Files | QDir::NoDotAndDotDot );
+
+	if ( contentExpected.size() != contentActual.size() ) {
+		CppUnit::Message msg( std::string("Mismatching number of file in directories "),
+							  std::string("Expected: ") + std::to_string( contentExpected.size() ),
+							  std::string("Actual  : ") + std::to_string( contentActual.size() ) );
+		throw CppUnit::Exception(msg, sourceLine);
+	}
+
+	for ( const auto& ssFile : contentExpected ) {
+		QString sFileActual( dirActual.filePath( ssFile ) );
+		QString sFileExpected( dirExpected.filePath( ssFile ) );
+
+		if ( ! QFileInfo( sFileActual ).exists() ) {
+			CppUnit::Message msg( std::string("File [") + ssFile.toStdString() + 
+								  std::string("] does exist in the expected but not in the actual folder.") );
+			throw CppUnit::Exception(msg, sourceLine);
+		}
+
+		checkFilesEqual( sFileExpected, sFileActual, sourceLine );
 	}
 }

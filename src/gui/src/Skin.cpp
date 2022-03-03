@@ -76,15 +76,15 @@ QComboBox { \
 QComboBox QAbstractItemView { \
     background-color: #babfcf; \
 } \
-QLineEdit { \
-    color: %14; \
-    background-color: %15; \
+QLineEdit, QTextEdit { \
+    color: %12; \
+    background-color: %13; \
 } \
 QDoubleSpinBox, QSpinBox { \
-    color: %16; \
-    background-color: %17; \
-    selection-color: %16; \
-    selection-background-color: %18; \
+    color: %14; \
+    background-color: %15; \
+    selection-color: %14; \
+    selection-background-color: %16; \
 }"
 					)
 		.arg( pPref->getColorTheme()->m_toolTipTextColor.name() )
@@ -96,8 +96,6 @@ QDoubleSpinBox, QSpinBox { \
 		.arg( buttonBackgroundCheckedLightHover.name() ).arg( buttonBackgroundCheckedDarkHover.name() )
 		.arg( pPref->getColorTheme()->m_widgetTextColor.name() )
 		.arg( pPref->getColorTheme()->m_widgetColor.name() )
-		.arg( pPref->getColorTheme()->m_windowTextColor.name() )
-		.arg( pPref->getColorTheme()->m_windowColor.name() )
 		.arg( pPref->getColorTheme()->m_spinBoxTextColor.name() )
 		.arg( pPref->getColorTheme()->m_spinBoxColor.name() )
 		.arg( spinBoxSelection.name() );
@@ -176,5 +174,27 @@ void Skin::drawListBackground( QPainter* p, QRect rect, QColor background,
 				 backgroundDark );
 	p->fillRect( QRect( rect.x() + rect.width() - 1, rect.y(), 1, rect.height() ),
 				 backgroundDark );
+}
 
+QColor Skin::makeWidgetColorInactive( QColor color ){
+	int nHue, nSaturation, nValue;
+	color.getHsv( &nHue, &nSaturation, &nValue );
+	nValue = std::max( 0, nValue - 40 );
+	color.setHsv( nHue, nSaturation, nValue );
+
+	return color;
+}
+
+QColor Skin::makeTextColorInactive( QColor color ) {
+	int nHue, nSaturation, nValue;
+	color.getHsv( &nHue, &nSaturation, &nValue );
+	if ( nValue >= 130 ) {
+		// TextInactive color is more white than black. Make it darker.
+		nValue -= 55;
+	} else {
+		nValue += 55;
+	}
+	color.setHsv( nHue, nSaturation, nValue );
+
+	return color;
 }

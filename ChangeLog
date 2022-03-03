@@ -39,7 +39,10 @@
 		- MIDI-learnable widgets now show their corresponding MIDI action
 		  and it's binding in the tooltip
 		- It's now possible to jump to the beginning of the currently
-		  playing pattern by clicking its position on the ruler.
+		  playing pattern by clicking its position on the ruler in the
+		  pattern editor.
+		- The length of patterns can now be changed while transport is
+		  rolling.
 	* PreferencesDialog > Appearance tab overhaul
 	  	- Drop previous font options in favor for three different
 		  levels of font (without exposing their point sizes)
@@ -77,6 +80,15 @@
 		- The tempo used left of the first tempo marker is painted in a
 		  darker color.
 		- The currently used Tempo Marker gets highlighted.
+	* OSC API
+		- Add command /Hydrogen/LOAD_DRUMKIT
+		- Add command /Hydrogen/UPGRADE_DRUMKIT
+		- Add command /Hydrogen/VALIDATE_DRUMKIT
+		- Add command /Hydrogen/EXTRACT_DRUMKIT
+	* H2CLI
+		- Add `--upgrade` option to upgrade a drumkit
+		- Add `--check` option to validate a drumkit
+		- Add `--extract` option to extract the content of a drumkit
 	* Bugfixes
 		- fix dithering of SongEditor when viewing the playback track
 		  and resizing the application or for very small size (#1379).
@@ -85,10 +97,18 @@
 		- fix display of tags and tempo marker while loading a song
 		  (introduced in 1.1.0) (#1393)
 		- default MIDI driver is now picked with the system's capabilities
-		in mind
+		  in mind
 		- remove unwanted samples at the end of the exported song (to
 		  .wav) (#946)
 		- fix undefined tempo before first tempo marker (#416)
+		- fix Song export to keep writing till all notes and FX have faded
+		  out
+		- notes at first ticks in pattern were missed when relocation
+		  transport using the position ruler
+		- fix playhead glitches when adding toggling patterns at the end
+		  of the song after transport was loop at least once
+		- deactivating loop mode result stopping transport at the end of
+		  the song even if transport was already looped at least once
 
 2021-12-05 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.1.1

@@ -260,14 +260,14 @@ for:
         fi
       ) | sed 's/^/DMG: /' &
 
+
     test_script: |-
       cd build
-      TMPDIR=/tmp src/tests/tests --appveyor || exit 1
-
-      echo "Waiting for installer creation and cache archiving"
+      TMPDIR=/tmp src/tests/tests --appveyor
+      res=$?
       wait
       echo "=== Build cache usage is " $( du -h $cdir | tail -1 ) "==="
-      echo "Done"
+      ( exit $res )
 
   -
     matrix:
@@ -287,7 +287,7 @@ for:
 
           cmake --version
           g++ --version
-          choco install %CHOCO_ARCH% -y jack
+          choco install %CHOCO_ARCH% jack --version 1.9.17 -my
 
           dir "c:\%PROGRAM_FILES%\JACK2"
           dir "c:\%PROGRAM_FILES%\JACK2\lib"

@@ -375,21 +375,20 @@ public:
 	}
 	virtual void undo() {
 		auto pSongEditorPositionRuler = HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler();
-		auto pTimeline = H2Core::Hydrogen::get_instance()->getTimeline();
+		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
 		if( m_bTempoMarkerPresent ){
-			pTimeline->deleteTempoMarker( m_nNewColumn );
-			pTimeline->addTempoMarker( m_nOldColumn, m_fOldBpm );
+			pCoreActionController->addTempoMarker( m_nOldColumn, m_fOldBpm );
 		} else {
-			pTimeline->deleteTempoMarker( m_nNewColumn );
+			pCoreActionController->deleteTempoMarker( m_nNewColumn );
 		}
 		pSongEditorPositionRuler->createBackground();
 	}
 
 	virtual void redo() {
 		auto pSongEditorPositionRuler = HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler();
-		auto pTimeline = H2Core::Hydrogen::get_instance()->getTimeline();
-		pTimeline->deleteTempoMarker( m_nOldColumn );
-		pTimeline->addTempoMarker( m_nNewColumn, m_fNewBpm );
+		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+		pCoreActionController->deleteTempoMarker( m_nOldColumn );
+		pCoreActionController->addTempoMarker( m_nNewColumn, m_fNewBpm );
 		pSongEditorPositionRuler->createBackground();
 	}
 private:
@@ -411,15 +410,15 @@ public:
 	}
 	virtual void undo() {
 		auto pSongEditorPositionRuler = HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler();
-		auto pTimeline = H2Core::Hydrogen::get_instance()->getTimeline();
-		pTimeline->addTempoMarker( m_nColumn, m_fBpm );
+		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+		pCoreActionController->addTempoMarker( m_nColumn, m_fBpm );
 		pSongEditorPositionRuler->createBackground();
 	}
 
 	virtual void redo() {
 		auto pSongEditorPositionRuler = HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler();
-		auto pTimeline = H2Core::Hydrogen::get_instance()->getTimeline();
-		pTimeline->deleteTempoMarker( m_nColumn );
+		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+		pCoreActionController->deleteTempoMarker( m_nColumn );
 		pSongEditorPositionRuler->createBackground();
 	}
 private:
@@ -431,41 +430,34 @@ private:
 class SE_editTagAction : public QUndoCommand
 {
 public:
-	SE_editTagAction( QString text, QString oldText, int position ){
+	SE_editTagAction( const QString& sText, const QString& sOldText, int nPosition ){
 		setText( QObject::tr( "Edit timeline tag" ) );
-		__text = text;
-		__oldText = oldText;
-		__position = position;
+		m_sText = sText;
+		m_sOldText = sOldText;
+		m_nPosition = nPosition;
 
 	}
-	virtual void undo()
-	{
-		//qDebug() <<  "edit timeline tag undo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		if( __oldText != "" ){
-			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->editTagAction( __oldText, __position , __text );
-		}else
-		{
-			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->deleteTagAction( __text,  __position );
+	virtual void undo() {
+		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+		if ( ! m_sOldText.isEmpty() ){
+			pCoreActionController->addTag( m_nPosition, m_sOldText );
+		} else {
+			pCoreActionController->deleteTag( m_nPosition );
 		}
-
 	}
 
-	virtual void redo()
-	{
-		//qDebug() <<  "edit timeline tag redo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		if( __text == "" ){
-			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->deleteTagAction( __oldText,  __position );
-		}else
-		{
-			h2app->getSongEditorPanel()->getSongEditorPositionRuler()->editTagAction( __text, __position, __oldText );
+	virtual void redo() {
+		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+		if ( ! m_sText.isEmpty() ){
+			pCoreActionController->addTag( m_nPosition, m_sText );
+		} else {
+			pCoreActionController->deleteTag( m_nPosition );
 		}
 	}
 private:
-	QString __text;
-	QString __oldText;
-	int __position;
+	QString m_sText;
+	QString m_sOldText;
+	int m_nPosition;
 };
 
 //~time line commands

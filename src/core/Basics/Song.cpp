@@ -77,7 +77,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_pInstrumentList( nullptr )
 	, m_pComponents( nullptr )
 	, m_sFilename( "" )
-	, m_bIsLoopEnabled( false )
+	, m_loopMode( LoopMode::Disabled )
 	, m_fHumanizeTimeValue( 0.0 )
 	, m_fHumanizeVelocityValue( 0.0 )
 	, m_fSwingFactor( 0.0 )
@@ -152,8 +152,8 @@ void Song::setActionMode( Song::ActionMode actionMode ) {
 	setIsModified( true );
 }
 
-int Song::lengthInTicks() const {
-	int nSongLength = 0;
+long Song::lengthInTicks() const {
+	long nSongLength = 0;
 	int nColumns = m_pPatternGroupSequence->size();
 	// Sum the lengths of all pattern columns and use the macro
 	// MAX_NOTES in case some of them are of size zero.
@@ -210,12 +210,14 @@ bool Song::save( const QString& sFilename )
 
 std::shared_ptr<Song> Song::getEmptySong()
 {
-	std::shared_ptr<Song> pSong = std::make_shared<Song>( "Untitled", "hydrogen", 120, 0.5 );
+	std::shared_ptr<Song> pSong =
+		std::make_shared<Song>( Filesystem::untitled_song_name(), "hydrogen",
+								120, 0.5 );
 
 	pSong->setMetronomeVolume( 0.5 );
 	pSong->setNotes( "..." );
 	pSong->setLicense( "" );
-	pSong->setIsLoopEnabled( false );
+	pSong->setLoopMode( Song::LoopMode::Disabled );
 	pSong->setMode( Song::Mode::Pattern );
 	pSong->setHumanizeTimeValue( 0.0 );
 	pSong->setHumanizeVelocityValue( 0.0 );
@@ -794,7 +796,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			}
 		}
 		sOutput.append( QString( "%1%2m_sFilename: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sFilename ) )
-			.append( QString( "%1%2m_bIsLoopEnabled: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsLoopEnabled ) )
+			.append( QString( "%1%2m_loopMode: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>(m_loopMode) ) )
 			.append( QString( "%1%2m_fHumanizeTimeValue: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fHumanizeTimeValue ) )
 			.append( QString( "%1%2m_fHumanizeVelocityValue: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fHumanizeVelocityValue ) )
 			.append( QString( "%1%2m_fSwingFactor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fSwingFactor ) )
@@ -840,14 +842,14 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			}
 		}
 		sOutput.append( QString( "%1" ).arg( m_pInstrumentList->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( ", m_pComponents:" ) );
+			.append( QString( ", m_pComponents: [" ) );
 		for ( auto cc : *m_pComponents ) {
 			if ( cc != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s, bShort ) ) );
 			}
 		}
-		sOutput.append( QString( ", m_sFilename: %1" ).arg( m_sFilename ) )
-			.append( QString( ", m_bIsLoopEnabled: %1" ).arg( m_bIsLoopEnabled ) )
+		sOutput.append( QString( "], m_sFilename: %1" ).arg( m_sFilename ) )
+			.append( QString( ", m_loopMode: %1" ).arg( static_cast<int>(m_loopMode) ) )
 			.append( QString( ", m_fHumanizeTimeValue: %1" ).arg( m_fHumanizeTimeValue ) )
 			.append( QString( ", m_fHumanizeVelocityValue: %1" ).arg( m_fHumanizeVelocityValue ) )
 			.append( QString( ", m_fSwingFactor: %1" ).arg( m_fSwingFactor ) )
@@ -990,7 +992,11 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	pSong->setMetronomeVolume( fMetronomeVolume );
 	pSong->setNotes( sNotes );
 	pSong->setLicense( sLicense );
-	pSong->setIsLoopEnabled( bLoopEnabled );
+	if ( bLoopEnabled ) {
+		pSong->setLoopMode( Song::LoopMode::Enabled );
+	} else {
+		pSong->setLoopMode( Song::LoopMode::Disabled );
+	}
 	pSong->setMode( mode );
 	pSong->setHumanizeTimeValue( fHumanizeTimeValue );
 	pSong->setHumanizeVelocityValue( fHumanizeVelocityValue );
