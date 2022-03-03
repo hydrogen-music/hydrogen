@@ -1126,7 +1126,19 @@ void SongEditor::drawSequence()
 
 	// Draw using GridCells representation
 	for ( auto it : m_gridCells ) {
-		drawPattern( it.first.x(), it.first.y(), it.second.m_bDrawnVirtual, it.second.m_fWidth );
+		if ( ! m_selection.isSelected( QPoint( it.first.x(), it.first.y() ) ) ) {
+			drawPattern( it.first.x(), it.first.y(),
+						 it.second.m_bDrawnVirtual, it.second.m_fWidth );
+		}
+	}
+	// We draw all selected patterns in a second run to ensure their
+	// border does have the proper color (else the bottom and left one
+	// could be overwritten by an adjecent, unselected pattern).
+	for ( auto it : m_gridCells ) {
+		if ( m_selection.isSelected( QPoint( it.first.x(), it.first.y() ) ) ) {
+			drawPattern( it.first.x(), it.first.y(),
+						 it.second.m_bDrawnVirtual, it.second.m_fWidth );
+		}
 	}
 }
 

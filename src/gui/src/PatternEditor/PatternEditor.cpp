@@ -668,10 +668,10 @@ QColor PatternEditor::selectedNoteColor() const {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( hasFocus() ) {
-		static const QColor selectHilightColor( pPref->getColorTheme()->m_selectionHighlightColor );
-		return selectHilightColor;
+		const QColor selectHighlightColor( pPref->getColorTheme()->m_selectionHighlightColor );
+		return selectHighlightColor;
 	} else {
-		static const QColor selectInactiveColor( pPref->getColorTheme()->m_selectionInactiveColor );
+		const QColor selectInactiveColor( pPref->getColorTheme()->m_selectionInactiveColor );
 		return selectInactiveColor;
 	}
 }

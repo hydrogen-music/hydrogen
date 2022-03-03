@@ -265,27 +265,27 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 		int nCursorX = m_fGridWidth *
 			pHydrogenApp->getPatternEditorPanel()->getCursorPosition() +
 			pDrumPatternEditor->getMargin() - 4 -
-			m_fGridWidth * 3;
+			m_fGridWidth * 5;
 
 		// Middle line to indicate the selected tick
 		painter.setPen( Qt::black );
-		painter.drawLine( nCursorX + m_fGridWidth * 3 + 4, height() - 6,
-						  nCursorX + m_fGridWidth * 3 + 4, height() - 13 );
+		painter.drawLine( nCursorX + m_fGridWidth * 5 + 4, height() - 6,
+						  nCursorX + m_fGridWidth * 5 + 4, height() - 13 );
 
 		QPen pen;
 		pen.setWidth( 2 );
 		painter.setPen( pen );
 		painter.setRenderHint( QPainter::Antialiasing );
-		painter.drawLine( nCursorX, 3, nCursorX + m_fGridWidth * 6 + 8, 3 );
+		painter.drawLine( nCursorX, 3, nCursorX + m_fGridWidth * 10 + 8, 3 );
 		painter.drawLine( nCursorX, 4, nCursorX, 5 );
-		painter.drawLine( nCursorX + m_fGridWidth * 6 + 8, 4,
-						  nCursorX + m_fGridWidth * 6 + 8, 5 );
+		painter.drawLine( nCursorX + m_fGridWidth * 10 + 8, 4,
+						  nCursorX + m_fGridWidth * 10 + 8, 5 );
 		painter.drawLine( nCursorX, height() - 5,
-						  nCursorX + m_fGridWidth * 6 + 8, height() - 5 );
+						  nCursorX + m_fGridWidth * 10 + 8, height() - 5 );
 		painter.drawLine( nCursorX, height() - 7,
 						  nCursorX, height() - 6 );
-		painter.drawLine( nCursorX + m_fGridWidth * 6 + 8, height() - 6,
-						  nCursorX + m_fGridWidth * 6 + 8, height() - 7 );
+		painter.drawLine( nCursorX + m_fGridWidth * 10 + 8, height() - 6,
+						  nCursorX + m_fGridWidth * 10 + 8, height() - 7 );
 	}
 }
 
