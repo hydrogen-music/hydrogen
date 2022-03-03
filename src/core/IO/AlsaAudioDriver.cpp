@@ -181,22 +181,37 @@ int AlsaAudioDriver::connect()
 	int err;
 
 	// provo ad aprire il device per verificare se e' libero ( non bloccante )
-	if ( ( err = snd_pcm_open( &m_pPlayback_handle, m_sAlsaAudioDevice.toLocal8Bit(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK ) ) < 0 ) {
-		ERRORLOG( QString( "ALSA: cannot open audio device %1:%2" ).arg( m_sAlsaAudioDevice ).arg( snd_strerror( err ) ) );
+	if ( ( err = snd_pcm_open( &m_pPlayback_handle,
+							   m_sAlsaAudioDevice.toLocal8Bit(),
+							   SND_PCM_STREAM_PLAYBACK,
+							   SND_PCM_NONBLOCK ) ) < 0 ) {
+		ERRORLOG( QString( "Cannot open audio device [%1] nonblocking: %2" )
+				  .arg( m_sAlsaAudioDevice )
+				  .arg( snd_strerror( err ) ) );
 
-		// il dispositivo e' occupato..provo con "default"
+		// Use the default device as a fallback.
 		m_sAlsaAudioDevice = "default";
-		if ( ( err = snd_pcm_open( &m_pPlayback_handle, m_sAlsaAudioDevice.toLocal8Bit(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK ) ) < 0 ) {
-			ERRORLOG( QString( "ALSA: cannot open audio device %1:%2" ).arg( m_sAlsaAudioDevice ) .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+		if ( ( err = snd_pcm_open( &m_pPlayback_handle,
+								   m_sAlsaAudioDevice.toLocal8Bit(),
+								   SND_PCM_STREAM_PLAYBACK,
+								   SND_PCM_NONBLOCK ) ) < 0 ) {
+			ERRORLOG( QString( "Cannot open default audio device [%1] either: %2" )
+					  .arg( m_sAlsaAudioDevice )
+					  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 			return 1;
 		}
-		WARNINGLOG( "Using alsa device: " + m_sAlsaAudioDevice );
+		WARNINGLOG( QString( "Using ALSA device [%1] instead." )
+					.arg( m_sAlsaAudioDevice ) );
 	}
 	snd_pcm_close( m_pPlayback_handle );
 
 	// Apro il device ( bloccante )
-	if ( ( err = snd_pcm_open( &m_pPlayback_handle, m_sAlsaAudioDevice.toLocal8Bit(), SND_PCM_STREAM_PLAYBACK, 0 ) ) < 0 ) {
-		ERRORLOG( QString( "ALSA: cannot open audio device %1:%2" ).arg( m_sAlsaAudioDevice ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+	if ( ( err = snd_pcm_open( &m_pPlayback_handle,
+							   m_sAlsaAudioDevice.toLocal8Bit(),
+							   SND_PCM_STREAM_PLAYBACK, 0 ) ) < 0 ) {
+		ERRORLOG( QString( "Cannot open audio device [%1]: %2" )
+				  .arg( m_sAlsaAudioDevice )
+				  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
 
@@ -208,25 +223,37 @@ int AlsaAudioDriver::connect()
 	}
 
 	if ( ( err = snd_pcm_hw_params_any( m_pPlayback_handle, hw_params ) ) < 0 ) {
-		ERRORLOG( QString( "error in snd_pcm_hw_params_any: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+		ERRORLOG( QString( "error in snd_pcm_hw_params_any: %1" )
+				  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
 //	snd_pcm_hw_params_set_access( m_pPlayback_handle, hw_params, SND_PCM_ACCESS_MMAP_INTERLEAVED  );
 
-	if ( ( err = snd_pcm_hw_params_set_access( m_pPlayback_handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED ) ) < 0 ) {
-		ERRORLOG( QString( "error in snd_pcm_hw_params_set_access: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+	if ( ( err = snd_pcm_hw_params_set_access( m_pPlayback_handle,
+											   hw_params,
+											   SND_PCM_ACCESS_RW_INTERLEAVED ) ) < 0 ) {
+		ERRORLOG( QString( "error in snd_pcm_hw_params_set_access: %1" )
+				  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
 
-	if ( ( err = snd_pcm_hw_params_set_format( m_pPlayback_handle, hw_params, SND_PCM_FORMAT_S16_LE ) ) < 0 ) {
-		ERRORLOG( QString( "error in snd_pcm_hw_params_set_format: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+	if ( ( err = snd_pcm_hw_params_set_format( m_pPlayback_handle,
+											   hw_params,
+											   SND_PCM_FORMAT_S16_LE ) ) < 0 ) {
+		ERRORLOG( QString( "error in snd_pcm_hw_params_set_format: %1" )
+				  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
 
-	snd_pcm_hw_params_set_rate_near( m_pPlayback_handle, hw_params, &m_nSampleRate, nullptr );
+	snd_pcm_hw_params_set_rate_near( m_pPlayback_handle,
+									 hw_params,
+									 &m_nSampleRate,
+									 nullptr );
 
-	if ( ( err = snd_pcm_hw_params_set_channels( m_pPlayback_handle, hw_params, nChannels ) ) < 0 ) {
-		ERRORLOG( QString( "error in snd_pcm_hw_params_set_channels: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+	if ( ( err = snd_pcm_hw_params_set_channels( m_pPlayback_handle,
+												 hw_params, nChannels ) ) < 0 ) {
+		ERRORLOG( QString( "error in snd_pcm_hw_params_set_channels: %1" )
+				  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
 
@@ -238,22 +265,31 @@ int AlsaAudioDriver::connect()
 	// of data.
 	//
 	unsigned nPeriods = 2;
-	if ( ( err = snd_pcm_hw_params_set_periods_near( m_pPlayback_handle, hw_params, &nPeriods, nullptr ) ) < 0 ) {
-		ERRORLOG( QString( "error in snd_pcm_hw_params_set_periods: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+	if ( ( err = snd_pcm_hw_params_set_periods_near( m_pPlayback_handle,
+													 hw_params,
+													 &nPeriods,
+													 nullptr ) ) < 0 ) {
+		ERRORLOG( QString( "error in snd_pcm_hw_params_set_periods_near: %1" )
+				  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
 	INFOLOG( QString( "nPeriods: %1" ).arg( nPeriods ) );
 
 	snd_pcm_uframes_t period_size = m_nBufferSize;
 
-	if ( ( err = snd_pcm_hw_params_set_period_size_near( m_pPlayback_handle, hw_params, &period_size, nullptr ) ) < 0 ) {
-		ERRORLOG( QString( "error in snd_pcm_hw_params_set_period_size: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+	if ( ( err = snd_pcm_hw_params_set_period_size_near( m_pPlayback_handle,
+														 hw_params,
+														 &period_size,
+														 nullptr ) ) < 0 ) {
+		ERRORLOG( QString( "error in snd_pcm_hw_params_set_period_size_near: %1" )
+				  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
 	m_nBufferSize = period_size;
 
 	if ( ( err = snd_pcm_hw_params( m_pPlayback_handle, hw_params ) ) < 0 ) {
-		ERRORLOG( QString( "error in snd_pcm_hw_params: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+		ERRORLOG( QString( "error in snd_pcm_hw_params: %1" )
+				  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
 
@@ -286,8 +322,8 @@ int AlsaAudioDriver::connect()
 
 void AlsaAudioDriver::disconnect()
 {
-	INFOLOG( "[disconnect]" );
-
+	INFOLOG( "" );
+	
 	m_bIsRunning = false;
 
 	pthread_join( alsaAudioDriverThread, nullptr );

@@ -42,6 +42,7 @@
 #include <core/MidiMap.h>
 #include <core/Version.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/IO/AlsaAudioDriver.h>
 
 #include <QDir>
 //#include <QApplication>
@@ -179,7 +180,28 @@ Preferences::Preferences()
 	m_sCoreAudioDevice = QString();
 
 	//___  alsa audio driver properties ___
-	m_sAlsaAudioDevice = QString("hw:0");
+
+#ifdef H2CORE_HAVE_ALSA
+	// Ensure the device read from the local preferences does
+	// exist. If not, we try to replace it with a valid one.
+	QStringList alsaDevices = AlsaAudioDriver::getDevices();
+	if ( alsaDevices.size() == 0 ||
+		 alsaDevices.contains( "hw:0" ) ) {
+		m_sAlsaAudioDevice = "hw:0";
+	} else {
+		// Fall back to a device found on the system (but not the
+		// "null" one).
+		if ( alsaDevices[ 0 ] != "null" ) {
+			m_sAlsaAudioDevice = alsaDevices[ 0 ];
+		} else if ( alsaDevices.size() > 1 ) {
+			m_sAlsaAudioDevice = alsaDevices[ 1 ];
+		} else {
+			m_sAlsaAudioDevice = "hw:0";
+		}
+	}
+#else
+	m_sAlsaAudioDevice = "hw:0";
+#endif
 
 	//___  jack driver properties ___
 	m_sJackPortName1 = QString("alsa_pcm:playback_1");
