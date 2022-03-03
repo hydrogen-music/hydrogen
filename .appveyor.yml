@@ -62,7 +62,7 @@ for:
 
 
     build_script: |-
-      rm -rf $HOME/cache_dir
+      rm -rf $HOME/cache_dir/*
       true
 
 
@@ -73,7 +73,7 @@ for:
         - job_group: 'Mac OS X'
 
     build_script: |-
-      rm -rf /Users/appveyor/cache_dir
+      rm -rf /Users/appveyor/cache_dir/*
 
   -
     matrix:
@@ -84,4 +84,4 @@ for:
 
 build_script:
       - cmd: |-
-          del /s %USERPROFILE%\AppData\Roaming\ccache
+          del /q /s %USERPROFILE%\AppData\Roaming\ccache\*
