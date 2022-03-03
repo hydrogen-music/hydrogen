@@ -84,4 +84,4 @@ for:
 
 build_script:
       - cmd: |-
-          deltree %USERPROFILE%\AppData\Roaming\ccache
+          del /s %USERPROFILE%\AppData\Roaming\ccache
