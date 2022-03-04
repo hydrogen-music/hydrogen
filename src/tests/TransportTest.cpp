@@ -50,8 +50,11 @@ void TransportTest::testFrameToTickConversion() {
 
 	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
 	
-	bool bNoMismatch = pAudioEngine->testFrameToTickConversion();
-	CPPUNIT_ASSERT( bNoMismatch );
+	for ( int ii = 0; ii < 15; ++ii ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		bool bNoMismatch = pAudioEngine->testFrameToTickConversion();
+		CPPUNIT_ASSERT( bNoMismatch );
+	}
 }
 
 void TransportTest::testTransportProcessing() {
@@ -59,9 +62,12 @@ void TransportTest::testTransportProcessing() {
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
-	
-	bool bNoMismatch = pAudioEngine->testTransportProcessing();
-	CPPUNIT_ASSERT( bNoMismatch );
+
+	for ( int ii = 0; ii < 15; ++ii ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		bool bNoMismatch = pAudioEngine->testTransportProcessing();
+		CPPUNIT_ASSERT( bNoMismatch );
+	}
 }		
  
 void TransportTest::testTransportRelocation() {
@@ -82,8 +88,11 @@ void TransportTest::testTransportRelocation() {
 	pCoreActionController->addTempoMarker( 7, 240.46 );
 	pCoreActionController->addTempoMarker( 8, 200.1 );
 	
-	bool bNoMismatch = pAudioEngine->testTransportRelocation();
-	CPPUNIT_ASSERT( bNoMismatch );
+	for ( int ii = 0; ii < 15; ++ii ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		bool bNoMismatch = pAudioEngine->testTransportRelocation();
+		CPPUNIT_ASSERT( bNoMismatch );
+	}
 
 	pCoreActionController->activateTimeline( false );
 }		
@@ -94,8 +103,11 @@ void TransportTest::testComputeTickInterval() {
 
 	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
 
-	bool bNoMismatch = pAudioEngine->testComputeTickInterval();
-	CPPUNIT_ASSERT( bNoMismatch );
+	for ( int ii = 0; ii < 15; ++ii ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		bool bNoMismatch = pAudioEngine->testComputeTickInterval();
+		CPPUNIT_ASSERT( bNoMismatch );
+	}
 }		
 
 void TransportTest::testSongSizeChange() {
@@ -104,8 +116,11 @@ void TransportTest::testSongSizeChange() {
 
 	pHydrogen->getCoreActionController()->openSong( m_pSongSizeChanged );
 
-	bool bNoMismatch = pAudioEngine->testSongSizeChange();
-	CPPUNIT_ASSERT( bNoMismatch );
+	for ( int ii = 0; ii < 15; ++ii ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		bool bNoMismatch = pAudioEngine->testSongSizeChange();
+		CPPUNIT_ASSERT( bNoMismatch );
+	}
 
 	pHydrogen->getCoreActionController()->activateLoopMode( false, false );
 }		
@@ -116,6 +131,9 @@ void TransportTest::testSongSizeChangeInLoopMode() {
 
 	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
 
-	bool bNoMismatch = pAudioEngine->testSongSizeChangeInLoopMode();
-	CPPUNIT_ASSERT( bNoMismatch );
+	for ( int ii = 0; ii < 15; ++ii ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		bool bNoMismatch = pAudioEngine->testSongSizeChangeInLoopMode();
+		CPPUNIT_ASSERT( bNoMismatch );
+	}
 }		
