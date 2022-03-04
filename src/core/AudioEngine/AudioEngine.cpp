@@ -1392,7 +1392,6 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	 * audio processing. Returning the special return value "2" enables the disk 
 	 * writer driver to repeat the processing of the current data.
 	 */
-				
 	if ( !pAudioEngine->tryLockFor( std::chrono::microseconds( (int)(1000.0*fSlackTime) ),
 							  RIGHT_HERE ) ) {
 		___ERRORLOG( QString( "Failed to lock audioEngine in allowed %1 ms, missed buffer" ).arg( fSlackTime ) );
