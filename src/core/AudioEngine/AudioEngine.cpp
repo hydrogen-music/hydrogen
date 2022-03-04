@@ -563,7 +563,7 @@ void AudioEngine::updateBpmAndTickSize() {
 	// DEBUGLOG(QString( "sample rate: %1, tick size: %2, bpm: %3" )
 	// 		 .arg( static_cast<float>(m_pAudioDriver->getSampleRate()))
 	// 		 .arg( fNewTickSize, 0, 'f' )
-	// 		 .arg( getBpm() ), 0, 'f' );
+	// 		 .arg( getBpm(), 0, 'f' ) );
 	
 	// Nothing changed - avoid recomputing
 	if ( fNewTickSize == fOldTickSize ) {
@@ -2494,8 +2494,9 @@ bool AudioEngine::testTransportProcessing() {
 
 	bool bNoMismatch = true;
 
-	int nMaxCycles = 2112; // Equals the number of ticks within the
-						   // test song.
+	// 2112 is the number of ticks within the test song and 2048 the
+	// average frame number drawn from the distribution.
+	int nMaxCycles = std::ceil( 2112 / 2048 * getTickSize() * 2 ); 
 	int nn = 0;
 
 	while ( getDoubleTick() < m_fSongSizeInTicks ) {
@@ -2520,7 +2521,12 @@ bool AudioEngine::testTransportProcessing() {
 		nn++;
 
 		if ( nn > nMaxCycles ) {
-			ERRORLOG( "[constant tempo] end of the song wasn't reached in time." );
+			ERRORLOG( QString( "[constant tempo] end of the song wasn't reached in time. getFrames(): %1, ticks: %2, getTickSize(): %3, m_fSongSizeInTicks: %4, nMaxCycles: %5" )
+					  .arg( getFrames() )
+					  .arg( getDoubleTick(), 0, 'f' )
+					  .arg( getTickSize(), 0, 'f' )
+					  .arg( m_fSongSizeInTicks, 0, 'f' )
+					  .arg( nMaxCycles ) );
 			bNoMismatch = false;
 			break;
 		}
@@ -2532,8 +2538,13 @@ bool AudioEngine::testTransportProcessing() {
 	float fBpm;
 	float fLastBpm = getBpm();
 	int nCyclesPerTempo = 5;
+	int nPrevLastFrame = 0;
 
 	long long nTotalFrames = 0;
+
+	// We use a more conservative max cycle adjusted as we do not deal
+	// with one tempo/tick size anymore.
+	nMaxCycles = std::max( nMaxCycles, 2112 );
 	
 	nn = 0;
 
@@ -2541,11 +2552,14 @@ bool AudioEngine::testTransportProcessing() {
 
 		fBpm = tempoDist( randomEngine );
 
-		nLastFrame = std::round( nLastFrame * fLastBpm / fBpm );
+		nPrevLastFrame = nLastFrame;
+		nLastFrame =
+			static_cast<int>(std::round( static_cast<double>(nLastFrame) *
+										 static_cast<double>(fLastBpm) /
+										 static_cast<double>(fBpm) ));
 		
 		setNextBpm( fBpm );
 		updateBpmAndTickSize();
-		fLastBpm = fBpm;
 		
 		for ( int cc = 0; cc < nCyclesPerTempo; ++cc ) {
 			nFrames = frameDist( randomEngine );
@@ -2560,9 +2574,14 @@ bool AudioEngine::testTransportProcessing() {
 
 			if ( ( cc > 0 && getFrames() - nFrames != nLastFrame ) ||
 				 // errors in the rescaling of nLastFrame are omitted.
-				 ( cc == 0 && abs( getFrames() - nFrames - nLastFrame ) > 1 ) ) {
-				ERRORLOG( QString( "[variable tempo] inconsistent frame update. getFrames(): %1, nFrames: %2, nLastFrame: %3" )
-						  .arg( getFrames() ).arg( nFrames ).arg( nLastFrame ) );
+				 ( cc == 0 &&
+				   abs( ( getFrames() - nFrames - nLastFrame ) /
+						getFrames() ) > 1e-8 ) ) {
+				ERRORLOG( QString( "[variable tempo] inconsistent frame update. getFrames(): %1, nFrames: %2, nLastFrame: %3, cc: %4, fLastBpm: %5, fBpm: %6, nPrevLastFrame: %7" )
+						  .arg( getFrames() ).arg( nFrames )
+						  .arg( nLastFrame ).arg( cc )
+						  .arg( fLastBpm, 0, 'f' ).arg( fBpm, 0, 'f' )
+						  .arg( nPrevLastFrame ) );
 				bNoMismatch = false;
 				setState( AudioEngine::State::Ready );
 				unlock();
@@ -2584,6 +2603,8 @@ bool AudioEngine::testTransportProcessing() {
 				return bNoMismatch;
 			}
 		}
+		
+		fLastBpm = fBpm;
 
 		nn++;
 
