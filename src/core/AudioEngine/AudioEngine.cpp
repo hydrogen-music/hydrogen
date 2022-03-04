@@ -2405,22 +2405,22 @@ bool AudioEngine::testFrameToTickConversion() {
 	long long nFrame2Computed = computeFrameFromTick( fTick2, &fFrameOffset2 );
 	long long nFrame3Computed = computeFrameFromTick( fTick3, &fFrameOffset3 );
 	
-	if ( nFrame1Computed != nFrame1 || fFrameOffset1 != 0 ) {
+	if ( nFrame1Computed != nFrame1 || std::abs( fFrameOffset1 ) > 1e-12 ) {
 		ERRORLOG( QString( "[1] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4" )
 				  .arg( nFrame1 ).arg( fTick1, 0, 'f' ).arg( nFrame1Computed )
-				  .arg( fFrameOffset1, 0, 'f' ).toLocal8Bit().data() );
+				  .arg( fFrameOffset1, 0, 'E', -1 ).toLocal8Bit().data() );
 		bNoMismatch = false;
 	}
-	if ( nFrame2Computed != nFrame2 || fFrameOffset2 != 0 ) {
+	if ( nFrame2Computed != nFrame2 || std::abs( fFrameOffset2 ) > 1e-12 ) {
 		ERRORLOG( QString( "[2] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4" )
 				  .arg( nFrame2 ).arg( fTick2, 0, 'f' ).arg( nFrame2Computed )
-				  .arg( fFrameOffset2, 0, 'f' ).toLocal8Bit().data() );
+				  .arg( fFrameOffset2, 0, 'E', -1 ).toLocal8Bit().data() );
 		bNoMismatch = false;
 	}
-	if ( nFrame3Computed != nFrame3 || fFrameOffset3 != 0 ) {
+	if ( nFrame3Computed != nFrame3 || std::abs( fFrameOffset3 ) > 1e-6 ) {
 		ERRORLOG( QString( "[3] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4" )
 				  .arg( nFrame3 ).arg( fTick3, 0, 'f' ).arg( nFrame3Computed )
-				  .arg( fFrameOffset3, 0, 'f' ).toLocal8Bit().data() );
+				  .arg( fFrameOffset3, 0, 'E', -1 ).toLocal8Bit().data() );
 		bNoMismatch = false;
 	}
 
@@ -2441,21 +2441,21 @@ bool AudioEngine::testFrameToTickConversion() {
 	if ( abs( fTick4Computed - fTick4 ) > 1e-9 ) {
 		ERRORLOG( QString( "[4] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4" )
 				  .arg( nFrame4 ).arg( fTick4, 0, 'f' ).arg( fTick4Computed, 0, 'f' )
-				  .arg( fFrameOffset4, 0, 'f' ).toLocal8Bit().data() );
+				  .arg( fFrameOffset4, 0, 'E' ).toLocal8Bit().data() );
 		bNoMismatch = false;
 	}
 
 	if ( abs( fTick5Computed - fTick5 ) > 1e-9 ) {
 		ERRORLOG( QString( "[5] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4" )
 				  .arg( nFrame5 ).arg( fTick5, 0, 'f' ).arg( fTick5Computed, 0, 'f' )
-				  .arg( fFrameOffset5, 0, 'f' ).toLocal8Bit().data() );
+				  .arg( fFrameOffset5, 0, 'E' ).toLocal8Bit().data() );
 		bNoMismatch = false;
 	}
 
-	if ( abs( fTick6Computed - fTick6 ) > 1e-9 ) {
+	if ( abs( fTick6Computed - fTick6 ) > 1e-6 ) {
 		ERRORLOG( QString( "[6] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4" )
 				  .arg( nFrame6 ).arg( fTick6, 0, 'f' ).arg( fTick6Computed, 0, 'f' )
-				  .arg( fFrameOffset6, 0, 'f' ).toLocal8Bit().data() );
+				  .arg( fFrameOffset6, 0, 'E' ).toLocal8Bit().data() );
 		bNoMismatch = false;
 	}
 
