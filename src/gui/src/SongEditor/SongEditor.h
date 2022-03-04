@@ -167,7 +167,7 @@ class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public S
 		QPoint movingGridOffset() const;
 
 		//! Mouse position during selection gestures (used to detect crossing cell boundaries)
-		QPoint m_previousMousePosition, m_currentMousePosition;
+		QPoint m_previousMousePosition, m_currentMousePosition, m_previousGridOffset;
 
 		//! @name Change the mouse cursor during mouse gestures
 		//! @{
