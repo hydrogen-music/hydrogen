@@ -139,7 +139,7 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 	__usr_data_path = QDir::homePath().append( "/.hydrogen/data/" ) ;
 	__usr_cfg_path = QDir::homePath().append( "/.hydrogen/" USR_CONFIG ) ;
 #elif APPIMAGE
-	__sys_data_path = QCoreApplication::applicationDirPath().append( "/../share/hydrogen/data/" ) ;
+	__sys_data_path = HW_DATA_PATH ;
 	__usr_data_path = QDir::homePath().append( "/" H2_USR_PATH "/data/" ) ;
 	__usr_cfg_path = QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
 #else
