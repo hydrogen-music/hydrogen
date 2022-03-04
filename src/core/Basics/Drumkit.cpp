@@ -244,7 +244,7 @@ void Drumkit::upgrade_drumkit(Drumkit* pDrumkit, const QString& dk_path, bool bS
 										files */,
 							   bSilent );
 		
-		pDrumkit->save_file( dk_path, true, -1, bSilent );
+		pDrumkit->save_file( dk_path, true, -1, true, bSilent );
 	}
 }
 
