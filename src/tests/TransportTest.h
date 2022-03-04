@@ -41,6 +41,7 @@ private:
 	
 public:
 	void setUp();
+	void tearDown();
 	
 	void testFrameToTickConversion();
 
