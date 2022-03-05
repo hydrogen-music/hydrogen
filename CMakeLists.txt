@@ -329,7 +329,7 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
 * macosx bundle                : ${H2CORE_HAVE_BUNDLE}
 * fat build                    : ${WANT_FAT_BUILD}
-* AppImage build               : ${WANT_APPIMAGE}\n"
+* AppImage build               : ${H2CORE_HAVE_APPIMAGE}\n"
 )
 
 COLOR_MESSAGE("${cyan}Main librarires${reset}")
