@@ -129,6 +129,8 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 #ifdef H2CORE_HAVE_BUNDLE
 	// Bundle: Prepare hydrogen to use path names which are used in app bundles: http://en.wikipedia.org/wiki/Application_Bundle
 	__sys_data_path = QCoreApplication::applicationDirPath().append( "/../Resources/data/" ) ;
+#elif H2CORE_HAVE_APPIMAGE
+	__sys_data_path = QCoreApplication::applicationDirPath().append( "/../share/hydrogen/data/" ) ;
 #else
 	__sys_data_path = QCoreApplication::applicationDirPath().append( "/data/" ) ;
 #endif
@@ -138,10 +140,6 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 	__sys_data_path = QCoreApplication::applicationDirPath().append( "/data/" ) ;
 	__usr_data_path = QDir::homePath().append( "/.hydrogen/data/" ) ;
 	__usr_cfg_path = QDir::homePath().append( "/.hydrogen/" USR_CONFIG ) ;
-#elif APPIMAGE
-	__sys_data_path = HW_DATA_PATH ;
-	__usr_data_path = QDir::homePath().append( "/" H2_USR_PATH "/data/" ) ;
-	__usr_cfg_path = QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
 #else
 	__sys_data_path = H2_SYS_PATH "/data/";
 	__usr_data_path = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
