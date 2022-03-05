@@ -346,6 +346,7 @@ float ADSR::release()
 	__release_value = __value;
 	__state = RELEASE;
 	__ticks = 0;
+	m_fQ = fDecayInit;
 	return __release_value;
 }
 
