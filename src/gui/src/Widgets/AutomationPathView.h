@@ -57,6 +57,8 @@ public:
 	int  getGridWidth() const noexcept { return m_nGridWidth; }
 	void setGridWidth(int width);
 
+	void updateAutomationPath();
+
 protected:
 	void paintEvent(QPaintEvent *event) override;
 	void mousePressEvent(QMouseEvent *event) override;

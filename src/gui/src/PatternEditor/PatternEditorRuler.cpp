@@ -62,8 +62,8 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 		ERRORLOG( "Error loading pixmap " );
 	}
 
-	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
-	m_pBackground->fill( backgroundColor );
+	m_pBackground = nullptr;
+	createBackground();
 
 	m_pTimer = new QTimer(this);
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateEditor()));
@@ -168,22 +168,23 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 }
 
 
-
-void PatternEditorRuler::paintEvent( QPaintEvent *ev)
+void PatternEditorRuler::createBackground()
 {
-
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if (!isVisible()) {
-		return;
+	if ( m_pBackground ) {
+		delete m_pBackground;
 	}
 
-	QPainter painter(this);
+	// Create new background pixmap at native device pixelratio
+	qreal pixelRatio = devicePixelRatio();
+	m_pBackground = new QPixmap( pixelRatio * QSize( m_nRulerWidth, m_nRulerHeight ) );
+	m_pBackground->setDevicePixelRatio( pixelRatio );
 
 	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
 	m_pBackground->fill( backgroundColor );
 
-	painter.drawPixmap( ev->rect(), *m_pBackground, ev->rect() );
+	QPainter painter( m_pBackground );
 
 	// gray background for unusable section of pattern
 	if (m_pPattern) {
@@ -219,11 +220,33 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 		}
 	}
 
+}
+
+
+void PatternEditorRuler::paintEvent( QPaintEvent *ev)
+{
+	auto pPref = H2Core::Preferences::get_instance();
+
+	if (!isVisible()) {
+		return;
+	}
+
+	qreal pixelRatio = devicePixelRatio();
+	if ( pixelRatio != m_pBackground->devicePixelRatio() ) {
+		createBackground();
+	}
+
+	QPainter painter(this);
+
+	painter.drawPixmap( ev->rect(), *m_pBackground, QRectF( pixelRatio * ev->rect().x(),
+															pixelRatio * ev->rect().y(),
+															pixelRatio * ev->rect().width(),
+															pixelRatio * ev->rect().height() ) );
+
 	// draw tickPosition
 	if (m_nTicks != -1) {
 		uint x = (uint)( 20 + m_nTicks * m_fGridWidth - 5 - 11 / 2.0 );
 		painter.drawPixmap( QRect( x, height() / 2, 11, 8 ), m_tickPosition, QRect( 0, 0, 11, 8 ) );
-
 	}
 }
 
@@ -241,10 +264,7 @@ void PatternEditorRuler::zoomIn()
 	}
 	m_nRulerWidth = 20 + m_fGridWidth * ( MAX_NOTES * 4 );
 	resize(  QSize(m_nRulerWidth, m_nRulerHeight ));
-	delete m_pBackground;
-	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
-	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
-	m_pBackground->fill( backgroundColor );
+	createBackground();
 	update();
 }
 
@@ -262,10 +282,7 @@ void PatternEditorRuler::zoomOut()
 		}
 		m_nRulerWidth = 20 + m_fGridWidth * ( MAX_NOTES * 4 );
 		resize( QSize(m_nRulerWidth, m_nRulerHeight) );
-		delete m_pBackground;
-		m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
-		QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
-		m_pBackground->fill( backgroundColor );
+		createBackground();
 		update();
 	}
 }
@@ -273,6 +290,7 @@ void PatternEditorRuler::zoomOut()
 
 void PatternEditorRuler::selectedPatternChangedEvent()
 {
+	createBackground();
 	updateEditor( true );
 }
 

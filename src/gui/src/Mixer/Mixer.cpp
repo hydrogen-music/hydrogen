@@ -385,6 +385,10 @@ void Mixer::masterVolumeChanged(MasterMixerLine* ref)
 
 void Mixer::updateMixer()
 {
+	if ( ! isVisible() ) {
+		// Skip redundant updates if mixer is not visible.
+		return;
+	}
 	Preferences *pPref = Preferences::get_instance();
 	bool bShowPeaks = pPref->showInstrumentPeaks();
 

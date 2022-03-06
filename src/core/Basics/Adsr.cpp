@@ -147,6 +147,30 @@ float ADSR::get_value( float step )
 	return __value;
 }
 
+bool ADSR::applyADSR( float *pLeft, float *pRight, int nFrames, int nReleaseFrame, float fStep )
+{
+	bool bDone = false;
+
+	/* During the attack and decay, we'll process and also check whether we've moved to sustain */
+	for ( int n = 0; n < nFrames; n++ ) {
+		if ( n >= nReleaseFrame ) {
+			bDone = ( release() == 0.0 );
+		}
+		float fValue = get_value( fStep );
+		pLeft[ n ] *= fValue;
+		pRight[ n ] *= fValue;
+
+		if ( __state == SUSTAIN && __sustain == 1.0 ) {
+			/* Skip past however many frames of sustain, because applying 1.0 to the value is a no-op */
+			int nSustainFrames = std::min(nFrames, nReleaseFrame);
+			n += nSustainFrames;
+			__ticks += nSustainFrames * fStep;
+			break;
+		}
+	}
+	return bDone;
+}
+
 void ADSR::attack()
 {
 	__state = ATTACK;
