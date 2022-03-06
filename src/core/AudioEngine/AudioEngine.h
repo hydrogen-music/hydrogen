@@ -540,6 +540,7 @@ private:
 	void reset(  bool bWithJackBroadcast = true );
 
 	double getDoubleTick() const;
+	static double computeDoubleTickSize(const int nSampleRate, const float fBpm, const int nResolution);
 	
 	inline void			processPlayNotes( unsigned long nframes );
 
