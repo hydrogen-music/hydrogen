@@ -358,6 +358,15 @@ float AudioEngine::computeTickSize( const int nSampleRate, const float fBpm, con
 	return fTickSize;
 }
 
+double AudioEngine::computeDoubleTickSize( const int nSampleRate, const float fBpm, const int nResolution)
+{
+	double fTickSize = static_cast<double>(nSampleRate) * 60.0 /
+		static_cast<double>(fBpm) /
+		static_cast<double>(nResolution);
+	
+	return fTickSize;
+}
+
 long long AudioEngine::computeFrame( double fTick, float fTickSize ) {
 	return std::round( fTick * fTickSize );
 }
@@ -385,6 +394,8 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 	const auto pDriver = pHydrogen->getAudioOutput();
 
 	long long nNewFrame;
+
+	// DEBUGLOG( QString( "fTick: %1" ).arg( fTick ) );
 
 #ifdef H2CORE_HAVE_JACK
 	// In case Hydrogen is using the JACK server to sync transport, it
@@ -608,9 +619,9 @@ long long AudioEngine::computeFrameFromTick( const double fTick, double* fTickMi
 	}
 	const int nResolution = pSong->getResolution();
 
-	const float fTickSize = AudioEngine::computeTickSize( nSampleRate,
-													getBpm(),
-													nResolution );
+	const double fTickSize = AudioEngine::computeDoubleTickSize( nSampleRate,
+																getBpm(),
+																nResolution );
 	
 	if ( nSampleRate == 0 || nResolution == 0 ) {
 		ERRORLOG( "Not properly initialized yet" );
@@ -650,16 +661,16 @@ long long AudioEngine::computeFrameFromTick( const double fTick, double* fTickMi
 				}
 
 				fNextTickSize =
-					static_cast<double>(AudioEngine::computeTickSize( nSampleRate,
-																	  tempoMarkers[ ii - 1 ]->fBpm,
-																	  nResolution ));
+					AudioEngine::computeDoubleTickSize( nSampleRate,
+														tempoMarkers[ ii - 1 ]->fBpm,
+														nResolution );
 				
-				if ( fRemainingTicks >= ( fNextTick - fPassedTicks ) ) {
+				if ( fRemainingTicks > ( fNextTick - fPassedTicks ) ) {
 					// The whole segment of the timeline covered by tempo
 					// marker ii is left of the current transport position.
 					fNewFrames += ( fNextTick - fPassedTicks ) * fNextTickSize;
 
-					// DEBUGLOG( QString( "fTick: %1, fNewFrames: %2, nNextTick: %3, nRemainingTicks: %4, nPassedTicks: %5, fNextTickSize: %6, col: %7, bpm: %8" )
+					// DEBUGLOG( QString( "fTick: %1, fNewFrames: %2, nNextTick: %3, nRemainingTicks: %4, nPassedTicks: %5, fNextTickSize: %6, col: %7, bpm: %8, tick increment: %9, frame increment: %10" )
 					// 		  .arg( fTick, 0, 'f' )
 					// 		  .arg( fNewFrames, 0, 'f' )
 					// 		  .arg( fNextTick, 0, 'f' )
@@ -668,9 +679,12 @@ long long AudioEngine::computeFrameFromTick( const double fTick, double* fTickMi
 					// 		  .arg( fNextTickSize, 0, 'f' )
 					// 		  .arg( tempoMarkers[ ii - 1 ]->nColumn )
 					// 		  .arg( tempoMarkers[ ii - 1 ]->fBpm )
+					// 		  .arg( fNextTick - fPassedTicks, 0, 'f' )
+					// 		  .arg( ( fNextTick - fPassedTicks ) * fNextTickSize, 0, 'g', 30 )
 					// 		  );
 					
 					fRemainingTicks -= fNextTick - fPassedTicks;
+					
 					fPassedTicks = fNextTick;
 
 				} else {
@@ -681,9 +695,9 @@ long long AudioEngine::computeFrameFromTick( const double fTick, double* fTickMi
 					*fTickMismatch = ( fNewFrames - static_cast<double>( nNewFrames ) ) /
 						fNextTickSize;
 
-					// DEBUGLOG( QString( "fTick: %1, fNewFrames: %2, nNewFrames: %9, fTickMismatch: %10, nNextTick: %3, nRemainingTicks: %4, nPassedTicks: %5, fNextTickSize: %6, col: %7, bpm: %8" )
+					// DEBUGLOG( QString( "fTick: %1, fNewFrames: %2, nNewFrames: %9, fTickMismatch: %10, nNextTick: %3, nRemainingTicks: %4, nPassedTicks: %5, fNextTickSize: %6, col: %7, bpm: %8, tick increment: %11, frame increment: %12" )
 					// 		  .arg( fTick, 0, 'f' )
-					// 		  .arg( fNewFrames, 0, 'f' )
+					// 		  .arg( fNewFrames, 0, 'g', 30 )
 					// 		  .arg( fNextTick, 0, 'f' )
 					// 		  .arg( fRemainingTicks, 0, 'f' )
 					// 		  .arg( fPassedTicks, 0, 'f' )
@@ -691,7 +705,9 @@ long long AudioEngine::computeFrameFromTick( const double fTick, double* fTickMi
 					// 		  .arg( tempoMarkers[ ii - 1 ]->nColumn )
 					// 		  .arg( tempoMarkers[ ii - 1 ]->fBpm )
 					// 		  .arg( nNewFrames )
-					// 		  .arg( *fTickMismatch, 0, 'f' )
+					// 		  .arg( *fTickMismatch, 0, 'g', 30 )
+					// 		  .arg( fRemainingTicks, 0, 'f' )
+					// 		  .arg( fRemainingTicks * fNextTickSize, 0, 'g', 30 )
 					// 		  );
 
 					fRemainingTicks -= fNewTick - fPassedTicks;
@@ -725,14 +741,14 @@ long long AudioEngine::computeFrameFromTick( const double fTick, double* fTickMi
 		
 		// No Timeline but a single tempo for the whole song.
 		double fNewFrames = static_cast<double>(fTick) *
-			static_cast<double>(fTickSize);
+			fTickSize;
 		nNewFrames = static_cast<long long>( std::round( fNewFrames ) );
 		*fTickMismatch = ( fNewFrames - static_cast<double>(nNewFrames ) ) /
-			static_cast<double>(fTickSize);
+			fTickSize;
 
 		// DEBUGLOG(QString("nNewFrames: %1, fTick: %2, fTickSize: %3, fTickMismatch: %4" )
 		// 		 .arg( nNewFrames ).arg( fTick, 0, 'f' ).arg( fTickSize, 0, 'f' )
-		// 		 .arg( *fTickMismatch, 0, 'f' ));
+		// 		 .arg( *fTickMismatch, 0, 'g', 30 ));
 		
 	}
 	
@@ -756,9 +772,10 @@ double AudioEngine::computeTickFromFrame( const long long nFrame, int nSampleRat
 	const int nResolution = pSong->getResolution();
 	double fTick = 0;
 
-	const float fTickSize = AudioEngine::computeTickSize( nSampleRate,
-														  getBpm(),
-														  nResolution );
+	const double fTickSize =
+		AudioEngine::computeDoubleTickSize( nSampleRate,
+											getBpm(),
+											nResolution );
 	
 	if ( nSampleRate == 0 || nResolution == 0 ) {
 		ERRORLOG( "Not properly initialized yet" );
@@ -790,9 +807,9 @@ double AudioEngine::computeTickFromFrame( const long long nFrame, int nSampleRat
 			for ( int ii = 1; ii <= tempoMarkers.size(); ++ii ) {
 
 				fNextTickSize =
-					static_cast<double>(AudioEngine::computeTickSize( nSampleRate,
-																	  tempoMarkers[ ii - 1 ]->fBpm,
-																	  nResolution ));
+					AudioEngine::computeDoubleTickSize( nSampleRate,
+														tempoMarkers[ ii - 1 ]->fBpm,
+														nResolution );
 				if ( ii == tempoMarkers.size() ||
 					 tempoMarkers[ ii ]->nColumn >= nColumns ) {
 					fNextTicks = m_fSongSizeInTicks;
@@ -802,7 +819,7 @@ double AudioEngine::computeTickFromFrame( const long long nFrame, int nSampleRat
 				}
 				fNextFrames = (fNextTicks - fPassedTicks) * fNextTickSize;
 
-				// DEBUGLOG(QString( "[timeline] nFrame: %1, fTick: %11, sampleRate: %2, tickSize: %3, nNextTicks: %5, fNextFrames: %6, col: %7, bpm: %8, nPassedTicks: %9, fRemainingFrames: %10" )
+				// DEBUGLOG(QString( "[timeline] nFrame: %1, fTick: %11, sampleRate: %2, tickSize: %3, nNextTicks: %5, fNextFrames: %6, col: %7, bpm: %8, nPassedTicks: %9, fRemainingFrames: %10, tick increment: %12, frame increment: %13" )
 				// 		 .arg( nFrame )
 				// 		 .arg( nSampleRate )
 				// 		 .arg( fNextTickSize, 0, 'f' )
@@ -813,6 +830,8 @@ double AudioEngine::computeTickFromFrame( const long long nFrame, int nSampleRat
 				// 		 .arg( fPassedTicks, 0, 'f' )
 				// 		 .arg( fRemainingFrames, 0, 'f' )
 				// 		 .arg( fTick, 0, 'f' )
+				// 		 .arg( fNextTicks - fPassedTicks, 0, 'f' )
+				// 		 .arg( (fNextTicks - fPassedTicks) * fNextTickSize, 0, 'g', 30 )
 				// 		 );
 		
 				if ( fNextFrames < fRemainingFrames ) {
@@ -830,10 +849,12 @@ double AudioEngine::computeTickFromFrame( const long long nFrame, int nSampleRat
 					double fNewTick = fRemainingFrames /
 						fNextTickSize;
 
-					// DEBUGLOG(QString( "%1 + %2 = %3" )
-					// 		 .arg( fNewTick, 0 , 'f' )
+					// DEBUGLOG(QString( "%1 + %2 = %3, fRemainingFrames: %4" )
+					// 		 .arg( fNewTick, 0 , 'g', 30 )
 					// 		 .arg( fTick, 0 , 'f' )
-					// 		 .arg( fTick + fNewTick, 0 , 'f' ) );
+					// 		 .arg( fTick + fNewTick, 0 , 'f' )
+					// 		 .arg( fRemainingFrames, 0, 'g', 30)
+					// 		 );
 
 					fTick += fNewTick;
 											
@@ -869,7 +890,7 @@ double AudioEngine::computeTickFromFrame( const long long nFrame, int nSampleRat
 	} else {
 	
 		// No Timeline. Constant tempo/tick size for the whole song.
-		fTick = static_cast<double>(nFrame) / static_cast<double>(fTickSize);
+		fTick = static_cast<double>(nFrame) / fTickSize;
 
 		// DEBUGLOG(QString( "[no timeline] nFrame: %1, sampleRate: %2, tickSize: %3" )
 		// 		 .arg( nFrame ).arg( nSampleRate ).arg( fTickSize, 0, 'f' ) );
@@ -2399,28 +2420,32 @@ bool AudioEngine::testFrameToTickConversion() {
 	long long nFrame2 = 1037223;
 	long long nFrame3 = 453610333722;
 	double fTick1 = computeTickFromFrame( nFrame1 );
-	double fTick2 = computeTickFromFrame( nFrame2 );
-	double fTick3 = computeTickFromFrame( nFrame3 );
 	long long nFrame1Computed = computeFrameFromTick( fTick1, &fFrameOffset1 );
+	double fTick2 = computeTickFromFrame( nFrame2 );
 	long long nFrame2Computed = computeFrameFromTick( fTick2, &fFrameOffset2 );
+	double fTick3 = computeTickFromFrame( nFrame3 );
 	long long nFrame3Computed = computeFrameFromTick( fTick3, &fFrameOffset3 );
 	
 	if ( nFrame1Computed != nFrame1 || std::abs( fFrameOffset1 ) > 1e-12 ) {
-		ERRORLOG( QString( "[1] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4" )
+		ERRORLOG( QString( "[1] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4, frame diff: %5" )
 				  .arg( nFrame1 ).arg( fTick1, 0, 'f' ).arg( nFrame1Computed )
-				  .arg( fFrameOffset1, 0, 'E', -1 ).toLocal8Bit().data() );
+				  .arg( fFrameOffset1, 0, 'E', -1 )
+				  .arg( nFrame1Computed - nFrame1 )
+				  .toLocal8Bit().data() );
 		bNoMismatch = false;
 	}
 	if ( nFrame2Computed != nFrame2 || std::abs( fFrameOffset2 ) > 1e-12 ) {
-		ERRORLOG( QString( "[2] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4" )
+		ERRORLOG( QString( "[2] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4, frame diff: %5" )
 				  .arg( nFrame2 ).arg( fTick2, 0, 'f' ).arg( nFrame2Computed )
-				  .arg( fFrameOffset2, 0, 'E', -1 ).toLocal8Bit().data() );
+				  .arg( fFrameOffset2, 0, 'E', -1 )
+				  .arg( nFrame2Computed - nFrame2 ).toLocal8Bit().data() );
 		bNoMismatch = false;
 	}
 	if ( nFrame3Computed != nFrame3 || std::abs( fFrameOffset3 ) > 1e-6 ) {
-		ERRORLOG( QString( "[3] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4" )
+		ERRORLOG( QString( "[3] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4, frame diff: %5" )
 				  .arg( nFrame3 ).arg( fTick3, 0, 'f' ).arg( nFrame3Computed )
-				  .arg( fFrameOffset3, 0, 'E', -1 ).toLocal8Bit().data() );
+				  .arg( fFrameOffset3, 0, 'E', -1 )
+				  .arg( nFrame3Computed - nFrame3 ).toLocal8Bit().data() );
 		bNoMismatch = false;
 	}
 
@@ -2428,34 +2453,37 @@ bool AudioEngine::testFrameToTickConversion() {
 	double fTick5 = 1939;
 	double fTick6 = 534623409;
 	long long nFrame4 = computeFrameFromTick( fTick4, &fFrameOffset4 );
-	long long nFrame5 = computeFrameFromTick( fTick5, &fFrameOffset5 );
-	long long nFrame6 = computeFrameFromTick( fTick6, &fFrameOffset6 );
 	double fTick4Computed = computeTickFromFrame( nFrame4 ) +
 		fFrameOffset4;
+	long long nFrame5 = computeFrameFromTick( fTick5, &fFrameOffset5 );
 	double fTick5Computed = computeTickFromFrame( nFrame5 ) +
 		fFrameOffset5;
+	long long nFrame6 = computeFrameFromTick( fTick6, &fFrameOffset6 );
 	double fTick6Computed = computeTickFromFrame( nFrame6 ) +
 		fFrameOffset6;
 	
 	
 	if ( abs( fTick4Computed - fTick4 ) > 1e-9 ) {
-		ERRORLOG( QString( "[4] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4" )
+		ERRORLOG( QString( "[4] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4, tick diff: %5" )
 				  .arg( nFrame4 ).arg( fTick4, 0, 'f' ).arg( fTick4Computed, 0, 'f' )
-				  .arg( fFrameOffset4, 0, 'E' ).toLocal8Bit().data() );
+				  .arg( fFrameOffset4, 0, 'E' )
+				  .arg( fTick4Computed - fTick4 ).toLocal8Bit().data() );
 		bNoMismatch = false;
 	}
 
 	if ( abs( fTick5Computed - fTick5 ) > 1e-9 ) {
-		ERRORLOG( QString( "[5] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4" )
+		ERRORLOG( QString( "[5] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4, tick diff: %5" )
 				  .arg( nFrame5 ).arg( fTick5, 0, 'f' ).arg( fTick5Computed, 0, 'f' )
-				  .arg( fFrameOffset5, 0, 'E' ).toLocal8Bit().data() );
+				  .arg( fFrameOffset5, 0, 'E' )
+				  .arg( fTick5Computed - fTick5 ).toLocal8Bit().data() );
 		bNoMismatch = false;
 	}
 
 	if ( abs( fTick6Computed - fTick6 ) > 1e-6 ) {
-		ERRORLOG( QString( "[6] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4" )
+		ERRORLOG( QString( "[6] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4, tick diff: %5" )
 				  .arg( nFrame6 ).arg( fTick6, 0, 'f' ).arg( fTick6Computed, 0, 'f' )
-				  .arg( fFrameOffset6, 0, 'E' ).toLocal8Bit().data() );
+				  .arg( fFrameOffset6, 0, 'E' )
+				  .arg( fTick6Computed - fTick6 ).toLocal8Bit().data() );
 		bNoMismatch = false;
 	}
 
@@ -3126,13 +3154,13 @@ bool AudioEngine::testSongSizeChangeInLoopMode() {
 bool AudioEngine::testCheckTransportPosition( const QString& sContext) const {
 
 	double fTickMismatch;
-	double fCheckTick = computeTickFromFrame( getFrames() );
 	long long nCheckFrame = computeFrameFromTick( getDoubleTick(), &fTickMismatch );
+	double fCheckTick = computeTickFromFrame( getFrames() );// + fTickMismatch );
 	
 	if ( abs( fCheckTick + fTickMismatch - getDoubleTick() ) > 1e-9 ||
 		 abs( fTickMismatch - m_fTickMismatch ) > 1e-9 ||
 		 nCheckFrame != getFrames() ) {
-		ERRORLOG( QString( "[%9] mismatch. frame: %1, check frame: %2, tick: %3, check tick: %4, offset: %5, check offset: %6, tick size: %7, bpm: %8" )
+		ERRORLOG( QString( "[%9] mismatch. frame: %1, check frame: %2, tick: %3, check tick: %4, offset: %5, check offset: %6, tick size: %7, bpm: %8, fCheckTick + fTickMismatch - getDoubleTick(): %10, fTickMismatch - m_fTickMismatch: %11, nCheckFrame - getFrames(): %12" )
 				  .arg( getFrames() )
 				  .arg( nCheckFrame )
 				  .arg( getDoubleTick(), 0 , 'f', 9 )
@@ -3142,6 +3170,9 @@ bool AudioEngine::testCheckTransportPosition( const QString& sContext) const {
 				  .arg( getTickSize(), 0 , 'f' )
 				  .arg( getBpm(), 0 , 'f' )
 				  .arg( sContext )
+				  .arg( fCheckTick + fTickMismatch - getDoubleTick(), 0, 'E' )
+				  .arg( fTickMismatch - m_fTickMismatch, 0, 'E' )
+				  .arg( nCheckFrame - getFrames() )
 				  );
 		return false;
 	}
