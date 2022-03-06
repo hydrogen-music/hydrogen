@@ -667,6 +667,13 @@ private:
 	 * change in song size.
 	 */
 	void handleSongSizeChange();
+
+	/**
+	 * The audio driver was changed what possible changed the tick
+	 * size - which depends on both the sample rate - too. Thus, all
+	 * frame-based variables might have become invalid.
+	 */
+	void handleDriverChange();
 	
 	/** Helper function */
 	bool testCheckTransportPosition( const QString& sContext ) const;

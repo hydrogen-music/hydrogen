@@ -557,6 +557,7 @@ void AudioEngine::updateBpmAndTickSize() {
 	}
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
+	float fOldBpm = getBpm();
 	
 	float fNewBpm = getBpmAtColumn( pHydrogen->getAudioEngine()->getColumn() );
 	if ( fNewBpm != getBpm() ) {
@@ -568,9 +569,11 @@ void AudioEngine::updateBpmAndTickSize() {
 	float fNewTickSize = AudioEngine::computeTickSize( static_cast<float>(m_pAudioDriver->getSampleRate()),
 													   getBpm(), pSong->getResolution() );
 
-	// DEBUGLOG(QString( "sample rate: %1, tick size: %2, bpm: %3" )
+	// DEBUGLOG(QString( "sample rate: %1, tick size: %2 -> %3, bpm: %4 -> %5" )
 	// 		 .arg( static_cast<float>(m_pAudioDriver->getSampleRate()))
+	// 		 .arg( fOldTickSize, 0, 'f' )
 	// 		 .arg( fNewTickSize, 0, 'f' )
+	// 		 .arg( fOldBpm, 0, 'f' )
 	// 		 .arg( getBpm(), 0, 'f' ) );
 	
 	// Nothing changed - avoid recomputing
@@ -602,6 +605,20 @@ void AudioEngine::updateBpmAndTickSize() {
 		// In addition, all currently processed notes have to be
 		// updated to be still valid.
 		handleTempoChange();
+		
+	} else if ( m_nFrameOffset != 0 ) {
+		// In case the frame offset was already set, we have to update
+		// it too in order to prevent inconsistencies in the transport
+		// and audio rendering when switching off the Timeline during
+		// playback, relocating, switching it on again, alter song
+		// size or sample rate, and switchting it off again. I know,
+		// quite an edge case but still.
+		// If we deal with a single speed for the whole song, the frames
+		// since the beginning of the song are tempo-dependent and have to
+		// be recalculated.
+		long long nNewFrames = computeFrameFromTick( getDoubleTick(),
+													 &m_fTickMismatch );
+		m_nFrameOffset = nNewFrames - getFrames() + m_nFrameOffset;
 	}
 }
 				
@@ -720,14 +737,20 @@ long long AudioEngine::computeFrameFromTick( const double fTick, double* fTickMi
 				// luckily, we just calculated the song length in
 				// frames (fNewFrames).
 				int nRepetitions = std::floor(fTick / m_fSongSizeInTicks);
-
-				// DEBUGLOG( QString( "nSongSizeInFrames: %1, nRepetitions: %2" )
-				// 		  .arg( fNewFrames, 0, 'f' ).arg( nRepetitions ) );
+				double fSongSizeInFrames = fNewFrames;
 				
-				fNewFrames *= nRepetitions;
+				fNewFrames *= static_cast<double>(nRepetitions);
 				fNewTick = std::fmod( fTick, m_fSongSizeInTicks );
 				fRemainingTicks = fNewTick;
 				fPassedTicks = 0;
+
+				// DEBUGLOG( QString( "frames covered: %1, ticks covered: %2, ticks remaining: %3, nRepetitions: %4, fSongSizeInFrames: %5" )
+				// 		  .arg( fNewFrames, 0, 'g', 30 )
+				// 		  .arg( fTick - fNewTick, 0, 'g', 30 )
+				// 		  .arg( fRemainingTicks, 0, 'g', 30 )
+				// 		  .arg( nRepetitions )
+				// 		  .arg( fSongSizeInFrames, 0, 'g', 30 )
+				// 		  );
 
 				if ( std::isinf( fNewFrames ) ||
 					 static_cast<long long>(fNewFrames) >
@@ -794,7 +817,8 @@ double AudioEngine::computeTickFromFrame( const long long nFrame, int nSampleRat
 
 		// We are using double precision in here to avoid rounding
 		// errors.
-		double fRemainingFrames = static_cast<double>(nFrame);
+		double fTargetFrames = static_cast<double>(nFrame);
+		double fPassedFrames = 0;
 		double fNextFrames = 0;
 		double fNextTicks, fPassedTicks = 0;
 		double fNextTickSize;
@@ -802,7 +826,7 @@ double AudioEngine::computeTickFromFrame( const long long nFrame, int nSampleRat
 
 		int nColumns = pSong->getPatternGroupVector()->size();
 
-		while ( fRemainingFrames > 0 ) {
+		while ( fPassedFrames < fTargetFrames ) {
 		
 			for ( int ii = 1; ii <= tempoMarkers.size(); ++ii ) {
 
@@ -819,7 +843,7 @@ double AudioEngine::computeTickFromFrame( const long long nFrame, int nSampleRat
 				}
 				fNextFrames = (fNextTicks - fPassedTicks) * fNextTickSize;
 
-				// DEBUGLOG(QString( "[timeline] nFrame: %1, fTick: %11, sampleRate: %2, tickSize: %3, nNextTicks: %5, fNextFrames: %6, col: %7, bpm: %8, nPassedTicks: %9, fRemainingFrames: %10, tick increment: %12, frame increment: %13" )
+				// DEBUGLOG(QString( "[timeline] nFrame: %1, fTick: %11, sampleRate: %2, tickSize: %3, nNextTicks: %5, fNextFrames: %6, col: %7, bpm: %8, nPassedTicks: %9, fPassedFrames [prev]: %10, tick increment: %12, frame increment: %13" )
 				// 		 .arg( nFrame )
 				// 		 .arg( nSampleRate )
 				// 		 .arg( fNextTickSize, 0, 'f' )
@@ -828,62 +852,66 @@ double AudioEngine::computeTickFromFrame( const long long nFrame, int nSampleRat
 				// 		 .arg( tempoMarkers[ ii -1 ]->nColumn )
 				// 		 .arg( tempoMarkers[ ii -1 ]->fBpm )
 				// 		 .arg( fPassedTicks, 0, 'f' )
-				// 		 .arg( fRemainingFrames, 0, 'f' )
+				// 		 .arg( fPassedFrames, 0, 'f' )
 				// 		 .arg( fTick, 0, 'f' )
 				// 		 .arg( fNextTicks - fPassedTicks, 0, 'f' )
 				// 		 .arg( (fNextTicks - fPassedTicks) * fNextTickSize, 0, 'g', 30 )
 				// 		 );
 		
-				if ( fNextFrames < fRemainingFrames ) {
+				if ( fNextFrames < ( fTargetFrames -
+									 fPassedFrames ) ) {
 					// The whole segment of the timeline covered by tempo
 					// marker ii is left of the transport position.
 					fTick += fNextTicks - fPassedTicks;
 
-					fRemainingFrames -= fNextFrames;
+					fPassedFrames += fNextFrames;
 					fPassedTicks = fNextTicks;
 
 				} else {
 					// We are within this segment.
 					// We use a floor in here because only integers
 					// frames are supported.
-					double fNewTick = fRemainingFrames /
+					double fNewTick = (fTargetFrames - fPassedFrames ) /
 						fNextTickSize;
 
-					// DEBUGLOG(QString( "%1 + %2 = %3, fRemainingFrames: %4" )
+					// DEBUGLOG(QString( "%1 + %2 = %3, fPassedFrames: %4" )
 					// 		 .arg( fNewTick, 0 , 'g', 30 )
 					// 		 .arg( fTick, 0 , 'f' )
 					// 		 .arg( fTick + fNewTick, 0 , 'f' )
-					// 		 .arg( fRemainingFrames, 0, 'g', 30)
+					// 		 .arg( fPassedFrames, 0, 'g', 30)
 					// 		 );
 
 					fTick += fNewTick;
 											
-					fRemainingFrames = 0;
+					fPassedFrames = fTargetFrames;
 					break;
 				}
 			}
 
-			if ( fRemainingFrames != 0 ) {
+			if ( fPassedFrames != fTargetFrames ) {
 				// The provided nFrame is larger than the song. But,
 				// luckily, we just calculated the song length in
 				// frames.
-				double fSongSizeInFrames = static_cast<double>(nFrame) -
-					fRemainingFrames;
-				int nRepetitions = std::floor(static_cast<double>(nFrame) / fSongSizeInFrames);
+				double fSongSizeInFrames = fPassedFrames;
+				int nRepetitions = std::floor(fTargetFrames / fSongSizeInFrames);
 				if ( m_fSongSizeInTicks * nRepetitions >
 					 std::numeric_limits<double>::max() ) {
 					ERRORLOG( QString( "Provided frames [%1] are too large." ).arg( nFrame ) );
 					return 0;
 				}
 				fTick = m_fSongSizeInTicks * nRepetitions;
-						  
-				fRemainingFrames =
-					std::fmod( static_cast<double>(nFrame), fSongSizeInFrames );
+
+				fPassedFrames = static_cast<double>(nRepetitions) *
+					fSongSizeInFrames;
 				fPassedTicks = 0;
 
-				// DEBUGLOG( QString( "fSongSizeInFrames: %1, fRemainingFrames: %4,  nRepetitions: %2, m_fSongSizeInTicks: %3" )
-				// 		  .arg( fSongSizeInFrames, 0, 'f' ).arg( nRepetitions )
-				// 		  .arg( m_fSongSizeInTicks, 0, 'f' ).arg( fRemainingFrames, 0, 'f' ) );
+				// DEBUGLOG( QString( "frames covered: %1, frames remaining: %2, ticks covered: %3,  nRepetitions: %4, fSongSizeInFrames: %5" )
+				// 		  .arg( fPassedFrames, 0, 'g', 30 )
+				// 		  .arg( fTargetFrames - fPassedFrames, 0, 'g', 30 )
+				// 		  .arg( fTick, 0, 'g', 30 )
+				// 		  .arg( nRepetitions )
+				// 		  .arg( fSongSizeInFrames, 0, 'g', 30 )
+				// 		  );
 				
 			}
 		}
@@ -1136,6 +1164,8 @@ void AudioEngine::setAudioDriver( AudioOutput* pAudioDriver ) {
 		
 		setupLadspaFX();
 	}
+
+	handleDriverChange();
 }
 
 void AudioEngine::stopAudioDrivers()
@@ -1189,6 +1219,16 @@ void AudioEngine::restartAudioDrivers()
 		stopAudioDrivers();
 	}
 	startAudioDrivers();
+}
+
+void AudioEngine::handleDriverChange() {
+
+	if ( Hydrogen::get_instance()->getSong() == nullptr ) {
+		WARNINGLOG( "no song set yet" );
+		return;
+	}
+	
+	handleTimelineChange();
 }
 
 float AudioEngine::getBpmAtColumn( int nColumn ) {
@@ -2426,7 +2466,7 @@ bool AudioEngine::testFrameToTickConversion() {
 	double fTick3 = computeTickFromFrame( nFrame3 );
 	long long nFrame3Computed = computeFrameFromTick( fTick3, &fFrameOffset3 );
 	
-	if ( nFrame1Computed != nFrame1 || std::abs( fFrameOffset1 ) > 1e-12 ) {
+	if ( nFrame1Computed != nFrame1 || std::abs( fFrameOffset1 ) > 1e-10 ) {
 		ERRORLOG( QString( "[1] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4, frame diff: %5" )
 				  .arg( nFrame1 ).arg( fTick1, 0, 'f' ).arg( nFrame1Computed )
 				  .arg( fFrameOffset1, 0, 'E', -1 )
@@ -2434,7 +2474,7 @@ bool AudioEngine::testFrameToTickConversion() {
 				  .toLocal8Bit().data() );
 		bNoMismatch = false;
 	}
-	if ( nFrame2Computed != nFrame2 || std::abs( fFrameOffset2 ) > 1e-12 ) {
+	if ( nFrame2Computed != nFrame2 || std::abs( fFrameOffset2 ) > 1e-10 ) {
 		ERRORLOG( QString( "[2] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4, frame diff: %5" )
 				  .arg( nFrame2 ).arg( fTick2, 0, 'f' ).arg( nFrame2Computed )
 				  .arg( fFrameOffset2, 0, 'E', -1 )
