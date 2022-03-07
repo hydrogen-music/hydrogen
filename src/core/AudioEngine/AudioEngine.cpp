@@ -1787,13 +1787,17 @@ void AudioEngine::updateSongSize() {
 
 	double fNewSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
 
-	// WARNINGLOG( QString( "[Before] frame: %1, bpm: %2, tickSize: %3, column: %4, tick: %5, pTickPos: %6, pStartPos: %7, m_fLastTickIntervalEnd: %8" )
+	// WARNINGLOG( QString( "[Before] frame: %1, bpm: %2, tickSize: %3, column: %4, tick: %5, mod(tick): %6, pTickPos: %7, pStartPos: %8, m_fLastTickIntervalEnd: %9, m_fSongSizeInTicks: %10" )
 	// 			.arg( getFrames() ).arg( getBpm() )
 	// 			.arg( getTickSize(), 0, 'f' )
-	// 			.arg( m_nColumn ).arg( getDoubleTick(), 0, 'f' )
+	// 			.arg( m_nColumn )
+	// 			.arg( getDoubleTick(), 0, 'g', 30 )
+	// 			.arg( std::fmod( getDoubleTick(), m_fSongSizeInTicks ), 0, 'g', 30 )
 	// 			.arg( m_nPatternTickPosition )
 	// 			.arg( m_nPatternStartTick )
-	// 			.arg( m_fLastTickIntervalEnd ) );
+	// 			.arg( m_fLastTickIntervalEnd )
+	// 			.arg( m_fSongSizeInTicks )
+	// 			);
 
 	// Strip away all repetitions when in loop mode but keep their
 	// number. m_nPatternStartTick and m_nColumn are only defined
@@ -1823,6 +1827,7 @@ void AudioEngine::updateSongSize() {
 	// pattern invariant in this transformation.
 	long nNewPatternStartTick = pHydrogen->getTickForColumn( getColumn() );
 	if ( nNewPatternStartTick != m_nPatternStartTick ) {
+
 		// DEBUGLOG( QString( "[start tick mismatch] old: %1, new: %2" )
 		// 		  .arg( m_nPatternStartTick )
 		// 		  .arg( nNewPatternStartTick ) );
@@ -1839,11 +1844,22 @@ void AudioEngine::updateSongSize() {
 
 	m_nFrameOffset = nNewFrames - getFrames() + m_nFrameOffset;
 	m_fTickOffset = fNewTick - getDoubleTick();
+
+	// Small rounding noise introduced in the calculation might spoil
+	// things as we floor the resulting tick offset later on. Hence,
+	// we round it to a specific precision.
+	m_fTickOffset *= 1e8;
+	m_fTickOffset = std::round( m_fTickOffset );
+	m_fTickOffset *= 1e-8;
 		
-	// DEBUGLOG(QString( "nNewFrame: %1, old frame: %2, frame offset: %3, new tick: %4, old tick: %5, tick offset : %6")
+	// INFOLOG(QString( "[update] nNewFrame: %1, old frame: %2, frame offset: %3, new tick: %4, old tick: %5, tick offset : %6, fNewSongSizeInTicks: %7, fRepetitions: %8")
 	// 		 .arg( nNewFrames ).arg( getFrames() )
-	// 		 .arg( m_nFrameOffset ).arg( fNewTick )
-	// 		 .arg( getDoubleTick() ).arg( m_fTickOffset )
+	// 		 .arg( m_nFrameOffset )
+	// 		 .arg( fNewTick, 0, 'g', 30 )
+	// 		 .arg( getDoubleTick(), 0, 'g', 30 )
+	// 		 .arg( m_fTickOffset, 0, 'g', 30 )
+	// 		 .arg( fNewSongSizeInTicks, 0, 'g', 30 )
+	// 		 .arg( fRepetitions, 0, 'g', 30 )
 	// 		 );
 
 	setFrames( nNewFrames );
@@ -1872,6 +1888,7 @@ void AudioEngine::updateSongSize() {
 	// 			.arg( m_nPatternTickPosition )
 	// 			.arg( m_nPatternStartTick )
 	// 			.arg( m_fLastTickIntervalEnd ) );
+	
 }
 
 void AudioEngine::handleTimelineChange() {
@@ -3297,7 +3314,7 @@ bool AudioEngine::testCheckAudioConsistency( const std::vector<std::shared_ptr<N
 					// were properly applied.
 					if ( ppNewNote->get_position() - fPassedTicks !=
 						 ppOldNote->get_position() ) {
-							ERRORLOG( QString( "[%4] glitch in note queue. Pre: %1 ; Post: %2 ; with passed ticks: %3" )
+							ERRORLOG( QString( "[%4] glitch in note queue.\n\nPre: %1 ;\n\nPost: %2 ; with passed ticks: %3" )
 									  .arg( ppOldNote->toQString( "", true ) )
 									  .arg( ppNewNote->toQString( "", true ) )
 									  .arg( fPassedTicks )
