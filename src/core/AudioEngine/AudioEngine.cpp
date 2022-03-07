@@ -2990,7 +2990,11 @@ bool AudioEngine::testComputeTickInterval() {
 											  nFrames );
 
 		if ( nLastLeadLagFactor != 0 &&
-			 nLastLeadLagFactor != nLeadLagFactor ) {
+			 // Since we move a region on two mismatching grids (frame
+			 // and tick), it's okay if the calculated is not
+			 // perfectly constant. For certain tick ranges more
+			 // frames are enclosed than for others (Moire effect). 
+			 std::abs( nLastLeadLagFactor - nLeadLagFactor ) > 1 ) {
 			ERRORLOG( QString( "[constant tempo] There should not be altering lead lag with constant tempo [new: %1, prev: %2].")
 					  .arg( nLeadLagFactor ).arg( nLastLeadLagFactor ) );
 			bNoMismatch = false;
@@ -3283,6 +3287,7 @@ bool AudioEngine::testCheckAudioConsistency( const std::vector<std::shared_ptr<N
 											 float fPassedTicks ) const {
 
 	bool bNoMismatch = true;
+	double fPassedFrames = static_cast<double>(nPassedFrames);
 	
 	int nNotesFound = 0;
 	for ( const auto& ppNewNote : newNotes ) {
@@ -3296,16 +3301,40 @@ bool AudioEngine::testCheckAudioConsistency( const std::vector<std::shared_ptr<N
 					// advanced by the Sampler upon rendering.
 					for ( int nn = 0; nn < ppNewNote->get_instrument()->get_components()->size(); nn++ ) {
 						auto pSelectedLayer = ppOldNote->get_layer_selected( nn );
+						
+						// The frames passed during the audio
+						// processing depends on the sample rate of
+						// the driver and sample and has to be
+						// adjusted in here. This is equivalent to the
+						// question whether Sampler::renderNote() or
+						// Sampler::renderNoteResample() was used.
+						if ( ppOldNote->getSample( nn )->get_sample_rate() !=
+							 Hydrogen::get_instance()->getAudioOutput()->getSampleRate() ) {
+							fPassedFrames = static_cast<double>(nPassedFrames) *
+								static_cast<float>(ppOldNote->getSample( nn )->get_sample_rate()) /
+								static_cast<float>(Hydrogen::get_instance()->getAudioOutput()->getSampleRate());
+						}
+						
 						int nSampleFrames = ( ppNewNote->get_instrument()->get_component( nn )
 											  ->get_layer( pSelectedLayer->SelectedLayer )->get_sample()->get_frames() );
-						int nExpectedFrames = std::min( ( (int)pSelectedLayer->SamplePosition + nPassedFrames ),
-														nSampleFrames );
-						if ( (int)ppNewNote->get_layer_selected( nn )->SamplePosition != nExpectedFrames ) {
-							ERRORLOG( QString( "[%4] glitch in audio render.\nPre: %1\nPost: %2\nwith passed frames: %3" )
+						double fExpectedFrames =
+							std::min( static_cast<double>(pSelectedLayer->SamplePosition) +
+									  fPassedFrames,
+									  static_cast<double>(nSampleFrames) );
+						if ( std::abs( ppNewNote->get_layer_selected( nn )->SamplePosition -
+									   fExpectedFrames ) > 1 ) {
+							ERRORLOG( QString( "[%4] glitch in audio render. Diff: %9\nPre: %1\nPost: %2\nwith passed frames: %3, nSampleFrames: %5, fExpectedFrames: %6, sample sampleRate: %7, driver sampleRate: %8" )
 									  .arg( ppOldNote->toQString( "", true ) )
 									  .arg( ppNewNote->toQString( "", true ) )
-									  .arg( nPassedFrames )
-									  .arg( sContext ) );
+									  .arg( fPassedFrames, 0, 'f' )
+									  .arg( sContext )
+									  .arg( nSampleFrames )
+									  .arg( fExpectedFrames, 0, 'f' )
+									  .arg( ppOldNote->getSample( nn )->get_sample_rate() )
+									  .arg( Hydrogen::get_instance()->getAudioOutput()->getSampleRate() )
+									  .arg( ppNewNote->get_layer_selected( nn )->SamplePosition -
+											fExpectedFrames, 0, 'g', 30 )
+									  );
 							bNoMismatch = false;
 						}
 					}
@@ -3416,7 +3445,7 @@ bool AudioEngine::testCheckConsistency( int nToggleColumn, int nToggleRow, const
 	// computeTickInterval() to behave like just after a relocation.
 	m_fLastTickIntervalEnd = -1;
 	nLeadLag = computeTickInterval( &fTickStart, &fTickEnd, nBufferSize );
-	if ( std::abs( nLeadLag - nPrevLeadLag ) ) {
+	if ( std::abs( nLeadLag - nPrevLeadLag ) > 1 ) {
 		ERRORLOG( QString( "[%3] LeadLag should be constant since there should be change in tick size. old: %1, new: %2" )
 				  .arg( nPrevLeadLag ).arg( nLeadLag ).arg( sFirstContext ) );
 		return false;

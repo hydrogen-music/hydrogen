@@ -421,10 +421,21 @@ void Sampler::handleSongSizeChange() {
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	
 	for ( auto nnote : m_playingNotesQueue ) {
+		
+		// DEBUGLOG( QString( "new pos: %1, old note: %2" )
+		// 		  .arg( std::max( nnote->get_position() +
+		// 							   static_cast<long>(std::floor(pAudioEngine->getTickOffset())),
+		// 						  static_cast<long>(0) ) )
+		// 		  .arg( nnote->toQString( "", true ) ) );
+		
 		nnote->set_position( std::max( nnote->get_position() +
 									   static_cast<long>(std::floor(pAudioEngine->getTickOffset())),
 									   static_cast<long>(0) ) );
 		nnote->computeNoteStart();
+		
+		// DEBUGLOG( QString( "new note: %1" )
+		// 		  .arg( nnote->toQString( "", true ) ) );
+		
 	}
 }
 
@@ -548,271 +559,33 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 
 		assert(pMainCompo);
 
-		float fLayerGain = 1.0;
-		float fLayerPitch = 0.0;
-
-		// scelgo il sample da usare in base alla velocity
-		std::shared_ptr<Sample> pSample;
-		auto pSelectedLayer = pNote->get_layer_selected( pCompo->get_drumkit_componentID() );
-
-		if ( !pSelectedLayer ) {
-			QString dummy = QString( "NULL Layer Information for instrument %1. Component: %2" ).arg( pInstr->get_name() ).arg( pCompo->get_drumkit_componentID() );
-			WARNINGLOG( dummy );
+		auto pSample = pNote->getSample( pCompo->get_drumkit_componentID(),
+										 nAlreadySelectedLayer );
+		if ( pSample == nullptr ) {
 			nReturnValues[nReturnValueIndex] = true;
 			nReturnValueIndex++;
 			continue;
 		}
 
-		if( pSelectedLayer->SelectedLayer != -1 ) {
-			auto pLayer = pCompo->get_layer( pSelectedLayer->SelectedLayer );
+		auto pSelectedLayer =
+			pNote->get_layer_selected( pCompo->get_drumkit_componentID() );
 
-			if( pLayer ) {
-				pSample = pLayer->get_sample();
-				fLayerGain = pLayer->get_gain();
-				fLayerPitch = pLayer->get_pitch();
-			}
-			
-		} else {
-			switch ( pInstr->sample_selection_alg() ) {
-				case Instrument::VELOCITY:
-					for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ) {
-						auto pLayer = pCompo->get_layer( nLayer );
-						if ( pLayer == nullptr ) {
-							continue;
-						}
-
-						if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
-							pSelectedLayer->SelectedLayer = nLayer;
-
-							pSample = pLayer->get_sample();
-							fLayerGain = pLayer->get_gain();
-							fLayerPitch = pLayer->get_pitch();
-							break;
-						}
-					}
-
-					if ( !pSample ){
-						WARNINGLOG( "Velocity did fall into a hole between the instrument layers." );
-						// There are a small distance between the
-						// layers of the instruments the velocity of
-						// the pNote has fallen into. This can if the
-						// drumkits weren't written with enough care.
-						// To fix this rare problem, we have to search
-						// for the nearest layer and use its sample.
-						float shortestDistance = 1.0f;
-						int nearestLayer = -1;
-						for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ){
-							auto pLayer = pCompo->get_layer( nLayer );
-							if ( pLayer == nullptr ){
-								continue;
-							}
-							
-							if ( std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
-								  abs( pLayer->get_start_velocity() - pNote->get_velocity() ) ) <
-							     shortestDistance ){
-								shortestDistance = std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
-											abs( pLayer->get_start_velocity() - pNote->get_velocity() ) );
-								nearestLayer = nLayer;
-							}
-						}
-
-						// Check whether the search was successful and assign the results.
-						if ( nearestLayer > -1 ){
-							auto pLayer = pCompo->get_layer( nearestLayer );
-							pSelectedLayer->SelectedLayer = nearestLayer;
-						
-							pSample = pLayer->get_sample();
-							fLayerGain = pLayer->get_gain();
-							fLayerPitch = pLayer->get_pitch();
-						}
-					}
-					break;
-
-				case Instrument::RANDOM:
-					if( nAlreadySelectedLayer != -1 ) {
-						auto pLayer = pCompo->get_layer( nAlreadySelectedLayer );
-						if ( pLayer != nullptr ) {
-							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
-
-							pSample = pLayer->get_sample();
-							fLayerGain = pLayer->get_gain();
-							fLayerPitch = pLayer->get_pitch();
-						}
-					}
-					if( pSample == nullptr ) {
-						int __possibleIndex[ m_nMaxLayers ];
-						int __foundSamples = 0;
-						for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ) {
-							auto pLayer = pCompo->get_layer( nLayer );
-							if ( pLayer == nullptr ) {
-								continue;
-							}
-
-							if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
-								__possibleIndex[__foundSamples] = nLayer;
-								__foundSamples++;
-							}
-						}
-
-						
-
-						// In some instruments the start and end
-						// velocities of a layer are not set
-						// perfectly giving rise to some 'holes'.
-						// Occasionally the velocity of a note
-						// can fall into it causing the sampler
-						// to just skip it. Instead, we will search
-						// for the nearest sample and play this
-						// one instead.
-						if ( __foundSamples == 0 ){
-							WARNINGLOG( "Velocity did fall into a hole between the instrument layers." );
-							float shortestDistance = 1.0f;
-							int nearestLayer = -1;
-							for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ){
-								auto pLayer = pCompo->get_layer( nLayer );
-								if ( pLayer == nullptr ) {
-									continue;
-								}
-								
-								if ( std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
-									  abs( pLayer->get_start_velocity() - pNote->get_velocity() ) ) <
-								     shortestDistance ){
-									shortestDistance = std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
-												abs( pLayer->get_start_velocity() - pNote->get_velocity() ) );
-									nearestLayer = nLayer;
-								}
-							}
-							// Check whether the search was
-							// successful and assign the
-							// results.
-							if ( nearestLayer > -1 ){
-								pSelectedLayer->SelectedLayer = nearestLayer;
-
-								// No loop needed in here.
-								// Since the note was in
-								// no layer in the first
-								// place, only one is
-								// sufficient.
-								__possibleIndex[__foundSamples] = nearestLayer;
-								__foundSamples++;
-							}
-						}
-
-						if( __foundSamples > 0 ) {
-							nAlreadySelectedLayer = __possibleIndex[rand() % __foundSamples];
-							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
-
-							auto pLayer = pCompo->get_layer( nAlreadySelectedLayer );
-
-							pSample = pLayer->get_sample();
-							fLayerGain = pLayer->get_gain();
-							fLayerPitch = pLayer->get_pitch();
-						}
-					}
-					break;
-
-				case Instrument::ROUND_ROBIN:
-					if( nAlreadySelectedLayer != -1 ) {
-						auto pLayer = pCompo->get_layer( nAlreadySelectedLayer );
-						if ( pLayer != nullptr ) {
-							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
-
-							pSample = pLayer->get_sample();
-							fLayerGain = pLayer->get_gain();
-							fLayerPitch = pLayer->get_pitch();
-						}
-					}
-					if( !pSample ) {
-						int __possibleIndex[ m_nMaxLayers ];
-						int __foundSamples = 0;
-						float __roundRobinID;
-						for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ) {
-							auto pLayer = pCompo->get_layer( nLayer );
-							if ( pLayer == nullptr ) {
-								continue;
-							}
-
-							if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
-								__possibleIndex[__foundSamples] = nLayer;
-								__roundRobinID = pLayer->get_start_velocity();
-								__foundSamples++;
-							}
-						}
-
-						// In some instruments the start and end
-						// velocities of a layer are not set
-						// perfectly giving rise to some 'holes'.
-						// Occasionally the velocity of a note
-						// can fall into it causing the sampler
-						// to just skip it. Instead, we will search
-						// for the nearest sample and play this
-						// one instead.
-						if ( __foundSamples == 0 ){
-							WARNINGLOG( "Velocity did fall into a hole between the instrument layers." );
-							float shortestDistance = 1.0f;
-							int nearestLayer = -1;
-							for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ){
-								auto pLayer = pCompo->get_layer( nLayer );
-								if ( pLayer == nullptr ) {
-									continue;
-								}
-								
-								
-								if ( std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
-									  abs( pLayer->get_start_velocity() - pNote->get_velocity() ) ) <
-								     shortestDistance ){
-									shortestDistance = std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
-												abs( pLayer->get_start_velocity() - pNote->get_velocity() ) );
-									nearestLayer = nLayer;
-								}
-							}
-							// Check whether the search was
-							// successful and assign the
-							// results.
-							if ( nearestLayer > -1 ){
-								auto pLayer = pCompo->get_layer( nearestLayer );
-								pSelectedLayer->SelectedLayer = nearestLayer;
-
-								// No loop needed in here.
-								// Since the note was in
-								// no layer in the first
-								// place, only one is
-								// sufficient.
-								__possibleIndex[__foundSamples] = nearestLayer;
-								__roundRobinID = pLayer->get_start_velocity();
-								__foundSamples++;
-							}
-						}
-
-						if( __foundSamples > 0 ) {
-							__roundRobinID = pInstr->get_id() * 10 + __roundRobinID;
-							int p_indexToUse = pSong->getLatestRoundRobin(__roundRobinID)+1;
-							if( p_indexToUse > __foundSamples - 1) {
-								p_indexToUse = 0;
-							}
-
-							pSong->setLatestRoundRobin(__roundRobinID, p_indexToUse);
-							nAlreadySelectedLayer = __possibleIndex[p_indexToUse];
-
-							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
-
-							auto pLayer = pCompo->get_layer( nAlreadySelectedLayer );
-							pSample = pLayer->get_sample();
-							fLayerGain = pLayer->get_gain();
-							fLayerPitch = pLayer->get_pitch();
-						}
-					}
-					break;
-			}
+		// For round robin and random selection we will use the same
+		// layer again for all other samples.
+		if ( nAlreadySelectedLayer != -1 &&
+			 pInstr->sample_selection_alg() != Instrument::VELOCITY ) {
+			nAlreadySelectedLayer = pSelectedLayer->SelectedLayer;
 		}
 
-		if ( !pSample ) {
-			QString dummy = QString( "NULL sample for instrument %1. Note velocity: %2" ).arg( pInstr->get_name() ).arg( pNote->get_velocity() );
-			WARNINGLOG( dummy );
+		if( pSelectedLayer->SelectedLayer == -1 ) {
+			ERRORLOG( "Sample selection did not work." );
 			nReturnValues[nReturnValueIndex] = true;
 			nReturnValueIndex++;
 			continue;
 		}
+		auto pLayer = pCompo->get_layer( pSelectedLayer->SelectedLayer );
+		float fLayerGain = pLayer->get_gain();
+		float fLayerPitch = pLayer->get_pitch();
 
 		if ( pSelectedLayer->SamplePosition >= pSample->get_frames() ) {
 			WARNINGLOG( "sample position out of bounds. The layer has been resized during note play?" );
@@ -825,8 +598,6 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, std::shared_ptr<Son
 		float cost_R = 1.0f;
 		float cost_track_L = 1.0f;
 		float cost_track_R = 1.0f;
-
-		assert(pMainCompo);
 		
 		bool isMutedForExport = (pHydrogen->getIsExportSessionActive() && !pInstr->is_currently_exported());
 		bool isMutedBecauseOfSolo = (isAnyInstrumentSoloed() && !pInstr->is_soloed());
@@ -1231,7 +1002,7 @@ bool Sampler::renderNoteNoResample(
 		// Note is still ringing, do not end.
 		retValue = false;
 	}
-	
+
 	pSelectedLayerInfo->SamplePosition += nAvail_bytes;
 	pInstrument->set_peak_l( fInstrPeak_L );
 	pInstrument->set_peak_r( fInstrPeak_R );
@@ -1310,7 +1081,8 @@ bool Sampler::renderNoteResample(
 	float fNotePitch = pNote->get_total_pitch() + fLayerPitch;
 	float fStep = Note::pitchToFrequency( fNotePitch );
 
-	fStep *= ( float )pSample->get_sample_rate() / pAudioDriver->getSampleRate(); // Adjust for audio driver sample rate
+	fStep *= static_cast<float>(pSample->get_sample_rate()) /
+		static_cast<float>(pAudioDriver->getSampleRate()); // Adjust for audio driver sample rate
 
 	// verifico il numero di frame disponibili ancora da eseguire
 	int nAvail_bytes = ( int )( ( float )( pSample->get_frames() - pSelectedLayerInfo->SamplePosition ) / fStep );
@@ -1493,7 +1265,7 @@ bool Sampler::renderNoteResample(
 		// Note is still ringing, do not end.
 		retValue = false;
 	}
-
+	
 	pSelectedLayerInfo->SamplePosition += nAvail_bytes * fStep;
 	pInstrument->set_peak_l( fInstrPeak_L );
 	pInstrument->set_peak_r( fInstrPeak_R );
