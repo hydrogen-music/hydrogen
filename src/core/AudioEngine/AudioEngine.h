@@ -488,6 +488,15 @@ public:
 	 * @return true on success.
 	 */
 	bool testSongSizeChangeInLoopMode();
+	/** 
+	 * Unit test checking that all notes in a song are picked up once.
+	 *
+	 * Defined in here since it requires access to methods and
+	 * variables private to the #AudioEngine class.
+	 *
+	 * @return true on success.
+	 */
+	bool testNoteEnqueuing();
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -695,7 +704,15 @@ private:
 	 */
 	bool testCheckConsistency( int nToggleColumn, int nToggleRow, const QString& sContext );
 	
-	std::vector<std::shared_ptr<Note>> testCopySongNoteQueue(); 
+	std::vector<std::shared_ptr<Note>> testCopySongNoteQueue();
+	/**
+	 * Add every Note in @a newNotes not yet contained in @a noteList
+	 * to the latter.
+	 */
+	void testMergeQueues( std::vector<std::shared_ptr<Note>>* noteList,
+						  std::vector<std::shared_ptr<Note>> newNotes );
+	void testMergeQueues( std::vector<std::shared_ptr<Note>>* noteList,
+						  std::vector<Note*> newNotes );
 
 	/** Local instance of the Sampler. */
 	Sampler* 			m_pSampler;
