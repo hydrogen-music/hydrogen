@@ -244,6 +244,8 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 	void loadDrumkit( Drumkit* pDrumkit, bool bConditional );
 	void removeInstrument( int nInstrumentNumber, bool bConditional );
+
+	std::vector<std::shared_ptr<Note>> getAllNotes() const;
 	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of

@@ -183,17 +183,17 @@ void TestHelper::varyAudioDriverConfig( int nIndex ) {
 		break;
 
 	case 6:
-		pPref->m_nBufferSize = 32;
+		pPref->m_nBufferSize = 128;
 		pPref->m_nSampleRate = 96000;
 		break;
 
 	case 7:
-		pPref->m_nBufferSize = 5;
+		pPref->m_nBufferSize = 500;
 		pPref->m_nSampleRate = 44100;
 		break;
 
 	case 8:
-		pPref->m_nBufferSize = 5;
+		pPref->m_nBufferSize = 500;
 		pPref->m_nSampleRate = 36000;
 		break;
 		
@@ -207,7 +207,7 @@ void TestHelper::varyAudioDriverConfig( int nIndex ) {
 		std::random_device randomSeed;
 
 		std::default_random_engine randomEngine( randomSeed() );
-		std::uniform_int_distribution<int> bufferDist( 1, 4096 );
+		std::uniform_int_distribution<int> bufferDist( 100, 4096 );
 		std::uniform_int_distribution<int> sampleRateDist( 22050, 192000 );
 
 		pPref->m_nBufferSize = bufferDist( randomEngine );

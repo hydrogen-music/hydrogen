@@ -147,3 +147,16 @@ void TransportTest::testSongSizeChangeInLoopMode() {
 		CPPUNIT_ASSERT( bNoMismatch );
 	}
 }		
+
+void TransportTest::testNoteEnqueuing() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	pHydrogen->getCoreActionController()->openSong( m_pSongSizeChanged );
+
+	for ( int ii = 0; ii < 15; ++ii ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		bool bNoMismatch = pAudioEngine->testNoteEnqueuing();
+		CPPUNIT_ASSERT( bNoMismatch );
+	}
+}		

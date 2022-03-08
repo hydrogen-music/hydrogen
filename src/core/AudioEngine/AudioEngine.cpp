@@ -2103,7 +2103,7 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 	double fTickMismatch;
 
 	AutomationPath* pAutomationPath = pSong->getVelocityAutomationPath();
-
+ 
 	// DEBUGLOG( QString( "tick interval: [%1 : %2], curr tick: %3, curr frame: %4")
 	// 		  .arg( fTickStart, 0, 'f' ).arg( fTickEnd, 0, 'f' )
 	// 		  .arg( getDoubleTick(), 0, 'f' ).arg( getFrames() ) );
@@ -2588,6 +2588,7 @@ bool AudioEngine::testFrameToTickConversion() {
 
 bool AudioEngine::testTransportProcessing() {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = Preferences::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	
 	pCoreActionController->activateTimeline( false );
@@ -2600,7 +2601,7 @@ bool AudioEngine::testTransportProcessing() {
  
     // Choose a random mean between 1 and 6
     std::default_random_engine randomEngine( randomSeed() );
-    std::uniform_int_distribution<int> frameDist( 1, 4096 );
+    std::uniform_int_distribution<int> frameDist( 1, pPref->m_nBufferSize );
 	std::uniform_real_distribution<float> tempoDist( MIN_BPM, MAX_BPM );
 
 	// For this call the AudioEngine still needs to be in state
@@ -2618,9 +2619,9 @@ bool AudioEngine::testTransportProcessing() {
 
 	bool bNoMismatch = true;
 
-	// 2112 is the number of ticks within the test song and 2048 the
-	// average frame number drawn from the distribution.
-	int nMaxCycles = std::ceil( 2112 / 2048 * getTickSize() * 2 ); 
+	// 2112 is the number of ticks within the test song.
+	int nMaxCycles =
+		std::ceil( 2112 / pPref->m_nBufferSize * getTickSize() * 4 ); 
 	int nn = 0;
 
 	while ( getDoubleTick() < m_fSongSizeInTicks ) {
@@ -2887,6 +2888,7 @@ bool AudioEngine::testTransportProcessing() {
 
 bool AudioEngine::testTransportRelocation() {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = Preferences::get_instance();
 
 	lock( RIGHT_HERE );
 
@@ -2896,7 +2898,7 @@ bool AudioEngine::testTransportRelocation() {
     // Choose a random mean between 1 and 6
     std::default_random_engine randomEngine( randomSeed() );
     std::uniform_real_distribution<double> tickDist( 0, m_fSongSizeInTicks );
-	std::uniform_int_distribution<long long> frameDist( 0, m_fSongSizeInTicks * 200 );
+	std::uniform_int_distribution<long long> frameDist( 0, pPref->m_nBufferSize );
 
 	// For this call the AudioEngine still needs to be in state
 	// Playing or Ready.
@@ -2950,6 +2952,7 @@ bool AudioEngine::testTransportRelocation() {
 
 bool AudioEngine::testComputeTickInterval() {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = Preferences::get_instance();
 
 	lock( RIGHT_HERE );
 
@@ -2958,7 +2961,7 @@ bool AudioEngine::testComputeTickInterval() {
  
     // Choose a random mean between 1 and 6
     std::default_random_engine randomEngine( randomSeed() );
-	std::uniform_real_distribution<float> frameDist( 1, 4096 );
+	std::uniform_real_distribution<float> frameDist( 1, pPref->m_nBufferSize );
 	std::uniform_real_distribution<float> tempoDist( MIN_BPM, MAX_BPM );
 
 	// For this call the AudioEngine still needs to be in state
@@ -3149,6 +3152,7 @@ bool AudioEngine::testSongSizeChange() {
 bool AudioEngine::testSongSizeChangeInLoopMode() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
+	auto pPref = Preferences::get_instance();
 	
 	pCoreActionController->activateTimeline( false );
 	pCoreActionController->activateLoopMode( true, false );
@@ -3162,7 +3166,7 @@ bool AudioEngine::testSongSizeChangeInLoopMode() {
  
     // Choose a random mean between 1 and 6
     std::default_random_engine randomEngine( randomSeed() );
-    std::uniform_real_distribution<double> frameDist( 1, m_fSongSizeInTicks );
+    std::uniform_real_distribution<double> frameDist( 1, pPref->m_nBufferSize );
 	std::uniform_int_distribution<int> columnDist( nColumns, nColumns + 100 );
 
 	// For this call the AudioEngine still needs to be in state
@@ -3251,6 +3255,178 @@ bool AudioEngine::testSongSizeChangeInLoopMode() {
 	return bNoMismatch;
 }
 
+bool AudioEngine::testNoteEnqueuing() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+	auto pPref = Preferences::get_instance();
+	
+	pCoreActionController->activateTimeline( false );
+	pCoreActionController->activateLoopMode( false, false );
+
+	lock( RIGHT_HERE );
+
+	// Seed with a real random value, if available
+    std::random_device randomSeed;
+ 
+    // Choose a random mean between 1 and 6
+    std::default_random_engine randomEngine( randomSeed() );
+    std::uniform_int_distribution<int> frameDist( pPref->m_nBufferSize / 2,
+												  pPref->m_nBufferSize );
+
+	// For this call the AudioEngine still needs to be in state
+	// Playing or Ready.
+	reset( false );
+
+	setState( AudioEngine::State::Testing );
+
+	// Check consistency of updated frames and ticks while using a
+	// random buffer size (e.g. like PulseAudio does).
+	
+	uint32_t nFrames;
+	double fCheckTick;
+	long long nCheckFrame, nLastFrame = 0;
+
+	bool bNoMismatch = true;
+
+	// 2112 is the number of ticks within the test song.
+	int nMaxCycles =
+		std::max( std::ceil( 2112.0 /
+							 static_cast<float>(pPref->m_nBufferSize) *
+							getTickSize() * 4.0 ),
+				  2112.0 ); 
+	int nn = 0;
+
+	auto notesInSong = pSong->getAllNotes();
+
+	std::vector<std::shared_ptr<Note>> notesInSongQueue;
+	std::vector<std::shared_ptr<Note>> notesInSamplerQueue;
+
+	while ( getDoubleTick() < m_fSongSizeInTicks ) {
+
+		nFrames = frameDist( randomEngine );
+
+		updateNoteQueue( nFrames );
+
+		// Add freshly enqueued notes.
+		testMergeQueues( &notesInSongQueue,
+						 testCopySongNoteQueue() );
+
+		processAudio( nFrames );
+
+		// Add freshly enqueued notes.
+		// testMergeQueues( &notesInSamplerQueue,
+		// 				 getSampler()->getPlayingNotesQueue() );
+
+		incrementTransportPosition( nFrames );
+
+		++nn;
+		if ( nn > nMaxCycles ) {
+			ERRORLOG( QString( "[constant tempo] end of the song wasn't reached in time. getFrames(): %1, ticks: %2, getTickSize(): %3, m_fSongSizeInTicks: %4, nMaxCycles: %5" )
+					  .arg( getFrames() )
+					  .arg( getDoubleTick(), 0, 'f' )
+					  .arg( getTickSize(), 0, 'f' )
+					  .arg( m_fSongSizeInTicks, 0, 'f' )
+					  .arg( nMaxCycles ) );
+			bNoMismatch = false;
+			break;
+		}
+	}
+
+	// if ( notesInSamplerQueue.size() !=
+	// 	 notesInSong.size() ) {
+	// 	ERRORLOG( "Mismatch between notes in Song and Sampler" );
+	// 	ERRORLOG( "Song:" );
+	// 	for ( const auto& note : notesInSong ) {
+	// 		ERRORLOG( note->toQString( "    ", true ) );
+	// 	}
+	// 	ERRORLOG( "Sampler:" );
+	// 	for ( const auto& note : notesInSamplerQueue ) {
+	// 		ERRORLOG( note->toQString( "    ", true ) );
+	// 	}
+	// 	bNoMismatch = false;
+	// }
+
+	if ( notesInSongQueue.size() !=
+		 notesInSong.size() ) {
+		QString sMsg = QString( "Mismatch between notes count in Song [%1] and NoteQueue [%2]. Song:\n" )
+			.arg( notesInSong.size() ).arg( notesInSongQueue.size() );
+		for ( int ii = 0; ii < notesInSong.size(); ++ii  ) {
+			auto note = notesInSong[ ii ];
+			sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
+						 .arg( ii )
+						 .arg( note->get_instrument()->get_name() )
+						 .arg( note->get_position() )
+						 .arg( note->getNoteStart() )
+						 .arg( note->get_velocity() ) );
+		}
+		sMsg.append( "NoteQueue:\n" );
+		for ( int ii = 0; ii < notesInSongQueue.size(); ++ii  ) {
+			auto note = notesInSongQueue[ ii ];
+			sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
+						 .arg( ii )
+						 .arg( note->get_instrument()->get_name() )
+						 .arg( note->get_position() )
+						 .arg( note->getNoteStart() )
+						 .arg( note->get_velocity() ) );
+		}
+
+		ERRORLOG( sMsg );
+		bNoMismatch = false;
+	}
+
+	setState( AudioEngine::State::Ready );
+
+	unlock();
+
+	return bNoMismatch;
+}
+
+void AudioEngine::testMergeQueues( std::vector<std::shared_ptr<Note>>* noteList, std::vector<std::shared_ptr<Note>> newNotes ) {
+	bool bNoteFound;
+	for ( const auto& newNote : newNotes ) {
+		bNoteFound = false;
+		// Check whether the notes is already present.
+		for ( const auto& presentNote : *noteList ) {
+			if ( newNote != nullptr && presentNote != nullptr ) {
+				if ( newNote->match( presentNote.get() ) &&
+					 newNote->get_position() ==
+					 presentNote->get_position() &&
+					 newNote->get_velocity() ==
+					 presentNote->get_velocity() ) {
+					bNoteFound = true;
+				}
+			}
+		}
+
+		if ( ! bNoteFound ) {
+			noteList->push_back( std::make_shared<Note>(newNote.get()) );
+		}
+	}
+}
+
+// Used for the Sampler note queue
+void AudioEngine::testMergeQueues( std::vector<std::shared_ptr<Note>>* noteList, std::vector<Note*> newNotes ) {
+	for ( const auto& newNote : newNotes ) {
+		if ( noteList->size() != 0 ) {
+			// Check whether the notes is already present
+			for ( const auto& presentNote : *noteList ) {
+				if ( newNote != nullptr && presentNote != nullptr ) {
+					if ( ! newNote->match( presentNote.get() ) ||
+						 newNote->get_velocity() !=
+						 presentNote->get_velocity() ) {
+						noteList->push_back( std::make_shared<Note>(newNote) );
+					}
+				}
+			}
+		} else {
+			if ( newNote != nullptr ) {
+				noteList->push_back( std::make_shared<Note>(newNote) );
+			}
+		}
+	}
+}
+
 bool AudioEngine::testCheckTransportPosition( const QString& sContext) const {
 
 	double fTickMismatch;
@@ -3288,6 +3464,7 @@ bool AudioEngine::testCheckAudioConsistency( const std::vector<std::shared_ptr<N
 
 	bool bNoMismatch = true;
 	double fPassedFrames = static_cast<double>(nPassedFrames);
+	auto pSong = Hydrogen::get_instance()->getSong();
 	
 	int nNotesFound = 0;
 	for ( const auto& ppNewNote : newNotes ) {
@@ -3358,6 +3535,26 @@ bool AudioEngine::testCheckAudioConsistency( const std::vector<std::shared_ptr<N
 	if ( nNotesFound == 0 ) {
 		ERRORLOG( QString( "[%1] bad test design. No notes played back." )
 				  .arg( sContext ) );
+		if ( oldNotes.size() != 0 ) {
+			ERRORLOG( "old notes:" );
+			for ( auto const& nnote : oldNotes ) {
+				ERRORLOG( nnote->toQString( "    ", true ) );
+			}
+		}
+		if ( newNotes.size() != 0 ) {
+			ERRORLOG( "new notes:" );
+			for ( auto const& nnote : newNotes ) {
+				ERRORLOG( nnote->toQString( "    ", true ) );
+			}
+		}
+		ERRORLOG( QString( "curr tick: %1, curr frame: %2, nPassedFrames: %3, fPassedTicks: %4" )
+				  .arg( getDoubleTick() ).arg( getFrames() )
+				  .arg( nPassedFrames ).arg( fPassedTicks ) );
+		ERRORLOG( "notes in song:" );
+		for ( auto const& nnote : pSong->getAllNotes() ) {
+			ERRORLOG( nnote->toQString( "    ", true ) );
+		}
+		
 		bNoMismatch = false;
 	}
 
