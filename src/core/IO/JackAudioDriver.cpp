@@ -82,11 +82,13 @@ void JackAudioDriver::jackDriverShutdown( void* arg )
 }
 int JackAudioDriver::jackXRunCallback( void *arg ) {
 	UNUSED( arg );
+	++JackAudioDriver::jackServerXRuns;
 	EventQueue::get_instance()->push_event( EVENT_XRUN, 0 );
 	return 0;
 }
 
 unsigned long JackAudioDriver::jackServerSampleRate = 0;
+int JackAudioDriver::jackServerXRuns = 0;
 jack_nframes_t JackAudioDriver::jackServerBufferSize = 0;
 JackAudioDriver* JackAudioDriver::pJackDriverInstance = nullptr;
 
@@ -1166,6 +1168,11 @@ float JackAudioDriver::getMasterBpm() const {
 	}
 	
 	return static_cast<float>(m_JackTransportPos.beats_per_minute );
+}
+
+
+int JackAudioDriver::getXRuns() const {
+	return JackAudioDriver::jackServerXRuns;
 }
 
 void JackAudioDriver::printState() const {
