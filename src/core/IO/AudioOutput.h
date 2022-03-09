@@ -56,6 +56,10 @@ public:
 	{
 		return getBufferSize();
 	}
+	/** Get the number of XRuns that occured since the audio driver
+	 *	has started.
+	 */
+	virtual int getXRuns() const { return 0; }
 	virtual float* getOut_L() = 0;
 	virtual float* getOut_R() = 0;
 
