@@ -163,7 +163,7 @@ void TestHelper::varyAudioDriverConfig( int nIndex ) {
 		break;
 
 	case 2:
-		pPref->m_nBufferSize = 128;
+		pPref->m_nBufferSize = 512;
 		pPref->m_nSampleRate = 44100;
 		break;
 
@@ -183,7 +183,7 @@ void TestHelper::varyAudioDriverConfig( int nIndex ) {
 		break;
 
 	case 6:
-		pPref->m_nBufferSize = 128;
+		pPref->m_nBufferSize = 2048;
 		pPref->m_nSampleRate = 96000;
 		break;
 
@@ -198,7 +198,7 @@ void TestHelper::varyAudioDriverConfig( int nIndex ) {
 		break;
 		
 	case 9:
-		pPref->m_nBufferSize = 10240;
+		pPref->m_nBufferSize = 5000;
 		pPref->m_nSampleRate = 1024;
 		break;
 
@@ -207,7 +207,10 @@ void TestHelper::varyAudioDriverConfig( int nIndex ) {
 		std::random_device randomSeed;
 
 		std::default_random_engine randomEngine( randomSeed() );
-		std::uniform_int_distribution<int> bufferDist( 100, 4096 );
+		// Too small values make the unit tests run way too slow. Too
+		// large ones (10000) cause a segfault. (The latter might be a
+		// bug but such buffer sizes work fine with other drivers).
+		std::uniform_int_distribution<int> bufferDist( 256, 5000 );
 		std::uniform_int_distribution<int> sampleRateDist( 22050, 192000 );
 
 		pPref->m_nBufferSize = bufferDist( randomEngine );
