@@ -3297,6 +3297,22 @@ bool AudioEngine::testNoteEnqueuing() {
 				  2112.0 ); 
 	int nn = 0;
 
+	// Don't check the sampler yet. There is still #1521 to fix.
+	// Ensure the sampler is clean.
+	// while ( getSampler()->isRenderingNotes() ) {
+	// 	processAudio( pPref->m_nBufferSize );
+	// 	incrementTransportPosition( pPref->m_nBufferSize );
+	// 	++nn;
+	// 	WARNINGLOG( QString( "nn: %1, note: %2" ).arg( nn )
+	// 				.arg( getSampler()->getPlayingNotesQueue()[0]->toQString("", true ) ) );
+	// 	if ( nn > 10 ) {
+	// 		ERRORLOG("Sampler is in weird state");
+	// 		return false;
+	// 	}
+	// }
+
+	nn = 0;
+
 	auto notesInSong = pSong->getAllNotes();
 
 	std::vector<std::shared_ptr<Note>> notesInSongQueue;
@@ -3314,7 +3330,7 @@ bool AudioEngine::testNoteEnqueuing() {
 
 		processAudio( nFrames );
 
-		// Add freshly enqueued notes.
+		// Don't check the sampler yet. There is still #1521 to fix.
 		// testMergeQueues( &notesInSamplerQueue,
 		// 				 getSampler()->getPlayingNotesQueue() );
 
@@ -3332,20 +3348,6 @@ bool AudioEngine::testNoteEnqueuing() {
 			break;
 		}
 	}
-
-	// if ( notesInSamplerQueue.size() !=
-	// 	 notesInSong.size() ) {
-	// 	ERRORLOG( "Mismatch between notes in Song and Sampler" );
-	// 	ERRORLOG( "Song:" );
-	// 	for ( const auto& note : notesInSong ) {
-	// 		ERRORLOG( note->toQString( "    ", true ) );
-	// 	}
-	// 	ERRORLOG( "Sampler:" );
-	// 	for ( const auto& note : notesInSamplerQueue ) {
-	// 		ERRORLOG( note->toQString( "    ", true ) );
-	// 	}
-	// 	bNoMismatch = false;
-	// }
 
 	if ( notesInSongQueue.size() !=
 		 notesInSong.size() ) {
@@ -3374,6 +3376,35 @@ bool AudioEngine::testNoteEnqueuing() {
 		ERRORLOG( sMsg );
 		bNoMismatch = false;
 	}
+
+	// Don't check the sampler yet. There is still #1521 to fix.
+	// if ( notesInSamplerQueue.size() !=
+	// 	 notesInSong.size() ) {
+	// 	QString sMsg = QString( "Mismatch between notes count in Song [%1] and Sampler [%2]. Song:\n" )
+	// 		.arg( notesInSong.size() ).arg( notesInSamplerQueue.size() );
+	// 	for ( int ii = 0; ii < notesInSong.size(); ++ii  ) {
+	// 		auto note = notesInSong[ ii ];
+	// 		sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
+	// 					 .arg( ii )
+	// 					 .arg( note->get_instrument()->get_name() )
+	// 					 .arg( note->get_position() )
+	// 					 .arg( note->getNoteStart() )
+	// 					 .arg( note->get_velocity() ) );
+	// 	}
+	// 	sMsg.append( "SamplerQueue:\n" );
+	// 	for ( int ii = 0; ii < notesInSamplerQueue.size(); ++ii  ) {
+	// 		auto note = notesInSamplerQueue[ ii ];
+	// 		sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
+	// 					 .arg( ii )
+	// 					 .arg( note->get_instrument()->get_name() )
+	// 					 .arg( note->get_position() )
+	// 					 .arg( note->getNoteStart() )
+	// 					 .arg( note->get_velocity() ) );
+	// 	}
+
+	// 	ERRORLOG( sMsg );
+	// 	bNoMismatch = false;
+	// }
 
 	setState( AudioEngine::State::Ready );
 
@@ -3407,22 +3438,24 @@ void AudioEngine::testMergeQueues( std::vector<std::shared_ptr<Note>>* noteList,
 
 // Used for the Sampler note queue
 void AudioEngine::testMergeQueues( std::vector<std::shared_ptr<Note>>* noteList, std::vector<Note*> newNotes ) {
+	bool bNoteFound;
 	for ( const auto& newNote : newNotes ) {
-		if ( noteList->size() != 0 ) {
-			// Check whether the notes is already present
-			for ( const auto& presentNote : *noteList ) {
-				if ( newNote != nullptr && presentNote != nullptr ) {
-					if ( ! newNote->match( presentNote.get() ) ||
-						 newNote->get_velocity() !=
-						 presentNote->get_velocity() ) {
-						noteList->push_back( std::make_shared<Note>(newNote) );
-					}
+		bNoteFound = false;
+		// Check whether the notes is already present.
+		for ( const auto& presentNote : *noteList ) {
+			if ( newNote != nullptr && presentNote != nullptr ) {
+				if ( newNote->match( presentNote.get() ) &&
+					 newNote->get_position() ==
+					 presentNote->get_position() &&
+					 newNote->get_velocity() ==
+					 presentNote->get_velocity() ) {
+					bNoteFound = true;
 				}
 			}
-		} else {
-			if ( newNote != nullptr ) {
-				noteList->push_back( std::make_shared<Note>(newNote) );
-			}
+		}
+
+		if ( ! bNoteFound ) {
+			noteList->push_back( std::make_shared<Note>(newNote) );
 		}
 	}
 }
