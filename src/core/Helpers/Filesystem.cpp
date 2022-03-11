@@ -194,33 +194,47 @@ bool Filesystem::check_permissions( const QString& path, const int perms, bool s
 	if( ( perms & is_file ) && ( perms & is_writable ) && !fi.exists() ) {
 		QFileInfo folder( path.left( path.lastIndexOf( "/" ) ) );
 		if( !folder.isDir() ) {
-			if( !silent ) ERRORLOG( QString( "%1 is not a directory" ).arg( folder.fileName() ) );
+			if( !silent ) {
+				ERRORLOG( QString( "%1 is not a directory" ).arg( folder.fileName() ) );
+			}
 			return false;
 		}
 		if( !folder.isWritable() ) {
-			if( !silent ) ERRORLOG( QString( "%1 is not writable" ).arg( folder.fileName() ) );
+			if( !silent ) {
+				ERRORLOG( QString( "%1 is not writable" ).arg( folder.fileName() ) );
+			}
 			return false;
 		}
 		return true;
 	}
 	if( ( perms & is_dir ) && !fi.isDir() ) {
-		if( !silent ) ERRORLOG( QString( "%1 is not a directory" ).arg( path ) );
+		if( !silent ) {
+			ERRORLOG( QString( "%1 is not a directory" ).arg( path ) );
+		}
 		return false;
 	}
 	if( ( perms & is_file ) && !fi.isFile() ) {
-		if( !silent ) ERRORLOG( QString( "%1 is not a file" ).arg( path ) );
+		if( !silent ) {
+			ERRORLOG( QString( "%1 is not a file" ).arg( path ) );
+		}
 		return false;
 	}
 	if( ( perms & is_readable ) && !fi.isReadable() ) {
-		if( !silent ) ERRORLOG( QString( "%1 is not readable" ).arg( path ) );
+		if( !silent ) {
+			ERRORLOG( QString( "%1 is not readable" ).arg( path ) );
+		}
 		return false;
 	}
 	if( ( perms & is_writable ) && !fi.isWritable() ) {
-		if( !silent ) ERRORLOG( QString( "%1 is not writable" ).arg( path ) );
+		if( !silent ) {
+			ERRORLOG( QString( "%1 is not writable" ).arg( path ) );
+		}
 		return false;
 	}
 	if( ( perms & is_executable ) && !fi.isExecutable() ) {
-		if( !silent ) ERRORLOG( QString( "%1 is not executable" ).arg( path ) );
+		if( !silent ) {
+			ERRORLOG( QString( "%1 is not executable" ).arg( path ) );
+		}
 		return false;
 	}
 	return true;
@@ -267,7 +281,9 @@ bool Filesystem::path_usable( const QString& path, bool create, bool silent )
 			INFOLOG( QString( "create user directory : %1" ).arg( path ) );
 		}
 		if ( create && !QDir( "/" ).mkpath( path ) ) {
-			if( !silent ) ERRORLOG( QString( "unable to create user directory : %1" ).arg( path ) );
+			if( !silent ) {
+				ERRORLOG( QString( "unable to create user directory : %1" ).arg( path ) );
+			}
 			return false;
 		}
 	}
@@ -389,7 +405,10 @@ bool Filesystem::check_sys_paths()
 	if( !file_readable( drumkit_xsd_path() ) ) ret = false;
 	if( !file_readable( playlist_xsd_path() ) ) ret = false;
 
-	if ( ret ) INFOLOG( QString( "system wide data path %1 is usable." ).arg( __sys_data_path ) );
+	if ( ret ) {
+		INFOLOG( QString( "system wide data path %1 is usable." ).arg( __sys_data_path ) );
+	}
+	
 	return ret;
 }
 
@@ -411,7 +430,10 @@ bool Filesystem::check_usr_paths()
 	if( !path_usable( usr_theme_dir() ) ) ret = false;
 	if( !file_writable( usr_config_path() ) ) ret = false;
 
-	if ( ret ) INFOLOG( QString( "user path %1 is usable." ).arg( __usr_data_path ) );
+	if ( ret ) {
+		INFOLOG( QString( "user path %1 is usable." ).arg( __usr_data_path ) );
+	}
+	
 	return ret;
 }
 

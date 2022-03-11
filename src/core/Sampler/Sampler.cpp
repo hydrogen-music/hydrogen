@@ -1157,9 +1157,9 @@ bool Sampler::renderNoteNoResample(
 	float buffer_L[ MAX_BUFFER_SIZE ];
 	float buffer_R[ MAX_BUFFER_SIZE ];
 	int nNoteEnd;
-	if ( nNoteLength == -1)
+	if ( nNoteLength == -1) {
 		nNoteEnd = pSelectedLayerInfo->SamplePosition + nTimes + 1;
-	else {
+	} else {
 		nNoteEnd = nNoteLength - pSelectedLayerInfo->SamplePosition;
 	}
 
@@ -1343,8 +1343,9 @@ bool Sampler::renderNoteResample(
 	float fVal_R;
 	int nSampleFrames = pSample->get_frames();
 	int nNoteEnd;
-	if ( nNoteLength == -1)
+	if ( nNoteLength == -1) {
 		nNoteEnd = nSampleFrames + 1;
+	}
 	else {
 		nNoteEnd = nNoteLength - pSelectedLayerInfo->SamplePosition;
 	}
