@@ -259,14 +259,13 @@ public slots:
 	void	muteClicked();
 
 private:
-	uint	m_nWidth;
-	uint	m_nHeight;
-
-	uint	m_nPeakTimer;
-	float	m_fMaxPeak;
-	float	m_nFalloff;
+	uint			m_nWidth;
+	uint			m_nHeight;
+					
+	uint			m_nPeakTimer;
+	float			m_fMaxPeak;
+	float			m_nFalloff;
 		
-	Fader*			m_pFader;
 	Fader*			m_pMasterFader;
 
 	ClickableLabel* m_pMasterLbl;
@@ -281,7 +280,7 @@ private:
 	Rotary *		m_pHumanizeTimeRotary;
 	Rotary *		m_pHumanizeVelocityRotary;
 
-	Button *	m_pMuteBtn;
+	Button *		m_pMuteBtn;
 };
 
 /** \ingroup docGUI*/
@@ -316,7 +315,7 @@ signals:
 
 private:
 	float			m_fMaxPeak;
-	Button *	m_pBypassBtn;
+	Button *		m_pBypassBtn;
 	Button *		m_pEditBtn;
 	Rotary *		m_pRotary;
 	LCDDisplay *	m_pNameLCD;

@@ -43,9 +43,8 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 								  QScrollArea *pScrollView)
 	: PatternEditor( pParent, panel )
 	, m_pScrollView( pScrollView )
+	, m_nOldPoint( 0 )
 {
-	
-		
 	m_nGridHeight = 10;
 	m_nOctaves = 7;
 
@@ -65,6 +64,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 	HydrogenApp::get_instance()->addEventListener( this );
 
 	m_bNeedsUpdate = true;
+	m_bNeedsBackgroundUpdate = true;
 	m_bSelectNewNotes = false;
 }
 
@@ -520,7 +520,7 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 	m_nCursorPitch = lineToPitch( nPressedLine );
 
 	if (ev->button() == Qt::RightButton ) {
-		m_pOldPoint = ev->y();
+		m_nOldPoint = ev->y();
 
 		unsigned nRealColumn = 0;
 		if( ev->x() > m_nMargin ) {
@@ -533,24 +533,24 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 		m_pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, pressednotekey, pressedoctave, false );
 
 		//needed for undo note length
-		__nRealColumn = nRealColumn;
-		__nColumn = nColumn;
-		__pressedLine = nPressedLine;
-		__selectedInstrumentnumber = nSelectedInstrumentnumber;
+		m_nRealColumn = nRealColumn;
+		m_nColumn = nColumn;
+		m_nPressedLine = nPressedLine;
+		m_nSelectedInstrumentNumber = nSelectedInstrumentnumber;
 		if( m_pDraggedNote ){
-			__oldLength = m_pDraggedNote->get_length();
+			m_nOldLength = m_pDraggedNote->get_length();
 			//needed to undo note properties
-			__oldVelocity = m_pDraggedNote->get_velocity();
+			m_fOldVelocity = m_pDraggedNote->get_velocity();
 			m_fOldPan = m_pDraggedNote->getPan();
 
-			__oldLeadLag = m_pDraggedNote->get_lead_lag();
+			m_fOldLeadLag = m_pDraggedNote->get_lead_lag();
 
-			__velocity = __oldVelocity;
+			m_fVelocity = m_fOldVelocity;
 			m_fPan = m_fOldPan;
-			__leadLag = __oldLeadLag;
+			m_fLeadLag = m_fOldLeadLag;
 		}else
 		{
-			__oldLength = -1;
+			m_nOldLength = -1;
 		}
 		//		m_pAudioEngine->unlock();
 	}
@@ -743,7 +743,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		float val = m_pDraggedNote->get_velocity();
 
 		
-		float ymove = m_pOldPoint - ev->y();
+		float ymove = m_nOldPoint - ev->y();
 		val = val  +  (ymove / 100);
 		if (val > 1) {
 			val = 1;
@@ -754,13 +754,13 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 
 		m_pDraggedNote->set_velocity( val );
 
-		__velocity = val;
+		m_fVelocity = val;
 
 		Hydrogen::get_instance()->setIsModified( true );
 		m_pAudioEngine->unlock(); // unlock the audio engine
 
 		m_pPatternEditorPanel->updateEditors( true );
-		m_pOldPoint = ev->y();
+		m_nOldPoint = ev->y();
 	}
 
 	//edit pan
@@ -769,7 +769,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 
 		m_pAudioEngine->lock( RIGHT_HERE );	// lock the audio engine
 		
-		float ymove = m_pOldPoint - ev->y();
+		float ymove = m_nOldPoint - ev->y();
 		float fVal = m_pDraggedNote->getPanWithRangeFrom0To1()  +  (ymove / 100);
 
 		m_pDraggedNote->setPanWithRangeFrom0To1( fVal ); // checks the boundaries as well
@@ -779,7 +779,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		m_pAudioEngine->unlock(); // unlock the audio engine
 
 		m_pPatternEditorPanel->updateEditors();
-		m_pOldPoint = ev->y();
+		m_nOldPoint = ev->y();
 	}
 
 	//edit lead lag
@@ -791,7 +791,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		
 		float val = ( m_pDraggedNote->get_lead_lag() - 1.0 ) / -2.0 ;
 
-		float ymove = m_pOldPoint - ev->y();
+		float ymove = m_nOldPoint - ev->y();
 		val = val  +  (ymove / 100);
 
 		if (val > 1.0) {
@@ -803,7 +803,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 
 		m_pDraggedNote->set_lead_lag((val * -2.0) + 1.0);
 
-		__leadLag = (val * -2.0) + 1.0;
+		m_fLeadLag = (val * -2.0) + 1.0;
 
 		char valueChar[100];
 		if ( m_pDraggedNote->get_lead_lag() < 0.0 ) {
@@ -820,7 +820,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		m_pAudioEngine->unlock(); // unlock the audio engine
 
 		m_pPatternEditorPanel->updateEditors( true );
-		m_pOldPoint = ev->y();
+		m_nOldPoint = ev->y();
 	}
 
 }
@@ -838,25 +838,25 @@ void PianoRollEditor::mouseDragEndEvent( QMouseEvent *ev )
 
 
 
-		if( m_pDraggedNote->get_length() != __oldLength )
+		if( m_pDraggedNote->get_length() != m_nOldLength )
 		{
-			SE_editPianoRollNoteLengthAction *action = new SE_editPianoRollNoteLengthAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), m_pDraggedNote->get_length(),__oldLength, m_nSelectedPatternNumber, __selectedInstrumentnumber, __pressedLine );
+			SE_editPianoRollNoteLengthAction *action = new SE_editPianoRollNoteLengthAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), m_pDraggedNote->get_length(),m_nOldLength, m_nSelectedPatternNumber, m_nSelectedInstrumentNumber, m_nPressedLine );
 			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
 
 
-		if( __velocity == __oldVelocity &&  __oldLeadLag == __leadLag && m_fOldPan == m_fPan ) return;
+		if( m_fVelocity == m_fOldVelocity &&  m_fOldLeadLag == m_fLeadLag && m_fOldPan == m_fPan ) return;
 		SE_editNotePropertiesPianoRollAction *action = new SE_editNotePropertiesPianoRollAction( m_pDraggedNote->get_position(),
 																								 m_pDraggedNote->get_position(),
 																								 m_nSelectedPatternNumber,
-																								 __selectedInstrumentnumber,
-																								 __velocity,
-																								 __oldVelocity,
+																								 m_nSelectedInstrumentNumber,
+																								 m_fVelocity,
+																								 m_fOldVelocity,
 																								 m_fPan,
 																								 m_fOldPan,
-																								 __leadLag,
-																								 __oldLeadLag,
-																								 __pressedLine );
+																								 m_fLeadLag,
+																								 m_fOldLeadLag,
+																								 m_nPressedLine );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 }

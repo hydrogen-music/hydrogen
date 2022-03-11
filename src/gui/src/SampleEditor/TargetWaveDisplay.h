@@ -73,8 +73,6 @@ class TargetWaveDisplay :  public QWidget,  public H2Core::Object<TargetWaveDisp
 		int *m_pPeakData_Left;
 		int *m_pPeakData_Right;
 
-		unsigned m_nSampleLength;
-
 		bool m_UpdatePosition;
 		EnvelopeEditMode m_EditMode;
 

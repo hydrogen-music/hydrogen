@@ -47,20 +47,19 @@ LayerPreview::LayerPreview( QWidget* pParent )
  , m_nSelectedComponent( 0 )
  , m_nSelectedLayer( 0 )
  , m_bMouseGrab( false )
+ , m_bGrabLeft( false )
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
-	//
-
 	setMouseTracking( true );
 
-	int w = 276;
+	int width = 276;
 	if( InstrumentComponent::getMaxLayers() > 16) {
-		w = 261;
+		width = 261;
 	}
 	
-	int h = 20 + m_nLayerHeight * InstrumentComponent::getMaxLayers();
-	resize( w, h );
+	int height = 20 + m_nLayerHeight * InstrumentComponent::getMaxLayers();
+	resize( width, height );
 
 	m_speakerPixmap.load( Skin::getSvgImagePath() + "/icons/white/speaker.svg" );
 

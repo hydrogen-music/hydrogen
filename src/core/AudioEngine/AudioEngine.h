@@ -752,7 +752,7 @@ private:
 		const char* file;
 		unsigned int line;
 		const char* function;
-	} __locker;
+	} m_pLocker;
 
 	// time used in process function
 	float				m_fProcessTime;
