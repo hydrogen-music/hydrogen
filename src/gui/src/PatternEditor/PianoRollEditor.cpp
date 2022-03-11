@@ -1226,7 +1226,8 @@ void PianoRollEditor::editNotePropertiesAction( int nColumn,
 
 
 // Selection manager interface
-void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev ) {
+void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev )
+{
 	updateModifiers( ev );
 
 	QPoint offset = movingGridOffset();
@@ -1313,8 +1314,8 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 	pUndo->endMacro();
 }
 
-std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecting( QRect r ) {
-
+std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecting( QRect r )
+{
 	int w = 8;
 	int h = m_nGridHeight - 2;
 	int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
@@ -1350,15 +1351,15 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 ///
 /// Position of keyboard input cursor on screen
 ///
-QRect PianoRollEditor::getKeyboardCursorRect() {
+QRect PianoRollEditor::getKeyboardCursorRect()
+{
 	QPoint pos = cursorPosition();
 	return QRect( pos.x() - m_fGridWidth*3, pos.y()-2,
 				  m_fGridWidth*6, m_nGridHeight+3 );
 }
 
-void PianoRollEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void PianoRollEditor::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 		createBackground();

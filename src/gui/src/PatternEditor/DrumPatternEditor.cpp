@@ -1357,9 +1357,8 @@ void DrumPatternEditor::undoRedoAction( int column,
 	}
 }
 
-void DrumPatternEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void DrumPatternEditor::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 		updateEditor();
