@@ -23,6 +23,7 @@
 #include <core/CoreActionController.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Helpers/Filesystem.h>
 
 #include <iostream>
@@ -127,9 +128,13 @@ void TransportTest::testSongSizeChange() {
 	pHydrogen->getCoreActionController()->openSong( m_pSongSizeChanged );
 
 	for ( int ii = 0; ii < 15; ++ii ) {
-		TestHelper::varyAudioDriverConfig( ii );
-		bool bNoMismatch = pAudioEngine->testSongSizeChange();
-		CPPUNIT_ASSERT( bNoMismatch );
+		// For larger sample rates no notes will remain in the
+		// AudioEngine::m_songNoteQueue after one process step.
+		if ( H2Core::Preferences::get_instance()->m_nSampleRate <= 48000 ) {
+			TestHelper::varyAudioDriverConfig( ii );
+			bool bNoMismatch = pAudioEngine->testSongSizeChange();
+			CPPUNIT_ASSERT( bNoMismatch );
+		}
 	}
 
 	pHydrogen->getCoreActionController()->activateLoopMode( false, false );
@@ -154,7 +159,10 @@ void TransportTest::testNoteEnqueuing() {
 
 	pHydrogen->getCoreActionController()->openSong( m_pSongSizeChanged );
 
-	for ( int ii = 0; ii < 15; ++ii ) {
+	// This test is quite time consuming.
+	std::vector<int> indices{ 0, 1, 2, 5, 7, 9, 12, 15 };
+
+	for ( auto ii : indices ) {
 		TestHelper::varyAudioDriverConfig( ii );
 		bool bNoMismatch = pAudioEngine->testNoteEnqueuing();
 		CPPUNIT_ASSERT( bNoMismatch );
