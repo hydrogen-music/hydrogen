@@ -104,28 +104,10 @@ public:
 	QString			lastMidiEvent;
 	int				lastMidiEventParameter;
 
-	// TODO: more descriptive name since it is able to both delete and
-	// add a pattern. Possibly without the sequencer_ prefix for
-	// consistency.
-	/**
-	 * Adding and removing a Pattern from
-	 * #H2Core::AudioEngine::m_pNextPatterns.
-	 *
-	 * \param pos Index of a particular pattern in
-	 * Song::m_pPatternList, which should be added to
-	 * #H2Core::AudioEngine::m_pNextPatterns.
-	 */
-	void			sequencer_setNextPattern( int pos );
-	// TODO: Possibly without the sequencer_ prefix for consistency.
-	/**
-	 * Clear #H2Core::AudioEngine::m_pNextPatterns and add one
-	 * Pattern.
-	 *
-	 * \param pos Index of a particular pattern in
-	 * Song::m_pPatternList, which should be added to
-	 * #H2Core::AudioEngine::m_pNextPatterns.
-	 */
-	void			sequencer_setOnlyNextPattern( int pos );
+	/** Wrapper around AudioEngine::toggleNextPattern().*/
+	void			toggleNextPattern( int nPatternNumber );
+	/** Wrapper around AudioEngine::flushAndAddNextPattern().*/
+	void			flushAndAddNextPattern( int nPatternNumber );
 	/**
 	 * Switches playback to focused pattern.
 	 *

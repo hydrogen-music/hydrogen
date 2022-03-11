@@ -401,7 +401,7 @@ bool MidiActionManager::select_next_pattern( std::shared_ptr<Action> pAction, Hy
 		pHydrogen->setSelectedPatternNumber( row );
 	}
 	else {
-		pHydrogen->sequencer_setNextPattern( row );
+		pHydrogen->toggleNextPattern( row );
 	}
 	return true;
 }
@@ -426,7 +426,7 @@ bool MidiActionManager::select_only_next_pattern( std::shared_ptr<Action> pActio
 		return true;
 	}
 	
-	pHydrogen->sequencer_setOnlyNextPattern( row );
+	pHydrogen->flushAndAddNextPattern( row );
 	return true; 
 }
 

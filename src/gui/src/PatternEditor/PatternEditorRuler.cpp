@@ -138,9 +138,10 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 	 */
 	pAudioEngine->lock( RIGHT_HERE );
 
-	PatternList *pList = pAudioEngine->getPlayingPatterns();
-	for (uint i = 0; i < pList->size(); i++) {
-		if ( m_pPattern == pList->get(i) ) {
+	auto pPlayingPatterns = pAudioEngine->getPlayingPatterns();
+	for ( int ii = 0; ii < pPlayingPatterns->size(); ++ii ) {
+		auto ppattern = pPlayingPatterns->get( ii );
+		if ( m_pPattern == ppattern ) {
 			bActive = true;
 			break;
 		}

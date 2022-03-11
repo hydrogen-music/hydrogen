@@ -62,7 +62,10 @@ static const uint SONG_EDITOR_MAX_GRID_WIDTH = 16;
 //! delete, duplicate etc.
 //!
 /** \ingroup docGUI*/
-class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public SelectionWidget<QPoint>
+class SongEditor : public QWidget
+				 , public H2Core::Object<SongEditor>
+				 , public SelectionWidget<QPoint>
+				 , public EventListener
 {
     H2_OBJECT(SongEditor)
 	Q_OBJECT
@@ -206,6 +209,7 @@ class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public S
 		void updateGridCells();
 		bool m_bEntered;
 public:
+	void patternModifiedEvent() override;
 
 		//! @name Selection interfaces
 		//! see Selection.h for details.
@@ -255,12 +259,12 @@ class SongEditorPatternList :  public QWidget, protected WidgetWithScalableFont<
 		void updateEditor();
 		void createBackground();
 		void movePatternLine( int, int );
-		void deletePatternFromList( QString patternFilename, QString sequenceFileName, int patternPosition );
-		void restoreDeletedPatternsFromList( QString patternFilename, QString sequenceFileName, int patternPosition );
 		void acceptPatternPropertiesDialogSettings( QString newPatternName, QString newPatternInfo, QString newPatternCategory, int patternNr );
 		void revertPatternPropertiesDialogSettings(QString oldPatternName, QString oldPatternInfo, QString oldPatternCategory, int patternNr);
 		void fillRangeWithPattern(FillRange* r, int nPattern);
 		int getGridHeight() { return m_nGridHeight; }
+	
+	void patternModifiedEvent() override;
 
 	public slots:
 		void patternPopup_edit();
@@ -336,8 +340,9 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		void setGridWidth (uint width);
 	int getPlayheadWidth() const;
 	void tempoChangedEvent( int ) override;
-	void columnChangedEvent( int ) override;
+	void patternChangedEvent() override;
 	void songModeActivationEvent( int nValue ) override;
+	void patternModifiedEvent() override;
 	
 	void timelineActivationEvent( int nValue ) override;
 	void timelineUpdateEvent( int nValue ) override;

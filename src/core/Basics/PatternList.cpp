@@ -52,14 +52,20 @@ PatternList::~PatternList()
 	}
 }
 
-void PatternList::add( Pattern* pattern )
+void PatternList::add( Pattern* pPattern )
 {
 	assertAudioEngineLocked();
-	// do nothing if already in __patterns
-	if ( index( pattern) != -1 ) {
+	if ( pPattern == nullptr ) {
+		ERRORLOG( "Provided pattern is invalid" );
 		return;
 	}
-	__patterns.push_back( pattern );
+	
+	// do nothing if already in __patterns
+	if ( index( pPattern ) != -1 ) {
+		INFOLOG( "Provided pattern is already contained" );
+		return;
+	}
+	__patterns.push_back( pPattern );
 }
 
 void PatternList::insert( int nIdx, Pattern* pPattern )
@@ -86,7 +92,7 @@ Pattern* PatternList::get( int idx )
 	return __patterns[idx];
 }
 
-const Pattern* PatternList::get( int idx ) const
+Pattern* PatternList::get( int idx ) const
 {
 	assertAudioEngineLocked();
 	if ( idx < 0 || idx >= __patterns.size() ) {
@@ -97,10 +103,12 @@ const Pattern* PatternList::get( int idx ) const
 	return __patterns[idx];
 }
 
-int PatternList::index( const Pattern* pattern )
+int PatternList::index( const Pattern* pattern ) const
 {
 	for( int i=0; i<__patterns.size(); i++ ) {
-		if ( __patterns[i]==pattern ) return i;
+		if ( __patterns[i]==pattern ) {
+			return i;
+		}
 	}
 	return -1;
 }

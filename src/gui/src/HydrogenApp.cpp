@@ -826,10 +826,6 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->updateSongEditorEvent( event.value );
 				break;
 
-			case EVENT_COLUMN_CHANGED:
-				pListener->columnChangedEvent( event.value );
-				break;
-			
 			case EVENT_DRUMKIT_LOADED:
 				pListener->drumkitLoadedEvent();
 				break;

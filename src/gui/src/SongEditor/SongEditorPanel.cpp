@@ -494,6 +494,19 @@ void SongEditorPanel::updateAll()
 	m_pPlaybackTrackFader->setIsActive( ! H2Core::Hydrogen::get_instance()->getSong()->getPlaybackTrackFilename().isEmpty() );
 }
 
+void SongEditorPanel::patternModifiedEvent() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	
+	updatePlaybackTrackIfNecessary();
+
+ 	m_pAutomationPathView->setAutomationPath( pSong->getVelocityAutomationPath() );
+
+	resyncExternalScrollBar();
+
+	m_pPlaybackTrackFader->setIsActive( ! pSong->getPlaybackTrackFilename().isEmpty() );
+}
+
 void SongEditorPanel::updatePlaybackTrackIfNecessary()
 {
 	if( Preferences::get_instance()->getShowPlaybackTrack() ) {
@@ -1006,7 +1019,9 @@ void SongEditorPanel::updateSongEditorEvent( int nValue ) {
 	}
 }
 
-void SongEditorPanel::columnChangedEvent( int ) {
+void SongEditorPanel::patternChangedEvent() {
+	// Triggered every time the column of the SongEditor grid
+	// changed. Either by rolling transport or by relocation.
 	// In Song mode, we may scroll to change position in the Song Editor.
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pPref = Preferences::get_instance();
@@ -1030,8 +1045,9 @@ void SongEditorPanel::columnChangedEvent( int ) {
 			bool bFound = false;
 			std::vector< Pattern* >patternList;
 			pAudioEngine->lock( RIGHT_HERE );
-			for ( auto pPattern : *pAudioEngine->getPlayingPatterns() ) {
-				patternList.push_back( pPattern );
+			auto pPlayingPatterns = pAudioEngine->getPlayingPatterns();
+			for ( int ii = 0; ii < pPlayingPatterns->size(); ++ii ) {
+				patternList.push_back( pPlayingPatterns->get( ii ) );
 			}
 			pAudioEngine->unlock();
 

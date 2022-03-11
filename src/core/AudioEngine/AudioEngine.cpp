@@ -505,10 +505,12 @@ void AudioEngine::updateTransportPosition( double fTick, bool bUseLoopMode ) {
 
 		if ( m_nColumn != nNewColumn ) {
 			setColumn( nNewColumn );
-			EventQueue::get_instance()->push_event( EVENT_COLUMN_CHANGED, 0 );
+			updatePlayingPatterns( nNewColumn );
 		}
 
 	} else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
+
+		updatePlayingPatterns( 0 );
 
 		int nPatternSize;
 		if ( m_pPlayingPatterns->size() != 0 ) {
@@ -1552,8 +1554,6 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 										 static_cast<long long>(nframes) );
 	}
    
-	bool bSendPatternChange = false;
-
 	// always update note queue.. could come from pattern or realtime input
 	// (midi, keyboard)
 	int nResNoteQueue = pAudioEngine->updateNoteQueue( nframes );
@@ -1568,9 +1568,6 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			
 			return 1;	// kill the audio AudioDriver thread
 		}
-		
-	} else if ( nResNoteQueue == 2 ) { // send pattern change
-		bSendPatternChange = true;
 	}
 
 	pAudioEngine->processAudio( nframes );
@@ -1602,9 +1599,6 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 	pAudioEngine->unlock();
 
-	if ( bSendPatternChange ) {
-		EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
-	}
 	return 0;
 }
 
@@ -1891,6 +1885,108 @@ void AudioEngine::updateSongSize() {
 	
 }
 
+void AudioEngine::flushPlayingPatterns() {
+	m_pPlayingPatterns->clear();
+}
+
+void AudioEngine::updatePlayingPatterns( int nColumn ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+
+	if ( pHydrogen->getMode() == Song::Mode::Song ) {
+		m_pPlayingPatterns->clear();
+		for ( const auto& ppattern : *( *( pSong->getPatternGroupVector() ) )[ nColumn ] ) {
+			m_pPlayingPatterns->add( ppattern );
+			ppattern->addFlattenedVirtualPatterns( m_pPlayingPatterns );
+		}
+		EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, 0 );
+		
+	} else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
+		if ( Preferences::get_instance()->patternModePlaysSelected() ) {
+			auto pSelectedPattern =
+				pSong->getPatternList()->get( pHydrogen->getSelectedPatternNumber() );
+			if ( m_pPlayingPatterns->size() != 1 ||
+				 ( m_pPlayingPatterns->size() == 1 &&
+				   m_pPlayingPatterns->get( 0 ) != pSelectedPattern ) ) {
+
+				m_pPlayingPatterns->clear();
+				m_pPlayingPatterns->add( pSelectedPattern );
+				pSelectedPattern->addFlattenedVirtualPatterns( m_pPlayingPatterns );
+				
+				EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, 0 );
+			}
+				
+		} else {
+			// Stacked pattern mode
+			int nPatternSize;
+			if ( m_pPlayingPatterns->size() != 0 ) {
+				nPatternSize = m_pPlayingPatterns->longest_pattern_length();
+			} else {
+				nPatternSize = 0;
+			}
+
+			if ( nPatternSize == 0 ||
+				 getPatternStartTick() == -1 || // beginning of song
+				 getTick() >= getPatternStartTick() + nPatternSize ) {
+
+				if ( m_pNextPatterns->size() > 0 ) {
+					for ( const auto& ppattern : *m_pNextPatterns ) {
+						// If provided pattern is not part of the
+						// list, a nullptr will be returned. Else, a
+						// pointer to the deleted pattern will be
+						// returned.
+						if ( ( m_pPlayingPatterns->del( ppattern ) ) == nullptr ) {
+							// pPattern was not present yet. It will
+							// be added.
+							m_pPlayingPatterns->add( ppattern );
+							ppattern->addFlattenedVirtualPatterns( m_pPlayingPatterns );
+						} else {
+							// pPattern was already present. It will
+							// be deleted.
+							ppattern->removeFlattenedVirtualPatterns( m_pPlayingPatterns );
+						}
+						EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, 0 );
+					}
+					m_pNextPatterns->clear();
+				}
+			}
+		} // Stacked mode
+	} // Pattern mode
+}
+
+void AudioEngine::toggleNextPattern( int nPatternNumber ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pPatternList = pSong->getPatternList();
+	auto pPattern = pPatternList->get( nPatternNumber );
+	if ( pPattern != nullptr ) {
+		if ( m_pNextPatterns->del( pPattern ) == nullptr ) {
+			m_pNextPatterns->add( pPattern );
+		}
+	}
+}
+
+void AudioEngine::flushAndAddNextPattern( int nPatternNumber ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pPatternList = pSong->getPatternList();
+
+	m_pNextPatterns->clear();
+	
+	for ( int ii = 0; ii < m_pPlayingPatterns->size(); ++ii ) {
+		m_pNextPatterns->add( m_pPlayingPatterns->get( ii ) );
+	}
+	
+	// Appending the requested pattern.
+	// Note: we will not perform a bound check on the provided pattern
+	// number. This way the user can use the SELECT_ONLY_NEXT_PATTERN
+	// MIDI or OSC command to flush all playing patterns.
+	auto pPattern = pPatternList->get( nPatternNumber );
+	if ( pPattern != nullptr ) {
+		m_pNextPatterns->add( pPattern );
+	}
+}
+
 void AudioEngine::handleTimelineChange() {
 
 	setFrames( computeFrameFromTick( getDoubleTick(), &m_fTickMismatch ) );
@@ -2054,10 +2150,6 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
-	// Indicates whether the current pattern list changed with respect
-	// to the last cycle.
-	bool bSendPatternChange = false;
-
 	double fTickStart, fTickEnd;
 
 	long long nLeadLagFactor =
@@ -2140,13 +2232,6 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 				nPatternTickPosition = nnTick - nPatternStartTick;
 			}
 
-			// Since we are located at the very beginning of the
-			// pattern list, it had to change with respect to the last
-			// cycle.
-			if ( nPatternTickPosition == 0 ) {
-				bSendPatternChange = true;
-			}
-
 			// If no pattern list could not be found, either choose
 			// the first one if loop mode is activate or the
 			// function returns indicating that the end of the song is
@@ -2164,15 +2249,7 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 			}
 
 			if ( nColumn != m_nLastPlayingPatternsColumn ) {
-				// Obtain the current PatternList and use it to overwrite
-				// the on in `m_pPlayingPatterns.
-				PatternList *pPatternList = ( *( pSong->getPatternGroupVector() ) )[nColumn];
-				m_pPlayingPatterns->clear();
-				for ( int i=0; i< pPatternList->size(); ++i ) {
-					Pattern* pPattern = pPatternList->get(i);
-					m_pPlayingPatterns->add( pPattern );
-					pPattern->extand_with_flattened_virtual_patterns( m_pPlayingPatterns );
-				}
+				updatePlayingPatterns( nColumn );
 				m_nLastPlayingPatternsColumn = nColumn;
 			}
 		}
@@ -2180,56 +2257,30 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 		//////////////////////////////////////////////////////////////
 		// PATTERN MODE
 		else if ( pHydrogen->getMode() == Song::Mode::Pattern )	{
-			int nPatternSize = MAX_NOTES;
 
-			// If the user chose to playback the pattern she focuses,
-			// use it to overwrite `m_pPlayingPatterns`.
-			if ( Preferences::get_instance()->patternModePlaysSelected() )
-			{
-				// TODO: Again, a check whether the pattern did change
-				// would be more efficient.
-				m_pPlayingPatterns->clear();
-				Pattern * pattern = pSong->getPatternList()->get( pHydrogen->getSelectedPatternNumber() );
-				m_pPlayingPatterns->add( pattern );
-				pattern->extand_with_flattened_virtual_patterns( m_pPlayingPatterns );
-			}
-
+			// The provided column is only important if playback is in
+			// song mode.
+			updatePlayingPatterns( 0 );
+			
+			int nPatternSize;
 			if ( m_pPlayingPatterns->size() != 0 ) {
 				nPatternSize = m_pPlayingPatterns->longest_pattern_length();
+			} else {
+				nPatternSize = MAX_NOTES;
 			}
 
 			if ( nPatternSize == 0 ) {
-				___ERRORLOG( "nPatternSize == 0" );
+				ERRORLOG( "nPatternSize == 0" );
 			}
 
-			// If either the beginning of the current pattern was not
-			// specified yet or if its end is reached, write the
-			// content of `m_pNextPatterns` to `m_pPlayingPatterns`
-			// and clear the former one.
-			if ( ( nnTick == nPatternStartTick + nPatternSize )
-				 || ( nPatternStartTick == -1 ) ) {
-				if ( m_pNextPatterns->size() > 0 ) {
-					Pattern* pPattern;
-					for ( uint i = 0; i < m_pNextPatterns->size(); i++ ) {
-						pPattern = m_pNextPatterns->get( i );
-						// If `pPattern is already present in
-						// `m_pPlayingPatterns`, it will be removed
-						// from the latter and its `del()` method will
-						// return a pointer to the very pattern. The
-						// if clause is therefore only entered if the
-						// `pPattern` was not already present.
-						if ( ( m_pPlayingPatterns->del( pPattern ) ) == nullptr ) {
-							m_pPlayingPatterns->add( pPattern );
-						}
-					}
-					m_pNextPatterns->clear();
-					bSendPatternChange = true;
-				}
-				if ( nPatternStartTick == -1 && nPatternSize > 0 ) {
-					nPatternStartTick = nnTick - (nnTick % nPatternSize);
-				} else {
-					nPatternStartTick = nnTick;
-				}
+			// INFOLOG( QString( "[pre] nnTick: %1, nPatternTickPosition: %2, nPatternStartTick: %3, nPatternSize: %4" )
+			// 		  .arg( nnTick ).arg( nPatternTickPosition )
+			// 		  .arg( nPatternStartTick ).arg( nPatternSize ) );
+
+			if ( nPatternStartTick == -1 ) {
+				nPatternStartTick = nnTick - (nnTick % nPatternSize);
+			} else if ( nnTick == nPatternStartTick + nPatternSize ) {
+				nPatternStartTick = nnTick;
 			}
 
 			// Since the starting position of the Pattern may have
@@ -2239,6 +2290,10 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 			if ( nPatternTickPosition > nPatternSize && nPatternSize > 0 ) {
 				nPatternTickPosition = nnTick % nPatternSize;
 			}
+
+			// DEBUGLOG( QString( "[post] nnTick: %1, nPatternTickPosition: %2, nPatternStartTick: %3, nPatternSize: %4" )
+			// 		  .arg( nnTick ).arg( nPatternTickPosition )
+			// 		  .arg( nPatternStartTick ).arg( nPatternSize ) );
 		}
 		
 		//////////////////////////////////////////////////////////////
@@ -2404,11 +2459,6 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 		}
 	}
 
-	// audioEngine_process() must send the pattern change event after
-	// mutex unlock
-	if ( bSendPatternChange ) {
-		return 2;
-	}
 	return 0;
 }
 
