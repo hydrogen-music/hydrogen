@@ -155,10 +155,10 @@ double LCDSpinBox::nextValueInPatternSizeDenominator( bool bUp, bool bAccelerate
 
 	// Determine the next value.
 	std::vector vChoices{ 1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 192 };
-	bool bContained;
 
-	double fNextValue;
-	double fOffset;
+	double fNextValue = 1.0;
+	double fOffset = 0.0;
+	
 	if ( bAccelerated ) {
 		fOffset = 10;
 	} else {
