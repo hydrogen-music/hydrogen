@@ -45,8 +45,6 @@ AutomationPathView::AutomationPathView(QWidget *parent)
 }
 
 void AutomationPathView::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		update();
 	}

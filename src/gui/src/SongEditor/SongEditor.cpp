@@ -1216,9 +1216,8 @@ void SongEditor::updateEditorandSetTrue()
 	update();
 }
 
-void SongEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-
+void SongEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) 
+{
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::AppearanceTab ) ) {
 		createBackground();
@@ -2123,13 +2122,13 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 }
 
 
-void SongEditorPatternList::timelineUpdateEvent( int nEvent ){
+void SongEditorPatternList::timelineUpdateEvent( int nEvent )
+{
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 }
 
-void SongEditorPatternList::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void SongEditorPatternList::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 		
@@ -2713,13 +2712,13 @@ void SongEditorPositionRuler::updatePosition()
 	update();
 }
 
-void SongEditorPositionRuler::timelineUpdateEvent( int nValue ) {
+void SongEditorPositionRuler::timelineUpdateEvent( int nValue )
+{
 	createBackground();
 }
 
-void SongEditorPositionRuler::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void SongEditorPositionRuler::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 			 

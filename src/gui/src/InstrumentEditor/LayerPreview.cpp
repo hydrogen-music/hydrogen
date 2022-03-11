@@ -482,8 +482,8 @@ void LayerPreview::showLayerEndVelocity( const std::shared_ptr<InstrumentLayer> 
 			this);
 }
 
-int LayerPreview::getPointSizeButton() const {
-	
+int LayerPreview::getPointSizeButton() const
+{
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	int nPointSize;
@@ -503,9 +503,8 @@ int LayerPreview::getPointSizeButton() const {
 	return nPointSize;
 }
 
-void LayerPreview::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void LayerPreview::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & ( H2Core::Preferences::Changes::Font |
 					 H2Core::Preferences::Changes::Colors ) ) {
 		update();

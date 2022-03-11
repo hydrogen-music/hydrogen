@@ -111,9 +111,8 @@ Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSte
 Fader::~Fader() {
 }
 
-void Fader::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void Fader::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & ( H2Core::Preferences::Changes::Colors ) ) {
 		update();
 	}
