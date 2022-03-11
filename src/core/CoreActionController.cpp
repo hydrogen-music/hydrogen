@@ -1295,34 +1295,112 @@ bool CoreActionController::setPattern( Pattern* pPattern, int nPatternPosition )
 	
 	// Update the SongEditor.
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG_EDITOR, 0 );
+		EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, 0 );
 	}
 	return true;
 }
 
 bool CoreActionController::removePattern( int nPatternNumber ) {
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pSong = pHydrogen->getSong();
 
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
+
+	INFOLOG( QString( "Deleting pattern [%1]" ).arg( nPatternNumber ) );
 	
-	auto pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
-	int nPreviousPatternNumber = pHydrogen->getSelectedPatternNumber();
+	auto pPatternList = pSong->getPatternList();
+	auto pPatternGroupVector = pSong->getPatternGroupVector();
+	auto pPlayingPatterns = pAudioEngine->getPlayingPatterns();
+	auto pNextPatterns = pAudioEngine->getNextPatterns();
+	
+	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 	auto pPattern = pPatternList->get( nPatternNumber );
 
-	if ( nPatternNumber == nPreviousPatternNumber ) {
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Pattern [%1] not found" ).arg( nPatternNumber ) );
+		return false;
+	}
+
+	pAudioEngine->lock( RIGHT_HERE );
+
+	// Ensure there is always at least one pattern present in the
+	// list.
+	if ( pPatternList->size() == 0 ) {
+		Pattern* pEmptyPattern = new Pattern( "Pattern 1" );
+		pPatternList->add( pEmptyPattern );
+	}
+
+	// Delete all instances of the pattern in the pattern group vector
+	// (columns of the SongEditor)
+	for ( const auto& ppatternList : *pPatternGroupVector ) {
+		for ( int ii = 0; ii < ppatternList->size(); ++ii ) {
+			if ( ppatternList->get( ii ) == pPattern ) {
+				ppatternList->del( ii );
+				// there is at most one instance of a pattern per
+				// column.
+				continue;
+			}
+		}
+	}
+
+	if ( nPatternNumber == nSelectedPatternNumber ) {
 		pHydrogen->setSelectedPatternNumber( std::max( 0, nPatternNumber - 1 ) );
 	}
 
+	// Remove the pattern from the list of of patterns that are played
+	// next in pattern mode.
+	// IMPORTANT: it has to be removed from the next patterns list
+	// _before_ updating the playing patterns.
+	for ( int ii = 0; ii < pNextPatterns->size(); ++ii ) {
+		if ( pNextPatterns->get( ii ) == pPattern ) {
+			qDebug() << "present in next patterns";
+			pAudioEngine->toggleNextPattern( nPatternNumber );
+		}
+	}
+	
+	// Ensure the pattern is not among the list of currently played
+	// patterns cached in the audio engine if transport is in pattern
+	// mode.
+	for ( int ii = 0; ii < pPlayingPatterns->size(); ++ii ) {
+		if ( pPlayingPatterns->get( ii ) == pPattern ) {
+			qDebug() << "present in playing patterns";
+			pAudioEngine->flushPlayingPatterns();
+			pAudioEngine->updatePlayingPatterns( pAudioEngine->getColumn() );
+			break;
+		}
+	}
+
+	qDebug() << pAudioEngine->toQString("", true );
+
+	// Delete the pattern from the list of available patterns.
 	pPatternList->del( pPattern );
-	delete pPattern;
+
+	pHydrogen->updateSongSize();
+
+	pAudioEngine->unlock();
+
+	// Update virtual pattern presentation.
+	for ( const auto& ppattern : *pPatternList ) {
+
+		Pattern::virtual_patterns_cst_it_t it =
+			ppattern->get_virtual_patterns()->find( pPattern );
+		if ( it != ppattern->get_virtual_patterns()->end() ) {
+			ppattern->virtual_patterns_del( *it );
+		}
+	}
+	pPatternList->flattened_virtual_patterns_compute();
+	
 	pHydrogen->setIsModified( true );
+	
+	delete pPattern;
 
 	// Update the SongEditor.
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG_EDITOR, 0 );
+		EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, 0 );
 	}
 	return true;
 }
