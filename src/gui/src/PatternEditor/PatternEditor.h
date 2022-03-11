@@ -174,7 +174,7 @@ protected:
 	float m_fGridWidth;
 	unsigned m_nGridHeight;
 
-	int m_nSelectedPatternNumber;
+	int m_nSelectedPatternNumber = 0;
 	H2Core::Pattern *m_pPattern;
 
 	const int m_nMargin = 20;

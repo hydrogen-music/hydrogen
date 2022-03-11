@@ -1313,8 +1313,6 @@ public:
 					   int octaveKeyVal,
 					   int oldOctaveKeyVal)
 	{
-
-
 		setText( QObject::tr( "Edit note property %1" ).arg( mode.toLower() ) );
 		__undoColumn = undoColumn;
 		__mode = mode;
@@ -1332,8 +1330,8 @@ public:
 		__oldNoteKeyVal = oldNoteKeyVal;
 		__octaveKeyVal = octaveKeyVal;
 		__oldOctaveKeyVal = oldOctaveKeyVal;
-
 	}
+	
 	virtual void undo()
 	{
 		//qDebug() << "edit note property Undo ";
@@ -1384,8 +1382,6 @@ private:
 	int __oldNoteKeyVal;
 	int __octaveKeyVal;
 	int __oldOctaveKeyVal;
-	int __selectedPatternNumber;
-	int __nSelectedInstrumentnumber;
 };
 
 //~Note Properties Ruler commands

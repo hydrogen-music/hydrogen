@@ -123,6 +123,7 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	, __is_metronome_instrument(false)
 	, __apply_velocity( other->get_apply_velocity() )
 	, __current_instr_for_export(false)
+	, m_bHasMissingSamples(other->has_missing_samples())
 {
 	for ( int i=0; i<MAX_FX; i++ ) {
 		__fx_level[i] = other->get_fx_level( i );

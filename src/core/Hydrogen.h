@@ -101,8 +101,8 @@ public:
 	void			midi_noteOn( Note *note );
 
 	///Last received midi message
-	QString			lastMidiEvent;
-	int				lastMidiEventParameter;
+	QString			m_LastMidiEvent;
+	int				m_nLastMidiEventParameter;
 
 	// TODO: more descriptive name since it is able to both delete and
 	// add a pattern. Possibly without the sequencer_ prefix for

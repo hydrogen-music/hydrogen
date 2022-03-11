@@ -54,6 +54,8 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	m_nRulerWidth = 20 + m_fGridWidth * ( MAX_NOTES * 4 );
 	m_nRulerHeight = 25;
+	
+	m_nTicks = 0;
 
 	resize( m_nRulerWidth, m_nRulerHeight );
 
