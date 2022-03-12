@@ -22,8 +22,6 @@
 
 #include <core/Basics/Adsr.h>
 
-#include "ExponentialTables.h"
-
 namespace H2Core
 {
 
@@ -100,64 +98,6 @@ ADSR::ADSR( const std::shared_ptr<ADSR> other ) :
 
 ADSR::~ADSR() { }
 
-//#define convex_exponant
-//#define concave_exponant
-
-
-float ADSR::get_value( float step )
-{
-	switch ( __state ) {
-	case ATTACK:
-		if ( __attack == 0 ) {
-			__value = 1.0;
-		} else {
-			__value = convex_exponant( linear_interpolation( 0.0, 1.0, ( __ticks * 1.0 / __attack ) ) );
-		}
-		__ticks += step;
-		if ( __ticks > __attack ) {
-			__state = DECAY;
-			__ticks = 0;
-		}
-		break;
-
-	case DECAY:
-		if ( __decay == 0 ) {
-			__value = __sustain;
-		} else {
-			__value = concave_exponant( linear_interpolation( 1.0, 0.0, ( __ticks * 1.0 / __decay ) ) ) * (1 - __sustain) + __sustain;
-		}
-		__ticks += step;
-		if ( __ticks > __decay ) {
-			__state = SUSTAIN;
-			__ticks = 0;
-		}
-		break;
-
-	case SUSTAIN:
-		__value = __sustain;
-		break;
-
-	case RELEASE:
-		if ( __release < 256 ) {
-			__release = 256;
-		}
-		__value = concave_exponant( linear_interpolation( 1.0, 0.0, ( __ticks * 1.0 / __release ) ) ) * __release_value;
-		__ticks += step;
-		if ( __ticks > __release ) {
-			__state = IDLE;
-			__ticks = 0;
-		}
-		break;
-
-	case IDLE:
-	default:
-		__value = 0;
-		m_fQ = fAttackInit;
-	};
-
-	return __value;
-}
-
 
 /**
  * Apply an exponential envelope to a stereo pair of sample fragments.
@@ -217,7 +157,7 @@ inline double applyExponential( const float fExponent, const float fXOffset, con
 
 			fQ0 *= fFactor4;
 			fQ1 *= fFactor4;
-		    fQ2 *= fFactor4;
+			fQ2 *= fFactor4;
 			fQ3 *= fFactor4;
 
 			fVal = fVal0;
