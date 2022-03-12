@@ -65,6 +65,8 @@
 		    action are shown.
 		  - Rows can be removed by unsetting both the Event and Action
 		    combo box.
+	* Audio processing
+		- New fast exponential ADSR envelope processing
 	* InstrumentEditor UX improvements:
 		- rework start/end/loop frame slider selection and motion.
 		- rework velocity/pan envelope editing
