@@ -105,7 +105,7 @@ static QString showTimes( std::vector< clock_t > &times, int nFrames ) {
 		.arg( 100.0 * fRMS / fMean, 0, 'f', 3 );
 }
 
-static void timeADSR( bool bNew ) {
+static void timeADSR() {
 	const int nFrames = 4096;
 	float data_L[nFrames], data_R[nFrames];
 	int nIterations = 32;
@@ -119,35 +119,13 @@ static void timeADSR( bool bNew ) {
 		ADSR adsr( nFrames / 4, nFrames / 4, 0.5, nFrames / 4 );
 
 		std::clock_t start = std::clock();
-		if ( bNew ) {
-			adsr.applyADSR( data_L, data_R, nFrames, 3 * nFrames / 4, 1.0 );
-		} else {
-			for ( int i = 0; i < nFrames; i++ ) {
-				float fAdsr = adsr.get_value( 1.0 );
-				if ( i == 3 * nFrames / 4) {
-					adsr.release();
-				}
-				data_L[ i ] *= fAdsr;
-				data_R[ i ] *= fAdsr;
-			}
-		}
+		adsr.applyADSR( data_L, data_R, nFrames, 3 * nFrames / 4, 1.0 );
 		std::clock_t end = std::clock();
 
 		times.push_back( end - start );
 	}
 
 	qDebug() << "ADSR time: " << showTimes( times, nFrames );
-
-	// Print out samples
-	if ( true ) {
-		const char *sFileName = bNew ? "new.data" : "old.data";
-		FILE *out = fopen( sFileName, "w" );
-		assert( out );
-		for (int i = 0; i < nFrames; i++) {
-			fprintf(out, "%.30f\n", data_L[i]);
-		}
-		fclose( out );
-	}
 }
 
 static void timeExport( int nSampleRate ) {
@@ -191,12 +169,9 @@ void AudioBenchmark::audioBenchmark(void)
 	}
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
-	qDebug() << "\n\nBenchmark old ADSR method:";
-	timeADSR( false );
-	qDebug() << "Benchmark new ADSR method:";
-	timeADSR( true );
+	qDebug() << "Benchmark ADSR method:";
+	timeADSR();
 
-	
 	auto songFile = H2TEST_FILE("functional/test.h2song");
 	auto songADSRFile = H2TEST_FILE("functional/test_adsr.h2song");
 

@@ -88,11 +88,6 @@ class ADSR : public Object<ADSR>
 		 */
 		void attack();
 		/**
-		 * compute the value and return it
-		 * \param step the increment to be added to __ticks
-		 */
-		float get_value( float step );
-		/**
 		 * sets state to RELEASE,
 		 * returns 0 if the state is IDLE,
 		 * __value if the state is RELEASE,
