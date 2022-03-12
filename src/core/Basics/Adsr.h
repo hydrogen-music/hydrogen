@@ -88,11 +88,6 @@ class ADSR : public Object<ADSR>
 		 */
 		void attack();
 		/**
-		 * compute the value and return it
-		 * \param step the increment to be added to __ticks
-		 */
-		float get_value( float step );
-		/**
 		 * sets state to RELEASE,
 		 * returns 0 if the state is IDLE,
 		 * __value if the state is RELEASE,
@@ -137,6 +132,9 @@ class ADSR : public Object<ADSR>
 		float __ticks;          ///< current tick count
 		float __value;          ///< current value
 		float __release_value;  ///< value when the release state was entered
+
+		double m_fQ;				///< exponential decay state
+
 		void normalise();
 };
 

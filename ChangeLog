@@ -67,6 +67,7 @@
 		    combo box.
 	* Audio processing
 		- Set CoreAudio (macOS) buffer size to control latency
+		- New fast exponential ADSR envelope processing
 	* InstrumentEditor UX improvements:
 		- rework start/end/loop frame slider selection and motion.
 		- rework velocity/pan envelope editing
