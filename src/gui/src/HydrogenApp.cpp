@@ -838,6 +838,10 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->patternEditorLockedEvent( event.value );
 				break;
 				
+			case EVENT_RELOCATION:
+				pListener->relocationEvent();
+				break;
+
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}

@@ -2396,9 +2396,6 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	// Offset position of the shaft of the arrow head indicating the
 	// playback position.
 	m_nXShaft = std::floor( static_cast<float>( m_nPlayheadWidth ) / 2 );
-	if ( m_nPlayheadWidth % 2 != 0 ) {
-		m_nXShaft++;
-	}
 
 	resize( m_nInitialWidth, m_nHeight );
 	setFixedHeight( m_nHeight );
@@ -2418,7 +2415,12 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	update();
 
 	m_pTimer = new QTimer(this);
-	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updatePosition()));
+	connect(m_pTimer, &QTimer::timeout, [=]() {
+		if ( H2Core::Hydrogen::get_instance()->getAudioEngine()->getState() ==
+			 H2Core::AudioEngine::State::Playing ) {
+			updatePosition();
+		}
+	});
 	m_pTimer->start(200);
 }
 
@@ -2428,6 +2430,9 @@ SongEditorPositionRuler::~SongEditorPositionRuler() {
 	m_pTimer->stop();
 }
 
+void SongEditorPositionRuler::relocationEvent() {
+	updatePosition();
+}
 
 uint SongEditorPositionRuler::getGridWidth()
 {
@@ -2694,6 +2699,9 @@ void SongEditorPositionRuler::showBpmWidget( int nColumn )
 
 void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pCoreActionController = pHydrogen->getCoreActionController();
+		
 	int nColumn = ( std::max( ev->x() - m_nMargin, 0 ) / m_nGridWidth);
 	
 	if (ev->button() == Qt::LeftButton ) {
@@ -2705,10 +2713,8 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 				return;
 			}
 
-			// disabling son relocates while in pattern mode as it
-			// causes weird behaviour. (jakob lund)
 			if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
-				return;
+				pCoreActionController->activateSongMode( true );
 			}
 
 			m_pHydrogen->getCoreActionController()->locateToColumn( nColumn );
@@ -2809,9 +2815,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 			pixelRatio * ev->rect().height()
 	);
 	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, srcRect );
-
-
-
+	
 	// Which tempo marker is the currently used one?
 	int nCurrentColumn = m_pHydrogen->getAudioEngine()->getColumn();
 	int nCurrentTempoMarkerColumn = -1;
@@ -2912,7 +2916,6 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		}
 	}
 
-
 	// Draw hovering highlights in tempo marker row
 	if ( ( m_nHoveredColumn > -1 &&
 		   ( ( m_hoveredRow == HoveredRow::Tag && !bTagPresent ) ||
@@ -2958,32 +2961,16 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		p.setWidth( 1 );
 		painter.setPen( p );
 		
-		int x = m_nMargin + m_nHoveredColumn * m_nGridWidth;
-
-		if ( (m_nHoveredColumn % 4) == 0 ) {
-			char tmp[10];
-			sprintf( tmp, "%d", m_nHoveredColumn + 1 );
-
-			QRect rect;
-			if ( m_nHoveredColumn < 10 ) {
-				rect = QRect( x, height() / 2 + 3,
-							  m_nGridWidth, height() / 2 - 9 );
-			} else {
-				rect = QRect( x + 2, height() / 2 + 3,
-							  m_nGridWidth * 2, height() / 2 - 9 );
-			}
-				
-			// Remove the white version of the text to ensure no
-			// white/greyish rendering artifacts are introduced.
-			painter.fillRect( rect, backgroundColor );
-			painter.drawText( rect,
-							  m_nHoveredColumn < 10 ? Qt::AlignHCenter : Qt::AlignLeft,
-							  tmp );
-			painter.drawLine( x, height() - 14, x, height() - 1);
-		}
-		else {
-			painter.drawLine( x, height() - 6, x, height() - 1);
-		}
+		int x = static_cast<int>( static_cast<float>(m_nMargin) + 1 +
+								  static_cast<float>(m_nHoveredColumn) *
+								  static_cast<float>(m_nGridWidth) -
+								  static_cast<float>(m_nPlayheadWidth) / 2 );
+		Skin::drawPlayhead( &painter, QRect( x, height() / 2 + 2, m_nPlayheadWidth,
+											 m_nPlayheadHeight ), true );
+		painter.setPen( Qt::black );
+		painter.drawLine( x + m_nXShaft, 4, x + m_nXShaft, height() / 2 + 1 );
+		painter.drawLine( x + m_nXShaft, height() / 2 + 2 + m_nPlayheadHeight,
+						  x + m_nXShaft, height() - 2 );
 	}
 
 	// Draw cursor
@@ -3014,14 +3001,16 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		painter.drawLine( nCursorX + m_nGridWidth - 3, height() - 6,
 						  nCursorX + m_nGridWidth - 3, height() - 5 );
 	}
-	
-	if (fPos != -1) {
-		uint x = (int)( m_nMargin + fPos * m_nGridWidth - m_nPlayheadWidth / 2 );
-		painter.drawPixmap( QRect( x, height() / 2, m_nPlayheadWidth, m_nPlayheadHeight ),
-							m_tickPositionPixmap,
-							QRect( 0, 0, m_nPlayheadWidth, m_nPlayheadHeight ) );
-		painter.setPen( QColor(35, 39, 51) );
-		painter.drawLine( x + m_nXShaft, m_nPlayheadHeight, x + m_nXShaft, 24 );
+
+	// Draw playhead
+	if ( fPos != -1 ) {
+		int nX = static_cast<int>( static_cast<float>(m_nMargin) + 1 +
+								   fPos * static_cast<float>(m_nGridWidth) -
+								   static_cast<float>(m_nPlayheadWidth) / 2 );
+		Skin::drawPlayhead( &painter, QRect( nX, height() / 2 + 2, m_nPlayheadWidth,
+											 m_nPlayheadHeight ), false );
+		painter.setPen( Qt::black );
+		painter.drawLine( nX + m_nXShaft, 4, nX + m_nXShaft, height() - 2 );
 	}
 
 	if ( pIPos <= pOPos ) {

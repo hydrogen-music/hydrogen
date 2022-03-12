@@ -66,7 +66,6 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	setFixedSize(181, h);
 
 	QFont nameFont( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
-	nameFont.setBold( true );
 
 	m_pNameLbl = new QLabel(this);
 	m_pNameLbl->resize( 145, h );
@@ -174,7 +173,7 @@ void InstrumentLine::setSelected( bool bSelected )
 }
 
 void InstrumentLine::updateStyleSheet() {
-	
+
 	auto pPref = H2Core::Preferences::get_instance();
 
 	QColor textColor;
@@ -184,7 +183,11 @@ void InstrumentLine::updateStyleSheet() {
 		textColor = pPref->getColorTheme()->m_patternEditor_textColor;
 	}
 
-	m_pNameLbl->setStyleSheet( QString( "QLabel { color: %1; }" ).arg( textColor.name() ) );
+	m_pNameLbl->setStyleSheet( QString( "\
+QLabel {\
+   color: %1;\
+   font-weight: bold;\
+ }" ).arg( textColor.name() ) );
 }
 
 void InstrumentLine::enterEvent( QEvent* ev ) {

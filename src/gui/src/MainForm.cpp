@@ -2384,7 +2384,6 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 			
 		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
 			pCoreActionController->activateSongMode( false );
-			pApp->getPlayerControl()->songModeActivationEvent( 0 );
 		}
 
 		// To provide a similar behaviour as when pressing

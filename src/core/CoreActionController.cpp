@@ -1240,6 +1240,8 @@ bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
 	pAudioEngine->locate( nTick, bWithJackBroadcast );
 	
 	pAudioEngine->unlock();
+	
+	EventQueue::get_instance()->push_event( EVENT_RELOCATION, 0 );
 	return true;
 }
 

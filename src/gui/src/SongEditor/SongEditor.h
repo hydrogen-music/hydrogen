@@ -360,6 +360,7 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 	void tempoChangedEvent( int ) override;
 	void columnChangedEvent( int ) override;
 	void songModeActivationEvent( int nValue ) override;
+	void relocationEvent() override;
 	
 	void timelineActivationEvent( int nValue ) override;
 	void timelineUpdateEvent( int nValue ) override;

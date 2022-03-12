@@ -57,6 +57,7 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 		void showEvent( QShowEvent *ev ) override;
 		void hideEvent( QHideEvent *ev ) override;
 	void mouseMoveEvent( QMouseEvent *ev ) override;
+	void mousePressEvent( QMouseEvent *ev ) override;
 	void leaveEvent( QEvent *ev ) override;
 
 		void zoomIn();
@@ -85,9 +86,18 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 		H2Core::Pattern *m_pPattern;
 
 	int m_nHoveredColumn;
+	/**
+	 * Length of the song in pixels. As soon as the x coordinate of an
+	 * event is smaller than this value, it lies within the active
+	 * range of the song.
+	 */
+	int m_nWidthActive;
+	/** Updates #m_nWidthActive.*/
+	void updateActiveRange();
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
+	virtual void relocationEvent() override;
 		//~ Implements EventListener interface
 };
 

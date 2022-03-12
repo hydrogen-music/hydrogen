@@ -69,7 +69,14 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	createBackground();
 
 	m_pTimer = new QTimer(this);
-	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateEditor()));
+	connect(m_pTimer, &QTimer::timeout, [=]() {
+		if ( H2Core::Hydrogen::get_instance()->getAudioEngine()->getState() ==
+			 H2Core::AudioEngine::State::Playing ) {
+			updateEditor();
+		}
+	});
+
+	updateActiveRange();
 
 	HydrogenApp::get_instance()->addEventListener( this );
 }
@@ -81,6 +88,9 @@ PatternEditorRuler::~PatternEditorRuler() {
 }
 
 
+void PatternEditorRuler::relocationEvent() {
+	updateEditor();
+}
 
 void PatternEditorRuler::updateStart(bool start) {
 	if (start) {
@@ -114,46 +124,68 @@ void PatternEditorRuler::hideEvent ( QHideEvent *ev )
 	updateStart(false);
 }
 
-void PatternEditorRuler::mouseMoveEvent( QMouseEvent* ev ) {
+void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
+
+	if ( ev->button() == Qt::LeftButton &&
+		 ev->x() < m_nWidthActive ) {
+		auto pHydrogen = Hydrogen::get_instance();
+		auto pCoreActionController = pHydrogen->getCoreActionController();
 	
-	auto pHydrogenApp = HydrogenApp::get_instance();
-	DrumPatternEditor* pDrumPatternEditor;
-	if ( pHydrogenApp->getPatternEditorPanel() != nullptr ) {
-		pDrumPatternEditor = pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor();
-	} else {
-		pDrumPatternEditor = nullptr;
-	}
+		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
+			pCoreActionController->activateSongMode( false );
+		}
 
-	// Fall back to default values in case the GUI is starting and the
-	// pattern editor is not ready yet.
-	int nMargin;
-	float fResolution;
-	bool bIsUsingTriplets;
-	if ( pDrumPatternEditor != nullptr ) {
-		nMargin = pDrumPatternEditor->getMargin();
-		fResolution = static_cast<float>(pDrumPatternEditor->getResolution());
-		bIsUsingTriplets = pDrumPatternEditor->isUsingTriplets();
-	} else {
-		nMargin = 20;
-		fResolution = 8;
-		bIsUsingTriplets = false;
+		pCoreActionController->locateToTick( m_nHoveredColumn * 2 * m_fGridWidth );
 	}
+}
 
-	float fTripletFactor;
-	if ( bIsUsingTriplets ) {
-		fTripletFactor = 3;
-	} else {
-		fTripletFactor = 4;
-	}
-	int nHoveredColumn =
-		static_cast<int>(std::floor( static_cast<float>(std::max( ev->x() - nMargin, 0 )) *
-									 fTripletFactor * fResolution /
-									 ( 4 * static_cast<float>(MAX_NOTES) ) /
-									 m_fGridWidth ));
+void PatternEditorRuler::mouseMoveEvent( QMouseEvent* ev ) {
 
-	if ( nHoveredColumn != m_nHoveredColumn ) {
-		m_nHoveredColumn = nHoveredColumn;
-		update();
+	if ( ev->x() < m_nWidthActive ) {
+	
+		auto pHydrogenApp = HydrogenApp::get_instance();
+		DrumPatternEditor* pDrumPatternEditor;
+		if ( pHydrogenApp->getPatternEditorPanel() != nullptr ) {
+			pDrumPatternEditor = pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor();
+		} else {
+			pDrumPatternEditor = nullptr;
+		}
+
+		// Fall back to default values in case the GUI is starting and the
+		// pattern editor is not ready yet.
+		int nMargin;
+		float fResolution;
+		bool bIsUsingTriplets;
+		if ( pDrumPatternEditor != nullptr ) {
+			nMargin = pDrumPatternEditor->getMargin();
+			fResolution = static_cast<float>(pDrumPatternEditor->getResolution());
+			bIsUsingTriplets = pDrumPatternEditor->isUsingTriplets();
+		} else {
+			nMargin = 20;
+			fResolution = 8;
+			bIsUsingTriplets = false;
+		}
+
+		float fTripletFactor;
+		if ( bIsUsingTriplets ) {
+			fTripletFactor = 3;
+		} else {
+			fTripletFactor = 4;
+		}
+
+		float fColumnWidth = fTripletFactor * fResolution /
+			( 4 * static_cast<float>(MAX_NOTES) * m_fGridWidth );
+
+		int nHoveredColumn =
+			static_cast<int>(std::floor( static_cast<float>(
+				std::max( ev->x() - nMargin +
+						  static_cast<int>(std::round(1 / fColumnWidth / 2) ), 0 )) *
+										 fColumnWidth ));
+		
+		if ( nHoveredColumn != m_nHoveredColumn ) {
+			m_nHoveredColumn = nHoveredColumn;
+			update();
+		}
 	}
 }
 
@@ -178,7 +210,7 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 	else {
 		m_pPattern = nullptr;
 	}
-
+	updateActiveRange();
 
 	bool bActive = false;	// is the pattern playing now?
 
@@ -248,6 +280,8 @@ void PatternEditorRuler::createBackground()
 
 	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_alternateRowColor.darker( 120 ) );
 	QColor textColor = pPref->getColorTheme()->m_patternEditor_textColor;
+	textColor.setAlpha( 220 );
+	
 	QColor lineColor = pPref->getColorTheme()->m_patternEditor_lineColor;
 
 	QPainter painter( m_pBackground );
@@ -259,9 +293,9 @@ void PatternEditorRuler::createBackground()
 	if ( m_pPattern != nullptr ) {
 		nNotes = m_pPattern->get_length();
 	}
-	int nXStart = 20 + nNotes * m_fGridWidth;
-	if ( (m_nRulerWidth - nXStart) != 0 ) {
-		painter.fillRect( nXStart, 0, m_nRulerWidth - nXStart, m_nRulerHeight,
+	if ( m_nRulerWidth - m_nWidthActive != 0 ) {
+		painter.fillRect( m_nWidthActive, 0, m_nRulerWidth - m_nWidthActive,
+						  m_nRulerHeight,
 						  pPref->getColorTheme()->m_midLightColor );
 	}
 
@@ -287,12 +321,12 @@ void PatternEditorRuler::createBackground()
 		nResolution = 8;
 		bIsUsingTriplets = false;
 	}
-	
+
 	// Draw numbers and quarter ticks
+	painter.setPen( textColor );
 	for ( int ii = 0; ii < 64 ; ii += 4 ) {
 		int nText_x = nMargin + nQuarter / 4 * ii * m_fGridWidth;
-		painter.setPen( textColor );
-		painter.drawLine( nText_x, height() - 13, nText_x, height() - 1 );
+		painter.drawLine( nText_x, height() - 13, nText_x, height() - 2 );
 		painter.drawText( nText_x + 3, 0, 60, m_nRulerHeight,
 						  Qt::AlignVCenter | Qt::AlignLeft,
 						  QString("%1").arg(ii / 4 + 1) );
@@ -308,7 +342,7 @@ void PatternEditorRuler::createBackground()
 		fStep = 4 * MAX_NOTES / ( 4 * nResolution ) * m_fGridWidth;
 	}
 	for ( float xx = nMargin; xx < nMaxX; xx += fStep ) {
-		painter.drawLine( xx, height() - 5, xx, height() - 1 );
+		painter.drawLine( xx, height() - 5, xx, height() - 2 );
 	}
 
 }
@@ -316,6 +350,7 @@ void PatternEditorRuler::createBackground()
 
 void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 {
+	INFOLOG("");
 	auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	DrumPatternEditor* pDrumPatternEditor;
@@ -340,12 +375,6 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 															pixelRatio * ev->rect().y(),
 															pixelRatio * ev->rect().width(),
 															pixelRatio * ev->rect().height() ) );
-
-	// draw tickPosition
-	if (m_nTicks != -1) {
-		uint x = (uint)( 20 + m_nTicks * m_fGridWidth - 5 - 11 / 2.0 );
-		painter.drawPixmap( QRect( x, height() / 2, 11, 8 ), m_tickPosition, QRect( 0, 0, 11, 8 ) );
-	}
 
 	// draw cursor
 	if ( pHydrogenApp->getPatternEditorPanel() != nullptr &&
@@ -420,9 +449,31 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 							 ( fTripletFactor * fResolution ) * m_fGridWidth);
 
 		if ( x < nXMax ) {
-			Skin::drawPlayhead( &painter, QRect( x - 5, height() / 2, 11, 6 ), true );
+			int nPlayheadWidth = 11;
+			int nOffset = std::floor( static_cast<float>( nPlayheadWidth ) / 2 );
+			Skin::drawPlayhead( &painter, QRect( x + 1 - nOffset, 3,
+												 nPlayheadWidth, 8 ), true );
+			painter.drawLine( x + 1, 8, x + 1, height() - 2 );
 		}
 	}
+
+	// draw tickPosition
+	if ( m_nTicks != -1 ) {
+		int nX = static_cast<int>(20 + static_cast<float>(m_nTicks) *
+								  m_fGridWidth - 5 - 11 / 2.0 ) + 1;
+		int nPlayheadWidth = 11;
+		int nOffset = std::floor( static_cast<float>( nPlayheadWidth ) / 2 );
+		Skin::drawPlayhead( &painter, QRect( nX - nOffset, 3, nPlayheadWidth, 8 ), false );
+		painter.drawLine( nX, 8, nX, height() - 2 );
+	}
+}
+
+void PatternEditorRuler::updateActiveRange() {
+	int nNotes = MAX_NOTES;
+	if ( m_pPattern != nullptr ) {
+		nNotes = m_pPattern->get_length();
+	}
+	m_nWidthActive = 20 + nNotes * m_fGridWidth;
 }
 
 void PatternEditorRuler::zoomIn()
@@ -437,6 +488,9 @@ void PatternEditorRuler::zoomIn()
 	}
 	m_nRulerWidth = 20 + m_fGridWidth * ( MAX_NOTES * 4 );
 	resize(  QSize(m_nRulerWidth, m_nRulerHeight ));
+
+	updateActiveRange();
+	
 	createBackground();
 	update();
 }
@@ -455,6 +509,9 @@ void PatternEditorRuler::zoomOut()
 		}
 		m_nRulerWidth = 20 + m_fGridWidth * ( MAX_NOTES * 4 );
 		resize( QSize(m_nRulerWidth, m_nRulerHeight) );
+		
+		updateActiveRange();
+		
 		createBackground();
 		update();
 	}

@@ -1297,9 +1297,11 @@ Song::Mode Hydrogen::getMode() const {
 }
 
 void Hydrogen::setMode( Song::Mode mode ) {
-	if ( getSong() != nullptr ) {
-		getSong()->setMode( mode );
-		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
+	auto pSong = getSong();
+	if ( pSong != nullptr && mode != pSong->getMode() ) {
+		pSong->setMode( mode );
+		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION,
+												( mode == Song::Mode::Song) ? 1 : 0 );
 	}
 }
 

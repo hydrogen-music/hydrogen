@@ -153,7 +153,12 @@ enum EventType {
 	/** A the current drumkit was replaced by a new one*/
 	EVENT_DRUMKIT_LOADED,
 	/** Locks the PatternEditor on the pattern currently played back.*/
-	EVENT_PATTERN_EDITOR_LOCKED
+	EVENT_PATTERN_EDITOR_LOCKED,
+	/** Triggered in case there is a relocation of the transport
+	 * position due to an user interaction or an incoming MIDI/OSC
+	 * command. 
+	 */
+	EVENT_RELOCATION
 };
 
 /** Basic building block for the communication between the core of
