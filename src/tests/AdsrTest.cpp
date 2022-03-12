@@ -230,12 +230,12 @@ void ADSRTest::testAttack()
 
 	/* Attack */
 	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, getValue( 0.5 ), delta );
-	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.774681627750397, getValue( 0.5 ), delta );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.83576488494873, getValue( 0.5 ), delta );
 	CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, getValue( 0.1 ), delta );
 
 	/* Decay */
-	CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, getValue( 1.0 ), delta );
-	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.830416560173035, getValue( 1.0 ), delta );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.969884753227234, getValue( 1.0 ), delta );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.82855612039566, getValue( 1.0 ), delta );
 	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.8, getValue( 1.0 ), delta );
 
 	/* Sustain */
@@ -254,7 +254,7 @@ void ADSRTest::testRelease()
 
 	/* Release */
 	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.8, getValue( 128.0 ), delta );
-	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.121666193008423, getValue( 128.0 ), delta );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.139720246195793, getValue( 128.0 ), delta );
 	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, getValue( 128.0 ), delta );
 
 	/* Idle */
