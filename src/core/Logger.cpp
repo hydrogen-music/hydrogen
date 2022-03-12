@@ -24,6 +24,8 @@
 #include "core/Helpers/Filesystem.h"
 
 #include <cstdio>
+#include <chrono>
+#include <thread>
 #include <QtCore/QDir>
 #include <QtCore/QString>
 
