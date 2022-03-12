@@ -454,8 +454,6 @@ bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements
 		}
 
 		if ( bOk ) {
-			Hydrogen *pHydrogen = Hydrogen::get_instance();
-			InstrumentList *pInstrumentList = pHydrogen->getSong()->getInstrumentList();
 			QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 
 			std::vector< Note *>overwritten;

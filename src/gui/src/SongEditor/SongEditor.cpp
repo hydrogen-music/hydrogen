@@ -1096,11 +1096,6 @@ void SongEditor::drawSequence()
 	p.drawPixmap( rect(), *m_pBackgroundPixmap, rect() );
 	p.end();
 
-	std::shared_ptr<Song> song = Hydrogen::get_instance()->getSong();
-	PatternList *patList = song->getPatternList();
-	std::vector<PatternList*>* pColumns = song->getPatternGroupVector();
-	uint listLength = patList->size();
-
 	updateGridCells();
 
 	// Draw using GridCells representation
@@ -2602,7 +2597,6 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 			return;
 		}
 
-		int nPatternPos = m_pHydrogen->getAudioEngine()->getColumn();
 		m_pHydrogen->getCoreActionController()->locateToColumn( column );
 		update();
 		

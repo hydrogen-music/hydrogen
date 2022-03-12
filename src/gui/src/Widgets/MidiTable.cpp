@@ -112,7 +112,6 @@ void MidiTable::updateTable() {
 		for ( int ii = 0; ii < m_nRowCount; ii++ ) {
 			updateRow( ii );
 		}
-		LCDSpinBox* pActionSpinner2 = dynamic_cast<LCDSpinBox*>( cellWidget( 1, 5 ) );
 	}
 }
 
