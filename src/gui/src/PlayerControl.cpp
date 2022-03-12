@@ -713,7 +713,6 @@ void PlayerControl::songModeActivationEvent( int nValue )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();
 	
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 		// Song mode
