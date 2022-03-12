@@ -160,8 +160,8 @@ void Skin::drawListBackground( QPainter* p, QRect rect, QColor background,
 		background = background.lighter( 110 );
 	}
 
-	QColor backgroundLight = background.lighter( 130 );
-	QColor backgroundDark = background.darker( 130 );							 
+	QColor backgroundLight = background.lighter( 150 );
+	QColor backgroundDark = background.darker( 220 );
 
 	p->fillRect( QRect( rect.x() + 1, rect.y() + 1,
 						rect.width() - 2, rect.height() - 2 ),
