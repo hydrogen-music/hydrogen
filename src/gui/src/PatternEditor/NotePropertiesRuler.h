@@ -108,7 +108,7 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 
 		NotePropertiesMode m_Mode;
 
-		QPixmap *m_pBackground;
+		QPixmap *m_pBackgroundPixmap;
 
 		double m_fLastSetValue;
 		bool m_bValueHasBeenSet;

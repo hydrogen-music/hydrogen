@@ -294,7 +294,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPianoRollScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport(), this, m_pPianoRollScrollView );
 	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
-	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 m_pPianoRollEditor, SLOT( scrolled( int ) ) );
 	connect( m_pPianoRollScrollView->verticalScrollBar(), SIGNAL( valueChanged( int ) ),
 			 m_pPianoRollEditor, SLOT( scrolled( int ) ) );
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,

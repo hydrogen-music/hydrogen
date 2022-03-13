@@ -54,7 +54,10 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 
 	m_nEditorHeight = m_nOctaves * 12 * m_nGridHeight;
 
-	m_pBackground = new QPixmap( m_nEditorWidth, m_nEditorHeight );
+	qreal pixelRatio = devicePixelRatio();
+	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
+									   m_nEditorHeight * pixelRatio );
+	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 	m_pTemp = new QPixmap( m_nEditorWidth, m_nEditorHeight );
 
 	m_nCursorPitch = 0;
@@ -139,6 +142,15 @@ void PianoRollEditor::selectedPatternChangedEvent()
 
 void PianoRollEditor::paintEvent(QPaintEvent *ev)
 {
+	if (!isVisible()) {
+		return;
+	}
+	
+	qreal pixelRatio = devicePixelRatio();
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
+		createBackground();
+	}
+
 	QPainter painter( this );
 	if ( m_bNeedsUpdate ) {
 		finishUpdateEditor();
@@ -196,14 +208,11 @@ void PianoRollEditor::drawFocus( QPainter& painter ) {
 
 void PianoRollEditor::createBackground()
 {
-	
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	//INFOLOG( "(re)creating the background" );
 
 	QColor backgroundColor( 250, 250, 250 );
-	m_pBackground->fill( backgroundColor );
-
 
 	QColor octaveColor( 230, 230, 230 );
 	QColor octaveAlternateColor( 200, 200, 200 );
@@ -215,7 +224,17 @@ void PianoRollEditor::createBackground()
 	unsigned start_x = 0;
 	unsigned end_x = width();
 
-	QPainter p( m_pBackground );
+	// Resize pixmap if pixel ratio has changed
+	qreal pixelRatio = devicePixelRatio();
+	if ( m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
+		delete m_pBackgroundPixmap;
+		m_pBackgroundPixmap = new QPixmap( width()  * pixelRatio , height() * pixelRatio );
+		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+	}
+
+	m_pBackgroundPixmap->fill( backgroundColor );
+
+	QPainter p( m_pBackgroundPixmap );
 
 	for ( uint octave = 0; octave < m_nOctaves; ++octave ) {
 		unsigned start_y = octave * 12 * m_nGridHeight;
@@ -335,7 +354,7 @@ void PianoRollEditor::drawPattern()
 
 	QPainter p( m_pTemp );
 	// copy the background image
-	p.drawPixmap( rect(), *m_pBackground, rect() );
+	p.drawPixmap( rect(), *m_pBackgroundPixmap, rect() );
 
 
 	// for each note...

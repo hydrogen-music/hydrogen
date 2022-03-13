@@ -65,7 +65,10 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 		ERRORLOG( "Error loading pixmap " );
 	}
 
-	m_pBackground = nullptr;
+	qreal pixelRatio = devicePixelRatio();
+	m_pBackground = new QPixmap( m_nRulerWidth * pixelRatio,
+									   m_nRulerHeight * pixelRatio );
+	m_pBackground->setDevicePixelRatio( pixelRatio );
 	createBackground();
 
 	m_pTimer = new QTimer(this);
@@ -350,7 +353,6 @@ void PatternEditorRuler::createBackground()
 
 void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 {
-	INFOLOG("");
 	auto pPref = H2Core::Preferences::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	DrumPatternEditor* pDrumPatternEditor;

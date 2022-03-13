@@ -73,7 +73,11 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	resize( m_nEditorWidth, m_nEditorHeight );
 	setMinimumSize( m_nEditorWidth, m_nEditorHeight );
 
-	m_pBackground = new QPixmap( m_nEditorWidth, m_nEditorHeight );
+	
+	qreal pixelRatio = devicePixelRatio();
+	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
+									   m_nEditorHeight * pixelRatio );
+	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 
 	updateEditor();
 	show();
@@ -825,11 +829,20 @@ void NotePropertiesRuler::addUndoAction()
 
 void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 {
+	if (!isVisible()) {
+		return;
+	}
+	
+	qreal pixelRatio = devicePixelRatio();
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
+		finishUpdateEditor();
+	}
+
 	QPainter painter(this);
 	if ( m_bNeedsUpdate ) {
 		finishUpdateEditor();
 	}
-	painter.drawPixmap( ev->rect(), *m_pBackground, ev->rect() );
+	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, ev->rect() );
 
 	drawFocus( painter );
 	
@@ -1372,21 +1385,28 @@ void NotePropertiesRuler::finishUpdateEditor()
 {
 	assert( m_bNeedsUpdate );
 	resize( m_nEditorWidth, height() );
-		
-	delete m_pBackground;
-	m_pBackground = new QPixmap( m_nEditorWidth, m_nEditorHeight );
+	
+	qreal pixelRatio = devicePixelRatio();
+	if ( m_pBackgroundPixmap->width() != m_nEditorWidth ||
+		 m_pBackgroundPixmap->height() != m_nEditorHeight ||
+		 m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
+		delete m_pBackgroundPixmap;
+		m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio ,
+										   m_nEditorHeight * pixelRatio );
+		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+	}
 
 	if ( m_Mode == VELOCITY || m_Mode == PROBABILITY ) {
-		createVelocityBackground( m_pBackground );
+		createVelocityBackground( m_pBackgroundPixmap );
 	}
 	else if ( m_Mode == PAN ) {
-		createPanBackground( m_pBackground );
+		createPanBackground( m_pBackgroundPixmap );
 	}
 	else if ( m_Mode == LEADLAG ) {
-		createLeadLagBackground( m_pBackground );
+		createLeadLagBackground( m_pBackgroundPixmap );
 	}
 	else if ( m_Mode == NOTEKEY ) {
-		createNoteKeyBackground( m_pBackground );
+		createNoteKeyBackground( m_pBackgroundPixmap );
 	}
 
 	// redraw all

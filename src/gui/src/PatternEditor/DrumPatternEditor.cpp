@@ -62,6 +62,12 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
 	resize( m_nEditorWidth, m_nEditorHeight );
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( 0 );
+
+	qreal pixelRatio = devicePixelRatio();
+	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
+									   m_nEditorHeight * pixelRatio );
+	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+	createBackground();
 }
 
 DrumPatternEditor::~DrumPatternEditor()
@@ -90,6 +96,7 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 	resize( m_nEditorWidth, height() );
 
 	// redraw all
+	createBackground();
 	update( 0, 0, width(), height() );
 }
 
@@ -1068,13 +1075,13 @@ void DrumPatternEditor::paste()
 ///
 /// Draws a pattern
 ///
-void DrumPatternEditor::__draw_pattern(QPainter& painter)
+void DrumPatternEditor::drawPattern(QPainter& painter)
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	const QColor selectedRowColor( pPref->getColorTheme()->m_patternEditor_selectedRowColor );
 
-	__create_background( painter );
+	drawBackgroundTemplate( painter );
 
 	int nNotes = MAX_NOTES;
 	if ( m_pPattern != nullptr ) {
@@ -1107,7 +1114,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 		return;
 	}
 
-	__draw_grid( painter );
+	drawGrid( painter );
 
 	/*
 		BUGFIX
@@ -1150,7 +1157,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 					instruments.push( pNote->get_instrument() );
 				}
 
-				__draw_note( pNote, painter, bIsForeground );
+				drawNote( pNote, painter, bIsForeground );
 				++noteIt;
 			}
 
@@ -1188,7 +1195,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 ///
 /// Draws a note
 ///
-void DrumPatternEditor::__draw_note( Note *note, QPainter& p, bool bIsForeground )
+void DrumPatternEditor::drawNote( Note *note, QPainter& p, bool bIsForeground )
 {
 	InstrumentList *pInstrList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	int nInstrument = pInstrList->index( note->get_instrument() );
@@ -1206,7 +1213,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p, bool bIsForeground
 
 
 
-void DrumPatternEditor::__draw_grid( QPainter& p )
+void DrumPatternEditor::drawGrid( QPainter& p )
 {
 	
 	auto pPref = H2Core::Preferences::get_instance();
@@ -1243,7 +1250,7 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 }
 
 
-void DrumPatternEditor::__create_background( QPainter& p)
+void DrumPatternEditor::drawBackgroundTemplate( QPainter& p)
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
@@ -1283,12 +1290,34 @@ void DrumPatternEditor::__create_background( QPainter& p)
 	p.drawLine( 0, m_nEditorHeight, (m_nMargin + nNotes * m_fGridWidth), m_nEditorHeight );
 }
 
+void DrumPatternEditor::createBackground() {
+	
+	// Resize pixmap if pixel ratio has changed
+	qreal pixelRatio = devicePixelRatio();
+	if ( m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
+		delete m_pBackgroundPixmap;
+		m_pBackgroundPixmap = new QPixmap( width()  * pixelRatio , height() * pixelRatio );
+		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+	}
 
+	QPainter painter( m_pBackgroundPixmap );
 
-void DrumPatternEditor::paintEvent( QPaintEvent* /*ev*/ )
+	drawPattern( painter );
+}
+
+void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 {
+	if (!isVisible()) {
+		return;
+	}
+	
+	qreal pixelRatio = devicePixelRatio();
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
+		createBackground();
+	}
+	
 	QPainter painter( this );
-	__draw_pattern( painter );
+	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, ev->rect() );
 
 	drawFocus( painter );
 	

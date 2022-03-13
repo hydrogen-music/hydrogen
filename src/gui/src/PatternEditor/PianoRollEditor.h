@@ -135,7 +135,7 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 
 		unsigned m_nOctaves;
 
-		QPixmap *m_pBackground;
+		QPixmap *m_pBackgroundPixmap;
 		QPixmap *m_pTemp;
 		int m_pOldPoint;
 
