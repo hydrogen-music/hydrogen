@@ -429,7 +429,7 @@ int CoreAudioDriver::init( unsigned nBufferSize )
 	}
 
 	// Set buffer size
-	ERRORLOG( QString( "Setting buffer size to %1" ).arg( nBufferSize ) );
+	INFOLOG( QString( "Setting buffer size to %1" ).arg( nBufferSize ) );
 	AudioObjectPropertyAddress propertyAddress = {
 		kAudioDevicePropertyBufferFrameSize,
 		kAudioObjectPropertyScopeGlobal,
