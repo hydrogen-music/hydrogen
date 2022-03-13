@@ -1138,7 +1138,7 @@ void PreferencesDialog::setDriverInfoCoreAudio() {
 	m_pAudioDeviceTxt->setDriver( "CoreAudio" );
 	m_pAudioDeviceTxt->setIsActive( true );
 	m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sCoreAudioDevice );
-	bufferSizeSpinBox->setIsActive( false );
+	bufferSizeSpinBox->setIsActive( true );
 	sampleRateComboBox->setIsActive(true);
 	trackOutputComboBox->hide();
 	trackOutputLbl->hide();
