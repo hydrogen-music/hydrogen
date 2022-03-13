@@ -324,8 +324,11 @@ void			previewSample( Sample *pSample );
 	 * If @a nPat is equal to #m_nSelectedPatternNumber, the function
 	 * will return right away.
 	 *
-	 *\param nPat Sets #m_nSelectedPatternNumber*/
-	void			setSelectedPatternNumber( int nPat );
+	 *\param nPat Sets #m_nSelectedPatternNumber
+	 * \param bNeedsLock Whether the function was called with the
+	 * audio engine locked already or it should do so itself.
+	 */
+	void			setSelectedPatternNumber( int nPat, bool bNeedsLock = true );
 
 	int				getSelectedInstrumentNumber() const;
 	void			setSelectedInstrumentNumber( int nInstrument );

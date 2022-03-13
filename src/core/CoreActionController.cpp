@@ -1348,7 +1348,8 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 	}
 
 	if ( nPatternNumber == nSelectedPatternNumber ) {
-		pHydrogen->setSelectedPatternNumber( std::max( 0, nPatternNumber - 1 ) );
+		pHydrogen->setSelectedPatternNumber( std::max( 0, nPatternNumber - 1 ),
+											 false );
 	}
 
 	// Remove the pattern from the list of of patterns that are played
@@ -1357,7 +1358,6 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 	// _before_ updating the playing patterns.
 	for ( int ii = 0; ii < pNextPatterns->size(); ++ii ) {
 		if ( pNextPatterns->get( ii ) == pPattern ) {
-			qDebug() << "present in next patterns";
 			pAudioEngine->toggleNextPattern( nPatternNumber );
 		}
 	}
@@ -1367,14 +1367,11 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 	// mode.
 	for ( int ii = 0; ii < pPlayingPatterns->size(); ++ii ) {
 		if ( pPlayingPatterns->get( ii ) == pPattern ) {
-			qDebug() << "present in playing patterns";
 			pAudioEngine->flushPlayingPatterns();
 			pAudioEngine->updatePlayingPatterns( pAudioEngine->getColumn() );
 			break;
 		}
 	}
-
-	qDebug() << pAudioEngine->toQString("", true );
 
 	// Delete the pattern from the list of available patterns.
 	pPatternList->del( pPattern );
@@ -1393,7 +1390,7 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 		}
 	}
 	pPatternList->flattened_virtual_patterns_compute();
-	
+
 	pHydrogen->setIsModified( true );
 	
 	delete pPattern;

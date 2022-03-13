@@ -847,18 +847,22 @@ void Hydrogen::restartLadspaFX()
 }
 
 
-void Hydrogen::setSelectedPatternNumber( int nPat )
+void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock )
 {
 	if ( nPat == m_nSelectedPatternNumber ) {
 		return;
 	}
 
 	if ( Preferences::get_instance()->patternModePlaysSelected() ) {
-		getAudioEngine()->lock( RIGHT_HERE );
+		if ( bNeedsLock ) {
+			getAudioEngine()->lock( RIGHT_HERE );
+		}
 		
 		m_nSelectedPatternNumber = nPat;
 
-		getAudioEngine()->unlock();
+		if ( bNeedsLock ) {
+			getAudioEngine()->unlock();
+		}
 	} else {
 		m_nSelectedPatternNumber = nPat;
 	}
