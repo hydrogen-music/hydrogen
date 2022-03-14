@@ -53,10 +53,11 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		explicit SongEditorPanel( QWidget *parent );
 		~SongEditorPanel();
 
-		SongEditor* getSongEditor(){ return m_pSongEditor; }
-		SongEditorPatternList* getSongEditorPatternList(){ return m_pPatternList; }
-		SongEditorPositionRuler* getSongEditorPositionRuler(){ return m_pPositionRuler; }
+		SongEditor* getSongEditor() const { return m_pSongEditor; }
+		SongEditorPatternList* getSongEditorPatternList() const { return m_pPatternList; }
+		SongEditorPositionRuler* getSongEditorPositionRuler() const { return m_pPositionRuler; }
 		AutomationPathView* getAutomationPathView() const { return m_pAutomationPathView; }
+	PlaybackTrackWaveDisplay* getPlaybackTrackWaveDisplay() const { return m_pPlaybackTrackWaveDisplay; }
 
 		void updateAll();
 		void updatePositionRuler();

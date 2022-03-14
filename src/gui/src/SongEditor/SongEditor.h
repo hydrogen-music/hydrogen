@@ -81,6 +81,7 @@ class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public S
 		~SongEditor();
 
 		void createBackground();
+	void updatePosition( float fTick );
 		
 		void cleanUp();
 
@@ -209,6 +210,9 @@ class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public S
 		std::map< QPoint, GridCell > m_gridCells;
 		void updateGridCells();
 		bool m_bEntered;
+	
+	/** Cached position of the playhead.*/
+	float m_fTick;
 public:
 
 		//! @name Selection interfaces
@@ -395,6 +399,11 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		Ruler
 	};
 	HoveredRow m_hoveredRow;
+
+	/** Cached position of the playhead.*/
+	float m_fTick;
+	/** Cached and coarsed-grained position of the playhead.*/
+	int m_nColumn;
 
 	int m_nTagHeight;
 

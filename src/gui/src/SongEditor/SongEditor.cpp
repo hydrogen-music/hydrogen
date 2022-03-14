@@ -43,6 +43,7 @@ using namespace H2Core;
 #include "SongEditorPanelBpmWidget.h"
 #include "SongEditorPanelTagWidget.h"
 #include "PatternFillDialog.h"
+#include "PlaybackTrackWaveDisplay.h"
 #include "VirtualPatternDialog.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "SoundLibrary/SoundLibraryDatastructures.h"
@@ -914,6 +915,10 @@ void SongEditor::updateWidget() {
 	m_previousMousePosition = m_currentMousePosition;
 }
 
+void SongEditor::updatePosition( float fTick ) {
+	m_fTick = fTick;
+	update();
+}
 
 void SongEditor::paintEvent( QPaintEvent *ev )
 {
@@ -939,34 +944,10 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 			painter.fillRect( r, patternColor );
 		}
 	}
-
-	// Get all variables required to determine the position of the
-	// playhead.
-	m_pAudioEngine->lock( RIGHT_HERE );
-	
-	float fPos = m_pAudioEngine->getColumn();
-	auto pPatternGroupVector = m_pHydrogen->getSong()->getPatternGroupVector();
-	int nColumn = m_pAudioEngine->getColumn();
-
-	if ( pPatternGroupVector->size() >= nColumn &&
-		 pPatternGroupVector->at( nColumn )->size() > 0 ) {
-		int nLength = pPatternGroupVector->at( nColumn )->longest_pattern_length();
-		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)nLength;
-	} else {
-		// nessun pattern, uso la grandezza di default
-		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)MAX_NOTES;
-	}
-
-	if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
-		fPos = -1;
-	}
-
-	m_pAudioEngine->unlock();
-
 	// Draw playhead
-	if ( fPos != -1 ) {
+	if ( m_fTick != -1 ) {
 		int nX = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
-								   fPos * static_cast<float>(m_nGridWidth) -
+								   m_fTick * static_cast<float>(m_nGridWidth) -
 								   static_cast<float>(Skin::nPlayheadWidth) / 2 );
 		int nOffset = Skin::getPlayheadShaftOffset();
 		Skin::setPlayheadPen( &painter, false );
@@ -2408,6 +2389,8 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
  , m_nHoveredColumn( -1 )
  , m_hoveredRow( HoveredRow::None )
  , m_nTagHeight( 6 )
+ , m_fTick( 0 )
+ , m_nColumn( 0 )
 {
 
 	auto pPref = H2Core::Preferences::get_instance();
@@ -2797,31 +2780,8 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	QColor backgroundColor = pPref->getColorTheme()->m_songEditor_alternateRowColor.darker( 115 );
 	QColor backgroundColorTempoMarkers = backgroundColor.darker( 120 );
 
-	float fPos = m_pHydrogen->getAudioEngine()->getColumn();
 	int pIPos = Preferences::get_instance()->getPunchInPos();
 	int pOPos = Preferences::get_instance()->getPunchOutPos();
-
-	m_pAudioEngine->lock( RIGHT_HERE );
-
-	auto pPatternGroupVector = Hydrogen::get_instance()->getSong()->getPatternGroupVector();
-	int nColumn = m_pAudioEngine->getColumn();
-
-	if ( pPatternGroupVector->size() >= nColumn &&
-		 pPatternGroupVector->at( nColumn )->size() > 0 ) {
-		int nLength = pPatternGroupVector->at( nColumn )->longest_pattern_length();
-		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)nLength;
-	} else {
-		// nessun pattern, uso la grandezza di default
-		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)MAX_NOTES;
-	}
-
-	if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
-		fPos = -1;
-		pIPos = 0;
-		pOPos = -1;
-	}
-
-	m_pAudioEngine->unlock();
 
 	QPainter painter(this);
 	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
@@ -2838,10 +2798,9 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, srcRect );
 	
 	// Which tempo marker is the currently used one?
-	int nCurrentColumn = m_pHydrogen->getAudioEngine()->getColumn();
 	int nCurrentTempoMarkerColumn = -1;
 	for ( const auto& tempoMarker : tempoMarkerVector ) {
-		if ( tempoMarker->nColumn > nCurrentColumn ) {
+		if ( tempoMarker->nColumn > m_nColumn ) {
 			break;
 		}
 		nCurrentTempoMarkerColumn = tempoMarker->nColumn;
@@ -2861,9 +2820,9 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	}
 
 	// Draw playhead
-	if ( fPos != -1 ) {
+	if ( m_fTick != -1 ) {
 		int nX = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
-								   fPos * static_cast<float>(m_nGridWidth) -
+								   m_fTick * static_cast<float>(m_nGridWidth) -
 								   static_cast<float>(Skin::nPlayheadWidth) / 2 );
 		int nShaftOffset = Skin::getPlayheadShaftOffset();
 		Skin::drawPlayhead( &painter, nX, height() / 2 + 2, false );
@@ -3083,8 +3042,37 @@ void SongEditorPositionRuler::drawTempoMarker( std::shared_ptr<const Timeline::T
 
 void SongEditorPositionRuler::updatePosition()
 {
+	auto pTimeline = m_pHydrogen->getTimeline();
+	auto pPref = Preferences::get_instance();
+	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
+	
+	float fTick = m_pAudioEngine->getColumn();
+
+	m_pAudioEngine->lock( RIGHT_HERE );
+
+	auto pPatternGroupVector = m_pHydrogen->getSong()->getPatternGroupVector();
+	m_nColumn = m_pAudioEngine->getColumn();
+
+	if ( pPatternGroupVector->size() >= m_nColumn &&
+		 pPatternGroupVector->at( m_nColumn )->size() > 0 ) {
+		int nLength = pPatternGroupVector->at( m_nColumn )->longest_pattern_length();
+		fTick += (float)m_pAudioEngine->getPatternTickPosition() / (float)nLength;
+	} else {
+		// Empty column. Use the default length.
+		fTick += (float)m_pAudioEngine->getPatternTickPosition() / (float)MAX_NOTES;
+	}
+
+	if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
+		fTick = -1;
+	}
+
+	m_pAudioEngine->unlock();
+
+	m_fTick = fTick;
+	
 	update();
-	HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()->update();
+	HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()->updatePosition( fTick );
+	HydrogenApp::get_instance()->getSongEditorPanel()->getPlaybackTrackWaveDisplay()->updatePosition( fTick );
 }
 
 void SongEditorPositionRuler::timelineUpdateEvent( int nValue ) {
