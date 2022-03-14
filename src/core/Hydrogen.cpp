@@ -1432,6 +1432,7 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 		}
 	}
 
+	( *pPatternStartTick ) = 0;
 	return -1;
 }
 
