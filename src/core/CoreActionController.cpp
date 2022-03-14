@@ -807,8 +807,8 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 	
 	pHydrogen->sequencer_stop();
 	if ( bActivate && pHydrogen->getMode() != Song::Mode::Song ) {
-		locateToColumn( 0 );
 		pHydrogen->setMode( Song::Mode::Song );
+		locateToColumn( 0 );
 	} else if ( ! bActivate && pHydrogen->getMode() != Song::Mode::Pattern ) {
 		pHydrogen->setMode( Song::Mode::Pattern );
 	}

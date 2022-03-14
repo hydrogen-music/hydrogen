@@ -479,17 +479,20 @@ void AudioEngine::updateTransportPosition( double fTick, bool bUseLoopMode ) {
 												  &m_nPatternStartTick );
 
 		if ( fTick > m_fSongSizeInTicks &&
-			 m_fSongSizeInTicks != 0 ) {
+			 m_fSongSizeInTicks > 0 ) {
 			// When using the JACK audio driver the overall
 			// transport position will be managed by an external
 			// server. Since it is agnostic of all the looping in
 			// its clients, it will only increment time and
 			// Hydrogen has to take care of the looping itself. 
 			m_nPatternTickPosition =
-				std::fmod( std::floor( fTick ) - m_nPatternStartTick,
+				std::fmod( std::floor( fTick ) -
+						   std::max( m_nPatternStartTick,
+									 static_cast<long>(0) ),
 						   m_fSongSizeInTicks );
 		} else {
-			m_nPatternTickPosition = std::floor( fTick ) - m_nPatternStartTick;
+			m_nPatternTickPosition = std::floor( fTick ) -
+				std::max( m_nPatternStartTick, static_cast<long>(0) );
 		}
 
 		if ( m_nColumn != nNewColumn ) {
@@ -510,20 +513,23 @@ void AudioEngine::updateTransportPosition( double fTick, bool bUseLoopMode ) {
 		// was just activated.
 		if ( m_nPatternStartTick == -1 ||
 			 fTick >= m_nPatternStartTick + nPatternSize  ) {
-			if ( nPatternSize > 0 ) {
-			m_nPatternStartTick +=
-				std::floor( ( std::floor( fTick ) - m_nPatternStartTick ) /
-							nPatternSize ) * nPatternSize;
+			if ( nPatternSize > 0  ) {
+				m_nPatternStartTick +=
+					std::floor( ( std::floor( fTick ) -
+								  std::max( m_nPatternStartTick,
+											static_cast<long>(0) ) ) /
+								nPatternSize ) * nPatternSize;
 			} else {
 				m_nPatternStartTick = std::floor( fTick );
 			}
 		}
 
 		m_nPatternTickPosition = static_cast<long>(std::floor( fTick ))
-			- m_nPatternStartTick;
+			- std::max( m_nPatternStartTick, static_cast<long>(0) );
 		if ( nPatternSize > 0 && m_nPatternTickPosition > nPatternSize ) {
 			m_nPatternTickPosition = ( static_cast<long>(std::floor( fTick ))
-									   - m_nPatternStartTick ) %
+									   - std::max( m_nPatternStartTick,
+												   static_cast<long>(0) ) ) %
 				nPatternSize;
 		}
 	}
