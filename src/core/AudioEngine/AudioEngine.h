@@ -429,8 +429,13 @@ public:
 	 * in #m_pNextPatterns not already present in #m_pPlayingPatterns
 	 * will be added in the latter and the ones already present will
 	 * be removed.
+	 *
+	 * \param nColumn Desired location in song mode.
+	 * \param nTick Desired location in pattern mode.
+	 * \param nPatternStartTick Desired location in pattern mode.
 	 */
-	void updatePlayingPatterns( int nColumn );
+	void updatePlayingPatterns( int nColumn, long nTick = 0,
+								long nPatternStartTick = 0 );
 	/** 
 	 * Add pattern @a nPatternNumber to #m_pNextPatterns or deletes it
 	 * in case it is already present.

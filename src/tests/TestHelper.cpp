@@ -179,7 +179,7 @@ void TestHelper::varyAudioDriverConfig( int nIndex ) {
 
 	case 5:
 		pPref->m_nBufferSize = 1024;
-		pPref->m_nSampleRate = 192000;
+		pPref->m_nSampleRate = 96000;
 		break;
 
 	case 6:
