@@ -84,10 +84,10 @@ void PianoRollEditor::updateEditor( bool bPatternOnly )
 {
 	//	uint nEditorWidth;
 	if ( m_pPattern != nullptr ) {
-		m_nEditorWidth = m_nMargin + m_fGridWidth * m_pPattern->get_length();
+		m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * m_pPattern->get_length();
 	}
 	else {
-		m_nEditorWidth = m_nMargin + m_fGridWidth * MAX_NOTES;
+		m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * MAX_NOTES;
 	}
 	if ( !bPatternOnly ) {
 		m_bNeedsBackgroundUpdate = true;
@@ -376,7 +376,7 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter, bool bIsForegro
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	InstrumentList * pInstrList = pHydrogen->getSong()->getInstrumentList();
 	if ( pInstrList->index( pNote->get_instrument() ) == pHydrogen->getSelectedInstrumentNumber() ) {
-		QPoint pos ( m_nMargin + pNote->get_position() * m_fGridWidth,
+		QPoint pos ( PatternEditor::nMargin + pNote->get_position() * m_fGridWidth,
 					 m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1);
 		drawNoteSymbol( *pPainter, pos, pNote, bIsForeground );
 	}
@@ -489,8 +489,8 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 	if (ev->button() == Qt::LeftButton ) {
 
 		unsigned nRealColumn = 0;
-		if( ev->x() > m_nMargin ) {
-			nRealColumn = (ev->x() - m_nMargin) / static_cast<float>(m_fGridWidth);
+		if( ev->x() > PatternEditor::nMargin ) {
+			nRealColumn = (ev->x() - PatternEditor::nMargin) / static_cast<float>(m_fGridWidth);
 		}
 
 		if ( ev->modifiers() & Qt::ShiftModifier ) {
@@ -576,8 +576,8 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 		m_pOldPoint = ev->y();
 
 		unsigned nRealColumn = 0;
-		if( ev->x() > m_nMargin ) {
-			nRealColumn = (ev->x() - m_nMargin) / static_cast<float>(m_fGridWidth);
+		if( ev->x() > PatternEditor::nMargin ) {
+			nRealColumn = (ev->x() - PatternEditor::nMargin) / static_cast<float>(m_fGridWidth);
 		}
 
 
@@ -920,7 +920,7 @@ void PianoRollEditor::mouseDragEndEvent( QMouseEvent *ev )
 
 QPoint PianoRollEditor::cursorPosition()
 {
-	uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
+	uint x = PatternEditor::nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
 	uint y = m_nGridHeight * pitchToLine( m_nCursorPitch ) + 1;
 	return QPoint(x, y);
 }
@@ -1432,15 +1432,15 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 	}
 
 	// Calculate the first and last position values that this rect will intersect with
-	int x_min = (r.left() - w - m_nMargin) / m_fGridWidth;
-	int x_max = (r.right() + w - m_nMargin) / m_fGridWidth;
+	int x_min = (r.left() - w - PatternEditor::nMargin) / m_fGridWidth;
+	int x_max = (r.right() + w - PatternEditor::nMargin) / m_fGridWidth;
 
 	const Pattern::notes_t* pNotes = m_pPattern->get_notes();
 
 	for ( auto it = pNotes->lower_bound( x_min ); it != pNotes->end() && it->first <= x_max; ++it ) {
 		Note *pNote = it->second;
 		if ( pNote->get_instrument() == pInstr ) {
-			uint start_x = m_nMargin + pNote->get_position() * m_fGridWidth;
+			uint start_x = PatternEditor::nMargin + pNote->get_position() * m_fGridWidth;
 			uint start_y = m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1;
 
 			if ( r.intersects( QRect( start_x -4 , start_y, w, h ) ) ) {

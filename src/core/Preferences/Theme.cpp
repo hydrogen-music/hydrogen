@@ -74,6 +74,7 @@ ColorTheme::ColorTheme()
 	, m_automationCircleColor( QColor( 255, 255, 255 ) )
 	, m_accentColor( QColor( 67, 96, 131 ) )
 	, m_accentTextColor( QColor( 255, 255, 255 ) )
+	, m_playheadColor( QColor( 0, 0, 0 ) )
 {
 }
 
@@ -123,6 +124,7 @@ ColorTheme::ColorTheme( const std::shared_ptr<ColorTheme> pOther )
 	, m_spinBoxTextColor( pOther->m_spinBoxTextColor )
 	, m_automationColor( pOther->m_automationColor )
 	, m_automationCircleColor( pOther->m_automationCircleColor )
+	, m_playheadColor( pOther->m_playheadColor )
 {
 }
 
@@ -233,6 +235,7 @@ void Theme::setTheme( const std::shared_ptr<Theme> pOther ) {
 	m_pColorTheme->m_spinBoxTextColor = pOther->getColorTheme()->m_spinBoxTextColor;
 	m_pColorTheme->m_automationColor = pOther->getColorTheme()->m_automationColor;
 	m_pColorTheme->m_automationCircleColor = pOther->getColorTheme()->m_automationCircleColor;
+	m_pColorTheme->m_playheadColor = pOther->getColorTheme()->m_playheadColor;
 		
 	m_pInterfaceTheme->m_sQTStyle = pOther->getInterfaceTheme()->m_sQTStyle;
 	m_pInterfaceTheme->m_fMixerFalloffSpeed = pOther->getInterfaceTheme()->m_fMixerFalloffSpeed;
@@ -321,6 +324,7 @@ void Theme::writeColorTheme( QDomNode* parent, std::shared_ptr<Theme> pTheme )
 	LocalFileMng::writeXmlColor( widgetNode, "spinBoxTextColor", pTheme->getColorTheme()->m_spinBoxTextColor );
 	LocalFileMng::writeXmlColor( widgetNode, "automationColor", pTheme->getColorTheme()->m_automationColor );
 	LocalFileMng::writeXmlColor( widgetNode, "automationCircleColor", pTheme->getColorTheme()->m_automationCircleColor );
+	LocalFileMng::writeXmlColor( widgetNode, "playheadColor", pTheme->getColorTheme()->m_playheadColor );
 	node.appendChild( widgetNode );
 	
 	parent->appendChild( node );
@@ -401,6 +405,7 @@ void Theme::readColorTheme( QDomNode parent, std::shared_ptr<Theme> pTheme )
 		pTheme->getColorTheme()->m_spinBoxTextColor = LocalFileMng::readXmlColor( pWidgetNode, "spinBoxTextColor", pTheme->getColorTheme()->m_spinBoxTextColor );
 		pTheme->getColorTheme()->m_automationColor = LocalFileMng::readXmlColor( pWidgetNode, "automationColor", pTheme->getColorTheme()->m_automationColor );
 		pTheme->getColorTheme()->m_automationCircleColor = LocalFileMng::readXmlColor( pWidgetNode, "automationCircleColor", pTheme->getColorTheme()->m_automationCircleColor );
+		pTheme->getColorTheme()->m_playheadColor = LocalFileMng::readXmlColor( pWidgetNode, "playheadColor", pTheme->getColorTheme()->m_playheadColor );
 	} else {
 		WARNINGLOG( "widget node not found" );
 	}

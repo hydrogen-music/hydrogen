@@ -100,9 +100,7 @@ class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public S
 
 		int yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView );
 
-	int getMargin() const {
-		return m_nMargin;
-	}
+	static constexpr int nMargin = 10;
 
 	public slots:
 
@@ -155,8 +153,6 @@ class SongEditor :  public QWidget,  public H2Core::Object<SongEditor>, public S
 		QPixmap *				m_pBackgroundPixmap;
 		QPixmap *				m_pSequencePixmap;
 		//! @}
-
-		const int m_nMargin = 10;
 
 		//! @name Position of the keyboard input cursor
 		//! @{
@@ -356,7 +352,6 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 
 		uint getGridWidth();
 		void setGridWidth (uint width);
-	int getPlayheadWidth() const;
 	void tempoChangedEvent( int ) override;
 	void columnChangedEvent( int ) override;
 	void songModeActivationEvent( int nValue ) override;
@@ -382,15 +377,6 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		uint				m_nMaxPatternSequence;
 		uint				m_nInitialWidth;
 		static const uint	m_nHeight = 50;
-		const int m_nMargin = 10;
-
-	/** Width of the playhead pixmap in pixel.*/
-	int m_nPlayheadWidth;
-	/** Height of the playhead pixmap in pixel.*/
-	int m_nPlayheadHeight;
-	/** Horizontal offset of the line used to represent the base of
-		the playhead.*/
-	int m_nXShaft;
 
 	int m_nActiveBpmWidgetColumn;
 	int m_nHoveredColumn;
@@ -413,7 +399,6 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 	int m_nTagHeight;
 
 		QPixmap *			m_pBackgroundPixmap;
-		QPixmap				m_tickPositionPixmap;
 		bool				m_bRightBtnPressed;
 		
 		virtual void mouseMoveEvent(QMouseEvent *ev) override;
@@ -431,9 +416,5 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 						  bool bEmphasize, QPainter& painter );
 
 };
-
-inline int SongEditorPositionRuler::getPlayheadWidth() const {
-	return m_nPlayheadWidth;
-}
 
 #endif

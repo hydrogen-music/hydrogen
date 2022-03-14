@@ -78,10 +78,9 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 		float m_fGridWidth;
 
 		QPixmap *m_pBackground;
-		QPixmap m_tickPosition;
 
 		QTimer *m_pTimer;
-		int m_nTicks;
+		int m_nTick;
 		PatternEditorPanel *m_pPatternEditorPanel;
 		H2Core::Pattern *m_pPattern;
 
@@ -94,9 +93,12 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 	int m_nWidthActive;
 	/** Updates #m_nWidthActive.*/
 	void updateActiveRange();
+	void updatePosition( bool bRedrawAll = false );
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
+	virtual void stateChangedEvent( H2Core::AudioEngine::State ) override;
+	virtual void songModeActivationEvent( int ) override;
 	virtual void relocationEvent() override;
 		//~ Implements EventListener interface
 };

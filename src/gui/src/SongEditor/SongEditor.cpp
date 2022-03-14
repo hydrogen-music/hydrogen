@@ -100,7 +100,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 	m_nCursorColumn = 0;
 
 	m_nMaxPatternSequence = pPref->getMaxBars();
-	int m_nInitialWidth = m_nMargin + m_nMaxPatternSequence * m_nGridWidth;
+	int m_nInitialWidth = SongEditor::nMargin + m_nMaxPatternSequence * m_nGridWidth;
 	int m_nInitialHeight = 10;
 
 	this->resize( QSize(m_nInitialWidth, m_nInitialHeight) );
@@ -295,18 +295,19 @@ void SongEditor::setGridWidth( uint width )
 {
 	if ( ( SONG_EDITOR_MIN_GRID_WIDTH <= width ) && ( SONG_EDITOR_MAX_GRID_WIDTH >= width ) ) {
 		m_nGridWidth = width;
-		this->resize ( m_nMargin + m_nMaxPatternSequence * m_nGridWidth, height() );
+		this->resize ( SongEditor::nMargin +
+					   m_nMaxPatternSequence * m_nGridWidth, height() );
 	}
 }
 
 QPoint SongEditor::xyToColumnRow( QPoint p )
 {
-	return QPoint( (p.x() - m_nMargin) / (int)m_nGridWidth, p.y() / (int)m_nGridHeight );
+	return QPoint( (p.x() - SongEditor::nMargin) / (int)m_nGridWidth, p.y() / (int)m_nGridHeight );
 }
 
 QPoint SongEditor::columnRowToXy( QPoint p )
 {
-	return QPoint( m_nMargin + p.x() * m_nGridWidth, p.y() * m_nGridHeight );
+	return QPoint( SongEditor::nMargin + p.x() * m_nGridWidth, p.y() * m_nGridHeight );
 }
 
 
@@ -762,7 +763,7 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 	if ( Hydrogen::get_instance()->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
 		m_selection.mouseMoveEvent( ev );
 	} else {
-		if ( ev->x() < m_nMargin ) {
+		if ( ev->x() < SongEditor::nMargin ) {
 			return;
 		}
 
@@ -939,6 +940,39 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 		}
 	}
 
+	// Get all variables required to determine the position of the
+	// playhead.
+	m_pAudioEngine->lock( RIGHT_HERE );
+	
+	float fPos = m_pAudioEngine->getColumn();
+	auto pPatternGroupVector = m_pHydrogen->getSong()->getPatternGroupVector();
+	int nColumn = m_pAudioEngine->getColumn();
+
+	if ( pPatternGroupVector->size() >= nColumn &&
+		 pPatternGroupVector->at( nColumn )->size() > 0 ) {
+		int nLength = pPatternGroupVector->at( nColumn )->longest_pattern_length();
+		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)nLength;
+	} else {
+		// nessun pattern, uso la grandezza di default
+		fPos += (float)m_pAudioEngine->getPatternTickPosition() / (float)MAX_NOTES;
+	}
+
+	if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
+		fPos = -1;
+	}
+
+	m_pAudioEngine->unlock();
+
+	// Draw playhead
+	if ( fPos != -1 ) {
+		int nX = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
+								   fPos * static_cast<float>(m_nGridWidth) -
+								   static_cast<float>(Skin::nPlayheadWidth) / 2 );
+		int nOffset = Skin::getPlayheadShaftOffset();
+		Skin::setPlayheadPen( &painter, false );
+		painter.drawLine( nX + nOffset, 2, nX + nOffset, height() - 2 );
+	}
+
 	drawFocus( painter );
 
 	m_selection.paintSelection( &painter );
@@ -1052,7 +1086,7 @@ void SongEditor::createBackground()
 
 	// vertical lines
 	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
-		uint x = m_nMargin + i * m_nGridWidth;
+		uint x = SongEditor::nMargin + i * m_nGridWidth;
 		int x1 = x;
 		int x2 = x + m_nGridWidth;
 
@@ -1206,7 +1240,7 @@ void SongEditor::drawPattern( int nPos, int nNumber, bool bInvertColour, double 
 
 	patternColor.setAlpha( 230 );
 
-	int x = m_nMargin + m_nGridWidth * nPos;
+	int x = SongEditor::nMargin + m_nGridWidth * nPos;
 	int y = m_nGridHeight * nNumber;
 
 	p.fillRect( x + 1, y + 1, fWidth * (m_nGridWidth - 1), m_nGridHeight - 1, patternColor );
@@ -2370,8 +2404,6 @@ void SongEditorPatternList::onPreferencesChanged( H2Core::Preferences::Changes c
 SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
  : QWidget( parent )
  , m_bRightBtnPressed( false )
- , m_nPlayheadWidth( 11 )
- , m_nPlayheadHeight( 8 )
  , m_nActiveBpmWidgetColumn( -1 )
  , m_nHoveredColumn( -1 )
  , m_hoveredRow( HoveredRow::None )
@@ -2393,10 +2425,6 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 
 	m_nInitialWidth = m_nMaxPatternSequence * 16;
 
-	// Offset position of the shaft of the arrow head indicating the
-	// playback position.
-	m_nXShaft = std::floor( static_cast<float>( m_nPlayheadWidth ) / 2 );
-
 	resize( m_nInitialWidth, m_nHeight );
 	setFixedHeight( m_nHeight );
 
@@ -2405,13 +2433,6 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 
 	createBackground();	// create m_backgroundPixmap pixmap
-
-	// create tick position pixmap
-	bool ok = m_tickPositionPixmap.load( Skin::getImagePath() + "/patternEditor/tickPosition.png" );
-	if( ok == false ){
-		ERRORLOG( "Error loading pixmap" );
-	}
-
 	update();
 
 	m_pTimer = new QTimer(this);
@@ -2492,7 +2513,7 @@ void SongEditorPositionRuler::createBackground()
 	textColorGrid.setAlpha( 200 );
 	p.setPen( textColorGrid );
 	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
-		uint x = m_nMargin + i * m_nGridWidth;
+		uint x = SongEditor::nMargin + i * m_nGridWidth;
 
 		if ( (i % 4) == 0 ) {
 			p.drawLine( x, height() - 14, x, height() - 1);
@@ -2505,7 +2526,7 @@ void SongEditorPositionRuler::createBackground()
 	// Add every 4th number to the grid
 	p.setPen( textColor );
 	for (uint i = 0; i < m_nMaxPatternSequence + 1; i += 4) {
-		uint x = m_nMargin + i * m_nGridWidth;
+		uint x = SongEditor::nMargin + i * m_nGridWidth;
 
 		sprintf( tmp, "%d", i + 1 );
 		if ( i < 10 ) {
@@ -2524,7 +2545,7 @@ void SongEditorPositionRuler::createBackground()
 	p.setFont( font2 );
 		
 	for ( const auto& ttag : tagVector ){
-		int x = m_nMargin + ttag->nColumn * m_nGridWidth + 4;
+		int x = SongEditor::nMargin + ttag->nColumn * m_nGridWidth + 4;
 		QRect rect( x, height() / 2 - 1 - m_nTagHeight,
 					m_nGridWidth - 6, m_nTagHeight );
 
@@ -2544,7 +2565,7 @@ void SongEditorPositionRuler::createBackground()
 		p.setPen( tempoMarkerGridColor );
 	}
 	for (uint ii = 0; ii < m_nMaxPatternSequence + 1; ii++) {
-		uint x = m_nMargin + ii * m_nGridWidth;
+		uint x = SongEditor::nMargin + ii * m_nGridWidth;
 
 		p.drawLine( x, 1, x, 4 );
 		p.drawLine( x, height() / 2 - 5, x, height() / 2 - 2 );
@@ -2595,7 +2616,7 @@ void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	int nColumn = ( std::max( ev->x() - m_nMargin, 0 ) ) / m_nGridWidth;
+	int nColumn = ( std::max( ev->x() - SongEditor::nMargin, 0 ) ) / m_nGridWidth;
 
 	HoveredRow row;
 	if ( ev->y() > 22 ) {
@@ -2663,12 +2684,12 @@ void SongEditorPositionRuler::showToolTip( QHelpEvent* ev ) {
 	if ( pHydrogen->isTimelineEnabled() &&
 		 pTimeline->isFirstTempoMarkerSpecial() &&
 		 m_hoveredRow == HoveredRow::TempoMarker &&
-		 ev->x() < m_nMargin + m_nGridWidth ) { // first tempo marker 
+		 ev->x() < SongEditor::nMargin + m_nGridWidth ) { // first tempo marker 
 		QToolTip::showText( ev->globalPos(), tr( "The tempo set in the BPM widget will be used as a default for the beginning of the song. Left-click to overwrite it." ), this );
 		
 	} else if ( m_hoveredRow == HoveredRow::Tag ) {
 		// Row containing the tags
-		int nColumn = std::max( ev->x() - m_nMargin, 0 ) / m_nGridWidth;
+		int nColumn = std::max( ev->x() - SongEditor::nMargin, 0 ) / m_nGridWidth;
 		if ( pTimeline->hasColumnTag( nColumn ) ) {
 			QToolTip::showText( ev->globalPos(),
 								pTimeline->getTagAtColumn( nColumn ), this );
@@ -2702,7 +2723,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 		
-	int nColumn = ( std::max( ev->x() - m_nMargin, 0 ) / m_nGridWidth);
+	int nColumn = ( std::max( ev->x() - SongEditor::nMargin, 0 ) / m_nGridWidth);
 	
 	if (ev->button() == Qt::LeftButton ) {
 		if ( ev->y() > 22 ) {
@@ -2832,12 +2853,21 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 			nCurrentTempoMarkerColumn = pTempoMarker->nColumn;
 		}
 	}
-
 	if ( nCurrentTempoMarkerColumn != -1 ) {
 		auto pTempoMarker = pTimeline->getTempoMarkerAtColumn( nCurrentTempoMarkerColumn );
 		if ( pTempoMarker != nullptr ) {
 			drawTempoMarker( pTempoMarker, true, painter );
 		}
+	}
+
+	// Draw playhead
+	if ( fPos != -1 ) {
+		int nX = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
+								   fPos * static_cast<float>(m_nGridWidth) -
+								   static_cast<float>(Skin::nPlayheadWidth) / 2 );
+		int nShaftOffset = Skin::getPlayheadShaftOffset();
+		Skin::drawPlayhead( &painter, nX, height() / 2 + 2, false );
+		painter.drawLine( nX + nShaftOffset, 0, nX + nShaftOffset, height() );
 	}
 			
 	// Highlight hovered tick of the Timeline
@@ -2846,7 +2876,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		   m_pHydrogen->isTimelineEnabled() ) ) {
 
 		painter.setPen( highlightColor );
-		int x = m_nMargin + m_nHoveredColumn * m_nGridWidth;
+		int x = SongEditor::nMargin + m_nHoveredColumn * m_nGridWidth;
 
 		painter.drawLine( x, 1, x, 4 );
 		painter.drawLine( x, height() / 2 - 5, x, height() / 2 - 2 );
@@ -2857,7 +2887,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	if ( m_hoveredRow == HoveredRow::Tag &&
 		 pTimeline->hasColumnTag( m_nHoveredColumn ) ) {
 
-		int x = m_nMargin + m_nHoveredColumn * m_nGridWidth + 4;
+		int x = SongEditor::nMargin + m_nHoveredColumn * m_nGridWidth + 4;
 		QRect rect( x, height() / 2 - 1 - m_nTagHeight,
 					m_nGridWidth - 6, m_nTagHeight );
 	
@@ -2893,7 +2923,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 			 ( pTimeline->isFirstTempoMarkerSpecial() &&
 			   nColumn == 0 ) ) {
 		
-			QRect rect( m_nMargin - SONG_EDITOR_MAX_GRID_WIDTH +
+			QRect rect( SongEditor::nMargin - SONG_EDITOR_MAX_GRID_WIDTH +
 						nColumn * m_nGridWidth + m_nGridWidth / 2,
 						6, 2 * SONG_EDITOR_MAX_GRID_WIDTH, 12 );
 			painter.fillRect( rect, backgroundColorTempoMarkers );
@@ -2937,10 +2967,10 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 		int nCursorX;
 		if ( m_nActiveBpmWidgetColumn != -1 ) {
-			nCursorX = pSongEditor->getMargin() +
+			nCursorX = SongEditor::nMargin +
 				m_nActiveBpmWidgetColumn * m_nGridWidth + 3;
 		} else {
-			nCursorX = pSongEditor->getMargin() +
+			nCursorX = SongEditor::nMargin +
 				m_nHoveredColumn * m_nGridWidth + 3;
 		}
 
@@ -2953,29 +2983,9 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		}
 	}
 
-	// Highlight hovered position marker.
-	if ( m_nHoveredColumn > -1  &&
-		 m_hoveredRow == HoveredRow::Ruler ) {
-
-		QPen p( highlightColor );
-		p.setWidth( 1 );
-		painter.setPen( p );
-		
-		int x = static_cast<int>( static_cast<float>(m_nMargin) + 1 +
-								  static_cast<float>(m_nHoveredColumn) *
-								  static_cast<float>(m_nGridWidth) -
-								  static_cast<float>(m_nPlayheadWidth) / 2 );
-		Skin::drawPlayhead( &painter, QRect( x, height() / 2 + 2, m_nPlayheadWidth,
-											 m_nPlayheadHeight ), true );
-		painter.setPen( Qt::black );
-		painter.drawLine( x + m_nXShaft, 4, x + m_nXShaft, height() / 2 + 1 );
-		painter.drawLine( x + m_nXShaft, height() / 2 + 2 + m_nPlayheadHeight,
-						  x + m_nXShaft, height() - 2 );
-	}
-
 	// Draw cursor
 	if ( ! pHydrogenApp->hideKeyboardCursor() && pSongEditor->hasFocus() ) {
-		int nCursorX = pSongEditor->getMargin() +
+		int nCursorX = SongEditor::nMargin +
 			pSongEditor->getCursorColumn() * m_nGridWidth + 2;
 
 		QColor cursorColor = Qt::black;
@@ -3001,20 +3011,24 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		painter.drawLine( nCursorX + m_nGridWidth - 3, height() - 6,
 						  nCursorX + m_nGridWidth - 3, height() - 5 );
 	}
+	
+	// Faint playhead over hovered position marker.
+	if ( m_nHoveredColumn > -1  &&
+		 m_hoveredRow == HoveredRow::Ruler ) {
 
-	// Draw playhead
-	if ( fPos != -1 ) {
-		int nX = static_cast<int>( static_cast<float>(m_nMargin) + 1 +
-								   fPos * static_cast<float>(m_nGridWidth) -
-								   static_cast<float>(m_nPlayheadWidth) / 2 );
-		Skin::drawPlayhead( &painter, QRect( nX, height() / 2 + 2, m_nPlayheadWidth,
-											 m_nPlayheadHeight ), false );
-		painter.setPen( Qt::black );
-		painter.drawLine( nX + m_nXShaft, 4, nX + m_nXShaft, height() - 2 );
+		int x = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
+								  static_cast<float>(m_nHoveredColumn) *
+								  static_cast<float>(m_nGridWidth) -
+								  static_cast<float>(Skin::nPlayheadWidth) / 2 );
+		int nShaftOffset = Skin::getPlayheadShaftOffset();
+		Skin::drawPlayhead( &painter, x, height() / 2 + 2, true );
+		painter.drawLine( x + nShaftOffset, 0, x + nShaftOffset, height() / 2 + 1 );
+		painter.drawLine( x + nShaftOffset, height() / 2 + 2 + Skin::nPlayheadHeight,
+						  x + nShaftOffset, height() );
 	}
 
 	if ( pIPos <= pOPos ) {
-		int xIn = (int)( m_nMargin + pIPos * m_nGridWidth );
+		int xIn = (int)( SongEditor::nMargin + pIPos * m_nGridWidth );
 		int xOut = (int)( 9 + (pOPos+1) * m_nGridWidth );
 		painter.fillRect( xIn, 30, xOut-xIn+1, 12, QColor(200, 100, 100, 100) );
 		QPen pen(QColor(200, 100, 100));
@@ -3025,7 +3039,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 }
 
 void SongEditorPositionRuler::drawTempoMarker( std::shared_ptr<const Timeline::TempoMarker> tempoMarker, bool bEmphasize, QPainter& painter ) {
-	
+
 	auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -3053,14 +3067,14 @@ void SongEditorPositionRuler::drawTempoMarker( std::shared_ptr<const Timeline::T
 	}
 	painter.setFont( font );
 		
-	QRect rect( m_nMargin - SONG_EDITOR_MAX_GRID_WIDTH +
+	QRect rect( SongEditor::nMargin - SONG_EDITOR_MAX_GRID_WIDTH +
 				tempoMarker->nColumn * m_nGridWidth + m_nGridWidth / 2,
 				6, 2 * SONG_EDITOR_MAX_GRID_WIDTH, 12 );
 				
 	char tempo[10];
 	sprintf( tempo, "%d",  static_cast<int>( tempoMarker->fBpm ) );
 	painter.drawText( rect, Qt::AlignCenter, tempo );
-				
+
 	if ( bEmphasize ) {
 		font.setBold( false );
 	}
@@ -3070,6 +3084,7 @@ void SongEditorPositionRuler::drawTempoMarker( std::shared_ptr<const Timeline::T
 void SongEditorPositionRuler::updatePosition()
 {
 	update();
+	HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()->update();
 }
 
 void SongEditorPositionRuler::timelineUpdateEvent( int nValue ) {

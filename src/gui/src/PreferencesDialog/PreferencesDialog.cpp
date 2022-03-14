@@ -571,6 +571,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	new ColorTreeItem( 0x207, pTopLevelItem, "Spin Box Text" );
 	new ColorTreeItem( 0x208, pTopLevelItem, "Automation" );
 	new ColorTreeItem( 0x209, pTopLevelItem, "Automation Circle" );
+	new ColorTreeItem( 0x210, pTopLevelItem, "Playhead" );
 	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, "Song Editor" );
 	new ColorTreeItem( 0x300, pTopLevelItem, "Background" );
 	new ColorTreeItem( 0x301, pTopLevelItem, "Alternate Row" );
@@ -1518,6 +1519,7 @@ QColor* PreferencesDialog::getColorById( int nId, std::shared_ptr<H2Core::ColorT
 	case 0x207: return &pColorTheme->m_spinBoxTextColor;
 	case 0x208: return &pColorTheme->m_automationColor;
 	case 0x209: return &pColorTheme->m_automationCircleColor;
+	case 0x210: return &pColorTheme->m_playheadColor;
 	case 0x300: return &pColorTheme->m_songEditor_backgroundColor;
 	case 0x301: return &pColorTheme->m_songEditor_alternateRowColor;
 	case 0x302: return &pColorTheme->m_songEditor_selectedRowColor;
@@ -1599,6 +1601,8 @@ void PreferencesDialog::setColorById( int nId, const QColor& color,
 	case 0x208:  pColorTheme->m_automationColor = color;
 		break;
 	case 0x209:  pColorTheme->m_automationCircleColor = color;
+		break;
+	case 0x210:  pColorTheme->m_playheadColor = color;
 		break;
 	case 0x300:  pColorTheme->m_songEditor_backgroundColor = color;
 		break;

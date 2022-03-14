@@ -60,12 +60,13 @@ PatternEditor::PatternEditor( QWidget *pParent,
 	, m_pPattern( nullptr )
 	, m_bSelectNewNotes( false )
 	, m_bFineGrained( false )
-	, m_bCopyNotMove( false ) {
+	, m_bCopyNotMove( false )
+	, m_nTick( -1 ) {
 
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	m_fGridWidth = pPref->getPatternEditorGridWidth();
-	m_nEditorWidth = m_nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
+	m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
 
 	setFocusPolicy(Qt::StrongFocus);
 
@@ -270,7 +271,7 @@ int PatternEditor::getColumn( int x, bool bUseFineGrained ) const
 		nGranularity = granularity();
 	}
 	int nWidth = m_fGridWidth * nGranularity;
-	int nColumn = ( x - m_nMargin + (nWidth / 2) ) / nWidth;
+	int nColumn = ( x - PatternEditor::nMargin + (nWidth / 2) ) / nWidth;
 	nColumn = nColumn * nGranularity;
 	if ( nColumn < 0 ) {
 		return 0;
@@ -602,7 +603,7 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 	if ( m_pPattern != nullptr ) {
 		nNotes = m_pPattern->get_length();
 	}
-	int nMaxX = m_fGridWidth * nNotes + m_nMargin;
+	int nMaxX = m_fGridWidth * nNotes + PatternEditor::nMargin;
 
 	if ( !m_bUseTriplets ) {
 
@@ -623,7 +624,7 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		// First, quarter note markers. All the quarter note markers must be drawn.
 		if ( m_nResolution >= nRes ) {
 			p.setPen( QPen( res[ 0 ], 0, style ) );
-			for ( float x = m_nMargin ; x < nMaxX; x += fStep ) {
+			for ( float x = PatternEditor::nMargin ; x < nMaxX; x += fStep ) {
 				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 			}
 		}
@@ -636,7 +637,7 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		int nColour = 1;
 		while ( m_nResolution >= nRes ) {
 			p.setPen( QPen( res[ nColour++ ], 0, style ) );
-			for ( float x = m_nMargin + fStep; x < nMaxX; x += fStep * 2) {
+			for ( float x = PatternEditor::nMargin + fStep; x < nMaxX; x += fStep * 2) {
 				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 			}
 			nRes *= 2;
@@ -649,12 +650,12 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		// first of every triplet.
 		float fStep = granularity() * m_fGridWidth;
 		p.setPen(  QPen( res[ 0 ], 0, style ) );
-		for ( float x = m_nMargin; x < nMaxX; x += fStep * 3 ) {
+		for ( float x = PatternEditor::nMargin; x < nMaxX; x += fStep * 3 ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 		}
 		// Second and third marks
 		p.setPen(  QPen( res[ 2 ], 0, style ) );
-		for ( float x = m_nMargin + fStep; x < nMaxX; x += fStep * 3 ) {
+		for ( float x = PatternEditor::nMargin + fStep; x < nMaxX; x += fStep * 3 ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 			p.drawLine(x + fStep, 1, x + fStep, m_nEditorHeight - 1);
 		}
@@ -773,4 +774,47 @@ void PatternEditor::stackedModeActivationEvent( int nValue )
 	UNUSED( nValue );
 	// May need to draw (or hide) other background patterns
 	update();
+}
+
+void PatternEditor::updatePosition() {
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	bool bActive = false;	// is the pattern playing now?
+
+	if ( pHydrogen->getMode() == Song::Mode::Song &&
+		 pHydrogen->isPatternEditorLocked() ) {
+		// In case the pattern editor is locked we will always display
+		// the position tick. Even if no pattern is set at all.
+		bActive = true;
+	} else {
+		/* 
+		 * Lock audio engine to make sure pattern list does not get
+		 * modified / cleared during iteration 
+		 */
+		pAudioEngine->lock( RIGHT_HERE );
+
+		PatternList *pList = pAudioEngine->getPlayingPatterns();
+		for (uint i = 0; i < pList->size(); i++) {
+			if ( m_pPattern == pList->get(i) ) {
+				bActive = true;
+				break;
+			}
+		}
+
+		pAudioEngine->unlock();
+	}
+
+	if ( bActive ) {
+		if ( m_nTick != pAudioEngine->getPatternTickPosition() ) {
+			m_nTick = pAudioEngine->getPatternTickPosition();
+			update();
+		}
+	}
+	else {
+		if ( m_nTick != -1 ) {
+			m_nTick = -1;	// hide the tickPosition
+			update();
+		}
+	}
 }

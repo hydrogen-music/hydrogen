@@ -42,6 +42,7 @@ using namespace H2Core;
 PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	: QWidget( parent )
 	, m_nHoveredColumn( -1 )
+	, m_nTick( -1 )
  {
 	setAttribute(Qt::WA_OpaquePaintEvent);
 	setMouseTracking( true );
@@ -55,15 +56,10 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	m_pPattern = nullptr;
 	m_fGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
 
-	m_nRulerWidth = 20 + m_fGridWidth * ( MAX_NOTES * 4 );
+	m_nRulerWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
 	m_nRulerHeight = 25;
 
 	resize( m_nRulerWidth, m_nRulerHeight );
-
-	bool ok = m_tickPosition.load( Skin::getImagePath() + "/patternEditor/tickPosition.png" );
-	if( ok == false ){
-		ERRORLOG( "Error loading pixmap " );
-	}
 
 	qreal pixelRatio = devicePixelRatio();
 	m_pBackground = new QPixmap( m_nRulerWidth * pixelRatio,
@@ -75,7 +71,7 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	connect(m_pTimer, &QTimer::timeout, [=]() {
 		if ( H2Core::Hydrogen::get_instance()->getAudioEngine()->getState() ==
 			 H2Core::AudioEngine::State::Playing ) {
-			updateEditor();
+			updatePosition();
 		}
 	});
 
@@ -90,9 +86,20 @@ PatternEditorRuler::~PatternEditorRuler() {
 	//infoLog( "DESTROY");
 }
 
+void PatternEditorRuler::updatePosition( bool bRedrawAll ) {
+	updateEditor( bRedrawAll );
+	auto pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
+	pPatternEditorPanel->getDrumPatternEditor()->updatePosition();
+	pPatternEditorPanel->getPianoRollEditor()->updatePosition();
+	pPatternEditorPanel->getVelocityEditor()->updatePosition();
+	pPatternEditorPanel->getPanEditor()->updatePosition();
+	pPatternEditorPanel->getLeadLagEditor()->updatePosition();
+	pPatternEditorPanel->getNoteKeyEditor()->updatePosition();
+	pPatternEditorPanel->getProbabilityEditor()->updatePosition();
+}
 
 void PatternEditorRuler::relocationEvent() {
-	updateEditor();
+	updatePosition();
 }
 
 void PatternEditorRuler::updateStart(bool start) {
@@ -106,10 +113,10 @@ void PatternEditorRuler::updateStart(bool start) {
 
 
 
-void PatternEditorRuler::showEvent ( QShowEvent *ev )
+void PatternEditorRuler::showEvent( QShowEvent *ev )
 {
 	UNUSED( ev );
-	updateEditor();
+	updatePosition();
 	updateStart(true);
 }
 
@@ -133,12 +140,44 @@ void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
 		 ev->x() < m_nWidthActive ) {
 		auto pHydrogen = Hydrogen::get_instance();
 		auto pCoreActionController = pHydrogen->getCoreActionController();
+		auto pHydrogenApp = HydrogenApp::get_instance();
+		DrumPatternEditor* pDrumPatternEditor;
+		if ( pHydrogenApp->getPatternEditorPanel() != nullptr ) {
+			pDrumPatternEditor = pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor();
+		} else {
+			pDrumPatternEditor = nullptr;
+		}
+
+		// Fall back to default values in case the GUI is starting and the
+		// pattern editor is not ready yet.
+		float fResolution;
+		bool bIsUsingTriplets;
+		if ( pDrumPatternEditor != nullptr ) {
+			fResolution = static_cast<float>(pDrumPatternEditor->getResolution());
+			bIsUsingTriplets = pDrumPatternEditor->isUsingTriplets();
+		} else {
+			fResolution = 8;
+			bIsUsingTriplets = false;
+		}
+
+		float fTripletFactor;
+		if ( bIsUsingTriplets ) {
+			fTripletFactor = 3;
+		} else {
+			fTripletFactor = 4;
+		}
+
+		long nNewTick = std::floor( static_cast<float>(m_nHoveredColumn) *
+									4 * static_cast<float>(MAX_NOTES) /
+									( fTripletFactor * fResolution ) );
+
+		DEBUGLOG( QString( "col: %1, tick: %2" ).arg( m_nHoveredColumn ).arg( nNewTick ) );
 	
 		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
 			pCoreActionController->activateSongMode( false );
 		}
 
-		pCoreActionController->locateToTick( m_nHoveredColumn * 2 * m_fGridWidth );
+		pCoreActionController->locateToTick( nNewTick );
 	}
 }
 
@@ -156,15 +195,12 @@ void PatternEditorRuler::mouseMoveEvent( QMouseEvent* ev ) {
 
 		// Fall back to default values in case the GUI is starting and the
 		// pattern editor is not ready yet.
-		int nMargin;
 		float fResolution;
 		bool bIsUsingTriplets;
 		if ( pDrumPatternEditor != nullptr ) {
-			nMargin = pDrumPatternEditor->getMargin();
 			fResolution = static_cast<float>(pDrumPatternEditor->getResolution());
 			bIsUsingTriplets = pDrumPatternEditor->isUsingTriplets();
 		} else {
-			nMargin = 20;
 			fResolution = 8;
 			bIsUsingTriplets = false;
 		}
@@ -181,7 +217,7 @@ void PatternEditorRuler::mouseMoveEvent( QMouseEvent* ev ) {
 
 		int nHoveredColumn =
 			static_cast<int>(std::floor( static_cast<float>(
-				std::max( ev->x() - nMargin +
+				std::max( ev->x() - PatternEditor::nMargin +
 						  static_cast<int>(std::round(1 / fColumnWidth / 2) ), 0 )) *
 										 fColumnWidth ));
 		
@@ -240,19 +276,19 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 		pAudioEngine->unlock();
 	}
 
-	if ( ( pAudioEngine->getState() == H2Core::AudioEngine::State::Playing ) && bActive ) {
-		m_nTicks = pAudioEngine->getPatternTickPosition();
+	if ( bActive ) {
+		m_nTick = pAudioEngine->getPatternTickPosition();
 	}
 	else {
-		m_nTicks = -1;	// hide the tickPosition
+		m_nTick = -1;	// hide the tickPosition
 	}
 
 
-	if (oldNTicks != m_nTicks) {
+	if (oldNTicks != m_nTick) {
 		// redraw all
 		bRedrawAll = true;
 	}
-	oldNTicks = m_nTicks;
+	oldNTicks = m_nTick;
 
 	if (bRedrawAll) {
 		createBackground();
@@ -313,14 +349,12 @@ void PatternEditorRuler::createBackground()
 
 	// Fall back to default values in case the GUI is starting and the
 	// pattern editor is not ready yet.
-	int nMargin, nResolution;
+	int nResolution;
 	bool bIsUsingTriplets;
 	if ( pDrumPatternEditor != nullptr ) {
-		nMargin = pDrumPatternEditor->getMargin();
 		nResolution = pDrumPatternEditor->getResolution();
 		bIsUsingTriplets = pDrumPatternEditor->isUsingTriplets();
 	} else {
-		nMargin = 20;
 		nResolution = 8;
 		bIsUsingTriplets = false;
 	}
@@ -328,7 +362,7 @@ void PatternEditorRuler::createBackground()
 	// Draw numbers and quarter ticks
 	painter.setPen( textColor );
 	for ( int ii = 0; ii < 64 ; ii += 4 ) {
-		int nText_x = nMargin + nQuarter / 4 * ii * m_fGridWidth;
+		int nText_x = PatternEditor::nMargin + nQuarter / 4 * ii * m_fGridWidth;
 		painter.drawLine( nText_x, height() - 13, nText_x, height() - 2 );
 		painter.drawText( nText_x + 3, 0, 60, m_nRulerHeight,
 						  Qt::AlignVCenter | Qt::AlignLeft,
@@ -336,7 +370,7 @@ void PatternEditorRuler::createBackground()
 	}
 
 	// Draw remaining ticks
-	int nMaxX = m_fGridWidth * nNotes + nMargin;
+	int nMaxX = m_fGridWidth * nNotes + PatternEditor::nMargin;
 
 	float fStep;
 	if ( bIsUsingTriplets ) {
@@ -344,7 +378,7 @@ void PatternEditorRuler::createBackground()
 	} else {
 		fStep = 4 * MAX_NOTES / ( 4 * nResolution ) * m_fGridWidth;
 	}
-	for ( float xx = nMargin; xx < nMaxX; xx += fStep ) {
+	for ( float xx = PatternEditor::nMargin; xx < nMaxX; xx += fStep ) {
 		painter.drawLine( xx, height() - 5, xx, height() - 2 );
 	}
 
@@ -391,7 +425,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 		int nCursorX = m_fGridWidth *
 			pHydrogenApp->getPatternEditorPanel()->getCursorPosition() +
-			pDrumPatternEditor->getMargin() - 4 -
+			PatternEditor::nMargin - 4 -
 			m_fGridWidth * 5;
 
 		// Middle line to indicate the selected tick
@@ -414,68 +448,58 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 		painter.drawLine( nCursorX + m_fGridWidth * 10 + 8, height() - 6,
 						  nCursorX + m_fGridWidth * 10 + 8, height() - 7 );
 	}
-
+	
 	// Fall back to default values in case the GUI is starting and the
 	// pattern editor is not ready yet.
-	int nMargin;
 	float fResolution;
 	bool bIsUsingTriplets;
 	if ( pDrumPatternEditor != nullptr ) {
-		nMargin = pDrumPatternEditor->getMargin();
 		fResolution = static_cast<float>(pDrumPatternEditor->getResolution());
 		bIsUsingTriplets = pDrumPatternEditor->isUsingTriplets();
 	} else {
-		nMargin = 20;
 		fResolution = 8;
 		bIsUsingTriplets = false;
 	}
 
+	float fTripletFactor;
+	if ( bIsUsingTriplets ) {
+		fTripletFactor = 3;
+	} else {
+		fTripletFactor = 4;
+	}
+
+	// draw playhead
+	if ( m_nTick != -1 ) {
+		int nOffset = Skin::getPlayheadShaftOffset();
+		int x = static_cast<int>(static_cast<float>(PatternEditor::nMargin) +
+								  static_cast<float>(m_nTick) *
+								  m_fGridWidth) + 1;
+
+		Skin::drawPlayhead( &painter, x - nOffset, 3, false );
+		painter.drawLine( x, 8, x, height() - 2 );
+	}
+
 	// Display playhead on hovering
 	if ( m_nHoveredColumn > -1 ) {
-
-		// Only display the playhead in accessible for transport
-		int nNotes = MAX_NOTES;
-		if ( m_pPattern != nullptr ) {
-			nNotes = m_pPattern->get_length();
-		}
-		int nXMax = 20 + nNotes * m_fGridWidth;
-
-		float fTripletFactor;
-		if ( bIsUsingTriplets ) {
-			fTripletFactor = 3;
-		} else {
-			fTripletFactor = 4;
-		}
-		int x = nMargin +
+		int x = PatternEditor::nMargin + 1 +
 			static_cast<int>(m_nHoveredColumn * 4 * static_cast<float>(MAX_NOTES) /
 							 ( fTripletFactor * fResolution ) * m_fGridWidth);
 
-		if ( x < nXMax ) {
-			int nPlayheadWidth = 11;
-			int nOffset = std::floor( static_cast<float>( nPlayheadWidth ) / 2 );
-			Skin::drawPlayhead( &painter, QRect( x + 1 - nOffset, 3,
-												 nPlayheadWidth, 8 ), true );
-			painter.drawLine( x + 1, 8, x + 1, height() - 2 );
+		if ( x < m_nWidthActive ) {
+			int nOffset = Skin::getPlayheadShaftOffset();
+			Skin::drawPlayhead( &painter, x - nOffset, 3, true );
+			painter.drawLine( x, 8, x, height() - 2 );
 		}
-	}
-
-	// draw tickPosition
-	if ( m_nTicks != -1 ) {
-		int nX = static_cast<int>(20 + static_cast<float>(m_nTicks) *
-								  m_fGridWidth - 5 - 11 / 2.0 ) + 1;
-		int nPlayheadWidth = 11;
-		int nOffset = std::floor( static_cast<float>( nPlayheadWidth ) / 2 );
-		Skin::drawPlayhead( &painter, QRect( nX - nOffset, 3, nPlayheadWidth, 8 ), false );
-		painter.drawLine( nX, 8, nX, height() - 2 );
 	}
 }
 
 void PatternEditorRuler::updateActiveRange() {
+		
 	int nNotes = MAX_NOTES;
 	if ( m_pPattern != nullptr ) {
 		nNotes = m_pPattern->get_length();
 	}
-	m_nWidthActive = 20 + nNotes * m_fGridWidth;
+	m_nWidthActive = PatternEditor::nMargin + nNotes * m_fGridWidth;
 }
 
 void PatternEditorRuler::zoomIn()
@@ -488,7 +512,7 @@ void PatternEditorRuler::zoomIn()
 	} else {
 		m_fGridWidth *= 1.5;
 	}
-	m_nRulerWidth = 20 + m_fGridWidth * ( MAX_NOTES * 4 );
+	m_nRulerWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
 	resize(  QSize(m_nRulerWidth, m_nRulerHeight ));
 
 	updateActiveRange();
@@ -509,7 +533,7 @@ void PatternEditorRuler::zoomOut()
 		} else {
 			m_fGridWidth /= 1.5;
 		}
-		m_nRulerWidth = 20 + m_fGridWidth * ( MAX_NOTES * 4 );
+		m_nRulerWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
 		resize( QSize(m_nRulerWidth, m_nRulerHeight) );
 		
 		updateActiveRange();
@@ -520,10 +544,20 @@ void PatternEditorRuler::zoomOut()
 }
 
 
+void PatternEditorRuler::songModeActivationEvent( int )
+{
+	updatePosition();
+}
+
+void PatternEditorRuler::stateChangedEvent( H2Core::AudioEngine::State )
+{
+	updatePosition();
+}
+	
 void PatternEditorRuler::selectedPatternChangedEvent()
 {
 	createBackground();
-	updateEditor( true );
+	updatePosition( true );
 }
 
 void PatternEditorRuler::onPreferencesChanged( H2Core::Preferences::Changes changes ) {

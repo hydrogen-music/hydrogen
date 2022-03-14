@@ -199,23 +199,35 @@ QColor Skin::makeTextColorInactive( QColor color ) {
 	return color;
 }
 
-void Skin::drawPlayhead( QPainter* p, QRect rect, bool bHovered ) {
-	
-	QColor playheadColor( Qt::black );
+void Skin::setPlayheadPen( QPainter* p, bool bHovered ) {
+
+	QColor playheadColor( H2Core::Preferences::get_instance()->getColorTheme()->m_playheadColor );
 	if ( bHovered ) {
-		playheadColor = QColor( 65, 65, 65 );
+		playheadColor = Skin::makeTextColorInactive( playheadColor );
 	}
+	QPen pen ( playheadColor );
+	pen.setWidth( 2 );
+	
+	p->setPen( pen );
+	p->setRenderHint( QPainter::Antialiasing );
+}
+
+void Skin::drawPlayhead( QPainter* p, int x, int y, bool bHovered ) {
 
 	const QPointF points[3] = {
-		QPointF(rect.x(), rect.y()),
-		QPointF(rect.x() + rect.width() - 1, rect.y()),
-		QPointF(rect.x() + std::floor( rect.width() / 2 ),
-				rect.y() + rect.height() ),
+		QPointF( x, y ),
+		QPointF( x + Skin::nPlayheadWidth - 1, y ),
+		QPointF( x + Skin::getPlayheadShaftOffset(),
+				 y + Skin::nPlayheadHeight ),
 	};
 
-	p->setPen( playheadColor );
+	QColor playheadColor( H2Core::Preferences::get_instance()->getColorTheme()->m_playheadColor );
+	if ( bHovered ) {
+		playheadColor = Skin::makeTextColorInactive( playheadColor );
+	}
+
+	Skin::setPlayheadPen( p, bHovered );
 	p->setBrush( playheadColor );
-	p->setRenderHint( QPainter::Antialiasing );
 	p->drawPolygon( points, 3 );
 	p->setBrush( Qt::NoBrush );
 }

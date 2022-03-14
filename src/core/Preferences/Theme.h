@@ -111,6 +111,7 @@ public:
 	QColor m_spinBoxTextColor;
 	QColor m_automationColor;
 	QColor m_automationCircleColor;
+	QColor m_playheadColor;
 };
 
 	

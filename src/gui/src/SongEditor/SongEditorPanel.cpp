@@ -26,6 +26,7 @@
 #include "../HydrogenApp.h"
 #include "../PatternPropertiesDialog.h"
 #include "../SongPropertiesDialog.h"
+#include "../Skin.h"
 #include "../Widgets/AutomationPathView.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/Fader.h"
@@ -417,8 +418,8 @@ void SongEditorPanel::updatePlayHeadPosition()
 		int nIncrement = 100;
 		if ( nIncrement > std::round( static_cast<float>(nWidth) / 3 ) ) {
 			nIncrement = std::round( static_cast<float>(nWidth) / 3 );
-		} else if ( nIncrement < 2 * m_pPositionRuler->getPlayheadWidth() ) {
-			nIncrement = 2 * m_pPositionRuler->getPlayheadWidth();
+		} else if ( nIncrement < 2 * Skin::nPlayheadWidth ) {
+			nIncrement = 2 * Skin::nPlayheadWidth;
 		}
 		
 		if ( nPlayHeadPosition > ( x + nWidth - std::floor( static_cast<float>( nIncrement ) / 2 ) ) ) {

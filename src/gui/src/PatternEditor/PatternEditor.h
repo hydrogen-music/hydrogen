@@ -136,9 +136,11 @@ public:
 	virtual void songModeActivationEvent( int nValue ) override;
 	virtual void stackedModeActivationEvent( int nValue ) override;
 
-	int getMargin() const {
-		return m_nMargin;
-	}
+	static constexpr int nMargin = 20;
+
+	/** Caches the AudioEngine::m_nPatternTickPosition in the member
+		variable #m_nTick and triggeres an update(). */
+	void updatePosition();
 
 protected:
 
@@ -181,8 +183,6 @@ protected:
 	int m_nSelectedPatternNumber;
 	H2Core::Pattern *m_pPattern;
 
-	const int m_nMargin = 20;
-
 	uint m_nResolution;
 	bool m_bUseTriplets;
 	bool m_bFineGrained;
@@ -221,6 +221,7 @@ protected:
 	virtual void enterEvent( QEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
 
+	int m_nTick;
 };
 
 #endif // PATERN_EDITOR_H
