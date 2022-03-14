@@ -560,7 +560,7 @@ void AudioEngine::updateBpmAndTickSize() {
 	// DEBUGLOG(QString( "sample rate: %1, tick size: %2, bpm: %3" )
 	// 		 .arg( static_cast<float>(m_pAudioDriver->getSampleRate()))
 	// 		 .arg( fNewTickSize, 0, 'f' )
-	// 		 .arg( getBpm() ), 0, 'f' );
+	// 		 .arg( getBpm(), 0, 'f' ) );
 	
 	// Nothing changed - avoid recomputing
 	if ( fNewTickSize == fOldTickSize ) {
@@ -1642,14 +1642,14 @@ void AudioEngine::setState( AudioEngine::State state ) {
 
 void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 {
-	___WARNINGLOG( QString( "Set song: %1" ).arg( pNewSong->getName() ) );
+	INFOLOG( QString( "Set song: %1" ).arg( pNewSong->getName() ) );
 	
 	this->lock( RIGHT_HERE );
 
 	// check current state
 	// should be set by removeSong called earlier
 	if ( getState() != State::Prepared ) {
-		___ERRORLOG( QString( "Error the audio engine is not in State::Prepared but [%1]" )
+		ERRORLOG( QString( "Error the audio engine is not in State::Prepared but [%1]" )
 					 .arg( static_cast<int>( getState() ) ) );
 	}
 
@@ -1674,6 +1674,7 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	locate( 0 );
 
 	Hydrogen::get_instance()->setTimeline( pNewSong->getTimeline() );
+	Hydrogen::get_instance()->getTimeline()->activate();
 
 	this->unlock();
 }
