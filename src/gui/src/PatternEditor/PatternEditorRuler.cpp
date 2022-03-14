@@ -86,20 +86,67 @@ PatternEditorRuler::~PatternEditorRuler() {
 	//infoLog( "DESTROY");
 }
 
-void PatternEditorRuler::updatePosition( bool bRedrawAll ) {
-	updateEditor( bRedrawAll );
-	auto pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
-	pPatternEditorPanel->getDrumPatternEditor()->updatePosition();
-	pPatternEditorPanel->getPianoRollEditor()->updatePosition();
-	pPatternEditorPanel->getVelocityEditor()->updatePosition();
-	pPatternEditorPanel->getPanEditor()->updatePosition();
-	pPatternEditorPanel->getLeadLagEditor()->updatePosition();
-	pPatternEditorPanel->getNoteKeyEditor()->updatePosition();
-	pPatternEditorPanel->getProbabilityEditor()->updatePosition();
+void PatternEditorRuler::updatePosition( bool bForce ) {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	
+	bool bActive = false;	// is the pattern playing now?
+
+	if ( pHydrogen->getMode() == Song::Mode::Song &&
+		 pHydrogen->isPatternEditorLocked() ) {
+		// In case the pattern editor is locked we will always display
+		// the position tick. Even if no pattern is set at all.
+		bActive = true;
+	} else {
+		/* 
+		 * Lock audio engine to make sure pattern list does not get
+		 * modified / cleared during iteration 
+		 */
+		pAudioEngine->lock( RIGHT_HERE );
+
+		PatternList *pList = pAudioEngine->getPlayingPatterns();
+		for (uint i = 0; i < pList->size(); i++) {
+			if ( m_pPattern == pList->get(i) ) {
+				bActive = true;
+				break;
+			}
+		}
+
+		pAudioEngine->unlock();
+	}
+
+	int nTick = -1;
+	if ( bActive ) {
+		nTick = pAudioEngine->getPatternTickPosition();
+	}
+
+	if ( nTick != m_nTick || bForce ) {
+		m_nTick = nTick;
+		update();
+		
+		auto pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
+		if ( pPatternEditorPanel != nullptr ) {
+			pPatternEditorPanel->getDrumPatternEditor()->updatePosition( nTick );
+			pPatternEditorPanel->getPianoRollEditor()->updatePosition( nTick );
+			pPatternEditorPanel->getVelocityEditor()->updatePosition( nTick );
+			pPatternEditorPanel->getPanEditor()->updatePosition( nTick );
+			pPatternEditorPanel->getLeadLagEditor()->updatePosition( nTick );
+			pPatternEditorPanel->getNoteKeyEditor()->updatePosition( nTick );
+			pPatternEditorPanel->getProbabilityEditor()->updatePosition( nTick );
+		}
+	}
 }
 
 void PatternEditorRuler::relocationEvent() {
 	updatePosition();
+}
+
+void PatternEditorRuler::updateSongEvent( int nValue ) {
+
+	if ( nValue == 0 ) { // new song loaded
+		updatePosition();
+	}
 }
 
 void PatternEditorRuler::updateStart(bool start) {
@@ -230,8 +277,6 @@ void PatternEditorRuler::mouseMoveEvent( QMouseEvent* ev ) {
 
 void PatternEditorRuler::updateEditor( bool bRedrawAll )
 {
-	static int oldNTicks = 0;
-
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
@@ -251,45 +296,8 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 	}
 	updateActiveRange();
 
-	bool bActive = false;	// is the pattern playing now?
-
-	if ( pHydrogen->getMode() == Song::Mode::Song &&
-		 pHydrogen->isPatternEditorLocked() ) {
-		// In case the pattern editor is locked we will always display
-		// the position tick. Even if no pattern is set at all.
-		bActive = true;
-	} else {
-		/* 
-		 * Lock audio engine to make sure pattern list does not get
-		 * modified / cleared during iteration 
-		 */
-		pAudioEngine->lock( RIGHT_HERE );
-
-		PatternList *pList = pAudioEngine->getPlayingPatterns();
-		for (uint i = 0; i < pList->size(); i++) {
-			if ( m_pPattern == pList->get(i) ) {
-				bActive = true;
-				break;
-			}
-		}
-
-		pAudioEngine->unlock();
-	}
-
-	if ( bActive ) {
-		m_nTick = pAudioEngine->getPatternTickPosition();
-	}
-	else {
-		m_nTick = -1;	// hide the tickPosition
-	}
-
-
-	if (oldNTicks != m_nTick) {
-		// redraw all
-		bRedrawAll = true;
-	}
-	oldNTicks = m_nTick;
-
+	updatePosition();
+	
 	if (bRedrawAll) {
 		createBackground();
 		update( 0, 0, width(), height() );
@@ -557,7 +565,7 @@ void PatternEditorRuler::stateChangedEvent( H2Core::AudioEngine::State )
 void PatternEditorRuler::selectedPatternChangedEvent()
 {
 	createBackground();
-	updatePosition( true );
+	updateEditor( true );
 }
 
 void PatternEditorRuler::onPreferencesChanged( H2Core::Preferences::Changes changes ) {

@@ -53,6 +53,19 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		void paintEvent(QPaintEvent *ev) override;
 		void updateStart(bool start);
+	/**
+	 * Queries the audio engine to update the current position of the
+	 * playhead.
+	 *
+	 * \param bForce The transport position is cached and updates in
+	 * the transport position are only propagated to the other member
+	 * of the PatternEditor once it changes. However, this will leave the
+	 * pattern editor in a dirty state during startup since the ruler
+	 * has to wait for all other associated objects being
+	 * constructed. Using the @a bForce option an update is performed
+	 * regardlessly.
+	 */
+	void updatePosition( bool bForce = false );
 
 		void showEvent( QShowEvent *ev ) override;
 		void hideEvent( QHideEvent *ev ) override;
@@ -93,13 +106,13 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 	int m_nWidthActive;
 	/** Updates #m_nWidthActive.*/
 	void updateActiveRange();
-	void updatePosition( bool bRedrawAll = false );
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
 	virtual void stateChangedEvent( H2Core::AudioEngine::State ) override;
 	virtual void songModeActivationEvent( int ) override;
 	virtual void relocationEvent() override;
+	virtual void updateSongEvent( int ) override;
 		//~ Implements EventListener interface
 };
 

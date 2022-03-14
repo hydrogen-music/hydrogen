@@ -140,7 +140,7 @@ public:
 
 	/** Caches the AudioEngine::m_nPatternTickPosition in the member
 		variable #m_nTick and triggeres an update(). */
-	void updatePosition();
+	void updatePosition( float fTick );
 
 protected:
 

@@ -95,7 +95,6 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 	resize( m_nEditorWidth, height() );
 
 	// redraw all
-	updatePosition();
 	createBackground();
 	update( 0, 0, width(), height() );
 }

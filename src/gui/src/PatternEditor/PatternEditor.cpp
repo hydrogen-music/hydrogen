@@ -776,45 +776,7 @@ void PatternEditor::stackedModeActivationEvent( int nValue )
 	update();
 }
 
-void PatternEditor::updatePosition() {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-
-	bool bActive = false;	// is the pattern playing now?
-
-	if ( pHydrogen->getMode() == Song::Mode::Song &&
-		 pHydrogen->isPatternEditorLocked() ) {
-		// In case the pattern editor is locked we will always display
-		// the position tick. Even if no pattern is set at all.
-		bActive = true;
-	} else {
-		/* 
-		 * Lock audio engine to make sure pattern list does not get
-		 * modified / cleared during iteration 
-		 */
-		pAudioEngine->lock( RIGHT_HERE );
-
-		PatternList *pList = pAudioEngine->getPlayingPatterns();
-		for (uint i = 0; i < pList->size(); i++) {
-			if ( m_pPattern == pList->get(i) ) {
-				bActive = true;
-				break;
-			}
-		}
-
-		pAudioEngine->unlock();
-	}
-
-	if ( bActive ) {
-		if ( m_nTick != pAudioEngine->getPatternTickPosition() ) {
-			m_nTick = pAudioEngine->getPatternTickPosition();
-			update();
-		}
-	}
-	else {
-		if ( m_nTick != -1 ) {
-			m_nTick = -1;	// hide the tickPosition
-			update();
-		}
-	}
+void PatternEditor::updatePosition( float fTick ) {
+	m_nTick = fTick;
+	update();
 }
