@@ -262,6 +262,9 @@ public:/**
 	};
 	std::vector<AddMidiNoteVector> m_addMidiNoteVector;
 
+	bool getSilent() const;
+	void setSilent( bool bSilent );
+
 private:
 	/**
 	 * Constructor of the EventQueue class.
@@ -304,7 +307,17 @@ private:
 	 * Mutex to lock access to queue.
 	 */
 	std::mutex m_mutex;
+
+	/** Whether or not to push log messages.*/
+	bool m_bSilent;
 };
+
+inline bool EventQueue::getSilent() const {
+	return m_bSilent;
+}
+inline void EventQueue::setSilent( bool bSilent ) {
+	m_bSilent = bSilent;
+}
 
 };
 
