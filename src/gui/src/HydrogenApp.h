@@ -266,6 +266,7 @@ private slots:
 
 		void setupSinglePanedInterface();
 		virtual void songModifiedEvent() override;
+	virtual void XRunEvent() override;
 
 		/** Handles the loading and saving of the H2Core::Preferences
 		 * from the core part of H2Core::Hydrogen.

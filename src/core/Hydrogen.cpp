@@ -633,9 +633,7 @@ void Hydrogen::stopExportSession()
 	
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
- 	pAudioEngine->stopAudioDrivers();
-	
-	pAudioEngine->startAudioDrivers();
+ 	pAudioEngine->restartAudioDrivers();
 	if ( pAudioEngine->getAudioDriver() == nullptr ) {
 		ERRORLOG( "Unable to restart previous audio driver after exporting song." );
 	}

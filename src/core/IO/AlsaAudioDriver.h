@@ -43,9 +43,9 @@ public:
 	unsigned long m_nBufferSize;
 	float* m_pOut_L;
 	float* m_pOut_R;
-	int m_nXRuns;
 	QString m_sAlsaAudioDevice;
 	audioProcessCallback m_processCallback;
+	int m_nXRuns;
 
 	AlsaAudioDriver( audioProcessCallback processCallback );
 	~AlsaAudioDriver();
@@ -58,6 +58,9 @@ public:
 	virtual float* getOut_L() override;
 	virtual float* getOut_R() override;
 	static QStringList getDevices();
+
+	virtual int getXRuns() const override { return m_nXRuns; }
+	
 private:
 
 	unsigned int m_nSampleRate;

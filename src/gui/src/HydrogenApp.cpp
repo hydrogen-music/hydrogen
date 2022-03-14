@@ -582,6 +582,12 @@ void HydrogenApp::setStatusBarMessage( const QString& msg, int msec )
 	}
 }
 
+void HydrogenApp::XRunEvent() {
+	setStatusBarMessage( QString( "XRUNS [%1]!!!" )
+						 .arg( Hydrogen::get_instance()->getAudioOutput()->getXRuns() ),
+						 5000 );
+}
+
 void HydrogenApp::updateWindowTitle()
 {
 	auto pSong = Hydrogen::get_instance()->getSong();

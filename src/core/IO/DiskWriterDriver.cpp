@@ -343,6 +343,9 @@ void DiskWriterDriver::write()
 void DiskWriterDriver::disconnect()
 {
 	INFOLOG( "" );
+
+	pthread_join( diskWriterDriverThread, NULL );
+
 	delete[] m_pOut_L;
 	m_pOut_L = nullptr;
 

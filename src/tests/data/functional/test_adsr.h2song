@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <song>
- <version>1.1.1-'0fcf2137'</version>
+ <version>1.1.1-'a5e2f147'</version>
  <bpm>120</bpm>
  <volume>0.73</volume>
  <metronomeVolume>0.5</metronomeVolume>
@@ -47,9 +47,9 @@
    <FX2Level>0</FX2Level>
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
+   <Attack>22090</Attack>
+   <Decay>20249</Decay>
+   <Sustain>0</Sustain>
    <Release>999</Release>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
@@ -172,7 +172,7 @@
    <Attack>0</Attack>
    <Decay>0</Decay>
    <Sustain>1</Sustain>
-   <Release>1000</Release>
+   <Release>999</Release>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
@@ -468,7 +468,7 @@
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <Attack>0</Attack>
-   <Decay>24009</Decay>
+   <Decay>100000</Decay>
    <Sustain>0</Sustain>
    <Release>999</Release>
    <pitchOffset>0</pitchOffset>
@@ -712,9 +712,9 @@
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
+   <Decay>100000</Decay>
+   <Sustain>0</Sustain>
+   <Release>999</Release>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
@@ -1199,10 +1199,10 @@
    <FX2Level>0</FX2Level>
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
+   <Attack>2560</Attack>
+   <Decay>68890</Decay>
+   <Sustain>0</Sustain>
+   <Release>256</Release>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
@@ -1566,9 +1566,9 @@
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
+   <Decay>100000</Decay>
+   <Sustain>0</Sustain>
+   <Release>999</Release>
    <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <muteGroup>-1</muteGroup>
@@ -1914,128 +1914,6 @@
    </instrumentComponent>
   </instrument>
   <instrument>
-   <id>15</id>
-   <name>Soft splash</name>
-   <drumkit>GMRockKit</drumkit>
-   <drumkitLookup>2</drumkitLookup>
-   <volume>0.543103</volume>
-   <isMuted>false</isMuted>
-   <isSoloed>false</isSoloed>
-   <pan>0.02</pan>
-   <gain>1</gain>
-   <applyVelocity>true</applyVelocity>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <Attack>6760</Attack>
-   <Decay>100000</Decay>
-   <Sustain>0.46</Sustain>
-   <Release>1000</Release>
-   <pitchOffset>0</pitchOffset>
-   <randomPitchFactor>0</randomPitchFactor>
-   <muteGroup>-1</muteGroup>
-   <isStopNote>false</isStopNote>
-   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>57</midiOutNote>
-   <isHihat>-1</isHihat>
-   <lower_cc>0</lower_cc>
-   <higher_cc>127</higher_cc>
-   <instrumentComponent>
-    <component_id>0</component_id>
-    <gain>1</gain>
-    <layer>
-     <filename>Splash-Softest.wav</filename>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-     <min>0</min>
-     <max>0.195652</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-    </layer>
-    <layer>
-     <filename>Splash-Soft.wav</filename>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-     <min>0.195652</min>
-     <max>0.362319</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-    </layer>
-    <layer>
-     <filename>Splash-Med.wav</filename>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-     <min>0.362319</min>
-     <max>0.565217</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-    </layer>
-    <layer>
-     <filename>Splash-Hard.wav</filename>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-     <min>0.568841</min>
-     <max>0.753623</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-    </layer>
-    <layer>
-     <filename>Splash-Hardest.wav</filename>
-     <ismodified>false</ismodified>
-     <smode>forward</smode>
-     <startframe>0</startframe>
-     <loopframe>0</loopframe>
-     <loops>0</loops>
-     <endframe>0</endframe>
-     <userubber>0</userubber>
-     <rubberdivider>1</rubberdivider>
-     <rubberCsettings>4</rubberCsettings>
-     <rubberPitch>1</rubberPitch>
-     <min>0.75</min>
-     <max>1</max>
-     <gain>1</gain>
-     <pitch>0</pitch>
-    </layer>
-   </instrumentComponent>
-  </instrument>
-  <instrument>
    <id>16</id>
    <name>Hat Semi-Open</name>
    <drumkit>GMRockKit</drumkit>
@@ -2143,18 +2021,6 @@
      <note_off>false</note_off>
     </note>
     <note>
-     <position>16</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>15</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
      <position>24</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
@@ -2164,18 +2030,6 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>10</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
-     <position>32</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>15</instrument>
      <note_off>false</note_off>
     </note>
     <note>
@@ -2200,18 +2054,6 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>6</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
-     <position>64</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>15</instrument>
      <note_off>false</note_off>
     </note>
     <note>
@@ -2227,18 +2069,6 @@
      <note_off>false</note_off>
     </note>
     <note>
-     <position>80</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>15</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
      <position>96</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
@@ -2263,18 +2093,6 @@
      <note_off>false</note_off>
     </note>
     <note>
-     <position>112</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>15</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
      <position>120</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
@@ -2296,18 +2114,6 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>0</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
-     <position>128</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>15</instrument>
      <note_off>false</note_off>
     </note>
     <note>
@@ -2335,18 +2141,6 @@
      <note_off>false</note_off>
     </note>
     <note>
-     <position>160</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>15</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
      <position>168</position>
      <leadlag>0</leadlag>
      <velocity>0.8</velocity>
@@ -2356,18 +2150,6 @@
      <key>C0</key>
      <length>-1</length>
      <instrument>10</instrument>
-     <note_off>false</note_off>
-    </note>
-    <note>
-     <position>176</position>
-     <leadlag>0</leadlag>
-     <velocity>0.8</velocity>
-     <pan>0</pan>
-     <pitch>0</pitch>
-     <probability>1</probability>
-     <key>C0</key>
-     <length>-1</length>
-     <instrument>15</instrument>
      <note_off>false</note_off>
     </note>
    </noteList>
