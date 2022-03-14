@@ -272,5 +272,39 @@ QString Timeline::toQString( const QString& sPrefix, bool bShort ) const {
 	return sOutput;
 }
 
+QString Timeline::TempoMarker::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[TempoMarker]\n" ).arg( sPrefix )
+			.append( QString( "%1%2nColumn: %3\n" ).arg( sPrefix ).arg( s ).arg( nColumn ) )
+			.append( QString( "%1%2fBpm: %3\n" ).arg( sPrefix ).arg( s ).arg( fBpm ) );
+	} else {
+		
+		sOutput = QString( "%1[TempoMarker] " ).arg( sPrefix )
+			.append( QString( "nColumn: %3, " ).arg( nColumn ) )
+			.append( QString( "fBpm: %3" ).arg( fBpm ) );
+	}
+		
+	return sOutput;
+}
+
+QString Timeline::Tag::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[TempoMarker]\n" ).arg( sPrefix )
+			.append( QString( "%1%2nColumn: %3\n" ).arg( sPrefix ).arg( s ).arg( nColumn ) )
+			.append( QString( "%1%2sTag: %3\n" ).arg( sPrefix ).arg( s ).arg( sTag ) );
+	} else {
+		
+		sOutput = QString( "%1[TempoMarker] " ).arg( sPrefix )
+			.append( QString( "nColumn: %3, " ).arg( nColumn ) )
+			.append( QString( "sTag: %3" ).arg( sTag ) );
+	}
+		
+	return sOutput;
+}
+
 };
 

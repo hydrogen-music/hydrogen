@@ -80,6 +80,8 @@ public:
 	{
 		int		nColumn;		// beat position in timeline
 		float	fBpm;		// tempo in beats per minute
+
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 	};
 
 	/** 
@@ -90,6 +92,8 @@ public:
 	{
 		int		nColumn;		// beat position in timeline
 		QString sTag;		// tag
+
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 	};
 
 	/** 
