@@ -36,9 +36,10 @@ class AutomationPathView :  public QWidget,  public H2Core::Object<AutomationPat
 	Q_OBJECT
 	H2_OBJECT(AutomationPathView)
 
+	void createBackground();
+
 	H2Core::AutomationPath *_path;
 	int m_nGridWidth;   /** < Width of song grid cell size - in order to properly align AutomationPathView and SongEditor */
-	int m_nMarginWidth; /** < Width of an empty space on the left side */
 	int m_nMarginHeight;/** < Height of top and bottom margins */
 	int m_nMaxPatternSequence;
 
@@ -48,6 +49,9 @@ class AutomationPathView :  public QWidget,  public H2Core::Object<AutomationPat
 	float m_fOriginY;  /** < Original position of selected point */
 	H2Core::AutomationPath::iterator _selectedPoint; /** < Point that is being dragged */
 
+	float m_fTick;
+	QPixmap* m_pBackgroundPixmap;
+
 public:
 	AutomationPathView(QWidget *parent = nullptr);
 
@@ -56,6 +60,8 @@ public:
 
 	int  getGridWidth() const noexcept { return m_nGridWidth; }
 	void setGridWidth(int width);
+
+	void updatePosition( float fTick );
 
 protected:
 	void paintEvent(QPaintEvent *event) override;

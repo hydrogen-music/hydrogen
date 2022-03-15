@@ -380,7 +380,7 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		uint				m_nGridWidth;
 		uint				m_nMaxPatternSequence;
 		uint				m_nInitialWidth;
-		static const uint	m_nHeight = 50;
+		static constexpr uint	m_nHeight = 50;
 
 	int m_nActiveBpmWidgetColumn;
 	int m_nHoveredColumn;

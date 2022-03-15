@@ -352,7 +352,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	pGridLayout->addWidget( m_pEditorScrollView, 1, 1 );
 	pGridLayout->addWidget( m_pVScrollBar, 1, 2, 2, 1 );
 	pGridLayout->addWidget( m_pAutomationPathScrollView, 2, 1);
-	pGridLayout->addWidget( m_pAutomationCombo, 2, 0, Qt::AlignTop | Qt::AlignRight );
+	pGridLayout->addWidget( m_pAutomationCombo, 2, 0,
+							Qt::AlignVCenter | Qt::AlignRight );
 	pGridLayout->addWidget( pHScrollbarPanel, 3, 1 );
 	if( !pPref->getShowAutomationArea() ){
 		m_pAutomationPathScrollView->hide();

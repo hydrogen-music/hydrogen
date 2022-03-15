@@ -3071,8 +3071,12 @@ void SongEditorPositionRuler::updatePosition()
 	m_fTick = fTick;
 	
 	update();
-	HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()->updatePosition( fTick );
-	HydrogenApp::get_instance()->getSongEditorPanel()->getPlaybackTrackWaveDisplay()->updatePosition( fTick );
+	auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();
+	if ( pSongEditorPanel != nullptr ) {
+		pSongEditorPanel->getSongEditor()->updatePosition( fTick );
+		pSongEditorPanel->getPlaybackTrackWaveDisplay()->updatePosition( fTick );
+		pSongEditorPanel->getAutomationPathView()->updatePosition( fTick );
+	}
 }
 
 void SongEditorPositionRuler::timelineUpdateEvent( int nValue ) {

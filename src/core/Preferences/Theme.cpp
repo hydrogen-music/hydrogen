@@ -31,12 +31,15 @@ namespace H2Core
 
 ColorTheme::ColorTheme()
 	: m_songEditor_backgroundColor( QColor( 128, 134, 152 ) )
-	, m_songEditor_alternateRowColor( QColor( 112, 117, 133 ) )
+	, m_songEditor_alternateRowColor( QColor( 106, 111, 126 ) )
 	, m_songEditor_selectedRowColor( QColor( 149, 157, 178 ) )
 	, m_songEditor_lineColor( QColor( 54, 57, 67 ) )
 	, m_songEditor_textColor( QColor( 206, 211, 224 ) )
+	, m_songEditor_automationBackgroundColor( QColor( 83, 89, 103 ) )
+	, m_songEditor_automationLineColor( QColor( 45, 66, 89 ) )
+	, m_songEditor_automationNodeColor( QColor( 255, 255, 255 ) )
 	, m_patternEditor_backgroundColor( QColor(167, 168, 163) )
-	, m_patternEditor_alternateRowColor( QColor( 149, 150, 145 ) )
+	, m_patternEditor_alternateRowColor( QColor( 147, 148, 143 ) )
 	, m_patternEditor_selectedRowColor( QColor( 207, 208, 200 ) )
 	, m_patternEditor_textColor( QColor( 255, 255, 255 ) )
 	, m_patternEditor_noteColor( QColor(40, 40, 40) )
@@ -70,8 +73,6 @@ ColorTheme::ColorTheme()
 	, m_buttonRedTextColor( QColor( 10, 10, 10 ) )
 	, m_spinBoxColor( QColor( 51, 74 , 100 ) )
 	, m_spinBoxTextColor( QColor( 240, 240, 240 ) )
-	, m_automationColor( QColor( 67, 96, 131 ) )
-	, m_automationCircleColor( QColor( 255, 255, 255 ) )
 	, m_accentColor( QColor( 67, 96, 131 ) )
 	, m_accentTextColor( QColor( 255, 255, 255 ) )
 	, m_playheadColor( QColor( 0, 0, 0 ) )
@@ -84,6 +85,9 @@ ColorTheme::ColorTheme( const std::shared_ptr<ColorTheme> pOther )
 	, m_songEditor_selectedRowColor( pOther->m_songEditor_selectedRowColor )
 	, m_songEditor_lineColor( pOther->m_songEditor_lineColor )
 	, m_songEditor_textColor( pOther->m_songEditor_textColor )
+	, m_songEditor_automationBackgroundColor( pOther->m_songEditor_automationBackgroundColor )
+	, m_songEditor_automationLineColor( pOther->m_songEditor_automationLineColor )
+	, m_songEditor_automationNodeColor( pOther->m_songEditor_automationNodeColor )
 	, m_patternEditor_backgroundColor( pOther->m_patternEditor_backgroundColor )
 	, m_patternEditor_alternateRowColor( pOther->m_patternEditor_alternateRowColor )
 	, m_patternEditor_selectedRowColor( pOther->m_patternEditor_selectedRowColor )
@@ -122,8 +126,6 @@ ColorTheme::ColorTheme( const std::shared_ptr<ColorTheme> pOther )
 	, m_buttonRedTextColor( pOther->m_buttonRedTextColor )
 	, m_spinBoxColor( pOther->m_spinBoxColor )
 	, m_spinBoxTextColor( pOther->m_spinBoxTextColor )
-	, m_automationColor( pOther->m_automationColor )
-	, m_automationCircleColor( pOther->m_automationCircleColor )
 	, m_playheadColor( pOther->m_playheadColor )
 {
 }
@@ -195,6 +197,12 @@ void Theme::setTheme( const std::shared_ptr<Theme> pOther ) {
 	m_pColorTheme->m_songEditor_selectedRowColor = pOther->getColorTheme()->m_songEditor_selectedRowColor;
 	m_pColorTheme->m_songEditor_lineColor = pOther->getColorTheme()->m_songEditor_lineColor;
 	m_pColorTheme->m_songEditor_textColor = pOther->getColorTheme()->m_songEditor_textColor;
+	m_pColorTheme->m_songEditor_automationBackgroundColor =
+		pOther->getColorTheme()->m_songEditor_automationBackgroundColor;
+	m_pColorTheme->m_songEditor_automationLineColor =
+		pOther->getColorTheme()->m_songEditor_automationLineColor;
+	m_pColorTheme->m_songEditor_automationNodeColor =
+		pOther->getColorTheme()->m_songEditor_automationNodeColor;
 	m_pColorTheme->m_patternEditor_backgroundColor = pOther->getColorTheme()->m_patternEditor_backgroundColor;
 	m_pColorTheme->m_patternEditor_alternateRowColor = pOther->getColorTheme()->m_patternEditor_alternateRowColor;
 	m_pColorTheme->m_patternEditor_selectedRowColor = pOther->getColorTheme()->m_patternEditor_selectedRowColor;
@@ -233,8 +241,6 @@ void Theme::setTheme( const std::shared_ptr<Theme> pOther ) {
 	m_pColorTheme->m_buttonRedTextColor = pOther->getColorTheme()->m_buttonRedTextColor;
 	m_pColorTheme->m_spinBoxColor = pOther->getColorTheme()->m_spinBoxColor;
 	m_pColorTheme->m_spinBoxTextColor = pOther->getColorTheme()->m_spinBoxTextColor;
-	m_pColorTheme->m_automationColor = pOther->getColorTheme()->m_automationColor;
-	m_pColorTheme->m_automationCircleColor = pOther->getColorTheme()->m_automationCircleColor;
 	m_pColorTheme->m_playheadColor = pOther->getColorTheme()->m_playheadColor;
 		
 	m_pInterfaceTheme->m_sQTStyle = pOther->getInterfaceTheme()->m_sQTStyle;
@@ -270,6 +276,12 @@ void Theme::writeColorTheme( QDomNode* parent, std::shared_ptr<Theme> pTheme )
 	LocalFileMng::writeXmlColor( songEditorNode, "selectedRowColor", pTheme->getColorTheme()->m_songEditor_selectedRowColor );
 	LocalFileMng::writeXmlColor( songEditorNode, "lineColor", pTheme->getColorTheme()->m_songEditor_lineColor );
 	LocalFileMng::writeXmlColor( songEditorNode, "textColor", pTheme->getColorTheme()->m_songEditor_textColor );
+	LocalFileMng::writeXmlColor( songEditorNode, "automationBackgroundColor",
+								 pTheme->getColorTheme()->m_songEditor_automationBackgroundColor );
+	LocalFileMng::writeXmlColor( songEditorNode, "automationLineColor",
+								 pTheme->getColorTheme()->m_songEditor_automationLineColor );
+	LocalFileMng::writeXmlColor( songEditorNode, "automationNodeColor",
+								 pTheme->getColorTheme()->m_songEditor_automationNodeColor );
 	node.appendChild( songEditorNode );
 
 	// PATTERN EDITOR
@@ -322,8 +334,6 @@ void Theme::writeColorTheme( QDomNode* parent, std::shared_ptr<Theme> pTheme )
 	LocalFileMng::writeXmlColor( widgetNode, "buttonRedTextColor", pTheme->getColorTheme()->m_buttonRedTextColor );
 	LocalFileMng::writeXmlColor( widgetNode, "spinBoxColor", pTheme->getColorTheme()->m_spinBoxColor );
 	LocalFileMng::writeXmlColor( widgetNode, "spinBoxTextColor", pTheme->getColorTheme()->m_spinBoxTextColor );
-	LocalFileMng::writeXmlColor( widgetNode, "automationColor", pTheme->getColorTheme()->m_automationColor );
-	LocalFileMng::writeXmlColor( widgetNode, "automationCircleColor", pTheme->getColorTheme()->m_automationCircleColor );
 	LocalFileMng::writeXmlColor( widgetNode, "playheadColor", pTheme->getColorTheme()->m_playheadColor );
 	node.appendChild( widgetNode );
 	
@@ -340,6 +350,15 @@ void Theme::readColorTheme( QDomNode parent, std::shared_ptr<Theme> pTheme )
 		pTheme->getColorTheme()->m_songEditor_selectedRowColor = LocalFileMng::readXmlColor( pSongEditorNode, "selectedRowColor", pTheme->getColorTheme()->m_songEditor_selectedRowColor );
 		pTheme->getColorTheme()->m_songEditor_lineColor = LocalFileMng::readXmlColor( pSongEditorNode, "lineColor", pTheme->getColorTheme()->m_songEditor_lineColor );
 		pTheme->getColorTheme()->m_songEditor_textColor = LocalFileMng::readXmlColor( pSongEditorNode, "textColor", pTheme->getColorTheme()->m_songEditor_textColor );
+		pTheme->getColorTheme()->m_songEditor_automationBackgroundColor =
+			LocalFileMng::readXmlColor( pSongEditorNode, "automationBackgroundColor",
+										pTheme->getColorTheme()->m_songEditor_automationBackgroundColor );
+		pTheme->getColorTheme()->m_songEditor_automationLineColor =
+			LocalFileMng::readXmlColor( pSongEditorNode, "automationLineColor",
+										pTheme->getColorTheme()->m_songEditor_automationLineColor );
+		pTheme->getColorTheme()->m_songEditor_automationNodeColor =
+			LocalFileMng::readXmlColor( pSongEditorNode, "automationNodeColor",
+										pTheme->getColorTheme()->m_songEditor_automationNodeColor );
 	} else {
 		WARNINGLOG( "songEditor node not found" );
 	}
@@ -403,8 +422,6 @@ void Theme::readColorTheme( QDomNode parent, std::shared_ptr<Theme> pTheme )
 		pTheme->getColorTheme()->m_buttonRedTextColor = LocalFileMng::readXmlColor( pWidgetNode, "buttonRedTextColor", pTheme->getColorTheme()->m_buttonRedTextColor );
 		pTheme->getColorTheme()->m_spinBoxColor = LocalFileMng::readXmlColor( pWidgetNode, "spinBoxColor", pTheme->getColorTheme()->m_spinBoxColor );
 		pTheme->getColorTheme()->m_spinBoxTextColor = LocalFileMng::readXmlColor( pWidgetNode, "spinBoxTextColor", pTheme->getColorTheme()->m_spinBoxTextColor );
-		pTheme->getColorTheme()->m_automationColor = LocalFileMng::readXmlColor( pWidgetNode, "automationColor", pTheme->getColorTheme()->m_automationColor );
-		pTheme->getColorTheme()->m_automationCircleColor = LocalFileMng::readXmlColor( pWidgetNode, "automationCircleColor", pTheme->getColorTheme()->m_automationCircleColor );
 		pTheme->getColorTheme()->m_playheadColor = LocalFileMng::readXmlColor( pWidgetNode, "playheadColor", pTheme->getColorTheme()->m_playheadColor );
 	} else {
 		WARNINGLOG( "widget node not found" );

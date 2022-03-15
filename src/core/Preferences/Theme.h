@@ -51,6 +51,9 @@ public:
 	QColor m_songEditor_selectedRowColor;
 	QColor m_songEditor_lineColor;
 	QColor m_songEditor_textColor;
+	QColor m_songEditor_automationBackgroundColor;
+	QColor m_songEditor_automationLineColor;
+	QColor m_songEditor_automationNodeColor;
 
 	QColor m_patternEditor_backgroundColor;
 	QColor m_patternEditor_alternateRowColor;
@@ -109,8 +112,6 @@ public:
 	QColor m_buttonRedTextColor;
 	QColor m_spinBoxColor;
 	QColor m_spinBoxTextColor;
-	QColor m_automationColor;
-	QColor m_automationCircleColor;
 	QColor m_playheadColor;
 };
 

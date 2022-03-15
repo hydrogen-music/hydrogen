@@ -4,14 +4,17 @@
  <colorTheme>
   <songEditor>
    <backgroundColor>128,134,152</backgroundColor>
-   <alternateRowColor>112,117,133</alternateRowColor>
+   <alternateRowColor>106,111,126</alternateRowColor>
    <selectedRowColor>149,157,178</selectedRowColor>
    <lineColor>54,57,67</lineColor>
    <textColor>206,211,224</textColor>
+   <automationBackgroundColor>83,89,103</automationBackgroundColor>
+   <automationLineColor>45,66,89</automationLineColor>
+   <automationNodeColor>255,255,255</automationNodeColor>
   </songEditor>
   <patternEditor>
    <backgroundColor>167,168,163</backgroundColor>
-   <alternateRowColor>149,150,145</alternateRowColor>
+   <alternateRowColor>147,148,143</alternateRowColor>
    <selectedRowColor>207,208,200</selectedRowColor>
    <textColor>240,240,240</textColor>
    <noteColor>40,40,40</noteColor>
@@ -54,8 +57,7 @@
    <buttonRedTextColor>10,10,10</buttonRedTextColor>
    <spinBoxColor>51,74,100</spinBoxColor>
    <spinBoxTextColor>240,240,240</spinBoxTextColor>
-   <automationColor>67,96,131</automationColor>
-   <automationCircleColor>255,255,255</automationCircleColor>
+   <playheadColor>0,0,0</playheadColor>
   </widget>
  </colorTheme>
  <interfaceTheme>

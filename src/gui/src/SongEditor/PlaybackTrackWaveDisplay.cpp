@@ -252,15 +252,18 @@ void PlaybackTrackWaveDisplay::paintEvent( QPaintEvent *ev ) {
 	}
 
 	// Draw playhead
-	auto pSongEditor = HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor();
-	if ( m_fTick != -1 && pSongEditor != nullptr ) {
-		int nX = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
-								   m_fTick *
-								   static_cast<float>(pSongEditor->getGridWidth()) -
-								   static_cast<float>(Skin::nPlayheadWidth) / 2 );
-		int nOffset = Skin::getPlayheadShaftOffset();
-		Skin::setPlayheadPen( &painter, false );
-		painter.drawLine( nX + nOffset, 2, nX + nOffset, height() - 2 );
+	auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();
+	if ( m_fTick != -1 && pSongEditorPanel != nullptr ) {
+		if ( pSongEditorPanel->getSongEditor() != nullptr ) {
+			int nX = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
+									   m_fTick *
+									   static_cast<float>(pSongEditorPanel->getSongEditor()->
+														  getGridWidth()) -
+									   static_cast<float>(Skin::nPlayheadWidth) / 2 );
+			int nOffset = Skin::getPlayheadShaftOffset();
+			Skin::setPlayheadPen( &painter, false );
+			painter.drawLine( nX + nOffset, 2, nX + nOffset, height() - 2 );
+		}
 	}
 
 }
