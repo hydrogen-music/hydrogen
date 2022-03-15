@@ -59,8 +59,11 @@ public:
 	QColor m_patternEditor_alternateRowColor;
 	QColor m_patternEditor_selectedRowColor;
 	QColor m_patternEditor_textColor;
-	QColor m_patternEditor_noteColor;
-	QColor m_patternEditor_noteoffColor;
+	QColor m_patternEditor_noteVelocityFullColor;
+	QColor m_patternEditor_noteVelocityDefaultColor;
+	QColor m_patternEditor_noteVelocityHalfColor;
+	QColor m_patternEditor_noteVelocityZeroColor;
+	QColor m_patternEditor_noteOffColor;
 	QColor m_patternEditor_lineColor;
 	QColor m_patternEditor_line1Color;
 	QColor m_patternEditor_line2Color;

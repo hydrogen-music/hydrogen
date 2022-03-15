@@ -17,8 +17,11 @@
    <alternateRowColor>147,148,143</alternateRowColor>
    <selectedRowColor>207,208,200</selectedRowColor>
    <textColor>240,240,240</textColor>
-   <noteColor>40,40,40</noteColor>
-   <noteoffColor>0,0,0</noteoffColor>
+   <noteVelocityFullColor>247,100,100</noteVelocityFullColor>
+   <noteVelocityDefaultColor>40,40,40</noteVelocityDefaultColor>
+   <noteVelocityHalfColor>89,131,175</noteVelocityHalfColor>
+   <noteVelocityZeroColor>255,255,255</noteVelocityZeroColor>
+   <noteOffColor>0,0,0</noteOffColor>
    <lineColor>65,65,65</lineColor>
    <line1Color>75,75,75</line1Color>
    <line2Color>95,95,95</line2Color>

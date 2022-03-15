@@ -585,14 +585,17 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	new ColorTreeItem( 0x401, pTopLevelItem, "Alternate Row" );
 	new ColorTreeItem( 0x402, pTopLevelItem, "Selected Row" );
 	new ColorTreeItem( 0x403, pTopLevelItem, "Text" );
-	new ColorTreeItem( 0x404, pTopLevelItem, "Note" );
-	new ColorTreeItem( 0x405, pTopLevelItem, "Note Off" );
-	new ColorTreeItem( 0x406, pTopLevelItem, "Line" );
-	new ColorTreeItem( 0x407, pTopLevelItem, "Line 1" );
-	new ColorTreeItem( 0x408, pTopLevelItem, "Line 2" );
-	new ColorTreeItem( 0x409, pTopLevelItem, "Line 3" );
-	new ColorTreeItem( 0x40a, pTopLevelItem, "Line 4" );
-	new ColorTreeItem( 0x40b, pTopLevelItem, "Line 5" );
+	new ColorTreeItem( 0x404, pTopLevelItem, "Note (Full Velocity)" );
+	new ColorTreeItem( 0x405, pTopLevelItem, "Note (Default Velocity)" );
+	new ColorTreeItem( 0x406, pTopLevelItem, "Note (Half Velocity)" );
+	new ColorTreeItem( 0x407, pTopLevelItem, "Note (Zero Velocity)" );
+	new ColorTreeItem( 0x408, pTopLevelItem, "Note Off" );
+	new ColorTreeItem( 0x409, pTopLevelItem, "Line" );
+	new ColorTreeItem( 0x40a, pTopLevelItem, "Line 1" );
+	new ColorTreeItem( 0x40b, pTopLevelItem, "Line 2" );
+	new ColorTreeItem( 0x40c, pTopLevelItem, "Line 3" );
+	new ColorTreeItem( 0x40d, pTopLevelItem, "Line 4" );
+	new ColorTreeItem( 0x40e, pTopLevelItem, "Line 5" );
 
 	colorButton->setEnabled( false );
 
@@ -1533,14 +1536,17 @@ QColor* PreferencesDialog::getColorById( int nId, std::shared_ptr<H2Core::ColorT
 	case 0x401: return &pColorTheme->m_patternEditor_alternateRowColor;
 	case 0x402: return &pColorTheme->m_patternEditor_selectedRowColor;
 	case 0x403: return &pColorTheme->m_patternEditor_textColor;
-	case 0x404: return &pColorTheme->m_patternEditor_noteColor;
-	case 0x405: return &pColorTheme->m_patternEditor_noteoffColor;
-	case 0x406: return &pColorTheme->m_patternEditor_lineColor;
-	case 0x407: return &pColorTheme->m_patternEditor_line1Color;
-	case 0x408: return &pColorTheme->m_patternEditor_line2Color;
-	case 0x409: return &pColorTheme->m_patternEditor_line3Color;
-	case 0x40a: return &pColorTheme->m_patternEditor_line4Color;
-	case 0x40b: return &pColorTheme->m_patternEditor_line5Color;
+	case 0x404: return &pColorTheme->m_patternEditor_noteVelocityFullColor;
+	case 0x405: return &pColorTheme->m_patternEditor_noteVelocityDefaultColor;
+	case 0x406: return &pColorTheme->m_patternEditor_noteVelocityHalfColor;
+	case 0x407: return &pColorTheme->m_patternEditor_noteVelocityZeroColor;
+	case 0x408: return &pColorTheme->m_patternEditor_noteOffColor;
+	case 0x409: return &pColorTheme->m_patternEditor_lineColor;
+	case 0x40a: return &pColorTheme->m_patternEditor_line1Color;
+	case 0x40b: return &pColorTheme->m_patternEditor_line2Color;
+	case 0x40c: return &pColorTheme->m_patternEditor_line3Color;
+	case 0x40d: return &pColorTheme->m_patternEditor_line4Color;
+	case 0x40e: return &pColorTheme->m_patternEditor_line5Color;
 	default: return nullptr;
 	}
 
@@ -1630,21 +1636,27 @@ void PreferencesDialog::setColorById( int nId, const QColor& color,
 		break;
 	case 0x403:  pColorTheme->m_patternEditor_textColor = color;
 		break;
-	case 0x404:  pColorTheme->m_patternEditor_noteColor = color;
+	case 0x404:  pColorTheme->m_patternEditor_noteVelocityFullColor = color;
 		break;
-	case 0x405:  pColorTheme->m_patternEditor_noteoffColor = color;
+	case 0x405:  pColorTheme->m_patternEditor_noteVelocityDefaultColor = color;
 		break;
-	case 0x406:  pColorTheme->m_patternEditor_lineColor = color;
+	case 0x406:  pColorTheme->m_patternEditor_noteVelocityHalfColor = color;
 		break;
-	case 0x407:  pColorTheme->m_patternEditor_line1Color = color;
+	case 0x407:  pColorTheme->m_patternEditor_noteVelocityZeroColor = color;
 		break;
-	case 0x408:  pColorTheme->m_patternEditor_line2Color = color;
+	case 0x408:  pColorTheme->m_patternEditor_noteOffColor = color;
 		break;
-	case 0x409:  pColorTheme->m_patternEditor_line3Color = color;
+	case 0x409:  pColorTheme->m_patternEditor_lineColor = color;
 		break;
-	case 0x40a:  pColorTheme->m_patternEditor_line4Color = color;
+	case 0x40a:  pColorTheme->m_patternEditor_line1Color = color;
 		break;
-	case 0x40b:  pColorTheme->m_patternEditor_line5Color = color;
+	case 0x40b:  pColorTheme->m_patternEditor_line2Color = color;
+		break;
+	case 0x40c:  pColorTheme->m_patternEditor_line3Color = color;
+		break;
+	case 0x40d:  pColorTheme->m_patternEditor_line4Color = color;
+		break;
+	case 0x40e:  pColorTheme->m_patternEditor_line5Color = color;
 		break;
 	default: DEBUGLOG( "Unknown ID" );
 	}

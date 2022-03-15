@@ -135,32 +135,53 @@ void PatternEditor::zoomOut()
 	}
 }
 
-QColor PatternEditor::computeNoteColor( float velocity ) {
-	int red;
-	int green;
-	int blue;
+QColor PatternEditor::computeNoteColor( float fVelocity ) {
+	float fRed, fGreen, fBlue;
 
+	auto pPref = H2Core::Preferences::get_instance();
 
-	/*
-	The note gets painted black if it has the default velocity (0.8).
-	The color changes if you alter the velocity..
-	*/
+	QColor fullColor = pPref->getColorTheme()->m_patternEditor_noteVelocityFullColor;
+	QColor defaultColor = pPref->getColorTheme()->m_patternEditor_noteVelocityDefaultColor;
+	QColor halfColor = pPref->getColorTheme()->m_patternEditor_noteVelocityHalfColor;
+	QColor zeroColor = pPref->getColorTheme()->m_patternEditor_noteVelocityZeroColor;
 
-	//qDebug() << "x: " << x;
-	//qDebug() << "x2: " << x*x;
+	// The colors defined in the Preferences correspond to fixed
+	// velocity values. In case the velocity lies between two of those
+	// the corresponding colors will be interpolated.
+	float fWeightFull = 0;
+	float fWeightDefault = 0;
+	float fWeightHalf = 0;
+	float fWeightZero = 0;
 
-
-	if( velocity < 0.8){
-		red = fabs(-( velocity - 0.8))*255;
-		green =  fabs(-( velocity - 0.8))*255;
-		blue =  green * 1.25;
+	if ( fVelocity >= 1.0 ) {
+		fWeightFull = 1.0;
+	} else if ( fVelocity >= 0.8 ) {
+		fWeightDefault = ( 1.0 - fVelocity )/ ( 1.0 - 0.8 );
+		fWeightFull = 1.0 - fWeightDefault;
+	} else if ( fVelocity >= 0.5 ) {
+		fWeightHalf = ( 0.8 - fVelocity )/ ( 0.8 - 0.5 );
+		fWeightDefault = 1.0 - fWeightHalf;
 	} else {
-		green = blue = 0;
-		red = (velocity-0.8)*5*255;
+		fWeightZero = ( 0.5 - fVelocity )/ ( 0.5 );
+		fWeightHalf = 1.0 - fWeightZero;
 	}
 
-	//qDebug() << "R " << red << "G " << green << "blue " << blue;
-	return QColor( red, green, blue );
+	fRed = fWeightFull * fullColor.redF() +
+		fWeightDefault * defaultColor.redF() +
+		fWeightHalf * halfColor.redF() + fWeightZero * zeroColor.redF();
+	fGreen = fWeightFull * fullColor.greenF() +
+		fWeightDefault * defaultColor.greenF() +
+		fWeightHalf * halfColor.greenF() + fWeightZero * zeroColor.greenF();
+	fBlue = fWeightFull * fullColor.blueF() +
+		fWeightDefault * defaultColor.blueF() +
+		fWeightHalf * halfColor.blueF() + fWeightZero * zeroColor.blueF();
+
+	QColor color;
+	color.setRedF( fRed );
+	color.setGreenF( fGreen );
+	color.setBlueF( fBlue );
+	
+	return color;
 }
 
 
@@ -168,8 +189,8 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	static const QColor noteColor( pPref->getColorTheme()->m_patternEditor_noteColor );
-	static const QColor noteoffColor( pPref->getColorTheme()->m_patternEditor_noteoffColor );
+	static const QColor noteColor( pPref->getColorTheme()->m_patternEditor_noteVelocityDefaultColor );
+	static const QColor noteoffColor( pPref->getColorTheme()->m_patternEditor_noteOffColor );
 
 	p.setRenderHint( QPainter::Antialiasing );
 
