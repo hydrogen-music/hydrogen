@@ -1397,7 +1397,7 @@ void DrumPatternEditor::hideEvent ( QHideEvent *ev )
 
 void DrumPatternEditor::selectedInstrumentChangedEvent()
 {
-	update( 0, 0, width(), height() );
+	updateEditor();
 }
 
 /// This method is called from another thread (audio engine)

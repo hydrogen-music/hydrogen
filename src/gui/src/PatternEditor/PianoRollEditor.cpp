@@ -38,6 +38,7 @@
 using namespace H2Core;
 
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 
 
 PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
@@ -154,6 +155,17 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 		finishUpdateEditor();
 	}
 	painter.drawPixmap( ev->rect(), *m_pTemp, ev->rect() );
+
+	// Draw playhead
+	if ( m_nTick != -1 ) {
+
+		int nOffset = Skin::getPlayheadShaftOffset();
+		int nX = static_cast<int>(static_cast<float>(PatternEditor::nMargin) +
+								  static_cast<float>(m_nTick) *
+								  m_fGridWidth ) + 1;
+		Skin::setPlayheadPen( &painter, false );
+		painter.drawLine( nX, 2, nX, height() - 2 );
+	}
 
 	drawFocus( painter );
 	
