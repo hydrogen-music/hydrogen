@@ -54,6 +54,9 @@ public:
 	QColor m_songEditor_automationBackgroundColor;
 	QColor m_songEditor_automationLineColor;
 	QColor m_songEditor_automationNodeColor;
+	QColor m_songEditor_stackedModeOnColor;
+	QColor m_songEditor_stackedModeOnNextColor;
+	QColor m_songEditor_stackedModeOffNextColor;
 
 	QColor m_patternEditor_backgroundColor;
 	QColor m_patternEditor_alternateRowColor;

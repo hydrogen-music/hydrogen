@@ -1704,17 +1704,29 @@ void SongEditorPatternList::createBackground()
 		}
 
 		uint text_y = i * m_nGridHeight;
-		if ( PatternArray[i].bNext ) {
-			p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_off_Pixmap );
+
+		p.drawText( 25, text_y - 1, m_nWidth - 25, m_nGridHeight + 2,
+					Qt::AlignVCenter, PatternArray[i].sPatternName);
+
+		Skin::Stacked mode = Skin::Stacked::None;
+		if ( PatternArray[i].bNext && PatternArray[i].bActive) {
+			mode = Skin::Stacked::OffNext;
+		}
+		else if ( PatternArray[i].bNext ) {
+			mode = Skin::Stacked::OnNext;
 		}
 		else if (PatternArray[i].bActive) {
-			//mark active pattern with triangular
-			p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_on_Pixmap );
-		} else if ( ! pPref->patternModePlaysSelected() && pSong->getMode() == Song::Mode::Pattern ) {
-			p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_empty_Pixmap );
+			mode = Skin::Stacked::On;
+		}
+		else if ( ! pPref->patternModePlaysSelected() &&
+					pSong->getMode() == Song::Mode::Pattern ) {
+			mode = Skin::Stacked::Off;
+		}
+		
+		if ( mode != Skin::Stacked::None ) {
+			Skin::drawStackedIndicator( &p, 5, text_y + 4, mode );
 		}
 
-		p.drawText( 25, text_y - 1, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, PatternArray[i].sPatternName);
 	}
 }
 

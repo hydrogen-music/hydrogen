@@ -218,8 +218,6 @@ void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
 									4 * static_cast<float>(MAX_NOTES) /
 									( fTripletFactor * fResolution ) );
 
-		DEBUGLOG( QString( "col: %1, tick: %2" ).arg( m_nHoveredColumn ).arg( nNewTick ) );
-	
 		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
 			pCoreActionController->activateSongMode( false );
 		}

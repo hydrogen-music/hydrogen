@@ -93,6 +93,16 @@ public:
 		return std::floor( Skin::nPlayheadWidth / 2 ); }
 	static void setPlayheadPen( QPainter* p, bool bHovered = false );
 	static void drawPlayhead( QPainter* p, int x, int y, bool bHovered = false );
+
+	enum class Stacked {
+		None,
+		Off,
+		OffNext,
+		On,
+		OnNext
+	};
+
+	static void drawStackedIndicator( QPainter* p, int x, int y, Skin::Stacked stacked );
 };
 
 

@@ -571,6 +571,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	new ColorTreeItem( 0x207, pTopLevelItem, tr( "Spin Box Text" ) );
 	new ColorTreeItem( 0x208, pTopLevelItem, tr( "Playhead" ) );
 	new ColorTreeItem( 0x209, pTopLevelItem, tr( "Cursor" ) );
+	
 	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, tr( "Song Editor" ) );
 	new ColorTreeItem( 0x300, pTopLevelItem, tr( "Background" ) );
 	new ColorTreeItem( 0x301, pTopLevelItem, tr( "Alternate Row" ) );
@@ -580,6 +581,10 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	new ColorTreeItem( 0x305, pTopLevelItem, tr( "Automation Background" ) );
 	new ColorTreeItem( 0x306, pTopLevelItem, tr( "Automation Line" ) );
 	new ColorTreeItem( 0x307, pTopLevelItem, tr( "Automation Node" ) );
+	new ColorTreeItem( 0x308, pTopLevelItem, tr( "Stacked Mode On" ) );
+	new ColorTreeItem( 0x309, pTopLevelItem, tr( "Stacked Mode On Next" ) );
+	new ColorTreeItem( 0x30a, pTopLevelItem, tr( "Stacked Mode Off Next" ) );
+	
 	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, tr( "Pattern Editor" ) );
 	new ColorTreeItem( 0x400, pTopLevelItem, tr( "Background" ) );
 	new ColorTreeItem( 0x401, pTopLevelItem, tr( "Alternate Row" ) );
@@ -1532,6 +1537,9 @@ QColor* PreferencesDialog::getColorById( int nId, std::shared_ptr<H2Core::ColorT
 	case 0x305: return &pColorTheme->m_songEditor_automationBackgroundColor;
 	case 0x306: return &pColorTheme->m_songEditor_automationLineColor;
 	case 0x307: return &pColorTheme->m_songEditor_automationNodeColor;
+	case 0x308: return &pColorTheme->m_songEditor_stackedModeOnColor;
+	case 0x309: return &pColorTheme->m_songEditor_stackedModeOnNextColor;
+	case 0x30a: return &pColorTheme->m_songEditor_stackedModeOffNextColor;
 	case 0x400: return &pColorTheme->m_patternEditor_backgroundColor;
 	case 0x401: return &pColorTheme->m_patternEditor_alternateRowColor;
 	case 0x402: return &pColorTheme->m_patternEditor_selectedRowColor;
@@ -1627,6 +1635,12 @@ void PreferencesDialog::setColorById( int nId, const QColor& color,
 	case 0x306:  pColorTheme->m_songEditor_automationLineColor = color;
 		break;
 	case 0x307:  pColorTheme->m_songEditor_automationNodeColor = color;
+		break;
+	case 0x308:  pColorTheme->m_songEditor_stackedModeOnColor = color;
+		break;
+	case 0x309:  pColorTheme->m_songEditor_stackedModeOnNextColor = color;
+		break;
+	case 0x30a:  pColorTheme->m_songEditor_stackedModeOffNextColor = color;
 		break;
 	case 0x400:  pColorTheme->m_patternEditor_backgroundColor = color;
 		break;

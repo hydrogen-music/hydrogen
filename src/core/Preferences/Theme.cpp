@@ -38,6 +38,9 @@ ColorTheme::ColorTheme()
 	, m_songEditor_automationBackgroundColor( QColor( 83, 89, 103 ) )
 	, m_songEditor_automationLineColor( QColor( 45, 66, 89 ) )
 	, m_songEditor_automationNodeColor( QColor( 255, 255, 255 ) )
+	, m_songEditor_stackedModeOnColor( QColor( 127, 159, 127 ) )
+	, m_songEditor_stackedModeOnNextColor( QColor( 240, 223, 175 ) )
+	, m_songEditor_stackedModeOffNextColor( QColor( 247, 100, 100 ) )
 	, m_patternEditor_backgroundColor( QColor(167, 168, 163) )
 	, m_patternEditor_alternateRowColor( QColor( 147, 148, 143 ) )
 	, m_patternEditor_selectedRowColor( QColor( 207, 208, 200 ) )
@@ -93,6 +96,9 @@ ColorTheme::ColorTheme( const std::shared_ptr<ColorTheme> pOther )
 	, m_songEditor_automationBackgroundColor( pOther->m_songEditor_automationBackgroundColor )
 	, m_songEditor_automationLineColor( pOther->m_songEditor_automationLineColor )
 	, m_songEditor_automationNodeColor( pOther->m_songEditor_automationNodeColor )
+	, m_songEditor_stackedModeOnColor( pOther->m_songEditor_stackedModeOnColor )
+	, m_songEditor_stackedModeOnNextColor( pOther->m_songEditor_stackedModeOnNextColor )
+	, m_songEditor_stackedModeOffNextColor( pOther->m_songEditor_stackedModeOffNextColor )
 	, m_patternEditor_backgroundColor( pOther->m_patternEditor_backgroundColor )
 	, m_patternEditor_alternateRowColor( pOther->m_patternEditor_alternateRowColor )
 	, m_patternEditor_selectedRowColor( pOther->m_patternEditor_selectedRowColor )
@@ -212,6 +218,12 @@ void Theme::setTheme( const std::shared_ptr<Theme> pOther ) {
 		pOther->getColorTheme()->m_songEditor_automationLineColor;
 	m_pColorTheme->m_songEditor_automationNodeColor =
 		pOther->getColorTheme()->m_songEditor_automationNodeColor;
+	m_pColorTheme->m_songEditor_stackedModeOnColor =
+		pOther->getColorTheme()->m_songEditor_stackedModeOnColor;
+	m_pColorTheme->m_songEditor_stackedModeOnNextColor =
+		pOther->getColorTheme()->m_songEditor_stackedModeOnNextColor;
+	m_pColorTheme->m_songEditor_stackedModeOffNextColor =
+		pOther->getColorTheme()->m_songEditor_stackedModeOffNextColor;
 	m_pColorTheme->m_patternEditor_backgroundColor = pOther->getColorTheme()->m_patternEditor_backgroundColor;
 	m_pColorTheme->m_patternEditor_alternateRowColor = pOther->getColorTheme()->m_patternEditor_alternateRowColor;
 	m_pColorTheme->m_patternEditor_selectedRowColor = pOther->getColorTheme()->m_patternEditor_selectedRowColor;
@@ -300,6 +312,12 @@ void Theme::writeColorTheme( QDomNode* parent, std::shared_ptr<Theme> pTheme )
 								 pTheme->getColorTheme()->m_songEditor_automationLineColor );
 	LocalFileMng::writeXmlColor( songEditorNode, "automationNodeColor",
 								 pTheme->getColorTheme()->m_songEditor_automationNodeColor );
+	LocalFileMng::writeXmlColor( songEditorNode, "stackedModeOnColor",
+								 pTheme->getColorTheme()->m_songEditor_stackedModeOnColor );
+	LocalFileMng::writeXmlColor( songEditorNode, "stackedModeOnNextColor",
+								 pTheme->getColorTheme()->m_songEditor_stackedModeOnNextColor );
+	LocalFileMng::writeXmlColor( songEditorNode, "stackedModeOffNextColor",
+								 pTheme->getColorTheme()->m_songEditor_stackedModeOffNextColor );
 	node.appendChild( songEditorNode );
 
 	// PATTERN EDITOR
@@ -385,6 +403,15 @@ void Theme::readColorTheme( QDomNode parent, std::shared_ptr<Theme> pTheme )
 		pTheme->getColorTheme()->m_songEditor_automationNodeColor =
 			LocalFileMng::readXmlColor( pSongEditorNode, "automationNodeColor",
 										pTheme->getColorTheme()->m_songEditor_automationNodeColor );
+		pTheme->getColorTheme()->m_songEditor_stackedModeOnColor =
+			LocalFileMng::readXmlColor( pSongEditorNode, "stackedModeOnColor",
+										pTheme->getColorTheme()->m_songEditor_stackedModeOnColor );
+		pTheme->getColorTheme()->m_songEditor_stackedModeOnNextColor =
+			LocalFileMng::readXmlColor( pSongEditorNode, "stackedModeOnNextColor",
+										pTheme->getColorTheme()->m_songEditor_stackedModeOnNextColor );
+		pTheme->getColorTheme()->m_songEditor_stackedModeOffNextColor =
+			LocalFileMng::readXmlColor( pSongEditorNode, "stackedModeOffNextColor",
+										pTheme->getColorTheme()->m_songEditor_stackedModeOffNextColor );
 	} else {
 		WARNINGLOG( "songEditor node not found" );
 	}

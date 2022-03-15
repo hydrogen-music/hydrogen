@@ -231,3 +231,40 @@ void Skin::drawPlayhead( QPainter* p, int x, int y, bool bHovered ) {
 	p->drawPolygon( points, 3 );
 	p->setBrush( Qt::NoBrush );
 }
+
+void Skin::drawStackedIndicator( QPainter* p, int x, int y, Skin::Stacked stacked ) {
+
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	const QPointF points[3] = {
+		QPointF( x, y ),
+		QPointF( x + 8, y + 6 ),
+		QPointF( x, y + 12 )
+	};
+
+	QPen pen( Qt::black );
+	pen.setWidth( 1 );
+	
+	QColor fillColor;
+	switch ( stacked ) {
+	case Skin::Stacked::Off:
+		fillColor = QColor( 0, 0, 0 );
+		fillColor.setAlpha( 0 );
+		break;
+	case Skin::Stacked::OffNext:
+		fillColor = pPref->getColorTheme()->m_songEditor_stackedModeOffNextColor;
+		break;
+	case Skin::Stacked::On:
+		fillColor = pPref->getColorTheme()->m_songEditor_stackedModeOnColor;
+		break;
+	case Skin::Stacked::OnNext:
+		fillColor = pPref->getColorTheme()->m_songEditor_stackedModeOnNextColor;
+		break;
+	}
+
+	p->setPen( pen );
+	p->setBrush( fillColor );
+	p->setRenderHint( QPainter::Antialiasing );
+	p->drawPolygon( points, 3 );
+	p->setBrush( Qt::NoBrush );
+}

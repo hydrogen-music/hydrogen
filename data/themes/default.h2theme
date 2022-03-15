@@ -11,6 +11,9 @@
    <automationBackgroundColor>83,89,103</automationBackgroundColor>
    <automationLineColor>45,66,89</automationLineColor>
    <automationNodeColor>255,255,255</automationNodeColor>
+   <stackedModeOnColor>127,159,127</stackedModeOnColor>
+   <stackedModeOnNextColor>240,223,175</stackedModeOnNextColor>
+   <stackedModeOffNextColor>247,100,100</stackedModeOffNextColor>
   </songEditor>
   <patternEditor>
    <backgroundColor>167,168,163</backgroundColor>
