@@ -63,11 +63,6 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
 	resize( m_nEditorWidth, m_nEditorHeight );
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( 0 );
-
-	qreal pixelRatio = devicePixelRatio();
-	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
-									   m_nEditorHeight * pixelRatio );
-	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 	createBackground();
 }
 
@@ -1293,10 +1288,12 @@ void DrumPatternEditor::drawBackgroundTemplate( QPainter& p)
 }
 
 void DrumPatternEditor::createBackground() {
-	
+
 	// Resize pixmap if pixel ratio has changed
 	qreal pixelRatio = devicePixelRatio();
-	if ( m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
+	if ( m_pBackgroundPixmap->width() != m_nEditorWidth ||
+		 m_pBackgroundPixmap->height() != m_nEditorHeight ||
+		 m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
 		delete m_pBackgroundPixmap;
 		m_pBackgroundPixmap = new QPixmap( width()  * pixelRatio , height() * pixelRatio );
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
@@ -1396,32 +1393,6 @@ void DrumPatternEditor::showEvent ( QShowEvent *ev )
 void DrumPatternEditor::hideEvent ( QHideEvent *ev )
 {
 	UNUSED( ev );
-}
-
-
-
-void DrumPatternEditor::focusInEvent ( QFocusEvent *ev )
-{
-	UNUSED( ev );
-	if ( ev->reason() == Qt::TabFocusReason || ev->reason() == Qt::BacktabFocusReason ) {
-		m_pPatternEditorPanel->ensureCursorVisible();
-		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
-	}
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		m_pPatternEditorPanel->getInstrumentList()->update();
-		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-	}
-	updateEditor();
-}
-
-void DrumPatternEditor::focusOutEvent ( QFocusEvent *ev )
-{
-	UNUSED( ev );
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		m_pPatternEditorPanel->getInstrumentList()->update();
-		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-	}
-	update( 0, 0, width(), height() );
 }
 
 void DrumPatternEditor::selectedInstrumentChangedEvent()

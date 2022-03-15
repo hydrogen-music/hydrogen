@@ -20,6 +20,8 @@
  */
 
 #include "PatternEditor.h"
+#include "PatternEditorRuler.h"
+#include "PatternEditorInstrumentList.h"
 
 #include <core/Globals.h>
 #include <core/Basics/Song.h>
@@ -85,6 +87,10 @@ PatternEditor::PatternEditor( QWidget *pParent,
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, &PatternEditor::selectNone );
 
 
+	qreal pixelRatio = devicePixelRatio();
+	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
+									   height() * pixelRatio );
+	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 }
 
 void PatternEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
@@ -724,6 +730,39 @@ void PatternEditor::leaveEvent( QEvent *ev ) {
 	update();
 }
 
+void PatternEditor::focusInEvent( QFocusEvent *ev ) {
+	UNUSED( ev );
+	if ( ev->reason() == Qt::TabFocusReason || ev->reason() == Qt::BacktabFocusReason ) {
+		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
+		m_pPatternEditorPanel->ensureCursorVisible();
+	}
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		// Immediate update to prevent visual delay.
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+		m_pPatternEditorPanel->getInstrumentList()->update();
+	}
+	
+	// If there are some patterns selected, we have to switch their
+	// border color inactive <-> active.
+	createBackground();
+	update();
+}
+
+void PatternEditor::focusOutEvent( QFocusEvent *ev ) {
+	UNUSED( ev );
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+		m_pPatternEditorPanel->getInstrumentList()->update();
+	}
+	
+	// If there are some patterns selected, we have to switch their
+	// border color inactive <-> active.
+	createBackground();
+	update();
+}
+
+void PatternEditor::createBackground() {
+}
 
 //! Get notes to show in pattern editor.
 //! This may include "background" notes that are in currently-playing patterns

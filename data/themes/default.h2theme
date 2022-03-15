@@ -27,8 +27,8 @@
    <line5Color>135,135,135</line5Color>
   </patternEditor>
   <selection>
-   <highlightColor>0,0,255</highlightColor>
-   <inactiveColor>85,85,85</inactiveColor>
+   <highlightColor>255,255,255</highlightColor>
+   <inactiveColor>199,199,199</inactiveColor>
   </selection>
   <palette>
    <windowColor>58,62,72</windowColor>

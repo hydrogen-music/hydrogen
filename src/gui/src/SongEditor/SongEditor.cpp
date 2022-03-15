@@ -661,6 +661,11 @@ void SongEditor::focusInEvent( QFocusEvent *ev )
 		m_pScrollView->ensureVisible( pos.x(), pos.y() );
 		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 	}
+
+	// If there are some patterns selected, we have to switch their
+	// border color inactive <-> active.
+	createBackground();
+
 	update();
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPatternList()->update();
@@ -672,6 +677,11 @@ void SongEditor::focusInEvent( QFocusEvent *ev )
 void SongEditor::focusOutEvent( QFocusEvent *ev )
 {
 	UNUSED( ev );
+
+	// If there are some patterns selected, we have to switch their
+	// border color inactive <-> active.
+	createBackground();
+
 	update();
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPatternList()->update();
@@ -1232,7 +1242,11 @@ void SongEditor::drawPattern( int nPos, int nNumber, bool bInvertColour, double 
 	// will have a pronounced border.
 	QColor borderColor;
 	if ( bIsSelected ){
-		borderColor = QColor( 255, 255, 255 );
+		if ( hasFocus() ) {
+			borderColor = pPref->getColorTheme()->m_selectionHighlightColor;
+		} else {
+			borderColor = pPref->getColorTheme()->m_selectionInactiveColor;
+		}
 	} else {
 		borderColor = QColor( 0, 0, 0 );
 	}

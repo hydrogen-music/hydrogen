@@ -135,7 +135,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 
 		unsigned m_nOctaves;
 
-		QPixmap *m_pBackgroundPixmap;
 		QPixmap *m_pTemp;
 		int m_pOldPoint;
 
@@ -145,7 +144,7 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 
 		QScrollArea *m_pScrollView;
 
-		void createBackground();
+		void createBackground() override;
 		void drawPattern();
 		void drawFocus( QPainter& painter );
 		void drawNote( H2Core::Note *pNote, QPainter *pPainter, bool bIsForeground );
@@ -156,8 +155,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void keyPressEvent ( QKeyEvent * ev ) override;
-		virtual void focusInEvent ( QFocusEvent * ev ) override;
-	virtual void focusOutEvent ( QFocusEvent * ev ) override;
 
 		int __selectedInstrumentnumber;
 		int __nRealColumn;

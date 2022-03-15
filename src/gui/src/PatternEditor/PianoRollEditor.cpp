@@ -54,10 +54,6 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 
 	m_nEditorHeight = m_nOctaves * 12 * m_nGridHeight;
 
-	qreal pixelRatio = devicePixelRatio();
-	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
-									   m_nEditorHeight * pixelRatio );
-	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 	m_pTemp = new QPixmap( m_nEditorWidth, m_nEditorHeight );
 
 	m_nCursorPitch = 0;
@@ -228,7 +224,9 @@ void PianoRollEditor::createBackground()
 
 	// Resize pixmap if pixel ratio has changed
 	qreal pixelRatio = devicePixelRatio();
-	if ( m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
+	if ( m_pBackgroundPixmap->width() != m_nEditorWidth ||
+		 m_pBackgroundPixmap->height() != m_nEditorHeight ||
+		 m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
 		delete m_pBackgroundPixmap;
 		m_pBackgroundPixmap = new QPixmap( width()  * pixelRatio , height() * pixelRatio );
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
@@ -1231,30 +1229,6 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 	
 	updateEditor( true );
 	ev->accept();
-}
-
-
-void PianoRollEditor::focusInEvent( QFocusEvent * ev )
-{
-	UNUSED( ev );
-	if ( ev->reason() == Qt::TabFocusReason || ev->reason() == Qt::BacktabFocusReason ) {
-		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
-		m_pPatternEditorPanel->ensureCursorVisible();
-	}
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-	}
-	updateEditor( true );
-}
-
-void PianoRollEditor::focusOutEvent ( QFocusEvent *ev )
-{
-	UNUSED( ev );
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-	}
-	update( 0, 0, width(), height() );
 }
 
 void PianoRollEditor::editNoteLengthAction( int nColumn,  int nRealColumn,  int length, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedline)

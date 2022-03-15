@@ -74,12 +74,6 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	resize( m_nEditorWidth, m_nEditorHeight );
 	setMinimumSize( m_nEditorWidth, m_nEditorHeight );
 
-	
-	qreal pixelRatio = devicePixelRatio();
-	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
-									   m_nEditorHeight * pixelRatio );
-	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
-
 	updateEditor();
 	show();
 
@@ -741,30 +735,6 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 }
 
-
-void NotePropertiesRuler::focusInEvent( QFocusEvent * ev )
-{
-	if ( ev->reason() == Qt::TabFocusReason || ev->reason() == Qt::BacktabFocusReason ) {
-		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
-	}
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-	}
-	updateEditor();
-}
-
-
-void NotePropertiesRuler::focusOutEvent( QFocusEvent * ev )
-{
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getPatternEditorRuler()->update();
-	}
-	updateEditor();
-}
-
-
 void NotePropertiesRuler::addUndoAction()
 {
 	if ( m_nSelectedPatternNumber == -1 ) {
@@ -838,12 +808,12 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	
 	qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
-		finishUpdateEditor();
+		createBackground();
 	}
 
 	QPainter painter(this);
 	if ( m_bNeedsUpdate ) {
-		finishUpdateEditor();
+		createBackground();
 	}
 	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, ev->rect() );
 
@@ -1399,11 +1369,12 @@ void NotePropertiesRuler::updateEditor( bool bPatternOnly )
 
 	if ( !m_bNeedsUpdate ) {
 		m_bNeedsUpdate = true;
+		createBackground();
 		update();
 	}
 }
 
-void NotePropertiesRuler::finishUpdateEditor()
+void NotePropertiesRuler::createBackground()
 {
 	assert( m_bNeedsUpdate );
 	resize( m_nEditorWidth, height() );
@@ -1430,9 +1401,6 @@ void NotePropertiesRuler::finishUpdateEditor()
 	else if ( m_Mode == NOTEKEY ) {
 		createNoteKeyBackground( m_pBackgroundPixmap );
 	}
-
-	// redraw all
-	m_bNeedsUpdate = false;
 	update();
 }
 

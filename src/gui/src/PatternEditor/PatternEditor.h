@@ -216,10 +216,16 @@ protected:
 	//! Update current pattern information
 	void updatePatternInfo();
 
+	/** Updates #m_pBackgroundPixmap to show the latest content. */
+	virtual void createBackground();
+	QPixmap *m_pBackgroundPixmap;
+
 	/** Indicates whether the mouse pointer entered the widget.*/
 	bool m_bEntered;
 	virtual void enterEvent( QEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
+	virtual void focusInEvent( QFocusEvent *ev ) override;
+	virtual void focusOutEvent( QFocusEvent *ev ) override;
 
 	int m_nTick;
 };

@@ -103,12 +103,10 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 	private:
 
 		bool m_bNeedsUpdate;
-		void finishUpdateEditor();
+		void createBackground() override;
 		void drawFocus( QPainter& painter );
 
 		NotePropertiesMode m_Mode;
-
-		QPixmap *m_pBackgroundPixmap;
 
 		double m_fLastSetValue;
 		bool m_bValueHasBeenSet;
@@ -121,8 +119,6 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		void paintEvent(QPaintEvent *ev) override;
 		void wheelEvent(QWheelEvent *ev) override;
 		void keyPressEvent( QKeyEvent *ev ) override;
-		void focusInEvent( QFocusEvent *ev ) override;
-		void focusOutEvent( QFocusEvent *ev ) override;
 		void addUndoAction();
 		void prepareUndoAction( int x );
 		void enterEvent( QEvent *ev ) override;
