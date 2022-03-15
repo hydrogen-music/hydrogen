@@ -76,6 +76,7 @@ ColorTheme::ColorTheme()
 	, m_accentColor( QColor( 67, 96, 131 ) )
 	, m_accentTextColor( QColor( 255, 255, 255 ) )
 	, m_playheadColor( QColor( 0, 0, 0 ) )
+	, m_cursorColor( QColor( 38, 39, 44 ) )
 {
 }
 
@@ -127,6 +128,7 @@ ColorTheme::ColorTheme( const std::shared_ptr<ColorTheme> pOther )
 	, m_spinBoxColor( pOther->m_spinBoxColor )
 	, m_spinBoxTextColor( pOther->m_spinBoxTextColor )
 	, m_playheadColor( pOther->m_playheadColor )
+	, m_cursorColor( pOther->m_cursorColor )
 {
 }
 
@@ -242,6 +244,7 @@ void Theme::setTheme( const std::shared_ptr<Theme> pOther ) {
 	m_pColorTheme->m_spinBoxColor = pOther->getColorTheme()->m_spinBoxColor;
 	m_pColorTheme->m_spinBoxTextColor = pOther->getColorTheme()->m_spinBoxTextColor;
 	m_pColorTheme->m_playheadColor = pOther->getColorTheme()->m_playheadColor;
+	m_pColorTheme->m_cursorColor = pOther->getColorTheme()->m_cursorColor;
 		
 	m_pInterfaceTheme->m_sQTStyle = pOther->getInterfaceTheme()->m_sQTStyle;
 	m_pInterfaceTheme->m_fMixerFalloffSpeed = pOther->getInterfaceTheme()->m_fMixerFalloffSpeed;
@@ -335,6 +338,7 @@ void Theme::writeColorTheme( QDomNode* parent, std::shared_ptr<Theme> pTheme )
 	LocalFileMng::writeXmlColor( widgetNode, "spinBoxColor", pTheme->getColorTheme()->m_spinBoxColor );
 	LocalFileMng::writeXmlColor( widgetNode, "spinBoxTextColor", pTheme->getColorTheme()->m_spinBoxTextColor );
 	LocalFileMng::writeXmlColor( widgetNode, "playheadColor", pTheme->getColorTheme()->m_playheadColor );
+	LocalFileMng::writeXmlColor( widgetNode, "cursorColor", pTheme->getColorTheme()->m_cursorColor );
 	node.appendChild( widgetNode );
 	
 	parent->appendChild( node );
@@ -422,7 +426,12 @@ void Theme::readColorTheme( QDomNode parent, std::shared_ptr<Theme> pTheme )
 		pTheme->getColorTheme()->m_buttonRedTextColor = LocalFileMng::readXmlColor( pWidgetNode, "buttonRedTextColor", pTheme->getColorTheme()->m_buttonRedTextColor );
 		pTheme->getColorTheme()->m_spinBoxColor = LocalFileMng::readXmlColor( pWidgetNode, "spinBoxColor", pTheme->getColorTheme()->m_spinBoxColor );
 		pTheme->getColorTheme()->m_spinBoxTextColor = LocalFileMng::readXmlColor( pWidgetNode, "spinBoxTextColor", pTheme->getColorTheme()->m_spinBoxTextColor );
-		pTheme->getColorTheme()->m_playheadColor = LocalFileMng::readXmlColor( pWidgetNode, "playheadColor", pTheme->getColorTheme()->m_playheadColor );
+		pTheme->getColorTheme()->m_playheadColor =
+			LocalFileMng::readXmlColor( pWidgetNode, "playheadColor",
+										pTheme->getColorTheme()->m_playheadColor );
+		pTheme->getColorTheme()->m_cursorColor =
+			LocalFileMng::readXmlColor( pWidgetNode, "cursorColor",
+										pTheme->getColorTheme()->m_cursorColor );
 	} else {
 		WARNINGLOG( "widget node not found" );
 	}

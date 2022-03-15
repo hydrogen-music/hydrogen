@@ -833,6 +833,8 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	if (!isVisible()) {
 		return;
 	}
+
+	auto pPref = Preferences::get_instance();
 	
 	qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
@@ -859,11 +861,12 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	drawFocus( painter );
 	
 	m_selection.paintSelection( &painter );
-	
+
+	// cursor
 	if ( hasFocus() && ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		uint x = PatternEditor::nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
 
-		QPen pen( Qt::black );
+		QPen pen( pPref->getColorTheme()->m_cursorColor );
 		pen.setWidth( 2 );
 		painter.setPen( pen );
 		painter.setBrush( Qt::NoBrush );

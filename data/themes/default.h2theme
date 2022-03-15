@@ -58,6 +58,7 @@
    <spinBoxColor>51,74,100</spinBoxColor>
    <spinBoxTextColor>240,240,240</spinBoxTextColor>
    <playheadColor>0,0,0</playheadColor>
+   <cursorColor>38,39,44</cursorColor>
   </widget>
  </colorTheme>
  <interfaceTheme>

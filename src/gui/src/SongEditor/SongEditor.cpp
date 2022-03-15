@@ -928,6 +928,8 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 		m_bSequenceChanged = false;
 		drawSequence();
 	}
+	
+	auto pPref = Preferences::get_instance();
 
 	QPainter painter(this);
 	painter.drawPixmap( ev->rect(), *m_pSequencePixmap, ev->rect() );
@@ -960,7 +962,7 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 
 	// Draw cursor
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() && hasFocus() ) {
-		QPen p( Qt::black );
+		QPen p( pPref->getColorTheme()->m_cursorColor );
 		p.setWidth( 2 );
 		painter.setPen( p );
 		painter.setRenderHint( QPainter::Antialiasing );
@@ -1533,7 +1535,8 @@ void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 	);
 	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, srcRect );
 
-	// In case a row was right-clicked, highlight it using a border.
+	// In case a row was right-clicked or the cursor is positioned on
+	// a grid cell within this row, highlight it using a border.
 	if ( ( ! pHydrogenApp->hideKeyboardCursor() &&
 		   pSongEditor->hasFocus() ) ||
 		 m_rowSelection != RowSelection::None ) {
@@ -1546,7 +1549,7 @@ void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 			pen.setColor( pPref->getColorTheme()->m_highlightColor);
 			nStartY = m_nRowClicked * m_nGridHeight;
 		} else {
-			pen.setColor( Qt::black );
+			pen.setColor( pPref->getColorTheme()->m_cursorColor );
 			nStartY = pSongEditor->getCursorRow() * m_nGridHeight;
 		}
 		pen.setWidth( 2 );
@@ -2947,8 +2950,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		int nCursorX = SongEditor::nMargin +
 			pSongEditor->getCursorColumn() * m_nGridWidth + 2;
 
-		QColor cursorColor = Qt::black;
-		cursorColor.setAlpha( 175 );
+		QColor cursorColor = pPref->getColorTheme()->m_cursorColor;
 
 		QPen p( cursorColor );
 		p.setWidth( 2 );

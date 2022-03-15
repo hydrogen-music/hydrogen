@@ -146,6 +146,8 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 		return;
 	}
 	
+	auto pPref = Preferences::get_instance();
+	
 	qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
 		createBackground();
@@ -165,7 +167,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 	if ( hasFocus() && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		QPoint pos = cursorPosition();
 
-		QPen pen( Qt::black );
+		QPen pen( pPref->getColorTheme()->m_cursorColor );
 		pen.setWidth( 2 );
 		painter.setPen( pen );
 		painter.setBrush( Qt::NoBrush );

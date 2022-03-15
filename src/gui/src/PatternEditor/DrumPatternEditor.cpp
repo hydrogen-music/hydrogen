@@ -1313,6 +1313,8 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 		return;
 	}
 	
+	auto pPref = Preferences::get_instance();
+	
 	qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
 		createBackground();
@@ -1341,7 +1343,7 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 		uint x = PatternEditor::nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		uint y = nSelectedInstrument * m_nGridHeight;
-		QPen p( Qt::black );
+		QPen p( pPref->getColorTheme()->m_cursorColor );
 		p.setWidth( 2 );
 		painter.setPen( p );
 		painter.setBrush( Qt::NoBrush );

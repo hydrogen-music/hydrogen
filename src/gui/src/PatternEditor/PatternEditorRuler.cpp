@@ -437,11 +437,12 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 			m_fGridWidth * 5;
 
 		// Middle line to indicate the selected tick
-		painter.setPen( Qt::black );
+		QColor cursorColor( pPref->getColorTheme()->m_cursorColor );
+		painter.setPen( cursorColor );
 		painter.drawLine( nCursorX + m_fGridWidth * 5 + 4, height() - 6,
 						  nCursorX + m_fGridWidth * 5 + 4, height() - 13 );
 
-		QPen pen;
+		QPen pen( cursorColor );
 		pen.setWidth( 2 );
 		painter.setPen( pen );
 		painter.setRenderHint( QPainter::Antialiasing );

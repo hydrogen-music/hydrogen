@@ -241,7 +241,7 @@ void InstrumentLine::paintEvent( QPaintEvent* ev ) {
 			// In case a row was right-clicked, highlight it using a border.
 			pen.setColor( pPref->getColorTheme()->m_highlightColor);
 		} else {
-			pen.setColor( Qt::black );
+			pen.setColor( pPref->getColorTheme()->m_cursorColor );
 		}
 		
 		pen.setWidth( 2 );

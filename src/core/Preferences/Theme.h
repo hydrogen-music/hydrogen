@@ -113,6 +113,7 @@ public:
 	QColor m_spinBoxColor;
 	QColor m_spinBoxTextColor;
 	QColor m_playheadColor;
+	QColor m_cursorColor;
 };
 
 	
