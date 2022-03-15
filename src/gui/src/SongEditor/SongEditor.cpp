@@ -1383,6 +1383,11 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	connect(m_pHighlightLockedTimer, &QTimer::timeout,
 			[=](){ HydrogenApp::get_instance()->getSongEditorPanel()->highlightPatternEditorLocked( false ); } );
 
+	qreal pixelRatio = devicePixelRatio();
+	m_pBackgroundPixmap = new QPixmap( m_nWidth * pixelRatio,
+									   height() * pixelRatio );
+	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+	
 	createBackground();
 	update();
 }
@@ -1538,7 +1543,9 @@ void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 	
 	QPainter painter(this);
 	qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
+	if ( width() != m_pBackgroundPixmap->width() ||
+		 height() != m_pBackgroundPixmap->height() ||
+		 pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
 		createBackground();
 	}
 	QRectF srcRect(
@@ -1613,10 +1620,11 @@ void SongEditorPatternList::createBackground()
 	int nPatterns = pSong->getPatternList()->size();
 	int nSelectedPattern = m_pHydrogen->getSelectedPatternNumber();
 
-	static int oldHeight = -1;
 	int newHeight = m_nGridHeight * nPatterns + 1;
 
-	if ( oldHeight != newHeight || m_pBackgroundPixmap->devicePixelRatio() != devicePixelRatio() ) {
+	if ( m_nWidth != m_pBackgroundPixmap->width() ||
+		 newHeight != m_pBackgroundPixmap->height() ||
+		 m_pBackgroundPixmap->devicePixelRatio() != devicePixelRatio() ) {
 		if (newHeight == 0) {
 			newHeight = 1;	// the pixmap should not be empty
 		}
@@ -1710,6 +1718,10 @@ void SongEditorPatternList::createBackground()
 	}
 }
 
+void SongEditorPatternList::stackedModeActivationEvent( int ) {
+	createBackground();
+	update();
+}
 
 void SongEditorPatternList::patternPopup_virtualPattern()
 {

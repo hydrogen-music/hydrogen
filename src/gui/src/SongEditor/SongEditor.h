@@ -319,14 +319,15 @@ class SongEditorPatternList :  public QWidget
 		virtual void mousePressEvent( QMouseEvent *ev ) override;
 		virtual void mouseDoubleClickEvent( QMouseEvent *ev ) override;
 		virtual void paintEvent( QPaintEvent *ev ) override;
+		virtual void mouseMoveEvent(QMouseEvent *event) override;
+	virtual void leaveEvent( QEvent *ev );
+		QPoint __drag_start_position;
 
 		void togglePattern( int );
 
 		virtual void patternChangedEvent() override;
 		virtual void songModeActivationEvent( int nValue ) override;
-		virtual void mouseMoveEvent(QMouseEvent *event) override;
-	virtual void leaveEvent( QEvent *ev );
-		QPoint __drag_start_position;
+	virtual void stackedModeActivationEvent( int nValue ) override;
 
 	void setRowSelection( RowSelection rowSelection );
 	/**

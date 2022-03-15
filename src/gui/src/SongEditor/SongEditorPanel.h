@@ -101,11 +101,11 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		virtual void columnChangedEvent( int ) override;
 
 	virtual void patternEditorLockedEvent( int ) override;
+	virtual void stackedModeActivationEvent( int ) override;
 	virtual void updateSongEvent( int ) override;
 		virtual void songModeActivationEvent( int nValue ) override;
 
 	public slots:
-		void setModeActionBtn( bool mode );
 		void showHideTimeline( bool bPressed ) {
 			m_pTimelineBtn->setChecked( bPressed );
 			timelineBtnPressed();
@@ -130,7 +130,6 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void viewPlaybackTrackBtnPressed();
 		void mutePlaybackTrackBtnPressed();
 		void editPlaybackTrackBtnPressed();
-		void playSelectedBtnPressed( );
 
 		void zoomInBtnPressed();
 		void zoomOutBtnPressed();

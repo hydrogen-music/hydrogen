@@ -167,7 +167,9 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 										 false, true );
 	m_pPlaySelectedSingleBtn->move( 168, 25 );
 	m_pPlaySelectedSingleBtn->setVisible( pPref->patternModePlaysSelected() );
-	connect( m_pPlaySelectedSingleBtn, SIGNAL( pressed() ), this, SLOT( playSelectedBtnPressed() ) );
+	connect( m_pPlaySelectedSingleBtn, &Button::pressed, [=]() {
+		Hydrogen::get_instance()->setPlaysSelected( false );
+	});
 
 	m_pPlaySelectedMultipleBtn = new Button( pBackPanel, QSize( 25, 21 ),
 										   Button::Type::Push,
@@ -177,9 +179,10 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 										   false, true );
 	m_pPlaySelectedMultipleBtn->move( 168, 25 );
 	m_pPlaySelectedMultipleBtn->hide();
-	m_pPlaySelectedMultipleBtn->setVisible( pPref->patternModePlaysSelected() );
-	connect( m_pPlaySelectedMultipleBtn, SIGNAL( pressed() ), this, SLOT( playSelectedBtnPressed() ) );
-	setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
+	m_pPlaySelectedMultipleBtn->setVisible( ! pPref->patternModePlaysSelected() );
+	connect( m_pPlaySelectedMultipleBtn, &Button::pressed, [=]() {
+		Hydrogen::get_instance()->setPlaysSelected( true );
+	});
 
 // ZOOM
 	m_pHScrollBar = new QScrollBar( Qt::Horizontal, nullptr );
@@ -246,6 +249,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	QWidget *pHScrollbarPanel = new QWidget();
 	pHScrollbarPanel->setLayout( pHZoomLayout );
+
+	songModeActivationEvent(0);
 
 	//~ ZOOM
 
@@ -853,38 +858,14 @@ void SongEditorPanel::editPlaybackTrackBtnPressed()
 	updateAll();
 }
 
-void SongEditorPanel::playSelectedBtnPressed( )
+void SongEditorPanel::stackedModeActivationEvent( int )
 {
-	bool bWasStacked = m_pPlaySelectedSingleBtn->isVisible();
-	if( bWasStacked ){
-		m_pPlaySelectedSingleBtn->hide();
-		m_pPlaySelectedMultipleBtn->show();
-	} else {
+	if ( Preferences::get_instance()->patternModePlaysSelected() ){
 		m_pPlaySelectedSingleBtn->show();
 		m_pPlaySelectedMultipleBtn->hide();
-	}
-	Hydrogen::get_instance()->setPlaysSelected( bWasStacked );
-	Hydrogen::get_instance()->setIsModified( true );
-	EventQueue::get_instance()->push_event( EVENT_STACKED_MODE_ACTIVATION, bWasStacked ? 0 : 1 );
-	updateAll();
-}
-
-void SongEditorPanel::setModeActionBtn( bool mode )
-{
-	if( mode ){
+	} else {
 		m_pPlaySelectedSingleBtn->hide();
 		m_pPlaySelectedMultipleBtn->show();
-	} else {
-		m_pPlaySelectedSingleBtn->show();
-		m_pPlaySelectedMultipleBtn->hide();
-	}
-	// Set disabled or enabled
-	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
-		m_pPlaySelectedMultipleBtn->setDisabled( true );
-		m_pPlaySelectedSingleBtn->setDisabled( true );
-	} else {
-		m_pPlaySelectedMultipleBtn->setDisabled( false );
-		m_pPlaySelectedSingleBtn->setDisabled( false );
 	}
 }
 
@@ -931,7 +912,6 @@ void SongEditorPanel::faderChanged( WidgetWithInput *pRef )
 
 void SongEditorPanel::selectedPatternChangedEvent()
 {
-	setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
 	updateAll();
 
 	auto pHydrogen = Hydrogen::get_instance();
@@ -1018,7 +998,15 @@ void SongEditorPanel::songModeActivationEvent( int ) {
 		// while in song mode.
 		m_pPatternEditorLockedBtn->setChecked( true );
 	}
-	setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
+	
+	// Set disabled or enabled
+	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
+		m_pPlaySelectedMultipleBtn->setDisabled( true );
+		m_pPlaySelectedSingleBtn->setDisabled( true );
+	} else {
+		m_pPlaySelectedMultipleBtn->setDisabled( false );
+		m_pPlaySelectedSingleBtn->setDisabled( false );
+	}
 }
 
 void SongEditorPanel::timelineActivationEvent( int ){

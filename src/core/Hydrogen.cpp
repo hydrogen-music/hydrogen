@@ -1122,19 +1122,19 @@ void Hydrogen::onJackMaster()
 
 void Hydrogen::setPlaysSelected( bool bPlaysSelected )
 {
+	auto pPref = Preferences::get_instance();
+	bool bOldPlaysSelected = pPref->patternModePlaysSelected();
+
+	if ( bOldPlaysSelected == bPlaysSelected ) {
+		return;
+	}
+	
 	AudioEngine* pAudioEngine = m_pAudioEngine;	
 	std::shared_ptr<Song> pSong = getSong();
 
-	if ( getMode() != Song::Mode::Pattern ) {
-		return;
-	}
-
 	pAudioEngine->lock( RIGHT_HERE );
 
-	Preferences* pPref = Preferences::get_instance();
-	bool isPlaysSelected = pPref->patternModePlaysSelected();
-
-	if ( isPlaysSelected && !bPlaysSelected &&
+	if ( bOldPlaysSelected && !bPlaysSelected &&
 		 getSelectedPatternNumber() != -1 ) {
 		pAudioEngine->getPlayingPatterns()->clear();
 		Pattern* pSelectedPattern =
@@ -1144,6 +1144,8 @@ void Hydrogen::setPlaysSelected( bool bPlaysSelected )
 
 	pPref->setPatternModePlaysSelected( bPlaysSelected );
 	pAudioEngine->unlock();
+	EventQueue::get_instance()->push_event( EVENT_STACKED_MODE_ACTIVATION,
+											bPlaysSelected ? 0 : 1 );
 }
 
 void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr ) {
