@@ -182,11 +182,20 @@ class Pattern : public H2Core::Object<Pattern>
 		 * from PatternList::compute_flattened_virtual_patterns
 		 */
 		void flattened_virtual_patterns_compute();
-		/**
-		 * add content of __flatteened_virtual_patterns into patterns
-		 * \param patterns the pattern list to feed
-		 */
-		void extand_with_flattened_virtual_patterns( PatternList* patterns );
+	/**
+	 * Add content of __flattened_virtual_patterns into @a
+	 * pPatternList.
+	 *
+	 * Companion function of removeFlattenedVirtualPatterns();
+	 */
+	void addFlattenedVirtualPatterns( PatternList* pPatternList );
+	/**
+	 * Add content of __flattened_virtual_patterns into @a
+	 * pPatternList.
+	 *
+	 * Companion function of addFlattenedVirtualPatterns();
+	 */
+	void removeFlattenedVirtualPatterns( PatternList* pPatternList );
 
 		/**
 		 * save the pattern within the given XMLNode

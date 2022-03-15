@@ -24,6 +24,8 @@
 #include "core/Helpers/Filesystem.h"
 
 #include <cstdio>
+#include <chrono>
+#include <thread>
 #include <QtCore/QDir>
 #include <QtCore/QString>
 
@@ -171,6 +173,19 @@ void Logger::log( unsigned level, const QString& class_name, const char* func_na
 	__msg_queue.push_back( tmp );
 	pthread_mutex_unlock( &__mutex );
 	pthread_cond_broadcast( &__messages_available );
+}
+
+void Logger::flush() const {
+
+	int nTimeout = 100;
+	for ( int ii = 0; ii < nTimeout; +ii ) {
+		if ( __msg_queue.empty() ) {
+			break;
+		}
+
+		std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+	}
+	return;
 }
 
 unsigned Logger::parse_log_level( const char* level ) {

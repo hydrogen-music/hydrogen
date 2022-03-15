@@ -189,11 +189,10 @@ void AudioEngineInfoForm::updateInfo()
 		m_pSelectedInstrLbl->setText( QString("%1").arg(nSelectedInstrumentNumber) );
 	}
 
-	PatternList *pPatternList = pAudioEngine->getPlayingPatterns();
-	if (pPatternList) {
-		currentPatternLbl->setText( QString::number(pPatternList->size()) );
-	}
-	else {
+	auto pPatternList = pAudioEngine->getPlayingPatterns();
+	if ( pPatternList != nullptr ) {
+		currentPatternLbl->setText( QString::number( pPatternList->size() ) );
+	} else {
 		currentPatternLbl->setText( "N/A" );
 	}
 
