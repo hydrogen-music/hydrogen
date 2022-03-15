@@ -122,6 +122,8 @@ AudioEngine::AudioEngine()
 		, m_fLadspaTime( 0.0f )
 		, m_fMaxProcessTime( 0.0f )
 		, m_fNextBpm( 120 )
+		, m_pLocker({nullptr, 0, nullptr})
+		, m_currentTickTime( {0,0})
 		, m_fTickMismatch( 0 )
 		, m_fLastTickIntervalEnd( -1 )
 		, m_nLastPlayingPatternsColumn( -1 )
@@ -129,6 +131,7 @@ AudioEngine::AudioEngine()
 		, m_fTickOffset( 0 )
 {
 
+	
 	m_pSampler = new Sampler;
 	m_pSynth = new Synth;
 	
@@ -220,9 +223,9 @@ void AudioEngine::lock( const char* file, unsigned int line, const char* functio
 	#endif
 
 	m_EngineMutex.lock();
-	__locker.file = file;
-	__locker.line = line;
-	__locker.function = function;
+	m_pLocker.file = file;
+	m_pLocker.line = line;
+	m_pLocker.function = function;
 	m_LockingThread = std::this_thread::get_id();
 }
 
@@ -239,9 +242,9 @@ bool AudioEngine::tryLock( const char* file, unsigned int line, const char* func
 		// Lock not obtained
 		return false;
 	}
-	__locker.file = file;
-	__locker.line = line;
-	__locker.function = function;
+	m_pLocker.file = file;
+	m_pLocker.line = line;
+	m_pLocker.function = function;
 	m_LockingThread = std::this_thread::get_id();
 	#ifdef H2CORE_HAVE_DEBUG
 	if ( __logger->should_log( Logger::Locks ) ) {
@@ -264,12 +267,12 @@ bool AudioEngine::tryLockFor( std::chrono::microseconds duration, const char* fi
 		// Lock not obtained
 		WARNINGLOG( QString( "Lock timeout: lock timeout %1:%2:%3, lock held by %4:%5:%6" )
 					.arg( file ).arg( function ).arg( line )
-					.arg( __locker.file ).arg( __locker.function ).arg( __locker.line ));
+					.arg( m_pLocker.file ).arg( m_pLocker.function ).arg( m_pLocker.line ));
 		return false;
 	}
-	__locker.file = file;
-	__locker.line = line;
-	__locker.function = function;
+	m_pLocker.file = file;
+	m_pLocker.line = line;
+	m_pLocker.function = function;
 	m_LockingThread = std::this_thread::get_id();
 	
 	#ifdef H2CORE_HAVE_DEBUG

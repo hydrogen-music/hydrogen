@@ -101,8 +101,8 @@ public:
 	void			midi_noteOn( Note *note );
 
 	///Last received midi message
-	QString			lastMidiEvent;
-	int				lastMidiEventParameter;
+	QString			m_LastMidiEvent;
+	int				m_nLastMidiEventParameter;
 
 	/** Wrapper around AudioEngine::toggleNextPattern().*/
 	void			toggleNextPattern( int nPatternNumber );

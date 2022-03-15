@@ -24,6 +24,19 @@
 
 #include "ShotList.h"
 
+ShotList::ShotList( QString sShotsFilename ) {
+	QFile shots( sShotsFilename );
+	m_nNextShot = 0;
+	
+	if ( ! shots.open( QIODevice::ReadOnly ) ) {
+		___ERRORLOG( QString( "Cannot open shot list file '%1' " ).arg( shots.fileName() ) );
+		return;
+	}
+	while (! shots.atEnd() ) {
+		m_shots << shots.readLine();
+	}
+}
+
 QWidget *ShotList::findWidgetInheriting( QObject *pObject, QString &sName ) {
 	if ( pObject->inherits( sName.toLocal8Bit().data() ) ) {
 		return dynamic_cast< QWidget *>( pObject );
@@ -183,18 +196,6 @@ void ShotList::shoot( QString s ) {
 		}
 	} else {
 		___ERRORLOG( QString("Unknown command '%1'").arg( sCmd ) );
-	}
-}
-
-
-ShotList::ShotList( QString sShotsFilename ) {
-	QFile shots( sShotsFilename );
-	if ( ! shots.open( QIODevice::ReadOnly ) ) {
-		___ERRORLOG( QString( "Cannot open shot list file '%1' " ).arg( shots.fileName() ) );
-		return;
-	}
-	while (! shots.atEnd() ) {
-		m_shots << shots.readLine();
 	}
 }
 

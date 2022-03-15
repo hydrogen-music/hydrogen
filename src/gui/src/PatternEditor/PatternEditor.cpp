@@ -82,13 +82,10 @@ PatternEditor::PatternEditor( QWidget *pParent,
 	m_pPopupMenu->addAction( tr( "&Delete" ), this, &PatternEditor::deleteSelection );
 	m_pPopupMenu->addAction( tr( "Select &all" ), this, &PatternEditor::selectAll );
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, &PatternEditor::selectNone );
-
-
 }
 
-void PatternEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-
+void PatternEditor::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		
 		update( 0, 0, width(), height() );
@@ -457,8 +454,6 @@ bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements
 		}
 
 		if ( bOk ) {
-			Hydrogen *pHydrogen = Hydrogen::get_instance();
-			InstrumentList *pInstrumentList = pHydrogen->getSong()->getInstrumentList();
 			QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 
 			std::vector< Note *>overwritten;

@@ -1261,7 +1261,6 @@ void PreferencesDialog::onLevel3FontChanged( const QFont& font ) {
 }
 
 void PreferencesDialog::onRejected() {
-	auto pPref = Preferences::get_instance();
 
 	updateAppearanceTab( m_pPreviousTheme );
 

@@ -100,12 +100,12 @@ class LadspaControlPort : public H2Core::Object<LadspaControlPort>
 	H2_OBJECT(LadspaControlPort)
 public:
 	QString sName;
-	bool isToggle;
-	bool m_bIsInteger;
-	LADSPA_Data fDefaultValue;
-	LADSPA_Data fControlValue;
-	LADSPA_Data fLowerBound;
-	LADSPA_Data fUpperBound;
+	bool isToggle = false;
+	bool m_bIsInteger = false;
+	LADSPA_Data fDefaultValue = 0.0;
+	LADSPA_Data fControlValue = 0.0;
+	LADSPA_Data fLowerBound = 0.0;
+	LADSPA_Data fUpperBound = 0.0;
 
 	LadspaControlPort() : Object( ) { }
 };

@@ -713,7 +713,6 @@ void PlayerControl::songModeActivationEvent( int nValue )
 {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();
 	
 	if ( pHydrogen->getMode() == Song::Mode::Song ) {
 		// Song mode
@@ -896,8 +895,6 @@ void PlayerControl::jackTransportBtnClicked()
 void PlayerControl::jackMasterBtnClicked()
 {
 #ifdef H2CORE_HAVE_JACK
-	Preferences *pPref = Preferences::get_instance();
-
 	if ( !m_pHydrogen->haveJackTransport() ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "JACK transport will work only with JACK driver." ) );
 		return;
@@ -1044,7 +1041,6 @@ void PlayerControl::timelineActivationEvent( int ) {
 }
 
 void PlayerControl::updateBPMSpinbox() {
-	auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 
 	m_pLCDBPMSpinbox->setIsActive( pHydrogen->getTempoSource() ==
@@ -1140,8 +1136,8 @@ void PlayerControl::tempoChangedEvent( int nValue )
 	}
 }
 
-void PlayerControl::jackTransportActivationEvent( int nValue ) {
-
+void PlayerControl::jackTransportActivationEvent( int nValue )
+{
 	if ( nValue == 0 && m_pJackTransportBtn->isChecked() ){
 		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK transport mode = Off"), 5000);
 		if ( ! m_pJackMasterBtn->isDown() ) {
@@ -1154,7 +1150,8 @@ void PlayerControl::jackTransportActivationEvent( int nValue ) {
 	}
 }
 
-void PlayerControl::jackTimebaseStateChangedEvent( int ) {
+void PlayerControl::jackTimebaseStateChangedEvent( int )
+{
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
 	
@@ -1182,17 +1179,15 @@ void PlayerControl::jackTimebaseStateChangedEvent( int ) {
 	HydrogenApp::get_instance()->setStatusBarMessage( sMessage, 5000 );
 }
 
-void PlayerControl::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void PlayerControl::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		updateStatusLabel();
 	}
 }
 
-void PlayerControl::updateStatusLabel() {
-
+void PlayerControl::updateStatusLabel()
+{
 	QString sLongString( "ThisIsALongOneThatShouldNotFitInTheLCDDisplayEvenWithVeryNarrowFonts" );
 	m_pStatusLabel->setMaxLength( 120 );
 	

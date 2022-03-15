@@ -64,8 +64,8 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool bDirectWrite, std::share
 	setLayout( pVBox );
 	
 	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
-	pHydrogen->lastMidiEvent = "";
-	pHydrogen->lastMidiEventParameter = 0;
+	pHydrogen->m_LastMidiEvent = "";
+	pHydrogen->m_nLastMidiEventParameter = 0;
 
 	m_LastMidiEventParameter = 0;
 	
@@ -90,9 +90,9 @@ MidiSenseWidget::~MidiSenseWidget(){
 
 void MidiSenseWidget::updateMidi(){
 	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
-	if(	!pHydrogen->lastMidiEvent.isEmpty() ){
-		m_sLastMidiEvent = pHydrogen->lastMidiEvent;
-		m_LastMidiEventParameter = pHydrogen->lastMidiEventParameter;
+	if(	!pHydrogen->m_LastMidiEvent.isEmpty() ){
+		m_sLastMidiEvent = pHydrogen->m_LastMidiEvent;
+		m_LastMidiEventParameter = pHydrogen->m_nLastMidiEventParameter;
 
 
 		if( m_bDirectWrite ){

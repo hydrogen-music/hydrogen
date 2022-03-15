@@ -1100,11 +1100,6 @@ void SongEditor::drawSequence()
 	p.drawPixmap( rect(), *m_pBackgroundPixmap, rect() );
 	p.end();
 
-	std::shared_ptr<Song> song = Hydrogen::get_instance()->getSong();
-	PatternList *patList = song->getPatternList();
-	std::vector<PatternList*>* pColumns = song->getPatternGroupVector();
-	uint listLength = patList->size();
-
 	updateGridCells();
 
 	// Draw using GridCells representation
@@ -1220,9 +1215,8 @@ void SongEditor::updateEditorandSetTrue()
 	update();
 }
 
-void SongEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-
+void SongEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) 
+{
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::AppearanceTab ) ) {
 		createBackground();
@@ -2032,13 +2026,13 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 }
 
 
-void SongEditorPatternList::timelineUpdateEvent( int nEvent ){
+void SongEditorPatternList::timelineUpdateEvent( int nEvent )
+{
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 }
 
-void SongEditorPatternList::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void SongEditorPatternList::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 		
@@ -2520,7 +2514,6 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 			return;
 		}
 
-		int nPatternPos = m_pHydrogen->getAudioEngine()->getColumn();
 		m_pHydrogen->getCoreActionController()->locateToColumn( column );
 		update();
 		
@@ -2630,13 +2623,13 @@ void SongEditorPositionRuler::updatePosition()
 	update();
 }
 
-void SongEditorPositionRuler::timelineUpdateEvent( int nValue ) {
+void SongEditorPositionRuler::timelineUpdateEvent( int nValue )
+{
 	createBackground();
 }
 
-void SongEditorPositionRuler::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void SongEditorPositionRuler::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 			 
