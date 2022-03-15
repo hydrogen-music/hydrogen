@@ -23,12 +23,15 @@
 #include "TestHelper.h"
 
 #include "core/Object.h"
+#include "core/Hydrogen.h"
 #include "core/Helpers/Filesystem.h"
+#include "core/Preferences/Preferences.h"
 
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QStringList>
 #include <exception>
+#include <random>
 
 static const QString APP_DATA_DIR = "/data/";
 static const QString TEST_DATA_DIR = "/src/tests/data/";
@@ -145,4 +148,77 @@ TestHelper::TestHelper()
 	m_sTestDataDir = root_dir + TEST_DATA_DIR;
 }
 
+void TestHelper::varyAudioDriverConfig( int nIndex ) {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	switch( nIndex ) {
+	case 0:
+		pPref->m_nBufferSize = 1024;
+		pPref->m_nSampleRate = 44100;
+		break;
 
+	case 1:
+		pPref->m_nBufferSize = 256;
+		pPref->m_nSampleRate = 44100;
+		break;
+
+	case 2:
+		pPref->m_nBufferSize = 512;
+		pPref->m_nSampleRate = 44100;
+		break;
+
+	case 3:
+		pPref->m_nBufferSize = 128;
+		pPref->m_nSampleRate = 48000;
+		break;
+
+	case 4:
+		pPref->m_nBufferSize = 512;
+		pPref->m_nSampleRate = 48000;
+		break;
+
+	case 5:
+		pPref->m_nBufferSize = 1024;
+		pPref->m_nSampleRate = 96000;
+		break;
+
+	case 6:
+		pPref->m_nBufferSize = 2048;
+		pPref->m_nSampleRate = 96000;
+		break;
+
+	case 7:
+		pPref->m_nBufferSize = 500;
+		pPref->m_nSampleRate = 44100;
+		break;
+
+	case 8:
+		pPref->m_nBufferSize = 500;
+		pPref->m_nSampleRate = 36000;
+		break;
+		
+	case 9:
+		pPref->m_nBufferSize = 5000;
+		pPref->m_nSampleRate = 1024;
+		break;
+
+	default:
+		// Seed with a real random value, if available
+		std::random_device randomSeed;
+
+		std::default_random_engine randomEngine( randomSeed() );
+		// Too small values make the unit tests run way too slow. Too
+		// large ones (10000) cause a segfault. (The latter might be a
+		// bug but such buffer sizes work fine with other drivers).
+		std::uniform_int_distribution<int> bufferDist( 256, 5000 );
+		std::uniform_int_distribution<int> sampleRateDist( 22050, 192000 );
+
+		pPref->m_nBufferSize = bufferDist( randomEngine );
+		pPref->m_nSampleRate = sampleRateDist( randomEngine );
+	}
+
+	___INFOLOG( QString( "New bufferSize: %1, new sampleRate: %2" )
+				.arg( pPref->m_nBufferSize ).arg( pPref->m_nSampleRate ) );
+
+	H2Core::Hydrogen::get_instance()->restartDrivers();
+}

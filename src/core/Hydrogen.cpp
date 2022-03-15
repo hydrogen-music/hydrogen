@@ -540,67 +540,26 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 }
 
 
-void Hydrogen::sequencer_setNextPattern( int pos )
-{
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-	
-	pAudioEngine->lock( RIGHT_HERE );
-	std::shared_ptr<Song> pSong = getSong();
-	if ( pSong != nullptr && getMode() == Song::Mode::Pattern ) {
-		PatternList* pPatternList = pSong->getPatternList();
-		
-		// Check whether `pos` is in range of the pattern list.
-		if ( ( pos >= 0 ) && ( pos < ( int )pPatternList->size() ) ) {
-			Pattern* pPattern = pPatternList->get( pos );
-			
-			// If the pattern is already in the `AudioEngine::m_pNextPatterns`, it
-			// will be removed from the latter and its `del()` method
-			// will return a pointer to the very pattern. The if
-			// clause is therefore only entered if the `pPattern` was
-			// not already present.
-			if ( pAudioEngine->getNextPatterns()->del( pPattern ) == nullptr ) {
-				pAudioEngine->getNextPatterns()->add( pPattern );
-			}
-		} else {
-			ERRORLOG( QString( "pos not in patternList range. pos=%1 patternListSize=%2" )
-					  .arg( pos ).arg( pPatternList->size() ) );
-			pAudioEngine->getNextPatterns()->clear();
-		}
+void Hydrogen::toggleNextPattern( int nPatternNumber ) {
+	if ( __song != nullptr && getMode() == Song::Mode::Pattern ) {
+		m_pAudioEngine->lock( RIGHT_HERE );
+		m_pAudioEngine->toggleNextPattern( nPatternNumber );
+		m_pAudioEngine->unlock();
+
 	} else {
 		ERRORLOG( "can't set next pattern in song mode" );
-		pAudioEngine->getNextPatterns()->clear();
 	}
-
-	pAudioEngine->unlock();
 }
 
-void Hydrogen::sequencer_setOnlyNextPattern( int pos )
-{
-	AudioEngine* pAudioEngine = m_pAudioEngine;	
-	pAudioEngine->lock( RIGHT_HERE );
-	
-	std::shared_ptr<Song> pSong = getSong();
-	if ( pSong != nullptr && getMode() == Song::Mode::Pattern ) {
-		PatternList* pPatternList = pSong->getPatternList();
-		
-		// Clear the list of all patterns scheduled to be processed
-		// next and fill them with those currently played.
-		pAudioEngine->getNextPatterns()->clear( );
-		Pattern* pPattern;
-		for ( int nPattern = 0 ; nPattern < (int) pAudioEngine->getPlayingPatterns()->size() ; ++nPattern ) {
-			pPattern = pAudioEngine->getPlayingPatterns()->get( nPattern );
-			pAudioEngine->getNextPatterns()->add( pPattern );
-		}
-		
-		// Appending the requested pattern.
-		pPattern = pPatternList->get( pos );
-		pAudioEngine->getNextPatterns()->add( pPattern );
+void Hydrogen::flushAndAddNextPattern( int nPatternNumber ) {
+	if ( __song != nullptr && getMode() == Song::Mode::Pattern ) {
+		m_pAudioEngine->lock( RIGHT_HERE );
+		m_pAudioEngine->flushAndAddNextPattern( nPatternNumber );
+		m_pAudioEngine->unlock();
+
 	} else {
 		ERRORLOG( "can't set next pattern in song mode" );
-		pAudioEngine->getNextPatterns()->clear();
 	}
-	
-	pAudioEngine->unlock();
 }
 
 void Hydrogen::restartDrivers()
@@ -888,18 +847,22 @@ void Hydrogen::restartLadspaFX()
 }
 
 
-void Hydrogen::setSelectedPatternNumber( int nPat )
+void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock )
 {
 	if ( nPat == m_nSelectedPatternNumber ) {
 		return;
 	}
 
 	if ( Preferences::get_instance()->patternModePlaysSelected() ) {
-		getAudioEngine()->lock( RIGHT_HERE );
+		if ( bNeedsLock ) {
+			getAudioEngine()->lock( RIGHT_HERE );
+		}
 		
 		m_nSelectedPatternNumber = nPat;
 
-		getAudioEngine()->unlock();
+		if ( bNeedsLock ) {
+			getAudioEngine()->unlock();
+		}
 	} else {
 		m_nSelectedPatternNumber = nPat;
 	}
@@ -1114,27 +1077,24 @@ void Hydrogen::onJackMaster()
 
 void Hydrogen::setPlaysSelected( bool bPlaysSelected )
 {
-	AudioEngine* pAudioEngine = m_pAudioEngine;	
-	std::shared_ptr<Song> pSong = getSong();
+	auto pAudioEngine = m_pAudioEngine;	
 
 	if ( getMode() != Song::Mode::Pattern ) {
 		return;
 	}
 
-	pAudioEngine->lock( RIGHT_HERE );
+	auto pSong = getSong();
+	auto pPref = Preferences::get_instance();
 
-	Preferences* pPref = Preferences::get_instance();
-	bool isPlaysSelected = pPref->patternModePlaysSelected();
+	if ( pPref->patternModePlaysSelected() != bPlaysSelected ) {
+		pAudioEngine->lock( RIGHT_HERE );
 
-	if ( isPlaysSelected && !bPlaysSelected ) {
-		pAudioEngine->getPlayingPatterns()->clear();
-		Pattern* pSelectedPattern =
-				pSong->getPatternList()->get( getSelectedPatternNumber() );
-		pAudioEngine->getPlayingPatterns()->add( pSelectedPattern );
+		pPref->setPatternModePlaysSelected( bPlaysSelected );
+		
+		pAudioEngine->updatePlayingPatterns( pAudioEngine->getColumn() );
+
+		pAudioEngine->unlock();
 	}
-
-	pPref->setPatternModePlaysSelected( bPlaysSelected );
-	pAudioEngine->unlock();
 }
 
 void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr ) {
@@ -1472,6 +1432,7 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 		}
 	}
 
+	( *pPatternStartTick ) = 0;
 	return -1;
 }
 

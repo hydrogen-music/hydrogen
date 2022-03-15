@@ -23,6 +23,7 @@
 #include <core/IO/FakeDriver.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
 
 namespace H2Core
 {
@@ -32,7 +33,8 @@ FakeDriver::FakeDriver( audioProcessCallback processCallback )
 		, m_processCallback( processCallback )
 		, m_pOut_L( nullptr )
 		, m_pOut_R( nullptr )
-		, m_nBufferSize( 0 ) {
+		, m_nBufferSize( 0 )
+		, m_nSampleRate( 44100 ) {
 }
 
 
@@ -45,6 +47,7 @@ int FakeDriver::init( unsigned nBufferSize )
 	INFOLOG( QString( "Init, %1 samples" ).arg( nBufferSize ) );
 
 	m_nBufferSize = nBufferSize;
+	m_nSampleRate = Preferences::get_instance()->m_nSampleRate;
 	m_pOut_L = new float[nBufferSize];
 	m_pOut_R = new float[nBufferSize];
 
@@ -77,7 +80,7 @@ void FakeDriver::disconnect()
 
 unsigned FakeDriver::getSampleRate()
 {
-	return 44100;
+	return m_nSampleRate;
 }
 
 float* FakeDriver::getOut_L()

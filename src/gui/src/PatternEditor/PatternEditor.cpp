@@ -711,8 +711,8 @@ std::vector< Pattern *> PatternEditor::getPatternsToShow( void )
 		if ( !Preferences::get_instance()->patternModePlaysSelected() ) {
 			m_pAudioEngine->lock( RIGHT_HERE );
 			std::set< Pattern *> patternSet;
-			for ( PatternList *pPatternList : { m_pAudioEngine->getPlayingPatterns(),
-						                        m_pAudioEngine->getNextPatterns() } ) {
+			for ( const PatternList *pPatternList : { m_pAudioEngine->getPlayingPatterns(),
+													 m_pAudioEngine->getNextPatterns() } ) {
 				for ( int i = 0; i <  pPatternList->size(); i++) {
 					Pattern *pPattern = pPatternList->get( i );
 					if ( pPattern != m_pPattern ) {

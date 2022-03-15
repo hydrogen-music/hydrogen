@@ -41,12 +41,24 @@ enum EventType {
 	/** Fallback event*/
 	EVENT_NONE,
 	EVENT_STATE,
-	/** The current pattern changed during the processing of the
-	 * AudioEngine with respect to the previous process cycle.
+	/** 
+	 * The current list of patterns the transport position resides in
+	 * changed.
+	 *
+	 * In #Song::Mode::Song this is triggered every time the column of
+	 * the SongEditor grid changed. Either by rolling transport or by
+	 * relocation.
+	 *
+	 * In #Song::Mode::Pattern with
+	 * Preferences::m_bPatternModePlaysSelected set true it is
+	 * triggered if the currently selected pattern changes.
 	 *
 	 * It is handled by EventListener::patternChangedEvent().
 	 */
 	EVENT_PATTERN_CHANGED,
+	/**
+	 * A pattern was added, deleted, or modified.
+	 */
 	EVENT_PATTERN_MODIFIED,
 	/** Another pattern was selected via MIDI or the GUI without
 	 * affecting the audio transport (e.g in Song::PATTERN_MODE when
@@ -250,6 +262,9 @@ public:/**
 	};
 	std::vector<AddMidiNoteVector> m_addMidiNoteVector;
 
+	bool getSilent() const;
+	void setSilent( bool bSilent );
+
 private:
 	/**
 	 * Constructor of the EventQueue class.
@@ -292,7 +307,17 @@ private:
 	 * Mutex to lock access to queue.
 	 */
 	std::mutex m_mutex;
+
+	/** Whether or not to push log messages.*/
+	bool m_bSilent;
 };
+
+inline bool EventQueue::getSilent() const {
+	return m_bSilent;
+}
+inline void EventQueue::setSilent( bool bSilent ) {
+	m_bSilent = bSilent;
+}
 
 };
 

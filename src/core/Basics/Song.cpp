@@ -772,6 +772,51 @@ void Song::removeInstrument( int nInstrumentNumber, bool bConditional ) {
 	pInstr->set_name( xxx_name );
 	pHydrogen->addInstrumentToDeathRow( pInstr );
 }
+
+std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
+
+	std::vector<std::shared_ptr<Note>> notes;
+
+	long nColumnStartTick = 0;
+	for ( int ii = 0; ii < m_pPatternGroupSequence->size(); ++ii ) {
+
+		auto pColumn = (*m_pPatternGroupSequence)[ ii ];
+		
+		if ( pColumn->size() == 0 ) {
+			// An empty column with no patterns selected (but not the
+			// end of the song).
+			nColumnStartTick += MAX_NOTES;
+			continue;
+		} else {
+
+			pColumn->longest_pattern_length();
+			for ( const auto& ppattern : *pColumn ) {
+				if ( ppattern != nullptr ) {
+					FOREACH_NOTE_CST_IT_BEGIN_END( ppattern->get_notes(), it ) {
+						if ( it->second != nullptr ) {
+							// Use the copy constructor to not mess
+							// with the song itself.
+							std::shared_ptr<Note> pNote =
+								std::make_shared<Note>( it->second );
+
+							// The position property of the note
+							// specifies its position within the
+							// pattern. All we need to do is to add
+							// the pattern start tick.
+							pNote->set_position( pNote->get_position() +
+												 nColumnStartTick );
+							notes.push_back( pNote );
+						}
+					}
+				}
+			}
+
+			nColumnStartTick += pColumn->longest_pattern_length();
+		}
+	}
+	
+	return notes;
+}
  
 QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
