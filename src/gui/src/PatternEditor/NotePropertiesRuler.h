@@ -29,6 +29,7 @@
 #include <QtGui>
 #include <QtWidgets>
 
+#include <core/Basics/Note.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <map>
@@ -101,6 +102,8 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		void scrolled( int );
 
 	private:
+
+	void triggerStatusMessage( H2Core::Note* pNote ) const;
 
 		bool m_bNeedsUpdate;
 		void createBackground() override;

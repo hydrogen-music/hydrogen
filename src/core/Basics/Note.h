@@ -78,6 +78,8 @@ class Note : public H2Core::Object<Note>
 	public:
 		/** possible keys */
 		enum Key { C=KEY_MIN, Cs, D, Ef, E, F, Fs, G, Af, A, Bf, B };
+	static QString KeyToQString( Key key );
+	
 		/** possible octaves */
 		enum Octave { P8Z=-3, P8Y=-2, P8X=-1, P8=OCTAVE_DEFAULT, P8A=1, P8B=2, P8C=3 };
 

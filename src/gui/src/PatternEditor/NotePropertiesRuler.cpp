@@ -25,7 +25,6 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
-#include <core/Basics/Note.h>
 using namespace H2Core;
 
 #include <cassert>
@@ -159,7 +158,6 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		adjustNotePropertyDelta( pNote, fDelta, /* bMessage=*/ true );
 	}
 
-	pHydrogen->setIsModified( true );
 	addUndoAction();
 	updateEditor();
 }
@@ -232,6 +230,17 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 		fDelta = (float)-movingOffset.y() / height();
 	}
 
+	// Only send a status message for the update in case a single note
+	// was selected.
+	bool bSendStatusMsg = false;
+	int nNotes = 0;
+	for ( Note *pNote : m_selection ) {
+		++nNotes;
+	}
+	if ( nNotes == 1 ) {
+		bSendStatusMsg = true;
+	}
+	
 	for ( Note *pNote : m_selection ) {
 		if ( pNote->get_instrument() == pSelectedInstrument || m_selection.isSelected( pNote ) ) {
 
@@ -240,7 +249,7 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 				m_oldNotes[ pNote ] = new Note( pNote );
 			}
 
-			adjustNotePropertyDelta( pNote, fDelta );
+			adjustNotePropertyDelta( pNote, fDelta, bSendStatusMsg );
 		}
 	}
 	updateEditor();
@@ -283,6 +292,13 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 			break;
 		}
 	}
+
+	if ( m_oldNotes.size() == 0 ) {
+		for ( const auto& it : m_oldNotes ){
+			triggerStatusMessage( it.second );
+		}
+	}
+
 	clearOldNotes();
 }
 
@@ -366,7 +382,13 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	int nColumn = getColumn( ev->x() );
 
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
-	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
+
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pSong = pHydrogen->getSong();
+	
+	pHydrogenApp->setHideKeyboardCursor( true );
 
 	if ( m_nDragPreviousColumn != nColumn ) {
 		// Complete current undo action, and start a new one.
@@ -383,24 +405,22 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	}
 	int keyval = val;
 	val = val / height(); // val is normalized, in [0;1]
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	auto pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrument );
 
-	FOREACH_NOTE_CST_IT_BOUND(  m_pPattern->get_notes(), it, nColumn ) {
+	bool bValueSet = false;
+
+	FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, nColumn ) {
 		Note *pNote = it->second;
 
-		if ( pNote->get_instrument() != pSelectedInstrument && !m_selection.isSelected( pNote ) ) {
+		if ( pNote->get_instrument() != pSelectedInstrument &&
+			 !m_selection.isSelected( pNote ) ) {
 			continue;
 		}
 		if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
 			pNote->set_velocity( val );
 			m_fLastSetValue = val;
-			m_bValueHasBeenSet = true;
-			char valueChar[100];
-			sprintf( valueChar, "%#.2f",  val);
-			HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
+			bValueSet = true;
 		}
 		else if ( m_Mode == PAN && !pNote->get_note_off() ){
 			if ( (ev->button() == Qt::MiddleButton)
@@ -409,61 +429,59 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 			}
 			pNote->setPanWithRangeFrom0To1( val ); // checks the boundaries
 			m_fLastSetValue = pNote->getPanWithRangeFrom0To1();
-			m_bValueHasBeenSet = true;
+			bValueSet = true;
+			
 		}
 		else if ( m_Mode == LEADLAG ){
-			if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+			if ( (ev->button() == Qt::MiddleButton) ||
+				 (ev->modifiers() == Qt::ControlModifier &&
+				  ev->button() == Qt::LeftButton) ) {
 				pNote->set_lead_lag(0.0);
-			} else {
-				
+				m_fLastSetValue = 0.0;
+				bValueSet = true;
+			}
+			else {
 				m_fLastSetValue = val * -2.0 + 1.0;
-				m_bValueHasBeenSet = true;
-				pNote->set_lead_lag((val * -2.0) + 1.0);
-				char valueChar[100];
-				if (pNote->get_lead_lag() < 0.0) {
-					sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
-				} else if (pNote->get_lead_lag() > 0.0) {
-					sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
-				} else {
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
-				}
-				
+				bValueSet = true;
+				pNote->set_lead_lag( m_fLastSetValue );
 			}
 		}
-		
 		else if ( m_Mode == NOTEKEY ){
-			if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
-				;
-			} else {
+			if ( ev->button() != Qt::MiddleButton &&
+				 ! ( ev->modifiers() == Qt::ControlModifier &&
+					 ev->button() == Qt::LeftButton ) ) {
 				//set the note height
 				int k = 666;
 				int o = 666;
-				if(keyval >=6 && keyval<=125) {
-					k = (keyval-6)/10;
-				} else if(keyval>=135 && keyval<=205) {
-					o = (keyval-166)/10;
-					if(o==-4) o=-3; // 135
+				if( keyval >= 6 && keyval <= 125 ) {
+					k = ( keyval - 6 ) / 10;
+				}
+				else if( keyval >= 135 && keyval <= 205 ) {
+					o = ( keyval - 166 ) / 10;
+					if ( o == -4 ) {
+						o = -3; // 135
+					}
 				}
 				m_fLastSetValue = o * 12 + k;
-				m_bValueHasBeenSet = true;
+				bValueSet = true;
 				pNote->set_key_octave((Note::Key)k,(Note::Octave)o); // won't set wrong values see Note::set_key_octave
 			}
 		}
 		else if ( m_Mode == PROBABILITY && !pNote->get_note_off() ) {
 			m_fLastSetValue = val;
-			m_bValueHasBeenSet = true;
+			bValueSet = true;
 			pNote->set_probability( val );
-			char valueChar[100];
-			sprintf( valueChar, "%#.2f",  val);
-			HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note probability [%1]").arg( valueChar ), 2000 );
+		}
+		
+		if ( bValueSet ) {
+			triggerStatusMessage( pNote );
+			m_bValueHasBeenSet = true;
+			Hydrogen::get_instance()->setIsModified( true );
 		}
 	}
 
-	m_nDragPreviousColumn = nColumn;
 
-	Hydrogen::get_instance()->setIsModified( true );
+	m_nDragPreviousColumn = nColumn;
 	updateEditor();
 
 	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
@@ -483,19 +501,16 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 {
 	Note *pOldNote = m_oldNotes[ pNote ];
 	assert( pOldNote );
+
+	bool bValueSet = false;
+	
 	switch (m_Mode) {
 	case VELOCITY:
 		if ( !pNote->get_note_off() ) {
 			float fVelocity = qBound(  VELOCITY_MIN, (pOldNote->get_velocity() + fDelta), VELOCITY_MAX );
 			pNote->set_velocity( fVelocity );
 			m_fLastSetValue = fVelocity;
-			m_bValueHasBeenSet = true;
-			if ( bMessage ) {
-				char valueChar[100];
-				sprintf( valueChar, "%#.2f",  fVelocity );
-				( HydrogenApp::get_instance() )->setStatusBarMessage( QString( tr( "Set note velocity [%1]" ) )
-																	  .arg( valueChar ), 2000 );
-			}
+			bValueSet = true;
 		}
 		break;
 	case PAN:
@@ -503,7 +518,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 			float fVal = pOldNote->getPanWithRangeFrom0To1() + fDelta; // value in [0,1] or slight out of boundaries
 			pNote->setPanWithRangeFrom0To1( fVal ); // checks the boundaries as well
 			m_fLastSetValue = pNote->getPanWithRangeFrom0To1();
-			m_bValueHasBeenSet = true;
+			bValueSet = true;
 		}
 		break;
 	case LEADLAG:
@@ -511,19 +526,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 			float fLeadLag = qBound( LEAD_LAG_MIN, pOldNote->get_lead_lag() - fDelta, LEAD_LAG_MAX );
 			pNote->set_lead_lag( fLeadLag );
 			m_fLastSetValue = fLeadLag;
-			m_bValueHasBeenSet = true;
-			if ( bMessage ) {
-				char valueChar[100];
-				if (pNote->get_lead_lag() < 0.0) {
-					sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
-				} else if (pNote->get_lead_lag() > 0.0) {
-					sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
-				} else {
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
-				}
-			}
+			bValueSet = true;
 		}
 		break;
 	case PROBABILITY:
@@ -531,7 +534,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 			float fProbability = qBound( 0.0f, pOldNote->get_probability() + fDelta, 1.0f );
 			pNote->set_probability( fProbability );
 			m_fLastSetValue = fProbability;
-			m_bValueHasBeenSet = true;
+			bValueSet = true;
 		}
 		break;
 	case NOTEKEY:
@@ -548,10 +551,17 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 		pNote->set_key_octave( key, octave );
 		m_fLastSetValue = 12 * octave + key;
 
-		m_bValueHasBeenSet = true;
+		bValueSet = true;
 		break;
 	}
-	Hydrogen::get_instance()->setIsModified( true );
+
+	if ( bValueSet ) {
+		Hydrogen::get_instance()->setIsModified( true );
+		m_bValueHasBeenSet = true;
+		if ( bMessage ) {
+			triggerStatusMessage( pNote );
+		}
+	}
 }
 
 void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
@@ -591,6 +601,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		m_pPatternEditorPanel->setCursorPosition(0);
 
 	} else {
+
 		// Value adjustments
 		float fDelta = 0.0;
 		bool bRepeatLastValue = false;
@@ -655,8 +666,11 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 					Note *pNote = it->second;
 					assert( pNote );
 					assert( pNote->get_position() == column );
-					nNotes++;
-					notes.push_back( pNote );
+					if ( pNote->get_instrument() ==
+						 pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
+						nNotes++;
+						notes.push_back( pNote );
+					}
 				}
 			}
 
@@ -673,21 +687,21 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 			for ( Note *pNote : notes ) {
 
-				if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument )
-					 && !m_selection.isSelected( pNote ) ) {
-					continue;
-				}
-
 				if ( !bRepeatLastValue ) {
+					
 					// Apply delta to the property
 					adjustNotePropertyDelta( pNote, fDelta, nNotes == 1 );
 
 				} else {
+
+					bool bValueSet = false;
+					
 					// Repeating last value
 					switch (m_Mode) {
 					case VELOCITY:
 						if ( !pNote->get_note_off() ) {
 							pNote->set_velocity( m_fLastSetValue );
+							bValueSet = true;
 						}
 						break;
 					case PAN:
@@ -696,20 +710,31 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 								printf( "reached  m_fLastSetValue > 1 in NotePropertiesRuler.cpp\n" );
 								pNote->setPanWithRangeFrom0To1( m_fLastSetValue );
 							}
-							break;
+							bValueSet = true;
 						}
+						break;
 					case LEADLAG:
 						pNote->set_lead_lag( m_fLastSetValue );
+							bValueSet = true;
 						break;
 					case PROBABILITY:
 						if ( !pNote->get_note_off() ) {
 							pNote->set_probability( m_fLastSetValue );
+							bValueSet = true;
 						}
 						break;
 					case NOTEKEY:
 						pNote->set_key_octave( (Note::Key)( (int)m_fLastSetValue % 12 ),
 											   (Note::Octave)( (int)m_fLastSetValue / 12 ) );
+						bValueSet = true;
 						break;
+					}
+
+					if ( bValueSet ) {
+						if ( nNotes == 1 ) {
+							triggerStatusMessage( pNote );
+						}
+						Hydrogen::get_instance()->setIsModified( true );
 					}
 				}
 			}
@@ -1480,3 +1505,85 @@ void NotePropertiesRuler::onPreferencesChanged( H2Core::Preferences::Changes cha
 		update();
 	}
 }
+
+void NotePropertiesRuler::triggerStatusMessage( Note* pNote ) const {
+	QString s;
+	QString sUnit( tr( "ticks" ) );
+	float fValue;
+	
+	switch ( m_Mode ) {
+	case VELOCITY:
+		if ( ! pNote->get_note_off() ) {
+			s = QString( tr( "Set note velocity" ) )
+				.append( QString( ": [%1]")
+						 .arg( pNote->get_velocity(), 2, 'f', 2 ) );
+		}
+		break;
+		
+	case PAN:
+		if ( ! pNote->get_note_off() ) {
+
+			// Round the pan to not miss the center due to fluctuations
+			fValue = pNote->getPan() * 100;
+			fValue = std::round( fValue );
+			fValue = fValue / 100;
+			
+			if ( fValue > 0.0 ) {
+				s = QString( tr( "Note panned to the right by" ) ).
+					append( QString( ": [%1]" ).arg( fValue / 2, 2, 'f', 2 ) );
+			} else if ( fValue < 0.0 ) {
+				s = QString( tr( "Note panned to the left by" ) ).
+					append( QString( ": [%1]" ).arg( -1 * fValue / 2, 2, 'f', 2 ) );
+			} else {
+				s = QString( tr( "Note centered" ) );
+			}
+		}
+		break;
+		
+	case LEADLAG:;
+		// Round the pan to not miss the center due to fluctuations
+		fValue = pNote->get_lead_lag() * 100;
+		fValue = std::round( fValue );
+		fValue = fValue / 100;
+		if ( fValue < 0.0 ) {
+			s = QString( tr( "Leading beat by" ) )
+				.append( QString( ": [%1] " )
+						 .arg( fValue * -1 *
+							   AudioEngine::getLeadLagInTicks() , 2, 'f', 2 ) )
+				.append( sUnit );
+		}
+		else if ( fValue > 0.0 ) {
+			s = QString( tr( "Lagging beat by" ) )
+				.append( QString( ": [%1] " )
+						 .arg( fValue *
+							   AudioEngine::getLeadLagInTicks() , 2, 'f', 2 ) )
+				.append( sUnit );
+		}
+		else {
+			s = tr( "Note on beat" );
+		}
+		break;
+
+	case NOTEKEY:
+		s = QString( tr( "Set pitch" ) ).append( ": " ).append( tr( "key" ) )
+			.append( QString( " [%1], " ).arg( Note::KeyToQString( pNote->get_key() ) ) )
+			.append( tr( "octave" ) )
+			.append( QString( ": [%1]" ).arg( pNote->get_octave() ) );
+		break;
+
+	case PROBABILITY:
+		if ( ! pNote->get_note_off() ) {
+			s = tr( "Set note probability to" )
+				.append( QString( ": [%1]" ).arg( pNote->get_probability(), 2, 'f', 2 ) );
+		}
+		break;
+
+	default:
+		ERRORLOG( QString( "Unknown mode: [%1]" ).arg( m_Mode ) );
+	}
+
+	if ( ! s.isEmpty() ) {
+		HydrogenApp::get_instance()->setStatusBarMessage( s, 2000 );
+	}
+}
+					
