@@ -163,6 +163,7 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int row,
 
 void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 {
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	if ( m_pPattern == nullptr || m_nSelectedPatternNumber == -1 ) {
 		return;
@@ -188,7 +189,6 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	if( ev->button() == Qt::LeftButton && (ev->modifiers() & Qt::ShiftModifier) )
 	{
 		//shift + leftClick: add noteOff note
-		HydrogenApp *pApp = HydrogenApp::get_instance();
 		Note *pNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
 		if ( pNote != nullptr ) {
 			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nColumn,
@@ -206,53 +206,64 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 																			 false,
 																			 false,
 																			 pNote->get_note_off() );
-			pApp->m_pUndoStack->push( action );
+			pHydrogenApp->m_pUndoStack->push( action );
 		} else {
 			// Add stop-note
 			SE_addNoteOffAction *action = new SE_addNoteOffAction( nColumn, row, m_nSelectedPatternNumber,
 																   pNote != nullptr );
-			pApp->m_pUndoStack->push( action );
+			pHydrogenApp->m_pUndoStack->push( action );
 		}
 	}
 	else if ( ev->button() == Qt::LeftButton ) {
 
-		pHydrogen->setSelectedInstrumentNumber( row );
 		addOrRemoveNote( nColumn, nRealColumn, row );
 		m_selection.clearSelection();
 
 	} else if ( ev->button() == Qt::RightButton ) {
 
 		m_pPopupMenu->popup( ev->globalPos() );
-		pHydrogen->setSelectedInstrumentNumber( row );
-
-	} else {
-		// Other clicks may also set instrument
-		pHydrogen->setSelectedInstrumentNumber( row );
 	}
 
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
-	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
-	update();
 
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+	// Cursor either just got hidden or was moved.
+	if ( ! pHydrogenApp->hideKeyboardCursor() ) {
 		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getInstrumentList()->selectedInstrumentChangedEvent();
+		m_pPatternEditorPanel->getInstrumentList()->repaintInstrumentLines();
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 	}
+	update();
 }
 
 void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
 	PatternEditor::mousePressEvent( ev );
+	
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	int nInstruments = pSong->getInstrumentList()->size();
+	int nRow = static_cast<int>( ev->y() / static_cast<float>(m_nGridHeight) );
+	if ( nRow >= nInstruments ) {
+		return;
+	}
+	
+	pHydrogen->setSelectedInstrumentNumber( nRow );
+
+	// Hide cursor in case this behavior was selected in the
+	// Preferences.
+	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
+	pHydrogenApp->setHideKeyboardCursor( true );
+
+	// Cursor just got hidden.
+	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+		// Immediate update to prevent visual delay.
+		m_pPatternEditorPanel->getInstrumentList()->repaintInstrumentLines();
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+		update();
+	}
 
 	// Update cursor position
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		auto pHydrogen = Hydrogen::get_instance();
-		auto pSong = pHydrogen->getSong();
-		int nInstruments = pSong->getInstrumentList()->size();
-		int nRow = static_cast<int>( ev->y() / static_cast<float>(m_nGridHeight) );
-		if ( nRow >= nInstruments ) {
-			return;
-		}
 		int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
 		if ( ( m_pPattern != nullptr &&
 			   nColumn >= (int)m_pPattern->get_length() ) ||
@@ -276,6 +287,7 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 		return;
 	}
 	
+	auto pHydrogenApp = HydrogenApp::get_instance();	
 	int row = (int)( ev->y()  / (float)m_nGridHeight);
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
@@ -304,7 +316,16 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 		// Other drag (selection or move) we'll set the cursor input position to the start of the gesture
 		pHydrogen->setSelectedInstrumentNumber( row );
 		m_pPatternEditorPanel->setCursorPosition( nColumn );
-		HydrogenApp::get_instance()->setHideKeyboardCursor( true );
+		bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
+
+		pHydrogenApp->setHideKeyboardCursor( true );
+
+		// Cursor just got hidden.
+		if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+			m_pPatternEditorPanel->getInstrumentList()->repaintInstrumentLines();
+			m_pPatternEditorPanel->getPatternEditorRuler()->update();
+			update();
+		}
 	}
 }
 
@@ -694,10 +715,13 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		return;
 	}
 	
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
+	
 	const int nBlockSize = 5, nWordSize = 5;
-	Hydrogen *pH2 = Hydrogen::get_instance();
-	int nSelectedInstrument = pH2->getSelectedInstrumentNumber();
-	int nMaxInstrument = pH2->getSong()->getInstrumentList()->size();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
+	int nMaxInstrument = pHydrogen->getSong()->getInstrumentList()->size();
 	bool bUnhideCursor = true;
 
 	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
@@ -731,10 +755,10 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 
 	} else if ( ev->matches( QKeySequence::MoveToNextLine ) || ev->matches( QKeySequence::SelectNextLine ) ) {
 		if ( nSelectedInstrument + 1 < nMaxInstrument ) {
-			pH2->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
+			pHydrogen->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
 		}
 	} else if ( ev->matches( QKeySequence::MoveToEndOfBlock ) || ev->matches( QKeySequence::SelectEndOfBlock ) ) {
-		pH2->setSelectedInstrumentNumber( std::min( nSelectedInstrument + nBlockSize,
+		pHydrogen->setSelectedInstrumentNumber( std::min( nSelectedInstrument + nBlockSize,
 													nMaxInstrument-1 ) );
 
 	} else if ( ev->matches( QKeySequence::MoveToNextPage ) || ev->matches( QKeySequence::SelectNextPage ) ) {
@@ -746,17 +770,17 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		if ( nSelectedInstrument >= nMaxInstrument ) {
 			nSelectedInstrument = nMaxInstrument - 1;
 		}
-		pH2->setSelectedInstrumentNumber( nSelectedInstrument );
+		pHydrogen->setSelectedInstrumentNumber( nSelectedInstrument );
 
 	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) || ev->matches( QKeySequence::SelectEndOfDocument ) ) {
-		pH2->setSelectedInstrumentNumber( nMaxInstrument-1 );
+		pHydrogen->setSelectedInstrumentNumber( nMaxInstrument-1 );
 
 	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) || ev->matches( QKeySequence::SelectPreviousLine ) ) {
 		if ( nSelectedInstrument > 0 ) {
-			pH2->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
+			pHydrogen->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
 		}
 	} else if ( ev->matches( QKeySequence::MoveToStartOfBlock ) || ev->matches( QKeySequence::SelectStartOfBlock ) ) {
-		pH2->setSelectedInstrumentNumber( std::max( nSelectedInstrument - nBlockSize, 0 ) );
+		pHydrogen->setSelectedInstrumentNumber( std::max( nSelectedInstrument - nBlockSize, 0 ) );
 
 	} else if ( ev->matches( QKeySequence::MoveToPreviousPage ) || ev->matches( QKeySequence::SelectPreviousPage ) ) {
 		QWidget *pParent = dynamic_cast< QWidget *>( parent() );
@@ -765,10 +789,10 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		if ( nSelectedInstrument < 0 ) {
 			nSelectedInstrument = 0;
 		}
-		pH2->setSelectedInstrumentNumber( nSelectedInstrument );
+		pHydrogen->setSelectedInstrumentNumber( nSelectedInstrument );
 
 	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) || ev->matches( QKeySequence::SelectStartOfDocument ) ) {
-		pH2->setSelectedInstrumentNumber( 0 );
+		pHydrogen->setSelectedInstrumentNumber( 0 );
 
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 		// Key: Enter / Return: add or remove note at current position
@@ -810,17 +834,24 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 
 	} else {
 		ev->ignore();
+		pHydrogenApp->setHideKeyboardCursor( true );
+		
+		if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+			m_pPatternEditorPanel->getInstrumentList()->repaintInstrumentLines();
+			m_pPatternEditorPanel->getPatternEditorRuler()->update();
+			update();
+		}
 		return;
 	}
 	if ( bUnhideCursor ) {
-		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
+		pHydrogenApp->setHideKeyboardCursor( false );
 	}
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
 	m_pPatternEditorPanel->ensureCursorVisible();
 
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+	if ( ! pHydrogenApp->hideKeyboardCursor() ) {
 		// Immediate update to prevent visual delay.
-		m_pPatternEditorPanel->getInstrumentList()->selectedInstrumentChangedEvent();
+		m_pPatternEditorPanel->getInstrumentList()->repaintInstrumentLines();
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 	}
 	update();
@@ -1421,7 +1452,6 @@ void DrumPatternEditor::selectedPatternChangedEvent()
 {
 	updateEditor();
 }
-
 
 ///NotePropertiesRuler undo redo action
 void DrumPatternEditor::undoRedoAction( int column,

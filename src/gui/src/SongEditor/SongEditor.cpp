@@ -485,6 +485,8 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	bool bIsSelectionKey = false;
 	bool bUnhideCursor = true;
 
+	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
+	
 	H2Core::Song::ActionMode actionMode = pHydrogen->getActionMode();
 		
 	if ( actionMode == H2Core::Song::ActionMode::selectMode ) {
@@ -616,6 +618,12 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	} else {
 		ev->ignore();
 		pHydrogenApp->setHideKeyboardCursor( true );
+
+		if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+			pHydrogenApp->getSongEditorPanel()->getSongEditorPatternList()->update();
+			pHydrogenApp->getSongEditorPanel()->getSongEditorPositionRuler()->update();
+			update();
+		}
 		return;
 	}
 	if ( bUnhideCursor ) {
@@ -643,7 +651,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	if ( ! pHydrogenApp->hideKeyboardCursor() ) {
 		pHydrogenApp->getSongEditorPanel()->getSongEditorPatternList()->update();
 		pHydrogenApp->getSongEditorPanel()->getSongEditorPositionRuler()->update();
-	}
+	}	
 	update();
 	ev->accept();
 }
@@ -703,6 +711,7 @@ int operator<( QPoint a, QPoint b ) {
 
 void SongEditor::mousePressEvent( QMouseEvent *ev )
 {
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	updateModifiers( ev );
 	m_currentMousePosition = ev->pos();
 	m_bSequenceChanged = true;
@@ -711,13 +720,16 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 	QPoint p = xyToColumnRow( ev->pos() );
 	m_nCursorColumn = p.x();
 	m_nCursorRow = p.y();
-	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
+
+	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
+	
+	pHydrogenApp->setHideKeyboardCursor( true );
 
 	if ( Hydrogen::get_instance()->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
 		m_selection.mousePressEvent( ev );
-		if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-			HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPatternList()->update();
-			HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler()->update();
+		if ( ! pHydrogenApp->hideKeyboardCursor() ) {
+			pHydrogenApp->getSongEditorPanel()->getSongEditorPatternList()->update();
+			pHydrogenApp->getSongEditorPanel()->getSongEditorPositionRuler()->update();
 			update();
 		}
 
@@ -732,6 +744,13 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 		} else if ( ev->button() == Qt::RightButton ) {
 			m_pPopupMenu->popup( ev->globalPos() );
 		}
+	}
+
+	// Cursor just got hidden.
+	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+		pHydrogenApp->getSongEditorPanel()->getSongEditorPatternList()->update();
+		pHydrogenApp->getSongEditorPanel()->getSongEditorPositionRuler()->update();
+		update();
 	}
 }
 
@@ -767,9 +786,11 @@ void SongEditor::updateModifiers( QInputEvent *ev )
 
 void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 {
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pSong = Hydrogen::get_instance()->getSong();
 	updateModifiers( ev );
 	m_currentMousePosition = ev->pos();
+	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
 
 	if ( Hydrogen::get_instance()->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
 		m_selection.mouseMoveEvent( ev );
@@ -794,6 +815,13 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 
 		// Drawing mode: continue drawing over other cells
 		setPatternActive( p.x(), p.y(), ! m_bDrawingActiveCell );
+	}
+
+	// Cursor just got hidden.
+	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+		pHydrogenApp->getSongEditorPanel()->getSongEditorPatternList()->update();
+		pHydrogenApp->getSongEditorPanel()->getSongEditorPositionRuler()->update();
+		update();
 	}
 }
 

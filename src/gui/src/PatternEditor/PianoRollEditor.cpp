@@ -23,6 +23,7 @@
 #include "PianoRollEditor.h"
 #include "PatternEditorPanel.h"
 #include "PatternEditorRuler.h"
+#include "PatternEditorInstrumentList.h"
 #include "NotePropertiesRuler.h"
 #include "UndoActions.h"
 #include <cassert>
@@ -442,6 +443,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 		return;
 	}
 
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 
 	int nPressedLine = ((int) ev->y()) / ((int) m_nGridHeight);
@@ -456,7 +458,6 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 		return;
 	}
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
-	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
 	std::shared_ptr<Instrument> pSelectedInstrument = nullptr;
 	int nSelectedInstrumentnumber = Hydrogen::get_instance()->getSelectedInstrumentNumber();
@@ -490,10 +491,10 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 																								   pNote->get_octave(),
 																								   pNote->get_probability(),
 																								   pNote != nullptr );
-				HydrogenApp::get_instance()->m_pUndoStack->push( action );
+				pHydrogenApp->m_pUndoStack->push( action );
 			} else {
 				SE_addPianoRollNoteOffAction *action = new SE_addPianoRollNoteOffAction( nColumn, nPressedLine, m_nSelectedPatternNumber, nSelectedInstrumentnumber );
-				HydrogenApp::get_instance()->m_pUndoStack->push( action );
+				pHydrogenApp->m_pUndoStack->push( action );
 			}
 			return;
 		}
@@ -510,9 +511,23 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 
 void PianoRollEditor::mousePressEvent( QMouseEvent* ev ) {
 	PatternEditor::mousePressEvent( ev );
+	
+	auto pHydrogenApp = HydrogenApp::get_instance();
+
+	// Hide cursor in case this behavior was selected in the
+	// Preferences.
+	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
+	pHydrogenApp->setHideKeyboardCursor( true );
+
+	// Cursor just got hidden.
+	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+		// Immediate update to prevent visual delay.
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+		update();
+	}
 
 	// Update cursor position
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+	if ( ! pHydrogenApp->hideKeyboardCursor() ) {
 		int nPressedLine = ((int) ev->y()) / ((int) m_nGridHeight);
 		if ( nPressedLine >= (int) m_nOctaves * 12 ) {
 			return;
@@ -538,15 +553,25 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
-	
+
+	auto pHydrogenApp = HydrogenApp::get_instance();
 	m_pDraggedNote = nullptr;
-	Hydrogen *pH2 = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	int nColumn = getColumn( ev->x() );
-	std::shared_ptr<Song> pSong = pH2->getSong();
-	int nSelectedInstrumentnumber = pH2->getSelectedInstrumentNumber();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	int nSelectedInstrumentnumber = pHydrogen->getSelectedInstrumentNumber();
 	auto pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
-	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
+
+	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
+	
+	pHydrogenApp->setHideKeyboardCursor( true );
+	
+	// Cursor either just got hidden or was moved.
+	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+		// Immediate update to prevent visual delay.
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+	}
 
 	int nPressedLine = ((int) ev->y()) / ((int) m_nGridHeight);
 
@@ -1077,7 +1102,10 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
-	
+
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
+		
 	const int nBlockSize = 5, nWordSize = 5;
 	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
 	bool bUnhideCursor = true;
@@ -1193,6 +1221,12 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 
 	} else {
 		ev->ignore();
+		pHydrogenApp->setHideKeyboardCursor( true );
+		
+		if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+			m_pPatternEditorPanel->getPatternEditorRuler()->update();
+			update();
+		}
 		return;
 	}
 

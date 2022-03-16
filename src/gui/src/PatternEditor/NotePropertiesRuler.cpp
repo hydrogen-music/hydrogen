@@ -130,7 +130,10 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 #endif
 
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
-	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
+
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
+	pHydrogenApp->setHideKeyboardCursor( true );
 
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	auto pSelectedInstrument = pSong->getInstrumentList()->get( pHydrogen->getSelectedInstrumentNumber() );
@@ -153,7 +156,16 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		if ( pNote->get_instrument() != pSelectedInstrument && !m_selection.isSelected( pNote ) ) {
 			continue;
 		}
+		bValueChanged = true;
 		adjustNotePropertyDelta( pNote, fDelta, /* bMessage=*/ true );
+	}
+	
+	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+		// Immediate update to prevent visual delay.
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+		if ( ! bValueChanged ) {
+			update();
+		}
 	}
 
 	if ( bValueChanged ) {
@@ -179,8 +191,22 @@ void NotePropertiesRuler::mouseClickEvent( QMouseEvent *ev ) {
 void NotePropertiesRuler::mousePressEvent( QMouseEvent* ev ) {
 	PatternEditor::mousePressEvent( ev );
 
+	auto pHydrogenApp = HydrogenApp::get_instance();
+
+	// Hide cursor in case this behavior was selected in the
+	// Preferences.
+	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
+	pHydrogenApp->setHideKeyboardCursor( true );
+
+	// Cursor just got hidden.
+	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+		// Immediate update to prevent visual delay.
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+		update();
+	}
+	
 	// Update cursor position
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+	if ( ! pHydrogenApp->hideKeyboardCursor() ) {
 		int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
 		if ( ( m_pPattern != nullptr &&
 			   nColumn >= (int)m_pPattern->get_length() ) ||
@@ -396,7 +422,8 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pSong = pHydrogen->getSong();
-	
+
+	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
 	pHydrogenApp->setHideKeyboardCursor( true );
 
 	if ( m_nDragPreviousColumn != nColumn ) {
@@ -489,6 +516,11 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 		}
 	}
 
+	// Cursor just got hidden.
+	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+		// Immediate update to prevent visual delay.
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+	}
 
 	m_nDragPreviousColumn = nColumn;
 	createBackground();
@@ -580,6 +612,9 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
+	
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
 	
 	const int nWordSize = 5;
 	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
@@ -754,16 +789,25 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			}
 			addUndoAction();
 		} else {
-			HydrogenApp::get_instance()->setHideKeyboardCursor( true );
+			pHydrogenApp->setHideKeyboardCursor( true );
 			ev->ignore();
+			
+			// Cursor either just got hidden.
+			if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+				// Immediate update to prevent visual delay.
+				m_pPatternEditorPanel->getPatternEditorRuler()->update();
+				update();
+			}
 			return;
 		}
 	}
 	if ( bUnhideCursor ) {
-		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
+		pHydrogenApp->setHideKeyboardCursor( false );
 	}
-	
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
+
+	// Cursor either just got hidden or was moved.
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() || 
+		bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
 		// Immediate update to prevent visual delay.
 		m_pPatternEditorPanel->getPatternEditorRuler()->update();
 	}

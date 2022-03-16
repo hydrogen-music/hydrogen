@@ -753,6 +753,20 @@ void PatternEditorInstrumentList::drumkitLoadedEvent() {
 	updateInstrumentLines();
 }
 
+void PatternEditorInstrumentList::repaintInstrumentLines() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
+
+	unsigned nInstruments = pInstrList->size();
+	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
+		if ( nInstr < nInstruments &&
+			 m_pInstrumentLine[ nInstr ] != nullptr ) {
+			m_pInstrumentLine[ nInstr ]->update();
+		}
+	}
+}
+
 void PatternEditorInstrumentList::selectedInstrumentChangedEvent() {
 
 	auto pHydrogen = Hydrogen::get_instance();
