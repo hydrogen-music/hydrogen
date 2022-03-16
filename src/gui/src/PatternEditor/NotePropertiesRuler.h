@@ -107,6 +107,7 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 
 		bool m_bNeedsUpdate;
 		void createBackground() override;
+	void drawDefaultBackground( QPainter& painter, int nHeight = 0, int nIncrement = 0 );
 		void drawFocus( QPainter& painter );
 
 		NotePropertiesMode m_Mode;
@@ -114,9 +115,8 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		double m_fLastSetValue;
 		bool m_bValueHasBeenSet;
 
-		void createVelocityBackground(QPixmap *pixmap);
-		void createPanBackground(QPixmap *pixmap);
-		void createLeadLagBackground(QPixmap *pixmap);
+		void createNormalizedBackground(QPixmap *pixmap);
+		void createCenteredBackground(QPixmap *pixmap);
 		void createNoteKeyBackground(QPixmap *pixmap);
 
 		void paintEvent(QPaintEvent *ev) override;
