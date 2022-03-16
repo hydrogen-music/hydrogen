@@ -178,7 +178,7 @@ void InstrumentLine::updateStyleSheet() {
 
 	QColor textColor;
 	if ( m_bIsSelected ) {
-		textColor = QColor( 0, 0, 0 );
+		textColor = pPref->getColorTheme()->m_patternEditor_selectedRowTextColor;
 	} else {
 		textColor = pPref->getColorTheme()->m_patternEditor_textColor;
 	}

@@ -33,6 +33,7 @@ ColorTheme::ColorTheme()
 	: m_songEditor_backgroundColor( QColor( 128, 134, 152 ) )
 	, m_songEditor_alternateRowColor( QColor( 106, 111, 126 ) )
 	, m_songEditor_selectedRowColor( QColor( 149, 157, 178 ) )
+	, m_songEditor_selectedRowTextColor( QColor( 0, 0, 0 ) )
 	, m_songEditor_lineColor( QColor( 54, 57, 67 ) )
 	, m_songEditor_textColor( QColor( 206, 211, 224 ) )
 	, m_songEditor_automationBackgroundColor( QColor( 83, 89, 103 ) )
@@ -44,8 +45,9 @@ ColorTheme::ColorTheme()
 	, m_patternEditor_backgroundColor( QColor( 165, 166, 160 ) )
 	, m_patternEditor_alternateRowColor( QColor( 133, 134, 129 ) )
 	, m_patternEditor_selectedRowColor( QColor( 194, 195, 187 ) )
+	, m_patternEditor_selectedRowTextColor( QColor( 0, 0, 0 ) )
 	, m_patternEditor_octaveRowColor( QColor( 193, 194, 186 ) )
-	, m_patternEditor_textColor( QColor( 255, 255, 255 ) )
+	, m_patternEditor_textColor( QColor( 240, 240, 240 ) )
 	, m_patternEditor_noteVelocityFullColor( QColor( 247, 100, 100 ) )
 	, m_patternEditor_noteVelocityDefaultColor( QColor( 40, 40, 40 ) )
 	, m_patternEditor_noteVelocityHalfColor( QColor( 89, 131, 175 ) )
@@ -92,6 +94,7 @@ ColorTheme::ColorTheme( const std::shared_ptr<ColorTheme> pOther )
 	: m_songEditor_backgroundColor( pOther->m_songEditor_backgroundColor )
 	, m_songEditor_alternateRowColor( pOther->m_songEditor_alternateRowColor )
 	, m_songEditor_selectedRowColor( pOther->m_songEditor_selectedRowColor )
+	, m_songEditor_selectedRowTextColor( pOther->m_songEditor_selectedRowTextColor )
 	, m_songEditor_lineColor( pOther->m_songEditor_lineColor )
 	, m_songEditor_textColor( pOther->m_songEditor_textColor )
 	, m_songEditor_automationBackgroundColor( pOther->m_songEditor_automationBackgroundColor )
@@ -103,6 +106,7 @@ ColorTheme::ColorTheme( const std::shared_ptr<ColorTheme> pOther )
 	, m_patternEditor_backgroundColor( pOther->m_patternEditor_backgroundColor )
 	, m_patternEditor_alternateRowColor( pOther->m_patternEditor_alternateRowColor )
 	, m_patternEditor_selectedRowColor( pOther->m_patternEditor_selectedRowColor )
+	, m_patternEditor_selectedRowTextColor( pOther->m_patternEditor_selectedRowTextColor )
 	, m_patternEditor_octaveRowColor( pOther->m_patternEditor_octaveRowColor )
 	, m_patternEditor_textColor( pOther->m_patternEditor_textColor )
 	, m_patternEditor_noteVelocityFullColor( pOther->m_patternEditor_noteVelocityFullColor )
@@ -211,7 +215,10 @@ void Theme::setTheme( const std::shared_ptr<Theme> pOther ) {
 	DEBUGLOG("");
 	m_pColorTheme->m_songEditor_backgroundColor = pOther->getColorTheme()->m_songEditor_backgroundColor;
 	m_pColorTheme->m_songEditor_alternateRowColor = pOther->getColorTheme()->m_songEditor_alternateRowColor;
-	m_pColorTheme->m_songEditor_selectedRowColor = pOther->getColorTheme()->m_songEditor_selectedRowColor;
+	m_pColorTheme->m_songEditor_selectedRowColor =
+		pOther->getColorTheme()->m_songEditor_selectedRowColor;
+	m_pColorTheme->m_songEditor_selectedRowTextColor =
+		pOther->getColorTheme()->m_songEditor_selectedRowTextColor;
 	m_pColorTheme->m_songEditor_lineColor = pOther->getColorTheme()->m_songEditor_lineColor;
 	m_pColorTheme->m_songEditor_textColor = pOther->getColorTheme()->m_songEditor_textColor;
 	m_pColorTheme->m_songEditor_automationBackgroundColor =
@@ -228,7 +235,10 @@ void Theme::setTheme( const std::shared_ptr<Theme> pOther ) {
 		pOther->getColorTheme()->m_songEditor_stackedModeOffNextColor;
 	m_pColorTheme->m_patternEditor_backgroundColor = pOther->getColorTheme()->m_patternEditor_backgroundColor;
 	m_pColorTheme->m_patternEditor_alternateRowColor = pOther->getColorTheme()->m_patternEditor_alternateRowColor;
-	m_pColorTheme->m_patternEditor_selectedRowColor = pOther->getColorTheme()->m_patternEditor_selectedRowColor;
+	m_pColorTheme->m_patternEditor_selectedRowColor =
+		pOther->getColorTheme()->m_patternEditor_selectedRowColor;
+	m_pColorTheme->m_patternEditor_selectedRowTextColor =
+		pOther->getColorTheme()->m_patternEditor_selectedRowTextColor;
 	m_pColorTheme->m_patternEditor_octaveRowColor =
 		pOther->getColorTheme()->m_patternEditor_octaveRowColor;
 	m_pColorTheme->m_patternEditor_textColor = pOther->getColorTheme()->m_patternEditor_textColor;
@@ -307,7 +317,10 @@ void Theme::writeColorTheme( QDomNode* parent, std::shared_ptr<Theme> pTheme )
 	QDomNode songEditorNode = doc.createElement( "songEditor" );
 	LocalFileMng::writeXmlColor( songEditorNode, "backgroundColor", pTheme->getColorTheme()->m_songEditor_backgroundColor );
 	LocalFileMng::writeXmlColor( songEditorNode, "alternateRowColor", pTheme->getColorTheme()->m_songEditor_alternateRowColor );
-	LocalFileMng::writeXmlColor( songEditorNode, "selectedRowColor", pTheme->getColorTheme()->m_songEditor_selectedRowColor );
+	LocalFileMng::writeXmlColor( songEditorNode, "selectedRowColor",
+								 pTheme->getColorTheme()->m_songEditor_selectedRowColor );
+	LocalFileMng::writeXmlColor( songEditorNode, "selectedRowTextColor",
+								 pTheme->getColorTheme()->m_songEditor_selectedRowTextColor );
 	LocalFileMng::writeXmlColor( songEditorNode, "lineColor", pTheme->getColorTheme()->m_songEditor_lineColor );
 	LocalFileMng::writeXmlColor( songEditorNode, "textColor", pTheme->getColorTheme()->m_songEditor_textColor );
 	LocalFileMng::writeXmlColor( songEditorNode, "automationBackgroundColor",
@@ -328,7 +341,10 @@ void Theme::writeColorTheme( QDomNode* parent, std::shared_ptr<Theme> pTheme )
 	QDomNode patternEditorNode = doc.createElement( "patternEditor" );
 	LocalFileMng::writeXmlColor( patternEditorNode, "backgroundColor", pTheme->getColorTheme()->m_patternEditor_backgroundColor );
 	LocalFileMng::writeXmlColor( patternEditorNode, "alternateRowColor", pTheme->getColorTheme()->m_patternEditor_alternateRowColor );
-	LocalFileMng::writeXmlColor( patternEditorNode, "selectedRowColor", pTheme->getColorTheme()->m_patternEditor_selectedRowColor );
+	LocalFileMng::writeXmlColor( patternEditorNode, "selectedRowColor",
+								 pTheme->getColorTheme()->m_patternEditor_selectedRowColor );
+	LocalFileMng::writeXmlColor( patternEditorNode, "selectedRowTextColor",
+								 pTheme->getColorTheme()->m_patternEditor_selectedRowTextColor );
 	LocalFileMng::writeXmlColor( patternEditorNode, "octaveRowColor",
 								 pTheme->getColorTheme()->m_patternEditor_octaveRowColor );
 	LocalFileMng::writeXmlColor( patternEditorNode, "textColor", pTheme->getColorTheme()->m_patternEditor_textColor );
@@ -397,7 +413,12 @@ void Theme::readColorTheme( QDomNode parent, std::shared_ptr<Theme> pTheme )
 	if ( !pSongEditorNode.isNull() ) {
 		pTheme->getColorTheme()->m_songEditor_backgroundColor = LocalFileMng::readXmlColor( pSongEditorNode, "backgroundColor", pTheme->getColorTheme()->m_songEditor_backgroundColor );
 		pTheme->getColorTheme()->m_songEditor_alternateRowColor = LocalFileMng::readXmlColor( pSongEditorNode, "alternateRowColor", pTheme->getColorTheme()->m_songEditor_alternateRowColor );
-		pTheme->getColorTheme()->m_songEditor_selectedRowColor = LocalFileMng::readXmlColor( pSongEditorNode, "selectedRowColor", pTheme->getColorTheme()->m_songEditor_selectedRowColor );
+		pTheme->getColorTheme()->m_songEditor_selectedRowColor =
+			LocalFileMng::readXmlColor( pSongEditorNode, "selectedRowColor",
+										pTheme->getColorTheme()->m_songEditor_selectedRowColor );
+		pTheme->getColorTheme()->m_songEditor_selectedRowTextColor =
+			LocalFileMng::readXmlColor( pSongEditorNode, "selectedRowTextColor",
+										pTheme->getColorTheme()->m_songEditor_selectedRowTextColor );
 		pTheme->getColorTheme()->m_songEditor_lineColor = LocalFileMng::readXmlColor( pSongEditorNode, "lineColor", pTheme->getColorTheme()->m_songEditor_lineColor );
 		pTheme->getColorTheme()->m_songEditor_textColor = LocalFileMng::readXmlColor( pSongEditorNode, "textColor", pTheme->getColorTheme()->m_songEditor_textColor );
 		pTheme->getColorTheme()->m_songEditor_automationBackgroundColor =
@@ -427,7 +448,12 @@ void Theme::readColorTheme( QDomNode parent, std::shared_ptr<Theme> pTheme )
 	if ( !pPatternEditorNode.isNull() ) {
 		pTheme->getColorTheme()->m_patternEditor_backgroundColor = LocalFileMng::readXmlColor( pPatternEditorNode, "backgroundColor", pTheme->getColorTheme()->m_patternEditor_backgroundColor );
 		pTheme->getColorTheme()->m_patternEditor_alternateRowColor = LocalFileMng::readXmlColor( pPatternEditorNode, "alternateRowColor", pTheme->getColorTheme()->m_patternEditor_alternateRowColor );
-		pTheme->getColorTheme()->m_patternEditor_selectedRowColor = LocalFileMng::readXmlColor( pPatternEditorNode, "selectedRowColor", pTheme->getColorTheme()->m_patternEditor_selectedRowColor );
+		pTheme->getColorTheme()->m_patternEditor_selectedRowColor =
+			LocalFileMng::readXmlColor( pPatternEditorNode, "selectedRowColor",
+										pTheme->getColorTheme()->m_patternEditor_selectedRowColor );
+		pTheme->getColorTheme()->m_patternEditor_selectedRowTextColor =
+			LocalFileMng::readXmlColor( pPatternEditorNode, "selectedRowTextColor",
+										pTheme->getColorTheme()->m_patternEditor_selectedRowTextColor );
 		pTheme->getColorTheme()->m_patternEditor_octaveRowColor =
 			LocalFileMng::readXmlColor( pPatternEditorNode, "octaveRowColor",
 										pTheme->getColorTheme()->m_patternEditor_octaveRowColor );

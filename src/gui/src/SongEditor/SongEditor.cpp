@@ -1697,7 +1697,7 @@ void SongEditorPatternList::createBackground()
 	/// paint the foreground (pattern name etc.)
 	for ( int i = 0; i < nPatterns; i++ ) {
 		if ( i == nSelectedPattern ) {
-			p.setPen( QColor( 0,0,0 ) );
+			p.setPen( pPref->getColorTheme()->m_songEditor_selectedRowTextColor );
 		}
 		else {
 			p.setPen( pPref->getColorTheme()->m_songEditor_textColor );

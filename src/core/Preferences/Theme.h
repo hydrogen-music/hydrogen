@@ -49,6 +49,7 @@ public:
 	QColor m_songEditor_backgroundColor;
 	QColor m_songEditor_alternateRowColor;
 	QColor m_songEditor_selectedRowColor;
+	QColor m_songEditor_selectedRowTextColor;
 	QColor m_songEditor_lineColor;
 	QColor m_songEditor_textColor;
 	QColor m_songEditor_automationBackgroundColor;
@@ -61,6 +62,7 @@ public:
 	QColor m_patternEditor_backgroundColor;
 	QColor m_patternEditor_alternateRowColor;
 	QColor m_patternEditor_selectedRowColor;
+	QColor m_patternEditor_selectedRowTextColor;
 	QColor m_patternEditor_octaveRowColor;
 	QColor m_patternEditor_textColor;
 	QColor m_patternEditor_noteVelocityFullColor;
