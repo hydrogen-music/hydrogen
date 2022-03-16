@@ -61,6 +61,7 @@ public:
 	QColor m_patternEditor_backgroundColor;
 	QColor m_patternEditor_alternateRowColor;
 	QColor m_patternEditor_selectedRowColor;
+	QColor m_patternEditor_octaveRowColor;
 	QColor m_patternEditor_textColor;
 	QColor m_patternEditor_noteVelocityFullColor;
 	QColor m_patternEditor_noteVelocityDefaultColor;

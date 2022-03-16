@@ -16,10 +16,11 @@
    <stackedModeOffNextColor>247,100,100</stackedModeOffNextColor>
   </songEditor>
   <patternEditor>
-   <backgroundColor>167,168,163</backgroundColor>
-   <alternateRowColor>147,148,143</alternateRowColor>
-   <selectedRowColor>207,208,200</selectedRowColor>
-   <textColor>240,240,240</textColor>
+   <backgroundColor>165,166,160</backgroundColor>
+   <alternateRowColor>133,134,129</alternateRowColor>
+   <selectedRowColor>194,195,187</selectedRowColor>
+   <octaveRowColor>193,194,186</octaveRowColor>
+   <textColor>255,255,255</textColor>
    <noteVelocityFullColor>247,100,100</noteVelocityFullColor>
    <noteVelocityDefaultColor>40,40,40</noteVelocityDefaultColor>
    <noteVelocityHalfColor>89,131,175</noteVelocityHalfColor>

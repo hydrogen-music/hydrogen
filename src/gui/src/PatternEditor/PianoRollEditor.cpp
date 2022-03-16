@@ -105,8 +105,10 @@ void PianoRollEditor::finishUpdateEditor()
 
 	if ( m_bNeedsBackgroundUpdate ) {
 		createBackground();
+	} else {
+		drawPattern();
 	}
-	drawPattern();
+	
 	//	ERRORLOG(QString("update editor %1").arg(m_nEditorWidth));
 	m_bNeedsUpdate = false;
 	m_bNeedsBackgroundUpdate = false;
@@ -220,16 +222,12 @@ void PianoRollEditor::createBackground()
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	//INFOLOG( "(re)creating the background" );
-
-	QColor backgroundColor( 250, 250, 250 );
-
-	QColor octaveColor( 230, 230, 230 );
-	QColor octaveAlternateColor( 200, 200, 200 );
-	QColor baseOctaveColor( 245, 245, 245 );
-	QColor baseNoteColor( 255, 255, 255 );
-
-	QColor fbk( 160, 160, 160 );
+	QColor backgroundColor = pPref->getColorTheme()->m_patternEditor_backgroundColor;
+	QColor alternateRowColor = pPref->getColorTheme()->m_patternEditor_alternateRowColor;
+	QColor octaveColor = pPref->getColorTheme()->m_patternEditor_octaveRowColor;
+	// The line corresponding to the default pitch set to new notes
+	// will be highlighted.
+	QColor baseNoteColor = octaveColor.lighter( 119 );
 
 	unsigned start_x = 0;
 	unsigned end_x = width();
@@ -248,61 +246,33 @@ void PianoRollEditor::createBackground()
 
 	QPainter p( m_pBackgroundPixmap );
 
-	for ( uint octave = 0; octave < m_nOctaves; ++octave ) {
-		unsigned start_y = octave * 12 * m_nGridHeight;
+	for ( uint ooctave = 0; ooctave < m_nOctaves; ++ooctave ) {
+		unsigned start_y = ooctave * 12 * m_nGridHeight;
 
-		if ( octave % 2 ) {
-
-
-			if ( octave == 3 ){
-
-				//				p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nGridHeight, baseOctaveColor );
-				p.fillRect( start_x, start_y, end_x - start_x, start_y + 1 * m_nGridHeight, baseOctaveColor );
-				p.fillRect( start_x, start_y + 1 * m_nGridHeight, end_x - start_x, start_y + 2 * m_nGridHeight, fbk );
-				p.fillRect( start_x, start_y + 2 * m_nGridHeight, end_x - start_x, start_y + 3 * m_nGridHeight, baseOctaveColor );
-				p.fillRect( start_x, start_y + 3 * m_nGridHeight, end_x - start_x, start_y + 4 * m_nGridHeight, fbk );
-				p.fillRect( start_x, start_y + 4 * m_nGridHeight, end_x - start_x, start_y + 5 * m_nGridHeight, baseOctaveColor );
-				p.fillRect( start_x, start_y + 5 * m_nGridHeight, end_x - start_x, start_y + 6 * m_nGridHeight, fbk );
-				p.fillRect( start_x, start_y + 6 * m_nGridHeight, end_x - start_x, start_y + 7 * m_nGridHeight, baseOctaveColor );
-				p.fillRect( start_x, start_y + 7 * m_nGridHeight, end_x - start_x, start_y + 8 * m_nGridHeight, baseOctaveColor );
-				p.fillRect( start_x, start_y + 8 * m_nGridHeight, end_x - start_x, start_y + 9 * m_nGridHeight, fbk );
-				p.fillRect( start_x, start_y + 9 * m_nGridHeight, end_x - start_x, start_y + 10 * m_nGridHeight, baseOctaveColor );
-				p.fillRect( start_x, start_y + 10 * m_nGridHeight, end_x - start_x, start_y + 11 * m_nGridHeight, fbk );
-				p.fillRect( start_x, start_y + 11 * m_nGridHeight, end_x - start_x, start_y + 12 * m_nGridHeight, baseNoteColor );
-			}
-			else
-			{
-				//	p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nGridHeight, octaveColor );
-				p.fillRect( start_x, start_y, end_x - start_x, start_y + 1 * m_nGridHeight, octaveColor );
-				p.fillRect( start_x, start_y + 1 * m_nGridHeight, end_x - start_x, start_y + 2 * m_nGridHeight, fbk );
-				p.fillRect( start_x, start_y + 2 * m_nGridHeight, end_x - start_x, start_y + 3 * m_nGridHeight, octaveColor );
-				p.fillRect( start_x, start_y + 3 * m_nGridHeight, end_x - start_x, start_y + 4 * m_nGridHeight, fbk );
-				p.fillRect( start_x, start_y + 4 * m_nGridHeight, end_x - start_x, start_y + 5 * m_nGridHeight, octaveColor );
-				p.fillRect( start_x, start_y + 5 * m_nGridHeight, end_x - start_x, start_y + 6 * m_nGridHeight, fbk );
-				p.fillRect( start_x, start_y + 6 * m_nGridHeight, end_x - start_x, start_y + 7 * m_nGridHeight, octaveColor );
-				p.fillRect( start_x, start_y + 7 * m_nGridHeight, end_x - start_x, start_y + 8 * m_nGridHeight, octaveColor );
-				p.fillRect( start_x, start_y + 8 * m_nGridHeight, end_x - start_x, start_y + 9 * m_nGridHeight, fbk );
-				p.fillRect( start_x, start_y + 9 * m_nGridHeight, end_x - start_x, start_y + 10 * m_nGridHeight, octaveColor );
-				p.fillRect( start_x, start_y + 10 * m_nGridHeight, end_x - start_x, start_y + 11 * m_nGridHeight, fbk );
-				p.fillRect( start_x, start_y + 11 * m_nGridHeight, end_x - start_x, start_y + 12 * m_nGridHeight, octaveColor );
-
+		for ( int ii = 0; ii < 12; ++ii ) {
+			if ( ii == 0 || ii == 2 || ii == 4 || ii == 6 || ii == 7 ||
+				 ii == 9 || ii == 11 ) {
+				if ( ooctave % 2 != 0 ) {
+					p.fillRect( start_x, start_y + ii * m_nGridHeight,
+								end_x - start_x, start_y + ( ii + 1 ) * m_nGridHeight,
+								octaveColor );
+				} else {
+					p.fillRect( start_x, start_y + ii * m_nGridHeight,
+								end_x - start_x, start_y + ( ii + 1 ) * m_nGridHeight,
+								backgroundColor );
+				}
+			} else {
+				p.fillRect( start_x, start_y + ii * m_nGridHeight,
+							end_x - start_x, start_y + ( ii + 1 ) * m_nGridHeight,
+							alternateRowColor );
 			}
 		}
-		else {
-			//			p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nGridHeight, octaveAlternateColor );
-			p.fillRect( start_x, start_y, end_x - start_x, start_y + 1 * m_nGridHeight, octaveAlternateColor );
-			p.fillRect( start_x, start_y + 1 * m_nGridHeight, end_x - start_x, start_y + 2 * m_nGridHeight, fbk );
-			p.fillRect( start_x, start_y + 2 * m_nGridHeight, end_x - start_x, start_y + 3 * m_nGridHeight, octaveAlternateColor );
-			p.fillRect( start_x, start_y + 3 * m_nGridHeight, end_x - start_x, start_y + 4 * m_nGridHeight, fbk );
-			p.fillRect( start_x, start_y + 4 * m_nGridHeight, end_x - start_x, start_y + 5 * m_nGridHeight, octaveAlternateColor );
-			p.fillRect( start_x, start_y + 5 * m_nGridHeight, end_x - start_x, start_y + 6 * m_nGridHeight, fbk );
-			p.fillRect( start_x, start_y + 6 * m_nGridHeight, end_x - start_x, start_y + 7 * m_nGridHeight, octaveAlternateColor );
-			p.fillRect( start_x, start_y + 7 * m_nGridHeight, end_x - start_x, start_y + 8 * m_nGridHeight, octaveAlternateColor );
-			p.fillRect( start_x, start_y + 8 * m_nGridHeight, end_x - start_x, start_y + 9 * m_nGridHeight, fbk );
-			p.fillRect( start_x, start_y + 9 * m_nGridHeight, end_x - start_x, start_y + 10 * m_nGridHeight, octaveAlternateColor );
-			p.fillRect( start_x, start_y + 10 * m_nGridHeight, end_x - start_x, start_y + 11 * m_nGridHeight, fbk );
-			p.fillRect( start_x, start_y + 11 * m_nGridHeight, end_x - start_x, start_y + 12 * m_nGridHeight, octaveAlternateColor );
-			
+
+		// Highlight base note pitch
+		if ( ooctave == 3 ) {
+			p.fillRect( start_x, start_y + 11 * m_nGridHeight,
+						end_x - start_x, start_y + 12 * m_nGridHeight,
+						baseNoteColor );
 		}
 	}
 
@@ -315,9 +285,8 @@ void PianoRollEditor::createBackground()
 
 	//draw text
 	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
-	//	font.setWeight( 63 );
 	p.setFont( font );
-	p.setPen( QColor(10, 10, 10 ) );
+	p.setPen( pPref->getColorTheme()->m_patternEditor_textColor );
 
 	int offset = 0;
 	int insertx = 3;
@@ -355,6 +324,7 @@ void PianoRollEditor::createBackground()
 	}
 
 	drawGridLines( p, Qt::DashLine );
+	drawPattern();
 }
 
 

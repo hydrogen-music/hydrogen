@@ -41,9 +41,10 @@ ColorTheme::ColorTheme()
 	, m_songEditor_stackedModeOnColor( QColor( 127, 159, 127 ) )
 	, m_songEditor_stackedModeOnNextColor( QColor( 240, 223, 175 ) )
 	, m_songEditor_stackedModeOffNextColor( QColor( 247, 100, 100 ) )
-	, m_patternEditor_backgroundColor( QColor(167, 168, 163) )
-	, m_patternEditor_alternateRowColor( QColor( 147, 148, 143 ) )
-	, m_patternEditor_selectedRowColor( QColor( 207, 208, 200 ) )
+	, m_patternEditor_backgroundColor( QColor( 165, 166, 160 ) )
+	, m_patternEditor_alternateRowColor( QColor( 133, 134, 129 ) )
+	, m_patternEditor_selectedRowColor( QColor( 194, 195, 187 ) )
+	, m_patternEditor_octaveRowColor( QColor( 193, 194, 186 ) )
 	, m_patternEditor_textColor( QColor( 255, 255, 255 ) )
 	, m_patternEditor_noteVelocityFullColor( QColor( 247, 100, 100 ) )
 	, m_patternEditor_noteVelocityDefaultColor( QColor( 40, 40, 40 ) )
@@ -102,6 +103,7 @@ ColorTheme::ColorTheme( const std::shared_ptr<ColorTheme> pOther )
 	, m_patternEditor_backgroundColor( pOther->m_patternEditor_backgroundColor )
 	, m_patternEditor_alternateRowColor( pOther->m_patternEditor_alternateRowColor )
 	, m_patternEditor_selectedRowColor( pOther->m_patternEditor_selectedRowColor )
+	, m_patternEditor_octaveRowColor( pOther->m_patternEditor_octaveRowColor )
 	, m_patternEditor_textColor( pOther->m_patternEditor_textColor )
 	, m_patternEditor_noteVelocityFullColor( pOther->m_patternEditor_noteVelocityFullColor )
 	, m_patternEditor_noteVelocityDefaultColor( pOther->m_patternEditor_noteVelocityDefaultColor )
@@ -227,6 +229,8 @@ void Theme::setTheme( const std::shared_ptr<Theme> pOther ) {
 	m_pColorTheme->m_patternEditor_backgroundColor = pOther->getColorTheme()->m_patternEditor_backgroundColor;
 	m_pColorTheme->m_patternEditor_alternateRowColor = pOther->getColorTheme()->m_patternEditor_alternateRowColor;
 	m_pColorTheme->m_patternEditor_selectedRowColor = pOther->getColorTheme()->m_patternEditor_selectedRowColor;
+	m_pColorTheme->m_patternEditor_octaveRowColor =
+		pOther->getColorTheme()->m_patternEditor_octaveRowColor;
 	m_pColorTheme->m_patternEditor_textColor = pOther->getColorTheme()->m_patternEditor_textColor;
 	m_pColorTheme->m_patternEditor_noteVelocityFullColor =
 		pOther->getColorTheme()->m_patternEditor_noteVelocityFullColor;
@@ -325,6 +329,8 @@ void Theme::writeColorTheme( QDomNode* parent, std::shared_ptr<Theme> pTheme )
 	LocalFileMng::writeXmlColor( patternEditorNode, "backgroundColor", pTheme->getColorTheme()->m_patternEditor_backgroundColor );
 	LocalFileMng::writeXmlColor( patternEditorNode, "alternateRowColor", pTheme->getColorTheme()->m_patternEditor_alternateRowColor );
 	LocalFileMng::writeXmlColor( patternEditorNode, "selectedRowColor", pTheme->getColorTheme()->m_patternEditor_selectedRowColor );
+	LocalFileMng::writeXmlColor( patternEditorNode, "octaveRowColor",
+								 pTheme->getColorTheme()->m_patternEditor_octaveRowColor );
 	LocalFileMng::writeXmlColor( patternEditorNode, "textColor", pTheme->getColorTheme()->m_patternEditor_textColor );
 	LocalFileMng::writeXmlColor( patternEditorNode, "noteVelocityFullColor",
 								 pTheme->getColorTheme()->m_patternEditor_noteVelocityFullColor );
@@ -422,6 +428,9 @@ void Theme::readColorTheme( QDomNode parent, std::shared_ptr<Theme> pTheme )
 		pTheme->getColorTheme()->m_patternEditor_backgroundColor = LocalFileMng::readXmlColor( pPatternEditorNode, "backgroundColor", pTheme->getColorTheme()->m_patternEditor_backgroundColor );
 		pTheme->getColorTheme()->m_patternEditor_alternateRowColor = LocalFileMng::readXmlColor( pPatternEditorNode, "alternateRowColor", pTheme->getColorTheme()->m_patternEditor_alternateRowColor );
 		pTheme->getColorTheme()->m_patternEditor_selectedRowColor = LocalFileMng::readXmlColor( pPatternEditorNode, "selectedRowColor", pTheme->getColorTheme()->m_patternEditor_selectedRowColor );
+		pTheme->getColorTheme()->m_patternEditor_octaveRowColor =
+			LocalFileMng::readXmlColor( pPatternEditorNode, "octaveRowColor",
+										pTheme->getColorTheme()->m_patternEditor_octaveRowColor );
 		pTheme->getColorTheme()->m_patternEditor_textColor = LocalFileMng::readXmlColor( pPatternEditorNode, "textColor", pTheme->getColorTheme()->m_patternEditor_textColor );
 		pTheme->getColorTheme()->m_patternEditor_noteVelocityFullColor =
 			LocalFileMng::readXmlColor( pPatternEditorNode, "noteVelocityFullColor",
