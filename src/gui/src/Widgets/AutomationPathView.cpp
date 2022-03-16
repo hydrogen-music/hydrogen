@@ -59,25 +59,27 @@ void AutomationPathView::onPreferencesChanged( H2Core::Preferences::Changes chan
 }
 
 
-void AutomationPathView::setAutomationPath(AutomationPath *path)
+void AutomationPathView::setAutomationPath( AutomationPath *path, bool bUpdate )
 {
 	_path = path;
-	if(_path) {
+	if( _path ) {
 		_selectedPoint = _path->end();
 	}
 
-	createBackground();
-	update();
+	if ( bUpdate ) {
+		createBackground();
+		update();
+	}
 }
 
 // Make sure we have the current automation path
 void AutomationPathView::updateAutomationPath()
 {
 	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong ) {
-		setAutomationPath( pSong->getVelocityAutomationPath() );
+	if ( pSong != nullptr ) {
+		setAutomationPath( pSong->getVelocityAutomationPath(), false );
 	} else {
-		setAutomationPath( nullptr );
+		setAutomationPath( nullptr, false );
 	}
 }
 

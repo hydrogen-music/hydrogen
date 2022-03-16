@@ -56,7 +56,7 @@ public:
 	AutomationPathView(QWidget *parent = nullptr);
 
 	H2Core::AutomationPath *getAutomationPath() const noexcept { return _path; }
-	void setAutomationPath(H2Core::AutomationPath *path);
+	void setAutomationPath(H2Core::AutomationPath *path, bool bUpdate = true);
 
 	int  getGridWidth() const noexcept { return m_nGridWidth; }
 	void setGridWidth(int width);

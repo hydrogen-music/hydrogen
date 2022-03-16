@@ -139,7 +139,6 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void keyPressEvent ( QKeyEvent * ev ) override;
-		virtual void focusInEvent ( QFocusEvent * ev ) override;
 		
 		void finishUpdateEditor();
 		

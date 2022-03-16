@@ -1326,14 +1326,6 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 	auto pPattern = pPatternList->get( nPatternNumber );
 
-	if ( pHydrogen->isPatternEditorLocked() ) {
-		pHydrogen->updateSelectedPattern();
-	} else  {
-		if ( nPatternNumber == nPreviousPatternNumber ) {
-			pHydrogen->setSelectedPatternNumber( std::max( 0, nPatternNumber - 1 ) );
-		}
-	}
-
 	if ( pPattern == nullptr ) {
 		ERRORLOG( QString( "Pattern [%1] not found" ).arg( nPatternNumber ) );
 		return false;
