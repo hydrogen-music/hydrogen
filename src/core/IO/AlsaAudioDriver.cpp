@@ -27,6 +27,7 @@
 #include <pthread.h>
 #include <iostream>
 #include <core/Preferences/Preferences.h>
+#include <core/EventQueue.h>
 
 namespace H2Core
 {
@@ -71,7 +72,8 @@ void* alsaAudioDriver_processCaller( void* param )
 
 	int err;
 	if ( ( err = snd_pcm_prepare( pDriver->m_pPlayback_handle ) ) < 0 ) {
-		__ERRORLOG( QString( "Cannot prepare audio interface for use: %1" ).arg( snd_strerror ( err ) ) );
+		__ERRORLOG( QString( "Cannot prepare audio interface for use: %1" )
+					.arg( snd_strerror ( err ) ) );
 	}
 
 	int nFrames = pDriver->m_nBufferSize;
@@ -80,6 +82,8 @@ void* alsaAudioDriver_processCaller( void* param )
 
 	float *pOut_L = pDriver->m_pOut_L;
 	float *pOut_R = pDriver->m_pOut_R;
+
+	int nTimeoutInMilliseconds = 100;
 
 	while ( pDriver->m_bIsRunning ) {
 		// prepare the audio data
@@ -90,21 +94,54 @@ void* alsaAudioDriver_processCaller( void* param )
 			pBuffer[ i * 2 + 1 ] = ( short )( pOut_R[ i ] * 32768.0 );
 		}
 
-		if ( ( err = snd_pcm_writei( pDriver->m_pPlayback_handle, pBuffer, nFrames ) ) < 0 ) {
-			__ERRORLOG( "XRUN" );
-
-			if ( alsa_xrun_recovery( pDriver->m_pPlayback_handle, err ) < 0 ) {
-				__ERRORLOG( "Can't recover from XRUN" );
+		// Check whether the playback stream is ready to process
+		// input.
+		if ( ( err = snd_pcm_wait( pDriver->m_pPlayback_handle,
+								   nTimeoutInMilliseconds ) ) < 1 ) {
+			// Playback stream is not ready. Since we opened the stream
+			// in blocking mode, the call to snd_pcm_writei() may take
+			// forever and cause the audio engine to stop working
+			// entirely. In addition, this also prevents the audio
+			// driver to be stopped and thus prevents the user from
+			// selecting a different/working version.
+			if ( err == 0 ) {
+				___ERRORLOG( QString( "timeout after [%1] milliseconds" )
+							 .arg( nTimeoutInMilliseconds ) );
+			} else {
+				___ERRORLOG( QString( "Error while waiting for playback stream: %1" )
+							 .arg( snd_strerror( err ) ) );
 			}
-			// retry
+			pDriver->m_nXRuns++;
+			EventQueue::get_instance()->push_event( EVENT_XRUN, 0 );
+		} else {
+
+			// Playback stream is ready, let's write out the audio
+			// buffer.
 			if ( ( err = snd_pcm_writei( pDriver->m_pPlayback_handle, pBuffer, nFrames ) ) < 0 ) {
-				__ERRORLOG( "XRUN 2" );
-				if ( alsa_xrun_recovery( pDriver->m_pPlayback_handle, err ) < 0 ) {
-					__ERRORLOG( "Can't recover from XRUN" );
+				___ERRORLOG( QString( "Error while writing playback stream: %1" )
+							 .arg( snd_strerror( err ) ) );
+
+				// Try to bring the playback device in a nice state
+				// again and retry writing the output buffer.
+				if ( ( err = snd_pcm_recover( pDriver->m_pPlayback_handle, err, 0 ) ) == 0 ) {
+					___INFOLOG( "Successfully recovered from error. Attempt to write buffer again." );
+					if ( ( err = snd_pcm_writei( pDriver->m_pPlayback_handle, pBuffer, nFrames ) ) < 0 ) {
+						___ERRORLOG( QString( "Unable to write playback stream again: %1" )
+									 .arg( snd_strerror( err ) ) );
+						pDriver->m_nXRuns++;
+						EventQueue::get_instance()->push_event( EVENT_XRUN, 0 );
+						if ( ( err = snd_pcm_recover( pDriver->m_pPlayback_handle, err, 0 ) ) < 0 ) {
+							__ERRORLOG( QString( "Can't recover from XRUN: %1" )
+										.arg( snd_strerror( err ) ) );
+						}
+					}
+				} else {
+					__ERRORLOG( QString( "Can't recover from XRUN: %1" )
+								.arg( snd_strerror( err ) ) );
+					pDriver->m_nXRuns++;
+					EventQueue::get_instance()->push_event( EVENT_XRUN, 0 );
 				}
 			}
-
-			pDriver->m_nXRuns++;
 		}
 	}
 	return nullptr;
@@ -175,28 +212,47 @@ int AlsaAudioDriver::init( unsigned nBufferSize )
 
 int AlsaAudioDriver::connect()
 {
-	INFOLOG( "alsa device: " + m_sAlsaAudioDevice );
+	INFOLOG( "to: " + m_sAlsaAudioDevice );
 	int nChannels = 2;
 
 	int err;
 
 	// provo ad aprire il device per verificare se e' libero ( non bloccante )
-	if ( ( err = snd_pcm_open( &m_pPlayback_handle, m_sAlsaAudioDevice.toLocal8Bit(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK ) ) < 0 ) {
-		ERRORLOG( QString( "ALSA: cannot open audio device %1:%2" ).arg( m_sAlsaAudioDevice ).arg( snd_strerror( err ) ) );
+	if ( ( err = snd_pcm_open( &m_pPlayback_handle,
+							   m_sAlsaAudioDevice.toLocal8Bit(),
+							   SND_PCM_STREAM_PLAYBACK,
+							   SND_PCM_NONBLOCK ) ) < 0 ) {
+		ERRORLOG( QString( "Cannot open audio device [%1] (non-blocking): %2" )
+				  .arg( m_sAlsaAudioDevice )
+				  .arg( snd_strerror( err ) ) );
 
-		// il dispositivo e' occupato..provo con "default"
+		// Use the default device as a fallback.
 		m_sAlsaAudioDevice = "default";
-		if ( ( err = snd_pcm_open( &m_pPlayback_handle, m_sAlsaAudioDevice.toLocal8Bit(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK ) ) < 0 ) {
-			ERRORLOG( QString( "ALSA: cannot open audio device %1:%2" ).arg( m_sAlsaAudioDevice ) .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+		if ( ( err = snd_pcm_open( &m_pPlayback_handle,
+								   m_sAlsaAudioDevice.toLocal8Bit(),
+								   SND_PCM_STREAM_PLAYBACK,
+								   SND_PCM_NONBLOCK ) ) < 0 ) {
+			ERRORLOG( QString( "Cannot open default audio device [%1] (non-blocking) either: %2" )
+					  .arg( m_sAlsaAudioDevice )
+					  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 			return 1;
 		}
-		WARNINGLOG( "Using alsa device: " + m_sAlsaAudioDevice );
+		WARNINGLOG( QString( "Using ALSA device [%1] instead." )
+					.arg( m_sAlsaAudioDevice ) );
 	}
-	snd_pcm_close( m_pPlayback_handle );
+	if ( ( err = snd_pcm_close( m_pPlayback_handle ) ) < 0 ) {
+		ERRORLOG( QString( "Unable to close non-blocking playback stream of audio device [%1]: %2" )
+				  .arg( m_sAlsaAudioDevice )
+				  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+	}
 
 	// Apro il device ( bloccante )
-	if ( ( err = snd_pcm_open( &m_pPlayback_handle, m_sAlsaAudioDevice.toLocal8Bit(), SND_PCM_STREAM_PLAYBACK, 0 ) ) < 0 ) {
-		ERRORLOG( QString( "ALSA: cannot open audio device %1:%2" ).arg( m_sAlsaAudioDevice ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+	if ( ( err = snd_pcm_open( &m_pPlayback_handle,
+							   m_sAlsaAudioDevice.toLocal8Bit(),
+							   SND_PCM_STREAM_PLAYBACK, 0 ) ) < 0 ) {
+		ERRORLOG( QString( "Cannot open audio device [%1] (blocking): %2" )
+				  .arg( m_sAlsaAudioDevice )
+				  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
 
@@ -208,25 +264,37 @@ int AlsaAudioDriver::connect()
 	}
 
 	if ( ( err = snd_pcm_hw_params_any( m_pPlayback_handle, hw_params ) ) < 0 ) {
-		ERRORLOG( QString( "error in snd_pcm_hw_params_any: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+		ERRORLOG( QString( "error in snd_pcm_hw_params_any: %1" )
+				  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
 //	snd_pcm_hw_params_set_access( m_pPlayback_handle, hw_params, SND_PCM_ACCESS_MMAP_INTERLEAVED  );
 
-	if ( ( err = snd_pcm_hw_params_set_access( m_pPlayback_handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED ) ) < 0 ) {
-		ERRORLOG( QString( "error in snd_pcm_hw_params_set_access: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+	if ( ( err = snd_pcm_hw_params_set_access( m_pPlayback_handle,
+											   hw_params,
+											   SND_PCM_ACCESS_RW_INTERLEAVED ) ) < 0 ) {
+		ERRORLOG( QString( "error in snd_pcm_hw_params_set_access: %1" )
+				  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
 
-	if ( ( err = snd_pcm_hw_params_set_format( m_pPlayback_handle, hw_params, SND_PCM_FORMAT_S16_LE ) ) < 0 ) {
-		ERRORLOG( QString( "error in snd_pcm_hw_params_set_format: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+	if ( ( err = snd_pcm_hw_params_set_format( m_pPlayback_handle,
+											   hw_params,
+											   SND_PCM_FORMAT_S16_LE ) ) < 0 ) {
+		ERRORLOG( QString( "error in snd_pcm_hw_params_set_format: %1" )
+				  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
 
-	snd_pcm_hw_params_set_rate_near( m_pPlayback_handle, hw_params, &m_nSampleRate, nullptr );
+	snd_pcm_hw_params_set_rate_near( m_pPlayback_handle,
+									 hw_params,
+									 &m_nSampleRate,
+									 nullptr );
 
-	if ( ( err = snd_pcm_hw_params_set_channels( m_pPlayback_handle, hw_params, nChannels ) ) < 0 ) {
-		ERRORLOG( QString( "error in snd_pcm_hw_params_set_channels: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+	if ( ( err = snd_pcm_hw_params_set_channels( m_pPlayback_handle,
+												 hw_params, nChannels ) ) < 0 ) {
+		ERRORLOG( QString( "error in snd_pcm_hw_params_set_channels: %1" )
+				  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
 
@@ -238,22 +306,31 @@ int AlsaAudioDriver::connect()
 	// of data.
 	//
 	unsigned nPeriods = 2;
-	if ( ( err = snd_pcm_hw_params_set_periods_near( m_pPlayback_handle, hw_params, &nPeriods, nullptr ) ) < 0 ) {
-		ERRORLOG( QString( "error in snd_pcm_hw_params_set_periods: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+	if ( ( err = snd_pcm_hw_params_set_periods_near( m_pPlayback_handle,
+													 hw_params,
+													 &nPeriods,
+													 nullptr ) ) < 0 ) {
+		ERRORLOG( QString( "error in snd_pcm_hw_params_set_periods_near: %1" )
+				  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
 	INFOLOG( QString( "nPeriods: %1" ).arg( nPeriods ) );
 
 	snd_pcm_uframes_t period_size = m_nBufferSize;
 
-	if ( ( err = snd_pcm_hw_params_set_period_size_near( m_pPlayback_handle, hw_params, &period_size, nullptr ) ) < 0 ) {
-		ERRORLOG( QString( "error in snd_pcm_hw_params_set_period_size: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+	if ( ( err = snd_pcm_hw_params_set_period_size_near( m_pPlayback_handle,
+														 hw_params,
+														 &period_size,
+														 nullptr ) ) < 0 ) {
+		ERRORLOG( QString( "error in snd_pcm_hw_params_set_period_size_near: %1" )
+				  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
 	m_nBufferSize = period_size;
 
 	if ( ( err = snd_pcm_hw_params( m_pPlayback_handle, hw_params ) ) < 0 ) {
-		ERRORLOG( QString( "error in snd_pcm_hw_params: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
+		ERRORLOG( QString( "error in snd_pcm_hw_params: %1" )
+				  .arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
 
@@ -286,8 +363,8 @@ int AlsaAudioDriver::connect()
 
 void AlsaAudioDriver::disconnect()
 {
-	INFOLOG( "[disconnect]" );
-
+	INFOLOG( "" );
+	
 	m_bIsRunning = false;
 
 	pthread_join( alsaAudioDriverThread, nullptr );
@@ -320,7 +397,6 @@ float* AlsaAudioDriver::getOut_R()
 {
 	return m_pOut_R;
 }
-
 };
 
 #endif // H2CORE_HAVE_ALSA

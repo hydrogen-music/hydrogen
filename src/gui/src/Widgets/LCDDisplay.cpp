@@ -47,13 +47,13 @@ LCDDisplay::LCDDisplay( QWidget * pParent, QSize size, bool bFixedFont )
 
 	m_fontPointSizes.resize( 3 );
 	switch ( pPref->getFontSize() ) {
-    case H2Core::FontTheme::FontSize::Small:
+	case H2Core::FontTheme::FontSize::Small:
 		m_fontPointSizes[ 0 ] = currentFont.pointSize();
 		break;
-    case H2Core::FontTheme::FontSize::Large:
+	case H2Core::FontTheme::FontSize::Large:
 		m_fontPointSizes[ 0 ] = currentFont.pointSize() - 2 * nStepSize;
 		break;
-    default:
+	default:
 		m_fontPointSizes[ 0 ] = currentFont.pointSize() - nStepSize;
 	}
 	
@@ -134,8 +134,6 @@ QLineEdit { \
 }
 
 void LCDDisplay::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 		updateFont();

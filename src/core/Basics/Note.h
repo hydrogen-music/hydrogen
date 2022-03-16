@@ -27,6 +27,7 @@
 
 #include <core/Object.h>
 #include <core/Basics/Instrument.h>
+#include <core/Basics/Sample.h>
 
 #define KEY_MIN                 0
 #define KEY_MAX                 11
@@ -344,6 +345,23 @@ class Note : public H2Core::Object<Note>
 			// Equivalent to, but quicker to compute than, pow( 2.0, ( fPitch/12 ) )
 			return pow( 1.0594630943593, fPitch );
 		}
+
+	/**
+	 * Returns the sample associated with the note for a specific
+	 * InstrumentComponent @a nComponentID.
+	 *
+	 * A sample of the InstrumentComponent is a possible candidate if
+	 * the note velocity falls within the start and end velocity of an
+	 * InstrumentLayer. In case multiple samples are possible the
+	 * function will either pick the provided @a nSelectedLayer or -
+	 * for @a nSelectedLayer == -1 - the selection algorithm stored in
+	 * #__instrument to determined a layer.
+	 *
+	 * The function stores the selected layer in #__layers_selected
+	 * and will reuse this parameter in every following call while
+	 * disregarding the provided @a nSelectedLayer.
+	 */
+	std::shared_ptr<Sample> getSample( int nComponentID, int nSelectedLayer = -1 );
 
 	private:
 		std::shared_ptr<Instrument>		__instrument;   ///< the instrument to be played by this note

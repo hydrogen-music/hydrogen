@@ -73,6 +73,61 @@ static long long exportCurrentSong( const QString &fileName, int nSampleRate )
 	return pHydrogen->getAudioEngine()->getFrames() - nStartFrames;
 }
 
+static QString showNumber( double f ) {
+	if ( f > 1000000 ) {
+		return QString( "%1M" ).arg( f/1000000 );
+	} else if ( f > 1000 ) {
+		return QString( "%1K" ).arg( f/1000 );
+	} else if ( f > 1 ) {
+		return QString( "%1" ).arg( f );
+	} else if ( f > 0.001 ) {
+		return QString( "%1m" ).arg( f*1000 );
+	} else {
+		return QString( "%1u" ).arg( f*1000000 );
+	}
+}
+
+static QString showTimes( std::vector< clock_t > &times, int nFrames ) {
+	double fTotal = std::accumulate(times.begin(), times.end(), 0) * 1.0 / CLOCKS_PER_SEC;
+	double fMean = fTotal / times.size();
+
+	double fTotalError = 0;
+	for ( auto t : times ) {
+		double fSeconds = 1.0 * t / CLOCKS_PER_SEC;
+		double fError = fMean - fSeconds;
+		fTotalError += fError * fError;
+	}
+	double fRMS = sqrt( fTotalError ) / times.size();
+
+	return QString( "%1s (%2 frames/sec) +/- %3%" )
+		.arg( showNumber( fMean ) )
+		.arg( showNumber( nFrames * 1.0 / fMean) )
+		.arg( 100.0 * fRMS / fMean, 0, 'f', 3 );
+}
+
+static void timeADSR() {
+	const int nFrames = 4096;
+	float data_L[nFrames], data_R[nFrames];
+	int nIterations = 32;
+	std::vector< clock_t > times;
+
+	for ( int i = 0; i < 100; i++ ) {
+		for (int i = 0; i < nFrames; i++) {
+			data_L[i] = data_R[i] = 1.0;
+		}
+
+		ADSR adsr( nFrames / 4, nFrames / 4, 0.5, nFrames / 4 );
+
+		std::clock_t start = std::clock();
+		adsr.applyADSR( data_L, data_R, nFrames, 3 * nFrames / 4, 1.0 );
+		std::clock_t end = std::clock();
+
+		times.push_back( end - start );
+	}
+
+	qDebug() << "ADSR time: " << showTimes( times, nFrames );
+}
+
 static void timeExport( int nSampleRate ) {
 	auto outFile = Filesystem::tmp_file_path("test.wav");
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
@@ -83,7 +138,7 @@ static void timeExport( int nSampleRate ) {
 	// Run through once to warm caches etc.
 	exportCurrentSong( outFile, 44100 );
 
-	double fTotalTime = 0;
+
 	for ( int i = 0; i < nIterations; i++ ) {
 
 		nFramesNew = 0;
@@ -97,24 +152,11 @@ static void timeExport( int nSampleRate ) {
 		nFrames = nFramesNew;
 
 		double fSeconds = 1.0 * (end - start) / CLOCKS_PER_SEC;
-		fTotalTime += fSeconds;
-		//		qDebug() << nFramesNew << "frames in" << fSeconds;
 
 		times.push_back( end - start );
 	}
 
-	double fMean = fTotalTime / times.size();
- 
-	double fTotalError = 0;
-	for ( auto t : times ) {
-		double fSeconds = 1.0 * t / CLOCKS_PER_SEC;
-		double fError = fMean - fSeconds;
-		fTotalError += fError * fError;
-	}
-	double fRMS = sqrt( fTotalError / times.size() );
-
-	qDebug() << "Sample rate " << nSampleRate << " mean time is " << fMean * 1000.0
-			 << "ms +/-" << 100.0 * fRMS / fMean << "%";
+	qDebug() << "Sample rate " << nSampleRate << " times: " << showTimes( times, nFrames * 5 );
 
 	Filesystem::rm( outFile );
 
@@ -127,6 +169,9 @@ void AudioBenchmark::audioBenchmark(void)
 	}
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
+	qDebug() << "Benchmark ADSR method:";
+	timeADSR();
+
 	auto songFile = H2TEST_FILE("functional/test.h2song");
 	auto songADSRFile = H2TEST_FILE("functional/test_adsr.h2song");
 
@@ -134,14 +179,14 @@ void AudioBenchmark::audioBenchmark(void)
 	std::shared_ptr<Song> pSong = Song::load( songFile );
 	CPPUNIT_ASSERT( pSong != nullptr );
 
-	if( !pSong ) {
+	if ( !pSong ) {
 		return;
 	}
 
 	pHydrogen->setSong( pSong );
 
 	InstrumentList *pInstrumentList = pSong->getInstrumentList();
-	for (auto i = 0; i < pInstrumentList->size(); i++) {
+	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}
 
@@ -161,7 +206,7 @@ void AudioBenchmark::audioBenchmark(void)
 
 	pHydrogen->setSong( pSong );
 	pInstrumentList = pSong->getInstrumentList();
-	for (auto i = 0; i < pInstrumentList->size(); i++) {
+	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}
 

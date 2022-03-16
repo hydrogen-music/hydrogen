@@ -23,6 +23,8 @@
 #include "Skin.h"
 #include <core/Preferences/Preferences.h>
 
+#include <QApplication>
+
 QString Skin::getGlobalStyleSheet() {
 	auto pPref = H2Core::Preferences::get_instance();
 

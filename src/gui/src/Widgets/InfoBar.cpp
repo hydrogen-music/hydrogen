@@ -35,8 +35,6 @@
 InfoBar::InfoBar( QWidget *parent )
 	: QWidget( parent )
 {
-	auto pPref = H2Core::Preferences::get_instance();
-	
 	setAutoFillBackground( true );
 	
 	createLayout();
@@ -56,8 +54,6 @@ void InfoBar::updateStyleSheet(){
 }
 
 void InfoBar::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		updateStyleSheet();
 	}

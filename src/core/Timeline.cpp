@@ -90,7 +90,7 @@ float Timeline::getTempoAtColumn( int nColumn ) const {
 		return m_fDefaultBpm;
 	}
 
-	float fBpm;
+	float fBpm = m_fDefaultBpm;
 	// When transport is stopped nColumn is set to -1 by the
 	// AudioEngine.
 	if ( nColumn == -1 ) {

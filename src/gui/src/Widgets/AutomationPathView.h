@@ -62,6 +62,7 @@ public:
 	void setGridWidth(int width);
 
 	void updatePosition( float fTick );
+	void updateAutomationPath();
 
 protected:
 	void paintEvent(QPaintEvent *event) override;

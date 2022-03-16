@@ -77,7 +77,6 @@ class AudioFileBrowser :  public QDialog, public Ui_AudioFileBrowser_UI,  public
 		void getEnvironment();
 		bool isFileSupported( QString filename );
 		
-		InstrumentEditor*	m_pInstrumentEditor;
 		SampleWaveDisplay *	m_pSampleWaveDisplay;
 		
 		QString				m_pSampleFilename;

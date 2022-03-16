@@ -48,7 +48,7 @@ likes i,n,aux etc...
 10. Maximum line length is 120 chars
 
 11. Hydrogen is a cross platform application, which needs to be build on a great range of architectures and operating systems.
-    Use only C++11 features and do not use any platform specific compiler extensions without the need to do so.
+    Use only C++17 features and do not use any platform specific compiler extensions without the need to do so.
 
 COMMITTING YOUR CODE
 -------------------

@@ -65,6 +65,9 @@ void setupEnvironment(unsigned log_level)
 	preferences->m_nBufferSize = 1024;
 	
 	H2Core::Hydrogen::create_instance();
+	// Prevent the EventQueue from flooding the log since we will push
+	// more events in a short period of time than it is able to handle.
+	EventQueue::get_instance()->setSilent( true );
 }
 
 #ifdef HAVE_EXECINFO_H

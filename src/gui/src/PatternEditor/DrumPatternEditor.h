@@ -154,10 +154,10 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		int findExistingCompo( QString SourceName );
 		QString renameCompo( QString OriginalName );
 
-		int __nRealColumn;
-		int __nColumn;
-		int __row;
-		int __oldLength;
+		int m_nRealColumn;
+		int m_nColumn;
+		int m_nRow;
+		int m_nOldLength;
 };
 
 

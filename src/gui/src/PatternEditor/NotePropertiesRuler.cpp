@@ -43,8 +43,6 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	: PatternEditor( parent, pPatternEditorPanel )
 	, m_bEntered( false )
 {
-	auto pPref = H2Core::Preferences::get_instance();
-
 	m_Mode = mode;
 
 	m_fGridWidth = (Preferences::get_instance())->getPatternEditorGridWidth();
@@ -1423,13 +1421,13 @@ QRect NotePropertiesRuler::getKeyboardCursorRect()
 	return QRect( x-m_fGridWidth*3, 3, m_fGridWidth*6, height()-6 );
 }
 
-void NotePropertiesRuler::selectAll() {
+void NotePropertiesRuler::selectAll()
+{
 	selectInstrumentNotes( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 }
 
-void NotePropertiesRuler::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-
+void NotePropertiesRuler::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 

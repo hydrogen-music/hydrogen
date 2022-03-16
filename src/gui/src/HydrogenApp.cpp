@@ -584,6 +584,12 @@ void HydrogenApp::setStatusBarMessage( const QString& msg, int msec )
 	}
 }
 
+void HydrogenApp::XRunEvent() {
+	setStatusBarMessage( QString( "XRUNS [%1]!!!" )
+						 .arg( Hydrogen::get_instance()->getAudioOutput()->getXRuns() ),
+						 5000 );
+}
+
 void HydrogenApp::updateWindowTitle()
 {
 	auto pSong = Hydrogen::get_instance()->getSong();
@@ -828,10 +834,6 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->updateSongEditorEvent( event.value );
 				break;
 
-			case EVENT_COLUMN_CHANGED:
-				pListener->columnChangedEvent( event.value );
-				break;
-			
 			case EVENT_DRUMKIT_LOADED:
 				pListener->drumkitLoadedEvent();
 				break;

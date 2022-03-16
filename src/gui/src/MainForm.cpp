@@ -118,7 +118,7 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 			}
 		}
 
-		bool bRet;
+		bool bRet = false;
 		if ( !sSongFilename.isEmpty() ) {
 			if ( sSongFilename == H2Core::Filesystem::empty_song_path() ) {
 				bRet = HydrogenApp::recoverEmptySong();
@@ -1731,7 +1731,6 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 
 		// qDebug( "Got key press for instrument '%c'", k->ascii() );
 		//int songnumber = 0;
-		HydrogenApp* app = HydrogenApp::get_instance();
 		Hydrogen* pHydrogen = Hydrogen::get_instance();
 		switch (k->key()) {
 		case Qt::Key_Space:

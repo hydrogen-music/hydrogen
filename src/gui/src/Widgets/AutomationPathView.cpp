@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -52,8 +52,6 @@ AutomationPathView::AutomationPathView(QWidget *parent)
 }
 
 void AutomationPathView::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		createBackground();
 		update();
@@ -72,6 +70,16 @@ void AutomationPathView::setAutomationPath(AutomationPath *path)
 	update();
 }
 
+// Make sure we have the current automation path
+void AutomationPathView::updateAutomationPath()
+{
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong ) {
+		setAutomationPath( pSong->getVelocityAutomationPath() );
+	} else {
+		setAutomationPath( nullptr );
+	}
+}
 
 void AutomationPathView::setGridWidth( int width )
 {
@@ -173,6 +181,7 @@ void AutomationPathView::paintEvent(QPaintEvent *ev)
 void AutomationPathView::createBackground() {
 	
 	auto pPref = H2Core::Preferences::get_instance();
+	updateAutomationPath();
 
 	QColor backgroundColor =
 		pPref->getColorTheme()->m_songEditor_automationBackgroundColor;
@@ -262,6 +271,8 @@ void AutomationPathView::createBackground() {
  */
 void AutomationPathView::mousePressEvent(QMouseEvent *event)
 {
+	updateAutomationPath();
+
 	if (! checkBounds(event) || !_path) {
 		return;
 	}
@@ -300,6 +311,7 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
  **/
 void AutomationPathView::mouseReleaseEvent(QMouseEvent *event)
 {
+	updateAutomationPath();
 	m_bIsHolding = false;
 
 	if (! checkBounds(event) || !_path) {
@@ -326,6 +338,7 @@ void AutomationPathView::mouseReleaseEvent(QMouseEvent *event)
  */
 void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
 {
+	updateAutomationPath();
 	if (! checkBounds(event) || !_path) {
 		return;
 	}
@@ -351,6 +364,7 @@ void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
  */
 void AutomationPathView::keyPressEvent(QKeyEvent *event)
 {
+	updateAutomationPath();
 	if ( event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace ) {
 		if ( _path && _selectedPoint != _path->end() ) {
 			float x = _selectedPoint->first;

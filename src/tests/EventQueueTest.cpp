@@ -51,12 +51,17 @@ public:
 	void setUp() override {
 		EventQueue::create_instance();
 		m_pQ = EventQueue::get_instance();
+		m_pQ->setSilent( false );
 		Event ev;
 
 		// Clear queue of any events from previous tests.
 		do {
 			ev = m_pQ->pop_event();
 		} while ( ev.type != EVENT_NONE );
+	}
+
+	void tearDown() override {
+		EventQueue::get_instance()->setSilent( true );
 	}
 	
 	void testPushPop() {

@@ -195,8 +195,8 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 		__hihat_cc_openess = msg.m_nData2;
 	}
 
-	pHydrogen->lastMidiEvent = "CC";
-	pHydrogen->lastMidiEventParameter = msg.m_nData1;
+	pHydrogen->m_LastMidiEvent = "CC";
+	pHydrogen->m_nLastMidiEventParameter = msg.m_nData1;
 }
 
 void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
@@ -210,8 +210,8 @@ void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 
 	pMidiActionManager->handleAction( pAction );
 
-	pHydrogen->lastMidiEvent = "PROGRAM_CHANGE";
-	pHydrogen->lastMidiEventParameter = 0;
+	pHydrogen->m_LastMidiEvent = "PROGRAM_CHANGE";
+	pHydrogen->m_nLastMidiEventParameter = 0;
 }
 
 void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
@@ -231,8 +231,8 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
-	pHydrogen->lastMidiEvent = "NOTE";
-	pHydrogen->lastMidiEventParameter = msg.m_nData1;
+	pHydrogen->m_LastMidiEvent = "NOTE";
+	pHydrogen->m_nLastMidiEventParameter = msg.m_nData1;
 
 	bool bActionSuccess = pMidiActionManager->handleAction( pMidiMap->getNoteAction( msg.m_nData1 ) );
 
@@ -245,8 +245,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 
 	if ( bPatternSelect ) {
 		int patternNumber = nNote - 36;
-		//INFOLOG( QString( "next pattern = %1" ).arg( patternNumber ) );
-		pHydrogen->sequencer_setNextPattern( patternNumber );
+		pHydrogen->toggleNextPattern( patternNumber );
 
 	} else {
 		static const float fPan = 0.f;
@@ -438,7 +437,7 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 	MidiMap * pMidiMap = MidiMap::get_instance();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
-	pHydrogen->lastMidiEventParameter = msg.m_nData1;
+	pHydrogen->m_nLastMidiEventParameter = msg.m_nData1;
 
 
 	if ( msg.m_sysexData.size() == 6 ) {
@@ -453,52 +452,52 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 
 			case 1:	// STOP
 			{
-				pHydrogen->lastMidiEvent = "MMC_STOP";
+				pHydrogen->m_LastMidiEvent = "MMC_STOP";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_STOP"));
 				break;
 			}
 
 			case 2:	// PLAY
 			{
-				pHydrogen->lastMidiEvent = "MMC_PLAY";
+				pHydrogen->m_LastMidiEvent = "MMC_PLAY";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_PLAY"));
 				break;
 			}
 
 			case 3:	//DEFERRED PLAY
 			{
-				pHydrogen->lastMidiEvent = "MMC_PLAY";
+				pHydrogen->m_LastMidiEvent = "MMC_PLAY";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_PLAY"));
 				break;
 			}
 
 			case 4:	// FAST FWD
-				pHydrogen->lastMidiEvent = "MMC_FAST_FORWARD";
+				pHydrogen->m_LastMidiEvent = "MMC_FAST_FORWARD";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_FAST_FORWARD"));
 				break;
 
 			case 5:	// REWIND
-				pHydrogen->lastMidiEvent = "MMC_REWIND";
+				pHydrogen->m_LastMidiEvent = "MMC_REWIND";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_REWIND"));
 				break;
 
 			case 6:	// RECORD STROBE (PUNCH IN)
-				pHydrogen->lastMidiEvent = "MMC_RECORD_STROBE";
+				pHydrogen->m_LastMidiEvent = "MMC_RECORD_STROBE";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_RECORD_STROBE"));
 				break;
 
 			case 7:	// RECORD EXIT (PUNCH OUT)
-				pHydrogen->lastMidiEvent = "MMC_RECORD_EXIT";
+				pHydrogen->m_LastMidiEvent = "MMC_RECORD_EXIT";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_RECORD_EXIT"));
 				break;
 
 			case 8:	// RECORD READY
-				pHydrogen->lastMidiEvent = "MMC_RECORD_READY";
+				pHydrogen->m_LastMidiEvent = "MMC_RECORD_READY";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_RECORD_READY"));
 				break;
 
 			case 9:	//PAUSE
-				pHydrogen->lastMidiEvent = "MMC_PAUSE";
+				pHydrogen->m_LastMidiEvent = "MMC_PAUSE";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_PAUSE"));
 				break;
 

@@ -58,6 +58,8 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	m_nRulerWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
 	m_nRulerHeight = 25;
+	
+	m_nTicks = 0;
 
 	resize( m_nRulerWidth, m_nRulerHeight );
 
@@ -511,9 +513,6 @@ void PatternEditorRuler::updateActiveRange() {
 
 void PatternEditorRuler::zoomIn()
 {
-	
-	auto pPref = H2Core::Preferences::get_instance();
-	
 	if ( m_fGridWidth >= 3 ){
 		m_fGridWidth *= 2;
 	} else {
@@ -531,9 +530,6 @@ void PatternEditorRuler::zoomIn()
 
 void PatternEditorRuler::zoomOut()
 {
-	
-	auto pPref = H2Core::Preferences::get_instance();
-	
 	if ( m_fGridWidth > 1.5 ) {
 		if ( m_fGridWidth > 3 ){
 			m_fGridWidth /= 2;
@@ -567,9 +563,8 @@ void PatternEditorRuler::selectedPatternChangedEvent()
 	updateEditor( true );
 }
 
-void PatternEditorRuler::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void PatternEditorRuler::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 		update( 0, 0, width(), height() );

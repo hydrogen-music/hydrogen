@@ -161,7 +161,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	}
 
 	// Check the drumkit name. if the name is a new one, one qmessagebox with question "are you sure" will displayed.
-	if ( nameTxt->text() != m_pDrumkitInfo->get_name()  ){
+	if ( m_pDrumkitInfo != nullptr && nameTxt->text() != m_pDrumkitInfo->get_name()  ){
 		int res = QMessageBox::information( this, "Hydrogen",
 											tr( "Warning! Changing the drumkit name will result in creating a new drumkit with this name.\nAre you sure?"),
 											pCommonStrings->getButtonOk(),
@@ -203,7 +203,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	}
 
 	//check pre loaded drumkit name  and reload the old drumkit
-	if ( m_pPreDrumkitInfo != nullptr ){
+	if ( m_pPreDrumkitInfo != nullptr && m_pDrumkitInfo != nullptr){
 		if ( m_pPreDrumkitInfo->get_name() != Hydrogen::get_instance()->getCurrentDrumkitName() ||
 			 m_pPreDrumkitInfo->isUserDrumkit() != m_pDrumkitInfo->isUserDrumkit() ) {
 			Hydrogen::get_instance()->loadDrumkit( m_pPreDrumkitInfo );

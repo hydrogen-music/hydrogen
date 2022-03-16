@@ -105,6 +105,11 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 					 , m_nSelectedPatternNumber( 0 )
 					 , m_bExportSessionIsActive( false )
 					 , m_GUIState( GUIState::unavailable )
+					 , m_nLastMidiEventParameter( 0 )
+					 , m_CurrentTime( {0,0} )
+					 , m_oldEngineMode( Song::Mode::Song ) 
+					 , m_bOldLoopEnabled( false) 
+					 , m_currentDrumkitLookup( Filesystem::Lookup::stacked )
 {
 	if ( __instance ) {
 		ERRORLOG( "Hydrogen audio engine is already running" );
@@ -535,67 +540,26 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 }
 
 
-void Hydrogen::sequencer_setNextPattern( int pos )
-{
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-	
-	pAudioEngine->lock( RIGHT_HERE );
-	std::shared_ptr<Song> pSong = getSong();
-	if ( pSong != nullptr && getMode() == Song::Mode::Pattern ) {
-		PatternList* pPatternList = pSong->getPatternList();
-		
-		// Check whether `pos` is in range of the pattern list.
-		if ( ( pos >= 0 ) && ( pos < ( int )pPatternList->size() ) ) {
-			Pattern* pPattern = pPatternList->get( pos );
-			
-			// If the pattern is already in the `AudioEngine::m_pNextPatterns`, it
-			// will be removed from the latter and its `del()` method
-			// will return a pointer to the very pattern. The if
-			// clause is therefore only entered if the `pPattern` was
-			// not already present.
-			if ( pAudioEngine->getNextPatterns()->del( pPattern ) == nullptr ) {
-				pAudioEngine->getNextPatterns()->add( pPattern );
-			}
-		} else {
-			ERRORLOG( QString( "pos not in patternList range. pos=%1 patternListSize=%2" )
-					  .arg( pos ).arg( pPatternList->size() ) );
-			pAudioEngine->getNextPatterns()->clear();
-		}
+void Hydrogen::toggleNextPattern( int nPatternNumber ) {
+	if ( __song != nullptr && getMode() == Song::Mode::Pattern ) {
+		m_pAudioEngine->lock( RIGHT_HERE );
+		m_pAudioEngine->toggleNextPattern( nPatternNumber );
+		m_pAudioEngine->unlock();
+
 	} else {
 		ERRORLOG( "can't set next pattern in song mode" );
-		pAudioEngine->getNextPatterns()->clear();
 	}
-
-	pAudioEngine->unlock();
 }
 
-void Hydrogen::sequencer_setOnlyNextPattern( int pos )
-{
-	AudioEngine* pAudioEngine = m_pAudioEngine;	
-	pAudioEngine->lock( RIGHT_HERE );
-	
-	std::shared_ptr<Song> pSong = getSong();
-	if ( pSong != nullptr && getMode() == Song::Mode::Pattern ) {
-		PatternList* pPatternList = pSong->getPatternList();
-		
-		// Clear the list of all patterns scheduled to be processed
-		// next and fill them with those currently played.
-		pAudioEngine->getNextPatterns()->clear( );
-		Pattern* pPattern;
-		for ( int nPattern = 0 ; nPattern < (int) pAudioEngine->getPlayingPatterns()->size() ; ++nPattern ) {
-			pPattern = pAudioEngine->getPlayingPatterns()->get( nPattern );
-			pAudioEngine->getNextPatterns()->add( pPattern );
-		}
-		
-		// Appending the requested pattern.
-		pPattern = pPatternList->get( pos );
-		pAudioEngine->getNextPatterns()->add( pPattern );
+void Hydrogen::flushAndAddNextPattern( int nPatternNumber ) {
+	if ( __song != nullptr && getMode() == Song::Mode::Pattern ) {
+		m_pAudioEngine->lock( RIGHT_HERE );
+		m_pAudioEngine->flushAndAddNextPattern( nPatternNumber );
+		m_pAudioEngine->unlock();
+
 	} else {
 		ERRORLOG( "can't set next pattern in song mode" );
-		pAudioEngine->getNextPatterns()->clear();
 	}
-	
-	pAudioEngine->unlock();
 }
 
 void Hydrogen::restartDrivers()
@@ -674,9 +638,7 @@ void Hydrogen::stopExportSession()
 	
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
- 	pAudioEngine->stopAudioDrivers();
-	
-	pAudioEngine->startAudioDrivers();
+ 	pAudioEngine->restartAudioDrivers();
 	if ( pAudioEngine->getAudioDriver() == nullptr ) {
 		ERRORLOG( "Unable to restart previous audio driver after exporting song." );
 	}
@@ -892,20 +854,20 @@ void Hydrogen::updateSelectedPattern() {
 	}
 }
 
-void Hydrogen::setSelectedPatternNumber( int nPat, bool bIsLocked )
+void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock )
 {
 	if ( nPat == m_nSelectedPatternNumber ) {
 		return;
 	}
 
 	if ( Preferences::get_instance()->patternModePlaysSelected() ) {
-		if ( ! bIsLocked ) {
+		if ( bNeedsLock ) {
 			getAudioEngine()->lock( RIGHT_HERE );
 		}
 		
 		m_nSelectedPatternNumber = nPat;
 
-		if ( ! bIsLocked ) {
+		if ( bNeedsLock ) {
 			getAudioEngine()->unlock();
 		}
 	} else {
@@ -1123,29 +1085,18 @@ void Hydrogen::onJackMaster()
 void Hydrogen::setPlaysSelected( bool bPlaysSelected )
 {
 	auto pPref = Preferences::get_instance();
-	bool bOldPlaysSelected = pPref->patternModePlaysSelected();
 
-	if ( bOldPlaysSelected == bPlaysSelected ) {
-		return;
+	if ( pPref->patternModePlaysSelected() != bPlaysSelected ) {
+		m_pAudioEngine->lock( RIGHT_HERE );
+
+		pPref->setPatternModePlaysSelected( bPlaysSelected );
+		
+		m_pAudioEngine->updatePlayingPatterns( m_pAudioEngine->getColumn() );
+
+		m_pAudioEngine->unlock();
+		EventQueue::get_instance()->push_event( EVENT_STACKED_MODE_ACTIVATION,
+												bPlaysSelected ? 0 : 1 );
 	}
-	
-	AudioEngine* pAudioEngine = m_pAudioEngine;	
-	std::shared_ptr<Song> pSong = getSong();
-
-	pAudioEngine->lock( RIGHT_HERE );
-
-	if ( bOldPlaysSelected && !bPlaysSelected &&
-		 getSelectedPatternNumber() != -1 ) {
-		pAudioEngine->getPlayingPatterns()->clear();
-		Pattern* pSelectedPattern =
-				pSong->getPatternList()->get( getSelectedPatternNumber() );
-		pAudioEngine->getPlayingPatterns()->add( pSelectedPattern );
-	}
-
-	pPref->setPatternModePlaysSelected( bPlaysSelected );
-	pAudioEngine->unlock();
-	EventQueue::get_instance()->push_event( EVENT_STACKED_MODE_ACTIVATION,
-											bPlaysSelected ? 0 : 1 );
 }
 
 void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr ) {
@@ -1530,6 +1481,7 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 		}
 	}
 
+	( *pPatternStartTick ) = 0;
 	return -1;
 }
 
@@ -1659,8 +1611,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( QString( "%1%2m_nSelectedInstrumentNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nSelectedInstrumentNumber ) )
 			.append( QString( "%1%2m_pAudioEngine: \n" ).arg( sPrefix ).arg( s ) )//.arg( m_pAudioEngine ) )
-			.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s ).arg( lastMidiEvent ) )
-			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s ).arg( lastMidiEventParameter ) )
+			.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s ).arg( m_LastMidiEvent ) )
+			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nLastMidiEventParameter ) )
 			.append( QString( "%1%2m_nInstrumentLookupTable: [ %3 ... %4 ]\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
 	} else {
@@ -1707,8 +1659,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( QString( ", m_nSelectedInstrumentNumber: %1" ).arg( m_nSelectedInstrumentNumber ) )
 			.append( QString( ", m_pAudioEngine: " ) )// .arg( m_pAudioEngine ) )
-			.append( QString( ", lastMidiEvent: %1" ).arg( lastMidiEvent ) )
-			.append( QString( ", lastMidiEventParameter: %1" ).arg( lastMidiEventParameter ) )
+			.append( QString( ", lastMidiEvent: %1" ).arg( m_LastMidiEvent ) )
+			.append( QString( ", lastMidiEventParameter: %1" ).arg( m_nLastMidiEventParameter ) )
 			.append( QString( ", m_nInstrumentLookupTable: [ %1 ... %2 ]" )
 					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
 	}

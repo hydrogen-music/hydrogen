@@ -111,9 +111,8 @@ Fader::Fader( QWidget *pParent, Type type, QString sBaseTooltip, bool bUseIntSte
 Fader::~Fader() {
 }
 
-void Fader::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void Fader::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & ( H2Core::Preferences::Changes::Colors ) ) {
 		update();
 	}
@@ -163,8 +162,8 @@ void Fader::mousePressEvent(QMouseEvent *ev)
 		// using the Action associated to the Widget might not yield a
 		// unique result since the Action can be registered from the
 		// PreferencesDialog as well.
-		m_sRegisteredMidiEvent = H2Core::Hydrogen::get_instance()->lastMidiEvent;
-		m_nRegisteredMidiParameter = H2Core::Hydrogen::get_instance()->lastMidiEventParameter;
+		m_sRegisteredMidiEvent = H2Core::Hydrogen::get_instance()->m_LastMidiEvent;
+		m_nRegisteredMidiParameter = H2Core::Hydrogen::get_instance()->m_nLastMidiEventParameter;
 		m_bIgnoreMouseMove = true;
 		updateTooltip();
 	}

@@ -101,31 +101,13 @@ public:
 	void			midi_noteOn( Note *note );
 
 	///Last received midi message
-	QString			lastMidiEvent;
-	int				lastMidiEventParameter;
+	QString			m_LastMidiEvent;
+	int				m_nLastMidiEventParameter;
 
-	// TODO: more descriptive name since it is able to both delete and
-	// add a pattern. Possibly without the sequencer_ prefix for
-	// consistency.
-	/**
-	 * Adding and removing a Pattern from
-	 * #H2Core::AudioEngine::m_pNextPatterns.
-	 *
-	 * \param pos Index of a particular pattern in
-	 * Song::m_pPatternList, which should be added to
-	 * #H2Core::AudioEngine::m_pNextPatterns.
-	 */
-	void			sequencer_setNextPattern( int pos );
-	// TODO: Possibly without the sequencer_ prefix for consistency.
-	/**
-	 * Clear #H2Core::AudioEngine::m_pNextPatterns and add one
-	 * Pattern.
-	 *
-	 * \param pos Index of a particular pattern in
-	 * Song::m_pPatternList, which should be added to
-	 * #H2Core::AudioEngine::m_pNextPatterns.
-	 */
-	void			sequencer_setOnlyNextPattern( int pos );
+	/** Wrapper around AudioEngine::toggleNextPattern().*/
+	void			toggleNextPattern( int nPatternNumber );
+	/** Wrapper around AudioEngine::flushAndAddNextPattern().*/
+	void			flushAndAddNextPattern( int nPatternNumber );
 	/**
 	 * Switches playback to focused pattern.
 	 *
@@ -348,10 +330,10 @@ void			previewSample( Sample *pSample );
 	 * will return right away.
 	 *
 	 *\param nPat Sets #m_nSelectedPatternNumber
-	 * \param bIsLocked Whether the function has to lock the
-	 * AudioEngine itself.
+	 * \param bNeedsLock Whether the function was called with the
+	 * audio engine locked already or it should do so itself.
 	 */
-	void			setSelectedPatternNumber( int nPat, bool bIsLocked = false );
+	void			setSelectedPatternNumber( int nPat, bool bNeedsLock = true );
 
 	/**
 	 * Updates the selected pattern to the one recorded note will be

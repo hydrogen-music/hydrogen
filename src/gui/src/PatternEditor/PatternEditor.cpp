@@ -86,16 +86,14 @@ PatternEditor::PatternEditor( QWidget *pParent,
 	m_pPopupMenu->addAction( tr( "Select &all" ), this, &PatternEditor::selectAll );
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, &PatternEditor::selectNone );
 
-
 	qreal pixelRatio = devicePixelRatio();
 	m_pBackgroundPixmap = new QPixmap( m_nEditorWidth * pixelRatio,
 									   height() * pixelRatio );
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 }
 
-void PatternEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-
+void PatternEditor::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		
 		update( 0, 0, width(), height() );
@@ -493,8 +491,6 @@ bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements
 		}
 
 		if ( bOk ) {
-			Hydrogen *pHydrogen = Hydrogen::get_instance();
-			InstrumentList *pInstrumentList = pHydrogen->getSong()->getInstrumentList();
 			QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 
 			std::vector< Note *>overwritten;
@@ -798,8 +794,8 @@ std::vector< Pattern *> PatternEditor::getPatternsToShow( void )
 		if ( !Preferences::get_instance()->patternModePlaysSelected() ) {
 			m_pAudioEngine->lock( RIGHT_HERE );
 			std::set< Pattern *> patternSet;
-			for ( PatternList *pPatternList : { m_pAudioEngine->getPlayingPatterns(),
-						                        m_pAudioEngine->getNextPatterns() } ) {
+			for ( const PatternList *pPatternList : { m_pAudioEngine->getPlayingPatterns(),
+													 m_pAudioEngine->getNextPatterns() } ) {
 				for ( int i = 0; i <  pPatternList->size(); i++) {
 					Pattern *pPattern = pPatternList->get( i );
 					if ( pPattern != m_pPattern ) {

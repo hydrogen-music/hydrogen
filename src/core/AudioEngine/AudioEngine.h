@@ -333,8 +333,8 @@ public:
 	long long		getFrameOffset() const;
 	double  		getTickOffset() const;
 
-	PatternList*	getNextPatterns() const;
-	PatternList*	getPlayingPatterns() const;
+	const PatternList*	getNextPatterns() const;
+	const PatternList*	getPlayingPatterns() const;
 	
 	long long		getRealtimeFrames() const;
 
@@ -410,6 +410,44 @@ public:
 	 * as the note queues in order to prevent any glitches.
 	 */
 	void updateSongSize();
+
+	void flushPlayingPatterns();
+	/**
+	 * Update the list of patterns currently played back.
+	 *
+	 * This works in three different ways.
+	 *
+	 * 1. In case the song is in Song::Mode::Song when entering a new
+	 * @a nColumn #m_pPlayingPatterns will be flushed and all patterns
+	 * activated in the provided column will be added.
+	 * 2. While in Song::Mode::Pattern with
+	 * Preferences::m_bPatternModePlaysSelected set true the function
+	 * ensures the currently selected pattern is the only pattern in
+	 * #m_pPlayingPatterns.
+	 * 3. While in Song::Mode::Pattern with
+	 * Preferences::m_bPatternModePlaysSelected set false all patterns
+	 * in #m_pNextPatterns not already present in #m_pPlayingPatterns
+	 * will be added in the latter and the ones already present will
+	 * be removed.
+	 *
+	 * \param nColumn Desired location in song mode.
+	 * \param nTick Desired location in pattern mode.
+	 * \param nPatternStartTick Desired location in pattern mode.
+	 */
+	void updatePlayingPatterns( int nColumn, long nTick = 0,
+								long nPatternStartTick = 0 );
+	/** 
+	 * Add pattern @a nPatternNumber to #m_pNextPatterns or deletes it
+	 * in case it is already present.
+	 */
+	void toggleNextPattern( int nPatternNumber );
+	/**
+	 * Add pattern @a nPatternNumber to #m_pNextPatterns as well as
+	 * the whole content of #m_pPlayingPatterns. After the next call
+	 * to updatePlayingPatterns() only @a nPatternNumber will be left
+	 * playing.
+	 */
+	void flushAndAddNextPattern( int nPatternNumber );
 
 	/**
 	 * Updates the transport state and all notes in #m_songNoteQueue
@@ -488,6 +526,15 @@ public:
 	 * @return true on success.
 	 */
 	bool testSongSizeChangeInLoopMode();
+	/** 
+	 * Unit test checking that all notes in a song are picked up once.
+	 *
+	 * Defined in here since it requires access to methods and
+	 * variables private to the #AudioEngine class.
+	 *
+	 * @return true on success.
+	 */
+	bool testNoteEnqueuing();
 	
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
@@ -553,6 +600,7 @@ private:
 	void reset(  bool bWithJackBroadcast = true );
 
 	double getDoubleTick() const;
+	static double computeDoubleTickSize(const int nSampleRate, const float fBpm, const int nResolution);
 
 	void			clearNoteQueue();
 	/** Clear all audio buffers.
@@ -593,8 +641,6 @@ private:
 	 *
 	 * \return
 	 * - -1 if in Song::SONG_MODE and no patterns left.
-	 * - 2 if the current pattern changed with respect to the last
-	 * cycle.
 	 */
 	int				updateNoteQueue( unsigned nFrames );
 	void 			processAudio( uint32_t nFrames );
@@ -677,6 +723,13 @@ private:
 	 * change in song size.
 	 */
 	void handleSongSizeChange();
+
+	/**
+	 * The audio driver was changed what possible changed the tick
+	 * size - which depends on both the sample rate - too. Thus, all
+	 * frame-based variables might have become invalid.
+	 */
+	void handleDriverChange();
 	
 	/** Helper function */
 	bool testCheckTransportPosition( const QString& sContext ) const;
@@ -698,7 +751,15 @@ private:
 	 */
 	bool testCheckConsistency( int nToggleColumn, int nToggleRow, const QString& sContext );
 	
-	std::vector<std::shared_ptr<Note>> testCopySongNoteQueue(); 
+	std::vector<std::shared_ptr<Note>> testCopySongNoteQueue();
+	/**
+	 * Add every Note in @a newNotes not yet contained in @a noteList
+	 * to the latter.
+	 */
+	void testMergeQueues( std::vector<std::shared_ptr<Note>>* noteList,
+						  std::vector<std::shared_ptr<Note>> newNotes );
+	void testMergeQueues( std::vector<std::shared_ptr<Note>>* noteList,
+						  std::vector<Note*> newNotes );
 
 	/** Local instance of the Sampler. */
 	Sampler* 			m_pSampler;
@@ -763,7 +824,7 @@ private:
 		const char* file;
 		unsigned int line;
 		const char* function;
-	} __locker;
+	} m_pLocker;
 
 	// time used in process function
 	float				m_fProcessTime;
@@ -798,13 +859,17 @@ private:
 	/** Set to the total number of ticks in a Song.*/
 	double				m_fSongSizeInTicks;
 
-		/**
-	 * Patterns to be played next in Song::PATTERN_MODE.
+	/**
+	 * Patterns to be played next in stacked Song::Mode::Pattern mode.
+	 *
+	 * See updatePlayingPatterns() for details.
 	 */
 	PatternList*		m_pNextPatterns;
 	
 	/**
 	 * PatternList containing all Patterns currently played back.
+	 *
+	 * See updatePlayingPatterns() for details.
 	 */
 	PatternList*		m_pPlayingPatterns;
 
@@ -981,11 +1046,11 @@ inline int AudioEngine::getColumn() const {
 	return m_nColumn;
 }
 
-inline PatternList* AudioEngine::getPlayingPatterns() const {
+inline const PatternList* AudioEngine::getPlayingPatterns() const {
 	return m_pPlayingPatterns;
 }
 
-inline PatternList* AudioEngine::getNextPatterns() const {
+inline const PatternList* AudioEngine::getNextPatterns() const {
 	return m_pNextPatterns;
 }
 

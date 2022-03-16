@@ -157,6 +157,8 @@ public:
 	/** \return Global variable #jackServerSampleRate. */
 	virtual unsigned getSampleRate() override;
 
+	virtual int getXRuns() const override;
+
 	/** Resets the buffers contained in #m_pTrackOutputPortsL and
 	 * #m_pTrackOutputPortsR.
 	 * 
@@ -316,6 +318,8 @@ public:
 	 * Instance of the JackAudioDriver.
 	 */
 	static JackAudioDriver*		pJackDriverInstance;
+	/** Number of XRuns since the driver started.*/
+	static int jackServerXRuns;
 
 	/**
 	 * Callback function for the JACK audio server to set the sample

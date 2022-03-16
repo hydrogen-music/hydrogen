@@ -274,10 +274,17 @@ void Pattern::flattened_virtual_patterns_compute()
 	}
 }
 
-void Pattern::extand_with_flattened_virtual_patterns( PatternList* patterns )
-{
-	for( virtual_patterns_cst_it_t it=__flattened_virtual_patterns.begin(); it!=__flattened_virtual_patterns.end(); ++it ) {
-		patterns->add( *it );
+void Pattern::addFlattenedVirtualPatterns( PatternList* pPatternList ) {
+	for( virtual_patterns_cst_it_t it=__flattened_virtual_patterns.begin();
+		 it!=__flattened_virtual_patterns.end(); ++it ) {
+		pPatternList->add( *it );
+	}
+}
+
+void Pattern::removeFlattenedVirtualPatterns( PatternList* pPatternList ) {
+	for( virtual_patterns_cst_it_t it=__flattened_virtual_patterns.begin();
+		 it!=__flattened_virtual_patterns.end(); ++it ) {
+		pPatternList->del( *it );
 	}
 }
 

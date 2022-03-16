@@ -267,8 +267,6 @@ void Director::paintEvent( QPaintEvent* ev )
 }
 
 void Director::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 			 
