@@ -1435,13 +1435,6 @@ void DrumPatternEditor::selectedInstrumentChangedEvent()
 	updateEditor();
 }
 
-/// This method is called from another thread (audio engine)
-void DrumPatternEditor::patternModifiedEvent()
-{
-	update( 0, 0, width(), height() );
-}
-
-
 void DrumPatternEditor::patternChangedEvent()
 {
 	updateEditor();

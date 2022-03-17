@@ -92,6 +92,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
 		virtual void selectedInstrumentChangedEvent() override;
+	virtual void patternModifiedEvent() override;
 	virtual void drumkitLoadedEvent() override;
 	virtual void updateSongEvent( int nValue ) override;
 		//~ Implements EventListener interface
@@ -114,7 +115,6 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	private slots:
 		void gridResolutionChanged( int nSelected );
 		void propertiesComboChanged( int nSelected );
-		void patternLengthChanged();
 	/** Batch version for setting the values of the pattern size spin boxes.*/
 		void updatePatternSizeLCD();
 

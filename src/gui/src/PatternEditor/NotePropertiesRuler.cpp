@@ -1376,13 +1376,10 @@ void NotePropertiesRuler::selectedPatternChangedEvent()
 	updateEditor();
 }
 
-
-
 void NotePropertiesRuler::selectedInstrumentChangedEvent()
 {
 	updateEditor();
 }
-
 
 std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIntersecting( QRect r ) {
 	std::vector<SelectionIndex> result;

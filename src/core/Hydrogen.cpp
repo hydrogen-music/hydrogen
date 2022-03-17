@@ -860,15 +860,19 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock )
 		return;
 	}
 
-	if ( Preferences::get_instance()->patternModePlaysSelected() ) {
+	if ( Preferences::get_instance()->patternModePlaysSelected() &&
+		 getMode() == Song::Mode::Pattern ) {
 		if ( bNeedsLock ) {
-			getAudioEngine()->lock( RIGHT_HERE );
+			m_pAudioEngine->lock( RIGHT_HERE );
 		}
 		
 		m_nSelectedPatternNumber = nPat;
+		// The specific values provided are not important since we a
+		// in selected pattern mode.
+		m_pAudioEngine->updatePlayingPatterns( 0, 0, 0 );
 
 		if ( bNeedsLock ) {
-			getAudioEngine()->unlock();
+			m_pAudioEngine->unlock();
 		}
 	} else {
 		m_nSelectedPatternNumber = nPat;

@@ -114,16 +114,6 @@ void PianoRollEditor::finishUpdateEditor()
 	m_bNeedsBackgroundUpdate = false;
 }
 
-
-
-//eventlistener
-void PianoRollEditor::patternModifiedEvent()
-{
-	updateEditor();
-}
-
-
-
 void PianoRollEditor::selectedInstrumentChangedEvent()
 {
 	// Update pattern only

@@ -118,7 +118,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, &SongEditor::selectNone );
 	m_pPopupMenu->setObjectName( "SongEditorPopup" );
 
-
+	HydrogenApp::get_instance()->addEventListener( this );
 	update();
 }
 
@@ -1468,7 +1468,6 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		 || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton)
 		 || ev->pos().x() < 15 ){
 		togglePattern( nRow );
-		EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 	} else {
 		
 		if ( ! m_pHydrogen->isPatternEditorLocked() ) {
@@ -1969,7 +1968,7 @@ void SongEditorPatternList::acceptPatternPropertiesDialogSettings(QString newPat
 	pattern->set_info( newPatternInfo );
 	pattern->set_category( newPatternCategory );
 	pHydrogen->setIsModified( true );
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
 	createBackground();
 	update();
 }
@@ -1984,7 +1983,7 @@ void SongEditorPatternList::revertPatternPropertiesDialogSettings(QString oldPat
 	pattern->set_name( oldPatternName );
 	pattern->set_category( oldPatternCategory );
 	pHydrogen->setIsModified( true );
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
 	createBackground();
 	update();
 }

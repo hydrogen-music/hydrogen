@@ -703,7 +703,8 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
 	int nSelectedPatternNumber = Hydrogen::get_instance()->getSelectedPatternNumber();
 
-	if ( ( nSelectedPatternNumber != -1 ) && ( (uint) nSelectedPatternNumber < pPatternList->size() ) ) {
+	if ( ( nSelectedPatternNumber != -1 ) &&
+		 ( (uint) nSelectedPatternNumber < pPatternList->size() ) ) {
 		// update pattern name text
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 		QString sCurrentPatternName = m_pPattern->get_name();
@@ -712,12 +713,13 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 
 		// update pattern size LCD
 		updatePatternSizeLCD();
+		updateEditors();
 		
 	}
 	else {
 		m_pPattern = nullptr;
 
-		this->setWindowTitle( ( tr( "Pattern editor - %1" ).arg(QString( "No pattern selected." ) ) ) );
+		this->setWindowTitle( tr( "Pattern editor - No pattern selected" ) );
 		m_pPatternNameLbl->setText( tr( "No pattern selected" ) );
 	}
 
@@ -918,19 +920,8 @@ void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
 	m_pDrumPatternEditor->updateEditor();
 }
 
-
-void PatternEditorPanel::patternLengthChanged()
-{
-	// INFOLOG( QString("idx %1 -> %2 eighth").arg( nSelected ).arg( ( MAX_NOTES / 8 ) * ( nSelected + 1 ) ) );
-
-	if ( m_pPattern == nullptr ) {
-		return;
-	}
-
-	updateEditors();
-	resizeEvent( nullptr );
-
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+void PatternEditorPanel::patternModifiedEvent() {
+	selectedPatternChangedEvent();
 }
 
 void PatternEditorPanel::updatePatternSizeLCD() {
@@ -940,13 +931,10 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 
 	m_bArmPatternSizeSpinBoxes = false;
 
-	bool bChanged = false;
-
 	double fNewDenominator = static_cast<double>( m_pPattern->get_denominator() );
 	if ( fNewDenominator != m_pLCDSpinBoxDenominator->value() &&
 		 ! m_pLCDSpinBoxDenominator->hasFocus() ) {
 		m_pLCDSpinBoxDenominator->setValue( fNewDenominator );
-		bChanged = true;
 
 		// Update numerator to allow only for a maximum pattern length of
 		// four measures.
@@ -956,15 +944,9 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 	double fNewNumerator = static_cast<double>( m_pPattern->get_length() * m_pPattern->get_denominator() ) / static_cast<double>( MAX_NOTES );
 	if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() && ! m_pLCDSpinBoxNumerator->hasFocus() ) {
 		m_pLCDSpinBoxNumerator->setValue( fNewNumerator );
-		bChanged = true;
 	}
 	
 	m_bArmPatternSizeSpinBoxes = true;
-
-	if ( bChanged ) {
-		patternLengthChanged();
-	}
-
 }
 
 void PatternEditorPanel::patternSizeChanged( double fValue ){
@@ -1008,7 +990,7 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 	
 	pHydrogen->setIsModified( true );
 	
-	patternLengthChanged();
+	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
 }
 
 void PatternEditorPanel::dragEnterEvent( QDragEnterEvent *event )
