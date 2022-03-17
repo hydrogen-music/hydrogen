@@ -39,7 +39,7 @@ using namespace H2Core;
 #include "PianoRollEditor.h"
 #include "../Skin.h"
 
-NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, NotePropertiesMode mode )
+NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, Mode mode )
 	: PatternEditor( parent, pPatternEditorPanel )
 	, m_bEntered( false )
 {
@@ -51,19 +51,10 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	m_fLastSetValue = 0.0;
 	m_bValueHasBeenSet = false;
 
-	if (m_Mode == VELOCITY ) {
-		m_nEditorHeight = 100;
-	}
-	else if ( m_Mode == PAN ) {
-		m_nEditorHeight = 100;
-	}
-	else if ( m_Mode == LEADLAG ) {
-		m_nEditorHeight = 100;
-	}
-	else if ( m_Mode == NOTEKEY ) {
+	if ( m_Mode == Mode::NoteKey ) {
 		m_nEditorHeight = 210;
 	}
-	if (m_Mode == PROBABILITY ) {
+	else {
 		m_nEditorHeight = 100;
 	}
 
@@ -93,7 +84,6 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 
 NotePropertiesRuler::~NotePropertiesRuler()
 {
-	//infoLog("DESTROY");
 }
 
 
@@ -251,7 +241,7 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	float fDelta;
 
 	QPoint movingOffset = m_selection.movingOffset();
-	if ( m_Mode == NOTEKEY ) {
+	if ( m_Mode == Mode::NoteKey ) {
 		fDelta = (float)-movingOffset.y() / 10;
 	} else {
 		fDelta = (float)-movingOffset.y() / height();
@@ -307,19 +297,19 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 	for ( auto it : m_oldNotes ) {
 		Note *pNote = it.first, *pOldNote = it.second;
 		switch ( m_Mode ) {
-		case VELOCITY:
+		case Mode::Velocity:
 			pNote->set_velocity( pOldNote->get_velocity() );
 			break;
-		case PAN:
+		case Mode::Pan:
 			pNote->setPan( pOldNote->getPan() );
 			break;
-		case LEADLAG:
+		case Mode::LeadLag:
 			pNote->set_lead_lag( pOldNote->get_lead_lag() );
 			break;
-		case NOTEKEY:
+		case Mode::NoteKey:
 			pNote->set_key_octave( pOldNote->get_key(), pOldNote->get_octave() );
 			break;
-		case PROBABILITY:
+		case Mode::Probability:
 			pNote->set_probability( pOldNote->get_probability() );
 			break;
 		default:
@@ -329,7 +319,7 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 
 	if ( m_oldNotes.size() == 0 ) {
 		for ( const auto& it : m_oldNotes ){
-			triggerStatusMessage( it.second );
+			NotePropertiesRuler::triggerStatusMessage( it.second, m_Mode );
 		}
 	}
 
@@ -453,12 +443,12 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 			 !m_selection.isSelected( pNote ) ) {
 			continue;
 		}
-		if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
+		if ( m_Mode == Mode::Velocity && !pNote->get_note_off() ) {
 			pNote->set_velocity( val );
 			m_fLastSetValue = val;
 			bValueSet = true;
 		}
-		else if ( m_Mode == PAN && !pNote->get_note_off() ){
+		else if ( m_Mode == Mode::Pan && !pNote->get_note_off() ){
 			if ( (ev->button() == Qt::MiddleButton)
 					|| (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 				val = 0.5; // central pan
@@ -468,7 +458,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 			bValueSet = true;
 			
 		}
-		else if ( m_Mode == LEADLAG ){
+		else if ( m_Mode == Mode::LeadLag ){
 			if ( (ev->button() == Qt::MiddleButton) ||
 				 (ev->modifiers() == Qt::ControlModifier &&
 				  ev->button() == Qt::LeftButton) ) {
@@ -482,7 +472,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 				pNote->set_lead_lag( m_fLastSetValue );
 			}
 		}
-		else if ( m_Mode == NOTEKEY ){
+		else if ( m_Mode == Mode::NoteKey ){
 			if ( ev->button() != Qt::MiddleButton &&
 				 ! ( ev->modifiers() == Qt::ControlModifier &&
 					 ev->button() == Qt::LeftButton ) ) {
@@ -503,14 +493,14 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 				pNote->set_key_octave((Note::Key)k,(Note::Octave)o); // won't set wrong values see Note::set_key_octave
 			}
 		}
-		else if ( m_Mode == PROBABILITY && !pNote->get_note_off() ) {
+		else if ( m_Mode == Mode::Probability && !pNote->get_note_off() ) {
 			m_fLastSetValue = val;
 			bValueSet = true;
 			pNote->set_probability( val );
 		}
 		
 		if ( bValueSet ) {
-			triggerStatusMessage( pNote );
+			NotePropertiesRuler::triggerStatusMessage( pNote, m_Mode );
 			m_bValueHasBeenSet = true;
 			Hydrogen::get_instance()->setIsModified( true );
 		}
@@ -548,7 +538,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 	bool bValueSet = false;
 	
 	switch (m_Mode) {
-	case VELOCITY:
+	case Mode::Velocity:
 		if ( !pNote->get_note_off() ) {
 			float fVelocity = qBound(  VELOCITY_MIN, (pOldNote->get_velocity() + fDelta), VELOCITY_MAX );
 			pNote->set_velocity( fVelocity );
@@ -556,7 +546,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 			bValueSet = true;
 		}
 		break;
-	case PAN:
+	case Mode::Pan:
 		if ( !pNote->get_note_off() ) {
 			float fVal = pOldNote->getPanWithRangeFrom0To1() + fDelta; // value in [0,1] or slight out of boundaries
 			pNote->setPanWithRangeFrom0To1( fVal ); // checks the boundaries as well
@@ -564,7 +554,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 			bValueSet = true;
 		}
 		break;
-	case LEADLAG:
+	case Mode::LeadLag:
 		{
 			float fLeadLag = qBound( LEAD_LAG_MIN, pOldNote->get_lead_lag() - fDelta, LEAD_LAG_MAX );
 			pNote->set_lead_lag( fLeadLag );
@@ -572,7 +562,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 			bValueSet = true;
 		}
 		break;
-	case PROBABILITY:
+	case Mode::Probability:
 		if ( !pNote->get_note_off() ) {
 			float fProbability = qBound( 0.0f, pOldNote->get_probability() + fDelta, 1.0f );
 			pNote->set_probability( fProbability );
@@ -580,7 +570,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 			bValueSet = true;
 		}
 		break;
-	case NOTEKEY:
+	case Mode::NoteKey:
 		int nPitch = qBound( 12 * OCTAVE_MIN, (int)( pOldNote->get_notekey_pitch() + fDelta ),
 							 12 * OCTAVE_MAX + KEY_MAX );
 		Note::Octave octave;
@@ -602,7 +592,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 		Hydrogen::get_instance()->setIsModified( true );
 		m_bValueHasBeenSet = true;
 		if ( bMessage ) {
-			triggerStatusMessage( pNote );
+			NotePropertiesRuler::triggerStatusMessage( pNote, m_Mode );
 		}
 	}
 }
@@ -723,7 +713,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			}
 
 			// For the NoteKeyEditor, adjust the pitch by a whole semitone
-			if ( m_Mode == NOTEKEY ) {
+			if ( m_Mode == Mode::NoteKey ) {
 				if ( fDelta > 0.0 ) {
 					fDelta = 1;
 				} else if ( fDelta < 0.0 ) {
@@ -747,13 +737,13 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 					
 					// Repeating last value
 					switch (m_Mode) {
-					case VELOCITY:
+					case Mode::Velocity:
 						if ( !pNote->get_note_off() ) {
 							pNote->set_velocity( m_fLastSetValue );
 							bValueSet = true;
 						}
 						break;
-					case PAN:
+					case Mode::Pan:
 						if ( !pNote->get_note_off() ) {
 							if ( m_fLastSetValue > 1. ) { // TODO whats this for? is it ever reached?
 								printf( "reached  m_fLastSetValue > 1 in NotePropertiesRuler.cpp\n" );
@@ -762,17 +752,17 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 							bValueSet = true;
 						}
 						break;
-					case LEADLAG:
+					case Mode::LeadLag:
 						pNote->set_lead_lag( m_fLastSetValue );
 							bValueSet = true;
 						break;
-					case PROBABILITY:
+					case Mode::Probability:
 						if ( !pNote->get_note_off() ) {
 							pNote->set_probability( m_fLastSetValue );
 							bValueSet = true;
 						}
 						break;
-					case NOTEKEY:
+					case Mode::NoteKey:
 						pNote->set_key_octave( (Note::Key)( (int)m_fLastSetValue % 12 ),
 											   (Note::Octave)( (int)m_fLastSetValue / 12 ) );
 						bValueSet = true;
@@ -781,7 +771,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 					if ( bValueSet ) {
 						if ( nNotes == 1 ) {
-							triggerStatusMessage( pNote );
+							NotePropertiesRuler::triggerStatusMessage( pNote, m_Mode );
 						}
 						Hydrogen::get_instance()->setIsModified( true );
 					}
@@ -834,36 +824,16 @@ void NotePropertiesRuler::addUndoAction()
 	int nSize = m_oldNotes.size();
 	if ( nSize != 0 ) {
 		QUndoStack *pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
-		QString sMode;
-		switch ( m_Mode ) {
-		case VELOCITY:
-			sMode = "VELOCITY";
-			break;
-		case PAN:
-			sMode = "PAN";
-			break;
-		case LEADLAG:
-			sMode = "LEADLAG";
-			break;
-		case NOTEKEY:
-			sMode = "NOTEKEY";
-			break;
-		case PROBABILITY:
-			sMode = "PROBABILITY";
-			break;
-		default:
-			break;
-		}
 
 		if ( nSize != 1 ) {
-			pUndoStack->beginMacro( QString( tr( "Edit %1 property of %2 notes" ) )
-									.arg( sMode.toLower() )
+			pUndoStack->beginMacro( QString( tr( "Edit [%1] property of [%2] notes" ) )
+									.arg( NotePropertiesRuler::modeToQString( m_Mode ) )
 									.arg( nSize ) );
 		}
 		for ( auto it : m_oldNotes ) {
 			Note *pNewNote = it.first, *pOldNote = it.second;
 			pUndoStack->push( new SE_editNotePropertiesVolumeAction( pNewNote->get_position(),
-																	 sMode,
+																	 m_Mode,
 																	 m_nSelectedPatternNumber,
 																	 pInstrumentList->index( pNewNote->get_instrument() ),
 																	 pNewNote->get_velocity(),
@@ -950,19 +920,19 @@ void NotePropertiesRuler::drawFocus( QPainter& painter ) {
 	const QScrollArea* pScrollArea;
 	
 	switch ( m_Mode ) {
-	case VELOCITY:
+	case Mode::Velocity:
 		pScrollArea = HydrogenApp::get_instance()->getPatternEditorPanel()->getNoteVelocityScrollArea();
 		break;
-	case PAN:
+	case Mode::Pan:
 		pScrollArea = HydrogenApp::get_instance()->getPatternEditorPanel()->getNotePanScrollArea();
 		break;
-	case LEADLAG:
+	case Mode::LeadLag:
 		pScrollArea = HydrogenApp::get_instance()->getPatternEditorPanel()->getNoteLeadLagScrollArea();
 		break;
-	case NOTEKEY:
+	case Mode::NoteKey:
 		pScrollArea = HydrogenApp::get_instance()->getPatternEditorPanel()->getNoteNoteKeyScrollArea();
 		break;
-	case PROBABILITY:
+	case Mode::Probability:
 		pScrollArea = HydrogenApp::get_instance()->getPatternEditorPanel()->getNoteProbabilityScrollArea();
 		break;
 	default:
@@ -1090,10 +1060,10 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 
 
 				uint value = 0;
-				if ( m_Mode == VELOCITY ) {
+				if ( m_Mode == Mode::Velocity ) {
 					value = (uint)(pNote->get_velocity() * height());
 				}
-				else if ( m_Mode == PROBABILITY ) {
+				else if ( m_Mode == Mode::Probability ) {
 					value = (uint)(pNote->get_probability() * height());
 				}
 				uint line_start = line_end - value;
@@ -1169,10 +1139,10 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 				p.setPen( Qt::NoPen );
 
 				float fValue = 0;
-				if ( m_Mode == PAN ) {
+				if ( m_Mode == Mode::Pan ) {
 					fValue = pNote->getPan();
-				} else if ( m_Mode == LEADLAG ) {
-					fValue = pNote->get_lead_lag();
+				} else if ( m_Mode == Mode::LeadLag ) {
+					fValue = -1 * pNote->get_lead_lag();
 				}
 
 				// Rounding in order to not miss the center due to
@@ -1190,10 +1160,10 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 					int y_pos = (int)( height() * 0.5 );
 					p.setBrush(QColor( noteColor ));
 					p.drawEllipse( x_pos-4 + xoffset, y_pos-4, 8, 8);
+					p.setBrush( Qt::NoBrush );
 
 					if ( m_selection.isSelected( pNote ) ) {
 						p.setPen( selectedPen );
-						p.setBrush( Qt::NoBrush );
 						p.setRenderHint( QPainter::Antialiasing );
 						p.drawEllipse( x_pos - 6 + xoffset, y_pos - 6,
 									   12, 12);
@@ -1214,7 +1184,6 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 
 					if ( m_selection.isSelected( pNote ) ) {
 						p.setPen( selectedPen );
-						p.setBrush( Qt::NoBrush );
 						p.drawRoundedRect( x_pos - 1 - 2 + xoffset, nStartY - 2,
 										   nLineWidth + 4, nHeight + 4,
 										   4, 4 );
@@ -1389,13 +1358,13 @@ void NotePropertiesRuler::createBackground()
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 	}
 
-	if ( m_Mode == VELOCITY || m_Mode == PROBABILITY ) {
+	if ( m_Mode == Mode::Velocity || m_Mode == Mode::Probability ) {
 		createNormalizedBackground( m_pBackgroundPixmap );
 	}
-	else if ( m_Mode == PAN || m_Mode == LEADLAG ) {
+	else if ( m_Mode == Mode::Pan || m_Mode == Mode::LeadLag ) {
 		createCenteredBackground( m_pBackgroundPixmap );
 	}
-	else if ( m_Mode == NOTEKEY ) {
+	else if ( m_Mode == Mode::NoteKey ) {
 		createNoteKeyBackground( m_pBackgroundPixmap );
 	}
 	update();
@@ -1480,13 +1449,13 @@ void NotePropertiesRuler::onPreferencesChanged( H2Core::Preferences::Changes cha
 	}
 }
 
-void NotePropertiesRuler::triggerStatusMessage( Note* pNote ) const {
+void NotePropertiesRuler::triggerStatusMessage( Note* pNote, Mode mode ) {
 	QString s;
 	QString sUnit( tr( "ticks" ) );
 	float fValue;
 	
-	switch ( m_Mode ) {
-	case VELOCITY:
+	switch ( mode ) {
+	case Mode::Velocity:
 		if ( ! pNote->get_note_off() ) {
 			s = QString( tr( "Set note velocity" ) )
 				.append( QString( ": [%1]")
@@ -1494,7 +1463,7 @@ void NotePropertiesRuler::triggerStatusMessage( Note* pNote ) const {
 		}
 		break;
 		
-	case PAN:
+	case Mode::Pan:
 		if ( ! pNote->get_note_off() ) {
 
 			// Round the pan to not miss the center due to fluctuations
@@ -1514,7 +1483,7 @@ void NotePropertiesRuler::triggerStatusMessage( Note* pNote ) const {
 		}
 		break;
 		
-	case LEADLAG:;
+	case Mode::LeadLag:
 		// Round the pan to not miss the center due to fluctuations
 		fValue = pNote->get_lead_lag() * 100;
 		fValue = std::round( fValue );
@@ -1538,14 +1507,14 @@ void NotePropertiesRuler::triggerStatusMessage( Note* pNote ) const {
 		}
 		break;
 
-	case NOTEKEY:
+	case Mode::NoteKey:
 		s = QString( tr( "Set pitch" ) ).append( ": " ).append( tr( "key" ) )
 			.append( QString( " [%1], " ).arg( Note::KeyToQString( pNote->get_key() ) ) )
 			.append( tr( "octave" ) )
 			.append( QString( ": [%1]" ).arg( pNote->get_octave() ) );
 		break;
 
-	case PROBABILITY:
+	case Mode::Probability:
 		if ( ! pNote->get_note_off() ) {
 			s = tr( "Set note probability to" )
 				.append( QString( ": [%1]" ).arg( pNote->get_probability(), 2, 'f', 2 ) );
@@ -1553,7 +1522,7 @@ void NotePropertiesRuler::triggerStatusMessage( Note* pNote ) const {
 		break;
 
 	default:
-		ERRORLOG( QString( "Unknown mode: [%1]" ).arg( m_Mode ) );
+		ERRORLOG( NotePropertiesRuler::modeToQString( mode ) );
 	}
 
 	if ( ! s.isEmpty() ) {
@@ -1561,3 +1530,29 @@ void NotePropertiesRuler::triggerStatusMessage( Note* pNote ) const {
 	}
 }
 					
+QString NotePropertiesRuler::modeToQString( Mode mode ) {
+	QString s;
+	
+	switch ( mode ) {
+	case Mode::Velocity:
+		s = "Velocity";
+		break;
+	case Mode::Pan:
+		s = "Pan";
+		break;
+	case Mode::LeadLag:
+		s = "LeadLag";
+		break;
+	case Mode::NoteKey:
+		s = "NoteKey";
+		break;
+	case Mode::Probability:
+		s = "Probability";
+		break;
+	default:
+		s = QString( "Unknown mode [%1]" ).arg( static_cast<int>(mode) ) ;
+		break;
+	}
+
+	return s;
+}

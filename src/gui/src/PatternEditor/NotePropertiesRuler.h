@@ -53,15 +53,16 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		//! NotePropertiesEditor is (currently) a single class instantiated in different "modes" to select
 		//! which property it edits. There are individual instances for each property which are hidden and
 		//! shown depending on what the user selects.
-		enum NotePropertiesMode {
-			VELOCITY,
-			PAN,
-			LEADLAG,
-			NOTEKEY,
-			PROBABILITY
+		enum class Mode {
+			Velocity = 0,
+			Pan = 1,
+			LeadLag = 2,
+			NoteKey = 3,
+			Probability = 4
 		};
+	static QString modeToQString( Mode mode );
 
-		NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, NotePropertiesMode mode );
+		NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, Mode mode );
 		~NotePropertiesRuler();
 		
 		NotePropertiesRuler(const NotePropertiesRuler&) = delete;
@@ -91,6 +92,8 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		virtual QRect getKeyboardCursorRect() override;
 		//! @}
 
+	static void triggerStatusMessage( H2Core::Note* pNote, Mode mode );
+
 	public slots:
 		virtual void updateEditor( bool bPatternOnly = false ) override;
 		virtual void selectAll() override;
@@ -103,14 +106,12 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 
 	private:
 
-	void triggerStatusMessage( H2Core::Note* pNote ) const;
-
 		bool m_bNeedsUpdate;
 		void createBackground() override;
 	void drawDefaultBackground( QPainter& painter, int nHeight = 0, int nIncrement = 0 );
 		void drawFocus( QPainter& painter );
 
-		NotePropertiesMode m_Mode;
+		Mode m_Mode;
 
 		double m_fLastSetValue;
 		bool m_bValueHasBeenSet;

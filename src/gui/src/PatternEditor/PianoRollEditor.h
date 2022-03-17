@@ -29,6 +29,7 @@
 #include "../EventListener.h"
 #include "../Selection.h"
 #include "PatternEditor.h"
+#include "NotePropertiesRuler.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
 #include <QtGui>
@@ -96,14 +97,16 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 							 H2Core::Note::Key newKey,
 							 H2Core::Note *pNote);
 
-		void editNotePropertiesAction(   int nColumn,
-						int nRealColumn,
-						int selectedPatternNumber,
-						int selectedInstrumentnumber,
-						float velocity,
-						float fPan,
-						float leadLag,
-						int pressedLine );
+	void editNotePropertiesAction(   int nColumn,
+									 int nRealColumn,
+									 int selectedPatternNumber,
+									 int selectedInstrumentnumber,
+									 NotePropertiesRuler::Mode mode,
+									 float velocity,
+									 float fPan,
+									 float leadLag,
+									 float fProbability,
+									 int pressedLine );
 		void editNoteLengthAction( int nColumn,  int nRealColumn, int length, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedLine );
 
 
@@ -167,8 +170,11 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		float m_fOldVelocity = 0;
 		float m_fPan = 0;
 		float m_fOldPan = 0;
-		float m_fLeadLag = 0; 
-		float m_fOldLeadLag = 0;		
+		float m_fLeadLag = 0;
+		float m_fOldLeadLag = 0;
+		float m_fProbability = 0;
+		float m_fOldProbability = 0;
+	NotePropertiesRuler::Mode m_Mode;
 };
 
 #endif

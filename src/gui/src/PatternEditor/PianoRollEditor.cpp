@@ -24,7 +24,6 @@
 #include "PatternEditorPanel.h"
 #include "PatternEditorRuler.h"
 #include "PatternEditorInstrumentList.h"
-#include "NotePropertiesRuler.h"
 #include "UndoActions.h"
 #include <cassert>
 
@@ -759,7 +758,11 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 
 void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 {
-	if ( m_pPattern == nullptr ) {
+	if ( m_pPattern == nullptr || m_pDraggedNote == nullptr ) {
+		return;
+	}
+
+	if ( m_pDraggedNote->get_note_off() ) {
 		return;
 	}
 
@@ -767,126 +770,88 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 	if ( nRow >= (int) m_nOctaves * 12 ) {
 		return;
 	}
+	
+	int nTickColumn = getColumn( ev->x() );
 
-	if ( m_pDraggedNote ) {
-		if ( m_pDraggedNote->get_note_off() ) {
-			return;
-		}
-		int nTickColumn = getColumn( ev->x() );
+	m_pAudioEngine->lock( RIGHT_HERE );	// lock the audio engine
+	int nLen = nTickColumn - (int)m_pDraggedNote->get_position();
 
-		m_pAudioEngine->lock( RIGHT_HERE );	// lock the audio engine
-		int nLen = nTickColumn - (int)m_pDraggedNote->get_position();
-
-		if (nLen <= 0) {
-			nLen = -1;
-		}
-
-		float fNotePitch = m_pDraggedNote->get_notekey_pitch();
-		float fStep = 0;
-		if(nLen > -1){
-			fStep = Note::pitchToFrequency( ( double )fNotePitch );
-		} else {
-			fStep = 1.0;
-		}
-		m_pDraggedNote->set_length( nLen * fStep);
-
-		Hydrogen::get_instance()->setIsModified( true );
-		m_pAudioEngine->unlock(); // unlock the audio engine
-
-		m_pPatternEditorPanel->updateEditors( true );
+	if (nLen <= 0) {
+		nLen = -1;
 	}
 
-	int selectedProperty = m_pPatternEditorPanel->getPropertiesComboValue();
-
-	//edit velocity
-	if ( m_pDraggedNote && selectedProperty == 0 ) { // Velocity
-		if ( m_pDraggedNote->get_note_off() ) return;
-
-		m_pAudioEngine->lock( RIGHT_HERE );	// lock the audio engine
-
-		float val = m_pDraggedNote->get_velocity();
-
-		
-		float ymove = m_nOldPoint - ev->y();
-		val = val  +  (ymove / 100);
-		if (val > 1) {
-			val = 1;
-		}
-		else if (val < 0.0) {
-			val = 0.0;
-		}
-
-		m_pDraggedNote->set_velocity( val );
-
-		m_fVelocity = val;
-
-		Hydrogen::get_instance()->setIsModified( true );
-		m_pAudioEngine->unlock(); // unlock the audio engine
-
-		m_pPatternEditorPanel->updateEditors( true );
-		m_nOldPoint = ev->y();
+	float fNotePitch = m_pDraggedNote->get_notekey_pitch();
+	float fStep = 0;
+	if(nLen > -1){
+		fStep = Note::pitchToFrequency( ( double )fNotePitch );
+	} else {
+		fStep = 1.0;
 	}
+	m_pDraggedNote->set_length( nLen * fStep);
 
-	//edit pan
-	if ( m_pDraggedNote && selectedProperty == 1 ) { // Pan
-		if ( m_pDraggedNote->get_note_off() ) return;
+	Hydrogen::get_instance()->setIsModified( true );
+	m_pAudioEngine->unlock(); // unlock the audio engine
 
-		m_pAudioEngine->lock( RIGHT_HERE );	// lock the audio engine
-		
-		float ymove = m_nOldPoint - ev->y();
-		float fVal = m_pDraggedNote->getPanWithRangeFrom0To1()  +  (ymove / 100);
+	m_pPatternEditorPanel->updateEditors( true );
 
-		m_pDraggedNote->setPanWithRangeFrom0To1( fVal ); // checks the boundaries as well
-		m_fPan = m_pDraggedNote->getPan();
+	m_Mode = m_pPatternEditorPanel->getNotePropertiesMode();
 
-		Hydrogen::get_instance()->setIsModified( true );
-		m_pAudioEngine->unlock(); // unlock the audio engine
-
-		m_pPatternEditorPanel->updateEditors();
-		m_nOldPoint = ev->y();
-	}
-
-	//edit lead lag
-	if ( m_pDraggedNote && selectedProperty ==  2 ) { // Lead and Lag
-		if ( m_pDraggedNote->get_note_off() ) return;
+	// edit note property. We do not support the note key property
+	// since this can already be altered in the PianoRollEditor
+	// itself.
+	if ( m_Mode != NotePropertiesRuler::Mode::NoteKey ) {
 
 		m_pAudioEngine->lock( RIGHT_HERE );	// lock the audio engine
 
+		float fValue = 0.0;
+		if ( m_Mode == NotePropertiesRuler::Mode::Velocity ) {
+			fValue = m_pDraggedNote->get_velocity();
+		}
+		else if ( m_Mode == NotePropertiesRuler::Mode::Pan ) {
+			fValue = m_pDraggedNote->getPanWithRangeFrom0To1();
+		}
+		else if ( m_Mode == NotePropertiesRuler::Mode::LeadLag ) {
+			fValue = ( m_pDraggedNote->get_lead_lag() - 1.0 ) / -2.0 ;
+		}
+		else if ( m_Mode == NotePropertiesRuler::Mode::Probability ) {
+			fValue = m_pDraggedNote->get_probability();
+		}
 		
-		float val = ( m_pDraggedNote->get_lead_lag() - 1.0 ) / -2.0 ;
-
-		float ymove = m_nOldPoint - ev->y();
-		val = val  +  (ymove / 100);
-
-		if (val > 1.0) {
-			val = 1.0;
+		float fMoveY = m_nOldPoint - ev->y();
+		fValue = fValue  + (fMoveY / 100);
+		if ( fValue > 1 ) {
+			fValue = 1;
 		}
-		else if (val < 0.0) {
-			val = 0.0;
+		else if ( fValue < 0.0 ) {
+			fValue = 0.0;
 		}
 
-		m_pDraggedNote->set_lead_lag((val * -2.0) + 1.0);
-
-		m_fLeadLag = (val * -2.0) + 1.0;
-
-		char valueChar[100];
-		if ( m_pDraggedNote->get_lead_lag() < 0.0 ) {
-			sprintf( valueChar, "%.2f",  ( m_pDraggedNote->get_lead_lag() * -5 ) ); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-			HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
-		} else if ( m_pDraggedNote->get_lead_lag() > 0.0 ) {
-			sprintf( valueChar, "%.2f",  ( m_pDraggedNote->get_lead_lag() * 5 ) ); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-			HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
-		} else {
-			HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
+		if ( m_Mode == NotePropertiesRuler::Mode::Velocity ) {
+			m_pDraggedNote->set_velocity( fValue );
+			m_fVelocity = fValue;
 		}
+		else if ( m_Mode == NotePropertiesRuler::Mode::Pan ) {
+			m_pDraggedNote->setPanWithRangeFrom0To1( fValue );
+			m_fPan = m_pDraggedNote->getPan();
+		}
+		else if ( m_Mode == NotePropertiesRuler::Mode::LeadLag ) {
+			m_pDraggedNote->set_lead_lag( ( fValue * -2.0 ) + 1.0 );
+			m_fLeadLag = ( fValue * -2.0 ) + 1.0;
+		}
+		else if ( m_Mode == NotePropertiesRuler::Mode::Probability ) {
+			m_pDraggedNote->set_probability( fValue );
+			m_fProbability = fValue;
+		}
+
+		NotePropertiesRuler::triggerStatusMessage( m_pDraggedNote, m_Mode );
+		
+		m_pAudioEngine->unlock(); // unlock the audio engine
 
 		Hydrogen::get_instance()->setIsModified( true );
-		m_pAudioEngine->unlock(); // unlock the audio engine
 
 		m_pPatternEditorPanel->updateEditors( true );
 		m_nOldPoint = ev->y();
 	}
-
 }
 
 
@@ -898,9 +863,9 @@ void PianoRollEditor::mouseDragEndEvent( QMouseEvent *ev )
 	}
 
 	if ( m_pDraggedNote ) {
-		if ( m_pDraggedNote->get_note_off() ) return;
-
-
+		if ( m_pDraggedNote->get_note_off() ) {
+			return;
+		}
 
 		if( m_pDraggedNote->get_length() != m_nOldLength )
 		{
@@ -909,18 +874,27 @@ void PianoRollEditor::mouseDragEndEvent( QMouseEvent *ev )
 		}
 
 
-		if( m_fVelocity == m_fOldVelocity &&  m_fOldLeadLag == m_fLeadLag && m_fOldPan == m_fPan ) return;
-		SE_editNotePropertiesPianoRollAction *action = new SE_editNotePropertiesPianoRollAction( m_pDraggedNote->get_position(),
-																								 m_pDraggedNote->get_position(),
-																								 m_nSelectedPatternNumber,
-																								 m_nSelectedInstrumentNumber,
-																								 m_fVelocity,
-																								 m_fOldVelocity,
-																								 m_fPan,
-																								 m_fOldPan,
-																								 m_fLeadLag,
-																								 m_fOldLeadLag,
-																								 m_nPressedLine );
+		if( m_fVelocity == m_fOldVelocity &&
+			m_fOldLeadLag == m_fLeadLag &&
+			m_fOldPan == m_fPan ) {
+			return;
+		}
+		
+		SE_editNotePropertiesPianoRollAction *action =
+			new SE_editNotePropertiesPianoRollAction( m_pDraggedNote->get_position(),
+													  m_pDraggedNote->get_position(),
+													  m_nSelectedPatternNumber,
+													  m_nSelectedInstrumentNumber,
+													  m_Mode,
+													  m_fVelocity,
+													  m_fOldVelocity,
+													  m_fPan,
+													  m_fOldPan,
+													  m_fLeadLag,
+													  m_fOldLeadLag,
+													  m_fProbability,
+													  m_fOldProbability,
+													  m_nPressedLine );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 }
@@ -1277,13 +1251,15 @@ void PianoRollEditor::editNoteLengthAction( int nColumn,  int nRealColumn,  int 
 
 
 void PianoRollEditor::editNotePropertiesAction( int nColumn,
-						int nRealColumn,
-						int selectedPatternNumber,
-						int selectedInstrumentnumber,
-						float velocity,
-						float fPan,
-						float leadLag,
-						int pressedline )
+												int nRealColumn,
+												int selectedPatternNumber,
+												int selectedInstrumentnumber,
+												NotePropertiesRuler::Mode mode,
+												float fVelocity,
+												float fPan,
+												float fLeadLag,
+												float fProbability,
+												int pressedline )
 {
 
 	if ( m_pPattern == nullptr ) {
@@ -1299,16 +1275,36 @@ void PianoRollEditor::editNotePropertiesAction( int nColumn,
 
 	auto pSelectedInstrument = pSong->getInstrumentList()->get( selectedInstrumentnumber );
 
+	bool bValueChanged = false;
+	
 	Note* pDraggedNote = nullptr;
 	m_pAudioEngine->lock( RIGHT_HERE );
 	pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, pressednotekey, pressedoctave, false );
-	if ( pDraggedNote ){
-		pDraggedNote->set_velocity( velocity );
-		pDraggedNote->setPan( fPan );
-		pDraggedNote->set_lead_lag( leadLag );
+	if ( pDraggedNote != nullptr ){
+		switch ( mode ) {
+		case NotePropertiesRuler::Mode::Velocity:
+			pDraggedNote->set_velocity( fVelocity );
+			break;
+		case NotePropertiesRuler::Mode::Pan:
+			pDraggedNote->setPan( fPan );
+			break;
+		case NotePropertiesRuler::Mode::LeadLag:
+			pDraggedNote->set_lead_lag( fLeadLag );
+			break;
+		case NotePropertiesRuler::Mode::Probability:
+			pDraggedNote->set_probability( fProbability );
+			break;
+		}			
+		bValueChanged = true;
 	}
-	pHydrogen->setIsModified( true );
+
+	if ( bValueChanged ) {
+		pHydrogen->setIsModified( true );
+		NotePropertiesRuler::triggerStatusMessage( pDraggedNote, mode );
+	}
+	
 	m_pAudioEngine->unlock();
+
 	m_pPatternEditorPanel->updateEditors( true );
 }
 

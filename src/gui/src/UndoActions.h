@@ -1169,55 +1169,69 @@ private:
 class SE_editNotePropertiesPianoRollAction : public QUndoCommand
 {
 public:
-	SE_editNotePropertiesPianoRollAction(   int nColumn,
-						int nRealColumn,
-						int selectedPatternNumber,
-						int selectedInstrumentnumber,
-						float velocity,
-						float oldVelocity,
-						float fPan,
-						float fOldPan,
-						float leadLag,
-						float oldLeadLag,
-						int pressedLine ){
-		setText( QObject::tr( "Change note properties piano roll" ) );
+	SE_editNotePropertiesPianoRollAction( int nColumn,
+										  int nRealColumn,
+										  int selectedPatternNumber,
+										  int selectedInstrumentnumber,
+										  NotePropertiesRuler::Mode mode,
+										  float velocity,
+										  float oldVelocity,
+										  float fPan,
+										  float fOldPan,
+										  float leadLag,
+										  float oldLeadLag,
+										  float fProbability,
+										  float fOldProbability,
+										  int pressedLine ){
+		setText( QObject::tr( "Change note properties piano roll" )
+				 .append( QString( ": [%1" )
+						  .arg( NotePropertiesRuler::modeToQString( mode ) ) ) );
 		__nColumn = nColumn;
 		__nRealColumn = nRealColumn;
 		__selectedPatternNumber = selectedPatternNumber;
 		__nSelectedInstrumentnumber = selectedInstrumentnumber;
+		m_Mode = mode;
 		__velocity = velocity;
 		__oldVelocity = oldVelocity;
 		m_fPan = fPan;
 		m_fOldPan = fOldPan;
 		__leadLag = leadLag;
 		__oldLeadLag = oldLeadLag;
+		m_fProbability = fProbability;
+		m_fOldProbability = fOldProbability;
 		__pressedLine = pressedLine;
 	}
 	virtual void undo()
 	{
 		//qDebug() << "Change Note properties Piano Roll Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getPianoRollEditor()->editNotePropertiesAction( __nColumn,
-												__nRealColumn,
-												__selectedPatternNumber,
-												__nSelectedInstrumentnumber,
-												__oldVelocity,
-												m_fOldPan,
-												__oldLeadLag,
-												__pressedLine );
+		h2app->getPatternEditorPanel()->getPianoRollEditor()->
+			editNotePropertiesAction( __nColumn,
+									  __nRealColumn,
+									  __selectedPatternNumber,
+									  __nSelectedInstrumentnumber,
+									  m_Mode,
+									  __oldVelocity,
+									  m_fOldPan,
+									  __oldLeadLag,
+									  m_fOldProbability,
+									  __pressedLine );
 	}
 	virtual void redo()
 	{
 		//qDebug() << "Change Note properties Piano RollRedo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getPianoRollEditor()->editNotePropertiesAction( __nColumn,
-												__nRealColumn,
-												__selectedPatternNumber,
-												__nSelectedInstrumentnumber,
-												__velocity,
-												m_fPan,
-												__leadLag,
-												__pressedLine );
+		h2app->getPatternEditorPanel()->getPianoRollEditor()->
+			editNotePropertiesAction( __nColumn,
+									  __nRealColumn,
+									  __selectedPatternNumber,
+									  __nSelectedInstrumentnumber,
+									  m_Mode,
+									  __velocity,
+									  m_fPan,
+									  __leadLag,
+									  m_fProbability,
+									  __pressedLine );
 	}
 
 private:
@@ -1225,12 +1239,15 @@ private:
 	int __nRealColumn;
 	int __selectedPatternNumber;
 	int __nSelectedInstrumentnumber;
+	NotePropertiesRuler::Mode m_Mode;
 	float __velocity;
 	float __oldVelocity;
 	float m_fPan;
 	float m_fOldPan;
 	float __leadLag;
 	float __oldLeadLag;
+	float m_fProbability;
+	float m_fOldProbability;
 	int __pressedLine;
 };
 
@@ -1293,7 +1310,7 @@ class SE_editNotePropertiesVolumeAction : public QUndoCommand
 public:
 
 	SE_editNotePropertiesVolumeAction( int undoColumn,
-					   QString mode,
+									   NotePropertiesRuler::Mode mode,
 					   int nSelectedPatternNumber,
 					   int nSelectedInstrument,
 					   float velocity,
@@ -1309,7 +1326,8 @@ public:
 					   int octaveKeyVal,
 					   int oldOctaveKeyVal)
 	{
-		setText( QObject::tr( "Edit note property %1" ).arg( mode.toLower() ) );
+		setText( QObject::tr( "Edit note property %1" )
+				 .arg( NotePropertiesRuler::modeToQString( mode ) ) );
 		__undoColumn = undoColumn;
 		__mode = mode;
 		__nSelectedPatternNumber = nSelectedPatternNumber;
@@ -1363,7 +1381,7 @@ private:
 
 
 	int __undoColumn;
-	QString __mode;
+	NotePropertiesRuler::Mode __mode;
 	int __nSelectedPatternNumber;
 	int __nSelectedInstrument;
 	float __velocity;

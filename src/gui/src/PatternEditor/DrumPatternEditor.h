@@ -27,6 +27,7 @@
 #include "../EventListener.h"
 #include "../Selection.h"
 #include "PatternEditor.h"
+#include "NotePropertiesRuler.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
 #include <core/Object.h>
@@ -82,7 +83,7 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		void addOrRemoveNote( int nColumn, int nRealColumn, int row, bool bDoAdd = true, bool bDoDelete = true );
 		void editNoteLengthAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber );
 		void undoRedoAction(    int column,
-								QString mode,
+								NotePropertiesRuler::Mode mode,
 								int nSelectedPatternNumber,
 								int nSelectedInstrument,
 								float velocity,

@@ -1455,7 +1455,7 @@ void DrumPatternEditor::selectedPatternChangedEvent()
 
 ///NotePropertiesRuler undo redo action
 void DrumPatternEditor::undoRedoAction( int column,
-					QString mode,
+										NotePropertiesRuler::Mode mode,
 					int nSelectedPatternNumber,
 					int nSelectedInstrument,
 					float velocity,
@@ -1474,7 +1474,7 @@ void DrumPatternEditor::undoRedoAction( int column,
 		pPattern = pPatternList->get( nSelectedPatternNumber );
 	}
 
-	if(pPattern) {
+	if( pPattern != nullptr ) {
 		const Pattern::notes_t* notes = pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
 			Note *pNote = it->second;
@@ -1484,23 +1484,25 @@ void DrumPatternEditor::undoRedoAction( int column,
 				continue;
 			}
 
-			if ( mode == "VELOCITY" && !pNote->get_note_off() ) {
+			if ( mode == NotePropertiesRuler::Mode::Velocity &&
+				 !pNote->get_note_off() ) {
 				pNote->set_velocity( velocity );
 			}
-			else if ( mode == "PAN" ){
+			else if ( mode == NotePropertiesRuler::Mode::Pan ){
 				pNote->setPan( fPan );
 			}
-			else if ( mode == "LEADLAG" ){
+			else if ( mode == NotePropertiesRuler::Mode::LeadLag ){
 				pNote->set_lead_lag( leadLag );
 			}
-			else if ( mode == "NOTEKEY" ){
+			else if ( mode == NotePropertiesRuler::Mode::NoteKey ){
 				pNote->set_key_octave( (Note::Key)noteKeyVal, (Note::Octave)octaveKeyVal );
 			}
-			else if ( mode == "PROBABILITY" ){
+			else if ( mode == NotePropertiesRuler::Mode::Probability ){
 				pNote->set_probability( probability );
 			}
 
 			pHydrogen->setIsModified( true );
+			NotePropertiesRuler::triggerStatusMessage( pNote, mode );
 			break;
 		}
 

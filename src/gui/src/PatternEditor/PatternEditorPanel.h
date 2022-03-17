@@ -83,7 +83,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		const QScrollArea* getNoteProbabilityScrollArea() const { return m_pNoteProbabilityScrollView; }
 		const QScrollBar* getVerticalScrollBar() const { return m_pPatternEditorVScrollBar; }
 		const QScrollBar* getHorizontalScrollBar() const { return m_pPatternEditorHScrollBar; }
-		int getPropertiesComboValue(){ return m_pPropertiesCombo->currentIndex(); }
+	NotePropertiesRuler::Mode getNotePropertiesMode() const;
 	
 
 		void updateSLnameLabel();
