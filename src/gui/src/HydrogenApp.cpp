@@ -258,6 +258,9 @@ void HydrogenApp::setupSinglePanedInterface()
 	} else {
 		m_pSongEditorPanel = new SongEditorPanel( m_pTab );
 	}
+	// trigger a relocation to sync the transport position of the
+	// editors in the panel.
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( 0 );
 
 	WindowProperties songEditorProp = pPref->getSongEditorProperties();
 	setWindowProperties( m_pSongEditorPanel, songEditorProp, SetWidth + SetHeight );

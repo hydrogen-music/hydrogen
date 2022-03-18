@@ -1467,9 +1467,9 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		 || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton)
 		 || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton)
 		 || ev->pos().x() < 15 ){
-		togglePattern( nRow );
-	} else {
-		
+		m_pHydrogen->toggleNextPattern( nRow );
+	}
+	else {
 		if ( ! m_pHydrogen->isPatternEditorLocked() ) {
 			m_pHydrogen->setSelectedPatternNumber( nRow );
 		} else {
@@ -3040,14 +3040,17 @@ void SongEditorPositionRuler::updatePosition()
 
 	m_pAudioEngine->unlock();
 
-	m_fTick = fTick;
+	if ( fTick != m_fTick ) {
+
+		m_fTick = fTick;
 	
-	update();
-	auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();
-	if ( pSongEditorPanel != nullptr ) {
-		pSongEditorPanel->getSongEditor()->updatePosition( fTick );
-		pSongEditorPanel->getPlaybackTrackWaveDisplay()->updatePosition( fTick );
-		pSongEditorPanel->getAutomationPathView()->updatePosition( fTick );
+		update();
+		auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();
+		if ( pSongEditorPanel != nullptr ) {
+			pSongEditorPanel->getSongEditor()->updatePosition( fTick );
+			pSongEditorPanel->getPlaybackTrackWaveDisplay()->updatePosition( fTick );
+			pSongEditorPanel->getAutomationPathView()->updatePosition( fTick );
+		}
 	}
 }
 
