@@ -613,7 +613,7 @@ void MainForm::action_file_new()
 	// autosave file in order to start fresh.
 	QFileInfo fileInfo( Filesystem::empty_song_path() );
 	QString sBaseName( fileInfo.completeBaseName() );
-	if ( sBaseName.front() == "." ) {
+	if ( sBaseName.startsWith( "." ) ) {
 		sBaseName.remove( 0, 1 );
 	}
 	QFileInfo autoSaveFile( QString( "%1/.%2.autosave.h2song" )
@@ -2050,7 +2050,7 @@ QString MainForm::getAutoSaveFilename()
 		// In case the user did open a hidden file, the baseName()
 		// will be an empty string.
 		QString sBaseName( fileInfo.completeBaseName() );
-		if ( sBaseName.front() == "." ) {
+		if ( sBaseName.startsWith( "." ) ) {
 			sBaseName.remove( 0, 1 );
 		}
 
