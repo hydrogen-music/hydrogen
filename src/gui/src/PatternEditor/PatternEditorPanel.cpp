@@ -924,6 +924,10 @@ void PatternEditorPanel::patternModifiedEvent() {
 	selectedPatternChangedEvent();
 }
 
+void PatternEditorPanel::patternChangedEvent() {
+	updateEditors( true );
+}
+
 void PatternEditorPanel::updatePatternSizeLCD() {
 	if ( m_pPattern == nullptr ) {
 		return;

@@ -862,6 +862,11 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 		return;
 	}
 
+	int nNotes = MAX_NOTES;
+	if ( m_pPattern != nullptr ) {
+		nNotes = m_pPattern->get_length();
+	}
+
 	auto pPref = Preferences::get_instance();
 	
 	qreal pixelRatio = devicePixelRatio();
@@ -873,7 +878,7 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, ev->rect() );
 
 	// Draw playhead
-	if ( m_nTick != -1 ) {
+	if ( m_nTick != -1 && m_nTick < nNotes ) {
 
 		int nOffset = Skin::getPlayheadShaftOffset();
 		int nX = static_cast<int>(static_cast<float>(PatternEditor::nMargin) +

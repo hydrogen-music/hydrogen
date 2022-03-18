@@ -1435,12 +1435,6 @@ void DrumPatternEditor::selectedInstrumentChangedEvent()
 	updateEditor();
 }
 
-void DrumPatternEditor::patternChangedEvent()
-{
-	updateEditor();
-}
-
-
 void DrumPatternEditor::selectedPatternChangedEvent()
 {
 	updateEditor();

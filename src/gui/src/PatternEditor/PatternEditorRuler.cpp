@@ -91,13 +91,13 @@ void PatternEditorRuler::updatePosition( bool bForce ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	
-	bool bActive = false;	// is the pattern playing now?
+	bool bIsSelectedPatternPlaying = false;	// is the pattern playing now?
 
 	if ( pHydrogen->getMode() == Song::Mode::Song &&
 		 pHydrogen->isPatternEditorLocked() ) {
 		// In case the pattern editor is locked we will always display
 		// the position tick. Even if no pattern is set at all.
-		bActive = true;
+		bIsSelectedPatternPlaying = true;
 	} else {
 		/* 
 		 * Lock audio engine to make sure pattern list does not get
@@ -108,7 +108,7 @@ void PatternEditorRuler::updatePosition( bool bForce ) {
 		auto pList = pAudioEngine->getPlayingPatterns();
 		for (uint i = 0; i < pList->size(); i++) {
 			if ( m_pPattern == pList->get(i) ) {
-				bActive = true;
+				bIsSelectedPatternPlaying = true;
 				break;
 			}
 		}
@@ -116,14 +116,15 @@ void PatternEditorRuler::updatePosition( bool bForce ) {
 		pAudioEngine->unlock();
 	}
 
-	int nTick = -1;
-	if ( bActive ) {
-		nTick = pAudioEngine->getPatternTickPosition();
-	}
+	int nTick = pAudioEngine->getPatternTickPosition();
 
 	if ( nTick != m_nTick || bForce ) {
 		m_nTick = nTick;
 		update();
+
+		if ( ! bIsSelectedPatternPlaying ) {
+			nTick = -1;
+		}
 		
 		auto pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 		if ( pPatternEditorPanel != nullptr ) {
@@ -334,10 +335,6 @@ void PatternEditorRuler::createBackground()
 	painter.fillRect( QRect( 1, 1, width() - 2, height() - 2 ), backgroundColor );
 
 	// gray background for unusable section of pattern
-	int nNotes = MAX_NOTES;
-	if ( m_pPattern != nullptr ) {
-		nNotes = m_pPattern->get_length();
-	}
 	if ( m_nRulerWidth - m_nWidthActive != 0 ) {
 		painter.fillRect( m_nWidthActive, 0, m_nRulerWidth - m_nWidthActive,
 						  m_nRulerHeight,
@@ -376,15 +373,13 @@ void PatternEditorRuler::createBackground()
 	}
 
 	// Draw remaining ticks
-	int nMaxX = m_fGridWidth * nNotes + PatternEditor::nMargin;
-
 	float fStep;
 	if ( bIsUsingTriplets ) {
 		fStep = 4 * MAX_NOTES / ( 3 * nResolution ) * m_fGridWidth;
 	} else {
 		fStep = 4 * MAX_NOTES / ( 4 * nResolution ) * m_fGridWidth;
 	}
-	for ( float xx = PatternEditor::nMargin; xx < nMaxX; xx += fStep ) {
+	for ( float xx = PatternEditor::nMargin; xx < m_nWidthActive; xx += fStep ) {
 		painter.drawLine( xx, height() - 5, xx, height() - 2 );
 	}
 
@@ -501,12 +496,24 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 }
 
 void PatternEditorRuler::updateActiveRange() {
-		
-	int nNotes = MAX_NOTES;
-	if ( m_pPattern != nullptr ) {
-		nNotes = m_pPattern->get_length();
+	
+	auto pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
+	int nTicksInPattern = MAX_NOTES;
+
+	auto pPlayingPatterns = pAudioEngine->getPlayingPatterns();
+	if ( pPlayingPatterns->size() != 0 ) {
+		nTicksInPattern = pPlayingPatterns->longest_pattern_length();
 	}
-	m_nWidthActive = PatternEditor::nMargin + nNotes * m_fGridWidth;
+	
+	int nWidthActive = PatternEditor::nMargin + nTicksInPattern * m_fGridWidth;
+
+	if ( m_nWidthActive != nWidthActive ) {
+		INFOLOG("");
+		m_nWidthActive = nWidthActive;
+
+		createBackground();
+		update();
+	}
 }
 
 void PatternEditorRuler::zoomIn()
