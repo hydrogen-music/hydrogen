@@ -33,6 +33,7 @@ class TransportTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testComputeTickInterval );
 	CPPUNIT_TEST( testSongSizeChange );
 	CPPUNIT_TEST( testSongSizeChangeInLoopMode );
+	CPPUNIT_TEST( testNoteEnqueuing );
 	CPPUNIT_TEST_SUITE_END();
 	
 private:
@@ -41,6 +42,7 @@ private:
 	
 public:
 	void setUp();
+	void tearDown();
 	
 	void testFrameToTickConversion();
 
@@ -49,4 +51,5 @@ public:
 	void testComputeTickInterval();
 	void testSongSizeChange();
 	void testSongSizeChangeInLoopMode();
+	void testNoteEnqueuing();
 };

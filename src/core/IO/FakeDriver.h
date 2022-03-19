@@ -56,6 +56,7 @@ public:
 private:
 	audioProcessCallback m_processCallback;
 	unsigned m_nBufferSize;
+	unsigned m_nSampleRate;
 	float* m_pOut_L;
 	float* m_pOut_R;
 

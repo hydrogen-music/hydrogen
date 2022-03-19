@@ -51,7 +51,11 @@
 using namespace H2Core;
 
 DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
- : PatternEditor( parent, panel )
+ : PatternEditor( parent, panel ),
+   m_nRealColumn(0),
+   m_nColumn(0),
+   m_nRow(0),
+   m_nOldLength(0)
 {
 	auto pPref = H2Core::Preferences::get_instance();
 
@@ -240,13 +244,13 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 
 		m_pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
 		// needed for undo note length
-		__nRealColumn = nRealColumn;
-		__nColumn = nColumn;
-		__row = row;
+		m_nRealColumn = nRealColumn;
+		m_nColumn = nColumn;
+		m_nRow = row;
 		if( m_pDraggedNote ){
-			__oldLength = m_pDraggedNote->get_length();
+			m_nOldLength = m_pDraggedNote->get_length();
 		} else {
-			__oldLength = -1;
+			m_nOldLength = -1;
 		}
 	} else {
 		// Other drag (selection or move) we'll set the cursor input position to the start of the gesture
@@ -445,7 +449,7 @@ void DrumPatternEditor::mouseDragEndEvent( QMouseEvent *ev )
 	if ( m_pDraggedNote ) {
 		if ( m_pDraggedNote->get_note_off() ) return;
 
-		SE_editNoteLenghtAction *action = new SE_editNoteLenghtAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), __row, m_pDraggedNote->get_length(),__oldLength, m_nSelectedPatternNumber );
+		SE_editNoteLenghtAction *action = new SE_editNoteLenghtAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), m_nRow, m_pDraggedNote->get_length(),m_nOldLength, m_nSelectedPatternNumber );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		m_pDraggedNote = nullptr;
 	}
@@ -1353,9 +1357,8 @@ void DrumPatternEditor::undoRedoAction( int column,
 	}
 }
 
-void DrumPatternEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void DrumPatternEditor::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 		updateEditor();

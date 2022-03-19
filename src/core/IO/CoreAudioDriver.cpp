@@ -102,7 +102,7 @@ int CoreAudioDriver::getLatency() {
 		ERRORLOG( QString("Couldn't get stream latency") );
 	}
 
-	return nDeviceLatency + nStreamLatency;
+	return nDeviceLatency + nStreamLatency + m_nBufferSize;
 }
 
 QString CoreAudioDriver::deviceName( AudioDeviceID deviceID )
@@ -345,7 +345,7 @@ CoreAudioDriver::~CoreAudioDriver()
 
 
 
-int CoreAudioDriver::init( unsigned bufferSize )
+int CoreAudioDriver::init( unsigned nBufferSize )
 {
 	OSStatus err = noErr;
 
@@ -427,6 +427,26 @@ int CoreAudioDriver::init( unsigned bufferSize )
 	if ( err != noErr ) {
 		ERRORLOG( "Could not Initialize AudioUnit" );
 	}
+
+	// Set buffer size
+	INFOLOG( QString( "Setting buffer size to %1" ).arg( nBufferSize ) );
+	AudioObjectPropertyAddress propertyAddress = {
+		kAudioDevicePropertyBufferFrameSize,
+		kAudioObjectPropertyScopeGlobal,
+		kAudioObjectPropertyElementMaster
+	};
+
+	err = AudioObjectSetPropertyData( m_outputDevice,
+									  &propertyAddress,
+									  0,
+									  NULL,
+                                      sizeof(UInt32), &nBufferSize);
+
+	if ( err != noErr ) {
+		ERRORLOG( QString( "Could not set buffer size to %1" ).arg( nBufferSize ) );
+	}
+
+	retrieveBufferSize();
 
 	return 0;
 }

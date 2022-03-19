@@ -127,23 +127,7 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private:
-		bool m_bNeedsUpdate;
-		bool m_bNeedsBackgroundUpdate;
-
-		void finishUpdateEditor();
-
-		unsigned m_nOctaves;
-
-		QPixmap *m_pBackground;
-		QPixmap *m_pTemp;
-		int m_pOldPoint;
-
-		// Note pitch position of cursor
-		int m_nCursorPitch;
-		QPoint cursorPosition();
-
-		QScrollArea *m_pScrollView;
-
+		
 		void createBackground();
 		void drawPattern();
 		void drawFocus( QPainter& painter );
@@ -156,19 +140,36 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void keyPressEvent ( QKeyEvent * ev ) override;
 		virtual void focusInEvent ( QFocusEvent * ev ) override;
-
-		int __selectedInstrumentnumber;
-		int __nRealColumn;
-		int __nColumn;
-		int __pressedLine;
-		int __oldLength;
 		
-		float __velocity;
-		float __oldVelocity;
-		float m_fPan;
-		float m_fOldPan;
-		float __leadLag;
-		float __oldLeadLag;		
+		void finishUpdateEditor();
+		
+		bool m_bNeedsUpdate;
+		bool m_bNeedsBackgroundUpdate;
+		
+		unsigned m_nOctaves;
+
+		QPixmap *m_pBackground;
+		QPixmap *m_pTemp;
+		int m_nOldPoint;
+
+		// Note pitch position of cursor
+		int m_nCursorPitch;
+		QPoint cursorPosition();
+
+		QScrollArea *m_pScrollView;
+
+		int m_nSelectedInstrumentNumber = 0;
+		int m_nRealColumn = 0;
+		int m_nColumn = 0;
+		int m_nPressedLine = 0;
+		int m_nOldLength = 0;
+		
+		float m_fVelocity = 0;
+		float m_fOldVelocity = 0;
+		float m_fPan = 0;
+		float m_fOldPan = 0;
+		float m_fLeadLag = 0; 
+		float m_fOldLeadLag = 0;		
 };
 
 #endif

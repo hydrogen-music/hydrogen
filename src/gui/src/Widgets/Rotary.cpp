@@ -297,9 +297,7 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	}
 }
 
-void Rotary::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void Rotary::onPreferencesChanged( H2Core::Preferences::Changes changes ) {	
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		update();
 	}

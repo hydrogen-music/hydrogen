@@ -136,7 +136,6 @@ private:
 
 	//beatcounter
 	Button *m_pBCOnOffBtn;
-	Button *m_pBCSpaceBtn;
 	Button *m_pBCSetPlayBtn;
 	Button *m_pBCTUpBtn;
 	Button *m_pBCTDownBtn;

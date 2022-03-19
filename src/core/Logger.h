@@ -96,6 +96,15 @@ class Logger {
 		/** return __use_file */
 		bool use_file() const                       { return __use_file; }
 
+	/**
+	 * Waits till the logger thread poped all remaining messages from
+	 * #__msg_queue.
+	 *
+	 * Note that this function will neither lock #__msg_queue nor
+	 * prevent routines from adding new messages to the queue.
+	 */
+	void flush() const;
+
 		/**
 		 * parse a log level string and return the corresponding bit mask
 		 * \param lvl the log level string

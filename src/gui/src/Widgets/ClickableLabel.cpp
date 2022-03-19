@@ -73,7 +73,7 @@ void ClickableLabel::mousePressEvent( QMouseEvent * e )
 
 void ClickableLabel::updateFont( QString sFontFamily, H2Core::FontTheme::FontSize fontSize ) {
 
-	int nPixelSize;
+	int nPixelSize = 0;
 	
 	if ( ! m_size.isNull() ) {
 	

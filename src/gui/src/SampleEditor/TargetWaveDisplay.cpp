@@ -58,6 +58,7 @@ TargetWaveDisplay::TargetWaveDisplay(QWidget* pParent)
 		ERRORLOG( "Error loading pixmap" );
 	}
 
+	m_EditMode = EnvelopeEditMode::VELOCITY;
 	m_pPeakData_Left = new int[ w ];
 	m_pPeakData_Right = new int[ w ];
 	m_sInfo = "";

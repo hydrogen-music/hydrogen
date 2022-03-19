@@ -70,8 +70,6 @@ private:
 	QString				m_sTAG;
 	QString				m_sTAG2;
 	QString				m_sSongName;
-	int					m_nTagbeat;
-
 };
 
 

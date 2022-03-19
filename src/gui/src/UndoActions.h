@@ -125,30 +125,28 @@ private:
 class SE_deletePatternFromListAction : public QUndoCommand
 {
 public:
-	SE_deletePatternFromListAction(  QString patternFilename , QString sequenceFileName, int patternPosition ){
+	SE_deletePatternFromListAction( QString sPatternFilename,
+									QString sSequenceFilename,
+									int nPatternPosition ){
 		setText( QObject::tr( "Delete pattern from list" ) );
-		__patternFilename =  patternFilename;
-		__sequenceFileName = sequenceFileName;
-		__patternPosition = patternPosition;
+		m_sPatternFilename =  sPatternFilename;
+		m_sSequenceFilename = sSequenceFilename;
+		m_nPatternPosition = nPatternPosition;
 	}
-	virtual void undo()
-	{
-		//qDebug() << "Delete pattern from list undo";
+	virtual void undo() {
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditorPatternList()->restoreDeletedPatternsFromList( __patternFilename, __sequenceFileName, __patternPosition );
-		h2app->getSongEditorPanel()->restoreGroupVector( __sequenceFileName );
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->openPattern( m_sPatternFilename,
+																		  m_nPatternPosition );
+		h2app->getSongEditorPanel()->restoreGroupVector( m_sSequenceFilename );
 	}
 
-	virtual void redo()
-	{
-		//qDebug() << "Delete pattern from list redo" ;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditorPatternList()->deletePatternFromList( __patternFilename, __sequenceFileName, __patternPosition );
+	virtual void redo() {
+		H2Core::Hydrogen::get_instance()->getCoreActionController()->removePattern( m_nPatternPosition );
 	}
 private:
-	QString __patternFilename;
-	QString __sequenceFileName;
-	int __patternPosition;
+	QString m_sPatternFilename;
+	QString m_sSequenceFilename;
+	int m_nPatternPosition;
 };
 
 /** \ingroup docGUI*/
@@ -242,43 +240,41 @@ private:
 class SE_loadPatternAction : public QUndoCommand
 {
 public:
-	SE_loadPatternAction( QString patternName, QString oldPatternName, QString sequenceFileName, int patternPosition, bool dragFromList){
+	SE_loadPatternAction( QString sPatternName, QString sOldPatternName,
+						  QString sSequenceFilename, int nPatternPosition,
+						  bool bDragFromList){
 		setText( QObject::tr( "Load/drag pattern" ) );
-		__patternName =  patternName;
-		__oldPatternName = oldPatternName;
-		__sequenceFileName = sequenceFileName;
-		__patternPosition = patternPosition;
-		__dragFromList = dragFromList;
+		m_sPatternName =  sPatternName;
+		m_sOldPatternName = sOldPatternName;
+		m_sSequenceFilename = sSequenceFilename;
+		m_nPatternPosition = nPatternPosition;
+		m_bDragFromList = bDragFromList;
 	}
-	virtual void undo()
-	{
-		//qDebug() << "Load/drag pattern undo" << __dragFromList;
+	virtual void undo() {
+		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		if( __dragFromList ){
-			h2app->getSongEditorPanel()->getSongEditorPatternList()->deletePatternFromList( __oldPatternName, __sequenceFileName, __patternPosition );
-		}else
-		{
-			h2app->getSongEditorPanel()->getSongEditorPatternList()->restoreDeletedPatternsFromList( __oldPatternName, __sequenceFileName, __patternPosition );
-			H2Core::Hydrogen::get_instance()->getCoreActionController()->removePattern( __patternPosition );
+		if( m_bDragFromList ){
+			pCoreActionController->removePattern( m_nPatternPosition );
+		} else {
+			pCoreActionController->removePattern( m_nPatternPosition );
+			pCoreActionController->openPattern( m_sOldPatternName, m_nPatternPosition );
 		}
-		h2app->getSongEditorPanel()->restoreGroupVector( __sequenceFileName );
+		h2app->getSongEditorPanel()->restoreGroupVector( m_sSequenceFilename );
 	}
 
-	virtual void redo()
-	{
-		//qDebug() <<  "Load/drag pattern redo" << __dragFromList << __patternPosition;
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		if(!__dragFromList){
-			h2app->getSongEditorPanel()->getSongEditorPatternList()->deletePatternFromList( __oldPatternName, __sequenceFileName, __patternPosition );
+	virtual void redo() {
+		auto pCoreActionController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+		if( ! m_bDragFromList ){
+			pCoreActionController->removePattern( m_nPatternPosition );
 		}
-		H2Core::Hydrogen::get_instance()->getCoreActionController()->openPattern( __patternName, __patternPosition );
+		pCoreActionController->openPattern( m_sPatternName, m_nPatternPosition );
 	}
 private:
-	QString __patternName;
-	QString __oldPatternName;
-	QString __sequenceFileName;
-	int __patternPosition;
-	bool __dragFromList;
+	QString m_sPatternName;
+	QString m_sOldPatternName;
+	QString m_sSequenceFilename;
+	int m_nPatternPosition;
+	bool m_bDragFromList;
 };
 
 
@@ -1313,8 +1309,6 @@ public:
 					   int octaveKeyVal,
 					   int oldOctaveKeyVal)
 	{
-
-
 		setText( QObject::tr( "Edit note property %1" ).arg( mode.toLower() ) );
 		__undoColumn = undoColumn;
 		__mode = mode;
@@ -1332,8 +1326,8 @@ public:
 		__oldNoteKeyVal = oldNoteKeyVal;
 		__octaveKeyVal = octaveKeyVal;
 		__oldOctaveKeyVal = oldOctaveKeyVal;
-
 	}
+	
 	virtual void undo()
 	{
 		//qDebug() << "edit note property Undo ";
@@ -1384,8 +1378,6 @@ private:
 	int __oldNoteKeyVal;
 	int __octaveKeyVal;
 	int __oldOctaveKeyVal;
-	int __selectedPatternNumber;
-	int __nSelectedInstrumentnumber;
 };
 
 //~Note Properties Ruler commands

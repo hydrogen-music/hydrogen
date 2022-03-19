@@ -79,7 +79,6 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		QTimer *m_pTimer;
 		int m_nTicks;
-		PatternEditorPanel *m_pPatternEditorPanel;
 		H2Core::Pattern *m_pPattern;
 
 		// Implements EventListener interface

@@ -154,10 +154,10 @@ int SongEditor::yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView )
 	int nScroll = pScrollArea->verticalScrollBar()->value();
 	int nHeight = pScrollArea->height();
 
-	PatternList *pCurrentPatternList = m_pAudioEngine->getPlayingPatterns();
+	auto pPlayingPatterns = m_pAudioEngine->getPlayingPatterns();
 
 	// If no patterns are playing, no scrolling needed either.
-	if ( pCurrentPatternList->size() == 0 ) {
+	if ( pPlayingPatterns->size() == 0 ) {
 		return nScroll;
 	}
 
@@ -167,8 +167,8 @@ int SongEditor::yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView )
 	// avoids doing a linear search in the critical section.
 	std::vector<Pattern *> currentPatterns;
 	m_pAudioEngine->lock( RIGHT_HERE );
-	for ( Pattern *pPattern : *pCurrentPatternList ) {
-		currentPatterns.push_back( pPattern );
+	for ( int ii = 0; ii < pPlayingPatterns->size(); ++ii ) {
+		currentPatterns.push_back( pPlayingPatterns->get( ii ) );
 	}
 	m_pAudioEngine->unlock();
 
@@ -837,6 +837,11 @@ void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 	}
 }
 
+void SongEditor::patternModifiedEvent() {
+	createBackground();
+	update();
+}
+
 
 //! Modify pattern cells by first deleting some, then adding some.
 //! deleteCells and addCells *may* safely overlap
@@ -882,7 +887,6 @@ void SongEditor::updateWidget() {
 	}
 	m_previousMousePosition = m_currentMousePosition;
 }
-
 
 void SongEditor::paintEvent( QPaintEvent *ev )
 {
@@ -1096,11 +1100,6 @@ void SongEditor::drawSequence()
 	p.drawPixmap( rect(), *m_pBackgroundPixmap, rect() );
 	p.end();
 
-	std::shared_ptr<Song> song = Hydrogen::get_instance()->getSong();
-	PatternList *patList = song->getPatternList();
-	std::vector<PatternList*>* pColumns = song->getPatternGroupVector();
-	uint listLength = patList->size();
-
 	updateGridCells();
 
 	// Draw using GridCells representation
@@ -1216,9 +1215,8 @@ void SongEditor::updateEditorandSetTrue()
 	update();
 }
 
-void SongEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-
+void SongEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) 
+{
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::AppearanceTab ) ) {
 		createBackground();
@@ -1296,6 +1294,10 @@ void SongEditorPatternList::patternChangedEvent() {
 	update();
 }
 
+void SongEditorPatternList::patternModifiedEvent() {
+	createBackground();
+	update();
+}
 
 /// Single click, select the next pattern
 void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
@@ -1333,7 +1335,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 ///
 void SongEditorPatternList::togglePattern( int row ) {
 
-	m_pHydrogen->sequencer_setNextPattern( row );
+	m_pHydrogen->toggleNextPattern( row );
 	createBackground();
 	update();
 }
@@ -1479,7 +1481,7 @@ void SongEditorPatternList::createBackground()
 	std::unique_ptr<PatternDisplayInfo[]> PatternArray{new PatternDisplayInfo[nPatterns]};
 
 	m_pAudioEngine->lock( RIGHT_HERE );
-	PatternList *pCurrentPatternList = m_pAudioEngine->getPlayingPatterns();
+	auto pPlayingPatterns = m_pAudioEngine->getPlayingPatterns();
 
 	//assemble the data..
 	for ( int i = 0; i < nPatterns; i++ ) {
@@ -1488,7 +1490,7 @@ void SongEditorPatternList::createBackground()
 			continue;
 		}
 
-		if ( pCurrentPatternList->index( pPattern ) != -1 ) {
+		if ( pPlayingPatterns->index( pPattern ) != -1 ) {
 			PatternArray[i].bActive = true;
 		} else {
 			PatternArray[i].bActive = false;
@@ -1741,105 +1743,6 @@ void SongEditorPatternList::patternPopup_delete()
 	hydrogenApp->m_pUndoStack->push( action );
 
 }
-
-
-void SongEditorPatternList::deletePatternFromList( QString patternFilename, QString sequenceFileName, int patternPosition )
-{
-	if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
-		m_pHydrogen->sequencer_setNextPattern( -1 );
-	}
-
-	std::shared_ptr<Song> song = m_pHydrogen->getSong();
-	PatternList *pSongPatternList = song->getPatternList();
-	H2Core::Pattern *pattern = pSongPatternList->get( patternPosition );
-	INFOLOG( QString("[patternPopup_delete] Delete pattern: %1 @%2").arg(pattern->get_name()).arg( (long long)pattern ) );
-	pSongPatternList->del(pattern);
-
-	std::vector<PatternList*> *patternGroupVect = song->getPatternGroupVector();
-
-	uint i = 0;
-	while (i < patternGroupVect->size() ) {
-		PatternList *list = (*patternGroupVect)[i];
-
-		uint j = 0;
-		while ( j < list->size() ) {
-			H2Core::Pattern *pOldPattern = list->get( j );
-			if (pOldPattern == pattern ) {
-				list->del( j );
-				continue;
-			}
-			j++;
-		}
-		i++;
-
-	}
-
-	//Lock because PatternList will be modified
-	m_pAudioEngine->lock( RIGHT_HERE );
-
-	PatternList *list = m_pAudioEngine->getPlayingPatterns();
-	list->del( pattern );
-	// se esiste, seleziono il primo pattern
-	if ( pSongPatternList->size() > 0 ) {
-		H2Core::Pattern *pFirstPattern = pSongPatternList->get( 0 );
-		list->add( pFirstPattern );	}
-	else {
-		// there's no patterns..
-		Pattern *pEmptyPattern = new Pattern();
-		pEmptyPattern->set_name( tr("Pattern 1") );
-		pEmptyPattern->set_category( tr("not_categorized") );
-		pSongPatternList->add( pEmptyPattern );
-	}
-
-	m_pHydrogen->updateSongSize();
-	
-	m_pAudioEngine->unlock();
-	
-	m_pHydrogen->setSelectedPatternNumber( -1 );
-	m_pHydrogen->setSelectedPatternNumber( 0 );
-
-	for (unsigned int index = 0; index < pSongPatternList->size(); ++index) {
-		H2Core::Pattern *curPattern = pSongPatternList->get(index);
-
-		Pattern::virtual_patterns_cst_it_t it = curPattern->get_virtual_patterns()->find(pattern);
-		if (it != curPattern->get_virtual_patterns()->end()) {
-		curPattern->virtual_patterns_del(*it);
-		}//if
-	}//for
-
-	pSongPatternList->flattened_virtual_patterns_compute();
-
-	m_pHydrogen->setIsModified( true );
-
-	delete pattern;
-	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
-
-}
-
-void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilename, QString sequenceFileName, int patternPosition )
-{
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	PatternList *pPatternList = pSong->getPatternList();
-
-	Pattern* pattern = Pattern::load_file( patternFilename, pSong->getInstrumentList() );
-	if ( pattern == nullptr ) {
-		_ERRORLOG( "Error loading the pattern" );
-	}
-
-	pAudioEngine->lock( RIGHT_HERE );
-	pPatternList->insert( patternPosition, pattern );
-	pHydrogen->updateSongSize();
-	pAudioEngine->unlock();
-
-	pHydrogen->setIsModified( true );
-	createBackground();
-	pHydrogen->setSelectedPatternNumber( patternPosition );
-	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
-}
-
 
 void SongEditorPatternList::patternPopup_duplicate()
 {
@@ -2123,13 +2026,13 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 }
 
 
-void SongEditorPatternList::timelineUpdateEvent( int nEvent ){
+void SongEditorPatternList::timelineUpdateEvent( int nEvent )
+{
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 }
 
-void SongEditorPatternList::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void SongEditorPatternList::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 		
@@ -2462,8 +2365,16 @@ void SongEditorPositionRuler::tempoChangedEvent( int ) {
 	createBackground();
 }
 
-void SongEditorPositionRuler::columnChangedEvent( int ) {
-	createBackground();
+void SongEditorPositionRuler::patternModifiedEvent() {
+	// This can change the size of the song and affect the position of
+	// the playhead.
+	update();
+}
+
+void SongEditorPositionRuler::patternChangedEvent() {
+	// Triggered every time the column of the SongEditor grid
+	// changed. Either by rolling transport or by relocation.
+	update();
 }
 
 void SongEditorPositionRuler::leaveEvent( QEvent* ev ){
@@ -2603,7 +2514,6 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 			return;
 		}
 
-		int nPatternPos = m_pHydrogen->getAudioEngine()->getColumn();
 		m_pHydrogen->getCoreActionController()->locateToColumn( column );
 		update();
 		
@@ -2713,13 +2623,13 @@ void SongEditorPositionRuler::updatePosition()
 	update();
 }
 
-void SongEditorPositionRuler::timelineUpdateEvent( int nValue ) {
+void SongEditorPositionRuler::timelineUpdateEvent( int nValue )
+{
 	createBackground();
 }
 
-void SongEditorPositionRuler::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void SongEditorPositionRuler::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 			 

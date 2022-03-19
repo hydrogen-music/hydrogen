@@ -39,7 +39,7 @@ CpuLoadWidget::CpuLoadWidget( QWidget *pParent )
 	setFixedSize( m_size.width(), m_size.height() );
 
 	m_recentValues.resize( 5 );
-	for ( auto ii : m_recentValues ) {
+	for ( auto& ii : m_recentValues ) {
 		ii = 0;
 	}
 

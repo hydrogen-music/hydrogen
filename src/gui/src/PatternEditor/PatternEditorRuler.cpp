@@ -54,6 +54,8 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	m_nRulerWidth = 20 + m_fGridWidth * ( MAX_NOTES * 4 );
 	m_nRulerHeight = 25;
+	
+	m_nTicks = 0;
 
 	resize( m_nRulerWidth, m_nRulerHeight );
 
@@ -138,9 +140,10 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 	 */
 	pAudioEngine->lock( RIGHT_HERE );
 
-	PatternList *pList = pAudioEngine->getPlayingPatterns();
-	for (uint i = 0; i < pList->size(); i++) {
-		if ( m_pPattern == pList->get(i) ) {
+	auto pPlayingPatterns = pAudioEngine->getPlayingPatterns();
+	for ( int ii = 0; ii < pPlayingPatterns->size(); ++ii ) {
+		auto ppattern = pPlayingPatterns->get( ii );
+		if ( m_pPattern == ppattern ) {
 			bActive = true;
 			break;
 		}
@@ -198,7 +201,6 @@ void PatternEditorRuler::createBackground()
 	QColor textColor( 100, 100, 100 );
 	QColor lineColor( 170, 170, 170 );
 
-	Preferences *pref = Preferences::get_instance();
 	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	painter.setFont(font);
 	painter.drawLine( 0, 0, m_nRulerWidth, 0 );
@@ -225,8 +227,6 @@ void PatternEditorRuler::createBackground()
 
 void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 {
-	auto pPref = H2Core::Preferences::get_instance();
-
 	if (!isVisible()) {
 		return;
 	}
@@ -254,9 +254,6 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 void PatternEditorRuler::zoomIn()
 {
-	
-	auto pPref = H2Core::Preferences::get_instance();
-	
 	if ( m_fGridWidth >= 3 ){
 		m_fGridWidth *= 2;
 	} else {
@@ -271,9 +268,6 @@ void PatternEditorRuler::zoomIn()
 
 void PatternEditorRuler::zoomOut()
 {
-	
-	auto pPref = H2Core::Preferences::get_instance();
-	
 	if ( m_fGridWidth > 1.5 ) {
 		if ( m_fGridWidth > 3 ){
 			m_fGridWidth /= 2;
@@ -294,9 +288,8 @@ void PatternEditorRuler::selectedPatternChangedEvent()
 	updateEditor( true );
 }
 
-void PatternEditorRuler::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void PatternEditorRuler::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 		update( 0, 0, width(), height() );

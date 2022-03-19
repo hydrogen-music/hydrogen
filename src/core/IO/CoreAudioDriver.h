@@ -66,7 +66,7 @@ public:
 	CoreAudioDriver( audioProcessCallback processCallback );
 	virtual ~CoreAudioDriver();
 
-	virtual int init( unsigned bufferSize ) override;
+	virtual int init( unsigned nBufferSize ) override;
 
 	virtual unsigned getSampleRate() override;
 	virtual unsigned getBufferSize() override;

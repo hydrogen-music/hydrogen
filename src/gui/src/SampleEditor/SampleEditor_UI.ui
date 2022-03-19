@@ -769,11 +769,8 @@ p, li { white-space: pre-wrap; }
     </widget>
    </item>
   </layout>
-  <zorder>layoutWidget_4</zorder>
   <zorder>targetSampleView</zorder>
   <zorder>ClosePushButton</zorder>
-  <zorder>layoutWidget_1</zorder>
-  <zorder>layoutWidget_2</zorder>
   <zorder>RubberbandCframe</zorder>
  </widget>
  <tabstops>
