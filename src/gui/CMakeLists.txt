@@ -52,24 +52,10 @@ if(APPLE)
     add_custom_command(
         TARGET hydrogen
         POST_BUILD
-        COMMAND plutil -replace NSPrincipalClass -string NSApplication hydrogen.app/Contents/Info.plist
+        COMMAND /usr/libexec/PlistBuddy
+            -c "merge ${CMAKE_SOURCE_DIR}/macos/ExtraInfo.plist"
+            hydrogen.app/Contents/Info.plist
     )
-    add_custom_command(
-        TARGET hydrogen
-        POST_BUILD
-        COMMAND plutil -replace NSHighResolutionCapable -bool true hydrogen.app/Contents/Info.plist
-    )
-    add_custom_command(
-        TARGET hydrogen
-        POST_BUILD
-        COMMAND
-            plutil -extract CFBundleDocumentTypes json
-                   -o /dev/null
-                   hydrogen.app/Contents/Info.plist >/dev/null
-            || plutil -insert CFBundleDocumentTypes
-                      -json
-                         \"` cat ${CMAKE_SOURCE_DIR}/macos/CFBundleDocumentTypes.json `\"
-                       hydrogen.app/Contents/Info.plist )
 
     ADD_FILE_DEPENDENCIES(hydrogen ${CMAKE_SOURCE_DIR}/macos/CFBundleDocumentTypes.json)
 
