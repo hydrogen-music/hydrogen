@@ -329,11 +329,7 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
 * macosx bundle                : ${H2CORE_HAVE_BUNDLE}
 * fat build                    : ${WANT_FAT_BUILD}
-<<<<<<< HEAD
 * AppImage build               : ${H2CORE_HAVE_APPIMAGE}\n"
-=======
-* AppImage build               : ${WANT_APPIMAGE}\n"
->>>>>>> 5d96d942 (Add APPIMAGE option to cmake lists)
 )
 
 COLOR_MESSAGE("${cyan}Main librarires${reset}")
