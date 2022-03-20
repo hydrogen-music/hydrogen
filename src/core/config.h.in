@@ -40,6 +40,9 @@
 #ifndef H2CORE_HAVE_BUNDLE
 #cmakedefine H2CORE_HAVE_BUNDLE
 #endif
+#ifndef H2CORE_HAVE_APPIMAGE
+#cmakedefine H2CORE_HAVE_APPIMAGE
+#endif
 #ifndef H2CORE_HAVE_LIBSNDFILE
 #cmakedefine H2CORE_HAVE_LIBSNDFILE
 #endif
