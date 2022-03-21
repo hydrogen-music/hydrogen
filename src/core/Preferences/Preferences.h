@@ -532,10 +532,6 @@ public:
 	const std::shared_ptr<ColorTheme>	getColorTheme() const;
 	void			setColorTheme( const std::shared_ptr<ColorTheme> pNewColorTheme );
 
-	/** \return #m_bPatternModePlaysSelected*/
-	bool			patternModePlaysSelected();
-	/** \param b Sets #m_bPatternModePlaysSelected*/
-	void			setPatternModePlaysSelected( bool b );
 	bool			useLash();
 	void			setUseLash( bool b );
 
@@ -671,15 +667,7 @@ private:
 	QString				m_sH2ProcessName; //Name of hydrogen's main process
 	 ///rubberband bpm change queue
 	bool				m_useTheRubberbandBpmChangeEvent;
-	/**
-	 * When transport is in Song::PATTERN_MODE and this variable is
-	 * set to true, the currently focused Pattern will be used for
-	 * playback.
-	 *
-	 * It is set by setPatternModePlaysSelected() and queried by
-	 * patternModePlaysSelected().
-	 */
-	bool				m_bPatternModePlaysSelected;
+
 	///< Restore last song?
 	bool				m_brestoreLastSong;
 	bool				m_brestoreLastPlaylist;
@@ -1334,13 +1322,6 @@ inline const std::shared_ptr<ColorTheme> Preferences::getColorTheme() const {
 }
 inline void Preferences::setColorTheme( const std::shared_ptr<ColorTheme> pNewColorTheme ) {
 	m_pTheme->setColorTheme( pNewColorTheme );
-}
-
-inline bool Preferences::patternModePlaysSelected() {
-	return m_bPatternModePlaysSelected;
-}
-inline void Preferences::setPatternModePlaysSelected( bool b ) {
-	m_bPatternModePlaysSelected = b;
 }
 
 inline bool Preferences::useLash(){

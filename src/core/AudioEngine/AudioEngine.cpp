@@ -507,7 +507,7 @@ void AudioEngine::updateTransportPosition( double fTick ) {
 
 void AudioEngine::updatePatternTransportPosition( double fTick ) {
 
-	auto pPref = Preferences::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
 
 	// In selected pattern mode we update the pattern size _before_
 	// checking the whether transport reached the end of a
@@ -520,7 +520,7 @@ void AudioEngine::updatePatternTransportPosition( double fTick ) {
 	// The update of the playing pattern is done asynchronous in
 	// Hydrogen::setSelectedPatternNumber() and does not have to
 	// queried in here in each run.
-	// if ( pPref->patternModePlaysSelected() ) {
+	// if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
 	// 	updatePlayingPatterns( 0, fTick );
 	// }
 
@@ -537,7 +537,7 @@ void AudioEngine::updatePatternTransportPosition( double fTick ) {
 		// In stacked pattern mode we will only update the playing
 		// patterns if the transport of the original pattern is
 		// looped. This way all patterns start fresh at the beginning.
-		if ( ! pPref->patternModePlaysSelected() ) {
+		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
 			// Updates m_nPatternSize.
 			updatePlayingPatterns( 0, fTick );
 		}
@@ -1998,71 +1998,68 @@ void AudioEngine::updatePlayingPatterns( int nColumn, long nTick ) {
 		}
 				
 		EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, 0 );
-		
-	} else if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
-		if ( Preferences::get_instance()->patternModePlaysSelected() ) {
-			// Called asynchronous when a different pattern number
-			// gets selected or the user switches from stacked into
-			// selected pattern mode.
+	}
+	else if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
+		// Called asynchronous when a different pattern number
+		// gets selected or the user switches from stacked into
+		// selected pattern mode.
 			
-			auto pSelectedPattern =
-				pSong->getPatternList()->get( pHydrogen->getSelectedPatternNumber() );
-			if ( m_pPlayingPatterns->size() != 1 ||
-				 ( m_pPlayingPatterns->size() == 1 &&
-				   m_pPlayingPatterns->get( 0 ) != pSelectedPattern ) ) {
+		auto pSelectedPattern =
+			pSong->getPatternList()->get( pHydrogen->getSelectedPatternNumber() );
+		if ( m_pPlayingPatterns->size() != 1 ||
+			 ( m_pPlayingPatterns->size() == 1 &&
+			   m_pPlayingPatterns->get( 0 ) != pSelectedPattern ) ) {
 
-				m_pPlayingPatterns->clear();
+			m_pPlayingPatterns->clear();
 				
-				if ( pSelectedPattern != nullptr ) {
-					m_pPlayingPatterns->add( pSelectedPattern );
-					pSelectedPattern->addFlattenedVirtualPatterns( m_pPlayingPatterns );
+			if ( pSelectedPattern != nullptr ) {
+				m_pPlayingPatterns->add( pSelectedPattern );
+				pSelectedPattern->addFlattenedVirtualPatterns( m_pPlayingPatterns );
+			}
+				
+			if ( m_pPlayingPatterns->size() > 0 ) {
+				m_nPatternSize = m_pPlayingPatterns->longest_pattern_length();
+			} else {
+				m_nPatternSize = MAX_NOTES;
+			}
+				
+			EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, 0 );
+		}
+	}
+	else if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+
+		if ( m_pNextPatterns->size() > 0 ) {
+				
+			for ( const auto& ppattern : *m_pNextPatterns ) {
+				// If provided pattern is not part of the
+				// list, a nullptr will be returned. Else, a
+				// pointer to the deleted pattern will be
+				// returned.
+				if ( ppattern == nullptr ) {
+					continue;
 				}
-				
-				if ( m_pPlayingPatterns->size() > 0 ) {
-					m_nPatternSize = m_pPlayingPatterns->longest_pattern_length();
+
+				if ( ( m_pPlayingPatterns->del( ppattern ) ) == nullptr ) {
+					// pPattern was not present yet. It will
+					// be added.
+					m_pPlayingPatterns->add( ppattern );
+					ppattern->addFlattenedVirtualPatterns( m_pPlayingPatterns );
 				} else {
-					m_nPatternSize = MAX_NOTES;
+					// pPattern was already present. It will
+					// be deleted.
+					ppattern->removeFlattenedVirtualPatterns( m_pPlayingPatterns );
 				}
-				
 				EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, 0 );
 			}
+			m_pNextPatterns->clear();
 				
-		} else {
-
-			if ( m_pNextPatterns->size() > 0 ) {
-				
-				for ( const auto& ppattern : *m_pNextPatterns ) {
-					// If provided pattern is not part of the
-					// list, a nullptr will be returned. Else, a
-					// pointer to the deleted pattern will be
-					// returned.
-					if ( ppattern == nullptr ) {
-						continue;
-					}
-
-					if ( ( m_pPlayingPatterns->del( ppattern ) ) == nullptr ) {
-						// pPattern was not present yet. It will
-						// be added.
-						m_pPlayingPatterns->add( ppattern );
-						ppattern->addFlattenedVirtualPatterns( m_pPlayingPatterns );
-					} else {
-						// pPattern was already present. It will
-						// be deleted.
-						ppattern->removeFlattenedVirtualPatterns( m_pPlayingPatterns );
-					}
-					EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, 0 );
-				}
-				m_pNextPatterns->clear();
-				
-				if ( m_pPlayingPatterns->size() != 0 ) {
-					m_nPatternSize = m_pPlayingPatterns->longest_pattern_length();
-				} else {
-					m_nPatternSize = MAX_NOTES;
-				}
-				
+			if ( m_pPlayingPatterns->size() != 0 ) {
+				m_nPatternSize = m_pPlayingPatterns->longest_pattern_length();
+			} else {
+				m_nPatternSize = MAX_NOTES;
 			}
-		} // Stacked mode
-	} // Pattern mode
+		}
+	}
 }
 
 void AudioEngine::toggleNextPattern( int nPatternNumber ) {
@@ -3553,7 +3550,7 @@ bool AudioEngine::testNoteEnqueuing() {
 	//////////////////////////////////////////////////////////////////
 	
 	pCoreActionController->activateSongMode( false );
-	pHydrogen->setPlaysSelected( true );
+	pHydrogen->setPatternMode( Song::PatternMode::Selected );
 	pHydrogen->setSelectedPatternNumber( 4 );
 
 	lock( RIGHT_HERE );

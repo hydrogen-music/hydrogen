@@ -790,24 +790,22 @@ std::vector< Pattern *> PatternEditor::getPatternsToShow( void )
 	std::vector<Pattern *> patterns;
 
 	// Add stacked-mode patterns
-	if ( pHydrogen->getSong()->getMode() == Song::Mode::Pattern ) {
-		if ( !Preferences::get_instance()->patternModePlaysSelected() ) {
-			m_pAudioEngine->lock( RIGHT_HERE );
-			std::set< Pattern *> patternSet;
-			for ( const PatternList *pPatternList : { m_pAudioEngine->getPlayingPatterns(),
-													 m_pAudioEngine->getNextPatterns() } ) {
-				for ( int i = 0; i <  pPatternList->size(); i++) {
-					Pattern *pPattern = pPatternList->get( i );
-					if ( pPattern != m_pPattern ) {
-						patternSet.insert( pPattern );
-					}
+	if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+		m_pAudioEngine->lock( RIGHT_HERE );
+		std::set< Pattern *> patternSet;
+		for ( const PatternList *pPatternList : { m_pAudioEngine->getPlayingPatterns(),
+												 m_pAudioEngine->getNextPatterns() } ) {
+			for ( int i = 0; i <  pPatternList->size(); i++) {
+				Pattern *pPattern = pPatternList->get( i );
+				if ( pPattern != m_pPattern ) {
+					patternSet.insert( pPattern );
 				}
 			}
-			for ( Pattern *pPattern : patternSet ) {
-				patterns.push_back( pPattern );
-			}
-			m_pAudioEngine->unlock();
 		}
+		for ( Pattern *pPattern : patternSet ) {
+			patterns.push_back( pPattern );
+		}
+		m_pAudioEngine->unlock();
 	}
 
 	if ( m_pPattern != nullptr ) {

@@ -397,10 +397,10 @@ bool MidiActionManager::select_next_pattern( std::shared_ptr<Action> pAction, Hy
 				  .arg( pHydrogen->getSong()->getPatternList()->size() - 1 ) );
 		return false;
 	}
-	if(Preferences::get_instance()->patternModePlaysSelected()) {
+	if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
 		pHydrogen->setSelectedPatternNumber( row );
 	}
-	else {
+	else if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
 		pHydrogen->toggleNextPattern( row );
 	}
 	return true;
@@ -421,9 +421,8 @@ bool MidiActionManager::select_only_next_pattern( std::shared_ptr<Action> pActio
 				  .arg( pHydrogen->getSong()->getPatternList()->size() - 1 ) );
 		return false;
 	}
-	if(Preferences::get_instance()->patternModePlaysSelected())
-	{
-		return true;
+	if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
+		return select_next_pattern( pAction, pHydrogen );
 	}
 	
 	pHydrogen->flushAndAddNextPattern( row );
@@ -438,7 +437,7 @@ bool MidiActionManager::select_next_pattern_relative( std::shared_ptr<Action> pA
 	}
 	
 	bool ok;
-	if(!Preferences::get_instance()->patternModePlaysSelected()) {
+	if( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
 		return true;
 	}
 	int row = pHydrogen->getSelectedPatternNumber() + pAction->getParameter1().toInt(&ok,10);
@@ -470,7 +469,7 @@ bool MidiActionManager::select_next_pattern_cc_absolute( std::shared_ptr<Action>
 		return false;
 	}
 	
-	if(Preferences::get_instance()->patternModePlaysSelected()) {
+	if( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
 		pHydrogen->setSelectedPatternNumber( row );
 	}
 	else {

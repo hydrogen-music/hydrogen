@@ -434,12 +434,10 @@ public:
 	 * 1. In case the song is in Song::Mode::Song when entering a new
 	 * @a nColumn #m_pPlayingPatterns will be flushed and all patterns
 	 * activated in the provided column will be added.
-	 * 2. While in Song::Mode::Pattern with
-	 * Preferences::m_bPatternModePlaysSelected set true the function
+	 * 2. While in Song::PatternMode::Selected the function
 	 * ensures the currently selected pattern is the only pattern in
 	 * #m_pPlayingPatterns.
-	 * 3. While in Song::Mode::Pattern with
-	 * Preferences::m_bPatternModePlaysSelected set false all patterns
+	 * 3. While in Song::PatterMode::Stacked all patterns
 	 * in #m_pNextPatterns not already present in #m_pPlayingPatterns
 	 * will be added in the latter and the ones already present will
 	 * be removed.

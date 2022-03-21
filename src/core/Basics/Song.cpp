@@ -78,6 +78,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_pComponents( nullptr )
 	, m_sFilename( "" )
 	, m_loopMode( LoopMode::Disabled )
+	, m_patternMode( PatternMode::Selected )
 	, m_fHumanizeTimeValue( 0.0 )
 	, m_fHumanizeVelocityValue( 0.0 )
 	, m_fSwingFactor( 0.0 )
@@ -1003,7 +1004,14 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	QString sNotes( LocalFileMng::readXmlString( songNode, "notes", "..." ) );
 	QString sLicense( LocalFileMng::readXmlString( songNode, "license", "Unknown license" ) );
 	bool bLoopEnabled = LocalFileMng::readXmlBool( songNode, "loopEnabled", false );
-	pPreferences->setPatternModePlaysSelected( LocalFileMng::readXmlBool( songNode, "patternModeMode", true ) );
+	bool bPatternMode =
+		LocalFileMng::readXmlBool( songNode, "patternModeMode",
+								   static_cast<bool>(Song::PatternMode::Selected) );
+	
+	Song::PatternMode patternMode = Song::PatternMode::Selected;
+	if ( ! bPatternMode ) {
+		patternMode = Song::PatternMode::Stacked;
+	}
 	Song::Mode mode = Song::Mode::Pattern;
 	QString sMode = LocalFileMng::readXmlString( songNode, "mode", "pattern" );
 	if ( sMode == "song" ) {
@@ -1042,6 +1050,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	} else {
 		pSong->setLoopMode( Song::LoopMode::Disabled );
 	}
+	pSong->setPatternMode( patternMode );
 	pSong->setMode( mode );
 	pSong->setHumanizeTimeValue( fHumanizeTimeValue );
 	pSong->setHumanizeVelocityValue( fHumanizeVelocityValue );

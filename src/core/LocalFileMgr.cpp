@@ -424,7 +424,12 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 	LocalFileMng::writeXmlString( songNode, "notes", pSong->getNotes() );
 	LocalFileMng::writeXmlString( songNode, "license", pSong->getLicense() );
 	LocalFileMng::writeXmlBool( songNode, "loopEnabled", pSong->isLoopEnabled() );
-	LocalFileMng::writeXmlBool( songNode, "patternModeMode", Preferences::get_instance()->patternModePlaysSelected());
+
+	bool bPatternMode = static_cast<bool>(Song::PatternMode::Selected);
+	if ( pSong->getPatternMode() == Song::PatternMode::Stacked ) {
+		bPatternMode = static_cast<bool>(Song::PatternMode::Stacked);
+	}
+	LocalFileMng::writeXmlBool( songNode, "patternModeMode", bPatternMode );
 	
 	LocalFileMng::writeXmlString( songNode, "playbackTrackFilename", QString("%1").arg( pSong->getPlaybackTrackFilename() ) );
 	LocalFileMng::writeXmlBool( songNode, "playbackTrackEnabled", pSong->getPlaybackTrackEnabled() );

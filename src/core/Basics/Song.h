@@ -113,6 +113,22 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 			Finishing = 2
 		};
 
+	/** Determines how patterns will be added to
+	 * AudioEngine::m_pPlayingPatterns if transport is in
+	 * Song::Mode::Pattern.
+	 */
+	enum class PatternMode {
+		/** An arbitrary number of pattern can be played.*/
+		Stacked = 0,
+		/** Only one pattern - the one currently selected in the GUI -
+		 * will be played back.*/
+		Selected = 1,
+		/** Null element used to indicate that either no song is
+		 * present to Song::Mode::Song was selected
+		 */
+		None = 2
+	};
+
 		Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume );
 		~Song();
 
@@ -184,6 +200,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		LoopMode		getLoopMode() const;
 		void			setLoopMode( LoopMode loopMode );
 		bool			isLoopEnabled() const;
+							
+		PatternMode		getPatternMode() const;
+		void			setPatternMode( PatternMode patternMode );
 							
 		float			getHumanizeTimeValue() const;
 		void			setHumanizeTimeValue( float fValue );
@@ -312,6 +331,7 @@ private:
 		 * written to disk.
 		 */
 		LoopMode		m_loopMode;
+		PatternMode		m_patternMode;
 		float			m_fHumanizeTimeValue;
 		float			m_fHumanizeVelocityValue;
 		float			m_fSwingFactor;
@@ -549,6 +569,15 @@ inline void Song::setLoopMode( Song::LoopMode loopMode )
 {
 	m_loopMode = loopMode;
 	setIsModified( true );
+}
+
+inline Song::PatternMode Song::getPatternMode() const
+{
+	return m_patternMode;
+}
+inline void Song::setPatternMode( Song::PatternMode patternMode )
+{
+	m_patternMode = patternMode;
 }
 
 inline float Song::getHumanizeTimeValue() const

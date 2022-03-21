@@ -859,8 +859,7 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock )
 		return;
 	}
 
-	if ( Preferences::get_instance()->patternModePlaysSelected() &&
-		 getMode() == Song::Mode::Pattern ) {
+	if ( getPatternMode() == Song::PatternMode::Selected ) {
 		if ( bNeedsLock ) {
 			m_pAudioEngine->lock( RIGHT_HERE );
 		}
@@ -1085,32 +1084,6 @@ void Hydrogen::onJackMaster()
 #endif
 }
 
-void Hydrogen::setPlaysSelected( bool bPlaysSelected )
-{
-	auto pPref = Preferences::get_instance();
-
-	if ( pPref->patternModePlaysSelected() != bPlaysSelected ) {
-		m_pAudioEngine->lock( RIGHT_HERE );
-
-		pPref->setPatternModePlaysSelected( bPlaysSelected );
-		
-		if ( bPlaysSelected == true ||
-			 m_pAudioEngine->getState() != AudioEngine::State::Playing ) {
-			// Only update the playing patterns in selected pattern
-			// mode or if transport is not rolling. In stacked pattern
-			// mode with transport rolling
-			// AudioEngine::updatePatternTransportPosition() will call
-			// the functions and activate the next patterns once the
-			// current ones are looped.
-			m_pAudioEngine->updatePlayingPatterns( m_pAudioEngine->getColumn() );
-		}
-
-		m_pAudioEngine->unlock();
-		EventQueue::get_instance()->push_event( EVENT_STACKED_MODE_ACTIVATION,
-												bPlaysSelected ? 0 : 1 );
-	}
-}
-
 void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr ) {
 	__instrument_death_row.push_back( pInstr );
 	__kill_instruments();
@@ -1223,7 +1196,7 @@ bool Hydrogen::isUnderSessionManagement() const {
 }
 
 bool Hydrogen::isTimelineEnabled() const {
-	if ( getSong()->getIsTimelineActivated() &&
+	if ( __song->getIsTimelineActivated() &&
 		 getMode() == Song::Mode::Song &&
 		 getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
 		return true;
@@ -1234,7 +1207,7 @@ bool Hydrogen::isTimelineEnabled() const {
 
 bool Hydrogen::isPatternEditorLocked() const {
 	if ( getMode() == Song::Mode::Song ) {
-		if ( getSong()->getIsPatternEditorLocked() ) {
+		if ( __song->getIsPatternEditorLocked() ) {
 			return true;
 		}
 	}
@@ -1243,9 +1216,8 @@ bool Hydrogen::isPatternEditorLocked() const {
 }
 
 void Hydrogen::setIsPatternEditorLocked( bool bValue ) {
-	auto pSong = getSong();
-	if ( pSong != nullptr ) {
-		pSong->setIsPatternEditorLocked( bValue );
+	if ( __song != nullptr ) {
+		__song->setIsPatternEditorLocked( bValue );
 			
 		EventQueue::get_instance()->push_event( EVENT_PATTERN_EDITOR_LOCKED,
 												bValue );
@@ -1253,36 +1225,66 @@ void Hydrogen::setIsPatternEditorLocked( bool bValue ) {
 }
 
 Song::Mode Hydrogen::getMode() const {
-	auto pSong = getSong();
-	if ( pSong != nullptr ) {
-		return pSong->getMode();
+	if ( __song != nullptr ) {
+		return __song->getMode();
 	}
 
 	return Song::Mode::None;
 }
 
 void Hydrogen::setMode( Song::Mode mode ) {
-	auto pSong = getSong();
-	if ( pSong != nullptr && mode != pSong->getMode() ) {
-		pSong->setMode( mode );
+	if ( __song != nullptr && mode != __song->getMode() ) {
+		__song->setMode( mode );
 		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION,
 												( mode == Song::Mode::Song) ? 1 : 0 );
 	}
 }
 
 Song::ActionMode Hydrogen::getActionMode() const {
-	auto pSong = getSong();
-	if ( pSong != nullptr ) {
-		return pSong->getActionMode();
+	if ( __song != nullptr ) {
+		return __song->getActionMode();
 	}
 	return Song::ActionMode::None;
 }
 
 void Hydrogen::setActionMode( Song::ActionMode mode ) {
-	if ( getSong() != nullptr ) {
-		getSong()->setActionMode( mode );
+	if ( __song != nullptr ) {
+		__song->setActionMode( mode );
 		EventQueue::get_instance()->push_event( EVENT_ACTION_MODE_CHANGE,
 												( mode == Song::ActionMode::drawMode ) ? 1 : 0 );
+	}
+}
+
+Song::PatternMode Hydrogen::getPatternMode() const {
+	if ( getMode() == Song::Mode::Pattern ) {
+		return __song->getPatternMode();
+	}
+	return Song::PatternMode::None;
+}
+
+void Hydrogen::setPatternMode( Song::PatternMode mode )
+{
+	if ( __song != nullptr &&
+		 getPatternMode() != mode ) {
+		m_pAudioEngine->lock( RIGHT_HERE );
+
+		__song->setPatternMode( mode );
+		setIsModified( true );
+		
+		if ( mode == Song::PatternMode::Selected ||
+			 m_pAudioEngine->getState() != AudioEngine::State::Playing ) {
+			// Only update the playing patterns in selected pattern
+			// mode or if transport is not rolling. In stacked pattern
+			// mode with transport rolling
+			// AudioEngine::updatePatternTransportPosition() will call
+			// the functions and activate the next patterns once the
+			// current ones are looped.
+			m_pAudioEngine->updatePlayingPatterns( m_pAudioEngine->getColumn() );
+		}
+
+		m_pAudioEngine->unlock();
+		EventQueue::get_instance()->push_event( EVENT_STACKED_MODE_ACTIVATION,
+												( mode == Song::PatternMode::Selected ) ? 1 : 0 );
 	}
 }
 

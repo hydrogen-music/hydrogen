@@ -108,12 +108,6 @@ public:
 	void			toggleNextPattern( int nPatternNumber );
 	/** Wrapper around AudioEngine::flushAndAddNextPattern().*/
 	void			flushAndAddNextPattern( int nPatternNumber );
-	/**
-	 * Switches playback to focused pattern.
-	 *
-	 * ("Focused pattern" or "PlaysSelected" is the opposite of "Stacked" mode)
-	 */
-	void			setPlaysSelected( bool bPlaysSelected );
 	
 		/**
 		 * Get the current song.
@@ -177,11 +171,18 @@ public:
 	EVENT_SONG_MODE_ACTIVATION and should be used by all parts of the
 	code except for song reading/setting.*/
 	void setMode( Song::Mode mode );
+	
 	Song::ActionMode getActionMode() const;
 	/** Wrapper around Song::setActionMode() which also triggers
 	EVENT_ACTION_MODE_CHANGE and should be used by all parts of the
 	code except for song reading/setting.*/
 	void setActionMode( Song::ActionMode mode );
+
+	Song::PatternMode getPatternMode() const;
+	/** Wrapper around Song::setPatternMode() which also triggers
+	EVENT_STACKED_MODE_ACTIVATION and should be used by all parts of the
+	code except for song reading/setting.*/
+	void setPatternMode( Song::PatternMode mode );
 
 	/** Wrapper around both Song::setIsTimelineActivated (recent) and
 	Preferences::setUseTimelinebpm() (former place to store the
@@ -320,14 +321,6 @@ void			previewSample( Sample *pSample );
 	int				getSelectedPatternNumber() const;
 	/**
 	 * Sets #m_nSelectedPatternNumber.
-	 *
-	 * If Preferences::m_pPatternModePlaysSelected is set to true, the
-	 * AudioEngine is locked before @a nPat will be assigned. But in
-	 * any case the function will push the
-	 * #EVENT_SELECTED_PATTERN_CHANGED Event to the EventQueue.
-	 *
-	 * If @a nPat is equal to #m_nSelectedPatternNumber, the function
-	 * will return right away.
 	 *
 	 *\param nPat Sets #m_nSelectedPatternNumber
 	 * \param bNeedsLock Whether the function was called with the

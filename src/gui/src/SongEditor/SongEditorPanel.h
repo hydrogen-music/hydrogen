@@ -77,9 +77,6 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		 * signal the user her last action was not permitted.
 		 */
 		void highlightPatternEditorLocked( bool bUseRedBackground );	
-		
-		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent() override;
 		void restoreGroupVector( QString filename );
 		//~ Implements EventListener interface
 		/** Disables and deactivates the Timeline when an external
@@ -87,6 +84,9 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		 * gone or Hydrogen itself becomes the timebase master.
 		 */
 		void updateTimelineUsage();
+		
+		// Implements EventListener interface
+		virtual void selectedPatternChangedEvent() override;
 		virtual void timelineActivationEvent( int nValue ) override;
 		/** Updates the associated buttons if the action mode was
 		 * changed within the core.

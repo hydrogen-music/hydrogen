@@ -1629,7 +1629,8 @@ void SongEditorPatternList::songModeActivationEvent( int nValue ) {
 	UNUSED( nValue );
 
 	// Refresh pattern list display if in stacked mode
-	if ( ! Preferences::get_instance()->patternModePlaysSelected() ) {
+	if ( Hydrogen::get_instance()->getPatternMode() ==
+		 Song::PatternMode::Stacked ) {
 		createBackground();
 		update();
 	}
@@ -1750,8 +1751,7 @@ void SongEditorPatternList::createBackground()
 		else if (PatternArray[i].bActive) {
 			mode = Skin::Stacked::On;
 		}
-		else if ( ! pPref->patternModePlaysSelected() &&
-					pSong->getMode() == Song::Mode::Pattern ) {
+		else if ( m_pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
 			mode = Skin::Stacked::Off;
 		}
 		

@@ -813,7 +813,7 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 		pHydrogen->setMode( Song::Mode::Pattern );
 
 		// Add the selected pattern to playing ones.
-		if ( Preferences::get_instance()->patternModePlaysSelected() ) {
+		if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
 			pAudioEngine->lock( RIGHT_HERE );
 			pAudioEngine->updatePlayingPatterns( 0, 0 );
 			pAudioEngine->unlock();

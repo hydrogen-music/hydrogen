@@ -166,9 +166,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 										 tr( "single pattern mode"),
 										 false, true );
 	m_pPlaySelectedSingleBtn->move( 168, 25 );
-	m_pPlaySelectedSingleBtn->setVisible( pPref->patternModePlaysSelected() );
 	connect( m_pPlaySelectedSingleBtn, &Button::pressed, [=]() {
-		Hydrogen::get_instance()->setPlaysSelected( false );
+		Hydrogen::get_instance()->setPatternMode( Song::PatternMode::Stacked );
 	});
 
 	m_pPlaySelectedMultipleBtn = new Button( pBackPanel, QSize( 25, 21 ),
@@ -179,10 +178,21 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 										   false, true );
 	m_pPlaySelectedMultipleBtn->move( 168, 25 );
 	m_pPlaySelectedMultipleBtn->hide();
-	m_pPlaySelectedMultipleBtn->setVisible( ! pPref->patternModePlaysSelected() );
 	connect( m_pPlaySelectedMultipleBtn, &Button::pressed, [=]() {
-		Hydrogen::get_instance()->setPlaysSelected( true );
+		Hydrogen::get_instance()->setPatternMode( Song::PatternMode::Selected );
 	});
+
+	// We access the raw variable in the song class since we do not
+	// care whether Hydrogen is in song or pattern mode in here.
+	if ( pHydrogen->getSong() == nullptr ||
+		 pHydrogen->getSong()->getPatternMode() == Song::PatternMode::Selected ) {
+		m_pPlaySelectedSingleBtn->setVisible( true );
+		m_pPlaySelectedMultipleBtn->setVisible( false );
+	}
+	else {
+		m_pPlaySelectedSingleBtn->setVisible( false );
+		m_pPlaySelectedMultipleBtn->setVisible( true );
+	}
 
 // ZOOM
 	m_pHScrollBar = new QScrollBar( Qt::Horizontal, nullptr );
@@ -511,10 +521,8 @@ void SongEditorPanel::hScrollTo( int value )
 ///
 void SongEditorPanel::updateAll()
 {
-	Hydrogen *	pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> 		pSong = pHydrogen->getSong();
-	
-	updatePlaybackTrackIfNecessary();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
 
 	m_pPatternList->createBackground();
 	m_pPatternList->update();
@@ -526,11 +534,7 @@ void SongEditorPanel::updateAll()
 
 	updatePositionRuler();
 
- 	m_pAutomationPathView->setAutomationPath( pSong->getVelocityAutomationPath() );
-
-	resyncExternalScrollBar();
-
-	m_pPlaybackTrackFader->setIsActive( ! H2Core::Hydrogen::get_instance()->getSong()->getPlaybackTrackFilename().isEmpty() );
+	patternModifiedEvent();
 }
 
 void SongEditorPanel::patternModifiedEvent() {
@@ -695,9 +699,18 @@ void SongEditorPanel::resizeEvent( QResizeEvent *ev )
 	resyncExternalScrollBar();
 }
 
-void SongEditorPanel::updateSongEvent( int ) {
-	patternEditorLockedEvent( 0 );
-	actionModeChangeEvent( 0 );
+void SongEditorPanel::updateSongEvent( int nValue ) {
+
+	if ( nValue == 0 ) { // different song opened
+		patternEditorLockedEvent( 0 );
+		actionModeChangeEvent( 0 );
+		stackedModeActivationEvent( 0 );
+		jackTimebaseStateChangedEvent( 0 );
+		songModeActivationEvent( 0 );
+		timelineActivationEvent( 0 );
+
+		updateAll();
+	}
 }
 
 void SongEditorPanel::patternEditorLockedEvent( int ) {
@@ -873,12 +886,18 @@ void SongEditorPanel::editPlaybackTrackBtnPressed()
 
 void SongEditorPanel::stackedModeActivationEvent( int )
 {
-	if ( Preferences::get_instance()->patternModePlaysSelected() ){
-		m_pPlaySelectedSingleBtn->show();
-		m_pPlaySelectedMultipleBtn->hide();
-	} else {
-		m_pPlaySelectedSingleBtn->hide();
-		m_pPlaySelectedMultipleBtn->show();
+	auto pHydrogen = Hydrogen::get_instance();
+	
+	// We access the raw variable in the song class since we do not
+	// care whether Hydrogen is in song or pattern mode in here.
+	if ( pHydrogen->getSong() == nullptr ||
+		 pHydrogen->getSong()->getPatternMode() == Song::PatternMode::Selected ) {
+		m_pPlaySelectedSingleBtn->setVisible( true );
+		m_pPlaySelectedMultipleBtn->setVisible( false );
+	}
+	else {
+		m_pPlaySelectedSingleBtn->setVisible( false );
+		m_pPlaySelectedMultipleBtn->setVisible( true );
 	}
 }
 
