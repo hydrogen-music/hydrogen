@@ -508,7 +508,6 @@ void PatternEditorRuler::updateActiveRange() {
 	int nWidthActive = PatternEditor::nMargin + nTicksInPattern * m_fGridWidth;
 
 	if ( m_nWidthActive != nWidthActive ) {
-		INFOLOG("");
 		m_nWidthActive = nWidthActive;
 
 		createBackground();

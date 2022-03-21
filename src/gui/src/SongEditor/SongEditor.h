@@ -365,6 +365,7 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 	void patternChangedEvent() override;
 	void songModeActivationEvent( int nValue ) override;
 	void relocationEvent() override;
+	void songSizeChangedEvent() override;
 	void patternModifiedEvent() override;
 	
 	void timelineActivationEvent( int nValue ) override;
@@ -412,6 +413,9 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 	int m_nColumn;
 
 	int m_nTagHeight;
+
+	/** Area covering the length of the song columns.*/
+	int m_nActiveColumns;
 
 		QPixmap *			m_pBackgroundPixmap;
 		bool				m_bRightBtnPressed;

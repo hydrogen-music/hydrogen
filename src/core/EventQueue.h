@@ -164,7 +164,8 @@ enum EventType {
 	 * position due to an user interaction or an incoming MIDI/OSC
 	 * command. 
 	 */
-	EVENT_RELOCATION
+	EVENT_RELOCATION,
+	EVENT_SONG_SIZE_CHANGED
 };
 
 /** Basic building block for the communication between the core of

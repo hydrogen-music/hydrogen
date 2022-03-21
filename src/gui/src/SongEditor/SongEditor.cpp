@@ -2373,6 +2373,8 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	m_nMaxPatternSequence = pPref->getMaxBars();
 
 	m_nInitialWidth = m_nMaxPatternSequence * 16;
+	
+	m_nActiveColumns = m_pHydrogen->getSong()->getPatternGroupVector()->size();
 
 	resize( m_nInitialWidth, m_nHeight );
 	setFixedHeight( m_nHeight );
@@ -2404,6 +2406,12 @@ void SongEditorPositionRuler::relocationEvent() {
 	updatePosition();
 }
 
+void SongEditorPositionRuler::songSizeChangedEvent() {
+	m_nActiveColumns = m_pHydrogen->getSong()->getPatternGroupVector()->size();
+	createBackground();
+	update();
+}
+
 uint SongEditorPositionRuler::getGridWidth()
 {
 	return m_nGridWidth;
@@ -2432,6 +2440,7 @@ void SongEditorPositionRuler::createBackground()
 	textColorAlpha.setAlpha( 45 );
 
 	QColor backgroundColor = pPref->getColorTheme()->m_songEditor_alternateRowColor.darker( 115 );
+	QColor backgroundInactiveColor = pPref->getColorTheme()->m_midLightColor;
 	QColor backgroundColorTempoMarkers = backgroundColor.darker( 120 );
 
 	QColor colorHighlight = pPref->getColorTheme()->m_highlightColor;
@@ -2448,14 +2457,18 @@ void SongEditorPositionRuler::createBackground()
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 	}
 
-	m_pBackgroundPixmap->fill( backgroundColor );
-
 	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 
 	QPainter p( m_pBackgroundPixmap );
 	p.setFont( font );
 
+	int nActiveWidth = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
+										 static_cast<float>(m_nActiveColumns) *
+										 static_cast<float>(m_nGridWidth) );
 	p.fillRect( 0, 0, width(), 24, backgroundColorTempoMarkers );
+	p.fillRect( 0, 25, nActiveWidth, height() - 25, backgroundColor );
+	p.fillRect( nActiveWidth, 25, width() - nActiveWidth, height() - 25,
+				backgroundInactiveColor );
 	char tmp[10];
 	
 	QColor textColorGrid( textColor );
@@ -2942,10 +2955,11 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		painter.drawLine( nCursorX + m_nGridWidth - 3, height() - 6,
 						  nCursorX + m_nGridWidth - 3, height() - 5 );
 	}
-	
+
 	// Faint playhead over hovered position marker.
 	if ( m_nHoveredColumn > -1  &&
-		 m_hoveredRow == HoveredRow::Ruler ) {
+		 m_hoveredRow == HoveredRow::Ruler &&
+		 m_nHoveredColumn <= m_nActiveColumns ) {
 
 		int x = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
 								  static_cast<float>(m_nHoveredColumn) *

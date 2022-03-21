@@ -1851,6 +1851,8 @@ void AudioEngine::updateSongSize() {
 	} else {
 		m_nPatternSize = MAX_NOTES;
 	}
+				
+	EventQueue::get_instance()->push_event( EVENT_SONG_SIZE_CHANGED, 0 );
 
 	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 		return;

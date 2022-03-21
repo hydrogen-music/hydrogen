@@ -848,6 +848,10 @@ void HydrogenApp::onEventQueueTimer()
 			case EVENT_RELOCATION:
 				pListener->relocationEvent();
 				break;
+				
+			case EVENT_SONG_SIZE_CHANGED:
+				pListener->songSizeChangedEvent();
+				break;
 
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
