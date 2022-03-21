@@ -79,13 +79,26 @@ PianoRollEditor::~PianoRollEditor()
 
 void PianoRollEditor::updateEditor( bool bPatternOnly )
 {
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	//	uint nEditorWidth;
 	if ( m_pPattern != nullptr ) {
-		m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * m_pPattern->get_length();
+
+		m_nActiveWidth = PatternEditor::nMargin + m_fGridWidth *
+			m_pPattern->get_length();
+		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+			m_nEditorWidth =
+				std::max( PatternEditor::nMargin + m_fGridWidth *
+						  pHydrogen->getAudioEngine()->getPlayingPatterns()->longest_pattern_length() + 1,
+						  static_cast<float>(m_nActiveWidth) );
+		} else {
+			m_nEditorWidth = m_nActiveWidth;
+		}
 	}
 	else {
 		m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * MAX_NOTES;
+		m_nActiveWidth = m_nEditorWidth;
 	}
+	
 	if ( !bPatternOnly ) {
 		m_bNeedsBackgroundUpdate = true;
 	}
@@ -212,15 +225,18 @@ void PianoRollEditor::createBackground()
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	QColor backgroundColor = pPref->getColorTheme()->m_patternEditor_backgroundColor;
-	QColor alternateRowColor = pPref->getColorTheme()->m_patternEditor_alternateRowColor;
-	QColor octaveColor = pPref->getColorTheme()->m_patternEditor_octaveRowColor;
+	const QColor backgroundColor = pPref->getColorTheme()->m_patternEditor_backgroundColor;
+	const QColor backgroundInactiveColor = pPref->getColorTheme()->m_windowColor;
+	const QColor alternateRowColor = pPref->getColorTheme()->m_patternEditor_alternateRowColor;
+	const QColor octaveColor = pPref->getColorTheme()->m_patternEditor_octaveRowColor;
 	// The line corresponding to the default pitch set to new notes
 	// will be highlighted.
-	QColor baseNoteColor = octaveColor.lighter( 119 );
+	const QColor baseNoteColor = octaveColor.lighter( 119 );
+	const QColor lineColor( pPref->getColorTheme()->m_patternEditor_lineColor );
+	const QColor lineInactiveColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) );
 
 	unsigned start_x = 0;
-	unsigned end_x = width();
+	unsigned end_x = m_nActiveWidth;
 
 	// Resize pixmap if pixel ratio has changed
 	qreal pixelRatio = devicePixelRatio();
@@ -232,7 +248,7 @@ void PianoRollEditor::createBackground()
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 	}
 
-	m_pBackgroundPixmap->fill( backgroundColor );
+	m_pBackgroundPixmap->fill( backgroundInactiveColor );
 
 	QPainter p( m_pBackgroundPixmap );
 
@@ -268,9 +284,18 @@ void PianoRollEditor::createBackground()
 
 
 	// horiz lines
+	p.setPen( lineColor );
 	for ( uint row = 0; row < ( 12 * m_nOctaves ); ++row ) {
 		unsigned y = row * m_nGridHeight;
-		p.drawLine( start_x, y,end_x , y );
+		p.drawLine( start_x, y, end_x, y );
+	}
+
+	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
+		p.setPen( lineInactiveColor );
+		for ( uint row = 0; row < ( 12 * m_nOctaves ); ++row ) {
+			unsigned y = row * m_nGridHeight;
+			p.drawLine( m_nActiveWidth, y, m_nEditorWidth, y );
+		}
 	}
 
 	//draw text
@@ -499,6 +524,10 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 }
 
 void PianoRollEditor::mousePressEvent( QMouseEvent* ev ) {
+	if ( ev->x() > m_nActiveWidth ) {
+		return;
+	}
+
 	PatternEditor::mousePressEvent( ev );
 	
 	auto pHydrogenApp = HydrogenApp::get_instance();

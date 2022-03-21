@@ -928,6 +928,17 @@ void PatternEditorPanel::patternChangedEvent() {
 	updateEditors( true );
 }
 
+void PatternEditorPanel::songModeActivationEvent( int ) {
+	if ( Hydrogen::get_instance()->getPatternMode() ==
+		 Song::PatternMode::Stacked ) {
+		updateEditors( true );
+	}
+}
+
+void PatternEditorPanel::stackedModeActivationEvent( int ) {
+	updateEditors( true );
+}
+
 void PatternEditorPanel::updatePatternSizeLCD() {
 	if ( m_pPattern == nullptr ) {
 		return;

@@ -177,6 +177,9 @@ protected:
 	uint m_nEditorHeight;
 	uint m_nEditorWidth;
 
+	// width of the editor covered by the current pattern.
+	int m_nActiveWidth;
+
 	float m_fGridWidth;
 	unsigned m_nGridHeight;
 

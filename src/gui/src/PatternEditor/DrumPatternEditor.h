@@ -138,8 +138,7 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 	void createBackground() override;
 		void drawNote( H2Core::Note* note, QPainter& painter, bool bIsForeground = true );
 		void drawPattern( QPainter& painter );
-		void drawGrid( QPainter& painter );
-		void drawBackgroundTemplate( QPainter& pointer );
+		void drawBackground( QPainter& pointer );
 		void drawFocus( QPainter& painter );
 
 		virtual void keyPressEvent (QKeyEvent *ev) override;

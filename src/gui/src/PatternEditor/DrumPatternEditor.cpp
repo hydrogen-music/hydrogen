@@ -64,6 +64,7 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
 
 	m_nGridHeight = pPref->getPatternEditorGridHeight();
 	m_nEditorHeight = m_nGridHeight * MAX_INSTRUMENTS;
+	m_nActiveWidth = m_nEditorWidth;
 	resize( m_nEditorWidth, m_nEditorHeight );
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( 0 );
@@ -76,7 +77,8 @@ DrumPatternEditor::~DrumPatternEditor()
 
 void DrumPatternEditor::updateEditor( bool bPatternOnly )
 {
-	auto pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
 	if ( pAudioEngine->getState() != H2Core::AudioEngine::State::Ready &&
 		 pAudioEngine->getState() != H2Core::AudioEngine::State::Playing ) {
 		ERRORLOG( "FIXME: skipping pattern editor update (state should be READY or PLAYING)" );
@@ -86,10 +88,22 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 	updatePatternInfo();
 
 	if ( m_pPattern != nullptr ) {
-		m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * m_pPattern->get_length();
+		
+		m_nActiveWidth = PatternEditor::nMargin + m_fGridWidth *
+			m_pPattern->get_length();
+		
+		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+			m_nEditorWidth =
+				std::max( PatternEditor::nMargin + m_fGridWidth *
+						  pAudioEngine->getPlayingPatterns()->longest_pattern_length() + 1,
+						  static_cast<float>(m_nActiveWidth) );
+		} else {
+			m_nEditorWidth = m_nActiveWidth;
+		}
 	}
 	else {
 		m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * MAX_NOTES;
+		m_nActiveWidth = m_nEditorWidth;
 	}
 	resize( m_nEditorWidth, height() );
 
@@ -236,6 +250,11 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 }
 
 void DrumPatternEditor::mousePressEvent( QMouseEvent* ev ) {
+
+	if ( ev->x() > m_nActiveWidth ) {
+		return;
+	}
+	
 	PatternEditor::mousePressEvent( ev );
 	
 	auto pHydrogenApp = HydrogenApp::get_instance();
@@ -1108,45 +1127,9 @@ void DrumPatternEditor::paste()
 void DrumPatternEditor::drawPattern(QPainter& painter)
 {
 	auto pPref = H2Core::Preferences::get_instance();
-	
-	const QColor selectedRowColor( pPref->getColorTheme()->m_patternEditor_selectedRowColor );
 
-	drawBackgroundTemplate( painter );
-
-	int nNotes = MAX_NOTES;
-	if ( m_pPattern != nullptr ) {
-		nNotes = m_pPattern->get_length();
-	}
-
-	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-
 	InstrumentList * pInstrList = pSong->getInstrumentList();
-
-
-	if ( m_nEditorHeight != (int)( m_nGridHeight * pInstrList->size() ) ) {
-		// the number of instruments is changed...recreate all
-		m_nEditorHeight = m_nGridHeight * pInstrList->size();
-		resize( width(), m_nEditorHeight );
-	}
-
-	for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
-		uint y = m_nGridHeight * nInstr;
-		if ( nInstr == (uint)nSelectedInstrument ) {	// selected instrument
-			painter.fillRect( 0, y + 1,
-							  PatternEditor::nMargin + nNotes * m_fGridWidth,
-							  m_nGridHeight - 1, selectedRowColor );
-		}
-	}
-
-	// We skip the grid and cursor in case there is no pattern. This
-	// way it may be more obvious that it is not armed and does not
-	// expect user interaction.
-	if ( m_pPattern == nullptr ) {
-		return;
-	}
-
-	drawGrid( painter );
 
 	/*
 		BUGFIX
@@ -1242,61 +1225,21 @@ void DrumPatternEditor::drawNote( Note *note, QPainter& p, bool bIsForeground )
 	drawNoteSymbol( p, pos, note, bIsForeground );
 }
 
-
-
-
-void DrumPatternEditor::drawGrid( QPainter& p )
-{
-	
-	auto pPref = H2Core::Preferences::get_instance();
-	
-	// Start with generic pattern editor grid lining.
-	drawGridLines( p );
-
-	int nNotes = MAX_NOTES;
-	if ( m_pPattern != nullptr ) {
-		nNotes = m_pPattern->get_length();
-	}
-	
-	// fill the first half of the rect with a solid color
-	const QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
-	const QColor backgroundColorAlternate( pPref->getColorTheme()->m_patternEditor_alternateRowColor );
-	const QColor selectedRowColor( pPref->getColorTheme()->m_patternEditor_selectedRowColor );
-	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	int nInstruments = pSong->getInstrumentList()->size();
-	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
-		uint y = m_nGridHeight * i + 1;
-		if ( i == (uint)nSelectedInstrument ) {
-			p.fillRect( 0, y, (PatternEditor::nMargin + nNotes * m_fGridWidth), (int)( m_nGridHeight * 0.7 ), selectedRowColor );
-		} else {
-			if ( ( i % 2 ) == 0 ) {
-				p.fillRect( 0, y, (PatternEditor::nMargin + nNotes * m_fGridWidth), (int)( m_nGridHeight * 0.7 ), backgroundColor );
-			} else {
-				p.fillRect( 0, y, (PatternEditor::nMargin + nNotes * m_fGridWidth),
-							(int)( m_nGridHeight * 0.7 ), backgroundColorAlternate );
-			}
-		}
-	}
-
-}
-
-
-void DrumPatternEditor::drawBackgroundTemplate( QPainter& p)
+void DrumPatternEditor::drawBackground( QPainter& p)
 {
 	auto pPref = H2Core::Preferences::get_instance();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	
 	const QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
+	const QColor backgroundInactiveColor( pPref->getColorTheme()->m_windowColor );
 	const QColor alternateRowColor( pPref->getColorTheme()->m_patternEditor_alternateRowColor );
+	const QColor selectedRowColor( pPref->getColorTheme()->m_patternEditor_selectedRowColor );
 	const QColor lineColor( pPref->getColorTheme()->m_patternEditor_lineColor );
+	const QColor lineInactiveColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) );
 
-	int nNotes = MAX_NOTES;
-	if ( m_pPattern != nullptr ) {
-		nNotes = m_pPattern->get_length();
-	}
-
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	int nInstruments = pSong->getInstrumentList()->size();
+	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 
 	if ( m_nEditorHeight != (int)( m_nGridHeight * nInstruments ) ) {
 		// the number of instruments is changed...recreate all
@@ -1304,11 +1247,18 @@ void DrumPatternEditor::drawBackgroundTemplate( QPainter& p)
 		resize( width(), m_nEditorHeight );
 	}
 
-	p.fillRect(0, 0, PatternEditor::nMargin + nNotes * m_fGridWidth, height(), backgroundColor);
-	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
-		uint y = m_nGridHeight * i;
-		if ( ( i % 2) != 0) {
-			p.fillRect( 0, y, (PatternEditor::nMargin + nNotes * m_fGridWidth), m_nGridHeight, alternateRowColor );
+	p.fillRect(0, 0, m_nActiveWidth, height(), backgroundColor);
+	p.fillRect(m_nActiveWidth, 0, m_nEditorWidth - m_nActiveWidth, height(),
+			   backgroundInactiveColor);
+	
+	for ( int ii = 0; ii < nInstruments; ii++ ) {
+		int y = static_cast<int>(m_nGridHeight) * ii;
+		if ( ii == nSelectedInstrument ) {
+			p.fillRect( 0, y, m_nActiveWidth, m_nGridHeight,
+							  selectedRowColor );
+		}
+		else if ( ( ii % 2 ) != 0 ) {
+			p.fillRect( 0, y, m_nActiveWidth, m_nGridHeight, alternateRowColor );
 		}
 	}
 
@@ -1316,10 +1266,54 @@ void DrumPatternEditor::drawBackgroundTemplate( QPainter& p)
 	p.setPen( lineColor );
 	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
 		uint y = m_nGridHeight * i + m_nGridHeight;
-		p.drawLine( 0, y, (PatternEditor::nMargin + nNotes * m_fGridWidth), y);
+		p.drawLine( 0, y, m_nActiveWidth, y);
 	}
 
-	p.drawLine( 0, m_nEditorHeight, (PatternEditor::nMargin + nNotes * m_fGridWidth), m_nEditorHeight );
+	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
+		p.setPen( lineInactiveColor );
+		for ( uint i = 0; i < (uint)nInstruments; i++ ) {
+			uint y = m_nGridHeight * i + m_nGridHeight;
+			p.drawLine( m_nActiveWidth, y, m_nEditorWidth, y);
+		}
+	}
+
+	// We skip the grid and cursor in case there is no pattern. This
+	// way it may be more obvious that it is not armed and does not
+	// expect user interaction.
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
+	drawGridLines( p );
+
+	// The grid lines above are drawn full height. We will erase the
+	// upper part.
+	for ( int ii = 0; ii < nInstruments; ii++ ) {
+		int y = static_cast<int>(m_nGridHeight) * ii + 1;
+		if ( ii == nSelectedInstrument ) {
+			p.fillRect( 0, y, m_nActiveWidth, (int)( m_nGridHeight * 0.7 ), selectedRowColor );
+		} else {
+			if ( ( ii % 2 ) == 0 ) {
+				p.fillRect( 0, y, m_nActiveWidth, (int)( m_nGridHeight * 0.7 ), backgroundColor );
+			} else {
+				p.fillRect( 0, y, m_nActiveWidth,
+							(int)( m_nGridHeight * 0.7 ), alternateRowColor );
+			}
+		}
+
+		p.fillRect( m_nActiveWidth, y, m_nEditorWidth - m_nActiveWidth,
+					(int)( m_nGridHeight * 0.7 ), backgroundInactiveColor );
+	}
+
+	// borders
+	p.setPen( lineColor );
+	p.drawLine( 0, m_nEditorHeight -1 , m_nActiveWidth - 1, m_nEditorHeight - 1 );
+	
+	if ( m_nEditorWidth > m_nActiveWidth + 1 ) {
+		p.setPen( lineInactiveColor );
+		p.drawLine( m_nActiveWidth - 1, m_nEditorHeight - 1, m_nEditorWidth - 1, m_nEditorHeight - 1 );
+	}
+	p.drawLine( m_nEditorWidth - 1, 0, m_nEditorWidth - 1, m_nEditorHeight - 1 );
+
 }
 
 void DrumPatternEditor::createBackground() {
@@ -1336,6 +1330,8 @@ void DrumPatternEditor::createBackground() {
 
 	QPainter painter( m_pBackgroundPixmap );
 
+	drawBackground( painter );
+	
 	drawPattern( painter );
 }
 

@@ -179,6 +179,10 @@ void NotePropertiesRuler::mouseClickEvent( QMouseEvent *ev ) {
 }
 
 void NotePropertiesRuler::mousePressEvent( QMouseEvent* ev ) {
+	if ( ev->x() > m_nActiveWidth ) {
+		return;
+	}
+
 	PatternEditor::mousePressEvent( ev );
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
@@ -862,11 +866,6 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 		return;
 	}
 
-	int nNotes = MAX_NOTES;
-	if ( m_pPattern != nullptr ) {
-		nNotes = m_pPattern->get_length();
-	}
-
 	auto pPref = Preferences::get_instance();
 	
 	qreal pixelRatio = devicePixelRatio();
@@ -878,7 +877,7 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, ev->rect() );
 
 	// Draw playhead
-	if ( m_nTick != -1 && m_nTick < nNotes ) {
+	if ( m_nTick != -1 ) {
 
 		int nOffset = Skin::getPlayheadShaftOffset();
 		int nX = static_cast<int>(static_cast<float>(PatternEditor::nMargin) +
@@ -998,14 +997,11 @@ void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 	
 	auto pPref = H2Core::Preferences::get_instance();
 
-	QColor borderColor( pPref->getColorTheme()->m_patternEditor_lineColor );
-	QColor lineColor( pPref->getColorTheme()->m_patternEditor_line5Color );
-	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
-
-	unsigned nNotes = MAX_NOTES;
-	if ( m_pPattern != nullptr ) {
-		nNotes = m_pPattern->get_length();
-	}
+	const QColor borderColor( pPref->getColorTheme()->m_patternEditor_lineColor );
+	const QColor lineColor( pPref->getColorTheme()->m_patternEditor_line5Color );
+	const QColor lineInactiveColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) );
+	const QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
+	const QColor backgroundInactiveColor( pPref->getColorTheme()->m_windowColor );
 
 	if ( nHeight == 0 ) {
 		nHeight = height();
@@ -1014,20 +1010,31 @@ void NotePropertiesRuler::drawDefaultBackground( QPainter& painter, int nHeight,
 		nIncrement = nHeight / 10;
 	}
 
-	painter.fillRect( 0, 0, PatternEditor::nMargin + nNotes * m_fGridWidth,
-				height(), backgroundColor );
+	painter.fillRect( 0, 0, m_nActiveWidth, height(), backgroundColor );
+	painter.fillRect( m_nActiveWidth, 0, m_nEditorWidth - m_nActiveWidth,
+					  height(), backgroundInactiveColor );
 
 	drawGridLines( painter, Qt::DotLine );
 	
 	painter.setPen( lineColor );
 	for (unsigned y = 0; y < nHeight; y += nIncrement ) {
-		painter.drawLine( PatternEditor::nMargin, y,
-					PatternEditor::nMargin + nNotes * m_fGridWidth, y );
+		painter.drawLine( PatternEditor::nMargin, y, m_nActiveWidth, y );
 	}
 	
 	painter.setPen( borderColor );
-	painter.drawLine( 0, 0, m_nEditorWidth, 0 );
-	painter.drawLine( 0, m_nEditorHeight - 1, m_nEditorWidth, m_nEditorHeight - 1 );
+	painter.drawLine( 0, 0, m_nActiveWidth, 0 );
+	painter.drawLine( 0, m_nEditorHeight - 1, m_nActiveWidth, m_nEditorHeight - 1 );
+
+	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
+		painter.setPen( lineInactiveColor );
+		for (unsigned y = 0; y < nHeight; y += nIncrement ) {
+			painter.drawLine( m_nActiveWidth, y, m_nEditorWidth, y );
+		}
+	
+		painter.drawLine( m_nActiveWidth, 0, m_nEditorWidth, 0 );
+		painter.drawLine( m_nActiveWidth, m_nEditorHeight - 1,
+						  m_nEditorWidth, m_nEditorHeight - 1 );
+	}
 }
 
 void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
@@ -1035,6 +1042,7 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 	auto pPref = H2Core::Preferences::get_instance();
 
 	QColor borderColor( pPref->getColorTheme()->m_patternEditor_lineColor );
+	const QColor lineInactiveColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) );
 	QPainter p( pixmap );
 
 	drawDefaultBackground( p );
@@ -1099,9 +1107,14 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 	p.setRenderHint( QPainter::Antialiasing );
 	p.drawLine( 0, 0, m_nEditorWidth, 0 );
 	p.drawLine( 0, m_nEditorHeight - 1, m_nEditorWidth, m_nEditorHeight - 1 );
+	
+	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
+		p.setPen( lineInactiveColor );
+		p.drawLine( m_nActiveWidth, 0, m_nEditorWidth, 0 );
+		p.drawLine( m_nActiveWidth, m_nEditorHeight - 1,
+					m_nEditorWidth, m_nEditorHeight - 1 );
+	}
 }
-
-
 
 void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 {
@@ -1109,6 +1122,7 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 	
 	QColor baseLineColor( pPref->getColorTheme()->m_patternEditor_lineColor );
 	QColor borderColor( pPref->getColorTheme()->m_patternEditor_lineColor );
+	const QColor lineInactiveColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) );
 
 	QPainter p( pixmap );
 
@@ -1116,7 +1130,12 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 
 	// central line
 	p.setPen( baseLineColor );
-	p.drawLine(0, height() / 2.0, m_nEditorWidth, height() / 2.0);
+	p.drawLine(0, height() / 2.0, m_nActiveWidth, height() / 2.0);
+	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
+		p.setPen( lineInactiveColor );
+		p.drawLine( m_nActiveWidth, height() / 2.0,
+					m_nEditorWidth, height() / 2.0);
+	}
 
 	if ( m_pPattern != nullptr ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
@@ -1201,24 +1220,30 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 	
 	p.setPen( QPen( borderColor, 1 ) );
 	p.setRenderHint( QPainter::Antialiasing );
-	p.drawLine( 0, 0, m_nEditorWidth, 0 );
-	p.drawLine( 0, m_nEditorHeight - 1, m_nEditorWidth, m_nEditorHeight - 1 );
+	p.drawLine( 0, 0, m_nActiveWidth, 0 );
+	p.drawLine( 0, m_nEditorHeight - 1, m_nActiveWidth, m_nEditorHeight - 1 );
+	
+	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
+		p.setPen( lineInactiveColor );
+		p.drawLine( m_nActiveWidth, 0, m_nEditorWidth, 0 );
+		p.drawLine( m_nActiveWidth, m_nEditorHeight - 1,
+					m_nEditorWidth, m_nEditorHeight - 1 );
+	}
 }
 
 void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	QColor backgroundColor = pPref->getColorTheme()->m_patternEditor_backgroundColor;
+	const QColor backgroundInactiveColor( pPref->getColorTheme()->m_windowColor );
 	QColor alternateRowColor = pPref->getColorTheme()->m_patternEditor_alternateRowColor;
 	QColor octaveColor = pPref->getColorTheme()->m_patternEditor_octaveRowColor;
 	QColor lineColor( pPref->getColorTheme()->m_patternEditor_lineColor );
+	const QColor lineInactiveColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) );
 	QColor textColor( pPref->getColorTheme()->m_patternEditor_textColor );
 
-	unsigned nNotes = MAX_NOTES;
-	if ( m_pPattern != nullptr ) {
-		nNotes = m_pPattern->get_length();
-	}
 	QPainter p( pixmap );
+	p.fillRect( 0, 0, m_nEditorWidth, m_nEditorHeight, backgroundInactiveColor );
 	drawDefaultBackground( p, 80, 10 );
 
 	// fill the background of the key region;
@@ -1232,8 +1257,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 			p.setPen( QPen( octaveColor, 9, Qt::SolidLine, Qt::FlatCap) );
 		}
 					
-		p.drawLine( PatternEditor::nMargin, y,
-					PatternEditor::nMargin + nNotes * m_fGridWidth, y );
+		p.drawLine( PatternEditor::nMargin, y, m_nActiveWidth, y );
 	}
 
 	// Annotate with note class names
@@ -1249,10 +1273,16 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	}
 
 	// Horizontal grid lines in the key region
+	p.setPen( QPen( lineColor, 1, Qt::SolidLine));
 	for (unsigned y = 90; y <= 210; y = y + 10 ) {
-		p.setPen( QPen( lineColor, 1, Qt::SolidLine));
-		p.drawLine( PatternEditor::nMargin, y - 5,
-					PatternEditor::nMargin + nNotes * m_fGridWidth, y-5);
+		p.drawLine( PatternEditor::nMargin, y - 5, m_nActiveWidth, y-5);
+	}
+
+	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
+		p.setPen( lineInactiveColor );
+		for (unsigned y = 90; y <= 210; y = y + 10 ) {
+			p.drawLine( m_nActiveWidth, y - 5, m_nEditorWidth, y-5);
+		}
 	}
 
 	//paint the octave
@@ -1339,10 +1369,21 @@ void NotePropertiesRuler::updateEditor( bool )
 
 	// update editor width
 	if ( m_pPattern != nullptr ) {
-		m_nEditorWidth = PatternEditor::nMargin + m_pPattern->get_length() * m_fGridWidth;
+		m_nActiveWidth = PatternEditor::nMargin + m_fGridWidth *
+			m_pPattern->get_length();
+		
+		if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+			m_nEditorWidth =
+				std::max( PatternEditor::nMargin + m_fGridWidth *
+						  pHydrogen->getAudioEngine()->getPlayingPatterns()->longest_pattern_length() + 1,
+						  static_cast<float>(m_nActiveWidth) );
+		} else {
+			m_nEditorWidth = m_nActiveWidth;
+		}
 	}
 	else {
 		m_nEditorWidth = PatternEditor::nMargin + MAX_NOTES * m_fGridWidth;
+		m_nActiveWidth = m_nEditorWidth;
 	}
 
 	createBackground();

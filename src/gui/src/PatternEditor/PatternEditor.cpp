@@ -69,6 +69,7 @@ PatternEditor::PatternEditor( QWidget *pParent,
 	
 	m_fGridWidth = pPref->getPatternEditorGridWidth();
 	m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
+	m_nActiveWidth = m_nEditorWidth;
 
 	setFocusPolicy(Qt::StrongFocus);
 
@@ -187,8 +188,10 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	static const QColor noteColor( pPref->getColorTheme()->m_patternEditor_noteVelocityDefaultColor );
-	static const QColor noteoffColor( pPref->getColorTheme()->m_patternEditor_noteOffColor );
+	const QColor noteColor( pPref->getColorTheme()->m_patternEditor_noteVelocityDefaultColor );
+	const QColor noteInactiveColor( pPref->getColorTheme()->m_windowTextColor.darker( 150 ) );
+	const QColor noteoffColor( pPref->getColorTheme()->m_patternEditor_noteOffColor );
+	const QColor noteoffInactiveColor( pPref->getColorTheme()->m_windowTextColor );
 
 	p.setRenderHint( QPainter::Antialiasing );
 
@@ -224,6 +227,12 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 		QBrush noteBrush( color );
 		QPen notePen( noteColor );
 		if ( !bIsForeground ) {
+
+			if ( x_pos >= m_nActiveWidth ) {
+				noteBrush.setColor( noteInactiveColor );
+				notePen.setColor( noteInactiveColor );
+			}
+			
 			noteBrush.setStyle( Qt::Dense4Pattern );
 			notePen.setStyle( Qt::DotLine );
 		}
@@ -274,6 +283,10 @@ void PatternEditor::drawNoteSymbol( QPainter &p, QPoint pos, H2Core::Note *pNote
 		QBrush noteOffBrush( noteoffColor );
 		if ( !bIsForeground ) {
 			noteOffBrush.setStyle( Qt::Dense4Pattern );
+
+			if ( x_pos >= m_nActiveWidth ) {
+				noteOffBrush.setColor( noteoffInactiveColor );
+			}
 		}
 
 		p.setPen( Qt::NoPen );
@@ -612,21 +625,24 @@ QPoint PatternEditor::movingGridOffset( ) const {
 //! Draw lines for note grid.
 void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 {
+
 	auto pPref = H2Core::Preferences::get_instance();
-	static const QColor res[5] = {
+	const QColor colorsActive[5] = {
 		QColor( pPref->getColorTheme()->m_patternEditor_line1Color ),
 		QColor( pPref->getColorTheme()->m_patternEditor_line2Color ),
 		QColor( pPref->getColorTheme()->m_patternEditor_line3Color ),
 		QColor( pPref->getColorTheme()->m_patternEditor_line4Color ),
 		QColor( pPref->getColorTheme()->m_patternEditor_line5Color ),
 	};
+	const QColor colorsInactive[5] = {
+		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 170 ) ),
+		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 190 ) ),
+		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 200 ) ),
+		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 210 ) ),
+		QColor( pPref->getColorTheme()->m_windowTextColor.darker( 230 ) ),
+	};
 
 	int nGranularity = granularity() * m_nResolution;
-	int nNotes = MAX_NOTES;
-	if ( m_pPattern != nullptr ) {
-		nNotes = m_pPattern->get_length();
-	}
-	int nMaxX = m_fGridWidth * nNotes + PatternEditor::nMargin;
 
 	if ( !m_bUseTriplets ) {
 
@@ -646,8 +662,13 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 
 		// First, quarter note markers. All the quarter note markers must be drawn.
 		if ( m_nResolution >= nRes ) {
-			p.setPen( QPen( res[ 0 ], 0, style ) );
-			for ( float x = PatternEditor::nMargin ; x < nMaxX; x += fStep ) {
+			p.setPen( QPen( colorsActive[ 0 ], 0, style ) );
+			for ( float x = PatternEditor::nMargin ; x < m_nActiveWidth; x += fStep ) {
+				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+			}
+			
+			p.setPen( QPen( colorsInactive[ 0 ], 0, style ) );
+			for ( float x = m_nActiveWidth ; x < m_nEditorWidth; x += fStep ) {
 				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 			}
 		}
@@ -659,10 +680,17 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		// pitch, so only the odd numbered lines need to be drawn.
 		int nColour = 1;
 		while ( m_nResolution >= nRes ) {
-			p.setPen( QPen( res[ nColour++ ], 0, style ) );
-			for ( float x = PatternEditor::nMargin + fStep; x < nMaxX; x += fStep * 2) {
+			nColour++;
+			p.setPen( QPen( colorsActive[ nColour ], 0, style ) );
+			for ( float x = PatternEditor::nMargin + fStep; x < m_nActiveWidth + fStep; x += fStep * 2) {
 				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 			}
+			
+			p.setPen( QPen( colorsInactive[ nColour ], 0, style ) );
+			for ( float x = m_nActiveWidth + fStep; x < m_nEditorWidth; x += fStep * 2) {
+				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+			}
+			
 			nRes *= 2;
 			fStep /= 2;
 		}
@@ -672,13 +700,25 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		// Triplet style markers, we only differentiate colours on the
 		// first of every triplet.
 		float fStep = granularity() * m_fGridWidth;
-		p.setPen(  QPen( res[ 0 ], 0, style ) );
-		for ( float x = PatternEditor::nMargin; x < nMaxX; x += fStep * 3 ) {
+		p.setPen(  QPen( colorsActive[ 0 ], 0, style ) );
+		for ( float x = PatternEditor::nMargin; x < m_nActiveWidth; x += fStep * 3 ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 		}
+		
+		p.setPen(  QPen( colorsInactive[ 0 ], 0, style ) );
+		for ( float x = m_nActiveWidth; x < m_nEditorWidth; x += fStep * 3 ) {
+			p.drawLine(x, 1, x, m_nEditorHeight - 1);
+		}
+		
 		// Second and third marks
-		p.setPen(  QPen( res[ 2 ], 0, style ) );
-		for ( float x = PatternEditor::nMargin + fStep; x < nMaxX; x += fStep * 3 ) {
+		p.setPen(  QPen( colorsActive[ 2 ], 0, style ) );
+		for ( float x = PatternEditor::nMargin + fStep; x < m_nActiveWidth + fStep; x += fStep * 3 ) {
+			p.drawLine(x, 1, x, m_nEditorHeight - 1);
+			p.drawLine(x + fStep, 1, x + fStep, m_nEditorHeight - 1);
+		}
+		
+		p.setPen( QPen( colorsInactive[ 2 ], 0, style ) );
+		for ( float x = m_nActiveWidth + fStep; x < m_nEditorWidth; x += fStep * 3 ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 			p.drawLine(x + fStep, 1, x + fStep, m_nEditorHeight - 1);
 		}
