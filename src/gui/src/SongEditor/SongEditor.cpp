@@ -119,7 +119,6 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 	m_pPopupMenu->setObjectName( "SongEditorPopup" );
 
 	HydrogenApp::get_instance()->addEventListener( this );
-	update();
 }
 
 
@@ -673,8 +672,8 @@ void SongEditor::focusInEvent( QFocusEvent *ev )
 	// If there are some patterns selected, we have to switch their
 	// border color inactive <-> active.
 	createBackground();
-
 	update();
+	
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPatternList()->update();
 		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler()->update();
@@ -689,8 +688,8 @@ void SongEditor::focusOutEvent( QFocusEvent *ev )
 	// If there are some patterns selected, we have to switch their
 	// border color inactive <-> active.
 	createBackground();
-
 	update();
+	
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPatternList()->update();
 		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditorPositionRuler()->update();
@@ -2422,7 +2421,8 @@ void SongEditorPositionRuler::setGridWidth( uint width )
 	if ( SONG_EDITOR_MIN_GRID_WIDTH <= width && SONG_EDITOR_MAX_GRID_WIDTH >= width )
 	{
 		m_nGridWidth = width;
-		createBackground ();
+		createBackground();
+		update();
 	}
 }
 
@@ -2518,7 +2518,7 @@ void SongEditorPositionRuler::createBackground()
 
 	// draw tempo content
 	
-	// Draw tempo marker grid
+	// Draw tempo marker grid.
 	if ( ! pHydrogen->isTimelineEnabled() ) {
 		p.setPen( textColorAlpha );
 	} else {
@@ -2559,6 +2559,7 @@ void SongEditorPositionRuler::tempoChangedEvent( int ) {
 	}
 
 	createBackground();
+	update();
 }
 
 void SongEditorPositionRuler::patternModifiedEvent() {
@@ -2636,14 +2637,17 @@ bool SongEditorPositionRuler::event( QEvent* ev ) {
 
 void SongEditorPositionRuler::songModeActivationEvent( int ) {
 	createBackground();
+	update();
 }
 
 void SongEditorPositionRuler::timelineActivationEvent( int ) {
 	createBackground();
+	update();
 }
 
 void SongEditorPositionRuler::jackTimebaseStateChangedEvent( int ) {
 	createBackground();
+	update();
 }
 
 void SongEditorPositionRuler::showToolTip( QHelpEvent* ev ) {
@@ -2820,7 +2824,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		 ( m_hoveredRow == HoveredRow::TempoMarker &&
 		   m_pHydrogen->isTimelineEnabled() ) ) {
 
-		painter.setPen( highlightColor );
+		painter.setPen( QPen( highlightColor, 1 ) );
 		int x = SongEditor::nMargin + m_nHoveredColumn * m_nGridWidth;
 
 		painter.drawLine( x, 1, x, 4 );
@@ -2881,9 +2885,9 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 			}
 				
 			if ( m_nActiveBpmWidgetColumn == -1 ) {
-				painter.setPen( colorHovered );
+				painter.setPen( QPen( colorHovered, 1 ) );
 			} else {
-				painter.setPen( highlightColor );
+				painter.setPen( QPen( highlightColor, 1 ) );
 			}
 			painter.drawRect( rect );
 
@@ -3071,6 +3075,7 @@ void SongEditorPositionRuler::updatePosition()
 void SongEditorPositionRuler::timelineUpdateEvent( int nValue )
 {
 	createBackground();
+	update();
 }
 
 void SongEditorPositionRuler::onPreferencesChanged( H2Core::Preferences::Changes changes )

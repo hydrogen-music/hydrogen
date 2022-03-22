@@ -79,7 +79,6 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pTimelineBtn->move( 94, 4 );
 	m_pTimelineBtn->setObjectName( "TimelineBtn" );
 	connect( m_pTimelineBtn, SIGNAL( pressed() ), this, SLOT( timelineBtnPressed() ) );
-	m_bLastIsTimelineActivated = pSong->getIsTimelineActivated();
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledTimebaseSlave() );
 		m_pTimelineBtn->setIsActive( false );
@@ -89,6 +88,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	} else {
 		m_pTimelineBtn->setChecked( m_bLastIsTimelineActivated );
 	}
+	m_bLastIsTimelineActivated = pSong->getIsTimelineActivated();
 
 	// clear sequence button
 	m_pClearPatternSeqBtn = new Button( pBackPanel,	QSize( 61, 21 ), Button::Type::Push, "", pCommonStrings->getClearButton(), false, QSize(), tr("Clear pattern sequence") );
