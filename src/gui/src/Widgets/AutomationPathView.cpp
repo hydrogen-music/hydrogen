@@ -53,11 +53,13 @@ void AutomationPathView::onPreferencesChanged( H2Core::Preferences::Changes chan
 
 void AutomationPathView::setAutomationPath(AutomationPath *path)
 {
-	_path = path;
-	if(_path) {
-		_selectedPoint = _path->end();
+	if ( path == _path ) {
+		return;
 	}
-
+	_path = path;
+	if ( _path ) {
+		_selectedPoint = path->end();
+	}
 	update();
 }
 
@@ -279,7 +281,7 @@ void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
 	float x = p.first;
 	float y = p.second;
 
-	if(m_bIsHolding) {
+	if ( m_bIsHolding && _path && _selectedPoint != _path->end() ) {
 		_selectedPoint = _path->move(_selectedPoint, x, y);
 		H2Core::Hydrogen::get_instance()->setIsModified( true );
 	}
