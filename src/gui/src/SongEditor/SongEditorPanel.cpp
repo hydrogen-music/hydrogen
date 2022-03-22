@@ -407,8 +407,6 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 	this->setPalette( defaultPalette );
 
-	Hydrogen::get_instance()->getSong()->setActionMode( H2Core::Song::ActionMode::selectMode );
-
 	show();
 
 	updateAll();
@@ -718,10 +716,13 @@ void SongEditorPanel::resizeEvent( QResizeEvent *ev )
 
 void SongEditorPanel::actionModeChangeEvent( int nValue ) {
 
-	if ( nValue == 0 ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	
+	if ( pSong->getActionMode() == Song::ActionMode::selectMode ) {
 		m_pPointerActionBtn->setPressed( true );
 		m_pDrawActionBtn->setPressed( false );
-	} else if ( nValue == 1 ) {
+	} else if ( pSong->getActionMode() == Song::ActionMode::drawMode ) {
 		m_pPointerActionBtn->setPressed( false );
 		m_pDrawActionBtn->setPressed( true );
 	} else {
