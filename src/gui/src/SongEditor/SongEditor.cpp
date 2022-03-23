@@ -2636,6 +2636,7 @@ bool SongEditorPositionRuler::event( QEvent* ev ) {
 }
 
 void SongEditorPositionRuler::songModeActivationEvent( int ) {
+	updatePosition();
 	createBackground();
 	update();
 }
@@ -2648,6 +2649,13 @@ void SongEditorPositionRuler::timelineActivationEvent( int ) {
 void SongEditorPositionRuler::jackTimebaseStateChangedEvent( int ) {
 	createBackground();
 	update();
+}
+
+void SongEditorPositionRuler::updateSongEvent( int nValue ) {
+
+	if ( nValue == 0 ) { // different song opened
+		updatePosition();
+	}
 }
 
 void SongEditorPositionRuler::showToolTip( QHelpEvent* ev ) {
