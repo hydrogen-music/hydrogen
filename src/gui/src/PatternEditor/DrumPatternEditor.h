@@ -79,7 +79,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 							 H2Core::Note *note);
 
 		void addOrRemoveNote( int nColumn, int nRealColumn, int row, bool bDoAdd = true, bool bDoDelete = true );
-		void editNoteLengthAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber );
 		void undoRedoAction(    int column,
 								NotePropertiesRuler::Mode mode,
 								int nSelectedPatternNumber,
@@ -116,7 +115,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
 		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
 
 		// Selected notes are indexed by their address to ensure that a
@@ -151,11 +149,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		int findFreeCompoID( int startingPoint = 0 );
 		int findExistingCompo( QString SourceName );
 		QString renameCompo( QString OriginalName );
-
-		int m_nRealColumn;
-		int m_nColumn;
-		int m_nRow;
-		int m_nOldLength;
 };
 
 

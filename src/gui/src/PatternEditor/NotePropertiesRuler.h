@@ -45,22 +45,14 @@ namespace H2Core
 class PatternEditorPanel;
 
 /** \ingroup docGUI*/
+//! NotePropertiesEditor is (currently) a single class instantiated in different "modes" to select
+//! which property it edits. There are individual instances for each property which are hidden and
+//! shown depending on what the user selects.
 class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFont<7, 9, 11>
 {
     H2_OBJECT(NotePropertiesRuler)
 	Q_OBJECT
 	public:
-		//! NotePropertiesEditor is (currently) a single class instantiated in different "modes" to select
-		//! which property it edits. There are individual instances for each property which are hidden and
-		//! shown depending on what the user selects.
-		enum class Mode {
-			Velocity = 0,
-			Pan = 1,
-			LeadLag = 2,
-			NoteKey = 3,
-			Probability = 4
-		};
-	static QString modeToQString( Mode mode );
 
 		NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, Mode mode );
 		~NotePropertiesRuler();
@@ -92,7 +84,6 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		virtual QRect getKeyboardCursorRect() override;
 		//! @}
 
-	static void triggerStatusMessage( H2Core::Note* pNote, Mode mode );
 
 	public slots:
 		virtual void updateEditor( bool bPatternOnly = false ) override;
@@ -110,8 +101,6 @@ class NotePropertiesRuler : public PatternEditor, protected WidgetWithScalableFo
 		void createBackground() override;
 	void drawDefaultBackground( QPainter& painter, int nHeight = 0, int nIncrement = 0 );
 		void drawFocus( QPainter& painter );
-
-		Mode m_Mode;
 
 		double m_fLastSetValue;
 		bool m_bValueHasBeenSet;

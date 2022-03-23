@@ -63,7 +63,10 @@ PatternEditor::PatternEditor( QWidget *pParent,
 	, m_bSelectNewNotes( false )
 	, m_bFineGrained( false )
 	, m_bCopyNotMove( false )
-	, m_nTick( -1 ) {
+	, m_nTick( -1 )
+	, m_editor( Editor::None )
+	, m_mode( Mode::None )
+{
 
 	auto pPref = H2Core::Preferences::get_instance();
 	
@@ -873,4 +876,467 @@ void PatternEditor::stackedModeActivationEvent( int nValue )
 void PatternEditor::updatePosition( float fTick ) {
 	m_nTick = fTick;
 	update();
+}
+
+void PatternEditor::storeNoteProperties( const Note* pNote ) {
+	if( pNote != nullptr ){
+		m_nOldLength = pNote->get_length();
+		//needed to undo note properties
+		m_fOldVelocity = pNote->get_velocity();
+		m_fOldPan = pNote->getPan();
+
+		m_fOldLeadLag = pNote->get_lead_lag();
+
+		m_fVelocity = m_fOldVelocity;
+		m_fPan = m_fOldPan;
+		m_fLeadLag = m_fOldLeadLag;
+	}
+	else {
+		m_nOldLength = -1;
+	}
+}
+
+void PatternEditor::mouseDragStartEvent( QMouseEvent *ev ) {
+
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
+
+	// Move cursor.
+	int nColumn = getColumn( ev->x() );
+	m_pPatternEditorPanel->setCursorPosition( nColumn );
+
+	// Hide cursor.
+	bool bOldCursorHidden = pHydrogenApp->hideKeyboardCursor();
+	
+	pHydrogenApp->setHideKeyboardCursor( true );
+	
+	// Cursor either just got hidden or was moved.
+	if ( bOldCursorHidden != pHydrogenApp->hideKeyboardCursor() ) {
+		// Immediate update to prevent visual delay.
+		m_pPatternEditorPanel->getInstrumentList()->repaintInstrumentLines();
+		m_pPatternEditorPanel->getPatternEditorRuler()->update();
+	}
+
+	int nRealColumn = 0;
+
+	if ( ev->button() == Qt::RightButton ) {
+
+		int nPressedLine =
+			std::floor(static_cast<float>(ev->y()) / static_cast<float>(m_nGridHeight));
+		int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
+		
+		if( ev->x() > PatternEditor::nMargin ) {
+			nRealColumn =
+				static_cast<int>(std::floor(
+					static_cast<float>((ev->x() - PatternEditor::nMargin)) /
+					m_fGridWidth));
+		}
+
+		// Needed for undo changes in the note length
+		m_nOldPoint = ev->y();
+		m_nRealColumn = nRealColumn;
+		m_nColumn = nColumn;
+		m_nPressedLine = nPressedLine;
+		m_nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
+	}
+
+}
+
+void PatternEditor::mouseDragUpdateEvent( QMouseEvent *ev) {
+
+	if ( m_pPattern == nullptr || m_pDraggedNote == nullptr ) {
+		return;
+	}
+
+	if ( m_pDraggedNote->get_note_off() ) {
+		return;
+	}
+
+	int nTickColumn = getColumn( ev->x() );
+
+	m_pAudioEngine->lock( RIGHT_HERE );
+	int nLen = nTickColumn - m_pDraggedNote->get_position();
+
+	if ( nLen <= 0 ) {
+		nLen = -1;
+	}
+
+	float fNotePitch = m_pDraggedNote->get_notekey_pitch();
+	float fStep = 0;
+	if ( nLen > -1 ){
+		fStep = Note::pitchToFrequency( ( double )fNotePitch );
+	} else {
+		fStep = 1.0;
+	}
+	m_pDraggedNote->set_length( nLen * fStep);
+
+	m_mode = m_pPatternEditorPanel->getNotePropertiesMode();
+
+	// edit note property. We do not support the note key property.
+	if ( m_mode != Mode::NoteKey ) {
+
+		float fValue = 0.0;
+		if ( m_mode == Mode::Velocity ) {
+			fValue = m_pDraggedNote->get_velocity();
+		}
+		else if ( m_mode == Mode::Pan ) {
+			fValue = m_pDraggedNote->getPanWithRangeFrom0To1();
+		}
+		else if ( m_mode == Mode::LeadLag ) {
+			fValue = ( m_pDraggedNote->get_lead_lag() - 1.0 ) / -2.0 ;
+		}
+		else if ( m_mode == Mode::Probability ) {
+			fValue = m_pDraggedNote->get_probability();
+		}
+		
+		float fMoveY = m_nOldPoint - ev->y();
+		fValue = fValue  + (fMoveY / 100);
+		if ( fValue > 1 ) {
+			fValue = 1;
+		}
+		else if ( fValue < 0.0 ) {
+			fValue = 0.0;
+		}
+
+		if ( m_mode == Mode::Velocity ) {
+			m_pDraggedNote->set_velocity( fValue );
+			m_fVelocity = fValue;
+		}
+		else if ( m_mode == Mode::Pan ) {
+			m_pDraggedNote->setPanWithRangeFrom0To1( fValue );
+			m_fPan = m_pDraggedNote->getPan();
+		}
+		else if ( m_mode == Mode::LeadLag ) {
+			m_pDraggedNote->set_lead_lag( ( fValue * -2.0 ) + 1.0 );
+			m_fLeadLag = ( fValue * -2.0 ) + 1.0;
+		}
+		else if ( m_mode == Mode::Probability ) {
+			m_pDraggedNote->set_probability( fValue );
+			m_fProbability = fValue;
+		}
+
+		PatternEditor::triggerStatusMessage( m_pDraggedNote, m_mode );
+		
+		m_nOldPoint = ev->y();
+	}
+
+	m_pAudioEngine->unlock(); // unlock the audio engine
+	Hydrogen::get_instance()->setIsModified( true );
+
+	if ( m_pPatternEditorPanel != nullptr ) {
+		m_pPatternEditorPanel->updateEditors( true );
+	}
+}
+
+void PatternEditor::mouseDragEndEvent( QMouseEvent* ev ) {
+
+	UNUSED( ev );
+	unsetCursor();
+	
+	if ( m_pPattern == nullptr || m_nSelectedPatternNumber == -1 ) {
+		return;
+	}
+
+	if ( m_pDraggedNote == nullptr || m_pDraggedNote->get_note_off() ) {
+		return;
+	}
+
+	if ( m_pDraggedNote->get_length() != m_nOldLength ) {
+		SE_editNoteLengthAction *action =
+			new SE_editNoteLengthAction( m_pDraggedNote->get_position(),
+										 m_pDraggedNote->get_position(),
+										 m_nRow,
+										 m_pDraggedNote->get_length(),
+										 m_nOldLength,
+										 m_nSelectedPatternNumber,
+										 m_nSelectedInstrumentNumber,
+										 m_editor );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
+	}
+
+
+	if( m_fVelocity == m_fOldVelocity &&
+		m_fOldPan == m_fPan &&
+		m_fOldLeadLag == m_fLeadLag &&
+		m_fOldProbability == m_fProbability ) {
+		return;
+	}
+		
+	SE_editNotePropertiesAction *action =
+		new SE_editNotePropertiesAction( m_pDraggedNote->get_position(),
+										 m_pDraggedNote->get_position(),
+										 m_nRow,
+										 m_nSelectedPatternNumber,
+										 m_nSelectedInstrumentNumber,
+										 m_mode,
+										 m_editor,
+										 m_fVelocity,
+										 m_fOldVelocity,
+										 m_fPan,
+										 m_fOldPan,
+										 m_fLeadLag,
+										 m_fOldLeadLag,
+										 m_fProbability,
+										 m_fOldProbability );
+	HydrogenApp::get_instance()->m_pUndoStack->push( action );
+}
+
+void PatternEditor::editNoteLengthAction( int nColumn,
+										  int nRealColumn,
+										  int nRow,
+										  int nLength,
+										  int nSelectedPatternNumber,
+										  int nSelectedInstrumentnumber,
+										  Editor editor)
+{
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pPatternList = pSong->getPatternList();
+
+	H2Core::Pattern* pPattern = nullptr;
+	if ( nSelectedPatternNumber != -1 &&
+		 nSelectedPatternNumber < pPatternList->size() ) {
+		pPattern = pPatternList->get( nSelectedPatternNumber );
+	}
+
+	if ( pPattern == nullptr ) {
+		return;
+	}
+
+	m_pAudioEngine->lock( RIGHT_HERE );
+
+	// Find the note to edit
+	Note* pDraggedNote = nullptr;
+	if ( editor == Editor::PianoRoll ) {
+		auto pSelectedInstrument =
+			pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
+		
+		Note::Octave pressedOctave = Note::pitchToOctave( lineToPitch( nRow ) );
+		Note::Key pressedNoteKey = Note::pitchToKey( lineToPitch( nRow ) );
+
+		auto pDraggedNote = pPattern->find_note( nColumn, nRealColumn,
+												 pSelectedInstrument,
+												 pressedNoteKey, pressedOctave,
+												 false );
+	}
+	else if ( editor == Editor::DrumPattern ) {
+		auto pSelectedInstrument = pSong->getInstrumentList()->get( nRow );
+		pDraggedNote = pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
+	}
+	else {
+		ERRORLOG( QString( "Unsupported editor [%1]" )
+				  .arg( static_cast<int>(editor) ) );
+		m_pAudioEngine->unlock();
+		return;
+	}	
+		
+	if ( pDraggedNote != nullptr ){
+		pDraggedNote->set_length( nLength );
+	}
+
+	m_pAudioEngine->unlock();
+	
+	pHydrogen->setIsModified( true );
+
+	if ( m_pPatternEditorPanel != nullptr ) {
+		m_pPatternEditorPanel->updateEditors( true );
+	}
+}
+
+
+void PatternEditor::editNotePropertiesAction( int nColumn,
+											  int nRealColumn,
+											  int nRow,
+											  int nSelectedPatternNumber,
+											  int nSelectedInstrumentNumber,
+											  Mode mode,
+											  Editor editor,
+											  float fVelocity,
+											  float fPan,
+											  float fLeadLag,
+											  float fProbability )
+{
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	auto pPatternList = pSong->getPatternList();
+
+	H2Core::Pattern* pPattern = nullptr;
+	if ( nSelectedPatternNumber != -1 &&
+		 nSelectedPatternNumber < pPatternList->size() ) {
+		pPattern = pPatternList->get( nSelectedPatternNumber );
+	}
+
+	if ( pPattern == nullptr ) {
+		return;
+	}
+
+	m_pAudioEngine->lock( RIGHT_HERE );
+
+	// Find the note to edit
+	Note* pDraggedNote = nullptr;
+	if ( editor == Editor::PianoRoll ) {
+		
+		auto pSelectedInstrument =
+			pSong->getInstrumentList()->get( nSelectedInstrumentNumber );
+		
+		Note::Octave pressedOctave = Note::pitchToOctave( lineToPitch( nRow ) );
+		Note::Key pressedNoteKey = Note::pitchToKey( lineToPitch( nRow ) );
+
+		pDraggedNote = pPattern->find_note( nColumn, nRealColumn,
+												 pSelectedInstrument,
+												 pressedNoteKey, pressedOctave,
+												 false );
+	}
+	else if ( editor == Editor::DrumPattern ) {
+		auto pSelectedInstrument = pSong->getInstrumentList()->get( nRow );
+		pDraggedNote = pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
+	}
+	else {
+		ERRORLOG( QString( "Unsupported editor [%1]" )
+				  .arg( static_cast<int>(editor) ) );
+		m_pAudioEngine->unlock();
+		return;
+	}
+
+	bool bValueChanged = true;
+
+	if ( pDraggedNote != nullptr ){
+		switch ( mode ) {
+		case Mode::Velocity:
+			pDraggedNote->set_velocity( fVelocity );
+			break;
+		case Mode::Pan:
+			pDraggedNote->setPan( fPan );
+			break;
+		case Mode::LeadLag:
+			pDraggedNote->set_lead_lag( fLeadLag );
+			break;
+		case Mode::Probability:
+			pDraggedNote->set_probability( fProbability );
+			break;
+		}			
+		bValueChanged = true;
+		PatternEditor::triggerStatusMessage( pDraggedNote, mode );
+	} else {
+		ERRORLOG("note could not be found");
+	}
+
+	m_pAudioEngine->unlock();
+
+	if ( bValueChanged &&
+		 m_pPatternEditorPanel != nullptr ) {
+		pHydrogen->setIsModified( true );
+		m_pPatternEditorPanel->updateEditors( true );
+	}
+}
+
+					
+QString PatternEditor::modeToQString( Mode mode ) {
+	QString s;
+	
+	switch ( mode ) {
+	case PatternEditor::Mode::Velocity:
+		s = "Velocity";
+		break;
+	case PatternEditor::Mode::Pan:
+		s = "Pan";
+		break;
+	case PatternEditor::Mode::LeadLag:
+		s = "LeadLag";
+		break;
+	case PatternEditor::Mode::NoteKey:
+		s = "NoteKey";
+		break;
+	case PatternEditor::Mode::Probability:
+		s = "Probability";
+		break;
+	default:
+		s = QString( "Unknown mode [%1]" ).arg( static_cast<int>(mode) ) ;
+		break;
+	}
+
+	return s;
+}
+
+void PatternEditor::triggerStatusMessage( Note* pNote, Mode mode ) {
+	QString s;
+	QString sUnit( tr( "ticks" ) );
+	float fValue;
+	
+	switch ( mode ) {
+	case PatternEditor::Mode::Velocity:
+		if ( ! pNote->get_note_off() ) {
+			s = QString( tr( "Set note velocity" ) )
+				.append( QString( ": [%1]")
+						 .arg( pNote->get_velocity(), 2, 'f', 2 ) );
+		}
+		break;
+		
+	case PatternEditor::Mode::Pan:
+		if ( ! pNote->get_note_off() ) {
+
+			// Round the pan to not miss the center due to fluctuations
+			fValue = pNote->getPan() * 100;
+			fValue = std::round( fValue );
+			fValue = fValue / 100;
+			
+			if ( fValue > 0.0 ) {
+				s = QString( tr( "Note panned to the right by" ) ).
+					append( QString( ": [%1]" ).arg( fValue / 2, 2, 'f', 2 ) );
+			} else if ( fValue < 0.0 ) {
+				s = QString( tr( "Note panned to the left by" ) ).
+					append( QString( ": [%1]" ).arg( -1 * fValue / 2, 2, 'f', 2 ) );
+			} else {
+				s = QString( tr( "Note centered" ) );
+			}
+		}
+		break;
+		
+	case PatternEditor::Mode::LeadLag:
+		// Round the pan to not miss the center due to fluctuations
+		fValue = pNote->get_lead_lag() * 100;
+		fValue = std::round( fValue );
+		fValue = fValue / 100;
+		if ( fValue < 0.0 ) {
+			s = QString( tr( "Leading beat by" ) )
+				.append( QString( ": [%1] " )
+						 .arg( fValue * -1 *
+							   AudioEngine::getLeadLagInTicks() , 2, 'f', 2 ) )
+				.append( sUnit );
+		}
+		else if ( fValue > 0.0 ) {
+			s = QString( tr( "Lagging beat by" ) )
+				.append( QString( ": [%1] " )
+						 .arg( fValue *
+							   AudioEngine::getLeadLagInTicks() , 2, 'f', 2 ) )
+				.append( sUnit );
+		}
+		else {
+			s = tr( "Note on beat" );
+		}
+		break;
+
+	case PatternEditor::Mode::NoteKey:
+		s = QString( tr( "Set pitch" ) ).append( ": " ).append( tr( "key" ) )
+			.append( QString( " [%1], " ).arg( Note::KeyToQString( pNote->get_key() ) ) )
+			.append( tr( "octave" ) )
+			.append( QString( ": [%1]" ).arg( pNote->get_octave() ) );
+		break;
+
+	case PatternEditor::Mode::Probability:
+		if ( ! pNote->get_note_off() ) {
+			s = tr( "Set note probability to" )
+				.append( QString( ": [%1]" ).arg( pNote->get_probability(), 2, 'f', 2 ) );
+		}
+		break;
+
+	default:
+		ERRORLOG( PatternEditor::modeToQString( mode ) );
+	}
+
+	if ( ! s.isEmpty() ) {
+		HydrogenApp::get_instance()->setStatusBarMessage( s, 2000 );
+	}
 }

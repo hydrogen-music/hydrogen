@@ -346,6 +346,20 @@ class Note : public H2Core::Object<Note>
 			return pow( 1.0594630943593, fPitch );
 		}
 
+		static inline Octave pitchToOctave( int nPitch ) {
+			if ( nPitch >= 0 ) {
+				return (Octave)(nPitch / 12);
+			} else {
+				return (Octave)((nPitch-11) / 12);
+			}
+		}
+		static inline Key pitchToKey( int nPitch ) {
+			return (Key)(nPitch - 12 * pitchToOctave( nPitch ));
+		}
+		static inline int octaveKeyToPitch( Octave octave, Key key ) {
+			return 12 * (int)octave + (int)key;
+		}
+
 	/**
 	 * Returns the sample associated with the note for a specific
 	 * InstrumentComponent @a nComponentID.
