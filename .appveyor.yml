@@ -246,7 +246,7 @@ for:
               cd build &&                                                       \
               cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. &&       \
               make -j $CPUS
-      )
+      ) || exit 1
 
       # Build installation DMG
       (
@@ -258,7 +258,7 @@ for:
         if [ "$APPVEYOR_REPO_BRANCH" = "$ARTIFACT_BRANCH" ]; then
             appveyor PushArtifact Hydrogen*.dmg -DeploymentName Installer;
         fi
-      ) | sed 's/^/DMG: /' &
+      ) || exit 1
 
 
     test_script: |-
