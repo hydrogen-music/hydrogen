@@ -332,7 +332,7 @@ void PatternEditorRuler::createBackground()
 
 	QPainter painter( m_pBackground );
 	
-	painter.fillRect( QRect( 1, 1, width() - 2, height() - 2 ), backgroundColor );
+	painter.fillRect( QRect( 0, 0, width(), height() ), backgroundColor );
 
 	// gray background for unusable section of pattern
 	if ( m_nRulerWidth - m_nWidthActive != 0 ) {

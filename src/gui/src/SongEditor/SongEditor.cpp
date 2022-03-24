@@ -2467,7 +2467,7 @@ void SongEditorPositionRuler::createBackground()
 	int nActiveWidth = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
 										 static_cast<float>(m_nActiveColumns) *
 										 static_cast<float>(m_nGridWidth) );
-	p.fillRect( 0, 0, width(), 24, backgroundColorTempoMarkers );
+	p.fillRect( 0, 0, width(), height(), backgroundColorTempoMarkers );
 	p.fillRect( 0, 25, nActiveWidth, height() - 25, backgroundColor );
 	p.fillRect( nActiveWidth, 25, width() - nActiveWidth, height() - 25,
 				backgroundInactiveColor );
