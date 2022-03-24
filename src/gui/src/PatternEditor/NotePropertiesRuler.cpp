@@ -876,7 +876,11 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 	}
 
 	QPainter painter(this);
-	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, ev->rect() );
+	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap,
+						QRectF( pixelRatio * ev->rect().x(),
+								pixelRatio * ev->rect().y(),
+								pixelRatio * ev->rect().width(),
+								pixelRatio * ev->rect().height() ) );
 
 	// Draw playhead
 	if ( m_nTick != -1 ) {

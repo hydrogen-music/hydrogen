@@ -163,7 +163,11 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 	if ( m_bNeedsUpdate ) {
 		finishUpdateEditor();
 	}
-	painter.drawPixmap( ev->rect(), *m_pTemp, ev->rect() );
+	painter.drawPixmap( ev->rect(), *m_pTemp,
+						QRectF( pixelRatio * ev->rect().x(),
+								pixelRatio * ev->rect().y(),
+								pixelRatio * ev->rect().width(),
+								pixelRatio * ev->rect().height() ) );
 
 	// Draw playhead
 	if ( m_nTick != -1 ) {
@@ -250,6 +254,9 @@ void PianoRollEditor::createBackground()
 		delete m_pBackgroundPixmap;
 		m_pBackgroundPixmap = new QPixmap( width()  * pixelRatio , height() * pixelRatio );
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+		delete m_pTemp;
+		m_pTemp = new QPixmap( width()  * pixelRatio , height() * pixelRatio );
+		m_pTemp->setDevicePixelRatio( pixelRatio );
 	}
 
 	m_pBackgroundPixmap->fill( backgroundInactiveColor );
@@ -353,10 +360,15 @@ void PianoRollEditor::drawPattern()
 
 	validateSelection();
 
+	qreal pixelRatio = devicePixelRatio();
+	
 	QPainter p( m_pTemp );
 	// copy the background image
-	p.drawPixmap( rect(), *m_pBackgroundPixmap, rect() );
-
+	p.drawPixmap( rect(), *m_pBackgroundPixmap,
+						QRectF( pixelRatio * rect().x(),
+								pixelRatio * rect().y(),
+								pixelRatio * rect().width(),
+								pixelRatio * rect().height() ) );
 
 	// for each note...
 	for ( Pattern *pPattern : getPatternsToShow() ) {

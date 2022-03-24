@@ -42,8 +42,11 @@ using namespace H2Core;
 PlaybackTrackWaveDisplay::PlaybackTrackWaveDisplay(QWidget* pParent)
  : WaveDisplay( pParent )
  , m_fTick( 0 )
- , m_pBackgroundPixmap( nullptr )
 {
+	qreal pixelRatio = devicePixelRatio();
+	m_pBackgroundPixmap = new QPixmap( width() * pixelRatio,
+									   height() * pixelRatio );
+	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 	
 	setAcceptDrops(true);
 }
@@ -86,34 +89,27 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 
 	QColor defaultColor = pPref->getColorTheme()->m_songEditor_backgroundColor;
 	
-	int currentWidth = width();
-
-	
-	if( pLayer == nullptr || currentWidth <= 0 ){
-		m_pLayer = nullptr;
-		m_sSampleName = "-";
-
-		if ( m_pBackgroundPixmap != nullptr ) {
-			delete m_pBackgroundPixmap;
-		}
-		m_pBackgroundPixmap = nullptr;
-		update();
-		return;
-	}
-
 	// Resize pixmap if pixel ratio has changed
 	qreal pixelRatio = devicePixelRatio();
-	if ( m_pBackgroundPixmap == nullptr ||
-		 m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ||
+	if ( m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ||
 		 width() != m_pBackgroundPixmap->width() ||
 		 height() != m_pBackgroundPixmap->height() ) {
-		if ( m_pBackgroundPixmap != nullptr ) {
-			delete m_pBackgroundPixmap;
-		}
+		delete m_pBackgroundPixmap;
 		m_pBackgroundPixmap = new QPixmap( width()  * pixelRatio , height() * pixelRatio );
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 	}
 
+	int currentWidth = width();
+
+	if( pLayer == nullptr || currentWidth <= 0 ){
+		m_pLayer = nullptr;
+		m_sSampleName = tr( "No playback track selected" );
+
+		QPainter painter( m_pBackgroundPixmap );
+		createBackground( &painter );
+		update();
+		return;
+	}
 	
 	if(currentWidth != m_nCurrentWidth){
 		delete[] m_pPeakData;
@@ -232,24 +228,20 @@ void PlaybackTrackWaveDisplay::paintEvent( QPaintEvent *ev ) {
 	}
 
 	QPainter painter( this );
-	if ( m_pBackgroundPixmap != nullptr ) {
-		if ( width() != m_pBackgroundPixmap->width() ||
-			 height() != m_pBackgroundPixmap->height() ) {
-			updateDisplay( m_pLayer );
-		}
 	
-		qreal pixelRatio = devicePixelRatio();
-		if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
-			QPainter backgroundPainter( m_pBackgroundPixmap );
-			createBackground( &backgroundPainter );
-		}
-		// Render the wave display.
-		painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, ev->rect() );
-	} else {
-		// No layer set yet. Render the default background
-		// Render the wave display.
-		painter.drawPixmap( ev->rect(), m_Background, ev->rect() );
+	qreal pixelRatio = devicePixelRatio();
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
+		 width() != m_pBackgroundPixmap->width() ||
+		 height() != m_pBackgroundPixmap->height() ) {
+		updateDisplay( m_pLayer );
 	}
+	
+	// Render the wave display.
+	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap,
+						QRectF( pixelRatio * ev->rect().x(),
+								pixelRatio * ev->rect().y(),
+								pixelRatio * ev->rect().width(),
+								pixelRatio * ev->rect().height() ) );
 
 	// Draw playhead
 	auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();

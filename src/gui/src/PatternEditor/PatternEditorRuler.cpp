@@ -65,7 +65,6 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	m_pBackgroundPixmap = new QPixmap( m_nRulerWidth * pixelRatio,
 									   m_nRulerHeight * pixelRatio );
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
-	createBackground();
 
 	m_pTimer = new QTimer(this);
 	connect(m_pTimer, &QTimer::timeout, [=]() {
@@ -75,6 +74,7 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 		}
 	});
 
+	// Will set the active width and calls createBackground.
 	updateActiveRange();
 
 	HydrogenApp::get_instance()->addEventListener( this );
