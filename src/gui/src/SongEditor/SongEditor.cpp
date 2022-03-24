@@ -2543,7 +2543,7 @@ void SongEditorPositionRuler::createBackground()
 
 	p.setPen( QColor(35, 39, 51) );
 	p.drawLine( 0, 0, width(), 0 );
-	p.drawLine( 0, height() - 26, width(), height() - 26 );
+	p.drawLine( 0, height() - 25, width(), height() - 25 );
 	p.drawLine( 0, height(), width(), height() );
 }
 

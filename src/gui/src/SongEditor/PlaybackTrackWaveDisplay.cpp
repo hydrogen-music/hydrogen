@@ -262,7 +262,7 @@ void PlaybackTrackWaveDisplay::paintEvent( QPaintEvent *ev ) {
 									   static_cast<float>(Skin::nPlayheadWidth) / 2 );
 			int nOffset = Skin::getPlayheadShaftOffset();
 			Skin::setPlayheadPen( &painter, false );
-			painter.drawLine( nX + nOffset, 2, nX + nOffset, height() - 2 );
+			painter.drawLine( nX + nOffset, 0, nX + nOffset, height() );
 		}
 	}
 

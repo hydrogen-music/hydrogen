@@ -1271,7 +1271,7 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 								  static_cast<float>(m_nTick) *
 								  m_fGridWidth ) + 1;
 		Skin::setPlayheadPen( &painter, false );
-		painter.drawLine( nX, 2, nX, height() - 2 );
+		painter.drawLine( nX, 0, nX, height() );
 	}
 	
 	drawFocus( painter );

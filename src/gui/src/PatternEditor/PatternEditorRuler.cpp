@@ -62,9 +62,9 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	resize( m_nRulerWidth, m_nRulerHeight );
 
 	qreal pixelRatio = devicePixelRatio();
-	m_pBackground = new QPixmap( m_nRulerWidth * pixelRatio,
+	m_pBackgroundPixmap = new QPixmap( m_nRulerWidth * pixelRatio,
 									   m_nRulerHeight * pixelRatio );
-	m_pBackground->setDevicePixelRatio( pixelRatio );
+	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 	createBackground();
 
 	m_pTimer = new QTimer(this);
@@ -315,14 +315,15 @@ void PatternEditorRuler::createBackground()
 	}
 	auto pPref = H2Core::Preferences::get_instance();
 
-	if ( m_pBackground ) {
-		delete m_pBackground;
-	}
-
-	// Create new background pixmap at native device pixelratio
+	// Resize pixmap if pixel ratio has changed
 	qreal pixelRatio = devicePixelRatio();
-	m_pBackground = new QPixmap( pixelRatio * QSize( m_nRulerWidth, m_nRulerHeight ) );
-	m_pBackground->setDevicePixelRatio( pixelRatio );
+	if ( m_pBackgroundPixmap->width() != m_nRulerWidth ||
+		 m_pBackgroundPixmap->height() != m_nRulerHeight ||
+		 m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
+		delete m_pBackgroundPixmap;
+		m_pBackgroundPixmap = new QPixmap( width()  * pixelRatio , height() * pixelRatio );
+		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+	}
 
 	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_alternateRowColor.darker( 120 ) );
 	QColor textColor = pPref->getColorTheme()->m_patternEditor_textColor;
@@ -330,7 +331,7 @@ void PatternEditorRuler::createBackground()
 	
 	QColor lineColor = pPref->getColorTheme()->m_patternEditor_lineColor;
 
-	QPainter painter( m_pBackground );
+	QPainter painter( m_pBackgroundPixmap );
 	
 	painter.fillRect( QRect( 0, 0, width(), height() ), backgroundColor );
 
@@ -346,7 +347,7 @@ void PatternEditorRuler::createBackground()
 	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	painter.setFont(font);
 	painter.drawLine( 0, 0, m_nRulerWidth, 0 );
-	painter.drawLine( 0, m_nRulerHeight - 1, m_nRulerWidth - 1, m_nRulerHeight - 1);
+	painter.drawLine( 0, m_nRulerHeight, m_nRulerWidth, m_nRulerHeight);
 
 	uint nQuarter = 48;
 
@@ -366,7 +367,7 @@ void PatternEditorRuler::createBackground()
 	painter.setPen( textColor );
 	for ( int ii = 0; ii < 64 ; ii += 4 ) {
 		int nText_x = PatternEditor::nMargin + nQuarter / 4 * ii * m_fGridWidth;
-		painter.drawLine( nText_x, height() - 13, nText_x, height() - 2 );
+		painter.drawLine( nText_x, height() - 13, nText_x, height() - 1 );
 		painter.drawText( nText_x + 3, 0, 60, m_nRulerHeight,
 						  Qt::AlignVCenter | Qt::AlignLeft,
 						  QString("%1").arg(ii / 4 + 1) );
@@ -380,7 +381,7 @@ void PatternEditorRuler::createBackground()
 		fStep = 4 * MAX_NOTES / ( 4 * nResolution ) * m_fGridWidth;
 	}
 	for ( float xx = PatternEditor::nMargin; xx < m_nWidthActive; xx += fStep ) {
-		painter.drawLine( xx, height() - 5, xx, height() - 2 );
+		painter.drawLine( xx, height() - 5, xx, height() - 1 );
 	}
 
 }
@@ -402,13 +403,13 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 	}
 
 	qreal pixelRatio = devicePixelRatio();
-	if ( pixelRatio != m_pBackground->devicePixelRatio() ) {
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ) {
 		createBackground();
 	}
 
 	QPainter painter(this);
 
-	painter.drawPixmap( ev->rect(), *m_pBackground, QRectF( pixelRatio * ev->rect().x(),
+	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, QRectF( pixelRatio * ev->rect().x(),
 															pixelRatio * ev->rect().y(),
 															pixelRatio * ev->rect().width(),
 															pixelRatio * ev->rect().height() ) );
@@ -478,7 +479,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 								  m_fGridWidth) + 1;
 
 		Skin::drawPlayhead( &painter, x - nOffset, 3, false );
-		painter.drawLine( x, 8, x, height() - 2 );
+		painter.drawLine( x, 8, x, height() - 1 );
 	}
 
 	// Display playhead on hovering
@@ -490,7 +491,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 		if ( x < m_nWidthActive ) {
 			int nOffset = Skin::getPlayheadShaftOffset();
 			Skin::drawPlayhead( &painter, x - nOffset, 3, true );
-			painter.drawLine( x, 8, x, height() - 2 );
+			painter.drawLine( x, 8, x, height() - 1 );
 		}
 	}
 }

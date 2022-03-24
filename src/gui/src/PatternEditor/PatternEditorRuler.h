@@ -90,7 +90,7 @@ class PatternEditorRuler :  public QWidget, protected WidgetWithScalableFont<8, 
 		uint m_nRulerHeight;
 		float m_fGridWidth;
 
-		QPixmap *m_pBackground;
+		QPixmap *m_pBackgroundPixmap;
 
 		QTimer *m_pTimer;
 		int m_nTick;
