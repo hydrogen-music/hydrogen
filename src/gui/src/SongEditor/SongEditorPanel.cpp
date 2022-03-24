@@ -374,7 +374,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 		m_pAutomationPathScrollView->hide();
 		m_pAutomationCombo->hide();
 	}
-	
+
 	this->setLayout( pGridLayout );
 	QPalette defaultPalette;
 	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );

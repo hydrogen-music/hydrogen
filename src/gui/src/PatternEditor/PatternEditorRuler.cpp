@@ -346,8 +346,6 @@ void PatternEditorRuler::createBackground()
 
 	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	painter.setFont(font);
-	painter.drawLine( 0, 0, m_nRulerWidth, 0 );
-	painter.drawLine( 0, m_nRulerHeight, m_nRulerWidth, m_nRulerHeight);
 
 	uint nQuarter = 48;
 
@@ -383,6 +381,10 @@ void PatternEditorRuler::createBackground()
 	for ( float xx = PatternEditor::nMargin; xx < m_nWidthActive; xx += fStep ) {
 		painter.drawLine( xx, height() - 5, xx, height() - 1 );
 	}
+
+	painter.setPen( QPen( lineColor, 2, Qt::SolidLine ) );
+	painter.drawLine( 0, m_nRulerHeight, m_nRulerWidth, m_nRulerHeight);
+	painter.drawLine( m_nRulerWidth, 0, m_nRulerWidth, m_nRulerHeight );
 
 }
 
@@ -476,7 +478,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 		int nOffset = Skin::getPlayheadShaftOffset();
 		int x = static_cast<int>(static_cast<float>(PatternEditor::nMargin) +
 								  static_cast<float>(m_nTick) *
-								  m_fGridWidth) + 1;
+								  m_fGridWidth);
 
 		Skin::drawPlayhead( &painter, x - nOffset, 3, false );
 		painter.drawLine( x, 8, x, height() - 1 );
@@ -484,7 +486,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 	// Display playhead on hovering
 	if ( m_nHoveredColumn > -1 ) {
-		int x = PatternEditor::nMargin + 1 +
+		int x = PatternEditor::nMargin +
 			static_cast<int>(m_nHoveredColumn * 4 * static_cast<float>(MAX_NOTES) /
 							 ( fTripletFactor * fResolution ) * m_fGridWidth);
 

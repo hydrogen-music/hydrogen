@@ -665,12 +665,12 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 
 		// First, quarter note markers. All the quarter note markers must be drawn.
 		if ( m_nResolution >= nRes ) {
-			p.setPen( QPen( colorsActive[ 0 ], 0, style ) );
+			p.setPen( QPen( colorsActive[ 0 ], 1, style ) );
 			for ( float x = PatternEditor::nMargin ; x < m_nActiveWidth; x += fStep ) {
 				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 			}
 			
-			p.setPen( QPen( colorsInactive[ 0 ], 0, style ) );
+			p.setPen( QPen( colorsInactive[ 0 ], 1, style ) );
 			for ( float x = m_nActiveWidth ; x < m_nEditorWidth; x += fStep ) {
 				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 			}
@@ -684,12 +684,12 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		int nColour = 1;
 		while ( m_nResolution >= nRes ) {
 			nColour++;
-			p.setPen( QPen( colorsActive[ nColour ], 0, style ) );
+			p.setPen( QPen( colorsActive[ nColour ], 1, style ) );
 			for ( float x = PatternEditor::nMargin + fStep; x < m_nActiveWidth + fStep; x += fStep * 2) {
 				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 			}
 			
-			p.setPen( QPen( colorsInactive[ nColour ], 0, style ) );
+			p.setPen( QPen( colorsInactive[ nColour ], 1, style ) );
 			for ( float x = m_nActiveWidth + fStep; x < m_nEditorWidth; x += fStep * 2) {
 				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 			}
@@ -703,24 +703,24 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		// Triplet style markers, we only differentiate colours on the
 		// first of every triplet.
 		float fStep = granularity() * m_fGridWidth;
-		p.setPen(  QPen( colorsActive[ 0 ], 0, style ) );
+		p.setPen(  QPen( colorsActive[ 0 ], 1, style ) );
 		for ( float x = PatternEditor::nMargin; x < m_nActiveWidth; x += fStep * 3 ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 		}
 		
-		p.setPen(  QPen( colorsInactive[ 0 ], 0, style ) );
+		p.setPen(  QPen( colorsInactive[ 0 ], 1, style ) );
 		for ( float x = m_nActiveWidth; x < m_nEditorWidth; x += fStep * 3 ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 		}
 		
 		// Second and third marks
-		p.setPen(  QPen( colorsActive[ 2 ], 0, style ) );
+		p.setPen(  QPen( colorsActive[ 2 ], 1, style ) );
 		for ( float x = PatternEditor::nMargin + fStep; x < m_nActiveWidth + fStep; x += fStep * 3 ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 			p.drawLine(x + fStep, 1, x + fStep, m_nEditorHeight - 1);
 		}
 		
-		p.setPen( QPen( colorsInactive[ 2 ], 0, style ) );
+		p.setPen( QPen( colorsInactive[ 2 ], 1, style ) );
 		for ( float x = m_nActiveWidth + fStep; x < m_nEditorWidth; x += fStep * 3 ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 			p.drawLine(x + fStep, 1, x + fStep, m_nEditorHeight - 1);

@@ -888,7 +888,7 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 		int nOffset = Skin::getPlayheadShaftOffset();
 		int nX = static_cast<int>(static_cast<float>(PatternEditor::nMargin) +
 								  static_cast<float>(m_nTick) *
-								  m_fGridWidth ) + 1;
+								  m_fGridWidth );
 		Skin::setPlayheadPen( &painter, false );
 		painter.drawLine( nX, 0, nX, height() );
 	}
@@ -1109,16 +1109,18 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 		}
 	}
 	
-	p.setPen( QPen( borderColor, 1 ) );
+	p.setPen( borderColor );
 	p.setRenderHint( QPainter::Antialiasing );
 	p.drawLine( 0, 0, m_nEditorWidth, 0 );
-	p.drawLine( 0, m_nEditorHeight - 1, m_nEditorWidth, m_nEditorHeight - 1 );
+	p.setPen( QPen( borderColor, 2 ) );
+	p.drawLine( 0, m_nEditorHeight, m_nEditorWidth, m_nEditorHeight );
 	
 	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
 		p.setPen( lineInactiveColor );
 		p.drawLine( m_nActiveWidth, 0, m_nEditorWidth, 0 );
-		p.drawLine( m_nActiveWidth, m_nEditorHeight - 1,
-					m_nEditorWidth, m_nEditorHeight - 1 );
+		p.setPen( QPen( lineInactiveColor, 2 ) );
+		p.drawLine( m_nActiveWidth, m_nEditorHeight,
+					m_nEditorWidth, m_nEditorHeight );
 	}
 }
 
@@ -1223,17 +1225,20 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 			}
 		}
 	}
+
 	
-	p.setPen( QPen( borderColor, 1 ) );
+	p.setPen( borderColor );
 	p.setRenderHint( QPainter::Antialiasing );
-	p.drawLine( 0, 0, m_nActiveWidth, 0 );
-	p.drawLine( 0, m_nEditorHeight - 1, m_nActiveWidth, m_nEditorHeight - 1 );
+	p.drawLine( 0, 0, m_nEditorWidth, 0 );
+	p.setPen( QPen( borderColor, 2 ) );
+	p.drawLine( 0, m_nEditorHeight, m_nEditorWidth, m_nEditorHeight );
 	
 	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
 		p.setPen( lineInactiveColor );
 		p.drawLine( m_nActiveWidth, 0, m_nEditorWidth, 0 );
-		p.drawLine( m_nActiveWidth, m_nEditorHeight - 1,
-					m_nEditorWidth, m_nEditorHeight - 1 );
+		p.setPen( QPen( lineInactiveColor, 2 ) );
+		p.drawLine( m_nActiveWidth, m_nEditorHeight,
+					m_nEditorWidth, m_nEditorHeight );
 	}
 }
 
@@ -1356,6 +1361,20 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 				}
 			}
 		}
+	}
+	
+	p.setPen( lineColor );
+	p.setRenderHint( QPainter::Antialiasing );
+	p.drawLine( 0, 0, m_nEditorWidth, 0 );
+	p.setPen( QPen( lineColor, 2 ) );
+	p.drawLine( 0, m_nEditorHeight, m_nEditorWidth, m_nEditorHeight );
+	
+	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
+		p.setPen( lineInactiveColor );
+		p.drawLine( m_nActiveWidth, 0, m_nEditorWidth, 0 );
+		p.setPen( QPen( lineInactiveColor, 2 ) );
+		p.drawLine( m_nActiveWidth, m_nEditorHeight,
+					m_nEditorWidth, m_nEditorHeight );
 	}
 }
 

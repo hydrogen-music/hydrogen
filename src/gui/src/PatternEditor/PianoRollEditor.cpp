@@ -175,7 +175,7 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 		int nOffset = Skin::getPlayheadShaftOffset();
 		int nX = static_cast<int>(static_cast<float>(PatternEditor::nMargin) +
 								  static_cast<float>(m_nTick) *
-								  m_fGridWidth ) + 1;
+								  m_fGridWidth );
 		Skin::setPlayheadPen( &painter, false );
 		painter.drawLine( nX, 2, nX, height() - 2 );
 	}
@@ -351,6 +351,9 @@ void PianoRollEditor::createBackground()
 
 	drawGridLines( p, Qt::DashLine );
 	drawPattern();
+	
+	p.setPen( QPen( lineColor, 2, Qt::SolidLine ) );
+	p.drawLine( m_nEditorWidth, 0, m_nEditorWidth, m_nEditorHeight );
 }
 
 

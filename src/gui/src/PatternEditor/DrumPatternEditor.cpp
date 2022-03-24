@@ -1175,7 +1175,7 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 	}
 
 	// horizontal lines
-	p.setPen( lineColor );
+	p.setPen( QPen( lineColor, 2, Qt::SolidLine ) );
 	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
 		uint y = m_nGridHeight * i + m_nGridHeight;
 		p.drawLine( 0, y, m_nActiveWidth, y);
@@ -1200,7 +1200,7 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 	// The grid lines above are drawn full height. We will erase the
 	// upper part.
 	for ( int ii = 0; ii < nInstruments; ii++ ) {
-		int y = static_cast<int>(m_nGridHeight) * ii + 1;
+		int y = static_cast<int>(m_nGridHeight) * ii;
 		if ( ii == nSelectedInstrument ) {
 			p.fillRect( 0, y, m_nActiveWidth, (int)( m_nGridHeight * 0.7 ), selectedRowColor );
 		} else {
@@ -1224,7 +1224,9 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 		p.setPen( lineInactiveColor );
 		p.drawLine( m_nActiveWidth - 1, m_nEditorHeight - 1, m_nEditorWidth - 1, m_nEditorHeight - 1 );
 	}
-	p.drawLine( m_nEditorWidth - 1, 0, m_nEditorWidth - 1, m_nEditorHeight - 1 );
+	
+	p.setPen( QPen( lineColor, 2, Qt::SolidLine ) );
+	p.drawLine( m_nEditorWidth, 0, m_nEditorWidth, m_nEditorHeight );
 
 }
 
@@ -1272,7 +1274,7 @@ void DrumPatternEditor::paintEvent( QPaintEvent* ev )
 		int nOffset = Skin::getPlayheadShaftOffset();
 		int nX = static_cast<int>(static_cast<float>(PatternEditor::nMargin) +
 								  static_cast<float>(m_nTick) *
-								  m_fGridWidth ) + 1;
+								  m_fGridWidth );
 		Skin::setPlayheadPen( &painter, false );
 		painter.drawLine( nX, 0, nX, height() );
 	}

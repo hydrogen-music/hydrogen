@@ -22,6 +22,7 @@
 
 #include "AutomationPathView.h"
 #include "../SongEditor/SongEditor.h"
+#include "../SongEditor/SongEditorPanel.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
@@ -176,14 +177,19 @@ void AutomationPathView::paintEvent(QPaintEvent *ev)
 								pixelRatio * ev->rect().height() ) );
 
 	// Draw playhead
-	if ( m_fTick != -1 ) {
+	//
+	// Using the grid width of the song editor over class' own one is
+	// crucial in order to keep the full-height playhead in sync.
+	auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();
+	if ( m_fTick != -1 && pSongEditorPanel != nullptr ) {
 		int nOffset = Skin::getPlayheadShaftOffset();
 		int nX = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
 								   m_fTick *
-								   static_cast<float>(m_nGridWidth) -
+								   static_cast<float>(pSongEditorPanel->getSongEditor()->
+													  getGridWidth()) -
 								   static_cast<float>(Skin::nPlayheadWidth) / 2 );
 		Skin::setPlayheadPen( &painter, false );
-		painter.drawLine( nX + nOffset, 2, nX + nOffset, height() );
+		painter.drawLine( nX + nOffset, 0, nX + nOffset, height() );
 	}
 
 }

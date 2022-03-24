@@ -995,7 +995,7 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 								   static_cast<float>(Skin::nPlayheadWidth) / 2 );
 		int nOffset = Skin::getPlayheadShaftOffset();
 		Skin::setPlayheadPen( &painter, false );
-		painter.drawLine( nX + nOffset, 2, nX + nOffset, height() - 2 );
+		painter.drawLine( nX + nOffset, 0, nX + nOffset, height() );
 	}
 
 	drawFocus( painter );
@@ -1107,16 +1107,14 @@ void SongEditor::createBackground()
 						pPref->getColorTheme()->m_songEditor_alternateRowColor );
 		}
 	}
-	p.setPen( pPref->getColorTheme()->m_songEditor_lineColor );
+
+	p.setPen( QPen( pPref->getColorTheme()->m_songEditor_lineColor, 1,
+					Qt::SolidLine ) );
 
 	// vertical lines
-	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
-		uint x = SongEditor::nMargin + i * m_nGridWidth;
-		int x1 = x;
-		int x2 = x + m_nGridWidth;
-
-		p.drawLine( x1, 0, x1, m_nGridHeight * nPatterns );
-		p.drawLine( x2, 0, x2, m_nGridHeight * nPatterns );
+	for ( float ii = 0; ii <= m_nMaxPatternSequence + 1; ii++) {
+		float x = SongEditor::nMargin + ii * m_nGridWidth;
+		p.drawLine( x, 0, x, m_nGridHeight * nPatterns );
 	}
 	
 	// horizontal lines
@@ -2475,11 +2473,11 @@ void SongEditorPositionRuler::createBackground()
 	
 	QColor textColorGrid( textColor );
 	textColorGrid.setAlpha( 200 );
-	p.setPen( textColorGrid );
-	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
-		uint x = SongEditor::nMargin + i * m_nGridWidth;
+	p.setPen( QPen( textColorGrid, 1, Qt::SolidLine ) );
+	for ( int ii = 0; ii < m_nMaxPatternSequence + 1; ii++) {
+		int x = SongEditor::nMargin + ii * m_nGridWidth;
 
-		if ( (i % 4) == 0 ) {
+		if ( ( ii % 4 ) == 0 ) {
 			p.drawLine( x, height() - 14, x, height() - 1);
 		}
 		else {
@@ -2532,7 +2530,7 @@ void SongEditorPositionRuler::createBackground()
 		uint x = SongEditor::nMargin + ii * m_nGridWidth;
 
 		p.drawLine( x, 1, x, 4 );
-		p.drawLine( x, height() / 2 - 5, x, height() / 2 - 2 );
+		p.drawLine( x, height() / 2 - 5, x, height() / 2 );
 	}
 
 	// Draw tempo markers
@@ -2838,7 +2836,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		int x = SongEditor::nMargin + m_nHoveredColumn * m_nGridWidth;
 
 		painter.drawLine( x, 1, x, 4 );
-		painter.drawLine( x, height() / 2 - 5, x, height() / 2 - 2 );
+		painter.drawLine( x, height() / 2 - 5, x, height() / 2 );
 	}
 
 	// Highlight tag
