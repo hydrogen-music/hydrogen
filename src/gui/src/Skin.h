@@ -89,7 +89,7 @@ public:
 
 	static constexpr int nPlayheadWidth = 11;
 	static constexpr int nPlayheadHeight = 8;
-	static constexpr int getPlayheadShaftOffset() {
+	static int getPlayheadShaftOffset() {
 		return std::floor( Skin::nPlayheadWidth / 2 ); }
 	static void setPlayheadPen( QPainter* p, bool bHovered = false );
 	static void drawPlayhead( QPainter* p, int x, int y, bool bHovered = false );
