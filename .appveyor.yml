@@ -294,7 +294,7 @@ for:
 
           REM *** Results are ignored since a dependency was not properly installed in 32 bit Windows. But the .dll files required are installed regardless, so we don't care.***
 
-          choco install %CHOCO_ARCH% -y openssl --version=1.1.1.1300 || cmd /c "exit /b 0"
+          choco install %CHOCO_ARCH% -y openssl --version=1.1.1.1300 || cmd /c "exit /b 1"
 
           echo "C:\%OPENSSL_DIR%"
           dir "C:\%OPENSSL_DIR%"
@@ -337,8 +337,8 @@ for:
           SET CORE_PATH=%cd%\src\core
           echo %CORE_PATH%
           set PATH=%CORE_PATH%;%PATH%
-          src\tests\tests.exe --appveyor || cmd /c "exit /b 0"
-          7z a %APPVEYOR_BUILD_FOLDER%\testresults.zip %TEMP%\hydrogen || cmd /c "exit  /b 0"
+          src\tests\tests.exe --appveyor || cmd /c "exit /b 1"
+          7z a %APPVEYOR_BUILD_FOLDER%\testresults.zip %TEMP%\hydrogen || cmd /c "exit  /b 1"
           if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\testresults.zip
 
           mkdir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
@@ -373,8 +373,8 @@ on_finish:
   - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeCache.txt
   - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeOutput.log
   - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeError.log
-  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.1-win64.exe || cmd /c "exit /b 0"
-  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.1-win32.exe || cmd /c "exit /b 0"
+  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.1-win64.exe || cmd /c "exit /b 1"
+  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.1-win32.exe || cmd /c "exit /b 1"
 
 
   - cmd: |
