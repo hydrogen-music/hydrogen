@@ -724,7 +724,6 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetPath, b
 
 bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName, bool bRecentVersion, bool bSilent ) {
 
-#ifndef WIN32
 	if ( ! Filesystem::path_usable( sTargetDir, true, false ) ) {
 		ERRORLOG( QString( "Provided destination folder [%1] is not valid" )
 				  .arg( sTargetDir ) );
@@ -965,6 +964,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 	return true;
 #else // No LIBARCHIVE
 
+#ifndef WIN32
 	if ( nComponentID != -1 ) {
 		// In order to add components name to the folder name we have
 		// to copy _all_ files to a temporary folder holding the same
@@ -1037,12 +1037,12 @@ bool Drumkit::exportTo( const QString& sTargetDir, const QString& sComponentName
 	set_name( sOldDrumkitName );
 			
 	return true;
-#endif // LIBARCHIVE
 #else // WIN32
 	ERRORLOG( "Operation not supported on Windows" );
 	
 	return false;
 #endif
+#endif // LIBARCHIVE
 
 }
 
