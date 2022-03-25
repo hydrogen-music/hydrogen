@@ -3876,7 +3876,13 @@ bool AudioEngine::testCheckAudioConsistency( const std::vector<std::shared_ptr<N
 		}
 	}
 
-	if ( nNotesFound == 0 ) {
+	// If one of the note vectors is empty - especially the new notes
+	// - we can not test anything. But such things might happen as we
+	// try various sample sizes and all notes might be already played
+	// back and flushed.
+	if ( nNotesFound == 0 &&
+		 oldNotes.size() > 0 &&
+		 newNotes.size() > 0 ) {
 		ERRORLOG( QString( "[%1] bad test design. No notes played back." )
 				  .arg( sContext ) );
 		if ( oldNotes.size() != 0 ) {
