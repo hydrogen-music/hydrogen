@@ -97,9 +97,9 @@ void ClickableLabel::paintEvent( QPaintEvent *ev ) {
 
 		QPen pen;
 		pen.setColor( colorHighlightActive );
-		pen.setWidth( 3 );
+		pen.setWidth( 2 );
 		painter.setPen( pen );
-		painter.drawRoundedRect( QRect( 0, 0, m_size.width(), m_size.height() ), 3, 3 );
+		painter.drawRoundedRect( QRect( 1, 1, m_size.width() - 2, m_size.height() - 2 ), 3, 3 );
 	}
 }
 
