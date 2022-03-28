@@ -100,6 +100,9 @@ void XmlTest::testDrumkit()
 	pDrumkitLoaded->load_samples();
 	CPPUNIT_ASSERT( pDrumkitLoaded->samples_loaded()==true );
 	CPPUNIT_ASSERT( check_samples_data( pDrumkitLoaded, true ) );
+
+	delete pDrumkitLoaded;
+	pDrumkitLoaded = nullptr;
 	
 	// load with samples
 	pDrumkitLoaded = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ), true );

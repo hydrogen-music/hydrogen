@@ -355,7 +355,21 @@ void Instrument::save_to( XMLNode* node, int component_id, bool bRecentVersion )
 	InstrumentNode.write_float( "volume", __volume );
 	InstrumentNode.write_bool( "isMuted", __muted );
 	InstrumentNode.write_bool( "isSoloed", __soloed );
-	InstrumentNode.write_float( "pan", m_fPan );
+
+	// We still store the pan using the old format to allow drumkits
+	// being created with Hydrogen versions v1.2 to be valid for prior
+	// versions too. After a couple of years and when all major Linux
+	// distributions ship a version >= 1.2 we can drop this part and
+	// just store the plain pan.
+	if ( getPan() >= 0.0 ) {
+		InstrumentNode.write_float( "pan_L", 1.0 - getPan() );
+		InstrumentNode.write_float( "pan_R", 1.0 );
+	}
+	else {
+		InstrumentNode.write_float( "pan_L", 1.0 );
+		InstrumentNode.write_float( "pan_R", getPan() + 1.0 );
+	}
+		
 	InstrumentNode.write_float( "pitchOffset", __pitch_offset );
 	InstrumentNode.write_float( "randomPitchFactor", __random_pitch_factor );
 	InstrumentNode.write_float( "gain", __gain );
