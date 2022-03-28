@@ -109,7 +109,6 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 					 , m_CurrentTime( {0,0} )
 					 , m_oldEngineMode( Song::Mode::Song ) 
 					 , m_bOldLoopEnabled( false) 
-					 , m_currentDrumkitLookup( Filesystem::Lookup::stacked )
 {
 	if ( __instance ) {
 		ERRORLOG( "Hydrogen audio engine is already running" );
@@ -673,12 +672,6 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool bConditional )
 	if ( pSong != nullptr ) {
 
 		INFOLOG( pDrumkitInfo->get_name() );
-		m_sCurrentDrumkitName = pDrumkitInfo->get_name();
-		if ( pDrumkitInfo->isUserDrumkit() ) {
-			m_currentDrumkitLookup = Filesystem::Lookup::user;
-		} else {
-			m_currentDrumkitLookup = Filesystem::Lookup::system;
-		}
 
 		m_pAudioEngine->lock( RIGHT_HERE );
 		
@@ -1405,6 +1398,46 @@ void Hydrogen::setIsModified( bool bIsModified ) {
 	}
 }
 
+void Hydrogen::setCurrentDrumkitName( const QString& sName ) {
+	if ( getSong() != nullptr ) {
+		if ( getSong()->getCurrentDrumkitName() != sName ) {
+			 getSong()->setCurrentDrumkitName( sName );
+			 getSong()->setIsModified( true );
+		}
+	} else {
+		ERRORLOG( "no song set yet" );
+	}
+}
+
+QString Hydrogen::getCurrentDrumkitName() const {
+	if ( getSong() != nullptr ) {
+		return getSong()->getCurrentDrumkitName();
+	}
+	ERRORLOG( "no song set yet" );
+
+	return "";
+}
+
+void Hydrogen::setCurrentDrumkitLookup( Filesystem::Lookup lookup ) {
+	if ( getSong() != nullptr ) {
+		if ( getSong()->getCurrentDrumkitLookup() != lookup ) {
+			 getSong()->setCurrentDrumkitLookup( lookup );
+			 getSong()->setIsModified( true );
+		}
+	} else {
+		ERRORLOG( "no song set yet" );
+	}
+}
+
+Filesystem::Lookup Hydrogen::getCurrentDrumkitLookup() const {
+	if ( getSong() != nullptr ) {
+		return getSong()->getCurrentDrumkitLookup();
+	}
+	ERRORLOG( "no song set yet" );
+
+	return Filesystem::Lookup::stacked;
+}
+
 void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
 	if ( getSong() != nullptr ) {
 		auto pPref = Preferences::get_instance();
@@ -1612,9 +1645,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-		sOutput.append( QString( "%1%2m_sCurrentDrumkitName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sCurrentDrumkitName ) )
-			.append( QString( "%1%2m_currentDrumkitLookup: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>(m_currentDrumkitLookup) ) )
-			.append( QString( "%1%2__instrument_death_row:\n" ).arg( sPrefix ).arg( s ) );
+		sOutput.append( QString( "%1%2__instrument_death_row:\n" ).arg( sPrefix ).arg( s ) );
 		for ( auto const& ii : __instrument_death_row ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
@@ -1660,9 +1691,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr" ) );
 		}						 
-		sOutput.append( QString( ", m_sCurrentDrumkitName: %1" ).arg( m_sCurrentDrumkitName ) )
-			.append( QString( ", m_currentDrumkitLookup: %1" ).arg( static_cast<int>(m_currentDrumkitLookup) ) )
-			.append( QString( ", __instrument_death_row: [" ) );
+		sOutput.append( QString( ", __instrument_death_row: [" ) );
 		for ( auto const& ii : __instrument_death_row ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
