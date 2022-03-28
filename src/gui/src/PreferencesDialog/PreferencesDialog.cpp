@@ -1292,8 +1292,8 @@ void PreferencesDialog::onFontSizeChanged( int nIndex ) {
 		m_pCurrentTheme->getFontTheme()->m_fontSize = FontTheme::FontSize::Small;
 		break;
 	case 1:
-		pPref->setFontSize( FontTheme::FontSize::Normal );
-		m_pCurrentTheme->getFontTheme()->m_fontSize = FontTheme::FontSize::Normal;
+		pPref->setFontSize( FontTheme::FontSize::Medium );
+		m_pCurrentTheme->getFontTheme()->m_fontSize = FontTheme::FontSize::Medium;
 		break;
 	case 2:
 		pPref->setFontSize( FontTheme::FontSize::Large );
@@ -2113,7 +2113,7 @@ void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme
 	case FontTheme::FontSize::Small:
 		fontSizeComboBox->setCurrentIndex( 0 );
 		break;
-	case FontTheme::FontSize::Normal:
+	case FontTheme::FontSize::Medium:
 		fontSizeComboBox->setCurrentIndex( 1 );
 		break;
 	case FontTheme::FontSize::Large:

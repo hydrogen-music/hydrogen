@@ -492,7 +492,7 @@ int LayerPreview::getPointSizeButton() const
 	case H2Core::FontTheme::FontSize::Small:
 		nPointSize = 6;
 		break;
-	case H2Core::FontTheme::FontSize::Normal:
+	case H2Core::FontTheme::FontSize::Medium:
 		nPointSize = 8;
 		break;
 	case H2Core::FontTheme::FontSize::Large:

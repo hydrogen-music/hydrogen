@@ -189,7 +189,7 @@ FontTheme::FontTheme()
 	: m_sApplicationFontFamily( "Lucida Grande" )
 	, m_sLevel2FontFamily( "Lucida Grande" )
 	, m_sLevel3FontFamily( "Lucida Grande" )
-	, m_fontSize( FontTheme::FontSize::Normal ) {
+	, m_fontSize( FontTheme::FontSize::Medium ) {
 }
 
 FontTheme::FontTheme( const std::shared_ptr<FontTheme> pOther )
@@ -604,7 +604,7 @@ std::shared_ptr<Theme> Theme::importTheme( const QString& sPath ) {
 			pTheme->getFontTheme()->m_sLevel2FontFamily = LocalFileMng::readXmlString( fontNode, "level2_font_family", pTheme->getFontTheme()->m_sLevel2FontFamily );
 			pTheme->getFontTheme()->m_sLevel3FontFamily = LocalFileMng::readXmlString( fontNode, "level3_font_family", pTheme->getFontTheme()->m_sLevel3FontFamily );
 			pTheme->getFontTheme()->m_fontSize = static_cast<FontTheme::FontSize>( LocalFileMng::readXmlInt( fontNode, "font_size",
-																					 static_cast<int>(FontTheme::FontSize::Normal) ) );
+																					 static_cast<int>(FontTheme::FontSize::Medium) ) );
 
 		} else {
 			ERRORLOG( "'fontTheme' node not found" );

@@ -581,7 +581,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				setLevel2FontFamily( LocalFileMng::readXmlString( guiNode, "level2_font_family", getLevel2FontFamily() ) );
 				setLevel3FontFamily( LocalFileMng::readXmlString( guiNode, "level3_font_family", getLevel3FontFamily() ) );
 				setFontSize( static_cast<FontTheme::FontSize>( LocalFileMng::readXmlInt( guiNode, "font_size",
-																			  static_cast<int>(FontTheme::FontSize::Normal) ) ) );
+																			  static_cast<int>(FontTheme::FontSize::Medium) ) ) );
 
 				// Mixer falloff speed
 				setMixerFalloffSpeed( LocalFileMng::readXmlFloat( guiNode, "mixer_falloff_speed",
