@@ -58,6 +58,9 @@ class EventListener
 		virtual void actionModeChangeEvent( int nValue ){ UNUSED( nValue ); }
     	virtual void updateSongEditorEvent( int nValue ){ UNUSED( nValue ); }
 	virtual void drumkitLoadedEvent(){}
+	virtual void patternEditorLockedEvent( int nValue ){ UNUSED( nValue ); }
+	virtual void relocationEvent(){}
+	virtual void songSizeChangedEvent(){}
 
 		virtual ~EventListener() {}
 };

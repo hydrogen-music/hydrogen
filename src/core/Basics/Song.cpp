@@ -78,6 +78,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_pComponents( nullptr )
 	, m_sFilename( "" )
 	, m_loopMode( LoopMode::Disabled )
+	, m_patternMode( PatternMode::Selected )
 	, m_fHumanizeTimeValue( 0.0 )
 	, m_fHumanizeVelocityValue( 0.0 )
 	, m_fSwingFactor( 0.0 )
@@ -89,6 +90,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_pVelocityAutomationPath( nullptr )
 	, m_sLicense( "" )
 	, m_actionMode( ActionMode::selectMode )
+	, m_bIsPatternEditorLocked( false )
 	, m_nPanLawType ( Sampler::RATIO_STRAIGHT_POLYGONAL )
 	, m_fPanLawKNorm ( Sampler::K_NORM_DEFAULT )
 {
@@ -148,13 +150,6 @@ void Song::setBpm( float fBpm ) {
 void Song::setActionMode( Song::ActionMode actionMode ) {
 	m_actionMode = actionMode;
 
-	if ( actionMode == Song::ActionMode::selectMode ) {
-		EventQueue::get_instance()->push_event( EVENT_ACTION_MODE_CHANGE, 0 );
-	} else if ( actionMode == Song::ActionMode::drawMode ) {
-		EventQueue::get_instance()->push_event( EVENT_ACTION_MODE_CHANGE, 1 );
-	} else {
-		ERRORLOG( QString( "Unknown actionMode" ) );
-	}
 	setIsModified( true );
 }
 
@@ -1009,7 +1004,14 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	QString sNotes( LocalFileMng::readXmlString( songNode, "notes", "..." ) );
 	QString sLicense( LocalFileMng::readXmlString( songNode, "license", "Unknown license" ) );
 	bool bLoopEnabled = LocalFileMng::readXmlBool( songNode, "loopEnabled", false );
-	pPreferences->setPatternModePlaysSelected( LocalFileMng::readXmlBool( songNode, "patternModeMode", true ) );
+	bool bPatternMode =
+		LocalFileMng::readXmlBool( songNode, "patternModeMode",
+								   static_cast<bool>(Song::PatternMode::Selected) );
+	
+	Song::PatternMode patternMode = Song::PatternMode::Selected;
+	if ( ! bPatternMode ) {
+		patternMode = Song::PatternMode::Stacked;
+	}
 	Song::Mode mode = Song::Mode::Pattern;
 	QString sMode = LocalFileMng::readXmlString( songNode, "mode", "pattern" );
 	if ( sMode == "song" ) {
@@ -1022,6 +1024,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 
 	Song::ActionMode actionMode = static_cast<Song::ActionMode>( LocalFileMng::readXmlInt( songNode, "action_mode",
 																						   static_cast<int>( Song::ActionMode::selectMode ) ) );
+	bool bIsPatternEditorLocked = LocalFileMng::readXmlBool( songNode, "isPatternEditorLocked", false );
 	float fHumanizeTimeValue = LocalFileMng::readXmlFloat( songNode, "humanize_time", 0.0 );
 	float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
 	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
@@ -1047,6 +1050,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	} else {
 		pSong->setLoopMode( Song::LoopMode::Disabled );
 	}
+	pSong->setPatternMode( patternMode );
 	pSong->setMode( mode );
 	pSong->setHumanizeTimeValue( fHumanizeTimeValue );
 	pSong->setHumanizeVelocityValue( fHumanizeVelocityValue );
@@ -1055,6 +1059,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	pSong->setPlaybackTrackEnabled( bPlaybackTrackEnabled );
 	pSong->setPlaybackTrackVolume( fPlaybackTrackVolume );
 	pSong->setActionMode( actionMode );
+	pSong->setIsPatternEditorLocked( bIsPatternEditorLocked );
 	pSong->setIsTimelineActivated( bIsTimelineActivated );
 	
 	// pan law

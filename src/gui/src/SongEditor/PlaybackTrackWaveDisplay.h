@@ -46,11 +46,18 @@ class PlaybackTrackWaveDisplay : public WaveDisplay
 		~PlaybackTrackWaveDisplay() = default;
 
 		void	updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer ) override;
+	void updatePosition( float fTick );
 		
 	public slots:
 		virtual void dragMoveEvent(QDragMoveEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
 		virtual void dragEnterEvent(QDragEnterEvent * event) override;
+	virtual void paintEvent(QPaintEvent * event) override;
+
+private: 
+	QPixmap *m_pBackgroundPixmap;
+	/** Cached position of the playhead.*/
+	float m_fTick;
 };
 
 #endif

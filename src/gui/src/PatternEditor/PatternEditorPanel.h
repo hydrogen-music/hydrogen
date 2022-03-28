@@ -83,7 +83,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		const QScrollArea* getNoteProbabilityScrollArea() const { return m_pNoteProbabilityScrollView; }
 		const QScrollBar* getVerticalScrollBar() const { return m_pPatternEditorVScrollBar; }
 		const QScrollBar* getHorizontalScrollBar() const { return m_pPatternEditorHScrollBar; }
-		int getPropertiesComboValue(){ return m_pPropertiesCombo->currentIndex(); }
+	NotePropertiesRuler::Mode getNotePropertiesMode() const;
 	
 
 		void updateSLnameLabel();
@@ -92,8 +92,12 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
 		virtual void selectedInstrumentChangedEvent() override;
+	virtual void patternModifiedEvent() override;
+	virtual void patternChangedEvent() override;
 	virtual void drumkitLoadedEvent() override;
 	virtual void updateSongEvent( int nValue ) override;
+	virtual void songModeActivationEvent( int ) override;
+	virtual void stackedModeActivationEvent( int ) override;
 		//~ Implements EventListener interface
 
 		void ensureCursorVisible();
@@ -114,7 +118,6 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	private slots:
 		void gridResolutionChanged( int nSelected );
 		void propertiesComboChanged( int nSelected );
-		void patternLengthChanged();
 	/** Batch version for setting the values of the pattern size spin boxes.*/
 		void updatePatternSizeLCD();
 
