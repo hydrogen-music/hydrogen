@@ -80,6 +80,20 @@ namespace H2Core
  * thread to lock the engine and unlock() to make it accessible for
  * other threads once again.
  *
+ * The audio engine does not have one but two consistent states with
+ * respect it its member variables. #m_fTick, #m_nFrames,
+ * #m_fTickOffset, #m_fTickMismatch, #m_fBpm, #m_fTickSize,
+ * #m_nFrameOffset, #m_state, and #m_nRealtimeFrames are associated
+ * with the current transport position. #m_fLastTickIntervalEnd,
+ * #m_nColumn, #m_nPatternSize, #m_nPatternStartTick, and
+ * #m_nPatternTickPosition determine the current position
+ * updateNoteQueue() is adding notes from #m_pPlayingPatterns into
+ * #m_songNoteQueue. Since the latter is ahead of the current
+ * transport position by a non-constant (tempo-dependent) lookahead,
+ * both states are out of sync while in playback but in sync again
+ * once the transport gets relocated (which resets the lookahead). But
+ * within themselves both states are consistent.
+ *
  * \ingroup docCore docAudioEngine
  */ 
 class AudioEngine : public H2Core::TransportInfo, public H2Core::Object<AudioEngine>
@@ -411,7 +425,7 @@ public:
 	 */
 	void updateSongSize();
 
-	void flushPlayingPatterns();
+	void removePlayingPattern( int nIndex );
 	/**
 	 * Update the list of patterns currently played back.
 	 *
@@ -420,22 +434,18 @@ public:
 	 * 1. In case the song is in Song::Mode::Song when entering a new
 	 * @a nColumn #m_pPlayingPatterns will be flushed and all patterns
 	 * activated in the provided column will be added.
-	 * 2. While in Song::Mode::Pattern with
-	 * Preferences::m_bPatternModePlaysSelected set true the function
+	 * 2. While in Song::PatternMode::Selected the function
 	 * ensures the currently selected pattern is the only pattern in
 	 * #m_pPlayingPatterns.
-	 * 3. While in Song::Mode::Pattern with
-	 * Preferences::m_bPatternModePlaysSelected set false all patterns
+	 * 3. While in Song::PatterMode::Stacked all patterns
 	 * in #m_pNextPatterns not already present in #m_pPlayingPatterns
 	 * will be added in the latter and the ones already present will
 	 * be removed.
 	 *
 	 * \param nColumn Desired location in song mode.
 	 * \param nTick Desired location in pattern mode.
-	 * \param nPatternStartTick Desired location in pattern mode.
 	 */
-	void updatePlayingPatterns( int nColumn, long nTick = 0,
-								long nPatternStartTick = 0 );
+	void updatePlayingPatterns( int nColumn, long nTick = 0 );
 	/** 
 	 * Add pattern @a nPatternNumber to #m_pNextPatterns or deletes it
 	 * in case it is already present.
@@ -550,12 +560,25 @@ public:
 	friend void Hydrogen::setSong( std::shared_ptr<Song> pSong );
 	/** Is allowed to call removeSong().*/
 	friend void Hydrogen::removeSong();
+	/** Is allowed to use locate() to directly set the position in
+		frames as well as to used setColumn and setPatternTickPos to
+		move the arrow in the SongEditorPositionRuler even when
+		playback is stopped.*/
+	friend void Hydrogen::updateSelectedPattern();
 	friend bool CoreActionController::locateToTick( long nTick, bool );
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();
 	friend void JackAudioDriver::updateTransportInfo();
 	friend void JackAudioDriver::relocateUsingBBT();
 private:
+
+	/**
+	 * Sets the Hydrogen::m_nSelectedPatternNumber to the pattern
+	 * recorded notes will be inserted in.
+	 */
+	void handleSelectedPattern();
+	
+	inline void			processPlayNotes( unsigned long nframes );
 	/**
 	 * Converts a tick into frames under the assumption of a constant
 	 * @a fTickSize since the beginning of the song (sample rate,
@@ -588,8 +611,6 @@ private:
 
 	double getDoubleTick() const;
 	static double computeDoubleTickSize(const int nSampleRate, const float fBpm, const int nResolution);
-	
-	inline void			processPlayNotes( unsigned long nframes );
 
 	void			clearNoteQueue();
 	/** Clear all audio buffers.
@@ -697,7 +718,9 @@ private:
 	 */
 	void			locateToFrame( const long long nFrame );
 	void			incrementTransportPosition( uint32_t nFrames );
-	void			updateTransportPosition( double fTick, bool bUseLoopMode );
+	void			updateTransportPosition( double fTick );
+	void			updateSongTransportPosition( double fTick );
+	void			updatePatternTransportPosition( double fTick );
 
 	/**
 	 * Updates all notes in #m_songNoteQueue to be still valid after a
@@ -828,20 +851,45 @@ private:
 	struct timeval		m_currentTickTime;
 
 	/**
-	 * Beginning of the current pattern in ticks.
+	 * Beginning of the currently playing patterns
+	 * (#m_pPlayingPatterns) in ticks.
+	 *
+	 * Attention: This value can be larger than m_fTick. If transport
+	 * is rolling, the playing patterns are updated in
+	 * updateNoteQueue() using a lookahead which allows for notes to
+	 * be placed not just ahead of time but also back in time using
+	 * humanization.
+	 *
+	 * The current transport position thus corresponds
+	 * to #m_fTick = lookahead + #m_nPatternStartTick +
+	 * #m_nPatternTickPosition. (The lookahead is both speed and
+	 * sample reate dependent).
 	 */
 	long				m_nPatternStartTick;
 
 	/**
-	 * Ticks passed since the beginning of the current pattern.
+	 * Ticks passed since #m_nPatternStartTick.
+	 *
+	 * The current transport position thus corresponds
+	 * to #m_fTick = lookahead + #m_nPatternStartTick +
+	 * #m_nPatternTickPosition. (The lookahead is both speed and
+	 * sample reate dependent).
 	 */
 	long				m_nPatternTickPosition;
 
 	/**
-	 * Index of the current PatternList/column in the
+	 * Cached information to determine the end of the currently
+	 * playing pattern in ticks (see #m_pPlayingPatterns).
+	 */
+	int m_nPatternSize;
+	/**
+	 * Coarse-grained version of #m_nPatternStartTick which can be
+	 * used as the index of the current PatternList/column in the
 	 * Song::__pattern_group_sequence.
 	 *
-	 * A value of -1 corresponds to "pattern list could not be found".
+	 * A value of -1 corresponds to "pattern list could not be found"
+	 * and is used to indicate that transport reached the end of the
+	 * song (with transport not looped).
 	 */
 	int					m_nColumn;
 
@@ -913,7 +961,7 @@ private:
 	double m_fTickOffset;
 	long long m_nFrameOffset;
 	double m_fLastTickIntervalEnd;
-	int m_nLastPlayingPatternsColumn;
+
 };
 
 

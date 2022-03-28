@@ -34,6 +34,8 @@
 #include <cassert>
 #include <memory>
 
+#include <core/Preferences/Preferences.h>
+
 //! SelectionWidget defines the interface used by the Selection manager to communicate with a widget
 //! implementing selection, and provides for event translation, testing for intersection with selectable
 //! objects, keyboard input cursor geometry, and screen refresh. It must be subclassed and
@@ -478,7 +480,8 @@ public:
 	//! Paint selection-related elements (ie lasso)
 	void paintSelection( QPainter *painter ) {
 		if ( m_selectionState == MouseLasso || m_selectionState == KeyboardLasso ) {
-			QPen pen( Qt::white );
+			QPen pen( H2Core::Preferences::get_instance()->getColorTheme()
+					  ->m_selectionHighlightColor );
 			pen.setStyle( Qt::DotLine );
 			pen.setWidth(2);
 			painter->setPen( pen );

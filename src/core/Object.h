@@ -123,7 +123,7 @@ class Base {
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		virtual QString toQString( const QString& sPrefix, bool bShort = true ) const;
+		virtual QString toQString( const QString& sPrefix = "", bool bShort = true ) const;
 		/** Prints content of toQString() via DEBUGLOG
 		 *
 		 * \param bShort Whether to display the content of the member

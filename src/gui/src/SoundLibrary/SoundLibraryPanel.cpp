@@ -139,6 +139,8 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 
 SoundLibraryPanel::~SoundLibraryPanel()
 {
+	HydrogenApp::get_instance()->removeEventListener( this );
+
 	for (uint i = 0; i < __system_drumkit_info_list.size(); ++i ) {
 		delete __system_drumkit_info_list[i];
 	}

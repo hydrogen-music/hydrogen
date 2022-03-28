@@ -518,6 +518,52 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 	return sOutput;
 }
 
+QString Note::KeyToQString( Key key ) {
+	QString s;
+
+	switch( key ) {
+	case Key::C:
+		s = QString( "C" );
+		break;
+	case Key::Cs:
+		s = QString( "Cs" );
+		break;
+	case Key::D:
+		s = QString( "D" );
+		break;
+	case Key::Ef:
+		s = QString( "Ef" );
+		break;
+	case Key::E:
+		s = QString( "E" );
+		break;
+	case Key::F:
+		s = QString( "F" );
+		break;
+	case Key::Fs:
+		s = QString( "Fs" );
+		break;
+	case Key::G:
+		s = QString( "G" );
+		break;
+	case Key::Af:
+		s = QString( "Af" );
+		break;
+	case Key::A:
+		s = QString( "A" );
+		break;
+	case Key::Bf:
+		s = QString( "Bf" );
+		break;
+	case Key::B:
+		s = QString( "B" );
+		break;
+	default:
+		ERRORLOG(QString( "Unknown Key value [%1]" ).arg( key ) );
+	}
+
+	return s;
+}
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

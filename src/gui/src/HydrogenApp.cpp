@@ -258,6 +258,9 @@ void HydrogenApp::setupSinglePanedInterface()
 	} else {
 		m_pSongEditorPanel = new SongEditorPanel( m_pTab );
 	}
+	// trigger a relocation to sync the transport position of the
+	// editors in the panel.
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( 0 );
 
 	WindowProperties songEditorProp = pPref->getSongEditorProperties();
 	setWindowProperties( m_pSongEditorPanel, songEditorProp, SetWidth + SetHeight );
@@ -287,6 +290,8 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// PATTERN EDITOR
 	m_pPatternEditorPanel = new PatternEditorPanel( nullptr );
+	// Sync the playhead position in all editors all objects are available.
+	m_pPatternEditorPanel->getPatternEditorRuler()->updatePosition( true );
 	WindowProperties patternEditorProp = pPref->getPatternEditorProperties();
 	setWindowProperties( m_pPatternEditorPanel, patternEditorProp, SetWidth + SetHeight );
 
@@ -835,7 +840,19 @@ void HydrogenApp::onEventQueueTimer()
 			case EVENT_DRUMKIT_LOADED:
 				pListener->drumkitLoadedEvent();
 				break;
+
+			case EVENT_PATTERN_EDITOR_LOCKED:
+				pListener->patternEditorLockedEvent( event.value );
+				break;
 				
+			case EVENT_RELOCATION:
+				pListener->relocationEvent();
+				break;
+				
+			case EVENT_SONG_SIZE_CHANGED:
+				pListener->songSizeChangedEvent();
+				break;
+
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}
