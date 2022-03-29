@@ -2071,6 +2071,7 @@ void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme
 	coloringMethodAuxSpinBox->setValue( pTheme->getInterfaceTheme()->m_nVisiblePatternColors );
 	QSize size( uiScalingPolicyComboBox->width(), coloringMethodAuxSpinBox->height() );
 
+	// Ensure the number of color buttons match.
 	if ( m_colorSelectionButtons.size() !=
 		 pTheme->getInterfaceTheme()->m_nMaxPatternColors ) {
 	
@@ -2099,6 +2100,13 @@ void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme
 		}
 	}
 
+	// Update their colors.
+	for ( int ii = 0; ii < m_colorSelectionButtons.size(); ++ii ) {
+		m_colorSelectionButtons[ ii ]->setColor( pTheme->getInterfaceTheme()->
+												 m_patternColors[ ii ] );
+	}
+
+	// Display only the required number.
 	if ( nColoringMethod != 0 ) {
 		for ( int ii = 0; ii < pTheme->getInterfaceTheme()->m_nVisiblePatternColors; ii++ ) {
 			m_colorSelectionButtons[ ii ]->show();
