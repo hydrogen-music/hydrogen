@@ -379,7 +379,7 @@ void PatternEditorRuler::createBackground()
 		fStep = 4 * MAX_NOTES / ( 4 * nResolution ) * m_fGridWidth;
 	}
 	for ( float xx = PatternEditor::nMargin; xx < m_nWidthActive; xx += fStep ) {
-		painter.drawLine( xx, height() - 5, xx, height() - 1 );
+		painter.drawLine( xx, height() - 6, xx, height() - 1 );
 	}
 
 	painter.setPen( QPen( lineColor, 2, Qt::SolidLine ) );
@@ -433,15 +433,10 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 			m_fGridWidth * 5;
 
 		// Middle line to indicate the selected tick
-		QColor cursorColor( pPref->getColorTheme()->m_cursorColor );
-		painter.setPen( cursorColor );
+		painter.setPen( QPen( pPref->getColorTheme()->m_cursorColor, 2 ) );
+		painter.setRenderHint( QPainter::Antialiasing );
 		painter.drawLine( nCursorX + m_fGridWidth * 5 + 4, height() - 6,
 						  nCursorX + m_fGridWidth * 5 + 4, height() - 13 );
-
-		QPen pen( cursorColor );
-		pen.setWidth( 2 );
-		painter.setPen( pen );
-		painter.setRenderHint( QPainter::Antialiasing );
 		painter.drawLine( nCursorX, 3, nCursorX + m_fGridWidth * 10 + 8, 3 );
 		painter.drawLine( nCursorX, 4, nCursorX, 5 );
 		painter.drawLine( nCursorX + m_fGridWidth * 10 + 8, 4,

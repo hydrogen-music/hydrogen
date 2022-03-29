@@ -1174,21 +1174,6 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 		}
 	}
 
-	// horizontal lines
-	p.setPen( QPen( lineColor, 2, Qt::SolidLine ) );
-	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
-		uint y = m_nGridHeight * i + m_nGridHeight;
-		p.drawLine( 0, y, m_nActiveWidth, y);
-	}
-
-	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
-		p.setPen( lineInactiveColor );
-		for ( uint i = 0; i < (uint)nInstruments; i++ ) {
-			uint y = m_nGridHeight * i + m_nGridHeight;
-			p.drawLine( m_nActiveWidth, y, m_nEditorWidth, y);
-		}
-	}
-
 	// We skip the grid and cursor in case there is no pattern. This
 	// way it may be more obvious that it is not armed and does not
 	// expect user interaction.
@@ -1214,6 +1199,21 @@ void DrumPatternEditor::drawBackground( QPainter& p)
 
 		p.fillRect( m_nActiveWidth, y, m_nEditorWidth - m_nActiveWidth,
 					(int)( m_nGridHeight * 0.7 ), backgroundInactiveColor );
+	}
+
+	// horizontal lines
+	p.setPen( QPen( lineColor, 1, Qt::SolidLine ) );
+	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
+		uint y = m_nGridHeight * i + m_nGridHeight;
+		p.drawLine( 0, y, m_nActiveWidth, y);
+	}
+
+	if ( m_nActiveWidth + 1 < m_nEditorWidth ) {
+		p.setPen( QPen( lineInactiveColor, 1, Qt::SolidLine ) );
+		for ( uint i = 0; i < (uint)nInstruments; i++ ) {
+			uint y = m_nGridHeight * i + m_nGridHeight;
+			p.drawLine( m_nActiveWidth, y, m_nEditorWidth, y);
+		}
 	}
 
 	// borders
