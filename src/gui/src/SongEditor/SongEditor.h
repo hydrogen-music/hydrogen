@@ -129,7 +129,6 @@ class SongEditor : public QWidget
 
 		unsigned 				m_nGridHeight;
 		unsigned 				m_nGridWidth;
-		unsigned 				m_nMaxPatternSequence;
 		bool					m_bIsMoving;
 		bool					m_bCopyNotMove;
 
@@ -386,8 +385,6 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 		H2Core::AudioEngine* 	m_pAudioEngine;
 		QTimer *			m_pTimer;
 		uint				m_nGridWidth;
-		uint				m_nMaxPatternSequence;
-		uint				m_nInitialWidth;
 		static constexpr uint	m_nHeight = 50;
 
 	int m_nActiveBpmWidgetColumn;

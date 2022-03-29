@@ -100,11 +100,10 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 	m_nCursorRow = 0;
 	m_nCursorColumn = 0;
 
-	m_nMaxPatternSequence = pPref->getMaxBars();
-	int m_nInitialWidth = SongEditor::nMargin + m_nMaxPatternSequence * m_nGridWidth;
-	int m_nInitialHeight = 10;
+	int nInitialWidth = SongEditor::nMargin + pPref->getMaxBars() * m_nGridWidth;
+	int nInitialHeight = 10;
 
-	this->resize( QSize(m_nInitialWidth, m_nInitialHeight) );
+	this->resize( QSize( nInitialWidth, nInitialHeight ) );
 
 	createBackground();	// create m_backgroundPixmap pixmap
 
@@ -295,8 +294,10 @@ void SongEditor::setGridWidth( uint width )
 {
 	if ( ( SONG_EDITOR_MIN_GRID_WIDTH <= width ) && ( SONG_EDITOR_MAX_GRID_WIDTH >= width ) ) {
 		m_nGridWidth = width;
-		this->resize ( SongEditor::nMargin +
-					   m_nMaxPatternSequence * m_nGridWidth, height() );
+		resize( SongEditor::nMargin +
+				Preferences::get_instance()->getMaxBars() * m_nGridWidth, height() );
+		createBackground();
+		update();
 	}
 }
 
@@ -496,6 +497,8 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	const QPoint centre = QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
 	bool bSelectionKey = false;
 
+	int nMaxPatternSequence = Preferences::get_instance()->getMaxBars();
+
 	updateModifiers( ev );
 
 	if ( bIsSelectionKey ) {
@@ -511,17 +514,17 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 
 	} else if ( ev->matches( QKeySequence::MoveToNextChar ) || ( bSelectionKey = ev->matches( QKeySequence::SelectNextChar ) ) ) {
 		// ->
-		if ( m_nCursorColumn < m_nMaxPatternSequence -1 ) {
+		if ( m_nCursorColumn < nMaxPatternSequence -1 ) {
 			m_nCursorColumn += 1;
 		}
 
 	} else if ( ev->matches( QKeySequence::MoveToNextWord ) || ( bSelectionKey = ev->matches( QKeySequence::SelectNextWord ) ) ) {
 		// -->
-		m_nCursorColumn = std::min( (int)m_nMaxPatternSequence, m_nCursorColumn + nWordSize );
+		m_nCursorColumn = std::min( (int)nMaxPatternSequence, m_nCursorColumn + nWordSize );
 
 	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ( bSelectionKey = ev->matches( QKeySequence::SelectEndOfLine ) ) ) {
 		// ->|
-		m_nCursorColumn = m_nMaxPatternSequence -1;
+		m_nCursorColumn = nMaxPatternSequence -1;
 
 	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) || ( bSelectionKey = ev->matches( QKeySequence::SelectPreviousChar ) ) ) {
 		// <-
@@ -964,7 +967,6 @@ void SongEditor::updatePosition( float fTick ) {
 
 void SongEditor::paintEvent( QPaintEvent *ev )
 {
-
 	// ridisegno tutto solo se sono cambiate le note
 	if (m_bSequenceChanged) {
 		m_bSequenceChanged = false;
@@ -1071,6 +1073,7 @@ void SongEditor::createBackground()
 
 	uint nPatterns = pSong->getPatternList()->size();
 	int nSelectedPatternNumber = m_pHydrogen->getSelectedPatternNumber();
+	int nMaxPatternSequence = pPref->getMaxBars();
 
 	static int nOldHeight = -1;
 	int nNewHeight = m_nGridHeight * nPatterns;
@@ -1100,10 +1103,10 @@ void SongEditor::createBackground()
 		int y = m_nGridHeight * ii;
 		
 		if ( ii == nSelectedPatternNumber ) {
-			p.fillRect( 0, y, m_nMaxPatternSequence * m_nGridWidth, m_nGridHeight,
+			p.fillRect( 0, y, nMaxPatternSequence * m_nGridWidth, m_nGridHeight,
 						pPref->getColorTheme()->m_songEditor_selectedRowColor );
 		} else {
-			p.fillRect( 0, y, m_nMaxPatternSequence * m_nGridWidth, m_nGridHeight,
+			p.fillRect( 0, y, nMaxPatternSequence * m_nGridWidth, m_nGridHeight,
 						pPref->getColorTheme()->m_songEditor_alternateRowColor );
 		}
 	}
@@ -1112,7 +1115,7 @@ void SongEditor::createBackground()
 					Qt::SolidLine ) );
 
 	// vertical lines
-	for ( float ii = 0; ii <= m_nMaxPatternSequence + 1; ii++) {
+	for ( float ii = 0; ii <= nMaxPatternSequence + 1; ii++) {
 		float x = SongEditor::nMargin + ii * m_nGridWidth;
 		p.drawLine( x, 0, x, m_nGridHeight * nPatterns );
 	}
@@ -1121,7 +1124,7 @@ void SongEditor::createBackground()
 	for (uint i = 0; i < nPatterns; i++) {
 		uint y = m_nGridHeight * i;
 
-		p.drawLine( 0, y, (m_nMaxPatternSequence * m_nGridWidth), y );
+		p.drawLine( 0, y, (nMaxPatternSequence * m_nGridWidth), y );
 	}
 
 	//~ celle
@@ -1333,10 +1336,14 @@ void SongEditor::updateEditorandSetTrue()
 
 void SongEditor::onPreferencesChanged( H2Core::Preferences::Changes changes ) 
 {
-	if ( changes & ( H2Core::Preferences::Changes::Colors |
+	if ( changes & ( H2Core::Preferences::Changes::GeneralTab |
+					 H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::AppearanceTab ) ) {
-		createBackground();
-		update();
+		resize( SongEditor::nMargin +
+				Preferences::get_instance()->getMaxBars() * m_nGridWidth, height() );
+		// Required to be called at least once in order to make the
+		// scroll bars match the (potential) new width.
+		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 	}
 }
 
@@ -2369,17 +2376,17 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	setMouseTracking( true );
 
 	m_nGridWidth = pPref->getSongEditorGridWidth();
-	m_nMaxPatternSequence = pPref->getMaxBars();
 
-	m_nInitialWidth = m_nMaxPatternSequence * 16;
+	int nInitialWidth = SongEditor::nMargin +
+		Preferences::get_instance()->getMaxBars() * m_nGridWidth;
 	
 	m_nActiveColumns = m_pHydrogen->getSong()->getPatternGroupVector()->size();
 
-	resize( m_nInitialWidth, m_nHeight );
+	resize( nInitialWidth, m_nHeight );
 	setFixedHeight( m_nHeight );
 
 	qreal pixelRatio = devicePixelRatio();
-	m_pBackgroundPixmap = new QPixmap( m_nInitialWidth * pixelRatio, m_nHeight * pixelRatio );	// initialize the pixmap
+	m_pBackgroundPixmap = new QPixmap( nInitialWidth * pixelRatio, m_nHeight * pixelRatio );	// initialize the pixmap
 	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 
 	createBackground();	// create m_backgroundPixmap pixmap
@@ -2421,6 +2428,8 @@ void SongEditorPositionRuler::setGridWidth( uint width )
 	if ( SONG_EDITOR_MIN_GRID_WIDTH <= width && SONG_EDITOR_MAX_GRID_WIDTH >= width )
 	{
 		m_nGridWidth = width;
+		resize( SongEditor::nMargin +
+				Preferences::get_instance()->getMaxBars() * m_nGridWidth, height() );
 		createBackground();
 		update();
 	}
@@ -2451,7 +2460,9 @@ void SongEditorPositionRuler::createBackground()
 		
 	// Resize pixmap if pixel ratio has changed
 	qreal pixelRatio = devicePixelRatio();
-	if ( m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ) {
+	if ( m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ||
+		 m_pBackgroundPixmap->width() != width() ||
+		 m_pBackgroundPixmap->height() != height()  ) {
 		delete m_pBackgroundPixmap;
 		m_pBackgroundPixmap = new QPixmap( width()  * pixelRatio , height() * pixelRatio );
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
@@ -2471,10 +2482,12 @@ void SongEditorPositionRuler::createBackground()
 				backgroundInactiveColor );
 	char tmp[10];
 	
+	int nMaxPatternSequence = pPref->getMaxBars();
+	
 	QColor textColorGrid( textColor );
 	textColorGrid.setAlpha( 200 );
 	p.setPen( QPen( textColorGrid, 1, Qt::SolidLine ) );
-	for ( int ii = 0; ii < m_nMaxPatternSequence + 1; ii++) {
+	for ( int ii = 0; ii < nMaxPatternSequence + 1; ii++) {
 		int x = SongEditor::nMargin + ii * m_nGridWidth;
 
 		if ( ( ii % 4 ) == 0 ) {
@@ -2487,7 +2500,7 @@ void SongEditorPositionRuler::createBackground()
 
 	// Add every 4th number to the grid
 	p.setPen( textColor );
-	for (uint i = 0; i < m_nMaxPatternSequence + 1; i += 4) {
+	for (uint i = 0; i < nMaxPatternSequence + 1; i += 4) {
 		uint x = SongEditor::nMargin + i * m_nGridWidth;
 
 		sprintf( tmp, "%d", i + 1 );
@@ -2495,7 +2508,7 @@ void SongEditorPositionRuler::createBackground()
 			p.drawText( x, height() / 2 + 3, m_nGridWidth, height() / 2 - 7,
 						Qt::AlignHCenter, tmp );
 		} else {
-			p.drawText( x + 2, height() / 2 + 3, m_nGridWidth * 2, height() / 2 - 7,
+			p.drawText( x + 2, height() / 2 + 3, m_nGridWidth * 3.5, height() / 2 - 7,
 						Qt::AlignLeft, tmp );
 		}
 	}
@@ -2526,7 +2539,7 @@ void SongEditorPositionRuler::createBackground()
 		tempoMarkerGridColor.setAlpha( 170 );
 		p.setPen( tempoMarkerGridColor );
 	}
-	for (uint ii = 0; ii < m_nMaxPatternSequence + 1; ii++) {
+	for (uint ii = 0; ii < nMaxPatternSequence + 1; ii++) {
 		uint x = SongEditor::nMargin + ii * m_nGridWidth;
 
 		p.drawLine( x, 1, x, 4 );
@@ -3091,6 +3104,8 @@ void SongEditorPositionRuler::onPreferencesChanged( H2Core::Preferences::Changes
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 			 
+		resize( SongEditor::nMargin +
+				Preferences::get_instance()->getMaxBars() * m_nGridWidth, height() );
 		createBackground();
 		update();
 	}
