@@ -323,8 +323,7 @@ public:
 	void	 		setMasterPeak_R( float value );
 	float 			getMasterPeak_R() const;
 
-	float			getProcessTime() const;
-	float			getMaxProcessTime() const;
+	float			getProcessLoad() const;
 
 	long			getPatternTickPosition() const;
 	long			getPatternStartTick() const;
@@ -815,11 +814,8 @@ private:
 		const char* function;
 	} m_pLocker;
 
-	// time used in process function
-	float				m_fProcessTime;
-
-	// max ms usable in process with no xrun
-	float				m_fMaxProcessTime;
+	// proportion of available time used in process function
+	float				m_fProcessLoad;
 
 	// time used to render audio produced byy LADSPA plugins
 	float				m_fLadspaTime;
@@ -981,12 +977,8 @@ inline float AudioEngine::getMasterPeak_R() const {
 	return m_fMasterPeak_R;
 }
 
-inline float AudioEngine::getProcessTime() const {
-	return m_fProcessTime;
-}
-
-inline float AudioEngine::getMaxProcessTime() const {
-	return m_fMaxProcessTime;
+inline float AudioEngine::getProcessLoad() const {
+	return m_fProcessLoad;
 }
 
 inline const struct timeval& AudioEngine::getCurrentTickTime() const {

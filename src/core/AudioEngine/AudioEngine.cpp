@@ -118,9 +118,8 @@ AudioEngine::AudioEngine()
 		, m_fMasterPeak_R( 0.0f )
 		, m_nColumn( -1 )
 		, m_nextState( State::Ready )
-		, m_fProcessTime( 0.0f )
+		, m_fProcessLoad( 0.0f )
 		, m_fLadspaTime( 0.0f )
-		, m_fMaxProcessTime( 0.0f )
 		, m_fNextBpm( 120 )
 		, m_pLocker({nullptr, 0, nullptr})
 		, m_currentTickTime( {0,0})
@@ -1476,17 +1475,19 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	timeval startTimeval = currentTime2();
 
+	assert( nframes != 0 );
+
 	// Resetting all audio output buffers with zeros.
 	pAudioEngine->clearAudioBuffers( nframes );
 
 	// Calculate maximum time to wait for audio engine lock. Using the
 	// last calculated processing time as an estimate of the expected
 	// processing time for this frame, the amount of slack time that
-	// we can afford to wait is: m_fMaxProcessTime - m_fProcessTime.
+	// we can afford to wait is: m_fMaxProcessTime - m_fProcessLoad * frames.
 
-	float sampleRate = static_cast<float>(pAudioEngine->m_pAudioDriver->getSampleRate());
-	pAudioEngine->m_fMaxProcessTime = 1000.0 / ( sampleRate / nframes );
-	float fSlackTime = pAudioEngine->m_fMaxProcessTime - pAudioEngine->m_fProcessTime;
+	float fSampleRate = static_cast<float>(pAudioEngine->m_pAudioDriver->getSampleRate());
+	float fMaxProcessingTime = 1000.0 / ( fSampleRate / nframes );
+	float fSlackTime = fMaxProcessingTime * ( 1 - pAudioEngine->m_fProcessLoad );
 
 	// If we expect to take longer than the available time to process,
 	// require immediate locking or not at all: we're bound to drop a
@@ -1503,8 +1504,15 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	 * writer driver to repeat the processing of the current data.
 	 */
 	if ( !pAudioEngine->tryLockFor( std::chrono::microseconds( (int)(1000.0*fSlackTime) ),
-							  RIGHT_HERE ) ) {
+									RIGHT_HERE ) ) {
 		___ERRORLOG( QString( "Failed to lock audioEngine in allowed %1 ms, missed buffer" ).arg( fSlackTime ) );
+		___ERRORLOG( QString( "Needed more than %1 ms to process %2 frames, estimated load is %3, frame is %4" )
+					 .arg( fMaxProcessingTime ).arg( nframes ).arg( pAudioEngine->m_fProcessLoad )
+					 .arg( pAudioEngine->getRealtimeFrames() ) );
+		/* We have no basis for estimating the current load since the current time period doesn't have any
+		   processing associated with it. However, claiming zero load may lead to trouble next
+		   period. Instead, we'll allow the load to decay like a UNIX loadaverage. */
+		pAudioEngine->m_fProcessLoad *= 0.8;
 
 		if ( dynamic_cast<DiskWriterDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) {
 			return 2;	// inform the caller that we could not aquire the lock
@@ -1583,18 +1591,20 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	}
 
 	timeval finishTimeval = currentTime2();
-	pAudioEngine->m_fProcessTime =
-			( finishTimeval.tv_sec - startTimeval.tv_sec ) * 1000.0
-			+ ( finishTimeval.tv_usec - startTimeval.tv_usec ) / 1000.0;
-	
-#ifdef CONFIG_DEBUG
-	if ( pAudioEngine->m_fProcessTime > pAudioEngine->m_fMaxProcessTime ) {
+	pAudioEngine->m_fProcessLoad =
+		( ( finishTimeval.tv_sec - startTimeval.tv_sec ) * 1000.0
+		  + ( finishTimeval.tv_usec - startTimeval.tv_usec ) / 1000.0 )
+		/ fMaxProcessingTime;
+
+	// #ifdef CONFIG_DEBUG
+#if 1
+	if ( pAudioEngine->m_fProcessLoad > 1.0 ) {
 		___WARNINGLOG( "" );
 		___WARNINGLOG( "----XRUN----" );
-		___WARNINGLOG( QString( "XRUN of %1 msec (%2 > %3)" )
-					   .arg( ( pAudioEngine->m_fProcessTime - pAudioEngine->m_fMaxProcessTime ) )
-					   .arg( pAudioEngine->m_fProcessTime ).arg( pAudioEngine->m_fMaxProcessTime ) );
-		___WARNINGLOG( QString( "Ladspa process time = %1" ).arg( fLadspaTime ) );
+		___WARNINGLOG( QString( "XRUN by %1%% in %2 frame buffer" )
+					   .arg( ( 100.0 * (pAudioEngine->m_fProcessLoad-1) ) )
+					   .arg( nframes ) );
+		___WARNINGLOG( QString( "Ladspa process time = %1" ).arg( pAudioEngine->m_fLadspaTime ) );
 		___WARNINGLOG( "------------" );
 		___WARNINGLOG( "" );
 		// raise xRun event
@@ -4192,8 +4202,7 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 #endif
 		sOutput.append( QString( "%1%2m_fMasterPeak_L: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fMasterPeak_L ) )
 			.append( QString( "%1%2m_fMasterPeak_R: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fMasterPeak_R ) )
-			.append( QString( "%1%2m_fProcessTime: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fProcessTime ) )
-			.append( QString( "%1%2m_fMaxProcessTime: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fMaxProcessTime ) )
+			.append( QString( "%1%2m_fProcessLoad: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fProcessLoad ) )
 			.append( QString( "%1%2m_pNextPatterns: %3\n" ).arg( sPrefix ).arg( s ).arg( m_pNextPatterns->toQString( sPrefix + s ), bShort ) )
 			.append( QString( "%1%2m_pPlayingPatterns: %3\n" ).arg( sPrefix ).arg( s ).arg( m_pPlayingPatterns->toQString( sPrefix + s ), bShort ) )
 			.append( QString( "%1%2m_nRealtimeFrames: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nRealtimeFrames ) )
@@ -4244,8 +4253,7 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 #endif
 		sOutput.append( QString( ", m_fMasterPeak_L: %1" ).arg( m_fMasterPeak_L ) )
 			.append( QString( ", m_fMasterPeak_R: %1" ).arg( m_fMasterPeak_R ) )
-			.append( QString( ", m_fProcessTime: %1" ).arg( m_fProcessTime ) )
-			.append( QString( ", m_fMaxProcessTime: %1" ).arg( m_fMaxProcessTime ) )
+			.append( QString( ", m_fProcessLoad: %1" ).arg( m_fProcessLoad ) )
 			.append( QString( ", m_pNextPatterns: %1" ).arg( m_pNextPatterns->toQString( sPrefix + s ), bShort ) )
 			.append( QString( ", m_pPlayingPatterns: %1" ).arg( m_pPlayingPatterns->toQString( sPrefix + s ), bShort ) )
 			.append( QString( ", m_nRealtimeFrames: %1" ).arg( m_nRealtimeFrames ) )

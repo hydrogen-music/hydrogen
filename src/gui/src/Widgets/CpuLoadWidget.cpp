@@ -119,26 +119,22 @@ void CpuLoadWidget::updateCpuLoadWidget()
 {
 	// Process time
 	H2Core::AudioEngine *pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
-	float fPercentage = 0;
-	if ( pAudioEngine->getMaxProcessTime() != 0.0 ) {
-		fPercentage = ( pAudioEngine->getProcessTime() / pAudioEngine->getMaxProcessTime() );
-	}
+	float fLoad = pAudioEngine->getProcessLoad();
 
-	if ( fPercentage > 1.0 ) {
-		fPercentage = 1.0;
-	} else if ( fPercentage < 0.0 ) {
-		fPercentage = 0.0;
+	if ( fLoad > 1.0 ) {
+		fLoad = 1.0;
+	} else if ( fLoad < 0.0 ) {
+		fLoad = 0.0;
 	}
 
 	for ( int ii = ( m_recentValues.size() - 1 ) ; ii > 0; ii-- ) {
 		m_recentValues[ ii ] = m_recentValues[ ii - 1 ];
 	}
-	m_recentValues[ 0 ] = fPercentage;
+	m_recentValues[ 0 ] = fLoad;
 
 	if ( m_nXRunValue > 0 ){
 		m_nXRunValue--;
 	}
-
 	update();
 }
 

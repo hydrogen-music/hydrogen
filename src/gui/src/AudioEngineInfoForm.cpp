@@ -104,11 +104,8 @@ void AudioEngineInfoForm::updateInfo()
 	char tmp[100];
 
 	// Process time
-	int perc = 0;
-	if ( pAudioEngine->getMaxProcessTime() != 0.0 ) {
-		perc= (int)( pAudioEngine->getProcessTime() / ( pAudioEngine->getMaxProcessTime() / 100.0 ) );
-	}
-	sprintf(tmp, "%#.2f / %#.2f  (%d%%)", pAudioEngine->getProcessTime(), pAudioEngine->getMaxProcessTime(), perc );
+	int perc = 100.0 * pAudioEngine->getProcessLoad();
+	sprintf(tmp, "%#.2f%%", perc );
 	processTimeLbl->setText(tmp);
 
 	// Song state
