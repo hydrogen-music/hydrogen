@@ -271,7 +271,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 										   pCommonStrings->getIsStopNoteLabel() );
 	m_pIsStopNoteLbl->move( 59, 144 );
 
-	m_pApplyVelocity = new QCheckBox ( tr( "" ), m_pInstrumentProp );
+	m_pApplyVelocity = new QCheckBox ( "", m_pInstrumentProp );
 	m_pApplyVelocity->move( 153, 139 );
 	m_pApplyVelocity->adjustSize();
 	m_pApplyVelocity->setFixedSize( 14, 14 );
@@ -749,7 +749,7 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 					float fCoarse = round( m_pLayerPitchCoarseRotary->getValue() );
 					float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
 					pLayer->set_pitch( fCoarse + fFine );
-					INFOLOG( tr( "layer pitch: %1" ).arg( pLayer->get_pitch() ) );
+					INFOLOG( QString( "layer pitch: %1" ).arg( pLayer->get_pitch() ) );
 				}
 			}
 		}
@@ -762,7 +762,7 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 					float fCoarse = round( m_pLayerPitchCoarseRotary->getValue() );
 					float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
 					pLayer->set_pitch( fCoarse + fFine );
-					INFOLOG( tr( "layer pitch: %1" ).arg( pLayer->get_pitch() ) );
+					INFOLOG( QString( "layer pitch: %1" ).arg( pLayer->get_pitch() ) );
 				}
 			}
 		}
