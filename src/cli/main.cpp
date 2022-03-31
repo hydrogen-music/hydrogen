@@ -509,13 +509,12 @@ int main(int argc, char *argv[])
 			pHydrogen->sequencer_stop();
 		}
 
-		//delete pSong;
 		pSong = nullptr;
 		delete pPlaylist;
 
-		delete pQueue;
 		preferences->savePreferences();
 		delete pHydrogen;
+		delete pQueue;
 		delete preferences;
 
 		delete MidiMap::get_instance();
