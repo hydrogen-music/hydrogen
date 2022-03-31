@@ -376,7 +376,7 @@ void PianoRollEditor::drawPattern()
 	// for each note...
 	for ( Pattern *pPattern : getPatternsToShow() ) {
 		bool bIsForeground = ( pPattern == m_pPattern );
-		const Pattern::notes_t* notes = pPattern->get_notes();
+		auto notes = pPattern->getAccessibleNotes();
 		FOREACH_NOTE_CST_IT_BEGIN_END( notes, it ) {
 			Note *note = it->second;
 			assert( note );
@@ -1217,7 +1217,7 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 	int x_min = (r.left() - w - PatternEditor::nMargin) / m_fGridWidth;
 	int x_max = (r.right() + w - PatternEditor::nMargin) / m_fGridWidth;
 
-	const Pattern::notes_t* pNotes = m_pPattern->get_notes();
+	auto pNotes = m_pPattern->getAccessibleNotes();
 
 	for ( auto it = pNotes->lower_bound( x_min ); it != pNotes->end() && it->first <= x_max; ++it ) {
 		Note *pNote = it->second;

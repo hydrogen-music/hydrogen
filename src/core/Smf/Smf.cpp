@@ -252,7 +252,7 @@ void SMFWriter::save( const QString& sFilename, std::shared_ptr<Song> pSong )
 			}
 
 			for ( unsigned nNote = 0; nNote < pPattern->get_length(); nNote++ ) {
-				const Pattern::notes_t* notes = pPattern->get_notes();
+				auto notes = pPattern->getAccessibleNotes();
 				FOREACH_NOTE_CST_IT_BOUND(notes,it,nNote) {
 					Note *pNote = it->second;
 					if ( pNote ) {

@@ -827,7 +827,7 @@ std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsInters
 	int x_min = (r.left() - PatternEditor::nMargin - 1) / m_fGridWidth;
 	int x_max = (r.right() - PatternEditor::nMargin) / m_fGridWidth;
 
-	const Pattern::notes_t* notes = m_pPattern->get_notes();
+	auto notes = m_pPattern->getAccessibleNotes();
 
 	for (auto it = notes->lower_bound( x_min ); it != notes->end() && it->first <= x_max; ++it ) {
 		Note *note = it->second;
@@ -863,7 +863,9 @@ void DrumPatternEditor::selectAll()
 	}
 	
 	m_selection.clearSelection();
-	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {
+
+	auto pNotes = m_pPattern->getAccessibleNotes();
+	FOREACH_NOTE_CST_IT_BEGIN_END( pNotes, it) {
 		m_selection.addToSelection( it->second );
 	}
 	m_selection.updateWidgetGroup();
@@ -1055,7 +1057,7 @@ void DrumPatternEditor::drawPattern(QPainter& painter)
 
 
 	for ( Pattern *pPattern : getPatternsToShow() ) {
-		const Pattern::notes_t *pNotes = pPattern->get_notes();
+		auto pNotes = pPattern->getAccessibleNotes();
 		if ( pNotes->size() == 0 ) {
 			continue;
 		}

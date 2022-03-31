@@ -1061,7 +1061,7 @@ void NotePropertiesRuler::createNormalizedBackground(QPixmap *pixmap)
 		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
 
-		const Pattern::notes_t* notes = m_pPattern->get_notes();
+		auto notes = m_pPattern->getAccessibleNotes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pposNote = it->second;
 			assert( pposNote );
@@ -1151,7 +1151,7 @@ void NotePropertiesRuler::createCenteredBackground(QPixmap *pixmap)
 		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
 
-		const Pattern::notes_t* notes = m_pPattern->get_notes();
+		auto notes = m_pPattern->getAccessibleNotes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pposNote = it->second;
 			assert( pposNote );
@@ -1303,7 +1303,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
 
-		const Pattern::notes_t* notes = m_pPattern->get_notes();
+		auto notes = m_pPattern->getAccessibleNotes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
 			assert( pNote );
@@ -1327,7 +1327,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		QPen selectedPen( selectedNoteColor() );
 		selectedPen.setWidth( 2 );
 
-		const Pattern::notes_t* notes = m_pPattern->get_notes();
+		auto notes = m_pPattern->getAccessibleNotes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
 			assert( pNote );
@@ -1461,7 +1461,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 		return std::move( result );
 	}
 	
-	const Pattern::notes_t* notes = m_pPattern->get_notes();
+	auto notes = m_pPattern->getAccessibleNotes();
 	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	auto pInstrument = pSong->getInstrumentList()->get( nSelectedInstrument );

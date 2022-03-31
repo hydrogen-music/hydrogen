@@ -75,7 +75,7 @@ private:
 	 * @param pattern the Pattern where the information is
 	 * @param notes   where to store the information to
 	 */
-	static void addPattern( const Pattern &pattern, notes_t &notes );
+	static void addPattern( Pattern &pattern, notes_t &notes );
 
 	/// Write measures in LilyPond format to stream
 	void writeMeasures( std::ofstream &stream ) const;

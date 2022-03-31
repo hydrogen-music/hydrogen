@@ -176,26 +176,33 @@ void Sampler::noteOn(Note *pNote )
 {
 	assert( pNote );
 
-	pNote->get_adsr()->attack();
+	auto pAdsr = pNote->get_adsr();
+	
+	assert( pAdsr );
+
+	pAdsr->attack();
 	auto pInstr = pNote->get_instrument();
+
+	assert( pInstr );
 
 	// mute group
 	int nMuteGrp = pInstr->get_mute_group();
 	if ( nMuteGrp != -1 ) {
 		// remove all notes using the same mute group
-		for ( const auto& pNote: m_playingNotesQueue ) {	// delete older note
-			if ( ( pNote->get_instrument() != pInstr )  && ( pNote->get_instrument()->get_mute_group() == nMuteGrp ) ) {
-				pNote->get_adsr()->release();
+		for ( const auto& ppNote: m_playingNotesQueue ) {	// delete older note
+			if ( ( ppNote->get_instrument() != pInstr )  &&
+				 ( ppNote->get_instrument()->get_mute_group() == nMuteGrp ) ) {
+				ppNote->get_adsr()->release();
 			}
 		}
 	}
 
 	//note off notes
 	if( pNote->get_note_off() ){
-		for ( const auto& pNote: m_playingNotesQueue ) {
-			if ( ( pNote->get_instrument() == pInstr ) ) {
+		for ( const auto& ppNote: m_playingNotesQueue ) {
+			if ( ( ppNote->get_instrument() == pInstr ) ) {
 				//ERRORLOG("note_off");
-				pNote->get_adsr()->release();
+				ppNote->get_adsr()->release();
 			}
 		}
 	}
@@ -1409,7 +1416,7 @@ void Sampler::setPlayingNotelength( std::shared_ptr<Instrument> pInstrument, uns
 			int patternsize = pCurrentPattern->get_length();
 
 			for ( unsigned nNote = 0; nNote < pCurrentPattern->get_length(); nNote++ ) {
-				const Pattern::notes_t* notes = pCurrentPattern->get_notes();
+				auto notes = pCurrentPattern->getAccessibleNotes();
 				FOREACH_NOTE_CST_IT_BOUND(notes,it,nNote) {
 					Note *pNote = it->second;
 					if ( pNote!=nullptr ) {

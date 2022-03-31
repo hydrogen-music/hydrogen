@@ -109,6 +109,25 @@ class Pattern : public H2Core::Object<Pattern>
 		int get_denominator() const;
 		///< get the note multimap
 		const notes_t* get_notes() const;
+	/**
+	 * Creates a shared pointer to a notes_t map containing the
+	 * currently accessible notes of the pattern.
+	 *
+	 * In #__notes all notes of the pattern will be stored. If the
+	 * length of the pattern is decreased by the user in such a way
+	 * its position is equal or greater the pattern length, the note
+	 * is not accessible anymore. In order to all for redo/undo
+	 * function still to work on those notes as well as to not loose
+	 * information, those notes will still persist in
+	 * #__notes. Instead, this function generates a new map similar to
+	 * #__notes which contains only the accessible notes and provides
+	 * it as a shared pointer.
+	 *
+	 * The notes in the map themselves will _not_ be copied but only a
+	 * pointer to the ones stored in #__notes is provided. Their
+	 * livecycle will be still dictated by #__notes.
+	 */
+	const std::shared_ptr<notes_t> getAccessibleNotes();
 		///< get the virtual pattern set
 		const virtual_patterns_t* get_virtual_patterns() const;
 		///< get the flattened virtual pattern set

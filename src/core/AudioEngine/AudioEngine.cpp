@@ -2417,7 +2417,7 @@ int AudioEngine::updateNoteQueue( unsigned nFrames )
 				  ++nPat ) {
 				Pattern *pPattern = m_pPlayingPatterns->get( nPat );
 				assert( pPattern != nullptr );
-				Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->get_notes();
+				auto notes = pPattern->getAccessibleNotes();
 
 				// Loop over all notes at tick nPatternTickPosition
 				// (associated tick is determined by Note::__position

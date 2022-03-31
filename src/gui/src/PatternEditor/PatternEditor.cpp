@@ -395,7 +395,9 @@ void PatternEditor::selectInstrumentNotes( int nInstrument )
 	auto pInstrument = pInstrumentList->get( nInstrument );
 
 	m_selection.clearSelection();
-	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {
+
+	auto pNotes = m_pPattern->getAccessibleNotes();
+	FOREACH_NOTE_CST_IT_BEGIN_END( pNotes, it) {
 		if ( it->second->get_instrument() == pInstrument ) {
 			m_selection.addToSelection( it->second );
 		}

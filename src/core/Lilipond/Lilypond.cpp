@@ -115,20 +115,20 @@ void H2Core::LilyPond::write( const QString &sFilename ) const {
 void H2Core::LilyPond::addPatternList( const PatternList &list, notes_t &to ) {
 	to.clear();
 	for ( unsigned nPattern = 0; nPattern < list.size(); nPattern++ ) {
-		if ( const Pattern *pPattern = list.get( nPattern ) ) {
+		if ( Pattern *pPattern = list.get( nPattern ) ) {
 			addPattern( *pPattern, to );
 		}
 	}
 }
 
-void H2Core::LilyPond::addPattern( const Pattern &pattern, notes_t &notes ) {
+void H2Core::LilyPond::addPattern( Pattern &pattern, notes_t &notes ) {
 	notes.reserve( pattern.get_length() );
 	for ( unsigned nNote = 0; nNote < pattern.get_length(); nNote++ ) {
 		if ( nNote >= notes.size() ) {
 			notes.push_back( std::vector<std::pair<int, float> >() );
 		}
 
-		const Pattern::notes_t *pPatternNotes = pattern.get_notes();
+		auto pPatternNotes = pattern.getAccessibleNotes();
 		if ( !pPatternNotes ) {
 			continue;
 		}

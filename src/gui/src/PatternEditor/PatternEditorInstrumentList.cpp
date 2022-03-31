@@ -527,7 +527,7 @@ void InstrumentLine::functionFillNotes( int every )
 
 			for (int i = 0; i < nPatternSize; i += nResolution) {
 				bool noteAlreadyPresent = false;
-				const Pattern::notes_t* notes = pCurrentPattern->get_notes();
+				auto notes = pCurrentPattern->getAccessibleNotes();
 				FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
 					Note *pNote = it->second;
 					if ( pNote->get_instrument() == instrRef ) {

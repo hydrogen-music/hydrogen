@@ -64,6 +64,19 @@ Pattern::~Pattern()
 	}
 }
 
+const std::shared_ptr<Pattern::notes_t> Pattern::getAccessibleNotes() {
+
+	std::shared_ptr<notes_t> accessibleNotes = std::make_shared<notes_t>();
+	
+	for( notes_cst_it_t it=__notes.begin(); it!=__notes.end(); it++ ) {
+		if ( it->first < __length && it->second != nullptr ) {
+			accessibleNotes->insert( std::make_pair( it->first, it->second ) );
+		}
+	}
+
+	return accessibleNotes;
+}
+
 Pattern* Pattern::load_file( const QString& pattern_path, InstrumentList* instruments )
 {
 	INFOLOG( QString( "Load pattern %1" ).arg( pattern_path ) );
