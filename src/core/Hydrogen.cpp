@@ -275,13 +275,6 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 		// delete pCurrentSong;
 	}
 
-	if ( m_GUIState != GUIState::unavailable ) {
-		/* Reset GUI */
-		EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
-		EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
-		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-	}
-
 	// In order to allow functions like audioEngine_setupLadspaFX() to
 	// load the settings of the new song, like whether the LADSPA FX
 	// are activated, __song has to be set prior to the call of
@@ -303,11 +296,6 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, true );
 	}
 #endif
-	
-	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION,
-											( pSong->getMode() == Song::Mode::Song) ? 1 : 0 );
-	EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION,
-											static_cast<int>( pSong->getIsTimelineActivated() ) );
 }
 
 /* Mean: remove current song from memory */
@@ -1116,9 +1104,8 @@ void Hydrogen::__panic()
 
 bool Hydrogen::haveJackAudioDriver() const {
 #ifdef H2CORE_HAVE_JACK
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-	if ( pAudioEngine->getAudioDriver() != nullptr ) {
-		if ( dynamic_cast<JackAudioDriver*>(pAudioEngine->getAudioDriver()) != nullptr ) {
+	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
+		if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr ) {
 			return true;
 		}
 	}
@@ -1130,9 +1117,8 @@ bool Hydrogen::haveJackAudioDriver() const {
 
 bool Hydrogen::haveJackTransport() const {
 #ifdef H2CORE_HAVE_JACK
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-	if ( pAudioEngine->getAudioDriver() != nullptr ) {
-		if ( dynamic_cast<JackAudioDriver*>(pAudioEngine->getAudioDriver()) != nullptr &&
+	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
+		if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr &&
 			 Preferences::get_instance()->m_bJackTransportMode ==
 			 Preferences::USE_JACK_TRANSPORT ){
 			return true;

@@ -2371,7 +2371,6 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 			
 		if ( pHydrogen->getMode() != Song::Mode::Song ) {
 			pCoreActionController->activateSongMode( true );
-			pApp->getPlayerControl()->songModeActivationEvent( 1 );
 		}
 
 		int nCursorColumn = pApp->getSongEditorPanel()->getSongEditor()->getCursorColumn();

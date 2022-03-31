@@ -200,6 +200,17 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	p.drawRect( 0, y, width() - 1, m_nLayerHeight );
 }
 
+void LayerPreview::drumkitLoadedEvent() {
+	selectedInstrumentChangedEvent();
+}
+
+void LayerPreview::updateSongEvent( int nValue ) {
+	// A new song got loaded
+	if ( nValue == 0 ) {
+		selectedInstrumentChangedEvent();
+	}
+}
+
 void LayerPreview::selectedInstrumentChangedEvent()
 {
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );

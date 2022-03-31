@@ -805,6 +805,12 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
+
+	if ( !( bActivate && pHydrogen->getMode() != Song::Mode::Song ) &&
+		 ! ( ! bActivate && pHydrogen->getMode() != Song::Mode::Pattern ) ) {
+		// No changes.
+		return true;
+	}		
 	
 	pHydrogen->sequencer_stop();
 	if ( bActivate && pHydrogen->getMode() != Song::Mode::Song ) {
@@ -824,7 +830,7 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 	return true;
 }
 
-bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent ) {
+bool CoreActionController::activateLoopMode( bool bActivate ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -856,8 +862,9 @@ bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent 
 		bChange = true;
 	}
 	
-	if ( bTriggerEvent && bChange ) {
-		EventQueue::get_instance()->push_event( EVENT_LOOP_MODE_ACTIVATION, static_cast<int>( bActivate ) );
+	if ( bChange ) {
+		EventQueue::get_instance()->push_event( EVENT_LOOP_MODE_ACTIVATION,
+												static_cast<int>( bActivate ) );
 	}
 	
 	return true;

@@ -928,7 +928,7 @@ void PatternEditorPanel::patternChangedEvent() {
 	updateEditors( true );
 }
 
-void PatternEditorPanel::songModeActivationEvent( int ) {
+void PatternEditorPanel::songModeActivationEvent() {
 	if ( Hydrogen::get_instance()->getPatternMode() ==
 		 Song::PatternMode::Stacked ) {
 		updateEditors( true );
@@ -1023,7 +1023,12 @@ void PatternEditorPanel::dropEvent( QDropEvent *event )
 void PatternEditorPanel::updateSongEvent( int nValue ) {
 	// A new song got loaded
 	if ( nValue == 0 ) {
+		// Performs an editor update with updateEditor() (and no argument).
+		selectedPatternChangedEvent();
+		selectedInstrumentChangedEvent();
 		updateSLnameLabel();
+		updateEditors( true );
+		m_pPatternEditorRuler->updatePosition();
 	}
 }
 

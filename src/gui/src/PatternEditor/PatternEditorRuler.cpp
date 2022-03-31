@@ -143,13 +143,6 @@ void PatternEditorRuler::relocationEvent() {
 	updatePosition();
 }
 
-void PatternEditorRuler::updateSongEvent( int nValue ) {
-
-	if ( nValue == 0 ) { // new song loaded
-		updatePosition();
-	}
-}
-
 void PatternEditorRuler::updateStart(bool start) {
 	if (start) {
 		m_pTimer->start(50);	// update ruler at 20 fps
@@ -549,7 +542,7 @@ void PatternEditorRuler::zoomOut()
 }
 
 
-void PatternEditorRuler::songModeActivationEvent( int )
+void PatternEditorRuler::songModeActivationEvent()
 {
 	updatePosition();
 }
@@ -561,7 +554,6 @@ void PatternEditorRuler::stateChangedEvent( H2Core::AudioEngine::State )
 	
 void PatternEditorRuler::selectedPatternChangedEvent()
 {
-	createBackground();
 	updateEditor( true );
 }
 

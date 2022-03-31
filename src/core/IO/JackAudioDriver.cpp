@@ -962,7 +962,6 @@ void JackAudioDriver::setTrackOutput( int n, std::shared_ptr<Instrument> pInstru
 void JackAudioDriver::startTransport()
 {
 	if ( m_pClient != nullptr ) {
-		INFOLOG( "jack_transport_start()" );
 		jack_transport_start( m_pClient );
 	} else {
 		ERRORLOG( "No client registered" );
@@ -972,7 +971,6 @@ void JackAudioDriver::startTransport()
 void JackAudioDriver::stopTransport()
 {
 	if ( m_pClient != nullptr ) {
-		INFOLOG( "jack_transport_stop()" );
 		jack_transport_stop( m_pClient );
 	} else {
 		ERRORLOG( "No client registered" );
@@ -988,7 +986,6 @@ void JackAudioDriver::locateTransport( long long nFrame )
 		// re-positions the transport to a new frame number. May
 		// be called at any time by any client.
 		jack_transport_locate( m_pClient, nFrame );
-		DEBUGLOG( nFrame );
 	} else {
 		ERRORLOG( "No client registered" );
 	}

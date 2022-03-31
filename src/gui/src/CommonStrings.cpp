@@ -310,6 +310,9 @@ CommonStrings::CommonStrings(){
 	/*: Displayed when hovering over the button in the
 	PatternEditorPanel to activate the PianoRollEditor.*/
 	m_sShowPianoRollEditorTooltip = tr( "Show piano roll editor" );
+
+	m_sJackMasterTooltip = tr("JACK Timebase master on/off");
+	m_sJackMasterDisabledTooltip = tr( "JACK timebase support is disabled in the Preferences" );
 	
 	/*: Title of the window displayed when using the MIDI learning
 	  capabilities of Hydrogen.*/

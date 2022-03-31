@@ -47,6 +47,7 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object<InstrumentE
 
 		virtual void parametersInstrumentChangedEvent() override;
 	virtual void drumkitLoadedEvent() override;
+	virtual void updateSongEvent( int ) override;
 		
 		InstrumentEditor* getInstrumentEditor() const;
 

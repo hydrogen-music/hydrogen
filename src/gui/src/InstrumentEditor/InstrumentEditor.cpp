@@ -493,7 +493,12 @@ InstrumentEditor::~InstrumentEditor()
 	//INFOLOG( "DESTROY" );
 }
 
-
+void InstrumentEditor::updateSongEvent( int nValue ) {
+	// A new song got loaded
+	if ( nValue == 0 ) {
+		selectedInstrumentChangedEvent();
+	}
+}
 
 void InstrumentEditor::selectedInstrumentChangedEvent()
 {

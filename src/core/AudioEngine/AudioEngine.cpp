@@ -162,7 +162,6 @@ AudioEngine::AudioEngine()
 #ifdef H2CORE_HAVE_LADSPA
 	Effects::create_instance();
 #endif
-
 }
 
 AudioEngine::~AudioEngine()
@@ -1241,7 +1240,10 @@ void AudioEngine::setAudioDriver( AudioOutput* pAudioDriver ) {
 		setupLadspaFX();
 	}
 
+	
 	handleDriverChange();
+
+	EventQueue::get_instance()->push_event( EVENT_DRIVER_CHANGED, 0 );
 }
 
 void AudioEngine::stopAudioDrivers()
@@ -2711,7 +2713,7 @@ bool AudioEngine::testTransportProcessing() {
 	auto pCoreActionController = pHydrogen->getCoreActionController();
 	
 	pCoreActionController->activateTimeline( false );
-	pCoreActionController->activateLoopMode( true, false );
+	pCoreActionController->activateLoopMode( true );
 
 	lock( RIGHT_HERE );
 
@@ -3253,7 +3255,7 @@ bool AudioEngine::testSongSizeChange() {
 	nNextTick += pSong->lengthInTicks();
 	
 	unlock();
-	pCoreActionController->activateLoopMode( true, false );
+	pCoreActionController->activateLoopMode( true );
 	pCoreActionController->locateToTick( nNextTick );
 	lock( RIGHT_HERE );
 	
@@ -3282,7 +3284,7 @@ bool AudioEngine::testSongSizeChangeInLoopMode() {
 	auto pPref = Preferences::get_instance();
 	
 	pCoreActionController->activateTimeline( false );
-	pCoreActionController->activateLoopMode( true, false );
+	pCoreActionController->activateLoopMode( true );
 
 	lock( RIGHT_HERE );
 
@@ -3389,7 +3391,7 @@ bool AudioEngine::testNoteEnqueuing() {
 	auto pPref = Preferences::get_instance();
 
 	pCoreActionController->activateTimeline( false );
-	pCoreActionController->activateLoopMode( false, false );
+	pCoreActionController->activateLoopMode( false );
 	pCoreActionController->activateSongMode( true );
 	lock( RIGHT_HERE );
 
