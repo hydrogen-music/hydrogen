@@ -384,7 +384,7 @@ void Button::updateFont() {
     case H2Core::FontTheme::FontSize::Small:
 		fScalingFactor = 1.2;
 		break;
-    case H2Core::FontTheme::FontSize::Normal:
+    case H2Core::FontTheme::FontSize::Medium:
 		fScalingFactor = 1.0;
 		break;
     case H2Core::FontTheme::FontSize::Large:

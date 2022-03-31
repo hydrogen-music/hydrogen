@@ -241,11 +241,11 @@ public:
 		void			removeInstrument( int nInstrumentNumber );
 
 		/** \return m_sCurrentDrumkitName */
-		const QString&	getCurrentDrumkitName();
+		QString	getCurrentDrumkitName() const;
 		/** \param sName sets m_sCurrentDrumkitName */
 		void			setCurrentDrumkitName( const QString& sName );
 		/** \return m_currentDrumkitLookup */
-		Filesystem::Lookup	getCurrentDrumkitLookup();
+		Filesystem::Lookup	getCurrentDrumkitLookup() const;
 		/** \param lookup sets m_currentDrumkitLookup */
 		void			setCurrentDrumkitLookup( Filesystem::Lookup lookup );
 
@@ -566,12 +566,6 @@ private:
 	 * Local instance of the CoreActionController object.
 	 */ 
 	CoreActionController* 	m_pCoreActionController;
-
-	/** Name of the currently used Drumkit.*/
-	QString			m_sCurrentDrumkitName;
-	/** Whether the current Drumkit is located at user or system
-		level.*/
-	Filesystem::Lookup	m_currentDrumkitLookup;
 	
 	/// Deleting instruments too soon leads to potential crashes.
 	std::list<std::shared_ptr<Instrument>> 	__instrument_death_row; 
@@ -630,24 +624,6 @@ inline void Hydrogen::setTimeline( std::shared_ptr<Timeline> pTimeline )
 inline CoreActionController* Hydrogen::getCoreActionController() const
 {
 	return m_pCoreActionController;
-}
-
-
-inline const QString& Hydrogen::getCurrentDrumkitName()
-{
-	return m_sCurrentDrumkitName;
-}
-inline void Hydrogen::setCurrentDrumkitName( const QString& sName )
-{
-	m_sCurrentDrumkitName = sName;
-}
-inline Filesystem::Lookup Hydrogen::getCurrentDrumkitLookup()
-{
-	return m_currentDrumkitLookup;
-}
-inline void Hydrogen::setCurrentDrumkitLookup( Filesystem::Lookup lookup )
-{
-	m_currentDrumkitLookup = lookup;
 }
 
 inline bool Hydrogen::getIsExportSessionActive() const

@@ -31,6 +31,7 @@
 #include <memory>
 
 #include <core/Object.h>
+#include <core/Helpers/Filesystem.h>
 
 class TiXmlNode;
 
@@ -274,6 +275,11 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	void removeInstrument( int nInstrumentNumber, bool bConditional );
 
 	std::vector<std::shared_ptr<Note>> getAllNotes() const;
+
+	const QString& getCurrentDrumkitName() const;
+	void setCurrentDrumkitName( const QString& sName );
+	Filesystem::Lookup	getCurrentDrumkitLookup() const;
+	void			setCurrentDrumkitLookup( Filesystem::Lookup lookup );
 	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -390,6 +396,9 @@ private:
 
 	void setTimeline( std::shared_ptr<Timeline> pTimeline );
 	std::shared_ptr<Timeline> m_pTimeline;
+
+	QString m_sCurrentDrumkitName;
+	Filesystem::Lookup m_currentDrumkitLookup;
 
 };
 
@@ -697,6 +706,22 @@ inline float Song::getPanLawKNorm() const {
 	return m_fPanLawKNorm;
 }
 
+inline const QString& Song::getCurrentDrumkitName() const
+{
+	return m_sCurrentDrumkitName;
+}
+inline void Song::setCurrentDrumkitName( const QString& sName )
+{
+	m_sCurrentDrumkitName = sName;
+}
+inline Filesystem::Lookup Song::getCurrentDrumkitLookup() const
+{
+	return m_currentDrumkitLookup;
+}
+inline void Song::setCurrentDrumkitLookup( Filesystem::Lookup lookup )
+{
+	m_currentDrumkitLookup = lookup;
+}
 };
 
 #endif

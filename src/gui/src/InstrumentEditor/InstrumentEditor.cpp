@@ -323,8 +323,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerProp->setPixmap( "/instrumentEditor/layerTabsupernew.png" );
 
 	// Component
-	m_pCompoNameLbl = new ClickableLabel( m_pLayerProp, QSize( 275, 28 ), "" );
-	m_pCompoNameLbl->move( 8, 5 );
+	m_pCompoNameLbl = new ClickableLabel( m_pLayerProp, QSize( 279, 27 ), "",
+										  ClickableLabel::Color::Bright, true, true );
+	m_pCompoNameLbl->move( 5, 4 );
 	connect( m_pCompoNameLbl, SIGNAL( labelClicked(ClickableLabel*) ),
 			 this, SLOT( labelCompoClicked(ClickableLabel*) ) );
 

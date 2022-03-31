@@ -181,7 +181,7 @@ public:
 
 	/** Enables custom scaling of the font size in the GUI.*/
 	enum class FontSize {
-		Normal = 0,
+		Medium = 0,
 		Small = 1,
 		Large = 2
 	};

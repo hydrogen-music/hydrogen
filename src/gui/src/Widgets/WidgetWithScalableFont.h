@@ -31,7 +31,7 @@
  *
  * To improve accessibility, three different font sizes,
  * H2Core::FontTheme::FontSize::Small,
- * H2Core::FontTheme::FontSize::Normal, and
+ * H2Core::FontTheme::FontSize::Medium, and
  * H2Core::FontTheme::FontSize::Large, are available.
  */
 /** \ingroup docGUI docWidgets*/
@@ -42,7 +42,7 @@ protected:
     switch ( fontSize ) {
     case H2Core::FontTheme::FontSize::Small:
       return nSmall;
-    case H2Core::FontTheme::FontSize::Normal:
+    case H2Core::FontTheme::FontSize::Medium:
       return nNormal;
     case H2Core::FontTheme::FontSize::Large:
       return nLarge;
