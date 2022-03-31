@@ -426,7 +426,7 @@ bool Filesystem::check_usr_paths()
 	if( !path_usable( plugins_dir() ) ) ret = false;
 	if( !path_usable( scripts_dir() ) ) ret = false;
 	if( !path_usable( songs_dir() ) ) ret = false;
-	if( file_exists( empty_song_path() ) ) ret = false;
+	if( file_exists( empty_song_path(), true ) ) ret = false;
 	if( !path_usable( usr_theme_dir() ) ) ret = false;
 	if( !file_writable( usr_config_path() ) ) ret = false;
 
