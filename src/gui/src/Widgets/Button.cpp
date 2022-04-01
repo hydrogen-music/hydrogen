@@ -34,7 +34,7 @@
 #include <core/Preferences/Theme.h>
 #include <core/Hydrogen.h>
 
-Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize, QString sBaseTooltip, bool bColorful, bool bModifyOnChange )
+Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize, QString sBaseTooltip, bool bColorful, bool bModifyOnChange, const QString& sBorderRadius )
 	: QPushButton( pParent )
 	, m_size( size )
 	, m_iconSize( iconSize )
@@ -48,6 +48,7 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	, m_bUseRedBackground( bUseRedBackground )
 	, m_nFixedFontSize( -1 )
 	, m_bModifyOnChange( bModifyOnChange )
+	, m_sBorderRadius( sBorderRadius )
 {
 	setAttribute( Qt::WA_OpaquePaintEvent );
 	setFocusPolicy( Qt::NoFocus );
@@ -65,12 +66,14 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 		setText( sText );
 	}
 
-	if ( size.width() <= 12 || size.height() <= 12 ) {
-		m_sBorderRadius = "0";
-	} else if ( size.width() <= 20 || size.height() <= 20 ) {
-		m_sBorderRadius = "3";
-	} else {
-		m_sBorderRadius = "5";
+	if ( m_sBorderRadius.isEmpty() ) {
+		if ( size.width() <= 12 || size.height() <= 12 ) {
+			m_sBorderRadius = "0";
+		} else if ( size.width() <= 20 || size.height() <= 20 ) {
+			m_sBorderRadius = "3";
+		} else {
+			m_sBorderRadius = "5";
+		}
 	}
 	
 	if ( type == Type::Toggle ) {
@@ -116,6 +119,13 @@ void Button::updateIcon() {
 		}
 	}
 	setIconSize( m_iconSize );
+}
+
+void Button::setUseRedBackground( bool bUseRedBackground ) {
+	m_bUseRedBackground	= bUseRedBackground;
+
+	updateStyleSheet();
+	update();
 }
 
 void Button::updateStyleSheet() {
@@ -374,7 +384,7 @@ void Button::updateFont() {
     case H2Core::FontTheme::FontSize::Small:
 		fScalingFactor = 1.2;
 		break;
-    case H2Core::FontTheme::FontSize::Normal:
+    case H2Core::FontTheme::FontSize::Medium:
 		fScalingFactor = 1.0;
 		break;
     case H2Core::FontTheme::FontSize::Large:

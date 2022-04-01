@@ -108,6 +108,9 @@ void SoundLibraryDatabase::update()
 
 void SoundLibraryDatabase::updatePatterns()
 {
+	for ( auto ppPattern : *patternVector ) {
+		delete ppPattern;
+	}
 	patternVector->clear();
 	patternCategories = QStringList();
 

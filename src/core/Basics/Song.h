@@ -31,6 +31,7 @@
 #include <memory>
 
 #include <core/Object.h>
+#include <core/Helpers/Filesystem.h>
 
 class TiXmlNode;
 
@@ -82,7 +83,24 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	public:
 		enum class Mode {
 			Pattern = 0,
-			Song = 1
+			Song = 1,
+			/** Used in case no song is set and both pattern and song
+				editor are not ready to operate yet.*/
+			None = 2
+		};
+
+		/** Defines the type of user interaction experienced in the 
+			SongEditor.*/
+		enum class ActionMode {
+			/** Holding a pressed left mouse key will draw a rectangle to
+				select a group of Notes.*/
+			selectMode = 0,
+			/** Holding a pressed left mouse key will draw/delete patterns
+				in all grid cells encountered.*/
+			drawMode = 1,
+			/** Used in case no song is set and both pattern and song
+				editor are not ready to operate yet.*/
+			None = 2
 		};
 
 		enum class LoopMode {
@@ -96,6 +114,22 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 			Finishing = 2
 		};
 
+	/** Determines how patterns will be added to
+	 * AudioEngine::m_pPlayingPatterns if transport is in
+	 * Song::Mode::Pattern.
+	 */
+	enum class PatternMode {
+		/** An arbitrary number of pattern can be played.*/
+		Stacked = 0,
+		/** Only one pattern - the one currently selected in the GUI -
+		 * will be played back.*/
+		Selected = 1,
+		/** Null element used to indicate that either no song is
+		 * present to Song::Mode::Song was selected
+		 */
+		None = 2
+	};
+
 		Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume );
 		~Song();
 
@@ -103,6 +137,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 	bool getIsTimelineActivated() const;
 	void setIsTimelineActivated( bool bIsTimelineActivated );
+	
+	bool getIsPatternEditorLocked() const;
+	void setIsPatternEditorLocked( bool bIsPatternEditorLocked );
 
 		bool getIsMuted() const;
 		void setIsMuted( bool bIsMuted );
@@ -165,6 +202,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		void			setLoopMode( LoopMode loopMode );
 		bool			isLoopEnabled() const;
 							
+		PatternMode		getPatternMode() const;
+		void			setPatternMode( PatternMode patternMode );
+							
 		float			getHumanizeTimeValue() const;
 		void			setHumanizeTimeValue( float fValue );
 							
@@ -214,17 +254,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		float			getPlaybackTrackVolume() const;
 		/** \param fVolume Sets #m_fPlaybackTrackVolume. */
 		void			setPlaybackTrackVolume( const float fVolume );
-
-		/** Defines the type of user interaction experienced in the 
-			SongEditor.*/
-		enum class ActionMode {
-			/** Holding a pressed left mouse key will draw a rectangle to
-				select a group of Notes.*/
-			selectMode = 0,
-			/** Holding a pressed left mouse key will draw/delete patterns
-				in all grid cells encountered.*/
-			drawMode = 1
-		};
 		ActionMode		getActionMode() const;
 		void			setActionMode( const ActionMode actionMode );
 
@@ -246,6 +275,11 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	void removeInstrument( int nInstrumentNumber, bool bConditional );
 
 	std::vector<std::shared_ptr<Note>> getAllNotes() const;
+
+	const QString& getCurrentDrumkitName() const;
+	void setCurrentDrumkitName( const QString& sName );
+	Filesystem::Lookup	getCurrentDrumkitLookup() const;
+	void			setCurrentDrumkitLookup( Filesystem::Lookup lookup );
 	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -303,6 +337,7 @@ private:
 		 * written to disk.
 		 */
 		LoopMode		m_loopMode;
+		PatternMode		m_patternMode;
 		float			m_fHumanizeTimeValue;
 		float			m_fHumanizeVelocityValue;
 		float			m_fSwingFactor;
@@ -343,6 +378,17 @@ private:
 
 		/** Stores the type of interaction with the SongEditor. */
 		ActionMode		m_actionMode;
+
+	/**
+	 * If set to true, the user won't be able to select a pattern via
+	 * the SongEditor. Instead, the pattern recorded note would be
+	 * inserted into is displayed. In single pattern/selected pattern
+	 * mode this is the one pattern being played back and in stacked
+	 * pattern mode this is the bottom-most one.
+	 *
+	 * This mode is only supported in Song mode.
+	 */
+	bool m_bIsPatternEditorLocked;
 		
 		int m_nPanLawType;
 		// k such that L^k+R^k = 1. Used in constant k-Norm pan law
@@ -351,6 +397,9 @@ private:
 	void setTimeline( std::shared_ptr<Timeline> pTimeline );
 	std::shared_ptr<Timeline> m_pTimeline;
 
+	QString m_sCurrentDrumkitName;
+	Filesystem::Lookup m_currentDrumkitLookup;
+
 };
 
 inline bool Song::getIsTimelineActivated() const {
@@ -358,6 +407,12 @@ inline bool Song::getIsTimelineActivated() const {
 }
 inline void Song::setIsTimelineActivated( bool bIsTimelineActivated ) {
 	m_bIsTimelineActivated = bIsTimelineActivated;
+}
+inline bool Song::getIsPatternEditorLocked() const {
+	return m_bIsPatternEditorLocked;
+}
+inline void Song::setIsPatternEditorLocked( bool bIsPatternEditorLocked ) {
+	m_bIsPatternEditorLocked = bIsPatternEditorLocked;
 }
 inline std::shared_ptr<Timeline> Song::getTimeline() const {
 	return m_pTimeline;
@@ -525,6 +580,15 @@ inline void Song::setLoopMode( Song::LoopMode loopMode )
 	setIsModified( true );
 }
 
+inline Song::PatternMode Song::getPatternMode() const
+{
+	return m_patternMode;
+}
+inline void Song::setPatternMode( Song::PatternMode patternMode )
+{
+	m_patternMode = patternMode;
+}
+
 inline float Song::getHumanizeTimeValue() const
 {
 	return m_fHumanizeTimeValue;
@@ -642,6 +706,22 @@ inline float Song::getPanLawKNorm() const {
 	return m_fPanLawKNorm;
 }
 
+inline const QString& Song::getCurrentDrumkitName() const
+{
+	return m_sCurrentDrumkitName;
+}
+inline void Song::setCurrentDrumkitName( const QString& sName )
+{
+	m_sCurrentDrumkitName = sName;
+}
+inline Filesystem::Lookup Song::getCurrentDrumkitLookup() const
+{
+	return m_currentDrumkitLookup;
+}
+inline void Song::setCurrentDrumkitLookup( Filesystem::Lookup lookup )
+{
+	m_currentDrumkitLookup = lookup;
+}
 };
 
 #endif

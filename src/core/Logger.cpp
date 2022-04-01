@@ -178,7 +178,7 @@ void Logger::log( unsigned level, const QString& class_name, const char* func_na
 void Logger::flush() const {
 
 	int nTimeout = 100;
-	for ( int ii = 0; ii < nTimeout; +ii ) {
+	for ( int ii = 0; ii < nTimeout; ++ii ) {
 		if ( __msg_queue.empty() ) {
 			break;
 		}

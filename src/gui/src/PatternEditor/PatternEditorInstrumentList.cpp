@@ -42,6 +42,7 @@ using namespace H2Core;
 #include "../HydrogenApp.h"
 #include "../Mixer/Mixer.h"
 #include "../Widgets/Button.h"
+#include "../Skin.h"
 
 #include <QtGui>
 #include <QtWidgets>
@@ -53,7 +54,9 @@ using namespace H2Core;
 
 InstrumentLine::InstrumentLine(QWidget* pParent)
 	: PixmapWidget(pParent)
-	, m_bIsSelected(false)
+	, WidgetWithHighlightedList()
+	, m_bIsSelected( false )
+	, m_bEntered( false )
 {
 
 	auto pPref = H2Core::Preferences::get_instance();
@@ -63,7 +66,6 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	setFixedSize(181, h);
 
 	QFont nameFont( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) );
-	nameFont.setBold( true );
 
 	m_pNameLbl = new QLabel(this);
 	m_pNameLbl->resize( 145, h );
@@ -72,7 +74,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 
 	/*: Text displayed on the button for muting an instrument. Its
 	  size is designed for a single character.*/
-	m_pMuteBtn = new Button( this, QSize( 18, height() - 1 ),
+	m_pMuteBtn = new Button( this, QSize( InstrumentLine::m_nButtonWidth, height() - 1 ),
 							 Button::Type::Toggle, "",
 							 pCommonStrings->getSmallMuteButton(),
 							 true, QSize(), tr("Mute instrument"),
@@ -84,7 +86,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 
 	/*: Text displayed on the button for soloing an instrument. Its
 	  size is designed for a single character.*/
-	m_pSoloBtn = new Button( this, QSize( 18, height() - 1 ),
+	m_pSoloBtn = new Button( this, QSize( InstrumentLine::m_nButtonWidth, height() - 1 ),
 							 Button::Type::Toggle, "",
 							 pCommonStrings->getSmallSoloButton(),
 							 false, QSize(), tr("Solo"),
@@ -129,45 +131,142 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopup->addAction( tr( "Delete instrument" ), this, SLOT( functionDeleteInstrument() ) );
 	m_pFunctionPopup->setObjectName( "PatternEditorFunctionPopup" );
 
-	m_bIsSelected = true;
-	setSelected(false);
+		// Reset the clicked row once the popup is closed by clicking at
+	// any position other than at an action of the popup.
+	connect( m_pFunctionPopup, &QMenu::aboutToHide, [=](){
+		if ( m_rowSelection == RowSelection::Popup ) {
+			setRowSelection( RowSelection::None );
+		}
+	});
+
+	updateStyleSheet();
 }
 
+
+void InstrumentLine::setRowSelection( RowSelection rowSelection ) {
+	if ( m_rowSelection != rowSelection ) {
+		m_rowSelection = rowSelection;
+		update();
+	}
+}
 
 
 void InstrumentLine::setName(const QString& sName)
 {
-	m_pNameLbl->setText(sName);
+	if ( m_pNameLbl->text() != sName ){
+		m_pNameLbl->setText(sName);
+	}
 }
 
 
 
-void InstrumentLine::setSelected(bool bSelected)
+void InstrumentLine::setSelected( bool bSelected )
 {
-	if (bSelected == m_bIsSelected) {
+	if ( bSelected == m_bIsSelected ) {
 		return;
 	}
+	
 	m_bIsSelected = bSelected;
-	if (m_bIsSelected) {
-		setPixmap( "/patternEditor/instrument_line_selected.png");
-	}
-	else {
-		setPixmap( "/patternEditor/instrument_line.png");
-	}
+
+	updateStyleSheet();
+	update();
 }
 
+void InstrumentLine::updateStyleSheet() {
+
+	auto pPref = H2Core::Preferences::get_instance();
+
+	QColor textColor;
+	if ( m_bIsSelected ) {
+		textColor = pPref->getColorTheme()->m_patternEditor_selectedRowTextColor;
+	} else {
+		textColor = pPref->getColorTheme()->m_patternEditor_textColor;
+	}
+
+	m_pNameLbl->setStyleSheet( QString( "\
+QLabel {\
+   color: %1;\
+   font-weight: bold;\
+ }" ).arg( textColor.name() ) );
+}
+
+void InstrumentLine::enterEvent( QEvent* ev ) {
+	UNUSED( ev );
+	m_bEntered = true;
+	update();
+}
+
+void InstrumentLine::leaveEvent( QEvent* ev ) {
+	UNUSED( ev );
+	m_bEntered = false;
+	update();
+}
+
+void InstrumentLine::paintEvent( QPaintEvent* ev ) {
+	auto pPref = Preferences::get_instance();
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	
+	QPainter painter(this);
+
+	QColor backgroundColor;
+	if ( m_bIsSelected ) {
+		backgroundColor = pPref->getColorTheme()->m_patternEditor_selectedRowColor.darker( 114 );
+	} else {
+		if ( m_nInstrumentNumber == 0 ||
+			 m_nInstrumentNumber % 2 == 0 ) {
+			backgroundColor = pPref->getColorTheme()->m_patternEditor_backgroundColor.darker( 120 );
+		} else {
+			backgroundColor = pPref->getColorTheme()->m_patternEditor_alternateRowColor.darker( 132 );
+		}
+	}
+
+	// Make the background slightly lighter when hovered.
+	bool bHovered = false;
+	if ( m_bEntered && m_rowSelection == RowSelection::None ) {
+		bHovered = true;
+	}
+
+	Skin::drawListBackground( &painter, QRect( 0, 0, width(), height() ),
+							  backgroundColor, bHovered );
+
+	// Draw border indicating cursor position
+	if ( ( m_bIsSelected && pHydrogenApp->getPatternEditorPanel() != nullptr &&
+		   pHydrogenApp->getPatternEditorPanel()->getDrumPatternEditor()->hasFocus() &&
+		   ! pHydrogenApp->hideKeyboardCursor() ) ||
+		 m_rowSelection != RowSelection::None ) {
+
+		QPen pen;
+
+		if ( m_rowSelection != RowSelection::None ) {
+			// In case a row was right-clicked, highlight it using a border.
+			pen.setColor( pPref->getColorTheme()->m_highlightColor);
+		} else {
+			pen.setColor( pPref->getColorTheme()->m_cursorColor );
+		}
+		
+		pen.setWidth( 2 );
+		painter.setPen( pen );
+		painter.setRenderHint( QPainter::Antialiasing );
+		painter.drawRoundedRect( QRect( 1, 1, width() - 2 * InstrumentLine::m_nButtonWidth - 1,
+										height() - 2 ), 4, 4 );
+	}
+}
 
 
 void InstrumentLine::setNumber(int nIndex)
 {
-	m_nInstrumentNumber = nIndex;
+	if ( m_nInstrumentNumber != nIndex ) {
+		m_nInstrumentNumber = nIndex;
+		update();
+	}
 }
 
 
 
 void InstrumentLine::setMuted(bool isMuted)
 {
-	if ( ! m_pMuteBtn->isDown() ) {
+	if ( ! m_pMuteBtn->isDown() &&
+		 m_pMuteBtn->isChecked() != isMuted ) {
 		m_pMuteBtn->setChecked(isMuted);
 	}
 }
@@ -175,7 +274,8 @@ void InstrumentLine::setMuted(bool isMuted)
 
 void InstrumentLine::setSoloed( bool soloed )
 {
-	if ( ! m_pSoloBtn->isDown() ) {
+	if ( ! m_pSoloBtn->isDown() &&
+		 m_pSoloBtn->isChecked() != soloed ) {
 		m_pSoloBtn->setChecked( soloed );
 	}
 }
@@ -241,8 +341,19 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 
 		Note *pNote = new Note( pInstr, 0, velocity, fPan, nLength, fPitch);
 		Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
-	}
-	else if (ev->button() == Qt::RightButton ) {
+		
+	} else if (ev->button() == Qt::RightButton ) {
+
+		if ( m_rowSelection == RowSelection::Dialog ) {
+			// There is still a dialog window opened from the last
+			// time. It needs to be closed before the popup will
+			// be shown again.
+			ERRORLOG( "A dialog is still opened. It needs to be closed first." );
+			return;
+		}
+			
+		setRowSelection( RowSelection::Popup );
+			
 		m_pFunctionPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
 	}
 
@@ -259,7 +370,8 @@ H2Core::Pattern* InstrumentLine::getCurrentPattern()
 	assert( pPatternList != nullptr );
 
 	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
-	if ( nSelectedPatternNumber != -1 ) {
+	if ( nSelectedPatternNumber != -1 &&
+		 nSelectedPatternNumber < pPatternList->size() ) {
 		Pattern* pCurrentPattern = pPatternList->get( nSelectedPatternNumber );
 		return pCurrentPattern;
 	}
@@ -275,6 +387,11 @@ void InstrumentLine::functionClearNotes()
 	int selectedPatternNr = pHydrogen->getSelectedPatternNumber();
 	Pattern *pPattern = getCurrentPattern();
 	auto pSelectedInstrument = pHydrogen->getSong()->getInstrumentList()->get( m_nInstrumentNumber );
+
+	if ( selectedPatternNr == -1 ) {
+		// No pattern selected. Nothing to be clear.
+		return;
+	}
 
 	std::list< Note* > noteList;
 	const Pattern::notes_t* notes = pPattern->get_notes();
@@ -379,6 +496,10 @@ void InstrumentLine::functionFillEverySixteenNotes(){ functionFillNotes(16); }
 void InstrumentLine::functionFillNotes( int every )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
+		// No pattern selected. Nothing to be filled.
+		return;
+	}
 
 	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
@@ -432,6 +553,11 @@ void InstrumentLine::functionFillNotes( int every )
 void InstrumentLine::functionRandomizeVelocity()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
+
+	if ( pHydrogen->getSelectedPatternNumber() == -1 ) {
+		// No pattern selected. Nothing to be randomized.
+		return;
+	}
 
 	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
@@ -487,6 +613,7 @@ void InstrumentLine::functionRandomizeVelocity()
 
 void InstrumentLine::functionRenameInstrument()
 {
+	setRowSelection( RowSelection::Dialog );
 	// This code is pretty much a duplicate of void InstrumentEditor::labelClicked
 	// in InstrumentEditor.cpp
 	Hydrogen * pHydrogen = Hydrogen::get_instance();
@@ -512,7 +639,8 @@ void InstrumentLine::functionRenameInstrument()
 	{
 		// user entered nothing or pressed Cancel
 	}
-
+	
+	setRowSelection( RowSelection::None );
 }
 
 void InstrumentLine::functionDeleteInstrument()
@@ -549,6 +677,11 @@ void InstrumentLine::onPreferencesChanged( H2Core::Preferences::Changes changes 
 		
 		m_pNameLbl->setFont( QFont( pPref->getLevel2FontFamily(), getPointSize( pPref->getFontSize() ) ) );
 	}
+
+	if ( changes & H2Core::Preferences::Changes::Colors ) {
+		updateStyleSheet();
+		update();
+	}
 }
 
 
@@ -557,6 +690,9 @@ void InstrumentLine::onPreferencesChanged( H2Core::Preferences::Changes changes 
 PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, PatternEditorPanel *pPatternEditorPanel )
  : QWidget( parent )
  {
+
+	HydrogenApp::get_instance()->addEventListener( this );
+	
 	//INFOLOG("INIT");
 	m_pPattern = nullptr;
 	m_pPatternEditorPanel = pPatternEditorPanel;
@@ -564,10 +700,9 @@ PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, Patte
 	m_nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
 
 	m_nEditorWidth = 181;
-	m_nEditorHeight = m_nGridHeight * MAX_INSTRUMENTS;
+	m_nEditorHeight = m_nGridHeight * MAX_INSTRUMENTS + 1;
 
 	resize( m_nEditorWidth, m_nEditorHeight );
-
 
 	setAcceptDrops(true);
 
@@ -608,7 +743,48 @@ InstrumentLine* PatternEditorInstrumentList::createInstrumentLine()
 	return pLine;
 }
 
+void PatternEditorInstrumentList::updateSongEvent( int nEvent ) {
+	if ( nEvent == 0 || nEvent == 1 ) {
+		updateInstrumentLines();
+	}
+}
 
+void PatternEditorInstrumentList::drumkitLoadedEvent() {
+	updateInstrumentLines();
+}
+
+void PatternEditorInstrumentList::repaintInstrumentLines() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
+
+	unsigned nInstruments = pInstrList->size();
+	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
+		if ( nInstr < nInstruments &&
+			 m_pInstrumentLine[ nInstr ] != nullptr ) {
+			m_pInstrumentLine[ nInstr ]->update();
+		}
+	}
+}
+
+void PatternEditorInstrumentList::selectedInstrumentChangedEvent() {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
+
+	unsigned nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
+
+	unsigned nInstruments = pInstrList->size();
+	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
+		if ( nInstr < nInstruments &&
+			 m_pInstrumentLine[ nInstr ] != nullptr ) {
+			
+			InstrumentLine *pLine = m_pInstrumentLine[ nInstr ];
+			pLine->setSelected( nInstr == nSelectedInstr );
+		}
+	}
+}
 
 ///
 /// Update every InstrumentLine, create or destroy lines if necessary.
@@ -630,7 +806,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 				delete m_pInstrumentLine[ nInstr ];
 				m_pInstrumentLine[ nInstr ] = nullptr;
 
-				int newHeight = m_nGridHeight * nInstruments;
+				int newHeight = m_nGridHeight * nInstruments + 1;
 				resize( width(), newHeight );
 
 			}
@@ -640,7 +816,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 			if ( m_pInstrumentLine[ nInstr ] == nullptr ) {
 				// the instrument line doesn't exists..I'll create a new one!
 				m_pInstrumentLine[ nInstr ] = createInstrumentLine();
-				m_pInstrumentLine[nInstr]->move( 0, m_nGridHeight * nInstr );
+				m_pInstrumentLine[nInstr]->move( 0, m_nGridHeight * nInstr + 1 );
 				m_pInstrumentLine[nInstr]->show();
 
 				int newHeight = m_nGridHeight * nInstruments;
@@ -661,7 +837,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 	}
 
 }
-
+	
 void PatternEditorInstrumentList::dragEnterEvent(QDragEnterEvent *event)
 {
 	event->acceptProposedAction();

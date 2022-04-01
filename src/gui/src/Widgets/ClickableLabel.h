@@ -51,8 +51,9 @@ public:
 		Dark
 	};
 	
-	explicit ClickableLabel( QWidget *pParent, QSize size = QSize( 0, 0 ), QString sText = "", Color color = Color::Bright, bool bModifyOnChange = true );
-	virtual void mousePressEvent( QMouseEvent * e ) override;
+	explicit ClickableLabel( QWidget *pParent, QSize size = QSize( 0, 0 ),
+							 QString sText = "", Color color = Color::Bright,
+							 bool bModifyOnChange = true, bool bIsEditable = false );
 
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
@@ -65,12 +66,22 @@ private:
 	void updateStyleSheet();
 	void updateFont( QString sFontFamily, H2Core::FontTheme::FontSize fontSize );
 
+	virtual void mousePressEvent( QMouseEvent * e ) override;
+	virtual void enterEvent( QEvent * e ) override;
+	virtual void leaveEvent( QEvent * e ) override;
+	virtual void paintEvent( QPaintEvent * e ) override;
 	QSize m_size;
 	Color m_color;
 
 	/** Whether Hydrogen::setIsModified() is invoked with `true` as
 		soon as the value of the widget does change.*/
 	bool m_bModifyOnChange;
+
+	/** If set to true a highlight will be painted when hovered. This
+		should be set if a callback is connected and the user is able to
+		change its content.*/
+	bool m_bIsEditable;
+	bool m_bEntered;
 };
 
 

@@ -721,15 +721,15 @@ void SoundLibraryImportDialog::on_BrowseBtn_clicked()
 void SoundLibraryImportDialog::on_InstallBtn_clicked()
 {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
-
+	
 	try {
 		H2Core::Drumkit::install( SoundLibraryPathTxt->text() );
-		QMessageBox::information( this, "Hydrogen", QString( tr( "SoundLibrary imported in %1" ).arg( H2Core::Filesystem::usr_data_path() )  ) );
 		// update the drumkit list
 		SoundLibraryDatabase::get_instance()->update();
 		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
 		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 		QApplication::restoreOverrideCursor();
+		QMessageBox::information( this, "Hydrogen", QString( tr( "SoundLibrary imported in %1" ).arg( H2Core::Filesystem::usr_data_path() )  ) );
 	}
 	catch( H2Core::H2Exception ex ) {
 		QApplication::restoreOverrideCursor();

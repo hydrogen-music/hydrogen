@@ -33,8 +33,10 @@
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include "../Widgets/PixmapWidget.h"
+#include "../EventListener.h"
 #include "../Selection.h"
 #include "../Widgets/WidgetWithScalableFont.h"
+#include "../Widgets/WidgetWithHighlightedList.h"
 
 namespace H2Core
 {
@@ -45,7 +47,9 @@ class PatternEditorPanel;
 class Button;
 
 /** \ingroup docGUI*/
-class InstrumentLine : public PixmapWidget, protected WidgetWithScalableFont<8, 10, 12>
+class InstrumentLine : public PixmapWidget
+					 , protected WidgetWithScalableFont<8, 10, 12>
+					 , protected WidgetWithHighlightedList
 {
     H2_OBJECT(InstrumentLine)
 	Q_OBJECT
@@ -59,6 +63,8 @@ class InstrumentLine : public PixmapWidget, protected WidgetWithScalableFont<8, 
 		void setMuted(bool isMuted);
 		void setSoloed( bool soloed );
 		void setSamplesMissing( bool bSamplesMissing );
+
+	static constexpr int m_nButtonWidth = 18;
 
 public slots:
 		void onPreferencesChanged( H2Core::Preferences::Changes changes );
@@ -102,12 +108,23 @@ public slots:
 		Button *m_pSampleWarning;
 
 		virtual void mousePressEvent(QMouseEvent *ev) override;
+	virtual void enterEvent( QEvent *ev );
+	virtual void leaveEvent( QEvent *ev );
+	virtual void paintEvent( QPaintEvent* ev ) override;
 		H2Core::Pattern* getCurrentPattern();
+
+	void updateStyleSheet();
+	void setRowSelection( RowSelection rowSelection );
+
+	/** Whether the cursor entered the boundary of the widget.*/
+	bool m_bEntered;
 };
 
 
 /** \ingroup docGUI*/
-class PatternEditorInstrumentList :  public QWidget,  public H2Core::Object<PatternEditorInstrumentList> {
+class PatternEditorInstrumentList :  public QWidget,
+									 public EventListener,
+									 public H2Core::Object<PatternEditorInstrumentList> {
 	H2_OBJECT(PatternEditorInstrumentList)
 	Q_OBJECT
 
@@ -122,7 +139,11 @@ class PatternEditorInstrumentList :  public QWidget,  public H2Core::Object<Patt
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;
 		virtual void dropEvent(QDropEvent *event) override;
 
-
+	virtual void selectedInstrumentChangedEvent() override;
+	virtual void updateSongEvent( int nEvent ) override;
+	virtual void drumkitLoadedEvent() override;
+	
+	void repaintInstrumentLines();
 	public slots:
 		void updateInstrumentLines();
 
@@ -141,6 +162,8 @@ class PatternEditorInstrumentList :  public QWidget,  public H2Core::Object<Patt
 
 		InstrumentLine* createInstrumentLine();
 
+private:
+	void drawFocus( QPainter& painter );
 };
 
 
