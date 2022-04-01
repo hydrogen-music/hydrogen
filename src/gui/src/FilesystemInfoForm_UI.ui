@@ -32,7 +32,7 @@
     </widget>
    </item>
    <item row="0" column="2">
-    <widget class="QPushButton" name="tmpDirWarningButton">
+    <widget class="Button" name="tmpDirWarningButton">
       <property name="enabled">
        <bool>true</bool>
       </property>
@@ -76,7 +76,7 @@ height: 18px;</string>
     </widget>
    </item>
    <item row="1" column="2">
-     <widget class="QPushButton" name="usrDataDirWarningButton">
+     <widget class="Button" name="usrDataDirWarningButton">
       <property name="styleSheet">
        <string notr="true">width: 16px;
 height: 16px</string>
@@ -129,6 +129,13 @@ height: 16px</string>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Button</class>
+   <extends>QPushButton</extends>
+   <header location="global">../src/Widgets/Button.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

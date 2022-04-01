@@ -141,20 +141,6 @@ void Skin::setPalette( QApplication *pQApp ) {
 	pQApp->setStyleSheet( getGlobalStyleSheet() );
 }
 
-QString Skin::getWarningButtonStyleSheet( int nSize) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
-	return QString( "\
-width: %1px; \
-height: %1px; \
-color: %2; \
-background-color: %3; \
-border-color: %3;" )
-		.arg( nSize )
-		.arg( pPref->getColorTheme()->m_windowTextColor.name() )
-		.arg( pPref->getColorTheme()->m_windowColor.name() );
-}
-
 void Skin::drawListBackground( QPainter* p, QRect rect, QColor background,
 							   bool bHovered ) {
 

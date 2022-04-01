@@ -67,7 +67,12 @@ public:
 		/** Button is not set checkable.*/
 		Push,
 		/** Button is set checkable.*/
-		Toggle
+		Toggle,
+		/** Button is both flat and has a transparent background. It
+		 * can not be checked and its sole purpose is to show its
+		 * icon.
+		 */
+		Icon
 	};
 	
 	/**
@@ -117,6 +122,9 @@ public:
 	
 	bool getIsActive() const;
 	void setIsActive( bool bIsActive );
+
+	Type getType() const;
+	void setType( Type type );
 
 	void setSize( QSize size );
 	/**  Overwrites the automatically set value. If @a nPixelSize is
@@ -181,6 +189,9 @@ inline int Button::getFixedFontSize() const {
 }
 inline bool Button::getUseRedBackground() const {
 	return m_bUseRedBackground;
+}
+inline Button::Type Button::getType() const {
+	return m_type;
 }
 
 #endif
