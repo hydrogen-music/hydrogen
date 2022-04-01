@@ -409,19 +409,26 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 		auto pLayer = m_pInstrument->get_component( m_nSelectedComponent )->get_layer( m_nSelectedLayer );
 		if ( pLayer ) {
 			if ( m_bMouseGrab ) {
+				bool bChanged = false;
 				if ( m_bGrabLeft ) {
 					if ( fVel < pLayer->get_end_velocity()) {
 						pLayer->set_start_velocity( fVel );
+						bChanged = true;
 						showLayerStartVelocity( pLayer, ev );
 					}
 				}
 				else {
 					if ( fVel > pLayer->get_start_velocity()) {
 						pLayer->set_end_velocity( fVel );
+						bChanged = true;
 						showLayerEndVelocity( pLayer, ev );
 					}
 				}
-				update();
+
+				if ( bChanged ) {
+					update();
+					Hydrogen::get_instance()->setIsModified( true );
+				}
 			}
 		}
 	}

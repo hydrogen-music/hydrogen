@@ -131,7 +131,7 @@ public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 private slots:
-	void onToggled( bool );
+	void onClick();
 
 signals:
 	void clicked(Button *pBtn);

@@ -88,11 +88,7 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Button::onPreferencesChanged );
 
-	if ( type == Type::Toggle ) {
-		connect( this, SIGNAL(toggled(bool)), this, SLOT(onToggled(bool)));
-	} else {
-		connect( this, SIGNAL(clicked(bool)), this, SLOT(onToggled(bool)));
-	}
+	connect( this, SIGNAL(clicked()), this, SLOT(onClick()));
 }
 
 Button::~Button() {
@@ -457,7 +453,7 @@ void Button::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	}
 }
 
-void Button::onToggled( bool bChecked ) {
+void Button::onClick() {
 	if ( m_bModifyOnChange ) {
 		H2Core::Hydrogen::get_instance()->setIsModified( true );
 	}

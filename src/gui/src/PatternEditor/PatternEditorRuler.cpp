@@ -87,7 +87,7 @@ PatternEditorRuler::~PatternEditorRuler() {
 }
 
 void PatternEditorRuler::updatePosition( bool bForce ) {
-
+	
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	
@@ -214,6 +214,7 @@ void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
 
 		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
 			pCoreActionController->activateSongMode( false );
+			pHydrogen->setIsModified( true );
 		}
 
 		pCoreActionController->locateToTick( nNewTick );

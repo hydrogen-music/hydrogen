@@ -2729,6 +2729,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 
 			if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
 				pCoreActionController->activateSongMode( true );
+				m_pHydrogen->setIsModified( true );
 			}
 
 			m_pHydrogen->getCoreActionController()->locateToColumn( nColumn );

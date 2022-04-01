@@ -148,6 +148,7 @@ bool CoreActionController::setMasterIsMuted( bool isMuted )
 	}
 	
 	pHydrogen->getSong()->setIsMuted( isMuted );
+	pHydrogen->setIsModified( true );
 	
 #ifdef H2CORE_HAVE_OSC
 	std::shared_ptr<Action> pFeedbackAction = std::make_shared<Action>( "MUTE_TOGGLE" );
@@ -534,7 +535,7 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 			Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
 		}
 	}
-
+		
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
 	}

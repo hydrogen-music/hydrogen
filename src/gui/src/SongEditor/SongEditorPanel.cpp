@@ -762,6 +762,7 @@ void SongEditorPanel::drawModeBtnPressed()
 
 void SongEditorPanel::timelineBtnPressed() {
 	setTimelineActive( ! m_pTimelineBtn->isChecked() );
+	Hydrogen::get_instance()->setIsModified( true );
 }
 
 void SongEditorPanel::showTimeline()

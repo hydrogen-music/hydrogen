@@ -87,7 +87,6 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	
 
 		void updateSLnameLabel();
-		void updatePianorollEditor();
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;

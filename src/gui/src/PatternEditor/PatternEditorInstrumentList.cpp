@@ -327,7 +327,7 @@ void InstrumentLine::selectInstrumentNotes()
 void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 {
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( m_nInstrumentNumber );
-	HydrogenApp::get_instance()->getPatternEditorPanel()->updatePianorollEditor();
+	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
 
 	if ( ev->button() == Qt::LeftButton ) {
 		const int width = m_pMuteBtn->x() - 5; // clickable field width
@@ -739,7 +739,8 @@ PatternEditorInstrumentList::~PatternEditorInstrumentList()
 InstrumentLine* PatternEditorInstrumentList::createInstrumentLine()
 {
 	InstrumentLine *pLine = new InstrumentLine(this);
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, pLine, &InstrumentLine::onPreferencesChanged );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 pLine, &InstrumentLine::onPreferencesChanged );
 	return pLine;
 }
 
@@ -808,7 +809,6 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 
 				int newHeight = m_nGridHeight * nInstruments + 1;
 				resize( width(), newHeight );
-
 			}
 			continue;
 		}

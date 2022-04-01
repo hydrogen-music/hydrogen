@@ -250,7 +250,7 @@ void Hydrogen::loadPlaybackTrack( const QString filename )
 void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 {
 	assert ( pSong );
-	
+
 	// Move to the beginning.
 	setSelectedPatternNumber( 0 );
 
@@ -1197,6 +1197,8 @@ bool Hydrogen::isPatternEditorLocked() const {
 void Hydrogen::setIsPatternEditorLocked( bool bValue ) {
 	if ( __song != nullptr ) {
 		__song->setIsPatternEditorLocked( bValue );
+
+		__song->setIsModified( true );
 			
 		EventQueue::get_instance()->push_event( EVENT_PATTERN_EDITOR_LOCKED,
 												bValue );
@@ -1382,6 +1384,12 @@ void Hydrogen::setIsModified( bool bIsModified ) {
 			getSong()->setIsModified( bIsModified );
 		}
 	}
+}
+bool Hydrogen::getIsModified() const {
+	if ( getSong() != nullptr ) {
+		return getSong()->getIsModified();
+	}
+	return false;
 }
 
 void Hydrogen::setCurrentDrumkitName( const QString& sName ) {

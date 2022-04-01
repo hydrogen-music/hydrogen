@@ -501,7 +501,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pPropertiesVBox->setMargin( 0 );
 
 
-	m_pPropertiesCombo = new LCDCombo( nullptr, QSize( m_pInstrumentList->width(), 18 ) );
+	m_pPropertiesCombo =
+		new LCDCombo( nullptr, QSize( m_pInstrumentList->width(), 18 ), false );
 	m_pPropertiesCombo->setToolTip( tr( "Select note properties" ) );
 	m_pPropertiesCombo->addItem( tr("Velocity") );
 	m_pPropertiesCombo->addItem( tr("Pan") );
@@ -607,7 +608,6 @@ PatternEditorPanel::~PatternEditorPanel()
 void PatternEditorPanel::drumkitLoadedEvent() {
 	updateSLnameLabel();
 	getDrumPatternEditor()->updateEditor();
-	updatePianorollEditor();
 	
 }
 
@@ -1088,11 +1088,6 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 	else {
 		ERRORLOG( QString( "unhandled value : %1" ).arg( nSelected ) );
 	}
-}
-
-void PatternEditorPanel::updatePianorollEditor()
-{
-	m_pDrumPatternEditor->updateEditor(); // force an update
 }
 
 int PatternEditorPanel::getCursorPosition()

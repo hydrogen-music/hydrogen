@@ -145,13 +145,10 @@ void Song::setBpm( float fBpm ) {
 	} else {
 		m_fBpm = fBpm;
 	}
-	setIsModified( true );
 }
 
 void Song::setActionMode( Song::ActionMode actionMode ) {
 	m_actionMode = actionMode;
-
-	setIsModified( true );
 }
 
 long Song::lengthInTicks() const {
@@ -290,7 +287,6 @@ void Song::setSwingFactor( float factor )
 	}
 
 	m_fSwingFactor = factor;
-	setIsModified( true );
 }
 
 void Song::setIsModified( bool bIsModified )
@@ -422,7 +418,6 @@ void Song::readTempPatternList( const QString& sFilename )
 	} else {
 		WARNINGLOG( "no sequence node not found" );
 	}
-	setIsModified( true );
 }
 
 bool Song::writeTempPatternList( const QString& sFilename )

@@ -429,7 +429,6 @@ inline bool Song::getIsMuted() const
 inline void Song::setIsMuted( bool bIsMuted )
 {
 	m_bIsMuted = bIsMuted;
-	setIsModified( true );
 }
 
 inline unsigned Song::getResolution() const
@@ -440,7 +439,6 @@ inline unsigned Song::getResolution() const
 inline void Song::setResolution( unsigned resolution )
 {
 	m_resolution = resolution;
-	setIsModified( true );
 }
 
 inline float Song::getBpm() const
@@ -451,7 +449,6 @@ inline float Song::getBpm() const
 inline void Song::setName( const QString& sName )
 {
 	m_sName = sName;
-	setIsModified( true );
 }
 
 inline const QString& Song::getName() const
@@ -467,7 +464,6 @@ inline float Song::getVolume() const
 inline void Song::setVolume( float fValue )
 {
 	m_fVolume = fValue;
-	setIsModified( true );
 }
 
 inline float Song::getMetronomeVolume() const
@@ -478,7 +474,6 @@ inline float Song::getMetronomeVolume() const
 inline void Song::setMetronomeVolume( float fValue )
 {
 	m_fMetronomeVolume = fValue;
-	setIsModified( true );
 }
 
 inline bool Song::getIsModified() const 
@@ -523,7 +518,6 @@ inline void Song::setPatternGroupVector( std::vector<PatternList*>* pGroupVector
 inline void Song::setNotes( const QString& sNotes )
 {
 	m_sNotes = sNotes;
-	setIsModified( true );
 }
 
 inline const QString& Song::getNotes() const
@@ -534,7 +528,6 @@ inline const QString& Song::getNotes() const
 inline void Song::setLicense( const QString& sLicense )
 {
 	m_sLicense = sLicense;
-	setIsModified( true );
 }
 
 inline const QString& Song::getLicense() const
@@ -545,7 +538,6 @@ inline const QString& Song::getLicense() const
 inline void Song::setAuthor( const QString& sAuthor )
 {
 	m_sAuthor = sAuthor;
-	setIsModified( true );
 }
 
 inline const QString& Song::getAuthor() const
@@ -561,7 +553,6 @@ inline const QString& Song::getFilename() const
 inline void Song::setFilename( const QString& sFilename )
 {
 	m_sFilename = sFilename;
-	setIsModified( true );
 }
 
 inline bool Song::isLoopEnabled() const
@@ -577,7 +568,6 @@ inline Song::LoopMode Song::getLoopMode() const
 inline void Song::setLoopMode( Song::LoopMode loopMode )
 {
 	m_loopMode = loopMode;
-	setIsModified( true );
 }
 
 inline Song::PatternMode Song::getPatternMode() const
@@ -597,7 +587,6 @@ inline float Song::getHumanizeTimeValue() const
 inline void Song::setHumanizeTimeValue( float fValue )
 {
 	m_fHumanizeTimeValue = fValue;
-	setIsModified( true );
 }
 
 inline float Song::getHumanizeVelocityValue() const
@@ -608,7 +597,6 @@ inline float Song::getHumanizeVelocityValue() const
 inline void Song::setHumanizeVelocityValue( float fValue )
 {
 	m_fHumanizeVelocityValue = fValue;
-	setIsModified( true );
 }
 
 inline float Song::getSwingFactor() const
@@ -624,7 +612,6 @@ inline Song::Mode Song::getMode() const
 inline void Song::setMode( Song::Mode mode )
 {
 	m_mode = mode;
-	setIsModified( true );
 }
 
 inline std::vector<DrumkitComponent*>* Song::getComponents() const
@@ -649,7 +636,6 @@ inline int Song::getLatestRoundRobin( float fStartVelocity )
 inline void Song::setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin )
 {
 	m_latestRoundRobins[ fStartVelocity ] = nLatestRoundRobin;
-	setIsModified( true );
 }
 
 inline const QString& Song::getPlaybackTrackFilename() const
@@ -660,7 +646,6 @@ inline const QString& Song::getPlaybackTrackFilename() const
 inline void Song::setPlaybackTrackFilename( const QString sFilename )
 {
 	m_sPlaybackTrackFilename = sFilename;
-	setIsModified( true );
 }
 
 inline bool Song::getPlaybackTrackEnabled() const
@@ -674,7 +659,6 @@ inline bool Song::setPlaybackTrackEnabled( const bool bEnabled )
 		return false;
 	}
 	m_bPlaybackTrackEnabled = bEnabled;
-	setIsModified( true );
 	return bEnabled;
 }
 
@@ -686,7 +670,6 @@ inline float Song::getPlaybackTrackVolume() const
 inline void Song::setPlaybackTrackVolume( const float fVolume )
 {
 	m_fPlaybackTrackVolume = fVolume;
-	setIsModified( true );
 }
 
 inline Song::ActionMode Song::getActionMode() const {
@@ -695,7 +678,6 @@ inline Song::ActionMode Song::getActionMode() const {
 
 inline void Song::setPanLawType( int nPanLawType ) {
 	m_nPanLawType = nPanLawType;
-	setIsModified( true );
 }
 
 inline int Song::getPanLawType() const {

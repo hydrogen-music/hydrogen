@@ -51,9 +51,6 @@ public:
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
-private slots:
-	void onCurrentIndexChanged( int );
-
 private:
 	void updateStyleSheet();
 	QSize m_size;
