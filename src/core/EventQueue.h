@@ -312,6 +312,9 @@ private:
 
 	/** Whether or not to push log messages.*/
 	bool m_bSilent;
+
+	/** Messages lost to bufffer overflow */
+	int m_nLostEvents;
 };
 
 inline bool EventQueue::getSilent() const {

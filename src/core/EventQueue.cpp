@@ -46,6 +46,8 @@ EventQueue::EventQueue()
 		__events_buffer[ i ].type = EVENT_NONE;
 		__events_buffer[ i ].value = 0;
 	}
+	m_bSilent = false;
+	m_nLostEvents = 0;
 }
 
 
@@ -72,12 +74,22 @@ void EventQueue::push_event( const EventType type, const int nValue )
 	   we also adjust the read pointer, otherwise pop_event would return this newest event on the next call,
 	   then subsequent calls would get newer entries. */
 
-	if ( ! m_bSilent &&
-		 __write_index > __read_index + MAX_EVENTS ) {
-		ERRORLOG( QString( "Event queue full, lost event type %1 value %2" )
-				  .arg( __events_buffer[nIndex].type )
-				  .arg( __events_buffer[nIndex].value ));
+	if ( __write_index > __read_index + MAX_EVENTS ) {
+		if ( m_nLostEvents == 0 ) {
+			if ( ! m_bSilent ) {
+				ERRORLOG( QString( "Event queue full, lost event type %1 value %2" )
+						  .arg( __events_buffer[nIndex].type )
+						  .arg( __events_buffer[nIndex].value ));
+			}
+		}
+		m_nLostEvents++;
 		__read_index++;
+	} else {
+		if ( m_nLostEvents > 1 ) {
+			if ( ! m_bSilent ) {
+				ERRORLOG( QString( "Lost %1 events due to queue overflow" ).arg( m_nLostEvents ) );
+			}
+		}
 	}
 
 	__events_buffer[ nIndex ] = ev;
