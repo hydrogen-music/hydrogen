@@ -84,8 +84,12 @@ public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 	void setValue( double fValue );
 
+private slots:
+	void valueChanged( double fNewValue );
+
 signals:
 	void slashKeyPressed();
+	void valueChanged( int );
 	
 private:
 	double nextValueInPatternSizeDenominator( bool bUp, bool bAccelerated );

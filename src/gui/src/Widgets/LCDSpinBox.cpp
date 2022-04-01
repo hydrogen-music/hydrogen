@@ -47,7 +47,9 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, do
 	setFixedSize( m_size );
 
 	updateStyleSheet();
-		
+
+	connect( this, SIGNAL(valueChanged(double)), this,
+                        SLOT(valueChanged(double)));
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
 			 this, &LCDSpinBox::onPreferencesChanged );
 		
@@ -398,5 +400,11 @@ void LCDSpinBox::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		updateStyleSheet();
+	}
+}
+
+void LCDSpinBox::valueChanged( double fNewValue ) {
+	if ( m_type == Type::Int ) {
+		emit valueChanged( static_cast<int>(fNewValue) );
 	}
 }
