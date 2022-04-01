@@ -947,7 +947,9 @@ bool Sampler::renderNoteNoResample(
 	}
 
 
-	retValue = pADSR->applyADSR( buffer_L, buffer_R, nTimes, nNoteEnd, 1 );
+	if ( pADSR->applyADSR( buffer_L, buffer_R, nTimes, nNoteEnd, 1 ) ) {
+		retValue = true;
+	}
 	bool bFilterIsActive = pInstrument->is_filter_active();
 	// Low pass resonant filter
 
@@ -1221,7 +1223,9 @@ bool Sampler::renderNoteResample(
 		fSamplePos += fStep;
 	}
 
-	retValue = pADSR->applyADSR( buffer_L, buffer_R, nTimes, nNoteEnd, 1 );
+	if ( pADSR->applyADSR( buffer_L, buffer_R, nTimes, nNoteEnd, 1 ) ) {
+		retValue = true;
+	}
 
 	// Mix rendered sample buffer to track and mixer output
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
