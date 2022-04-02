@@ -513,9 +513,9 @@ int main(int argc, char *argv[])
 		pSong = nullptr;
 		delete pPlaylist;
 
-		delete pQueue;
 		preferences->savePreferences();
 		delete pHydrogen;
+		delete pQueue;
 		delete preferences;
 
 		delete MidiMap::get_instance();
