@@ -547,9 +547,9 @@ int main(int argc, char *argv[])
 		delete pSong;
 		delete Playlist::get_instance();
 
-		delete pQueue;
 		preferences->savePreferences();
 		delete pHydrogen;
+		delete pQueue;
 		delete preferences;
 		delete pAudioEngine;
 
