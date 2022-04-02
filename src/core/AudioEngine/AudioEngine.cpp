@@ -1658,7 +1658,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	pAudioEngine->m_fProcessLoad = ( ( totalTime.tv_sec  * 1000.0 + totalTime.tv_usec / 1000.0 )
 									 / fMaxProcessingTime );
 
-#ifdef CONFIG_DEBUG
+#ifndef NDEBUG
 	if ( pAudioEngine->m_fProcessLoad > 1.0 ) {
 		___WARNINGLOG( "" );
 		___WARNINGLOG( "----XRUN----" );
