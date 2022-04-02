@@ -104,7 +104,7 @@ void AudioEngineInfoForm::updateInfo()
 	char tmp[100];
 
 	// Process time
-	int perc = 100.0 * pAudioEngine->getProcessLoad();
+	float perc = 100.0 * pAudioEngine->getProcessLoad();
 	sprintf(tmp, "%#.2f%%", perc );
 	processTimeLbl->setText(tmp);
 

@@ -1561,6 +1561,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	 * audio processing. Returning the special return value "2" enables the disk 
 	 * writer driver to repeat the processing of the current data.
 	 */
+	timeval startLockTimeval = currentTime2();
 	if ( !pAudioEngine->tryLockFor( std::chrono::microseconds( (int)(1000.0*fSlackTime) ),
 									RIGHT_HERE ) ) {
 		___ERRORLOG( QString( "Failed to lock audioEngine in allowed %1 ms, missed buffer" ).arg( fSlackTime ) );
@@ -1578,6 +1579,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 		return 0;
 	}
+	timeval startProcessTimeval = currentTime2();
 
 	if ( ! ( pAudioEngine->getState() == AudioEngine::State::Ready ||
 			 pAudioEngine->getState() == AudioEngine::State::Playing ) ) {
@@ -1648,13 +1650,15 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	}
 
 	timeval finishTimeval = currentTime2();
-	pAudioEngine->m_fProcessLoad =
-		( ( finishTimeval.tv_sec - startTimeval.tv_sec ) * 1000.0
-		  + ( finishTimeval.tv_usec - startTimeval.tv_usec ) / 1000.0 )
-		/ fMaxProcessingTime;
+	timeval clearTime, processTime;
+	timersub( &startLockTimeval, &startTimeval, &clearTime );
+	timersub( &finishTimeval, &startLockTimeval, &processTime );
+	timeval totalTime;
+	timeradd( &clearTime, &processTime, &totalTime );
+	pAudioEngine->m_fProcessLoad = ( ( totalTime.tv_sec  * 1000.0 + totalTime.tv_usec / 1000.0 )
+									 / fMaxProcessingTime );
 
-	// #ifdef CONFIG_DEBUG
-#if 1
+#ifdef CONFIG_DEBUG
 	if ( pAudioEngine->m_fProcessLoad > 1.0 ) {
 		___WARNINGLOG( "" );
 		___WARNINGLOG( "----XRUN----" );
