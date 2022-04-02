@@ -80,9 +80,8 @@ void* loggerThread_func( void* param ) {
 				}
 			}
 			// remove all in front of last
-			queue->erase( queue->begin(), last );
-			// lock before removing last
 			pthread_mutex_lock( &logger->__mutex );
+			queue->erase( queue->begin(), last );
 			queue->pop_front();
 			pthread_mutex_unlock( &logger->__mutex );
 		}
