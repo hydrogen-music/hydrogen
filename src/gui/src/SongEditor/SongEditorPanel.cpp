@@ -260,7 +260,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	QWidget *pHScrollbarPanel = new QWidget();
 	pHScrollbarPanel->setLayout( pHZoomLayout );
 
-	songModeActivationEvent(0);
+	songModeActivationEvent();
 
 	//~ ZOOM
 
@@ -705,11 +705,10 @@ void SongEditorPanel::updateSongEvent( int nValue ) {
 		patternEditorLockedEvent( 0 );
 		actionModeChangeEvent( 0 );
 		stackedModeActivationEvent( 0 );
-		jackTimebaseStateChangedEvent( 0 );
-		songModeActivationEvent( 0 );
-		timelineActivationEvent( 0 );
-
-		updateAll();
+		jackTimebaseStateChangedEvent();
+		songModeActivationEvent();
+		timelineActivationEvent();
+		selectedPatternChangedEvent();
 	}
 }
 
@@ -763,6 +762,7 @@ void SongEditorPanel::drawModeBtnPressed()
 
 void SongEditorPanel::timelineBtnPressed() {
 	setTimelineActive( ! m_pTimelineBtn->isChecked() );
+	Hydrogen::get_instance()->setIsModified( true );
 }
 
 void SongEditorPanel::showTimeline()
@@ -998,7 +998,7 @@ void SongEditorPanel::toggleAutomationAreaVisibility()
 }
 
 
-void SongEditorPanel::jackTimebaseStateChangedEvent( int ) {
+void SongEditorPanel::jackTimebaseStateChangedEvent() {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
@@ -1010,7 +1010,7 @@ void SongEditorPanel::jackTimebaseStateChangedEvent( int ) {
 	}
 }
 
-void SongEditorPanel::songModeActivationEvent( int ) {
+void SongEditorPanel::songModeActivationEvent() {
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
@@ -1041,7 +1041,7 @@ void SongEditorPanel::songModeActivationEvent( int ) {
 	}
 }
 
-void SongEditorPanel::timelineActivationEvent( int ){
+void SongEditorPanel::timelineActivationEvent(){
 	auto pHydrogen = Hydrogen::get_instance();
 	if ( ! pHydrogen->isTimelineEnabled() && m_pTimelineBtn->isChecked() ) {
 		setTimelineActive( false );

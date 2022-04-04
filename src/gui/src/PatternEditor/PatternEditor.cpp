@@ -859,9 +859,8 @@ std::vector< Pattern *> PatternEditor::getPatternsToShow( void )
 }
 
 
-void PatternEditor::songModeActivationEvent( int nValue )
+void PatternEditor::songModeActivationEvent()
 {
-	UNUSED( nValue );
 	// May need to draw (or hide) other background patterns
 	update();
 }

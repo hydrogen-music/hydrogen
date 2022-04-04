@@ -501,7 +501,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pPropertiesVBox->setMargin( 0 );
 
 
-	m_pPropertiesCombo = new LCDCombo( nullptr, QSize( m_pInstrumentList->width(), 18 ) );
+	m_pPropertiesCombo =
+		new LCDCombo( nullptr, QSize( m_pInstrumentList->width(), 18 ), false );
 	m_pPropertiesCombo->setToolTip( tr( "Select note properties" ) );
 	m_pPropertiesCombo->addItem( tr("Velocity") );
 	m_pPropertiesCombo->addItem( tr("Pan") );
@@ -607,7 +608,6 @@ PatternEditorPanel::~PatternEditorPanel()
 void PatternEditorPanel::drumkitLoadedEvent() {
 	updateSLnameLabel();
 	getDrumPatternEditor()->updateEditor();
-	updatePianorollEditor();
 	
 }
 
@@ -928,7 +928,7 @@ void PatternEditorPanel::patternChangedEvent() {
 	updateEditors( true );
 }
 
-void PatternEditorPanel::songModeActivationEvent( int ) {
+void PatternEditorPanel::songModeActivationEvent() {
 	if ( Hydrogen::get_instance()->getPatternMode() ==
 		 Song::PatternMode::Stacked ) {
 		updateEditors( true );
@@ -1023,7 +1023,12 @@ void PatternEditorPanel::dropEvent( QDropEvent *event )
 void PatternEditorPanel::updateSongEvent( int nValue ) {
 	// A new song got loaded
 	if ( nValue == 0 ) {
+		// Performs an editor update with updateEditor() (and no argument).
+		selectedPatternChangedEvent();
+		selectedInstrumentChangedEvent();
 		updateSLnameLabel();
+		updateEditors( true );
+		m_pPatternEditorRuler->updatePosition();
 	}
 }
 
@@ -1083,11 +1088,6 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 	else {
 		ERRORLOG( QString( "unhandled value : %1" ).arg( nSelected ) );
 	}
-}
-
-void PatternEditorPanel::updatePianorollEditor()
-{
-	m_pDrumPatternEditor->updateEditor(); // force an update
 }
 
 int PatternEditorPanel::getCursorPosition()

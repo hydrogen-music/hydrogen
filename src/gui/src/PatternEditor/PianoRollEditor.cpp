@@ -140,7 +140,6 @@ void PianoRollEditor::selectedInstrumentChangedEvent()
 
 void PianoRollEditor::selectedPatternChangedEvent()
 {
-	updatePatternInfo();
 	updateEditor();
 }
 

@@ -148,6 +148,7 @@ bool CoreActionController::setMasterIsMuted( bool isMuted )
 	}
 	
 	pHydrogen->getSong()->setIsMuted( isMuted );
+	pHydrogen->setIsModified( true );
 	
 #ifdef H2CORE_HAVE_OSC
 	std::shared_ptr<Action> pFeedbackAction = std::make_shared<Action>( "MUTE_TOGGLE" );
@@ -534,7 +535,7 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 			Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
 		}
 	}
-
+		
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
 	}
@@ -805,6 +806,12 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 		ERRORLOG( "no song set" );
 		return false;
 	}
+
+	if ( !( bActivate && pHydrogen->getMode() != Song::Mode::Song ) &&
+		 ! ( ! bActivate && pHydrogen->getMode() != Song::Mode::Pattern ) ) {
+		// No changes.
+		return true;
+	}		
 	
 	pHydrogen->sequencer_stop();
 	if ( bActivate && pHydrogen->getMode() != Song::Mode::Song ) {
@@ -824,7 +831,7 @@ bool CoreActionController::activateSongMode( bool bActivate ) {
 	return true;
 }
 
-bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent ) {
+bool CoreActionController::activateLoopMode( bool bActivate ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
@@ -856,8 +863,9 @@ bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent 
 		bChange = true;
 	}
 	
-	if ( bTriggerEvent && bChange ) {
-		EventQueue::get_instance()->push_event( EVENT_LOOP_MODE_ACTIVATION, static_cast<int>( bActivate ) );
+	if ( bChange ) {
+		EventQueue::get_instance()->push_event( EVENT_LOOP_MODE_ACTIVATION,
+												static_cast<int>( bActivate ) );
 	}
 	
 	return true;

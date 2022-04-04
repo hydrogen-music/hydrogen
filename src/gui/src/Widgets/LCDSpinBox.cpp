@@ -47,10 +47,11 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, QSize size, Type type, double fMin, do
 	setFixedSize( m_size );
 
 	updateStyleSheet();
-		
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &LCDSpinBox::onPreferencesChanged );
+
 	connect( this, SIGNAL(valueChanged(double)), this,
-			 SLOT(valueChanged(double)));
+                        SLOT(valueChanged(double)));
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 this, &LCDSpinBox::onPreferencesChanged );
 		
 	setMaximum( fMax );
 	setMinimum( fMin );
@@ -78,6 +79,8 @@ void LCDSpinBox::setIsActive( bool bIsActive ) {
 
 void LCDSpinBox::wheelEvent( QWheelEvent *ev ) {
 	static float fCumulatedDelta;
+
+	double fOldValue = value();
 	
 	if ( m_kind == Kind::PatternSizeDenominator ) {
 
@@ -111,9 +114,15 @@ void LCDSpinBox::wheelEvent( QWheelEvent *ev ) {
 		QDoubleSpinBox::wheelEvent( ev );
 
 	}
+
+	if ( fOldValue != value() && m_bModifyOnChange ) {
+		H2Core::Hydrogen::get_instance()->setIsModified( true );
+	}
 }
 
 void LCDSpinBox::keyPressEvent( QKeyEvent *ev ) {
+	double fOldValue = value();
+	
 	if ( m_kind == Kind::PatternSizeDenominator &&
 		 ( ev->key() == Qt::Key_Up || ev->key() == Qt::Key_Down ||
 		   ev->key() == Qt::Key_PageUp || ev->key() == Qt::Key_PageDown ) ) {
@@ -148,6 +157,10 @@ void LCDSpinBox::keyPressEvent( QKeyEvent *ev ) {
 		
 	} else {
 		 QDoubleSpinBox::keyPressEvent( ev );
+	}
+	
+	if ( fOldValue != value() && m_bModifyOnChange ) {
+		H2Core::Hydrogen::get_instance()->setIsModified( true );
 	}
 }
 
@@ -260,7 +273,7 @@ void LCDSpinBox::setValue( double fValue ) {
 	if ( value() == fValue ) {
 		return;
 	}
-	
+
 	QDoubleSpinBox::setValue( fValue );
 }
 
@@ -272,6 +285,36 @@ bool LCDSpinBox::event( QEvent* ev ) {
 	}
 
 	return QDoubleSpinBox::event( ev );
+}
+
+void LCDSpinBox::mousePressEvent( QMouseEvent* ev ) {
+	double fOldValue = value();
+
+	QDoubleSpinBox::mousePressEvent( ev );
+	
+	if ( fOldValue != value() && m_bModifyOnChange ) {
+		H2Core::Hydrogen::get_instance()->setIsModified( true );
+	}
+}
+
+void LCDSpinBox::mouseMoveEvent( QMouseEvent* ev ) {
+	double fOldValue = value();
+
+	QDoubleSpinBox::mouseMoveEvent( ev );
+	
+	if ( fOldValue != value() && m_bModifyOnChange ) {
+		H2Core::Hydrogen::get_instance()->setIsModified( true );
+	}
+}
+
+void LCDSpinBox::mouseReleaseEvent( QMouseEvent* ev ) {
+	double fOldValue = value();
+
+	QDoubleSpinBox::mouseReleaseEvent( ev );
+	
+	if ( fOldValue != value() && m_bModifyOnChange ) {
+		H2Core::Hydrogen::get_instance()->setIsModified( true );
+	}
 }
 
 void LCDSpinBox::paintEvent( QPaintEvent *ev ) {
@@ -361,12 +404,7 @@ void LCDSpinBox::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 }
 
 void LCDSpinBox::valueChanged( double fNewValue ) {
-
 	if ( m_type == Type::Int ) {
 		emit valueChanged( static_cast<int>(fNewValue) );
-	}
-	
-	if ( m_bModifyOnChange ) {
-		H2Core::Hydrogen::get_instance()->setIsModified( true );
 	}
 }

@@ -802,7 +802,7 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_TIMELINE_ACTIVATION:
-				pListener->timelineActivationEvent( event.value );
+				pListener->timelineActivationEvent();
 				break;
 
 			case EVENT_TIMELINE_UPDATE:
@@ -810,15 +810,15 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_JACK_TRANSPORT_ACTIVATION:
-				pListener->jackTransportActivationEvent( event.value );
+				pListener->jackTransportActivationEvent();
 				break;
 
 			case EVENT_JACK_TIMEBASE_STATE_CHANGED:
-				pListener->jackTimebaseStateChangedEvent( event.value );
+				pListener->jackTimebaseStateChangedEvent();
 				break;
 				
 			case EVENT_SONG_MODE_ACTIVATION:
-				pListener->songModeActivationEvent( event.value );
+				pListener->songModeActivationEvent();
 				break;
 
 			case EVENT_STACKED_MODE_ACTIVATION:
@@ -826,7 +826,7 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 				
 			case EVENT_LOOP_MODE_ACTIVATION:
-				pListener->loopModeActivationEvent( event.value );
+				pListener->loopModeActivationEvent();
 				break;
 
 			case EVENT_ACTION_MODE_CHANGE:
@@ -851,6 +851,10 @@ void HydrogenApp::onEventQueueTimer()
 				
 			case EVENT_SONG_SIZE_CHANGED:
 				pListener->songSizeChangedEvent();
+				break;
+
+			case EVENT_DRIVER_CHANGED:
+				pListener->driverChangedEvent();
 				break;
 
 			default:

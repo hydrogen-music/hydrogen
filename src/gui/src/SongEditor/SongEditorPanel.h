@@ -87,7 +87,7 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
-		virtual void timelineActivationEvent( int nValue ) override;
+		virtual void timelineActivationEvent() override;
 		/** Updates the associated buttons if the action mode was
 		 * changed within the core.
 		 *
@@ -97,14 +97,14 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void updateSongEditorEvent( int nValue ) override;
 	void patternModifiedEvent() override;
 
-		virtual void jackTimebaseStateChangedEvent( int ) override;
+		virtual void jackTimebaseStateChangedEvent() override;
 
 		virtual void patternChangedEvent() override;
 
 	virtual void patternEditorLockedEvent( int ) override;
 	virtual void stackedModeActivationEvent( int ) override;
 	virtual void updateSongEvent( int ) override;
-		virtual void songModeActivationEvent( int nValue ) override;
+	virtual void songModeActivationEvent() override;
 
 	public slots:
 		void showHideTimeline( bool bPressed ) {

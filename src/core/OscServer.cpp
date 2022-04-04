@@ -812,9 +812,9 @@ void OscServer::LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 
 	auto pController = pHydrogen->getCoreActionController();
 	if ( argv[0]->f != 0 ) {
-		pController->activateLoopMode( true, true );
+		pController->activateLoopMode( true );
 	} else {
-		pController->activateLoopMode( false, true );
+		pController->activateLoopMode( false );
 	}
 }
 

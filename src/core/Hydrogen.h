@@ -265,6 +265,9 @@ void			previewSample( Sample *pSample );
 	/** Wrapper around Song::setIsModified() that checks whether a
 		song is set.*/
 	void setIsModified( bool bIsModified );
+	/** Wrapper around Song::getIsModified() that checks whether a
+		song is set.*/
+	bool getIsModified() const;
 
 	enum ErrorMessages {
 		/**

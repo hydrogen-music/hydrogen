@@ -92,7 +92,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pInstrumentProp->setPixmap( "/instrumentEditor/instrumentTab.png" );
 
 	m_pNameLbl = new ClickableLabel( m_pInstrumentProp, QSize( 279, 27 ), "",
-									 ClickableLabel::Color::Bright, true, true );
+									 ClickableLabel::Color::Bright, true );
 	m_pNameLbl->move( 5, 4 );
 	m_pNameLbl->setScaledContents( true );
 
@@ -104,7 +104,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	pMidiOutLbl->move( 22, 281 );
 
 	m_pMidiOutChannelLCD = new LCDSpinBox( m_pInstrumentProp, QSize( 59, 24 ),
-										   LCDSpinBox::Type::Int, -1, 16,
+										   LCDSpinBox::Type::Int, -1, 15,
 										   true, true );
 	m_pMidiOutChannelLCD->move( 98, 257 );
 	m_pMidiOutChannelLCD->setToolTip(QString(tr("Midi out channel")));
@@ -271,7 +271,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 										   pCommonStrings->getIsStopNoteLabel() );
 	m_pIsStopNoteLbl->move( 59, 144 );
 
-	m_pApplyVelocity = new QCheckBox ( tr( "" ), m_pInstrumentProp );
+	m_pApplyVelocity = new QCheckBox ( "", m_pInstrumentProp );
 	m_pApplyVelocity->move( 153, 139 );
 	m_pApplyVelocity->adjustSize();
 	m_pApplyVelocity->setFixedSize( 14, 14 );
@@ -324,7 +324,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	// Component
 	m_pCompoNameLbl = new ClickableLabel( m_pLayerProp, QSize( 279, 27 ), "",
-										  ClickableLabel::Color::Bright, true, true );
+										  ClickableLabel::Color::Bright, true );
 	m_pCompoNameLbl->move( 5, 4 );
 	connect( m_pCompoNameLbl, SIGNAL( labelClicked(ClickableLabel*) ),
 			 this, SLOT( labelCompoClicked(ClickableLabel*) ) );
@@ -493,7 +493,12 @@ InstrumentEditor::~InstrumentEditor()
 	//INFOLOG( "DESTROY" );
 }
 
-
+void InstrumentEditor::updateSongEvent( int nValue ) {
+	// A new song got loaded
+	if ( nValue == 0 ) {
+		selectedInstrumentChangedEvent();
+	}
+}
 
 void InstrumentEditor::selectedInstrumentChangedEvent()
 {
@@ -744,7 +749,6 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 					float fCoarse = round( m_pLayerPitchCoarseRotary->getValue() );
 					float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
 					pLayer->set_pitch( fCoarse + fFine );
-					INFOLOG( tr( "layer pitch: %1" ).arg( pLayer->get_pitch() ) );
 				}
 			}
 		}
@@ -757,7 +761,6 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 					float fCoarse = round( m_pLayerPitchCoarseRotary->getValue() );
 					float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
 					pLayer->set_pitch( fCoarse + fFine );
-					INFOLOG( tr( "layer pitch: %1" ).arg( pLayer->get_pitch() ) );
 				}
 			}
 		}
@@ -858,12 +861,15 @@ void InstrumentEditor::showSampleEditor()
 	
 void InstrumentEditor::removeLayerButtonClicked()
 {
-	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
+	auto pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 	if ( m_pInstrument != nullptr ) {
 		auto pCompo = m_pInstrument->get_component( m_nSelectedComponent );
 		if( pCompo != nullptr ) {
 			pCompo->set_layer( nullptr, m_nSelectedLayer );
+
+			pHydrogen->setIsModified( true );
 
 			// Select next loaded layer - if available - in order to
 			// allow for a quick removal of all layers. In case the
@@ -893,7 +899,7 @@ void InstrumentEditor::removeLayerButtonClicked()
 		}
 	}
 
-	Hydrogen::get_instance()->getAudioEngine()->unlock();
+	pHydrogen->getAudioEngine()->unlock();
 	selectedInstrumentChangedEvent();    // update all
 	m_pLayerPreview->updateAll();
 }
@@ -1028,6 +1034,8 @@ void InstrumentEditor::loadLayerBtnClicked()
 
 			pHydrogen->getAudioEngine()->unlock();
 		}
+
+		pHydrogen->setIsModified( true );
 	}
 
 	selectedInstrumentChangedEvent();    // update all
@@ -1088,10 +1096,10 @@ void InstrumentEditor::labelCompoClicked( ClickableLabel* pRef )
 	bool bIsOkPressed;
 	QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "New component name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
 
-	if ( bIsOkPressed  ) {
+	if ( bIsOkPressed && sOldName != sNewName ) {
 		pComponent->set_name( sNewName );
 
-		selectedInstrumentChangedEvent();
+		Hydrogen::get_instance()->setIsModified( true );
 
 		// this will force an update...
 		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
@@ -1116,15 +1124,19 @@ void InstrumentEditor::labelClicked( ClickableLabel* pRef )
 		QString sOldName = m_pInstrument->get_name();
 		bool bIsOkPressed;
 		QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "New instrument name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
-		if ( bIsOkPressed  ) {
+
+		if ( bIsOkPressed && sNewName != sOldName ) {
+			auto pHydrogen = Hydrogen::get_instance();
+
 			m_pInstrument->set_name( sNewName );
 			selectedInstrumentChangedEvent();
 
+			pHydrogen->setIsModified( true );
+
 #ifdef H2CORE_HAVE_JACK
-			Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
-			Hydrogen *engine = Hydrogen::get_instance();
-			engine->renameJackPorts(engine->getSong());
-			Hydrogen::get_instance()->getAudioEngine()->unlock();
+			pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+			pHydrogen->renameJackPorts( pHydrogen->getSong() );
+			pHydrogen->getAudioEngine()->unlock();
 #endif
 
 			// this will force an update...
@@ -1167,7 +1179,6 @@ void InstrumentEditor::selectLayer( int nLayer )
 			// Layer PITCH
 			float fCoarsePitch = round( pLayer->get_pitch() );
 			float fFinePitch = pLayer->get_pitch() - fCoarsePitch;
-			//INFOLOG( "fine pitch: " + to_string( fFinePitch ) );
 			m_pLayerPitchCoarseRotary->setIsActive( true );
 			m_pLayerPitchCoarseRotary->setValue( fCoarsePitch );
 			m_pLayerPitchFineRotary->setIsActive( true );
@@ -1242,6 +1253,7 @@ void InstrumentEditor::muteGroupChanged( double fValue )
 void InstrumentEditor::onIsStopNoteCheckBoxClicked( bool on )
 {
 	m_pInstrument->set_stop_notes( on );
+	Hydrogen::get_instance()->setIsModified( true );
 	selectedInstrumentChangedEvent();	// force an update
 }
 
@@ -1250,6 +1262,7 @@ void InstrumentEditor::onIsApplyVelocityCheckBoxClicked( bool on )
 	assert( m_pInstrument );
 
 	m_pInstrument->set_apply_velocity( on );
+	Hydrogen::get_instance()->setIsModified( true );
 	selectedInstrumentChangedEvent();	// force an update
 }
 
@@ -1284,7 +1297,6 @@ void InstrumentEditor::onDropDownCompoClicked()
 
 void InstrumentEditor::update()
 {
-	//INFOLOG ( "update: "+toString(items.size()) );
 	popCompo->clear();
 
 	for( int i = 0; i < itemsCompo.size(); i++ ) {

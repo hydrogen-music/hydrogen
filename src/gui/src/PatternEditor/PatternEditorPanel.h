@@ -87,7 +87,6 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	
 
 		void updateSLnameLabel();
-		void updatePianorollEditor();
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
@@ -96,7 +95,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	virtual void patternChangedEvent() override;
 	virtual void drumkitLoadedEvent() override;
 	virtual void updateSongEvent( int nValue ) override;
-	virtual void songModeActivationEvent( int ) override;
+	virtual void songModeActivationEvent() override;
 	virtual void stackedModeActivationEvent( int ) override;
 		//~ Implements EventListener interface
 

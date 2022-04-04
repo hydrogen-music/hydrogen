@@ -96,7 +96,10 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pSoloBtn->setObjectName( "SoloButton" );
 	connect(m_pSoloBtn, SIGNAL( pressed() ), this, SLOT(soloClicked()));
 
-	m_pSampleWarning = new Button( this, QSize( 15, 13 ), Button::Type::Push, "warning.svg", "", false, QSize(), tr( "Some samples for this instrument failed to load." ), true );
+	m_pSampleWarning = new Button( this, QSize( 15, 13 ), Button::Type::Icon,
+								   "warning.svg", "", false, QSize(),
+								   tr( "Some samples for this instrument failed to load." ),
+								   true );
 	m_pSampleWarning->move( 128, 5 );
 	m_pSampleWarning->hide();
 	connect(m_pSampleWarning, SIGNAL( pressed() ), this, SLOT( sampleWarningClicked() ));
@@ -327,7 +330,7 @@ void InstrumentLine::selectInstrumentNotes()
 void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 {
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( m_nInstrumentNumber );
-	HydrogenApp::get_instance()->getPatternEditorPanel()->updatePianorollEditor();
+	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
 
 	if ( ev->button() == Qt::LeftButton ) {
 		const int width = m_pMuteBtn->x() - 5; // clickable field width
@@ -739,7 +742,8 @@ PatternEditorInstrumentList::~PatternEditorInstrumentList()
 InstrumentLine* PatternEditorInstrumentList::createInstrumentLine()
 {
 	InstrumentLine *pLine = new InstrumentLine(this);
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, pLine, &InstrumentLine::onPreferencesChanged );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 pLine, &InstrumentLine::onPreferencesChanged );
 	return pLine;
 }
 
@@ -808,7 +812,6 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 
 				int newHeight = m_nGridHeight * nInstruments + 1;
 				resize( width(), newHeight );
-
 			}
 			continue;
 		}

@@ -53,7 +53,7 @@ public:
 	
 	explicit ClickableLabel( QWidget *pParent, QSize size = QSize( 0, 0 ),
 							 QString sText = "", Color color = Color::Bright,
-							 bool bModifyOnChange = true, bool bIsEditable = false );
+							 bool bIsEditable = false );
 
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
@@ -72,10 +72,6 @@ private:
 	virtual void paintEvent( QPaintEvent * e ) override;
 	QSize m_size;
 	Color m_color;
-
-	/** Whether Hydrogen::setIsModified() is invoked with `true` as
-		soon as the value of the widget does change.*/
-	bool m_bModifyOnChange;
 
 	/** If set to true a highlight will be painted when hovered. This
 		should be set if a callback is connected and the user is able to

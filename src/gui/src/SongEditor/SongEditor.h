@@ -329,7 +329,7 @@ class SongEditorPatternList :  public QWidget
 		void togglePattern( int );
 
 		virtual void patternChangedEvent() override;
-		virtual void songModeActivationEvent( int nValue ) override;
+		virtual void songModeActivationEvent() override;
 	virtual void stackedModeActivationEvent( int nValue ) override;
 
 	void setRowSelection( RowSelection rowSelection );
@@ -360,17 +360,17 @@ class SongEditorPositionRuler :  public QWidget, protected WidgetWithScalableFon
 
 		uint getGridWidth();
 		void setGridWidth (uint width);
-	void tempoChangedEvent( int ) override;
-	void patternChangedEvent() override;
-	void songModeActivationEvent( int nValue ) override;
-	void relocationEvent() override;
-	void songSizeChangedEvent() override;
-	void patternModifiedEvent() override;
-	void updateSongEvent( int ) override;
+	virtual void tempoChangedEvent( int ) override;
+	virtual void patternChangedEvent() override;
+	virtual void songModeActivationEvent() override;
+	virtual void relocationEvent() override;
+	virtual void songSizeChangedEvent() override;
+	virtual void patternModifiedEvent() override;
+	virtual void updateSongEvent( int ) override;
 	
-	void timelineActivationEvent( int nValue ) override;
-	void timelineUpdateEvent( int nValue ) override;
-	void jackTimebaseStateChangedEvent( int nValue ) override;
+	virtual void timelineActivationEvent() override;
+	virtual void timelineUpdateEvent( int nValue ) override;
+	virtual void jackTimebaseStateChangedEvent() override;
 													   
 
 	public slots:

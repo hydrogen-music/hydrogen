@@ -154,7 +154,7 @@ public:
 	virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
 
 
-	virtual void songModeActivationEvent( int nValue ) override;
+	virtual void songModeActivationEvent() override;
 	virtual void stackedModeActivationEvent( int nValue ) override;
 
 	static constexpr int nMargin = 20;

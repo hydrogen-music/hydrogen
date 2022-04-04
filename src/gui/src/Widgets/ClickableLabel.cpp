@@ -28,11 +28,10 @@
 
 #include <core/Globals.h>
 
-ClickableLabel::ClickableLabel( QWidget *pParent, QSize size, QString sText, Color color, bool bModifyOnChange, bool bIsEditable )
+ClickableLabel::ClickableLabel( QWidget *pParent, QSize size, QString sText, Color color, bool bIsEditable )
 	: QLabel( pParent )
 	, m_size( size )
 	, m_color( color )
-	, m_bModifyOnChange( bModifyOnChange )
 	, m_bIsEditable( bIsEditable )
 	, m_bEntered( false )
 {
@@ -190,8 +189,4 @@ void ClickableLabel::setText( const QString& sNewText ) {
 	
 	QLabel::setText( sNewText );
 	updateFont( pPref->getLevel3FontFamily(), pPref->getFontSize() );
-
-	if ( m_bModifyOnChange ) {
-		H2Core::Hydrogen::get_instance()->setIsModified( true );
-	}
 }

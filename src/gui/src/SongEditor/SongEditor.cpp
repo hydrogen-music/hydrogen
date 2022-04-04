@@ -1630,9 +1630,7 @@ void SongEditorPatternList::updateEditor()
 	update();
 }
 
-void SongEditorPatternList::songModeActivationEvent( int nValue ) {
-
-	UNUSED( nValue );
+void SongEditorPatternList::songModeActivationEvent() {
 
 	// Refresh pattern list display if in stacked mode
 	if ( Hydrogen::get_instance()->getPatternMode() ==
@@ -2648,18 +2646,18 @@ bool SongEditorPositionRuler::event( QEvent* ev ) {
 	return QWidget::event( ev );
 }
 
-void SongEditorPositionRuler::songModeActivationEvent( int ) {
+void SongEditorPositionRuler::songModeActivationEvent() {
 	updatePosition();
 	createBackground();
 	update();
 }
 
-void SongEditorPositionRuler::timelineActivationEvent( int ) {
+void SongEditorPositionRuler::timelineActivationEvent() {
 	createBackground();
 	update();
 }
 
-void SongEditorPositionRuler::jackTimebaseStateChangedEvent( int ) {
+void SongEditorPositionRuler::jackTimebaseStateChangedEvent() {
 	createBackground();
 	update();
 }
@@ -2668,6 +2666,7 @@ void SongEditorPositionRuler::updateSongEvent( int nValue ) {
 
 	if ( nValue == 0 ) { // different song opened
 		updatePosition();
+		songSizeChangedEvent();
 	}
 }
 
@@ -2730,6 +2729,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 
 			if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
 				pCoreActionController->activateSongMode( true );
+				m_pHydrogen->setIsModified( true );
 			}
 
 			m_pHydrogen->getCoreActionController()->locateToColumn( nColumn );

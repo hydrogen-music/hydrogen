@@ -165,7 +165,8 @@ enum EventType {
 	 * command. 
 	 */
 	EVENT_RELOCATION,
-	EVENT_SONG_SIZE_CHANGED
+	EVENT_SONG_SIZE_CHANGED,
+	EVENT_DRIVER_CHANGED
 };
 
 /** Basic building block for the communication between the core of

@@ -87,7 +87,7 @@ PatternEditorRuler::~PatternEditorRuler() {
 }
 
 void PatternEditorRuler::updatePosition( bool bForce ) {
-
+	
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	
@@ -141,13 +141,6 @@ void PatternEditorRuler::updatePosition( bool bForce ) {
 
 void PatternEditorRuler::relocationEvent() {
 	updatePosition();
-}
-
-void PatternEditorRuler::updateSongEvent( int nValue ) {
-
-	if ( nValue == 0 ) { // new song loaded
-		updatePosition();
-	}
 }
 
 void PatternEditorRuler::updateStart(bool start) {
@@ -221,6 +214,7 @@ void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
 
 		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
 			pCoreActionController->activateSongMode( false );
+			pHydrogen->setIsModified( true );
 		}
 
 		pCoreActionController->locateToTick( nNewTick );
@@ -549,7 +543,7 @@ void PatternEditorRuler::zoomOut()
 }
 
 
-void PatternEditorRuler::songModeActivationEvent( int )
+void PatternEditorRuler::songModeActivationEvent()
 {
 	updatePosition();
 }
@@ -561,7 +555,6 @@ void PatternEditorRuler::stateChangedEvent( H2Core::AudioEngine::State )
 	
 void PatternEditorRuler::selectedPatternChangedEvent()
 {
-	createBackground();
 	updateEditor( true );
 }
 

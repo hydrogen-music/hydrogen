@@ -138,7 +138,7 @@ void Fader::mouseMoveEvent( QMouseEvent *ev )
 
 	fValue = fValue * ( m_fMax - m_fMin ) + m_fMin;
 
-	setValue( fValue );
+	setValue( fValue, true );
 	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
 }
 
