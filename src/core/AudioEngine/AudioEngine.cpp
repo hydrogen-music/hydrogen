@@ -2980,6 +2980,7 @@ bool AudioEngine::testTransportProcessing() {
 			if ( ! testCheckTransportPosition( "pattern mode" ) ) {
 				setState( AudioEngine::State::Ready );
 				unlock();
+				pCoreActionController->activateSongMode( true );
 				return bNoMismatch;
 			}
 
@@ -2991,6 +2992,7 @@ bool AudioEngine::testTransportProcessing() {
 				bNoMismatch = false;
 				setState( AudioEngine::State::Ready );
 				unlock();
+				pCoreActionController->activateSongMode( true );
 				return bNoMismatch;
 			}
 			
@@ -3006,6 +3008,7 @@ bool AudioEngine::testTransportProcessing() {
 				bNoMismatch = false;
 				setState( AudioEngine::State::Ready );
 				unlock();
+				pCoreActionController->activateSongMode( true );
 				return bNoMismatch;
 			}
 		}
@@ -3016,7 +3019,7 @@ bool AudioEngine::testTransportProcessing() {
 	setState( AudioEngine::State::Ready );
 
 	unlock();
-
+	pCoreActionController->activateSongMode( true );
 
 	return bNoMismatch;
 }
