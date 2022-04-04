@@ -3424,21 +3424,38 @@ bool AudioEngine::testNoteEnqueuing() {
 							 static_cast<float>(pPref->m_nBufferSize) *
 							getTickSize() * 4.0 ),
 				  2112.0 ); 
+
+	// Larger number to account for both small buffer sizes and long
+	// samples.
+	int nMaxCleaningCycles = 250;
 	int nn = 0;
 
-	// Don't check the sampler yet. There is still #1521 to fix.
 	// Ensure the sampler is clean.
-	// while ( getSampler()->isRenderingNotes() ) {
-	// 	processAudio( pPref->m_nBufferSize );
-	// 	incrementTransportPosition( pPref->m_nBufferSize );
-	// 	++nn;
-	// 	WARNINGLOG( QString( "nn: %1, note: %2" ).arg( nn )
-	// 				.arg( getSampler()->getPlayingNotesQueue()[0]->toQString("", true ) ) );
-	// 	if ( nn > 10 ) {
-	// 		ERRORLOG("Sampler is in weird state");
-	// 		return false;
-	// 	}
-	// }
+	while ( getSampler()->isRenderingNotes() ) {
+		processAudio( pPref->m_nBufferSize );
+		incrementTransportPosition( pPref->m_nBufferSize );
+		++nn;
+		
+		// {//DEBUG
+		// 	QString msg = QString( "[song mode] nn: %1, note:" ).arg( nn );
+		// 	auto pNoteQueue = getSampler()->getPlayingNotesQueue();
+		// 	if ( pNoteQueue.size() > 0 ) {
+		// 		auto pNote = pNoteQueue[0];
+		// 		if ( pNote != nullptr ) {
+		// 			msg.append( pNote->toQString("", true ) );
+		// 		} else {
+		// 			msg.append( " nullptr" );
+		// 		}
+		// 		DEBUGLOG( msg );
+		// 	}
+		// }
+		
+		if ( nn > nMaxCleaningCycles ) {
+			ERRORLOG("Sampler is in weird state");
+			return false;
+		}
+	}
+	locate( 0 );
 
 	nn = 0;
 
@@ -3465,9 +3482,8 @@ bool AudioEngine::testNoteEnqueuing() {
 
 		processAudio( nFrames );
 
-		// Don't check the sampler yet. There is still #1521 to fix.
-		// testMergeQueues( &notesInSamplerQueue,
-		// 				 getSampler()->getPlayingNotesQueue() );
+		testMergeQueues( &notesInSamplerQueue,
+						 getSampler()->getPlayingNotesQueue() );
 
 		incrementTransportPosition( nFrames );
 
@@ -3511,35 +3527,38 @@ bool AudioEngine::testNoteEnqueuing() {
 		ERRORLOG( sMsg );
 		bNoMismatch = false;
 	}
-	
-	// Don't check the sampler yet. There is still #1521 to fix.
-	// if ( notesInSamplerQueue.size() !=
-	// 	 notesInSong.size() ) {
-	// 	QString sMsg = QString( "[song mode] Mismatch between notes count in Song [%1] and Sampler [%2]. Song:\n" )
-	// 		.arg( notesInSong.size() ).arg( notesInSamplerQueue.size() );
-	// 	for ( int ii = 0; ii < notesInSong.size(); ++ii  ) {
-	// 		auto note = notesInSong[ ii ];
-	// 		sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
-	// 					 .arg( ii )
-	// 					 .arg( note->get_instrument()->get_name() )
-	// 					 .arg( note->get_position() )
-	// 					 .arg( note->getNoteStart() )
-	// 					 .arg( note->get_velocity() ) );
-	// 	}
-	// 	sMsg.append( "SamplerQueue:\n" );
-	// 	for ( int ii = 0; ii < notesInSamplerQueue.size(); ++ii  ) {
-	// 		auto note = notesInSamplerQueue[ ii ];
-	// 		sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
-	// 					 .arg( ii )
-	// 					 .arg( note->get_instrument()->get_name() )
-	// 					 .arg( note->get_position() )
-	// 					 .arg( note->getNoteStart() )
-	// 					 .arg( note->get_velocity() ) );
-	// 	}
 
-	// 	ERRORLOG( sMsg );
-	// 	bNoMismatch = false;
-	// }
+	// We have to relax the test for larger buffer sizes. Else, the
+	// notes will be already fully processed in and flush from the
+	// Sampler before we had the chance to grab and compare them.
+	if ( notesInSamplerQueue.size() !=
+		 notesInSong.size() &&
+		 pPref->m_nBufferSize < 1024 ) {
+		QString sMsg = QString( "[song mode] Mismatch between notes count in Song [%1] and Sampler [%2]. Song:\n" )
+			.arg( notesInSong.size() ).arg( notesInSamplerQueue.size() );
+		for ( int ii = 0; ii < notesInSong.size(); ++ii  ) {
+			auto note = notesInSong[ ii ];
+			sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
+						 .arg( ii )
+						 .arg( note->get_instrument()->get_name() )
+						 .arg( note->get_position() )
+						 .arg( note->getNoteStart() )
+						 .arg( note->get_velocity() ) );
+		}
+		sMsg.append( "SamplerQueue:\n" );
+		for ( int ii = 0; ii < notesInSamplerQueue.size(); ++ii  ) {
+			auto note = notesInSamplerQueue[ ii ];
+			sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
+						 .arg( ii )
+						 .arg( note->get_instrument()->get_name() )
+						 .arg( note->get_position() )
+						 .arg( note->getNoteStart() )
+						 .arg( note->get_velocity() ) );
+		}
+
+		ERRORLOG( sMsg );
+		bNoMismatch = false;
+	}
 
 	setState( AudioEngine::State::Ready );
 
@@ -3570,19 +3589,32 @@ bool AudioEngine::testNoteEnqueuing() {
 	nMaxCycles = MAX_NOTES * 2 * nLoops;
 	nn = 0;
 
-	// Don't check the sampler yet. There is still #1521 to fix.
 	// Ensure the sampler is clean.
-	// while ( getSampler()->isRenderingNotes() ) {
-	// 	processAudio( pPref->m_nBufferSize );
-	// 	incrementTransportPosition( pPref->m_nBufferSize );
-	// 	++nn;
-	// 	WARNINGLOG( QString( "nn: %1, note: %2" ).arg( nn )
-	// 				.arg( getSampler()->getPlayingNotesQueue()[0]->toQString("", true ) ) );
-	// 	if ( nn > 10 ) {
-	// 		ERRORLOG("Sampler is in weird state");
-	// 		return false;
-	// 	}
-	// }
+	while ( getSampler()->isRenderingNotes() ) {
+		processAudio( pPref->m_nBufferSize );
+		incrementTransportPosition( pPref->m_nBufferSize );
+		++nn;
+		
+		// {//DEBUG
+		// 	QString msg = QString( "[pattern mode] nn: %1, note:" ).arg( nn );
+		// 	auto pNoteQueue = getSampler()->getPlayingNotesQueue();
+		// 	if ( pNoteQueue.size() > 0 ) {
+		// 		auto pNote = pNoteQueue[0];
+		// 		if ( pNote != nullptr ) {
+		// 			msg.append( pNote->toQString("", true ) );
+		// 		} else {
+		// 			msg.append( " nullptr" );
+		// 		}
+		// 		DEBUGLOG( msg );
+		// 	}
+		// }
+		
+		if ( nn > nMaxCleaningCycles ) {
+			ERRORLOG("[pattern mode] Sampler is in weird state");
+			return false;
+		}
+	}
+	locate( 0 );
 
 	auto pPattern = 
 		pSong->getPatternList()->get( pHydrogen->getSelectedPatternNumber() );
@@ -3628,9 +3660,8 @@ bool AudioEngine::testNoteEnqueuing() {
 
 		processAudio( nFrames );
 
-		// Don't check the sampler yet. There is still #1521 to fix.
-		// testMergeQueues( &notesInSamplerQueue,
-		// 				 getSampler()->getPlayingNotesQueue() );
+		testMergeQueues( &notesInSamplerQueue,
+						 getSampler()->getPlayingNotesQueue() );
 
 		incrementTransportPosition( nFrames );
 
@@ -3656,21 +3687,25 @@ bool AudioEngine::testNoteEnqueuing() {
 		if ( note != nullptr &&
 			 note->get_position() >= pPattern->get_length() * nLoops ) {
 			notesInSongQueue.pop_back();
+		} else {
+			break;
 		}
 	}
 
-	// nNoteNumber = notesInSamplerQueue.size();
-	// for( int ii = 0; ii < nNoteNumber; ++ii ) {
-	// 	auto note = notesInSamplerQueue[ nNoteNumber - 1 - ii ];
-	// 	if ( note != nullptr &&
-	// 		 note->get_position() >= pPattern->get_length() * nLoops ) {
-	// 		notesInSongQueue.pop_back();
-	// 	}
-	// }
+	nNoteNumber = notesInSamplerQueue.size();
+	for( int ii = 0; ii < nNoteNumber; ++ii ) {
+		auto note = notesInSamplerQueue[ nNoteNumber - 1 - ii ];
+		if ( note != nullptr &&
+			 note->get_position() >= pPattern->get_length() * nLoops ) {
+			notesInSamplerQueue.pop_back();
+		} else {
+			break;
+		}
+	}
 
 	if ( notesInSongQueue.size() !=
 		 notesInPattern.size() ) {
-		QString sMsg = QString( "[pattern mode] Mismatch between notes count in Song [%1] and NoteQueue [%2]. Song:\n" )
+		QString sMsg = QString( "[pattern mode] Mismatch between notes count in Pattern [%1] and NoteQueue [%2]. Pattern:\n" )
 			.arg( notesInPattern.size() ).arg( notesInSongQueue.size() );
 		for ( int ii = 0; ii < notesInPattern.size(); ++ii  ) {
 			auto note = notesInPattern[ ii ];
@@ -3696,34 +3731,37 @@ bool AudioEngine::testNoteEnqueuing() {
 		bNoMismatch = false;
 	}
 
-	// Don't check the sampler yet. There is still #1521 to fix.
-	// if ( notesInSamplerQueue.size() !=
-	// 	 notesInPattern.size() ) {
-	// 	QString sMsg = QString( "[pattern mode] Mismatch between notes count in Song [%1] and Sampler [%2]. Song:\n" )
-	// 		.arg( notesInPattern.size() ).arg( notesInSamplerQueue.size() );
-	// 	for ( int ii = 0; ii < notesInPattern.size(); ++ii  ) {
-	// 		auto note = notesInPattern[ ii ];
-	// 		sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
-	// 					 .arg( ii )
-	// 					 .arg( note->get_instrument()->get_name() )
-	// 					 .arg( note->get_position() )
-	// 					 .arg( note->getNoteStart() )
-	// 					 .arg( note->get_velocity() ) );
-	// 	}
-	// 	sMsg.append( "SamplerQueue:\n" );
-	// 	for ( int ii = 0; ii < notesInSamplerQueue.size(); ++ii  ) {
-	// 		auto note = notesInSamplerQueue[ ii ];
-	// 		sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
-	// 					 .arg( ii )
-	// 					 .arg( note->get_instrument()->get_name() )
-	// 					 .arg( note->get_position() )
-	// 					 .arg( note->getNoteStart() )
-	// 					 .arg( note->get_velocity() ) );
-	// 	}
+	// We have to relax the test for larger buffer sizes. Else, the
+	// notes will be already fully processed in and flush from the
+	// Sampler before we had the chance to grab and compare them.
+	if ( notesInSamplerQueue.size() !=
+		 notesInPattern.size() &&
+		 pPref->m_nBufferSize < 1024 ) {
+		QString sMsg = QString( "[pattern mode] Mismatch between notes count in Pattern [%1] and Sampler [%2]. Pattern:\n" )
+			.arg( notesInPattern.size() ).arg( notesInSamplerQueue.size() );
+		for ( int ii = 0; ii < notesInPattern.size(); ++ii  ) {
+			auto note = notesInPattern[ ii ];
+			sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
+						 .arg( ii )
+						 .arg( note->get_instrument()->get_name() )
+						 .arg( note->get_position() )
+						 .arg( note->getNoteStart() )
+						 .arg( note->get_velocity() ) );
+		}
+		sMsg.append( "SamplerQueue:\n" );
+		for ( int ii = 0; ii < notesInSamplerQueue.size(); ++ii  ) {
+			auto note = notesInSamplerQueue[ ii ];
+			sMsg.append( QString( "\t[%1] instr: %2, position: %3, noteStart: %4, velocity: %5\n")
+						 .arg( ii )
+						 .arg( note->get_instrument()->get_name() )
+						 .arg( note->get_position() )
+						 .arg( note->getNoteStart() )
+						 .arg( note->get_velocity() ) );
+		}
 
-	// 	ERRORLOG( sMsg );
-	// 	bNoMismatch = false;
-	// }
+		ERRORLOG( sMsg );
+		bNoMismatch = false;
+	}
 
 	setState( AudioEngine::State::Ready );
 
@@ -3971,11 +4009,10 @@ bool AudioEngine::testCheckConsistency( int nToggleColumn, int nToggleRow, const
 	m_fLastTickIntervalEnd = -1;
 	nPrevLeadLag = computeTickInterval( &fPrevTickStart, &fPrevTickEnd, nBufferSize );
 
-	// TODO: #1521 needs to be fixed first.
-	// std::vector<std::shared_ptr<Note>> notes1, notes2;
-	// for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
-	// 	notes1.push_back( std::make_shared<Note>( ppNote ) );
-	// }
+	std::vector<std::shared_ptr<Note>> notes1, notes2;
+	for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
+		notes1.push_back( std::make_shared<Note>( ppNote ) );
+	}
 
 	//////
 	// Toggle a grid cell prior to the current transport position
@@ -4053,15 +4090,14 @@ bool AudioEngine::testCheckConsistency( int nToggleColumn, int nToggleRow, const
 		return false;
 	}
 
-	// TODO: #1521 needs to be fixed first. 
-	// for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
-	// 	notes2.push_back( std::make_shared<Note>( ppNote ) );
-	// }
+	for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
+		notes2.push_back( std::make_shared<Note>( ppNote ) );
+	}
 
-	// if ( ! testCheckAudioConsistency( notes1, notes2, sFirstContext,
-	// 								  nBufferSize * 2 ) ) {
-	// 	return false;
-	// }
+	if ( ! testCheckAudioConsistency( notes1, notes2, sFirstContext,
+									  nBufferSize * 2 ) ) {
+		return false;
+	}
 
 	//////
 	// Toggle the same grid cell again
@@ -4069,11 +4105,10 @@ bool AudioEngine::testCheckConsistency( int nToggleColumn, int nToggleRow, const
 
 	QString sSecondContext = QString( "%1 : 2. toggling" ).arg( sContext );
 	
-	// TODO: #1521 needs to be fixed first.
-	// notes1.clear();
-	// for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
-	// 	notes1.push_back( std::make_shared<Note>( ppNote ) );
-	// }
+	notes1.clear();
+	for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
+		notes1.push_back( std::make_shared<Note>( ppNote ) );
+	}
 
 	// We deal with a slightly artificial situation regarding
 	// m_fLastTickIntervalEnd in here. Usually, in addition to
@@ -4154,16 +4189,15 @@ bool AudioEngine::testCheckConsistency( int nToggleColumn, int nToggleRow, const
 		return false;
 	}
 
-	// TODO: #1521 needs to be fixed first.
-	// notes2.clear();
-	// for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
-	// 	notes2.push_back( std::make_shared<Note>( ppNote ) );
-	// }
+	notes2.clear();
+	for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
+		notes2.push_back( std::make_shared<Note>( ppNote ) );
+	}
 
-	// if ( ! testCheckAudioConsistency( notes1, notes2, sSecondContext,
-	// 								  nBufferSize * 2 ) ) {
-	// 	return false;
-	// }
+	if ( ! testCheckAudioConsistency( notes1, notes2, sSecondContext,
+									  nBufferSize * 2 ) ) {
+		return false;
+	}
 
 	return true;
 }
