@@ -2406,22 +2406,52 @@ void Hydrogen::sequencer_stop()
 	Preferences::get_instance()->setRecordEvents(false);
 }
 
-bool Hydrogen::setPlaybackTrackState( const bool state )
-{
-	Song* pSong = getSong();
-	if ( pSong == nullptr ) {
-		return false;
+Song::PlaybackTrack Hydrogen::getPlaybackTrackState() const {
+
+	if ( __song == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return Song::PlaybackTrack::None;
 	}
 
-	return pSong->setPlaybackTrackEnabled(state);
+	return __song->getPlaybackTrackState();
+}
+	
+void Hydrogen::mutePlaybackTrack( const bool bMuted )
+{
+	if ( __song == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
+
+	__song->setPlaybackTrackEnabled( bMuted );
+
+	EventQueue::get_instance()->push_event( EVENT_PLAYBACK_TRACK_CHANGED, 0 );
 }
 
-void Hydrogen::loadPlaybackTrack( const QString filename )
+void Hydrogen::loadPlaybackTrack( QString sFilename )
 {
-	Song* pSong = getSong();
-	pSong->setPlaybackTrackFilename(filename);
+	if ( __song == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
+
+	if ( ! sFilename.isEmpty() &&
+		 ! Filesystem::file_exists( sFilename, true ) ) {
+		ERRORLOG( QString( "Invalid playback track filename [%1]. File does not exist." )
+				  .arg( sFilename ) );
+		sFilename = "";
+	}
+
+	if ( sFilename.isEmpty() ) {
+		INFOLOG( "Disable playback track" );
+		__song->setPlaybackTrackEnabled( false );
+	}
+	
+	__song->setPlaybackTrackFilename( sFilename );
 
 	AudioEngine::get_instance()->get_sampler()->reinitializePlaybackTrack();
+	
+	EventQueue::get_instance()->push_event( EVENT_PLAYBACK_TRACK_CHANGED, 0 );
 }
 
 void Hydrogen::setSong( Song *pSong )

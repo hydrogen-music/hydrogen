@@ -64,6 +64,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	Hydrogen*	pEngine = Hydrogen::get_instance();
 	Song*		pSong = pEngine->getSong();
 
+	assert( pSong );
+
 	setWindowTitle( tr( "Song Editor" ) );
 
 	// background
@@ -227,8 +229,9 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	);
 	m_pViewPlaybackToggleBtn->setToolTip( tr( "View playback track") );
 	m_pViewPlaybackToggleBtn->setObjectName( "ViewPlaybackToggleBtn" );
-	connect( m_pViewPlaybackToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( viewPlaybackTrackBtnPressed(Button* ) ) );
-	m_pViewPlaybackToggleBtn->setPressed( false );
+	connect( m_pViewPlaybackToggleBtn, SIGNAL( clicked(Button*) ),
+			 this, SLOT( viewPlaybackTrackBtnPressed(Button*) ) );
+	m_pViewPlaybackToggleBtn->setPressed( pPref->getShowPlaybackTrack() );
 	
 	// Playback Fader
 	m_pPlaybackTrackFader = new VerticalFader( pBackPanel, false, false );
@@ -249,9 +252,15 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	);
 	m_pMutePlaybackToggleBtn->setToolTip( tr( "Mute playback track") );
 	m_pMutePlaybackToggleBtn->move( 151, 6 );
-	m_pMutePlaybackToggleBtn->hide();
-	connect( m_pMutePlaybackToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( mutePlaybackTrackBtnPressed(Button* ) ) );
-	m_pMutePlaybackToggleBtn->setPressed( !pSong->getPlaybackTrackEnabled() );
+	connect( m_pMutePlaybackToggleBtn, &Button::clicked, [=](Button* pButton){
+		Hydrogen::get_instance()->mutePlaybackTrack( ! pButton->isPressed() );
+	});
+
+	if ( pEngine->getPlaybackTrackState() == Song::PlaybackTrack::Unavailable ) {
+		m_pMutePlaybackToggleBtn->setPressed( true );
+	} else {
+		m_pMutePlaybackToggleBtn->setPressed( ! pSong->getPlaybackTrackEnabled() );
+	}
 	
 	// edit playback track toggle button
 	m_pEditPlaybackBtn = new Button(
@@ -276,9 +285,9 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			QSize( 19, 13 )
 	);
 	m_pViewTimeLineToggleBtn->setToolTip( tr( "View timeline") );
-	connect( m_pViewTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( viewTimeLineBtnPressed(Button* ) ) );
-	m_pViewTimeLineToggleBtn->setPressed( true );
-	
+	connect( m_pViewTimeLineToggleBtn, SIGNAL( clicked(Button*) ),
+			 this, SLOT( viewTimeLineBtnPressed(Button*) ) );
+	m_pViewTimeLineToggleBtn->setPressed( ! pPref->getShowPlaybackTrack() );
 	
 	QHBoxLayout *pHZoomLayout = new QHBoxLayout();
 	pHZoomLayout->setSpacing( 0 );
@@ -548,9 +557,32 @@ void SongEditorPanel::updateAll()
 
 void SongEditorPanel::updatePlaybackTrackIfNecessary()
 {
-	if( Preferences::get_instance()->getShowPlaybackTrack() ) {
-		InstrumentComponent *pCompo = AudioEngine::get_instance()->get_sampler()->getPlaybackTrackInstrument()->get_components()->front();
-		m_pPlaybackTrackWaveDisplay->updateDisplay( pCompo->get_layer(0) );
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	
+	if ( Preferences::get_instance()->getShowPlaybackTrack() &&
+		 pSong != nullptr ) {
+
+		if ( pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Unavailable ) {
+			// No playback track chosen
+			m_pMutePlaybackToggleBtn->setPressed( true );
+			
+			m_pPlaybackTrackWaveDisplay->updateDisplay( nullptr );
+		}
+		else {
+			// Playback track was selected by the user and is ready to
+			// use.
+			if ( pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Muted ) {
+				m_pMutePlaybackToggleBtn->setPressed( true );
+			} else {
+				m_pMutePlaybackToggleBtn->setPressed( false );
+			}
+
+			auto pPlaybackCompo = AudioEngine::get_instance()->get_sampler()->
+				getPlaybackTrackInstrument()->get_components()->front();
+			
+			m_pPlaybackTrackWaveDisplay->updateDisplay( pPlaybackCompo->get_layer(0) );
+		}
 	}
 }
 
@@ -714,6 +746,10 @@ void SongEditorPanel::resizeEvent( QResizeEvent *ev )
 	resyncExternalScrollBar();
 }
 
+void SongEditorPanel::playbackTrackChangedEvent() {
+	updatePlaybackTrackIfNecessary();
+}
+
 void SongEditorPanel::actionModeChangeEvent( int nValue ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
@@ -807,6 +843,8 @@ void SongEditorPanel::showPlaybackTrack()
 	m_pViewTimeLineToggleBtn->setPressed( false );
 	m_pViewPlaybackToggleBtn->setPressed( true );
 	Preferences::get_instance()->setShowPlaybackTrack( true );
+
+	updatePlaybackTrackIfNecessary();
 }
 
 void SongEditorPanel::viewTimeLineBtnPressed( Button* pBtn )
@@ -831,20 +869,11 @@ void SongEditorPanel::viewPlaybackTrackBtnPressed( Button* pBtn )
 	}
 }
 
-
-void SongEditorPanel::mutePlaybackTrackBtnPressed( Button* pBtn )
+void SongEditorPanel::editPlaybackTrackBtnPressed(Button*)
 {
-	Hydrogen* pEngine = Hydrogen::get_instance();
-
-	bool state = !pBtn->isPressed();
-	state = pEngine->setPlaybackTrackState( state );
-	m_pMutePlaybackToggleBtn->setPressed( !state );
-}
-
-void SongEditorPanel::editPlaybackTrackBtnPressed( Button* pBtn )
-{
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
-		Hydrogen::get_instance()->sequencer_stop();
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen->getState() == STATE_PLAYING ) {
+		pHydrogen->sequencer_stop();
 	}
 	
 	//use AudioFileBrowser, but don't allow multi-select. Also, hide all no necessary controls.
@@ -866,9 +895,7 @@ void SongEditorPanel::editPlaybackTrackBtnPressed( Button* pBtn )
 		return;
 	}
 
-	Hydrogen::get_instance()->loadPlaybackTrack( filenameList[2] );
-	
-	updateAll();
+	pHydrogen->loadPlaybackTrack( filenameList[2] );
 }
 
 void SongEditorPanel::modeActionBtnPressed( )

@@ -559,8 +559,8 @@ int main(int argc, char *argv[])
 		___INFOLOG( "Quitting..." );
 		delete Logger::get_instance();
 
-		if (H2Core::Base::count_active()) {
-			H2Core::Base::write_objects_map_to_cerr();
+		if (H2Core::Object::count_active()) {
+			H2Core::Object::write_objects_map_to_cerr();
 		}
 	}
 	catch ( const H2Exception& ex ) {

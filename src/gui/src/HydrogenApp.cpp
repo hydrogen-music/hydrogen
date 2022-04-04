@@ -666,6 +666,10 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->actionModeChangeEvent( event.value );
 				break;
 				
+			case EVENT_PLAYBACK_TRACK_CHANGED:
+				pListener->playbackTrackChangedEvent();
+				break;
+
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}
