@@ -1768,6 +1768,21 @@ void AudioEngine::setState( AudioEngine::State state ) {
 	EventQueue::get_instance()->push_event( EVENT_STATE, static_cast<int>(state) );
 }
 
+void AudioEngine::setNextBpm( float fNextBpm ) {
+	if ( fNextBpm > MAX_BPM ) {
+		m_fNextBpm = MAX_BPM;
+		WARNINGLOG( QString( "Provided bpm %1 is too high. Assigning upper bound %2 instead" )
+					.arg( fNextBpm ).arg( MAX_BPM ) );
+	}
+	else if ( fNextBpm < MIN_BPM ) {
+		m_fNextBpm = MIN_BPM;
+		WARNINGLOG( QString( "Provided bpm %1 is too low. Assigning lower bound %2 instead" )
+					.arg( fNextBpm ).arg( MIN_BPM ) );
+	}
+	
+	m_fNextBpm = fNextBpm;
+}
+
 void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 {
 	INFOLOG( QString( "Set song: %1" ).arg( pNewSong->getName() ) );

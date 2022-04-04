@@ -746,7 +746,11 @@ void Hydrogen::onTapTempoAccelEvent()
 
 	oldTimeVal = now;
 
-	if ( fInterval < 1000.0 ) {
+	// We multiply by a factor of two in order to allow for tempi
+	// smaller than the minimum one enter the calculation of the
+	// average. Else the minumum one could not be reached via tap
+	// tempo and it is clambed anyway.
+	if ( fInterval < 60000.0 * 2 / static_cast<float>(MIN_BPM) ) {
 		setTapTempo( fInterval );
 	}
 #endif
