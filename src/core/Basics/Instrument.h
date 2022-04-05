@@ -395,12 +395,16 @@ inline int Instrument::get_midi_out_channel() const
 	return __midi_out_channel;
 }
 
-inline void Instrument::set_midi_out_channel( int channel )
+inline void Instrument::set_midi_out_channel( int nChannel )
 {
-	if ( ( channel >= MIDI_OUT_CHANNEL_MIN ) && ( channel <= MIDI_OUT_CHANNEL_MAX ) ) {
-		__midi_out_channel = channel;
+	if ( ( nChannel >= MIDI_OUT_CHANNEL_MIN ) &&
+		 ( nChannel <= MIDI_OUT_CHANNEL_MAX ) ) {
+		__midi_out_channel = nChannel;
 	} else {
-		ERRORLOG( QString( "midi out channel %1 out of bounds" ).arg( channel ) );
+		ERRORLOG( QString( "midi out channel [%1] out of bounds [%2,%3]" )
+				  .arg( nChannel )
+				  .arg( MIDI_OUT_CHANNEL_MIN )
+				  .arg( MIDI_OUT_CHANNEL_MAX ) );
 	}
 }
 
