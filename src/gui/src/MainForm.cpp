@@ -1958,6 +1958,10 @@ void MainForm::errorEvent( int nErrorCode )
 		msg = QString( tr( "OSC Server: Cannot connect to given port, using port %1 instead" ) ).arg( Preferences::get_instance()->m_nOscTemporaryPort );
 		break;
 
+	case Hydrogen::PLAYBACK_TRACK_INVALID:
+		msg = tr( "Playback track couldn't be read" );
+		break;
+
 	default:
 		msg = QString( tr( "Unknown error %1" ) ).arg( nErrorCode );
 	}

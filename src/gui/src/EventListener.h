@@ -62,6 +62,7 @@ class EventListener
 	virtual void relocationEvent(){}
 	virtual void songSizeChangedEvent(){}
 	virtual void driverChangedEvent(){}
+	virtual void playbackTrackChangedEvent(){}
 
 		virtual ~EventListener() {}
 };

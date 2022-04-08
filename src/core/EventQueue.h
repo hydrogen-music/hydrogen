@@ -165,7 +165,8 @@ enum EventType {
 	 */
 	EVENT_RELOCATION,
 	EVENT_SONG_SIZE_CHANGED,
-	EVENT_DRIVER_CHANGED
+	EVENT_DRIVER_CHANGED,
+	EVENT_PLAYBACK_TRACK_CHANGED
 };
 
 /** Basic building block for the communication between the core of

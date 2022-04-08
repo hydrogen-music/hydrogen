@@ -125,9 +125,23 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		 * will be played back.*/
 		Selected = 1,
 		/** Null element used to indicate that either no song is
-		 * present to Song::Mode::Song was selected
+		 * present or Song::Mode::Song was selected
 		 */
 		None = 2
+	};
+
+	/** Determines the state of the Playback track with respect to
+		audio processing*/
+	enum class PlaybackTrack {
+		/** No proper playback track file set yet*/
+		Unavailable = 0,
+		/** Valid file set but the playback track is muted via the GUI*/
+		Muted = 1,
+		/** Valid file set and ready for playback.*/
+		Enabled = 2,
+		/** Null element used to indicate that either no song is
+		 * present*/
+		None = 3
 	};
 
 		Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume );
@@ -243,17 +257,17 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		bool			getPlaybackTrackEnabled() const;
 		/** Specifies whether a playback track should be used.
 		 *
-		 * If #m_sPlaybackTrackFilename is set to nullptr,
-		 * #m_bPlaybackTrackEnabled will be set to false
-		 * regardless of the choice in @a bEnabled.
-		 *
 		 * \param bEnabled Sets #m_bPlaybackTrackEnabled. */
-		bool			setPlaybackTrackEnabled( const bool bEnabled );
+		void			setPlaybackTrackEnabled( const bool bEnabled );
 							
 		/** \return #m_fPlaybackTrackVolume */
 		float			getPlaybackTrackVolume() const;
 		/** \param fVolume Sets #m_fPlaybackTrackVolume. */
 		void			setPlaybackTrackVolume( const float fVolume );
+
+	PlaybackTrack getPlaybackTrackState() const;
+
+	
 		ActionMode		getActionMode() const;
 		void			setActionMode( const ActionMode actionMode );
 
@@ -653,13 +667,9 @@ inline bool Song::getPlaybackTrackEnabled() const
 	return m_bPlaybackTrackEnabled;
 }
 
-inline bool Song::setPlaybackTrackEnabled( const bool bEnabled )
+inline void Song::setPlaybackTrackEnabled( const bool bEnabled )
 {
-	if ( m_sPlaybackTrackFilename == nullptr ) {
-		return false;
-	}
 	m_bPlaybackTrackEnabled = bEnabled;
-	return bEnabled;
 }
 
 inline float Song::getPlaybackTrackVolume() const
@@ -670,6 +680,17 @@ inline float Song::getPlaybackTrackVolume() const
 inline void Song::setPlaybackTrackVolume( const float fVolume )
 {
 	m_fPlaybackTrackVolume = fVolume;
+}
+inline Song::PlaybackTrack Song::getPlaybackTrackState() const {
+	if ( m_sPlaybackTrackFilename.isEmpty() ) {
+		return PlaybackTrack::Unavailable;
+	}
+
+	if ( ! m_bPlaybackTrackEnabled ) {
+		return PlaybackTrack::Muted;
+	}
+
+	return PlaybackTrack::Enabled;
 }
 
 inline Song::ActionMode Song::getActionMode() const {
