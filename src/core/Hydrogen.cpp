@@ -357,29 +357,29 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	{
 
 		// Recording + song playback mode + actually playing
-		PatternList *pPatternList = pSong->getPatternList();
-		int ipattern = pAudioEngine->getColumn(); // current column
+		PatternList* pPatternList = pSong->getPatternList();
+		auto pColumns = pSong->getPatternGroupVector();
+		int nColumn = pAudioEngine->getColumn(); // current column
 												   // or pattern group
-		if ( ipattern < 0 || ipattern >= (int) pPatternList->size() ) {
+		if ( nColumn < 0 || nColumn >= pColumns->size() ) {
 			pAudioEngine->unlock(); // unlock the audio engine
 			ERRORLOG( QString( "Provided column [%1] out of bound [%2,%3)" )
-					  .arg( ipattern ).arg( 0 )
-					  .arg( (int) pPatternList->size() ) );
+					  .arg( nColumn ).arg( 0 )
+					  .arg( pColumns->size() ) );
 			return;
 		}
-		// Locate nTickInPattern -- may need to jump back in the pattern list
+		// Locate nTickInPattern -- may need to jump back one column
 		nTickInPattern = pAudioEngine->getPatternTickPosition();
 		while ( nTickInPattern < nLookaheadTicks ) {
-			ipattern -= 1;
-			if ( ipattern < 0 || ipattern >= (int) pPatternList->size() ) {
+			nColumn -= 1;
+			if ( nColumn < 0 || nColumn >= pColumns->size() ) {
 				pAudioEngine->unlock(); // unlock the audio engine
 				ERRORLOG( "Unable to locate tick in pattern" );
 				return;
 			}
 
-			// Convert from playlist index to actual pattern index
-			std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
-			PatternList *pColumn = ( *pColumns )[ ipattern ];
+			// Capture new notes in the bottom-most pattern.
+			PatternList *pColumn = ( *pColumns )[ nColumn ];
 			currentPatternNumber = -1;
 			for ( int n = 0; n < pColumn->size(); n++ ) {
 				Pattern *pPattern = pColumn->get( n );
@@ -389,17 +389,13 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 					currentPattern = pPattern;
 				}
 			}
-			nTickInPattern += (*pColumns)[ipattern]->longest_pattern_length();
-			// WARNINGLOG( "Undoing lookahead: corrected (" + to_string( ipattern+1 ) +
-			// "," + to_string( (int) ( nTickInPattern - currentPattern->get_length() ) -
-			// (int) lookaheadTicks ) + ") -> (" + to_string(ipattern) +
-			// "," + to_string( (int) nTickInPattern - (int) lookaheadTicks ) + ")." );
+			nTickInPattern += (*pColumns)[nColumn]->longest_pattern_length();
 		}
 		nTickInPattern -= nLookaheadTicks;
-		// Convert from playlist index to actual pattern index (if not already done above)
+		
+		// Capture new notes in the bottom-most pattern (if not already done above)
 		if ( currentPattern == nullptr ) {
-			std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
-			PatternList *pColumn = ( *pColumns )[ ipattern ];
+			PatternList *pColumn = ( *pColumns )[ nColumn ];
 			currentPatternNumber = -1;
 			for ( int n = 0; n < pColumn->size(); n++ ) {
 				Pattern *pPattern = pColumn->get( n );
@@ -412,7 +408,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		}
 
 		// Cancel recording if punch area disagrees
-		doRecord = pPreferences->inPunchArea( ipattern );
+		doRecord = pPreferences->inPunchArea( nColumn );
 
 	} else { // Not song-record mode
 		PatternList *pPatternList = pSong->getPatternList();
@@ -750,7 +746,11 @@ void Hydrogen::onTapTempoAccelEvent()
 
 	oldTimeVal = now;
 
-	if ( fInterval < 1000.0 ) {
+	// We multiply by a factor of two in order to allow for tempi
+	// smaller than the minimum one enter the calculation of the
+	// average. Else the minumum one could not be reached via tap
+	// tempo and it is clambed anyway.
+	if ( fInterval < 60000.0 * 2 / static_cast<float>(MIN_BPM) ) {
 		setTapTempo( fInterval );
 	}
 #endif

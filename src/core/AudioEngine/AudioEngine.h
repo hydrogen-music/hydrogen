@@ -1106,9 +1106,6 @@ inline unsigned int AudioEngine::getAddRealtimeNoteTickPosition() const {
 inline void AudioEngine::setAddRealtimeNoteTickPosition( unsigned int tickPosition) {
 	m_nAddRealtimeNoteTickPosition = tickPosition;
 }
-inline void AudioEngine::setNextBpm( float fNextBpm ) {
-	m_fNextBpm = fNextBpm;
-}
 inline float AudioEngine::getNextBpm() const {
 	return m_fNextBpm;
 }

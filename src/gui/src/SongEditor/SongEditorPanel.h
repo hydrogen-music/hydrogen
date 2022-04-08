@@ -93,9 +93,9 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		 *
 		 * \param nValue 0 - select mode and 1 - draw mode.
 		 */
-		void actionModeChangeEvent( int nValue ) override;
-		void updateSongEditorEvent( int nValue ) override;
-	void patternModifiedEvent() override;
+		virtual void actionModeChangeEvent( int nValue ) override;
+		virtual void gridCellToggledEvent() override;
+	virtual void patternModifiedEvent() override;
 
 		virtual void jackTimebaseStateChangedEvent() override;
 

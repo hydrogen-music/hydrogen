@@ -312,8 +312,10 @@ std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) 
 		// causing the sampler to just skip it. Instead, we will
 		// search for the nearest sample and play this one instead.
 		if ( possibleLayersVector.size() == 0 ){
-			WARNINGLOG( QString( "Velocity did fall into a hole between the instrument layers for component [%1] of instrument [%2]." )
-						.arg( nComponentID ).arg( __instrument->get_name() ) );
+			WARNINGLOG( QString( "Velocity [%1] did fall into a hole between the instrument layers for component [%2] of instrument [%3]." )
+						.arg( __velocity )
+						.arg( nComponentID )
+						.arg( __instrument->get_name() ) );
 			
 			float shortestDistance = 1.0f;
 			int nearestLayer = -1;
