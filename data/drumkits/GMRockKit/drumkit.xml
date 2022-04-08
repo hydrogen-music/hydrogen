@@ -61,7 +61,7 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>Kick-Soft.wav</filename>
      <min>0.202899</min>
-     <max>0.376812</max>
+     <max>0.369565</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -81,7 +81,7 @@ p, li { white-space: pre-wrap; }
     </layer>
     <layer>
      <filename>Kick-Hardest.wav</filename>
-     <min>0.855072</min>
+     <min>0.865942</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
@@ -124,14 +124,14 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>SideStick-Softest.wav</filename>
      <min>0</min>
-     <max>0.181159</max>
+     <max>0.188406</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>SideStick-Soft.wav</filename>
      <min>0.188406</min>
-     <max>0.398551</max>
+     <max>0.402174</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -151,7 +151,7 @@ p, li { white-space: pre-wrap; }
     </layer>
     <layer>
      <filename>SideStick-Hardest.wav</filename>
-     <min>0.768116</min>
+     <min>0.782609</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
@@ -194,21 +194,21 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>Snare-Softest.wav</filename>
      <min>0</min>
-     <max>0.206522</max>
+     <max>0.202899</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>Snare-Soft.wav</filename>
      <min>0.202899</min>
-     <max>0.380435</max>
+     <max>0.376812</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>Snare-Med.wav</filename>
      <min>0.376812</min>
-     <max>0.572464</max>
+     <max>0.568841</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -306,28 +306,28 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>SnareRimshot-Softest.wav</filename>
      <min>0</min>
-     <max>0.192029</max>
+     <max>0.188406</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>SnareRimshot-Soft.wav</filename>
      <min>0.188406</min>
-     <max>0.387681</max>
+     <max>0.380435</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>SnareRimshot-Med.wav</filename>
      <min>0.380435</min>
-     <max>0.597826</max>
+     <max>0.594203</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>SnareRimshot-Hard.wav</filename>
      <min>0.594203</min>
-     <max>0.731884</max>
+     <max>0.728261</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -383,7 +383,7 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>TomFloor-Soft.wav</filename>
      <min>0.199275</min>
-     <max>0.391304</max>
+     <max>0.394928</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -453,14 +453,14 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>HatClosed-Soft.wav</filename>
      <min>0.173913</min>
-     <max>0.376812</max>
+     <max>0.373188</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>HatClosed-Med.wav</filename>
      <min>0.373188</min>
-     <max>0.572464</max>
+     <max>0.576087</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -523,21 +523,21 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>Tom2-Soft.wav</filename>
      <min>0.177536</min>
-     <max>0.376812</max>
+     <max>0.373188</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>Tom2-Med.wav</filename>
      <min>0.373188</min>
-     <max>0.572464</max>
+     <max>0.576087</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>Tom2-Hard.wav</filename>
      <min>0.576087</min>
-     <max>0.786232</max>
+     <max>0.782609</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -586,28 +586,28 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>HatPedal-Softest.wav</filename>
      <min>0</min>
-     <max>0.206522</max>
+     <max>0.210145</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>HatPedal-Soft.wav</filename>
      <min>0.210145</min>
-     <max>0.391304</max>
+     <max>0.384058</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>HatPedal-Med.wav</filename>
      <min>0.384058</min>
-     <max>0.59058</max>
+     <max>0.594203</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>HatPedal-Hard.wav</filename>
      <min>0.594203</min>
-     <max>0.793478</max>
+     <max>0.797101</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -663,21 +663,21 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>Tom1-Soft.wav</filename>
      <min>0.202899</min>
-     <max>0.398551</max>
+     <max>0.394928</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>Tom1-Med.wav</filename>
      <min>0.394928</min>
-     <max>0.601449</max>
+     <max>0.605072</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>Tom1-Hard.wav</filename>
      <min>0.605072</min>
-     <max>0.789855</max>
+     <max>0.786232</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -733,21 +733,21 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>HatOpen-Soft.wav</filename>
      <min>0.202899</min>
-     <max>0.394928</max>
+     <max>0.398551</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>HatOpen-Med.wav</filename>
      <min>0.398551</min>
-     <max>0.601449</max>
+     <max>0.605072</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>HatOpen-Hard.wav</filename>
      <min>0.605072</min>
-     <max>0.793478</max>
+     <max>0.797101</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -796,7 +796,7 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>Cowbell-Softest.wav</filename>
      <min>0</min>
-     <max>0.199275</max>
+     <max>0.184783</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -810,14 +810,14 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>Cowbell-Med.wav</filename>
      <min>0.384058</min>
-     <max>0.57971</max>
+     <max>0.576087</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>Cowbell-Hard.wav</filename>
      <min>0.576087</min>
-     <max>0.778986</max>
+     <max>0.782609</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -873,21 +873,21 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>Ride-Soft.wav</filename>
      <min>0.195652</min>
-     <max>0.373188</max>
+     <max>0.376812</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>Ride-Med.wav</filename>
      <min>0.376812</min>
-     <max>0.576087</max>
+     <max>0.572464</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>Ride-Hard.wav</filename>
      <min>0.572464</min>
-     <max>0.775362</max>
+     <max>0.782609</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -936,28 +936,28 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>Crash-Softest.wav</filename>
      <min>0</min>
-     <max>0.195652</max>
+     <max>0.199275</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>Crash-Soft.wav</filename>
      <min>0.199275</min>
-     <max>0.380435</max>
+     <max>0.384058</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>Crash-Med.wav</filename>
      <min>0.384058</min>
-     <max>0.586957</max>
+     <max>0.59058</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>Crash-Hard.wav</filename>
      <min>0.59058</min>
-     <max>0.782609</max>
+     <max>0.789855</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -1090,14 +1090,14 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>Splash-Med.wav</filename>
      <min>0.362319</min>
-     <max>0.565217</max>
+     <max>0.568841</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>Splash-Hard.wav</filename>
      <min>0.568841</min>
-     <max>0.753623</max>
+     <max>0.75</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -1146,7 +1146,7 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>HatSemiOpen-Softest.wav</filename>
      <min>0</min>
-     <max>0.192029</max>
+     <max>0.188406</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -1160,14 +1160,14 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>HatSemiOpen-Med.wav</filename>
      <min>0.380435</min>
-     <max>0.583333</max>
+     <max>0.57971</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>HatSemiOpen-Hard.wav</filename>
      <min>0.57971</min>
-     <max>0.789855</max>
+     <max>0.782609</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -1216,14 +1216,14 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>Bell-Softest.wav</filename>
      <min>0</min>
-     <max>0.217391</max>
+     <max>0.210145</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
     <layer>
      <filename>Bell-Soft.wav</filename>
      <min>0.210145</min>
-     <max>0.402174</max>
+     <max>0.405797</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -1237,7 +1237,7 @@ p, li { white-space: pre-wrap; }
     <layer>
      <filename>Bell-Hard.wav</filename>
      <min>0.605072</min>
-     <max>0.782609</max>
+     <max>0.786232</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>

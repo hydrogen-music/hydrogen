@@ -151,8 +151,7 @@ enum EventType {
 	EVENT_LOOP_MODE_ACTIVATION,
 	/** Switches between select mode (0) and draw mode (1) in the *SongEditor.*/
 	EVENT_ACTION_MODE_CHANGE,
-	/** Triggers an update of the entire SongEditor*/
-	EVENT_UPDATE_SONG_EDITOR,
+	EVENT_GRID_CELL_TOGGLED,
 	/** Triggered when transport is moved into a different column
 		(either during playback or when relocated by the user)*/
 	EVENT_COLUMN_CHANGED,
@@ -166,7 +165,8 @@ enum EventType {
 	 */
 	EVENT_RELOCATION,
 	EVENT_SONG_SIZE_CHANGED,
-	EVENT_DRIVER_CHANGED
+	EVENT_DRIVER_CHANGED,
+	EVENT_PLAYBACK_TRACK_CHANGED
 };
 
 /** Basic building block for the communication between the core of

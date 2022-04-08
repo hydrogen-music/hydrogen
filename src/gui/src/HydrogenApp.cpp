@@ -833,8 +833,8 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->actionModeChangeEvent( event.value );
 				break;
 
-			case EVENT_UPDATE_SONG_EDITOR:
-				pListener->updateSongEditorEvent( event.value );
+			case EVENT_GRID_CELL_TOGGLED:
+				pListener->gridCellToggledEvent();
 				break;
 
 			case EVENT_DRUMKIT_LOADED:
@@ -855,6 +855,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case EVENT_DRIVER_CHANGED:
 				pListener->driverChangedEvent();
+				break;
+
+			case EVENT_PLAYBACK_TRACK_CHANGED:
+				pListener->playbackTrackChangedEvent();
 				break;
 
 			default:

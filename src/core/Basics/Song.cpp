@@ -1031,6 +1031,14 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	bool bPlaybackTrackEnabled = LocalFileMng::readXmlBool( songNode, "playbackTrackEnabled", false );
 	float fPlaybackTrackVolume = LocalFileMng::readXmlFloat( songNode, "playbackTrackVolume", 0.0 );
 
+	// Check the file of the playback track and resort to the default
+	// in case the file can not be found.
+	if ( ! Filesystem::file_exists( sPlaybackTrack, true ) ) {
+		ERRORLOG( QString( "Provided playback track file [%1] does not exist. Using empty string instead" )
+				  .arg( sPlaybackTrack ) );
+		sPlaybackTrack = "";
+	}
+
 	Song::ActionMode actionMode = static_cast<Song::ActionMode>( LocalFileMng::readXmlInt( songNode, "action_mode",
 																						   static_cast<int>( Song::ActionMode::selectMode ) ) );
 	bool bIsPatternEditorLocked = LocalFileMng::readXmlBool( songNode, "isPatternEditorLocked", false );

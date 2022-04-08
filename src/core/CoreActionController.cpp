@@ -1494,7 +1494,7 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 	
 	// Update the SongEditor.
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG_EDITOR, 0 );
+		EventQueue::get_instance()->push_event( EVENT_GRID_CELL_TOGGLED, 0 );
 	}
 
 	return true;

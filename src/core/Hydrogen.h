@@ -313,7 +313,8 @@ void			previewSample( Sample *pSample );
 		 * Unable to start the OSC server with the given
 		 * port number. 
 		 */
-		OSC_CANNOT_CONNECT_TO_PORT
+		OSC_CANNOT_CONNECT_TO_PORT,
+		PLAYBACK_TRACK_INVALID
 	};
 
 	void			onTapTempoAccelEvent();
@@ -392,33 +393,17 @@ void			previewSample( Sample *pSample );
 	/********************** Playback track **********************/
 	/**
 	 * Wrapper around Song::setPlaybackTrackEnabled().
-	 *
-	 * \param state Whether the playback track is enabled. It will
-	 * be replaced by false, if no Song was selected (getSong()
-	 * return nullptr).
 	 */
-	bool			setPlaybackTrackState( const bool state );
+	void			mutePlaybackTrack( const bool bMuted );
 	/**
-	 * Wrapper around Song::getPlaybackTrackEnabled().
-	 *
-	 * \return Whether the playback track is enabled or false, if
-	 * no Song was selected (getSong() return nullptr).
+	 * Wrapper around Song::getPlaybackTrackState().
 	 */
-	bool			getPlaybackTrackState() const;
+	Song::PlaybackTrack		getPlaybackTrackState() const;
 	/**
 	 * Wrapper function for loading the playback track.
-	 *
-	 * Calls Song::setPlaybackTrackFilename() and
-	 * Sampler::reinitialize_playback_track(). While the former
-	 * one is responsible to store metadata about the playback
-	 * track, the latter one does load it to a new
-	 * InstrumentLayer. The function is called by
-	 * SongEditorPanel::editPlaybackTrackBtnPressed()
-	 *
-	 * \param filename Name of the file to load as the playback
-	 * track
 	 */
-	void			loadPlaybackTrack( const QString filename );
+	void			loadPlaybackTrack( QString sFilename );
+	/************************************************************/
 
 	/** Specifies the state of the Qt GUI*/
 	enum class		GUIState {
@@ -636,19 +621,6 @@ inline bool Hydrogen::getIsExportSessionActive() const
 
 inline AudioEngine* Hydrogen::getAudioEngine() const {
 	return m_pAudioEngine;
-}
-
-inline bool Hydrogen::getPlaybackTrackState() const
-{
-	std::shared_ptr<Song> pSong = getSong();
-	bool  bState;
-
-	if(!pSong){
-		bState = false;
-	} else {
-		bState = pSong->getPlaybackTrackEnabled();
-	}
-	return 	bState;
 }
 
 inline Hydrogen::GUIState Hydrogen::getGUIState() const {

@@ -208,6 +208,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 		m_pPatternModeBtn->setChecked( true );
 		m_pSongModeLED->setActivated( false );
 		m_pPatternModeLED->setActivated( true );
+
+		m_pSongLoopBtn->setIsActive( false );
 	}
 	
 
@@ -697,6 +699,9 @@ void PlayerControl::songModeActivationEvent()
 		m_pSongModeLED->setActivated( true );
 		m_pSongModeBtn->setChecked( true );
 		m_pPatternModeBtn->setChecked( false );
+
+		m_pSongLoopBtn->setIsActive( true );
+		
 		pHydrogenApp->setStatusBarMessage(tr("Song mode selected."), 5000);
 	} else {
 		// Pattern mode
@@ -704,6 +709,8 @@ void PlayerControl::songModeActivationEvent()
 		m_pSongModeLED->setActivated( false );
 		m_pSongModeBtn->setChecked( false );
 		m_pPatternModeBtn->setChecked( true );
+
+		m_pSongLoopBtn->setIsActive( false );
 		
 		pHydrogenApp->setStatusBarMessage(tr("Pattern mode selected."), 5000);
 	}

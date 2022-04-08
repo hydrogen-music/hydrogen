@@ -64,6 +64,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	Hydrogen*	pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> 		pSong = pHydrogen->getSong();
 
+	assert( pSong );
+
 	setWindowTitle( tr( "Song Editor" ) );
 
 	// background
@@ -213,14 +215,13 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pViewPlaybackBtn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Toggle, "", pCommonStrings->getPlaybackTrackButton(), false, QSize(), tr( "View playback track" ) );
 	m_pViewPlaybackBtn->setObjectName( "ViewPlaybackBtn" );
 	connect( m_pViewPlaybackBtn, SIGNAL( pressed() ), this, SLOT( viewPlaybackTrackBtnPressed() ) );
-	m_pViewPlaybackBtn->setChecked( false );
+	m_pViewPlaybackBtn->setChecked( pPref->getShowPlaybackTrack() );
 	
 	// Playback Fader
 	m_pPlaybackTrackFader = new Fader( pBackPanel, Fader::Type::Vertical, tr( "Playback track volume" ), false, false, 0.0, 1.5 );
 	m_pPlaybackTrackFader->move( 6, 1 );
 	m_pPlaybackTrackFader->setValue( pSong->getPlaybackTrackVolume() );
 	m_pPlaybackTrackFader->hide();
-	m_pPlaybackTrackFader->setIsActive( ! H2Core::Hydrogen::get_instance()->getSong()->getPlaybackTrackFilename().isEmpty() );
 	connect( m_pPlaybackTrackFader, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( faderChanged( WidgetWithInput* ) ) );
 
 	// mute playback track toggle button
@@ -231,9 +232,17 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 									 false, true );
 	m_pMutePlaybackBtn->move( 158, 4 );
 	m_pMutePlaybackBtn->hide();
-	m_pMutePlaybackBtn->setChecked( pHydrogen->getPlaybackTrackState() );
-	connect( m_pMutePlaybackBtn, SIGNAL( pressed() ), this, SLOT( mutePlaybackTrackBtnPressed() ) );
-	m_pMutePlaybackBtn->setChecked( !pSong->getPlaybackTrackEnabled() );
+	connect( m_pMutePlaybackBtn, &QPushButton::clicked, [=](bool bChecked){
+		Hydrogen::get_instance()->mutePlaybackTrack( ! bChecked );
+	});
+
+	if ( pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Unavailable ) {
+		m_pPlaybackTrackFader->setIsActive( false );
+		m_pMutePlaybackBtn->setChecked( true );
+		m_pMutePlaybackBtn->setIsActive( false );
+	} else {
+		m_pMutePlaybackBtn->setChecked( ! pSong->getPlaybackTrackEnabled() );
+	}
 	
 	// edit playback track toggle button
 	m_pEditPlaybackBtn = new Button( pBackPanel, QSize( 34, 17 ), Button::Type::Push, "", pCommonStrings->getEditButton(), false, QSize(), tr( "Choose playback track") );
@@ -245,7 +254,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	// timeline view toggle button
 	m_pViewTimelineBtn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Toggle, "", pCommonStrings->getTimelineButton(), false, QSize(), tr( "View timeline" ) );
 	connect( m_pViewTimelineBtn, SIGNAL( pressed() ), this, SLOT( viewTimelineBtnPressed() ) );
-	m_pViewTimelineBtn->setChecked( true );
+	m_pViewTimelineBtn->setChecked( ! pPref->getShowPlaybackTrack() );
 	
 	
 	QHBoxLayout *pHZoomLayout = new QHBoxLayout();
@@ -546,15 +555,40 @@ void SongEditorPanel::patternModifiedEvent() {
  	m_pAutomationPathView->setAutomationPath( pSong->getVelocityAutomationPath() );
 
 	resyncExternalScrollBar();
-
-	m_pPlaybackTrackFader->setIsActive( ! pSong->getPlaybackTrackFilename().isEmpty() );
 }
 
 void SongEditorPanel::updatePlaybackTrackIfNecessary()
 {
-	if( Preferences::get_instance()->getShowPlaybackTrack() ) {
-		auto pCompo = Hydrogen::get_instance()->getAudioEngine()->getSampler()->getPlaybackTrackInstrument()->get_components()->front();
-		m_pPlaybackTrackWaveDisplay->updateDisplay( pCompo->get_layer(0) );
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	
+	if ( Preferences::get_instance()->getShowPlaybackTrack() &&
+		 pSong != nullptr ) {
+
+		if ( pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Unavailable ) {
+			// No playback track chosen
+			m_pPlaybackTrackFader->setIsActive( false );
+			m_pMutePlaybackBtn->setChecked( true );
+			m_pMutePlaybackBtn->setIsActive( false );
+			
+			m_pPlaybackTrackWaveDisplay->updateDisplay( nullptr );
+		}
+		else {
+			// Playback track was selected by the user and is ready to
+			// use.
+			m_pPlaybackTrackFader->setIsActive( true );
+			m_pMutePlaybackBtn->setIsActive( true );
+			if ( pHydrogen->getPlaybackTrackState() == Song::PlaybackTrack::Muted ) {
+				m_pMutePlaybackBtn->setChecked( true );
+			} else {
+				m_pMutePlaybackBtn->setChecked( false );
+			}
+
+			auto pPlaybackCompo = pHydrogen->getAudioEngine()->getSampler()->
+				getPlaybackTrackInstrument()->get_components()->front();
+			
+			m_pPlaybackTrackWaveDisplay->updateDisplay( pPlaybackCompo->get_layer(0) );
+		}
 	}
 }
 
@@ -709,7 +743,12 @@ void SongEditorPanel::updateSongEvent( int nValue ) {
 		songModeActivationEvent();
 		timelineActivationEvent();
 		selectedPatternChangedEvent();
+		updatePlaybackTrackIfNecessary();
 	}
+}
+
+void SongEditorPanel::playbackTrackChangedEvent() {
+	updatePlaybackTrackIfNecessary();
 }
 
 void SongEditorPanel::patternEditorLockedEvent( int ) {
@@ -796,6 +835,8 @@ void SongEditorPanel::showPlaybackTrack()
 		m_pViewPlaybackBtn->setChecked( true );
 	}
 	Preferences::get_instance()->setShowPlaybackTrack( true );
+
+	updatePlaybackTrackIfNecessary();
 }
 
 void SongEditorPanel::viewTimelineBtnPressed()
@@ -814,17 +855,6 @@ void SongEditorPanel::viewPlaybackTrackBtnPressed()
 	} else {
 		showTimeline();
 	}
-}
-
-
-void SongEditorPanel::mutePlaybackTrackBtnPressed()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-
-	bool bState = ! m_pMutePlaybackBtn->isChecked();
-
-	bState = pHydrogen->setPlaybackTrackState( ! bState );
-	m_pMutePlaybackBtn->setChecked( bState );
 }
 
 void SongEditorPanel::editPlaybackTrackBtnPressed()
@@ -880,8 +910,6 @@ void SongEditorPanel::editPlaybackTrackBtnPressed()
 	}
 
 	pHydrogen->loadPlaybackTrack( filenameList[2] );
-	
-	updateAll();
 }
 
 void SongEditorPanel::stackedModeActivationEvent( int )
@@ -1094,11 +1122,8 @@ void SongEditorPanel::setTimelineEnabled( bool bEnabled ) {
 	HydrogenApp::get_instance()->setStatusBarMessage( sMessage, 5000);
 }
 
-void SongEditorPanel::updateSongEditorEvent( int nValue ) {
-	// A new song got loaded
-	if ( nValue == 0 ) {
-		updateAll();
-	}
+void SongEditorPanel::gridCellToggledEvent() {
+	updateAll();
 }
 
 void SongEditorPanel::patternChangedEvent() {

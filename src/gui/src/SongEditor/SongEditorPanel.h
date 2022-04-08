@@ -93,9 +93,9 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		 *
 		 * \param nValue 0 - select mode and 1 - draw mode.
 		 */
-		void actionModeChangeEvent( int nValue ) override;
-		void updateSongEditorEvent( int nValue ) override;
-	void patternModifiedEvent() override;
+		virtual void actionModeChangeEvent( int nValue ) override;
+		virtual void gridCellToggledEvent() override;
+	virtual void patternModifiedEvent() override;
 
 		virtual void jackTimebaseStateChangedEvent() override;
 
@@ -105,6 +105,7 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 	virtual void stackedModeActivationEvent( int ) override;
 	virtual void updateSongEvent( int ) override;
 	virtual void songModeActivationEvent() override;
+	virtual void playbackTrackChangedEvent() override;
 
 	public slots:
 		void showHideTimeline( bool bPressed ) {
@@ -129,7 +130,6 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void timelineBtnPressed();
 		void viewTimelineBtnPressed();
 		void viewPlaybackTrackBtnPressed();
-		void mutePlaybackTrackBtnPressed();
 		void editPlaybackTrackBtnPressed();
 
 		void zoomInBtnPressed();

@@ -65,6 +65,30 @@ void PatternList::add( Pattern* pPattern )
 		INFOLOG( "Provided pattern is already contained" );
 		return;
 	}
+	else {
+		// Check whether the pattern is contained as a virtual
+		// pattern.
+		for ( const auto& ppPattern : __patterns ) {
+			auto pVirtualPatterns = ppPattern->get_virtual_patterns();
+			if ( pVirtualPatterns->find( pPattern ) != pVirtualPatterns->end() ) {
+				INFOLOG( "Provided pattern is already contained as virtual pattern" );
+				return;
+			}
+		}
+	}
+
+	// In case the added pattern is a virtual one, deactivate the
+	// individual patterns it encompasses in case one of them was
+	// already activated. (They will be only activated as virtual
+	// patterns from here on).
+	auto pVirtualPatterns = pPattern->get_virtual_patterns();
+	for ( int ii = __patterns.size() - 1; ii >= 0 && ii < __patterns.size(); --ii ) {
+		auto ppPattern = __patterns[ ii ];
+		if ( pVirtualPatterns->find( ppPattern ) != pVirtualPatterns->end() ) {
+			del( ii );
+		}
+	}
+	
 	__patterns.push_back( pPattern );
 }
 
@@ -277,10 +301,9 @@ QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "[PatternList] " );
 		for ( auto pp : __patterns ) {
 			if ( pp != nullptr ) {
-				sOutput.append( QString( "[%1] " ).arg( pp->toQString( sPrefix + s, bShort ) ) );
+				sOutput.append( QString( "[%1] " ).arg( pp->get_name() ) );
 			}
 		}
-		sOutput.append( "]" );
 	}
 	
 	return sOutput;
