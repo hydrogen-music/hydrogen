@@ -336,7 +336,7 @@ void			previewSample( Sample *pSample );
 	 * Updates the selected pattern to the one recorded note will be
 	 * inserted to.
 	 */
-	void updateSelectedPattern();
+	void updateSelectedPattern( bool bNeedsLock = true );
 
 	int				getSelectedInstrumentNumber() const;
 	void			setSelectedInstrumentNumber( int nInstrument );

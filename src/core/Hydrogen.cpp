@@ -856,11 +856,16 @@ void Hydrogen::restartLadspaFX()
 	}
 }
 
-void Hydrogen::updateSelectedPattern() {
-	if ( isPatternEditorLocked() ) {
-		m_pAudioEngine->lock( RIGHT_HERE );
+void Hydrogen::updateSelectedPattern( bool bNeedsLock ) {
+	if ( isPatternEditorLocked() &&
+		 m_pAudioEngine->getState() == AudioEngine::State::Playing ) {
+		if ( bNeedsLock ) {
+			m_pAudioEngine->lock( RIGHT_HERE );
+		}
 		m_pAudioEngine->handleSelectedPattern();
-		m_pAudioEngine->unlock();
+		if ( bNeedsLock ) {
+			m_pAudioEngine->unlock();
+		}
 	}
 }
 
@@ -1215,7 +1220,8 @@ bool Hydrogen::isTimelineEnabled() const {
 }
 
 bool Hydrogen::isPatternEditorLocked() const {
-	if ( getMode() == Song::Mode::Song ) {
+	if ( getMode() == Song::Mode::Song &&
+		 __song != nullptr ) {
 		if ( __song->getIsPatternEditorLocked() ) {
 			return true;
 		}
@@ -1225,10 +1231,12 @@ bool Hydrogen::isPatternEditorLocked() const {
 }
 
 void Hydrogen::setIsPatternEditorLocked( bool bValue ) {
-	if ( __song != nullptr ) {
+	if ( __song != nullptr &&
+		 bValue != __song->getIsPatternEditorLocked() ) {
 		__song->setIsPatternEditorLocked( bValue );
-
 		__song->setIsModified( true );
+
+		updateSelectedPattern();
 			
 		EventQueue::get_instance()->push_event( EVENT_PATTERN_EDITOR_LOCKED,
 												bValue );

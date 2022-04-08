@@ -842,7 +842,7 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_PATTERN_EDITOR_LOCKED:
-				pListener->patternEditorLockedEvent( event.value );
+				pListener->patternEditorLockedEvent();
 				break;
 				
 			case EVENT_RELOCATION:

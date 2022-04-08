@@ -276,7 +276,11 @@ class SongEditorPatternList :  public QWidget
 		void fillRangeWithPattern(FillRange* r, int nPattern);
 		int getGridHeight() { return m_nGridHeight; }
 	
-	void patternModifiedEvent() override;
+	virtual void patternModifiedEvent() override;
+	virtual void patternChangedEvent() override;
+	virtual void songModeActivationEvent() override;
+	virtual void stackedModeActivationEvent( int nValue ) override;
+	virtual void selectedPatternChangedEvent() override;
 
 	public slots:
 		void patternPopup_edit();
@@ -324,13 +328,11 @@ class SongEditorPatternList :  public QWidget
 		virtual void paintEvent( QPaintEvent *ev ) override;
 		virtual void mouseMoveEvent(QMouseEvent *event) override;
 	virtual void leaveEvent( QEvent *ev );
-		QPoint __drag_start_position;
+
+	QPoint __drag_start_position;
 
 		void togglePattern( int );
 
-		virtual void patternChangedEvent() override;
-		virtual void songModeActivationEvent() override;
-	virtual void stackedModeActivationEvent( int nValue ) override;
 
 	void setRowSelection( RowSelection rowSelection );
 	/**

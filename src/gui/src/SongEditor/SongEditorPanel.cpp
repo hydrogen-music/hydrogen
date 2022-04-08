@@ -140,12 +140,6 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 											pCommonStrings->getPatternEditorLocked(),
 											false, true );
 	m_pPatternEditorLockedBtn->move( 142, 25 );
-	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
-		m_pPatternEditorLockedBtn->setChecked( false );
-	} else {
-		m_pPatternEditorLockedBtn->setChecked( true );
-	}
-	m_pPatternEditorLockedBtn->setVisible( pHydrogen->isPatternEditorLocked() );
 	connect( m_pPatternEditorLockedBtn, &Button::pressed,
 			 [=](){Hydrogen::get_instance()->setIsPatternEditorLocked( false ); } );
 
@@ -156,9 +150,22 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 											  pCommonStrings->getPatternEditorLocked(),
 											  false, true );
 	m_pPatternEditorUnlockedBtn->move( 142, 25 );
-	m_pPatternEditorUnlockedBtn->setVisible( ! pHydrogen->isPatternEditorLocked() );
 	connect( m_pPatternEditorUnlockedBtn, &Button::pressed,
 			 [=](){Hydrogen::get_instance()->setIsPatternEditorLocked( true ); } );
+
+	if ( pHydrogen->isPatternEditorLocked() ) {
+		m_pPatternEditorUnlockedBtn->hide();
+	} else {
+		m_pPatternEditorLockedBtn->hide();
+	}
+	
+	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
+		m_pPatternEditorLockedBtn->setIsActive( false );
+		m_pPatternEditorUnlockedBtn->setIsActive( false );
+	} else {
+		m_pPatternEditorLockedBtn->setIsActive( true );
+		m_pPatternEditorUnlockedBtn->setIsActive( true );
+	}
 
 	// Two buttons sharing the same position and either of them is
 	// shown unpressed.
@@ -704,6 +711,7 @@ void SongEditorPanel::restoreGroupVector( QString filename )
 	pAudioEngine->lock( RIGHT_HERE );
 	pHydrogen->getSong()->readTempPatternList( filename );
 	pHydrogen->updateSongSize();
+	pHydrogen->updateSelectedPattern( false );
 	pAudioEngine->unlock();
 	
 	m_pSongEditor->updateEditorandSetTrue();
@@ -736,10 +744,10 @@ void SongEditorPanel::resizeEvent( QResizeEvent *ev )
 void SongEditorPanel::updateSongEvent( int nValue ) {
 
 	if ( nValue == 0 ) { // different song opened
-		patternEditorLockedEvent( 0 );
 		actionModeChangeEvent( 0 );
 		stackedModeActivationEvent( 0 );
 		jackTimebaseStateChangedEvent();
+		// Calls patternEditorLockedEvent() internally.
 		songModeActivationEvent();
 		timelineActivationEvent();
 		selectedPatternChangedEvent();
@@ -751,26 +759,39 @@ void SongEditorPanel::playbackTrackChangedEvent() {
 	updatePlaybackTrackIfNecessary();
 }
 
-void SongEditorPanel::patternEditorLockedEvent( int ) {
+void SongEditorPanel::patternEditorLockedEvent() {
 
 	auto pHydrogen = Hydrogen::get_instance();
-	if ( ! m_pPatternEditorLockedBtn->isDown() &&
-		 pHydrogen->getMode() == Song::Mode::Song ) {
-		m_pPatternEditorLockedBtn->setChecked( true );
-		
-	} else if ( ! m_pPatternEditorLockedBtn->isDown() &&
-		 pHydrogen->getMode() == Song::Mode::Pattern ) {
-		m_pPatternEditorLockedBtn->setChecked( false );
+	if ( pHydrogen->getMode() == Song::Mode::Song ) {
+		m_pPatternEditorLockedBtn->setIsActive( true );
+		m_pPatternEditorUnlockedBtn->setIsActive( true );
 	}
-	m_pPatternEditorUnlockedBtn->setChecked( false );
 
-	if ( pHydrogen->getSong()->getIsPatternEditorLocked() ) {
+	if ( pHydrogen->isPatternEditorLocked() ) {
 		m_pPatternEditorLockedBtn->show();
 		m_pPatternEditorUnlockedBtn->hide();
+
+		if ( pHydrogen->getAudioEngine()->getState() ==
+			 AudioEngine::State::Playing ) {
+			m_pPatternEditorLockedBtn->setChecked( true );
+		} else {
+			m_pPatternEditorLockedBtn->setChecked( false );
+		}
 	} else {
 		m_pPatternEditorLockedBtn->hide();
 		m_pPatternEditorUnlockedBtn->show();
+		m_pPatternEditorUnlockedBtn->setChecked( false );
 	}
+	
+	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
+		m_pPatternEditorLockedBtn->setIsActive( false );
+		m_pPatternEditorUnlockedBtn->setIsActive( false );
+	}
+}
+
+void SongEditorPanel::stateChangedEvent( H2Core::AudioEngine::State ) {
+	// The lock button is highlighted when transport is rolling.
+	patternEditorLockedEvent();
 }
 
 void SongEditorPanel::actionModeChangeEvent( int ) {
@@ -1045,19 +1066,13 @@ void SongEditorPanel::songModeActivationEvent() {
 		setTimelineEnabled( false );
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineDisabledPatternMode() );
 
-		// Since the recorded notes will always enter the selected
-		// pattern in pattern mode, the behavior doesn't change
-		// regardless of whether the PatternEditor is locked or
-		// not. This redundancy is highlighted by unchecking the button.
-		m_pPatternEditorLockedBtn->setChecked( false );
 	} else if ( pHydrogen->getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
 		setTimelineEnabled( true );
 		m_pTimelineBtn->setToolTip( pCommonStrings->getTimelineEnabled() );
 		
-		// We check the locked button to indicate it does take effect
-		// while in song mode.
-		m_pPatternEditorLockedBtn->setChecked( true );
 	}
+
+	patternEditorLockedEvent();
 	
 	// Set disabled or enabled
 	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Song ) {
@@ -1138,39 +1153,5 @@ void SongEditorPanel::patternChangedEvent() {
 		int nPatternInView = -1;
 		int scroll = m_pSongEditor->yScrollTarget( m_pEditorScrollView, &nPatternInView );
 		vScrollTo( scroll );
-
-		if ( pPref->patternFollowsSong() &&
-			 ! pHydrogen->isPatternEditorLocked()) {
-			// Selected pattern follows song.
-			//
-			// If the currently selected pattern is no longer one of those currently playing in the song, then
-			// we select the suggested pattern from yScrollTarget.
-
-			AudioEngine *pAudioEngine = pHydrogen->getAudioEngine();
-			PatternList *pSongPatterns = pHydrogen->getSong()->getPatternList();
-			int nSelectedPattern = pHydrogen->getSelectedPatternNumber();
-
-			bool bFound = false;
-			std::vector< Pattern* >patternList;
-			pAudioEngine->lock( RIGHT_HERE );
-			auto pPlayingPatterns = pAudioEngine->getPlayingPatterns();
-			for ( int ii = 0; ii < pPlayingPatterns->size(); ++ii ) {
-				patternList.push_back( pPlayingPatterns->get( ii ) );
-			}
-			pAudioEngine->unlock();
-
-			for ( auto pPattern : patternList ) {
-				int nPattern = pSongPatterns->index( pPattern );
-				if ( nPattern == nSelectedPattern ) {
-					bFound = true;
-					break;
-				}
-			}
-			if ( !bFound && patternList.size() != 0 ) {
-				assert( nPatternInView != -1 );
-				
-				pHydrogen->setSelectedPatternNumber( nPatternInView );
-			}
-		}
 	}
 }

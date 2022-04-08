@@ -1309,7 +1309,7 @@ bool CoreActionController::setPattern( Pattern* pPattern, int nPatternPosition )
 
 	pPatternList->insert( nPatternPosition, pPattern );
 	if ( pHydrogen->isPatternEditorLocked() ) {
-		pHydrogen->updateSelectedPattern();
+		pHydrogen->updateSelectedPattern( true );
 	} else  {
 		pHydrogen->setSelectedPatternNumber( nPatternPosition );
 	}
@@ -1368,8 +1368,10 @@ bool CoreActionController::removePattern( int nPatternNumber ) {
 			}
 		}
 	}
-
-	if ( nPatternNumber == nSelectedPatternNumber ) {
+	
+	if ( pHydrogen->isPatternEditorLocked() ) {
+		pHydrogen->updateSelectedPattern( false );
+	} else if ( nPatternNumber == nSelectedPatternNumber ) {
 		pHydrogen->setSelectedPatternNumber( std::max( 0, nPatternNumber - 1 ),
 											 false );
 	}
@@ -1487,6 +1489,7 @@ bool CoreActionController::toggleGridCell( int nColumn, int nRow ){
 	}
 	
 	pHydrogen->updateSongSize();
+	pHydrogen->updateSelectedPattern( false );
 	
 	pHydrogen->getAudioEngine()->unlock();
 
