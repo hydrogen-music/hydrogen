@@ -132,11 +132,9 @@ Note::~Note()
 {
 }
 
-static inline float check_boundary( float v, float min, float max )
+static inline float check_boundary( float fValue, float fMin, float fMax )
 {
-	if ( v>max ) return max;
-	if ( v<min ) return min;
-	return v;
+	return std::clamp( fValue, fMin, fMax );
 }
 
 void Note::set_velocity( float velocity )
@@ -453,9 +451,15 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2length: %3\n" ).arg( sPrefix ).arg( s ).arg( __length ) )
 			.append( QString( "%1%2pitch: %3\n" ).arg( sPrefix ).arg( s ).arg( __pitch ) )
 			.append( QString( "%1%2key: %3\n" ).arg( sPrefix ).arg( s ).arg( __key ) )
-			.append( QString( "%1%2octave: %3\n" ).arg( sPrefix ).arg( s ).arg( __octave ) )
-			.append( QString( "%1" ).arg( __adsr->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2lead_lag: %3\n" ).arg( sPrefix ).arg( s ).arg( __lead_lag ) )
+			.append( QString( "%1%2octave: %3\n" ).arg( sPrefix ).arg( s ).arg( __octave ) );
+		if ( __adsr != nullptr ) {
+			sOutput.append( QString( "%1" )
+							.arg( __adsr->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( QString( "%1%2adsr: nullptr\n" ).arg( sPrefix ).arg( s ) );
+		}
+
+		sOutput.append( QString( "%1%2lead_lag: %3\n" ).arg( sPrefix ).arg( s ).arg( __lead_lag ) )
 			.append( QString( "%1%2cut_off: %3\n" ).arg( sPrefix ).arg( s ).arg( __cut_off ) )
 			.append( QString( "%1%2resonance: %3\n" ).arg( sPrefix ).arg( s ).arg( __resonance ) )
 			.append( QString( "%1%2humanize_delay: %3\n" ).arg( sPrefix ).arg( s ).arg( __humanize_delay ) )
@@ -492,9 +496,16 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", length: %1" ).arg( __length ) )
 			.append( QString( ", pitch: %1" ).arg( __pitch ) )
 			.append( QString( ", key: %1" ).arg( __key ) )
-			.append( QString( ", octave: %1" ).arg( __octave ) )
-			.append( QString( ", [%1" ).arg( __adsr->toQString( sPrefix + s, bShort ).replace( "\n", "]" ) ) )
-			.append( QString( ", lead_lag: %1" ).arg( __lead_lag ) )
+			.append( QString( ", octave: %1" ).arg( __octave ) );
+		if ( __adsr != nullptr ) {
+			sOutput.append( QString( ", [%1" )
+							.arg( __adsr->toQString( sPrefix + s, bShort )
+								  .replace( "\n", "]" ) ) );
+		} else {
+			sOutput.append( ", adsr: nullptr" );
+		}
+
+		sOutput.append( QString( ", lead_lag: %1" ).arg( __lead_lag ) )
 			.append( QString( ", cut_off: %1" ).arg( __cut_off ) )
 			.append( QString( ", resonance: %1" ).arg( __resonance ) )
 			.append( QString( ", humanize_delay: %1" ).arg( __humanize_delay ) )
