@@ -742,13 +742,13 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			}
 		}
 		sOutput.append( QString( "%1" ).arg( m_pInstrumentList->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( ", m_pComponents:" ) );
+			.append( QString( ", m_pComponents: [" ) );
 		for ( auto cc : *m_pComponents ) {
 			if ( cc != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s, bShort ) ) );
 			}
 		}
-		sOutput.append( QString( ", m_sFilename: %1" ).arg( m_sFilename ) )
+		sOutput.append( QString( "], m_sFilename: %1" ).arg( m_sFilename ) )
 			.append( QString( ", m_bIsLoopEnabled: %1" ).arg( m_bIsLoopEnabled ) )
 			.append( QString( ", m_fHumanizeTimeValue: %1" ).arg( m_fHumanizeTimeValue ) )
 			.append( QString( ", m_fHumanizeVelocityValue: %1" ).arg( m_fHumanizeVelocityValue ) )

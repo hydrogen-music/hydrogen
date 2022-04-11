@@ -1084,7 +1084,7 @@ void InstrumentEditor::labelCompoClicked( ClickableLabel* pRef )
 		return;
 	}
 	DrumkitComponent* pComponent = pSong->getComponent( m_nSelectedComponent );
-	if ( pComponent != nullptr ) {
+	if ( pComponent == nullptr ) {
 		return;
 	}
 	QString sOldName = pComponent->get_name();
@@ -1348,6 +1348,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		std::vector<DrumkitComponent*>* pDrumkitComponents = pEngine->getSong()->getComponents();
 
 		if(pDrumkitComponents->size() == 1){
+			ERRORLOG( "There is just a single component remaining. This one can not be deleted." );
 			return;
 		}
 
@@ -1380,6 +1381,8 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		}
 
 		m_nSelectedComponent = pDrumkitComponents->front()->get_id();
+
+		delete pDrumkitComponent;
 
 		selectedInstrumentChangedEvent();
 		// this will force an update...

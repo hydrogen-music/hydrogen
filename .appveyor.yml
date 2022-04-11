@@ -19,6 +19,10 @@ environment:
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON"
       appveyor_build_worker_image: Visual Studio 2019
       LIBJACK: libjack64.dll
+      OPENSSL_DIR: OpenSSL-Win64
+      LIBSSL: libssl-1_1-x64.dll
+      LIBCRYPTO: libcrypto-1_1-x64.dll
+
       CHOCO_ARCH:
       PROGRAM_FILES: "Program Files"
 
@@ -30,6 +34,10 @@ environment:
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=OFF"
       appveyor_build_worker_image: Visual Studio 2019
       LIBJACK: libjack.dll
+      OPENSSL_DIR: OpenSSL-Win32
+      LIBSSL: libssl-1_1.dll
+      LIBCRYPTO: libcrypto-1_1.dll
+
       CHOCO_ARCH:  --x86
       PROGRAM_FILES: "Program Files (x86)"
 
@@ -112,10 +120,17 @@ for:
 
           cmake --version
           g++ --version
-          choco install %CHOCO_ARCH% -y jack
+          choco install %CHOCO_ARCH% jack --version 1.9.17 -my
 
           dir "c:\%PROGRAM_FILES%\JACK2"
           dir "c:\%PROGRAM_FILES%\JACK2\lib"
+
+          REM *** Results are ignored since a dependency was not properly installed in 32 bit Windows. But the .dll files required are installed regardless, so we don't care.***
+
+          choco install %CHOCO_ARCH% -y openssl --version=1.1.1.1300 || cmd /c "exit /b 0"
+
+          echo "C:\%OPENSSL_DIR%"
+          dir "C:\%OPENSSL_DIR%"
 
           REM *** Install dependencies ***
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libarchive
@@ -169,6 +184,9 @@ for:
           REM copy_third_party_libs.py thinks it's a system lib and
           REM won't copy it.
           copy c:\Windows\%LIBJACK% %APPVEYOR_BUILD_FOLDER%\windows\extralibs
+          copy c:\Windows\%LIBJACK% %APPVEYOR_BUILD_FOLDER%\windows\extralibs
+          copy c:\%OPENSSL_DIR%\%LIBSSL% %APPVEYOR_BUILD_FOLDER%\windows\extralibs
+          copy c:\%OPENSSL_DIR%\%LIBCRYPTO% %APPVEYOR_BUILD_FOLDER%\windows\extralibs
 
           REM *** Build installer ***
           cpack -G NSIS -v
