@@ -1270,7 +1270,8 @@ void InstrumentEditor::midiOutChannelChanged( double fValue ) {
 	assert( m_pInstrument );
 
 	if ( fValue != 0.0 ) {
-		m_pInstrument->set_midi_out_channel( static_cast<int>(fValue) );
+		m_pInstrument->set_midi_out_channel( std::max( static_cast<int>(fValue) - 1,
+													   -1 ) );
 	} else {
 		if ( m_fPreviousMidiOutChannel == -1.0 ) {
 			m_pMidiOutChannelLCD->setValue( 1 );
