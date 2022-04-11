@@ -544,11 +544,11 @@ int main(int argc, char *argv[])
 			pHydrogen->sequencer_stop();
 		}
 
-		delete pSong;
 		delete Playlist::get_instance();
 
 		preferences->savePreferences();
 		delete pHydrogen;
+		delete pSong;
 		delete pQueue;
 		delete preferences;
 		delete pAudioEngine;
