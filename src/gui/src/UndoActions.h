@@ -562,6 +562,42 @@ private:
 
 // Deselect some notes and overwrite them
 /** \ingroup docGUI*/
+class SE_patternSizeChangedAction : public QUndoCommand
+{
+public:
+	SE_patternSizeChangedAction( int nNewLength, int nOldLength,
+								 double fNewDenominator, double fOldDenominator,
+								 int nSelectedPatternNumber ) {
+		setText( QObject::tr( "Altering the length of the current pattern" ) );
+		m_nNewLength = nNewLength;
+		m_nOldLength = nOldLength;
+		m_fNewDenominator = fNewDenominator;
+		m_fOldDenominator = fOldDenominator;
+		m_nSelectedPatternNumber = nSelectedPatternNumber;
+	}
+
+	virtual void undo() {
+		HydrogenApp::get_instance()->getPatternEditorPanel()
+			->patternSizeChangedAction( m_nOldLength, m_fOldDenominator,
+										m_nSelectedPatternNumber );
+	}
+
+	virtual void redo() {
+		HydrogenApp::get_instance()->getPatternEditorPanel()
+			->patternSizeChangedAction( m_nNewLength, m_fNewDenominator,
+										m_nSelectedPatternNumber );
+	}
+
+private:
+	int m_nNewLength;
+	int m_nOldLength;
+	double m_fNewDenominator;
+	double m_fOldDenominator;
+	int m_nSelectedPatternNumber;
+};
+
+// Deselect some notes and overwrite them
+/** \ingroup docGUI*/
 class SE_deselectAndOverwriteNotesAction : public QUndoCommand
 {
 public:
