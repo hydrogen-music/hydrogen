@@ -109,6 +109,9 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 
 		void updateEditors( bool bPatternOnly = false );
 
+	void patternSizeChangedAction( int nLength, double fDenominator,
+								   int nSelectedPatternNumber );
+
 	public slots:
 		void showDrumEditor();
 		void showPianoRollEditor();
@@ -141,6 +144,7 @@ class PatternEditorPanel :  public QWidget, protected WidgetWithScalableFont<8, 
 	void updateStyleSheet();
 	
 		H2Core::Pattern *	m_pPattern;
+	int m_nSelectedPatternNumber;
 		QPixmap				m_backgroundPixmap;
 		QLabel *			m_pSLlabel;
 

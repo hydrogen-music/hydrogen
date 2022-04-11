@@ -37,6 +37,7 @@ using namespace H2Core;
 #include "DrumPatternEditor.h"
 #include "PianoRollEditor.h"
 
+#include "../UndoActions.h"
 #include "../MainForm.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
@@ -66,6 +67,7 @@ void PatternEditorPanel::updateSLnameLabel( )
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
  : QWidget( pParent )
  , m_pPattern( nullptr )
+ , m_nSelectedPatternNumber( -1 )
  , m_bArmPatternSizeSpinBoxes( true )
 {
 	setAcceptDrops(true);
@@ -701,12 +703,12 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 {
 
 	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
-	int nSelectedPatternNumber = Hydrogen::get_instance()->getSelectedPatternNumber();
+	m_nSelectedPatternNumber = Hydrogen::get_instance()->getSelectedPatternNumber();
 
-	if ( ( nSelectedPatternNumber != -1 ) &&
-		 ( (uint) nSelectedPatternNumber < pPatternList->size() ) ) {
+	if ( ( m_nSelectedPatternNumber != -1 ) &&
+		 ( m_nSelectedPatternNumber < pPatternList->size() ) ) {
 		// update pattern name text
-		m_pPattern = pPatternList->get( nSelectedPatternNumber );
+		m_pPattern = pPatternList->get( m_nSelectedPatternNumber );
 		QString sCurrentPatternName = m_pPattern->get_name();
 		this->setWindowTitle( ( tr( "Pattern editor - %1" ).arg( sCurrentPatternName ) ) );
 		m_pPatternNameLbl->setText( sCurrentPatternName );
@@ -978,13 +980,14 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
 
 	// Update numerator to allow only for a maximum pattern length of
 	// four measures.
 	m_pLCDSpinBoxNumerator->setMaximum( 4 * m_pLCDSpinBoxDenominator->value() );
 
-	double fNumerator = m_pLCDSpinBoxNumerator->value();
-	double fDenominator = m_pLCDSpinBoxDenominator->value();
+	double fNewNumerator = m_pLCDSpinBoxNumerator->value();
+	double fNewDenominator = m_pLCDSpinBoxDenominator->value();
 
 	/* Note: user can input a non integer numerator and this feature
 	   is very powerful because it allows to set really any possible
@@ -994,12 +997,74 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 	   and BOTH are UNSUPPORTED, but the first notation looks more
 	   meaningful */
 
-	int nLength = std::round( static_cast<double>( MAX_NOTES ) / fDenominator * fNumerator );
+	int nNewLength =
+		std::round( static_cast<double>( MAX_NOTES ) / fNewDenominator * fNewNumerator );
+
+	// Delete all notes that are not accessible anymore.
+	QUndoStack* pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
+	pUndoStack->beginMacro( "remove excessive notes after pattern size change" );
+
+	pUndoStack->push( new SE_patternSizeChangedAction( nNewLength,
+													   m_pPattern->get_length(),
+													   fNewDenominator,
+													   m_pPattern->get_denominator(),
+													   m_nSelectedPatternNumber ) );
+
+	std::vector<Note*> excessiveNotes;
+	Pattern::notes_t* pNotes = (Pattern::notes_t *)m_pPattern->get_notes();
+	FOREACH_NOTE_IT_BEGIN_END( pNotes, it ) {
+		Note* pNote = it->second;
+		if ( pNote != nullptr &&
+			 pNote->get_position() >= nNewLength ) {
+			excessiveNotes.push_back( pNote );
+		}
+	}
+
+	for ( auto pNote : excessiveNotes ) {
+		// Note is exceeding the new pattern length. It has to be
+		// removed.
+		pUndoStack->push( new SE_addOrDeleteNoteAction( pNote->get_position(),
+														pInstrumentList->index( pNote->get_instrument() ),
+														m_nSelectedPatternNumber,
+														pNote->get_length(),
+														pNote->get_velocity(),
+														pNote->getPan(),
+														pNote->get_lead_lag(),
+														pNote->get_key(),
+														pNote->get_octave(),
+														pNote->get_probability(),
+														true,
+														false,
+														false,
+														false,
+														pNote->get_note_off() ) );
+	}
+	
+	pUndoStack->endMacro();
+}
+
+void PatternEditorPanel::patternSizeChangedAction( int nLength, double fDenominator,
+												   int nSelectedPatternNumber ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pPatternList = pHydrogen->getSong()->getPatternList();
+	H2Core::Pattern* pPattern = nullptr;
+
+	if ( ( nSelectedPatternNumber != -1 ) &&
+		 ( nSelectedPatternNumber < pPatternList->size() ) ) {
+		pPattern = pPatternList->get( nSelectedPatternNumber );
+	}
+
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Pattern corresponding to pattern number [%1] could not be retrieved" )
+				  .arg( nSelectedPatternNumber ) );
+		return;
+	}
 
 	pAudioEngine->lock( RIGHT_HERE );
 	// set length and denominator				
-	m_pPattern->set_length( nLength );
-	m_pPattern->set_denominator( static_cast<int>( fDenominator ) );
+	pPattern->set_length( nLength );
+	pPattern->set_denominator( static_cast<int>( fDenominator ) );
 	pHydrogen->updateSongSize();
 	pAudioEngine->unlock();
 	
