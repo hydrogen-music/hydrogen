@@ -108,7 +108,8 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 					 , m_nLastMidiEventParameter( 0 )
 					 , m_CurrentTime( {0,0} )
 					 , m_oldEngineMode( Song::Mode::Song ) 
-					 , m_bOldLoopEnabled( false) 
+					 , m_bOldLoopEnabled( false )
+					 , m_nLastRecordedMIDINoteTick( 0 )
 {
 	if ( __instance ) {
 		ERRORLOG( "Hydrogen audio engine is already running" );
@@ -340,36 +341,43 @@ void Hydrogen::midi_noteOn( Note *note )
 	m_pAudioEngine->noteOn( note );
 }
 
-void Hydrogen::addRealtimeNote(	int		instrument,
-								float	velocity,
+void Hydrogen::addRealtimeNote(	int		nInstrument,
+								float	fVelocity,
 								float	fPan,
-								bool	noteOff,
-								int		msg1 )
+								bool	bNoteOff,
+								int		nNote )
 {
 	
 	AudioEngine* pAudioEngine = m_pAudioEngine;
-	Preferences *pPreferences = Preferences::get_instance();
+	Preferences *pPref = Preferences::get_instance();
 	unsigned int nRealColumn = 0;
-	unsigned res = pPreferences->getPatternEditorGridResolution();
-	int nBase = pPreferences->isPatternEditorUsingTriplets() ? 3 : 4;
+	unsigned res = pPref->getPatternEditorGridResolution();
+	int nBase = pPref->isPatternEditorUsingTriplets() ? 3 : 4;
+	bool bPlaySelectedInstrument = pPref->__playselectedinstrument;
 	int scalar = ( 4 * MAX_NOTES ) / ( res * nBase );
 	int currentPatternNumber;
 
-	m_pAudioEngine->lock( RIGHT_HERE );
-
 	std::shared_ptr<Song> pSong = getSong();
-	if ( !pPreferences->__playselectedinstrument ) {
-		if ( instrument >= ( int ) pSong->getInstrumentList()->size() ) {
+
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
+
+	m_pAudioEngine->lock( RIGHT_HERE );
+	
+	if ( ! bPlaySelectedInstrument ) {
+		if ( nInstrument >= ( int ) pSong->getInstrumentList()->size() ) {
 			// unused instrument
 			ERRORLOG( QString( "Provided instrument [%1] not found" )
-					  .arg( instrument ) );
+					  .arg( nInstrument ) );
 			pAudioEngine->unlock();
 			return;
 		}
 	}
 
 	// Get current partern and column, compensating for "lookahead" if required
-	const Pattern* currentPattern = nullptr;
+	const Pattern* pCurrentPattern = nullptr;
 	long nTickInPattern = 0;
 	long long nLookaheadInFrames = m_pAudioEngine->getLookaheadInFrames( pAudioEngine->getTick() );
 	long nLookaheadTicks = 
@@ -377,7 +385,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 																		   nLookaheadInFrames ) -
 									 m_pAudioEngine->getTick()));
 			  
-	bool doRecord = pPreferences->getRecordEvents();
+	bool doRecord = pPref->getRecordEvents();
 	if ( getMode() == Song::Mode::Song && doRecord &&
 		 pAudioEngine->getState() == AudioEngine::State::Playing )
 	{
@@ -412,7 +420,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 				int nIndex = pPatternList->index( pPattern );
 				if ( nIndex > currentPatternNumber ) {
 					currentPatternNumber = nIndex;
-					currentPattern = pPattern;
+					pCurrentPattern = pPattern;
 				}
 			}
 			nTickInPattern += (*pColumns)[nColumn]->longest_pattern_length();
@@ -420,7 +428,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		nTickInPattern -= nLookaheadTicks;
 		
 		// Capture new notes in the bottom-most pattern (if not already done above)
-		if ( currentPattern == nullptr ) {
+		if ( pCurrentPattern == nullptr ) {
 			PatternList *pColumn = ( *pColumns )[ nColumn ];
 			currentPatternNumber = -1;
 			for ( int n = 0; n < pColumn->size(); n++ ) {
@@ -428,13 +436,13 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 				int nIndex = pPatternList->index( pPattern );
 				if ( nIndex > currentPatternNumber ) {
 					currentPatternNumber = nIndex;
-					currentPattern = pPattern;
+					pCurrentPattern = pPattern;
 				}
 			}
 		}
 
 		// Cancel recording if punch area disagrees
-		doRecord = pPreferences->inPunchArea( nColumn );
+		doRecord = pPref->inPunchArea( nColumn );
 
 	} else { // Not song-record mode
 		PatternList *pPatternList = pSong->getPatternList();
@@ -442,11 +450,11 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		if ( ( m_nSelectedPatternNumber != -1 )
 			 && ( m_nSelectedPatternNumber < ( int )pPatternList->size() ) )
 		{
-			currentPattern = pPatternList->get( m_nSelectedPatternNumber );
+			pCurrentPattern = pPatternList->get( m_nSelectedPatternNumber );
 			currentPatternNumber = m_nSelectedPatternNumber;
 		}
 
-		if ( ! currentPattern ) {
+		if ( ! pCurrentPattern ) {
 			ERRORLOG( "Current pattern invalid" );
 			pAudioEngine->unlock(); // unlock the audio engine
 			return;
@@ -457,85 +465,144 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		if ( nTickInPattern >= nLookaheadTicks ) {
 			nTickInPattern -= nLookaheadTicks;
 		} else {
-			nLookaheadTicks %= currentPattern->get_length();
-			nTickInPattern = (nTickInPattern + currentPattern->get_length() - nLookaheadTicks)
-					% currentPattern->get_length();
+			nLookaheadTicks %= pCurrentPattern->get_length();
+			nTickInPattern = (nTickInPattern + pCurrentPattern->get_length() - nLookaheadTicks)
+					% pCurrentPattern->get_length();
 		}
 	}
 
-	if ( currentPattern && pPreferences->getQuantizeEvents() ) {
+	if ( pCurrentPattern && pPref->getQuantizeEvents() ) {
 		// quantize it to scale
 		unsigned qcolumn = ( unsigned )::round( nTickInPattern / ( double )scalar ) * scalar;
 
 		//we have to make sure that no beat is added on the last displayed note in a bar
 		//for example: if the pattern has 4 beats, the editor displays 5 beats, so we should avoid adding beats an note 5.
-		if ( qcolumn == currentPattern->get_length() ){
+		if ( qcolumn == pCurrentPattern->get_length() ){
 			qcolumn = 0;
 		}
 		nTickInPattern = qcolumn;
 	}
 
-	unsigned position = nTickInPattern;
-	pAudioEngine->setAddRealtimeNoteTickPosition( nTickInPattern );
+	auto pInstrumentList = pSong->getInstrumentList();
+	int nInstrumentNumber;
+	if ( bPlaySelectedInstrument ) {
+		nInstrumentNumber = getSelectedInstrumentNumber();
+	} else {
+		nInstrumentNumber = m_nInstrumentLookupTable[ nInstrument ];
+	}
+	auto pInstr = pInstrumentList->get( nInstrumentNumber );
 
-	std::shared_ptr<Instrument> instrRef = nullptr;
-	if ( pSong ) {
-		//getlookuptable index = instrument+36, ziel wert = der entprechende wert -36
-		instrRef = pSong->getInstrumentList()->get( m_nInstrumentLookupTable[ instrument ] );
+	if ( pInstr == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieved instrument [%1]. Plays selected instrument: [%2]" )
+				  .arg( nInstrumentNumber )
+				  .arg( bPlaySelectedInstrument ) );
+		pAudioEngine->unlock();
+		return;
 	}
 
-	if ( currentPattern && ( pAudioEngine->getState() == AudioEngine::State::Playing ) ) {
-		assert( currentPattern );
-		if ( doRecord ) {
+	// Record note
+	if ( pCurrentPattern != nullptr &&
+		 pAudioEngine->getState() == AudioEngine::State::Playing &&
+		 doRecord ) {
+
+		bool bIsModified = false;
+
+		if ( bNoteOff ) {
+			
+			int nPatternSize = pCurrentPattern->get_length();
+			int nNoteLength =
+				static_cast<int>(pAudioEngine->getPatternTickPosition()) -
+				m_nLastRecordedMIDINoteTick;
+
+			if ( bPlaySelectedInstrument ) {
+				nNoteLength =
+					static_cast<int>(static_cast<double>(nNoteLength) *
+									 Note::pitchToFrequency( nNote ));
+			}
+
+			for ( unsigned nNote = 0; nNote < nPatternSize; nNote++ ) {
+				const Pattern::notes_t* notes = pCurrentPattern->get_notes();
+				FOREACH_NOTE_CST_IT_BOUND( notes, it, nNote ) {
+					Note *pNote = it->second;
+					if ( pNote != nullptr &&
+						 pNote->get_position() == m_nLastRecordedMIDINoteTick &&
+						 pInstr == pNote->get_instrument() ) {
+						
+						if ( m_nLastRecordedMIDINoteTick + nNoteLength > nPatternSize ) {
+							nNoteLength = nPatternSize - m_nLastRecordedMIDINoteTick;
+						}
+						pNote->set_length( nNoteLength );
+						bIsModified = true;
+					}
+				}
+			}
+
+		}
+		else { // note on
 			EventQueue::AddMidiNoteVector noteAction;
 			noteAction.m_column = nTickInPattern;
+			noteAction.m_row = nInstrumentNumber;
 			noteAction.m_pattern = currentPatternNumber;
-			noteAction.f_velocity = velocity;
+			noteAction.f_velocity = fVelocity;
 			noteAction.f_pan = fPan;
 			noteAction.m_length = -1;
 			noteAction.b_isMidi = true;
 
-			if ( pPreferences->__playselectedinstrument ) {
-				instrRef = pSong->getInstrumentList()->get( getSelectedInstrumentNumber() );
-				int divider = msg1 / 12;
-				noteAction.m_row = getSelectedInstrumentNumber();
+			if ( bPlaySelectedInstrument ) {
+				int divider = nNote / 12;
 				noteAction.no_octaveKeyVal = (Note::Octave)(divider -3);
-				noteAction.nk_noteKeyVal = (Note::Key)(msg1 - (12 * divider));
+				noteAction.nk_noteKeyVal = (Note::Key)(nNote - (12 * divider));
 				noteAction.b_isInstrumentMode = true;
 			} else {
-				instrRef = pSong->getInstrumentList()->get( m_nInstrumentLookupTable[ instrument ] );
-				noteAction.m_row =  m_nInstrumentLookupTable[ instrument ];
 				noteAction.no_octaveKeyVal = (Note::Octave)0;
 				noteAction.nk_noteKeyVal = (Note::Key)0;
 				noteAction.b_isInstrumentMode = false;
 			}
 
-			Note* pNoteold = currentPattern->find_note( noteAction.m_column, -1, instrRef, noteAction.nk_noteKeyVal, noteAction.no_octaveKeyVal );
-			noteAction.b_noteExist = ( pNoteold ) ? true : false;
-
 			EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
 
-		}/* if doRecord */
-	} /* if .. AudioEngine::State::Playing */
-
-
-	if ( !pPreferences->__playselectedinstrument ) {
-		if ( instrRef ) {
-			Note *pNote2 = new Note( instrRef, nRealColumn, velocity, fPan, -1, 0 );
+			m_nLastRecordedMIDINoteTick = nTickInPattern;
 			
+			bIsModified = true;
+		}
+		
+		if ( bIsModified ) {
+			EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
+			setIsModified( true );
+		}
+	}
+
+
+	// Play back the note.
+	if ( bPlaySelectedInstrument ) {
+		if ( bNoteOff ) {
+			if ( pAudioEngine->getSampler()->isInstrumentPlaying( pInstr ) ) {
+				pAudioEngine->getSampler()->midiKeyboardNoteOff( nNote );
+			}
+		}
+		else { // note on
+			Note *pNote2 = new Note( pInstr, nRealColumn, fVelocity, fPan, -1, 0 );
+
+			int divider = nNote / 12;
+			Note::Octave octave = (Note::Octave)(divider -3);
+			Note::Key notehigh = (Note::Key)(nNote - (12 * divider));
+
+			pNote2->set_midi_info( notehigh, octave, nNote );
 			midi_noteOn( pNote2 );
 		}
-	} else {
-		auto pInstr = pSong->getInstrumentList()->get( getSelectedInstrumentNumber() );
-		Note *pNote2 = new Note( pInstr, nRealColumn, velocity, fPan, -1, 0 );
-
-		int divider = msg1 / 12;
-		Note::Octave octave = (Note::Octave)(divider -3);
-		Note::Key notehigh = (Note::Key)(msg1 - (12 * divider));
-
-		//ERRORLOG( QString( "octave: %1, note: %2, instrument %3" ).arg( octave ).arg(notehigh).arg(instrument));
-		pNote2->set_midi_info( notehigh, octave, msg1 );
-		midi_noteOn( pNote2 );
+	}
+	else {
+		if ( bNoteOff ) {
+			if ( pAudioEngine->getSampler()->isInstrumentPlaying( pInstr ) ) {
+				Note *pNoteOff = new Note( pInstr, 0.0, 0.0, 0.0, -1, 0 );
+				pNoteOff->set_note_off( true );
+				midi_noteOn( pNoteOff );
+			}
+		}
+		else { // note on
+			Note *pNote2 = new Note( pInstr, nRealColumn, fVelocity, fPan, -1, 0 );
+			midi_noteOn( pNote2 );
+		}
 	}
 
 	m_pAudioEngine->unlock(); // unlock the audio engine
