@@ -304,7 +304,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 			}
 		}
 
-		pHydrogen->addRealtimeNote( nInstrument, fVelocity, fPan, 0.0, false, true, nNote );
+		pHydrogen->addRealtimeNote( nInstrument, fVelocity, fPan, false, nNote );
 	}
 
 	__noteOnTick = pAudioEngine->getAddRealtimeNoteTickPosition();

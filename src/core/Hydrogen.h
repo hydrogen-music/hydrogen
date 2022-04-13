@@ -197,9 +197,7 @@ public:
 		void			addRealtimeNote ( int instrument,
 							  float velocity,
 							  float fPan = 0.0f,
-							  float pitch=0.0,
 							  bool noteoff=false,
-							  bool forcePlay=false,
 							  int msg1=0 );
 
 		void			restartDrivers();

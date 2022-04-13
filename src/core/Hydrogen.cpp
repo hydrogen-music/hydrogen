@@ -343,12 +343,9 @@ void Hydrogen::midi_noteOn( Note *note )
 void Hydrogen::addRealtimeNote(	int		instrument,
 								float	velocity,
 								float	fPan,
-								float	pitch,
 								bool	noteOff,
-								bool	forcePlay,
 								int		msg1 )
 {
-	UNUSED( pitch );
 	
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	Preferences *pPreferences = Preferences::get_instance();
@@ -356,7 +353,6 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	unsigned res = pPreferences->getPatternEditorGridResolution();
 	int nBase = pPreferences->isPatternEditorUsingTriplets() ? 3 : 4;
 	int scalar = ( 4 * MAX_NOTES ) / ( res * nBase );
-	bool hearnote = forcePlay;
 	int currentPatternNumber;
 
 	m_pAudioEngine->lock( RIGHT_HERE );
@@ -519,23 +515,17 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 
 			EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
 
-			// hear note if its not in the future
-			if ( pPreferences->getHearNewNotes() && position <= pAudioEngine->getPatternTickPosition() ) {
-				hearnote = true;
-			}
 		}/* if doRecord */
-	} else if ( pPreferences->getHearNewNotes() ) {
-			hearnote = true;
 	} /* if .. AudioEngine::State::Playing */
 
 
 	if ( !pPreferences->__playselectedinstrument ) {
-		if ( hearnote && instrRef ) {
+		if ( instrRef ) {
 			Note *pNote2 = new Note( instrRef, nRealColumn, velocity, fPan, -1, 0 );
 			
 			midi_noteOn( pNote2 );
 		}
-	} else if ( hearnote  ) {
+	} else {
 		auto pInstr = pSong->getInstrumentList()->get( getSelectedInstrumentNumber() );
 		Note *pNote2 = new Note( pInstr, nRealColumn, velocity, fPan, -1, 0 );
 
