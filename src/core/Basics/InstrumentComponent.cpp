@@ -98,15 +98,17 @@ int InstrumentComponent::getMaxLayers()
 	return m_nMaxLayers;
 }
 
-InstrumentComponent* InstrumentComponent::load_from( XMLNode* node, const QString& dk_path )
+InstrumentComponent* InstrumentComponent::load_from( XMLNode* node, const QString& dk_path, bool bSilent )
 {
-	int id = node->read_int( "component_id", EMPTY_INSTR_ID, false, false );
+	int id = node->read_int( "component_id", EMPTY_INSTR_ID,
+							 false, false, bSilent );
 	if ( id==EMPTY_INSTR_ID ) {
 		return nullptr;
 	}
 
 	InstrumentComponent* pInstrumentComponent = new InstrumentComponent( id );
-	pInstrumentComponent->set_gain( node->read_float( "gain", 1.0f, true, false ) );
+	pInstrumentComponent->set_gain( node->read_float( "gain", 1.0f,
+													  true, false, bSilent ) );
 	XMLNode layer_node = node->firstChildElement( "layer" );
 	int n = 0;
 	while ( !layer_node.isNull() ) {
@@ -114,25 +116,28 @@ InstrumentComponent* InstrumentComponent::load_from( XMLNode* node, const QStrin
 			ERRORLOG( QString( "n (%1) >= m_nMaxLayers (%2)" ).arg( n ).arg( m_nMaxLayers ) );
 			break;
 		}
-		pInstrumentComponent->set_layer( InstrumentLayer::load_from( &layer_node, dk_path ), n );
+		pInstrumentComponent->set_layer( InstrumentLayer::load_from( &layer_node,
+																	 dk_path,
+																	 bSilent ),
+										 n );
 		n++;
 		layer_node = layer_node.nextSiblingElement( "layer" );
 	}
 	return pInstrumentComponent;
 }
 
-void InstrumentComponent::save_to( XMLNode* node, int component_id )
+void InstrumentComponent::save_to( XMLNode* node, int component_id, bool bRecentVersion )
 {
 	XMLNode component_node;
-	if( component_id == -1 ) {
+	if ( bRecentVersion ) {
 		component_node = node->createNode( "instrumentComponent" );
 		component_node.write_int( "component_id", __related_drumkit_componentID );
 		component_node.write_float( "gain", __gain );
 	}
 	for ( int n = 0; n < m_nMaxLayers; n++ ) {
-		InstrumentLayer* pLayer = get_layer( n );
-		if( pLayer ) {
-			if( component_id == -1 ) {
+		auto pLayer = get_layer( n );
+		if( pLayer != nullptr ) {
+			if( bRecentVersion ) {
 				pLayer->save_to( &component_node );
 			} else {
 				pLayer->save_to( node );

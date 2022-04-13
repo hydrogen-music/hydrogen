@@ -146,17 +146,24 @@ class InstrumentList : public H2Core::Object
 		 * \param node the XMLNode to feed
 		 * \param component_id Identifier of the corresponding
 		 * component.
+		 * \param bRecentVersion Whether the drumkit format should be
+		 * supported by Hydrogen 0.9.7 or higher (whether it should be
+		 * composed of DrumkitComponents).
 		 */
-		void save_to( XMLNode* node, int component_id );
+	void save_to( XMLNode* node, int component_id, bool bRecentVersion = true );
 		/**
 		 * load an instrument list from an XMLNode
 		 * \param node the XMLDode to read from
 		 * \param dk_path the directory holding the drumkit
 		 * data
 		 * \param dk_name
+		 * \param bSilent if set to true, all log messages except of
+		 * errors and warnings are suppressed.
+		 *
 		 * \return a new InstrumentList instance
 		 */
-		static InstrumentList* load_from( XMLNode* node, const QString& dk_path, const QString& dk_name );
+	static InstrumentList* load_from( XMLNode* node, const QString& dk_path,
+									  const QString& dk_name, bool bSilent = false );
 
 		/**
 		 * Fix GitHub issue #307, so called "Hi Bongo fiasco".
@@ -188,6 +195,10 @@ class InstrumentList : public H2Core::Object
 		 *
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
+
+		/** Iteration */
+	std::vector<Instrument*>::iterator begin();
+	std::vector<Instrument*>::iterator end();
 
 	private:
 		std::vector<Instrument*> __instruments;            ///< the list of instruments

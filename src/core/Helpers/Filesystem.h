@@ -236,6 +236,18 @@ namespace H2Core
 		 */
 		static QString drumkit_file( const QString& dk_path );
 
+		/**
+		 * Returns filename and extention of the expected drumkit file.
+		 */
+		static QString drumkit_xml();
+
+		/**
+		 * Create a backup path from a drumkit path. It will contain
+		 * the current datetime to both make individual backup names
+		 * unique and to make it more easy to handle them.
+		 */
+		static QString drumkit_backup_path( const QString& dk_path );
+
 		/* PATTERNS */
 		/**
 		 * returns a list of existing drumkit sub dir into the patterns directory
@@ -261,6 +273,13 @@ namespace H2Core
 		 * \param sg_name the song name
 		 */
 		static bool song_exists( const QString& sg_name );
+
+		/**
+		 * Takes an arbitrary path, replaces white spaces by
+		 * underscores and removes all characters apart from latin
+		 * characters, arabic numbers, underscores and dashes.
+		 */
+		static QString validateFilePath( const QString& sPath );
 
 		/** send current settings information to logger with INFO severity */
 		static void info();
@@ -323,14 +342,18 @@ namespace H2Core
 		 * \param src source file path
 		 * \param dst destination file path
 		 * \param overwrite allow to overwrite an existing file if set to true
+		 * \param bSilent Whether debug and info messages should be
+		 * logged.
 		 */
-		static bool file_copy( const QString& src, const QString& dst, bool overwrite=false );
+		static bool file_copy( const QString& src, const QString& dst, bool overwrite=false, bool bSilent = false );
 		/**
 		 * remove a path
 		 * \param path the path to be removed
 		 * \param recursive perform recursive removal if set to true
+		 * \param bSilent Whether debug and info messages should be
+		 * logged.
 		 */
-		static bool rm( const QString& path, bool recursive=false );
+		static bool rm( const QString& path, bool recursive=false, bool bSilent = false );
 		/**
 		 * create a path
 		 * \param path the path to the directory to be created
@@ -346,7 +369,7 @@ namespace H2Core
 		static Logger* __logger;                    ///< a pointer to the logger
 		static bool check_sys_paths();              ///< returns true if the system path is consistent
 		static bool check_usr_paths();              ///< returns true if the user path is consistent
-		static bool rm_fr( const QString& path );   ///< recursively remove a path
+		static bool rm_fr( const QString& path, bool bSilent = false );   ///< recursively remove a path
 
 		/**
 		 * If this variable is non-empty, its content will be used as

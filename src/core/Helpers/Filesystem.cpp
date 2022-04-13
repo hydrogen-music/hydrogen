@@ -29,6 +29,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
+#include <QDateTime>
 #include <QDomDocument>
 
 #ifdef H2CORE_HAVE_OSC
@@ -255,9 +256,11 @@ bool Filesystem::mkdir( const QString& path )
 
 bool Filesystem::path_usable( const QString& path, bool create, bool silent )
 {
-	if( !QDir( path ).exists() ) {
-		if( !silent ) INFOLOG( QString( "create user directory : %1" ).arg( path ) );
-		if( create && !QDir( "/" ).mkpath( path ) ) {
+	if ( !QDir( path ).exists() ) {
+		if ( !silent ) {
+			INFOLOG( QString( "create user directory : %1" ).arg( path ) );
+		}
+		if ( create && !QDir( "/" ).mkpath( path ) ) {
 			if( !silent ) ERRORLOG( QString( "unable to create user directory : %1" ).arg( path ) );
 			return false;
 		}
@@ -282,7 +285,7 @@ bool Filesystem::write_to_file( const QString& dst, const QString& content )
 	return true;
 }
 
-bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwrite )
+bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwrite, bool bSilent )
 {
 	if( !overwrite && file_exists( dst, true ) ) {
 		WARNINGLOG( QString( "do not overwrite %1 with %2 as it already exists" ).arg( dst ).arg( src ) );
@@ -296,19 +299,20 @@ bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwri
 		ERRORLOG( QString( "unable to copy %1 to %2, %2 is not writable" ).arg( src ).arg( dst ) );
 		return false;
 	}
-	INFOLOG( QString( "copy %1 to %2" ).arg( src ).arg( dst ) );
-
+	if ( ! bSilent ) {
+		INFOLOG( QString( "copy %1 to %2" ).arg( src ).arg( dst ) );
+	}
 	
 	// Since QFile::copy does not overwrite, we have to make sure the
 	// destination does not exist.
 	if ( overwrite && file_exists( dst, true ) ) {
-		rm( dst, true );
+		rm( dst, true, bSilent );
 	}
 	
 	return QFile::copy( src, dst );
 }
 
-bool Filesystem::rm( const QString& path, bool recursive )
+bool Filesystem::rm( const QString& path, bool recursive, bool bSilent )
 {
 	if ( check_permissions( path, is_file, true ) ) {
 		QFile file( path );
@@ -330,18 +334,22 @@ bool Filesystem::rm( const QString& path, bool recursive )
 		}
 		return ret;
 	}
-	return rm_fr( path );
+	return rm_fr( path, bSilent );
 }
 
-bool Filesystem::rm_fr( const QString& path )
+bool Filesystem::rm_fr( const QString& path, bool bSilent )
 {
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Removing [%1] recursively" ).arg( path ) );
+	}
+	
 	bool ret = true;
 	QDir dir( path );
 	QFileInfoList entries = dir.entryInfoList( QDir::NoDotAndDotDot | QDir::AllEntries );
 	for ( int idx = 0; ( ( idx < entries.size() ) && ret ); idx++ ) {
 		QFileInfo entryInfo = entries[idx];
 		if ( entryInfo.isDir() && !entryInfo.isSymLink() ) {
-			ret = rm_fr( entryInfo.absoluteFilePath() );
+			ret = rm_fr( entryInfo.absoluteFilePath(), bSilent );
 		} else {
 			QFile file( entryInfo.absoluteFilePath() );
 			if ( !file.remove() ) {
@@ -737,6 +745,15 @@ QString Filesystem::drumkit_file( const QString& dk_path )
 	return dk_path + "/" + DRUMKIT_XML;
 }
 
+QString Filesystem::drumkit_xml() {
+	return DRUMKIT_XML;
+}
+
+QString Filesystem::drumkit_backup_path( const QString& dk_path ) {
+	return dk_path + "." +
+		QDateTime::currentDateTime().toString( "yyyy-MM-dd_hh-mm-ss" ) + ".bak";
+}
+
 // PATTERNS
 QStringList Filesystem::pattern_drumkits()
 {
@@ -773,6 +790,16 @@ QStringList Filesystem::song_list_cleared( )
 bool Filesystem::song_exists( const QString& sg_name )
 {
 	return QDir( songs_dir() ).exists( sg_name );
+}
+
+QString Filesystem::validateFilePath( const QString& sPath ) {
+
+	// Ensure the name will be a valid filename
+	QString sValidName( sPath );
+	sValidName.replace( " ", "_" );
+	sValidName.remove( QRegExp( "[^a-zA-Z0-9_-]" ) );
+
+	return sValidName;
 }
 
 // PLAYLISTS

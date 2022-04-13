@@ -59,10 +59,18 @@ class Drumkit : public H2Core::Object
 		 * Filesystem::drumkit_dir_search().
 		 * \param load_samples Automatically load sample data
 		 * if set to true.
+		 * \param bUpgrade Whether the loaded drumkit should be
+		 * upgraded using upgrade_drumkit() in case it did not comply
+		 * with the current XSD file.
+		 * \param bSilent if set to true, all log messages except of
+		 * errors and warnings are suppressed.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load( const QString& dk_dir, const bool load_samples = false );
+		static Drumkit* load( const QString& dk_dir,
+							  const bool load_samples = false,
+							  bool bUpgrade = true,
+							  bool bSilent = false );
 		/**
 		 * Simple wrapper for load() used with the drumkit's
 		 * name instead of its directory.
@@ -93,11 +101,20 @@ class Drumkit : public H2Core::Object
 		 * is true.
 		 *
 		 * \param dk_path is a path to an xml file
-		 * \param load_samples automatically load sample data if set to true
+		 * \param load_samples automatically load sample data if set
+		 * to true
+		 * \param bUpgrade Whether the loaded drumkit should be
+		 * upgraded using upgrade_drumkit() in case it did not comply
+		 * with the current XSD file.
+		 * \param bSilent if set to true, all log messages except of
+		 * errors and warnings are suppressed.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load_file( const QString& dk_path, const bool load_samples = false );
+		static Drumkit* load_file( const QString& dk_path,
+								   const bool load_samples = false,
+								   bool bUpgrade = true,
+								   bool bSilent = true );
 		/** Calls the InstrumentList::load_samples() member
 		 * function of #__instruments.
 		 */
@@ -106,13 +123,33 @@ class Drumkit : public H2Core::Object
 		 * function of #__instruments.
 		 */
 		void unload_samples();
+
+	/**
+	 * Returns a version of #__name stripped of all whitespaces and
+	 * other characters which would prevent its use as a valid
+	 * filename.
+	 *
+	 * Attention: The returned string might be used as the name for
+	 * the associated drumkit folder but it does not have to.
+	 */
+	QString getFolderName() const;
+	/**
+	 * Returns the base name used when exporting the drumkit.
+	 *
+	 * \param sComponentName Name of a particular component used in
+	 * case just a single component should be exported.
+	 * \param bRecentVersion Whether the drumkit format should be
+	 * supported by Hydrogen 0.9.7 or higher (whether it should be
+	 * composed of DrumkitComponents).
+	 */
+	QString getExportName( const QString& sComponentName, bool bRecentVersion ) const;
 		
 		/** 
 		 * Saves the current drumkit to dk_path, but makes a backup. 
 		 * This is used when the drumkit did not comply to 
 		 * our xml schema.
 		 */
-		static void upgrade_drumkit( Drumkit* pDrumkit, const QString& dk_path );
+		static void upgrade_drumkit( Drumkit* pDrumkit, const QString& dk_path, bool bSilent = false );
 
 		/**
 		 * check if a user drumkit with the given name
@@ -141,9 +178,14 @@ class Drumkit : public H2Core::Object
 		 * \param dk_path the path to save the drumkit into
 		 * \param overwrite allows to write over existing drumkit file
 		 * \param component_id to chose the component to save or -1 for all
+		 * \param bSilent if set to true, all log messages except of
+		 * errors and warnings are suppressed.
+		 *
 		 * \return true on success
 		 */
-		bool save_file( const QString& dk_path, bool overwrite=false, int component_id=-1 );
+		bool save_file( const QString& dk_path, bool overwrite=false,
+						int component_id=-1, bool bRecentVersion = true,
+						bool bSilent = false ) const;
 		/**
 		 * save a drumkit instruments samples into a directory
 		 * \param dk_dir the directory to save the samples into
@@ -175,11 +217,41 @@ class Drumkit : public H2Core::Object
 		 */
 		static bool save( const QString& sName, const QString& sAuthor, const QString& sInfo, const QString& sLicense, const QString& sImage, const QString& sImageLicense, InstrumentList* pInstruments, std::vector<DrumkitComponent*>* pComponents, bool bOverwrite=false );
 		/**
-		 * install a drumkit from a filename
-		 * \param path the path to the new drumkit archive
+		 * Extract a .h2drumkit file.
+		 *
+		 * \param sSourcePath Absolute path to the new drumkit archive
+		 * \param sTargetPath Absolute path to where the new drumkit
+		 * should be extracted to. If left empty, the user's drumkit
+		 * folder will be used.
+		 * \param bSilent Whether debug and info messages should be
+		 * logged.
+		 *
 		 * \return true on success
 		 */
-		static bool install( const QString& path );
+	static bool install( const QString& sSourcePath, const QString& sTargetPath = "", bool bSilent = false );
+
+	/**
+	 * Compresses the drumkit into a .h2drumkit file.
+	 *
+	 * The name of the created file will be a concatenation of #__name
+	 * and Filesystem::drumkit_ext.
+	 *
+	 * exportTo() ? well, export is a protected name within C++. So,
+	 * we needed a less obvious name. 
+	 *
+	 * \param sTargetDir Folder which will contain the resulting
+	 * .h2drumkit file.
+	 * \param sComponentName Name of a particular component used in
+	 * case just a single component should be exported.
+	 * \param bRecentVersion Whether the drumkit format should be
+	 * supported by Hydrogen 0.9.7 or higher (whether it should be
+	 * composed of DrumkitComponents).
+	 * \param bSilent Whether debug and info messages should be
+	 * logged.
+	 *
+	 * \return true on success 
+	 */
+	bool exportTo( const QString& sTargetDir, const QString& sComponentName = "", bool bRecentVersion = true, bool bSilent = false );
 		/**
 		 * remove a drumkit from the disk
 		 * \param dk_name the drumkit name
@@ -259,14 +331,20 @@ class Drumkit : public H2Core::Object
 		/*
 		 * save the drumkit within the given XMLNode
 		 * \param node the XMLNode to feed
+		 * \param component_id to chose the component to save or -1 for all
+		 * \param bRecentVersion Whether the drumkit format should be
+		 * supported by Hydrogen 0.9.7 or higher (whether it should be
+		 * composed of DrumkitComponents).
 		 */
-		void save_to( XMLNode* node, int component_id=-1 );
+	void save_to( XMLNode* node, int component_id=-1, bool bRecentVersion = true ) const;
 		/**
 		 * load a drumkit from an XMLNode
 		 * \param node the XMLDode to read from
 		 * \param dk_path the directory holding the drumkit data
+		 * \param bSilent if set to true, all log messages except of
+		 * errors and warnings are suppressed.
 		 */
-		static Drumkit* load_from( XMLNode* node, const QString& dk_path );
+	static Drumkit* load_from( XMLNode* node, const QString& dk_path, bool bSilent = false );
 		std::vector<DrumkitComponent*>* __components;  ///< list of drumkit component
 };
 

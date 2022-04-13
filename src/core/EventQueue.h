@@ -155,7 +155,8 @@ enum EventType {
 	/** Toggles the button indicating the usage loop mode.*/
 	EVENT_LOOP_MODE_ACTIVATION,
 	/** Switches between select mode (0) and draw mode (1) in the *SongEditor.*/
-	EVENT_ACTION_MODE_CHANGE
+	EVENT_ACTION_MODE_CHANGE,
+	EVENT_PLAYBACK_TRACK_CHANGED
 };
 
 /** Basic building block for the communication between the core of

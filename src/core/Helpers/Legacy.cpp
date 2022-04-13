@@ -44,14 +44,11 @@ namespace H2Core {
 
 const char* Legacy::__class_name = "Legacy";
 
-Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
-	if ( version_older_than( 0, 9, 8 ) ) {
-		WARNINGLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );
-	} else {
-		WARNINGLOG( QString( "loading drumkit with legacy code" ) );
-	}
+Drumkit* Legacy::load_drumkit( const QString& dk_path, bool bSilent ) {
+	WARNINGLOG( QString( "loading drumkit with legacy code" ) );
+	
 	XMLDoc doc;
-	if( !doc.read( dk_path ) ) {
+	if( !doc.read( dk_path, nullptr, bSilent ) ) {
 		return nullptr;
 	}
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
@@ -59,7 +56,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 		ERRORLOG( "drumkit_info node not found" );
 		return nullptr;
 	}
-	QString drumkit_name = root.read_string( "name", "", false, false );
+	QString drumkit_name = root.read_string( "name", "", false, false, bSilent );
 	if ( drumkit_name.isEmpty() ) {
 		ERRORLOG( "Drumkit has no name, abort" );
 		return nullptr;
@@ -67,15 +64,22 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 	Drumkit* pDrumkit = new Drumkit();
 	pDrumkit->set_path( dk_path.left( dk_path.lastIndexOf( "/" ) ) );
 	pDrumkit->set_name( drumkit_name );
-	pDrumkit->set_author( root.read_string( "author", "undefined author" ) );
-	pDrumkit->set_info( root.read_string( "info", "defaultInfo" ) );
-	pDrumkit->set_license( root.read_string( "license", "undefined license" ) );
-	pDrumkit->set_image( root.read_string( "image", "" ) );
-	pDrumkit->set_image_license( root.read_string( "imageLicense", "undefined license" ) );
+	pDrumkit->set_author( root.read_string( "author", "undefined author",
+											false, false, bSilent ) );
+	pDrumkit->set_info( root.read_string( "info", "defaultInfo",
+											false, false, bSilent ) );
+	pDrumkit->set_license( root.read_string( "license", "undefined license",
+											false, false, bSilent ) );
+	pDrumkit->set_image( root.read_string( "image", "",
+											false, false, bSilent ) );
+	pDrumkit->set_image_license( root.read_string( "imageLicense", "undefined license",
+											false, false, bSilent ) );
 
 	XMLNode instruments_node = root.firstChildElement( "instrumentList" );
 	if ( instruments_node.isNull() ) {
-		WARNINGLOG( "instrumentList node not found" );
+		if ( ! bSilent ) {
+			WARNINGLOG( "instrumentList node not found" );
+		}
 		pDrumkit->set_instruments( new InstrumentList() );
 	} else {
 		InstrumentList* pInstruments = new InstrumentList();
@@ -84,35 +88,60 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 		while ( !instrument_node.isNull() ) {
 			count++;
 			if ( count > MAX_INSTRUMENTS ) {
-				ERRORLOG( QString( "instrument count >= %2, stop reading instruments" ).arg( MAX_INSTRUMENTS ) );
+				ERRORLOG( QString( "instrument count >= %2, stop reading instruments" )
+						  .arg( MAX_INSTRUMENTS ) );
 				break;
 			}
 			Instrument* pInstrument = nullptr;
 			int id = instrument_node.read_int( "id", EMPTY_INSTR_ID, false, false );
 			if ( id!=EMPTY_INSTR_ID ) {
-				pInstrument = new Instrument( id, instrument_node.read_string( "name", "" ), nullptr );
+				pInstrument =
+					new Instrument( id, instrument_node.read_string( "name", "",
+																				   false, false,
+																				   bSilent  ),
+												  nullptr );
 				pInstrument->set_drumkit_name( drumkit_name );
-				pInstrument->set_volume( instrument_node.read_float( "volume", 1.0f ) );
-				pInstrument->set_muted( instrument_node.read_bool( "isMuted", false ) );
-				pInstrument->set_pan_l( instrument_node.read_float( "pan_L", 1.0f ) );
-				pInstrument->set_pan_r( instrument_node.read_float( "pan_R", 1.0f ) );
+				pInstrument->set_volume( instrument_node.read_float( "volume", 1.0f,
+																	 true, true, bSilent ) );
+				pInstrument->set_muted( instrument_node.read_bool( "isMuted", false,
+																   true, true, bSilent ) );
+				pInstrument->set_pan_l( instrument_node.read_float( "pan_L", 1.0f,
+																   true, true, bSilent ) );
+				pInstrument->set_pan_r( instrument_node.read_float( "pan_R", 1.0f,
+																   true, true, bSilent ) );
+
 				// may not exist, but can't be empty
-				pInstrument->set_apply_velocity( instrument_node.read_bool( "applyVelocity", true, false ) );
-				pInstrument->set_filter_active( instrument_node.read_bool( "filterActive", true, false ) );
-				pInstrument->set_filter_cutoff( instrument_node.read_float( "filterCutoff", 1.0f, true, false ) );
-				pInstrument->set_filter_resonance( instrument_node.read_float( "filterResonance", 0.0f, true, false ) );
-				pInstrument->set_random_pitch_factor( instrument_node.read_float( "randomPitchFactor", 0.0f, true, false ) );
-				float attack = instrument_node.read_float( "Attack", 0.0f, true, false );
-				float decay = instrument_node.read_float( "Decay", 0.0f, true, false  );
-				float sustain = instrument_node.read_float( "Sustain", 1.0f, true, false );
-				float release = instrument_node.read_float( "Release", 1000.0f, true, false );
+				pInstrument->set_apply_velocity( instrument_node.read_bool( "applyVelocity", true,
+																			false, true, bSilent ) );
+				pInstrument->set_filter_active( instrument_node.read_bool( "filterActive", true,
+																		   false, true, bSilent ) );
+				pInstrument->set_filter_cutoff( instrument_node.read_float( "filterCutoff", 1.0f,
+																			true, false, bSilent ) );
+				pInstrument->set_filter_resonance( instrument_node.read_float( "filterResonance", 0.0f,
+																			   true, false, bSilent ) );
+				pInstrument->set_random_pitch_factor( instrument_node.read_float( "randomPitchFactor", 0.0f,
+																				  true, false, bSilent ) );
+				float attack = instrument_node.read_float( "Attack", 0.0f,
+														   true, false, bSilent );
+				float decay = instrument_node.read_float( "Decay", 0.0f,
+														  true, false, bSilent  );
+				float sustain = instrument_node.read_float( "Sustain", 1.0f,
+															true, false, bSilent );
+				float release = instrument_node.read_float( "Release", 1000.0f,
+															true, false, bSilent );
 				pInstrument->set_adsr( new ADSR( attack, decay, sustain, release ) );
-				pInstrument->set_gain( instrument_node.read_float( "gain", 1.0f, true, false ) );
-				pInstrument->set_mute_group( instrument_node.read_int( "muteGroup", -1, true, false ) );
-				pInstrument->set_midi_out_channel( instrument_node.read_int( "midiOutChannel", -1, true, false ) );
-				pInstrument->set_midi_out_note( instrument_node.read_int( "midiOutNote", MIDI_MIDDLE_C, true, false ) );
-				pInstrument->set_stop_notes( instrument_node.read_bool( "isStopNote", true ,false ) );
-				QString read_sample_select_algo = instrument_node.read_string( "sampleSelectionAlgo", "VELOCITY" );
+				pInstrument->set_gain( instrument_node.read_float( "gain", 1.0f,
+																   true, false, bSilent ) );
+				pInstrument->set_mute_group( instrument_node.read_int( "muteGroup", -1,
+																	   true, false, bSilent ) );
+				pInstrument->set_midi_out_channel( instrument_node.read_int( "midiOutChannel", -1,
+																			 true, false, bSilent ) );
+				pInstrument->set_midi_out_note( instrument_node.read_int( "midiOutNote", MIDI_MIDDLE_C,
+																		  true, false, bSilent ) );
+				pInstrument->set_stop_notes( instrument_node.read_bool( "isStopNote", true,
+																		false, true, bSilent ) );
+				QString read_sample_select_algo = instrument_node.read_string( "sampleSelectionAlgo", "VELOCITY",
+																			   true, true, bSilent );
 				
 				if ( read_sample_select_algo.compare("VELOCITY") == 0) {
 					pInstrument->set_sample_selection_alg( Instrument::VELOCITY );
@@ -122,16 +151,23 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 					pInstrument->set_sample_selection_alg( Instrument::RANDOM );
 				}
 				
-				pInstrument->set_hihat_grp( instrument_node.read_int( "isHihat", -1, true ) );
-				pInstrument->set_lower_cc( instrument_node.read_int( "lower_cc", 0, true ) );
-				pInstrument->set_higher_cc( instrument_node.read_int( "higher_cc", 127, true ) );
+				pInstrument->set_hihat_grp( instrument_node.read_int( "isHihat", -1,
+																	  true, true, bSilent ) );
+				pInstrument->set_lower_cc( instrument_node.read_int( "lower_cc", 0,
+																	 true, true, bSilent ) );
+				pInstrument->set_higher_cc( instrument_node.read_int( "higher_cc", 127,
+																	  true, true, bSilent ) );
 				for ( int i=0; i<MAX_FX; i++ ) {
-					pInstrument->set_fx_level( instrument_node.read_float( QString( "FX%1Level" ).arg( i+1 ), 0.0 ), i );
+					pInstrument->set_fx_level( instrument_node.read_float( QString( "FX%1Level" ).arg( i+1 ), 0.0,
+																		   true, true, bSilent ), i );
 				}
 				QDomNode filename_node = instrument_node.firstChildElement( "filename" );
 				if ( !filename_node.isNull() ) {
-					DEBUGLOG( "Using back compatibility code. filename node found" );
-					QString sFilename = instrument_node.read_string( "filename", "" );
+					if ( ! bSilent ) {
+						DEBUGLOG( "Using back compatibility code. filename node found" );
+					}
+					QString sFilename = instrument_node.read_string( "filename", "",
+																	 true, true, bSilent);
 					if( sFilename.isEmpty() ) {
 						ERRORLOG( "filename back compatibility node is empty" );
 					} else {
@@ -181,12 +217,18 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 							ERRORLOG( QString( "n (%1) > m_nMaxLayers (%2)" ).arg ( n ).arg( InstrumentComponent::getMaxLayers() ) );
 							break;
 						}
-						auto pSample = std::make_shared<Sample>( dk_path+"/"+layer_node.read_string( "filename", "" ) );
+						auto pSample = std::make_shared<Sample>( dk_path + "/" +
+																 layer_node.read_string( "filename", "",
+																						 true, true, bSilent ) );
 						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
-						pLayer->set_start_velocity( layer_node.read_float( "min", 0.0 ) );
-						pLayer->set_end_velocity( layer_node.read_float( "max", 1.0 ) );
-						pLayer->set_gain( layer_node.read_float( "gain", 1.0, true, false ) );
-						pLayer->set_pitch( layer_node.read_float( "pitch", 0.0, true, false ) );
+						pLayer->set_start_velocity( layer_node.read_float( "min", 0.0,
+																		   true, true, bSilent ) );
+						pLayer->set_end_velocity( layer_node.read_float( "max", 1.0,
+																		 true, true, bSilent ) );
+						pLayer->set_gain( layer_node.read_float( "gain", 1.0,
+																 true, false, bSilent ) );
+						pLayer->set_pitch( layer_node.read_float( "pitch", 0.0,
+																  true, false, bSilent ) );
 						pComponent->set_layer( pLayer, n );
 						n++;
 						layer_node = layer_node.nextSiblingElement( "layer" );

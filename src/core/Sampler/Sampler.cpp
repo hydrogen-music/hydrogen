@@ -895,17 +895,29 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	AudioOutput* pAudioOutput = Hydrogen::get_instance()->getAudioOutput();
 	Song* pSong = pEngine->getSong();
 
-	if(   !pSong->getPlaybackTrackEnabled()
-	   || pEngine->getState() != STATE_PLAYING
-	   || pSong->getMode() != Song::SONG_MODE)
-	{
-		return false;
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return true;
+	}
+
+	if ( pEngine->getPlaybackTrackState() != Song::PlaybackTrack::Enabled ||
+		 pEngine->getState() != STATE_PLAYING ||
+		 pSong->getMode() != Song::SONG_MODE ) {
+		return true;
 	}
 
 	InstrumentComponent *pCompo = m_pPlaybackTrackInstrument->get_components()->front();
 	auto pSample = pCompo->get_layer(0)->get_sample();
 
-	assert(pSample);
+	if ( pSample == nullptr ) {
+		ERRORLOG( "Unable to process playback track" );
+		EventQueue::get_instance()->push_event( EVENT_ERROR,
+												Hydrogen::ErrorMessages::PLAYBACK_TRACK_INVALID );
+		// Disable the playback track
+		pEngine->loadPlaybackTrack( "" );
+		reinitializePlaybackTrack();
+		return true;
+	}
 
 	float fVal_L;
 	float fVal_R;
@@ -1632,7 +1644,12 @@ void Sampler::reinitializePlaybackTrack()
 	Song*		pSong = pEngine->getSong();
 	std::shared_ptr<Sample>	pSample;
 
-	if(!pSong->getPlaybackTrackFilename().isEmpty()){
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
+
+	if( pEngine->getPlaybackTrackState() != Song::PlaybackTrack::Unavailable ){
 		pSample = Sample::load( pSong->getPlaybackTrackFilename() );
 	}
 	

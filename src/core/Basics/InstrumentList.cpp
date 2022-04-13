@@ -65,7 +65,7 @@ void InstrumentList::unload_samples()
 	}
 }
 
-InstrumentList* InstrumentList::load_from( XMLNode* node, const QString& dk_path, const QString& dk_name )
+InstrumentList* InstrumentList::load_from( XMLNode* node, const QString& dk_path, const QString& dk_name, bool bSilent )
 {
 	InstrumentList* instruments = new InstrumentList();
 	XMLNode instrument_node = node->firstChildElement( "instrument" );
@@ -76,7 +76,8 @@ InstrumentList* InstrumentList::load_from( XMLNode* node, const QString& dk_path
 			ERRORLOG( QString( "instrument count >= %2, stop reading instruments" ).arg( MAX_INSTRUMENTS ) );
 			break;
 		}
-		Instrument* instrument = Instrument::load_from( &instrument_node, dk_path, dk_name );
+		Instrument* instrument = Instrument::load_from( &instrument_node, dk_path,
+														 dk_name, bSilent );
 		if( instrument ) {
 			( *instruments ) << instrument;
 		} else {
@@ -88,11 +89,11 @@ InstrumentList* InstrumentList::load_from( XMLNode* node, const QString& dk_path
 	return instruments;
 }
 
-void InstrumentList::save_to( XMLNode* node, int component_id )
+	void InstrumentList::save_to( XMLNode* node, int component_id, bool bRecentVersion )
 {
 	XMLNode instruments_node = node->createNode( "instrumentList" );
 	for ( int i = 0; i < size(); i++ ) {
-		( *this )[i]->save_to( &instruments_node, component_id );
+		( *this )[i]->save_to( &instruments_node, component_id, bRecentVersion );
 	}
 }
 
@@ -276,6 +277,15 @@ QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const {
 	}
 	
 	return sOutput;
+}
+
+
+std::vector<Instrument*>::iterator InstrumentList::begin() {
+	return __instruments.begin();
+}
+
+std::vector<Instrument*>::iterator InstrumentList::end() {
+	return __instruments.end();
 }
 
 };

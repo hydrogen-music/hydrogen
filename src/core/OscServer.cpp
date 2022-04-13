@@ -710,6 +710,37 @@ void OscServer::RELOCATE_Handler(lo_arg **argv, int argc) {
 	H2Core::Hydrogen::get_instance()->getCoreActionController()->relocate( static_cast<int>(std::round( argv[0]->f ) ) );
 }
 
+void OscServer::UPGRADE_DRUMKIT_Handler(lo_arg **argv, int argc) {
+	
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+
+	QString sNewPath = "";
+	if ( argc > 1 ) {
+		sNewPath = QString::fromUtf8( &argv[1]->s );
+	}
+	
+	pController->upgradeDrumkit( QString::fromUtf8( &argv[0]->s ),
+								 sNewPath );
+}
+
+void OscServer::VALIDATE_DRUMKIT_Handler(lo_arg **argv, int argc) {
+	
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	pController->validateDrumkit( QString::fromUtf8( &argv[0]->s ) );
+}
+
+void OscServer::EXTRACT_DRUMKIT_Handler(lo_arg **argv, int argc) {
+	
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+
+	QString sTargetDir = "";
+	if ( argc > 1 ) {
+		sTargetDir = QString::fromUtf8( &argv[1]->s );
+	}
+	
+	pController->extractDrumkit( QString::fromUtf8( &argv[0]->s ), sTargetDir );
+}
+
 // -------------------------------------------------------------------
 // Helper functions
 
@@ -972,6 +1003,11 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/SONG_MODE_ACTIVATION", "f", SONG_MODE_ACTIVATION_Handler);
 	m_pServerThread->add_method("/Hydrogen/LOOP_MODE_ACTIVATION", "f", LOOP_MODE_ACTIVATION_Handler);
 	m_pServerThread->add_method("/Hydrogen/RELOCATE", "f", RELOCATE_Handler);
+	m_pServerThread->add_method("/Hydrogen/UPGRADE_DRUMKIT", "s", UPGRADE_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/UPGRADE_DRUMKIT", "ss", UPGRADE_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/VALIDATE_DRUMKIT", "s", VALIDATE_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/EXTRACT_DRUMKIT", "s", EXTRACT_DRUMKIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/EXTRACT_DRUMKIT", "ss", EXTRACT_DRUMKIT_Handler);
 
 	m_bInitialized = true;
 	

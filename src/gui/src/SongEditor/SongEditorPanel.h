@@ -85,6 +85,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		 * \param nValue 0 - select mode and 1 - draw mode.
 		 */
 		void actionModeChangeEvent( int nValue ) override;
+	virtual void playbackTrackChangedEvent() override;
 
 	public slots:
 		void setModeActionBtn( bool mode );
@@ -109,8 +110,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void drawActionBtnPressed( Button* pBtn );
 		void timeLineBtnPressed( Button* pBtn );
 		void viewTimeLineBtnPressed( Button* pBtn );
-		void viewPlaybackTrackBtnPressed( Button* pBtn );
-		void mutePlaybackTrackBtnPressed( Button* pBtn );
+		void viewPlaybackTrackBtnPressed( Button*);
 		void editPlaybackTrackBtnPressed( Button* pBtn );
 		void modeActionBtnPressed( );
 

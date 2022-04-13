@@ -28,6 +28,7 @@
 
 namespace H2Core
 {
+	class Drumkit;
 
 class CoreActionController : public H2Core::Object {
 	H2_OBJECT
@@ -241,6 +242,32 @@ class CoreActionController : public H2Core::Object {
 		 * @return bool true on success
 		 */
 		bool activateLoopMode( bool bActivate, bool bTriggerEvent );
+	/** 
+	 * Upgrades the drumkit found at absolute path @a sDrumkitPath.
+	 *
+	 * If @a sNewPath is missing, the drumkit will be upgraded in
+	 * place and a backup file will be created in order to not
+	 * overwrite the existing state. 
+	 */
+	bool upgradeDrumkit( const QString& sDrumkitPath, const QString& sNewPath = "" );
+
+	/**
+	 * Checks whether the provided drumkit in @a sDrumkitPath can be
+	 * found, can be loaded, and does comply with the current XSD
+	 * definition.
+	 */
+	bool validateDrumkit( const QString& sDrumkitPath );
+	/**
+	 * Extracts the compressed .h2drumkit file in @a sDrumkitPath into
+	 * @a sTargetDir.
+	 *
+	 * \param sDrumkitPath Tar-compressed drumkit with .h2drumkit
+	 * extention
+	 * \param sTargetDir Folder to extract the drumkit to. If the
+	 * folder is not present yet, it will be created. If left empty,
+	 * the drumkit will be installed to the users drumkit data folder.
+	 */
+	bool extractDrumkit( const QString& sDrumkitPath, const QString& sTargetDir = "" );
 		/** Relocates transport to the beginning of a particular
 		 * Pattern.
 		 * 
@@ -282,6 +309,25 @@ class CoreActionController : public H2Core::Object {
 		 * \return true on success
 		 */
 		bool setSong( Song* pSong );
+
+	/**
+	 * Loads the drumkit specified in @a sDrumkitPath.
+	 *
+	 * \param sDrumkitPath Can be either an absolute path to a folder
+	 * containing a drumkit file (drumkit.xml), an absolute path to a
+	 * drumkit file itself, or an absolute file to a compressed
+	 * drumkit (.h2drumkit).
+	 * \param bIsCompressed Stores whether the drumkit was provided as
+	 * a compressed .h2drumkit file
+	 * \param sDrumkitDir Stores the folder containing the drumkit
+	 * file. If a compressed drumkit was provided, this will point to
+	 * a temporary folder.
+	 * \param sTemporaryFolder Root path of a temporary folder
+	 * containing the extracted drumkit in case @a sDrumkitPath
+	 * pointed to a compressed .h2drumkit file.
+	 */
+	Drumkit* retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed,
+							  QString* sDrumkitDir, QString* sTemporaryFolder );
 		
 		const int m_nDefaultMidiFeedbackChannel;
 };
