@@ -355,8 +355,8 @@ void DrumPatternEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 }
 
 void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
-												int row,
-												int selectedPatternNumber,
+												int nInstrumentID,
+												int nSelectedPatternNumber,
 												int oldLength,
 												float oldVelocity,
 												float fOldPan,
@@ -372,22 +372,30 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
-	H2Core::Pattern *pPattern = nullptr;
 
-	if ( ( selectedPatternNumber != -1 ) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
-		pPattern = pPatternList->get( selectedPatternNumber );
+	if ( nSelectedPatternNumber < 0 ||
+		 nSelectedPatternNumber >= pPatternList->size() ) {
+		ERRORLOG( QString( "Invalid pattern number [%1]" )
+				  .arg( nSelectedPatternNumber ) );
+		return;
 	}
-
-	assert(pPattern);
+	
+	auto pPattern = pPatternList->get( nSelectedPatternNumber );
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Pattern found for pattern number [%1] is not valid" )
+				  .arg( nSelectedPatternNumber ) );
+		return;
+	}
 
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
-	auto pSelectedInstrument = pSong->getInstrumentList()->get( row );
+	auto pSelectedInstrument = pSong->getInstrumentList()->get( nInstrumentID );
 
 	m_pAudioEngine->lock( RIGHT_HERE );	// lock the audio engine
 
 
 	if ( isDelete ) {
+
 		// Find and delete an existing (matching) note.
 		Pattern::notes_t *notes = (Pattern::notes_t *)pPattern->get_notes();
 		bool bFound = false;
@@ -395,7 +403,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 			Note *pNote = it->second;
 			assert( pNote );
 			if ( ( isNoteOff && pNote->get_note_off() )
-				 || ( pNote->get_instrument() == pSelectedInstrument
+				 || ( pNote->get_instrument()->get_id() == nInstrumentID
 					  && pNote->get_key() == oldNoteKeyVal 
 					  && pNote->get_octave() == oldOctaveKeyVal
 					  && pNote->get_velocity() == oldVelocity
