@@ -120,6 +120,7 @@
 		- Add command /Hydrogen/UPGRADE_DRUMKIT
 		- Add command /Hydrogen/VALIDATE_DRUMKIT
 		- Add command /Hydrogen/EXTRACT_DRUMKIT
+		- Add command /Hydrogen/BPM
 	* H2CLI
 		- Add `--upgrade` option to upgrade a drumkit
 		- Add `--check` option to validate a drumkit

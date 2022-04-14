@@ -18,7 +18,7 @@
 		<xsd:sequence>
 			<xsd:element name="path"			type="xsd:string"/>
 			<xsd:element name="scriptPath"		type="xsd:string"/>
-			<xsd:element name="scriptEnabled"	type="h2:bool"		default="false"/>
+			<xsd:element name="scriptEnabled"	type="h2:bool"/>
 		</xsd:sequence>
 </xsd:complexType>
 </xsd:element>
