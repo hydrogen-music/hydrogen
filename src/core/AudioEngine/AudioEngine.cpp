@@ -3449,7 +3449,7 @@ bool AudioEngine::testNoteEnqueuing() {
 
 	// Larger number to account for both small buffer sizes and long
 	// samples.
-	int nMaxCleaningCycles = 250;
+	int nMaxCleaningCycles = 500;
 	int nn = 0;
 
 	// Ensure the sampler is clean.
