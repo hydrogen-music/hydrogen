@@ -279,8 +279,8 @@ void MidiTable::saveMidiTable()
 }
 
 void MidiTable::updateRow( int nRow ) {
-	LCDCombo* pEventCombo =  dynamic_cast <LCDCombo*>( cellWidget( nRow, 1 ) );
-	LCDCombo* pActionCombo = dynamic_cast <LCDCombo*>( cellWidget( nRow, 3 ) );
+	LCDCombo* pEventCombo = dynamic_cast<LCDCombo*>( cellWidget( nRow, 1 ) );
+	LCDCombo* pActionCombo = dynamic_cast<LCDCombo*>( cellWidget( nRow, 3 ) );
 
 	if ( pEventCombo == nullptr || pActionCombo == nullptr ) {
 		return;
@@ -293,6 +293,32 @@ void MidiTable::updateRow( int nRow ) {
 		m_nRowCount--;
 		return;
 	}
+
+	// Adjust the event parameter spin box to fit the need of the
+	// particular event.
+	LCDSpinBox* pEventParameterSpinner = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 2 ) );
+	QString sEventString = pEventCombo->currentText();
+	
+	if ( sEventString.left(2) == "CC" ) {
+		pEventParameterSpinner->show();
+		pEventParameterSpinner->setMinimum( 0 );
+		pEventParameterSpinner->setMaximum( 127 );
+	}
+	else if ( sEventString.left(3) == "MMC" ) {
+		pEventParameterSpinner->hide();
+	}
+	else if ( sEventString.left(4) == "NOTE" ) {
+		pEventParameterSpinner->show();
+		pEventParameterSpinner->setMinimum( MIDI_OUT_NOTE_MIN );
+		pEventParameterSpinner->setMaximum( MIDI_OUT_NOTE_MAX );
+	}
+	else if ( sEventString.left(14) == "PROGRAM_CHANGE" ) {
+		pEventParameterSpinner->hide();
+	}
+	else {
+		pEventParameterSpinner->hide();
+	}
+		
 
 	QString sActionType = pActionCombo->currentText();
 	LCDSpinBox* pActionSpinner1 = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 4 ) );
