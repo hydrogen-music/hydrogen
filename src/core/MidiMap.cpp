@@ -48,15 +48,9 @@ MidiMap::MidiMap()
 	__instance = this;
 	QMutexLocker mx(&__mutex);
 
-	m_noteVector.resize( 128 );
-	m_ccVector.resize( 128 );
-	
-	//constructor
-	for(int note = 0; note < 128; note++ ) {
-		m_noteVector[ note ] = std::make_shared<Action>("NOTHING");
-		m_ccVector[ note ] = std::make_shared<Action>("NOTHING");
-	}
-	m_pPcAction = std::make_shared<Action>("NOTHING");
+	// Constructor
+	m_pcActionVector.resize( 1 );
+	m_pcActionVector[ 0 ] = std::make_shared<Action>("NOTHING");
 }
 
 MidiMap::~MidiMap()
@@ -88,144 +82,156 @@ void MidiMap::reset()
 {
 	QMutexLocker mx(&__mutex);
 
-	mmcMap.clear();
-
-	m_noteVector.clear();
-	m_ccVector.clear();
-	m_noteVector.resize( 128 );
-	m_ccVector.resize( 128 );
-	for( int ii = 0 ; ii < 128 ; ++ii ) {
-		m_noteVector[ ii ] = std::make_shared<Action>("NOTHING");
-		m_ccVector[ ii ] = std::make_shared<Action>("NOTHING");
-	}
-
-	m_pPcAction = std::make_shared<Action>("NOTHING");
+	m_mmcActionMap.clear();
+	m_noteActionMap.clear();
+	m_ccActionMap.clear();
+	
+	m_pcActionVector.clear();
+	m_pcActionVector.resize( 1 );
+	m_pcActionVector[ 0 ] = std::make_shared<Action>("NOTHING");
 }
 
-
-std::map< QString, std::shared_ptr<Action>> MidiMap::getMMCMap()
-{
-	return mmcMap;
-}
-
-
-/**
- * Sets up the relation between a mmc event and an action
- */
-void MidiMap::registerMMCEvent( QString eventString, std::shared_ptr<Action> pAction )
+void MidiMap::registerMMCEvent( QString sEventString, std::shared_ptr<Action> pAction )
 {
 	QMutexLocker mx(&__mutex);
-	mmcMap[ eventString ] = pAction;
-}
 
-
-/**
- * Sets up the relation between a note event and an action
- */
-void MidiMap::registerNoteEvent( int note, std::shared_ptr<Action> pAction )
-{
-	QMutexLocker mx(&__mutex);
-	if( note >= 0 && note < 128 ) {
-		m_noteVector[ note ] = pAction;
-	} else {
-		ERRORLOG( QString( "Unable to register MIDI action [%1]: Provided note [%2] out of bound [0,128)" )
-				  .arg( pAction->getType() ).arg( note ) );
-	}
-}
-
-
-/**
- * Sets up the relation between a cc event and an action
- */
-void MidiMap::registerCCEvent( int parameter, std::shared_ptr<Action> pAction ){
-	QMutexLocker mx(&__mutex);
-	if( parameter >= 0 && parameter < 128 ) {
-		m_ccVector[ parameter ] = pAction;
-	} else {
-		ERRORLOG( QString( "Unable to register MIDI action [%1]: Provided parameter [%2] out of bound [0,128)" )
-				  .arg( pAction->getType() ).arg( parameter ) );
-	}
-}
-
-int MidiMap::findCCValueByActionParam1 ( QString actionType, QString param1 ) const
-{
-	int nParam = -1;
-
-	for(int i=0; i < 128; i++)
-	{
-		std::shared_ptr<Action> pTmpAction = m_ccVector[i];
-		
-		if(    pTmpAction->getType() == actionType
-			&& pTmpAction->getParameter1() == param1 ){
-			nParam = i;
+	for ( const auto& it : m_mmcActionMap ) {
+		if ( it.first == sEventString &&
+			 it.second == pAction ) {
+			INFOLOG( QString( "MMC event [%1] for action [%2] was already registered" )
+					 .arg( sEventString ).arg( pAction->getType() ) );
+			return;
 		}
 	}
 	
-	return nParam;
+	m_mmcActionMap.insert( { sEventString, pAction } );
 }
 
-int MidiMap::findCCValueByActionType( QString actionType ) const
+void MidiMap::registerNoteEvent( int nNote, std::shared_ptr<Action> pAction )
 {
-	int nParam = -1;
+	QMutexLocker mx(&__mutex);
+	
+	if ( nNote < MIDI_OUT_NOTE_MIN || nNote > MIDI_OUT_NOTE_MAX ) {
+		ERRORLOG( QString( "Unable to register Note MIDI action [%1]: Provided note [%2] out of bound [%3,%4]" )
+				  .arg( pAction->getType() ).arg( nNote )
+				  .arg( MIDI_OUT_NOTE_MIN ).arg( MIDI_OUT_NOTE_MAX ) );
+		return;
+	}
 
-	for(int i=0; i < 128; i++)
-	{
-		std::shared_ptr<Action> pTmpAction = m_ccVector[i];
-		
-		if( pTmpAction->getType() == actionType ){
-			nParam = i;
+	for ( const auto& it : m_noteActionMap ) {
+		if ( it.first == nNote &&
+			 it.second == pAction ) {
+			INFOLOG( QString( "Note event [%1] for action [%2] was already registered" )
+					 .arg( nNote ).arg( pAction->getType() ) );
+			return;
 		}
 	}
-	
-	return nParam;
+
+	m_noteActionMap.insert( { nNote, pAction } );
 }
 
-/**
- * Sets up the relation between a program change and an action
- */
+void MidiMap::registerCCEvent( int nParameter, std::shared_ptr<Action> pAction ){
+	QMutexLocker mx(&__mutex);
+	
+	if ( nParameter < 0 || nParameter > 127 ) {
+		ERRORLOG( QString( "Unable to register CC MIDI action [%1]: Provided parameter [%2] out of bound [0,127]" )
+				  .arg( pAction->getType() ).arg( nParameter ) );
+		return;
+	}
+
+	for ( const auto& it : m_ccActionMap ) {
+		if ( it.first == nParameter &&
+			 it.second == pAction ) {
+			INFOLOG( QString( "CC event [%1] for action [%2] was already registered" )
+					 .arg( nParameter ).arg( pAction->getType() ) );
+			return;
+		}
+	}
+
+	m_ccActionMap.insert( { nParameter, pAction } );
+}
+
 void MidiMap::registerPCEvent( std::shared_ptr<Action> pAction ){
 	QMutexLocker mx(&__mutex);
-	m_pPcAction = pAction;
-}
 
-/**
- * Returns the mmc action which was linked to the given event.
- */
-std::shared_ptr<Action> MidiMap::getMMCAction( QString eventString )
-{
-	QMutexLocker mx(&__mutex);
-	std::map< QString, std::shared_ptr<Action>>::iterator dIter = mmcMap.find( eventString );
-	if ( dIter == mmcMap.end() ){
-		return nullptr;
+	for ( const auto& action : m_pcActionVector ) {
+		if ( action == pAction ) {
+			INFOLOG( QString( "PC event for action [%1] was already registered" )
+					 .arg( pAction->getType() ) );
+			return;
+		}
 	}
 
-	return mmcMap[eventString];
+	m_pcActionVector.push_back( pAction );
 }
 
-/**
- * Returns the note action which was linked to the given event.
- */
-std::shared_ptr<Action> MidiMap::getNoteAction( int note )
+std::vector<std::shared_ptr<Action>> MidiMap::getMMCActions( QString sEventString )
 {
 	QMutexLocker mx(&__mutex);
-	return m_noteVector[ note ];
+
+	std::vector<std::shared_ptr<Action>> actions;
+
+	auto range = m_mmcActionMap.equal_range( sEventString );
+ 
+    for ( auto ii = range.first; ii != range.second; ++ii ) {
+		actions.push_back( ii->second );
+	}
+
+	return std::move( actions );
 }
 
-/**
- * Returns the cc action which was linked to the given event.
- */
-std::shared_ptr<Action> MidiMap::getCCAction( int parameter )
+std::vector<std::shared_ptr<Action>> MidiMap::getNoteActions( int nNote )
 {
 	QMutexLocker mx(&__mutex);
-	return m_ccVector[ parameter ];
+
+	std::vector<std::shared_ptr<Action>> actions;
+
+	auto range = m_noteActionMap.equal_range( nNote );
+ 
+    for ( auto ii = range.first; ii != range.second; ++ii ) {
+		actions.push_back( ii->second );
+	}
+
+	return std::move( actions );
 }
 
-/**
- * Returns the pc action which was linked to the given event.
- */
-std::shared_ptr<Action> MidiMap::getPCAction()
-{
+std::vector<std::shared_ptr<Action>> MidiMap::getCCActions( int nParameter ) {
 	QMutexLocker mx(&__mutex);
-	return m_pPcAction;
+
+	std::vector<std::shared_ptr<Action>> actions;
+
+	auto range = m_ccActionMap.equal_range( nParameter );
+ 
+    for ( auto ii = range.first; ii != range.second; ++ii ) {
+		actions.push_back( ii->second );
+	}
+
+	return std::move( actions );
 }
 
+std::vector<int> MidiMap::findCCValuesByActionParam1( QString sActionType, QString sParam1 ) {
+	QMutexLocker mx(&__mutex);
+	std::vector<int> values;
+
+	for ( const auto& it : m_ccActionMap ) {
+		if ( it.second->getType() == sActionType &&
+			it.second->getParameter1() == sParam1 ){
+			values.push_back( it.first );
+		}
+	}
+	
+	return std::move( values );
+}
+
+std::vector<int> MidiMap::findCCValuesByActionType( QString sActionType ) {
+	QMutexLocker mx(&__mutex);
+	std::vector<int> values;
+
+	for ( const auto& it : m_ccActionMap ) {
+		if ( it.second->getType() == sActionType ){
+			values.push_back( it.first );
+		}
+	}
+	
+	return std::move( values );
+}

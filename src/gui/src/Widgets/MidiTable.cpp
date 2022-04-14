@@ -209,35 +209,21 @@ void MidiTable::setupMidiTable()
 	setColumnWidth( 5 , m_nColumn5Width );
 	setColumnWidth( 6 , m_nColumn6Width );
 
-	for( const auto& it : pMidiMap->getMMCMap() ) {
+	for ( const auto& it : pMidiMap->getMMCActionMap() ) {
 		insertNewRow( it.second, it.first, 0 );
 	}
 
-	for( int note = 0; note < 128; note++ ) {
-		std::shared_ptr<Action> pAction = pMidiMap->getNoteAction( note );
-
-		if ( pAction->getType() == "NOTHING" ){
-			continue;
-		}
-
-		insertNewRow(pAction , "NOTE" , note );
+	for ( const auto& it : pMidiMap->getNoteActionMap() ) {
+		insertNewRow( it.second, "NOTE", it.first );
 	}
 
-	for( int parameter = 0; parameter < 128; parameter++ ){
-		std::shared_ptr<Action> pAction = pMidiMap->getCCAction( parameter );
-
-		if ( pAction->getType() == "NOTHING" ){
-			continue;
-		}
-
-		insertNewRow( pAction , "CC" , parameter );
+	for ( const auto& it : pMidiMap->getCCActionMap() ) {
+		insertNewRow( it.second, "CC", it.first );
 	}
 
-	{
-		std::shared_ptr<Action> pAction = pMidiMap->getPCAction();
-		if ( pAction->getType() != "NOTHING" ) {
-
-			insertNewRow( pAction, "PROGRAM_CHANGE", 0 );
+	for ( const auto& action : pMidiMap->getPCActions() ) {
+		if ( action->getType() != "NOTHING" ) {
+			insertNewRow( action, "PROGRAM_CHANGE", 0 );
 		}
 	}
 
