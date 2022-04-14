@@ -38,12 +38,12 @@ MidiTable::MidiTable( QWidget *pParent )
 	: QTableWidget( pParent )
 	, m_nRowHeight( 29 )
 	, m_nColumn0Width( 25 )
-	, m_nColumn1Width( 155 )
-	, m_nColumn2Width( 76 )
+	, m_nColumn1Width( 146 )
+	, m_nColumn2Width( 85 )
 	, m_nColumn3Width( 175 )
-	, m_nColumn4Width( 60 )
-	, m_nColumn5Width( 60 )
-	, m_nColumn6Width( 65 )
+	, m_nColumn4Width( 56 )
+	, m_nColumn5Width( 56 )
+	, m_nColumn6Width( 56 )
  {
 	m_nRowCount = 0;
 	setupMidiTable();
