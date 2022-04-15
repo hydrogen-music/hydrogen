@@ -42,16 +42,11 @@ enum EventType {
 	EVENT_NONE,
 	EVENT_STATE,
 	/** 
-	 * The current list of patterns the transport position resides in
-	 * changed.
+	 * The list of currently played patterns in changed.
 	 *
 	 * In #Song::Mode::Song this is triggered every time the column of
 	 * the SongEditor grid changed. Either by rolling transport or by
 	 * relocation.
-	 *
-	 * In #Song::Mode::Pattern with
-	 * Preferences::m_bPatternModePlaysSelected set true it is
-	 * triggered if the currently selected pattern changes.
 	 *
 	 * It is handled by EventListener::patternChangedEvent().
 	 */
@@ -61,11 +56,9 @@ enum EventType {
 	 */
 	EVENT_PATTERN_MODIFIED,
 	/** Another pattern was selected via MIDI or the GUI without
-	 * affecting the audio transport (e.g in Song::PATTERN_MODE when
-	 * Preferences::m_bPatternModePlaysSelected is set to true). While
-	 * the selection in the former case already happens in the GUI,
-	 * this event will be used to tell it the selection was successful
-	 * and had been done.
+	 * affecting the audio transport. While the selection in the
+	 * former case already happens in the GUI, this event will be used
+	 * to tell it the selection was successful and had been done.
 	 *
 	 * Handled by EventListener::selectedPatternChangedEvent().
 	 */
@@ -151,19 +144,29 @@ enum EventType {
 		and informs the GUI about a state change.*/
 	EVENT_JACK_TIMEBASE_STATE_CHANGED,
 	EVENT_SONG_MODE_ACTIVATION,
-	/** Activate stacked mode (1) or "focus"/"PatternPlaysSelected"/normal mode */
+	/** Song::PatternMode::Stacked (0) or Song::PatternMode::Selected
+		(1) was activated */
 	EVENT_STACKED_MODE_ACTIVATION,
 	/** Toggles the button indicating the usage loop mode.*/
 	EVENT_LOOP_MODE_ACTIVATION,
 	/** Switches between select mode (0) and draw mode (1) in the *SongEditor.*/
 	EVENT_ACTION_MODE_CHANGE,
-	/** Triggers an update of the entire SongEditor*/
-	EVENT_UPDATE_SONG_EDITOR,
+	EVENT_GRID_CELL_TOGGLED,
 	/** Triggered when transport is moved into a different column
 		(either during playback or when relocated by the user)*/
 	EVENT_COLUMN_CHANGED,
 	/** A the current drumkit was replaced by a new one*/
-	EVENT_DRUMKIT_LOADED
+	EVENT_DRUMKIT_LOADED,
+	/** Locks the PatternEditor on the pattern currently played back.*/
+	EVENT_PATTERN_EDITOR_LOCKED,
+	/** Triggered in case there is a relocation of the transport
+	 * position due to an user interaction or an incoming MIDI/OSC
+	 * command. 
+	 */
+	EVENT_RELOCATION,
+	EVENT_SONG_SIZE_CHANGED,
+	EVENT_DRIVER_CHANGED,
+	EVENT_PLAYBACK_TRACK_CHANGED
 };
 
 /** Basic building block for the communication between the core of

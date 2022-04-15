@@ -378,6 +378,15 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		static void PREVIOUS_BAR_Handler(lo_arg **argv, int i);
 		/**
+		 * Creates sets the current tempo of Hydrogen to the provided
+		 * value (first argument in @a argv).
+		 *
+		 * \param argv Pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param i Unused number of arguments passed by the OSC
+		 * message.*/
+		static void BPM_Handler(lo_arg **argv, int i);
+		/**
 		 * Creates an Action of type @b BPM_INCR and passes its
 		 * references to MidiActionManager::handleAction().
 		 *

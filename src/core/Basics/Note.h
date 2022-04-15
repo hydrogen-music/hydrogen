@@ -79,6 +79,8 @@ class Note : public H2Core::Object<Note>
 	public:
 		/** possible keys */
 		enum Key { C=KEY_MIN, Cs, D, Ef, E, F, Fs, G, Af, A, Bf, B };
+	static QString KeyToQString( Key key );
+	
 		/** possible octaves */
 		enum Octave { P8Z=-3, P8Y=-2, P8X=-1, P8=OCTAVE_DEFAULT, P8A=1, P8B=2, P8C=3 };
 
@@ -342,6 +344,20 @@ class Note : public H2Core::Object<Note>
 		static inline double pitchToFrequency( double fPitch ) {
 			// Equivalent to, but quicker to compute than, pow( 2.0, ( fPitch/12 ) )
 			return pow( 1.0594630943593, fPitch );
+		}
+
+		static inline Octave pitchToOctave( int nPitch ) {
+			if ( nPitch >= 0 ) {
+				return (Octave)(nPitch / 12);
+			} else {
+				return (Octave)((nPitch-11) / 12);
+			}
+		}
+		static inline Key pitchToKey( int nPitch ) {
+			return (Key)(nPitch - 12 * pitchToOctave( nPitch ));
+		}
+		static inline int octaveKeyToPitch( Octave octave, Key key ) {
+			return 12 * (int)octave + (int)key;
 		}
 
 	/**

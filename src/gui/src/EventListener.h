@@ -47,17 +47,22 @@ class EventListener
 		virtual void tempoChangedEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void updateSongEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void quitEvent( int nValue ){ UNUSED( nValue ); }
-		virtual void timelineActivationEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void timelineActivationEvent(){}
 		virtual void timelineUpdateEvent( int nValue ){ UNUSED( nValue ); }
-		virtual void jackTransportActivationEvent( int nValue ){ UNUSED( nValue ); }
-		virtual void jackTimebaseStateChangedEvent( int nValue ){ UNUSED( nValue ); }
-		virtual void songModeActivationEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void jackTransportActivationEvent(){}
+		virtual void jackTimebaseStateChangedEvent(){}
+		virtual void songModeActivationEvent(){}
 		virtual void stackedModeActivationEvent( int nValue ){ UNUSED( nValue ); }
-		virtual void loopModeActivationEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void loopModeActivationEvent(){}
 		virtual void updatePreferencesEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void actionModeChangeEvent( int nValue ){ UNUSED( nValue ); }
-    	virtual void updateSongEditorEvent( int nValue ){ UNUSED( nValue ); }
+    	virtual void gridCellToggledEvent(){}
 	virtual void drumkitLoadedEvent(){}
+	virtual void patternEditorLockedEvent( int nValue ){ UNUSED( nValue ); }
+	virtual void relocationEvent(){}
+	virtual void songSizeChangedEvent(){}
+	virtual void driverChangedEvent(){}
+	virtual void playbackTrackChangedEvent(){}
 
 		virtual ~EventListener() {}
 };

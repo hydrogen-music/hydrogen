@@ -310,6 +310,9 @@ CommonStrings::CommonStrings(){
 	/*: Displayed when hovering over the button in the
 	PatternEditorPanel to activate the PianoRollEditor.*/
 	m_sShowPianoRollEditorTooltip = tr( "Show piano roll editor" );
+
+	m_sJackMasterTooltip = tr("JACK Timebase master on/off");
+	m_sJackMasterDisabledTooltip = tr( "JACK timebase support is disabled in the Preferences" );
 	
 	/*: Title of the window displayed when using the MIDI learning
 	  capabilities of Hydrogen.*/
@@ -337,6 +340,7 @@ CommonStrings::CommonStrings(){
 	m_sTimelineEnabled = tr( "Enable the Timeline for custom tempo changes" );
 	m_sTimelineDisabledPatternMode = tr( "The Timeline is only available in Song Mode" );
 	m_sTimelineDisabledTimebaseSlave = tr( "In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen" );
+	m_sPatternEditorLocked = tr( "Lock the Pattern Editor to only show and follow the pattern recorded notes will be inserted into while in Song Mode." );
 	
 	/*: Displayed in the Preferences dialog in the info section for a
 	  particular driver in case it is not properly supported on the

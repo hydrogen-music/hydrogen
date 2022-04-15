@@ -38,6 +38,7 @@
 #include "core/CoreActionController.h"
 #include "core/EventQueue.h"
 #include "core/Hydrogen.h"
+#include "core/AudioEngine/AudioEngine.h"
 #include "core/Basics/Song.h"
 #include "core/MidiAction.h"
 
@@ -452,6 +453,21 @@ void OscServer::PREVIOUS_BAR_Handler(lo_arg **argv,int i)
 	pActionManager->handleAction( pAction );
 }
 
+void OscServer::BPM_Handler(lo_arg **argv,int i)
+{
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+
+	int nNewBpm = static_cast<int>( argv[0]->f );
+	nNewBpm = std::clamp( nNewBpm, MIN_BPM, MAX_BPM );
+
+	pHydrogen->getAudioEngine()->setNextBpm( nNewBpm );
+	pHydrogen->getSong()->setBpm( nNewBpm );
+
+	pHydrogen->setIsModified( true );
+	
+	H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_TEMPO_CHANGED, -1 );
+}
+
 void OscServer::BPM_INCR_Handler(lo_arg **argv,int i)
 {
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("BPM_INCR");
@@ -812,9 +828,9 @@ void OscServer::LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 
 	auto pController = pHydrogen->getCoreActionController();
 	if ( argv[0]->f != 0 ) {
-		pController->activateLoopMode( true, true );
+		pController->activateLoopMode( true );
 	} else {
-		pController->activateLoopMode( false, true );
+		pController->activateLoopMode( false );
 	}
 }
 
@@ -1146,6 +1162,7 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/PREVIOUS_BAR", "", PREVIOUS_BAR_Handler);
 	m_pServerThread->add_method("/Hydrogen/PREVIOUS_BAR", "f", PREVIOUS_BAR_Handler);
 	
+	m_pServerThread->add_method("/Hydrogen/BPM", "f", BPM_Handler);
 	m_pServerThread->add_method("/Hydrogen/BPM_DECR", "f", BPM_DECR_Handler);
 	m_pServerThread->add_method("/Hydrogen/BPM_INCR", "f", BPM_INCR_Handler);
 

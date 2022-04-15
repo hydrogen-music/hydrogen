@@ -200,6 +200,17 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	p.drawRect( 0, y, width() - 1, m_nLayerHeight );
 }
 
+void LayerPreview::drumkitLoadedEvent() {
+	selectedInstrumentChangedEvent();
+}
+
+void LayerPreview::updateSongEvent( int nValue ) {
+	// A new song got loaded
+	if ( nValue == 0 ) {
+		selectedInstrumentChangedEvent();
+	}
+}
+
 void LayerPreview::selectedInstrumentChangedEvent()
 {
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
@@ -398,19 +409,26 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 		auto pLayer = m_pInstrument->get_component( m_nSelectedComponent )->get_layer( m_nSelectedLayer );
 		if ( pLayer ) {
 			if ( m_bMouseGrab ) {
+				bool bChanged = false;
 				if ( m_bGrabLeft ) {
 					if ( fVel < pLayer->get_end_velocity()) {
 						pLayer->set_start_velocity( fVel );
+						bChanged = true;
 						showLayerStartVelocity( pLayer, ev );
 					}
 				}
 				else {
 					if ( fVel > pLayer->get_start_velocity()) {
 						pLayer->set_end_velocity( fVel );
+						bChanged = true;
 						showLayerEndVelocity( pLayer, ev );
 					}
 				}
-				update();
+
+				if ( bChanged ) {
+					update();
+					Hydrogen::get_instance()->setIsModified( true );
+				}
 			}
 		}
 	}
@@ -492,7 +510,7 @@ int LayerPreview::getPointSizeButton() const
 	case H2Core::FontTheme::FontSize::Small:
 		nPointSize = 6;
 		break;
-	case H2Core::FontTheme::FontSize::Normal:
+	case H2Core::FontTheme::FontSize::Medium:
 		nPointSize = 8;
 		break;
 	case H2Core::FontTheme::FontSize::Large:

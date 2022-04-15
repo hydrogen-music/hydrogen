@@ -28,11 +28,12 @@
 
 #include <core/Globals.h>
 
-ClickableLabel::ClickableLabel( QWidget *pParent, QSize size, QString sText, Color color, bool bModifyOnChange )
+ClickableLabel::ClickableLabel( QWidget *pParent, QSize size, QString sText, Color color, bool bIsEditable )
 	: QLabel( pParent )
 	, m_size( size )
 	, m_color( color )
-	, m_bModifyOnChange( bModifyOnChange )
+	, m_bIsEditable( bIsEditable )
+	, m_bEntered( false )
 {
 	if ( ! size.isNull() ) {
 		setFixedSize( size );
@@ -71,6 +72,52 @@ void ClickableLabel::mousePressEvent( QMouseEvent * e )
 	emit labelClicked( this );
 }
 
+void ClickableLabel::paintEvent( QPaintEvent *ev ) {
+
+	QLabel::paintEvent( ev );
+
+	if ( ! m_bIsEditable ) {
+		return;
+	}
+
+	auto pPref = H2Core::Preferences::get_instance();
+
+	if ( m_bEntered || hasFocus() ) {
+		QPainter painter(this);
+
+		QColor colorHighlightActive = pPref->getColorTheme()->m_highlightColor;
+
+		// If the mouse is placed on the widget but the user hasn't
+		// clicked it yet, the highlight will be done more transparent to
+		// indicate that keyboard inputs are not accepted yet.
+		if ( ! hasFocus() ) {
+			colorHighlightActive.setAlpha( 150 );
+		}
+
+		QPen pen;
+		pen.setColor( colorHighlightActive );
+		pen.setWidth( 2 );
+		painter.setPen( pen );
+		painter.drawRoundedRect( QRect( 1, 1, m_size.width() - 2, m_size.height() - 2 ), 3, 3 );
+	}
+}
+
+void ClickableLabel::enterEvent( QEvent* ev ) {
+	QLabel::enterEvent( ev );
+	if ( m_bIsEditable ) {
+		m_bEntered = true;
+		update();
+	}
+}
+
+void ClickableLabel::leaveEvent( QEvent* ev ) {
+	QLabel::leaveEvent( ev );
+	if ( m_bIsEditable ) {
+		m_bEntered = false;
+		update();
+	}
+}
+
 void ClickableLabel::updateFont( QString sFontFamily, H2Core::FontTheme::FontSize fontSize ) {
 
 	int nPixelSize = 0;
@@ -82,7 +129,7 @@ void ClickableLabel::updateFont( QString sFontFamily, H2Core::FontTheme::FontSiz
 		case H2Core::FontTheme::FontSize::Small:
 			fScalingFactor = 1.0;
 			break;
-		case H2Core::FontTheme::FontSize::Normal:
+		case H2Core::FontTheme::FontSize::Medium:
 			fScalingFactor = 0.75;
 			break;
 		case H2Core::FontTheme::FontSize::Large:
@@ -142,8 +189,4 @@ void ClickableLabel::setText( const QString& sNewText ) {
 	
 	QLabel::setText( sNewText );
 	updateFont( pPref->getLevel3FontFamily(), pPref->getFontSize() );
-
-	if ( m_bModifyOnChange ) {
-		H2Core::Hydrogen::get_instance()->setIsModified( true );
-	}
 }

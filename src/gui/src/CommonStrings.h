@@ -118,10 +118,13 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getMidiTooltipHeading() const { return m_sMidiTooltipHeading; }
 	const QString& getMidiTooltipBound() const { return m_sMidiTooltipBound; }
 	const QString& getMidiTooltipUnbound() const { return m_sMidiTooltipUnbound; }
-	const QString& getPatternSizeDisabledTooltip() const { return m_sPatternSizeDisabledTooltip; }
 	
 	const QString& getShowDrumkitEditorTooltip() const { return m_sShowDrumkitEditorTooltip; }
 	const QString& getShowPianoRollEditorTooltip() const { return m_sShowPianoRollEditorTooltip; }
+	const QString& getPatternSizeDisabledTooltip() const { return m_sPatternSizeDisabledTooltip; }
+	
+	const QString& getJackMasterTooltip() const { return m_sJackMasterTooltip; }
+	const QString& getJackMasterDisabledTooltip() const { return m_sJackMasterDisabledTooltip; }
 	
 	const QString& getMidiSenseWindowTitle() const { return m_sMidiSenseWindowTitle; }
 	const QString& getMidiSenseInput() const { return m_sMidiSenseInput; }
@@ -137,6 +140,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getTimelineEnabled() const { return m_sTimelineEnabled; }
 	const QString& getTimelineDisabledPatternMode() const { return m_sTimelineDisabledPatternMode; }
 	const QString& getTimelineDisabledTimebaseSlave() const { return m_sTimelineDisabledTimebaseSlave; }
+	const QString& getPatternEditorLocked() const { return m_sPatternEditorLocked; }
 
 	const QString& getPreferencesNotCompiled() const { return m_sPreferencesNotCompiled; }
 	const QString& getPreferencesNone() const { return m_sPreferencesNone; }
@@ -233,6 +237,9 @@ private:
 	
 	QString m_sShowDrumkitEditorTooltip;
 	QString m_sShowPianoRollEditorTooltip;
+
+	QString m_sJackMasterTooltip;
+	QString m_sJackMasterDisabledTooltip;
 	
 	QString m_sMidiSenseWindowTitle;
 	QString m_sMidiSenseInput;
@@ -247,6 +254,7 @@ private:
 	QString m_sTimelineEnabled;
 	QString m_sTimelineDisabledPatternMode;
 	QString m_sTimelineDisabledTimebaseSlave;
+	QString m_sPatternEditorLocked;
 	
 	QString m_sPreferencesNotCompiled;
 	QString m_sPreferencesNone;

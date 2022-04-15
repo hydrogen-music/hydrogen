@@ -67,7 +67,12 @@ public:
 		/** Button is not set checkable.*/
 		Push,
 		/** Button is set checkable.*/
-		Toggle
+		Toggle,
+		/** Button is both flat and has a transparent background. It
+		 * can not be checked and its sole purpose is to show its
+		 * icon.
+		 */
+		Icon
 	};
 	
 	/**
@@ -91,6 +96,8 @@ public:
 	 * \param bModifyOnChange Whether Hydrogen::setIsModified() is
 	 * invoked with `true` as soon as the value of the widget does
 	 * change.
+	 * \param sBorderRadius Radius of the button in pixel, which will
+	 * be passed to the style sheet.
 	 */
 	Button(
 		   QWidget *pParent,
@@ -102,7 +109,8 @@ public:
 		   QSize iconSize = QSize( 0, 0 ),
 		   QString sBaseTooltip = "",
 		   bool bColorful = false,
-		   bool bModifyOnChange = false
+		   bool bModifyOnChange = false,
+		   const QString& sBorderRadius = ""
 		   );
 	virtual ~Button();
 	
@@ -115,17 +123,23 @@ public:
 	bool getIsActive() const;
 	void setIsActive( bool bIsActive );
 
+	Type getType() const;
+	void setType( Type type );
+
 	void setSize( QSize size );
 	/**  Overwrites the automatically set value. If @a nPixelSize is
 		 negative, the automatically set value will be used instead.*/
 	void setFixedFontSize( int nPixelSize );
 	int getFixedFontSize() const;
 
+	void setUseRedBackground( bool bUseRedBackground );
+	bool getUseRedBackground() const;
+
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 private slots:
-	void onToggled( bool );
+	void onClick();
 
 signals:
 	void clicked(Button *pBtn);
@@ -172,6 +186,12 @@ inline void Button::setFixedFontSize( int nPixelSize ) {
 }
 inline int Button::getFixedFontSize() const {
 	return m_nFixedFontSize;
+}
+inline bool Button::getUseRedBackground() const {
+	return m_bUseRedBackground;
+}
+inline Button::Type Button::getType() const {
+	return m_type;
 }
 
 #endif

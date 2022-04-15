@@ -43,6 +43,7 @@ void TransportTest::setUp(){
 
 	CPPUNIT_ASSERT( m_pSongDemo != nullptr );
 	CPPUNIT_ASSERT( m_pSongSizeChanged != nullptr );
+	Preferences::get_instance()->m_bUseMetronome = false;
 }
 
 void TransportTest::tearDown() {
@@ -137,7 +138,7 @@ void TransportTest::testSongSizeChange() {
 		}
 	}
 
-	pHydrogen->getCoreActionController()->activateLoopMode( false, false );
+	pHydrogen->getCoreActionController()->activateLoopMode( false );
 }		
 
 void TransportTest::testSongSizeChangeInLoopMode() {

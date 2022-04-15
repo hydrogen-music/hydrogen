@@ -37,6 +37,7 @@ using namespace H2Core;
 #include "DrumPatternEditor.h"
 #include "PianoRollEditor.h"
 
+#include "../UndoActions.h"
 #include "../MainForm.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
@@ -66,6 +67,7 @@ void PatternEditorPanel::updateSLnameLabel( )
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
  : QWidget( pParent )
  , m_pPattern( nullptr )
+ , m_nSelectedPatternNumber( -1 )
  , m_bArmPatternSizeSpinBoxes( true )
 {
 	setAcceptDrops(true);
@@ -294,7 +296,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPianoRollScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport(), this, m_pPianoRollScrollView );
 	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
-	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 this, SLOT( on_patternEditorHScroll(int) ) );
+	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 m_pPianoRollEditor, SLOT( scrolled( int ) ) );
 	connect( m_pPianoRollScrollView->verticalScrollBar(), SIGNAL( valueChanged( int ) ),
 			 m_pPianoRollEditor, SLOT( scrolled( int ) ) );
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
@@ -344,7 +349,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteVelocityScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteVelocityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteVelocityEditor = new NotePropertiesRuler( m_pNoteVelocityScrollView->viewport(), this,
-																					NotePropertiesRuler::VELOCITY );
+													 NotePropertiesRuler::Mode::Velocity );
 	m_pNoteVelocityScrollView->setWidget( m_pNoteVelocityEditor );
 	m_pNoteVelocityScrollView->setFixedHeight( 100 );
 	connect( m_pNoteVelocityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
@@ -363,7 +368,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNotePanScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNotePanScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNotePanScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNotePanEditor = new NotePropertiesRuler( m_pNotePanScrollView->viewport(), this, NotePropertiesRuler::PAN );
+	m_pNotePanEditor = new NotePropertiesRuler( m_pNotePanScrollView->viewport(), this,
+												NotePropertiesRuler::Mode::Pan );
 	m_pNotePanScrollView->setWidget( m_pNotePanEditor );
 	m_pNotePanScrollView->setFixedHeight( 100 );
 
@@ -385,7 +391,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteLeadLagScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteLeadLagScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteLeadLagEditor = new NotePropertiesRuler( m_pNoteLeadLagScrollView->viewport(), this,
-																						NotePropertiesRuler::LEADLAG );
+													NotePropertiesRuler::Mode::LeadLag );
 	m_pNoteLeadLagScrollView->setWidget( m_pNoteLeadLagEditor );
 	m_pNoteLeadLagScrollView->setFixedHeight( 100 );
 
@@ -409,7 +415,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteNoteKeyScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteNoteKeyScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteNoteKeyEditor = new NotePropertiesRuler( m_pNoteNoteKeyScrollView->viewport(), this,
-																						NotePropertiesRuler::NOTEKEY );
+													NotePropertiesRuler::Mode::NoteKey );
 	m_pNoteNoteKeyScrollView->setWidget( m_pNoteNoteKeyEditor );
 	m_pNoteNoteKeyScrollView->setFixedHeight( 210 );
 	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
@@ -431,7 +437,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteProbabilityScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteProbabilityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteProbabilityEditor = new NotePropertiesRuler( m_pNoteProbabilityScrollView->viewport(), this,
-																					NotePropertiesRuler::PROBABILITY );
+														NotePropertiesRuler::Mode::Probability );
 	m_pNoteProbabilityScrollView->setWidget( m_pNoteProbabilityEditor );
 	m_pNoteProbabilityScrollView->setFixedHeight( 100 );
 	connect( m_pNoteProbabilityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
@@ -497,7 +503,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pPropertiesVBox->setMargin( 0 );
 
 
-	m_pPropertiesCombo = new LCDCombo( nullptr, QSize( m_pInstrumentList->width(), 18 ) );
+	m_pPropertiesCombo =
+		new LCDCombo( nullptr, QSize( m_pInstrumentList->width(), 18 ), false );
 	m_pPropertiesCombo->setToolTip( tr( "Select note properties" ) );
 	m_pPropertiesCombo->addItem( tr("Velocity") );
 	m_pPropertiesCombo->addItem( tr("Pan") );
@@ -603,7 +610,6 @@ PatternEditorPanel::~PatternEditorPanel()
 void PatternEditorPanel::drumkitLoadedEvent() {
 	updateSLnameLabel();
 	getDrumPatternEditor()->updateEditor();
-	updatePianorollEditor();
 	
 }
 
@@ -697,23 +703,25 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 {
 
 	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
-	int nSelectedPatternNumber = Hydrogen::get_instance()->getSelectedPatternNumber();
+	m_nSelectedPatternNumber = Hydrogen::get_instance()->getSelectedPatternNumber();
 
-	if ( ( nSelectedPatternNumber != -1 ) && ( (uint) nSelectedPatternNumber < pPatternList->size() ) ) {
+	if ( ( m_nSelectedPatternNumber != -1 ) &&
+		 ( m_nSelectedPatternNumber < pPatternList->size() ) ) {
 		// update pattern name text
-		m_pPattern = pPatternList->get( nSelectedPatternNumber );
+		m_pPattern = pPatternList->get( m_nSelectedPatternNumber );
 		QString sCurrentPatternName = m_pPattern->get_name();
 		this->setWindowTitle( ( tr( "Pattern editor - %1" ).arg( sCurrentPatternName ) ) );
 		m_pPatternNameLbl->setText( sCurrentPatternName );
 
 		// update pattern size LCD
 		updatePatternSizeLCD();
+		updateEditors();
 		
 	}
 	else {
 		m_pPattern = nullptr;
 
-		this->setWindowTitle( ( tr( "Pattern editor - %1" ).arg(QString( "No pattern selected." ) ) ) );
+		this->setWindowTitle( tr( "Pattern editor - No pattern selected" ) );
 		m_pPatternNameLbl->setText( tr( "No pattern selected" ) );
 	}
 
@@ -914,19 +922,23 @@ void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
 	m_pDrumPatternEditor->updateEditor();
 }
 
+void PatternEditorPanel::patternModifiedEvent() {
+	selectedPatternChangedEvent();
+}
 
-void PatternEditorPanel::patternLengthChanged()
-{
-	// INFOLOG( QString("idx %1 -> %2 eighth").arg( nSelected ).arg( ( MAX_NOTES / 8 ) * ( nSelected + 1 ) ) );
+void PatternEditorPanel::patternChangedEvent() {
+	updateEditors( true );
+}
 
-	if ( !m_pPattern ) {
-		return;
+void PatternEditorPanel::songModeActivationEvent() {
+	if ( Hydrogen::get_instance()->getPatternMode() ==
+		 Song::PatternMode::Stacked ) {
+		updateEditors( true );
 	}
+}
 
-	updateEditors();
-	resizeEvent( nullptr );
-
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+void PatternEditorPanel::stackedModeActivationEvent( int ) {
+	updateEditors( true );
 }
 
 void PatternEditorPanel::updatePatternSizeLCD() {
@@ -936,13 +948,10 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 
 	m_bArmPatternSizeSpinBoxes = false;
 
-	bool bChanged = false;
-
 	double fNewDenominator = static_cast<double>( m_pPattern->get_denominator() );
 	if ( fNewDenominator != m_pLCDSpinBoxDenominator->value() &&
 		 ! m_pLCDSpinBoxDenominator->hasFocus() ) {
 		m_pLCDSpinBoxDenominator->setValue( fNewDenominator );
-		bChanged = true;
 
 		// Update numerator to allow only for a maximum pattern length of
 		// four measures.
@@ -952,19 +961,17 @@ void PatternEditorPanel::updatePatternSizeLCD() {
 	double fNewNumerator = static_cast<double>( m_pPattern->get_length() * m_pPattern->get_denominator() ) / static_cast<double>( MAX_NOTES );
 	if ( fNewNumerator != m_pLCDSpinBoxNumerator->value() && ! m_pLCDSpinBoxNumerator->hasFocus() ) {
 		m_pLCDSpinBoxNumerator->setValue( fNewNumerator );
-		bChanged = true;
 	}
 	
 	m_bArmPatternSizeSpinBoxes = true;
-
-	if ( bChanged ) {
-		patternLengthChanged();
-	}
-
 }
 
 void PatternEditorPanel::patternSizeChanged( double fValue ){
 
+	if ( m_pPattern == nullptr ) {
+		return;
+	}
+	
 	if ( ! m_bArmPatternSizeSpinBoxes ) {
 		// Don't execute this function if the values of the spin boxes
 		// have been set by Hydrogen instead of by the user.
@@ -973,13 +980,14 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pInstrumentList = pHydrogen->getSong()->getInstrumentList();
 
 	// Update numerator to allow only for a maximum pattern length of
 	// four measures.
 	m_pLCDSpinBoxNumerator->setMaximum( 4 * m_pLCDSpinBoxDenominator->value() );
 
-	double fNumerator = m_pLCDSpinBoxNumerator->value();
-	double fDenominator = m_pLCDSpinBoxDenominator->value();
+	double fNewNumerator = m_pLCDSpinBoxNumerator->value();
+	double fNewDenominator = m_pLCDSpinBoxDenominator->value();
 
 	/* Note: user can input a non integer numerator and this feature
 	   is very powerful because it allows to set really any possible
@@ -989,18 +997,80 @@ void PatternEditorPanel::patternSizeChanged( double fValue ){
 	   and BOTH are UNSUPPORTED, but the first notation looks more
 	   meaningful */
 
-	int nLength = std::round( static_cast<double>( MAX_NOTES ) / fDenominator * fNumerator );
+	int nNewLength =
+		std::round( static_cast<double>( MAX_NOTES ) / fNewDenominator * fNewNumerator );
+
+	// Delete all notes that are not accessible anymore.
+	QUndoStack* pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
+	pUndoStack->beginMacro( "remove excessive notes after pattern size change" );
+
+	pUndoStack->push( new SE_patternSizeChangedAction( nNewLength,
+													   m_pPattern->get_length(),
+													   fNewDenominator,
+													   m_pPattern->get_denominator(),
+													   m_nSelectedPatternNumber ) );
+
+	std::vector<Note*> excessiveNotes;
+	Pattern::notes_t* pNotes = (Pattern::notes_t *)m_pPattern->get_notes();
+	FOREACH_NOTE_IT_BEGIN_END( pNotes, it ) {
+		Note* pNote = it->second;
+		if ( pNote != nullptr &&
+			 pNote->get_position() >= nNewLength ) {
+			excessiveNotes.push_back( pNote );
+		}
+	}
+
+	for ( auto pNote : excessiveNotes ) {
+		// Note is exceeding the new pattern length. It has to be
+		// removed.
+		pUndoStack->push( new SE_addOrDeleteNoteAction( pNote->get_position(),
+														pInstrumentList->index( pNote->get_instrument() ),
+														m_nSelectedPatternNumber,
+														pNote->get_length(),
+														pNote->get_velocity(),
+														pNote->getPan(),
+														pNote->get_lead_lag(),
+														pNote->get_key(),
+														pNote->get_octave(),
+														pNote->get_probability(),
+														true,
+														false,
+														false,
+														false,
+														pNote->get_note_off() ) );
+	}
+	
+	pUndoStack->endMacro();
+}
+
+void PatternEditorPanel::patternSizeChangedAction( int nLength, double fDenominator,
+												   int nSelectedPatternNumber ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	auto pPatternList = pHydrogen->getSong()->getPatternList();
+	H2Core::Pattern* pPattern = nullptr;
+
+	if ( ( nSelectedPatternNumber != -1 ) &&
+		 ( nSelectedPatternNumber < pPatternList->size() ) ) {
+		pPattern = pPatternList->get( nSelectedPatternNumber );
+	}
+
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Pattern corresponding to pattern number [%1] could not be retrieved" )
+				  .arg( nSelectedPatternNumber ) );
+		return;
+	}
 
 	pAudioEngine->lock( RIGHT_HERE );
 	// set length and denominator				
-	m_pPattern->set_length( nLength );
-	m_pPattern->set_denominator( static_cast<int>( fDenominator ) );
+	pPattern->set_length( nLength );
+	pPattern->set_denominator( static_cast<int>( fDenominator ) );
 	pHydrogen->updateSongSize();
 	pAudioEngine->unlock();
 	
 	pHydrogen->setIsModified( true );
 	
-	patternLengthChanged();
+	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
 }
 
 void PatternEditorPanel::dragEnterEvent( QDragEnterEvent *event )
@@ -1018,7 +1088,12 @@ void PatternEditorPanel::dropEvent( QDropEvent *event )
 void PatternEditorPanel::updateSongEvent( int nValue ) {
 	// A new song got loaded
 	if ( nValue == 0 ) {
+		// Performs an editor update with updateEditor() (and no argument).
+		selectedPatternChangedEvent();
+		selectedInstrumentChangedEvent();
 		updateSLnameLabel();
+		updateEditors( true );
+		m_pPatternEditorRuler->updatePosition();
 	}
 }
 
@@ -1080,11 +1155,6 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 	}
 }
 
-void PatternEditorPanel::updatePianorollEditor()
-{
-	m_pDrumPatternEditor->updateEditor(); // force an update
-}
-
 int PatternEditorPanel::getCursorPosition()
 {
 	return m_nCursorPosition;
@@ -1120,6 +1190,10 @@ int PatternEditorPanel::moveCursorLeft( int n )
 
 int PatternEditorPanel::moveCursorRight( int n )
 {
+	if ( m_pPattern == nullptr ) {
+		return 0;
+	}
+	
 	m_nCursorPosition = std::min( m_nCursorPosition + m_nCursorIncrement * n,
 								  m_pPattern->get_length() - m_nCursorIncrement );
 
@@ -1189,4 +1263,32 @@ void PatternEditorPanel::switchPatternSizeFocus() {
 	} else {
 		m_pLCDSpinBoxNumerator->setFocus();
 	}
+}
+
+NotePropertiesRuler::Mode PatternEditorPanel::getNotePropertiesMode() const
+{
+	NotePropertiesRuler::Mode mode;
+
+	switch ( m_pPropertiesCombo->currentIndex() ) {
+	case 0:
+		mode = NotePropertiesRuler::Mode::Velocity;
+		break;
+	case 1:
+		mode = NotePropertiesRuler::Mode::Pan;
+		break;
+	case 2:
+		mode = NotePropertiesRuler::Mode::LeadLag;
+		break;
+	case 3:
+		mode = NotePropertiesRuler::Mode::NoteKey;
+		break;
+	case 4:
+		mode = NotePropertiesRuler::Mode::Probability;
+		break;
+	default:
+		ERRORLOG( QString( "Unsupported m_pPropertiesCombo index [%1]" )
+				  .arg( m_pPropertiesCombo->currentIndex() ) );
+	}
+
+	return mode;
 }

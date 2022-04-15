@@ -95,6 +95,8 @@ public slots:
 		void showLayerEndVelocity( const std::shared_ptr<H2Core::InstrumentLayer> pLayer, const QMouseEvent* pEvent );
 
 		virtual void selectedInstrumentChangedEvent() override;
+	virtual void drumkitLoadedEvent() override;
+	virtual void updateSongEvent(int) override;
 		/** Used to detect changed in the font*/
 		int getPointSizeButton() const;
 };

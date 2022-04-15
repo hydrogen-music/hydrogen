@@ -55,25 +55,41 @@ public:
 	It will get the most recent color values from the #H2Core::Preferences.*/
 	static void setPalette( QApplication *pQApp );
 
-	/** Get the style sheet used for warning icons. 
+	/**
+	 * Draws the background of a row in both the pattern list of the
+	 * SongEditor and the instrument list in the PatternEditor using
+	 * @a p.
 	 *
-	 * In addition, the icon of the warning button has to be set to
-	 * Skin::getSvgImagePath() + "/icons/warning.svg".
-	 *
-	 * \param nSize Size in pixel (value will be used as both width
-	 * and height).
-	 *
-	 * \return Argument used of the setStyleSheet() method of the
-	 * warning button.
+	 * \param p Painter used in the calling QPaintEvent routine.
+	 * \param rect Boundary that encloses element (one row).
+	 * \param background Color used.
+	 * \param bHovered Whether the element is currently hovered by mouse.
 	 */
-	static QString getWarningButtonStyleSheet( int nSize );
-
+	static void drawListBackground( QPainter* p, QRect rect, QColor background,
+									bool bHovered );
 	/** If a widget is marked inactive the value of its background
 		color are reduced by this factor.*/
 	static QColor makeWidgetColorInactive( QColor color );
 		/** If a widget is marked inactive the value of its text color
 		are reduced by this factor.*/
 	static QColor makeTextColorInactive( QColor color );
+
+	static constexpr int nPlayheadWidth = 11;
+	static constexpr int nPlayheadHeight = 8;
+	static int getPlayheadShaftOffset() {
+		return std::floor( Skin::nPlayheadWidth / 2 ); }
+	static void setPlayheadPen( QPainter* p, bool bHovered = false );
+	static void drawPlayhead( QPainter* p, int x, int y, bool bHovered = false );
+
+	enum class Stacked {
+		None,
+		Off,
+		OffNext,
+		On,
+		OnNext
+	};
+
+	static void drawStackedIndicator( QPainter* p, int x, int y, Skin::Stacked stacked );
 };
 
 

@@ -108,12 +108,6 @@ public:
 	void			toggleNextPattern( int nPatternNumber );
 	/** Wrapper around AudioEngine::flushAndAddNextPattern().*/
 	void			flushAndAddNextPattern( int nPatternNumber );
-	/**
-	 * Switches playback to focused pattern.
-	 *
-	 * ("Focused pattern" or "PlaysSelected" is the opposite of "Stacked" mode)
-	 */
-	void			setPlaysSelected( bool bPlaysSelected );
 	
 		/**
 		 * Get the current song.
@@ -177,6 +171,18 @@ public:
 	EVENT_SONG_MODE_ACTIVATION and should be used by all parts of the
 	code except for song reading/setting.*/
 	void setMode( Song::Mode mode );
+	
+	Song::ActionMode getActionMode() const;
+	/** Wrapper around Song::setActionMode() which also triggers
+	EVENT_ACTION_MODE_CHANGE and should be used by all parts of the
+	code except for song reading/setting.*/
+	void setActionMode( Song::ActionMode mode );
+
+	Song::PatternMode getPatternMode() const;
+	/** Wrapper around Song::setPatternMode() which also triggers
+	EVENT_STACKED_MODE_ACTIVATION and should be used by all parts of the
+	code except for song reading/setting.*/
+	void setPatternMode( Song::PatternMode mode );
 
 	/** Wrapper around both Song::setIsTimelineActivated (recent) and
 	Preferences::setUseTimelinebpm() (former place to store the
@@ -235,11 +241,11 @@ public:
 		void			removeInstrument( int nInstrumentNumber );
 
 		/** \return m_sCurrentDrumkitName */
-		const QString&	getCurrentDrumkitName();
+		QString	getCurrentDrumkitName() const;
 		/** \param sName sets m_sCurrentDrumkitName */
 		void			setCurrentDrumkitName( const QString& sName );
 		/** \return m_currentDrumkitLookup */
-		Filesystem::Lookup	getCurrentDrumkitLookup();
+		Filesystem::Lookup	getCurrentDrumkitLookup() const;
 		/** \param lookup sets m_currentDrumkitLookup */
 		void			setCurrentDrumkitLookup( Filesystem::Lookup lookup );
 
@@ -259,6 +265,9 @@ void			previewSample( Sample *pSample );
 	/** Wrapper around Song::setIsModified() that checks whether a
 		song is set.*/
 	void setIsModified( bool bIsModified );
+	/** Wrapper around Song::getIsModified() that checks whether a
+		song is set.*/
+	bool getIsModified() const;
 
 	enum ErrorMessages {
 		/**
@@ -304,7 +313,8 @@ void			previewSample( Sample *pSample );
 		 * Unable to start the OSC server with the given
 		 * port number. 
 		 */
-		OSC_CANNOT_CONNECT_TO_PORT
+		OSC_CANNOT_CONNECT_TO_PORT,
+		PLAYBACK_TRACK_INVALID
 	};
 
 	void			onTapTempoAccelEvent();
@@ -316,19 +326,17 @@ void			previewSample( Sample *pSample );
 	/**
 	 * Sets #m_nSelectedPatternNumber.
 	 *
-	 * If Preferences::m_pPatternModePlaysSelected is set to true, the
-	 * AudioEngine is locked before @a nPat will be assigned. But in
-	 * any case the function will push the
-	 * #EVENT_SELECTED_PATTERN_CHANGED Event to the EventQueue.
-	 *
-	 * If @a nPat is equal to #m_nSelectedPatternNumber, the function
-	 * will return right away.
-	 *
 	 *\param nPat Sets #m_nSelectedPatternNumber
 	 * \param bNeedsLock Whether the function was called with the
 	 * audio engine locked already or it should do so itself.
 	 */
 	void			setSelectedPatternNumber( int nPat, bool bNeedsLock = true );
+
+	/**
+	 * Updates the selected pattern to the one recorded note will be
+	 * inserted to.
+	 */
+	void updateSelectedPattern();
 
 	int				getSelectedInstrumentNumber() const;
 	void			setSelectedInstrumentNumber( int nInstrument );
@@ -385,33 +393,17 @@ void			previewSample( Sample *pSample );
 	/********************** Playback track **********************/
 	/**
 	 * Wrapper around Song::setPlaybackTrackEnabled().
-	 *
-	 * \param state Whether the playback track is enabled. It will
-	 * be replaced by false, if no Song was selected (getSong()
-	 * return nullptr).
 	 */
-	bool			setPlaybackTrackState( const bool state );
+	void			mutePlaybackTrack( const bool bMuted );
 	/**
-	 * Wrapper around Song::getPlaybackTrackEnabled().
-	 *
-	 * \return Whether the playback track is enabled or false, if
-	 * no Song was selected (getSong() return nullptr).
+	 * Wrapper around Song::getPlaybackTrackState().
 	 */
-	bool			getPlaybackTrackState() const;
+	Song::PlaybackTrack		getPlaybackTrackState() const;
 	/**
 	 * Wrapper function for loading the playback track.
-	 *
-	 * Calls Song::setPlaybackTrackFilename() and
-	 * Sampler::reinitialize_playback_track(). While the former
-	 * one is responsible to store metadata about the playback
-	 * track, the latter one does load it to a new
-	 * InstrumentLayer. The function is called by
-	 * SongEditorPanel::editPlaybackTrackBtnPressed()
-	 *
-	 * \param filename Name of the file to load as the playback
-	 * track
 	 */
-	void			loadPlaybackTrack( const QString filename );
+	void			loadPlaybackTrack( QString sFilename );
+	/************************************************************/
 
 	/** Specifies the state of the Qt GUI*/
 	enum class		GUIState {
@@ -449,6 +441,13 @@ void			previewSample( Sample *pSample );
 	 * \return Whether the Timeline is used to determine the current speed.
 	 */
 	bool isTimelineEnabled() const;
+
+	/**
+	 * Convenience function checking whether using the Pattern Editor
+	 * is locked in the song settings and the song is in song mode.
+	 */
+	bool isPatternEditorLocked() const;
+	void setIsPatternEditorLocked( bool bValue );
 
 	Tempo getTempoSource() const;
 	
@@ -555,12 +554,6 @@ private:
 	 * Local instance of the CoreActionController object.
 	 */ 
 	CoreActionController* 	m_pCoreActionController;
-
-	/** Name of the currently used Drumkit.*/
-	QString			m_sCurrentDrumkitName;
-	/** Whether the current Drumkit is located at user or system
-		level.*/
-	Filesystem::Lookup	m_currentDrumkitLookup;
 	
 	/// Deleting instruments too soon leads to potential crashes.
 	std::list<std::shared_ptr<Instrument>> 	__instrument_death_row; 
@@ -621,24 +614,6 @@ inline CoreActionController* Hydrogen::getCoreActionController() const
 	return m_pCoreActionController;
 }
 
-
-inline const QString& Hydrogen::getCurrentDrumkitName()
-{
-	return m_sCurrentDrumkitName;
-}
-inline void Hydrogen::setCurrentDrumkitName( const QString& sName )
-{
-	m_sCurrentDrumkitName = sName;
-}
-inline Filesystem::Lookup Hydrogen::getCurrentDrumkitLookup()
-{
-	return m_currentDrumkitLookup;
-}
-inline void Hydrogen::setCurrentDrumkitLookup( Filesystem::Lookup lookup )
-{
-	m_currentDrumkitLookup = lookup;
-}
-
 inline bool Hydrogen::getIsExportSessionActive() const
 {
 	return m_bExportSessionIsActive;
@@ -646,19 +621,6 @@ inline bool Hydrogen::getIsExportSessionActive() const
 
 inline AudioEngine* Hydrogen::getAudioEngine() const {
 	return m_pAudioEngine;
-}
-
-inline bool Hydrogen::getPlaybackTrackState() const
-{
-	std::shared_ptr<Song> pSong = getSong();
-	bool  bState;
-
-	if(!pSong){
-		bState = false;
-	} else {
-		bState = pSong->getPlaybackTrackEnabled();
-	}
-	return 	bState;
 }
 
 inline Hydrogen::GUIState Hydrogen::getGUIState() const {
@@ -675,9 +637,6 @@ inline int Hydrogen::getSelectedPatternNumber() const
 inline int Hydrogen::getSelectedInstrumentNumber() const
 {
 	return m_nSelectedInstrumentNumber;
-}
-inline Song::Mode Hydrogen::getMode() const {
-	return getSong()->getMode();
 }
 };
 

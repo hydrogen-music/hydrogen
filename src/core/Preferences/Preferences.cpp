@@ -221,7 +221,6 @@ Preferences::Preferences()
 	m_nOscTemporaryPort = -1;
 
 	//___ General properties ___
-	m_bPatternModePlaysSelected = true;
 	m_brestoreLastSong = true;
 	m_brestoreLastPlaylist = false;
 	m_bUseLash = false;
@@ -329,7 +328,6 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_bShowNoteOverwriteWarning = LocalFileMng::readXmlBool( rootNode, "showNoteOverwriteWarning", m_bShowNoteOverwriteWarning );
 			m_brestoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", m_brestoreLastSong );
 			m_brestoreLastPlaylist = LocalFileMng::readXmlBool( rootNode, "restoreLastPlaylist", m_brestoreLastPlaylist );
-			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", true );
 			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", false );
 			__useTimelineBpm = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __useTimelineBpm );
 			m_nMaxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
@@ -583,7 +581,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				setLevel2FontFamily( LocalFileMng::readXmlString( guiNode, "level2_font_family", getLevel2FontFamily() ) );
 				setLevel3FontFamily( LocalFileMng::readXmlString( guiNode, "level3_font_family", getLevel3FontFamily() ) );
 				setFontSize( static_cast<FontTheme::FontSize>( LocalFileMng::readXmlInt( guiNode, "font_size",
-																			  static_cast<int>(FontTheme::FontSize::Normal) ) ) );
+																			  static_cast<int>(FontTheme::FontSize::Medium) ) ) );
 
 				// Mixer falloff speed
 				setMixerFalloffSpeed( LocalFileMng::readXmlFloat( guiNode, "mixer_falloff_speed",
@@ -838,8 +836,6 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "preferredLanguage", m_sPreferredLanguage );
 	LocalFileMng::writeXmlString( rootNode, "restoreLastSong", m_brestoreLastSong ? "true": "false" );
 	LocalFileMng::writeXmlString( rootNode, "restoreLastPlaylist", m_brestoreLastPlaylist ? "true": "false" );
-
-	LocalFileMng::writeXmlString( rootNode, "patternModePlaysSelected", m_bPatternModePlaysSelected ? "true": "false" );
 
 	LocalFileMng::writeXmlString( rootNode, "useLash", m_bsetLash ? "true": "false" );
 	LocalFileMng::writeXmlString( rootNode, "useTimeLine", __useTimelineBpm ? "true": "false" );

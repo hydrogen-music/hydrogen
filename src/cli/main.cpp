@@ -509,13 +509,12 @@ int main(int argc, char *argv[])
 			pHydrogen->sequencer_stop();
 		}
 
-		//delete pSong;
 		pSong = nullptr;
-		delete pPlaylist;
+		delete Playlist::get_instance();
 
-		delete pQueue;
 		preferences->savePreferences();
 		delete pHydrogen;
+		delete pQueue;
 		delete preferences;
 
 		delete MidiMap::get_instance();
@@ -524,10 +523,8 @@ int main(int argc, char *argv[])
 		___INFOLOG( "Quitting..." );
 		delete Logger::get_instance();
 
-		int nObj = Base::objects_count();
-		if (nObj != 0) {
-			std::cerr << "\n\n\n " << nObj << " alive objects\n\n" << std::endl << std::endl;
-			Base::write_objects_map_to_cerr();
+		if (H2Core::Base::count_active()) {
+			H2Core::Base::write_objects_map_to_cerr();
 		}
 	}
 	catch ( const H2Exception& ex ) {

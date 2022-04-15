@@ -53,10 +53,11 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		explicit SongEditorPanel( QWidget *parent );
 		~SongEditorPanel();
 
-		SongEditor* getSongEditor(){ return m_pSongEditor; }
-		SongEditorPatternList* getSongEditorPatternList(){ return m_pPatternList; }
-		SongEditorPositionRuler* getSongEditorPositionRuler(){ return m_pPositionRuler; }
+		SongEditor* getSongEditor() const { return m_pSongEditor; }
+		SongEditorPatternList* getSongEditorPatternList() const { return m_pPatternList; }
+		SongEditorPositionRuler* getSongEditorPositionRuler() const { return m_pPositionRuler; }
 		AutomationPathView* getAutomationPathView() const { return m_pAutomationPathView; }
+	PlaybackTrackWaveDisplay* getPlaybackTrackWaveDisplay() const { return m_pPlaybackTrackWaveDisplay; }
 
 		void updateAll();
 		void updatePositionRuler();
@@ -70,9 +71,12 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void setTimelineActive( bool bActive );
 		bool getTimelineEnabled() const;
 		void setTimelineEnabled( bool bEnabled );
-		
-		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent() override;
+
+		/**
+		 * Turns the background color of #m_pPatternEditorLockedBtn red to
+		 * signal the user her last action was not permitted.
+		 */
+		void highlightPatternEditorLocked( bool bUseRedBackground );	
 		void restoreGroupVector( QString filename );
 		//~ Implements EventListener interface
 		/** Disables and deactivates the Timeline when an external
@@ -80,25 +84,30 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		 * gone or Hydrogen itself becomes the timebase master.
 		 */
 		void updateTimelineUsage();
-		virtual void timelineActivationEvent( int nValue ) override;
+		
+		// Implements EventListener interface
+		virtual void selectedPatternChangedEvent() override;
+		virtual void timelineActivationEvent() override;
 		/** Updates the associated buttons if the action mode was
 		 * changed within the core.
 		 *
 		 * \param nValue 0 - select mode and 1 - draw mode.
 		 */
-		void actionModeChangeEvent( int nValue ) override;
-		void updateSongEditorEvent( int nValue ) override;
-	void patternModifiedEvent() override;
+		virtual void actionModeChangeEvent( int nValue ) override;
+		virtual void gridCellToggledEvent() override;
+	virtual void patternModifiedEvent() override;
 
-		virtual void jackTimebaseStateChangedEvent( int ) override;
+		virtual void jackTimebaseStateChangedEvent() override;
 
 		virtual void patternChangedEvent() override;
 
-
-		virtual void songModeActivationEvent( int nValue ) override;
+	virtual void patternEditorLockedEvent( int ) override;
+	virtual void stackedModeActivationEvent( int ) override;
+	virtual void updateSongEvent( int ) override;
+	virtual void songModeActivationEvent() override;
+	virtual void playbackTrackChangedEvent() override;
 
 	public slots:
-		void setModeActionBtn( bool mode );
 		void showHideTimeline( bool bPressed ) {
 			m_pTimelineBtn->setChecked( bPressed );
 			timelineBtnPressed();
@@ -121,9 +130,7 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void timelineBtnPressed();
 		void viewTimelineBtnPressed();
 		void viewPlaybackTrackBtnPressed();
-		void mutePlaybackTrackBtnPressed();
 		void editPlaybackTrackBtnPressed();
-		void modeActionBtnPressed( );
 
 		void zoomInBtnPressed();
 		void zoomOutBtnPressed();
@@ -162,8 +169,6 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		Button *					m_pDownBtn;
 		Button *					m_pClearPatternSeqBtn;
 		Button *					m_pSelectionModeBtn;
-		Button *					m_pModeActionSingleBtn;
-		Button *					m_pModeActionMultipleBtn;
 		Button *					m_pDrawModeBtn;
 		
 		Fader*						m_pPlaybackTrackFader;
@@ -173,6 +178,11 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		Button *					m_pViewPlaybackBtn;
 		Button *					m_pMutePlaybackBtn;
 		Button *					m_pEditPlaybackBtn;
+
+		Button *			m_pPlaySelectedSingleBtn;
+		Button *			m_pPlaySelectedMultipleBtn;
+		Button *			m_pPatternEditorLockedBtn;
+		Button *			m_pPatternEditorUnlockedBtn;
 
 		QTimer*						m_pTimer;
 		

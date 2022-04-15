@@ -109,7 +109,6 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 					 , m_CurrentTime( {0,0} )
 					 , m_oldEngineMode( Song::Mode::Song ) 
 					 , m_bOldLoopEnabled( false) 
-					 , m_currentDrumkitLookup( Filesystem::Lookup::stacked )
 {
 	if ( __instance ) {
 		ERRORLOG( "Hydrogen audio engine is already running" );
@@ -230,34 +229,63 @@ void Hydrogen::sequencer_stop()
 	__kill_instruments();
 }
 
-bool Hydrogen::setPlaybackTrackState( const bool state )
-{
-	std::shared_ptr<Song> pSong = getSong();
-	if ( pSong == nullptr ) {
-		return false;
+Song::PlaybackTrack Hydrogen::getPlaybackTrackState() const {
+
+	if ( __song == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return Song::PlaybackTrack::None;
 	}
 
-	return pSong->setPlaybackTrackEnabled(state);
+	return __song->getPlaybackTrackState();
+}
+	
+void Hydrogen::mutePlaybackTrack( const bool bMuted )
+{
+	if ( __song == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
+
+	__song->setPlaybackTrackEnabled( bMuted );
+
+	EventQueue::get_instance()->push_event( EVENT_PLAYBACK_TRACK_CHANGED, 0 );
 }
 
-void Hydrogen::loadPlaybackTrack( const QString filename )
+void Hydrogen::loadPlaybackTrack( QString sFilename )
 {
-	std::shared_ptr<Song> pSong = getSong();
-	pSong->setPlaybackTrackFilename(filename);
+	if ( __song == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
+
+	if ( ! sFilename.isEmpty() &&
+		 ! Filesystem::file_exists( sFilename, true ) ) {
+		ERRORLOG( QString( "Invalid playback track filename [%1]. File does not exist." )
+				  .arg( sFilename ) );
+		sFilename = "";
+	}
+
+	if ( sFilename.isEmpty() ) {
+		INFOLOG( "Disable playback track" );
+		__song->setPlaybackTrackEnabled( false );
+	}
+	
+	__song->setPlaybackTrackFilename( sFilename );
 
 	m_pAudioEngine->getSampler()->reinitializePlaybackTrack();
+	
+	EventQueue::get_instance()->push_event( EVENT_PLAYBACK_TRACK_CHANGED, 0 );
 }
 
 void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 {
 	assert ( pSong );
-	
+
 	// Move to the beginning.
 	setSelectedPatternNumber( 0 );
 
 	std::shared_ptr<Song> pCurrentSong = getSong();
 	if ( pSong == pCurrentSong ) {
-		DEBUGLOG( "pSong == pCurrentSong" );
 		return;
 	}
 
@@ -275,13 +303,6 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 		}
 		removeSong();
 		// delete pCurrentSong;
-	}
-
-	if ( m_GUIState != GUIState::unavailable ) {
-		/* Reset GUI */
-		EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
-		EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
-		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 	}
 
 	// In order to allow functions like audioEngine_setupLadspaFX() to
@@ -305,11 +326,6 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, true );
 	}
 #endif
-	
-	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION,
-											( pSong->getMode() == Song::Mode::Song) ? 1 : 0 );
-	EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION,
-											static_cast<int>( pSong->getIsTimelineActivated() ) );
 }
 
 /* Mean: remove current song from memory */
@@ -371,29 +387,29 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	{
 
 		// Recording + song playback mode + actually playing
-		PatternList *pPatternList = pSong->getPatternList();
-		int ipattern = pAudioEngine->getColumn(); // current column
+		PatternList* pPatternList = pSong->getPatternList();
+		auto pColumns = pSong->getPatternGroupVector();
+		int nColumn = pAudioEngine->getColumn(); // current column
 												   // or pattern group
-		if ( ipattern < 0 || ipattern >= (int) pPatternList->size() ) {
+		if ( nColumn < 0 || nColumn >= pColumns->size() ) {
 			pAudioEngine->unlock(); // unlock the audio engine
 			ERRORLOG( QString( "Provided column [%1] out of bound [%2,%3)" )
-					  .arg( ipattern ).arg( 0 )
-					  .arg( (int) pPatternList->size() ) );
+					  .arg( nColumn ).arg( 0 )
+					  .arg( pColumns->size() ) );
 			return;
 		}
-		// Locate nTickInPattern -- may need to jump back in the pattern list
+		// Locate nTickInPattern -- may need to jump back one column
 		nTickInPattern = pAudioEngine->getPatternTickPosition();
 		while ( nTickInPattern < nLookaheadTicks ) {
-			ipattern -= 1;
-			if ( ipattern < 0 || ipattern >= (int) pPatternList->size() ) {
+			nColumn -= 1;
+			if ( nColumn < 0 || nColumn >= pColumns->size() ) {
 				pAudioEngine->unlock(); // unlock the audio engine
 				ERRORLOG( "Unable to locate tick in pattern" );
 				return;
 			}
 
-			// Convert from playlist index to actual pattern index
-			std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
-			PatternList *pColumn = ( *pColumns )[ ipattern ];
+			// Capture new notes in the bottom-most pattern.
+			PatternList *pColumn = ( *pColumns )[ nColumn ];
 			currentPatternNumber = -1;
 			for ( int n = 0; n < pColumn->size(); n++ ) {
 				Pattern *pPattern = pColumn->get( n );
@@ -403,17 +419,13 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 					currentPattern = pPattern;
 				}
 			}
-			nTickInPattern += (*pColumns)[ipattern]->longest_pattern_length();
-			// WARNINGLOG( "Undoing lookahead: corrected (" + to_string( ipattern+1 ) +
-			// "," + to_string( (int) ( nTickInPattern - currentPattern->get_length() ) -
-			// (int) lookaheadTicks ) + ") -> (" + to_string(ipattern) +
-			// "," + to_string( (int) nTickInPattern - (int) lookaheadTicks ) + ")." );
+			nTickInPattern += (*pColumns)[nColumn]->longest_pattern_length();
 		}
 		nTickInPattern -= nLookaheadTicks;
-		// Convert from playlist index to actual pattern index (if not already done above)
+		
+		// Capture new notes in the bottom-most pattern (if not already done above)
 		if ( currentPattern == nullptr ) {
-			std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
-			PatternList *pColumn = ( *pColumns )[ ipattern ];
+			PatternList *pColumn = ( *pColumns )[ nColumn ];
 			currentPatternNumber = -1;
 			for ( int n = 0; n < pColumn->size(); n++ ) {
 				Pattern *pPattern = pColumn->get( n );
@@ -426,7 +438,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		}
 
 		// Cancel recording if punch area disagrees
-		doRecord = pPreferences->inPunchArea( ipattern );
+		doRecord = pPreferences->inPunchArea( nColumn );
 
 	} else { // Not song-record mode
 		PatternList *pPatternList = pSong->getPatternList();
@@ -674,12 +686,6 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool bConditional )
 	if ( pSong != nullptr ) {
 
 		INFOLOG( pDrumkitInfo->get_name() );
-		m_sCurrentDrumkitName = pDrumkitInfo->get_name();
-		if ( pDrumkitInfo->isUserDrumkit() ) {
-			m_currentDrumkitLookup = Filesystem::Lookup::user;
-		} else {
-			m_currentDrumkitLookup = Filesystem::Lookup::system;
-		}
 
 		m_pAudioEngine->lock( RIGHT_HERE );
 		
@@ -721,7 +727,7 @@ bool Hydrogen::instrumentHasNotes( std::shared_ptr<Instrument> pInst )
 	{
 		if( pPatternList->get( nPattern )->references( pInst ) )
 		{
-			DEBUGLOG("Instrument " + pInst->get_name() + " has notes" );
+			INFOLOG("Instrument " + pInst->get_name() + " has notes" );
 			return true;
 		}
 	}
@@ -770,7 +776,11 @@ void Hydrogen::onTapTempoAccelEvent()
 
 	oldTimeVal = now;
 
-	if ( fInterval < 1000.0 ) {
+	// We multiply by a factor of two in order to allow for tempi
+	// smaller than the minimum one enter the calculation of the
+	// average. Else the minumum one could not be reached via tap
+	// tempo and it is clambed anyway.
+	if ( fInterval < 60000.0 * 2 / static_cast<float>(MIN_BPM) ) {
 		setTapTempo( fInterval );
 	}
 #endif
@@ -846,6 +856,13 @@ void Hydrogen::restartLadspaFX()
 	}
 }
 
+void Hydrogen::updateSelectedPattern() {
+	if ( isPatternEditorLocked() ) {
+		m_pAudioEngine->lock( RIGHT_HERE );
+		m_pAudioEngine->handleSelectedPattern();
+		m_pAudioEngine->unlock();
+	}
+}
 
 void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock )
 {
@@ -853,15 +870,18 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock )
 		return;
 	}
 
-	if ( Preferences::get_instance()->patternModePlaysSelected() ) {
+	if ( getPatternMode() == Song::PatternMode::Selected ) {
 		if ( bNeedsLock ) {
-			getAudioEngine()->lock( RIGHT_HERE );
+			m_pAudioEngine->lock( RIGHT_HERE );
 		}
 		
 		m_nSelectedPatternNumber = nPat;
+		// The specific values provided are not important since we a
+		// in selected pattern mode.
+		m_pAudioEngine->updatePlayingPatterns( 0, 0 );
 
 		if ( bNeedsLock ) {
-			getAudioEngine()->unlock();
+			m_pAudioEngine->unlock();
 		}
 	} else {
 		m_nSelectedPatternNumber = nPat;
@@ -1075,28 +1095,6 @@ void Hydrogen::onJackMaster()
 #endif
 }
 
-void Hydrogen::setPlaysSelected( bool bPlaysSelected )
-{
-	auto pAudioEngine = m_pAudioEngine;	
-
-	if ( getMode() != Song::Mode::Pattern ) {
-		return;
-	}
-
-	auto pSong = getSong();
-	auto pPref = Preferences::get_instance();
-
-	if ( pPref->patternModePlaysSelected() != bPlaysSelected ) {
-		pAudioEngine->lock( RIGHT_HERE );
-
-		pPref->setPatternModePlaysSelected( bPlaysSelected );
-		
-		pAudioEngine->updatePlayingPatterns( pAudioEngine->getColumn() );
-
-		pAudioEngine->unlock();
-	}
-}
-
 void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr ) {
 	__instrument_death_row.push_back( pInstr );
 	__kill_instruments();
@@ -1136,9 +1134,8 @@ void Hydrogen::__panic()
 
 bool Hydrogen::haveJackAudioDriver() const {
 #ifdef H2CORE_HAVE_JACK
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-	if ( pAudioEngine->getAudioDriver() != nullptr ) {
-		if ( dynamic_cast<JackAudioDriver*>(pAudioEngine->getAudioDriver()) != nullptr ) {
+	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
+		if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr ) {
 			return true;
 		}
 	}
@@ -1150,9 +1147,8 @@ bool Hydrogen::haveJackAudioDriver() const {
 
 bool Hydrogen::haveJackTransport() const {
 #ifdef H2CORE_HAVE_JACK
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-	if ( pAudioEngine->getAudioDriver() != nullptr ) {
-		if ( dynamic_cast<JackAudioDriver*>(pAudioEngine->getAudioDriver()) != nullptr &&
+	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
+		if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr &&
 			 Preferences::get_instance()->m_bJackTransportMode ==
 			 Preferences::USE_JACK_TRANSPORT ){
 			return true;
@@ -1209,13 +1205,98 @@ bool Hydrogen::isUnderSessionManagement() const {
 }
 
 bool Hydrogen::isTimelineEnabled() const {
-	if ( getSong()->getIsTimelineActivated() &&
+	if ( __song->getIsTimelineActivated() &&
 		 getMode() == Song::Mode::Song &&
 		 getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
 		return true;
 	}
 
 	return false;
+}
+
+bool Hydrogen::isPatternEditorLocked() const {
+	if ( getMode() == Song::Mode::Song ) {
+		if ( __song->getIsPatternEditorLocked() ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void Hydrogen::setIsPatternEditorLocked( bool bValue ) {
+	if ( __song != nullptr ) {
+		__song->setIsPatternEditorLocked( bValue );
+
+		__song->setIsModified( true );
+			
+		EventQueue::get_instance()->push_event( EVENT_PATTERN_EDITOR_LOCKED,
+												bValue );
+	}
+}
+
+Song::Mode Hydrogen::getMode() const {
+	if ( __song != nullptr ) {
+		return __song->getMode();
+	}
+
+	return Song::Mode::None;
+}
+
+void Hydrogen::setMode( Song::Mode mode ) {
+	if ( __song != nullptr && mode != __song->getMode() ) {
+		__song->setMode( mode );
+		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION,
+												( mode == Song::Mode::Song) ? 1 : 0 );
+	}
+}
+
+Song::ActionMode Hydrogen::getActionMode() const {
+	if ( __song != nullptr ) {
+		return __song->getActionMode();
+	}
+	return Song::ActionMode::None;
+}
+
+void Hydrogen::setActionMode( Song::ActionMode mode ) {
+	if ( __song != nullptr ) {
+		__song->setActionMode( mode );
+		EventQueue::get_instance()->push_event( EVENT_ACTION_MODE_CHANGE,
+												( mode == Song::ActionMode::drawMode ) ? 1 : 0 );
+	}
+}
+
+Song::PatternMode Hydrogen::getPatternMode() const {
+	if ( getMode() == Song::Mode::Pattern ) {
+		return __song->getPatternMode();
+	}
+	return Song::PatternMode::None;
+}
+
+void Hydrogen::setPatternMode( Song::PatternMode mode )
+{
+	if ( __song != nullptr &&
+		 getPatternMode() != mode ) {
+		m_pAudioEngine->lock( RIGHT_HERE );
+
+		__song->setPatternMode( mode );
+		setIsModified( true );
+		
+		if ( mode == Song::PatternMode::Selected ||
+			 m_pAudioEngine->getState() != AudioEngine::State::Playing ) {
+			// Only update the playing patterns in selected pattern
+			// mode or if transport is not rolling. In stacked pattern
+			// mode with transport rolling
+			// AudioEngine::updatePatternTransportPosition() will call
+			// the functions and activate the next patterns once the
+			// current ones are looped.
+			m_pAudioEngine->updatePlayingPatterns( m_pAudioEngine->getColumn() );
+		}
+
+		m_pAudioEngine->unlock();
+		EventQueue::get_instance()->push_event( EVENT_STACKED_MODE_ACTIVATION,
+												( mode == Song::PatternMode::Selected ) ? 1 : 0 );
+	}
 }
 
 Hydrogen::Tempo Hydrogen::getTempoSource() const {
@@ -1269,7 +1350,6 @@ void Hydrogen::startNsmClient()
 
 
 void Hydrogen::recalculateRubberband( float fBpm ) {
-	DEBUGLOG( fBpm );
 
 	if ( !Preferences::get_instance()->getRubberBandBatchMode() ) {
 		return;
@@ -1335,12 +1415,51 @@ void Hydrogen::setIsModified( bool bIsModified ) {
 		}
 	}
 }
-
-void Hydrogen::setMode( Song::Mode mode ) {
+bool Hydrogen::getIsModified() const {
 	if ( getSong() != nullptr ) {
-		getSong()->setMode( mode );
-		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
+		return getSong()->getIsModified();
 	}
+	return false;
+}
+
+void Hydrogen::setCurrentDrumkitName( const QString& sName ) {
+	if ( getSong() != nullptr ) {
+		if ( getSong()->getCurrentDrumkitName() != sName ) {
+			 getSong()->setCurrentDrumkitName( sName );
+			 getSong()->setIsModified( true );
+		}
+	} else {
+		ERRORLOG( "no song set yet" );
+	}
+}
+
+QString Hydrogen::getCurrentDrumkitName() const {
+	if ( getSong() != nullptr ) {
+		return getSong()->getCurrentDrumkitName();
+	}
+	ERRORLOG( "no song set yet" );
+
+	return "";
+}
+
+void Hydrogen::setCurrentDrumkitLookup( Filesystem::Lookup lookup ) {
+	if ( getSong() != nullptr ) {
+		if ( getSong()->getCurrentDrumkitLookup() != lookup ) {
+			 getSong()->setCurrentDrumkitLookup( lookup );
+			 getSong()->setIsModified( true );
+		}
+	} else {
+		ERRORLOG( "no song set yet" );
+	}
+}
+
+Filesystem::Lookup Hydrogen::getCurrentDrumkitLookup() const {
+	if ( getSong() != nullptr ) {
+		return getSong()->getCurrentDrumkitLookup();
+	}
+	ERRORLOG( "no song set yet" );
+
+	return Filesystem::Lookup::stacked;
 }
 
 void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
@@ -1550,9 +1669,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-		sOutput.append( QString( "%1%2m_sCurrentDrumkitName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sCurrentDrumkitName ) )
-			.append( QString( "%1%2m_currentDrumkitLookup: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>(m_currentDrumkitLookup) ) )
-			.append( QString( "%1%2__instrument_death_row:\n" ).arg( sPrefix ).arg( s ) );
+		sOutput.append( QString( "%1%2__instrument_death_row:\n" ).arg( sPrefix ).arg( s ) );
 		for ( auto const& ii : __instrument_death_row ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
@@ -1598,9 +1715,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr" ) );
 		}						 
-		sOutput.append( QString( ", m_sCurrentDrumkitName: %1" ).arg( m_sCurrentDrumkitName ) )
-			.append( QString( ", m_currentDrumkitLookup: %1" ).arg( static_cast<int>(m_currentDrumkitLookup) ) )
-			.append( QString( ", __instrument_death_row: [" ) );
+		sOutput.append( QString( ", __instrument_death_row: [" ) );
 		for ( auto const& ii : __instrument_death_row ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );

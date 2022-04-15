@@ -33,7 +33,7 @@
 	<xsd:complexType>
 		<xsd:sequence>
 			<xsd:element name="component_id"	type="xsd:integer"/>
-			<xsd:element name="gain"			type="xsd:float"	default="1.0"/>
+			<xsd:element name="gain"			type="xsd:float"/>
 			<xsd:sequence>
 				<xsd:element ref="h2:layer" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
@@ -47,7 +47,7 @@
 		<xsd:sequence>
 			<xsd:element name="id"		type="xsd:integer"/>
 			<xsd:element name="name"	type="xsd:string"/>
-			<xsd:element name="volume"	type="xsd:float"	default="1.0"/>
+			<xsd:element name="volume"	type="xsd:float"/>
 		</xsd:sequence>
 	</xsd:complexType>
 </xsd:element>
@@ -57,10 +57,10 @@
 	<xsd:complexType>
 		<xsd:sequence>
 			<xsd:element name="filename"	type="xsd:string"/>
-			<xsd:element name="min"			type="xsd:float"	default="0.0"/>
-			<xsd:element name="max"			type="xsd:float"	default="1.0"/>
-			<xsd:element name="gain"		type="xsd:float"	default="1.0"/>
-			<xsd:element name="pitch"		type="xsd:float"	default="0.0"/>
+			<xsd:element name="min"			type="xsd:float"/>
+			<xsd:element name="max"			type="xsd:float"/>
+			<xsd:element name="gain"		type="xsd:float"/>
+			<xsd:element name="pitch"		type="xsd:float"/>
 		</xsd:sequence>
 	</xsd:complexType>
 </xsd:element>
@@ -71,39 +71,39 @@
 		<xsd:sequence>
 			<xsd:element name="id"					type="xsd:integer"/>
 			<xsd:element name="name"				type="xsd:string"/>
-			<xsd:element name="volume"				type="xsd:decimal"				default="1.0"/>
-			<xsd:element name="isMuted"				type="h2:bool"					default="false"/>
-			<xsd:element name="isSoloed"			type="h2:bool"					default="false"/>
+			<xsd:element name="volume"				type="xsd:decimal"/>
+			<xsd:element name="isMuted"				type="h2:bool"/>
+			<xsd:element name="isSoloed"			type="h2:bool"/>
 			<xsd:choice minOccurs="0" maxOccurs="1">
 			  <xsd:sequence>
-				<xsd:element name="pan_L"		type="h2:psfloat"		default="0.5"/>
-				<xsd:element name="pan_R"		type="h2:psfloat"		default="0.5"/>
+				<xsd:element name="pan_L"		type="h2:psfloat"/>
+				<xsd:element name="pan_R"		type="h2:psfloat"/>
 			  </xsd:sequence>
-			  <xsd:element name = "pan"		type="h2:psfloat_sym"		default="0.0"/>
+			  <xsd:element name = "pan"		type="h2:psfloat_sym"/>
 			</xsd:choice>
-			<xsd:element name="pitchOffset"	type="h2:psfloat"				default="0.0"/>
-			<xsd:element name="randomPitchFactor"	type="h2:psfloat"				default="0.0"/>
-			<xsd:element name="gain"				type="xsd:float"				default="1.0"/>
-			<xsd:element name="applyVelocity"		type="h2:bool"					default="false"/>
-			<xsd:element name="filterActive"		type="h2:bool"					default="false"/>
-			<xsd:element name="filterCutoff"		type="h2:psfloat"				default="1.0"/>
-			<xsd:element name="filterResonance"		type="h2:psfloat"				default="0.0"/>
-			<xsd:element name="Attack"				type="xsd:nonNegativeInteger"	default="0"/>
-			<xsd:element name="Decay"				type="xsd:nonNegativeInteger"	default="0"/>
-			<xsd:element name="Sustain"				type="h2:psfloat"				default="1.0"/>
-			<xsd:element name="Release"				type="xsd:nonNegativeInteger"	default="5800"/>
-			<xsd:element name="muteGroup"			type="xsd:integer"				default="-1"/>
-			<xsd:element name="midiOutChannel"		type="xsd:integer"				default="-1"	minOccurs="0"/>
+			<xsd:element name="pitchOffset"			type="xsd:float"/>
+			<xsd:element name="randomPitchFactor"	type="h2:psfloat"/>
+			<xsd:element name="gain"				type="xsd:float"/>
+			<xsd:element name="applyVelocity"		type="h2:bool"/>
+			<xsd:element name="filterActive"		type="h2:bool"/>
+			<xsd:element name="filterCutoff"		type="h2:psfloat"/>
+			<xsd:element name="filterResonance"		type="h2:psfloat"/>
+			<xsd:element name="Attack"				type="xsd:nonNegativeInteger"/>
+			<xsd:element name="Decay"				type="xsd:nonNegativeInteger"/>
+			<xsd:element name="Sustain"				type="h2:psfloat"/>
+			<xsd:element name="Release"				type="xsd:nonNegativeInteger"/>
+			<xsd:element name="muteGroup"			type="xsd:integer"/>
+			<xsd:element name="midiOutChannel"		type="xsd:integer"	minOccurs="0"/>
 			<xsd:element name="midiOutNote"			type="xsd:integer"								minOccurs="0"/>
-			<xsd:element name="isStopNote"			type="h2:bool"					default="false"	minOccurs="0"/>
-			<xsd:element name="sampleSelectionAlgo"	type="xsd:string"				default="VELOCITY"/>
-			<xsd:element name="isHihat"				type="xsd:integer"				default="-1"/>
-			<xsd:element name="lower_cc"			type="xsd:integer"				default="0"/>
-			<xsd:element name="higher_cc"			type="xsd:integer"				default="0"/>
-			<xsd:element name="FX1Level"			type="xsd:decimal"				default="0.0"	minOccurs="0"/>
-			<xsd:element name="FX2Level"			type="xsd:decimal"				default="0.0"	minOccurs="0"/>
-			<xsd:element name="FX3Level"			type="xsd:decimal"				default="0.0"	minOccurs="0"/>
-			<xsd:element name="FX4Level"			type="xsd:decimal"				default="0.0"	minOccurs="0"/>
+			<xsd:element name="isStopNote"			type="h2:bool"	minOccurs="0"/>
+			<xsd:element name="sampleSelectionAlgo"	type="xsd:string"/>
+			<xsd:element name="isHihat"				type="xsd:integer"/>
+			<xsd:element name="lower_cc"			type="xsd:integer"/>
+			<xsd:element name="higher_cc"			type="xsd:integer"/>
+			<xsd:element name="FX1Level"			type="xsd:decimal"	minOccurs="0"/>
+			<xsd:element name="FX2Level"			type="xsd:decimal"	minOccurs="0"/>
+			<xsd:element name="FX3Level"			type="xsd:decimal"	minOccurs="0"/>
+			<xsd:element name="FX4Level"			type="xsd:decimal"	minOccurs="0"/>
 			<xsd:sequence>
 				<xsd:element ref="h2:instrumentComponent" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>

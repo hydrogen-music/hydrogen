@@ -361,6 +361,7 @@ void SampleEditor::on_PrevChangesPushButton_clicked()
 	getAllLocalFrameInfos();
 	createNewLayer();
 	setClean();
+	Hydrogen::get_instance()->setIsModified( true );
 	QApplication::restoreOverrideCursor();
 	InstrumentEditorPanel::get_instance()->updateWaveDisplay();
 }

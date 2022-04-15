@@ -49,15 +49,27 @@ public:
 	QColor m_songEditor_backgroundColor;
 	QColor m_songEditor_alternateRowColor;
 	QColor m_songEditor_selectedRowColor;
+	QColor m_songEditor_selectedRowTextColor;
 	QColor m_songEditor_lineColor;
 	QColor m_songEditor_textColor;
+	QColor m_songEditor_automationBackgroundColor;
+	QColor m_songEditor_automationLineColor;
+	QColor m_songEditor_automationNodeColor;
+	QColor m_songEditor_stackedModeOnColor;
+	QColor m_songEditor_stackedModeOnNextColor;
+	QColor m_songEditor_stackedModeOffNextColor;
 
 	QColor m_patternEditor_backgroundColor;
 	QColor m_patternEditor_alternateRowColor;
 	QColor m_patternEditor_selectedRowColor;
+	QColor m_patternEditor_selectedRowTextColor;
+	QColor m_patternEditor_octaveRowColor;
 	QColor m_patternEditor_textColor;
-	QColor m_patternEditor_noteColor;
-	QColor m_patternEditor_noteoffColor;
+	QColor m_patternEditor_noteVelocityFullColor;
+	QColor m_patternEditor_noteVelocityDefaultColor;
+	QColor m_patternEditor_noteVelocityHalfColor;
+	QColor m_patternEditor_noteVelocityZeroColor;
+	QColor m_patternEditor_noteOffColor;
 	QColor m_patternEditor_lineColor;
 	QColor m_patternEditor_line1Color;
 	QColor m_patternEditor_line2Color;
@@ -109,8 +121,8 @@ public:
 	QColor m_buttonRedTextColor;
 	QColor m_spinBoxColor;
 	QColor m_spinBoxTextColor;
-	QColor m_automationColor;
-	QColor m_automationCircleColor;
+	QColor m_playheadColor;
+	QColor m_cursorColor;
 };
 
 	
@@ -169,7 +181,7 @@ public:
 
 	/** Enables custom scaling of the font size in the GUI.*/
 	enum class FontSize {
-		Normal = 0,
+		Medium = 0,
 		Small = 1,
 		Large = 2
 	};

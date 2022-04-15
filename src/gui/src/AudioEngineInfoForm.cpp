@@ -257,4 +257,12 @@ void AudioEngineInfoForm::patternChangedEvent()
 	updateAudioEngineState();
 }
 
+void AudioEngineInfoForm::updateSongEvent( int nValue )
+{
+	// A new song got loaded
+	if ( nValue == 0 ) {
+		updateAudioEngineState();
+	}
+}
+
 

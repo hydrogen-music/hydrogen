@@ -258,6 +258,9 @@ void HydrogenApp::setupSinglePanedInterface()
 	} else {
 		m_pSongEditorPanel = new SongEditorPanel( m_pTab );
 	}
+	// trigger a relocation to sync the transport position of the
+	// editors in the panel.
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->locateToColumn( 0 );
 
 	WindowProperties songEditorProp = pPref->getSongEditorProperties();
 	setWindowProperties( m_pSongEditorPanel, songEditorProp, SetWidth + SetHeight );
@@ -287,6 +290,8 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// PATTERN EDITOR
 	m_pPatternEditorPanel = new PatternEditorPanel( nullptr );
+	// Sync the playhead position in all editors all objects are available.
+	m_pPatternEditorPanel->getPatternEditorRuler()->updatePosition( true );
 	WindowProperties patternEditorProp = pPref->getPatternEditorProperties();
 	setWindowProperties( m_pPatternEditorPanel, patternEditorProp, SetWidth + SetHeight );
 
@@ -797,7 +802,7 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_TIMELINE_ACTIVATION:
-				pListener->timelineActivationEvent( event.value );
+				pListener->timelineActivationEvent();
 				break;
 
 			case EVENT_TIMELINE_UPDATE:
@@ -805,15 +810,15 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_JACK_TRANSPORT_ACTIVATION:
-				pListener->jackTransportActivationEvent( event.value );
+				pListener->jackTransportActivationEvent();
 				break;
 
 			case EVENT_JACK_TIMEBASE_STATE_CHANGED:
-				pListener->jackTimebaseStateChangedEvent( event.value );
+				pListener->jackTimebaseStateChangedEvent();
 				break;
 				
 			case EVENT_SONG_MODE_ACTIVATION:
-				pListener->songModeActivationEvent( event.value );
+				pListener->songModeActivationEvent();
 				break;
 
 			case EVENT_STACKED_MODE_ACTIVATION:
@@ -821,21 +826,41 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 				
 			case EVENT_LOOP_MODE_ACTIVATION:
-				pListener->loopModeActivationEvent( event.value );
+				pListener->loopModeActivationEvent();
 				break;
 
 			case EVENT_ACTION_MODE_CHANGE:
 				pListener->actionModeChangeEvent( event.value );
 				break;
 
-			case EVENT_UPDATE_SONG_EDITOR:
-				pListener->updateSongEditorEvent( event.value );
+			case EVENT_GRID_CELL_TOGGLED:
+				pListener->gridCellToggledEvent();
 				break;
 
 			case EVENT_DRUMKIT_LOADED:
 				pListener->drumkitLoadedEvent();
 				break;
+
+			case EVENT_PATTERN_EDITOR_LOCKED:
+				pListener->patternEditorLockedEvent( event.value );
+				break;
 				
+			case EVENT_RELOCATION:
+				pListener->relocationEvent();
+				break;
+				
+			case EVENT_SONG_SIZE_CHANGED:
+				pListener->songSizeChangedEvent();
+				break;
+
+			case EVENT_DRIVER_CHANGED:
+				pListener->driverChangedEvent();
+				break;
+
+			case EVENT_PLAYBACK_TRACK_CHANGED:
+				pListener->playbackTrackChangedEvent();
+				break;
+
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}

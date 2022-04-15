@@ -40,16 +40,16 @@ FilesystemInfoForm::FilesystemInfoForm( QWidget *parent ) :
 	QColor windowTextColor = H2Core::Preferences::get_instance()->getColorTheme()->m_windowTextColor;
 
 	ui->tmpDirWarningButton->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/warning.svg" ) );
-	ui->tmpDirWarningButton->setStyleSheet( Skin::getWarningButtonStyleSheet( 16 ) );
 	ui->tmpDirWarningButton->setToolTip( tr( "Filesystem is not writable!" ) );
-	ui->tmpDirWarningButton->setFlat( true );
+	ui->tmpDirWarningButton->setType( Button::Type::Icon );
+	ui->tmpDirWarningButton->setSize( QSize( 16, 14 ) );
 	
 	ui->tmpDirLineEdit->setReadOnly( true );
 	
 	ui->usrDataDirWarningButton->setIcon( QIcon( Skin::getSvgImagePath() + "/icons/warning.svg" ) );
-	ui->usrDataDirWarningButton->setStyleSheet( Skin::getWarningButtonStyleSheet( 16 ) );
 	ui->usrDataDirWarningButton->setToolTip( tr( "User data folder is not writable!" ) );
-	ui->usrDataDirWarningButton->setFlat( true );
+	ui->usrDataDirWarningButton->setType( Button::Type::Icon );
+	ui->usrDataDirWarningButton->setSize( QSize( 16, 14 ) );
 	
 	ui->usrDataDirLineEdit->setReadOnly( true );
 	ui->sysDataDirLineEdit->setReadOnly( true );

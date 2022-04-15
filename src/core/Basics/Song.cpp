@@ -78,6 +78,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_pComponents( nullptr )
 	, m_sFilename( "" )
 	, m_loopMode( LoopMode::Disabled )
+	, m_patternMode( PatternMode::Selected )
 	, m_fHumanizeTimeValue( 0.0 )
 	, m_fHumanizeVelocityValue( 0.0 )
 	, m_fSwingFactor( 0.0 )
@@ -89,8 +90,10 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_pVelocityAutomationPath( nullptr )
 	, m_sLicense( "" )
 	, m_actionMode( ActionMode::selectMode )
+	, m_bIsPatternEditorLocked( false )
 	, m_nPanLawType ( Sampler::RATIO_STRAIGHT_POLYGONAL )
 	, m_fPanLawKNorm ( Sampler::K_NORM_DEFAULT )
+	, m_currentDrumkitLookup( Filesystem::Lookup::stacked )
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( sName ) );
 
@@ -142,20 +145,10 @@ void Song::setBpm( float fBpm ) {
 	} else {
 		m_fBpm = fBpm;
 	}
-	setIsModified( true );
 }
 
 void Song::setActionMode( Song::ActionMode actionMode ) {
 	m_actionMode = actionMode;
-
-	if ( actionMode == Song::ActionMode::selectMode ) {
-		EventQueue::get_instance()->push_event( EVENT_ACTION_MODE_CHANGE, 0 );
-	} else if ( actionMode == Song::ActionMode::drawMode ) {
-		EventQueue::get_instance()->push_event( EVENT_ACTION_MODE_CHANGE, 1 );
-	} else {
-		ERRORLOG( QString( "Unknown actionMode" ) );
-	}
-	setIsModified( true );
 }
 
 long Song::lengthInTicks() const {
@@ -294,7 +287,6 @@ void Song::setSwingFactor( float factor )
 	}
 
 	m_fSwingFactor = factor;
-	setIsModified( true );
 }
 
 void Song::setIsModified( bool bIsModified )
@@ -426,7 +418,6 @@ void Song::readTempPatternList( const QString& sFilename )
 	} else {
 		WARNINGLOG( "no sequence node not found" );
 	}
-	setIsModified( true );
 }
 
 bool Song::writeTempPatternList( const QString& sFilename )
@@ -651,6 +642,14 @@ void Song::loadDrumkit( Drumkit *pDrumkit, bool bConditional ) {
 	assert ( pDrumkit );
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 
+	m_sCurrentDrumkitName = pDrumkit->get_name();
+	if ( pDrumkit->isUserDrumkit() ) {
+		m_currentDrumkitLookup = Filesystem::Lookup::user;
+	} else {
+		m_currentDrumkitLookup = Filesystem::Lookup::system;
+	}
+
+
 	// Load DrumkitComponents 
 	std::vector<DrumkitComponent*>* pDrumkitCompoList = pDrumkit->get_components();
 	
@@ -873,6 +872,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
+		sOutput.append( QString( "%1%2m_sCurrentDrumkitName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sCurrentDrumkitName ) )
+			.append( QString( "%1%2m_currentDrumkitLookup: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>(m_currentDrumkitLookup) ) );
 	} else {
 		
 		sOutput = QString( "[Song]" )
@@ -925,6 +926,9 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr" ) );
 		}
+		sOutput.append( QString( ", m_sCurrentDrumkitName: %1" ).arg( m_sCurrentDrumkitName ) )
+			.append( QString( ", m_currentDrumkitLookup: %1" ).arg( static_cast<int>(m_currentDrumkitLookup) ) );
+			
 	}
 	
 	return sOutput;
@@ -1009,7 +1013,14 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	QString sNotes( LocalFileMng::readXmlString( songNode, "notes", "..." ) );
 	QString sLicense( LocalFileMng::readXmlString( songNode, "license", "Unknown license" ) );
 	bool bLoopEnabled = LocalFileMng::readXmlBool( songNode, "loopEnabled", false );
-	pPreferences->setPatternModePlaysSelected( LocalFileMng::readXmlBool( songNode, "patternModeMode", true ) );
+	bool bPatternMode =
+		LocalFileMng::readXmlBool( songNode, "patternModeMode",
+								   static_cast<bool>(Song::PatternMode::Selected) );
+	
+	Song::PatternMode patternMode = Song::PatternMode::Selected;
+	if ( ! bPatternMode ) {
+		patternMode = Song::PatternMode::Stacked;
+	}
 	Song::Mode mode = Song::Mode::Pattern;
 	QString sMode = LocalFileMng::readXmlString( songNode, "mode", "pattern" );
 	if ( sMode == "song" ) {
@@ -1020,8 +1031,17 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	bool bPlaybackTrackEnabled = LocalFileMng::readXmlBool( songNode, "playbackTrackEnabled", false );
 	float fPlaybackTrackVolume = LocalFileMng::readXmlFloat( songNode, "playbackTrackVolume", 0.0 );
 
+	// Check the file of the playback track and resort to the default
+	// in case the file can not be found.
+	if ( ! Filesystem::file_exists( sPlaybackTrack, true ) ) {
+		ERRORLOG( QString( "Provided playback track file [%1] does not exist. Using empty string instead" )
+				  .arg( sPlaybackTrack ) );
+		sPlaybackTrack = "";
+	}
+
 	Song::ActionMode actionMode = static_cast<Song::ActionMode>( LocalFileMng::readXmlInt( songNode, "action_mode",
 																						   static_cast<int>( Song::ActionMode::selectMode ) ) );
+	bool bIsPatternEditorLocked = LocalFileMng::readXmlBool( songNode, "isPatternEditorLocked", false );
 	float fHumanizeTimeValue = LocalFileMng::readXmlFloat( songNode, "humanize_time", 0.0 );
 	float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
 	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
@@ -1047,6 +1067,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	} else {
 		pSong->setLoopMode( Song::LoopMode::Disabled );
 	}
+	pSong->setPatternMode( patternMode );
 	pSong->setMode( mode );
 	pSong->setHumanizeTimeValue( fHumanizeTimeValue );
 	pSong->setHumanizeVelocityValue( fHumanizeVelocityValue );
@@ -1055,6 +1076,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	pSong->setPlaybackTrackEnabled( bPlaybackTrackEnabled );
 	pSong->setPlaybackTrackVolume( fPlaybackTrackVolume );
 	pSong->setActionMode( actionMode );
+	pSong->setIsPatternEditorLocked( bIsPatternEditorLocked );
 	pSong->setIsTimelineActivated( bIsTimelineActivated );
 	
 	// pan law
@@ -1137,7 +1159,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 
 			int id = LocalFileMng::readXmlInt( instrumentNode, "id", -1 );			// instrument id
 			QString sDrumkit = LocalFileMng::readXmlString( instrumentNode, "drumkit", "" );	// drumkit
-			Hydrogen::get_instance()->setCurrentDrumkitName( sDrumkit );
+			pSong->setCurrentDrumkitName( sDrumkit );
 			int iLookup = LocalFileMng::readXmlInt( instrumentNode, "drumkitLookup", -1 );	// drumkit
 			if ( iLookup == -1 ) {
 				// Song was created with an older version of the
@@ -1156,7 +1178,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 					ERRORLOG( "Missing drumkitLookup: drumkit could not be found. system-level will be set as a fallback" );
 				}
 			}	
-			Hydrogen::get_instance()->setCurrentDrumkitLookup( static_cast<Filesystem::Lookup>( iLookup ) );
+			pSong->setCurrentDrumkitLookup( static_cast<Filesystem::Lookup>( iLookup ) );
 			QString sName = LocalFileMng::readXmlString( instrumentNode, "name", "" );		// name
 			float fVolume = LocalFileMng::readXmlFloat( instrumentNode, "volume", 1.0 );	// volume
 			bool bIsMuted = LocalFileMng::readXmlBool( instrumentNode, "isMuted", false );	// is muted

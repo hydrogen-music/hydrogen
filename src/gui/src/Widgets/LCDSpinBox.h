@@ -117,6 +117,10 @@ private:
 	virtual void leaveEvent( QEvent *ev ) override;
 	virtual void wheelEvent( QWheelEvent *ev ) override;
 	virtual void keyPressEvent( QKeyEvent *ev ) override;
+	virtual void mousePressEvent(QMouseEvent *ev) override;
+	virtual void mouseReleaseEvent( QMouseEvent *ev ) override;
+	virtual void mouseMoveEvent(QMouseEvent *ev) override;
+
 	virtual bool event( QEvent* ev ) override;
 };
 

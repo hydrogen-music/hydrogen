@@ -337,7 +337,7 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( "]" );
 		if ( __virtual_patterns.size() != 0 ) {
-			sOutput.append( QString( ", Virtual_patterns:" ) );
+			sOutput.append( ", Virtual_patterns: {" );
 		}
 		for ( auto ii : __virtual_patterns ) {
 			if ( ii != nullptr ) {
@@ -345,12 +345,15 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 			}
 		}
 		if ( __flattened_virtual_patterns.size() != 0 ) {
-			sOutput.append( QString( ", Flattened_virtual_patterns:" ) );
+			sOutput.append( "}, Flattened_virtual_patterns: {" );
 		}
 		for ( auto ii : __flattened_virtual_patterns ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
 			}
+		}
+		if ( __flattened_virtual_patterns.size() != 0 ) {
+			sOutput.append( "}" );
 		}
 	}	
 	return sOutput;

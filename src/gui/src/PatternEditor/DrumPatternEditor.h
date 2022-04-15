@@ -27,6 +27,7 @@
 #include "../EventListener.h"
 #include "../Selection.h"
 #include "PatternEditor.h"
+#include "NotePropertiesRuler.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
 #include <core/Object.h>
@@ -52,8 +53,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		~DrumPatternEditor();
 
 		// Implements EventListener interface
-		virtual void patternModifiedEvent() override;
-		virtual void patternChangedEvent() override;
 		virtual void selectedPatternChangedEvent() override;
 		virtual void selectedInstrumentChangedEvent() override;
 		//~ Implements EventListener interface
@@ -80,9 +79,8 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 							 H2Core::Note *note);
 
 		void addOrRemoveNote( int nColumn, int nRealColumn, int row, bool bDoAdd = true, bool bDoDelete = true );
-		void editNoteLengthAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber );
 		void undoRedoAction(    int column,
-								QString mode,
+								NotePropertiesRuler::Mode mode,
 								int nSelectedPatternNumber,
 								int nSelectedInstrument,
 								float velocity,
@@ -117,7 +115,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
 		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
 
 		// Selected notes are indexed by their address to ensure that a
@@ -136,10 +133,10 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private:
-		void __draw_note( H2Core::Note* note, QPainter& painter, bool bIsForeground = true );
-		void __draw_pattern( QPainter& painter );
-		void __draw_grid( QPainter& painter );
-		void __create_background( QPainter& pointer );
+	void createBackground() override;
+		void drawNote( H2Core::Note* note, QPainter& painter, bool bIsForeground = true );
+		void drawPattern( QPainter& painter );
+		void drawBackground( QPainter& pointer );
 		void drawFocus( QPainter& painter );
 
 		virtual void keyPressEvent (QKeyEvent *ev) override;
@@ -147,16 +144,11 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		virtual void showEvent ( QShowEvent *ev ) override;
 		virtual void hideEvent ( QHideEvent *ev ) override;
 		virtual void paintEvent(QPaintEvent *ev) override;
-		virtual void focusInEvent( QFocusEvent *ev ) override;
+	virtual void mousePressEvent( QMouseEvent *ev ) override;
 
 		int findFreeCompoID( int startingPoint = 0 );
 		int findExistingCompo( QString SourceName );
 		QString renameCompo( QString OriginalName );
-
-		int m_nRealColumn;
-		int m_nColumn;
-		int m_nRow;
-		int m_nOldLength;
 };
 
 

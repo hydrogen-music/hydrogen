@@ -698,19 +698,30 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return true;
+	}
 
-	if ( !pSong->getPlaybackTrackEnabled() ||
+	if ( pHydrogen->getPlaybackTrackState() != Song::PlaybackTrack::Enabled ||
 		 ( pAudioEngine->getState() != AudioEngine::State::Playing ||
 		   pAudioEngine->getState() == AudioEngine::State::Testing ) ||
-		 pHydrogen->getMode() != Song::Mode::Song )
-	{
-		return false;
+		 pHydrogen->getMode() != Song::Mode::Song ) {
+		return true;
 	}
 
 	auto pCompo = m_pPlaybackTrackInstrument->get_components()->front();
 	auto pSample = pCompo->get_layer(0)->get_sample();
 
-	assert(pSample);
+	if ( pSample == nullptr ) {
+		ERRORLOG( "Unable to process playback track" );
+		EventQueue::get_instance()->push_event( EVENT_ERROR,
+												Hydrogen::ErrorMessages::PLAYBACK_TRACK_INVALID );
+		// Disable the playback track
+		pHydrogen->loadPlaybackTrack( "" );
+		reinitializePlaybackTrack();
+		return true;
+	}
 
 	float fVal_L;
 	float fVal_R;
@@ -947,7 +958,9 @@ bool Sampler::renderNoteNoResample(
 	}
 
 
-	retValue = pADSR->applyADSR( buffer_L, buffer_R, nTimes, nNoteEnd, 1 );
+	if ( pADSR->applyADSR( buffer_L, buffer_R, nTimes, nNoteEnd, 1 ) ) {
+		retValue = true;
+	}
 	bool bFilterIsActive = pInstrument->is_filter_active();
 	// Low pass resonant filter
 
@@ -1221,7 +1234,9 @@ bool Sampler::renderNoteResample(
 		fSamplePos += fStep;
 	}
 
-	retValue = pADSR->applyADSR( buffer_L, buffer_R, nTimes, nNoteEnd, 1 );
+	if ( pADSR->applyADSR( buffer_L, buffer_R, nTimes, nNoteEnd, 1 ) ) {
+		retValue = true;
+	}
 
 	// Mix rendered sample buffer to track and mixer output
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
@@ -1483,10 +1498,15 @@ bool Sampler::isInstrumentPlaying( std::shared_ptr<Instrument> instrument )
 void Sampler::reinitializePlaybackTrack()
 {
 	Hydrogen*	pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> 		pSong = pHydrogen->getSong();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	std::shared_ptr<Sample>	pSample;
 
-	if(!pSong->getPlaybackTrackFilename().isEmpty()){
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
+
+	if( pHydrogen->getPlaybackTrackState() != Song::PlaybackTrack::Unavailable ){
 		pSample = Sample::load( pSong->getPlaybackTrackFilename() );
 	}
 	
