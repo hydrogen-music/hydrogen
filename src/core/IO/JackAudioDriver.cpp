@@ -57,18 +57,21 @@ namespace H2Core {
 int JackAudioDriver::jackDriverSampleRate( jack_nframes_t nframes, void* param ){
 	// Used for logging.
 	Base * __object = ( Base * )param;
-	QString msg = QString("Jack SampleRate changed: the sample rate is now %1/sec").arg( QString::number( static_cast<int>(nframes) ) );
 	// The __INFOLOG macro uses the Base *__object and not the
 	// Object instance as INFOLOG does. It will call
 	// __object->logger()->log( H2Core::Logger::Info, ..., msg )
 	// (see object.h).
-	__INFOLOG( msg );
+	__INFOLOG( QString("New JACK sample rate: [%1]/sec")
+			   .arg( QString::number( static_cast<int>(nframes) ) ) );
 	JackAudioDriver::jackServerSampleRate = nframes;
 	return 0;
 }
 
-int JackAudioDriver::jackDriverBufferSize( jack_nframes_t nframes, void* arg ){
+int JackAudioDriver::jackDriverBufferSize( jack_nframes_t nframes, void* param ){
 	// This function does _NOT_ have to be realtime safe.
+	Base * __object = ( Base * )param;
+	__INFOLOG( QString("new JACK buffer size: [%1]")
+			   .arg( QString::number( static_cast<int>(nframes) ) ) );
 	JackAudioDriver::jackServerBufferSize = nframes;
 	return 0;
 }
@@ -217,7 +220,6 @@ void JackAudioDriver::disconnect()
 	m_pClient = nullptr;
 	
 	if ( pOldClient != nullptr ) {
-		INFOLOG( "calling jack_client_close" );
 		int nReturnCode = jack_client_close( pOldClient );
 		if ( nReturnCode != 0 ) {
 			ERRORLOG( "Error in jack_client_close" );
@@ -230,7 +232,6 @@ void JackAudioDriver::disconnect()
 void JackAudioDriver::deactivate()
 {
 	if ( m_pClient != nullptr ) {
-		INFOLOG( "calling jack_deactivate" );
 		int nReturnCode = jack_deactivate( m_pClient );
 		if ( nReturnCode != 0 ) {
 			ERRORLOG( "Error in jack_deactivate" );
@@ -412,9 +413,9 @@ bool JackAudioDriver::compareAdjacentBBT() const
 	
 	if ( m_JackTransportPos.beats_per_minute !=
 		 m_previousJackTransportPos.beats_per_minute ) {
-		INFOLOG( QString( "Change in tempo from [%1] to [%2]" )
-				 .arg( m_previousJackTransportPos.beats_per_minute )
-				 .arg( m_JackTransportPos.beats_per_minute ) );
+		// DEBUGLOG( QString( "Change in tempo from [%1] to [%2]" )
+		// 		  .arg( m_previousJackTransportPos.beats_per_minute )
+		// 		  .arg( m_JackTransportPos.beats_per_minute ) );
 		return false;
 	}
 
@@ -439,11 +440,11 @@ bool JackAudioDriver::compareAdjacentBBT() const
 			if ( m_JackTransportPos.bar !=
 				m_previousJackTransportPos.bar + 1 ||
 				m_JackTransportPos.beat != 1 ) {
-				INFOLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]*" )
-						 .arg( m_previousJackTransportPos.bar )
-						 .arg( m_previousJackTransportPos.beat )
-						 .arg( m_JackTransportPos.bar )
-						 .arg( m_JackTransportPos.beat ) );
+				// DEBUGLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]*" )
+				// 		  .arg( m_previousJackTransportPos.bar )
+				// 		  .arg( m_previousJackTransportPos.beat )
+				// 		  .arg( m_JackTransportPos.bar )
+				// 		  .arg( m_JackTransportPos.beat ) );
 				return false;
 			}
 		} else {
@@ -451,11 +452,11 @@ bool JackAudioDriver::compareAdjacentBBT() const
 				m_previousJackTransportPos.bar ||
 				m_JackTransportPos.beat !=
 				m_previousJackTransportPos.beat + 1 ) {
-				INFOLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]**" )
-						 .arg( m_previousJackTransportPos.bar )
-						 .arg( m_previousJackTransportPos.beat )
-						 .arg( m_JackTransportPos.bar )
-						 .arg( m_JackTransportPos.beat ) );
+				// DEBUGLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]**" )
+				// 		  .arg( m_previousJackTransportPos.bar )
+				// 		  .arg( m_previousJackTransportPos.beat )
+				// 		  .arg( m_JackTransportPos.bar )
+				// 		  .arg( m_JackTransportPos.beat ) );
 				return false;
 			}
 		}
@@ -463,11 +464,11 @@ bool JackAudioDriver::compareAdjacentBBT() const
 				m_previousJackTransportPos.bar ||
 				m_JackTransportPos.beat !=
 				m_previousJackTransportPos.beat ) {
-		INFOLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]***" )
-				 .arg( m_previousJackTransportPos.bar )
-				 .arg( m_previousJackTransportPos.beat )
-				 .arg( m_JackTransportPos.bar )
-				 .arg( m_JackTransportPos.beat ) );
+		// DEBUGLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]***" )
+		// 		  .arg( m_previousJackTransportPos.bar )
+		// 		  .arg( m_previousJackTransportPos.beat )
+		// 		  .arg( m_JackTransportPos.bar )
+		// 		  .arg( m_JackTransportPos.beat ) );
 		return false;
 	}
 
@@ -476,10 +477,10 @@ bool JackAudioDriver::compareAdjacentBBT() const
 			  m_JackTransportPos.ticks_per_beat - nNewTick ) > 1 &&
 		 abs( m_JackTransportPos.tick +
 			  m_JackTransportPos.ticks_per_beat - nNewTick ) > 1 ) {
-		INFOLOG( QString( "Change in position from tick [%1] to [%2] instead of [%3]" )
-				 .arg( m_previousJackTransportPos.tick )
-				 .arg( m_JackTransportPos.tick )
-				 .arg( nNewTick ));
+		// DEBUGLOG( QString( "Change in position from tick [%1] to [%2] instead of [%3]" )
+		// 		  .arg( m_previousJackTransportPos.tick )
+		// 		  .arg( m_JackTransportPos.tick )
+		// 		  .arg( nNewTick ));
 		return false;
 	}
 		
@@ -804,7 +805,7 @@ int JackAudioDriver::init( unsigned bufferSize )
 	/* tell JACK server to update us if the buffer size
 	   (frames per process cycle) changes.
 	*/
-	jack_set_buffer_size_callback( m_pClient, jackDriverBufferSize, nullptr );
+	jack_set_buffer_size_callback( m_pClient, jackDriverBufferSize, this );
 
 	/* display an XRun event in the GUI.*/
 	jack_set_xrun_callback( m_pClient, jackXRunCallback, nullptr );
