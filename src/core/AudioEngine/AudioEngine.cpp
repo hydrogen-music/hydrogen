@@ -1052,71 +1052,128 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 #endif
 }
 
-AudioOutput* AudioEngine::createDriver( const QString& sDriver )
+AudioOutput* AudioEngine::createAudioDriver( const QString& sDriver )
 {
-	INFOLOG( QString( "Driver: '%1'" ).arg( sDriver ) );
-	Preferences *pPref = Preferences::get_instance();
-	AudioOutput *pDriver = nullptr;
+	INFOLOG( QString( "Creating driver [%1]" ).arg( sDriver ) );
+
+	auto pPref = Preferences::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	AudioOutput *pAudioDriver = nullptr;
 
 	if ( sDriver == "OSS" ) {
-		pDriver = new OssDriver( m_AudioProcessCallback );
+		pAudioDriver = new OssDriver( m_AudioProcessCallback );
 	} else if ( sDriver == "JACK" ) {
-		pDriver = new JackAudioDriver( m_AudioProcessCallback );
+		pAudioDriver = new JackAudioDriver( m_AudioProcessCallback );
 #ifdef H2CORE_HAVE_JACK
-		if ( auto pJackDriver = dynamic_cast<JackAudioDriver*>( pDriver ) ) {
+		if ( auto pJackDriver = dynamic_cast<JackAudioDriver*>( pAudioDriver ) ) {
 			pJackDriver->setConnectDefaults(
 				Preferences::get_instance()->m_bJackConnectDefaults
 			);
 		}
 #endif
-	} else if ( sDriver == "ALSA" ) {
-		pDriver = new AlsaAudioDriver( m_AudioProcessCallback );
-	} else if ( sDriver == "PortAudio" ) {
-		pDriver = new PortAudioDriver( m_AudioProcessCallback );
-	} else if ( sDriver == "CoreAudio" ) {
-		pDriver = new CoreAudioDriver( m_AudioProcessCallback );
-	} else if ( sDriver == "PulseAudio" ) {
-		pDriver = new PulseAudioDriver( m_AudioProcessCallback );
-	} else if ( sDriver == "Fake" ) {
+	}
+	else if ( sDriver == "ALSA" ) {
+		pAudioDriver = new AlsaAudioDriver( m_AudioProcessCallback );
+	}
+	else if ( sDriver == "PortAudio" ) {
+		pAudioDriver = new PortAudioDriver( m_AudioProcessCallback );
+	}
+	else if ( sDriver == "CoreAudio" ) {
+		pAudioDriver = new CoreAudioDriver( m_AudioProcessCallback );
+	}
+	else if ( sDriver == "PulseAudio" ) {
+		pAudioDriver = new PulseAudioDriver( m_AudioProcessCallback );
+	}
+	else if ( sDriver == "Fake" ) {
 		WARNINGLOG( "*** Using FAKE audio driver ***" );
-		pDriver = new FakeDriver( m_AudioProcessCallback );
-	} else {
+		pAudioDriver = new FakeDriver( m_AudioProcessCallback );
+	}
+	else if ( sDriver == "DiskWriterDriver" ) {
+		pAudioDriver = new DiskWriterDriver( m_AudioProcessCallback );
+	}
+	else if ( sDriver == "NullDriver" ) {
+		pAudioDriver = new NullDriver( m_AudioProcessCallback );
+	}
+	else {
 		ERRORLOG( QString( "Unknown driver [%1]" ).arg( sDriver ) );
 		raiseError( Hydrogen::UNKNOWN_DRIVER );
+		return nullptr;
 	}
 
-	if ( dynamic_cast<NullDriver*>(pDriver) != nullptr ) {
-		delete pDriver;
-		pDriver = nullptr;
+	if ( pAudioDriver == nullptr ) {
+		INFOLOG( QString( "Unable to create driver [%1]" ).arg( sDriver ) );
+		return nullptr;
 	}
 
-	if ( pDriver != nullptr ) {
-		// initialize the audio driver
-		int res = pDriver->init( pPref->m_nBufferSize );
-		if ( res != 0 ) {
-			ERRORLOG( QString( "Error initializing audio driver [%1]. Error code: %2" )
-					  .arg( sDriver ).arg( res ) );
-			delete pDriver;
-			pDriver = nullptr;
-		}
+	// Initialize the audio driver
+	int nRes = pAudioDriver->init( pPref->m_nBufferSize );
+	if ( nRes != 0 ) {
+		ERRORLOG( QString( "Error code [%2] while initializing audio driver [%1]." )
+				  .arg( sDriver ).arg( nRes ) );
+		delete pAudioDriver;
+		return nullptr;
 	}
-	return pDriver;
+
+	this->lock( RIGHT_HERE );
+	QMutexLocker mx(&m_MutexOutputPointer);
+
+	// Some audio drivers require to be already registered in the
+	// AudioEngine while being connected.
+	m_pAudioDriver = pAudioDriver;
+
+	// change the current audio engine state
+	if ( pSong != nullptr ) {
+		setState( State::Ready );
+	} else {
+		setState( State::Prepared );
+	}
+
+	// Unlocking earlier might execute the jack process() callback before we
+	// are fully initialized.
+	mx.unlock();
+	this->unlock();
+	
+	nRes = m_pAudioDriver->connect();
+	if ( nRes != 0 ) {
+		raiseError( Hydrogen::ERROR_STARTING_DRIVER );
+		ERRORLOG( QString( "Error code [%2] while connecting audio driver [%1]." )
+				  .arg( sDriver ).arg( nRes ) );
+
+		this->lock( RIGHT_HERE );
+		mx.relock();
+		
+		delete m_pAudioDriver;
+		m_pAudioDriver = nullptr;
+		
+		mx.unlock();
+		this->unlock();
+
+		return nullptr;
+	}
+
+	if ( pSong != nullptr && pHydrogen->haveJackAudioDriver() ) {
+		pHydrogen->renameJackPorts( pSong );
+	}
+		
+	setupLadspaFX();
+	
+	handleDriverChange();
+
+	EventQueue::get_instance()->push_event( EVENT_DRIVER_CHANGED, 0 );
+
+	return pAudioDriver;
 }
 
 void AudioEngine::startAudioDrivers()
 {
 	INFOLOG("");
-	Preferences *preferencesMng = Preferences::get_instance();
-
-	// Lock both the AudioEngine and the audio output buffers.
-	this->lock( RIGHT_HERE );
-	QMutexLocker mx(&m_MutexOutputPointer);
+	Preferences *pPref = Preferences::get_instance();
 	
 	// check current state
 	if ( getState() != State::Initialized ) {
 		ERRORLOG( QString( "Audio engine is not in State::Initialized but [%1]" )
 				  .arg( static_cast<int>( getState() ) ) );
-		this->unlock();
 		return;
 	}
 
@@ -1127,7 +1184,7 @@ void AudioEngine::startAudioDrivers()
 		ERRORLOG( "The MIDI driver is still active" );
 	}
 
-	QString sAudioDriver = preferencesMng->m_sAudioDriver;
+	QString sAudioDriver = pPref->m_sAudioDriver;
 #if defined(WIN32)
 	QStringList drivers = { "PortAudio", "JACK" };
 #elif defined(__APPLE__)
@@ -1142,7 +1199,7 @@ void AudioEngine::startAudioDrivers()
 	}
 	AudioOutput* pAudioDriver;
 	for ( QString sDriver : drivers ) {
-		if ( ( pAudioDriver = createDriver( sDriver ) ) != nullptr ) {
+		if ( ( pAudioDriver = createAudioDriver( sDriver ) ) != nullptr ) {
 			if ( sDriver != sAudioDriver && sAudioDriver != "Auto" ) {
 				ERRORLOG( QString( "Couldn't start preferred driver [%1], falling back to [%2]" )
 						  .arg( sAudioDriver ).arg( sDriver ) );
@@ -1150,8 +1207,18 @@ void AudioEngine::startAudioDrivers()
 			break;
 		}
 	}
+
+	// If the audio driver could not be created, we resort to the
+	// NullDriver.
+	if ( m_pAudioDriver == nullptr ) {
+		createAudioDriver( "NullDriver" );
+	}
+
+	// Lock both the AudioEngine and the audio output buffers.
+	this->lock( RIGHT_HERE );
+	QMutexLocker mx(&m_MutexOutputPointer);
 	
-	if ( preferencesMng->m_sMidiDriver == "ALSA" ) {
+	if ( pPref->m_sMidiDriver == "ALSA" ) {
 #ifdef H2CORE_HAVE_ALSA
 		// Create MIDI driver
 		AlsaMidiDriver *alsaMidiDriver = new AlsaMidiDriver();
@@ -1160,7 +1227,7 @@ void AudioEngine::startAudioDrivers()
 		m_pMidiDriver->open();
 		m_pMidiDriver->setActive( true );
 #endif
-	} else if ( preferencesMng->m_sMidiDriver == "PortMidi" ) {
+	} else if ( pPref->m_sMidiDriver == "PortMidi" ) {
 #ifdef H2CORE_HAVE_PORTMIDI
 		PortMidiDriver* pPortMidiDriver = new PortMidiDriver();
 		m_pMidiDriver = pPortMidiDriver;
@@ -1168,7 +1235,7 @@ void AudioEngine::startAudioDrivers()
 		m_pMidiDriver->open();
 		m_pMidiDriver->setActive( true );
 #endif
-	} else if ( preferencesMng->m_sMidiDriver == "CoreMIDI" ) {
+	} else if ( pPref->m_sMidiDriver == "CoreMIDI" ) {
 #ifdef H2CORE_HAVE_COREMIDI
 		CoreMidiDriver *coreMidiDriver = new CoreMidiDriver();
 		m_pMidiDriver = coreMidiDriver;
@@ -1176,7 +1243,7 @@ void AudioEngine::startAudioDrivers()
 		m_pMidiDriver->open();
 		m_pMidiDriver->setActive( true );
 #endif
-	} else if ( preferencesMng->m_sMidiDriver == "JACK-MIDI" ) {
+	} else if ( pPref->m_sMidiDriver == "JACK-MIDI" ) {
 #ifdef H2CORE_HAVE_JACK
 		JackMidiDriver *jackMidiDriver = new JackMidiDriver();
 		m_pMidiDriverOut = jackMidiDriver;
@@ -1188,66 +1255,6 @@ void AudioEngine::startAudioDrivers()
 	
 	mx.unlock();
 	this->unlock();
-
-	setAudioDriver( pAudioDriver );
-}
-	
-void AudioEngine::setAudioDriver( AudioOutput* pAudioDriver ) {
-	INFOLOG( "" );
-	if ( pAudioDriver == nullptr ) {
-		raiseError( Hydrogen::ERROR_STARTING_DRIVER );
-		ERRORLOG( "Error starting audio driver. Using the NULL output audio driver instead." );
-
-		// use the NULL output driver
-		pAudioDriver = new NullDriver( audioEngine_process );
-		pAudioDriver->init( 0 );
-	}
-	
-	this->lock( RIGHT_HERE );
-	QMutexLocker mx(&m_MutexOutputPointer);
-
-	m_pAudioDriver = pAudioDriver;
-
-	// change the current audio engine state
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	if ( pSong != nullptr ) {
-		setState( State::Ready );
-	} else {
-		setState( State::Prepared );
-	}
-
-	// Unlocking earlier might execute the jack process() callback before we
-	// are fully initialized.
-	mx.unlock();
-	this->unlock();
-	
-	if ( m_pAudioDriver != nullptr ) {
-		int res = m_pAudioDriver->connect();
-		if ( res != 0 ) {
-			raiseError( Hydrogen::ERROR_STARTING_DRIVER );
-			ERRORLOG( QString( "Unable to connect audio driver: %1 . Falling back to NullDriver." )
-					  .arg( res ) );
-
-			mx.relock();
-			delete m_pAudioDriver;
-			m_pAudioDriver = new NullDriver( m_AudioProcessCallback );
-			mx.unlock();
-			m_pAudioDriver->init( 0 );
-			m_pAudioDriver->connect();
-		}
-
-		if ( pSong != nullptr && pHydrogen->haveJackAudioDriver() ) {
-			pHydrogen->renameJackPorts( pSong );
-		}
-		
-		setupLadspaFX();
-	}
-
-	
-	handleDriverChange();
-
-	EventQueue::get_instance()->push_event( EVENT_DRIVER_CHANGED, 0 );
 }
 
 void AudioEngine::stopAudioDrivers()

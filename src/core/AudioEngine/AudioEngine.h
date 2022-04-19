@@ -296,12 +296,25 @@ public:
 	 */
 	void			startAudioDrivers();
 	/**
-	 * Assign an INITIATED audio driver.*/
-	void			setAudioDrivers( AudioOutput* pAudioDriver );
-	/**
 	 * Stops all audio and MIDI drivers.
 	 */
 	void			stopAudioDrivers();
+	AudioOutput*	getAudioDriver() const;
+	/**
+	 * Create an audio driver using audioEngine_process() as its argument
+	 * based on the provided choice and calling their _init()_ function to
+	 * trigger their initialization.
+	 *
+	 * For a listing of all possible choices, please see
+	 * Preferences::m_sAudioDriver.
+	 *
+	 * \param sDriver String specifying which audio driver should be
+	 * created.
+	 * \return Pointer to the freshly created audio driver. If the
+	 * creation resulted in a NullDriver, the corresponding object will be
+	 * deleted and a null pointer returned instead.
+	 */
+	AudioOutput*	createAudioDriver( const QString& sDriver );
 					
 	void			restartAudioDrivers();
 					
@@ -314,10 +327,6 @@ public:
 	 * \param pSong Song for which per-track output ports should be generated.
 	 */
 	void			renameJackPorts(std::shared_ptr<Song> pSong);
-	
- 
-	void			setAudioDriver( AudioOutput* pAudioDriver );
-	AudioOutput*	getAudioDriver() const;
 
 	/* retrieve the midi (input) driver */
 	MidiInput*		getMidiDriver() const;
@@ -612,22 +621,7 @@ private:
 	void			clearNoteQueue();
 	/** Clear all audio buffers.
 	 */
-	void			clearAudioBuffers( uint32_t nFrames );	
-	/**
-	 * Create an audio driver using audioEngine_process() as its argument
-	 * based on the provided choice and calling their _init()_ function to
-	 * trigger their initialization.
-	 *
-	 * For a listing of all possible choices, please see
-	 * Preferences::m_sAudioDriver.
-	 *
-	 * \param sDriver String specifying which audio driver should be
-	 * created.
-	 * \return Pointer to the freshly created audio driver. If the
-	 * creation resulted in a NullDriver, the corresponding object will be
-	 * deleted and a null pointer returned instead.
-	 */
-	AudioOutput*	createDriver( const QString& sDriver );
+	void			clearAudioBuffers( uint32_t nFrames );
 	/**
 	 * Takes all notes from the current patterns, from the MIDI queue
 	 * #m_midiNoteQueue, and those triggered by the metronome and pushes

@@ -636,15 +636,13 @@ void Hydrogen::restartDrivers()
 	m_pAudioEngine->restartAudioDrivers();
 }
 
-bool Hydrogen::startExportSession(int sampleRate, int sampleDepth )
+bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth )
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
 	if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
 		sequencer_stop();
 	}
-	
-	unsigned nSamplerate = (unsigned) sampleRate;
 
 	std::shared_ptr<Song> pSong = getSong();
 	
@@ -660,17 +658,24 @@ bool Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 	 * Stop the current driver and fire up the DiskWriter.
 	 */
 	pAudioEngine->stopAudioDrivers();
+	
+	AudioOutput* pDriver =
+		pAudioEngine->createAudioDriver( "DiskWriterDriver" );
 
-	DiskWriterDriver* pNewDriver = new DiskWriterDriver( AudioEngine::audioEngine_process, nSamplerate, sampleDepth );
-	int nRes = pNewDriver->init( Preferences::get_instance()->m_nBufferSize );
-	if ( nRes != 0 ) {
-		ERRORLOG( "Unable to initialize disk writer driver." );
+	DiskWriterDriver* pDiskWriterDriver = dynamic_cast<DiskWriterDriver*>( pDriver );
+	if ( pDriver == nullptr || pDiskWriterDriver == nullptr ) {
+		ERRORLOG( "Unable to start up DiskWriterDriver" );
+
+		if ( pDriver != nullptr ) {
+			delete pDriver;
+		}
 		return false;
 	}
-	m_bExportSessionIsActive = true;
 	
-	pAudioEngine->setAudioDriver( pNewDriver );
-	pAudioEngine->setupLadspaFX();
+	pDiskWriterDriver->setSampleRate( static_cast<unsigned>(nSampleRate) );
+	pDiskWriterDriver->setSampleDepth( nSampleDepth );
+
+	m_bExportSessionIsActive = true;
 
 	return true;
 }
