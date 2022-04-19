@@ -22,6 +22,7 @@
 		- Hydrogen is now able to recover changes applied to a new and
 		  empty song in case they are discarded or the session end
 		  untimely (using autosave files)
+		- Multiple actions can be assigned to a single MIDI event.
 	* Interface
 		- Improved scalability (most PNG images were replaced by SVGs,
 		  hardcoded PNG labels are now directly drawn by Qt, and spin boxes,
