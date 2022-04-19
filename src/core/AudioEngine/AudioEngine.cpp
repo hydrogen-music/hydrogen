@@ -1194,16 +1194,12 @@ void AudioEngine::startAudioDrivers()
 #endif
 
 	if ( sAudioDriver != "Auto" ) {
-		drivers.removeAll( sAudioDriver );
-		drivers.prepend( sAudioDriver );
+		drivers.clear();
+		drivers << sAudioDriver;
 	}
 	AudioOutput* pAudioDriver;
 	for ( QString sDriver : drivers ) {
 		if ( ( pAudioDriver = createAudioDriver( sDriver ) ) != nullptr ) {
-			if ( sDriver != sAudioDriver && sAudioDriver != "Auto" ) {
-				ERRORLOG( QString( "Couldn't start preferred driver [%1], falling back to [%2]" )
-						  .arg( sAudioDriver ).arg( sDriver ) );
-			}
 			break;
 		}
 	}
@@ -1211,6 +1207,8 @@ void AudioEngine::startAudioDrivers()
 	// If the audio driver could not be created, we resort to the
 	// NullDriver.
 	if ( m_pAudioDriver == nullptr ) {
+		ERRORLOG( QString( "Couldn't start audio driver [%1], falling back to NullDriver" )
+				  .arg( sAudioDriver ) );
 		createAudioDriver( "NullDriver" );
 	}
 
@@ -3486,7 +3484,7 @@ bool AudioEngine::testNoteEnqueuing() {
 		// }
 		
 		if ( nn > nMaxCleaningCycles ) {
-			qDebug() << "[testNoteEnqueuing] Sampler is in weird state";
+			qDebug() << "[testNoteEnqueuing] [song mode] Sampler is in weird state";
 			return false;
 		}
 	}

@@ -722,9 +722,7 @@ void Hydrogen::stopExportSession()
 /// Used to display audio driver info
 AudioOutput* Hydrogen::getAudioOutput() const
 {
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-
-	return pAudioEngine->getAudioDriver();
+	return m_pAudioEngine->getAudioDriver();
 }
 
 /// Used to display midi driver info

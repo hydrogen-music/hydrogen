@@ -749,21 +749,51 @@ void PreferencesDialog::updateDriverPreferences() {
 
 void PreferencesDialog::on_okBtn_clicked()
 {
-	//	m_bNeedDriverRestart = true;
+	auto pH2App = HydrogenApp::get_instance();
+	auto pCommonStrings = pH2App->getCommonStrings();
+	auto pPref = Preferences::get_instance();
+	auto pHydrogen = Hydrogen::get_instance();
 
 	auto changes =
 		static_cast<H2Core::Preferences::Changes>( H2Core::Preferences::Changes::Font |
 												   H2Core::Preferences::Changes::Colors |
 												   H2Core::Preferences::Changes::AppearanceTab );
 
-	Preferences *pPref = Preferences::get_instance();
+	updateDriverPreferences();
+
+	if ( m_bNeedDriverRestart ) {
+		int res = QMessageBox::information( this, "Hydrogen",
+											tr( "Driver restart required.\n Restart driver?"),
+											pCommonStrings->getButtonOk(),
+											pCommonStrings->getButtonCancel(),
+											nullptr, 1 );
+		if ( res == 0 ) {
+			QApplication::setOverrideCursor( Qt::WaitCursor );
+			pHydrogen->restartDrivers();
+			QApplication::restoreOverrideCursor();			
+		} else {
+			// Don't save the Preferences and don't close the PreferencesDialog
+			return;
+		}
+	}
+
+	// Check whether the current audio driver is valid
+	if ( pHydrogen->getAudioOutput() == nullptr ||
+		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
+		int nRes = QMessageBox::warning( this, "Hydrogen",
+										 tr( "No audio driver set.\nAre you sure you want to proceed?" ),
+										 pCommonStrings->getButtonOk(),
+										 pCommonStrings->getButtonCancel(),
+										 nullptr, 1 );
+		if ( nRes != 0 ) {
+			return;
+		}
+	}
 
 	MidiMap *mM = MidiMap::get_instance();
 	mM->reset_instance();
 
 	midiTable->saveMidiTable();
-
-	updateDriverPreferences();
 
 
 	// metronome
@@ -818,14 +848,14 @@ void PreferencesDialog::on_okBtn_clicked()
 	//OSC tab
 	if ( enableOscCheckbox->isChecked() != pPref->getOscServerEnabled() ) {
 		pPref->setOscServerEnabled( enableOscCheckbox->isChecked() );
-		H2Core::Hydrogen::get_instance()->toggleOscServer( enableOscCheckbox->isChecked() );
+		pHydrogen->toggleOscServer( enableOscCheckbox->isChecked() );
 	}
 	
 	pPref->setOscFeedbackEnabled( enableOscFeedbackCheckbox->isChecked() );
 	
 	if ( incomingOscPortSpinBox->value() != pPref->getOscServerPort() ) {
 		pPref->setOscServerPort( incomingOscPortSpinBox->value() );
-		H2Core::Hydrogen::get_instance()->recreateOscServer();
+		pHydrogen->recreateOscServer();
 	}
 	
 	// General tab
@@ -856,13 +886,11 @@ void PreferencesDialog::on_okBtn_clicked()
 													   H2Core::Preferences::Changes::GeneralTab );
 	}
 
-	Hydrogen::get_instance()->setBcOffsetAdjust();
+	pHydrogen->setBcOffsetAdjust();
 
 	pPref->setTheme( m_pCurrentTheme );
 	
-	auto pH2App = HydrogenApp::get_instance();
 	pH2App->changePreferences( changes );
-	auto pCommonStrings = pH2App->getCommonStrings();
 
 	SongEditorPanel* pSongEditorPanel = pH2App->getSongEditorPanel();
 	SongEditor * pSongEditor = pSongEditorPanel->getSongEditor();
@@ -872,22 +900,6 @@ void PreferencesDialog::on_okBtn_clicked()
 	if ( sPreferredLanguage != m_sInitialLanguage ) {
 		QMessageBox::information( this, "Hydrogen", tr( "Hydrogen must be restarted for language change to take effect" ));
 		pPref->setPreferredLanguage( sPreferredLanguage );
-	}
-
-	if (m_bNeedDriverRestart) {
-		int res = QMessageBox::information( this, "Hydrogen",
-											tr( "Driver restart required.\n Restart driver?"),
-											pCommonStrings->getButtonOk(),
-											pCommonStrings->getButtonCancel(),
-											nullptr, 1 );
-		if ( res == 0 ) {
-			QApplication::setOverrideCursor( Qt::WaitCursor );
-			Hydrogen::get_instance()->restartDrivers();
-			QApplication::restoreOverrideCursor();
-		} else {
-			// Don't save the Preferences and don't close the PreferencesDialog
-			return;
-		}
 	}
 	
 	pPref->savePreferences();
@@ -1432,7 +1444,15 @@ void PreferencesDialog::on_restartDriverBtn_clicked()
 {
 	updateDriverPreferences();
 	Preferences *pPref = Preferences::get_instance();
-	Hydrogen::get_instance()->restartDrivers();
+	auto pHydrogen = Hydrogen::get_instance();
+	pHydrogen->restartDrivers();
+
+	if ( pHydrogen->getAudioOutput() == nullptr ||
+		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
+		QMessageBox::critical( this, "Hydrogen",
+							   tr( "Unable to start audio driver" ) );
+	}
+	
 	pPref->savePreferences();
 	m_bNeedDriverRestart = false;
 	updateDriverInfo();
