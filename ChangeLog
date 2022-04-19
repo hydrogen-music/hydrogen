@@ -22,6 +22,9 @@
 		- Hydrogen is now able to recover changes applied to a new and
 		  empty song in case they are discarded or the session end
 		  untimely (using autosave files)
+		- The virtual keyboard is now decoupled from the "Hear New Notes"
+		  button in the Pattern Editor and can be used to play back notes in
+		  song mode with playback rolling too.
 	* Interface
 		- Improved scalability (most PNG images were replaced by SVGs,
 		  hardcoded PNG labels are now directly drawn by Qt, and spin boxes,
