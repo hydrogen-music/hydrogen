@@ -643,6 +643,19 @@ void PlayerControl::recBtnClicked() {
 
 /// Start audio engine
 void PlayerControl::playBtnClicked() {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	// Hint that something is wrong in case there is no proper audio
+	// driver set.
+	if ( m_pHydrogen->getAudioOutput() == nullptr ||
+		 dynamic_cast<NullDriver*>(m_pHydrogen->getAudioOutput()) != nullptr ) {
+		QMessageBox::warning( this, "Hydrogen",
+							   QString( "%1\n%2" )
+							  .arg( pCommonStrings->getAudioDriverNotPresent() )
+							  .arg( pCommonStrings->getAudioDriverErrorHint() ) );
+		return;
+	}
+	
 	if ( ! m_pPlayBtn->isChecked() ) {
 		m_pHydrogen->sequencer_play();
 		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Playing."), 5000);
@@ -656,12 +669,24 @@ void PlayerControl::playBtnClicked() {
 /// Stop audio engine
 void PlayerControl::stopBtnClicked()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	// Hint that something is wrong in case there is no proper audio
+	// driver set.
+	if ( m_pHydrogen->getAudioOutput() == nullptr ||
+		 dynamic_cast<NullDriver*>(m_pHydrogen->getAudioOutput()) != nullptr ) {
+		QMessageBox::warning( this, "Hydrogen",
+							   QString( "%1\n%2" )
+							  .arg( pCommonStrings->getAudioDriverNotPresent() )
+							  .arg( pCommonStrings->getAudioDriverErrorHint() ) );
+		return;
+	}
+	
 	if ( ! m_pPlayBtn->isDown() ) {
 		m_pPlayBtn->setChecked(false);
 	}
-	pHydrogen->sequencer_stop();
-	pHydrogen->getCoreActionController()->locateToColumn( 0 );
+	m_pHydrogen->sequencer_stop();
+	m_pHydrogen->getCoreActionController()->locateToColumn( 0 );
 	(HydrogenApp::get_instance())->setStatusBarMessage(tr("Stopped."), 5000);
 }
 

@@ -781,7 +781,9 @@ void PreferencesDialog::on_okBtn_clicked()
 	if ( pHydrogen->getAudioOutput() == nullptr ||
 		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
 		int nRes = QMessageBox::warning( this, "Hydrogen",
-										 tr( "No audio driver set.\nAre you sure you want to proceed?" ),
+										 QString( "%1\n" )
+										 .arg( pCommonStrings->getAudioDriverNotPresent() )
+										 .append( tr( "Are you sure you want to proceed?" ) ),
 										 pCommonStrings->getButtonOk(),
 										 pCommonStrings->getButtonCancel(),
 										 nullptr, 1 );
@@ -1442,10 +1444,14 @@ void PreferencesDialog::sampleRateComboBoxEditTextChanged( const QString&  )
 
 void PreferencesDialog::on_restartDriverBtn_clicked()
 {
+	QApplication::setOverrideCursor( Qt::WaitCursor );
+	
 	updateDriverPreferences();
 	Preferences *pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 	pHydrogen->restartDrivers();
+	
+	QApplication::restoreOverrideCursor();
 
 	if ( pHydrogen->getAudioOutput() == nullptr ||
 		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {

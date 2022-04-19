@@ -382,10 +382,8 @@ float AudioEngine::getElapsedTime() const {
 	
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pDriver = pHydrogen->getAudioOutput();
-	assert( pDriver );
 	
-	if ( pDriver->getSampleRate() == 0 ) {
-		ERRORLOG( "Not properly initialized yet" );
+	if ( pDriver == nullptr || pDriver->getSampleRate() == 0 ) {
 		return 0;
 	}
 
@@ -1157,8 +1155,10 @@ AudioOutput* AudioEngine::createAudioDriver( const QString& sDriver )
 	}
 		
 	setupLadspaFX();
-	
-	handleDriverChange();
+
+	if ( pSong != nullptr ) {
+		handleDriverChange();
+	}
 
 	EventQueue::get_instance()->push_event( EVENT_DRIVER_CHANGED, 0 );
 
