@@ -249,8 +249,8 @@ bool ADSR::applyADSR( float *pLeft, float *pRight, int nFrames, int nReleaseFram
 	if ( __state == RELEASE ) {
 
 		int nReleaseFrames = nFrames - n;
-		if ( nReleaseFrames * fStep > __decay ) {
-			nReleaseFrames = ceil( __decay / fStep );
+		if ( nReleaseFrames * fStep > __release ) {
+			nReleaseFrames = ceil( __release / fStep );
 		}
 
 		m_fQ = applyExponential( fDecayExponent, -fDecayYOffset, 0.0, __release_value,
@@ -258,6 +258,7 @@ bool ADSR::applyADSR( float *pLeft, float *pRight, int nFrames, int nReleaseFram
 
 		n += nReleaseFrames;
 		__ticks += nReleaseFrames * fStep;
+		
 		if ( __ticks >= __release ) {
 			__state = IDLE;
 		}
