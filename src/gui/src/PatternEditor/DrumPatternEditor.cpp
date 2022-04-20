@@ -355,7 +355,7 @@ void DrumPatternEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 }
 
 void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
-												int nInstrumentID,
+												int nInstrumentRow,
 												int nSelectedPatternNumber,
 												int oldLength,
 												float oldVelocity,
@@ -389,10 +389,9 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
-	auto pSelectedInstrument = pSong->getInstrumentList()->get( nInstrumentID );
+	auto pSelectedInstrument = pSong->getInstrumentList()->get( nInstrumentRow );
 
 	m_pAudioEngine->lock( RIGHT_HERE );	// lock the audio engine
-
 
 	if ( isDelete ) {
 
@@ -403,7 +402,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 			Note *pNote = it->second;
 			assert( pNote );
 			if ( ( isNoteOff && pNote->get_note_off() )
-				 || ( pNote->get_instrument()->get_id() == nInstrumentID
+				 || ( pNote->get_instrument()->get_id() == pSelectedInstrument->get_id()
 					  && pNote->get_key() == oldNoteKeyVal 
 					  && pNote->get_octave() == oldOctaveKeyVal
 					  && pNote->get_velocity() == oldVelocity
