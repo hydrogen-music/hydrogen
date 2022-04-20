@@ -930,33 +930,29 @@ void PreferencesDialog::updateDriverInfo()
 	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
 
 	// Reset info text
-	driverInfoLbl->setText("");
+	updateDriverInfoLabel();
 
 	if ( driverComboBox->currentText() == "Auto" ) {
 
-		driverInfoLbl->setText( tr("Automatic driver selection")
-								.append( "<br><br>" ));
-
 		if ( dynamic_cast<H2Core::JackAudioDriver*>(pAudioDriver) != nullptr ) {
 			setDriverInfoJack();
-		} else if ( dynamic_cast<H2Core::AlsaAudioDriver*>(pAudioDriver) != nullptr ) {
+		}
+		else if ( dynamic_cast<H2Core::AlsaAudioDriver*>(pAudioDriver) != nullptr ) {
 			setDriverInfoAlsa();
-		} else if ( dynamic_cast<H2Core::PortAudioDriver*>(pAudioDriver) != nullptr ) {
+		}
+		else if ( dynamic_cast<H2Core::PortAudioDriver*>(pAudioDriver) != nullptr ) {
 			setDriverInfoPortAudio();
-		} else if ( dynamic_cast<H2Core::CoreAudioDriver*>(pAudioDriver) != nullptr ) {
+		}
+		else if ( dynamic_cast<H2Core::CoreAudioDriver*>(pAudioDriver) != nullptr ) {
 			setDriverInfoCoreAudio();
-		} else if ( dynamic_cast<H2Core::PulseAudioDriver*>(pAudioDriver) != nullptr ) {
+		}
+		else if ( dynamic_cast<H2Core::PulseAudioDriver*>(pAudioDriver) != nullptr ) {
 			setDriverInfoPulseAudio();
-		} else if ( dynamic_cast<H2Core::OssDriver*>(pAudioDriver) != nullptr ) {
+		}
+		else if ( dynamic_cast<H2Core::OssDriver*>(pAudioDriver) != nullptr ) {
 			setDriverInfoOss();
-		} else {
-			QString sInfo = driverInfoLbl->text();
-		
-			// Display the selected driver as well.
-			sInfo.append( "<b>" )
-				.append( tr( "Error starting audio driver" ) )
-				.append( "</b> " );
-			driverInfoLbl->setText( sInfo );
+		}
+		else {
 		
 			m_pAudioDeviceTxt->setDriver( "Null" );
 			m_pAudioDeviceTxt->setIsActive( false );
@@ -1012,23 +1008,113 @@ void PreferencesDialog::updateDriverInfo()
 	bufferSizeSpinBox->setValue( pPref->m_nBufferSize );
 }
 
+void PreferencesDialog::updateDriverInfoLabel() {
+
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
+	QString sInfo;
+
+	if ( driverComboBox->currentText() == "Auto" ) {
+		sInfo.append( tr("Automatic driver selection") )
+			.append( "<br><br>" );
+	}
+	
+	if ( dynamic_cast<H2Core::JackAudioDriver*>(pAudioDriver) != nullptr ) {		
+		sInfo.append( "<b>" )
+			.append( tr( "JACK Audio Connection Kit Driver" ) )
+			.append( "</b><br>" )
+			.append( tr( "Low latency audio driver" ) );
+#ifndef H2CORE_HAVE_JACK
+		sInfo.append( "<br><b><font color=" )
+			.append( m_sColorRed ).append( ">")
+			.append( pCommonStrings->getPreferencesNotCompiled() )
+			.append( "</font></b>" );
+#endif
+	}
+	else if ( dynamic_cast<H2Core::AlsaAudioDriver*>(pAudioDriver) != nullptr ) {
+		sInfo.append( "<b>" ).append( tr( "ALSA Driver" ) )
+			.append( "</b><br>" );
+#ifndef H2CORE_HAVE_ALSA
+		sInfo.append( "<br><b><font color=" )
+			.append( m_sColorRed ).append( ">")
+			.append( pCommonStrings->getPreferencesNotCompiled() )
+			.append( "</font></b>" );
+#else
+		auto pAlsaDriver =
+			dynamic_cast<H2Core::AlsaAudioDriver*>(Hydrogen::get_instance()->getAudioOutput());
+		if ( pAlsaDriver != nullptr ) {
+			sInfo.append( "<br>" ).append( tr( "Currently connected to device: " ) )
+				.append( "<b>" ).append( pAlsaDriver->m_sAlsaAudioDevice )
+				.append( "</b>" );
+		} else {
+			ERRORLOG( "ALSA driver selected in PreferencesDialog but no ALSA driver running?" );
+		}
+#endif
+	}
+	else if ( dynamic_cast<H2Core::PortAudioDriver*>(pAudioDriver) != nullptr ) {
+		sInfo.append( "<b>" ).append( tr( "PortAudio Driver" ) )
+			.append( "</b><br>" );
+#ifndef H2CORE_HAVE_PORTAUDIO
+		sInfo.append( "<br><b><font color=" )
+			.append( m_sColorRed ).append( ">")
+			.append( pCommonStrings->getPreferencesNotCompiled() )
+			.append( "</font></b>" );
+#endif
+	}
+	else if ( dynamic_cast<H2Core::CoreAudioDriver*>(pAudioDriver) != nullptr ) {	
+		sInfo.append( "<b>" ).append( tr( "CoreAudio Driver" ) )
+			.append( "</b><br>" );
+#ifndef H2CORE_HAVE_COREAUDIO
+		sInfo.append( "<br><b><font color=" )
+			.append( m_sColorRed ).append( ">")
+			.append( pCommonStrings->getPreferencesNotCompiled() )
+			.append( "</font></b>" );
+#endif
+	}
+	else if ( dynamic_cast<H2Core::PulseAudioDriver*>(pAudioDriver) != nullptr ) {		
+		sInfo.append( "<b>" ).append( tr( "PulseAudio Driver" ) )
+			.append( "</b><br>" );
+#ifndef H2CORE_HAVE_PULSEAUDIO
+		sInfo.append( "<br><b><font color=" )
+			.append( m_sColorRed ).append( ">")
+			.append( pCommonStrings->getPreferencesNotCompiled() )
+			.append( "</font></b>" );
+#endif
+	}
+	else if ( dynamic_cast<H2Core::OssDriver*>(pAudioDriver) != nullptr ) {
+		sInfo.append( "<b>" ).append( tr( "Open Sound System" ) )
+			.append( "</b><br>" )
+			.append( tr( "Simple audio driver [/dev/dsp]" ) );
+#ifndef H2CORE_HAVE_OSS
+		sInfo.append( "<br><b><font color=" )
+			.append( m_sColorRed ).append( ">")
+			.append( pCommonStrings->getPreferencesNotCompiled() )
+			.append( "</font></b>" );
+#endif
+	}
+	else {
+		
+		if ( driverComboBox->currentText() == "Auto" ) {
+		
+			// Display the selected driver as well.
+			sInfo.append( "<b>" )
+				.append( tr( "Error starting audio driver" ) )
+				.append( "</b><br><br>" );
+		}
+		
+		// Display the selected driver as well.
+		sInfo.append( "NullDriver" )
+			.append( "<br><br><b><font color=" )
+			.append( m_sColorRed ).append( ">")
+			.append( pCommonStrings->getAudioDriverNotPresent() )
+			.append( "</font></b>" );
+	}
+	
+	driverInfoLbl->setText( sInfo );
+}
+
 void PreferencesDialog::setDriverInfoOss() {
 	auto pPref = H2Core::Preferences::get_instance();
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	
-	QString sInfo = driverInfoLbl->text();
-		
-	sInfo.append( "<b>" ).append( tr( "Open Sound System" ) )
-		.append( "</b><br>" )
-		.append( tr( "Simple audio driver [/dev/dsp]" ) );
-#ifndef H2CORE_HAVE_OSS
-	sInfo.append( "<br><b><font color=" )
-		.append( m_sColorRed ).append( ">")
-		.append( pCommonStrings->getPreferencesNotCompiled() )
-		.append( "</font></b>" );
-
-#endif
-	driverInfoLbl->setText( sInfo );
 	
 	m_pAudioDeviceTxt->setDriver( "OSS" );
 	m_pAudioDeviceTxt->setIsActive(true);
@@ -1054,29 +1140,6 @@ void PreferencesDialog::setDriverInfoOss() {
 
 void PreferencesDialog::setDriverInfoAlsa() {
 	auto pPref = H2Core::Preferences::get_instance();
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	
-	QString sInfo = driverInfoLbl->text();
-		
-	sInfo.append( "<b>" ).append( tr( "ALSA Driver" ) )
-		.append( "</b><br>" );
-#ifndef H2CORE_HAVE_ALSA
-	sInfo.append( "<br><b><font color=" )
-		.append( m_sColorRed ).append( ">")
-		.append( pCommonStrings->getPreferencesNotCompiled() )
-		.append( "</font></b>" );
-#else
-	auto pAlsaDriver =
-		dynamic_cast<H2Core::AlsaAudioDriver*>(Hydrogen::get_instance()->getAudioOutput());
-	if ( pAlsaDriver != nullptr ) {
-		sInfo.append( "<br>" ).append( tr( "Currently connected to device: " ) )
-			.append( "<b>" ).append( pAlsaDriver->m_sAlsaAudioDevice )
-			.append( "</b>" );
-	} else {
-		ERRORLOG( "ALSA driver selected in PreferencesDialog but no ALSA driver running?" );
-	}
-#endif
-	driverInfoLbl->setText( sInfo );
 
 	m_pAudioDeviceTxt->setDriver( "ALSA" );
 	m_pAudioDeviceTxt->setIsActive(true);
@@ -1103,20 +1166,6 @@ void PreferencesDialog::setDriverInfoAlsa() {
 void PreferencesDialog::setDriverInfoJack() {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
-	QString sInfo = driverInfoLbl->text();
-		
-	sInfo.append( "<b>" )
-		.append( tr( "JACK Audio Connection Kit Driver" ) )
-		.append( "</b><br>" )
-		.append( tr( "Low latency audio driver" ) );
-#ifndef H2CORE_HAVE_JACK
-	sInfo.append( "<br><b><font color=" )
-		.append( m_sColorRed ).append( ">")
-		.append( pCommonStrings->getPreferencesNotCompiled() )
-		.append( "</font></b>" );
-#endif
-	driverInfoLbl->setText( sInfo );
-
 	m_pAudioDeviceTxt->setDriver( "JACK" );
 	m_pAudioDeviceTxt->setIsActive(false);
 	m_pAudioDeviceTxt->lineEdit()->setText( "" );
@@ -1147,19 +1196,6 @@ void PreferencesDialog::setDriverInfoJack() {
 
 void PreferencesDialog::setDriverInfoCoreAudio() {
 	auto pPref = H2Core::Preferences::get_instance();
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	
-	QString sInfo = driverInfoLbl->text();
-		
-	sInfo.append( "<b>" ).append( tr( "CoreAudio Driver" ) )
-		.append( "</b><br>" );
-#ifndef H2CORE_HAVE_COREAUDIO
-	sInfo.append( "<br><b><font color=" )
-		.append( m_sColorRed ).append( ">")
-		.append( pCommonStrings->getPreferencesNotCompiled() )
-		.append( "</font></b>" );
-#endif
-	driverInfoLbl->setText( sInfo );
 
 	m_pAudioDeviceTxt->setDriver( "CoreAudio" );
 	m_pAudioDeviceTxt->setIsActive( true );
@@ -1185,19 +1221,6 @@ void PreferencesDialog::setDriverInfoCoreAudio() {
 
 void PreferencesDialog::setDriverInfoPortAudio() {
 	auto pPref = H2Core::Preferences::get_instance();
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	
-	QString sInfo = driverInfoLbl->text();
-		
-	sInfo.append( "<b>" ).append( tr( "PortAudio Driver" ) )
-		.append( "</b><br>" );
-#ifndef H2CORE_HAVE_PORTAUDIO
-	sInfo.append( "<br><b><font color=" )
-		.append( m_sColorRed ).append( ">")
-		.append( pCommonStrings->getPreferencesNotCompiled() )
-		.append( "</font></b>" );
-#endif
-	driverInfoLbl->setText( sInfo );
 
 	m_pAudioDeviceTxt->setDriver( "PortAudio" );
 	m_pAudioDeviceTxt->setIsActive( true );
@@ -1223,19 +1246,6 @@ void PreferencesDialog::setDriverInfoPortAudio() {
 }
 
 void PreferencesDialog::setDriverInfoPulseAudio() {
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	
-	QString sInfo = driverInfoLbl->text();
-		
-	sInfo.append( "<b>" ).append( tr( "PulseAudio Driver" ) )
-		.append( "</b><br>" );
-#ifndef H2CORE_HAVE_PULSEAUDIO
-	sInfo.append( "<br><b><font color=" )
-		.append( m_sColorRed ).append( ">")
-		.append( pCommonStrings->getPreferencesNotCompiled() )
-		.append( "</font></b>" );
-#endif
-	driverInfoLbl->setText( sInfo );
 	
 	m_pAudioDeviceTxt->setDriver( "PulseAudio" );
 	m_pAudioDeviceTxt->setIsActive(false);

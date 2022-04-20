@@ -214,8 +214,9 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 	if ( pHydrogen->getAudioOutput() == nullptr ||
 		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
 		QMessageBox::warning( this, "Hydrogen",
-							   QString( "%1\n%2" )
+							   QString( "%1 [%2]\n%3" )
 							  .arg( pCommonStrings->getAudioDriverStartError() )
+							  .arg( pPref->m_sAudioDriver )
 							  .arg( pCommonStrings->getAudioDriverErrorHint() ) );
 	}
 }

@@ -149,6 +149,7 @@ class PreferencesDialog :  public QDialog, private Ui_PreferencesDialog_UI,  pub
 private:
 
 	void updateDriverInfo();
+	void updateDriverInfoLabel();
 	void setDriverInfoOss();
 	void setDriverInfoAlsa();
 	void setDriverInfoJack();
