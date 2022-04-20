@@ -561,7 +561,7 @@ public:
 		frames as well as to used setColumn and setPatternTickPos to
 		move the arrow in the SongEditorPositionRuler even when
 		playback is stopped.*/
-	friend void Hydrogen::updateSelectedPattern();
+	friend void Hydrogen::updateSelectedPattern( bool );
 	friend bool CoreActionController::locateToTick( long nTick, bool );
 	/** Is allowed to set m_state to State::Ready via setState()*/
 	friend int FakeDriver::connect();

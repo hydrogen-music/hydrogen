@@ -305,6 +305,10 @@ void AudioEngine::startPlayback()
 
 	// change the current audio engine state
 	setState( State::Playing );
+
+	// The locking of the pattern editor only takes effect if the
+	// transport is rolling.
+	handleSelectedPattern();
 }
 
 void AudioEngine::stopPlayback()
@@ -582,6 +586,7 @@ void AudioEngine::updateSongTransportPosition( double fTick ) {
 	if ( m_nColumn != nNewColumn ) {
 		setColumn( nNewColumn );
 		updatePlayingPatterns( nNewColumn, 0 );
+		handleSelectedPattern();
 	}
 }
 
@@ -1384,7 +1389,9 @@ void AudioEngine::handleSelectedPattern() {
 	
 	auto pHydrogen = Hydrogen::get_instance();
 	auto pSong = pHydrogen->getSong();
-	if ( pHydrogen->isPatternEditorLocked() ) {
+	if ( pHydrogen->isPatternEditorLocked() &&
+		 ( m_state == State::Playing ||
+		   m_state == State::Testing ) ) {
 
 		int nColumn = m_nColumn;
 		if ( m_nColumn == -1 ) {
