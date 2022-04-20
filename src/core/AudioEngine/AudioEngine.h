@@ -352,9 +352,6 @@ public:
 	
 	long long		getRealtimeFrames() const;
 
-	void			setAddRealtimeNoteTickPosition( unsigned int tickPosition );
-	unsigned int	getAddRealtimeNoteTickPosition() const; 
-
 	const struct timeval& 	getCurrentTickTime() const;
 	
 	/** Maximum lead lag factor in ticks.
@@ -919,7 +916,6 @@ private:
 	 * timing.
 	 */
 	long long		m_nRealtimeFrames;
-	unsigned int		m_nAddRealtimeNoteTickPosition;
 
 	/**
 	 * Current state of the H2Core::AudioEngine.
@@ -1099,13 +1095,6 @@ inline void AudioEngine::setRealtimeFrames( long long nFrames ) {
 	m_nRealtimeFrames = nFrames;
 }
 
-inline unsigned int AudioEngine::getAddRealtimeNoteTickPosition() const {
-	return m_nAddRealtimeNoteTickPosition;
-}
-
-inline void AudioEngine::setAddRealtimeNoteTickPosition( unsigned int tickPosition) {
-	m_nAddRealtimeNoteTickPosition = tickPosition;
-}
 inline float AudioEngine::getNextBpm() const {
 	return m_fNextBpm;
 }

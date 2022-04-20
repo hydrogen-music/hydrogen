@@ -63,10 +63,6 @@ protected:
 
 
 private:
-	unsigned long  __noteOnTick;
-	unsigned long  __noteOffTick;
-	unsigned long computeDeltaNoteOnOfftime();
-
 	int __hihat_cc_openess;
 };
 

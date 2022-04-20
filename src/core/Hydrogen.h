@@ -197,9 +197,7 @@ public:
 		void			addRealtimeNote ( int instrument,
 							  float velocity,
 							  float fPan = 0.0f,
-							  float pitch=0.0,
 							  bool noteoff=false,
-							  bool forcePlay=false,
 							  int msg1=0 );
 
 		void			restartDrivers();
@@ -572,7 +570,12 @@ private:
 	 */
 	int				m_nSelectedPatternNumber;
 
-
+	/**
+	 * Onset of the recorded last in addRealtimeNote(). It is used to
+	 * determine the custom lenght of the note in case the note on
+	 * event is followed by a note off event.
+	 */
+	int				m_nLastRecordedMIDINoteTick;
 	/*
 	 * Central instance of the audio engine. 
 	 */

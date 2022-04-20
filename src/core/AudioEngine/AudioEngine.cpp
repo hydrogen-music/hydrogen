@@ -114,7 +114,6 @@ AudioEngine::AudioEngine()
 		, m_nPatternSize( MAX_NOTES )
 		, m_fSongSizeInTicks( 0 )
 		, m_nRealtimeFrames( 0 )
-		, m_nAddRealtimeNoteTickPosition( 0 )
 		, m_fMasterPeak_L( 0.0f )
 		, m_fMasterPeak_R( 0.0f )
 		, m_nColumn( -1 )
@@ -2666,25 +2665,25 @@ bool AudioEngine::testFrameToTickConversion() {
 	long long nFrame3Computed = computeFrameFromTick( fTick3, &fFrameOffset3 );
 	
 	if ( nFrame1Computed != nFrame1 || std::abs( fFrameOffset1 ) > 1e-10 ) {
-		ERRORLOG( QString( "[1] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4, frame diff: %5" )
-				  .arg( nFrame1 ).arg( fTick1, 0, 'f' ).arg( nFrame1Computed )
-				  .arg( fFrameOffset1, 0, 'E', -1 )
-				  .arg( nFrame1Computed - nFrame1 )
-				  .toLocal8Bit().data() );
+		qDebug() << QString( "[testFrameToTickConversion] [1] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4, frame diff: %5" )
+			.arg( nFrame1 ).arg( fTick1, 0, 'f' ).arg( nFrame1Computed )
+			.arg( fFrameOffset1, 0, 'E', -1 )
+			.arg( nFrame1Computed - nFrame1 )
+			.toLocal8Bit().data();
 		bNoMismatch = false;
 	}
 	if ( nFrame2Computed != nFrame2 || std::abs( fFrameOffset2 ) > 1e-10 ) {
-		ERRORLOG( QString( "[2] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4, frame diff: %5" )
-				  .arg( nFrame2 ).arg( fTick2, 0, 'f' ).arg( nFrame2Computed )
-				  .arg( fFrameOffset2, 0, 'E', -1 )
-				  .arg( nFrame2Computed - nFrame2 ).toLocal8Bit().data() );
+		qDebug() << QString( "[testFrameToTickConversion] [2] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4, frame diff: %5" )
+			.arg( nFrame2 ).arg( fTick2, 0, 'f' ).arg( nFrame2Computed )
+			.arg( fFrameOffset2, 0, 'E', -1 )
+			.arg( nFrame2Computed - nFrame2 ).toLocal8Bit().data();
 		bNoMismatch = false;
 	}
 	if ( nFrame3Computed != nFrame3 || std::abs( fFrameOffset3 ) > 1e-6 ) {
-		ERRORLOG( QString( "[3] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4, frame diff: %5" )
-				  .arg( nFrame3 ).arg( fTick3, 0, 'f' ).arg( nFrame3Computed )
-				  .arg( fFrameOffset3, 0, 'E', -1 )
-				  .arg( nFrame3Computed - nFrame3 ).toLocal8Bit().data() );
+		qDebug() << QString( "[testFrameToTickConversion] [3] nFrame: %1, fTick: %2, nFrameComputed: %3, fFrameOffset: %4, frame diff: %5" )
+			.arg( nFrame3 ).arg( fTick3, 0, 'f' ).arg( nFrame3Computed )
+			.arg( fFrameOffset3, 0, 'E', -1 )
+			.arg( nFrame3Computed - nFrame3 ).toLocal8Bit().data();
 		bNoMismatch = false;
 	}
 
@@ -2703,26 +2702,26 @@ bool AudioEngine::testFrameToTickConversion() {
 	
 	
 	if ( abs( fTick4Computed - fTick4 ) > 1e-9 ) {
-		ERRORLOG( QString( "[4] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4, tick diff: %5" )
-				  .arg( nFrame4 ).arg( fTick4, 0, 'f' ).arg( fTick4Computed, 0, 'f' )
-				  .arg( fFrameOffset4, 0, 'E' )
-				  .arg( fTick4Computed - fTick4 ).toLocal8Bit().data() );
+		qDebug() << QString( "[testFrameToTickConversion] [4] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4, tick diff: %5" )
+			.arg( nFrame4 ).arg( fTick4, 0, 'f' ).arg( fTick4Computed, 0, 'f' )
+			.arg( fFrameOffset4, 0, 'E' )
+			.arg( fTick4Computed - fTick4 ).toLocal8Bit().data();
 		bNoMismatch = false;
 	}
 
 	if ( abs( fTick5Computed - fTick5 ) > 1e-9 ) {
-		ERRORLOG( QString( "[5] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4, tick diff: %5" )
-				  .arg( nFrame5 ).arg( fTick5, 0, 'f' ).arg( fTick5Computed, 0, 'f' )
-				  .arg( fFrameOffset5, 0, 'E' )
-				  .arg( fTick5Computed - fTick5 ).toLocal8Bit().data() );
+		qDebug() << QString( "[testFrameToTickConversion] [5] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4, tick diff: %5" )
+			.arg( nFrame5 ).arg( fTick5, 0, 'f' ).arg( fTick5Computed, 0, 'f' )
+			.arg( fFrameOffset5, 0, 'E' )
+			.arg( fTick5Computed - fTick5 ).toLocal8Bit().data();
 		bNoMismatch = false;
 	}
 
 	if ( abs( fTick6Computed - fTick6 ) > 1e-6 ) {
-		ERRORLOG( QString( "[6] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4, tick diff: %5" )
-				  .arg( nFrame6 ).arg( fTick6, 0, 'f' ).arg( fTick6Computed, 0, 'f' )
-				  .arg( fFrameOffset6, 0, 'E' )
-				  .arg( fTick6Computed - fTick6 ).toLocal8Bit().data() );
+		qDebug() << QString( "[testFrameToTickConversion] [6] nFrame: %1, fTick: %2, fTickComputed: %3, fFrameOffset: %4, tick diff: %5" )
+			.arg( nFrame6 ).arg( fTick6, 0, 'f' ).arg( fTick6Computed, 0, 'f' )
+			.arg( fFrameOffset6, 0, 'E' )
+			.arg( fTick6Computed - fTick6 ).toLocal8Bit().data();
 		bNoMismatch = false;
 	}
 
@@ -2776,14 +2775,14 @@ bool AudioEngine::testTransportProcessing() {
 
 		incrementTransportPosition( nFrames );
 
-		if ( ! testCheckTransportPosition( "constant tempo" ) ) {
+		if ( ! testCheckTransportPosition( "[testTransportProcessing] constant tempo" ) ) {
 			bNoMismatch = false;
 			break;
 		}
 
 		if ( getFrames() - nFrames != nLastFrame ) {
-			ERRORLOG( QString( "[constant tempo] inconsistent frame update. getFrames(): %1, nFrames: %2, nLastFrame: %3" )
-					  .arg( getFrames() ).arg( nFrames ).arg( nLastFrame ) );
+			qDebug() << QString( "[testTransportProcessing] [constant tempo] inconsistent frame update. getFrames(): %1, nFrames: %2, nLastFrame: %3" )
+				.arg( getFrames() ).arg( nFrames ).arg( nLastFrame );
 			bNoMismatch = false;
 			break;
 		}
@@ -2792,12 +2791,12 @@ bool AudioEngine::testTransportProcessing() {
 		nn++;
 
 		if ( nn > nMaxCycles ) {
-			ERRORLOG( QString( "[constant tempo] end of the song wasn't reached in time. getFrames(): %1, ticks: %2, getTickSize(): %3, m_fSongSizeInTicks: %4, nMaxCycles: %5" )
-					  .arg( getFrames() )
-					  .arg( getDoubleTick(), 0, 'f' )
-					  .arg( getTickSize(), 0, 'f' )
-					  .arg( m_fSongSizeInTicks, 0, 'f' )
-					  .arg( nMaxCycles ) );
+			qDebug() << QString( "[testTransportProcessing] [constant tempo] end of the song wasn't reached in time. getFrames(): %1, ticks: %2, getTickSize(): %3, m_fSongSizeInTicks: %4, nMaxCycles: %5" )
+				.arg( getFrames() )
+				.arg( getDoubleTick(), 0, 'f' )
+				.arg( getTickSize(), 0, 'f' )
+				.arg( m_fSongSizeInTicks, 0, 'f' )
+				.arg( nMaxCycles );
 			bNoMismatch = false;
 			break;
 		}
@@ -2833,7 +2832,7 @@ bool AudioEngine::testTransportProcessing() {
 
 			incrementTransportPosition( nFrames );
 
-			if ( ! testCheckTransportPosition( "variable tempo" ) ) {
+			if ( ! testCheckTransportPosition( "[testTransportProcessing] variable tempo" ) ) {
 				setState( AudioEngine::State::Ready );
 				unlock();
 				return bNoMismatch;
@@ -2844,11 +2843,11 @@ bool AudioEngine::testTransportProcessing() {
 				 ( cc == 0 &&
 				   abs( ( getFrames() - nFrames - nLastFrame ) /
 						getFrames() ) > 1e-8 ) ) {
-				ERRORLOG( QString( "[variable tempo] inconsistent frame update. getFrames(): %1, nFrames: %2, nLastFrame: %3, cc: %4, fLastBpm: %5, fBpm: %6, nPrevLastFrame: %7" )
-						  .arg( getFrames() ).arg( nFrames )
-						  .arg( nLastFrame ).arg( cc )
-						  .arg( fLastBpm, 0, 'f' ).arg( fBpm, 0, 'f' )
-						  .arg( nPrevLastFrame ) );
+				qDebug() << QString( "[testTransportProcessing] [variable tempo] inconsistent frame update. getFrames(): %1, nFrames: %2, nLastFrame: %3, cc: %4, fLastBpm: %5, fBpm: %6, nPrevLastFrame: %7" )
+					.arg( getFrames() ).arg( nFrames )
+					.arg( nLastFrame ).arg( cc )
+					.arg( fLastBpm, 0, 'f' ).arg( fBpm, 0, 'f' )
+					.arg( nPrevLastFrame );
 				bNoMismatch = false;
 				setState( AudioEngine::State::Ready );
 				unlock();
@@ -2862,8 +2861,8 @@ bool AudioEngine::testTransportProcessing() {
 			// even in case a tempo change was issued by the user.
 			nTotalFrames += nFrames;
 			if ( getFrames() - m_nFrameOffset != nTotalFrames ) {
-				ERRORLOG( QString( "[variable tempo] frame offset incorrect. getFrames(): %1, m_nFrameOffset: %2, nTotalFrames: %3" )
-						  .arg( getFrames() ).arg( m_nFrameOffset ).arg( nTotalFrames ) );
+				qDebug() << QString( "[testTransportProcessing] [variable tempo] frame offset incorrect. getFrames(): %1, m_nFrameOffset: %2, nTotalFrames: %3" )
+					.arg( getFrames() ).arg( m_nFrameOffset ).arg( nTotalFrames );
 				bNoMismatch = false;
 				setState( AudioEngine::State::Ready );
 				unlock();
@@ -2876,7 +2875,7 @@ bool AudioEngine::testTransportProcessing() {
 		nn++;
 
 		if ( nn > nMaxCycles ) {
-			ERRORLOG( "[variable tempo] end of the song wasn't reached in time." );
+			qDebug() << "[testTransportProcessing] [variable tempo] end of the song wasn't reached in time.";
 			bNoMismatch = false;
 			break;
 		}
@@ -2901,7 +2900,7 @@ bool AudioEngine::testTransportProcessing() {
 	setState( AudioEngine::State::Testing );
 
 	// Check consistency after switching on the Timeline
-	if ( ! testCheckTransportPosition( "timeline: off" ) ) {
+	if ( ! testCheckTransportPosition( "[testTransportProcessing] timeline: off" ) ) {
 		bNoMismatch = false;
 	}
 	
@@ -2914,14 +2913,14 @@ bool AudioEngine::testTransportProcessing() {
 
 		incrementTransportPosition( nFrames );
 
-		if ( ! testCheckTransportPosition( "timeline" ) ) {
+		if ( ! testCheckTransportPosition( "[testTransportProcessing] timeline" ) ) {
 			bNoMismatch = false;
 			break;
 		}
 
 		if ( getFrames() - nFrames != nLastFrame ) {
-			ERRORLOG( QString( "[timeline] inconsistent frame update. getFrames(): %1, nFrames: %2, nLastFrame: %3" )
-					  .arg( getFrames() ).arg( nFrames ).arg( nLastFrame ) );
+			qDebug() << QString( "[testTransportProcessing] [timeline] inconsistent frame update. getFrames(): %1, nFrames: %2, nLastFrame: %3" )
+				.arg( getFrames() ).arg( nFrames ).arg( nLastFrame );
 			bNoMismatch = false;
 			break;
 		}
@@ -2930,7 +2929,7 @@ bool AudioEngine::testTransportProcessing() {
 		nn++;
 
 		if ( nn > nMaxCycles ) {
-			ERRORLOG( "[timeline] end of the song wasn't reached in time." );
+			qDebug() << "[testTransportProcessing] [timeline] end of the song wasn't reached in time.";
 			bNoMismatch = false;
 			break;
 		}
@@ -2946,7 +2945,7 @@ bool AudioEngine::testTransportProcessing() {
 	lock( RIGHT_HERE );
 	setState( AudioEngine::State::Testing );
 
-	if ( ! testCheckTransportPosition( "timeline: off" ) ) {
+	if ( ! testCheckTransportPosition( "[testTransportProcessing] timeline: off" ) ) {
 		bNoMismatch = false;
 	}
 
@@ -2984,7 +2983,7 @@ bool AudioEngine::testTransportProcessing() {
 
 			incrementTransportPosition( nFrames );
 
-			if ( ! testCheckTransportPosition( "pattern mode" ) ) {
+			if ( ! testCheckTransportPosition( "[testTransportProcessing] pattern mode" ) ) {
 				setState( AudioEngine::State::Ready );
 				unlock();
 				pCoreActionController->activateSongMode( true );
@@ -2994,8 +2993,8 @@ bool AudioEngine::testTransportProcessing() {
 			if ( ( cc > 0 && getFrames() - nFrames != nLastFrame ) ||
 				 // errors in the rescaling of nLastFrame are omitted.
 				 ( cc == 0 && abs( getFrames() - nFrames - nLastFrame ) > 1 ) ) {
-				ERRORLOG( QString( "[pattern mode] inconsistent frame update. getFrames(): %1, nFrames: %2, nLastFrame: %3" )
-						  .arg( getFrames() ).arg( nFrames ).arg( nLastFrame ) );
+				qDebug() << QString( "[testTransportProcessing] [pattern mode] inconsistent frame update. getFrames(): %1, nFrames: %2, nLastFrame: %3" )
+					.arg( getFrames() ).arg( nFrames ).arg( nLastFrame );
 				bNoMismatch = false;
 				setState( AudioEngine::State::Ready );
 				unlock();
@@ -3010,8 +3009,8 @@ bool AudioEngine::testTransportProcessing() {
 			// even in case a tempo change was issued by the user.
 			nTotalFrames += nFrames;
 			if ( getFrames() - m_nFrameOffset != nTotalFrames ) {
-				ERRORLOG( QString( "[pattern mode] frame offset incorrect. getFrames(): %1, m_nFrameOffset: %2, nTotalFrames: %3" )
-						  .arg( getFrames() ).arg( m_nFrameOffset ).arg( nTotalFrames ) );
+				qDebug() << QString( "[testTransportProcessing] [pattern mode] frame offset incorrect. getFrames(): %1, m_nFrameOffset: %2, nTotalFrames: %3" )
+					.arg( getFrames() ).arg( m_nFrameOffset ).arg( nTotalFrames );
 				bNoMismatch = false;
 				setState( AudioEngine::State::Ready );
 				unlock();
@@ -3070,7 +3069,7 @@ bool AudioEngine::testTransportRelocation() {
 
 		locate( fNewTick, false );
 
-		if ( ! testCheckTransportPosition( "mismatch tick-based" ) ) {
+		if ( ! testCheckTransportPosition( "[testTransportRelocation] mismatch tick-based" ) ) {
 			bNoMismatch = false;
 			break;
 		}
@@ -3079,7 +3078,7 @@ bool AudioEngine::testTransportRelocation() {
 		nNewFrame = frameDist( randomEngine );
 		locateToFrame( nNewFrame );
 
-		if ( ! testCheckTransportPosition( "mismatch frame-based" ) ) {
+		if ( ! testCheckTransportPosition( "[testTransportRelocation] mismatch frame-based" ) ) {
 			bNoMismatch = false;
 			break;
 		}
@@ -3143,31 +3142,30 @@ bool AudioEngine::testComputeTickInterval() {
 			 // perfectly constant. For certain tick ranges more
 			 // frames are enclosed than for others (Moire effect). 
 			 std::abs( nLastLeadLagFactor - nLeadLagFactor ) > 1 ) {
-			ERRORLOG( QString( "[constant tempo] There should not be altering lead lag with constant tempo [new: %1, prev: %2].")
-					  .arg( nLeadLagFactor ).arg( nLastLeadLagFactor ) );
+			qDebug() << QString( "[testComputeTickInterval] [constant tempo] There should not be altering lead lag with constant tempo [new: %1, prev: %2].")
+				.arg( nLeadLagFactor ).arg( nLastLeadLagFactor );
 			bNoMismatch = false;
 		}
 		nLastLeadLagFactor = nLeadLagFactor;	
 
 		if ( nn == 0 && fTickStart != 0 ){
-			ERRORLOG( QString( "[constant tempo] First interval [%1,%2] does not start at 0.")
-					  .arg( fTickStart, 0, 'f' ).arg( fTickEnd, 0, 'f' ) );
+			qDebug() << QString( "[testComputeTickInterval] [constant tempo] First interval [%1,%2] does not start at 0.")
+				.arg( fTickStart, 0, 'f' ).arg( fTickEnd, 0, 'f' );
 			bNoMismatch = false;
 		}
 
 		if ( fTickStart != fLastTickEnd ) {
-			ERRORLOG( QString( "[variable tempo] Interval [%1,%2] does not align with previous one [%3,%4]. nFrames: %5, curr tick: %6, curr frames: %7, bpm: %8, tick size: %9, nLeadLagFactor: %10")
-					  .arg( fTickStart, 0, 'f' )
-					  .arg( fTickEnd, 0, 'f' )
-					  .arg( fLastTickStart, 0, 'f' )
-					  .arg( fLastTickEnd, 0, 'f' )
-					  .arg( nFrames )
-					  .arg( getDoubleTick(), 0, 'f' )
-					  .arg( getFrames() )
-					  .arg( getBpm(), 0, 'f' )
-					  .arg( getTickSize(), 0, 'f' )
-					  .arg( nLeadLagFactor )
-					  );
+			qDebug() << QString( "[testComputeTickInterval] [variable tempo] Interval [%1,%2] does not align with previous one [%3,%4]. nFrames: %5, curr tick: %6, curr frames: %7, bpm: %8, tick size: %9, nLeadLagFactor: %10")
+				.arg( fTickStart, 0, 'f' )
+				.arg( fTickEnd, 0, 'f' )
+				.arg( fLastTickStart, 0, 'f' )
+				.arg( fLastTickEnd, 0, 'f' )
+				.arg( nFrames )
+				.arg( getDoubleTick(), 0, 'f' )
+				.arg( getFrames() )
+				.arg( getBpm(), 0, 'f' )
+				.arg( getTickSize(), 0, 'f' )
+				.arg( nLeadLagFactor );
 			bNoMismatch = false;
 		}
 		
@@ -3199,32 +3197,37 @@ bool AudioEngine::testComputeTickInterval() {
 												  nFrames );
 
 			if ( cc == 0 && tt == 0 && fTickStart != 0 ){
-				ERRORLOG( QString( "[variable tempo] First interval [%1,%2] does not start at 0.")
-						  .arg( fTickStart, 0, 'f' )
-						  .arg( fTickEnd, 0, 'f' ) );
+				qDebug() << QString( "[testComputeTickInterval] [variable tempo] First interval [%1,%2] does not start at 0.")
+					.arg( fTickStart, 0, 'f' )
+					.arg( fTickEnd, 0, 'f' );
 				bNoMismatch = false;
+				break;
 			}
 
 			if ( fTickStart != fLastTickEnd ) {
-				ERRORLOG( QString( "[variable tempo] Interval [%1,%2] does not align with previous one [%3,%4]. nFrames: %5, curr tick: %6, curr frames: %7, bpm: %8, tick size: %9, nLeadLagFactor: %10")
-						  .arg( fTickStart, 0, 'f' )
-						  .arg( fTickEnd, 0, 'f' )
-						  .arg( fLastTickStart, 0, 'f' )
-						  .arg( fLastTickEnd, 0, 'f' )
-						  .arg( nFrames )
-						  .arg( getDoubleTick(), 0, 'f' )
-						  .arg( getFrames() )
-						  .arg( getBpm(), 0, 'f' )
-						  .arg( getTickSize(), 0, 'f' )
-						  .arg( nLeadLagFactor )
-						  );
+				qDebug() << QString( "[variable tempo] Interval [%1,%2] does not align with previous one [%3,%4]. nFrames: %5, curr tick: %6, curr frames: %7, bpm: %8, tick size: %9, nLeadLagFactor: %10")
+					.arg( fTickStart, 0, 'f' )
+					.arg( fTickEnd, 0, 'f' )
+					.arg( fLastTickStart, 0, 'f' )
+					.arg( fLastTickEnd, 0, 'f' )
+					.arg( nFrames )
+					.arg( getDoubleTick(), 0, 'f' )
+					.arg( getFrames() )
+					.arg( getBpm(), 0, 'f' )
+					.arg( getTickSize(), 0, 'f' )
+					.arg( nLeadLagFactor );
 				bNoMismatch = false;
+				break;
 			}
 
 			fLastTickStart = fTickStart;
 			fLastTickEnd = fTickEnd;
 
 			incrementTransportPosition( nFrames );
+		}
+
+		if ( ! bNoMismatch ) {
+			break;
 		}
 	}
 	
@@ -3252,14 +3255,14 @@ bool AudioEngine::testSongSizeChange() {
 	pCoreActionController->locateToColumn( 4 );
 	lock( RIGHT_HERE );
 
-	if ( ! testCheckConsistency( 1, 1, "prior" ) ) {
+	if ( ! testCheckConsistency( 1, 1, "[testSongSizeChange] prior" ) ) {
 		setState( AudioEngine::State::Ready );
 		unlock();
 		return false;
 	}
 		
 	// Toggle a grid cell after to the current transport position
-	if ( ! testCheckConsistency( 6, 6, "after" ) ) {
+	if ( ! testCheckConsistency( 6, 6, "[testSongSizeChange] after" ) ) {
 		setState( AudioEngine::State::Ready );
 		unlock();
 		return false;
@@ -3270,8 +3273,8 @@ bool AudioEngine::testSongSizeChange() {
 	int nTestColumn = 4;
 	long nNextTick = pHydrogen->getTickForColumn( nTestColumn );
 	if ( nNextTick == -1 ) {
-		ERRORLOG( QString( "Bad test design: there is no column [%1]" )
-				  .arg( nTestColumn ) );
+		qDebug() << QString( "[testSongSizeChange] Bad test design: there is no column [%1]" )
+			.arg( nTestColumn );
 		setState( AudioEngine::State::Ready );
 		unlock();
 		return false;
@@ -3284,14 +3287,14 @@ bool AudioEngine::testSongSizeChange() {
 	pCoreActionController->locateToTick( nNextTick );
 	lock( RIGHT_HERE );
 	
-	if ( ! testCheckConsistency( 1, 1, "looped:prior" ) ) {
+	if ( ! testCheckConsistency( 1, 1, "[testSongSizeChange] looped:prior" ) ) {
 		setState( AudioEngine::State::Ready );
 		unlock();
 		return false;
 	}
 		
 	// Toggle a grid cell after to the current transport position
-	if ( ! testCheckConsistency( 6, 6, "looped:after" ) ) {
+	if ( ! testCheckConsistency( 6, 6, "[testSongSizeChange] looped:after" ) ) {
 		setState( AudioEngine::State::Ready );
 		unlock();
 		return false;
@@ -3341,14 +3344,14 @@ bool AudioEngine::testSongSizeChangeInLoopMode() {
 
 		locate( fInitialSongSize + frameDist( randomEngine ) );
 
-		if ( ! testCheckTransportPosition( "relocation" ) ) {
+		if ( ! testCheckTransportPosition( "[testSongSizeChangeInLoopMode] relocation" ) ) {
 			bNoMismatch = false;
 			break;
 		}
 
 		incrementTransportPosition( nFrames );
 
-		if ( ! testCheckTransportPosition( "first increment" ) ) {
+		if ( ! testCheckTransportPosition( "[testSongSizeChangeInLoopMode] first increment" ) ) {
 			bNoMismatch = false;
 			break;
 		}
@@ -3359,21 +3362,21 @@ bool AudioEngine::testSongSizeChangeInLoopMode() {
 		pCoreActionController->toggleGridCell( nNewColumn, 0 );
 		lock( RIGHT_HERE );
 
-		if ( ! testCheckTransportPosition( "first toggling" ) ) {
+		if ( ! testCheckTransportPosition( "[testSongSizeChangeInLoopMode] first toggling" ) ) {
 			bNoMismatch = false;
 			break;
 		}
 
 		if ( fInitialSongSize == m_fSongSizeInTicks ) {
-			ERRORLOG( QString( "[first toggling] no song enlargement %1")
-					  .arg( m_fSongSizeInTicks ) );
+			qDebug() << QString( "[testSongSizeChangeInLoopMode] [first toggling] no song enlargement %1")
+				.arg( m_fSongSizeInTicks );
 			bNoMismatch = false;
 			break;
 		}
 
 		incrementTransportPosition( nFrames );
 
-		if ( ! testCheckTransportPosition( "second increment" ) ) {
+		if ( ! testCheckTransportPosition( "[testSongSizeChange] second increment" ) ) {
 			bNoMismatch = false;
 			break;
 		}
@@ -3382,21 +3385,21 @@ bool AudioEngine::testSongSizeChangeInLoopMode() {
 		pCoreActionController->toggleGridCell( nNewColumn, 0 );
 		lock( RIGHT_HERE );
 
-		if ( ! testCheckTransportPosition( "second toggling" ) ) {
+		if ( ! testCheckTransportPosition( "[testSongSizeChange] second toggling" ) ) {
 			bNoMismatch = false;
 			break;
 		}
 		
 		if ( fInitialSongSize != m_fSongSizeInTicks ) {
-			ERRORLOG( QString( "[second toggling] song size mismatch original: %1, new: %2" )
-					  .arg( fInitialSongSize ).arg( m_fSongSizeInTicks ) );
+			qDebug() << QString( "[testSongSizeChange] [second toggling] song size mismatch original: %1, new: %2" )
+				.arg( fInitialSongSize ).arg( m_fSongSizeInTicks );
 			bNoMismatch = false;
 			break;
 		}
 
 		incrementTransportPosition( nFrames );
 
-		if ( ! testCheckTransportPosition( "third increment" ) ) {
+		if ( ! testCheckTransportPosition( "[testSongSizeChange] third increment" ) ) {
 			bNoMismatch = false;
 			break;
 		}
@@ -3452,7 +3455,7 @@ bool AudioEngine::testNoteEnqueuing() {
 
 	// Larger number to account for both small buffer sizes and long
 	// samples.
-	int nMaxCleaningCycles = 250;
+	int nMaxCleaningCycles = 500;
 	int nn = 0;
 
 	// Ensure the sampler is clean.
@@ -3476,7 +3479,7 @@ bool AudioEngine::testNoteEnqueuing() {
 		// }
 		
 		if ( nn > nMaxCleaningCycles ) {
-			ERRORLOG("Sampler is in weird state");
+			qDebug() << "[testNoteEnqueuing] Sampler is in weird state";
 			return false;
 		}
 	}
@@ -3514,12 +3517,12 @@ bool AudioEngine::testNoteEnqueuing() {
 
 		++nn;
 		if ( nn > nMaxCycles ) {
-			ERRORLOG( QString( "end of the song wasn't reached in time. getFrames(): %1, ticks: %2, getTickSize(): %3, m_fSongSizeInTicks: %4, nMaxCycles: %5" )
-					  .arg( getFrames() )
-					  .arg( getDoubleTick(), 0, 'f' )
-					  .arg( getTickSize(), 0, 'f' )
-					  .arg( m_fSongSizeInTicks, 0, 'f' )
-					  .arg( nMaxCycles ) );
+			qDebug() << QString( "[testNoteEnqueuing] end of the song wasn't reached in time. getFrames(): %1, ticks: %2, getTickSize(): %3, m_fSongSizeInTicks: %4, nMaxCycles: %5" )
+				.arg( getFrames() )
+				.arg( getDoubleTick(), 0, 'f' )
+				.arg( getTickSize(), 0, 'f' )
+				.arg( m_fSongSizeInTicks, 0, 'f' )
+				.arg( nMaxCycles );
 			bNoMismatch = false;
 			break;
 		}
@@ -3527,7 +3530,7 @@ bool AudioEngine::testNoteEnqueuing() {
 
 	if ( notesInSongQueue.size() !=
 		 notesInSong.size() ) {
-		QString sMsg = QString( "[song mode] Mismatch between notes count in Song [%1] and NoteQueue [%2]. Song:\n" )
+		QString sMsg = QString( "[testNoteEnqueuing] [song mode] Mismatch between notes count in Song [%1] and NoteQueue [%2]. Song:\n" )
 			.arg( notesInSong.size() ).arg( notesInSongQueue.size() );
 		for ( int ii = 0; ii < notesInSong.size(); ++ii  ) {
 			auto note = notesInSong[ ii ];
@@ -3549,7 +3552,7 @@ bool AudioEngine::testNoteEnqueuing() {
 						 .arg( note->get_velocity() ) );
 		}
 
-		ERRORLOG( sMsg );
+		qDebug() << sMsg;
 		bNoMismatch = false;
 	}
 
@@ -3559,7 +3562,7 @@ bool AudioEngine::testNoteEnqueuing() {
 	if ( notesInSamplerQueue.size() !=
 		 notesInSong.size() &&
 		 pPref->m_nBufferSize < 1024 ) {
-		QString sMsg = QString( "[song mode] Mismatch between notes count in Song [%1] and Sampler [%2]. Song:\n" )
+		QString sMsg = QString( "[testNoteEnqueuing] [song mode] Mismatch between notes count in Song [%1] and Sampler [%2]. Song:\n" )
 			.arg( notesInSong.size() ).arg( notesInSamplerQueue.size() );
 		for ( int ii = 0; ii < notesInSong.size(); ++ii  ) {
 			auto note = notesInSong[ ii ];
@@ -3581,7 +3584,7 @@ bool AudioEngine::testNoteEnqueuing() {
 						 .arg( note->get_velocity() ) );
 		}
 
-		ERRORLOG( sMsg );
+		qDebug() << sMsg;
 		bNoMismatch = false;
 	}
 
@@ -3635,7 +3638,7 @@ bool AudioEngine::testNoteEnqueuing() {
 		// }
 		
 		if ( nn > nMaxCleaningCycles ) {
-			ERRORLOG("[pattern mode] Sampler is in weird state");
+			qDebug() << "[testNoteEnqueuing] [pattern mode] Sampler is in weird state";
 			return false;
 		}
 	}
@@ -3644,8 +3647,8 @@ bool AudioEngine::testNoteEnqueuing() {
 	auto pPattern = 
 		pSong->getPatternList()->get( pHydrogen->getSelectedPatternNumber() );
 	if ( pPattern == nullptr ) {
-		ERRORLOG( QString( "null pattern selected [%1]" )
-				  .arg( pHydrogen->getSelectedPatternNumber() ) );
+		qDebug() << QString( "[testNoteEnqueuing] null pattern selected [%1]" )
+			.arg( pHydrogen->getSelectedPatternNumber() );
 		return false;
 	}
 
@@ -3692,13 +3695,13 @@ bool AudioEngine::testNoteEnqueuing() {
 
 		++nn;
 		if ( nn > nMaxCycles ) {
-			ERRORLOG( QString( "end of the pattern wasn't reached in time. getFrames(): %1, ticks: %2, getTickSize(): %3, pattern length: %4, nMaxCycles: %5, nLoops: %6" )
-					  .arg( getFrames() )
-					  .arg( getDoubleTick(), 0, 'f' )
-					  .arg( getTickSize(), 0, 'f' )
-					  .arg( pPattern->get_length() )
-					  .arg( nMaxCycles )
-					  .arg( nLoops ));
+			qDebug() << QString( "[testNoteEnqueuing] end of the pattern wasn't reached in time. getFrames(): %1, ticks: %2, getTickSize(): %3, pattern length: %4, nMaxCycles: %5, nLoops: %6" )
+				.arg( getFrames() )
+				.arg( getDoubleTick(), 0, 'f' )
+				.arg( getTickSize(), 0, 'f' )
+				.arg( pPattern->get_length() )
+				.arg( nMaxCycles )
+				.arg( nLoops );
 			bNoMismatch = false;
 			break;
 		}
@@ -3730,7 +3733,7 @@ bool AudioEngine::testNoteEnqueuing() {
 
 	if ( notesInSongQueue.size() !=
 		 notesInPattern.size() ) {
-		QString sMsg = QString( "[pattern mode] Mismatch between notes count in Pattern [%1] and NoteQueue [%2]. Pattern:\n" )
+		QString sMsg = QString( "[testNoteEnqueuing] [pattern mode] Mismatch between notes count in Pattern [%1] and NoteQueue [%2]. Pattern:\n" )
 			.arg( notesInPattern.size() ).arg( notesInSongQueue.size() );
 		for ( int ii = 0; ii < notesInPattern.size(); ++ii  ) {
 			auto note = notesInPattern[ ii ];
@@ -3752,7 +3755,7 @@ bool AudioEngine::testNoteEnqueuing() {
 						 .arg( note->get_velocity() ) );
 		}
 
-		ERRORLOG( sMsg );
+		qDebug() << sMsg;
 		bNoMismatch = false;
 	}
 
@@ -3762,7 +3765,7 @@ bool AudioEngine::testNoteEnqueuing() {
 	if ( notesInSamplerQueue.size() !=
 		 notesInPattern.size() &&
 		 pPref->m_nBufferSize < 1024 ) {
-		QString sMsg = QString( "[pattern mode] Mismatch between notes count in Pattern [%1] and Sampler [%2]. Pattern:\n" )
+		QString sMsg = QString( "[testNoteEnqueuing] [pattern mode] Mismatch between notes count in Pattern [%1] and Sampler [%2]. Pattern:\n" )
 			.arg( notesInPattern.size() ).arg( notesInSamplerQueue.size() );
 		for ( int ii = 0; ii < notesInPattern.size(); ++ii  ) {
 			auto note = notesInPattern[ ii ];
@@ -3784,7 +3787,7 @@ bool AudioEngine::testNoteEnqueuing() {
 						 .arg( note->get_velocity() ) );
 		}
 
-		ERRORLOG( sMsg );
+		qDebug() << sMsg;
 		bNoMismatch = false;
 	}
 
@@ -3853,22 +3856,21 @@ bool AudioEngine::testCheckTransportPosition( const QString& sContext) const {
 	if ( abs( fCheckTick + fTickMismatch - getDoubleTick() ) > 1e-9 ||
 		 abs( fTickMismatch - m_fTickMismatch ) > 1e-9 ||
 		 nCheckFrame != getFrames() ) {
-		ERRORLOG( QString( "[%9] mismatch. frame: %1, check frame: %2, tick: %3, check tick: %4, offset: %5, check offset: %6, tick size: %7, bpm: %8, fCheckTick + fTickMismatch - getDoubleTick(): %10, fTickMismatch - m_fTickMismatch: %11, nCheckFrame - getFrames(): %12" )
-				  .arg( getFrames() )
-				  .arg( nCheckFrame )
-				  .arg( getDoubleTick(), 0 , 'f', 9 )
-				  .arg( fCheckTick, 0 , 'f', 9 )
-				  .arg( m_fTickMismatch, 0 , 'f', 9 )
-				  .arg( fTickMismatch, 0 , 'f', 9 )
-				  .arg( getTickSize(), 0 , 'f' )
-				  .arg( getBpm(), 0 , 'f' )
-				  .arg( sContext )
-				  .arg( fCheckTick + fTickMismatch - getDoubleTick(), 0, 'E' )
-				  .arg( fTickMismatch - m_fTickMismatch, 0, 'E' )
-				  .arg( nCheckFrame - getFrames() )
-				  );
-		return false;
-	}
+		qDebug() << QString( "[testCheckTransportPosition] [%9] mismatch. frame: %1, check frame: %2, tick: %3, check tick: %4, offset: %5, check offset: %6, tick size: %7, bpm: %8, fCheckTick + fTickMismatch - getDoubleTick(): %10, fTickMismatch - m_fTickMismatch: %11, nCheckFrame - getFrames(): %12" )
+			.arg( getFrames() )
+			.arg( nCheckFrame )
+			.arg( getDoubleTick(), 0 , 'f', 9 )
+			.arg( fCheckTick, 0 , 'f', 9 )
+			.arg( m_fTickMismatch, 0 , 'f', 9 )
+			.arg( fTickMismatch, 0 , 'f', 9 )
+			.arg( getTickSize(), 0 , 'f' )
+			.arg( getBpm(), 0 , 'f' )
+			.arg( sContext )
+			.arg( fCheckTick + fTickMismatch - getDoubleTick(), 0, 'E' )
+			.arg( fTickMismatch - m_fTickMismatch, 0, 'E' )
+			.arg( nCheckFrame - getFrames() );
+	return false;
+}
 
 	return true;
 }
@@ -3923,19 +3925,18 @@ bool AudioEngine::testCheckAudioConsistency( const std::vector<std::shared_ptr<N
 									  static_cast<double>(nSampleFrames) );
 						if ( std::abs( ppNewNote->get_layer_selected( nn )->SamplePosition -
 									   fExpectedFrames ) > 1 ) {
-							ERRORLOG( QString( "[%4] glitch in audio render. Diff: %9\nPre: %1\nPost: %2\nwith passed frames: %3, nSampleFrames: %5, fExpectedFrames: %6, sample sampleRate: %7, driver sampleRate: %8\n" )
-									  .arg( ppOldNote->toQString( "", true ) )
-									  .arg( ppNewNote->toQString( "", true ) )
-									  .arg( fPassedFrames, 0, 'f' )
-									  .arg( sContext )
-									  .arg( nSampleFrames )
-									  .arg( fExpectedFrames, 0, 'f' )
-									  .arg( ppOldNote->getSample( nn )->get_sample_rate() )
-									  .arg( Hydrogen::get_instance()->getAudioOutput()->getSampleRate() )
-									  .arg( ppNewNote->get_layer_selected( nn )->SamplePosition -
-											fExpectedFrames, 0, 'g', 30 )
-									  );
-							bNoMismatch = false;
+							qDebug() << QString( "[testCheckAudioConsistency] [%4] glitch in audio render. Diff: %9\nPre: %1\nPost: %2\nwith passed frames: %3, nSampleFrames: %5, fExpectedFrames: %6, sample sampleRate: %7, driver sampleRate: %8\n" )
+								.arg( ppOldNote->toQString( "", true ) )
+								.arg( ppNewNote->toQString( "", true ) )
+								.arg( fPassedFrames, 0, 'f' )
+								.arg( sContext )
+								.arg( nSampleFrames )
+								.arg( fExpectedFrames, 0, 'f' )
+								.arg( ppOldNote->getSample( nn )->get_sample_rate() )
+								.arg( Hydrogen::get_instance()->getAudioOutput()->getSampleRate() )
+								.arg( ppNewNote->get_layer_selected( nn )->SamplePosition -
+									  fExpectedFrames, 0, 'g', 30 );
+						bNoMismatch = false;
 						}
 					}
 				} else {
@@ -3943,12 +3944,12 @@ bool AudioEngine::testCheckAudioConsistency( const std::vector<std::shared_ptr<N
 					// were properly applied.
 					if ( ppNewNote->get_position() - fPassedTicks !=
 						 ppOldNote->get_position() ) {
-							ERRORLOG( QString( "[%4] glitch in note queue.\n\nPre: %1 ;\n\nPost: %2 ; with passed ticks: %3\n" )
-									  .arg( ppOldNote->toQString( "", true ) )
-									  .arg( ppNewNote->toQString( "", true ) )
-									  .arg( fPassedTicks )
-									  .arg( sContext ) );
-							bNoMismatch = false;
+						qDebug() << QString( "[testCheckAudioConsistency] [%4] glitch in note queue.\n\nPre: %1 ;\n\nPost: %2 ; with passed ticks: %3\n" )
+							.arg( ppOldNote->toQString( "", true ) )
+							.arg( ppNewNote->toQString( "", true ) )
+							.arg( fPassedTicks )
+							.arg( sContext );
+						bNoMismatch = false;
 					}
 				}
 			}
@@ -3962,29 +3963,29 @@ bool AudioEngine::testCheckAudioConsistency( const std::vector<std::shared_ptr<N
 	if ( nNotesFound == 0 &&
 		 oldNotes.size() > 0 &&
 		 newNotes.size() > 0 ) {
-		ERRORLOG( QString( "[%1] bad test design. No notes played back." )
-				  .arg( sContext ) );
+		qDebug() << QString( "[testCheckAudioConsistency] [%1] bad test design. No notes played back." )
+			.arg( sContext );
 		if ( oldNotes.size() != 0 ) {
-			ERRORLOG( "old notes:" );
+			qDebug() << "old notes:";
 			for ( auto const& nnote : oldNotes ) {
-				ERRORLOG( nnote->toQString( "    ", true ) );
+				qDebug() << nnote->toQString( "    ", true );
 			}
 		}
 		if ( newNotes.size() != 0 ) {
-			ERRORLOG( "new notes:" );
+			qDebug() << "new notes:";
 			for ( auto const& nnote : newNotes ) {
-				ERRORLOG( nnote->toQString( "    ", true ) );
+				qDebug() << nnote->toQString( "    ", true );
 			}
 		}
-		ERRORLOG( QString( "curr tick: %1, curr frame: %2, nPassedFrames: %3, fPassedTicks: %4, fTickSize: %5" )
-				  .arg( getDoubleTick(), 0, 'f' )
-				  .arg( getFrames() )
-				  .arg( nPassedFrames )
-				  .arg( fPassedTicks, 0, 'f' )
-				  .arg( getTickSize(), 0, 'f' ) );
-		ERRORLOG( "notes in song:" );
+		qDebug() << QString( "[testCheckAudioConsistency] curr tick: %1, curr frame: %2, nPassedFrames: %3, fPassedTicks: %4, fTickSize: %5" )
+			.arg( getDoubleTick(), 0, 'f' )
+			.arg( getFrames() )
+			.arg( nPassedFrames )
+			.arg( fPassedTicks, 0, 'f' )
+			.arg( getTickSize(), 0, 'f' );
+		qDebug() << "[testCheckAudioConsistency] notes in song:";
 		for ( auto const& nnote : pSong->getAllNotes() ) {
-			ERRORLOG( nnote->toQString( "    ", true ) );
+			qDebug() << nnote->toQString( "    ", true );
 		}
 		
 		bNoMismatch = false;
@@ -4047,13 +4048,13 @@ bool AudioEngine::testCheckConsistency( int nToggleColumn, int nToggleRow, const
 	pCoreActionController->toggleGridCell( nToggleColumn, nToggleRow );
 	lock( RIGHT_HERE );
 
-	QString sFirstContext = QString( "%1 : 1. toggling" ).arg( sContext );
+	QString sFirstContext = QString( "[testCheckConsistency] %1 : 1. toggling" ).arg( sContext );
 
 	// Check whether there is a change in song size
 	long nNewSongSize = pSong->lengthInTicks();
 	if ( nNewSongSize == nOldSongSize ) {
-		ERRORLOG( QString( "[%1] no change in song size" )
-				  .arg( sFirstContext ) );
+		qDebug() << QString( "[%1] no change in song size" )
+			.arg( sFirstContext );
 		return false;
 	}
 
@@ -4078,22 +4079,22 @@ bool AudioEngine::testCheckConsistency( int nToggleColumn, int nToggleRow, const
 	m_fLastTickIntervalEnd = -1;
 	nLeadLag = computeTickInterval( &fTickStart, &fTickEnd, nBufferSize );
 	if ( std::abs( nLeadLag - nPrevLeadLag ) > 1 ) {
-		ERRORLOG( QString( "[%3] LeadLag should be constant since there should be change in tick size. old: %1, new: %2" )
-				  .arg( nPrevLeadLag ).arg( nLeadLag ).arg( sFirstContext ) );
+		qDebug() << QString( "[%3] LeadLag should be constant since there should be change in tick size. old: %1, new: %2" )
+			.arg( nPrevLeadLag ).arg( nLeadLag ).arg( sFirstContext );
 		return false;
 	}
 	if ( std::abs( fTickStart - m_fTickOffset - fPrevTickStart ) > 4e-3 ) {
-		ERRORLOG( QString( "[%4] Mismatch in the start of the tick interval handled by updateNoteQueue new: %1, old: %2, old+offset: %3" )
-				  .arg( fTickStart, 0, 'f' ).arg( fPrevTickStart, 0, 'f' )
-				  .arg( fPrevTickStart + m_fTickOffset, 0, 'f' )
-				  .arg( sFirstContext ) );
+		qDebug() << QString( "[%4] Mismatch in the start of the tick interval handled by updateNoteQueue new: %1, old: %2, old+offset: %3" )
+			.arg( fTickStart, 0, 'f' ).arg( fPrevTickStart, 0, 'f' )
+			.arg( fPrevTickStart + m_fTickOffset, 0, 'f' )
+			.arg( sFirstContext );
 		return false;
 	}
 	if ( std::abs( fTickEnd - m_fTickOffset - fPrevTickEnd ) > 4e-3 ) {
-		ERRORLOG( QString( "[%4] Mismatch in the end of the tick interval handled by updateNoteQueue new: %1, old: %2, old+offset: %3" )
-				  .arg( fTickEnd, 0, 'f' ).arg( fPrevTickEnd, 0, 'f' )
-				  .arg( fPrevTickEnd + m_fTickOffset, 0, 'f' )
-				  .arg( sFirstContext ) );
+		qDebug() << QString( "[%4] Mismatch in the end of the tick interval handled by updateNoteQueue new: %1, old: %2, old+offset: %3" )
+			.arg( fTickEnd, 0, 'f' ).arg( fPrevTickEnd, 0, 'f' )
+			.arg( fPrevTickEnd + m_fTickOffset, 0, 'f' )
+			.arg( sFirstContext );
 		return false;
 	}
 
@@ -4110,8 +4111,8 @@ bool AudioEngine::testCheckConsistency( int nToggleColumn, int nToggleRow, const
 
 	// Check whether tempo and tick size have not changed.
 	if ( fPrevTempo != getBpm() || fPrevTickSize != getTickSize() ) {
-		ERRORLOG( QString( "[%1] tempo and ticksize are affected" )
-				  .arg( sFirstContext ) );
+		qDebug() << QString( "[%1] tempo and ticksize are affected" )
+			.arg( sFirstContext );
 		return false;
 	}
 
@@ -4128,7 +4129,7 @@ bool AudioEngine::testCheckConsistency( int nToggleColumn, int nToggleRow, const
 	// Toggle the same grid cell again
 	//////
 
-	QString sSecondContext = QString( "%1 : 2. toggling" ).arg( sContext );
+	QString sSecondContext = QString( "[testCheckAudioConsistency] %1 : 2. toggling" ).arg( sContext );
 	
 	notes1.clear();
 	for ( const auto& ppNote : getSampler()->getPlayingNotesQueue() ) {
@@ -4155,8 +4156,8 @@ bool AudioEngine::testCheckConsistency( int nToggleColumn, int nToggleRow, const
 	nOldSongSize = nNewSongSize;
 	nNewSongSize = pSong->lengthInTicks();
 	if ( nNewSongSize == nOldSongSize ) {
-		ERRORLOG( QString( "[%1] no change in song size" )
-				  .arg( sSecondContext ) );
+		qDebug() << QString( "[%1] no change in song size" )
+			.arg( sSecondContext );
 		return false;
 	}
 
@@ -4177,22 +4178,22 @@ bool AudioEngine::testCheckConsistency( int nToggleColumn, int nToggleRow, const
 
 	nLeadLag = computeTickInterval( &fTickStart, &fTickEnd, nBufferSize );
 	if ( std::abs( nLeadLag - nPrevLeadLag ) > 1 ) {
-		ERRORLOG( QString( "[%3] LeadLag should be constant since there should be change in tick size. old: %1, new: %2" )
-				  .arg( nPrevLeadLag ).arg( nLeadLag ).arg( sSecondContext ) );
+		qDebug() << QString( "[%3] LeadLag should be constant since there should be change in tick size. old: %1, new: %2" )
+			.arg( nPrevLeadLag ).arg( nLeadLag ).arg( sSecondContext );
 		return false;
 	}
 	if ( std::abs( fTickStart - m_fTickOffset - fPrevTickStart ) > 4e-3 ) {
-		ERRORLOG( QString( "[%4] Mismatch in the start of the tick interval handled by updateNoteQueue new: %1, old: %2, old+offset: %3" )
-				  .arg( fTickStart, 0, 'f' ).arg( fPrevTickStart, 0, 'f' )
-				  .arg( fPrevTickStart + m_fTickOffset, 0, 'f' )
-				  .arg( sSecondContext ) );
+		qDebug() << QString( "[%4] Mismatch in the start of the tick interval handled by updateNoteQueue new: %1, old: %2, old+offset: %3" )
+			.arg( fTickStart, 0, 'f' ).arg( fPrevTickStart, 0, 'f' )
+			.arg( fPrevTickStart + m_fTickOffset, 0, 'f' )
+			.arg( sSecondContext );
 		return false;
 	}
 	if ( std::abs( fTickEnd - m_fTickOffset - fPrevTickEnd ) > 4e-3 ) {
-		ERRORLOG( QString( "[%4] Mismatch in the end of the tick interval handled by updateNoteQueue new: %1, old: %2, old+offset: %3" )
-				  .arg( fTickEnd, 0, 'f' ).arg( fPrevTickEnd, 0, 'f' )
-				  .arg( fPrevTickEnd + m_fTickOffset, 0, 'f' )
-				  .arg( sSecondContext )  );
+		qDebug() << QString( "[%4] Mismatch in the end of the tick interval handled by updateNoteQueue new: %1, old: %2, old+offset: %3" )
+			.arg( fTickEnd, 0, 'f' ).arg( fPrevTickEnd, 0, 'f' )
+			.arg( fPrevTickEnd + m_fTickOffset, 0, 'f' )
+			.arg( sSecondContext );
 		return false;
 	}
 
@@ -4209,8 +4210,8 @@ bool AudioEngine::testCheckConsistency( int nToggleColumn, int nToggleRow, const
 
 	// Check whether tempo and tick size have not changed.
 	if ( fPrevTempo != getBpm() || fPrevTickSize != getTickSize() ) {
-		ERRORLOG( QString( "[%1] tempo and ticksize are affected" )
-				  .arg( sSecondContext ) );
+		qDebug() << QString( "[%1] tempo and ticksize are affected" )
+			.arg( sSecondContext );
 		return false;
 	}
 
@@ -4272,7 +4273,6 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_pNextPatterns: %3\n" ).arg( sPrefix ).arg( s ).arg( m_pNextPatterns->toQString( sPrefix + s ), bShort ) )
 			.append( QString( "%1%2m_pPlayingPatterns: %3\n" ).arg( sPrefix ).arg( s ).arg( m_pPlayingPatterns->toQString( sPrefix + s ), bShort ) )
 			.append( QString( "%1%2m_nRealtimeFrames: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nRealtimeFrames ) )
-			.append( QString( "%1%2m_nAddRealtimeNoteTickPosition: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nAddRealtimeNoteTickPosition ) )
 			.append( QString( "%1%2m_AudioProcessCallback: \n" ).arg( sPrefix ).arg( s ) )
 			.append( QString( "%1%2m_songNoteQueue: length = %3\n" ).arg( sPrefix ).arg( s ).arg( m_songNoteQueue.size() ) );
 		sOutput.append( QString( "%1%2m_midiNoteQueue: [\n" ).arg( sPrefix ).arg( s ) );
@@ -4324,7 +4324,6 @@ QString AudioEngine::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_pNextPatterns: %1" ).arg( m_pNextPatterns->toQString( sPrefix + s ), bShort ) )
 			.append( QString( ", m_pPlayingPatterns: %1" ).arg( m_pPlayingPatterns->toQString( sPrefix + s ), bShort ) )
 			.append( QString( ", m_nRealtimeFrames: %1" ).arg( m_nRealtimeFrames ) )
-			.append( QString( ", m_nAddRealtimeNoteTickPosition: %1" ).arg( m_nAddRealtimeNoteTickPosition ) )
 			.append( QString( ", m_AudioProcessCallback:" ) )
 			.append( QString( ", m_songNoteQueue: length = %1" ).arg( m_songNoteQueue.size() ) );
 		sOutput.append( QString( ", m_midiNoteQueue: [" ) );

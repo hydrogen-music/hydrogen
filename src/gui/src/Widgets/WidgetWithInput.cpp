@@ -101,7 +101,17 @@ void WidgetWithInput::setValue( float fValue, bool bTriggeredByUserInteraction )
 	
 	if ( m_bUseIntSteps ) {
 		fValue = std::round( fValue );
+	} else {
+		if ( std::abs( fValue ) < 1E-6 ) {
+			// The calculation of the increment when altering the
+			// value via drag or mouse wheel - (m_fMax - m_fMin)/100.0
+			// - introduces rounding errors. These become dominant
+			// when trying to reset the widget's value to zero and
+			// cause a mismatch.
+			fValue = 0.0;
+		}
 	}
+			
 	
 	if ( fValue == m_fValue ) {
 		return;
@@ -199,6 +209,7 @@ void WidgetWithInput::wheelEvent ( QWheelEvent *ev )
 	if ( ev->angleDelta().y() < 0 ) {
 		fDelta *= -1.;
 	}
+
 	setValue( getValue() + ( fDelta * fStepFactor ), true );
 	
 	QToolTip::showText(

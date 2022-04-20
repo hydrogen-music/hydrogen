@@ -871,14 +871,17 @@ void HydrogenApp::onEventQueueTimer()
 	// midi notes
 	while( !pQueue->m_addMidiNoteVector.empty() ){
 		std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-		auto pInstrument = pSong->getInstrumentList()->get( pQueue->m_addMidiNoteVector[0].m_row );
+		auto pInstrument = pSong->getInstrumentList()->
+			get( pQueue->m_addMidiNoteVector[0].m_row );
+		
 		// find if a (pitch matching) note is already present
-		Note *pOldNote = pSong->getPatternList()->get( pQueue->m_addMidiNoteVector[0].m_pattern )
-														->find_note( pQueue->m_addMidiNoteVector[0].m_column,
-																	 pQueue->m_addMidiNoteVector[0].m_column,
-																	 pInstrument,
-																	 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
-																	 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal );
+		Note* pOldNote = pSong->getPatternList()->get( pQueue->m_addMidiNoteVector[0].m_pattern )->
+			find_note( pQueue->m_addMidiNoteVector[0].m_column,
+					   pQueue->m_addMidiNoteVector[0].m_column,
+					   pInstrument,
+					   pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
+					   pQueue->m_addMidiNoteVector[0].no_octaveKeyVal );
+		
 		auto pUndoStack = HydrogenApp::get_instance()->m_pUndoStack;
 		pUndoStack->beginMacro( tr( "Input Midi Note" ) );
 		if( pOldNote ) { // note found => remove it
@@ -899,6 +902,7 @@ void HydrogenApp::onEventQueueTimer()
 																	 /*isNoteOff*/ false );
 			pUndoStack->push( action );
 		}
+		
 		// add the new note
 		SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pQueue->m_addMidiNoteVector[0].m_column,
 																	 pQueue->m_addMidiNoteVector[0].m_row,
@@ -911,10 +915,10 @@ void HydrogenApp::onEventQueueTimer()
 																	 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
 																	 1.0f,
 																	 /*isDelete*/ false,
-																	 false,
+																	 /*hearNote*/ false,
 																	 pQueue->m_addMidiNoteVector[0].b_isMidi,
 																	 pQueue->m_addMidiNoteVector[0].b_isInstrumentMode,
-																	 false );
+																	 /*isNoteOff*/ false );
 		pUndoStack->push( action );
 		pUndoStack->endMacro();
 		pQueue->m_addMidiNoteVector.erase( pQueue->m_addMidiNoteVector.begin() );
