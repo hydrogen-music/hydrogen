@@ -158,7 +158,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	restoreLastUsedPlaylistCheckbox->setChecked( pPref->isRestoreLastPlaylistEnabled() );
 	useRelativePlaylistPathsCheckbox->setChecked( pPref->isPlaylistUsingRelativeFilenames() );
 	hideKeyboardCursor->setChecked( pPref->hideKeyboardCursor() );
-	patternFollowsSongCheckbox->setChecked( pPref->patternFollowsSong() );
 
 	// General tab - restore the right m_bsetlash value
 	if ( pPref->m_brestartLash == true ){
@@ -540,56 +539,70 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	  	
 	ColorTreeItem* pTopLevelItem;
 	colorTree->clear();
-	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, "General" );
-	new ColorTreeItem( 0x100, pTopLevelItem, "Window" );
-	new ColorTreeItem( 0x101, pTopLevelItem, "Window Text" );
-	new ColorTreeItem( 0x102, pTopLevelItem, "Base" );
-	new ColorTreeItem( 0x103, pTopLevelItem, "Alternate Base" );
-	new ColorTreeItem( 0x104, pTopLevelItem, "Text" );
-	new ColorTreeItem( 0x105, pTopLevelItem, "Button" );
-	new ColorTreeItem( 0x106, pTopLevelItem, "Button Text" );
-	new ColorTreeItem( 0x107, pTopLevelItem, "Light" );
-	new ColorTreeItem( 0x108, pTopLevelItem, "Mid Light" );
-	new ColorTreeItem( 0x109, pTopLevelItem, "Mid" );
-	new ColorTreeItem( 0x10a, pTopLevelItem, "Dark" );
-	new ColorTreeItem( 0x10b, pTopLevelItem, "Shadow Text" );
-	new ColorTreeItem( 0x10c, pTopLevelItem, "Highlight" );
-	new ColorTreeItem( 0x10d, pTopLevelItem, "Highlight Text" );
-	new ColorTreeItem( 0x10e, pTopLevelItem, "Selection Highlight" );
-	new ColorTreeItem( 0x10f, pTopLevelItem, "Selection Inactive" );
-	new ColorTreeItem( 0x110, pTopLevelItem, "Tool Tip Base" );
-	new ColorTreeItem( 0x111, pTopLevelItem, "Tool Tip Text" );
+	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, tr( "General" ) );
+	new ColorTreeItem( 0x100, pTopLevelItem, tr( "Window" ) );
+	new ColorTreeItem( 0x101, pTopLevelItem, tr( "Window Text" ) );
+	new ColorTreeItem( 0x102, pTopLevelItem, tr( "Base" ) );
+	new ColorTreeItem( 0x103, pTopLevelItem, tr( "Alternate Base" ) );
+	new ColorTreeItem( 0x104, pTopLevelItem, tr( "Text" ) );
+	new ColorTreeItem( 0x105, pTopLevelItem, tr( "Button" ) );
+	new ColorTreeItem( 0x106, pTopLevelItem, tr( "Button Text" ) );
+	new ColorTreeItem( 0x107, pTopLevelItem, tr( "Light" ) );
+	new ColorTreeItem( 0x108, pTopLevelItem, tr( "Mid Light" ) );
+	new ColorTreeItem( 0x109, pTopLevelItem, tr( "Mid" ) );
+	new ColorTreeItem( 0x10a, pTopLevelItem, tr( "Dark" ) );
+	new ColorTreeItem( 0x10b, pTopLevelItem, tr( "Shadow Text" ) );
+	new ColorTreeItem( 0x10c, pTopLevelItem, tr( "Highlight" ) );
+	new ColorTreeItem( 0x10d, pTopLevelItem, tr( "Highlight Text" ) );
+	new ColorTreeItem( 0x10e, pTopLevelItem, tr( "Selection Highlight" ) );
+	new ColorTreeItem( 0x10f, pTopLevelItem, tr( "Selection Inactive" ) );
+	new ColorTreeItem( 0x110, pTopLevelItem, tr( "Tool Tip Base" ) );
+	new ColorTreeItem( 0x111, pTopLevelItem, tr( "Tool Tip Text" ) );
 	
-	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, "Widgets" );
-	new ColorTreeItem( 0x200, pTopLevelItem, "Widget" );
-	new ColorTreeItem( 0x201, pTopLevelItem, "Widget Text" );
-	new ColorTreeItem( 0x202, pTopLevelItem, "Accent" );
-	new ColorTreeItem( 0x203, pTopLevelItem, "Accent Text" );
-	new ColorTreeItem( 0x204, pTopLevelItem, "Button Red" );
-	new ColorTreeItem( 0x205, pTopLevelItem, "Button Red Text" );
-	new ColorTreeItem( 0x206, pTopLevelItem, "Spin Box" );
-	new ColorTreeItem( 0x207, pTopLevelItem, "Spin Box Text" );
-	new ColorTreeItem( 0x208, pTopLevelItem, "Automation" );
-	new ColorTreeItem( 0x209, pTopLevelItem, "Automation Circle" );
-	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, "Song Editor" );
-	new ColorTreeItem( 0x300, pTopLevelItem, "Background" );
-	new ColorTreeItem( 0x301, pTopLevelItem, "Alternate Row" );
-	new ColorTreeItem( 0x302, pTopLevelItem, "Selected Row" );
-	new ColorTreeItem( 0x303, pTopLevelItem, "Line" );
-	new ColorTreeItem( 0x304, pTopLevelItem, "Text" );
-	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, "Pattern Editor" );
-	new ColorTreeItem( 0x400, pTopLevelItem, "Background" );
-	new ColorTreeItem( 0x401, pTopLevelItem, "Alternate Row" );
-	new ColorTreeItem( 0x402, pTopLevelItem, "Selected Row" );
-	new ColorTreeItem( 0x403, pTopLevelItem, "Text" );
-	new ColorTreeItem( 0x404, pTopLevelItem, "Note" );
-	new ColorTreeItem( 0x405, pTopLevelItem, "Note Off" );
-	new ColorTreeItem( 0x406, pTopLevelItem, "Line" );
-	new ColorTreeItem( 0x407, pTopLevelItem, "Line 1" );
-	new ColorTreeItem( 0x408, pTopLevelItem, "Line 2" );
-	new ColorTreeItem( 0x409, pTopLevelItem, "Line 3" );
-	new ColorTreeItem( 0x40a, pTopLevelItem, "Line 4" );
-	new ColorTreeItem( 0x40b, pTopLevelItem, "Line 5" );
+	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, tr( "Widgets" ) );
+	new ColorTreeItem( 0x200, pTopLevelItem, tr( "Widget" ) );
+	new ColorTreeItem( 0x201, pTopLevelItem, tr( "Widget Text" ) );
+	new ColorTreeItem( 0x202, pTopLevelItem, tr( "Accent" ) );
+	new ColorTreeItem( 0x203, pTopLevelItem, tr( "Accent Text" ) );
+	new ColorTreeItem( 0x204, pTopLevelItem, tr( "Button Red" ) );
+	new ColorTreeItem( 0x205, pTopLevelItem, tr( "Button Red Text" ) );
+	new ColorTreeItem( 0x206, pTopLevelItem, tr( "Spin Box" ) );
+	new ColorTreeItem( 0x207, pTopLevelItem, tr( "Spin Box Text" ) );
+	new ColorTreeItem( 0x208, pTopLevelItem, tr( "Playhead" ) );
+	new ColorTreeItem( 0x209, pTopLevelItem, tr( "Cursor" ) );
+	
+	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, tr( "Song Editor" ) );
+	new ColorTreeItem( 0x300, pTopLevelItem, tr( "Background" ) );
+	new ColorTreeItem( 0x301, pTopLevelItem, tr( "Alternate Row" ) );
+	new ColorTreeItem( 0x302, pTopLevelItem, tr( "Selected Row" ) );
+	new ColorTreeItem( 0x303, pTopLevelItem, tr( "Selected Row Text" ) );
+	new ColorTreeItem( 0x304, pTopLevelItem, tr( "Line" ) );
+	new ColorTreeItem( 0x305, pTopLevelItem, tr( "Text" ) );
+	new ColorTreeItem( 0x306, pTopLevelItem, tr( "Automation Background" ) );
+	new ColorTreeItem( 0x307, pTopLevelItem, tr( "Automation Line" ) );
+	new ColorTreeItem( 0x308, pTopLevelItem, tr( "Automation Node" ) );
+	new ColorTreeItem( 0x309, pTopLevelItem, tr( "Stacked Mode On" ) );
+	new ColorTreeItem( 0x30a, pTopLevelItem, tr( "Stacked Mode On Next" ) );
+	new ColorTreeItem( 0x30b, pTopLevelItem, tr( "Stacked Mode Off Next" ) );
+	
+	pTopLevelItem = new ColorTreeItem( 0x000, colorTree, tr( "Pattern Editor" ) );
+	new ColorTreeItem( 0x400, pTopLevelItem, tr( "Background" ) );
+	new ColorTreeItem( 0x401, pTopLevelItem, tr( "Alternate Row" ) );
+	new ColorTreeItem( 0x402, pTopLevelItem, tr( "Selected Row" ) );
+	new ColorTreeItem( 0x403, pTopLevelItem, tr( "Selected Row Text" ) );
+	new ColorTreeItem( 0x404, pTopLevelItem, tr( "Octave Row" ) );
+	new ColorTreeItem( 0x405, pTopLevelItem, tr( "Text" ) );
+	new ColorTreeItem( 0x406, pTopLevelItem, tr( "Note (Full Velocity)" ) );
+	new ColorTreeItem( 0x407, pTopLevelItem, tr( "Note (Default Velocity)" ) );
+	new ColorTreeItem( 0x408, pTopLevelItem, tr( "Note (Half Velocity)" ) );
+	new ColorTreeItem( 0x409, pTopLevelItem, tr( "Note (Zero Velocity)" ) );
+	new ColorTreeItem( 0x40a, pTopLevelItem, tr( "Note Off" ) );
+	new ColorTreeItem( 0x40b, pTopLevelItem, tr( "Grid Line 1" ) );
+	new ColorTreeItem( 0x40c, pTopLevelItem, tr( "Grid Line 2" ) );
+	new ColorTreeItem( 0x40d, pTopLevelItem, tr( "Grid Line 3" ) );
+	new ColorTreeItem( 0x40e, pTopLevelItem, tr( "Grid Line 4" ) );
+	new ColorTreeItem( 0x40f, pTopLevelItem, tr( "Grid Line 5" ) );
+	new ColorTreeItem( 0x410, pTopLevelItem, tr( "Grid Line 6" ) );
 
 	colorButton->setEnabled( false );
 
@@ -649,37 +662,46 @@ void PreferencesDialog::audioDeviceTxtChanged( const QString& )
 
 void PreferencesDialog::updateDriverPreferences() {
 	Preferences *pPref = Preferences::get_instance();
+	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
 
 	// Selected audio driver
-	if (driverComboBox->currentText() == "Auto" ) {
-		pPref->m_sAudioDriver = "Auto";
-	}
-	else if (driverComboBox->currentText() == "JACK" ) {
+	if (driverComboBox->currentText() == "JACK" ) {
 		pPref->m_sAudioDriver = "JACK";
 	}
-	else if (driverComboBox->currentText() == "ALSA" ) {
+	else if ( driverComboBox->currentText() == "ALSA" ||
+			  ( driverComboBox->currentText() == "Auto" &&
+				dynamic_cast<H2Core::AlsaAudioDriver*>(pAudioDriver) != nullptr ) ) {
 		pPref->m_sAudioDriver = "ALSA";
 		pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
 	}
-	else if (driverComboBox->currentText() == "OSS" ) {
+	else if ( driverComboBox->currentText() == "OSS" ||
+			  ( driverComboBox->currentText() == "Auto" &&
+				dynamic_cast<H2Core::OssDriver*>(pAudioDriver) != nullptr ) ) {
 		pPref->m_sAudioDriver = "OSS";
 		pPref->m_sOSSDevice = m_pAudioDeviceTxt->lineEdit()->text();
 	}
-	else if (driverComboBox->currentText() == "PortAudio" ) {
+	else if (driverComboBox->currentText() == "PortAudio" ||
+			 ( driverComboBox->currentText() == "Auto" &&
+			   dynamic_cast<H2Core::PortAudioDriver*>(pAudioDriver) != nullptr ) ) {
 		pPref->m_sAudioDriver = "PortAudio";
 		pPref->m_sPortAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
 		pPref->m_sPortAudioHostAPI = portaudioHostAPIComboBox->currentText();
 		pPref->m_nLatencyTarget = latencyTargetSpinBox->value();
 	}
-	else if (driverComboBox->currentText() == "CoreAudio" ) {
+	else if (driverComboBox->currentText() == "CoreAudio" ||
+			 ( driverComboBox->currentText() == "Auto" &&
+			   dynamic_cast<H2Core::CoreAudioDriver*>(pAudioDriver) != nullptr ) ) {
 		pPref->m_sAudioDriver = "CoreAudio";
 		pPref->m_sCoreAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
 	}
 	else if (driverComboBox->currentText() == "PulseAudio" ) {
 		pPref->m_sAudioDriver = "PulseAudio";
 	}
+	else if (driverComboBox->currentText() == "Auto" ) {
+		pPref->m_sAudioDriver = "Auto";
+	}
 	else {
-		ERRORLOG( "[okBtnClicked] Invalid audio driver:" + driverComboBox->currentText() );
+		ERRORLOG( "[okBtnClicked] Invalid audio driver: " + driverComboBox->currentText() );
 	}
 
 	// JACK
@@ -812,7 +834,6 @@ void PreferencesDialog::on_okBtn_clicked()
 	pPref->setUseRelativeFilenamesForPlaylists( useRelativePlaylistPathsCheckbox->isChecked() );
 	pPref->m_bsetLash = useLashCheckbox->isChecked(); //restore m_bsetLash after saving pref.
 	pPref->setHideKeyboardCursor( hideKeyboardCursor->isChecked() );
-	pPref->setPatternFollowsSong( patternFollowsSongCheckbox->isChecked() );
 
 	//path to rubberband
 	pPref-> m_rubberBandCLIexecutable = rubberbandLineEdit->text();
@@ -893,48 +914,14 @@ void PreferencesDialog::updateDriverInfo()
 	Preferences *pPref = Preferences::get_instance();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
-	QString info;
 
-	bool bJack_support = false;
-#ifdef H2CORE_HAVE_JACK
-	bJack_support = true;
-#endif
+	// Reset info text
+	driverInfoLbl->setText("");
 
-	bool bAlsa_support = false;
-#ifdef H2CORE_HAVE_ALSA
-	bAlsa_support = true;
-#endif
-
-	bool bOss_support = false;
-#ifdef H2CORE_HAVE_OSS
-	bOss_support = true;
-#endif
-
-	bool bPortAudio_support = false;
-#ifdef H2CORE_HAVE_PORTAUDIO
-	bPortAudio_support = true;
-#endif
-
-	bool bCoreAudio_support = false;
-#ifdef H2CORE_HAVE_COREAUDIO
-	bCoreAudio_support = true;
-#endif
-
-	bool bPulseAudio_support = false;
-#ifdef H2CORE_HAVE_PULSEAUDIO
-	bPulseAudio_support = true;
-#endif
-
-	m_pAudioDeviceTxt->setDriver( driverComboBox->currentText() );
 	if ( driverComboBox->currentText() == "Auto" ) {
-		info += tr("Automatic driver selection");
-		
-		// Display the selected driver as well.
-		if ( pAudioDriver != nullptr ) {
-			info.append( "<br><b>" )
-				.append( pAudioDriver->class_name() )
-				.append( "</b> " ).append( tr( "selected") );
-		}
+
+		driverInfoLbl->setText( tr("Automatic driver selection")
+								.append( "<br><br>" ));
 
 		if ( dynamic_cast<H2Core::JackAudioDriver*>(pAudioDriver) != nullptr ) {
 			setDriverInfoJack();
@@ -949,6 +936,15 @@ void PreferencesDialog::updateDriverInfo()
 		} else if ( dynamic_cast<H2Core::OssDriver*>(pAudioDriver) != nullptr ) {
 			setDriverInfoOss();
 		} else {
+			QString sInfo = driverInfoLbl->text();
+		
+			// Display the selected driver as well.
+			sInfo.append( "<b>" )
+				.append( tr( "Error starting audio driver" ) )
+				.append( "</b> " );
+			driverInfoLbl->setText( sInfo );
+		
+			m_pAudioDeviceTxt->setDriver( "Null" );
 			m_pAudioDeviceTxt->setIsActive( false );
 			m_pAudioDeviceTxt->lineEdit()->setText( "" );
 			bufferSizeSpinBox->setIsActive( false );
@@ -975,72 +971,22 @@ void PreferencesDialog::updateDriverInfo()
 			latencyValueLabel->hide();
 		}
 	}
-	else if ( driverComboBox->currentText() == "OSS" ) {	// OSS
-		info.append( "<b>" ).append( tr( "Open Sound System" ) )
-			.append( "</b><br>" )
-			.append( tr( "Simple audio driver [/dev/dsp]" ) );
-		if ( !bOss_support ) {
-			info.append( "<br><b><font color=\"red\">" )
-				.append( pCommonStrings->getPreferencesNotCompiled() )
-				.append( "</font></b>" );
-		}
+	else if ( driverComboBox->currentText() == "OSS" ) {
 		setDriverInfoOss();
 	}
-	else if ( driverComboBox->currentText() == "JACK" ) {	// JACK
-		info.append( "<b>" )
-			.append( tr( "JACK Audio Connection Kit Driver" ) )
-			.append( "</b><br>" )
-			.append( tr( "Low latency audio driver" ) );
-		if ( !bJack_support ) {
-			info += QString("<br><b><font color=")
-				.append( m_sColorRed ).append( ">")
-				.append( pCommonStrings->getPreferencesNotCompiled() )
-				.append( "</font></b>" );
-		}
+	else if ( driverComboBox->currentText() == "JACK" ) {
 		setDriverInfoJack();
 	}
-	else if ( driverComboBox->currentText() == "ALSA" ) {	// ALSA
-		info.append( "<b>" ).append( tr( "ALSA Driver" ) )
-			.append( "</b><br>" );
-		if ( !bAlsa_support ) {
-			info += QString("<br><b><font color=")
-				.append( m_sColorRed ).append( ">")
-				.append( pCommonStrings->getPreferencesNotCompiled() )
-				.append( "</font></b>" );
-		}
+	else if ( driverComboBox->currentText() == "ALSA" ) {
 		setDriverInfoAlsa();
 	}
 	else if ( driverComboBox->currentText() == "PortAudio" ) {
-		info.append( "<b>" ).append( tr( "PortAudio Driver" ) )
-			.append( "</b><br>" );
-		if ( !bPortAudio_support ) {
-			info += QString("<br><b><font color=")
-				.append( m_sColorRed ).append( ">")
-				.append( pCommonStrings->getPreferencesNotCompiled() )
-				.append( "</font></b>" );
-		}
 		setDriverInfoPortAudio();
 	}
 	else if ( driverComboBox->currentText() == "CoreAudio" ) {
-		info.append( "<b>" ).append( tr( "CoreAudio Driver" ) )
-			.append( "</b><br>" );
-		if ( !bCoreAudio_support ) {
-			info += QString("<br><b><font color=")
-				.append( m_sColorRed ).append( ">")
-				.append( pCommonStrings->getPreferencesNotCompiled() )
-				.append( "</font></b>" );
-		}
 		setDriverInfoCoreAudio();
 	}
 	else if ( driverComboBox->currentText() == "PulseAudio" ) {
-		info.append( "<b>" ).append( tr( "PulseAudio Driver" ) )
-			.append( "</b><br>" );
-		if ( !bPulseAudio_support ) {
-			info += QString("<br><b><font color=")
-				.append( m_sColorRed ).append( ">")
-				.append( pCommonStrings->getPreferencesNotCompiled() )
-				.append( "</font></b>" );
-		}
 		setDriverInfoPulseAudio();
 	}
 	else {
@@ -1050,13 +996,27 @@ void PreferencesDialog::updateDriverInfo()
 
 	metronomeVolumeSpinBox->setEnabled(true);
 	bufferSizeSpinBox->setValue( pPref->m_nBufferSize );
-
-	driverInfoLbl->setText(info);
 }
 
 void PreferencesDialog::setDriverInfoOss() {
 	auto pPref = H2Core::Preferences::get_instance();
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
+	QString sInfo = driverInfoLbl->text();
+		
+	sInfo.append( "<b>" ).append( tr( "Open Sound System" ) )
+		.append( "</b><br>" )
+		.append( tr( "Simple audio driver [/dev/dsp]" ) );
+#ifndef H2CORE_HAVE_OSS
+	sInfo.append( "<br><b><font color=" )
+		.append( m_sColorRed ).append( ">")
+		.append( pCommonStrings->getPreferencesNotCompiled() )
+		.append( "</font></b>" );
+
+#endif
+	driverInfoLbl->setText( sInfo );
+	
+	m_pAudioDeviceTxt->setDriver( "OSS" );
 	m_pAudioDeviceTxt->setIsActive(true);
 	m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sOSSDevice );
 	bufferSizeSpinBox->setIsActive(true);
@@ -1080,7 +1040,31 @@ void PreferencesDialog::setDriverInfoOss() {
 
 void PreferencesDialog::setDriverInfoAlsa() {
 	auto pPref = H2Core::Preferences::get_instance();
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
+	QString sInfo = driverInfoLbl->text();
+		
+	sInfo.append( "<b>" ).append( tr( "ALSA Driver" ) )
+		.append( "</b><br>" );
+#ifndef H2CORE_HAVE_ALSA
+	sInfo.append( "<br><b><font color=" )
+		.append( m_sColorRed ).append( ">")
+		.append( pCommonStrings->getPreferencesNotCompiled() )
+		.append( "</font></b>" );
+#else
+	auto pAlsaDriver =
+		dynamic_cast<H2Core::AlsaAudioDriver*>(Hydrogen::get_instance()->getAudioOutput());
+	if ( pAlsaDriver != nullptr ) {
+		sInfo.append( "<br>" ).append( tr( "Currently connected to device: " ) )
+			.append( "<b>" ).append( pAlsaDriver->m_sAlsaAudioDevice )
+			.append( "</b>" );
+	} else {
+		ERRORLOG( "ALSA driver selected in PreferencesDialog but no ALSA driver running?" );
+	}
+#endif
+	driverInfoLbl->setText( sInfo );
+
+	m_pAudioDeviceTxt->setDriver( "ALSA" );
 	m_pAudioDeviceTxt->setIsActive(true);
 	m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sAlsaAudioDevice );
 	bufferSizeSpinBox->setIsActive(true);
@@ -1105,6 +1089,21 @@ void PreferencesDialog::setDriverInfoAlsa() {
 void PreferencesDialog::setDriverInfoJack() {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
+	QString sInfo = driverInfoLbl->text();
+		
+	sInfo.append( "<b>" )
+		.append( tr( "JACK Audio Connection Kit Driver" ) )
+		.append( "</b><br>" )
+		.append( tr( "Low latency audio driver" ) );
+#ifndef H2CORE_HAVE_JACK
+	sInfo.append( "<br><b><font color=" )
+		.append( m_sColorRed ).append( ">")
+		.append( pCommonStrings->getPreferencesNotCompiled() )
+		.append( "</font></b>" );
+#endif
+	driverInfoLbl->setText( sInfo );
+
+	m_pAudioDeviceTxt->setDriver( "JACK" );
 	m_pAudioDeviceTxt->setIsActive(false);
 	m_pAudioDeviceTxt->lineEdit()->setText( "" );
 	bufferSizeSpinBox->setIsActive(false);
@@ -1134,10 +1133,24 @@ void PreferencesDialog::setDriverInfoJack() {
 
 void PreferencesDialog::setDriverInfoCoreAudio() {
 	auto pPref = H2Core::Preferences::get_instance();
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
+	QString sInfo = driverInfoLbl->text();
+		
+	sInfo.append( "<b>" ).append( tr( "CoreAudio Driver" ) )
+		.append( "</b><br>" );
+#ifndef H2CORE_HAVE_COREAUDIO
+	sInfo.append( "<br><b><font color=" )
+		.append( m_sColorRed ).append( ">")
+		.append( pCommonStrings->getPreferencesNotCompiled() )
+		.append( "</font></b>" );
+#endif
+	driverInfoLbl->setText( sInfo );
+
+	m_pAudioDeviceTxt->setDriver( "CoreAudio" );
 	m_pAudioDeviceTxt->setIsActive( true );
 	m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sCoreAudioDevice );
-	bufferSizeSpinBox->setIsActive( false );
+	bufferSizeSpinBox->setIsActive( true );
 	sampleRateComboBox->setIsActive(true);
 	trackOutputComboBox->hide();
 	trackOutputLbl->hide();
@@ -1158,7 +1171,21 @@ void PreferencesDialog::setDriverInfoCoreAudio() {
 
 void PreferencesDialog::setDriverInfoPortAudio() {
 	auto pPref = H2Core::Preferences::get_instance();
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
+	QString sInfo = driverInfoLbl->text();
+		
+	sInfo.append( "<b>" ).append( tr( "PortAudio Driver" ) )
+		.append( "</b><br>" );
+#ifndef H2CORE_HAVE_PORTAUDIO
+	sInfo.append( "<br><b><font color=" )
+		.append( m_sColorRed ).append( ">")
+		.append( pCommonStrings->getPreferencesNotCompiled() )
+		.append( "</font></b>" );
+#endif
+	driverInfoLbl->setText( sInfo );
+
+	m_pAudioDeviceTxt->setDriver( "PortAudio" );
 	m_pAudioDeviceTxt->setIsActive( true );
 	m_pAudioDeviceTxt->lineEdit()->setText( pPref->m_sPortAudioDevice );
 	bufferSizeSpinBox->setIsActive(false);
@@ -1182,6 +1209,21 @@ void PreferencesDialog::setDriverInfoPortAudio() {
 }
 
 void PreferencesDialog::setDriverInfoPulseAudio() {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	
+	QString sInfo = driverInfoLbl->text();
+		
+	sInfo.append( "<b>" ).append( tr( "PulseAudio Driver" ) )
+		.append( "</b><br>" );
+#ifndef H2CORE_HAVE_PULSEAUDIO
+	sInfo.append( "<br><b><font color=" )
+		.append( m_sColorRed ).append( ">")
+		.append( pCommonStrings->getPreferencesNotCompiled() )
+		.append( "</font></b>" );
+#endif
+	driverInfoLbl->setText( sInfo );
+	
+	m_pAudioDeviceTxt->setDriver( "PulseAudio" );
 	m_pAudioDeviceTxt->setIsActive(false);
 	m_pAudioDeviceTxt->lineEdit()->setText("");
 	bufferSizeSpinBox->setIsActive(true);
@@ -1231,7 +1273,6 @@ void PreferencesDialog::onLevel3FontChanged( const QFont& font ) {
 }
 
 void PreferencesDialog::onRejected() {
-	auto pPref = Preferences::get_instance();
 
 	updateAppearanceTab( m_pPreviousTheme );
 
@@ -1249,8 +1290,8 @@ void PreferencesDialog::onFontSizeChanged( int nIndex ) {
 		m_pCurrentTheme->getFontTheme()->m_fontSize = FontTheme::FontSize::Small;
 		break;
 	case 1:
-		pPref->setFontSize( FontTheme::FontSize::Normal );
-		m_pCurrentTheme->getFontTheme()->m_fontSize = FontTheme::FontSize::Normal;
+		pPref->setFontSize( FontTheme::FontSize::Medium );
+		m_pCurrentTheme->getFontTheme()->m_fontSize = FontTheme::FontSize::Medium;
 		break;
 	case 2:
 		pPref->setFontSize( FontTheme::FontSize::Large );
@@ -1516,25 +1557,37 @@ QColor* PreferencesDialog::getColorById( int nId, std::shared_ptr<H2Core::ColorT
 	case 0x205: return &pColorTheme->m_buttonRedTextColor;
 	case 0x206: return &pColorTheme->m_spinBoxColor;
 	case 0x207: return &pColorTheme->m_spinBoxTextColor;
-	case 0x208: return &pColorTheme->m_automationColor;
-	case 0x209: return &pColorTheme->m_automationCircleColor;
+	case 0x208: return &pColorTheme->m_playheadColor;
+	case 0x209: return &pColorTheme->m_cursorColor;
 	case 0x300: return &pColorTheme->m_songEditor_backgroundColor;
 	case 0x301: return &pColorTheme->m_songEditor_alternateRowColor;
 	case 0x302: return &pColorTheme->m_songEditor_selectedRowColor;
-	case 0x303: return &pColorTheme->m_songEditor_lineColor;
-	case 0x304: return &pColorTheme->m_songEditor_textColor;
+	case 0x303: return &pColorTheme->m_songEditor_selectedRowTextColor;
+	case 0x304: return &pColorTheme->m_songEditor_lineColor;
+	case 0x305: return &pColorTheme->m_songEditor_textColor;
+	case 0x306: return &pColorTheme->m_songEditor_automationBackgroundColor;
+	case 0x307: return &pColorTheme->m_songEditor_automationLineColor;
+	case 0x308: return &pColorTheme->m_songEditor_automationNodeColor;
+	case 0x309: return &pColorTheme->m_songEditor_stackedModeOnColor;
+	case 0x30a: return &pColorTheme->m_songEditor_stackedModeOnNextColor;
+	case 0x30b: return &pColorTheme->m_songEditor_stackedModeOffNextColor;
 	case 0x400: return &pColorTheme->m_patternEditor_backgroundColor;
 	case 0x401: return &pColorTheme->m_patternEditor_alternateRowColor;
 	case 0x402: return &pColorTheme->m_patternEditor_selectedRowColor;
-	case 0x403: return &pColorTheme->m_patternEditor_textColor;
-	case 0x404: return &pColorTheme->m_patternEditor_noteColor;
-	case 0x405: return &pColorTheme->m_patternEditor_noteoffColor;
-	case 0x406: return &pColorTheme->m_patternEditor_lineColor;
-	case 0x407: return &pColorTheme->m_patternEditor_line1Color;
-	case 0x408: return &pColorTheme->m_patternEditor_line2Color;
-	case 0x409: return &pColorTheme->m_patternEditor_line3Color;
-	case 0x40a: return &pColorTheme->m_patternEditor_line4Color;
-	case 0x40b: return &pColorTheme->m_patternEditor_line5Color;
+	case 0x403: return &pColorTheme->m_patternEditor_selectedRowTextColor;
+	case 0x404: return &pColorTheme->m_patternEditor_octaveRowColor;
+	case 0x405: return &pColorTheme->m_patternEditor_textColor;
+	case 0x406: return &pColorTheme->m_patternEditor_noteVelocityFullColor;
+	case 0x407: return &pColorTheme->m_patternEditor_noteVelocityDefaultColor;
+	case 0x408: return &pColorTheme->m_patternEditor_noteVelocityHalfColor;
+	case 0x409: return &pColorTheme->m_patternEditor_noteVelocityZeroColor;
+	case 0x40a: return &pColorTheme->m_patternEditor_noteOffColor;
+	case 0x40b: return &pColorTheme->m_patternEditor_lineColor;
+	case 0x40c: return &pColorTheme->m_patternEditor_line1Color;
+	case 0x40d: return &pColorTheme->m_patternEditor_line2Color;
+	case 0x40e: return &pColorTheme->m_patternEditor_line3Color;
+	case 0x40f: return &pColorTheme->m_patternEditor_line4Color;
+	case 0x410: return &pColorTheme->m_patternEditor_line5Color;
 	default: return nullptr;
 	}
 
@@ -1596,9 +1649,9 @@ void PreferencesDialog::setColorById( int nId, const QColor& color,
 		break;
 	case 0x207:  pColorTheme->m_spinBoxTextColor = color;
 		break;
-	case 0x208:  pColorTheme->m_automationColor = color;
+	case 0x208:  pColorTheme->m_playheadColor = color;
 		break;
-	case 0x209:  pColorTheme->m_automationCircleColor = color;
+	case 0x209:  pColorTheme->m_cursorColor = color;
 		break;
 	case 0x300:  pColorTheme->m_songEditor_backgroundColor = color;
 		break;
@@ -1606,9 +1659,23 @@ void PreferencesDialog::setColorById( int nId, const QColor& color,
 		break;
 	case 0x302:  pColorTheme->m_songEditor_selectedRowColor = color;
 		break;
-	case 0x303:  pColorTheme->m_songEditor_lineColor = color;
+	case 0x303:  pColorTheme->m_songEditor_selectedRowTextColor = color;
 		break;
-	case 0x304:  pColorTheme->m_songEditor_textColor = color;
+	case 0x304:  pColorTheme->m_songEditor_lineColor = color;
+		break;
+	case 0x305:  pColorTheme->m_songEditor_textColor = color;
+		break;
+	case 0x306:  pColorTheme->m_songEditor_automationBackgroundColor = color;
+		break;
+	case 0x307:  pColorTheme->m_songEditor_automationLineColor = color;
+		break;
+	case 0x308:  pColorTheme->m_songEditor_automationNodeColor = color;
+		break;
+	case 0x309:  pColorTheme->m_songEditor_stackedModeOnColor = color;
+		break;
+	case 0x30a:  pColorTheme->m_songEditor_stackedModeOnNextColor = color;
+		break;
+	case 0x30b:  pColorTheme->m_songEditor_stackedModeOffNextColor = color;
 		break;
 	case 0x400:  pColorTheme->m_patternEditor_backgroundColor = color;
 		break;
@@ -1616,23 +1683,33 @@ void PreferencesDialog::setColorById( int nId, const QColor& color,
 		break;
 	case 0x402:  pColorTheme->m_patternEditor_selectedRowColor = color;
 		break;
-	case 0x403:  pColorTheme->m_patternEditor_textColor = color;
+	case 0x403:  pColorTheme->m_patternEditor_selectedRowTextColor = color;
 		break;
-	case 0x404:  pColorTheme->m_patternEditor_noteColor = color;
+	case 0x404:  pColorTheme->m_patternEditor_octaveRowColor = color;
 		break;
-	case 0x405:  pColorTheme->m_patternEditor_noteoffColor = color;
+	case 0x405:  pColorTheme->m_patternEditor_textColor = color;
 		break;
-	case 0x406:  pColorTheme->m_patternEditor_lineColor = color;
+	case 0x406:  pColorTheme->m_patternEditor_noteVelocityFullColor = color;
 		break;
-	case 0x407:  pColorTheme->m_patternEditor_line1Color = color;
+	case 0x407:  pColorTheme->m_patternEditor_noteVelocityDefaultColor = color;
 		break;
-	case 0x408:  pColorTheme->m_patternEditor_line2Color = color;
+	case 0x408:  pColorTheme->m_patternEditor_noteVelocityHalfColor = color;
 		break;
-	case 0x409:  pColorTheme->m_patternEditor_line3Color = color;
+	case 0x409:  pColorTheme->m_patternEditor_noteVelocityZeroColor = color;
 		break;
-	case 0x40a:  pColorTheme->m_patternEditor_line4Color = color;
+	case 0x40a:  pColorTheme->m_patternEditor_noteOffColor = color;
 		break;
-	case 0x40b:  pColorTheme->m_patternEditor_line5Color = color;
+	case 0x40b:  pColorTheme->m_patternEditor_lineColor = color;
+		break;
+	case 0x40c:  pColorTheme->m_patternEditor_line1Color = color;
+		break;
+	case 0x40d:  pColorTheme->m_patternEditor_line2Color = color;
+		break;
+	case 0x40e:  pColorTheme->m_patternEditor_line3Color = color;
+		break;
+	case 0x40f:  pColorTheme->m_patternEditor_line4Color = color;
+		break;
+	case 0x410:  pColorTheme->m_patternEditor_line5Color = color;
 		break;
 	default: DEBUGLOG( "Unknown ID" );
 	}
@@ -1992,6 +2069,7 @@ void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme
 	coloringMethodAuxSpinBox->setValue( pTheme->getInterfaceTheme()->m_nVisiblePatternColors );
 	QSize size( uiScalingPolicyComboBox->width(), coloringMethodAuxSpinBox->height() );
 
+	// Ensure the number of color buttons match.
 	if ( m_colorSelectionButtons.size() !=
 		 pTheme->getInterfaceTheme()->m_nMaxPatternColors ) {
 	
@@ -2020,6 +2098,13 @@ void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme
 		}
 	}
 
+	// Update their colors.
+	for ( int ii = 0; ii < m_colorSelectionButtons.size(); ++ii ) {
+		m_colorSelectionButtons[ ii ]->setColor( pTheme->getInterfaceTheme()->
+												 m_patternColors[ ii ] );
+	}
+
+	// Display only the required number.
 	if ( nColoringMethod != 0 ) {
 		for ( int ii = 0; ii < pTheme->getInterfaceTheme()->m_nVisiblePatternColors; ii++ ) {
 			m_colorSelectionButtons[ ii ]->show();
@@ -2034,7 +2119,7 @@ void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme
 	case FontTheme::FontSize::Small:
 		fontSizeComboBox->setCurrentIndex( 0 );
 		break;
-	case FontTheme::FontSize::Normal:
+	case FontTheme::FontSize::Medium:
 		fontSizeComboBox->setCurrentIndex( 1 );
 		break;
 	case FontTheme::FontSize::Large:

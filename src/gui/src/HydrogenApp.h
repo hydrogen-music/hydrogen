@@ -266,6 +266,7 @@ private slots:
 
 		void setupSinglePanedInterface();
 		virtual void songModifiedEvent() override;
+	virtual void XRunEvent() override;
 
 		/** Handles the loading and saving of the H2Core::Preferences
 		 * from the core part of H2Core::Hydrogen.
@@ -296,12 +297,6 @@ private slots:
 		 *     opened in read-only mode.
 		 */
 		virtual void updateSongEvent( int nValue ) override;
-		/**
-		 * Calls closeAll() to shutdown Hydrogen.
-		 *
-		 * \param nValue unused
-		 */
-		virtual void quitEvent( int nValue ) override;
 	virtual void drumkitLoadedEvent() override;
 	
 };

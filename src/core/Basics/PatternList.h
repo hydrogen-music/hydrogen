@@ -80,7 +80,7 @@ class AudioEngineLocking;
 		 * \param idx the index to get the pattern from
 		 */
 		Pattern* get( int idx );
-		const Pattern* get( int idx ) const;
+		Pattern* get( int idx ) const;
 		/**
 		 * remove the pattern at a given index, does not delete it
 		 * \param idx the index
@@ -98,7 +98,7 @@ class AudioEngineLocking;
 		 * \param pattern a pointer to the pattern to find
 		 * \return -1 if not found
 		 */
-		int index( const Pattern* pattern );
+		int index( const Pattern* pattern ) const;
 		/**
 		 * replace the pattern at a given index with a new one
 		 * \param idx the index
@@ -158,7 +158,7 @@ class AudioEngineLocking;
 		 * Get the length of the longest pattern in the list
 		 * \return pattern length in ticks, -1 if list is empty
 		 */
-		int longest_pattern_length();
+		int longest_pattern_length() const;
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line

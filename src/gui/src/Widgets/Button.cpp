@@ -34,9 +34,10 @@
 #include <core/Preferences/Theme.h>
 #include <core/Hydrogen.h>
 
-Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize, QString sBaseTooltip, bool bColorful, bool bModifyOnChange )
+Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, const QString& sText, bool bUseRedBackground, QSize iconSize, QString sBaseTooltip, bool bColorful, bool bModifyOnChange, const QString& sBorderRadius )
 	: QPushButton( pParent )
 	, m_size( size )
+	, m_type( type )
 	, m_iconSize( iconSize )
 	, m_sBaseTooltip( sBaseTooltip )
 	, m_sRegisteredMidiEvent( "" )
@@ -48,8 +49,8 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 	, m_bUseRedBackground( bUseRedBackground )
 	, m_nFixedFontSize( -1 )
 	, m_bModifyOnChange( bModifyOnChange )
+	, m_sBorderRadius( sBorderRadius )
 {
-	setAttribute( Qt::WA_OpaquePaintEvent );
 	setFocusPolicy( Qt::NoFocus );
 	
 	if ( size.isNull() || size.isEmpty() ) {
@@ -65,12 +66,14 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 		setText( sText );
 	}
 
-	if ( size.width() <= 12 || size.height() <= 12 ) {
-		m_sBorderRadius = "0";
-	} else if ( size.width() <= 20 || size.height() <= 20 ) {
-		m_sBorderRadius = "3";
-	} else {
-		m_sBorderRadius = "5";
+	if ( m_sBorderRadius.isEmpty() ) {
+		if ( size.width() <= 12 || size.height() <= 12 ) {
+			m_sBorderRadius = "0";
+		} else if ( size.width() <= 20 || size.height() <= 20 ) {
+			m_sBorderRadius = "3";
+		} else {
+			m_sBorderRadius = "5";
+		}
 	}
 	
 	if ( type == Type::Toggle ) {
@@ -79,17 +82,17 @@ Button::Button( QWidget *pParent, QSize size, Type type, const QString& sIcon, c
 		setCheckable( false );
 	}
 
+	if ( type == Type::Icon ) {
+		setFlat( true );
+	}
+
 	updateFont();
 	updateStyleSheet();
 	updateTooltip();
 	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Button::onPreferencesChanged );
 
-	if ( type == Type::Toggle ) {
-		connect( this, SIGNAL(toggled(bool)), this, SLOT(onToggled(bool)));
-	} else {
-		connect( this, SIGNAL(clicked(bool)), this, SLOT(onToggled(bool)));
-	}
+	connect( this, SIGNAL(clicked()), this, SLOT(onClick()));
 }
 
 Button::~Button() {
@@ -118,7 +121,20 @@ void Button::updateIcon() {
 	setIconSize( m_iconSize );
 }
 
+void Button::setUseRedBackground( bool bUseRedBackground ) {
+	m_bUseRedBackground	= bUseRedBackground;
+
+	updateStyleSheet();
+	update();
+}
+
 void Button::updateStyleSheet() {
+
+	if ( m_type == Type::Icon ) {
+		// Make background transparent
+		setStyleSheet( "background-color: none" );
+		return;
+	}
 
 	auto pPref = H2Core::Preferences::get_instance();
 	
@@ -131,43 +147,35 @@ void Button::updateStyleSheet() {
 	float x2 = 1;
 	float y1 = 0;
 	float y2 = 1;
-	
-	QColor backgroundLight = pPref->getColorTheme()->m_widgetColor.lighter( nFactorGradient );
-	QColor backgroundDark = pPref->getColorTheme()->m_widgetColor.darker( nFactorGradient );
-	QColor backgroundLightHover = pPref->getColorTheme()->m_widgetColor.lighter( nFactorGradient + nHover );
-	QColor backgroundDarkHover = pPref->getColorTheme()->m_widgetColor.darker( nFactorGradient + nHover );
-	QColor backgroundShadowLight = pPref->getColorTheme()->m_widgetColor.lighter( nFactorGradientShadow );
-	QColor backgroundShadowDark = pPref->getColorTheme()->m_widgetColor.darker( nFactorGradientShadow );
-	QColor backgroundShadowLightHover = pPref->getColorTheme()->m_widgetColor.lighter( nFactorGradientShadow + nHover );
-	QColor backgroundShadowDarkHover = pPref->getColorTheme()->m_widgetColor.darker( nFactorGradientShadow + nHover );
+
+	QColor baseColorBackground = pPref->getColorTheme()->m_widgetColor;
+	QColor backgroundLight = baseColorBackground.lighter( nFactorGradient );
+	QColor backgroundDark = baseColorBackground.darker( nFactorGradient );
+	QColor backgroundLightHover = baseColorBackground.lighter( nFactorGradient + nHover );
+	QColor backgroundDarkHover = baseColorBackground.darker( nFactorGradient + nHover );
+	QColor backgroundShadowLight = baseColorBackground.lighter( nFactorGradientShadow );
+	QColor backgroundShadowDark = baseColorBackground.darker( nFactorGradientShadow );
+	QColor backgroundShadowLightHover = baseColorBackground.lighter( nFactorGradientShadow + nHover );
+	QColor backgroundShadowDarkHover = baseColorBackground.darker( nFactorGradientShadow + nHover );
 	QColor border = Qt::black;
 
-	QColor backgroundCheckedLight, backgroundCheckedDark,
-		backgroundCheckedLightHover, backgroundCheckedDarkHover,
-		backgroundShadowCheckedLight, backgroundShadowCheckedDark,
-		backgroundShadowCheckedLightHover, backgroundShadowCheckedDarkHover,
-		textChecked;
+	QColor baseColorBackgroundChecked, textChecked;
 	if ( ! m_bUseRedBackground ) {
-		backgroundCheckedLight = pPref->getColorTheme()->m_accentColor.lighter( nFactorGradient );
-		backgroundCheckedDark = pPref->getColorTheme()->m_accentColor.darker( nFactorGradient );
-		backgroundCheckedLightHover = pPref->getColorTheme()->m_accentColor.lighter( nFactorGradient + nHover );
-		backgroundCheckedDarkHover = pPref->getColorTheme()->m_accentColor.darker( nFactorGradient + nHover );
-		backgroundShadowCheckedLight = pPref->getColorTheme()->m_accentColor.lighter( nFactorGradientShadow );
-		backgroundShadowCheckedDark = pPref->getColorTheme()->m_accentColor.darker( nFactorGradientShadow );
-		backgroundShadowCheckedLightHover = pPref->getColorTheme()->m_accentColor.lighter( nFactorGradientShadow + nHover );
-		backgroundShadowCheckedDarkHover = pPref->getColorTheme()->m_accentColor.darker( nFactorGradientShadow + nHover );
+		baseColorBackgroundChecked = pPref->getColorTheme()->m_accentColor;
 		textChecked = pPref->getColorTheme()->m_accentTextColor;
 	} else {
-		backgroundCheckedLight = pPref->getColorTheme()->m_buttonRedColor.lighter( nFactorGradient );
-		backgroundCheckedDark = pPref->getColorTheme()->m_buttonRedColor.darker( nFactorGradient );
-		backgroundCheckedLightHover = pPref->getColorTheme()->m_buttonRedColor.lighter( nFactorGradient + nHover );
-		backgroundCheckedDarkHover = pPref->getColorTheme()->m_buttonRedColor.darker( nFactorGradient + nHover );
-		backgroundShadowCheckedLight = pPref->getColorTheme()->m_buttonRedColor.lighter( nFactorGradientShadow );
-		backgroundShadowCheckedDark = pPref->getColorTheme()->m_buttonRedColor.darker( nFactorGradientShadow );
-		backgroundShadowCheckedLightHover = pPref->getColorTheme()->m_buttonRedColor.lighter( nFactorGradientShadow + nHover );
-		backgroundShadowCheckedDarkHover = pPref->getColorTheme()->m_buttonRedColor.darker( nFactorGradientShadow + nHover );
+		baseColorBackgroundChecked = pPref->getColorTheme()->m_buttonRedColor;
 		textChecked = pPref->getColorTheme()->m_buttonRedTextColor;
 	}
+	
+	QColor backgroundCheckedLight = baseColorBackgroundChecked.lighter( nFactorGradient );
+	QColor backgroundCheckedDark = baseColorBackgroundChecked.darker( nFactorGradient );
+	QColor backgroundCheckedLightHover = baseColorBackgroundChecked.lighter( nFactorGradient + nHover );
+	QColor backgroundCheckedDarkHover = baseColorBackgroundChecked.darker( nFactorGradient + nHover );
+	QColor backgroundShadowCheckedLight = baseColorBackgroundChecked.lighter( nFactorGradientShadow );
+	QColor backgroundShadowCheckedDark = baseColorBackgroundChecked.darker( nFactorGradientShadow );
+	QColor backgroundShadowCheckedLightHover = baseColorBackgroundChecked.lighter( nFactorGradientShadow + nHover );
+	QColor backgroundShadowCheckedDarkHover = baseColorBackgroundChecked.darker( nFactorGradientShadow + nHover );
 
 	QColor textColor = pPref->getColorTheme()->m_widgetTextColor;
 	
@@ -196,7 +204,7 @@ void Button::updateStyleSheet() {
 		Skin::makeWidgetColorInactive( backgroundShadowCheckedDark );
 	QColor backgroundShadowInactiveCheckedDarkHover = backgroundShadowInactiveCheckedDark;
 	QColor textInactiveColor = Skin::makeTextColorInactive( textColor );
-	
+
 	setStyleSheet( QString( "\
 QPushButton:enabled { \
     color: %1; \
@@ -322,8 +330,8 @@ void Button::mousePressEvent(QMouseEvent*ev) {
 		// using the Action associated to the Widget might not yield a
 		// unique result since the Action can be registered from the
 		// PreferencesDialog as well.
-		m_sRegisteredMidiEvent = H2Core::Hydrogen::get_instance()->lastMidiEvent;
-		m_nRegisteredMidiParameter = H2Core::Hydrogen::get_instance()->lastMidiEventParameter;
+		m_sRegisteredMidiEvent = H2Core::Hydrogen::get_instance()->m_LastMidiEvent;
+		m_nRegisteredMidiParameter = H2Core::Hydrogen::get_instance()->m_nLastMidiEventParameter;
 		
 		updateTooltip();
 		return;
@@ -365,6 +373,26 @@ void Button::setSize( QSize size ) {
 	updateFont();
 }
 
+void Button::setType( Type type ) {
+
+	if ( type == Type::Toggle ) {
+		setCheckable( true );
+	} else {
+		setCheckable( false );
+	}
+
+	if ( type == Type::Icon ) {
+		setFlat( true );
+	} else {
+		setFlat( false );
+	}
+	
+	m_type = type;
+
+	updateStyleSheet();
+	update();
+}
+
 void Button::updateFont() {
 
 	auto pPref = H2Core::Preferences::get_instance();
@@ -374,7 +402,7 @@ void Button::updateFont() {
     case H2Core::FontTheme::FontSize::Small:
 		fScalingFactor = 1.2;
 		break;
-    case H2Core::FontTheme::FontSize::Normal:
+    case H2Core::FontTheme::FontSize::Medium:
 		fScalingFactor = 1.0;
 		break;
     case H2Core::FontTheme::FontSize::Large:
@@ -435,8 +463,6 @@ void Button::paintEvent( QPaintEvent* ev )
 }
 
 void Button::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
 
@@ -449,7 +475,7 @@ void Button::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
 	}
 }
 
-void Button::onToggled( bool bChecked ) {
+void Button::onClick() {
 	if ( m_bModifyOnChange ) {
 		H2Core::Hydrogen::get_instance()->setIsModified( true );
 	}

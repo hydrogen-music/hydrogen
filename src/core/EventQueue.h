@@ -41,19 +41,24 @@ enum EventType {
 	/** Fallback event*/
 	EVENT_NONE,
 	EVENT_STATE,
-	/** The current pattern changed during the processing of the
-	 * AudioEngine with respect to the previous process cycle.
+	/** 
+	 * The list of currently played patterns in changed.
+	 *
+	 * In #Song::Mode::Song this is triggered every time the column of
+	 * the SongEditor grid changed. Either by rolling transport or by
+	 * relocation.
 	 *
 	 * It is handled by EventListener::patternChangedEvent().
 	 */
 	EVENT_PATTERN_CHANGED,
+	/**
+	 * A pattern was added, deleted, or modified.
+	 */
 	EVENT_PATTERN_MODIFIED,
 	/** Another pattern was selected via MIDI or the GUI without
-	 * affecting the audio transport (e.g in Song::PATTERN_MODE when
-	 * Preferences::m_bPatternModePlaysSelected is set to true). While
-	 * the selection in the former case already happens in the GUI,
-	 * this event will be used to tell it the selection was successful
-	 * and had been done.
+	 * affecting the audio transport. While the selection in the
+	 * former case already happens in the GUI, this event will be used
+	 * to tell it the selection was successful and had been done.
 	 *
 	 * Handled by EventListener::selectedPatternChangedEvent().
 	 */
@@ -67,14 +72,12 @@ enum EventType {
 	/** Event indicating the triggering of the
 	 * #H2Core::AudioEngine::m_pMetronomeInstrument.
 	 *
-	 * In audioEngine_updateNoteQueue() the pushing of this Event is
+	 * In AudioEngine::updateNoteQueue() the pushing of this Event is
 	 * decoupled from the creation and queuing of the corresponding
 	 * Note itself.
 	 *
-	 * In Director it triggers a change in the displayed number,
-	 * color, tag, and triggers Director::update(). In case the
-	 * provided value is 3, instead of performing the changes above,
-	 * the Director loads the metadata a the current Song.
+	 * In Director it triggers a change in the displayed column
+	 * number, tempo, and tag.
 	 *
 	 * The associated values do correspond to the following actions:
 	 * - 0: Beat at the beginning of a Pattern in
@@ -88,13 +91,6 @@ enum EventType {
 	 *      be created with a pitch of 0 and velocity of 0.8.
 	 *      Sets MetronomeWidget::m_state to
 	 *      MetronomeWidget::METRO_FIRST and triggers
-	 *      MetronomeWidget::updateWidget().
-	 * - 2: Signals MetronomeWidget to neither update nor setting
-	 *      MetronomeWidget::m_state.
-	 * - 3: Tells the Director that a new Song was loaded and triggers
-	 *      its Director::update().
-	 *      Sets MetronomeWidget::m_state to
-	 *      MetronomeWidget::METRO_ON and triggers
 	 *      MetronomeWidget::updateWidget().
 	 *
 	 * Handled by EventListener::metronomeEvent().
@@ -139,8 +135,8 @@ enum EventType {
 
 	/** Enables/disables the usage of the Timeline.*/ 
 	EVENT_TIMELINE_ACTIVATION,
-	/** Tells the GUI some parts of the Timeline - currently
-		adding/deleting of tempo markers - were modified.*/
+	/** Tells the GUI some parts of the Timeline (tempo markers or
+		tags) were modified.*/
 	EVENT_TIMELINE_UPDATE,
 	/** Toggles the button indicating the usage Jack transport.*/
 	EVENT_JACK_TRANSPORT_ACTIVATION,
@@ -148,19 +144,29 @@ enum EventType {
 		and informs the GUI about a state change.*/
 	EVENT_JACK_TIMEBASE_STATE_CHANGED,
 	EVENT_SONG_MODE_ACTIVATION,
-	/** Activate stacked mode (1) or "focus"/"PatternPlaysSelected"/normal mode */
+	/** Song::PatternMode::Stacked (0) or Song::PatternMode::Selected
+		(1) was activated */
 	EVENT_STACKED_MODE_ACTIVATION,
 	/** Toggles the button indicating the usage loop mode.*/
 	EVENT_LOOP_MODE_ACTIVATION,
 	/** Switches between select mode (0) and draw mode (1) in the *SongEditor.*/
 	EVENT_ACTION_MODE_CHANGE,
-	/** Triggers an update of the entire SongEditor*/
-	EVENT_UPDATE_SONG_EDITOR,
+	EVENT_GRID_CELL_TOGGLED,
 	/** Triggered when transport is moved into a different column
 		(either during playback or when relocated by the user)*/
 	EVENT_COLUMN_CHANGED,
 	/** A the current drumkit was replaced by a new one*/
-	EVENT_DRUMKIT_LOADED
+	EVENT_DRUMKIT_LOADED,
+	/** Locks the PatternEditor on the pattern currently played back.*/
+	EVENT_PATTERN_EDITOR_LOCKED,
+	/** Triggered in case there is a relocation of the transport
+	 * position due to an user interaction or an incoming MIDI/OSC
+	 * command. 
+	 */
+	EVENT_RELOCATION,
+	EVENT_SONG_SIZE_CHANGED,
+	EVENT_DRIVER_CHANGED,
+	EVENT_PLAYBACK_TRACK_CHANGED
 };
 
 /** Basic building block for the communication between the core of
@@ -255,9 +261,11 @@ public:/**
 		Note::Octave no_octaveKeyVal;
 		bool b_isMidi;
 		bool b_isInstrumentMode;
-		bool b_noteExist;
 	};
 	std::vector<AddMidiNoteVector> m_addMidiNoteVector;
+
+	bool getSilent() const;
+	void setSilent( bool bSilent );
 
 private:
 	/**
@@ -301,7 +309,17 @@ private:
 	 * Mutex to lock access to queue.
 	 */
 	std::mutex m_mutex;
+
+	/** Whether or not to push log messages.*/
+	bool m_bSilent;
 };
+
+inline bool EventQueue::getSilent() const {
+	return m_bSilent;
+}
+inline void EventQueue::setSilent( bool bSilent ) {
+	m_bSilent = bSilent;
+}
 
 };
 

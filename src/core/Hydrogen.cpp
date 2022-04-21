@@ -105,6 +105,11 @@ Hydrogen::Hydrogen() : m_nSelectedInstrumentNumber( 0 )
 					 , m_nSelectedPatternNumber( 0 )
 					 , m_bExportSessionIsActive( false )
 					 , m_GUIState( GUIState::unavailable )
+					 , m_nLastMidiEventParameter( 0 )
+					 , m_CurrentTime( {0,0} )
+					 , m_oldEngineMode( Song::Mode::Song ) 
+					 , m_bOldLoopEnabled( false )
+					 , m_nLastRecordedMIDINoteTick( 0 )
 {
 	if ( __instance ) {
 		ERRORLOG( "Hydrogen audio engine is already running" );
@@ -219,36 +224,69 @@ void Hydrogen::sequencer_stop()
 
 	m_pAudioEngine->stop();
 	Preferences::get_instance()->setRecordEvents(false);
+
+	// Delete redundant instruments still alive after switching the
+	// drumkit to a smaller one.
+	__kill_instruments();
 }
 
-bool Hydrogen::setPlaybackTrackState( const bool state )
-{
-	std::shared_ptr<Song> pSong = getSong();
-	if ( pSong == nullptr ) {
-		return false;
+Song::PlaybackTrack Hydrogen::getPlaybackTrackState() const {
+
+	if ( __song == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return Song::PlaybackTrack::None;
 	}
 
-	return pSong->setPlaybackTrackEnabled(state);
+	return __song->getPlaybackTrackState();
+}
+	
+void Hydrogen::mutePlaybackTrack( const bool bMuted )
+{
+	if ( __song == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
+
+	__song->setPlaybackTrackEnabled( bMuted );
+
+	EventQueue::get_instance()->push_event( EVENT_PLAYBACK_TRACK_CHANGED, 0 );
 }
 
-void Hydrogen::loadPlaybackTrack( const QString filename )
+void Hydrogen::loadPlaybackTrack( QString sFilename )
 {
-	std::shared_ptr<Song> pSong = getSong();
-	pSong->setPlaybackTrackFilename(filename);
+	if ( __song == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
+
+	if ( ! sFilename.isEmpty() &&
+		 ! Filesystem::file_exists( sFilename, true ) ) {
+		ERRORLOG( QString( "Invalid playback track filename [%1]. File does not exist." )
+				  .arg( sFilename ) );
+		sFilename = "";
+	}
+
+	if ( sFilename.isEmpty() ) {
+		INFOLOG( "Disable playback track" );
+		__song->setPlaybackTrackEnabled( false );
+	}
+	
+	__song->setPlaybackTrackFilename( sFilename );
 
 	m_pAudioEngine->getSampler()->reinitializePlaybackTrack();
+	
+	EventQueue::get_instance()->push_event( EVENT_PLAYBACK_TRACK_CHANGED, 0 );
 }
 
 void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 {
 	assert ( pSong );
-	
+
 	// Move to the beginning.
 	setSelectedPatternNumber( 0 );
 
 	std::shared_ptr<Song> pCurrentSong = getSong();
 	if ( pSong == pCurrentSong ) {
-		DEBUGLOG( "pSong == pCurrentSong" );
 		return;
 	}
 
@@ -268,13 +306,6 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 		// delete pCurrentSong;
 	}
 
-	if ( m_GUIState != GUIState::unavailable ) {
-		/* Reset GUI */
-		EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
-		EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
-		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-	}
-
 	// In order to allow functions like audioEngine_setupLadspaFX() to
 	// load the settings of the new song, like whether the LADSPA FX
 	// are activated, __song has to be set prior to the call of
@@ -291,18 +322,11 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	// like OSC clients.
 	m_pCoreActionController->initExternalControlInterfaces();
 
-	if ( isUnderSessionManagement() ) {
 #ifdef H2CORE_HAVE_OSC
+	if ( isUnderSessionManagement() ) {
 		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath, true );
-#endif
-	} else {		
-		Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
 	}
-	
-	EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION,
-											( pSong->getMode() == Song::Mode::Song) ? 1 : 0 );
-	EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION,
-											static_cast<int>( pSong->getIsTimelineActivated() ) );
+#endif
 }
 
 /* Mean: remove current song from memory */
@@ -317,40 +341,43 @@ void Hydrogen::midi_noteOn( Note *note )
 	m_pAudioEngine->noteOn( note );
 }
 
-void Hydrogen::addRealtimeNote(	int		instrument,
-								float	velocity,
+void Hydrogen::addRealtimeNote(	int		nInstrument,
+								float	fVelocity,
 								float	fPan,
-								float	pitch,
-								bool	noteOff,
-								bool	forcePlay,
-								int		msg1 )
+								bool	bNoteOff,
+								int		nNote )
 {
-	UNUSED( pitch );
 	
 	AudioEngine* pAudioEngine = m_pAudioEngine;
-	Preferences *pPreferences = Preferences::get_instance();
+	Preferences *pPref = Preferences::get_instance();
 	unsigned int nRealColumn = 0;
-	unsigned res = pPreferences->getPatternEditorGridResolution();
-	int nBase = pPreferences->isPatternEditorUsingTriplets() ? 3 : 4;
+	unsigned res = pPref->getPatternEditorGridResolution();
+	int nBase = pPref->isPatternEditorUsingTriplets() ? 3 : 4;
+	bool bPlaySelectedInstrument = pPref->__playselectedinstrument;
 	int scalar = ( 4 * MAX_NOTES ) / ( res * nBase );
-	bool hearnote = forcePlay;
 	int currentPatternNumber;
 
-	m_pAudioEngine->lock( RIGHT_HERE );
-
 	std::shared_ptr<Song> pSong = getSong();
-	if ( !pPreferences->__playselectedinstrument ) {
-		if ( instrument >= ( int ) pSong->getInstrumentList()->size() ) {
+
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
+
+	m_pAudioEngine->lock( RIGHT_HERE );
+	
+	if ( ! bPlaySelectedInstrument ) {
+		if ( nInstrument >= ( int ) pSong->getInstrumentList()->size() ) {
 			// unused instrument
 			ERRORLOG( QString( "Provided instrument [%1] not found" )
-					  .arg( instrument ) );
+					  .arg( nInstrument ) );
 			pAudioEngine->unlock();
 			return;
 		}
 	}
 
 	// Get current partern and column, compensating for "lookahead" if required
-	const Pattern* currentPattern = nullptr;
+	const Pattern* pCurrentPattern = nullptr;
 	long nTickInPattern = 0;
 	long long nLookaheadInFrames = m_pAudioEngine->getLookaheadInFrames( pAudioEngine->getTick() );
 	long nLookaheadTicks = 
@@ -358,68 +385,64 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 																		   nLookaheadInFrames ) -
 									 m_pAudioEngine->getTick()));
 			  
-	bool doRecord = pPreferences->getRecordEvents();
+	bool doRecord = pPref->getRecordEvents();
 	if ( getMode() == Song::Mode::Song && doRecord &&
 		 pAudioEngine->getState() == AudioEngine::State::Playing )
 	{
 
 		// Recording + song playback mode + actually playing
-		PatternList *pPatternList = pSong->getPatternList();
-		int ipattern = pAudioEngine->getColumn(); // current column
+		PatternList* pPatternList = pSong->getPatternList();
+		auto pColumns = pSong->getPatternGroupVector();
+		int nColumn = pAudioEngine->getColumn(); // current column
 												   // or pattern group
-		if ( ipattern < 0 || ipattern >= (int) pPatternList->size() ) {
+		if ( nColumn < 0 || nColumn >= pColumns->size() ) {
 			pAudioEngine->unlock(); // unlock the audio engine
 			ERRORLOG( QString( "Provided column [%1] out of bound [%2,%3)" )
-					  .arg( ipattern ).arg( 0 )
-					  .arg( (int) pPatternList->size() ) );
+					  .arg( nColumn ).arg( 0 )
+					  .arg( pColumns->size() ) );
 			return;
 		}
-		// Locate nTickInPattern -- may need to jump back in the pattern list
+		// Locate nTickInPattern -- may need to jump back one column
 		nTickInPattern = pAudioEngine->getPatternTickPosition();
 		while ( nTickInPattern < nLookaheadTicks ) {
-			ipattern -= 1;
-			if ( ipattern < 0 || ipattern >= (int) pPatternList->size() ) {
+			nColumn -= 1;
+			if ( nColumn < 0 || nColumn >= pColumns->size() ) {
 				pAudioEngine->unlock(); // unlock the audio engine
 				ERRORLOG( "Unable to locate tick in pattern" );
 				return;
 			}
 
-			// Convert from playlist index to actual pattern index
-			std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
-			PatternList *pColumn = ( *pColumns )[ ipattern ];
+			// Capture new notes in the bottom-most pattern.
+			PatternList *pColumn = ( *pColumns )[ nColumn ];
 			currentPatternNumber = -1;
 			for ( int n = 0; n < pColumn->size(); n++ ) {
 				Pattern *pPattern = pColumn->get( n );
 				int nIndex = pPatternList->index( pPattern );
 				if ( nIndex > currentPatternNumber ) {
 					currentPatternNumber = nIndex;
-					currentPattern = pPattern;
+					pCurrentPattern = pPattern;
 				}
 			}
-			nTickInPattern += (*pColumns)[ipattern]->longest_pattern_length();
-			// WARNINGLOG( "Undoing lookahead: corrected (" + to_string( ipattern+1 ) +
-			// "," + to_string( (int) ( nTickInPattern - currentPattern->get_length() ) -
-			// (int) lookaheadTicks ) + ") -> (" + to_string(ipattern) +
-			// "," + to_string( (int) nTickInPattern - (int) lookaheadTicks ) + ")." );
+			nTickInPattern += (*pColumns)[nColumn]->longest_pattern_length();
 		}
 		nTickInPattern -= nLookaheadTicks;
-		// Convert from playlist index to actual pattern index (if not already done above)
-		if ( currentPattern == nullptr ) {
-			std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
-			PatternList *pColumn = ( *pColumns )[ ipattern ];
+		
+		// Capture new notes in the bottom-most pattern (if not already done above)
+		if ( pCurrentPattern == nullptr ) {
+			PatternList *pColumn = ( *pColumns )[ nColumn ];
 			currentPatternNumber = -1;
 			for ( int n = 0; n < pColumn->size(); n++ ) {
 				Pattern *pPattern = pColumn->get( n );
 				int nIndex = pPatternList->index( pPattern );
 				if ( nIndex > currentPatternNumber ) {
 					currentPatternNumber = nIndex;
-					currentPattern = pPattern;
+					pCurrentPattern = pPattern;
 				}
 			}
 		}
 
 		// Cancel recording if punch area disagrees
-		doRecord = pPreferences->inPunchArea( ipattern );
+		doRecord = pPref->inPunchArea( nColumn );
 
 	} else { // Not song-record mode
 		PatternList *pPatternList = pSong->getPatternList();
@@ -427,11 +450,11 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		if ( ( m_nSelectedPatternNumber != -1 )
 			 && ( m_nSelectedPatternNumber < ( int )pPatternList->size() ) )
 		{
-			currentPattern = pPatternList->get( m_nSelectedPatternNumber );
+			pCurrentPattern = pPatternList->get( m_nSelectedPatternNumber );
 			currentPatternNumber = m_nSelectedPatternNumber;
 		}
 
-		if ( ! currentPattern ) {
+		if ( ! pCurrentPattern ) {
 			ERRORLOG( "Current pattern invalid" );
 			pAudioEngine->unlock(); // unlock the audio engine
 			return;
@@ -442,158 +465,170 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		if ( nTickInPattern >= nLookaheadTicks ) {
 			nTickInPattern -= nLookaheadTicks;
 		} else {
-			nLookaheadTicks %= currentPattern->get_length();
-			nTickInPattern = (nTickInPattern + currentPattern->get_length() - nLookaheadTicks)
-					% currentPattern->get_length();
+			nLookaheadTicks %= pCurrentPattern->get_length();
+			nTickInPattern = (nTickInPattern + pCurrentPattern->get_length() - nLookaheadTicks)
+					% pCurrentPattern->get_length();
 		}
 	}
 
-	if ( currentPattern && pPreferences->getQuantizeEvents() ) {
+	if ( pCurrentPattern && pPref->getQuantizeEvents() ) {
 		// quantize it to scale
 		unsigned qcolumn = ( unsigned )::round( nTickInPattern / ( double )scalar ) * scalar;
 
 		//we have to make sure that no beat is added on the last displayed note in a bar
 		//for example: if the pattern has 4 beats, the editor displays 5 beats, so we should avoid adding beats an note 5.
-		if ( qcolumn == currentPattern->get_length() ){
+		if ( qcolumn == pCurrentPattern->get_length() ){
 			qcolumn = 0;
 		}
 		nTickInPattern = qcolumn;
 	}
 
-	unsigned position = nTickInPattern;
-	pAudioEngine->setAddRealtimeNoteTickPosition( nTickInPattern );
+	auto pInstrumentList = pSong->getInstrumentList();
+	int nInstrumentNumber;
+	if ( bPlaySelectedInstrument ) {
+		nInstrumentNumber = getSelectedInstrumentNumber();
+	} else {
+		nInstrumentNumber = m_nInstrumentLookupTable[ nInstrument ];
+	}
+	auto pInstr = pInstrumentList->get( nInstrumentNumber );
 
-	std::shared_ptr<Instrument> instrRef = nullptr;
-	if ( pSong ) {
-		//getlookuptable index = instrument+36, ziel wert = der entprechende wert -36
-		instrRef = pSong->getInstrumentList()->get( m_nInstrumentLookupTable[ instrument ] );
+	if ( pInstr == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieved instrument [%1]. Plays selected instrument: [%2]" )
+				  .arg( nInstrumentNumber )
+				  .arg( bPlaySelectedInstrument ) );
+		pAudioEngine->unlock();
+		return;
 	}
 
-	if ( currentPattern && ( pAudioEngine->getState() == AudioEngine::State::Playing ) ) {
-		assert( currentPattern );
-		if ( doRecord ) {
+	// Record note
+	if ( pCurrentPattern != nullptr &&
+		 pAudioEngine->getState() == AudioEngine::State::Playing &&
+		 doRecord ) {
+
+		bool bIsModified = false;
+
+		if ( bNoteOff ) {
+			
+			int nPatternSize = pCurrentPattern->get_length();
+			int nNoteLength =
+				static_cast<int>(pAudioEngine->getPatternTickPosition()) -
+				m_nLastRecordedMIDINoteTick;
+
+			if ( bPlaySelectedInstrument ) {
+				nNoteLength =
+					static_cast<int>(static_cast<double>(nNoteLength) *
+									 Note::pitchToFrequency( nNote ));
+			}
+
+			for ( unsigned nNote = 0; nNote < nPatternSize; nNote++ ) {
+				const Pattern::notes_t* notes = pCurrentPattern->get_notes();
+				FOREACH_NOTE_CST_IT_BOUND( notes, it, nNote ) {
+					Note *pNote = it->second;
+					if ( pNote != nullptr &&
+						 pNote->get_position() == m_nLastRecordedMIDINoteTick &&
+						 pInstr == pNote->get_instrument() ) {
+						
+						if ( m_nLastRecordedMIDINoteTick + nNoteLength > nPatternSize ) {
+							nNoteLength = nPatternSize - m_nLastRecordedMIDINoteTick;
+						}
+						pNote->set_length( nNoteLength );
+						bIsModified = true;
+					}
+				}
+			}
+
+		}
+		else { // note on
 			EventQueue::AddMidiNoteVector noteAction;
 			noteAction.m_column = nTickInPattern;
+			noteAction.m_row = nInstrumentNumber;
 			noteAction.m_pattern = currentPatternNumber;
-			noteAction.f_velocity = velocity;
+			noteAction.f_velocity = fVelocity;
 			noteAction.f_pan = fPan;
 			noteAction.m_length = -1;
 			noteAction.b_isMidi = true;
 
-			if ( pPreferences->__playselectedinstrument ) {
-				instrRef = pSong->getInstrumentList()->get( getSelectedInstrumentNumber() );
-				int divider = msg1 / 12;
-				noteAction.m_row = getSelectedInstrumentNumber();
+			if ( bPlaySelectedInstrument ) {
+				int divider = nNote / 12;
 				noteAction.no_octaveKeyVal = (Note::Octave)(divider -3);
-				noteAction.nk_noteKeyVal = (Note::Key)(msg1 - (12 * divider));
+				noteAction.nk_noteKeyVal = (Note::Key)(nNote - (12 * divider));
 				noteAction.b_isInstrumentMode = true;
 			} else {
-				instrRef = pSong->getInstrumentList()->get( m_nInstrumentLookupTable[ instrument ] );
-				noteAction.m_row =  m_nInstrumentLookupTable[ instrument ];
 				noteAction.no_octaveKeyVal = (Note::Octave)0;
 				noteAction.nk_noteKeyVal = (Note::Key)0;
 				noteAction.b_isInstrumentMode = false;
 			}
 
-			Note* pNoteold = currentPattern->find_note( noteAction.m_column, -1, instrRef, noteAction.nk_noteKeyVal, noteAction.no_octaveKeyVal );
-			noteAction.b_noteExist = ( pNoteold ) ? true : false;
-
 			EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
 
-			// hear note if its not in the future
-			if ( pPreferences->getHearNewNotes() && position <= pAudioEngine->getPatternTickPosition() ) {
-				hearnote = true;
-			}
-		}/* if doRecord */
-	} else if ( pPreferences->getHearNewNotes() ) {
-			hearnote = true;
-	} /* if .. AudioEngine::State::Playing */
-
-
-	if ( !pPreferences->__playselectedinstrument ) {
-		if ( hearnote && instrRef ) {
-			Note *pNote2 = new Note( instrRef, nRealColumn, velocity, fPan, -1, 0 );
+			m_nLastRecordedMIDINoteTick = nTickInPattern;
 			
+			bIsModified = true;
+		}
+		
+		if ( bIsModified ) {
+			EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
+			setIsModified( true );
+		}
+	}
+
+
+	// Play back the note.
+	if ( bPlaySelectedInstrument ) {
+		if ( bNoteOff ) {
+			if ( pAudioEngine->getSampler()->isInstrumentPlaying( pInstr ) ) {
+				pAudioEngine->getSampler()->midiKeyboardNoteOff( nNote );
+			}
+		}
+		else { // note on
+			Note *pNote2 = new Note( pInstr, nRealColumn, fVelocity, fPan, -1, 0 );
+
+			int divider = nNote / 12;
+			Note::Octave octave = (Note::Octave)(divider -3);
+			Note::Key notehigh = (Note::Key)(nNote - (12 * divider));
+
+			pNote2->set_midi_info( notehigh, octave, nNote );
 			midi_noteOn( pNote2 );
 		}
-	} else if ( hearnote  ) {
-		auto pInstr = pSong->getInstrumentList()->get( getSelectedInstrumentNumber() );
-		Note *pNote2 = new Note( pInstr, nRealColumn, velocity, fPan, -1, 0 );
-
-		int divider = msg1 / 12;
-		Note::Octave octave = (Note::Octave)(divider -3);
-		Note::Key notehigh = (Note::Key)(msg1 - (12 * divider));
-
-		//ERRORLOG( QString( "octave: %1, note: %2, instrument %3" ).arg( octave ).arg(notehigh).arg(instrument));
-		pNote2->set_midi_info( notehigh, octave, msg1 );
-		midi_noteOn( pNote2 );
+	}
+	else {
+		if ( bNoteOff ) {
+			if ( pAudioEngine->getSampler()->isInstrumentPlaying( pInstr ) ) {
+				Note *pNoteOff = new Note( pInstr, 0.0, 0.0, 0.0, -1, 0 );
+				pNoteOff->set_note_off( true );
+				midi_noteOn( pNoteOff );
+			}
+		}
+		else { // note on
+			Note *pNote2 = new Note( pInstr, nRealColumn, fVelocity, fPan, -1, 0 );
+			midi_noteOn( pNote2 );
+		}
 	}
 
 	m_pAudioEngine->unlock(); // unlock the audio engine
 }
 
 
-void Hydrogen::sequencer_setNextPattern( int pos )
-{
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-	
-	pAudioEngine->lock( RIGHT_HERE );
-	std::shared_ptr<Song> pSong = getSong();
-	if ( pSong != nullptr && getMode() == Song::Mode::Pattern ) {
-		PatternList* pPatternList = pSong->getPatternList();
-		
-		// Check whether `pos` is in range of the pattern list.
-		if ( ( pos >= 0 ) && ( pos < ( int )pPatternList->size() ) ) {
-			Pattern* pPattern = pPatternList->get( pos );
-			
-			// If the pattern is already in the `AudioEngine::m_pNextPatterns`, it
-			// will be removed from the latter and its `del()` method
-			// will return a pointer to the very pattern. The if
-			// clause is therefore only entered if the `pPattern` was
-			// not already present.
-			if ( pAudioEngine->getNextPatterns()->del( pPattern ) == nullptr ) {
-				pAudioEngine->getNextPatterns()->add( pPattern );
-			}
-		} else {
-			ERRORLOG( QString( "pos not in patternList range. pos=%1 patternListSize=%2" )
-					  .arg( pos ).arg( pPatternList->size() ) );
-			pAudioEngine->getNextPatterns()->clear();
-		}
+void Hydrogen::toggleNextPattern( int nPatternNumber ) {
+	if ( __song != nullptr && getMode() == Song::Mode::Pattern ) {
+		m_pAudioEngine->lock( RIGHT_HERE );
+		m_pAudioEngine->toggleNextPattern( nPatternNumber );
+		m_pAudioEngine->unlock();
+
 	} else {
 		ERRORLOG( "can't set next pattern in song mode" );
-		pAudioEngine->getNextPatterns()->clear();
 	}
-
-	pAudioEngine->unlock();
 }
 
-void Hydrogen::sequencer_setOnlyNextPattern( int pos )
-{
-	AudioEngine* pAudioEngine = m_pAudioEngine;	
-	pAudioEngine->lock( RIGHT_HERE );
-	
-	std::shared_ptr<Song> pSong = getSong();
-	if ( pSong != nullptr && getMode() == Song::Mode::Pattern ) {
-		PatternList* pPatternList = pSong->getPatternList();
-		
-		// Clear the list of all patterns scheduled to be processed
-		// next and fill them with those currently played.
-		pAudioEngine->getNextPatterns()->clear( );
-		Pattern* pPattern;
-		for ( int nPattern = 0 ; nPattern < (int) pAudioEngine->getPlayingPatterns()->size() ; ++nPattern ) {
-			pPattern = pAudioEngine->getPlayingPatterns()->get( nPattern );
-			pAudioEngine->getNextPatterns()->add( pPattern );
-		}
-		
-		// Appending the requested pattern.
-		pPattern = pPatternList->get( pos );
-		pAudioEngine->getNextPatterns()->add( pPattern );
+void Hydrogen::flushAndAddNextPattern( int nPatternNumber ) {
+	if ( __song != nullptr && getMode() == Song::Mode::Pattern ) {
+		m_pAudioEngine->lock( RIGHT_HERE );
+		m_pAudioEngine->flushAndAddNextPattern( nPatternNumber );
+		m_pAudioEngine->unlock();
+
 	} else {
 		ERRORLOG( "can't set next pattern in song mode" );
-		pAudioEngine->getNextPatterns()->clear();
 	}
-	
-	pAudioEngine->unlock();
 }
 
 void Hydrogen::restartDrivers()
@@ -672,9 +707,7 @@ void Hydrogen::stopExportSession()
 	
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
- 	pAudioEngine->stopAudioDrivers();
-	
-	pAudioEngine->startAudioDrivers();
+ 	pAudioEngine->restartAudioDrivers();
 	if ( pAudioEngine->getAudioDriver() == nullptr ) {
 		ERRORLOG( "Unable to restart previous audio driver after exporting song." );
 	}
@@ -710,12 +743,6 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool bConditional )
 	if ( pSong != nullptr ) {
 
 		INFOLOG( pDrumkitInfo->get_name() );
-		m_sCurrentDrumkitName = pDrumkitInfo->get_name();
-		if ( pDrumkitInfo->isUserDrumkit() ) {
-			m_currentDrumkitLookup = Filesystem::Lookup::user;
-		} else {
-			m_currentDrumkitLookup = Filesystem::Lookup::system;
-		}
 
 		m_pAudioEngine->lock( RIGHT_HERE );
 		
@@ -757,7 +784,7 @@ bool Hydrogen::instrumentHasNotes( std::shared_ptr<Instrument> pInst )
 	{
 		if( pPatternList->get( nPattern )->references( pInst ) )
 		{
-			DEBUGLOG("Instrument " + pInst->get_name() + " has notes" );
+			INFOLOG("Instrument " + pInst->get_name() + " has notes" );
 			return true;
 		}
 	}
@@ -806,7 +833,11 @@ void Hydrogen::onTapTempoAccelEvent()
 
 	oldTimeVal = now;
 
-	if ( fInterval < 1000.0 ) {
+	// We multiply by a factor of two in order to allow for tempi
+	// smaller than the minimum one enter the calculation of the
+	// average. Else the minumum one could not be reached via tap
+	// tempo and it is clambed anyway.
+	if ( fInterval < 60000.0 * 2 / static_cast<float>(MIN_BPM) ) {
 		setTapTempo( fInterval );
 	}
 #endif
@@ -882,19 +913,38 @@ void Hydrogen::restartLadspaFX()
 	}
 }
 
+void Hydrogen::updateSelectedPattern( bool bNeedsLock ) {
+	if ( isPatternEditorLocked() &&
+		 m_pAudioEngine->getState() == AudioEngine::State::Playing ) {
+		if ( bNeedsLock ) {
+			m_pAudioEngine->lock( RIGHT_HERE );
+		}
+		m_pAudioEngine->handleSelectedPattern();
+		if ( bNeedsLock ) {
+			m_pAudioEngine->unlock();
+		}
+	}
+}
 
-void Hydrogen::setSelectedPatternNumber( int nPat )
+void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock )
 {
 	if ( nPat == m_nSelectedPatternNumber ) {
 		return;
 	}
 
-	if ( Preferences::get_instance()->patternModePlaysSelected() ) {
-		getAudioEngine()->lock( RIGHT_HERE );
+	if ( getPatternMode() == Song::PatternMode::Selected ) {
+		if ( bNeedsLock ) {
+			m_pAudioEngine->lock( RIGHT_HERE );
+		}
 		
 		m_nSelectedPatternNumber = nPat;
+		// The specific values provided are not important since we a
+		// in selected pattern mode.
+		m_pAudioEngine->updatePlayingPatterns( 0, 0 );
 
-		getAudioEngine()->unlock();
+		if ( bNeedsLock ) {
+			m_pAudioEngine->unlock();
+		}
 	} else {
 		m_nSelectedPatternNumber = nPat;
 	}
@@ -1107,31 +1157,6 @@ void Hydrogen::onJackMaster()
 #endif
 }
 
-void Hydrogen::setPlaysSelected( bool bPlaysSelected )
-{
-	AudioEngine* pAudioEngine = m_pAudioEngine;	
-	std::shared_ptr<Song> pSong = getSong();
-
-	if ( getMode() != Song::Mode::Pattern ) {
-		return;
-	}
-
-	pAudioEngine->lock( RIGHT_HERE );
-
-	Preferences* pPref = Preferences::get_instance();
-	bool isPlaysSelected = pPref->patternModePlaysSelected();
-
-	if ( isPlaysSelected && !bPlaysSelected ) {
-		pAudioEngine->getPlayingPatterns()->clear();
-		Pattern* pSelectedPattern =
-				pSong->getPatternList()->get( getSelectedPatternNumber() );
-		pAudioEngine->getPlayingPatterns()->add( pSelectedPattern );
-	}
-
-	pPref->setPatternModePlaysSelected( bPlaysSelected );
-	pAudioEngine->unlock();
-}
-
 void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr ) {
 	__instrument_death_row.push_back( pInstr );
 	__kill_instruments();
@@ -1139,23 +1164,25 @@ void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr ) {
 
 void Hydrogen::__kill_instruments()
 {
-	std::shared_ptr<Instrument> pInstr = nullptr;
-	while ( __instrument_death_row.size()
-			&& __instrument_death_row.front()->is_queued() == 0 ) {
-		pInstr = __instrument_death_row.front();
-		__instrument_death_row.pop_front();
-		INFOLOG( QString( "Deleting unused instrument (%1). "
-						  "%2 unused remain." )
-				 . arg( pInstr->get_name() )
-				 . arg( __instrument_death_row.size() ) );
-		pInstr = nullptr;
-	}
-	if ( __instrument_death_row.size() ) {
-		pInstr = __instrument_death_row.front();
-		INFOLOG( QString( "Instrument %1 still has %2 active notes. "
-						  "Delaying 'delete instrument' operation." )
-				 . arg( pInstr->get_name() )
-				 . arg( pInstr->is_queued() ) );
+	if ( __instrument_death_row.size() > 0 ) {
+		std::shared_ptr<Instrument> pInstr = nullptr;
+		while ( __instrument_death_row.size()
+				&& __instrument_death_row.front()->is_queued() == 0 ) {
+			pInstr = __instrument_death_row.front();
+			__instrument_death_row.pop_front();
+			INFOLOG( QString( "Deleting unused instrument (%1). "
+							  "%2 unused remain." )
+					 . arg( pInstr->get_name() )
+					 . arg( __instrument_death_row.size() ) );
+			pInstr = nullptr;
+		}
+		if ( __instrument_death_row.size() ) {
+			pInstr = __instrument_death_row.front();
+			INFOLOG( QString( "Instrument %1 still has %2 active notes. "
+							  "Delaying 'delete instrument' operation." )
+					 . arg( pInstr->get_name() )
+					 . arg( pInstr->is_queued() ) );
+		}
 	}
 }
 
@@ -1169,9 +1196,8 @@ void Hydrogen::__panic()
 
 bool Hydrogen::haveJackAudioDriver() const {
 #ifdef H2CORE_HAVE_JACK
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-	if ( pAudioEngine->getAudioDriver() != nullptr ) {
-		if ( dynamic_cast<JackAudioDriver*>(pAudioEngine->getAudioDriver()) != nullptr ) {
+	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
+		if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr ) {
 			return true;
 		}
 	}
@@ -1183,9 +1209,8 @@ bool Hydrogen::haveJackAudioDriver() const {
 
 bool Hydrogen::haveJackTransport() const {
 #ifdef H2CORE_HAVE_JACK
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-	if ( pAudioEngine->getAudioDriver() != nullptr ) {
-		if ( dynamic_cast<JackAudioDriver*>(pAudioEngine->getAudioDriver()) != nullptr &&
+	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
+		if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr &&
 			 Preferences::get_instance()->m_bJackTransportMode ==
 			 Preferences::USE_JACK_TRANSPORT ){
 			return true;
@@ -1242,13 +1267,101 @@ bool Hydrogen::isUnderSessionManagement() const {
 }
 
 bool Hydrogen::isTimelineEnabled() const {
-	if ( getSong()->getIsTimelineActivated() &&
+	if ( __song->getIsTimelineActivated() &&
 		 getMode() == Song::Mode::Song &&
 		 getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
 		return true;
 	}
 
 	return false;
+}
+
+bool Hydrogen::isPatternEditorLocked() const {
+	if ( getMode() == Song::Mode::Song &&
+		 __song != nullptr ) {
+		if ( __song->getIsPatternEditorLocked() ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void Hydrogen::setIsPatternEditorLocked( bool bValue ) {
+	if ( __song != nullptr &&
+		 bValue != __song->getIsPatternEditorLocked() ) {
+		__song->setIsPatternEditorLocked( bValue );
+		__song->setIsModified( true );
+
+		updateSelectedPattern();
+			
+		EventQueue::get_instance()->push_event( EVENT_PATTERN_EDITOR_LOCKED,
+												bValue );
+	}
+}
+
+Song::Mode Hydrogen::getMode() const {
+	if ( __song != nullptr ) {
+		return __song->getMode();
+	}
+
+	return Song::Mode::None;
+}
+
+void Hydrogen::setMode( Song::Mode mode ) {
+	if ( __song != nullptr && mode != __song->getMode() ) {
+		__song->setMode( mode );
+		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION,
+												( mode == Song::Mode::Song) ? 1 : 0 );
+	}
+}
+
+Song::ActionMode Hydrogen::getActionMode() const {
+	if ( __song != nullptr ) {
+		return __song->getActionMode();
+	}
+	return Song::ActionMode::None;
+}
+
+void Hydrogen::setActionMode( Song::ActionMode mode ) {
+	if ( __song != nullptr ) {
+		__song->setActionMode( mode );
+		EventQueue::get_instance()->push_event( EVENT_ACTION_MODE_CHANGE,
+												( mode == Song::ActionMode::drawMode ) ? 1 : 0 );
+	}
+}
+
+Song::PatternMode Hydrogen::getPatternMode() const {
+	if ( getMode() == Song::Mode::Pattern ) {
+		return __song->getPatternMode();
+	}
+	return Song::PatternMode::None;
+}
+
+void Hydrogen::setPatternMode( Song::PatternMode mode )
+{
+	if ( __song != nullptr &&
+		 getPatternMode() != mode ) {
+		m_pAudioEngine->lock( RIGHT_HERE );
+
+		__song->setPatternMode( mode );
+		setIsModified( true );
+		
+		if ( mode == Song::PatternMode::Selected ||
+			 m_pAudioEngine->getState() != AudioEngine::State::Playing ) {
+			// Only update the playing patterns in selected pattern
+			// mode or if transport is not rolling. In stacked pattern
+			// mode with transport rolling
+			// AudioEngine::updatePatternTransportPosition() will call
+			// the functions and activate the next patterns once the
+			// current ones are looped.
+			m_pAudioEngine->updatePlayingPatterns( m_pAudioEngine->getColumn() );
+		}
+
+		m_pAudioEngine->unlock();
+		EventQueue::get_instance()->push_event( EVENT_STACKED_MODE_ACTIVATION,
+												( mode == Song::PatternMode::Selected ) ? 1 : 0 );
+	}
 }
 
 Hydrogen::Tempo Hydrogen::getTempoSource() const {
@@ -1302,7 +1415,6 @@ void Hydrogen::startNsmClient()
 
 
 void Hydrogen::recalculateRubberband( float fBpm ) {
-	DEBUGLOG( fBpm );
 
 	if ( !Preferences::get_instance()->getRubberBandBatchMode() ) {
 		return;
@@ -1368,12 +1480,51 @@ void Hydrogen::setIsModified( bool bIsModified ) {
 		}
 	}
 }
-
-void Hydrogen::setMode( Song::Mode mode ) {
+bool Hydrogen::getIsModified() const {
 	if ( getSong() != nullptr ) {
-		getSong()->setMode( mode );
-		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, ( mode == Song::Mode::Song) ? 1 : 0 );
+		return getSong()->getIsModified();
 	}
+	return false;
+}
+
+void Hydrogen::setCurrentDrumkitName( const QString& sName ) {
+	if ( getSong() != nullptr ) {
+		if ( getSong()->getCurrentDrumkitName() != sName ) {
+			 getSong()->setCurrentDrumkitName( sName );
+			 getSong()->setIsModified( true );
+		}
+	} else {
+		ERRORLOG( "no song set yet" );
+	}
+}
+
+QString Hydrogen::getCurrentDrumkitName() const {
+	if ( getSong() != nullptr ) {
+		return getSong()->getCurrentDrumkitName();
+	}
+	ERRORLOG( "no song set yet" );
+
+	return "";
+}
+
+void Hydrogen::setCurrentDrumkitLookup( Filesystem::Lookup lookup ) {
+	if ( getSong() != nullptr ) {
+		if ( getSong()->getCurrentDrumkitLookup() != lookup ) {
+			 getSong()->setCurrentDrumkitLookup( lookup );
+			 getSong()->setIsModified( true );
+		}
+	} else {
+		ERRORLOG( "no song set yet" );
+	}
+}
+
+Filesystem::Lookup Hydrogen::getCurrentDrumkitLookup() const {
+	if ( getSong() != nullptr ) {
+		return getSong()->getCurrentDrumkitLookup();
+	}
+	ERRORLOG( "no song set yet" );
+
+	return Filesystem::Lookup::stacked;
 }
 
 void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
@@ -1465,6 +1616,7 @@ int Hydrogen::getColumnForTick( long nTick, bool bLoopMode, long* pPatternStartT
 		}
 	}
 
+	( *pPatternStartTick ) = 0;
 	return -1;
 }
 
@@ -1582,9 +1734,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr\n" ) );
 		}
-		sOutput.append( QString( "%1%2m_sCurrentDrumkitName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sCurrentDrumkitName ) )
-			.append( QString( "%1%2m_currentDrumkitLookup: %3\n" ).arg( sPrefix ).arg( s ).arg( static_cast<int>(m_currentDrumkitLookup) ) )
-			.append( QString( "%1%2__instrument_death_row:\n" ).arg( sPrefix ).arg( s ) );
+		sOutput.append( QString( "%1%2__instrument_death_row:\n" ).arg( sPrefix ).arg( s ) );
 		for ( auto const& ii : __instrument_death_row ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
@@ -1594,8 +1744,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( QString( "%1%2m_nSelectedInstrumentNumber: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nSelectedInstrumentNumber ) )
 			.append( QString( "%1%2m_pAudioEngine: \n" ).arg( sPrefix ).arg( s ) )//.arg( m_pAudioEngine ) )
-			.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s ).arg( lastMidiEvent ) )
-			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s ).arg( lastMidiEventParameter ) )
+			.append( QString( "%1%2lastMidiEvent: %3\n" ).arg( sPrefix ).arg( s ).arg( m_LastMidiEvent ) )
+			.append( QString( "%1%2lastMidiEventParameter: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nLastMidiEventParameter ) )
 			.append( QString( "%1%2m_nInstrumentLookupTable: [ %3 ... %4 ]\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
 	} else {
@@ -1630,9 +1780,7 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		} else {
 			sOutput.append( QString( "nullptr" ) );
 		}						 
-		sOutput.append( QString( ", m_sCurrentDrumkitName: %1" ).arg( m_sCurrentDrumkitName ) )
-			.append( QString( ", m_currentDrumkitLookup: %1" ).arg( static_cast<int>(m_currentDrumkitLookup) ) )
-			.append( QString( ", __instrument_death_row: [" ) );
+		sOutput.append( QString( ", __instrument_death_row: [" ) );
 		for ( auto const& ii : __instrument_death_row ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
@@ -1642,8 +1790,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( QString( ", m_nSelectedInstrumentNumber: %1" ).arg( m_nSelectedInstrumentNumber ) )
 			.append( QString( ", m_pAudioEngine: " ) )// .arg( m_pAudioEngine ) )
-			.append( QString( ", lastMidiEvent: %1" ).arg( lastMidiEvent ) )
-			.append( QString( ", lastMidiEventParameter: %1" ).arg( lastMidiEventParameter ) )
+			.append( QString( ", lastMidiEvent: %1" ).arg( m_LastMidiEvent ) )
+			.append( QString( ", lastMidiEventParameter: %1" ).arg( m_nLastMidiEventParameter ) )
 			.append( QString( ", m_nInstrumentLookupTable: [ %1 ... %2 ]" )
 					 .arg( m_nInstrumentLookupTable[ 0 ] ).arg( m_nInstrumentLookupTable[ MAX_INSTRUMENTS -1 ] ) );
 	}

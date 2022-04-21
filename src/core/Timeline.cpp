@@ -90,7 +90,7 @@ float Timeline::getTempoAtColumn( int nColumn ) const {
 		return m_fDefaultBpm;
 	}
 
-	float fBpm;
+	float fBpm = m_fDefaultBpm;
 	// When transport is stopped nColumn is set to -1 by the
 	// AudioEngine.
 	if ( nColumn == -1 ) {
@@ -127,6 +127,14 @@ bool Timeline::hasColumnTempoMarker( int nColumn ) const {
 }
 
 std::shared_ptr<const Timeline::TempoMarker> Timeline::getTempoMarkerAtColumn( int nColumn ) const {
+	if ( isFirstTempoMarkerSpecial() && nColumn == 0 ) {
+
+		std::shared_ptr<TempoMarker> pTempoMarker = std::make_shared<TempoMarker>();
+		pTempoMarker->nColumn = 0;
+		pTempoMarker->fBpm = Hydrogen::get_instance()->getSong()->getBpm();
+		return pTempoMarker;
+	}
+	
 	for ( const auto& tt : m_tempoMarkers ){
 		if ( tt->nColumn == nColumn ) {
 			return tt;
@@ -259,6 +267,40 @@ QString Timeline::toQString( const QString& sPrefix, bool bShort ) const {
 			}
 		}
 		sOutput.append(" ]");
+	}
+		
+	return sOutput;
+}
+
+QString Timeline::TempoMarker::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[TempoMarker]\n" ).arg( sPrefix )
+			.append( QString( "%1%2nColumn: %3\n" ).arg( sPrefix ).arg( s ).arg( nColumn ) )
+			.append( QString( "%1%2fBpm: %3\n" ).arg( sPrefix ).arg( s ).arg( fBpm ) );
+	} else {
+		
+		sOutput = QString( "%1[TempoMarker] " ).arg( sPrefix )
+			.append( QString( "nColumn: %3, " ).arg( nColumn ) )
+			.append( QString( "fBpm: %3" ).arg( fBpm ) );
+	}
+		
+	return sOutput;
+}
+
+QString Timeline::Tag::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[TempoMarker]\n" ).arg( sPrefix )
+			.append( QString( "%1%2nColumn: %3\n" ).arg( sPrefix ).arg( s ).arg( nColumn ) )
+			.append( QString( "%1%2sTag: %3\n" ).arg( sPrefix ).arg( s ).arg( sTag ) );
+	} else {
+		
+		sOutput = QString( "%1[TempoMarker] " ).arg( sPrefix )
+			.append( QString( "nColumn: %3, " ).arg( nColumn ) )
+			.append( QString( "sTag: %3" ).arg( sTag ) );
 	}
 		
 	return sOutput;

@@ -213,26 +213,28 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 		}
 
 		//restore the selected item
-		int selected = Playlist::get_instance()->getActiveSongNumber();
-		int Selected = Playlist::get_instance()->getSelectedSongNr();
-		if( selected == -1 && Selected == -1 ) return;
-
-		int aselected = 0;
-		if( selected == -1 ){
-			aselected = Selected;
-		} else {
-			aselected = selected ;
+		int activeSongNumber = Playlist::get_instance()->getActiveSongNumber();
+		int selectedSongNumber = Playlist::get_instance()->getSelectedSongNr();
+		
+		if(! (activeSongNumber == -1 && selectedSongNumber == -1) )
+		{
+			int aselected = 0;
+			if( activeSongNumber == -1 ){
+				aselected = selectedSongNumber;
+			} else {
+				aselected = activeSongNumber ;
+			}
+	
+			QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->topLevelItem ( aselected );
+			m_pPlaylistItem->setBackground( 0, QColor( 50, 50, 50) );
+			m_pPlaylistItem->setBackground( 1, QColor( 50, 50, 50) );
+			m_pPlaylistItem->setBackground( 2, QColor( 50, 50, 50) );
 		}
-
-		QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->topLevelItem ( aselected );
-		m_pPlaylistItem->setBackground( 0, QColor( 50, 50, 50) );
-		m_pPlaylistItem->setBackground( 1, QColor( 50, 50, 50) );
-		m_pPlaylistItem->setBackground( 2, QColor( 50, 50, 50) );
 	}
 
-	timer = new QTimer( this );
-	connect(timer, SIGNAL(timeout() ), this, SLOT( updateActiveSongNumber() ) );
-	timer->start( 1000 );	// update player control at 1 fps
+	m_pTimer = new QTimer( this );
+	connect(m_pTimer, SIGNAL(timeout() ), this, SLOT( updateActiveSongNumber() ) );
+	m_pTimer->start( 1000 );	// update player control at 1 fps
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &PlaylistDialog::onPreferencesChanged );
 }
@@ -660,7 +662,7 @@ void PlaylistDialog::editScript()
 
 void PlaylistDialog::o_upBClicked()
 {
-	timer->stop();
+	m_pTimer->stop();
 
 	Playlist* pPlaylist = Playlist::get_instance();
 
@@ -669,7 +671,7 @@ void PlaylistDialog::o_upBClicked()
 	int index = pPlaylistTree->indexOfTopLevelItem ( pPlaylistTreeItem );
 
 	if (index == 0 ){
-		timer->start( 1000 );
+		m_pTimer->start( 1000 );
 		return;
 	}
 
@@ -693,7 +695,7 @@ void PlaylistDialog::o_upBClicked()
 
 void PlaylistDialog::o_downBClicked()
 {
-	timer->stop();
+	m_pTimer->stop();
 	Playlist* pPlaylist = Playlist::get_instance();
 
 	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
@@ -702,7 +704,7 @@ void PlaylistDialog::o_downBClicked()
 	int index = m_pPlaylist->indexOfTopLevelItem ( m_pPlaylistItem );
 
 	if ( index == length - 1){
-		timer->start( 1000 );
+		m_pTimer->start( 1000 );
 		return;
 	}
 
@@ -863,7 +865,7 @@ void PlaylistDialog::updatePlayListVector()
 		Playlist::get_instance()->add( entry );
 		Playlist::get_instance()->setIsModified(true);
 	}
-	timer->start( 1000 );
+	m_pTimer->start( 1000 );
 }
 
 
@@ -974,7 +976,9 @@ void PlaylistDialog::onPreferencesChanged( H2Core::Preferences::Changes changes 
 		setFont( font );
 		m_pMenubar->setFont( font );
 		m_pPlaylistMenu->setFont( font );
+#ifndef WIN32
 		m_pScriptMenu->setFont( font );
+#endif
 
 		int ii;
 		

@@ -60,42 +60,45 @@ WaveDisplay::~WaveDisplay()
 	delete[] m_pPeakData;
 }
 
-void WaveDisplay::paintEvent( QPaintEvent *ev )
-{
+void WaveDisplay::paintEvent( QPaintEvent *ev ) {
 	UNUSED(ev);
-	
+	QPainter painter( this );
+
+	createBackground( &painter );
+}
+
+void WaveDisplay::createBackground( QPainter* painter ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	
-	QPainter painter( this );
-	painter.setRenderHint( QPainter::Antialiasing );
+	painter->setRenderHint( QPainter::Antialiasing );
 
 	QBrush brush = QBrush(Qt::red, m_Background);
 	brush.setStyle(Qt::TexturePattern);
-	painter.setBrush(brush);
-	painter.drawRect(0, 0, width(), height());
+	painter->setBrush(brush);
+	painter->drawRect(0, 0, width(), height());
 	
 	if( m_pLayer ){
-		painter.setPen( QColor( 102, 150, 205 ) );
+		painter->setPen( QColor( 102, 150, 205 ) );
 		int VCenter = height() / 2;
 		for ( int x = 0; x < width(); x++ ) {
-			painter.drawLine( x, VCenter, x, m_pPeakData[x] + VCenter );
-			painter.drawLine( x, VCenter, x, -m_pPeakData[x] + VCenter );
+			painter->drawLine( x, VCenter, x, m_pPeakData[x] + VCenter );
+			painter->drawLine( x, VCenter, x, -m_pPeakData[x] + VCenter );
 		}
 		
 	}
 	
 	QFont font( pPref->getApplicationFontFamily(), getPointSize( pPref->getFontSize() ) );
 	font.setWeight( 63 );
-	painter.setFont( font );
-	painter.setPen( QColor( 255 , 255, 255, 200 ) );
+	painter->setFont( font );
+	painter->setPen( QColor( 255 , 255, 255, 200 ) );
 	
 	if( m_SampleNameAlignment == Qt::AlignCenter ){
-		painter.drawText( 0, 0, width(), 20, m_SampleNameAlignment, m_sSampleName );
+		painter->drawText( 0, 0, width(), 20, m_SampleNameAlignment, m_sSampleName );
 	} 
 	else if( m_SampleNameAlignment == Qt::AlignLeft )
 	{
 		// Use a small offnset iso. starting directly at the left border
-		painter.drawText( 20, 0, width(), 20, m_SampleNameAlignment, m_sSampleName );
+		painter->drawText( 20, 0, width(), 20, m_SampleNameAlignment, m_sSampleName );
 	}
 	
 }
@@ -174,9 +177,8 @@ void WaveDisplay::mouseDoubleClickEvent(QMouseEvent *ev)
 	}	
 }
 
-void WaveDisplay::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void WaveDisplay::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		update();
 	}

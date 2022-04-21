@@ -33,16 +33,24 @@ class ADSRTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( ADSRTest );
 	CPPUNIT_TEST( testAttack );
 	CPPUNIT_TEST( testRelease );
+	CPPUNIT_TEST( testBasicADSR );
+	CPPUNIT_TEST( testEarlyRelease );
+  	CPPUNIT_TEST( testBufferChunks );
 	CPPUNIT_TEST_SUITE_END();
 
 	private:
 	std::shared_ptr<H2Core::ADSR> m_adsr;
+
+	float getValue( float fStep );
 
 	public:
 	virtual void setUp();
 	
 	void testAttack();
 	void testRelease();
+	void testBasicADSR();
+  	void testEarlyRelease();
+	void testBufferChunks();
 };
 
 #endif

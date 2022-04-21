@@ -27,6 +27,7 @@
 
 #include <core/Object.h>
 #include <core/Basics/Instrument.h>
+#include <core/Basics/Sample.h>
 
 #define KEY_MIN                 0
 #define KEY_MAX                 11
@@ -78,6 +79,8 @@ class Note : public H2Core::Object<Note>
 	public:
 		/** possible keys */
 		enum Key { C=KEY_MIN, Cs, D, Ef, E, F, Fs, G, Af, A, Bf, B };
+	static QString KeyToQString( Key key );
+	
 		/** possible octaves */
 		enum Octave { P8Z=-3, P8Y=-2, P8X=-1, P8=OCTAVE_DEFAULT, P8A=1, P8B=2, P8C=3 };
 
@@ -342,6 +345,37 @@ class Note : public H2Core::Object<Note>
 			// Equivalent to, but quicker to compute than, pow( 2.0, ( fPitch/12 ) )
 			return pow( 1.0594630943593, fPitch );
 		}
+
+		static inline Octave pitchToOctave( int nPitch ) {
+			if ( nPitch >= 0 ) {
+				return (Octave)(nPitch / 12);
+			} else {
+				return (Octave)((nPitch-11) / 12);
+			}
+		}
+		static inline Key pitchToKey( int nPitch ) {
+			return (Key)(nPitch - 12 * pitchToOctave( nPitch ));
+		}
+		static inline int octaveKeyToPitch( Octave octave, Key key ) {
+			return 12 * (int)octave + (int)key;
+		}
+
+	/**
+	 * Returns the sample associated with the note for a specific
+	 * InstrumentComponent @a nComponentID.
+	 *
+	 * A sample of the InstrumentComponent is a possible candidate if
+	 * the note velocity falls within the start and end velocity of an
+	 * InstrumentLayer. In case multiple samples are possible the
+	 * function will either pick the provided @a nSelectedLayer or -
+	 * for @a nSelectedLayer == -1 - the selection algorithm stored in
+	 * #__instrument to determined a layer.
+	 *
+	 * The function stores the selected layer in #__layers_selected
+	 * and will reuse this parameter in every following call while
+	 * disregarding the provided @a nSelectedLayer.
+	 */
+	std::shared_ptr<Sample> getSample( int nComponentID, int nSelectedLayer = -1 );
 
 	private:
 		std::shared_ptr<Instrument>		__instrument;   ///< the instrument to be played by this note

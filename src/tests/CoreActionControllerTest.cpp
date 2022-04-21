@@ -131,12 +131,12 @@ void CoreActionControllerTest::testSessionManagement() {
 void CoreActionControllerTest::testIsSongPathValid() {
 	
 	// Is not absolute.
-	CPPUNIT_ASSERT( !m_pController->isSongPathValid( "test.h2song" ) );
+	CPPUNIT_ASSERT( !Filesystem::isSongPathValid( "test.h2song" ) );
 
 	// Improper suffix.
-	CPPUNIT_ASSERT( !m_pController->isSongPathValid( "test.test" ) );
+	CPPUNIT_ASSERT( !Filesystem::isSongPathValid( "test.test" ) );
 	
 	QString sValidPath = QString( "%1/test.h2song" ).arg( QDir::tempPath() );
-	CPPUNIT_ASSERT( m_pController->isSongPathValid( sValidPath ) );
+	CPPUNIT_ASSERT( Filesystem::isSongPathValid( sValidPath ) );
 	
 }

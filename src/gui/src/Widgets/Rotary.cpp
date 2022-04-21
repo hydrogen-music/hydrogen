@@ -42,7 +42,8 @@ Rotary::Rotary( QWidget* parent, Type type, QString sBaseTooltip, bool bUseIntSt
 					   bModifyOnChange )
 	, m_type( type ) {
 
-	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &Rotary::onPreferencesChanged );
+	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged,
+			 this, &Rotary::onPreferencesChanged );
 
 	installEventFilter( HydrogenApp::get_instance()->getMainForm() );
 
@@ -297,9 +298,7 @@ void Rotary::paintEvent( QPaintEvent* ev )
 	}
 }
 
-void Rotary::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void Rotary::onPreferencesChanged( H2Core::Preferences::Changes changes ) {	
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
 		update();
 	}

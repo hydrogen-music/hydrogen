@@ -23,6 +23,7 @@
 #include <core/CoreActionController.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Helpers/Filesystem.h>
 
 #include <iostream>
@@ -42,6 +43,17 @@ void TransportTest::setUp(){
 
 	CPPUNIT_ASSERT( m_pSongDemo != nullptr );
 	CPPUNIT_ASSERT( m_pSongSizeChanged != nullptr );
+	Preferences::get_instance()->m_bUseMetronome = false;
+}
+
+void TransportTest::tearDown() {
+	// The tests in here tend to produce a very large number of log
+	// messages and a couple of them may tend to be printed _after_
+	// the results of the overall test runnner. This is quite
+	// unpleasent as the overall result is only shown after
+	// scrolling. As the TestRunner itself does not seem to support
+	// fixtures, we flush the logger in here.
+	H2Core::Logger::get_instance()->flush();
 }
 
 void TransportTest::testFrameToTickConversion() {
@@ -50,8 +62,11 @@ void TransportTest::testFrameToTickConversion() {
 
 	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
 	
-	bool bNoMismatch = pAudioEngine->testFrameToTickConversion();
-	CPPUNIT_ASSERT( bNoMismatch );
+	for ( int ii = 0; ii < 15; ++ii ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		bool bNoMismatch = pAudioEngine->testFrameToTickConversion();
+		CPPUNIT_ASSERT( bNoMismatch );
+	}
 }
 
 void TransportTest::testTransportProcessing() {
@@ -59,9 +74,12 @@ void TransportTest::testTransportProcessing() {
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
-	
-	bool bNoMismatch = pAudioEngine->testTransportProcessing();
-	CPPUNIT_ASSERT( bNoMismatch );
+
+	for ( int ii = 0; ii < 15; ++ii ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		bool bNoMismatch = pAudioEngine->testTransportProcessing();
+		CPPUNIT_ASSERT( bNoMismatch );
+	}
 }		
  
 void TransportTest::testTransportRelocation() {
@@ -82,8 +100,11 @@ void TransportTest::testTransportRelocation() {
 	pCoreActionController->addTempoMarker( 7, 240.46 );
 	pCoreActionController->addTempoMarker( 8, 200.1 );
 	
-	bool bNoMismatch = pAudioEngine->testTransportRelocation();
-	CPPUNIT_ASSERT( bNoMismatch );
+	for ( int ii = 0; ii < 15; ++ii ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		bool bNoMismatch = pAudioEngine->testTransportRelocation();
+		CPPUNIT_ASSERT( bNoMismatch );
+	}
 
 	pCoreActionController->activateTimeline( false );
 }		
@@ -94,8 +115,11 @@ void TransportTest::testComputeTickInterval() {
 
 	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
 
-	bool bNoMismatch = pAudioEngine->testComputeTickInterval();
-	CPPUNIT_ASSERT( bNoMismatch );
+	for ( int ii = 0; ii < 15; ++ii ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		bool bNoMismatch = pAudioEngine->testComputeTickInterval();
+		CPPUNIT_ASSERT( bNoMismatch );
+	}
 }		
 
 void TransportTest::testSongSizeChange() {
@@ -104,10 +128,17 @@ void TransportTest::testSongSizeChange() {
 
 	pHydrogen->getCoreActionController()->openSong( m_pSongSizeChanged );
 
-	bool bNoMismatch = pAudioEngine->testSongSizeChange();
-	CPPUNIT_ASSERT( bNoMismatch );
+	for ( int ii = 0; ii < 15; ++ii ) {
+		// For larger sample rates no notes will remain in the
+		// AudioEngine::m_songNoteQueue after one process step.
+		if ( H2Core::Preferences::get_instance()->m_nSampleRate <= 48000 ) {
+			TestHelper::varyAudioDriverConfig( ii );
+			bool bNoMismatch = pAudioEngine->testSongSizeChange();
+			CPPUNIT_ASSERT( bNoMismatch );
+		}
+	}
 
-	pHydrogen->getCoreActionController()->activateLoopMode( false, false );
+	pHydrogen->getCoreActionController()->activateLoopMode( false );
 }		
 
 void TransportTest::testSongSizeChangeInLoopMode() {
@@ -116,6 +147,25 @@ void TransportTest::testSongSizeChangeInLoopMode() {
 
 	pHydrogen->getCoreActionController()->openSong( m_pSongDemo );
 
-	bool bNoMismatch = pAudioEngine->testSongSizeChangeInLoopMode();
-	CPPUNIT_ASSERT( bNoMismatch );
+	for ( int ii = 0; ii < 15; ++ii ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		bool bNoMismatch = pAudioEngine->testSongSizeChangeInLoopMode();
+		CPPUNIT_ASSERT( bNoMismatch );
+	}
+}		
+
+void TransportTest::testNoteEnqueuing() {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	pHydrogen->getCoreActionController()->openSong( m_pSongSizeChanged );
+
+	// This test is quite time consuming.
+	std::vector<int> indices{ 0, 1, 2, 5, 7, 9, 12, 15 };
+
+	for ( auto ii : indices ) {
+		TestHelper::varyAudioDriverConfig( ii );
+		bool bNoMismatch = pAudioEngine->testNoteEnqueuing();
+		CPPUNIT_ASSERT( bNoMismatch );
+	}
 }		

@@ -48,7 +48,6 @@
 /** \ingroup docGUI docConfiguration*/
 class DeviceComboBox : public LCDCombo {
 
-	bool m_bHasDevices;
 	QString m_sDriver;
 	QString m_sHostAPI;
 

@@ -38,8 +38,6 @@ namespace H2Core
 MidiInput::MidiInput()
 		: m_bActive( false )
 		, __hihat_cc_openess ( 127 )
-		, __noteOffTick( 0 )
-		, __noteOnTick( 0 )
 {
 	//
 
@@ -195,8 +193,8 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 		__hihat_cc_openess = msg.m_nData2;
 	}
 
-	pHydrogen->lastMidiEvent = "CC";
-	pHydrogen->lastMidiEventParameter = msg.m_nData1;
+	pHydrogen->m_LastMidiEvent = "CC";
+	pHydrogen->m_nLastMidiEventParameter = msg.m_nData1;
 }
 
 void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
@@ -210,15 +208,15 @@ void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 
 	pMidiActionManager->handleAction( pAction );
 
-	pHydrogen->lastMidiEvent = "PROGRAM_CHANGE";
-	pHydrogen->lastMidiEventParameter = 0;
+	pHydrogen->m_LastMidiEvent = "PROGRAM_CHANGE";
+	pHydrogen->m_nLastMidiEventParameter = 0;
 }
 
 void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 {
 //	INFOLOG( "handleNoteOnMessage" );
 
-	int nNote = msg.m_nData1;
+	const int nNote = msg.m_nData1;
 	float fVelocity = msg.m_nData2 / 127.0;
 
 	if ( fVelocity == 0 ) {
@@ -229,86 +227,71 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	MidiActionManager * pMidiActionManager = MidiActionManager::get_instance();
 	MidiMap * pMidiMap = MidiMap::get_instance();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
+	auto pPref = Preferences::get_instance();
 
-	pHydrogen->lastMidiEvent = "NOTE";
-	pHydrogen->lastMidiEventParameter = msg.m_nData1;
+	pHydrogen->m_LastMidiEvent = "NOTE";
+	pHydrogen->m_nLastMidiEventParameter = msg.m_nData1;
 
 	bool bActionSuccess = pMidiActionManager->handleAction( pMidiMap->getNoteAction( msg.m_nData1 ) );
 
-	if ( bActionSuccess && Preferences::get_instance()->m_bMidiDiscardNoteAfterAction)
-	{
+	if ( bActionSuccess && pPref->m_bMidiDiscardNoteAfterAction ) {
 		return;
 	}
 
-	bool bPatternSelect = false;
+	static const float fPan = 0.f;
 
-	if ( bPatternSelect ) {
-		int patternNumber = nNote - 36;
-		//INFOLOG( QString( "next pattern = %1" ).arg( patternNumber ) );
-		pHydrogen->sequencer_setNextPattern( patternNumber );
-
-	} else {
-		static const float fPan = 0.f;
-
-		int nInstrument = nNote - 36;
-		InstrumentList *pInstrList = pHydrogen->getSong()->getInstrumentList();
-		std::shared_ptr<Instrument> pInstr = nullptr;
+	int nInstrument = nNote - 36;
+	InstrumentList *pInstrList = pHydrogen->getSong()->getInstrumentList();
+	std::shared_ptr<Instrument> pInstr = nullptr;
 		
-		if ( Preferences::get_instance()->__playselectedinstrument ){
-			nInstrument = pHydrogen->getSelectedInstrumentNumber();
-			pInstr= pInstrList->get( pHydrogen->getSelectedInstrumentNumber());
+	if ( pPref->__playselectedinstrument ){
+		nInstrument = pHydrogen->getSelectedInstrumentNumber();
+		pInstr= pInstrList->get( pHydrogen->getSelectedInstrumentNumber());
+	}
+	else if ( pPref->m_bMidiFixedMapping ){
+		pInstr = pInstrList->findMidiNote( nNote );
+		nInstrument = pInstrList->index( pInstr );
+	}
+	else {
+		if( nInstrument < 0 || nInstrument >= pInstrList->size()) {
+			WARNINGLOG( QString( "Instrument number [%1] out of bound note [%2,%3]" )
+						.arg( nInstrument ).arg( 0 )
+						.arg( pInstrList->size() ) );
+			return;
 		}
-		else if(Preferences::get_instance()->m_bMidiFixedMapping ){
-			pInstr = pInstrList->findMidiNote( nNote );
-			
-			if(pInstr == nullptr) {
-				WARNINGLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
-				return;
-			}
-			
-			nInstrument = pInstrList->index( pInstr );
-		} else {
-			if(nInstrument < 0) {
-				//Drop everything < 36
-				return;
-			}
-			
-			if( nInstrument >= pInstrList->size()) {
-				WARNINGLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
-				return;
-			}
-			
-			pInstr = pInstrList->get( static_cast<uint>(nInstrument) );
-		}
-
-		/*
-		Only look to change instrument if the
-		current note is actually of hihat and
-		hihat openness is outside the instrument selected
-		*/
-		if ( pInstr != nullptr &&
-			 pInstr->get_hihat_grp() >= 0 &&
-			 ( __hihat_cc_openess < pInstr->get_lower_cc() || __hihat_cc_openess > pInstr->get_higher_cc() ) )
-		{
-			for(int i=0 ; i<=pInstrList->size() ; i++)
-			{
-				auto instr_contestant = pInstrList->get( i );
-				if( instr_contestant != nullptr &&
-						pInstr->get_hihat_grp() == instr_contestant->get_hihat_grp() &&
-						__hihat_cc_openess >= instr_contestant->get_lower_cc() &&
-						__hihat_cc_openess <= instr_contestant->get_higher_cc() )
-				{
-					nInstrument = i;
-					break;
-				}
-			}
-		}
-
-		pHydrogen->addRealtimeNote( nInstrument, fVelocity, fPan, 0.0, false, true, nNote );
+		pInstr = pInstrList->get( static_cast<uint>(nInstrument) );
 	}
 
-	__noteOnTick = pAudioEngine->getAddRealtimeNoteTickPosition();
+	if( pInstr == nullptr ) {
+		WARNINGLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
+		return;
+	}
+
+	/*
+	  Only look to change instrument if the
+	  current note is actually of hihat and
+	  hihat openness is outside the instrument selected
+	*/
+	if ( pInstr != nullptr &&
+		 pInstr->get_hihat_grp() >= 0 &&
+		 ( __hihat_cc_openess < pInstr->get_lower_cc() ||
+		   __hihat_cc_openess > pInstr->get_higher_cc() ) ) {
+		
+		for ( int i = 0; i <= pInstrList->size(); i++ ) {
+			auto instr_contestant = pInstrList->get( i );
+			if ( instr_contestant != nullptr &&
+				pInstr->get_hihat_grp() == instr_contestant->get_hihat_grp() &&
+				__hihat_cc_openess >= instr_contestant->get_lower_cc() &&
+				__hihat_cc_openess <= instr_contestant->get_higher_cc() ) {
+				
+				nInstrument = i;
+				break;
+			}
+		}
+	}
+
+	pHydrogen->addRealtimeNote( nInstrument, fVelocity, fPan, false, nNote );
 }
 
 /*
@@ -333,79 +316,34 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	InstrumentList* pInstrList = pHydrogen->getSong()->getInstrumentList();
 
-	__noteOffTick = pHydrogen->getAudioEngine()->getPatternTickPosition();
-	unsigned long notelength = computeDeltaNoteOnOfftime();
-
 	int nNote = msg.m_nData1;
-	//float fVelocity = msg.m_nData2 / 127.0; //we need this in future to control release velocity
 	int nInstrument = nNote - 36;
 	std::shared_ptr<Instrument> pInstr = nullptr;
 
 	if ( Preferences::get_instance()->__playselectedinstrument ){
 		nInstrument = pHydrogen->getSelectedInstrumentNumber();
 		pInstr = pInstrList->get( pHydrogen->getSelectedInstrumentNumber());
-	} else if( Preferences::get_instance()->m_bMidiFixedMapping ) {
+	}
+	else if( Preferences::get_instance()->m_bMidiFixedMapping ) {
 		pInstr = pInstrList->findMidiNote( nNote );
-
-		if( pInstr == nullptr ) {
-			WARNINGLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
-			return;
-		}
-		nInstrument = pInstrList->index(pInstr);
+		nInstrument = pInstrList->index( pInstr );
 	}
 	else {
-		if( nInstrument < 0 ) {
-			//Drop everything < 36
+		if( nInstrument < 0 || nInstrument >= pInstrList->size()) {
+			WARNINGLOG( QString( "Instrument number [%1] out of bound note [%2,%3]" )
+						.arg( nInstrument ).arg( 0 )
+						.arg( pInstrList->size() ) );
 			return;
 		}
-		
-		if( nInstrument >= pInstrList->size()) {
-			WARNINGLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
-			return;
-		}
-		
-		pInstr =  pInstrList->get(nInstrument);
+		pInstr = pInstrList->get( nInstrument );
 	}
 
-	float fStep = Note::pitchToFrequency( nNote );
-	if ( !Preferences::get_instance()->__playselectedinstrument ) {
-		fStep = 1;
+	if( pInstr == nullptr ) {
+		WARNINGLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
+		return;
 	}
 
-	bool use_note_off = Hydrogen::get_instance()->getAudioEngine()->getSampler()->isInstrumentPlaying( pInstr );
-	if(use_note_off){
-		if ( Preferences::get_instance()->__playselectedinstrument ){
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->midiKeyboardNoteOff( msg.m_nData1 );
-		}
-		else
-		{
-			if ( pInstrList->size() < nInstrument +1 ) {
-				return;
-			}
-			
-			Note *pOffNote = new Note( pInstr,
-										0.0,
-										0.0,
-										0.0,
-										-1,
-										0 );
-			pOffNote->set_note_off( true );
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn( pOffNote );
-			delete pOffNote;
-		}
-		
-		if(Preferences::get_instance()->getRecordEvents()) {
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->setPlayingNotelength( pInstr, notelength * fStep, __noteOnTick );
-		}
-	}
-}
-
-
-unsigned long MidiInput::computeDeltaNoteOnOfftime()
-{
-	unsigned long  __notelengthTicks = __noteOffTick - __noteOnTick;
-	return __notelengthTicks;
-
+	Hydrogen::get_instance()->addRealtimeNote( nInstrument, 0.0, 0.0, true, nNote );
 }
 
 void MidiInput::handleSysexMessage( const MidiMessage& msg )
@@ -438,7 +376,7 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 	MidiMap * pMidiMap = MidiMap::get_instance();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
-	pHydrogen->lastMidiEventParameter = msg.m_nData1;
+	pHydrogen->m_nLastMidiEventParameter = msg.m_nData1;
 
 
 	if ( msg.m_sysexData.size() == 6 ) {
@@ -453,52 +391,52 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 
 			case 1:	// STOP
 			{
-				pHydrogen->lastMidiEvent = "MMC_STOP";
+				pHydrogen->m_LastMidiEvent = "MMC_STOP";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_STOP"));
 				break;
 			}
 
 			case 2:	// PLAY
 			{
-				pHydrogen->lastMidiEvent = "MMC_PLAY";
+				pHydrogen->m_LastMidiEvent = "MMC_PLAY";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_PLAY"));
 				break;
 			}
 
 			case 3:	//DEFERRED PLAY
 			{
-				pHydrogen->lastMidiEvent = "MMC_PLAY";
+				pHydrogen->m_LastMidiEvent = "MMC_PLAY";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_PLAY"));
 				break;
 			}
 
 			case 4:	// FAST FWD
-				pHydrogen->lastMidiEvent = "MMC_FAST_FORWARD";
+				pHydrogen->m_LastMidiEvent = "MMC_FAST_FORWARD";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_FAST_FORWARD"));
 				break;
 
 			case 5:	// REWIND
-				pHydrogen->lastMidiEvent = "MMC_REWIND";
+				pHydrogen->m_LastMidiEvent = "MMC_REWIND";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_REWIND"));
 				break;
 
 			case 6:	// RECORD STROBE (PUNCH IN)
-				pHydrogen->lastMidiEvent = "MMC_RECORD_STROBE";
+				pHydrogen->m_LastMidiEvent = "MMC_RECORD_STROBE";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_RECORD_STROBE"));
 				break;
 
 			case 7:	// RECORD EXIT (PUNCH OUT)
-				pHydrogen->lastMidiEvent = "MMC_RECORD_EXIT";
+				pHydrogen->m_LastMidiEvent = "MMC_RECORD_EXIT";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_RECORD_EXIT"));
 				break;
 
 			case 8:	// RECORD READY
-				pHydrogen->lastMidiEvent = "MMC_RECORD_READY";
+				pHydrogen->m_LastMidiEvent = "MMC_RECORD_READY";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_RECORD_READY"));
 				break;
 
 			case 9:	//PAUSE
-				pHydrogen->lastMidiEvent = "MMC_PAUSE";
+				pHydrogen->m_LastMidiEvent = "MMC_PAUSE";
 				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_PAUSE"));
 				break;
 

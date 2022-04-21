@@ -33,6 +33,7 @@ using namespace H2Core;
 
 #include "../HydrogenApp.h"
 #include "../InstrumentEditor/WaveDisplay.h"
+#include "../Skin.h"
 
 #include "PlaybackTrackWaveDisplay.h"
 #include "SongEditor.h"
@@ -40,8 +41,12 @@ using namespace H2Core;
 
 PlaybackTrackWaveDisplay::PlaybackTrackWaveDisplay(QWidget* pParent)
  : WaveDisplay( pParent )
+ , m_fTick( 0 )
 {
-	
+	qreal pixelRatio = devicePixelRatio();
+	m_pBackgroundPixmap = new QPixmap( width() * pixelRatio,
+									   height() * pixelRatio );
+	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 	
 	setAcceptDrops(true);
 }
@@ -81,13 +86,28 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 {
 	HydrogenApp* pH2App = HydrogenApp::get_instance();
 	Preferences* pPref = Preferences::get_instance();
+
+	QColor defaultColor = pPref->getColorTheme()->m_songEditor_backgroundColor;
 	
+	// Resize pixmap if pixel ratio has changed
+	qreal pixelRatio = devicePixelRatio();
+	if ( m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ||
+		 width() != m_pBackgroundPixmap->width() ||
+		 height() != m_pBackgroundPixmap->height() ) {
+		delete m_pBackgroundPixmap;
+		m_pBackgroundPixmap = new QPixmap( width()  * pixelRatio , height() * pixelRatio );
+		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+	}
+
 	int currentWidth = width();
-	
-	if(!pLayer || currentWidth <= 0){
+
+	if( pLayer == nullptr || currentWidth <= 0 ){
 		m_pLayer = nullptr;
-		m_sSampleName = "-";
-		
+		m_sSampleName = tr( "No playback track selected" );
+
+		QPainter painter( m_pBackgroundPixmap );
+		createBackground( &painter );
+		update();
 		return;
 	}
 	
@@ -145,7 +165,9 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 			}
 			
 			//No pattern found in this column, use default size (Size: 8)
-			if(maxPatternSize == 0) maxPatternSize = 192;
+			if( maxPatternSize == 0 ) {
+				maxPatternSize = 192;
+			}
 			
 			//length (in seconds) of one pattern is: (nPatternSize/24) / ((ppSong->getBpm() * 2) / 60)
 			float fLengthOfCurrentPatternInSecs = (maxPatternSize/24) / ((pSong->getBpm() * 2) / 60);
@@ -189,6 +211,51 @@ void PlaybackTrackWaveDisplay::updateDisplay( std::shared_ptr<H2Core::Instrument
 		
 	}
 
+	QPainter painter( m_pBackgroundPixmap );
+	createBackground( &painter );
 	update();
 }
 
+void PlaybackTrackWaveDisplay::updatePosition( float fTick ) {
+	m_fTick = fTick;
+	update();
+}
+
+void PlaybackTrackWaveDisplay::paintEvent( QPaintEvent *ev ) {
+
+	if (!isVisible()) {
+		return;
+	}
+
+	QPainter painter( this );
+	
+	qreal pixelRatio = devicePixelRatio();
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
+		 width() != m_pBackgroundPixmap->width() ||
+		 height() != m_pBackgroundPixmap->height() ) {
+		updateDisplay( m_pLayer );
+	}
+	
+	// Render the wave display.
+	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap,
+						QRectF( pixelRatio * ev->rect().x(),
+								pixelRatio * ev->rect().y(),
+								pixelRatio * ev->rect().width(),
+								pixelRatio * ev->rect().height() ) );
+
+	// Draw playhead
+	auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();
+	if ( m_fTick != -1 && pSongEditorPanel != nullptr ) {
+		if ( pSongEditorPanel->getSongEditor() != nullptr ) {
+			int nX = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
+									   m_fTick *
+									   static_cast<float>(pSongEditorPanel->getSongEditor()->
+														  getGridWidth()) -
+									   static_cast<float>(Skin::nPlayheadWidth) / 2 );
+			int nOffset = Skin::getPlayheadShaftOffset();
+			Skin::setPlayheadPen( &painter, false );
+			painter.drawLine( nX + nOffset, 0, nX + nOffset, height() );
+		}
+	}
+
+}

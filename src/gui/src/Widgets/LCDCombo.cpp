@@ -46,8 +46,14 @@ LCDCombo::LCDCombo( QWidget *pParent, QSize size, bool bModifyOnChange )
 	updateStyleSheet();
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &LCDCombo::onPreferencesChanged );
-	connect( this, SIGNAL( currentIndexChanged(int) ), this,
-			 SLOT( onCurrentIndexChanged(int) ) );
+	// Mark the current song modified if there was an user interaction
+	// with the widget.
+	connect( this, QOverload<int>::of(&QComboBox::activated),
+			 [=](int){
+				 if ( m_bModifyOnChange ) {
+					 H2Core::Hydrogen::get_instance()->setIsModified( true );
+				 }
+			 });
 }
 
 LCDCombo::~LCDCombo() {
@@ -120,8 +126,6 @@ QComboBox QAbstractItemView { \
 }
 
 void LCDCombo::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-
-	auto pPref = H2Core::Preferences::get_instance();
 	
 	if ( changes & ( H2Core::Preferences::Changes::Colors |
 					 H2Core::Preferences::Changes::Font ) ) {
@@ -164,12 +168,6 @@ void LCDCombo::enterEvent( QEvent* ev ) {
 void LCDCombo::leaveEvent( QEvent* ev ) {
 	QComboBox::leaveEvent( ev );
 	m_bEntered = false;
-}
-
-void LCDCombo::onCurrentIndexChanged( int ) {
-	if ( m_bModifyOnChange ) {
-		H2Core::Hydrogen::get_instance()->setIsModified( true );
-	}
 }
 
 void LCDCombo::setSize( QSize size ) {

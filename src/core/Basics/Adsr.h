@@ -88,17 +88,23 @@ class ADSR : public Object<ADSR>
 		 */
 		void attack();
 		/**
-		 * compute the value and return it
-		 * \param step the increment to be added to __ticks
-		 */
-		float get_value( float step );
-		/**
 		 * sets state to RELEASE,
 		 * returns 0 if the state is IDLE,
 		 * __value if the state is RELEASE,
 		 * set state to RELEASE, save __release_value and return it.
 		 * */
 		float release();
+
+		/**
+		 * Compute and apply successive ADSR values to stereo buffers.
+		 * \param pLeft left-channel audio buffer
+		 * \param pRight right-channel audio buffer
+		 * \param nFrames number of frames of audio
+		 * \param nReleaseFrame frame number of the release point
+		 * \param fStep the increment to be added to __ticks
+		 */
+
+		bool applyADSR( float *pLeft, float *pRight, int nFrames, int nReleaseFrame, float fStep );
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -126,6 +132,9 @@ class ADSR : public Object<ADSR>
 		float __ticks;          ///< current tick count
 		float __value;          ///< current value
 		float __release_value;  ///< value when the release state was entered
+
+		double m_fQ;				///< exponential decay state
+
 		void normalise();
 };
 

@@ -79,8 +79,10 @@ void SoundLibraryDatabase::printPatterns()
 		INFOLOG(  QString( "Name: " + (*mapIterator)->getName() ) );
 	}
 
-	for (int i = 0; i < patternCategories.size(); ++i)
-			  INFOLOG( patternCategories.at(i) )
+	for (int i = 0; i < patternCategories.size(); ++i) 
+	{
+		INFOLOG( patternCategories.at(i) )
+	}
 }
 
 bool SoundLibraryDatabase::isPatternInstalled( const QString& patternName)
@@ -89,7 +91,10 @@ bool SoundLibraryDatabase::isPatternInstalled( const QString& patternName)
 	soundLibraryInfoVector::iterator mapIterator;
 	for( mapIterator=patternVector->begin(); mapIterator != patternVector->end(); mapIterator++ )
 	{
-		if( (*mapIterator)->getName() == patternName ) return true;
+		if( (*mapIterator)->getName() == patternName )
+		{
+			return true;
+		}
 	}
 	return false;
 }
@@ -103,6 +108,9 @@ void SoundLibraryDatabase::update()
 
 void SoundLibraryDatabase::updatePatterns()
 {
+	for ( auto ppPattern : *patternVector ) {
+		delete ppPattern;
+	}
 	patternVector->clear();
 	patternCategories = QStringList();
 

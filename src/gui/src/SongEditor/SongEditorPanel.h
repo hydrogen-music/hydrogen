@@ -53,10 +53,11 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		explicit SongEditorPanel( QWidget *parent );
 		~SongEditorPanel();
 
-		SongEditor* getSongEditor(){ return m_pSongEditor; }
-		SongEditorPatternList* getSongEditorPatternList(){ return m_pPatternList; }
-		SongEditorPositionRuler* getSongEditorPositionRuler(){ return m_pPositionRuler; }
+		SongEditor* getSongEditor() const { return m_pSongEditor; }
+		SongEditorPatternList* getSongEditorPatternList() const { return m_pPatternList; }
+		SongEditorPositionRuler* getSongEditorPositionRuler() const { return m_pPositionRuler; }
 		AutomationPathView* getAutomationPathView() const { return m_pAutomationPathView; }
+	PlaybackTrackWaveDisplay* getPlaybackTrackWaveDisplay() const { return m_pPlaybackTrackWaveDisplay; }
 
 		void updateAll();
 		void updatePositionRuler();
@@ -66,14 +67,16 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void showPlaybackTrack();
 		void updatePlaybackTrackIfNecessary();
 
-	bool getTimelineActive() const;
-	void setTimelineActive( bool bActive );
-	bool getTimelineEnabled() const;
-	void setTimelineEnabled( bool bEnabled );
-	
-		
-		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent() override;
+		bool getTimelineActive() const;
+		void setTimelineActive( bool bActive );
+		bool getTimelineEnabled() const;
+		void setTimelineEnabled( bool bEnabled );
+
+		/**
+		 * Turns the background color of #m_pPatternEditorLockedBtn red to
+		 * signal the user her last action was not permitted.
+		 */
+		void highlightPatternEditorLocked( bool bUseRedBackground );	
 		void restoreGroupVector( QString filename );
 		//~ Implements EventListener interface
 		/** Disables and deactivates the Timeline when an external
@@ -81,24 +84,31 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		 * gone or Hydrogen itself becomes the timebase master.
 		 */
 		void updateTimelineUsage();
-		virtual void timelineActivationEvent( int nValue ) override;
+		
+		// Implements EventListener interface
+		virtual void selectedPatternChangedEvent() override;
+		virtual void timelineActivationEvent() override;
 		/** Updates the associated buttons if the action mode was
 		 * changed within the core.
 		 *
 		 * \param nValue 0 - select mode and 1 - draw mode.
 		 */
-		void actionModeChangeEvent( int nValue ) override;
-		void updateSongEditorEvent( int nValue ) override;
+		virtual void actionModeChangeEvent( int nValue ) override;
+		virtual void gridCellToggledEvent() override;
+	virtual void patternModifiedEvent() override;
 
-		virtual void jackTimebaseStateChangedEvent( int ) override;
+		virtual void jackTimebaseStateChangedEvent() override;
 
-		virtual void columnChangedEvent( int ) override;
+		virtual void patternChangedEvent() override;
 
-
-		virtual void songModeActivationEvent( int nValue ) override;
+	virtual void patternEditorLockedEvent() override;
+	virtual void stackedModeActivationEvent( int ) override;
+	virtual void updateSongEvent( int ) override;
+	virtual void songModeActivationEvent() override;
+	virtual void playbackTrackChangedEvent() override;
+	virtual void stateChangedEvent( H2Core::AudioEngine::State ) override;
 
 	public slots:
-		void setModeActionBtn( bool mode );
 		void showHideTimeline( bool bPressed ) {
 			m_pTimelineBtn->setChecked( bPressed );
 			timelineBtnPressed();
@@ -121,9 +131,7 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void timelineBtnPressed();
 		void viewTimelineBtnPressed();
 		void viewPlaybackTrackBtnPressed();
-		void mutePlaybackTrackBtnPressed();
 		void editPlaybackTrackBtnPressed();
-		void modeActionBtnPressed( );
 
 		void zoomInBtnPressed();
 		void zoomOutBtnPressed();
@@ -135,57 +143,57 @@ class SongEditorPanel :  public QWidget, public EventListener,  public H2Core::O
 		void automationPathPointMoved(float ox, float oy, float tx, float ty);
 
 	private:
-		uint					m_nInitialWidth;
-		uint					m_nInitialHeight;
+		uint						m_nInitialWidth;
+		uint						m_nInitialHeight;
+									
+		static const int			m_nPatternListWidth = 200;
+									
+		QScrollArea*				m_pEditorScrollView;
+		QScrollArea*				m_pPatternListScrollView;
+		QScrollArea*				m_pPositionRulerScrollView;
+		QScrollArea*				m_pPlaybackTrackScrollView;
+									
+		QScrollBar *				m_pVScrollBar;
+		QScrollBar *				m_pHScrollBar;
+									
+		QStackedWidget*				m_pWidgetStack;
+		QScrollArea*				m_pAutomationPathScrollView;
+									
+									
+		SongEditor*					m_pSongEditor;
+		SongEditorPatternList *		m_pPatternList;
+		SongEditorPositionRuler *	m_pPositionRuler;
+		PlaybackTrackWaveDisplay*	m_pPlaybackTrackWaveDisplay;
 
-		static const int		m_nPatternListWidth = 200;
 
-		QScrollArea*			m_pEditorScrollView;
-		QScrollArea*			m_pPatternListScrollView;
-		QScrollArea*			m_pPositionRulerScrollView;
-		QScrollArea*			m_pPlaybackTrackScrollView;
+		Button *					m_pUpBtn;
+		Button *					m_pDownBtn;
+		Button *					m_pClearPatternSeqBtn;
+		Button *					m_pSelectionModeBtn;
+		Button *					m_pDrawModeBtn;
 		
-		QScrollBar *			m_pVScrollBar;
-		QScrollBar *			m_pHScrollBar;
+		Fader*						m_pPlaybackTrackFader;
+
+		Button *					m_pTimelineBtn;
+		Button *					m_pViewTimelineBtn;
+		Button *					m_pViewPlaybackBtn;
+		Button *					m_pMutePlaybackBtn;
+		Button *					m_pEditPlaybackBtn;
+
+		Button *			m_pPlaySelectedSingleBtn;
+		Button *			m_pPlaySelectedMultipleBtn;
+		Button *			m_pPatternEditorLockedBtn;
+		Button *			m_pPatternEditorUnlockedBtn;
+
+		QTimer*						m_pTimer;
 		
-		QStackedWidget*			m_pWidgetStack;
-		QScrollArea*			m_pAutomationPathScrollView;
+		AutomationPathView *		m_pAutomationPathView;
+		LCDCombo*					m_pAutomationCombo;
 
+		virtual void				resizeEvent( QResizeEvent *ev ) override;
+		void						resyncExternalScrollBar();
 
-		SongEditor*				m_pSongEditor;
-		SongEditorPatternList *	m_pPatternList;
-		SongEditorPositionRuler *m_pPositionRuler;
-		PlaybackTrackWaveDisplay*	 m_pPlaybackTrackWaveDisplay;
-
-
-		Button *				m_pUpBtn;
-		Button *				m_pDownBtn;
-		Button *				m_pClearPatternSeqBtn;
-		Button *			m_pSelectionModeBtn;
-		Button *			m_pModeActionSingleBtn;
-		Button *			m_pModeActionMultipleBtn;
-		Button *			m_pDrawModeBtn;
-		Button *			m_pTagbarBtn;
-		
-		Fader*					m_pPlaybackTrackFader;
-
-		Button *			m_pTimelineBtn;
-		Button *			m_pPlaybackBtn;
-		Button *			m_pViewTimelineBtn;
-		Button *			m_pViewPlaybackBtn;
-		Button *			m_pMutePlaybackBtn;
-		Button *				m_pEditPlaybackBtn;
-
-		QTimer*					m_pTimer;
-		
-		AutomationPathView *	m_pAutomationPathView;
-		LCDCombo*				m_pAutomationCombo;
-
-
-		virtual void resizeEvent( QResizeEvent *ev ) override;
-		void resyncExternalScrollBar();
-
-	bool m_bLastIsTimelineActivated;
+		bool m_bLastIsTimelineActivated;
 };
 
 #endif

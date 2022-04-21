@@ -52,14 +52,44 @@ PatternList::~PatternList()
 	}
 }
 
-void PatternList::add( Pattern* pattern )
+void PatternList::add( Pattern* pPattern )
 {
 	assertAudioEngineLocked();
-	// do nothing if already in __patterns
-	if ( index( pattern) != -1 ) {
+	if ( pPattern == nullptr ) {
+		ERRORLOG( "Provided pattern is invalid" );
 		return;
 	}
-	__patterns.push_back( pattern );
+	
+	// do nothing if already in __patterns
+	if ( index( pPattern ) != -1 ) {
+		INFOLOG( "Provided pattern is already contained" );
+		return;
+	}
+	else {
+		// Check whether the pattern is contained as a virtual
+		// pattern.
+		for ( const auto& ppPattern : __patterns ) {
+			auto pVirtualPatterns = ppPattern->get_virtual_patterns();
+			if ( pVirtualPatterns->find( pPattern ) != pVirtualPatterns->end() ) {
+				INFOLOG( "Provided pattern is already contained as virtual pattern" );
+				return;
+			}
+		}
+	}
+
+	// In case the added pattern is a virtual one, deactivate the
+	// individual patterns it encompasses in case one of them was
+	// already activated. (They will be only activated as virtual
+	// patterns from here on).
+	auto pVirtualPatterns = pPattern->get_virtual_patterns();
+	for ( int ii = __patterns.size() - 1; ii >= 0 && ii < __patterns.size(); --ii ) {
+		auto ppPattern = __patterns[ ii ];
+		if ( pVirtualPatterns->find( ppPattern ) != pVirtualPatterns->end() ) {
+			del( ii );
+		}
+	}
+	
+	__patterns.push_back( pPattern );
 }
 
 void PatternList::insert( int nIdx, Pattern* pPattern )
@@ -86,7 +116,7 @@ Pattern* PatternList::get( int idx )
 	return __patterns[idx];
 }
 
-const Pattern* PatternList::get( int idx ) const
+Pattern* PatternList::get( int idx ) const
 {
 	assertAudioEngineLocked();
 	if ( idx < 0 || idx >= __patterns.size() ) {
@@ -97,10 +127,12 @@ const Pattern* PatternList::get( int idx ) const
 	return __patterns[idx];
 }
 
-int PatternList::index( const Pattern* pattern )
+int PatternList::index( const Pattern* pattern ) const
 {
 	for( int i=0; i<__patterns.size(); i++ ) {
-		if ( __patterns[i]==pattern ) return i;
+		if ( __patterns[i]==pattern ) {
+			return i;
+		}
 	}
 	return -1;
 }
@@ -247,7 +279,7 @@ QString PatternList::find_unused_pattern_name( QString sourceName, Pattern* igno
 	return unusedPatternNameCandidate;
 }
 
-int PatternList::longest_pattern_length() {
+int PatternList::longest_pattern_length() const {
 	int nMax = -1;
 	for ( int i = 0; i < __patterns.size(); i++ ) {
 		nMax = std::max( nMax, __patterns[i]->get_length() );
@@ -269,10 +301,9 @@ QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "[PatternList] " );
 		for ( auto pp : __patterns ) {
 			if ( pp != nullptr ) {
-				sOutput.append( QString( "[%1] " ).arg( pp->toQString( sPrefix + s, bShort ) ) );
+				sOutput.append( QString( "[%1] " ).arg( pp->get_name() ) );
 			}
 		}
-		sOutput.append( "]" );
 	}
 	
 	return sOutput;

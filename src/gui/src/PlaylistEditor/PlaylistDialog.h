@@ -87,16 +87,19 @@ public slots:
 		void updatePlayListNode( QString file );
 		void updatePlayListVector();
 		void setFirstItemCurrent();
-		Button *zoom_in_btn;
-		QTimer *timer;
-		QMenuBar *m_pMenubar;
-		QMenu *m_pPlaylistMenu;
-		QMenu *m_pScriptMenu;
+		Button *	zoom_in_btn;
+		QTimer *	m_pTimer;
+		QMenuBar *	m_pMenubar;
+		QMenu *		m_pPlaylistMenu;
+#ifndef WIN32
+	//no scripts under windows
+		QMenu *		m_pScriptMenu;
+#endif
 
-		Button *m_pRwdBtn;
-		Button *m_pPlayBtn;
-		Button *m_pStopBtn;
-		Button *m_pFfwdBtn;
+		Button *	m_pRwdBtn;
+		Button *	m_pPlayBtn;
+		Button *	m_pStopBtn;
+		Button *	m_pFfwdBtn;
 };
 
 

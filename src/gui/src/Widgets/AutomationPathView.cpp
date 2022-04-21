@@ -1,7 +1,7 @@
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
- * Copyright(c) 2008-2021 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ * Copyright(c) 2008-2022 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
  *
  * http://www.hydrogen-music.org
  *
@@ -22,7 +22,9 @@
 
 #include "AutomationPathView.h"
 #include "../SongEditor/SongEditor.h"
+#include "../SongEditor/SongEditorPanel.h"
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 
 using namespace H2Core;
 
@@ -30,9 +32,9 @@ AutomationPathView::AutomationPathView(QWidget *parent)
 	: QWidget(parent),
 	  H2Core::Object<AutomationPathView>(),
 	  m_nGridWidth(16),
-	  m_nMarginWidth(10),
 	  m_nMarginHeight(4),
-	  m_bIsHolding(false)
+	  m_bIsHolding(false),
+	  m_fTick( 0 )
 {
 	setFocusPolicy( Qt::ClickFocus );
 	Preferences *pPref = Preferences::get_instance();
@@ -42,33 +44,57 @@ AutomationPathView::AutomationPathView(QWidget *parent)
 	
 	_path = nullptr;
 	autoResize();
+
+	qreal pixelRatio = devicePixelRatio();
+	m_pBackgroundPixmap = new QPixmap( width() * pixelRatio,
+									   height() * pixelRatio );
+	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+	createBackground();
 }
 
 void AutomationPathView::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-
 	if ( changes & H2Core::Preferences::Changes::Colors ) {
+		createBackground();
 		update();
 	}
 }
 
 
-void AutomationPathView::setAutomationPath(AutomationPath *path)
+void AutomationPathView::setAutomationPath( AutomationPath *path, bool bUpdate )
 {
+	if ( path == _path ) {
+		return;
+	}
 	_path = path;
-	if(_path) {
-		_selectedPoint = _path->end();
+
+	if( _path ) {
+		_selectedPoint = path->end();
 	}
 
-	update();
+	if ( bUpdate ) {
+		createBackground();
+		update();
+	}
 }
 
+// Make sure we have the current automation path
+void AutomationPathView::updateAutomationPath()
+{
+	auto pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong != nullptr ) {
+		setAutomationPath( pSong->getVelocityAutomationPath(), false );
+	} else {
+		setAutomationPath( nullptr, false );
+	}
+}
 
 void AutomationPathView::setGridWidth( int width )
 {
 	if ( ( SONG_EDITOR_MIN_GRID_WIDTH <= width ) && ( SONG_EDITOR_MAX_GRID_WIDTH >= width ) ) {
 		m_nGridWidth = width;
 		autoResize();
+		createBackground();
+		update();
 	}
 }
 
@@ -90,7 +116,7 @@ QPoint AutomationPathView::translatePoint(const std::pair<float,float> &p) const
 	int contentHeight = height() - 2* m_nMarginHeight;
 
 	return QPoint(
-		m_nMarginWidth + p.first * m_nGridWidth,
+		SongEditor::nMargin + p.first * m_nGridWidth,
 		m_nMarginHeight + contentHeight * ((_path->get_max()-p.second)/(_path->get_max()-_path->get_min()))
 	);
 }
@@ -101,7 +127,7 @@ QPoint AutomationPathView::translatePoint(const std::pair<float,float> &p) const
  */
 bool AutomationPathView::checkBounds(QMouseEvent *event) const
 {
-	return event->x() > m_nMarginWidth
+	return event->x() > SongEditor::nMargin
 		&& event->y() > m_nMarginHeight
 		&& event->y() < height()-m_nMarginHeight;
 }
@@ -114,27 +140,93 @@ std::pair<const float, float> AutomationPathView::locate(QMouseEvent *event) con
 {
 	int contentHeight = height() - 2* m_nMarginHeight;
 
-	float x = (event->x() - m_nMarginWidth) / (float)m_nGridWidth;
+	float x = (event->x() - SongEditor::nMargin) / (float)m_nGridWidth;
 	float y = ((contentHeight-event->y()+m_nMarginHeight)/(float)contentHeight)
 		* (_path->get_max() - _path->get_min()) + _path->get_min();
 
 	return std::pair<const float,float>(x,y);
 }
 
+void AutomationPathView::updatePosition( float fTick ) {
+	m_fTick = fTick;
+	update();
+}
 
 /**
  * \brief Repaint widget
  **/
-void AutomationPathView::paintEvent(QPaintEvent *event)
+void AutomationPathView::paintEvent(QPaintEvent *ev)
 {
+	
+	if (!isVisible()) {
+		return;
+	}
+	
+	qreal pixelRatio = devicePixelRatio();
+	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
+		 width() != m_pBackgroundPixmap->width() ||
+		 height() != m_pBackgroundPixmap->height() ) {
+		createBackground();
+	}
+	
+	QPainter painter( this );
+	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap,
+						QRectF( pixelRatio * ev->rect().x(),
+								pixelRatio * ev->rect().y(),
+								pixelRatio * ev->rect().width(),
+								pixelRatio * ev->rect().height() ) );
 
+	// Draw playhead
+	//
+	// Using the grid width of the song editor over class' own one is
+	// crucial in order to keep the full-height playhead in sync.
+	auto pSongEditorPanel = HydrogenApp::get_instance()->getSongEditorPanel();
+	if ( m_fTick != -1 && pSongEditorPanel != nullptr ) {
+		int nOffset = Skin::getPlayheadShaftOffset();
+		int nX = static_cast<int>( static_cast<float>(SongEditor::nMargin) + 1 +
+								   m_fTick *
+								   static_cast<float>(pSongEditorPanel->getSongEditor()->
+													  getGridWidth()) -
+								   static_cast<float>(Skin::nPlayheadWidth) / 2 );
+		Skin::setPlayheadPen( &painter, false );
+		painter.drawLine( nX + nOffset, 0, nX + nOffset, height() );
+	}
+
+}
+
+void AutomationPathView::createBackground() {
+	
 	auto pPref = H2Core::Preferences::get_instance();
+	updateAutomationPath();
 
-	QPainter painter(this);
+	QColor backgroundColor =
+		pPref->getColorTheme()->m_songEditor_automationBackgroundColor;
+	QColor automationLineColor =
+		pPref->getColorTheme()->m_songEditor_automationLineColor;
+	QColor nodeColor = pPref->getColorTheme()->m_songEditor_automationNodeColor;
+	QColor textColor = pPref->getColorTheme()->m_songEditor_textColor;
+
+	// Resize pixmap if pixel ratio has changed
+	qreal pixelRatio = devicePixelRatio();
+	if ( m_pBackgroundPixmap->devicePixelRatio() != pixelRatio ||
+		 width() != m_pBackgroundPixmap->width() ||
+		 height() != m_pBackgroundPixmap->height() ) {
+		delete m_pBackgroundPixmap;
+		m_pBackgroundPixmap = new QPixmap( width()  * pixelRatio , height() * pixelRatio );
+		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
+	}
+
+	m_pBackgroundPixmap->fill( backgroundColor );
+
+	QPainter painter( m_pBackgroundPixmap );
 	painter.setRenderHint(QPainter::Antialiasing);
 
+	// Border
+	painter.setPen( Qt::black );
+	painter.drawLine( 0, 0, width(), 0 );
+
 	QPen rulerPen(Qt::DotLine);
-	rulerPen.setColor( pPref->getColorTheme()->m_lightColor );
+	rulerPen.setColor( textColor );
 	painter.setPen(rulerPen);
 
 	/* Paint min, max  */
@@ -149,7 +241,7 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 	QPoint def = translatePoint(0, _path->get_default());
 	painter.drawLine(0, def.y(), width(), def.y());
 
-	QPen linePen( pPref->getColorTheme()->m_automationColor );
+	QPen linePen( automationLineColor );
 	linePen.setWidth(2);
 	painter.setPen(linePen);
 
@@ -172,7 +264,7 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 	}
 
 
-	QPen circlePen( pPref->getColorTheme()->m_automationCircleColor );
+	QPen circlePen( nodeColor );
 	circlePen.setWidth(1);
 	painter.setPen(circlePen);
 	painter.setBrush(QBrush( pPref->getColorTheme()->m_windowColor ));
@@ -195,6 +287,8 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
  */
 void AutomationPathView::mousePressEvent(QMouseEvent *event)
 {
+	updateAutomationPath();
+
 	if (! checkBounds(event) || !_path) {
 		return;
 	}
@@ -217,6 +311,7 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
 	}
 	H2Core::Hydrogen::get_instance()->setIsModified( true );
 
+	createBackground();
 	update();
 
 	m_bIsHolding = true;
@@ -232,6 +327,7 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
  **/
 void AutomationPathView::mouseReleaseEvent(QMouseEvent *event)
 {
+	updateAutomationPath();
 	m_bIsHolding = false;
 
 	if (! checkBounds(event) || !_path) {
@@ -258,6 +354,7 @@ void AutomationPathView::mouseReleaseEvent(QMouseEvent *event)
  */
 void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
 {
+	updateAutomationPath();
 	if (! checkBounds(event) || !_path) {
 		return;
 	}
@@ -266,11 +363,12 @@ void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
 	float x = p.first;
 	float y = p.second;
 
-	if(m_bIsHolding) {
+	if ( m_bIsHolding && _path && _selectedPoint != _path->end() ) {
 		_selectedPoint = _path->move(_selectedPoint, x, y);
 		H2Core::Hydrogen::get_instance()->setIsModified( true );
 	}
 
+	createBackground();
 	update();
 }
 
@@ -282,6 +380,7 @@ void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
  */
 void AutomationPathView::keyPressEvent(QKeyEvent *event)
 {
+	updateAutomationPath();
 	if ( event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace ) {
 		if ( _path && _selectedPoint != _path->end() ) {
 			float x = _selectedPoint->first;
@@ -292,6 +391,7 @@ void AutomationPathView::keyPressEvent(QKeyEvent *event)
 			H2Core::Hydrogen::get_instance()->setIsModified( true );
 
 			emit pointRemoved( x, y );
+			createBackground();
 			update();
 			emit valueChanged();
 
@@ -309,5 +409,5 @@ void AutomationPathView::keyPressEvent(QKeyEvent *event)
  **/
 void AutomationPathView::autoResize()
 {
-	resize ( 10 + m_nMaxPatternSequence * m_nGridWidth, 64 );
+	resize( SongEditor::nMargin + m_nMaxPatternSequence * m_nGridWidth, 64 );
 }

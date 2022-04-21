@@ -126,8 +126,8 @@ namespace H2Core
 		/** Default option to offer the user when saving an empty song
 			to disk.*/
 		static QString default_song_name();
-		/** returns untitled song file name */
-		static QString untitled_song_file_name();
+		/** returns untitled song name */
+		static QString untitled_song_name();
 		/** Returns a string containing the path to the
 		    _click.wav_ file used in the metronome. 
 			*
@@ -268,6 +268,18 @@ namespace H2Core
 		 */
 		static QString drumkit_file( const QString& dk_path );
 
+		/**
+		 * Returns filename and extention of the expected drumkit file.
+		 */
+		static QString drumkit_xml();
+
+		/**
+		 * Create a backup path from a drumkit path. It will contain
+		 * the current datetime to both make individual backup names
+		 * unique and to make it more easy to handle them.
+		 */
+		static QString drumkit_backup_path( const QString& dk_path );
+
 		/* PATTERNS */
 		/**
 		 * returns a list of existing drumkit sub dir into the patterns directory
@@ -293,6 +305,32 @@ namespace H2Core
 		 * \param sg_name the song name
 		 */
 		static bool song_exists( const QString& sg_name );
+		
+		/**
+		 * Checks the path pointing to a .h2song.
+		 *
+		 * It will be checked whether @a songPath
+		 * - is absolute
+		 * - exists (if @a bCheckExistance is set to true)
+		 * - has the '.h2song' suffix
+		 * - is writable (read-only songs are considered valid as well
+		 * and the function returns true. But it also triggers an
+		 * event informing the GUI to show a read-only warning.)
+		 *
+		 * \param sSongPath Absolute path to an .h2song file.
+		 * \param bCheckExistance Whether the existance of the file is
+		 * checked (should be true for opening and false for creating
+		 * a new song)
+		 * \return true - if valid.
+		 */
+		static bool isSongPathValid( const QString& sSongPath, bool bCheckExistance = false );
+
+		/**
+		 * Takes an arbitrary path, replaces white spaces by
+		 * underscores and removes all characters apart from latin
+		 * characters, arabic numbers, underscores and dashes.
+		 */
+		static QString validateFilePath( const QString& sPath );
 
 		static QStringList theme_list();
 
@@ -357,14 +395,18 @@ namespace H2Core
 		 * \param src source file path
 		 * \param dst destination file path
 		 * \param overwrite allow to overwrite an existing file if set to true
+		 * \param bSilent Whether debug and info messages should be
+		 * logged.
 		 */
-		static bool file_copy( const QString& src, const QString& dst, bool overwrite=false );
+		static bool file_copy( const QString& src, const QString& dst, bool overwrite=false, bool bSilent = false );
 		/**
 		 * remove a path
 		 * \param path the path to be removed
 		 * \param recursive perform recursive removal if set to true
+		 * \param bSilent Whether debug and info messages should be
+		 * logged.
 		 */
-		static bool rm( const QString& path, bool recursive=false );
+		static bool rm( const QString& path, bool recursive=false, bool bSilent = false );
 		/**
 		 * create a path
 		 * \param path the path to the directory to be created
@@ -380,7 +422,7 @@ namespace H2Core
 		static Logger* __logger;                    ///< a pointer to the logger
 		static bool check_sys_paths();              ///< returns true if the system path is consistent
 		static bool check_usr_paths();              ///< returns true if the user path is consistent
-		static bool rm_fr( const QString& path );   ///< recursively remove a path
+		static bool rm_fr( const QString& path, bool bSilent = false );   ///< recursively remove a path
 
 		/**
 		 * If this variable is non-empty, its content will be used as

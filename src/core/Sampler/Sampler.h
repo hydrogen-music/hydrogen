@@ -196,7 +196,6 @@ public:
 	void preview_sample( std::shared_ptr<Sample> pSample, int length );
 	void preview_instrument( std::shared_ptr<Instrument> pInstr );
 
-	void setPlayingNotelength( std::shared_ptr<Instrument> pInstrument, unsigned long ticks, unsigned long noteOnTick );
 	bool isInstrumentPlaying( std::shared_ptr<Instrument> pInstr );
 
 	void setInterpolateMode( Interpolation::InterpolateMode mode ){

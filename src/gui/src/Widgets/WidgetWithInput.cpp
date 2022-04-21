@@ -93,7 +93,7 @@ void WidgetWithInput::setIsActive( bool bIsActive ) {
 	update();
 }
 
-void WidgetWithInput::setValue( float fValue )
+void WidgetWithInput::setValue( float fValue, bool bTriggeredByUserInteraction )
 {
 	if ( ! m_bIsActive ) {
 		return;
@@ -101,7 +101,17 @@ void WidgetWithInput::setValue( float fValue )
 	
 	if ( m_bUseIntSteps ) {
 		fValue = std::round( fValue );
+	} else {
+		if ( std::abs( fValue ) < 1E-6 ) {
+			// The calculation of the increment when altering the
+			// value via drag or mouse wheel - (m_fMax - m_fMin)/100.0
+			// - introduces rounding errors. These become dominant
+			// when trying to reset the widget's value to zero and
+			// cause a mismatch.
+			fValue = 0.0;
+		}
 	}
+			
 	
 	if ( fValue == m_fValue ) {
 		return;
@@ -120,7 +130,7 @@ void WidgetWithInput::setValue( float fValue )
 		updateTooltip();
 		update();
 
-		if ( m_bModifyOnChange ) {
+		if ( m_bModifyOnChange && bTriggeredByUserInteraction ) {
 			H2Core::Hydrogen::get_instance()->setIsModified( true );
 		}
 	}
@@ -146,9 +156,9 @@ void WidgetWithInput::mousePressEvent(QMouseEvent *ev)
 		// using the Action associated to the Widget might not yield a
 		// unique result since the Action can be registered from the
 		// PreferencesDialog as well.
-		m_sRegisteredMidiEvent = H2Core::Hydrogen::get_instance()->lastMidiEvent;
-		m_nRegisteredMidiParameter = H2Core::Hydrogen::get_instance()->lastMidiEventParameter;
-		
+		m_sRegisteredMidiEvent = H2Core::Hydrogen::get_instance()->m_LastMidiEvent;
+		m_nRegisteredMidiParameter = H2Core::Hydrogen::get_instance()->m_nLastMidiEventParameter;
+	
 		m_bIgnoreMouseMove = true;
 		updateTooltip();
 	}
@@ -199,9 +209,16 @@ void WidgetWithInput::wheelEvent ( QWheelEvent *ev )
 	if ( ev->angleDelta().y() < 0 ) {
 		fDelta *= -1.;
 	}
-	setValue( getValue() + ( fDelta * fStepFactor ) );
+
+	setValue( getValue() + ( fDelta * fStepFactor ), true );
 	
-	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
+	QToolTip::showText(
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
+					    ev->globalPosition().toPoint(),
+#else
+					    ev->globalPos(),
+#endif
+						QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
 }
 
 
@@ -226,7 +243,7 @@ void WidgetWithInput::mouseMoveEvent( QMouseEvent *ev )
 	float fDeltaY = ev->y() - m_fMousePressY;
 	float fNewValue = ( m_fMousePressValue - fStepFactor * ( fDeltaY / 100.0 * fRange ) );
 
-	setValue( fNewValue );
+	setValue( fNewValue, true );
 
 	QToolTip::showText( ev->globalPos(), QString( "%1" ).arg( m_fValue, 0, 'f', 2 ) , this );
 }
@@ -262,22 +279,22 @@ void WidgetWithInput::keyPressEvent( QKeyEvent *ev ) {
 		} else {
 			fIncrement *= m_nScrollSpeed;
 		}
-		setValue( m_fValue + fIncrement );
+		setValue( m_fValue + fIncrement, true );
 	} else if ( ev->key() == Qt::Key_PageUp ) {
-		setValue( m_fValue + fIncrement * m_nScrollSpeedFast );
+		setValue( m_fValue + fIncrement * m_nScrollSpeedFast, true );
 	} else if ( ev->key() == Qt::Key_Home ) {
-		setValue( m_fMax );
+		setValue( m_fMax, true );
 	} else if ( ev->key() == Qt::Key_Left || ev->key() == Qt::Key_Down ) {
 		if ( ev->modifiers() == Qt::ControlModifier ) {
 			fIncrement *= m_nScrollSpeedFast;
 		} else {
 			fIncrement *= m_nScrollSpeed;
 		}
-		setValue( m_fValue - fIncrement );
+		setValue( m_fValue - fIncrement, true );
 	} else if ( ev->key() == Qt::Key_PageDown ) {
-		setValue( m_fValue - fIncrement * m_nScrollSpeedFast );
+		setValue( m_fValue - fIncrement * m_nScrollSpeedFast, true );
 	} else if ( ev->key() == Qt::Key_Home ) {
-		setValue( m_fMin );
+		setValue( m_fMin, true );
 	} else if ( ( ev->key() >= Qt::Key_0 && ev->key() <= Qt::Key_9 ) || ev->key() == Qt::Key_Minus || ev->key() == Qt::Key_Period ) {
 
 		timeval now;
@@ -306,7 +323,7 @@ void WidgetWithInput::keyPressEvent( QKeyEvent *ev ) {
 		if ( ! bOk ) {
 			return;
 		}
-		setValue( fNewValue );
+		setValue( fNewValue, true );
 		update();
 	} else if (  ev->key() == Qt::Key_Escape ) {
 		// reset the input buffer
@@ -344,7 +361,7 @@ void WidgetWithInput::setMin( float fMin )
 		m_fMin = fMin;
 
 		if ( m_fValue < fMin ) {
-			setValue( fMin );
+			setValue( fMin, false );
 		}
 		update();
 	}
@@ -372,7 +389,7 @@ void WidgetWithInput::setMax( float fMax )
 		m_fMax = fMax;
 
 		if ( m_fValue > fMax ) {
-			setValue( fMax );
+			setValue( fMax, false );
 		}
 		update();
 	}
@@ -406,7 +423,7 @@ void WidgetWithInput::setDefaultValue( float fDefaultValue )
 
 void WidgetWithInput::resetValueToDefault()
 {
-	setValue( m_fDefaultValue );
+	setValue( m_fDefaultValue, true );
 }
 
 void WidgetWithInput::setAction( std::shared_ptr<Action> pAction ) {

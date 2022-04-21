@@ -448,9 +448,8 @@ public:
 	void			setQuantizeEvents( bool value );
 	bool			getQuantizeEvents();
 
-	const std::vector<QString> 		getRecentFiles();
+	std::vector<QString> 		getRecentFiles() const;
 	void			setRecentFiles( const std::vector<QString> recentFiles );
-	void			insertRecentFile( const QString sFilename ); 
 
 	QStringList		getRecentFX();
 	void			setMostRecentFX( QString );
@@ -533,18 +532,11 @@ public:
 	const std::shared_ptr<ColorTheme>	getColorTheme() const;
 	void			setColorTheme( const std::shared_ptr<ColorTheme> pNewColorTheme );
 
-	/** \return #m_bPatternModePlaysSelected*/
-	bool			patternModePlaysSelected();
-	/** \param b Sets #m_bPatternModePlaysSelected*/
-	void			setPatternModePlaysSelected( bool b );
 	bool			useLash();
 	void			setUseLash( bool b );
 
 	bool			hideKeyboardCursor();
 	void			setHideKeyboardCursor( bool b );
-
-	bool			patternFollowsSong();
-	void			setPatternFollowsSong( bool b );
 
 	/** @param bars Sets #m_nMaxBars.*/
 	void				setMaxBars( const int bars );
@@ -672,15 +664,7 @@ private:
 	QString				m_sH2ProcessName; //Name of hydrogen's main process
 	 ///rubberband bpm change queue
 	bool				m_useTheRubberbandBpmChangeEvent;
-	/**
-	 * When transport is in Song::PATTERN_MODE and this variable is
-	 * set to true, the currently focused Pattern will be used for
-	 * playback.
-	 *
-	 * It is set by setPatternModePlaysSelected() and queried by
-	 * patternModePlaysSelected().
-	 */
-	bool				m_bPatternModePlaysSelected;
+
 	///< Restore last song?
 	bool				m_brestoreLastSong;
 	bool				m_brestoreLastPlaylist;
@@ -698,7 +682,6 @@ private:
 	int					punchInPos;
 	int					punchOutPos;
 	bool				m_bHideKeyboardCursor;
-	bool				m_bPatternFollowsSong;
 	/** Maximum number of bars shown in the Song Editor at
 	 * once. 
 	 *
@@ -1054,14 +1037,6 @@ inline bool Preferences::hideKeyboardCursor() {
 	return m_bHideKeyboardCursor;
 }
 
-inline void Preferences::setPatternFollowsSong( bool value ) {
-	m_bPatternFollowsSong = value;
-}
-
-inline bool Preferences::patternFollowsSong() {
-	return m_bPatternFollowsSong;
-}
-
 inline bool Preferences::isRestoreLastSongEnabled() {
 	return m_brestoreLastSong;
 }
@@ -1138,7 +1113,10 @@ inline bool Preferences::getQuantizeEvents() {
 	return quantizeEvents;
 }
 
-inline const std::vector<QString> Preferences::getRecentFiles() {
+inline void Preferences::setRecentFiles( const std::vector<QString> recentFiles ) {
+	m_recentFiles = recentFiles;
+}
+inline std::vector<QString> Preferences::getRecentFiles() const {
 	return m_recentFiles;
 }
 
@@ -1332,13 +1310,6 @@ inline const std::shared_ptr<ColorTheme> Preferences::getColorTheme() const {
 }
 inline void Preferences::setColorTheme( const std::shared_ptr<ColorTheme> pNewColorTheme ) {
 	m_pTheme->setColorTheme( pNewColorTheme );
-}
-
-inline bool Preferences::patternModePlaysSelected() {
-	return m_bPatternModePlaysSelected;
-}
-inline void Preferences::setPatternModePlaysSelected( bool b ) {
-	m_bPatternModePlaysSelected = b;
 }
 
 inline bool Preferences::useLash(){

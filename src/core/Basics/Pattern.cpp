@@ -242,10 +242,10 @@ void Pattern::purge_instrument( std::shared_ptr<Instrument> instr, bool bRequire
 	}
 	if ( locked ) {
 		Hydrogen::get_instance()->getAudioEngine()->unlock();
-		while ( slate.size() ) {
-			delete slate.front();
-			slate.pop_front();
-		}
+	}
+	while ( slate.size() ) {
+		delete slate.front();
+		slate.pop_front();
 	}
 }
 
@@ -274,10 +274,17 @@ void Pattern::flattened_virtual_patterns_compute()
 	}
 }
 
-void Pattern::extand_with_flattened_virtual_patterns( PatternList* patterns )
-{
-	for( virtual_patterns_cst_it_t it=__flattened_virtual_patterns.begin(); it!=__flattened_virtual_patterns.end(); ++it ) {
-		patterns->add( *it );
+void Pattern::addFlattenedVirtualPatterns( PatternList* pPatternList ) {
+	for( virtual_patterns_cst_it_t it=__flattened_virtual_patterns.begin();
+		 it!=__flattened_virtual_patterns.end(); ++it ) {
+		pPatternList->add( *it );
+	}
+}
+
+void Pattern::removeFlattenedVirtualPatterns( PatternList* pPatternList ) {
+	for( virtual_patterns_cst_it_t it=__flattened_virtual_patterns.begin();
+		 it!=__flattened_virtual_patterns.end(); ++it ) {
+		pPatternList->del( *it );
 	}
 }
 
@@ -330,7 +337,7 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( "]" );
 		if ( __virtual_patterns.size() != 0 ) {
-			sOutput.append( QString( ", Virtual_patterns:" ) );
+			sOutput.append( ", Virtual_patterns: {" );
 		}
 		for ( auto ii : __virtual_patterns ) {
 			if ( ii != nullptr ) {
@@ -338,12 +345,15 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 			}
 		}
 		if ( __flattened_virtual_patterns.size() != 0 ) {
-			sOutput.append( QString( ", Flattened_virtual_patterns:" ) );
+			sOutput.append( "}, Flattened_virtual_patterns: {" );
 		}
 		for ( auto ii : __flattened_virtual_patterns ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s + s, bShort ) ) );
 			}
+		}
+		if ( __flattened_virtual_patterns.size() != 0 ) {
+			sOutput.append( "}" );
 		}
 	}	
 	return sOutput;

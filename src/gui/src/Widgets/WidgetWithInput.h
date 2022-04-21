@@ -68,7 +68,7 @@ public:
 	void setMax( float fMax );
 	float getMax() const;
 
-	virtual void setValue( float fValue );
+	virtual void setValue( float fValue, bool bTriggeredByUserInteraction = false );
 	float getValue() const;
 
 	void setDefaultValue( float fDefaultValue );

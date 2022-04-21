@@ -85,8 +85,8 @@ class Mixer :  public QWidget, public EventListener,  public H2Core::Object<Mixe
 		LadspaFXMixerLine *		m_pLadspaFXLine[MAX_FX];
 
 		QScrollArea*			m_pFaderScrollArea;
-		Button *			m_pShowFXPanelBtn;
-		Button *			m_pShowPeaksBtn;
+		Button *				m_pShowFXPanelBtn;
+		Button *				m_pShowPeaksBtn;
 		Button *				m_pOpenMixerSettingsBtn;
 		MasterMixerLine *		m_pMasterLine;
 

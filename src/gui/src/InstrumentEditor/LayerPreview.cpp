@@ -47,20 +47,19 @@ LayerPreview::LayerPreview( QWidget* pParent )
  , m_nSelectedComponent( 0 )
  , m_nSelectedLayer( 0 )
  , m_bMouseGrab( false )
+ , m_bGrabLeft( false )
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
-	//
-
 	setMouseTracking( true );
 
-	int w = 276;
+	int width = 276;
 	if( InstrumentComponent::getMaxLayers() > 16) {
-		w = 261;
+		width = 261;
 	}
 	
-	int h = 20 + m_nLayerHeight * InstrumentComponent::getMaxLayers();
-	resize( w, h );
+	int height = 20 + m_nLayerHeight * InstrumentComponent::getMaxLayers();
+	resize( width, height );
 
 	m_speakerPixmap.load( Skin::getSvgImagePath() + "/icons/white/speaker.svg" );
 
@@ -199,6 +198,17 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	p.setPen( pPref->getColorTheme()->m_highlightColor );
 	int y = 20 + m_nLayerHeight * m_nSelectedLayer;
 	p.drawRect( 0, y, width() - 1, m_nLayerHeight );
+}
+
+void LayerPreview::drumkitLoadedEvent() {
+	selectedInstrumentChangedEvent();
+}
+
+void LayerPreview::updateSongEvent( int nValue ) {
+	// A new song got loaded
+	if ( nValue == 0 ) {
+		selectedInstrumentChangedEvent();
+	}
 }
 
 void LayerPreview::selectedInstrumentChangedEvent()
@@ -399,19 +409,26 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 		auto pLayer = m_pInstrument->get_component( m_nSelectedComponent )->get_layer( m_nSelectedLayer );
 		if ( pLayer ) {
 			if ( m_bMouseGrab ) {
+				bool bChanged = false;
 				if ( m_bGrabLeft ) {
 					if ( fVel < pLayer->get_end_velocity()) {
 						pLayer->set_start_velocity( fVel );
+						bChanged = true;
 						showLayerStartVelocity( pLayer, ev );
 					}
 				}
 				else {
 					if ( fVel > pLayer->get_start_velocity()) {
 						pLayer->set_end_velocity( fVel );
+						bChanged = true;
 						showLayerEndVelocity( pLayer, ev );
 					}
 				}
-				update();
+
+				if ( bChanged ) {
+					update();
+					Hydrogen::get_instance()->setIsModified( true );
+				}
 			}
 		}
 	}
@@ -483,8 +500,8 @@ void LayerPreview::showLayerEndVelocity( const std::shared_ptr<InstrumentLayer> 
 			this);
 }
 
-int LayerPreview::getPointSizeButton() const {
-	
+int LayerPreview::getPointSizeButton() const
+{
 	auto pPref = H2Core::Preferences::get_instance();
 	
 	int nPointSize;
@@ -493,7 +510,7 @@ int LayerPreview::getPointSizeButton() const {
 	case H2Core::FontTheme::FontSize::Small:
 		nPointSize = 6;
 		break;
-	case H2Core::FontTheme::FontSize::Normal:
+	case H2Core::FontTheme::FontSize::Medium:
 		nPointSize = 8;
 		break;
 	case H2Core::FontTheme::FontSize::Large:
@@ -504,9 +521,8 @@ int LayerPreview::getPointSizeButton() const {
 	return nPointSize;
 }
 
-void LayerPreview::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
+void LayerPreview::onPreferencesChanged( H2Core::Preferences::Changes changes )
+{
 	if ( changes & ( H2Core::Preferences::Changes::Font |
 					 H2Core::Preferences::Changes::Colors ) ) {
 		update();

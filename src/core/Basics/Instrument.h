@@ -116,16 +116,25 @@ class Instrument : public H2Core::Object<Instrument>
 		 * \param node the XMLNode to feed
 		 * \param component_id Identifier of the corresponding
 		 * component.
+		 * \param bRecentVersion Whether the drumkit format should be
+		 * supported by Hydrogen 0.9.7 or higher (whether it should be
+		 * composed of DrumkitComponents).
 		 */
-		void save_to( XMLNode* node, int component_id );
+		void save_to( XMLNode* node, int component_id, bool bRecentVersion = true );
 		/**
 		 * load an instrument from an XMLNode
 		 * \param node the XMLDode to read from
 		 * \param dk_path the directory holding the drumkit data
 		 * \param dk_name the name of the drumkit
+		 * \param bSilent if set to true, all log messages except of
+		 * errors and warnings are suppressed.
+		 *
 		 * \return a new Instrument instance
 		 */
-		static std::shared_ptr<Instrument> load_from( XMLNode* node, const QString& dk_path, const QString& dk_name );
+		static std::shared_ptr<Instrument> load_from( XMLNode* node,
+													  const QString& dk_path,
+													  const QString& dk_name,
+													  bool bSilent = false );
 
 		///< set the name of the instrument
 		void set_name( const QString& name );
@@ -386,12 +395,16 @@ inline int Instrument::get_midi_out_channel() const
 	return __midi_out_channel;
 }
 
-inline void Instrument::set_midi_out_channel( int channel )
+inline void Instrument::set_midi_out_channel( int nChannel )
 {
-	if ( ( channel >= MIDI_OUT_CHANNEL_MIN ) && ( channel <= MIDI_OUT_CHANNEL_MAX ) ) {
-		__midi_out_channel = channel;
+	if ( ( nChannel >= MIDI_OUT_CHANNEL_MIN ) &&
+		 ( nChannel <= MIDI_OUT_CHANNEL_MAX ) ) {
+		__midi_out_channel = nChannel;
 	} else {
-		ERRORLOG( QString( "midi out channel %1 out of bounds" ).arg( channel ) );
+		ERRORLOG( QString( "midi out channel [%1] out of bounds [%2,%3]" )
+				  .arg( nChannel )
+				  .arg( MIDI_OUT_CHANNEL_MIN )
+				  .arg( MIDI_OUT_CHANNEL_MAX ) );
 	}
 }
 

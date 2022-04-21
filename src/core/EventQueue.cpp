@@ -38,6 +38,7 @@ void EventQueue::create_instance()
 EventQueue::EventQueue()
 		: __read_index( 0 )
 		, __write_index( 0 )
+		, m_bSilent( false )
 {
 	__instance = this;
 
@@ -71,7 +72,8 @@ void EventQueue::push_event( const EventType type, const int nValue )
 	   we also adjust the read pointer, otherwise pop_event would return this newest event on the next call,
 	   then subsequent calls would get newer entries. */
 
-	if ( __write_index > __read_index + MAX_EVENTS ) {
+	if ( ! m_bSilent &&
+		 __write_index > __read_index + MAX_EVENTS ) {
 		ERRORLOG( QString( "Event queue full, lost event type %1 value %2" )
 				  .arg( __events_buffer[nIndex].type )
 				  .arg( __events_buffer[nIndex].value ));

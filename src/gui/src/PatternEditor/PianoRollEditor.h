@@ -29,6 +29,7 @@
 #include "../EventListener.h"
 #include "../Selection.h"
 #include "PatternEditor.h"
+#include "NotePropertiesRuler.h"
 #include "../Widgets/WidgetWithScalableFont.h"
 
 #include <QtGui>
@@ -48,30 +49,7 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
 		virtual void selectedInstrumentChangedEvent() override;
-		virtual void patternModifiedEvent() override;
 		//~ Implements EventListener interface
-
-		// Pitch / line conversions
-		int lineToPitch( int nLine ) {
-			return 12 * (OCTAVE_MIN+m_nOctaves) - 1 - nLine;
-		}
-		int pitchToLine( int nPitch ) {
-			return 12 * (OCTAVE_MIN+m_nOctaves) - 1 - nPitch;
-		}
-
-		H2Core::Note::Octave pitchToOctave( int nPitch ) {
-			if ( nPitch >= 0 ) {
-				return (H2Core::Note::Octave)(nPitch / 12);
-			} else {
-				return (H2Core::Note::Octave)((nPitch-11) / 12);
-			}
-		}
-		H2Core::Note::Key pitchToKey( int nPitch ) {
-			return (H2Core::Note::Key)(nPitch - 12 * pitchToOctave( nPitch ));
-		}
-		int octaveKeyToPitch( H2Core::Note::Octave octave, H2Core::Note::Key key ) {
-			return 12 * (int)octave + (int)key;
-		}
 
 		void addOrDeleteNoteAction( int nColumn,
 									int pressedLine,
@@ -96,25 +74,15 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 							 H2Core::Note::Key newKey,
 							 H2Core::Note *pNote);
 
-		void editNotePropertiesAction(   int nColumn,
-						int nRealColumn,
-						int selectedPatternNumber,
-						int selectedInstrumentnumber,
-						float velocity,
-						float fPan,
-						float leadLag,
-						int pressedLine );
-		void editNoteLengthAction( int nColumn,  int nRealColumn, int length, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedLine );
-
 
 		// Selection manager interface
 		//! Selections are indexed by Note pointers.
 
 		virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) override;
 		virtual void mouseClickEvent( QMouseEvent *ev ) override;
+	virtual void mousePressEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
 		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
-		virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
 		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
 		virtual QRect getKeyboardCursorRect() override;
 
@@ -127,24 +95,7 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 		void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 	private:
-		bool m_bNeedsUpdate;
-		bool m_bNeedsBackgroundUpdate;
-
-		void finishUpdateEditor();
-
-		unsigned m_nOctaves;
-
-		QPixmap *m_pBackground;
-		QPixmap *m_pTemp;
-		int m_pOldPoint;
-
-		// Note pitch position of cursor
-		int m_nCursorPitch;
-		QPoint cursorPosition();
-
-		QScrollArea *m_pScrollView;
-
-		void createBackground();
+		void createBackground() override;
 		void drawPattern();
 		void drawFocus( QPainter& painter );
 		void drawNote( H2Core::Note *pNote, QPainter *pPainter, bool bIsForeground );
@@ -155,20 +106,20 @@ class PianoRollEditor: public PatternEditor, protected WidgetWithScalableFont<7,
 
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void keyPressEvent ( QKeyEvent * ev ) override;
-		virtual void focusInEvent ( QFocusEvent * ev ) override;
-
-		int __selectedInstrumentnumber;
-		int __nRealColumn;
-		int __nColumn;
-		int __pressedLine;
-		int __oldLength;
 		
-		float __velocity;
-		float __oldVelocity;
-		float m_fPan;
-		float m_fOldPan;
-		float __leadLag;
-		float __oldLeadLag;		
+		void finishUpdateEditor();
+		
+		bool m_bNeedsUpdate;
+		bool m_bNeedsBackgroundUpdate;
+
+		QPixmap *m_pBackground;
+		QPixmap *m_pTemp;
+
+		// Note pitch position of cursor
+		int m_nCursorPitch;
+		QPoint cursorPosition();
+
+		QScrollArea *m_pScrollView;
 };
 
 #endif

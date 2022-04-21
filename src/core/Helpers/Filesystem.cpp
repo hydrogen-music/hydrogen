@@ -22,6 +22,7 @@
 
 #include <core/LocalFileMng.h>
 #include <core/config.h>
+#include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 
@@ -29,6 +30,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
+#include <QDateTime>
 #include <QDomDocument>
 
 #ifdef H2CORE_HAVE_OSC
@@ -71,7 +73,7 @@
 
 #define AUTOSAVE        "autosave"
 
-#define UNTITLED_SONG		"untitled.h2song"
+#define UNTITLED_SONG		"Untitled Song"
 #define UNTITLED_PLAYLIST	"untitled.h2playlist"
 
 // filters
@@ -192,33 +194,47 @@ bool Filesystem::check_permissions( const QString& path, const int perms, bool s
 	if( ( perms & is_file ) && ( perms & is_writable ) && !fi.exists() ) {
 		QFileInfo folder( path.left( path.lastIndexOf( "/" ) ) );
 		if( !folder.isDir() ) {
-			if( !silent ) ERRORLOG( QString( "%1 is not a directory" ).arg( folder.fileName() ) );
+			if( !silent ) {
+				ERRORLOG( QString( "%1 is not a directory" ).arg( folder.fileName() ) );
+			}
 			return false;
 		}
 		if( !folder.isWritable() ) {
-			if( !silent ) ERRORLOG( QString( "%1 is not writable" ).arg( folder.fileName() ) );
+			if( !silent ) {
+				ERRORLOG( QString( "%1 is not writable" ).arg( folder.fileName() ) );
+			}
 			return false;
 		}
 		return true;
 	}
 	if( ( perms & is_dir ) && !fi.isDir() ) {
-		if( !silent ) ERRORLOG( QString( "%1 is not a directory" ).arg( path ) );
+		if( !silent ) {
+			ERRORLOG( QString( "%1 is not a directory" ).arg( path ) );
+		}
 		return false;
 	}
 	if( ( perms & is_file ) && !fi.isFile() ) {
-		if( !silent ) ERRORLOG( QString( "%1 is not a file" ).arg( path ) );
+		if( !silent ) {
+			ERRORLOG( QString( "%1 is not a file" ).arg( path ) );
+		}
 		return false;
 	}
 	if( ( perms & is_readable ) && !fi.isReadable() ) {
-		if( !silent ) ERRORLOG( QString( "%1 is not readable" ).arg( path ) );
+		if( !silent ) {
+			ERRORLOG( QString( "%1 is not readable" ).arg( path ) );
+		}
 		return false;
 	}
 	if( ( perms & is_writable ) && !fi.isWritable() ) {
-		if( !silent ) ERRORLOG( QString( "%1 is not writable" ).arg( path ) );
+		if( !silent ) {
+			ERRORLOG( QString( "%1 is not writable" ).arg( path ) );
+		}
 		return false;
 	}
 	if( ( perms & is_executable ) && !fi.isExecutable() ) {
-		if( !silent ) ERRORLOG( QString( "%1 is not executable" ).arg( path ) );
+		if( !silent ) {
+			ERRORLOG( QString( "%1 is not executable" ).arg( path ) );
+		}
 		return false;
 	}
 	return true;
@@ -260,10 +276,14 @@ bool Filesystem::mkdir( const QString& path )
 
 bool Filesystem::path_usable( const QString& path, bool create, bool silent )
 {
-	if( !QDir( path ).exists() ) {
-		if( !silent ) INFOLOG( QString( "create user directory : %1" ).arg( path ) );
-		if( create && !QDir( "/" ).mkpath( path ) ) {
-			if( !silent ) ERRORLOG( QString( "unable to create user directory : %1" ).arg( path ) );
+	if ( !QDir( path ).exists() ) {
+		if ( !silent ) {
+			INFOLOG( QString( "create user directory : %1" ).arg( path ) );
+		}
+		if ( create && !QDir( "/" ).mkpath( path ) ) {
+			if( !silent ) {
+				ERRORLOG( QString( "unable to create user directory : %1" ).arg( path ) );
+			}
 			return false;
 		}
 	}
@@ -287,7 +307,7 @@ bool Filesystem::write_to_file( const QString& dst, const QString& content )
 	return true;
 }
 
-bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwrite )
+bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwrite, bool bSilent )
 {
 	if( !overwrite && file_exists( dst, true ) ) {
 		WARNINGLOG( QString( "do not overwrite %1 with %2 as it already exists" ).arg( dst ).arg( src ) );
@@ -301,19 +321,20 @@ bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwri
 		ERRORLOG( QString( "unable to copy %1 to %2, %2 is not writable" ).arg( src ).arg( dst ) );
 		return false;
 	}
-	INFOLOG( QString( "copy %1 to %2" ).arg( src ).arg( dst ) );
-
+	if ( ! bSilent ) {
+		INFOLOG( QString( "copy %1 to %2" ).arg( src ).arg( dst ) );
+	}
 	
 	// Since QFile::copy does not overwrite, we have to make sure the
 	// destination does not exist.
 	if ( overwrite && file_exists( dst, true ) ) {
-		rm( dst, true );
+		rm( dst, true, bSilent );
 	}
 	
 	return QFile::copy( src, dst );
 }
 
-bool Filesystem::rm( const QString& path, bool recursive )
+bool Filesystem::rm( const QString& path, bool recursive, bool bSilent )
 {
 	if ( check_permissions( path, is_file, true ) ) {
 		QFile file( path );
@@ -335,18 +356,22 @@ bool Filesystem::rm( const QString& path, bool recursive )
 		}
 		return ret;
 	}
-	return rm_fr( path );
+	return rm_fr( path, bSilent );
 }
 
-bool Filesystem::rm_fr( const QString& path )
+bool Filesystem::rm_fr( const QString& path, bool bSilent )
 {
+	if ( ! bSilent ) {
+		INFOLOG( QString( "Removing [%1] recursively" ).arg( path ) );
+	}
+	
 	bool ret = true;
 	QDir dir( path );
 	QFileInfoList entries = dir.entryInfoList( QDir::NoDotAndDotDot | QDir::AllEntries );
 	for ( int idx = 0; ( ( idx < entries.size() ) && ret ); idx++ ) {
 		QFileInfo entryInfo = entries[idx];
 		if ( entryInfo.isDir() && !entryInfo.isSymLink() ) {
-			ret = rm_fr( entryInfo.absoluteFilePath() );
+			ret = rm_fr( entryInfo.absoluteFilePath(), bSilent );
 		} else {
 			QFile file( entryInfo.absoluteFilePath() );
 			if ( !file.remove() ) {
@@ -380,7 +405,10 @@ bool Filesystem::check_sys_paths()
 	if( !file_readable( drumkit_xsd_path() ) ) ret = false;
 	if( !file_readable( playlist_xsd_path() ) ) ret = false;
 
-	if ( ret ) INFOLOG( QString( "system wide data path %1 is usable." ).arg( __sys_data_path ) );
+	if ( ret ) {
+		INFOLOG( QString( "system wide data path %1 is usable." ).arg( __sys_data_path ) );
+	}
+	
 	return ret;
 }
 
@@ -398,11 +426,14 @@ bool Filesystem::check_usr_paths()
 	if( !path_usable( plugins_dir() ) ) ret = false;
 	if( !path_usable( scripts_dir() ) ) ret = false;
 	if( !path_usable( songs_dir() ) ) ret = false;
-	if( file_exists( empty_song_path() ) ) ret = false;
+	if( file_exists( empty_song_path(), true ) ) ret = false;
 	if( !path_usable( usr_theme_dir() ) ) ret = false;
 	if( !file_writable( usr_config_path() ) ) ret = false;
 
-	if ( ret ) INFOLOG( QString( "user path %1 is usable." ).arg( __usr_data_path ) );
+	if ( ret ) {
+		INFOLOG( QString( "user path %1 is usable." ).arg( __usr_data_path ) );
+	}
+	
 	return ret;
 }
 
@@ -456,7 +487,8 @@ QString Filesystem::empty_song_path() {
 
 	return sPath;
 }
-QString Filesystem::untitled_song_file_name()
+
+QString Filesystem::untitled_song_name()
 {
 	return UNTITLED_SONG;
 }
@@ -774,6 +806,15 @@ QString Filesystem::drumkit_file( const QString& dk_path )
 	return dk_path + "/" + DRUMKIT_XML;
 }
 
+QString Filesystem::drumkit_xml() {
+	return DRUMKIT_XML;
+}
+
+QString Filesystem::drumkit_backup_path( const QString& dk_path ) {
+	return dk_path + "." +
+		QDateTime::currentDateTime().toString( "yyyy-MM-dd_hh-mm-ss" ) + ".bak";
+}
+
 // PATTERNS
 QStringList Filesystem::pattern_drumkits()
 {
@@ -810,6 +851,51 @@ QStringList Filesystem::song_list_cleared( )
 bool Filesystem::song_exists( const QString& sg_name )
 {
 	return QDir( songs_dir() ).exists( sg_name );
+}
+
+bool Filesystem::isSongPathValid( const QString& sSongPath, bool bCheckExistance ) {
+	
+	QFileInfo songFileInfo = QFileInfo( sSongPath );
+
+	if ( !songFileInfo.isAbsolute() ) {
+		ERRORLOG( QString( "Error: Unable to handle path [%1]. Please provide an absolute file path!" )
+						.arg( sSongPath.toLocal8Bit().data() ));
+		return false;
+	}
+	
+	if ( songFileInfo.exists() ) {
+		if ( !songFileInfo.isReadable() ) {
+			ERRORLOG( QString( "Unable to handle path [%1]. You must have permissions to read the file!" )
+						.arg( sSongPath.toLocal8Bit().data() ));
+			return false;
+		}
+		if ( !songFileInfo.isWritable() ) {
+			WARNINGLOG( QString( "You don't have permissions to write to the Song found in path [%1]. It will be opened as read-only (no autosave)." )
+						.arg( sSongPath.toLocal8Bit().data() ));
+			EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
+		}
+	} else if ( bCheckExistance ) {
+		ERRORLOG( QString( "Provided song [%1] does not exist" ).arg( sSongPath ) );
+		return false;
+	}
+	
+	if ( songFileInfo.suffix() != "h2song" ) {
+		ERRORLOG( QString( "Unable to handle path [%1]. The provided file must have the suffix '.h2song'!" )
+					.arg( sSongPath.toLocal8Bit().data() ));
+		return false;
+	}
+	
+	return true;
+}
+
+QString Filesystem::validateFilePath( const QString& sPath ) {
+
+	// Ensure the name will be a valid filename
+	QString sValidName( sPath );
+	sValidName.replace( " ", "_" );
+	sValidName.remove( QRegExp( "[^a-zA-Z0-9_-]" ) );
+
+	return sValidName;
 }
 
 QStringList Filesystem::theme_list( )

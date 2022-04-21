@@ -22,6 +22,9 @@
 		- Hydrogen is now able to recover changes applied to a new and
 		  empty song in case they are discarded or the session end
 		  untimely (using autosave files)
+		- The virtual keyboard is now decoupled from the "Hear New Notes"
+		  button in the Pattern Editor and can be used to play back notes in
+		  song mode with playback rolling too.
 	* Interface
 		- Improved scalability (most PNG images were replaced by SVGs,
 		  hardcoded PNG labels are now directly drawn by Qt, and spin boxes,
@@ -41,7 +44,8 @@
 		- It's now possible to jump to the beginning of the currently
 		  playing pattern by clicking its position on the ruler in the
 		  pattern editor.
-		- The length of patterns can now be changed while transport is rolling.
+		- The length of patterns can now be changed while transport is
+		  rolling.
 	* PreferencesDialog > Appearance tab overhaul
 	  	- Drop previous font options in favor for three different
 		  levels of font (without exposing their point sizes)
@@ -64,6 +68,9 @@
 		    action are shown.
 		  - Rows can be removed by unsetting both the Event and Action
 		    combo box.
+	* Audio processing
+		- Set CoreAudio (macOS) buffer size to control latency
+		- New fast exponential ADSR envelope processing
 	* InstrumentEditor UX improvements:
 		- rework start/end/loop frame slider selection and motion.
 		- rework velocity/pan envelope editing
@@ -79,6 +86,45 @@
 		- The tempo used left of the first tempo marker is painted in a
 		  darker color.
 		- The currently used Tempo Marker gets highlighted.
+		- Tags have been moved into Timeline (next to the Tempo Markers)
+		  in order to make room to accommodate the cursor in the ruler to
+		  highlight the current position
+		- Tags can be inserted by left-clicking the bottom area of the
+		  Timeline (above the ruler).
+		- Clicking the ruler is now always enabled and automatically
+		  switches transport into Song Mode.
+		- Full-size playhead
+		- The icons in the pattern list indicating whether a pattern is
+		  playing in stacked pattern mode are now colored and can have four
+		  different states: on, off, off next (pattern is played till the
+		  end and then turned off), and on next (pattern is played as soon
+		  as transport is looped again)
+	* PatternEditor UX tweaks:
+		- Relocating transport by clicking the ruler is now supported
+		  (like in the SongEditor) and automatically switches transport
+		  into Pattern Mode.
+		- Full-size playhead
+		- The ruler was decoupled from the currently selected pattern. It
+		  always has the size of the largest playing pattern and always
+		  shows the transport position using a playhead. Whether or not the
+		  current pattern is played back is indicated by a full-height
+		  cursor.
+		- All note properties except of the note key can now be altered in
+		  both the drum pattern editor and the piano roll editor by
+		  right-clicking and dragging a note.
+		- All notes of the currently playing patterns will be hinted in
+		  stacked pattern mode. Even those exceeding the length of the
+		  current pattern.
+	* OSC API
+		- Add command /Hydrogen/LOAD_DRUMKIT
+		- Add command /Hydrogen/UPGRADE_DRUMKIT
+		- Add command /Hydrogen/VALIDATE_DRUMKIT
+		- Add command /Hydrogen/EXTRACT_DRUMKIT
+		- Add command /Hydrogen/BPM
+	* H2CLI
+		- Add `--upgrade` option to upgrade a drumkit
+		- Add `--check` option to validate a drumkit
+		- Add `--extract` option to extract the content of a drumkit
 	* Bugfixes
 		- fix dithering of SongEditor when viewing the playback track
 		  and resizing the application or for very small size (#1379).

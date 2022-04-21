@@ -533,9 +533,6 @@ int main(int argc, char *argv[])
 			sl->shoot();
 		}
 
-		// TODO: remove this as well as the spurious flagging using
-		// more clean event signal processing.
-		//
 		// All GUI setup is complete, any spurious widget-driven
 		// flagging of song modified state will be complete, so clear
 		// the modification flag. This does not apply in case we are

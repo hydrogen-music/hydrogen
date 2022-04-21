@@ -54,6 +54,6 @@ public:
 	// CoreActionController::saveSongAs() methods.
 	void testSessionManagement();
 	
-	// Tests CoreActionController::isSongPathValid()
+	// Tests Filesystem::isSongPathValid()
 	void testIsSongPathValid();
 };

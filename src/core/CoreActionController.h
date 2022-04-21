@@ -28,6 +28,7 @@
 
 namespace H2Core
 {
+	class Drumkit;
 
 /** \ingroup docCore docAutomation */
 class CoreActionController : public H2Core::Object<CoreActionController> {
@@ -127,19 +128,19 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 */
 		bool saveSong();
 		/**
-		 * Saves the current #H2Core::Song to the path provided in @a songPath.
+		 * Saves the current #H2Core::Song to the path provided in @a sNewFilename.
 		 *
 		 * The intended use of this function for session
 		 * management. Therefore, the function will *not* store the
-		 * provided @a songPath in
+		 * provided @a sNewFilename in
 		 * #H2Core::Preferences::m_lastSongFilename and Hydrogen won't
 		 * resume with the corresponding song on restarting.
 		 *
-		 * \param songPath Absolute path to the file to store the
+		 * \param sNewFilename Absolute path to the file to store the
 		 *   current #H2Core::Song in.
 		 * \return true on success
 		 */
-		bool saveSongAs( const QString& songPath );
+		bool saveSongAs( const QString& sNewFilename );
 		/**
 		 * Saves the current state of the #H2Core::Preferences.
 		 *
@@ -195,6 +196,26 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 */
 		bool deleteTempoMarker( int nPosition );
 		/**
+		 * Adds a tag to the Timeline.
+		 *
+		 * @param nPosition Location of the tag in bars.
+		 * @param sText Message associated with the tag.
+		 *
+		 * @return bool true on success
+		 */
+		bool addTag( int nPosition, const QString& sText );
+		/**
+		 * Delete a tag from the Timeline.
+		 *
+		 * If no tag is present at @a nPosition, the function
+		 * will return true as well.
+		 *
+		 * @param nPosition Location of the tag in bars.
+		 *
+		 * @return bool true on success
+		 */
+		bool deleteTag( int nPosition );
+		/**
 		 * (De)activates the usage of Jack transport.
 		 *
 		 * Note that this function will fail if Jack is not used as
@@ -232,15 +253,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * Toggle loop mode of playback.
 		 *
 		 * @param bActivate If true - activates loop mode.
-		 * @param bTriggerEvent Setting this variable to true is
-		 * intended for its use as a batch function from within
-		 * Hydrogen's core, which will inform the GUI via an Event
-		 * about the change of mode. When used from the GUI itself,
-		 * this parameter has to be set to false.
 		 *
 		 * @return bool true on success
 		 */
-		bool activateLoopMode( bool bActivate, bool bTriggerEvent );
+		bool activateLoopMode( bool bActivate );
 	/** Wrapper around loadDrumkit() that allows loading drumkits by
 		name. */
 	bool loadDrumkit( const QString& sDrumkitName, bool bConditional = true );
@@ -256,6 +272,32 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * H2Core::Instrument regardless of their content.
 	 */
 	bool loadDrumkit( Drumkit* pDrumkit, bool bConditional = true );
+	/** 
+	 * Upgrades the drumkit found at absolute path @a sDrumkitPath.
+	 *
+	 * If @a sNewPath is missing, the drumkit will be upgraded in
+	 * place and a backup file will be created in order to not
+	 * overwrite the existing state. 
+	 */
+	bool upgradeDrumkit( const QString& sDrumkitPath, const QString& sNewPath = "" );
+
+	/**
+	 * Checks whether the provided drumkit in @a sDrumkitPath can be
+	 * found, can be loaded, and does comply with the current XSD
+	 * definition.
+	 */
+	bool validateDrumkit( const QString& sDrumkitPath );
+	/**
+	 * Extracts the compressed .h2drumkit file in @a sDrumkitPath into
+	 * @a sTargetDir.
+	 *
+	 * \param sDrumkitPath Tar-compressed drumkit with .h2drumkit
+	 * extention
+	 * \param sTargetDir Folder to extract the drumkit to. If the
+	 * folder is not present yet, it will be created. If left empty,
+	 * the drumkit will be installed to the users drumkit data folder.
+	 */
+	bool extractDrumkit( const QString& sDrumkitPath, const QString& sTargetDir = "" );
 		/** Relocates transport to the beginning of a particular
 		 * column/Pattern group.
 		 * 
@@ -315,23 +357,6 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
     	bool toggleGridCell( int nColumn, int nRow );
-		
-		// -----------------------------------------------------------
-		// Helper functions
-		
-		/**
-		 * Checks the path of the .h2song provided via OSC.
-		 *
-		 * It will be checked whether @a songPath
-		 * - is absolute
-		 * - has the '.h2song' suffix
-		 * - is writable (if it exists)
-		 *
-		 * \param songPath Absolute path to an .h2song file.
-		 * \return true - if valid.
-		 */
-		bool isSongPathValid( const QString& songPath );
-		
 	private:
 		
 		/**
@@ -344,6 +369,35 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * \return true on success
 		 */
 		bool setSong( std::shared_ptr<Song> pSong );
+
+	/**
+	 * Loads the drumkit specified in @a sDrumkitPath.
+	 *
+	 * \param sDrumkitPath Can be either an absolute path to a folder
+	 * containing a drumkit file (drumkit.xml), an absolute path to a
+	 * drumkit file itself, or an absolute file to a compressed
+	 * drumkit (.h2drumkit).
+	 * \param bIsCompressed Stores whether the drumkit was provided as
+	 * a compressed .h2drumkit file
+	 * \param sDrumkitDir Stores the folder containing the drumkit
+	 * file. If a compressed drumkit was provided, this will point to
+	 * a temporary folder.
+	 * \param sTemporaryFolder Root path of a temporary folder
+	 * containing the extracted drumkit in case @a sDrumkitPath
+	 * pointed to a compressed .h2drumkit file.
+	 */
+	Drumkit* retrieveDrumkit( const QString& sDrumkitPath, bool* bIsCompressed,
+							  QString* sDrumkitDir, QString* sTemporaryFolder );
+	/**
+	 * Add @a sFilename to the list of recent songs in
+	 * Preferences::m_recentFiles.
+	 *
+	 * The function will also take care of removing any duplicates in
+	 * the list in case @a sFilename is already present.
+	 *
+	 * \param sFilename New song to be added on top of the list.
+	 */
+	void insertRecentFile( const QString sFilename );
 		
 		const int m_nDefaultMidiFeedbackChannel;
 };

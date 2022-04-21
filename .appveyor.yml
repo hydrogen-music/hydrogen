@@ -65,6 +65,7 @@ environment:
       OPENSSL_DIR: OpenSSL-Win64
       LIBSSL: libssl-1_1-x64.dll
       LIBCRYPTO: libcrypto-1_1-x64.dll
+      QT_LOCK_REPO: 'mingw/x86_64/mingw-w64-x86_64'
 
       CHOCO_ARCH:
       PROGRAM_FILES: "Program Files"
@@ -80,6 +81,7 @@ environment:
       OPENSSL_DIR: OpenSSL-Win32
       LIBSSL: libssl-1_1.dll
       LIBCRYPTO: libcrypto-1_1.dll
+      QT_LOCK_REPO: 'mingw/mingw32/mingw-w64-i686'
 
       CHOCO_ARCH:  --x86
       PROGRAM_FILES: "Program Files (x86)"
@@ -246,7 +248,7 @@ for:
               cd build &&                                                       \
               cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. &&       \
               make -j $CPUS
-      )
+      ) || exit 1
 
       # Build installation DMG
       (
@@ -258,16 +260,16 @@ for:
         if [ "$APPVEYOR_REPO_BRANCH" = "$ARTIFACT_BRANCH" ]; then
             appveyor PushArtifact Hydrogen*.dmg -DeploymentName Installer;
         fi
-      ) | sed 's/^/DMG: /' &
+      ) || exit 1
+
 
     test_script: |-
       cd build
       TMPDIR=/tmp src/tests/tests --appveyor
-
-      echo "Waiting for installer creation and cache archiving"
+      res=$?
       wait
       echo "=== Build cache usage is " $( du -h $cdir | tail -1 ) "==="
-      echo "Done"
+      ( exit $res )
 
   -
     matrix:
@@ -289,15 +291,9 @@ for:
           g++ --version
           choco install %CHOCO_ARCH% jack --version 1.9.17 -my
 
-          dir "c:\%PROGRAM_FILES%\JACK2"
-          dir "c:\%PROGRAM_FILES%\JACK2\lib"
-
           REM *** Results are ignored since a dependency was not properly installed in 32 bit Windows. But the .dll files required are installed regardless, so we don't care.***
 
-          choco install %CHOCO_ARCH% -y openssl --version=1.1.1.1300 || cmd /c "exit /b 0"
-
-          echo "C:\%OPENSSL_DIR%"
-          dir "C:\%OPENSSL_DIR%"
+          choco install %CHOCO_ARCH% -y openssl --version=1.1.1.1300 || cmd /c "exit /b 1"
 
           REM *** Install dependencies ***
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libarchive
@@ -309,6 +305,7 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-qt5
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ladspa-sdk
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ccache
+          c:\msys64\usr\bin\pacman --noconfirm -U https://repo.msys2.org/%QT_LOCK_REPO%-qt5-tools-5.15.2-2-any.pkg.tar.zst
 
           ccache -M 256M
           ccache -s
@@ -337,8 +334,8 @@ for:
           SET CORE_PATH=%cd%\src\core
           echo %CORE_PATH%
           set PATH=%CORE_PATH%;%PATH%
-          src\tests\tests.exe --appveyor || cmd /c "exit /b 0"
-          7z a %APPVEYOR_BUILD_FOLDER%\testresults.zip %TEMP%\hydrogen || cmd /c "exit  /b 0"
+          src\tests\tests.exe --appveyor || cmd /c "exit /b 1"
+          7z a %APPVEYOR_BUILD_FOLDER%\testresults.zip %TEMP%\hydrogen || cmd /c "exit  /b 1"
           if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\testresults.zip
 
           mkdir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
@@ -373,8 +370,8 @@ on_finish:
   - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeCache.txt
   - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeOutput.log
   - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeError.log
-  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.1-win64.exe || cmd /c "exit /b 0"
-  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH%  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.1-win32.exe || cmd /c "exit /b 0"
+  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% if not %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.1-win64.exe || cmd /c "exit /b 1"
+  - cmd: if %APPVEYOR_REPO_BRANCH%==%ARTIFACT_BRANCH% if %job_name%==Windows32  appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.1-win32.exe || cmd /c "exit /b 1"
 
 
   - cmd: |

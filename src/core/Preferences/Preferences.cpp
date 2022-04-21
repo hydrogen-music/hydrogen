@@ -42,6 +42,7 @@
 #include <core/MidiMap.h>
 #include <core/Version.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/IO/AlsaAudioDriver.h>
 
 #include <QDir>
 //#include <QApplication>
@@ -179,7 +180,28 @@ Preferences::Preferences()
 	m_sCoreAudioDevice = QString();
 
 	//___  alsa audio driver properties ___
-	m_sAlsaAudioDevice = QString("hw:0");
+
+#ifdef H2CORE_HAVE_ALSA
+	// Ensure the device read from the local preferences does
+	// exist. If not, we try to replace it with a valid one.
+	QStringList alsaDevices = AlsaAudioDriver::getDevices();
+	if ( alsaDevices.size() == 0 ||
+		 alsaDevices.contains( "hw:0" ) ) {
+		m_sAlsaAudioDevice = "hw:0";
+	} else {
+		// Fall back to a device found on the system (but not the
+		// "null" one).
+		if ( alsaDevices[ 0 ] != "null" ) {
+			m_sAlsaAudioDevice = alsaDevices[ 0 ];
+		} else if ( alsaDevices.size() > 1 ) {
+			m_sAlsaAudioDevice = alsaDevices[ 1 ];
+		} else {
+			m_sAlsaAudioDevice = "hw:0";
+		}
+	}
+#else
+	m_sAlsaAudioDevice = "hw:0";
+#endif
 
 	//___  jack driver properties ___
 	m_sJackPortName1 = QString("alsa_pcm:playback_1");
@@ -199,7 +221,6 @@ Preferences::Preferences()
 	m_nOscTemporaryPort = -1;
 
 	//___ General properties ___
-	m_bPatternModePlaysSelected = true;
 	m_brestoreLastSong = true;
 	m_brestoreLastPlaylist = false;
 	m_bUseLash = false;
@@ -213,7 +234,6 @@ Preferences::Preferences()
 	recordEvents = false;
 	m_bUseRelativeFilenamesForPlaylists = false;
 	m_bHideKeyboardCursor = false;
-	m_bPatternFollowsSong = false;
 
 	//___ GUI properties ___
 	m_nPatternEditorGridResolution = 8;
@@ -307,7 +327,6 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_bShowNoteOverwriteWarning = LocalFileMng::readXmlBool( rootNode, "showNoteOverwriteWarning", m_bShowNoteOverwriteWarning );
 			m_brestoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", m_brestoreLastSong );
 			m_brestoreLastPlaylist = LocalFileMng::readXmlBool( rootNode, "restoreLastPlaylist", m_brestoreLastPlaylist );
-			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", true );
 			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", false );
 			__useTimelineBpm = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __useTimelineBpm );
 			m_nMaxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
@@ -318,7 +337,6 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
 			m_bUseRelativeFilenamesForPlaylists = LocalFileMng::readXmlBool( rootNode, "useRelativeFilenamesForPlaylists", false );
 			m_bHideKeyboardCursor = LocalFileMng::readXmlBool( rootNode, "hideKeyboardCursorWhenUnused", false );
-			m_bPatternFollowsSong = LocalFileMng::readXmlBool( rootNode, "patternFollowsSong", false );
 
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
@@ -561,7 +579,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				setLevel2FontFamily( LocalFileMng::readXmlString( guiNode, "level2_font_family", getLevel2FontFamily() ) );
 				setLevel3FontFamily( LocalFileMng::readXmlString( guiNode, "level3_font_family", getLevel3FontFamily() ) );
 				setFontSize( static_cast<FontTheme::FontSize>( LocalFileMng::readXmlInt( guiNode, "font_size",
-																			  static_cast<int>(FontTheme::FontSize::Normal) ) ) );
+																			  static_cast<int>(FontTheme::FontSize::Medium) ) ) );
 
 				// Mixer falloff speed
 				setMixerFalloffSpeed( LocalFileMng::readXmlFloat( guiNode, "mixer_falloff_speed",
@@ -817,8 +835,6 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "restoreLastSong", m_brestoreLastSong ? "true": "false" );
 	LocalFileMng::writeXmlString( rootNode, "restoreLastPlaylist", m_brestoreLastPlaylist ? "true": "false" );
 
-	LocalFileMng::writeXmlString( rootNode, "patternModePlaysSelected", m_bPatternModePlaysSelected ? "true": "false" );
-
 	LocalFileMng::writeXmlString( rootNode, "useLash", m_bsetLash ? "true": "false" );
 	LocalFileMng::writeXmlString( rootNode, "useTimeLine", __useTimelineBpm ? "true": "false" );
 
@@ -833,7 +849,6 @@ void Preferences::savePreferences()
 
 	LocalFileMng::writeXmlString( rootNode, "useRelativeFilenamesForPlaylists", m_bUseRelativeFilenamesForPlaylists ? "true": "false" );
 	LocalFileMng::writeXmlBool( rootNode, "hideKeyboardCursorWhenUnused", m_bHideKeyboardCursor );
-	LocalFileMng::writeXmlBool( rootNode, "patternFollowsSong", m_bPatternFollowsSong );
 	
 	// instrument input mode
 	LocalFileMng::writeXmlString( rootNode, "instrumentInputMode", __playselectedinstrument ? "true": "false" );
@@ -1264,38 +1279,6 @@ void Preferences::setMostRecentFX( QString FX_name )
 
 	m_recentFX.push_front( FX_name );
 }
-
-void Preferences::insertRecentFile( const QString sFilename ){
-
-	bool bAlreadyContained =
-		std::find( m_recentFiles.begin(), m_recentFiles.end(),
-				   sFilename ) != m_recentFiles.end();
-	
-	m_recentFiles.insert( m_recentFiles.begin(), sFilename );
-
-	if ( bAlreadyContained ) {
-		// Eliminate all duplicates in the list while keeping the one
-		// inserted at the beginning.
-		setRecentFiles( m_recentFiles );
-	}
-}
-
-void Preferences::setRecentFiles( const std::vector<QString> recentFiles )
-{
-	// find single filenames. (skip duplicates)
-	std::vector<QString> sTmpVec;
-	for ( const auto& ssFilename : recentFiles ) {
-		if ( std::find( sTmpVec.begin(), sTmpVec.end(), ssFilename) ==
-			 sTmpVec.end() ) {
-			// Particular file is not contained yet.
-			sTmpVec.push_back( ssFilename );
-		}
-	}
-
-	m_recentFiles = sTmpVec;
-}
-
-
 
 /// Read the xml nodes related to window properties
 WindowProperties Preferences::readWindowProperties( QDomNode parent, const QString& windowName, WindowProperties defaultProp )

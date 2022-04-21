@@ -139,6 +139,8 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 
 SoundLibraryPanel::~SoundLibraryPanel()
 {
+	HydrogenApp::get_instance()->removeEventListener( this );
+
 	for (uint i = 0; i < __system_drumkit_info_list.size(); ++i ) {
 		delete __system_drumkit_info_list[i];
 	}
@@ -578,7 +580,8 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 			msgBox.setIcon( QMessageBox::Warning );
 			msgBox.setText( tr( "The existing kit has %1 instruments but the new one only has %2.\nThe first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.\nWould you like to keep or discard the remaining instruments and notes?\n").arg( QString::number( oldCount ),QString::number( newCount ) ) );
 
-			msgBox.setStandardButtons(QMessageBox::Save);
+			msgBox.setStandardButtons( QMessageBox::Save | QMessageBox::Discard |
+									   QMessageBox::Cancel );
 			msgBox.setButtonText(QMessageBox::Save, tr("Keep"));
 			msgBox.setButtonText(QMessageBox::Discard,
 								 pCommonStrings->getButtonDiscard() );
@@ -917,5 +920,12 @@ void SoundLibraryPanel::onPreferencesChanged( H2Core::Preferences::Changes chang
 				}
 			}
 		}
+	}
+}
+
+void SoundLibraryPanel::updateSongEvent( int nValue ) {
+	// A new song got loaded
+	if ( nValue == 0 ) {
+		update_background_color();
 	}
 }

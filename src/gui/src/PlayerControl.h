@@ -58,10 +58,10 @@ public:
 	void showScrollMessage( const QString& msg, int msec, bool test );
 	void resetStatusLabel();
 
-	virtual void timelineActivationEvent( int ) override;
+	virtual void timelineActivationEvent() override;
 	virtual void tempoChangedEvent( int nValue ) override;
-	virtual void jackTransportActivationEvent( int nValue ) override;
-	virtual void jackTimebaseStateChangedEvent( int nValue ) override;
+	virtual void jackTransportActivationEvent() override;
+	virtual void jackTimebaseStateChangedEvent() override;
 	/**
 	 * Shared GUI update when activating Song or Pattern mode via
 	 * button click or via OSC command.
@@ -69,7 +69,10 @@ public:
 	 * @param nValue If 0, Pattern mode will be activate. Else,
 	 * Song mode will be activated instead.
 	 */
-	void songModeActivationEvent( int nValue ) override;
+	virtual void songModeActivationEvent() override;
+	virtual void updateSongEvent( int nValue ) override;
+	virtual void loopModeActivationEvent() override;
+	virtual void driverChangedEvent() override;
 
 public slots:
 	void onPreferencesChanged( H2Core::Preferences::Changes changes );
@@ -79,15 +82,12 @@ private slots:
 	void playBtnClicked();
 	void stopBtnClicked();
 	void updatePlayerControl();
-	void songModeBtnClicked();
-	void patternModeBtnClicked();
 	void jackTransportBtnClicked();
 	//jack time master
 	void jackMasterBtnClicked();	//~ jack time master
 	void bpmChanged( double );
 	void fastForwardBtnClicked();
 	void rewindBtnClicked();
-	void songLoopBtnClicked();
 	void metronomeButtonClicked();
 	void onStatusTimerEvent();
 	void onScrollTimerEvent();
@@ -111,14 +111,12 @@ private:
 	/** Ensure that the full width of the status label is used without
 	 * cutting of the beginning of the message.*/
 	void updateStatusLabel();
-	/**
-	 * Shared GUI update when activating loop mode via button
-	 * click or via OSC command.
-	 *
-	 * @param nValue If 0, loop mode will be deactivate.
-	 */
-	void loopModeActivationEvent( int nValue ) override;
 	void midiActivityEvent() override;
+
+	/** Ensures both the song and pattern mode button stay checked
+		when pressed twice*/
+	void songModeBtnClicked();
+	
 	H2Core::Hydrogen *m_pHydrogen;
 	QPixmap m_background;
 
@@ -136,7 +134,6 @@ private:
 
 	//beatcounter
 	Button *m_pBCOnOffBtn;
-	Button *m_pBCSpaceBtn;
 	Button *m_pBCSetPlayBtn;
 	Button *m_pBCTUpBtn;
 	Button *m_pBCTDownBtn;
@@ -150,7 +147,6 @@ private:
 	Button *m_pJackTransportBtn;
 	//jack time master
 	Button *m_pJackMasterBtn;
-	QString m_sJackMasterModeToolTip;
 	//~ jack time master
 
 	CpuLoadWidget *m_pCpuLoadWidget;

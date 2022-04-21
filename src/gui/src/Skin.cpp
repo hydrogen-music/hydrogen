@@ -23,6 +23,8 @@
 #include "Skin.h"
 #include <core/Preferences/Preferences.h>
 
+#include <QApplication>
+
 QString Skin::getGlobalStyleSheet() {
 	auto pPref = H2Core::Preferences::get_instance();
 
@@ -76,15 +78,15 @@ QComboBox { \
 QComboBox QAbstractItemView { \
     background-color: #babfcf; \
 } \
-QLineEdit { \
-    color: %14; \
-    background-color: %15; \
+QLineEdit, QTextEdit { \
+    color: %12; \
+    background-color: %13; \
 } \
 QDoubleSpinBox, QSpinBox { \
-    color: %16; \
-    background-color: %17; \
-    selection-color: %16; \
-    selection-background-color: %18; \
+    color: %14; \
+    background-color: %15; \
+    selection-color: %14; \
+    selection-background-color: %16; \
 }"
 					)
 		.arg( pPref->getColorTheme()->m_toolTipTextColor.name() )
@@ -96,8 +98,6 @@ QDoubleSpinBox, QSpinBox { \
 		.arg( buttonBackgroundCheckedLightHover.name() ).arg( buttonBackgroundCheckedDarkHover.name() )
 		.arg( pPref->getColorTheme()->m_widgetTextColor.name() )
 		.arg( pPref->getColorTheme()->m_widgetColor.name() )
-		.arg( pPref->getColorTheme()->m_windowTextColor.name() )
-		.arg( pPref->getColorTheme()->m_windowColor.name() )
 		.arg( pPref->getColorTheme()->m_spinBoxTextColor.name() )
 		.arg( pPref->getColorTheme()->m_spinBoxColor.name() )
 		.arg( spinBoxSelection.name() );
@@ -141,18 +141,27 @@ void Skin::setPalette( QApplication *pQApp ) {
 	pQApp->setStyleSheet( getGlobalStyleSheet() );
 }
 
-QString Skin::getWarningButtonStyleSheet( int nSize) {
-	auto pPref = H2Core::Preferences::get_instance();
-	
-	return QString( "\
-width: %1px; \
-height: %1px; \
-color: %2; \
-background-color: %3; \
-border-color: %3;" )
-		.arg( nSize )
-		.arg( pPref->getColorTheme()->m_windowTextColor.name() )
-		.arg( pPref->getColorTheme()->m_windowColor.name() );
+void Skin::drawListBackground( QPainter* p, QRect rect, QColor background,
+							   bool bHovered ) {
+
+	if ( bHovered ) {
+		background = background.lighter( 110 );
+	}
+
+	QColor backgroundLight = background.lighter( 150 );
+	QColor backgroundDark = background.darker( 220 );
+
+	p->fillRect( QRect( rect.x() + 1, rect.y() + 1,
+						rect.width() - 2, rect.height() - 2 ),
+				 background );
+	p->fillRect( QRect( rect.x(), rect.y(), rect.width(), 1 ),
+				 backgroundLight );
+	p->fillRect( QRect( rect.x(), rect.y(), 1, rect.height() ),
+				 backgroundLight );
+	p->fillRect( QRect( rect.x(), rect.y() + rect.height() - 1, rect.width(), 1 ),
+				 backgroundDark );
+	p->fillRect( QRect( rect.x() + rect.width() - 1, rect.y(), 1, rect.height() ),
+				 backgroundDark );
 }
 
 QColor Skin::makeWidgetColorInactive( QColor color ){
@@ -176,4 +185,74 @@ QColor Skin::makeTextColorInactive( QColor color ) {
 	color.setHsv( nHue, nSaturation, nValue );
 
 	return color;
+}
+
+void Skin::setPlayheadPen( QPainter* p, bool bHovered ) {
+
+	QColor playheadColor( H2Core::Preferences::get_instance()->getColorTheme()->m_playheadColor );
+	if ( bHovered ) {
+		playheadColor = Skin::makeTextColorInactive( playheadColor );
+	}
+	QPen pen ( playheadColor );
+	pen.setWidth( 2 );
+	
+	p->setPen( pen );
+	p->setRenderHint( QPainter::Antialiasing );
+}
+
+void Skin::drawPlayhead( QPainter* p, int x, int y, bool bHovered ) {
+
+	const QPointF points[3] = {
+		QPointF( x, y ),
+		QPointF( x + Skin::nPlayheadWidth - 1, y ),
+		QPointF( x + Skin::getPlayheadShaftOffset(),
+				 y + Skin::nPlayheadHeight ),
+	};
+
+	QColor playheadColor( H2Core::Preferences::get_instance()->getColorTheme()->m_playheadColor );
+	if ( bHovered ) {
+		playheadColor = Skin::makeTextColorInactive( playheadColor );
+	}
+
+	Skin::setPlayheadPen( p, bHovered );
+	p->setBrush( playheadColor );
+	p->drawPolygon( points, 3 );
+	p->setBrush( Qt::NoBrush );
+}
+
+void Skin::drawStackedIndicator( QPainter* p, int x, int y, Skin::Stacked stacked ) {
+
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	const QPointF points[3] = {
+		QPointF( x, y ),
+		QPointF( x + 8, y + 6 ),
+		QPointF( x, y + 12 )
+	};
+
+	QPen pen( Qt::black );
+	pen.setWidth( 1 );
+	
+	QColor fillColor;
+	switch ( stacked ) {
+	case Skin::Stacked::Off:
+		fillColor = QColor( 0, 0, 0 );
+		fillColor.setAlpha( 0 );
+		break;
+	case Skin::Stacked::OffNext:
+		fillColor = pPref->getColorTheme()->m_songEditor_stackedModeOffNextColor;
+		break;
+	case Skin::Stacked::On:
+		fillColor = pPref->getColorTheme()->m_songEditor_stackedModeOnColor;
+		break;
+	case Skin::Stacked::OnNext:
+		fillColor = pPref->getColorTheme()->m_songEditor_stackedModeOnNextColor;
+		break;
+	}
+
+	p->setPen( pen );
+	p->setBrush( fillColor );
+	p->setRenderHint( QPainter::Antialiasing );
+	p->drawPolygon( points, 3 );
+	p->setBrush( Qt::NoBrush );
 }

@@ -84,6 +84,13 @@ void InstrumentEditorPanel::drumkitLoadedEvent() {
 	m_pInstrumentEditor->selectedInstrumentChangedEvent();
 }
 
+void InstrumentEditorPanel::updateSongEvent( int nValue ) {
+	// A new song got loaded
+	if ( nValue == 0 ) {
+		drumkitLoadedEvent();
+	}
+}
+
 void InstrumentEditorPanel::selectLayer( int nLayer )
 {
 	m_pInstrumentEditor->selectLayer( nLayer );

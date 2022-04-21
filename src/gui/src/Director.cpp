@@ -54,6 +54,7 @@
 
 #include "Director.h"
 #include "HydrogenApp.h"
+#include "Skin.h"
 #include "Widgets/PixmapWidget.h"
 
 #include <core/Preferences/Preferences.h>
@@ -71,15 +72,24 @@ Director::Director ( QWidget* pParent )
 
 	HydrogenApp::get_instance()->addEventListener( this );
 	setupUi ( this );
-	//
+
+	auto pPref = H2Core::Preferences::get_instance();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	
 	setWindowTitle ( tr ( "Director" ) );
 
+	m_fBpm = pAudioEngine->getBpm();
+	m_nBar = pAudioEngine->getColumn() + 1;
+	if ( m_nBar <= 0 ){
+		m_nBar = 1;
+	}
+	
 	m_nCounter = 1;	// to compute the right beat
-	m_nFadeAlpha = 255;	//default alpha
-	m_nBar = 1;	// default bar
+	m_Color = pPref->getColorTheme()->m_accentColor;
+	m_Color.setAlpha( 0 );
 	m_nFlashingArea = width() * 5/100;
 
-	m_fBpm = Hydrogen::get_instance()->getSong()->getBpm();
 	m_pTimer = new QTimer( this );
 	connect( m_pTimer, SIGNAL( timeout() ), this, SLOT( updateMetronomBackground() ) );
 }
@@ -102,16 +112,19 @@ void Director::closeEvent( QCloseEvent* ev )
 	HydrogenApp::get_instance()->showDirector();
 }
 
-void Director::metronomeEvent( int nValue )
-{
+void Director::updateSongEvent( int nValue ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 
-	//load a new song
-	if( nValue == 3 ){
+	if ( nValue == 0 || // new song loaded
+		 nValue == 1 ) { // current one saved
 
-		//update songname
-		QStringList list = pHydrogen->getSong()->getFilename().split("/");
+		// Update song name
+		QStringList list = pSong->getFilename().split("/");
 
 		if ( !list.isEmpty() ){
 			m_sSongName = list.last().replace( Filesystem::songs_ext, "" );
@@ -122,9 +135,41 @@ void Director::metronomeEvent( int nValue )
 			}
 		}
 
+		timelineUpdateEvent( 0 );
+
 		update();
-		return;
 	}
+}
+
+void Director::timelineUpdateEvent( int nValue ) {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+	
+	m_fBpm = pAudioEngine->getBpm();
+	m_nBar = pAudioEngine->getColumn() + 1;
+
+	if ( m_nBar <= 0 ){
+		m_nBar = 1;
+	}
+	
+	// get tags
+	auto pTimeline = pHydrogen->getTimeline();
+
+	if ( pTimeline->hasColumnTag( m_nBar ) ) {
+		m_sTAG = pTimeline->getTagAtColumn( m_nBar );
+	} else {
+		m_sTAG = "";
+	}
+	m_sTAG2 = pTimeline->getTagAtColumn( m_nBar - 1 );
+	update();
+}
+
+void Director::metronomeEvent( int nValue )
+{
+
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = H2Core::Preferences::get_instance();
 
 	//bpm
 	m_fBpm = pHydrogen->getSong()->getBpm();
@@ -138,18 +183,9 @@ void Director::metronomeEvent( int nValue )
 	// 1000 ms / bpm / 60s
 	m_pTimer->start( static_cast<int>( 1000 / ( m_fBpm / 60 )) / 2 );
 	m_nFlashingArea = width() * 5/100;
-	m_nFadeAlpha = 255;
-
-	if ( nValue == 2 ){
-		m_nFadeAlpha = 0;
-		update();
-		m_sTAG="";
-		m_sTAG2="";
-		return;
-	}
 
 	if ( nValue == 1 ) {	//foregroundcolor "rect" for first blink
-		m_Color = QColor( 255, 50, 1 ,255 );
+		m_Color = pPref->getColorTheme()->m_buttonRedColor;
 		m_nCounter = 1;
 	}
 	else {	//foregroundcolor "rect" for all other blinks
@@ -158,9 +194,9 @@ void Director::metronomeEvent( int nValue )
 			m_nFlashingArea = width() * 52.5/100;
 		}
 
-		m_Color = QColor( 24, 250, 31, 255 );
+		m_Color = pPref->getColorTheme()->m_accentColor;
 	}
-
+	
 	// get tags
 	auto pTimeline = pHydrogen->getTimeline();
 
@@ -170,6 +206,7 @@ void Director::metronomeEvent( int nValue )
 		m_sTAG = "";
 	}
 	m_sTAG2 = pTimeline->getTagAtColumn( m_nBar - 1 );
+	
 	update();
 }
 
@@ -186,21 +223,26 @@ void Director::paintEvent( QPaintEvent* ev )
 {
 	QPainter painter(this);
 
+	auto pPref = H2Core::Preferences::get_instance();
+	QString sFontFamily = pPref->getApplicationFontFamily();
+
 	//draw the songname
-	painter.setFont(QFont("Arial", height() * 14/100 ));
+	painter.setFont(QFont( sFontFamily, height() * 14/100 ));
 	QRect rect(QPoint( width() * 5/100 , height () * 2/100 ), QSize( width() * 90/100, height() * 21/100));
 	painter.drawText( rect, Qt::AlignCenter,  QString( m_sSongName ) );
 
 
 	//draw the metronome
-	painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine ) );
+	
+	painter.setPen( QPen( pPref->getColorTheme()->m_highlightColor, 1 , Qt::SolidLine ) );
 	painter.setBrush( m_Color );
 	painter.drawRect (  m_nFlashingArea, height() * 25/100, width() * 42.5/100, height() * 35/100);
 
 
 	//draw bars
-	painter.setPen(Qt::white);
-	painter.setFont(QFont("Arial", height() * 25/100 ));
+	QColor textColor = pPref->getColorTheme()->m_windowTextColor;
+	painter.setPen( textColor );
+	painter.setFont(QFont( sFontFamily, height() * 25/100 ));
 	QRect r1(QPoint( width() * 5/100 , height() * 25/100 ), QSize( width() * 42.5/100, height() * 35/100));
 	painter.drawText( r1, Qt::AlignCenter, QString("%1").arg( m_nBar) );
 
@@ -213,14 +255,21 @@ void Director::paintEvent( QPaintEvent* ev )
 	}
 	
 	//draw current bar tag
-	painter.setPen(Qt::white);
-	painter.setFont(QFont("Arial", height() * 8/100 ));
+	painter.setFont(QFont( sFontFamily, height() * 8/100 ));
 	QRect r3(QPoint ( width() * 5/100 , height() * 65/100 ), QSize( width() * 90/100, height() * 14/100));
 	painter.drawText( r3, Qt::AlignCenter, QString( (m_sTAG) ) );
 
 	//draw next bar tag
-	painter.setPen(Qt::gray);
-	painter.setFont(QFont("Arial", height() * 6/100 ));
+	painter.setPen( Skin::makeTextColorInactive( textColor ) );
+	painter.setFont(QFont( sFontFamily, height() * 6/100 ));
 	QRect r4(QPoint ( width() * 5/100 , height() * 83/100 ), QSize( width() * 90/100, height() * 11/100));
 	painter.drawText( r4, Qt::AlignCenter, QString( m_sTAG2 ) );
+}
+
+void Director::onPreferencesChanged( H2Core::Preferences::Changes changes ) {
+	if ( changes & ( H2Core::Preferences::Changes::Colors |
+					 H2Core::Preferences::Changes::Font ) ) {
+			 
+		update();
+	}
 }

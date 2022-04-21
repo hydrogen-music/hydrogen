@@ -30,6 +30,8 @@
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/Sampler/Sampler.h>
 
@@ -130,11 +132,9 @@ Note::~Note()
 {
 }
 
-static inline float check_boundary( float v, float min, float max )
+static inline float check_boundary( float fValue, float fMin, float fMax )
 {
-	if ( v>max ) return max;
-	if ( v<min ) return min;
-	return v;
+	return std::clamp( fValue, fMin, fMax );
 }
 
 void Note::set_velocity( float velocity )
@@ -230,6 +230,167 @@ void Note::computeNoteStart() {
 	}
 }
 
+std::shared_ptr<Sample> Note::getSample( int nComponentID, int nSelectedLayer ) {
+
+	std::shared_ptr<Sample> pSample;
+	
+	if ( __instrument == nullptr ) {
+		ERRORLOG( "Sample does not hold an instrument" );
+		return nullptr;
+	}
+
+	auto pInstrCompo = __instrument->get_component( nComponentID );
+	if ( pInstrCompo == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve component [%1] of instrument [%2]" )
+				  .arg( nComponentID ).arg( __instrument->get_name() ) );
+		return nullptr;
+	}
+	
+	auto pSelectedLayer = get_layer_selected( nComponentID );
+	if ( pSelectedLayer == nullptr ) {
+		WARNINGLOG( QString( "No SelectedLayer for component ID [%1] of instrument [%2]" )
+					.arg( nComponentID ).arg( __instrument->get_name() ) );
+		return nullptr;
+	}
+
+	if( pSelectedLayer->SelectedLayer != -1 ||
+		nSelectedLayer != -1 ) {
+		// This function was already called for this note and a
+		// specific layer the sample will be taken from was already
+		// selected or it is provided as an input argument.
+
+		int nLayer = pSelectedLayer->SelectedLayer != -1 ?
+			pSelectedLayer->SelectedLayer : nSelectedLayer;
+
+		if ( pSelectedLayer->SelectedLayer != -1 &&
+			 nSelectedLayer != -1 &&
+			 pSelectedLayer->SelectedLayer != nSelectedLayer ) {
+			WARNINGLOG( QString( "Previously selected layer [%1] and requested layer [%2] differ. The previous one will be used." )
+						.arg( pSelectedLayer->SelectedLayer )
+						.arg( nSelectedLayer ) );
+		}
+		
+		auto pLayer = pInstrCompo->get_layer( nLayer );
+		if ( pLayer == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve layer [%1] selected for component [%2] of instrument [%3]" )
+					  .arg( nLayer )
+					  .arg( nComponentID ).arg( __instrument->get_name() ) );
+			return nullptr;
+		}
+		
+		pSample = pLayer->get_sample();
+			
+	} else {
+		// Select an instrument layer.
+		std::vector<int> possibleLayersVector;
+		float fRoundRobinID;
+		auto pSong = Hydrogen::get_instance()->getSong();
+		
+		for ( unsigned nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); ++nLayer ) {
+			auto pLayer = pInstrCompo->get_layer( nLayer );
+			if ( pLayer == nullptr ) {
+				continue;
+			}
+
+			if ( ( __velocity >= pLayer->get_start_velocity() ) &&
+				 ( __velocity <= pLayer->get_end_velocity() ) ) {
+
+				possibleLayersVector.push_back( nLayer );
+				if ( __instrument->sample_selection_alg() == Instrument::VELOCITY ) {
+					break;
+				} else if ( __instrument->sample_selection_alg() == Instrument::ROUND_ROBIN ) {
+					fRoundRobinID = pLayer->get_start_velocity();
+				}
+			}
+		}
+
+		// In some instruments the start and end velocities of a layer
+		// are not set perfectly giving rise to some 'holes'.
+		// Occasionally the velocity of a note can fall into it
+		// causing the sampler to just skip it. Instead, we will
+		// search for the nearest sample and play this one instead.
+		if ( possibleLayersVector.size() == 0 ){
+			WARNINGLOG( QString( "Velocity [%1] did fall into a hole between the instrument layers for component [%2] of instrument [%3]." )
+						.arg( __velocity )
+						.arg( nComponentID )
+						.arg( __instrument->get_name() ) );
+			
+			float shortestDistance = 1.0f;
+			int nearestLayer = -1;
+			for ( unsigned nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); ++nLayer ){
+				auto pLayer = pInstrCompo->get_layer( nLayer );
+				if ( pLayer == nullptr ){
+					continue;
+				}
+							
+				if ( std::min( abs( pLayer->get_start_velocity() - __velocity ),
+							   abs( pLayer->get_start_velocity() - __velocity ) ) <
+					 shortestDistance ){
+					shortestDistance =
+						std::min( abs( pLayer->get_start_velocity() - __velocity ),
+								  abs( pLayer->get_start_velocity() - __velocity ) );
+					nearestLayer = nLayer;
+				}
+			}
+
+			// Check whether the search was successful and assign the results.
+			if ( nearestLayer > -1 ){
+				possibleLayersVector.push_back( nearestLayer );
+				if ( __instrument->sample_selection_alg() == Instrument::ROUND_ROBIN ) {
+					fRoundRobinID =
+						pInstrCompo->get_layer( nearestLayer )->get_start_velocity();
+				}
+			} else {
+				ERRORLOG( QString( "No sample found for component [%1] of instrument [%2]" )
+						  .arg( nComponentID ).arg( __instrument->get_name() ) );
+				return nullptr;
+			}
+		}
+
+		if( possibleLayersVector.size() > 0 ) {
+
+			int nLayerPicked;
+			switch ( __instrument->sample_selection_alg() ) {
+			case Instrument::VELOCITY: 
+				nLayerPicked = possibleLayersVector[ 0 ];
+				break;
+				
+			case Instrument::RANDOM:
+				nLayerPicked = possibleLayersVector[ rand() %
+													 possibleLayersVector.size() ];
+				break;
+
+			case Instrument::ROUND_ROBIN: {
+				fRoundRobinID = __instrument->get_id() * 10 + fRoundRobinID;
+				int nIndex = pSong->getLatestRoundRobin( fRoundRobinID ) + 1;
+				if ( nIndex >= possibleLayersVector.size() ) {
+					nIndex = 0;
+				}
+
+				pSong->setLatestRoundRobin( fRoundRobinID, nIndex );
+				nLayerPicked = possibleLayersVector[ nIndex ];
+				break;
+			}
+				
+			default:
+				ERRORLOG( QString( "Unknown selection algorithm [%1] for instrument [%2]" )
+						  .arg( __instrument->sample_selection_alg() )
+						  .arg( __instrument->get_name() ) );
+				return nullptr;
+			} 
+
+			pSelectedLayer->SelectedLayer = nLayerPicked;
+			auto pLayer = pInstrCompo->get_layer( nLayerPicked );
+			pSample = pLayer->get_sample();
+
+		} else {
+			ERRORLOG( "No samples found during random layer selection. This is a bug and shoul dn't happen!" );
+		}
+	}
+
+	return pSample;
+}
+
 void Note::save_to( XMLNode* node )
 {
 	node->write_int( "position", __position );
@@ -290,9 +451,15 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2length: %3\n" ).arg( sPrefix ).arg( s ).arg( __length ) )
 			.append( QString( "%1%2pitch: %3\n" ).arg( sPrefix ).arg( s ).arg( __pitch ) )
 			.append( QString( "%1%2key: %3\n" ).arg( sPrefix ).arg( s ).arg( __key ) )
-			.append( QString( "%1%2octave: %3\n" ).arg( sPrefix ).arg( s ).arg( __octave ) )
-			.append( QString( "%1" ).arg( __adsr->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2lead_lag: %3\n" ).arg( sPrefix ).arg( s ).arg( __lead_lag ) )
+			.append( QString( "%1%2octave: %3\n" ).arg( sPrefix ).arg( s ).arg( __octave ) );
+		if ( __adsr != nullptr ) {
+			sOutput.append( QString( "%1" )
+							.arg( __adsr->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( QString( "%1%2adsr: nullptr\n" ).arg( sPrefix ).arg( s ) );
+		}
+
+		sOutput.append( QString( "%1%2lead_lag: %3\n" ).arg( sPrefix ).arg( s ).arg( __lead_lag ) )
 			.append( QString( "%1%2cut_off: %3\n" ).arg( sPrefix ).arg( s ).arg( __cut_off ) )
 			.append( QString( "%1%2resonance: %3\n" ).arg( sPrefix ).arg( s ).arg( __resonance ) )
 			.append( QString( "%1%2humanize_delay: %3\n" ).arg( sPrefix ).arg( s ).arg( __humanize_delay ) )
@@ -329,9 +496,16 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", length: %1" ).arg( __length ) )
 			.append( QString( ", pitch: %1" ).arg( __pitch ) )
 			.append( QString( ", key: %1" ).arg( __key ) )
-			.append( QString( ", octave: %1" ).arg( __octave ) )
-			.append( QString( ", [%1" ).arg( __adsr->toQString( sPrefix + s, bShort ).replace( "\n", "]" ) ) )
-			.append( QString( ", lead_lag: %1" ).arg( __lead_lag ) )
+			.append( QString( ", octave: %1" ).arg( __octave ) );
+		if ( __adsr != nullptr ) {
+			sOutput.append( QString( ", [%1" )
+							.arg( __adsr->toQString( sPrefix + s, bShort )
+								  .replace( "\n", "]" ) ) );
+		} else {
+			sOutput.append( ", adsr: nullptr" );
+		}
+
+		sOutput.append( QString( ", lead_lag: %1" ).arg( __lead_lag ) )
 			.append( QString( ", cut_off: %1" ).arg( __cut_off ) )
 			.append( QString( ", resonance: %1" ).arg( __resonance ) )
 			.append( QString( ", humanize_delay: %1" ).arg( __humanize_delay ) )
@@ -357,6 +531,52 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 	return sOutput;
 }
 
+QString Note::KeyToQString( Key key ) {
+	QString s;
+
+	switch( key ) {
+	case Key::C:
+		s = QString( "C" );
+		break;
+	case Key::Cs:
+		s = QString( "Cs" );
+		break;
+	case Key::D:
+		s = QString( "D" );
+		break;
+	case Key::Ef:
+		s = QString( "Ef" );
+		break;
+	case Key::E:
+		s = QString( "E" );
+		break;
+	case Key::F:
+		s = QString( "F" );
+		break;
+	case Key::Fs:
+		s = QString( "Fs" );
+		break;
+	case Key::G:
+		s = QString( "G" );
+		break;
+	case Key::Af:
+		s = QString( "Af" );
+		break;
+	case Key::A:
+		s = QString( "A" );
+		break;
+	case Key::Bf:
+		s = QString( "Bf" );
+		break;
+	case Key::B:
+		s = QString( "B" );
+		break;
+	default:
+		ERRORLOG(QString( "Unknown Key value [%1]" ).arg( key ) );
+	}
+
+	return s;
+}
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

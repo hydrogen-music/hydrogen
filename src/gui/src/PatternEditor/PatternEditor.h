@@ -62,6 +62,23 @@ class PatternEditor : public QWidget,
 	Q_OBJECT
 
 public:
+	enum class Editor {
+		DrumPattern = 0,
+		PianoRoll = 1,
+		NotePropertiesRuler = 2,
+		None = 3
+	};
+	
+	enum class Mode {
+		Velocity = 0,
+		Pan = 1,
+		LeadLag = 2,
+		NoteKey = 3,
+		Probability = 4,
+		None = 5
+	};
+	static QString modeToQString( Mode mode );
+	
 	PatternEditor( QWidget *pParent,
 				   PatternEditorPanel *panel );
 
@@ -131,10 +148,48 @@ public:
 	virtual void mousePressEvent( QMouseEvent *ev ) override;
 	virtual void mouseMoveEvent( QMouseEvent *ev ) override;
 	virtual void mouseReleaseEvent( QMouseEvent *ev ) override;
+	
+	virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
+	virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
+	virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
 
 
-	virtual void songModeActivationEvent( int nValue ) override;
+	virtual void songModeActivationEvent() override;
 	virtual void stackedModeActivationEvent( int nValue ) override;
+
+	static constexpr int nMargin = 20;
+
+	/** Caches the AudioEngine::m_nPatternTickPosition in the member
+		variable #m_nTick and triggeres an update(). */
+	void updatePosition( float fTick );
+	void editNoteLengthAction( int nColumn,
+							   int nRealColumn,
+							   int nRow,
+							   int nLength,
+							   int nSelectedPatternNumber,
+							   int nSelectedInstrumentnumber,
+							   Editor editor );
+	
+	void editNotePropertiesAction( int nColumn,
+								   int nRealColumn,
+								   int nRow,
+								   int nSelectedPatternNumber,
+								   int nSelectedInstrumentNumber,
+								   Mode mode,
+								   Editor editor,
+								   float fVelocity,
+								   float fPan,
+								   float fLeadLag,
+								   float fProbability );
+	static void triggerStatusMessage( H2Core::Note* pNote, Mode mode );
+
+	// Pitch / line conversions
+	int lineToPitch( int nLine ) {
+		return 12 * (OCTAVE_MIN+m_nOctaves) - 1 - nLine;
+	}
+	int pitchToLine( int nPitch ) {
+		return 12 * (OCTAVE_MIN+m_nOctaves) - 1 - nPitch;
+	}
 
 protected:
 
@@ -171,13 +226,14 @@ protected:
 	uint m_nEditorHeight;
 	uint m_nEditorWidth;
 
+	// width of the editor covered by the current pattern.
+	int m_nActiveWidth;
+
 	float m_fGridWidth;
 	unsigned m_nGridHeight;
 
-	int m_nSelectedPatternNumber;
+	int m_nSelectedPatternNumber = 0;
 	H2Core::Pattern *m_pPattern;
-
-	const int m_nMargin = 20;
 
 	uint m_nResolution;
 	bool m_bUseTriplets;
@@ -212,11 +268,45 @@ protected:
 	//! Update current pattern information
 	void updatePatternInfo();
 
+	/** Updates #m_pBackgroundPixmap to show the latest content. */
+	virtual void createBackground();
+	QPixmap *m_pBackgroundPixmap;
+
 	/** Indicates whether the mouse pointer entered the widget.*/
 	bool m_bEntered;
 	virtual void enterEvent( QEvent *ev ) override;
 	virtual void leaveEvent( QEvent *ev ) override;
+	virtual void focusInEvent( QFocusEvent *ev ) override;
+	virtual void focusOutEvent( QFocusEvent *ev ) override;
 
+	int m_nTick;
+		
+	unsigned m_nOctaves = 7;
+
+	/** Stores the properties of @a pNote in member variables.*/
+	void storeNoteProperties( const H2Core::Note* pNote );
+	
+	/** Cached properties used when adjusting a note property via
+	 * right-press mouse movement.
+	 */
+	int m_nSelectedInstrumentNumber = 0;
+	int m_nRealColumn = 0;
+	int m_nColumn = 0;
+	int m_nRow = 0;
+	int m_nPressedLine = 0;
+	int m_nOldPoint;
+	
+	int m_nOldLength = 0;
+	float m_fVelocity = 0;
+	float m_fOldVelocity = 0;
+	float m_fPan = 0;
+	float m_fOldPan = 0;
+	float m_fLeadLag = 0;
+	float m_fOldLeadLag = 0;
+	float m_fProbability = 0;
+	float m_fOldProbability = 0;
+	Editor m_editor;
+	Mode m_mode;
 };
 
 #endif // PATERN_EDITOR_H

@@ -45,10 +45,15 @@ public:
 	Director(const Director&) = delete;
 	Director& operator=( const Director& rhs ) = delete;
 
+	virtual void updateSongEvent( int nValue ) override;
+	virtual void timelineUpdateEvent( int nValue ) override;
 	virtual void metronomeEvent( int nValue ) override;
 	virtual void paintEvent( QPaintEvent*) override;
 	virtual void keyPressEvent( QKeyEvent* ev ) override;
 	virtual void closeEvent( QCloseEvent* ev ) override;
+
+public slots:
+	void onPreferencesChanged( H2Core::Preferences::Changes changes );
 
 private slots:
 	void updateMetronomBackground();
@@ -59,15 +64,12 @@ private:
 	QColor				m_Color;
 	QPalette			m_BlinkerPalette;
 	int					m_nCounter;
-	int					m_nFadeAlpha;
 	float				m_fBpm;
 	int					m_nBar;
 	int					m_nFlashingArea;
 	QString				m_sTAG;
 	QString				m_sTAG2;
 	QString				m_sSongName;
-	int					m_nTagbeat;
-
 };
 
 

@@ -45,6 +45,7 @@ class WaveDisplay :  public QWidget, protected WidgetWithScalableFont<8, 10, 12>
 		explicit WaveDisplay(QWidget* pParent);
 		~WaveDisplay();
 
+	
 		virtual void	updateDisplay( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 
 		virtual void	paintEvent( QPaintEvent *ev ) override;
@@ -60,6 +61,9 @@ public slots:
 		void doubleClicked(QWidget *pWidget);
 
 	protected:
+
+	void createBackground( QPainter* painter );
+	
 		Qt::AlignmentFlag			m_SampleNameAlignment;
 		QPixmap						m_Background;
 		QString						m_sSampleName;
