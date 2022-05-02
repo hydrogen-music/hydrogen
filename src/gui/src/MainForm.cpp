@@ -981,17 +981,24 @@ void MainForm::action_file_openDemo() {
 	openSongWithDialog( sWindowTitle, Filesystem::demos_dir(), true );
 }
 
-void MainForm::openSongWithDialog( const QString& sWindowTitle, const QString& sPath, bool bIsDemo ) {
+bool MainForm::prepareSongOpening() {
+	
 	auto pHydrogen = Hydrogen::get_instance();
 	if ( pHydrogen->getAudioEngine()->getState() ==
 		 H2Core::AudioEngine::State::Playing ) {
 		pHydrogen->sequencer_stop();
 	}
 
-	bool bProceed = handleUnsavedChanges();
-	if( !bProceed ) {
+	return handleUnsavedChanges();
+}
+
+void MainForm::openSongWithDialog( const QString& sWindowTitle, const QString& sPath, bool bIsDemo ) {
+	// Check for unsaved changes.
+	if ( ! prepareSongOpening() ) {
 		return;
 	}
+	
+	auto pHydrogen = Hydrogen::get_instance();
 
 	QFileDialog fd(this);
 	fd.setFileMode( QFileDialog::ExistingFile );
@@ -1014,8 +1021,6 @@ void MainForm::openSongWithDialog( const QString& sWindowTitle, const QString& s
 			pHydrogen->getSong()->setFilename( "" );
 		}
 	}
-
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 }
 
 void MainForm::showPreferencesDialog()
@@ -1547,6 +1552,11 @@ void MainForm::updateRecentUsedSongList()
 
 void MainForm::action_file_open_recent(QAction *pAction)
 {
+	// Check for unsaved changes.
+	if ( ! prepareSongOpening() ) {
+		return;
+	}
+	
 	HydrogenApp::get_instance()->openSong( pAction->text() );
 }
 
