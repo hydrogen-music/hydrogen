@@ -58,7 +58,7 @@ class EventListener
 		virtual void actionModeChangeEvent( int nValue ){ UNUSED( nValue ); }
     	virtual void gridCellToggledEvent(){}
 	virtual void drumkitLoadedEvent(){}
-	virtual void patternEditorLockedEvent( int nValue ){ UNUSED( nValue ); }
+	virtual void patternEditorLockedEvent(){}
 	virtual void relocationEvent(){}
 	virtual void songSizeChangedEvent(){}
 	virtual void driverChangedEvent(){}

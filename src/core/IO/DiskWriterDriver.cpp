@@ -295,12 +295,12 @@ void* diskWriterDriver_thread( void* param )
 
 
 
-DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, int nSampleDepth )
+DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback )
 		: AudioOutput()
-		, m_nSampleRate( nSamplerate )
-		, m_nSampleDepth ( nSampleDepth )
+		, m_nSampleRate( 4800 )
+		, m_nSampleDepth( 32 )
 		, m_processCallback( processCallback )
-		, m_nBufferSize( 0 )
+		, m_nBufferSize( 1024 )
 		, m_pOut_L( nullptr )
 		, m_pOut_R( nullptr ) {
 }

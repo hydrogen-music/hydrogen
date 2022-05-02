@@ -636,15 +636,13 @@ void Hydrogen::restartDrivers()
 	m_pAudioEngine->restartAudioDrivers();
 }
 
-bool Hydrogen::startExportSession(int sampleRate, int sampleDepth )
+bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth )
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
 	if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
 		sequencer_stop();
 	}
-	
-	unsigned nSamplerate = (unsigned) sampleRate;
 
 	std::shared_ptr<Song> pSong = getSong();
 	
@@ -660,17 +658,24 @@ bool Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 	 * Stop the current driver and fire up the DiskWriter.
 	 */
 	pAudioEngine->stopAudioDrivers();
+	
+	AudioOutput* pDriver =
+		pAudioEngine->createAudioDriver( "DiskWriterDriver" );
 
-	DiskWriterDriver* pNewDriver = new DiskWriterDriver( AudioEngine::audioEngine_process, nSamplerate, sampleDepth );
-	int nRes = pNewDriver->init( Preferences::get_instance()->m_nBufferSize );
-	if ( nRes != 0 ) {
-		ERRORLOG( "Unable to initialize disk writer driver." );
+	DiskWriterDriver* pDiskWriterDriver = dynamic_cast<DiskWriterDriver*>( pDriver );
+	if ( pDriver == nullptr || pDiskWriterDriver == nullptr ) {
+		ERRORLOG( "Unable to start up DiskWriterDriver" );
+
+		if ( pDriver != nullptr ) {
+			delete pDriver;
+		}
 		return false;
 	}
-	m_bExportSessionIsActive = true;
 	
-	pAudioEngine->setAudioDriver( pNewDriver );
-	pAudioEngine->setupLadspaFX();
+	pDiskWriterDriver->setSampleRate( static_cast<unsigned>(nSampleRate) );
+	pDiskWriterDriver->setSampleDepth( nSampleDepth );
+
+	m_bExportSessionIsActive = true;
 
 	return true;
 }
@@ -717,9 +722,7 @@ void Hydrogen::stopExportSession()
 /// Used to display audio driver info
 AudioOutput* Hydrogen::getAudioOutput() const
 {
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-
-	return pAudioEngine->getAudioDriver();
+	return m_pAudioEngine->getAudioDriver();
 }
 
 /// Used to display midi driver info
@@ -913,11 +916,16 @@ void Hydrogen::restartLadspaFX()
 	}
 }
 
-void Hydrogen::updateSelectedPattern() {
-	if ( isPatternEditorLocked() ) {
-		m_pAudioEngine->lock( RIGHT_HERE );
+void Hydrogen::updateSelectedPattern( bool bNeedsLock ) {
+	if ( isPatternEditorLocked() &&
+		 m_pAudioEngine->getState() == AudioEngine::State::Playing ) {
+		if ( bNeedsLock ) {
+			m_pAudioEngine->lock( RIGHT_HERE );
+		}
 		m_pAudioEngine->handleSelectedPattern();
-		m_pAudioEngine->unlock();
+		if ( bNeedsLock ) {
+			m_pAudioEngine->unlock();
+		}
 	}
 }
 
@@ -1272,7 +1280,8 @@ bool Hydrogen::isTimelineEnabled() const {
 }
 
 bool Hydrogen::isPatternEditorLocked() const {
-	if ( getMode() == Song::Mode::Song ) {
+	if ( getMode() == Song::Mode::Song &&
+		 __song != nullptr ) {
 		if ( __song->getIsPatternEditorLocked() ) {
 			return true;
 		}
@@ -1282,10 +1291,12 @@ bool Hydrogen::isPatternEditorLocked() const {
 }
 
 void Hydrogen::setIsPatternEditorLocked( bool bValue ) {
-	if ( __song != nullptr ) {
+	if ( __song != nullptr &&
+		 bValue != __song->getIsPatternEditorLocked() ) {
 		__song->setIsPatternEditorLocked( bValue );
-
 		__song->setIsModified( true );
+
+		updateSelectedPattern();
 			
 		EventQueue::get_instance()->push_event( EVENT_PATTERN_EDITOR_LOCKED,
 												bValue );

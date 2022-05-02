@@ -123,6 +123,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getShowPianoRollEditorTooltip() const { return m_sShowPianoRollEditorTooltip; }
 	const QString& getPatternSizeDisabledTooltip() const { return m_sPatternSizeDisabledTooltip; }
 	
+	const QString& getAudioDriverStartError() const { return m_sAudioDriverStartError; }
+	const QString& getAudioDriverErrorHint() const { return m_sAudioDriverErrorHint; }
+	const QString& getAudioDriverNotPresent() const { return m_sAudioDriverNotPresent; }
+	
 	const QString& getJackMasterTooltip() const { return m_sJackMasterTooltip; }
 	const QString& getJackMasterDisabledTooltip() const { return m_sJackMasterDisabledTooltip; }
 	
@@ -237,6 +241,10 @@ private:
 	
 	QString m_sShowDrumkitEditorTooltip;
 	QString m_sShowPianoRollEditorTooltip;
+	
+	QString m_sAudioDriverStartError;
+	QString m_sAudioDriverErrorHint;
+	QString m_sAudioDriverNotPresent;
 
 	QString m_sJackMasterTooltip;
 	QString m_sJackMasterDisabledTooltip;

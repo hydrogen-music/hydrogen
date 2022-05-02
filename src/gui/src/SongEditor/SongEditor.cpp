@@ -1446,6 +1446,11 @@ void SongEditorPatternList::patternModifiedEvent() {
 	update();
 }
 
+void SongEditorPatternList::selectedPatternChangedEvent() {
+	createBackground();
+	update();
+}
+
 /// Single click, select the next pattern
 void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 {
@@ -1476,7 +1481,9 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		}
 	}
 	else {
-		if ( ! m_pHydrogen->isPatternEditorLocked() ) {
+		if ( ! ( m_pHydrogen->isPatternEditorLocked() &&
+				 m_pHydrogen->getAudioEngine()->getState() ==
+				 AudioEngine::State::Playing ) ) {
 			m_pHydrogen->setSelectedPatternNumber( nRow );
 		} else {
 			// Notify the users why nothing just happened by
