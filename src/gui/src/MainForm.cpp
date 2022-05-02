@@ -1240,9 +1240,11 @@ void MainForm::functionDeleteInstrument(int instrument)
 }
 
 
-void MainForm::action_instruments_exportLibrary()
-{
-	SoundLibraryExportDialog exportDialog( this, QString(), H2Core::Hydrogen::get_instance()->getCurrentDrumkitLookup() );
+void MainForm::action_instruments_exportLibrary() {
+
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	SoundLibraryExportDialog exportDialog( this, pHydrogen->getCurrentDrumkitName(),
+										   pHydrogen->getCurrentDrumkitLookup() );
 	exportDialog.exec();
 }
 
