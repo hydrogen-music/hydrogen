@@ -23,6 +23,8 @@
 #ifndef CORE_ACTION_CONTROLLER_H
 #define CORE_ACTION_CONTROLLER_H
 
+#include <vector>
+
 #include <core/Object.h>
 #include <core/Basics/Song.h>
 
@@ -70,7 +72,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		bool toggleStripIsSoloed( int nStrip );
 		
 		bool initExternalControlInterfaces();
-		bool handleOutgoingControlChange( int param, int value);
+	bool handleOutgoingControlChanges( std::vector<int> params, int nValue);
 	
 		// -----------------------------------------------------------
 		// Actions required for session management.

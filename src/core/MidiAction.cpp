@@ -1231,6 +1231,21 @@ int MidiActionManager::getParameterNumber( const QString& sActionType ) const {
 	return -1;
 }
 
+bool MidiActionManager::handleActions( std::vector<std::shared_ptr<Action>> actions ) {
+
+	bool bResult = true;
+	
+	for ( const auto& action : actions ) {
+		if ( action != nullptr ) {
+			if ( ! handleAction( action ) ) {
+				bResult = false;
+			}
+		}
+	}
+
+	return bResult;
+}
+
 bool MidiActionManager::handleAction(  std::shared_ptr<Action> pAction ) {
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();

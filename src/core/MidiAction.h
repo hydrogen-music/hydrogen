@@ -174,6 +174,13 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 	public:
 
 		/**
+		 * Handles multiple actions at once and calls handleAction()
+		 * on them.
+		 *
+		 * \return true - in case all actions were successul, false - otherwise.
+		 */
+	bool handleActions( std::vector<std::shared_ptr<Action>> );
+		/**
 		 * The handleAction method is the heart of the
 		 * MidiActionManager class. It executes the operations that
 		 * are needed to carry the desired action.

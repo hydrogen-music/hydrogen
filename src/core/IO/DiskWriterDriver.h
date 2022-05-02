@@ -51,7 +51,7 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 		float*					m_pOut_L;
 		float*					m_pOut_R;
 
-		DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, int nSampleDepth );
+		DiskWriterDriver( audioProcessCallback processCallback );
 		~DiskWriterDriver();
 
 		virtual int init( unsigned nBufferSize ) override;
@@ -66,6 +66,12 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioOutput
 		}
 
 		virtual unsigned getSampleRate() override;
+	void setSampleRate( unsigned nNewRate ) {
+		m_nSampleRate = nNewRate;
+	}
+	void setSampleDepth( int nNewDepth ) {
+		m_nSampleDepth = nNewDepth;
+	}
 		
 		virtual float* getOut_L() override {
 			return m_pOut_L;

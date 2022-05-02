@@ -1189,7 +1189,7 @@ void Preferences::savePreferences()
 	rootNode.appendChild( filesNode );
 
 	MidiMap * mM = MidiMap::get_instance();
-	auto mmcMap = mM->getMMCMap();
+	auto mmcMap = mM->getMMCActionMap();
 
 	//---- MidiMap ----
 	QDomNode midiEventMapNode = doc.createElement( "midiEventMap" );
@@ -1210,13 +1210,14 @@ void Preferences::savePreferences()
 		}
 	}
 
-	for( int note=0; note < 128; note++ ){
-		auto pAction = mM->getNoteAction( note );
+	for ( const auto& it : mM->getNoteActionMap() ){
+		int nNote = it.first;
+		auto pAction = it.second;
 		if( pAction != nullptr && pAction->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
 			LocalFileMng::writeXmlString( midiEventNode, "noteEvent" , QString("NOTE") );
-			LocalFileMng::writeXmlString( midiEventNode, "eventParameter" , QString::number( note ) );
+			LocalFileMng::writeXmlString( midiEventNode, "eventParameter" , QString::number( nNote ) );
 			LocalFileMng::writeXmlString( midiEventNode, "action" , pAction->getType() );
 			LocalFileMng::writeXmlString( midiEventNode, "parameter" , pAction->getParameter1() );
 			LocalFileMng::writeXmlString( midiEventNode, "parameter2" , pAction->getParameter2() );
@@ -1225,13 +1226,14 @@ void Preferences::savePreferences()
 		}
 	}
 
-	for( int parameter=0; parameter < 128; parameter++ ){
-		auto pAction = mM->getCCAction( parameter );
+	for( const auto& it : mM->getCCActionMap() ){
+		int nParameter = it.first;
+		auto pAction = it.second;
 		if( pAction != nullptr && pAction->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
 			LocalFileMng::writeXmlString( midiEventNode, "ccEvent" , QString("CC") );
-			LocalFileMng::writeXmlString( midiEventNode, "eventParameter" , QString::number( parameter ) );
+			LocalFileMng::writeXmlString( midiEventNode, "eventParameter" , QString::number( nParameter ) );
 			LocalFileMng::writeXmlString( midiEventNode, "action" , pAction->getType() );
 			LocalFileMng::writeXmlString( midiEventNode, "parameter" , pAction->getParameter1() );
 			LocalFileMng::writeXmlString( midiEventNode, "parameter2" , pAction->getParameter2() );
@@ -1240,16 +1242,15 @@ void Preferences::savePreferences()
 		}
 	}
 
-	{
-		auto pAction = mM->getPCAction();
-		if( pAction != nullptr && pAction->getType() != "NOTHING") {
+	for ( const auto action : mM->getPCActions() ) {
+		if( action != nullptr && action->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
 			LocalFileMng::writeXmlString( midiEventNode, "pcEvent" , QString("PROGRAM_CHANGE") );
-			LocalFileMng::writeXmlString( midiEventNode, "action" , pAction->getType() );
-			LocalFileMng::writeXmlString( midiEventNode, "parameter" , pAction->getParameter1() );
-			LocalFileMng::writeXmlString( midiEventNode, "parameter2" , pAction->getParameter2() );
-			LocalFileMng::writeXmlString( midiEventNode, "parameter3" , pAction->getParameter3() );
+			LocalFileMng::writeXmlString( midiEventNode, "action" , action->getType() );
+			LocalFileMng::writeXmlString( midiEventNode, "parameter" , action->getParameter1() );
+			LocalFileMng::writeXmlString( midiEventNode, "parameter2" , action->getParameter2() );
+			LocalFileMng::writeXmlString( midiEventNode, "parameter3" , action->getParameter3() );
 			midiEventMapNode.appendChild( midiEventNode );
 		}
 	}

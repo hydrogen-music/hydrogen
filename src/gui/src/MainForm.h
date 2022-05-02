@@ -317,6 +317,7 @@ public slots:
 		QMenu* m_pInfoMenu;
 
 	void openSongWithDialog( const QString& sWindowTitle, const QString& sPath, bool bIsDemo );
+	bool prepareSongOpening();
 
 	/** Since the filename of the current song does change whenever
 		the users uses "Save As" multiple autosave files would be
