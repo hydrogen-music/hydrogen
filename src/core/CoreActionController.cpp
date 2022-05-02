@@ -74,9 +74,9 @@ bool CoreActionController::setMasterVolume( float masterVolumeValue )
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
-	int ccParamValue = pMidiMap->findCCValueByActionType( QString("MASTER_VOLUME_ABSOLUTE"));
+	auto ccParamValues = pMidiMap->findCCValuesByActionType( QString("MASTER_VOLUME_ABSOLUTE"));
 	
-	handleOutgoingControlChange( ccParamValue, (masterVolumeValue / 1.5) * 127 );
+	handleOutgoingControlChanges( ccParamValues, (masterVolumeValue / 1.5) * 127 );
 
 	return true;
 }
@@ -110,9 +110,9 @@ bool CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
-	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_VOLUME_ABSOLUTE"), QString("%1").arg( nStrip ) );
+	auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("STRIP_VOLUME_ABSOLUTE"), QString("%1").arg( nStrip ) );
 	
-	handleOutgoingControlChange( ccParamValue, (fVolumeValue / 1.5) * 127 );
+	handleOutgoingControlChanges( ccParamValues, (fVolumeValue / 1.5) * 127 );
 	pHydrogen->setIsModified( true );
 
 	return true;
@@ -131,9 +131,9 @@ bool CoreActionController::setMetronomeIsActive( bool isActive )
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
-	int ccParamValue = pMidiMap->findCCValueByActionType( QString("TOGGLE_METRONOME"));
+	auto ccParamValues = pMidiMap->findCCValuesByActionType( QString("TOGGLE_METRONOME"));
 	
-	handleOutgoingControlChange( ccParamValue, (int) isActive * 127 );
+	handleOutgoingControlChanges( ccParamValues, (int) isActive * 127 );
 
 	return true;
 }
@@ -159,9 +159,9 @@ bool CoreActionController::setMasterIsMuted( bool isMuted )
 
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
-	int ccParamValue = pMidiMap->findCCValueByActionType( QString("MUTE_TOGGLE") );
+	auto ccParamValues = pMidiMap->findCCValuesByActionType( QString("MUTE_TOGGLE") );
 
-	handleOutgoingControlChange( ccParamValue, (int) isMuted * 127 );
+	handleOutgoingControlChanges( ccParamValues, (int) isMuted * 127 );
 
 	return true;
 }
@@ -215,9 +215,9 @@ bool CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
-	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_MUTE_TOGGLE"), QString("%1").arg( nStrip ) );
+	auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("STRIP_MUTE_TOGGLE"), QString("%1").arg( nStrip ) );
 	
-	handleOutgoingControlChange( ccParamValue, ((int) isMuted) * 127 );
+	handleOutgoingControlChanges( ccParamValues, ((int) isMuted) * 127 );
 	pHydrogen->setIsModified( true );
 
 	return true;
@@ -272,9 +272,9 @@ bool CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
-	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_SOLO_TOGGLE"), QString("%1").arg( nStrip ) );
+	auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("STRIP_SOLO_TOGGLE"), QString("%1").arg( nStrip ) );
 	
-	handleOutgoingControlChange( ccParamValue, ((int) isSoloed) * 127 );
+	handleOutgoingControlChanges( ccParamValues, ((int) isSoloed) * 127 );
 	pHydrogen->setIsModified( true );
 
 	return true;
@@ -311,9 +311,9 @@ bool CoreActionController::setStripPan( int nStrip, float fValue, bool bSelectSt
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
-	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
+	auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
 
-	handleOutgoingControlChange( ccParamValue, fValue * 127 );
+	handleOutgoingControlChanges( ccParamValues, fValue * 127 );
 	pHydrogen->setIsModified( true );
 
 	return true;
@@ -348,14 +348,14 @@ bool CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelec
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
-	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
-	handleOutgoingControlChange( ccParamValue, pInstr->getPanWithRangeFrom0To1() * 127 );
+	auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
+	handleOutgoingControlChanges( ccParamValues, pInstr->getPanWithRangeFrom0To1() * 127 );
 	pHydrogen->setIsModified( true );
 
 	return true;
 }
 
-bool CoreActionController::handleOutgoingControlChange(int param, int value)
+bool CoreActionController::handleOutgoingControlChanges( std::vector<int> params, int nValue)
 {
 	Preferences *pPref = Preferences::get_instance();
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
@@ -365,11 +365,12 @@ bool CoreActionController::handleOutgoingControlChange(int param, int value)
 		ERRORLOG( "no song set" );
 		return false;
 	}
-	
-	if(	pMidiDriver 
-		&& pPref->m_bEnableMidiFeedback 
-		&& param >= 0 ){
-		pMidiDriver->handleOutgoingControlChange( param, value, m_nDefaultMidiFeedbackChannel );
+
+	for ( auto param : params ) {
+		if(	pMidiDriver != nullptr &&
+			pPref->m_bEnableMidiFeedback && param >= 0 ){
+			pMidiDriver->handleOutgoingControlChange( param, nValue, m_nDefaultMidiFeedbackChannel );
+		}
 	}
 
 	return true;

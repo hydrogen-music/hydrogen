@@ -38,12 +38,12 @@ MidiTable::MidiTable( QWidget *pParent )
 	: QTableWidget( pParent )
 	, m_nRowHeight( 29 )
 	, m_nColumn0Width( 25 )
-	, m_nColumn1Width( 155 )
-	, m_nColumn2Width( 76 )
+	, m_nColumn1Width( 146 )
+	, m_nColumn2Width( 85 )
 	, m_nColumn3Width( 175 )
-	, m_nColumn4Width( 60 )
-	, m_nColumn5Width( 60 )
-	, m_nColumn6Width( 65 )
+	, m_nColumn4Width( 56 )
+	, m_nColumn5Width( 56 )
+	, m_nColumn6Width( 56 )
  {
 	m_nRowCount = 0;
 	setupMidiTable();
@@ -209,35 +209,21 @@ void MidiTable::setupMidiTable()
 	setColumnWidth( 5 , m_nColumn5Width );
 	setColumnWidth( 6 , m_nColumn6Width );
 
-	for( const auto& it : pMidiMap->getMMCMap() ) {
+	for ( const auto& it : pMidiMap->getMMCActionMap() ) {
 		insertNewRow( it.second, it.first, 0 );
 	}
 
-	for( int note = 0; note < 128; note++ ) {
-		std::shared_ptr<Action> pAction = pMidiMap->getNoteAction( note );
-
-		if ( pAction->getType() == "NOTHING" ){
-			continue;
-		}
-
-		insertNewRow(pAction , "NOTE" , note );
+	for ( const auto& it : pMidiMap->getNoteActionMap() ) {
+		insertNewRow( it.second, "NOTE", it.first );
 	}
 
-	for( int parameter = 0; parameter < 128; parameter++ ){
-		std::shared_ptr<Action> pAction = pMidiMap->getCCAction( parameter );
-
-		if ( pAction->getType() == "NOTHING" ){
-			continue;
-		}
-
-		insertNewRow( pAction , "CC" , parameter );
+	for ( const auto& it : pMidiMap->getCCActionMap() ) {
+		insertNewRow( it.second, "CC", it.first );
 	}
 
-	{
-		std::shared_ptr<Action> pAction = pMidiMap->getPCAction();
-		if ( pAction->getType() != "NOTHING" ) {
-
-			insertNewRow( pAction, "PROGRAM_CHANGE", 0 );
+	for ( const auto& action : pMidiMap->getPCActions() ) {
+		if ( action->getType() != "NOTHING" ) {
+			insertNewRow( action, "PROGRAM_CHANGE", 0 );
 		}
 	}
 
@@ -293,8 +279,8 @@ void MidiTable::saveMidiTable()
 }
 
 void MidiTable::updateRow( int nRow ) {
-	LCDCombo* pEventCombo =  dynamic_cast <LCDCombo*>( cellWidget( nRow, 1 ) );
-	LCDCombo* pActionCombo = dynamic_cast <LCDCombo*>( cellWidget( nRow, 3 ) );
+	LCDCombo* pEventCombo = dynamic_cast<LCDCombo*>( cellWidget( nRow, 1 ) );
+	LCDCombo* pActionCombo = dynamic_cast<LCDCombo*>( cellWidget( nRow, 3 ) );
 
 	if ( pEventCombo == nullptr || pActionCombo == nullptr ) {
 		return;
@@ -307,6 +293,32 @@ void MidiTable::updateRow( int nRow ) {
 		m_nRowCount--;
 		return;
 	}
+
+	// Adjust the event parameter spin box to fit the need of the
+	// particular event.
+	LCDSpinBox* pEventParameterSpinner = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 2 ) );
+	QString sEventString = pEventCombo->currentText();
+	
+	if ( sEventString.left(2) == "CC" ) {
+		pEventParameterSpinner->show();
+		pEventParameterSpinner->setMinimum( 0 );
+		pEventParameterSpinner->setMaximum( 127 );
+	}
+	else if ( sEventString.left(3) == "MMC" ) {
+		pEventParameterSpinner->hide();
+	}
+	else if ( sEventString.left(4) == "NOTE" ) {
+		pEventParameterSpinner->show();
+		pEventParameterSpinner->setMinimum( MIDI_OUT_NOTE_MIN );
+		pEventParameterSpinner->setMaximum( MIDI_OUT_NOTE_MAX );
+	}
+	else if ( sEventString.left(14) == "PROGRAM_CHANGE" ) {
+		pEventParameterSpinner->hide();
+	}
+	else {
+		pEventParameterSpinner->hide();
+	}
+		
 
 	QString sActionType = pActionCombo->currentText();
 	LCDSpinBox* pActionSpinner1 = dynamic_cast<LCDSpinBox*>( cellWidget( nRow, 4 ) );

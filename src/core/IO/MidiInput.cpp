@@ -184,10 +184,11 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 	MidiActionManager *pMidiActionManager = MidiActionManager::get_instance();
 	MidiMap *pMidiMap = MidiMap::get_instance();
 
-	std::shared_ptr<Action> pAction = pMidiMap->getCCAction( msg.m_nData1 );
-	pAction->setValue( QString::number( msg.m_nData2 ) );
+	for ( auto action : pMidiMap->getCCActions( msg.m_nData1 ) ) {
+		action->setValue( QString::number( msg.m_nData2 ) );
 
-	pMidiActionManager->handleAction( pAction );
+		pMidiActionManager->handleAction( action );
+	}
 
 	if(msg.m_nData1 == 04){
 		__hihat_cc_openess = msg.m_nData2;
@@ -203,10 +204,12 @@ void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 	MidiActionManager *pMidiActionManager = MidiActionManager::get_instance();
 	MidiMap *pMidiMap = MidiMap::get_instance();
 
-	std::shared_ptr<Action> pAction = pMidiMap->getPCAction();
-	pAction->setValue( QString::number( msg.m_nData1 ) );
-
-	pMidiActionManager->handleAction( pAction );
+	for ( auto action : pMidiMap->getPCActions() ) {
+		if ( action->getType() != "NOTHING" ) {
+			action->setValue( QString::number( msg.m_nData1 ) );
+			pMidiActionManager->handleAction( action );
+		}
+	}
 
 	pHydrogen->m_LastMidiEvent = "PROGRAM_CHANGE";
 	pHydrogen->m_nLastMidiEventParameter = 0;
@@ -233,7 +236,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	pHydrogen->m_LastMidiEvent = "NOTE";
 	pHydrogen->m_nLastMidiEventParameter = msg.m_nData1;
 
-	bool bActionSuccess = pMidiActionManager->handleAction( pMidiMap->getNoteAction( msg.m_nData1 ) );
+	bool bActionSuccess = pMidiActionManager->handleActions( pMidiMap->getNoteActions( msg.m_nData1 ) );
 
 	if ( bActionSuccess && pPref->m_bMidiDiscardNoteAfterAction ) {
 		return;
@@ -392,52 +395,52 @@ void MidiInput::handleSysexMessage( const MidiMessage& msg )
 			case 1:	// STOP
 			{
 				pHydrogen->m_LastMidiEvent = "MMC_STOP";
-				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_STOP"));
+				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_STOP"));
 				break;
 			}
 
 			case 2:	// PLAY
 			{
 				pHydrogen->m_LastMidiEvent = "MMC_PLAY";
-				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_PLAY"));
+				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_PLAY"));
 				break;
 			}
 
 			case 3:	//DEFERRED PLAY
 			{
 				pHydrogen->m_LastMidiEvent = "MMC_PLAY";
-				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_PLAY"));
+				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_PLAY"));
 				break;
 			}
 
 			case 4:	// FAST FWD
 				pHydrogen->m_LastMidiEvent = "MMC_FAST_FORWARD";
-				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_FAST_FORWARD"));
+				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_FAST_FORWARD"));
 				break;
 
 			case 5:	// REWIND
 				pHydrogen->m_LastMidiEvent = "MMC_REWIND";
-				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_REWIND"));
+				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_REWIND"));
 				break;
 
 			case 6:	// RECORD STROBE (PUNCH IN)
 				pHydrogen->m_LastMidiEvent = "MMC_RECORD_STROBE";
-				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_RECORD_STROBE"));
+				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_RECORD_STROBE"));
 				break;
 
 			case 7:	// RECORD EXIT (PUNCH OUT)
 				pHydrogen->m_LastMidiEvent = "MMC_RECORD_EXIT";
-				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_RECORD_EXIT"));
+				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_RECORD_EXIT"));
 				break;
 
 			case 8:	// RECORD READY
 				pHydrogen->m_LastMidiEvent = "MMC_RECORD_READY";
-				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_RECORD_READY"));
+				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_RECORD_READY"));
 				break;
 
 			case 9:	//PAUSE
 				pHydrogen->m_LastMidiEvent = "MMC_PAUSE";
-				pMidiActionManager->handleAction(pMidiMap->getMMCAction("MMC_PAUSE"));
+				pMidiActionManager->handleActions(pMidiMap->getMMCActions("MMC_PAUSE"));
 				break;
 
 			default:
