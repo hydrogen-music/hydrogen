@@ -286,7 +286,8 @@ unsigned PortAudioDriver::getSampleRate()
 int PortAudioDriver::getLatency()
 {
 	const PaStreamInfo *pStreamInfo = Pa_GetStreamInfo( m_pStream );
-	return (int)( pStreamInfo->outputLatency * getSampleRate() );
+	return std::max( static_cast<int>( pStreamInfo->outputLatency * getSampleRate() ),
+					 0 );
 }
 
 float* PortAudioDriver::getOut_L()

@@ -310,6 +310,10 @@ CommonStrings::CommonStrings(){
 	/*: Displayed when hovering over the button in the
 	PatternEditorPanel to activate the PianoRollEditor.*/
 	m_sShowPianoRollEditorTooltip = tr( "Show piano roll editor" );
+	
+	m_sAudioDriverStartError = tr( "Unable to start audio driver!" );
+	m_sAudioDriverErrorHint = tr( "Please use the Preferences to select a different one." );
+	m_sAudioDriverNotPresent = tr( "No audio driver set!" );
 
 	m_sJackMasterTooltip = tr("JACK Timebase master on/off");
 	m_sJackMasterDisabledTooltip = tr( "JACK timebase support is disabled in the Preferences" );

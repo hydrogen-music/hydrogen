@@ -89,6 +89,7 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 	, m_sPreviousAutoSaveFilename( "" )
 {
 	auto pPref = H2Core::Preferences::get_instance();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	
 	setObjectName( "MainForm" );
 	setMinimumSize( QSize( 1000, 500 ) );
@@ -109,7 +110,7 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 	// will be loaded by the NSM client singleton itself and not
 	// by the MainForm. The latter will just access the already
 	// loaded Song.
-	if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ){
+	if ( ! pHydrogen->isUnderSessionManagement() ){
 		std::shared_ptr<H2Core::Song>pSong = nullptr;
 
 		if ( sSongFilename.isEmpty() ) {
@@ -191,7 +192,7 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 	// ~ playlist display timer
 
 	//beatcouter
-	Hydrogen::get_instance()->setBcOffsetAdjust();
+	pHydrogen->setBcOffsetAdjust();
 
 	m_pUndoView = new QUndoView(h2app->m_pUndoStack);
 	m_pUndoView->setWindowTitle(tr("Undo history"));
@@ -203,6 +204,20 @@ MainForm::MainForm( QApplication * pQApplication, QString sSongFilename )
 		if( !loadlist ){
 			_ERRORLOG ( "Error loading the playlist" );
 		}
+	}
+
+	// Must be done _after_ the creation of the HydrogenApp instance.
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	
+	// Check whether the audio driver could be loaded based on the
+	// content of the config file
+	if ( pHydrogen->getAudioOutput() == nullptr ||
+		 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
+		QMessageBox::warning( this, "Hydrogen",
+							   QString( "%1 [%2]\n%3" )
+							  .arg( pCommonStrings->getAudioDriverStartError() )
+							  .arg( pPref->m_sAudioDriver )
+							  .arg( pCommonStrings->getAudioDriverErrorHint() ) );
 	}
 }
 
@@ -1705,6 +1720,10 @@ void MainForm::initKeyInstMap()
 
 bool MainForm::eventFilter( QObject *o, QEvent *e )
 {
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	
 	if ( e->type() == QEvent::FileOpen ) {
 		// Mac OS always opens files (including via double click in Finder) via a FileOpenEvent.
 		QFileOpenEvent *fe = dynamic_cast<QFileOpenEvent*>(e);
@@ -1713,14 +1732,14 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 
 		if ( sFileName.endsWith( H2Core::Filesystem::songs_ext ) ) {
 			if ( handleUnsavedChanges() ) {
-				HydrogenApp::get_instance()->openSong( sFileName );
+				pHydrogenApp->openSong( sFileName );
 			}
 
 		} else if ( sFileName.endsWith( H2Core::Filesystem::drumkit_ext ) ) {
 			H2Core::Drumkit::install( sFileName );
 
 		} else if ( sFileName.endsWith( H2Core::Filesystem::playlist_ext ) ) {
-			bool loadlist = HydrogenApp::get_instance()->getPlayListDialog()->loadListByFileName( sFileName );
+			bool loadlist = pHydrogenApp->getPlayListDialog()->loadListByFileName( sFileName );
 			if ( loadlist ) {
 				H2Core::Playlist::get_instance()->setNextSongByNumber( 0 );
 			}
@@ -1732,10 +1751,19 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 		QKeyEvent *k = (QKeyEvent *)e;
 
 		// qDebug( "Got key press for instrument '%c'", k->ascii() );
-		//int songnumber = 0;
-		Hydrogen* pHydrogen = Hydrogen::get_instance();
 		switch (k->key()) {
 		case Qt::Key_Space:
+
+			// Hint that something is wrong in case there is no proper audio
+			// driver set.
+			if ( pHydrogen->getAudioOutput() == nullptr ||
+				 dynamic_cast<NullDriver*>(pHydrogen->getAudioOutput()) != nullptr ) {
+				QMessageBox::warning( this, "Hydrogen",
+									  QString( "%1\n%2" )
+									  .arg( pCommonStrings->getAudioDriverNotPresent() )
+									  .arg( pCommonStrings->getAudioDriverErrorHint() ) );
+				return true;
+			}
 
 			switch ( k->modifiers() ) {
 			case Qt::NoModifier:
