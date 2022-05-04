@@ -110,7 +110,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pPanRotary = new Rotary( this, Rotary::Type::Center, tr( "Pan" ), false, -1.0, 1.0 );
 	m_pPanRotary->move( 6, 32 );
 	connect( m_pPanRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( panChanged( WidgetWithInput* ) ) );
-	pAction = std::make_shared<Action>("PAN_ABSOLUTE_SYM");
+	pAction = std::make_shared<Action>("PAN_ABSOLUTE");
 	pAction->setParameter1( QString::number(nInstr ));
 	pAction->setValue( QString::number( 0 ));
 	m_pPanRotary->setAction(pAction);
