@@ -1033,7 +1033,8 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 
 	// Check the file of the playback track and resort to the default
 	// in case the file can not be found.
-	if ( ! Filesystem::file_exists( sPlaybackTrack, true ) ) {
+	if ( ! sPlaybackTrack.isEmpty() &&
+		 ! Filesystem::file_exists( sPlaybackTrack, true ) ) {
 		ERRORLOG( QString( "Provided playback track file [%1] does not exist. Using empty string instead" )
 				  .arg( sPlaybackTrack ) );
 		sPlaybackTrack = "";
