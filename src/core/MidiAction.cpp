@@ -134,7 +134,7 @@ MidiActionManager::MidiActionManager() {
 	m_actionMap.insert(std::make_pair("MUTE_TOGGLE", std::make_pair( &MidiActionManager::mute_toggle, 0 ) ));
 	m_actionMap.insert(std::make_pair("STRIP_MUTE_TOGGLE", std::make_pair( &MidiActionManager::strip_mute_toggle, 1 ) ));
 	m_actionMap.insert(std::make_pair("STRIP_SOLO_TOGGLE", std::make_pair( &MidiActionManager::strip_solo_toggle, 1 ) ));	
-	m_actionMap.insert(std::make_pair("_NEXT_BAR", std::make_pair( &MidiActionManager::next_bar, 0 ) ));
+	m_actionMap.insert(std::make_pair(">>_NEXT_BAR", std::make_pair( &MidiActionManager::next_bar, 0 ) ));
 	m_actionMap.insert(std::make_pair("<<_PREVIOUS_BAR", std::make_pair( &MidiActionManager::previous_bar, 0 ) ));
 	m_actionMap.insert(std::make_pair("BPM_INCR", std::make_pair( &MidiActionManager::bpm_increase, 1 ) ));
 	m_actionMap.insert(std::make_pair("BPM_DECR", std::make_pair( &MidiActionManager::bpm_decrease, 1 ) ));
