@@ -104,6 +104,8 @@ void MidiSenseWidget::updateMidi(){
 			std::shared_ptr<Action> pAction = std::make_shared<Action>( m_pAction->getType() );
 
 			pAction->setParameter1( m_pAction->getParameter1() );
+			pAction->setParameter2( m_pAction->getParameter2() );
+			pAction->setParameter3( m_pAction->getParameter3() );
 
 			if( m_sLastMidiEvent.left(2) == "CC" ){
 				pMidiMap->registerCCEvent( m_LastMidiEventParameter , pAction );
