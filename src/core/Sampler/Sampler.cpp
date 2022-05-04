@@ -889,9 +889,16 @@ bool Sampler::renderNoteNoResample(
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
+
+		int nEffectiveDelay = 0;
+		if ( pNote->get_humanize_delay() < 0 ) {
+			nEffectiveDelay = pNote->get_humanize_delay();
+		}
+		
 		double fTickMismatch;
 		nNoteLength =
 			pAudioEngine->computeFrameFromTick( pNote->get_position() +
+												nEffectiveDelay +
 												pNote->get_length(), &fTickMismatch ) -
 			pNote->getNoteStart();
 	}
@@ -941,7 +948,8 @@ bool Sampler::renderNoteNoResample(
 	int nNoteEnd;
 	if ( nNoteLength == -1) {
 		nNoteEnd = pSelectedLayerInfo->SamplePosition + nTimes + 1;
-	} else {
+	}
+	else {
 		nNoteEnd = nNoteLength - pSelectedLayerInfo->SamplePosition;
 	}
 
@@ -956,7 +964,6 @@ bool Sampler::renderNoteNoResample(
 	for ( int nBufferPos = nSampleFrames; nBufferPos < nTimes; ++nBufferPos ) {
 		buffer_L[ nBufferPos ] = buffer_R[ nBufferPos ] = 0.0;
 	}
-
 
 	if ( pADSR->applyADSR( buffer_L, buffer_R, nTimes, nNoteEnd, 1 ) ) {
 		retValue = true;
@@ -1076,19 +1083,25 @@ bool Sampler::renderNoteResample(
 	auto pInstrument = pNote->get_instrument();
 
 	int nNoteLength = -1;
+	// Note is not located at the very beginning of the song and is
+	// enqueued by the AudioEngine. Take possible changes in tempo
+	// into account
 	if ( pNote->get_length() != -1 ) {
-		float fResampledTickSize = AudioEngine::computeTickSize( pSample->get_sample_rate(),
-																 pAudioEngine->getBpm(),
-																 pSong->getResolution() );
 		double fTickMismatch;
-		// Note is not located at the very beginning of the song
-		// and is enqueued by the AudioEngine. Take possible
-		// changes in tempo into account
+
+		int nEffectiveDelay = 0;
+		if ( pNote->get_humanize_delay() < 0 ) {
+			nEffectiveDelay = pNote->get_humanize_delay();
+		}
+		
 		nNoteLength =
 			pAudioEngine->computeFrameFromTick( pNote->get_position() +
+												nEffectiveDelay +
 												pNote->get_length(), &fTickMismatch,
-												fResampledTickSize ) -
-			pNote->getNoteStart();
+												pSample->get_sample_rate() ) -
+			pAudioEngine->computeFrameFromTick( pNote->get_position() +
+												nEffectiveDelay, &fTickMismatch,
+												pSample->get_sample_rate() );
 	}
 
 	float fNotePitch = pNote->get_total_pitch() + fLayerPitch;
