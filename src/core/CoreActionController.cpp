@@ -348,7 +348,7 @@ bool CoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelec
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
-	auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
+	auto ccParamValues = pMidiMap->findCCValuesByActionParam1( QString("PAN_ABSOLUTE_SYM"), QString("%1").arg( nStrip ) );
 	handleOutgoingControlChanges( ccParamValues, pInstr->getPanWithRangeFrom0To1() * 127 );
 	pHydrogen->setIsModified( true );
 

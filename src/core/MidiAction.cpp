@@ -134,7 +134,7 @@ MidiActionManager::MidiActionManager() {
 	m_actionMap.insert(std::make_pair("MUTE_TOGGLE", std::make_pair( &MidiActionManager::mute_toggle, 0 ) ));
 	m_actionMap.insert(std::make_pair("STRIP_MUTE_TOGGLE", std::make_pair( &MidiActionManager::strip_mute_toggle, 1 ) ));
 	m_actionMap.insert(std::make_pair("STRIP_SOLO_TOGGLE", std::make_pair( &MidiActionManager::strip_solo_toggle, 1 ) ));	
-	m_actionMap.insert(std::make_pair("_NEXT_BAR", std::make_pair( &MidiActionManager::next_bar, 0 ) ));
+	m_actionMap.insert(std::make_pair(">>_NEXT_BAR", std::make_pair( &MidiActionManager::next_bar, 0 ) ));
 	m_actionMap.insert(std::make_pair("<<_PREVIOUS_BAR", std::make_pair( &MidiActionManager::previous_bar, 0 ) ));
 	m_actionMap.insert(std::make_pair("BPM_INCR", std::make_pair( &MidiActionManager::bpm_increase, 1 ) ));
 	m_actionMap.insert(std::make_pair("BPM_DECR", std::make_pair( &MidiActionManager::bpm_decrease, 1 ) ));
@@ -155,6 +155,7 @@ MidiActionManager::MidiActionManager() {
 	m_actionMap.insert(std::make_pair("SELECT_AND_PLAY_PATTERN", std::make_pair( &MidiActionManager::select_and_play_pattern, 1 ) ));
 	m_actionMap.insert(std::make_pair("PAN_RELATIVE", std::make_pair( &MidiActionManager::pan_relative, 1 ) ));
 	m_actionMap.insert(std::make_pair("PAN_ABSOLUTE", std::make_pair( &MidiActionManager::pan_absolute, 1 ) ));
+	m_actionMap.insert(std::make_pair("PAN_ABSOLUTE_SYM", std::make_pair( &MidiActionManager::pan_absolute_sym, 1 ) ));
 	m_actionMap.insert(std::make_pair("FILTER_CUTOFF_LEVEL_ABSOLUTE", std::make_pair( &MidiActionManager::filter_cutoff_level_absolute, 1 ) ));
 	m_actionMap.insert(std::make_pair("BEATCOUNTER", std::make_pair( &MidiActionManager::beatcounter, 0 ) ));
 	m_actionMap.insert(std::make_pair("TAP_TEMPO", std::make_pair( &MidiActionManager::tap_tempo, 0 ) ));
@@ -759,6 +760,42 @@ bool MidiActionManager::pan_absolute( std::shared_ptr<Action> pAction, Hydrogen*
 
 	return true;
 }
+
+// sets the absolute panning of a given mixer channel
+bool MidiActionManager::pan_absolute_sym( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	// Preventive measure to avoid bad things.
+	if ( pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return false;
+	}
+
+	bool ok;
+	int nLine = pAction->getParameter1().toInt(&ok,10);
+	int pan_param = pAction->getValue().toInt(&ok,10);
+
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
+	
+	if( pInstrList->is_valid_index( nLine ) ) {
+		pHydrogen->setSelectedInstrumentNumber( nLine );
+	
+		auto pInstr = pInstrList->get( nLine );
+	
+		if( pInstr == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
+			return false;
+		}
+
+		pInstr->setPan( (float) pan_param / 127.f );
+	
+		pHydrogen->setSelectedInstrumentNumber(nLine);
+	} else {
+		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
+	}
+
+	return true;
+}
+
 
 // changes the panning of a given mixer channel
 // this is useful if the panning is set by a rotary control knob

@@ -53,10 +53,9 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 {
 		EventQueue::get_instance()->push_event( EVENT_MIDI_ACTIVITY, -1 );
 
-		INFOLOG( "[start of handleMidiMessage]" );
-		INFOLOG( QString("[handleMidiMessage] channel: %1").arg(msg.m_nChannel) );
-		INFOLOG( QString("[handleMidiMessage] val1: %1").arg( msg.m_nData1 ) );
-		INFOLOG( QString("[handleMidiMessage] val2: %1").arg( msg.m_nData2 ) );
+		INFOLOG( QString( "[start of handleMidiMessage] channel: %1, val1: %2, val2: %3" )
+				 .arg( msg.m_nChannel ).arg( msg.m_nData1 )
+				 .arg( msg.m_nData2 ) );
 
 		// midi channel filter for all messages
 		bool bIsChannelValid = true;

@@ -237,6 +237,8 @@ class OscServer : public H2Core::Object<OscServer>
 		 * - \e /Hydrogen/STRIP_VOLUME_ABSOLUTE/[x]
 		 * - \e /Hydrogen/STRIP_VOLUME_RELATIVE/[x]
 		 * - \e /Hydrogen/PAN_ABSOLUTE/[x]
+		 * - \e /Hydrogen/PAN_ABSOLUTE_SYM/[x]
+		 * - \e /Hydrogen/PAN_RELATIVE/[x]
 		 * - \e /Hydrogen/STRIP_MUTE_TOGGLE/[x]
 		 * - \e /Hydrogen/STRIP_SOLO_TOGGLE/[x]
 		 *
@@ -473,33 +475,6 @@ class OscServer : public H2Core::Object<OscServer>
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
 		static void SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv, int i);
-		/**
-		 * Creates an Action of type @b PAN_RELATIVE and
-		 * passes its references to MidiActionManager::handleAction().
-		 *
-		 * \param param1 Sets Action::parameter1 of the newly created
-		 * Action.
-		 * \param param2 Sets Action::parameter2 of the newly created
-		 * Action.*/
-		static void PAN_RELATIVE_Handler(QString param1, QString param2);
-		/**
-		 * Creates an Action of type @b PAN_ABSOLUTE and
-		 * passes its references to MidiActionManager::handleAction().
-		 *
-		 * \param param1 Sets Action::parameter1 of the newly created
-		 * Action.
-		 * \param param2 Sets Action::parameter2 of the newly created
-		 * Action.*/
-		static void PAN_ABSOLUTE_Handler(QString param1, QString param2);
-		/**
-		 * Creates an Action of type @b PAN_ABSOLUTE_SYM and
-		 * passes its references to MidiActionManager::handleAction().
-		 *
-		 * \param param1 Sets Action::parameter1 of the newly created
-		 * Action.
-		 * \param param2 Sets Action::parameter2 of the newly created
-		 * Action.*/
-		static void PAN_ABSOLUTE_SYM_Handler(QString param1, QString param2);
 		/**
 		 * Creates an Action of type @b FILTER_CUTOFF_LEVEL_ABSOLUTE
 		 * and passes its references to
@@ -822,6 +797,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * (if only a single argument is present.)
 		 * - \e /Hydrogen/STRIP_VOLUME_ABSOLUTE/[x]
 		 * - \e /Hydrogen/PAN_ABSOLUTE/[x]
+		 * - \e /Hydrogen/PAN_ABSOLUTE_SYM/[x]
 		 * - \e /Hydrogen/PAN_RELATIVE/[x]
 		 * - \e /Hydrogen/FILTER_CUTOFF_LEVEL_ABSOLUTE/[x]
 		 * - \e /Hydrogen/STRIP_MUTE_TOGGLE/[x]

@@ -217,7 +217,10 @@ int OscServer::generic_handler(const char *	path,
 		if( argc == 1 ){
 			int nStrip = rxStripPanRel.cap(1).toInt() - 1;
 			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
-				PAN_RELATIVE_Handler( QString::number( nStrip ) , QString::number( argv[0]->f, 'f', 0 ) );
+				std::shared_ptr<Action> pAction = std::make_shared<Action>("PAN_RELATIVE");
+				pAction->setParameter1( QString::number( nStrip ) );
+				pAction->setParameter2( QString::number( argv[0]->f, 'f', 0 ) );
+				MidiActionManager::get_instance()->handleAction( pAction );
 			}
 		}
 	}
@@ -543,39 +546,6 @@ void OscServer::SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv,int i)
 {
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("SELECT_AND_PLAY_PATTERN");
 	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
-
-	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
-}
-
-void OscServer::PAN_ABSOLUTE_Handler(QString param1, QString param2)
-{
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("PAN_ABSOLUTE");
-	pAction->setParameter1( param1 );
-	pAction->setParameter2( param2 );
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
-
-	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
-}
-
-void OscServer::PAN_ABSOLUTE_SYM_Handler(QString param1, QString param2)
-{
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("PAN_ABSOLUTE_SYM");
-	pAction->setParameter1( param1 );
-	pAction->setParameter2( param2 );
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
-
-	// Null song handling done in MidiActionManager.
-	pActionManager->handleAction( pAction );
-}
-
-void OscServer::PAN_RELATIVE_Handler(QString param1, QString param2)
-{
-	std::shared_ptr<Action> pAction = std::make_shared<Action>("PAN_RELATIVE");
-	pAction->setParameter1( param1 );
-	pAction->setParameter2( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.

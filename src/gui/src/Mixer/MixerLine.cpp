@@ -110,7 +110,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pPanRotary = new Rotary( this, Rotary::Type::Center, tr( "Pan" ), false, -1.0, 1.0 );
 	m_pPanRotary->move( 6, 32 );
 	connect( m_pPanRotary, SIGNAL( valueChanged( WidgetWithInput* ) ), this, SLOT( panChanged( WidgetWithInput* ) ) );
-	pAction = std::make_shared<Action>("PAN_ABSOLUTE_SYM");
+	pAction = std::make_shared<Action>("PAN_ABSOLUTE");
 	pAction->setParameter1( QString::number(nInstr ));
 	pAction->setValue( QString::number( 0 ));
 	m_pPanRotary->setAction(pAction);
@@ -119,9 +119,9 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	uint y = 0;
 	for ( uint i = 0; i < MAX_FX; i++ ) {
 		m_pFxRotary[i] = new Rotary( this, Rotary::Type::Small, tr( "FX %1 send" ).arg( i + 1 ), false );
-		pAction = std::make_shared<Action>(QString( "EFFECT%1_LEVEL_ABSOLUTE" ).arg( QString::number( i + 1 ) ) );
+		pAction = std::make_shared<Action>( "EFFECT_LEVEL_ABSOLUTE" );
 		pAction->setParameter1( QString::number( nInstr ) );
-		pAction->setParameter2( QString::number(i+1) );
+		pAction->setParameter2( QString::number( i ) );
 		m_pFxRotary[i]->setAction( pAction );
 		if ( (i % 2) == 0 ) {
 			m_pFxRotary[i]->move( 9, 63 + (20 * y) );
