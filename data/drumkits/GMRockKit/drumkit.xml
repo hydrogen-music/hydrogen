@@ -1060,7 +1060,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>57</midiOutNote>
+   <midiOutNote>55</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
    <isHihat>-1</isHihat>
@@ -1200,7 +1200,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>81</midiOutNote>
+   <midiOutNote>53</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
    <isHihat>-1</isHihat>
