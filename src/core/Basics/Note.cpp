@@ -157,8 +157,18 @@ void Note::map_instrument( InstrumentList* instruments )
 	if( !instr ) {
 		ERRORLOG( QString( "Instrument with ID: '%1' not found. Using empty instrument." ).arg( __instrument_id ) );
 		__instrument = std::make_shared<Instrument>();
-	} else {
+	}
+	else {
 		__instrument = instr;
+		__adsr = instr->copy_adsr();
+
+		for ( const auto& ppCompo : *instr->get_components() ) {
+			std::shared_ptr<SelectedLayerInfo> sampleInfo = std::make_shared<SelectedLayerInfo>();
+			sampleInfo->SelectedLayer = -1;
+			sampleInfo->SamplePosition = 0;
+
+			__layers_selected[ ppCompo->get_drumkit_componentID() ] = sampleInfo;
+		}
 	}
 }
 
