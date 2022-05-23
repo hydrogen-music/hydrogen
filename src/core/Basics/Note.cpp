@@ -72,7 +72,6 @@ Note::Note( std::shared_ptr<Instrument> instrument, int position, float velocity
 		__instrument_id = __instrument->get_id();
 
 		for ( const auto& pCompo : *__instrument->get_components() ) {
-
 			std::shared_ptr<SelectedLayerInfo> sampleInfo = std::make_shared<SelectedLayerInfo>();
 			sampleInfo->SelectedLayer = -1;
 			sampleInfo->SamplePosition = 0;
@@ -158,8 +157,18 @@ void Note::map_instrument( InstrumentList* instruments )
 	if( !instr ) {
 		ERRORLOG( QString( "Instrument with ID: '%1' not found. Using empty instrument." ).arg( __instrument_id ) );
 		__instrument = std::make_shared<Instrument>();
-	} else {
+	}
+	else {
 		__instrument = instr;
+		__adsr = instr->copy_adsr();
+
+		for ( const auto& ppCompo : *instr->get_components() ) {
+			std::shared_ptr<SelectedLayerInfo> sampleInfo = std::make_shared<SelectedLayerInfo>();
+			sampleInfo->SelectedLayer = -1;
+			sampleInfo->SamplePosition = 0;
+
+			__layers_selected[ ppCompo->get_drumkit_componentID() ] = sampleInfo;
+		}
 	}
 }
 
@@ -472,16 +481,26 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2midi_msg: %3\n" ).arg( sPrefix ).arg( s ).arg( __midi_msg ) )
 			.append( QString( "%1%2note_off: %3\n" ).arg( sPrefix ).arg( s ).arg( __note_off ) )
 			.append( QString( "%1%2just_recorded: %3\n" ).arg( sPrefix ).arg( s ).arg( __just_recorded ) )
-			.append( QString( "%1%2probability: %3\n" ).arg( sPrefix ).arg( s ).arg( __probability ) )
-			.append( QString( "%1" ).arg( __instrument->toQString( sPrefix + s, bShort ) ) );
+			.append( QString( "%1%2probability: %3\n" ).arg( sPrefix ).arg( s ).arg( __probability ) );
+		if ( __instrument != nullptr ) {		
+			sOutput.append( QString( "%1" ).arg( __instrument->toQString( sPrefix + s, bShort ) ) );
+		} else {
+			sOutput.append( QString( "%1%2instrument: nullptr\n" ).arg( sPrefix ).arg( s ) );
+		}
 		sOutput.append( QString( "%1%2layers_selected:\n" )
 						.arg( sPrefix ).arg( s ) );
 		for ( auto ll : __layers_selected ) {
-			sOutput.append( QString( "%1%2[component: %3, selected layer: %4, sample position: %5]\n" )
-							.arg( sPrefix ).arg( s + s )
-							.arg( ll.first )
-							.arg( ll.second->SelectedLayer )
-							.arg( ll.second->SamplePosition ) );
+			if ( ll.second != nullptr ) {
+				sOutput.append( QString( "%1%2[component: %3, selected layer: %4, sample position: %5]\n" )
+								.arg( sPrefix ).arg( s + s )
+								.arg( ll.first )
+								.arg( ll.second->SelectedLayer )
+								.arg( ll.second->SamplePosition ) );
+			} else {
+				sOutput.append( QString( "%1%2[component: %3, selected layer info: nullptr]\n" )
+								.arg( sPrefix ).arg( s + s )
+								.arg( ll.first ) );
+			}
 		}
 	} else {
 
@@ -518,14 +537,23 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", midi_msg: %1" ).arg( __midi_msg ) )
 			.append( QString( ", note_off: %1" ).arg( __note_off ) )
 			.append( QString( ", just_recorded: %1" ).arg( __just_recorded ) )
-			.append( QString( ", probability: %1" ).arg( __probability ) )
-			.append( QString( ", instrument: %1" ).arg( __instrument->get_name() ) )
-			.append( QString( ", layers_selected: " ) );
+			.append( QString( ", probability: %1" ).arg( __probability ) );
+		if ( __instrument != nullptr ) {
+			sOutput.append( QString( ", instrument: %1" ).arg( __instrument->get_name() ) );
+		} else {
+			sOutput.append( QString( ", instrument: nullptr" ) );
+		}
+		sOutput.append( QString( ", layers_selected: " ) );
 		for ( auto ll : __layers_selected ) {
-			sOutput.append( QString( "[component: %1, selected layer: %2, sample position: %3] " )
-							.arg( ll.first )
-							.arg( ll.second->SelectedLayer )
-							.arg( ll.second->SamplePosition ) );
+			if ( ll.second != nullptr ) {
+				sOutput.append( QString( "[component: %1, selected layer: %2, sample position: %3] " )
+								.arg( ll.first )
+								.arg( ll.second->SelectedLayer )
+								.arg( ll.second->SamplePosition ) );
+			} else {
+				sOutput.append( QString( "[component: %1, selected layer info: nullptr]" )
+								.arg( ll.first ) );
+			}
 		}
 	}
 	return sOutput;
