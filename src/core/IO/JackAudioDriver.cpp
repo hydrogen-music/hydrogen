@@ -307,7 +307,7 @@ void JackAudioDriver::relocateUsingBBT()
 	if ( pSong == nullptr ) {
 		// Expected behavior if Hydrogen is exited while playback is
 		// still running.
-		DEBUGLOG( "No song set." );
+		// DEBUGLOG( "No song set." );
 		return;
 	}
 
@@ -532,7 +532,7 @@ void JackAudioDriver::updateTransportInfo()
 	if ( pHydrogen->getSong() == nullptr ) {
 		// Expected behavior if Hydrogen is exited while playback is
 		// still running.
-		DEBUGLOG( "No song set." );
+		// DEBUGLOG( "No song set." );
 		return;
 	}
 
@@ -571,15 +571,20 @@ void JackAudioDriver::updateTransportInfo()
 	// timeline) or by a different JACK client.
 	if ( pAudioEngine->getFrames() - pAudioEngine->getFrameOffset() !=
 		 m_JackTransportPos.frame ) {
-		// INFOLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3" )
+		
+		// DEBUGLOG( QString( "[relocation detected] frames: %1, offset: %2, Jack frames: %3" )
 		// 		 .arg( pAudioEngine->getFrames() )
 		// 		 .arg( pAudioEngine->getFrameOffset() )
 		// 		 .arg( m_JackTransportPos.frame ) );
+		
 		// Reset playback to the beginning of the pattern if Hydrogen
 		// is in pattern mode.
 		if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 			pAudioEngine->locateToFrame( 0 );
-		} else {
+			pAudioEngine->setFrameOffset( pAudioEngine->getFrames() -
+										  m_JackTransportPos.frame );
+		}
+		else {
 			if ( !bTimebaseEnabled || m_timebaseState != Timebase::Slave ) {
 				pAudioEngine->locateToFrame( m_JackTransportPos.frame );
 			} else {
@@ -1090,7 +1095,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	if ( pSong == nullptr ) {
-		DEBUGLOG( "No song set." );
+		// DEBUGLOG( "No song set." );
 		return;
 	}
 

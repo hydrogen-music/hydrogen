@@ -354,6 +354,7 @@ public:
 
 	int				getColumn() const;
 	long long		getFrameOffset() const;
+	void			setFrameOffset( long long nFrameOffset );
 	double  		getTickOffset() const;
 
 	const PatternList*	getNextPatterns() const;
@@ -1094,6 +1095,9 @@ inline float AudioEngine::getNextBpm() const {
 }
 inline long long AudioEngine::getFrameOffset() const {
 	return m_nFrameOffset;
+}
+inline void AudioEngine::setFrameOffset( long long nFrameOffset ) {
+	m_nFrameOffset = nFrameOffset;
 }
 inline double AudioEngine::getTickOffset() const {
 	return m_fTickOffset;

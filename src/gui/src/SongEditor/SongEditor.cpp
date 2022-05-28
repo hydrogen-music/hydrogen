@@ -3084,6 +3084,12 @@ void SongEditorPositionRuler::updatePosition()
 	if ( m_pHydrogen->getMode() == Song::Mode::Pattern ) {
 		fTick = -1;
 	}
+	else if ( fTick < 0 ) {
+		// As some variables of the audio engine are initialized as or
+		// reset to -1 we ensure this does not affect the position of
+		// the playhead in the SongEditor.
+		fTick = 0;
+	}
 
 	m_pAudioEngine->unlock();
 
