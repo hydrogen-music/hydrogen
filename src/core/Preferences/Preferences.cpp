@@ -63,7 +63,7 @@ Preferences::Preferences()
 {
 	__instance = this;
 	m_pTheme = std::make_shared<Theme>();
-	
+
 	// switch to enable / disable lash, only on h2 startup
 	m_brestartLash = false;
 	m_bsetLash = false;
@@ -290,7 +290,7 @@ void Preferences::loadPreferences( bool bGlobal )
 	m_recentFiles.clear();
 	m_recentFX.clear();
 
-	bool recreate = false;	// configuration file must be recreated?
+	bool bRecreate = false;	// configuration file must be recreated?
 
 	QString sPreferencesFilename;
 	const QString sPreferencesOverwritePath = Filesystem::getPreferencesOverwritePath();
@@ -299,10 +299,14 @@ void Preferences::loadPreferences( bool bGlobal )
 			INFOLOG( QString( "Loading preferences file (%1) [%2]" ).arg( bGlobal ? "SYS" : "USER" ).arg( sPreferencesFilename ) );
 	} else {
 		sPreferencesFilename = sPreferencesOverwritePath;
-		INFOLOG( QString( "Loading preferences file %1" ).arg( sPreferencesFilename ) );
+		INFOLOG( QString( "Loading preferences file [%1]" ).arg( sPreferencesFilename ) );
 	}
 	
-	Filesystem::file_readable( sPreferencesFilename );
+	if ( ! Filesystem::file_readable( sPreferencesFilename, true ) ) {
+		ERRORLOG( QString( "Preferences file [%1] is not readable!" )
+				  .arg( sPreferencesFilename ) );
+		bRecreate = true;
+	}
 
 	// pref file exists?
 	std::ifstream input( sPreferencesFilename.toLocal8Bit() , std::ios::in | std::ios::binary );
@@ -317,7 +321,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			// version
 			QString version = LocalFileMng::readXmlString( rootNode, "version", "" );
 			if ( version.isEmpty() ) {
-				recreate = true;
+				bRecreate = true;
 			}
 
 			//////// GENERAL ///////////
@@ -409,7 +413,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			QDomNode audioEngineNode = rootNode.firstChildElement( "audio_engine" );
 			if ( audioEngineNode.isNull() ) {
 				WARNINGLOG( "audio_engine node not found" );
-				recreate = true;
+				bRecreate = true;
 			} else {
 				m_sAudioDriver = LocalFileMng::readXmlString( audioEngineNode, "audio_driver", m_sAudioDriver );
 				// Ensure compatibility will older versions of the
@@ -433,7 +437,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				QDomNode ossDriverNode = audioEngineNode.firstChildElement( "oss_driver" );
 				if ( ossDriverNode.isNull()  ) {
 					WARNINGLOG( "oss_driver node not found" );
-					recreate = true;
+					bRecreate = true;
 				} else {
 					m_sOSSDevice = LocalFileMng::readXmlString( ossDriverNode, "ossDevice", m_sOSSDevice );
 				}
@@ -442,7 +446,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				QDomNode portAudioDriverNode = audioEngineNode.firstChildElement( "portaudio_driver" );
 				if ( portAudioDriverNode.isNull()  ) {
 					WARNINGLOG( "portaudio_driver node not found" );
-					recreate = true;
+					bRecreate = true;
 				} else {
 					m_sPortAudioDevice = LocalFileMng::readXmlString( portAudioDriverNode, "portAudioDevice", m_sPortAudioDevice );
 					m_sPortAudioHostAPI = LocalFileMng::readXmlString( portAudioDriverNode, "portAudioHostAPI", m_sPortAudioHostAPI );
@@ -453,7 +457,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				QDomNode coreAudioDriverNode = audioEngineNode.firstChildElement( "coreaudio_driver" );
 				if ( coreAudioDriverNode.isNull()  ) {
 					WARNINGLOG( "coreaudio_driver node not found" );
-					recreate = true;
+					bRecreate = true;
 				} else {
 					m_sCoreAudioDevice = LocalFileMng::readXmlString( coreAudioDriverNode, "coreAudioDevice", m_sCoreAudioDevice );
 				}
@@ -462,7 +466,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				QDomNode jackDriverNode = audioEngineNode.firstChildElement( "jack_driver" );
 				if ( jackDriverNode.isNull() ) {
 					WARNINGLOG( "jack_driver node not found" );
-					recreate = true;
+					bRecreate = true;
 				} else {
 					m_sJackPortName1 = LocalFileMng::readXmlString( jackDriverNode, "jack_port_name_1", m_sJackPortName1 );
 					m_sJackPortName2 = LocalFileMng::readXmlString( jackDriverNode, "jack_port_name_2", m_sJackPortName2 );
@@ -517,7 +521,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				QDomNode alsaAudioDriverNode = audioEngineNode.firstChildElement( "alsa_audio_driver" );
 				if ( alsaAudioDriverNode.isNull() ) {
 					WARNINGLOG( "alsa_audio_driver node not found" );
-					recreate = true;
+					bRecreate = true;
 				} else {
 					m_sAlsaAudioDevice = LocalFileMng::readXmlString( alsaAudioDriverNode, "alsa_audio_device", m_sAlsaAudioDevice );
 				}
@@ -526,7 +530,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				QDomNode midiDriverNode = audioEngineNode.firstChildElement( "midi_driver" );
 				if ( midiDriverNode.isNull() ) {
 					WARNINGLOG( "midi_driver node not found" );
-					recreate = true;
+					bRecreate = true;
 				} else {
 					m_sMidiDriver = LocalFileMng::readXmlString( midiDriverNode, "driverName", "ALSA" );
 					// Ensure compatibility will older versions of the
@@ -551,7 +555,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				QDomNode oscServerNode = audioEngineNode.firstChildElement( "osc_configuration" );
 				if ( oscServerNode.isNull() ) {
 					WARNINGLOG( "osc_configuration node not found" );
-					recreate = true;
+					bRecreate = true;
 				} else {
 					m_bOscServerEnabled = LocalFileMng::readXmlBool( oscServerNode, "oscEnabled", false );
 					m_bOscFeedbackEnabled = LocalFileMng::readXmlBool( oscServerNode, "oscFeedbackEnabled", true );
@@ -563,7 +567,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			QDomNode guiNode = rootNode.firstChildElement( "gui" );
 			if ( guiNode.isNull() ) {
 				WARNINGLOG( "gui node not found" );
-				recreate = true;
+				bRecreate = true;
 			} else {
 				// QT Style
 				setQTStyle( LocalFileMng::readXmlString( guiNode, "QTStyle", "Fusion", true ) );
@@ -677,7 +681,7 @@ void Preferences::loadPreferences( bool bGlobal )
 					Theme::readColorTheme( pColorThemeNode, m_pTheme );
 				} else {
 					WARNINGLOG( "colorTheme node not found" );
-					recreate = true;
+					bRecreate = true;
 				}
 
 				//SongEditor coloring
@@ -702,7 +706,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			QDomNode filesNode = rootNode.firstChildElement( "files" );
 			if ( filesNode.isNull() ) {
 				WARNINGLOG( "files node not found" );
-				recreate = true;
+				bRecreate = true;
 			} else {
 				// last used song
 				m_lastSongFilename = LocalFileMng::readXmlString( filesNode, "lastSongFilename", m_lastSongFilename, true );
@@ -782,14 +786,15 @@ void Preferences::loadPreferences( bool bGlobal )
 		} // rootNode
 		else {
 			WARNINGLOG( "hydrogen_preferences node not found" );
-			recreate = true;
+			bRecreate = true;
 		}
-	} else {
+	}
+	else { // input
 		if ( bGlobal ) {
 			WARNINGLOG( "System configuration file not found." );
 		} else {
 			WARNINGLOG( "Configuration file not found." );
-			recreate = true;
+			bRecreate = true;
 		}
 	}
 
@@ -798,7 +803,7 @@ void Preferences::loadPreferences( bool bGlobal )
 	}
 
 	// The preferences file should be recreated?
-	if ( recreate == true && !bGlobal ) {
+	if ( bRecreate == true && !bGlobal ) {
 		WARNINGLOG( "Recreating configuration file." );
 		savePreferences();
 	}
@@ -1188,6 +1193,11 @@ void Preferences::savePreferences()
 	}
 	rootNode.appendChild( filesNode );
 
+	// In case the Preferences in both system and user space are
+	// bricked Hydrogen attempts to recreate the Preferences before
+	// the core is properly initialized. That's why we assure for the
+	// MidiMap to be initialized.
+	MidiMap::create_instance();
 	MidiMap * mM = MidiMap::get_instance();
 	auto mmcMap = mM->getMMCActionMap();
 
