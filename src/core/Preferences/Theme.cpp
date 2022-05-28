@@ -164,7 +164,7 @@ InterfaceTheme::InterfaceTheme()
 	, m_coloringMethod( InterfaceTheme::ColoringMethod::Custom )
 	, m_nVisiblePatternColors( 18 )
 	, m_nMaxPatternColors( 50 ) {
-	std::vector<QColor> m_patternColors( m_nMaxPatternColors );
+	m_patternColors.resize( m_nMaxPatternColors );
 	for ( int ii = 0; ii < m_nMaxPatternColors; ii++ ) {
 		m_patternColors[ ii ] = QColor( 67, 96, 131 );
 	}
@@ -212,7 +212,6 @@ Theme::Theme( const std::shared_ptr<Theme> pOther ) {
 }
 
 void Theme::setTheme( const std::shared_ptr<Theme> pOther ) {
-	DEBUGLOG("");
 	m_pColorTheme->m_songEditor_backgroundColor = pOther->getColorTheme()->m_songEditor_backgroundColor;
 	m_pColorTheme->m_songEditor_alternateRowColor = pOther->getColorTheme()->m_songEditor_alternateRowColor;
 	m_pColorTheme->m_songEditor_selectedRowColor =
