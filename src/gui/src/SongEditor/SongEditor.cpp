@@ -154,6 +154,8 @@ int SongEditor::yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView )
 
 	auto pPlayingPatterns = m_pAudioEngine->getPlayingPatterns();
 
+	m_pAudioEngine->lock( RIGHT_HERE );
+
 	// If no patterns are playing, no scrolling needed either.
 	if ( pPlayingPatterns->size() == 0 ) {
 		return nScroll;
@@ -164,7 +166,6 @@ int SongEditor::yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView )
 	// Duplicate the playing patterns vector before finding the pattern numbers of the playing patterns. This
 	// avoids doing a linear search in the critical section.
 	std::vector<Pattern *> currentPatterns;
-	m_pAudioEngine->lock( RIGHT_HERE );
 	for ( int ii = 0; ii < pPlayingPatterns->size(); ++ii ) {
 		currentPatterns.push_back( pPlayingPatterns->get( ii ) );
 	}
