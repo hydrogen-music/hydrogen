@@ -16,6 +16,7 @@
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
+#include <core/License.h>
 
 #include <core/Sampler/Sampler.h>
 #include <core/Sampler/Sampler.cpp>
@@ -318,7 +319,16 @@ void MemoryLeakageTest::testLoading() {
 		node = doc.firstChildElement( "drumkitComponent" );
 		auto pDrumkitComponent = H2Core::DrumkitComponent::load_from( &node, H2TEST_FILE( "/drumkits/baseKit" ) );
 		std::vector<H2Core::DrumkitComponent*> pDrumkitComponents { pDrumkitComponent };
-		CPPUNIT_ASSERT( H2Core::Drumkit::save( "testKitLadida", "ladida", "ladida", "ladida", "ladida", "ladida", pInstrumentList, &pDrumkitComponents, true ) );
+		H2Core::License license("");
+		CPPUNIT_ASSERT( H2Core::Drumkit::save( "testKitLadida",
+											   "ladida",
+											   "ladida",
+											   license,
+											   "ladida",
+											   license,
+											   pInstrumentList,
+											   &pDrumkitComponents,
+											   true ) );
 		delete pInstrumentList;
 		delete pDrumkitComponent;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );

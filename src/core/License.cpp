@@ -48,7 +48,8 @@ void License::parse( const QString& sRawLicense ) {
 
 	QString sUp = sRawLicense.toUpper();
 
-	if ( sRawLicense.isEmpty() ) {
+	if ( sRawLicense.isEmpty() ||
+		 sRawLicense == "undefined license" ) {
 		m_license = License::Unspecified;
 	}
 	else if ( sUp.contains( "CC" ) &&

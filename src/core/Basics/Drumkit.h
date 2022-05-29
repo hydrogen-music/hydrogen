@@ -25,6 +25,7 @@
 
 #include <core/Object.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/License.h>
 
 namespace H2Core
 {
@@ -206,17 +207,17 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \param sName the name of the drumkit
 		 * \param sAuthor the author of the drumkit
 		 * \param sInfo the info of the drumkit
-		 * \param sLicense the license of the drumkit
+		 * \param license the license of the drumkit
 		 * \param sImage the image filename (with full path) of
 		   the drumkit
-		 * \param sImageLicense license of the supplied image
+		 * \param imageLicense license of the supplied image
 		 * \param pInstruments the instruments to be saved
 		   within the drumkit
 		 * \param pComponents
 		 * \param bOverwrite allows to write over existing drumkit files
 		 * \return true on success
 		 */
-		static bool save( const QString& sName, const QString& sAuthor, const QString& sInfo, const QString& sLicense, const QString& sImage, const QString& sImageLicense, InstrumentList* pInstruments, std::vector<DrumkitComponent*>* pComponents, bool bOverwrite=false );
+		static bool save( const QString& sName, const QString& sAuthor, const QString& sInfo, const License& license, const QString& sImage, const License& imageLicense, InstrumentList* pInstruments, std::vector<DrumkitComponent*>* pComponents, bool bOverwrite=false );
 		/**
 		 * Extract a .h2drumkit file.
 		 *
@@ -284,17 +285,17 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** #__info accessor */
 		const QString& get_info() const;
 		/** #__license setter */
-		void set_license( const QString& license );
+		void set_license( const License& license );
 		/** #__license accessor */
-		const QString& get_license() const;
+		const License& get_license() const;
 		/** #__image setter */
 		void set_image( const QString& image );
 		/** #__image accessor */
 		const QString& get_image() const;
 		/** #__imageLicense setter */
-		void set_image_license( const QString& imageLicense );
+		void set_image_license( const License& imageLicense );
 		/** #__imageLicense accessor */
-		const QString& get_image_license() const;
+		const License& get_image_license() const;
 		/** return true if the samples are loaded */
 		const bool samples_loaded() const;
 
@@ -323,9 +324,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 		QString __name;					///< drumkit name
 		QString __author;				///< drumkit author
 		QString __info;					///< drumkit free text
-		QString __license;				///< drumkit license description
+		License __license;				///< drumkit license description
 		QString __image;				///< drumkit image filename
-		QString __imageLicense;			///< drumkit image license
+		License __imageLicense;			///< drumkit image license
 
 		bool __samples_loaded;			///< true if the instrument samples are loaded
 		InstrumentList* __instruments;  ///< the list of instruments
@@ -396,12 +397,12 @@ inline const QString& Drumkit::get_info() const
 	return __info;
 }
 
-inline void Drumkit::set_license( const QString& license )
+inline void Drumkit::set_license( const License& license )
 {
 	__license = license;
 }
 
-inline const QString& Drumkit::get_license() const
+inline const License& Drumkit::get_license() const
 {
 	return __license;
 }
@@ -416,12 +417,12 @@ inline const QString& Drumkit::get_image() const
 	return __image;
 }
 
-inline void Drumkit::set_image_license( const QString& imageLicense )
+inline void Drumkit::set_image_license( const License& imageLicense )
 {
 	__imageLicense = imageLicense;
 }
 
-inline const QString& Drumkit::get_image_license() const
+inline const License& Drumkit::get_image_license() const
 {
 	return __imageLicense;
 }

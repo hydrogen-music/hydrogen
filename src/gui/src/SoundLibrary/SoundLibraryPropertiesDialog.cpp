@@ -50,11 +50,11 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 		nameTxt->setText( QString( pDrumkitInfo->get_name() ) );
 		authorTxt->setText( QString( pDrumkitInfo->get_author() ) );
 		infoTxt->append( QString( pDrumkitInfo->get_info() ) );
-		licenseTxt->setText( QString( pDrumkitInfo->get_license() ) );
+		licenseTxt->setText( pDrumkitInfo->get_license().toQString() );
 		imageText->setText( QString ( pDrumkitInfo->get_image() ) );
-		imageLicenseText->setText( QString ( pDrumkitInfo->get_image_license() ) );
+		imageLicenseText->setText( pDrumkitInfo->get_image_license().toQString() );
 		// Licence with attribution is often too long...
-		imageLicenseText->setToolTip( QString( pDrumkitInfo->get_image_license() ) );
+		imageLicenseText->setToolTip( pDrumkitInfo->get_image_license().toQString() );
 	}
 
 }
@@ -181,18 +181,28 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 		m_pDrumkitInfo->set_name( nameTxt->text() );
 		m_pDrumkitInfo->set_author( authorTxt->text() );
 		m_pDrumkitInfo->set_info( infoTxt->toHtml() );
-		m_pDrumkitInfo->set_license( licenseTxt->text() );
+
+		License license = m_pDrumkitInfo->get_license();
+		license.parse( licenseTxt->text() );
+		m_pDrumkitInfo->set_license( license );
+		
 		m_pDrumkitInfo->set_image( imageText->text() );
-		m_pDrumkitInfo->set_image_license( imageLicenseText->text() );
+		
+		License imageLicense = m_pDrumkitInfo->get_license();
+		imageLicense.parse( imageLicenseText->text() );
+		m_pDrumkitInfo->set_image_license( imageLicense );
 	}
 
 	//save the drumkit
 	// Note: The full path of the image is passed to make copying to a new drumkit easy
 	if( m_pDrumkitInfo != nullptr ) {
+
+		License license( licenseTxt->text() );
+
 		if( !H2Core::Drumkit::save( nameTxt->text(),
 									authorTxt->text(),
 									infoTxt->toHtml(),
-									licenseTxt->text(),
+									license,
 									m_pDrumkitInfo->get_path() + "/" + m_pDrumkitInfo->get_image(),
 									m_pDrumkitInfo->get_image_license(),
 									H2Core::Hydrogen::get_instance()->getSong()->getInstrumentList(),

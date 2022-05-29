@@ -77,5 +77,7 @@ void LicenseTest::testParsing() {
 
 	License licenseEmpty_0("");
 	CPPUNIT_ASSERT( licenseEmpty_0.getType() == License::Unspecified );
+	License licenseEmpty_1("undefined license");
+	CPPUNIT_ASSERT( licenseEmpty_1.getType() == License::Unspecified );
 
 }

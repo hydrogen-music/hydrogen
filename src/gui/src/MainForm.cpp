@@ -1320,9 +1320,9 @@ void MainForm::action_instruments_saveLibrary()
 		if( !H2Core::Drumkit::save( QString( pDrumkitInfo->get_name() ),
 									QString( pDrumkitInfo->get_author() ),
 									QString( pDrumkitInfo->get_info() ),
-									QString( pDrumkitInfo->get_license() ),
+									pDrumkitInfo->get_license(),
 									QString( pDrumkitInfo->get_image() ),
-									QString( pDrumkitInfo->get_image_license() ),
+									pDrumkitInfo->get_image_license(),
 									H2Core::Hydrogen::get_instance()->getSong()->getInstrumentList(),
 									H2Core::Hydrogen::get_instance()->getSong()->getComponents(),
 									true ) ) {
