@@ -88,7 +88,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_bPlaybackTrackEnabled( false )
 	, m_fPlaybackTrackVolume( 0.0 )
 	, m_pVelocityAutomationPath( nullptr )
-	, m_sLicense( "" )
+	, m_license( License() )
 	, m_actionMode( ActionMode::selectMode )
 	, m_bIsPatternEditorLocked( false )
 	, m_nPanLawType ( Sampler::RATIO_STRAIGHT_POLYGONAL )
@@ -215,7 +215,7 @@ std::shared_ptr<Song> Song::getEmptySong()
 
 	pSong->setMetronomeVolume( 0.5 );
 	pSong->setNotes( "..." );
-	pSong->setLicense( "" );
+	pSong->setLicense( License() );
 	pSong->setLoopMode( Song::LoopMode::Disabled );
 	pSong->setMode( Song::Mode::Pattern );
 	pSong->setHumanizeTimeValue( 0.0 );
@@ -463,7 +463,7 @@ QString Song::copyInstrumentLineToString( int nSelectedPattern, int nSelectedIns
 	//LIB_ID just in work to get better usability
 	//LocalFileMng::writeXmlString( &rootNode, "LIB_ID", "in_work" );
 	LocalFileMng::writeXmlString( rootNode, "author", getAuthor() );
-	LocalFileMng::writeXmlString( rootNode, "license", getLicense() );
+	LocalFileMng::writeXmlString( rootNode, "license", getLicense().toQString() );
 
 	QDomNode patternList = doc.createElement( "patternList" );
 
@@ -861,7 +861,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_bPlaybackTrackEnabled: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bPlaybackTrackEnabled ) )
 			.append( QString( "%1%2m_fPlaybackTrackVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPlaybackTrackVolume ) )
 			.append( QString( "%1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2m_sLicense: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sLicense ) )
+			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s ).arg( m_license.toQString() ) )
 			.append( QString( "%1%2m_actionMode: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( static_cast<int>(m_actionMode) ) )
 			.append( QString( "%1%2m_nPanLawType: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nPanLawType ) )
@@ -916,7 +916,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_bPlaybackTrackEnabled: %1" ).arg( m_bPlaybackTrackEnabled ) )
 			.append( QString( ", m_fPlaybackTrackVolume: %1" ).arg( m_fPlaybackTrackVolume ) )
 			.append( QString( ", m_pVelocityAutomationPath: %1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix ) ) )
-			.append( QString( ", m_sLicense: %1" ).arg( m_sLicense ) )
+			.append( QString( ", m_license: %1" ).arg( m_license.toQString() ) )
 			.append( QString( ", m_actionMode: %1" ).arg( static_cast<int>(m_actionMode) ) )
 			.append( QString( ", m_nPanLawType: %1" ).arg( m_nPanLawType ) )
 			.append( QString( ", m_fPanLawKNorm: %1" ).arg( m_fPanLawKNorm ) )
@@ -1011,7 +1011,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	QString sName( LocalFileMng::readXmlString( songNode, "name", "Untitled Song" ) );
 	QString sAuthor( LocalFileMng::readXmlString( songNode, "author", "Unknown Author" ) );
 	QString sNotes( LocalFileMng::readXmlString( songNode, "notes", "..." ) );
-	QString sLicense( LocalFileMng::readXmlString( songNode, "license", "Unknown license" ) );
+	License license( LocalFileMng::readXmlString( songNode, "license", "" ) );
 	bool bLoopEnabled = LocalFileMng::readXmlBool( songNode, "loopEnabled", false );
 	bool bPatternMode =
 		LocalFileMng::readXmlBool( songNode, "patternModeMode",
@@ -1062,7 +1062,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	pSong = std::make_shared<Song>( sName, sAuthor, fBpm, fVolume );
 	pSong->setMetronomeVolume( fMetronomeVolume );
 	pSong->setNotes( sNotes );
-	pSong->setLicense( sLicense );
+	pSong->setLicense( license );
 	if ( bLoopEnabled ) {
 		pSong->setLoopMode( Song::LoopMode::Enabled );
 	} else {

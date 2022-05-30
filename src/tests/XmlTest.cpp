@@ -33,6 +33,7 @@
 #include <core/Basics/Sample.h>
 #include <core/Basics/Playlist.h>
 #include <core/Hydrogen.h>
+#include <core/License.h>
 #include <core/CoreActionController.h>
 
 #include <QDir>
@@ -354,7 +355,7 @@ void XmlTest::testPattern()
 	pPatternLoaded = H2Core::Pattern::load_file( H2TEST_FILE( "/pattern/pat.h2pattern" ), pInstrumentList );
 	CPPUNIT_ASSERT( pPatternLoaded );
 
-	CPPUNIT_ASSERT( pPatternLoaded->save_file( "dk_name", "author", "license", sPatternPath, true ) );
+	CPPUNIT_ASSERT( pPatternLoaded->save_file( "dk_name", "author", H2Core::License(), sPatternPath, true ) );
 
 	// Check for double freeing when destructing both copy and original.
 	pPatternCopied = new H2Core::Pattern( pPatternLoaded );
@@ -368,7 +369,7 @@ void XmlTest::testPattern()
 
 	// Check whether the constructor produces valid patterns.
 	pPatternNew = new H2Core::Pattern( "test", "ladida", "", 1, 1 );
-	CPPUNIT_ASSERT( pPatternLoaded->save_file( "dk_name", "author", "license", sPatternPath, true ) );
+	CPPUNIT_ASSERT( pPatternLoaded->save_file( "dk_name", "author", H2Core::License(), sPatternPath, true ) );
 	CPPUNIT_ASSERT( doc.read( sPatternPath, H2Core::Filesystem::pattern_xsd_path() ) );
 	pPatternReloaded = H2Core::Pattern::load_file( sPatternPath, pInstrumentList );
 	CPPUNIT_ASSERT( pPatternReloaded != nullptr );

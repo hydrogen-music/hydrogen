@@ -23,6 +23,7 @@
 #include "SongPropertiesDialog.h"
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
+#include <core/License.h>
 
 #include <QPixmap>
 
@@ -44,7 +45,7 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 
 	authorTxt->setText( pSong->getAuthor() );
 	notesTxt->append( pSong->getNotes() );
-	licenseTxt->setText( pSong->getLicense() );
+	licenseTxt->setText( pSong->getLicense().toQString() );
 }
 
 
@@ -77,8 +78,8 @@ void SongPropertiesDialog::on_okBtn_clicked()
 		pSong->setNotes( notesTxt->toPlainText() );
 		bIsModified = true;
 	}
-	if ( pSong->getLicense() != licenseTxt->text() ) {
-		pSong->setLicense( licenseTxt->text() );
+	if ( pSong->getLicense().toQString() != licenseTxt->text() ) {
+		pSong->setLicense( License( licenseTxt->text() ) );
 		bIsModified = true;
 	}
 

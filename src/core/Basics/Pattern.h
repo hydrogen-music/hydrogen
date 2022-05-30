@@ -25,6 +25,7 @@
 
 #include <set>
 #include <memory>
+#include <core/License.h>
 #include <core/Object.h>
 #include <core/Basics/Note.h>
 
@@ -85,7 +86,7 @@ class Pattern : public H2Core::Object<Pattern>
 		 * \param overwrite allows to write over existing pattern file
 		 * \return true on success
 		 */
-		bool save_file( const QString& drumkit_name, const QString& author, const QString& license, const QString& pattern_path, bool overwrite=false ) const; 
+		bool save_file( const QString& drumkit_name, const QString& author, const License& license, const QString& pattern_path, bool overwrite=false ) const; 
 
 		///< set the name of the pattern
 		void set_name( const QString& name );

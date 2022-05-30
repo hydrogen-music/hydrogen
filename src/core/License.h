@@ -45,7 +45,7 @@ class License : public H2Core::Object<License>
 	H2_OBJECT(License)
 public:
 
-	License( const QString& sRawLicense );
+	License( const QString& sRawLicense = "" );
 	License( const License* pOther );
 	~License();
 

@@ -422,7 +422,7 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 	LocalFileMng::writeXmlString( songNode, "name", pSong->getName() );
 	LocalFileMng::writeXmlString( songNode, "author", pSong->getAuthor() );
 	LocalFileMng::writeXmlString( songNode, "notes", pSong->getNotes() );
-	LocalFileMng::writeXmlString( songNode, "license", pSong->getLicense() );
+	LocalFileMng::writeXmlString( songNode, "license", pSong->getLicense().toQString() );
 	LocalFileMng::writeXmlBool( songNode, "loopEnabled", pSong->isLoopEnabled() );
 
 	bool bPatternMode = static_cast<bool>(Song::PatternMode::Selected);

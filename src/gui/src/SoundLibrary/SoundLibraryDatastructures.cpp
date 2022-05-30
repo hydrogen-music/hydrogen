@@ -163,7 +163,7 @@ SoundLibraryInfo::SoundLibraryInfo(const QString &path)
 	{
 		setType( "pattern" );
 		setAuthor( LocalFileMng::readXmlString( rootNode,"author", "undefined author" ) );
-		setLicense( LocalFileMng::readXmlString( rootNode,"license", "undefined license" ) );
+		setLicense( H2Core::License( LocalFileMng::readXmlString( rootNode,"license", "" ) ) );
 
 		QDomNode patternNode = rootNode.firstChildElement( "pattern" );
 		setName( LocalFileMng::readXmlString( patternNode,"pattern_name", "" ) );
@@ -181,11 +181,11 @@ SoundLibraryInfo::SoundLibraryInfo(const QString &path)
 	{
 		setType( "drumkit" );
 		setAuthor( LocalFileMng::readXmlString( rootNode,"author", "undefined author" ) );
-		setLicense( LocalFileMng::readXmlString( rootNode,"license", "undefined license" ) );
+		setLicense( H2Core::License( LocalFileMng::readXmlString( rootNode,"license", "" ) ) );
 		setName( LocalFileMng::readXmlString( rootNode,"name", "" ) );
 		setInfo( LocalFileMng::readXmlString( rootNode,"info", "No information available." ) );
 		setImage( LocalFileMng::readXmlString( rootNode,"image", "" ) );
-		setImageLicense( LocalFileMng::readXmlString( rootNode,"imageLicense", "undefined license" ) );
+		setImageLicense( H2Core::License( LocalFileMng::readXmlString( rootNode,"imageLicense", "" ) ) );
 
 		//setCategory( LocalFileMng::readXmlString( rootNode,"category", "" ) );
 	}
@@ -196,7 +196,7 @@ SoundLibraryInfo::SoundLibraryInfo(const QString &path)
 	{
 		setType( "song" );
 		setAuthor( LocalFileMng::readXmlString( rootNode,"author", "undefined author" ) );
-		setLicense( LocalFileMng::readXmlString( rootNode,"license", "undefined license" ) );
+		setLicense( H2Core::License( LocalFileMng::readXmlString( rootNode,"license", "" ) ) );
 		setName( LocalFileMng::readXmlString( rootNode,"name", "" ) );
 		setInfo( LocalFileMng::readXmlString( rootNode,"info", "No information available." ) );
 		//setCategory( LocalFileMng::readXmlString( rootNode,"category", "" ) );

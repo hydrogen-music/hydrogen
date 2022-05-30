@@ -52,8 +52,8 @@ Drumkit::Drumkit() : __samples_loaded( false ),
 					 __name( "empty" ),
 					 __author( "undefined author" ),
 					 __info( "No information available." ),
-					 __license( "" ),
-					 __imageLicense( "" )
+					 __license( License() ),
+					 __imageLicense( License() )
 {
 	__components = new std::vector<DrumkitComponent*> ();
 	__instruments = new InstrumentList();
