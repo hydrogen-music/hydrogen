@@ -28,8 +28,10 @@
 class LicenseTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( LicenseTest );
 	CPPUNIT_TEST( testParsing );
+	CPPUNIT_TEST( testOperators );
 	CPPUNIT_TEST_SUITE_END();
 	
 public:
 	void testParsing();
+	void testOperators();
 };

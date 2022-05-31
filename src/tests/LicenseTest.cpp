@@ -81,3 +81,21 @@ void LicenseTest::testParsing() {
 	CPPUNIT_ASSERT( licenseEmpty_1.getType() == License::Unspecified );
 
 }
+
+void LicenseTest::testOperators() {
+	License licenseCC0_0("cc0");
+	License licenseCC0_1("CC-0");
+	License licenseCC_BY("CC BY");
+	
+	CPPUNIT_ASSERT( licenseCC0_0 == licenseCC0_1 );
+	CPPUNIT_ASSERT( licenseCC0_0 != licenseCC_BY );
+	CPPUNIT_ASSERT( licenseCC0_1 != licenseCC_BY );
+
+	// Check that two licenses of type License::Other differ if the
+	// raw string is not the same.
+	License licenseBSD_0("BSD");
+	License licenseBSD_1("BSD");
+	License licenseBSD_2("bsd");
+	CPPUNIT_ASSERT( licenseBSD_0 == licenseBSD_1 );
+	CPPUNIT_ASSERT( licenseBSD_1 != licenseBSD_2 );
+}

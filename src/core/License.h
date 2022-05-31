@@ -88,6 +88,34 @@ public:
 	LicenseType getType() const;
 	void setType( LicenseType license );
 
+	bool operator==( const License& other ) const {
+		if ( m_license == other.m_license ) {
+			if ( m_license == License::Other &&
+				 m_sRawLicense != other.m_sRawLicense ) {
+				return false;
+			}
+			else {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool operator!=( const License& other ) const {
+		if ( m_license == other.m_license ) {
+			if ( m_license == License::Other &&
+				 m_sRawLicense != other.m_sRawLicense ) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 private:
 	LicenseType m_license;
 	QString m_sRawLicense;
