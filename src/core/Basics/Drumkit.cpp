@@ -215,6 +215,12 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 	} else {
 		pDrumkit->set_instruments( InstrumentList::load_from( &instruments_node, dk_path, drumkit_name, bSilent ) );
 	}
+
+	// Instead of making the *::load_from() functions more complex by
+	// passing the license down to each sample, we will make the
+	// drumkit assign its license to each sample in here.
+	pDrumkit->propagateLicense();
+	
 	return pDrumkit;
 
 }
@@ -514,6 +520,72 @@ void Drumkit::set_components( std::vector<DrumkitComponent*>* components )
 	
 	delete __components;
 	__components = components;
+}
+
+void Drumkit::propagateLicense() {
+
+	for ( const auto& ppInstrument : *__instruments ) {
+		if ( ppInstrument != nullptr ) {
+			for ( const auto& ppInstrumentComponent : *ppInstrument->get_components() ) {
+				if ( ppInstrumentComponent != nullptr ) {
+					for ( const auto& ppInstrumentLayer : *ppInstrumentComponent ) {
+						if ( ppInstrumentLayer != nullptr ) {
+							auto pSample = ppInstrumentLayer->get_sample();
+							if ( pSample != nullptr ) {
+								pSample->setLicense( get_license() );
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+std::vector<QStringList> Drumkit::checkLicense() const {
+	std::vector<QStringList> results;
+
+	for ( const auto& ppInstrument : *__instruments ) {
+		if ( ppInstrument != nullptr ) {
+			for ( const auto& ppInstrumentComponent : *ppInstrument->get_components() ) {
+				if ( ppInstrumentComponent != nullptr ) {
+					for ( const auto& ppInstrumentLayer : *ppInstrumentComponent ) {
+						if ( ppInstrumentLayer != nullptr ) {
+							auto pSample = ppInstrumentLayer->get_sample();
+							if ( pSample != nullptr ) {
+								if ( pSample->getLicense() != get_license() ) {
+
+									// Map component ID to component
+									// name.
+									bool bFound = false;
+									QString sComponentName;
+									for ( const auto& ppDrumkitComponent : *__components ) {
+										if ( ppInstrumentComponent->get_drumkit_componentID() ==
+											 ppDrumkitComponent->get_id() ) {
+											bFound = true;
+											sComponentName = ppDrumkitComponent->get_name();
+											break;
+										}
+									}
+
+									if ( ! bFound ) {
+										sComponentName = __components->front()->get_name();
+									}
+									
+									results.push_back( QStringList() <<
+													   ppInstrument->get_name() <<
+													   sComponentName <<
+													   pSample->get_filename() );
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return std::move( results );
 }
 
 bool Drumkit::remove( const QString& sDrumkitName, Filesystem::Lookup lookup )

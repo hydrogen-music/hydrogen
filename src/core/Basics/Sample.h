@@ -27,6 +27,7 @@
 #include <vector>
 #include <sndfile.h>
 
+#include <core/License.h>
 #include <core/Object.h>
 
 namespace H2Core
@@ -131,12 +132,13 @@ class Sample : public H2Core::Object<Sample>
 		/**
 		 * Sample constructor
 		 * \param filepath the path to the sample
+		 * \param license associated with the sample
 		 * \param frames the number of frames per channel in the sample
 		 * \param sample_rate the sample rate of the sample
 		 * \param data_l the left channel array of data
 		 * \param data_r the right channel array of data
 		 */
-		Sample( const QString& filepath, int frames=0, int sample_rate=0, float* data_l=nullptr, float* data_r=nullptr );
+		Sample( const QString& filepath, const License& license = License(), int frames=0, int sample_rate=0, float* data_l=nullptr, float* data_r=nullptr );
 		/** copy constructor */
 		Sample( std::shared_ptr<Sample> other );
 		/** destructor */
@@ -158,6 +160,7 @@ class Sample : public H2Core::Object<Sample>
 		 * load() member on it.
 		 *
 		 * \param filepath the file to load audio data from
+		 * \param license associated with the sample
 		 *
 		 * \return Pointer to the newly initialized Sample. If
 		 * the provided @a filepath is not readable, a nullptr
@@ -165,7 +168,7 @@ class Sample : public H2Core::Object<Sample>
 		 *
 		 * \fn load(const QString& filepath)
 		 */
-		static std::shared_ptr<Sample> load( const QString& filepath);
+	static std::shared_ptr<Sample> load( const QString& filepath, const License& license = License() );
 	
 		/**
 		 * Load a sample from a file and apply the
@@ -177,6 +180,7 @@ class Sample : public H2Core::Object<Sample>
 		 * \param velocity envelope points
 		 * \param pan envelope points
 		 * \param fBpm tempo the Rubberband transformation will target
+		 * \param license associated with the sample
 		 *
 		 * \return Pointer to the newly initialized Sample. If
 		 * the provided @a filepath is not readable, a nullptr
@@ -184,7 +188,7 @@ class Sample : public H2Core::Object<Sample>
 		 *
 		 * \overload load(const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan)
 		 */
-		static std::shared_ptr<Sample> load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan, float fBpm );
+		static std::shared_ptr<Sample> load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan, float fBpm, const License& license = License() );
 
 		/**
 		 * Load the sample stored in #__filepath into
@@ -312,6 +316,10 @@ class Sample : public H2Core::Object<Sample>
 		Loops get_loops() const;
 		/** \return #__rubberband parameters */
 		Rubberband get_rubberband() const;
+
+	License getLicense() const;
+	void setLicense( const License& license );
+	
 		/**
 		 * parse the given string and rturn the corresponding loop_mode
 		 * \param string the loop mode text to be parsed
@@ -341,6 +349,20 @@ class Sample : public H2Core::Object<Sample>
 		Rubberband			__rubberband;        ///< set of rubberband parameters
 		/** loop modes string */
 		static const std::vector<QString> __loop_modes;
+
+	/** Transient property indicating the license associated with the
+	 * sample.
+	 *
+	 * This variable is not stored on disk but either derived from the
+	 * license of the drumkit containing the sample or specified by
+	 * the user when loading the it directly.
+	 *
+	 * It's value is only important for samples associated with a
+	 * drumkit (stored in the InstrumentLayers of a kit). For "free"
+	 * ones, like metronome or sound feedback when inserting notes in
+	 * the Pattern Editor, it does not have to be specified.
+	 */
+	License m_license;
 };
 
 // DEFINITIONS
@@ -449,6 +471,13 @@ inline Sample::Loops Sample::get_loops() const
 inline Sample::Rubberband Sample::get_rubberband() const
 {
 	return __rubberband;
+}
+
+inline License Sample::getLicense() const {
+	return m_license;
+}
+inline void Sample::setLicense( const License& license ) {
+	m_license = license;
 }
 
 };

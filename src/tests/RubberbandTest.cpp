@@ -21,6 +21,7 @@
  */
 
 #include "core/Basics/Sample.h"
+#include "core/License.h"
 
 #include <sndfile.h>
 #ifdef H2CORE_HAVE_RUBBERBAND
@@ -138,7 +139,12 @@ void rubberband_test( const QString& sample_path ) {
 	memcpy( data_r, out_data_r, retrieved*sizeof(float) );
 	
 	// new sample
-	auto sample2 = std::make_shared<H2Core::Sample>( "/tmp/after.wav", retrieved, sample->get_sample_rate(), data_l, data_r );
+	auto sample2 = std::make_shared<H2Core::Sample>( "/tmp/after.wav",
+													 H2Core::License(),
+													 retrieved,
+													 sample->get_sample_rate(),
+													 data_l,
+													 data_r );
 	sample2->write( "/tmp/after.wav" );
 	
 	// clean

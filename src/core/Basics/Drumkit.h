@@ -309,6 +309,22 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 		std::vector<DrumkitComponent*>* get_components();
 		void set_components( std::vector<DrumkitComponent*>* components );
+
+	/**
+	 * Assign the license stored in #m_license to all samples
+	 * contained in the kit.
+	 */
+	void propagateLicense();
+	/**
+	 * Check whether any of the contained samples has a license
+	 * deviating from #m_license.
+	 *
+	 * In case a deviation was found instrument, component, and sample
+	 * named are concatened to a QStringList and provided in the
+	 * output vector.
+	 */
+	std::vector<QStringList> checkLicense() const;
+	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
