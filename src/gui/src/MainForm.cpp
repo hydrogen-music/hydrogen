@@ -299,6 +299,8 @@ void MainForm::createMenuBar()
 	
 	m_pFileMenu->addAction( sLabelNew, this, SLOT( action_file_new() ), QKeySequence( "Ctrl+N" ) );
 	
+	m_pFileMenu->addSeparator();				// -----
+	
 	m_pFileMenu->addAction( tr( "Song Properties" ), this, SLOT( action_file_songProperties() ), QKeySequence( "" ) );
 	
 	m_pFileMenu->addSeparator();				// -----
