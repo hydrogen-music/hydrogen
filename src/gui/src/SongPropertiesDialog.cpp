@@ -45,7 +45,17 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 
 	authorTxt->setText( pSong->getAuthor() );
 	notesTxt->append( pSong->getNotes() );
-	licenseTxt->setText( pSong->getLicense().toQString() );
+	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),
+			 this, SLOT( licenseComboBoxChanged( int ) ) );
+
+	setupLicenseComboBox( licenseComboBox );
+	licenseComboBox->setCurrentIndex( static_cast<int>( pSong->getLicense().getType() ) );
+	if ( pSong->getLicense().getType() == License::Other ) {
+		licenseTxt->setText( pSong->getLicense().toQString() );
+	}
+	else {
+		licenseTxt->hide();
+	}
 }
 
 
@@ -54,6 +64,15 @@ SongPropertiesDialog::~SongPropertiesDialog()
 {
 }
 
+void SongPropertiesDialog::licenseComboBoxChanged( int ) {
+
+	if ( licenseComboBox->currentIndex() == static_cast<int>(License::Other) ) {
+		licenseTxt->show();
+	}
+	else {
+		licenseTxt->hide();
+	}
+}
 
 void SongPropertiesDialog::on_cancelBtn_clicked()
 {
@@ -78,8 +97,19 @@ void SongPropertiesDialog::on_okBtn_clicked()
 		pSong->setNotes( notesTxt->toPlainText() );
 		bIsModified = true;
 	}
-	if ( pSong->getLicense().toQString() != licenseTxt->text() ) {
-		pSong->setLicense( License( licenseTxt->text() ) );
+	if ( static_cast<int>(pSong->getLicense().getType()) !=
+		 licenseComboBox->currentIndex() ) {
+
+		auto license = pSong->getLicense();
+		
+		if ( licenseComboBox->currentIndex() ==
+			 static_cast<int>(License::Other) ) {
+			license.parse( licenseTxt->text() );
+		}
+		else {
+			license.setType( static_cast<License::LicenseType>(licenseComboBox->currentIndex()) );
+		}
+		pSong->setLicense( license );
 		bIsModified = true;
 	}
 

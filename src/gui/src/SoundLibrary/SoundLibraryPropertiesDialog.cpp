@@ -45,16 +45,41 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 	adjustSize();
 	setMinimumSize( width(), height() );
 
+	setupLicenseComboBox( licenseComboBox );
+	connect( licenseComboBox, SIGNAL( currentIndexChanged( int ) ),
+			 this, SLOT( licenseComboBoxChanged( int ) ) );
+	setupLicenseComboBox( imageLicenseComboBox );
+	connect( imageLicenseComboBox, SIGNAL( currentIndexChanged( int ) ),
+			 this, SLOT( imageLicenseComboBoxChanged( int ) ) );
+
 	//display the current drumkit infos into the qlineedit
 	if ( pDrumkitInfo != nullptr ){
 		nameTxt->setText( QString( pDrumkitInfo->get_name() ) );
 		authorTxt->setText( QString( pDrumkitInfo->get_author() ) );
 		infoTxt->append( QString( pDrumkitInfo->get_info() ) );
-		licenseTxt->setText( pDrumkitInfo->get_license().toQString() );
-		imageText->setText( QString ( pDrumkitInfo->get_image() ) );
-		imageLicenseText->setText( pDrumkitInfo->get_image_license().toQString() );
-		// Licence with attribution is often too long...
-		imageLicenseText->setToolTip( pDrumkitInfo->get_image_license().toQString() );
+
+		License license = pDrumkitInfo->get_license();
+		licenseComboBox->setCurrentIndex( static_cast<int>( license.getType() ) );
+		if ( license.getType() == License::Other ) {
+			licenseTxt->setText( license.toQString() );
+		}
+		else {
+			licenseTxt->hide();
+		}
+	
+		imageText->setText( QString( pDrumkitInfo->get_image() ) );
+
+		License imageLicense = pDrumkitInfo->get_image_license();
+		imageLicenseComboBox->setCurrentIndex( static_cast<int>( imageLicense.getType() ) );
+		if ( imageLicense.getType() == License::Other ) {
+			imageLicenseText->setText( imageLicense.toQString() );
+			// Licence with attribution is often too long...
+			imageLicenseText->setToolTip( imageLicense.toQString() );
+		
+		}
+		else {
+			imageLicenseText->hide();
+		}
 	}
 
 }
@@ -73,6 +98,29 @@ SoundLibraryPropertiesDialog::~SoundLibraryPropertiesDialog()
 {
 	INFOLOG( "DESTROY" );
 
+}
+
+	
+void SoundLibraryPropertiesDialog::licenseComboBoxChanged( int ) {
+
+	if ( licenseComboBox->currentIndex() == static_cast<int>(License::Other) ) {
+		licenseTxt->show();
+	}
+	else {
+		licenseTxt->hide();
+	}
+}
+
+	
+void SoundLibraryPropertiesDialog::imageLicenseComboBoxChanged( int ) {
+
+	if ( imageLicenseComboBox->currentIndex() ==
+		 static_cast<int>(License::Other) ) {
+		imageLicenseText->show();
+	}
+	else {
+		imageLicenseText->hide();
+	}
 }
 
 void SoundLibraryPropertiesDialog::updateImage( QString& filename )
@@ -183,26 +231,31 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 		m_pDrumkitInfo->set_info( infoTxt->toHtml() );
 
 		License license = m_pDrumkitInfo->get_license();
-		license.parse( licenseTxt->text() );
+		if ( licenseComboBox->currentIndex() ==
+			 static_cast<int>(License::Other) ) {
+			license.parse( licenseTxt->text() );
+		}
+		else {
+			license.setType( static_cast<License::LicenseType>(licenseComboBox->currentIndex()) );
+		}
 		m_pDrumkitInfo->set_license( license );
 		
 		m_pDrumkitInfo->set_image( imageText->text() );
 		
 		License imageLicense = m_pDrumkitInfo->get_license();
-		imageLicense.parse( imageLicenseText->text() );
+		if ( imageLicenseComboBox->currentIndex() ==
+			 static_cast<int>(License::Other) ) {
+			imageLicense.parse( imageLicenseText->text() );
+		}
+		else {
+			imageLicense.setType( static_cast<License::LicenseType>(imageLicenseComboBox->currentIndex()) );
+		}
 		m_pDrumkitInfo->set_image_license( imageLicense );
-	}
-
-	//save the drumkit
-	// Note: The full path of the image is passed to make copying to a new drumkit easy
-	if( m_pDrumkitInfo != nullptr ) {
-
-		License license( licenseTxt->text() );
 
 		if( !H2Core::Drumkit::save( nameTxt->text(),
 									authorTxt->text(),
 									infoTxt->toHtml(),
-									license,
+									m_pDrumkitInfo->get_license(),
 									m_pDrumkitInfo->get_path() + "/" + m_pDrumkitInfo->get_image(),
 									m_pDrumkitInfo->get_image_license(),
 									H2Core::Hydrogen::get_instance()->getSong()->getInstrumentList(),

@@ -25,6 +25,7 @@
 
 #include "ui_SoundLibraryPropertiesDialog_UI.h"
 #include <core/Object.h>
+#include "../Widgets/WidgetWithLicenseProperty.h"
 
 ///
 ///
@@ -34,7 +35,10 @@ namespace H2Core
 class Drumkit;
 
 /** \ingroup docGUI*/
-class SoundLibraryPropertiesDialog :  public QDialog, public Ui_SoundLibraryPropertiesDialog_UI,  public H2Core::Object<SoundLibraryPropertiesDialog>
+class SoundLibraryPropertiesDialog :  public QDialog,
+									  protected WidgetWithLicenseProperty,
+									  public Ui_SoundLibraryPropertiesDialog_UI,
+									  public H2Core::Object<SoundLibraryPropertiesDialog>
 {
 	H2_OBJECT(SoundLibraryPropertiesDialog)
 	Q_OBJECT
@@ -46,6 +50,8 @@ class SoundLibraryPropertiesDialog :  public QDialog, public Ui_SoundLibraryProp
 	private slots:
 		void on_saveBtn_clicked();
 		void on_imageBrowsePushButton_clicked();
+	void licenseComboBoxChanged( int );
+	void imageLicenseComboBoxChanged( int );
 
 	private:
 		void updateImage( QString& filename );

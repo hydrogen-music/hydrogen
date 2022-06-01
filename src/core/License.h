@@ -52,22 +52,22 @@ public:
 	/** A couple of recognized licenses. The ones supplied by Creative
 		Commons are the most desired ones.*/
 	enum LicenseType {
-		CC_0,
-		CC_BY,
-		CC_BY_NC,
-		CC_BY_SA,
-		CC_BY_NC_SA,
-		CC_BY_ND,
-		CC_BY_NC_ND,
+		CC_0 = 0,
+		CC_BY = 1,
+		CC_BY_NC = 2,
+		CC_BY_SA = 3,
+		CC_BY_NC_SA = 4,
+		CC_BY_ND = 5,
+		CC_BY_NC_ND = 6,
 		/** Not a desirable license for audio data but introduced here
 			specifically since it is already used by a number of kits.*/
-		GPL,
+		GPL = 7,
 		/** User decides with withhold all rights. */
-		AllRightsReserved,
+		AllRightsReserved = 8,
 		/** All other licenses not specified above.*/
-		Other,
+		Other = 9,
 		/** No license set yet.*/
-		Unspecified
+		Unspecified = 10
 	};
 
 	void parse( const QString& sRawLicense );
