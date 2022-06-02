@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>593</width>
-    <height>653</height>
+    <height>688</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -182,7 +182,7 @@
      </property>
     </widget>
    </item>
-   <item row="13" column="0" colspan="2">
+   <item row="14" column="0" colspan="2">
     <widget class="QLabel" name="drumkitImageLabel">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -193,7 +193,7 @@
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>175</height>
+       <height>75</height>
       </size>
      </property>
      <property name="palette">
@@ -250,7 +250,7 @@
      </property>
     </widget>
    </item>
-   <item row="15" column="0" colspan="2">
+   <item row="17" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
      <item>
       <widget class="QCheckBox" name="saveChanges_checkBox">
@@ -283,7 +283,7 @@
      </item>
     </layout>
    </item>
-   <item row="16" column="0" colspan="2">
+   <item row="18" column="0" colspan="2">
     <layout class="QHBoxLayout">
      <item>
       <spacer name="horizontalSpacer">
@@ -369,6 +369,16 @@
        <width>462</width>
        <height>21</height>
       </size>
+     </property>
+    </widget>
+   </item>
+   <item row="16" column="0" colspan="2">
+    <widget class="QTableWidget" name="contentTable"/>
+   </item>
+   <item row="15" column="0">
+    <widget class="QLabel" name="contentLabel">
+     <property name="text">
+      <string>Content</string>
      </property>
     </widget>
    </item>

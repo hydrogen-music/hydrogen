@@ -30,6 +30,7 @@
 #include "../InstrumentRack.h"
 #include "SoundLibraryPanel.h"
 #include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
 
 namespace H2Core
 {
@@ -80,16 +81,21 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 		else {
 			imageLicenseText->hide();
 		}
-	}
 
-}
+		contentTable->setColumnCount( 4 );
+		contentTable->setHorizontalHeaderLabels( QStringList() <<
+														 tr( "Instrument" ) <<
+														 tr( "Component" ) <<
+														 tr( "Sample" ) <<
+														 tr( "License" ) );
+		contentTable->verticalHeader()->hide();
+		contentTable->horizontalHeader()->setStretchLastSection( true );
 
-/// On showing the dialog (after layout sizes have been applied), load the drumkit image if any.
-void SoundLibraryPropertiesDialog::showEvent( QShowEvent *e )
-{
-	if ( m_pDrumkitInfo != nullptr ) {
-		QString sImage = m_pDrumkitInfo->get_path() + "/" + m_pDrumkitInfo->get_image();
-		updateImage( sImage );
+		contentTable->setColumnWidth( 0, 170 );
+		contentTable->setColumnWidth( 1, 80 );
+		contentTable->setColumnWidth( 2, 210 );
+		
+		updateLicenseTable();
 	}
 }
 
@@ -109,8 +115,80 @@ void SoundLibraryPropertiesDialog::licenseComboBoxChanged( int ) {
 	else {
 		licenseTxt->hide();
 	}
+
+	updateLicenseTable();
 }
 
+
+/// On showing the dialog (after layout sizes have been applied), load the drumkit image if any.
+void SoundLibraryPropertiesDialog::showEvent( QShowEvent *e )
+{
+	if ( m_pDrumkitInfo != nullptr &&
+		 ! m_pDrumkitInfo->get_image().isEmpty() ) {
+		QString sImage = m_pDrumkitInfo->get_path() + "/" + m_pDrumkitInfo->get_image();
+		updateImage( sImage );
+	}
+	else {
+		drumkitImageLabel->hide();
+	}
+}
+
+void SoundLibraryPropertiesDialog::updateLicenseTable() {
+	auto pPref = H2Core::Preferences::get_instance();
+	
+	std::vector<QStringList> content = m_pDrumkitInfo->summarizeContent();
+
+	if ( content.size() > 0 ) {
+		contentTable->show();
+		contentLabel->show();
+		contentTable->setRowCount( content.size() );
+
+		int nFirstMismatchRow = -1;
+
+		for ( int ii = 0; ii < content.size(); ++ii ) {
+			QLineEdit* pInstrumentItem = new QLineEdit( content[ ii ][ 0 ] );
+			pInstrumentItem->setEnabled( false );
+			pInstrumentItem->setToolTip( content[ ii ][ 0 ] );
+			QLineEdit* pComponentItem = new QLineEdit( content[ ii ][ 1 ] );
+			pComponentItem->setEnabled( false );
+			pComponentItem->setToolTip( content[ ii ][ 1 ] );
+			QLineEdit* pSampleItem = new QLineEdit( content[ ii ][ 2 ] );
+			pSampleItem->setEnabled( false );
+			pSampleItem->setToolTip( content[ ii ][ 2 ] );
+			QLineEdit* pLicenseItem = new QLineEdit( content[ ii ][ 3 ] );
+			pLicenseItem->setEnabled( false );
+			pLicenseItem->setToolTip( content[ ii ][ 3 ] );
+
+			// In case of a license mismatch we highlight the row
+			if ( content[ ii ][ 3 ] != m_pDrumkitInfo->get_license().toQString() ) {
+				QString sRed = QString( "color: %1;" )
+					.arg( pPref->getColorTheme()->m_buttonRedColor.name() );
+				pInstrumentItem->setStyleSheet( sRed );
+				pComponentItem->setStyleSheet( sRed );
+				pSampleItem->setStyleSheet( sRed );
+				pLicenseItem->setStyleSheet( sRed );
+
+				if ( nFirstMismatchRow == -1 ) {
+					nFirstMismatchRow = ii;
+				}
+			}
+
+			contentTable->setCellWidget( ii, 0, pInstrumentItem );
+			contentTable->setCellWidget( ii, 1, pComponentItem );
+			contentTable->setCellWidget( ii, 2, pSampleItem );
+			contentTable->setCellWidget( ii, 3, pLicenseItem );
+		}
+
+		// In case of a mismatch scroll into view
+		if ( nFirstMismatchRow != -1 ) {
+			contentTable->showRow( nFirstMismatchRow );
+		}
+	}
+	else {
+		contentTable->hide();
+		contentLabel->hide();
+	}
+}
 	
 void SoundLibraryPropertiesDialog::imageLicenseComboBoxChanged( int ) {
 
@@ -126,6 +204,14 @@ void SoundLibraryPropertiesDialog::imageLicenseComboBoxChanged( int ) {
 void SoundLibraryPropertiesDialog::updateImage( QString& filename )
 {
 	QPixmap *pPixmap = new QPixmap ( filename );
+
+	// Check whether the loading worked.
+	if ( pPixmap->isNull() ) {
+		ERRORLOG( QString( "Unable to load pixmap from [%1]" ).arg( filename ) );
+		drumkitImageLabel->hide();
+		return;
+	}
+	
 	// scale the image down to fit if required
 	int x = (int) drumkitImageLabel->size().width();
 	int y = drumkitImageLabel->size().height();

@@ -316,14 +316,10 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 */
 	void propagateLicense();
 	/**
-	 * Check whether any of the contained samples has a license
-	 * deviating from #m_license.
-	 *
-	 * In case a deviation was found instrument, component, and sample
-	 * named are concatened to a QStringList and provided in the
-	 * output vector.
+	 * Returns vector of lists containing instrument name, component
+	 * name, file name, the license of all associated samples.
 	 */
-	std::vector<QStringList> checkLicense() const;
+	std::vector<QStringList> summarizeContent() const;
 	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of

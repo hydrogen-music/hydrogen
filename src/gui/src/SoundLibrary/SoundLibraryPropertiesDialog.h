@@ -54,6 +54,7 @@ class SoundLibraryPropertiesDialog :  public QDialog,
 	void imageLicenseComboBoxChanged( int );
 
 	private:
+	void updateLicenseTable();
 		void updateImage( QString& filename );
 		/** The one selected by the user */
 		Drumkit* m_pDrumkitInfo;
