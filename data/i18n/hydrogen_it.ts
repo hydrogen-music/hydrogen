@@ -3654,19 +3654,19 @@ p, li { white-space: pre-wrap; }
     <name>SongEditor</name>
     <message>
         <source>&amp;Cut</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Taglia</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Copia</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Incolla</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Elimina</translation>
     </message>
     <message>
         <source>Select &amp;all</source>
@@ -3674,23 +3674,23 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Clear selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Pulisci selezione</translation>
     </message>
     <message>
         <source>Delete selected cells</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina celle selezionate</translation>
     </message>
     <message>
         <source>Paste cells</source>
-        <translation type="unfinished"></translation>
+        <translation>Incolla celle</translation>
     </message>
     <message>
         <source>Copy selected cells</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia celle selezionate</translation>
     </message>
     <message>
         <source>Move selected cells</source>
-        <translation type="unfinished"></translation>
+        <translation>Muovi celle selezionate</translation>
     </message>
 </context>
 <context>
@@ -3739,39 +3739,39 @@ Confermi?</translation>
     </message>
     <message>
         <source>stacked mode</source>
-        <translation>Pattern multipli</translation>
+        <translation>modalità multipli</translation>
     </message>
     <message>
         <source>stacked pattern mode</source>
-        <translation>Modalità pattern multipli</translation>
+        <translation>modalità pattern multipli</translation>
     </message>
     <message>
         <source>single pattern mode</source>
-        <translation>Modalità pattern singolo</translation>
+        <translation>modalità pattern singolo</translation>
     </message>
     <message>
         <source>Enable time line edit</source>
-        <translation>Abilita la modifica del timeline</translation>
+        <translation>Abilita la modifica della timeline</translation>
     </message>
     <message>
         <source>Pattern %1</source>
-        <translation>Modello %1</translation>
+        <translation>Pattern %1</translation>
     </message>
     <message>
         <source>View playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza traccia in riproduzione</translation>
     </message>
     <message>
         <source>Mute playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Isola traccia in riproduzione</translation>
     </message>
     <message>
         <source>Choose playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Scegli traccia da riprodurre</translation>
     </message>
     <message>
         <source>View timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza timeline</translation>
     </message>
     <message>
         <source>Adjust parameter values in time</source>
@@ -3779,7 +3779,7 @@ Confermi?</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished">Velocità</translation>
+        <translation>Velocità</translation>
     </message>
     <message>
         <source>Timeline usage is disabled in the presence of an external JACK timebase master</source>
@@ -3791,11 +3791,11 @@ Confermi?</translation>
     </message>
     <message>
         <source> Timeline = Off</source>
-        <translation type="unfinished"></translation>
+        <translation> Timeline = Off</translation>
     </message>
     <message>
         <source> Timeline = On</source>
-        <translation type="unfinished"></translation>
+        <translation> Timeline = On</translation>
     </message>
 </context>
 <context>
@@ -4018,46 +4018,46 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>Drumkit</source>
-        <translation type="unfinished">Drumkit</translation>
+        <translation>Drumkit</translation>
     </message>
     <message>
         <source>Component</source>
-        <translation type="unfinished"></translation>
+        <translation>Componente</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Percorso</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Versione</translation>
     </message>
     <message>
         <source>Browse...</source>
-        <translation type="unfinished">Cerca...</translation>
+        <translation>Cerca...</translation>
     </message>
     <message>
         <source>0.9.7 and higher</source>
-        <translation type="unfinished"></translation>
+        <translation>0.9.7 e superiori</translation>
     </message>
     <message>
         <source>0.9.6 and lower</source>
-        <translation type="unfinished"></translation>
+        <translation>0.9.6 e inferiori</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annulla</translation>
+        <translation>Annulla</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryImportDialog</name>
     <message>
         <source>Sound Library import</source>
-        <translation>Importa Sound Library</translation>
+        <translation>Importa libreria sonora</translation>
     </message>
     <message>
         <source>Sound library</source>
-        <translation>Sound Library</translation>
+        <translation>Libreria sonora</translation>
     </message>
     <message>
         <source>Status</source>
@@ -4065,7 +4065,7 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>Updating SoundLibrary list...</source>
-        <translation>Aggiorno la lista di Sound Library...</translation>
+        <translation>Aggiorno la lista delle librerie sonore...</translation>
     </message>
     <message>
         <source>Installed</source>
@@ -4081,7 +4081,7 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>Downloading SoundLibrary...</source>
-        <translation>Scarico la Sound Library...</translation>
+        <translation>Scaricamento libreria sonora...</translation>
     </message>
     <message>
         <source>Import drumkit</source>
@@ -4089,7 +4089,7 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>SoundLibrary imported in %1</source>
-        <translation>Sound Library importata in %1</translation>
+        <translation>Libreria sonora importata in %1</translation>
     </message>
     <message>
         <source>An error occurred importing the SoundLibrary.</source>
@@ -4097,7 +4097,7 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>Drumkits</source>
-        <translation>Drumkits</translation>
+        <translation>Drumkit</translation>
     </message>
     <message>
         <source>Songs</source>
@@ -4109,11 +4109,11 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>Drumkit License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza drumkit</translation>
     </message>
     <message>
         <source>Image License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza immagine: %1</translation>
     </message>
 </context>
 <context>
@@ -4128,11 +4128,11 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>Update list</source>
-        <translation>Aggiorna list</translation>
+        <translation>Aggiorna lista</translation>
     </message>
     <message>
         <source>Sound Library Name</source>
-        <translation>Nome libreria</translation>
+        <translation>Nome libreria sonora</translation>
     </message>
     <message>
         <source>Author...</source>
@@ -4168,30 +4168,30 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Image License...</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza immagine</translation>
     </message>
     <message>
         <source>Drumkit License...</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza drumkit...</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryOpenDialog</name>
     <message>
         <source>Open Sound Library</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri libreria sonora</translation>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished">Apri</translation>
+        <translation>Apri</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annulla</translation>
+        <translation>Annulla</translation>
     </message>
 </context>
 <context>
@@ -4284,7 +4284,7 @@ Current kit:</source>
     </message>
     <message>
         <source>Not implemented yet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Non ancora implementato.</translation>
     </message>
 </context>
 <context>
@@ -4311,23 +4311,23 @@ Current kit:</source>
     </message>
     <message>
         <source>Save changes made to instruments into sound library</source>
-        <translation>Salva le modifiche fatte agli strumenti nella libreria suoni</translation>
+        <translation>Salva le modifiche fatte agli strumenti nella libreria sonora</translation>
     </message>
     <message>
         <source>Drumkit License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza drumkit</translation>
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Immagine</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Cerca</translation>
+        <translation>Cerca</translation>
     </message>
     <message>
         <source>Image License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza immagine</translation>
     </message>
 </context>
 <context>
@@ -4361,18 +4361,18 @@ Current kit:</source>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Chiudi</translation>
+        <translation>Chiudi</translation>
     </message>
 </context>
 <context>
     <name>SoundLibrarySaveDialog</name>
     <message>
         <source>Save Sound Library</source>
-        <translation>Salva libreria</translation>
+        <translation>Salva libreria sonora</translation>
     </message>
     <message>
         <source>Please supply at least a valid name</source>
-        <translation>Fornisci un nome valido</translation>
+        <translation>Per piacere, indica almeno un nome valido</translation>
     </message>
     <message>
         <source>A library with the same name already exists. Do you want to overwrite the existing library?</source>
@@ -4380,22 +4380,22 @@ Current kit:</source>
     </message>
     <message>
         <source>Saving of this library failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Non è possibile salvare la libreria.</translation>
     </message>
     <message>
         <source>Open Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri immagine</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation>File immagine (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
     <name>SoundLibrarySaveDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation></translation>
+        <translation>Dialogo</translation>
     </message>
     <message>
         <source>Name</source>
@@ -4423,22 +4423,22 @@ Current kit:</source>
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Immagine</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Cerca</translation>
+        <translation>Cerca</translation>
     </message>
     <message>
         <source>Image License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza immagine</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryTree</name>
     <message>
         <source>Sound library</source>
-        <translation>Libreria</translation>
+        <translation>Libreria sonora</translation>
     </message>
 </context>
 <context>
