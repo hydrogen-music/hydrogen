@@ -52,7 +52,7 @@
     </message>
     <message>
         <source>A&amp;bout</source>
-        <translation>&amp;Informazioni su</translation>
+        <translation>&amp;Informazioni</translation>
     </message>
     <message>
         <source>&amp;Authors</source>
@@ -79,7 +79,7 @@
     <name>AudioEngineInfoForm</name>
     <message>
         <source>Audio Engine Info</source>
-        <translation>Informazioni audio engine</translation>
+        <translation>Informazioni sull'engine sonoro</translation>
     </message>
 </context>
 <context>
@@ -94,7 +94,7 @@
     </message>
     <message>
         <source>Audio engine state</source>
-        <translation>Stato engine audio</translation>
+        <translation>Stato engine sonoro</translation>
     </message>
     <message>
         <source>Song state</source>
@@ -205,7 +205,7 @@
     </message>
     <message>
         <source>Please do not preview samples which are longer than 10 minutes!</source>
-        <translation>Non suonare campioni più lunghi di 10 minuti!</translation>
+        <translation>Per piacere, non suonare campioni più lunghi di 10 minuti!</translation>
     </message>
     <message>
         <source>Sample length:</source>
@@ -213,11 +213,11 @@
     </message>
     <message>
         <source>Unable to load that sample file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Non è possibile caricare il campione.</translation>
     </message>
     <message>
         <source>Parent Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Cartella superiore</translation>
     </message>
     <message>
         <source>Home</source>
@@ -225,15 +225,15 @@
     </message>
     <message>
         <source>Play selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Esegui la voce selezionata</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Ferma</translation>
+        <translation>Ferma</translation>
     </message>
     <message>
         <source>Name: </source>
-        <translation type="unfinished"></translation>
+        <translation>Nome: </translation>
     </message>
 </context>
 <context>
@@ -268,7 +268,7 @@
     </message>
     <message>
         <source>Pla&amp;y samples by clicking</source>
-        <translation>&amp;Riproduci campioni al click</translation>
+        <translation>&amp;Riproduci campioni al clic</translation>
     </message>
     <message>
         <source>&amp;Up</source>
@@ -280,7 +280,7 @@
     </message>
     <message>
         <source>&amp;Play Sample</source>
-        <translation>&amp;Suona Campione</translation>
+        <translation>&amp;Esegui il campione</translation>
     </message>
     <message>
         <source>&amp;Filename to instrument name</source>
@@ -307,15 +307,15 @@
     <name>ComponentMixerLine</name>
     <message>
         <source>Mute</source>
-        <translation type="unfinished">Escludi</translation>
+        <translation>Escludi</translation>
     </message>
     <message>
         <source>Solo</source>
-        <translation type="unfinished">Solo</translation>
+        <translation>Assolo</translation>
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome componente</translation>
     </message>
     <message>
         <source>Set instrument volume [%1]</source>
@@ -358,43 +358,43 @@
     </message>
     <message>
         <source>Unable to load instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Non è possibile caricare lo strumento</translation>
     </message>
 </context>
 <context>
     <name>ExportMidiDialog</name>
     <message>
         <source>Export midi</source>
-        <translation type="unfinished"></translation>
+        <translation>Esportazione midi</translation>
     </message>
     <message>
         <source>SMF1 single: export all instruments to a single track</source>
-        <translation type="unfinished"></translation>
+        <translation>SMF1 singolo: esporta tutti gli strumenti in una singola traccia</translation>
     </message>
     <message>
         <source>SMF1 multi: export each instrument to separate track</source>
-        <translation type="unfinished"></translation>
+        <translation>SMF1 multiplo: esporta ogni strumento in una traccia separata</translation>
     </message>
     <message>
         <source>SMF0: export all events to one track</source>
-        <translation type="unfinished"></translation>
+        <translation>SMF0: esporta tutti gli eventi in una traccia</translation>
     </message>
     <message>
         <source>Midi file (*%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>File MIDI (*%1)</translation>
     </message>
     <message>
         <source>Export MIDI file</source>
-        <translation type="unfinished">Esporta MIDI file</translation>
+        <translation>Esporta file MIDI</translation>
     </message>
     <message>
         <source>Directory %1 does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>La directory %1 non esiste</translation>
     </message>
     <message>
         <source>The file %1 exists. 
 Overwrite the existing file?</source>
-        <translation type="unfinished">Il file %1 esiste.
+        <translation>Il file %1 esiste.
 Sovrascrivere il file esistente?</translation>
     </message>
 </context>
@@ -402,19 +402,19 @@ Sovrascrivere il file esistente?</translation>
     <name>ExportMidiDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialogo</translation>
+        <translation>Dialogo</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome file</translation>
     </message>
     <message>
         <source>&amp;Browse...</source>
-        <translation type="unfinished">&amp;Cerca...</translation>
+        <translation>&amp;Cerca...</translation>
     </message>
     <message>
         <source>Alt+B</source>
-        <translation type="unfinished">Alt+B</translation>
+        <translation>Alt+B</translation>
     </message>
     <message>
         <source>Modus:</source>
@@ -422,19 +422,19 @@ Sovrascrivere il file esistente?</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Esporta</translation>
+        <translation>&amp;Esporta</translation>
     </message>
     <message>
         <source>Alt+E</source>
-        <translation type="unfinished">Alt+E</translation>
+        <translation>Alt+E</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">&amp;Chiudi</translation>
+        <translation>&amp;Chiudi</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+C</translation>
+        <translation>Alt+C</translation>
     </message>
 </context>
 <context>
@@ -459,11 +459,11 @@ Sovrascrivere il file esistente?</translation>
     </message>
     <message>
         <source>Export to separate tracks</source>
-        <translation type="unfinished"></translation>
+        <translation>Esporta su tracce separate</translation>
     </message>
     <message>
         <source>Directory %1 does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>La directory %1 non esiste</translation>
     </message>
 </context>
 <context>
@@ -590,7 +590,7 @@ Sovrascrivere il file esistente?</translation>
     </message>
     <message>
         <source>Cosine</source>
-        <translation>Cosine</translation>
+        <translation>Coseno</translation>
     </message>
     <message>
         <source>Third</source>
@@ -626,11 +626,11 @@ Sovrascrivere il file esistente?</translation>
     </message>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialogo</translation>
+        <translation>Dialogo</translation>
     </message>
     <message>
         <source>Export directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Esporta directory:</translation>
     </message>
     <message>
         <source>Modus:</source>
@@ -638,7 +638,7 @@ Sovrascrivere il file esistente?</translation>
     </message>
     <message>
         <source>Choose type of interpolation method</source>
-        <translation type="unfinished"></translation>
+        <translation>Scegli il metodo di interpolazione</translation>
     </message>
 </context>
 <context>
@@ -652,23 +652,23 @@ Sovrascrivere il file esistente?</translation>
     <name>FilesystemInfoForm</name>
     <message>
         <source>Filesystem information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informazioni sul filesystem</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Apri</translation>
+        <translation>Apri</translation>
     </message>
     <message>
         <source>Temporary directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Directory temporanea</translation>
     </message>
     <message>
         <source>System data directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Directory con i dati di sistema</translation>
     </message>
     <message>
         <source>User data directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Directory con i dati utente</translation>
     </message>
 </context>
 <context>
@@ -694,7 +694,7 @@ Sovrascrivere il file esistente?</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Annulla</translation>
+        <translation>&amp;Annulla</translation>
     </message>
 </context>
 <context>
@@ -720,7 +720,7 @@ Sovrascrivere il file esistente?</translation>
     </message>
     <message>
         <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
-        <translation>Non è possibile, puoi salvare cambiamente solo per gli strumenti attualmente aggiunti alla libreria suoni</translation>
+        <translation>Non è possibile, puoi salvare le modifiche solo per gli strumenti attualmente aggiunti alla libreria suoni</translation>
     </message>
     <message>
         <source>Warning! Changing the drumkit name will result in creating a new drumkit with this name.
@@ -734,11 +734,11 @@ Sei sicuro?</translation>
     </message>
     <message>
         <source>Open Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri immagine</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation>File immagine (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
@@ -749,7 +749,7 @@ Sei sicuro?</translation>
     </message>
     <message>
         <source>Song Editor</source>
-        <translation>Editor di canzone</translation>
+        <translation>Editor canzone</translation>
     </message>
     <message>
         <source>Instrument + Pattern</source>
@@ -761,28 +761,29 @@ Sei sicuro?</translation>
     </message>
     <message>
         <source>modified</source>
-        <translation type="unfinished"></translation>
+        <translation>modificato</translation>
     </message>
     <message>
         <source>Song saved.</source>
-        <translation type="unfinished">Canzone salvata</translation>
+        <translation>Canzone salvata.</translation>
     </message>
     <message>
         <source>Error loading song.</source>
-        <translation type="unfinished">Errore durante il caricamento della canzone.</translation>
+        <translation>Errore durante il caricamento della canzone.</translation>
     </message>
     <message>
         <source>Preferences saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferenze salvate.</translation>
     </message>
     <message>
         <source>Preferences loaded.</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferenze caricate.</translation>
     </message>
     <message>
         <source>Song is read-only.
 Use &apos;Save as&apos; to enable autosave.</source>
-        <translation type="unfinished"></translation>
+        <translation>Canzone in sola-lettura.
+Utilizza &apos;Salva come&apos; per abilitare il salvataggio automatico.</translation>
     </message>
     <message>
         <source>Input Midi Note</source>
@@ -797,19 +798,19 @@ Use &apos;Save as&apos; to enable autosave.</source>
     </message>
     <message>
         <source>Show layers properties</source>
-        <translation>Visualizza le proprietà dei layer</translation>
+        <translation>Visualizza le proprietà dei livelli</translation>
     </message>
     <message>
         <source>Layer gain</source>
-        <translation>Gain del layer</translation>
+        <translation>Guadagno di livello</translation>
     </message>
     <message>
         <source>New instrument name</source>
-        <translation>Nuovo nome dello strumento</translation>
+        <translation>Nuovo nome per lo strumento</translation>
     </message>
     <message>
         <source>Instrument gain</source>
-        <translation>Gain dello strumento</translation>
+        <translation>Guadagno dello strumento</translation>
     </message>
     <message>
         <source>Random pitch factor</source>
@@ -825,19 +826,19 @@ Use &apos;Save as&apos; to enable autosave.</source>
     </message>
     <message>
         <source>Attack</source>
-        <translation>Attack</translation>
+        <translation>Attacco</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation></translation>
+        <translation>Decadimento</translation>
     </message>
     <message>
         <source>Sustain</source>
-        <translation></translation>
+        <translation>Sostegno</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation></translation>
+        <translation>Rilascio</translation>
     </message>
     <message>
         <source>Layer pitch (Coarse)</source>
@@ -853,27 +854,27 @@ Use &apos;Save as&apos; to enable autosave.</source>
     </message>
     <message>
         <source>Layers</source>
-        <translation></translation>
+        <translation>Livelli</translation>
     </message>
     <message>
         <source>New component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuovo nome al componente</translation>
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome componente</translation>
     </message>
     <message>
         <source>Midi out channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Canale di uscita MIDI</translation>
     </message>
     <message>
         <source>Midi out note</source>
-        <translation type="unfinished"></translation>
+        <translation>Nota di uscita MIDI</translation>
     </message>
     <message>
         <source>Component volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Componente volume</translation>
     </message>
     <message>
         <source>Don&apos;t change the layers&apos; gain based on velocity</source>
@@ -893,7 +894,7 @@ Use &apos;Save as&apos; to enable autosave.</source>
     </message>
     <message>
         <source>Select selection algorithm</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona algoritmo di selezione</translation>
     </message>
     <message>
         <source>layer pitch: %1</source>
@@ -904,7 +905,7 @@ Use &apos;Save as&apos; to enable autosave.</source>
     <name>InstrumentLine</name>
     <message>
         <source>Randomize velocity</source>
-        <translation>Velocity casuale</translation>
+        <translation>Velocità casuale</translation>
     </message>
     <message>
         <source>Delete instrument</source>
@@ -940,59 +941,59 @@ Use &apos;Save as&apos; to enable autosave.</source>
     </message>
     <message>
         <source>Mute instrument</source>
-        <translation>Muto strumento</translation>
+        <translation>Isola strumento</translation>
     </message>
     <message>
         <source>Solo</source>
-        <translation>Solo</translation>
+        <translation>Assolo</translation>
     </message>
     <message>
         <source>Rename instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Rinomina strumento</translation>
     </message>
     <message>
         <source>New instrument name</source>
-        <translation type="unfinished">Nuovo nome dello strumento</translation>
+        <translation>Nuovo nome per lo strumento</translation>
     </message>
     <message>
         <source>Fill 1/12 notes</source>
-        <translation type="unfinished">Riempi 1/8 note {1/12 ?}</translation>
+        <translation>Riempi note 1/12</translation>
     </message>
     <message>
         <source>Fill 1/16 notes</source>
-        <translation type="unfinished">Riempi 1/8 note {1/16 ?}</translation>
+        <translation>Riempi note 1/16</translation>
     </message>
     <message>
         <source>Some samples for this instrument failed to load.</source>
-        <translation type="unfinished"></translation>
+        <translation>Non è possibile caricare alcuni campioni per questo strumento.</translation>
     </message>
     <message>
         <source>Delete notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina note</translation>
     </message>
     <message>
         <source>Select notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona note</translation>
     </message>
     <message>
         <source>Edit all patterns</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifica tutti i pattern</translation>
     </message>
     <message>
         <source>Cut notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Taglia note</translation>
     </message>
     <message>
         <source>Copy notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia note</translation>
     </message>
     <message>
         <source>Paste notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Incolla note</translation>
     </message>
     <message>
         <source>Instrument</source>
-        <translation type="unfinished">Strumento</translation>
+        <translation>Strumento</translation>
     </message>
     <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
@@ -1000,7 +1001,7 @@ Use &apos;Save as&apos; to enable autosave.</source>
     </message>
     <message>
         <source>Delete all notes on %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina tutte le note su %1</translation>
     </message>
 </context>
 <context>
@@ -1015,45 +1016,45 @@ Use &apos;Save as&apos; to enable autosave.</source>
     </message>
     <message>
         <source>Show sound library</source>
-        <translation>Mostra libreria</translation>
+        <translation>Mostra libreria sonora</translation>
     </message>
     <message>
         <source>Sound library</source>
-        <translation>LIbreria Suoni</translation>
+        <translation>LIbreria sonora</translation>
     </message>
 </context>
 <context>
     <name>LadspaFXMixerLine</name>
     <message>
         <source>Edit FX parameters</source>
-        <translation>Modifica parametri degli effetti</translation>
+        <translation>Modifica parametri FX</translation>
     </message>
     <message>
         <source>Ladspa FX name</source>
-        <translation>Nome effetto LADSPA</translation>
+        <translation>Nome FX LADSPA</translation>
     </message>
     <message>
         <source>FX bypass</source>
-        <translation>Escludi effetto</translation>
+        <translation>Escludi FX</translation>
     </message>
     <message>
         <source>Effect return</source>
-        <translation>Ritorno dell&apos;effetto</translation>
+        <translation>Ritorno effetto</translation>
     </message>
 </context>
 <context>
     <name>LadspaFXProperties</name>
     <message>
         <source>Select FX</source>
-        <translation>Seleziona effetto</translation>
+        <translation>Seleziona FX</translation>
     </message>
     <message>
         <source>[%1] LADSPA FX Properties</source>
-        <translation>[%1] Proprietà effetto LADSPA</translation>
+        <translation>[%1] Proprietà FX LADSPA</translation>
     </message>
     <message>
         <source>LADSPA FX %1 Properties</source>
-        <translation>Proprietà effetto LADSPA %1</translation>
+        <translation>Proprietà FX LADSPA %1</translation>
     </message>
     <message>
         <source>No plugin</source>
@@ -1069,7 +1070,7 @@ Use &apos;Save as&apos; to enable autosave.</source>
     </message>
     <message>
         <source>Remove FX</source>
-        <translation>Rimuove FX</translation>
+        <translation>Rimuovi FX</translation>
     </message>
 </context>
 <context>
@@ -1092,11 +1093,11 @@ Use &apos;Save as&apos; to enable autosave.</source>
     </message>
     <message>
         <source>Select LADSPA FX</source>
-        <translation>Seleziona effetto LADSPA</translation>
+        <translation>Seleziona FX LADSPA</translation>
     </message>
     <message>
         <source>Recently Used</source>
-        <translation>Recenti</translation>
+        <translation>Recentemente usati</translation>
     </message>
     <message>
         <source>Alphabetic List</source>
@@ -1131,15 +1132,15 @@ Use &apos;Save as&apos; to enable autosave.</source>
     </message>
     <message>
         <source>### fx label</source>
-        <translation>### etichetta effetto</translation>
+        <translation>### etichetta fx</translation>
     </message>
     <message>
         <source>### fx type</source>
-        <translation>### tipo effetto</translation>
+        <translation>### tipo fx</translation>
     </message>
     <message>
         <source>### fx ID</source>
-        <translation>### ID effetto</translation>
+        <translation>### ID fx</translation>
     </message>
     <message>
         <source>1</source>
@@ -1156,7 +1157,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>### fx name
 1</source>
-        <translation>### nome effetto
+        <translation>### nome fx
 1</translation>
     </message>
     <message>
@@ -1195,7 +1196,7 @@ p, li { white-space: pre-wrap; }
         <source>### FX maker
 1
 2</source>
-        <translation>### Autore effetto
+        <translation>### Autore fx
 1
 2</translation>
     </message>
@@ -1223,7 +1224,8 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Dec. = %1
 MIDI = %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Dec. = %1
+MIDI = %2</translation>
     </message>
 </context>
 <context>
@@ -1234,11 +1236,11 @@ MIDI = %2</source>
     </message>
     <message>
         <source>&amp;Discard</source>
-        <translation>Annulla le &amp;modifiche</translation>
+        <translation>Annulla modifiche</translation>
     </message>
     <message>
         <source>Hydrogen Ready.</source>
-        <translation>Pronto.</translation>
+        <translation>Hydrogen, pronto.</translation>
     </message>
     <message>
         <source>Save song</source>
@@ -1270,7 +1272,7 @@ MIDI = %2</source>
     </message>
     <message>
         <source>&amp;About</source>
-        <translation>&amp;Informazioni su</translation>
+        <translation>&amp;Informazioni</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -1278,7 +1280,7 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Unknown audio driver</source>
-        <translation>Audio driver sconosciuto</translation>
+        <translation>Driver audio sconosciuto</translation>
     </message>
     <message>
         <source>Error starting audio driver</source>
@@ -1286,19 +1288,19 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Jack driver: server shutdown</source>
-        <translation>Jack driver: server shutdown</translation>
+        <translation>Driver Jack: spegnimento server</translation>
     </message>
     <message>
         <source>Jack driver: cannot activate client</source>
-        <translation>Jack driver: errore durante l&apos;attivazione del client</translation>
+        <translation>Driver Jack: non è possibile attivare il client</translation>
     </message>
     <message>
         <source>Jack driver: cannot connect output port</source>
-        <translation>Jack driver: errore durante la connessione della porta di output</translation>
+        <translation>Driver Jack: non è possibile collegare la porta in uscita</translation>
     </message>
     <message>
         <source>Jack driver: error in port register</source>
-        <translation>Jack driver: errore in port register</translation>
+        <translation>Driver Jack: errore nella registrazione della porta</translation>
     </message>
     <message>
         <source>De&amp;bug</source>
@@ -1310,7 +1312,7 @@ MIDI = %2</source>
     </message>
     <message>
         <source>&amp;Instrument Rack</source>
-        <translation>&amp;Rack Strumenti</translation>
+        <translation>&amp;Rack strumenti</translation>
     </message>
     <message>
         <source>&amp;Info</source>
@@ -1338,15 +1340,15 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Could not save song.</source>
-        <translation>Salvataggio canzone fallito.</translation>
+        <translation>Non è possibile salvare la canzone.</translation>
     </message>
     <message>
         <source>Open &amp;Pattern</source>
-        <translation>Apri &amp;Pattern</translation>
+        <translation>Apri &amp;pattern</translation>
     </message>
     <message>
         <source>Save Pattern as ...</source>
-        <translation>Salva Pattern come ...</translation>
+        <translation>Salva pattern con nome ...</translation>
     </message>
     <message>
         <source>Pattern saved.</source>
@@ -1354,7 +1356,7 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Open Pattern</source>
-        <translation>Apri Pattern</translation>
+        <translation>Apri pattern</translation>
     </message>
     <message>
         <source>Don&apos;t show this message anymore</source>
@@ -1362,7 +1364,7 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Playlist: Set song No. %1</source>
-        <translation>Playlist: Imposta canzone No. %1</translation>
+        <translation>Playlist: imposta canzone n. %1</translation>
     </message>
     <message>
         <source></source>
@@ -1371,11 +1373,11 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Playlist: Song No. %1</source>
-        <translation>Playlist: Canzone n. %1 </translation>
+        <translation>Playlist: canzone n. %1 </translation>
     </message>
     <message>
         <source>Could not export pattern.</source>
-        <translation>Non riesco a esportare il modello.</translation>
+        <translation>Non è possibile esportare il pattern.</translation>
     </message>
     <message>
         <source>
@@ -1397,11 +1399,11 @@ Vuoi salvare i cambiamenti?</translation>
     </message>
     <message>
         <source>LilyPond file (*.ly)</source>
-        <translation type="unfinished"></translation>
+        <translation>File LilyPond (*.ly)</translation>
     </message>
     <message>
         <source>Export LilyPond file</source>
-        <translation type="unfinished"></translation>
+        <translation>Esporta file LilyPond</translation>
     </message>
     <message>
         <source>
@@ -1412,11 +1414,11 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Pro&amp;ject</source>
-        <translation type="unfinished"></translation>
+        <translation>Pro&amp;getto</translation>
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome componente</translation>
     </message>
     <message>
         <source>Saving of this library failed.</source>
@@ -1424,19 +1426,19 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Drum&amp;kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Drum&amp;kit</translation>
     </message>
     <message>
         <source>&amp;View</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Visualizza</translation>
     </message>
     <message>
         <source>&amp;Options</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Opzioni</translation>
     </message>
     <message>
         <source>MIDI setup advice</source>
-        <translation type="unfinished"></translation>
+        <translation>Consiglio configurazione MIDI</translation>
     </message>
     <message>
         <source>MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?</source>
@@ -1444,15 +1446,15 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Set default values</source>
-        <translation type="unfinished"></translation>
+        <translation>Imposta valori predefiniti</translation>
     </message>
     <message>
         <source>&amp;Timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Timeline</translation>
     </message>
     <message>
         <source>Jack driver: cannot disconnect client</source>
-        <translation type="unfinished"></translation>
+        <translation>Driver Jack: non è possibile scollegare il client</translation>
     </message>
     <message>
         <source>Replace With &amp;New Song</source>
@@ -1476,159 +1478,159 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Open &amp;Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri &amp;recenti</translation>
     </message>
     <message>
         <source>Save &amp;As...</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva &amp;con nome...</translation>
     </message>
     <message>
         <source>Show &amp;Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra &amp;informazioni</translation>
     </message>
     <message>
         <source>E&amp;xport Pattern As...</source>
-        <translation type="unfinished"></translation>
+        <translation>E&amp;sporta pattern con nome...</translation>
     </message>
     <message>
         <source>Export &amp;MIDI File</source>
-        <translation type="unfinished"></translation>
+        <translation>Esporta file &amp;MIDI</translation>
     </message>
     <message>
         <source>&amp;Export Song</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Esporta canzone</translation>
     </message>
     <message>
         <source>Export &amp;LilyPond File</source>
-        <translation type="unfinished"></translation>
+        <translation>Esporta file &amp;LilyPond</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ripeti</translation>
     </message>
     <message>
         <source>Undo &amp;History</source>
-        <translation type="unfinished"></translation>
+        <translation>Cronologia azioni</translation>
     </message>
     <message>
         <source>&amp;Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Proprietà</translation>
     </message>
     <message>
         <source>Save &amp;As</source>
-        <translation type="unfinished"></translation>
+        <translation>Salv&amp;a con nome</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Esporta</translation>
+        <translation>&amp;Esporta</translation>
     </message>
     <message>
         <source>&amp;Import</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Importa</translation>
     </message>
     <message>
         <source>On&amp;line Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa on&amp;line</translation>
     </message>
     <message>
         <source>In&amp;struments</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Strumenti</translation>
     </message>
     <message>
         <source>Add &amp;Instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi strument&amp;i</translation>
     </message>
     <message>
         <source>Clea&amp;r All</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Pulisci tutto</translation>
     </message>
     <message>
         <source>Add &amp;Component</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi &amp;componente</translation>
     </message>
     <message>
         <source>Play&amp;list Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor di play&amp;list</translation>
     </message>
     <message>
         <source>&amp;Director</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Direttore</translation>
     </message>
     <message>
         <source>&amp;Automation Path</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Percorso automatico</translation>
     </message>
     <message>
         <source>&amp;Playback Track</source>
-        <translation type="unfinished"></translation>
+        <translation>Traccia di ri&amp;produzione</translation>
     </message>
     <message>
         <source>&amp;Full screen</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Schermo intero</translation>
     </message>
     <message>
         <source>Input &amp;Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Modalità di ingresso</translation>
     </message>
     <message>
         <source>&amp;Instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Strumento</translation>
     </message>
     <message>
         <source>&amp;Drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Drumkit</translation>
     </message>
     <message>
         <source>Show &amp;Audio Engine Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra &amp;motore sonoro</translation>
     </message>
     <message>
         <source>Show &amp;Filesystem Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra informazioni sul &amp;filesystem</translation>
     </message>
     <message>
         <source>&amp;Log Level</source>
-        <translation type="unfinished"></translation>
+        <translation>Livello &amp;log</translation>
     </message>
     <message>
         <source>&amp;None</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Nessuno</translation>
     </message>
     <message>
         <source>&amp;Error</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Errore</translation>
     </message>
     <message>
         <source>&amp;Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Avvertimento</translation>
     </message>
     <message>
         <source>&amp;Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Debug</translation>
     </message>
     <message>
         <source>&amp;Open Log File</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Apri file log</translation>
     </message>
     <message>
         <source>&amp;Print Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Stampa oggetti</translation>
     </message>
     <message>
         <source>I&amp;nfo</source>
-        <translation type="unfinished"></translation>
+        <translation>I&amp;nformazioni</translation>
     </message>
     <message>
         <source>User &amp;Manual</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Manuale utente</translation>
     </message>
     <message>
         <source>&amp;Report Bug</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Segnala bug</translation>
     </message>
     <message>
         <source>&amp;Donate</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Donazioni</translation>
     </message>
     <message>
         <source>Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say &apos;thank you&apos; to the involved persons.</source>
@@ -1636,19 +1638,19 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>&amp;Donate!</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Donazioni!</translation>
     </message>
     <message>
         <source>Export song from Session</source>
-        <translation type="unfinished"></translation>
+        <translation>Esporta canzone dalla sessione</translation>
     </message>
     <message>
         <source>Song exported as: </source>
-        <translation type="unfinished"></translation>
+        <translation>Canzone esportata con nome: </translation>
     </message>
     <message>
         <source>Song saved as: </source>
-        <translation type="unfinished"></translation>
+        <translation>Canzone salvata con nome: </translation>
     </message>
     <message>
         <source>Some samples used by this song failed to load. If you save the song now these missing samples will be removed from the song entirely.
@@ -1657,11 +1659,11 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Import song into Session</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa canzone nella sessione</translation>
     </message>
     <message>
         <source>Song drumkit samples</source>
-        <translation type="unfinished"></translation>
+        <translation>Campioni drumkit nella canzone</translation>
     </message>
     <message>
         <source>Some samples used in this song could not be loaded. This may be because it uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
@@ -1669,11 +1671,11 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Open drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri drumkit</translation>
     </message>
     <message>
         <source>Could not write to temporary directory %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Non è possibile scrivere nella directory temporanea %1.</translation>
     </message>
     <message>
         <source>
@@ -1688,7 +1690,7 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>Playing.</source>
-        <translation type="unfinished">In esecuzione.</translation>
+        <translation>In esecuzione.</translation>
     </message>
 </context>
 <context>
@@ -3652,19 +3654,19 @@ p, li { white-space: pre-wrap; }
     <name>SongEditor</name>
     <message>
         <source>&amp;Cut</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Taglia</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Copia</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Incolla</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Elimina</translation>
     </message>
     <message>
         <source>Select &amp;all</source>
@@ -3672,23 +3674,23 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Clear selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Pulisci selezione</translation>
     </message>
     <message>
         <source>Delete selected cells</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina celle selezionate</translation>
     </message>
     <message>
         <source>Paste cells</source>
-        <translation type="unfinished"></translation>
+        <translation>Incolla celle</translation>
     </message>
     <message>
         <source>Copy selected cells</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia celle selezionate</translation>
     </message>
     <message>
         <source>Move selected cells</source>
-        <translation type="unfinished"></translation>
+        <translation>Muovi celle selezionate</translation>
     </message>
 </context>
 <context>
@@ -3737,39 +3739,39 @@ Confermi?</translation>
     </message>
     <message>
         <source>stacked mode</source>
-        <translation>Pattern multipli</translation>
+        <translation>modalità multipli</translation>
     </message>
     <message>
         <source>stacked pattern mode</source>
-        <translation>Modalità pattern multipli</translation>
+        <translation>modalità pattern multipli</translation>
     </message>
     <message>
         <source>single pattern mode</source>
-        <translation>Modalità pattern singolo</translation>
+        <translation>modalità pattern singolo</translation>
     </message>
     <message>
         <source>Enable time line edit</source>
-        <translation>Abilita la modifica del timeline</translation>
+        <translation>Abilita la modifica della timeline</translation>
     </message>
     <message>
         <source>Pattern %1</source>
-        <translation>Modello %1</translation>
+        <translation>Pattern %1</translation>
     </message>
     <message>
         <source>View playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza traccia in riproduzione</translation>
     </message>
     <message>
         <source>Mute playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Isola traccia in riproduzione</translation>
     </message>
     <message>
         <source>Choose playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Scegli traccia da riprodurre</translation>
     </message>
     <message>
         <source>View timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza timeline</translation>
     </message>
     <message>
         <source>Adjust parameter values in time</source>
@@ -3777,7 +3779,7 @@ Confermi?</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished">Velocità</translation>
+        <translation>Velocità</translation>
     </message>
     <message>
         <source>Timeline usage is disabled in the presence of an external JACK timebase master</source>
@@ -3789,11 +3791,11 @@ Confermi?</translation>
     </message>
     <message>
         <source> Timeline = Off</source>
-        <translation type="unfinished"></translation>
+        <translation> Timeline = Off</translation>
     </message>
     <message>
         <source> Timeline = On</source>
-        <translation type="unfinished"></translation>
+        <translation> Timeline = On</translation>
     </message>
 </context>
 <context>
@@ -4016,46 +4018,46 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>Drumkit</source>
-        <translation type="unfinished">Drumkit</translation>
+        <translation>Drumkit</translation>
     </message>
     <message>
         <source>Component</source>
-        <translation type="unfinished"></translation>
+        <translation>Componente</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Percorso</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Versione</translation>
     </message>
     <message>
         <source>Browse...</source>
-        <translation type="unfinished">Cerca...</translation>
+        <translation>Cerca...</translation>
     </message>
     <message>
         <source>0.9.7 and higher</source>
-        <translation type="unfinished"></translation>
+        <translation>0.9.7 e superiori</translation>
     </message>
     <message>
         <source>0.9.6 and lower</source>
-        <translation type="unfinished"></translation>
+        <translation>0.9.6 e inferiori</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annulla</translation>
+        <translation>Annulla</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryImportDialog</name>
     <message>
         <source>Sound Library import</source>
-        <translation>Importa Sound Library</translation>
+        <translation>Importa libreria sonora</translation>
     </message>
     <message>
         <source>Sound library</source>
-        <translation>Sound Library</translation>
+        <translation>Libreria sonora</translation>
     </message>
     <message>
         <source>Status</source>
@@ -4063,7 +4065,7 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>Updating SoundLibrary list...</source>
-        <translation>Aggiorno la lista di Sound Library...</translation>
+        <translation>Aggiorno la lista delle librerie sonore...</translation>
     </message>
     <message>
         <source>Installed</source>
@@ -4079,7 +4081,7 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>Downloading SoundLibrary...</source>
-        <translation>Scarico la Sound Library...</translation>
+        <translation>Scaricamento libreria sonora...</translation>
     </message>
     <message>
         <source>Import drumkit</source>
@@ -4087,7 +4089,7 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>SoundLibrary imported in %1</source>
-        <translation>Sound Library importata in %1</translation>
+        <translation>Libreria sonora importata in %1</translation>
     </message>
     <message>
         <source>An error occurred importing the SoundLibrary.</source>
@@ -4095,7 +4097,7 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>Drumkits</source>
-        <translation>Drumkits</translation>
+        <translation>Drumkit</translation>
     </message>
     <message>
         <source>Songs</source>
@@ -4107,11 +4109,11 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>Drumkit License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza drumkit</translation>
     </message>
     <message>
         <source>Image License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza immagine: %1</translation>
     </message>
 </context>
 <context>
@@ -4126,11 +4128,11 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>Update list</source>
-        <translation>Aggiorna list</translation>
+        <translation>Aggiorna lista</translation>
     </message>
     <message>
         <source>Sound Library Name</source>
-        <translation>Nome libreria</translation>
+        <translation>Nome libreria sonora</translation>
     </message>
     <message>
         <source>Author...</source>
@@ -4166,30 +4168,30 @@ Sovrascrivere il modello esistente?</translation>
     </message>
     <message>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Image License...</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza immagine</translation>
     </message>
     <message>
         <source>Drumkit License...</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza drumkit...</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryOpenDialog</name>
     <message>
         <source>Open Sound Library</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri libreria sonora</translation>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished">Apri</translation>
+        <translation>Apri</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annulla</translation>
+        <translation>Annulla</translation>
     </message>
 </context>
 <context>
@@ -4282,7 +4284,7 @@ Current kit:</source>
     </message>
     <message>
         <source>Not implemented yet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Non ancora implementato.</translation>
     </message>
 </context>
 <context>
@@ -4309,23 +4311,23 @@ Current kit:</source>
     </message>
     <message>
         <source>Save changes made to instruments into sound library</source>
-        <translation>Salva le modifiche fatte agli strumenti nella libreria suoni</translation>
+        <translation>Salva le modifiche fatte agli strumenti nella libreria sonora</translation>
     </message>
     <message>
         <source>Drumkit License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza drumkit</translation>
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Immagine</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Cerca</translation>
+        <translation>Cerca</translation>
     </message>
     <message>
         <source>Image License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza immagine</translation>
     </message>
 </context>
 <context>
@@ -4359,18 +4361,18 @@ Current kit:</source>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Chiudi</translation>
+        <translation>Chiudi</translation>
     </message>
 </context>
 <context>
     <name>SoundLibrarySaveDialog</name>
     <message>
         <source>Save Sound Library</source>
-        <translation>Salva libreria</translation>
+        <translation>Salva libreria sonora</translation>
     </message>
     <message>
         <source>Please supply at least a valid name</source>
-        <translation>Fornisci un nome valido</translation>
+        <translation>Per piacere, indica almeno un nome valido</translation>
     </message>
     <message>
         <source>A library with the same name already exists. Do you want to overwrite the existing library?</source>
@@ -4378,22 +4380,22 @@ Current kit:</source>
     </message>
     <message>
         <source>Saving of this library failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Non è possibile salvare la libreria.</translation>
     </message>
     <message>
         <source>Open Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri immagine</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation>File immagine (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
     <name>SoundLibrarySaveDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation></translation>
+        <translation>Dialogo</translation>
     </message>
     <message>
         <source>Name</source>
@@ -4421,22 +4423,22 @@ Current kit:</source>
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Immagine</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Cerca</translation>
+        <translation>Cerca</translation>
     </message>
     <message>
         <source>Image License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza immagine</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryTree</name>
     <message>
         <source>Sound library</source>
-        <translation>Libreria</translation>
+        <translation>Libreria sonora</translation>
     </message>
 </context>
 <context>
