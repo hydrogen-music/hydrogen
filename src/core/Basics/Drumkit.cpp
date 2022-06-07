@@ -359,7 +359,15 @@ bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_i
 		return false;
 	}
 	XMLDoc doc;
+	
 	XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
+	
+	// In order to comply with the GPL license we have to add a
+	// license notice to the file.
+	if ( __license.getType() == License::GPL ) {
+		doc.appendChild( doc.createComment( License::getGPLLicenseNotice( __author ) ) );
+	}
+	
 	save_to( &root, component_id, bRecentVersion );
 	return doc.write( dk_path );
 }

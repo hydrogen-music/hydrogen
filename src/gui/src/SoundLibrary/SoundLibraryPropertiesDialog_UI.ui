@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>593</width>
-    <height>688</height>
+    <width>744</width>
+    <height>919</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -98,7 +98,7 @@
    <item row="3" column="0">
     <widget class="QLabel" name="licenseStringLbl">
      <property name="text">
-      <string>License String</string>
+      <string/>
      </property>
     </widget>
    </item>
@@ -216,7 +216,7 @@
    <item row="11" column="0">
     <widget class="QLabel" name="imageLicenseStringLbl">
      <property name="text">
-      <string>License String</string>
+      <string/>
      </property>
     </widget>
    </item>

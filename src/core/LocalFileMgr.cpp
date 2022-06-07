@@ -410,10 +410,18 @@ int SongWriter::writeSong( std::shared_ptr<Song> pSong, const QString& filename 
 
 
 	QDomDocument doc;
+	
 	QDomProcessingInstruction header = doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"");
 	doc.appendChild( header );
 
+	// In order to comply with the GPL license we have to add a
+	// license notice to the file.
+	if ( pSong->getLicense().getType() == License::GPL ) {
+		doc.appendChild( doc.createComment( License::getGPLLicenseNotice( pSong->getAuthor() ) ) );
+	}
+
 	QDomNode songNode = doc.createElement( "song" );
+
 
 	LocalFileMng::writeXmlString( songNode, "version", QString( get_version().c_str() ) );
 	LocalFileMng::writeXmlString( songNode, "bpm", QString("%1").arg( pSong->getBpm() ) );
