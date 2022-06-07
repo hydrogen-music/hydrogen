@@ -38,14 +38,17 @@ namespace H2Core {
  * license information of each individual sample and checks whether
  * any copyleft ones are included or credit must be given due to a CC
  * BY* license.
+ *
+ * The license string contained in the XML file is parsed and Hydrogen
+ * tries to map it to one of its supported #LicenseType.
  */
-/** \ingroup docCore docDebugging*/
+/** \ingroup docCore*/
 class License : public H2Core::Object<License>
 {
 	H2_OBJECT(License)
 public:
 
-	License( const QString& sRawLicense = "" );
+	License( const QString& sLicenseString = "" );
 	License( const License* pOther );
 	~License();
 
@@ -70,20 +73,13 @@ public:
 		Unspecified = 10
 	};
 
-	void parse( const QString& sRawLicense );
-	
-	/** Formatted string version for debugging purposes.
-	 * \param sPrefix String prefix which will be added in front of
-	 * every new line
-	 * \param bShort Instead of the whole content of all classes
-	 * stored as members just a single unique identifier will be
-	 * displayed without line breaks.
-	 *
-	 * \return String presentation of current object.*/
-	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+	static QString LicenseTypeToQString( LicenseType license );
+
+	void parse( const QString& sLicenseString );
+	QString getLicenseString() const;
 
 	bool isCopyleft() const;
-	bool isCCBY() const;
+	bool hasAttribution() const;
 
 	LicenseType getType() const;
 	void setType( LicenseType license );
@@ -91,7 +87,7 @@ public:
 	bool operator==( const License& other ) const {
 		if ( m_license == other.m_license ) {
 			if ( m_license == License::Other &&
-				 m_sRawLicense != other.m_sRawLicense ) {
+				 m_sLicenseString != other.m_sLicenseString ) {
 				return false;
 			}
 			else {
@@ -105,7 +101,7 @@ public:
 	bool operator!=( const License& other ) const {
 		if ( m_license == other.m_license ) {
 			if ( m_license == License::Other &&
-				 m_sRawLicense != other.m_sRawLicense ) {
+				 m_sLicenseString != other.m_sLicenseString ) {
 				return true;
 			}
 			else {
@@ -115,14 +111,66 @@ public:
 
 		return true;
 	}
+	
+	/** Formatted string version for debugging purposes.
+	 * \param sPrefix String prefix which will be added in front of
+	 * every new line
+	 * \param bShort Instead of the whole content of all classes
+	 * stored as members just a single unique identifier will be
+	 * displayed without line breaks.
+	 *
+	 * \return String presentation of current object.*/
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
 	LicenseType m_license;
-	QString m_sRawLicense;
+	QString m_sLicenseString;
 };
 
 inline License::LicenseType License::getType() const {
 	return m_license;
+}
+inline QString License::getLicenseString() const {
+	return m_sLicenseString;
+}
+inline QString License::LicenseTypeToQString( License::LicenseType license ) {
+
+	QString sType;
+	
+	switch( license ) {
+	case License::CC_0:
+		return "CC0";
+		
+	case License::CC_BY:
+		return "CC BY";
+		
+	case License::CC_BY_NC:
+		return "CC BY-NC";
+		
+	case License::CC_BY_SA:
+		return "CC BY-SA";
+		
+	case License::CC_BY_NC_SA:
+		return "CC BY-NC-SA";
+		
+	case License::CC_BY_ND:
+		return "CC BY-ND";
+		
+	case License::CC_BY_NC_ND:
+		return "CC BY-NC-ND";
+		
+	case License::GPL:
+		return "GPL";
+		
+	case License::AllRightsReserved:
+		return "All rights reserved";
+		
+	case License::Other:
+		return "Other";
+		
+	default:
+		return "undefined license";
+	}
 }
 };
 

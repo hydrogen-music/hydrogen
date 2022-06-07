@@ -463,7 +463,7 @@ QString Song::copyInstrumentLineToString( int nSelectedPattern, int nSelectedIns
 	//LIB_ID just in work to get better usability
 	//LocalFileMng::writeXmlString( &rootNode, "LIB_ID", "in_work" );
 	LocalFileMng::writeXmlString( rootNode, "author", getAuthor() );
-	LocalFileMng::writeXmlString( rootNode, "license", getLicense().toQString() );
+	LocalFileMng::writeXmlString( rootNode, "license", getLicense().getLicenseString() );
 
 	QDomNode patternList = doc.createElement( "patternList" );
 

@@ -47,12 +47,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="minimumSize">
-      <size>
-       <width>462</width>
-       <height>21</height>
-      </size>
-     </property>
     </widget>
    </item>
    <item row="1" column="0">
@@ -76,26 +70,53 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="minimumSize">
-      <size>
-       <width>462</width>
-       <height>21</height>
-      </size>
-     </property>
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="QLabel" name="label_4">
+    <widget class="QLabel" name="licenseLbl">
      <property name="text">
       <string>Drumkit License</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
      </property>
     </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QComboBox" name="licenseComboBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="licenseStringLbl">
+     <property name="text">
+      <string>License String</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="licenseStringTxt">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_4"/>
    </item>
    <item row="6" column="0">
     <widget class="QLabel" name="label_3">
@@ -167,7 +188,7 @@
     </layout>
    </item>
    <item row="10" column="0">
-    <widget class="QLabel" name="label_6">
+    <widget class="QLabel" name="imageLicenseLbl">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -182,7 +203,34 @@
      </property>
     </widget>
    </item>
-   <item row="14" column="0" colspan="2">
+   <item row="10" column="1">
+    <widget class="QComboBox" name="imageLicenseComboBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0">
+    <widget class="QLabel" name="imageLicenseStringLbl">
+     <property name="text">
+      <string>License String</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="1">
+    <widget class="QLineEdit" name="imageLicenseStringTxt">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="0" colspan="2">
     <widget class="QLabel" name="drumkitImageLabel">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -250,7 +298,17 @@
      </property>
     </widget>
    </item>
-   <item row="17" column="0" colspan="2">
+   <item row="17" column="0">
+    <widget class="QLabel" name="contentLabel">
+     <property name="text">
+      <string>Content</string>
+     </property>
+    </widget>
+   </item>
+   <item row="18" column="0" colspan="2">
+    <widget class="QTableWidget" name="contentTable"/>
+   </item>
+   <item row="19" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
      <item>
       <widget class="QCheckBox" name="saveChanges_checkBox">
@@ -283,7 +341,7 @@
      </item>
     </layout>
    </item>
-   <item row="18" column="0" colspan="2">
+   <item row="20" column="0" colspan="2">
     <layout class="QHBoxLayout">
      <item>
       <spacer name="horizontalSpacer">
@@ -313,74 +371,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item row="4" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout_4"/>
-   </item>
-   <item row="3" column="1">
-    <widget class="QLineEdit" name="licenseTxt">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>462</width>
-       <height>21</height>
-      </size>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QComboBox" name="licenseComboBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="1">
-    <widget class="QComboBox" name="imageLicenseComboBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
-   </item>
-   <item row="11" column="1">
-    <widget class="QLineEdit" name="imageLicenseText">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>462</width>
-       <height>21</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="16" column="0" colspan="2">
-    <widget class="QTableWidget" name="contentTable"/>
-   </item>
-   <item row="15" column="0">
-    <widget class="QLabel" name="contentLabel">
-     <property name="text">
-      <string>Content</string>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>

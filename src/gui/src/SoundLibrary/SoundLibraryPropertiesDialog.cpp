@@ -42,6 +42,8 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 {
 	setupUi( this );
 	
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	
 	setWindowTitle( tr( "SoundLibrary Properties" ) );
 	adjustSize();
 	setMinimumSize( width(), height() );
@@ -61,42 +63,45 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 
 		License license = pDrumkitInfo->get_license();
 		licenseComboBox->setCurrentIndex( static_cast<int>( license.getType() ) );
-		if ( license.getType() == License::Other ) {
-			licenseTxt->setText( license.toQString() );
-		}
-		else {
-			licenseTxt->hide();
-		}
+		licenseStringTxt->setText( license.getLicenseString() );
 	
 		imageText->setText( QString( pDrumkitInfo->get_image() ) );
 
 		License imageLicense = pDrumkitInfo->get_image_license();
 		imageLicenseComboBox->setCurrentIndex( static_cast<int>( imageLicense.getType() ) );
-		if ( imageLicense.getType() == License::Other ) {
-			imageLicenseText->setText( imageLicense.toQString() );
-			// Licence with attribution is often too long...
-			imageLicenseText->setToolTip( imageLicense.toQString() );
-		
-		}
-		else {
-			imageLicenseText->hide();
-		}
-
-		contentTable->setColumnCount( 4 );
-		contentTable->setHorizontalHeaderLabels( QStringList() <<
-														 tr( "Instrument" ) <<
-														 tr( "Component" ) <<
-														 tr( "Sample" ) <<
-														 tr( "License" ) );
-		contentTable->verticalHeader()->hide();
-		contentTable->horizontalHeader()->setStretchLastSection( true );
-
-		contentTable->setColumnWidth( 0, 170 );
-		contentTable->setColumnWidth( 1, 80 );
-		contentTable->setColumnWidth( 2, 210 );
-		
-		updateLicenseTable();
+		imageLicenseStringTxt->setText( imageLicense.getLicenseString() );
 	}
+
+	if ( licenseComboBox->currentIndex() == static_cast<int>( License::Unspecified ) ) {
+		licenseStringLbl->hide();
+		licenseStringTxt->hide();
+	}
+	if ( imageLicenseComboBox->currentIndex() == static_cast<int>( License::Unspecified ) ) {
+		imageLicenseStringLbl->hide();
+		imageLicenseStringTxt->hide();
+	}
+	
+	licenseComboBox->setToolTip( pCommonStrings->getLicenseComboToolTip() );
+	licenseStringLbl->setText( pCommonStrings->getLicenseStringLbl() );
+	licenseStringTxt->setToolTip( pCommonStrings->getLicenseStringToolTip() );
+	imageLicenseComboBox->setToolTip( pCommonStrings->getLicenseComboToolTip() );
+	imageLicenseStringLbl->setText( pCommonStrings->getLicenseStringLbl() );
+	imageLicenseStringTxt->setToolTip( pCommonStrings->getLicenseStringToolTip() );
+	
+	contentTable->setColumnCount( 4 );
+	contentTable->setHorizontalHeaderLabels( QStringList() <<
+											 tr( "Instrument" ) <<
+											 tr( "Component" ) <<
+											 tr( "Sample" ) <<
+											 tr( "License" ) );
+	contentTable->verticalHeader()->hide();
+	contentTable->horizontalHeader()->setStretchLastSection( true );
+
+	contentTable->setColumnWidth( 0, 160 );
+	contentTable->setColumnWidth( 1, 80 );
+	contentTable->setColumnWidth( 2, 210 );
+		
+	updateLicenseTable();
 }
 
 
@@ -104,19 +109,6 @@ SoundLibraryPropertiesDialog::~SoundLibraryPropertiesDialog()
 {
 	INFOLOG( "DESTROY" );
 
-}
-
-	
-void SoundLibraryPropertiesDialog::licenseComboBoxChanged( int ) {
-
-	if ( licenseComboBox->currentIndex() == static_cast<int>(License::Other) ) {
-		licenseTxt->show();
-	}
-	else {
-		licenseTxt->hide();
-	}
-
-	updateLicenseTable();
 }
 
 
@@ -135,6 +127,10 @@ void SoundLibraryPropertiesDialog::showEvent( QShowEvent *e )
 
 void SoundLibraryPropertiesDialog::updateLicenseTable() {
 	auto pPref = H2Core::Preferences::get_instance();
+	
+	if ( m_pDrumkitInfo == nullptr ){
+		return;
+	}
 	
 	std::vector<QStringList> content = m_pDrumkitInfo->summarizeContent();
 
@@ -160,9 +156,11 @@ void SoundLibraryPropertiesDialog::updateLicenseTable() {
 			pLicenseItem->setToolTip( content[ ii ][ 3 ] );
 
 			// In case of a license mismatch we highlight the row
-			if ( content[ ii ][ 3 ] != m_pDrumkitInfo->get_license().toQString() ) {
-				QString sRed = QString( "color: %1;" )
-					.arg( pPref->getColorTheme()->m_buttonRedColor.name() );
+			if ( content[ ii ][ 3 ] !=
+				 License::LicenseTypeToQString( m_pDrumkitInfo->get_license().getType() ) ) {
+				QString sRed = QString( "color: %1; background-color: %2" )
+					.arg( pPref->getColorTheme()->m_buttonRedColor.name() )
+					.arg( pPref->getColorTheme()->m_windowColor.name() );
 				pInstrumentItem->setStyleSheet( sRed );
 				pComponentItem->setStyleSheet( sRed );
 				pSampleItem->setStyleSheet( sRed );
@@ -190,14 +188,35 @@ void SoundLibraryPropertiesDialog::updateLicenseTable() {
 	}
 }
 	
-void SoundLibraryPropertiesDialog::imageLicenseComboBoxChanged( int ) {
+void SoundLibraryPropertiesDialog::licenseComboBoxChanged( int ) {
 
-	if ( imageLicenseComboBox->currentIndex() ==
-		 static_cast<int>(License::Other) ) {
-		imageLicenseText->show();
+	licenseStringTxt->setText( License::LicenseTypeToQString(
+		static_cast<License::LicenseType>( licenseComboBox->currentIndex() ) ) );
+
+	if ( licenseComboBox->currentIndex() == static_cast<int>( License::Unspecified ) ) {
+		licenseStringLbl->hide();
+		licenseStringTxt->hide();
 	}
 	else {
-		imageLicenseText->hide();
+		licenseStringLbl->show();
+		licenseStringTxt->show();
+	}
+	
+	updateLicenseTable();
+}
+	
+void SoundLibraryPropertiesDialog::imageLicenseComboBoxChanged( int ) {
+
+	imageLicenseStringTxt->setText( License::LicenseTypeToQString(
+		static_cast<License::LicenseType>( imageLicenseComboBox->currentIndex() ) ) );
+
+	if ( imageLicenseComboBox->currentIndex() == static_cast<int>( License::Unspecified ) ) {
+		imageLicenseStringLbl->hide();
+		imageLicenseStringTxt->hide();
+	}
+	else {
+		imageLicenseStringLbl->show();
+		imageLicenseStringTxt->show();
 	}
 }
 
@@ -238,6 +257,10 @@ void SoundLibraryPropertiesDialog::updateImage( QString& filename )
 
 void SoundLibraryPropertiesDialog::on_imageBrowsePushButton_clicked()
 {
+	if ( m_pDrumkitInfo == nullptr ) {
+		return;
+	}
+	
 	// Try to get the drumkit directory and open file browser
 	QString drumkitDir = m_pDrumkitInfo->get_path();
 
@@ -275,12 +298,47 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 
 	bool reload = false;
 
-	if ( saveChanges_checkBox->isChecked() ){
+	// Sanity checks.
+	//
+	// Check whether the license strings from the line edits comply to
+	// the license types selected in the combo boxes.
+	License licenseCheck( licenseStringTxt->text() );
+	if ( static_cast<int>(licenseCheck.getType()) != licenseComboBox->currentIndex() ) {
+		if ( QMessageBox::warning( this, "Hydrogen",
+								   tr( "Specified drumkit License String does not comply with the license selected in the combo box." ),
+								   QMessageBox::Ok | QMessageBox::Cancel,
+								   QMessageBox::Cancel )
+			 == QMessageBox::Cancel ) {
+			WARNINGLOG( QString( "Abort, since drumkit License String [%1] does not comply to selected License Type [%2]" )
+						.arg( licenseStringTxt->text() )
+						.arg( License::LicenseTypeToQString(
+						    static_cast<License::LicenseType>(licenseComboBox->currentIndex()) ) ) );
+			return;
+		}
+	}
+	License imageLicenseCheck( imageLicenseStringTxt->text() );
+	if ( static_cast<int>(imageLicenseCheck.getType()) !=
+		 imageLicenseComboBox->currentIndex() ) {
+		if ( QMessageBox::warning( this, "Hydrogen",
+								   tr( "Specified image License String does not comply with the license selected in the combo box." ),
+								   QMessageBox::Ok | QMessageBox::Cancel,
+								   QMessageBox::Cancel )
+			 == QMessageBox::Cancel ) {
+			WARNINGLOG( QString( "Abort, since drumkit image License String [%1] does not comply to selected License Type [%2]" )
+						.arg( imageLicenseStringTxt->text() )
+						.arg( License::LicenseTypeToQString(
+						    static_cast<License::LicenseType>(imageLicenseComboBox->currentIndex()) ) ) );
+			return;
+		}
+	}
+
+	if ( m_pDrumkitInfo != nullptr && saveChanges_checkBox->isChecked() ){
 		//test if the drumkit is loaded
 		if ( m_pDrumkitInfo->get_name() != m_pPreDrumkitInfo->get_name() ||
 			 m_pDrumkitInfo->isUserDrumkit() != m_pPreDrumkitInfo->isUserDrumkit() ){
 			QMessageBox::information( this, "Hydrogen", tr ( "This is not possible, you can only save changes inside instruments to the current loaded sound library"));
 			saveChanges_checkBox->setChecked( false );
+			ERRORLOG( "Only changes applied to the currently loaded drumkit can be stored" );
 			return;
 		}
 		reload = true;
@@ -302,10 +360,10 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 											pCommonStrings->getButtonCancel(),
 											nullptr, 1 );
 		if ( res == 1 ) {
+			WARNINGLOG( "Abort, as saving would result in the creation of a new drumkit" );
 			return;
 		}
-		else
-		{
+		else {
 			reload = true;
 		}
 	}
@@ -316,27 +374,33 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 		m_pDrumkitInfo->set_author( authorTxt->text() );
 		m_pDrumkitInfo->set_info( infoTxt->toHtml() );
 
-		License license = m_pDrumkitInfo->get_license();
+		QString sNewLicenseString( licenseStringTxt->text() );
 		if ( licenseComboBox->currentIndex() ==
-			 static_cast<int>(License::Other) ) {
-			license.parse( licenseTxt->text() );
+			 static_cast<int>(License::Unspecified) ) {
+			sNewLicenseString = "";
 		}
-		else {
-			license.setType( static_cast<License::LicenseType>(licenseComboBox->currentIndex()) );
+		License newLicense( sNewLicenseString );
+		// Only update the license in case it changed (in order to not
+		// overwrite an attribution).
+		if ( m_pDrumkitInfo->get_license() != newLicense ) {
+			m_pDrumkitInfo->set_license( newLicense );
+
+			// Assign the new license to all samples contained in this
+			// drumkit as well.
+			m_pDrumkitInfo->propagateLicense();
 		}
-		m_pDrumkitInfo->set_license( license );
 		
 		m_pDrumkitInfo->set_image( imageText->text() );
-		
-		License imageLicense = m_pDrumkitInfo->get_license();
+
+		QString sNewImageLicenseString( imageLicenseStringTxt->text() );
 		if ( imageLicenseComboBox->currentIndex() ==
-			 static_cast<int>(License::Other) ) {
-			imageLicense.parse( imageLicenseText->text() );
+			 static_cast<int>(License::Unspecified) ) {
+			sNewImageLicenseString = "";
 		}
-		else {
-			imageLicense.setType( static_cast<License::LicenseType>(imageLicenseComboBox->currentIndex()) );
+		License newImageLicense( sNewImageLicenseString );
+		if ( m_pDrumkitInfo->get_image_license() != newImageLicense ) {
+			m_pDrumkitInfo->set_image_license( newImageLicense );
 		}
-		m_pDrumkitInfo->set_image_license( imageLicense );
 
 		if( !H2Core::Drumkit::save( nameTxt->text(),
 									authorTxt->text(),
@@ -348,6 +412,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 									H2Core::Hydrogen::get_instance()->getSong()->getComponents(),
 									true ) ) {
 			QMessageBox::information( this, "Hydrogen", tr ( "Saving of this drumkit failed."));
+			ERRORLOG( "Saving of this drumkit failed." );
 		}
 	}
 

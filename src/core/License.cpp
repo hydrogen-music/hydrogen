@@ -20,18 +20,19 @@
  *
  */
 
+#include <QRegularExpression>
 #include "core/License.h"
 
 namespace H2Core {
 
-License::License( const QString& sRawLicense ) : m_sRawLicense( sRawLicense )
+License::License( const QString& sLicenseString ) : m_sLicenseString( sLicenseString )
 {
-	parse( sRawLicense );
+	parse( sLicenseString );
 }
 
 License::License( const License* pOther ) :
 	m_license( pOther->m_license ),
-	m_sRawLicense( pOther->m_sRawLicense ) {
+	m_sLicenseString( pOther->m_sLicenseString ) {
 }
 
 License::~License() {
@@ -39,17 +40,17 @@ License::~License() {
 
 void License::setType( LicenseType license ) {
 	m_license = license;
-	m_sRawLicense = toQString();
+	m_sLicenseString = LicenseTypeToQString( license );
 }
 
-void License::parse( const QString& sRawLicense ) {
+void License::parse( const QString& sLicenseString ) {
 
-	m_sRawLicense = sRawLicense;
+	m_sLicenseString = sLicenseString;
 
-	QString sUp = sRawLicense.toUpper();
+	QString sUp = sLicenseString.toUpper();
 
-	if ( sRawLicense.isEmpty() ||
-		 sRawLicense == "undefined license" ) {
+	if ( sLicenseString.isEmpty() ||
+		 sLicenseString == "undefined license" ) {
 		m_license = License::Unspecified;
 	}
 	else if ( sUp.contains( "CC" ) &&
@@ -101,48 +102,6 @@ void License::parse( const QString& sRawLicense ) {
 	}
 }
 
-QString License::toQString( const QString& sPrefix, bool ) const {
-
-	QString sType;
-	
-	switch( m_license ) {
-	case License::CC_0:
-		sType = "CC0";
-		break;
-	case License::CC_BY:
-		sType = "CC BY";
-		break;
-	case License::CC_BY_NC:
-		sType = "CC BY-NC";
-		break;
-	case License::CC_BY_SA:
-		sType = "CC BY-SA";
-		break;
-	case License::CC_BY_NC_SA:
-		sType = "CC BY-NC-SA";
-		break;
-	case License::CC_BY_ND:
-		sType = "CC BY-ND";
-		break;
-	case License::CC_BY_NC_ND:
-		sType = "CC BY-NC-ND";
-		break;
-	case License::GPL:
-		sType = "GPL";
-		break;
-	case License::AllRightsReserved:
-		sType = "All rights reserved";
-		break;
-	case License::Other:
-		sType = m_sRawLicense;
-		break;
-	default:
-		sType = "undefined license";
-	}
-
-	return QString( "%1%2" ).arg( sPrefix ).arg( sType );
-}
-
 bool License::isCopyleft() const {
 	if ( m_license == License::GPL ||
 		 m_license == License::CC_BY_SA ||
@@ -153,7 +112,7 @@ bool License::isCopyleft() const {
 	return false;
 }
 
-bool License::isCCBY() const {
+bool License::hasAttribution() const {
 	if ( m_license == License::CC_BY ||
 		 m_license == License::CC_BY_NC ||
 		 m_license == License::CC_BY_SA ||
@@ -165,7 +124,28 @@ bool License::isCCBY() const {
 
 	return false;
 }
-
+	
+QString License::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[License]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( LicenseTypeToQString( m_license ) ) )
+			.append( QString( "%1%2m_sLicenseString: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sLicenseString ) );
+	}
+	else {
+		sOutput = QString( "[License]" )
+			.append( QString( " m_license: %1" )
+					 .arg( LicenseTypeToQString( m_license ) ) )
+			.append( QString( ", m_sLicenseString: %1" )
+					 .arg( m_sLicenseString ) )
+			.append( "\n" );
+	}
+	
+	return sOutput;
+}
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

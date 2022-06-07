@@ -369,9 +369,9 @@ void Drumkit::save_to( XMLNode* node, int component_id, bool bRecentVersion ) co
 	node->write_string( "name", __name );
 	node->write_string( "author", __author );
 	node->write_string( "info", __info );
-	node->write_string( "license", __license.toQString() );
+	node->write_string( "license", __license.getLicenseString() );
 	node->write_string( "image", __image );
-	node->write_string( "imageLicense", __imageLicense.toQString() );
+	node->write_string( "imageLicense", __imageLicense.getLicenseString() );
 
 	// Only drumkits used for Hydrogen v0.9.7 or higher are allowed to
 	// have components. If the user decides to export the kit to
@@ -574,7 +574,7 @@ std::vector<QStringList> Drumkit::summarizeContent() const {
 												   ppInstrument->get_name() <<
 												   sComponentName <<
 												   pSample->get_filename() <<
-												   pSample->getLicense().toQString() );
+												   License::LicenseTypeToQString( pSample->getLicense().getType() ) );
 							}
 						}
 					}
@@ -1144,7 +1144,7 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 	} else {
 		
 		sOutput = QString( "[Drumkit]" )
-			.append( QString( ", path: %1" ).arg( __path ) )
+			.append( QString( " path: %1" ).arg( __path ) )
 			.append( QString( ", name: %1" ).arg( __name ) )
 			.append( QString( ", author: %1" ).arg( __author ) )
 			.append( QString( ", info: %1" ).arg( __info ) )

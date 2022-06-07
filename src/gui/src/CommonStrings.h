@@ -162,6 +162,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	// const QString& getDialogUnsavedChangesH1() const { return m_sDialogUnsavedChangedH1; }
 	// const QString& getDialogUnsavedChangesH2() const { return m_sDialogUnsavedChangedH2; }
 
+	const QString& getLicenseStringLbl() const { return m_sLicenseStringLbl; }
+	const QString& getLicenseComboToolTip() const { return m_sLicenseComboToolTip; }
+	const QString& getLicenseStringToolTip() const { return m_sLicenseStringToolTip; }
+	
 private:
 	QString m_sSmallSoloButton;
 	QString m_sSmallMuteButton;
@@ -282,5 +286,9 @@ private:
 	// QString m_sDialogSongLoadError;
 	// QString m_sDialogUnsavedChangedH1;
 	// QString m_sDialogUnsavedChangedH2;
+	
+	QString m_sLicenseStringLbl;
+	QString m_sLicenseComboToolTip;
+	QString m_sLicenseStringToolTip;
 };
 #endif

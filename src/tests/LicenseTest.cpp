@@ -80,6 +80,22 @@ void LicenseTest::testParsing() {
 	License licenseEmpty_1("undefined license");
 	CPPUNIT_ASSERT( licenseEmpty_1.getType() == License::Unspecified );
 
+	QString sLicense0_raw( "by Hydrogen Dev Team / CC BY" );
+	License license0_parsed( sLicense0_raw );
+	QString sLicense0_serialized( license0_parsed.getLicenseString() );
+	CPPUNIT_ASSERT( sLicense0_raw == sLicense0_serialized );
+	CPPUNIT_ASSERT( license0_parsed.getType() == License::CC_BY );
+
+	License license1( "CC BY SA" );
+	QString sLicense1_serialized( license1.getLicenseString() );
+	License license1_reparsed( sLicense1_serialized );
+	CPPUNIT_ASSERT( license1 == license1_reparsed );
+
+	QString sLicense2_raw( "CC BY Hydrogen Dev Team" );
+	License license2_parsed( sLicense2_raw );
+	QString sLicense2_serialized( license2_parsed.getLicenseString() );
+	CPPUNIT_ASSERT( sLicense2_raw == sLicense2_serialized );
+	CPPUNIT_ASSERT( license2_parsed.getType() == License::CC_BY );
 }
 
 void LicenseTest::testOperators() {

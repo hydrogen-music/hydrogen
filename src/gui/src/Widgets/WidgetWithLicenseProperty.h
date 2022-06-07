@@ -41,50 +41,33 @@ class WidgetWithLicenseProperty {
 protected:
 	void setupLicenseComboBox( QComboBox* pComboBox ) {
 
-		H2Core::License license;
-		license.setType( H2Core::License::CC_0 );
 		pComboBox->insertItem( static_cast<int>(H2Core::License::CC_0),
-							   license.toQString()
+							   H2Core::License::LicenseTypeToQString( H2Core::License::CC_0 )
 							   .append( " (Public Domain)" ) );
-	
-		license.setType( H2Core::License::CC_BY );
 		pComboBox->insertItem( static_cast<int>(H2Core::License::CC_BY),
-							   license.toQString() );
-	
-		license.setType( H2Core::License::CC_BY_NC );
+							   H2Core::License::LicenseTypeToQString( H2Core::License::CC_BY ) );
 		pComboBox->insertItem( static_cast<int>(H2Core::License::CC_BY_NC),
-							   license.toQString() );
-	
-		license.setType( H2Core::License::CC_BY_SA );
+							   H2Core::License::LicenseTypeToQString( H2Core::License::CC_BY_NC ) );
 		pComboBox->insertItem( static_cast<int>(H2Core::License::CC_BY_SA),
-							   license.toQString() );
-	
-		license.setType( H2Core::License::CC_BY_NC_SA );
+							   H2Core::License::LicenseTypeToQString( H2Core::License::CC_BY_SA ) );
 		pComboBox->insertItem( static_cast<int>(H2Core::License::CC_BY_NC_SA),
-							   license.toQString() );
-	
-		license.setType( H2Core::License::CC_BY_ND );
+							   H2Core::License::LicenseTypeToQString( H2Core::License::CC_BY_NC_SA ) );
 		pComboBox->insertItem( static_cast<int>(H2Core::License::CC_BY_ND),
-							   license.toQString() );
-	
-		license.setType( H2Core::License::CC_BY_NC_ND );
+							   H2Core::License::LicenseTypeToQString( H2Core::License::CC_BY_ND ) );
 		pComboBox->insertItem( static_cast<int>(H2Core::License::CC_BY_NC_ND),
-							   license.toQString() );
-	
-		license.setType( H2Core::License::GPL );
+							   H2Core::License::LicenseTypeToQString( H2Core::License::CC_BY_NC_ND ) );
 		pComboBox->insertItem( static_cast<int>(H2Core::License::GPL),
-							   license.toQString() );
-	
-		license.setType( H2Core::License::AllRightsReserved );
+							   H2Core::License::LicenseTypeToQString( H2Core::License::GPL ) );
 		pComboBox->insertItem( static_cast<int>(H2Core::License::AllRightsReserved),
-							   license.toQString() );
-	
+							   H2Core::License::LicenseTypeToQString( H2Core::License::AllRightsReserved ) );
+
+		/*: Label used for all license not directly supported in
+		  Hydrogen's license combo box.*/ 
 		pComboBox->insertItem( static_cast<int>(H2Core::License::Other),
 							   tr( "Other" ) );
-	
-		license.setType( H2Core::License::Unspecified );
+		/*: Label used if no license was specified.*/
 		pComboBox->insertItem( static_cast<int>(H2Core::License::Unspecified),
-							   license.toQString() );
+							   tr( "Unspecified" ) );
 
 		// Default value.
 		pComboBox->setCurrentIndex( static_cast<int>(H2Core::License::Unspecified) );

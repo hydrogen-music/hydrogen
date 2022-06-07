@@ -20,7 +20,9 @@
  *
  */
 
+#include "CommonStrings.h"
 #include "SongPropertiesDialog.h"
+
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/License.h>
@@ -33,6 +35,8 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
  : QDialog(parent)
 {
 	setupUi( this );
+	
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	adjustSize();
 	setMaximumSize( width(), height() );
@@ -49,12 +53,14 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 			 this, SLOT( licenseComboBoxChanged( int ) ) );
 
 	setupLicenseComboBox( licenseComboBox );
+	
+	licenseComboBox->setToolTip( pCommonStrings->getLicenseComboToolTip() );
+	licenseStringTxt->setToolTip( pCommonStrings->getLicenseStringToolTip() );
+	
 	licenseComboBox->setCurrentIndex( static_cast<int>( pSong->getLicense().getType() ) );
-	if ( pSong->getLicense().getType() == License::Other ) {
-		licenseTxt->setText( pSong->getLicense().toQString() );
-	}
-	else {
-		licenseTxt->hide();
+	licenseStringTxt->setText( pSong->getLicense().getLicenseString() );
+	if ( pSong->getLicense().getType() == License::Unspecified ) {
+		licenseStringTxt->hide();
 	}
 }
 
@@ -66,11 +72,14 @@ SongPropertiesDialog::~SongPropertiesDialog()
 
 void SongPropertiesDialog::licenseComboBoxChanged( int ) {
 
-	if ( licenseComboBox->currentIndex() == static_cast<int>(License::Other) ) {
-		licenseTxt->show();
+	licenseStringTxt->setText( License::LicenseTypeToQString(
+		static_cast<License::LicenseType>( licenseComboBox->currentIndex() ) ) );
+
+	if ( licenseComboBox->currentIndex() == static_cast<int>( License::Unspecified ) ) {
+		licenseStringTxt->hide();
 	}
 	else {
-		licenseTxt->hide();
+		licenseStringTxt->show();
 	}
 }
 
@@ -97,19 +106,15 @@ void SongPropertiesDialog::on_okBtn_clicked()
 		pSong->setNotes( notesTxt->toPlainText() );
 		bIsModified = true;
 	}
-	if ( static_cast<int>(pSong->getLicense().getType()) !=
-		 licenseComboBox->currentIndex() ) {
 
-		auto license = pSong->getLicense();
-		
-		if ( licenseComboBox->currentIndex() ==
-			 static_cast<int>(License::Other) ) {
-			license.parse( licenseTxt->text() );
-		}
-		else {
-			license.setType( static_cast<License::LicenseType>(licenseComboBox->currentIndex()) );
-		}
-		pSong->setLicense( license );
+	QString sNewLicenseString( licenseStringTxt->text() );
+	if ( licenseComboBox->currentIndex() ==
+		 static_cast<int>(License::Unspecified) ) {
+		sNewLicenseString = "";
+	}
+	License newLicense( sNewLicenseString );
+	if ( pSong->getLicense() != newLicense ) {
+		pSong->setLicense( newLicense );
 		bIsModified = true;
 	}
 
