@@ -551,47 +551,7 @@ void Drumkit::propagateLicense() {
 }
 
 std::vector<QStringList> Drumkit::summarizeContent() const {
-	std::vector<QStringList> results;
-
-	for ( const auto& ppInstrument : *__instruments ) {
-		if ( ppInstrument != nullptr ) {
-			for ( const auto& ppInstrumentComponent : *ppInstrument->get_components() ) {
-				if ( ppInstrumentComponent != nullptr ) {
-					for ( const auto& ppInstrumentLayer : *ppInstrumentComponent ) {
-						if ( ppInstrumentLayer != nullptr ) {
-							auto pSample = ppInstrumentLayer->get_sample();
-							if ( pSample != nullptr ) {
-								// Map component ID to component
-								// name.
-								bool bFound = false;
-								QString sComponentName;
-								for ( const auto& ppDrumkitComponent : *__components ) {
-									if ( ppInstrumentComponent->get_drumkit_componentID() ==
-										 ppDrumkitComponent->get_id() ) {
-										bFound = true;
-										sComponentName = ppDrumkitComponent->get_name();
-										break;
-									}
-								}
-
-								if ( ! bFound ) {
-									sComponentName = __components->front()->get_name();
-								}
-									
-								results.push_back( QStringList() << 
-												   ppInstrument->get_name() <<
-												   sComponentName <<
-												   pSample->get_filename() <<
-												   License::LicenseTypeToQString( pSample->getLicense().getType() ) );
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return std::move( results );
+	return std::move( __instruments->summarizeContent( __components ) );
 }
 
 bool Drumkit::remove( const QString& sDrumkitName, Filesystem::Lookup lookup )

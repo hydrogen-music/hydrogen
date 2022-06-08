@@ -176,6 +176,7 @@ void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInst
 					pMyComponent->set_layer( nullptr, i );
 
 				} else {
+					pSample->setLicense( pDrumkit->get_license() );
 					pMyComponent->set_layer( std::make_shared<InstrumentLayer>( src_layer, pSample ), i );
 				}
 			}
@@ -207,24 +208,30 @@ void Instrument::load_from( Drumkit* pDrumkit, std::shared_ptr<Instrument> pInst
 	this->set_apply_velocity ( pInstrument->get_apply_velocity() );
 }
 
-void Instrument::load_from( const QString& dk_name, const QString& instrument_name, Filesystem::Lookup lookup )
+void Instrument::load_from( const QString& sDrumkitName, const QString& sInstrumentName, Filesystem::Lookup lookup )
 {
-	Drumkit* pDrumkit = Drumkit::load_by_name( dk_name, false, lookup );
-	if ( !pDrumkit ) {
+	Drumkit* pDrumkit = Drumkit::load_by_name( sDrumkitName, false, lookup );
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( QString( "Unable to load instrument: corresponding drumkit [%1] could not be loaded" )
+				  .arg( sDrumkitName ) );
 		return;
 	}
 
 	assert( pDrumkit );
 
-	auto pInstrument = pDrumkit->get_instruments()->find( instrument_name );
-	if ( pInstrument!=nullptr ) {
+	auto pInstrument = pDrumkit->get_instruments()->find( sInstrumentName );
+	if ( pInstrument != nullptr ) {
 		load_from( pDrumkit, pInstrument );
+	}
+	else {
+		ERRORLOG( QString( "Unable to load instrument: instrument [%1] could not be found in drumkit [%2]" )
+				  .arg( sInstrumentName ).arg( sDrumkitName ) );
 	}
 	
 	delete pDrumkit;
 }
 
-	std::shared_ptr<Instrument> Instrument::load_from( XMLNode* node, const QString& dk_path, const QString& dk_name, bool bSilent )
+std::shared_ptr<Instrument> Instrument::load_from( XMLNode* node, const QString& dk_path, const QString& dk_name, bool bSilent )
 {
 	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false, bSilent );
 	if ( id == EMPTY_INSTR_ID ) {

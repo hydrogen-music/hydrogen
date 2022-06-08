@@ -20,10 +20,15 @@
  *
  */
 
+#include <core/Basics/DrumkitComponent.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/Sample.h>
 
 #include <core/Helpers/Xml.h>
-#include <core/Basics/Instrument.h>
+#include <core/License.h>
 
 #include <set>
 
@@ -221,6 +226,50 @@ void InstrumentList::move( int idx_a, int idx_b )
 	auto tmp = __instruments[idx_a];
 	__instruments.erase( __instruments.begin() + idx_a );
 	__instruments.insert( __instruments.begin() + idx_b, tmp );
+}
+
+std::vector<QStringList> InstrumentList::summarizeContent( const std::vector<DrumkitComponent*>* pDrumkitComponents ) const {
+	std::vector<QStringList> results;
+
+	for ( const auto& ppInstrument : __instruments ) {
+		if ( ppInstrument != nullptr ) {
+			for ( const auto& ppInstrumentComponent : *ppInstrument->get_components() ) {
+				if ( ppInstrumentComponent != nullptr ) {
+					for ( const auto& ppInstrumentLayer : *ppInstrumentComponent ) {
+						if ( ppInstrumentLayer != nullptr ) {
+							auto pSample = ppInstrumentLayer->get_sample();
+							if ( pSample != nullptr ) {
+								// Map component ID to component
+								// name.
+								bool bFound = false;
+								QString sComponentName;
+								for ( const auto& ppDrumkitComponent : *pDrumkitComponents ) {
+									if ( ppInstrumentComponent->get_drumkit_componentID() ==
+										 ppDrumkitComponent->get_id() ) {
+										bFound = true;
+										sComponentName = ppDrumkitComponent->get_name();
+										break;
+									}
+								}
+
+								if ( ! bFound ) {
+									sComponentName = pDrumkitComponents->front()->get_name();
+								}
+									
+								results.push_back( QStringList() << 
+												   ppInstrument->get_name() <<
+												   sComponentName <<
+												   pSample->get_filename() <<
+												   License::LicenseTypeToQString( pSample->getLicense().getType() ) );
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return std::move( results );
 }
 
 void InstrumentList::fix_issue_307()

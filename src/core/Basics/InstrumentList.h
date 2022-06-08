@@ -23,6 +23,8 @@
 #ifndef H2C_INSTRUMENT_LIST_H
 #define H2C_INSTRUMENT_LIST_H
 
+#include <QStringList>
+
 #include <vector>
 #include <core/Object.h>
 
@@ -31,6 +33,7 @@ namespace H2Core
 
 class XMLNode;
 class Instrument;
+class DrumkitComponent;
 
 /**
  * InstrumentList is a collection of instruments used within a song, a drumkit, ...
@@ -165,6 +168,11 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 */
 	static InstrumentList* load_from( XMLNode* node, const QString& dk_path,
 									  const QString& dk_name, bool bSilent = false );
+	/**
+	 * Returns vector of lists containing instrument name, component
+	 * name, file name, the license of all associated samples.
+	 */
+	std::vector<QStringList> summarizeContent( const std::vector<DrumkitComponent*>* pDrumkitComponents ) const;
 
 		/**
 		 * Fix GitHub issue #307, so called "Hi Bongo fiasco".

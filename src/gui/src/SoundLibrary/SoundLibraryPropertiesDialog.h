@@ -43,7 +43,10 @@ class SoundLibraryPropertiesDialog :  public QDialog,
 	H2_OBJECT(SoundLibraryPropertiesDialog)
 	Q_OBJECT
 	public:
-		SoundLibraryPropertiesDialog(QWidget* pParent , Drumkit *pDrumkitInfo, Drumkit *pPreDrumKit );
+		SoundLibraryPropertiesDialog( QWidget* pParent,
+									  Drumkit* pDrumkit,
+									  Drumkit* pPreDrumKit,
+									  bool bCurrentDrumkit );
 		~SoundLibraryPropertiesDialog();
 		void showEvent( QShowEvent *e ) override;
 
@@ -65,6 +68,16 @@ class SoundLibraryPropertiesDialog :  public QDialog,
 		 * current one in order to restore it.
 		 */
 		Drumkit* m_pPreDrumkitInfo;
+
+	/**
+	 * Specifies whether the dialog was invoked for drumkit that
+	 * can be found on disk (via the SoundLibrary tree) or for the one
+	 * currently loaded in the Song (via the main menu). For the
+	 * latter #m_pDrumkitInfo holds all the associated
+	 * DrumkitComponent but the instrument list is stored in the
+	 * current #Song.
+	 */
+	bool m_bCurrentDrumkit;
 };
 
 }

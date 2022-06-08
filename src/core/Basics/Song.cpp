@@ -816,6 +816,43 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 	
 	return notes;
 }
+
+int Song::findExistingComponent( const QString& sComponentName ) const {
+	for ( const auto& ppComponent : *m_pComponents ) {
+		if ( ppComponent->get_name().compare( sComponentName ) == 0 ){
+			return ppComponent->get_id();
+		}
+	}
+	return -1;
+}
+
+int Song::findFreeComponentID( int nStartingID ) const {
+
+	bool bFreeID = true;
+	
+	for ( const auto& ppComponent : *m_pComponents ) {
+		if ( ppComponent->get_id() == nStartingID ) {
+			bFreeID = false;
+			break;
+		}
+	}
+
+	if ( bFreeID ) {
+		return nStartingID;
+	}
+	else {
+		return findFreeComponentID( nStartingID + 1 );
+	}
+}
+
+QString Song::makeComponentNameUnique( const QString& sName ) const {
+	for ( const auto& ppComponent : *m_pComponents ) {
+		if ( ppComponent->get_name().compare( sName ) == 0 ){
+			return makeComponentNameUnique( sName + "_new" );
+		}
+	}
+	return sName;
+}
  
 QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
@@ -1274,6 +1311,14 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 				ERRORLOG( "Missing drumkit path" );
 			}
 
+			// Get license used by drumkit.
+			Drumkit* pDrumkit = Drumkit::load( drumkitPath, false, false, false );
+			License drumkitLicense;
+			if ( pDrumkit != nullptr ) {
+				drumkitLicense = pDrumkit->get_license();
+				delete pDrumkit;
+			}
+
 			QDomNode sFilenameNode = instrumentNode.firstChildElement( "filename" );
 
 			// back compatibility code ( song version <= 0.9.0 )
@@ -1284,14 +1329,14 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 				if ( !QFile( sFilename ).exists() && !drumkitPath.isEmpty() ) {
 					sFilename = drumkitPath + "/" + sFilename;
 				}
-				auto pSample = Sample::load( sFilename );
+				auto pSample = Sample::load( sFilename, drumkitLicense );
 				if ( pSample == nullptr ) {
 					// nel passaggio tra 0.8.2 e 0.9.0 il drumkit di default e' cambiato.
 					// Se fallisce provo a caricare il corrispettivo file in formato flac
 //					warningLog( "[readSong] Error loading sample: " + sFilename + " not found. Trying to load a flac..." );
 					sFilename = sFilename.left( sFilename.length() - 4 );
 					sFilename += ".flac";
-					pSample = Sample::load( sFilename );
+					pSample = Sample::load( sFilename, drumkitLicense );
 				}
 				if ( pSample == nullptr ) {
 					ERRORLOG( "Error loading sample: " + sFilename + " not found" );
@@ -1353,7 +1398,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 
 						std::shared_ptr<Sample> pSample;
 						if ( !sIsModified ) {
-							pSample = Sample::load( sFilename );
+							pSample = Sample::load( sFilename, drumkitLicense );
 						} else {
 							// FIXME, kill EnvelopePoint, create Envelope class
 							EnvelopePoint pt;
@@ -1377,7 +1422,8 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 								panNode = panNode.nextSiblingElement( "pan" );
 							}
 
-							pSample = Sample::load( sFilename, lo, ro, velocity, pan, fBpm );
+							pSample = Sample::load( sFilename, lo, ro, velocity,
+													pan, fBpm, drumkitLicense );
 						}
 						if ( pSample == nullptr ) {
 							ERRORLOG( "Error loading sample: " + sFilename + " not found" );

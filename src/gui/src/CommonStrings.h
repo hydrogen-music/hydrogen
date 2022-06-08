@@ -165,6 +165,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getLicenseStringLbl() const { return m_sLicenseStringLbl; }
 	const QString& getLicenseComboToolTip() const { return m_sLicenseComboToolTip; }
 	const QString& getLicenseStringToolTip() const { return m_sLicenseStringToolTip; }
+
+	const QString& getSoundLibraryFailedPreDrumkitLoad() const { return m_sSoundLibraryFailedPreDrumkitLoad; }
 	
 private:
 	QString m_sSmallSoloButton;
@@ -290,5 +292,7 @@ private:
 	QString m_sLicenseStringLbl;
 	QString m_sLicenseComboToolTip;
 	QString m_sLicenseStringToolTip;
+	
+	QString m_sSoundLibraryFailedPreDrumkitLoad;
 };
 #endif

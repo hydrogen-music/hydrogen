@@ -291,6 +291,18 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 	std::vector<std::shared_ptr<Note>> getAllNotes() const;
 
+	/** Checks whether a component of name @a sComponentName exists in
+	 * #m_pComponents.
+	 *
+	 * \return Component ID on success and -1 on failure.
+	 */
+	int findExistingComponent( const QString& sComponentName ) const;
+	int findFreeComponentID( int nStartingID = 0 ) const;
+	/** Ensures @a sComponentName is not used by any other component
+		loaded into the song yet.*/
+	QString makeComponentNameUnique( const QString& sComponentName ) const;
+
+
 	const QString& getCurrentDrumkitName() const;
 	void setCurrentDrumkitName( const QString& sName );
 	Filesystem::Lookup	getCurrentDrumkitLookup() const;

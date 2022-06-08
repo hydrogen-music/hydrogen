@@ -29,16 +29,18 @@
 #include "SoundLibraryPropertiesDialog.h"
 #include "../InstrumentRack.h"
 #include "SoundLibraryPanel.h"
+#include <core/Basics/InstrumentList.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 
 namespace H2Core
 {
 
-SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Drumkit *pDrumkitInfo, Drumkit *pPreDrumkit )
+SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Drumkit *pDrumkitInfo, Drumkit *pPreDrumkit, bool bCurrentDrumkit )
  : QDialog( pParent )
  , m_pDrumkitInfo( pDrumkitInfo )
  , m_pPreDrumkitInfo( pPreDrumkit )
+ , m_bCurrentDrumkit( bCurrentDrumkit )
 {
 	setupUi( this );
 	
@@ -127,12 +129,19 @@ void SoundLibraryPropertiesDialog::showEvent( QShowEvent *e )
 
 void SoundLibraryPropertiesDialog::updateLicenseTable() {
 	auto pPref = H2Core::Preferences::get_instance();
+	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
 	
 	if ( m_pDrumkitInfo == nullptr ){
 		return;
 	}
-	
-	std::vector<QStringList> content = m_pDrumkitInfo->summarizeContent();
+
+	std::vector<QStringList> content;
+	if ( m_bCurrentDrumkit ) {
+		content = pSong->getInstrumentList()->summarizeContent( pSong->getComponents() );
+	}
+	else {
+		content = m_pDrumkitInfo->summarizeContent();
+	}
 
 	if ( content.size() > 0 ) {
 		contentTable->show();

@@ -875,8 +875,8 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 	if (sText.startsWith("move instrument:")) {
 
-		Hydrogen *engine = Hydrogen::get_instance();
-		int nSourceInstrument = engine->getSelectedInstrumentNumber();
+		Hydrogen *pHydrogen = Hydrogen::get_instance();
+		int nSourceInstrument = pHydrogen->getSelectedInstrumentNumber();
 
 		// Starting point for instument list is 50 lower than
 		// on the drum pattern editor
@@ -885,8 +885,8 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 		int nTargetInstrument = pos_y / m_nGridHeight;
 
-		if( nTargetInstrument >= engine->getSong()->getInstrumentList()->size() ){
-			nTargetInstrument = engine->getSong()->getInstrumentList()->size() - 1;
+		if( nTargetInstrument >= pHydrogen->getSong()->getInstrumentList()->size() ){
+			nTargetInstrument = pHydrogen->getSong()->getInstrumentList()->size() - 1;
 		}
 
 		if ( nSourceInstrument == nTargetInstrument ) {
@@ -919,9 +919,9 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 			nTargetInstrument = ( event->pos().y() - 90 )  / m_nGridHeight ;
 		}
 
-		Hydrogen *engine = Hydrogen::get_instance();
-		if( nTargetInstrument > engine->getSong()->getInstrumentList()->size() ){
-			nTargetInstrument = engine->getSong()->getInstrumentList()->size();
+		Hydrogen *pHydrogen = Hydrogen::get_instance();
+		if( nTargetInstrument > pHydrogen->getSong()->getInstrumentList()->size() ){
+			nTargetInstrument = pHydrogen->getSong()->getInstrumentList()->size();
 		}
 
 		// Check whether the drumkit was chosen amongst the system's
