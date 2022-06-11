@@ -1217,6 +1217,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 				}
 			}	
 			pSong->setCurrentDrumkitLookup( static_cast<Filesystem::Lookup>( iLookup ) );
+			
 			QString sName = LocalFileMng::readXmlString( instrumentNode, "name", "" );		// name
 			float fVolume = LocalFileMng::readXmlFloat( instrumentNode, "volume", 1.0 );	// volume
 			bool bIsMuted = LocalFileMng::readXmlBool( instrumentNode, "isMuted", false );	// is muted
@@ -1278,6 +1279,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 			pInstrument->set_soloed( bIsSoloed );
 			pInstrument->setPan( fPan );
 			pInstrument->set_drumkit_name( sDrumkit );
+			pInstrument->set_drumkit_lookup( static_cast<Filesystem::Lookup>( iLookup ) );
 			pInstrument->set_apply_velocity( bApplyVelocity );
 			pInstrument->set_fx_level( fFX1Level, 0 );
 			pInstrument->set_fx_level( fFX2Level, 1 );

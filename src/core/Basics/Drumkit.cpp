@@ -98,10 +98,10 @@ Drumkit* Drumkit::load_by_name( const QString& dk_name, const bool load_samples,
 		return nullptr;
 	}
 	
-	return load( sDrumkitPath, load_samples );
+	return load( sDrumkitPath, load_samples, true, false, lookup );
 }
 
-Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUpgrade, bool bSilent )
+Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUpgrade, bool bSilent, Filesystem::Lookup lookup )
 {
 	if ( ! bSilent ) {
 		INFOLOG( QString( "Load drumkit %1" ).arg( dk_dir ) );
@@ -111,10 +111,11 @@ Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUp
 		ERRORLOG( QString( "%1 is not valid drumkit" ).arg( dk_dir ) );
 		return nullptr;
 	}
-	return load_file( Filesystem::drumkit_file( dk_dir ), load_samples, bUpgrade, bSilent );
+	return load_file( Filesystem::drumkit_file( dk_dir ), load_samples, bUpgrade, bSilent,
+					  lookup);
 }
 
-Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bool bUpgrade, bool bSilent )
+Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bool bUpgrade, bool bSilent, Filesystem::Lookup lookup )
 {
 	bool bReadingSuccessful = true;
 	
@@ -151,7 +152,7 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bo
 
 	Drumkit* pDrumkit =
 		Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ),
-							bSilent );
+							bSilent, lookup );
 	if ( ! bReadingSuccessful && bUpgrade ) {
 		upgrade_drumkit( pDrumkit, dk_path );
 	}
@@ -161,7 +162,7 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bo
 	return pDrumkit;
 }
 
-Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent )
+Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent, Filesystem::Lookup lookup )
 {
 	QString drumkit_name = node->read_string( "name", "", false, false, bSilent );
 	if ( drumkit_name.isEmpty() ) {
@@ -214,6 +215,13 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 		WARNINGLOG( "instrumentList node not found" );
 	} else {
 		pDrumkit->set_instruments( InstrumentList::load_from( &instruments_node, dk_path, drumkit_name, bSilent ) );
+	}
+
+	// propagate drumkit lookup
+	for ( const auto& ppInstrument : *pDrumkit->get_instruments() ) {
+		if ( ppInstrument != nullptr ) {
+			ppInstrument->set_drumkit_lookup( lookup );
+		}
 	}
 
 	// Instead of making the *::load_from() functions more complex by
