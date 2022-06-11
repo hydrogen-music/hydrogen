@@ -1113,6 +1113,10 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 	if ( editor == Editor::PianoRoll ) {
 		auto pSelectedInstrument =
 			pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
+		if ( pSelectedInstrument == nullptr ) {
+			ERRORLOG( "No instrument selected" );
+			return;
+		}
 		
 		Note::Octave pressedOctave = Note::pitchToOctave( lineToPitch( nRow ) );
 		Note::Key pressedNoteKey = Note::pitchToKey( lineToPitch( nRow ) );
@@ -1124,6 +1128,10 @@ void PatternEditor::editNoteLengthAction( int nColumn,
 	}
 	else if ( editor == Editor::DrumPattern ) {
 		auto pSelectedInstrument = pSong->getInstrumentList()->get( nRow );
+		if ( pSelectedInstrument == nullptr ) {
+			ERRORLOG( "No instrument selected" );
+			return;
+		}
 		pDraggedNote = pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
 	}
 	else {
@@ -1182,6 +1190,10 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 		
 		auto pSelectedInstrument =
 			pSong->getInstrumentList()->get( nSelectedInstrumentNumber );
+		if ( pSelectedInstrument == nullptr ) {
+			ERRORLOG( "No instrument selected" );
+			return;
+		}
 		
 		Note::Octave pressedOctave = Note::pitchToOctave( lineToPitch( nRow ) );
 		Note::Key pressedNoteKey = Note::pitchToKey( lineToPitch( nRow ) );
@@ -1193,6 +1205,10 @@ void PatternEditor::editNotePropertiesAction( int nColumn,
 	}
 	else if ( editor == Editor::DrumPattern ) {
 		auto pSelectedInstrument = pSong->getInstrumentList()->get( nRow );
+		if ( pSelectedInstrument == nullptr ) {
+			ERRORLOG( "No instrument selected" );
+			return;
+		}
 		pDraggedNote = pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
 	}
 	else {

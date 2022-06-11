@@ -213,42 +213,8 @@ void LayerPreview::updateSongEvent( int nValue ) {
 
 void LayerPreview::selectedInstrumentChangedEvent()
 {
-	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
-	if (pSong != nullptr) {
-		InstrumentList *pInstrList = pSong->getInstrumentList();
-		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		if ( nInstr >= (int)pInstrList->size() ) {
-			nInstr = -1;
-		}
-
-		if (nInstr == -1) {
-			m_pInstrument = nullptr;
-		}
-		else {
-			m_pInstrument = pInstrList->get( nInstr );
-		}
-	}
-	else {
-		m_pInstrument = nullptr;
-	}
-	Hydrogen::get_instance()->getAudioEngine()->unlock();
+	m_pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 	
-	/*
-	if ( m_pInstrument ) {
-		auto p_tmpCompo = m_pInstrument->get_component( m_nSelectedComponent );
-		if(!p_tmpCompo) {
-			for(int i = 0 ; i < InstrumentComponent::getMaxLayers() ; i++) {
-				p_tmpCompo = m_pInstrument->get_component( i );
-				if(p_tmpCompo) {
-					m_nSelectedComponent = i;
-					break;
-				}
-			}
-		}
-	}
-	*/
-
 	bool bSelectedLayerChanged = false;
 	
 	// select the last valid layer

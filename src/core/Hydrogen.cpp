@@ -1702,6 +1702,30 @@ void Hydrogen::updateSongSize() {
 	getAudioEngine()->updateSongSize();
 }
 
+std::shared_ptr<Instrument> Hydrogen::getSelectedInstrument() const {
+
+	std::shared_ptr<Instrument> pInstrument = nullptr;
+	
+	if ( __song != nullptr ) {
+		
+		m_pAudioEngine->lock( RIGHT_HERE );
+
+		int nSelectedInstrumentNumber = m_nSelectedInstrumentNumber;
+		auto pInstrList = __song->getInstrumentList();
+		if ( nSelectedInstrumentNumber >= pInstrList->size() ) {
+			nSelectedInstrumentNumber = -1;
+		}
+
+		if ( nSelectedInstrumentNumber != -1 ) {
+			pInstrument = pInstrList->get( nSelectedInstrumentNumber );
+		}
+		
+		m_pAudioEngine->unlock();
+	}
+
+	return pInstrument;
+}
+
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 
 	QString s = Base::sPrintIndention;

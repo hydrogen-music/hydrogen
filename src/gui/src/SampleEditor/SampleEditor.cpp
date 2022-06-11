@@ -175,27 +175,14 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 
 void SampleEditor::getAllFrameInfos()
 {
-	std::shared_ptr<H2Core::Instrument> pInstrument = nullptr;
 	std::shared_ptr<Sample> pSample;
-	std::shared_ptr<Song> pSong = Hydrogen::get_instance()->getSong();
 	
-	if (pSong != nullptr) {
-		InstrumentList *pInstrList = pSong->getInstrumentList();
-		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		if ( nInstr >= static_cast<int>(pInstrList->size()) ) {
-			nInstr = -1;
-		}
+	auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
 
-		if (nInstr == -1) {
-			pInstrument = nullptr;
-		}
-		else {
-			pInstrument = pInstrList->get( nInstr );
-			//INFOLOG( "new instr: " + pInstrument->m_sName );
-		}
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( "No instrument selected" );
+		return;
 	}
-	
-	assert( pInstrument );
 
 	auto pCompo = pInstrument->get_component( m_nSelectedComponent );
 	assert( pCompo );
