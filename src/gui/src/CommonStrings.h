@@ -158,6 +158,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getButtonPlayOriginalSample() const { return m_sButtonPlayOriginalSample; }
 	const QString& getUnsavedChanges() const { return m_sUnsavedChanges; }
 
+	const QString& getMutableDialog() const { return m_sMutableDialog; }
+
 	// const QString& getDialogSongLoadError() const { return m_sDialogSongLoadError; }
 	// const QString& getDialogUnsavedChangesH1() const { return m_sDialogUnsavedChangedH1; }
 	// const QString& getDialogUnsavedChangesH2() const { return m_sDialogUnsavedChangedH2; }
@@ -281,6 +283,8 @@ private:
 	QString m_sButtonPlay;
 	QString m_sButtonPlayOriginalSample;
 	QString m_sUnsavedChanges;
+	
+	QString m_sMutableDialog;
 	
 	// Not used yet. A redesign of the GUI startup is required first
 	// since these strings are required _before_ HydrogenApp was

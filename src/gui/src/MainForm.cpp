@@ -2077,7 +2077,8 @@ void MainForm::showDevelWarning()
 			develMessageBox.setText( msg );
 			develMessageBox.addButton( pCommonStrings->getButtonOk(),
 									   QMessageBox::YesRole );
-			develMessageBox.addButton( tr( "Don't show this message anymore" ) , QMessageBox::AcceptRole );
+			develMessageBox.addButton( pCommonStrings->getMutableDialog(),
+									   QMessageBox::AcceptRole );
 
 			if( develMessageBox.exec() == 1 ){
 				//don't show warning again

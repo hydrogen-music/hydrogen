@@ -22,6 +22,11 @@
 #include "PatternEditor.h"
 #include "PatternEditorRuler.h"
 #include "PatternEditorInstrumentList.h"
+#include "PatternEditorPanel.h"
+#include "../CommonStrings.h"
+#include "../HydrogenApp.h"
+#include "../EventListener.h"
+#include "../UndoActions.h"
 
 #include <core/Globals.h>
 #include <core/Basics/Song.h>
@@ -38,11 +43,6 @@
 #include <core/Basics/Note.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Helpers/Xml.h>
-
-#include "../HydrogenApp.h"
-#include "../EventListener.h"
-#include "PatternEditorPanel.h"
-#include "UndoActions.h"
 
 
 using namespace std;
@@ -472,6 +472,8 @@ bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements
 	if ( m_pPattern == nullptr ) {
 		return false;
 	}
+
+	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	
 	//	Hydrogen *pH = Hydrogen::get_instance();
 	std::set< Note *> duplicates;
@@ -498,7 +500,7 @@ bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements
 			QString sMsg ( tr( "Placing these notes here will overwrite %1 duplicate notes." ) );
 			QMessageBox messageBox ( QMessageBox::Warning, "Hydrogen", sMsg.arg( duplicates.size() ),
 									 QMessageBox::Cancel | QMessageBox::Ok, this );
-			messageBox.setCheckBox( new QCheckBox( tr( "Don't show this message again" ) ) );
+			messageBox.setCheckBox( new QCheckBox( pCommonStrings->getMutableDialog() ) );
 			messageBox.checkBox()->setChecked( false );
 			bOk = messageBox.exec() == QMessageBox::Ok;
 			if ( messageBox.checkBox()->isChecked() ) {

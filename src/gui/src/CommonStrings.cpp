@@ -387,6 +387,8 @@ CommonStrings::CommonStrings(){
 	  character introduces a linebreak and must not be translated*/
 	m_sUnsavedChanges = tr( "Unsaved changes left. These changes will be lost. \nAre you sure?" );
 
+	m_sMutableDialog = tr( "Don't show this message again" );
+	
 	// Not used yet.
 	/*: Displayed in the Open dialog window if the selected song could
 	  not be loaded.*/
