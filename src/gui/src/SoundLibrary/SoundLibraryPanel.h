@@ -59,6 +59,7 @@ public:
 	void update_background_color();
 	virtual void drumkitLoadedEvent() override;
 	virtual void updateSongEvent( int nValue ) override;
+	virtual void selectedInstrumentChangedEvent() override;
 
 public slots:
 	void on_drumkitLoadAction();
