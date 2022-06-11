@@ -1312,12 +1312,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 			}
 
 			// Get license used by drumkit.
-			Drumkit* pDrumkit = Drumkit::load( drumkitPath, false, false, false );
-			License drumkitLicense;
-			if ( pDrumkit != nullptr ) {
-				drumkitLicense = pDrumkit->get_license();
-				delete pDrumkit;
-			}
+			License drumkitLicense = Drumkit::loadLicense( drumkitPath );
 
 			QDomNode sFilenameNode = instrumentNode.firstChildElement( "filename" );
 

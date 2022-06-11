@@ -127,6 +127,30 @@ class Drumkit : public H2Core::Object<Drumkit>
 		void unload_samples();
 
 	/**
+	 * Loads the license information of a drumkit contained in
+	 * directory @a sDrumkitDir.
+	 *
+	 * This function is a wrapper around load_file(). The
+	 * provided drumkit directory @a dk_dir is converted
+	 * by Filesystem::drumkit_file() internally.
+	 *
+	 * \param sDrumkitDir Directory containing a drumkit.xml file.
+	 */
+	static License loadLicense( const QString& sDrumkitDir );
+	/**
+	 * Simple wrapper for loadLicense() used with the drumkit's
+	 * name instead of its directory.
+	 *
+	 * Uses Filesystem::drumkit_path_search() to determine
+	 * the directory of the Drumkit from @a sDrumkitName.
+	 *
+	 * \param sDrumkitName Name of the Drumkit.
+	 * \param lookup Where to search (system/user folder or both)
+	 * for the drumkit.
+	 */
+	static License loadLicenseByName( const QString& sDrumkitName, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
+	
+	/**
 	 * Returns a version of #__name stripped of all whitespaces and
 	 * other characters which would prevent its use as a valid
 	 * filename.
