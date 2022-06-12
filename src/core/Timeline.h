@@ -49,7 +49,7 @@ namespace H2Core
  * holding the current Song::m_fBpm (the tempo set via the BPM
  * widget). This special first marker can only be "removed" by the
  * user by adding a TempoMarker to the first column. In addition, it's
- * tempo get's updated when toggling the Timeline. This, it does not
+ * tempo gets updated when toggling the Timeline. This, it does not
  * immediately respond to changes of the song tempo (using the BPM
  * widget or MIDI/OSC commands). The special tempo marker is prepended
  * in the getAllTempoMarkers() functions.
@@ -129,7 +129,7 @@ public:
 	 * Returns the tempo of the Song at a given column.
 	 *
 	 * There does not have to be a TempoMarker present at @a nColumn
-	 * as the function takes all preceeding ones into account as well.
+	 * as the function takes all preceding ones into account as well.
 	 *
 	 * @param nColumn Position of the Timeline to query for a 
 	 *   tempo marker.

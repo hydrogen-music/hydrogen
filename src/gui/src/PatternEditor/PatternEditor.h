@@ -160,7 +160,7 @@ public:
 	static constexpr int nMargin = 20;
 
 	/** Caches the AudioEngine::m_nPatternTickPosition in the member
-		variable #m_nTick and triggeres an update(). */
+		variable #m_nTick and triggers an update(). */
 	void updatePosition( float fTick );
 	void editNoteLengthAction( int nColumn,
 							   int nRealColumn,

@@ -66,7 +66,7 @@ void EventQueue::push_event( const EventType type, const int nValue )
 //	INFOLOG( QString( "[pushEvent] %1 : %2 %3" ).arg( nIndex ).arg( ev.type ).arg( ev.value ) );
 
 	/* If the event queue is full, log an error. We could drop the old event, or the new event we're trying to
-	   place. It's preferrable to drop the oldest event in the queue, on the basis that many
+	   place. It's preferable to drop the oldest event in the queue, on the basis that many
 	   change-of-state-events are probably no longer relevant or redundant based on newer events in the queue,
 	   so we keep the new event. However, since the new event has overwritten the oldest event in the queue,
 	   we also adjust the read pointer, otherwise pop_event would return this newest event on the next call,

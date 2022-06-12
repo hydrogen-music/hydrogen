@@ -89,7 +89,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm )
 	m_pEventQueueTimer->start( QUEUE_TIMER_PERIOD );
 
 	// Wait for m_nPreferenceUpdateTimeout milliseconds of no update
-	// signal before propagating the update. Else importing/reseting a
+	// signal before propagating the update. Else importing/resetting a
 	// theme will slow down the GUI significantly.
 	m_pPreferencesUpdateTimer = new QTimer( this );
 	m_pPreferencesUpdateTimer->setSingleShot( true );
@@ -416,7 +416,7 @@ bool HydrogenApp::openSong( QString sFilename) {
 	if ( ! sRecoverFilename.isEmpty() ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
-		// HydrogenApp was instanciated.
+		// HydrogenApp was instantiated.
 		msgBox.setText( tr( "There are unsaved changes." ) );
 		msgBox.setInformativeText( tr( "Do you want to recover them?" ) );
 		msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Discard );
@@ -433,7 +433,7 @@ bool HydrogenApp::openSong( QString sFilename) {
 	if ( ! pCoreActionController->openSong( sFilename, sRecoverFilename ) ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
-		// HydrogenApp was instanciated.
+		// HydrogenApp was instantiated.
 		msgBox.setText( tr( "Error loading song." ) );
 		msgBox.setWindowTitle( "Hydrogen" );
 		msgBox.setIcon( QMessageBox::Warning );
@@ -450,7 +450,7 @@ bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 	if ( ! pCoreActionController->openSong( pSong ) ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
-		// HydrogenApp was instanciated.
+		// HydrogenApp was instantiated.
 		msgBox.setText( tr( "Error loading song." ) );
 		msgBox.setWindowTitle( "Hydrogen" );
 		msgBox.setIcon( QMessageBox::Warning );
@@ -493,7 +493,7 @@ bool HydrogenApp::recoverEmptySong() {
 	if ( ! sRecoverFilename.isEmpty() ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
-		// HydrogenApp was instanciated.
+		// HydrogenApp was instantiated.
 		msgBox.setText( tr( "There are unsaved changes." ) );
 		msgBox.setInformativeText( tr( "Do you want to recover them?" ) );
 		msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Discard );
@@ -514,7 +514,7 @@ bool HydrogenApp::recoverEmptySong() {
 	if ( ! pCoreActionController->openSong( sFilename, sRecoverFilename ) ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
-		// HydrogenApp was instanciated.
+		// HydrogenApp was instantiated.
 		msgBox.setText( tr( "Error loading song." ) );
 		msgBox.setWindowTitle( "Hydrogen" );
 		msgBox.setIcon( QMessageBox::Warning );

@@ -269,7 +269,7 @@ namespace H2Core
 		static QString drumkit_file( const QString& dk_path );
 
 		/**
-		 * Returns filename and extention of the expected drumkit file.
+		 * Returns filename and extension of the expected drumkit file.
 		 */
 		static QString drumkit_xml();
 
@@ -318,7 +318,7 @@ namespace H2Core
 		 * event informing the GUI to show a read-only warning.)
 		 *
 		 * \param sSongPath Absolute path to an .h2song file.
-		 * \param bCheckExistance Whether the existance of the file is
+		 * \param bCheckExistance Whether the existence of the file is
 		 * checked (should be true for opening and false for creating
 		 * a new song)
 		 * \return true - if valid.

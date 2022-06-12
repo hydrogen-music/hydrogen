@@ -106,7 +106,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		static MidiActionManager *__instance;
 
 		/**
-		 * Holds the names of all Action identfiers which Hydrogen is
+		 * Holds the names of all Action identifiers which Hydrogen is
 		 * able to interpret.
 		 */
 	QStringList m_actionList;
@@ -178,7 +178,7 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		 * Handles multiple actions at once and calls handleAction()
 		 * on them.
 		 *
-		 * \return true - in case all actions were successul, false - otherwise.
+		 * \return true - in case all actions were successful, false - otherwise.
 		 */
 	bool handleActions( std::vector<std::shared_ptr<Action>> );
 		/**

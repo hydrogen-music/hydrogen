@@ -56,7 +56,7 @@ public:
 	{
 		return getBufferSize();
 	}
-	/** Get the number of XRuns that occured since the audio driver
+	/** Get the number of XRuns that occurred since the audio driver
 	 *	has started.
 	 */
 	virtual int getXRuns() const { return 0; }

@@ -78,7 +78,7 @@ class InstrumentComponent;
  * etc. Of all these information Hydrogen does only use the provided
  * tempo (and overrides all internal ones). Therefore, unlike many
  * other application, it does _not_ respond to changes in measure
- * (since these would have to be mapped to the lenght of the current
+ * (since these would have to be mapped to the length of the current
  * pattern). Every client can be registered as timebase master by
  * supplying a callback (for Hydrogen this would be
  * JackTimebaseCallback()) but there can be at most one timebase

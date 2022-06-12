@@ -42,7 +42,7 @@ hydrogen (1.0.0) unstable; urgency=low
   * LADI support
   * maximum number of bars is now configurable
   * added czech translation
-  * fixed serveral export song failures
+  * fixed several export song failures
   * added ogg, flac, aiff export support
   * added some new commandline parameter for no_gui version
   * added rubberband-cli support
