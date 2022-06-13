@@ -74,7 +74,7 @@ More details in the [INSTALL.md](INSTALL.md) file.
 <details>
   <summary>Expand to see the status of Hydrogen in the package ecosystem</summary>
   
-  [![Packaging status](https://repology.org/badge/vertical-allrepos/hydrogen.svg?header=Hydrogen)](https://repology.org/project/hydrogen/versions)
+  [![Packaging status](https://repology.org/badge/vertical-allrepos/hydrogen-drum-machine.svg?header=Hydrogen)](https://repology.org/project/hydrogen-drum-machine/versions)
 
 </details>
 
