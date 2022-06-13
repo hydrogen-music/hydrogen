@@ -52,7 +52,7 @@ CommonStrings::CommonStrings(){
 	  is designed to hold three characters.*/
 	m_sTimelineBigButton = tr( "Timeline" );
 	/*: Text displayed on the button to enable the LADSPA effect strips. Its size
-	  is designed to hold eigth characters.*/
+	  is designed to hold eight characters.*/
 	m_sFXButton = tr( "FX" );
 	/*: Text displayed on the button to show the instrument peaks. Its size
 	  is designed to hold four characters.*/
@@ -262,7 +262,7 @@ CommonStrings::CommonStrings(){
 	 characters but not that flexible.*/
 	m_sTimeMilliSecondsLabel = tr( "1/1000" );
 	/*: Text displayed in the Master Mixer Strip as a heading for the
-	  humanization rotaries. Designed to hold eigth characters but not
+	  humanization rotaries. Designed to hold eight characters but not
 	  that flexible.*/
 	m_sHumanizeLabel = tr( "Humanize" );
 	/*: Text displayed in the Master Mixer Strip as a heading for the

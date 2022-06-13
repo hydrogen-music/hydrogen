@@ -2041,7 +2041,7 @@ void PreferencesDialog::resetTheme() {
 	updateAppearanceTab( m_pCurrentTheme );
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 
-	HydrogenApp::get_instance()->setStatusBarMessage( tr( "Theme reseted" ), 10000 );
+	HydrogenApp::get_instance()->setStatusBarMessage( tr( "Theme reset" ), 10000 );
 }
 
 

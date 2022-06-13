@@ -167,7 +167,7 @@ MidiActionManager::MidiActionManager() {
 	m_actionMap.insert(std::make_pair("UNDO_ACTION", std::make_pair( &MidiActionManager::undo_action, 0 ) ));
 	m_actionMap.insert(std::make_pair("REDO_ACTION", std::make_pair( &MidiActionManager::redo_action, 0 ) ));
 	/*
-	  the m_actionList holds all Action identfiers which hydrogen is able to interpret.
+	  the m_actionList holds all Action identifiers which hydrogen is able to interpret.
 	*/
 	m_actionList <<"";
 	for ( const auto& ppAction : m_actionMap ) {
