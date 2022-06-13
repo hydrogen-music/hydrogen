@@ -49,7 +49,7 @@ class License : public H2Core::Object<License>
 	H2_OBJECT(License)
 public:
 
-	License( const QString& sLicenseString = "" );
+	License( const QString& sLicenseString = "", const QString& sCopyrightHolder = "" );
 	License( const License* pOther );
 	~License();
 
@@ -80,6 +80,8 @@ public:
 
 	void parse( const QString& sLicenseString );
 	QString getLicenseString() const;
+	QString getCopyrightHolder() const;
+	void setCopyrightHolder( const QString& sCopyrightHolder );
 
 	bool isCopyleft() const;
 	bool hasAttribution() const;
@@ -91,6 +93,10 @@ public:
 		if ( m_license == other.m_license ) {
 			if ( m_license == License::Other &&
 				 m_sLicenseString != other.m_sLicenseString ) {
+				return false;
+			}
+			else if ( hasAttribution() &&
+					  m_sCopyrightHolder != other.m_sCopyrightHolder ) {
 				return false;
 			}
 			else {
@@ -128,6 +134,12 @@ public:
 private:
 	LicenseType m_license;
 	QString m_sLicenseString;
+	/** This variable will not be written to disk. It just serves as a
+	 * temporary vessel for the e.g. drumkit's or song's
+	 * author. Storing it would lead to additional effort for keeping
+	 * it in sync with the former.
+	 */
+	QString m_sCopyrightHolder;
 };
 
 inline License::LicenseType License::getType() const {
@@ -135,6 +147,12 @@ inline License::LicenseType License::getType() const {
 }
 inline QString License::getLicenseString() const {
 	return m_sLicenseString;
+}
+inline QString License::getCopyrightHolder() const {
+	return m_sCopyrightHolder;
+}
+inline void License::setCopyrightHolder( const QString& sCopyrightHolder ) {
+	m_sCopyrightHolder = sCopyrightHolder;
 }
 inline QString License::LicenseTypeToQString( License::LicenseType license ) {
 

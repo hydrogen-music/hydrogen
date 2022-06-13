@@ -179,12 +179,14 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 										  true, true, bSilent  );
 
 	License license( node->read_string( "license", "undefined license",
-										true, true, bSilent  ) );
+										true, true, bSilent  ),
+					 pDrumkit->__author );
 	pDrumkit->set_license( license );
 	pDrumkit->__image = node->read_string( "image", "",
 										   true, true, true  );
 	License imageLicense( node->read_string( "imageLicense", "undefined license",
-											 true, true, bSilent  ) );
+											 true, true, bSilent  ),
+						  pDrumkit->__author );
 	pDrumkit->set_image_license( imageLicense );
 
 	XMLNode componentListNode = node->firstChildElement( "componentList" );
@@ -270,6 +272,8 @@ License Drumkit::loadLicense( const QString& sDrumkitDir )
 		return License();
 	}
 
+	QString sAuthor = root.read_string( "author", "undefined author",
+										 true, true, false );
 	QString sLicenseString = root.read_string( "license", "undefined license",
 											   false, true, false  );
 	if ( sLicenseString.isNull() ) {
@@ -278,7 +282,7 @@ License Drumkit::loadLicense( const QString& sDrumkitDir )
 		return License();
 	}
 
-	return License( sLicenseString );
+	return std::move( License( sLicenseString, sAuthor ) );
 }
 	
 void Drumkit::upgrade_drumkit(Drumkit* pDrumkit, const QString& dk_path, bool bSilent )

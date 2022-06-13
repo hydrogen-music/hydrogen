@@ -308,7 +308,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	bool reload = false;
-
+    
 	// Sanity checks.
 	//
 	// Check whether the license strings from the line edits comply to
@@ -391,6 +391,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 			sNewLicenseString = "";
 		}
 		License newLicense( sNewLicenseString );
+		newLicense.setCopyrightHolder( m_pDrumkitInfo->get_author() );
 		// Only update the license in case it changed (in order to not
 		// overwrite an attribution).
 		if ( m_pDrumkitInfo->get_license() != newLicense ) {
@@ -409,6 +410,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 			sNewImageLicenseString = "";
 		}
 		License newImageLicense( sNewImageLicenseString );
+		newImageLicense.setCopyrightHolder( m_pDrumkitInfo->get_author() );
 		if ( m_pDrumkitInfo->get_image_license() != newImageLicense ) {
 			m_pDrumkitInfo->set_image_license( newImageLicense );
 		}

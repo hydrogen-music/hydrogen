@@ -88,7 +88,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_bPlaybackTrackEnabled( false )
 	, m_fPlaybackTrackVolume( 0.0 )
 	, m_pVelocityAutomationPath( nullptr )
-	, m_license( License() )
+	, m_license( License( "", sAuthor ) )
 	, m_actionMode( ActionMode::selectMode )
 	, m_bIsPatternEditorLocked( false )
 	, m_nPanLawType ( Sampler::RATIO_STRAIGHT_POLYGONAL )
@@ -1048,7 +1048,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	QString sName( LocalFileMng::readXmlString( songNode, "name", "Untitled Song" ) );
 	QString sAuthor( LocalFileMng::readXmlString( songNode, "author", "Unknown Author" ) );
 	QString sNotes( LocalFileMng::readXmlString( songNode, "notes", "..." ) );
-	License license( LocalFileMng::readXmlString( songNode, "license", "" ) );
+	License license( LocalFileMng::readXmlString( songNode, "license", "" ), sAuthor );
 	bool bLoopEnabled = LocalFileMng::readXmlBool( songNode, "loopEnabled", false );
 	bool bPatternMode =
 		LocalFileMng::readXmlBool( songNode, "patternModeMode",

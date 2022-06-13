@@ -25,14 +25,17 @@
 
 namespace H2Core {
 
-License::License( const QString& sLicenseString ) : m_sLicenseString( sLicenseString )
+	License::License( const QString& sLicenseString, const QString& sCopyrightHolder ) :
+	m_sLicenseString( sLicenseString ),
+	m_sCopyrightHolder( sCopyrightHolder )
 {
 	parse( sLicenseString );
 }
 
 License::License( const License* pOther ) :
 	m_license( pOther->m_license ),
-	m_sLicenseString( pOther->m_sLicenseString ) {
+	m_sLicenseString( pOther->m_sLicenseString ),
+	m_sCopyrightHolder( pOther->m_sCopyrightHolder ) {
 }
 
 License::~License() {
@@ -51,6 +54,7 @@ void License::parse( const QString& sLicenseString ) {
 
 	if ( sLicenseString.isEmpty() ||
 		 sLicenseString == "undefined license" ) {
+		m_sLicenseString = "undefined license";
 		m_license = License::Unspecified;
 	}
 	else if ( sUp.contains( "CC" ) &&
@@ -133,7 +137,9 @@ QString License::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( LicenseTypeToQString( m_license ) ) )
 			.append( QString( "%1%2m_sLicenseString: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_sLicenseString ) );
+					 .arg( m_sLicenseString ) )
+			.append( QString( "%1%2m_sCopyrightHolder: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_sCopyrightHolder ) );
 	}
 	else {
 		sOutput = QString( "[License]" )
@@ -141,6 +147,8 @@ QString License::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( LicenseTypeToQString( m_license ) ) )
 			.append( QString( ", m_sLicenseString: %1" )
 					 .arg( m_sLicenseString ) )
+			.append( QString( ", m_sCopyrightHolder: %1" )
+					 .arg( m_sCopyrightHolder ) )
 			.append( "\n" );
 	}
 	

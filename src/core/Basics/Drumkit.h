@@ -429,6 +429,8 @@ inline const QString& Drumkit::get_name() const
 inline void Drumkit::set_author( const QString& author )
 {
 	__author = author;
+	__license.setCopyrightHolder( author );
+	__imageLicense.setCopyrightHolder( author );
 }
 
 inline const QString& Drumkit::get_author() const
