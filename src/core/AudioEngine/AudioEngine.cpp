@@ -650,7 +650,7 @@ void AudioEngine::updateBpmAndTickSize() {
 		// it too in order to prevent inconsistencies in the transport
 		// and audio rendering when switching off the Timeline during
 		// playback, relocating, switching it on again, alter song
-		// size or sample rate, and switchting it off again. I know,
+		// size or sample rate, and switching it off again. I know,
 		// quite an edge case but still.
 		// If we deal with a single speed for the whole song, the frames
 		// since the beginning of the song are tempo-dependent and have to
@@ -1578,7 +1578,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		___ERRORLOG( QString( "Failed to lock audioEngine in allowed %1 ms, missed buffer" ).arg( fSlackTime ) );
 
 		if ( dynamic_cast<DiskWriterDriver*>(pAudioEngine->m_pAudioDriver) != nullptr ) {
-			return 2;	// inform the caller that we could not aquire the lock
+			return 2;	// inform the caller that we could not acquire the lock
 		}
 
 		return 0;

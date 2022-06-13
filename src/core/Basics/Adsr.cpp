@@ -110,8 +110,8 @@ ADSR::~ADSR() { }
  *
  * These parameters allow suitable curves for attack, decay and release to be formed.
  *
- * Because some parameters will take on trivial valuesbdepending on use, its desitable to inline this to allow
- * constant propagation to remove redundant operations.
+ * Because some parameters will take on trivial values depending on use, it's desirable to inline this
+ * to allow constant propagation to remove redundant operations.
  *
  * The exponential loop isn't naturally vectorisable since there is a loop carried dependency for the
  * exponential variable. However, we can manually unroll the loop and replace the single Q with multiple

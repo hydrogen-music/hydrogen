@@ -215,7 +215,7 @@ public:
 	/**
 	 * Mutex unlocking of the AudioEngine.
 	 *
-	 * Unlocks the AudioEngine to allow other threads acces, and leaves #__locker untouched.
+	 * Unlocks the AudioEngine to allow other threads access, and leaves #__locker untouched.
 	 */
 	void			unlock();
 
@@ -239,14 +239,14 @@ public:
 	 * \param nframes Buffersize.
 	 * \param arg Unused.
 	 * \return
-	 * - __2__ : Failed to aquire the audio engine lock, no processing took place.
+	 * - __2__ : Failed to acquire the audio engine lock, no processing took place.
 	 * - __1__ : kill the audio driver thread.
 	 * - __0__ : else
 	 */
 	static int                      audioEngine_process( uint32_t nframes, void *arg );
 
 	/**
-	 * Calcuates the number of frames that make up a tick.
+	 * Calculates the number of frames that make up a tick.
 	 */
 	static float	computeTickSize( const int nSampleRate, const float fBpm, const int nResolution);
 	/**
@@ -738,9 +738,9 @@ private:
 	/** Helper function */
 	bool testCheckTransportPosition( const QString& sContext ) const;
 	/**
-	 * Takes two instances of Sampler::m_playingNotesQueue and checkes
+	 * Takes two instances of Sampler::m_playingNotesQueue and checks
 	 * whether matching notes have exactly @a nPassedFrames difference
-	 * in thei SelectedLayerInfo::SamplePosition.
+	 * in their SelectedLayerInfo::SamplePosition.
 	 */
 	bool testCheckAudioConsistency( const std::vector<std::shared_ptr<Note>> oldNotes,
 									const std::vector<std::shared_ptr<Note>> newNotes,
@@ -855,7 +855,7 @@ private:
 	 * The current transport position thus corresponds
 	 * to #m_fTick = lookahead + #m_nPatternStartTick +
 	 * #m_nPatternTickPosition. (The lookahead is both speed and
-	 * sample reate dependent).
+	 * sample rate dependent).
 	 */
 	long				m_nPatternStartTick;
 
@@ -865,7 +865,7 @@ private:
 	 * The current transport position thus corresponds
 	 * to #m_fTick = lookahead + #m_nPatternStartTick +
 	 * #m_nPatternTickPosition. (The lookahead is both speed and
-	 * sample reate dependent).
+	 * sample rate dependent).
 	 */
 	long				m_nPatternTickPosition;
 

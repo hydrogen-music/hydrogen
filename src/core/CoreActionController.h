@@ -294,7 +294,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * @a sTargetDir.
 	 *
 	 * \param sDrumkitPath Tar-compressed drumkit with .h2drumkit
-	 * extention
+	 * extension
 	 * \param sTargetDir Folder to extract the drumkit to. If the
 	 * folder is not present yet, it will be created. If left empty,
 	 * the drumkit will be installed to the users drumkit data folder.

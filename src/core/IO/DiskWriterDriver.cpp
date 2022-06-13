@@ -205,7 +205,7 @@ void* diskWriterDriver_thread( void* param )
 
 			int ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
 			
-			// In case the DiskWriter couldn't aquire the lock of the AudioEngine.
+			// In case the DiskWriter couldn't acquire the lock of the AudioEngine.
 			while( ret != 0 ) {
 				ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
 			}

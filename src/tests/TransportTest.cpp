@@ -50,7 +50,7 @@ void TransportTest::tearDown() {
 	// The tests in here tend to produce a very large number of log
 	// messages and a couple of them may tend to be printed _after_
 	// the results of the overall test runnner. This is quite
-	// unpleasent as the overall result is only shown after
+	// unpleasant as the overall result is only shown after
 	// scrolling. As the TestRunner itself does not seem to support
 	// fixtures, we flush the logger in here.
 	H2Core::Logger::get_instance()->flush();
