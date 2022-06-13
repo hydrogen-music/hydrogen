@@ -26,12 +26,12 @@
 #include <core/Object.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/License.h>
+#include <core/Basics/InstrumentList.h>
 
 namespace H2Core
 {
 
 class XMLNode;
-class InstrumentList;
 class DrumkitComponent;
 
 /**
@@ -351,7 +351,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * Returns vector of lists containing instrument name, component
 	 * name, file name, the license of all associated samples.
 	 */
-	std::vector<QStringList> summarizeContent() const;
+	std::vector<std::shared_ptr<InstrumentList::Content>> summarizeContent() const;
 	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of

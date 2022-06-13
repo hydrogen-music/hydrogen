@@ -23,9 +23,9 @@
 #ifndef H2C_INSTRUMENT_LIST_H
 #define H2C_INSTRUMENT_LIST_H
 
-#include <QStringList>
-
 #include <vector>
+#include <memory>
+#include <core/License.h>
 #include <core/Object.h>
 
 namespace H2Core
@@ -43,6 +43,29 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 {
 		H2_OBJECT(InstrumentList)
 	public:
+
+		struct Content {
+			QString m_sInstrumentName;
+			QString m_sComponentName;
+			QString m_sSampleName;
+			QString m_sFullSamplePath;
+			License m_license;
+
+			Content( const QString& sInstrumentName,
+					 const QString& sComponentName,
+					 const QString& sSampleName,
+					 const QString& sFullSamplePath,
+					 const License& license ) :
+				m_sInstrumentName( sInstrumentName ),
+				m_sComponentName( sComponentName ),
+				m_sSampleName( sSampleName ),
+				m_sFullSamplePath( sFullSamplePath ),
+				m_license( license ) {
+			};
+			
+			QString toQString( const QString& sPrefix, bool bShort = true ) const;
+		};
+		
 		/** constructor */
 		InstrumentList();
 		/** destructor */
@@ -172,7 +195,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 	 * Returns vector of lists containing instrument name, component
 	 * name, file name, the license of all associated samples.
 	 */
-	std::vector<QStringList> summarizeContent( const std::vector<DrumkitComponent*>* pDrumkitComponents ) const;
+	std::vector<std::shared_ptr<Content>> summarizeContent( const std::vector<DrumkitComponent*>* pDrumkitComponents ) const;
 
 		/**
 		 * Fix GitHub issue #307, so called "Hi Bongo fiasco".

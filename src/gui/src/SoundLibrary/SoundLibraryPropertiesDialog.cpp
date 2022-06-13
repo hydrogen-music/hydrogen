@@ -135,38 +135,40 @@ void SoundLibraryPropertiesDialog::updateLicenseTable() {
 		return;
 	}
 
-	std::vector<QStringList> content;
+	std::vector<std::shared_ptr<InstrumentList::Content>> contentVector;
 	if ( m_bCurrentDrumkit ) {
-		content = pSong->getInstrumentList()->summarizeContent( pSong->getComponents() );
+		contentVector = pSong->getInstrumentList()->summarizeContent( pSong->getComponents() );
 	}
 	else {
-		content = m_pDrumkitInfo->summarizeContent();
+		contentVector = m_pDrumkitInfo->summarizeContent();
 	}
 
-	if ( content.size() > 0 ) {
+	if ( contentVector.size() > 0 ) {
 		contentTable->show();
 		contentLabel->show();
-		contentTable->setRowCount( content.size() );
+		contentTable->setRowCount( contentVector.size() );
 
 		int nFirstMismatchRow = -1;
 
-		for ( int ii = 0; ii < content.size(); ++ii ) {
-			QLineEdit* pInstrumentItem = new QLineEdit( content[ ii ][ 0 ] );
+		for ( int ii = 0; ii < contentVector.size(); ++ ii ) {
+			const auto ccontent = contentVector[ ii ];
+			
+			QLineEdit* pInstrumentItem = new QLineEdit( ccontent->m_sInstrumentName );
 			pInstrumentItem->setEnabled( false );
-			pInstrumentItem->setToolTip( content[ ii ][ 0 ] );
-			QLineEdit* pComponentItem = new QLineEdit( content[ ii ][ 1 ] );
+			pInstrumentItem->setToolTip( ccontent->m_sInstrumentName );
+			QLineEdit* pComponentItem = new QLineEdit( ccontent->m_sComponentName );
 			pComponentItem->setEnabled( false );
-			pComponentItem->setToolTip( content[ ii ][ 1 ] );
-			QLineEdit* pSampleItem = new QLineEdit( content[ ii ][ 2 ] );
+			pComponentItem->setToolTip( ccontent->m_sComponentName );
+			QLineEdit* pSampleItem = new QLineEdit( ccontent->m_sSampleName );
 			pSampleItem->setEnabled( false );
-			pSampleItem->setToolTip( content[ ii ][ 2 ] );
-			QLineEdit* pLicenseItem = new QLineEdit( content[ ii ][ 3 ] );
+			pSampleItem->setToolTip( ccontent->m_sSampleName );
+			QLineEdit* pLicenseItem =
+				new QLineEdit( ccontent->m_license.getLicenseString() );
 			pLicenseItem->setEnabled( false );
-			pLicenseItem->setToolTip( content[ ii ][ 3 ] );
+			pLicenseItem->setToolTip( ccontent->m_license.getLicenseString() );
 
 			// In case of a license mismatch we highlight the row
-			if ( content[ ii ][ 3 ] !=
-				 License::LicenseTypeToQString( m_pDrumkitInfo->get_license().getType() ) ) {
+			if ( ccontent->m_license != m_pDrumkitInfo->get_license() ) {
 				QString sRed = QString( "color: %1; background-color: %2" )
 					.arg( pPref->getColorTheme()->m_buttonRedColor.name() )
 					.arg( pPref->getColorTheme()->m_windowColor.name() );

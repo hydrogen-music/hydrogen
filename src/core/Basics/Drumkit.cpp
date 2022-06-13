@@ -597,8 +597,8 @@ void Drumkit::propagateLicense() {
 	}
 }
 
-std::vector<QStringList> Drumkit::summarizeContent() const {
-	return std::move( __instruments->summarizeContent( __components ) );
+std::vector<std::shared_ptr<InstrumentList::Content>> Drumkit::summarizeContent() const {
+	return __instruments->summarizeContent( __components );
 }
 
 bool Drumkit::remove( const QString& sDrumkitName, Filesystem::Lookup lookup )
