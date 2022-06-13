@@ -513,10 +513,10 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 				AuthorLbl->setText( tr( "Author: %1" ).arg( info.getAuthor() ) );
 
 				LicenseLbl->setText( tr( "Drumkit License: %1" )
-									 .arg( info.getLicense().toQString() ) );
+									 .arg( info.getLicense().getLicenseString() ) );
 
 				ImageLicenseLbl->setText( tr("Image License: %1" )
-										  .arg( info.getImageLicense().toQString() ) );
+										  .arg( info.getImageLicense().getLicenseString() ) );
 
 				// Load the drumkit image
 				// Clear any image first
