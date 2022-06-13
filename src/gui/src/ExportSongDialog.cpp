@@ -24,6 +24,7 @@
 #include <QProgressBar>
 #include <QLabel>
 
+#include "CommonStrings.h"
 #include "ExportSongDialog.h"
 #include "HydrogenApp.h"
 #include "Mixer/Mixer.h"
@@ -299,9 +300,88 @@ void ExportSongDialog::on_okBtn_clicked()
 	}
 	
 	saveSettingsToPreferences();
-	
+
+	auto pPref = Preferences::get_instance();
 	std::shared_ptr<Song> pSong = m_pHydrogen->getSong();
 	InstrumentList *pInstrumentList = pSong->getInstrumentList();
+
+	// License related export warnings
+	if ( pPref->m_bShowExportSongLicenseWarning ) {
+		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+		
+		QMessageBox licenseWarning( this );
+
+		auto drumkitContent =
+			pSong->getInstrumentList()->summarizeContent( pSong->getComponents() );
+
+		bool bHasAttribution = false;
+		bool bIsCopyleft = false;
+		QStringList licenses;
+		QString sLicense;
+		for ( const auto& ccontent : drumkitContent ) {
+			if ( ccontent->m_license.hasAttribution() ) {
+				sLicense = QString( "%1 (by %2)" )
+					.arg( ccontent->m_license.getLicenseString() )
+					.arg( ccontent->m_license.getCopyrightHolder() );
+				bHasAttribution = true;
+			}
+			else {
+				sLicense = ccontent->m_license.getLicenseString();
+			}
+			
+			if ( ! licenses.contains( sLicense ) ) {
+				licenses << sLicense;
+
+				if ( ccontent->m_license.isCopyleft() ) {
+					bIsCopyleft = true;
+				}
+			}
+		}
+		QString sMsg = QString( tr( "Your song uses samples of the following license:" ) )
+			.append( "<ul>" );
+		for ( const auto& llicense : licenses ) {
+			sMsg.append( QString(  "<li>%1</li>" ).arg( llicense ) );
+		}
+		sMsg.append( "</ul>" );
+
+		if ( bIsCopyleft ) {
+			sMsg.append( "<p>" ).append( tr( "You used drumkit samples holding a <b>copyleft license</b> to create the song. <b>Be aware that you are legally obliged to make a copy of your song publicly available and can not prevent its redistribution by others.</B" ) )
+				.append( "</p>" );
+		}
+
+		if ( bHasAttribution ) {
+			sMsg.append( "<p>" ).append( tr( "All license containing the letters 'CC BY' <b>require you to give an attribution</b> by naming drumkit, author, as well as the license in e.g. a CD booklet or a description on bandcamp." ) )
+				.append( "</p>" );
+		}
+		
+		sMsg.append( "\n" ).append( tr( "Be sure you satisfy all license conditions and give the required attribution." ) );
+
+		licenseWarning.setWindowTitle( tr( "Song Licensing" ) );
+		licenseWarning.setText( sMsg );
+		licenseWarning.setTextFormat( Qt::RichText );
+		// licenseWarning.setText( pCommonStrings->getExportSongLicenseWarning() );
+
+		licenseWarning.addButton( pCommonStrings->getButtonOk(),
+								  QMessageBox::AcceptRole );
+		auto pMuteButton =
+			licenseWarning.addButton( pCommonStrings->getMutableDialog(),
+									  QMessageBox::YesRole );
+		auto pRejectButton =
+			licenseWarning.addButton( pCommonStrings->getButtonCancel(),
+									  QMessageBox::RejectRole );
+		licenseWarning.exec();
+
+		if ( licenseWarning.clickedButton() == pMuteButton ) {
+			DEBUGLOG( "Don't show again" );
+			pPref->m_bShowExportSongLicenseWarning = false;
+		}
+		else if ( licenseWarning.clickedButton() == pRejectButton ) {
+			DEBUGLOG( "rejecting" );
+			return;
+		}
+	}
+
+	DEBUGLOG( "rolling" );
 
 	m_bOverwriteFiles = false;
 

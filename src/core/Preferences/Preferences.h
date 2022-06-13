@@ -640,6 +640,8 @@ public:
     int				getMidiExportMode() const;
     void			setMidiExportMode(int nExportMode);
 
+	bool			m_bShowExportSongLicenseWarning;
+
 	/** Returns #m_sPreferencesOverwritePath
 	 * \return #m_sPreferencesOverwritePath */
 	QString			getPreferencesOverwritePath();

@@ -119,6 +119,7 @@ Preferences::Preferences()
 	m_nExportModeIdx = 0;
 	m_nExportSampleRateIdx = 0;
 	m_nExportSampleDepthIdx = 0;
+	m_bShowExportSongLicenseWarning = true;
 
 	//export midi dialog
 	m_nMidiExportMode = 0;
@@ -638,7 +639,8 @@ void Preferences::loadPreferences( bool bGlobal )
 				m_nExportModeIdx = LocalFileMng::readXmlInt( guiNode, "exportDialogMode", 0 );
 				m_nExportSampleRateIdx = LocalFileMng::readXmlInt( guiNode, "exportDialogSampleRate", 0 );
 				m_nExportSampleDepthIdx = LocalFileMng::readXmlInt( guiNode, "exportDialogSampleDepth", 0 );
-					
+				m_bShowExportSongLicenseWarning = LocalFileMng::readXmlBool( guiNode, "showExportSongLicenseWarning", true );
+				
 				m_bFollowPlayhead = LocalFileMng::readXmlBool( guiNode, "followPlayhead", true );
 
 				// midi export dialog properties
@@ -1137,6 +1139,7 @@ void Preferences::savePreferences()
 		LocalFileMng::writeXmlString( guiNode, "exportDialogTemplate", QString("%1").arg( m_nExportTemplateIdx ) );
 		LocalFileMng::writeXmlString( guiNode, "exportDialogSampleRate",  QString("%1").arg( m_nExportSampleRateIdx ) );
 		LocalFileMng::writeXmlString( guiNode, "exportDialogSampleDepth", QString("%1").arg( m_nExportSampleDepthIdx ) );
+		LocalFileMng::writeXmlBool( guiNode, "showExportSongLicenseWarning", m_bShowExportSongLicenseWarning );
 
 		LocalFileMng::writeXmlBool( guiNode, "followPlayhead", m_bFollowPlayhead );
 
