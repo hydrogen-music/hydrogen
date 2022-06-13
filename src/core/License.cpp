@@ -57,18 +57,29 @@ void License::parse( const QString& sLicenseString ) {
 		m_sLicenseString = "undefined license";
 		m_license = License::Unspecified;
 	}
-	else if ( sUp.contains( "CC" ) &&
-		 sUp.contains( "BY" ) ) {
-		if ( sUp.contains( "SA" ) ) {
-			if ( sUp.contains( "NC" ) ) {
+	else if ( ( sUp.contains( "CC" ) ||
+				( sUp.contains( "CREATIVE" ) &&
+				  sUp.contains( "COMMONS" ) ) ) &&
+			  ( sUp.contains( "BY" ) ||
+				sUp.contains( "ATTRIBUTION" ) ) ) {
+		if ( sUp.contains( "SA" ) ||
+			 ( sUp.contains( "SHARE" ) &&
+			   sUp.contains( "ALIKE" ) ) ) {
+			if ( sUp.contains( "NC" ) ||
+				 ( sUp.contains( "NON" ) &&
+				   sUp.contains( "COMMERCIAL" ) ) ) {
 				m_license = License::CC_BY_NC_SA;
 			}
 			else {
 				m_license = License::CC_BY_SA;
 			}
 		}
-		else if ( sUp.contains( "ND" ) ) {
-			if ( sUp.contains( "NC" ) ) {
+		else if ( sUp.contains( "ND" ) ||
+				  ( sUp.contains( "NO" ) &&
+					sUp.contains( "DERIVATIVES" ) ) ) {
+			if ( sUp.contains( "NC" ) ||
+				 ( sUp.contains( "NON" ) &&
+				   sUp.contains( "COMMERCIAL" ) ) ) {
 				m_license = License::CC_BY_NC_ND;
 			}
 			else {
@@ -76,7 +87,9 @@ void License::parse( const QString& sLicenseString ) {
 			}
 		}
 		else {
-			if ( sUp.contains( "NC" ) ) {
+			if ( sUp.contains( "NC" ) ||
+				 ( sUp.contains( "NON" ) &&
+				   sUp.contains( "COMMERCIAL" ) ) ) {
 				m_license = License::CC_BY_NC;
 			}
 			else {
@@ -84,8 +97,11 @@ void License::parse( const QString& sLicenseString ) {
 			}
 		}
 	}
-	else if ( ( sUp.contains( "CC" ) &&
-				sUp.contains( "0" ) ) ||
+	else if ( ( ( sUp.contains( "CC" ) ||
+				  ( sUp.contains( "CREATIVE" ) &&
+					sUp.contains( "COMMONS" ) ) ) &&
+				( sUp.contains( "0" ) ||
+				  sUp.contains( "ZERO" ) ) ) ||
 			  ( sUp.contains( "PUBLIC" ) &&
 				sUp.contains( "DOMAIN" ) ) &&
 			  ( sUp.contains( "NO" ) &&
@@ -93,7 +109,10 @@ void License::parse( const QString& sLicenseString ) {
 				sUp.contains( "COPYRIGHT" ) ) ) {
 		m_license = License::CC_0;
 	}
-	else if ( sUp.contains( "GPL" ) ) {
+	else if ( sUp.contains( "GPL" ) ||
+			  ( sUp.contains( "GENERAL" ) &&
+				sUp.contains( "PUBLIC" ) &&
+				sUp.contains( "LICENSE" ) ) ) {
 		m_license = License::GPL;
 	}
 	else if ( sUp.contains( "ALL" ) &&
