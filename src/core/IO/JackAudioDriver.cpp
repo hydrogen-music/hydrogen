@@ -513,7 +513,7 @@ void JackAudioDriver::updateTransportInfo()
 	switch ( m_JackTransportState ) {
 	case JackTransportStopped: // Transport is halted
 		pAudioEngine->setNextState( AudioEngine::State::Ready );
-		return;
+		break;
 		
 	case JackTransportRolling: // Transport is playing
 		pAudioEngine->setNextState( AudioEngine::State::Playing );
