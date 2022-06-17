@@ -577,19 +577,10 @@ void JackAudioDriver::updateTransportInfo()
 		// 		 .arg( pAudioEngine->getFrameOffset() )
 		// 		 .arg( m_JackTransportPos.frame ) );
 		
-		// Reset playback to the beginning of the pattern if Hydrogen
-		// is in pattern mode.
-		if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
-			pAudioEngine->locateToFrame( 0 );
-			pAudioEngine->setFrameOffset( pAudioEngine->getFrames() -
-										  m_JackTransportPos.frame );
-		}
-		else {
-			if ( !bTimebaseEnabled || m_timebaseState != Timebase::Slave ) {
-				pAudioEngine->locateToFrame( m_JackTransportPos.frame );
-			} else {
-				relocateUsingBBT();
-			}
+		if ( ! bTimebaseEnabled || m_timebaseState != Timebase::Slave ) {
+			pAudioEngine->locateToFrame( m_JackTransportPos.frame );
+		} else {
+			relocateUsingBBT();
 		}
 	}
 

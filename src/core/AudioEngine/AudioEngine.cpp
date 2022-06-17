@@ -416,10 +416,7 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 
 	if ( pHydrogen->haveJackTransport() && bWithJackBroadcast ) {
 		static_cast<JackAudioDriver*>( m_pAudioDriver )->locateTransport( nNewFrame );
-
-		if ( m_state == State::Playing ) {
-			return;
-		}
+		return;
 	}
 #else
 	reset( false );
