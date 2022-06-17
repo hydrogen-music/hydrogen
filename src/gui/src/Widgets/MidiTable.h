@@ -43,9 +43,14 @@ class MidiTable :  public QTableWidget,  public H2Core::Object<MidiTable>
 		void setupMidiTable();
 		void saveMidiTable();
 
-	private slots:
-		void updateTable();
-		void midiSensePressed( int );
+signals:
+	/** Identicates a user action changing the content of the table.*/
+	void changed();
+
+private slots:
+	void updateTable();
+	void midiSensePressed( int );
+	void sendChanged();
 	
 private:
 	void insertNewRow( std::shared_ptr<Action> pAction, QString eventString, int eventParameter );
