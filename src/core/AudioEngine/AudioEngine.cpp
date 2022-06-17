@@ -439,6 +439,12 @@ void AudioEngine::locateToFrame( const long long nFrame ) {
 	double fNewTick = computeTickFromFrame( nFrame );
 	
 	updateTransportPosition( fNewTick );
+
+	// While the locate function is wrapped by a caller in the
+	// CoreActionController - which takes care of queuing the
+	// relocation event - this function is only meant to be used in
+	// very specific circumstances and is not that nicely wrapped.
+	EventQueue::get_instance()->push_event( EVENT_RELOCATION, 0 );
 }
 
 void AudioEngine::incrementTransportPosition( uint32_t nFrames ) {
