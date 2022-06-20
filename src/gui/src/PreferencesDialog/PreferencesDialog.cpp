@@ -131,9 +131,10 @@ QString PreferencesDialog::m_sColorRed = "#ca0003";
 
 
 PreferencesDialog::PreferencesDialog(QWidget* parent)
- : QDialog( parent )
- , m_pCurrentColor( nullptr )
- , m_nCurrentId( 0 ) {
+	: QDialog( parent )
+	, m_pCurrentColor( nullptr )
+	, m_nCurrentId( 0 )
+	, m_changes( H2Core::Preferences::Changes::None ) {
 	
 	m_pCurrentTheme = std::make_shared<H2Core::Theme>( H2Core::Preferences::get_instance()->getTheme() );
 	m_pPreviousTheme = std::make_shared<H2Core::Theme>( H2Core::Preferences::get_instance()->getTheme() );
@@ -149,6 +150,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	pPref->loadPreferences( false );	// reload user's preferences
 	
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pHydrogen = Hydrogen::get_instance();
 
 	///////
 	// General tab
@@ -337,14 +339,13 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	maxVoicesTxt->setValue( pPref->m_nMaxNotes );
 
 	resampleComboBox->setSize( audioTabWidgetSizeBottom );
-	resampleComboBox->setCurrentIndex( (int) Hydrogen::get_instance()->getAudioEngine()->getSampler()->getInterpolateMode() );
-	connect( resampleComboBox, SIGNAL(currentIndexChanged(int)), this,
-			 SLOT(resampleComboBoxCurrentIndexChanged(int)));
+	resampleComboBox->setCurrentIndex( static_cast<int>(pHydrogen->getAudioEngine()->getSampler()->getInterpolateMode() ) );
 
 	updateDriverInfo();
 
-	/////
+	//////////////////////////////////////////////////////////////////
 	// MIDI tab
+	//////////////////////////////////////////////////////////////////
 	QSize midiTabWidgetSize = QSize( 309, 24 );
 	m_pMidiDriverComboBox->setSize( midiTabWidgetSize );
 	m_pMidiDriverComboBox->clear();
@@ -380,8 +381,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	// MIDI tab - list midi input ports
 	midiPortComboBox->clear();
 	midiPortComboBox->addItem( pCommonStrings->getPreferencesNone() );
-	if ( Hydrogen::get_instance()->getMidiInput() ) {
-		std::vector<QString> midiOutList = Hydrogen::get_instance()->getMidiInput()->getOutputPortList();
+	if ( pHydrogen->getMidiInput() ) {
+		std::vector<QString> midiOutList = pHydrogen->getMidiInput()->getOutputPortList();
 
 		if ( midiOutList.size() != 0 ) {
 			midiPortComboBox->setEnabled( true );
@@ -401,8 +402,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	midiOutportComboBox->setSize( midiTabWidgetSize );
 	midiOutportComboBox->clear();
 	midiOutportComboBox->addItem( pCommonStrings->getPreferencesNone() );
-	if ( Hydrogen::get_instance()->getMidiOutput() ) {
-		std::vector<QString> midiOutList = Hydrogen::get_instance()->getMidiOutput()->getInputPortList();
+	if ( pHydrogen->getMidiOutput() ) {
+		std::vector<QString> midiOutList = pHydrogen->getMidiOutput()->getInputPortList();
 
 		if ( midiOutList.size() != 0 ) {
 			midiOutportComboBox->setEnabled( true );
@@ -431,6 +432,13 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	m_pEnableMidiFeedbackCheckBox->setChecked( pPref->m_bEnableMidiFeedback );
 	m_pDiscardMidiMsgCheckbox->setChecked( pPref->m_bMidiDiscardNoteAfterAction );
 	m_pFixedMapping->setChecked( pPref->m_bMidiFixedMapping );
+
+	connect( midiTable, &MidiTable::changed,
+			 [=]() {
+				 m_changes =
+					 static_cast<H2Core::Preferences::Changes>(
+							m_changes | H2Core::Preferences::Changes::MidiTab );
+			 });
 
 	//////
 	// OSC tab
@@ -650,7 +658,7 @@ void PreferencesDialog::on_cancelBtn_clicked()
 	}
 	
 	H2Core::Preferences::get_instance()->setTheme( m_pPreviousTheme );
-	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
+	HydrogenApp::get_instance()->changePreferences( m_changes );
 
 	reject();
 }
@@ -664,6 +672,9 @@ void PreferencesDialog::updateDriverPreferences() {
 	Preferences *pPref = Preferences::get_instance();
 	auto pAudioDriver = Hydrogen::get_instance()->getAudioOutput();
 
+	bool bAudioOptionAltered = false;
+	QString sPrevAudioDriver = pPref->m_sAudioDriver;
+	
 	// Selected audio driver
 	if (driverComboBox->currentText() == "JACK" ) {
 		pPref->m_sAudioDriver = "JACK";
@@ -704,16 +715,42 @@ void PreferencesDialog::updateDriverPreferences() {
 		ERRORLOG( "[okBtnClicked] Invalid audio driver: " + driverComboBox->currentText() );
 	}
 
+	if ( pPref->m_sAudioDriver != sPrevAudioDriver ) {
+		bAudioOptionAltered = true;
+	}		
+
 	// JACK
-	pPref->m_bJackConnectDefaults = connectDefaultsCheckBox->isChecked();
-	pPref->m_bJackTimebaseEnabled = enableTimebaseCheckBox->isChecked();
+	if ( pPref->m_bJackConnectDefaults != connectDefaultsCheckBox->isChecked() ) {
+		pPref->m_bJackConnectDefaults = connectDefaultsCheckBox->isChecked();
+		bAudioOptionAltered = true;
+	}
+
+	if ( pPref->m_bJackTrackOuts != trackOutsCheckBox->isChecked() ) {
+		pPref->m_bJackTrackOuts = trackOutsCheckBox->isChecked();
+		bAudioOptionAltered = true;
+	}
+	
+	if ( pPref->m_bJackTimebaseEnabled != enableTimebaseCheckBox->isChecked() ) {
+		pPref->m_bJackTimebaseEnabled = enableTimebaseCheckBox->isChecked();
+		bAudioOptionAltered = true;
+	}
 
 	switch ( trackOutputComboBox->currentIndex() ) {
-	case 0: 
-		pPref->m_JackTrackOutputMode = Preferences::JackTrackOutputMode::postFader;
+	case 0:
+		if ( pPref->m_JackTrackOutputMode !=
+			 Preferences::JackTrackOutputMode::postFader ) {
+			pPref->m_JackTrackOutputMode =
+				Preferences::JackTrackOutputMode::postFader;
+			bAudioOptionAltered = true;
+		}
 		break;
 	case 1:
-		pPref->m_JackTrackOutputMode = Preferences::JackTrackOutputMode::preFader;
+		if ( pPref->m_JackTrackOutputMode !=
+			 Preferences::JackTrackOutputMode::preFader ) {
+			pPref->m_JackTrackOutputMode =
+				Preferences::JackTrackOutputMode::preFader;
+			bAudioOptionAltered = true;
+		}
 		break;
 	default:
 		ERRORLOG( QString( "Unexpected track output value" ) );
@@ -721,28 +758,52 @@ void PreferencesDialog::updateDriverPreferences() {
 
 	switch ( jackBBTSyncComboBox->currentIndex() ) {
 	case 0:
-		pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::constMeasure;
+		if ( pPref->m_JackBBTSync != Preferences::JackBBTSyncMethod::constMeasure ) {
+			pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::constMeasure;
+			bAudioOptionAltered = true;
+		}
 		break;
 	case 1:
-		pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::identicalBars;
+		if ( pPref->m_JackBBTSync != Preferences::JackBBTSyncMethod::identicalBars ) {
+			pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::identicalBars;
+			bAudioOptionAltered = true;
+		}
 		break;
 	default:
 		ERRORLOG( QString( "Unexpected JACK BBT synchronization value" ) );
 	}
 	//~ JACK
 
-	pPref->m_nBufferSize = bufferSizeSpinBox->value();
-	if ( sampleRateComboBox->currentText() == "44100" ) {
+	if ( pPref->m_nBufferSize != bufferSizeSpinBox->value() ) {
+		pPref->m_nBufferSize = bufferSizeSpinBox->value();
+		bAudioOptionAltered = true;
+	}
+	
+	if ( sampleRateComboBox->currentText() == "44100" &&
+		 pPref->m_nSampleRate != 44100 ) {
 		pPref->m_nSampleRate = 44100;
+		bAudioOptionAltered = true;
 	}
-	else if ( sampleRateComboBox->currentText() == "48000" ) {
+	else if ( sampleRateComboBox->currentText() == "48000" &&
+		 pPref->m_nSampleRate != 48000 ) {
 		pPref->m_nSampleRate = 48000;
+		bAudioOptionAltered = true;
 	}
-	else if ( sampleRateComboBox->currentText() == "88200" ) {
+	else if ( sampleRateComboBox->currentText() == "88200" &&
+		 pPref->m_nSampleRate != 88200 ) {
 		pPref->m_nSampleRate = 88200;
+		bAudioOptionAltered = true;
 	}
-	else if ( sampleRateComboBox->currentText() == "96000" ) {
+	else if ( sampleRateComboBox->currentText() == "96000" &&
+		 pPref->m_nSampleRate != 96000 ) {
 		pPref->m_nSampleRate = 96000;
+		bAudioOptionAltered = true;
+	}
+
+	if ( bAudioOptionAltered ) {
+		m_changes =
+			static_cast<H2Core::Preferences::Changes>(
+				m_changes | H2Core::Preferences::Changes::AudioTab );
 	}
 }
 
@@ -754,10 +815,10 @@ void PreferencesDialog::on_okBtn_clicked()
 	auto pPref = Preferences::get_instance();
 	auto pHydrogen = Hydrogen::get_instance();
 
-	auto changes =
-		static_cast<H2Core::Preferences::Changes>( H2Core::Preferences::Changes::Font |
-												   H2Core::Preferences::Changes::Colors |
-												   H2Core::Preferences::Changes::AppearanceTab );
+	//////////////////////////////////////////////////////////////////
+	// Audio tab
+	//////////////////////////////////////////////////////////////////
+	bool bAudioOptionAltered = false;
 
 	updateDriverPreferences();
 
@@ -791,38 +852,99 @@ void PreferencesDialog::on_okBtn_clicked()
 			return;
 		}
 	}
+	
+	if ( pPref->m_fMetronomeVolume != metronomeVolumeSpinBox->value() / 100.0 ) {
+		pPref->m_fMetronomeVolume = metronomeVolumeSpinBox->value() / 100.0;
+		bAudioOptionAltered = true;
+	}
+
+	// Polyphony
+	if ( pPref->m_nMaxNotes != maxVoicesTxt->value() ) {
+		pPref->m_nMaxNotes = maxVoicesTxt->value();
+		bAudioOptionAltered = true;
+	}
+
+	// Interpolation
+	if ( static_cast<int>( pHydrogen->getAudioEngine()->getSampler()->getInterpolateMode() ) !=
+		 resampleComboBox->currentIndex() ) {
+		switch ( resampleComboBox->currentIndex() ){
+		case 0:
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
+			break;
+		case 1:
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
+			break;
+		case 2:
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
+			break;
+		case 3:
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
+			break;
+		case 4:
+			Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
+			break;
+		}
+		bAudioOptionAltered = true;
+	}
+
+	if ( bAudioOptionAltered ) {
+		m_changes =
+			static_cast<H2Core::Preferences::Changes>(
+				m_changes | H2Core::Preferences::Changes::AudioTab );
+	}
+	
+	//////////////////////////////////////////////////////////////////
+	// MIDI tab
+	//////////////////////////////////////////////////////////////////
+	bool bMidiOptionAltered = false;
 
 	MidiMap *mM = MidiMap::get_instance();
 	mM->reset_instance();
 
 	midiTable->saveMidiTable();
 
-
-	// metronome
-	pPref->m_fMetronomeVolume = (metronomeVolumeSpinBox->value()) / 100.0;
-
-	// maxVoices
-	pPref->m_nMaxNotes = maxVoicesTxt->value();
-
-	if ( m_pMidiDriverComboBox->currentText() == "ALSA" ) {
+	if ( m_pMidiDriverComboBox->currentText() == "ALSA" &&
+		 pPref->m_sMidiDriver != "ALSA" ) {
 		pPref->m_sMidiDriver = "ALSA";
+		bMidiOptionAltered = true;
 	}
-	else if ( m_pMidiDriverComboBox->currentText() == "PortMidi" ) {
+	else if ( m_pMidiDriverComboBox->currentText() == "PortMidi" &&
+			  pPref->m_sMidiDriver != "PortMidi" ) {
 		pPref->m_sMidiDriver = "PortMidi";
+		bMidiOptionAltered = true;
 	}
-	else if ( m_pMidiDriverComboBox->currentText() == "CoreMIDI" ) {
+	else if ( m_pMidiDriverComboBox->currentText() == "CoreMIDI" &&
+			  pPref->m_sMidiDriver != "CoreMIDI" ) {
 		pPref->m_sMidiDriver = "CoreMIDI";
+		bMidiOptionAltered = true;
 	}
-	else if ( m_pMidiDriverComboBox->currentText() == "JACK-MIDI" ) {
+	else if ( m_pMidiDriverComboBox->currentText() == "JACK-MIDI" &&
+			  pPref->m_sMidiDriver != "JACK-MIDI" ) {
 		pPref->m_sMidiDriver = "JACK-MIDI";
+		bMidiOptionAltered = true;
 	}
 
-
-
-	pPref->m_bMidiNoteOffIgnore = m_pIgnoreNoteOffCheckBox->isChecked();
-	pPref->m_bMidiFixedMapping = m_pFixedMapping->isChecked();
-	pPref->m_bMidiDiscardNoteAfterAction = m_pDiscardMidiMsgCheckbox->isChecked();
-	pPref->m_bEnableMidiFeedback = m_pEnableMidiFeedbackCheckBox->isChecked();
+	if ( pPref->m_bMidiNoteOffIgnore != m_pIgnoreNoteOffCheckBox->isChecked() ) {
+		pPref->m_bMidiNoteOffIgnore = m_pIgnoreNoteOffCheckBox->isChecked();
+		bMidiOptionAltered = true;
+	}
+	
+	if ( pPref->m_bMidiFixedMapping != m_pFixedMapping->isChecked() ) {
+		pPref->m_bMidiFixedMapping = m_pFixedMapping->isChecked();
+		bMidiOptionAltered = true;
+	}
+	
+	if ( pPref->m_bMidiDiscardNoteAfterAction !=
+		 m_pDiscardMidiMsgCheckbox->isChecked() ) {
+		pPref->m_bMidiDiscardNoteAfterAction = m_pDiscardMidiMsgCheckbox->isChecked();
+		bMidiOptionAltered = true;
+	}
+		
+	if ( pPref->m_bEnableMidiFeedback !=
+		 m_pEnableMidiFeedbackCheckBox->isChecked() ) {
+		pPref->m_bEnableMidiFeedback = m_pEnableMidiFeedbackCheckBox->isChecked();
+		bMidiOptionAltered = true;
+	}
 
 	QString sNewMidiPortName = midiPortComboBox->currentText();
 	if ( midiPortComboBox->currentIndex() == 0 ) {
@@ -830,6 +952,7 @@ void PreferencesDialog::on_okBtn_clicked()
 	}
 	if ( pPref->m_sMidiPortName != sNewMidiPortName ) {
 		pPref->m_sMidiPortName = sNewMidiPortName;
+		bMidiOptionAltered = true;
 		m_bNeedDriverRestart = true;
 	}
 	
@@ -839,70 +962,142 @@ void PreferencesDialog::on_okBtn_clicked()
 	}
 	if ( pPref->m_sMidiOutputPortName != sNewMidiOutputPortName ) {
 		pPref->m_sMidiOutputPortName = sNewMidiOutputPortName;
+		bMidiOptionAltered = true;
 		m_bNeedDriverRestart = true;
 	}
 
-	if ( pPref->m_nMidiChannelFilter != midiPortChannelComboBox->currentIndex() - 1 ) {
-		//m_bNeedDriverRestart = true;
+	if ( pPref->m_nMidiChannelFilter !=
+		 midiPortChannelComboBox->currentIndex() - 1 ) {
+		pPref->m_nMidiChannelFilter = midiPortChannelComboBox->currentIndex() - 1;
+		bMidiOptionAltered = true;
 	}
-	pPref->m_nMidiChannelFilter = midiPortChannelComboBox->currentIndex() - 1;
 
-	//OSC tab
+	if ( bMidiOptionAltered ) {
+		m_changes =
+			static_cast<H2Core::Preferences::Changes>(
+				m_changes | H2Core::Preferences::Changes::MidiTab );
+	}
+	
+	//////////////////////////////////////////////////////////////////
+	// OSC tab
+	//////////////////////////////////////////////////////////////////
+	bool bOscOptionAltered = false;
+
 	if ( enableOscCheckbox->isChecked() != pPref->getOscServerEnabled() ) {
 		pPref->setOscServerEnabled( enableOscCheckbox->isChecked() );
 		pHydrogen->toggleOscServer( enableOscCheckbox->isChecked() );
+		bOscOptionAltered = true;
 	}
 	
-	pPref->setOscFeedbackEnabled( enableOscFeedbackCheckbox->isChecked() );
+	if ( pPref->getOscFeedbackEnabled() !=
+		 enableOscFeedbackCheckbox->isChecked() ) {
+		pPref->setOscFeedbackEnabled( enableOscFeedbackCheckbox->isChecked() );
+		bOscOptionAltered = true;
+	}
 	
 	if ( incomingOscPortSpinBox->value() != pPref->getOscServerPort() ) {
 		pPref->setOscServerPort( incomingOscPortSpinBox->value() );
 		pHydrogen->recreateOscServer();
+		bOscOptionAltered = true;
+	}
+
+	if ( bOscOptionAltered ) {
+		m_changes =
+			static_cast<H2Core::Preferences::Changes>(
+				m_changes | H2Core::Preferences::Changes::OscTab );
 	}
 	
+	//////////////////////////////////////////////////////////////////
 	// General tab
-	pPref->setRestoreLastSongEnabled( restoreLastUsedSongCheckbox->isChecked() );
-	pPref->setRestoreLastPlaylistEnabled( restoreLastUsedPlaylistCheckbox->isChecked() );
-	pPref->setUseRelativeFilenamesForPlaylists( useRelativePlaylistPathsCheckbox->isChecked() );
-	pPref->m_bsetLash = useLashCheckbox->isChecked(); //restore m_bsetLash after saving pref.
-	pPref->setHideKeyboardCursor( hideKeyboardCursor->isChecked() );
+	//////////////////////////////////////////////////////////////////
+	bool bGeneralOptionAltered = false;
+	
+	if ( pPref->isRestoreLastSongEnabled() !=
+		 restoreLastUsedSongCheckbox->isChecked() ) {
+		pPref->setRestoreLastSongEnabled( restoreLastUsedSongCheckbox->isChecked() );
+		bGeneralOptionAltered = true;
+	}
+	
+	if ( pPref->isRestoreLastPlaylistEnabled() !=
+		 restoreLastUsedPlaylistCheckbox->isChecked() ) {
+		pPref->setRestoreLastPlaylistEnabled( restoreLastUsedPlaylistCheckbox->isChecked() );
+		bGeneralOptionAltered = true;
+	}
+	
+	if ( pPref->isPlaylistUsingRelativeFilenames() !=
+		 useRelativePlaylistPathsCheckbox->isChecked() ) {
+		pPref->setUseRelativeFilenamesForPlaylists( useRelativePlaylistPathsCheckbox->isChecked() );
+		bGeneralOptionAltered = true;
+	}
+	
+	if ( pPref->m_bsetLash != useLashCheckbox->isChecked() ) {
+		pPref->m_bsetLash = useLashCheckbox->isChecked(); //restore m_bsetLash after saving pref
+		bGeneralOptionAltered = true;
+	}
+	
+	if ( pPref->hideKeyboardCursor() != hideKeyboardCursor->isChecked() ) {
+		pPref->setHideKeyboardCursor( hideKeyboardCursor->isChecked() );
+		bGeneralOptionAltered = true;
+	}
 
 	//path to rubberband
-	pPref-> m_rubberBandCLIexecutable = rubberbandLineEdit->text();
+	if ( pPref->m_rubberBandCLIexecutable != rubberbandLineEdit->text() ) {
+		pPref->m_rubberBandCLIexecutable = rubberbandLineEdit->text();
+		bGeneralOptionAltered = true;
+	}
 
 	//check preferences
 	if ( pPref->m_brestartLash == true ){
 		pPref->m_bsetLash = true ;
 	}
 
-	pPref->m_countOffset = sBcountOffset->value();
-	pPref->m_startOffset = sBstartOffset->value();
+	if ( pPref->m_countOffset != sBcountOffset->value() ) {
+		pPref->m_countOffset = sBcountOffset->value();
+		pHydrogen->setBcOffsetAdjust();
+		bGeneralOptionAltered = true;
+	}
+	
+	if ( pPref->m_startOffset != sBstartOffset->value() ) {
+		pPref->m_startOffset = sBstartOffset->value();
+		pHydrogen->setBcOffsetAdjust();
+		bGeneralOptionAltered = true;
+	}
 
-	pPref->setMaxBars( sBmaxBars->value() );
-	pPref->setMaxLayers( sBmaxLayers->value() );
+	if ( pPref->getMaxBars() != sBmaxBars->value() ) {
+		pPref->setMaxBars( sBmaxBars->value() );
+		bGeneralOptionAltered = true;
+	}
+	
+	if ( pPref->getMaxLayers() != sBmaxLayers->value() ) {
+		pPref->setMaxLayers( sBmaxLayers->value() );
+		bGeneralOptionAltered = true;
+	}
 
 	if ( pPref->m_nAutosavesPerHour != autosaveSpinBox->value() ) {
 		pPref->m_nAutosavesPerHour = autosaveSpinBox->value();
-		changes =
-			static_cast<H2Core::Preferences::Changes>( changes |
+		m_changes =
+			static_cast<H2Core::Preferences::Changes>( m_changes |
 													   H2Core::Preferences::Changes::GeneralTab );
 	}
-
-	pHydrogen->setBcOffsetAdjust();
-
-	pPref->setTheme( m_pCurrentTheme );
-	
-	pH2App->changePreferences( changes );
-
-	SongEditorPanel* pSongEditorPanel = pH2App->getSongEditorPanel();
-	SongEditor * pSongEditor = pSongEditorPanel->getSongEditor();
-	pSongEditor->updateEditorandSetTrue();
 
 	QString sPreferredLanguage = languageComboBox->currentData().toString();
 	if ( sPreferredLanguage != m_sInitialLanguage ) {
 		QMessageBox::information( this, "Hydrogen", tr( "Hydrogen must be restarted for language change to take effect" ));
 		pPref->setPreferredLanguage( sPreferredLanguage );
+		bGeneralOptionAltered = true;
 	}
+
+	if ( bGeneralOptionAltered ) {
+		m_changes =
+			static_cast<H2Core::Preferences::Changes>(
+				m_changes | H2Core::Preferences::Changes::GeneralTab );
+	}
+
+	//////////////////////////////////////////////////////////////////
+
+	pPref->setTheme( m_pCurrentTheme );
+
+	pH2App->changePreferences( m_changes );
 	
 	pPref->savePreferences();
 	accept();
@@ -1275,6 +1470,10 @@ void PreferencesDialog::onApplicationFontChanged( const QFont& font ) {
 	m_pCurrentTheme->getFontTheme()->m_sApplicationFontFamily = font.family();
 	pPref->setApplicationFontFamily( font.family() );
 
+	m_changes =
+		static_cast<H2Core::Preferences::Changes>(
+			m_changes | H2Core::Preferences::Changes::Font );
+		
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Font );
 }
 
@@ -1283,6 +1482,10 @@ void PreferencesDialog::onLevel2FontChanged( const QFont& font ) {
 
 	m_pCurrentTheme->getFontTheme()->m_sLevel2FontFamily = font.family();
 	pPref->setLevel2FontFamily( font.family() );
+
+	m_changes =
+		static_cast<H2Core::Preferences::Changes>(
+			m_changes | H2Core::Preferences::Changes::Font );
 
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Font );
 }
@@ -1293,6 +1496,10 @@ void PreferencesDialog::onLevel3FontChanged( const QFont& font ) {
 	m_pCurrentTheme->getFontTheme()->m_sLevel3FontFamily = font.family();
 	pPref->setLevel3FontFamily( font.family() );
 
+	m_changes =
+		static_cast<H2Core::Preferences::Changes>(
+			m_changes | H2Core::Preferences::Changes::Font );
+
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Font );
 }
 
@@ -1300,9 +1507,7 @@ void PreferencesDialog::onRejected() {
 
 	updateAppearanceTab( m_pPreviousTheme );
 
-	HydrogenApp::get_instance()->changePreferences( static_cast<H2Core::Preferences::Changes>( H2Core::Preferences::Changes::Font |
-																							   H2Core::Preferences::Changes::Colors |
-																							   H2Core::Preferences::Changes::AppearanceTab ) );
+	HydrogenApp::get_instance()->changePreferences( m_changes );
 }
 
 void PreferencesDialog::onFontSizeChanged( int nIndex ) {
@@ -1325,6 +1530,10 @@ void PreferencesDialog::onFontSizeChanged( int nIndex ) {
 		ERRORLOG( QString( "Unknown font size: %1" ).arg( nIndex ) );
 	}
 	
+	m_changes =
+		static_cast<H2Core::Preferences::Changes>(
+			m_changes | H2Core::Preferences::Changes::Font );
+	
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Font );
 }
 
@@ -1341,6 +1550,11 @@ void PreferencesDialog::onUILayoutChanged( int nIndex ) {
 	}
 	m_pCurrentTheme->getInterfaceTheme()->m_layout = static_cast<InterfaceTheme::Layout>(nIndex);
 	Preferences::get_instance()->setDefaultUILayout( static_cast<InterfaceTheme::Layout>(nIndex) );
+
+	m_changes =
+		static_cast<H2Core::Preferences::Changes>(
+			m_changes | H2Core::Preferences::Changes::AppearanceTab );
+	
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
@@ -1357,12 +1571,22 @@ void PreferencesDialog::uiScalingPolicyComboBoxCurrentIndexChanged( int nIndex )
 	}
 	m_pCurrentTheme->getInterfaceTheme()->m_scalingPolicy = static_cast<InterfaceTheme::ScalingPolicy>(nIndex);
 	Preferences::get_instance()->setUIScalingPolicy( static_cast<InterfaceTheme::ScalingPolicy>(nIndex) );
+
+	m_changes =
+		static_cast<H2Core::Preferences::Changes>(
+			m_changes | H2Core::Preferences::Changes::AppearanceTab );
+	
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
 void PreferencesDialog::onIconColorChanged( int nIndex ) {
 	m_pCurrentTheme->getInterfaceTheme()->m_iconColor = static_cast<InterfaceTheme::IconColor>(nIndex);
 	H2Core::Preferences::get_instance()->setIconColor( static_cast<InterfaceTheme::IconColor>(nIndex) );
+
+	m_changes =
+		static_cast<H2Core::Preferences::Changes>(
+			m_changes | H2Core::Preferences::Changes::AppearanceTab );
+	
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
@@ -1376,6 +1600,11 @@ void PreferencesDialog::onColorNumberChanged( int nIndex ) {
 			m_colorSelectionButtons[ ii ]->hide();
 		}
 	}
+
+	m_changes =
+		static_cast<H2Core::Preferences::Changes>(
+			m_changes | H2Core::Preferences::Changes::AppearanceTab );
+	
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
@@ -1387,6 +1616,11 @@ void PreferencesDialog::onColorSelectionClicked() {
 	}
 	m_pCurrentTheme->getInterfaceTheme()->m_patternColors = colors;
 	Preferences::get_instance()->setPatternColors( colors );
+
+	m_changes =
+		static_cast<H2Core::Preferences::Changes>(
+			m_changes | H2Core::Preferences::Changes::AppearanceTab );
+	
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
@@ -1409,6 +1643,11 @@ void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
 			m_colorSelectionButtons[ ii ]->show();
 		}
 	}
+
+	m_changes =
+		static_cast<H2Core::Preferences::Changes>(
+			m_changes | H2Core::Preferences::Changes::AppearanceTab );
+	
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
@@ -1427,6 +1666,11 @@ void PreferencesDialog::mixerFalloffComboBoxCurrentIndexChanged( int nIndex ) {
 	} else {
 		ERRORLOG( QString("Wrong mixerFalloff value = %1").arg( nIndex ) );
 	}
+
+	m_changes =
+		static_cast<H2Core::Preferences::Changes>(
+			m_changes | H2Core::Preferences::Changes::AppearanceTab );
+	
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
@@ -1496,6 +1740,11 @@ void PreferencesDialog::styleComboBoxActivated( int index )
 	Preferences *pPref = Preferences::get_instance();
 	pPref->setQTStyle( sStyle );
 	m_pCurrentTheme->getInterfaceTheme()->m_sQTStyle = sStyle;
+
+	m_changes =
+		static_cast<H2Core::Preferences::Changes>(
+			m_changes | H2Core::Preferences::Changes::AppearanceTab );
+	
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 }
 
@@ -1513,36 +1762,13 @@ void PreferencesDialog::on_useLashCheckbox_clicked()
 	QMessageBox::information ( this, "Hydrogen", tr ( "Please restart hydrogen to enable/disable LASH support" ) );
 }
 
-void PreferencesDialog::resampleComboBoxCurrentIndexChanged ( int index )
-{
-	switch ( index ){
-	case 0:
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
-		break;
-	case 1:
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
-		break;
-	case 2:
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
-		break;
-	case 3:
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
-		break;
-	case 4:
-		Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
-		break;
-	}
-
-}
-
-void PreferencesDialog::onMidiDriverComboBoxIndexChanged ( int index )
+void PreferencesDialog::onMidiDriverComboBoxIndexChanged ( int )
 {
 	m_bNeedDriverRestart = true;
 }
 
-void PreferencesDialog::toggleTrackOutsCheckBox(bool toggled)
+void PreferencesDialog::toggleTrackOutsCheckBox( bool )
 {
-	Preferences::get_instance()->m_bJackTrackOuts = toggled;
 	m_bNeedDriverRestart = true;
 }
 
@@ -1890,6 +2116,11 @@ void PreferencesDialog::updateColors() {
 
 	  updateColorTree();
 	  H2Core::Preferences::get_instance()->setColorTheme( m_pCurrentTheme->getColorTheme() );
+
+	  m_changes =
+		  static_cast<H2Core::Preferences::Changes>(
+			  m_changes | H2Core::Preferences::Changes::Colors );
+	
 	  HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
 }
 
@@ -1991,11 +2222,21 @@ void PreferencesDialog::importTheme() {
 		m_pCurrentColor = nullptr;
 		updateColorTree();
 		H2Core::Preferences::get_instance()->setColorTheme( m_pCurrentTheme->getColorTheme() );
+
+		m_changes =
+			static_cast<H2Core::Preferences::Changes>(
+				m_changes | H2Core::Preferences::Changes::Colors );
+	  
 		HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::Colors );
 	}
 	updateAppearanceTab( m_pCurrentTheme );
 
 	HydrogenApp::get_instance()->setScrollStatusBarMessage( tr( "Theme imported from " ) + sSelectedPath, 2000 );
+
+	m_changes =
+		static_cast<H2Core::Preferences::Changes>(
+			m_changes | H2Core::Preferences::Changes::AppearanceTab );
+		
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 	
 }
@@ -2039,6 +2280,7 @@ void PreferencesDialog::resetTheme() {
 	m_pCurrentTheme = std::make_shared<Theme>( m_pPreviousTheme );
 	H2Core::Preferences::get_instance()->setTheme( m_pCurrentTheme );
 	updateAppearanceTab( m_pCurrentTheme );
+	
 	HydrogenApp::get_instance()->changePreferences( H2Core::Preferences::Changes::AppearanceTab );
 
 	HydrogenApp::get_instance()->setStatusBarMessage( tr( "Theme reset" ), 10000 );
