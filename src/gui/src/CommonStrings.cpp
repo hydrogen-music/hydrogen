@@ -315,7 +315,8 @@ CommonStrings::CommonStrings(){
 	m_sAudioDriverErrorHint = tr( "Please use the Preferences to select a different one." );
 	m_sAudioDriverNotPresent = tr( "No audio driver set!" );
 
-	m_sJackMasterTooltip = tr("JACK Timebase master on/off");
+	m_sJackTBMMasterTooltip = tr("Register Hydrogen as JACK Timebase master");
+	m_sJackTBMSlaveTooltip = tr("Hydrogen is listening to tempo and position info. Press to register Hydrogen as JACK Timebase master instead.");
 	m_sJackMasterDisabledTooltip = tr( "JACK timebase support is disabled in the Preferences" );
 	
 	/*: Title of the window displayed when using the MIDI learning
