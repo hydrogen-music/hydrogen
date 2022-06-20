@@ -147,7 +147,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	connect( this, &PreferencesDialog::rejected, this, &PreferencesDialog::onRejected );
 
 	Preferences *pPref = Preferences::get_instance();
-	pPref->loadPreferences( false );	// reload user's preferences
 	
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
