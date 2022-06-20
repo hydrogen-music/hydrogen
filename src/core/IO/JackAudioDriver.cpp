@@ -290,13 +290,12 @@ void JackAudioDriver::relocateUsingBBT()
 		 m_JackTransportPos.beats_per_minute > MAX_BPM ||
 		 m_JackTransportPos.ticks_per_beat < 1 ) {
 		ERRORLOG( QString( "Unsupported to BBT content. beat_type: %1, bar: %2, beat: %3, beats_per_bar: %4, beats_per_minute: %5, ticks_per_beat: %6" )
-				  .arg( m_JackTransportPos.beat_type < 1 )
-				  .arg( m_JackTransportPos.bar < 1 )
-				  .arg( m_JackTransportPos.beat < 1 )
-				  .arg( m_JackTransportPos.beats_per_bar < 1 )
-				  .arg( m_JackTransportPos.beats_per_minute < MIN_BPM )
-				  .arg( m_JackTransportPos.beats_per_minute > MAX_BPM )
-				  .arg( m_JackTransportPos.ticks_per_beat < 1 ) );
+				  .arg( m_JackTransportPos.beat_type )
+				  .arg( m_JackTransportPos.bar )
+				  .arg( m_JackTransportPos.beat )
+				  .arg( m_JackTransportPos.beats_per_bar )
+				  .arg( m_JackTransportPos.beats_per_minute )
+				  .arg( m_JackTransportPos.ticks_per_beat ) );
 		return;
 	}
 
@@ -1033,7 +1032,10 @@ void JackAudioDriver::initTimebaseMaster()
 						     JackTimebaseCallback, this);
 		if ( nReturnValue != 0 ){
 			pPreferences->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
-		} else {
+			WARNINGLOG( QString( "Hydrogen was not able to register itself as Timebase Master: [%1]" )
+						.arg( nReturnValue ) );
+		}
+		else {
 			m_nTimebaseTracking = 2;
 			m_timebaseState = Timebase::Master;
 			EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_STATE_CHANGED,

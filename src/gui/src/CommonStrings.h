@@ -127,7 +127,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getAudioDriverErrorHint() const { return m_sAudioDriverErrorHint; }
 	const QString& getAudioDriverNotPresent() const { return m_sAudioDriverNotPresent; }
 	
-	const QString& getJackMasterTooltip() const { return m_sJackMasterTooltip; }
+	const QString& getJackTBMMasterTooltip() const { return m_sJackTBMMasterTooltip; }
+	const QString& getJackTBMSlaveTooltip() const { return m_sJackTBMSlaveTooltip; }
 	const QString& getJackMasterDisabledTooltip() const { return m_sJackMasterDisabledTooltip; }
 	
 	const QString& getMidiSenseWindowTitle() const { return m_sMidiSenseWindowTitle; }
@@ -254,7 +255,8 @@ private:
 	QString m_sAudioDriverErrorHint;
 	QString m_sAudioDriverNotPresent;
 
-	QString m_sJackMasterTooltip;
+	QString m_sJackTBMMasterTooltip;
+	QString m_sJackTBMSlaveTooltip;
 	QString m_sJackMasterDisabledTooltip;
 	
 	QString m_sMidiSenseWindowTitle;

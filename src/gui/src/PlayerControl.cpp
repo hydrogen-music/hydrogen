@@ -403,7 +403,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	} else {
 		m_pJackTransportBtn->setChecked( false );
 	}
-	connect(m_pJackTransportBtn, SIGNAL( pressed() ), this, SLOT( jackTransportBtnClicked() ));
+	connect(m_pJackTransportBtn, SIGNAL( clicked() ), this, SLOT( jackTransportBtnClicked() ));
 	m_pJackTransportBtn->move( 3, 24 );
 
 	//jack time master
@@ -414,27 +414,39 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pJackMasterBtn = new Button( pJackPanel, QSize( 53, 16 ),
 								   Button::Type::Toggle, "",
 								   pCommonStrings->getJackMasterButton(), false,
-								   QSize(), pCommonStrings->getJackMasterTooltip(),
+								   QSize(), pCommonStrings->getJackTBMMasterTooltip(),
 								   false, true );
+	
 	if ( ! m_pHydrogen->haveJackAudioDriver() ) {
 		m_pJackMasterBtn->hide();
 	}
-	if ( m_pHydrogen->getJackTimebaseState() ==
-		 JackAudioDriver::Timebase::Master ) {
-		m_pJackMasterBtn->setChecked( true );
-	} else {
-		m_pJackMasterBtn->setChecked( false );
-	}
+			
 	if ( pPref->m_bJackTimebaseEnabled ) {
-		if ( pPref->m_bJackTransportMode != Preferences::USE_JACK_TRANSPORT ) {
+		if ( m_pHydrogen->haveJackTransport() ) {
+			if ( m_pHydrogen->getJackTimebaseState() ==
+				 JackAudioDriver::Timebase::Master ) {
+				m_pJackMasterBtn->setChecked( true );
+			}
+			else if ( m_pHydrogen->getJackTimebaseState() ==
+					  JackAudioDriver::Timebase::Slave ) {
+				m_pJackMasterBtn->setChecked( true );
+				m_pJackMasterBtn->setUseRedBackground( true );
+				m_pJackMasterBtn->setToolTip( pCommonStrings->getJackTBMSlaveTooltip() );
+			}
+			else {
+				m_pJackMasterBtn->setChecked( false );
+			}
+		}
+		else {
 			m_pJackMasterBtn->setIsActive( false );
 		}
-	} else {
+	}
+	else {
 		m_pJackMasterBtn->setIsActive( false );
 		m_pJackMasterBtn->setBaseToolTip( pCommonStrings->getJackMasterDisabledTooltip() );
 	}
 
-	connect(m_pJackMasterBtn, SIGNAL( pressed() ), this, SLOT( jackMasterBtnClicked() ));
+	connect(m_pJackMasterBtn, SIGNAL( clicked() ), this, SLOT( jackMasterBtnClicked() ));
 	m_pJackMasterBtn->move( 56, 24 );
 	//~ jack time master
 
@@ -874,14 +886,20 @@ void PlayerControl::bctDownButtonClicked()
 
 void PlayerControl::jackTransportBtnClicked()
 {
-	Preferences *pPref = Preferences::get_instance();
-
 	if ( !m_pHydrogen->haveJackAudioDriver() ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "JACK-transport will work only with JACK driver." ) );
 		return;
 	}
 
-	Hydrogen::get_instance()->getCoreActionController()->activateJackTransport( ! m_pJackTransportBtn->isChecked() );
+	auto pPref = Preferences::get_instance();
+	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
+	
+	if ( pPref->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
+		pCoreActionController->activateJackTransport( false );
+	}
+	else {
+		pCoreActionController->activateJackTransport( true );
+	}
 }
 
 
@@ -894,7 +912,15 @@ void PlayerControl::jackMasterBtnClicked()
 		return;
 	}
 
-	Hydrogen::get_instance()->getCoreActionController()->activateJackTimebaseMaster( ! m_pJackMasterBtn->isChecked() );
+	auto pPref = Preferences::get_instance();
+	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
+	
+	if ( pPref->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
+		pCoreActionController->activateJackTimebaseMaster( false );
+	}
+	else {
+		pCoreActionController->activateJackTimebaseMaster( true );
+	}
 #endif
 }
 //~ jack time master
@@ -1139,14 +1165,20 @@ void PlayerControl::jackTransportActivationEvent( )
 		if ( ! m_pJackTransportBtn->isDown() ) {
 			m_pJackTransportBtn->setChecked( true );
 		}
-		m_pJackMasterBtn->setIsActive( true );
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK transport mode = On"), 5000);
+
+		HydrogenApp::get_instance()->setStatusBarMessage(tr("JACK transport mode = On"), 5000);
+
+		if ( pPref->m_bJackTimebaseEnabled ) {
+			m_pJackMasterBtn->setIsActive( true );
+			jackTimebaseStateChangedEvent();
+		}
 	}
 	else {
 		
 		if ( ! m_pJackTransportBtn->isDown() ) {
 			m_pJackTransportBtn->setChecked( false );
 		}
+		m_pJackMasterBtn->setChecked( false );
 		m_pJackMasterBtn->setIsActive( false );
 		HydrogenApp::get_instance()->setStatusBarMessage(tr("JACK transport mode = Off"), 5000);
 	}
@@ -1154,30 +1186,52 @@ void PlayerControl::jackTransportActivationEvent( )
 
 void PlayerControl::jackTimebaseStateChangedEvent()
 {
+	auto pPref = Preferences::get_instance();
+	if ( ! pPref->m_bJackTimebaseEnabled ) {
+		return;
+	}
+	
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pHydrogen = Hydrogen::get_instance();
+
+	QString sMessage = tr("JACK Timebase mode" ) + QString( " = " );
 	
-	bool bIsMaster = pHydrogen->getJackTimebaseState() ==
-		JackAudioDriver::Timebase::Master;
-	
-	if ( !bIsMaster && m_pJackMasterBtn->isChecked() ){
-		if ( ! m_pJackMasterBtn->isDown() ) {
-			m_pJackMasterBtn->setChecked( false );
-		}
-		
-	} else if ( bIsMaster && !m_pJackMasterBtn->isChecked() ) {
+	switch( pHydrogen->getJackTimebaseState() ) {
+	case JackAudioDriver::Timebase::Master:
+
 		if ( ! m_pJackMasterBtn->isDown() ) {
 			m_pJackMasterBtn->setChecked( true );
 		}
+		m_pJackMasterBtn->setUseRedBackground( false );
+		m_pJackMasterBtn->setToolTip( pCommonStrings->getJackTBMMasterTooltip() );
+		
+		sMessage.append( "master" );
+		break;
+
+	case JackAudioDriver::Timebase::Slave:
+
+		if ( ! m_pJackMasterBtn->isDown() ) {
+			m_pJackMasterBtn->setChecked( true );
+		}
+		m_pJackMasterBtn->setUseRedBackground( true );
+		m_pJackMasterBtn->setToolTip( pCommonStrings->getJackTBMSlaveTooltip() );
+		
+		sMessage.append( "slave" );
+		break;
+
+	default:
+
+		if ( ! m_pJackMasterBtn->isDown() ) {
+			m_pJackMasterBtn->setChecked( false );
+		}		
+		m_pJackMasterBtn->setUseRedBackground( false );
+		m_pJackMasterBtn->setToolTip( pCommonStrings->getJackTBMMasterTooltip() );
+
+		sMessage.append( pCommonStrings->getStatusOff() );
 	}
 
 	updateBeatCounter();
 	updateBPMSpinbox();
-
-	QString sMessage = tr("JACK Timebase master mode" ) +
-		QString( " = %1" )
-		.arg( bIsMaster ? pCommonStrings->getStatusOn() :
-			  pCommonStrings->getStatusOff() );
 	HydrogenApp::get_instance()->setStatusBarMessage( sMessage, 5000 );
 }
 
@@ -1192,9 +1246,16 @@ void PlayerControl::onPreferencesChanged( H2Core::Preferences::Changes changes )
 		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 		if ( pPref->m_bJackTimebaseEnabled ) {
-			m_pJackMasterBtn->setIsActive( true );
-			m_pJackMasterBtn->setBaseToolTip( pCommonStrings->getJackMasterTooltip() );
-		} else {
+			if ( Hydrogen::get_instance()->haveJackTransport() ) {
+				m_pJackMasterBtn->setIsActive( true );
+				jackTimebaseStateChangedEvent();
+			}
+			else {
+				m_pJackMasterBtn->setToolTip( pCommonStrings->getJackTBMMasterTooltip() );
+			}
+		}
+		else {
+			m_pJackMasterBtn->setChecked( false );
 			m_pJackMasterBtn->setIsActive( false );
 			m_pJackMasterBtn->setBaseToolTip( pCommonStrings->getJackMasterDisabledTooltip() );
 		}
