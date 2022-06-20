@@ -263,8 +263,11 @@ void Mixer::soloClicked(MixerLine* ref)
 	pController->setStripIsSoloed( nLine, ref->isSoloClicked() );
 
 	for ( int i = 0; i < nInstruments; ++i ) {
-			if( m_pMixerLine[i] ){
-				m_pMixerLine[i]->setSoloClicked( pInstrList->get(i)->is_soloed() );
+			if ( m_pMixerLine[i] != nullptr ){
+				auto pInstrument = pInstrList->get(i);
+				if ( pInstrument != nullptr ) {
+					m_pMixerLine[i]->setSoloClicked( pInstrument->is_soloed() );
+				}
 			}
 	}
 
@@ -312,11 +315,14 @@ void Mixer::noteOnClicked( MixerLine* ref )
 
 	int nLine = findMixerLineByRef( ref );
 	pHydrogen->setSelectedInstrumentNumber( nLine );
-
-	auto pInstr = Hydrogen::get_instance()->getSong()->getInstrumentList()->get( nLine );
+	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	if ( pSelectedInstrument == nullptr ) {
+		ERRORLOG( "No instrument selected" );
+		return;
+	}
 	
-	const float fPitch = pInstr->get_pitch_offset();
-	Note *pNote = new Note( pInstr, 0, 1.0, 0.f, -1, fPitch );
+	const float fPitch = pSelectedInstrument->get_pitch_offset();
+	Note *pNote = new Note( pSelectedInstrument, 0, 1.0, 0.f, -1, fPitch );
 	pHydrogen->getAudioEngine()->getSampler()->noteOn(pNote);
 }
 
@@ -330,11 +336,14 @@ void Mixer::noteOnClicked( MixerLine* ref )
 	
 	int nLine = findMixerLineByRef( ref );
 	pHydrogen->setSelectedInstrumentNumber( nLine );
-
-	auto pInstr = Hydrogen::get_instance()->getSong()->getInstrumentList()->get( nLine );
+	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	if ( pSelectedInstrument == nullptr ) {
+		ERRORLOG( "No instrument selected" );
+		return;
+	}
 
 	const float fPitch = 0.0f;
-	Note *pNote = new Note( pInstr, 0, 1.0, 0.f,-1, fPitch );
+	Note *pNote = new Note( pSelectedInstrument, 0, 1.0, 0.f,-1, fPitch );
 	pHydrogen->getAudioEngine()->getSampler()->noteOff(pNote);
 }
 
@@ -708,17 +717,17 @@ void Mixer::panChanged(MixerLine* ref) {
 
 void Mixer::knobChanged(MixerLine* ref, int nKnob) {
 	int nLine = findMixerLineByRef(ref);
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
-
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	InstrumentList *pInstrList = pSong->getInstrumentList();
-	auto pInstr = pInstrList->get(nLine);
-	pInstr->set_fx_level( ref->getFXLevel(nKnob), nKnob );
+	pHydrogen->setSelectedInstrumentNumber( nLine );
+	auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+	if ( pSelectedInstrument == nullptr ) {
+		ERRORLOG( "No instrument selected" );
+		return;
+	}
+
+	pSelectedInstrument->set_fx_level( ref->getFXLevel(nKnob), nKnob );
 	QString sInfo = tr( "Set FX %1 level ").arg( nKnob + 1 );
 	( HydrogenApp::get_instance() )->setStatusBarMessage( sInfo+ QString( "[%1]" ).arg( ref->getFXLevel(nKnob), 0, 'f', 2 ), 2000 );
-
-	pHydrogen->setSelectedInstrumentNumber(nLine);
 
 	pHydrogen->setIsModified( true );
 }

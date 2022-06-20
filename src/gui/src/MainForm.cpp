@@ -299,6 +299,8 @@ void MainForm::createMenuBar()
 	
 	m_pFileMenu->addAction( sLabelNew, this, SLOT( action_file_new() ), QKeySequence( "Ctrl+N" ) );
 	
+	m_pFileMenu->addSeparator();				// -----
+	
 	m_pFileMenu->addAction( tr( "Song Properties" ), this, SLOT( action_file_songProperties() ), QKeySequence( "" ) );
 	
 	m_pFileMenu->addSeparator();				// -----
@@ -1320,9 +1322,9 @@ void MainForm::action_instruments_saveLibrary()
 		if( !H2Core::Drumkit::save( QString( pDrumkitInfo->get_name() ),
 									QString( pDrumkitInfo->get_author() ),
 									QString( pDrumkitInfo->get_info() ),
-									QString( pDrumkitInfo->get_license() ),
+									pDrumkitInfo->get_license(),
 									QString( pDrumkitInfo->get_image() ),
-									QString( pDrumkitInfo->get_image_license() ),
+									pDrumkitInfo->get_image_license(),
 									H2Core::Hydrogen::get_instance()->getSong()->getInstrumentList(),
 									H2Core::Hydrogen::get_instance()->getSong()->getComponents(),
 									true ) ) {
@@ -2075,7 +2077,8 @@ void MainForm::showDevelWarning()
 			develMessageBox.setText( msg );
 			develMessageBox.addButton( pCommonStrings->getButtonOk(),
 									   QMessageBox::YesRole );
-			develMessageBox.addButton( tr( "Don't show this message anymore" ) , QMessageBox::AcceptRole );
+			develMessageBox.addButton( pCommonStrings->getMutableDialog(),
+									   QMessageBox::AcceptRole );
 
 			if( develMessageBox.exec() == 1 ){
 				//don't show warning again
@@ -2337,59 +2340,57 @@ void MainForm::action_banks_properties()
 {
 	QString sDrumkitName = Hydrogen::get_instance()->getCurrentDrumkitName();
 	Filesystem::Lookup lookup = Hydrogen::get_instance()->getCurrentDrumkitLookup();
-	Drumkit *pDrumkitInfo = nullptr;
+	Drumkit* pDrumkit = nullptr;
 
 	if ( lookup == Filesystem::Lookup::system ||
 		 lookup == Filesystem::Lookup::stacked ) {
 		//System drumkit list
-		QStringList sys_dks = Filesystem::sys_drumkit_list();
-		for (int i = 0; i < sys_dks.size(); ++i) {
-			QString absPath = Filesystem::sys_drumkits_dir() + sys_dks[i];
-			Drumkit *pInfo = Drumkit::load( absPath );
-			if (pInfo) {
-				if ( QString( pInfo->get_name() ) == sDrumkitName ){
-					pDrumkitInfo = pInfo;
+		for ( const auto& ssSysDrumkit : Filesystem::sys_drumkit_list() ) {
+			Drumkit* ppKit = Drumkit::load( Filesystem::sys_drumkits_dir() + ssSysDrumkit );
+			if ( ppKit != nullptr ) {
+				if ( ppKit->get_name() == sDrumkitName ){
+					pDrumkit = ppKit;
 					break;
 				}
-			}
 		
-			// Since Drumkit::load() calls New Drumkit() internally, we
-			// have to take care of destroying it manually.
-			delete pInfo;
+				// Since Drumkit::load() calls New Drumkit() internally, we
+				// have to take care of destroying it manually.
+				delete ppKit;
+			}
 		}
 	}
 	
 	if ( lookup == Filesystem::Lookup::user ||
 		 lookup == Filesystem::Lookup::stacked ) {
 		//User drumkit list
-		QStringList usr_dks = Filesystem::usr_drumkit_list();
-		for (int i = 0; i < usr_dks.size(); ++i) {
-			QString absPath = Filesystem::usr_drumkits_dir() + usr_dks[i];
-			Drumkit *pInfo = Drumkit::load( absPath );
-			if (pInfo) {
-				if ( QString(pInfo->get_name() ) == sDrumkitName ){
-					pDrumkitInfo = pInfo;
+		for ( const auto& ssUserDrumkit : Filesystem::usr_drumkit_list() ) {
+			Drumkit* ppKit = Drumkit::load( Filesystem::usr_drumkits_dir() + ssUserDrumkit );
+			if ( ppKit ) {
+				if ( ppKit->get_name() == sDrumkitName ){
+					pDrumkit = ppKit;
 					break;
 				}
-			}
 		
-			// Since Drumkit::load() calls New Drumkit() internally, we
-			// have to take care of destroying it manually.
-			delete pInfo;
+				// Since Drumkit::load() calls New Drumkit() internally, we
+				// have to take care of destroying it manually.
+				delete ppKit;
+			}
 		}
 	}
 
-	if( pDrumkitInfo ) {
-		SoundLibraryPropertiesDialog dialog( this , pDrumkitInfo, pDrumkitInfo );
+	if ( pDrumkit != nullptr ) {
+		SoundLibraryPropertiesDialog dialog( this, pDrumkit, pDrumkit, true );
 		dialog.exec();
-	} else {
-		QString sMessage = HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->getMessageFailedPreDrumkitLoad();
-		QMessageBox::warning( this, "Hydrogen", sMessage.append( QString( " [%1]").arg( sDrumkitName ) ) );
-	}
 
-	// Cleaning up the last pInfo we did not deleted due to the break
-	// statement.
-	delete pDrumkitInfo;
+		// Cleaning up the last ppKit we did not deleted due to the break
+		// statement.
+		delete pDrumkit;
+	}
+	else {
+		QMessageBox::warning( this, "Hydrogen", QString( "%1 [%2]")
+							  .arg( HydrogenApp::get_instance()->getCommonStrings()->getSoundLibraryFailedPreDrumkitLoad() )
+							  .arg( sDrumkitName ) );
+	}
 }
 
 void MainForm::updateSongEvent( int nValue ) {

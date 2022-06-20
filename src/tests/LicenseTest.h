@@ -20,35 +20,18 @@
  *
  */
 
-#ifndef SONG_PROPERTIES_DIALOG_H
-#define SONG_PROPERTIES_DIALOG_H
+#include <core/config.h>
 
+#include <cppunit/extensions/HelperMacros.h>
+#include <core/License.h>
 
-#include "ui_SongPropertiesDialog_UI.h"
-#include "HydrogenApp.h"
-#include "Widgets/WidgetWithLicenseProperty.h"
-
-/**
- * Song Properties Dialog
- */
-/** \ingroup docGUI*/
-class SongPropertiesDialog : public QDialog,
-							 protected WidgetWithLicenseProperty,
-							 private Ui_SongPropertiesDialog_UI
-{
-	Q_OBJECT
-
-	public:
-		explicit SongPropertiesDialog(QWidget* parent);
-		~SongPropertiesDialog();
-
-	private slots:
-		void on_cancelBtn_clicked();
-		void on_okBtn_clicked();
-	void licenseComboBoxChanged( int );
-
+class LicenseTest : public CppUnit::TestFixture {
+	CPPUNIT_TEST_SUITE( LicenseTest );
+	CPPUNIT_TEST( testParsing );
+	CPPUNIT_TEST( testOperators );
+	CPPUNIT_TEST_SUITE_END();
+	
+public:
+	void testParsing();
+	void testOperators();
 };
-
-#endif
-
-

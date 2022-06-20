@@ -132,7 +132,7 @@ void Button::updateStyleSheet() {
 
 	if ( m_type == Type::Icon ) {
 		// Make background transparent
-		setStyleSheet( "background-color: none" );
+		setStyleSheet( "QPushButton { background-color: none; }" );
 		return;
 	}
 

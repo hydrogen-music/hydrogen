@@ -59,7 +59,7 @@ public:
 	void update_background_color();
 	virtual void drumkitLoadedEvent() override;
 	virtual void updateSongEvent( int nValue ) override;
-	const QString& getMessageFailedPreDrumkitLoad() const;
+	virtual void selectedInstrumentChangedEvent() override;
 
 public slots:
 	void on_drumkitLoadAction();
@@ -111,12 +111,6 @@ private:
 	 * or as part of the GUI.
 	 */
 	bool m_bInItsOwnDialog;
-
-	QString m_sMessageFailedPreDrumkitLoad;
 };
-
-inline const QString& SoundLibraryPanel::getMessageFailedPreDrumkitLoad() const {
-	return m_sMessageFailedPreDrumkitLoad;
-}
 
 #endif

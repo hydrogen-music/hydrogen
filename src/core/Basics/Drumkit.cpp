@@ -52,8 +52,8 @@ Drumkit::Drumkit() : __samples_loaded( false ),
 					 __name( "empty" ),
 					 __author( "undefined author" ),
 					 __info( "No information available." ),
-					 __license( "undefined license" ),
-					 __imageLicense( "undefined license" )
+					 __license( License() ),
+					 __imageLicense( License() )
 {
 	__components = new std::vector<DrumkitComponent*> ();
 	__instruments = new InstrumentList();
@@ -98,10 +98,10 @@ Drumkit* Drumkit::load_by_name( const QString& dk_name, const bool load_samples,
 		return nullptr;
 	}
 	
-	return load( sDrumkitPath, load_samples );
+	return load( sDrumkitPath, load_samples, true, false, lookup );
 }
 
-Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUpgrade, bool bSilent )
+Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUpgrade, bool bSilent, Filesystem::Lookup lookup )
 {
 	if ( ! bSilent ) {
 		INFOLOG( QString( "Load drumkit %1" ).arg( dk_dir ) );
@@ -111,10 +111,11 @@ Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, bool bUp
 		ERRORLOG( QString( "%1 is not valid drumkit" ).arg( dk_dir ) );
 		return nullptr;
 	}
-	return load_file( Filesystem::drumkit_file( dk_dir ), load_samples, bUpgrade, bSilent );
+	return load_file( Filesystem::drumkit_file( dk_dir ), load_samples, bUpgrade, bSilent,
+					  lookup);
 }
 
-Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bool bUpgrade, bool bSilent )
+Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bool bUpgrade, bool bSilent, Filesystem::Lookup lookup )
 {
 	bool bReadingSuccessful = true;
 	
@@ -151,7 +152,7 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bo
 
 	Drumkit* pDrumkit =
 		Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ),
-							bSilent );
+							bSilent, lookup );
 	if ( ! bReadingSuccessful && bUpgrade ) {
 		upgrade_drumkit( pDrumkit, dk_path );
 	}
@@ -161,7 +162,7 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, bo
 	return pDrumkit;
 }
 
-Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent )
+Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent, Filesystem::Lookup lookup )
 {
 	QString drumkit_name = node->read_string( "name", "", false, false, bSilent );
 	if ( drumkit_name.isEmpty() ) {
@@ -176,12 +177,17 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 											true, true, bSilent );
 	pDrumkit->__info = node->read_string( "info", "No information available.",
 										  true, true, bSilent  );
-	pDrumkit->__license = node->read_string( "license", "undefined license",
-											 true, true, bSilent  );
+
+	License license( node->read_string( "license", "undefined license",
+										true, true, bSilent  ),
+					 pDrumkit->__author );
+	pDrumkit->set_license( license );
 	pDrumkit->__image = node->read_string( "image", "",
 										   true, true, true  );
-	pDrumkit->__imageLicense = node->read_string( "imageLicense", "undefined license",
-												  true, true, bSilent  );
+	License imageLicense( node->read_string( "imageLicense", "undefined license",
+											 true, true, bSilent  ),
+						  pDrumkit->__author );
+	pDrumkit->set_image_license( imageLicense );
 
 	XMLNode componentListNode = node->firstChildElement( "componentList" );
 	if ( ! componentListNode.isNull() ) {
@@ -212,6 +218,19 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path, bool bSilent
 	} else {
 		pDrumkit->set_instruments( InstrumentList::load_from( &instruments_node, dk_path, drumkit_name, bSilent ) );
 	}
+
+	// propagate drumkit lookup
+	for ( const auto& ppInstrument : *pDrumkit->get_instruments() ) {
+		if ( ppInstrument != nullptr ) {
+			ppInstrument->set_drumkit_lookup( lookup );
+		}
+	}
+
+	// Instead of making the *::load_from() functions more complex by
+	// passing the license down to each sample, we will make the
+	// drumkit assign its license to each sample in here.
+	pDrumkit->propagateLicense();
+	
 	return pDrumkit;
 
 }
@@ -225,6 +244,47 @@ void Drumkit::load_samples()
 	}
 }
 
+License Drumkit::loadLicenseByName( const QString& sDrumkitName, Filesystem::Lookup lookup )
+{
+	QString sDrumkitDir = Filesystem::drumkit_path_search( sDrumkitName, lookup );
+	if ( sDrumkitDir.isEmpty() ) {
+		return License();
+	}
+	
+	return loadLicense( sDrumkitDir );
+}
+
+License Drumkit::loadLicense( const QString& sDrumkitDir )
+{
+	if( ! Filesystem::drumkit_valid( sDrumkitDir ) ) {
+		ERRORLOG( QString( "[%1] is not valid drumkit" ).arg( sDrumkitDir ) );
+		return License();
+	}
+
+	const QString sDrumkitPath = Filesystem::drumkit_file( sDrumkitDir );
+
+	XMLDoc doc;
+	doc.read( sDrumkitPath, nullptr, true );
+	XMLNode root = doc.firstChildElement( "drumkit_info" );
+	if ( root.isNull() ) {
+		ERRORLOG( QString( "drumkit_info node not found in [%1]. This does not seem to be a Hydrogen drumkit." )
+				  .arg( sDrumkitPath ) );
+		return License();
+	}
+
+	QString sAuthor = root.read_string( "author", "undefined author",
+										 true, true, false );
+	QString sLicenseString = root.read_string( "license", "undefined license",
+											   false, true, false  );
+	if ( sLicenseString.isNull() ) {
+		ERRORLOG( QString( "Unable to retrieve license information from [%1]" )
+				  .arg( sDrumkitPath ) );
+		return License();
+	}
+
+	return std::move( License( sLicenseString, sAuthor ) );
+}
+	
 void Drumkit::upgrade_drumkit(Drumkit* pDrumkit, const QString& dk_path, bool bSilent )
 {
 	if( pDrumkit != nullptr ) {
@@ -280,9 +340,9 @@ QString Drumkit::getExportName( const QString& sComponentName, bool bRecentVersi
 bool Drumkit::save( const QString&					sName,
                     const QString&					sAuthor,
                     const QString&					sInfo,
-                    const QString&					sLicense,
+                    const License&					license,
                     const QString& 					sImage,
-                    const QString& 					sImageLicense,
+                    const License& 					imageLicense,
                     InstrumentList*					pInstruments,
                     std::vector<DrumkitComponent*>* pComponents,
                     bool 							bOverwrite )
@@ -291,7 +351,7 @@ bool Drumkit::save( const QString&					sName,
 	pDrumkit->set_name( sName );
 	pDrumkit->set_author( sAuthor );
 	pDrumkit->set_info( sInfo );
-	pDrumkit->set_license( sLicense );
+	pDrumkit->set_license( license );
 
 	// Before storing the absolute path to the image of the drumkit it
 	// has to be checked whether an actual path was supplied. If not,
@@ -301,7 +361,7 @@ bool Drumkit::save( const QString&					sName,
 		pDrumkit->set_path( fi.absolutePath() );
 		pDrumkit->set_image( fi.fileName() );
 	}
-	pDrumkit->set_image_license( sImageLicense );
+	pDrumkit->set_image_license( imageLicense );
 
 	pDrumkit->set_instruments( new InstrumentList( pInstruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
 	
@@ -350,7 +410,15 @@ bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_i
 		return false;
 	}
 	XMLDoc doc;
+	
 	XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
+	
+	// In order to comply with the GPL license we have to add a
+	// license notice to the file.
+	if ( __license.getType() == License::GPL ) {
+		doc.appendChild( doc.createComment( License::getGPLLicenseNotice( __author ) ) );
+	}
+	
 	save_to( &root, component_id, bRecentVersion );
 	return doc.write( dk_path );
 }
@@ -360,9 +428,9 @@ void Drumkit::save_to( XMLNode* node, int component_id, bool bRecentVersion ) co
 	node->write_string( "name", __name );
 	node->write_string( "author", __author );
 	node->write_string( "info", __info );
-	node->write_string( "license", __license );
+	node->write_string( "license", __license.getLicenseString() );
 	node->write_string( "image", __image );
-	node->write_string( "imageLicense", __imageLicense );
+	node->write_string( "imageLicense", __imageLicense.getLicenseString() );
 
 	// Only drumkits used for Hydrogen v0.9.7 or higher are allowed to
 	// have components. If the user decides to export the kit to
@@ -513,6 +581,30 @@ void Drumkit::set_components( std::vector<DrumkitComponent*>* components )
 	__components = components;
 }
 
+void Drumkit::propagateLicense() {
+
+	for ( const auto& ppInstrument : *__instruments ) {
+		if ( ppInstrument != nullptr ) {
+			for ( const auto& ppInstrumentComponent : *ppInstrument->get_components() ) {
+				if ( ppInstrumentComponent != nullptr ) {
+					for ( const auto& ppInstrumentLayer : *ppInstrumentComponent ) {
+						if ( ppInstrumentLayer != nullptr ) {
+							auto pSample = ppInstrumentLayer->get_sample();
+							if ( pSample != nullptr ) {
+								pSample->setLicense( get_license() );
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+std::vector<std::shared_ptr<InstrumentList::Content>> Drumkit::summarizeContent() const {
+	return __instruments->summarizeContent( __components );
+}
+
 bool Drumkit::remove( const QString& sDrumkitName, Filesystem::Lookup lookup )
 {
 	QString sDrumkitDir = Filesystem::drumkit_path_search( sDrumkitName, lookup );
@@ -535,8 +627,9 @@ void Drumkit::dump()
 	DEBUGLOG( " |- Name = " + __name );
 	DEBUGLOG( " |- Author = " + __author );
 	DEBUGLOG( " |- Info = " + __info );
+	DEBUGLOG( " |- License = " + __license.toQString() );
 	DEBUGLOG( " |- Image = " + __image );
-	DEBUGLOG( " |- Image = " + __imageLicense );
+	DEBUGLOG( " |- Image = " + __imageLicense.toQString() );
 
 	DEBUGLOG( " |- Instrument list" );
 	for ( int i=0; i<__instruments->size(); i++ ) {
@@ -1056,9 +1149,9 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( __name ) )
 			.append( QString( "%1%2author: %3\n" ).arg( sPrefix ).arg( s ).arg( __author ) )
 			.append( QString( "%1%2info: %3\n" ).arg( sPrefix ).arg( s ).arg( __info ) )
-			.append( QString( "%1%2license: %3\n" ).arg( sPrefix ).arg( s ).arg( __license ) )
+			.append( QString( "%1%2license: %3\n" ).arg( sPrefix ).arg( s ).arg( __license.toQString() ) )
 			.append( QString( "%1%2image: %3\n" ).arg( sPrefix ).arg( s ).arg( __image ) )
-			.append( QString( "%1%2imageLicense: %3\n" ).arg( sPrefix ).arg( s ).arg( __imageLicense ) )
+			.append( QString( "%1%2imageLicense: %3\n" ).arg( sPrefix ).arg( s ).arg( __imageLicense.toQString() ) )
 			.append( QString( "%1%2samples_loaded: %3\n" ).arg( sPrefix ).arg( s ).arg( __samples_loaded ) )
 			.append( QString( "%1" ).arg( __instruments->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2components:\n" ).arg( sPrefix ).arg( s ) );
@@ -1070,13 +1163,13 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 	} else {
 		
 		sOutput = QString( "[Drumkit]" )
-			.append( QString( ", path: %1" ).arg( __path ) )
+			.append( QString( " path: %1" ).arg( __path ) )
 			.append( QString( ", name: %1" ).arg( __name ) )
 			.append( QString( ", author: %1" ).arg( __author ) )
 			.append( QString( ", info: %1" ).arg( __info ) )
-			.append( QString( ", license: %1" ).arg( __license ) )
+			.append( QString( ", license: %1" ).arg( __license.toQString() ) )
 			.append( QString( ", image: %1" ).arg( __image ) )
-			.append( QString( ", imageLicense: %1" ).arg( __imageLicense ) )
+			.append( QString( ", imageLicense: %1" ).arg( __imageLicense.toQString() ) )
 			.append( QString( ", samples_loaded: %1" ).arg( __samples_loaded ) )
 			.append( QString( ", [%1]" ).arg( __instruments->toQString( sPrefix + s, bShort ) ) )
 			.append( QString( ", components: [ " ) );

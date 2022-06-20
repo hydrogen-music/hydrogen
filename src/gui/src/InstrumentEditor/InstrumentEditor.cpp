@@ -502,30 +502,10 @@ void InstrumentEditor::updateSongEvent( int nValue ) {
 
 void InstrumentEditor::selectedInstrumentChangedEvent()
 {
-	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
-
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	
-	if ( pSong != nullptr ) {
-		InstrumentList *pInstrList = pSong->getInstrumentList();
-		int nInstr = pHydrogen->getSelectedInstrumentNumber();
-		if ( nInstr >= pInstrList->size() ) {
-			nInstr = -1;
-		}
-
-		if ( nInstr == -1 ) {
-			m_pInstrument = nullptr;
-		}
-		else {
-			m_pInstrument = pInstrList->get( nInstr );
-			//INFOLOG( "new instr: " + m_pInstrument->m_sName );
-		}
-	}
-	else {
-		m_pInstrument = nullptr;
-	}
-	pHydrogen->getAudioEngine()->unlock();
+	m_pInstrument = pHydrogen->getSelectedInstrument();
 
 	// update layer list
 	if ( m_pInstrument ) {
@@ -973,15 +953,10 @@ void InstrumentEditor::loadLayerBtnClicked()
 	int firstSelection = selectedLayer;
 
 	// Ensure instrument pointer is current
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
-	if ( pSong ) {
-		InstrumentList *pInstrList = pSong->getInstrumentList();
-		m_pInstrument = pInstrList->get( pHydrogen->getSelectedInstrumentNumber() );
-	} else {
-		m_pInstrument = nullptr;
-	}
+	m_pInstrument = pHydrogen->getSelectedInstrument();
 
 	if ( m_pInstrument == nullptr ) {
+		DEBUGLOG( "No instrument selected" );
 		return;
 	}
 

@@ -173,6 +173,14 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 	return sOutput;
 }
 
+std::vector<std::shared_ptr<InstrumentLayer>>::iterator InstrumentComponent::begin() {
+	return __layers.begin();
+}
+
+std::vector<std::shared_ptr<InstrumentLayer>>::iterator InstrumentComponent::end() {
+	return __layers.end();
+}
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

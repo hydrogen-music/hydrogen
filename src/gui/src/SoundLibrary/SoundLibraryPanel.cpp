@@ -126,8 +126,6 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	__expand_pattern_list = Preferences::get_instance()->__expandPatternItem;
 	__expand_songs_list = Preferences::get_instance()->__expandSongItem;
 
-	m_sMessageFailedPreDrumkitLoad = tr( "Drumkit registered in the current song can not be found on disk.\nPlease load an existing drumkit first.\nCurrent kit:" );
-	
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &SoundLibraryPanel::onPreferencesChanged );
 	
 	updateDrumkitList();
@@ -621,6 +619,10 @@ void SoundLibraryPanel::drumkitLoadedEvent() {
 	update_background_color();
 }
 
+void SoundLibraryPanel::selectedInstrumentChangedEvent() {
+	update_background_color();
+}
+
 void SoundLibraryPanel::update_background_color()
 {
 	restore_background_color();
@@ -644,18 +646,23 @@ void SoundLibraryPanel::restore_background_color()
 
 void SoundLibraryPanel::change_background_color()
 {
-	QString sCurDrumkitName =  Hydrogen::get_instance()->getCurrentDrumkitName();
+	auto pSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	QString sDrumkitName = pSelectedInstrument->get_drumkit_name();
+	Filesystem::Lookup lookup = pSelectedInstrument->get_drumkit_lookup();
 
-	if ( Hydrogen::get_instance()->getCurrentDrumkitLookup() == Filesystem::Lookup::system ) {
+	if ( lookup == Filesystem::Lookup::system ||
+		 lookup == Filesystem::Lookup::stacked ) {
 		for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
-			if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == sCurDrumkitName ){
+			if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == sDrumkitName ){
 				( __system_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
-				break;
+				return;
 			}
 		}
-	} else {
+	}
+	if ( lookup == Filesystem::Lookup::user ||
+		 lookup == Filesystem::Lookup::stacked ) {
 		for (int i = 0; i < __user_drumkits_item->childCount() ; i++){
-			if ( ( __user_drumkits_item->child( i ))->text( 0 ) == sCurDrumkitName ){
+			if ( ( __user_drumkits_item->child( i ))->text( 0 ) == sDrumkitName ){
 				( __user_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
 				break;
 			}
@@ -793,13 +800,15 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 	}
 
 	if ( pPreDrumkitInfo == nullptr ){
-		QMessageBox::warning( this, "Hydrogen", QString( "%1 [%2]").arg( m_sMessageFailedPreDrumkitLoad ).arg(sPreDrumkitName) );
+		QMessageBox::warning( this, "Hydrogen", QString( "%1 [%2]")
+							  .arg( HydrogenApp::get_instance()->getCommonStrings()->getSoundLibraryFailedPreDrumkitLoad() )
+							  .arg(sPreDrumkitName) );
 		return;
 	}
 	assert( pPreDrumkitInfo );
 	
 	//open the soundlibrary save dialog
-	SoundLibraryPropertiesDialog dialog( this , pDrumkitInfo, pPreDrumkitInfo );
+	SoundLibraryPropertiesDialog dialog( this, pDrumkitInfo, pPreDrumkitInfo, false );
 	dialog.exec();
 }
 

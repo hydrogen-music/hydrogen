@@ -30,6 +30,7 @@
 #include <map>
 #include <memory>
 
+#include <core/License.h>
 #include <core/Object.h>
 #include <core/Helpers/Filesystem.h>
 
@@ -203,8 +204,8 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		void			setNotes( const QString& sNotes );
 		const QString&		getNotes() const;
 
-		void			setLicense( const QString& sLicense );
-		const QString&		getLicense() const;
+		void			setLicense( const License& license );
+		const License&		getLicense() const;
 
 		void			setAuthor( const QString& sAuthor );
 		const QString&		getAuthor() const;
@@ -289,6 +290,18 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 	void removeInstrument( int nInstrumentNumber, bool bConditional );
 
 	std::vector<std::shared_ptr<Note>> getAllNotes() const;
+
+	/** Checks whether a component of name @a sComponentName exists in
+	 * #m_pComponents.
+	 *
+	 * \return Component ID on success and -1 on failure.
+	 */
+	int findExistingComponent( const QString& sComponentName ) const;
+	int findFreeComponentID( int nStartingID = 0 ) const;
+	/** Ensures @a sComponentName is not used by any other component
+		loaded into the song yet.*/
+	QString makeComponentNameUnique( const QString& sComponentName ) const;
+
 
 	const QString& getCurrentDrumkitName() const;
 	void setCurrentDrumkitName( const QString& sName );
@@ -388,7 +401,7 @@ private:
 		float			m_fPlaybackTrackVolume;
 		AutomationPath*		m_pVelocityAutomationPath;
 		///< license of the song
-		QString			m_sLicense;
+		License			m_license;
 
 		/** Stores the type of interaction with the SongEditor. */
 		ActionMode		m_actionMode;
@@ -539,14 +552,14 @@ inline const QString& Song::getNotes() const
 	return m_sNotes;
 }
 
-inline void Song::setLicense( const QString& sLicense )
+inline void Song::setLicense( const License& license )
 {
-	m_sLicense = sLicense;
+	m_license = license;
 }
 
-inline const QString& Song::getLicense() const
+inline const License& Song::getLicense() const
 {
-	return m_sLicense;
+	return m_license;
 }
 
 inline void Song::setAuthor( const QString& sAuthor )

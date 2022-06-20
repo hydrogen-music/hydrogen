@@ -95,8 +95,10 @@ class Instrument : public H2Core::Object<Instrument>
 		 * loads instrument from a given instrument into a `live` Instrument object.
 		 * \param drumkit the drumkit the instrument belongs to
 		 * \param instrument to load samples and members from
+		 * \param lookup Where to search (system/user folder or both)
+		 * for the drumkit.
 		 */
-		void load_from( Drumkit* drumkit, std::shared_ptr<Instrument> instrument );
+		void load_from( Drumkit* drumkit, std::shared_ptr<Instrument> instrument, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
 
 		/**
 		 * Calls the InstrumentLayer::load_sample() member
@@ -274,6 +276,9 @@ class Instrument : public H2Core::Object<Instrument>
 		///< get the name of the related drumkits
 		const QString& get_drumkit_name() const;
 
+	void set_drumkit_lookup( Filesystem::Lookup lookup );
+	Filesystem::Lookup get_drumkit_lookup() const;
+
 		/** Mark the instrument as hydrogen's preview instrument */
 		void set_is_preview_instrument(bool isPreview);
 		bool is_preview_instrument() const;
@@ -312,7 +317,8 @@ class Instrument : public H2Core::Object<Instrument>
 		    and accessed via get_name().*/
 		QString					__name;
 		QString					__drumkit_name;			///< the name of the drumkit this instrument belongs to
-		float					__gain;					///< gain of the instrument
+	Filesystem::Lookup			__drumkit_lookup;
+	float					__gain;					///< gain of the instrument
 		float					__volume;				///< volume of the instrument
 		float					m_fPan;	///< pan of the instrument, [-1;1] from left to right, as requested by Sampler PanLaws
 		float					__peak_l;				///< left current peak value
@@ -642,6 +648,16 @@ inline void Instrument::set_drumkit_name( const QString& name )
 inline const QString& Instrument::get_drumkit_name() const
 {
 	return __drumkit_name;
+}
+
+inline void Instrument::set_drumkit_lookup( const Filesystem::Lookup lookup )
+{
+	__drumkit_lookup = lookup;
+}
+
+inline Filesystem::Lookup Instrument::get_drumkit_lookup() const
+{
+	return __drumkit_lookup;
 }
 
 inline bool Instrument::is_preview_instrument() const

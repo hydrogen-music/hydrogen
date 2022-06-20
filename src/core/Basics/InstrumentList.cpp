@@ -20,10 +20,15 @@
  *
  */
 
+#include <core/Basics/DrumkitComponent.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/Sample.h>
 
 #include <core/Helpers/Xml.h>
-#include <core/Basics/Instrument.h>
+#include <core/License.h>
 
 #include <set>
 
@@ -223,6 +228,52 @@ void InstrumentList::move( int idx_a, int idx_b )
 	__instruments.insert( __instruments.begin() + idx_b, tmp );
 }
 
+std::vector<std::shared_ptr<InstrumentList::Content>> InstrumentList::summarizeContent( const std::vector<DrumkitComponent*>* pDrumkitComponents ) const {
+	std::vector<std::shared_ptr<InstrumentList::Content>> results;
+
+	for ( const auto& ppInstrument : __instruments ) {
+		if ( ppInstrument != nullptr ) {
+			for ( const auto& ppInstrumentComponent : *ppInstrument->get_components() ) {
+				if ( ppInstrumentComponent != nullptr ) {
+					for ( const auto& ppInstrumentLayer : *ppInstrumentComponent ) {
+						if ( ppInstrumentLayer != nullptr ) {
+							auto pSample = ppInstrumentLayer->get_sample();
+							if ( pSample != nullptr ) {
+								// Map component ID to component
+								// name.
+								bool bFound = false;
+								QString sComponentName;
+								for ( const auto& ppDrumkitComponent : *pDrumkitComponents ) {
+									if ( ppInstrumentComponent->get_drumkit_componentID() ==
+										 ppDrumkitComponent->get_id() ) {
+										bFound = true;
+										sComponentName = ppDrumkitComponent->get_name();
+										break;
+									}
+								}
+
+								if ( ! bFound ) {
+									sComponentName = pDrumkitComponents->front()->get_name();
+								}
+
+								results.push_back( std::make_shared<Content>(
+									ppInstrument->get_name(), // m_sInstrumentName
+									sComponentName, // m_sComponentName
+									pSample->get_filename(), // m_sSampleName
+									pSample->get_filepath(), // m_sFullSamplePath
+									pSample->getLicense() // m_license
+								    ) );
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return results;
+}
+
 void InstrumentList::fix_issue_307()
 {
 	if ( has_all_midi_notes_same() ) {
@@ -266,7 +317,8 @@ QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput = QString( "[InstrumentList] " );
 		for ( auto ii : __instruments ) {
 			if ( ii != nullptr ) {
-				sOutput.append( QString( "(%1: %2) " ).arg( ii->get_id() ).arg( ii->get_name() ) );
+				sOutput.append( QString( "(%1: %2) " ).arg( ii->get_id() )
+								.arg( ii->get_name() ) );
 			}
 		}
 	}
@@ -283,6 +335,27 @@ std::vector<std::shared_ptr<Instrument>>::iterator InstrumentList::end() {
 	return __instruments.end();
 }
 
+QString InstrumentList::Content::toQString( const QString& sPrefix, bool bShort ) const {
+	
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_sInstrumentName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sInstrumentName ) )
+			.append( QString( "%1%2m_sComponentName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sComponentName ) )
+			.append( QString( "%1%2m_sSampleName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sSampleName ) )
+			.append( QString( "%1%2m_sFullSamplePath: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sFullSamplePath ) )
+			.append( QString( "%1%2m_license: %3\n" ).arg( m_license.toQString( sPrefix + s, bShort ) ) );
+	} else {
+		sOutput = QString( "m_sInstrumentName: %1\n" ).arg( m_sInstrumentName )
+			.append( QString( ", m_sComponentName: %1\n" ).arg( m_sComponentName ) )
+			.append( QString( ", m_sSampleName: %1\n" ).arg( m_sSampleName ) )
+			.append( QString( ", m_sFullSamplePath: %1\n" ).arg( m_sFullSamplePath ) )
+			.append( QString( ", m_license: %1\n" ).arg( m_license.toQString( "", bShort ) ) );
+	}
+
+	return sOutput;
+}
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

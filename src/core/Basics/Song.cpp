@@ -88,7 +88,7 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_bPlaybackTrackEnabled( false )
 	, m_fPlaybackTrackVolume( 0.0 )
 	, m_pVelocityAutomationPath( nullptr )
-	, m_sLicense( "" )
+	, m_license( License( "", sAuthor ) )
 	, m_actionMode( ActionMode::selectMode )
 	, m_bIsPatternEditorLocked( false )
 	, m_nPanLawType ( Sampler::RATIO_STRAIGHT_POLYGONAL )
@@ -215,7 +215,7 @@ std::shared_ptr<Song> Song::getEmptySong()
 
 	pSong->setMetronomeVolume( 0.5 );
 	pSong->setNotes( "..." );
-	pSong->setLicense( "" );
+	pSong->setLicense( License() );
 	pSong->setLoopMode( Song::LoopMode::Disabled );
 	pSong->setMode( Song::Mode::Pattern );
 	pSong->setHumanizeTimeValue( 0.0 );
@@ -463,7 +463,7 @@ QString Song::copyInstrumentLineToString( int nSelectedPattern, int nSelectedIns
 	//LIB_ID just in work to get better usability
 	//LocalFileMng::writeXmlString( &rootNode, "LIB_ID", "in_work" );
 	LocalFileMng::writeXmlString( rootNode, "author", getAuthor() );
-	LocalFileMng::writeXmlString( rootNode, "license", getLicense() );
+	LocalFileMng::writeXmlString( rootNode, "license", getLicense().getLicenseString() );
 
 	QDomNode patternList = doc.createElement( "patternList" );
 
@@ -816,6 +816,43 @@ std::vector<std::shared_ptr<Note>> Song::getAllNotes() const {
 	
 	return notes;
 }
+
+int Song::findExistingComponent( const QString& sComponentName ) const {
+	for ( const auto& ppComponent : *m_pComponents ) {
+		if ( ppComponent->get_name().compare( sComponentName ) == 0 ){
+			return ppComponent->get_id();
+		}
+	}
+	return -1;
+}
+
+int Song::findFreeComponentID( int nStartingID ) const {
+
+	bool bFreeID = true;
+	
+	for ( const auto& ppComponent : *m_pComponents ) {
+		if ( ppComponent->get_id() == nStartingID ) {
+			bFreeID = false;
+			break;
+		}
+	}
+
+	if ( bFreeID ) {
+		return nStartingID;
+	}
+	else {
+		return findFreeComponentID( nStartingID + 1 );
+	}
+}
+
+QString Song::makeComponentNameUnique( const QString& sName ) const {
+	for ( const auto& ppComponent : *m_pComponents ) {
+		if ( ppComponent->get_name().compare( sName ) == 0 ){
+			return makeComponentNameUnique( sName + "_new" );
+		}
+	}
+	return sName;
+}
  
 QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
@@ -861,7 +898,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_bPlaybackTrackEnabled: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bPlaybackTrackEnabled ) )
 			.append( QString( "%1%2m_fPlaybackTrackVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPlaybackTrackVolume ) )
 			.append( QString( "%1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix + s, bShort ) ) )
-			.append( QString( "%1%2m_sLicense: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sLicense ) )
+			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s ).arg( m_license.toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1%2m_actionMode: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( static_cast<int>(m_actionMode) ) )
 			.append( QString( "%1%2m_nPanLawType: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nPanLawType ) )
@@ -916,7 +953,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_bPlaybackTrackEnabled: %1" ).arg( m_bPlaybackTrackEnabled ) )
 			.append( QString( ", m_fPlaybackTrackVolume: %1" ).arg( m_fPlaybackTrackVolume ) )
 			.append( QString( ", m_pVelocityAutomationPath: %1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix ) ) )
-			.append( QString( ", m_sLicense: %1" ).arg( m_sLicense ) )
+			.append( QString( ", m_license: %1" ).arg( m_license.toQString( sPrefix, bShort ) ) )
 			.append( QString( ", m_actionMode: %1" ).arg( static_cast<int>(m_actionMode) ) )
 			.append( QString( ", m_nPanLawType: %1" ).arg( m_nPanLawType ) )
 			.append( QString( ", m_fPanLawKNorm: %1" ).arg( m_fPanLawKNorm ) )
@@ -1011,7 +1048,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	QString sName( LocalFileMng::readXmlString( songNode, "name", "Untitled Song" ) );
 	QString sAuthor( LocalFileMng::readXmlString( songNode, "author", "Unknown Author" ) );
 	QString sNotes( LocalFileMng::readXmlString( songNode, "notes", "..." ) );
-	QString sLicense( LocalFileMng::readXmlString( songNode, "license", "Unknown license" ) );
+	License license( LocalFileMng::readXmlString( songNode, "license", "" ), sAuthor );
 	bool bLoopEnabled = LocalFileMng::readXmlBool( songNode, "loopEnabled", false );
 	bool bPatternMode =
 		LocalFileMng::readXmlBool( songNode, "patternModeMode",
@@ -1062,7 +1099,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 	pSong = std::make_shared<Song>( sName, sAuthor, fBpm, fVolume );
 	pSong->setMetronomeVolume( fMetronomeVolume );
 	pSong->setNotes( sNotes );
-	pSong->setLicense( sLicense );
+	pSong->setLicense( license );
 	if ( bLoopEnabled ) {
 		pSong->setLoopMode( Song::LoopMode::Enabled );
 	} else {
@@ -1180,6 +1217,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 				}
 			}	
 			pSong->setCurrentDrumkitLookup( static_cast<Filesystem::Lookup>( iLookup ) );
+			
 			QString sName = LocalFileMng::readXmlString( instrumentNode, "name", "" );		// name
 			float fVolume = LocalFileMng::readXmlFloat( instrumentNode, "volume", 1.0 );	// volume
 			bool bIsMuted = LocalFileMng::readXmlBool( instrumentNode, "isMuted", false );	// is muted
@@ -1241,6 +1279,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 			pInstrument->set_soloed( bIsSoloed );
 			pInstrument->setPan( fPan );
 			pInstrument->set_drumkit_name( sDrumkit );
+			pInstrument->set_drumkit_lookup( static_cast<Filesystem::Lookup>( iLookup ) );
 			pInstrument->set_apply_velocity( bApplyVelocity );
 			pInstrument->set_fx_level( fFX1Level, 0 );
 			pInstrument->set_fx_level( fFX2Level, 1 );
@@ -1274,6 +1313,9 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 				ERRORLOG( "Missing drumkit path" );
 			}
 
+			// Get license used by drumkit.
+			License drumkitLicense = Drumkit::loadLicense( drumkitPath );
+
 			QDomNode sFilenameNode = instrumentNode.firstChildElement( "filename" );
 
 			// back compatibility code ( song version <= 0.9.0 )
@@ -1284,14 +1326,14 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 				if ( !QFile( sFilename ).exists() && !drumkitPath.isEmpty() ) {
 					sFilename = drumkitPath + "/" + sFilename;
 				}
-				auto pSample = Sample::load( sFilename );
+				auto pSample = Sample::load( sFilename, drumkitLicense );
 				if ( pSample == nullptr ) {
 					// nel passaggio tra 0.8.2 e 0.9.0 il drumkit di default e' cambiato.
 					// Se fallisce provo a caricare il corrispettivo file in formato flac
 //					warningLog( "[readSong] Error loading sample: " + sFilename + " not found. Trying to load a flac..." );
 					sFilename = sFilename.left( sFilename.length() - 4 );
 					sFilename += ".flac";
-					pSample = Sample::load( sFilename );
+					pSample = Sample::load( sFilename, drumkitLicense );
 				}
 				if ( pSample == nullptr ) {
 					ERRORLOG( "Error loading sample: " + sFilename + " not found" );
@@ -1353,7 +1395,7 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 
 						std::shared_ptr<Sample> pSample;
 						if ( !sIsModified ) {
-							pSample = Sample::load( sFilename );
+							pSample = Sample::load( sFilename, drumkitLicense );
 						} else {
 							// FIXME, kill EnvelopePoint, create Envelope class
 							EnvelopePoint pt;
@@ -1377,7 +1419,8 @@ std::shared_ptr<Song> SongReader::readSong( const QString& sFileName )
 								panNode = panNode.nextSiblingElement( "pan" );
 							}
 
-							pSample = Sample::load( sFilename, lo, ro, velocity, pan, fBpm );
+							pSample = Sample::load( sFilename, lo, ro, velocity,
+													pan, fBpm, drumkitLicense );
 						}
 						if ( pSample == nullptr ) {
 							ERRORLOG( "Error loading sample: " + sFilename + " not found" );

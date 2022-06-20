@@ -387,6 +387,8 @@ CommonStrings::CommonStrings(){
 	  character introduces a linebreak and must not be translated*/
 	m_sUnsavedChanges = tr( "Unsaved changes left. These changes will be lost. \nAre you sure?" );
 
+	m_sMutableDialog = tr( "Don't show this message again" );
+	
 	// Not used yet.
 	/*: Displayed in the Open dialog window if the selected song could
 	  not be loaded.*/
@@ -397,6 +399,16 @@ CommonStrings::CommonStrings(){
 	/*: Additional text displayed in the info box asking the user to
 	  recover unsaved changes from an earlier session.*/
 	// m_sDialogUnsavedChangedH2 = tr( "Do you want to recover them?" );
+
+	/*: Label corresponding to the line edit in the drumkit and song
+	  properties dialog used to enter the license*/
+	m_sLicenseStringLbl = tr( "License String" );
+	/*: Tool tip used for the combo boxes in both the drumkit and song
+	  property dialog to set a predefined license type.*/
+	m_sLicenseComboToolTip = tr( "License parsed from License String. You can use this combo box to overwrite the current license with a predefined one" );
+	m_sLicenseStringToolTip = tr( "License string written to disk. You can customize it to e.g. include an attribution other then the author. But be aware that it will be overwritten once you select a different license" );
+
+	m_sSoundLibraryFailedPreDrumkitLoad = tr( "Drumkit registered in the current song can not be found on disk.\nPlease load an existing drumkit first.\nCurrent kit:" );
 }
 
 CommonStrings::~CommonStrings(){

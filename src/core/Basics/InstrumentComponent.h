@@ -66,6 +66,11 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		static int			getMaxLayers();
 		/** @param layers Sets #m_nMaxLayers.*/
 		static void			setMaxLayers( int layers );
+	
+		/** Iteration */
+	std::vector<std::shared_ptr<InstrumentLayer>>::iterator begin();
+	std::vector<std::shared_ptr<InstrumentLayer>>::iterator end();
+
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line

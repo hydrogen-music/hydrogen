@@ -338,6 +338,7 @@ void			previewSample( Sample *pSample );
 
 	int				getSelectedInstrumentNumber() const;
 	void			setSelectedInstrumentNumber( int nInstrument );
+	std::shared_ptr<Instrument>		getSelectedInstrument() const;
 
 
 	void			refreshInstrumentParameters( int nInstrument );

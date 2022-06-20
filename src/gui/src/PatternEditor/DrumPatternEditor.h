@@ -104,7 +104,7 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		 * \param lookup Where to search (system/user folder or both)
 		 * for the drumkit.
 		 */
-		void functionDropInstrumentRedoAction(QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, std::vector<int>* AddedComponents, H2Core::Filesystem::Lookup lookup );
+		void functionDropInstrumentRedoAction(QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, std::vector<int>* pAddedComponents, H2Core::Filesystem::Lookup lookup );
 		void functionDeleteInstrumentUndoAction(  std::list< H2Core::Note* > noteList, int nSelectedInstrument, QString instrumentName, QString drumkitName );
 		void functionAddEmptyInstrumentUndo();
 		void functionAddEmptyInstrumentRedo();
@@ -146,8 +146,6 @@ class DrumPatternEditor : public PatternEditor, protected WidgetWithScalableFont
 		virtual void paintEvent(QPaintEvent *ev) override;
 	virtual void mousePressEvent( QMouseEvent *ev ) override;
 
-		int findFreeCompoID( int startingPoint = 0 );
-		int findExistingCompo( QString SourceName );
 		QString renameCompo( QString OriginalName );
 };
 

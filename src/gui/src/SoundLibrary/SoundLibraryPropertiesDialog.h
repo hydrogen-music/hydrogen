@@ -25,6 +25,7 @@
 
 #include "ui_SoundLibraryPropertiesDialog_UI.h"
 #include <core/Object.h>
+#include "../Widgets/WidgetWithLicenseProperty.h"
 
 ///
 ///
@@ -34,20 +35,29 @@ namespace H2Core
 class Drumkit;
 
 /** \ingroup docGUI*/
-class SoundLibraryPropertiesDialog :  public QDialog, public Ui_SoundLibraryPropertiesDialog_UI,  public H2Core::Object<SoundLibraryPropertiesDialog>
+class SoundLibraryPropertiesDialog :  public QDialog,
+									  protected WidgetWithLicenseProperty,
+									  public Ui_SoundLibraryPropertiesDialog_UI,
+									  public H2Core::Object<SoundLibraryPropertiesDialog>
 {
 	H2_OBJECT(SoundLibraryPropertiesDialog)
 	Q_OBJECT
 	public:
-		SoundLibraryPropertiesDialog(QWidget* pParent , Drumkit *pDrumkitInfo, Drumkit *pPreDrumKit );
+		SoundLibraryPropertiesDialog( QWidget* pParent,
+									  Drumkit* pDrumkit,
+									  Drumkit* pPreDrumKit,
+									  bool bCurrentDrumkit );
 		~SoundLibraryPropertiesDialog();
 		void showEvent( QShowEvent *e ) override;
 
 	private slots:
 		void on_saveBtn_clicked();
 		void on_imageBrowsePushButton_clicked();
+	void licenseComboBoxChanged( int );
+	void imageLicenseComboBoxChanged( int );
 
 	private:
+	void updateLicenseTable();
 		void updateImage( QString& filename );
 		/** The one selected by the user */
 		Drumkit* m_pDrumkitInfo;
@@ -58,6 +68,16 @@ class SoundLibraryPropertiesDialog :  public QDialog, public Ui_SoundLibraryProp
 		 * current one in order to restore it.
 		 */
 		Drumkit* m_pPreDrumkitInfo;
+
+	/**
+	 * Specifies whether the dialog was invoked for drumkit that
+	 * can be found on disk (via the SoundLibrary tree) or for the one
+	 * currently loaded in the Song (via the main menu). For the
+	 * latter #m_pDrumkitInfo holds all the associated
+	 * DrumkitComponent but the instrument list is stored in the
+	 * current #Song.
+	 */
+	bool m_bCurrentDrumkit;
 };
 
 }

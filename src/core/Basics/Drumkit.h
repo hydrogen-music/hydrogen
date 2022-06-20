@@ -25,12 +25,13 @@
 
 #include <core/Object.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/License.h>
+#include <core/Basics/InstrumentList.h>
 
 namespace H2Core
 {
 
 class XMLNode;
-class InstrumentList;
 class DrumkitComponent;
 
 /**
@@ -65,13 +66,16 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * with the current XSD file.
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
+		 * \param lookup Where to search (system/user folder or both)
+		 * for the drumkit.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
 		static Drumkit* load( const QString& dk_dir,
 							  const bool load_samples = false,
 							  bool bUpgrade = true,
-							  bool bSilent = false );
+							  bool bSilent = false,
+							  Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
 		/**
 		 * Simple wrapper for load() used with the drumkit's
 		 * name instead of its directory.
@@ -87,7 +91,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load_by_name( const QString& dk_name, const bool load_samples = false, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
+		static Drumkit* load_by_name( const QString& dk_name,
+									  const bool load_samples = false,
+									  Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
 		/**
 		 * Load a Drumkit from a file.
 		 *
@@ -109,13 +115,16 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * with the current XSD file.
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
+		 * \param lookup Where to search (system/user folder or both)
+		 * for the drumkit.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
 		static Drumkit* load_file( const QString& dk_path,
 								   const bool load_samples = false,
 								   bool bUpgrade = true,
-								   bool bSilent = true );
+								   bool bSilent = true,
+								   Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
 		/** Calls the InstrumentList::load_samples() member
 		 * function of #__instruments.
 		 */
@@ -125,6 +134,30 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 */
 		void unload_samples();
 
+	/**
+	 * Loads the license information of a drumkit contained in
+	 * directory @a sDrumkitDir.
+	 *
+	 * This function is a wrapper around load_file(). The
+	 * provided drumkit directory @a dk_dir is converted
+	 * by Filesystem::drumkit_file() internally.
+	 *
+	 * \param sDrumkitDir Directory containing a drumkit.xml file.
+	 */
+	static License loadLicense( const QString& sDrumkitDir );
+	/**
+	 * Simple wrapper for loadLicense() used with the drumkit's
+	 * name instead of its directory.
+	 *
+	 * Uses Filesystem::drumkit_path_search() to determine
+	 * the directory of the Drumkit from @a sDrumkitName.
+	 *
+	 * \param sDrumkitName Name of the Drumkit.
+	 * \param lookup Where to search (system/user folder or both)
+	 * for the drumkit.
+	 */
+	static License loadLicenseByName( const QString& sDrumkitName, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
+	
 	/**
 	 * Returns a version of #__name stripped of all whitespaces and
 	 * other characters which would prevent its use as a valid
@@ -206,17 +239,17 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \param sName the name of the drumkit
 		 * \param sAuthor the author of the drumkit
 		 * \param sInfo the info of the drumkit
-		 * \param sLicense the license of the drumkit
+		 * \param license the license of the drumkit
 		 * \param sImage the image filename (with full path) of
 		   the drumkit
-		 * \param sImageLicense license of the supplied image
+		 * \param imageLicense license of the supplied image
 		 * \param pInstruments the instruments to be saved
 		   within the drumkit
 		 * \param pComponents
 		 * \param bOverwrite allows to write over existing drumkit files
 		 * \return true on success
 		 */
-		static bool save( const QString& sName, const QString& sAuthor, const QString& sInfo, const QString& sLicense, const QString& sImage, const QString& sImageLicense, InstrumentList* pInstruments, std::vector<DrumkitComponent*>* pComponents, bool bOverwrite=false );
+		static bool save( const QString& sName, const QString& sAuthor, const QString& sInfo, const License& license, const QString& sImage, const License& imageLicense, InstrumentList* pInstruments, std::vector<DrumkitComponent*>* pComponents, bool bOverwrite=false );
 		/**
 		 * Extract a .h2drumkit file.
 		 *
@@ -284,17 +317,17 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** #__info accessor */
 		const QString& get_info() const;
 		/** #__license setter */
-		void set_license( const QString& license );
+		void set_license( const License& license );
 		/** #__license accessor */
-		const QString& get_license() const;
+		const License& get_license() const;
 		/** #__image setter */
 		void set_image( const QString& image );
 		/** #__image accessor */
 		const QString& get_image() const;
 		/** #__imageLicense setter */
-		void set_image_license( const QString& imageLicense );
+		void set_image_license( const License& imageLicense );
 		/** #__imageLicense accessor */
-		const QString& get_image_license() const;
+		const License& get_image_license() const;
 		/** return true if the samples are loaded */
 		const bool samples_loaded() const;
 
@@ -308,6 +341,18 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 		std::vector<DrumkitComponent*>* get_components();
 		void set_components( std::vector<DrumkitComponent*>* components );
+
+	/**
+	 * Assign the license stored in #m_license to all samples
+	 * contained in the kit.
+	 */
+	void propagateLicense();
+	/**
+	 * Returns vector of lists containing instrument name, component
+	 * name, file name, the license of all associated samples.
+	 */
+	std::vector<std::shared_ptr<InstrumentList::Content>> summarizeContent() const;
+	
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -323,9 +368,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 		QString __name;					///< drumkit name
 		QString __author;				///< drumkit author
 		QString __info;					///< drumkit free text
-		QString __license;				///< drumkit license description
+		License __license;				///< drumkit license description
 		QString __image;				///< drumkit image filename
-		QString __imageLicense;			///< drumkit image license
+		License __imageLicense;			///< drumkit image license
 
 		bool __samples_loaded;			///< true if the instrument samples are loaded
 		InstrumentList* __instruments;  ///< the list of instruments
@@ -344,8 +389,13 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \param dk_path the directory holding the drumkit data
 		 * \param bSilent if set to true, all log messages except of
 		 * errors and warnings are suppressed.
+		 * \param lookup Where to search (system/user folder or both)
+		 * for the drumkit.
 		 */
-	static Drumkit* load_from( XMLNode* node, const QString& dk_path, bool bSilent = false );
+	static Drumkit* load_from( XMLNode* node,
+							   const QString& dk_path,
+							   bool bSilent = false,
+							   Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
 		std::vector<DrumkitComponent*>* __components;  ///< list of drumkit component
 };
 
@@ -379,6 +429,8 @@ inline const QString& Drumkit::get_name() const
 inline void Drumkit::set_author( const QString& author )
 {
 	__author = author;
+	__license.setCopyrightHolder( author );
+	__imageLicense.setCopyrightHolder( author );
 }
 
 inline const QString& Drumkit::get_author() const
@@ -396,12 +448,12 @@ inline const QString& Drumkit::get_info() const
 	return __info;
 }
 
-inline void Drumkit::set_license( const QString& license )
+inline void Drumkit::set_license( const License& license )
 {
 	__license = license;
 }
 
-inline const QString& Drumkit::get_license() const
+inline const License& Drumkit::get_license() const
 {
 	return __license;
 }
@@ -416,12 +468,12 @@ inline const QString& Drumkit::get_image() const
 	return __image;
 }
 
-inline void Drumkit::set_image_license( const QString& imageLicense )
+inline void Drumkit::set_image_license( const License& imageLicense )
 {
 	__imageLicense = imageLicense;
 }
 
-inline const QString& Drumkit::get_image_license() const
+inline const License& Drumkit::get_image_license() const
 {
 	return __imageLicense;
 }

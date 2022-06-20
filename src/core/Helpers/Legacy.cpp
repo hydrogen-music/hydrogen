@@ -26,6 +26,7 @@
 
 #include "Version.h"
 #include <core/Helpers/Xml.h>
+#include <core/License.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/DrumkitComponent.h>
@@ -67,12 +68,14 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path, bool bSilent ) {
 											false, false, bSilent ) );
 	pDrumkit->set_info( root.read_string( "info", "defaultInfo",
 											false, false, bSilent ) );
-	pDrumkit->set_license( root.read_string( "license", "undefined license",
-											false, false, bSilent ) );
+	License license( root.read_string( "license", "undefined license",
+									   false, false, bSilent ) );
+	pDrumkit->set_license( license );
 	pDrumkit->set_image( root.read_string( "image", "",
 											false, false, bSilent ) );
-	pDrumkit->set_image_license( root.read_string( "imageLicense", "undefined license",
+	License imageLicense( root.read_string( "imageLicense", "undefined license",
 											false, false, bSilent ) );
+	pDrumkit->set_image_license( imageLicense );
 
 	XMLNode instruments_node = root.firstChildElement( "instrumentList" );
 	if ( instruments_node.isNull() ) {

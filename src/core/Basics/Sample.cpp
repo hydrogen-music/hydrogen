@@ -63,13 +63,14 @@ EnvelopePoint::EnvelopePoint( const EnvelopePoint& other ) : Object(other), fram
 /* EnvelopePoint */
 
 
-Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* data_l, float* data_r ) 
+Sample::Sample( const QString& filepath, const License& license, int frames, int sample_rate, float* data_l, float* data_r ) 
   : __filepath( filepath ),
 	__frames( frames ),
 	__sample_rate( sample_rate ),
 	__data_l( data_l ),
 	__data_r( data_r ),
-	__is_modified( false )
+	__is_modified( false ),
+	m_license( license )
 {
 	assert( filepath.lastIndexOf( "/" ) >0 );
 }
@@ -82,7 +83,8 @@ Sample::Sample( std::shared_ptr<Sample> pOther ): Object( *pOther ),
 	__data_r( nullptr ),
 	__is_modified( pOther->get_is_modified() ),
 	__loops( pOther->__loops ),
-	__rubberband( pOther->__rubberband )
+	__rubberband( pOther->__rubberband ),
+	m_license( pOther->m_license )
 {
 
 	__data_l = new float[__frames];
@@ -124,7 +126,7 @@ void Sample::set_filename( const QString& filename )
 }
 
 
-std::shared_ptr<Sample> Sample::load( const QString& sFilepath )
+std::shared_ptr<Sample> Sample::load( const QString& sFilepath, const License& license )
 {
 	std::shared_ptr<Sample> pSample;
 	
@@ -133,7 +135,7 @@ std::shared_ptr<Sample> Sample::load( const QString& sFilepath )
 		return pSample;
 	}
 
-	pSample = std::make_shared<Sample>( sFilepath );
+	pSample = std::make_shared<Sample>( sFilepath, license );
 		
 	if( !pSample->load() ) {
 		pSample.reset();
@@ -143,9 +145,9 @@ std::shared_ptr<Sample> Sample::load( const QString& sFilepath )
 	return pSample;
 }
 
-std::shared_ptr<Sample> Sample::load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan, float fBpm )
+std::shared_ptr<Sample> Sample::load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan, float fBpm, const License& license )
 {
-	auto pSample = Sample::load( filepath );
+	auto pSample = Sample::load( filepath, license );
 	
 	if( pSample ){
 		pSample->apply( loops, rubber, velocity, pan, fBpm );
@@ -783,6 +785,7 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2frames: %3\n" ).arg( sPrefix ).arg( s ).arg( __frames ) )
 			.append( QString( "%1%2sample_rate: %3\n" ).arg( sPrefix ).arg( s ).arg( __sample_rate ) )
 			.append( QString( "%1%2is_modified: %3\n" ).arg( sPrefix ).arg( s ).arg( __is_modified ) )
+			.append( QString( "%1%2m_license: %3\n" ).arg( sPrefix ).arg( s ).arg( m_license.toQString() ) )
 			.append( QString( "%1" ).arg( __loops.toQString( sPrefix + s, bShort ) ) )
 			.append( QString( "%1" ).arg( __rubberband.toQString( sPrefix + s, bShort ) ) );
 	} else {
@@ -791,6 +794,7 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", frames: %1" ).arg( __frames ) )
 			.append( QString( ", sample_rate: %1" ).arg( __sample_rate ) )
 			.append( QString( ", is_modified: %1" ).arg( __is_modified ) )
+			.append( QString( ", m_license: %1" ).arg( m_license.toQString() ) )
 			.append( QString( ", [%1]" ).arg( __loops.toQString( sPrefix + s, bShort ) ) )
 			.append( QString( ", [%1]\n" ).arg( __rubberband.toQString( sPrefix + s, bShort ) ) );
 	}

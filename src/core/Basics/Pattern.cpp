@@ -112,7 +112,7 @@ Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
 	return pattern;
 }
 
-bool Pattern::save_file( const QString& drumkit_name, const QString& author, const QString& license, const QString& pattern_path, bool overwrite ) const
+bool Pattern::save_file( const QString& drumkit_name, const QString& author, const License& license, const QString& pattern_path, bool overwrite ) const
 {
 	INFOLOG( QString( "Saving pattern into %1" ).arg( pattern_path ) );
 	if( !overwrite && Filesystem::file_exists( pattern_path, true ) ) {
@@ -123,7 +123,8 @@ bool Pattern::save_file( const QString& drumkit_name, const QString& author, con
 	XMLNode root = doc.set_root( "drumkit_pattern", "drumkit_pattern" );
 	root.write_string( "drumkit_name", drumkit_name );				// FIXME loaded with LocalFileMng::getDrumkitNameForPattern(…)
 	root.write_string( "author", author );							// FIXME this is never loaded back
-	root.write_string( "license", license );						// FIXME this is never loaded back
+	root.write_string( "license", license.toQString() );
+	// FIXME this is never loaded back
 	save_to( &root );
 	return doc.write( pattern_path );
 }
