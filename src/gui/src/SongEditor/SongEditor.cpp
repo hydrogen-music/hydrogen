@@ -1342,6 +1342,9 @@ void SongEditor::onPreferencesChanged( H2Core::Preferences::Changes changes )
 					 H2Core::Preferences::Changes::AppearanceTab ) ) {
 		resize( SongEditor::nMargin +
 				Preferences::get_instance()->getMaxBars() * m_nGridWidth, height() );
+
+		m_bSequenceChanged = true;
+
 		// Required to be called at least once in order to make the
 		// scroll bars match the (potential) new width.
 		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
