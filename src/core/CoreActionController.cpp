@@ -747,7 +747,7 @@ bool CoreActionController::deleteTag( int nPosition ) {
 bool CoreActionController::activateJackTransport( bool bActivate ) {
 	
 #ifdef H2CORE_HAVE_JACK
-	if ( !Hydrogen::get_instance()->haveJackAudioDriver() ) {
+	if ( !Hydrogen::get_instance()->hasJackAudioDriver() ) {
 		ERRORLOG( "Unable to (de)activate Jack transport. Please select the Jack driver first." );
 		return false;
 	}
@@ -773,7 +773,7 @@ bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	
 #ifdef H2CORE_HAVE_JACK
-	if ( !pHydrogen->haveJackAudioDriver() ) {
+	if ( !pHydrogen->hasJackAudioDriver() ) {
 		ERRORLOG( "Unable to (de)activate Jack timebase master. Please select the Jack driver first." );
 		return false;
 	}

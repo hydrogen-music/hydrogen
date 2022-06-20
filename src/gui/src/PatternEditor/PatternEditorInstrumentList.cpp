@@ -646,7 +646,7 @@ void InstrumentLine::functionRenameInstrument()
 	if ( bIsOkPressed  ) {
 		pSelectedInstrument->set_name( sNewName );
 
-		if ( pHydrogen->haveJackAudioDriver() ) {
+		if ( pHydrogen->hasJackAudioDriver() ) {
 			pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 			pHydrogen->renameJackPorts( pHydrogen->getSong() );
 			pHydrogen->getAudioEngine()->unlock();

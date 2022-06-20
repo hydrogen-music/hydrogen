@@ -978,7 +978,7 @@ void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 	}
 	
 	if( Preferences::get_instance()->m_bJackTrackOuts == true ){
-		if ( haveJackAudioDriver() && pSong != nullptr ) {
+		if ( hasJackAudioDriver() && pSong != nullptr ) {
 
 			// When restarting the audio driver after loading a new song under
 			// Non session management all ports have to be registered _prior_
@@ -1143,7 +1143,7 @@ void Hydrogen::offJackMaster()
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
-	if ( haveJackTransport() ) {
+	if ( hasJackTransport() ) {
 		static_cast< JackAudioDriver* >( pAudioEngine->getAudioDriver() )->releaseTimebaseMaster();
 	}
 #endif
@@ -1154,7 +1154,7 @@ void Hydrogen::onJackMaster()
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
-	if ( haveJackTransport() ) {
+	if ( hasJackTransport() ) {
 		static_cast< JackAudioDriver* >( pAudioEngine->getAudioDriver() )->initTimebaseMaster();
 	}
 #endif
@@ -1197,7 +1197,7 @@ void Hydrogen::__panic()
 	m_pAudioEngine->getSampler()->stopPlayingNotes();
 }
 
-bool Hydrogen::haveJackAudioDriver() const {
+bool Hydrogen::hasJackAudioDriver() const {
 #ifdef H2CORE_HAVE_JACK
 	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
 		if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr ) {
@@ -1210,7 +1210,7 @@ bool Hydrogen::haveJackAudioDriver() const {
 #endif	
 }
 
-bool Hydrogen::haveJackTransport() const {
+bool Hydrogen::hasJackTransport() const {
 #ifdef H2CORE_HAVE_JACK
 	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
 		if ( dynamic_cast<JackAudioDriver*>(m_pAudioEngine->getAudioDriver()) != nullptr &&
@@ -1244,7 +1244,7 @@ float Hydrogen::getMasterBpm() const {
 JackAudioDriver::Timebase Hydrogen::getJackTimebaseState() const {
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
-	if ( haveJackTransport() ) {
+	if ( hasJackTransport() ) {
 		return static_cast<JackAudioDriver*>(pAudioEngine->getAudioDriver())->getTimebaseState();
 	} 
 	return JackAudioDriver::Timebase::None;
