@@ -2005,6 +2005,8 @@ void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 
 	pHydrogen->setSelectedInstrumentNumber( pList->size() - 1 );
 
+	updateEditor();
+
 }
 ///~undo / redo actions from pattern editor instrument list
 ///==========================================================
