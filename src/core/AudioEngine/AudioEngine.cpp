@@ -387,7 +387,7 @@ float AudioEngine::getElapsedTime() const {
 		return 0;
 	}
 
-	return getFrames() / static_cast<float>(pDriver->getSampleRate());
+	return ( getFrames() - m_nFrameOffset )/ static_cast<float>(pDriver->getSampleRate());
 }
 
 void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
