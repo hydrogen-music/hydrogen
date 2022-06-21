@@ -1889,6 +1889,8 @@ void AudioEngine::updateSongSize() {
 		return;
 	}
 
+	bool bEndOfSongReached = false;
+
 	double fNewSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
 
 	// WARNINGLOG( QString( "[Before] frame: %1, bpm: %2, tickSize: %3, column: %4, tick: %5, mod(tick): %6, pTickPos: %7, pStartPos: %8, m_fLastTickIntervalEnd: %9, m_fSongSizeInTicks: %10" )
@@ -1910,7 +1912,6 @@ void AudioEngine::updateSongSize() {
 	double fRepetitions =
 		std::floor( getDoubleTick() / m_fSongSizeInTicks );
 
-	//
 	m_fSongSizeInTicks = fNewSongSizeInTicks;
 
 	// Expected behavior:
@@ -1932,8 +1933,7 @@ void AudioEngine::updateSongSize() {
 	long nNewPatternStartTick = pHydrogen->getTickForColumn( getColumn() );
 
 	if ( nNewPatternStartTick == -1 ) {
-		ERRORLOG( QString( "Something went wrong. No tick found for column [%1]" )
-				  .arg( getColumn() ) );
+		bEndOfSongReached = true;
 	}
 	
 	if ( nNewPatternStartTick != m_nPatternStartTick ) {
@@ -1987,8 +1987,12 @@ void AudioEngine::updateSongSize() {
 	// consistent.
 	updateTransportPosition( getDoubleTick() );
 
-	if ( m_nColumn == -1 ) {
+	if ( m_nColumn == -1 ||
+		 ( bEndOfSongReached &&
+		   pSong->getLoopMode() != Song::LoopMode::Enabled ) ) {
 		stop();
+		stopPlayback();
+		locate( 0 );
 	}
 
 	// WARNINGLOG( QString( "[After] frame: %1, bpm: %2, tickSize: %3, column: %4, tick: %5, pTickPos: %6, pStartPos: %7, m_fLastTickIntervalEnd: %8" )
