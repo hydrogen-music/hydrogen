@@ -118,13 +118,13 @@ Mixer::Mixer( QWidget* pParent )
 	
 	m_pOpenMixerSettingsBtn = new Button( m_pMasterLine, QSize( 17, 17 ), Button::Type::Push, "cog.svg", "", false, QSize( 13, 13 ), tr( "Mixer Settings" ) );
 	m_pOpenMixerSettingsBtn->move( 96, 6 );
-	connect( m_pOpenMixerSettingsBtn, SIGNAL( pressed() ), this, SLOT( openMixerSettingsDialog() ) );
+	connect( m_pOpenMixerSettingsBtn, SIGNAL( clicked() ), this, SLOT( openMixerSettingsDialog() ) );
 
 
 	m_pShowFXPanelBtn = new Button( m_pMasterLine, QSize( 49, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getFXButton(), false, QSize(), tr( "Show FX panel" ) );
 	m_pShowFXPanelBtn->move( 63, 243 );
 	m_pShowFXPanelBtn->setChecked(false);
-	connect( m_pShowFXPanelBtn, SIGNAL( pressed() ), this, SLOT( showFXPanelClicked() ));
+	connect( m_pShowFXPanelBtn, SIGNAL( clicked() ), this, SLOT( showFXPanelClicked() ));
 	m_pShowFXPanelBtn->setChecked( Preferences::get_instance()->isFXTabVisible() );
 
 #ifndef H2CORE_HAVE_LADSPA
@@ -134,7 +134,7 @@ Mixer::Mixer( QWidget* pParent )
 	m_pShowPeaksBtn = new Button( m_pMasterLine, QSize( 49, 15 ), Button::Type::Toggle, "", HydrogenApp::get_instance()->getCommonStrings()->getPeakButton(), false, QSize(), tr( "Show instrument peaks" ) );
 	m_pShowPeaksBtn->move( 63, 259 );
 	m_pShowPeaksBtn->setChecked( (Preferences::get_instance())->showInstrumentPeaks() );
-	connect( m_pShowPeaksBtn, SIGNAL( pressed() ), this, SLOT( showPeaksBtnClicked() ));
+	connect( m_pShowPeaksBtn, SIGNAL( clicked() ), this, SLOT( showPeaksBtnClicked() ));
 //~ Master frame
 
 
@@ -755,7 +755,7 @@ void Mixer::resizeEvent ( QResizeEvent *ev )
 
 void Mixer::showFXPanelClicked()
 {
-	if ( ! m_pShowFXPanelBtn->isChecked() ) {
+	if ( m_pShowFXPanelBtn->isChecked() ) {
 		m_pFXFrame->show();
 		Preferences::get_instance()->setFXTabVisible( true );
 	} else {
@@ -770,7 +770,7 @@ void Mixer::showPeaksBtnClicked()
 {
 	Preferences *pPref = Preferences::get_instance();
 
-	if ( ! m_pShowPeaksBtn->isChecked() ) {
+	if ( m_pShowPeaksBtn->isChecked() ) {
 		pPref->setInstrumentPeaks( true );
 		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Show instrument peaks = On"), 2000 );
 	} else {

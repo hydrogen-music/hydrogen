@@ -75,15 +75,26 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pShowInstrumentBtn = new Button( m_pInstrumentPropTop, QSize( 141, 22 ), Button::Type::Toggle, "",
 									   pCommonStrings->getGeneralButton(), false, QSize(),
 									   tr( "Show instrument properties" ) );
-	connect( m_pShowInstrumentBtn, SIGNAL( pressed() ), this, SLOT( showInstrument() ) );
 	m_pShowInstrumentBtn->move( 4, 4 );
-	m_pShowInstrumentBtn->setChecked( true );
+	
+	connect( m_pShowInstrumentBtn, &QPushButton::clicked,
+			 [=]() { m_pInstrumentProp->show();
+				 m_pLayerProp->hide();
+			 });
+	connect( m_pShowInstrumentBtn, &QPushButton::clicked,
+			 this, &InstrumentEditor::tabButtonClicked );
 
 	m_pShowLayersBtn = new Button( m_pInstrumentPropTop, QSize( 140, 22 ), Button::Type::Toggle, "",
 								   pCommonStrings->getLayersButton(), false, QSize(),
 								   tr( "Show layers properties" ) );
-	connect( m_pShowLayersBtn, SIGNAL( pressed() ), this, SLOT( showLayers() ) );
 	m_pShowLayersBtn->move( 145, 4 );
+	
+	connect( m_pShowLayersBtn, &QPushButton::clicked,
+			 [=]() { m_pInstrumentProp->hide();
+				 m_pLayerProp->show();
+			 });
+	connect( m_pShowLayersBtn, &QPushButton::clicked,
+			 this, &InstrumentEditor::tabButtonClicked );
 
 
 	// Instrument properties
@@ -172,7 +183,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pFilterBypassBtn = new Button( m_pInstrumentProp, QSize( 36, 15 ), Button::Type::Toggle,
 									 "", pCommonStrings->getBypassButton(), true,
 									 QSize( 0, 0 ), "", false, true );
-	connect( m_pFilterBypassBtn, SIGNAL( pressed() ),
+	connect( m_pFilterBypassBtn, SIGNAL( clicked() ),
 			 this, SLOT( filterActiveBtnClicked() ) );
 	m_pFilterBypassBtn->move( 67, 169 );
 
@@ -333,7 +344,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 										Button::Type::Push, "dropdown.svg", "",
 										false, QSize( 12, 12 ) );
 	m_buttonDropDownCompo->move( 263, 8 );
-	connect( m_buttonDropDownCompo, SIGNAL( pressed() ),
+	connect( m_buttonDropDownCompo, SIGNAL( clicked() ),
 			 this, SLOT( onDropDownCompoClicked() ) );
 
 	// Layer preview
@@ -374,11 +385,11 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pSampleEditorBtn->setObjectName( "SampleEditorButton" );
 	m_pSampleEditorBtn->move( 191, 304 );
 
-	connect( m_pLoadLayerBtn, SIGNAL( pressed() ),
+	connect( m_pLoadLayerBtn, SIGNAL( clicked() ),
 			 this, SLOT( loadLayerBtnClicked() ) );
-	connect( m_pRemoveLayerBtn, SIGNAL( pressed() ),
+	connect( m_pRemoveLayerBtn, SIGNAL( clicked() ),
 			 this, SLOT( removeLayerButtonClicked() ) );
-	connect( m_pSampleEditorBtn, SIGNAL( pressed() ),
+	connect( m_pSampleEditorBtn, SIGNAL( clicked() ),
 			 this, SLOT( showSampleEditor() ) );
 	// Layer gain
 	m_pLayerGainLCD = new LCDDisplay( m_pLayerProp, QSize( 36, 16 ) );
@@ -473,6 +484,10 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	update();
 	//~component handling
 
+	m_pLayerProp->hide();
+	m_pShowLayersBtn->setChecked( false );
+	m_pInstrumentProp->show();
+	m_pShowInstrumentBtn->setChecked( true );
 
 	selectLayer( m_nSelectedLayer );
 
@@ -761,7 +776,7 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 void InstrumentEditor::filterActiveBtnClicked()
 {
 	if ( m_pInstrument ) {
-		m_pInstrument->set_filter_active( m_pFilterBypassBtn->isChecked() );
+		m_pInstrument->set_filter_active( ! m_pFilterBypassBtn->isChecked() );
 	}
 }
 
@@ -791,34 +806,19 @@ void InstrumentEditor::waveDisplayDoubleClicked( QWidget* pRef )
 	}
 }
 
-void InstrumentEditor::showLayers()
+void InstrumentEditor::tabButtonClicked()
 {
-	if ( m_pShowLayersBtn->isDown() && m_pShowLayersBtn->isChecked() ) {
-		m_pShowLayersBtn->setChecked( true );
-		m_pShowLayersBtn->setDown( false );
-		return;
-	}
-	m_pShowInstrumentBtn->setChecked( false );
-	m_pLayerProp->show();
-	m_pInstrumentProp->hide();
-
-	m_pShowLayersBtn->show();
-	m_pShowInstrumentBtn->show();
-}
-
-void InstrumentEditor::showInstrument()
-{
-	if ( m_pShowInstrumentBtn->isDown() && m_pShowInstrumentBtn->isChecked() ) {
+	if ( m_pInstrumentProp->isVisible() ) {
+		m_pShowLayersBtn->setChecked( false );
 		m_pShowInstrumentBtn->setChecked( true );
-		m_pShowInstrumentBtn->setDown( false );
-		return;
 	}
-	m_pShowLayersBtn->setChecked( false );
-	m_pInstrumentProp->show();
-	m_pLayerProp->hide();
-
-	m_pShowLayersBtn->show();
-	m_pShowInstrumentBtn->show();
+	else if ( m_pLayerProp->isVisible() ) {
+		m_pShowLayersBtn->setChecked( true );
+		m_pShowInstrumentBtn->setChecked( false );
+	}
+	else {
+		ERRORLOG( "Neither the instrument nor the layer editor is visible" );
+	}
 }
 
 void InstrumentEditor::showSampleEditor()

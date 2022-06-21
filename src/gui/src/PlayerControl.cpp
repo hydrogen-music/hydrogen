@@ -107,7 +107,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pRwdBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push,
 							"rewind.svg", "", false, QSize( 13, 13 ), tr("Rewind") );
 	m_pRwdBtn->move( 166, 15 );
-	connect(m_pRwdBtn, SIGNAL( pressed() ), this, SLOT( rewindBtnClicked() ));
+	connect(m_pRwdBtn, SIGNAL( clicked() ), this, SLOT( rewindBtnClicked() ));
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("<<_PREVIOUS_BAR");
 	m_pRwdBtn->setAction( pAction );
 
@@ -117,7 +117,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pRecBtn->move( 193, 15 );
 	m_pRecBtn->setChecked(false);
 	m_pRecBtn->setHidden(false);
-	connect(m_pRecBtn, SIGNAL( pressed() ), this, SLOT( recBtnClicked() ));
+	connect(m_pRecBtn, SIGNAL( clicked() ), this, SLOT( recBtnClicked() ));
 	pAction = std::make_shared<Action>("RECORD_READY");
 	m_pRecBtn->setAction( pAction );
 
@@ -126,7 +126,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 							 "play_pause.svg", "", false, QSize( 30, 21 ), tr("Play/ Pause") );
 	m_pPlayBtn->move( 220, 15 );
 	m_pPlayBtn->setChecked(false);
-	connect(m_pPlayBtn, SIGNAL( pressed() ), this, SLOT( playBtnClicked() ));
+	connect(m_pPlayBtn, SIGNAL( clicked() ), this, SLOT( playBtnClicked() ));
 	pAction = std::make_shared<Action>("PLAY/PAUSE_TOGGLE");
 	m_pPlayBtn->setAction( pAction );
 
@@ -134,7 +134,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pStopBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push,
 							 "stop.svg", "", false, QSize( 11, 11 ), tr("Stop") );
 	m_pStopBtn->move( 252, 15 );
-	connect(m_pStopBtn, SIGNAL( pressed() ), this, SLOT( stopBtnClicked() ));
+	connect(m_pStopBtn, SIGNAL( clicked() ), this, SLOT( stopBtnClicked() ));
 	pAction = std::make_shared<Action>("STOP");
 	m_pStopBtn->setAction( pAction );
 
@@ -142,7 +142,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pFfwdBtn = new Button( pControlsPanel, QSize( 25, 19 ), Button::Type::Push,
 							 "fast_forward.svg", "", false, QSize( 13, 13 ), tr("Fast Forward") );
 	m_pFfwdBtn->move( 279, 15 );
-	connect(m_pFfwdBtn, SIGNAL( pressed() ), this, SLOT( fastForwardBtnClicked() ));
+	connect(m_pFfwdBtn, SIGNAL( clicked() ), this, SLOT( fastForwardBtnClicked() ));
 	pAction = std::make_shared<Action>(">>_NEXT_BAR");
 	m_pFfwdBtn->setAction( pAction );
 
@@ -171,7 +171,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 									false, true );
 	m_pPatternModeBtn->move( 190, 3 );
 	m_pPatternModeBtn->setChecked(true);
-	connect(m_pPatternModeBtn, &QPushButton::pressed,
+	connect(m_pPatternModeBtn, &QPushButton::clicked,
 			[=]() { Hydrogen::get_instance()->getCoreActionController()->
 					activateSongMode( false );
 			});
@@ -189,7 +189,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 								 false, QSize(), tr("Song Mode"),
 								 false, true );
 	m_pSongModeBtn->move( 263, 3 );
-	connect(m_pSongModeBtn, &QPushButton::pressed,
+	connect(m_pSongModeBtn, &QPushButton::clicked,
 			[=]() { Hydrogen::get_instance()->getCoreActionController()->
 					activateSongMode( true );
 			});
@@ -244,7 +244,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	}
 	updateBeatCounterToolTip();
 		
-	connect(m_pBCOnOffBtn, SIGNAL( pressed() ), this, SLOT( bcOnOffBtnClicked() ));
+	connect(m_pBCOnOffBtn, SIGNAL( clicked() ), this, SLOT( bcOnOffBtnClicked() ));
 	pAction = std::make_shared<Action>("BEATCOUNTER");
 	m_pBCOnOffBtn->setAction( pAction );
 //~  BC on off
@@ -285,25 +285,25 @@ PlayerControl::PlayerControl(QWidget *parent)
 							  Button::Type::Push, "plus.svg", "", false,
 							  QSize( 8, 8 ), "", false, true );
 	m_pBCTUpBtn->move( 2, 3 );
-	connect( m_pBCTUpBtn, SIGNAL( pressed() ), this, SLOT( bctUpButtonClicked() ) );
+	connect( m_pBCTUpBtn, SIGNAL( clicked() ), this, SLOT( bctUpButtonClicked() ) );
 
 	m_pBCTDownBtn = new Button( m_pControlsBCPanel, QSize( 19, 12 ),
 								Button::Type::Push, "minus.svg", "", false,
 								QSize( 8, 8 ), "", false, true );
 	m_pBCTDownBtn->move( 2, 14 );
-	connect( m_pBCTDownBtn, SIGNAL( pressed() ), this, SLOT( bctDownButtonClicked() ) );
+	connect( m_pBCTDownBtn, SIGNAL( clicked() ), this, SLOT( bctDownButtonClicked() ) );
 
 	m_pBCBUpBtn = new Button( m_pControlsBCPanel, QSize( 19, 12 ),
 							  Button::Type::Push, "plus.svg", "", false,
 							  QSize( 8, 8 ), "", false, true );
 	m_pBCBUpBtn->move( 64, 3 );
-	connect( m_pBCBUpBtn, SIGNAL( pressed() ), this, SLOT( bcbUpButtonClicked() ) );
+	connect( m_pBCBUpBtn, SIGNAL( clicked() ), this, SLOT( bcbUpButtonClicked() ) );
 
 	m_pBCBDownBtn = new Button( m_pControlsBCPanel, QSize( 19, 12 ),
 								Button::Type::Push, "minus.svg", "", false,
 								QSize( 8, 8 ), "", false, true );
 	m_pBCBDownBtn->move( 64, 14 );
-	connect( m_pBCBDownBtn, SIGNAL( pressed() ), this, SLOT( bcbDownButtonClicked() ) );
+	connect( m_pBCBDownBtn, SIGNAL( clicked() ), this, SLOT( bcbDownButtonClicked() ) );
 
 	m_pBCSetPlayBtn = new Button( m_pControlsBCPanel, QSize( 19, 15 ),
 								  Button::Type::Push, "",
@@ -312,7 +312,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 								  tr("Set BPM / Set BPM and play"),
 								  false, true );
 	m_pBCSetPlayBtn->move( 64, 25 );
-	connect(m_pBCSetPlayBtn, SIGNAL( pressed() ), this, SLOT( bcSetPlayBtnClicked() ));
+	connect(m_pBCSetPlayBtn, SIGNAL( clicked() ), this, SLOT( bcSetPlayBtnClicked() ));
 //~ beatcounter
 
 
@@ -354,7 +354,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 	m_pRubberBPMChange->move( 131, 0 );
 	m_pRubberBPMChange->setChecked( pPref->getRubberBandBatchMode());
-	connect( m_pRubberBPMChange, SIGNAL( pressed() ), this, SLOT( rubberbandButtonToggle() ) );
+	connect( m_pRubberBPMChange, SIGNAL( clicked() ), this, SLOT( rubberbandButtonToggle() ) );
 	QString program = pPref->m_rubberBandCLIexecutable;
 	//test the path. if test fails, no button
 	if ( QFile( program ).exists() == false) {
@@ -370,7 +370,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 								  tr("Switch metronome on/off"),
 								  false, true );
 	m_pMetronomeBtn->move( 6, 2 );
-	connect( m_pMetronomeBtn, SIGNAL( pressed() ), this, SLOT( metronomeButtonClicked() ) );
+	connect( m_pMetronomeBtn, SIGNAL( clicked() ), this, SLOT( metronomeButtonClicked() ) );
 	pAction = std::make_shared<Action>("TOGGLE_METRONOME");
 	m_pMetronomeBtn->setAction( pAction );
 	m_pMetronomeBtn->setChecked( pPref->m_bUseMetronome );
@@ -481,13 +481,13 @@ PlayerControl::PlayerControl(QWidget *parent)
 								  "", pCommonStrings->getMixerButton(), false, QSize(),
 								  tr( "Show mixer" ) );
 	m_pShowMixerBtn->move( 0, 0 );
-	connect(m_pShowMixerBtn, SIGNAL( pressed() ), this, SLOT( showMixerButtonClicked() ));
+	connect(m_pShowMixerBtn, SIGNAL( clicked() ), this, SLOT( showMixerButtonClicked() ));
 
 	m_pShowInstrumentRackBtn = new Button( pLcdBackGround, QSize( 168, 23 ), Button::Type::Toggle,
 										   "", pCommonStrings->getInstrumentRackButton(), false, QSize(),
 										   tr( "Show Instrument Rack" ) );
 	m_pShowInstrumentRackBtn->move( 88, 0 );
-	connect( m_pShowInstrumentRackBtn, SIGNAL( pressed() ),
+	connect( m_pShowInstrumentRackBtn, SIGNAL( clicked() ),
 			 this, SLOT( showInstrumentRackButtonClicked() ) );
 
 	m_pStatusLabel = new LCDDisplay(pLcdBackGround, QSize( 255, 18 ) );
@@ -642,7 +642,7 @@ void PlayerControl::updatePlayerControl()
 /// Toggle record mode
 void PlayerControl::recBtnClicked() {
 	if ( m_pHydrogen->getAudioEngine()->getState() != H2Core::AudioEngine::State::Playing ) {
-		if ( ! m_pRecBtn->isChecked() ) {
+		if ( m_pRecBtn->isChecked() ) {
 			Preferences::get_instance()->setRecordEvents(true);
 			(HydrogenApp::get_instance())->setScrollStatusBarMessage(tr("Record midi events = On" ), 2000 );
 		}
@@ -668,7 +668,7 @@ void PlayerControl::playBtnClicked() {
 		return;
 	}
 	
-	if ( ! m_pPlayBtn->isChecked() ) {
+	if ( m_pPlayBtn->isChecked() ) {
 		m_pHydrogen->sequencer_play();
 		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Playing."), 5000);
 	}
@@ -780,7 +780,7 @@ void PlayerControl::bpmChanged( double fNewBpmValue ) {
 void PlayerControl::bcOnOffBtnClicked()
 {
 	Preferences *pPref = Preferences::get_instance();
-	if ( ! m_pBCOnOffBtn->isChecked() ) {
+	if ( m_pBCOnOffBtn->isChecked() ) {
 		pPref->m_bbc = Preferences::BC_ON;
 		(HydrogenApp::get_instance())->setStatusBarMessage(tr(" BC Panel on"), 5000);
 		m_pControlsBCPanel->show();
@@ -811,7 +811,7 @@ void PlayerControl::rubberbandButtonToggle()
 {
 	Preferences *pPref = Preferences::get_instance();
 	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( ! m_pRubberBPMChange->isChecked() ) {
+	if ( m_pRubberBPMChange->isChecked() ) {
 		// Recalculate all samples ones just to be safe since the
 		// recalculation is just triggered if there is a tempo change
 		// in the audio engine.
@@ -962,7 +962,7 @@ void PlayerControl::metronomeButtonClicked()
 	Hydrogen*	pHydrogen = Hydrogen::get_instance();
 	CoreActionController* pController = pHydrogen->getCoreActionController();
 	
-	pController->setMetronomeIsActive( ! m_pMetronomeBtn->isChecked() );
+	pController->setMetronomeIsActive( m_pMetronomeBtn->isChecked() );
 }
 
 void PlayerControl::showMixerButtonClicked()
