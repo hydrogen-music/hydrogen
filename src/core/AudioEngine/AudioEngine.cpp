@@ -346,7 +346,7 @@ void AudioEngine::reset( bool bWithJackBroadcast ) {
 	clearNoteQueue();
 	
 #ifdef H2CORE_HAVE_JACK
-	if ( pHydrogen->haveJackTransport() && bWithJackBroadcast ) {
+	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
 		// Tell all other JACK clients to relocate as well. This has
 		// to be called after updateFrames().
 		static_cast<JackAudioDriver*>( m_pAudioDriver )->locateTransport( 0 );
@@ -387,7 +387,7 @@ float AudioEngine::getElapsedTime() const {
 		return 0;
 	}
 
-	return getFrames() / static_cast<float>(pDriver->getSampleRate());
+	return ( getFrames() - m_nFrameOffset )/ static_cast<float>(pDriver->getSampleRate());
 }
 
 void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
@@ -406,7 +406,7 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 	// transport is rolling again. That's why we relocate internally
 	// too - as we do not have to be afraid for transport to get out
 	// of sync as it is not rolling.
-	if ( pHydrogen->haveJackTransport() && bWithJackBroadcast &&
+	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast &&
 		 m_state == State::Playing ) {
 		nNewFrame = computeFrameFromTick( fTick, &m_fTickMismatch );
 	} else {
@@ -414,7 +414,7 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 		nNewFrame = computeFrameFromTick( fTick, &m_fTickMismatch );
 	}
 
-	if ( pHydrogen->haveJackTransport() && bWithJackBroadcast ) {
+	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
 		static_cast<JackAudioDriver*>( m_pAudioDriver )->locateTransport( nNewFrame );
 		return;
 	}
@@ -1024,7 +1024,7 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 	}
 	
 #ifdef H2CORE_HAVE_JACK
-	if ( Hydrogen::get_instance()->haveJackAudioDriver() ) {
+	if ( Hydrogen::get_instance()->hasJackAudioDriver() ) {
 		JackAudioDriver* pJackAudioDriver = static_cast<JackAudioDriver*>(m_pAudioDriver);
 	
 		if( pJackAudioDriver ) {
@@ -1153,7 +1153,7 @@ AudioOutput* AudioEngine::createAudioDriver( const QString& sDriver )
 		return nullptr;
 	}
 
-	if ( pSong != nullptr && pHydrogen->haveJackAudioDriver() ) {
+	if ( pSong != nullptr && pHydrogen->hasJackAudioDriver() ) {
 		pHydrogen->renameJackPorts( pSong );
 	}
 		
@@ -1600,7 +1600,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// Sync transport with server (in case the current audio driver is
 	// designed that way)
 #ifdef H2CORE_HAVE_JACK
-	if ( Hydrogen::get_instance()->haveJackTransport() ) {
+	if ( Hydrogen::get_instance()->hasJackTransport() ) {
 		// Compares the current transport state, speed in bpm, and
 		// transport position with a query request to the JACK
 		// server. It will only overwrite the transport state, if
@@ -1889,6 +1889,8 @@ void AudioEngine::updateSongSize() {
 		return;
 	}
 
+	bool bEndOfSongReached = false;
+
 	double fNewSongSizeInTicks = static_cast<double>( pSong->lengthInTicks() );
 
 	// WARNINGLOG( QString( "[Before] frame: %1, bpm: %2, tickSize: %3, column: %4, tick: %5, mod(tick): %6, pTickPos: %7, pStartPos: %8, m_fLastTickIntervalEnd: %9, m_fSongSizeInTicks: %10" )
@@ -1910,7 +1912,6 @@ void AudioEngine::updateSongSize() {
 	double fRepetitions =
 		std::floor( getDoubleTick() / m_fSongSizeInTicks );
 
-	//
 	m_fSongSizeInTicks = fNewSongSizeInTicks;
 
 	// Expected behavior:
@@ -1932,8 +1933,7 @@ void AudioEngine::updateSongSize() {
 	long nNewPatternStartTick = pHydrogen->getTickForColumn( getColumn() );
 
 	if ( nNewPatternStartTick == -1 ) {
-		ERRORLOG( QString( "Something went wrong. No tick found for column [%1]" )
-				  .arg( getColumn() ) );
+		bEndOfSongReached = true;
 	}
 	
 	if ( nNewPatternStartTick != m_nPatternStartTick ) {
@@ -1987,8 +1987,12 @@ void AudioEngine::updateSongSize() {
 	// consistent.
 	updateTransportPosition( getDoubleTick() );
 
-	if ( m_nColumn == -1 ) {
+	if ( m_nColumn == -1 ||
+		 ( bEndOfSongReached &&
+		   pSong->getLoopMode() != Song::LoopMode::Enabled ) ) {
 		stop();
+		stopPlayback();
+		locate( 0 );
 	}
 
 	// WARNINGLOG( QString( "[After] frame: %1, bpm: %2, tickSize: %3, column: %4, tick: %5, pTickPos: %6, pStartPos: %7, m_fLastTickIntervalEnd: %8" )
@@ -2590,7 +2594,7 @@ void AudioEngine::play() {
 	assert( m_pAudioDriver );
 
 #ifdef H2CORE_HAVE_JACK
-	if ( Hydrogen::get_instance()->haveJackTransport() ) {
+	if ( Hydrogen::get_instance()->hasJackTransport() ) {
 		// Tell all other JACK clients to start as well and wait for
 		// the JACK server to give the signal.
 		static_cast<JackAudioDriver*>( m_pAudioDriver )->startTransport();
@@ -2609,7 +2613,7 @@ void AudioEngine::stop() {
 	assert( m_pAudioDriver );
 	
 #ifdef H2CORE_HAVE_JACK
-	if ( Hydrogen::get_instance()->haveJackTransport() ) {
+	if ( Hydrogen::get_instance()->hasJackTransport() ) {
 		// Tell all other JACK clients to stop as well and wait for
 		// the JACK server to give the signal.
 		static_cast<JackAudioDriver*>( m_pAudioDriver )->stopTransport();

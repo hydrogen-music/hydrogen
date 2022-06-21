@@ -395,10 +395,10 @@ PlayerControl::PlayerControl(QWidget *parent)
 									  false, QSize(),
 									  tr("JACK transport on/off"),
 									  false, true );
-	if ( ! m_pHydrogen->haveJackAudioDriver() ) {
+	if ( ! m_pHydrogen->hasJackAudioDriver() ) {
 		m_pJackTransportBtn->hide();
 	}
-	if ( m_pHydrogen->haveJackTransport() ) {
+	if ( m_pHydrogen->hasJackTransport() ) {
 		m_pJackTransportBtn->setChecked( true );
 	} else {
 		m_pJackTransportBtn->setChecked( false );
@@ -417,12 +417,12 @@ PlayerControl::PlayerControl(QWidget *parent)
 								   QSize(), pCommonStrings->getJackTBMMasterTooltip(),
 								   false, true );
 	
-	if ( ! m_pHydrogen->haveJackAudioDriver() ) {
+	if ( ! m_pHydrogen->hasJackAudioDriver() ) {
 		m_pJackMasterBtn->hide();
 	}
 			
 	if ( pPref->m_bJackTimebaseEnabled ) {
-		if ( m_pHydrogen->haveJackTransport() ) {
+		if ( m_pHydrogen->hasJackTransport() ) {
 			if ( m_pHydrogen->getJackTimebaseState() ==
 				 JackAudioDriver::Timebase::Master ) {
 				m_pJackMasterBtn->setChecked( true );
@@ -886,7 +886,7 @@ void PlayerControl::bctDownButtonClicked()
 
 void PlayerControl::jackTransportBtnClicked()
 {
-	if ( !m_pHydrogen->haveJackAudioDriver() ) {
+	if ( !m_pHydrogen->hasJackAudioDriver() ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "JACK-transport will work only with JACK driver." ) );
 		return;
 	}
@@ -907,7 +907,7 @@ void PlayerControl::jackTransportBtnClicked()
 void PlayerControl::jackMasterBtnClicked()
 {
 #ifdef H2CORE_HAVE_JACK
-	if ( !m_pHydrogen->haveJackTransport() ) {
+	if ( !m_pHydrogen->hasJackTransport() ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "JACK transport will work only with JACK driver." ) );
 		return;
 	}
@@ -1143,7 +1143,7 @@ void PlayerControl::tempoChangedEvent( int nValue )
 }
 
 void PlayerControl::driverChangedEvent() {
-	if ( m_pHydrogen->haveJackAudioDriver() ) {
+	if ( m_pHydrogen->hasJackAudioDriver() ) {
 		m_pJackTransportBtn->show();
 		m_pJackMasterBtn->show();
 
@@ -1246,7 +1246,7 @@ void PlayerControl::onPreferencesChanged( H2Core::Preferences::Changes changes )
 		auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 		if ( pPref->m_bJackTimebaseEnabled ) {
-			if ( Hydrogen::get_instance()->haveJackTransport() ) {
+			if ( Hydrogen::get_instance()->hasJackTransport() ) {
 				m_pJackMasterBtn->setIsActive( true );
 				jackTimebaseStateChangedEvent();
 			}

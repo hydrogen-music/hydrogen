@@ -647,19 +647,7 @@ private:
 	int				updateNoteQueue( unsigned nFrames );
 	void 			processAudio( uint32_t nFrames );
 	long long 		computeTickInterval( double* fTickStart, double* fTickEnd, unsigned nFrames );
-	
-	/** Increments #m_fElapsedTime at the end of a process cycle.
-	 *
-	 * At the end of H2Core::audioEngine_process() this function will
-	 * be used to add the time passed during the last process cycle to
-	 * #m_fElapsedTime.
-	 *
-	 * \param bufferSize Number of frames process during a cycle of
-	 * the audio engine.
-	 * \param sampleRate Temporal resolution used by the sound card in
-	 * frames per second.
-	 */
-	void			updateElapsedTime( unsigned bufferSize, unsigned sampleRate );
+    
 	void			updateBpmAndTickSize();
 	
 	void			setPatternTickPosition( long nTick );

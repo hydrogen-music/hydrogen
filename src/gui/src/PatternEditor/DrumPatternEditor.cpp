@@ -1796,7 +1796,7 @@ void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument
 		}
 	}
 
-	if ( pHydrogen->haveJackAudioDriver() ) {
+	if ( pHydrogen->hasJackAudioDriver() ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
 		pHydrogen->renameJackPorts( pHydrogen->getSong() );
 		m_pAudioEngine->unlock();
@@ -1965,7 +1965,7 @@ void DrumPatternEditor::functionAddEmptyInstrumentUndo()
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	pHydrogen->removeInstrument( pHydrogen->getSong()->getInstrumentList()->size() -1 );
 
-	if ( pHydrogen->haveJackAudioDriver() ) {
+	if ( pHydrogen->hasJackAudioDriver() ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
 		pHydrogen->renameJackPorts( pHydrogen->getSong() );
 		m_pAudioEngine->unlock();
@@ -2004,6 +2004,8 @@ void DrumPatternEditor::functionAddEmptyInstrumentRedo()
 	m_pAudioEngine->unlock();
 
 	pHydrogen->setSelectedInstrumentNumber( pList->size() - 1 );
+
+	updateEditor();
 
 }
 ///~undo / redo actions from pattern editor instrument list

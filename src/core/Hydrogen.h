@@ -423,13 +423,13 @@ void			previewSample( Sample *pSample );
 	 * \return Whether JackAudioDriver is used as current audio
 	 * driver.
 	 */
-	bool			haveJackAudioDriver() const;
+	bool			hasJackAudioDriver() const;
 	/**
 	 * \return Whether JackAudioDriver is used as current audio driver
 	 * and JACK transport was activated via the GUI
 	 * (#H2Core::Preferences::m_bJackTransportMode).
 	 */
-	bool			haveJackTransport() const;
+	bool			hasJackTransport() const;
         float			getMasterBpm() const;
 
 	/**
@@ -451,7 +451,7 @@ void			previewSample( Sample *pSample );
 	Tempo getTempoSource() const;
 	
 	/**
-	 * \return Whether we haveJackTransport() and there is an external
+	 * \return Whether we hasJackTransport() and there is an external
 	 * JACK timebase master broadcasting us tempo information and
 	 * making use disregard Hydrogen's Timeline information (see
 	 * #H2Core::JackAudioDriver::m_timebaseState).
