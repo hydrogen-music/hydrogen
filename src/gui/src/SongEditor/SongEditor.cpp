@@ -154,12 +154,12 @@ int SongEditor::yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView )
 
 	auto pPlayingPatterns = m_pAudioEngine->getPlayingPatterns();
 
-	m_pAudioEngine->lock( RIGHT_HERE );
-
 	// If no patterns are playing, no scrolling needed either.
 	if ( pPlayingPatterns->size() == 0 ) {
 		return nScroll;
 	}
+
+	m_pAudioEngine->lock( RIGHT_HERE );
 
 	PatternList *pSongPatterns = pHydrogen->getSong()->getPatternList();
 
