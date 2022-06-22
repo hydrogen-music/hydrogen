@@ -1131,32 +1131,37 @@ bool OscServer::init()
 
 	//This handler is responsible for registering clients
 	m_pServerThread->add_method(nullptr, nullptr, [&](lo_message msg){
-									lo_address a = lo_message_get_source(msg);
+		lo_address address = lo_message_get_source(msg);
 
-									bool AddressRegistered = false;
-									for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
-										lo_address b = *it;
-										if( IsLoAddressEqual(a,b) ) {
-											AddressRegistered = true;
-											break;
-										}
-									}
+		bool AddressRegistered = false;
+		for ( const auto& cclientAddress : m_pClientRegistry ){
+			if ( IsLoAddressEqual( address, cclientAddress ) ) {
+				AddressRegistered = true;
+				break;
+			}
+		}
 
-									if( !AddressRegistered ){
-										lo_address newAddr = lo_address_new_with_proto(	lo_address_get_protocol( a ),
-																						lo_address_get_hostname( a ),
-																						lo_address_get_port( a ) );
-										m_pClientRegistry.push_back( newAddr );
+		if( ! AddressRegistered ){
+			lo_address newAddress =
+				lo_address_new_with_proto( lo_address_get_protocol( address ),
+										   lo_address_get_hostname( address ),
+										   lo_address_get_port( address ) );
+			m_pClientRegistry.push_back( newAddress );
+			INFOLOG( QString( "New OSC client registered. Hostname: %1, port: %2, protocol: %3" )
+					 .arg( lo_address_get_hostname( address ) )
+					 .arg( lo_address_get_port( address ) )
+					 .arg( lo_address_get_protocol( address ) ) );
 										
-										H2Core::Hydrogen::get_instance()->getCoreActionController()->initExternalControlInterfaces();
-									}
+			H2Core::Hydrogen::get_instance()->getCoreActionController()
+				->initExternalControlInterfaces();
+		}
 									
-									// Returning 1 means that the
-									// message has not been fully
-									// handled and the server should
-									// try other methods.
-									return 1;
-								});
+		// Returning 1 means that the
+		// message has not been fully
+		// handled and the server should
+		// try other methods.
+		return 1;
+	});
 
 	m_pServerThread->add_method(nullptr, nullptr, generic_handler, nullptr);
 
