@@ -162,6 +162,8 @@ int OscServer::generic_handler(const char *	path,
 		ERRORLOG( "No song set yet" );
 		return 0;
 	}
+
+	bool bMessageProcessed = false;
 	
 	int nNumberOfStrips = pHydrogen->getSong()->getInstrumentList()->size();
 	
@@ -174,6 +176,12 @@ int OscServer::generic_handler(const char *	path,
 			int nStrip = rxStripVol.cap(1).toInt() -1;
 			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 				STRIP_VOLUME_ABSOLUTE_Handler( nStrip , argv[0]->f );
+				bMessageProcessed = true;
+			}
+			else {
+				ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
+						  .arg( nStrip + 1 ).arg( 1 )
+						  .arg( nNumberOfStrips  ) );
 			}
 		}
 	}
@@ -184,7 +192,14 @@ int OscServer::generic_handler(const char *	path,
 		if( argc == 1 ){
 			int nStrip = rxStripVolRel.cap(1).toInt() - 1;
 			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
-				STRIP_VOLUME_RELATIVE_Handler( QString::number( nStrip ) , QString::number( argv[0]->f, 'f', 0 ) );
+				STRIP_VOLUME_RELATIVE_Handler( QString::number( nStrip ),
+											   QString::number( argv[0]->f, 'f', 0 ) );
+				bMessageProcessed = true;
+			}
+			else {
+				ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
+						  .arg( nStrip + 1 ).arg( 1 )
+						  .arg( nNumberOfStrips ) );
 			}
 		}
 	}
@@ -196,6 +211,12 @@ int OscServer::generic_handler(const char *	path,
 			int nStrip = rxStripPanAbs.cap(1).toInt() - 1;
 			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 				pController->setStripPan( nStrip, argv[0]->f, false );
+				bMessageProcessed = true;
+			}
+			else {
+				ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
+						  .arg( nStrip + 1 ).arg( 1 )
+						  .arg( nNumberOfStrips ) );
 			}
 		}
 	}
@@ -207,6 +228,12 @@ int OscServer::generic_handler(const char *	path,
 			int nStrip = rxStripPanAbsSym.cap(1).toInt() - 1;
 			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 				pController->setStripPanSym( nStrip, argv[0]->f, false );
+				bMessageProcessed = true;
+			}
+			else {
+				ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
+						  .arg( nStrip + 1 ).arg( 1 )
+						  .arg( nNumberOfStrips ) );
 			}
 		}
 	}
@@ -221,6 +248,12 @@ int OscServer::generic_handler(const char *	path,
 				pAction->setParameter1( QString::number( nStrip ) );
 				pAction->setParameter2( QString::number( argv[0]->f, 'f', 0 ) );
 				MidiActionManager::get_instance()->handleAction( pAction );
+				bMessageProcessed = true;
+			}
+			else {
+				ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
+						  .arg( nStrip + 1 ).arg( 1 )
+						  .arg( nNumberOfStrips ) );
 			}
 		}
 	}
@@ -231,7 +264,14 @@ int OscServer::generic_handler(const char *	path,
 		if( argc == 1 ){
 			int nStrip = rxStripFilterCutoffAbs.cap(1).toInt() - 1;
 			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
-				FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( QString::number( nStrip ) , QString::number( argv[0]->f, 'f', 0 ) );
+				FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( QString::number( nStrip ),
+													  QString::number( argv[0]->f, 'f', 0 ) );
+				bMessageProcessed = true;
+			}
+			else {
+				ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
+						  .arg( nStrip + 1 ).arg( 1 )
+						  .arg( nNumberOfStrips ) );
 			}
 		}
 	}
@@ -243,6 +283,12 @@ int OscServer::generic_handler(const char *	path,
 			int nStrip = rxStripMute.cap(1).toInt() - 1;
 			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 				pController->toggleStripIsMuted( nStrip );
+				bMessageProcessed = true;
+			}
+			else {
+				ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
+						  .arg( nStrip + 1 ).arg( 1 )
+						  .arg( nNumberOfStrips ) );
 			}
 		}
 	}
@@ -250,18 +296,32 @@ int OscServer::generic_handler(const char *	path,
 	QRegExp rxStripSolo( "/Hydrogen/STRIP_SOLO_TOGGLE/(\\d+)" );
 	pos = rxStripSolo.indexIn( oscPath );
 	if ( pos > -1 ) {
-		if( argc == 1 ){
+		if ( argc == 1 ) {
 			int nStrip = rxStripSolo.cap(1).toInt() - 1;
 			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 				pController->toggleStripIsSoloed( nStrip );
+				bMessageProcessed = true;
+			}
+			else {
+				ERRORLOG( QString( "Provided strip number [%1] out of bound [%2,%3]" )
+						  .arg( nStrip + 1 ).arg( 1 )
+						  .arg( nNumberOfStrips ) );
 			}
 		}
 	}
 
-	INFOLOG( QString( "Incoming OSC Message for path %1" ).arg( path ) );
+	QString sSummary = QString( "Incoming OSC Message for path [%1]" ).arg( path );
 	for ( int ii = 0; ii < argc; ii++) {
 		QString formattedArgument = qPrettyPrint( (lo_type)types[ii], argv[ii] );
-		INFOLOG(QString("Argument %1: %2 %3").arg(ii).arg(types[ii]).arg(formattedArgument));
+		sSummary.append( QString( "\tArgument %1: [%2, %3]" )
+						 .arg( ii ).arg( types[ ii ] ).arg( formattedArgument ) );
+	}
+
+	if ( bMessageProcessed ) {
+		INFOLOG( sSummary );
+	}
+	else {
+		ERRORLOG( QString( "No matching handler for " ).append( sSummary ) );
 	}
 	
 	// Returning 1 means that the message has not been fully handled
