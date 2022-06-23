@@ -625,27 +625,25 @@ bool MidiActionManager::master_volume_absolute( std::shared_ptr<Action> pAction,
 
 //increments/decrements the volume of the whole song
 bool MidiActionManager::master_volume_relative( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
 
 	bool ok;
-	int vol_param = pAction->getValue().toInt(&ok,10);
+	int nVolume = pAction->getParameter2().toInt(&ok,10);
 
-	std::shared_ptr<Song> song = pHydrogen->getSong();
-
-	if( vol_param != 0 ) {
-		if ( vol_param == 1 && song->getVolume() < 1.5 ) {
-			song->setVolume( song->getVolume() + 0.05 );
-		} else {
-			if( song->getVolume() >= 0.0 ) {
-				song->setVolume( song->getVolume() - 0.05 );
-			}
+	if ( nVolume != 0 ) {
+		if ( nVolume == 1 && pSong->getVolume() < 1.5 ) {
+			pSong->setVolume( pSong->getVolume() + 0.05 );
+		} else if ( pSong->getVolume() >= 0.0 ) {
+			pSong->setVolume( pSong->getVolume() - 0.05 );
 		}
 	} else {
-		song->setVolume( 0 );
+		pSong->setVolume( 0 );
 	}
 
 	return true;
@@ -692,45 +690,41 @@ bool MidiActionManager::strip_volume_absolute( std::shared_ptr<Action> pAction, 
 
 //increments/decrements the volume of one mixer strip
 bool MidiActionManager::strip_volume_relative( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
 
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
-	int vol_param = pAction->getValue().toInt(&ok,10);
+	int nVolume = pAction->getParameter2().toInt(&ok,10);
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
-	if ( pInstrList->is_valid_index( nLine) ) {
-		auto pInstr = pInstrList->get( nLine );
+	auto pInstr = pInstrList->get( nLine );
 	
-		if ( pInstr == nullptr) {
-			ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
-			return false;
+	if ( pInstr == nullptr) {
+		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
+		return false;
+	}
+	
+	if( nVolume != 0 ) {
+		if ( nVolume == 1 && pInstr->get_volume() < 1.5 ) {
+			pInstr->set_volume( pInstr->get_volume() + 0.1 );
 		}
-	
-		if( vol_param != 0 ) {
-			if ( vol_param == 1 && pInstr->get_volume() < 1.5 ) {
-				pInstr->set_volume( pInstr->get_volume() + 0.1 );
-			} else {
-				if( pInstr->get_volume() >= 0.0 ){
-					pInstr->set_volume( pInstr->get_volume() - 0.1 );
-				}
-			}
-		} else {
-			pInstr->set_volume( 0 );
+		else if( pInstr->get_volume() >= 0.0 ){
+			pInstr->set_volume( pInstr->get_volume() - 0.1 );
 		}
-	
-		pHydrogen->setSelectedInstrumentNumber(nLine);
-		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 	}
 	else {
-		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
+		pInstr->set_volume( 0 );
 	}
+	
+	pHydrogen->setSelectedInstrumentNumber( nLine );
+	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 
 	return true;
 }

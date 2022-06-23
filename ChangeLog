@@ -122,6 +122,8 @@
 		- Add command /Hydrogen/VALIDATE_DRUMKIT
 		- Add command /Hydrogen/EXTRACT_DRUMKIT
 		- Add command /Hydrogen/BPM
+		- /Hydrogen/STRIP_SOLO_TOGGLE/X and /Hydrogen/STRIP_MUTE_TOGGLE/X
+		  can now be called without any argument too
 	* H2CLI
 		- Add `--upgrade` option to upgrade a drumkit
 		- Add `--check` option to validate a drumkit
