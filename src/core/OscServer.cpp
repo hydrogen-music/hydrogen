@@ -303,7 +303,7 @@ int OscServer::generic_handler(const char *	path,
 	QRegExp rxStripMute( "/Hydrogen/STRIP_MUTE_TOGGLE/(\\d+)" );
 	pos = rxStripMute.indexIn( oscPath );
 	if ( pos > -1 ) {
-		if( argc == 1 ){
+		if( argc <= 1 ){
 			int nStrip = rxStripMute.cap(1).toInt() - 1;
 			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 				INFOLOG( QString( "processing message as toggling mute of strip [%1]" )
@@ -322,7 +322,7 @@ int OscServer::generic_handler(const char *	path,
 	QRegExp rxStripSolo( "/Hydrogen/STRIP_SOLO_TOGGLE/(\\d+)" );
 	pos = rxStripSolo.indexIn( oscPath );
 	if ( pos > -1 ) {
-		if ( argc == 1 ) {
+		if ( argc <= 1 ) {
 			int nStrip = rxStripSolo.cap(1).toInt() - 1;
 			if ( nStrip > -1 && nStrip < nNumberOfStrips ) {
 				INFOLOG( QString( "processing message as toggling solo of strip [%1]" )
