@@ -544,8 +544,11 @@ bool MidiActionManager::effect_level_absolute( std::shared_ptr<Action> pAction, 
 				pInstr->set_fx_level( 0 , fx_id );
 			}
 			
-			pHydrogen->setSelectedInstrumentNumber( nLine );			
-		} else {
+			pHydrogen->setSelectedInstrumentNumber( nLine );
+
+			EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+		}
+		else {
 			ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
 			return false;
 		}
@@ -584,8 +587,10 @@ bool MidiActionManager::effect_level_relative( std::shared_ptr<Action> pAction, 
 				}
 			}
 			
-			pHydrogen->setSelectedInstrumentNumber( nLine );			
-		} else {
+			pHydrogen->setSelectedInstrumentNumber( nLine );
+			EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+		}
+		else {
 			ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
 			return false;
 		}
@@ -676,7 +681,9 @@ bool MidiActionManager::strip_volume_absolute( std::shared_ptr<Action> pAction, 
 		}
 	
 		pHydrogen->setSelectedInstrumentNumber(nLine);
-	} else {
+		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+	}
+	else {
 		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
 	}
 
@@ -719,7 +726,9 @@ bool MidiActionManager::strip_volume_relative( std::shared_ptr<Action> pAction, 
 		}
 	
 		pHydrogen->setSelectedInstrumentNumber(nLine);
-	} else {
+		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+	}
+	else {
 		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
 	}
 
@@ -754,7 +763,9 @@ bool MidiActionManager::pan_absolute( std::shared_ptr<Action> pAction, Hydrogen*
 		pInstr->setPanWithRangeFrom0To1( (float) pan_param / 127.f );
 	
 		pHydrogen->setSelectedInstrumentNumber(nLine);
-	} else {
+		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+	}
+	else {
 		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
 	}
 
@@ -789,7 +800,9 @@ bool MidiActionManager::pan_absolute_sym( std::shared_ptr<Action> pAction, Hydro
 		pInstr->setPan( (float) pan_param / 127.f );
 	
 		pHydrogen->setSelectedInstrumentNumber(nLine);
-	} else {
+		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+	}
+	else {
 		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
 	}
 
@@ -832,7 +845,9 @@ bool MidiActionManager::pan_relative( std::shared_ptr<Action> pAction, Hydrogen*
 		}
 
 		pHydrogen->setSelectedInstrumentNumber(nLine);
-	} else {
+		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+	}
+	else {
 		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
 	}
 
@@ -882,9 +897,9 @@ bool MidiActionManager::gain_level_absolute( std::shared_ptr<Action> pAction, Hy
 		}
 	
 		pHydrogen->setSelectedInstrumentNumber( nLine );
-	
-		pHydrogen->refreshInstrumentParameters( nLine );
-	} else {
+		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+	}
+	else {
 		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
 	}
 	
@@ -933,9 +948,9 @@ bool MidiActionManager::pitch_level_absolute( std::shared_ptr<Action> pAction, H
 		}
 	
 		pHydrogen->setSelectedInstrumentNumber( nLine );
-	
-		pHydrogen->refreshInstrumentParameters( nLine );
-	} else {
+		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+	}
+	else {
 		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
 	}
 
@@ -971,9 +986,9 @@ bool MidiActionManager::filter_cutoff_level_absolute( std::shared_ptr<Action> pA
 		}
 	
 		pHydrogen->setSelectedInstrumentNumber( nLine );
-	
-		pHydrogen->refreshInstrumentParameters( nLine );
-	} else {
+		EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+	}
+	else {
 		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
 	}
 	

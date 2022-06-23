@@ -340,9 +340,6 @@ void			previewSample( Sample *pSample );
 	void			setSelectedInstrumentNumber( int nInstrument );
 	std::shared_ptr<Instrument>		getSelectedInstrument() const;
 
-
-	void			refreshInstrumentParameters( int nInstrument );
-
 	/**
 	 * Calls audioEngine_renameJackPorts() if
 	 * Preferences::m_bJackTrackOuts is set to true.

@@ -301,6 +301,10 @@ void InstrumentLine::muteClicked()
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	auto pInstr = pInstrList->get( m_nInstrumentNumber );
+	if ( pInstr == nullptr ) {
+		return;
+	}
+	
 	pHydrogen->setSelectedInstrumentNumber( m_nInstrumentNumber );
 
 	CoreActionController* pCoreActionController = pHydrogen->getCoreActionController();
@@ -1005,4 +1009,48 @@ void PatternEditorInstrumentList::mouseMoveEvent(QMouseEvent *event)
 
 	// propago l'evento
 	QWidget::mouseMoveEvent(event);
+}
+
+
+void PatternEditorInstrumentList::instrumentParametersChangedEvent( int nInstrumentNumber ) {
+	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+
+	if ( nInstrumentNumber == -1 ) {
+		// Update all lines.
+		for ( int ii = 0; ii < MAX_INSTRUMENTS; ++ii ) {
+			auto pInstrumentLine = m_pInstrumentLine[ ii ];
+			if ( pInstrumentLine != nullptr ) {
+				auto pInstrument = pInstrumentList->get( ii );
+				if ( pInstrument == nullptr ) {
+					ERRORLOG( QString( "Instrument [%1] associated to InstrumentLine [%1] not found" )
+							  .arg( ii ) );
+					return;
+				}
+				
+				pInstrumentLine->setName( pInstrument->get_name() );
+				pInstrumentLine->setMuted( pInstrument->is_muted() );
+				pInstrumentLine->setSoloed( pInstrument->is_soloed() );
+			}
+		}
+	}
+	else {
+		// Update a specific line
+		auto pInstrument = pInstrumentList->get( nInstrumentNumber );
+		if ( pInstrument == nullptr ) {
+			ERRORLOG( QString( "Instrument [%1] not found" )
+					  .arg( nInstrumentNumber ) );
+			return;
+		}
+	
+		auto pInstrumentLine = m_pInstrumentLine[ nInstrumentNumber ];
+		if ( pInstrumentLine == nullptr ) {
+			ERRORLOG( QString( "No InstrumentLine for instrument [%1] created yet" )
+					  .arg( nInstrumentNumber ) );
+			return;
+		}
+
+		pInstrumentLine->setName( pInstrument->get_name() );
+		pInstrumentLine->setMuted( pInstrument->is_muted() );
+		pInstrumentLine->setSoloed( pInstrument->is_soloed() );
+	}
 }

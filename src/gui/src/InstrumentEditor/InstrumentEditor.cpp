@@ -663,7 +663,58 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	selectLayer( m_nSelectedLayer );
 }
 
+// In here we just check those parameters that can be altered by MIDI
+// or OSC messages or other parts of Hydrogen.
+void InstrumentEditor::instrumentParametersChangedEvent( int nInstrumentNumber )
+{
+	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	
+	// Check if either this particular line or all lines should be updated.
+	if ( m_pInstrument != nullptr &&
+		 ( m_pInstrument == pInstrumentList->get( nInstrumentNumber ) ||
+		   nInstrumentNumber == -1 ) ) {
 
+		if ( m_pNameLbl->text() != m_pInstrument->get_name() ) {
+			m_pNameLbl->setText( m_pInstrument->get_name() );
+		}
+
+		// filter
+		m_pFilterBypassBtn->setChecked( !m_pInstrument->is_filter_active() );
+		m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff() );
+		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance() );
+		//~ filter
+
+		// pitch offset
+		char tmp[7];
+		sprintf( tmp, "%#.2f", m_pInstrument->get_pitch_offset() );
+		if ( m_pPitchLCD->text() != tmp ) {
+			m_pPitchLCD->setText( tmp );
+		
+			/* fCoarsePitch is the closest integer to pitch_offset (represents the pitch shift interval in half steps)
+			   while it is an integer number, it's defined float to be used in next lines */
+			float fCoarsePitch = round( m_pInstrument->get_pitch_offset() );
+
+			//fFinePitch represents the fine adjustment (between -0.5 and +0.5) if pitch_offset has decimal part
+			float fFinePitch = m_pInstrument->get_pitch_offset() - fCoarsePitch;
+
+			m_pPitchCoarseRotary->setValue( fCoarsePitch );
+			m_pPitchFineRotary->setValue( fFinePitch );
+		}
+		// instr gain
+		if ( m_pInstrumentGain->getValue() != m_pInstrument->get_gain() ) {
+			sprintf( tmp, "%#.2f", m_pInstrument->get_gain() );
+			m_pInstrumentGainLCD->setText( tmp );
+			m_pInstrumentGain->setValue( m_pInstrument->get_gain() );
+		}
+	}
+	else {
+		m_pNameLbl->setText( QString( "NULL Instrument..." ) );
+		m_pWaveDisplay->updateDisplay( nullptr );
+		m_nSelectedLayer = 0;
+	}
+
+	selectLayer( m_nSelectedLayer );
+}
 
 void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 {
@@ -956,7 +1007,7 @@ void InstrumentEditor::loadLayerBtnClicked()
 	m_pInstrument = pHydrogen->getSelectedInstrument();
 
 	if ( m_pInstrument == nullptr ) {
-		DEBUGLOG( "No instrument selected" );
+		WARNINGLOG( "No instrument selected" );
 		return;
 	}
 
