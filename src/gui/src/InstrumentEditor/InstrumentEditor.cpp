@@ -683,29 +683,6 @@ void InstrumentEditor::instrumentParametersChangedEvent( int nInstrumentNumber )
 		m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff() );
 		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance() );
 		//~ filter
-
-		// pitch offset
-		char tmp[7];
-		sprintf( tmp, "%#.2f", m_pInstrument->get_pitch_offset() );
-		if ( m_pPitchLCD->text() != tmp ) {
-			m_pPitchLCD->setText( tmp );
-		
-			/* fCoarsePitch is the closest integer to pitch_offset (represents the pitch shift interval in half steps)
-			   while it is an integer number, it's defined float to be used in next lines */
-			float fCoarsePitch = round( m_pInstrument->get_pitch_offset() );
-
-			//fFinePitch represents the fine adjustment (between -0.5 and +0.5) if pitch_offset has decimal part
-			float fFinePitch = m_pInstrument->get_pitch_offset() - fCoarsePitch;
-
-			m_pPitchCoarseRotary->setValue( fCoarsePitch );
-			m_pPitchFineRotary->setValue( fFinePitch );
-		}
-		// instr gain
-		if ( m_pInstrumentGain->getValue() != m_pInstrument->get_gain() ) {
-			sprintf( tmp, "%#.2f", m_pInstrument->get_gain() );
-			m_pInstrumentGainLCD->setText( tmp );
-			m_pInstrumentGain->setValue( m_pInstrument->get_gain() );
-		}
 	}
 	else {
 		m_pNameLbl->setText( QString( "NULL Instrument..." ) );
@@ -799,7 +776,7 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 			}
 		}
 		else if ( pRotary == m_pLayerPitchFineRotary ) {
-			m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fVal ) );
+			m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fVal, 0, 'f', 0 ) );
 			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
 				auto pLayer = pCompo->get_layer( m_nSelectedLayer );
@@ -1211,7 +1188,8 @@ void InstrumentEditor::selectLayer( int nLayer )
 			m_pLayerPitchFineRotary->setValue( fFinePitch * 100 );
 
 			m_pLayerPitchCoarseLCD->setText( QString( "%1" ).arg( (int) fCoarsePitch ) );
-			m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fFinePitch * 100 ) );
+			m_pLayerPitchFineLCD->setText( QString( "%1" )
+										   .arg( fFinePitch * 100, 0, 'f', 0 ) );
 
 			m_pRemoveLayerBtn->setIsActive( true );
 			m_pSampleEditorBtn->setIsActive( true );
