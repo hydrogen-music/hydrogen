@@ -185,7 +185,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 								  "speaker.svg", "", false, QSize( 15, 13 ),
 								  tr( "Hear new notes" ), false, true );
 	m_pHearNotesBtn->move( 42, 1 );
-	connect( m_pHearNotesBtn, SIGNAL( pressed() ), this, SLOT( hearNotesBtnClick() ) );
+	connect( m_pHearNotesBtn, SIGNAL( clicked() ), this, SLOT( hearNotesBtnClick() ) );
 	m_pHearNotesBtn->setChecked( pPref->getHearNewNotes() );
 	m_pHearNotesBtn->setObjectName( "HearNotesBtn" );
 	m_pHearNotesLbl = new ClickableLabel( m_pRec, QSize( 36, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getHearNotesLabel(), ClickableLabel::Color::Dark );
@@ -202,7 +202,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pQuantizeEventsBtn->move( 111, 1 );
 	m_pQuantizeEventsBtn->setChecked( pPref->getQuantizeEvents() );
 	m_pQuantizeEventsBtn->setObjectName( "QuantizeEventsBtn" );
-	connect( m_pQuantizeEventsBtn, SIGNAL( pressed() ), this, SLOT( quantizeEventsBtnClick() ) );
+	connect( m_pQuantizeEventsBtn, SIGNAL( clicked() ), this, SLOT( quantizeEventsBtnClick() ) );
 	m_pQuantizeEventsLbl = new ClickableLabel( m_pRec, QSize( 44, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getQuantizeEventsLabel(), ClickableLabel::Color::Dark );
 	m_pQuantizeEventsLbl->setAlignment( Qt::AlignRight );
 	m_pQuantizeEventsLbl->move( 64, 4 );
@@ -211,7 +211,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__show_drum_btn = new Button( m_pRec, QSize( 25, 18 ), Button::Type::Push, "drum.svg", "", false, QSize( 17, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoRollEditorTooltip() );
 	__show_drum_btn->move( 178, 1 );
 	__show_drum_btn->setObjectName( "ShowDrumBtn" );
-	connect( __show_drum_btn, SIGNAL( pressed() ), this, SLOT( showDrumEditorBtnClick() ) );
+	connect( __show_drum_btn, SIGNAL( clicked() ), this, SLOT( showDrumEditorBtnClick() ) );
 	// Since the button to activate the piano roll is shown
 	// initially, both buttons get the same tooltip. Actually only the
 	// last one does need a tooltip since it will be shown regardless
@@ -222,19 +222,19 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__show_piano_btn->move( 178, 1 );
 	__show_piano_btn->setObjectName( "ShowDrumBtn" );
 	__show_piano_btn->hide();
-	connect( __show_piano_btn, SIGNAL( pressed() ), this, SLOT( showDrumEditorBtnClick() ) );
+	connect( __show_piano_btn, SIGNAL( clicked() ), this, SLOT( showDrumEditorBtnClick() ) );
 	m_pShowPianoLbl = new ClickableLabel( m_pRec, QSize( 40, 13 ), HydrogenApp::get_instance()->getCommonStrings()->getShowPianoLabel(), ClickableLabel::Color::Dark );
 	m_pShowPianoLbl->setAlignment( Qt::AlignRight );
 	m_pShowPianoLbl->move( 135, 4 );
 
 	// zoom-in btn
 	Button *zoom_in_btn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Push, "plus.svg", "", false, QSize( 9, 9 ), tr( "Zoom in" ) );
-	connect( zoom_in_btn, SIGNAL( pressed() ), this, SLOT( zoomInBtnClicked() ) );
+	connect( zoom_in_btn, SIGNAL( clicked() ), this, SLOT( zoomInBtnClicked() ) );
 
 
 	// zoom-out btn
 	Button *zoom_out_btn = new Button( nullptr, QSize( 19, 15 ), Button::Type::Push, "minus.svg", "", false, QSize( 9, 9 ), tr( "Zoom out" ) );
-	connect( zoom_out_btn, SIGNAL( pressed() ), this, SLOT( zoomOutBtnClicked() ) );
+	connect( zoom_out_btn, SIGNAL( clicked() ), this, SLOT( zoomOutBtnClicked() ) );
 // End Editor TOP
 
 
@@ -731,9 +731,9 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 void PatternEditorPanel::hearNotesBtnClick()
 {
 	Preferences *pref = ( Preferences::get_instance() );
-	pref->setHearNewNotes( ! m_pHearNotesBtn->isChecked() );
+	pref->setHearNewNotes( m_pHearNotesBtn->isChecked() );
 
-	if ( ! m_pHearNotesBtn->isChecked() ) {
+	if ( m_pHearNotesBtn->isChecked() ) {
 		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Hear new notes = On" ), 2000 );
 	} else {
 		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Hear new notes = Off" ), 2000 );
@@ -743,9 +743,9 @@ void PatternEditorPanel::hearNotesBtnClick()
 void PatternEditorPanel::quantizeEventsBtnClick()
 {
 	Preferences *pref = ( Preferences::get_instance() );
-	pref->setQuantizeEvents( ! m_pQuantizeEventsBtn->isChecked() );
+	pref->setQuantizeEvents( m_pQuantizeEventsBtn->isChecked() );
 
-	if ( ! m_pQuantizeEventsBtn->isChecked() ) {
+	if ( m_pQuantizeEventsBtn->isChecked() ) {
 		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Quantize incoming keyboard/midi events = On" ),	2000 );
 	} else {
 		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Quantize incoming keyboard/midi events = Off" ), 2000 );
