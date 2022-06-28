@@ -431,9 +431,31 @@ void AudioEngine::locateToFrame( const long long nFrame ) {
 	const auto pHydrogen = Hydrogen::get_instance();
 	
 	reset( false );
-	setFrames( nFrame );
 
 	double fNewTick = computeTickFromFrame( nFrame );
+
+	// As the tick mismatch is lost when converting a sought location
+	// from ticks into frames, sending it to the JACK server,
+	// receiving it in a callback, and providing it here, we will use
+	// a heuristic in order to not experience any glitches upon
+	// relocation.
+	if ( std::fmod( fNewTick, std::floor( fNewTick ) ) >= 0.97 ) {
+		INFOLOG( QString( "Computed tick [%1] will be rounded to [%2] in order to avoid glitches" )
+				 .arg( fNewTick ).arg( std::round( fNewTick ) ) );
+		fNewTick = std::round( fNewTick );
+	}
+
+	// Important step to assure the tick mismatch is set and
+	// tick<->frame can be converted properly.
+	long long nNewFrame = computeFrameFromTick( fNewTick, &m_fTickMismatch );
+	if ( nNewFrame != nFrame ) {
+		ERRORLOG( QString( "Something went wrong: nFrame: %1, nNewFrame: %2, fNewTick: %3, m_fTickMismatch: %4" )
+				  .arg( nFrame )
+				  .arg( nNewFrame )
+				  .arg( fNewTick )
+				  .arg( m_fTickMismatch ) );
+	}
+	setFrames( nNewFrame );
 	
 	updateTransportPosition( fNewTick );
 
@@ -474,12 +496,13 @@ void AudioEngine::updateTransportPosition( double fTick ) {
 
 	assert( pSong );
 
-	// WARNINGLOG( QString( "[Before] frame: %5, tick: %1, pTickPos: %2, pStartPos: %3, column: %4" )
+	// WARNINGLOG( QString( "[Before] frame: %5, tick: %1, pTickPos: %2, pStartPos: %3, column: %4, provided ticks: %6" )
 	// 			.arg( getDoubleTick(), 0, 'f' )
 	// 			.arg( m_nPatternTickPosition )
 	// 			.arg( m_nPatternStartTick )
 	// 			.arg( m_nColumn )
-	// 			.arg( getFrames() ) );
+	// 			.arg( getFrames() )
+	// 			.arg( fTick, 0, 'f' ) );
 
 	// Update m_nPatternStartTick, m_nPatternTickPosition, and
 	// m_nPatternSize.
@@ -499,12 +522,13 @@ void AudioEngine::updateTransportPosition( double fTick ) {
 	
 	updateBpmAndTickSize();
 	
-	// WARNINGLOG( QString( "[After] frame: %5, tick: %1, pTickPos: %2, pStartPos: %3, column: %4" )
+	// WARNINGLOG( QString( "[After] frame: %5, tick: %1, pTickPos: %2, pStartPos: %3, column: %4, provided ticks: %6" )
 	// 			.arg( getDoubleTick(), 0, 'f' )
 	// 			.arg( m_nPatternTickPosition )
 	// 			.arg( m_nPatternStartTick )
 	// 			.arg( m_nColumn )
-	// 			.arg( getFrames() ) );
+	// 			.arg( getFrames() )
+	// 			.arg( fTick, 0, 'f' ) );
 	
 }
 

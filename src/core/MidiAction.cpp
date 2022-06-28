@@ -1071,8 +1071,10 @@ bool MidiActionManager::next_bar( std::shared_ptr<Action> , Hydrogen* pHydrogen 
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
+
+	int nNewColumn = std::max( 0, pHydrogen->getAudioEngine()->getColumn() ) + 1;
 	
-	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() +1 );
+	pHydrogen->getCoreActionController()->locateToColumn( nNewColumn );
 	return true;
 }
 

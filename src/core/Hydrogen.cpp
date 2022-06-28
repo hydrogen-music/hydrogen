@@ -1665,7 +1665,7 @@ long Hydrogen::getTickForColumn( int nColumn ) const
 		}
 		totalTick += nPatternSize;
 	}
-	
+
 	return totalTick;
 }
 
