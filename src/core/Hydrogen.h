@@ -107,7 +107,7 @@ public:
 	/** Wrapper around AudioEngine::toggleNextPattern().*/
 	void			toggleNextPattern( int nPatternNumber );
 	/** Wrapper around AudioEngine::flushAndAddNextPattern().*/
-	void			flushAndAddNextPattern( int nPatternNumber );
+	bool			flushAndAddNextPattern( int nPatternNumber );
 	
 		/**
 		 * Get the current song.
@@ -361,7 +361,7 @@ void			previewSample( Sample *pSample );
 	void			setNoteLength( float notelength);
 	float			getNoteLength();
 	int			getBcStatus();
-	void			handleBeatCounter();
+	bool			handleBeatCounter();
 	void			setBcOffsetAdjust();
 
 	/** Calling JackAudioDriver::releaseTimebaseMaster() directly from

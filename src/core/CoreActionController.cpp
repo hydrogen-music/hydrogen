@@ -229,8 +229,8 @@ bool CoreActionController::sendMasterVolumeFeedback() {
 		std::shared_ptr<Action> pFeedbackAction =
 			std::make_shared<Action>( "MASTER_VOLUME_ABSOLUTE" );
 		
-		pFeedbackAction->setParameter2( QString("%1")
-										.arg( fMasterVolume ) );
+		pFeedbackAction->setValue( QString("%1")
+								   .arg( fMasterVolume ) );
 		OscServer::get_instance()->handleAction( pFeedbackAction );
 	}
 #endif
@@ -256,7 +256,7 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip ) {
 				std::make_shared<Action>( "STRIP_VOLUME_ABSOLUTE" );
 		
 			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
-			pFeedbackAction->setParameter2( QString("%1").arg( fStripVolume ) );
+			pFeedbackAction->setValue( QString("%1").arg( fStripVolume ) );
 			OscServer::get_instance()->handleAction( pFeedbackAction );
 		}
 #endif
@@ -330,7 +330,7 @@ bool CoreActionController::sendStripIsMutedFeedback( int nStrip ) {
 				std::make_shared<Action>( "STRIP_MUTE_TOGGLE" );
 		
 			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
-			pFeedbackAction->setParameter2( QString("%1")
+			pFeedbackAction->setValue( QString("%1")
 											.arg( static_cast<int>(pInstr->is_muted()) ) );
 			OscServer::get_instance()->handleAction( pFeedbackAction );
 		}
@@ -358,8 +358,8 @@ bool CoreActionController::sendStripIsSoloedFeedback( int nStrip ) {
 				std::make_shared<Action>( "STRIP_SOLO_TOGGLE" );
 		
 			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
-			pFeedbackAction->setParameter2( QString("%1")
-											.arg( static_cast<int>(pInstr->is_soloed()) ) );
+			pFeedbackAction->setValue( QString("%1")
+									   .arg( static_cast<int>(pInstr->is_soloed()) ) );
 			OscServer::get_instance()->handleAction( pFeedbackAction );
 		}
 #endif
@@ -385,8 +385,8 @@ bool CoreActionController::sendStripPanFeedback( int nStrip ) {
 				std::make_shared<Action>( "PAN_ABSOLUTE" );
 		
 			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
-			pFeedbackAction->setParameter2( QString("%1")
-											.arg( pInstr->getPanWithRangeFrom0To1() ) );
+			pFeedbackAction->setValue( QString("%1")
+									   .arg( pInstr->getPanWithRangeFrom0To1() ) );
 			OscServer::get_instance()->handleAction( pFeedbackAction );
 		}
 #endif
@@ -412,8 +412,8 @@ bool CoreActionController::sendStripPanSymFeedback( int nStrip ) {
 				std::make_shared<Action>( "PAN_ABSOLUTE_SYM" );
 		
 			pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
-			pFeedbackAction->setParameter2( QString("%1")
-											.arg( pInstr->getPan() ) );
+			pFeedbackAction->setValue( QString("%1")
+									   .arg( pInstr->getPan() ) );
 			OscServer::get_instance()->handleAction( pFeedbackAction );
 		}
 #endif

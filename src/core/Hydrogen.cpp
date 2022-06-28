@@ -620,15 +620,19 @@ void Hydrogen::toggleNextPattern( int nPatternNumber ) {
 	}
 }
 
-void Hydrogen::flushAndAddNextPattern( int nPatternNumber ) {
+bool Hydrogen::flushAndAddNextPattern( int nPatternNumber ) {
 	if ( __song != nullptr && getMode() == Song::Mode::Pattern ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
 		m_pAudioEngine->flushAndAddNextPattern( nPatternNumber );
 		m_pAudioEngine->unlock();
 
+		return true;
+
 	} else {
 		ERRORLOG( "can't set next pattern in song mode" );
 	}
+
+	return false;
 }
 
 void Hydrogen::restartDrivers()
@@ -1026,7 +1030,7 @@ void Hydrogen::setBcOffsetAdjust()
 	m_nStartOffset = pPreferences->m_startOffset;
 }
 
-void Hydrogen::handleBeatCounter()
+bool Hydrogen::handleBeatCounter()
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
@@ -1060,7 +1064,7 @@ void Hydrogen::handleBeatCounter()
 	if( beatDiff > 3.001 * 1/m_ntaktoMeterCompute ) {
 		m_nEventCount = 1;
 		m_nBeatCount = 1;
-		return;
+		return false;
 	}
 	// Only accept differences big enough
 	if (m_nBeatCount == 1 || beatDiff > .001) {
@@ -1122,14 +1126,17 @@ void Hydrogen::handleBeatCounter()
 
 				m_nBeatCount = 1;
 				m_nEventCount = 1;
-				return;
+				return true;
 			}
 		}
 		else {
 			m_nBeatCount ++;
 		}
 	}
-	return;
+	else {
+		return false;
+	}
+	return true;
 }
 //~ m_nBeatCounter
 

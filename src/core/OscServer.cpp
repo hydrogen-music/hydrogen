@@ -270,7 +270,7 @@ int OscServer::generic_handler(const char *	path,
 						 .arg( nStrip ) );
 				std::shared_ptr<Action> pAction = std::make_shared<Action>("PAN_RELATIVE");
 				pAction->setParameter1( QString::number( nStrip ) );
-				pAction->setParameter2( QString::number( argv[0]->f, 'f', 0 ) );
+				pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
 				MidiActionManager::get_instance()->handleAction( pAction );
 				bMessageProcessed = true;
 			}
@@ -602,7 +602,7 @@ void OscServer::MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("MASTER_VOLUME_RELATIVE");
-	pAction->setParameter2( QString::number( argv[0]->f, 'f', 0 ));
+	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ));
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
@@ -624,7 +624,7 @@ void OscServer::STRIP_VOLUME_RELATIVE_Handler(QString param1, QString param2)
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("STRIP_VOLUME_RELATIVE");
 	pAction->setParameter1( param1 );
-	pAction->setParameter2( param2 );
+	pAction->setValue( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
@@ -658,7 +658,7 @@ void OscServer::FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler(QString param1, QString par
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("FILTER_CUTOFF_LEVEL_ABSOLUTE");
 	pAction->setParameter1( param1 );
-	pAction->setParameter2( param2 );
+	pAction->setValue( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	// Null song handling done in MidiActionManager.
@@ -731,7 +731,7 @@ void OscServer::SELECT_INSTRUMENT_Handler(lo_arg **argv,int i)
 {
 	INFOLOG( "processing message" );
 	std::shared_ptr<Action> pAction = std::make_shared<Action>("SELECT_INSTRUMENT");
-	pAction->setParameter2(  QString::number( argv[0]->f, 'f', 0 ) );
+	pAction->setValue( QString::number( argv[0]->f, 'f', 0 ) );
 
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();	
 
@@ -1081,10 +1081,10 @@ void OscServer::handleAction( std::shared_ptr<Action> pAction )
 	
 	if( pAction->getType() == "MASTER_VOLUME_ABSOLUTE"){
 		bool ok;
-		float param2 = pAction->getParameter2().toFloat(&ok);
+		float fValue = pAction->getValue().toFloat(&ok);
 			
 		lo_message reply = lo_message_new();
-		lo_message_add_float(reply, param2);
+		lo_message_add_float( reply, fValue );
 
 		broadcastMessage("/Hydrogen/MASTER_VOLUME_ABSOLUTE", reply);
 		
@@ -1093,10 +1093,10 @@ void OscServer::handleAction( std::shared_ptr<Action> pAction )
 	
 	if( pAction->getType() == "STRIP_VOLUME_ABSOLUTE"){
 		bool ok;
-		float param2 = pAction->getParameter2().toFloat(&ok);
+		float fValue = pAction->getValue().toFloat(&ok);
 
 		lo_message reply = lo_message_new();
-		lo_message_add_float(reply, param2);
+		lo_message_add_float( reply, fValue );
 
 		QByteArray ba = QString("/Hydrogen/STRIP_VOLUME_ABSOLUTE/%1").arg(pAction->getParameter1()).toLatin1();
 		const char *c_str2 = ba.data();
@@ -1132,10 +1132,10 @@ void OscServer::handleAction( std::shared_ptr<Action> pAction )
 	
 	if( pAction->getType() == "STRIP_MUTE_TOGGLE"){
 		bool ok;
-		float param2 = pAction->getParameter2().toFloat(&ok);
+		float fValue = pAction->getValue().toFloat(&ok);
 
 		lo_message reply = lo_message_new();
-		lo_message_add_float(reply, param2);
+		lo_message_add_float( reply, fValue );
 
 		QByteArray ba = QString("/Hydrogen/STRIP_MUTE_TOGGLE/%1").arg(pAction->getParameter1()).toLatin1();
 		const char *c_str2 = ba.data();
@@ -1147,10 +1147,10 @@ void OscServer::handleAction( std::shared_ptr<Action> pAction )
 	
 	if( pAction->getType() == "STRIP_SOLO_TOGGLE"){
 		bool ok;
-		float param2 = pAction->getParameter2().toFloat(&ok);
+		float fValue = pAction->getValue().toFloat(&ok);
 
 		lo_message reply = lo_message_new();
-		lo_message_add_float(reply, param2);
+		lo_message_add_float( reply, fValue );
 
 		QByteArray ba = QString("/Hydrogen/STRIP_SOLO_TOGGLE/%1").arg(pAction->getParameter1()).toLatin1();
 		const char *c_str2 = ba.data();
@@ -1162,10 +1162,10 @@ void OscServer::handleAction( std::shared_ptr<Action> pAction )
 	
 	if( pAction->getType() == "PAN_ABSOLUTE"){
 		bool ok;
-		float param2 = pAction->getParameter2().toFloat(&ok);
+		float fValue = pAction->getValue().toFloat(&ok);
 
 		lo_message reply = lo_message_new();
-		lo_message_add_float(reply, param2);
+		lo_message_add_float( reply, fValue );
 
 		QByteArray ba = QString("/Hydrogen/PAN_ABSOLUTE/%1").arg(pAction->getParameter1()).toLatin1();
 		const char *c_str2 = ba.data();
@@ -1177,10 +1177,10 @@ void OscServer::handleAction( std::shared_ptr<Action> pAction )
 
 	if( pAction->getType() == "PAN_ABSOLUTE_SYM"){
 		bool ok;
-		float param2 = pAction->getParameter2().toFloat(&ok);
+		float fValue = pAction->getValue().toFloat(&ok);
 
 		lo_message reply = lo_message_new();
-		lo_message_add_float(reply, param2);
+		lo_message_add_float( reply, fValue );
 
 		QByteArray ba = QString("/Hydrogen/PAN_ABSOLUTE_SYM/%1").arg(pAction->getParameter1()).toLatin1();
 		const char *c_str2 = ba.data();
