@@ -1100,10 +1100,14 @@ bool setSong( int nSongNumber, Hydrogen * pHydrogen ) {
 		// Preventive measure to avoid bad things.
 		if ( pHydrogen->getSong() == nullptr ) {
 			___ERRORLOG( "No song set yet" );
-		} else {
+		}
+		else if ( Playlist::get_instance()->size() == 0 ) {
+			___ERRORLOG( QString( "No songs added to the current playlist yet" ) );
+		}
+		else {
 			___ERRORLOG( QString( "Provided song number [%1] out of bound [0,%2]" )
 						 .arg( nSongNumber )
-						 .arg( pHydrogen->getSong()->getPatternList()->size() - 1 ) );
+						 .arg( Playlist::get_instance()->size() - 1 ) );
 		}
 		return false;
 	}
