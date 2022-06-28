@@ -149,7 +149,7 @@ SongEditor::~SongEditor()
 int SongEditor::yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	int nScroll = pScrollArea->verticalScrollBar()->value();
+	const int nScroll = pScrollArea->verticalScrollBar()->value();
 	int nHeight = pScrollArea->height();
 
 	auto pPlayingPatterns = m_pAudioEngine->getPlayingPatterns();
@@ -174,6 +174,12 @@ int SongEditor::yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView )
 	std::vector<int> playingRows;
 	for ( Pattern *pPattern : currentPatterns ) {
 		playingRows.push_back( pSongPatterns->index( pPattern ) );
+	}
+
+	// Occasionally the detection of playing patterns glitches at the
+	// transition to empty columns.
+	if ( playingRows.size() == 0 ) {
+		return nScroll;
 	}
 
 	// Check if there are any currently playing patterns which are entirely visible.
