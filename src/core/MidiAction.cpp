@@ -1090,7 +1090,7 @@ bool MidiActionManager::previous_bar( std::shared_ptr<Action> , Hydrogen* pHydro
 	return true;
 }
 
-bool setSong( int nSongNumber, Hydrogen * pHydrogen ) {
+bool MidiActionManager::setSong( int nSongNumber, Hydrogen* pHydrogen ) {
 	int nActiveSongNumber = Playlist::get_instance()->getActiveSongNumber();
 	if( nSongNumber >= 0 && nSongNumber <= Playlist::get_instance()->size() - 1 ) {
 		if ( nActiveSongNumber != nSongNumber ) {
