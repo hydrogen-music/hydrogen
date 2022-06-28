@@ -339,7 +339,7 @@ bool MidiActionManager::strip_solo_toggle( std::shared_ptr<Action> pAction, Hydr
 		return false;
 	}
 
-	return pHydrogen->getCoreActionController()->setStripIsMuted( nLine, !pInstr->is_soloed() );
+	return pHydrogen->getCoreActionController()->setStripIsSoloed( nLine, !pInstr->is_soloed() );
 }
 
 bool MidiActionManager::beatcounter( std::shared_ptr<Action> , Hydrogen* pHydrogen ) {
