@@ -453,18 +453,19 @@ public:
 	 * \param nTick Desired location in pattern mode.
 	 */
 	void updatePlayingPatterns( int nColumn, long nTick = 0 );
+	void clearNextPatterns();
 	/** 
 	 * Add pattern @a nPatternNumber to #m_pNextPatterns or deletes it
 	 * in case it is already present.
 	 */
-	void toggleNextPattern( int nPatternNumber );
+	void toggleNextPatterns( int nPatternNumber );
 	/**
 	 * Add pattern @a nPatternNumber to #m_pNextPatterns as well as
 	 * the whole content of #m_pPlayingPatterns. After the next call
 	 * to updatePlayingPatterns() only @a nPatternNumber will be left
 	 * playing.
 	 */
-	void flushAndAddNextPattern( int nPatternNumber );
+	void flushAndAddNextPatterns( int nPatternNumber );
 
 	/**
 	 * Updates the transport state and all notes in #m_songNoteQueue

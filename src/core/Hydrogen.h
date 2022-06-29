@@ -104,10 +104,10 @@ public:
 	QString			m_LastMidiEvent;
 	int				m_nLastMidiEventParameter;
 
-	/** Wrapper around AudioEngine::toggleNextPattern().*/
-	void			toggleNextPattern( int nPatternNumber );
-	/** Wrapper around AudioEngine::flushAndAddNextPattern().*/
-	bool			flushAndAddNextPattern( int nPatternNumber );
+	/** Wrapper around AudioEngine::toggleNextPatterns().*/
+	void			toggleNextPatterns( int nPatternNumber );
+	/** Wrapper around AudioEngine::flushAndAddNextPatterns().*/
+	bool			flushAndAddNextPatterns( int nPatternNumber );
 	
 		/**
 		 * Get the current song.

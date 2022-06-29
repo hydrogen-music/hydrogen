@@ -609,10 +609,10 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 }
 
 
-void Hydrogen::toggleNextPattern( int nPatternNumber ) {
+void Hydrogen::toggleNextPatterns( int nPatternNumber ) {
 	if ( __song != nullptr && getMode() == Song::Mode::Pattern ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
-		m_pAudioEngine->toggleNextPattern( nPatternNumber );
+		m_pAudioEngine->toggleNextPatterns( nPatternNumber );
 		m_pAudioEngine->unlock();
 
 	} else {
@@ -620,10 +620,10 @@ void Hydrogen::toggleNextPattern( int nPatternNumber ) {
 	}
 }
 
-bool Hydrogen::flushAndAddNextPattern( int nPatternNumber ) {
+bool Hydrogen::flushAndAddNextPatterns( int nPatternNumber ) {
 	if ( __song != nullptr && getMode() == Song::Mode::Pattern ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
-		m_pAudioEngine->flushAndAddNextPattern( nPatternNumber );
+		m_pAudioEngine->flushAndAddNextPatterns( nPatternNumber );
 		m_pAudioEngine->unlock();
 
 		return true;
@@ -1361,6 +1361,7 @@ void Hydrogen::setPatternMode( Song::PatternMode mode )
 			// the functions and activate the next patterns once the
 			// current ones are looped.
 			m_pAudioEngine->updatePlayingPatterns( m_pAudioEngine->getColumn() );
+			m_pAudioEngine->clearNextPatterns();
 		}
 
 		m_pAudioEngine->unlock();

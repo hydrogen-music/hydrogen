@@ -384,7 +384,7 @@ bool MidiActionManager::select_next_pattern( std::shared_ptr<Action> pAction, Hy
 		pHydrogen->setSelectedPatternNumber( row );
 	}
 	else if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
-		pHydrogen->toggleNextPattern( row );
+		pHydrogen->toggleNextPatterns( row );
 	}
 	return true;
 }
@@ -410,7 +410,7 @@ bool MidiActionManager::select_only_next_pattern( std::shared_ptr<Action> pActio
 		return select_next_pattern( pAction, pHydrogen );
 	}
 	
-	return pHydrogen->flushAndAddNextPattern( row );
+	return pHydrogen->flushAndAddNextPatterns( row );
 }
 
 bool MidiActionManager::select_next_pattern_relative( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {

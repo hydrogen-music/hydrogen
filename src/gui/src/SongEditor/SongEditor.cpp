@@ -1488,7 +1488,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		   ev->pos().x() < 15 ) &&
 		 m_pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
 		
-		m_pHydrogen->toggleNextPattern( nRow );
+		m_pHydrogen->toggleNextPatterns( nRow );
 	}
 	else {
 		if ( ! ( m_pHydrogen->isPatternEditorLocked() &&
@@ -1529,7 +1529,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 ///
 void SongEditorPatternList::togglePattern( int row ) {
 
-	m_pHydrogen->toggleNextPattern( row );
+	m_pHydrogen->toggleNextPatterns( row );
 	createBackground();
 	update();
 }
