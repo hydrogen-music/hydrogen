@@ -1482,13 +1482,13 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		return;
 	}
 
-	if ( (ev->button() == Qt::MiddleButton)
-		 || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton)
-		 || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton)
-		 || ev->pos().x() < 15 ){
-		if ( m_pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
-			m_pHydrogen->toggleNextPattern( nRow );
-		}
+	if ( ( ev->button() == Qt::MiddleButton ||
+		   ( ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton ) ||
+		   ( ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton ) ||
+		   ev->pos().x() < 15 ) &&
+		 m_pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+		
+		m_pHydrogen->toggleNextPattern( nRow );
 	}
 	else {
 		if ( ! ( m_pHydrogen->isPatternEditorLocked() &&
