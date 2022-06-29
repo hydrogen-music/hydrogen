@@ -663,7 +663,35 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	selectLayer( m_nSelectedLayer );
 }
 
+// In here we just check those parameters that can be altered by MIDI
+// or OSC messages or other parts of Hydrogen.
+void InstrumentEditor::instrumentParametersChangedEvent( int nInstrumentNumber )
+{
+	auto pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
+	
+	// Check if either this particular line or all lines should be updated.
+	if ( m_pInstrument != nullptr &&
+		 ( m_pInstrument == pInstrumentList->get( nInstrumentNumber ) ||
+		   nInstrumentNumber == -1 ) ) {
 
+		if ( m_pNameLbl->text() != m_pInstrument->get_name() ) {
+			m_pNameLbl->setText( m_pInstrument->get_name() );
+		}
+
+		// filter
+		m_pFilterBypassBtn->setChecked( !m_pInstrument->is_filter_active() );
+		m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff() );
+		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance() );
+		//~ filter
+	}
+	else {
+		m_pNameLbl->setText( QString( "NULL Instrument..." ) );
+		m_pWaveDisplay->updateDisplay( nullptr );
+		m_nSelectedLayer = 0;
+	}
+
+	selectLayer( m_nSelectedLayer );
+}
 
 void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 {
@@ -748,7 +776,7 @@ void InstrumentEditor::rotaryChanged( WidgetWithInput *ref)
 			}
 		}
 		else if ( pRotary == m_pLayerPitchFineRotary ) {
-			m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fVal ) );
+			m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fVal, 0, 'f', 0 ) );
 			auto pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
 				auto pLayer = pCompo->get_layer( m_nSelectedLayer );
@@ -956,7 +984,7 @@ void InstrumentEditor::loadLayerBtnClicked()
 	m_pInstrument = pHydrogen->getSelectedInstrument();
 
 	if ( m_pInstrument == nullptr ) {
-		DEBUGLOG( "No instrument selected" );
+		WARNINGLOG( "No instrument selected" );
 		return;
 	}
 
@@ -1160,7 +1188,8 @@ void InstrumentEditor::selectLayer( int nLayer )
 			m_pLayerPitchFineRotary->setValue( fFinePitch * 100 );
 
 			m_pLayerPitchCoarseLCD->setText( QString( "%1" ).arg( (int) fCoarsePitch ) );
-			m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fFinePitch * 100 ) );
+			m_pLayerPitchFineLCD->setText( QString( "%1" )
+										   .arg( fFinePitch * 100, 0, 'f', 0 ) );
 
 			m_pRemoveLayerBtn->setIsActive( true );
 			m_pSampleEditorBtn->setIsActive( true );

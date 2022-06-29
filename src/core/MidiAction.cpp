@@ -233,8 +233,7 @@ bool MidiActionManager::stop( std::shared_ptr<Action> , Hydrogen* pHydrogen ) {
 	}
 	
 	pHydrogen->sequencer_stop();
-	pHydrogen->getCoreActionController()->locateToColumn( 0 );
-	return true;
+	return pHydrogen->getCoreActionController()->locateToColumn( 0 );
 }
 
 bool MidiActionManager::play_stop_pause_toggle( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
@@ -274,8 +273,7 @@ bool MidiActionManager::mute( std::shared_ptr<Action> , Hydrogen* pHydrogen ) {
 		return false;
 	}
 	
-	pHydrogen->getCoreActionController()->setMasterIsMuted( true );
-	return true;
+	return pHydrogen->getCoreActionController()->setMasterIsMuted( true );
 }
 
 bool MidiActionManager::unmute( std::shared_ptr<Action> , Hydrogen* pHydrogen ) {
@@ -285,8 +283,7 @@ bool MidiActionManager::unmute( std::shared_ptr<Action> , Hydrogen* pHydrogen ) 
 		return false;
 	}
 	
-	pHydrogen->getCoreActionController()->setMasterIsMuted( false );
-	return true;
+	return pHydrogen->getCoreActionController()->setMasterIsMuted( false );
 }
 
 bool MidiActionManager::mute_toggle( std::shared_ptr<Action> , Hydrogen* pHydrogen ) {
@@ -296,69 +293,53 @@ bool MidiActionManager::mute_toggle( std::shared_ptr<Action> , Hydrogen* pHydrog
 		return false;
 	}
 	
-	pHydrogen->getCoreActionController()->setMasterIsMuted( !pHydrogen->getSong()->getIsMuted() );
-	return true;
+	return pHydrogen->getCoreActionController()->setMasterIsMuted( !pHydrogen->getSong()->getIsMuted() );
 }
 
 bool MidiActionManager::strip_mute_toggle( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
 	
-	
 	bool ok;
-	bool bSucccess = true;
-	
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
-	if ( pInstrList->is_valid_index( nLine ) ) {
-		auto pInstr = pInstrList->get( nLine );
-		
-		if ( pInstr ) {
-			pHydrogen->getCoreActionController()->setStripIsMuted( nLine, !pInstr->is_muted() );
-		} else {
-			bSucccess = false;
-		}
-	} else {
-		bSucccess = false;
+	auto pInstr = pInstrList->get( nLine );
+	if ( pInstr == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
+		return false;
 	}
 
-	return bSucccess;
+	return pHydrogen->getCoreActionController()->setStripIsMuted( nLine, !pInstr->is_muted() );
 }
 
 bool MidiActionManager::strip_solo_toggle( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
 	
 	bool ok;
-	bool bSucccess = true;
-	
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
-
-	if ( pInstrList->is_valid_index( nLine ) ) {
-		auto pInstr = pInstrList->get( nLine );
-		
-		if ( pInstr ) {
-			pHydrogen->getCoreActionController()->setStripIsSoloed( nLine, !pInstr->is_soloed() );
-		} else {
-			bSucccess = false;
-		}
-	} else {
-		bSucccess = false;
-	}
 	
-	return bSucccess;
+	auto pInstr = pInstrList->get( nLine );
+	if ( pInstr == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
+		return false;
+	}
+
+	return pHydrogen->getCoreActionController()->setStripIsSoloed( nLine, !pInstr->is_soloed() );
 }
 
 bool MidiActionManager::beatcounter( std::shared_ptr<Action> , Hydrogen* pHydrogen ) {
@@ -368,8 +349,7 @@ bool MidiActionManager::beatcounter( std::shared_ptr<Action> , Hydrogen* pHydrog
 		return false;
 	}
 	
-	pHydrogen->handleBeatCounter();
-	return true;
+	return pHydrogen->handleBeatCounter();
 }
 
 bool MidiActionManager::tap_tempo( std::shared_ptr<Action> , Hydrogen* pHydrogen ) {
@@ -384,55 +364,60 @@ bool MidiActionManager::tap_tempo( std::shared_ptr<Action> , Hydrogen* pHydrogen
 }
 
 bool MidiActionManager::select_next_pattern( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
 	
 	bool ok;
 	int row = pAction->getParameter1().toInt(&ok,10);
-	if( row > pHydrogen->getSong()->getPatternList()->size() - 1 ||
+	if( row > pSong->getPatternList()->size() - 1 ||
 		row < 0 ) {
 		ERRORLOG( QString( "Provided value [%1] out of bound [0,%2]" ).arg( row )
-				  .arg( pHydrogen->getSong()->getPatternList()->size() - 1 ) );
+				  .arg( pSong->getPatternList()->size() - 1 ) );
 		return false;
 	}
 	if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
 		pHydrogen->setSelectedPatternNumber( row );
 	}
 	else if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
-		pHydrogen->toggleNextPattern( row );
+		pHydrogen->toggleNextPatterns( row );
 	}
 	return true;
 }
 
 bool MidiActionManager::select_only_next_pattern( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
 	
 	bool ok;
 	int row = pAction->getParameter1().toInt(&ok,10);
-	if( row > pHydrogen->getSong()->getPatternList()->size() -1 ||
+	if( row > pSong->getPatternList()->size() -1 ||
 		row < 0 ) {
 		ERRORLOG( QString( "Provided value [%1] out of bound [0,%2]" ).arg( row )
-				  .arg( pHydrogen->getSong()->getPatternList()->size() - 1 ) );
+				  .arg( pSong->getPatternList()->size() - 1 ) );
 		return false;
 	}
 	if ( pHydrogen->getPatternMode() == Song::PatternMode::Selected ) {
 		return select_next_pattern( pAction, pHydrogen );
 	}
 	
-	pHydrogen->flushAndAddNextPattern( row );
-	return true; 
+	return pHydrogen->flushAndAddNextPatterns( row );
 }
 
 bool MidiActionManager::select_next_pattern_relative( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
@@ -442,10 +427,10 @@ bool MidiActionManager::select_next_pattern_relative( std::shared_ptr<Action> pA
 		return true;
 	}
 	int row = pHydrogen->getSelectedPatternNumber() + pAction->getParameter1().toInt(&ok,10);
-	if( row > pHydrogen->getSong()->getPatternList()->size() - 1 ||
+	if( row > pSong->getPatternList()->size() - 1 ||
 		row < 0 ) {
 		ERRORLOG( QString( "Provided value [%1] out of bound [0,%2]" ).arg( row )
-				  .arg( pHydrogen->getSong()->getPatternList()->size() - 1 ) );
+				  .arg( pSong->getPatternList()->size() - 1 ) );
 		return false;
 	}
 	
@@ -499,18 +484,19 @@ bool MidiActionManager::select_and_play_pattern( std::shared_ptr<Action> pAction
 }
 
 bool MidiActionManager::select_instrument( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
 	
 	bool ok;
 	int  nInstrumentNumber = pAction->getValue().toInt(&ok,10) ;
-	
 
-	if ( pHydrogen->getSong()->getInstrumentList()->size() < nInstrumentNumber ) {
-		nInstrumentNumber = pHydrogen->getSong()->getInstrumentList()->size() -1;
+	if ( pSong->getInstrumentList()->size() < nInstrumentNumber ) {
+		nInstrumentNumber = pSong->getInstrumentList()->size() -1;
 	} else if ( nInstrumentNumber < 0 ) {
 		nInstrumentNumber = 0;
 	}
@@ -520,8 +506,10 @@ bool MidiActionManager::select_instrument( std::shared_ptr<Action> pAction, Hydr
 }
 
 bool MidiActionManager::effect_level_absolute( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen) {
+	auto pSong = pHydrogen->getSong();
+	
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
@@ -531,35 +519,32 @@ bool MidiActionManager::effect_level_absolute( std::shared_ptr<Action> pAction, 
 	int fx_param = pAction->getValue().toInt(&ok,10);
 	int fx_id = pAction->getParameter2().toInt(&ok,10);
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
-	if ( pInstrList->is_valid_index( nLine) ) {
-		auto pInstr = pInstrList->get( nLine );
-		
-		if ( pInstr ) {
-			if( fx_param != 0 ) {
-				pInstr->set_fx_level(  ( (float) (fx_param / 127.0 ) ), fx_id );
-			} else {
-				pInstr->set_fx_level( 0 , fx_id );
-			}
-			
-			pHydrogen->setSelectedInstrumentNumber( nLine );			
-		} else {
-			ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
-			return false;
-		}
-	} else {
-		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
+	auto pInstr = pInstrList->get( nLine );
+	if ( pInstr == nullptr) {
+		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
 		return false;
 	}
+		
+	if( fx_param != 0 ) {
+		pInstr->set_fx_level( (float) (fx_param / 127.0 ), fx_id );
+	} else {
+		pInstr->set_fx_level( 0 , fx_id );
+	}
+			
+	pHydrogen->setSelectedInstrumentNumber( nLine );
+
+	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 
 	return true;
 }
 
 bool MidiActionManager::effect_level_relative( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
@@ -569,50 +554,46 @@ bool MidiActionManager::effect_level_relative( std::shared_ptr<Action> pAction, 
 	int fx_param = pAction->getValue().toInt(&ok,10);
 	int fx_id = pAction->getParameter2().toInt(&ok,10);
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
-	if ( pInstrList->is_valid_index( nLine) ) {
-		auto pInstr = pInstrList->get( nLine );
-		
-		if ( pInstr ) {
-			if( fx_param != 0 ) {
-				if ( fx_param == 1 && pInstr->get_fx_level( fx_id ) <= 0.95 ) {
-					pInstr->set_fx_level( pInstr->get_fx_level( fx_id ) + 0.05, fx_id );
-				} else if ( pInstr->get_fx_level( fx_id ) >= 0.05 ) {
-					pInstr->set_fx_level( pInstr->get_fx_level( fx_id ) - 0.05, fx_id );
-				}
-			}
-			
-			pHydrogen->setSelectedInstrumentNumber( nLine );			
-		} else {
-			ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
-			return false;
-		}
-	} else {
-		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
+	auto pInstr = pInstrList->get( nLine );
+	if ( pInstr == nullptr) {
+		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
 		return false;
 	}
+	if ( fx_param != 0 ) {
+		if ( fx_param == 1 && pInstr->get_fx_level( fx_id ) <= 0.95 ) {
+			pInstr->set_fx_level( pInstr->get_fx_level( fx_id ) + 0.05, fx_id );
+		}
+		else if ( pInstr->get_fx_level( fx_id ) >= 0.05 ) {
+			pInstr->set_fx_level( pInstr->get_fx_level( fx_id ) - 0.05, fx_id );
+		}
+	}
+			
+	pHydrogen->setSelectedInstrumentNumber( nLine );
+
+	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
+
 	return true;
 }
 
 //sets the volume of a master output to a given level (percentage)
 bool MidiActionManager::master_volume_absolute( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
 
 	bool ok;
-	int vol_param = pAction->getValue().toInt(&ok,10);
+	int nVolume = pAction->getValue().toInt(&ok,10);
 
-	std::shared_ptr<Song> song = pHydrogen->getSong();
-
-	if( vol_param != 0 ){
-		song->setVolume( 1.5* ( (float) (vol_param / 127.0 ) ));
+	if ( nVolume != 0 ) {
+		pSong->setVolume( 1.5* ( (float) (nVolume / 127.0 ) ));
 	} else {
-		song->setVolume( 0 );
+		pSong->setVolume( 0 );
 	}
 
 	return true;
@@ -620,27 +601,25 @@ bool MidiActionManager::master_volume_absolute( std::shared_ptr<Action> pAction,
 
 //increments/decrements the volume of the whole song
 bool MidiActionManager::master_volume_relative( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
 
 	bool ok;
-	int vol_param = pAction->getValue().toInt(&ok,10);
+	int nVolume = pAction->getValue().toInt(&ok,10);
 
-	std::shared_ptr<Song> song = pHydrogen->getSong();
-
-	if( vol_param != 0 ) {
-		if ( vol_param == 1 && song->getVolume() < 1.5 ) {
-			song->setVolume( song->getVolume() + 0.05 );
-		} else {
-			if( song->getVolume() >= 0.0 ) {
-				song->setVolume( song->getVolume() - 0.05 );
-			}
+	if ( nVolume != 0 ) {
+		if ( nVolume == 1 && pSong->getVolume() < 1.5 ) {
+			pSong->setVolume( pSong->getVolume() + 0.05 );
+		} else if ( pSong->getVolume() >= 0.0 ) {
+			pSong->setVolume( pSong->getVolume() - 0.05 );
 		}
 	} else {
-		song->setVolume( 0 );
+		pSong->setVolume( 0 );
 	}
 
 	return true;
@@ -648,88 +627,85 @@ bool MidiActionManager::master_volume_relative( std::shared_ptr<Action> pAction,
 
 //sets the volume of a mixer strip to a given level (percentage)
 bool MidiActionManager::strip_volume_absolute( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
 
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
-	int vol_param = pAction->getValue().toInt(&ok,10);
+	int nVolume = pAction->getValue().toInt(&ok,10);
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
-	if ( pInstrList->is_valid_index( nLine ) ) {
-		auto pInstr = pInstrList->get( nLine );
-	
-		if ( pInstr == nullptr) {
-			ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
-			return false;
-		}
-	
-		if( vol_param != 0 ) {
-			pInstr->set_volume( 1.5* ( (float) (vol_param / 127.0 ) ));
-		} else {
-			pInstr->set_volume( 0 );
-		}
-	
-		pHydrogen->setSelectedInstrumentNumber(nLine);
-	} else {
-		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
+	auto pInstr = pInstrList->get( nLine );
+	if ( pInstr == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
+		return false;
 	}
+	
+	if ( nVolume != 0 ) {
+		pInstr->set_volume( 1.5* ( (float) (nVolume / 127.0 ) ));
+	} else {
+		pInstr->set_volume( 0 );
+	}
+	
+	pHydrogen->setSelectedInstrumentNumber(nLine);
+	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 
 	return true;
 }
 
 //increments/decrements the volume of one mixer strip
 bool MidiActionManager::strip_volume_relative( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
 
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
-	int vol_param = pAction->getValue().toInt(&ok,10);
+	int nVolume = pAction->getValue().toInt(&ok,10);
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
-	if ( pInstrList->is_valid_index( nLine) ) {
-		auto pInstr = pInstrList->get( nLine );
+	auto pInstr = pInstrList->get( nLine );
 	
-		if ( pInstr == nullptr) {
-			ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
-			return false;
-		}
-	
-		if( vol_param != 0 ) {
-			if ( vol_param == 1 && pInstr->get_volume() < 1.5 ) {
-				pInstr->set_volume( pInstr->get_volume() + 0.1 );
-			} else {
-				if( pInstr->get_volume() >= 0.0 ){
-					pInstr->set_volume( pInstr->get_volume() - 0.1 );
-				}
-			}
-		} else {
-			pInstr->set_volume( 0 );
-		}
-	
-		pHydrogen->setSelectedInstrumentNumber(nLine);
-	} else {
-		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
+	if ( pInstr == nullptr) {
+		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
+		return false;
 	}
+	
+	if( nVolume != 0 ) {
+		if ( nVolume == 1 && pInstr->get_volume() < 1.5 ) {
+			pInstr->set_volume( pInstr->get_volume() + 0.1 );
+		}
+		else if( pInstr->get_volume() >= 0.0 ){
+			pInstr->set_volume( pInstr->get_volume() - 0.1 );
+		}
+	}
+	else {
+		pInstr->set_volume( 0 );
+	}
+	
+	pHydrogen->setSelectedInstrumentNumber( nLine );
+	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 
 	return true;
 }
 
 // sets the absolute panning of a given mixer channel
 bool MidiActionManager::pan_absolute( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
@@ -738,33 +714,29 @@ bool MidiActionManager::pan_absolute( std::shared_ptr<Action> pAction, Hydrogen*
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pan_param = pAction->getValue().toInt(&ok,10);
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
-	
-	if( pInstrList->is_valid_index( nLine ) ) {
-		pHydrogen->setSelectedInstrumentNumber( nLine );
-	
-		auto pInstr = pInstrList->get( nLine );
-	
-		if( pInstr == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
-			return false;
-		}
 
-		pInstr->setPanWithRangeFrom0To1( (float) pan_param / 127.f );
-	
-		pHydrogen->setSelectedInstrumentNumber(nLine);
-	} else {
-		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
+	auto pInstr = pInstrList->get( nLine );
+	if( pInstr == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
+		return false;
 	}
+	
+	pInstr->setPanWithRangeFrom0To1( (float) pan_param / 127.f );
+	
+	pHydrogen->setSelectedInstrumentNumber(nLine);
+
+	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 
 	return true;
 }
 
 // sets the absolute panning of a given mixer channel
 bool MidiActionManager::pan_absolute_sym( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
@@ -773,25 +745,18 @@ bool MidiActionManager::pan_absolute_sym( std::shared_ptr<Action> pAction, Hydro
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pan_param = pAction->getValue().toInt(&ok,10);
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
-	if( pInstrList->is_valid_index( nLine ) ) {
-		pHydrogen->setSelectedInstrumentNumber( nLine );
-	
-		auto pInstr = pInstrList->get( nLine );
-	
-		if( pInstr == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
-			return false;
-		}
-
-		pInstr->setPan( (float) pan_param / 127.f );
-	
-		pHydrogen->setSelectedInstrumentNumber(nLine);
-	} else {
-		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
+	auto pInstr = pInstrList->get( nLine );
+	if ( pInstr == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
+		return false;
 	}
+
+	pInstr->setPan( (float) pan_param / 127.f );
+	
+	pHydrogen->setSelectedInstrumentNumber(nLine);
+	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 
 	return true;
 }
@@ -800,8 +765,10 @@ bool MidiActionManager::pan_absolute_sym( std::shared_ptr<Action> pAction, Hydro
 // changes the panning of a given mixer channel
 // this is useful if the panning is set by a rotary control knob
 bool MidiActionManager::pan_relative( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
@@ -810,38 +777,34 @@ bool MidiActionManager::pan_relative( std::shared_ptr<Action> pAction, Hydrogen*
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pan_param = pAction->getValue().toInt(&ok,10);
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
-	if( pInstrList->is_valid_index( nLine ) ) {	
-		pHydrogen->setSelectedInstrumentNumber( nLine );
-
-		auto pInstr = pInstrList->get( nLine );
-
-		if( pInstr == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
-			return false;
-		}
-	
-		float fPan = pInstr->getPan();
-
-		if( pan_param == 1 && fPan < 1.f ) {
-			pInstr->setPan( fPan + 0.1 );
-		} else if( pan_param != 1 && fPan > -1.f ) {
-			pInstr->setPan( fPan - 0.1 );
-		}
-
-		pHydrogen->setSelectedInstrumentNumber(nLine);
-	} else {
-		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
+	auto pInstr = pInstrList->get( nLine );
+	if ( pInstr == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
+		return false;
 	}
+	
+	float fPan = pInstr->getPan();
+
+	if ( pan_param == 1 && fPan < 1.f ) {
+		pInstr->setPan( fPan + 0.1 );
+	}
+	else if ( pan_param != 1 && fPan > -1.f ) {
+		pInstr->setPan( fPan - 0.1 );
+	}
+
+	pHydrogen->setSelectedInstrumentNumber(nLine);
+	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 
 	return true;
 }
 
 bool MidiActionManager::gain_level_absolute( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
@@ -852,48 +815,43 @@ bool MidiActionManager::gain_level_absolute( std::shared_ptr<Action> pAction, Hy
 	int component_id = pAction->getParameter2().toInt(&ok,10);
 	int layer_id = pAction->getParameter3().toInt(&ok,10);
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
-	if( pInstrList->is_valid_index( nLine ) )
-	{
-		auto pInstr = pInstrList->get( nLine );
-		if( pInstr == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
-			return false;
-		}
-	
-		auto pComponent =  pInstr->get_component( component_id );
-		if( pComponent == nullptr) {
-			ERRORLOG( QString( "Unable to retrieve component (Par. 2) [%1]" ).arg( component_id ) );
-			return false;
-		}
-	
-		auto pLayer = pComponent->get_layer( layer_id );
-		if( pLayer == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve layer (Par. 3) [%1]" ).arg( layer_id ) );
-			return false;
-		}
-	
-		if( gain_param != 0 ) {
-			pLayer->set_gain( 5.0* ( (float) (gain_param / 127.0 ) ) );
-		} else {
-			pLayer->set_gain( 0 );
-		}
-	
-		pHydrogen->setSelectedInstrumentNumber( nLine );
-	
-		pHydrogen->refreshInstrumentParameters( nLine );
-	} else {
-		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
+	auto pInstr = pInstrList->get( nLine );
+	if( pInstr == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
+		return false;
 	}
+	
+	auto pComponent =  pInstr->get_component( component_id );
+	if( pComponent == nullptr) {
+		ERRORLOG( QString( "Unable to retrieve component (Par. 2) [%1]" ).arg( component_id ) );
+		return false;
+	}
+	
+	auto pLayer = pComponent->get_layer( layer_id );
+	if( pLayer == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve layer (Par. 3) [%1]" ).arg( layer_id ) );
+		return false;
+	}
+	
+	if ( gain_param != 0 ) {
+		pLayer->set_gain( 5.0* ( (float) (gain_param / 127.0 ) ) );
+	} else {
+		pLayer->set_gain( 0 );
+	}
+	
+	pHydrogen->setSelectedInstrumentNumber( nLine );
+	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 	
 	return true;
 }
 
 bool MidiActionManager::pitch_level_absolute( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
@@ -904,47 +862,43 @@ bool MidiActionManager::pitch_level_absolute( std::shared_ptr<Action> pAction, H
 	int component_id = pAction->getParameter2().toInt(&ok,10);
 	int layer_id = pAction->getParameter3().toInt(&ok,10);
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
-	if( pInstrList->is_valid_index( nLine ) ) {
-		auto pInstr = pInstrList->get( nLine );
-		if( pInstr == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
-			return false;
-		}
-	
-		auto pComponent =  pInstr->get_component( component_id );
-		if( pComponent == nullptr) {
-			ERRORLOG( QString( "Unable to retrieve component (Par. 2) [%1]" ).arg( component_id ) );
-			return false;
-		}
-	
-		auto pLayer = pComponent->get_layer( layer_id );
-		if( pLayer == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve layer (Par. 3) [%1]" ).arg( layer_id ) );
-			return false;
-		}
-	
-		if( pitch_param != 0 ){
-			pLayer->set_pitch( 49* ( (float) (pitch_param / 127.0 ) ) -24.5 );
-		} else {
-			pLayer->set_pitch( -24.5 );
-		}
-	
-		pHydrogen->setSelectedInstrumentNumber( nLine );
-	
-		pHydrogen->refreshInstrumentParameters( nLine );
-	} else {
-		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
+	auto pInstr = pInstrList->get( nLine );
+	if( pInstr == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
+		return false;
 	}
+	
+	auto pComponent =  pInstr->get_component( component_id );
+	if( pComponent == nullptr) {
+		ERRORLOG( QString( "Unable to retrieve component (Par. 2) [%1]" ).arg( component_id ) );
+		return false;
+	}
+	
+	auto pLayer = pComponent->get_layer( layer_id );
+	if( pLayer == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve layer (Par. 3) [%1]" ).arg( layer_id ) );
+		return false;
+	}
+	
+	if( pitch_param != 0 ){
+		pLayer->set_pitch( 49* ( (float) (pitch_param / 127.0 ) ) -24.5 );
+	} else {
+		pLayer->set_pitch( -24.5 );
+	}
+	
+	pHydrogen->setSelectedInstrumentNumber( nLine );
+	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 
 	return true;
 }
 
 bool MidiActionManager::filter_cutoff_level_absolute( std::shared_ptr<Action> pAction, Hydrogen* pHydrogen ) {
+	auto pSong = pHydrogen->getSong();
+	
 	// Preventive measure to avoid bad things.
-	if ( pHydrogen->getSong() == nullptr ) {
+	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
@@ -953,29 +907,23 @@ bool MidiActionManager::filter_cutoff_level_absolute( std::shared_ptr<Action> pA
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int filter_cutoff_param = pAction->getValue().toInt(&ok,10);
 
-	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 
-	if( pInstrList->is_valid_index( nLine ) ) {
-		auto pInstr = pInstrList->get( nLine );
-		if( pInstr == nullptr ) {
-			ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
-			return false;
-		}
-	
-		pInstr->set_filter_active( true );
-		if( filter_cutoff_param != 0 ) {
-			pInstr->set_filter_cutoff( ( (float) (filter_cutoff_param / 127.0 ) ) );
-		} else {
-			pInstr->set_filter_cutoff( 0 );
-		}
-	
-		pHydrogen->setSelectedInstrumentNumber( nLine );
-	
-		pHydrogen->refreshInstrumentParameters( nLine );
-	} else {
-		ERRORLOG( QString( "Invalid line parameter (Par. 1) [%1]" ).arg( nLine ) );
+	auto pInstr = pInstrList->get( nLine );
+	if( pInstr == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" ).arg( nLine ) );
+		return false;
 	}
+	
+	pInstr->set_filter_active( true );
+	if( filter_cutoff_param != 0 ) {
+		pInstr->set_filter_cutoff( ( (float) (filter_cutoff_param / 127.0 ) ) );
+	} else {
+		pInstr->set_filter_cutoff( 0 );
+	}
+	
+	pHydrogen->setSelectedInstrumentNumber( nLine );
+	EventQueue::get_instance()->push_event( EVENT_INSTRUMENT_PARAMETERS_CHANGED, nLine );
 	
 	return true;
 }
@@ -1123,8 +1071,10 @@ bool MidiActionManager::next_bar( std::shared_ptr<Action> , Hydrogen* pHydrogen 
 		ERRORLOG( "No song set yet" );
 		return false;
 	}
+
+	int nNewColumn = std::max( 0, pHydrogen->getAudioEngine()->getColumn() ) + 1;
 	
-	pHydrogen->getCoreActionController()->locateToColumn( pHydrogen->getAudioEngine()->getColumn() +1 );
+	pHydrogen->getCoreActionController()->locateToColumn( nNewColumn );
 	return true;
 }
 
@@ -1140,7 +1090,7 @@ bool MidiActionManager::previous_bar( std::shared_ptr<Action> , Hydrogen* pHydro
 	return true;
 }
 
-bool setSong( int nSongNumber, Hydrogen * pHydrogen ) {
+bool MidiActionManager::setSong( int nSongNumber, Hydrogen* pHydrogen ) {
 	int nActiveSongNumber = Playlist::get_instance()->getActiveSongNumber();
 	if( nSongNumber >= 0 && nSongNumber <= Playlist::get_instance()->size() - 1 ) {
 		if ( nActiveSongNumber != nSongNumber ) {
@@ -1150,10 +1100,14 @@ bool setSong( int nSongNumber, Hydrogen * pHydrogen ) {
 		// Preventive measure to avoid bad things.
 		if ( pHydrogen->getSong() == nullptr ) {
 			___ERRORLOG( "No song set yet" );
-		} else {
+		}
+		else if ( Playlist::get_instance()->size() == 0 ) {
+			___ERRORLOG( QString( "No songs added to the current playlist yet" ) );
+		}
+		else {
 			___ERRORLOG( QString( "Provided song number [%1] out of bound [0,%2]" )
 						 .arg( nSongNumber )
-						 .arg( pHydrogen->getSong()->getPatternList()->size() - 1 ) );
+						 .arg( Playlist::get_instance()->size() - 1 ) );
 		}
 		return false;
 	}

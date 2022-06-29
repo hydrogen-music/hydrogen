@@ -235,7 +235,11 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	pHydrogen->m_LastMidiEvent = "NOTE";
 	pHydrogen->m_nLastMidiEventParameter = msg.m_nData1;
 
-	bool bActionSuccess = pMidiActionManager->handleActions( pMidiMap->getNoteActions( msg.m_nData1 ) );
+	auto actions = pMidiMap->getNoteActions( msg.m_nData1 );
+	for ( auto action : actions ) {
+		action->setValue( QString::number( msg.m_nData2 ) );
+	}
+	bool bActionSuccess = pMidiActionManager->handleActions( actions );
 
 	if ( bActionSuccess && pPref->m_bMidiDiscardNoteAfterAction ) {
 		return;

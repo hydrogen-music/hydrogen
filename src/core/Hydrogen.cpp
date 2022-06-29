@@ -609,10 +609,10 @@ void Hydrogen::addRealtimeNote(	int		nInstrument,
 }
 
 
-void Hydrogen::toggleNextPattern( int nPatternNumber ) {
+void Hydrogen::toggleNextPatterns( int nPatternNumber ) {
 	if ( __song != nullptr && getMode() == Song::Mode::Pattern ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
-		m_pAudioEngine->toggleNextPattern( nPatternNumber );
+		m_pAudioEngine->toggleNextPatterns( nPatternNumber );
 		m_pAudioEngine->unlock();
 
 	} else {
@@ -620,15 +620,19 @@ void Hydrogen::toggleNextPattern( int nPatternNumber ) {
 	}
 }
 
-void Hydrogen::flushAndAddNextPattern( int nPatternNumber ) {
+bool Hydrogen::flushAndAddNextPatterns( int nPatternNumber ) {
 	if ( __song != nullptr && getMode() == Song::Mode::Pattern ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
-		m_pAudioEngine->flushAndAddNextPattern( nPatternNumber );
+		m_pAudioEngine->flushAndAddNextPatterns( nPatternNumber );
 		m_pAudioEngine->unlock();
+
+		return true;
 
 	} else {
 		ERRORLOG( "can't set next pattern in song mode" );
 	}
+
+	return false;
 }
 
 void Hydrogen::restartDrivers()
@@ -965,11 +969,6 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument )
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
-void Hydrogen::refreshInstrumentParameters( int nInstrument )
-{
-	EventQueue::get_instance()->push_event( EVENT_PARAMETERS_INSTRUMENT_CHANGED, -1 );
-}
-
 void Hydrogen::renameJackPorts( std::shared_ptr<Song> pSong )
 {
 #ifdef H2CORE_HAVE_JACK
@@ -1031,7 +1030,7 @@ void Hydrogen::setBcOffsetAdjust()
 	m_nStartOffset = pPreferences->m_startOffset;
 }
 
-void Hydrogen::handleBeatCounter()
+bool Hydrogen::handleBeatCounter()
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	
@@ -1065,7 +1064,7 @@ void Hydrogen::handleBeatCounter()
 	if( beatDiff > 3.001 * 1/m_ntaktoMeterCompute ) {
 		m_nEventCount = 1;
 		m_nBeatCount = 1;
-		return;
+		return false;
 	}
 	// Only accept differences big enough
 	if (m_nBeatCount == 1 || beatDiff > .001) {
@@ -1127,14 +1126,17 @@ void Hydrogen::handleBeatCounter()
 
 				m_nBeatCount = 1;
 				m_nEventCount = 1;
-				return;
+				return true;
 			}
 		}
 		else {
 			m_nBeatCount ++;
 		}
 	}
-	return;
+	else {
+		return false;
+	}
+	return true;
 }
 //~ m_nBeatCounter
 
@@ -1359,6 +1361,7 @@ void Hydrogen::setPatternMode( Song::PatternMode mode )
 			// the functions and activate the next patterns once the
 			// current ones are looped.
 			m_pAudioEngine->updatePlayingPatterns( m_pAudioEngine->getColumn() );
+			m_pAudioEngine->clearNextPatterns();
 		}
 
 		m_pAudioEngine->unlock();
@@ -1663,7 +1666,7 @@ long Hydrogen::getTickForColumn( int nColumn ) const
 		}
 		totalTick += nPatternSize;
 	}
-	
+
 	return totalTick;
 }
 

@@ -745,8 +745,8 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->selectedInstrumentChangedEvent();
 				break;
 
-			case EVENT_PARAMETERS_INSTRUMENT_CHANGED:
-				pListener->parametersInstrumentChangedEvent();
+			case EVENT_INSTRUMENT_PARAMETERS_CHANGED:
+				pListener->instrumentParametersChangedEvent( event.value );
 				break;
 
 			case EVENT_MIDI_ACTIVITY:

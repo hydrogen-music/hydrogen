@@ -64,7 +64,12 @@ enum EventType {
 	 */
 	EVENT_SELECTED_PATTERN_CHANGED,
 	EVENT_SELECTED_INSTRUMENT_CHANGED,
-	EVENT_PARAMETERS_INSTRUMENT_CHANGED,
+	/** Some parameters of an instrument have been changed.
+	 *
+	 * Numbers `>=0` indicate the number of the instrument that has been
+	 * changed. `-1` indicates that multiple instruments were altered.
+	 */
+	EVENT_INSTRUMENT_PARAMETERS_CHANGED,
 	EVENT_MIDI_ACTIVITY,
 	EVENT_XRUN,
 	EVENT_NOTEON,

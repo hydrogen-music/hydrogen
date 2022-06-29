@@ -171,48 +171,6 @@ signals:
 		 * millisecond to pop all Events from the EventQueue
 		 * and invoke the corresponding functions.
 		 *
-		 * Depending on the H2Core::EventType, the following members
-		 * of EventListener will be called:
-		 * - H2Core::EVENT_STATE -> 
-		     EventListener::stateChangedEvent()
-		 * - H2Core::EVENT_PATTERN_CHANGED -> 
-		     EventListener::patternChangedEvent()
-		 * - H2Core::EVENT_PATTERN_MODIFIED -> 
-		     EventListener::patternModifiedEvent()
-		 * - H2Core::EVENT_SONG_MODIFIED -> 
-		     EventListener::songModifiedEvent()
-		 * - H2Core::EVENT_SELECTED_PATTERN_CHANGED -> 
-		     EventListener::selectedPatternChangedEvent()
-		 * - H2Core::EVENT_SELECTED_INSTRUMENT_CHANGED -> 
-		     EventListener::selectedInstrumentChangedEvent()
-		 * - H2Core::EVENT_PARAMETERS_INSTRUMENT_CHANGED -> 
-		     EventListener::parametersInstrumentChangedEvent()
-		 * - H2Core::EVENT_MIDI_ACTIVITY -> 
-		     EventListener::midiActivityEvent()
-		 * - H2Core::EVENT_NOTEON -> 
-		     EventListener::noteOnEvent()
-		 * - H2Core::EVENT_ERROR -> 
-		     EventListener::errorEvent()
-		 * - H2Core::EVENT_XRUN -> 
-		     EventListener::XRunEvent()
-		 * - H2Core::EVENT_METRONOME -> 
-		     EventListener::metronomeEvent()
-		 * - H2Core::EVENT_PROGRESS -> 
-		     EventListener::progressEvent()
-		 * - H2Core::EVENT_JACK_SESSION -> 
-		     EventListener::jacksessionEvent()
-		 * - H2Core::EVENT_PLAYLIST_LOADSONG -> 
-		     EventListener::playlistLoadSongEvent()
-		 * - H2Core::EVENT_UNDO_REDO -> 
-		     EventListener::undoRedoActionEvent()
-		 * - H2Core::EVENT_TEMPO_CHANGED -> 
-		     EventListener::tempoChangedEvent()
-		 * - H2Core::EVENT_UPDATE_PREFERENCES -> 
-		     EventListener::updatePreferencesEvent()
-		 * - H2Core::EVENT_UPDATE_SONG -> 
-		     EventListener::updateSongEvent()
-		 * - H2Core::EVENT_NONE -> nothing
-		 *
 		 * In addition, all MIDI notes in
 		 * H2Core::EventQueue::m_addMidiNoteVector will converted into
 		 * actions via SE_addNoteAction() and deleted from the

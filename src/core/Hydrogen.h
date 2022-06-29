@@ -104,10 +104,10 @@ public:
 	QString			m_LastMidiEvent;
 	int				m_nLastMidiEventParameter;
 
-	/** Wrapper around AudioEngine::toggleNextPattern().*/
-	void			toggleNextPattern( int nPatternNumber );
-	/** Wrapper around AudioEngine::flushAndAddNextPattern().*/
-	void			flushAndAddNextPattern( int nPatternNumber );
+	/** Wrapper around AudioEngine::toggleNextPatterns().*/
+	void			toggleNextPatterns( int nPatternNumber );
+	/** Wrapper around AudioEngine::flushAndAddNextPatterns().*/
+	bool			flushAndAddNextPatterns( int nPatternNumber );
 	
 		/**
 		 * Get the current song.
@@ -340,9 +340,6 @@ void			previewSample( Sample *pSample );
 	void			setSelectedInstrumentNumber( int nInstrument );
 	std::shared_ptr<Instrument>		getSelectedInstrument() const;
 
-
-	void			refreshInstrumentParameters( int nInstrument );
-
 	/**
 	 * Calls audioEngine_renameJackPorts() if
 	 * Preferences::m_bJackTrackOuts is set to true.
@@ -364,7 +361,7 @@ void			previewSample( Sample *pSample );
 	void			setNoteLength( float notelength);
 	float			getNoteLength();
 	int			getBcStatus();
-	void			handleBeatCounter();
+	bool			handleBeatCounter();
 	void			setBcOffsetAdjust();
 
 	/** Calling JackAudioDriver::releaseTimebaseMaster() directly from

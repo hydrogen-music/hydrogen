@@ -172,6 +172,8 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 
 		int m_nLastBpmChangeCCParameter;
 
+	bool setSong( int nSongNumber, H2Core::Hydrogen* pHydrogen );
+
 	public:
 
 		/**

@@ -31,6 +31,7 @@
 namespace H2Core
 {
 	class Drumkit;
+	class Instrument;
 
 /** \ingroup docCore docAutomation */
 class CoreActionController : public H2Core::Object<CoreActionController> {
@@ -72,7 +73,6 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		bool toggleStripIsSoloed( int nStrip );
 		
 		bool initExternalControlInterfaces();
-	bool handleOutgoingControlChanges( std::vector<int> params, int nValue);
 	
 		// -----------------------------------------------------------
 		// Actions required for session management.
@@ -359,7 +359,21 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		 * @return bool true on success
 		 */
     	bool toggleGridCell( int nColumn, int nRow );
-	private:
+private:
+	bool sendMasterVolumeFeedback();
+	bool sendStripVolumeFeedback( int nStrip );
+	bool sendMetronomeIsActiveFeedback();
+	bool sendMasterIsMutedFeedback();
+	bool sendStripIsMutedFeedback( int nStrip );
+	bool sendStripIsSoloedFeedback( int nStrip );
+	bool sendStripPanFeedback( int nStrip );
+	bool sendStripPanSymFeedback( int nStrip );
+	
+	bool handleOutgoingControlChanges( std::vector<int> params, int nValue);
+	std::shared_ptr<Instrument> getStrip( int nStrip ) const;
+	
+	// -----------------------------------------------------------
+	// Actions required for session management.
 		
 		/**
 		 * Sets a #H2Core::Song to be used by Hydrogen.

@@ -819,6 +819,8 @@ class OscServer : public H2Core::Object<OscServer>
 		 * handled and the server should try other methods */
 		static int  generic_handler(const char *path, const char *types, lo_arg ** argv,
 								int argc, lo_message data, void *user_data);
+	static int incomingMessageLogging(const char *path, const char *types, lo_arg ** argv,
+								int argc, lo_message data, void *user_data);
 
 	private:
 		/**

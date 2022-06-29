@@ -518,7 +518,7 @@ void JackAudioDriver::updateTransportInfo()
 		pAudioEngine->setNextState( AudioEngine::State::Playing );
 		break;
 
-	case JackTransportStarting: 
+	case JackTransportStarting:
 		// Waiting for sync ready. If there are slow-sync clients,
 		// this can take more than one cycle.
 		pAudioEngine->setNextState( AudioEngine::State::Ready );

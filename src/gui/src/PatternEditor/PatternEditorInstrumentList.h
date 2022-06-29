@@ -57,6 +57,8 @@ class InstrumentLine : public PixmapWidget
 	public:
 		explicit InstrumentLine(QWidget* pParent);
 
+	int getNumber() const;
+	
 		void setName(const QString& sName);
 		void setSelected(bool isSelected);
 		void setNumber(int nIndex);
@@ -120,6 +122,10 @@ public slots:
 	bool m_bEntered;
 };
 
+inline int InstrumentLine::getNumber() const {
+	return m_nInstrumentNumber;
+}
+
 
 /** \ingroup docGUI*/
 class PatternEditorInstrumentList :  public QWidget,
@@ -142,6 +148,7 @@ class PatternEditorInstrumentList :  public QWidget,
 	virtual void selectedInstrumentChangedEvent() override;
 	virtual void updateSongEvent( int nEvent ) override;
 	virtual void drumkitLoadedEvent() override;
+	virtual void instrumentParametersChangedEvent( int ) override;
 	
 	void repaintInstrumentLines();
 	public slots:

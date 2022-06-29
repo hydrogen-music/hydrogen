@@ -149,7 +149,7 @@ SongEditor::~SongEditor()
 int SongEditor::yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	int nScroll = pScrollArea->verticalScrollBar()->value();
+	const int nScroll = pScrollArea->verticalScrollBar()->value();
 	int nHeight = pScrollArea->height();
 
 	auto pPlayingPatterns = m_pAudioEngine->getPlayingPatterns();
@@ -174,6 +174,12 @@ int SongEditor::yScrollTarget( QScrollArea *pScrollArea, int *pnPatternInView )
 	std::vector<int> playingRows;
 	for ( Pattern *pPattern : currentPatterns ) {
 		playingRows.push_back( pSongPatterns->index( pPattern ) );
+	}
+
+	// Occasionally the detection of playing patterns glitches at the
+	// transition to empty columns.
+	if ( playingRows.size() == 0 ) {
+		return nScroll;
 	}
 
 	// Check if there are any currently playing patterns which are entirely visible.
@@ -1476,13 +1482,13 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		return;
 	}
 
-	if ( (ev->button() == Qt::MiddleButton)
-		 || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton)
-		 || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton)
-		 || ev->pos().x() < 15 ){
-		if ( m_pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
-			m_pHydrogen->toggleNextPattern( nRow );
-		}
+	if ( ( ev->button() == Qt::MiddleButton ||
+		   ( ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton ) ||
+		   ( ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton ) ||
+		   ev->pos().x() < 15 ) &&
+		 m_pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
+		
+		m_pHydrogen->toggleNextPatterns( nRow );
 	}
 	else {
 		if ( ! ( m_pHydrogen->isPatternEditorLocked() &&
@@ -1523,7 +1529,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 ///
 void SongEditorPatternList::togglePattern( int row ) {
 
-	m_pHydrogen->toggleNextPattern( row );
+	m_pHydrogen->toggleNextPatterns( row );
 	createBackground();
 	update();
 }
