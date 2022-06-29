@@ -70,10 +70,6 @@ enum EventType {
 	 * changed. `-1` indicates that multiple instruments were altered.
 	 */
 	EVENT_INSTRUMENT_PARAMETERS_CHANGED,
-	/** The instrument list of the current song was changed, e.g. by
-	 * adding or removing an instrument.
-	 */
-	EVENT_INSTRUMENT_LIST_CHANGED,
 	EVENT_MIDI_ACTIVITY,
 	EVENT_XRUN,
 	EVENT_NOTEON,
