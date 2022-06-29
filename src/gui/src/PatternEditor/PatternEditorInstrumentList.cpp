@@ -40,7 +40,6 @@ using namespace H2Core;
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "DrumPatternEditor.h"
 #include "../HydrogenApp.h"
-#include "../Mixer/Mixer.h"
 #include "../Widgets/Button.h"
 #include "../Skin.h"
 
@@ -299,9 +298,16 @@ void InstrumentLine::muteClicked()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
+	
 	InstrumentList *pInstrList = pSong->getInstrumentList();
 	auto pInstr = pInstrList->get( m_nInstrumentNumber );
 	if ( pInstr == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
+				  .arg( m_nInstrumentNumber ) );
 		return;
 	}
 	
@@ -315,7 +321,25 @@ void InstrumentLine::muteClicked()
 
 void InstrumentLine::soloClicked()
 {
-	HydrogenApp::get_instance()->getMixer()->soloClicked( m_nInstrumentNumber );
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	std::shared_ptr<Song> pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return;
+	}
+	
+	InstrumentList *pInstrList = pSong->getInstrumentList();
+	auto pInstr = pInstrList->get( m_nInstrumentNumber );
+	if ( pInstr == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
+				  .arg( m_nInstrumentNumber ) );
+		return;
+	}
+	
+	pHydrogen->setSelectedInstrumentNumber( m_nInstrumentNumber );
+
+	CoreActionController* pCoreActionController = pHydrogen->getCoreActionController();
+	pCoreActionController->setStripIsSoloed( m_nInstrumentNumber, !pInstr->is_soloed() );
 }
 
 void InstrumentLine::sampleWarningClicked()
