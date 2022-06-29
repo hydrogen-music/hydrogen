@@ -3079,7 +3079,7 @@ void SongEditorPositionRuler::updatePosition()
 	m_pAudioEngine->lock( RIGHT_HERE );
 
 	auto pPatternGroupVector = m_pHydrogen->getSong()->getPatternGroupVector();
-	m_nColumn = m_pAudioEngine->getColumn();
+	m_nColumn = std::max( m_pAudioEngine->getColumn(), 0 );
 
 	if ( pPatternGroupVector->size() >= m_nColumn &&
 		 pPatternGroupVector->at( m_nColumn )->size() > 0 ) {
