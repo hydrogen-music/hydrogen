@@ -401,27 +401,16 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast ) {
 #ifdef H2CORE_HAVE_JACK
 	// In case Hydrogen is using the JACK server to sync transport, it
 	// has to be up to the server to relocate to a different
-	// position. However, if the transport is not rolling, the JACK
-	// server won't broadcast the new position we asked for until the
-	// transport is rolling again. That's why we relocate internally
-	// too - as we do not have to be afraid for transport to get out
-	// of sync as it is not rolling.
-	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast &&
-		 m_state == State::Playing ) {
-		nNewFrame = computeFrameFromTick( fTick, &m_fTickMismatch );
-	} else {
-		reset( false );
-		nNewFrame = computeFrameFromTick( fTick, &m_fTickMismatch );
-	}
-
+	// position.
 	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
+		nNewFrame = computeFrameFromTick( fTick, &m_fTickMismatch );
 		static_cast<JackAudioDriver*>( m_pAudioDriver )->locateTransport( nNewFrame );
 		return;
 	}
-#else
+#endif
+
 	reset( false );
 	nNewFrame = computeFrameFromTick( fTick, &m_fTickMismatch );
-#endif
 	
 	setFrames( nNewFrame );
 	updateTransportPosition( fTick );
