@@ -1009,14 +1009,13 @@ bool Song::save( const QString& sFilename, bool bSilent )
 	}
 
 	XMLDoc doc;
+	XMLNode rootNode = doc.set_root( "song" );
 	
 	// In order to comply with the GPL license we have to add a
 	// license notice to the file.
 	if ( getLicense().getType() == License::GPL ) {
 		doc.appendChild( doc.createComment( License::getGPLLicenseNotice( getAuthor() ) ) );
 	}
-	
-	XMLNode rootNode = doc.set_root( "song" );
 
 	writeTo( &rootNode, bSilent );
 	
@@ -1039,31 +1038,30 @@ bool Song::save( const QString& sFilename, bool bSilent )
 
 void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 	pRootNode->write_string( "version", QString( get_version().c_str() ) );
-	pRootNode->write_string( "bpm", QString("%1").arg( getBpm() ) );
-	pRootNode->write_string( "volume", QString("%1").arg( getVolume() ) );
-	pRootNode->write_string( "metronomeVolume", QString("%1").arg( getMetronomeVolume() ) );
-	pRootNode->write_string( "name", getName() );
-	pRootNode->write_string( "author", getAuthor() );
-	pRootNode->write_string( "notes", getNotes() );
-	pRootNode->write_string( "license", getLicense().getLicenseString() );
+	pRootNode->write_float( "bpm", m_fBpm );
+	pRootNode->write_float( "volume", m_fVolume );
+	pRootNode->write_float( "metronomeVolume", m_fMetronomeVolume );
+	pRootNode->write_string( "name", m_sName );
+	pRootNode->write_string( "author", m_sAuthor );
+	pRootNode->write_string( "notes", m_sNotes );
+	pRootNode->write_string( "license", m_license.getLicenseString() );
 	pRootNode->write_bool( "loopEnabled", isLoopEnabled() );
 
 	bool bPatternMode = static_cast<bool>(Song::PatternMode::Selected);
-	if ( getPatternMode() == Song::PatternMode::Stacked ) {
+	if ( m_patternMode == Song::PatternMode::Stacked ) {
 		bPatternMode = static_cast<bool>(Song::PatternMode::Stacked);
 	}
 	pRootNode->write_bool( "patternModeMode", bPatternMode );
 	
-	pRootNode->write_string( "playbackTrackFilename", QString("%1").arg( getPlaybackTrackFilename() ) );
-	pRootNode->write_bool( "playbackTrackEnabled", getPlaybackTrackEnabled() );
-	pRootNode->write_string( "playbackTrackVolume", QString("%1").arg( getPlaybackTrackVolume() ) );
-	pRootNode->write_string( "action_mode",
-							 QString::number( static_cast<int>( getActionMode() ) ) );
+	pRootNode->write_string( "playbackTrackFilename", m_sPlaybackTrackFilename );
+	pRootNode->write_bool( "playbackTrackEnabled", m_bPlaybackTrackEnabled );
+	pRootNode->write_float( "playbackTrackVolume", m_fPlaybackTrackVolume );
+	pRootNode->write_int( "action_mode", static_cast<int>( m_actionMode ) );
 	pRootNode->write_bool( "isPatternEditorLocked",
-						   getIsPatternEditorLocked() );
-	pRootNode->write_bool( "isTimelineActivated", getIsTimelineActivated() );
+						   m_bIsPatternEditorLocked );
+	pRootNode->write_bool( "isTimelineActivated", m_bIsTimelineActivated );
 	
-	if ( getMode() == Song::Mode::Song ) {
+	if ( m_mode == Song::Mode::Song ) {
 		pRootNode->write_string( "mode", QString( "song" ) );
 	} else {
 		pRootNode->write_string( "mode", QString( "pattern" ) );
@@ -1072,38 +1070,37 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 	Sampler* pSampler = Hydrogen::get_instance()->getAudioEngine()->getSampler();
 	
 	QString sPanLawType; // prepare the pan law string to write
-	int nPanLawType = getPanLawType();
-	if ( nPanLawType == Sampler::RATIO_STRAIGHT_POLYGONAL ) {
+	if ( m_nPanLawType == Sampler::RATIO_STRAIGHT_POLYGONAL ) {
 		sPanLawType = "RATIO_STRAIGHT_POLYGONAL";
-	} else if ( nPanLawType == Sampler::RATIO_CONST_POWER ) {
+	} else if ( m_nPanLawType == Sampler::RATIO_CONST_POWER ) {
 		sPanLawType = "RATIO_CONST_POWER";
-	} else if ( nPanLawType == Sampler::RATIO_CONST_SUM ) {
+	} else if ( m_nPanLawType == Sampler::RATIO_CONST_SUM ) {
 		sPanLawType = "RATIO_CONST_SUM";
-	} else if ( nPanLawType == Sampler::LINEAR_STRAIGHT_POLYGONAL ) {
+	} else if ( m_nPanLawType == Sampler::LINEAR_STRAIGHT_POLYGONAL ) {
 		sPanLawType = "LINEAR_STRAIGHT_POLYGONAL";
-	} else if ( nPanLawType == Sampler::LINEAR_CONST_POWER ) {
+	} else if ( m_nPanLawType == Sampler::LINEAR_CONST_POWER ) {
 		sPanLawType = "LINEAR_CONST_POWER";
-	} else if ( nPanLawType == Sampler::LINEAR_CONST_SUM ) {
+	} else if ( m_nPanLawType == Sampler::LINEAR_CONST_SUM ) {
 		sPanLawType = "LINEAR_CONST_SUM";
-	} else if ( nPanLawType == Sampler::POLAR_STRAIGHT_POLYGONAL ) {
+	} else if ( m_nPanLawType == Sampler::POLAR_STRAIGHT_POLYGONAL ) {
 		sPanLawType = "POLAR_STRAIGHT_POLYGONAL";
-	} else if ( nPanLawType == Sampler::POLAR_CONST_POWER ) {
+	} else if ( m_nPanLawType == Sampler::POLAR_CONST_POWER ) {
 		sPanLawType = "POLAR_CONST_POWER";
-	} else if ( nPanLawType == Sampler::POLAR_CONST_SUM ) {
+	} else if ( m_nPanLawType == Sampler::POLAR_CONST_SUM ) {
 		sPanLawType = "POLAR_CONST_SUM";
-	} else if ( nPanLawType == Sampler::QUADRATIC_STRAIGHT_POLYGONAL ) {
+	} else if ( m_nPanLawType == Sampler::QUADRATIC_STRAIGHT_POLYGONAL ) {
 		sPanLawType = "QUADRATIC_STRAIGHT_POLYGONAL";
-	} else if ( nPanLawType == Sampler::QUADRATIC_CONST_POWER ) {
+	} else if ( m_nPanLawType == Sampler::QUADRATIC_CONST_POWER ) {
 		sPanLawType = "QUADRATIC_CONST_POWER";
-	} else if ( nPanLawType == Sampler::QUADRATIC_CONST_SUM ) {
+	} else if ( m_nPanLawType == Sampler::QUADRATIC_CONST_SUM ) {
 		sPanLawType = "QUADRATIC_CONST_SUM";
-	} else if ( nPanLawType == Sampler::LINEAR_CONST_K_NORM ) {
+	} else if ( m_nPanLawType == Sampler::LINEAR_CONST_K_NORM ) {
 		sPanLawType = "LINEAR_CONST_K_NORM";
-	} else if ( nPanLawType == Sampler::POLAR_CONST_K_NORM ) {
+	} else if ( m_nPanLawType == Sampler::POLAR_CONST_K_NORM ) {
 		sPanLawType = "POLAR_CONST_K_NORM";
-	} else if ( nPanLawType == Sampler::RATIO_CONST_K_NORM ) {
+	} else if ( m_nPanLawType == Sampler::RATIO_CONST_K_NORM ) {
 		sPanLawType = "RATIO_CONST_K_NORM";
-	} else if ( nPanLawType == Sampler::QUADRATIC_CONST_K_NORM ) {
+	} else if ( m_nPanLawType == Sampler::QUADRATIC_CONST_K_NORM ) {
 		sPanLawType = "QUADRATIC_CONST_K_NORM";
 	} else {
 		if ( ! bSilent ) {
@@ -1113,20 +1110,20 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 	}
 	// write the pan law string in file
 	pRootNode->write_string( "pan_law_type", sPanLawType );
-	pRootNode->write_string( "pan_law_k_norm", QString("%1").arg( getPanLawKNorm() ) );
+	pRootNode->write_float( "pan_law_k_norm", m_fPanLawKNorm );
 
-	pRootNode->write_string( "humanize_time", QString("%1").arg( getHumanizeTimeValue() ) );
-	pRootNode->write_string( "humanize_velocity", QString("%1").arg( getHumanizeVelocityValue() ) );
-	pRootNode->write_string( "swing_factor", QString("%1").arg( getSwingFactor() ) );
+	pRootNode->write_float( "humanize_time", m_fHumanizeTimeValue );
+	pRootNode->write_float( "humanize_velocity", m_fHumanizeVelocityValue );
+	pRootNode->write_float( "swing_factor", m_fSwingFactor );
 
 	// component List
 	XMLNode componentListNode = pRootNode->createNode( "componentList" );
 	for ( const auto& pComponent : *m_pComponents ) {
 		XMLNode componentNode = componentListNode.createNode( "drumkitComponent" );
 
-		componentNode.write_string( "id", QString("%1").arg( pComponent->get_id() ) );
+		componentNode.write_int( "id", pComponent->get_id() );
 		componentNode.write_string( "name", pComponent->get_name() );
-		componentNode.write_string( "volume", QString("%1").arg( pComponent->get_volume() ) );
+		componentNode.write_float( "volume", pComponent->get_volume() );
 	}
 
 	// instrument list
@@ -1135,40 +1132,45 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 
 	// INSTRUMENT NODE
 	for ( unsigned i = 0; i < nInstrument; i++ ) {
-		auto  pInstr = getInstrumentList()->get( i );
-		assert( pInstr );
+		auto pInstr = getInstrumentList()->get( i );
+		if ( pInstr == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve instrument [%1]" ).arg( i ) );
+			continue;
+		} else if ( pInstr->get_adsr() == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve ADSR of instrument [%1]" ).arg( i ) );
+			continue;
+		}
 
 		XMLNode instrumentNode = instrumentListNode.createNode( "instrument" );
 
-		instrumentNode.write_string( "id", QString("%1").arg( pInstr->get_id() ) );
+		instrumentNode.write_int( "id", pInstr->get_id() );
 		instrumentNode.write_string( "name", pInstr->get_name() );
 		instrumentNode.write_string( "drumkit", pInstr->get_drumkit_name() );
-		instrumentNode.write_string( "drumkitLookup", QString::number(static_cast<int>( pInstr->get_drumkit_lookup() )) );
-		instrumentNode.write_string( "volume", QString("%1").arg( pInstr->get_volume() ) );
+		instrumentNode.write_int( "drumkitLookup", static_cast<int>( pInstr->get_drumkit_lookup() ));
+		instrumentNode.write_float( "volume", pInstr->get_volume() );
 		instrumentNode.write_bool( "isMuted", pInstr->is_muted() );
 		instrumentNode.write_bool( "isSoloed", pInstr->is_soloed() );
-		instrumentNode.write_string( "pan", QString("%1").arg( pInstr->getPan() ) );
-		instrumentNode.write_string( "gain", QString("%1").arg( pInstr->get_gain() ) );
+		instrumentNode.write_float( "pan", pInstr->getPan() );
+		instrumentNode.write_float( "gain", pInstr->get_gain() );
 		instrumentNode.write_bool( "applyVelocity", pInstr->get_apply_velocity() );
 
 		instrumentNode.write_bool( "filterActive", pInstr->is_filter_active() );
-		instrumentNode.write_string( "filterCutoff", QString("%1").arg( pInstr->get_filter_cutoff() ) );
-		instrumentNode.write_string( "filterResonance", QString("%1").arg( pInstr->get_filter_resonance() ) );
+		instrumentNode.write_float( "filterCutoff", pInstr->get_filter_cutoff() );
+		instrumentNode.write_float( "filterResonance", pInstr->get_filter_resonance() );
 
-		instrumentNode.write_string( "FX1Level", QString("%1").arg( pInstr->get_fx_level( 0 ) ) );
-		instrumentNode.write_string( "FX2Level", QString("%1").arg( pInstr->get_fx_level( 1 ) ) );
-		instrumentNode.write_string( "FX3Level", QString("%1").arg( pInstr->get_fx_level( 2 ) ) );
-		instrumentNode.write_string( "FX4Level", QString("%1").arg( pInstr->get_fx_level( 3 ) ) );
+		instrumentNode.write_float( "FX1Level", pInstr->get_fx_level( 0 ) );
+		instrumentNode.write_float( "FX2Level", pInstr->get_fx_level( 1 ) );
+		instrumentNode.write_float( "FX3Level", pInstr->get_fx_level( 2 ) );
+		instrumentNode.write_float( "FX4Level", pInstr->get_fx_level( 3 ) );
 
-		assert( pInstr->get_adsr() );
-		instrumentNode.write_string( "Attack", QString("%1").arg( pInstr->get_adsr()->get_attack() ) );
-		instrumentNode.write_string( "Decay", QString("%1").arg( pInstr->get_adsr()->get_decay() ) );
-		instrumentNode.write_string( "Sustain", QString("%1").arg( pInstr->get_adsr()->get_sustain() ) );
-		instrumentNode.write_string( "Release", QString("%1").arg( pInstr->get_adsr()->get_release() ) );
-		instrumentNode.write_string( "pitchOffset", QString("%1").arg( pInstr->get_pitch_offset() ) );
-		instrumentNode.write_string( "randomPitchFactor", QString("%1").arg( pInstr->get_random_pitch_factor() ) );
+		instrumentNode.write_int( "Attack", pInstr->get_adsr()->get_attack() );
+		instrumentNode.write_int( "Decay", pInstr->get_adsr()->get_decay() );
+		instrumentNode.write_float( "Sustain", pInstr->get_adsr()->get_sustain() );
+		instrumentNode.write_int( "Release", pInstr->get_adsr()->get_release() );
+		instrumentNode.write_float( "pitchOffset", pInstr->get_pitch_offset() );
+		instrumentNode.write_float( "randomPitchFactor", pInstr->get_random_pitch_factor() );
 
-		instrumentNode.write_string( "muteGroup", QString("%1").arg( pInstr->get_mute_group() ) );
+		instrumentNode.write_int( "muteGroup", pInstr->get_mute_group() );
 		instrumentNode.write_bool( "isStopNote", pInstr->is_stop_notes() );
 		switch ( pInstr->sample_selection_alg() ) {
 			case Instrument::VELOCITY:
@@ -1182,18 +1184,18 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 				break;
 		}
 
-		instrumentNode.write_string( "midiOutChannel", QString("%1").arg( pInstr->get_midi_out_channel() ) );
-		instrumentNode.write_string( "midiOutNote", QString("%1").arg( pInstr->get_midi_out_note() ) );
-		instrumentNode.write_string( "isHihat", QString("%1").arg( pInstr->get_hihat_grp() ) );
-		instrumentNode.write_string( "lower_cc", QString("%1").arg( pInstr->get_lower_cc() ) );
-		instrumentNode.write_string( "higher_cc", QString("%1").arg( pInstr->get_higher_cc() ) );
+		instrumentNode.write_int( "midiOutChannel", pInstr->get_midi_out_channel() );
+		instrumentNode.write_int( "midiOutNote", pInstr->get_midi_out_note() );
+		instrumentNode.write_int( "isHihat", pInstr->get_hihat_grp() );
+		instrumentNode.write_int( "lower_cc", pInstr->get_lower_cc() );
+		instrumentNode.write_int( "higher_cc", pInstr->get_higher_cc() );
 
 		for ( const auto& pComponent : *pInstr->get_components() ) {
 
 			XMLNode componentNode = instrumentNode.createNode( "instrumentComponent" );
 
-			componentNode.write_string( "component_id", QString("%1").arg( pComponent->get_drumkit_componentID() ) );
-			componentNode.write_string( "gain", QString("%1").arg( pComponent->get_gain() ) );
+			componentNode.write_int( "component_id", pComponent->get_drumkit_componentID() );
+			componentNode.write_float( "gain", pComponent->get_gain() );
 
 			for ( unsigned nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 				auto pLayer = pComponent->get_layer( nLayer );
@@ -1215,31 +1217,31 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 				layerNode.write_string( "filename", Filesystem::prepare_sample_path( pSample->get_filepath() ) );
 				layerNode.write_bool( "ismodified", sIsModified);
 				layerNode.write_string( "smode", pSample->get_loop_mode_string() );
-				layerNode.write_string( "startframe", QString("%1").arg( lo.start_frame ) );
-				layerNode.write_string( "loopframe", QString("%1").arg( lo.loop_frame ) );
-				layerNode.write_string( "loops", QString("%1").arg( lo.count ) );
-				layerNode.write_string( "endframe", QString("%1").arg( lo.end_frame ) );
-				layerNode.write_string( "userubber", QString("%1").arg( ro.use ) );
-				layerNode.write_string( "rubberdivider", QString("%1").arg( ro.divider ) );
-				layerNode.write_string( "rubberCsettings", QString("%1").arg( ro.c_settings ) );
-				layerNode.write_string( "rubberPitch", QString("%1").arg( ro.pitch ) );
-				layerNode.write_string( "min", QString("%1").arg( pLayer->get_start_velocity() ) );
-				layerNode.write_string( "max", QString("%1").arg( pLayer->get_end_velocity() ) );
-				layerNode.write_string( "gain", QString("%1").arg( pLayer->get_gain() ) );
-				layerNode.write_string( "pitch", QString("%1").arg( pLayer->get_pitch() ) );
+				layerNode.write_int( "startframe", lo.start_frame );
+				layerNode.write_int( "loopframe", lo.loop_frame );
+				layerNode.write_int( "loops", lo.count );
+				layerNode.write_int( "endframe", lo.end_frame );
+				layerNode.write_int( "userubber", static_cast<int>(ro.use) );
+				layerNode.write_float( "rubberdivider", ro.divider );
+				layerNode.write_int( "rubberCsettings", ro.c_settings );
+				layerNode.write_float( "rubberPitch", ro.pitch );
+				layerNode.write_float( "min", pLayer->get_start_velocity() );
+				layerNode.write_float( "max", pLayer->get_end_velocity() );
+				layerNode.write_float( "gain", pLayer->get_gain() );
+				layerNode.write_float( "pitch", pLayer->get_pitch() );
 
 				Sample::VelocityEnvelope* velocity = pSample->get_velocity_envelope();
 				for (int y = 0; y < velocity->size(); y++){
 					XMLNode volumeNode = layerNode.createNode( "volume" );
-					volumeNode.write_string( "volume-position", QString("%1").arg( velocity->at(y).frame ) );
-					volumeNode.write_string( "volume-value", QString("%1").arg( velocity->at(y).value ) );
+					volumeNode.write_int( "volume-position", velocity->at(y).frame );
+					volumeNode.write_int( "volume-value", velocity->at(y).value );
 				}
 
 				Sample::PanEnvelope* pan = pSample->get_pan_envelope();
 				for (int y = 0; y < pan->size(); y++){
 					XMLNode panNode = layerNode.createNode( "pan" );
-					panNode.write_string( "pan-position", QString("%1").arg( pan->at(y).frame ) );
-					panNode.write_string( "pan-value", QString("%1").arg( pan->at(y).value ) );
+					panNode.write_int( "pan-position", pan->at(y).frame );
+					panNode.write_int( "pan-value", pan->at(y).value );
 				}
 			}
 		}
@@ -1253,34 +1255,31 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 		XMLNode patternNode = patternListNode.createNode( "pattern" );
 		patternNode.write_string( "name", pPattern->get_name() );
 		patternNode.write_string( "category", pPattern->get_category() );
-		patternNode.write_string( "size", QString("%1").arg( pPattern->get_length() ) );
-		patternNode.write_string( "denominator", QString("%1").arg( pPattern->get_denominator() ) );
+		patternNode.write_int( "size", pPattern->get_length() );
+		patternNode.write_int( "denominator", pPattern->get_denominator() );
 		patternNode.write_string( "info", pPattern->get_info() );
 
 		XMLNode noteListNode = patternNode.createNode( "noteList" );
 		const Pattern::notes_t* notes = pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
-			assert( pNote );
+			if ( pNote == nullptr ) {
+				ERRORLOG( QString( "Unable to handle note [%1] of pattern [%2]"  )
+						  .arg( it->first ).arg( pPattern->get_name() ) );
+				continue;
+			}
 
 			XMLNode noteNode = noteListNode.createNode( "note" );
-			noteNode.write_string( "position", QString("%1").arg( pNote->get_position() ) );
-			noteNode.write_string( "leadlag", QString("%1").arg( pNote->get_lead_lag() ) );
-			noteNode.write_string( "velocity", QString("%1").arg( pNote->get_velocity() ) );
-			noteNode.write_string( "pan", QString("%1").arg( pNote->getPan() ) );
-			noteNode.write_string( "pitch", QString("%1").arg( pNote->get_pitch() ) );
-			noteNode.write_string( "probability", QString("%1").arg( pNote->get_probability() ) );
-
+			noteNode.write_int( "position", pNote->get_position() );
+			noteNode.write_float( "leadlag", pNote->get_lead_lag() );
+			noteNode.write_float( "velocity", pNote->get_velocity() );
+			noteNode.write_float( "pan", pNote->getPan() );
+			noteNode.write_float( "pitch", pNote->get_pitch() );
+			noteNode.write_float( "probability", pNote->get_probability() );
 			noteNode.write_string( "key", pNote->key_to_string() );
-
-			noteNode.write_string( "length", QString("%1").arg( pNote->get_length() ) );
-			noteNode.write_string( "instrument", QString("%1").arg( pNote->get_instrument()->get_id() ) );
-
-			QString noteoff = "false";
-			if ( pNote->get_note_off() ) {
-				noteoff = "true";
-			}
-			noteNode.write_string( "note_off", noteoff );
+			noteNode.write_int( "length", pNote->get_length() );
+			noteNode.write_int( "instrument", pNote->get_instrument()->get_id() );
+			noteNode.write_bool( "note_off", pNote->get_note_off() );
 		}
 	}
 
@@ -1321,7 +1320,7 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 			fxNode.write_string( "name", pFX->getPluginLabel() );
 			fxNode.write_string( "filename", pFX->getLibraryPath() );
 			fxNode.write_bool( "enabled", pFX->isEnabled() );
-			fxNode.write_string( "volume", QString("%1").arg( pFX->getVolume() ) );
+			fxNode.write_float( "volume", pFX->getVolume() );
 			
 			for ( unsigned nControl = 0; nControl < pFX->inputControlPorts.size(); nControl++ ) {
 				LadspaControlPort *pControlPort = pFX->inputControlPorts[ nControl ];
@@ -1344,7 +1343,7 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 			fxNode.write_string( "name", QString( "no plugin" ) );
 			fxNode.write_string( "filename", QString( "-" ) );
 			fxNode.write_bool( "enabled", false );
-			fxNode.write_string( "volume", "0.0" );
+			fxNode.write_float( "volume", 0.0 );
 		}
 	}
 
@@ -1361,8 +1360,8 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 				continue;
 			}
 			XMLNode newBPMNode = bpmTimeLineNode.createNode( "newBPM" );
-			newBPMNode.write_string( "BAR",QString("%1").arg( tempoMarkerVector[tt]->nColumn ));
-			newBPMNode.write_string( "BPM", QString("%1").arg( tempoMarkerVector[tt]->fBpm  ) );
+			newBPMNode.write_int( "BAR", tempoMarkerVector[tt]->nColumn );
+			newBPMNode.write_float( "BPM", tempoMarkerVector[tt]->fBpm );
 		}
 	}
 
@@ -1374,8 +1373,8 @@ void Song::writeTo( XMLNode* pRootNode, bool bSilent ) {
 	if ( tagVector.size() >= 1 ){
 		for ( int t = 0; t < static_cast<int>(tagVector.size()); t++){
 			XMLNode newTAGNode = timeLineTagNode.createNode( "newTAG" );
-			newTAGNode.write_string( "BAR",QString("%1").arg( tagVector[t]->nColumn ));
-			newTAGNode.write_string( "TAG", QString("%1").arg( tagVector[t]->sTag ) );
+			newTAGNode.write_int( "BAR", tagVector[t]->nColumn );
+			newTAGNode.write_string( "TAG", tagVector[t]->sTag );
 		}
 	}
 
@@ -1671,8 +1670,8 @@ QString Song::copyInstrumentLineToString( int nSelectedPattern, int nSelectedIns
 
 		patternNode.write_string( "info", pPattern->get_info() );
 		patternNode.write_string( "category", category  );
-		patternNode.write_string( "size", QString("%1").arg( pPattern->get_length() ) );
-		patternNode.write_string( "denominator", QString("%1").arg( pPattern->get_denominator() ) );
+		patternNode.write_int( "size", pPattern->get_length() );
+		patternNode.write_int( "denominator", pPattern->get_denominator() );
 		XMLNode noteListNode = patternNode.createNode( "noteList" );
 		const Pattern::notes_t* notes = pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it)

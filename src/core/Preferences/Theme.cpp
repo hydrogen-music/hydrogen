@@ -728,24 +728,23 @@ bool Theme::exportTheme( const QString& sPath, const std::shared_ptr<Theme> pThe
 
 	auto pInterfaceTheme = pTheme->getInterfaceTheme();
 	XMLNode interfaceNode = rootNode.createNode( "interfaceTheme" );
-	interfaceNode.write_string( "defaultUILayout",
-								QString::number( static_cast<int>(pInterfaceTheme->m_layout) ) );
-	interfaceNode.write_string( "uiScalingPolicy",
-								QString::number( static_cast<int>(pInterfaceTheme->m_scalingPolicy) ) );
-	interfaceNode.write_string( "QTStyle",
-								pInterfaceTheme->m_sQTStyle );
-	interfaceNode.write_string( "iconColor",
-								QString::number( static_cast<int>(pInterfaceTheme->m_iconColor) ) );
-	interfaceNode.write_string( "mixer_falloff_speed",
-								QString("%1").arg( pInterfaceTheme->m_fMixerFalloffSpeed ) );
-	interfaceNode.write_string( "SongEditor_ColoringMethod",
-								QString::number( static_cast<int>(pInterfaceTheme->m_coloringMethod) ) );
+	interfaceNode.write_int( "defaultUILayout",
+							 static_cast<int>(pInterfaceTheme->m_layout) );
+	interfaceNode.write_int( "uiScalingPolicy",
+							 static_cast<int>(pInterfaceTheme->m_scalingPolicy) );
+	interfaceNode.write_string( "QTStyle", pInterfaceTheme->m_sQTStyle );
+	interfaceNode.write_int( "iconColor",
+							 static_cast<int>(pInterfaceTheme->m_iconColor) );
+	interfaceNode.write_float( "mixer_falloff_speed",
+							   pInterfaceTheme->m_fMixerFalloffSpeed );
+	interfaceNode.write_int( "SongEditor_ColoringMethod",
+							 static_cast<int>(pInterfaceTheme->m_coloringMethod) );
 	for ( int ii = 0; ii < pInterfaceTheme->m_nMaxPatternColors; ii++ ) {
 		interfaceNode.write_color( QString( "SongEditor_pattern_color_%1" ).arg( ii ),
 								   pInterfaceTheme->m_patternColors[ ii ] );
 	}
-	interfaceNode.write_string( "SongEditor_visible_pattern_colors",
-								QString::number( pInterfaceTheme->m_nVisiblePatternColors ) );
+	interfaceNode.write_int( "SongEditor_visible_pattern_colors",
+							 pInterfaceTheme->m_nVisiblePatternColors );
 	
 	XMLNode fontNode = rootNode.createNode( "fontTheme" );
 	fontNode.write_string( "application_font_family",
@@ -754,8 +753,8 @@ bool Theme::exportTheme( const QString& sPath, const std::shared_ptr<Theme> pThe
 						   pTheme->getFontTheme()->m_sLevel2FontFamily );
 	fontNode.write_string( "level3_font_family",
 						   pTheme->getFontTheme()->m_sLevel3FontFamily );
-	fontNode.write_string( "font_size",
-						  QString::number( static_cast<int>(pTheme->getFontTheme()->m_fontSize) ) );
+	fontNode.write_int( "font_size",
+						static_cast<int>(pTheme->getFontTheme()->m_fontSize) );
 
 	return doc.write( sPath );
 }	

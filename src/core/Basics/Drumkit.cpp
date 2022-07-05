@@ -452,8 +452,8 @@ bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_i
 		ERRORLOG( QString( "drumkit %1 already exists" ).arg( dk_path ) );
 		return false;
 	}
-	XMLDoc doc;
 	
+	XMLDoc doc;
 	XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
 	
 	// In order to comply with the GPL license we have to add a
