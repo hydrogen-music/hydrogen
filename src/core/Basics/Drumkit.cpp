@@ -244,45 +244,88 @@ void Drumkit::load_samples()
 	}
 }
 
-License Drumkit::loadLicenseByName( const QString& sDrumkitName, Filesystem::Lookup lookup )
+License Drumkit::loadLicenseByNameFrom( const QString& sDrumkitName, Filesystem::Lookup lookup, bool bSilent )
 {
-	QString sDrumkitDir = Filesystem::drumkit_path_search( sDrumkitName, lookup );
+	QString sDrumkitDir = Filesystem::drumkit_path_search( sDrumkitName, lookup, bSilent );
 	if ( sDrumkitDir.isEmpty() ) {
 		return License();
 	}
 	
-	return loadLicense( sDrumkitDir );
+	return loadLicenseFrom( sDrumkitDir, bSilent );
 }
 
-License Drumkit::loadLicense( const QString& sDrumkitDir )
+License Drumkit::loadLicenseFrom( const QString& sDrumkitDir, bool bSilent )
 {
-	if( ! Filesystem::drumkit_valid( sDrumkitDir ) ) {
-		ERRORLOG( QString( "[%1] is not valid drumkit" ).arg( sDrumkitDir ) );
-		return License();
+	XMLDoc doc;
+	if ( Drumkit::loadDoc( sDrumkitDir, &doc, bSilent ) ) {
+		XMLNode root = doc.firstChildElement( "drumkit_info" );
+
+		QString sAuthor = root.read_string( "author", "undefined author",
+											true, true, bSilent );
+		QString sLicenseString = root.read_string( "license", "undefined license",
+												   false, true, bSilent  );
+		if ( sLicenseString.isNull() ) {
+			if ( ! bSilent ) {
+				ERRORLOG( QString( "Unable to retrieve license information from [%1]" )
+						  .arg( sDrumkitDir ) );
+			}
+			return std::move( License() );
+		}
+
+		return std::move( License( sLicenseString, sAuthor ) );
+	}
+
+	return std::move( License() );
+}
+
+QString Drumkit::loadNameFrom( const QString& sDrumkitDir, bool bSilent ) {
+
+	XMLDoc doc;
+	if ( Drumkit::loadDoc( sDrumkitDir, &doc, bSilent ) ) {
+		XMLNode root = doc.firstChildElement( "drumkit_info" );
+
+		return( root.read_string( "name", "", true, true, bSilent ) );
+	}
+
+	return "";
+}
+
+bool Drumkit::loadDoc( const QString& sDrumkitDir, XMLDoc* pDoc, bool bSilent ) {
+
+	if ( ! Filesystem::drumkit_valid( sDrumkitDir ) ) {
+		if ( ! bSilent ) {
+			ERRORLOG( QString( "[%1] is not valid drumkit" ).arg( sDrumkitDir ) );
+		}
+		return false;
 	}
 
 	const QString sDrumkitPath = Filesystem::drumkit_file( sDrumkitDir );
 
-	XMLDoc doc;
-	doc.read( sDrumkitPath, nullptr, true );
-	XMLNode root = doc.firstChildElement( "drumkit_info" );
+	if( ! pDoc->read( sDrumkitPath, Filesystem::drumkit_xsd_path(), true ) ) {
+		if ( ! bSilent ) {
+			WARNINGLOG( QString( "[%1] does not validate against drumkit schema. Trying to retrieve its name nevertheless.")
+						.arg( sDrumkitPath ) );
+		}
+		
+		if ( ! pDoc->read( sDrumkitPath, nullptr, bSilent ) ) {
+			if ( ! bSilent ) {
+				ERRORLOG( QString( "Unable to load drumkit name for [%1]" )
+						  .arg( sDrumkitPath ) );
+			}
+			return false;
+		}
+	}
+	
+	XMLNode root = pDoc->firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {
-		ERRORLOG( QString( "drumkit_info node not found in [%1]. This does not seem to be a Hydrogen drumkit." )
-				  .arg( sDrumkitPath ) );
-		return License();
+		if ( ! bSilent ) {
+			ERRORLOG( QString( "Unable to load drumkit name for [%1]. 'drumkit_info' node not found" )
+					  .arg( sDrumkitPath ) );
+		}
+		return false;
 	}
 
-	QString sAuthor = root.read_string( "author", "undefined author",
-										 true, true, false );
-	QString sLicenseString = root.read_string( "license", "undefined license",
-											   false, true, false  );
-	if ( sLicenseString.isNull() ) {
-		ERRORLOG( QString( "Unable to retrieve license information from [%1]" )
-				  .arg( sDrumkitPath ) );
-		return License();
-	}
-
-	return std::move( License( sLicenseString, sAuthor ) );
+	return true;
 }
 	
 void Drumkit::upgrade_drumkit(Drumkit* pDrumkit, const QString& dk_path, bool bSilent )

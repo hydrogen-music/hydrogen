@@ -396,11 +396,9 @@ void MemoryLeakageTest::testLoading() {
 	}
 
 	{
-		auto pReader = new H2Core::SongReader();
-		auto pSong = pReader->readSong( H2TEST_FILE( "functional/test.h2song" ) );
+		auto pSong = H2Core::Song::load( H2TEST_FILE( "functional/test.h2song" ) );
 		CPPUNIT_ASSERT( pSong != nullptr );
 		pSong = nullptr;
-		delete pReader;
 		CPPUNIT_ASSERT( nAliveReference == H2Core::Base::getAliveObjectCount() );
 	}
 

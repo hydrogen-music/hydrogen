@@ -29,7 +29,6 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
 
-#include <core/Helpers/Xml.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Legacy.h>
 
@@ -64,52 +63,89 @@ Pattern::~Pattern()
 	}
 }
 
-Pattern* Pattern::load_file( const QString& pattern_path, InstrumentList* instruments )
+bool Pattern::loadDoc( const QString& sPatternPath, InstrumentList* pInstrumentList, XMLDoc* pDoc, bool bSilent )
 {
-	INFOLOG( QString( "Load pattern %1" ).arg( pattern_path ) );
-	if ( !Filesystem::file_readable( pattern_path ) ) return nullptr;
-	XMLDoc doc;
-	if( !doc.read( pattern_path, Filesystem::pattern_xsd_path() ) ) {
-		return Legacy::load_drumkit_pattern( pattern_path, instruments );
+	if ( ! Filesystem::file_readable( sPatternPath, bSilent ) ) {
+		return false;
 	}
-	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
+
+	bool bReadingSuccessful = true;
+	
+	if ( ! pDoc->read( sPatternPath, Filesystem::pattern_xsd_path() ) ) {
+		if ( ! pDoc->read( sPatternPath, nullptr ) ) {
+			if ( ! bSilent ) {
+				ERRORLOG( QString( "Unable to read pattern [%1]" )
+						  .arg( sPatternPath ) );
+				return false;
+			}
+		}
+		else if ( ! bSilent ) {
+			WARNINGLOG( QString( "Pattern [%1] does not validate the current pattern schema. Loading might fail." )
+						.arg( sPatternPath ) );
+			bReadingSuccessful = false;
+		}
+	}
+	
+	XMLNode root = pDoc->firstChildElement( "drumkit_pattern" );
 	if ( root.isNull() ) {
-		ERRORLOG( "drumkit_pattern node not found" );
-		return nullptr;
+		ERRORLOG( QString( "'drumkit_pattern' node not found in [%1]" )
+				  .arg( sPatternPath ) );
+		return false;
 	}
+	
 	XMLNode pattern_node = root.firstChildElement( "pattern" );
 	if ( pattern_node.isNull() ) {
-		ERRORLOG( "pattern node not found" );
-		return nullptr;
+		ERRORLOG( QString( "'pattern' node not found in [%1]" )
+				  .arg( sPatternPath ) );
+		return false;
 	}
-	return load_from( &pattern_node, instruments );
+
+	return bReadingSuccessful;
 }
 
-Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
+Pattern* Pattern::load_file( const QString& sPatternPath, InstrumentList* pInstrumentList )
 {
-	Pattern* pattern = new Pattern(
+	INFOLOG( QString( "Load pattern %1" ).arg( sPatternPath ) );
+
+	XMLDoc doc;
+	if ( ! loadDoc( sPatternPath, pInstrumentList, &doc, false ) ) {
+		// Try former pattern version
+		return Legacy::load_drumkit_pattern( sPatternPath, pInstrumentList );
+	}
+
+	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
+	XMLNode pattern_node = root.firstChildElement( "pattern" );
+	return load_from( &pattern_node, pInstrumentList );
+}
+
+Pattern* Pattern::load_from( XMLNode* node, InstrumentList* pInstrumentList )
+{
+	Pattern* pPattern = new Pattern(
 	    node->read_string( "name", nullptr, false, false ),
 	    node->read_string( "info", "", false, false ),
 	    node->read_string( "category", "unknown", false, false ),
 	    node->read_int( "size", -1, false, false ),
 	    node->read_int( "denominator", 4, false, false )
 	);
-	// FIXME support legacy xml element pattern_name, should once be removed
-	if ( pattern->get_name().isEmpty() ) {
-	    pattern->set_name( node->read_string( "pattern_name", "unknown", false, false ) );
+
+	if ( pInstrumentList == nullptr ) {
+		ERRORLOG( "Invalid instrument list provided" );
+		return pPattern;
 	}
+	
 	XMLNode note_list_node = node->firstChildElement( "noteList" );
 	if ( !note_list_node.isNull() ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
 		while ( !note_node.isNull() ) {
-			Note* note = Note::load_from( &note_node, instruments );
-			if( note ) {
-				pattern->insert_note( note );
+			Note* pNote = Note::load_from( &note_node, pInstrumentList );
+			if ( pNote != nullptr ) {
+				pPattern->insert_note( pNote );
 			}
 			note_node = note_node.nextSiblingElement( "note" );
 		}
 	}
-	return pattern;
+	
+	return pPattern;
 }
 
 bool Pattern::save_file( const QString& drumkit_name, const QString& author, const License& license, const QString& pattern_path, bool overwrite ) const
@@ -121,7 +157,7 @@ bool Pattern::save_file( const QString& drumkit_name, const QString& author, con
 	}
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "drumkit_pattern", "drumkit_pattern" );
-	root.write_string( "drumkit_name", drumkit_name );				// FIXME loaded with LocalFileMng::getDrumkitNameForPattern(…)
+	root.write_string( "drumkit_name", drumkit_name );
 	root.write_string( "author", author );							// FIXME this is never loaded back
 	root.write_string( "license", license.toQString() );
 	// FIXME this is never loaded back
@@ -146,6 +182,28 @@ void Pattern::save_to( XMLNode* node, const std::shared_ptr<Instrument> instrume
 			note->save_to( &note_node );
 		}
 	}
+}
+
+QString Pattern::loadDrumkitNameFrom( const QString& sPatternPath ) {
+
+	XMLDoc doc;
+	// We don't check the return value in here since even if the
+	// validation against the pattern XSD schema fails the document
+	// will still be read and the drumkit name might still be
+	// contained.
+	loadDoc( sPatternPath, nullptr, &doc, false );
+
+	XMLNode rootNode = doc.firstChildElement( "drumkit_pattern" );
+	if ( ! rootNode.isNull() ) {
+
+		QString sDrumkitName = rootNode.read_string( "drumkit_name", "", false, false );
+		if ( sDrumkitName.isEmpty() ) {
+			sDrumkitName = rootNode.read_string( "pattern_for_drumkit", "" );
+		}
+
+		return sDrumkitName;
+	}
+	return QString();
 }
 
 Note* Pattern::find_note( int idx_a, int idx_b, std::shared_ptr<Instrument> instrument, Note::Key key, Note::Octave octave, bool strict ) const

@@ -26,10 +26,10 @@
 #include <memory>
 
 #include <core/Object.h>
+#include <core/Helpers/Xml.h>
 
 #include <QString>
 #include <QColor>
-#include <QDomDocument>
 
 namespace H2Core
 {
@@ -208,10 +208,10 @@ public:
 	const std::shared_ptr<FontTheme> getFontTheme() const;
 	void setFontTheme( const std::shared_ptr<FontTheme> pNewFontTheme );
 
-	static void writeColorTheme( QDomNode* parent, std::shared_ptr<Theme> pTheme );
-	static void readColorTheme( QDomNode parent, std::shared_ptr<Theme> pTheme );
+	static void writeColorTheme( XMLNode* parent, std::shared_ptr<Theme> pTheme );
+	static void readColorTheme( XMLNode parent, std::shared_ptr<Theme> pTheme );
 	static std::shared_ptr<Theme> importTheme( const QString& sPath );
-	static void exportTheme( const QString& sPath, const std::shared_ptr<Theme> pTheme );
+	static bool exportTheme( const QString& sPath, const std::shared_ptr<Theme> pTheme );
 
 private:
 	std::shared_ptr<ColorTheme> m_pColorTheme;

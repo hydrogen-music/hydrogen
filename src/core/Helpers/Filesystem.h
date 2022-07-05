@@ -384,6 +384,11 @@ namespace H2Core
 		 * \param silent output not messages if set to true
 		 */
 		static bool path_usable( const QString& path, bool create=true, bool silent=false );
+
+		/**
+		 * Convert a direct to an absolute path.
+		 */
+		static QString absolute_path( const QString& sFilename, bool bSilent = false );
 		/**
 		 * writes to a file
 		 * \param dst the destination path

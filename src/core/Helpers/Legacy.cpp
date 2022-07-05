@@ -21,6 +21,9 @@
  */
 
 #include <memory>
+#include <QFile>
+#include <QByteArray>
+#include <QTextCodec>
 
 #include <core/Helpers/Legacy.h>
 
@@ -253,7 +256,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path, bool bSilent ) {
 	return pDrumkit;
 }
 
-Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentList* instrList ) {
+Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentList* pInstrumentList ) {
 	Pattern* pPattern = nullptr;
 	if ( version_older_than( 0, 9, 8 ) ) {
 		WARNINGLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );
@@ -273,18 +276,30 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 	if ( pattern_node.isNull() ) {
 		WARNINGLOG( "pattern node not found" );
 		return nullptr;
-	} else {
-		QString sName = pattern_node.read_string( "pattern_name", "" );
-		QString sInfo = pattern_node.read_string( "info", "" );
-		QString sCategory = pattern_node.read_string( "category", "" );
-		int nSize = pattern_node.read_int( "size", -1, false, false );
+	}
+
+	QString sName = pattern_node.read_string( "pattern_name", "", false, false );
+	if ( sName.isEmpty() ) {
+	    sName = pattern_node.read_string( "pattern_name", "unknown", false, false );
+	}
+	QString sInfo = pattern_node.read_string( "info", "" );
+	QString sCategory = pattern_node.read_string( "category", "" );
+	int nSize = pattern_node.read_int( "size", -1, false, false );
 		
-        //default nDenominator = 4 since old patterns have not <denominator> setting
-		pPattern = new Pattern( sName, sInfo, sCategory, nSize, 4 );
+	//default nDenominator = 4 since old patterns have not <denominator> setting
+	pPattern = new Pattern( sName, sInfo, sCategory, nSize, 4 );
 
-		XMLNode note_list_node = pattern_node.firstChildElement( "noteList" );
+	if ( pInstrumentList == nullptr ) {
+		ERRORLOG( "invalid instrument list provided" );
+		return pPattern;
+	}
 
+	XMLNode note_list_node = pattern_node.firstChildElement( "noteList" );
+
+	if ( ! note_list_node.isNull() ) {
+		// Less old version of the pattern format.
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
+
 		while ( !note_node.isNull() ) {
 			Note* pNote = nullptr;
 			unsigned nPosition = note_node.read_int( "position", 0 );
@@ -301,7 +316,7 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 			QString nNoteOff = note_node.read_string( "note_off", "false", false, false );
 			int instrId = note_node.read_int( "instrument", 0, true );
 
-			auto instrRef = instrList->find( instrId );
+			auto instrRef = pInstrumentList->find( instrId );
 			if ( !instrRef ) {
 				ERRORLOG( QString( "Instrument with ID: '%1' not found. Note skipped." ).arg( instrId ) );
 				note_node = note_node.nextSiblingElement( "note" );
@@ -324,6 +339,49 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 			note_node = note_node.nextSiblingElement( "note" );
 		}
 	}
+	else {
+		// Back compatibility code for versions < 0.9.4
+		XMLNode sequenceListNode = pattern_node.firstChildElement( "sequenceList" );
+
+		int sequence_count = 0;
+		XMLNode sequenceNode = sequenceListNode.firstChildElement( "sequence" );
+		while ( ! sequenceNode.isNull()  ) {
+			sequence_count++;
+
+			XMLNode noteListNode = sequenceNode.firstChildElement( "noteList" );
+			XMLNode noteNode = noteListNode.firstChildElement( "note" );
+			while ( !noteNode.isNull() ) {
+
+				int nInstrId = noteNode.read_int( "instrument", -1 );
+
+				auto pInstr = pInstrumentList->find( nInstrId );
+				if ( pInstr == nullptr ) {
+					ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
+							  .arg( nInstrId ) );
+					continue;
+				}
+
+				// convert to single pan parameter
+				float fPanL = noteNode.read_float( "pan_L", 0.5 );
+				float fPanR = noteNode.read_float( "pan_R", 0.5 );
+				float fPan = Sampler::getRatioPan( fPanL, fPanR );
+
+				Note* pNote = new Note( pInstr,
+										noteNode.read_int( "position", 0 ),
+										noteNode.read_float( "velocity", 0.8f ),
+										fPan,
+										noteNode.read_int( "length", -1, true ),
+										noteNode.read_float( "pitch", 0.0, false, false ) );
+				pNote->set_lead_lag( noteNode.read_float( "leadlag", 0.0, false, false ) );
+
+				pPattern->insert_note( pNote );
+
+				noteNode = noteNode.nextSiblingElement( "note" );
+			}
+			sequenceNode = sequenceNode.nextSiblingElement( "sequence" );
+		}
+	}
+	
 	return pPattern;
 }
 
@@ -376,6 +434,111 @@ Playlist* Legacy::load_playlist( Playlist* pPlaylist, const QString& pl_path )
 	return pPlaylist;
 }
 
+bool Legacy::checkTinyXMLCompatMode( QFile* pFile, bool bSilent ) {
+	if ( pFile == nullptr ) {
+		ERRORLOG( "Supplied file not valid" );
+		return false;
+	}
+	
+	if ( ! pFile->seek( 0 ) && ! bSilent ) {
+		ERRORLOG( QString( "Unable to move to the beginning of file [%1]. Compatibility check mmight fail." )
+				  .arg( pFile->fileName() ) );
+	}
+	
+	QString sFirstLine = pFile->readLine();
+	if ( ! sFirstLine.startsWith( "<?xml" ) ) {
+		WARNINGLOG( QString( "File [%1] is being read in TinyXML compatibility mode")
+					.arg( pFile->fileName() ) );
+		return true;
+	}
+	
+   	return false;
+
+}
+
+QByteArray Legacy::convertFromTinyXML( QFile* pFile, bool bSilent ) {
+	if ( pFile == nullptr ) {
+		ERRORLOG( "Supplied file not valid" );
+		return QByteArray();
+	}
+	
+	if ( ! pFile->seek( 0 ) && ! bSilent ) {
+		ERRORLOG( QString( "Unable to move to the beginning of file [%1]. Converting mmight fail." )
+				  .arg( pFile->fileName() ) );
+	}
+
+	QString sEncoding = QTextCodec::codecForLocale()->name();
+	if ( sEncoding == "System" ) {
+		sEncoding = "UTF-8";
+	}
+	QByteArray line;
+	QByteArray buf = QString("<?xml version='1.0' encoding='%1' ?>\n")
+		.arg( sEncoding )
+		.toLocal8Bit();
+
+	while ( ! pFile->atEnd() ) {
+		line = pFile->readLine();
+		Legacy::convertStringFromTinyXML( &line );
+		buf += line;
+	}
+
+	return std::move( buf );
+}
+	
+void Legacy::convertStringFromTinyXML( QByteArray* pString ) {
+
+	/* When TinyXML encountered a non-ASCII character, it would
+	 * simply write the character as "&#xx;" -- where "xx" is
+	 * the hex character code.  However, this doesn't respect
+	 * any encodings (e.g. UTF-8, UTF-16).  In XML, &#xx; literally
+	 * means "the Unicode character # xx."  However, in a UTF-8
+	 * sequence, this could be an escape character that tells
+	 * whether we have a 2, 3, or 4-byte UTF-8 sequence.
+	 *
+	 * For example, the UTF-8 sequence 0xD184 was being written
+	 * by TinyXML as "&#xD1;&#x84;".  However, this is the UTF-8
+	 * sequence for the cyrillic small letter EF (which looks
+	 * kind of like a thorn or a greek phi).  This letter, in
+	 * XML, should be saved as &#x00000444;, or even literally
+	 * (no escaping).  As a consequence, when &#xD1; is read
+	 * by an XML parser, it will be interpreted as capital N
+	 * with a tilde (~).  Then &#x84; will be interpreted as
+	 * an unknown or control character.
+	 *
+	 * So, when we know that TinyXML wrote the file, we can
+	 * simply exchange these hex sequences to literal bytes.
+	 */
+	int nPos = 0;
+
+	nPos = pString->indexOf( "&#x" );
+	while ( nPos != -1 ) {
+		if ( isxdigit( pString->at( nPos + 3 ) ) &&
+			 isxdigit( pString->at( nPos + 4 ) ) &&
+			 pString->at( nPos + 5 ) == ';' ) {
+			
+			char w1 = pString->at( nPos + 3 );
+			char w2 = pString->at( nPos + 4 );
+
+			w1 = tolower( w1 ) - 0x30;  // '0' = 0x30
+			if ( w1 > 9 ) {
+				w1 -= 0x27;  // '9' = 0x39, 'a' = 0x61
+			}
+			w1 = ( w1 & 0xF );
+
+			w2 = tolower( w2 ) - 0x30;  // '0' = 0x30
+			if ( w2 > 9 ) {
+				w2 -= 0x27;  // '9' = 0x39, 'a' = 0x61
+			}
+			w2 = ( w2 & 0xF );
+
+			char ch = ( w1 << 4 ) | w2;
+			(*pString)[nPos] = ch;
+			++nPos;
+			pString->remove( nPos, 5 );
+		}
+		nPos = pString->indexOf( "&#x" );
+	}
+}
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

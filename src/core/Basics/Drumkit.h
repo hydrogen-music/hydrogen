@@ -31,6 +31,7 @@
 namespace H2Core
 {
 
+class XMLDoc;
 class XMLNode;
 class DrumkitComponent;
 
@@ -144,7 +145,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 *
 	 * \param sDrumkitDir Directory containing a drumkit.xml file.
 	 */
-	static License loadLicense( const QString& sDrumkitDir );
+	static License loadLicenseFrom( const QString& sDrumkitDir, bool bSilent = false );
 	/**
 	 * Simple wrapper for loadLicense() used with the drumkit's
 	 * name instead of its directory.
@@ -156,7 +157,21 @@ class Drumkit : public H2Core::Object<Drumkit>
 	 * \param lookup Where to search (system/user folder or both)
 	 * for the drumkit.
 	 */
-	static License loadLicenseByName( const QString& sDrumkitName, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
+	static License loadLicenseByNameFrom( const QString& sDrumkitName,
+										  Filesystem::Lookup lookup = Filesystem::Lookup::stacked,
+										  bool bSilent = false );
+
+	/**
+	 * Retrieve the name of a drumkit stored in @a sDrumkitDir.
+	 *
+	 * As the name of the drumkit can be set to arbitrary values, it
+	 * can not be assumed to be unique and does not qualify as unique
+	 * identifier of the kit. Instead, the location the drumkit is
+	 * loaded from/written to is used and this function maps it to the
+	 * corresponding drumkit name.
+	 */
+	static QString loadNameFrom( const QString& sDrumkitDir,
+								 bool bSilent = false );
 	
 	/**
 	 * Returns a version of #__name stripped of all whitespaces and
@@ -374,6 +389,8 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 		bool __samples_loaded;			///< true if the instrument samples are loaded
 		InstrumentList* __instruments;  ///< the list of instruments
+		std::vector<DrumkitComponent*>* __components;  ///< list of drumkit component
+
 		/*
 		 * save the drumkit within the given XMLNode
 		 * \param node the XMLNode to feed
@@ -396,7 +413,15 @@ class Drumkit : public H2Core::Object<Drumkit>
 							   const QString& dk_path,
 							   bool bSilent = false,
 							   Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
-		std::vector<DrumkitComponent*>* __components;  ///< list of drumkit component
+
+	/**
+	 * Loads the drumkit stored in @a sDrumkitDir into @a pDoc and
+	 * takes care of all the error handling.
+	 *
+	 * \return true on success.
+	 */
+	static bool loadDoc( const QString& sDrumkitDir, XMLDoc* pDoc, bool bSilent = false );
+
 };
 
 // DEFINITIONS

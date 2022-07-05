@@ -31,7 +31,6 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
-#include <core/LocalFileMng.h>
 using namespace H2Core;
 
 #include "CommonStrings.h"

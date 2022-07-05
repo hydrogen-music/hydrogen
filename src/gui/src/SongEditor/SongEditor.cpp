@@ -32,7 +32,6 @@
 #include <core/EventQueue.h>
 #include <core/Helpers/Files.h>
 #include <core/Basics/Instrument.h>
-#include <core/LocalFileMng.h>
 #include <core/Helpers/Xml.h>
 using namespace H2Core;
 
@@ -1886,7 +1885,6 @@ void SongEditorPatternList::patternPopup_load()
 		setRowSelection( RowSelection::None );
 		return;
 	}
-	LocalFileMng fileMng;
 	QString sequencePath = Filesystem::tmp_file_path( "SEQ.xml" );
 	if ( !pSong->writeTempPatternList( sequencePath ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
@@ -2025,7 +2023,6 @@ void SongEditorPatternList::patternPopup_delete()
 		setRowSelection( RowSelection::None );
 		return;
 	}
-	LocalFileMng fileMng;
 	QString sequencePath = Filesystem::tmp_file_path( "SEQ.xml" );
 	if ( !pSong->writeTempPatternList( sequencePath ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );

@@ -62,6 +62,20 @@ class Legacy : public H2Core::Object<Legacy> {
 		 * \return a Playlist on success, 0 otherwise
 		 */
 		static Playlist* load_playlist( Playlist* pl, const QString& pl_path );
+
+	/**
+	 *	Check if filename was created with TinyXml or QtXml
+	 *
+	 * \return TinyXML: true, QtXml: false
+	 */
+	static bool checkTinyXMLCompatMode( QFile* pFile, bool bSilent = false );
+	static QByteArray convertFromTinyXML( QFile* pFile, bool bSilent = false );
+
+private:
+	/** Convert (in-place) an XML escape sequence into a literal byte,
+	 * rather than the character it actually refers to.
+	 */
+	static void convertStringFromTinyXML( QByteArray* pString );
 };
 
 };

@@ -33,6 +33,7 @@
 #include <core/License.h>
 #include <core/Object.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Xml.h>
 
 class TiXmlNode;
 
@@ -45,33 +46,11 @@ class Note;
 class Instrument;
 class InstrumentList;
 class Pattern;
-class Song;
 class Drumkit;
 class DrumkitComponent;
 class PatternList;
 class AutomationPath;
 class Timeline;
-
-/**
-\ingroup H2CORE
-\brief	Read XML file of a song
-*/
-/** \ingroup docCore*/
-class SongReader : public H2Core::Object<SongReader>
-{
-		H2_OBJECT(SongReader)
-	public:
-		SongReader();
-		~SongReader();
-		const QString getPath( const QString& filename ) const;
-		std::shared_ptr<Song> readSong( const QString& filename );
-
-	private:
-		QString m_sSongVersion;
-
-		/// Dato un XmlNode restituisce un oggetto Pattern
-		Pattern* getPattern( QDomNode pattern, InstrumentList* instrList );
-};
 
 /**
 \ingroup H2CORE
@@ -150,6 +129,9 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 		static std::shared_ptr<Song> getEmptySong();
 
+	static std::shared_ptr<Song> 	load( const QString& sFilename, bool bSilent = false );
+	bool 			save( const QString& sFilename, bool bSilent = false );
+
 	bool getIsTimelineActivated() const;
 	void setIsTimelineActivated( bool bIsTimelineActivated );
 	
@@ -194,9 +176,6 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 
 		/** get the length of the song, in tick units */
 		long lengthInTicks() const;
-
-		static std::shared_ptr<Song> 	load( const QString& sFilename );
-		bool 			save( const QString& sFilename );
 
 		InstrumentList*		getInstrumentList() const;
 		void			setInstrumentList( InstrumentList* pList );
@@ -318,9 +297,10 @@ class Song : public H2Core::Object<Song>, public std::enable_shared_from_this<So
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 	
-	friend std::shared_ptr<Song> SongReader::readSong( const QString& filename );
-	
 private:
+
+	static std::shared_ptr<Song> loadFrom( XMLNode* pNode, bool bSilent = false );
+	void writeTo( XMLNode* pNode, bool bSilent = false );
 
 	/** Whether the Timeline button was pressed in the GUI or it was
 		activated via an OSC command. */
